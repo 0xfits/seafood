@@ -1,0 +1,169 @@
+/* Tailwind CSS v3 配置 */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 全局样式 */
+:root {
+  --primary-color: #3b82f6;
+  --secondary-color: #6366f1;
+  --accent-color: #f97316;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --error-color: #ef4444;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-muted: #f3f4f6;
+  --border-color: #e5e7eb;
+}
+
+[data-theme="dark"] {
+  --primary-color: #3b82f6;
+  --secondary-color: #818cf8;
+  --accent-color: #fb923c;
+  --success-color: #34d399;
+  --warning-color: #fbbf24;
+  --error-color: #f87171;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --bg-muted: #374151;
+  --border-color: #4b5563;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* 自定义组件样式 */
+.btn {
+  @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.btn-primary {
+  @apply bg-primary text-white hover:bg-primary/90 focus:ring-primary/50;
+}
+
+.btn-secondary {
+  @apply bg-secondary text-white hover:bg-secondary/90 focus:ring-secondary/50;
+}
+
+.btn-outline {
+  @apply border border-border-color hover:bg-bg-muted;
+}
+
+.card {
+  @apply bg-bg-primary border border-border-color rounded-xl shadow-sm hover:shadow-md transition-all duration-200;
+}
+
+.input {
+  @apply px-3 py-2 border border-border-color rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary;
+}
+
+.nav-link {
+  @apply px-3 py-2 rounded-lg transition-all duration-200 hover:bg-bg-muted;
+}
+
+.nav-link.active {
+  @apply bg-bg-muted font-medium;
+}
+
+/* 响应式样式 */
+.container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* 加载动画 */
+.loading-spinner {
+  @apply inline-block w-5 h-5 border-2 border-border-color border-t-primary rounded-full animate-spin;
+}
+
+/* 过渡动画 */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* 辅助工具类 */
+.text-balance {
+  text-wrap: balance;
+}
+
+.visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+/* 日历组件样式覆盖 */
+.fc {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.fc-toolbar-title {
+  color: var(--text-primary);
+}
+
+.fc-daygrid-day {
+  border-color: var(--border-color);
+}
+
+.fc-daygrid-event {
+  background-color: var(--primary-color);
+  border: none;
+}
