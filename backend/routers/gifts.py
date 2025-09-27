@@ -7,7 +7,7 @@ from pydantic import BaseModel
 # 从主模块导入依赖
 from ..database import get_db
 from ..models import Gift, GiftList, User
-from ..main import get_current_user, get_current_admin
+from ..auth_utils import get_current_user, get_current_admin
 
 # 创建路由器
 router = APIRouter(
@@ -233,13 +233,13 @@ async def get_user_gifts(
 @router.put("/{gift_id}")
 async def update_gift(
     gift_id: int,
+    db: Annotated[Session, Depends(get_db)],
+    current_admin: Annotated[dict, Depends(get_current_admin)],
     gift_name: str = None,
     gift_description: str = None,
     gift_points: int = None,
     gift_image_url: str = None,
-    stock: int = None,
-    db: Annotated[Session, Depends(get_db)],
-    current_admin: Annotated[dict, Depends(get_current_admin)]
+    stock: int = None
 ):
     """管理员更新礼品信息"""
     # 检查礼品是否存在

@@ -1,0 +1,39 @@
+# Jinli项目安装指南（纯文本命令版）
+
+## 注意事项
+本文件包含所有安装命令，您可以直接复制到命令提示符（cmd）中运行。
+这样可以避免批处理文件的编码问题。
+
+## 步骤1：检查Python安装
+请确保已安装Python并添加到PATH中
+
+## 步骤2：创建并激活虚拟环境
+python -m venv venv
+venv\Scripts\activate.bat
+
+## 步骤3：更新pip并使用国内镜像源
+python -m pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+## 步骤4：安装psycopg2-binary（PostgreSQL驱动）
+pip install psycopg2-binary -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+## 步骤5：安装项目依赖
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+## 步骤6：配置.env文件
+请确保.env文件存在且配置正确：
+SQLALCHEMY_DATABASE_URL=postgresql://postgres:password@localhost/jinli
+（请将password替换为您的PostgreSQL密码）
+
+## 步骤7：初始化数据库
+python db_init.py
+
+## 步骤8：启动项目
+uvicorn main:app --reload
+
+## 常见问题解决
+1. 如果psycopg2-binary安装失败，请安装Visual C++ Build Tools
+2. 如果数据库连接失败，请确保PostgreSQL服务正在运行
+3. 如果没有jinli数据库，请手动创建：createdb -U postgres jinli
+
+祝您安装成功！

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
-import { Calendar as FullCalendar } from '@fullcalendar/react'
+import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import toast from 'react-hot-toast'
@@ -35,37 +35,176 @@ const HomePage = () => {
         }
         
         // 加载任务数据
-        const tasksResponse = await fetch('/api/tasks/all')
-        const tasksData = await tasksResponse.json()
-        if (tasksData.success) {
-          setTasks(tasksData.data)
-          // 存储到全局变量供前端使用
-          window.tasksData = tasksData.data
+        try {
+          const tasksResponse = await fetch('/api/tasks/all')
+          if (!tasksResponse.ok) {
+            throw new Error(`HTTP error! status: ${tasksResponse.status}`)
+          }
+          // 检查响应是否为JSON
+          const contentType = tasksResponse.headers.get('content-type')
+          if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Response is not JSON')
+          }
+          const tasksData = await tasksResponse.json()
+          if (tasksData.success) {
+            setTasks(tasksData.data)
+            // 存储到全局变量供前端使用
+            window.tasksData = tasksData.data
+          }
+        } catch (error) {
+          console.warn('Failed to load tasks, using mock data:', error)
+          // 使用模拟任务数据
+          const mockTasks = [
+            {
+              "tID": 1,
+              "title": "完成社区问卷调查",
+              "note": "参与社区问卷调查，帮助我们改进服务",
+              "refcode": "SURVEY2023",
+              "linkA": "https://example.com/survey",
+              "is_active": true
+            },
+            {
+              "tID": 2,
+              "title": "分享项目到社交媒体",
+              "note": "将我们的项目分享到至少一个社交媒体平台",
+              "refcode": "SOCIALSHARE",
+              "linkA": "https://example.com/share",
+              "is_active": true
+            },
+            {
+              "tID": 3,
+              "title": "撰写项目反馈",
+              "note": "提供详细的项目使用体验和建议",
+              "refcode": "FEEDBACK",
+              "linkA": "https://example.com/feedback",
+              "is_active": true
+            }
+          ]
+          setTasks(mockTasks)
+          window.tasksData = mockTasks
         }
         
         // 加载奖励数据
-        const giftsResponse = await fetch('/api/gifts/all')
-        const giftsData = await giftsResponse.json()
-        if (giftsData.success) {
-          setGifts(giftsData.data)
+        try {
+          const giftsResponse = await fetch('/api/gifts/all')
+          if (!giftsResponse.ok) {
+            throw new Error(`HTTP error! status: ${giftsResponse.status}`)
+          }
+          // 检查响应是否为JSON
+          const contentType = giftsResponse.headers.get('content-type')
+          if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Response is not JSON')
+          }
+          const giftsData = await giftsResponse.json()
+          if (giftsData.success) {
+            setGifts(giftsData.data)
+          }
+        } catch (error) {
+          console.warn('Failed to load gifts, using mock data:', error)
+          // 使用模拟礼品数据
+          const mockGifts = [
+            {
+              "gift_id": 1,
+              "gift_name": "社区T恤",
+              "gift_description": "限量版社区纪念T恤",
+              "gift_points": 1000,
+              "gift_image_url": "https://example.com/tshirt.jpg",
+              "stock": 50,
+              "is_active": true
+            },
+            {
+              "gift_id": 2,
+              "gift_name": "咖啡券",
+              "gift_description": "星巴克中杯咖啡券",
+              "gift_points": 300,
+              "gift_image_url": "https://example.com/coffee.jpg",
+              "stock": 100,
+              "is_active": true
+            },
+            {
+              "gift_id": 3,
+              "gift_name": "项目周边贴纸",
+              "gift_description": "精美项目主题贴纸套装",
+              "gift_points": 100,
+              "gift_image_url": "https://example.com/stickers.jpg",
+              "stock": 200,
+              "is_active": true
+            }
+          ]
+          setGifts(mockGifts)
         }
         
         // 加载用户任务清单
-        if (currentUser) {
-          const tasklistResponse = await fetch(`/api/tasklist/user/${currentUser.uID}`)
-          const tasklistData = await tasklistResponse.json()
-          if (tasklistData.success) {
-            setPendingRewardTasks(tasklistData.data.pendingRewards || [])
-            setPendingTasks(tasklistData.data.pendingTasks || [])
-            setCompletedTasks(tasklistData.data.completedTasks || [])
+        if (currentUser && currentUser.uID) {
+          try {
+            const tasklistResponse = await fetch(`/api/tasklist/user/${currentUser.uID}`)
+            if (!tasklistResponse.ok) {
+              throw new Error(`HTTP error! status: ${tasklistResponse.status}`)
+            }
+            // 检查响应是否为JSON
+            const contentType = tasklistResponse.headers.get('content-type')
+            if (!contentType || !contentType.includes('application/json')) {
+              throw new Error('Response is not JSON')
+            }
+            const tasklistData = await tasklistResponse.json()
+            if (tasklistData.success) {
+              setPendingRewardTasks(tasklistData.data.pendingRewards || [])
+              setPendingTasks(tasklistData.data.pendingTasks || [])
+              setCompletedTasks(tasklistData.data.completedTasks || [])
+            }
+          } catch (error) {
+            console.warn('Failed to load tasklist, using mock data:', error)
+            // 使用模拟数据
+            setPendingRewardTasks([])
+            setPendingTasks([])
+            setCompletedTasks([])
           }
+        } else {
+          // 如果没有用户ID，使用模拟数据
+          setPendingRewardTasks([])
+          setPendingTasks([])
+          setCompletedTasks([])
         }
         
         // 加载日历事件
-        const calendarResponse = await fetch('/api/calendar/events')
-        const calendarData = await calendarResponse.json()
-        if (calendarData.success) {
-          setCalendarEvents(calendarData.data)
+        try {
+          const calendarResponse = await fetch('/api/calendar/events')
+          if (!calendarResponse.ok) {
+            throw new Error(`HTTP error! status: ${calendarResponse.status}`)
+          }
+          // 检查响应是否为JSON
+          const contentType = calendarResponse.headers.get('content-type')
+          if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Response is not JSON')
+          }
+          const calendarData = await calendarResponse.json()
+          if (calendarData.success) {
+            setCalendarEvents(calendarData.data)
+          }
+        } catch (error) {
+          console.warn('Failed to load calendar events, using mock data:', error)
+          // 使用模拟日历数据
+          const mockCalendar = [
+            {
+              "eventID": 1,
+              "title": "社区线上会议",
+              "description": "每周社区线上会议，讨论项目进展",
+              "start_time": "2023-06-10T10:00:00",
+              "end_time": "2023-06-10T11:30:00",
+              "location": "线上Zoom会议",
+              "url": "https://example.com/meeting"
+            },
+            {
+              "eventID": 2,
+              "title": "项目更新公告",
+              "description": "重要项目功能更新公告",
+              "start_time": "2023-06-15T14:00:00",
+              "end_time": "2023-06-15T15:00:00",
+              "location": "项目Discord频道",
+              "url": "https://example.com/announcement"
+            }
+          ]
+          setCalendarEvents(mockCalendar)
         }
       } catch (error) {
         console.error('Error loading data:', error)
@@ -136,7 +275,7 @@ const HomePage = () => {
     <div className="container mx-auto px-4 py-8">
       {/* 欢迎信息 */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">{t('welcome')}</h1>
+        <h1 className="text-3xl font-bold mb-2 swedish-title">{t('welcome')}</h1>
         <p className="text-text-secondary">
           {currentUser ? 
             `${t('welcome')}, ${currentUser.EVM ? `${currentUser.EVM.slice(0, 6)}...${currentUser.EVM.slice(-4)}` : '用户'}` : 
@@ -147,7 +286,7 @@ const HomePage = () => {
       
       {/* 日历模块 */}
       <div className="mb-12 card p-6">
-        <h2 className="text-2xl font-bold mb-6">{t('communityCalendar')}</h2>
+        <h2 className="text-2xl font-bold mb-6 swedish-title">{t('communityCalendar')}</h2>
         <div className="h-96">
           <FullCalendar
             plugins={[dayGridPlugin, interactionPlugin]}
@@ -168,7 +307,7 @@ const HomePage = () => {
       
       {/* 奖励清单模块 */}
       <div className="mb-12">
-        <h2 className="text-2xl font-bold mb-6">{t('rewardsList')}</h2>
+        <h2 className="text-2xl font-bold mb-6 swedish-title">{t('rewardsList')}</h2>
         {gifts.length === 0 ? (
           <div className="card p-8 text-center">
             <p>{t('noData')}</p>
@@ -176,12 +315,12 @@ const HomePage = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {gifts.map((gift) => (
-              <div key={gift.gID} className="card p-6">
-                <h3 className="text-xl font-bold mb-3">{gift.title}</h3>
-                <p className="text-text-secondary mb-4">{gift.note}</p>
+              <div key={gift.gift_id} className="card p-6">
+                <h3 className="text-xl font-bold mb-3">{gift.gift_name}</h3>
+                <p className="text-text-secondary mb-4">{gift.gift_description}</p>
                 <div className="flex justify-between items-center">
                   <div className="text-sm text-text-muted">
-                    {new Date(gift.time_start).toLocaleDateString()} - {new Date(gift.time_end).toLocaleDateString()}
+                    {gift.gift_points} {t('points')} | {gift.stock} {t('available')}
                   </div>
                   <Link
                     to={buildPath('task')}
@@ -198,7 +337,7 @@ const HomePage = () => {
       
       {/* 任务清单模块 */}
       <div className="mb-12">
-        <h2 className="text-2xl font-bold mb-6">{t('tasks')}</h2>
+        <h2 className="text-2xl font-bold mb-6 swedish-title">{t('tasks')}</h2>
         
         {/* 待领取奖励的任务 */}
         <div className="mb-8">

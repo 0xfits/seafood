@@ -77,7 +77,7 @@ const Header = () => {
   }
 
   return (
-    <header className="bg-bg-primary border-b border-border-color sticky top-0 z-50">
+    <header className="bg-bg-primary border-b border-border-color sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -87,21 +87,21 @@ const Header = () => {
             </Link>
           </div>
           
-          {/* 桌面导航 */}
-          <nav className="hidden md:flex space-x-1">
-            {menuItems.map((item) => (
-              <Link
-                key={item.path}
-                to={buildPath(item.path)}
-                className={`nav-link ${location.pathname.includes(item.path) ? 'active' : ''}`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-          
-          {/* 语言切换和用户菜单 */}
+          {/* 统一的导航区域 - 将所有菜单项组合在一起 */}
           <div className="hidden md:flex items-center space-x-4">
+            {/* 桌面导航 */}
+            <nav className="flex space-x-1 mr-4">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={buildPath(item.path)}
+                  className={`nav-link ${location.pathname.includes(item.path) ? 'active' : ''}`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+            
             {/* 语言切换 */}
             <Popover className="relative">
               <Popover.Button className="flex items-center space-x-1 nav-link">
@@ -123,24 +123,53 @@ const Header = () => {
                     onClick={() => changeLanguage('zh')}
                     className={`block w-full text-left px-4 py-2 text-sm hover:bg-bg-muted ${getCurrentLang() === 'zh' ? 'bg-bg-muted font-medium' : ''}`}
                   >
+                    <span className="inline-block w-4 h-3 mr-2 align-middle">
+                      <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="32" height="20" fill="#DE2910"/>
+                        <path fill="#FFDE00" d="M16 0l1.6 6.3L26 9.5l-5 4.8L21.4 20 16 16.8 10.6 20 9 14.3 4 9.5 14.4 6.3z"/>
+                      </svg>
+                    </span>
                     {t('chinese')}
                   </button>
                   <button
                     onClick={() => changeLanguage('en')}
                     className={`block w-full text-left px-4 py-2 text-sm hover:bg-bg-muted ${getCurrentLang() === 'en' ? 'bg-bg-muted font-medium' : ''}`}
                   >
+                    <span className="inline-block w-4 h-3 mr-2 align-middle">
+                      <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="32" height="20" fill="#3C3B6E"/>
+                        <path d="M0 0h32v20H0z" fill="#3C3B6E"/>
+                        <path d="M0 0l16 10L0 20z" fill="#B22234"/>
+                        <path d="M32 0L16 10 32 20z" fill="#B22234"/>
+                        <path d="M0 10h32" stroke="#FFFFFF" stroke-width="6"/>
+                        <path d="M16 0v20" stroke="#FFFFFF" stroke-width="6"/>
+                      </svg>
+                    </span>
                     {t('english')}
                   </button>
                   <button
                     onClick={() => changeLanguage('hk')}
                     className={`block w-full text-left px-4 py-2 text-sm hover:bg-bg-muted ${getCurrentLang() === 'hk' ? 'bg-bg-muted font-medium' : ''}`}
                   >
+                    <span className="inline-block w-4 h-3 mr-2 align-middle">
+                      <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="32" height="20" fill="#DE2910"/>
+                        <path fill="#FFDE00" d="M16 0l1.6 6.3L26 9.5l-5 4.8L21.4 20 16 16.8 10.6 20 9 14.3 4 9.5 14.4 6.3z"/>
+                        <path d="M20 13c0-1.1-0.9-2-2-2s-2 0.9-2 2s0.9 2 2 2s2-0.9 2-2z" fill="#FFFFFF"/>
+                      </svg>
+                    </span>
                     {t('cantonese')}
                   </button>
                   <button
                     onClick={() => changeLanguage('vn')}
                     className={`block w-full text-left px-4 py-2 text-sm hover:bg-bg-muted ${getCurrentLang() === 'vn' ? 'bg-bg-muted font-medium' : ''}`}
                   >
+                    <span className="inline-block w-4 h-3 mr-2 align-middle">
+                      <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="32" height="20" fill="#DE2910"/>
+                        <path fill="#FFDE00" d="M16 5l1.6 6.3L26 9.5l-5 4.8L21.4 20 16 16.8 10.6 20 9 14.3 4 9.5 14.4 6.3z"/>
+                      </svg>
+                    </span>
                     {t('vietnamese')}
                   </button>
                 </Popover.Panel>
@@ -184,7 +213,8 @@ const Header = () => {
                 </Transition>
               </Popover>
             ) : (
-              <button onClick={handleLogin} className="btn btn-primary">
+              <button onClick={handleLogin} className="nav-link btn-primary">
+                <LogIn size={18} className="mr-1" />
                 {t('login')}
               </button>
             )}
@@ -240,41 +270,70 @@ const Header = () => {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <button
-                onClick={() => {
-                  changeLanguage('zh')
-                  setMobileMenuOpen(false)
-                }}
-                className={`px-3 py-2 rounded-md text-sm ${getCurrentLang() === 'zh' ? 'bg-bg-muted font-medium' : 'text-text-secondary'}`}
-              >
-                {t('chinese')}
-              </button>
-              <button
-                onClick={() => {
-                  changeLanguage('en')
-                  setMobileMenuOpen(false)
-                }}
-                className={`px-3 py-2 rounded-md text-sm ${getCurrentLang() === 'en' ? 'bg-bg-muted font-medium' : 'text-text-secondary'}`}
-              >
-                {t('english')}
-              </button>
-              <button
-                onClick={() => {
-                  changeLanguage('hk')
-                  setMobileMenuOpen(false)
-                }}
-                className={`px-3 py-2 rounded-md text-sm ${getCurrentLang() === 'hk' ? 'bg-bg-muted font-medium' : 'text-text-secondary'}`}
-              >
-                {t('cantonese')}
-              </button>
-              <button
-                onClick={() => {
-                  changeLanguage('vn')
-                  setMobileMenuOpen(false)
-                }}
-                className={`px-3 py-2 rounded-md text-sm ${getCurrentLang() === 'vn' ? 'bg-bg-muted font-medium' : 'text-text-secondary'}`}
-              >
-                {t('vietnamese')}
-              </button>
+                  onClick={() => {
+                    changeLanguage('zh')
+                    setMobileMenuOpen(false)
+                  }}
+                  className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'zh' ? 'bg-bg-muted font-medium' : 'text-text-secondary'}`}
+                >
+                  <span className="inline-block w-4 h-3 mr-2">
+                    <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="32" height="20" fill="#DE2910"/>
+                      <path fill="#FFDE00" d="M16 0l1.6 6.3L26 9.5l-5 4.8L21.4 20 16 16.8 10.6 20 9 14.3 4 9.5 14.4 6.3z"/>
+                    </svg>
+                  </span>
+                  {t('chinese')}
+                </button>
+                <button
+                  onClick={() => {
+                    changeLanguage('en')
+                    setMobileMenuOpen(false)
+                  }}
+                  className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'en' ? 'bg-bg-muted font-medium' : 'text-text-secondary'}`}
+                >
+                  <span className="inline-block w-4 h-3 mr-2">
+                    <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="32" height="20" fill="#3C3B6E"/>
+                      <path d="M0 0h32v20H0z" fill="#3C3B6E"/>
+                      <path d="M0 0l16 10L0 20z" fill="#B22234"/>
+                      <path d="M32 0L16 10 32 20z" fill="#B22234"/>
+                      <path d="M0 10h32" stroke="#FFFFFF" stroke-width="6"/>
+                      <path d="M16 0v20" stroke="#FFFFFF" stroke-width="6"/>
+                    </svg>
+                  </span>
+                  {t('english')}
+                </button>
+                <button
+                  onClick={() => {
+                    changeLanguage('hk')
+                    setMobileMenuOpen(false)
+                  }}
+                  className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'hk' ? 'bg-bg-muted font-medium' : 'text-text-secondary'}`}
+                >
+                  <span className="inline-block w-4 h-3 mr-2">
+                    <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="32" height="20" fill="#DE2910"/>
+                      <path fill="#FFDE00" d="M16 0l1.6 6.3L26 9.5l-5 4.8L21.4 20 16 16.8 10.6 20 9 14.3 4 9.5 14.4 6.3z"/>
+                      <path d="M20 13c0-1.1-0.9-2-2-2s-2 0.9-2 2s0.9 2 2 2s2-0.9 2-2z" fill="#FFFFFF"/>
+                    </svg>
+                  </span>
+                  {t('cantonese')}
+                </button>
+                <button
+                  onClick={() => {
+                    changeLanguage('vn')
+                    setMobileMenuOpen(false)
+                  }}
+                  className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'vn' ? 'bg-bg-muted font-medium' : 'text-text-secondary'}`}
+                >
+                  <span className="inline-block w-4 h-3 mr-2">
+                    <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="32" height="20" fill="#DE2910"/>
+                      <path fill="#FFDE00" d="M16 5l1.6 6.3L26 9.5l-5 4.8L21.4 20 16 16.8 10.6 20 9 14.3 4 9.5 14.4 6.3z"/>
+                    </svg>
+                  </span>
+                  {t('vietnamese')}
+                </button>
             </div>
           </div>
           

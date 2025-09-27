@@ -11,7 +11,7 @@ from typing import Annotated
 # 从主模块导入依赖
 from ..database import get_db
 from ..models import User
-from ..main import create_access_token, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from ..auth_utils import create_access_token, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 # 创建路由器
 router = APIRouter(

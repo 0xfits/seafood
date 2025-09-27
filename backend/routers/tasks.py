@@ -7,7 +7,7 @@ from pydantic import BaseModel
 # 从主模块导入依赖
 from ..database import get_db
 from ..models import Task, TaskList, User
-from ..main import get_current_user, get_current_admin
+from ..auth_utils import get_current_user, get_current_admin
 
 # 创建路由器
 router = APIRouter(

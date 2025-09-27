@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import './styles.css'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import HomePage from './pages/HomePage'

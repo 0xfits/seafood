@@ -1,0 +1,47 @@
+[
+    {
+        "gift_id": 1,
+        "gift_name": "安全稳定的VPN（梯子）使用权",
+        "gift_description": "安全稳定的VPN（梯子）使用权，价值￥50元/月",
+        "gift_points": 500,
+        "gift_image_url": "https://example.com/vpn.jpg",
+        "stock": 50,
+        "is_active": true
+    },
+    {
+        "gift_id": 2,
+        "gift_name": "英国通讯商 Giffgaff 电话卡",
+        "gift_description": "英国通讯商 Giffgaff 电话卡一张（内含10+5充值券，充值需自理）",
+        "gift_points": 800,
+        "gift_image_url": "https://example.com/giffgaff.jpg",
+        "stock": 30,
+        "is_active": true
+    },
+    {
+        "gift_id": 3,
+        "gift_name": "ChatGPT 全版本使用权",
+        "gift_description": "ChatGPT 全版本使用权，定期添加其它AI的付费版",
+        "gift_points": 1200,
+        "gift_image_url": "https://example.com/chatgpt.jpg",
+        "stock": 20,
+        "is_active": true
+    },
+    {
+        "gift_id": 4,
+        "gift_name": "TradingView 指标",
+        "gift_description": "TradingView 高级指标使用权",
+        "gift_points": 600,
+        "gift_image_url": "https://example.com/tradingview.jpg",
+        "stock": 40,
+        "is_active": true
+    },
+    {
+        "gift_id": 5,
+        "gift_name": "Roogoo 虚拟 U 卡",
+        "gift_description": "Roogoo 虚拟 U 卡一张，可用于多种在线支付场景",
+        "gift_points": 700,
+        "gift_image_url": "https://example.com/roogoo.jpg",
+        "stock": 35,
+        "is_active": true
+    }
+]

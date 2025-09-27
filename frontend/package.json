@@ -10,18 +10,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.22.0",
-    "react-i18next": "^14.0.0",
-    "i18next": "^23.8.0",
-    "@fullcalendar/react": "^6.1.10",
     "@fullcalendar/daygrid": "^6.1.10",
     "@fullcalendar/interaction": "^6.1.10",
-    "web3": "^4.4.0",
+    "@fullcalendar/react": "^6.1.10",
+    "@headlessui/react": "^1.7.17",
+    "i18next": "^23.8.0",
+    "lucide-react": "^0.544.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.1",
+    "react-i18next": "^14.0.0",
+    "react-router-dom": "^6.22.0",
     "react-window": "^1.8.9",
-    "@headlessui/react": "^1.7.17"
+    "tailwindcss": "^4.1.13",
+    "web3": "^4.4.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",

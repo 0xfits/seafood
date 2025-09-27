@@ -1,9 +1,21 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 """
-数据库配置文件（SQLite版本）
-此文件使用SQLite数据库，完全不需要编译任何组件
+数据库配置文件（支持psycopg2cffi替代）
+
+如果您无法安装psycopg2-binary，可以使用此文件替代database.py
+此文件会尝试使用psycopg2cffi作为替代方案
 """
+
+# 尝试导入psycopg2cffi作为psycopg2的替代
+try:
+    import psycopg2cffi.compat
+    psycopg2cffi.compat.register()
+    print("成功：psycopg2cffi已注册为psycopg2的替代")
+except ImportError:
+    print("警告：未找到psycopg2cffi，请确保已安装psycopg2-binary或psycopg2cffi")
+
+# 导入SQLAlchemy模块
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -13,14 +25,11 @@ from dotenv import load_dotenv
 # 加载环境变量
 load_dotenv()
 
-# 获取数据库URL - 使用SQLite
-SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL", "sqlite:///./jinli.db")
+# 获取数据库URL
+SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL", "postgresql://user:password@localhost/jinli")
 
-# 创建数据库引擎 - SQLite需要特殊配置
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False}  # SQLite需要此参数
-)
+# 创建数据库引擎
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 # 创建数据库会话工厂
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

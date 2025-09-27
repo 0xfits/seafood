@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Annotated, List
 from pydantic import BaseModel
 
 # 从主模块导入依赖
 from ..database import get_db
 from ..models import CalendarEvent
-from ..main import get_current_user, get_current_admin
+from ..auth_utils import get_current_user, get_current_admin
 
 # 创建路由器
 router = APIRouter(
@@ -232,13 +232,10 @@ async def get_upcoming_events(
     
     # 查询近期事件
     events = db.query(CalendarEvent)
-        .filter(CalendarEvent.start_time >= datetime.utcnow())
-        .filter(CalendarEvent.start_time <= end_date)
-        .order_by(CalendarEvent.start_time)
-        .limit(limit)
-        .all()
+    events = events.filter(CalendarEvent.start_time >= datetime.utcnow())
+    events = events.filter(CalendarEvent.start_time <= end_date)
+    events = events.order_by(CalendarEvent.start_time)
+    events = events.limit(limit)
+    events = events.all()
     
     return events
-
-# 导入timedelta以支持近期事件功能
-from datetime import timedelta

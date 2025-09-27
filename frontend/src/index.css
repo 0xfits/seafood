@@ -1,12 +1,17 @@
-/* Tailwind CSS v3 配置 */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* 导入 Tailwind CSS */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 
-/* 全局样式 */
+/* 全局样式 - 瑞典国旗配色系统 */
 :root {
-  --primary-color: #3b82f6;
-  --secondary-color: #6366f1;
+  /* 瑞典国旗配色 - 加强色彩浓度 */
+  --primary-color: #00529B;
+  --secondary-color: #FFCE00;
+  /* IKEA品牌配色元素 */
+  --ikea-blue: #00529B;
+  --ikea-yellow: #FFCE00;
+  --ikea-orange: #ff8c00;
   --accent-color: #f97316;
   --success-color: #10b981;
   --warning-color: #f59e0b;
@@ -21,8 +26,8 @@
 }
 
 [data-theme="dark"] {
-  --primary-color: #3b82f6;
-  --secondary-color: #818cf8;
+  --primary-color: #0062b3;
+  --secondary-color: #ffda44;
   --accent-color: #fb923c;
   --success-color: #34d399;
   --warning-color: #fbbf24;
@@ -53,6 +58,61 @@ code {
     monospace;
 }
 
+/* 顶部菜单 - 瑞典国旗蓝色背景 */
+header {
+  @apply bg-ikea-blue border-b border-white/20 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95;
+}
+
+/* 顶部菜单文字 - 白色 */
+header a,
+header button,
+header span,
+header .nav-link,
+header .btn-primary,
+header .btn-secondary {
+  color: white !important;
+}
+
+/* 顶部菜单链接悬停效果 */
+header .nav-link {
+  @apply hover:bg-white/20;
+}
+
+header .nav-link.active {
+  @apply bg-white/20;
+}
+
+header .btn-primary {
+  @apply bg-white/20 hover:bg-white/30 text-white border border-white/30;
+}
+
+header .btn-primary:hover {
+  @apply bg-white/30;
+}
+
+/* 顶部下拉菜单背景 */
+header .bg-bg-primary {
+  @apply bg-ikea-blue border-white/20;
+}
+
+header .bg-bg-muted {
+  @apply bg-white/10;
+}
+
+/* 主要大标题 - 瑞典国旗黄色 */
+.swedish-title {
+  @apply text-ikea-yellow font-bold;
+}
+
+/* 移动端菜单样式 */
+header .md\:hidden .bg-bg-primary {
+  @apply bg-ikea-blue border-white/20;
+}
+
+header .md\:hidden .bg-bg-muted {
+  @apply bg-white/10;
+}
+
 /* 自定义组件样式 */
 .btn {
   @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
@@ -62,8 +122,12 @@ code {
   @apply bg-primary text-white hover:bg-primary/90 focus:ring-primary/50;
 }
 
+.nav-link.btn-primary {
+  @apply flex items-center px-3 py-2 rounded-lg font-medium transition-all duration-200 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50;
+}
+
 .btn-secondary {
-  @apply bg-secondary text-white hover:bg-secondary/90 focus:ring-secondary/50;
+  @apply bg-secondary text-text-primary hover:bg-secondary/90 focus:ring-secondary/50;
 }
 
 .btn-outline {
@@ -157,6 +221,7 @@ code {
 
 .fc-toolbar-title {
   color: var(--text-primary);
+  @apply swedish-title text-2xl;
 }
 
 .fc-daygrid-day {

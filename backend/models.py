@@ -1,11 +1,11 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from .main import Base
+from .database import Base
 
 # 用户表
 class User(Base):
-    __tablename__ = "users"
+    __tablename__ = "user"
 
     uID = Column(Integer, primary_key=True, index=True)
     EVM = Column(String(42), unique=True, index=True, nullable=False)
@@ -20,7 +20,7 @@ class User(Base):
 
 # 任务表
 class Task(Base):
-    __tablename__ = "tasks"
+    __tablename__ = "task"
 
     tID = Column(Integer, primary_key=True, index=True)
     title = Column(String(255), nullable=False)
@@ -35,15 +35,18 @@ class Task(Base):
     # 关系
     task_lists = relationship("TaskList", back_populates="task")
 
-# 奖励表
+# 礼品表
 class Gift(Base):
-    __tablename__ = "gifts"
+    __tablename__ = "gift"
 
-    gID = Column(Integer, primary_key=True, index=True)
-    title = Column(String(255), nullable=False)
-    note = Column(Text, nullable=True)
-    time_start = Column(DateTime, nullable=False)
-    time_end = Column(DateTime, nullable=False)
+    gift_id = Column(Integer, primary_key=True, index=True)
+    gift_name = Column(String(255), nullable=False)
+    gift_description = Column(Text, nullable=True)
+    gift_points = Column(Integer, nullable=False)
+    gift_image_url = Column(String(255), nullable=True)
+    stock = Column(Integer, nullable=False)
+    time_start = Column(DateTime, nullable=True)
+    time_end = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     is_active = Column(Boolean, default=True)
@@ -53,11 +56,11 @@ class Gift(Base):
 
 # 任务清单表
 class TaskList(Base):
-    __tablename__ = "task_lists"
+    __tablename__ = "tasklist"
 
     tlistID = Column(Integer, primary_key=True, index=True)
-    uID = Column(Integer, ForeignKey("users.uID"), nullable=False)
-    tID = Column(Integer, ForeignKey("tasks.tID"), nullable=False)
+    uID = Column(Integer, ForeignKey("user.uID"), nullable=False)
+    tID = Column(Integer, ForeignKey("task.tID"), nullable=False)
     time_created = Column(DateTime, default=datetime.utcnow)
     time_actived = Column(DateTime, nullable=True)
     info_input = Column(Text, nullable=True)
@@ -70,12 +73,12 @@ class TaskList(Base):
 
 # 奖励清单表
 class GiftList(Base):
-    __tablename__ = "gift_lists"
+    __tablename__ = "giftlist"
 
     glistID = Column(Integer, primary_key=True, index=True)
-    uID = Column(Integer, ForeignKey("users.uID"), nullable=False)
-    gID = Column(Integer, ForeignKey("gifts.gID"), nullable=False)
-    tlistID = Column(Integer, ForeignKey("task_lists.tlistID"), nullable=False)
+    uID = Column(Integer, ForeignKey("user.uID"), nullable=False)
+    gift_id = Column(Integer, ForeignKey("gift.gift_id"), nullable=False)
+    tlistID = Column(Integer, ForeignKey("tasklist.tlistID"), nullable=False)
     time_created = Column(DateTime, default=datetime.utcnow)
     status = Column(String(20), default="pending")  # pending, claimed, delivered
 
