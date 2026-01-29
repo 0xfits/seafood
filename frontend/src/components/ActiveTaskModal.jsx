@@ -106,7 +106,7 @@ const ActiveTaskModal = ({ open, onClose, task }) => {
             <div className="flex justify-end space-x-4">
               <button 
                 type="button"
-                className="btn btn-secondary"
+                className="btn btn-inactive"
                 onClick={onClose}
                 disabled={submitting}
               >
@@ -114,7 +114,7 @@ const ActiveTaskModal = ({ open, onClose, task }) => {
               </button>
               <button 
                 type="submit"
-                className="btn btn-primary"
+                className="btn btn-proceed"
                 disabled={submitting || !infoInput.trim()}
               >
                 {submitting ? (

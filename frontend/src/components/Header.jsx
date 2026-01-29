@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Popover, Transition } from '@headlessui/react'
-import { Menu, X, Globe, User, LogOut, LogIn, ChevronDown } from 'lucide-react'
+import { Menu, X, User, LogOut, LogIn, ChevronDown, Moon, Sun } from 'lucide-react'
+import cnFlag from '../images/cn.svg'
+import usFlag from '../images/us.svg'
+import hkFlag from '../images/hk.svg'
+import vnFlag from '../images/vn.svg'
 
 const Header = () => {
   const { t, i18n } = useTranslation()
@@ -12,6 +16,7 @@ const Header = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isDark, setIsDark] = useState(false)
 
   // 检查用户登录状态
   useEffect(() => {
@@ -19,6 +24,16 @@ const Header = () => {
     if (user) {
       setIsLoggedIn(true)
       setCurrentUser(JSON.parse(user))
+    }
+    // 初始化主题
+    const savedTheme = localStorage.getItem('theme')
+    const current = savedTheme || (document.documentElement.getAttribute('data-theme') || 'light')
+    if (current === 'dark') {
+      setIsDark(true)
+      document.documentElement.setAttribute('data-theme', 'dark')
+    } else {
+      setIsDark(false)
+      document.documentElement.setAttribute('data-theme', 'light')
     }
   }, [])
 
@@ -76,8 +91,23 @@ const Header = () => {
     return `/${currentLang}/${path}`
   }
 
+  // 语言对应国旗映射
+  const flagByLang = {
+    zh: cnFlag,
+    en: usFlag,
+    hk: hkFlag,
+    vn: vnFlag,
+  }
+
+  const toggleTheme = () => {
+    const next = isDark ? 'light' : 'dark'
+    setIsDark(!isDark)
+    document.documentElement.setAttribute('data-theme', next)
+    localStorage.setItem('theme', next)
+  }
+
   return (
-    <header className="bg-bg-primary border-b border-border-color sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95">
+    <header id="header" className="bg-bg-primary border-b border-border-color sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -102,10 +132,14 @@ const Header = () => {
               ))}
             </nav>
             
-            {/* 语言切换 */}
+            {/* 语言切换（使用本地 SVG 国旗图标） */}
             <Popover className="relative">
               <Popover.Button className="flex items-center space-x-1 nav-link">
-                <Globe size={18} />
+                <img
+                  src={flagByLang[getCurrentLang()]}
+                  alt={t('language')}
+                  className="inline-block w-5 h-3 rounded-sm shadow-sm"
+                />
                 <span>{t('language')}</span>
                 <ChevronDown size={16} />
               </Popover.Button>
@@ -123,58 +157,43 @@ const Header = () => {
                     onClick={() => changeLanguage('zh')}
                     className={`block w-full text-left px-4 py-2 text-sm hover:bg-bg-muted ${getCurrentLang() === 'zh' ? 'bg-bg-muted font-medium' : ''}`}
                   >
-                    <span className="inline-block w-4 h-3 mr-2 align-middle">
-                      <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="32" height="20" fill="#DE2910"/>
-                        <path fill="#FFDE00" d="M16 0l1.6 6.3L26 9.5l-5 4.8L21.4 20 16 16.8 10.6 20 9 14.3 4 9.5 14.4 6.3z"/>
-                      </svg>
-                    </span>
+                    <img src={cnFlag} alt="中文" className="inline-block w-5 h-3 mr-2 align-middle rounded-sm shadow-sm" />
                     {t('chinese')}
                   </button>
                   <button
                     onClick={() => changeLanguage('en')}
                     className={`block w-full text-left px-4 py-2 text-sm hover:bg-bg-muted ${getCurrentLang() === 'en' ? 'bg-bg-muted font-medium' : ''}`}
                   >
-                    <span className="inline-block w-4 h-3 mr-2 align-middle">
-                      <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="32" height="20" fill="#3C3B6E"/>
-                        <path d="M0 0h32v20H0z" fill="#3C3B6E"/>
-                        <path d="M0 0l16 10L0 20z" fill="#B22234"/>
-                        <path d="M32 0L16 10 32 20z" fill="#B22234"/>
-                        <path d="M0 10h32" stroke="#FFFFFF" stroke-width="6"/>
-                        <path d="M16 0v20" stroke="#FFFFFF" stroke-width="6"/>
-                      </svg>
-                    </span>
+                    <img src={usFlag} alt="English" className="inline-block w-5 h-3 mr-2 align-middle rounded-sm shadow-sm" />
                     {t('english')}
                   </button>
                   <button
                     onClick={() => changeLanguage('hk')}
                     className={`block w-full text-left px-4 py-2 text-sm hover:bg-bg-muted ${getCurrentLang() === 'hk' ? 'bg-bg-muted font-medium' : ''}`}
                   >
-                    <span className="inline-block w-4 h-3 mr-2 align-middle">
-                      <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="32" height="20" fill="#DE2910"/>
-                        <path fill="#FFDE00" d="M16 0l1.6 6.3L26 9.5l-5 4.8L21.4 20 16 16.8 10.6 20 9 14.3 4 9.5 14.4 6.3z"/>
-                        <path d="M20 13c0-1.1-0.9-2-2-2s-2 0.9-2 2s0.9 2 2 2s2-0.9 2-2z" fill="#FFFFFF"/>
-                      </svg>
-                    </span>
+                    <img src={hkFlag} alt="粵語" className="inline-block w-5 h-3 mr-2 align-middle rounded-sm shadow-sm" />
                     {t('cantonese')}
                   </button>
                   <button
                     onClick={() => changeLanguage('vn')}
                     className={`block w-full text-left px-4 py-2 text-sm hover:bg-bg-muted ${getCurrentLang() === 'vn' ? 'bg-bg-muted font-medium' : ''}`}
                   >
-                    <span className="inline-block w-4 h-3 mr-2 align-middle">
-                      <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="32" height="20" fill="#DE2910"/>
-                        <path fill="#FFDE00" d="M16 5l1.6 6.3L26 9.5l-5 4.8L21.4 20 16 16.8 10.6 20 9 14.3 4 9.5 14.4 6.3z"/>
-                      </svg>
-                    </span>
+                    <img src={vnFlag} alt="Tiếng Việt" className="inline-block w-5 h-3 mr-2 align-middle rounded-sm shadow-sm" />
                     {t('vietnamese')}
                   </button>
                 </Popover.Panel>
               </Transition>
             </Popover>
+
+            {/* 深夜模式（Dark Mode）切换按钮 - 图标方式 */}
+            <button
+              onClick={toggleTheme}
+              className="nav-link"
+              aria-label={t('darkMode')}
+              title={t('darkMode')}
+            >
+              {isDark ? <Moon size={18} /> : <Sun size={18} />}
+            </button>
             
             {/* 用户菜单 */}
             {isLoggedIn ? (
@@ -263,7 +282,7 @@ const Header = () => {
             )}
           </div>
           
-          {/* 移动端语言切换 */}
+          {/* 移动端语言切换（使用本地 SVG 国旗图标） */}
           <div className="px-4 py-3 border-t border-border-color">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-text-secondary">{t('language')}</span>
@@ -276,12 +295,7 @@ const Header = () => {
                   }}
                   className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'zh' ? 'bg-bg-muted font-medium' : 'text-text-secondary'}`}
                 >
-                  <span className="inline-block w-4 h-3 mr-2">
-                    <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
-                      <rect width="32" height="20" fill="#DE2910"/>
-                      <path fill="#FFDE00" d="M16 0l1.6 6.3L26 9.5l-5 4.8L21.4 20 16 16.8 10.6 20 9 14.3 4 9.5 14.4 6.3z"/>
-                    </svg>
-                  </span>
+                  <img src={cnFlag} alt="中文" className="inline-block w-5 h-3 mr-2 rounded-sm shadow-sm" />
                   {t('chinese')}
                 </button>
                 <button
@@ -291,16 +305,7 @@ const Header = () => {
                   }}
                   className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'en' ? 'bg-bg-muted font-medium' : 'text-text-secondary'}`}
                 >
-                  <span className="inline-block w-4 h-3 mr-2">
-                    <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
-                      <rect width="32" height="20" fill="#3C3B6E"/>
-                      <path d="M0 0h32v20H0z" fill="#3C3B6E"/>
-                      <path d="M0 0l16 10L0 20z" fill="#B22234"/>
-                      <path d="M32 0L16 10 32 20z" fill="#B22234"/>
-                      <path d="M0 10h32" stroke="#FFFFFF" stroke-width="6"/>
-                      <path d="M16 0v20" stroke="#FFFFFF" stroke-width="6"/>
-                    </svg>
-                  </span>
+                  <img src={usFlag} alt="English" className="inline-block w-5 h-3 mr-2 rounded-sm shadow-sm" />
                   {t('english')}
                 </button>
                 <button
@@ -310,13 +315,7 @@ const Header = () => {
                   }}
                   className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'hk' ? 'bg-bg-muted font-medium' : 'text-text-secondary'}`}
                 >
-                  <span className="inline-block w-4 h-3 mr-2">
-                    <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
-                      <rect width="32" height="20" fill="#DE2910"/>
-                      <path fill="#FFDE00" d="M16 0l1.6 6.3L26 9.5l-5 4.8L21.4 20 16 16.8 10.6 20 9 14.3 4 9.5 14.4 6.3z"/>
-                      <path d="M20 13c0-1.1-0.9-2-2-2s-2 0.9-2 2s0.9 2 2 2s2-0.9 2-2z" fill="#FFFFFF"/>
-                    </svg>
-                  </span>
+                  <img src={hkFlag} alt="粵語" className="inline-block w-5 h-3 mr-2 rounded-sm shadow-sm" />
                   {t('cantonese')}
                 </button>
                 <button
@@ -326,17 +325,26 @@ const Header = () => {
                   }}
                   className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'vn' ? 'bg-bg-muted font-medium' : 'text-text-secondary'}`}
                 >
-                  <span className="inline-block w-4 h-3 mr-2">
-                    <svg viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
-                      <rect width="32" height="20" fill="#DE2910"/>
-                      <path fill="#FFDE00" d="M16 5l1.6 6.3L26 9.5l-5 4.8L21.4 20 16 16.8 10.6 20 9 14.3 4 9.5 14.4 6.3z"/>
-                    </svg>
-                  </span>
+                  <img src={vnFlag} alt="Tiếng Việt" className="inline-block w-5 h-3 mr-2 rounded-sm shadow-sm" />
                   {t('vietnamese')}
                 </button>
             </div>
           </div>
           
+          {/* 移动端深夜模式切换 */}
+          <div className="px-4 py-3 border-t border-border-color">
+            <button
+              onClick={() => {
+                toggleTheme()
+                setMobileMenuOpen(false)
+              }}
+              className="flex items-center w-full px-3 py-2 rounded-md text-base font-medium hover:bg-bg-muted"
+            >
+              {isDark ? <Moon size={18} className="mr-2" /> : <Sun size={18} className="mr-2" />}
+              {t('darkMode')}
+            </button>
+          </div>
+
           {/* 移动端用户菜单 */}
           {isLoggedIn && (
             <div className="px-4 py-3 border-t border-border-color">

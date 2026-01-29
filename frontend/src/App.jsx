@@ -56,7 +56,7 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
 
 function App() {
   return (
-    <div className="app-container">
+    <div className="app-container gradient-bg">
       <Routes>
         {/* 登录页面 */}
         <Route path="/login" element={<Login />} />
@@ -73,7 +73,7 @@ function App() {
       
       {/* 带语言前缀的路由 */}
       <Route 
-        path="/:lang?" 
+        path="/:lang?/*" 
         element={
           <LanguageWrapper>
             <Header />

@@ -13,9 +13,9 @@
   "vietnamese": "Tiếng Việt",
   "rewardsList": "獎勵清單",
   "tasks": "任務",
-  "pendingRewards": "待領取獎勵的任務",
-  "pendingTasks": "待完成的任務",
-  "completedTasks": "已領取獎勵的任務",
+  "tasksToClaimReward": "待領取獎勵的任務",
+  "tasksToComplete": "待完成的任務",
+  "tasksClaimed": "已領取獎勵的任務",
   "claimReward": "領取獎勵",
   "goComplete": "去完成",
   "chooseReward": "選擇獎勵",
@@ -29,7 +29,8 @@
   "tasksStats": "任務統計",
   "dashboard": "後台管理",
   "welcome": "歡迎來到Jinli社區",
-  "communityCalendar": "社區日曆",
+  "CryptoCalender": "社區日曆",
+  "cryptoNews": "加密新聞",
   "viewDetails": "查看詳情",
   "confirmChooseReward": "確認選擇此獎勵？",
   "successClaimReward": "獎勵領取成功！",
@@ -45,5 +46,15 @@
   "items": "條",
   "prev": "上一頁",
   "next": "下一頁",
-  "copyright": "© 2024 Jinli Community. 保留所有權利。"
+  "darkMode": "深夜模式",
+  "copyright": "© 2024 Jinli Community. 保留所有權利。",
+  "CanClaim": "立即領取",
+  "CanActive": "立即激活",
+  "Actived": "使用中"
+  ,"slogan": "財富如海，智者善泳，嚟呢度做一條真正嘅錦鯉。"
+  ,"giftStatusHours": "剩餘小時"
+  ,"giftStatusDays": "剩餘天數"
+  ,"giftStatusWeeks": "剩餘週數"
+  ,"giftStatusLimited": "限時"
+  ,"timeClaimed": "領取時間"
 }

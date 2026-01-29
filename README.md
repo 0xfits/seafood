@@ -1,121 +1,266 @@
 # Jinli Club
 
-一个基于React和FastAPI的多语言社区平台，支持OKX钱包登录、任务系统、奖励系统和日历功能。
+一个使用 React + FastAPI 构建的社区平台，支持 EVM 钱包登录、任务与奖励系统，以及基础管理功能。
 
-## 项目结构
+本 README 已更新为当前代码与数据库结构，便于开发与维护。
+
+## 项目文件结构（当前）
 
 ```
 jinli.club/
-├── backend/           # FastAPI后端
-│   ├── main.py        # 主入口文件
-│   ├── models.py      # 数据库模型
-│   ├── requirements.txt # Python依赖
-│   └── .env.example   # 环境变量示例
-├── frontend/          # React前端
-│   ├── src/           # 源代码
-│   │   ├── components/ # React组件
-│   │   ├── pages/      # 页面组件
-│   │   ├── locales/    # 多语言文件
-│   │   ├── App.jsx     # 主应用组件
-│   │   ├── main.jsx    # React入口文件
-│   │   ├── i18n.js     # 国际化配置
-│   │   └── index.css   # 全局样式
-│   ├── package.json   # 前端依赖
-│   ├── vite.config.js # Vite配置
-│   └── index.html     # HTML入口
-├── .gitignore         # Git忽略规则
-├── LICENSE            # 许可证
-└── README.md          # 项目说明
+├── backend/                     # FastAPI 后端
+│   ├── apex.py                  # 程序入口（运行：python3 -m backend.apex）
+│   ├── boundary.py              # 统一路由（包含鉴权逻辑）
+│   ├── core.py                  # 服务层（数据转换与业务拼装）
+│   ├── data.py                  # Repo/DAO 封装（读取 DB，返回模型或字典）
+│   ├── data_model.py            # API 输出的 dataclass（无 ORM 映射）
+│   ├── database_with_cffi.py    # 数据库初始化（cffi 版本）
+│   ├── entity.py                # 轻量 DAO（多数使用原生 SQL，返回 dict 映射）
+│   ├── foundation.py            # 会话/Base 等基础设施封装
+│   ├── jinli.db                 # SQLite 数据库文件（开发）
+│   ├── jinli.db.schemareset.bak # 数据库备份示例
+│   ├── requirements.txt         # 后端依赖
+│   └── temp_backend.py          # 临时脚本
+└── frontend/                    # React 前端
+    ├── src/
+    │   ├── components/
+    │   ├── pages/
+    │   ├── locales/
+    │   ├── App.jsx
+    │   ├── main.jsx
+    │   ├── i18n.js
+    │   ├── index.css
+    │   ├── styles.css
+    │   └── utils.js
+    ├── admin.html
+    ├── index.html
+    ├── nginx.conf
+    ├── package.json
+    ├── package-lock.json
+    └── vite.config.js
 ```
 
-## 技术栈
+说明：
+- 旧文件 api.py、model.py、model_legacy.py 已清理；鉴权工具已合并到 boundary.py。
+- dataclass 定义集中在 data_model.py，用于 API 输出；不再承载 ORM 映射。
+- entity.py 尽量使用原生 SQL，返回 dict 映射，减少 ORM 解析问题。
 
-### 前端
-- React 18
-- Vite
-- React Router
-- i18next (国际化)
-- Tailwind CSS (样式)
-- FullCalendar (日历功能)
-- Web3.js (EVM钱包集成)
-- React Hot Toast (通知)
+## 后端架构要点
+- 路由：backend/apex.py 加载 boundary.py 的统一路由 unified_router。
+- 鉴权：boundary.py 内联了 OAuth2/JWT 逻辑（SECRET_KEY、ALGORITHM、ACCESS_TOKEN_EXPIRE_MINUTES）。
+- 数据访问：
+  - entity.py 提供 UserEntity、BrandEntity、GiftEntity、TaskEntity、JourneyEntity、ChestEntity 等，优先返回 dict。
+  - data.py 针对部分场景将 DB 行转换为 data_model.py 的 dataclass，并统一字典输出（含时间戳转换）。
+- 数据模型：data_model.py 仅包含 API 输出的数据类（Brand/Gift/Task/Journey/Chest/User 等）。
 
-### 后端
-- FastAPI
-- SQLAlchemy (ORM)
-- PostgreSQL (数据库)
-- JWT (认证)
-- Uvicorn (ASGI服务器)
+## 数据库结构（SQLite：backend/jinli.db）
 
-## 快速开始
+当前表列表：
+- user
+- asset
+- brand
+- gift
+- journey
+- chest
+- shard
+- task
 
-### 前端
+各表字段（摘自实际 .schema）：
 
-1. 安装依赖
-```bash
-cd frontend
-npm install
-```
+- user
+  - uID INTEGER PRIMARY KEY AUTOINCREMENT, UNIQUE
+  - EVM VARCHAR(42) UNIQUE NOT NULL（索引：ix_user_EVM）
+  - time_reg DATETIME NOT NULL
+  - time_login_last DATETIME NOT NULL
+  - is_admin BLOB NOT NULL DEFAULT 0
+  - bio TEXT
 
-2. 启动开发服务器
-```bash
-npm run dev
-```
+- asset（用户资产聚合表）
+  - aID INTEGER PRIMARY KEY AUTOINCREMENT, UNIQUE
+  - uID INTEGER NOT NULL UNIQUE（FK -> user.uID）
+  - time_updated DATETIME NOT NULL
+  - points INTEGER NOT NULL DEFAULT 0
+  - lucks INTEGER NOT NULL DEFAULT 0
+  - gIDs TEXT（礼品记录 ID 列表，历史兼容）
+  - sIDs TEXT（碎片/芯片记录 ID 列表，历史兼容）
 
-前端服务器将在 http://localhost:3000 启动
+- brand（品牌）
+  - bID INTEGER PRIMARY KEY AUTOINCREMENT, UNIQUE
+  - symbol TEXT UNIQUE NOT NULL
+  - name TEXT NOT NULL
+  - description TEXT
+  - url_image TEXT
+  - time_start DATETIME
+  - time_end DATETIME
+  - time_created DATETIME NOT NULL
+  - time_updated DATETIME
+  - time_actived DATETIME
+  - points INTEGER NOT NULL DEFAULT 10000
 
-### 后端
+- gift（礼品记录）
+  - gID INTEGER PRIMARY KEY AUTOINCREMENT, UNIQUE
+  - bID INTEGER NOT NULL（FK -> brand.bID）
+  - uID INTEGER（FK -> user.uID，可空）
+  - time_created DATETIME NOT NULL
+  - time_actived DATETIME（可空）
 
-1. 安装依赖
-```bash
-cd backend
-pip install -r requirements.txt
-```
+- journey（任务参与/进度）
+  - jID INTEGER PRIMARY KEY AUTOINCREMENT, UNIQUE
+  - tID INTEGER NOT NULL（FK -> task.tID）
+  - uID INTEGER NOT NULL（FK -> user.uID）
+  - info_input TEXT
+  - time_created DATETIME NOT NULL
+  - time_checked DATETIME
+  - time_claimed DATETIME
+  - points_claimed INTEGER NOT NULL DEFAULT 0
 
-2. 创建环境变量文件
-```bash
-cp .env.example .env
-# 编辑.env文件，配置数据库连接和其他环境变量
-```
+- chest（宝箱）
+  - cID INTEGER PRIMARY KEY AUTOINCREMENT, UNIQUE
+  - time_created DATETIME NOT NULL
+  - tirer INTEGER NOT NULL DEFAULT 0
+  - vol_points INTEGER NOT NULL DEFAULT 0（CHECK vol_points >= 0）
+  - sID0 INTEGER（FK -> shard.sID）
+  - sID_B INTEGER（FK -> shard.sID）
+  - time_actived DATETIME DEFAULT 1（历史字段，用作激活/开启状态标记）
+  - uID INTEGER（FK -> user.uID）
+  - 索引：ix_chest_active(time_actived), ix_chest_uID(uID)
 
-3. 启动开发服务器
-```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
+- shard（碎片/芯片记录）
+  - sID INTEGER PRIMARY KEY AUTOINCREMENT, UNIQUE
+  - bID INTEGER NOT NULL（FK -> brand.bID）
+  - uID INTEGER NOT NULL（FK -> user.uID）
+  - time_created DATETIME NOT NULL
+  - volume INTEGER NOT NULL DEFAULT 0
 
-后端服务器将在 http://localhost:8000 启动
+- task（任务类型）
+  - tID INTEGER PRIMARY KEY AUTOINCREMENT, UNIQUE
+  - title TEXT UNIQUE NOT NULL
+  - note TEXT
+  - refcode TEXT
+  - link0 TEXT
+  - linkB TEXT
+  - time_start DATETIME
+  - time_end DATETIME
+  - time_created DATETIME
+  - time_updated DATETIME
+  - is_open BOOL NOT NULL DEFAULT False
 
-## 主要功能
+提示：
+- 项目路由中不存在 symbol 表的使用（如需引入，请在 DB 中创建并同步路由）。
+- 历史上部分时间字段可能为非标准字符串；entity/data 层已尽量避免 ORM 自动解析导致的异常。
 
-1. **多语言支持**：中文、英文、粤语、越南语
-2. **OKX钱包登录**：基于EVM地址和签名验证
-3. **任务系统**：用户可以查看、完成和提交任务
-4. **奖励系统**：完成任务后可以选择和领取奖励
-5. **日历功能**：显示社区活动和事件
-6. **管理员后台**：验证用户提交的任务
+## 启动与开发
 
-## 页面结构
+后端启动：
+1) 安装依赖
+   - cd backend
+   - pip install -r requirements.txt
+2) 配置环境变量
+   - 在 backend 目录下创建 .env（示例）
+     - SECRET_KEY=your-secret-key-here
+     - ALGORITHM=HS256
+     - ACCESS_TOKEN_EXPIRE_MINUTES=30
+3) 启动服务
+   - 在项目根目录运行：python3 -m backend.apex
+   - 服务地址：http://0.0.0.0:8000/
 
-- **首页**：显示日历、奖励和任务概览
-- **奖励页**：显示所有可用奖励
-- **任务页**：显示用户的任务清单和状态
-- **个人资料页**：显示用户信息和任务统计
-- **管理员后台**：管理和验证用户提交的任务
+前端启动：
+1) cd frontend && npm install
+2) npm run dev（默认 http://localhost:3000/ 或 Vite 默认端口）
 
-## 部署
+## 常用数据库操作（SQLite）
+- 列出表：sqlite3 backend/jinli.db ".tables"
+- 查看表结构：sqlite3 backend/jinli.db ".schema"
+- 示例查询：sqlite3 backend/jinli.db -header -column "SELECT * FROM user LIMIT 5;"
 
-前端可以部署到Vercel，后端可以部署到任何支持FastAPI的平台。
+## 维护建议
+- 路由与数据访问统一在 boundary.py + entity.py；如需新增模块，建议延续“原生 SQL + dict 映射”的方式。
+- dataclass（data_model.py）仅用于对外输出，避免与 ORM 混用导致耦合。
+- 如需引入统计或批量操作，优先在 entity.py 中新增方法，并在 boundary/core 中拼装返回。
 
-## 开发说明
 
-1. 请确保Node.js和Python已安装
-2. 前端使用Vite开发服务器，后端使用Uvicorn开发服务器
-3. 前端通过代理（vite.config.js中的proxy配置）连接到后端API
-4. 数据库模型定义在models.py中
-5. API端点定义在main.py中
+## UI
+### 按钮
+inactive	非活跃/不可操作状态，禁用的按钮、非推荐的选项或其确认操作。
+primary	推荐的选项、主要操作或其确认操作。
+proceed	后续的操作或其确认操作。
+success	成功状态或其确认操作。
+warning 用于警告、危险操作或其确认操作。
 
-## 注意事项
+btn-inactive 灰色按钮：
+btn-primary 黄色按钮：
+btn-proceed	蓝色按钮：
+btn-success	绿色按钮：
+btn-warning 红色按钮：
 
-1. 本项目使用模拟数据进行演示，实际部署时需要配置真实的数据库
-2. 环境变量中包含敏感信息，请确保在生产环境中正确保护
-3. 管理员功能需要配置正确的EVM地址
+card-inactive 灰色卡片：
+card-primary 黄色卡片：
+card-proceed	蓝色卡片：
+card-success	绿色卡片：
+card-warning 红色卡片：
+
+badge-inactive 灰色徽章：灰色背景，黄色边框，五角星不变
+badge-primary 黄色徽章：
+badge-proceed	蓝色徽章：
+badge-success	绿色徽章：
+badge-warning 红色徽章：
+
+badge-gift-inactive 灰色礼品徽章：
+badge-gift-primary 黄色礼品徽章：
+badge-gift-proceed	蓝色礼品徽章：
+badge-gift-success	绿色礼品徽章：
+badge-gift-warning 红色礼品徽章：
+
+
+tag-price-inactive 灰色价格标签：
+tag-price-primary 黄色价格标签：
+tag-price-proceed	蓝色价格标签：
+tag-price-success	绿色价格标签：
+tag-price-warning 红色价格标签：
+
+tag-status-inactive 灰色状态标签；
+tag-status-primary 黄色状态标签；
+tag-status-proceed	蓝色状态标签；
+tag-status-success	绿色状态标签；
+tag-status-warning 红色状态标签；
+
+
+
+subsection_task_tocomplete
+subsection_task_toclaim
+subsection_task_claimed
+
+
+计算 gift-status 并显示：
+- 逻辑： time_end - now
+  - ≤ 1 天： t('giftStatusHours')
+  - ≤ 1 周： t('giftStatusDays')
+  - ≤ 1 月： t('giftStatusWeeks')
+  - 1 月或无 time_end ： t('giftStatusLimited')
+
+计算 task-status 并显示：
+- 逻辑： time_end - now
+  - ≤ 1 天： 'taskStatusHours')
+  - ≤ 1 周： 'taskStatusDays')
+  - ≤ 1 月： taskStatusWeeks ：
+  - 1 月或无 time_end ： taskStatusLimited')
+
+task-type
+task-type-join 的文案是：Join to Earn
+task-type-trade 的文案是：Trade to Earn
+task-type-vote 的文案是：Vote to Earn
+task-type-meetup 的文案是：IRL Meetup to Earn
+
+journey
+api/journey/claim/$jID
+
+
+重要的流程：
+
+
+chest table -> time(both time_created and time_)
+delete: chest -> create --> time_created (最新就是今天) --> time_bind
+
+chest -> claim -> points --> time_claimed
+journey -> submit -> check -> claim -> points
+points -> claim -> active --> to use

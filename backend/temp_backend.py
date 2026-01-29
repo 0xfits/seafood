@@ -123,14 +123,14 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({"status": "healthy"}).encode())
             return
         
-        # 礼品列表端点
-        elif self.path == '/api/gifts/all':
+        # 礼品列表端点（兼容新旧命名）
+        elif self.path == '/api/gifts/all' or self.path == '/api/gift/all':
             self._set_headers()
             self.wfile.write(json.dumps(mock_gifts).encode())
             return
         
         # 任务列表端点
-        elif self.path == '/api/tasks/all':
+        elif self.path == '/api/tasks/all' or self.path == '/api/task/all':
             self._set_headers()
             self.wfile.write(json.dumps(mock_tasks).encode())
             return

@@ -104,30 +104,47 @@ const Login = () => {
       // 生成签名消息
       const message = generateSignMessage()
       
-      // 请求签名
-      const signature = await web3.eth.personal.sign(message, currentAccount, '')
+      // 规范化并校验地址
+      const addr = (currentAccount || '').trim()
+      if (!addr || !addr.startsWith('0x') || addr.length !== 42) {
+        toast.error(t('error') + ': ' + '钱包地址格式不正确')
+        return
+      }
       
-      // 发送签名到后端验证
+      // 调试日志：便于定位问题（不会影响生产）
+      console.log('Login payload:', { evm_address: addr })
+      
+      // 请求签名
+      const signature = await web3.eth.personal.sign(message, addr, '')
+      
+      // 发送签名到后端验证（按后端规范字段）
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          address: currentAccount,
-          signature,
-          message
+          evm_address: addr.toLowerCase(),
+          signature
+          // message 当前后端未校验，可不传
         })
       })
       
-      const data = await response.json()
+      // 解析响应
+      const rawText = await response.text()
+      let data
+      try {
+        data = JSON.parse(rawText)
+      } catch (e) {
+        data = null
+      }
       
-      if (data.success) {
-        // 存储用户信息到localStorage
+      if (response.ok && data && data.success) {
+        // 存储用户信息到localStorage（token 字段用于后续鉴权）
         localStorage.setItem('user', JSON.stringify({
-          uID: data.data.uID,
-          EVM: currentAccount,
-          token: data.data.token
+          uID: data.uID,
+          EVM: data.EVM,
+          token: data.access_token
         }))
         
         toast.success(t('success') + ': ' + '登录成功')
@@ -136,7 +153,10 @@ const Login = () => {
         const from = location.state?.from?.pathname || '/'
         navigate(from)
       } else {
-        toast.error(t('error') + ': ' + (data.error || '登录失败'))
+        // 提取错误详情
+        const errMsg = (data && (data.error || data.detail || data.message)) || rawText || `HTTP ${response.status}`
+        console.error('Login failed:', { status: response.status, body: rawText })
+        toast.error(t('error') + ': ' + (typeof errMsg === 'string' ? errMsg : '登录失败'))
       }
     } catch (error) {
       console.error('Error signing in:', error)
@@ -199,7 +219,7 @@ const Login = () => {
             <button
               onClick={connectWallet}
               disabled={loading}
-              className="w-full btn btn-primary flex items-center justify-center space-x-2"
+              className="w-full btn btn-proceed flex items-center justify-center space-x-2"
             >
               {loading ? (
                 <span className="loading-spinner"></span>
@@ -228,7 +248,7 @@ const Login = () => {
               <button
                 onClick={signIn}
                 disabled={loading}
-                className="w-full btn btn-primary flex items-center justify-center space-x-2"
+                className="w-full btn btn-proceed flex items-center justify-center space-x-2"
               >
                 {loading ? (
                   <span className="loading-spinner"></span>

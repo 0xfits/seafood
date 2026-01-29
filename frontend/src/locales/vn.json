@@ -13,9 +13,9 @@
   "vietnamese": "Tiếng Việt",
   "rewardsList": "Danh sách phần thưởng",
   "tasks": "Nhiệm vụ",
-  "pendingRewards": "Nhiệm vụ đang chờ nhận thưởng",
-  "pendingTasks": "Nhiệm vụ chưa hoàn thành",
-  "completedTasks": "Nhiệm vụ đã nhận thưởng",
+  "tasksToClaimReward": "Nhiệm vụ đang chờ nhận thưởng",
+  "tasksToComplete": "Nhiệm vụ chưa hoàn thành",
+  "tasksClaimed": "Nhiệm vụ đã nhận thưởng",
   "claimReward": "Nhận thưởng",
   "goComplete": "Hoàn thành",
   "chooseReward": "Chọn thưởng",
@@ -29,7 +29,7 @@
   "tasksStats": "Thống kê nhiệm vụ",
   "dashboard": "Bảng điều khiển",
   "welcome": "Chào mừng đến cộng đồng Jinli",
-  "communityCalendar": "Lịch cộng đồng",
+  "CryptoCalender": "Lịch cộng đồng",
   "viewDetails": "Xem chi tiết",
   "confirmChooseReward": "Xác nhận chọn phần thưởng này?",
   "successClaimReward": "Nhận thưởng thành công!",
@@ -45,5 +45,15 @@
   "items": "mục",
   "prev": "Trang trước",
   "next": "Trang sau",
-  "copyright": "© 2024 Jinli Community. Tất cả quyền bảo lưu."
+  "darkMode": "Chế độ tối",
+  "copyright": "© 2024 Jinli Community. Tất cả quyền bảo lưu.",
+  "CanClaim": "Nhận ngay",
+  "CanActive": "Kích hoạt ngay",
+  "Actived": "Đang sử dụng"
+  ,"slogan": "Tài phú như biển, người khôn biết bơi; đến đây để trở thành một chú cá koi may mắn thực thụ."
+  ,"giftStatusHours": "Còn lại theo giờ"
+  ,"giftStatusDays": "Còn lại theo ngày"
+  ,"giftStatusWeeks": "Còn lại theo tuần"
+  ,"giftStatusLimited": "Giới hạn"
+  ,"timeClaimed": "Thời gian nhận"
 }

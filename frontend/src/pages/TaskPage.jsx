@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import ChooseRewardModal from '../components/ChooseRewardModal'
+import ClaimRewardModal from '../components/ClaimRewardModal'
 import ActiveTaskModal from '../components/ActiveTaskModal'
 
 const TaskPage = () => {
@@ -29,16 +29,42 @@ const TaskPage = () => {
         if (user) {
           setCurrentUser(JSON.parse(user))
         }
+        // 加载所有任务（用于差集计算）
+        try {
+          const tasksResponse = await fetch('/api/task/all')
+          if (tasksResponse.ok) {
+            const contentType = tasksResponse.headers.get('content-type')
+            if (contentType && contentType.includes('application/json')) {
+              const tasksData = await tasksResponse.json()
+              if (tasksData.success) {
+                setTasks(tasksData.data)
+                window.tasksData = tasksData.data
+              }
+            }
+          }
+        } catch (e) {
+          // 失败时不影响后续逻辑，使用已有 state/window.tasksData
+          console.warn('Failed to load tasks for TaskPage:', e)
+        }
         
         // 加载用户任务清单
         if (currentUser) {
-          const tasklistResponse = await fetch(`/api/tasklist/user/${currentUser.uID}`)
+          const tasklistResponse = await fetch(`/api/tasklist/`, {
+            headers: { 'Authorization': `Bearer ${currentUser?.token}` }
+          })
           const tasklistData = await tasklistResponse.json()
           if (tasklistData.success) {
             setPendingVerificationTasks(tasklistData.data.pendingVerification || [])
-            setPendingRewardTasks(tasklistData.data.pendingRewards || [])
-            setPendingTasks(tasklistData.data.pendingTasks || [])
-            setCompletedTasks(tasklistData.data.completedTasks || [])
+            const pendingRewards = tasklistData.data.pendingRewards || []
+            const completed = tasklistData.data.completedTasks || []
+            setPendingRewardTasks(pendingRewards)
+            setCompletedTasks(completed)
+            // 差集：所有任务 - （待领取 + 已领取）
+            const allTasks = Array.isArray(window.tasksData) ? window.tasksData : tasks
+            const toClaimIDs = new Set(pendingRewards.map(t => t.tID || (t.task && t.task.tID)).filter(Boolean))
+            const completedIDs = new Set(completed.map(t => t.tID || (t.task && t.task.tID)).filter(Boolean))
+            const pending = (allTasks || []).filter(t => !toClaimIDs.has(t.tID) && !completedIDs.has(t.tID))
+            setPendingTasks(pending)
           }
         }
       } catch (error) {
@@ -82,7 +108,7 @@ const TaskPage = () => {
   // 处理验证任务（仅管理员可见，此处预览）
   const handleVerifyTask = async (tlistID) => {
     try {
-      const response = await fetch(`/api/tasklist/${tlistID}/verify`, {
+      const response = await fetch(`/api/tasklist/check/${tlistID}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -92,8 +118,10 @@ const TaskPage = () => {
       
       const data = await response.json()
       if (data.success) {
-        // 刷新任务列表
-        const tasklistResponse = await fetch(`/api/tasklist/user/${currentUser.uID}`)
+        // 刷新任务列表（使用当前用户端点，需要认证）
+        const tasklistResponse = await fetch(`/api/tasklist/`, {
+          headers: { 'Authorization': `Bearer ${currentUser?.token}` }
+        })
         const tasklistData = await tasklistResponse.json()
         if (tasklistData.success) {
           setPendingVerificationTasks(tasklistData.data.pendingVerification || [])
@@ -165,7 +193,7 @@ const TaskPage = () => {
       
       {/* 待领取奖励的任务 */}
       <div className="mb-8">
-        <h3 className="text-xl font-semibold mb-4">{t('pendingRewards')}</h3>
+        <h3 className="text-xl font-semibold mb-4">{t('tasksToClaimReward')}</h3>
         {pendingRewardTasks.length === 0 ? (
           <div className="card p-6 text-center">
             <p>{t('noData')}</p>
@@ -173,7 +201,24 @@ const TaskPage = () => {
         ) : (
           <div className="space-y-4">
             {pendingRewardTasks.map((task) => (
-              <div key={task.tlistID} className="card p-6">
+              <div key={task.tlistID} className="card p-6 relative card--badge-space">
+                {/* 积分徽章（蓝色）：显示待领取奖励的积分 */}
+                {typeof task.points !== 'undefined' && (
+                  <div
+                    className="badge badge-proceed"
+                    title={`+${typeof task.points === 'number' ? task.points : (task.points ? Number(task.points) : 0)} ${t('points')}`}
+                  >
+                    <svg className="badge__star" viewBox="0 0 24 24" aria-hidden="true">
+                      <defs>
+                        <linearGradient id="earnedStarGradientProceedTaskPage" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" stopColor="#93C5FD" />
+                          <stop offset="100%" stopColor="#3B82F6" />
+                        </linearGradient>
+                      </defs>
+                      <path fill="url(#earnedStarGradientProceedTaskPage)" stroke="#FFFFFF" strokeWidth="0.8" strokeLinejoin="round" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z" />
+                    </svg>
+                  </div>
+                )}
                 <div className="flex flex-col md:flex-row md:justify-between md:items-center">
                   <div>
                     <h4 className="text-lg font-medium mb-2">{task.title}</h4>
@@ -194,7 +239,7 @@ const TaskPage = () => {
       
       {/* 待完成的任务 */}
       <div className="mb-8">
-        <h3 className="text-xl font-semibold mb-4">{t('pendingTasks')}</h3>
+        <h3 className="text-xl font-semibold mb-4">{t('tasksToComplete')}</h3>
         {pendingTasks.length === 0 ? (
           <div className="card p-6 text-center">
             <p>{t('noData')}</p>
@@ -202,7 +247,24 @@ const TaskPage = () => {
         ) : (
           <div className="space-y-4">
             {pendingTasks.map((task) => (
-              <div key={task.tID} className="card p-6">
+              <div key={task.tID} className="card p-6 relative card--badge-space">
+                {/* 积分徽章（黄色）：显示任务可获得积分 */}
+                {typeof task.points !== 'undefined' && (
+                  <div
+                    className="badge badge-primary"
+                    title={`+${typeof task.points === 'number' ? task.points : (task.points ? Number(task.points) : 0)} ${t('points')}`}
+                  >
+                    <svg className="badge__star" viewBox="0 0 24 24" aria-hidden="true">
+                      <defs>
+                        <linearGradient id="earnedStarGradientPrimaryTaskPage" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" stopColor="#FFF39A" />
+                          <stop offset="100%" stopColor="#FFC107" />
+                        </linearGradient>
+                      </defs>
+                      <path fill="url(#earnedStarGradientPrimaryTaskPage)" stroke="#FFFFFF" strokeWidth="0.8" strokeLinejoin="round" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z" />
+                    </svg>
+                  </div>
+                )}
                 <div className="flex flex-col md:flex-row md:justify-between md:items-center">
                   <div>
                     <h4 className="text-lg font-medium mb-2">{task.title}</h4>
@@ -215,7 +277,7 @@ const TaskPage = () => {
                   </div>
                   <button
                     onClick={() => handleCompleteTask(task)}
-                    className="btn btn-secondary mt-4 md:mt-0"
+                    className="btn btn-proceed mt-4 md:mt-0"
                   >
                     {t('goComplete')}
                   </button>
@@ -228,7 +290,7 @@ const TaskPage = () => {
       
       {/* 已领取奖励的任务 */}
       <div>
-        <h3 className="text-xl font-semibold mb-4">{t('completedTasks')}</h3>
+        <h3 className="text-xl font-semibold mb-4">{t('tasksClaimed')}</h3>
         {completedTasks.length === 0 ? (
           <div className="card p-6 text-center">
             <p>{t('noData')}</p>
@@ -257,7 +319,7 @@ const TaskPage = () => {
       </div>
       
       {/* 模态框 */}
-      <ChooseRewardModal
+      <ClaimRewardModal
         open={openChooseModal}
         onClose={() => setOpenChooseModal(false)}
         task={selectedTask}

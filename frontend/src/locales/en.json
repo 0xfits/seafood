@@ -13,9 +13,9 @@
   "vietnamese": "Tiếng Việt",
   "rewardsList": "Rewards List",
   "tasks": "Tasks",
-  "pendingRewards": "Tasks Pending Reward Claim",
-  "pendingTasks": "Pending Tasks",
-  "completedTasks": "Completed Tasks with Rewards",
+  "tasksToClaimReward": "Tasks to claim reward",
+  "tasksToComplete": "Tasks to complete",
+  "tasksClaimed": "Claimed tasks",
   "claimReward": "Claim Reward",
   "goComplete": "Complete",
   "chooseReward": "Choose Reward",
@@ -29,7 +29,8 @@
   "tasksStats": "Tasks Statistics",
   "dashboard": "Dashboard",
   "welcome": "Welcome to Jinli Community",
-  "communityCalendar": "Community Calendar",
+  "CryptoCalender": "Crypto Calendar",
+  "cryptoNews": "Crypto News",
   "viewDetails": "View Details",
   "confirmChooseReward": "Confirm choosing this reward?",
   "successClaimReward": "Reward claimed successfully!",
@@ -45,5 +46,15 @@
   "items": "items",
   "prev": "Previous",
   "next": "Next",
-  "copyright": "© 2024 Jinli Community. All rights reserved."
+  "darkMode": "Dark Mode",
+  "copyright": "© 2024 Jinli Community. All rights reserved.",
+  "CanClaim": "Claim Now",
+  "CanActive": "Active Now",
+  "Actived": "Actived"
+  ,"slogan": "Wealth is like the sea; the wise swim well. Come here to be a true lucky koi."
+  ,"giftStatusHours": "Hours left"
+  ,"giftStatusDays": "Days left"
+  ,"giftStatusWeeks": "Weeks left"
+  ,"giftStatusLimited": "Limited"
+  ,"timeClaimed": "Time Claimed"
 }

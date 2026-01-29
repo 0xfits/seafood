@@ -8,14 +8,83 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome CDN -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link id="fa-css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Google Fonts：Crimson Text / EB Garamond / Noto Sans / LXGW WenKai（霞鹜文楷） -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=LXGW+WenKai&display=swap" rel="stylesheet">
+    <!-- Montserrat for badge-gift text -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- jsDelivr 预连接，用作字体回退源 -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
+    <!-- Smiley Sans 样式引用（稳定 npm 包路径） -->
+    <link href="https://cdn.jsdelivr.net/npm/font-smiley-sans@1.0.0/style.min.css" rel="stylesheet">
+    <script>
+      // 简单的字体加载监测与回退逻辑：若在限定时间内未检测到 LXGW WenKai 可用，则注入 jsDelivr 的 WebFont 样式
+      // 说明：
+      // 1) 使用 Font Loading API 的 document.fonts.check 检测字体是否可用；
+      // 2) 若不可用，则追加一个 link 指向 jsDelivr 的 WebFont CSS 包；
+      // 3) 该包会声明 @font-face 并提供多种格式，提升加载成功率。
+      (function(){
+        function ensureLXGW(){
+          var isSupported = false;
+          try {
+            // 检测字体是否可用（若系统或 GoogleFonts 已加载，会返回 true）
+            isSupported = document.fonts && document.fonts.check && document.fonts.check('16px "LXGW WenKai"');
+          } catch(e) {
+            isSupported = false;
+          }
+
+          if (!isSupported) {
+            // 注入 jsDelivr 的 WebFont 样式（npm 包方式），作为回退
+            var fallback = document.createElement('link');
+            fallback.rel = 'stylesheet';
+            fallback.href = 'https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@latest/style.css';
+            document.head.appendChild(fallback);
+          }
+        }
+
+        function ensureSmiley(){
+          var ok = false;
+          try {
+            ok = document.fonts && document.fonts.check && document.fonts.check('16px "Smiley Sans"');
+          } catch(e) {
+            ok = false;
+          }
+          if (!ok) {
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://cdn.jsdelivr.net/npm/font-smiley-sans@1.0.0/style.min.css';
+            document.head.appendChild(link);
+          }
+        }
+
+        // 等待一段时间让 Google Fonts 先尝试加载，再进行检测
+        window.addEventListener('load', function(){
+          setTimeout(function(){ ensureLXGW(); ensureSmiley(); }, 1800);
+        });
+      })();
+    </script>
     <!-- 备用方案 -->
     <script>
-      // 如果CDN加载失败，使用备选方案
+      // 如果CDN加载失败，使用备选方案，并且为CSS引入追加时间戳以避免缓存
       window.addEventListener('DOMContentLoaded', function() {
+        // 为 Font Awesome 样式追加时间戳参数，避免缓存
+        try {
+          var linkEl = document.getElementById('fa-css');
+          if (linkEl && linkEl.href) {
+            var url = new URL(linkEl.href);
+            url.searchParams.set('ts', Date.now().toString());
+            linkEl.href = url.toString();
+          }
+        } catch (e) {
+          console.warn('追加时间戳到字体样式失败：', e);
+        }
+
         if (typeof window.FontAwesome === 'undefined') {
           console.warn('Font Awesome CDN加载失败，尝试使用本地版本');
-          // 实际项目中可以添加本地回退方案
+          // TODO: 可添加本地回退方案，例如 /public/font-awesome.min.css
         }
       });
     </script>

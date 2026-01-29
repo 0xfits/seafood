@@ -11,12 +11,12 @@
   "english": "English",
   "cantonese": "粤语",
   "vietnamese": "Tiếng Việt",
-  "rewardsList": "奖励清单",
-  "tasks": "任务",
-  "pendingRewards": "待领取奖励的任务",
-  "pendingTasks": "待完成的任务",
-  "completedTasks": "已领取奖励的任务",
-  "claimReward": "领取奖励",
+  "rewardsList": "社群福利",
+  "tasks": "社区任务",
+  "tasksToClaimReward": "待领取奖励的任务",
+  "tasksToComplete": "待完成的任务",
+  "tasksClaimed": "已领取奖励的任务",
+  "claimReward": "领奖励",
   "goComplete": "去完成",
   "chooseReward": "选择奖励",
   "submitInfo": "提交信息",
@@ -29,7 +29,8 @@
   "tasksStats": "任务统计",
   "dashboard": "后台管理",
   "welcome": "欢迎来到Jinli社区",
-  "communityCalendar": "社区日历",
+  "CryptoCalender": "加密日历",
+  "cryptoNews": "加密新闻",
   "viewDetails": "查看详情",
   "confirmChooseReward": "确认选择此奖励？",
   "successClaimReward": "奖励领取成功！",
@@ -45,5 +46,15 @@
   "items": "条",
   "prev": "上一页",
   "next": "下一页",
-  "copyright": "© 2024 Jinli Community. 保留所有权利。"
+  "darkMode": "深夜模式",
+  "copyright": "© 2024 Abbey Quant & Jinli Club. 保留所有权利。",
+  "CanClaim": "可兑换",
+  "CanActive": "可激活",
+  "Actived": "使用中"
+  ,"slogan": "财富如海，智者善游，来这里做一条真正的锦鲤。"
+  ,"giftStatusHours": "剩余小时"
+  ,"giftStatusDays": "剩余天数"
+  ,"giftStatusWeeks": "剩余周数"
+  ,"giftStatusLimited": "限时"
+  ,"timeClaimed": "领取时间"
 }

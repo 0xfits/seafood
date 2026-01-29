@@ -17,6 +17,7 @@ except ImportError:
 
 # 导入SQLAlchemy模块
 from sqlalchemy import create_engine
+from sqlalchemy.engine.url import make_url
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
@@ -28,8 +29,25 @@ load_dotenv()
 # 获取数据库URL
 SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL", "postgresql://user:password@localhost/jinli")
 
-# 创建数据库引擎
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+# 创建数据库引擎（带连接池配置），防止 QueuePool 溢出
+_url = make_url(SQLALCHEMY_DATABASE_URL)
+_dialect = _url.drivername.split(":")[0] if _url and _url.drivername else "postgresql"
+
+# 连接池可调参数（可通过环境变量覆盖）
+DB_POOL_SIZE = int(os.getenv("DB_POOL_SIZE", "10"))           # 默认 10（SQLAlchemy 默认 5）
+DB_MAX_OVERFLOW = int(os.getenv("DB_MAX_OVERFLOW", "20"))     # 默认 20（SQLAlchemy 默认 10）
+DB_POOL_TIMEOUT = int(os.getenv("DB_POOL_TIMEOUT", "60"))     # 默认 60s（SQLAlchemy 默认 30s）
+DB_POOL_RECYCLE = int(os.getenv("DB_POOL_RECYCLE", "1800"))   # 默认 30 分钟
+
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    pool_size=DB_POOL_SIZE,
+    max_overflow=DB_MAX_OVERFLOW,
+    pool_timeout=DB_POOL_TIMEOUT,
+    pool_recycle=DB_POOL_RECYCLE,
+    pool_pre_ping=True,
+    pool_use_lifo=True,
+)
 
 # 创建数据库会话工厂
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

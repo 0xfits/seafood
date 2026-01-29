@@ -200,12 +200,12 @@ const ProfilePage = () => {
               </div>
               
               <div className="flex justify-between items-center p-3 bg-bg-muted rounded-lg">
-                <span className="text-text-secondary">{t('completedTasks')}</span>
+                <span className="text-text-secondary">{t('tasksClaimed')}</span>
                 <span className="font-medium text-success">{taskStats.completedTasks}</span>
               </div>
               
               <div className="flex justify-between items-center p-3 bg-bg-muted rounded-lg">
-                <span className="text-text-secondary">{t('pendingTasks')}</span>
+                <span className="text-text-secondary">{t('tasksToComplete')}</span>
                 <span className="font-medium text-warning">{taskStats.pendingTasks}</span>
               </div>
             </div>

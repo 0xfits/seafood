@@ -1,0 +1,1597 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard</title>
+    <style>
+      /* Apple (乔布斯时代) 美学：简洁、细腻、高对比度排版、柔和投影、光泽按钮与微妙渐变 */
+      :root {
+        --bg: #f4f5f7;
+        --bg-gradient: linear-gradient(180deg, #fdfdfd 0%, #f5f6f7 80%);
+        --card: #ffffff;
+        --card-gradient: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+        --text: #111111;
+        --muted: #6e6e73;
+        --primary: #0071e3; /* Apple Blue */
+        --primary-top: #4aa3ff;
+        --primary-bottom: #0071e3;
+        --border: #e5e7eb;
+        --shadow: 0 10px 30px rgba(0,0,0,0.08);
+        --radius: 18px;
+        --mono: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      }
+      html, body { height: 100%; background: var(--bg-gradient); }
+      body {
+        margin: 0; padding: 0; color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, "Lucida Grande", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+      }
+      .nav {
+        position: sticky; top: 0; z-index: 10;
+        backdrop-filter: saturate(180%) blur(20px);
+        background: linear-gradient(180deg, rgba(255,255,255,0.86) 0%, rgba(255,255,255,0.72) 100%);
+        border-bottom: 1px solid var(--border);
+      }
+      .nav-inner { max-width: 1080px; margin: 0 auto; padding: 12px 20px; display:flex; align-items:center; justify-content:space-between; }
+      .brand { font-weight: 700; letter-spacing: .2px; }
+      .container { max-width: 1200px; margin: 26px auto; padding: 0 20px; }
+      .hero {
+        display: grid; grid-template-columns: 1fr; gap: 18px; align-items: center;
+        margin: 12px 0 24px 0;
+      }
+      .card {
+        background: var(--card-gradient); border: 1px solid var(--border);
+        border-radius: var(--radius); box-shadow: var(--shadow);
+      }
+      .card-inner { padding: 18px 18px; }
+      .title { font-size: 22px; font-weight: 700; margin: 0 0 6px 0; }
+      .subtitle { color: var(--muted); margin: 0 0 12px 0; }
+      .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+      .row { display:flex; gap:12px; align-items:center; flex-wrap: wrap; }
+      label { color: var(--muted); font-size: 13px; }
+      input[type="text"] {
+        flex:1; min-width:280px; border-radius: 12px; border:1px solid var(--border);
+        padding: 10px 12px; outline: none; background: linear-gradient(180deg, #fbfbfb 0%, #f7f7f7 100%);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+      }
+      input[type="text"]:focus { border-color: #cfe6ff; box-shadow: 0 0 0 3px rgba(0,113,227,0.12); }
+      button {
+        appearance: none; border: 1px solid #0a84ff; cursor: pointer; border-radius: 999px;
+        padding: 10px 18px; color: #fff; font-weight: 600;
+        background-image: linear-gradient(180deg, var(--primary-top) 0%, var(--primary-bottom) 100%);
+        box-shadow: 0 8px 20px rgba(0,113,227,0.22), inset 0 1px 0 rgba(255,255,255,0.25);
+        text-shadow: 0 -1px 0 rgba(0,0,0,0.1);
+        transition: transform .06s ease, box-shadow .2s ease, filter .2s ease;
+      }
+      button:hover { filter: brightness(1.05); }
+      button:active { transform: translateY(1px); box-shadow: 0 6px 16px rgba(0,113,227,0.18), inset 0 1px 0 rgba(255,255,255,0.3); }
+      button.secondary { background-image: linear-gradient(180deg, #f1f1f4 0%, #e5e5ea 100%); color: #111; border-color: #c9c9ce; box-shadow: inset 0 1px 0 rgba(255,255,255,0.45); }
+      .endpoint { display:flex; align-items:flex-start; justify-content:space-between; gap: 12px; }
+      .endpoint .path { font-family: var(--mono); font-size: 13px; background:linear-gradient(180deg, #fbfbfb 0%, #f7f7f7 100%); padding:6px 10px; border-radius:10px; border:1px solid var(--border); box-shadow: inset 0 1px 0 rgba(255,255,255,0.6); }
+      .badge { display:inline-block; padding:3px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+      .badge.get { background:#eaf5ff; color:#0262c9; border:1px solid #cfe6ff; }
+      .json { margin-top: 10px; background:#0b0c0f; color:#d1d5db; padding:12px; border-radius:12px; overflow:auto; max-height: 380px; border:1px solid #1f2937; }
+      .footer { color: var(--muted); font-size: 12px; text-align:center; padding: 20px 0; }
+      @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+
+      /* Layout: sidebar + content area */
+      .layout { display: grid; grid-template-columns: 240px 1fr; gap: 20px; transition: grid-template-columns .28s ease; }
+      /* Collapsible sidebar */
+      .sidebar { transition: transform .28s ease, opacity .28s ease; }
+      .layout.sidebar-hidden { grid-template-columns: 0 1fr; }
+      .layout.sidebar-hidden .sidebar { transform: translateX(-28px); opacity: 0; pointer-events: none; }
+
+      /* Always-visible toggle rail */
+      #sidebarToggleRail { position: fixed; left: 12px; top: 92px; z-index: 1000; }
+      #sidebarToggleRail .rail-btn { padding: 8px 12px; border-radius: 999px; box-shadow: 0 8px 20px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.45); font-weight: 700; }
+      .layout.sidebar-hidden #sidebarToggleRail .rail-btn { filter: brightness(1.03); }
+      @media (max-width: 860px) {
+        #sidebarToggleRail { left: 10px; top: 82px; }
+      }
+      .sidebar .item { display:flex; align-items:center; justify-content:space-between; padding: 10px 12px; border-radius: 12px; cursor: pointer; }
+      .sidebar .item:hover { background:#f6f7f8; }
+      .sidebar .item.active { background:#eaf5ff; border:1px solid #cfe6ff; }
+      .muted { color: var(--muted); font-size: 13px; }
+      .section { display:none; }
+      .section.active { display:block; }
+
+      /* Secondary sidebar layout */
+      .sub-layout { display:flex; gap:18px; align-items:flex-start; }
+      .sub-sidebar { width:280px; flex:0 0 280px; }
+      .sub-sidebar .card-inner { padding: 12px; }
+      .sub-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+      .sub-item { padding:12px 12px; border:1px solid var(--border); border-radius:12px; background:var(--card-gradient); cursor:pointer; }
+      .sub-item:hover { background:#f6f7f8; }
+      .sub-item.active { background:#eaf5ff; border-color:#cfe6ff; }
+      .sub-item .title { font-size:15px; margin:0; font-weight:600; }
+      .sub-item .meta { font-size:12px; color: var(--muted); }
+      .content-pane { flex:1; }
+      /* Global spacing polish for overall UI refresh */
+      .card .title { font-weight:700; }
+      .card-inner { padding: 16px; }
+      .row { gap: 12px; }
+    </style>
+  </head>
+  <body>
+    <!-- Admin Gate Overlay -->
+    <div id="adminGateOverlay" style="position:fixed; inset:0; background: rgba(255,255,255,0.85); backdrop-filter: saturate(180%) blur(10px); z-index: 9999; display:none;">
+      <div style="max-width: 520px; margin: 10vh auto;">
+        <div class="card">
+          <div class="card-inner">
+            <div class="title">管理员登录 · Admin Login</div>
+            <p class="subtitle">此页面需要管理员身份。请使用 EVM 地址登录并获取访问令牌。</p>
+            <div class="row" style="gap:10px; margin-top:6px;">
+              <div style="flex:1; min-width:220px;">
+                <label>EVM 地址 · EVM Address</label>
+                <input type="text" id="adminLoginEvm" placeholder="例如 0x1234..." />
+              </div>
+              <div style="flex:1; min-width:220px;">
+                <label>签名 · Signature</label>
+                <input type="text" id="adminLoginSig" placeholder="任意字符串（示例环境）" />
+              </div>
+            </div>
+            <div class="row" style="margin-top:10px; gap:10px;">
+              <button id="adminLoginBtn">登录 Login</button>
+              <button id="adminLogoutBtn" class="secondary">退出 Logout</button>
+            </div>
+            <div id="adminLoginMsg" class="muted" style="margin-top:10px;"></div>
+            <div class="muted" style="margin-top:12px; font-size:12px;">
+              提示：成功登录后将自动填充上方 “Token (Bearer)” 输入框，并校验管理员权限。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="nav-inner">
+        <div class="brand">Admin Dashboard · API Explorer</div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="color: var(--muted); font-size: 13px;">Minimal style · Explore API endpoints (GET/POST)</div>
+          <a id="homeLink" href="/" target="_blank" title="Open Homepage">Home</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Sidebar Toggle Rail (always visible, even when sidebar is collapsed) -->
+      <div id="sidebarToggleRail">
+        <button id="toggleSidebarBtn" class="secondary rail-btn" title="隐藏/显示侧边栏">Menu ⬅</button>
+      </div>
+      <div class="layout">
+        <!-- Sidebar -->
+        <div class="card sidebar">
+          <div class="card-inner">
+            <div class="title">Modules</div>
+            <div class="muted">Select a module</div>
+            <div id="sidebarItems" style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
+              <div class="item active" data-module="ports">
+                <span>Config</span>
+                <span class="badge get">PORTS</span>
+              </div>
+              <div class="item" data-module="users">
+                <span>Users</span>
+                <span class="badge get">USER</span>
+              </div>
+              <div class="item" data-module="gifts">
+                <span>Gifts</span>
+                <span class="badge get">GIFT</span>
+              </div>
+              <div class="item" data-module="tasks">
+                <span>Tasks</span>
+                <span class="badge get">TASK</span>
+              </div>
+              <div class="item" data-module="chests">
+                <span>Chests</span>
+                <span class="badge get">CHEST</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content area -->
+        <div>
+          <!-- Backend configuration module -->
+          <section id="module-ports" class="section active">
+            <div class="card hero">
+              <div class="card-inner">
+                <div class="title">Backend Configuration</div>
+                <p class="subtitle">Default address http://localhost:8000; modify and click "Refresh Endpoints"</p>
+                <div class="row">
+                  <label for="baseUrl">Backend Address</label>
+                  <input type="text" id="baseUrl" value="http://localhost:8000" />
+                  <button id="refresh">Refresh Endpoints</button>
+                </div>
+                <div class="row">
+                  <label for="tokenInput">Token (Bearer)</label>
+                  <input type="text" id="tokenInput" placeholder="Paste your access token here" />
+                </div>
+              </div>
+            </div>
+
+            <div class="grid" id="endpointGrid"></div>
+          </section>
+
+          <!-- User Management -->
+          <section id="module-users" class="section">
+            <div class="sub-layout">
+              <!-- Secondary sidebar: users list -->
+              <div class="card sub-sidebar">
+                <div class="card-inner">
+                  <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                    <div class="title" style="font-size:18px;">Users</div>
+                    <div class="row" style="gap:8px;">
+                      <button id="fetchUsersAllBtn" class="secondary">Refresh</button>
+                      <button id="copyUsersAllUrl" class="secondary">Copy URL</button>
+                    </div>
+                  </div>
+                  <ul id="usersSidebarList" class="sub-list"></ul>
+                </div>
+              </div>
+
+              <!-- Content: user detail and edit -->
+              <div class="content-pane">
+                <div class="card">
+                  <div class="card-inner">
+                    <div class="title">User Detail</div>
+                    <p class="subtitle">GET /api/users/{uID}</p>
+                    <div class="row">
+                      <label for="userIdInput">User ID</label>
+                      <input type="text" id="userIdInput" placeholder="Enter user ID, e.g. 1" />
+                      <button id="fetchUserDetailBtn">Fetch Detail</button>
+                      <button id="copyUserDetailUrl" class="secondary">Copy URL</button>
+                    </div>
+                    <pre id="usersAllJson" class="json" style="display:none;"></pre>
+                    <pre id="userDetailJson" class="json" style="display:none;"></pre>
+                  </div>
+                </div>
+                <div class="card" style="margin-top:18px;">
+                  <div class="card-inner">
+                    <div class="title">Edit User (Admin)</div>
+                    <p class="subtitle">PATCH /api/user/{uID} (requires Bearer token)</p>
+                    <div class="row" style="gap:10px;">
+                      <div style="flex:1; min-width:140px;">
+                        <label>User ID</label>
+                        <input type="text" id="userUpdateId" placeholder="Required: e.g. 1" />
+                      </div>
+                      <div style="flex:2; min-width:240px;">
+                        <label>Bio</label>
+                        <input type="text" id="userUpdateBio" placeholder="Optional: bio" />
+                      </div>
+                      <div style="flex:1; min-width:200px;">
+                        <label>Admin</label>
+                        <select id="userUpdateIsAdmin">
+                          <option value="">Unchanged</option>
+                          <option value="true">Set to Admin</option>
+                          <option value="false">Set to Non-admin</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <button id="updateUserBtn">Apply Update</button>
+                    </div>
+                    <pre id="userUpdateJson" class="json" style="display:none;"></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Gift Management -->
+          <section id="module-gifts" class="section">
+            <div class="sub-layout">
+              <!-- Secondary sidebar: gifts list -->
+              <div class="card sub-sidebar">
+                <div class="card-inner">
+                  <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                    <div class="title" style="font-size:18px;">Gifts</div>
+                    <div class="row" style="gap:8px;">
+                      <button id="fetchGiftsAllBtn" class="secondary">Refresh</button>
+                      <button id="copyGiftsAllUrl" class="secondary">Copy URL</button>
+                    </div>
+                  </div>
+                  <ul id="giftsSidebarList" class="sub-list"></ul>
+                </div>
+              </div>
+
+              <!-- Content: gift detail and edit -->
+              <div class="content-pane">
+                <div class="card">
+                  <div class="card-inner">
+                    <div class="title">Gift Detail</div>
+                    <p class="subtitle">GET /api/gifts/{gift_id}</p>
+                    <div class="row">
+                      <label for="giftIdInput">Gift ID</label>
+                      <input type="text" id="giftIdInput" placeholder="Enter gift ID, e.g. 1" />
+                      <button id="fetchGiftDetailBtn">Fetch Detail</button>
+                      <button id="copyGiftDetailUrl" class="secondary">Copy URL</button>
+                    </div>
+                    <pre id="giftsAllJson" class="json" style="display:none;"></pre>
+                    <pre id="giftDetailJson" class="json" style="display:none;"></pre>
+                  </div>
+                </div>
+                <!-- Edit/Create/Delete gift (admin) -->
+                <div class="card" style="margin-top:18px;">
+                  <div class="card-inner">
+                    <div class="title">Edit Gift (Admin)</div>
+                    <p class="subtitle">PUT /api/gifts/{gift_id} (requires Bearer token)</p>
+                    <div class="row" style="gap:10px;">
+                      <div style="flex:1; min-width:140px;">
+                        <label>Gift ID</label>
+                        <input type="text" id="giftUpdateId" placeholder="Required for update/delete" />
+                      </div>
+                      <div style="flex:1; min-width:240px;">
+                        <label>Name</label>
+                        <input type="text" id="giftUpdateName" placeholder="Optional: name" />
+                      </div>
+                      <div style="flex:1; min-width:240px;">
+                        <label>Description</label>
+                        <input type="text" id="giftUpdateDesc" placeholder="Optional: description" />
+                      </div>
+                    </div>
+                    <div class="row" style="gap:10px;">
+                      <div style="flex:1; min-width:240px;">
+                        <label>Image URL</label>
+                        <input type="text" id="giftUpdateImage" placeholder="Optional: image URL" />
+                      </div>
+                      <div style="flex:1; min-width:200px; display:flex; align-items:center; gap:8px;">
+                        <input type="checkbox" id="giftUpdateIsOpen" />
+                        <label for="giftUpdateIsOpen">Set open (checked means update to true)</label>
+                      </div>
+                    </div>
+                    <div class="row" style="gap:10px;">
+                      <div style="flex:1; min-width:240px;">
+                        <label>Start Time</label>
+                        <input type="text" id="giftUpdateStart" placeholder="Optional: YYYY-MM-DD HH:MM:SS or ISO or timestamp" />
+                      </div>
+                      <div style="flex:1; min-width:240px;">
+                        <label>End Time</label>
+                        <input type="text" id="giftUpdateEnd" placeholder="Optional: YYYY-MM-DD HH:MM:SS or ISO or timestamp" />
+                      </div>
+                    </div>
+                    <div class="row" style="gap:10px;">
+                      <button id="updateGiftBtn">Update Gift</button>
+                      <button id="deleteGiftBtn" class="secondary">Delete Gift</button>
+                    </div>
+                    <pre id="giftUpdateJson" class="json" style="display:none;"></pre>
+                    <pre id="giftDeleteJson" class="json" style="display:none;"></pre>
+                  </div>
+                </div>
+                <div class="card" style="margin-top:18px;">
+                  <div class="card-inner">
+                    <div class="title">Create Gift (Admin)</div>
+                    <p class="subtitle">POST /api/gifts (requires Bearer token)</p>
+                    <div class="row" style="gap:10px;">
+                      <div style="flex:1; min-width:240px;">
+                        <label>Name</label>
+                        <input type="text" id="giftCreateName" placeholder="Required: name" />
+                      </div>
+                      <div style="flex:1; min-width:240px;">
+                        <label>Description</label>
+                        <input type="text" id="giftCreateDesc" placeholder="Optional: description" />
+                      </div>
+                      <div style="flex:1; min-width:240px;">
+                        <label>Image URL</label>
+                        <input type="text" id="giftCreateImage" placeholder="Optional: image URL" />
+                      </div>
+                    </div>
+                    <div class="row" style="gap:10px;">
+                      <div style="flex:1; min-width:200px; display:flex; align-items:center; gap:8px;">
+                        <input type="checkbox" id="giftCreateIsOpen" checked />
+                        <label for="giftCreateIsOpen">Open status</label>
+                      </div>
+                      <div style="flex:1; min-width:240px;">
+                        <label>Start Time</label>
+                        <input type="text" id="giftCreateStart" placeholder="Optional: YYYY-MM-DD HH:MM:SS or ISO or timestamp" />
+                      </div>
+                      <div style="flex:1; min-width:240px;">
+                        <label>End Time</label>
+                        <input type="text" id="giftCreateEnd" placeholder="Optional: YYYY-MM-DD HH:MM:SS or ISO or timestamp" />
+                      </div>
+                    </div>
+                    <div class="row">
+                      <button id="createGiftBtn">Create Gift</button>
+                    </div>
+                    <pre id="giftCreateJson" class="json" style="display:none;"></pre>
+                  </div>
+                </div>
+                <!-- GiftList bulk create (admin) -->
+                <div class="card" style="margin-top:18px;">
+                  <div class="card-inner">
+                    <div class="title">GiftList Bulk Create (Admin)</div>
+                    <p class="subtitle">POST /api/giftlist (requires Bearer token)</p>
+                    <p class="muted">支持两种模式：
+                      1) 指定单个用户 uID 与数量 count（默认100），为该用户创建 count 条指定礼品 gID 的礼品列表；
+                      2) 提供多个用户 ID（CSV），为每个用户创建 1 条礼品列表记录。
+                    </p>
+                    <div class="row" style="gap:10px;">
+                      <div style="flex:1; min-width:160px;">
+                        <label>Gift ID (gID)</label>
+                        <input type="text" id="giftListCreateGiftId" placeholder="Required: e.g. 1" />
+                      </div>
+                      <div style="flex:1; min-width:160px;">
+                        <label>Count</label>
+                        <input type="number" id="giftListCreateCount" placeholder="Default: 100" value="100" />
+                      </div>
+                      <div style="flex:1; min-width:160px;">
+                        <label>User ID (uID)</label>
+                        <input type="text" id="giftListCreateUserId" placeholder="Optional for single-user mode" />
+                      </div>
+                    </div>
+                    <div class="row" style="gap:10px;">
+                      <div style="flex:2; min-width:320px;">
+                        <label>User IDs (CSV)</label>
+                        <input type="text" id="giftListCreateUserIdsCsv" placeholder="Optional: e.g. 1,2,3" />
+                      </div>
+                    </div>
+                    <div class="row">
+                      <button id="giftListCreateBtn">Create GiftList</button>
+                    </div>
+                    <pre id="giftListCreateJson" class="json" style="display:none;"></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Task Management -->
+          <section id="module-tasks" class="section">
+            <div class="sub-layout">
+              <!-- Secondary sidebar: tasks list -->
+              <div class="card sub-sidebar">
+                <div class="card-inner">
+                  <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                    <div class="title" style="font-size:18px;">Tasks</div>
+                    <div class="row" style="gap:8px;">
+                      <button id="fetchTasksAllBtn" class="secondary">Refresh</button>
+                      <button id="copyTasksAllUrl" class="secondary">Copy URL</button>
+                    </div>
+                  </div>
+                  <ul id="tasksSidebarList" class="sub-list"></ul>
+                </div>
+              </div>
+
+              <!-- Content: create/update/delete -->
+              <div class="content-pane">
+                <div class="card">
+                  <div class="card-inner">
+                    <div class="title">Create Task (Admin)</div>
+                    <p class="subtitle">POST /api/tasks (requires Bearer token)</p>
+                    <div class="row" style="gap:10px; align-items:flex-start;">
+                      <div style="flex:1; min-width:240px;">
+                        <label>Title</label>
+                        <input type="text" id="taskCreateTitle" placeholder="Required: task title" />
+                      </div>
+                      <div style="flex:1; min-width:240px;">
+                        <label>Note</label>
+                        <input type="text" id="taskCreateNote" placeholder="Optional: note" />
+                      </div>
+                      <div style="flex:1; min-width:240px;">
+                        <label>Refcode</label>
+                        <input type="text" id="taskCreateRefcode" placeholder="Optional: refcode" />
+                      </div>
+                    </div>
+                    <div class="row" style="gap:10px;">
+                      <div style="flex:1; min-width:240px;">
+                        <label>Link A</label>
+                        <input type="text" id="taskCreateLinkA" placeholder="Optional: linkA" />
+                      </div>
+                      <div style="flex:1; min-width:240px;">
+                        <label>Link B</label>
+                        <input type="text" id="taskCreateLinkB" placeholder="Optional: linkB" />
+                      </div>
+                      <div style="flex:1; min-width:240px; display:flex; align-items:center; gap:8px;">
+                        <input type="checkbox" id="taskCreateIsOpen" checked />
+                        <label for="taskCreateIsOpen">Open status</label>
+                      </div>
+                    </div>
+                    <div class="row" style="gap:10px;">
+                      <div style="flex:1; min-width:240px;">
+                        <label>Start Time</label>
+                        <input type="text" id="taskCreateStart" placeholder="Optional: YYYY-MM-DD HH:MM:SS or ISO or timestamp" />
+                      </div>
+                      <div style="flex:1; min-width:240px;">
+                        <label>End Time</label>
+                        <input type="text" id="taskCreateEnd" placeholder="Optional: YYYY-MM-DD HH:MM:SS or ISO or timestamp" />
+                      </div>
+                    </div>
+                    <div class="row">
+                      <button id="createTaskBtn">Create Task</button>
+                    </div>
+                    <pre id="tasksAllJson" class="json" style="display:none;"></pre>
+                    <pre id="taskCreateJson" class="json" style="display:none;"></pre>
+                  </div>
+                </div>
+
+                <div class="card" style="margin-top:18px;">
+                  <div class="card-inner">
+                    <div class="title">Update Task (Admin)</div>
+                    <p class="subtitle">PATCH /api/tasks/{tID} (requires Bearer token; empty fields are ignored)</p>
+                    <div class="row" style="gap:10px;">
+                      <div style="flex:1; min-width:140px;">
+                        <label>Task ID</label>
+                        <input type="text" id="taskUpdateId" placeholder="Required: e.g. 1" />
+                      </div>
+                      <div style="flex:1; min-width:240px;">
+                        <label>Title</label>
+                        <input type="text" id="taskUpdateTitle" placeholder="Optional: new title" />
+                      </div>
+                      <div style="flex:1; min-width:240px;">
+                        <label>Note</label>
+                        <input type="text" id="taskUpdateNote" placeholder="Optional: new note" />
+                      </div>
+                    </div>
+                    <div class="row" style="gap:10px;">
+                      <div style="flex:1; min-width:240px;">
+                        <label>Refcode</label>
+                        <input type="text" id="taskUpdateRefcode" placeholder="Optional: refcode" />
+                      </div>
+                      <div style="flex:1; min-width:240px;">
+                        <label>Link A</label>
+                        <input type="text" id="taskUpdateLinkA" placeholder="Optional: linkA" />
+                      </div>
+                      <div style="flex:1; min-width:240px;">
+                        <label>Link B</label>
+                        <input type="text" id="taskUpdateLinkB" placeholder="Optional: linkB" />
+                      </div>
+                    </div>
+                    <div class="row" style="gap:10px;">
+                      <div style="flex:1; min-width:240px;">
+                        <label>Start Time</label>
+                        <input type="text" id="taskUpdateStart" placeholder="Optional: YYYY-MM-DD HH:MM:SS or ISO or timestamp" />
+                      </div>
+                      <div style="flex:1; min-width:240px;">
+                        <label>End Time</label>
+                        <input type="text" id="taskUpdateEnd" placeholder="Optional: YYYY-MM-DD HH:MM:SS or ISO or timestamp" />
+                      </div>
+                      <div style="flex:1; min-width:240px; display:flex; align-items:center; gap:8px;">
+                        <input type="checkbox" id="taskUpdateIsOpen" />
+                        <label for="taskUpdateIsOpen">Open status (checked means update to true; unchecked means unchanged)</label>
+                      </div>
+                    </div>
+                    <div class="row" style="gap:8px; align-items:center;">
+                      <button id="updateTaskBtn">Update Task</button>
+                      <button id="copyTaskUpdateUrl" class="secondary">Copy URL</button>
+                    </div>
+                    <pre id="taskUpdateJson" class="json" style="display:none;"></pre>
+                  </div>
+                </div>
+
+                <div class="card" style="margin-top:18px;">
+                  <div class="card-inner">
+                    <div class="title">Delete Task (Admin)</div>
+                    <p class="subtitle">DELETE /api/tasks/{tID} (requires Bearer token)</p>
+                    <div class="row" style="gap:10px;">
+                      <div style="flex:1; min-width:140px;">
+                        <label>Task ID</label>
+                        <input type="text" id="taskDeleteId" placeholder="Required: e.g. 1" />
+                      </div>
+                      <button id="deleteTaskBtn">Delete Task</button>
+                    </div>
+                    <pre id="taskDeleteJson" class="json" style="display:none;"></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Treasure Chest Management Module -->
+          <section id="module-chests" class="section">
+            <div class="sub-layout">
+              <!-- Secondary sidebar: chest list -->
+              <div class="card sub-sidebar">
+                <div class="card-inner">
+                  <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                    <div class="title" style="font-size:18px;">Chests</div>
+                    <div class="row" style="gap:8px;">
+                      <button id="fetchChestsAllBtn" class="secondary">Refresh</button>
+                      <button id="copyChestsAllUrl" class="secondary">Copy URL</button>
+                    </div>
+                  </div>
+                  <ul id="chestsSidebarList" class="sub-list"></ul>
+                </div>
+              </div>
+
+              <!-- Content: chest details -->
+              <div class="content-pane">
+                <div class="card">
+                  <div class="card-inner">
+                    <div class="title">Chest Details</div>
+                    <p class="subtitle">GET /api/chests/all (detail displayed from local cache)</p>
+                    <div class="row">
+                      <label for="chestIdInput">Chest ID</label>
+                      <input type="text" id="chestIdInput" placeholder="Enter chest ID, e.g. 1" />
+                      <button id="fetchChestDetailBtn">Fetch Chest Detail</button>
+                      <button id="copyChestDetailUrl" class="secondary">Copy URL</button>
+                    </div>
+                    <pre id="chestsAllJson" class="json" style="display:none;"></pre>
+                    <pre id="chestDetailJson" class="json" style="display:none;"></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="footer">© Jinli Club · Designed in Apple style</div>
+    </div>
+
+    <script>
+      // ===== Admin Gate (Login Required) =====
+      const adminGateOverlay = document.getElementById('adminGateOverlay');
+      const adminLoginBtn = document.getElementById('adminLoginBtn');
+      const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+      const adminLoginMsg = document.getElementById('adminLoginMsg');
+      const adminLoginEvm = document.getElementById('adminLoginEvm');
+      const adminLoginSig = document.getElementById('adminLoginSig');
+
+      function showAdminGate(msg) {
+        adminGateOverlay.style.display = 'block';
+        if (msg) adminLoginMsg.textContent = msg; else adminLoginMsg.textContent = '';
+      }
+      function hideAdminGate() {
+        adminGateOverlay.style.display = 'none';
+        adminLoginMsg.textContent = '';
+      }
+      function setAdminMsg(text) { adminLoginMsg.textContent = text || ''; }
+
+      async function verifyAdminWithToken(base, token) {
+        try {
+          // 先校验令牌是否有效
+          const vres = await fetch(base + '/api/auth/verify?token=' + encodeURIComponent(token));
+          const vtext = await vres.text();
+          let vobj; try { vobj = JSON.parse(vtext); } catch { return { ok: false, reason: '令牌校验失败' }; }
+          const vuser = vobj && vobj.user ? vobj.user : null;
+          if (!vuser || !vuser.uID) return { ok: false, reason: '令牌无效或用户不存在' };
+
+          // 再获取用户详情，检查 is_admin
+          const url = base + '/api/users/' + encodeURIComponent(vuser.uID);
+          const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
+          const text = await res.text();
+          let obj;
+          try { obj = JSON.parse(text); } catch { return { ok: false, reason: '无法解析用户信息' }; }
+          const user = obj && obj.data ? obj.data : obj;
+          const isAdmin = !!(user && (user.is_admin === true || user.is_admin === 1));
+          return { ok: isAdmin, user, verified: vuser };
+        } catch (e) {
+          return { ok: false, reason: e.message };
+        }
+      }
+
+      async function initAdminGate() {
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const savedToken = localStorage.getItem('adminToken') || '';
+        if (!savedToken) {
+          showAdminGate('请先登录管理员账号');
+          return;
+        }
+        // Pre-fill token input
+        document.getElementById('tokenInput').value = savedToken;
+        const result = await verifyAdminWithToken(base, savedToken);
+        if (result.ok) {
+          hideAdminGate();
+        } else {
+          showAdminGate('当前账号不是管理员或验证失败');
+        }
+      }
+
+      adminLoginBtn.addEventListener('click', async () => {
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const evm = (adminLoginEvm.value || '').trim();
+        const sig = (adminLoginSig.value || '').trim() || 'demo-signature';
+        if (!evm) { setAdminMsg('请输入 EVM 地址'); return; }
+        adminLoginBtn.disabled = true; adminLoginBtn.textContent = '登录中…'; setAdminMsg('正在请求令牌…');
+        try {
+          const url = base + '/api/auth/login';
+          const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ evm_address: evm, signature: sig }) });
+          const text = await res.text();
+          let obj;
+          try { obj = JSON.parse(text); } catch { setAdminMsg('登录失败：返回不可解析'); return; }
+          if (!obj || !obj.access_token || !obj.uID) {
+            setAdminMsg('登录失败：' + (obj && obj.detail ? JSON.stringify(obj.detail) : '缺少令牌或用户ID'));
+            return;
+          }
+          const token = obj.access_token;
+          const uID = String(obj.uID);
+          // 保存令牌并填充
+          localStorage.setItem('adminToken', token);
+          localStorage.setItem('adminUID', uID);
+          document.getElementById('tokenInput').value = token;
+          setAdminMsg('令牌获取成功，正在校验管理员权限…');
+          const check = await verifyAdminWithToken(base, token);
+          if (check.ok) {
+            setAdminMsg('管理员验证通过');
+            hideAdminGate();
+          } else {
+            setAdminMsg('该账号不是管理员，无法访问管理页');
+          }
+        } catch (e) {
+          setAdminMsg('登录失败：' + e.message);
+        } finally {
+          adminLoginBtn.disabled = false; adminLoginBtn.textContent = '登录 Login';
+        }
+      });
+
+      adminLogoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminUID');
+        document.getElementById('tokenInput').value = '';
+        showAdminGate('已退出登录');
+      });
+
+      const defaultEndpoints = [
+        { label: 'Health Check (root)', method: 'GET', path: '/api/health' },
+        { label: 'Service Info', method: 'GET', path: '/api/info' },
+        { label: 'Basic Stats', method: 'GET', path: '/api/stat' },
+        { label: 'Tasks (public)', method: 'GET', path: '/api/task/all' },
+        { label: 'Brands (public)', method: 'GET', path: '/api/brand/all' },
+        { label: 'Chests (public)', method: 'GET', path: '/api/chest/all' },
+        { label: 'Brands (public)', method: 'GET', path: '/api/brand/all' },
+        // Auth required endpoints
+        { label: 'My Journeys (auth required)', method: 'GET', path: '/api/journey/', requireAuth: true },
+        { label: 'My Gift Records (auth required)', method: 'GET', path: '/api/giftlist/', requireAuth: true },
+        { label: 'My Chests (auth required)', method: 'GET', path: '/api/chest/', requireAuth: true },
+        // Admin endpoints
+        { label: 'All Tasks (admin)', method: 'GET', path: '/api/tasklist/all', requireAuth: true },
+        { label: 'Chests in the Next Week (admin)', method: 'GET', path: '/api/chest/nextweek/', requireAuth: true },
+        { label: 'Generate 100 Chests of Level 1 (admin)', method: 'POST', path: '/api/chest/generation/1/100', requireAuth: true },
+      ];
+
+      const grid = document.getElementById('endpointGrid');
+      const baseUrlInput = document.getElementById('baseUrl');
+      const refreshBtn = document.getElementById('refresh');
+
+      // Module switching
+      const sections = {
+        ports: document.getElementById('module-ports'),
+        users: document.getElementById('module-users'),
+        gifts: document.getElementById('module-gifts'),
+        tasks: document.getElementById('module-tasks'),
+        chests: document.getElementById('module-chests'),
+      };
+      const sidebarItems = document.querySelectorAll('#sidebarItems .item');
+      function showModule(name) {
+        Object.entries(sections).forEach(([key, el]) => {
+          if (!el) return;
+          el.classList.toggle('active', key === name);
+        });
+        sidebarItems.forEach(it => it.classList.toggle('active', it.dataset.module === name));
+        // Auto-load secondary sidebar content when switching modules
+        const autoRefreshMap = {
+          users: 'fetchUsersAllBtn',
+          gifts: 'fetchGiftsAllBtn',
+          tasks: 'fetchTasksAllBtn',
+          chests: 'fetchChestsAllBtn',
+        };
+        const btnId = autoRefreshMap[name];
+        if (btnId) {
+          const btn = document.getElementById(btnId);
+          if (btn) btn.click();
+        }
+      }
+      sidebarItems.forEach(it => {
+        it.addEventListener('click', () => showModule(it.dataset.module));
+      });
+
+      // Sidebar collapse toggle
+      const layoutEl = document.querySelector('.layout');
+      const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+      function updateSidebarToggleText() {
+        // When collapsed, show "Menu ➡" to indicate opening; when expanded, show "Menu ⬅" to indicate collapsing
+        toggleSidebarBtn.textContent = layoutEl.classList.contains('sidebar-hidden') ? 'Menu ➡' : 'Menu ⬅';
+      }
+      toggleSidebarBtn.addEventListener('click', () => {
+        layoutEl.classList.toggle('sidebar-hidden');
+        updateSidebarToggleText();
+      });
+      // Initialize button text state
+      updateSidebarToggleText();
+
+      function createEndpointCard(ep) {
+        const card = document.createElement('div');
+        card.className = 'card';
+        const inner = document.createElement('div');
+        inner.className = 'card-inner';
+
+        const top = document.createElement('div');
+        top.className = 'endpoint';
+        const left = document.createElement('div');
+        const right = document.createElement('div');
+
+        const title = document.createElement('div');
+        title.className = 'title';
+        title.textContent = ep.label;
+
+        const subtitle = document.createElement('div');
+        subtitle.className = 'subtitle';
+        subtitle.textContent = 'Click the button to fetch JSON response';
+
+        const badge = document.createElement('span');
+        badge.className = 'badge get';
+        badge.textContent = ep.method;
+
+        const path = document.createElement('div');
+        path.className = 'path';
+        // Resolve placeholders like {uID} using saved admin UID when available
+        const initialUID = localStorage.getItem('adminUID') || '{uID}';
+        const displayedPath = (ep.path && ep.path.includes('{uID}')) ? ep.path.replace('{uID}', initialUID) : ep.path;
+        path.textContent = displayedPath;
+
+        const btn = document.createElement('button');
+        btn.textContent = 'Request & Check JSON';
+
+        const copyBtn = document.createElement('button');
+        copyBtn.textContent = 'Copy full URL';
+        copyBtn.className = 'secondary';
+
+        const json = document.createElement('pre');
+        json.className = 'json';
+        json.style.display = 'none';
+
+        btn.addEventListener('click', async () => {
+          const base = baseUrlInput.value.replace(/\/$/, '');
+          // Resolve dynamic placeholders on click
+          const uid = localStorage.getItem('adminUID') || document.getElementById('userIdInput')?.value || '{uID}';
+          const resolvedPath = (ep.path && ep.path.includes('{uID}')) ? ep.path.replace('{uID}', uid) : ep.path;
+          const url = base + resolvedPath;
+          btn.disabled = true;
+          btn.textContent = 'Requesting…';
+          json.style.display = 'block';
+          json.textContent = 'Loading…';
+          try {
+            const headers = {};
+            if (ep.requireAuth) {
+              const token = document.getElementById('tokenInput').value.trim();
+              if (token) headers['Authorization'] = 'Bearer ' + token;
+            }
+            const res = await fetch(url, { method: ep.method || 'GET', headers });
+            const text = await res.text();
+            try {
+              const obj = JSON.parse(text);
+              json.textContent = JSON.stringify(obj, null, 2);
+            } catch (e) {
+      json.textContent = text; // Display non-JSON text as-is
+            }
+          } catch (e) {
+            json.textContent = 'Request failed: ' + e.message;
+          } finally {
+            btn.disabled = false;
+            btn.textContent = 'Request & Check JSON';
+          }
+        });
+
+        copyBtn.addEventListener('click', () => {
+          const base = baseUrlInput.value.replace(/\/$/, '');
+          const uid = localStorage.getItem('adminUID') || document.getElementById('userIdInput')?.value || '{uID}';
+          const resolvedPath = (ep.path && ep.path.includes('{uID}')) ? ep.path.replace('{uID}', uid) : ep.path;
+          const url = base + resolvedPath;
+          navigator.clipboard.writeText(url).then(() => {
+            copyBtn.textContent = 'Copied';
+            setTimeout(() => copyBtn.textContent = 'Copy full URL', 1200);
+          });
+        });
+
+        left.appendChild(title);
+        left.appendChild(subtitle);
+        left.appendChild(badge);
+        left.appendChild(path);
+        right.appendChild(btn);
+        right.appendChild(copyBtn);
+
+        top.appendChild(left);
+        top.appendChild(right);
+        inner.appendChild(top);
+        inner.appendChild(json);
+        card.appendChild(inner);
+        return card;
+      }
+
+      function renderGrid() {
+        grid.innerHTML = '';
+        defaultEndpoints.forEach(ep => grid.appendChild(createEndpointCard(ep)));
+      }
+
+      refreshBtn.addEventListener('click', renderGrid);
+      renderGrid();
+
+      // Initialize admin gate after initial render
+      initAdminGate();
+
+      // ===== 动态匹配首页链接（Home）=====
+      // 目标：在本地开发时，优先跳转到 Vite 开发服务器 (http://localhost:3000/)；
+      // 在生产或同源部署时，跳转到当前 origin 的根路径。
+      (function dynamicHomeLink() {
+        const link = document.getElementById('homeLink');
+        if (!link) return;
+
+        const origin = window.location.origin;
+        const hostname = window.location.hostname;
+        const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
+
+        // 候选地址按优先级排列：
+        // 1) 本地 Vite 开发服务器
+        // 2) 将 8001 替换为 3000 的同主机
+        // 3) 当前 origin 根路径（生产/同源）
+        const candidates = [];
+        if (isLocal) {
+          candidates.push('http://localhost:3000/');
+          if (origin.includes(':8001')) {
+            candidates.push(origin.replace(':8001', ':3000') + '/');
+          }
+        }
+        candidates.push(origin + '/');
+
+        // 使用 fetch(no-cors) 测试可达性：服务器不可达会触发 reject，
+        // 可达则 resolve（opaque），据此选择第一个可达候选。
+        const ping = (url, timeoutMs = 1200) => {
+          return new Promise((resolve) => {
+            let settled = false;
+            const timer = setTimeout(() => {
+              if (settled) return;
+              settled = true;
+              resolve(false);
+            }, timeoutMs);
+            fetch(url, { mode: 'no-cors' })
+              .then(() => {
+                if (settled) return;
+                settled = true; clearTimeout(timer);
+                resolve(true);
+              })
+              .catch(() => {
+                if (settled) return;
+                settled = true; clearTimeout(timer);
+                resolve(false);
+              });
+          });
+        };
+
+        (async () => {
+          for (const url of candidates) {
+            const ok = await ping(url);
+            if (ok) {
+              link.href = url;
+              return;
+            }
+          }
+          // 回退到同源根路径
+          link.href = origin + '/';
+        })();
+      })();
+
+      // Users: GET /api/users (list)
+      const usersAllBtn = document.getElementById('fetchUsersAllBtn');
+      const usersAllJson = document.getElementById('usersAllJson');
+      const copyUsersAllUrl = document.getElementById('copyUsersAllUrl');
+      const usersSidebarList = document.getElementById('usersSidebarList');
+      let usersCache = [];
+      usersAllBtn.addEventListener('click', async () => {
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/users';
+        usersAllBtn.disabled = true; usersAllBtn.textContent = 'Requesting…';
+        usersAllJson.style.display = 'block'; usersAllJson.textContent = 'Loading…';
+        try {
+          const headers = {};
+          const token = document.getElementById('tokenInput').value.trim();
+          if (token) headers['Authorization'] = 'Bearer ' + token;
+          const res = await fetch(url, { headers });
+          const text = await res.text();
+          try {
+            const obj = JSON.parse(text);
+            usersAllJson.textContent = JSON.stringify(obj, null, 2);
+            const list = Array.isArray(obj) ? obj : (obj && obj.data ? obj.data : []);
+            usersCache = list;
+            renderUsersSidebar(list);
+          } catch {
+            usersAllJson.textContent = text;
+          }
+        } catch (e) {
+          usersAllJson.textContent = 'Request failed: ' + e.message;
+        } finally {
+          usersAllBtn.disabled = false; usersAllBtn.textContent = 'Refresh';
+        }
+      });
+      copyUsersAllUrl.addEventListener('click', () => {
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/users';
+        navigator.clipboard.writeText(url).then(() => {
+          copyUsersAllUrl.textContent = 'Copied'; setTimeout(() => copyUsersAllUrl.textContent = 'Copy URL', 1200);
+        });
+      });
+
+      // Users: GET /api/users/{uID}
+      const userIdInput = document.getElementById('userIdInput');
+      const userDetailBtn = document.getElementById('fetchUserDetailBtn');
+      const userDetailJson = document.getElementById('userDetailJson');
+      const copyUserDetailUrl = document.getElementById('copyUserDetailUrl');
+      userDetailBtn.addEventListener('click', async () => {
+        const uID = (userIdInput.value || '').trim();
+        if (!uID) { alert('Please enter user ID'); return; }
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/users/' + encodeURIComponent(uID);
+        userDetailBtn.disabled = true; userDetailBtn.textContent = 'Requesting…';
+        userDetailJson.style.display = 'block'; userDetailJson.textContent = 'Loading…';
+        try {
+          const headers = {};
+          const token = document.getElementById('tokenInput').value.trim();
+          if (token) headers['Authorization'] = 'Bearer ' + token;
+          const res = await fetch(url, { headers });
+          const text = await res.text();
+          try { userDetailJson.textContent = JSON.stringify(JSON.parse(text), null, 2); }
+          catch { userDetailJson.textContent = text; }
+        } catch (e) {
+          userDetailJson.textContent = 'Request failed: ' + e.message;
+        } finally {
+          userDetailBtn.disabled = false; userDetailBtn.textContent = 'Fetch User Detail';
+        }
+      });
+      copyUserDetailUrl.addEventListener('click', () => {
+        const uID = (userIdInput.value || '').trim() || '{uID}';
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/users/' + uID;
+        navigator.clipboard.writeText(url).then(() => {
+          copyUserDetailUrl.textContent = 'Copied'; setTimeout(() => copyUserDetailUrl.textContent = 'Copy URL', 1200);
+        });
+      });
+
+      // User management: PATCH /api/user/{uID} (admin update)
+      const updateUserBtn = document.getElementById('updateUserBtn');
+      const userUpdateJson = document.getElementById('userUpdateJson');
+      updateUserBtn.addEventListener('click', async () => {
+        const uID = document.getElementById('userUpdateId').value.trim();
+        if (!uID) { alert('Please enter user ID'); return; }
+        const payload = {};
+        const bio = document.getElementById('userUpdateBio').value.trim(); if (bio) payload.bio = bio;
+        const isAdminVal = document.getElementById('userUpdateIsAdmin').value;
+        if (isAdminVal === 'true') payload.is_admin = true;
+        else if (isAdminVal === 'false') payload.is_admin = false;
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/user/' + encodeURIComponent(uID);
+        updateUserBtn.disabled = true; updateUserBtn.textContent = 'Requesting…';
+        userUpdateJson.style.display = 'block'; userUpdateJson.textContent = 'Loading…';
+        try {
+          const headers = { 'Content-Type': 'application/json' };
+          const token = document.getElementById('tokenInput').value.trim();
+          if (token) headers['Authorization'] = 'Bearer ' + token;
+          // Primary: PATCH
+          let res = await fetch(url, { method: 'PATCH', headers, body: JSON.stringify(payload) });
+          // Fallback: if backend does not allow PATCH, try PUT
+          if (res.status === 405) {
+            try { res = await fetch(url, { method: 'PUT', headers, body: JSON.stringify(payload) }); } catch (_e) {}
+          }
+          const text = await res.text();
+          try { userUpdateJson.textContent = JSON.stringify(JSON.parse(text), null, 2); }
+          catch { userUpdateJson.textContent = text; }
+        } catch (e) {
+          userUpdateJson.textContent = 'Request failed: ' + e.message;
+        } finally {
+          updateUserBtn.disabled = false; updateUserBtn.textContent = 'Apply Update';
+        }
+      });
+
+      function renderUsersSidebar(list) {
+        usersSidebarList.innerHTML = '';
+        list.forEach(u => {
+          const li = document.createElement('li');
+          li.className = 'sub-item';
+          li.dataset.uid = u.uID || u.uid || u.id;
+          const title = document.createElement('div'); title.className = 'title'; title.textContent = (u.EVM || u.evm || 'Unnamed user') + ' · #' + (u.uID ?? u.uid ?? '');
+          const meta = document.createElement('div'); meta.className = 'meta'; meta.textContent = (u.bio || '') + (u.is_admin ? ' · Admin' : '');
+          li.appendChild(title); li.appendChild(meta);
+          li.addEventListener('click', () => {
+            usersSidebarList.querySelectorAll('.sub-item').forEach(it => it.classList.remove('active'));
+            li.classList.add('active');
+            const id = li.dataset.uid;
+            userIdInput.value = id || '';
+            userDetailBtn.click();
+          });
+          usersSidebarList.appendChild(li);
+        });
+      }
+
+      // Tasks: GET /api/tasks/all
+      const tasksAllBtn = document.getElementById('fetchTasksAllBtn');
+      const tasksAllJson = document.getElementById('tasksAllJson');
+      const copyTasksAllUrl = document.getElementById('copyTasksAllUrl');
+      const tasksSidebarList = document.getElementById('tasksSidebarList');
+      let tasksCache = [];
+      tasksAllBtn.addEventListener('click', async () => {
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/tasks/all';
+        tasksAllBtn.disabled = true; tasksAllBtn.textContent = 'Requesting…';
+        tasksAllJson.style.display = 'block'; tasksAllJson.textContent = 'Loading…';
+        try {
+          const res = await fetch(url);
+          const text = await res.text();
+          try {
+            const obj = JSON.parse(text);
+            tasksAllJson.textContent = JSON.stringify(obj, null, 2);
+            const list = Array.isArray(obj) ? obj : (obj && obj.data ? obj.data : []);
+            tasksCache = list;
+            renderTasksSidebar(list);
+          } catch {
+            tasksAllJson.textContent = text;
+          }
+        } catch (e) {
+          tasksAllJson.textContent = 'Request failed: ' + e.message;
+        } finally {
+          tasksAllBtn.disabled = false; tasksAllBtn.textContent = 'Refresh';
+        }
+      });
+      copyTasksAllUrl.addEventListener('click', () => {
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/tasks/all';
+        navigator.clipboard.writeText(url).then(() => {
+          copyTasksAllUrl.textContent = 'Copied'; setTimeout(() => copyTasksAllUrl.textContent = 'Copy URL', 1200);
+        });
+      });
+
+      function renderTasksSidebar(list) {
+        tasksSidebarList.innerHTML = '';
+        list.forEach(t => {
+          const li = document.createElement('li');
+          li.className = 'sub-item';
+          li.dataset.tid = t.tID || t.tid || t.id;
+          const title = document.createElement('div'); title.className = 'title'; title.textContent = (t.title || 'Untitled task') + ' · #' + (t.tID ?? t.tid ?? '');
+          const meta = document.createElement('div'); meta.className = 'meta'; meta.textContent = (t.is_open ? 'Open' : 'Closed') + (t.time_start ? ` · Start ${t.time_start}` : '') + (t.time_end ? ` · End ${t.time_end}` : '');
+          li.appendChild(title); li.appendChild(meta);
+          li.addEventListener('click', () => {
+            tasksSidebarList.querySelectorAll('.sub-item').forEach(it => it.classList.remove('active'));
+            li.classList.add('active');
+            const id = li.dataset.tid;
+      // Populate selected task info into the update form
+            document.getElementById('taskUpdateId').value = id || '';
+            document.getElementById('taskUpdateTitle').value = t.title || '';
+            document.getElementById('taskUpdateNote').value = t.note || '';
+            document.getElementById('taskUpdateRefcode').value = t.refcode || '';
+            document.getElementById('taskUpdateLinkA').value = t.linkA || '';
+            document.getElementById('taskUpdateLinkB').value = t.linkB || '';
+            document.getElementById('taskUpdateStart').value = t.time_start || '';
+            document.getElementById('taskUpdateEnd').value = t.time_end || '';
+            document.getElementById('taskUpdateIsOpen').checked = !!t.is_open;
+      // Scroll to the update card section
+            document.getElementById('updateTaskBtn').scrollIntoView({ behavior: 'smooth', block: 'center' });
+          });
+          tasksSidebarList.appendChild(li);
+        });
+      }
+
+      // Tasks: POST /api/tasks (create)
+      const createTaskBtn = document.getElementById('createTaskBtn');
+      const taskCreateJson = document.getElementById('taskCreateJson');
+      createTaskBtn.addEventListener('click', async () => {
+        const title = document.getElementById('taskCreateTitle').value.trim();
+        if (!title) { alert('Please enter task title'); return; }
+        const payload = {
+          title,
+          note: document.getElementById('taskCreateNote').value.trim() || undefined,
+          refcode: document.getElementById('taskCreateRefcode').value.trim() || undefined,
+          linkA: document.getElementById('taskCreateLinkA').value.trim() || undefined,
+          linkB: document.getElementById('taskCreateLinkB').value.trim() || undefined,
+          is_open: document.getElementById('taskCreateIsOpen').checked,
+          time_start: document.getElementById('taskCreateStart').value.trim() || undefined,
+          time_end: document.getElementById('taskCreateEnd').value.trim() || undefined,
+        };
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/tasks';
+        createTaskBtn.disabled = true; createTaskBtn.textContent = 'Requesting…';
+        taskCreateJson.style.display = 'block'; taskCreateJson.textContent = 'Loading…';
+        try {
+          const headers = { 'Content-Type': 'application/json' };
+          const token = document.getElementById('tokenInput').value.trim();
+          if (token) headers['Authorization'] = 'Bearer ' + token;
+          const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(payload) });
+          const text = await res.text();
+          try { 
+            const obj = JSON.parse(text);
+            taskCreateJson.textContent = JSON.stringify(obj, null, 2);
+      // After creation, refresh the tasks sidebar list
+            tasksAllBtn.click();
+          }
+          catch { taskCreateJson.textContent = text; }
+        } catch (e) {
+          taskCreateJson.textContent = 'Request failed: ' + e.message;
+        } finally {
+          createTaskBtn.disabled = false; createTaskBtn.textContent = 'Create Task';
+        }
+      });
+
+      // Tasks: PATCH /api/tasks/{tID} (update)
+      const updateTaskBtn = document.getElementById('updateTaskBtn');
+      const copyTaskUpdateUrl = document.getElementById('copyTaskUpdateUrl');
+      const taskUpdateJson = document.getElementById('taskUpdateJson');
+      // Copy the exact update endpoint URL for quick verification
+      copyTaskUpdateUrl.addEventListener('click', () => {
+        const tID = document.getElementById('taskUpdateId').value.trim();
+        if (!tID) { alert('Please enter task ID'); return; }
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/tasks/' + encodeURIComponent(tID);
+        navigator.clipboard.writeText(url).then(() => {
+          copyTaskUpdateUrl.textContent = 'Copied';
+          setTimeout(() => copyTaskUpdateUrl.textContent = 'Copy URL', 1200);
+        }).catch(() => {
+          alert('Failed to copy');
+        });
+      });
+      updateTaskBtn.addEventListener('click', async () => {
+        const tID = document.getElementById('taskUpdateId').value.trim();
+        if (!tID) { alert('Please enter task ID'); return; }
+        const payload = {};
+        const title = document.getElementById('taskUpdateTitle').value.trim(); if (title) payload.title = title;
+        const note = document.getElementById('taskUpdateNote').value.trim(); if (note) payload.note = note;
+        const refcode = document.getElementById('taskUpdateRefcode').value.trim(); if (refcode) payload.refcode = refcode;
+        const linkA = document.getElementById('taskUpdateLinkA').value.trim(); if (linkA) payload.linkA = linkA;
+        const linkB = document.getElementById('taskUpdateLinkB').value.trim(); if (linkB) payload.linkB = linkB;
+        const start = document.getElementById('taskUpdateStart').value.trim(); if (start) payload.time_start = start;
+        const end = document.getElementById('taskUpdateEnd').value.trim(); if (end) payload.time_end = end;
+      // Checking is_open updates to true; unchecked means unchanged
+        if (document.getElementById('taskUpdateIsOpen').checked) { payload.is_open = true; }
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/tasks/' + encodeURIComponent(tID);
+        updateTaskBtn.disabled = true; updateTaskBtn.textContent = 'Requesting…';
+        taskUpdateJson.style.display = 'block'; taskUpdateJson.textContent = 'Loading…';
+        try {
+          const headers = { 'Content-Type': 'application/json' };
+          const token = document.getElementById('tokenInput').value.trim();
+          if (token) headers['Authorization'] = 'Bearer ' + token;
+          const res = await fetch(url, { method: 'PATCH', headers, body: JSON.stringify(payload) });
+          const text = await res.text();
+          try { 
+            const obj = JSON.parse(text);
+            taskUpdateJson.textContent = JSON.stringify(obj, null, 2);
+      // After update, refresh the tasks sidebar list
+            tasksAllBtn.click();
+          }
+          catch { taskUpdateJson.textContent = text; }
+        } catch (e) {
+          taskUpdateJson.textContent = 'Request failed: ' + e.message;
+        } finally {
+          updateTaskBtn.disabled = false; updateTaskBtn.textContent = 'Update Task';
+        }
+      });
+
+      // Tasks: DELETE /api/tasks/{tID} (delete)
+      const deleteTaskBtn = document.getElementById('deleteTaskBtn');
+      const taskDeleteJson = document.getElementById('taskDeleteJson');
+      deleteTaskBtn.addEventListener('click', async () => {
+        const tID = document.getElementById('taskDeleteId').value.trim();
+        if (!tID) { alert('Please enter task ID'); return; }
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/tasks/' + encodeURIComponent(tID);
+        deleteTaskBtn.disabled = true; deleteTaskBtn.textContent = 'Requesting…';
+        taskDeleteJson.style.display = 'block'; taskDeleteJson.textContent = 'Loading…';
+        try {
+          const headers = {};
+          const token = document.getElementById('tokenInput').value.trim();
+          if (token) headers['Authorization'] = 'Bearer ' + token;
+          const res = await fetch(url, { method: 'DELETE', headers });
+          const text = await res.text();
+          try { 
+            const obj = JSON.parse(text);
+            taskDeleteJson.textContent = JSON.stringify(obj, null, 2);
+      // After deletion, refresh the tasks sidebar list
+            tasksAllBtn.click();
+          }
+          catch { taskDeleteJson.textContent = text; }
+        } catch (e) {
+          taskDeleteJson.textContent = 'Request failed: ' + e.message;
+        } finally {
+          deleteTaskBtn.disabled = false; deleteTaskBtn.textContent = 'Delete Task';
+        }
+      });
+
+      // Gifts: GET /api/gifts/all + details
+      const giftsAllBtn = document.getElementById('fetchGiftsAllBtn');
+      const copyGiftsAllUrl = document.getElementById('copyGiftsAllUrl');
+      const giftsAllJson = document.getElementById('giftsAllJson');
+      const giftsSidebarList = document.getElementById('giftsSidebarList');
+      const giftIdInput = document.getElementById('giftIdInput');
+      const giftDetailBtn = document.getElementById('fetchGiftDetailBtn');
+      const giftDetailJson = document.getElementById('giftDetailJson');
+      const copyGiftDetailUrl = document.getElementById('copyGiftDetailUrl');
+      let giftsCache = [];
+      giftsAllBtn.addEventListener('click', async () => {
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/gifts/all';
+        giftsAllBtn.disabled = true; giftsAllBtn.textContent = 'Requesting…';
+        giftsAllJson.style.display = 'block'; giftsAllJson.textContent = 'Loading…';
+        try {
+          const res = await fetch(url);
+          const text = await res.text();
+          try {
+            const obj = JSON.parse(text);
+            giftsAllJson.textContent = JSON.stringify(obj, null, 2);
+            const list = Array.isArray(obj) ? obj : (obj && obj.data ? obj.data : []);
+            giftsCache = list;
+            renderGiftsSidebar(list);
+          } catch {
+            giftsAllJson.textContent = text;
+          }
+        } catch (e) {
+          giftsAllJson.textContent = 'Request failed: ' + e.message;
+        } finally {
+          giftsAllBtn.disabled = false; giftsAllBtn.textContent = 'Refresh';
+        }
+      });
+      copyGiftsAllUrl.addEventListener('click', () => {
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/gifts/all';
+        navigator.clipboard.writeText(url).then(() => {
+          copyGiftsAllUrl.textContent = 'Copied'; setTimeout(() => copyGiftsAllUrl.textContent = 'Copy URL', 1200);
+        });
+      });
+      function renderGiftsSidebar(list) {
+        giftsSidebarList.innerHTML = '';
+        list.forEach(g => {
+          const li = document.createElement('li'); li.className = 'sub-item'; li.dataset.gid = g.gID || g.gid || g.gift_id;
+          const title = document.createElement('div'); title.className = 'title'; title.textContent = (g.gift_name || 'Untitled gift') + ' · #' + (g.gID ?? g.gid ?? g.gift_id ?? '');
+          const meta = document.createElement('div'); meta.className = 'meta'; meta.textContent = (g.is_open ? 'Open' : 'Closed') + (g.time_start ? ` · Start ${g.time_start}` : '') + (g.time_end ? ` · End ${g.time_end}` : '');
+          li.appendChild(title); li.appendChild(meta);
+          li.addEventListener('click', () => {
+            giftsSidebarList.querySelectorAll('.sub-item').forEach(it => it.classList.remove('active'));
+            li.classList.add('active');
+            const id = li.dataset.gid;
+            giftIdInput.value = id || '';
+            giftDetailBtn.click();
+          });
+          giftsSidebarList.appendChild(li);
+        });
+      }
+      giftDetailBtn.addEventListener('click', async () => {
+        const gid = (giftIdInput.value || '').trim(); if (!gid) { alert('Please enter gift ID'); return; }
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/gifts/' + encodeURIComponent(gid);
+        giftDetailBtn.disabled = true; giftDetailBtn.textContent = 'Requesting…';
+        giftDetailJson.style.display = 'block'; giftDetailJson.textContent = 'Loading…';
+        try {
+          const res = await fetch(url);
+          const text = await res.text();
+          try { giftDetailJson.textContent = JSON.stringify(JSON.parse(text), null, 2); }
+          catch { giftDetailJson.textContent = text; }
+        } catch (e) {
+          giftDetailJson.textContent = 'Request failed: ' + e.message;
+        } finally {
+          giftDetailBtn.disabled = false; giftDetailBtn.textContent = 'Fetch Gift Detail';
+        }
+      });
+      copyGiftDetailUrl.addEventListener('click', () => {
+        const gid = (giftIdInput.value || '').trim() || '{gift_id}';
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/gifts/' + gid;
+        navigator.clipboard.writeText(url).then(() => {
+          copyGiftDetailUrl.textContent = 'Copied'; setTimeout(() => copyGiftDetailUrl.textContent = 'Copy URL', 1200);
+        });
+      });
+
+      // Gift management: POST /api/gifts (create, admin)
+      const createGiftBtn = document.getElementById('createGiftBtn');
+      const giftCreateJson = document.getElementById('giftCreateJson');
+      createGiftBtn.addEventListener('click', async () => {
+        const gift_name = document.getElementById('giftCreateName').value.trim();
+        if (!gift_name) { alert('Please enter gift name'); return; }
+        const payload = {
+          gift_name,
+          note: document.getElementById('giftCreateDesc')?.value.trim() || undefined,
+          // The simplified admin form only supports description and image URL here
+          linkA: document.getElementById('giftCreateImage')?.value.trim() || undefined,
+          is_open: !!document.getElementById('giftCreateIsOpen')?.checked,
+          time_start: document.getElementById('giftCreateStart')?.value.trim() || undefined,
+          time_end: document.getElementById('giftCreateEnd')?.value.trim() || undefined,
+        };
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/gifts';
+        createGiftBtn.disabled = true; createGiftBtn.textContent = 'Requesting…';
+        giftCreateJson.style.display = 'block'; giftCreateJson.textContent = 'Loading…';
+        try {
+          const headers = { 'Content-Type': 'application/json' };
+          const token = document.getElementById('tokenInput').value.trim();
+          if (token) headers['Authorization'] = 'Bearer ' + token;
+          const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(payload) });
+          const text = await res.text();
+          try {
+            const obj = JSON.parse(text);
+            giftCreateJson.textContent = JSON.stringify(obj, null, 2);
+      giftsAllBtn.click(); // Refresh sidebar list
+          } catch {
+            giftCreateJson.textContent = text;
+          }
+        } catch (e) {
+          giftCreateJson.textContent = 'Request failed: ' + e.message;
+        } finally {
+          createGiftBtn.disabled = false; createGiftBtn.textContent = 'Create Gift';
+        }
+      });
+
+      // Gift management: PUT /api/gifts/{gift_id} (update, admin)
+      const updateGiftBtn = document.getElementById('updateGiftBtn');
+      const giftUpdateJson = document.getElementById('giftUpdateJson');
+      updateGiftBtn.addEventListener('click', async () => {
+        const gid = document.getElementById('giftUpdateId').value.trim();
+        if (!gid) { alert('Please enter gift ID'); return; }
+        const payload = {};
+        const gift_name = document.getElementById('giftUpdateTitle')?.value.trim(); if (gift_name) payload.gift_name = gift_name;
+        const note = document.getElementById('giftUpdateNote')?.value.trim(); if (note) payload.note = note;
+        const refcode = document.getElementById('giftUpdateRefcode')?.value.trim(); if (refcode) payload.refcode = refcode;
+        const linkA = document.getElementById('giftUpdateLinkA')?.value.trim(); if (linkA) payload.linkA = linkA;
+        const linkB = document.getElementById('giftUpdateLinkB')?.value.trim(); if (linkB) payload.linkB = linkB;
+        const start = document.getElementById('giftUpdateTimeStart')?.value.trim(); if (start) payload.time_start = start;
+        const end = document.getElementById('giftUpdateTimeEnd')?.value.trim(); if (end) payload.time_end = end;
+      if (document.getElementById('giftUpdateIsOpen')?.checked) payload.is_open = true; // Checked means update to true; unchecked means unchanged
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/gifts/' + encodeURIComponent(gid);
+        updateGiftBtn.disabled = true; updateGiftBtn.textContent = 'Requesting…';
+        giftUpdateJson.style.display = 'block'; giftUpdateJson.textContent = 'Loading…';
+        try {
+          const headers = { 'Content-Type': 'application/json' };
+          const token = document.getElementById('tokenInput').value.trim();
+          if (token) headers['Authorization'] = 'Bearer ' + token;
+          const res = await fetch(url, { method: 'PUT', headers, body: JSON.stringify(payload) });
+          const text = await res.text();
+          try {
+            const obj = JSON.parse(text);
+            giftUpdateJson.textContent = JSON.stringify(obj, null, 2);
+      giftsAllBtn.click(); // Refresh sidebar list
+          } catch {
+            giftUpdateJson.textContent = text;
+          }
+        } catch (e) {
+          giftUpdateJson.textContent = 'Request failed: ' + e.message;
+        } finally {
+          updateGiftBtn.disabled = false; updateGiftBtn.textContent = 'Update Gift';
+        }
+      });
+
+      // Gift management: DELETE /api/gifts/{gift_id} (delete, admin)
+      const deleteGiftBtn = document.getElementById('deleteGiftBtn');
+      const giftDeleteJson = document.getElementById('giftDeleteJson');
+      deleteGiftBtn.addEventListener('click', async () => {
+        const gid = document.getElementById('giftUpdateId').value.trim() || document.getElementById('giftDeleteId')?.value.trim();
+        if (!gid) { alert('Please enter gift ID'); return; }
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/gifts/' + encodeURIComponent(gid);
+        deleteGiftBtn.disabled = true; deleteGiftBtn.textContent = 'Requesting…';
+        giftDeleteJson.style.display = 'block'; giftDeleteJson.textContent = 'Loading…';
+        try {
+          const headers = {};
+          const token = document.getElementById('tokenInput').value.trim();
+          if (token) headers['Authorization'] = 'Bearer ' + token;
+          const res = await fetch(url, { method: 'DELETE', headers });
+          const text = await res.text();
+          try {
+            const obj = JSON.parse(text);
+            giftDeleteJson.textContent = JSON.stringify(obj, null, 2);
+            giftsAllBtn.click();
+          } catch {
+            giftDeleteJson.textContent = text;
+          }
+        } catch (e) {
+          giftDeleteJson.textContent = 'Request failed: ' + e.message;
+        } finally {
+          deleteGiftBtn.disabled = false; deleteGiftBtn.textContent = 'Delete Gift';
+        }
+      });
+
+      // GiftList bulk create: POST /api/giftlist (admin)
+      const giftListCreateBtn = document.getElementById('giftListCreateBtn');
+      const giftListCreateJson = document.getElementById('giftListCreateJson');
+      giftListCreateBtn.addEventListener('click', async () => {
+        const gID = (document.getElementById('giftListCreateGiftId').value || '').trim();
+        if (!gID) { alert('Please enter Gift ID (gID)'); return; }
+        const countStr = (document.getElementById('giftListCreateCount').value || '').trim();
+        const count = countStr ? parseInt(countStr, 10) : 100;
+        if (!Number.isFinite(count) || count <= 0) { alert('Count must be a positive integer'); return; }
+        const uIDStr = (document.getElementById('giftListCreateUserId').value || '').trim();
+        const csv = (document.getElementById('giftListCreateUserIdsCsv').value || '').trim();
+        let payload = { gID: Number(gID), count };
+        if (csv) {
+          const arr = csv.split(',').map(s => s.trim()).filter(Boolean).map(s => Number(s)).filter(n => Number.isFinite(n));
+          if (arr.length === 0) { alert('CSV user IDs is invalid'); return; }
+          payload = { gID: Number(gID), uIDs: arr };
+        } else if (uIDStr) {
+          const uID = Number(uIDStr);
+          if (!Number.isFinite(uID)) { alert('User ID must be a number'); return; }
+          payload.uID = uID;
+        } else {
+          // 允许仅提供 gID + count：创建到系统池用户，待用户领取后归属
+          payload = { gID: Number(gID), count };
+        }
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/giftlist';
+        giftListCreateBtn.disabled = true; giftListCreateBtn.textContent = 'Requesting…';
+        giftListCreateJson.style.display = 'block'; giftListCreateJson.textContent = 'Loading…';
+        try {
+          const headers = { 'Content-Type': 'application/json' };
+          const token = document.getElementById('tokenInput').value.trim();
+          if (token) headers['Authorization'] = 'Bearer ' + token;
+          const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(payload) });
+          const text = await res.text();
+          try {
+            const obj = JSON.parse(text);
+            giftListCreateJson.textContent = JSON.stringify(obj, null, 2);
+          } catch {
+            giftListCreateJson.textContent = text;
+          }
+        } catch (e) {
+          giftListCreateJson.textContent = 'Request failed: ' + e.message;
+        } finally {
+          giftListCreateBtn.disabled = false; giftListCreateBtn.textContent = 'Create GiftList';
+        }
+      });
+
+      // Chests: GET /api/chest/all + details (from list)
+      const chestsAllBtn = document.getElementById('fetchChestsAllBtn');
+      const copyChestsAllUrl = document.getElementById('copyChestsAllUrl');
+      const chestsAllJson = document.getElementById('chestsAllJson');
+      const chestsSidebarList = document.getElementById('chestsSidebarList');
+      const chestIdInput = document.getElementById('chestIdInput');
+      const chestDetailBtn = document.getElementById('fetchChestDetailBtn');
+      const chestDetailJson = document.getElementById('chestDetailJson');
+      const copyChestDetailUrl = document.getElementById('copyChestDetailUrl');
+      let chestsCache = [];
+      chestsAllBtn.addEventListener('click', async () => {
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/chest/all';
+        chestsAllBtn.disabled = true; chestsAllBtn.textContent = 'Requesting…';
+        chestsAllJson.style.display = 'block'; chestsAllJson.textContent = 'Loading…';
+        try {
+          const res = await fetch(url);
+          const text = await res.text();
+          try {
+            const obj = JSON.parse(text);
+            chestsAllJson.textContent = JSON.stringify(obj, null, 2);
+            const list = Array.isArray(obj) ? obj : (obj && obj.data ? obj.data : []);
+            chestsCache = list;
+            renderChestsSidebar(list);
+          } catch {
+            chestsAllJson.textContent = text;
+          }
+        } catch (e) {
+          chestsAllJson.textContent = 'Request failed: ' + e.message;
+        } finally {
+          chestsAllBtn.disabled = false; chestsAllBtn.textContent = 'Refresh';
+        }
+      });
+      copyChestsAllUrl.addEventListener('click', () => {
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/chest/all';
+        navigator.clipboard.writeText(url).then(() => {
+          copyChestsAllUrl.textContent = 'Copied'; setTimeout(() => copyChestsAllUrl.textContent = 'Copy URL', 1200);
+        });
+      });
+      function renderChestsSidebar(list) {
+        chestsSidebarList.innerHTML = '';
+        list.forEach(c => {
+          const li = document.createElement('li'); li.className = 'sub-item'; li.dataset.cid = c.cID || c.cid || c.id;
+          const title = document.createElement('div'); title.className = 'title'; title.textContent = `Chest #${c.cID ?? c.cid ?? c.id}`;
+          const meta = document.createElement('div'); meta.className = 'meta'; meta.textContent = (c.is_active ? 'Unclaimed' : 'Claimed') + (c.time_created ? ` · ${c.time_created}` : '');
+          li.appendChild(title); li.appendChild(meta);
+          li.addEventListener('click', () => {
+            chestsSidebarList.querySelectorAll('.sub-item').forEach(it => it.classList.remove('active'));
+            li.classList.add('active');
+            const id = li.dataset.cid;
+            chestIdInput.value = id || '';
+      // Display details directly from local cache
+            const obj = chestsCache.find(x => String(x.cID ?? x.cid ?? x.id) === String(id));
+            chestDetailJson.style.display = 'block';
+            chestDetailJson.textContent = JSON.stringify(obj || { message: 'Not found in cache. Click refresh to update the list.' }, null, 2);
+          });
+          chestsSidebarList.appendChild(li);
+        });
+      }
+      chestDetailBtn.addEventListener('click', () => {
+        const id = (chestIdInput.value || '').trim();
+        if (!id) { alert('Please enter chest ID'); return; }
+        const obj = chestsCache.find(x => String(x.cID ?? x.cid ?? x.id) === String(id));
+        chestDetailJson.style.display = 'block';
+        chestDetailJson.textContent = JSON.stringify(obj || { message: 'Not found in cache. Click refresh to update the list.' }, null, 2);
+      });
+      copyChestDetailUrl.addEventListener('click', () => {
+        const base = baseUrlInput.value.replace(/\/$/, '');
+        const url = base + '/api/chest/all';
+        navigator.clipboard.writeText(url).then(() => {
+          copyChestDetailUrl.textContent = 'Copied'; setTimeout(() => copyChestDetailUrl.textContent = 'Copy URL', 1200);
+        });
+      });
+    </script>
+  </body>
+  </html>
