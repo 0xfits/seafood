@@ -7,32 +7,32 @@ const partnerBrands = [
   {
     name: 'CAT',
     url: 'https://catcat.meme',
-    image: '/src/images/partners/CAT_banner.png'
+    image: '/images/partners/CAT_banner.png'
   },
   {
     name: 'Partner 2',
     url: 'https://example.com/partner2',
-    image: '/src/images/partners/partner2_logo.png'
+    image: '/images/partners/partner2_logo.png'
   },
   {
     name: 'Partner 3',
     url: 'https://example.com/partner3',
-    image: '/src/images/partners/partner3_logo.png'
+    image: '/images/partners/partner3_logo.png'
   },
   {
     name: 'Partner 4',
     url: 'https://example.com/partner4',
-    image: '/src/images/partners/partner4_logo.png'
+    image: '/images/partners/partner4_logo.png'
   },
   {
     name: 'Partner 5',
     url: 'https://example.com/partner5',
-    image: '/src/images/partners/partner5_logo.png'
+    image: '/images/partners/partner5_logo.png'
   },
   {
     name: 'Partner 6',
     url: 'https://example.com/partner6',
-    image: '/src/images/partners/partner6_logo.png'
+    image: '/images/partners/partner6_logo.png'
   }
 ]
 
