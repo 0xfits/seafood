@@ -161,10 +161,16 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             data = json.loads(post_data)
             
             # 简单模拟登录验证
-            if data.get('evm_address'):
+            evm_address = data.get('evm_address')
+            if evm_address:
                 self._set_headers()
+                # 生成基于地址的 uID（取地址后16位）
+                uID = evm_address[-16:] if len(evm_address) >= 16 else evm_address
                 self.wfile.write(json.dumps({
-                    "access_token": "mock-jwt-token",
+                    "success": True,
+                    "uID": uID,
+                    "EVM": evm_address,
+                    "access_token": "mock-jwt-token-" + uID,
                     "token_type": "bearer"
                 }).encode())
                 return

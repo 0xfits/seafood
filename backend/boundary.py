@@ -252,6 +252,22 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                         return APIResponse(ok=False, status_code=403, error='Forbidden')
                     return self._response(await self.user_core.list_all(skip=skip, limit=limit))
             elif method == 'POST':
+                # ====== Auth endpoints ======
+                # ====== 认证相关的路由端点 ======
+                if path == "/api/auth/login":
+                    evm_address = payload.get('evm_address') if payload else None
+                    if evm_address:
+                        # 生成基于地址的 uID（取地址后16位）
+                        uID = evm_address[-16:] if len(evm_address) >= 16 else evm_address
+                        return self._response({
+                            "success": True,
+                            "uID": uID,
+                            "EVM": evm_address,
+                            "access_token": create_access_token({"sub": str(uID), "evm": evm_address}),
+                            "token_type": "bearer"
+                        })
+                    else:
+                        return APIResponse(ok=False, status_code=401, error='Unauthorized: evm_address required')
                 # ====== Chest endpoints ======
                 # ====== 宝箱相关的路由端点 ======
                 if path == "/api/chest/claim":

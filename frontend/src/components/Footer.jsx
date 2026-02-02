@@ -2,6 +2,40 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
 
+// 合作品牌数据
+const partnerBrands = [
+  {
+    name: 'CAT',
+    url: 'https://catcat.meme',
+    image: '/src/images/partners/cat_logo.png'
+  },
+  {
+    name: 'Partner 2',
+    url: 'https://example.com/partner2',
+    image: '/src/images/partners/partner2_logo.png'
+  },
+  {
+    name: 'Partner 3',
+    url: 'https://example.com/partner3',
+    image: '/src/images/partners/partner3_logo.png'
+  },
+  {
+    name: 'Partner 4',
+    url: 'https://example.com/partner4',
+    image: '/src/images/partners/partner4_logo.png'
+  },
+  {
+    name: 'Partner 5',
+    url: 'https://example.com/partner5',
+    image: '/src/images/partners/partner5_logo.png'
+  },
+  {
+    name: 'Partner 6',
+    url: 'https://example.com/partner6',
+    image: '/src/images/partners/partner6_logo.png'
+  }
+]
+
 const Footer = () => {
   const { t } = useTranslation()
   const location = useLocation()
@@ -34,6 +68,38 @@ const Footer = () => {
   return (
     <footer className="bg-bg-secondary border-t border-border-color">
       <div className="container mx-auto px-4 py-8">
+        {/* 合作品牌 */}
+        <div className="mb-8">
+          <h3 className="text-center text-lg font-semibold text-text-primary mb-6">
+            {getCurrentLang() === 'zh' && '合作品牌'}
+            {getCurrentLang() === 'en' && 'Partner Brands'}
+            {getCurrentLang() === 'hk' && '合作品牌'}
+            {getCurrentLang() === 'vn' && 'Thương hiệu đối tác'}
+          </h3>
+          <div className="flex flex-wrap justify-center items-center gap-6">
+            {partnerBrands.map((brand) => (
+              <a
+                key={brand.name}
+                href={brand.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+              >
+                <img
+                  src={brand.image}
+                  alt={brand.name}
+                  width="320"
+                  height="100"
+                  className="h-[100px] w-auto object-contain"
+                />
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* 分隔线 */}
+        <div className="border-t border-border-color my-6"></div>
+        
         {/* 语言链接 */}
         <div className="flex flex-wrap justify-center gap-4 mb-6">
           {languages.map((lang) => (

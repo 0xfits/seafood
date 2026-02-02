@@ -232,9 +232,12 @@ const Header = () => {
                 </Transition>
               </Popover>
             ) : (
-              <button onClick={handleLogin} className="nav-link btn-primary">
-                <LogIn size={18} className="mr-1" />
-                {t('login')}
+              <button 
+                onClick={handleLogin} 
+                className="flex items-center gap-1.5 text-text-secondary hover:text-primary transition-colors text-sm font-medium"
+              >
+                <LogIn size={18} />
+                <span>{t('login')}</span>
               </button>
             )}
           </div>
