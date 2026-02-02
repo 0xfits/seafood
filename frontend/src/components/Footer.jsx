@@ -7,7 +7,7 @@ const partnerBrands = [
   {
     name: 'CAT',
     url: 'https://catcat.meme',
-    image: '/src/images/partners/cat_logo.png'
+    image: '/src/images/partners/CAT_banner.png'
   },
   {
     name: 'Partner 2',
