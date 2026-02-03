@@ -90,17 +90,21 @@ const Footer = () => {
                 href={brand.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                title={brand.description}
-                className="block rounded-lg overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md"
+                className="group block rounded-lg overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md relative"
               >
                 <div className="bg-bg-primary border border-border-color border-l-[5px] border-l-border hover:border-l-[#b6beca] transition-colors duration-300">
                   <img
                     src={brand.image}
-                    alt={brand.description || brand.name}
+                    alt={brand.name}
                     width="160"
                     height="50"
                     className="h-[50px] w-auto object-contain"
                   />
+                </div>
+                {/* 自定义工具提示 - 立即显示 */}
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 bg-bg-dark text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-none whitespace-nowrap z-50">
+                  {brand.description}
+                  <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-bg-dark"></div>
                 </div>
               </a>
             ))}
