@@ -90,6 +90,7 @@ const Footer = () => {
                 href={brand.url}
                 target="_blank"
                 rel="noopener noreferrer"
+                title={brand.description}
                 className="block rounded-lg overflow-hidden bg-bg-primary border border-border-color shadow-sm transition-all duration-300 hover:shadow-md border-l-[5px] border-l-border hover:border-l-[#b6beca]"
               >
                 <div className="p-3">
