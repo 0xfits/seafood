@@ -40,18 +40,6 @@ const partnerBrands = [
     url: 'https://example.com/partner4',
     image: '/images/partners/partner4_logo.png',
     description: '合作伙伴 4'
-  },
-  {
-    name: 'Partner 5',
-    url: 'https://example.com/partner5',
-    image: '/images/partners/partner5_logo.png',
-    description: '合作伙伴 5'
-  },
-  {
-    name: 'Partner 6',
-    url: 'https://example.com/partner6',
-    image: '/images/partners/partner6_logo.png',
-    description: '合作伙伴 6'
   }
 ]
 
@@ -107,9 +95,9 @@ const Footer = () => {
                 <img
                   src={brand.image}
                   alt={brand.description || brand.name}
-                  width="320"
-                  height="100"
-                  className="h-[100px] w-auto object-contain"
+                  width="160"
+                  height="50"
+                  className="h-[50px] w-auto object-contain"
                 />
               </a>
             ))}
