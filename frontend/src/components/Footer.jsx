@@ -83,22 +83,33 @@ const Footer = () => {
             {getCurrentLang() === 'hk' && '合作品牌'}
             {getCurrentLang() === 'vn' && 'Thương hiệu đối tác'}
           </h3>
-          <div className="flex flex-wrap justify-center items-center gap-6">
-            {partnerBrands.map((brand) => (
+          <div className="flex flex-wrap justify-center items-stretch gap-6">
+            {partnerBrands.map((brand, index) => (
               <a
                 key={brand.name}
                 href={brand.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block rounded-xl overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 bg-bg-primary border border-border-color"
+                className={`group block rounded-lg overflow-hidden bg-bg-primary border border-border-color shadow-sm transition-all duration-300 hover:shadow-md ${
+                  index === 0 ? 'border-l-[5px] border-l-[#f5c518] hover:border-l-[#ffd84a]' : 
+                  index === 1 ? 'border-l-[5px] border-l-[#10b981] hover:border-l-[#34d399]' :
+                  index === 2 ? 'border-l-[5px] border-l-[#3b82f6] hover:border-l-[#60a5fa]' :
+                  'border-l-[5px] border-l-[#f472b6] hover:border-l-[#f9a8d4]'
+                }`}
+                title={brand.description}
               >
-                <img
-                  src={brand.image}
-                  alt={brand.description || brand.name}
-                  width="160"
-                  height="50"
-                  className="h-[50px] w-auto object-contain"
-                />
+                <div className="p-3 flex flex-col items-center">
+                  <img
+                    src={brand.image}
+                    alt={brand.name}
+                    width="160"
+                    height="50"
+                    className="h-[50px] w-auto object-contain mb-2"
+                  />
+                  <p className="text-xs text-text-secondary text-center line-clamp-2 max-w-[160px]">
+                    {brand.description}
+                  </p>
+                </div>
               </a>
             ))}
           </div>
