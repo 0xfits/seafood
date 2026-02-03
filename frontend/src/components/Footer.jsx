@@ -83,7 +83,7 @@ const Footer = () => {
                 href={brand.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="transition-opacity hover:opacity-80"
+                className="block rounded-xl overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 bg-bg-primary border border-border-color"
               >
                 <img
                   src={brand.image}
