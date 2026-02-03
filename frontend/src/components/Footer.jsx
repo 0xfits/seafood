@@ -91,9 +91,9 @@ const Footer = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 title={brand.description}
-                className="block rounded-lg overflow-hidden bg-bg-primary border border-border-color shadow-sm transition-all duration-300 hover:shadow-md border-l-[5px] border-l-border hover:border-l-[#b6beca]"
+                className="block rounded-lg overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md"
               >
-                <div className="p-3">
+                <div className="bg-bg-primary border border-border-color border-l-[5px] border-l-border hover:border-l-[#b6beca] transition-colors duration-300">
                   <img
                     src={brand.image}
                     alt={brand.description || brand.name}
