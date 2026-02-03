@@ -2,37 +2,56 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
 
+// CAT 品牌描述文案（随机选择）
+const catDescriptions = [
+  '猫猫大使团｜不止一份报酬，更加一份经验。',
+  '猫猫大使团｜你的声音，值得被品牌听见。',
+  '你的代言，从猫猫大使团开始。'
+]
+
+// 获取随机描述
+const getRandomCatDescription = () => {
+  const randomIndex = Math.floor(Math.random() * catDescriptions.length)
+  return catDescriptions[randomIndex]
+}
+
 // 合作品牌数据
 const partnerBrands = [
   {
     name: 'CAT',
     url: 'https://catcat.meme',
-    image: '/images/partners/CAT_banner.png'
+    image: '/images/partners/CAT_banner.png',
+    description: getRandomCatDescription()
   },
   {
     name: 'Partner 2',
     url: 'https://example.com/partner2',
-    image: '/images/partners/partner2_logo.png'
+    image: '/images/partners/partner2_logo.png',
+    description: '合作伙伴 2'
   },
   {
     name: 'Partner 3',
     url: 'https://example.com/partner3',
-    image: '/images/partners/partner3_logo.png'
+    image: '/images/partners/partner3_logo.png',
+    description: '合作伙伴 3'
   },
   {
     name: 'Partner 4',
     url: 'https://example.com/partner4',
-    image: '/images/partners/partner4_logo.png'
+    image: '/images/partners/partner4_logo.png',
+    description: '合作伙伴 4'
   },
   {
     name: 'Partner 5',
     url: 'https://example.com/partner5',
-    image: '/images/partners/partner5_logo.png'
+    image: '/images/partners/partner5_logo.png',
+    description: '合作伙伴 5'
   },
   {
     name: 'Partner 6',
     url: 'https://example.com/partner6',
-    image: '/images/partners/partner6_logo.png'
+    image: '/images/partners/partner6_logo.png',
+    description: '合作伙伴 6'
   }
 ]
 
@@ -87,7 +106,7 @@ const Footer = () => {
               >
                 <img
                   src={brand.image}
-                  alt={brand.name}
+                  alt={brand.description || brand.name}
                   width="320"
                   height="100"
                   className="h-[100px] w-auto object-contain"
