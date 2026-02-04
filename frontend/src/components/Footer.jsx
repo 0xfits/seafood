@@ -65,12 +65,7 @@ const Footer = () => {
       <div className="container mx-auto px-4 py-8">
         {/* 合作品牌 */}
         <div className="mb-8">
-          <h3 className="text-center text-lg font-semibold text-text-primary mb-6">
-            {getCurrentLang() === 'zh' && '合作品牌'}
-            {getCurrentLang() === 'en' && 'Partner Brands'}
-            {getCurrentLang() === 'hk' && '合作品牌'}
-            {getCurrentLang() === 'vn' && 'Thương hiệu đối tác'}
-          </h3>
+          <h3 className="text-center text-lg font-semibold text-text-primary mb-6"></h3>
           <div className="flex flex-wrap justify-center items-center gap-6">
             {partnerBrands.map((brand) => (
               <a
@@ -95,8 +90,7 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* 分隔线 */}
-        <div className="border-t border-border-color my-6"></div>
+        
         
         {/* 语言链接 */}
         <div className="flex flex-wrap justify-center gap-4 mb-6">
