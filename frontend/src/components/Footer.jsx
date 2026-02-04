@@ -24,22 +24,10 @@ const partnerBrands = [
     description: getRandomCatDescription()
   },
   {
-    name: 'Partner 2',
-    url: 'https://example.com/partner2',
-    image: '/images/partners/partner2_logo.png',
-    description: '合作伙伴 2'
-  },
-  {
-    name: 'Partner 3',
-    url: 'https://example.com/partner3',
-    image: '/images/partners/partner3_logo.png',
-    description: '合作伙伴 3'
-  },
-  {
-    name: 'Partner 4',
-    url: 'https://example.com/partner4',
-    image: '/images/partners/partner4_logo.png',
-    description: '合作伙伴 4'
+    name: 'CloudPlan',
+    url: 'https://www.yunduojihua.com',
+    image: '/images/partners/CloudPlan_banner.png',
+    description: '云朵计划｜播种童年梦想，浇灌美和希望。'
   }
 ]
 
@@ -90,21 +78,17 @@ const Footer = () => {
                 href={brand.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group block rounded-lg overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md relative"
+                title={brand.description}
+                className="group block rounded-lg overflow-hidden relative"
               >
-                <div className="bg-bg-primary border border-border-color border-l-[5px] border-l-border hover:border-l-[#b6beca] transition-colors duration-300">
+                <div className="bg-bg-primary border border-border-color border-l-[5px] border-l-border hover:border-l-[#b6beca] transition-colors duration-300 image-area group-hover:shadow-md">
                   <img
                     src={brand.image}
-                    alt={brand.name}
-                    width="160"
-                    height="50"
-                    className="h-[50px] w-auto object-contain"
+                    alt={brand.description || brand.name}
+                    width="320"
+                    height="100"
+                    className="h-[100px] w-auto object-contain"
                   />
-                </div>
-                {/* 自定义工具提示 - 立即显示 */}
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200 whitespace-nowrap z-50 pointer-events-none">
-                  {brand.description}
-                  <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-800"></div>
                 </div>
               </a>
             ))}
