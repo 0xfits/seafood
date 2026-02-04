@@ -85,9 +85,9 @@ const Footer = () => {
                   <img
                     src={brand.image}
                     alt={brand.description || brand.name}
-                    width="320"
-                    height="100"
-                    className="h-[100px] w-auto object-contain"
+                    width="160"
+                    height="50"
+                    className="h-[50px] w-auto object-contain"
                   />
                 </div>
               </a>
