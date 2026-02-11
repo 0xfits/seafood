@@ -35,6 +35,14 @@ const ActiveTaskModal = ({ open, onClose, task }) => {
         })
       })
 
+      if (response.status === 401) {
+        // Token 过期或无效，需要重新登录
+        toast.error(t('sessionExpired') || '登录已过期，请重新登录')
+        localStorage.removeItem('user')
+        navigate('/login')
+        return
+      }
+      
       const data = await response.json()
       if (data.success) {
         toast.success(t('successSubmitTask'))

@@ -132,23 +132,32 @@ async def unified_entry(full_path: str, request: Request, payload: Optional[Dict
                 payload_decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
                 sub = payload_decoded.get("sub")
                 evm_address = payload_decoded.get("evm")
+                print(f"[DEBUG] Token decoded - sub: {sub}, evm: {evm_address}")
                 if sub is not None:
                     try:
                         actor_uid = int(sub)
-                    except Exception:
+                        print(f"[DEBUG] Actor UID from sub: {actor_uid}")
+                    except Exception as e:
+                        print(f"[DEBUG] Cannot convert sub to int: {e}")
                         # sub 无法转换为整数（可能是旧版 token），尝试用 evm 地址查找用户
                         actor_uid = None
                 
                 # 如果 actor_uid 为 None 但有 evm 地址，尝试查找用户
                 if actor_uid is None and evm_address:
                     try:
+                        print(f"[DEBUG] Looking up user by EVM: {evm_address}")
                         with Core().data as r:
                             user_row = r.users.get_by_evm(evm_address.lower())
                             if user_row:
                                 actor_uid = int(user_row["uID"])
-                    except Exception:
+                                print(f"[DEBUG] Found user, UID: {actor_uid}")
+                            else:
+                                print(f"[DEBUG] User not found for EVM: {evm_address}")
+                    except Exception as e:
+                        print(f"[DEBUG] Error looking up user: {e}")
                         actor_uid = None
-            except Exception:
+            except Exception as e:
+                print(f"[DEBUG] Token decode error: {e}")
                 actor_uid = None
         payload = payload or {}
         if actor_uid is not None:
