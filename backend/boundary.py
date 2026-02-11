@@ -126,13 +126,26 @@ async def unified_entry(full_path: str, request: Request, payload: Optional[Dict
         if auth.startswith("Bearer "):
             token = auth.split(" ", 1)[1].strip()
         actor_uid = None
+        evm_address = None
         if token:
             try:
                 payload_decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
                 sub = payload_decoded.get("sub")
+                evm_address = payload_decoded.get("evm")
                 if sub is not None:
                     try:
                         actor_uid = int(sub)
+                    except Exception:
+                        # sub 无法转换为整数（可能是旧版 token），尝试用 evm 地址查找用户
+                        actor_uid = None
+                
+                # 如果 actor_uid 为 None 但有 evm 地址，尝试查找用户
+                if actor_uid is None and evm_address:
+                    try:
+                        with Core().data as r:
+                            user_row = r.users.get_by_evm(evm_address.lower())
+                            if user_row:
+                                actor_uid = int(user_row["uID"])
                     except Exception:
                         actor_uid = None
             except Exception:
@@ -140,6 +153,9 @@ async def unified_entry(full_path: str, request: Request, payload: Optional[Dict
         payload = payload or {}
         if actor_uid is not None:
             payload["actor_uid"] = actor_uid
+        elif method == 'POST' and api_path.startswith('/api/journey/'):
+            # 对于 journey 相关的 POST 请求，必须提供有效的用户ID
+            return JSONResponse(status_code=401, content={"success": False, "message": "Unauthorized: Please login again"})
         res = await boundary._handle_api_request(api_path, qp, method, payload)
         if res is None:
             return JSONResponse(status_code=404, content={"success": False, "message": "Not found"})
