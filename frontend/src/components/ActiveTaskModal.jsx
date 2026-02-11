@@ -24,7 +24,7 @@ const ActiveTaskModal = ({ open, onClose, task }) => {
     setSubmitting(true)
     try {
       const user = JSON.parse(localStorage.getItem('user'))
-      const response = await fetch(`/api/tasklist/${task.tlistID || task.tID}/submit`, {
+      const response = await fetch(`/api/journey/${task.jID || task.tID}/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

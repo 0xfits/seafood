@@ -35,7 +35,7 @@ class TaskList(Base):
     """任务清单 ORM 类 - 映射到 journey 表"""
     __tablename__ = 'journey'
     
-    tlID = Column('jID', Integer, primary_key=True, autoincrement=True)
+    jID = Column('jID', Integer, primary_key=True, autoincrement=True)
     tID = Column(Integer, nullable=False)
     uID = Column(Integer, nullable=False)
     info_input = Column(Text)
@@ -480,30 +480,30 @@ class Core:
             record = r.join_task(uID=uID, tID=tID)
             if not record:
                 return self.err("Task not found or already joined")
-            return self.ok(message="Successfully joined the task", data={"tlID": record.tlID})
+            return self.ok(message="Successfully joined the task", data={"jID": record.jID})
 
-    async def submit_task_info(self, tlID: int, uID: int, info_input: str):
+    async def submit_task_info(self, jID: int, uID: int, info_input: str):
         with self.data as r:
             # 首先尝试查找现有的任务参与记录
-            rec: Optional[TaskList] = r.db.query(TaskList).filter(TaskList.tlID == tlID).first()
+            rec: Optional[TaskList] = r.db.query(TaskList).filter(TaskList.jID == jID).first()
             
             if not rec:
                 # 如果没有找到记录，可能是传递了 tID（任务类型ID）
                 # 尝试查找该用户是否已有该任务的参与记录
                 rec = r.db.query(TaskList).filter(
-                    TaskList.tID == tlID,
+                    TaskList.tID == jID,
                     TaskList.uID == uID
                 ).first()
                 
                 if not rec:
                     # 如果仍然没有，需要先创建一条 journey 记录
                     # 获取任务信息以验证任务存在
-                    task = r.get_task(tlID)
+                    task = r.get_task(jID)
                     if not task:
                         return self.err("Task not found")
                     # 创建新的参与记录
                     from datetime import datetime
-                    rec = TaskList(tID=tlID, uID=uID, time_created=datetime.utcnow())
+                    rec = TaskList(tID=jID, uID=uID, time_created=datetime.utcnow())
                     r.db.add(rec)
                     r.db.commit()
                     r.db.refresh(rec)
@@ -518,7 +518,7 @@ class Core:
             r.db.commit()
             r.db.refresh(rec)
             
-            return self.ok(message="Task info submitted", data={"tlID": rec.tlID})
+            return self.ok(message="Task info submitted", data={"jID": rec.jID})
 
     async def get_user_tasks(self, uID: int, status_: Optional[str] = None):
         with self.data as r:
@@ -531,7 +531,7 @@ class Core:
             for rec in items:
                 t = r.get_task(rec.tID)
                 data.append({
-                    "tlID": rec.tlID,
+                    "jID": rec.jID,
                     "uID": rec.uID,
                     "task": self.task_to_dict(t) if t else None,
                     "info_input": rec.info_input,

@@ -768,8 +768,8 @@ class JourneyEntity(Entity):
         self.db.add(record)
         return self._commit_refresh(record)
 
-    def submit_task_info(self, tlID: int, info_input: str) -> Optional[TaskList]:
-        record = self.db.query(TaskList).filter(TaskList.tlID == tlID).first()
+    def submit_task_info(self, jID: int, info_input: str) -> Optional[TaskList]:
+        record = self.db.query(TaskList).filter(TaskList.jID == jID).first()
         if not record:
             return None
         record.info_input = info_input
