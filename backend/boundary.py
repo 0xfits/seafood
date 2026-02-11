@@ -257,15 +257,20 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                 if path == "/api/auth/login":
                     evm_address = payload.get('evm_address') if payload else None
                     if evm_address:
-                        # 生成基于地址的 uID（取地址后16位）
-                        uID = evm_address[-16:] if len(evm_address) >= 16 else evm_address
-                        return self._response({
-                            "success": True,
-                            "uID": uID,
-                            "EVM": evm_address,
-                            "access_token": create_access_token({"sub": str(uID), "evm": evm_address}),
-                            "token_type": "bearer"
-                        })
+                        # 查询或创建用户，获取数据库中的真实 uID
+                        result = await self.core.auth_find_or_create_by_evm(evm_address.lower())
+                        if result.get('success'):
+                            user_data = result.get('data', {})
+                            uID = user_data.get('uID')
+                            return self._response({
+                                "success": True,
+                                "uID": uID,
+                                "EVM": evm_address,
+                                "access_token": create_access_token({"sub": str(uID), "evm": evm_address}),
+                                "token_type": "bearer"
+                            })
+                        else:
+                            return APIResponse(ok=False, status_code=500, error='Failed to create or find user')
                     else:
                         return APIResponse(ok=False, status_code=401, error='Unauthorized: evm_address required')
                 # ====== Chest endpoints ======
