@@ -127,6 +127,8 @@ async def unified_entry(full_path: str, request: Request, payload: Optional[Dict
             token = auth.split(" ", 1)[1].strip()
         actor_uid = None
         evm_address = None
+        print(f"[DEBUG] Authorization header: {auth[:50] if auth else 'None'}...")
+        print(f"[DEBUG] Token extracted: {token[:50] if token else 'None'}...")
         if token:
             try:
                 payload_decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -138,7 +140,7 @@ async def unified_entry(full_path: str, request: Request, payload: Optional[Dict
                         actor_uid = int(sub)
                         print(f"[DEBUG] Actor UID from sub: {actor_uid}")
                     except Exception as e:
-                        print(f"[DEBUG] Cannot convert sub to int: {e}")
+                        print(f"[DEBUG] Cannot convert sub to int: {e}, sub value: {repr(sub)}")
                         # sub 无法转换为整数（可能是旧版 token），尝试用 evm 地址查找用户
                         actor_uid = None
                 
@@ -159,6 +161,8 @@ async def unified_entry(full_path: str, request: Request, payload: Optional[Dict
             except Exception as e:
                 print(f"[DEBUG] Token decode error: {e}")
                 actor_uid = None
+        else:
+            print(f"[DEBUG] No token provided")
         payload = payload or {}
         if actor_uid is not None:
             payload["actor_uid"] = actor_uid
