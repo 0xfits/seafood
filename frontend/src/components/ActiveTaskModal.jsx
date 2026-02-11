@@ -24,11 +24,32 @@ const ActiveTaskModal = ({ open, onClose, task }) => {
     setSubmitting(true)
     try {
       const user = JSON.parse(localStorage.getItem('user'))
+      const token = user?.token
+      
+      // 验证 token 格式
+      if (!token) {
+        toast.error('未找到登录凭证，请重新登录')
+        navigate('/login')
+        return
+      }
+      
+      // JWT token 应该包含三个部分（header.payload.signature）
+      const tokenParts = token.split('.')
+      if (tokenParts.length !== 3) {
+        console.error('Invalid token format:', token)
+        toast.error('登录凭证格式错误，请重新登录')
+        localStorage.removeItem('user')
+        navigate('/login')
+        return
+      }
+      
+      console.log('Sending request with token:', token.substring(0, 50) + '...')
+      
       const response = await fetch(`/api/journey/${task.jID || task.tID}/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user?.token}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           info_input: infoInput.trim()

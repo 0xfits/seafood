@@ -128,8 +128,10 @@ async def unified_entry(full_path: str, request: Request, payload: Optional[Dict
         actor_uid = None
         evm_address = None
         print(f"[DEBUG] Authorization header: {auth[:50] if auth else 'None'}...")
-        print(f"[DEBUG] Token extracted: {token[:50] if token else 'None'}...")
-        if token:
+        safe_token_display = (token[:50] + '...') if token and len(token) > 50 else token
+        print(f"[DEBUG] Token extracted: {safe_token_display}")
+        print(f"[DEBUG] Token length: {len(token) if token else 0}")
+        if token and len(token) > 10:  # JWT 至少要有一些字符
             try:
                 payload_decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
                 sub = payload_decoded.get("sub")
