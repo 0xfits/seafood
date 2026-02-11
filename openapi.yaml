@@ -1,0 +1,1206 @@
+openapi: 3.1.0
+info:
+  title: Jinli Club API
+  version: "1.0.0"
+  description: |
+    基于 EVM 钱包登录的社区平台 API
+    
+    功能包括：
+    - EVM 钱包认证
+    - 任务管理
+    - 任务提交与审核
+    - 积分系统
+    - 礼品兑换
+    
+  contact:
+    name: Jinli Club
+    url: https://jinlibenli.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.jinlibenli.com
+    description: 生产环境
+  - url: http://localhost:8000
+    description: 本地开发环境
+
+# API 分组标签
+tags:
+  - name: 认证
+    description: 登录、注册、认证相关接口
+  - name: 用户
+    description: 用户信息管理
+  - name: 资产
+    description: 用户积分、资产查询
+  - name: 任务
+    description: 任务列表、任务详情
+  - name: 任务参与
+    description: 用户任务参与、提交、审核
+  - name: 品牌
+    description: 品牌管理
+  - name: 礼品
+    description: 礼品列表、领取
+  - name: 宝箱
+    description: 宝箱系统
+  - name: 日历
+    description: 日历事件
+  - name: 管理员
+    description: 需要管理员权限的接口
+
+# 组件定义
+components:
+  # 认证方式
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT Token 认证
+        
+        从登录接口获取 `access_token`，在请求头中传递：
+        `Authorization: Bearer <token>`
+
+  # 通用响应定义
+  responses:
+    Unauthorized:
+      description: 未授权，缺少或无效的 Token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: "未授权，请重新登录"
+    Forbidden:
+      description: 禁止访问，需要更高权限
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: "需要管理员权限"
+    NotFound:
+      description: 资源不存在
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: "资源不存在"
+    ValidationError:
+      description: 请求参数验证失败
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: "请求参数错误"
+            error: "info_input 不能为空"
+
+  # 数据模型
+  schemas:
+    # 基础响应包装
+    BaseResponse:
+      type: object
+      required:
+        - success
+      properties:
+        success:
+          type: boolean
+          description: 请求是否成功
+        message:
+          type: string
+          description: 响应消息
+        data:
+          type: object
+          description: 响应数据
+
+    # 错误响应
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          description: 错误消息
+        error:
+          type: string
+          description: 错误代码
+
+    # 分页信息
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: 总记录数
+        skip:
+          type: integer
+          description: 跳过的记录数
+        limit:
+          type: integer
+          description: 每页记录数
+
+    # ========== 用户相关模型 ==========
+    User:
+      type: object
+      properties:
+        uID:
+          type: integer
+          description: 用户ID
+        EVM:
+          type: string
+          description: EVM 钱包地址
+          example: "0x59f9f640d15ebb053c94a816232cf8ce91b209b0"
+        bio:
+          type: string
+          description: 用户简介
+          nullable: true
+        is_admin:
+          type: boolean
+          description: 是否为管理员
+        time_reg:
+          type: string
+          format: date-time
+          description: 注册时间
+        time_login_last:
+          type: string
+          format: date-time
+          description: 最后登录时间
+
+    UserAsset:
+      type: object
+      properties:
+        aID:
+          type: integer
+          description: 资产记录ID
+        uID:
+          type: integer
+          description: 用户ID
+        points:
+          type: integer
+          description: 积分余额
+          default: 0
+        lucks:
+          type: integer
+          description: 幸运值
+          default: 0
+        time_updated:
+          type: string
+          format: date-time
+          description: 更新时间
+
+    # ========== 任务相关模型 ==========
+    Task:
+      type: object
+      properties:
+        tID:
+          type: integer
+          description: 任务ID
+        title:
+          type: string
+          description: 任务标题
+        note:
+          type: string
+          description: 任务描述
+          nullable: true
+        refcode:
+          type: string
+          description: 推荐码
+          nullable: true
+        link0:
+          type: string
+          description: 任务链接A
+          nullable: true
+        linkB:
+          type: string
+          description: 任务链接B
+          nullable: true
+        points:
+          type: integer
+          description: 完成任务可获得积分
+          default: 0
+        type:
+          type: integer
+          description: 任务类型
+          default: 0
+        is_open:
+          type: boolean
+          description: 是否开放
+          default: false
+        time_start:
+          type: string
+          format: date-time
+          description: 开始时间
+          nullable: true
+        time_end:
+          type: string
+          format: date-time
+          description: 结束时间
+          nullable: true
+        time_created:
+          type: string
+          format: date-time
+          description: 创建时间
+        title_en:
+          type: string
+          description: 英文标题
+          nullable: true
+        title_hk:
+          type: string
+          description: 繁体标题
+          nullable: true
+        title_vn:
+          type: string
+          description: 越南语标题
+          nullable: true
+        note_en:
+          type: string
+          description: 英文描述
+          nullable: true
+        note_hk:
+          type: string
+          description: 繁体描述
+          nullable: true
+        note_vn:
+          type: string
+          description: 越南语描述
+          nullable: true
+
+    # ========== 任务参与记录 (Journey) ==========
+    Journey:
+      type: object
+      properties:
+        jID:
+          type: integer
+          description: 任务参与记录ID
+        tID:
+          type: integer
+          description: 任务ID
+        uID:
+          type: integer
+          description: 用户ID
+        info_input:
+          type: string
+          description: 用户提交的完成信息
+          nullable: true
+        info_lang:
+          type: string
+          description: 信息语言
+          nullable: true
+        time_created:
+          type: string
+          format: date-time
+          description: 参与时间
+        time_submitted:
+          type: string
+          format: date-time
+          description: 提交信息时间
+          nullable: true
+        time_checked:
+          type: string
+          format: date-time
+          description: 管理员审核时间
+          nullable: true
+        time_claimed:
+          type: string
+          format: date-time
+          description: 领取奖励时间
+          nullable: true
+        points_claimed:
+          type: integer
+          description: 实际获得的积分
+          default: 0
+
+    # ========== 品牌相关模型 ==========
+    Brand:
+      type: object
+      properties:
+        bID:
+          type: integer
+          description: 品牌ID
+        symbol:
+          type: string
+          description: 品牌标识
+        name:
+          type: string
+          description: 品牌名称
+        description:
+          type: string
+          description: 品牌描述
+          nullable: true
+        url_image:
+          type: string
+          description: 品牌图片URL
+          nullable: true
+        points:
+          type: integer
+          description: 品牌积分池
+          default: 10000
+        gift_limit:
+          type: integer
+          description: 礼品限制
+          default: 0
+        time_start:
+          type: string
+          format: date-time
+          description: 开始时间
+          nullable: true
+        time_end:
+          type: string
+          format: date-time
+          description: 结束时间
+          nullable: true
+        time_created:
+          type: string
+          format: date-time
+          description: 创建时间
+        time_updated:
+          type: string
+          format: date-time
+          description: 更新时间
+          nullable: true
+        time_actived:
+          type: string
+          format: date-time
+          description: 激活时间
+          nullable: true
+        name_en:
+          type: string
+          description: 英文名称
+          nullable: true
+        name_hk:
+          type: string
+          description: 繁体名称
+          nullable: true
+        name_vn:
+          type: string
+          description: 越南语名称
+          nullable: true
+        description_en:
+          type: string
+          description: 英文描述
+          nullable: true
+        description_hk:
+          type: string
+          description: 繁体描述
+          nullable: true
+        description_vn:
+          type: string
+          description: 越南语描述
+          nullable: true
+
+    # ========== 礼品相关模型 ==========
+    Gift:
+      type: object
+      properties:
+        gID:
+          type: integer
+          description: 礼品ID
+        bID:
+          type: integer
+          description: 品牌ID
+        uID:
+          type: integer
+          description: 领取用户ID
+          nullable: true
+        time_created:
+          type: string
+          format: date-time
+          description: 创建时间
+        time_claimed:
+          type: string
+          format: date-time
+          description: 领取时间
+          nullable: true
+        time_actived:
+          type: string
+          format: date-time
+          description: 激活时间
+          nullable: true
+
+    # ========== 宝箱相关模型 ==========
+    Chest:
+      type: object
+      properties:
+        cID:
+          type: integer
+          description: 宝箱ID
+        uID:
+          type: integer
+          description: 用户ID
+          nullable: true
+        tirer:
+          type: integer
+          description: 宝箱等级
+          default: 0
+        vol_points:
+          type: integer
+          description: 积分容量
+          default: 0
+        sID0:
+          type: integer
+          description: 碎片ID 0
+          nullable: true
+        sID1:
+          type: integer
+          description: 碎片ID 1
+          nullable: true
+        time_created:
+          type: string
+          format: date-time
+          description: 创建时间
+        time_claimed:
+          type: string
+          format: date-time
+          description: 领取时间
+          nullable: true
+        time_bind:
+          type: string
+          format: date-time
+          description: 绑定时间
+          nullable: true
+
+    # ========== 日历相关模型 ==========
+    CalendarEvent:
+      type: object
+      properties:
+        eventID:
+          type: integer
+          description: 事件ID
+        title:
+          type: string
+          description: 事件标题
+        description:
+          type: string
+          description: 事件描述
+          nullable: true
+        start_time:
+          type: string
+          format: date-time
+          description: 开始时间
+        end_time:
+          type: string
+          format: date-time
+          description: 结束时间
+          nullable: true
+        location:
+          type: string
+          description: 地点
+          nullable: true
+        url:
+          type: string
+          description: 相关链接
+          nullable: true
+
+    # ========== 请求/响应模型 ==========
+    LoginRequest:
+      type: object
+      required:
+        - evm_address
+        - signature
+      properties:
+        evm_address:
+          type: string
+          description: EVM 钱包地址
+          example: "0x59f9f640d15ebb053c94a816232cf8ce91b209b0"
+        signature:
+          type: string
+          description: 签名消息
+
+    LoginResponse:
+      type: object
+      properties:
+        uID:
+          type: integer
+          description: 用户ID
+        EVM:
+          type: string
+          description: 钱包地址
+        access_token:
+          type: string
+          description: JWT Token
+        token_type:
+          type: string
+          example: "bearer"
+
+    JourneySubmitRequest:
+      type: object
+      required:
+        - info_input
+      properties:
+        info_input:
+          type: string
+          description: 用户提交的完成信息
+
+    JourneySubmitResponse:
+      type: object
+      properties:
+        jID:
+          type: integer
+          description: 任务参与记录ID
+
+    GiftClaimRequest:
+      type: object
+      required:
+        - gID
+      properties:
+        gID:
+          type: integer
+          description: 礼品ID
+
+    ChestClaimRequest:
+      type: object
+      required:
+        - cID
+      properties:
+        cID:
+          type: integer
+          description: 宝箱ID
+
+    VerifyJourneyRequest:
+      type: object
+      properties:
+        approved:
+          type: boolean
+          description: 是否通过审核
+          default: true
+        reject_reason:
+          type: string
+          description: 拒绝原因（如果拒绝）
+          nullable: true
+
+# 路径定义
+paths:
+  # ========== 健康检查 ==========
+  /health:
+    get:
+      summary: 健康检查
+      description: 检查 API 服务是否正常运行
+      tags: [系统]
+      responses:
+        '200':
+          description: 服务正常
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+
+  # ========== 认证 ==========
+  /api/auth/login:
+    post:
+      summary: EVM钱包登录
+      description: |
+        使用钱包地址和签名进行登录
+        
+        流程：
+        1. 前端生成签名消息
+        2. 用户通过钱包签名
+        3. 后端验证签名并返回 JWT Token
+      tags: [认证]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: 签名验证失败
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ========== 用户 ==========
+  /api/user:
+    get:
+      summary: 获取当前用户信息
+      description: 获取当前登录用户的详细信息
+      tags: [用户]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/user/all:
+    get:
+      summary: 获取所有用户列表（管理员）
+      description: 获取所有用户的列表，需要管理员权限
+      tags: [用户, 管理员]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            default: 0
+          description: 跳过的记录数
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+          description: 返回的记录数
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  # ========== 资产 ==========
+  /api/asset:
+    get:
+      summary: 获取用户资产
+      description: 获取当前用户的积分、幸运值等资产信息
+      tags: [资产]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/UserAsset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ========== 任务 ==========
+  /api/task/all:
+    get:
+      summary: 获取所有任务列表
+      description: 获取所有可用的任务列表
+      tags: [任务]
+      parameters:
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+        - name: is_open
+          in: query
+          schema:
+            type: boolean
+          description: 是否只返回开放的任务
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Task'
+
+  /api/task/{tID}:
+    get:
+      summary: 获取任务详情
+      description: 获取指定任务的详细信息
+      tags: [任务]
+      parameters:
+        - name: tID
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 任务ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Task'
+        '404':
+          description: 任务不存在
+
+  # ========== 任务参与 (Journey) ==========
+  /api/journey:
+    get:
+      summary: 获取用户的任务参与列表
+      description: 获取当前用户的所有任务参与记录
+      tags: [任务参与]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Journey'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/journey/{jID}/submit:
+    post:
+      summary: 提交任务完成信息
+      description: |
+        用户填写任务完成信息后提交，等待管理员审核
+        
+        - 如果 jID 对应的记录不存在，会自动创建
+        - 提交后 time_submitted 字段会被设置
+        - 管理员审核前 time_checked 为 null
+      tags: [任务参与]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: jID
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 任务参与记录ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JourneySubmitRequest'
+      responses:
+        '200':
+          description: 提交成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/JourneySubmitResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: 无权提交此任务
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 任务不存在
+
+  /api/journey/{jID}/verify:
+    post:
+      summary: 审核通过任务（管理员）
+      description: |
+        管理员审核用户提交的任务，通过后发放积分给用户
+        
+        - 设置 time_checked 为当前时间
+        - 将 Task.points 积分加到用户资产
+        - 发送通知给用户
+      tags: [任务参与, 管理员]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: jID
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 任务参与记录ID
+      responses:
+        '200':
+          description: 审核成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          points_added:
+                            type: integer
+                            description: 发放的积分
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: 记录不存在
+
+  /api/journey/{jID}/reject:
+    post:
+      summary: 拒绝任务（管理员）
+      description: |
+        管理员拒绝用户提交的任务
+        
+        - 保留 info_input
+        - 不设置 time_checked（标记为 rejected 状态）
+        - 用户可以重新提交
+      tags: [任务参与, 管理员]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: jID
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 任务参与记录ID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  description: 拒绝原因
+      responses:
+        '200':
+          description: 拒绝成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/journey/pending-verification:
+    get:
+      summary: 获取待审核的任务列表（管理员）
+      description: |
+        获取所有待审核的任务参与记录
+        
+        条件：
+        - time_submitted IS NOT NULL（已提交）
+        - time_checked IS NULL（未审核）
+      tags: [任务参与, 管理员]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Journey'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  # ========== 品牌 ==========
+  /api/brand/all:
+    get:
+      summary: 获取所有品牌列表
+      description: 获取所有合作品牌的信息
+      tags: [品牌]
+      parameters:
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Brand'
+
+  /api/brand/{bID}:
+    get:
+      summary: 获取品牌详情
+      tags: [品牌]
+      parameters:
+        - name: bID
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Brand'
+        '404':
+          description: 品牌不存在
+
+  # ========== 礼品 ==========
+  /api/gift/all:
+    get:
+      summary: 获取所有礼品列表
+      description: 获取所有可用的礼品
+      tags: [礼品]
+      parameters:
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Gift'
+
+  /api/gift/{gID}:
+    get:
+      summary: 获取礼品详情
+      tags: [礼品]
+      parameters:
+        - name: gID
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Gift'
+        '404':
+          description: 礼品不存在
+
+  /api/gift/claim:
+    post:
+      summary: 领取礼品
+      description: 用户领取指定礼品
+      tags: [礼品]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GiftClaimRequest'
+      responses:
+        '200':
+          description: 领取成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          description: 积分不足或礼品已领完
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ========== 宝箱 ==========
+  /api/chest:
+    get:
+      summary: 获取用户的宝箱
+      description: 获取当前用户的宝箱列表
+      tags: [宝箱]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Chest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/chest/claim:
+    post:
+      summary: 领取宝箱
+      description: 用户领取指定宝箱
+      tags: [宝箱]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChestClaimRequest'
+      responses:
+        '200':
+          description: 领取成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          description: 宝箱不存在或已被领取
+
+  # ========== 日历 ==========
+  /api/calendar:
+    get:
+      summary: 获取日历事件
+      description: 获取所有日历事件
+      tags: [日历]
+      parameters:
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: 开始日期筛选
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: 结束日期筛选
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CalendarEvent'
+
+# 安全要求
+security:
+  - BearerAuth: []
