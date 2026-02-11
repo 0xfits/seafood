@@ -42,7 +42,7 @@ const ActiveTaskModal = ({ open, onClose, task }) => {
         // 重定向到任务页面并滚动到待验证部分
         navigate(`/task#pending-verification`)
       } else {
-        toast.error(t('error') + ': ' + (data.error || '提交任务失败'))
+        toast.error(t('error') + ': ' + (data.message || '提交任务失败'))
       }
     } catch (error) {
       console.error('Error submitting task:', error)

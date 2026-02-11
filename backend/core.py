@@ -27,6 +27,35 @@ from sqlalchemy import Boolean
 
 from .data import Data, BrandData, CalendarData, ChestData, GiftData, JourneyData, TaskData, UserData, UserChestStatData
 from .data_model import Brand, Chest, Gift, Journey, Task, User
+from .foundation import Base
+from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey
+
+# SQLAlchemy ORM 模型类（用于代码中混用的 ORM 查询）
+class TaskList(Base):
+    """任务清单 ORM 类 - 映射到 journey 表"""
+    __tablename__ = 'journey'
+    
+    tlID = Column('jID', Integer, primary_key=True, autoincrement=True)
+    tID = Column(Integer, nullable=False)
+    uID = Column(Integer, nullable=False)
+    info_input = Column(Text)
+    time_created = Column(DateTime, nullable=False)
+    time_checked = Column(DateTime)
+    time_claimed = Column(DateTime)
+    points_claimed = Column(Integer, default=0)
+    info_lang = Column(String(10))
+    time_submitted = Column(DateTime)
+
+class GiftList(Base):
+    """礼品清单 ORM 类 - 映射到 gift 表"""
+    __tablename__ = 'gift'
+    
+    glID = Column('gID', Integer, primary_key=True, autoincrement=True)
+    bID = Column(Integer, nullable=False)
+    uID = Column(Integer)
+    time_created = Column(DateTime, nullable=False)
+    time_claimed = Column(DateTime)
+    time_actived = Column(DateTime)
 
 class TimeUtils:
     @staticmethod

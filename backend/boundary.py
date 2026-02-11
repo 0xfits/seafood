@@ -289,6 +289,20 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                     return self._response(self.journey_core.submit(jID=id, uID=uid, submission_info=payload.get('submission_info')))
                 if path == "/api/journey/claim":
                     return self._response(self.journey_core.claim(jID=id, uID=uid))
+                # ====== TaskList endpoints ======
+                # ====== 任务清单相关的路由端点 ======
+                # 提交任务信息（用户填写完成信息后提交）
+                if path.startswith("/api/tasklist/") and path.endswith("/submit"):
+                    # 从路径中提取 tlID
+                    try:
+                        parts = path.split("/")
+                        tlID = int(parts[3])  # /api/tasklist/{tlID}/submit
+                    except (IndexError, ValueError):
+                        return APIResponse(ok=False, status_code=400, error='Invalid tlID')
+                    info_input = payload.get('info_input') if payload else None
+                    if not info_input:
+                        return APIResponse(ok=False, status_code=400, error='info_input is required')
+                    return self._response(await self.core.submit_task_info(tlID=tlID, uID=uid, info_input=info_input))
                 # Admin authority 管理员权限
                 if path == "/api/journey/check":
                     return self._response(await self.journey_core.check(jID=id, uID=uid))

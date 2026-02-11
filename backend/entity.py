@@ -773,7 +773,8 @@ class JourneyEntity(Entity):
         if not record:
             return None
         record.info_input = info_input
-        record.time_checked = datetime.utcnow()
+        record.time_submitted = datetime.utcnow()  # 用户提交时间
+        # time_checked 保持为 None，等待管理员审核
         return self._commit_refresh(record)
 
 
