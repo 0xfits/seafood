@@ -140,11 +140,13 @@ const Login = () => {
       }
       
       if (response.ok && data && data.success) {
+        // 后端返回结构：{ success: true, data: { uID, EVM, access_token, token_type } }
+        const userData = data.data || {}
         // 存储用户信息到localStorage（token 字段用于后续鉴权）
         localStorage.setItem('user', JSON.stringify({
-          uID: data.uID,
-          EVM: data.EVM,
-          token: data.access_token
+          uID: userData.uID,
+          EVM: userData.EVM,
+          token: userData.access_token
         }))
         
         toast.success(t('success') + ': ' + '登录成功')

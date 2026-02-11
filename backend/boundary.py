@@ -293,12 +293,15 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                         if result.get('success'):
                             user_data = result.get('data', {})
                             uID = user_data.get('uID')
+                            # 注意：_response 会提取 data 字段，所以要把数据包装在 data 中
                             return self._response({
                                 "success": True,
-                                "uID": uID,
-                                "EVM": evm_address,
-                                "access_token": create_access_token({"sub": str(uID), "evm": evm_address}),
-                                "token_type": "bearer"
+                                "data": {
+                                    "uID": uID,
+                                    "EVM": evm_address,
+                                    "access_token": create_access_token({"sub": str(uID), "evm": evm_address}),
+                                    "token_type": "bearer"
+                                }
                             })
                         else:
                             return APIResponse(ok=False, status_code=500, error='Failed to create or find user')
