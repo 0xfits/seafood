@@ -484,14 +484,41 @@ class Core:
 
     async def submit_task_info(self, tlID: int, uID: int, info_input: str):
         with self.data as r:
-            # 简单权限校验：确认记录存在且属于该用户
+            # 首先尝试查找现有的任务参与记录
             rec: Optional[TaskList] = r.db.query(TaskList).filter(TaskList.tlID == tlID).first()
+            
             if not rec:
-                return self.err("Task participation record not found")
+                # 如果没有找到记录，可能是传递了 tID（任务类型ID）
+                # 尝试查找该用户是否已有该任务的参与记录
+                rec = r.db.query(TaskList).filter(
+                    TaskList.tID == tlID,
+                    TaskList.uID == uID
+                ).first()
+                
+                if not rec:
+                    # 如果仍然没有，需要先创建一条 journey 记录
+                    # 获取任务信息以验证任务存在
+                    task = r.get_task(tlID)
+                    if not task:
+                        return self.err("Task not found")
+                    # 创建新的参与记录
+                    from datetime import datetime
+                    rec = TaskList(tID=tlID, uID=uID, time_created=datetime.utcnow())
+                    r.db.add(rec)
+                    r.db.commit()
+                    r.db.refresh(rec)
+            
+            # 权限检查：确认记录属于当前用户
             if rec.uID != uID:
                 return self.err("You don't have permission to submit this task")
-            updated = r.submit_task_info(tlID=tlID, info_input=info_input)
-            return self.ok(message="Task info submitted", data={"tlID": updated.tlID})
+            
+            # 更新任务信息
+            rec.info_input = info_input
+            rec.time_submitted = datetime.utcnow()
+            r.db.commit()
+            r.db.refresh(rec)
+            
+            return self.ok(message="Task info submitted", data={"tlID": rec.tlID})
 
     async def get_user_tasks(self, uID: int, status_: Optional[str] = None):
         with self.data as r:
