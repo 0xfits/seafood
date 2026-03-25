@@ -1,5 +1,8 @@
 /* 自定义组件和页面样式补充 */
 
+/* 导入动画样式 */
+@import './styles/animations.css';
+
 /* 全局主题变量（与 index.css 同步，保证独立生效） */
 :root {
   --primary-color: #00529B;

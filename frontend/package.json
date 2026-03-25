@@ -23,7 +23,8 @@
     "react-router-dom": "^6.22.0",
     "react-window": "^1.8.9",
     "tailwindcss": "^4.1.13",
-    "web3": "^4.4.0"
+    "web3": "^4.4.0",
+    "clsx": "^2.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",

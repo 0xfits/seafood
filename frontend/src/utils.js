@@ -1,5 +1,16 @@
 // 工具函数集合
 
+import { clsx } from 'clsx'
+
+/**
+ * Tailwind CSS 类名合并工具
+ * @param {...string} classNames - 要合并的类名
+ * @returns {string} 合并后的类名字符串
+ */
+export const cn = (...classNames) => {
+  return clsx(classNames)
+}
+
 /**
  * 格式化EVM地址，显示前6位和后4位
  * @param {string} address - EVM地址
