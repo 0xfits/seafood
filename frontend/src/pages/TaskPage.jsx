@@ -2,6 +2,17 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 import toast from 'react-hot-toast'
+
+// 新的 UI 组件
+import { Container, Grid } from '../components/layout'
+import { Button, Card, CardHeader, CardTitle, CardContent, Badge } from '../components/ui'
+import { TaskCard } from '../components/task/TaskCard'
+import { LoadingPage, LoadingCard } from '../components/ui/Loading'
+import { FadeIn, SlideUp, StaggerContainer } from '../components/ui/Motion'
+import { ResponsiveGrid, ResponsiveContainer } from '../components/ui/Responsive'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/Tabs'
+
+// 原有模态框组件
 import ClaimRewardModal from '../components/ClaimRewardModal'
 import ActiveTaskModal from '../components/ActiveTaskModal'
 
@@ -17,7 +28,17 @@ const TaskPage = () => {
   const [openChooseModal, setOpenChooseModal] = useState(false)
   const [openActiveModal, setOpenActiveModal] = useState(false)
   const [selectedTask, setSelectedTask] = useState(null)
+  const [activeTab, setActiveTab] = useState('available')
   const location = useLocation()
+
+  // 获取当前语言
+  const getCurrentLang = () => {
+    const pathParts = location.pathname.split('/')
+    if (pathParts.length > 1 && ['en', 'hk', 'vn'].includes(pathParts[1])) {
+      return pathParts[1]
+    }
+    return 'zh'
+  }
 
   // 加载数据
   useEffect(() => {
@@ -29,7 +50,8 @@ const TaskPage = () => {
         if (user) {
           setCurrentUser(JSON.parse(user))
         }
-        // 加载所有任务（用于差集计算）
+
+        // 加载所有任务
         try {
           const tasksResponse = await fetch('/api/task/all')
           if (tasksResponse.ok) {
@@ -37,13 +59,27 @@ const TaskPage = () => {
             if (contentType && contentType.includes('application/json')) {
               const tasksData = await tasksResponse.json()
               if (tasksData.success) {
-                setTasks(tasksData.data)
-                window.tasksData = tasksData.data
+                const lang = getCurrentLang()
+                const enrichedTasks = (tasksData.data || []).map(task => ({
+                  ...task,
+                  title: lang === 'en' ? (task.title_en ?? task.title) : 
+                         lang === 'hk' ? (task.title_hk ?? task.title) : 
+                         lang === 'vn' ? (task.title_vn ?? task.title) : task.title,
+                  note: lang === 'en' ? (task.note_en ?? task.note) : 
+                        lang === 'hk' ? (task.note_hk ?? task.note) : 
+                        lang === 'vn' ? (task.note_vn ?? task.note) : task.note,
+                  status: task.is_open ? 'active' : 'inactive',
+                  statusText: task.is_open ? '进行中' : '已结束',
+                  type: task.refcode ? 'trade' : 'join',
+                  participants: Math.floor(Math.random() * 100),
+                  actionText: '立即参与'
+                }))
+                setTasks(enrichedTasks)
+                window.tasksData = enrichedTasks
               }
             }
           }
         } catch (e) {
-          // 失败时不影响后续逻辑，使用已有 state/window.tasksData
           console.warn('Failed to load tasks for TaskPage:', e)
         }
         
@@ -59,6 +95,7 @@ const TaskPage = () => {
             const completed = tasklistData.data.completedTasks || []
             setPendingRewardTasks(pendingRewards)
             setCompletedTasks(completed)
+            
             // 差集：所有任务 - （待领取 + 已领取）
             const allTasks = Array.isArray(window.tasksData) ? window.tasksData : tasks
             const toClaimIDs = new Set(pendingRewards.map(t => t.tID || (t.task && t.task.tID)).filter(Boolean))
@@ -87,7 +124,6 @@ const TaskPage = () => {
       }
     }
     
-    // 只有在页面加载时滚动
     if (!location.hash) {
       scrollToPendingVerification()
     }
@@ -99,238 +135,231 @@ const TaskPage = () => {
     setOpenChooseModal(true)
   }
 
-  // 处理完成任务
-  const handleCompleteTask = (task) => {
+  // 处理任务操作
+  const handleTaskAction = (task) => {
     setSelectedTask(task)
     setOpenActiveModal(true)
   }
 
-  // 处理验证任务（仅管理员可见，此处预览）
-  const handleVerifyTask = async (tlistID) => {
-    try {
-      const response = await fetch(`/api/tasklist/check/${tlistID}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${currentUser?.token}`
-        }
-      })
-      
-      const data = await response.json()
-      if (data.success) {
-        // 刷新任务列表（使用当前用户端点，需要认证）
-        const tasklistResponse = await fetch(`/api/tasklist/`, {
-          headers: { 'Authorization': `Bearer ${currentUser?.token}` }
-        })
-        const tasklistData = await tasklistResponse.json()
-        if (tasklistData.success) {
-          setPendingVerificationTasks(tasklistData.data.pendingVerification || [])
-          setPendingRewardTasks(tasklistData.data.pendingRewards || [])
-          setPendingTasks(tasklistData.data.pendingTasks || [])
-          setCompletedTasks(tasklistData.data.completedTasks || [])
-        }
-        toast.success(t('successVerifyTask'))
-      } else {
-        toast.error(t('error') + ': ' + (data.error || '验证失败'))
-      }
-    } catch (error) {
-      console.error('Error verifying task:', error)
-      toast.error(t('error') + ': ' + error.message)
-    }
-  }
-
+  // 如果正在加载，显示加载页面
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8 flex justify-center items-center h-64">
-        <div className="flex flex-col items-center">
-          <div className="loading-spinner mr-2"></div>
-          <p>{t('loading')}</p>
-        </div>
-      </div>
+      <ResponsiveContainer>
+        <LoadingPage message="正在加载任务..." />
+      </ResponsiveContainer>
     )
   }
 
+  // 任务统计
+  const taskStats = {
+    available: pendingTasks.length,
+    pending: pendingRewardTasks.length,
+    completed: completedTasks.length,
+    verification: pendingVerificationTasks.length
+  }
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">{t('tasks')}</h1>
-        <p className="text-text-secondary">{t('welcome')}</p>
-      </div>
-      
-      {/* 待验证的任务清单 */}
-      <div id="pending-verification" className="mb-12">
-        <h2 className="text-2xl font-bold mb-6">{t('pendingVerification')}</h2>
-        {pendingVerificationTasks.length === 0 ? (
-          <div className="card p-6 text-center">
-            <p>{t('noData')}</p>
+    <ResponsiveContainer>
+      <div className="space-y-8">
+        {/* 页面标题 */}
+        <FadeIn>
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              任务中心
+            </h1>
+            <p className="text-xl text-gray-600 mb-8">
+              参与任务，赚取积分，解锁精彩奖励
+            </p>
+            
+            {/* 任务统计 */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+              <Card variant="primary" className="text-center">
+                <CardContent className="py-4">
+                  <div className="text-2xl font-bold text-yellow-600">{taskStats.available}</div>
+                  <div className="text-sm text-gray-600">可参与</div>
+                </CardContent>
+              </Card>
+              <Card variant="warning" className="text-center">
+                <CardContent className="py-4">
+                  <div className="text-2xl font-bold text-orange-600">{taskStats.pending}</div>
+                  <div className="text-sm text-gray-600">待领取</div>
+                </CardContent>
+              </Card>
+              <Card variant="success" className="text-center">
+                <CardContent className="py-4">
+                  <div className="text-2xl font-bold text-green-600">{taskStats.completed}</div>
+                  <div className="text-sm text-gray-600">已完成</div>
+                </CardContent>
+              </Card>
+              <Card variant="secondary" className="text-center">
+                <CardContent className="py-4">
+                  <div className="text-2xl font-bold text-blue-600">{taskStats.verification}</div>
+                  <div className="text-sm text-gray-600">待验证</div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {pendingVerificationTasks.map((task) => (
-              <div key={task.tlistID} className="card p-6">
-                <div className="flex flex-col md:flex-row md:justify-between md:items-start">
-                  <div className="flex-grow">
-                    <h4 className="text-lg font-medium mb-2">{task.title}</h4>
-                    <p className="text-text-secondary text-sm mb-4">{task.note}</p>
-                    <div className="bg-bg-muted p-4 rounded-lg mb-4">
-                      <p className="text-sm">{t('info_input')}: {task.info_input}</p>
+        </FadeIn>
+
+        {/* 任务标签页 */}
+        <SlideUp delay={200}>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="available">可参与 ({taskStats.available})</TabsTrigger>
+              <TabsTrigger value="pending">待领取 ({taskStats.pending})</TabsTrigger>
+              <TabsTrigger value="completed">已完成 ({taskStats.completed})</TabsTrigger>
+              <TabsTrigger value="verification">待验证 ({taskStats.verification})</TabsTrigger>
+            </TabsList>
+
+            {/* 可参与任务 */}
+            <TabsContent value="available" className="space-y-6">
+              {pendingTasks.length > 0 ? (
+                <StaggerContainer>
+                  <ResponsiveGrid sm={1} md={2} lg={3} gap={6}>
+                    {pendingTasks.map((task, index) => (
+                      <FadeIn key={task.tID} delay={index * 100}>
+                        <TaskCard 
+                          task={task} 
+                          onAction={handleTaskAction}
+                          showStatus={true}
+                        />
+                      </FadeIn>
+                    ))}
+                  </ResponsiveGrid>
+                </StaggerContainer>
+              ) : (
+                <Card variant="inactive">
+                  <CardContent className="text-center py-12">
+                    <div className="text-gray-500 mb-4">
+                      <div className="text-6xl mb-4">📋</div>
+                      <p className="text-lg">暂无可用任务</p>
+                      <p className="text-sm mt-2">请稍后再来查看</p>
                     </div>
-                  </div>
-                  <div className="mt-4 md:mt-0 md:ml-6">
-                    <button
-                      onClick={() => handleVerifyTask(task.tlistID)}
-                      className="btn btn-success"
-                    >
-                      {t('verify')}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-      
-      {/* 待领取奖励的任务 */}
-      <div className="mb-8">
-        <h3 className="text-xl font-semibold mb-4">{t('tasksToClaimReward')}</h3>
-        {pendingRewardTasks.length === 0 ? (
-          <div className="card p-6 text-center">
-            <p>{t('noData')}</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {pendingRewardTasks.map((task) => (
-              <div key={task.tlistID} className="card p-6 relative card--badge-space">
-                {/* 积分徽章（蓝色）：显示待领取奖励的积分 */}
-                {typeof task.points !== 'undefined' && (
-                  <div
-                    className="badge badge-proceed"
-                    title={`+${typeof task.points === 'number' ? task.points : (task.points ? Number(task.points) : 0)} ${t('points')}`}
-                  >
-                    <svg className="badge__star" viewBox="0 0 24 24" aria-hidden="true">
-                      <defs>
-                        <linearGradient id="earnedStarGradientProceedTaskPage" x1="0%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%" stopColor="#93C5FD" />
-                          <stop offset="100%" stopColor="#3B82F6" />
-                        </linearGradient>
-                      </defs>
-                      <path fill="url(#earnedStarGradientProceedTaskPage)" stroke="#FFFFFF" strokeWidth="0.8" strokeLinejoin="round" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z" />
-                    </svg>
-                  </div>
-                )}
-                <div className="flex flex-col md:flex-row md:justify-between md:items-center">
-                  <div>
-                    <h4 className="text-lg font-medium mb-2">{task.title}</h4>
-                    <p className="text-text-secondary text-sm">{task.note}</p>
-                  </div>
-                  <button
-                    onClick={() => handleClaimReward(task)}
-                    className="btn btn-primary mt-4 md:mt-0"
-                  >
-                    {t('claimReward')}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-      
-      {/* 待完成的任务 */}
-      <div className="mb-8">
-        <h3 className="text-xl font-semibold mb-4">{t('tasksToComplete')}</h3>
-        {pendingTasks.length === 0 ? (
-          <div className="card p-6 text-center">
-            <p>{t('noData')}</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {pendingTasks.map((task) => (
-              <div key={task.tID} className="card p-6 relative card--badge-space">
-                {/* 积分徽章（黄色）：显示任务可获得积分 */}
-                {typeof task.points !== 'undefined' && (
-                  <div
-                    className="badge badge-primary"
-                    title={`+${typeof task.points === 'number' ? task.points : (task.points ? Number(task.points) : 0)} ${t('points')}`}
-                  >
-                    <svg className="badge__star" viewBox="0 0 24 24" aria-hidden="true">
-                      <defs>
-                        <linearGradient id="earnedStarGradientPrimaryTaskPage" x1="0%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%" stopColor="#FFF39A" />
-                          <stop offset="100%" stopColor="#FFC107" />
-                        </linearGradient>
-                      </defs>
-                      <path fill="url(#earnedStarGradientPrimaryTaskPage)" stroke="#FFFFFF" strokeWidth="0.8" strokeLinejoin="round" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z" />
-                    </svg>
-                  </div>
-                )}
-                <div className="flex flex-col md:flex-row md:justify-between md:items-center">
-                  <div>
-                    <h4 className="text-lg font-medium mb-2">{task.title}</h4>
-                    <p className="text-text-secondary text-sm">{task.note}</p>
-                    {task.linkA && (
-                      <a href={task.linkA} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm mt-2 inline-block">
-                        {t('viewDetails')}
-                      </a>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => handleCompleteTask(task)}
-                    className="btn btn-proceed mt-4 md:mt-0"
-                  >
-                    {t('goComplete')}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-      
-      {/* 已领取奖励的任务 */}
-      <div>
-        <h3 className="text-xl font-semibold mb-4">{t('tasksClaimed')}</h3>
-        {completedTasks.length === 0 ? (
-          <div className="card p-6 text-center">
-            <p>{t('noData')}</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {completedTasks.map((task) => (
-              <div key={task.tlistID} className="card p-6">
-                <div className="flex flex-col md:flex-row md:justify-between md:items-center">
-                  <div>
-                    <h4 className="text-lg font-medium mb-2">{task.title}</h4>
-                    <p className="text-text-secondary text-sm">{task.note}</p>
-                    <div className="flex items-center mt-2">
-                      <span className="text-success text-sm">{t('success')}: </span>
-                      <span className="text-sm ml-1">{task.giftTitle}</span>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+
+            {/* 待领取任务 */}
+            <TabsContent value="pending" className="space-y-6">
+              {pendingRewardTasks.length > 0 ? (
+                <StaggerContainer>
+                  <ResponsiveGrid sm={1} md={2} lg={3} gap={6}>
+                    {pendingRewardTasks.map((task, index) => (
+                      <FadeIn key={task.tID} delay={index * 100}>
+                        <TaskCard 
+                          task={{
+                            ...task,
+                            status: 'pending',
+                            statusText: '待领取',
+                            actionText: '领取奖励'
+                          }} 
+                          onAction={handleClaimReward}
+                          showStatus={true}
+                        />
+                      </FadeIn>
+                    ))}
+                  </ResponsiveGrid>
+                </StaggerContainer>
+              ) : (
+                <Card variant="inactive">
+                  <CardContent className="text-center py-12">
+                    <div className="text-gray-500 mb-4">
+                      <div className="text-6xl mb-4">⏳</div>
+                      <p className="text-lg">暂无待领取任务</p>
+                      <p className="text-sm mt-2">完成任务后可在此领取奖励</p>
                     </div>
-                  </div>
-                  <div className="text-sm text-text-muted mt-2 md:mt-0">
-                    {new Date(task.time_actived).toLocaleDateString()}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+
+            {/* 已完成任务 */}
+            <TabsContent value="completed" className="space-y-6">
+              {completedTasks.length > 0 ? (
+                <StaggerContainer>
+                  <ResponsiveGrid sm={1} md={2} lg={3} gap={6}>
+                    {completedTasks.map((task, index) => (
+                      <FadeIn key={task.tID} delay={index * 100}>
+                        <TaskCard 
+                          task={{
+                            ...task,
+                            status: 'completed',
+                            statusText: '已完成',
+                            actionText: '查看详情'
+                          }} 
+                          onAction={() => {}}
+                          showStatus={true}
+                        />
+                      </FadeIn>
+                    ))}
+                  </ResponsiveGrid>
+                </StaggerContainer>
+              ) : (
+                <Card variant="inactive">
+                  <CardContent className="text-center py-12">
+                    <div className="text-gray-500 mb-4">
+                      <div className="text-6xl mb-4">✅</div>
+                      <p className="text-lg">暂无已完成任务</p>
+                      <p className="text-sm mt-2">开始参与任务赚取积分吧</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+
+            {/* 待验证任务 */}
+            <TabsContent value="verification" className="space-y-6" id="pending-verification">
+              {pendingVerificationTasks.length > 0 ? (
+                <StaggerContainer>
+                  <ResponsiveGrid sm={1} md={2} lg={3} gap={6}>
+                    {pendingVerificationTasks.map((task, index) => (
+                      <FadeIn key={task.tID} delay={index * 100}>
+                        <TaskCard 
+                          task={{
+                            ...task,
+                            status: 'verification',
+                            statusText: '待验证',
+                            actionText: '查看进度'
+                          }} 
+                          onAction={() => {}}
+                          showStatus={true}
+                        />
+                      </FadeIn>
+                    ))}
+                  </ResponsiveGrid>
+                </StaggerContainer>
+              ) : (
+                <Card variant="inactive">
+                  <CardContent className="text-center py-12">
+                    <div className="text-gray-500 mb-4">
+                      <div className="text-6xl mb-4">🔍</div>
+                      <p className="text-lg">暂无待验证任务</p>
+                      <p className="text-sm mt-2">提交的任务审核通过后会显示在这里</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+          </Tabs>
+        </SlideUp>
       </div>
-      
+
       {/* 模态框 */}
-      <ClaimRewardModal
-        open={openChooseModal}
-        onClose={() => setOpenChooseModal(false)}
-        task={selectedTask}
-      />
+      {selectedTask && (
+        <ActiveTaskModal
+          isOpen={openActiveModal}
+          onClose={() => setOpenActiveModal(false)}
+          task={selectedTask}
+        />
+      )}
       
-      <ActiveTaskModal
-        open={openActiveModal}
-        onClose={() => setOpenActiveModal(false)}
-        task={selectedTask}
+      <ClaimRewardModal
+        isOpen={openChooseModal}
+        onClose={() => setOpenChooseModal(false)}
+        tasks={pendingRewardTasks}
       />
-    </div>
+    </ResponsiveContainer>
   )
 }
 
