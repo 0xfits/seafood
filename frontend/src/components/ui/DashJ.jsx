@@ -1,5 +1,5 @@
 import React from 'react'
-import { cn } from '../../utils'
+import { cn } from '../../utils.js'
 
 // dashJ 符号组件 - 类似美元符号和字母S的关系
 // J 字母加上横划线，表示社区积分
