@@ -1,23 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useLocation } from 'react-router-dom'
-import FullCalendar from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import interactionPlugin from '@fullcalendar/interaction'
-import toast from 'react-hot-toast'
-
-// 新的 UI 组件
-import { Container, Grid } from '../components/layout'
-import { Button, Card, CardHeader, CardTitle, CardContent, Badge } from '../components/ui'
+import { Link } from 'react-router-dom'
+import { Button } from '../components/ui/Button'
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
+import { FadeIn, SlideUp, StaggerContainer } from '../components/ui/Motion'
+import { ResponsiveContainer } from '../components/ui/Responsive'
 import { TaskCard } from '../components/task/TaskCard'
 import { RewardCard } from '../components/reward/RewardCard'
-import { LoadingPage, LoadingCard } from '../components/ui/Loading'
-import { FadeIn, SlideUp, StaggerContainer } from '../components/ui/Motion'
-import { ResponsiveGrid, ResponsiveContainer } from '../components/ui/Responsive'
-
-// 原有模态框组件
-import ClaimRewardModal from '../components/ClaimRewardModal'
-import ActiveTaskModal from '../components/ActiveTaskModal'
+import { toast } from 'react-hot-toast'
+import { Calendar, Trophy, Gift } from 'lucide-react'
+import DashJ from '../components/ui/DashJ'
 
 const HomePage = () => {
   const { t } = useTranslation()
@@ -237,7 +229,7 @@ const HomePage = () => {
               欢迎来到 Jinli Club
             </h1>
             <p className="text-xl text-gray-600 mb-6">
-              参与任务，赚取积分，兑换精彩奖励
+              参与任务，赚取<DashJ size="sm" />，兑换精彩奖励
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="primary" size="lg">
@@ -256,7 +248,7 @@ const HomePage = () => {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">热门任务</h2>
-                <p className="text-gray-600">参与任务赚取积分</p>
+                <p className="text-gray-600">参与任务赚取<DashJ size="sm" /></p>
               </div>
               <Link to="/tasks">
                 <Button variant="proceed">查看全部</Button>
@@ -293,7 +285,7 @@ const HomePage = () => {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">精选奖励</h2>
-                <p className="text-gray-600">用积分兑换精彩礼品</p>
+                <p className="text-gray-600">用<DashJ size="sm" />兑换精彩礼品</p>
               </div>
               <Link to="/rewards">
                 <Button variant="proceed">查看全部</Button>

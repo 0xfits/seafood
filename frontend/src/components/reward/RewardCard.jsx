@@ -4,6 +4,7 @@ import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
 import { Gift, Clock, Star, Crown } from 'lucide-react'
 import { cn } from '../../utils'
+import DashJ from '../ui/DashJ'
 
 const RewardCard = ({ 
   reward, 
@@ -82,7 +83,7 @@ const RewardCard = ({
               <div className="text-2xl font-bold text-yellow-600">
                 {reward.points_required}
               </div>
-              <div className="text-xs text-gray-500">积分</div>
+              <DashJ size="sm" />
             </div>
           )}
         </div>
@@ -147,7 +148,7 @@ const RewardCard = ({
             disabled={!canClaim}
           >
             {!canClaim && userPoints < reward.points_required 
-              ? '积分不足' 
+              ? 'dashJ不足' 
               : reward.status === 'claimed' 
               ? '已领取' 
               : '立即领取'

@@ -4,6 +4,7 @@ import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
 import { Clock, Users, Trophy, Star } from 'lucide-react'
 import { cn } from '../../utils'
+import DashJ from '../ui/DashJ'
 
 const TaskCard = ({ 
   task, 
@@ -91,7 +92,7 @@ const TaskCard = ({
               <div className="text-2xl font-bold text-yellow-600">
                 {task.points}
               </div>
-              <div className="text-xs text-gray-500">积分</div>
+              <DashJ size="sm" />
             </div>
           )}
         </div>
