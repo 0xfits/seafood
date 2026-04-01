@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Popover, Transition } from '@headlessui/react'
 import { Menu, X, User, LogOut, LogIn, ChevronDown, Moon, Sun } from 'lucide-react'
 import cnFlag from '../images/cn.svg'
 import usFlag from '../images/us.svg'
 import hkFlag from '../images/hk.svg'
 import vnFlag from '../images/vn.svg'
+import HoverMenu from './ui/HoverMenu'
 
 const Header = () => {
   const { t, i18n } = useTranslation()
-  const [isOpen, setIsOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
   const location = useLocation()
@@ -107,12 +106,12 @@ const Header = () => {
   }
 
   return (
-    <header id="header" className="bg-bg-primary border-b border-border-color sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95">
+    <header id="header" className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <Link to={buildPath('')} className="text-xl font-bold text-primary">
+            <Link to={buildPath('')} className="text-xl font-bold text-yellow-600 dark:text-yellow-400">
               {t('siteTitle')}
             </Link>
           </div>
@@ -133,57 +132,48 @@ const Header = () => {
             </nav>
             
             {/* 语言切换（使用本地 SVG 国旗图标） */}
-            <Popover className="relative">
-              <Popover.Button className="flex items-center space-x-1 nav-link">
-                <img
-                  src={flagByLang[getCurrentLang()]}
-                  alt={t('language')}
-                  className="inline-block w-5 h-3 rounded-sm shadow-sm"
-                />
-                <span>{t('language')}</span>
-                <ChevronDown size={16} />
-              </Popover.Button>
-              <Transition
-                as={React.Fragment}
-                enter="transition ease-out duration-100"
-                enterFrom="transform opacity-0 scale-95"
-                enterTo="transform opacity-100 scale-100"
-                leave="transition ease-in duration-75"
-                leaveFrom="transform opacity-100 scale-100"
-                leaveTo="transform opacity-0 scale-95"
+            <HoverMenu
+              trigger={
+                <button className="flex items-center space-x-1 nav-link">
+                  <img
+                    src={flagByLang[getCurrentLang()]}
+                    alt={t('language')}
+                    className="inline-block w-5 h-3 rounded-sm shadow-sm"
+                  />
+                  <span>{t('language')}</span>
+                  <ChevronDown size={16} />
+                </button>
+              }
+            >
+              <button
+                onClick={() => changeLanguage('zh')}
+                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${getCurrentLang() === 'zh' ? 'bg-gray-100 dark:bg-gray-700 font-medium' : ''}`}
               >
-                <Popover.Panel className="absolute right-0 mt-2 w-48 bg-bg-primary rounded-lg shadow-lg border border-border-color py-1">
-                  <button
-                    onClick={() => changeLanguage('zh')}
-                    className={`block w-full text-left px-4 py-2 text-sm hover:bg-bg-muted ${getCurrentLang() === 'zh' ? 'bg-bg-muted font-medium' : ''}`}
-                  >
-                    <img src={cnFlag} alt="中文" className="inline-block w-5 h-3 mr-2 align-middle rounded-sm shadow-sm" />
-                    {t('chinese')}
-                  </button>
-                  <button
-                    onClick={() => changeLanguage('en')}
-                    className={`block w-full text-left px-4 py-2 text-sm hover:bg-bg-muted ${getCurrentLang() === 'en' ? 'bg-bg-muted font-medium' : ''}`}
-                  >
-                    <img src={usFlag} alt="English" className="inline-block w-5 h-3 mr-2 align-middle rounded-sm shadow-sm" />
-                    {t('english')}
-                  </button>
-                  <button
-                    onClick={() => changeLanguage('hk')}
-                    className={`block w-full text-left px-4 py-2 text-sm hover:bg-bg-muted ${getCurrentLang() === 'hk' ? 'bg-bg-muted font-medium' : ''}`}
-                  >
-                    <img src={hkFlag} alt="粵語" className="inline-block w-5 h-3 mr-2 align-middle rounded-sm shadow-sm" />
-                    {t('cantonese')}
-                  </button>
-                  <button
-                    onClick={() => changeLanguage('vn')}
-                    className={`block w-full text-left px-4 py-2 text-sm hover:bg-bg-muted ${getCurrentLang() === 'vn' ? 'bg-bg-muted font-medium' : ''}`}
-                  >
-                    <img src={vnFlag} alt="Tiếng Việt" className="inline-block w-5 h-3 mr-2 align-middle rounded-sm shadow-sm" />
-                    {t('vietnamese')}
-                  </button>
-                </Popover.Panel>
-              </Transition>
-            </Popover>
+                <img src={cnFlag} alt="中文" className="inline-block w-5 h-3 mr-2 align-middle rounded-sm shadow-sm" />
+                {t('chinese')}
+              </button>
+              <button
+                onClick={() => changeLanguage('en')}
+                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${getCurrentLang() === 'en' ? 'bg-gray-100 dark:bg-gray-700 font-medium' : ''}`}
+              >
+                <img src={usFlag} alt="English" className="inline-block w-5 h-3 mr-2 align-middle rounded-sm shadow-sm" />
+                {t('english')}
+              </button>
+              <button
+                onClick={() => changeLanguage('hk')}
+                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${getCurrentLang() === 'hk' ? 'bg-gray-100 dark:bg-gray-700 font-medium' : ''}`}
+              >
+                <img src={hkFlag} alt="粵語" className="inline-block w-5 h-3 mr-2 align-middle rounded-sm shadow-sm" />
+                {t('cantonese')}
+              </button>
+              <button
+                onClick={() => changeLanguage('vn')}
+                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${getCurrentLang() === 'vn' ? 'bg-gray-100 dark:bg-gray-700 font-medium' : ''}`}
+              >
+                <img src={vnFlag} alt="Tiếng Việt" className="inline-block w-5 h-3 mr-2 align-middle rounded-sm shadow-sm" />
+                {t('vietnamese')}
+              </button>
+            </HoverMenu>
 
             {/* 深夜模式（Dark Mode）切换按钮 - 图标方式 */}
             <button
@@ -197,44 +187,35 @@ const Header = () => {
             
             {/* 用户菜单 */}
             {isLoggedIn ? (
-              <Popover className="relative">
-                <Popover.Button className="flex items-center space-x-1 nav-link">
-                  <User size={18} />
-                  <span className="truncate max-w-[120px]">
-                    {currentUser?.EVM ? `${currentUser.EVM.slice(0, 6)}...${currentUser.EVM.slice(-4)}` : ''}
-                  </span>
-                  <ChevronDown size={16} />
-                </Popover.Button>
-                <Transition
-                  as={React.Fragment}
-                  enter="transition ease-out duration-100"
-                  enterFrom="transform opacity-0 scale-95"
-                  enterTo="transform opacity-100 scale-100"
-                  leave="transition ease-in duration-75"
-                  leaveFrom="transform opacity-100 scale-100"
-                  leaveTo="transform opacity-0 scale-95"
+              <HoverMenu
+                trigger={
+                  <button className="flex items-center space-x-1 nav-link">
+                    <User size={18} />
+                    <span className="truncate max-w-[120px]">
+                      {currentUser?.EVM ? `${currentUser.EVM.slice(0, 6)}...${currentUser.EVM.slice(-4)}` : ''}
+                    </span>
+                    <ChevronDown size={16} />
+                  </button>
+                }
+              >
+                <Link
+                  to={buildPath('profile')}
+                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
-                  <Popover.Panel className="absolute right-0 mt-2 w-48 bg-bg-primary rounded-lg shadow-lg border border-border-color py-1">
-                    <Link
-                      to={buildPath('profile')}
-                      className="block w-full text-left px-4 py-2 text-sm hover:bg-bg-muted"
-                    >
-                      {t('profile')}
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center w-full text-left px-4 py-2 text-sm text-error hover:bg-bg-muted"
-                    >
-                      <LogOut size={16} className="mr-2" />
-                      {t('logout')}
-                    </button>
-                  </Popover.Panel>
-                </Transition>
-              </Popover>
+                  {t('profile')}
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <LogOut size={16} className="mr-2" />
+                  {t('logout')}
+                </button>
+              </HoverMenu>
             ) : (
               <button 
                 onClick={handleLogin} 
-                className="flex items-center gap-1.5 text-text-secondary hover:text-primary transition-colors text-sm font-medium"
+                className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors text-sm font-medium"
               >
                 <LogIn size={18} />
                 <span>{t('login')}</span>
@@ -246,7 +227,7 @@ const Header = () => {
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-md text-text-secondary hover:text-text-primary hover:bg-bg-muted focus:outline-none"
+              className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
             >
               {mobileMenuOpen ? (
                 <X className="h-6 w-6" />
@@ -260,14 +241,14 @@ const Header = () => {
       
       {/* 移动端菜单 */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-bg-primary border-t border-border-color">
+        <div className="md:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
           <div className="px-2 pt-2 pb-3 space-y-1">
             {menuItems.map((item) => (
               <Link
                 key={item.path}
                 to={buildPath(item.path)}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block px-3 py-2 rounded-md text-base font-medium ${location.pathname.includes(item.path) ? 'bg-bg-muted' : 'text-text-secondary hover:bg-bg-muted hover:text-text-primary'}`}
+                className={`block px-3 py-2 rounded-md text-base font-medium ${location.pathname.includes(item.path) ? 'bg-gray-100 dark:bg-gray-700' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'}`}
               >
                 {item.label}
               </Link>
@@ -278,7 +259,7 @@ const Header = () => {
                   handleLogin()
                   setMobileMenuOpen(false)
                 }}
-                className="block w-full text-center px-3 py-2 my-2 rounded-md text-base font-medium bg-primary text-white hover:bg-primary/90"
+                className="block w-full text-center px-3 py-2 my-2 rounded-md text-base font-medium bg-yellow-600 text-white hover:bg-yellow-700"
               >
                 {t('login')}
               </button>
@@ -286,9 +267,9 @@ const Header = () => {
           </div>
           
           {/* 移动端语言切换（使用本地 SVG 国旗图标） */}
-          <div className="px-4 py-3 border-t border-border-color">
+          <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-text-secondary">{t('language')}</span>
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-300">{t('language')}</span>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <button
@@ -296,37 +277,37 @@ const Header = () => {
                     changeLanguage('zh')
                     setMobileMenuOpen(false)
                   }}
-                  className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'zh' ? 'bg-bg-muted font-medium' : 'text-text-secondary'}`}
+                  className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'zh' ? 'bg-gray-100 dark:bg-gray-700 font-medium' : 'text-gray-600 dark:text-gray-300'}`}
                 >
                   <img src={cnFlag} alt="中文" className="inline-block w-5 h-3 mr-2 rounded-sm shadow-sm" />
                   {t('chinese')}
                 </button>
-                <button
+              <button
                   onClick={() => {
                     changeLanguage('en')
                     setMobileMenuOpen(false)
                   }}
-                  className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'en' ? 'bg-bg-muted font-medium' : 'text-text-secondary'}`}
+                  className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'en' ? 'bg-gray-100 dark:bg-gray-700 font-medium' : 'text-gray-600 dark:text-gray-300'}`}
                 >
                   <img src={usFlag} alt="English" className="inline-block w-5 h-3 mr-2 rounded-sm shadow-sm" />
                   {t('english')}
                 </button>
-                <button
+              <button
                   onClick={() => {
                     changeLanguage('hk')
                     setMobileMenuOpen(false)
                   }}
-                  className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'hk' ? 'bg-bg-muted font-medium' : 'text-text-secondary'}`}
+                  className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'hk' ? 'bg-gray-100 dark:bg-gray-700 font-medium' : 'text-gray-600 dark:text-gray-300'}`}
                 >
                   <img src={hkFlag} alt="粵語" className="inline-block w-5 h-3 mr-2 rounded-sm shadow-sm" />
                   {t('cantonese')}
                 </button>
-                <button
+              <button
                   onClick={() => {
                     changeLanguage('vn')
                     setMobileMenuOpen(false)
                   }}
-                  className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'vn' ? 'bg-bg-muted font-medium' : 'text-text-secondary'}`}
+                  className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'vn' ? 'bg-gray-100 dark:bg-gray-700 font-medium' : 'text-gray-600 dark:text-gray-300'}`}
                 >
                   <img src={vnFlag} alt="Tiếng Việt" className="inline-block w-5 h-3 mr-2 rounded-sm shadow-sm" />
                   {t('vietnamese')}
@@ -335,13 +316,13 @@ const Header = () => {
           </div>
           
           {/* 移动端深夜模式切换 */}
-          <div className="px-4 py-3 border-t border-border-color">
+          <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
             <button
               onClick={() => {
                 toggleTheme()
                 setMobileMenuOpen(false)
               }}
-              className="flex items-center w-full px-3 py-2 rounded-md text-base font-medium hover:bg-bg-muted"
+              className="flex items-center w-full px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               {isDark ? <Moon size={18} className="mr-2" /> : <Sun size={18} className="mr-2" />}
               {t('darkMode')}
@@ -350,13 +331,13 @@ const Header = () => {
 
           {/* 移动端用户菜单 */}
           {isLoggedIn && (
-            <div className="px-4 py-3 border-t border-border-color">
+            <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
               <button
                 onClick={() => {
                   handleLogout()
                   setMobileMenuOpen(false)
                 }}
-                className="flex items-center w-full px-3 py-2 rounded-md text-base font-medium text-error hover:bg-bg-muted"
+                className="flex items-center w-full px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 <LogOut size={18} className="mr-2" />
                 {t('logout')}
