@@ -1,15 +1,24 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
-import { Button } from '../components/ui/Button'
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
-import { FadeIn, SlideUp, StaggerContainer } from '../components/ui/Motion'
-import { ResponsiveContainer } from '../components/ui/Responsive'
+import { Link, useLocation } from 'react-router-dom'
+import FullCalendar from '@fullcalendar/react'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import interactionPlugin from '@fullcalendar/interaction'
+import toast from 'react-hot-toast'
+
+// 新的 UI 组件
+import { Container, Grid } from '../components/layout'
+import { Button, Card, CardHeader, CardTitle, CardContent, Badge } from '../components/ui'
 import { TaskCard } from '../components/task/TaskCard'
 import { RewardCard } from '../components/reward/RewardCard'
-import { toast } from 'react-hot-toast'
-import { Calendar, Trophy, Gift } from 'lucide-react'
+import { LoadingPage, LoadingCard } from '../components/ui/Loading'
+import { FadeIn, SlideUp, StaggerContainer } from '../components/ui/Motion'
+import { ResponsiveGrid, ResponsiveContainer } from '../components/ui/Responsive'
 import DashJ from '../components/ui/DashJ'
+
+// 原有模态框组件
+import ClaimRewardModal from '../components/ClaimRewardModal'
+import ActiveTaskModal from '../components/ActiveTaskModal'
 
 const HomePage = () => {
   const { t } = useTranslation()
