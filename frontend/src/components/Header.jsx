@@ -7,11 +7,13 @@ import usFlag from '../images/us.svg'
 import hkFlag from '../images/hk.svg'
 import vnFlag from '../images/vn.svg'
 import HoverMenu from './ui/HoverMenu'
+import DashJ from './ui/DashJ'
 
 const Header = () => {
   const { t, i18n } = useTranslation()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
+  const [userPoints, setUserPoints] = useState(0)
   const location = useLocation()
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -23,6 +25,9 @@ const Header = () => {
     if (user) {
       setIsLoggedIn(true)
       setCurrentUser(JSON.parse(user))
+      
+      // 获取用户积分
+      loadUserPoints()
     }
     // 初始化主题
     const savedTheme = localStorage.getItem('theme')
@@ -35,6 +40,28 @@ const Header = () => {
       document.documentElement.setAttribute('data-theme', 'light')
     }
   }, [])
+
+  // 获取用户积分
+  const loadUserPoints = async () => {
+    try {
+      const user = localStorage.getItem('user')
+      if (user) {
+        const userData = JSON.parse(user)
+        // 这里应该调用实际的API获取积分
+        // 暂时使用模拟数据
+        const mockPoints = Math.floor(Math.random() * 10000) + 1000
+        setUserPoints(mockPoints)
+        
+        // 实际API调用示例：
+        // const response = await fetch(`/api/users/${userData.uID}/points`)
+        // const data = await response.json()
+        // setUserPoints(data.points || 0)
+      }
+    } catch (error) {
+      console.warn('Failed to load user points:', error)
+      setUserPoints(0)
+    }
+  }
 
   // 获取当前语言
   const getCurrentLang = () => {
@@ -186,7 +213,7 @@ const Header = () => {
             </button>
             
             {/* 用户菜单 */}
-            {isLoggedIn ? (
+            {isLoggedIn && (
               <HoverMenu
                 trigger={
                   <button className="flex items-center space-x-1 nav-link">
@@ -198,6 +225,16 @@ const Header = () => {
                   </button>
                 }
               >
+                {/* 用户积分显示 */}
+                <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                      社区积分
+                    </span>
+                    <DashJ amount={userPoints} showText={true} size="lg" />
+                  </div>
+                </div>
+                
                 <Link
                   to={buildPath('profile')}
                   className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -212,7 +249,7 @@ const Header = () => {
                   {t('logout')}
                 </button>
               </HoverMenu>
-            ) : (
+            )} : (
               <button 
                 onClick={handleLogin} 
                 className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors text-sm font-medium"
