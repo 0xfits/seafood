@@ -47,12 +47,10 @@ const Header = () => {
       const user = localStorage.getItem('user')
       if (user) {
         const userData = JSON.parse(user)
-        console.log('Loading points for user:', userData)
         
         // 这里应该调用实际的API获取积分
         // 暂时使用模拟数据
         const mockPoints = Math.floor(Math.random() * 10000) + 1000
-        console.log('Setting user points:', mockPoints)
         setUserPoints(mockPoints)
         
         // 实际API调用示例：
@@ -240,9 +238,6 @@ const Header = () => {
                       </span>
                       <DashJ size="lg" />
                     </div>
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Debug: {userPoints} points
                   </div>
                 </div>
                 
