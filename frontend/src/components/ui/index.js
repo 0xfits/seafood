@@ -1,7 +1,7 @@
 // 基础组件
-export { default as Button } from './Button'
-export { default as Card, CardHeader, CardTitle, CardContent } from './Card'
-export { default as Badge } from './Badge'
+export { Button, buttonVariants } from './Button'
+export { Card, CardHeader, CardTitle, CardContent } from './Card'
+export { Badge, badgeVariants } from './Badge'
 
 // 布局组件
 export { default as Container } from '../layout/Container'
