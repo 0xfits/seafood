@@ -8,14 +8,12 @@ import hkFlag from '../images/hk.svg'
 import vnFlag from '../images/vn.svg'
 import HoverMenu from './ui/HoverMenu'
 import DashJ from './ui/DashJ'
-import ProfileModal from './ProfileModal'
 
 const Header = () => {
   const { t, i18n } = useTranslation()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
   const [userPoints, setUserPoints] = useState(0)
-  const [profileModalOpen, setProfileModalOpen] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -243,12 +241,12 @@ const Header = () => {
                   </div>
                 </div>
                 
-                <button
-                  onClick={() => setProfileModalOpen(true)}
+                <Link
+                  to={buildPath('profile')}
                   className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   {t('profile')}
-                </button>
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -392,12 +390,6 @@ const Header = () => {
         </div>
       )}
     </header>
-    
-    {/* Profile 模态框 */}
-    <ProfileModal 
-      isOpen={profileModalOpen}
-      onClose={() => setProfileModalOpen(false)}
-    />
   )
 }
 

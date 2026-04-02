@@ -352,7 +352,7 @@ const HomePage = () => {
       {/* 模态框 */}
       {selectedTask && (
         <ActiveTaskModal
-          isOpen={openActiveModal}
+          open={openActiveModal}
           onClose={() => setOpenActiveModal(false)}
           task={selectedTask}
         />
