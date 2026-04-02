@@ -34,3 +34,6 @@ export { default as ErrorBoundary, ErrorFallback, NetworkErrorHandler, useErrorH
 
 // dashJ 符号组件
 export { default as DashJ } from './DashJ'
+
+// 统一模态框组件
+export { default as UnifiedModal, ModalHeader, ModalContent, ModalFooter, MODAL_TYPES, useModal } from './UnifiedModal'
