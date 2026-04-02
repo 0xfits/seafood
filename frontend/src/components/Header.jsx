@@ -214,7 +214,7 @@ const Header = () => {
             </button>
             
             {/* 用户菜单 */}
-            {isLoggedIn && (
+            {isLoggedIn ? (
               <HoverMenu
                 trigger={
                   <button className="flex items-center space-x-1 nav-link">
@@ -255,7 +255,7 @@ const Header = () => {
                   {t('logout')}
                 </button>
               </HoverMenu>
-            )} : (
+            ) : (
               <button 
                 onClick={handleLogin} 
                 className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors text-sm font-medium"
