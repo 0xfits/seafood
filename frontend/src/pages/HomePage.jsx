@@ -29,15 +29,10 @@ const HomePage = () => {
   const [pendingTasks, setPendingTasks] = useState([])
   const [completedTasks, setCompletedTasks] = useState([])
   const [loading, setLoading] = useState(true)
-  const [currentUser, setCurrentUser] = useState(null)
-  const [openChooseModal, setOpenChooseModal] = useState(false)
-  const [openActiveModal, setOpenActiveModal] = useState(false)
+  const [userPoints, setUserPoints] = useState(0)
   const [selectedTask, setSelectedTask] = useState(null)
-  
-  // 用户资产与宝箱
-  const [assetBalance, setAssetBalance] = useState(null)
-  const [userChests, setUserChests] = useState([])
-  const [openableChestCount, setOpenableChestCount] = useState(0)
+  const [openActiveModal, setOpenActiveModal] = useState(false)
+  const [openChooseModal, setOpenChooseModal] = useState(false)
   
   const location = useLocation()
 
@@ -56,6 +51,29 @@ const HomePage = () => {
     const controller = new AbortController()
     const { signal } = controller
     let loadingGuard = null
+
+    // 加载用户积分
+    const loadUserPoints = async () => {
+      try {
+        const user = localStorage.getItem('user')
+        if (user) {
+          const userData = JSON.parse(user)
+          
+          // 这里应该调用实际的API获取积分
+          // 暂时使用模拟数据
+          const mockPoints = Math.floor(Math.random() * 10000) + 1000
+          setUserPoints(mockPoints)
+          
+          // 实际API调用示例：
+          // const response = await fetch(`/api/users/${userData.uID}/points`)
+          // const data = await response.json()
+          // setUserPoints(data.points || 0)
+        }
+      } catch (error) {
+        console.warn('Failed to load user points:', error)
+        setUserPoints(0)
+      }
+    }
 
     const loadData = async () => {
       if (isMounted) setLoading(true)
@@ -190,6 +208,7 @@ const HomePage = () => {
       }
     }
 
+    loadUserPoints()
     loadData()
     
     return () => {
@@ -309,7 +328,7 @@ const HomePage = () => {
                       <RewardCard 
                         reward={reward} 
                         onClaim={handleRewardClaim}
-                        userPoints={assetBalance?.points || 0}
+                        userPoints={userPoints}
                         showStatus={true}
                       />
                     </FadeIn>
