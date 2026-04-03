@@ -105,46 +105,44 @@ const DashboardPage = () => {
   // 加载仪表板统计数据
   const loadDashboardStats = async () => {
     try {
-      // 获取用户统计
-      const usersResponse = await fetch('/api/users/stats')
+      // 获取用户统计 - 使用正确的API端点
+      const usersResponse = await fetch('/api/user/all', {
+        headers: {
+          'Authorization': `Bearer ${currentUser?.token}`
+        }
+      })
       const usersData = await usersResponse.json()
       
       // 获取任务统计
-      const tasksResponse = await fetch('/api/task/stats')
+      const tasksResponse = await fetch('/api/task/all')
       const tasksData = await tasksResponse.json()
       
       // 获取奖励统计
-      const rewardsResponse = await fetch('/api/brand/stats')
+      const rewardsResponse = await fetch('/api/brand/all')
       const rewardsData = await rewardsResponse.json()
       
       // 获取待验证任务统计
       const pendingResponse = await fetch('/api/tasklist/pending-verification/count')
       const pendingData = await pendingResponse.json()
       
+      // 计算统计数据
+      const totalUsers = usersData.ok && usersData.data ? usersData.data.length : 0
+      const totalTasks = tasksData.ok && tasksData.data ? tasksData.data.length : 0
+      const totalRewards = rewardsData.ok && rewardsData.data ? rewardsData.data.length : 0
+      
       const stats = {
-        totalUsers: usersData.totalUsers || 0,
-        activeUsers: usersData.activeUsers || 0,
-        totalTasks: tasksData.totalTasks || 0,
-        completedTasks: tasksData.completedTasks || 0,
-        pendingTasks: tasksData.pendingTasks || 0,
-        totalRewards: rewardsData.totalRewards || 0,
-        claimedRewards: rewardsData.claimedRewards || 0
+        totalUsers: totalUsers,
+        activeUsers: totalUsers, // 假设所有用户都是活跃的
+        totalTasks: totalTasks,
+        completedTasks: 0, // 需要从其他API获取
+        pendingTasks: pendingData.ok && pendingData.data ? pendingData.data.count : 0,
+        totalRewards: totalRewards,
+        claimedRewards: 0 // 需要从其他API获取
       }
       
       setDashboardStats(stats)
     } catch (error) {
       console.error('Error loading dashboard stats:', error)
-      // 如果API不存在，使用模拟统计数据
-      const mockStats = {
-        totalUsers: 4,
-        activeUsers: 3,
-        totalTasks: 3,
-        completedTasks: 15,
-        pendingTasks: 2,
-        totalRewards: 3,
-        claimedRewards: 8
-      }
-      setDashboardStats(mockStats)
     }
   }
 

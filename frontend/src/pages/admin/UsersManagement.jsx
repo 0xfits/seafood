@@ -13,9 +13,13 @@ const UsersManagement = () => {
 
   const loadUsers = async () => {
     try {
-      const response = await fetch('/api/users/all')
+      const response = await fetch('/api/user/all', {
+        headers: {
+          'Authorization': `Bearer ${JSON.parse(localStorage.getItem('user') || '{}').token}`
+        }
+      })
       const data = await response.json()
-      if (data.success) {
+      if (data.ok) {
         setUsers(data.data || [])
       }
     } catch (error) {
