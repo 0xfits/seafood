@@ -32,6 +32,7 @@ const LanguageWrapper = ({ children }) => {
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     // 检查认证状态（从localStorage获取用户信息）
@@ -72,16 +73,30 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
     } else {
       console.log('ProtectedRoute - 未找到用户数据')
     }
+    
+    setLoading(false)
   }, [])
 
+  // 显示加载状态，避免权限检查期间的闪烁
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg text-gray-600">正在验证权限...</div>
+      </div>
+    )
+  }
+
   if (!isAuthenticated) {
+    console.log('ProtectedRoute - 未认证，跳转到登录页')
     return <Navigate to="/login" replace />
   }
 
   if (adminOnly && !isAdmin) {
+    console.log('ProtectedRoute - 权限不足，跳转到首页')
     return <Navigate to="/" replace />
   }
 
+  console.log('ProtectedRoute - 权限验证通过，渲染子组件')
   return children
 }
 
