@@ -291,15 +291,15 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                     if email and evm_address:
                         # 创建新用户
                         result = await self.core.auth_register_user(email, evm_address.lower())
-                        if result.get('success'):
-                            user_data = result.get('data', {})
+                        if result.ok:
+                            user_data = result.data
                             return self._response({
                                 "success": True,
                                 "message": "注册成功",
                                 "data": user_data
                             })
                         else:
-                            return APIResponse(ok=False, status_code=400, error=result.get('error', 'Registration failed'))
+                            return APIResponse(ok=False, status_code=400, error=result.error or 'Registration failed')
                     else:
                         return APIResponse(ok=False, status_code=400, error='Email and evm_address required')
                         
@@ -308,8 +308,8 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                     if evm_address:
                         # 查询或创建用户，获取数据库中的真实 uID
                         result = await self.core.auth_find_or_create_by_evm(evm_address.lower())
-                        if result.get('success'):
-                            user_data = result.get('data', {})
+                        if result.ok:
+                            user_data = result.data
                             uID = user_data.get('uID')
                             # 注意：_response 会提取 data 字段，所以要把数据包装在 data 中
                             return self._response({
