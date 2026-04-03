@@ -20,25 +20,30 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isDark, setIsDark] = useState(false)
   const [showRegisterModal, setShowRegisterModal] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   // 检查用户登录状态
   useEffect(() => {
     const user = localStorage.getItem('user')
     if (user) {
       setIsLoggedIn(true)
-      setCurrentUser(JSON.parse(user))
+      const userData = JSON.parse(user)
+      setCurrentUser(userData)
+      
+      // 检查管理员权限
+      const checkAdmin = userData.uID === 1 || 
+                        userData.is_admin || 
+                        userData.role === 'admin' ||
+                        userData.EVM?.toLowerCase() === '0x59f9f640d15ebb053c94a816232cf8ce91b209b0'.toLowerCase()
+      setIsAdmin(checkAdmin)
       
       // 获取用户积分
       loadUserPoints()
-    }
-    // 初始化主题
-    const savedTheme = localStorage.getItem('theme')
-    const current = savedTheme || (document.documentElement.getAttribute('data-theme') || 'light')
-    if (current === 'dark') {
-      setIsDark(true)
-      document.documentElement.setAttribute('data-theme', 'dark')
     } else {
-      setIsDark(false)
+      setIsLoggedIn(false)
+      setCurrentUser(null)
+      setIsAdmin(false)
+      setUserPoints(0)
       document.documentElement.setAttribute('data-theme', 'light')
     }
   }, [])
@@ -121,11 +126,17 @@ const Header = () => {
   const menuItems = [
     { path: 'reward', label: t('reward') },
     { path: 'task', label: t('task') },
-    ...(isLoggedIn ? [{ path: 'profile', label: t('profile') }] : [])
+    ...(isLoggedIn ? [{ path: 'profile', label: t('profile') }] : []),
+    ...(isLoggedIn && isAdmin ? [{ path: 'dashboard', label: t('admin_panel') || '管理面板' }] : [])
   ]
 
   // 构建带语言前缀的路径
   const buildPath = (path) => {
+    // dashboard 路径不需要语言前缀
+    if (path === 'dashboard') {
+      return '/dashboard'
+    }
+    
     const currentLang = getCurrentLang()
     if (currentLang === 'zh') {
       return path === '' ? '/' : `/${path}`
@@ -168,7 +179,9 @@ const Header = () => {
                 <Link
                   key={item.path}
                   to={buildPath(item.path)}
-                  className={`nav-link ${location.pathname.includes(item.path) ? 'active' : ''}`}
+                  className={`nav-link ${location.pathname.includes(item.path) ? 'active' : ''} ${
+                    item.path === 'dashboard' ? 'bg-purple-600 text-white hover:bg-purple-700 px-3 py-2 rounded-md font-medium' : ''
+                  }`}
                 >
                   {item.label}
                 </Link>
@@ -316,7 +329,13 @@ const Header = () => {
                 key={item.path}
                 to={buildPath(item.path)}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block px-3 py-2 rounded-md text-base font-medium ${location.pathname.includes(item.path) ? 'bg-gray-100 dark:bg-gray-700' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'}`}
+                className={`block px-3 py-2 rounded-md text-base font-medium ${
+                  item.path === 'dashboard' 
+                    ? 'bg-purple-600 text-white hover:bg-purple-700' 
+                    : location.pathname.includes(item.path) 
+                      ? 'bg-gray-100 dark:bg-gray-700' 
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                }`}
               >
                 {item.label}
               </Link>
