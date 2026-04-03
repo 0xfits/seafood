@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Menu, X, User, LogOut, LogIn, ChevronDown, Moon, Sun } from 'lucide-react'
+import { Menu, X, User, LogOut, LogIn, UserPlus, ChevronDown, Moon, Sun } from 'lucide-react'
 import cnFlag from '../images/cn.svg'
 import usFlag from '../images/us.svg'
 import hkFlag from '../images/hk.svg'
@@ -100,6 +100,11 @@ const Header = () => {
   // 处理登录
   const handleLogin = () => {
     navigate('/login')
+  }
+
+  // 处理注册
+  const handleRegister = () => {
+    navigate('/register')
   }
 
   // 菜单项
@@ -256,13 +261,22 @@ const Header = () => {
                 </button>
               </HoverMenu>
             ) : (
-              <button 
-                onClick={handleLogin} 
-                className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors text-sm font-medium"
-              >
-                <LogIn size={18} />
-                <span>{t('login')}</span>
-              </button>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={handleRegister} 
+                  className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors text-sm font-medium"
+                >
+                  <UserPlus size={18} />
+                  <span>{t('register')}</span>
+                </button>
+                <button 
+                  onClick={handleLogin} 
+                  className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors text-sm font-medium"
+                >
+                  <LogIn size={18} />
+                  <span>{t('login')}</span>
+                </button>
+              </div>
             )}
           </div>
           
@@ -297,15 +311,26 @@ const Header = () => {
               </Link>
             ))}
             {!isLoggedIn && (
-              <button
-                onClick={() => {
-                  handleLogin()
-                  setMobileMenuOpen(false)
-                }}
-                className="block w-full text-center px-3 py-2 my-2 rounded-md text-base font-medium bg-yellow-600 text-white hover:bg-yellow-700"
-              >
-                {t('login')}
-              </button>
+              <>
+                <button
+                  onClick={() => {
+                    handleRegister()
+                    setMobileMenuOpen(false)
+                  }}
+                  className="block w-full text-center px-3 py-2 my-2 rounded-md text-base font-medium bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  {t('register')}
+                </button>
+                <button
+                  onClick={() => {
+                    handleLogin()
+                    setMobileMenuOpen(false)
+                  }}
+                  className="block w-full text-center px-3 py-2 my-2 rounded-md text-base font-medium bg-yellow-600 text-white hover:bg-yellow-700"
+                >
+                  {t('login')}
+                </button>
+              </>
             )}
           </div>
           

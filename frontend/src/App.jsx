@@ -7,6 +7,7 @@ import { Toaster } from 'react-hot-toast'
 
 // 页面组件
 import Login from './pages/Login'
+import Register from './pages/Register'
 import HomePage from './pages/HomePage'
 import RewardPage from './pages/RewardPage'
 import TaskPage from './pages/TaskPage'
@@ -125,6 +126,9 @@ function App() {
       <Routes>
         {/* 登录页面 */}
         <Route path="/login" element={<Login />} />
+        
+        {/* 注册页面 */}
+        <Route path="/register" element={<Register />} />
         
         {/* 管理页面路由 */}
         <Route 

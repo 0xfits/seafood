@@ -170,12 +170,16 @@ const HomePage = () => {
               参与任务，赚取<DashJ size="sm" />，兑换精彩奖励
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="primary" size="lg">
-                开始探索
-              </Button>
-              <Button variant="secondary" size="lg">
-                了解更多
-              </Button>
+              <Link to="/register">
+                <Button variant="primary" size="lg">
+                  立即注册
+                </Button>
+              </Link>
+              <Link to="/task">
+                <Button variant="secondary" size="lg">
+                  开始探索
+                </Button>
+              </Link>
             </div>
           </section>
         </FadeIn>
