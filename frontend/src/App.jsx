@@ -36,27 +36,41 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
   useEffect(() => {
     // 检查认证状态（从localStorage获取用户信息）
     const user = localStorage.getItem('user')
+    console.log('ProtectedRoute - 用户数据:', user)
+    
     if (user) {
       setIsAuthenticated(true)
       // 检查用户是否为管理员
       try {
         const userData = JSON.parse(user)
+        console.log('ProtectedRoute - 解析后用户数据:', userData)
+        
         // 管理员权限检查：1. is_admin字段 2. role字段 3. 指定EVM地址白名单
         const adminAddresses = [
           '0x59f9f640d15ebb053c94a816232cf8ce91b209b0'.toLowerCase()
         ]
         const userAddress = userData.EVM?.toLowerCase()
+        console.log('ProtectedRoute - 用户地址:', userAddress)
+        console.log('ProtectedRoute - 管理员地址列表:', adminAddresses)
+        
         const isAdminByAddress = userAddress && adminAddresses.includes(userAddress)
+        console.log('ProtectedRoute - 地址检查结果:', isAdminByAddress)
         
         const isAdminUser = userData.is_admin === true || 
                            userData.role === 'admin' || 
                            isAdminByAddress
+        
+        console.log('ProtectedRoute - 最终管理员判断:', isAdminUser)
+        console.log('ProtectedRoute - is_admin字段:', userData.is_admin)
+        console.log('ProtectedRoute - role字段:', userData.role)
         
         setIsAdmin(isAdminUser)
       } catch (error) {
         console.warn('Failed to parse user data:', error)
         setIsAdmin(false)
       }
+    } else {
+      console.log('ProtectedRoute - 未找到用户数据')
     }
   }, [])
 

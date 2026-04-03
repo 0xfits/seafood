@@ -47,6 +47,8 @@ const DashboardPage = () => {
       try {
         // 加载用户信息
         const user = localStorage.getItem('user')
+        console.log('DashboardPage - 用户数据:', user)
+        
         if (!user) {
           toast.error('请先登录')
           setLoading(false)
@@ -54,6 +56,7 @@ const DashboardPage = () => {
         }
 
         const parsedUser = JSON.parse(user)
+        console.log('DashboardPage - 解析后用户数据:', parsedUser)
         setCurrentUser(parsedUser)
 
         // 验证管理员身份
@@ -61,11 +64,20 @@ const DashboardPage = () => {
           '0x59f9f640d15ebb053c94a816232cf8ce91b209b0'.toLowerCase()
         ]
         const userAddress = parsedUser.EVM?.toLowerCase()
+        console.log('DashboardPage - 用户地址:', userAddress)
+        console.log('DashboardPage - 管理员地址列表:', adminAddresses)
+        
         const isAdminByAddress = userAddress && adminAddresses.includes(userAddress)
+        console.log('DashboardPage - 地址检查结果:', isAdminByAddress)
         
         const isAdminUser = parsedUser.is_admin === true || 
                            parsedUser.role === 'admin' || 
                            isAdminByAddress
+        
+        console.log('DashboardPage - 最终管理员判断:', isAdminUser)
+        console.log('DashboardPage - is_admin字段:', parsedUser.is_admin)
+        console.log('DashboardPage - role字段:', parsedUser.role)
+        
         setIsAdmin(isAdminUser)
 
         if (isAdminUser) {
