@@ -293,11 +293,7 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                         result = await self.core.auth_register_user(email, evm_address.lower())
                         if result.ok:
                             user_data = result.data
-                            return self._response({
-                                "success": True,
-                                "message": "注册成功",
-                                "data": user_data
-                            })
+                            return APIResponse(ok=True, status_code=200, message="注册成功", data=user_data)
                         else:
                             return APIResponse(ok=False, status_code=400, error=result.error or 'Registration failed')
                     else:
@@ -311,15 +307,11 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                         if result.ok:
                             user_data = result.data
                             uID = user_data.get('uID')
-                            # 注意：_response 会提取 data 字段，所以要把数据包装在 data 中
-                            return self._response({
-                                "success": True,
-                                "data": {
-                                    "uID": uID,
-                                    "EVM": evm_address,
-                                    "access_token": create_access_token({"sub": str(uID), "evm": evm_address}),
-                                    "token_type": "bearer"
-                                }
+                            return APIResponse(ok=True, status_code=200, data={
+                                "uID": uID,
+                                "EVM": evm_address,
+                                "access_token": create_access_token({"sub": str(uID), "evm": evm_address}),
+                                "token_type": "bearer"
                             })
                         else:
                             return APIResponse(ok=False, status_code=500, error='Failed to create or find user')
