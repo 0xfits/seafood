@@ -91,7 +91,10 @@ const DashboardPage = () => {
         console.error('Error loading data:', error)
         toast.error('加载数据失败: ' + error.message)
       } finally {
-        setLoading(false)
+        // 确保loading状态被设置
+        setTimeout(() => {
+          setLoading(false)
+        }, 100)
       }
     }
 

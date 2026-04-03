@@ -82,7 +82,10 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
       console.log('ProtectedRoute - 未找到用户数据')
     }
     
-    setLoading(false)
+    // 确保loading状态被设置
+    setTimeout(() => {
+      setLoading(false)
+    }, 100)
   }, [])
 
   // 显示加载状态，避免权限检查期间的闪烁
