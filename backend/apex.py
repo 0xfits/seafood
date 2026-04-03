@@ -48,6 +48,8 @@ origins = [
     "http://127.0.0.1:8001",   # 静态管理页（admin.html）本地预览端口（环回地址）
     "https://jinli.club",      # 生产环境
     "https://www.jinli.club",  # 生产环境
+    "https://jinlibenli.com",   # 生产环境域名
+    "https://www.jinlibenli.com", # 生产环境域名
 ]
 
 app.add_middleware(
