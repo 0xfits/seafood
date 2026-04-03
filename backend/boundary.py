@@ -39,13 +39,13 @@ async def register_user(request: Request):
         
         # 创建新用户
         result = await core.auth_register_user(email, evm_address.lower())
-        print(f"注册结果: ok={result.ok}, error={result.error}")
+        print(f"注册结果: {result}")
         
-        if result.ok:
-            user_data = result.data
+        if result.get("success"):
+            user_data = result.get("data")
             return APIResponse(ok=True, status_code=200, message="注册成功", data=user_data)
         else:
-            return APIResponse(ok=False, status_code=400, error=result.error or 'Registration failed')
+            return APIResponse(ok=False, status_code=400, error=result.get("message") or 'Registration failed')
             
     except Exception as e:
         print(f"注册API异常: {str(e)}")
@@ -64,8 +64,8 @@ async def login_user(request: Request):
         # 查询或创建用户
         result = await core.auth_find_or_create_by_evm(evm_address.lower())
         
-        if result.ok:
-            user_data = result.data
+        if result.get("success"):
+            user_data = result.get("data")
             uID = user_data.get('uID')
             
             # 创建访问令牌
