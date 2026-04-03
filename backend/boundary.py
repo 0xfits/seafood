@@ -65,7 +65,7 @@ async def test_data():
         traceback.print_exc()
         return {"status": "error", "message": str(e)}
 
-@router.get("/user/stats")
+@router.get("/api/user/stats")
 async def get_user_stats():
     """获取用户统计信息"""
     try:
