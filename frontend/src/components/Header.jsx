@@ -55,15 +55,23 @@ const Header = () => {
       if (user) {
         const userData = JSON.parse(user)
         
-        // 这里应该调用实际的API获取积分
-        // 暂时使用模拟数据
+        // 调用实际的API获取积分
+        try {
+          const response = await fetch(`/api/user/asset/${userData.uID}`)
+          if (response.ok) {
+            const data = await response.json()
+            if (data.ok && data.data) {
+              setUserPoints(data.data.points || 0)
+              return
+            }
+          }
+        } catch (apiError) {
+          console.warn('API调用失败，使用模拟数据:', apiError)
+        }
+        
+        // API调用失败时使用模拟数据
         const mockPoints = Math.floor(Math.random() * 10000) + 1000
         setUserPoints(mockPoints)
-        
-        // 实际API调用示例：
-        // const response = await fetch(`/api/users/${userData.uID}/points`)
-        // const data = await response.json()
-        // setUserPoints(data.points || 0)
       }
     } catch (error) {
       console.warn('Failed to load user points:', error)

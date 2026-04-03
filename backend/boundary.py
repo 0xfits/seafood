@@ -65,6 +65,40 @@ async def test_data():
         traceback.print_exc()
         return {"status": "error", "message": str(e)}
 
+@router.get("/user/asset/{uID}")
+async def get_user_asset(uID: int):
+    """获取用户资产（积分）"""
+    try:
+        print(f"[API] 获取用户资产: uID={uID}")
+        
+        # 直接使用Entity获取用户资产
+        from .entity import UserEntity
+        
+        with UserEntity(core.data.db) as ue:
+            asset = ue.get_asset(uID)
+            print(f"[API] 用户资产: {asset}")
+            
+            if asset:
+                return APIResponse(ok=True, status_code=200, data={
+                    "uID": asset.uID,
+                    "points": asset.points or 0,
+                    "time_update": asset.time_update.isoformat() if asset.time_update else None
+                })
+            else:
+                # 如果没有资产记录，创建一个默认的
+                new_asset = ue.upsert_asset(uID, 0)
+                return APIResponse(ok=True, status_code=200, data={
+                    "uID": new_asset.uID,
+                    "points": new_asset.points or 0,
+                    "time_update": new_asset.time_update.isoformat() if new_asset.time_update else None
+                })
+                
+    except Exception as e:
+        print(f"[API] 获取用户资产异常: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return APIResponse(ok=False, status_code=500, error=f'获取用户资产失败: {str(e)}')
+
 @router.post("/auth/register")
 async def register_user(request: Request):
     """用户注册端点"""
