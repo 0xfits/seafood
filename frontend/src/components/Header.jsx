@@ -101,7 +101,8 @@ const Header = () => {
 
   // 处理登录
   const handleLogin = () => {
-    navigate('/login')
+    // 打开登录模态框而不是跳转页面
+    window.dispatchEvent(new CustomEvent('openLoginModal'))
   }
 
   // 处理注册
@@ -111,8 +112,9 @@ const Header = () => {
 
   // 注册成功回调
   const handleRegisterSuccess = () => {
-    // 注册成功后可以跳转到登录页面或直接登录
-    navigate('/login')
+    // 注册成功后打开登录模态框
+    setShowRegisterModal(false)
+    window.dispatchEvent(new CustomEvent('openLoginModal'))
   }
 
   // 菜单项
