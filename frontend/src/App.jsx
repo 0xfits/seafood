@@ -27,6 +27,10 @@ import Header from './components/Header'
 import Footer from './components/Footer'
 import AdminLayout from './components/layout/AdminLayout'
 
+// 模态框组件
+import RegisterModal from './components/RegisterModal'
+import LoginModal from './components/LoginModal'
+
 // 语言路由包装器
 const LanguageWrapper = ({ children }) => {
   const { lang } = useParams()
@@ -121,6 +125,23 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
 }
 
 function App() {
+  const [showRegisterModal, setShowRegisterModal] = useState(false)
+  const [showLoginModal, setShowLoginModal] = useState(false)
+
+  useEffect(() => {
+    // 监听打开注册模态框事件
+    const handleOpenRegisterModal = () => setShowRegisterModal(true)
+    const handleOpenLoginModal = () => setShowLoginModal(true)
+
+    window.addEventListener('openRegisterModal', handleOpenRegisterModal)
+    window.addEventListener('openLoginModal', handleOpenLoginModal)
+
+    return () => {
+      window.removeEventListener('openRegisterModal', handleOpenRegisterModal)
+      window.removeEventListener('openLoginModal', handleOpenLoginModal)
+    }
+  }, [])
+
   return (
     <div className="app-container gradient-bg">
       <Routes>
@@ -181,7 +202,28 @@ function App() {
         } 
       />
     </Routes>
-    </div>
+
+    {/* 全局模态框 */}
+    <RegisterModal 
+      isOpen={showRegisterModal}
+      onClose={() => setShowRegisterModal(false)}
+      onSuccess={() => {
+        setShowRegisterModal(false)
+        // 登录成功后可以显示登录模态框
+        setShowLoginModal(true)
+      }}
+    />
+    
+    <LoginModal 
+      isOpen={showLoginModal}
+      onClose={() => setShowLoginModal(false)}
+      onSuccess={() => {
+        setShowLoginModal(false)
+        // 登录成功后可以刷新页面或跳转
+        window.location.reload()
+      }}
+    />
+  </div>
   )
 }
 
