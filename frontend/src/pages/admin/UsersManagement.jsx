@@ -35,19 +35,19 @@ const UsersManagement = () => {
           const usersWithAssets = []
           for (let i = 1; i <= userCount; i++) {
             try {
-              // 获取用户资产信息
-              const assetResponse = await fetch(`/api/user/asset/${i}`)
-              if (assetResponse.ok) {
-                const assetData = await assetResponse.json()
-                if (assetData.ok) {
+              // 获取用户详细信息
+              const userResponse = await fetch(`/api/user/${i}/details`)
+              if (userResponse.ok) {
+                const userData = await userResponse.json()
+                if (userData.ok) {
                   usersWithAssets.push({
-                    uID: i,
-                    points: assetData.data.points || 0,
-                    lastUpdate: assetData.data.time_update,
-                    is_admin: i === 1, // 假设用户1是管理员
-                    EVM: i === 1 ? '0x59f9f640d15ebb053c94a816232cf8ce91b209b0' : `0x${i.toString().padStart(40, '0')}`,
-                    email: i === 1 ? 'admin@jinli.com' : `user${i}@example.com`,
-                    created_at: assetData.data.time_update || new Date().toISOString(),
+                    uID: userData.data.uID,
+                    points: userData.data.points || 0,
+                    lastUpdate: userData.data.time_update,
+                    is_admin: userData.data.is_admin,
+                    EVM: userData.data.EVM,
+                    email: userData.data.bio || `user${i}@example.com`,
+                    created_at: userData.data.time_reg || new Date().toISOString(),
                     status: 'active'
                   })
                 }

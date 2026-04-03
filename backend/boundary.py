@@ -105,7 +105,42 @@ async def get_user_stats():
         traceback.print_exc()
         return APIResponse(ok=False, status_code=500, error=f'获取用户统计失败: {str(e)}')
 
-@router.get("/user/asset/{uID}")
+@router.get("/api/user/{uID}/details")
+async def get_user_details(uID: int):
+    """获取用户详细信息"""
+    try:
+        print(f"[API] 获取用户详细信息: {uID}")
+        
+        # 直接使用Entity获取用户信息
+        from .entity import UserEntity
+        
+        with UserEntity(core.data.db) as ue:
+            # 获取用户信息
+            user = ue.get(uID)
+            if not user:
+                return APIResponse(ok=False, status_code=404, error='用户不存在')
+            
+            # 获取用户资产信息
+            asset = ue.get_asset(uID)
+            
+            return APIResponse(ok=True, status_code=200, data={
+                "uID": user["uID"],
+                "EVM": user["EVM"],
+                "bio": user.get("bio", ""),
+                "is_admin": user.get("is_admin", False),
+                "points": asset.points if asset else 0,
+                "time_update": asset.time_update.isoformat() if asset and asset.time_update else None,
+                "time_reg": user["time_reg"].isoformat() if user.get("time_reg") else None,
+                "time_login_last": user["time_login_last"].isoformat() if user.get("time_login_last") else None
+            })
+                
+    except Exception as e:
+        print(f"[API] 获取用户详细信息异常: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return APIResponse(ok=False, status_code=500, error=f'获取用户详细信息失败: {str(e)}')
+
+@router.get("/api/user/asset/{uID}")
 async def get_user_asset(uID: int):
     """获取用户资产（积分）"""
     try:

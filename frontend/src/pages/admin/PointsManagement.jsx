@@ -40,17 +40,20 @@ const PointsManagement = () => {
           const usersWithAssets = []
           for (let i = 1; i <= userCount; i++) {
             try {
-              // 获取用户资产信息
-              const assetResponse = await fetch(`/api/user/asset/${i}`)
-              if (assetResponse.ok) {
-                const assetData = await assetResponse.json()
-                if (assetData.ok) {
+              // 获取用户详细信息
+              const userResponse = await fetch(`/api/user/${i}/details`)
+              if (userResponse.ok) {
+                const userData = await userResponse.json()
+                if (userData.ok) {
                   usersWithAssets.push({
-                    uID: i,
-                    points: assetData.data.points || 0,
-                    lastUpdate: assetData.data.time_update,
-                    is_admin: i === 1, // 假设用户1是管理员
-                    EVM: `0x${i.toString().padStart(40, '0')}` // 模拟地址
+                    uID: userData.data.uID,
+                    points: userData.data.points || 0,
+                    lastUpdate: userData.data.time_update,
+                    is_admin: userData.data.is_admin,
+                    EVM: userData.data.EVM,
+                    bio: userData.data.bio,
+                    time_reg: userData.data.time_reg,
+                    time_login_last: userData.data.time_login_last
                   })
                 }
               }
