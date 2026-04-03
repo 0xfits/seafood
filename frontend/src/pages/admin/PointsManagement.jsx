@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Button, Card, CardHeader, CardTitle, CardContent, Badge, Modal } from '../../components/ui'
+import { Button, Card, CardHeader, CardTitle, CardContent, Badge, Modal, ModalHeader, ModalTitle } from '../../components/ui'
 import { Search, Plus, Minus, Users, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -302,8 +302,10 @@ const PointsManagement = () => {
       <Modal
         isOpen={showAdjustModal}
         onClose={() => setShowAdjustModal(false)}
-        title={`${adjustType === 'add' ? '增加' : '减少'}积分`}
       >
+        <ModalHeader>
+          <ModalTitle>{`${adjustType === 'add' ? '增加' : '减少'}积分`}</ModalTitle>
+        </ModalHeader>
         <div className="space-y-4">
           {selectedUser && (
             <div className="bg-gray-50 p-3 rounded-lg">

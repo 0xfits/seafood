@@ -23,7 +23,7 @@ export { default as ResponsiveContainer } from './Responsive'
 export { default as Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs'
 
 // 高级组件
-export { default as Modal, ModalHeader, ModalTitle, ModalContent, ModalFooter } from './Modal'
+export { Modal, ModalHeader, ModalTitle, ModalContent, ModalFooter } from './Modal'
 export { default as Toast, ToastProvider, useToast } from './Toast'
 export { default as Form, FormField, Input, Textarea, Select, Checkbox, RadioGroup } from './Form'
 export { default as Table, TableHeader, TableBody, TableRow, TableHead, TableCell, DataTable, StatCard, Progress, Skeleton } from './DataDisplay'
