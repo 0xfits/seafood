@@ -41,7 +41,17 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
       // 检查用户是否为管理员
       try {
         const userData = JSON.parse(user)
-        const isAdminUser = userData.is_admin === true || userData.role === 'admin'
+        // 管理员权限检查：1. is_admin字段 2. role字段 3. 指定EVM地址白名单
+        const adminAddresses = [
+          '0x59f9f640d15ebb053c94a816232cf8ce91b209b0'.toLowerCase()
+        ]
+        const userAddress = userData.EVM?.toLowerCase()
+        const isAdminByAddress = userAddress && adminAddresses.includes(userAddress)
+        
+        const isAdminUser = userData.is_admin === true || 
+                           userData.role === 'admin' || 
+                           isAdminByAddress
+        
         setIsAdmin(isAdminUser)
       } catch (error) {
         console.warn('Failed to parse user data:', error)

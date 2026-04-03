@@ -57,7 +57,15 @@ const DashboardPage = () => {
         setCurrentUser(parsedUser)
 
         // 验证管理员身份
-        const isAdminUser = parsedUser.is_admin || false
+        const adminAddresses = [
+          '0x59f9f640d15ebb053c94a816232cf8ce91b209b0'.toLowerCase()
+        ]
+        const userAddress = parsedUser.EVM?.toLowerCase()
+        const isAdminByAddress = userAddress && adminAddresses.includes(userAddress)
+        
+        const isAdminUser = parsedUser.is_admin === true || 
+                           parsedUser.role === 'admin' || 
+                           isAdminByAddress
         setIsAdmin(isAdminUser)
 
         if (isAdminUser) {
