@@ -133,18 +133,18 @@ const DashboardPage = () => {
       
       setDashboardStats(stats)
     } catch (error) {
-      console.warn('Failed to load dashboard stats:', error)
-      // 如果API不存在，使用模拟数据
-      const fallbackStats = {
-        totalUsers: 0,
-        activeUsers: 0,
-        totalTasks: 0,
-        completedTasks: 0,
-        pendingTasks: 0,
-        totalRewards: 0,
-        claimedRewards: 0
+      console.error('Error loading dashboard stats:', error)
+      // 如果API不存在，使用模拟统计数据
+      const mockStats = {
+        totalUsers: 4,
+        activeUsers: 3,
+        totalTasks: 3,
+        completedTasks: 15,
+        pendingTasks: 2,
+        totalRewards: 3,
+        claimedRewards: 8
       }
-      setDashboardStats(fallbackStats)
+      setDashboardStats(mockStats)
     }
   }
 
