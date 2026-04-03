@@ -39,6 +39,9 @@ const DashboardPage = () => {
     totalRewards: 0,
     claimedRewards: 0
   })
+  const [showTaskModal, setShowTaskModal] = useState(false)
+  const [showRewardModal, setShowRewardModal] = useState(false)
+  const [showUserModal, setShowUserModal] = useState(false)
 
   // 加载数据和验证管理员身份
   useEffect(() => {
@@ -100,19 +103,46 @@ const DashboardPage = () => {
   // 加载仪表板统计数据
   const loadDashboardStats = async () => {
     try {
-      // 模拟数据，实际应从API获取
+      // 获取用户统计
+      const usersResponse = await fetch('/api/users/stats')
+      const usersData = await usersResponse.json()
+      
+      // 获取任务统计
+      const tasksResponse = await fetch('/api/task/stats')
+      const tasksData = await tasksResponse.json()
+      
+      // 获取奖励统计
+      const rewardsResponse = await fetch('/api/brand/stats')
+      const rewardsData = await rewardsResponse.json()
+      
+      // 获取待验证任务统计
+      const pendingResponse = await fetch('/api/tasklist/pending-verification/count')
+      const pendingData = await pendingResponse.json()
+      
       const stats = {
-        totalUsers: 1248,
-        activeUsers: 856,
-        totalTasks: 45,
-        completedTasks: 1247,
-        pendingTasks: 234,
-        totalRewards: 28,
-        claimedRewards: 891
+        totalUsers: usersData.totalUsers || 0,
+        activeUsers: usersData.activeUsers || 0,
+        totalTasks: tasksData.totalTasks || 0,
+        completedTasks: tasksData.completedTasks || 0,
+        pendingTasks: tasksData.pendingTasks || 0,
+        totalRewards: rewardsData.totalRewards || 0,
+        claimedRewards: rewardsData.claimedRewards || 0
       }
+      
       setDashboardStats(stats)
     } catch (error) {
       console.warn('Failed to load dashboard stats:', error)
+      // 如果API不存在，使用模拟数据
+      const fallbackStats = {
+        totalUsers: 0,
+        activeUsers: 0,
+        totalTasks: 0,
+        completedTasks: 0,
+        pendingTasks: 0,
+        totalRewards: 0,
+        claimedRewards: 0
+      }
+      setDashboardStats(fallbackStats)
     }
   }
 
@@ -133,25 +163,8 @@ const DashboardPage = () => {
       }
     } catch (error) {
       console.error('Error loading pending verification tasks:', error)
-      // 模拟数据
-      setPendingVerificationTasks([
-        {
-          tlistID: 1,
-          user: { EVM: '0x1234567890123456789012345678901234567890' },
-          task: { title: '社交媒体分享', points: 100 },
-          info_input: '已完成分享',
-          time_created: new Date().toISOString(),
-          time_checked: null
-        },
-        {
-          tlistID: 2,
-          user: { EVM: '0x2345678901234567890123456789012345678901' },
-          task: { title: '邀请好友', points: 200 },
-          info_input: '已邀请3位好友',
-          time_created: new Date().toISOString(),
-          time_checked: null
-        }
-      ])
+      // 如果API不存在，设置为空数组
+      setPendingVerificationTasks([])
     }
   }
 
@@ -179,6 +192,42 @@ const DashboardPage = () => {
       console.error('Error verifying task:', error)
       toast.error('操作失败: ' + error.message)
     }
+  }
+
+  // 管理功能处理函数
+  const handleAddTask = () => {
+    // 跳转到任务创建页面或打开模态框
+    window.location.href = '/admin/task/create'
+  }
+
+  const handleManageTasks = () => {
+    // 跳转到任务管理页面
+    window.location.href = '/admin/tasks'
+  }
+
+  const handleAddReward = () => {
+    // 跳转到奖励创建页面
+    window.location.href = '/admin/reward/create'
+  }
+
+  const handleManageRewards = () => {
+    // 跳转到奖励管理页面
+    window.location.href = '/admin/rewards'
+  }
+
+  const handleManageUsers = () => {
+    // 跳转到用户管理页面
+    window.location.href = '/admin/users'
+  }
+
+  const handleManagePermissions = () => {
+    // 跳转到权限管理页面
+    window.location.href = '/admin/permissions'
+  }
+
+  const handleAdjustPoints = () => {
+    // 跳转到积分调整页面
+    window.location.href = '/admin/points'
   }
 
   // 如果正在加载，显示加载页面
@@ -442,11 +491,11 @@ const DashboardPage = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <Button variant="primary" className="w-full">
+                  <Button variant="primary" className="w-full" onClick={handleAddTask}>
                     <Trophy className="w-4 h-4 mr-2" />
                     添加新任务
                   </Button>
-                  <Button variant="secondary" className="w-full">
+                  <Button variant="secondary" className="w-full" onClick={handleManageTasks}>
                     <Settings className="w-4 h-4 mr-2" />
                     管理任务列表
                   </Button>
@@ -467,11 +516,11 @@ const DashboardPage = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <Button variant="primary" className="w-full">
+                  <Button variant="primary" className="w-full" onClick={handleAddReward}>
                     <Gift className="w-4 h-4 mr-2" />
                     添加新奖励
                   </Button>
-                  <Button variant="secondary" className="w-full">
+                  <Button variant="secondary" className="w-full" onClick={handleManageRewards}>
                     <Settings className="w-4 h-4 mr-2" />
                     管理奖励列表
                   </Button>
@@ -495,15 +544,15 @@ const DashboardPage = () => {
             </CardHeader>
             <CardContent>
               <ResponsiveGrid sm={1} md={3} gap={4}>
-                <Button variant="primary" className="w-full">
+                <Button variant="primary" className="w-full" onClick={handleManageUsers}>
                   <Users className="w-4 h-4 mr-2" />
                   用户列表
                 </Button>
-                <Button variant="secondary" className="w-full">
+                <Button variant="secondary" className="w-full" onClick={handleManagePermissions}>
                   <Shield className="w-4 h-4 mr-2" />
                   权限管理
                 </Button>
-                <Button variant="warning" className="w-full">
+                <Button variant="warning" className="w-full" onClick={handleAdjustPoints}>
                   <BarChart3 className="w-4 h-4 mr-2" />
                   积分调整
                 </Button>
