@@ -13,6 +13,14 @@ import TaskPage from './pages/TaskPage'
 import ProfilePage from './pages/ProfilePage'
 import DashboardPage from './pages/DashboardPage'
 
+// 管理页面组件
+import TasksManagement from './pages/admin/TasksManagement'
+import RewardsManagement from './pages/admin/RewardsManagement'
+import UsersManagement from './pages/admin/UsersManagement'
+import PermissionsManagement from './pages/admin/PermissionsManagement'
+import PointsManagement from './pages/admin/PointsManagement'
+import SystemSettings from './pages/admin/SystemSettings'
+
 // 布局组件
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -128,12 +136,12 @@ function App() {
           } 
         >
           <Route index element={<DashboardPage />} />
-          <Route path="tasks" element={<div>任务管理页面</div>} />
-          <Route path="rewards" element={<div>奖励管理页面</div>} />
-          <Route path="users" element={<div>用户管理页面</div>} />
-          <Route path="permissions" element={<div>权限管理页面</div>} />
-          <Route path="points" element={<div>积分管理页面</div>} />
-          <Route path="settings" element={<div>系统设置页面</div>} />
+          <Route path="tasks" element={<TasksManagement />} />
+          <Route path="rewards" element={<RewardsManagement />} />
+          <Route path="users" element={<UsersManagement />} />
+          <Route path="permissions" element={<PermissionsManagement />} />
+          <Route path="points" element={<PointsManagement />} />
+          <Route path="settings" element={<SystemSettings />} />
         </Route>
       
       {/* 带语言前缀的路由 */}
