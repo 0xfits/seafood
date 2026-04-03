@@ -120,12 +120,12 @@ function App() {
           path="/dashboard" 
           element={
             <ProtectedRoute adminOnly={true}>
-              <AdminLayout>
-                <DashboardPage />
-              </AdminLayout>
+              <AdminLayout />
             </ProtectedRoute>
           } 
-        />
+        >
+          <Route index element={<DashboardPage />} />
+        </Route>
 
         {/* 管理页面路由 */}
         <Route 
