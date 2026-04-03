@@ -64,9 +64,12 @@ app.add_middleware(
 def _ensure_schema_on_startup():
     try:
         from sqlalchemy import text
-        from .foundation import SessionLocal
+        from .foundation import SessionLocal, Base
         db = SessionLocal()
         try:
+            # 创建所有表（包括新添加的UserAsset）
+            Base.metadata.create_all(bind=db.bind)
+            
             def ensure_table_columns(table: str, columns: list):
                 info_sql = text(f"PRAGMA table_info({table})")
                 cols = db.execute(info_sql).mappings().all()
