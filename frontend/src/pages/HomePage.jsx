@@ -10,6 +10,7 @@ import { RewardCard } from '../components/reward/RewardCard'
 import { FadeIn, SlideUp, StaggerContainer } from '../components/ui/Motion'
 import { ResponsiveGrid, ResponsiveContainer } from '../components/ui/Responsive'
 import DashJ from '../components/ui/DashJ'
+import RegisterModal from '../components/RegisterModal'
 
 // 模态框组件
 import ClaimRewardModal from '../components/ClaimRewardModal'
@@ -25,6 +26,7 @@ const HomePage = () => {
   const [openActiveModal, setOpenActiveModal] = useState(false)
   const [openChooseModal, setOpenChooseModal] = useState(false)
   const [pendingRewardTasks, setPendingRewardTasks] = useState([])
+  const [showRegisterModal, setShowRegisterModal] = useState(false)
   
   const location = useLocation()
 
@@ -170,11 +172,9 @@ const HomePage = () => {
               参与任务，赚取<DashJ size="sm" />，兑换精彩奖励
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/register">
-                <Button variant="primary" size="lg">
-                  立即注册
-                </Button>
-              </Link>
+              <Button variant="primary" size="lg" onClick={() => setShowRegisterModal(true)}>
+                立即注册
+              </Button>
               <Link to="/task">
                 <Button variant="secondary" size="lg">
                   开始探索
@@ -273,6 +273,15 @@ const HomePage = () => {
         isOpen={openChooseModal}
         onClose={() => setOpenChooseModal(false)}
         tasks={pendingRewardTasks}
+      />
+      
+      <RegisterModal
+        isOpen={showRegisterModal}
+        onClose={() => setShowRegisterModal(false)}
+        onSuccess={() => {
+          // 注册成功后可以跳转到登录页面
+          window.location.href = '/login'
+        }}
       />
     </ResponsiveContainer>
   )

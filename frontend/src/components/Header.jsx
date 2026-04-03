@@ -8,6 +8,7 @@ import hkFlag from '../images/hk.svg'
 import vnFlag from '../images/vn.svg'
 import HoverMenu from './ui/HoverMenu'
 import DashJ from './ui/DashJ'
+import RegisterModal from './RegisterModal'
 
 const Header = () => {
   const { t, i18n } = useTranslation()
@@ -18,6 +19,7 @@ const Header = () => {
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isDark, setIsDark] = useState(false)
+  const [showRegisterModal, setShowRegisterModal] = useState(false)
 
   // 检查用户登录状态
   useEffect(() => {
@@ -104,7 +106,13 @@ const Header = () => {
 
   // 处理注册
   const handleRegister = () => {
-    navigate('/register')
+    setShowRegisterModal(true)
+  }
+
+  // 注册成功回调
+  const handleRegisterSuccess = () => {
+    // 注册成功后可以跳转到登录页面或直接登录
+    navigate('/login')
   }
 
   // 菜单项
@@ -415,6 +423,13 @@ const Header = () => {
         </div>
       )}
     </header>
+    
+    {/* 注册模态框 */}
+    <RegisterModal
+      isOpen={showRegisterModal}
+      onClose={() => setShowRegisterModal(false)}
+      onSuccess={handleRegisterSuccess}
+    />
   )
 }
 
