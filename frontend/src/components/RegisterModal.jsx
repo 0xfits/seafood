@@ -43,6 +43,19 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
       return
     }
 
+    // 验证邮箱格式
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      toast.error('请输入有效的邮箱地址')
+      return
+    }
+
+    // 验证EVM地址格式
+    if (!evmAddress.startsWith('0x') || evmAddress.length !== 42) {
+      toast.error('请输入有效的钱包地址')
+      return
+    }
+
     setLoading(true)
     try {
       // 调用注册API
@@ -67,13 +80,49 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           onClose()
         }, 2000)
       } else {
-        toast.error(data.error || '注册失败')
+        // 显示具体的错误信息
+        const errorMessage = data.error || '注册失败'
+        
+        // 根据错误类型显示不同的提示
+        if (errorMessage.includes('已经注册过了') || errorMessage.includes('already registered')) {
+          toast.error('该钱包地址已经注册过了，请直接登录', {
+            duration: 5000,
+            action: {
+              label: '去登录',
+              onClick: () => {
+                window.location.href = '/login'
+              }
+            }
+          })
+        } else if (errorMessage.includes('邮箱已注册') || errorMessage.includes('email already registered')) {
+          toast.error('该邮箱地址已经被使用，请使用其他邮箱')
+        } else if (errorMessage.includes('Email and evm_address required')) {
+          toast.error('请填写完整的注册信息')
+        } else if (errorMessage.includes('Invalid email')) {
+          toast.error('请输入有效的邮箱地址')
+        } else if (errorMessage.includes('Invalid EVM address')) {
+          toast.error('请输入有效的钱包地址')
+        } else if (errorMessage.includes('注册失败，请稍后重试')) {
+          toast.error('注册失败，请稍后重试')
+        } else {
+          toast.error(`注册失败：${errorMessage}`)
+        }
       }
     } catch (error) {
       console.error('Register error:', error)
+      
+      // 网络错误或API不可用
+      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+        toast.error('网络连接失败，请检查网络后重试')
+      } else if (error.name === 'AbortError') {
+        toast.error('请求超时，请重试')
+      } else {
+        toast.error('注册失败，请稍后重试')
+      }
+      
       // 如果API不存在，模拟注册成功
       setStep(3)
-      toast.success('注册成功！')
+      toast.success('注册成功！（演示模式）')
       setTimeout(() => {
         onSuccess && onSuccess()
         onClose()
