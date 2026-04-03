@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { 
   Users, 
@@ -329,13 +330,13 @@ const DashboardPage = () => {
             </CardHeader>
             <CardContent>
               <ResponsiveGrid sm={2} md={4} gap={4}>
-                <Link to="/tasks">
+                <Link to="/admin/tasks">
                   <Button variant="primary" className="w-full">
                     <Trophy className="w-4 h-4 mr-2" />
                     管理任务
                   </Button>
                 </Link>
-                <Link to="/rewards">
+                <Link to="/admin/rewards">
                   <Button variant="secondary" className="w-full">
                     <Gift className="w-4 h-4 mr-2" />
                     管理奖励
