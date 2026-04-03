@@ -27,7 +27,9 @@ from __future__ import annotations
 from typing import Optional, List
 from datetime import datetime
  
-
+from .foundation import Base, Foundation, UserAsset
+from .data_model import Brand, Chest, Gift, Journey, Task, User, Asset
+from sqlalchemy.orm import Session
 from .foundation import Foundation, SessionLocal
 text = Foundation.text
 import asyncio

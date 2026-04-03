@@ -82,6 +82,22 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # 创建基础模型类
 Base = declarative_base()
 
+# ORM 模型定义
+from sqlalchemy import Column, Integer, String, DateTime
+from datetime import datetime
+
+class UserAsset(Base):
+    """用户资产模型"""
+    __tablename__ = "user_asset"
+    
+    index_id = Column(Integer, primary_key=True, autoincrement=True)
+    uID = Column(Integer, nullable=False, unique=True)
+    points = Column(Integer, default=0)
+    time_update = Column(DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f"<UserAsset(uID={self.uID}, points={self.points})>"
+
 # 依赖：获取数据库会话
 def get_db():
     """获取数据库会话的依赖函数"""
