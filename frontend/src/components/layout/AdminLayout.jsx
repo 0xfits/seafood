@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link, useLocation, Outlet } from 'react-router-dom'
+import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom'
 import { 
   LayoutDashboard, 
   Trophy, 
@@ -22,7 +22,7 @@ const AdminLayout = () => {
     {
       title: '仪表板',
       icon: LayoutDashboard,
-      path: '/dashboard',
+      path: '/admin/dashboard',
       description: '系统概览和统计'
     },
     {

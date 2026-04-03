@@ -118,36 +118,29 @@ function App() {
         {/* 登录页面 */}
         <Route path="/login" element={<Login />} />
         
-        {/* 后台管理页面（管理员专用） */}
+        {/* 管理页面路由 */}
         <Route 
-          path="/dashboard" 
+          path="/admin/*" 
           element={
             <ProtectedRoute adminOnly={true}>
               <AdminLayout />
             </ProtectedRoute>
           } 
         >
-          <Route index element={<DashboardPage />} />
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="tasks" element={<div>任务管理页面</div>} />
+          <Route path="rewards" element={<div>奖励管理页面</div>} />
+          <Route path="users" element={<div>用户管理页面</div>} />
+          <Route path="permissions" element={<div>权限管理页面</div>} />
+          <Route path="points" element={<div>积分管理页面</div>} />
+          <Route path="settings" element={<div>系统设置页面</div>} />
         </Route>
 
-        {/* 管理页面路由 */}
+        {/* 兼容旧的 /dashboard 路由，重定向到新的 /admin/dashboard */}
         <Route 
-          path="/admin/*" 
-          element={
-            <ProtectedRoute adminOnly={true}>
-              <AdminLayout>
-                <Routes>
-                  <Route path="tasks" element={<div>任务管理页面</div>} />
-                  <Route path="rewards" element={<div>奖励管理页面</div>} />
-                  <Route path="users" element={<div>用户管理页面</div>} />
-                  <Route path="permissions" element={<div>权限管理页面</div>} />
-                  <Route path="points" element={<div>积分管理页面</div>} />
-                  <Route path="settings" element={<div>系统设置页面</div>} />
-                  <Route path="*" element={<Navigate to="/admin/tasks" replace />} />
-                </Routes>
-              </AdminLayout>
-            </ProtectedRoute>
-          } 
+          path="/dashboard" 
+          element={<Navigate to="/admin/dashboard" replace />}
         />
       
       {/* 带语言前缀的路由 */}
