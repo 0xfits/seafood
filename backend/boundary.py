@@ -65,6 +65,46 @@ async def test_data():
         traceback.print_exc()
         return {"status": "error", "message": str(e)}
 
+@router.get("/user/stats")
+async def get_user_stats():
+    """获取用户统计信息"""
+    try:
+        print(f"[API] 获取用户统计信息")
+        
+        # 直接使用Entity获取用户统计
+        from .entity import UserEntity
+        
+        with UserEntity(core.data.db) as ue:
+            # 获取所有用户数量
+            users = ue.list()
+            user_count = len(users) if users else 0
+            
+            # 获取管理员数量
+            admin_count = sum(1 for user in users if user.get('is_admin'))
+            
+            # 获取有资产的用户数量
+            asset_count = 0
+            total_points = 0
+            for user in users:
+                asset = ue.get_asset(user['uID'])
+                if asset:
+                    asset_count += 1
+                    total_points += asset.points or 0
+            
+            return APIResponse(ok=True, status_code=200, data={
+                "user_count": user_count,
+                "admin_count": admin_count,
+                "asset_count": asset_count,
+                "total_points": total_points,
+                "avg_points": total_points / asset_count if asset_count > 0 else 0
+            })
+                
+    except Exception as e:
+        print(f"[API] 获取用户统计异常: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return APIResponse(ok=False, status_code=500, error=f'获取用户统计失败: {str(e)}')
+
 @router.get("/user/asset/{uID}")
 async def get_user_asset(uID: int):
     """获取用户资产（积分）"""
