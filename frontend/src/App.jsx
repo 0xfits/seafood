@@ -38,8 +38,15 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
     const user = localStorage.getItem('user')
     if (user) {
       setIsAuthenticated(true)
-      // 这里可以添加检查用户是否为管理员的逻辑
-      // setIsAdmin(...) 例如检查特定的EVM地址白名单
+      // 检查用户是否为管理员
+      try {
+        const userData = JSON.parse(user)
+        const isAdminUser = userData.is_admin === true || userData.role === 'admin'
+        setIsAdmin(isAdminUser)
+      } catch (error) {
+        console.warn('Failed to parse user data:', error)
+        setIsAdmin(false)
+      }
     }
   }, [])
 

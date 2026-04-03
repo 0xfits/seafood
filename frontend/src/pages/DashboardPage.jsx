@@ -408,6 +408,92 @@ const DashboardPage = () => {
             </CardContent>
           </Card>
         </SlideUp>
+
+        {/* 管理操作 */}
+        <SlideUp delay={1000}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* 任务管理 */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Trophy className="w-5 h-5" />
+                  任务管理
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <Button variant="primary" className="w-full">
+                    <Trophy className="w-4 h-4 mr-2" />
+                    添加新任务
+                  </Button>
+                  <Button variant="secondary" className="w-full">
+                    <Settings className="w-4 h-4 mr-2" />
+                    管理任务列表
+                  </Button>
+                  <div className="text-sm text-gray-600">
+                    创建、编辑和删除社区任务
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 奖励管理 */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Gift className="w-5 h-5" />
+                  奖励管理
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <Button variant="primary" className="w-full">
+                    <Gift className="w-4 h-4 mr-2" />
+                    添加新奖励
+                  </Button>
+                  <Button variant="secondary" className="w-full">
+                    <Settings className="w-4 h-4 mr-2" />
+                    管理奖励列表
+                  </Button>
+                  <div className="text-sm text-gray-600">
+                    创建、编辑和删除社区奖励
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </SlideUp>
+
+        {/* 用户管理 */}
+        <SlideUp delay={1200}>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                用户管理
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveGrid sm={1} md={3} gap={4}>
+                <Button variant="primary" className="w-full">
+                  <Users className="w-4 h-4 mr-2" />
+                  用户列表
+                </Button>
+                <Button variant="secondary" className="w-full">
+                  <Shield className="w-4 h-4 mr-2" />
+                  权限管理
+                </Button>
+                <Button variant="warning" className="w-full">
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  积分调整
+                </Button>
+              </ResponsiveGrid>
+              <div className="text-sm text-gray-600 mt-4">
+                管理用户账户、权限和积分
+              </div>
+            </CardContent>
+          </Card>
+        </SlideUp>
       </div>
     </ResponsiveContainer>
   )
