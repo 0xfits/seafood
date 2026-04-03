@@ -24,6 +24,26 @@ core = Core()
 
 # ====== FastAPI 端点定义 ======
 
+@router.get("/test/data")
+async def test_data():
+    """测试Data类方法"""
+    try:
+        print(f"[TEST] core type: {type(core)}")
+        print(f"[TEST] core.data type: {type(core.data)}")
+        print(f"[TEST] core.data methods: {[m for m in dir(core.data) if 'find' in m]}")
+        
+        # 测试方法是否存在
+        if hasattr(core.data, 'find_user_by_evm'):
+            print("[TEST] find_user_by_evm method exists")
+            return {"status": "ok", "message": "find_user_by_evm method exists"}
+        else:
+            print("[TEST] find_user_by_evm method NOT exists")
+            return {"status": "error", "message": "find_user_by_evm method NOT exists"}
+            
+    except Exception as e:
+        print(f"[TEST] Exception: {str(e)}")
+        return {"status": "error", "message": str(e)}
+
 @router.post("/auth/register")
 async def register_user(request: Request):
     """用户注册端点"""
