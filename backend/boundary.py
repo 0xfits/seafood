@@ -30,18 +30,39 @@ async def test_data():
     try:
         print(f"[TEST] core type: {type(core)}")
         print(f"[TEST] core.data type: {type(core.data)}")
-        print(f"[TEST] core.data methods: {[m for m in dir(core.data) if 'find' in m]}")
+        print(f"[TEST] core.data class: {core.data.__class__}")
+        print(f"[TEST] core.data module: {core.data.__class__.__module__}")
         
-        # 测试方法是否存在
-        if hasattr(core.data, 'find_user_by_evm'):
-            print("[TEST] find_user_by_evm method exists")
-            return {"status": "ok", "message": "find_user_by_evm method exists"}
-        else:
-            print("[TEST] find_user_by_evm method NOT exists")
-            return {"status": "error", "message": "find_user_by_evm method NOT exists"}
+        # 获取所有方法
+        all_methods = [m for m in dir(core.data) if not m.startswith('_')]
+        find_methods = [m for m in all_methods if 'find' in m]
+        
+        print(f"[TEST] all methods: {all_methods}")
+        print(f"[TEST] find methods: {find_methods}")
+        
+        # 检查具体方法
+        has_find_user_by_evm = hasattr(core.data, 'find_user_by_evm')
+        has_find_or_create_user_by_evm = hasattr(core.data, 'find_or_create_user_by_evm')
+        
+        print(f"[TEST] has_find_user_by_evm: {has_find_user_by_evm}")
+        print(f"[TEST] has_find_or_create_user_by_evm: {has_find_or_create_user_by_evm}")
+        
+        return {
+            "status": "ok",
+            "core_type": str(type(core)),
+            "data_type": str(type(core.data)),
+            "data_class": core.data.__class__.__name__,
+            "data_module": core.data.__class__.__module__,
+            "all_methods": all_methods,
+            "find_methods": find_methods,
+            "has_find_user_by_evm": has_find_user_by_evm,
+            "has_find_or_create_user_by_evm": has_find_or_create_user_by_evm
+        }
             
     except Exception as e:
         print(f"[TEST] Exception: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return {"status": "error", "message": str(e)}
 
 @router.post("/auth/register")
