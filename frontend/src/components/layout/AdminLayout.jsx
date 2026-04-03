@@ -22,43 +22,43 @@ const AdminLayout = () => {
     {
       title: '仪表板',
       icon: LayoutDashboard,
-      path: '/admin/dashboard',
+      path: '/dashboard',
       description: '系统概览和统计'
     },
     {
       title: '任务管理',
       icon: Trophy,
-      path: '/admin/tasks',
+      path: '/dashboard/tasks',
       description: '创建和管理任务'
     },
     {
       title: '奖励管理', 
       icon: Gift,
-      path: '/admin/rewards',
+      path: '/dashboard/rewards',
       description: '创建和管理奖励'
     },
     {
       title: '用户管理',
       icon: Users,
-      path: '/admin/users',
+      path: '/dashboard/users',
       description: '管理用户账户'
     },
     {
       title: '权限管理',
       icon: Shield,
-      path: '/admin/permissions',
+      path: '/dashboard/permissions',
       description: '管理用户权限'
     },
     {
       title: '积分管理',
       icon: BarChart3,
-      path: '/admin/points',
+      path: '/dashboard/points',
       description: '调整用户积分'
     },
     {
       title: '系统设置',
       icon: Settings,
-      path: '/admin/settings',
+      path: '/dashboard/settings',
       description: '系统配置'
     }
   ]

@@ -120,15 +120,14 @@ function App() {
         
         {/* 管理页面路由 */}
         <Route 
-          path="/admin/*" 
+          path="/dashboard/*" 
           element={
             <ProtectedRoute adminOnly={true}>
               <AdminLayout />
             </ProtectedRoute>
           } 
         >
-          <Route index element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="dashboard" element={<DashboardPage />} />
+          <Route index element={<DashboardPage />} />
           <Route path="tasks" element={<div>任务管理页面</div>} />
           <Route path="rewards" element={<div>奖励管理页面</div>} />
           <Route path="users" element={<div>用户管理页面</div>} />
@@ -136,12 +135,6 @@ function App() {
           <Route path="points" element={<div>积分管理页面</div>} />
           <Route path="settings" element={<div>系统设置页面</div>} />
         </Route>
-
-        {/* 兼容旧的 /dashboard 路由，重定向到新的 /admin/dashboard */}
-        <Route 
-          path="/dashboard" 
-          element={<Navigate to="/admin/dashboard" replace />}
-        />
       
       {/* 带语言前缀的路由 */}
       <Route 

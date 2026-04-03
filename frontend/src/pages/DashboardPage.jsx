@@ -330,13 +330,13 @@ const DashboardPage = () => {
             </CardHeader>
             <CardContent>
               <ResponsiveGrid sm={2} md={4} gap={4}>
-                <Link to="/admin/tasks">
+                <Link to="/dashboard/tasks">
                   <Button variant="primary" className="w-full">
                     <Trophy className="w-4 h-4 mr-2" />
                     管理任务
                   </Button>
                 </Link>
-                <Link to="/admin/rewards">
+                <Link to="/dashboard/rewards">
                   <Button variant="secondary" className="w-full">
                     <Gift className="w-4 h-4 mr-2" />
                     管理奖励
