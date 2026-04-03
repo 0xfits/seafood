@@ -656,6 +656,28 @@ class Core:
                 return self.err("Failed to create user")
             return self.ok(data={"uID": row["uID"], "EVM": row["EVM"], "bio": row.get("bio") or ""})
 
+    async def auth_register_user(self, email: str, evm_norm: str):
+        with self.data as r:
+            # 检查EVM地址是否已存在
+            existing_user = r.find_user_by_evm(evm_norm)
+            if existing_user:
+                return self.err("该钱包地址已经注册过了，请直接登录")
+            
+            # 暂时跳过邮箱检查，因为用户表没有邮箱字段
+            # 如果需要支持邮箱，需要修改数据库结构添加email字段
+            
+            # 创建新用户
+            row = r.create_user_with_email_and_evm(email, evm_norm)
+            if not row:
+                return self.err("注册失败，请稍后重试")
+            
+            return self.ok(data={
+                "uID": row["uID"], 
+                "EVM": row["EVM"], 
+                "email": email,
+                "message": "注册成功"
+            })
+
     async def get_user_by_id_raw(self, uID: int):
         with self.data as r:
             row = r.get_user_by_id_raw(uID)

@@ -238,6 +238,18 @@ class JourneyData(Data):
         with UserEntity(self.db) as ue:
             return ue.find_or_create_by_evm(evm_norm)
 
+    def find_user_by_evm(self, evm_norm: str) -> Optional[dict]:
+        with UserEntity(self.db) as ue:
+            return ue.find_by_evm(evm_norm)
+
+    def find_user_by_email(self, email: str) -> Optional[dict]:
+        with UserEntity(self.db) as ue:
+            return ue.find_by_email(email)
+
+    def create_user_with_email_and_evm(self, email: str, evm_norm: str) -> Optional[dict]:
+        with UserEntity(self.db) as ue:
+            return ue.create_with_email_and_evm(email, evm_norm)
+
     def get_user_by_id_raw(self, uID: int) -> Optional[dict]:
         with UserEntity(self.db) as ue:
             return ue.get_by_id(int(uID))

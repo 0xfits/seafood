@@ -285,6 +285,24 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
             elif method == 'POST':
                 # ====== Auth endpoints ======
                 # ====== 认证相关的路由端点 ======
+                if path == "/api/auth/register":
+                    email = payload.get('email') if payload else None
+                    evm_address = payload.get('evm_address') if payload else None
+                    if email and evm_address:
+                        # 创建新用户
+                        result = await self.core.auth_register_user(email, evm_address.lower())
+                        if result.get('success'):
+                            user_data = result.get('data', {})
+                            return self._response({
+                                "success": True,
+                                "message": "注册成功",
+                                "data": user_data
+                            })
+                        else:
+                            return APIResponse(ok=False, status_code=400, error=result.get('error', 'Registration failed'))
+                    else:
+                        return APIResponse(ok=False, status_code=400, error='Email and evm_address required')
+                        
                 if path == "/api/auth/login":
                     evm_address = payload.get('evm_address') if payload else None
                     if evm_address:

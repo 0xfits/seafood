@@ -258,6 +258,25 @@ class UserEntity(Entity):
             self.db.rollback()
         return row
 
+    def find_by_evm(self, evm_norm: str):
+        return self.get_by_evm(evm_norm)
+
+    def find_by_email(self, email: str):
+        # 注意：当前用户表可能没有email字段，这里先返回None
+        # 如果需要支持邮箱，需要修改数据库结构
+        return None
+
+    def create_with_email_and_evm(self, email: str, evm_norm: str):
+        # 检查是否需要添加email字段到用户表
+        # 暂时只使用EVM地址创建用户
+        admins = {a.strip().lower() for a in (Foundation.get_env("ADMIN_EVM_ADDRESSES") or "").split(",") if a.strip()}
+        try:
+            row = self.create(evm=evm_norm, bio="", is_admin=(evm_norm in admins))
+            return row
+        except Exception:
+            self.db.rollback()
+            return None
+
 class SymbolEntity(Entity):
     def list(self):
         sql = text("SELECT symbol_id, gID, symbol, points FROM symbol ORDER BY symbol_id")
