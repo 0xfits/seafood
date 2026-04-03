@@ -22,6 +22,79 @@ router = APIRouter(prefix="/api", tags=["Common"])
 
 core = Core()
 
+# ====== FastAPI 端点定义 ======
+
+@router.post("/auth/register")
+async def register_user(request: Request):
+    """用户注册端点"""
+    try:
+        payload = await request.json()
+        print(f"注册请求: email={payload.get('email') if payload else None}, evm={payload.get('evm_address') if payload else None}")
+        
+        email = payload.get('email')
+        evm_address = payload.get('evm_address')
+        
+        if not email or not evm_address:
+            return APIResponse(ok=False, status_code=400, error='Email and evm_address required')
+        
+        # 创建新用户
+        result = await core.auth_register_user(email, evm_address.lower())
+        print(f"注册结果: ok={result.ok}, error={result.error}")
+        
+        if result.ok:
+            user_data = result.data
+            return APIResponse(ok=True, status_code=200, message="注册成功", data=user_data)
+        else:
+            return APIResponse(ok=False, status_code=400, error=result.error or 'Registration failed')
+            
+    except Exception as e:
+        print(f"注册API异常: {str(e)}")
+        return APIResponse(ok=False, status_code=500, error=f'服务器内部错误: {str(e)}')
+
+@router.post("/auth/login")
+async def login_user(request: Request):
+    """用户登录端点"""
+    try:
+        payload = await request.json()
+        evm_address = payload.get('evm_address')
+        
+        if not evm_address:
+            return APIResponse(ok=False, status_code=401, error='Unauthorized: evm_address required')
+        
+        # 查询或创建用户
+        result = await core.auth_find_or_create_by_evm(evm_address.lower())
+        
+        if result.ok:
+            user_data = result.data
+            uID = user_data.get('uID')
+            
+            # 创建访问令牌
+            from datetime import datetime, timedelta
+            from jose import jwt
+            
+            SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key")
+            ALGORITHM = "HS256"
+            ACCESS_TOKEN_EXPIRE_MINUTES = 30
+            
+            access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            expire = datetime.utcnow() + access_token_expires
+            
+            to_encode = {"sub": str(uID), "evm": evm_address, "exp": expire}
+            access_token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+            
+            return APIResponse(ok=True, status_code=200, data={
+                "uID": uID,
+                "EVM": evm_address,
+                "access_token": access_token,
+                "token_type": "bearer"
+            })
+        else:
+            return APIResponse(ok=False, status_code=500, error='Failed to create or find user')
+            
+    except Exception as e:
+        print(f"登录API异常: {str(e)}")
+        return APIResponse(ok=False, status_code=500, error=f'服务器内部错误: {str(e)}')
+
 @dataclass
 class APIResponse:
     ok: bool
