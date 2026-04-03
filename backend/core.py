@@ -676,10 +676,15 @@ class Core:
                 if not row:
                     return self.err("注册失败，请稍后重试")
                 
+                # 为新用户创建资产记录
+                asset = ue.upsert_asset(row["uID"], 0)
+                print(f"[DEBUG] created asset: {asset}")
+                
                 return self.ok(data={
                     "uID": row["uID"], 
                     "EVM": row["EVM"], 
                     "email": email,
+                    "points": asset.points if asset else 0,
                     "message": "注册成功"
                 })
             

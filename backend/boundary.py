@@ -139,6 +139,40 @@ async def get_user_asset(uID: int):
         traceback.print_exc()
         return APIResponse(ok=False, status_code=500, error=f'获取用户资产失败: {str(e)}')
 
+@router.post("/admin/fix/assets")
+async def fix_user_assets():
+    """为所有现有用户创建资产记录"""
+    try:
+        print(f"[API] 修复用户资产记录")
+        
+        from .entity import UserEntity
+        
+        with UserEntity(core.data.db) as ue:
+            # 获取所有用户
+            users = ue.list()
+            print(f"[API] 找到 {len(users)} 个用户")
+            
+            fixed_count = 0
+            for user in users:
+                asset = ue.get_asset(user['uID'])
+                if not asset:
+                    # 为没有资产的用户创建默认资产
+                    new_asset = ue.upsert_asset(user['uID'], 0)
+                    print(f"[API] 为用户 {user['uID']} 创建资产记录")
+                    fixed_count += 1
+            
+            return APIResponse(ok=True, status_code=200, data={
+                "total_users": len(users),
+                "fixed_assets": fixed_count,
+                "message": f"已为 {fixed_count} 个用户创建资产记录"
+            })
+                
+    except Exception as e:
+        print(f"[API] 修复用户资产异常: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return APIResponse(ok=False, status_code=500, error=f'修复用户资产失败: {str(e)}')
+
 @router.post("/auth/register")
 async def register_user(request: Request):
     """用户注册端点"""
