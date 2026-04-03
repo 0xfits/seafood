@@ -147,7 +147,8 @@ const Header = () => {
   }
 
   return (
-    <header id="header" className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95">
+    <>
+      <header id="header" className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -430,6 +431,7 @@ const Header = () => {
       onClose={() => setShowRegisterModal(false)}
       onSuccess={handleRegisterSuccess}
     />
+  </>
   )
 }
 
