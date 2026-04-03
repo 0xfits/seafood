@@ -139,6 +139,62 @@ async def get_user_asset(uID: int):
         traceback.print_exc()
         return APIResponse(ok=False, status_code=500, error=f'获取用户资产失败: {str(e)}')
 
+@router.post("/admin/points/adjust")
+async def adjust_user_points(request: Request):
+    """管理员调整用户积分"""
+    try:
+        payload = await request.json()
+        print(f"[API] 管理员调整积分: {payload}")
+        
+        uID = payload.get('uID')
+        amount = payload.get('amount')
+        reason = payload.get('reason')
+        operator = payload.get('operator', 'admin')
+        
+        if not uID or amount is None or not reason:
+            return APIResponse(ok=False, status_code=400, error='参数不完整')
+        
+        # 直接使用Entity调整积分
+        from .entity import UserEntity
+        
+        with UserEntity(core.data.db) as ue:
+            # 获取当前资产
+            current_asset = ue.get_asset(uID)
+            if not current_asset:
+                return APIResponse(ok=False, status_code=404, error='用户资产记录不存在')
+            
+            # 调整积分
+            new_asset = ue.upsert_asset(uID, amount)
+            print(f"[API] 积分调整结果: {new_asset}")
+            
+            # 记录调整日志（可以扩展为积分历史表）
+            adjustment_record = {
+                "uID": uID,
+                "amount": amount,
+                "reason": reason,
+                "operator": operator,
+                "timestamp": datetime.utcnow().isoformat(),
+                "previous_points": current_asset.points,
+                "new_points": new_asset.points
+            }
+            print(f"[API] 积分调整记录: {adjustment_record}")
+            
+            return APIResponse(ok=True, status_code=200, data={
+                "uID": uID,
+                "amount": amount,
+                "reason": reason,
+                "operator": operator,
+                "previous_points": current_asset.points,
+                "new_points": new_asset.points,
+                "timestamp": adjustment_record["timestamp"]
+            })
+                
+    except Exception as e:
+        print(f"[API] 积分调整异常: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return APIResponse(ok=False, status_code=500, error=f'积分调整失败: {str(e)}')
+
 @router.post("/admin/fix/assets")
 async def fix_user_assets():
     """为所有现有用户创建资产记录"""
