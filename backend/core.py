@@ -658,32 +658,31 @@ class Core:
     async def auth_register_user(self, email: str, evm_norm: str):
         try:
             print(f"[DEBUG] auth_register_user called with email={email}, evm={evm_norm}")
-            print(f"[DEBUG] self.data type: {type(self.data)}")
-            print(f"[DEBUG] self.data methods: {[m for m in dir(self.data) if 'find' in m]}")
             
-            # 检查EVM地址是否已存在
-            existing_user = self.data.find_user_by_evm(evm_norm)
-            print(f"[DEBUG] existing_user: {existing_user}")
+            # 直接使用UserEntity来检查用户是否存在
+            from .entity import UserEntity
             
-            if existing_user:
-                return self.err("该钱包地址已经注册过了，请直接登录")
+            with UserEntity(self.data.db) as ue:
+                existing_user = ue.find_by_evm(evm_norm)
+                print(f"[DEBUG] existing_user: {existing_user}")
+                
+                if existing_user:
+                    return self.err("该钱包地址已经注册过了，请直接登录")
+                
+                # 创建新用户
+                row = ue.create_with_email_and_evm(email, evm_norm)
+                print(f"[DEBUG] created row: {row}")
+                
+                if not row:
+                    return self.err("注册失败，请稍后重试")
+                
+                return self.ok(data={
+                    "uID": row["uID"], 
+                    "EVM": row["EVM"], 
+                    "email": email,
+                    "message": "注册成功"
+                })
             
-            # 暂时跳过邮箱检查，因为用户表没有邮箱字段
-            # 如果需要支持邮箱，需要修改数据库结构添加email字段
-            
-            # 创建新用户
-            row = self.data.create_user_with_email_and_evm(email, evm_norm)
-            print(f"[DEBUG] created row: {row}")
-            
-            if not row:
-                return self.err("注册失败，请稍后重试")
-            
-            return self.ok(data={
-                "uID": row["uID"], 
-                "EVM": row["EVM"], 
-                "email": email,
-                "message": "注册成功"
-            })
         except Exception as e:
             print(f"[DEBUG] auth_register_user exception: {str(e)}")
             import traceback
