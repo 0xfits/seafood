@@ -286,18 +286,27 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                 # ====== Auth endpoints ======
                 # ====== 认证相关的路由端点 ======
                 if path == "/api/auth/register":
-                    email = payload.get('email') if payload else None
-                    evm_address = payload.get('evm_address') if payload else None
-                    if email and evm_address:
-                        # 创建新用户
-                        result = await self.core.auth_register_user(email, evm_address.lower())
-                        if result.ok:
-                            user_data = result.data
-                            return APIResponse(ok=True, status_code=200, message="注册成功", data=user_data)
+                    try:
+                        print(f"注册请求: email={payload.get('email') if payload else None}, evm={payload.get('evm_address') if payload else None}")
+                        
+                        email = payload.get('email') if payload else None
+                        evm_address = payload.get('evm_address') if payload else None
+                        
+                        if email and evm_address:
+                            # 创建新用户
+                            result = await self.core.auth_register_user(email, evm_address.lower())
+                            print(f"注册结果: ok={result.ok}, error={result.error}")
+                            
+                            if result.ok:
+                                user_data = result.data
+                                return APIResponse(ok=True, status_code=200, message="注册成功", data=user_data)
+                            else:
+                                return APIResponse(ok=False, status_code=400, error=result.error or 'Registration failed')
                         else:
-                            return APIResponse(ok=False, status_code=400, error=result.error or 'Registration failed')
-                    else:
-                        return APIResponse(ok=False, status_code=400, error='Email and evm_address required')
+                            return APIResponse(ok=False, status_code=400, error='Email and evm_address required')
+                    except Exception as e:
+                        print(f"注册API异常: {str(e)}")
+                        return APIResponse(ok=False, status_code=500, error=f'服务器内部错误: {str(e)}')
                         
                 if path == "/api/auth/login":
                     evm_address = payload.get('evm_address') if payload else None
