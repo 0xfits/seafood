@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { 
   Users, 
@@ -16,8 +15,7 @@ import {
   Shield
 } from 'lucide-react'
 
-// 新的 UI 组件
-import { Container, Grid } from '../components/layout'
+// UI 组件
 import { Button, Card, CardHeader, CardTitle, CardContent, Badge } from '../components/ui'
 import { LoadingPage } from '../components/ui/Loading'
 import { FadeIn, SlideUp, StaggerContainer } from '../components/ui/Motion'
@@ -248,9 +246,9 @@ const DashboardPage = () => {
             <Shield className="w-16 h-16 text-orange-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">权限不足</h2>
             <p className="text-gray-600 mb-6">只有管理员才能访问管理面板</p>
-            <Link to="/">
-              <Button variant="primary">返回首页</Button>
-            </Link>
+            <Button variant="primary" onClick={() => window.location.href = '/'}>
+              返回首页
+            </Button>
           </CardContent>
         </Card>
       </ResponsiveContainer>
@@ -259,30 +257,7 @@ const DashboardPage = () => {
 
   return (
     <ResponsiveContainer>
-      <div className="space-y-8">
-        {/* 页面标题 */}
-        <FadeIn>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                管理面板
-              </h1>
-              <p className="text-xl text-gray-600">
-                管理用户、任务和奖励系统
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="warning" className="flex items-center gap-1">
-                <Shield className="w-3 h-3" />
-                管理员
-              </Badge>
-              <span className="text-sm text-gray-600">
-                {formatEvmAddress(currentUser?.EVM)}
-              </span>
-            </div>
-          </div>
-        </FadeIn>
-
+      <div className="space-y-6">
         {/* 统计卡片 */}
         <SlideUp delay={200}>
           <ResponsiveGrid sm={2} md={4} gap={6}>

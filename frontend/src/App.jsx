@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from 'react'
-import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import Header from './components/Header'
-import Footer from './components/Footer'
+import { I18nextProvider } from 'react-i18next'
+import i18n from './i18n'
+import { Toaster } from 'react-hot-toast'
+
+// 页面组件
+import Login from './pages/Login'
 import HomePage from './pages/HomePage'
 import RewardPage from './pages/RewardPage'
 import TaskPage from './pages/TaskPage'
 import ProfilePage from './pages/ProfilePage'
 import DashboardPage from './pages/DashboardPage'
-import Login from './components/Login'
+
+// 布局组件
+import Header from './components/Header'
+import Footer from './components/Footer'
+import AdminLayout from './components/layout/AdminLayout'
 
 // 语言路由包装器
 const LanguageWrapper = ({ children }) => {
@@ -112,7 +120,29 @@ function App() {
           path="/dashboard" 
           element={
             <ProtectedRoute adminOnly={true}>
-              <DashboardPage />
+              <AdminLayout>
+                <DashboardPage />
+              </AdminLayout>
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* 管理页面路由 */}
+        <Route 
+          path="/admin/*" 
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminLayout>
+                <Routes>
+                  <Route path="tasks" element={<div>任务管理页面</div>} />
+                  <Route path="rewards" element={<div>奖励管理页面</div>} />
+                  <Route path="users" element={<div>用户管理页面</div>} />
+                  <Route path="permissions" element={<div>权限管理页面</div>} />
+                  <Route path="points" element={<div>积分管理页面</div>} />
+                  <Route path="settings" element={<div>系统设置页面</div>} />
+                  <Route path="*" element={<Navigate to="/admin/tasks" replace />} />
+                </Routes>
+              </AdminLayout>
             </ProtectedRoute>
           } 
         />
