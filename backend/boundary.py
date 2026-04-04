@@ -638,6 +638,7 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                         return APIResponse(ok=False, status_code=500, error=f'获取用户统计失败: {str(e)}')
                 
                 # User asset
+                print(f"[DEBUG] Checking path: {path}")
                 if path.startswith("/api/user/asset/") and len(path.split("/")) == 4:
                     try:
                         # 从路径中提取用户ID
