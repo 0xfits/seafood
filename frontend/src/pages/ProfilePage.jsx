@@ -88,50 +88,39 @@ const ProfilePage = () => {
   // 加载任务统计
   const loadTaskStats = async (uID) => {
     try {
-      const response = await fetch(`/api/tasklist/user/${uID}`)
+      const response = await fetch(`/api/journey?uid=${uID}`)
       const data = await response.json()
       if (data.success) {
+        const journeys = data.data || []
         const stats = {
-          totalTasks: 0,
+          totalTasks: journeys.length,
           completedTasks: 0,
           pendingTasks: 0,
           pendingRewards: 0,
           totalPoints: 0
         }
-        
-        // 计算统计数据
-        if (data.data.pendingVerification) {
-          stats.pendingTasks += data.data.pendingVerification.length
-          stats.totalTasks += data.data.pendingVerification.length
+
+        for (const j of journeys) {
+          if (j.time_claimed) {
+            stats.completedTasks++
+            stats.totalPoints += j.points_claimed || 0
+          } else if (j.time_checked) {
+            stats.pendingRewards++
+          } else {
+            stats.pendingTasks++
+          }
         }
-        if (data.data.pendingRewards) {
-          stats.pendingRewards += data.data.pendingRewards.length
-          stats.totalTasks += data.data.pendingRewards.length
-        }
-        if (data.data.pendingTasks) {
-          stats.pendingTasks += data.data.pendingTasks.length
-          stats.totalTasks += data.data.pendingTasks.length
-        }
-        if (data.data.completedTasks) {
-          stats.completedTasks += data.data.completedTasks.length
-          stats.totalTasks += data.data.completedTasks.length
-          // 计算总积分
-          stats.totalPoints = data.data.completedTasks.reduce((sum, task) => {
-            return sum + (task.points_claimed || 0)
-          }, 0)
-        }
-        
+
         setTaskStats(stats)
       }
     } catch (error) {
       console.warn('Failed to load task stats:', error)
-      // 模拟数据
       setTaskStats({
-        totalTasks: 15,
-        completedTasks: 8,
-        pendingTasks: 4,
-        pendingRewards: 3,
-        totalPoints: 1250
+        totalTasks: 0,
+        completedTasks: 0,
+        pendingTasks: 0,
+        pendingRewards: 0,
+        totalPoints: 0
       })
     }
   }
