@@ -595,6 +595,84 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                     if actor_uid is None or not core.is_admin(actor_uid):
                         return APIResponse(ok=False, status_code=403, error='Forbidden')
                     return self._response(await self.user_core.list_all(skip=skip, limit=limit))
+                # User statistics
+                if path == "/api/user/stats":
+                    try:
+                        print(f"[API] 获取用户统计信息")
+                        
+                        # 直接使用Entity获取用户统计
+                        from .entity import UserEntity
+                        
+                        with UserEntity(core.data.db) as ue:
+                            # 获取所有用户数量
+                            users = ue.list_all()
+                            user_count = len(users)
+                            
+                            # 获取管理员数量
+                            admin_count = sum(1 for user in users if user.get("is_admin"))
+                            
+                            # 获取有资产的用户数量和总积分
+                            asset_count = 0
+                            total_points = 0
+                            for user in users:
+                                try:
+                                    asset = ue.get_asset(user["uID"])
+                                    if asset:
+                                        asset_count += 1
+                                        total_points += asset.points or 0
+                                except Exception as e:
+                                    print(f"[API] 获取用户资产失败: {e}")
+                            
+                            return APIResponse(ok=True, status_code=200, data={
+                                "user_count": user_count,
+                                "admin_count": admin_count,
+                                "asset_count": asset_count,
+                                "total_points": total_points,
+                                "avg_points": total_points / asset_count if asset_count > 0 else 0
+                            })
+                                
+                    except Exception as e:
+                        print(f"[API] 获取用户统计异常: {str(e)}")
+                        import traceback
+                        traceback.print_exc()
+                        return APIResponse(ok=False, status_code=500, error=f'获取用户统计失败: {str(e)}')
+                
+                # User asset
+                if path.startswith("/api/user/asset/"):
+                    try:
+                        # 从路径中提取用户ID
+                        parts = path.split("/")
+                        if len(parts) >= 4:
+                            uID = int(parts[3])
+                            print(f"[API] 获取用户资产: uID={uID}")
+                            
+                            # 直接使用Entity获取用户资产
+                            from .entity import UserEntity
+                            
+                            with UserEntity(core.data.db) as ue:
+                                asset = ue.get_asset(uID)
+                                print(f"[API] 用户资产: {asset}")
+                                
+                                if asset:
+                                    return APIResponse(ok=True, status_code=200, data={
+                                        "uID": asset.uID,
+                                        "points": asset.points or 0,
+                                        "time_update": asset.time_update.isoformat() if asset.time_update else None
+                                    })
+                                else:
+                                    # 如果没有资产记录，创建一个默认的
+                                    new_asset = ue.upsert_asset(uID, 0)
+                                    return APIResponse(ok=True, status_code=200, data={
+                                        "uID": new_asset.uID,
+                                        "points": new_asset.points or 0,
+                                        "time_update": new_asset.time_update.isoformat() if new_asset.time_update else None
+                                    })
+                                        
+                    except Exception as e:
+                        print(f"[API] 获取用户资产异常: {str(e)}")
+                        import traceback
+                        traceback.print_exc()
+                        return APIResponse(ok=False, status_code=500, error=f'获取用户资产失败: {str(e)}')
             elif method == 'POST':
                 # ====== Auth endpoints ======
                 # ====== 认证相关的路由端点 ======
@@ -639,6 +717,105 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                             return APIResponse(ok=False, status_code=500, error='Failed to create or find user')
                     else:
                         return APIResponse(ok=False, status_code=401, error='Unauthorized: evm_address required')
+                
+                # Admin points adjustment
+                if path == "/api/admin/points/adjust":
+                    try:
+                        print(f"[API] 管理员调整积分: {payload}")
+                        
+                        uID = payload.get('uID')
+                        amount = payload.get('amount')
+                        reason = payload.get('reason')
+                        operator = payload.get('operator', 'admin')
+                        
+                        if not uID or amount is None or not reason:
+                            return APIResponse(ok=False, status_code=400, error='参数不完整')
+                        
+                        # 检查管理员权限
+                        if actor_uid is None or not core.is_admin(actor_uid):
+                            return APIResponse(ok=False, status_code=403, error='需要管理员权限')
+                        
+                        # 直接使用Entity调整积分
+                        from .entity import UserEntity
+                        
+                        with UserEntity(core.data.db) as ue:
+                            # 获取当前资产
+                            current_asset = ue.get_asset(uID)
+                            if not current_asset:
+                                return APIResponse(ok=False, status_code=404, error='用户资产记录不存在')
+                            
+                            # 调整积分
+                            new_asset = ue.upsert_asset(uID, amount)
+                            print(f"[API] 积分调整结果: {new_asset}")
+                            
+                            # 记录调整日志（可以扩展为积分历史表）
+                            adjustment_record = {
+                                "uID": uID,
+                                "amount": amount,
+                                "reason": reason,
+                                "operator": operator,
+                                "timestamp": datetime.utcnow().isoformat(),
+                                "previous_points": current_asset.points,
+                                "new_points": new_asset.points
+                            }
+                            print(f"[API] 积分调整记录: {adjustment_record}")
+                            
+                            return APIResponse(ok=True, status_code=200, data={
+                                "uID": uID,
+                                "amount": amount,
+                                "reason": reason,
+                                "operator": operator,
+                                "previous_points": current_asset.points,
+                                "new_points": new_asset.points,
+                                "timestamp": adjustment_record["timestamp"]
+                            })
+                                
+                    except Exception as e:
+                        print(f"[API] 积分调整异常: {str(e)}")
+                        import traceback
+                        traceback.print_exc()
+                        return APIResponse(ok=False, status_code=500, error=f'积分调整失败: {str(e)}')
+                
+                # Admin fix assets
+                if path == "/admin/fix/assets":
+                    try:
+                        print(f"[API] 修复用户资产记录")
+                        
+                        # 检查管理员权限
+                        if actor_uid is None or not core.is_admin(actor_uid):
+                            return APIResponse(ok=False, status_code=403, error='需要管理员权限')
+                        
+                        from .entity import UserEntity
+                        
+                        with UserEntity(core.data.db) as ue:
+                            # 获取所有用户
+                            users = ue.list_all()
+                            fixed_count = 0
+                            
+                            for user in users:
+                                try:
+                                    # 检查是否已有资产记录
+                                    asset = ue.get_asset(user["uID"])
+                                    if not asset:
+                                        # 创建默认资产记录
+                                        ue.upsert_asset(user["uID"], 0)
+                                        fixed_count += 1
+                                        print(f"[API] 为用户 {user['uID']} 创建资产记录")
+                                except Exception as e:
+                                    print(f"[API] 修复用户 {user['uID']} 资产失败: {e}")
+                            
+                            return APIResponse(ok=True, status_code=200, data={
+                                "message": f"已为 {fixed_count} 个用户创建资产记录",
+                                "fixed_count": fixed_count,
+                                "total_users": len(users)
+                            })
+                                
+                    except Exception as e:
+                        print(f"[API] 修复用户资产异常: {str(e)}")
+                        import traceback
+                        traceback.print_exc()
+                        return APIResponse(ok=False, status_code=500, error=f'修复用户资产失败: {str(e)}')
+                
                 # ====== Chest endpoints ======
                 # ====== 宝箱相关的路由端点 ======
                 if path == "/api/chest/claim":
