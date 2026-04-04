@@ -605,7 +605,7 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                         
                         with UserEntity(core.data.db) as ue:
                             # 获取所有用户数量
-                            users = ue.list_all()
+                            users = ue.list()
                             user_count = len(users)
                             
                             # 获取管理员数量
@@ -789,7 +789,7 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                         
                         with UserEntity(core.data.db) as ue:
                             # 获取所有用户
-                            users = ue.list_all()
+                            users = ue.list()
                             fixed_count = 0
                             
                             for user in users:
