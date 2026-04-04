@@ -776,7 +776,7 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                         return APIResponse(ok=False, status_code=500, error=f'积分调整失败: {str(e)}')
                 
                 # Admin fix assets
-                if path == "/admin/fix/assets":
+                if path == "/api/admin/fix/assets":
                     try:
                         print(f"[API] 修复用户资产记录")
                         
