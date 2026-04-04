@@ -638,37 +638,35 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                         return APIResponse(ok=False, status_code=500, error=f'获取用户统计失败: {str(e)}')
                 
                 # User asset
-                if path.startswith("/api/user/asset/"):
+                if path.startswith("/api/user/asset/") and len(path.split("/")) == 4:
                     try:
                         # 从路径中提取用户ID
                         parts = path.split("/")
-                        print(f"[DEBUG] Path parts: {parts}")
-                        if len(parts) >= 4:
-                            uID = int(parts[3])  # /api/user/asset/{uID}
-                            print(f"[API] 获取用户资产: uID={uID}")
+                        uID = int(parts[3])  # /api/user/asset/{uID}
+                        print(f"[API] 获取用户资产: uID={uID}")
+                        
+                        # 直接使用Entity获取用户资产
+                        from .entity import UserEntity
+                        
+                        with UserEntity(core.data.db) as ue:
+                            asset = ue.get_asset(uID)
+                            print(f"[API] 用户资产: {asset}")
                             
-                            # 直接使用Entity获取用户资产
-                            from .entity import UserEntity
-                            
-                            with UserEntity(core.data.db) as ue:
-                                asset = ue.get_asset(uID)
-                                print(f"[API] 用户资产: {asset}")
-                                
-                                if asset:
-                                    return APIResponse(ok=True, status_code=200, data={
-                                        "uID": asset.uID,
-                                        "points": asset.points,
-                                        "time_update": asset.time_update.isoformat() if asset.time_update else None
-                                    })
-                                else:
-                                    # 如果没有资产记录，创建一个默认的
-                                    new_asset = ue.upsert_asset(uID, 0)
-                                    return APIResponse(ok=True, status_code=200, data={
-                                        "uID": new_asset.uID,
-                                        "points": new_asset.points,
-                                        "time_update": new_asset.time_update.isoformat() if new_asset.time_update else None
-                                    })
-                                        
+                            if asset:
+                                return APIResponse(ok=True, status_code=200, data={
+                                    "uID": asset.uID,
+                                    "points": asset.points,
+                                    "time_update": asset.time_update.isoformat() if asset.time_update else None
+                                })
+                            else:
+                                # 如果没有资产记录，创建一个默认的
+                                new_asset = ue.upsert_asset(uID, 0)
+                                return APIResponse(ok=True, status_code=200, data={
+                                    "uID": new_asset.uID,
+                                    "points": new_asset.points,
+                                    "time_update": new_asset.time_update.isoformat() if new_asset.time_update else None
+                                })
+                                    
                     except Exception as e:
                         print(f"[API] 获取用户资产异常: {str(e)}")
                         import traceback
