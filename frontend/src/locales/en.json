@@ -58,4 +58,12 @@
   ,"giftStatusWeeks": "Weeks left"
   ,"giftStatusLimited": "Limited"
   ,"timeClaimed": "Time Claimed"
+  ,"sessionExpired": "Session expired, please log in again"
+  ,"completeTask": "Complete Task"
+  ,"enterTaskInfo": "Please enter task completion info"
+  ,"taskLink": "Task Link"
+  ,"submitting": "Submitting..."
+  ,"pleaseLogin": "Please log in first"
+  ,"info_input": "Submitted Info"
+  ,"admin_panel": "Admin Panel"
 }

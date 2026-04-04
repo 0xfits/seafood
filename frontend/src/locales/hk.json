@@ -57,4 +57,13 @@
   ,"giftStatusWeeks": "剩餘週數"
   ,"giftStatusLimited": "限時"
   ,"timeClaimed": "領取時間"
+  ,"register": "注冊"
+  ,"sessionExpired": "登錄已過期，請重新登錄"
+  ,"completeTask": "完成任務"
+  ,"enterTaskInfo": "請輸入任務完成信息"
+  ,"taskLink": "任務鏈接"
+  ,"submitting": "提交中..."
+  ,"pleaseLogin": "請先登錄"
+  ,"info_input": "提交內容"
+  ,"admin_panel": "管理面板"
 }

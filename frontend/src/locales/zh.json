@@ -58,4 +58,12 @@
   ,"giftStatusWeeks": "剩余周数"
   ,"giftStatusLimited": "限时"
   ,"timeClaimed": "领取时间"
+  ,"sessionExpired": "登录已过期，请重新登录"
+  ,"completeTask": "完成任务"
+  ,"enterTaskInfo": "请输入任务完成信息"
+  ,"taskLink": "任务链接"
+  ,"submitting": "提交中..."
+  ,"pleaseLogin": "请先登录"
+  ,"info_input": "提交内容"
+  ,"admin_panel": "管理面板"
 }
