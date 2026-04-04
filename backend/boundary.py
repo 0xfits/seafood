@@ -642,8 +642,9 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                     try:
                         # 从路径中提取用户ID
                         parts = path.split("/")
+                        print(f"[DEBUG] Path parts: {parts}")
                         if len(parts) >= 4:
-                            uID = int(parts[3])
+                            uID = int(parts[3])  # /api/user/asset/{uID}
                             print(f"[API] 获取用户资产: uID={uID}")
                             
                             # 直接使用Entity获取用户资产
