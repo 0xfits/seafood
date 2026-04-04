@@ -657,7 +657,7 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                                 if asset:
                                     return APIResponse(ok=True, status_code=200, data={
                                         "uID": asset.uID,
-                                        "points": asset.points or 0,
+                                        "points": asset.points,
                                         "time_update": asset.time_update.isoformat() if asset.time_update else None
                                     })
                                 else:
@@ -665,7 +665,7 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                                     new_asset = ue.upsert_asset(uID, 0)
                                     return APIResponse(ok=True, status_code=200, data={
                                         "uID": new_asset.uID,
-                                        "points": new_asset.points or 0,
+                                        "points": new_asset.points,
                                         "time_update": new_asset.time_update.isoformat() if new_asset.time_update else None
                                     })
                                         
