@@ -1,5 +1,5 @@
 // 基础组件
-export { Button, buttonVariants } from './Button'
+export { Button } from './Button'
 export { Card, CardHeader, CardTitle, CardContent } from './Card'
 export { Badge, badgeVariants } from './Badge'
 
