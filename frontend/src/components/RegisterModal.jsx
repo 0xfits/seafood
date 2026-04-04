@@ -229,6 +229,23 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
                   </div>
                 </div>
               </div>
+              
+              {/* 登录切换 */}
+              <div className="text-center pt-2">
+                <p className="text-sm text-gray-600">
+                  已有账号？{' '}
+                  <button
+                    onClick={() => {
+                      onClose()
+                      // 触发登录模态框
+                      window.dispatchEvent(new CustomEvent('openLoginModal'))
+                    }}
+                    className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                  >
+                    立即登录
+                  </button>
+                </p>
+              </div>
             </div>
           )}
 
@@ -274,6 +291,23 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
               >
                 {loading ? '注册中...' : '确认注册'}
               </Button>
+              
+              {/* 登录切换 */}
+              <div className="text-center pt-2">
+                <p className="text-sm text-gray-600">
+                  已有账号？{' '}
+                  <button
+                    onClick={() => {
+                      onClose()
+                      // 触发登录模态框
+                      window.dispatchEvent(new CustomEvent('openLoginModal'))
+                    }}
+                    className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                  >
+                    立即登录
+                  </button>
+                </p>
+              </div>
             </div>
           )}
 
