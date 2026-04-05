@@ -22,6 +22,11 @@ const Header = () => {
   const [showRegisterModal, setShowRegisterModal] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
 
+  useEffect(() => {
+    const theme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'light'
+    setIsDark(theme === 'dark')
+  }, [])
+
   // 检查用户登录状态
   useEffect(() => {
     const user = localStorage.getItem('user')
@@ -44,7 +49,6 @@ const Header = () => {
       setCurrentUser(null)
       setIsAdmin(false)
       setUserPoints(0)
-      document.documentElement.setAttribute('data-theme', 'light')
     }
   }, [])
 

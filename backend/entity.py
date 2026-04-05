@@ -767,6 +767,53 @@ class JourneyEntity(Entity):
         rows = Foundation.fetch_all(self.db, sql, {"limit": limit, "offset": skip})
         return rows
 
+    def list_pending_verification(self, skip: int = 0, limit: int = 100):
+        """列出等待管理员审核的任务提交。"""
+        self._ensure_schema()
+        sql = text(
+            """
+            SELECT jID, tID, uID, info_input,
+                   time_created, time_submitted, time_checked, time_claimed, points_claimed
+            FROM journey
+            WHERE COALESCE(TRIM(info_input), '') <> ''
+              AND time_checked IS NULL
+              AND time_claimed IS NULL
+            ORDER BY COALESCE(time_submitted, time_created) DESC, jID DESC
+            LIMIT :limit OFFSET :offset
+            """
+        )
+        return Foundation.fetch_all(self.db, sql, {"limit": limit, "offset": skip})
+
+    def count_pending_verification(self) -> int:
+        """统计等待管理员审核的任务提交数量。"""
+        self._ensure_schema()
+        sql = text(
+            """
+            SELECT COUNT(1) AS cnt
+            FROM journey
+            WHERE COALESCE(TRIM(info_input), '') <> ''
+              AND time_checked IS NULL
+              AND time_claimed IS NULL
+            """
+        )
+        row = Foundation.fetch_one(self.db, sql)
+        return int((row or {}).get("cnt") or 0)
+
+    def reject_submission(self, jID: int):
+        """退回任务提交，让用户重新填写并再次提交。"""
+        self._ensure_schema()
+        upd = text(
+            """
+            UPDATE journey
+            SET info_input = NULL,
+                time_submitted = NULL
+            WHERE jID = :jID
+            """
+        )
+        Foundation.exec(self.db, upd, {"jID": jID})
+        self.db.commit()
+        return self.get(jID)
+
     def delete_task(self, tID: int) -> bool:
         # 使用原生 SQL 删除，避免 ORM 在读取含非标准时间格式的记录时抛出解析错误
         del_sql = text("DELETE FROM task_type WHERE ttID = :tID")

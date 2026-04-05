@@ -28,6 +28,13 @@ from sqlalchemy import Boolean
 from .data import Data, BrandData, CalendarData, ChestData, GiftData, JourneyData, TaskData, UserData, UserChestStatData
 from .data_model import Brand, Chest, Gift, Journey, Task, User
 from .foundation import Base
+from .admin_state import (
+    load_admin_state,
+    save_admin_state,
+    reset_admin_settings,
+    upsert_permission_group,
+    delete_permission_group,
+)
 from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey
 
 # SQLAlchemy ORM 模型类（用于代码中混用的 ORM 查询）
@@ -342,6 +349,62 @@ class Core:
                 return self.err("User not found")
             return self.ok(message="User updated", data=self.user_to_dict(u))
 
+    async def get_admin_settings(self):
+        state = load_admin_state()
+        return self.ok(data=state.get("settings", {}))
+
+    async def update_admin_settings(self, settings: dict):
+        state = load_admin_state()
+        state["settings"].update(settings or {})
+        saved = save_admin_state(state)
+        return self.ok(message="Settings updated", data=saved.get("settings", {}))
+
+    async def reset_admin_settings(self):
+        saved = reset_admin_settings()
+        return self.ok(message="Settings reset", data=saved)
+
+    async def get_permission_groups(self):
+        state = load_admin_state()
+        groups = state.get("permission_groups", [])
+        with self.data as r:
+            users = r.users.list(skip=0, limit=10000)
+
+        user_map = {int(user["uID"]): self.user_to_dict(user) for user in users}
+        admin_group = {
+            "id": "system-admins",
+            "name": "管理员访问",
+            "description": "该权限组来自用户表中的 is_admin 字段，表示实际后台访问权限。",
+            "permissions": ["dashboard_access", "manage_users", "manage_points", "manage_rewards", "manage_settings"],
+            "user_ids": sorted([uid for uid, user in user_map.items() if user.get("is_admin")]),
+            "readonly": True,
+        }
+
+        resolved_groups = [admin_group]
+        for group in groups:
+            resolved_groups.append({
+                "id": str(group.get("id")),
+                "name": group.get("name", ""),
+                "description": group.get("description", ""),
+                "permissions": group.get("permissions", []),
+                "user_ids": group.get("user_ids", []),
+                "readonly": False,
+            })
+
+        return self.ok(data={
+            "groups": resolved_groups,
+            "users": [user_map[uid] for uid in sorted(user_map.keys())],
+        })
+
+    async def save_permission_group(self, group: dict):
+        saved = upsert_permission_group(group or {})
+        return self.ok(message="Permission group saved", data=saved)
+
+    async def delete_permission_group(self, group_id: str):
+        if group_id == "system-admins":
+            return self.err("Built-in admin group cannot be deleted")
+        delete_permission_group(group_id)
+        return self.ok(message="Permission group deleted", data={"id": group_id})
+
     def task_to_dict(self, t: Task, participants_count: Optional[int] = None):
         # 支持 ORM 对象或字典映射
         def getv(obj, key):
@@ -541,6 +604,66 @@ class Core:
                     "points_claimed": rec.points_claimed,
                 })
             return self.ok(data=data)
+
+    def _pending_verification_to_dict(self, data_repo, journey):
+        task = data_repo.get_task(journey.tID)
+        user = data_repo.get_user_by_id_raw(journey.uID)
+        return {
+            "jID": journey.jID,
+            "tlistID": journey.jID,
+            "tID": journey.tID,
+            "uID": journey.uID,
+            "info_input": journey.info_input,
+            "time_created": journey.time_created,
+            "time_submitted": journey.time_submitted,
+            "time_checked": journey.time_checked,
+            "time_claimed": journey.time_claimed,
+            "points_claimed": journey.points_claimed,
+            "task": self.task_to_dict(task) if task else None,
+            "user": {
+                "uID": user.get("uID"),
+                "EVM": user.get("EVM"),
+                "is_admin": bool(user.get("is_admin") or 0),
+            } if user else None,
+        }
+
+    async def get_pending_verification_admin(self, skip: int = 0, limit: int = 100):
+        with self.data as r:
+            journeys = r.list_pending_verification_journeys(skip=skip, limit=limit)
+            items = [self._pending_verification_to_dict(r, journey) for journey in journeys]
+        return self.ok(data=items)
+
+    async def count_pending_verification_admin(self):
+        with self.data as r:
+            count = r.count_pending_verification_journeys()
+        return self.ok(data={"count": count})
+
+    async def verify_pending_submission_admin(self, jID: int, approved: bool):
+        with self.data as r:
+            journey = r.get_journey(jID)
+            if not journey:
+                return self.err("Journey not found")
+            if journey.time_checked:
+                return self.err("Journey already verified")
+            if approved:
+                updated = r.mark_journey_checked(jID)
+                if not updated:
+                    return self.err("Journey not found")
+                return self.ok(message="Journey verified", data=self._pending_verification_to_dict(r, updated))
+
+            updated = r.reject_journey_submission(jID)
+            if not updated:
+                return self.err("Journey not found")
+            return self.ok(message="Journey rejected", data={
+                "jID": updated.jID,
+                "tlistID": updated.jID,
+                "tID": updated.tID,
+                "uID": updated.uID,
+                "time_created": updated.time_created,
+                "time_submitted": updated.time_submitted,
+                "time_checked": updated.time_checked,
+                "time_claimed": updated.time_claimed,
+            })
 
     # ========== Stats ==========
     async def get_stats(self):

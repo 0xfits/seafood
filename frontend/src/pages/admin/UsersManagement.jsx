@@ -1,178 +1,207 @@
-import React, { useState, useEffect } from 'react'
-import { Button, Card, CardHeader, CardTitle, CardContent, Badge } from '../../components/ui'
-import { Users, Plus, Edit, Shield, Search, AlertCircle } from 'lucide-react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Button, Card, CardContent, Badge } from '../../components/ui'
+import { Users, Shield, Search, AlertCircle, RefreshCw, Coins } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { formatEvmAddress } from '../../utils'
+import { fetchApiJson, getAuthHeaders, getStoredUser, isAdminUser, loadAdminUsersWithAssets } from '../../admin-utils'
+
+const formatDateTime = (value) => {
+  if (!value) return '未知'
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? '未知' : date.toLocaleString()
+}
 
 const UsersManagement = () => {
+  const navigate = useNavigate()
   const [users, setUsers] = useState([])
-  const [filteredUsers, setFilteredUsers] = useState([])
+  const [stats, setStats] = useState({
+    userCount: 0,
+    adminCount: 0,
+    assetCount: 0,
+    totalPoints: 0,
+  })
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
+  const [updatingUserId, setUpdatingUserId] = useState(null)
+
+  const filteredUsers = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase()
+    if (!query) return users
+
+    return users.filter((user) =>
+      user.EVM?.toLowerCase().includes(query) ||
+      user.uID?.toString().includes(query) ||
+      user.bio?.toLowerCase().includes(query)
+    )
+  }, [users, searchTerm])
+
+  const loadUsers = async ({ silent = false } = {}) => {
+    try {
+      if (silent) {
+        setRefreshing(true)
+      } else {
+        setLoading(true)
+      }
+
+      const currentUser = getStoredUser()
+      if (!currentUser || !isAdminUser(currentUser)) {
+        throw new Error('当前登录用户不是管理员')
+      }
+
+      const result = await loadAdminUsersWithAssets(currentUser)
+      setUsers(result.users)
+      setStats(result.stats)
+    } catch (error) {
+      console.error('Error loading users:', error)
+      toast.error(`加载用户数据失败: ${error.message}`)
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
+  }
 
   useEffect(() => {
     loadUsers()
   }, [])
 
-  useEffect(() => {
-    const filtered = users.filter(user => 
-      user.EVM?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.uID?.toString().includes(searchTerm) ||
-      user.email?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    setFilteredUsers(filtered)
-  }, [users, searchTerm])
-
-  const loadUsers = async () => {
-    try {
-      // 获取用户统计信息
-      const statsResponse = await fetch('/api/user/stats')
-      if (statsResponse.ok) {
-        const statsData = await statsResponse.json()
-        if (statsData.ok) {
-          const userCount = statsData.data.user_count
-          
-          // 为每个用户ID获取详细信息
-          const usersWithAssets = []
-          for (let i = 1; i <= userCount; i++) {
-            try {
-              // 使用固定的积分数据，因为资产API有问题
-              let points = 0
-              let lastUpdate = new Date().toISOString()
-              
-              // 使用真实的用户地址信息
-              let evmAddress = `0x${i.toString().padStart(40, '0')}`
-              let isAdmin = false
-              let email = `user${i}@example.com`
-              
-              // 已知的用户地址映射
-              if (i === 1) {
-                evmAddress = '0x59f9f640d15ebb053c94a816232cf8ce91b209b0'
-                isAdmin = true
-                email = 'admin@jinli.com'
-                points = 0 // 可以手动设置测试积分
-              }
-              
-              usersWithAssets.push({
-                uID: i,
-                points: points,
-                lastUpdate: lastUpdate,
-                is_admin: isAdmin,
-                EVM: evmAddress,
-                email: email,
-                created_at: lastUpdate,
-                status: 'active'
-              })
-            } catch (error) {
-              console.warn(`Failed to load user ${i}:`, error)
-            }
-          }
-          
-          setUsers(usersWithAssets)
-        }
-      }
-    } catch (error) {
-      console.error('Error loading users:', error)
-      toast.error('加载用户数据失败')
-    } finally {
-      setLoading(false)
+  const toggleAdminRole = async (user) => {
+    const currentUser = getStoredUser()
+    const headers = {
+      ...getAuthHeaders(currentUser),
+      'Content-Type': 'application/json',
     }
-  }
 
-  const toggleUserStatus = (userId) => {
-    // 切换用户状态的逻辑
-    setUsers(prev => prev.map(user => 
-      user.uID === userId 
-        ? { ...user, status: user.status === 'active' ? 'inactive' : 'active' }
-        : user
-    ))
-    toast.success(`用户 ${userId} 状态已更新`)
-  }
+    if (!headers.Authorization) {
+      toast.error('登录状态已失效，请重新登录')
+      navigate('/login')
+      return
+    }
 
-  const toggleAdminRole = (userId) => {
-    // 切换管理员角色的逻辑
-    setUsers(prev => prev.map(user => 
-      user.uID === userId 
-        ? { ...user, is_admin: !user.is_admin }
-        : user
-    ))
-    toast.success(`用户 ${userId} 管理员权限已更新`)
+    const nextAdmin = !user.is_admin
+    const confirmed = window.confirm(
+      nextAdmin
+        ? `确认将用户 #${user.uID} 提升为管理员？`
+        : `确认撤销用户 #${user.uID} 的管理员权限？`
+    )
+
+    if (!confirmed) return
+
+    setUpdatingUserId(user.uID)
+    try {
+      const updated = await fetchApiJson('/api/admin/user/update', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          uID: user.uID,
+          is_admin: nextAdmin,
+        }),
+      })
+
+      setUsers((prev) =>
+        prev.map((item) =>
+          item.uID === user.uID
+            ? { ...item, ...updated, points: item.points, asset_updated_at: item.asset_updated_at, has_asset: item.has_asset }
+            : item
+        )
+      )
+
+      setStats((prev) => ({
+        ...prev,
+        adminCount: Math.max(0, prev.adminCount + (nextAdmin ? 1 : -1)),
+      }))
+
+      toast.success(nextAdmin ? '管理员权限已授予' : '管理员权限已撤销')
+    } catch (error) {
+      console.error('Error updating user role:', error)
+      toast.error(`更新用户失败: ${error.message}`)
+    } finally {
+      setUpdatingUserId(null)
+    }
   }
 
   return (
     <div className="space-y-6">
-      {/* 统计卡片 */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">总用户数</p>
-                <p className="text-2xl font-bold">{users.length}</p>
+                <p className="text-2xl font-bold">{stats.userCount}</p>
               </div>
               <Users className="w-8 h-8 text-blue-600" />
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">管理员</p>
-                <p className="text-2xl font-bold">{users.filter(u => u.is_admin).length}</p>
+                <p className="text-2xl font-bold">{stats.adminCount}</p>
               </div>
               <Shield className="w-8 h-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">活跃用户</p>
-                <p className="text-2xl font-bold">{users.filter(u => u.status === 'active').length}</p>
+                <p className="text-sm text-gray-600">有资产记录</p>
+                <p className="text-2xl font-bold">{stats.assetCount}</p>
               </div>
-              <AlertCircle className="w-8 h-8 text-orange-600" />
+              <Coins className="w-8 h-8 text-yellow-600" />
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">总积分</p>
-                <p className="text-2xl font-bold">
-                  {users.reduce((sum, user) => sum + (user.points || 0), 0).toLocaleString()}
-                </p>
+                <p className="text-2xl font-bold">{stats.totalPoints.toLocaleString()}</p>
               </div>
-              <Plus className="w-8 h-8 text-purple-600" />
+              <AlertCircle className="w-8 h-8 text-orange-600" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* 操作区域 */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">用户管理</h2>
-        <div className="flex items-center space-x-2">
-          <Search className="w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="搜索用户ID、地址或邮箱..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
-          />
-          <Button variant="primary">
-            <Plus className="w-4 h-4 mr-2" />
-            添加用户
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold">用户管理</h2>
+          <p className="text-sm text-gray-600 mt-1">
+            当前页面使用真实用户和积分资产数据。用户禁用状态接口尚未接通，因此不再展示伪状态。
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center space-x-2">
+            <Search className="w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="搜索用户ID、地址或简介..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
+            />
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => loadUsers({ silent: true })}
+            disabled={refreshing}
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            {refreshing ? '刷新中...' : '刷新数据'}
           </Button>
         </div>
       </div>
 
-      {/* 用户列表 */}
       {loading ? (
         <div className="text-center py-8">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -188,10 +217,10 @@ const UsersManagement = () => {
                     用户ID
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    邮箱
+                    钱包地址
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    钱包地址
+                    简介
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     积分
@@ -200,10 +229,10 @@ const UsersManagement = () => {
                     角色
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    状态
+                    注册时间
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    注册时间
+                    最近登录
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     操作
@@ -217,53 +246,47 @@ const UsersManagement = () => {
                       #{user.uID}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.email}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <div className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
-                        {user.EVM ? `${user.EVM.slice(0, 6)}...${user.EVM.slice(-4)}` : 'N/A'}
+                        {formatEvmAddress(user.EVM) || 'N/A'}
                       </div>
                     </td>
+                    <td className="px-6 py-4 text-sm text-gray-500 max-w-xs">
+                      {user.bio || '暂无简介'}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <span className="font-medium">{user.points || 0}</span>
+                      <span className="font-medium">{(user.points || 0).toLocaleString()}</span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <Badge variant={user.is_admin ? 'success' : 'secondary'}>
                         {user.is_admin ? '管理员' : '普通用户'}
                       </Badge>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <Badge variant={user.status === 'active' ? 'success' : 'warning'}>
-                        {user.status === 'active' ? '活跃' : '禁用'}
-                      </Badge>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatDateTime(user.time_reg)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(user.created_at).toLocaleDateString()}
+                      {formatDateTime(user.time_login_last)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
+                      <div className="flex gap-2">
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => toggleAdminRole(user.uID)}
+                          onClick={() => toggleAdminRole(user)}
+                          disabled={updatingUserId === user.uID}
                           className="text-blue-600 hover:text-blue-700"
+                          title={user.is_admin ? '撤销管理员权限' : '授予管理员权限'}
                         >
                           <Shield className="w-4 h-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => toggleUserStatus(user.uID)}
-                          className="text-orange-600 hover:text-orange-700"
+                          onClick={() => navigate(`/dashboard/points?q=${encodeURIComponent(user.EVM || String(user.uID))}`)}
+                          className="text-yellow-600 hover:text-yellow-700"
+                          title="前往积分管理"
                         >
-                          <AlertCircle className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-gray-600 hover:text-gray-700"
-                        >
-                          <Edit className="w-4 h-4" />
+                          <Coins className="w-4 h-4" />
                         </Button>
                       </div>
                     </td>
@@ -272,7 +295,7 @@ const UsersManagement = () => {
               </tbody>
             </table>
           </div>
-          
+
           {filteredUsers.length === 0 && (
             <div className="text-center py-8">
               <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />

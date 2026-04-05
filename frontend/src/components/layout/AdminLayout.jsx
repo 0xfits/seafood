@@ -17,6 +17,7 @@ import { Button } from '../ui'
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const location = useLocation()
+  const navigate = useNavigate()
 
   const menuItems = [
     {
@@ -69,7 +70,8 @@ const AdminLayout = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('user')
-    window.location.href = '/login'
+    localStorage.removeItem('token')
+    navigate('/login')
   }
 
   return (
@@ -111,21 +113,21 @@ const AdminLayout = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+                className={`group relative flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
                   active
                     ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-600'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
+                title={!sidebarOpen ? item.title : undefined}
               >
                 <Icon className="w-5 h-5 flex-shrink-0" />
-                {sidebarOpen && (
+                {sidebarOpen ? (
                   <div className="flex-1">
                     <div className="text-sm font-medium">{item.title}</div>
-                    {!sidebarOpen && (
-                      <div className="text-xs text-gray-500 absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                        {item.description}
-                      </div>
-                    )}
+                  </div>
+                ) : (
+                  <div className="text-xs absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+                    {item.title}
                   </div>
                 )}
               </Link>

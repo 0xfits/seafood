@@ -178,6 +178,17 @@ class Data:
         rows = self.journeys.list_all(skip=skip, limit=limit)
         return [Journey.from_row(r) for r in rows]
 
+    def list_pending_verification_journeys(self, skip: int = 0, limit: int = 100) -> List[Journey]:
+        rows = self.journeys.list_pending_verification(skip=skip, limit=limit)
+        return [Journey.from_row(r) for r in rows]
+
+    def count_pending_verification_journeys(self) -> int:
+        return self.journeys.count_pending_verification()
+
+    def reject_journey_submission(self, jID: int) -> Optional[Journey]:
+        row = self.journeys.reject_submission(jID)
+        return Journey.from_row(row) if row else None
+
 
 class BrandData(Data):
     def list(self, skip: int = 0, limit: int = 100) -> List[Brand]:

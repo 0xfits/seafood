@@ -636,6 +636,28 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                         import traceback
                         traceback.print_exc()
                         return APIResponse(ok=False, status_code=500, error=f'获取用户统计失败: {str(e)}')
+
+                # ====== TaskList / Admin review endpoints ======
+                # ====== 任务审核相关路由端点 ======
+                if path == "/api/tasklist/pending-verification/count":
+                    if actor_uid is None or not core.is_admin(actor_uid):
+                        return APIResponse(ok=False, status_code=403, error='Forbidden')
+                    return self._response(await self.core.count_pending_verification_admin())
+
+                if path == "/api/tasklist/pending-verification":
+                    if actor_uid is None or not core.is_admin(actor_uid):
+                        return APIResponse(ok=False, status_code=403, error='Forbidden')
+                    return self._response(await self.core.get_pending_verification_admin(skip=skip, limit=limit))
+
+                if path == "/api/admin/settings":
+                    if actor_uid is None or not core.is_admin(actor_uid):
+                        return APIResponse(ok=False, status_code=403, error='Forbidden')
+                    return self._response(await self.core.get_admin_settings())
+
+                if path == "/api/admin/permissions":
+                    if actor_uid is None or not core.is_admin(actor_uid):
+                        return APIResponse(ok=False, status_code=403, error='Forbidden')
+                    return self._response(await self.core.get_permission_groups())
                 
                 # User asset
                 print(f"[DEBUG] Checking path: {path}")
@@ -775,6 +797,78 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                         import traceback
                         traceback.print_exc()
                         return APIResponse(ok=False, status_code=500, error=f'积分调整失败: {str(e)}')
+
+                if path == "/api/admin/user/update":
+                    try:
+                        if actor_uid is None or not core.is_admin(actor_uid):
+                            return APIResponse(ok=False, status_code=403, error='需要管理员权限')
+
+                        uID = payload.get('uID')
+                        if uID is None:
+                            return APIResponse(ok=False, status_code=400, error='uID is required')
+
+                        is_admin_value = payload.get('is_admin') if 'is_admin' in payload else None
+                        bio_value = payload.get('bio') if 'bio' in payload else None
+                        if is_admin_value is None and bio_value is None:
+                            return APIResponse(ok=False, status_code=400, error='No fields to update')
+
+                        return self._response(await self.core.update_user(
+                            uID=int(uID),
+                            bio=bio_value,
+                            is_admin=is_admin_value,
+                        ))
+                    except Exception as e:
+                        print(f"[API] 更新用户异常: {str(e)}")
+                        import traceback
+                        traceback.print_exc()
+                        return APIResponse(ok=False, status_code=500, error=f'更新用户失败: {str(e)}')
+
+                if path == "/api/admin/settings":
+                    try:
+                        if actor_uid is None or not core.is_admin(actor_uid):
+                            return APIResponse(ok=False, status_code=403, error='需要管理员权限')
+                        return self._response(await self.core.update_admin_settings(payload or {}))
+                    except Exception as e:
+                        print(f"[API] 更新系统设置异常: {str(e)}")
+                        import traceback
+                        traceback.print_exc()
+                        return APIResponse(ok=False, status_code=500, error=f'更新系统设置失败: {str(e)}')
+
+                if path == "/api/admin/settings/reset":
+                    try:
+                        if actor_uid is None or not core.is_admin(actor_uid):
+                            return APIResponse(ok=False, status_code=403, error='需要管理员权限')
+                        return self._response(await self.core.reset_admin_settings())
+                    except Exception as e:
+                        print(f"[API] 重置系统设置异常: {str(e)}")
+                        import traceback
+                        traceback.print_exc()
+                        return APIResponse(ok=False, status_code=500, error=f'重置系统设置失败: {str(e)}')
+
+                if path == "/api/admin/permissions/save":
+                    try:
+                        if actor_uid is None or not core.is_admin(actor_uid):
+                            return APIResponse(ok=False, status_code=403, error='需要管理员权限')
+                        return self._response(await self.core.save_permission_group(payload or {}))
+                    except Exception as e:
+                        print(f"[API] 保存权限组异常: {str(e)}")
+                        import traceback
+                        traceback.print_exc()
+                        return APIResponse(ok=False, status_code=500, error=f'保存权限组失败: {str(e)}')
+
+                if path == "/api/admin/permissions/delete":
+                    try:
+                        if actor_uid is None or not core.is_admin(actor_uid):
+                            return APIResponse(ok=False, status_code=403, error='需要管理员权限')
+                        group_id = payload.get("id") if payload else None
+                        if not group_id:
+                            return APIResponse(ok=False, status_code=400, error='id is required')
+                        return self._response(await self.core.delete_permission_group(str(group_id)))
+                    except Exception as e:
+                        print(f"[API] 删除权限组异常: {str(e)}")
+                        import traceback
+                        traceback.print_exc()
+                        return APIResponse(ok=False, status_code=500, error=f'删除权限组失败: {str(e)}')
                 
                 # Admin fix assets
                 if path == "/api/admin/fix/assets":
@@ -854,6 +948,17 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                 # Admin authority 管理员权限
                 if path == "/api/journey/check":
                     return self._response(await self.journey_core.check(jID=id, uID=uid))
+
+                if path.startswith("/api/tasklist/") and path.endswith("/verify"):
+                    if actor_uid is None or not core.is_admin(actor_uid):
+                        return APIResponse(ok=False, status_code=403, error='Forbidden')
+                    try:
+                        parts = path.split("/")
+                        jID = int(parts[3])  # /api/tasklist/{jID}/verify
+                    except (IndexError, ValueError):
+                        return APIResponse(ok=False, status_code=400, error='Invalid jID')
+                    approved = True if payload is None else bool(payload.get("approved", True))
+                    return self._response(await self.core.verify_pending_submission_admin(jID=jID, approved=approved))
             # 未匹配到任何已知端点
             return APIResponse(ok=False, status_code=404, error='Not found')
         except Exception as e:

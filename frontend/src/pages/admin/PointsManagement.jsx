@@ -1,82 +1,80 @@
-import React, { useState, useEffect } from 'react'
-import { Button, Card, CardHeader, CardTitle, CardContent, Badge, Modal, ModalHeader, ModalTitle } from '../../components/ui'
-import { Search, Plus, Minus, Users, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Button, Card, CardContent, Badge, Modal, ModalHeader, ModalTitle } from '../../components/ui'
+import { Search, Plus, Minus, Users, TrendingUp, AlertCircle, RefreshCw } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { formatEvmAddress } from '../../utils'
+import { fetchApiJson, getAuthHeaders, getStoredUser, isAdminUser, loadAdminUsersWithAssets } from '../../admin-utils'
+
+const formatDateTime = (value) => {
+  if (!value) return '从未更新'
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? '从未更新' : date.toLocaleString()
+}
 
 const PointsManagement = () => {
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [users, setUsers] = useState([])
-  const [filteredUsers, setFilteredUsers] = useState([])
+  const [stats, setStats] = useState({
+    userCount: 0,
+    totalPoints: 0,
+    avgPoints: 0,
+    zeroPoints: 0,
+  })
   const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState('')
+  const [refreshing, setRefreshing] = useState(false)
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '')
   const [selectedUser, setSelectedUser] = useState(null)
   const [showAdjustModal, setShowAdjustModal] = useState(false)
   const [adjustAmount, setAdjustAmount] = useState('')
   const [adjustReason, setAdjustReason] = useState('')
-  const [adjustType, setAdjustType] = useState('add') // 'add' or 'subtract'
+  const [adjustType, setAdjustType] = useState('add')
   const [adjusting, setAdjusting] = useState(false)
+
+  const filteredUsers = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase()
+    if (!query) return users
+
+    return users.filter((user) =>
+      user.EVM?.toLowerCase().includes(query) ||
+      user.uID?.toString().includes(query)
+    )
+  }, [users, searchTerm])
+
+  const loadUsers = async ({ silent = false } = {}) => {
+    try {
+      if (silent) {
+        setRefreshing(true)
+      } else {
+        setLoading(true)
+      }
+
+      const currentUser = getStoredUser()
+      if (!currentUser || !isAdminUser(currentUser)) {
+        throw new Error('当前登录用户不是管理员')
+      }
+
+      const result = await loadAdminUsersWithAssets(currentUser)
+      setUsers(result.users)
+      setStats({
+        userCount: result.stats.userCount,
+        totalPoints: result.stats.totalPoints,
+        avgPoints: result.stats.avgPoints,
+        zeroPoints: result.stats.zeroPoints,
+      })
+    } catch (error) {
+      console.error('Error loading users:', error)
+      toast.error(`加载用户积分失败: ${error.message}`)
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
+  }
 
   useEffect(() => {
     loadUsers()
   }, [])
-
-  useEffect(() => {
-    const filtered = users.filter(user => 
-      user.EVM?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.uID?.toString().includes(searchTerm)
-    )
-    setFilteredUsers(filtered)
-  }, [users, searchTerm])
-
-  const loadUsers = async () => {
-    try {
-      // 获取用户统计信息
-      const statsResponse = await fetch('/api/user/stats')
-      if (statsResponse.ok) {
-        const statsData = await statsResponse.json()
-        if (statsData.ok) {
-          const userCount = statsData.data.user_count
-          
-          // 为每个用户ID获取详细信息
-          const usersWithAssets = []
-          for (let i = 1; i <= userCount; i++) {
-            try {
-              // 使用固定的积分数据，因为资产API有问题
-              let points = 0
-              let lastUpdate = new Date().toISOString()
-              
-              // 使用真实的用户地址信息
-              let evmAddress = `0x${i.toString().padStart(40, '0')}`
-              let isAdmin = false
-              
-              // 已知的用户地址映射
-              if (i === 1) {
-                evmAddress = '0x59f9f640d15ebb053c94a816232cf8ce91b209b0'
-                isAdmin = true
-                points = 0 // 可以手动设置测试积分
-              }
-              
-              usersWithAssets.push({
-                uID: i,
-                points: points,
-                lastUpdate: lastUpdate,
-                is_admin: isAdmin,
-                EVM: evmAddress
-              })
-            } catch (error) {
-              console.warn(`Failed to load user ${i}:`, error)
-            }
-          }
-          
-          setUsers(usersWithAssets)
-        }
-      }
-    } catch (error) {
-      console.error('Error loading users:', error)
-      toast.error('加载用户数据失败')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleAdjustPoints = async () => {
     if (!selectedUser || !adjustAmount || !adjustReason) {
@@ -84,50 +82,66 @@ const PointsManagement = () => {
       return
     }
 
-    const amount = parseInt(adjustAmount)
-    if (isNaN(amount) || amount <= 0) {
+    const amount = parseInt(adjustAmount, 10)
+    if (Number.isNaN(amount) || amount <= 0) {
       toast.error('请输入有效的积分数额')
+      return
+    }
+
+    const currentUser = getStoredUser()
+    const headers = {
+      ...getAuthHeaders(currentUser),
+      'Content-Type': 'application/json',
+    }
+
+    if (!headers.Authorization) {
+      toast.error('登录状态已失效，请重新登录')
+      navigate('/login')
       return
     }
 
     setAdjusting(true)
     try {
-      const response = await fetch('/api/admin/points/adjust', {
+      const result = await fetchApiJson('/api/admin/points/adjust', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
           uID: selectedUser.uID,
           amount: adjustType === 'add' ? amount : -amount,
           reason: adjustReason,
-          operator: 'admin'
+          operator: currentUser?.EVM || 'admin',
         }),
       })
 
-      const data = await response.json()
-      if (data.ok) {
-        toast.success(`成功为用户 ${selectedUser.uID} ${adjustType === 'add' ? '增加' : '减少'} ${amount} 积分`)
-        
-        // 更新本地数据
-        setUsers(prev => prev.map(user => 
-          user.uID === selectedUser.uID 
-            ? { ...user, points: user.points + (adjustType === 'add' ? amount : -amount) }
+      setUsers((prev) => {
+        const nextUsers = prev.map((user) =>
+          user.uID === selectedUser.uID
+            ? {
+                ...user,
+                points: result.new_points,
+                asset_updated_at: result.timestamp,
+              }
             : user
-        ))
-        
-        // 关闭模态框
-        setShowAdjustModal(false)
-        setSelectedUser(null)
-        setAdjustAmount('')
-        setAdjustReason('')
-        setAdjustType('add')
-      } else {
-        toast.error(data.error || '积分调整失败')
-      }
+        )
+        const totalPoints = nextUsers.reduce((sum, user) => sum + (user.points || 0), 0)
+        setStats((prevStats) => ({
+          ...prevStats,
+          totalPoints,
+          avgPoints: nextUsers.length > 0 ? Math.round(totalPoints / nextUsers.length) : 0,
+          zeroPoints: nextUsers.filter((user) => !user.points).length,
+        }))
+        return nextUsers
+      })
+
+      toast.success(`成功为用户 #${selectedUser.uID}${adjustType === 'add' ? '增加' : '减少'} ${amount} 积分`)
+      setShowAdjustModal(false)
+      setSelectedUser(null)
+      setAdjustAmount('')
+      setAdjustReason('')
+      setAdjustType('add')
     } catch (error) {
       console.error('Error adjusting points:', error)
-      toast.error('积分调整失败')
+      toast.error(`积分调整失败: ${error.message}`)
     } finally {
       setAdjusting(false)
     }
@@ -139,57 +153,51 @@ const PointsManagement = () => {
     setShowAdjustModal(true)
   }
 
-  const totalPoints = users.reduce((sum, user) => sum + (user.points || 0), 0)
-  const avgPoints = users.length > 0 ? Math.round(totalPoints / users.length) : 0
-
   return (
     <div className="space-y-6">
-      {/* 统计卡片 */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">总用户数</p>
-                <p className="text-2xl font-bold">{users.length}</p>
+                <p className="text-2xl font-bold">{stats.userCount}</p>
               </div>
               <Users className="w-8 h-8 text-blue-600" />
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">总积分</p>
-                <p className="text-2xl font-bold">{totalPoints.toLocaleString()}</p>
+                <p className="text-2xl font-bold">{stats.totalPoints.toLocaleString()}</p>
               </div>
               <TrendingUp className="w-8 h-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">平均积分</p>
-                <p className="text-2xl font-bold">{avgPoints.toLocaleString()}</p>
+                <p className="text-2xl font-bold">{stats.avgPoints.toLocaleString()}</p>
               </div>
               <AlertCircle className="w-8 h-8 text-orange-600" />
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">零积分用户</p>
-                <p className="text-2xl font-bold">
-                  {users.filter(user => !user.points || user.points === 0).length}
-                </p>
+                <p className="text-2xl font-bold">{stats.zeroPoints}</p>
               </div>
               <Minus className="w-8 h-8 text-red-600" />
             </div>
@@ -197,22 +205,31 @@ const PointsManagement = () => {
         </Card>
       </div>
 
-      {/* 操作区域 */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">用户积分管理</h2>
-        <div className="flex items-center space-x-2">
-          <Search className="w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="搜索用户地址或ID..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
-          />
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold">用户积分管理</h2>
+          <p className="text-sm text-gray-600 mt-1">
+            当前页面使用真实用户和资产积分数据，调整接口已接入管理员鉴权。
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center space-x-2">
+            <Search className="w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="搜索用户地址或ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
+            />
+          </div>
+          <Button variant="outline" onClick={() => loadUsers({ silent: true })} disabled={refreshing}>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            {refreshing ? '刷新中...' : '刷新数据'}
+          </Button>
         </div>
       </div>
 
-      {/* 用户列表 */}
       {loading ? (
         <div className="text-center py-8">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -237,7 +254,7 @@ const PointsManagement = () => {
                     最后更新
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    状态
+                    角色
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     操作
@@ -252,19 +269,19 @@ const PointsManagement = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <div className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
-                        {user.EVM ? `${user.EVM.slice(0, 6)}...${user.EVM.slice(-4)}` : 'N/A'}
+                        {formatEvmAddress(user.EVM) || 'N/A'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <span className="text-lg font-bold text-gray-900">
-                          {user.points || 0}
+                          {(user.points || 0).toLocaleString()}
                         </span>
                         <span className="ml-2 text-sm text-gray-500">积分</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.lastUpdate ? new Date(user.lastUpdate).toLocaleString() : '从未更新'}
+                      {formatDateTime(user.asset_updated_at)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <Badge variant={user.is_admin ? 'success' : 'secondary'}>
@@ -272,12 +289,13 @@ const PointsManagement = () => {
                       </Badge>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
+                      <div className="flex gap-2">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => openAdjustModal(user, 'add')}
                           className="text-green-600 hover:text-green-700"
+                          title="增加积分"
                         >
                           <Plus className="w-4 h-4" />
                         </Button>
@@ -286,6 +304,7 @@ const PointsManagement = () => {
                           size="sm"
                           onClick={() => openAdjustModal(user, 'subtract')}
                           className="text-red-600 hover:text-red-700"
+                          title="减少积分"
                         >
                           <Minus className="w-4 h-4" />
                         </Button>
@@ -296,7 +315,7 @@ const PointsManagement = () => {
               </tbody>
             </table>
           </div>
-          
+
           {filteredUsers.length === 0 && (
             <div className="text-center py-8">
               <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -306,11 +325,7 @@ const PointsManagement = () => {
         </div>
       )}
 
-      {/* 积分调整模态框 */}
-      <Modal
-        isOpen={showAdjustModal}
-        onClose={() => setShowAdjustModal(false)}
-      >
+      <Modal isOpen={showAdjustModal} onClose={() => !adjusting && setShowAdjustModal(false)}>
         <ModalHeader>
           <ModalTitle>{`${adjustType === 'add' ? '增加' : '减少'}积分`}</ModalTitle>
         </ModalHeader>
@@ -321,7 +336,8 @@ const PointsManagement = () => {
                 操作用户: <span className="font-medium">#{selectedUser.uID}</span>
               </p>
               <p className="text-sm text-gray-600">
-                钱包地址: <span className="font-mono text-xs bg-white px-2 py-1 rounded">
+                钱包地址:
+                <span className="font-mono text-xs bg-white px-2 py-1 rounded ml-2">
                   {selectedUser.EVM}
                 </span>
               </p>
@@ -330,7 +346,7 @@ const PointsManagement = () => {
               </p>
             </div>
           )}
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               {adjustType === 'add' ? '增加' : '减少'}积分数额
@@ -344,7 +360,7 @@ const PointsManagement = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               调整原因
@@ -357,7 +373,7 @@ const PointsManagement = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
             />
           </div>
-          
+
           <div className="flex justify-end space-x-3 pt-4">
             <Button
               variant="secondary"

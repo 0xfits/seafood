@@ -1,245 +1,236 @@
-import React, { useState, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { 
-  Users, 
-  Trophy, 
-  Gift, 
-  TrendingUp, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Users,
+  Trophy,
+  Gift,
   Clock,
   BarChart3,
   Settings,
   Eye,
-  Shield
+  Shield,
+  CheckCircle,
+  XCircle,
+  RefreshCw,
+  Search,
 } from 'lucide-react'
 
-// UI 组件
 import { Button, Card, CardHeader, CardTitle, CardContent, Badge } from '../components/ui'
 import { LoadingPage } from '../components/ui/Loading'
 import { FadeIn, SlideUp, StaggerContainer } from '../components/ui/Motion'
 import { ResponsiveContainer, ResponsiveGrid } from '../components/ui/Responsive'
 import { formatEvmAddress } from '../utils'
+import { fetchApiJson, getAuthToken, isAdminUser } from '../admin-utils'
+
+const formatTimestamp = (value) => {
+  if (!value) return '未知'
+  const date = new Date(typeof value === 'number' ? value * 1000 : value)
+  return Number.isNaN(date.getTime()) ? '未知' : date.toLocaleString()
+}
 
 const DashboardPage = () => {
-  const { t } = useTranslation()
+  const navigate = useNavigate()
   const [pendingVerificationTasks, setPendingVerificationTasks] = useState([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [processingTaskId, setProcessingTaskId] = useState(null)
   const [currentUser, setCurrentUser] = useState(null)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [reviewQuery, setReviewQuery] = useState('')
+  const [showAllPending, setShowAllPending] = useState(false)
   const [dashboardStats, setDashboardStats] = useState({
     totalUsers: 0,
-    activeUsers: 0,
+    adminUsers: 0,
+    totalPoints: 0,
     totalTasks: 0,
-    completedTasks: 0,
-    pendingTasks: 0,
     totalRewards: 0,
-    claimedRewards: 0
+    pendingVerifications: 0,
   })
-  const [showTaskModal, setShowTaskModal] = useState(false)
-  const [showRewardModal, setShowRewardModal] = useState(false)
-  const [showUserModal, setShowUserModal] = useState(false)
 
-  // 加载数据和验证管理员身份
+  const managementLinks = [
+    {
+      title: '任务管理',
+      description: '查看任务列表、维护任务状态和任务配置。',
+      to: '/dashboard/tasks',
+      icon: Trophy,
+      variant: 'primary',
+    },
+    {
+      title: '奖励管理',
+      description: '维护奖励品牌与奖励条目。',
+      to: '/dashboard/rewards',
+      icon: Gift,
+      variant: 'secondary',
+    },
+    {
+      title: '用户管理',
+      description: '查看用户信息、权限状态和搜索结果。',
+      to: '/dashboard/users',
+      icon: Users,
+      variant: 'proceed',
+    },
+    {
+      title: '权限管理',
+      description: '维护管理权限分组和审核角色。',
+      to: '/dashboard/permissions',
+      icon: Shield,
+      variant: 'success',
+    },
+    {
+      title: '积分管理',
+      description: '查看积分分布并执行积分调整。',
+      to: '/dashboard/points',
+      icon: BarChart3,
+      variant: 'warning',
+    },
+    {
+      title: '系统设置',
+      description: '维护站点、注册和积分规则设置。',
+      to: '/dashboard/settings',
+      icon: Settings,
+      variant: 'outline',
+    },
+  ]
+
+  const loadDashboardData = async (user) => {
+    const token = getAuthToken(user)
+    const authHeaders = token ? { Authorization: `Bearer ${token}` } : {}
+
+    const results = await Promise.allSettled([
+      fetchApiJson('/api/user/stats', { headers: authHeaders }),
+      fetchApiJson('/api/task/all'),
+      fetchApiJson('/api/brand/all'),
+      fetchApiJson('/api/tasklist/pending-verification/count', { headers: authHeaders }),
+      fetchApiJson('/api/tasklist/pending-verification?limit=50', { headers: authHeaders }),
+    ])
+
+    const [userStats, tasks, rewards, pendingCount, pendingList] = results
+
+    const errors = []
+    if (userStats.status === 'rejected') errors.push('用户统计')
+    if (tasks.status === 'rejected') errors.push('任务统计')
+    if (rewards.status === 'rejected') errors.push('奖励统计')
+    if (pendingCount.status === 'rejected') errors.push('待审核数量')
+    if (pendingList.status === 'rejected') errors.push('待审核列表')
+
+    if (errors.length > 0) {
+      toast.error(`部分数据加载失败：${errors.join('、')}`)
+    }
+
+    setDashboardStats({
+      totalUsers: userStats.status === 'fulfilled' ? userStats.value.user_count || 0 : 0,
+      adminUsers: userStats.status === 'fulfilled' ? userStats.value.admin_count || 0 : 0,
+      totalPoints: userStats.status === 'fulfilled' ? userStats.value.total_points || 0 : 0,
+      totalTasks: tasks.status === 'fulfilled' ? (tasks.value || []).length : 0,
+      totalRewards: rewards.status === 'fulfilled' ? (rewards.value || []).length : 0,
+      pendingVerifications: pendingCount.status === 'fulfilled' ? pendingCount.value.count || 0 : 0,
+    })
+
+    setPendingVerificationTasks(pendingList.status === 'fulfilled' ? pendingList.value || [] : [])
+  }
+
   useEffect(() => {
-    const loadData = async () => {
+    const load = async () => {
       setLoading(true)
       try {
-        // 加载用户信息
-        const user = localStorage.getItem('user')
-        console.log('DashboardPage - 用户数据:', user)
-        
-        if (!user) {
+        const stored = localStorage.getItem('user')
+        if (!stored) {
           toast.error('请先登录')
           setLoading(false)
           return
         }
 
-        const parsedUser = JSON.parse(user)
-        console.log('DashboardPage - 解析后用户数据:', parsedUser)
+        const parsedUser = JSON.parse(stored)
+        const admin = isAdminUser(parsedUser)
+
         setCurrentUser(parsedUser)
+        setIsAdmin(admin)
 
-        // 验证管理员身份
-        const adminAddresses = [
-          '0x59f9f640d15ebb053c94a816232cf8ce91b209b0'.toLowerCase()
-        ]
-        const userAddress = parsedUser.EVM?.toLowerCase()
-        console.log('DashboardPage - 用户地址:', userAddress)
-        console.log('DashboardPage - 管理员地址列表:', adminAddresses)
-        
-        const isAdminByAddress = userAddress && adminAddresses.includes(userAddress)
-        console.log('DashboardPage - 地址检查结果:', isAdminByAddress)
-        
-        const isAdminUser = parsedUser.is_admin === true || 
-                           parsedUser.role === 'admin' || 
-                           isAdminByAddress
-        
-        console.log('DashboardPage - 最终管理员判断:', isAdminUser)
-        console.log('DashboardPage - is_admin字段:', parsedUser.is_admin)
-        console.log('DashboardPage - role字段:', parsedUser.role)
-        
-        setIsAdmin(isAdminUser)
-
-        if (isAdminUser) {
-          // 加载仪表板统计数据
-          await loadDashboardStats()
-          // 加载待验证任务
-          await loadPendingVerificationTasks()
+        if (admin) {
+          await loadDashboardData(parsedUser)
         }
       } catch (error) {
-        console.error('Error loading data:', error)
-        toast.error('加载数据失败: ' + error.message)
+        console.error('Error loading dashboard:', error)
+        toast.error(`加载管理面板失败: ${error.message}`)
       } finally {
-        // 确保loading状态被设置
-        setTimeout(() => {
-          setLoading(false)
-        }, 100)
+        setLoading(false)
       }
     }
 
-    loadData()
+    load()
   }, [])
 
-  // 加载仪表板统计数据
-  const loadDashboardStats = async () => {
-    try {
-      // 获取用户统计 - 使用正确的API端点
-      const usersResponse = await fetch('/api/user/all', {
-        headers: {
-          'Authorization': `Bearer ${currentUser?.token}`
-        }
-      })
-      const usersData = await usersResponse.json()
-      
-      // 获取任务统计
-      const tasksResponse = await fetch('/api/task/all')
-      const tasksData = await tasksResponse.json()
-      
-      // 获取奖励统计
-      const rewardsResponse = await fetch('/api/brand/all')
-      const rewardsData = await rewardsResponse.json()
-      
-      // 获取待验证任务统计
-      const pendingResponse = await fetch('/api/tasklist/pending-verification/count')
-      const pendingData = await pendingResponse.json()
-      
-      // 计算统计数据
-      const totalUsers = usersData.ok && usersData.data ? usersData.data.length : 0
-      const totalTasks = tasksData.ok && tasksData.data ? tasksData.data.length : 0
-      const totalRewards = rewardsData.ok && rewardsData.data ? rewardsData.data.length : 0
-      
-      const stats = {
-        totalUsers: totalUsers,
-        activeUsers: totalUsers, // 假设所有用户都是活跃的
-        totalTasks: totalTasks,
-        completedTasks: 0, // 需要从其他API获取
-        pendingTasks: pendingData.ok && pendingData.data ? pendingData.data.count : 0,
-        totalRewards: totalRewards,
-        claimedRewards: 0 // 需要从其他API获取
-      }
-      
-      setDashboardStats(stats)
-    } catch (error) {
-      console.error('Error loading dashboard stats:', error)
+  const handleVerifyTask = async (jID, approved) => {
+    const token = getAuthToken(currentUser)
+    if (!token) {
+      toast.error('登录状态已失效，请重新登录')
+      navigate('/login')
+      return
     }
-  }
 
-  // 加载所有待验证的任务
-  const loadPendingVerificationTasks = async () => {
+    setProcessingTaskId(jID)
     try {
-      const response = await fetch('/api/tasklist/pending-verification', {
-        headers: {
-          'Authorization': `Bearer ${currentUser?.token}`
-        }
-      })
-
-      const data = await response.json()
-      if (data.success) {
-        setPendingVerificationTasks(data.data || [])
-      } else {
-        toast.error('加载任务失败: ' + (data.error || '未知错误'))
+      const confirmed = window.confirm(
+        approved ? '确认通过这条提交并标记为已审核？' : '确认退回这条提交并要求用户重新提交？'
+      )
+      if (!confirmed) {
+        setProcessingTaskId(null)
+        return
       }
-    } catch (error) {
-      console.error('Error loading pending verification tasks:', error)
-      // 如果API不存在，设置为空数组
-      setPendingVerificationTasks([])
-    }
-  }
 
-  // 验证任务
-  const handleVerifyTask = async (tlistID, approved) => {
-    try {
-      const response = await fetch(`/api/tasklist/${tlistID}/verify`, {
+      await fetchApiJson(`/api/tasklist/${jID}/verify`, {
         method: 'POST',
         headers: {
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${currentUser?.token}`
         },
-        body: JSON.stringify({ approved })
+        body: JSON.stringify({ approved }),
       })
 
-      const data = await response.json()
-      if (data.success) {
-        toast.success(approved ? '任务已通过验证' : '任务已拒绝')
-        // 重新加载任务列表
-        await loadPendingVerificationTasks()
-      } else {
-        toast.error('操作失败: ' + (data.error || '未知错误'))
-      }
+      toast.success(approved ? '任务已通过审核' : '任务已退回，等待用户重新提交')
+      await loadDashboardData(currentUser)
     } catch (error) {
-      console.error('Error verifying task:', error)
-      toast.error('操作失败: ' + error.message)
+      console.error('Error verifying journey:', error)
+      toast.error(`操作失败: ${error.message}`)
+    } finally {
+      setProcessingTaskId(null)
     }
   }
 
-  // 管理功能处理函数
-  const handleAddTask = () => {
-    // 跳转到任务创建页面或打开模态框
-    window.location.href = '/admin/task/create'
+  const refreshDashboard = async () => {
+    if (!currentUser) return
+    setRefreshing(true)
+    try {
+      await loadDashboardData(currentUser)
+      toast.success('管理总览已刷新')
+    } catch (error) {
+      console.error('Error refreshing dashboard:', error)
+      toast.error(`刷新失败: ${error.message}`)
+    } finally {
+      setRefreshing(false)
+    }
   }
 
-  const handleManageTasks = () => {
-    // 跳转到任务管理页面
-    window.location.href = '/admin/tasks'
-  }
+  const normalizedQuery = reviewQuery.trim().toLowerCase()
+  const filteredPendingTasks = pendingVerificationTasks.filter((task) => {
+    if (!normalizedQuery) return true
+    return (
+      task.task?.title?.toLowerCase().includes(normalizedQuery) ||
+      task.user?.EVM?.toLowerCase().includes(normalizedQuery) ||
+      task.info_input?.toLowerCase().includes(normalizedQuery)
+    )
+  })
+  const visiblePendingTasks = showAllPending ? filteredPendingTasks : filteredPendingTasks.slice(0, 6)
 
-  const handleAddReward = () => {
-    // 跳转到奖励创建页面
-    window.location.href = '/admin/reward/create'
-  }
-
-  const handleManageRewards = () => {
-    // 跳转到奖励管理页面
-    window.location.href = '/admin/rewards'
-  }
-
-  const handleManageUsers = () => {
-    // 跳转到用户管理页面
-    window.location.href = '/admin/users'
-  }
-
-  const handleManagePermissions = () => {
-    // 跳转到权限管理页面
-    window.location.href = '/admin/permissions'
-  }
-
-  const handleAdjustPoints = () => {
-    // 跳转到积分调整页面
-    window.location.href = '/admin/points'
-  }
-
-  // 如果正在加载，显示加载页面
   if (loading) {
     return (
       <ResponsiveContainer>
-        <LoadingPage message="正在加载管理面板..." />
+        <LoadingPage message="正在加载管理总览..." />
       </ResponsiveContainer>
     )
   }
 
-  // 如果不是管理员，显示权限不足
   if (!isAdmin) {
     return (
       <ResponsiveContainer>
@@ -247,8 +238,8 @@ const DashboardPage = () => {
           <CardContent className="text-center py-12">
             <Shield className="w-16 h-16 text-orange-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">权限不足</h2>
-            <p className="text-gray-600 mb-6">只有管理员才能访问管理面板</p>
-            <Button variant="primary" onClick={() => window.location.href = '/'}>
+            <p className="text-gray-600 mb-6">只有管理员才能访问管理面板。</p>
+            <Button as={Link} to="/" variant="primary">
               返回首页
             </Button>
           </CardContent>
@@ -259,10 +250,29 @@ const DashboardPage = () => {
 
   return (
     <ResponsiveContainer>
-      <div className="space-y-6">
-        {/* 统计卡片 */}
-        <SlideUp delay={200}>
-          <ResponsiveGrid sm={2} md={4} gap={6}>
+      <div className="space-y-8">
+        <FadeIn>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">管理总览</h1>
+              <p className="text-lg text-gray-600">
+                优先处理待审核事项，再进入各个管理模块。
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Badge variant="warning" className="flex items-center gap-1">
+                <Shield className="w-3 h-3" />
+                管理员
+              </Badge>
+              <span className="text-sm text-gray-600">
+                {formatEvmAddress(currentUser?.EVM)}
+              </span>
+            </div>
+          </div>
+        </FadeIn>
+
+        <SlideUp delay={150}>
+          <ResponsiveGrid sm={2} md={3} gap={4}>
             <Card variant="primary" className="text-center">
               <CardContent className="py-6">
                 <Users className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
@@ -270,22 +280,36 @@ const DashboardPage = () => {
                   {dashboardStats.totalUsers}
                 </div>
                 <div className="text-sm text-gray-600">总用户数</div>
-                <div className="text-xs text-green-600 mt-1">
-                  +{dashboardStats.activeUsers} 活跃
+              </CardContent>
+            </Card>
+
+            <Card variant="secondary" className="text-center">
+              <CardContent className="py-6">
+                <Shield className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                <div className="text-3xl font-bold text-gray-900 mb-1">
+                  {dashboardStats.adminUsers}
                 </div>
+                <div className="text-sm text-gray-600">管理员数量</div>
               </CardContent>
             </Card>
 
             <Card variant="success" className="text-center">
               <CardContent className="py-6">
-                <Trophy className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                <BarChart3 className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                <div className="text-3xl font-bold text-gray-900 mb-1">
+                  {dashboardStats.totalPoints.toLocaleString()}
+                </div>
+                <div className="text-sm text-gray-600">累计积分</div>
+              </CardContent>
+            </Card>
+
+            <Card variant="primary" className="text-center">
+              <CardContent className="py-6">
+                <Trophy className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
                 <div className="text-3xl font-bold text-gray-900 mb-1">
                   {dashboardStats.totalTasks}
                 </div>
-                <div className="text-sm text-gray-600">总任务数</div>
-                <div className="text-xs text-blue-600 mt-1">
-                  {dashboardStats.completedTasks} 已完成
-                </div>
+                <div className="text-sm text-gray-600">任务类型</div>
               </CardContent>
             </Card>
 
@@ -295,10 +319,7 @@ const DashboardPage = () => {
                 <div className="text-3xl font-bold text-gray-900 mb-1">
                   {dashboardStats.totalRewards}
                 </div>
-                <div className="text-sm text-gray-600">总奖励数</div>
-                <div className="text-xs text-orange-600 mt-1">
-                  {dashboardStats.claimedRewards} 已兑换
-                </div>
+                <div className="text-sm text-gray-600">奖励品牌</div>
               </CardContent>
             </Card>
 
@@ -306,108 +327,109 @@ const DashboardPage = () => {
               <CardContent className="py-6">
                 <Clock className="w-8 h-8 text-orange-600 mx-auto mb-2" />
                 <div className="text-3xl font-bold text-gray-900 mb-1">
-                  {pendingVerificationTasks.length}
+                  {dashboardStats.pendingVerifications}
                 </div>
-                <div className="text-sm text-gray-600">待验证</div>
-                <div className="text-xs text-red-600 mt-1">
-                  需要审核
-                </div>
+                <div className="text-sm text-gray-600">待审核提交</div>
               </CardContent>
             </Card>
           </ResponsiveGrid>
         </SlideUp>
 
-        {/* 快速操作 */}
-        <SlideUp delay={400}>
+        <SlideUp delay={300}>
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="w-5 h-5" />
-                快速操作
-              </CardTitle>
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <CardTitle className="flex items-center gap-2">
+                  <Eye className="w-5 h-5" />
+                  待处理事项
+                </CardTitle>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex items-center gap-2">
+                    <Search className="w-4 h-4 text-gray-400" />
+                    <input
+                      type="text"
+                      value={reviewQuery}
+                      onChange={(e) => setReviewQuery(e.target.value)}
+                      placeholder="搜索任务、地址或提交内容..."
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
+                    />
+                  </div>
+                  <Button variant="outline" onClick={refreshDashboard} disabled={refreshing}>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    {refreshing ? '刷新中...' : '刷新'}
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              <ResponsiveGrid sm={2} md={4} gap={4}>
-                <Link to="/dashboard/tasks">
-                  <Button variant="primary" className="w-full">
-                    <Trophy className="w-4 h-4 mr-2" />
-                    管理任务
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+                <div className="text-sm text-gray-600">
+                  当前显示 {visiblePendingTasks.length} 条，匹配 {filteredPendingTasks.length} 条，待审核总数 {dashboardStats.pendingVerifications}。
+                </div>
+                {filteredPendingTasks.length > 6 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowAllPending((prev) => !prev)}
+                  >
+                    {showAllPending ? '收起列表' : '查看全部'}
                   </Button>
-                </Link>
-                <Link to="/dashboard/rewards">
-                  <Button variant="secondary" className="w-full">
-                    <Gift className="w-4 h-4 mr-2" />
-                    管理奖励
-                  </Button>
-                </Link>
-                <Button variant="proceed" className="w-full">
-                  <Users className="w-4 h-4 mr-2" />
-                    用户管理
-                </Button>
-                <Button variant="success" className="w-full">
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                    数据统计
-                </Button>
-              </ResponsiveGrid>
-            </CardContent>
-          </Card>
-        </SlideUp>
+                )}
+              </div>
 
-        {/* 待验证任务 */}
-        <SlideUp delay={600}>
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Eye className="w-5 h-5" />
-                待验证任务 ({pendingVerificationTasks.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {pendingVerificationTasks.length > 0 ? (
+              {filteredPendingTasks.length > 0 ? (
                 <StaggerContainer>
                   <div className="space-y-4">
-                    {pendingVerificationTasks.map((task, index) => (
-                      <FadeIn key={task.tlistID} delay={index * 100}>
+                    {visiblePendingTasks.map((task, index) => (
+                      <FadeIn key={task.jID || task.tlistID} delay={index * 75}>
                         <Card variant="inactive" className="border-l-4 border-l-orange-500">
                           <CardContent className="p-4">
-                            <div className="flex items-start justify-between">
+                            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-2">
                                   <h3 className="font-semibold text-gray-900">
-                                    {task.task?.title || '未知任务'}
+                                    {task.task?.title || `任务 #${task.tID}`}
                                   </h3>
                                   <Badge variant="warning" size="sm">
-                                    {task.task?.points || 0} 积分
+                                    {(task.task?.points || 0).toLocaleString()} 积分
                                   </Badge>
                                 </div>
-                                
+
                                 <div className="text-sm text-gray-600 mb-2">
-                                  <strong>用户:</strong> {formatEvmAddress(task.user?.EVM)}
+                                  <strong>提交用户:</strong> {formatEvmAddress(task.user?.EVM)}
                                 </div>
-                                
-                                <div className="text-sm text-gray-600 mb-3">
+
+                                <div className="text-sm text-gray-600 mb-2">
                                   <strong>提交内容:</strong> {task.info_input || '无'}
                                 </div>
-                                
+
                                 <div className="text-xs text-gray-500">
-                                  提交时间: {task.time_created ? new Date(task.time_created).toLocaleString() : '未知'}
+                                  提交时间: {formatTimestamp(task.time_submitted || task.time_created)}
                                 </div>
                               </div>
-                              
-                              <div className="flex gap-2 ml-4">
-                                <Button 
-                                  variant="success" 
+
+                              <div className="flex gap-2 md:ml-4">
+                                <Button
+                                  variant="success"
                                   size="sm"
-                                  onClick={() => handleVerifyTask(task.tlistID, true)}
+                                  onClick={() => handleVerifyTask(task.jID || task.tlistID, true)}
+                                  disabled={processingTaskId === (task.jID || task.tlistID)}
+                                  aria-label="通过审核"
+                                  title="通过审核"
                                 >
-                                  <CheckCircle className="w-4 h-4" />
+                                  <CheckCircle className="w-4 h-4 mr-1" />
+                                  通过
                                 </Button>
-                                <Button 
-                                  variant="warning" 
+                                <Button
+                                  variant="warning"
                                   size="sm"
-                                  onClick={() => handleVerifyTask(task.tlistID, false)}
+                                  onClick={() => handleVerifyTask(task.jID || task.tlistID, false)}
+                                  disabled={processingTaskId === (task.jID || task.tlistID)}
+                                  aria-label="退回重提"
+                                  title="退回重提"
                                 >
-                                  <XCircle className="w-4 h-4" />
+                                  <XCircle className="w-4 h-4 mr-1" />
+                                  退回
                                 </Button>
                               </div>
                             </div>
@@ -420,123 +442,51 @@ const DashboardPage = () => {
               ) : (
                 <div className="text-center py-8">
                   <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
-                  <p className="text-gray-600">暂无待验证任务</p>
+                  <p className="text-gray-900 font-medium mb-1">
+                    {dashboardStats.pendingVerifications > 0 ? '当前筛选条件下没有结果' : '当前没有待审核提交'}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {dashboardStats.pendingVerifications > 0 ? '换一个关键词试试，或点击刷新重新获取最新数据。' : '审核队列为空，管理入口可直接用于日常维护。'}
+                  </p>
                 </div>
               )}
             </CardContent>
           </Card>
         </SlideUp>
 
-        {/* 系统状态 */}
-        <SlideUp delay={800}>
+        <SlideUp delay={450}>
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5" />
-                系统状态
+                <Settings className="w-5 h-5" />
+                管理入口
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveGrid sm={1} md={3} gap={4}>
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600 mb-1">正常</div>
-                  <div className="text-sm text-gray-600">API 服务</div>
-                </div>
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600 mb-1">正常</div>
-                  <div className="text-sm text-gray-600">数据库</div>
-                </div>
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600 mb-1">正常</div>
-                  <div className="text-sm text-gray-600">缓存服务</div>
-                </div>
+              <ResponsiveGrid sm={1} md={2} gap={4}>
+                {managementLinks.map((item) => {
+                  const Icon = item.icon
+
+                  return (
+                    <Card key={item.to} variant="inactive" className="border-l-4 border-l-orange-500">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Icon className="w-5 h-5 text-gray-700" />
+                              <h3 className="font-semibold text-gray-900">{item.title}</h3>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-4">{item.description}</p>
+                            <Button as={Link} to={item.to} variant={item.variant}>
+                              进入{item.title}
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
               </ResponsiveGrid>
-            </CardContent>
-          </Card>
-        </SlideUp>
-
-        {/* 管理操作 */}
-        <SlideUp delay={1000}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* 任务管理 */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Trophy className="w-5 h-5" />
-                  任务管理
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <Button variant="primary" className="w-full" onClick={handleAddTask}>
-                    <Trophy className="w-4 h-4 mr-2" />
-                    添加新任务
-                  </Button>
-                  <Button variant="secondary" className="w-full" onClick={handleManageTasks}>
-                    <Settings className="w-4 h-4 mr-2" />
-                    管理任务列表
-                  </Button>
-                  <div className="text-sm text-gray-600">
-                    创建、编辑和删除社区任务
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* 奖励管理 */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Gift className="w-5 h-5" />
-                  奖励管理
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <Button variant="primary" className="w-full" onClick={handleAddReward}>
-                    <Gift className="w-4 h-4 mr-2" />
-                    添加新奖励
-                  </Button>
-                  <Button variant="secondary" className="w-full" onClick={handleManageRewards}>
-                    <Settings className="w-4 h-4 mr-2" />
-                    管理奖励列表
-                  </Button>
-                  <div className="text-sm text-gray-600">
-                    创建、编辑和删除社区奖励
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </SlideUp>
-
-        {/* 用户管理 */}
-        <SlideUp delay={1200}>
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                用户管理
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveGrid sm={1} md={3} gap={4}>
-                <Button variant="primary" className="w-full" onClick={handleManageUsers}>
-                  <Users className="w-4 h-4 mr-2" />
-                  用户列表
-                </Button>
-                <Button variant="secondary" className="w-full" onClick={handleManagePermissions}>
-                  <Shield className="w-4 h-4 mr-2" />
-                  权限管理
-                </Button>
-                <Button variant="warning" className="w-full" onClick={handleAdjustPoints}>
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                  积分调整
-                </Button>
-              </ResponsiveGrid>
-              <div className="text-sm text-gray-600 mt-4">
-                管理用户账户、权限和积分
-              </div>
             </CardContent>
           </Card>
         </SlideUp>

@@ -1,21 +1,29 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Button, Card, CardHeader, CardTitle, CardContent } from '../../components/ui'
-import { Settings, Save, RefreshCw, Database, Globe, Shield } from 'lucide-react'
+import { Settings, Save, RefreshCw, Database, Globe } from 'lucide-react'
+import toast from 'react-hot-toast'
+import { fetchApiJson, getAuthHeaders, getStoredUser, isAdminUser } from '../../admin-utils'
+
+const DEFAULT_SETTINGS = {
+  siteName: 'Jinli Club',
+  siteDescription: '去中心化社区奖励平台',
+  maintenance: false,
+  allowRegistration: true,
+  emailNotifications: true,
+  defaultLanguage: 'zh',
+  pointsPerTask: 100,
+  maxDailyTasks: 10,
+  rewardCooldown: 24,
+}
 
 const SystemSettings = () => {
-  const [settings, setSettings] = useState({
-    siteName: 'Jinli Club',
-    siteDescription: '去中心化社区奖励平台',
-    maintenance: false,
-    allowRegistration: true,
-    emailNotifications: true,
-    defaultLanguage: 'zh',
-    pointsPerTask: 100,
-    maxDailyTasks: 10,
-    rewardCooldown: 24
-  })
-
+  const navigate = useNavigate()
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS)
+  const [savedSettings, setSavedSettings] = useState(DEFAULT_SETTINGS)
+  const [initialLoading, setInitialLoading] = useState(true)
   const [loading, setLoading] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
     loadSettings()
@@ -23,24 +31,105 @@ const SystemSettings = () => {
 
   const loadSettings = async () => {
     try {
-      // 模拟加载设置
-      console.log('Loading system settings...')
+      setInitialLoading(true)
+      const currentUser = getStoredUser()
+      if (!currentUser || !isAdminUser(currentUser)) {
+        throw new Error('当前登录用户不是管理员')
+      }
+
+      const data = await fetchApiJson('/api/admin/settings', {
+        headers: getAuthHeaders(currentUser),
+      })
+
+      const normalized = {
+        ...DEFAULT_SETTINGS,
+        ...data,
+      }
+      setSettings(normalized)
+      setSavedSettings(normalized)
     } catch (error) {
       console.error('Error loading settings:', error)
+      toast.error(`加载系统设置失败: ${error.message}`)
+    } finally {
+      setInitialLoading(false)
     }
   }
 
   const saveSettings = async () => {
     setLoading(true)
     try {
-      // 模拟保存设置
-      console.log('Saving settings:', settings)
-      alert('设置已保存')
+      const currentUser = getStoredUser()
+      const headers = {
+        ...getAuthHeaders(currentUser),
+        'Content-Type': 'application/json',
+      }
+      if (!headers.Authorization) {
+        toast.error('登录状态已失效，请重新登录')
+        navigate('/login')
+        return
+      }
+
+      const normalized = {
+        ...settings,
+        pointsPerTask: Number(settings.pointsPerTask) || 0,
+        maxDailyTasks: Number(settings.maxDailyTasks) || 0,
+        rewardCooldown: Number(settings.rewardCooldown) || 0,
+      }
+
+      const saved = await fetchApiJson('/api/admin/settings', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(normalized),
+      })
+
+      const nextSettings = {
+        ...DEFAULT_SETTINGS,
+        ...saved,
+      }
+      setSettings(nextSettings)
+      setSavedSettings(nextSettings)
+      toast.success('设置已保存')
     } catch (error) {
       console.error('Error saving settings:', error)
-      alert('保存失败')
+      toast.error(`保存失败: ${error.message}`)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const resetSettings = async () => {
+    const currentUser = getStoredUser()
+    const headers = {
+      ...getAuthHeaders(currentUser),
+      'Content-Type': 'application/json',
+    }
+    if (!headers.Authorization) {
+      toast.error('登录状态已失效，请重新登录')
+      navigate('/login')
+      return
+    }
+
+    const confirmed = window.confirm('确认将系统设置重置为默认值？')
+    if (!confirmed) return
+
+    setRefreshing(true)
+    try {
+      const reset = await fetchApiJson('/api/admin/settings/reset', {
+        method: 'POST',
+        headers,
+      })
+      const nextSettings = {
+        ...DEFAULT_SETTINGS,
+        ...reset,
+      }
+      setSettings(nextSettings)
+      setSavedSettings(nextSettings)
+      toast.success('系统设置已重置')
+    } catch (error) {
+      console.error('Error resetting settings:', error)
+      toast.error(`重置失败: ${error.message}`)
+    } finally {
+      setRefreshing(false)
     }
   }
 
@@ -51,23 +140,41 @@ const SystemSettings = () => {
     }))
   }
 
+  const hasChanges = JSON.stringify(settings) !== JSON.stringify(savedSettings)
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">系统设置</h2>
+        <div>
+          <h2 className="text-2xl font-bold">系统设置</h2>
+          <p className="text-sm text-gray-600 mt-1">
+            当前页面使用持久化后台设置状态，支持读取、保存和重置默认值。
+          </p>
+        </div>
         <div className="flex gap-2">
-          <Button variant="secondary">
+          <Button variant="secondary" onClick={resetSettings} disabled={refreshing || loading}>
             <RefreshCw className="w-4 h-4 mr-2" />
-            重置
+            {refreshing ? '重置中...' : '重置'}
           </Button>
-          <Button variant="primary" onClick={saveSettings} disabled={loading}>
+          <Button variant="primary" onClick={saveSettings} disabled={loading || !hasChanges}>
             <Save className="w-4 h-4 mr-2" />
             {loading ? '保存中...' : '保存设置'}
           </Button>
         </div>
       </div>
 
-      <div className="grid gap-6">
+      {initialLoading ? (
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <p className="mt-2 text-gray-600">加载中...</p>
+        </div>
+      ) : (
+        <>
+          <div className="text-sm text-gray-600">
+            {hasChanges ? '存在未保存修改。' : '当前内容与已保存设置一致。'}
+          </div>
+
+          <div className="grid gap-6">
         {/* 基本设置 */}
         <Card>
           <CardHeader>
@@ -173,7 +280,7 @@ const SystemSettings = () => {
               <input
                 type="number"
                 value={settings.pointsPerTask}
-                onChange={(e) => handleSettingChange('pointsPerTask', parseInt(e.target.value))}
+                onChange={(e) => handleSettingChange('pointsPerTask', Number(e.target.value))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
               />
             </div>
@@ -182,7 +289,7 @@ const SystemSettings = () => {
               <input
                 type="number"
                 value={settings.maxDailyTasks}
-                onChange={(e) => handleSettingChange('maxDailyTasks', parseInt(e.target.value))}
+                onChange={(e) => handleSettingChange('maxDailyTasks', Number(e.target.value))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
               />
             </div>
@@ -191,13 +298,15 @@ const SystemSettings = () => {
               <input
                 type="number"
                 value={settings.rewardCooldown}
-                onChange={(e) => handleSettingChange('rewardCooldown', parseInt(e.target.value))}
+                onChange={(e) => handleSettingChange('rewardCooldown', Number(e.target.value))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
               />
             </div>
           </CardContent>
         </Card>
-      </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
