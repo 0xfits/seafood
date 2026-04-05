@@ -21,7 +21,7 @@ import { LoadingPage } from '../components/ui/Loading'
 import { FadeIn, SlideUp, StaggerContainer } from '../components/ui/Motion'
 import { ResponsiveContainer, ResponsiveGrid } from '../components/ui/Responsive'
 import { formatEvmAddress } from '../utils'
-import { fetchApiJson, getAuthToken, isAdminUser } from '../admin-utils'
+import { fetchAdminAccess, fetchApiJson, getAuthToken, hasAdminPermission, isAdminUser } from '../admin-utils'
 
 const formatTimestamp = (value) => {
   if (!value) return '未知'
@@ -37,6 +37,11 @@ const DashboardPage = () => {
   const [processingTaskId, setProcessingTaskId] = useState(null)
   const [currentUser, setCurrentUser] = useState(null)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [access, setAccess] = useState({
+    is_admin: false,
+    permissions: [],
+    can_access_admin: false,
+  })
   const [reviewQuery, setReviewQuery] = useState('')
   const [showAllPending, setShowAllPending] = useState(false)
   const [dashboardStats, setDashboardStats] = useState({
@@ -93,16 +98,17 @@ const DashboardPage = () => {
     },
   ]
 
-  const loadDashboardData = async (user) => {
+  const loadDashboardData = async (user, accessInfo) => {
     const token = getAuthToken(user)
     const authHeaders = token ? { Authorization: `Bearer ${token}` } : {}
+    const canReviewTasks = hasAdminPermission(accessInfo, 'review_tasks')
 
     const results = await Promise.allSettled([
       fetchApiJson('/api/user/stats', { headers: authHeaders }),
       fetchApiJson('/api/task/all'),
       fetchApiJson('/api/brand/all'),
-      fetchApiJson('/api/tasklist/pending-verification/count', { headers: authHeaders }),
-      fetchApiJson('/api/tasklist/pending-verification?limit=50', { headers: authHeaders }),
+      ...(canReviewTasks ? [fetchApiJson('/api/tasklist/pending-verification/count', { headers: authHeaders })] : []),
+      ...(canReviewTasks ? [fetchApiJson('/api/tasklist/pending-verification?limit=50', { headers: authHeaders })] : []),
     ])
 
     const [userStats, tasks, rewards, pendingCount, pendingList] = results
@@ -111,8 +117,8 @@ const DashboardPage = () => {
     if (userStats.status === 'rejected') errors.push('用户统计')
     if (tasks.status === 'rejected') errors.push('任务统计')
     if (rewards.status === 'rejected') errors.push('奖励统计')
-    if (pendingCount.status === 'rejected') errors.push('待审核数量')
-    if (pendingList.status === 'rejected') errors.push('待审核列表')
+    if (canReviewTasks && pendingCount?.status === 'rejected') errors.push('待审核数量')
+    if (canReviewTasks && pendingList?.status === 'rejected') errors.push('待审核列表')
 
     if (errors.length > 0) {
       toast.error(`部分数据加载失败：${errors.join('、')}`)
@@ -124,10 +130,10 @@ const DashboardPage = () => {
       totalPoints: userStats.status === 'fulfilled' ? userStats.value.total_points || 0 : 0,
       totalTasks: tasks.status === 'fulfilled' ? (tasks.value || []).length : 0,
       totalRewards: rewards.status === 'fulfilled' ? (rewards.value || []).length : 0,
-      pendingVerifications: pendingCount.status === 'fulfilled' ? pendingCount.value.count || 0 : 0,
+      pendingVerifications: canReviewTasks && pendingCount?.status === 'fulfilled' ? pendingCount.value.count || 0 : 0,
     })
 
-    setPendingVerificationTasks(pendingList.status === 'fulfilled' ? pendingList.value || [] : [])
+    setPendingVerificationTasks(canReviewTasks && pendingList?.status === 'fulfilled' ? pendingList.value || [] : [])
   }
 
   useEffect(() => {
@@ -142,13 +148,15 @@ const DashboardPage = () => {
         }
 
         const parsedUser = JSON.parse(stored)
-        const admin = isAdminUser(parsedUser)
+        const accessInfo = await fetchAdminAccess(parsedUser)
+        const admin = accessInfo.can_access_admin || isAdminUser(parsedUser)
 
         setCurrentUser(parsedUser)
         setIsAdmin(admin)
+        setAccess(accessInfo)
 
         if (admin) {
-          await loadDashboardData(parsedUser)
+          await loadDashboardData(parsedUser, accessInfo)
         }
       } catch (error) {
         console.error('Error loading dashboard:', error)
@@ -202,7 +210,7 @@ const DashboardPage = () => {
     if (!currentUser) return
     setRefreshing(true)
     try {
-      await loadDashboardData(currentUser)
+      await loadDashboardData(currentUser, access)
       toast.success('管理总览已刷新')
     } catch (error) {
       console.error('Error refreshing dashboard:', error)
@@ -213,6 +221,7 @@ const DashboardPage = () => {
   }
 
   const normalizedQuery = reviewQuery.trim().toLowerCase()
+  const canReviewTasks = hasAdminPermission(access, 'review_tasks')
   const filteredPendingTasks = pendingVerificationTasks.filter((task) => {
     if (!normalizedQuery) return true
     return (
@@ -222,6 +231,15 @@ const DashboardPage = () => {
     )
   })
   const visiblePendingTasks = showAllPending ? filteredPendingTasks : filteredPendingTasks.slice(0, 6)
+  const visibleManagementLinks = managementLinks.filter((item) => {
+    if (item.to === '/dashboard/rewards') return hasAdminPermission(access, 'manage_rewards')
+    if (item.to === '/dashboard/tasks') return hasAdminPermission(access, 'manage_tasks')
+    if (item.to === '/dashboard/users') return hasAdminPermission(access, 'read_users')
+    if (item.to === '/dashboard/permissions') return hasAdminPermission(access, 'manage_permissions')
+    if (item.to === '/dashboard/points') return hasAdminPermission(access, 'manage_points')
+    if (item.to === '/dashboard/settings') return hasAdminPermission(access, 'manage_settings')
+    return true
+  })
 
   if (loading) {
     return (
@@ -362,6 +380,14 @@ const DashboardPage = () => {
               </div>
             </CardHeader>
             <CardContent>
+              {!canReviewTasks ? (
+                <div className="text-center py-8">
+                  <Shield className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                  <p className="text-gray-900 font-medium mb-1">当前账号没有审核权限</p>
+                  <p className="text-sm text-gray-600">如需处理提交审核，请让管理员把你加入具备 `review_tasks` 的权限组。</p>
+                </div>
+              ) : (
+                <>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
                 <div className="text-sm text-gray-600">
                   当前显示 {visiblePendingTasks.length} 条，匹配 {filteredPendingTasks.length} 条，待审核总数 {dashboardStats.pendingVerifications}。
@@ -450,6 +476,8 @@ const DashboardPage = () => {
                   </p>
                 </div>
               )}
+                </>
+              )}
             </CardContent>
           </Card>
         </SlideUp>
@@ -464,7 +492,7 @@ const DashboardPage = () => {
             </CardHeader>
             <CardContent>
               <ResponsiveGrid sm={1} md={2} gap={4}>
-                {managementLinks.map((item) => {
+                {visibleManagementLinks.map((item) => {
                   const Icon = item.icon
 
                   return (

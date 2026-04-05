@@ -27,7 +27,7 @@
       "description": "Members responsible for rewards and settings follow-up.",
       "permissions": [
         "manage_rewards",
-        "view_dashboard"
+        "dashboard_access"
       ],
       "user_ids": []
     }

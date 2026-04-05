@@ -98,6 +98,20 @@ class TimeUtils:
 
 class Core:
     user_data = UserData()
+    ALL_ADMIN_PERMISSIONS = {
+        "dashboard_access",
+        "manage_tasks",
+        "manage_rewards",
+        "read_users",
+        "manage_users",
+        "manage_points",
+        "manage_permissions",
+        "manage_settings",
+        "review_tasks",
+    }
+    PERMISSION_ALIASES = {
+        "view_dashboard": "dashboard_access",
+    }
 
     """对外提供业务服务的类，输出统一的响应结构"""
 
@@ -139,6 +153,73 @@ class Core:
             evm = (u.EVM or "").lower()
             flag = bool(u.is_admin)
             return flag or (evm and evm in Core.ADMIN_EVM_ADDRESSES)
+
+    def _normalize_permissions(self, permissions) -> List[str]:
+        normalized = []
+        for permission in permissions or []:
+            value = str(permission or "").strip()
+            if not value:
+                continue
+            normalized.append(Core.PERMISSION_ALIASES.get(value, value))
+        return sorted(set(normalized))
+
+    def get_admin_permissions(self, uID: int) -> List[str]:
+        if self.is_admin(uID):
+            return sorted(Core.ALL_ADMIN_PERMISSIONS)
+
+        state = load_admin_state()
+        permissions = set()
+        for group in state.get("permission_groups", []):
+            group_user_ids = {int(item) for item in group.get("user_ids", [])}
+            if int(uID) in group_user_ids:
+                permissions.update(self._normalize_permissions(group.get("permissions", [])))
+        return sorted(permissions)
+
+    def has_admin_permission(self, uID: int, required_permissions) -> bool:
+        if uID is None:
+            return False
+        if self.is_admin(int(uID)):
+            return True
+        required = self._normalize_permissions(required_permissions if isinstance(required_permissions, (list, tuple, set)) else [required_permissions])
+        if not required:
+            return bool(self.get_admin_permissions(int(uID)))
+        current = set(self.get_admin_permissions(int(uID)))
+        return any(permission in current for permission in required)
+
+    def get_preferred_admin_path(self, permissions: List[str], is_admin: bool = False) -> str:
+        if is_admin:
+            return "/dashboard"
+        permission_set = set(self._normalize_permissions(permissions))
+        if "dashboard_access" in permission_set or "review_tasks" in permission_set:
+            return "/dashboard"
+        if "manage_tasks" in permission_set:
+            return "/dashboard/tasks"
+        if "manage_rewards" in permission_set:
+            return "/dashboard/rewards"
+        if "manage_users" in permission_set or "read_users" in permission_set:
+            return "/dashboard/users"
+        if "manage_points" in permission_set:
+            return "/dashboard/points"
+        if "manage_permissions" in permission_set:
+            return "/dashboard/permissions"
+        if "manage_settings" in permission_set:
+            return "/dashboard/settings"
+        return "/"
+
+    async def get_admin_access(self, uID: int):
+        with self.data as r:
+            user = r.get_user_by_id_raw(uID)
+
+        permissions = self.get_admin_permissions(uID)
+        admin = self.is_admin(uID)
+        return self.ok(data={
+            "uID": uID,
+            "EVM": user.get("EVM") if user else None,
+            "is_admin": admin,
+            "permissions": permissions,
+            "can_access_admin": admin or len(permissions) > 0,
+            "preferred_admin_path": self.get_preferred_admin_path(permissions, is_admin=admin),
+        })
 
     async def get_calendar_events(self):
         try:

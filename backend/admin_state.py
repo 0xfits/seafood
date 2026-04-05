@@ -35,7 +35,7 @@ DEFAULT_STATE: Dict[str, Any] = {
             "id": "operations",
             "name": "Operations",
             "description": "Members responsible for rewards and settings follow-up.",
-            "permissions": ["manage_rewards", "view_dashboard"],
+            "permissions": ["manage_rewards", "dashboard_access"],
             "user_ids": [],
         },
     ],

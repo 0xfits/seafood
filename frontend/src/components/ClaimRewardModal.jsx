@@ -3,19 +3,20 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
-const ClaimRewardModal = ({ open, onClose, task }) => {
+const ClaimRewardModal = ({ open, isOpen, onClose, task }) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const [loading, setLoading] = useState(false)
   const [journey, setJourney] = useState(null)
   const [celebrate, setCelebrate] = useState(false)
+  const visible = typeof open === 'boolean' ? open : Boolean(isOpen)
 
   useEffect(() => {
-    if (open && task && (task.tlistID || task.jID)) {
+    if (visible && task && (task.tlistID || task.jID)) {
       loadJourneyDetail(task.jID || task.tlistID)
     }
-  }, [open, task])
+  }, [visible, task])
 
   const loadJourneyDetail = async (jID) => {
     setLoading(true)
@@ -35,18 +36,19 @@ const ClaimRewardModal = ({ open, onClose, task }) => {
   }
 
   const handleClaim = async () => {
-    const jID = (task && (task.jID || task.tlistID)) || (journey && journey.jID)
+      const jID = (task && (task.jID || task.tlistID)) || (journey && journey.jID)
     if (!jID) return
     try {
       const user = JSON.parse(localStorage.getItem('user'))
-      if (!user?.token) {
+      const token = user?.token || user?.access_token || localStorage.getItem('token')
+      if (!token) {
         toast.error(t('pleaseLogin') || '请先登录')
         navigate('/login', { state: { from: location } })
         return
       }
       const resp = await fetch(`/api/journey/claim/${jID}`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${user?.token}` }
+        headers: { 'Authorization': `Bearer ${token}` }
       })
       const data = await resp.json()
       if (data && data.success) {
@@ -70,7 +72,7 @@ const ClaimRewardModal = ({ open, onClose, task }) => {
     }
   }
 
-  if (!open || !task) return null
+  if (!visible || !task) return null
 
   const displayTitle = task.title || (journey && journey.title) || ''
   const displayNote = task.note || (journey && journey.note) || ''

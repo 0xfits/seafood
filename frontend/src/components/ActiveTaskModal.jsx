@@ -3,18 +3,19 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
-const ActiveTaskModal = ({ open, onClose, task }) => {
+const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
   const { t } = useTranslation()
   const [infoInput, setInfoInput] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const navigate = useNavigate()
+  const visible = typeof open === 'boolean' ? open : Boolean(isOpen)
 
   // 重置表单
   React.useEffect(() => {
-    if (open && task) {
+    if (visible && task) {
       setInfoInput('')
     }
-  }, [open, task])
+  }, [visible, task])
 
   // 处理表单提交
   const handleSubmit = async (e) => {
@@ -24,7 +25,7 @@ const ActiveTaskModal = ({ open, onClose, task }) => {
     setSubmitting(true)
     try {
       const user = JSON.parse(localStorage.getItem('user'))
-      const token = user?.token
+      const token = user?.token || user?.access_token || localStorage.getItem('token')
       
       // 验证 token 格式
       if (!token) {
@@ -82,7 +83,7 @@ const ActiveTaskModal = ({ open, onClose, task }) => {
   }
 
   // 如果模态框关闭或没有任务，不显示
-  if (!open || !task) return null
+  if (!visible || !task) return null
 
   return (
     <div className="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

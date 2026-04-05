@@ -1,23 +1,31 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
-// 新的 UI 组件
-import { Container, Grid } from '../components/layout'
-import { Button, Card, CardHeader, CardTitle, CardContent, Badge } from '../components/ui'
+import { Card, CardContent } from '../components/ui'
 import { TaskCard } from '../components/task/TaskCard'
-import { LoadingPage, LoadingCard } from '../components/ui/Loading'
+import { LoadingPage } from '../components/ui/Loading'
 import { FadeIn, SlideUp, StaggerContainer } from '../components/ui/Motion'
 import { ResponsiveGrid, ResponsiveContainer } from '../components/ui/Responsive'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/Tabs'
-
-// 原有模态框组件
 import ClaimRewardModal from '../components/ClaimRewardModal'
 import ActiveTaskModal from '../components/ActiveTaskModal'
 
+const fetchJson = async (url, options = {}) => {
+  const response = await fetch(url, options)
+  const data = await response.json().catch(() => null)
+
+  if (!response.ok || !data?.success) {
+    throw new Error(data?.message || `请求失败 (${response.status})`)
+  }
+
+  return data.data
+}
+
 const TaskPage = () => {
   const { t } = useTranslation()
+  const location = useLocation()
   const [tasks, setTasks] = useState([])
   const [pendingRewardTasks, setPendingRewardTasks] = useState([])
   const [pendingTasks, setPendingTasks] = useState([])
@@ -29,9 +37,7 @@ const TaskPage = () => {
   const [openActiveModal, setOpenActiveModal] = useState(false)
   const [selectedTask, setSelectedTask] = useState(null)
   const [activeTab, setActiveTab] = useState('available')
-  const location = useLocation()
 
-  // 获取当前语言
   const getCurrentLang = () => {
     const pathParts = location.pathname.split('/')
     if (pathParts.length > 1 && ['en', 'hk', 'vn'].includes(pathParts[1])) {
@@ -40,108 +46,167 @@ const TaskPage = () => {
     return 'zh'
   }
 
-  // 加载数据
+  const enrichTask = (task, lang) => ({
+    ...task,
+    title: lang === 'en'
+      ? (task.title_en ?? task.title)
+      : lang === 'hk'
+        ? (task.title_hk ?? task.title)
+        : lang === 'vn'
+          ? (task.title_vn ?? task.title)
+          : task.title,
+    note: lang === 'en'
+      ? (task.note_en ?? task.note)
+      : lang === 'hk'
+        ? (task.note_hk ?? task.note)
+        : lang === 'vn'
+          ? (task.note_vn ?? task.note)
+          : task.note,
+    description: task.note,
+    status: task.is_open ? 'active' : 'inactive',
+    statusText: task.is_open ? '进行中' : '已结束',
+    type: task.refcode ? 'trade' : 'join',
+    participants: task.participants_count || 0,
+    actionText: '立即参与',
+  })
+
+  const normalizeJourneyTask = (journey, task) => ({
+    ...task,
+    ...journey,
+    jID: journey.jID,
+    tlistID: journey.jID,
+    participants: task.participants || 0,
+  })
+
   useEffect(() => {
     const loadData = async () => {
       setLoading(true)
       try {
-        // 加载用户信息
-        const user = localStorage.getItem('user')
-        if (user) {
-          setCurrentUser(JSON.parse(user))
+        const lang = getCurrentLang()
+        const storedUser = localStorage.getItem('user')
+        const parsedUser = storedUser ? JSON.parse(storedUser) : null
+        setCurrentUser(parsedUser)
+
+        const taskRows = await fetchJson('/api/task/all')
+        const enrichedTasks = (taskRows || []).map((task) => enrichTask(task, lang))
+        const taskMap = new Map(enrichedTasks.map((task) => [task.tID, task]))
+        setTasks(enrichedTasks)
+
+        if (!parsedUser) {
+          setPendingTasks(enrichedTasks.filter((task) => task.is_open !== false))
+          setPendingRewardTasks([])
+          setCompletedTasks([])
+          setPendingVerificationTasks([])
+          return
         }
 
-        // 加载所有任务
-        try {
-          const tasksResponse = await fetch('/api/task/all')
-          if (tasksResponse.ok) {
-            const contentType = tasksResponse.headers.get('content-type')
-            if (contentType && contentType.includes('application/json')) {
-              const tasksData = await tasksResponse.json()
-              if (tasksData.success) {
-                const lang = getCurrentLang()
-                const enrichedTasks = (tasksData.data || []).map(task => ({
-                  ...task,
-                  title: lang === 'en' ? (task.title_en ?? task.title) : 
-                         lang === 'hk' ? (task.title_hk ?? task.title) : 
-                         lang === 'vn' ? (task.title_vn ?? task.title) : task.title,
-                  note: lang === 'en' ? (task.note_en ?? task.note) : 
-                        lang === 'hk' ? (task.note_hk ?? task.note) : 
-                        lang === 'vn' ? (task.note_vn ?? task.note) : task.note,
-                  status: task.is_open ? 'active' : 'inactive',
-                  statusText: task.is_open ? '进行中' : '已结束',
-                  type: task.refcode ? 'trade' : 'join',
-                  participants: Math.floor(Math.random() * 100),
-                  actionText: '立即参与'
-                }))
-                setTasks(enrichedTasks)
-                window.tasksData = enrichedTasks
-              }
-            }
-          }
-        } catch (e) {
-          console.warn('Failed to load tasks for TaskPage:', e)
+        const token = parsedUser.token || parsedUser.access_token || localStorage.getItem('token')
+        if (!token) {
+          setPendingTasks(enrichedTasks.filter((task) => task.is_open !== false))
+          return
         }
-        
-        // 加载用户任务清单
-        if (currentUser) {
-          const tasklistResponse = await fetch(`/api/tasklist/`, {
-            headers: { 'Authorization': `Bearer ${currentUser?.token}` }
+
+        const journeys = await fetchJson('/api/journey', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+
+        const latestJourneyByTask = new Map()
+        ;(journeys || [])
+          .sort((left, right) => (left.jID || 0) - (right.jID || 0))
+          .forEach((journey) => {
+            latestJourneyByTask.set(journey.tID, journey)
           })
-          const tasklistData = await tasklistResponse.json()
-          if (tasklistData.success) {
-            setPendingVerificationTasks(tasklistData.data.pendingVerification || [])
-            const pendingRewards = tasklistData.data.pendingRewards || []
-            const completed = tasklistData.data.completedTasks || []
-            setPendingRewardTasks(pendingRewards)
-            setCompletedTasks(completed)
-            
-            // 差集：所有任务 - （待领取 + 已领取）
-            const allTasks = Array.isArray(window.tasksData) ? window.tasksData : tasks
-            const toClaimIDs = new Set(pendingRewards.map(t => t.tID || (t.task && t.task.tID)).filter(Boolean))
-            const completedIDs = new Set(completed.map(t => t.tID || (t.task && t.task.tID)).filter(Boolean))
-            const pending = (allTasks || []).filter(t => !toClaimIDs.has(t.tID) && !completedIDs.has(t.tID))
-            setPendingTasks(pending)
+
+        const nextPendingRewards = []
+        const nextCompleted = []
+        const nextVerification = []
+
+        latestJourneyByTask.forEach((journey, tID) => {
+          const task = taskMap.get(tID)
+          if (!task) return
+
+          const merged = normalizeJourneyTask(journey, task)
+          if (journey.time_claimed) {
+            nextCompleted.push({
+              ...merged,
+              status: 'inactive',
+              statusText: '已完成',
+              actionText: '已领取',
+            })
+            return
           }
-        }
+
+          if (journey.time_checked) {
+            nextPendingRewards.push({
+              ...merged,
+              status: 'active',
+              statusText: '待领取',
+              actionText: '领取奖励',
+            })
+            return
+          }
+
+          if (journey.time_submitted || journey.info_input) {
+            nextVerification.push({
+              ...merged,
+              status: 'inactive',
+              statusText: '待验证',
+              actionText: '审核中',
+            })
+          }
+        })
+
+        const blockedTaskIds = new Set([
+          ...nextPendingRewards.map((task) => task.tID),
+          ...nextCompleted.map((task) => task.tID),
+          ...nextVerification.map((task) => task.tID),
+        ])
+
+        const nextPendingTasks = enrichedTasks
+          .filter((task) => task.is_open !== false)
+          .filter((task) => !blockedTaskIds.has(task.tID))
+          .map((task) => {
+            const journey = latestJourneyByTask.get(task.tID)
+            return {
+              ...task,
+              jID: journey?.jID,
+              actionText: journey?.jID ? '继续任务' : '立即参与',
+            }
+          })
+
+        setPendingTasks(nextPendingTasks)
+        setPendingRewardTasks(nextPendingRewards)
+        setCompletedTasks(nextCompleted)
+        setPendingVerificationTasks(nextVerification)
       } catch (error) {
-        console.error('Error loading data:', error)
-        toast.error(t('error') + ': ' + error.message)
+        console.error('Error loading task page:', error)
+        toast.error(`${t('error')}: ${error.message}`)
       } finally {
         setLoading(false)
       }
     }
-    
+
     loadData()
-  }, [t, currentUser])
+  }, [t, location.pathname])
 
-  // 页面加载后滚动到待验证部分
   useEffect(() => {
-    const scrollToPendingVerification = () => {
-      const element = document.getElementById('pending-verification')
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' })
-      }
+    if (location.hash !== '#pending-verification') return
+    const element = document.getElementById('pending-verification')
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' })
     }
-    
-    if (!location.hash) {
-      scrollToPendingVerification()
-    }
-  }, [location.hash])
+  }, [location.hash, pendingVerificationTasks.length])
 
-  // 处理选择奖励
   const handleClaimReward = (task) => {
     setSelectedTask(task)
     setOpenChooseModal(true)
   }
 
-  // 处理任务操作
   const handleTaskAction = (task) => {
     setSelectedTask(task)
     setOpenActiveModal(true)
   }
 
-  // 如果正在加载，显示加载页面
   if (loading) {
     return (
       <ResponsiveContainer>
@@ -150,28 +215,21 @@ const TaskPage = () => {
     )
   }
 
-  // 任务统计
   const taskStats = {
     available: pendingTasks.length,
     pending: pendingRewardTasks.length,
     completed: completedTasks.length,
-    verification: pendingVerificationTasks.length
+    verification: pendingVerificationTasks.length,
   }
 
   return (
     <ResponsiveContainer>
       <div className="space-y-8">
-        {/* 页面标题 */}
         <FadeIn>
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              任务中心
-            </h1>
-            <p className="text-xl text-gray-600 mb-8">
-              参与任务，赚取积分，解锁精彩奖励
-            </p>
-            
-            {/* 任务统计 */}
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">任务中心</h1>
+            <p className="text-xl text-gray-600 mb-8">参与任务，赚取积分，解锁精彩奖励</p>
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
               <Card variant="primary" className="text-center">
                 <CardContent className="py-4">
@@ -201,7 +259,6 @@ const TaskPage = () => {
           </div>
         </FadeIn>
 
-        {/* 任务标签页 */}
         <SlideUp delay={200}>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-4">
@@ -211,18 +268,13 @@ const TaskPage = () => {
               <TabsTrigger value="verification">待验证 ({taskStats.verification})</TabsTrigger>
             </TabsList>
 
-            {/* 可参与任务 */}
             <TabsContent value="available" className="space-y-6">
               {pendingTasks.length > 0 ? (
                 <StaggerContainer>
                   <ResponsiveGrid sm={1} md={2} lg={3} gap={6}>
                     {pendingTasks.map((task, index) => (
                       <FadeIn key={task.tID} delay={index * 100}>
-                        <TaskCard 
-                          task={task} 
-                          onAction={handleTaskAction}
-                          showStatus={true}
-                        />
+                        <TaskCard task={task} onAction={handleTaskAction} showStatus={true} />
                       </FadeIn>
                     ))}
                   </ResponsiveGrid>
@@ -240,23 +292,13 @@ const TaskPage = () => {
               )}
             </TabsContent>
 
-            {/* 待领取任务 */}
             <TabsContent value="pending" className="space-y-6">
               {pendingRewardTasks.length > 0 ? (
                 <StaggerContainer>
                   <ResponsiveGrid sm={1} md={2} lg={3} gap={6}>
                     {pendingRewardTasks.map((task, index) => (
-                      <FadeIn key={task.tID} delay={index * 100}>
-                        <TaskCard 
-                          task={{
-                            ...task,
-                            status: 'pending',
-                            statusText: '待领取',
-                            actionText: '领取奖励'
-                          }} 
-                          onAction={handleClaimReward}
-                          showStatus={true}
-                        />
+                      <FadeIn key={task.jID || task.tID} delay={index * 100}>
+                        <TaskCard task={task} onAction={handleClaimReward} showStatus={true} />
                       </FadeIn>
                     ))}
                   </ResponsiveGrid>
@@ -267,30 +309,20 @@ const TaskPage = () => {
                     <div className="text-gray-500 mb-4">
                       <div className="text-6xl mb-4">⏳</div>
                       <p className="text-lg">暂无待领取任务</p>
-                      <p className="text-sm mt-2">完成任务后可在此领取奖励</p>
+                      <p className="text-sm mt-2">完成任务并通过审核后可在此领取奖励</p>
                     </div>
                   </CardContent>
                 </Card>
               )}
             </TabsContent>
 
-            {/* 已完成任务 */}
             <TabsContent value="completed" className="space-y-6">
               {completedTasks.length > 0 ? (
                 <StaggerContainer>
                   <ResponsiveGrid sm={1} md={2} lg={3} gap={6}>
                     {completedTasks.map((task, index) => (
-                      <FadeIn key={task.tID} delay={index * 100}>
-                        <TaskCard 
-                          task={{
-                            ...task,
-                            status: 'completed',
-                            statusText: '已完成',
-                            actionText: '查看详情'
-                          }} 
-                          onAction={() => {}}
-                          showStatus={true}
-                        />
+                      <FadeIn key={task.jID || task.tID} delay={index * 100}>
+                        <TaskCard task={task} onAction={() => {}} showStatus={true} />
                       </FadeIn>
                     ))}
                   </ResponsiveGrid>
@@ -308,23 +340,13 @@ const TaskPage = () => {
               )}
             </TabsContent>
 
-            {/* 待验证任务 */}
             <TabsContent value="verification" className="space-y-6" id="pending-verification">
               {pendingVerificationTasks.length > 0 ? (
                 <StaggerContainer>
                   <ResponsiveGrid sm={1} md={2} lg={3} gap={6}>
                     {pendingVerificationTasks.map((task, index) => (
-                      <FadeIn key={task.tID} delay={index * 100}>
-                        <TaskCard 
-                          task={{
-                            ...task,
-                            status: 'verification',
-                            statusText: '待验证',
-                            actionText: '查看进度'
-                          }} 
-                          onAction={() => {}}
-                          showStatus={true}
-                        />
+                      <FadeIn key={task.jID || task.tID} delay={index * 100}>
+                        <TaskCard task={task} onAction={() => {}} showStatus={true} />
                       </FadeIn>
                     ))}
                   </ResponsiveGrid>
@@ -335,7 +357,7 @@ const TaskPage = () => {
                     <div className="text-gray-500 mb-4">
                       <div className="text-6xl mb-4">🔍</div>
                       <p className="text-lg">暂无待验证任务</p>
-                      <p className="text-sm mt-2">提交的任务审核通过后会显示在这里</p>
+                      <p className="text-sm mt-2">提交的任务审核过程中会显示在这里</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -345,20 +367,21 @@ const TaskPage = () => {
         </SlideUp>
       </div>
 
-      {/* 模态框 */}
       {selectedTask && (
         <ActiveTaskModal
-          isOpen={openActiveModal}
+          open={openActiveModal}
           onClose={() => setOpenActiveModal(false)}
           task={selectedTask}
         />
       )}
-      
-      <ClaimRewardModal
-        isOpen={openChooseModal}
-        onClose={() => setOpenChooseModal(false)}
-        tasks={pendingRewardTasks}
-      />
+
+      {selectedTask && (
+        <ClaimRewardModal
+          open={openChooseModal}
+          onClose={() => setOpenChooseModal(false)}
+          task={selectedTask}
+        />
+      )}
     </ResponsiveContainer>
   )
 }

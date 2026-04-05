@@ -592,11 +592,13 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                     return self._response(await self.user_core.get(uID=uid))
                 # Admin authority 管理员权限
                 if path == "/api/user/all":
-                    if actor_uid is None or not core.is_admin(actor_uid):
+                    if actor_uid is None or not self.core.has_admin_permission(actor_uid, ["read_users", "manage_users", "manage_points", "manage_permissions", "dashboard_access"]):
                         return APIResponse(ok=False, status_code=403, error='Forbidden')
                     return self._response(await self.user_core.list_all(skip=skip, limit=limit))
                 # User statistics
                 if path == "/api/user/stats":
+                    if actor_uid is None or not self.core.has_admin_permission(actor_uid, ["dashboard_access", "review_tasks", "read_users", "manage_users", "manage_points", "manage_permissions", "manage_rewards", "manage_tasks", "manage_settings"]):
+                        return APIResponse(ok=False, status_code=403, error='Forbidden')
                     try:
                         print(f"[API] 获取用户统计信息")
                         
@@ -640,24 +642,37 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                 # ====== TaskList / Admin review endpoints ======
                 # ====== 任务审核相关路由端点 ======
                 if path == "/api/tasklist/pending-verification/count":
-                    if actor_uid is None or not core.is_admin(actor_uid):
+                    if actor_uid is None or not self.core.has_admin_permission(actor_uid, "review_tasks"):
                         return APIResponse(ok=False, status_code=403, error='Forbidden')
                     return self._response(await self.core.count_pending_verification_admin())
 
                 if path == "/api/tasklist/pending-verification":
-                    if actor_uid is None or not core.is_admin(actor_uid):
+                    if actor_uid is None or not self.core.has_admin_permission(actor_uid, "review_tasks"):
                         return APIResponse(ok=False, status_code=403, error='Forbidden')
                     return self._response(await self.core.get_pending_verification_admin(skip=skip, limit=limit))
 
+                if path == "/api/admin/me":
+                    if actor_uid is None:
+                        return APIResponse(ok=False, status_code=401, error='Unauthorized')
+                    return self._response(await self.core.get_admin_access(actor_uid))
+
                 if path == "/api/admin/settings":
-                    if actor_uid is None or not core.is_admin(actor_uid):
+                    if actor_uid is None or not self.core.has_admin_permission(actor_uid, "manage_settings"):
                         return APIResponse(ok=False, status_code=403, error='Forbidden')
                     return self._response(await self.core.get_admin_settings())
 
                 if path == "/api/admin/permissions":
-                    if actor_uid is None or not core.is_admin(actor_uid):
+                    if actor_uid is None or not self.core.has_admin_permission(actor_uid, "manage_permissions"):
                         return APIResponse(ok=False, status_code=403, error='Forbidden')
                     return self._response(await self.core.get_permission_groups())
+
+                if path.startswith("/api/journey/") and len(path.split("/")) == 4:
+                    try:
+                        parts = path.split("/")
+                        jID = int(parts[3])  # /api/journey/{jID}
+                    except (IndexError, ValueError):
+                        return APIResponse(ok=False, status_code=400, error='Invalid jID')
+                    return self._response(await self.core.get_journey_detail(jID))
                 
                 # User asset
                 print(f"[DEBUG] Checking path: {path}")
@@ -754,7 +769,7 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                             return APIResponse(ok=False, status_code=400, error='参数不完整')
                         
                         # 检查管理员权限
-                        if actor_uid is None or not core.is_admin(actor_uid):
+                        if actor_uid is None or not self.core.has_admin_permission(actor_uid, "manage_points"):
                             return APIResponse(ok=False, status_code=403, error='需要管理员权限')
                         
                         # 直接使用Entity调整积分
@@ -800,7 +815,7 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
 
                 if path == "/api/admin/user/update":
                     try:
-                        if actor_uid is None or not core.is_admin(actor_uid):
+                        if actor_uid is None or not self.core.has_admin_permission(actor_uid, "manage_users"):
                             return APIResponse(ok=False, status_code=403, error='需要管理员权限')
 
                         uID = payload.get('uID')
@@ -825,7 +840,7 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
 
                 if path == "/api/admin/settings":
                     try:
-                        if actor_uid is None or not core.is_admin(actor_uid):
+                        if actor_uid is None or not self.core.has_admin_permission(actor_uid, "manage_settings"):
                             return APIResponse(ok=False, status_code=403, error='需要管理员权限')
                         return self._response(await self.core.update_admin_settings(payload or {}))
                     except Exception as e:
@@ -836,7 +851,7 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
 
                 if path == "/api/admin/settings/reset":
                     try:
-                        if actor_uid is None or not core.is_admin(actor_uid):
+                        if actor_uid is None or not self.core.has_admin_permission(actor_uid, "manage_settings"):
                             return APIResponse(ok=False, status_code=403, error='需要管理员权限')
                         return self._response(await self.core.reset_admin_settings())
                     except Exception as e:
@@ -847,7 +862,7 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
 
                 if path == "/api/admin/permissions/save":
                     try:
-                        if actor_uid is None or not core.is_admin(actor_uid):
+                        if actor_uid is None or not self.core.has_admin_permission(actor_uid, "manage_permissions"):
                             return APIResponse(ok=False, status_code=403, error='需要管理员权限')
                         return self._response(await self.core.save_permission_group(payload or {}))
                     except Exception as e:
@@ -858,7 +873,7 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
 
                 if path == "/api/admin/permissions/delete":
                     try:
-                        if actor_uid is None or not core.is_admin(actor_uid):
+                        if actor_uid is None or not self.core.has_admin_permission(actor_uid, "manage_permissions"):
                             return APIResponse(ok=False, status_code=403, error='需要管理员权限')
                         group_id = payload.get("id") if payload else None
                         if not group_id:
@@ -876,7 +891,7 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                         print(f"[API] 修复用户资产记录")
                         
                         # 检查管理员权限
-                        if actor_uid is None or not core.is_admin(actor_uid):
+                        if actor_uid is None or not self.core.has_admin_permission(actor_uid, "manage_points"):
                             return APIResponse(ok=False, status_code=403, error='需要管理员权限')
                         
                         from .entity import UserEntity
@@ -922,8 +937,12 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                     return self._response(self.gift_core.active(gID=id, uID=uid))
                 # Admin authority 管理员权限
                 if path == "/api/gift/add":
+                    if actor_uid is None or not self.core.has_admin_permission(actor_uid, "manage_rewards"):
+                        return APIResponse(ok=False, status_code=403, error='需要管理员权限')
                     return self._response(self.gift_core.create(gift_name=str(id)))
                 if path == "/api/gift/renew":
+                    if actor_uid is None or not self.core.has_admin_permission(actor_uid, "manage_rewards"):
+                        return APIResponse(ok=False, status_code=403, error='需要管理员权限')
                     return self._response(self.gift_core.update(gID=id))
                 # ====== Journey endpoints ======
                 # ====== 行程相关的路由端点 ======
@@ -931,6 +950,13 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                     return self._response(self.journey_core.submit(jID=id, uID=uid, submission_info=payload.get('submission_info')))
                 if path == "/api/journey/claim":
                     return self._response(self.journey_core.claim(jID=id, uID=uid))
+                if path.startswith("/api/journey/claim/"):
+                    try:
+                        parts = path.split("/")
+                        jID = int(parts[4])  # /api/journey/claim/{jID}
+                    except (IndexError, ValueError):
+                        return APIResponse(ok=False, status_code=400, error='Invalid jID')
+                    return self._response(await self.core.claim_journey_user(jID=jID, uid=uid))
                 # ====== TaskList endpoints ======
                 # ====== 任务清单相关的路由端点 ======
                 # 提交任务信息（用户填写完成信息后提交）
@@ -950,7 +976,7 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                     return self._response(await self.journey_core.check(jID=id, uID=uid))
 
                 if path.startswith("/api/tasklist/") and path.endswith("/verify"):
-                    if actor_uid is None or not core.is_admin(actor_uid):
+                    if actor_uid is None or not self.core.has_admin_permission(actor_uid, "review_tasks"):
                         return APIResponse(ok=False, status_code=403, error='Forbidden')
                     try:
                         parts = path.split("/")

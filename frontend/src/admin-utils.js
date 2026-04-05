@@ -37,6 +37,61 @@ export const fetchApiJson = async (url, options = {}) => {
   return data.data
 }
 
+export const fetchAdminAccess = async (currentUser = getStoredUser()) => {
+  if (!currentUser) {
+    return {
+      is_admin: false,
+      permissions: [],
+      can_access_admin: false,
+      preferred_admin_path: '/',
+    }
+  }
+
+  try {
+    const data = await fetchApiJson('/api/admin/me', {
+      headers: getAuthHeaders(currentUser),
+    })
+    return {
+      is_admin: Boolean(data?.is_admin),
+      permissions: data?.permissions || [],
+      can_access_admin: Boolean(data?.can_access_admin),
+      preferred_admin_path: data?.preferred_admin_path || '/',
+    }
+  } catch (error) {
+    if (isAdminUser(currentUser)) {
+      return {
+        is_admin: true,
+        permissions: [
+          'dashboard_access',
+          'manage_tasks',
+          'manage_rewards',
+          'read_users',
+          'manage_users',
+          'manage_points',
+          'manage_permissions',
+          'manage_settings',
+          'review_tasks',
+        ],
+        can_access_admin: true,
+        preferred_admin_path: '/dashboard',
+      }
+    }
+    return {
+      is_admin: false,
+      permissions: [],
+      can_access_admin: false,
+      preferred_admin_path: '/',
+    }
+  }
+}
+
+export const hasAdminPermission = (access, permission) => {
+  if (!access) return false
+  if (access.is_admin) return true
+  if (!permission) return Boolean(access.can_access_admin)
+  return (access.permissions || []).includes(permission)
+}
+
 const loadUserAsset = async (uID, headers) => {
   try {
     return await fetchApiJson(`/api/user/asset/${uID}`, { headers })

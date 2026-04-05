@@ -26,6 +26,7 @@ import SystemSettings from './pages/admin/SystemSettings'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import AdminLayout from './components/layout/AdminLayout'
+import { fetchAdminAccess, getStoredUser, hasAdminPermission } from './admin-utils'
 
 // 模态框组件
 import RegisterModal from './components/RegisterModal'
@@ -50,56 +51,61 @@ const LanguageWrapper = ({ children }) => {
 }
 
 // 受保护的路由组件
-const ProtectedRoute = ({ children, adminOnly = false }) => {
+const ProtectedRoute = ({ children, adminOnly = false, requiredPermission = null }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [hasAccess, setHasAccess] = useState(false)
+  const [preferredPath, setPreferredPath] = useState('/')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // 检查认证状态（从localStorage获取用户信息）
-    const user = localStorage.getItem('user')
-    console.log('ProtectedRoute - 用户数据:', user)
-    
-    if (user) {
-      setIsAuthenticated(true)
-      // 检查用户是否为管理员
-      try {
-        const userData = JSON.parse(user)
-        console.log('ProtectedRoute - 解析后用户数据:', userData)
-        
-        // 管理员权限检查：1. is_admin字段 2. role字段 3. 指定EVM地址白名单
-        const adminAddresses = [
-          '0x59f9f640d15ebb053c94a816232cf8ce91b209b0'.toLowerCase()
-        ]
-        const userAddress = userData.EVM?.toLowerCase()
-        console.log('ProtectedRoute - 用户地址:', userAddress)
-        console.log('ProtectedRoute - 管理员地址列表:', adminAddresses)
-        
-        const isAdminByAddress = userAddress && adminAddresses.includes(userAddress)
-        console.log('ProtectedRoute - 地址检查结果:', isAdminByAddress)
-        
-        const isAdminUser = userData.is_admin === true || 
-                           userData.role === 'admin' || 
-                           isAdminByAddress
-        
-        console.log('ProtectedRoute - 最终管理员判断:', isAdminUser)
-        console.log('ProtectedRoute - is_admin字段:', userData.is_admin)
-        console.log('ProtectedRoute - role字段:', userData.role)
-        
-        setIsAdmin(isAdminUser)
-      } catch (error) {
-        console.warn('Failed to parse user data:', error)
-        setIsAdmin(false)
+    let cancelled = false
+
+    const checkAccess = async () => {
+      const user = getStoredUser()
+      if (!user) {
+        if (!cancelled) {
+          setIsAuthenticated(false)
+          setHasAccess(false)
+          setLoading(false)
+        }
+        return
       }
-    } else {
-      console.log('ProtectedRoute - 未找到用户数据')
+
+      if (!cancelled) {
+        setIsAuthenticated(true)
+      }
+
+      if (!adminOnly) {
+        if (!cancelled) {
+          setHasAccess(true)
+          setLoading(false)
+        }
+        return
+      }
+
+      try {
+        const access = await fetchAdminAccess(user)
+        if (cancelled) return
+
+        setPreferredPath(access.preferred_admin_path || '/')
+        setHasAccess(access.can_access_admin && hasAdminPermission(access, requiredPermission))
+      } catch (error) {
+        if (!cancelled) {
+          console.warn('Failed to verify admin access:', error)
+          setHasAccess(false)
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      }
     }
-    
-    // 确保loading状态被设置
-    setTimeout(() => {
-      setLoading(false)
-    }, 100)
-  }, [])
+
+    checkAccess()
+    return () => {
+      cancelled = true
+    }
+  }, [adminOnly, requiredPermission])
 
   // 显示加载状态，避免权限检查期间的闪烁
   if (loading) {
@@ -115,12 +121,10 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
     return <Navigate to="/login" replace />
   }
 
-  if (adminOnly && !isAdmin) {
-    console.log('ProtectedRoute - 权限不足，跳转到首页')
-    return <Navigate to="/" replace />
+  if (adminOnly && !hasAccess) {
+    return <Navigate to={preferredPath !== '/' ? preferredPath : '/'} replace />
   }
 
-  console.log('ProtectedRoute - 权限验证通过，渲染子组件')
   return children
 }
 
@@ -160,13 +164,13 @@ function App() {
             </ProtectedRoute>
           } 
         >
-          <Route index element={<DashboardPage />} />
-          <Route path="tasks" element={<TasksManagement />} />
-          <Route path="rewards" element={<RewardsManagement />} />
-          <Route path="users" element={<UsersManagement />} />
-          <Route path="permissions" element={<PermissionsManagement />} />
-          <Route path="points" element={<PointsManagement />} />
-          <Route path="settings" element={<SystemSettings />} />
+          <Route index element={<ProtectedRoute adminOnly={true}><DashboardPage /></ProtectedRoute>} />
+          <Route path="tasks" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_tasks"><TasksManagement /></ProtectedRoute>} />
+          <Route path="rewards" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_rewards"><RewardsManagement /></ProtectedRoute>} />
+          <Route path="users" element={<ProtectedRoute adminOnly={true} requiredPermission="read_users"><UsersManagement /></ProtectedRoute>} />
+          <Route path="permissions" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_permissions"><PermissionsManagement /></ProtectedRoute>} />
+          <Route path="points" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_points"><PointsManagement /></ProtectedRoute>} />
+          <Route path="settings" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><SystemSettings /></ProtectedRoute>} />
         </Route>
       
       {/* 带语言前缀的路由 */}

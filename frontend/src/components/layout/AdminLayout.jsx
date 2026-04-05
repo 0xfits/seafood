@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom'
 import { 
   LayoutDashboard, 
@@ -13,56 +13,90 @@ import {
   LogOut
 } from 'lucide-react'
 import { Button } from '../ui'
+import { fetchAdminAccess, getStoredUser, hasAdminPermission } from '../../admin-utils'
 
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const location = useLocation()
   const navigate = useNavigate()
+  const [access, setAccess] = useState({
+    is_admin: false,
+    permissions: [],
+    can_access_admin: true,
+  })
 
   const menuItems = [
     {
       title: '仪表板',
       icon: LayoutDashboard,
       path: '/dashboard',
-      description: '系统概览和统计'
+      description: '系统概览和统计',
     },
     {
       title: '任务管理',
       icon: Trophy,
       path: '/dashboard/tasks',
-      description: '创建和管理任务'
+      description: '创建和管理任务',
+      requiredPermission: 'manage_tasks',
     },
     {
       title: '奖励管理', 
       icon: Gift,
       path: '/dashboard/rewards',
-      description: '创建和管理奖励'
+      description: '创建和管理奖励',
+      requiredPermission: 'manage_rewards',
     },
     {
       title: '用户管理',
       icon: Users,
       path: '/dashboard/users',
-      description: '管理用户账户'
+      description: '管理用户账户',
+      requiredPermission: 'read_users',
     },
     {
       title: '权限管理',
       icon: Shield,
       path: '/dashboard/permissions',
-      description: '管理用户权限'
+      description: '管理用户权限',
+      requiredPermission: 'manage_permissions',
     },
     {
       title: '积分管理',
       icon: BarChart3,
       path: '/dashboard/points',
-      description: '调整用户积分'
+      description: '调整用户积分',
+      requiredPermission: 'manage_points',
     },
     {
       title: '系统设置',
       icon: Settings,
       path: '/dashboard/settings',
-      description: '系统配置'
+      description: '系统配置',
+      requiredPermission: 'manage_settings',
     }
   ]
+
+  useEffect(() => {
+    let cancelled = false
+    const loadAccess = async () => {
+      const currentUser = getStoredUser()
+      if (!currentUser) return
+      const nextAccess = await fetchAdminAccess(currentUser)
+      if (!cancelled) {
+        setAccess(nextAccess)
+      }
+    }
+
+    loadAccess()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const visibleMenuItems = useMemo(
+    () => menuItems.filter((item) => hasAdminPermission(access, item.requiredPermission)),
+    [access]
+  )
 
   const isActive = (path) => {
     return location.pathname === path || location.pathname.startsWith(path + '/')
@@ -105,7 +139,7 @@ const AdminLayout = () => {
 
         {/* 导航菜单 */}
         <nav className="flex-1 p-4 space-y-2">
-          {menuItems.map((item) => {
+          {visibleMenuItems.map((item) => {
             const Icon = item.icon
             const active = isActive(item.path)
             
@@ -155,10 +189,10 @@ const AdminLayout = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                {menuItems.find(item => isActive(item.path))?.title || '管理面板'}
+                {visibleMenuItems.find(item => isActive(item.path))?.title || '管理面板'}
               </h1>
               <p className="text-sm text-gray-500 mt-1">
-                {menuItems.find(item => isActive(item.path))?.description || '系统管理'}
+                {visibleMenuItems.find(item => isActive(item.path))?.description || '系统管理'}
               </p>
             </div>
             <div className="flex items-center space-x-4">

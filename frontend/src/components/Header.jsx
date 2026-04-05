@@ -9,6 +9,7 @@ import vnFlag from '../images/vn.svg'
 import HoverMenu from './ui/HoverMenu'
 import DashJ from './ui/DashJ'
 import RegisterModal from './RegisterModal'
+import { fetchAdminAccess, getStoredUser } from '../admin-utils'
 
 const Header = () => {
   const { t, i18n } = useTranslation()
@@ -21,6 +22,7 @@ const Header = () => {
   const [isDark, setIsDark] = useState(false)
   const [showRegisterModal, setShowRegisterModal] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [adminPath, setAdminPath] = useState('/dashboard')
 
   useEffect(() => {
     const theme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'light'
@@ -29,26 +31,46 @@ const Header = () => {
 
   // 检查用户登录状态
   useEffect(() => {
-    const user = localStorage.getItem('user')
-    if (user) {
-      setIsLoggedIn(true)
-      const userData = JSON.parse(user)
-      setCurrentUser(userData)
-      
-      // 检查管理员权限
-      const checkAdmin = userData.uID === 1 || 
-                        userData.is_admin || 
-                        userData.role === 'admin' ||
-                        userData.EVM?.toLowerCase() === '0x59f9f640d15ebb053c94a816232cf8ce91b209b0'.toLowerCase()
-      setIsAdmin(checkAdmin)
-      
-      // 获取用户积分
-      loadUserPoints()
-    } else {
-      setIsLoggedIn(false)
-      setCurrentUser(null)
-      setIsAdmin(false)
-      setUserPoints(0)
+    let cancelled = false
+
+    const loadSession = async () => {
+      const userData = getStoredUser()
+      if (!userData) {
+        if (!cancelled) {
+          setIsLoggedIn(false)
+          setCurrentUser(null)
+          setIsAdmin(false)
+          setAdminPath('/dashboard')
+          setUserPoints(0)
+        }
+        return
+      }
+
+      if (!cancelled) {
+        setIsLoggedIn(true)
+        setCurrentUser(userData)
+      }
+
+      try {
+        const access = await fetchAdminAccess(userData)
+        if (!cancelled) {
+          setIsAdmin(access.can_access_admin)
+          setAdminPath(access.preferred_admin_path || '/dashboard')
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setIsAdmin(false)
+          setAdminPath('/dashboard')
+        }
+      }
+
+      await loadUserPoints()
+    }
+
+    loadSession()
+
+    return () => {
+      cancelled = true
     }
   }, [])
 
@@ -63,7 +85,7 @@ const Header = () => {
         const response = await fetch(`/api/user/asset/${userData.uID}`)
         if (response.ok) {
           const data = await response.json()
-          if (data.ok && data.data) {
+          if (data.success && data.data) {
             setUserPoints(data.data.points || 0)
             return
           }
@@ -134,14 +156,14 @@ const Header = () => {
     { path: 'reward', label: t('reward') },
     { path: 'task', label: t('task') },
     ...(isLoggedIn ? [{ path: 'profile', label: t('profile') }] : []),
-    ...(isLoggedIn && isAdmin ? [{ path: 'dashboard', label: t('admin_panel') || '管理面板' }] : [])
+    ...(isLoggedIn && isAdmin ? [{ path: adminPath, label: t('admin_panel') || '管理面板', absolute: true }] : [])
   ]
 
   // 构建带语言前缀的路径
   const buildPath = (path) => {
     // dashboard 路径不需要语言前缀
-    if (path === 'dashboard') {
-      return '/dashboard'
+    if (path === 'dashboard' || path.startsWith('/dashboard')) {
+      return path.startsWith('/dashboard') ? path : '/dashboard'
     }
     
     const currentLang = getCurrentLang()
@@ -187,7 +209,7 @@ const Header = () => {
                   key={item.path}
                   to={buildPath(item.path)}
                   className={`nav-link ${location.pathname.includes(item.path) ? 'active' : ''} ${
-                    item.path === 'dashboard' ? 'bg-purple-600 text-white hover:bg-purple-700 px-3 py-2 rounded-md font-medium' : ''
+                    item.path.startsWith('/dashboard') ? 'bg-purple-600 text-white hover:bg-purple-700 px-3 py-2 rounded-md font-medium' : ''
                   }`}
                 >
                   {item.label}
