@@ -25,6 +25,29 @@ core = Core()
 
 # ====== FastAPI 端点定义 ======
 
+@router.get("/test/eth-account")
+async def test_eth_account():
+    """Test if eth-account library is available"""
+    try:
+        from eth_account import Account
+        from eth_account.messages import encode_defunct
+        
+        return {
+            "success": True,
+            "message": "eth-account library is available",
+            "account_version": Account.__class__.__name__ if hasattr(Account, '__class__') else "unknown"
+        }
+    except ImportError as e:
+        return {
+            "success": False,
+            "error": f"eth-account library not available: {str(e)}"
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Error testing eth-account: {str(e)}"
+        }
+
 @router.get("/test/data")
 async def test_data():
     """测试Data类方法"""
