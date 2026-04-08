@@ -25,27 +25,26 @@ core = Core()
 
 # ====== FastAPI 端点定义 ======
 
-@router.get("/test/eth-account")
-async def test_eth_account():
-    """Test if eth-account library is available"""
+@router.get("/test/web3")
+async def test_web3():
+    """Test if web3 library is available"""
     try:
-        from eth_account import Account
-        from eth_account.messages import encode_defunct
+        from web3 import Web3
         
         return {
             "success": True,
-            "message": "eth-account library is available",
-            "account_version": Account.__class__.__name__ if hasattr(Account, '__class__') else "unknown"
+            "message": "web3 library is available",
+            "web3_version": Web3.__version__ if hasattr(Web3, '__version__') else "unknown"
         }
     except ImportError as e:
         return {
             "success": False,
-            "error": f"eth-account library not available: {str(e)}"
+            "error": f"web3 library not available: {str(e)}"
         }
     except Exception as e:
         return {
             "success": False,
-            "error": f"Error testing eth-account: {str(e)}"
+            "error": f"Error testing web3: {str(e)}"
         }
 
 @router.get("/test/data")
@@ -494,17 +493,19 @@ async def verify_wallet_auth(payload: Dict[str, Any]) -> "APIResponse":
         return APIResponse(ok=False, status_code=401, error='Challenge has been consumed or expired')
 
     try:
-        from eth_account import Account
-        from eth_account.messages import encode_defunct
+        from web3 import Web3
     except ImportError:
-        return APIResponse(ok=False, status_code=500, error='eth-account is required for wallet signature verification')
+        return APIResponse(ok=False, status_code=500, error='web3 is required for wallet signature verification')
 
     try:
-        recovered_address = Account.recover_message(
-            encode_defunct(text=build_wallet_sign_message(challenge_address, nonce, issued_at, expires_at)),
-            signature=signature,
-        )
-    except Exception:
+        # Use Web3 to verify signature
+        message = build_wallet_sign_message(challenge_address, nonce, issued_at, expires_at)
+        recovered_address = Web3.to_checksum_address(Web3.eth.account.recover_message(
+            text=message,
+            signature=signature
+        ))
+    except Exception as e:
+        print(f"[DEBUG] Signature verification error: {str(e)}")
         return APIResponse(ok=False, status_code=401, error='Wallet signature verification failed')
 
     if str(recovered_address).lower() != challenge_address:
