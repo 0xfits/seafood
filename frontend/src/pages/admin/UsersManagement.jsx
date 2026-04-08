@@ -4,7 +4,7 @@ import { Button, Card, CardContent, Badge } from '../../components/ui'
 import { Users, Shield, Search, AlertCircle, RefreshCw, Coins } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { formatEvmAddress } from '../../utils'
-import { fetchApiJson, getAuthHeaders, getStoredUser, isAdminUser, loadAdminUsersWithAssets } from '../../admin-utils'
+import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdminPermission, loadAdminUsersWithAssets } from '../../admin-utils'
 
 const formatDateTime = (value) => {
   if (!value) return '未知'
@@ -25,6 +25,7 @@ const UsersManagement = () => {
   const [refreshing, setRefreshing] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [updatingUserId, setUpdatingUserId] = useState(null)
+  const [access, setAccess] = useState({ is_admin: false, permissions: [], can_access_admin: false })
 
   const filteredUsers = useMemo(() => {
     const query = searchTerm.trim().toLowerCase()
@@ -46,10 +47,16 @@ const UsersManagement = () => {
       }
 
       const currentUser = getStoredUser()
-      if (!currentUser || !isAdminUser(currentUser)) {
-        throw new Error('当前登录用户不是管理员')
+      if (!currentUser) {
+        throw new Error('未登录')
       }
 
+      const accessInfo = await fetchAdminAccess(currentUser)
+      if (!accessInfo.can_access_admin) {
+        throw new Error('当前账号没有后台访问权限')
+      }
+
+      setAccess(accessInfo)
       const result = await loadAdminUsersWithAssets(currentUser)
       setUsers(result.users)
       setStats(result.stats)
@@ -65,6 +72,9 @@ const UsersManagement = () => {
   useEffect(() => {
     loadUsers()
   }, [])
+
+  const canManageUsers = hasAdminPermission(access, 'manage_users')
+  const canManagePoints = hasAdminPermission(access, 'manage_points')
 
   const toggleAdminRole = async (user) => {
     const currentUser = getStoredUser()
@@ -177,7 +187,8 @@ const UsersManagement = () => {
         <div>
           <h2 className="text-2xl font-bold">用户管理</h2>
           <p className="text-sm text-gray-600 mt-1">
-            当前页面使用真实用户和积分资产数据。用户禁用状态接口尚未接通，因此不再展示伪状态。
+            当前页面使用真实用户和积分资产数据。
+            {canManageUsers ? '你可以调整管理员权限。' : '当前账号为只读模式，可查看用户但不能修改管理员权限。'}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -273,18 +284,19 @@ const UsersManagement = () => {
                           variant="ghost"
                           size="sm"
                           onClick={() => toggleAdminRole(user)}
-                          disabled={updatingUserId === user.uID}
+                          disabled={!canManageUsers || updatingUserId === user.uID}
                           className="text-blue-600 hover:text-blue-700"
-                          title={user.is_admin ? '撤销管理员权限' : '授予管理员权限'}
+                          title={!canManageUsers ? '当前账号没有 manage_users 权限' : user.is_admin ? '撤销管理员权限' : '授予管理员权限'}
                         >
                           <Shield className="w-4 h-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => navigate(`/dashboard/points?q=${encodeURIComponent(user.EVM || String(user.uID))}`)}
+                          onClick={() => canManagePoints && navigate(`/dashboard/points?q=${encodeURIComponent(user.EVM || String(user.uID))}`)}
+                          disabled={!canManagePoints}
                           className="text-yellow-600 hover:text-yellow-700"
-                          title="前往积分管理"
+                          title={canManagePoints ? '前往积分管理' : '当前账号没有 manage_points 权限'}
                         >
                           <Coins className="w-4 h-4" />
                         </Button>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Button, Card, CardContent, Badge, Modal, ModalHeader, ModalTitle } from '../../components/ui'
 import { Plus, Edit, Trash2, RefreshCw, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { fetchApiJson, getAuthHeaders, getStoredUser, isAdminUser } from '../../admin-utils'
+import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdminPermission } from '../../admin-utils'
 import { formatEvmAddress } from '../../utils'
 
 const EMPTY_FORM = {
@@ -25,6 +25,7 @@ const PermissionsManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingGroupId, setEditingGroupId] = useState(null)
   const [formState, setFormState] = useState(EMPTY_FORM)
+  const [access, setAccess] = useState({ is_admin: false, permissions: [], can_access_admin: false })
 
   const groupedUserMap = useMemo(() => {
     const map = new Map()
@@ -41,10 +42,16 @@ const PermissionsManagement = () => {
       }
 
       const currentUser = getStoredUser()
-      if (!currentUser || !isAdminUser(currentUser)) {
-        throw new Error('当前登录用户不是管理员')
+      if (!currentUser) {
+        throw new Error('未登录')
       }
 
+      const accessInfo = await fetchAdminAccess(currentUser)
+      if (!accessInfo.can_access_admin) {
+        throw new Error('当前账号没有后台访问权限')
+      }
+
+      setAccess(accessInfo)
       const data = await fetchApiJson('/api/admin/permissions', {
         headers: getAuthHeaders(currentUser),
       })
@@ -63,6 +70,8 @@ const PermissionsManagement = () => {
   useEffect(() => {
     loadPermissions()
   }, [])
+
+  const canManagePermissions = hasAdminPermission(access, 'manage_permissions')
 
   const openCreateModal = () => {
     setEditingGroupId(null)
@@ -186,6 +195,7 @@ const PermissionsManagement = () => {
           <h2 className="text-2xl font-bold">权限管理</h2>
           <p className="text-sm text-gray-600 mt-1">
             “管理员访问”组映射真实后台访问权限，其余权限组是持久化的运营分工配置。
+            {!canManagePermissions && ' 当前账号为只读模式。'}
           </p>
         </div>
         <div className="flex gap-2">
@@ -193,7 +203,7 @@ const PermissionsManagement = () => {
             <RefreshCw className="w-4 h-4 mr-2" />
             {refreshing ? '刷新中...' : '刷新'}
           </Button>
-          <Button variant="primary" onClick={openCreateModal}>
+          <Button variant="primary" onClick={openCreateModal} disabled={!canManagePermissions}>
             <Plus className="w-4 h-4 mr-2" />
             添加权限组
           </Button>
@@ -254,8 +264,8 @@ const PermissionsManagement = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => openEditModal(group)}
-                      disabled={group.readonly}
-                      title={group.readonly ? '系统权限组不可编辑' : '编辑权限组'}
+                      disabled={group.readonly || !canManagePermissions}
+                      title={!canManagePermissions ? '当前账号没有 manage_permissions 权限' : group.readonly ? '系统权限组不可编辑' : '编辑权限组'}
                     >
                       <Edit className="w-4 h-4" />
                     </Button>
@@ -263,8 +273,8 @@ const PermissionsManagement = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => deleteGroup(group)}
-                      disabled={group.readonly || deletingId === group.id}
-                      title={group.readonly ? '系统权限组不可删除' : '删除权限组'}
+                      disabled={group.readonly || deletingId === group.id || !canManagePermissions}
+                      title={!canManagePermissions ? '当前账号没有 manage_permissions 权限' : group.readonly ? '系统权限组不可删除' : '删除权限组'}
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -334,7 +344,7 @@ const PermissionsManagement = () => {
             <Button variant="secondary" onClick={() => setIsModalOpen(false)} disabled={saving}>
               取消
             </Button>
-            <Button variant="primary" onClick={saveGroup} disabled={saving}>
+            <Button variant="primary" onClick={saveGroup} disabled={saving || !canManagePermissions}>
               {saving ? '保存中...' : '保存权限组'}
             </Button>
           </div>

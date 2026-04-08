@@ -62,6 +62,9 @@ class DataModel(ABC):
             "Journey": Journey,
             "Chest": Chest,
             "Shard": Shard,
+            "ShardTransfer": ShardTransfer,
+            "ShardOrder": ShardOrder,
+            "ShardTrade": ShardTrade,
         }
         # 直接查找精确大小写
         cls = mapping.get(nm)
@@ -90,18 +93,16 @@ class Asset(DataModel):
     uID: int
     time_update: int = 0
     points: int = 0
-    glIDs: Optional[str] = None
-    gslIDs: Optional[str] = None
+    lucks: int = 0
 
     @classmethod
     def from_row(cls, row):
         return cls(
             index_id=row.get("index_id") or row.get("aID") or row.get("id") or 0,
             uID=row["uID"],
-            time_update=_to_ts(row.get("time_update")),
+            time_update=_to_ts(row.get("time_updated") or row.get("time_update")),
             points=row.get("points") or 0,
-            glIDs=row.get("glIDs"),
-            gslIDs=row.get("gslIDs"),
+            lucks=row.get("lucks") or 0,
         )
 
     def to_dict(self):
@@ -110,8 +111,7 @@ class Asset(DataModel):
             "uID": self.uID,
             "time_update": self.time_update,
             "points": self.points,
-            "glIDs": self.glIDs,
-            "gslIDs": self.gslIDs,
+            "lucks": self.lucks,
         }
 
 
@@ -203,29 +203,32 @@ class Gift(DataModel):
 
 @dataclass
 class Shard(DataModel):
-    gslID: int
-    gID: int
+    sID: int
     uID: int
-    time_created: int = 0
+    bID: int
     volume: int = 0
+    time_created: int = 0
+    time_updated: int = 0
 
     @classmethod
     def from_row(cls, row):
         return cls(
-            gslID=row.get("gslID") or row.get("sID"),
-            gID=row["gID"],
+            sID=row.get("sID") or row.get("gslID") or 0,
             uID=row["uID"],
-            time_created=_to_ts(row.get("time_created")),
+            bID=row["bID"],
             volume=row.get("volume") or 0,
+            time_created=_to_ts(row.get("time_created")),
+            time_updated=_to_ts(row.get("time_updated")),
         )
 
     def to_dict(self):
         return {
-            "gslID": self.gslID,
-            "gID": self.gID,
+            "sID": self.sID,
             "uID": self.uID,
-            "time_created": self.time_created,
+            "bID": self.bID,
             "volume": self.volume,
+            "time_created": self.time_created,
+            "time_updated": self.time_updated,
         }
 
 
@@ -252,7 +255,7 @@ class Task(DataModel):
             title=row.get("title") or "",
             note=row.get("note"),
             refcode=row.get("refcode"),
-            linkA=row.get("linkA"),
+            linkA=row.get("linkA") if row.get("linkA") is not None else row.get("link0"),
             linkB=row.get("linkB"),
             points=row.get("points") or 0,
             type=int(row.get("type") or 0),
@@ -270,6 +273,7 @@ class Task(DataModel):
             "note": self.note,
             "refcode": self.refcode,
             "linkA": self.linkA,
+            "link0": self.linkA,
             "linkB": self.linkB,
             "points": self.points,
             "type": self.type,
@@ -324,11 +328,12 @@ class Journey(DataModel):
 @dataclass
 class Chest(DataModel):
     cID: int
-    time_created: int = 0
-    tirer: Optional[str] = None
+    tirer: int = 0
     vol_points: int = 0
     sID0: Optional[int] = None
-    sID_B: Optional[int] = None
+    sID1: Optional[int] = None
+    time_created: int = 0
+    time_bind: int = 0
     time_claimed: int = 0
     uID: Optional[int] = None
 
@@ -336,25 +341,147 @@ class Chest(DataModel):
     def from_row(cls, row):
         return cls(
             cID=row["cID"],
-            time_created=_to_ts(row.get("time_created")),
-            tirer=row.get("tirer"),
+            tirer=int(row.get("tirer") or 0),
             vol_points=row.get("vol_points") or 0,
             sID0=row.get("sID0"),
-            sID_B=row.get("sID_B"),
-            time_claimed=_to_ts(row.get("time_claimed")) if row.get("time_claimed") is not None else _to_ts(row.get("time_actived")),
+            sID1=row.get("sID1"),
+            time_created=_to_ts(row.get("time_created")),
+            time_bind=_to_ts(row.get("time_bind")),
+            time_claimed=_to_ts(row.get("time_claimed")),
             uID=row.get("uID"),
         )
 
     def to_dict(self):
         return {
             "cID": self.cID,
-            "time_created": self.time_created,
             "tirer": self.tirer,
             "vol_points": self.vol_points,
             "sID0": self.sID0,
-            "sID_B": self.sID_B,
+            "sID1": self.sID1,
+            "time_created": self.time_created,
+            "time_bind": self.time_bind,
             "time_claimed": self.time_claimed,
             "uID": self.uID,
+        }
+
+
+@dataclass
+class ShardTransfer(DataModel):
+    txID: int
+    bID: int
+    from_uID: Optional[int]
+    to_uID: Optional[int]
+    volume: int
+    reason: str = "chest"
+    time_created: int = 0
+
+    @classmethod
+    def from_row(cls, row):
+        return cls(
+            txID=row["txID"],
+            bID=row["bID"],
+            from_uID=row.get("from_uID"),
+            to_uID=row.get("to_uID"),
+            volume=row.get("volume") or 0,
+            reason=row.get("reason") or "chest",
+            time_created=_to_ts(row.get("time_created")),
+        )
+
+    def to_dict(self):
+        return {
+            "txID": self.txID,
+            "bID": self.bID,
+            "from_uID": self.from_uID,
+            "to_uID": self.to_uID,
+            "volume": self.volume,
+            "reason": self.reason,
+            "time_created": self.time_created,
+        }
+
+
+@dataclass
+class ShardOrder(DataModel):
+    oID: int
+    uID: int
+    bID: int
+    side: str
+    price: int
+    volume_total: int
+    volume_filled: int = 0
+    volume_frozen: int = 0
+    status: str = "open"
+    time_created: int = 0
+    time_updated: int = 0
+
+    @classmethod
+    def from_row(cls, row):
+        return cls(
+            oID=row["oID"],
+            uID=row["uID"],
+            bID=row["bID"],
+            side=row["side"],
+            price=row["price"],
+            volume_total=row["volume_total"],
+            volume_filled=row.get("volume_filled") or 0,
+            volume_frozen=row.get("volume_frozen") or 0,
+            status=row.get("status") or "open",
+            time_created=_to_ts(row.get("time_created")),
+            time_updated=_to_ts(row.get("time_updated")),
+        )
+
+    def to_dict(self):
+        return {
+            "oID": self.oID,
+            "uID": self.uID,
+            "bID": self.bID,
+            "side": self.side,
+            "price": self.price,
+            "volume_total": self.volume_total,
+            "volume_filled": self.volume_filled,
+            "volume_frozen": self.volume_frozen,
+            "status": self.status,
+            "time_created": self.time_created,
+            "time_updated": self.time_updated,
+        }
+
+
+@dataclass
+class ShardTrade(DataModel):
+    trID: int
+    bID: int
+    buy_oID: int
+    sell_oID: int
+    buyer_uID: int
+    seller_uID: int
+    price: int
+    volume: int
+    time_created: int = 0
+
+    @classmethod
+    def from_row(cls, row):
+        return cls(
+            trID=row["trID"],
+            bID=row["bID"],
+            buy_oID=row["buy_oID"],
+            sell_oID=row["sell_oID"],
+            buyer_uID=row["buyer_uID"],
+            seller_uID=row["seller_uID"],
+            price=row["price"],
+            volume=row["volume"],
+            time_created=_to_ts(row.get("time_created")),
+        )
+
+    def to_dict(self):
+        return {
+            "trID": self.trID,
+            "bID": self.bID,
+            "buy_oID": self.buy_oID,
+            "sell_oID": self.sell_oID,
+            "buyer_uID": self.buyer_uID,
+            "seller_uID": self.seller_uID,
+            "price": self.price,
+            "volume": self.volume,
+            "time_created": self.time_created,
         }
 
 

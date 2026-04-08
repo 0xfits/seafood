@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom'
-import { 
+import {
   LayoutDashboard, 
   Trophy, 
   Gift, 
@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { Button } from '../ui'
 import { fetchAdminAccess, getStoredUser, hasAdminPermission } from '../../admin-utils'
+import { clearAuthSession } from '../../auth'
 
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -103,8 +104,7 @@ const AdminLayout = () => {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('user')
-    localStorage.removeItem('token')
+    clearAuthSession()
     navigate('/login')
   }
 

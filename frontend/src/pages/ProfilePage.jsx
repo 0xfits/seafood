@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { User, Mail, Calendar, Trophy, Star, Edit3, Save, X } from 'lucide-react'
 
 // 新的 UI 组件
-import { Container, Grid } from '../components/layout'
 import { Button, Card, CardHeader, CardTitle, CardContent, Badge } from '../components/ui'
 import { LoadingPage } from '../components/ui/Loading'
 import { FadeIn, SlideUp } from '../components/ui/Motion'
 import { ResponsiveContainer, ResponsiveGrid } from '../components/ui/Responsive'
 import { formatEvmAddress } from '../utils'
+import { fetchApiJson, fetchCurrentUser, getAuthHeaders, updateMyProfile } from '../auth'
+import { useAuth } from '../auth-context'
 
 const ProfilePage = () => {
-  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const { isAuthenticated, updateSession, user: sessionUser } = useAuth()
   const [user, setUser] = useState(null)
   const [userAssets, setUserAssets] = useState(null)
   const [taskStats, setTaskStats] = useState({
@@ -20,7 +22,8 @@ const ProfilePage = () => {
     completedTasks: 0,
     pendingTasks: 0,
     pendingRewards: 0,
-    totalPoints: 0
+    totalPoints: 0,
+    claimedRewards: 0,
   })
   const [loading, setLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
@@ -30,22 +33,29 @@ const ProfilePage = () => {
   // 加载用户信息和任务统计
   useEffect(() => {
     const loadUserInfo = async () => {
+      if (!isAuthenticated) {
+        setUser(null)
+        setLoading(false)
+        return
+      }
+
       setLoading(true)
       try {
-        const storedUser = localStorage.getItem('user')
-        if (storedUser) {
-          const parsedUser = JSON.parse(storedUser)
-          setUser(parsedUser)
-          setBio(parsedUser.bio || '')
-          setTempBio(parsedUser.bio || '')
-          
-          // 加载用户资产
-          await loadUserAssets(parsedUser.uID)
-          // 加载用户任务统计
-          await loadTaskStats(parsedUser.uID)
-        } else {
-          toast.error('请先登录')
+        const profile = await fetchCurrentUser(sessionUser)
+        if (!profile) {
+          setUser(null)
+          return
         }
+
+        const nextProfile = updateSession(profile)
+        setUser(nextProfile)
+        setBio(nextProfile.bio || '')
+        setTempBio(nextProfile.bio || '')
+        
+        await Promise.all([
+          loadUserAssets(nextProfile.uID),
+          loadTaskStats(nextProfile.uID),
+        ])
       } catch (error) {
         console.error('Error loading user info:', error)
         toast.error('加载用户信息失败: ' + error.message)
@@ -55,32 +65,18 @@ const ProfilePage = () => {
     }
 
     loadUserInfo()
-  }, [])
+  }, [isAuthenticated, sessionUser?.uID])
 
   // 加载用户资产
   const loadUserAssets = async (uID) => {
     try {
-      const response = await fetch(`/api/asset/${uID}`)
-      const data = await response.json()
-      if (data.success && data.data) {
-        setUserAssets(data.data)
-      } else {
-        // 模拟数据
-        setUserAssets({
-          points: 1250,
-          lucks: 85,
-          gIDs: [],
-          sIDs: []
-        })
-      }
+      const asset = await fetchApiJson(`/api/user/asset/${uID}`)
+      setUserAssets(asset)
     } catch (error) {
       console.warn('Failed to load user assets:', error)
-      // 模拟数据
       setUserAssets({
-        points: 1250,
-        lucks: 85,
-        gIDs: [],
-        sIDs: []
+        points: 0,
+        time_update: null,
       })
     }
   }
@@ -88,31 +84,33 @@ const ProfilePage = () => {
   // 加载任务统计
   const loadTaskStats = async (uID) => {
     try {
-      const response = await fetch(`/api/journey?uid=${uID}`)
-      const data = await response.json()
-      if (data.success) {
-        const journeys = data.data || []
-        const stats = {
-          totalTasks: journeys.length,
-          completedTasks: 0,
-          pendingTasks: 0,
-          pendingRewards: 0,
-          totalPoints: 0
-        }
+      const headers = getAuthHeaders(sessionUser)
+      const [journeys, gifts] = await Promise.all([
+        fetchApiJson('/api/journey', { headers }),
+        fetchApiJson('/api/gift', { headers }).catch(() => []),
+      ])
 
-        for (const j of journeys) {
-          if (j.time_claimed) {
-            stats.completedTasks++
-            stats.totalPoints += j.points_claimed || 0
-          } else if (j.time_checked) {
-            stats.pendingRewards++
-          } else {
-            stats.pendingTasks++
-          }
-        }
-
-        setTaskStats(stats)
+      const stats = {
+        totalTasks: (journeys || []).length,
+        completedTasks: 0,
+        pendingTasks: 0,
+        pendingRewards: 0,
+        totalPoints: 0,
+        claimedRewards: (gifts || []).length,
       }
+
+      for (const j of journeys || []) {
+        if (j.time_claimed) {
+          stats.completedTasks++
+          stats.totalPoints += j.points_claimed || 0
+        } else if (j.time_checked) {
+          stats.pendingRewards++
+        } else {
+          stats.pendingTasks++
+        }
+      }
+
+      setTaskStats(stats)
     } catch (error) {
       console.warn('Failed to load task stats:', error)
       setTaskStats({
@@ -120,7 +118,8 @@ const ProfilePage = () => {
         completedTasks: 0,
         pendingTasks: 0,
         pendingRewards: 0,
-        totalPoints: 0
+        totalPoints: 0,
+        claimedRewards: 0,
       })
     }
   }
@@ -128,16 +127,17 @@ const ProfilePage = () => {
   // 保存用户简介
   const saveBio = async () => {
     try {
-      // 这里应该调用API保存简介
-      // const response = await fetch(`/api/user/${user.uID}/bio`, {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ bio: tempBio })
-      // })
-      
-      // 模拟保存
-      localStorage.setItem(`user_${user.uID}_bio`, tempBio)
-      setBio(tempBio)
+      const nextBio = tempBio.trim()
+      if (nextBio.length < 10) {
+        toast.error('请至少填写 10 个字的个人简介')
+        return
+      }
+
+      const updatedUser = await updateMyProfile({ bio: nextBio }, sessionUser)
+      const nextUser = updateSession(updatedUser)
+      setUser(nextUser)
+      setBio(nextUser.bio || nextBio)
+      setTempBio(nextUser.bio || nextBio)
       setIsEditing(false)
       toast.success('简介保存成功')
     } catch (error) {
@@ -167,7 +167,9 @@ const ProfilePage = () => {
           <CardContent className="text-center py-12">
             <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <p className="text-lg text-gray-600 mb-4">请先登录</p>
-            <Button variant="primary">去登录</Button>
+            <Button variant="primary" onClick={() => navigate('/login')}>
+              去登录
+            </Button>
           </CardContent>
         </Card>
       </ResponsiveContainer>
@@ -291,21 +293,21 @@ const ProfilePage = () => {
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-600 mb-1">
-                    {userAssets?.lucks || 0}
+                    {taskStats.pendingRewards}
                   </div>
-                  <div className="text-sm text-gray-600">幸运值</div>
+                  <div className="text-sm text-gray-600">待领取</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-600 mb-1">
-                    {userAssets?.gIDs?.length || 0}
+                    {taskStats.claimedRewards}
                   </div>
-                  <div className="text-sm text-gray-600">礼品</div>
+                  <div className="text-sm text-gray-600">已兑换奖励</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-purple-600 mb-1">
-                    {userAssets?.sIDs?.length || 0}
+                    {userAssets?.time_update ? new Date(userAssets.time_update).toLocaleDateString() : '—'}
                   </div>
-                  <div className="text-sm text-gray-600">碎片</div>
+                  <div className="text-sm text-gray-600">最近更新</div>
                 </div>
               </ResponsiveGrid>
             </CardContent>

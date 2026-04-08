@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
+import { clearAuthSession } from '../auth'
 
 const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
   const { t } = useTranslation()
@@ -39,7 +40,7 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
       if (tokenParts.length !== 3) {
         console.error('Invalid token format:', token)
         toast.error('登录凭证格式错误，请重新登录')
-        localStorage.removeItem('user')
+        clearAuthSession()
         navigate('/login')
         return
       }
@@ -60,7 +61,7 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
       if (response.status === 401) {
         // Token 过期或无效，需要重新登录
         toast.error(t('sessionExpired') || '登录已过期，请重新登录')
-        localStorage.removeItem('user')
+        clearAuthSession()
         navigate('/login')
         return
       }

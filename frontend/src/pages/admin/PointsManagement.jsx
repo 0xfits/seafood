@@ -4,7 +4,7 @@ import { Button, Card, CardContent, Badge, Modal, ModalHeader, ModalTitle } from
 import { Search, Plus, Minus, Users, TrendingUp, AlertCircle, RefreshCw } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { formatEvmAddress } from '../../utils'
-import { fetchApiJson, getAuthHeaders, getStoredUser, isAdminUser, loadAdminUsersWithAssets } from '../../admin-utils'
+import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdminPermission, loadAdminUsersWithAssets } from '../../admin-utils'
 
 const formatDateTime = (value) => {
   if (!value) return '从未更新'
@@ -31,6 +31,7 @@ const PointsManagement = () => {
   const [adjustReason, setAdjustReason] = useState('')
   const [adjustType, setAdjustType] = useState('add')
   const [adjusting, setAdjusting] = useState(false)
+  const [access, setAccess] = useState({ is_admin: false, permissions: [], can_access_admin: false })
 
   const filteredUsers = useMemo(() => {
     const query = searchTerm.trim().toLowerCase()
@@ -51,10 +52,16 @@ const PointsManagement = () => {
       }
 
       const currentUser = getStoredUser()
-      if (!currentUser || !isAdminUser(currentUser)) {
-        throw new Error('当前登录用户不是管理员')
+      if (!currentUser) {
+        throw new Error('未登录')
       }
 
+      const accessInfo = await fetchAdminAccess(currentUser)
+      if (!accessInfo.can_access_admin) {
+        throw new Error('当前账号没有后台访问权限')
+      }
+
+      setAccess(accessInfo)
       const result = await loadAdminUsersWithAssets(currentUser)
       setUsers(result.users)
       setStats({
@@ -75,6 +82,8 @@ const PointsManagement = () => {
   useEffect(() => {
     loadUsers()
   }, [])
+
+  const canManagePoints = hasAdminPermission(access, 'manage_points')
 
   const handleAdjustPoints = async () => {
     if (!selectedUser || !adjustAmount || !adjustReason) {
@@ -209,7 +218,8 @@ const PointsManagement = () => {
         <div>
           <h2 className="text-2xl font-bold">用户积分管理</h2>
           <p className="text-sm text-gray-600 mt-1">
-            当前页面使用真实用户和资产积分数据，调整接口已接入管理员鉴权。
+            当前页面使用真实用户和资产积分数据，
+            {canManagePoints ? '你可以执行积分调整。' : '当前账号为只读模式。'}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -293,18 +303,20 @@ const PointsManagement = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => openAdjustModal(user, 'add')}
+                          onClick={() => canManagePoints && openAdjustModal(user, 'add')}
+                          disabled={!canManagePoints}
                           className="text-green-600 hover:text-green-700"
-                          title="增加积分"
+                          title={canManagePoints ? '增加积分' : '当前账号没有 manage_points 权限'}
                         >
                           <Plus className="w-4 h-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => openAdjustModal(user, 'subtract')}
+                          onClick={() => canManagePoints && openAdjustModal(user, 'subtract')}
+                          disabled={!canManagePoints}
                           className="text-red-600 hover:text-red-700"
-                          title="减少积分"
+                          title={canManagePoints ? '减少积分' : '当前账号没有 manage_points 权限'}
                         >
                           <Minus className="w-4 h-4" />
                         </Button>

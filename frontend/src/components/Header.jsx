@@ -8,19 +8,17 @@ import hkFlag from '../images/hk.svg'
 import vnFlag from '../images/vn.svg'
 import HoverMenu from './ui/HoverMenu'
 import DashJ from './ui/DashJ'
-import RegisterModal from './RegisterModal'
-import { fetchAdminAccess, getStoredUser } from '../admin-utils'
+import { fetchAdminAccess } from '../admin-utils'
+import { useAuth } from '../auth-context'
 
 const Header = () => {
-  const { t, i18n } = useTranslation()
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [currentUser, setCurrentUser] = useState(null)
+  const { t } = useTranslation()
+  const { user: currentUser, isAuthenticated, logout } = useAuth()
   const [userPoints, setUserPoints] = useState(0)
   const location = useLocation()
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isDark, setIsDark] = useState(false)
-  const [showRegisterModal, setShowRegisterModal] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
   const [adminPath, setAdminPath] = useState('/dashboard')
 
@@ -29,16 +27,12 @@ const Header = () => {
     setIsDark(theme === 'dark')
   }, [])
 
-  // 检查用户登录状态
   useEffect(() => {
     let cancelled = false
 
     const loadSession = async () => {
-      const userData = getStoredUser()
-      if (!userData) {
+      if (!currentUser) {
         if (!cancelled) {
-          setIsLoggedIn(false)
-          setCurrentUser(null)
           setIsAdmin(false)
           setAdminPath('/dashboard')
           setUserPoints(0)
@@ -46,13 +40,8 @@ const Header = () => {
         return
       }
 
-      if (!cancelled) {
-        setIsLoggedIn(true)
-        setCurrentUser(userData)
-      }
-
       try {
-        const access = await fetchAdminAccess(userData)
+        const access = await fetchAdminAccess(currentUser)
         if (!cancelled) {
           setIsAdmin(access.can_access_admin)
           setAdminPath(access.preferred_admin_path || '/dashboard')
@@ -64,7 +53,7 @@ const Header = () => {
         }
       }
 
-      await loadUserPoints()
+      await loadUserPoints(currentUser)
     }
 
     loadSession()
@@ -72,16 +61,12 @@ const Header = () => {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [currentUser])
 
   // 获取用户积分
-  const loadUserPoints = async () => {
+  const loadUserPoints = async (userData = currentUser) => {
     try {
-      const user = localStorage.getItem('user')
-      if (user) {
-        const userData = JSON.parse(user)
-        
-        // 调用实际的API获取积分
+      if (userData?.uID) {
         const response = await fetch(`/api/user/asset/${userData.uID}`)
         if (response.ok) {
           const data = await response.json()
@@ -89,8 +74,6 @@ const Header = () => {
             setUserPoints(data.data.points || 0)
             return
           }
-        } else {
-          console.warn('API调用失败，状态码:', response.status)
         }
       }
       setUserPoints(0)
@@ -127,9 +110,10 @@ const Header = () => {
 
   // 处理登出
   const handleLogout = () => {
-    localStorage.removeItem('user')
-    setIsLoggedIn(false)
-    setCurrentUser(null)
+    logout()
+    setIsAdmin(false)
+    setAdminPath('/dashboard')
+    setUserPoints(0)
     navigate('/')
   }
 
@@ -141,22 +125,16 @@ const Header = () => {
 
   // 处理注册
   const handleRegister = () => {
-    setShowRegisterModal(true)
-  }
-
-  // 注册成功回调
-  const handleRegisterSuccess = () => {
-    // 注册成功后打开登录模态框
-    setShowRegisterModal(false)
-    window.dispatchEvent(new CustomEvent('openLoginModal'))
+    navigate('/register')
   }
 
   // 菜单项
   const menuItems = [
     { path: 'reward', label: t('reward') },
     { path: 'task', label: t('task') },
-    ...(isLoggedIn ? [{ path: 'profile', label: t('profile') }] : []),
-    ...(isLoggedIn && isAdmin ? [{ path: adminPath, label: t('admin_panel') || '管理面板', absolute: true }] : [])
+    { path: 'shard', label: t('shard') || '碎片市场' },
+    ...(isAuthenticated ? [{ path: 'profile', label: t('profile') }] : []),
+    ...(isAuthenticated && isAdmin ? [{ path: adminPath, label: t('admin_panel') || '管理面板', absolute: true }] : [])
   ]
 
   // 构建带语言前缀的路径
@@ -272,7 +250,7 @@ const Header = () => {
             </button>
             
             {/* 用户菜单 */}
-            {isLoggedIn ? (
+            {isAuthenticated ? (
               <HoverMenu
                 trigger={
                   <button className="flex items-center space-x-1 nav-link">
@@ -369,7 +347,7 @@ const Header = () => {
                 {item.label}
               </Link>
             ))}
-            {!isLoggedIn && (
+            {!isAuthenticated && (
               <>
                 <button
                   onClick={() => {
@@ -457,7 +435,7 @@ const Header = () => {
           </div>
 
           {/* 移动端用户菜单 */}
-          {isLoggedIn && (
+          {isAuthenticated && (
             <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
               <button
                 onClick={() => {
@@ -474,13 +452,6 @@ const Header = () => {
         </div>
       )}
     </header>
-    
-    {/* 注册模态框 */}
-    <RegisterModal
-      isOpen={showRegisterModal}
-      onClose={() => setShowRegisterModal(false)}
-      onSuccess={handleRegisterSuccess}
-    />
   </>
   )
 }

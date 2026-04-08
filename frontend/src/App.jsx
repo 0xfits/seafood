@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom'
+import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { I18nextProvider } from 'react-i18next'
-import i18n from './i18n'
-import { Toaster } from 'react-hot-toast'
 
 // 页面组件
-import Login from './pages/Login'
-import Register from './pages/Register'
 import HomePage from './pages/HomePage'
 import RewardPage from './pages/RewardPage'
 import TaskPage from './pages/TaskPage'
 import ProfilePage from './pages/ProfilePage'
 import DashboardPage from './pages/DashboardPage'
+import ShardPage from './pages/ShardPage'
 
 // 管理页面组件
 import TasksManagement from './pages/admin/TasksManagement'
@@ -26,17 +22,16 @@ import SystemSettings from './pages/admin/SystemSettings'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import AdminLayout from './components/layout/AdminLayout'
-import { fetchAdminAccess, getStoredUser, hasAdminPermission } from './admin-utils'
+import { fetchAdminAccess, hasAdminPermission } from './admin-utils'
+import { useAuth } from './auth-context'
 
 // 模态框组件
-import RegisterModal from './components/RegisterModal'
 import LoginModal from './components/LoginModal'
 
 // 语言路由包装器
 const LanguageWrapper = ({ children }) => {
   const { lang } = useParams()
   const { i18n } = useTranslation()
-  const location = useLocation()
 
   useEffect(() => {
     // 从URL路径更新语言
@@ -52,27 +47,22 @@ const LanguageWrapper = ({ children }) => {
 
 // 受保护的路由组件
 const ProtectedRoute = ({ children, adminOnly = false, requiredPermission = null }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const { isAuthenticated, user } = useAuth()
   const [hasAccess, setHasAccess] = useState(false)
   const [preferredPath, setPreferredPath] = useState('/')
   const [loading, setLoading] = useState(true)
+  const location = useLocation()
 
   useEffect(() => {
     let cancelled = false
 
     const checkAccess = async () => {
-      const user = getStoredUser()
-      if (!user) {
+      if (!isAuthenticated) {
         if (!cancelled) {
-          setIsAuthenticated(false)
           setHasAccess(false)
           setLoading(false)
         }
         return
-      }
-
-      if (!cancelled) {
-        setIsAuthenticated(true)
       }
 
       if (!adminOnly) {
@@ -105,7 +95,7 @@ const ProtectedRoute = ({ children, adminOnly = false, requiredPermission = null
     return () => {
       cancelled = true
     }
-  }, [adminOnly, requiredPermission])
+  }, [adminOnly, isAuthenticated, requiredPermission, user?.uID])
 
   // 显示加载状态，避免权限检查期间的闪烁
   if (loading) {
@@ -117,8 +107,7 @@ const ProtectedRoute = ({ children, adminOnly = false, requiredPermission = null
   }
 
   if (!isAuthenticated) {
-    console.log('ProtectedRoute - 未认证，跳转到登录页')
-    return <Navigate to="/login" replace />
+    return <Navigate to="/login" replace state={{ from: location }} />
   }
 
   if (adminOnly && !hasAccess) {
@@ -129,19 +118,14 @@ const ProtectedRoute = ({ children, adminOnly = false, requiredPermission = null
 }
 
 function App() {
-  const [showRegisterModal, setShowRegisterModal] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
 
   useEffect(() => {
-    // 监听打开注册模态框事件
-    const handleOpenRegisterModal = () => setShowRegisterModal(true)
     const handleOpenLoginModal = () => setShowLoginModal(true)
 
-    window.addEventListener('openRegisterModal', handleOpenRegisterModal)
     window.addEventListener('openLoginModal', handleOpenLoginModal)
 
     return () => {
-      window.removeEventListener('openRegisterModal', handleOpenRegisterModal)
       window.removeEventListener('openLoginModal', handleOpenLoginModal)
     }
   }, [])
@@ -189,7 +173,10 @@ function App() {
                 
                 {/* 任务页面 */}
                 <Route path="task" element={<TaskPage />} />
-                
+
+                {/* 碎片市场 */}
+                <Route path="shard" element={<ShardPage />} />
+
                 {/* 个人资料页面（需要登录） */}
                 <Route 
                   path="profile" 
@@ -207,24 +194,11 @@ function App() {
       />
     </Routes>
 
-    {/* 全局模态框 */}
-    <RegisterModal 
-      isOpen={showRegisterModal}
-      onClose={() => setShowRegisterModal(false)}
-      onSuccess={() => {
-        setShowRegisterModal(false)
-        // 登录成功后可以显示登录模态框
-        setShowLoginModal(true)
-      }}
-    />
-    
     <LoginModal 
       isOpen={showLoginModal}
       onClose={() => setShowLoginModal(false)}
       onSuccess={() => {
         setShowLoginModal(false)
-        // 登录成功后可以刷新页面或跳转
-        window.location.reload()
       }}
     />
   </div>

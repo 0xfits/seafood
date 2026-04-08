@@ -88,13 +88,14 @@ from datetime import datetime
 
 class UserAsset(Base):
     """用户资产模型"""
-    __tablename__ = "user_asset"
-    
-    index_id = Column(Integer, primary_key=True, autoincrement=True)
+    __tablename__ = "asset"
+
+    index_id = Column("aID", Integer, primary_key=True, autoincrement=True)
     uID = Column(Integer, nullable=False, unique=True)
     points = Column(Integer, default=0)
-    time_update = Column(DateTime, default=datetime.utcnow)
-    
+    lucks = Column(Integer, default=0)
+    time_update = Column("time_updated", DateTime, default=datetime.utcnow)
+
     def __repr__(self):
         return f"<UserAsset(uID={self.uID}, points={self.points})>"
 

@@ -7,6 +7,7 @@ import { I18nextProvider } from 'react-i18next'
 import i18n from './i18n'
 import { BrowserRouter } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
+import { AuthProvider } from './auth-context'
 
 // 初始化主题（尽量在 React 渲染之前执行，减少闪烁）
 const savedTheme = localStorage.getItem('theme')
@@ -27,10 +28,12 @@ if (savedTheme === 'dark') {
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <I18nextProvider i18n={i18n}>
-      <BrowserRouter>
-        <Toaster position="top-right" />
-        <App />
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Toaster position="top-right" />
+          <App />
+        </BrowserRouter>
+      </AuthProvider>
     </I18nextProvider>
   </React.StrictMode>,
 )

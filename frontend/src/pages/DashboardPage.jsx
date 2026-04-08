@@ -22,6 +22,7 @@ import { FadeIn, SlideUp, StaggerContainer } from '../components/ui/Motion'
 import { ResponsiveContainer, ResponsiveGrid } from '../components/ui/Responsive'
 import { formatEvmAddress } from '../utils'
 import { fetchAdminAccess, fetchApiJson, getAuthToken, hasAdminPermission, isAdminUser } from '../admin-utils'
+import { useAuth } from '../auth-context'
 
 const formatTimestamp = (value) => {
   if (!value) return '未知'
@@ -29,13 +30,33 @@ const formatTimestamp = (value) => {
   return Number.isNaN(date.getTime()) ? '未知' : date.toLocaleString()
 }
 
+const EMPTY_DASHBOARD_STATS = {
+  totalUsers: 0,
+  adminUsers: 0,
+  totalPoints: 0,
+  totalTasks: 0,
+  totalRewards: 0,
+  pendingVerifications: 0,
+}
+
+const resolvePendingVerificationCount = (canReviewTasks, pendingCount, pendingList) => {
+  if (!canReviewTasks) return 0
+  if (pendingCount?.status === 'fulfilled' && typeof pendingCount.value?.count === 'number') {
+    return pendingCount.value.count
+  }
+  if (pendingList?.status === 'fulfilled' && Array.isArray(pendingList.value)) {
+    return pendingList.value.length
+  }
+  return 0
+}
+
 const DashboardPage = () => {
   const navigate = useNavigate()
+  const { user: currentUser, isAuthenticated } = useAuth()
   const [pendingVerificationTasks, setPendingVerificationTasks] = useState([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [processingTaskId, setProcessingTaskId] = useState(null)
-  const [currentUser, setCurrentUser] = useState(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const [access, setAccess] = useState({
     is_admin: false,
@@ -44,14 +65,7 @@ const DashboardPage = () => {
   })
   const [reviewQuery, setReviewQuery] = useState('')
   const [showAllPending, setShowAllPending] = useState(false)
-  const [dashboardStats, setDashboardStats] = useState({
-    totalUsers: 0,
-    adminUsers: 0,
-    totalPoints: 0,
-    totalTasks: 0,
-    totalRewards: 0,
-    pendingVerifications: 0,
-  })
+  const [dashboardStats, setDashboardStats] = useState(EMPTY_DASHBOARD_STATS)
 
   const managementLinks = [
     {
@@ -130,44 +144,63 @@ const DashboardPage = () => {
       totalPoints: userStats.status === 'fulfilled' ? userStats.value.total_points || 0 : 0,
       totalTasks: tasks.status === 'fulfilled' ? (tasks.value || []).length : 0,
       totalRewards: rewards.status === 'fulfilled' ? (rewards.value || []).length : 0,
-      pendingVerifications: canReviewTasks && pendingCount?.status === 'fulfilled' ? pendingCount.value.count || 0 : 0,
+      pendingVerifications: resolvePendingVerificationCount(canReviewTasks, pendingCount, pendingList),
     })
 
     setPendingVerificationTasks(canReviewTasks && pendingList?.status === 'fulfilled' ? pendingList.value || [] : [])
   }
 
   useEffect(() => {
+    let cancelled = false
+
     const load = async () => {
+      if (!isAuthenticated || !currentUser) {
+        setIsAdmin(false)
+        setAccess({
+          is_admin: false,
+          permissions: [],
+          can_access_admin: false,
+        })
+        setPendingVerificationTasks([])
+        setDashboardStats(EMPTY_DASHBOARD_STATS)
+        setLoading(false)
+        return
+      }
+
       setLoading(true)
       try {
-        const stored = localStorage.getItem('user')
-        if (!stored) {
-          toast.error('请先登录')
-          setLoading(false)
-          return
-        }
+        const accessInfo = await fetchAdminAccess(currentUser)
+        const admin = accessInfo.can_access_admin || isAdminUser(currentUser)
 
-        const parsedUser = JSON.parse(stored)
-        const accessInfo = await fetchAdminAccess(parsedUser)
-        const admin = accessInfo.can_access_admin || isAdminUser(parsedUser)
+        if (cancelled) return
 
-        setCurrentUser(parsedUser)
         setIsAdmin(admin)
         setAccess(accessInfo)
 
         if (admin) {
-          await loadDashboardData(parsedUser, accessInfo)
+          await loadDashboardData(currentUser, accessInfo)
+        } else {
+          setPendingVerificationTasks([])
+          setDashboardStats(EMPTY_DASHBOARD_STATS)
         }
       } catch (error) {
         console.error('Error loading dashboard:', error)
-        toast.error(`加载管理面板失败: ${error.message}`)
+        if (!cancelled) {
+          toast.error(`加载管理面板失败: ${error.message}`)
+        }
       } finally {
-        setLoading(false)
+        if (!cancelled) {
+          setLoading(false)
+        }
       }
     }
 
     load()
-  }, [])
+
+    return () => {
+      cancelled = true
+    }
+  }, [currentUser, isAuthenticated])
 
   const handleVerifyTask = async (jID, approved) => {
     const token = getAuthToken(currentUser)
@@ -197,7 +230,7 @@ const DashboardPage = () => {
       })
 
       toast.success(approved ? '任务已通过审核' : '任务已退回，等待用户重新提交')
-      await loadDashboardData(currentUser)
+      await loadDashboardData(currentUser, access)
     } catch (error) {
       console.error('Error verifying journey:', error)
       toast.error(`操作失败: ${error.message}`)

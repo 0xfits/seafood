@@ -1,6 +1,6 @@
 # Jinli Club
 
-一个使用 React + FastAPI 构建的社区平台，支持 EVM 钱包登录、任务与奖励系统，以及基础管理功能。
+一个使用 React + FastAPI 构建的社区平台，支持 EVM 钱包签名登录、任务与奖励系统，以及基础管理功能。
 
 本 README 已更新为当前代码与数据库结构，便于开发与维护。
 
@@ -47,7 +47,7 @@ jinli.club/
 
 ## 后端架构要点
 - 路由：backend/apex.py 加载 boundary.py 的统一路由 unified_router。
-- 鉴权：boundary.py 内联了 OAuth2/JWT 逻辑（SECRET_KEY、ALGORITHM、ACCESS_TOKEN_EXPIRE_MINUTES）。
+- 鉴权：boundary.py 内联了 OAuth2/JWT 逻辑，并通过 `challenge -> wallet signature -> verify` 流程完成登录。
 - 数据访问：
   - entity.py 提供 UserEntity、BrandEntity、GiftEntity、TaskEntity、JourneyEntity、ChestEntity 等，优先返回 dict。
   - data.py 针对部分场景将 DB 行转换为 data_model.py 的 dataclass，并统一字典输出（含时间戳转换）。
@@ -160,9 +160,16 @@ jinli.club/
      - SECRET_KEY=your-secret-key-here
      - ALGORITHM=HS256
      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+     - AUTH_CHALLENGE_EXPIRE_SECONDS=300
 3) 启动服务
    - 在项目根目录运行：python3 -m backend.apex
    - 服务地址：http://0.0.0.0:8000/
+
+认证说明：
+- 钱包登录流程：`/api/auth/challenge` -> 钱包签名 -> `/api/auth/verify`
+- `/api/auth/login` 仅保留兼容入口，内部仍走签名验证
+- `/api/auth/register` 已废弃，首次登录后的资料补全请使用前端 `/register` 页面
+- 后端签名校验依赖 `eth-account`，请确保使用 `pip install -r requirements.txt` 安装完整依赖
 
 前端启动：
 1) cd frontend && npm install

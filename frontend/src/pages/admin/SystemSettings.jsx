@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Button, Card, CardHeader, CardTitle, CardContent } from '../../components/ui'
 import { Settings, Save, RefreshCw, Database, Globe } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { fetchApiJson, getAuthHeaders, getStoredUser, isAdminUser } from '../../admin-utils'
+import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdminPermission } from '../../admin-utils'
 
 const DEFAULT_SETTINGS = {
   siteName: 'Jinli Club',
@@ -24,6 +24,7 @@ const SystemSettings = () => {
   const [initialLoading, setInitialLoading] = useState(true)
   const [loading, setLoading] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
+  const [access, setAccess] = useState({ is_admin: false, permissions: [], can_access_admin: false })
 
   useEffect(() => {
     loadSettings()
@@ -33,10 +34,16 @@ const SystemSettings = () => {
     try {
       setInitialLoading(true)
       const currentUser = getStoredUser()
-      if (!currentUser || !isAdminUser(currentUser)) {
-        throw new Error('当前登录用户不是管理员')
+      if (!currentUser) {
+        throw new Error('未登录')
       }
 
+      const accessInfo = await fetchAdminAccess(currentUser)
+      if (!accessInfo.can_access_admin) {
+        throw new Error('当前账号没有后台访问权限')
+      }
+
+      setAccess(accessInfo)
       const data = await fetchApiJson('/api/admin/settings', {
         headers: getAuthHeaders(currentUser),
       })
@@ -141,6 +148,7 @@ const SystemSettings = () => {
   }
 
   const hasChanges = JSON.stringify(settings) !== JSON.stringify(savedSettings)
+  const canManageSettings = hasAdminPermission(access, 'manage_settings')
 
   return (
     <div className="space-y-6">
@@ -149,14 +157,15 @@ const SystemSettings = () => {
           <h2 className="text-2xl font-bold">系统设置</h2>
           <p className="text-sm text-gray-600 mt-1">
             当前页面使用持久化后台设置状态，支持读取、保存和重置默认值。
+            {!canManageSettings && ' 当前账号为只读模式。'}
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="secondary" onClick={resetSettings} disabled={refreshing || loading}>
+          <Button variant="secondary" onClick={resetSettings} disabled={refreshing || loading || !canManageSettings}>
             <RefreshCw className="w-4 h-4 mr-2" />
             {refreshing ? '重置中...' : '重置'}
           </Button>
-          <Button variant="primary" onClick={saveSettings} disabled={loading || !hasChanges}>
+          <Button variant="primary" onClick={saveSettings} disabled={loading || !hasChanges || !canManageSettings}>
             <Save className="w-4 h-4 mr-2" />
             {loading ? '保存中...' : '保存设置'}
           </Button>

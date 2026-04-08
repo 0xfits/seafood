@@ -1,6 +1,7 @@
 // 工具函数集合
 
 import { clsx } from 'clsx'
+import { clearAuthSession, getStoredUser, saveAuthSession } from './auth'
 
 /**
  * Tailwind CSS 类名合并工具
@@ -125,8 +126,7 @@ export const showErrorToast = (message) => {
  */
 export const getUserFromStorage = () => {
   try {
-    const userData = localStorage.getItem('user')
-    return userData ? JSON.parse(userData) : null
+    return getStoredUser()
   } catch (error) {
     console.error('Error getting user from storage:', error)
     return null
@@ -139,7 +139,7 @@ export const getUserFromStorage = () => {
  */
 export const saveUserToStorage = (user) => {
   try {
-    localStorage.setItem('user', JSON.stringify(user))
+    saveAuthSession(user)
   } catch (error) {
     console.error('Error saving user to storage:', error)
   }
@@ -150,7 +150,7 @@ export const saveUserToStorage = (user) => {
  */
 export const removeUserFromStorage = () => {
   try {
-    localStorage.removeItem('user')
+    clearAuthSession()
   } catch (error) {
     console.error('Error removing user from storage:', error)
   }
@@ -171,10 +171,7 @@ export const isLoggedIn = () => {
  */
 export const isAdmin = () => {
   const user = getUserFromStorage()
-  // 实际应用中应该从后端验证用户角色
-  // 这里仅作为示例，检查特定的EVM地址
-  const adminAddresses = ['0x1234567890123456789012345678901234567890']
-  return user && adminAddresses.includes(user.EVM)
+  return Boolean(user?.is_admin || user?.role === 'admin')
 }
 
 /**

@@ -10,9 +10,33 @@ from __future__ import annotations
 
 from typing import Optional, List
 from datetime import datetime
-from .foundation import SessionLocal
-from .entity import Entity, BrandEntity, CalendarEntity, ChestEntity, JourneyEntity, GiftEntity, TaskEntity, UserEntity
-from .data_model import DataModel, Brand, Chest, Gift, Journey, Task, User
+from .foundation import SessionLocal, Foundation
+from .entity import (
+    Entity,
+    BrandEntity,
+    CalendarEntity,
+    ChestEntity,
+    JourneyEntity,
+    GiftEntity,
+    OrderEntity,
+    ShardEntity,
+    SymbolEntity,
+    TaskEntity,
+    UserEntity,
+)
+from .data_model import (
+    DataModel,
+    Brand,
+    Chest,
+    Gift,
+    Journey,
+    Shard,
+    ShardOrder,
+    ShardTrade,
+    ShardTransfer,
+    Task,
+    User,
+)
 
 class Data:
     def __init__(self, db: Optional[object] = None) -> None:
@@ -24,6 +48,8 @@ class Data:
         self.tasks = TaskEntity(self.db)
         self.journeys = JourneyEntity(self.db)
         self.chests = ChestEntity(self.db)
+        self.shards = ShardEntity(self.db)
+        self.orders = OrderEntity(self.db)
 
     def __enter__(self) -> "Data":
         return self
@@ -89,6 +115,17 @@ class Data:
         row = self.brands.get(bID)
         return Brand.from_row(row) if row else None
 
+    def create_brand(self, **fields) -> Optional[Brand]:
+        row = self.brands.create(**fields)
+        return Brand.from_row(row) if row else None
+
+    def update_brand(self, bID: int, **fields) -> Optional[Brand]:
+        row = self.brands.update(bID, **fields)
+        return Brand.from_row(row) if row else None
+
+    def delete_brand(self, bID: int) -> bool:
+        return self.brands.delete(bID)
+
     # Gift
     def list_gifts(self, skip: int = 0, limit: int = 200) -> List[Gift]:
         rows = self.gifts.list(skip=skip, limit=limit)
@@ -146,6 +183,17 @@ class Data:
 
     def count_task_participants(self, tID: int) -> int:
         return self.tasks.count_participants(tID)
+
+    def create_task(self, **fields) -> Optional[Task]:
+        row = self.tasks.create_task(**fields)
+        return Task.from_row(row) if row else None
+
+    def update_task(self, tID: int, **fields) -> Optional[Task]:
+        row = self.tasks.update_task(tID, **fields)
+        return Task.from_row(row) if row else None
+
+    def delete_task(self, tID: int) -> bool:
+        return self.tasks.delete_task(tID)
 
     # Journey
     def list_journeys_by_user(self, uID: int, skip: int = 0, limit: int = 100) -> List[Journey]:
@@ -285,3 +333,182 @@ class UserChestStatData(Data):
     def get(self, uID: int) -> Optional[dict]:
         with UserChestStatEntity(self.db) as ucs:
             return ucs.get(uID)
+
+
+class ShardData(Data):
+    def get_holdings(self, uID: int) -> List[Shard]:
+        rows = self.shards.get_by_user(uID)
+        return [Shard.from_row(r) for r in rows]
+
+    def get_holding(self, uID: int, bID: int) -> Optional[Shard]:
+        row = self.shards.get_by_user_and_brand(uID, bID)
+        return Shard.from_row(row) if row else None
+
+    def earn(self, uID: int, bID: int, volume: int, reason: str) -> Optional[Shard]:
+        """系统发放 shard（宝箱/任务），reason: 'chest' | 'task'"""
+        row = self.shards.upsert(uID, bID, volume)
+        self.shards.add_transfer(bID, from_uID=None, to_uID=uID, volume=volume, reason=reason)
+        return Shard.from_row(row) if row else None
+
+    def redeem(self, uID: int, bID: int, volume: int, system_uID: int) -> Optional[Shard]:
+        """用户兑换 gift：扣减持仓，转入系统账户"""
+        row = self.shards.upsert(uID, bID, -volume)
+        self.shards.add_transfer(bID, from_uID=uID, to_uID=system_uID, volume=volume, reason="redeem")
+        return Shard.from_row(row) if row else None
+
+    def list_transfers(self, uID: int, skip: int = 0, limit: int = 100) -> List[ShardTransfer]:
+        rows = self.shards.list_transfers(uID, skip=skip, limit=limit)
+        return [ShardTransfer.from_row(r) for r in rows]
+
+
+class OrderData(Data):
+    def _ensure_asset(self, uID: int):
+        asset = self.users.get_asset(int(uID))
+        return asset or self.users.upsert_asset(int(uID), 0)
+
+    def _change_points(self, uID: int, delta: int) -> None:
+        self._ensure_asset(uID)
+        now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        sql = Foundation.text(
+            """
+            UPDATE asset
+            SET points = points + :delta, time_updated = :now
+            WHERE uID = :uID
+            """
+        )
+        Foundation.exec(self.db, sql, {"delta": int(delta), "now": now, "uID": int(uID)})
+        self.db.commit()
+
+    def _refund_order(self, order_row: dict) -> None:
+        remaining = int(order_row.get("volume_frozen") or 0)
+        if remaining <= 0:
+            return
+        if order_row.get("side") == "sell":
+            self.shards.upsert(int(order_row["uID"]), int(order_row["bID"]), remaining)
+            return
+        refund = int(order_row.get("price") or 0) * remaining
+        if refund > 0:
+            self._change_points(int(order_row["uID"]), refund)
+
+    def place_order(self, uID: int, bID: int, side: str, price: int, volume: int) -> Optional[ShardOrder]:
+        side = str(side or "").strip().lower()
+        price = int(price)
+        volume = int(volume)
+        if side not in ("buy", "sell") or price <= 0 or volume <= 0:
+            return None
+
+        if side == "sell":
+            holding = self.shards.get_by_user_and_brand(int(uID), int(bID))
+            if not holding or int(holding.get("volume") or 0) < volume:
+                return None
+            self.shards.upsert(int(uID), int(bID), -volume)
+        else:
+            asset = self._ensure_asset(int(uID))
+            reserve = price * volume
+            if int(asset.points or 0) < reserve:
+                return None
+            self._change_points(int(uID), -reserve)
+
+        row = self.orders.create_order(int(uID), int(bID), side, price, volume)
+        if not row:
+            if side == "sell":
+                self.shards.upsert(int(uID), int(bID), volume)
+            else:
+                self._change_points(int(uID), price * volume)
+            return None
+
+        self._match(int(bID))
+        return self.get_order(int(row["oID"]))
+
+    def _match(self, bID: int) -> None:
+        buy_orders = self.orders.get_open_orders(int(bID), "buy", price_limit=None)
+        for buy_o in buy_orders:
+            remaining_buy = int(buy_o.get("volume_total") or 0) - int(buy_o.get("volume_filled") or 0)
+            if remaining_buy <= 0:
+                continue
+
+            sell_orders = self.orders.get_open_orders(int(bID), "sell", price_limit=int(buy_o["price"]))
+            for sell_o in sell_orders:
+                if remaining_buy <= 0:
+                    break
+
+                remaining_sell = int(sell_o.get("volume_total") or 0) - int(sell_o.get("volume_filled") or 0)
+                if remaining_sell <= 0:
+                    continue
+
+                trade_vol = min(remaining_buy, remaining_sell)
+                trade_price = int(sell_o["price"])
+
+                self.orders.update_order_fill(int(buy_o["oID"]), trade_vol)
+                self.orders.update_order_fill(int(sell_o["oID"]), trade_vol)
+
+                self.shards.upsert(int(buy_o["uID"]), int(bID), trade_vol)
+
+                cost = trade_price * trade_vol
+                self._change_points(int(sell_o["uID"]), cost)
+                buy_limit_price = int(buy_o["price"])
+                if buy_limit_price > trade_price:
+                    self._change_points(int(buy_o["uID"]), (buy_limit_price - trade_price) * trade_vol)
+
+                self.shards.add_transfer(
+                    int(bID),
+                    from_uID=int(sell_o["uID"]),
+                    to_uID=int(buy_o["uID"]),
+                    volume=trade_vol,
+                    reason="transfer",
+                )
+                self.orders.create_trade(
+                    int(bID),
+                    int(buy_o["oID"]),
+                    int(sell_o["oID"]),
+                    int(buy_o["uID"]),
+                    int(sell_o["uID"]),
+                    trade_price,
+                    trade_vol,
+                )
+
+                remaining_buy -= trade_vol
+        self.db.commit()
+
+    def cancel_order(self, oID: int, uID: int) -> bool:
+        order_row = self.orders.get_order(int(oID))
+        if not order_row or int(order_row.get("uID") or 0) != int(uID):
+            return False
+        if order_row.get("status") not in ("open", "partial"):
+            return False
+        if not self.orders.cancel_order(int(oID), int(uID)):
+            return False
+        self._refund_order(order_row)
+        return True
+
+    def cancel_all(self, uID: int, bID: Optional[int] = None) -> int:
+        rows = self.orders.list_orders_by_user(int(uID), skip=0, limit=100000)
+        open_orders = [
+            row for row in rows
+            if row.get("status") in ("open", "partial")
+            and (bID is None or int(row.get("bID") or 0) == int(bID))
+        ]
+        count = self.orders.cancel_all_orders(int(uID), None if bID is None else int(bID))
+        for row in open_orders:
+            self._refund_order(row)
+        return count
+
+    def get_order(self, oID: int) -> Optional[ShardOrder]:
+        row = self.orders.get_order(int(oID))
+        return ShardOrder.from_row(row) if row else None
+
+    def list_orders(self, uID: int, status: Optional[str] = None, skip: int = 0, limit: int = 50) -> List[ShardOrder]:
+        rows = self.orders.list_orders_by_user(int(uID), status=status, skip=skip, limit=limit)
+        return [ShardOrder.from_row(r) for r in rows]
+
+
+class MarketData(Data):
+    def get_orderbook(self, bID: int) -> dict:
+        rows = self.orders.get_orderbook(int(bID))
+        buy = [{"price": int(r["price"]), "volume": int(r["volume"])} for r in rows if r["side"] == "buy"]
+        sell = [{"price": int(r["price"]), "volume": int(r["volume"])} for r in rows if r["side"] == "sell"]
+        return {"buy": buy, "sell": sell}
+
+    def list_trades(self, bID: int, limit: int = 50) -> List[ShardTrade]:
+        rows = self.orders.list_trades(int(bID), int(limit))
+        return [ShardTrade.from_row(r) for r in rows]

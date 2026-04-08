@@ -165,14 +165,7 @@ class UserEntity(Entity):
             "time_login_last": now_str,
         })
         self.db.commit()
-        sel = text(
-            """
-            SELECT uID, EVM, bio, is_admin, time_reg, time_login_last
-            FROM user WHERE uID = last_insert_rowid()
-            """
-        )
-        row = Foundation.fetch_one(self.db, sel)
-        return row
+        return self.get_by_evm(evm)
 
     def update_login_time(self, uID: int):
         now_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
@@ -339,6 +332,110 @@ class BrandEntity(Entity):
         )
         row = Foundation.fetch_one(self.db, sql, {"bID": bID})
         return row
+
+    def create(
+        self,
+        *,
+        symbol: str,
+        name: str,
+        description: Optional[str] = None,
+        url_image: Optional[str] = None,
+        points: int = 0,
+        gift_limit: int = 0,
+        time_start: Optional[datetime] = None,
+        time_end: Optional[datetime] = None,
+        time_actived: Optional[datetime] = None,
+        name_en: Optional[str] = None,
+        name_hk: Optional[str] = None,
+        name_vn: Optional[str] = None,
+        description_en: Optional[str] = None,
+        description_hk: Optional[str] = None,
+        description_vn: Optional[str] = None,
+    ):
+        self._ensure_schema()
+        now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        sql = text(
+            """
+            INSERT INTO brand (
+                symbol, name, description, url_image,
+                time_start, time_end, time_created, time_updated, time_actived,
+                points, name_en, name_hk, name_vn,
+                description_en, description_hk, description_vn, gift_limit
+            ) VALUES (
+                :symbol, :name, :description, :url_image,
+                :time_start, :time_end, :time_created, :time_updated, :time_actived,
+                :points, :name_en, :name_hk, :name_vn,
+                :description_en, :description_hk, :description_vn, :gift_limit
+            )
+            """
+        )
+        Foundation.exec(self.db, sql, {
+            "symbol": symbol,
+            "name": name,
+            "description": description,
+            "url_image": url_image,
+            "time_start": time_start.strftime("%Y-%m-%d %H:%M:%S") if isinstance(time_start, datetime) else time_start,
+            "time_end": time_end.strftime("%Y-%m-%d %H:%M:%S") if isinstance(time_end, datetime) else time_end,
+            "time_created": now,
+            "time_updated": now,
+            "time_actived": time_actived.strftime("%Y-%m-%d %H:%M:%S") if isinstance(time_actived, datetime) else time_actived,
+            "points": max(0, int(points or 0)),
+            "name_en": name_en,
+            "name_hk": name_hk,
+            "name_vn": name_vn,
+            "description_en": description_en,
+            "description_hk": description_hk,
+            "description_vn": description_vn,
+            "gift_limit": max(0, int(gift_limit or 0)),
+        })
+        self.db.commit()
+        row = Foundation.fetch_one(self.db, text("SELECT last_insert_rowid() AS bID"))
+        return self.get(int(row["bID"])) if row and row.get("bID") else None
+
+    def update(
+        self,
+        bID: int,
+        **fields,
+    ):
+        self._ensure_schema()
+        row = self.get(bID)
+        if not row:
+            return None
+
+        allowed_fields = {
+            "symbol", "name", "description", "url_image", "points", "gift_limit",
+            "time_start", "time_end", "time_actived",
+            "name_en", "name_hk", "name_vn",
+            "description_en", "description_hk", "description_vn",
+        }
+        set_parts = []
+        params = {"bID": bID}
+        for key, value in fields.items():
+            if key not in allowed_fields:
+                continue
+            set_parts.append(f"{key} = :{key}")
+            if key in {"time_start", "time_end", "time_actived"} and isinstance(value, datetime):
+                params[key] = value.strftime("%Y-%m-%d %H:%M:%S")
+            elif key in {"points", "gift_limit"} and value is not None:
+                params[key] = max(0, int(value))
+            else:
+                params[key] = value
+
+        if not set_parts:
+            return row
+
+        set_parts.append("time_updated = :time_updated")
+        params["time_updated"] = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        sql = text(f"UPDATE brand SET {', '.join(set_parts)} WHERE bID = :bID")
+        Foundation.exec(self.db, sql, params)
+        self.db.commit()
+        return self.get(bID)
+
+    def delete(self, bID: int) -> bool:
+        sql = text("DELETE FROM brand WHERE bID = :bID")
+        res = Foundation.exec(self.db, sql, {"bID": bID})
+        self.db.commit()
+        return res.rowcount > 0
 
 
 class GiftEntity(Entity):
@@ -509,6 +606,138 @@ class TaskEntity(Entity):
         row = Foundation.fetch_one(self.db, sql, {"tID": tID})
         return int(row["cnt"]) if row and row.get("cnt") is not None else 0
 
+    def create_task(
+        self,
+        title: str,
+        note: Optional[str] = None,
+        refcode: Optional[str] = None,
+        link0: Optional[str] = None,
+        linkB: Optional[str] = None,
+        is_open: bool = True,
+        time_start: Optional[datetime] = None,
+        time_end: Optional[datetime] = None,
+        points: int = 0,
+        title_en: Optional[str] = None,
+        title_hk: Optional[str] = None,
+        title_vn: Optional[str] = None,
+        note_en: Optional[str] = None,
+        note_hk: Optional[str] = None,
+        note_vn: Optional[str] = None,
+        type: int = 0,
+    ):
+        self._ensure_schema()
+        now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        sql = text(
+            """
+            INSERT INTO task (
+                title, note, refcode, link0, linkB,
+                time_start, time_end, time_created, time_updated, is_open, points,
+                title_en, title_hk, title_vn, note_en, note_hk, note_vn, type
+            ) VALUES (
+                :title, :note, :refcode, :link0, :linkB,
+                :time_start, :time_end, :time_created, :time_updated, :is_open, :points,
+                :title_en, :title_hk, :title_vn, :note_en, :note_hk, :note_vn, :type
+            )
+            """
+        )
+        Foundation.exec(self.db, sql, {
+            "title": title,
+            "note": note,
+            "refcode": refcode,
+            "link0": link0,
+            "linkB": linkB,
+            "time_start": time_start.strftime("%Y-%m-%d %H:%M:%S") if isinstance(time_start, datetime) else time_start,
+            "time_end": time_end.strftime("%Y-%m-%d %H:%M:%S") if isinstance(time_end, datetime) else time_end,
+            "time_created": now,
+            "time_updated": now,
+            "is_open": 1 if is_open else 0,
+            "points": max(0, int(points or 0)),
+            "title_en": title_en,
+            "title_hk": title_hk,
+            "title_vn": title_vn,
+            "note_en": note_en,
+            "note_hk": note_hk,
+            "note_vn": note_vn,
+            "type": int(type or 0),
+        })
+        self.db.commit()
+        row = Foundation.fetch_one(self.db, text("SELECT last_insert_rowid() AS tID"))
+        return self.get(int(row["tID"])) if row and row.get("tID") else None
+
+    def update_task(
+        self,
+        tID: int,
+        *,
+        title: Optional[str] = None,
+        note: Optional[str] = None,
+        refcode: Optional[str] = None,
+        link0: Optional[str] = None,
+        linkB: Optional[str] = None,
+        is_open: Optional[bool] = None,
+        time_start: Optional[datetime] = None,
+        time_end: Optional[datetime] = None,
+        points: Optional[int] = None,
+        title_en: Optional[str] = None,
+        title_hk: Optional[str] = None,
+        title_vn: Optional[str] = None,
+        note_en: Optional[str] = None,
+        note_hk: Optional[str] = None,
+        note_vn: Optional[str] = None,
+        type: Optional[int] = None,
+    ):
+        self._ensure_schema()
+        row = self.get(tID)
+        if not row:
+            return None
+
+        set_parts = []
+        params = {"tID": tID}
+
+        def add_field(key: str, value):
+            if value is None:
+                return
+            set_parts.append(f"{key} = :{key}")
+            if key in {"time_start", "time_end"} and isinstance(value, datetime):
+                params[key] = value.strftime("%Y-%m-%d %H:%M:%S")
+            else:
+                params[key] = value
+
+        add_field("title", title)
+        add_field("note", note)
+        add_field("refcode", refcode)
+        add_field("link0", link0)
+        add_field("linkB", linkB)
+        if is_open is not None:
+            add_field("is_open", 1 if is_open else 0)
+        add_field("time_start", time_start)
+        add_field("time_end", time_end)
+        if points is not None:
+            add_field("points", max(0, int(points)))
+        if type is not None:
+            add_field("type", int(type))
+        add_field("title_en", title_en)
+        add_field("title_hk", title_hk)
+        add_field("title_vn", title_vn)
+        add_field("note_en", note_en)
+        add_field("note_hk", note_hk)
+        add_field("note_vn", note_vn)
+
+        if not set_parts:
+            return row
+
+        set_parts.append("time_updated = :time_updated")
+        params["time_updated"] = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        sql = text(f"UPDATE task SET {', '.join(set_parts)} WHERE tID = :tID")
+        Foundation.exec(self.db, sql, params)
+        self.db.commit()
+        return self.get(tID)
+
+    def delete_task(self, tID: int) -> bool:
+        del_sql = text("DELETE FROM task WHERE tID = :tID")
+        result = Foundation.exec(self.db, del_sql, {"tID": tID})
+        self.db.commit()
+        return result.rowcount > 0
+
 
 class JourneyEntity(Entity):
     """与探索进度相关数据访问"""
@@ -561,27 +790,58 @@ class JourneyEntity(Entity):
         title: str,
         note: Optional[str] = None,
         refcode: Optional[str] = None,
-        linkA: Optional[str] = None,
+        link0: Optional[str] = None,
         linkB: Optional[str] = None,
         is_open: bool = True,
         time_start: Optional[datetime] = None,
         time_end: Optional[datetime] = None,
-    ) -> Task:
-        now = datetime.utcnow()
-        task = Task(
-            title=title,
-            note=note,
-            refcode=refcode,
-            linkA=linkA,
-            linkB=linkB,
-            is_open=is_open,
-            time_start=time_start,
-            time_end=time_end,
-            created_at=now,
-            updated_at=now,
+        points: int = 0,
+        title_en: Optional[str] = None,
+        title_hk: Optional[str] = None,
+        title_vn: Optional[str] = None,
+        note_en: Optional[str] = None,
+        note_hk: Optional[str] = None,
+        note_vn: Optional[str] = None,
+        type: int = 0,
+    ):
+        self._ensure_schema()
+        now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        sql = text(
+            """
+            INSERT INTO task (
+                title, note, refcode, link0, linkB,
+                time_start, time_end, time_created, time_updated, is_open, points,
+                title_en, title_hk, title_vn, note_en, note_hk, note_vn, type
+            ) VALUES (
+                :title, :note, :refcode, :link0, :linkB,
+                :time_start, :time_end, :time_created, :time_updated, :is_open, :points,
+                :title_en, :title_hk, :title_vn, :note_en, :note_hk, :note_vn, :type
+            )
+            """
         )
-        self.db.add(task)
-        return self._commit_refresh(task)
+        Foundation.exec(self.db, sql, {
+            "title": title,
+            "note": note,
+            "refcode": refcode,
+            "link0": link0,
+            "linkB": linkB,
+            "time_start": time_start.strftime("%Y-%m-%d %H:%M:%S") if isinstance(time_start, datetime) else time_start,
+            "time_end": time_end.strftime("%Y-%m-%d %H:%M:%S") if isinstance(time_end, datetime) else time_end,
+            "time_created": now,
+            "time_updated": now,
+            "is_open": 1 if is_open else 0,
+            "points": max(0, int(points or 0)),
+            "title_en": title_en,
+            "title_hk": title_hk,
+            "title_vn": title_vn,
+            "note_en": note_en,
+            "note_hk": note_hk,
+            "note_vn": note_vn,
+            "type": int(type or 0),
+        })
+        self.db.commit()
+        row = Foundation.fetch_one(self.db, text("SELECT last_insert_rowid() AS tID"))
+        return self.get(int(row["tID"])) if row and row.get("tID") else None
 
     def update_task(
         self,
@@ -590,11 +850,19 @@ class JourneyEntity(Entity):
         title: Optional[str] = None,
         note: Optional[str] = None,
         refcode: Optional[str] = None,
-        linkA: Optional[str] = None,
+        link0: Optional[str] = None,
         linkB: Optional[str] = None,
         is_open: Optional[bool] = None,
         time_start: Optional[datetime] = None,
         time_end: Optional[datetime] = None,
+        points: Optional[int] = None,
+        title_en: Optional[str] = None,
+        title_hk: Optional[str] = None,
+        title_vn: Optional[str] = None,
+        note_en: Optional[str] = None,
+        note_hk: Optional[str] = None,
+        note_vn: Optional[str] = None,
+        type: Optional[int] = None,
     ) -> Optional[Task]:
         # 为了兼容历史上以整数/非标准字符串存储的时间字段，这里改用原生 SQL 更新，避免 ORM 在读取时对
         # DateTime 字段应用字符串处理器（processors.str_to_datetime），从而触发 fromisoformat 的 TypeError。
@@ -625,12 +893,22 @@ class JourneyEntity(Entity):
         add_field("title", title)
         add_field("note", note)
         add_field("refcode", refcode)
-        add_field("linkA", linkA)
+        add_field("link0", link0)
         add_field("linkB", linkB)
         if is_open is not None:
             add_field("is_open", bool(is_open))
         add_field("time_start", time_start)
         add_field("time_end", time_end)
+        if points is not None:
+            add_field("points", max(0, int(points)))
+        if type is not None:
+            add_field("type", int(type))
+        add_field("title_en", title_en)
+        add_field("title_hk", title_hk)
+        add_field("title_vn", title_vn)
+        add_field("note_en", note_en)
+        add_field("note_hk", note_hk)
+        add_field("note_vn", note_vn)
 
         # 始终更新 updated_at
         params["updated_at"] = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
@@ -815,8 +1093,7 @@ class JourneyEntity(Entity):
         return self.get(jID)
 
     def delete_task(self, tID: int) -> bool:
-        # 使用原生 SQL 删除，避免 ORM 在读取含非标准时间格式的记录时抛出解析错误
-        del_sql = text("DELETE FROM task_type WHERE ttID = :tID")
+        del_sql = text("DELETE FROM task WHERE tID = :tID")
         result = Foundation.exec(self.db, del_sql, {"tID": tID})
         self.db.commit()
         return result.rowcount > 0
@@ -876,7 +1153,7 @@ class ChestEntity(Entity):
         self._ensure_schema()
         sql = text(
             """
-            SELECT cID, time_created, tirer, vol_points, sID0, sID1, time_actived, uID, time_claimed  
+            SELECT cID, time_created, tirer, vol_points, sID0, sID1, time_bind, uID, time_claimed
             FROM chest WHERE cID = :cID
             """
         )
@@ -886,7 +1163,7 @@ class ChestEntity(Entity):
         self._ensure_schema()
         base = (
         """
-        SELECT cID, time_created, tirer, vol_points, sID0, sID1, time_actived, uID, time_claimed  
+        SELECT cID, time_created, tirer, vol_points, sID0, sID1, time_bind, uID, time_claimed
         FROM chest WHERE uID = :uID
         """
         )
@@ -897,6 +1174,300 @@ class ChestEntity(Entity):
         base += " ORDER BY cID"
         sql = text(base)
         return Foundation.fetch_all(self.db, sql, params)
+
+
+class ShardEntity(Entity):
+    """shard 持仓与流水数据访问"""
+
+    def get_by_user(self, uID: int) -> list:
+        """查询用户所有 brand 的持仓快照"""
+        sql = text(
+            """
+            SELECT s.sID, s.uID, s.bID, s.volume, s.time_created, s.time_updated,
+                   b.name, b.symbol
+            FROM shard s
+            JOIN brand b ON b.bID = s.bID
+            WHERE s.uID = :uID
+            ORDER BY s.bID
+            """
+        )
+        return Foundation.fetch_all(self.db, sql, {"uID": uID})
+
+    def get_by_user_and_brand(self, uID: int, bID: int) -> Optional[dict]:
+        """查询用户对某 brand 的持仓"""
+        sql = text(
+            """
+            SELECT sID, uID, bID, volume, time_created, time_updated
+            FROM shard WHERE uID = :uID AND bID = :bID
+            """
+        )
+        return Foundation.fetch_one(self.db, sql, {"uID": uID, "bID": bID})
+
+    def upsert(self, uID: int, bID: int, volume_delta: int) -> Optional[dict]:
+        """增减持仓量（原子操作）；volume_delta 可为负数（减仓）"""
+        now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        existing = self.get_by_user_and_brand(uID, bID)
+        if existing:
+            sql = text(
+                """
+                UPDATE shard
+                SET volume = volume + :delta, time_updated = :now
+                WHERE uID = :uID AND bID = :bID
+                """
+            )
+            Foundation.exec(self.db, sql, {"delta": volume_delta, "now": now, "uID": uID, "bID": bID})
+        else:
+            sql = text(
+                """
+                INSERT INTO shard (uID, bID, volume, time_created, time_updated)
+                VALUES (:uID, :bID, :volume, :now, :now)
+                """
+            )
+            Foundation.exec(self.db, sql, {"uID": uID, "bID": bID, "volume": volume_delta, "now": now})
+        self.db.commit()
+        return self.get_by_user_and_brand(uID, bID)
+
+    def list_transfers(self, uID: int, skip: int = 0, limit: int = 100) -> list:
+        """查询用户的 shard 流水（作为发送方或接收方）"""
+        sql = text(
+            """
+            SELECT t.txID, t.bID, t.from_uID, t.to_uID, t.volume, t.reason, t.time_created,
+                   b.name AS brand_name, b.symbol AS brand_symbol
+            FROM shard_transfer t
+            JOIN brand b ON b.bID = t.bID
+            WHERE t.from_uID = :uID OR t.to_uID = :uID
+            ORDER BY t.time_created DESC
+            LIMIT :limit OFFSET :offset
+            """
+        )
+        return Foundation.fetch_all(self.db, sql, {"uID": uID, "limit": limit, "offset": skip})
+
+    def add_transfer(self, bID: int, from_uID: Optional[int], to_uID: Optional[int],
+                     volume: int, reason: str) -> Optional[dict]:
+        """写入一条流水记录"""
+        now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        sql = text(
+            """
+            INSERT INTO shard_transfer (bID, from_uID, to_uID, volume, reason, time_created)
+            VALUES (:bID, :from_uID, :to_uID, :volume, :reason, :now)
+            """
+        )
+        Foundation.exec(self.db, sql, {
+            "bID": bID, "from_uID": from_uID, "to_uID": to_uID,
+            "volume": volume, "reason": reason, "now": now,
+        })
+        self.db.commit()
+        row = Foundation.fetch_one(self.db, text("SELECT last_insert_rowid() AS txID"))
+        return {"txID": row["txID"]} if row else None
+
+
+class OrderEntity(Entity):
+    """订单簿与成交记录数据访问"""
+
+    def create_order(self, uID: int, bID: int, side: str, price: int, volume: int):
+        now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        sql = text(
+            """
+            INSERT INTO shard_order (
+                uID, bID, side, price,
+                volume_total, volume_filled, volume_frozen, status,
+                time_created, time_updated
+            ) VALUES (
+                :uID, :bID, :side, :price,
+                :volume_total, 0, :volume_frozen, 'open',
+                :time_created, :time_updated
+            )
+            """
+        )
+        Foundation.exec(self.db, sql, {
+            "uID": uID,
+            "bID": bID,
+            "side": side,
+            "price": price,
+            "volume_total": volume,
+            "volume_frozen": volume,
+            "time_created": now,
+            "time_updated": now,
+        })
+        self.db.commit()
+        row = Foundation.fetch_one(self.db, text("SELECT last_insert_rowid() AS oID"))
+        return self.get_order(int(row["oID"])) if row and row.get("oID") else None
+
+    def get_order(self, oID: int):
+        sql = text("SELECT * FROM shard_order WHERE oID = :oID")
+        return Foundation.fetch_one(self.db, sql, {"oID": oID})
+
+    def list_orders_by_user(
+        self,
+        uID: int,
+        status: Optional[str] = None,
+        skip: int = 0,
+        limit: int = 50,
+    ):
+        where = ["uID = :uID"]
+        params = {"uID": uID, "limit": limit, "offset": skip}
+        if status:
+            where.append("status = :status")
+            params["status"] = status
+        sql = text(
+            f"""
+            SELECT * FROM shard_order
+            WHERE {' AND '.join(where)}
+            ORDER BY time_created DESC, oID DESC
+            LIMIT :limit OFFSET :offset
+            """
+        )
+        return Foundation.fetch_all(self.db, sql, params)
+
+    def get_open_orders(self, bID: int, side: str, price_limit: Optional[int] = None):
+        params = {"bID": bID, "side": side}
+        where = [
+            "bID = :bID",
+            "side = :side",
+            "status IN ('open', 'partial')",
+            "volume_total > volume_filled",
+        ]
+        if side == "buy":
+            if price_limit is not None:
+                where.append("price >= :price_limit")
+                params["price_limit"] = price_limit
+            order_sql = "ORDER BY price DESC, time_created ASC, oID ASC"
+        else:
+            if price_limit is not None:
+                where.append("price <= :price_limit")
+                params["price_limit"] = price_limit
+            order_sql = "ORDER BY price ASC, time_created ASC, oID ASC"
+        sql = text(
+            f"""
+            SELECT * FROM shard_order
+            WHERE {' AND '.join(where)}
+            {order_sql}
+            """
+        )
+        return Foundation.fetch_all(self.db, sql, params)
+
+    def update_order_fill(self, oID: int, fill_volume: int):
+        now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        sql = text(
+            """
+            UPDATE shard_order
+            SET
+                volume_filled = volume_filled + :fill_volume,
+                volume_frozen = CASE
+                    WHEN volume_frozen - :fill_volume > 0 THEN volume_frozen - :fill_volume
+                    ELSE 0
+                END,
+                status = CASE
+                    WHEN volume_filled + :fill_volume >= volume_total THEN 'filled'
+                    WHEN volume_filled + :fill_volume > 0 THEN 'partial'
+                    ELSE status
+                END,
+                time_updated = :now
+            WHERE oID = :oID
+            """
+        )
+        Foundation.exec(self.db, sql, {"fill_volume": fill_volume, "now": now, "oID": oID})
+        self.db.commit()
+        return self.get_order(oID)
+
+    def cancel_order(self, oID: int, uID: int) -> bool:
+        now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        sql = text(
+            """
+            UPDATE shard_order
+            SET status = 'cancelled', volume_frozen = 0, time_updated = :now
+            WHERE oID = :oID AND uID = :uID AND status IN ('open', 'partial')
+            """
+        )
+        result = Foundation.exec(self.db, sql, {"oID": oID, "uID": uID, "now": now})
+        self.db.commit()
+        return result.rowcount > 0
+
+    def cancel_all_orders(self, uID: int, bID: Optional[int] = None) -> int:
+        now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        params = {"uID": uID, "now": now}
+        where = ["uID = :uID", "status IN ('open', 'partial')"]
+        if bID is not None:
+            where.append("bID = :bID")
+            params["bID"] = bID
+        sql = text(
+            f"""
+            UPDATE shard_order
+            SET status = 'cancelled', volume_frozen = 0, time_updated = :now
+            WHERE {' AND '.join(where)}
+            """
+        )
+        result = Foundation.exec(self.db, sql, params)
+        self.db.commit()
+        return int(result.rowcount or 0)
+
+    def create_trade(
+        self,
+        bID: int,
+        buy_oID: int,
+        sell_oID: int,
+        buyer_uID: int,
+        seller_uID: int,
+        price: int,
+        volume: int,
+    ):
+        now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        sql = text(
+            """
+            INSERT INTO shard_trade (
+                bID, buy_oID, sell_oID, buyer_uID, seller_uID,
+                price, volume, time_created
+            ) VALUES (
+                :bID, :buy_oID, :sell_oID, :buyer_uID, :seller_uID,
+                :price, :volume, :time_created
+            )
+            """
+        )
+        Foundation.exec(self.db, sql, {
+            "bID": bID,
+            "buy_oID": buy_oID,
+            "sell_oID": sell_oID,
+            "buyer_uID": buyer_uID,
+            "seller_uID": seller_uID,
+            "price": price,
+            "volume": volume,
+            "time_created": now,
+        })
+        self.db.commit()
+        row = Foundation.fetch_one(self.db, text("SELECT last_insert_rowid() AS trID"))
+        if not row or not row.get("trID"):
+            return None
+        trade_sql = text("SELECT * FROM shard_trade WHERE trID = :trID")
+        return Foundation.fetch_one(self.db, trade_sql, {"trID": int(row["trID"])})
+
+    def list_trades(self, bID: int, limit: int = 50):
+        sql = text(
+            """
+            SELECT * FROM shard_trade
+            WHERE bID = :bID
+            ORDER BY time_created DESC, trID DESC
+            LIMIT :limit
+            """
+        )
+        return Foundation.fetch_all(self.db, sql, {"bID": bID, "limit": limit})
+
+    def get_orderbook(self, bID: int):
+        sql = text(
+            """
+            SELECT side, price, SUM(volume_total - volume_filled) AS volume
+            FROM shard_order
+            WHERE bID = :bID
+              AND status IN ('open', 'partial')
+              AND volume_total > volume_filled
+            GROUP BY side, price
+            HAVING SUM(volume_total - volume_filled) > 0
+            ORDER BY
+              CASE WHEN side = 'buy' THEN 0 ELSE 1 END,
+              CASE WHEN side = 'buy' THEN price END DESC,
+              CASE WHEN side = 'sell' THEN price END ASC
+            """
+        )
+        return Foundation.fetch_all(self.db, sql, {"bID": bID})
 
 
 class CalendarEntity:

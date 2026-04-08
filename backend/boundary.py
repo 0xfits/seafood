@@ -10,10 +10,11 @@ from typing import Annotated, List, Optional, Dict, Any
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 import os
+import secrets
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from dataclasses import dataclass
-from .core import Core, BrandCore, CalendarCore, ChestCore, GiftCore, JourneyCore, TaskCore, UserCore
+from .core import Core, BrandCore, CalendarCore, ChestCore, GiftCore, JourneyCore, MarketCore, OrderCore, ShardCore, TaskCore, UserCore
 import http.server
 import inspect
 import asyncio
@@ -266,74 +267,40 @@ async def fix_user_assets():
 
 @router.post("/auth/register")
 async def register_user(request: Request):
-    """用户注册端点"""
+    """历史注册端点已弃用，改为首次钱包登录后的资料补全。"""
+    return to_json_response(APIResponse(
+        ok=False,
+        status_code=410,
+        error='Registration has moved to wallet sign-in plus profile completion',
+    ))
+
+@router.post("/auth/challenge")
+async def create_login_challenge(request: Request):
     try:
         payload = await request.json()
-        print(f"注册请求: email={payload.get('email') if payload else None}, evm={payload.get('evm_address') if payload else None}")
-        
-        email = payload.get('email')
-        evm_address = payload.get('evm_address')
-        
-        if not email or not evm_address:
-            return APIResponse(ok=False, status_code=400, error='Email and evm_address required')
-        
-        # 创建新用户
-        result = await core.auth_register_user(email, evm_address.lower())
-        print(f"注册结果: {result}")
-        
-        if result.get("success"):
-            user_data = result.get("data")
-            return APIResponse(ok=True, status_code=200, message="注册成功", data=user_data)
-        else:
-            return APIResponse(ok=False, status_code=400, error=result.get("message") or 'Registration failed')
-            
+        return to_json_response(await start_wallet_auth_challenge(payload.get('evm_address') if payload else None))
     except Exception as e:
-        print(f"注册API异常: {str(e)}")
-        return APIResponse(ok=False, status_code=500, error=f'服务器内部错误: {str(e)}')
+        print(f"登录挑战异常: {str(e)}")
+        return to_json_response(APIResponse(ok=False, status_code=500, error=f'服务器内部错误: {str(e)}'))
+
+@router.post("/auth/verify")
+async def verify_login_signature(request: Request):
+    try:
+        payload = await request.json()
+        return to_json_response(await verify_wallet_auth(payload or {}))
+    except Exception as e:
+        print(f"签名验证异常: {str(e)}")
+        return to_json_response(APIResponse(ok=False, status_code=500, error=f'服务器内部错误: {str(e)}'))
 
 @router.post("/auth/login")
 async def login_user(request: Request):
-    """用户登录端点"""
+    """兼容入口：统一改为 challenge_token + signature 验证。"""
     try:
         payload = await request.json()
-        evm_address = payload.get('evm_address')
-        
-        if not evm_address:
-            return APIResponse(ok=False, status_code=401, error='Unauthorized: evm_address required')
-        
-        # 查询或创建用户
-        result = await core.auth_find_or_create_by_evm(evm_address.lower())
-        
-        if result.get("success"):
-            user_data = result.get("data")
-            uID = user_data.get('uID')
-            
-            # 创建访问令牌
-            from datetime import datetime, timedelta
-            from jose import jwt
-            
-            SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key")
-            ALGORITHM = "HS256"
-            ACCESS_TOKEN_EXPIRE_MINUTES = 30
-            
-            access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-            expire = datetime.utcnow() + access_token_expires
-            
-            to_encode = {"sub": str(uID), "evm": evm_address, "exp": expire}
-            access_token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-            
-            return APIResponse(ok=True, status_code=200, data={
-                "uID": uID,
-                "EVM": evm_address,
-                "access_token": access_token,
-                "token_type": "bearer"
-            })
-        else:
-            return APIResponse(ok=False, status_code=500, error='Failed to create or find user')
-            
+        return to_json_response(await verify_wallet_auth(payload or {}))
     except Exception as e:
         print(f"登录API异常: {str(e)}")
-        return APIResponse(ok=False, status_code=500, error=f'服务器内部错误: {str(e)}')
+        return to_json_response(APIResponse(ok=False, status_code=500, error=f'服务器内部错误: {str(e)}'))
 
 @dataclass
 class APIResponse:
@@ -372,10 +339,12 @@ load_dotenv(os.path.join(BASE_DIR, ".env"))
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+AUTH_CHALLENGE_EXPIRE_SECONDS = int(os.getenv("AUTH_CHALLENGE_EXPIRE_SECONDS", "300"))
 ADMIN_EVM_ADDRESSES = {a.strip().lower() for a in os.getenv("ADMIN_EVM_ADDRESSES", "").split(",") if a.strip()}
+ACTIVE_AUTH_CHALLENGES: Dict[str, Dict[str, Any]] = {}
 
 # OAuth2配置
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/verify")
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
@@ -386,6 +355,144 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+def to_json_response(response: "APIResponse"):
+    content = {"success": bool(response.ok)}
+    if response.message is not None:
+        content["message"] = response.message
+    if response.data is not None:
+        content["data"] = response.data
+    if response.error is not None:
+        content["error"] = response.error
+        content.setdefault("message", response.error)
+    return JSONResponse(status_code=response.status_code, content=content)
+
+def build_wallet_sign_message(evm_address: str, nonce: str, issued_at: int, expires_at: int) -> str:
+    issued_iso = datetime.utcfromtimestamp(int(issued_at)).strftime("%Y-%m-%d %H:%M:%S UTC")
+    expires_iso = datetime.utcfromtimestamp(int(expires_at)).strftime("%Y-%m-%d %H:%M:%S UTC")
+    return (
+        "Jinli Club Wallet Sign-In\n\n"
+        "请签名确认你持有该钱包地址，用于登录 Jinli Club。\n"
+        "本次签名不会发起链上交易，也不会消耗 gas。\n\n"
+        f"钱包地址: {evm_address.lower()}\n"
+        f"Nonce: {nonce}\n"
+        f"Issued At: {issued_iso}\n"
+        f"Expires At: {expires_iso}"
+    )
+
+def build_auth_payload(user_data: Dict[str, Any]) -> Dict[str, Any]:
+    payload = dict(user_data or {})
+    token = create_access_token(
+        {"sub": str(payload.get("uID")), "evm": payload.get("EVM")},
+        timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+    )
+    payload.update({
+        "token": token,
+        "access_token": token,
+        "token_type": "bearer",
+    })
+    return payload
+
+def prune_auth_challenges(now_ts: Optional[int] = None):
+    current_ts = int(now_ts or datetime.utcnow().timestamp())
+    expired_nonces = [
+        nonce for nonce, record in ACTIVE_AUTH_CHALLENGES.items()
+        if int(record.get("expires_at") or 0) <= current_ts
+    ]
+    for nonce in expired_nonces:
+        ACTIVE_AUTH_CHALLENGES.pop(nonce, None)
+
+async def start_wallet_auth_challenge(evm_address: str) -> "APIResponse":
+    evm_norm = str(evm_address or "").strip().lower()
+    if not evm_norm:
+        return APIResponse(ok=False, status_code=400, error='evm_address required')
+    if not evm_norm.startswith("0x") or len(evm_norm) != 42:
+        return APIResponse(ok=False, status_code=400, error='Invalid EVM address')
+
+    issued_at = int(datetime.utcnow().timestamp())
+    expires_at = issued_at + AUTH_CHALLENGE_EXPIRE_SECONDS
+    prune_auth_challenges(issued_at)
+    nonce = secrets.token_hex(16)
+    ACTIVE_AUTH_CHALLENGES[nonce] = {
+        "evm": evm_norm,
+        "issued_at": issued_at,
+        "expires_at": expires_at,
+    }
+    challenge_token = create_access_token({
+        "typ": "auth_challenge",
+        "evm": evm_norm,
+        "nonce": nonce,
+        "iat": issued_at,
+        "expires_at": expires_at,
+    }, timedelta(seconds=AUTH_CHALLENGE_EXPIRE_SECONDS))
+
+    return APIResponse(ok=True, status_code=200, data={
+        "evm_address": evm_norm,
+        "message": build_wallet_sign_message(evm_norm, nonce, issued_at, expires_at),
+        "challenge_token": challenge_token,
+        "expires_at": expires_at,
+    })
+
+async def verify_wallet_auth(payload: Dict[str, Any]) -> "APIResponse":
+    evm_norm = str(payload.get("evm_address") or "").strip().lower()
+    signature = str(payload.get("signature") or "").strip()
+    challenge_token = str(payload.get("challenge_token") or "").strip()
+
+    if not evm_norm or not signature or not challenge_token:
+        return APIResponse(ok=False, status_code=400, error='evm_address, signature and challenge_token required')
+
+    try:
+        challenge_payload = jwt.decode(challenge_token, SECRET_KEY, algorithms=[ALGORITHM])
+    except JWTError:
+        return APIResponse(ok=False, status_code=401, error='Challenge expired or invalid')
+
+    if challenge_payload.get("typ") != "auth_challenge":
+        return APIResponse(ok=False, status_code=400, error='Invalid challenge token type')
+
+    challenge_address = str(challenge_payload.get("evm") or "").strip().lower()
+    nonce = str(challenge_payload.get("nonce") or "").strip()
+    issued_at = int(challenge_payload.get("iat") or 0)
+    expires_at = int(challenge_payload.get("expires_at") or 0)
+    prune_auth_challenges()
+
+    if challenge_address != evm_norm:
+        return APIResponse(ok=False, status_code=400, error='Challenge address mismatch')
+    if not nonce or not issued_at or not expires_at:
+        return APIResponse(ok=False, status_code=400, error='Challenge payload is incomplete')
+
+    challenge_record = ACTIVE_AUTH_CHALLENGES.get(nonce)
+    if not challenge_record:
+        return APIResponse(ok=False, status_code=401, error='Challenge has been consumed or expired')
+    if str(challenge_record.get("evm") or "").strip().lower() != challenge_address:
+        ACTIVE_AUTH_CHALLENGES.pop(nonce, None)
+        return APIResponse(ok=False, status_code=401, error='Challenge record mismatch')
+    if int(challenge_record.get("expires_at") or 0) <= int(datetime.utcnow().timestamp()):
+        ACTIVE_AUTH_CHALLENGES.pop(nonce, None)
+        return APIResponse(ok=False, status_code=401, error='Challenge has been consumed or expired')
+
+    try:
+        from eth_account import Account
+        from eth_account.messages import encode_defunct
+    except ImportError:
+        return APIResponse(ok=False, status_code=500, error='eth-account is required for wallet signature verification')
+
+    try:
+        recovered_address = Account.recover_message(
+            encode_defunct(text=build_wallet_sign_message(challenge_address, nonce, issued_at, expires_at)),
+            signature=signature,
+        )
+    except Exception:
+        return APIResponse(ok=False, status_code=401, error='Wallet signature verification failed')
+
+    if str(recovered_address).lower() != challenge_address:
+        return APIResponse(ok=False, status_code=401, error='Wallet signature does not match the requested address')
+
+    result = await core.auth_find_or_create_by_evm(challenge_address)
+    if not result.get("success"):
+        return APIResponse(ok=False, status_code=500, error=result.get("message") or 'Failed to create or find user')
+
+    ACTIVE_AUTH_CHALLENGES.pop(nonce, None)
+    return APIResponse(ok=True, status_code=200, data=build_auth_payload(result.get("data") or {}))
 
 def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(
@@ -506,6 +613,9 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
     brand_core: BrandCore
     chest_core: ChestCore
     gift_core: GiftCore
+    order_core: OrderCore
+    market_core: MarketCore
+    shard_core: ShardCore
     journey_core: JourneyCore
     task_core: TaskCore
     user_core: UserCore
@@ -518,6 +628,9 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
         self.calendar_core = CalendarCore(db)
         self.chest_core = ChestCore(db)
         self.gift_core = GiftCore(db)
+        self.order_core = OrderCore(db)
+        self.market_core = MarketCore(db)
+        self.shard_core = ShardCore(db)
         self.journey_core = JourneyCore(db)
         self.task_core = TaskCore(db)
         self.user_core = UserCore(db)
@@ -575,10 +688,54 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                 # Admin authority 管理员权限
                 if path == "/api/gift/all":
                     return self._response(await self.gift_core.get_all(uID=uid, skip=skip, limit=limit))
+                # ====== Shard endpoints ======
+                # ====== 碎片持仓相关的路由端点 ======
+                if path == "/api/shard":
+                    if actor_uid is None:
+                        return APIResponse(ok=False, status_code=401, error="Unauthorized")
+                    return self._response(await self.shard_core.get_holdings(uID=actor_uid))
+                if path == "/api/shard/transfer":
+                    if actor_uid is None:
+                        return APIResponse(ok=False, status_code=401, error="Unauthorized")
+                    return self._response(await self.shard_core.list_transfers(uID=actor_uid, skip=skip, limit=limit))
+                # ====== Order/Market endpoints ======
+                # ====== 订单与市场相关的路由端点 ======
+                if path == "/api/order":
+                    if actor_uid is None:
+                        return APIResponse(ok=False, status_code=401, error="Unauthorized")
+                    status_values = query_params.get("status") if query_params else None
+                    status_filter = status_values[0] if status_values else None
+                    return self._response(await self.order_core.list_orders(
+                        uID=actor_uid,
+                        status=status_filter,
+                        skip=skip,
+                        limit=limit,
+                    ))
+                if path.startswith("/api/market/") and path.endswith("/orderbook"):
+                    parts = path.split("/")
+                    try:
+                        bID = int(parts[3])
+                    except (IndexError, ValueError):
+                        return APIResponse(ok=False, status_code=400, error="Invalid bID")
+                    return self._response(await self.market_core.get_orderbook(bID=bID))
+                if path.startswith("/api/market/") and path.endswith("/trades"):
+                    parts = path.split("/")
+                    try:
+                        bID = int(parts[3])
+                    except (IndexError, ValueError):
+                        return APIResponse(ok=False, status_code=400, error="Invalid bID")
+                    return self._response(await self.market_core.list_trades(bID=bID, limit=limit))
                 # ====== Task endpoints ======
                 # ====== 任务相关的路由端点 ======
                 if path == "/api/task/all":
                     return self._response(await self.task_core.list_all(skip=skip, limit=limit))
+                if path.startswith("/api/task/") and len(path.split("/")) == 4:
+                    try:
+                        parts = path.split("/")
+                        tID = int(parts[3])  # /api/task/{tID}
+                    except (IndexError, ValueError):
+                        return APIResponse(ok=False, status_code=400, error='Invalid tID')
+                    return self._response(await self.core.get_task_detail(tID))
                 # ====== Journey endpoints ======
                 # ====== 行程相关的路由端点 ======
                 if path == "/api/journey":
@@ -714,46 +871,33 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                 # ====== Auth endpoints ======
                 # ====== 认证相关的路由端点 ======
                 if path == "/api/auth/register":
-                    try:
-                        print(f"注册请求: email={payload.get('email') if payload else None}, evm={payload.get('evm_address') if payload else None}")
-                        
-                        email = payload.get('email') if payload else None
-                        evm_address = payload.get('evm_address') if payload else None
-                        
-                        if email and evm_address:
-                            # 创建新用户
-                            result = await self.core.auth_register_user(email, evm_address.lower())
-                            print(f"注册结果: ok={result.ok}, error={result.error}")
-                            
-                            if result.ok:
-                                user_data = result.data
-                                return APIResponse(ok=True, status_code=200, message="注册成功", data=user_data)
-                            else:
-                                return APIResponse(ok=False, status_code=400, error=result.error or 'Registration failed')
-                        else:
-                            return APIResponse(ok=False, status_code=400, error='Email and evm_address required')
-                    except Exception as e:
-                        print(f"注册API异常: {str(e)}")
-                        return APIResponse(ok=False, status_code=500, error=f'服务器内部错误: {str(e)}')
+                    return APIResponse(
+                        ok=False,
+                        status_code=410,
+                        error='Registration has moved to wallet sign-in plus profile completion',
+                    )
+
+                if path == "/api/auth/challenge":
+                    return await start_wallet_auth_challenge(payload.get('evm_address') if payload else None)
+
+                if path == "/api/auth/verify":
+                    return await verify_wallet_auth(payload or {})
                         
                 if path == "/api/auth/login":
-                    evm_address = payload.get('evm_address') if payload else None
-                    if evm_address:
-                        # 查询或创建用户，获取数据库中的真实 uID
-                        result = await self.core.auth_find_or_create_by_evm(evm_address.lower())
-                        if result.ok:
-                            user_data = result.data
-                            uID = user_data.get('uID')
-                            return APIResponse(ok=True, status_code=200, data={
-                                "uID": uID,
-                                "EVM": evm_address,
-                                "access_token": create_access_token({"sub": str(uID), "evm": evm_address}),
-                                "token_type": "bearer"
-                            })
-                        else:
-                            return APIResponse(ok=False, status_code=500, error='Failed to create or find user')
-                    else:
-                        return APIResponse(ok=False, status_code=401, error='Unauthorized: evm_address required')
+                    return await verify_wallet_auth(payload or {})
+
+                if path == "/api/user/profile":
+                    if actor_uid is None:
+                        return APIResponse(ok=False, status_code=401, error='Unauthorized')
+
+                    bio_value = payload.get('bio') if payload else None
+                    if bio_value is None:
+                        return APIResponse(ok=False, status_code=400, error='bio is required')
+
+                    return self._response(await self.core.update_user(
+                        uID=int(actor_uid),
+                        bio=str(bio_value).strip(),
+                    ))
                 
                 # Admin points adjustment
                 if path == "/api/admin/points/adjust":
@@ -884,6 +1028,105 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                         import traceback
                         traceback.print_exc()
                         return APIResponse(ok=False, status_code=500, error=f'删除权限组失败: {str(e)}')
+
+                if path == "/api/admin/task/create":
+                    try:
+                        if actor_uid is None or not self.core.has_admin_permission(actor_uid, "manage_tasks"):
+                            return APIResponse(ok=False, status_code=403, error='需要管理员权限')
+                        return self._response(await self.core.create_task(
+                            title=payload.get("title") or "",
+                            note=payload.get("note"),
+                            refcode=payload.get("refcode"),
+                            link0=payload.get("link0"),
+                            linkB=payload.get("linkB"),
+                            is_open=bool(payload.get("is_open", True)),
+                            time_start=payload.get("time_start"),
+                            time_end=payload.get("time_end"),
+                            points=payload.get("points") or 0,
+                            title_en=payload.get("title_en"),
+                            title_hk=payload.get("title_hk"),
+                            title_vn=payload.get("title_vn"),
+                            note_en=payload.get("note_en"),
+                            note_hk=payload.get("note_hk"),
+                            note_vn=payload.get("note_vn"),
+                            type=payload.get("type") or 0,
+                        ))
+                    except Exception as e:
+                        print(f"[API] 创建任务异常: {str(e)}")
+                        import traceback
+                        traceback.print_exc()
+                        return APIResponse(ok=False, status_code=500, error=f'创建任务失败: {str(e)}')
+
+                if path == "/api/admin/task/update":
+                    try:
+                        if actor_uid is None or not self.core.has_admin_permission(actor_uid, "manage_tasks"):
+                            return APIResponse(ok=False, status_code=403, error='需要管理员权限')
+                        tID = payload.get("tID")
+                        if tID is None:
+                            return APIResponse(ok=False, status_code=400, error='tID is required')
+                        fields = dict(payload or {})
+                        fields.pop("tID", None)
+                        return self._response(await self.core.update_task(int(tID), **fields))
+                    except Exception as e:
+                        print(f"[API] 更新任务异常: {str(e)}")
+                        import traceback
+                        traceback.print_exc()
+                        return APIResponse(ok=False, status_code=500, error=f'更新任务失败: {str(e)}')
+
+                if path == "/api/admin/task/delete":
+                    try:
+                        if actor_uid is None or not self.core.has_admin_permission(actor_uid, "manage_tasks"):
+                            return APIResponse(ok=False, status_code=403, error='需要管理员权限')
+                        tID = payload.get("tID")
+                        if tID is None:
+                            return APIResponse(ok=False, status_code=400, error='tID is required')
+                        return self._response(await self.core.delete_task(int(tID)))
+                    except Exception as e:
+                        print(f"[API] 删除任务异常: {str(e)}")
+                        import traceback
+                        traceback.print_exc()
+                        return APIResponse(ok=False, status_code=500, error=f'删除任务失败: {str(e)}')
+
+                if path == "/api/admin/brand/create":
+                    try:
+                        if actor_uid is None or not self.core.has_admin_permission(actor_uid, "manage_rewards"):
+                            return APIResponse(ok=False, status_code=403, error='需要管理员权限')
+                        return self._response(await self.brand_core.create_brand(**(payload or {})))
+                    except Exception as e:
+                        print(f"[API] 创建奖励品牌异常: {str(e)}")
+                        import traceback
+                        traceback.print_exc()
+                        return APIResponse(ok=False, status_code=500, error=f'创建奖励品牌失败: {str(e)}')
+
+                if path == "/api/admin/brand/update":
+                    try:
+                        if actor_uid is None or not self.core.has_admin_permission(actor_uid, "manage_rewards"):
+                            return APIResponse(ok=False, status_code=403, error='需要管理员权限')
+                        bID = payload.get("bID")
+                        if bID is None:
+                            return APIResponse(ok=False, status_code=400, error='bID is required')
+                        fields = dict(payload or {})
+                        fields.pop("bID", None)
+                        return self._response(await self.brand_core.update_brand(int(bID), **fields))
+                    except Exception as e:
+                        print(f"[API] 更新奖励品牌异常: {str(e)}")
+                        import traceback
+                        traceback.print_exc()
+                        return APIResponse(ok=False, status_code=500, error=f'更新奖励品牌失败: {str(e)}')
+
+                if path == "/api/admin/brand/delete":
+                    try:
+                        if actor_uid is None or not self.core.has_admin_permission(actor_uid, "manage_rewards"):
+                            return APIResponse(ok=False, status_code=403, error='需要管理员权限')
+                        bID = payload.get("bID")
+                        if bID is None:
+                            return APIResponse(ok=False, status_code=400, error='bID is required')
+                        return self._response(await self.brand_core.delete_brand(int(bID)))
+                    except Exception as e:
+                        print(f"[API] 删除奖励品牌异常: {str(e)}")
+                        import traceback
+                        traceback.print_exc()
+                        return APIResponse(ok=False, status_code=500, error=f'删除奖励品牌失败: {str(e)}')
                 
                 # Admin fix assets
                 if path == "/api/admin/fix/assets":
@@ -944,6 +1187,31 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                     if actor_uid is None or not self.core.has_admin_permission(actor_uid, "manage_rewards"):
                         return APIResponse(ok=False, status_code=403, error='需要管理员权限')
                     return self._response(self.gift_core.update(gID=id))
+                # ====== Shard endpoints ======
+                # ====== 碎片兑换相关的路由端点 ======
+                if path == "/api/shard/redeem":
+                    if actor_uid is None:
+                        return APIResponse(ok=False, status_code=401, error='Unauthorized')
+                    bID = payload.get('bID') if payload else None
+                    if bID is None:
+                        return APIResponse(ok=False, status_code=400, error='bID is required')
+                    return self._response(await self.shard_core.redeem(uID=actor_uid, bID=int(bID)))
+                if path == "/api/order":
+                    if actor_uid is None:
+                        return APIResponse(ok=False, status_code=401, error='Unauthorized')
+                    bID = payload.get("bID") if payload else None
+                    side = payload.get("side") if payload else None
+                    price = payload.get("price") if payload else None
+                    volume = payload.get("volume") if payload else None
+                    if None in (bID, side, price, volume):
+                        return APIResponse(ok=False, status_code=400, error='bID, side, price, volume are required')
+                    return self._response(await self.order_core.place_order(
+                        uID=actor_uid,
+                        bID=int(bID),
+                        side=str(side),
+                        price=int(price),
+                        volume=int(volume),
+                    ))
                 # ====== Journey endpoints ======
                 # ====== 行程相关的路由端点 ======
                 if path == "/api/journey/submit":
@@ -985,6 +1253,19 @@ class Boundary(http.server.SimpleHTTPRequestHandler):
                         return APIResponse(ok=False, status_code=400, error='Invalid jID')
                     approved = True if payload is None else bool(payload.get("approved", True))
                     return self._response(await self.core.verify_pending_submission_admin(jID=jID, approved=approved))
+            elif method == 'DELETE':
+                if actor_uid is None:
+                    return APIResponse(ok=False, status_code=401, error='Unauthorized')
+                if path == "/api/order":
+                    bID_raw = payload.get("bID") if payload else None
+                    bID_del = int(bID_raw) if bID_raw is not None else None
+                    return self._response(await self.order_core.cancel_all(uID=actor_uid, bID=bID_del))
+                if path.startswith("/api/order/"):
+                    try:
+                        oID = int(path.split("/")[-1])
+                    except ValueError:
+                        return APIResponse(ok=False, status_code=400, error='Invalid oID')
+                    return self._response(await self.order_core.cancel_order(oID=oID, uID=actor_uid))
             # 未匹配到任何已知端点
             return APIResponse(ok=False, status_code=404, error='Not found')
         except Exception as e:

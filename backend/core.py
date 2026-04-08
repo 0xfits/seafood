@@ -25,7 +25,7 @@ import os
 import random
 from sqlalchemy import Boolean
 
-from .data import Data, BrandData, CalendarData, ChestData, GiftData, JourneyData, TaskData, UserData, UserChestStatData
+from .data import Data, BrandData, CalendarData, ChestData, GiftData, JourneyData, MarketData, OrderData, ShardData, TaskData, UserData, UserChestStatData
 from .data_model import Brand, Chest, Gift, Journey, Task, User
 from .foundation import Base
 from .admin_state import (
@@ -588,16 +588,40 @@ class Core:
                           title: str,
                           note: Optional[str] = None,
                           refcode: Optional[str] = None,
-                          linkA: Optional[str] = None,
+                          link0: Optional[str] = None,
                           linkB: Optional[str] = None,
                           is_open: bool = True,
                           time_start: Optional[object] = None,
-                          time_end: Optional[object] = None):
+                          time_end: Optional[object] = None,
+                          points: int = 0,
+                          title_en: Optional[str] = None,
+                          title_hk: Optional[str] = None,
+                          title_vn: Optional[str] = None,
+                          note_en: Optional[str] = None,
+                          note_hk: Optional[str] = None,
+                          note_vn: Optional[str] = None,
+                          type: int = 0):
         with self.data as r:
             ts = self._parse_input_dt(time_start)
             te = self._parse_input_dt(time_end)
-            t = r.create_task(title=title, note=note, refcode=refcode, linkA=linkA, linkB=linkB,
-                              is_open=is_open, time_start=ts, time_end=te)
+            t = r.create_task(
+                title=title,
+                note=note,
+                refcode=refcode,
+                link0=link0,
+                linkB=linkB,
+                is_open=is_open,
+                time_start=ts,
+                time_end=te,
+                points=points,
+                title_en=title_en,
+                title_hk=title_hk,
+                title_vn=title_vn,
+                note_en=note_en,
+                note_hk=note_hk,
+                note_vn=note_vn,
+                type=type,
+            )
             return self.ok(data=self.task_to_dict(t))
 
     async def update_task(self, tID: int, **fields):
@@ -614,6 +638,8 @@ class Core:
 
     async def delete_task(self, tID: int):
         with self.data as r:
+            if r.count_task_participants(tID) > 0:
+                return self.err("Task has participant journeys and cannot be deleted")
             ok = r.delete_task(tID)
             if not ok:
                 return self.err("Task not found")
@@ -854,10 +880,22 @@ class Core:
             return self.ok(data=j.to_dict())
 
     async def auth_find_or_create_by_evm(self, evm_norm: str):
-        row = self.data.find_or_create_user_by_evm(evm_norm)
-        if not row:
-            return self.err("Failed to create user")
-        return self.ok(data={"uID": row["uID"], "EVM": row["EVM"], "bio": row.get("bio") or ""})
+        from .entity import UserEntity
+
+        with UserEntity(self.data.db) as ue:
+            existing_user = ue.find_by_evm(evm_norm)
+            row = ue.find_or_create_by_evm(evm_norm)
+            if not row:
+                return self.err("Failed to create user")
+
+            asset = ue.upsert_asset(int(row["uID"]), 0)
+            user_data = self.user_to_dict(row)
+            user_data.update({
+                "points": asset.points if asset else 0,
+                "is_new_user": existing_user is None,
+                "requires_profile_completion": not bool((row.get("bio") or "").strip()),
+            })
+            return self.ok(data=user_data)
 
     async def auth_register_user(self, email: str, evm_norm: str):
         try:
@@ -927,6 +965,30 @@ class BrandCore(Core):
         with self.data as r:
             brands = r.list_brands(skip=skip, limit=limit)
             return self.ok(data=[self.brand_to_dict(b) for b in brands])
+
+    async def create_brand(self, **fields):
+        with self.data as r:
+            brand = r.create_brand(**fields)
+            if not brand:
+                return self.err("Brand create failed")
+            return self.ok(message="Brand created", data=self.brand_to_dict(brand))
+
+    async def update_brand(self, bID: int, **fields):
+        with self.data as r:
+            brand = r.update_brand(bID, **fields)
+            if not brand:
+                return self.err("Brand not found")
+            return self.ok(message="Brand updated", data=self.brand_to_dict(brand))
+
+    async def delete_brand(self, bID: int):
+        with self.data as r:
+            linked_gifts = r.count_gift_stores_by_brand(bID) + r.count_gift_claims_by_brand(bID)
+            if linked_gifts > 0:
+                return self.err("Brand has linked gift records and cannot be deleted")
+            ok = r.delete_brand(bID)
+            if not ok:
+                return self.err("Brand not found")
+            return self.ok(message="Brand deleted", data={"bID": bID})
 
 class CalendarCore(Core):
     def __init__(self, data: Data):
@@ -1272,3 +1334,83 @@ class UserCore(Core):
         with self.data as r:
             items = r.list_users(skip=skip, limit=limit)
             return self.ok(data=[u.to_dict() for u in items])
+
+
+class ShardCore(Core):
+    REDEEM_VOLUME: int = 1000
+
+    def __init__(self, data: Optional[Data] = None) -> None:
+        self.data = ShardData(data)
+
+    async def get_holdings(self, uID: int):
+        """获取用户所有 brand 的持仓"""
+        with self.data as r:
+            items = r.get_holdings(uID)
+            return self.ok(data=[s.to_dict() for s in items])
+
+    async def list_transfers(self, uID: int, skip: int = 0, limit: int = 50):
+        """获取用户 shard 流水"""
+        with self.data as r:
+            items = r.list_transfers(uID, skip=skip, limit=limit)
+            return self.ok(data=[t.to_dict() for t in items])
+
+    async def redeem(self, uID: int, bID: int):
+        """用户兑换 gift：消耗 1000 shard，创建一个 gift 记录"""
+        with self.data as r:
+            holding = r.get_holding(uID, bID)
+            if not holding or holding.volume < self.REDEEM_VOLUME:
+                return self.err("shard 余额不足")
+            r.redeem(uID, bID, self.REDEEM_VOLUME, system_uID=1)
+            from .entity import GiftEntity
+            from datetime import datetime
+            with GiftEntity(r.db) as ge:
+                gift_row = ge.create(bID=bID, uID=uID, time_claimed=datetime.utcnow())
+            return self.ok(data=dict(gift_row) if gift_row else {})
+
+
+class OrderCore(Core):
+    def __init__(self, data: Optional[Data] = None) -> None:
+        self.data = OrderData(data)
+
+    async def place_order(self, uID: int, bID: int, side: str, price: int, volume: int):
+        if side not in ("buy", "sell"):
+            return self.err("side must be buy or sell")
+        if int(price) <= 0 or int(volume) <= 0:
+            return self.err("price and volume must be positive")
+        with self.data as r:
+            order = r.place_order(int(uID), int(bID), side, int(price), int(volume))
+            if order is None:
+                return self.err("下单失败：余额不足或参数错误")
+            return self.ok(data=order.to_dict())
+
+    async def cancel_order(self, oID: int, uID: int):
+        with self.data as r:
+            ok = r.cancel_order(int(oID), int(uID))
+            if not ok:
+                return self.err("撤单失败：订单不存在或无权操作")
+            return self.ok()
+
+    async def cancel_all(self, uID: int, bID: Optional[int] = None):
+        with self.data as r:
+            count = r.cancel_all(int(uID), None if bID is None else int(bID))
+            return self.ok(data={"cancelled": count})
+
+    async def list_orders(self, uID: int, status: Optional[str] = None, skip: int = 0, limit: int = 50):
+        with self.data as r:
+            items = r.list_orders(int(uID), status=status, skip=skip, limit=limit)
+            return self.ok(data=[o.to_dict() for o in items])
+
+
+class MarketCore(Core):
+    def __init__(self, data: Optional[Data] = None) -> None:
+        self.data = MarketData(data)
+
+    async def get_orderbook(self, bID: int):
+        with self.data as r:
+            book = r.get_orderbook(int(bID))
+            return self.ok(data=book)
+
+    async def list_trades(self, bID: int, limit: int = 50):
+        with self.data as r:
+            items = r.list_trades(int(bID), int(limit))
+            return self.ok(data=[t.to_dict() for t in items])

@@ -1,4 +1,8 @@
+import { fetchApiJson, getAuthHeaders, getAuthToken, getStoredUser } from './auth'
+
 const ADMIN_ADDRESS = '0x59f9f640d15ebb053c94a816232cf8ce91b209b0'
+
+export { fetchApiJson, getAuthHeaders, getAuthToken, getStoredUser }
 
 export const isAdminUser = (user) => {
   const evm = user?.EVM?.toLowerCase()
@@ -7,34 +11,6 @@ export const isAdminUser = (user) => {
     user?.role === 'admin' ||
     (evm && evm === ADMIN_ADDRESS)
   )
-}
-
-export const getStoredUser = () => {
-  try {
-    const raw = localStorage.getItem('user')
-    return raw ? JSON.parse(raw) : null
-  } catch (error) {
-    console.error('Failed to parse stored user:', error)
-    return null
-  }
-}
-
-export const getAuthToken = (user) => user?.token || user?.access_token || localStorage.getItem('token') || ''
-
-export const getAuthHeaders = (user) => {
-  const token = getAuthToken(user)
-  return token ? { Authorization: `Bearer ${token}` } : {}
-}
-
-export const fetchApiJson = async (url, options = {}) => {
-  const response = await fetch(url, options)
-  const data = await response.json().catch(() => null)
-
-  if (!response.ok || !data?.success) {
-    throw new Error(data?.message || `请求失败 (${response.status})`)
-  }
-
-  return data.data
 }
 
 export const fetchAdminAccess = async (currentUser = getStoredUser()) => {
