@@ -1,11 +1,5 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python"
-    }
-  ],
   "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist",
   "installCommand": "cd frontend && npm install",
@@ -13,7 +7,8 @@
   "functions": {
     "api/index.py": {
       "runtime": "python3.9",
-      "includeFiles": "backend/**"
+      "includeFiles": "backend/**",
+      "maxDuration": 30
     }
   },
   "rewrites": [
