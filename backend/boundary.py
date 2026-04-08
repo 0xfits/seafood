@@ -25,27 +25,70 @@ core = Core()
 
 # ====== FastAPI 端点定义 ======
 
-@router.get("/test/web3")
-async def test_web3():
-    """Test if web3 library is available"""
+@router.get("/test/signature-verification")
+async def test_signature_verification():
+    """Test signature verification capabilities"""
+    results = {}
+    
+    # Test eth-account
     try:
-        from web3 import Web3
-        
-        return {
-            "success": True,
-            "message": "web3 library is available",
-            "web3_version": Web3.__version__ if hasattr(Web3, '__version__') else "unknown"
+        from eth_account import Account
+        from eth_account.messages import encode_defunct
+        results['eth_account'] = {
+            'available': True,
+            'version': getattr(Account, '__version__', 'unknown')
         }
     except ImportError as e:
-        return {
-            "success": False,
-            "error": f"web3 library not available: {str(e)}"
+        results['eth_account'] = {
+            'available': False,
+            'error': str(e)
         }
-    except Exception as e:
-        return {
-            "success": False,
-            "error": f"Error testing web3: {str(e)}"
+    
+    # Test web3
+    try:
+        from web3 import Web3
+        results['web3'] = {
+            'available': True,
+            'version': getattr(Web3, '__version__', 'unknown')
         }
+    except ImportError as e:
+        results['web3'] = {
+            'available': False,
+            'error': str(e)
+        }
+    
+    # Test ecdsa
+    try:
+        from ecdsa import SigningKey, VerifyingKey, SECP256k1
+        results['ecdsa'] = {
+            'available': True,
+            'version': getattr(SigningKey, '__module__', 'unknown')
+        }
+    except ImportError as e:
+        results['ecdsa'] = {
+            'available': False,
+            'error': str(e)
+        }
+    
+    # Test eth-hash
+    try:
+        from eth_hash.auto import keccak
+        results['eth_hash'] = {
+            'available': True,
+            'version': getattr(keccak, '__module__', 'unknown')
+        }
+    except ImportError as e:
+        results['eth_hash'] = {
+            'available': False,
+            'error': str(e)
+        }
+    
+    return {
+        "success": True,
+        "message": "Signature verification capabilities test",
+        "results": results,
+        "any_available": any(r.get('available', False) for r in results.values())
+    }
 
 @router.get("/test/data")
 async def test_data():
@@ -492,22 +535,86 @@ async def verify_wallet_auth(payload: Dict[str, Any]) -> "APIResponse":
         ACTIVE_AUTH_CHALLENGES.pop(nonce, None)
         return APIResponse(ok=False, status_code=401, error='Challenge has been consumed or expired')
 
+    # Try multiple signature verification methods
+    signature_verified = False
+    recovered_address = None
+    
+    # Method 1: Try eth-account library (preferred)
     try:
-        from web3 import Web3
+        from eth_account import Account
+        from eth_account.messages import encode_defunct
+        print("[DEBUG] Using eth-account for signature verification")
+        recovered_address = Account.recover_message(
+            encode_defunct(text=build_wallet_sign_message(challenge_address, nonce, issued_at, expires_at)),
+            signature=signature,
+        )
+        signature_verified = True
+        print(f"[DEBUG] eth-account verification successful: {recovered_address}")
     except ImportError:
-        return APIResponse(ok=False, status_code=500, error='web3 is required for wallet signature verification')
-
-    try:
-        # Use Web3 to verify signature
-        message = build_wallet_sign_message(challenge_address, nonce, issued_at, expires_at)
-        recovered_address = Web3.to_checksum_address(Web3.eth.account.recover_message(
-            text=message,
-            signature=signature
-        ))
+        print("[DEBUG] eth-account not available, trying web3")
     except Exception as e:
-        print(f"[DEBUG] Signature verification error: {str(e)}")
-        return APIResponse(ok=False, status_code=401, error='Wallet signature verification failed')
-
+        print(f"[DEBUG] eth-account verification failed: {str(e)}")
+    
+    # Method 2: Try web3 library (fallback)
+    if not signature_verified:
+        try:
+            from web3 import Web3
+            print("[DEBUG] Using web3 for signature verification")
+            message = build_wallet_sign_message(challenge_address, nonce, issued_at, expires_at)
+            recovered_address = Web3.to_checksum_address(Web3.eth.account.recover_message(
+                text=message,
+                signature=signature
+            ))
+            signature_verified = True
+            print(f"[DEBUG] web3 verification successful: {recovered_address}")
+        except ImportError:
+            print("[DEBUG] web3 not available")
+        except Exception as e:
+            print(f"[DEBUG] web3 verification failed: {str(e)}")
+    
+    # Method 3: Try manual ECDSA verification (last resort)
+    if not signature_verified:
+        try:
+            from eth_hash.auto import keccak
+            from ecdsa import SigningKey, VerifyingKey, SECP256k1
+            import rlp
+            print("[DEBUG] Using manual ECDSA for signature verification")
+            
+            # Manual signature recovery
+            message_hash = keccak(text=build_wallet_sign_message(challenge_address, nonce, issued_at, expires_at))
+            
+            # Remove 0x prefix if present
+            if signature.startswith('0x'):
+                signature = signature[2:]
+            
+            # Convert to bytes
+            signature_bytes = bytes.fromhex(signature)
+            
+            # Extract v, r, s
+            r = int.from_bytes(signature_bytes[:32], 'big')
+            s = int.from_bytes(signature_bytes[32:64], 'big')
+            
+            # Try different recovery IDs
+            for v in [27, 28]:
+                try:
+                    public_key = SigningKey.from_public_key_recovery(
+                        message_hash, r, s, v
+                    )
+                    recovered_address = public_key.to_checksum_address()
+                    signature_verified = True
+                    print(f"[DEBUG] Manual ECDSA verification successful: {recovered_address}")
+                    break
+                except Exception:
+                    continue
+                    
+        except ImportError:
+            print("[DEBUG] Manual ECDSA libraries not available")
+        except Exception as e:
+            print(f"[DEBUG] Manual ECDSA verification failed: {str(e)}")
+    
+    if not signature_verified:
+        return APIResponse(ok=False, status_code=500, error='No signature verification method available')
+    
     if str(recovered_address).lower() != challenge_address:
         return APIResponse(ok=False, status_code=401, error='Wallet signature does not match the requested address')
 

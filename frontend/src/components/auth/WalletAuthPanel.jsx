@@ -89,63 +89,40 @@ const WalletAuthPanel = ({
 
   const authenticate = async () => {
     if (!walletAddress) {
-      toast.error('Please connect wallet first')
+      toast.error('请先连接钱包')
       return
     }
 
     if (!hasWallet || typeof window.ethereum === 'undefined') {
-      toast.error('No wallet detected in current browser')
+      toast.error('当前浏览器未检测到可用钱包')
       return
     }
 
     setLoading(true)
     try {
-      // Temporarily bypass signature verification and use direct login
       const selectedAddress = walletAddress.trim()
       const normalizedAddress = selectedAddress.toLowerCase()
-      
-      // Use direct login API instead of challenge/verify
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          evm_address: normalizedAddress
-        }),
+      const challenge = await requestAuthChallenge(normalizedAddress)
+      const signature = await window.ethereum.request({
+        method: 'personal_sign',
+        params: [challenge.message, selectedAddress],
       })
-      
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
-        throw new Error(error.error || error.message || 'Login failed')
-      }
-      
-      const result = await response.json()
-      
-      if (!result.success) {
-        throw new Error(result.error || 'Login failed')
-      }
-      
-      const session = {
-        user: {
-          uID: result.data.uID,
-          EVM: result.data.EVM,
-          token: result.data.access_token,
-          access_token: result.data.access_token,
-        },
-        token: result.data.access_token,
-        access_token: result.data.access_token,
-      }
+
+      const session = await verifyAuthChallenge({
+        evmAddress: normalizedAddress,
+        challengeToken: challenge.challenge_token,
+        signature,
+      })
 
       const savedSession = setSession(session)
-      toast.success(mode === 'register' ? 'Wallet verified, continue to complete profile' : 'Login successful')
+      toast.success(mode === 'register' ? '钱包验证成功，继续补全资料' : '登录成功')
 
       if (onSuccess) {
         await onSuccess(savedSession)
       }
     } catch (error) {
       console.error('Wallet authentication failed:', error)
-      toast.error(error.message || 'Authentication failed')
+      toast.error(error.message || '签名验证失败')
     } finally {
       setLoading(false)
     }
