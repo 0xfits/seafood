@@ -18,6 +18,7 @@ const RewardPage = () => {
   const navigate = useNavigate()
   const { user, isAuthenticated } = useAuth()
   const [gifts, setGifts] = useState([])
+  const [shardMap, setShardMap] = useState({})
   const [loading, setLoading] = useState(true)
   const [journey, setJourney] = useState(null)
   const [taskDetail, setTaskDetail] = useState(null)
@@ -50,13 +51,17 @@ const RewardPage = () => {
     let asset = { points: 0 }
 
     if (isAuthenticated && user?.uID) {
-      const [giftRows, assetRows] = await Promise.all([
+      const [giftRows, assetRows, shardRows] = await Promise.all([
         fetchApiJson('/api/gift', { headers: getAuthHeaders(user) }).catch(() => []),
         fetchApiJson(`/api/user/asset/${user.uID}`).catch(() => ({ points: 0 })),
+        fetchApiJson('/api/shard', { headers: getAuthHeaders(user) }).catch(() => []),
       ])
 
       claimedBrandIds = new Set((giftRows || []).map((gift) => gift.bID))
       asset = assetRows || asset
+      const map = {}
+      for (const h of shardRows || []) map[h.bID] = h.volume
+      setShardMap(map)
     }
 
     setUserPoints(asset?.points || 0)
@@ -183,6 +188,20 @@ const RewardPage = () => {
     }
 
     toast('品牌级兑换接口尚未开放，请联系管理员准备具体库存后再兑换。')
+  }
+
+  const handleRedeem = async (bID) => {
+    try {
+      await fetchApiJson('/api/shard/redeem', {
+        method: 'POST',
+        headers: getAuthHeaders(user),
+        body: JSON.stringify({ bID }),
+      })
+      toast.success('碎片兑换成功！')
+      await loadListMode()
+    } catch (error) {
+      toast.error(`兑换失败: ${error.message}`)
+    }
   }
 
   if (loading) {
@@ -338,6 +357,18 @@ const RewardPage = () => {
                     {availableRewards.map((reward, index) => (
                       <FadeIn key={reward.bID} delay={index * 100}>
                         <RewardCard reward={reward} onClaim={handleRewardClaim} userPoints={userPoints} showStatus={true} />
+                        {isAuthenticated && shardMap[reward.bID] >= 1000 && (
+                          <div className="mt-2">
+                            <Button
+                              variant="proceed"
+                              size="sm"
+                              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                              onClick={() => handleRedeem(reward.bID)}
+                            >
+                              兑换 Gift (1000碎片)
+                            </Button>
+                          </div>
+                        )}
                       </FadeIn>
                     ))}
                   </ResponsiveGrid>

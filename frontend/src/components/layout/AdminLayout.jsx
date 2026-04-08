@@ -1,13 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom'
 import {
-  LayoutDashboard, 
-  Trophy, 
-  Gift, 
-  Users, 
-  Shield, 
+  LayoutDashboard,
+  Trophy,
+  Gift,
+  Users,
+  Shield,
   BarChart3,
   Settings,
+  Layers,
   Menu,
   X,
   LogOut
@@ -41,10 +42,17 @@ const AdminLayout = () => {
       requiredPermission: 'manage_tasks',
     },
     {
-      title: '奖励管理', 
+      title: '奖励管理',
       icon: Gift,
       path: '/dashboard/rewards',
       description: '创建和管理奖励',
+      requiredPermission: 'manage_rewards',
+    },
+    {
+      title: '碎片管理',
+      icon: Layers,
+      path: '/dashboard/shards',
+      description: '碎片持仓、挂单与成交',
       requiredPermission: 'manage_rewards',
     },
     {

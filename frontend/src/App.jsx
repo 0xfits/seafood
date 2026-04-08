@@ -14,6 +14,7 @@ import AuthPage from './pages/AuthPage'
 // 管理页面组件
 import TasksManagement from './pages/admin/TasksManagement'
 import RewardsManagement from './pages/admin/RewardsManagement'
+import ShardsManagement from './pages/admin/ShardsManagement'
 import UsersManagement from './pages/admin/UsersManagement'
 import PermissionsManagement from './pages/admin/PermissionsManagement'
 import PointsManagement from './pages/admin/PointsManagement'
@@ -152,6 +153,7 @@ function App() {
           <Route index element={<ProtectedRoute adminOnly={true}><DashboardPage /></ProtectedRoute>} />
           <Route path="tasks" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_tasks"><TasksManagement /></ProtectedRoute>} />
           <Route path="rewards" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_rewards"><RewardsManagement /></ProtectedRoute>} />
+          <Route path="shards" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_rewards"><ShardsManagement /></ProtectedRoute>} />
           <Route path="users" element={<ProtectedRoute adminOnly={true} requiredPermission="read_users"><UsersManagement /></ProtectedRoute>} />
           <Route path="permissions" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_permissions"><PermissionsManagement /></ProtectedRoute>} />
           <Route path="points" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_points"><PointsManagement /></ProtectedRoute>} />

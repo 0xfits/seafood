@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { User, Mail, Calendar, Trophy, Star, Edit3, Save, X } from 'lucide-react'
 
@@ -25,6 +25,7 @@ const ProfilePage = () => {
     totalPoints: 0,
     claimedRewards: 0,
   })
+  const [shardHoldings, setShardHoldings] = useState([])
   const [loading, setLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [bio, setBio] = useState('')
@@ -55,6 +56,7 @@ const ProfilePage = () => {
         await Promise.all([
           loadUserAssets(nextProfile.uID),
           loadTaskStats(nextProfile.uID),
+          loadShardHoldings(),
         ])
       } catch (error) {
         console.error('Error loading user info:', error)
@@ -78,6 +80,18 @@ const ProfilePage = () => {
         points: 0,
         time_update: null,
       })
+    }
+  }
+
+  // 加载碎片持仓
+  const loadShardHoldings = async () => {
+    try {
+      const headers = getAuthHeaders(sessionUser)
+      const result = await fetchApiJson('/api/shard', { headers })
+      setShardHoldings(result ?? [])
+    } catch (error) {
+      console.warn('Failed to load shard holdings:', error)
+      setShardHoldings([])
     }
   }
 
@@ -378,6 +392,34 @@ const ProfilePage = () => {
                   )}
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </SlideUp>
+
+        {/* 碎片持仓 */}
+        <SlideUp delay={800}>
+          <Card variant="inactive">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-2xl">碎片持仓</CardTitle>
+                <Link to="/shard" className="text-sm text-blue-600 hover:text-blue-800 underline">
+                  去交易
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {shardHoldings.length === 0 ? (
+                <p className="text-center text-gray-500 py-4">暂无持仓</p>
+              ) : (
+                <div className="divide-y divide-gray-100">
+                  {shardHoldings.map((h) => (
+                    <div key={h.bID} className="flex items-center justify-between py-2">
+                      <span className="font-medium text-gray-800">{h.symbol || h.bID}</span>
+                      <span className="text-gray-600">{h.volume} 碎片</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </SlideUp>
