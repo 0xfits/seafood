@@ -9,6 +9,7 @@ import TaskPage from './pages/TaskPage'
 import ProfilePage from './pages/ProfilePage'
 import DashboardPage from './pages/DashboardPage'
 import ShardPage from './pages/ShardPage'
+import AuthPage from './pages/AuthPage'
 
 // 管理页面组件
 import TasksManagement from './pages/admin/TasksManagement'
@@ -134,10 +135,10 @@ function App() {
     <div className="app-container gradient-bg">
       <Routes>
         {/* 登录页面 */}
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<AuthPage mode="login" />} />
         
         {/* 注册页面 */}
-        <Route path="/register" element={<Register />} />
+        <Route path="/register" element={<AuthPage mode="register" />} />
         
         {/* 管理页面路由 */}
         <Route 
