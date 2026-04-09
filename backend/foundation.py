@@ -1,49 +1,92 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*- 
 """
-数据库配置文件（SQLite版本）
-此文件使用SQLite数据库，完全不需要编译任何组件
+Vercel Postgres SDK Database Configuration
+This file uses Vercel Postgres SDK for database connection
 """
 from sqlalchemy import create_engine
-from sqlalchemy.pool import NullPool
-from sqlalchemy.engine.url import make_url
+from sqlalchemy.pool import StaticPool
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
 from dotenv import load_dotenv
 from typing import Optional
 
-# 加载环境变量（固定加载backend目录下的.env）
+# Load environment variables
 BASE_DIR = os.path.dirname(__file__)
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
-# 获取数据库URL# 1.  Vercel Postgres (Production)
-# 2.  PostgreSQL (Local Development)
-# 3.  SQLite (Fallback)
-POSTGRES_URL = os.getenv("jinli_POSTGRES_URL") or os.getenv("POSTGRES_URL")
-SQLALCHEMY_DATABASE_URL = POSTGRES_URL or os.getenv("SQLALCHEMY_DATABASE_URL", "sqlite:///./jinli.db")
-
-# 检查是否运行在 Vercel
+# Check if we're running on Vercel
 IS_VERCEL = os.environ.get("VERCEL", "0") == "1"
 
-# 规范化SQLite文件路径
-if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
-    # 如果是常见的相对路径写法，则进行转换
-    if SQLALCHEMY_DATABASE_URL in ("sqlite:///./jinli.db", "sqlite:///jinli.db"):
-        if IS_VERCEL:
-            # Vercel 下使用 /tmp 目录
-            db_file = "/tmp/jinli.db"
-            # 如果 /tmp/jinli.db 不存在，从当前目录拷贝过去
-            if not os.path.exists(db_file):
-                import shutil
-                original_db = os.path.join(BASE_DIR, "jinli.db")
-                if os.path.exists(original_db):
-                    shutil.copy2(original_db, db_file)
+# Database configuration
+if IS_VERCEL:
+    # Use Vercel Postgres SDK in production
+    try:
+        from vercel_postgres import sql
+        POSTGRES_AVAILABLE = True
+        print("Using Vercel Postgres SDK")
+    except ImportError:
+        POSTGRES_AVAILABLE = False
+        print("Vercel Postgres SDK not available, falling back to SQLAlchemy")
+else:
+    POSTGRES_AVAILABLE = False
+    print("Not running on Vercel, using local database")
+
+# Database connection
+def get_db_connection():
+    """Get database connection"""
+    if IS_VERCEL and POSTGRES_AVAILABLE:
+        # Use Vercel Postgres SDK
+        from vercel_postgres import sql
+        return sql
+    else:
+        # Fallback to local SQLite for development
+        import sqlite3
+        db_path = os.path.join(BASE_DIR, "jinli.db")
+        return sqlite3.connect(db_path)
+
+# Database helper functions
+async def execute_query(query: str, params: dict = None):
+    """Execute database query"""
+    if IS_VERCEL and POSTGRES_AVAILABLE:
+        from vercel_postgres import sql
+        if params:
+            return await sql(query, params)
         else:
-            # 本地使用 backend 绝对路径
-            db_file = os.path.join(BASE_DIR, "jinli.db")
-        
-        SQLALCHEMY_DATABASE_URL = f"sqlite:///{db_file}"
+            return await sql(query)
+    else:
+        # Fallback to local SQLite
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        if params:
+            cursor.execute(query, params)
+        else:
+            cursor.execute(query)
+        result = cursor.fetchall()
+        conn.commit()
+        conn.close()
+        return result
+
+async def execute_update(query: str, params: dict = None):
+    """Execute database update"""
+    if IS_VERCEL and POSTGRES_AVAILABLE:
+        from vercel_postgres import sql
+        if params:
+            return await sql(query, params)
+        else:
+            return await sql(query)
+    else:
+        # Fallback to local SQLite
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        if params:
+            cursor.execute(query, params)
+        else:
+            cursor.execute(query)
+        conn.commit()
+        conn.close()
+        return True
 
 # 根据不同数据库类型配置连接池参数，避免 QueuePool 溢出
 _url = make_url(SQLALCHEMY_DATABASE_URL)
