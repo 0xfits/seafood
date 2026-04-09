@@ -17,8 +17,10 @@ from typing import Optional
 BASE_DIR = os.path.dirname(__file__)
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
-# 获取数据库URL - 默认使用SQLite（可被环境变量覆盖为 Postgres/MySQL 等）
-POSTGRES_URL = os.getenv("POSTGRES_URL")
+# 获取数据库URL# 1.  Vercel Postgres (Production)
+# 2.  PostgreSQL (Local Development)
+# 3.  SQLite (Fallback)
+POSTGRES_URL = os.getenv("jinli_POSTGRES_URL") or os.getenv("POSTGRES_URL")
 SQLALCHEMY_DATABASE_URL = POSTGRES_URL or os.getenv("SQLALCHEMY_DATABASE_URL", "sqlite:///./jinli.db")
 
 # 检查是否运行在 Vercel
