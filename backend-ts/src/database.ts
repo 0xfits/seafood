@@ -5,7 +5,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Database connection
-const sql = neon(process.env.jinli_DATABASE_URL || process.env.DATABASE_URL);
+const databaseUrl = process.env.jinli_DATABASE_URL || process.env.DATABASE_URL;
+if (!databaseUrl) {
+  throw new Error('Database URL not found in environment variables');
+}
+const sql = neon(databaseUrl);
 
 export interface Asset {
   id: number;
@@ -26,7 +30,7 @@ export class DatabaseService {
   static async getAllUsers(): Promise<User[]> {
     try {
       const result = await sql`SELECT "uID", evm_address, created_at FROM "user" ORDER BY "uID"`;
-      return result;
+      return result as User[];
     } catch (error) {
       console.error('Error getting users:', error);
       return [];
@@ -37,7 +41,7 @@ export class DatabaseService {
   static async getUserAsset(uID: number): Promise<Asset | null> {
     try {
       const result = await sql`SELECT * FROM asset WHERE "uID" = ${uID}`;
-      return result.length > 0 ? result[0] : null;
+      return result.length > 0 ? result[0] as Asset : null;
     } catch (error) {
       console.error('Error getting user asset:', error);
       return null;
@@ -58,7 +62,7 @@ export class DatabaseService {
           WHERE "uID" = ${uID}
           RETURNING *
         `;
-        return result[0];
+        return result[0] as Asset;
       } else {
         // Create new asset
         const result = await sql`
@@ -66,7 +70,7 @@ export class DatabaseService {
           VALUES (${uID}, ${points}, 0, NOW()) 
           RETURNING *
         `;
-        return result[0];
+        return result[0] as Asset;
       }
     } catch (error) {
       console.error('Error upserting asset:', error);
