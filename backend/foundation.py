@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*- 
 """
-Vercel Postgres SDK Database Configuration
-This file uses Vercel Postgres SDK for database connection
+Database Configuration - Performance Optimized
+This file uses psycopg2-binary for optimal performance
 """
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
@@ -16,77 +16,28 @@ from typing import Optional
 BASE_DIR = os.path.dirname(__file__)
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
+# Get database URL - prioritize PostgreSQL for performance
+POSTGRES_URL = os.getenv("jinli_POSTGRES_URL") or os.getenv("POSTGRES_URL")
+SQLALCHEMY_DATABASE_URL = POSTGRES_URL or os.getenv("SQLALCHEMY_DATABASE_URL", "sqlite:///./jinli.db")
+
 # Check if we're running on Vercel
 IS_VERCEL = os.environ.get("VERCEL", "0") == "1"
 
-# Database configuration
-if IS_VERCEL:
-    # Use Vercel Postgres SDK in production
-    try:
-        from vercel_postgres import sql
-        POSTGRES_AVAILABLE = True
-        print("Using Vercel Postgres SDK")
-    except ImportError:
-        POSTGRES_AVAILABLE = False
-        print("Vercel Postgres SDK not available, falling back to SQLAlchemy")
+# Create database engine
+if POSTGRES_URL and IS_VERCEL:
+    # Use PostgreSQL in production for optimal performance
+    engine = create_engine(POSTGRES_URL, pool_pre_ping=True)
+    print("Using PostgreSQL for optimal performance")
 else:
-    POSTGRES_AVAILABLE = False
-    print("Not running on Vercel, using local database")
+    # Fallback to SQLite for development
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, poolclass=StaticPool, connect_args={"check_same_thread": False})
+    print("Using SQLite for development")
 
-# Database connection
-def get_db_connection():
-    """Get database connection"""
-    if IS_VERCEL and POSTGRES_AVAILABLE:
-        # Use Vercel Postgres SDK
-        from vercel_postgres import sql
-        return sql
-    else:
-        # Fallback to local SQLite for development
-        import sqlite3
-        db_path = os.path.join(BASE_DIR, "jinli.db")
-        return sqlite3.connect(db_path)
+# Create session factory
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Database helper functions
-async def execute_query(query: str, params: dict = None):
-    """Execute database query"""
-    if IS_VERCEL and POSTGRES_AVAILABLE:
-        from vercel_postgres import sql
-        if params:
-            return await sql(query, params)
-        else:
-            return await sql(query)
-    else:
-        # Fallback to local SQLite
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        if params:
-            cursor.execute(query, params)
-        else:
-            cursor.execute(query)
-        result = cursor.fetchall()
-        conn.commit()
-        conn.close()
-        return result
-
-async def execute_update(query: str, params: dict = None):
-    """Execute database update"""
-    if IS_VERCEL and POSTGRES_AVAILABLE:
-        from vercel_postgres import sql
-        if params:
-            return await sql(query, params)
-        else:
-            return await sql(query)
-    else:
-        # Fallback to local SQLite
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        if params:
-            cursor.execute(query, params)
-        else:
-            cursor.execute(query)
-        conn.commit()
-        conn.close()
-        return True
+# Base class for models
+Base = declarative_base()
 
 # 根据不同数据库类型配置连接池参数，避免 QueuePool 溢出
 _url = make_url(SQLALCHEMY_DATABASE_URL)
