@@ -5,9 +5,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Database connection
-const databaseUrl = process.env.jinli_DATABASE_URL || process.env.DATABASE_URL;
+const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
-  throw new Error('Database URL not found in environment variables');
+  throw new Error('DATABASE_URL not found in environment variables');
 }
 const sql = neon(databaseUrl);
 

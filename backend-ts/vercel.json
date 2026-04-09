@@ -11,8 +11,5 @@
       "src": "/api/(.*)",
       "dest": "/dist/index.js"
     }
-  ],
-  "env": {
-    "jinli_DATABASE_URL": "@jinli_DATABASE_URL"
-  }
+  ]
 }
