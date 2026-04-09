@@ -32,19 +32,19 @@ npm run dev
 npm start
 ```
 
-### 🔧 环境变量
+### 环境变量
 
 需要设置以下环境变量：
 
 ```bash
-# Neon数据库连接
-DATABASE_URL=postgresql://neondb_owner:npg_v72NBIHwQscm@ep-late-hall-a15wg97s-pooler.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require
+# Neon数据库连接 (已在Vercel中配置)
+jinli_DATABASE_URL=postgresql://neondb_owner:npg_v72NBIHwQscm@ep-late-hall-a15wg97s-pooler.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require
 
 # 或者使用jinli前缀
 jinli_POSTGRES_URL=postgresql://neondb_owner:npg_v72NBIHwQscm@ep-late-hall-a15wg97s-pooler.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require
 ```
 
-### 📋 API端点
+### API端点
 
 #### 健康检查
 ```bash

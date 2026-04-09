@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Database connection
-const sql = neon(process.env.DATABASE_URL || process.env.jinli_POSTGRES_URL);
+const sql = neon(process.env.jinli_DATABASE_URL || process.env.DATABASE_URL);
 
 export interface Asset {
   id: number;

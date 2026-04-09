@@ -13,6 +13,6 @@
     }
   ],
   "env": {
-    "DATABASE_URL": "@jinli_postgres_url"
+    "jinli_DATABASE_URL": "@jinli_DATABASE_URL"
   }
 }
