@@ -1,4 +1,4 @@
-fastapi==0.95.2
+export POSTGRES_URL='postgresql://neondb_owner:npg_v72NBIHwQscm@ep-late-hall-a15wg97s-pooler.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require'fastapi==0.95.2
 uvicorn==0.22.0
 sqlalchemy==2.0.12
 psycopg2-binary==2.9.6
