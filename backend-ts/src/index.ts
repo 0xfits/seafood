@@ -11,6 +11,21 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: 'Jinli TypeScript Backend',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      health: '/api/test/data',
+      adjustPoints: '/api/admin/points/adjust',
+      getAsset: '/api/user/asset/:uID',
+      initAssets: '/api/admin/assets/init'
+    }
+  });
+});
+
 // Health check
 app.get('/api/test/data', (req, res) => {
   res.json({
