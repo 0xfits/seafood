@@ -13,6 +13,20 @@ import { useAuth } from '../auth-context'
 
 const fmt = (n) => Number(n ?? 0).toLocaleString()
 
+const normalizeOrderBook = (payload) => {
+  if (Array.isArray(payload)) {
+    return {
+      buy: payload.filter((row) => row?.side === 'buy'),
+      sell: payload.filter((row) => row?.side === 'sell'),
+    }
+  }
+
+  return {
+    buy: Array.isArray(payload?.buy) ? payload.buy : [],
+    sell: Array.isArray(payload?.sell) ? payload.sell : [],
+  }
+}
+
 // ─── Market tab ─────────────────────────────────────────────────────────────
 
 const OrderBookPanel = ({ bID, refreshKey }) => {
@@ -24,10 +38,10 @@ const OrderBookPanel = ({ bID, refreshKey }) => {
     if (!bID) return
     setLoading(true)
     Promise.all([
-      fetchApiJson(`/api/market/${bID}/orderbook`).catch(() => ({ buy: [], sell: [] })),
+      fetchApiJson(`/api/market/${bID}/orderbook`).catch(() => []),
       fetchApiJson(`/api/market/${bID}/trades`).catch(() => []),
     ]).then(([b, t]) => {
-      setBook(b ?? { buy: [], sell: [] })
+      setBook(normalizeOrderBook(b))
       setTrades(t ?? [])
       setLoading(false)
     })
@@ -141,19 +155,15 @@ const TradePanel = ({ brands, user, onTraded }) => {
     }
     setSubmitting(true)
     try {
-      const res = await fetchApiJson('/api/order', {
+      await fetchApiJson('/api/order', {
         method: 'POST',
         headers: { ...getAuthHeaders(user), 'Content-Type': 'application/json' },
         body: JSON.stringify({ bID, side, price: p, volume: v }),
       })
-      if (res?.success) {
-        toast.success('挂单成功')
-        setPrice('')
-        setVolume('')
-        onTraded()
-      } else {
-        toast.error(res?.message ?? '挂单失败')
-      }
+      toast.success('挂单成功')
+      setPrice('')
+      setVolume('')
+      onTraded()
     } catch {
       toast.error('网络错误，请重试')
     } finally {
@@ -267,16 +277,12 @@ const MyPanel = ({ user, refreshKey, onRefresh }) => {
 
   const cancelOrder = async (oID) => {
     try {
-      const res = await fetchApiJson(`/api/order/${oID}`, {
+      await fetchApiJson(`/api/order/${oID}`, {
         method: 'DELETE',
         headers: getAuthHeaders(user),
       })
-      if (res?.success) {
-        toast.success('已撤单')
-        onRefresh()
-      } else {
-        toast.error(res?.message ?? '撤单失败')
-      }
+      toast.success('已撤单')
+      onRefresh()
     } catch {
       toast.error('网络错误')
     }
@@ -290,12 +296,8 @@ const MyPanel = ({ user, refreshKey, onRefresh }) => {
         headers: { ...getAuthHeaders(user), 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
       })
-      if (res?.success) {
-        toast.success(`已撤销 ${res.data?.cancelled ?? 0} 笔挂单`)
-        onRefresh()
-      } else {
-        toast.error(res?.message ?? '批量撤单失败')
-      }
+      toast.success(`已撤销 ${res?.cancelled ?? 0} 笔挂单`)
+      onRefresh()
     } catch {
       toast.error('网络错误')
     } finally {
