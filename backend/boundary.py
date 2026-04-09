@@ -240,6 +240,43 @@ async def get_user_asset(uID: int):
         traceback.print_exc()
         return APIResponse(ok=False, status_code=500, error=f'获取用户资产失败: {str(e)}')
 
+@router.post("/admin/assets/init")
+async def initialize_user_assets(request: Request):
+    """Initialize asset records for all users"""
+    try:
+        from .entity import UserEntity
+        
+        with UserEntity(core.data.db) as ue:
+            # Get all users
+            users = ue.list_users()
+            print(f"[API] Found {len(users)} users")
+            
+            initialized_count = 0
+            for user in users:
+                user_id = user.get('uID')
+                if not user_id:
+                    continue
+                
+                # Check if asset already exists
+                current_asset = ue.get_asset(user_id)
+                if not current_asset:
+                    # Create asset record with 0 points
+                    new_asset = ue.upsert_asset(user_id, 0)
+                    print(f"[API] Created asset for user {user_id}")
+                    initialized_count += 1
+                else:
+                    print(f"[API] Asset already exists for user {user_id}")
+            
+            return APIResponse(ok=True, status_code=200, data={
+                "total_users": len(users),
+                "initialized_count": initialized_count,
+                "message": f"Initialized {initialized_count} asset records"
+            })
+    
+    except Exception as e:
+        traceback.print_exc()
+        return APIResponse(ok=False, status_code=500, error=f'Failed to initialize assets: {str(e)}')
+
 @router.post("/admin/points/adjust")
 async def adjust_user_points(request: Request):
     """管理员调整用户积分"""
