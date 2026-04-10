@@ -121,7 +121,9 @@ describe('DashboardPage', () => {
 
     await renderDashboard()
 
+    expect(await screen.findByText('普通用户 Task Progress 审批')).toBeInTheDocument()
     expect(await screen.findByText('待审核任务')).toBeInTheDocument()
+    expect(screen.getByText(/仅展示普通用户提交的 Task Progress。/)).toBeInTheDocument()
 
     await userEvent.click(screen.getByRole('button', { name: '通过审核' }))
 

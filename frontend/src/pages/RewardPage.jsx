@@ -17,10 +17,10 @@ const RewardPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, isAuthenticated } = useAuth()
-  const [gifts, setGifts] = useState([])
+  const [rewards, setRewards] = useState([])
   const [shardMap, setShardMap] = useState({})
   const [loading, setLoading] = useState(true)
-  const [journey, setJourney] = useState(null)
+  const [taskProgress, setTaskProgress] = useState(null)
   const [taskDetail, setTaskDetail] = useState(null)
   const [claiming, setClaiming] = useState(false)
   const [openingChestId, setOpeningChestId] = useState(null)
@@ -29,7 +29,7 @@ const RewardPage = () => {
 
   const params = new URLSearchParams(location.search)
   const q_jID = params.get('jID')
-  const isJourneyMode = !!q_jID
+  const isTaskProgressMode = !!q_jID
 
   const getCurrentLang = () => {
     const pathParts = location.pathname.split('/')
@@ -52,13 +52,13 @@ const RewardPage = () => {
     let asset = { points: 0 }
 
     if (isAuthenticated && user?.uID) {
-      const [giftRows, assetRows, shardRows] = await Promise.all([
-        fetchApiJson('/api/gift', { headers: getAuthHeaders(user) }).catch(() => []),
+      const [prizeItems, assetRows, shardRows] = await Promise.all([
+        fetchApiJson('/api/prize-item', { headers: getAuthHeaders(user) }).catch(() => []),
         fetchApiJson(`/api/user/asset/${user.uID}`).catch(() => ({ points: 0 })),
         fetchApiJson('/api/shard', { headers: getAuthHeaders(user) }).catch(() => []),
       ])
 
-      claimedBrandIds = new Set((giftRows || []).map((gift) => gift.bID))
+      claimedBrandIds = new Set((prizeItems || []).map((prizeItem) => prizeItem.bID))
       asset = assetRows || asset
       const map = {}
       for (const h of shardRows || []) map[h.bID] = h.volume
@@ -67,49 +67,49 @@ const RewardPage = () => {
 
     setUserPoints(asset?.points || 0)
 
-    const normalized = (brandRows || []).map((gift) => {
-      const storesCount = gift.stores_count || 0
-      const claimsCount = gift.claims_count || 0
-      const isClaimed = claimedBrandIds.has(gift.bID)
+    const normalized = (brandRows || []).map((reward) => {
+      const storesCount = reward.stores_count || 0
+      const claimsCount = reward.claims_count || 0
+      const isClaimed = claimedBrandIds.has(reward.bID)
       return {
-        ...gift,
+        ...reward,
         title: lang === 'en'
-          ? (gift.name_en ?? gift.name)
+          ? (reward.name_en ?? reward.name)
           : lang === 'hk'
-            ? (gift.name_hk ?? gift.name)
+            ? (reward.name_hk ?? reward.name)
             : lang === 'vn'
-              ? (gift.name_vn ?? gift.name)
-              : gift.name,
+              ? (reward.name_vn ?? reward.name)
+              : reward.name,
         description: lang === 'en'
-          ? (gift.description_en ?? gift.description)
+          ? (reward.description_en ?? reward.description)
           : lang === 'hk'
-            ? (gift.description_hk ?? gift.description)
+            ? (reward.description_hk ?? reward.description)
             : lang === 'vn'
-              ? (gift.description_vn ?? gift.description)
-              : gift.description,
-        points_required: gift.points || 0,
-        image: gift.image_url || gift.url_image,
+              ? (reward.description_vn ?? reward.description)
+              : reward.description,
+        points_required: reward.points || 0,
+        image: reward.image_url || reward.url_image,
         brand: {
-          name: gift.name,
-          logo: gift.image_url || gift.url_image,
+          name: reward.name,
+          logo: reward.image_url || reward.url_image,
         },
         status: isClaimed ? 'claimed' : storesCount > 0 ? 'available' : 'locked',
         statusText: isClaimed ? '已兑换' : storesCount > 0 ? '可兑换' : '库存不足',
-        rarity: gift.points > 5000 ? 'epic' : gift.points > 2000 ? 'rare' : 'common',
+        rarity: reward.points > 5000 ? 'epic' : reward.points > 2000 ? 'rare' : 'common',
         claimed: claimsCount,
         total: claimsCount + storesCount,
-        limited: Boolean(gift.gift_limit || gift.time_end),
+        limited: Boolean(reward.gift_limit || reward.time_end),
       }
     })
 
-    setGifts(normalized)
+    setRewards(normalized)
   }
 
-  const loadJourneyMode = async () => {
-    const nextJourney = await fetchApiJson(`/api/journey/${Number(q_jID)}`)
-    setJourney(nextJourney)
-    if (nextJourney?.tID) {
-      const task = await fetchApiJson(`/api/task/${Number(nextJourney.tID)}`).catch(() => null)
+  const loadTaskProgressMode = async () => {
+    const nextTaskProgress = await fetchApiJson(`/api/task-progress/${Number(q_jID)}`)
+    setTaskProgress(nextTaskProgress)
+    if (nextTaskProgress?.tID) {
+      const task = await fetchApiJson(`/api/task/${Number(nextTaskProgress.tID)}`).catch(() => null)
       setTaskDetail(task)
     }
 
@@ -123,8 +123,8 @@ const RewardPage = () => {
     const load = async () => {
       setLoading(true)
       try {
-        if (isJourneyMode) {
-          await loadJourneyMode()
+        if (isTaskProgressMode) {
+          await loadTaskProgressMode()
         } else {
           await loadListMode()
         }
@@ -137,10 +137,10 @@ const RewardPage = () => {
     }
 
     load()
-  }, [isAuthenticated, isJourneyMode, location.pathname, q_jID, t, user?.uID])
+  }, [isAuthenticated, isTaskProgressMode, location.pathname, q_jID, t, user?.uID])
 
-  const handleJourneyClaim = async () => {
-    if (!journey?.jID) return
+  const handleTaskProgressClaim = async () => {
+    if (!taskProgress?.jID) return
     if (!isAuthenticated) {
       toast.error('请先登录')
       navigate('/login', { state: { from: location } })
@@ -149,17 +149,17 @@ const RewardPage = () => {
 
     setClaiming(true)
     try {
-      const result = await fetchApiJson(`/api/journey/claim/${journey.jID}`, {
+      const result = await fetchApiJson(`/api/task-progress/claim/${taskProgress.jID}`, {
         method: 'POST',
         headers: getAuthHeaders(user),
       })
-      setJourney((prev) => ({ ...prev, ...result }))
+      setTaskProgress((prev) => ({ ...prev, ...result }))
       if (typeof result?.user_points_total === 'number') {
         setUserPoints(result.user_points_total)
       }
       toast.success(`奖励领取成功，获得 ${result?.reward_points || result?.points_claimed || 0} 积分`)
     } catch (error) {
-      console.error('Error claiming journey reward:', error)
+      console.error('Error claiming task progress reward:', error)
       toast.error(`领取失败: ${error.message}`)
     } finally {
       setClaiming(false)
@@ -268,9 +268,9 @@ const RewardPage = () => {
     )
   }
 
-  if (isJourneyMode && journey) {
-    const rewardPoints = journey.points_claimed || taskDetail?.points || 0
-    const canClaim = Boolean(journey.time_checked) && !journey.time_claimed
+  if (isTaskProgressMode && taskProgress) {
+    const rewardPoints = taskProgress.points_claimed || taskDetail?.points || 0
+    const canClaim = Boolean(taskProgress.time_checked) && !taskProgress.time_claimed
 
     return (
       <ResponsiveContainer>
@@ -291,7 +291,7 @@ const RewardPage = () => {
               <CardContent className="space-y-4">
                 <div>
                   <h3 className="font-semibold text-lg mb-2">任务信息</h3>
-                  <p className="text-gray-600">{taskDetail?.title || `任务 #${journey.tID}`}</p>
+                  <p className="text-gray-600">{taskDetail?.title || `任务 #${taskProgress.tID}`}</p>
                   <p className="text-sm text-gray-500 mt-1">{taskDetail?.note || '暂无说明'}</p>
                 </div>
 
@@ -301,11 +301,11 @@ const RewardPage = () => {
                     <div className="flex-1 bg-gray-200 rounded-full h-2">
                       <div
                         className="bg-yellow-500 h-2 rounded-full transition-all duration-300"
-                        style={{ width: journey.info_input ? '100%' : '0%' }}
+                        style={{ width: taskProgress.info_input ? '100%' : '0%' }}
                       />
                     </div>
                     <span className="text-sm text-gray-600">
-                      {journey.time_claimed ? '已领取' : journey.time_checked ? '可领取' : journey.info_input ? '审核中' : '进行中'}
+                      {taskProgress.time_claimed ? '已领取' : taskProgress.time_checked ? '可领取' : taskProgress.info_input ? '审核中' : '进行中'}
                     </span>
                   </div>
                 </div>
@@ -316,7 +316,7 @@ const RewardPage = () => {
                   <div className="text-sm text-gray-500">积分</div>
                 </div>
 
-                {journey.time_claimed ? (
+                {taskProgress.time_claimed ? (
                   <div className="text-center py-4">
                     <Badge variant="success" size="lg">已领取</Badge>
                   </div>
@@ -326,7 +326,7 @@ const RewardPage = () => {
                     size="lg"
                     className="w-full"
                     disabled={!canClaim || claiming}
-                    onClick={handleJourneyClaim}
+                    onClick={handleTaskProgressClaim}
                   >
                     {claiming ? '领取中...' : canClaim ? '领取奖励' : '待管理员审核'}
                   </Button>
@@ -339,10 +339,10 @@ const RewardPage = () => {
     )
   }
 
-  const availableRewards = gifts.filter((gift) => gift.status === 'available')
-  const claimedRewards = gifts.filter((gift) => gift.status === 'claimed')
-  const limitedRewards = gifts.filter((gift) => gift.limited)
-  const epicRewards = gifts.filter((gift) => gift.rarity === 'epic')
+  const availableRewards = rewards.filter((reward) => reward.status === 'available')
+  const claimedRewards = rewards.filter((reward) => reward.status === 'claimed')
+  const limitedRewards = rewards.filter((reward) => reward.limited)
+  const epicRewards = rewards.filter((reward) => reward.rarity === 'epic')
 
   return (
     <ResponsiveContainer>

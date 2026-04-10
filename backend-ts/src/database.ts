@@ -243,6 +243,20 @@ const ensureSupportSchema = async () => {
     const sql = getSql();
 
     await sql`
+      DO $$
+      BEGIN
+        IF to_regclass('public.prize_item') IS NULL AND to_regclass('public.gift') IS NOT NULL THEN
+          ALTER TABLE gift RENAME TO prize_item;
+        END IF;
+
+        IF to_regclass('public.task_progress') IS NULL AND to_regclass('public.journey') IS NOT NULL THEN
+          ALTER TABLE journey RENAME TO task_progress;
+        END IF;
+      END
+      $$;
+    `;
+
+    await sql`
       CREATE TABLE IF NOT EXISTS app_config (
         key text PRIMARY KEY,
         value jsonb NOT NULL DEFAULT '{}'::jsonb,
@@ -288,6 +302,45 @@ const ensureSupportSchema = async () => {
         description_hk text,
         description_vn text
       )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS prize_item (
+        "gID" bigserial PRIMARY KEY,
+        "bID" integer NOT NULL,
+        "uID" integer NOT NULL DEFAULT 0,
+        time_created timestamptz NOT NULL DEFAULT NOW(),
+        time_claimed timestamptz,
+        time_actived timestamptz
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS task_progress (
+        "jID" bigserial PRIMARY KEY,
+        "tID" integer NOT NULL,
+        "uID" integer NOT NULL,
+        info_input text,
+        time_created timestamptz NOT NULL DEFAULT NOW(),
+        time_submitted timestamptz,
+        time_checked timestamptz,
+        time_claimed timestamptz,
+        points_claimed integer NOT NULL DEFAULT 0
+      )
+    `;
+
+    await sql`
+      DO $$
+      BEGIN
+        IF to_regclass('public.gift') IS NULL THEN
+          EXECUTE 'CREATE VIEW gift AS SELECT * FROM prize_item';
+        END IF;
+
+        IF to_regclass('public.journey') IS NULL THEN
+          EXECUTE 'CREATE VIEW journey AS SELECT * FROM task_progress';
+        END IF;
+      END
+      $$;
     `;
 
     await sql`
@@ -339,6 +392,7 @@ const ensureSupportSchema = async () => {
         "bID" integer NOT NULL,
         "uID" integer NOT NULL,
         time_created timestamptz NOT NULL DEFAULT NOW(),
+        time_updated timestamptz NOT NULL DEFAULT NOW(),
         volume integer NOT NULL DEFAULT 0
       )
     `;
@@ -346,6 +400,28 @@ const ensureSupportSchema = async () => {
     await sql`ALTER TABLE IF EXISTS "user" ADD COLUMN IF NOT EXISTS "bio" text DEFAULT ''`;
     await sql`ALTER TABLE IF EXISTS "user" ADD COLUMN IF NOT EXISTS "is_admin" boolean DEFAULT false`;
     await sql`ALTER TABLE IF EXISTS "user" ADD COLUMN IF NOT EXISTS "time_login_last" timestamptz DEFAULT NOW()`;
+    await sql`
+      WITH base AS (
+        SELECT COALESCE(MAX(NULLIF(BTRIM("uID"), '')::int), 0) AS max_uid
+        FROM "user"
+        WHERE NULLIF(BTRIM("uID"), '') IS NOT NULL
+      ),
+      missing AS (
+        SELECT
+          ctid,
+          ROW_NUMBER() OVER (
+            ORDER BY
+              COALESCE(NULLIF(BTRIM("time_reg"), ''), ''),
+              COALESCE(NULLIF(BTRIM("EVM"), ''), '')
+          ) AS rn
+        FROM "user"
+        WHERE NULLIF(BTRIM("uID"), '') IS NULL
+      )
+      UPDATE "user" AS u
+      SET "uID" = (base.max_uid + missing.rn)::text
+      FROM base, missing
+      WHERE u.ctid = missing.ctid
+    `;
 
     await sql`ALTER TABLE IF EXISTS asset ADD COLUMN IF NOT EXISTS points integer DEFAULT 0`;
     await sql`ALTER TABLE IF EXISTS asset ADD COLUMN IF NOT EXISTS lucks integer DEFAULT 0`;
@@ -374,10 +450,65 @@ const ensureSupportSchema = async () => {
     await sql`ALTER TABLE IF EXISTS task ADD COLUMN IF NOT EXISTS note_hk text`;
     await sql`ALTER TABLE IF EXISTS task ADD COLUMN IF NOT EXISTS note_vn text`;
 
-    await sql`ALTER TABLE IF EXISTS journey ADD COLUMN IF NOT EXISTS time_submitted timestamptz`;
-    await sql`ALTER TABLE IF EXISTS journey ADD COLUMN IF NOT EXISTS points_claimed integer DEFAULT 0`;
+    await sql`ALTER TABLE IF EXISTS task_progress ADD COLUMN IF NOT EXISTS time_submitted timestamptz`;
+    await sql`ALTER TABLE IF EXISTS task_progress ADD COLUMN IF NOT EXISTS points_claimed integer DEFAULT 0`;
 
-    await sql`ALTER TABLE IF EXISTS gift ADD COLUMN IF NOT EXISTS time_claimed timestamptz`;
+    await sql`ALTER TABLE IF EXISTS prize_item ADD COLUMN IF NOT EXISTS time_claimed timestamptz`;
+    await sql`ALTER TABLE IF EXISTS shard ADD COLUMN IF NOT EXISTS time_updated timestamptz DEFAULT NOW()`;
+    await sql`ALTER TABLE IF EXISTS shard_transfer ADD COLUMN IF NOT EXISTS "related_oID" bigint`;
+    await sql`ALTER TABLE IF EXISTS shard_transfer ADD COLUMN IF NOT EXISTS "related_trID" bigint`;
+    await sql`
+      UPDATE shard
+      SET time_updated = COALESCE(time_updated, time_created, NOW())
+      WHERE time_updated IS NULL
+    `;
+
+    await sql`
+      UPDATE prize AS p
+      SET image_url = url_image
+      WHERE COALESCE(NULLIF(BTRIM(image_url), ''), '') = ''
+        AND COALESCE(NULLIF(BTRIM(url_image), ''), '') <> ''
+    `;
+
+    await sql`
+      UPDATE prize AS p
+      SET url_image = image_url
+      WHERE COALESCE(NULLIF(BTRIM(url_image), ''), '') = ''
+        AND COALESCE(NULLIF(BTRIM(image_url), ''), '') <> ''
+    `;
+
+    await sql`
+      WITH gift_counts AS (
+        SELECT
+          COALESCE((to_jsonb(g)->>'bID')::int, 0) AS bid,
+          COUNT(1)::int AS total_quantity
+        FROM prize_item AS g
+        GROUP BY bid
+      )
+      UPDATE prize AS p
+      SET total_quantity = GREATEST(COALESCE(p.total_quantity, 0), gift_counts.total_quantity),
+          gift_limit = GREATEST(COALESCE(p.gift_limit, 0), gift_counts.total_quantity)
+      FROM gift_counts
+      WHERE p."bID" = gift_counts.bid
+        AND (
+          COALESCE(p.total_quantity, 0) = 0
+          OR COALESCE(p.gift_limit, 0) = 0
+        )
+    `;
+
+    await sql`
+      UPDATE task AS t
+      SET "linkA" = link0
+      WHERE COALESCE(NULLIF(BTRIM("linkA"), ''), '') = ''
+        AND COALESCE(NULLIF(BTRIM(link0), ''), '') <> ''
+    `;
+
+    await sql`
+      UPDATE task AS t
+      SET link0 = "linkA"
+      WHERE COALESCE(NULLIF(BTRIM(link0), ''), '') = ''
+        AND COALESCE(NULLIF(BTRIM("linkA"), ''), '') <> ''
+    `;
   })().catch((error) => {
     supportSchemaPromise = null;
     throw error;
@@ -451,7 +582,7 @@ export interface BrandRecord {
 
 export type PrizeRecord = BrandRecord;
 
-export interface GiftRecord {
+export interface PrizeItemRecord {
   gID: number;
   bID: number;
   uID: number;
@@ -459,6 +590,8 @@ export interface GiftRecord {
   time_claimed: number;
   time_actived: number;
 }
+
+export type GiftRecord = PrizeItemRecord;
 
 export interface TaskRecord {
   tID: number;
@@ -484,7 +617,7 @@ export interface TaskRecord {
   note_vn: string;
 }
 
-export interface JourneyRecord {
+export interface TaskProgressRecord {
   jID: number;
   tID: number;
   uID: number;
@@ -496,7 +629,9 @@ export interface JourneyRecord {
   points_claimed: number;
 }
 
-export interface PendingVerificationRecord extends JourneyRecord {
+export type JourneyRecord = TaskProgressRecord;
+
+export interface PendingVerificationRecord extends TaskProgressRecord {
   task: TaskRecord | null;
   user: {
     uID: number;
@@ -607,16 +742,16 @@ const normalizeAsset = (row: RawRow): AssetRecord => ({
   uID: toNumberValue(getValue(row, 'uID')),
   points: toNumberValue(getValue(row, 'points')),
   lucks: toNumberValue(getValue(row, 'lucks')),
-  time_update: toTimestamp(getValue(row, 'time_update', 'time_updated')),
+  time_update: toTimestamp(getValue(row, 'time_updated')),
 });
 
 const normalizeUser = (row: RawRow): UserRecord => ({
   uID: toNumberValue(getValue(row, 'uID', 'id')),
-  EVM: toStringValue(getValue(row, 'EVM', 'evm_address')),
+  EVM: toStringValue(getValue(row, 'EVM')),
   bio: toStringValue(getValue(row, 'bio')),
   is_admin: toBooleanValue(getValue(row, 'is_admin')),
-  time_reg: toTimestamp(getValue(row, 'time_reg', 'created_at')),
-  time_login_last: toTimestamp(getValue(row, 'time_login_last', 'updated_at')),
+  time_reg: toTimestamp(getValue(row, 'time_reg')),
+  time_login_last: toTimestamp(getValue(row, 'time_login_last')),
 });
 
 const normalizeBrand = (
@@ -716,7 +851,7 @@ const normalizeBrand = (
   };
 };
 
-const normalizeGift = (row: RawRow): GiftRecord => ({
+const normalizePrizeItem = (row: RawRow): PrizeItemRecord => ({
   gID: toNumberValue(getValue(row, 'gID')),
   bID: toNumberValue(getValue(row, 'bID')),
   uID: toNumberValue(getValue(row, 'uID')),
@@ -753,7 +888,7 @@ const normalizeTask = (row: RawRow, participantsCount = 0): TaskRecord => {
   };
 };
 
-const normalizeJourney = (row: RawRow): JourneyRecord => ({
+const normalizeTaskProgress = (row: RawRow): TaskProgressRecord => ({
   jID: toNumberValue(getValue(row, 'jID')),
   tID: toNumberValue(getValue(row, 'tID')),
   uID: toNumberValue(getValue(row, 'uID')),
@@ -860,6 +995,17 @@ const normalizeShardTransfer = (
 });
 
 export class DatabaseService {
+  static async getNextUserId(): Promise<number> {
+    await ensureSupportSchema();
+    const sql = getSql();
+    const rows = asItems<{ next_id: number }>(await sql`
+      SELECT COALESCE(MAX(NULLIF(BTRIM("uID"), '')::int), 0)::int + 1 AS next_id
+      FROM "user"
+      WHERE NULLIF(BTRIM("uID"), '') IS NOT NULL
+    `);
+    return Number(rows[0]?.next_id || 1);
+  }
+
   static async getBrandAggregateCounts(): Promise<Map<number, BrandAggregateCounts>> {
     const sql = getSql();
     let giftRows: Array<{
@@ -891,7 +1037,7 @@ export class DatabaseService {
               WHERE COALESCE((to_jsonb(g)->>'uID')::int, 0) <> 0
                 AND COALESCE(NULLIF(TRIM(COALESCE(to_jsonb(g)->>'time_actived', '')), ''), '') <> ''
             )::int AS activated_count
-          FROM gift AS g
+          FROM prize_item AS g
           GROUP BY bid
         `),
         asItems<{ bid: number; volume: number }>(await sql`
@@ -953,7 +1099,7 @@ export class DatabaseService {
         SELECT
           COALESCE((to_jsonb(j)->>'tID')::int, 0) AS tid,
           COUNT(1)::int AS count
-        FROM journey AS j
+        FROM task_progress AS j
         GROUP BY tid
       `);
 
@@ -981,6 +1127,7 @@ export class DatabaseService {
   }
 
   static async getUserById(uID: number): Promise<UserRecord | null> {
+    await ensureSupportSchema();
     const sql = getSql();
     const row = firstRow(await sql`
       SELECT to_jsonb(u) AS row
@@ -993,12 +1140,13 @@ export class DatabaseService {
   }
 
   static async getUserByEvm(evmAddress: string): Promise<UserRecord | null> {
+    await ensureSupportSchema();
     const sql = getSql();
     const normalizedAddress = String(evmAddress || '').trim().toLowerCase();
     const row = firstRow(await sql`
       SELECT to_jsonb(u) AS row
       FROM "user" AS u
-      WHERE LOWER(COALESCE(to_jsonb(u)->>'EVM', to_jsonb(u)->>'evm_address', '')) = ${normalizedAddress}
+      WHERE LOWER(COALESCE(to_jsonb(u)->>'EVM', '')) = ${normalizedAddress}
       LIMIT 1
     `);
 
@@ -1006,50 +1154,30 @@ export class DatabaseService {
   }
 
   static async createUserByEvm(evmAddress: string): Promise<UserRecord> {
+    await ensureSupportSchema();
     const sql = getSql();
     const normalizedAddress = String(evmAddress || '').trim().toLowerCase();
-
-    try {
-      const row = firstRow(await sql`
-        INSERT INTO "user" AS u ("EVM", "bio", "is_admin", "time_reg", "time_login_last")
-        VALUES (${normalizedAddress}, '', false, NOW(), NOW())
-        RETURNING to_jsonb(u) AS row
-      `);
-      if (!row) throw new Error('User insert returned no row');
-      return normalizeUser(row);
-    } catch (primaryError) {
-      const row = firstRow(await sql`
-        INSERT INTO "user" AS u (evm_address, bio, is_admin, created_at, updated_at)
-        VALUES (${normalizedAddress}, '', false, NOW(), NOW())
-        RETURNING to_jsonb(u) AS row
-      `);
-      if (!row) {
-        throw primaryError;
-      }
-      return normalizeUser(row);
-    }
+    const nextUserId = await this.getNextUserId();
+    const row = firstRow(await sql`
+      INSERT INTO "user" AS u ("uID", "EVM", "bio", "is_admin", "time_reg", "time_login_last")
+      VALUES (${String(nextUserId)}, ${normalizedAddress}, '', false, NOW(), NOW())
+      RETURNING to_jsonb(u) AS row
+    `);
+    if (!row) throw new Error('User insert returned no row');
+    return normalizeUser(row);
   }
 
   static async touchUserLogin(uID: number): Promise<void> {
     const sql = getSql();
-
-    try {
-      await sql`
-        UPDATE "user" AS u
-        SET "time_login_last" = NOW()
-        WHERE COALESCE((to_jsonb(u)->>'uID')::int, 0) = ${uID}
-      `;
-    } catch (primaryError) {
-      await sql`
-        UPDATE "user" AS u
-        SET updated_at = NOW()
-        WHERE COALESCE((to_jsonb(u)->>'uID')::int, 0) = ${uID}
-      `;
-      console.warn('Fell back to updated_at for user login time:', primaryError);
-    }
+    await sql`
+      UPDATE "user" AS u
+      SET "time_login_last" = NOW()
+      WHERE COALESCE((to_jsonb(u)->>'uID')::int, 0) = ${uID}
+    `;
   }
 
   static async findOrCreateUserByEvm(evmAddress: string): Promise<UserRecord> {
+    await ensureSupportSchema();
     const normalizedAddress = String(evmAddress || '').trim().toLowerCase();
     let user = await this.getUserByEvm(normalizedAddress);
 
@@ -1065,34 +1193,18 @@ export class DatabaseService {
   }
 
   static async updateUserProfile(uID: number, fields: { bio?: string; is_admin?: boolean }): Promise<UserRecord | null> {
+    await ensureSupportSchema();
     const sql = getSql();
     const bio = fields.bio;
     const isAdmin = fields.is_admin;
-
-    try {
-      const row = firstRow(await sql`
-        UPDATE "user" AS u
-        SET "bio" = COALESCE(${bio}, "bio"),
-            "is_admin" = COALESCE(${isAdmin}, "is_admin")
-        WHERE COALESCE((to_jsonb(u)->>'uID')::int, 0) = ${uID}
-        RETURNING to_jsonb(u) AS row
-      `);
-      return row ? normalizeUser(row) : null;
-    } catch (primaryError) {
-      const row = firstRow(await sql`
-        UPDATE "user" AS u
-        SET bio = COALESCE(${bio}, bio),
-            is_admin = COALESCE(${isAdmin}, is_admin),
-            updated_at = NOW()
-        WHERE COALESCE((to_jsonb(u)->>'uID')::int, 0) = ${uID}
-        RETURNING to_jsonb(u) AS row
-      `);
-      if (!row) {
-        console.warn('Failed to update user profile:', primaryError);
-        return null;
-      }
-      return normalizeUser(row);
-    }
+    const row = firstRow(await sql`
+      UPDATE "user" AS u
+      SET "bio" = COALESCE(${bio}, "bio"),
+          "is_admin" = COALESCE(${isAdmin}, "is_admin")
+      WHERE COALESCE((to_jsonb(u)->>'uID')::int, 0) = ${uID}
+      RETURNING to_jsonb(u) AS row
+    `);
+    return row ? normalizeUser(row) : null;
   }
 
   static async getUserAsset(uID: number): Promise<AssetRecord | null> {
@@ -1214,7 +1326,7 @@ export class DatabaseService {
     const sql = getSql();
     const rows = asItems<{ count: number }>(await sql`
       SELECT COUNT(1)::int AS count
-      FROM gift AS g
+      FROM prize_item AS g
       WHERE COALESCE((to_jsonb(g)->>'bID')::int, 0) = ${bID}
         AND COALESCE((to_jsonb(g)->>'uID')::int, 0) = 0
     `);
@@ -1225,7 +1337,7 @@ export class DatabaseService {
     const sql = getSql();
     const rows = asItems<{ count: number }>(await sql`
       SELECT COUNT(1)::int AS count
-      FROM gift AS g
+      FROM prize_item AS g
       WHERE COALESCE((to_jsonb(g)->>'bID')::int, 0) = ${bID}
         AND COALESCE((to_jsonb(g)->>'uID')::int, 0) <> 0
     `);
@@ -1236,7 +1348,7 @@ export class DatabaseService {
     const sql = getSql();
     const rows = asItems<{ count: number }>(await sql`
       SELECT COUNT(1)::int AS count
-      FROM gift AS g
+      FROM prize_item AS g
       WHERE COALESCE((to_jsonb(g)->>'bID')::int, 0) = ${bID}
         AND COALESCE((to_jsonb(g)->>'uID')::int, 0) <> 0
         AND COALESCE(NULLIF(TRIM(COALESCE(to_jsonb(g)->>'time_actived', '')), ''), '') <> ''
@@ -1265,17 +1377,21 @@ export class DatabaseService {
     return Number(rows[0]?.volume || 0);
   }
 
-  static async listGiftsByUser(uID: number, skip = 0, limit = 200): Promise<GiftRecord[]> {
+  static async listPrizeItemsByUser(uID: number, skip = 0, limit = 200): Promise<PrizeItemRecord[]> {
     const sql = getSql();
     const rows = extractRows(await sql`
       SELECT to_jsonb(g) AS row
-      FROM gift AS g
+      FROM prize_item AS g
       WHERE COALESCE((to_jsonb(g)->>'uID')::int, 0) = ${uID}
       ORDER BY COALESCE((to_jsonb(g)->>'gID')::int, 0) DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
-    return rows.map(normalizeGift);
+    return rows.map(normalizePrizeItem);
+  }
+
+  static async listGiftsByUser(uID: number, skip = 0, limit = 200): Promise<GiftRecord[]> {
+    return this.listPrizeItemsByUser(uID, skip, limit);
   }
 
   static async listTasks(skip = 0, limit = 100): Promise<TaskRecord[]> {
@@ -1312,135 +1428,170 @@ export class DatabaseService {
     const sql = getSql();
     const rows = asItems<{ count: number }>(await sql`
       SELECT COUNT(1)::int AS count
-      FROM journey AS j
+      FROM task_progress AS j
       WHERE COALESCE((to_jsonb(j)->>'tID')::int, 0) = ${tID}
     `);
     return Number(rows[0]?.count || 0);
   }
 
-  static async getJourney(jID: number): Promise<JourneyRecord | null> {
+  static async getTaskProgress(jID: number): Promise<TaskProgressRecord | null> {
     const sql = getSql();
     const row = firstRow(await sql`
       SELECT to_jsonb(j) AS row
-      FROM journey AS j
+      FROM task_progress AS j
       WHERE COALESCE((to_jsonb(j)->>'jID')::int, 0) = ${jID}
       LIMIT 1
     `);
 
-    return row ? normalizeJourney(row) : null;
+    return row ? normalizeTaskProgress(row) : null;
   }
 
-  static async listJourneysByUser(uID: number, skip = 0, limit = 100): Promise<JourneyRecord[]> {
+  static async getJourney(jID: number): Promise<JourneyRecord | null> {
+    return this.getTaskProgress(jID);
+  }
+
+  static async listTaskProgressByUser(uID: number, skip = 0, limit = 100): Promise<TaskProgressRecord[]> {
     const sql = getSql();
     const rows = extractRows(await sql`
       SELECT to_jsonb(j) AS row
-      FROM journey AS j
+      FROM task_progress AS j
       WHERE COALESCE((to_jsonb(j)->>'uID')::int, 0) = ${uID}
       ORDER BY COALESCE((to_jsonb(j)->>'jID')::int, 0) DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
-    return rows.map(normalizeJourney);
+    return rows.map(normalizeTaskProgress);
   }
 
-  static async findJourneyByUserAndTask(uID: number, tID: number): Promise<JourneyRecord | null> {
+  static async listJourneysByUser(uID: number, skip = 0, limit = 100): Promise<JourneyRecord[]> {
+    return this.listTaskProgressByUser(uID, skip, limit);
+  }
+
+  static async findTaskProgressByUserAndTask(uID: number, tID: number): Promise<TaskProgressRecord | null> {
     const sql = getSql();
     const row = firstRow(await sql`
       SELECT to_jsonb(j) AS row
-      FROM journey AS j
+      FROM task_progress AS j
       WHERE COALESCE((to_jsonb(j)->>'uID')::int, 0) = ${uID}
         AND COALESCE((to_jsonb(j)->>'tID')::int, 0) = ${tID}
       ORDER BY COALESCE((to_jsonb(j)->>'jID')::int, 0) DESC
       LIMIT 1
     `);
 
-    return row ? normalizeJourney(row) : null;
+    return row ? normalizeTaskProgress(row) : null;
   }
 
-  static async createJourney(uID: number, tID: number): Promise<JourneyRecord> {
+  static async findJourneyByUserAndTask(uID: number, tID: number): Promise<JourneyRecord | null> {
+    return this.findTaskProgressByUserAndTask(uID, tID);
+  }
+
+  static async createTaskProgress(uID: number, tID: number): Promise<TaskProgressRecord> {
     const sql = getSql();
     const row = firstRow(await sql`
-      INSERT INTO journey AS j ("tID", "uID", info_input, time_created, points_claimed)
+      INSERT INTO task_progress AS j ("tID", "uID", info_input, time_created, points_claimed)
       VALUES (${tID}, ${uID}, NULL, NOW(), 0)
       RETURNING to_jsonb(j) AS row
     `);
 
     if (!row) {
-      throw new Error('Failed to create journey');
+      throw new Error('Failed to create task progress');
     }
 
-    return normalizeJourney(row);
+    return normalizeTaskProgress(row);
+  }
+
+  static async createJourney(uID: number, tID: number): Promise<JourneyRecord> {
+    return this.createTaskProgress(uID, tID);
+  }
+
+  static async ensureTaskProgressForUserTask(uID: number, tID: number): Promise<TaskProgressRecord> {
+    const existingTaskProgress = await this.findTaskProgressByUserAndTask(uID, tID);
+    if (existingTaskProgress) {
+      return existingTaskProgress;
+    }
+
+    return this.createTaskProgress(uID, tID);
   }
 
   static async ensureJourneyForUserTask(uID: number, tID: number): Promise<JourneyRecord> {
-    const existingJourney = await this.findJourneyByUserAndTask(uID, tID);
-    if (existingJourney) {
-      return existingJourney;
-    }
-
-    return this.createJourney(uID, tID);
+    return this.ensureTaskProgressForUserTask(uID, tID);
   }
 
-  static async submitJourneyInfo(jID: number, infoInput: string): Promise<JourneyRecord | null> {
+  static async submitTaskProgressInfo(jID: number, infoInput: string): Promise<TaskProgressRecord | null> {
     const sql = getSql();
     const row = firstRow(await sql`
-      UPDATE journey AS j
+      UPDATE task_progress AS j
       SET info_input = ${infoInput},
           time_submitted = NOW()
       WHERE COALESCE((to_jsonb(j)->>'jID')::int, 0) = ${jID}
       RETURNING to_jsonb(j) AS row
     `);
 
-    return row ? normalizeJourney(row) : null;
+    return row ? normalizeTaskProgress(row) : null;
   }
 
-  static async markJourneyChecked(jID: number): Promise<JourneyRecord | null> {
+  static async submitJourneyInfo(jID: number, infoInput: string): Promise<JourneyRecord | null> {
+    return this.submitTaskProgressInfo(jID, infoInput);
+  }
+
+  static async markTaskProgressChecked(jID: number): Promise<TaskProgressRecord | null> {
     const sql = getSql();
     const row = firstRow(await sql`
-      UPDATE journey AS j
+      UPDATE task_progress AS j
       SET time_checked = NOW()
       WHERE COALESCE((to_jsonb(j)->>'jID')::int, 0) = ${jID}
       RETURNING to_jsonb(j) AS row
     `);
 
-    return row ? normalizeJourney(row) : null;
+    return row ? normalizeTaskProgress(row) : null;
   }
 
-  static async claimJourney(jID: number, rewardPoints: number): Promise<JourneyRecord | null> {
+  static async markJourneyChecked(jID: number): Promise<JourneyRecord | null> {
+    return this.markTaskProgressChecked(jID);
+  }
+
+  static async claimTaskProgress(jID: number, rewardPoints: number): Promise<TaskProgressRecord | null> {
     const sql = getSql();
     const row = firstRow(await sql`
-      UPDATE journey AS j
+      UPDATE task_progress AS j
       SET points_claimed = ${rewardPoints},
           time_claimed = NOW()
       WHERE COALESCE((to_jsonb(j)->>'jID')::int, 0) = ${jID}
       RETURNING to_jsonb(j) AS row
     `);
 
-    return row ? normalizeJourney(row) : null;
+    return row ? normalizeTaskProgress(row) : null;
+  }
+
+  static async claimJourney(jID: number, rewardPoints: number): Promise<JourneyRecord | null> {
+    return this.claimTaskProgress(jID, rewardPoints);
   }
 
   static async listPendingVerification(skip = 0, limit = 50): Promise<PendingVerificationRecord[]> {
     const sql = getSql();
     const rows = extractRows(await sql`
       SELECT to_jsonb(j) AS row
-      FROM journey AS j
+      FROM task_progress AS j
+      JOIN "user" AS u
+        ON COALESCE((to_jsonb(u)->>'uID')::int, 0) = COALESCE((to_jsonb(j)->>'uID')::int, 0)
       WHERE COALESCE(NULLIF(TRIM(COALESCE(to_jsonb(j)->>'info_input', '')), ''), '') <> ''
         AND COALESCE(to_jsonb(j)->>'time_checked', '') = ''
         AND COALESCE(to_jsonb(j)->>'time_claimed', '') = ''
+        AND COALESCE((to_jsonb(u)->>'is_admin')::boolean, false) = false
       ORDER BY COALESCE((to_jsonb(j)->>'time_submitted')::timestamptz, (to_jsonb(j)->>'time_created')::timestamptz) DESC NULLS LAST,
                COALESCE((to_jsonb(j)->>'jID')::int, 0) DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
     const items = await Promise.all(rows.map(async (row) => {
-      const journey = normalizeJourney(row);
+      const taskProgress = normalizeTaskProgress(row);
       const [task, user] = await Promise.all([
-        this.getTask(journey.tID),
-        this.getUserById(journey.uID),
+        this.getTask(taskProgress.tID),
+        this.getUserById(taskProgress.uID),
       ]);
 
       return {
-        ...journey,
+        ...taskProgress,
         task,
         user: user
           ? {
@@ -1459,25 +1610,32 @@ export class DatabaseService {
     const sql = getSql();
     const rows = asItems<{ count: number }>(await sql`
       SELECT COUNT(1)::int AS count
-      FROM journey AS j
+      FROM task_progress AS j
+      JOIN "user" AS u
+        ON COALESCE((to_jsonb(u)->>'uID')::int, 0) = COALESCE((to_jsonb(j)->>'uID')::int, 0)
       WHERE COALESCE(NULLIF(TRIM(COALESCE(to_jsonb(j)->>'info_input', '')), ''), '') <> ''
         AND COALESCE(to_jsonb(j)->>'time_checked', '') = ''
         AND COALESCE(to_jsonb(j)->>'time_claimed', '') = ''
+        AND COALESCE((to_jsonb(u)->>'is_admin')::boolean, false) = false
     `);
     return Number(rows[0]?.count || 0);
   }
 
-  static async rejectPendingJourney(jID: number): Promise<JourneyRecord | null> {
+  static async rejectPendingTaskProgress(jID: number): Promise<TaskProgressRecord | null> {
     const sql = getSql();
     const row = firstRow(await sql`
-      UPDATE journey AS j
+      UPDATE task_progress AS j
       SET info_input = NULL,
           time_submitted = NULL
       WHERE COALESCE((to_jsonb(j)->>'jID')::int, 0) = ${jID}
       RETURNING to_jsonb(j) AS row
     `);
 
-    return row ? normalizeJourney(row) : null;
+    return row ? normalizeTaskProgress(row) : null;
+  }
+
+  static async rejectPendingJourney(jID: number): Promise<JourneyRecord | null> {
+    return this.rejectPendingTaskProgress(jID);
   }
 
   static async getUserStats(): Promise<{
@@ -1773,7 +1931,7 @@ export class DatabaseService {
 
     const sql = getSql();
     await sql`
-      INSERT INTO gift AS g ("bID", "uID", time_created)
+      INSERT INTO prize_item AS g ("bID", "uID", time_created)
       SELECT ${bID}, 0, NOW()
       FROM generate_series(1, ${count})
     `;
@@ -1786,10 +1944,10 @@ export class DatabaseService {
 
     const sql = getSql();
     await sql`
-      DELETE FROM gift
+      DELETE FROM prize_item
       WHERE "gID" IN (
         SELECT COALESCE((to_jsonb(g)->>'gID')::int, 0)
-        FROM gift AS g
+        FROM prize_item AS g
         WHERE COALESCE((to_jsonb(g)->>'bID')::int, 0) = ${bID}
           AND COALESCE((to_jsonb(g)->>'uID')::int, 0) = 0
         ORDER BY COALESCE((to_jsonb(g)->>'gID')::int, 0) DESC
@@ -1985,7 +2143,7 @@ export class DatabaseService {
     const [giftRows, orderRows, tradeRows, shardRows] = await Promise.all([
       asItems<{ count: number }>(await sql`
         SELECT COUNT(1)::int AS count
-        FROM gift AS g
+        FROM prize_item AS g
         WHERE COALESCE((to_jsonb(g)->>'bID')::int, 0) = ${bID}
       `),
       asItems<{ count: number }>(await sql`
@@ -2180,8 +2338,8 @@ export class DatabaseService {
 
     const sql = getSql();
     await sql`
-      INSERT INTO shard AS s ("bID", "uID", time_created, volume)
-      VALUES (${bID}, ${uID}, NOW(), ${delta})
+      INSERT INTO shard AS s ("bID", "uID", time_created, time_updated, volume)
+      VALUES (${bID}, ${uID}, NOW(), NOW(), ${delta})
     `;
   }
 
@@ -2729,7 +2887,7 @@ export class DatabaseService {
     };
   }
 
-  static async redeemShardGift(uID: number, bID: number): Promise<GiftRecord> {
+  static async redeemPrizeItemFromShards(uID: number, bID: number): Promise<PrizeItemRecord> {
     await ensureSupportSchema();
     const holdings = await this.getUserShardBalance(uID, bID);
     if (holdings < 1000) {
@@ -2739,7 +2897,7 @@ export class DatabaseService {
     const sql = getSql();
     const availableGift = firstRow(await sql`
       SELECT to_jsonb(g) AS row
-      FROM gift AS g
+      FROM prize_item AS g
       WHERE COALESCE((to_jsonb(g)->>'bID')::int, 0) = ${bID}
         AND COALESCE((to_jsonb(g)->>'uID')::int, 0) = 0
       ORDER BY COALESCE((to_jsonb(g)->>'gID')::int, 0) ASC
@@ -2761,7 +2919,7 @@ export class DatabaseService {
     });
 
     const row = firstRow(await sql`
-      UPDATE gift AS g
+      UPDATE prize_item AS g
       SET "uID" = ${uID},
           time_claimed = NOW(),
           time_actived = COALESCE(time_actived, NOW())
@@ -2773,7 +2931,11 @@ export class DatabaseService {
       throw new Error('Failed to redeem gift');
     }
 
-    return normalizeGift(row);
+    return normalizePrizeItem(row);
+  }
+
+  static async redeemShardGift(uID: number, bID: number): Promise<GiftRecord> {
+    return this.redeemPrizeItemFromShards(uID, bID);
   }
 
   static buildAdminAccess(

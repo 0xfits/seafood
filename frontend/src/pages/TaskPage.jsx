@@ -70,11 +70,11 @@ const TaskPage = () => {
     actionText: '立即参与',
   })
 
-  const normalizeJourneyTask = (journey, task) => ({
+  const normalizeTaskProgressTask = (taskProgress, task) => ({
     ...task,
-    ...journey,
-    jID: journey.jID,
-    tlistID: journey.jID,
+    ...taskProgress,
+    jID: taskProgress.jID,
+    tlistID: taskProgress.jID,
     participants: task.participants || 0,
   })
 
@@ -106,27 +106,27 @@ const TaskPage = () => {
           return
         }
 
-        const journeys = await fetchJson('/api/journey', {
+        const taskProgressItems = await fetchJson('/api/task-progress', {
           headers: { Authorization: `Bearer ${token}` },
         })
 
-        const latestJourneyByTask = new Map()
-        ;(journeys || [])
+        const latestTaskProgressByTask = new Map()
+        ;(taskProgressItems || [])
           .sort((left, right) => (left.jID || 0) - (right.jID || 0))
-          .forEach((journey) => {
-            latestJourneyByTask.set(journey.tID, journey)
+          .forEach((taskProgress) => {
+            latestTaskProgressByTask.set(taskProgress.tID, taskProgress)
           })
 
         const nextPendingRewards = []
         const nextCompleted = []
         const nextVerification = []
 
-        latestJourneyByTask.forEach((journey, tID) => {
+        latestTaskProgressByTask.forEach((taskProgress, tID) => {
           const task = taskMap.get(tID)
           if (!task) return
 
-          const merged = normalizeJourneyTask(journey, task)
-          if (journey.time_claimed) {
+          const merged = normalizeTaskProgressTask(taskProgress, task)
+          if (taskProgress.time_claimed) {
             nextCompleted.push({
               ...merged,
               status: 'inactive',
@@ -136,7 +136,7 @@ const TaskPage = () => {
             return
           }
 
-          if (journey.time_checked) {
+          if (taskProgress.time_checked) {
             nextPendingRewards.push({
               ...merged,
               status: 'active',
@@ -146,7 +146,7 @@ const TaskPage = () => {
             return
           }
 
-          if (journey.time_submitted || journey.info_input) {
+          if (taskProgress.time_submitted || taskProgress.info_input) {
             nextVerification.push({
               ...merged,
               status: 'inactive',
@@ -166,11 +166,11 @@ const TaskPage = () => {
           .filter((task) => task.is_open !== false)
           .filter((task) => !blockedTaskIds.has(task.tID))
           .map((task) => {
-            const journey = latestJourneyByTask.get(task.tID)
+            const taskProgress = latestTaskProgressByTask.get(task.tID)
             return {
               ...task,
-              jID: journey?.jID,
-              actionText: journey?.jID ? '继续任务' : '立即参与',
+              jID: taskProgress?.jID,
+              actionText: taskProgress?.jID ? '继续任务' : '立即参与',
             }
           })
 

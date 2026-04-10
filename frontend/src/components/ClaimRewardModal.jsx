@@ -8,23 +8,23 @@ const ClaimRewardModal = ({ open, isOpen, onClose, task }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const [loading, setLoading] = useState(false)
-  const [journey, setJourney] = useState(null)
+  const [taskProgress, setTaskProgress] = useState(null)
   const [celebrate, setCelebrate] = useState(false)
   const visible = typeof open === 'boolean' ? open : Boolean(isOpen)
 
   useEffect(() => {
     if (visible && task && (task.tlistID || task.jID)) {
-      loadJourneyDetail(task.jID || task.tlistID)
+      loadTaskProgressDetail(task.jID || task.tlistID)
     }
   }, [visible, task])
 
-  const loadJourneyDetail = async (jID) => {
+  const loadTaskProgressDetail = async (jID) => {
     setLoading(true)
     try {
-      const resp = await fetch(`/api/journey/${jID}`)
+      const resp = await fetch(`/api/task-progress/${jID}`)
       const data = await resp.json()
       if (data && data.success) {
-        setJourney(data.data || null)
+        setTaskProgress(data.data || null)
       } else {
         toast.error(t('error') + ': ' + ((data && (data.error || data.message)) || '加载任务进度失败'))
       }
@@ -36,7 +36,7 @@ const ClaimRewardModal = ({ open, isOpen, onClose, task }) => {
   }
 
   const handleClaim = async () => {
-      const jID = (task && (task.jID || task.tlistID)) || (journey && journey.jID)
+      const jID = (task && (task.jID || task.tlistID)) || (taskProgress && taskProgress.jID)
     if (!jID) return
     try {
       const user = JSON.parse(localStorage.getItem('user'))
@@ -46,7 +46,7 @@ const ClaimRewardModal = ({ open, isOpen, onClose, task }) => {
         navigate('/login', { state: { from: location } })
         return
       }
-      const resp = await fetch(`/api/journey/claim/${jID}`, {
+      const resp = await fetch(`/api/task-progress/claim/${jID}`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
       })
@@ -74,11 +74,11 @@ const ClaimRewardModal = ({ open, isOpen, onClose, task }) => {
 
   if (!visible || !task) return null
 
-  const displayTitle = task.title || (journey && journey.title) || ''
-  const displayNote = task.note || (journey && journey.note) || ''
-  const infoInput = journey && journey.info_input
-  const uid = (journey && journey.uID) || (task && task.uID)
-  const tid = (journey && journey.tID) || (task && task.tID)
+  const displayTitle = task.title || (taskProgress && taskProgress.title) || ''
+  const displayNote = task.note || (taskProgress && taskProgress.note) || ''
+  const infoInput = taskProgress && taskProgress.info_input
+  const uid = (taskProgress && taskProgress.uID) || (task && task.uID)
+  const tid = (taskProgress && taskProgress.tID) || (task && task.tID)
   const points = typeof task?.points === 'number' ? task.points : (task?.points ? Number(task.points) : undefined)
 
   return (
@@ -89,7 +89,7 @@ const ClaimRewardModal = ({ open, isOpen, onClose, task }) => {
           <button className="modal-close text-text-muted hover:text-text-primary transition-colors" onClick={onClose}>✕</button>
         </div>
         <div className="p-6">
-          <div className="text-sm text-text-muted">jID: {(task && (task.jID || task.tlistID)) || (journey && journey.jID)}</div>
+          <div className="text-sm text-text-muted">jID: {(task && (task.jID || task.tlistID)) || (taskProgress && taskProgress.jID)}</div>
           {uid && <div className="text-sm text-text-muted">uID: {uid}</div>}
           {tid && <div className="text-sm text-text-muted">tID: {tid}</div>}
           <h4 className="text-lg font-medium mt-2 mb-2">{displayTitle}</h4>

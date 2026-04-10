@@ -101,25 +101,25 @@ const ProfilePage = () => {
   const loadTaskStats = async (uID) => {
     try {
       const headers = getAuthHeaders(sessionUser)
-      const [journeys, gifts] = await Promise.all([
-        fetchApiJson('/api/journey', { headers }),
-        fetchApiJson('/api/gift', { headers }).catch(() => []),
+      const [taskProgressItems, prizeItems] = await Promise.all([
+        fetchApiJson('/api/task-progress', { headers }),
+        fetchApiJson('/api/prize-item', { headers }).catch(() => []),
       ])
 
       const stats = {
-        totalTasks: (journeys || []).length,
+        totalTasks: (taskProgressItems || []).length,
         completedTasks: 0,
         pendingTasks: 0,
         pendingRewards: 0,
         totalPoints: 0,
-        claimedRewards: (gifts || []).length,
+        claimedRewards: (prizeItems || []).length,
       }
 
-      for (const j of journeys || []) {
-        if (j.time_claimed) {
+      for (const taskProgress of taskProgressItems || []) {
+        if (taskProgress.time_claimed) {
           stats.completedTasks++
-          stats.totalPoints += j.points_claimed || 0
-        } else if (j.time_checked) {
+          stats.totalPoints += taskProgress.points_claimed || 0
+        } else if (taskProgress.time_checked) {
           stats.pendingRewards++
         } else {
           stats.pendingTasks++

@@ -1,273 +1,169 @@
 # Jinli Club
 
-一个使用 React + FastAPI 构建的社区平台，支持 EVM 钱包签名登录、任务与奖励系统，以及基础管理功能。
+当前仓库是 React 前端 + TypeScript/Express 后端，数据库使用 Neon PostgreSQL。
 
-本 README 已更新为当前代码与数据库结构，便于开发与维护。
+旧的 Python/FastAPI/SQLite 实现已经迁移完成，不再是当前运行时。本文档只描述现在这套代码。
 
-## 项目文件结构（当前）
+## 项目结构
 
+```text
+jinli/
+├── backend-ts/          # TypeScript 后端
+│   ├── src/
+│   │   ├── auth.ts
+│   │   ├── database.ts
+│   │   └── index.ts
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── vercel.json
+├── frontend/            # Vite + React 前端
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   └── vite.config.js
+└── vercel.json          # 根部署配置
 ```
-jinli.club/
-├── backend/                     # FastAPI 后端
-│   ├── apex.py                  # 程序入口（运行：python3 -m backend.apex）
-│   ├── boundary.py              # 统一路由（包含鉴权逻辑）
-│   ├── core.py                  # 服务层（数据转换与业务拼装）
-│   ├── data.py                  # Repo/DAO 封装（读取 DB，返回模型或字典）
-│   ├── data_model.py            # API 输出的 dataclass（无 ORM 映射）
-│   ├── database_with_cffi.py    # 数据库初始化（cffi 版本）
-│   ├── entity.py                # 轻量 DAO（多数使用原生 SQL，返回 dict 映射）
-│   ├── foundation.py            # 会话/Base 等基础设施封装
-│   ├── jinli.db                 # SQLite 数据库文件（开发）
-│   ├── jinli.db.schemareset.bak # 数据库备份示例
-│   ├── requirements.txt         # 后端依赖
-│   └── temp_backend.py          # 临时脚本
-└── frontend/                    # React 前端
-    ├── src/
-    │   ├── components/
-    │   ├── pages/
-    │   ├── locales/
-    │   ├── App.jsx
-    │   ├── main.jsx
-    │   ├── i18n.js
-    │   ├── index.css
-    │   ├── styles.css
-    │   └── utils.js
-    ├── admin.html
-    ├── index.html
-    ├── nginx.conf
-    ├── package.json
-    ├── package-lock.json
-    └── vite.config.js
-```
+
+## 当前技术栈
+
+- 前端：React + Vite + React Router + Tailwind 风格组件
+- 后端：Express + TypeScript
+- 数据库：Neon PostgreSQL
+- 部署：Vercel
+- 登录：EVM 钱包签名
+
+## 当前数据库主表
+
+核心业务表：
+
+- `user`
+- `asset`
+- `task`
+- `task_progress`
+- `prize`
+- `prize_item`
+- `shard`
+- `shard_transfer`
+- `market_order`
+- `market_trade`
+
+支撑表：
+
+- `app_config`
+- `permission_group`
+- `chest`
+- `user_chest_stats`
+- `shard_order`
+- `shard_trade`
 
 说明：
-- 旧文件 api.py、model.py、model_legacy.py 已清理；鉴权工具已合并到 boundary.py。
-- dataclass 定义集中在 data_model.py，用于 API 输出；不再承载 ORM 映射。
-- entity.py 尽量使用原生 SQL，返回 dict 映射，减少 ORM 解析问题。
 
-## 后端架构要点
-- 路由：backend/apex.py 加载 boundary.py 的统一路由 unified_router。
-- 鉴权：boundary.py 内联了 OAuth2/JWT 逻辑，并通过 `challenge -> wallet signature -> verify` 流程完成登录。
-- 数据访问：
-  - entity.py 提供 UserEntity、BrandEntity、GiftEntity、TaskEntity、JourneyEntity、ChestEntity 等，优先返回 dict。
-  - data.py 针对部分场景将 DB 行转换为 data_model.py 的 dataclass，并统一字典输出（含时间戳转换）。
-- 数据模型：data_model.py 仅包含 API 输出的数据类（Brand/Gift/Task/Journey/Chest/User 等）。
+- 旧的 `brand` 表已经废弃，数据已迁入 `prize`
+- 旧的 `task_type` 表不再使用
+- 当前后端会在启动/首次访问时补齐缺失列，并做少量幂等数据回填
 
-## 数据库结构（SQLite：backend/jinli.db）
+## 本地开发
 
-当前表列表：
-- user
-- asset
-- brand
-- gift
-- journey
-- chest
-- shard
-- task
+### 1. 后端
 
-各表字段（摘自实际 .schema）：
+```bash
+cd backend-ts
+npm install
+```
 
-- user
-  - uID INTEGER PRIMARY KEY AUTOINCREMENT, UNIQUE
-  - EVM VARCHAR(42) UNIQUE NOT NULL（索引：ix_user_EVM）
-  - time_reg DATETIME NOT NULL
-  - time_login_last DATETIME NOT NULL
-  - is_admin BLOB NOT NULL DEFAULT 0
-  - bio TEXT
+配置环境变量：
 
-- asset（用户资产聚合表）
-  - aID INTEGER PRIMARY KEY AUTOINCREMENT, UNIQUE
-  - uID INTEGER NOT NULL UNIQUE（FK -> user.uID）
-  - time_updated DATETIME NOT NULL
-  - points INTEGER NOT NULL DEFAULT 0
-  - lucks INTEGER NOT NULL DEFAULT 0
-  - gIDs TEXT（礼品记录 ID 列表，历史兼容）
-  - sIDs TEXT（碎片/芯片记录 ID 列表，历史兼容）
+```bash
+DATABASE_URL=postgresql://...
+JWT_SECRET=your-secret
+```
 
-- brand（品牌）
-  - bID INTEGER PRIMARY KEY AUTOINCREMENT, UNIQUE
-  - symbol TEXT UNIQUE NOT NULL
-  - name TEXT NOT NULL
-  - description TEXT
-  - url_image TEXT
-  - time_start DATETIME
-  - time_end DATETIME
-  - time_created DATETIME NOT NULL
-  - time_updated DATETIME
-  - time_actived DATETIME
-  - points INTEGER NOT NULL DEFAULT 10000
+开发启动：
 
-- gift（礼品记录）
-  - gID INTEGER PRIMARY KEY AUTOINCREMENT, UNIQUE
-  - bID INTEGER NOT NULL（FK -> brand.bID）
-  - uID INTEGER（FK -> user.uID，可空）
-  - time_created DATETIME NOT NULL
-  - time_actived DATETIME（可空）
+```bash
+npm run dev
+```
 
-- journey（任务参与/进度）
-  - jID INTEGER PRIMARY KEY AUTOINCREMENT, UNIQUE
-  - tID INTEGER NOT NULL（FK -> task.tID）
-  - uID INTEGER NOT NULL（FK -> user.uID）
-  - info_input TEXT
-  - time_created DATETIME NOT NULL
-  - time_checked DATETIME
-  - time_claimed DATETIME
-  - points_claimed INTEGER NOT NULL DEFAULT 0
+构建：
 
-- chest（宝箱）
-  - cID INTEGER PRIMARY KEY AUTOINCREMENT, UNIQUE
-  - time_created DATETIME NOT NULL
-  - tirer INTEGER NOT NULL DEFAULT 0
-  - vol_points INTEGER NOT NULL DEFAULT 0（CHECK vol_points >= 0）
-  - sID0 INTEGER（FK -> shard.sID）
-  - sID_B INTEGER（FK -> shard.sID）
-  - time_actived DATETIME DEFAULT 1（历史字段，用作激活/开启状态标记）
-  - uID INTEGER（FK -> user.uID）
-  - 索引：ix_chest_active(time_actived), ix_chest_uID(uID)
+```bash
+npm run build
+```
 
-- shard（碎片/芯片记录）
-  - sID INTEGER PRIMARY KEY AUTOINCREMENT, UNIQUE
-  - bID INTEGER NOT NULL（FK -> brand.bID）
-  - uID INTEGER NOT NULL（FK -> user.uID）
-  - time_created DATETIME NOT NULL
-  - volume INTEGER NOT NULL DEFAULT 0
+### 2. 前端
 
-- task（任务类型）
-  - tID INTEGER PRIMARY KEY AUTOINCREMENT, UNIQUE
-  - title TEXT UNIQUE NOT NULL
-  - note TEXT
-  - refcode TEXT
-  - link0 TEXT
-  - linkB TEXT
-  - time_start DATETIME
-  - time_end DATETIME
-  - time_created DATETIME
-  - time_updated DATETIME
-  - is_open BOOL NOT NULL DEFAULT False
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-提示：
-- 项目路由中不存在 symbol 表的使用（如需引入，请在 DB 中创建并同步路由）。
-- 历史上部分时间字段可能为非标准字符串；entity/data 层已尽量避免 ORM 自动解析导致的异常。
+构建：
 
-## 启动与开发
+```bash
+npm run build
+```
 
-后端启动：
-1) 安装依赖
-   - cd backend
-   - pip install -r requirements.txt
-2) 配置环境变量
-   - 在 backend 目录下创建 .env（示例）
-     - SECRET_KEY=your-secret-key-here
-     - ALGORITHM=HS256
-     - ACCESS_TOKEN_EXPIRE_MINUTES=30
-     - AUTH_CHALLENGE_EXPIRE_SECONDS=300
-3) 启动服务
-   - 在项目根目录运行：python3 -m backend.apex
-   - 服务地址：http://0.0.0.0:8000/
+## 认证流程
 
-认证说明：
-- 钱包登录流程：`/api/auth/challenge` -> 钱包签名 -> `/api/auth/verify`
-- `/api/auth/login` 仅保留兼容入口，内部仍走签名验证
-- `/api/auth/register` 已废弃，首次登录后的资料补全请使用前端 `/register` 页面
-- 后端签名校验依赖 `eth-account`，请确保使用 `pip install -r requirements.txt` 安装完整依赖
+当前登录流程是：
 
-前端启动：
-1) cd frontend && npm install
-2) npm run dev（默认 http://localhost:3000/ 或 Vite 默认端口）
+1. `POST /api/auth/challenge`
+2. 钱包对 challenge 签名
+3. `POST /api/auth/verify`
 
-## 常用数据库操作（SQLite）
-- 列出表：sqlite3 backend/jinli.db ".tables"
-- 查看表结构：sqlite3 backend/jinli.db ".schema"
-- 示例查询：sqlite3 backend/jinli.db -header -column "SELECT * FROM user LIMIT 5;"
+兼容说明：
 
-## 维护建议
-- 路由与数据访问统一在 boundary.py + entity.py；如需新增模块，建议延续“原生 SQL + dict 映射”的方式。
-- dataclass（data_model.py）仅用于对外输出，避免与 ORM 混用导致耦合。
-- 如需引入统计或批量操作，优先在 entity.py 中新增方法，并在 boundary/core 中拼装返回。
+- `POST /api/auth/login` 仍然转发到签名验证流程
+- `POST /api/auth/register` 已废弃
 
+## 主要 API
 
-## UI
-### 按钮
-inactive	非活跃/不可操作状态，禁用的按钮、非推荐的选项或其确认操作。
-primary	推荐的选项、主要操作或其确认操作。
-proceed	后续的操作或其确认操作。
-success	成功状态或其确认操作。
-warning 用于警告、危险操作或其确认操作。
+公开接口：
 
-btn-inactive 灰色按钮：
-btn-primary 黄色按钮：
-btn-proceed	蓝色按钮：
-btn-success	绿色按钮：
-btn-warning 红色按钮：
+- `GET /api/task/all`
+- `GET /api/task/:tID`
+- `GET /api/prize/all`
+- `GET /api/prize/:bID`
+- `GET /api/brand/all`（兼容别名，内部仍读取 `prize`）
 
-card-inactive 灰色卡片：
-card-primary 黄色卡片：
-card-proceed	蓝色卡片：
-card-success	绿色卡片：
-card-warning 红色卡片：
+鉴权接口：
 
-badge-inactive 灰色徽章：灰色背景，黄色边框，五角星不变
-badge-primary 黄色徽章：
-badge-proceed	蓝色徽章：
-badge-success	绿色徽章：
-badge-warning 红色徽章：
+- `GET /api/user`
+- `GET /api/gift`
+- `GET /api/prize-item`
+- `GET /api/journey`
+- `GET /api/task-progress`
+- `GET /api/user/asset/:uID`
 
-badge-gift-inactive 灰色礼品徽章：
-badge-gift-primary 黄色礼品徽章：
-badge-gift-proceed	蓝色礼品徽章：
-badge-gift-success	绿色礼品徽章：
-badge-gift-warning 红色礼品徽章：
+管理接口：
 
+- `POST /api/admin/task/create`
+- `POST /api/admin/task/update`
+- `POST /api/admin/task/delete`
+- `POST /api/admin/prize/create`
+- `POST /api/admin/prize/update`
+- `POST /api/admin/prize/delete`
 
-tag-price-inactive 灰色价格标签：
-tag-price-primary 黄色价格标签：
-tag-price-proceed	蓝色价格标签：
-tag-price-success	绿色价格标签：
-tag-price-warning 红色价格标签：
+## 迁移说明
 
-tag-status-inactive 灰色状态标签；
-tag-status-primary 黄色状态标签；
-tag-status-proceed	蓝色状态标签；
-tag-status-success	绿色状态标签；
-tag-status-warning 红色状态标签；
+从旧实现迁移后，当前保留的兼容策略只有两类：
 
+- API 别名兼容
+  - 例如 `/api/brand/all` 继续可用，但底层读取的是 `prize`
+  - 例如 `/api/gift`、`/api/journey` 继续可用，但底层表已经迁移到 `prize_item`、`task_progress`
+- 输出字段兼容
+  - 某些前端仍会消费历史字段别名，后端会在返回层做兼容映射
 
+已经不再保留的内容：
 
-subsection_task_tocomplete
-subsection_task_toclaim
-subsection_task_claimed
+- Python/FastAPI 运行入口
+- SQLite 数据文件与运维命令
+- `brand` / `task_type` 老表读取逻辑
 
+## 维护原则
 
-计算 gift-status 并显示：
-- 逻辑： time_end - now
-  - ≤ 1 天： t('giftStatusHours')
-  - ≤ 1 周： t('giftStatusDays')
-  - ≤ 1 月： t('giftStatusWeeks')
-  - 1 月或无 time_end ： t('giftStatusLimited')
-
-计算 task-status 并显示：
-- 逻辑： time_end - now
-  - ≤ 1 天： 'taskStatusHours')
-  - ≤ 1 周： 'taskStatusDays')
-  - ≤ 1 月： taskStatusWeeks ：
-  - 1 月或无 time_end ： taskStatusLimited')
-
-task-type
-task-type-join 的文案是：Join to Earn
-task-type-trade 的文案是：Trade to Earn
-task-type-vote 的文案是：Vote to Earn
-task-type-meetup 的文案是：IRL Meetup to Earn
-
-journey
-api/journey/claim/$jID
-
-
-重要的流程：
-
-
-chest table -> time(both time_created and time_)
-delete: chest -> create --> time_created (最新就是今天) --> time_bind
-
-chest -> claim -> points --> time_claimed
-journey -> submit -> check -> claim -> points
-points -> claim -> active --> to use
+- 新代码以 PostgreSQL 正式字段为准
+- 优先修正真实数据，不使用虚拟/兜底数据
+- 兼容层只保留前端还在实际消费的部分
+- 新增功能默认落在 `prize`、`task`、`market_*` 等正式结构上

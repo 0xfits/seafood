@@ -255,6 +255,7 @@ const DashboardPage = () => {
 
   const normalizedQuery = reviewQuery.trim().toLowerCase()
   const canReviewTasks = hasAdminPermission(access, 'review_tasks')
+  const dashboardRoleLabel = access.is_admin ? '管理员' : canReviewTasks ? '审核员' : '后台成员'
   const filteredPendingTasks = pendingVerificationTasks.filter((task) => {
     if (!normalizedQuery) return true
     return (
@@ -289,7 +290,7 @@ const DashboardPage = () => {
           <CardContent className="text-center py-12">
             <Shield className="w-16 h-16 text-orange-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">权限不足</h2>
-            <p className="text-gray-600 mb-6">只有管理员才能访问管理面板。</p>
+            <p className="text-gray-600 mb-6">只有拥有后台权限的账号才能访问管理面板。</p>
             <Button as={Link} to="/" variant="primary">
               返回首页
             </Button>
@@ -313,7 +314,7 @@ const DashboardPage = () => {
             <div className="flex items-center gap-3">
               <Badge variant="warning" className="flex items-center gap-1">
                 <Shield className="w-3 h-3" />
-                管理员
+                {dashboardRoleLabel}
               </Badge>
               <span className="text-sm text-gray-600">
                 {formatEvmAddress(currentUser?.EVM)}
@@ -392,7 +393,7 @@ const DashboardPage = () => {
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <CardTitle className="flex items-center gap-2">
                   <Eye className="w-5 h-5" />
-                  待处理事项
+                  普通用户 Task Progress 审批
                 </CardTitle>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <div className="flex items-center gap-2">
@@ -401,7 +402,7 @@ const DashboardPage = () => {
                       type="text"
                       value={reviewQuery}
                       onChange={(e) => setReviewQuery(e.target.value)}
-                      placeholder="搜索任务、地址或提交内容..."
+                      placeholder="搜索 Task Progress 任务、地址或提交内容..."
                       className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
                     />
                   </div>
@@ -423,7 +424,7 @@ const DashboardPage = () => {
                 <>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
                 <div className="text-sm text-gray-600">
-                  当前显示 {visiblePendingTasks.length} 条，匹配 {filteredPendingTasks.length} 条，待审核总数 {dashboardStats.pendingVerifications}。
+                  当前显示 {visiblePendingTasks.length} 条，匹配 {filteredPendingTasks.length} 条，待审核总数 {dashboardStats.pendingVerifications}。仅展示普通用户提交的 Task Progress。
                 </div>
                 {filteredPendingTasks.length > 6 && (
                   <Button

@@ -11,7 +11,7 @@ import {
 import {
   AdminAccessRecord,
   DatabaseService,
-  JourneyRecord,
+  TaskProgressRecord,
   UserRecord,
 } from './database';
 
@@ -159,8 +159,8 @@ const buildUserPayload = async (user: UserRecord) => {
   };
 };
 
-const ensureOwnedJourney = (journey: JourneyRecord | null, userID: number) => (
-  journey && journey.uID === userID ? journey : null
+const ensureOwnedTaskProgress = (taskProgress: TaskProgressRecord | null, userID: number) => (
+  taskProgress && taskProgress.uID === userID ? taskProgress : null
 );
 
 app.get('/', (req, res) => {
@@ -363,11 +363,25 @@ app.get('/api/gift', async (req, res) => {
 
   try {
     const { skip, limit } = getPagination(req);
-    const gifts = await DatabaseService.listGiftsByUser(actor.user.uID, skip, limit);
-    sendSuccess(res, gifts);
+    const prizeItems = await DatabaseService.listPrizeItemsByUser(actor.user.uID, skip, limit);
+    sendSuccess(res, prizeItems);
   } catch (error) {
-    console.error('Error loading gifts:', error);
-    sendError(res, 500, 'Failed to load gift records');
+    console.error('Error loading prize items:', error);
+    sendError(res, 500, 'Failed to load prize items');
+  }
+});
+
+app.get('/api/prize-item', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  try {
+    const { skip, limit } = getPagination(req);
+    const prizeItems = await DatabaseService.listPrizeItemsByUser(actor.user.uID, skip, limit);
+    sendSuccess(res, prizeItems);
+  } catch (error) {
+    console.error('Error loading prize items:', error);
+    sendError(res, 500, 'Failed to load prize items');
   }
 });
 
@@ -377,11 +391,25 @@ app.get('/api/journey', async (req, res) => {
 
   try {
     const { skip, limit } = getPagination(req);
-    const journeys = await DatabaseService.listJourneysByUser(actor.user.uID, skip, limit);
-    sendSuccess(res, journeys);
+    const taskProgressItems = await DatabaseService.listTaskProgressByUser(actor.user.uID, skip, limit);
+    sendSuccess(res, taskProgressItems);
   } catch (error) {
-    console.error('Error loading journeys:', error);
-    sendError(res, 500, 'Failed to load journeys');
+    console.error('Error loading task progress:', error);
+    sendError(res, 500, 'Failed to load task progress');
+  }
+});
+
+app.get('/api/task-progress', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  try {
+    const { skip, limit } = getPagination(req);
+    const taskProgressItems = await DatabaseService.listTaskProgressByUser(actor.user.uID, skip, limit);
+    sendSuccess(res, taskProgressItems);
+  } catch (error) {
+    console.error('Error loading task progress:', error);
+    sendError(res, 500, 'Failed to load task progress');
   }
 });
 
@@ -392,15 +420,34 @@ app.get('/api/journey/:jID', async (req, res) => {
       return sendError(res, 400, 'Invalid jID');
     }
 
-    const journey = await DatabaseService.getJourney(jID);
-    if (!journey) {
-      return sendError(res, 404, 'Journey not found');
+    const taskProgress = await DatabaseService.getTaskProgress(jID);
+    if (!taskProgress) {
+      return sendError(res, 404, 'Task progress not found');
     }
 
-    sendSuccess(res, journey);
+    sendSuccess(res, taskProgress);
   } catch (error) {
-    console.error('Error loading journey:', error);
-    sendError(res, 500, 'Failed to load journey');
+    console.error('Error loading task progress:', error);
+    sendError(res, 500, 'Failed to load task progress');
+  }
+});
+
+app.get('/api/task-progress/:jID', async (req, res) => {
+  try {
+    const jID = parseInteger(req.params.jID);
+    if (!jID) {
+      return sendError(res, 400, 'Invalid jID');
+    }
+
+    const taskProgress = await DatabaseService.getTaskProgress(jID);
+    if (!taskProgress) {
+      return sendError(res, 404, 'Task progress not found');
+    }
+
+    sendSuccess(res, taskProgress);
+  } catch (error) {
+    console.error('Error loading task progress:', error);
+    sendError(res, 500, 'Failed to load task progress');
   }
 });
 
@@ -412,7 +459,7 @@ app.post('/api/journey/:identifier/submit', async (req, res) => {
   const infoInput = String(req.body?.info_input || '').trim();
 
   if (!identifier) {
-    return sendError(res, 400, 'Invalid task or journey id');
+    return sendError(res, 400, 'Invalid task or task progress id');
   }
 
   if (!infoInput) {
@@ -420,24 +467,62 @@ app.post('/api/journey/:identifier/submit', async (req, res) => {
   }
 
   try {
-    let journey = ensureOwnedJourney(await DatabaseService.getJourney(identifier), actor.user.uID);
+    let taskProgress = ensureOwnedTaskProgress(await DatabaseService.getTaskProgress(identifier), actor.user.uID);
 
-    if (!journey) {
+    if (!taskProgress) {
       const task = await DatabaseService.getTask(identifier);
       if (!task) {
         return sendError(res, 404, 'Task not found');
       }
-      journey = await DatabaseService.ensureJourneyForUserTask(actor.user.uID, task.tID);
+      taskProgress = await DatabaseService.ensureTaskProgressForUserTask(actor.user.uID, task.tID);
     }
 
-    const updatedJourney = await DatabaseService.submitJourneyInfo(journey.jID, infoInput);
-    if (!updatedJourney) {
-      return sendError(res, 404, 'Journey not found');
+    const updatedTaskProgress = await DatabaseService.submitTaskProgressInfo(taskProgress.jID, infoInput);
+    if (!updatedTaskProgress) {
+      return sendError(res, 404, 'Task progress not found');
     }
 
-    sendSuccess(res, updatedJourney, 'Journey submitted');
+    sendSuccess(res, updatedTaskProgress, 'Task progress submitted');
   } catch (error) {
-    console.error('Error submitting journey info:', error);
+    console.error('Error submitting task progress info:', error);
+    sendError(res, 500, 'Failed to submit task info');
+  }
+});
+
+app.post('/api/task-progress/:identifier/submit', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  const identifier = parseInteger(req.params.identifier);
+  const infoInput = String(req.body?.info_input || '').trim();
+
+  if (!identifier) {
+    return sendError(res, 400, 'Invalid task or task progress id');
+  }
+
+  if (!infoInput) {
+    return sendError(res, 400, 'info_input is required');
+  }
+
+  try {
+    let taskProgress = ensureOwnedTaskProgress(await DatabaseService.getTaskProgress(identifier), actor.user.uID);
+
+    if (!taskProgress) {
+      const task = await DatabaseService.getTask(identifier);
+      if (!task) {
+        return sendError(res, 404, 'Task not found');
+      }
+      taskProgress = await DatabaseService.ensureTaskProgressForUserTask(actor.user.uID, task.tID);
+    }
+
+    const updatedTaskProgress = await DatabaseService.submitTaskProgressInfo(taskProgress.jID, infoInput);
+    if (!updatedTaskProgress) {
+      return sendError(res, 404, 'Task progress not found');
+    }
+
+    sendSuccess(res, updatedTaskProgress, 'Task progress submitted');
+  } catch (error) {
+    console.error('Error submitting task progress info:', error);
     sendError(res, 500, 'Failed to submit task info');
   }
 });
@@ -452,44 +537,96 @@ app.post('/api/journey/claim/:jID', async (req, res) => {
   }
 
   try {
-    const journey = await DatabaseService.getJourney(jID);
-    if (!journey) {
-      return sendError(res, 404, 'Journey not found');
+    const taskProgress = await DatabaseService.getTaskProgress(jID);
+    if (!taskProgress) {
+      return sendError(res, 404, 'Task progress not found');
     }
 
-    if (journey.uID !== actor.user.uID) {
+    if (taskProgress.uID !== actor.user.uID) {
       return sendError(res, 403, 'Forbidden');
     }
 
-    if (!journey.time_checked) {
-      return sendError(res, 400, 'Journey is not verified yet');
+    if (!taskProgress.time_checked) {
+      return sendError(res, 400, 'Task progress is not verified yet');
     }
 
-    if (journey.time_claimed) {
+    if (taskProgress.time_claimed) {
       const currentAsset = (await DatabaseService.getUserAsset(actor.user.uID)) || (await DatabaseService.upsertAsset(actor.user.uID, 0));
       return sendSuccess(res, {
-        ...journey,
-        reward_points: journey.points_claimed,
+        ...taskProgress,
+        reward_points: taskProgress.points_claimed,
         user_points_total: currentAsset.points,
       });
     }
 
-    const task = await DatabaseService.getTask(journey.tID);
-    const rewardPoints = journey.points_claimed || task?.points || 0;
-    const updatedJourney = await DatabaseService.claimJourney(jID, rewardPoints);
+    const task = await DatabaseService.getTask(taskProgress.tID);
+    const rewardPoints = taskProgress.points_claimed || task?.points || 0;
+    const updatedTaskProgress = await DatabaseService.claimTaskProgress(jID, rewardPoints);
     const updatedAsset = await DatabaseService.upsertAsset(actor.user.uID, rewardPoints);
 
-    if (!updatedJourney) {
-      return sendError(res, 404, 'Journey not found');
+    if (!updatedTaskProgress) {
+      return sendError(res, 404, 'Task progress not found');
     }
 
     sendSuccess(res, {
-      ...updatedJourney,
+      ...updatedTaskProgress,
       reward_points: rewardPoints,
       user_points_total: updatedAsset.points,
-    }, 'Journey reward claimed');
+    }, 'Task progress reward claimed');
   } catch (error) {
-    console.error('Error claiming journey reward:', error);
+    console.error('Error claiming task progress reward:', error);
+    sendError(res, 500, 'Failed to claim reward');
+  }
+});
+
+app.post('/api/task-progress/claim/:jID', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  const jID = parseInteger(req.params.jID);
+  if (!jID) {
+    return sendError(res, 400, 'Invalid jID');
+  }
+
+  try {
+    const taskProgress = await DatabaseService.getTaskProgress(jID);
+    if (!taskProgress) {
+      return sendError(res, 404, 'Task progress not found');
+    }
+
+    if (taskProgress.uID !== actor.user.uID) {
+      return sendError(res, 403, 'Forbidden');
+    }
+
+    if (!taskProgress.time_checked) {
+      return sendError(res, 400, 'Task progress is not verified yet');
+    }
+
+    if (taskProgress.time_claimed) {
+      const currentAsset = (await DatabaseService.getUserAsset(actor.user.uID)) || (await DatabaseService.upsertAsset(actor.user.uID, 0));
+      return sendSuccess(res, {
+        ...taskProgress,
+        reward_points: taskProgress.points_claimed,
+        user_points_total: currentAsset.points,
+      });
+    }
+
+    const task = await DatabaseService.getTask(taskProgress.tID);
+    const rewardPoints = taskProgress.points_claimed || task?.points || 0;
+    const updatedTaskProgress = await DatabaseService.claimTaskProgress(jID, rewardPoints);
+    const updatedAsset = await DatabaseService.upsertAsset(actor.user.uID, rewardPoints);
+
+    if (!updatedTaskProgress) {
+      return sendError(res, 404, 'Task progress not found');
+    }
+
+    sendSuccess(res, {
+      ...updatedTaskProgress,
+      reward_points: rewardPoints,
+      user_points_total: updatedAsset.points,
+    }, 'Task progress reward claimed');
+  } catch (error) {
+    console.error('Error claiming task progress reward:', error);
     sendError(res, 500, 'Failed to claim reward');
   }
 });
@@ -532,11 +669,11 @@ app.post('/api/shard/redeem', async (req, res) => {
   }
 
   try {
-    const gift = await DatabaseService.redeemShardGift(actor.user.uID, bID);
-    sendSuccess(res, gift, 'Gift redeemed');
+    const prizeItem = await DatabaseService.redeemPrizeItemFromShards(actor.user.uID, bID);
+    sendSuccess(res, prizeItem, 'Prize item redeemed');
   } catch (error) {
-    console.error('Error redeeming gift from shards:', error);
-    sendError(res, 400, error instanceof Error ? error.message : 'Failed to redeem gift');
+    console.error('Error redeeming prize item from shards:', error);
+    sendError(res, 400, error instanceof Error ? error.message : 'Failed to redeem prize item');
   }
 });
 
@@ -924,7 +1061,7 @@ app.get('/api/user/stats', async (req, res) => {
 });
 
 app.get('/api/tasklist/pending-verification/count', async (req, res) => {
-  const actor = await requireAdmin(req, res);
+  const actor = await requireAdmin(req, res, 'review_tasks');
   if (!actor) return;
 
   try {
@@ -937,7 +1074,7 @@ app.get('/api/tasklist/pending-verification/count', async (req, res) => {
 });
 
 app.get('/api/tasklist/pending-verification', async (req, res) => {
-  const actor = await requireAdmin(req, res);
+  const actor = await requireAdmin(req, res, 'review_tasks');
   if (!actor) return;
 
   try {
@@ -951,7 +1088,7 @@ app.get('/api/tasklist/pending-verification', async (req, res) => {
 });
 
 app.post('/api/tasklist/:jID/verify', async (req, res) => {
-  const actor = await requireAdmin(req, res);
+  const actor = await requireAdmin(req, res, 'review_tasks');
   if (!actor) return;
 
   const jID = parseInteger(req.params.jID);
@@ -962,19 +1099,24 @@ app.post('/api/tasklist/:jID/verify', async (req, res) => {
   }
 
   try {
-    const journey = await DatabaseService.getJourney(jID);
-    if (!journey) {
-      return sendError(res, 404, 'Journey not found');
+    const taskProgress = await DatabaseService.getTaskProgress(jID);
+    if (!taskProgress) {
+      return sendError(res, 404, 'Task progress not found');
+    }
+
+    const taskProgressUser = await DatabaseService.getUserById(taskProgress.uID);
+    if (taskProgressUser?.is_admin) {
+      return sendError(res, 400, 'Admin task progress items are not reviewed from the dashboard queue');
     }
 
     if (approved) {
-      const updated = await DatabaseService.markJourneyChecked(jID);
+      const updated = await DatabaseService.markTaskProgressChecked(jID);
       if (!updated) {
-        return sendError(res, 404, 'Journey not found');
+        return sendError(res, 404, 'Task progress not found');
       }
       const [task, user] = await Promise.all([
         DatabaseService.getTask(updated.tID),
-        DatabaseService.getUserById(updated.uID),
+        Promise.resolve(taskProgressUser || null),
       ]);
       return sendSuccess(res, {
         ...updated,
@@ -986,18 +1128,18 @@ app.post('/api/tasklist/:jID/verify', async (req, res) => {
               is_admin: user.is_admin,
             }
           : null,
-      }, 'Journey verified');
+      }, 'Task progress verified');
     }
 
-    const updated = await DatabaseService.rejectPendingJourney(jID);
+    const updated = await DatabaseService.rejectPendingTaskProgress(jID);
     if (!updated) {
-      return sendError(res, 404, 'Journey not found');
+      return sendError(res, 404, 'Task progress not found');
     }
 
-    return sendSuccess(res, updated, 'Journey rejected');
+    return sendSuccess(res, updated, 'Task progress rejected');
   } catch (error) {
-    console.error('Error verifying journey:', error);
-    sendError(res, 500, 'Failed to verify journey');
+    console.error('Error verifying task progress:', error);
+    sendError(res, 500, 'Failed to verify task progress');
   }
 });
 

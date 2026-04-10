@@ -47,7 +47,7 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
       
       console.log('Sending request with token:', token.substring(0, 50) + '...')
       
-      const response = await fetch(`/api/journey/${task.jID || task.tID}/submit`, {
+      const response = await fetch(`/api/task-progress/${task.jID || task.tID}/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

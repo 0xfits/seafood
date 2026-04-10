@@ -118,7 +118,7 @@ const HomePage = () => {
 
         if (isAuthenticated && user?.uID) {
           const [claimedGiftRows, asset] = await Promise.all([
-            fetchApiJson('/api/gift', { headers: getAuthHeaders(user), signal }).catch(() => []),
+            fetchApiJson('/api/prize-item', { headers: getAuthHeaders(user), signal }).catch(() => []),
             fetchApiJson(`/api/user/asset/${user.uID}`, { signal }).catch(() => ({ points: 0 })),
           ])
 
