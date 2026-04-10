@@ -364,141 +364,6 @@ const ensureSupportSchema = async () => {
     await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS description_hk text`;
     await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS description_vn text`;
 
-    await sql`
-      DO $$
-      BEGIN
-        IF to_regclass('public.brand') IS NOT NULL THEN
-          INSERT INTO prize (
-            "bID",
-            symbol,
-            name,
-            description,
-            url_image,
-            image_url,
-            points,
-            market_floor_points,
-            gift_limit,
-            total_quantity,
-            free_shard_ratio,
-            time_start,
-            time_end,
-            time_created,
-            time_updated,
-            time_actived,
-            name_en,
-            name_hk,
-            name_vn,
-            description_en,
-            description_hk,
-            description_vn
-          )
-          SELECT
-            COALESCE((to_jsonb(legacy_brand)->>'bID')::bigint, 0),
-            COALESCE(to_jsonb(legacy_brand)->>'symbol', ''),
-            COALESCE(to_jsonb(legacy_brand)->>'name', ''),
-            NULLIF(to_jsonb(legacy_brand)->>'description', ''),
-            NULLIF(to_jsonb(legacy_brand)->>'url_image', ''),
-            COALESCE(NULLIF(to_jsonb(legacy_brand)->>'image_url', ''), NULLIF(to_jsonb(legacy_brand)->>'url_image', '')),
-            COALESCE((to_jsonb(legacy_brand)->>'points')::int, 0),
-            COALESCE((to_jsonb(legacy_brand)->>'market_floor_points')::int, 0),
-            COALESCE((to_jsonb(legacy_brand)->>'gift_limit')::int, 0),
-            COALESCE((to_jsonb(legacy_brand)->>'total_quantity')::int, COALESCE((to_jsonb(legacy_brand)->>'gift_limit')::int, 0)),
-            COALESCE((to_jsonb(legacy_brand)->>'free_shard_ratio')::numeric, 0),
-            CASE
-              WHEN NULLIF(to_jsonb(legacy_brand)->>'time_start', '') IS NULL THEN NULL
-              WHEN (to_jsonb(legacy_brand)->>'time_start') ~ '^[0-9]+([.][0-9]+)?$' THEN TO_TIMESTAMP(
-                CASE
-                  WHEN LENGTH(SPLIT_PART(to_jsonb(legacy_brand)->>'time_start', '.', 1)) > 10
-                    THEN (to_jsonb(legacy_brand)->>'time_start')::double precision / 1000.0
-                  ELSE (to_jsonb(legacy_brand)->>'time_start')::double precision
-                END
-              )
-              ELSE CAST(NULLIF(to_jsonb(legacy_brand)->>'time_start', '') AS timestamptz)
-            END,
-            CASE
-              WHEN NULLIF(to_jsonb(legacy_brand)->>'time_end', '') IS NULL THEN NULL
-              WHEN (to_jsonb(legacy_brand)->>'time_end') ~ '^[0-9]+([.][0-9]+)?$' THEN TO_TIMESTAMP(
-                CASE
-                  WHEN LENGTH(SPLIT_PART(to_jsonb(legacy_brand)->>'time_end', '.', 1)) > 10
-                    THEN (to_jsonb(legacy_brand)->>'time_end')::double precision / 1000.0
-                  ELSE (to_jsonb(legacy_brand)->>'time_end')::double precision
-                END
-              )
-              ELSE CAST(NULLIF(to_jsonb(legacy_brand)->>'time_end', '') AS timestamptz)
-            END,
-            COALESCE(
-              CASE
-                WHEN NULLIF(to_jsonb(legacy_brand)->>'time_created', '') IS NULL THEN NULL
-                WHEN (to_jsonb(legacy_brand)->>'time_created') ~ '^[0-9]+([.][0-9]+)?$' THEN TO_TIMESTAMP(
-                  CASE
-                    WHEN LENGTH(SPLIT_PART(to_jsonb(legacy_brand)->>'time_created', '.', 1)) > 10
-                      THEN (to_jsonb(legacy_brand)->>'time_created')::double precision / 1000.0
-                    ELSE (to_jsonb(legacy_brand)->>'time_created')::double precision
-                  END
-                )
-                ELSE CAST(NULLIF(to_jsonb(legacy_brand)->>'time_created', '') AS timestamptz)
-              END,
-              NOW()
-            ),
-            COALESCE(
-              CASE
-                WHEN NULLIF(to_jsonb(legacy_brand)->>'time_updated', '') IS NULL THEN NULL
-                WHEN (to_jsonb(legacy_brand)->>'time_updated') ~ '^[0-9]+([.][0-9]+)?$' THEN TO_TIMESTAMP(
-                  CASE
-                    WHEN LENGTH(SPLIT_PART(to_jsonb(legacy_brand)->>'time_updated', '.', 1)) > 10
-                      THEN (to_jsonb(legacy_brand)->>'time_updated')::double precision / 1000.0
-                    ELSE (to_jsonb(legacy_brand)->>'time_updated')::double precision
-                  END
-                )
-                ELSE CAST(NULLIF(to_jsonb(legacy_brand)->>'time_updated', '') AS timestamptz)
-              END,
-              NOW()
-            ),
-            CASE
-              WHEN NULLIF(to_jsonb(legacy_brand)->>'time_actived', '') IS NULL THEN NULL
-              WHEN (to_jsonb(legacy_brand)->>'time_actived') ~ '^[0-9]+([.][0-9]+)?$' THEN TO_TIMESTAMP(
-                CASE
-                  WHEN LENGTH(SPLIT_PART(to_jsonb(legacy_brand)->>'time_actived', '.', 1)) > 10
-                    THEN (to_jsonb(legacy_brand)->>'time_actived')::double precision / 1000.0
-                  ELSE (to_jsonb(legacy_brand)->>'time_actived')::double precision
-                END
-              )
-              ELSE CAST(NULLIF(to_jsonb(legacy_brand)->>'time_actived', '') AS timestamptz)
-            END,
-            NULLIF(to_jsonb(legacy_brand)->>'name_en', ''),
-            NULLIF(to_jsonb(legacy_brand)->>'name_hk', ''),
-            NULLIF(to_jsonb(legacy_brand)->>'name_vn', ''),
-            NULLIF(to_jsonb(legacy_brand)->>'description_en', ''),
-            NULLIF(to_jsonb(legacy_brand)->>'description_hk', ''),
-            NULLIF(to_jsonb(legacy_brand)->>'description_vn', '')
-          FROM brand AS legacy_brand
-          ON CONFLICT ("bID") DO UPDATE SET
-            symbol = EXCLUDED.symbol,
-            name = EXCLUDED.name,
-            description = EXCLUDED.description,
-            url_image = EXCLUDED.url_image,
-            image_url = EXCLUDED.image_url,
-            points = EXCLUDED.points,
-            market_floor_points = EXCLUDED.market_floor_points,
-            gift_limit = EXCLUDED.gift_limit,
-            total_quantity = EXCLUDED.total_quantity,
-            free_shard_ratio = EXCLUDED.free_shard_ratio,
-            time_start = EXCLUDED.time_start,
-            time_end = EXCLUDED.time_end,
-            time_created = EXCLUDED.time_created,
-            time_updated = EXCLUDED.time_updated,
-            time_actived = EXCLUDED.time_actived,
-            name_en = EXCLUDED.name_en,
-            name_hk = EXCLUDED.name_hk,
-            name_vn = EXCLUDED.name_vn,
-            description_en = EXCLUDED.description_en,
-            description_hk = EXCLUDED.description_hk,
-            description_vn = EXCLUDED.description_vn;
-        END IF;
-      END
-      $$;
-    `;
-
     await sql`ALTER TABLE IF EXISTS task ADD COLUMN IF NOT EXISTS points integer DEFAULT 0`;
     await sql`ALTER TABLE IF EXISTS task ADD COLUMN IF NOT EXISTS type integer DEFAULT 0`;
     await sql`ALTER TABLE IF EXISTS task ADD COLUMN IF NOT EXISTS "linkA" text`;
@@ -864,7 +729,7 @@ const normalizeTask = (row: RawRow, participantsCount = 0): TaskRecord => {
   const linkA = toStringValue(getValue(row, 'linkA', 'link0'));
   const isOpenValue = getValue(row, 'is_open');
   return {
-    tID: toNumberValue(getValue(row, 'tID', 'ttID')),
+    tID: toNumberValue(getValue(row, 'tID')),
     title: toStringValue(getValue(row, 'title')),
     note: toStringValue(getValue(row, 'note')),
     refcode: toStringValue(getValue(row, 'refcode')),
@@ -995,62 +860,6 @@ const normalizeShardTransfer = (
 });
 
 export class DatabaseService {
-  static async listLegacyBrandRows(skip = 0, limit = 100): Promise<RawRow[]> {
-    const sql = getSql();
-    try {
-      return extractRows(await sql`
-        SELECT to_jsonb(b) AS row
-        FROM brand AS b
-        ORDER BY COALESCE((to_jsonb(b)->>'bID')::int, 0)
-        LIMIT ${limit} OFFSET ${skip}
-      `);
-    } catch {
-      return [];
-    }
-  }
-
-  static async getLegacyBrandRowById(bID: number): Promise<RawRow | null> {
-    const sql = getSql();
-    try {
-      return firstRow(await sql`
-        SELECT to_jsonb(b) AS row
-        FROM brand AS b
-        WHERE COALESCE((to_jsonb(b)->>'bID')::int, 0) = ${bID}
-        LIMIT 1
-      `);
-    } catch {
-      return null;
-    }
-  }
-
-  static async listLegacyTaskRows(skip = 0, limit = 100): Promise<RawRow[]> {
-    const sql = getSql();
-    try {
-      return extractRows(await sql`
-        SELECT to_jsonb(t) AS row
-        FROM task_type AS t
-        ORDER BY COALESCE((to_jsonb(t)->>'ttID')::int, 0)
-        LIMIT ${limit} OFFSET ${skip}
-      `);
-    } catch {
-      return [];
-    }
-  }
-
-  static async getLegacyTaskRowById(tID: number): Promise<RawRow | null> {
-    const sql = getSql();
-    try {
-      return firstRow(await sql`
-        SELECT to_jsonb(t) AS row
-        FROM task_type AS t
-        WHERE COALESCE((to_jsonb(t)->>'ttID')::int, 0) = ${tID}
-        LIMIT 1
-      `);
-    } catch {
-      return null;
-    }
-  }
-
   static async getBrandAggregateCounts(): Promise<Map<number, BrandAggregateCounts>> {
     const sql = getSql();
     let giftRows: Array<{
@@ -1386,18 +1195,12 @@ export class DatabaseService {
   static async listBrands(skip = 0, limit = 100): Promise<BrandRecord[]> {
     await ensureSupportSchema();
     const sql = getSql();
-    let prizeRows: RawRow[] = [];
-    try {
-      prizeRows = extractRows(await sql`
-        SELECT to_jsonb(b) AS row
-        FROM prize AS b
-        ORDER BY COALESCE((to_jsonb(b)->>'bID')::int, 0)
-        LIMIT ${limit} OFFSET ${skip}
-      `);
-    } catch {
-      prizeRows = [];
-    }
-    const rows = prizeRows.length > 0 ? prizeRows : await this.listLegacyBrandRows(skip, limit);
+    const rows = extractRows(await sql`
+      SELECT to_jsonb(b) AS row
+      FROM prize AS b
+      ORDER BY COALESCE((to_jsonb(b)->>'bID')::int, 0)
+      LIMIT ${limit} OFFSET ${skip}
+    `);
     const counts = await this.getBrandAggregateCounts();
 
     return rows.map((row) => {
@@ -1477,44 +1280,32 @@ export class DatabaseService {
 
   static async listTasks(skip = 0, limit = 100): Promise<TaskRecord[]> {
     const sql = getSql();
-    let primaryRows: RawRow[] = [];
-    try {
-      primaryRows = extractRows(await sql`
-        SELECT to_jsonb(t) AS row
-        FROM task AS t
-        ORDER BY COALESCE((to_jsonb(t)->>'tID')::int, 0)
-        LIMIT ${limit} OFFSET ${skip}
-      `);
-    } catch {
-      primaryRows = [];
-    }
-    const rows = primaryRows.length > 0 ? primaryRows : await this.listLegacyTaskRows(skip, limit);
+    const rows = extractRows(await sql`
+      SELECT to_jsonb(t) AS row
+      FROM task AS t
+      ORDER BY COALESCE((to_jsonb(t)->>'tID')::int, 0)
+      LIMIT ${limit} OFFSET ${skip}
+    `);
     const participantCounts = await this.getTaskParticipantCounts();
 
     return rows.map((row) => {
-      const tID = toNumberValue(getValue(row, 'tID', 'ttID'));
+      const tID = toNumberValue(getValue(row, 'tID'));
       return normalizeTask(row, participantCounts.get(tID) || 0);
     });
   }
 
   static async getTask(tID: number): Promise<TaskRecord | null> {
     const sql = getSql();
-    let row: RawRow | null = null;
-    try {
-      row = firstRow(await sql`
-        SELECT to_jsonb(t) AS row
-        FROM task AS t
-        WHERE COALESCE((to_jsonb(t)->>'tID')::int, 0) = ${tID}
-        LIMIT 1
-      `);
-    } catch {
-      row = null;
-    }
+    const row = firstRow(await sql`
+      SELECT to_jsonb(t) AS row
+      FROM task AS t
+      WHERE COALESCE((to_jsonb(t)->>'tID')::int, 0) = ${tID}
+      LIMIT 1
+    `);
 
-    const legacyRow = row || await this.getLegacyTaskRowById(tID);
-    if (!legacyRow) return null;
+    if (!row) return null;
     const participantsCount = await this.countTaskParticipants(tID);
-    return normalizeTask(legacyRow, participantsCount);
+    return normalizeTask(row, participantsCount);
   }
 
   static async countTaskParticipants(tID: number): Promise<number> {
@@ -1720,20 +1511,14 @@ export class DatabaseService {
   static async getBrandById(bID: number): Promise<BrandRecord | null> {
     await ensureSupportSchema();
     const sql = getSql();
-    let row: RawRow | null = null;
-    try {
-      row = firstRow(await sql`
-        SELECT to_jsonb(b) AS row
-        FROM prize AS b
-        WHERE COALESCE((to_jsonb(b)->>'bID')::int, 0) = ${bID}
-        LIMIT 1
-      `);
-    } catch {
-      row = null;
-    }
+    const row = firstRow(await sql`
+      SELECT to_jsonb(b) AS row
+      FROM prize AS b
+      WHERE COALESCE((to_jsonb(b)->>'bID')::int, 0) = ${bID}
+      LIMIT 1
+    `);
 
-    const targetRow = row || await this.getLegacyBrandRowById(bID);
-    if (!targetRow) {
+    if (!row) {
       return null;
     }
 
@@ -1745,7 +1530,7 @@ export class DatabaseService {
       this.countFreeShardsDistributedByBrand(bID),
     ]);
 
-    return normalizeBrand(targetRow, {
+    return normalizeBrand(row, {
       stores_count: storesCount,
       claims_count: claimsCount,
       activated_count: activatedCount,
