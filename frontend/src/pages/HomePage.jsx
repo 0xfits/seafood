@@ -33,6 +33,68 @@ const HomePage = () => {
     return 'zh'
   }
 
+  const mapTasksForHome = (taskRows, lang) => (
+    (taskRows || []).map((task) => ({
+      ...task,
+      title: lang === 'en'
+        ? (task.title_en ?? task.title)
+        : lang === 'hk'
+          ? (task.title_hk ?? task.title)
+          : lang === 'vn'
+            ? (task.title_vn ?? task.title)
+            : task.title,
+      note: lang === 'en'
+        ? (task.note_en ?? task.note)
+        : lang === 'hk'
+          ? (task.note_hk ?? task.note)
+          : lang === 'vn'
+            ? (task.note_vn ?? task.note)
+            : task.note,
+      description: task.note,
+      status: task.is_open ? 'active' : 'inactive',
+      statusText: task.is_open ? '进行中' : '已结束',
+      participants: task.participants_count || 0,
+      type: task.refcode ? 'trade' : 'join',
+      actionText: '立即参与',
+    }))
+  )
+
+  const mapRewardsForHome = (brandRows, lang, claimedBrandIds = new Set()) => (
+    (brandRows || []).map((gift) => {
+      const isClaimed = claimedBrandIds.has(gift.bID)
+      const storesCount = gift.stores_count || 0
+      return {
+        ...gift,
+        title: lang === 'en'
+          ? (gift.name_en ?? gift.name)
+          : lang === 'hk'
+            ? (gift.name_hk ?? gift.name)
+            : lang === 'vn'
+              ? (gift.name_vn ?? gift.name)
+              : gift.name,
+        description: lang === 'en'
+          ? (gift.description_en ?? gift.description)
+          : lang === 'hk'
+            ? (gift.description_hk ?? gift.description)
+            : lang === 'vn'
+              ? (gift.description_vn ?? gift.description)
+              : gift.description,
+        points_required: gift.points || 0,
+        status: isClaimed ? 'claimed' : storesCount > 0 ? 'available' : 'locked',
+        statusText: isClaimed ? '已兑换' : storesCount > 0 ? '可兑换' : '库存不足',
+        rarity: gift.points > 5000 ? 'epic' : gift.points > 2000 ? 'rare' : 'common',
+        image: gift.image_url || gift.url_image || '/placeholder.jpg',
+        claimed: gift.claims_count || 0,
+        total: (gift.claims_count || 0) + storesCount,
+        limited: Boolean(gift.gift_limit || gift.time_end),
+        brand: {
+          name: gift.name,
+          logo: gift.image_url || gift.url_image || '',
+        },
+      }
+    })
+  )
+
   useEffect(() => {
     let cancelled = false
     const controller = new AbortController()
@@ -45,83 +107,27 @@ const HomePage = () => {
 
         const tasksPromise = fetchApiJson('/api/task/all', { signal })
         const brandsPromise = fetchApiJson('/api/prize/all', { signal })
-        const giftPromise = isAuthenticated
-          ? fetchApiJson('/api/gift', { headers: getAuthHeaders(user), signal }).catch(() => [])
-          : Promise.resolve([])
-        const pointsPromise = user?.uID
-          ? fetchApiJson(`/api/user/asset/${user.uID}`, { signal }).catch(() => ({ points: 0 }))
-          : Promise.resolve({ points: 0 })
-
-        const [taskRows, brandRows, claimedGiftRows, asset] = await Promise.all([
-          tasksPromise,
-          brandsPromise,
-          giftPromise,
-          pointsPromise,
-        ])
+        const [taskRows, brandRows] = await Promise.all([tasksPromise, brandsPromise])
 
         if (cancelled) return
 
-        const claimedBrandIds = new Set((claimedGiftRows || []).map((gift) => gift.bID))
+        setTasks(mapTasksForHome(taskRows, lang))
+        setGifts(mapRewardsForHome(brandRows, lang))
+        setUserPoints(0)
+        setLoading(false)
 
-        setTasks((taskRows || []).map((task) => ({
-          ...task,
-          title: lang === 'en'
-            ? (task.title_en ?? task.title)
-            : lang === 'hk'
-              ? (task.title_hk ?? task.title)
-              : lang === 'vn'
-                ? (task.title_vn ?? task.title)
-                : task.title,
-          note: lang === 'en'
-            ? (task.note_en ?? task.note)
-            : lang === 'hk'
-              ? (task.note_hk ?? task.note)
-              : lang === 'vn'
-                ? (task.note_vn ?? task.note)
-                : task.note,
-          description: task.note,
-          status: task.is_open ? 'active' : 'inactive',
-          statusText: task.is_open ? '进行中' : '已结束',
-          participants: task.participants_count || 0,
-          type: task.refcode ? 'trade' : 'join',
-          actionText: '立即参与',
-        })))
+        if (isAuthenticated && user?.uID) {
+          const [claimedGiftRows, asset] = await Promise.all([
+            fetchApiJson('/api/gift', { headers: getAuthHeaders(user), signal }).catch(() => []),
+            fetchApiJson(`/api/user/asset/${user.uID}`, { signal }).catch(() => ({ points: 0 })),
+          ])
 
-        setGifts((brandRows || []).map((gift) => {
-          const isClaimed = claimedBrandIds.has(gift.bID)
-          const storesCount = gift.stores_count || 0
-          return {
-            ...gift,
-            title: lang === 'en'
-              ? (gift.name_en ?? gift.name)
-              : lang === 'hk'
-                ? (gift.name_hk ?? gift.name)
-                : lang === 'vn'
-                  ? (gift.name_vn ?? gift.name)
-                  : gift.name,
-            description: lang === 'en'
-              ? (gift.description_en ?? gift.description)
-              : lang === 'hk'
-                ? (gift.description_hk ?? gift.description)
-                : lang === 'vn'
-                  ? (gift.description_vn ?? gift.description)
-                  : gift.description,
-            points_required: gift.points || 0,
-            status: isClaimed ? 'claimed' : storesCount > 0 ? 'available' : 'locked',
-            statusText: isClaimed ? '已兑换' : storesCount > 0 ? '可兑换' : '库存不足',
-            rarity: gift.points > 5000 ? 'epic' : gift.points > 2000 ? 'rare' : 'common',
-            image: gift.image_url || gift.url_image || '/placeholder.jpg',
-            claimed: gift.claims_count || 0,
-            total: (gift.claims_count || 0) + storesCount,
-            limited: Boolean(gift.gift_limit || gift.time_end),
-            brand: {
-              name: gift.name,
-              logo: gift.image_url || gift.url_image || '',
-            },
-          }
-        }))
+          if (cancelled) return
 
-        setUserPoints(asset?.points || 0)
+          const claimedBrandIds = new Set((claimedGiftRows || []).map((gift) => gift.bID))
+          setGifts(mapRewardsForHome(brandRows, lang, claimedBrandIds))
+          setUserPoints(asset?.points || 0)
+        }
       } catch (error) {
         if (!cancelled) {
           console.error('Load data error:', error)

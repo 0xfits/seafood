@@ -404,11 +404,67 @@ const ensureSupportSchema = async () => {
             COALESCE((to_jsonb(legacy_brand)->>'gift_limit')::int, 0),
             COALESCE((to_jsonb(legacy_brand)->>'total_quantity')::int, COALESCE((to_jsonb(legacy_brand)->>'gift_limit')::int, 0)),
             COALESCE((to_jsonb(legacy_brand)->>'free_shard_ratio')::numeric, 0),
-            CAST(NULLIF(to_jsonb(legacy_brand)->>'time_start', '') AS timestamptz),
-            CAST(NULLIF(to_jsonb(legacy_brand)->>'time_end', '') AS timestamptz),
-            COALESCE(CAST(NULLIF(to_jsonb(legacy_brand)->>'time_created', '') AS timestamptz), NOW()),
-            COALESCE(CAST(NULLIF(to_jsonb(legacy_brand)->>'time_updated', '') AS timestamptz), NOW()),
-            CAST(NULLIF(to_jsonb(legacy_brand)->>'time_actived', '') AS timestamptz),
+            CASE
+              WHEN NULLIF(to_jsonb(legacy_brand)->>'time_start', '') IS NULL THEN NULL
+              WHEN (to_jsonb(legacy_brand)->>'time_start') ~ '^[0-9]+([.][0-9]+)?$' THEN TO_TIMESTAMP(
+                CASE
+                  WHEN LENGTH(SPLIT_PART(to_jsonb(legacy_brand)->>'time_start', '.', 1)) > 10
+                    THEN (to_jsonb(legacy_brand)->>'time_start')::double precision / 1000.0
+                  ELSE (to_jsonb(legacy_brand)->>'time_start')::double precision
+                END
+              )
+              ELSE CAST(NULLIF(to_jsonb(legacy_brand)->>'time_start', '') AS timestamptz)
+            END,
+            CASE
+              WHEN NULLIF(to_jsonb(legacy_brand)->>'time_end', '') IS NULL THEN NULL
+              WHEN (to_jsonb(legacy_brand)->>'time_end') ~ '^[0-9]+([.][0-9]+)?$' THEN TO_TIMESTAMP(
+                CASE
+                  WHEN LENGTH(SPLIT_PART(to_jsonb(legacy_brand)->>'time_end', '.', 1)) > 10
+                    THEN (to_jsonb(legacy_brand)->>'time_end')::double precision / 1000.0
+                  ELSE (to_jsonb(legacy_brand)->>'time_end')::double precision
+                END
+              )
+              ELSE CAST(NULLIF(to_jsonb(legacy_brand)->>'time_end', '') AS timestamptz)
+            END,
+            COALESCE(
+              CASE
+                WHEN NULLIF(to_jsonb(legacy_brand)->>'time_created', '') IS NULL THEN NULL
+                WHEN (to_jsonb(legacy_brand)->>'time_created') ~ '^[0-9]+([.][0-9]+)?$' THEN TO_TIMESTAMP(
+                  CASE
+                    WHEN LENGTH(SPLIT_PART(to_jsonb(legacy_brand)->>'time_created', '.', 1)) > 10
+                      THEN (to_jsonb(legacy_brand)->>'time_created')::double precision / 1000.0
+                    ELSE (to_jsonb(legacy_brand)->>'time_created')::double precision
+                  END
+                )
+                ELSE CAST(NULLIF(to_jsonb(legacy_brand)->>'time_created', '') AS timestamptz)
+              END,
+              NOW()
+            ),
+            COALESCE(
+              CASE
+                WHEN NULLIF(to_jsonb(legacy_brand)->>'time_updated', '') IS NULL THEN NULL
+                WHEN (to_jsonb(legacy_brand)->>'time_updated') ~ '^[0-9]+([.][0-9]+)?$' THEN TO_TIMESTAMP(
+                  CASE
+                    WHEN LENGTH(SPLIT_PART(to_jsonb(legacy_brand)->>'time_updated', '.', 1)) > 10
+                      THEN (to_jsonb(legacy_brand)->>'time_updated')::double precision / 1000.0
+                    ELSE (to_jsonb(legacy_brand)->>'time_updated')::double precision
+                  END
+                )
+                ELSE CAST(NULLIF(to_jsonb(legacy_brand)->>'time_updated', '') AS timestamptz)
+              END,
+              NOW()
+            ),
+            CASE
+              WHEN NULLIF(to_jsonb(legacy_brand)->>'time_actived', '') IS NULL THEN NULL
+              WHEN (to_jsonb(legacy_brand)->>'time_actived') ~ '^[0-9]+([.][0-9]+)?$' THEN TO_TIMESTAMP(
+                CASE
+                  WHEN LENGTH(SPLIT_PART(to_jsonb(legacy_brand)->>'time_actived', '.', 1)) > 10
+                    THEN (to_jsonb(legacy_brand)->>'time_actived')::double precision / 1000.0
+                  ELSE (to_jsonb(legacy_brand)->>'time_actived')::double precision
+                END
+              )
+              ELSE CAST(NULLIF(to_jsonb(legacy_brand)->>'time_actived', '') AS timestamptz)
+            END,
             NULLIF(to_jsonb(legacy_brand)->>'name_en', ''),
             NULLIF(to_jsonb(legacy_brand)->>'name_hk', ''),
             NULLIF(to_jsonb(legacy_brand)->>'name_vn', ''),
@@ -673,6 +729,14 @@ export interface ShardTransferRecord {
   brand_symbol: string;
 }
 
+type BrandAggregateCounts = {
+  stores_count: number;
+  claims_count: number;
+  activated_count: number;
+  current_shard_supply: number;
+  free_shards_distributed: number;
+};
+
 const normalizeAsset = (row: RawRow): AssetRecord => ({
   index_id: toNumberValue(getValue(row, 'index_id', 'aID', 'id')),
   uID: toNumberValue(getValue(row, 'uID')),
@@ -798,8 +862,9 @@ const normalizeGift = (row: RawRow): GiftRecord => ({
 
 const normalizeTask = (row: RawRow, participantsCount = 0): TaskRecord => {
   const linkA = toStringValue(getValue(row, 'linkA', 'link0'));
+  const isOpenValue = getValue(row, 'is_open');
   return {
-    tID: toNumberValue(getValue(row, 'tID')),
+    tID: toNumberValue(getValue(row, 'tID', 'ttID')),
     title: toStringValue(getValue(row, 'title')),
     note: toStringValue(getValue(row, 'note')),
     refcode: toStringValue(getValue(row, 'refcode')),
@@ -812,7 +877,7 @@ const normalizeTask = (row: RawRow, participantsCount = 0): TaskRecord => {
     time_end: toTimestamp(getValue(row, 'time_end')),
     time_created: toTimestamp(getValue(row, 'time_created', 'created_at')),
     time_updated: toTimestamp(getValue(row, 'time_updated', 'updated_at')),
-    is_open: toBooleanValue(getValue(row, 'is_open')),
+    is_open: isOpenValue === undefined ? true : toBooleanValue(isOpenValue),
     participants_count: participantsCount,
     title_en: toStringValue(getValue(row, 'title_en')),
     title_hk: toStringValue(getValue(row, 'title_hk')),
@@ -930,6 +995,166 @@ const normalizeShardTransfer = (
 });
 
 export class DatabaseService {
+  static async listLegacyBrandRows(skip = 0, limit = 100): Promise<RawRow[]> {
+    const sql = getSql();
+    try {
+      return extractRows(await sql`
+        SELECT to_jsonb(b) AS row
+        FROM brand AS b
+        ORDER BY COALESCE((to_jsonb(b)->>'bID')::int, 0)
+        LIMIT ${limit} OFFSET ${skip}
+      `);
+    } catch {
+      return [];
+    }
+  }
+
+  static async getLegacyBrandRowById(bID: number): Promise<RawRow | null> {
+    const sql = getSql();
+    try {
+      return firstRow(await sql`
+        SELECT to_jsonb(b) AS row
+        FROM brand AS b
+        WHERE COALESCE((to_jsonb(b)->>'bID')::int, 0) = ${bID}
+        LIMIT 1
+      `);
+    } catch {
+      return null;
+    }
+  }
+
+  static async listLegacyTaskRows(skip = 0, limit = 100): Promise<RawRow[]> {
+    const sql = getSql();
+    try {
+      return extractRows(await sql`
+        SELECT to_jsonb(t) AS row
+        FROM task_type AS t
+        ORDER BY COALESCE((to_jsonb(t)->>'ttID')::int, 0)
+        LIMIT ${limit} OFFSET ${skip}
+      `);
+    } catch {
+      return [];
+    }
+  }
+
+  static async getLegacyTaskRowById(tID: number): Promise<RawRow | null> {
+    const sql = getSql();
+    try {
+      return firstRow(await sql`
+        SELECT to_jsonb(t) AS row
+        FROM task_type AS t
+        WHERE COALESCE((to_jsonb(t)->>'ttID')::int, 0) = ${tID}
+        LIMIT 1
+      `);
+    } catch {
+      return null;
+    }
+  }
+
+  static async getBrandAggregateCounts(): Promise<Map<number, BrandAggregateCounts>> {
+    const sql = getSql();
+    let giftRows: Array<{
+      bid: number;
+      stores_count: number;
+      claims_count: number;
+      activated_count: number;
+    }> = [];
+    let shardRows: Array<{ bid: number; volume: number }> = [];
+    let transferRows: Array<{ bid: number; volume: number }> = [];
+
+    try {
+      [giftRows, shardRows, transferRows] = await Promise.all([
+        asItems<{
+          bid: number;
+          stores_count: number;
+          claims_count: number;
+          activated_count: number;
+        }>(await sql`
+          SELECT
+            COALESCE((to_jsonb(g)->>'bID')::int, 0) AS bid,
+            COUNT(1) FILTER (
+              WHERE COALESCE((to_jsonb(g)->>'uID')::int, 0) = 0
+            )::int AS stores_count,
+            COUNT(1) FILTER (
+              WHERE COALESCE((to_jsonb(g)->>'uID')::int, 0) <> 0
+            )::int AS claims_count,
+            COUNT(1) FILTER (
+              WHERE COALESCE((to_jsonb(g)->>'uID')::int, 0) <> 0
+                AND COALESCE(NULLIF(TRIM(COALESCE(to_jsonb(g)->>'time_actived', '')), ''), '') <> ''
+            )::int AS activated_count
+          FROM gift AS g
+          GROUP BY bid
+        `),
+        asItems<{ bid: number; volume: number }>(await sql`
+          SELECT
+            COALESCE((to_jsonb(s)->>'bID')::int, 0) AS bid,
+            COALESCE(SUM(COALESCE((to_jsonb(s)->>'volume')::int, 0)), 0)::int AS volume
+          FROM shard AS s
+          GROUP BY bid
+        `),
+        asItems<{ bid: number; volume: number }>(await sql`
+          SELECT
+            COALESCE((to_jsonb(st)->>'bID')::int, 0) AS bid,
+            COALESCE(SUM(COALESCE((to_jsonb(st)->>'volume')::int, 0)), 0)::int AS volume
+          FROM shard_transfer AS st
+          WHERE COALESCE(to_jsonb(st)->>'reason', '') = 'free_chest'
+          GROUP BY bid
+        `),
+      ]);
+    } catch (error) {
+      console.warn('Failed to load brand aggregate counts, falling back to zero counts:', error);
+    }
+
+    const counts = new Map<number, BrandAggregateCounts>();
+    const ensureCounts = (bID: number) => {
+      if (!counts.has(bID)) {
+        counts.set(bID, {
+          stores_count: 0,
+          claims_count: 0,
+          activated_count: 0,
+          current_shard_supply: 0,
+          free_shards_distributed: 0,
+        });
+      }
+      return counts.get(bID)!;
+    };
+
+    for (const row of giftRows) {
+      const entry = ensureCounts(Number(row.bid || 0));
+      entry.stores_count = Number(row.stores_count || 0);
+      entry.claims_count = Number(row.claims_count || 0);
+      entry.activated_count = Number(row.activated_count || 0);
+    }
+
+    for (const row of shardRows) {
+      ensureCounts(Number(row.bid || 0)).current_shard_supply = Number(row.volume || 0);
+    }
+
+    for (const row of transferRows) {
+      ensureCounts(Number(row.bid || 0)).free_shards_distributed = Number(row.volume || 0);
+    }
+
+    return counts;
+  }
+
+  static async getTaskParticipantCounts(): Promise<Map<number, number>> {
+    const sql = getSql();
+    try {
+      const rows = asItems<{ tid: number; count: number }>(await sql`
+        SELECT
+          COALESCE((to_jsonb(j)->>'tID')::int, 0) AS tid,
+          COUNT(1)::int AS count
+        FROM journey AS j
+        GROUP BY tid
+      `);
+
+      return new Map(rows.map((row) => [Number(row.tid || 0), Number(row.count || 0)]));
+    } catch (error) {
+      console.warn('Failed to load task participant counts, falling back to zero counts:', error);
+      return new Map();
+    }
+  }
+
   static async getAllUsers(skip = 0, limit = 100): Promise<UserRecord[]> {
     try {
       const sql = getSql();
@@ -1161,33 +1386,25 @@ export class DatabaseService {
   static async listBrands(skip = 0, limit = 100): Promise<BrandRecord[]> {
     await ensureSupportSchema();
     const sql = getSql();
-    const rows = extractRows(await sql`
-      SELECT to_jsonb(b) AS row
-      FROM prize AS b
-      ORDER BY COALESCE((to_jsonb(b)->>'bID')::int, 0)
-      LIMIT ${limit} OFFSET ${skip}
-    `);
+    let prizeRows: RawRow[] = [];
+    try {
+      prizeRows = extractRows(await sql`
+        SELECT to_jsonb(b) AS row
+        FROM prize AS b
+        ORDER BY COALESCE((to_jsonb(b)->>'bID')::int, 0)
+        LIMIT ${limit} OFFSET ${skip}
+      `);
+    } catch {
+      prizeRows = [];
+    }
+    const rows = prizeRows.length > 0 ? prizeRows : await this.listLegacyBrandRows(skip, limit);
+    const counts = await this.getBrandAggregateCounts();
 
-    const items = await Promise.all(rows.map(async (row) => {
+    return rows.map((row) => {
       const bID = toNumberValue(getValue(row, 'bID'));
-      const [storesCount, claimsCount, activatedCount, currentShardSupply, freeShardsDistributed] = await Promise.all([
-        this.countGiftStoresByBrand(bID),
-        this.countGiftClaimsByBrand(bID),
-        this.countGiftActivatedByBrand(bID),
-        this.getCurrentShardSupplyByBrand(bID),
-        this.countFreeShardsDistributedByBrand(bID),
-      ]);
-
-      return normalizeBrand(row, {
-        stores_count: storesCount,
-        claims_count: claimsCount,
-        activated_count: activatedCount,
-        current_shard_supply: currentShardSupply,
-        free_shards_distributed: freeShardsDistributed,
-      });
-    }));
-
-    return items;
+      const aggregate = counts.get(bID);
+      return normalizeBrand(row, aggregate);
+    });
   }
 
   static async countGiftStoresByBrand(bID: number): Promise<number> {
@@ -1260,34 +1477,44 @@ export class DatabaseService {
 
   static async listTasks(skip = 0, limit = 100): Promise<TaskRecord[]> {
     const sql = getSql();
-    const rows = extractRows(await sql`
-      SELECT to_jsonb(t) AS row
-      FROM task AS t
-      ORDER BY COALESCE((to_jsonb(t)->>'tID')::int, 0)
-      LIMIT ${limit} OFFSET ${skip}
-    `);
+    let primaryRows: RawRow[] = [];
+    try {
+      primaryRows = extractRows(await sql`
+        SELECT to_jsonb(t) AS row
+        FROM task AS t
+        ORDER BY COALESCE((to_jsonb(t)->>'tID')::int, 0)
+        LIMIT ${limit} OFFSET ${skip}
+      `);
+    } catch {
+      primaryRows = [];
+    }
+    const rows = primaryRows.length > 0 ? primaryRows : await this.listLegacyTaskRows(skip, limit);
+    const participantCounts = await this.getTaskParticipantCounts();
 
-    const items = await Promise.all(rows.map(async (row) => {
-      const tID = toNumberValue(getValue(row, 'tID'));
-      const participantsCount = await this.countTaskParticipants(tID);
-      return normalizeTask(row, participantsCount);
-    }));
-
-    return items;
+    return rows.map((row) => {
+      const tID = toNumberValue(getValue(row, 'tID', 'ttID'));
+      return normalizeTask(row, participantCounts.get(tID) || 0);
+    });
   }
 
   static async getTask(tID: number): Promise<TaskRecord | null> {
     const sql = getSql();
-    const row = firstRow(await sql`
-      SELECT to_jsonb(t) AS row
-      FROM task AS t
-      WHERE COALESCE((to_jsonb(t)->>'tID')::int, 0) = ${tID}
-      LIMIT 1
-    `);
+    let row: RawRow | null = null;
+    try {
+      row = firstRow(await sql`
+        SELECT to_jsonb(t) AS row
+        FROM task AS t
+        WHERE COALESCE((to_jsonb(t)->>'tID')::int, 0) = ${tID}
+        LIMIT 1
+      `);
+    } catch {
+      row = null;
+    }
 
-    if (!row) return null;
+    const legacyRow = row || await this.getLegacyTaskRowById(tID);
+    if (!legacyRow) return null;
     const participantsCount = await this.countTaskParticipants(tID);
-    return normalizeTask(row, participantsCount);
+    return normalizeTask(legacyRow, participantsCount);
   }
 
   static async countTaskParticipants(tID: number): Promise<number> {
@@ -1493,14 +1720,20 @@ export class DatabaseService {
   static async getBrandById(bID: number): Promise<BrandRecord | null> {
     await ensureSupportSchema();
     const sql = getSql();
-    const row = firstRow(await sql`
-      SELECT to_jsonb(b) AS row
-      FROM prize AS b
-      WHERE COALESCE((to_jsonb(b)->>'bID')::int, 0) = ${bID}
-      LIMIT 1
-    `);
+    let row: RawRow | null = null;
+    try {
+      row = firstRow(await sql`
+        SELECT to_jsonb(b) AS row
+        FROM prize AS b
+        WHERE COALESCE((to_jsonb(b)->>'bID')::int, 0) = ${bID}
+        LIMIT 1
+      `);
+    } catch {
+      row = null;
+    }
 
-    if (!row) {
+    const targetRow = row || await this.getLegacyBrandRowById(bID);
+    if (!targetRow) {
       return null;
     }
 
@@ -1512,7 +1745,7 @@ export class DatabaseService {
       this.countFreeShardsDistributedByBrand(bID),
     ]);
 
-    return normalizeBrand(row, {
+    return normalizeBrand(targetRow, {
       stores_count: storesCount,
       claims_count: claimsCount,
       activated_count: activatedCount,
