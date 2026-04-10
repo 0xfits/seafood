@@ -8,7 +8,7 @@ import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdmin
 
 const formatDateTime = (value) => {
   if (!value) return '从未更新'
-  const date = new Date(value)
+  const date = new Date(typeof value === 'number' ? value * 1000 : value)
   return Number.isNaN(date.getTime()) ? '从未更新' : date.toLocaleString()
 }
 

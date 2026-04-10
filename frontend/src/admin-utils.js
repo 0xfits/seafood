@@ -40,7 +40,9 @@ export const fetchAdminAccess = async (currentUser = getStoredUser()) => {
         permissions: [
           'dashboard_access',
           'manage_tasks',
+          'publish_tasks',
           'manage_rewards',
+          'publish_prizes',
           'read_users',
           'manage_users',
           'manage_points',
@@ -65,6 +67,9 @@ export const hasAdminPermission = (access, permission) => {
   if (!access) return false
   if (access.is_admin) return true
   if (!permission) return Boolean(access.can_access_admin)
+  if (Array.isArray(permission)) {
+    return permission.some((item) => (access.permissions || []).includes(item))
+  }
   return (access.permissions || []).includes(permission)
 }
 

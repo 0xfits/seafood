@@ -151,9 +151,9 @@ function App() {
           } 
         >
           <Route index element={<ProtectedRoute adminOnly={true}><DashboardPage /></ProtectedRoute>} />
-          <Route path="tasks" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_tasks"><TasksManagement /></ProtectedRoute>} />
-          <Route path="rewards" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_rewards"><RewardsManagement /></ProtectedRoute>} />
-          <Route path="shards" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_rewards"><ShardsManagement /></ProtectedRoute>} />
+          <Route path="tasks" element={<ProtectedRoute adminOnly={true} requiredPermission={['manage_tasks', 'publish_tasks']}><TasksManagement /></ProtectedRoute>} />
+          <Route path="rewards" element={<ProtectedRoute adminOnly={true} requiredPermission={['manage_rewards', 'publish_prizes']}><RewardsManagement /></ProtectedRoute>} />
+          <Route path="shards" element={<ProtectedRoute adminOnly={true} requiredPermission={['manage_rewards', 'publish_prizes']}><ShardsManagement /></ProtectedRoute>} />
           <Route path="users" element={<ProtectedRoute adminOnly={true} requiredPermission="read_users"><UsersManagement /></ProtectedRoute>} />
           <Route path="permissions" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_permissions"><PermissionsManagement /></ProtectedRoute>} />
           <Route path="points" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_points"><PointsManagement /></ProtectedRoute>} />

@@ -80,6 +80,9 @@ describe('DashboardPage', () => {
       if (!access) return false
       if (access.is_admin) return true
       if (!permission) return Boolean(access.can_access_admin)
+      if (Array.isArray(permission)) {
+        return permission.some((item) => (access.permissions || []).includes(item))
+      }
       return (access.permissions || []).includes(permission)
     })
 
@@ -106,7 +109,7 @@ describe('DashboardPage', () => {
     fetchApiJson.mockImplementation(async (url) => {
       if (url === '/api/user/stats') return { user_count: 10, admin_count: 1, total_points: 500 }
       if (url === '/api/task/all') return [{ tID: 1 }, { tID: 2 }]
-      if (url === '/api/brand/all') return [{ bID: 1 }]
+      if (url === '/api/prize/all') return [{ bID: 1 }]
       if (url === '/api/tasklist/pending-verification/count') return { count: pendingItems.length }
       if (url === '/api/tasklist/pending-verification?limit=50') return pendingItems
       if (url === '/api/tasklist/101/verify') {
@@ -145,7 +148,7 @@ describe('DashboardPage', () => {
     fetchApiJson.mockImplementation(async (url) => {
       if (url === '/api/user/stats') return { user_count: 10, admin_count: 1, total_points: 500 }
       if (url === '/api/task/all') return [{ tID: 1 }, { tID: 2 }]
-      if (url === '/api/brand/all') return [{ bID: 1 }]
+      if (url === '/api/prize/all') return [{ bID: 1 }]
       if (url === '/api/tasklist/pending-verification/count') {
         throw new Error('count failed')
       }

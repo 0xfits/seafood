@@ -194,7 +194,7 @@ const PermissionsManagement = () => {
         <div>
           <h2 className="text-2xl font-bold">权限管理</h2>
           <p className="text-sm text-gray-600 mt-1">
-            “管理员访问”组映射真实后台访问权限，其余权限组是持久化的运营分工配置。
+            “管理员访问”组映射完整后台权限；“任务发布组”和“奖品发布组”可单独分配发布能力。
             {!canManagePermissions && ' 当前账号为只读模式。'}
           </p>
         </div>
@@ -318,7 +318,7 @@ const PermissionsManagement = () => {
               value={formState.permissions}
               onChange={(e) => setFormState((prev) => ({ ...prev, permissions: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
-              placeholder="逗号分隔，例如：review_tasks, manage_rewards"
+              placeholder="逗号分隔，例如：review_tasks, publish_prizes"
             />
           </div>
           <div>

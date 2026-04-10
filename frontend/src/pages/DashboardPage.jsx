@@ -76,8 +76,8 @@ const DashboardPage = () => {
       variant: 'primary',
     },
     {
-      title: '奖励管理',
-      description: '维护奖励品牌与奖励条目。',
+      title: '奖品管理',
+      description: '维护奖品、有效期、库存与流通状态。',
       to: '/dashboard/rewards',
       icon: Gift,
       variant: 'secondary',
@@ -120,7 +120,7 @@ const DashboardPage = () => {
     const results = await Promise.allSettled([
       fetchApiJson('/api/user/stats', { headers: authHeaders }),
       fetchApiJson('/api/task/all'),
-      fetchApiJson('/api/brand/all'),
+      fetchApiJson('/api/prize/all'),
       ...(canReviewTasks ? [fetchApiJson('/api/tasklist/pending-verification/count', { headers: authHeaders })] : []),
       ...(canReviewTasks ? [fetchApiJson('/api/tasklist/pending-verification?limit=50', { headers: authHeaders })] : []),
     ])
@@ -265,8 +265,8 @@ const DashboardPage = () => {
   })
   const visiblePendingTasks = showAllPending ? filteredPendingTasks : filteredPendingTasks.slice(0, 6)
   const visibleManagementLinks = managementLinks.filter((item) => {
-    if (item.to === '/dashboard/rewards') return hasAdminPermission(access, 'manage_rewards')
-    if (item.to === '/dashboard/tasks') return hasAdminPermission(access, 'manage_tasks')
+    if (item.to === '/dashboard/rewards') return hasAdminPermission(access, ['manage_rewards', 'publish_prizes'])
+    if (item.to === '/dashboard/tasks') return hasAdminPermission(access, ['manage_tasks', 'publish_tasks'])
     if (item.to === '/dashboard/users') return hasAdminPermission(access, 'read_users')
     if (item.to === '/dashboard/permissions') return hasAdminPermission(access, 'manage_permissions')
     if (item.to === '/dashboard/points') return hasAdminPermission(access, 'manage_points')
@@ -370,7 +370,7 @@ const DashboardPage = () => {
                 <div className="text-3xl font-bold text-gray-900 mb-1">
                   {dashboardStats.totalRewards}
                 </div>
-                <div className="text-sm text-gray-600">奖励品牌</div>
+                <div className="text-sm text-gray-600">奖品数量</div>
               </CardContent>
             </Card>
 

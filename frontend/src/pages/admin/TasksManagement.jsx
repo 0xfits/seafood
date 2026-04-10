@@ -33,6 +33,7 @@ const TasksManagement = () => {
   const [formState, setFormState] = useState(EMPTY_TASK)
 
   const canManageTasks = hasAdminPermission(access, 'manage_tasks')
+  const canPublishTasks = hasAdminPermission(access, ['manage_tasks', 'publish_tasks'])
 
   useEffect(() => {
     loadTasks()
@@ -188,7 +189,7 @@ const TasksManagement = () => {
     }
   }
 
-  const isReadonlyModal = modalMode === 'view' || !canManageTasks
+  const isReadonlyModal = modalMode === 'view' || (modalMode === 'create' ? !canPublishTasks : !canManageTasks)
 
   return (
     <div className="space-y-6">
@@ -196,7 +197,12 @@ const TasksManagement = () => {
         <div>
           <h2 className="text-2xl font-bold">任务管理</h2>
           <p className="text-sm text-gray-600 mt-1">
-            当前账号{canManageTasks ? '可执行任务的新增、编辑和删除。' : '为只读模式。'}
+            当前账号
+            {canManageTasks
+              ? '可执行任务的新增、编辑和删除。'
+              : canPublishTasks
+                ? '可新增任务，但不能编辑或删除现有任务。'
+                : '为只读模式。'}
           </p>
         </div>
         <div className="flex gap-2">
@@ -204,7 +210,7 @@ const TasksManagement = () => {
             <RefreshCw className="w-4 h-4 mr-2" />
             {refreshing ? '刷新中...' : '刷新'}
           </Button>
-          <Button variant="primary" onClick={openCreateModal} disabled={!canManageTasks}>
+          <Button variant="primary" onClick={openCreateModal} disabled={!canPublishTasks}>
             <Plus className="w-4 h-4 mr-2" />
             添加任务
           </Button>

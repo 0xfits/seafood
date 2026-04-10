@@ -8,7 +8,9 @@ type RawRow = Record<string, unknown>;
 const ALL_ADMIN_PERMISSIONS = [
   'dashboard_access',
   'manage_tasks',
+  'publish_tasks',
   'manage_rewards',
+  'publish_prizes',
   'read_users',
   'manage_users',
   'manage_points',
@@ -28,6 +30,26 @@ const DEFAULT_SYSTEM_SETTINGS = {
   maxDailyTasks: 10,
   rewardCooldown: 24,
 } as const;
+
+const PRIZE_MARKET_THRESHOLD_SECONDS = 30 * 24 * 60 * 60;
+const PRIZE_PRICE_FLOOR_MIN_DURATION_SECONDS = 30 * 24 * 60 * 60;
+
+const resolvePrizeDurationSeconds = (timeStart: number, timeEnd: number) => {
+  const normalizedStart = Math.max(0, Math.trunc(Number(timeStart) || 0));
+  const normalizedEnd = Math.max(0, Math.trunc(Number(timeEnd) || 0));
+  if (!normalizedStart || !normalizedEnd || normalizedEnd <= normalizedStart) {
+    return 0;
+  }
+  return normalizedEnd - normalizedStart;
+};
+
+const isPrizePriceFloorEligible = (timeStart: number, timeEnd: number) => (
+  resolvePrizeDurationSeconds(timeStart, timeEnd) > PRIZE_PRICE_FLOOR_MIN_DURATION_SECONDS
+);
+
+const resolveMinimumShardPrice = (marketFloorPoints: number) => (
+  Math.max(0, Math.ceil(Math.max(0, Math.trunc(Number(marketFloorPoints) || 0)) / 1000))
+);
 
 let sqlClient: ReturnType<typeof neon> | null = null;
 let supportSchemaPromise: Promise<void> | null = null;
@@ -242,6 +264,33 @@ const ensureSupportSchema = async () => {
     `;
 
     await sql`
+      CREATE TABLE IF NOT EXISTS prize (
+        "bID" bigserial PRIMARY KEY,
+        symbol text NOT NULL,
+        name text NOT NULL,
+        description text,
+        url_image text,
+        image_url text,
+        points integer NOT NULL DEFAULT 0,
+        market_floor_points integer NOT NULL DEFAULT 0,
+        gift_limit integer NOT NULL DEFAULT 0,
+        total_quantity integer NOT NULL DEFAULT 0,
+        free_shard_ratio numeric NOT NULL DEFAULT 0,
+        time_start timestamptz,
+        time_end timestamptz,
+        time_created timestamptz NOT NULL DEFAULT NOW(),
+        time_updated timestamptz NOT NULL DEFAULT NOW(),
+        time_actived timestamptz,
+        name_en text,
+        name_hk text,
+        name_vn text,
+        description_en text,
+        description_hk text,
+        description_vn text
+      )
+    `;
+
+    await sql`
       CREATE TABLE IF NOT EXISTS market_order (
         "oID" bigserial PRIMARY KEY,
         "bID" integer NOT NULL,
@@ -302,15 +351,97 @@ const ensureSupportSchema = async () => {
     await sql`ALTER TABLE IF EXISTS asset ADD COLUMN IF NOT EXISTS lucks integer DEFAULT 0`;
     await sql`ALTER TABLE IF EXISTS asset ADD COLUMN IF NOT EXISTS "time_updated" timestamptz DEFAULT NOW()`;
 
-    await sql`ALTER TABLE IF EXISTS brand ADD COLUMN IF NOT EXISTS points integer DEFAULT 0`;
-    await sql`ALTER TABLE IF EXISTS brand ADD COLUMN IF NOT EXISTS gift_limit integer DEFAULT 0`;
-    await sql`ALTER TABLE IF EXISTS brand ADD COLUMN IF NOT EXISTS image_url text`;
-    await sql`ALTER TABLE IF EXISTS brand ADD COLUMN IF NOT EXISTS name_en text`;
-    await sql`ALTER TABLE IF EXISTS brand ADD COLUMN IF NOT EXISTS name_hk text`;
-    await sql`ALTER TABLE IF EXISTS brand ADD COLUMN IF NOT EXISTS name_vn text`;
-    await sql`ALTER TABLE IF EXISTS brand ADD COLUMN IF NOT EXISTS description_en text`;
-    await sql`ALTER TABLE IF EXISTS brand ADD COLUMN IF NOT EXISTS description_hk text`;
-    await sql`ALTER TABLE IF EXISTS brand ADD COLUMN IF NOT EXISTS description_vn text`;
+    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS points integer DEFAULT 0`;
+    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS market_floor_points integer DEFAULT 0`;
+    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS gift_limit integer DEFAULT 0`;
+    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS total_quantity integer DEFAULT 0`;
+    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS free_shard_ratio numeric DEFAULT 0`;
+    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS image_url text`;
+    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS name_en text`;
+    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS name_hk text`;
+    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS name_vn text`;
+    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS description_en text`;
+    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS description_hk text`;
+    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS description_vn text`;
+
+    await sql`
+      DO $$
+      BEGIN
+        IF to_regclass('public.brand') IS NOT NULL THEN
+          INSERT INTO prize (
+            "bID",
+            symbol,
+            name,
+            description,
+            url_image,
+            image_url,
+            points,
+            market_floor_points,
+            gift_limit,
+            total_quantity,
+            free_shard_ratio,
+            time_start,
+            time_end,
+            time_created,
+            time_updated,
+            time_actived,
+            name_en,
+            name_hk,
+            name_vn,
+            description_en,
+            description_hk,
+            description_vn
+          )
+          SELECT
+            COALESCE((to_jsonb(legacy_brand)->>'bID')::bigint, 0),
+            COALESCE(to_jsonb(legacy_brand)->>'symbol', ''),
+            COALESCE(to_jsonb(legacy_brand)->>'name', ''),
+            NULLIF(to_jsonb(legacy_brand)->>'description', ''),
+            NULLIF(to_jsonb(legacy_brand)->>'url_image', ''),
+            COALESCE(NULLIF(to_jsonb(legacy_brand)->>'image_url', ''), NULLIF(to_jsonb(legacy_brand)->>'url_image', '')),
+            COALESCE((to_jsonb(legacy_brand)->>'points')::int, 0),
+            COALESCE((to_jsonb(legacy_brand)->>'market_floor_points')::int, 0),
+            COALESCE((to_jsonb(legacy_brand)->>'gift_limit')::int, 0),
+            COALESCE((to_jsonb(legacy_brand)->>'total_quantity')::int, COALESCE((to_jsonb(legacy_brand)->>'gift_limit')::int, 0)),
+            COALESCE((to_jsonb(legacy_brand)->>'free_shard_ratio')::numeric, 0),
+            CAST(NULLIF(to_jsonb(legacy_brand)->>'time_start', '') AS timestamptz),
+            CAST(NULLIF(to_jsonb(legacy_brand)->>'time_end', '') AS timestamptz),
+            COALESCE(CAST(NULLIF(to_jsonb(legacy_brand)->>'time_created', '') AS timestamptz), NOW()),
+            COALESCE(CAST(NULLIF(to_jsonb(legacy_brand)->>'time_updated', '') AS timestamptz), NOW()),
+            CAST(NULLIF(to_jsonb(legacy_brand)->>'time_actived', '') AS timestamptz),
+            NULLIF(to_jsonb(legacy_brand)->>'name_en', ''),
+            NULLIF(to_jsonb(legacy_brand)->>'name_hk', ''),
+            NULLIF(to_jsonb(legacy_brand)->>'name_vn', ''),
+            NULLIF(to_jsonb(legacy_brand)->>'description_en', ''),
+            NULLIF(to_jsonb(legacy_brand)->>'description_hk', ''),
+            NULLIF(to_jsonb(legacy_brand)->>'description_vn', '')
+          FROM brand AS legacy_brand
+          ON CONFLICT ("bID") DO UPDATE SET
+            symbol = EXCLUDED.symbol,
+            name = EXCLUDED.name,
+            description = EXCLUDED.description,
+            url_image = EXCLUDED.url_image,
+            image_url = EXCLUDED.image_url,
+            points = EXCLUDED.points,
+            market_floor_points = EXCLUDED.market_floor_points,
+            gift_limit = EXCLUDED.gift_limit,
+            total_quantity = EXCLUDED.total_quantity,
+            free_shard_ratio = EXCLUDED.free_shard_ratio,
+            time_start = EXCLUDED.time_start,
+            time_end = EXCLUDED.time_end,
+            time_created = EXCLUDED.time_created,
+            time_updated = EXCLUDED.time_updated,
+            time_actived = EXCLUDED.time_actived,
+            name_en = EXCLUDED.name_en,
+            name_hk = EXCLUDED.name_hk,
+            name_vn = EXCLUDED.name_vn,
+            description_en = EXCLUDED.description_en,
+            description_hk = EXCLUDED.description_hk,
+            description_vn = EXCLUDED.description_vn;
+        END IF;
+      END
+      $$;
+    `;
 
     await sql`ALTER TABLE IF EXISTS task ADD COLUMN IF NOT EXISTS points integer DEFAULT 0`;
     await sql`ALTER TABLE IF EXISTS task ADD COLUMN IF NOT EXISTS type integer DEFAULT 0`;
@@ -359,7 +490,28 @@ export interface BrandRecord {
   image_url: string;
   url_image: string;
   points: number;
+  market_floor_points: number;
+  duration_seconds: number;
+  price_floor_eligible: boolean;
+  price_floor_enabled: boolean;
+  price_floor_active: boolean;
+  minimum_shard_price: number;
   gift_limit: number;
+  total_quantity: number;
+  available_quantity: number;
+  issued_quantity: number;
+  redeemed_quantity: number;
+  free_shard_ratio: number;
+  free_shard_quota: number;
+  free_shards_distributed: number;
+  free_shards_remaining: number;
+  market_shard_cap: number;
+  current_shard_supply: number;
+  remaining_market_shards: number;
+  circulation_seconds: number;
+  liquidation_seconds: number;
+  lifecycle_status: 'circulation' | 'liquidation' | 'expired';
+  market_is_open: boolean;
   time_start: number;
   time_end: number;
   time_created: number;
@@ -367,6 +519,7 @@ export interface BrandRecord {
   time_actived: number;
   stores_count: number;
   claims_count: number;
+  activated_count: number;
   name_en: string;
   name_hk: string;
   name_vn: string;
@@ -374,6 +527,8 @@ export interface BrandRecord {
   description_hk: string;
   description_vn: string;
 }
+
+export type PrizeRecord = BrandRecord;
 
 export interface GiftRecord {
   gID: number;
@@ -535,8 +690,56 @@ const normalizeUser = (row: RawRow): UserRecord => ({
   time_login_last: toTimestamp(getValue(row, 'time_login_last', 'updated_at')),
 });
 
-const normalizeBrand = (row: RawRow, counts?: { stores_count?: number; claims_count?: number }): BrandRecord => {
+const normalizeBrand = (
+  row: RawRow,
+  counts?: {
+    stores_count?: number;
+    claims_count?: number;
+    activated_count?: number;
+    current_shard_supply?: number;
+    free_shards_distributed?: number;
+  },
+): BrandRecord => {
   const imageUrl = toStringValue(getValue(row, 'image_url', 'url_image'));
+  const timeStart = toTimestamp(getValue(row, 'time_start'));
+  const timeEnd = toTimestamp(getValue(row, 'time_end'));
+  const durationSeconds = resolvePrizeDurationSeconds(timeStart, timeEnd);
+  const totalQuantity = Math.max(
+    toNumberValue(getValue(row, 'total_quantity')),
+    toNumberValue(getValue(row, 'gift_limit')),
+    (counts?.stores_count ?? 0) + (counts?.claims_count ?? 0),
+  );
+  const availableQuantity = counts?.stores_count ?? 0;
+  const issuedQuantity = counts?.claims_count ?? 0;
+  const redeemedQuantity = counts?.activated_count ?? 0;
+  const marketFloorPoints = Math.max(0, toNumberValue(getValue(row, 'market_floor_points')));
+  const freeShardRatio = Math.min(100, Math.max(0, toNumberValue(getValue(row, 'free_shard_ratio'))));
+  const freeShardQuota = Math.floor(totalQuantity * 1000 * (freeShardRatio / 100));
+  const currentShardSupply = Math.max(0, counts?.current_shard_supply ?? 0);
+  const freeShardsDistributed = Math.max(0, counts?.free_shards_distributed ?? 0);
+  const now = Math.floor(Date.now() / 1000);
+  const remainingSeconds = timeEnd > now ? timeEnd - now : 0;
+  const lifecycleStatus: BrandRecord['lifecycle_status'] = remainingSeconds <= 0
+    ? 'expired'
+    : remainingSeconds > PRIZE_MARKET_THRESHOLD_SECONDS
+      ? 'circulation'
+      : 'liquidation';
+  const circulationSeconds = lifecycleStatus === 'circulation'
+    ? Math.max(0, remainingSeconds - PRIZE_MARKET_THRESHOLD_SECONDS)
+    : 0;
+  const liquidationSeconds = lifecycleStatus === 'expired'
+    ? 0
+    : Math.min(PRIZE_MARKET_THRESHOLD_SECONDS, remainingSeconds);
+  const priceFloorEligible = isPrizePriceFloorEligible(timeStart, timeEnd);
+  const priceFloorEnabled = priceFloorEligible && marketFloorPoints > 0;
+  const minimumShardPrice = priceFloorEnabled ? resolveMinimumShardPrice(marketFloorPoints) : 0;
+  const priceFloorActive = priceFloorEnabled && lifecycleStatus === 'circulation';
+  const marketShardCap = Math.max((totalQuantity - redeemedQuantity) * 1000, 0);
+  const remainingMarketShards = Math.max(marketShardCap - currentShardSupply, 0);
+  const freeShardsRemaining = Math.max(
+    Math.min(freeShardQuota - freeShardsDistributed, remainingMarketShards),
+    0,
+  );
   return {
     bID: toNumberValue(getValue(row, 'bID')),
     symbol: toStringValue(getValue(row, 'symbol')),
@@ -545,14 +748,36 @@ const normalizeBrand = (row: RawRow, counts?: { stores_count?: number; claims_co
     image_url: imageUrl,
     url_image: imageUrl,
     points: toNumberValue(getValue(row, 'points')),
-    gift_limit: toNumberValue(getValue(row, 'gift_limit')),
-    time_start: toTimestamp(getValue(row, 'time_start')),
-    time_end: toTimestamp(getValue(row, 'time_end')),
+    market_floor_points: marketFloorPoints,
+    duration_seconds: durationSeconds,
+    price_floor_eligible: priceFloorEligible,
+    price_floor_enabled: priceFloorEnabled,
+    price_floor_active: priceFloorActive,
+    minimum_shard_price: minimumShardPrice,
+    gift_limit: Math.max(toNumberValue(getValue(row, 'gift_limit')), totalQuantity),
+    total_quantity: totalQuantity,
+    available_quantity: availableQuantity,
+    issued_quantity: issuedQuantity,
+    redeemed_quantity: redeemedQuantity,
+    free_shard_ratio: freeShardRatio,
+    free_shard_quota: freeShardQuota,
+    free_shards_distributed: freeShardsDistributed,
+    free_shards_remaining: freeShardsRemaining,
+    market_shard_cap: marketShardCap,
+    current_shard_supply: currentShardSupply,
+    remaining_market_shards: remainingMarketShards,
+    circulation_seconds: circulationSeconds,
+    liquidation_seconds: liquidationSeconds,
+    lifecycle_status: lifecycleStatus,
+    market_is_open: lifecycleStatus === 'circulation',
+    time_start: timeStart,
+    time_end: timeEnd,
     time_created: toTimestamp(getValue(row, 'time_created', 'created_at')),
     time_updated: toTimestamp(getValue(row, 'time_updated', 'updated_at')),
     time_actived: toTimestamp(getValue(row, 'time_actived')),
-    stores_count: counts?.stores_count ?? 0,
-    claims_count: counts?.claims_count ?? 0,
+    stores_count: availableQuantity,
+    claims_count: issuedQuantity,
+    activated_count: redeemedQuantity,
     name_en: toStringValue(getValue(row, 'name_en')),
     name_hk: toStringValue(getValue(row, 'name_hk')),
     name_vn: toStringValue(getValue(row, 'name_vn')),
@@ -934,24 +1159,31 @@ export class DatabaseService {
   }
 
   static async listBrands(skip = 0, limit = 100): Promise<BrandRecord[]> {
+    await ensureSupportSchema();
     const sql = getSql();
     const rows = extractRows(await sql`
       SELECT to_jsonb(b) AS row
-      FROM brand AS b
+      FROM prize AS b
       ORDER BY COALESCE((to_jsonb(b)->>'bID')::int, 0)
       LIMIT ${limit} OFFSET ${skip}
     `);
 
     const items = await Promise.all(rows.map(async (row) => {
       const bID = toNumberValue(getValue(row, 'bID'));
-      const [storesCount, claimsCount] = await Promise.all([
+      const [storesCount, claimsCount, activatedCount, currentShardSupply, freeShardsDistributed] = await Promise.all([
         this.countGiftStoresByBrand(bID),
         this.countGiftClaimsByBrand(bID),
+        this.countGiftActivatedByBrand(bID),
+        this.getCurrentShardSupplyByBrand(bID),
+        this.countFreeShardsDistributedByBrand(bID),
       ]);
 
       return normalizeBrand(row, {
         stores_count: storesCount,
         claims_count: claimsCount,
+        activated_count: activatedCount,
+        current_shard_supply: currentShardSupply,
+        free_shards_distributed: freeShardsDistributed,
       });
     }));
 
@@ -978,6 +1210,39 @@ export class DatabaseService {
         AND COALESCE((to_jsonb(g)->>'uID')::int, 0) <> 0
     `);
     return Number(rows[0]?.count || 0);
+  }
+
+  static async countGiftActivatedByBrand(bID: number): Promise<number> {
+    const sql = getSql();
+    const rows = asItems<{ count: number }>(await sql`
+      SELECT COUNT(1)::int AS count
+      FROM gift AS g
+      WHERE COALESCE((to_jsonb(g)->>'bID')::int, 0) = ${bID}
+        AND COALESCE((to_jsonb(g)->>'uID')::int, 0) <> 0
+        AND COALESCE(NULLIF(TRIM(COALESCE(to_jsonb(g)->>'time_actived', '')), ''), '') <> ''
+    `);
+    return Number(rows[0]?.count || 0);
+  }
+
+  static async getCurrentShardSupplyByBrand(bID: number): Promise<number> {
+    const sql = getSql();
+    const rows = asItems<{ volume: number }>(await sql`
+      SELECT COALESCE(SUM(COALESCE((to_jsonb(s)->>'volume')::int, 0)), 0)::int AS volume
+      FROM shard AS s
+      WHERE COALESCE((to_jsonb(s)->>'bID')::int, 0) = ${bID}
+    `);
+    return Number(rows[0]?.volume || 0);
+  }
+
+  static async countFreeShardsDistributedByBrand(bID: number): Promise<number> {
+    const sql = getSql();
+    const rows = asItems<{ volume: number }>(await sql`
+      SELECT COALESCE(SUM(COALESCE((to_jsonb(st)->>'volume')::int, 0)), 0)::int AS volume
+      FROM shard_transfer AS st
+      WHERE COALESCE((to_jsonb(st)->>'bID')::int, 0) = ${bID}
+        AND COALESCE(to_jsonb(st)->>'reason', '') = 'free_chest'
+    `);
+    return Number(rows[0]?.volume || 0);
   }
 
   static async listGiftsByUser(uID: number, skip = 0, limit = 200): Promise<GiftRecord[]> {
@@ -1230,7 +1495,7 @@ export class DatabaseService {
     const sql = getSql();
     const row = firstRow(await sql`
       SELECT to_jsonb(b) AS row
-      FROM brand AS b
+      FROM prize AS b
       WHERE COALESCE((to_jsonb(b)->>'bID')::int, 0) = ${bID}
       LIMIT 1
     `);
@@ -1239,15 +1504,29 @@ export class DatabaseService {
       return null;
     }
 
-    const [storesCount, claimsCount] = await Promise.all([
+    const [storesCount, claimsCount, activatedCount, currentShardSupply, freeShardsDistributed] = await Promise.all([
       this.countGiftStoresByBrand(bID),
       this.countGiftClaimsByBrand(bID),
+      this.countGiftActivatedByBrand(bID),
+      this.getCurrentShardSupplyByBrand(bID),
+      this.countFreeShardsDistributedByBrand(bID),
     ]);
 
     return normalizeBrand(row, {
       stores_count: storesCount,
       claims_count: claimsCount,
+      activated_count: activatedCount,
+      current_shard_supply: currentShardSupply,
+      free_shards_distributed: freeShardsDistributed,
     });
+  }
+
+  static async listPrizes(skip = 0, limit = 100): Promise<PrizeRecord[]> {
+    return this.listBrands(skip, limit);
+  }
+
+  static async getPrizeById(bID: number): Promise<PrizeRecord | null> {
+    return this.getBrandById(bID);
   }
 
   static async listPersistedPermissionGroups(): Promise<PermissionGroupRecord[]> {
@@ -1299,7 +1578,27 @@ export class DatabaseService {
         time_created: 0,
         time_updated: 0,
       },
-      ...groups.filter((group) => group.id !== 'admin_access'),
+      {
+        id: 'task_publishers',
+        name: '任务发布组',
+        description: '系统内置权限组，可进入后台并发布任务。',
+        permissions: ['dashboard_access', 'publish_tasks'],
+        user_ids: groups.find((group) => group.id === 'task_publishers')?.user_ids || [],
+        readonly: false,
+        time_created: 0,
+        time_updated: 0,
+      },
+      {
+        id: 'prize_publishers',
+        name: '奖品发布组',
+        description: '系统内置权限组，可进入后台并发布奖品。',
+        permissions: ['dashboard_access', 'publish_prizes'],
+        user_ids: groups.find((group) => group.id === 'prize_publishers')?.user_ids || [],
+        readonly: false,
+        time_created: 0,
+        time_updated: 0,
+      },
+      ...groups.filter((group) => !['admin_access', 'task_publishers', 'prize_publishers'].includes(group.id)),
     ];
   }
 
@@ -1312,7 +1611,7 @@ export class DatabaseService {
   }): Promise<PermissionGroupRecord> {
     await ensureSupportSchema();
 
-    const id = slugify(input.id || input.name || '') || `group-${Date.now()}`;
+    const id = String(input.id || '').trim() || slugify(input.name || '') || `group-${Date.now()}`;
     if (id === 'admin_access') {
       throw new Error('System permission group is read-only');
     }
@@ -1449,35 +1748,112 @@ export class DatabaseService {
     return this.updateUserProfile(uID, { is_admin: isAdmin });
   }
 
+  static async createPrizeInventoryRows(bID: number, count: number): Promise<void> {
+    if (count <= 0) {
+      return;
+    }
+
+    const sql = getSql();
+    await sql`
+      INSERT INTO gift AS g ("bID", "uID", time_created)
+      SELECT ${bID}, 0, NOW()
+      FROM generate_series(1, ${count})
+    `;
+  }
+
+  static async trimAvailablePrizeInventory(bID: number, count: number): Promise<void> {
+    if (count <= 0) {
+      return;
+    }
+
+    const sql = getSql();
+    await sql`
+      DELETE FROM gift
+      WHERE "gID" IN (
+        SELECT COALESCE((to_jsonb(g)->>'gID')::int, 0)
+        FROM gift AS g
+        WHERE COALESCE((to_jsonb(g)->>'bID')::int, 0) = ${bID}
+          AND COALESCE((to_jsonb(g)->>'uID')::int, 0) = 0
+        ORDER BY COALESCE((to_jsonb(g)->>'gID')::int, 0) DESC
+        LIMIT ${count}
+      )
+    `;
+  }
+
+  static async syncPrizeInventory(bID: number, totalQuantity: number): Promise<void> {
+    const [storesCount, claimsCount] = await Promise.all([
+      this.countGiftStoresByBrand(bID),
+      this.countGiftClaimsByBrand(bID),
+    ]);
+
+    if (totalQuantity < claimsCount) {
+      throw new Error('Total quantity cannot be less than issued quantity');
+    }
+
+    const targetStores = Math.max(totalQuantity - claimsCount, 0);
+    const delta = targetStores - storesCount;
+
+    if (delta > 0) {
+      await this.createPrizeInventoryRows(bID, delta);
+    } else if (delta < 0) {
+      await this.trimAvailablePrizeInventory(bID, Math.abs(delta));
+    }
+  }
+
   static async createBrand(input: {
     symbol?: string | null;
     name?: string | null;
     description?: string | null;
     url_image?: string | null;
     points?: number | null;
+    market_floor_points?: number | null;
     gift_limit?: number | null;
+    total_quantity?: number | null;
+    free_shard_ratio?: number | null;
+    time_start?: number | string | null;
+    time_end?: number | string | null;
   }): Promise<BrandRecord> {
     await ensureSupportSchema();
     const symbol = String(input.symbol || '').trim();
     const name = String(input.name || '').trim();
     if (!symbol || !name) {
-      throw new Error('Brand symbol and name are required');
+      throw new Error('Prize symbol and name are required');
     }
 
     const description = String(input.description || '').trim();
     const imageUrl = String(input.url_image || '').trim();
     const points = Math.max(0, Math.trunc(Number(input.points) || 0));
-    const giftLimit = Math.max(0, Math.trunc(Number(input.gift_limit) || 0));
+    const marketFloorPoints = Math.max(0, Math.trunc(Number(input.market_floor_points) || 0));
+    const totalQuantity = Math.max(
+      1,
+      Math.trunc(Number(input.total_quantity ?? input.gift_limit) || 0),
+    );
+    const giftLimit = totalQuantity;
+    const freeShardRatio = Math.min(100, Math.max(0, Number(input.free_shard_ratio) || 0));
+    const timeStart = toTimestamp(input.time_start) || Math.floor(Date.now() / 1000);
+    const timeEnd = toTimestamp(input.time_end);
+    if (!timeEnd || timeEnd <= timeStart) {
+      throw new Error('Prize time_end must be later than time_start');
+    }
+    if (marketFloorPoints > 0 && !isPrizePriceFloorEligible(timeStart, timeEnd)) {
+      throw new Error('Price floor is only available for prizes lasting more than 30 days');
+    }
+
     const sql = getSql();
     const row = firstRow(await sql`
-      INSERT INTO brand AS b (
+      INSERT INTO prize AS b (
         symbol,
         name,
         description,
         url_image,
         image_url,
         points,
+        market_floor_points,
         gift_limit,
+        total_quantity,
+        free_shard_ratio,
+        time_start,
+        time_end,
         time_created,
         time_updated
       )
@@ -1488,7 +1864,12 @@ export class DatabaseService {
         ${imageUrl || null},
         ${imageUrl || null},
         ${points},
+        ${marketFloorPoints},
         ${giftLimit},
+        ${totalQuantity},
+        ${freeShardRatio},
+        TO_TIMESTAMP(${timeStart}),
+        TO_TIMESTAMP(${timeEnd}),
         NOW(),
         NOW()
       )
@@ -1496,13 +1877,17 @@ export class DatabaseService {
     `);
 
     if (!row) {
-      throw new Error('Failed to create brand');
+      throw new Error('Failed to create prize');
     }
 
-    return normalizeBrand(row, {
-      stores_count: 0,
-      claims_count: 0,
-    });
+    const bID = toNumberValue(getValue(row, 'bID'));
+    await this.syncPrizeInventory(bID, totalQuantity);
+    const createdPrize = await this.getBrandById(bID);
+    if (!createdPrize) {
+      throw new Error('Failed to load created prize');
+    }
+
+    return createdPrize;
   }
 
   static async updateBrand(
@@ -1513,20 +1898,56 @@ export class DatabaseService {
       description?: string | null;
       url_image?: string | null;
       points?: number | null;
+      market_floor_points?: number | null;
       gift_limit?: number | null;
+      total_quantity?: number | null;
+      free_shard_ratio?: number | null;
+      time_start?: number | string | null;
+      time_end?: number | string | null;
     },
   ): Promise<BrandRecord | null> {
     await ensureSupportSchema();
+    const existingPrize = await this.getBrandById(bID);
+    if (!existingPrize) {
+      return null;
+    }
+
+    const nextTotalQuantity = Math.max(
+      1,
+      Math.trunc(Number(input.total_quantity ?? input.gift_limit ?? existingPrize.total_quantity) || existingPrize.total_quantity),
+    );
+    const nextMarketFloorPoints = Math.max(
+      0,
+      Math.trunc(Number(input.market_floor_points ?? existingPrize.market_floor_points) || 0),
+    );
+    const nextFreeShardRatio = Math.min(
+      100,
+      Math.max(0, Number(input.free_shard_ratio ?? existingPrize.free_shard_ratio) || 0),
+    );
+    const nextTimeStart = toTimestamp(input.time_start) || existingPrize.time_start || Math.floor(Date.now() / 1000);
+    const nextTimeEnd = toTimestamp(input.time_end) || existingPrize.time_end;
+    if (!nextTimeEnd || nextTimeEnd <= nextTimeStart) {
+      throw new Error('Prize time_end must be later than time_start');
+    }
+    if (nextMarketFloorPoints > 0 && !isPrizePriceFloorEligible(nextTimeStart, nextTimeEnd)) {
+      throw new Error('Price floor is only available for prizes lasting more than 30 days');
+    }
+
     const sql = getSql();
     const row = firstRow(await sql`
-      UPDATE brand AS b
+      UPDATE prize AS b
       SET symbol = COALESCE(${String(input.symbol || '').trim() || null}, symbol),
           name = COALESCE(${String(input.name || '').trim() || null}, name),
           description = COALESCE(${String(input.description || '').trim() || null}, description),
           url_image = COALESCE(${String(input.url_image || '').trim() || null}, url_image),
           image_url = COALESCE(${String(input.url_image || '').trim() || null}, image_url),
           points = COALESCE(${toOptionalNumber(input.points)}, points),
-          gift_limit = COALESCE(${toOptionalNumber(input.gift_limit)}, gift_limit),
+          market_floor_points = ${nextMarketFloorPoints},
+          gift_limit = ${nextTotalQuantity},
+          total_quantity = ${nextTotalQuantity},
+          free_shard_ratio = ${nextFreeShardRatio},
+          time_start = TO_TIMESTAMP(${nextTimeStart}),
+          time_end = TO_TIMESTAMP(${nextTimeEnd}),
           time_updated = NOW()
       WHERE COALESCE((to_jsonb(b)->>'bID')::int, 0) = ${bID}
       RETURNING to_jsonb(b) AS row
@@ -1536,15 +1957,8 @@ export class DatabaseService {
       return null;
     }
 
-    const [storesCount, claimsCount] = await Promise.all([
-      this.countGiftStoresByBrand(bID),
-      this.countGiftClaimsByBrand(bID),
-    ]);
-
-    return normalizeBrand(row, {
-      stores_count: storesCount,
-      claims_count: claimsCount,
-    });
+    await this.syncPrizeInventory(bID, nextTotalQuantity);
+    return this.getBrandById(bID);
   }
 
   static async deleteBrand(bID: number): Promise<boolean> {
@@ -1591,7 +2005,7 @@ export class DatabaseService {
     }
 
     await sql`
-      DELETE FROM brand
+      DELETE FROM prize
       WHERE "bID" = ${bID}
     `;
     return true;
@@ -1862,6 +2276,15 @@ export class DatabaseService {
 
   static async findMatchingOrder(order: MarketOrderRecord): Promise<MarketOrderRecord | null> {
     await ensureSupportSchema();
+    const brand = await this.getBrandById(order.bID);
+    if (!brand) {
+      return null;
+    }
+    const minimumShardPrice = brand.price_floor_active ? brand.minimum_shard_price : 0;
+    if (order.side === 'buy' && minimumShardPrice > 0 && order.price < minimumShardPrice) {
+      return null;
+    }
+
     const sql = getSql();
     const row = order.side === 'buy'
       ? firstRow(await sql`
@@ -1885,7 +2308,7 @@ export class DatabaseService {
             AND side = 'buy'
             AND COALESCE((to_jsonb(o)->>'uID')::int, 0) <> ${order.uID}
             AND status IN ('open', 'partial')
-            AND COALESCE((to_jsonb(o)->>'price')::int, 0) >= ${order.price}
+            AND COALESCE((to_jsonb(o)->>'price')::int, 0) >= ${Math.max(order.price, minimumShardPrice)}
             AND COALESCE((to_jsonb(o)->>'volume_total')::int, 0) > COALESCE((to_jsonb(o)->>'volume_filled')::int, 0)
           ORDER BY COALESCE((to_jsonb(o)->>'price')::int, 0) DESC,
                    COALESCE((to_jsonb(o)->>'time_created')::timestamptz, NOW()) ASC,
@@ -1897,7 +2320,6 @@ export class DatabaseService {
       return null;
     }
 
-    const brand = await this.getBrandById(order.bID);
     return normalizeMarketOrder(row, brand);
   }
 
@@ -2047,7 +2469,15 @@ export class DatabaseService {
 
     const brand = await this.getBrandById(bID);
     if (!brand) {
-      throw new Error('Brand not found');
+      throw new Error('Prize not found');
+    }
+
+    if (!brand.market_is_open) {
+      throw new Error('Prize is not in circulation');
+    }
+
+    if (brand.price_floor_active && price < brand.minimum_shard_price) {
+      throw new Error(`Price floor for this prize is ${brand.minimum_shard_price} J per shard`);
     }
 
     if (side === 'buy') {
@@ -2230,6 +2660,57 @@ export class DatabaseService {
     return rows.map((row) => normalizeMarketTrade(row, brand));
   }
 
+  static async openFreeShardChest(uID: number, bID: number): Promise<{
+    bID: number;
+    shards_awarded: number;
+    user_shard_balance: number;
+    prize: PrizeRecord;
+    transfer: ShardTransferRecord | null;
+  }> {
+    await ensureSupportSchema();
+    const prize = await this.getPrizeById(bID);
+    if (!prize) {
+      throw new Error('Prize not found');
+    }
+
+    if (!prize.market_is_open) {
+      throw new Error('Prize is not in circulation');
+    }
+
+    if (prize.free_shards_remaining <= 0) {
+      throw new Error('No free shards remaining for this prize');
+    }
+
+    const maxChestAward = Math.min(100, prize.free_shards_remaining);
+    const shardsAwarded = Math.max(1, Math.floor(Math.random() * maxChestAward) + 1);
+
+    await this.createShardLedgerEntry(uID, bID, shardsAwarded);
+    const transfer = await this.recordShardTransfer({
+      bID,
+      from_uID: null,
+      to_uID: uID,
+      volume: shardsAwarded,
+      reason: 'free_chest',
+    });
+
+    const [userShardBalance, updatedPrize] = await Promise.all([
+      this.getUserShardBalance(uID, bID),
+      this.getPrizeById(bID),
+    ]);
+
+    if (!updatedPrize) {
+      throw new Error('Failed to load updated prize');
+    }
+
+    return {
+      bID,
+      shards_awarded: shardsAwarded,
+      user_shard_balance: userShardBalance,
+      prize: updatedPrize,
+      transfer,
+    };
+  }
+
   static async redeemShardGift(uID: number, bID: number): Promise<GiftRecord> {
     await ensureSupportSchema();
     const holdings = await this.getUserShardBalance(uID, bID);
@@ -2294,8 +2775,8 @@ export class DatabaseService {
       else if (permissions.includes('manage_permissions')) preferredAdminPath = '/dashboard/permissions';
       else if (permissions.includes('manage_users') || permissions.includes('read_users')) preferredAdminPath = '/dashboard/users';
       else if (permissions.includes('manage_points')) preferredAdminPath = '/dashboard/points';
-      else if (permissions.includes('manage_rewards')) preferredAdminPath = '/dashboard/rewards';
-      else if (permissions.includes('manage_tasks')) preferredAdminPath = '/dashboard/tasks';
+      else if (permissions.includes('manage_rewards') || permissions.includes('publish_prizes')) preferredAdminPath = '/dashboard/rewards';
+      else if (permissions.includes('manage_tasks') || permissions.includes('publish_tasks')) preferredAdminPath = '/dashboard/tasks';
       else preferredAdminPath = '/dashboard';
     }
 

@@ -23,6 +23,7 @@ const RewardPage = () => {
   const [journey, setJourney] = useState(null)
   const [taskDetail, setTaskDetail] = useState(null)
   const [claiming, setClaiming] = useState(false)
+  const [openingChestId, setOpeningChestId] = useState(null)
   const [userPoints, setUserPoints] = useState(0)
   const [activeTab, setActiveTab] = useState('available')
 
@@ -45,7 +46,7 @@ const RewardPage = () => {
 
   const loadListMode = async () => {
     const lang = getCurrentLang()
-    const brandRows = await fetchApiJson('/api/brand/all')
+    const brandRows = await fetchApiJson('/api/prize/all')
 
     let claimedBrandIds = new Set()
     let asset = { points: 0 }
@@ -187,7 +188,7 @@ const RewardPage = () => {
       return
     }
 
-    toast('品牌级兑换接口尚未开放，请联系管理员准备具体库存后再兑换。')
+    toast('奖品兑换入口暂未开放，请联系管理员准备具体库存后再兑换。')
   }
 
   const handleRedeem = async (bID) => {
@@ -203,6 +204,61 @@ const RewardPage = () => {
       toast.error(`兑换失败: ${error.message}`)
     }
   }
+
+  const handleOpenChest = async (reward) => {
+    if (!isAuthenticated) {
+      toast.error('请先登录')
+      navigate('/login', { state: { from: location } })
+      return
+    }
+
+    setOpeningChestId(reward.bID)
+    try {
+      const result = await fetchApiJson(`/api/chest/${reward.bID}/open`, {
+        method: 'POST',
+        headers: getAuthHeaders(user),
+      })
+      toast.success(`宝箱开启成功，获得 ${result?.shards_awarded || 0} 个碎片`)
+      await loadListMode()
+    } catch (error) {
+      toast.error(`开箱失败: ${error.message}`)
+    } finally {
+      setOpeningChestId(null)
+    }
+  }
+
+  const renderRewardActions = (reward) => (
+    <>
+      {isAuthenticated && reward.market_is_open && (reward.free_shards_remaining || 0) > 0 && (
+        <div className="mt-2 space-y-2">
+          <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+            免费碎片宝箱剩余 {reward.free_shards_remaining} 个碎片
+          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="w-full border-amber-300 bg-amber-100 text-amber-900 hover:bg-amber-200"
+            onClick={() => handleOpenChest(reward)}
+            disabled={openingChestId === reward.bID}
+          >
+            {openingChestId === reward.bID ? '开箱中...' : '开启随机碎片宝箱'}
+          </Button>
+        </div>
+      )}
+      {isAuthenticated && shardMap[reward.bID] >= 1000 && (
+        <div className="mt-2">
+          <Button
+            variant="proceed"
+            size="sm"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+            onClick={() => handleRedeem(reward.bID)}
+          >
+            兑换奖品 (1000 碎片)
+          </Button>
+        </div>
+      )}
+    </>
+  )
 
   if (loading) {
     return (
@@ -357,18 +413,7 @@ const RewardPage = () => {
                     {availableRewards.map((reward, index) => (
                       <FadeIn key={reward.bID} delay={index * 100}>
                         <RewardCard reward={reward} onClaim={handleRewardClaim} userPoints={userPoints} showStatus={true} />
-                        {isAuthenticated && shardMap[reward.bID] >= 1000 && (
-                          <div className="mt-2">
-                            <Button
-                              variant="proceed"
-                              size="sm"
-                              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
-                              onClick={() => handleRedeem(reward.bID)}
-                            >
-                              兑换 Gift (1000碎片)
-                            </Button>
-                          </div>
-                        )}
+                        {renderRewardActions(reward)}
                       </FadeIn>
                     ))}
                   </ResponsiveGrid>
@@ -393,6 +438,7 @@ const RewardPage = () => {
                     {limitedRewards.map((reward, index) => (
                       <FadeIn key={reward.bID} delay={index * 100}>
                         <RewardCard reward={reward} onClaim={handleRewardClaim} userPoints={userPoints} showStatus={true} />
+                        {renderRewardActions(reward)}
                       </FadeIn>
                     ))}
                   </ResponsiveGrid>
@@ -417,6 +463,7 @@ const RewardPage = () => {
                     {epicRewards.map((reward, index) => (
                       <FadeIn key={reward.bID} delay={index * 100}>
                         <RewardCard reward={reward} onClaim={handleRewardClaim} userPoints={userPoints} showStatus={true} />
+                        {renderRewardActions(reward)}
                       </FadeIn>
                     ))}
                   </ResponsiveGrid>

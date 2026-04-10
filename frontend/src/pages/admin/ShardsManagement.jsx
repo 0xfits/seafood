@@ -5,6 +5,12 @@ import toast from 'react-hot-toast'
 import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdminPermission } from '../../admin-utils'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/Tabs'
 
+const formatDateTime = (value) => {
+  if (!value) return '—'
+  const date = new Date(typeof value === 'number' ? value * 1000 : value)
+  return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString()
+}
+
 const ShardsManagement = () => {
   const [access, setAccess] = useState({ is_admin: false, permissions: [], can_access_admin: false })
   const [brands, setBrands] = useState([])
@@ -14,7 +20,7 @@ const ShardsManagement = () => {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
 
-  const canManage = hasAdminPermission(access, 'manage_rewards')
+  const canManage = hasAdminPermission(access, ['manage_rewards', 'publish_prizes'])
 
   useEffect(() => {
     loadInit()
@@ -35,7 +41,7 @@ const ShardsManagement = () => {
       if (currentUser) {
         setAccess(await fetchAdminAccess(currentUser))
       }
-      const data = await fetchApiJson('/api/brand/all')
+      const data = await fetchApiJson('/api/prize/all')
       const list = data || []
       setBrands(list)
       if (list.length > 0 && !selectedBID) {
@@ -83,7 +89,7 @@ const ShardsManagement = () => {
     return (
       <Card>
         <CardContent className="py-12 text-center text-gray-500">
-          权限不足，需要 manage_rewards 权限
+          权限不足，需要 `manage_rewards` 或 `publish_prizes` 权限
         </CardContent>
       </Card>
     )
@@ -91,7 +97,7 @@ const ShardsManagement = () => {
 
   const BrandSelector = () => (
     <div className="flex items-center gap-2 mb-4">
-      <span className="text-sm text-gray-600">品牌:</span>
+      <span className="text-sm text-gray-600">奖品:</span>
       <select
         className="border border-gray-300 rounded px-2 py-1 text-sm"
         value={selectedBID ?? ''}
@@ -127,15 +133,15 @@ const ShardsManagement = () => {
           <Card>
             <CardContent className="py-6">
               <p className="text-sm text-gray-500 mb-4">
-                用户个人持仓可通过 <code className="bg-gray-100 px-1 rounded">/api/shard</code> 查询（需认证）。暂无管理员聚合接口，各用户持仓请通过品牌维度订单簿和成交记录推断。
+                用户个人持仓可通过 <code className="bg-gray-100 px-1 rounded">/api/shard</code> 查询（需认证）。暂无管理员聚合接口，各用户持仓请通过奖品维度订单簿和成交记录推断。
               </p>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-200 text-left text-gray-600">
-                      <th className="py-2 pr-4">品牌</th>
+                      <th className="py-2 pr-4">奖品</th>
                       <th className="py-2 pr-4">Symbol</th>
-                      <th className="py-2">库存 Gift 数</th>
+                      <th className="py-2">库存奖品数</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -235,7 +241,7 @@ const ShardsManagement = () => {
                         <td className="py-2 pr-4 text-gray-500 font-mono text-xs">{t.buyer_uID}</td>
                         <td className="py-2 pr-4 text-gray-500 font-mono text-xs">{t.seller_uID}</td>
                         <td className="py-2 text-gray-400 text-xs">
-                          {t.time_created ? new Date(t.time_created).toLocaleString() : '—'}
+                          {formatDateTime(t.time_created)}
                         </td>
                       </tr>
                     ))}

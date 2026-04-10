@@ -12,6 +12,8 @@ import { formatEvmAddress } from '../utils'
 import { fetchApiJson, fetchCurrentUser, getAuthHeaders, updateMyProfile } from '../auth'
 import { useAuth } from '../auth-context'
 
+const toDate = (value) => new Date(typeof value === 'number' ? value * 1000 : value)
+
 const ProfilePage = () => {
   const navigate = useNavigate()
   const { isAuthenticated, updateSession, user: sessionUser } = useAuth()
@@ -260,7 +262,7 @@ const ProfilePage = () => {
                   <div className="flex items-center gap-4 text-sm text-gray-600">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
-                      注册时间: {user.time_reg ? new Date(user.time_reg).toLocaleDateString() : '未知'}
+                      注册时间: {user.time_reg ? toDate(user.time_reg).toLocaleDateString() : '未知'}
                     </div>
                     <div className="flex items-center gap-1">
                       <Mail className="w-4 h-4" />
@@ -319,7 +321,7 @@ const ProfilePage = () => {
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-purple-600 mb-1">
-                    {userAssets?.time_update ? new Date(userAssets.time_update).toLocaleDateString() : '—'}
+                    {userAssets?.time_update ? toDate(userAssets.time_update).toLocaleDateString() : '—'}
                   </div>
                   <div className="text-sm text-gray-600">最近更新</div>
                 </div>

@@ -29,7 +29,8 @@ const normalizeOrderBook = (payload) => {
 
 // ─── Market tab ─────────────────────────────────────────────────────────────
 
-const OrderBookPanel = ({ bID, refreshKey }) => {
+const OrderBookPanel = ({ prize, refreshKey }) => {
+  const bID = prize?.bID
   const [book, setBook] = useState({ buy: [], sell: [] })
   const [trades, setTrades] = useState([])
   const [loading, setLoading] = useState(true)
@@ -54,6 +55,13 @@ const OrderBookPanel = ({ bID, refreshKey }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {prize?.price_floor_active && (
+        <div className="md:col-span-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          该奖品已设置市场保底价：
+          <span className="ml-2 font-semibold">{fmt(prize.market_floor_points)} J / 1000 碎片</span>
+          <span className="ml-3 font-semibold">最低单片价 {fmt(prize.minimum_shard_price)} J</span>
+        </div>
+      )}
       {/* Order book */}
       <Card>
         <CardHeader><CardTitle className="text-sm">挂单簿</CardTitle></CardHeader>
@@ -144,6 +152,8 @@ const TradePanel = ({ brands, user, onTraded }) => {
   const [price, setPrice] = useState('')
   const [volume, setVolume] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const selectedPrize = brands.find((brand) => brand.bID === bID) || null
+  const minimumShardPrice = selectedPrize?.price_floor_active ? (selectedPrize.minimum_shard_price || 1) : 1
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -151,6 +161,14 @@ const TradePanel = ({ brands, user, onTraded }) => {
     const v = parseInt(volume, 10)
     if (!bID || isNaN(p) || isNaN(v) || p <= 0 || v <= 0) {
       toast.error('请填写正确的价格和数量')
+      return
+    }
+    if (!selectedPrize?.market_is_open) {
+      toast.error('当前奖品不在流通期，暂不可交易')
+      return
+    }
+    if (selectedPrize?.price_floor_active && p < minimumShardPrice) {
+      toast.error(`该奖品最低成交价为 ${minimumShardPrice} J/片`)
       return
     }
     setSubmitting(true)
@@ -164,8 +182,8 @@ const TradePanel = ({ brands, user, onTraded }) => {
       setPrice('')
       setVolume('')
       onTraded()
-    } catch {
-      toast.error('网络错误，请重试')
+    } catch (error) {
+      toast.error(error?.message || '网络错误，请重试')
     } finally {
       setSubmitting(false)
     }
@@ -174,6 +192,22 @@ const TradePanel = ({ brands, user, onTraded }) => {
   return (
     <div className="max-w-md mx-auto">
       <BrandSelector brands={brands} selected={bID} onSelect={setBID} />
+      {selectedPrize && (
+        <div className="mb-4 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600">
+          <div className="font-semibold text-gray-900">{selectedPrize.name || selectedPrize.symbol}</div>
+          <div className="mt-1">1000 碎片 = 1 份奖品</div>
+          {selectedPrize.price_floor_enabled ? (
+            <div className="mt-2 text-amber-700">
+              保底积分值 {fmt(selectedPrize.market_floor_points)} J，最低单片成交价 {fmt(selectedPrize.minimum_shard_price)} J。
+            </div>
+          ) : (
+            <div className="mt-2">当前未设置保底成交价，默认按市场价格成交。</div>
+          )}
+          {!selectedPrize.market_is_open && (
+            <div className="mt-2 text-red-600">当前奖品已进入清算期或已过期，不能继续挂单。</div>
+          )}
+        </div>
+      )}
       <Card>
         <CardHeader><CardTitle className="text-base">限价挂单</CardTitle></CardHeader>
         <CardContent>
@@ -206,10 +240,10 @@ const TradePanel = ({ brands, user, onTraded }) => {
               <label className="block text-sm text-gray-600 mb-1">价格 (dashJ)</label>
               <input
                 type="number"
-                min="1"
+                min={minimumShardPrice}
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                placeholder="每份价格"
+                placeholder={minimumShardPrice > 1 ? `最低 ${minimumShardPrice}` : '每份价格'}
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
               />
             </div>
@@ -416,7 +450,7 @@ const ShardPage = () => {
   const refresh = useCallback(() => setRefreshKey((k) => k + 1), [])
 
   useEffect(() => {
-    fetchApiJson('/api/brand/all')
+    fetchApiJson('/api/prize/all')
       .then((rows) => {
         setBrands(rows ?? [])
         if (rows?.length) setSelectedBID(rows[0].bID)
@@ -425,6 +459,8 @@ const ShardPage = () => {
       .finally(() => setLoading(false))
   }, [])
 
+  const selectedPrize = brands.find((brand) => brand.bID === selectedBID) || null
+
   if (loading) return <LoadingPage />
 
   return (
@@ -432,7 +468,7 @@ const ShardPage = () => {
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">碎片市场</h1>
-          <p className="text-sm text-gray-500 mt-1">持有 1000 碎片可兑换 1 份 Gift</p>
+          <p className="text-sm text-gray-500 mt-1">持有 1000 碎片可兑换 1 份奖品</p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -445,8 +481,8 @@ const ShardPage = () => {
           <TabsContent value="market">
             <BrandSelector brands={brands} selected={selectedBID} onSelect={setSelectedBID} />
             {selectedBID
-              ? <OrderBookPanel bID={selectedBID} refreshKey={refreshKey} />
-              : <div className="text-center py-12 text-gray-400">暂无品牌数据</div>
+              ? <OrderBookPanel prize={selectedPrize} refreshKey={refreshKey} />
+              : <div className="text-center py-12 text-gray-400">暂无奖品数据</div>
             }
           </TabsContent>
 

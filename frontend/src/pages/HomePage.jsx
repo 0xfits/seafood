@@ -44,7 +44,7 @@ const HomePage = () => {
         const lang = getCurrentLang()
 
         const tasksPromise = fetchApiJson('/api/task/all', { signal })
-        const brandsPromise = fetchApiJson('/api/brand/all', { signal })
+        const brandsPromise = fetchApiJson('/api/prize/all', { signal })
         const giftPromise = isAuthenticated
           ? fetchApiJson('/api/gift', { headers: getAuthHeaders(user), signal }).catch(() => [])
           : Promise.resolve([])
@@ -166,7 +166,7 @@ const HomePage = () => {
       return
     }
 
-    toast('品牌级兑换入口即将上线，请先前往奖励中心查看详情')
+    toast('奖品兑换入口即将上线，请先前往奖励中心查看详情')
     navigate('/reward')
   }
 

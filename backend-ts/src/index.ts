@@ -122,7 +122,16 @@ const requireActor = async (req: Request, res: Response) => {
   return actor;
 };
 
-const requireAdmin = async (req: Request, res: Response, requiredPermission?: string) => {
+const hasRequiredPermission = (actor: ActorContext, requiredPermission?: string | string[]) => {
+  if (!requiredPermission) {
+    return true;
+  }
+
+  const required = Array.isArray(requiredPermission) ? requiredPermission : [requiredPermission];
+  return required.some((permission) => actor.adminAccess.permissions.includes(permission));
+};
+
+const requireAdmin = async (req: Request, res: Response, requiredPermission?: string | string[]) => {
   const actor = await requireActor(req, res);
   if (!actor) {
     return null;
@@ -133,11 +142,7 @@ const requireAdmin = async (req: Request, res: Response, requiredPermission?: st
     return null;
   }
 
-  if (
-    requiredPermission &&
-    !actor.adminAccess.is_admin &&
-    !actor.adminAccess.permissions.includes(requiredPermission)
-  ) {
+  if (!actor.adminAccess.is_admin && !hasRequiredPermission(actor, requiredPermission)) {
     sendError(res, 403, 'Forbidden');
     return null;
   }
@@ -169,7 +174,7 @@ app.get('/', (req, res) => {
         health: '/api/test/data',
         authChallenge: '/api/auth/challenge',
         authVerify: '/api/auth/verify',
-        brands: '/api/brand/all',
+        prizes: '/api/prize/all',
         tasks: '/api/task/all',
         user: '/api/user',
       },
@@ -233,11 +238,22 @@ app.post('/api/auth/login', async (req, res) => {
 app.get('/api/brand/all', async (req, res) => {
   try {
     const { skip, limit } = getPagination(req);
-    const brands = await DatabaseService.listBrands(skip, limit);
+    const brands = await DatabaseService.listPrizes(skip, limit);
     sendSuccess(res, brands);
   } catch (error) {
     console.error('Error loading brands:', error);
     sendError(res, 500, 'Failed to load brands');
+  }
+});
+
+app.get('/api/prize/all', async (req, res) => {
+  try {
+    const { skip, limit } = getPagination(req);
+    const prizes = await DatabaseService.listPrizes(skip, limit);
+    sendSuccess(res, prizes);
+  } catch (error) {
+    console.error('Error loading prizes:', error);
+    sendError(res, 500, 'Failed to load prizes');
   }
 });
 
@@ -268,6 +284,25 @@ app.get('/api/task/:tID', async (req, res) => {
   } catch (error) {
     console.error('Error loading task detail:', error);
     sendError(res, 500, 'Failed to load task');
+  }
+});
+
+app.get('/api/prize/:bID', async (req, res) => {
+  try {
+    const bID = parseInteger(req.params.bID);
+    if (!bID) {
+      return sendError(res, 400, 'Invalid bID');
+    }
+
+    const prize = await DatabaseService.getPrizeById(bID);
+    if (!prize) {
+      return sendError(res, 404, 'Prize not found');
+    }
+
+    sendSuccess(res, prize);
+  } catch (error) {
+    console.error('Error loading prize detail:', error);
+    sendError(res, 500, 'Failed to load prize');
   }
 });
 
@@ -505,6 +540,24 @@ app.post('/api/shard/redeem', async (req, res) => {
   }
 });
 
+app.post('/api/chest/:bID/open', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  const bID = parseInteger(req.params.bID);
+  if (!bID) {
+    return sendError(res, 400, 'Invalid bID');
+  }
+
+  try {
+    const result = await DatabaseService.openFreeShardChest(actor.user.uID, bID);
+    sendSuccess(res, result, 'Free shard chest opened');
+  } catch (error) {
+    console.error('Error opening free shard chest:', error);
+    sendError(res, 400, error instanceof Error ? error.message : 'Failed to open chest');
+  }
+});
+
 app.get('/api/order', async (req, res) => {
   const actor = await requireActor(req, res);
   if (!actor) return;
@@ -725,7 +778,7 @@ app.post('/api/admin/user/update', async (req, res) => {
 });
 
 app.post('/api/admin/task/create', async (req, res) => {
-  const actor = await requireAdmin(req, res, 'manage_tasks');
+  const actor = await requireAdmin(req, res, ['manage_tasks', 'publish_tasks']);
   if (!actor) return;
 
   try {
@@ -777,15 +830,15 @@ app.post('/api/admin/task/delete', async (req, res) => {
 });
 
 app.post('/api/admin/brand/create', async (req, res) => {
-  const actor = await requireAdmin(req, res, 'manage_rewards');
+  const actor = await requireAdmin(req, res, ['manage_rewards', 'publish_prizes']);
   if (!actor) return;
 
   try {
     const brand = await DatabaseService.createBrand(req.body || {});
-    sendSuccess(res, brand, 'Brand created');
+    sendSuccess(res, brand, 'Prize created');
   } catch (error) {
-    console.error('Error creating brand:', error);
-    sendError(res, 400, error instanceof Error ? error.message : 'Failed to create brand');
+    console.error('Error creating prize:', error);
+    sendError(res, 400, error instanceof Error ? error.message : 'Failed to create prize');
   }
 });
 
@@ -801,12 +854,12 @@ app.post('/api/admin/brand/update', async (req, res) => {
   try {
     const brand = await DatabaseService.updateBrand(bID, req.body || {});
     if (!brand) {
-      return sendError(res, 404, 'Brand not found');
+      return sendError(res, 404, 'Prize not found');
     }
-    sendSuccess(res, brand, 'Brand updated');
+    sendSuccess(res, brand, 'Prize updated');
   } catch (error) {
-    console.error('Error updating brand:', error);
-    sendError(res, 400, error instanceof Error ? error.message : 'Failed to update brand');
+    console.error('Error updating prize:', error);
+    sendError(res, 400, error instanceof Error ? error.message : 'Failed to update prize');
   }
 });
 
@@ -821,11 +874,26 @@ app.post('/api/admin/brand/delete', async (req, res) => {
 
   try {
     await DatabaseService.deleteBrand(bID);
-    sendSuccess(res, { bID }, 'Brand deleted');
+    sendSuccess(res, { bID }, 'Prize deleted');
   } catch (error) {
-    console.error('Error deleting brand:', error);
-    sendError(res, 400, error instanceof Error ? error.message : 'Failed to delete brand');
+    console.error('Error deleting prize:', error);
+    sendError(res, 400, error instanceof Error ? error.message : 'Failed to delete prize');
   }
+});
+
+app.post('/api/admin/prize/create', async (req, res) => {
+  req.url = '/api/admin/brand/create';
+  return app._router.handle(req, res, () => undefined);
+});
+
+app.post('/api/admin/prize/update', async (req, res) => {
+  req.url = '/api/admin/brand/update';
+  return app._router.handle(req, res, () => undefined);
+});
+
+app.post('/api/admin/prize/delete', async (req, res) => {
+  req.url = '/api/admin/brand/delete';
+  return app._router.handle(req, res, () => undefined);
 });
 
 app.get('/api/user/all', async (req, res) => {
@@ -964,6 +1032,7 @@ app.post('/api/admin/points/adjust', async (req, res) => {
     sendSuccess(res, {
       uID,
       new_points: result.asset?.points || 0,
+      timestamp: result.asset?.time_update || Math.floor(Date.now() / 1000),
       reason,
     }, result.message);
   } catch (error) {
