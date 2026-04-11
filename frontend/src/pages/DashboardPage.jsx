@@ -232,7 +232,7 @@ const DashboardPage = () => {
       toast.success(approved ? '任务已通过审核' : '任务已退回，等待用户重新提交')
       await loadDashboardData(currentUser, access)
     } catch (error) {
-      console.error('Error verifying journey:', error)
+      console.error('Error verifying task progress:', error)
       toast.error(`操作失败: ${error.message}`)
     } finally {
       setProcessingTaskId(null)

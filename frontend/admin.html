@@ -725,12 +725,12 @@
         { label: 'Service Info', method: 'GET', path: '/api/info' },
         { label: 'Basic Stats', method: 'GET', path: '/api/stat' },
         { label: 'Tasks (public)', method: 'GET', path: '/api/task/all' },
-        { label: 'Brands (public)', method: 'GET', path: '/api/brand/all' },
+        { label: 'Prizes (public)', method: 'GET', path: '/api/prize/all' },
         { label: 'Chests (public)', method: 'GET', path: '/api/chest/all' },
-        { label: 'Brands (public)', method: 'GET', path: '/api/brand/all' },
+        { label: 'Prizes (public)', method: 'GET', path: '/api/prize/all' },
         // Auth required endpoints
-        { label: 'My Journeys (auth required)', method: 'GET', path: '/api/journey/', requireAuth: true },
-        { label: 'My Gift Records (auth required)', method: 'GET', path: '/api/giftlist/', requireAuth: true },
+        { label: 'My Task Progress (auth required)', method: 'GET', path: '/api/task-progress', requireAuth: true },
+        { label: 'My Prize Items (auth required)', method: 'GET', path: '/api/prize-item', requireAuth: true },
         { label: 'My Chests (auth required)', method: 'GET', path: '/api/chest/', requireAuth: true },
         // Admin endpoints
         { label: 'All Tasks (admin)', method: 'GET', path: '/api/tasklist/all', requireAuth: true },

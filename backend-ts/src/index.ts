@@ -235,17 +235,6 @@ app.post('/api/auth/login', async (req, res) => {
   return app._router.handle(req, res, () => undefined);
 });
 
-app.get('/api/brand/all', async (req, res) => {
-  try {
-    const { skip, limit } = getPagination(req);
-    const brands = await DatabaseService.listPrizes(skip, limit);
-    sendSuccess(res, brands);
-  } catch (error) {
-    console.error('Error loading brands:', error);
-    sendError(res, 500, 'Failed to load brands');
-  }
-});
-
 app.get('/api/prize/all', async (req, res) => {
   try {
     const { skip, limit } = getPagination(req);
@@ -357,20 +346,6 @@ app.get('/api/user/asset/:uID', async (req, res) => {
   }
 });
 
-app.get('/api/gift', async (req, res) => {
-  const actor = await requireActor(req, res);
-  if (!actor) return;
-
-  try {
-    const { skip, limit } = getPagination(req);
-    const prizeItems = await DatabaseService.listPrizeItemsByUser(actor.user.uID, skip, limit);
-    sendSuccess(res, prizeItems);
-  } catch (error) {
-    console.error('Error loading prize items:', error);
-    sendError(res, 500, 'Failed to load prize items');
-  }
-});
-
 app.get('/api/prize-item', async (req, res) => {
   const actor = await requireActor(req, res);
   if (!actor) return;
@@ -385,20 +360,6 @@ app.get('/api/prize-item', async (req, res) => {
   }
 });
 
-app.get('/api/journey', async (req, res) => {
-  const actor = await requireActor(req, res);
-  if (!actor) return;
-
-  try {
-    const { skip, limit } = getPagination(req);
-    const taskProgressItems = await DatabaseService.listTaskProgressByUser(actor.user.uID, skip, limit);
-    sendSuccess(res, taskProgressItems);
-  } catch (error) {
-    console.error('Error loading task progress:', error);
-    sendError(res, 500, 'Failed to load task progress');
-  }
-});
-
 app.get('/api/task-progress', async (req, res) => {
   const actor = await requireActor(req, res);
   if (!actor) return;
@@ -407,25 +368,6 @@ app.get('/api/task-progress', async (req, res) => {
     const { skip, limit } = getPagination(req);
     const taskProgressItems = await DatabaseService.listTaskProgressByUser(actor.user.uID, skip, limit);
     sendSuccess(res, taskProgressItems);
-  } catch (error) {
-    console.error('Error loading task progress:', error);
-    sendError(res, 500, 'Failed to load task progress');
-  }
-});
-
-app.get('/api/journey/:jID', async (req, res) => {
-  try {
-    const jID = parseInteger(req.params.jID);
-    if (!jID) {
-      return sendError(res, 400, 'Invalid jID');
-    }
-
-    const taskProgress = await DatabaseService.getTaskProgress(jID);
-    if (!taskProgress) {
-      return sendError(res, 404, 'Task progress not found');
-    }
-
-    sendSuccess(res, taskProgress);
   } catch (error) {
     console.error('Error loading task progress:', error);
     sendError(res, 500, 'Failed to load task progress');
@@ -448,44 +390,6 @@ app.get('/api/task-progress/:jID', async (req, res) => {
   } catch (error) {
     console.error('Error loading task progress:', error);
     sendError(res, 500, 'Failed to load task progress');
-  }
-});
-
-app.post('/api/journey/:identifier/submit', async (req, res) => {
-  const actor = await requireActor(req, res);
-  if (!actor) return;
-
-  const identifier = parseInteger(req.params.identifier);
-  const infoInput = String(req.body?.info_input || '').trim();
-
-  if (!identifier) {
-    return sendError(res, 400, 'Invalid task or task progress id');
-  }
-
-  if (!infoInput) {
-    return sendError(res, 400, 'info_input is required');
-  }
-
-  try {
-    let taskProgress = ensureOwnedTaskProgress(await DatabaseService.getTaskProgress(identifier), actor.user.uID);
-
-    if (!taskProgress) {
-      const task = await DatabaseService.getTask(identifier);
-      if (!task) {
-        return sendError(res, 404, 'Task not found');
-      }
-      taskProgress = await DatabaseService.ensureTaskProgressForUserTask(actor.user.uID, task.tID);
-    }
-
-    const updatedTaskProgress = await DatabaseService.submitTaskProgressInfo(taskProgress.jID, infoInput);
-    if (!updatedTaskProgress) {
-      return sendError(res, 404, 'Task progress not found');
-    }
-
-    sendSuccess(res, updatedTaskProgress, 'Task progress submitted');
-  } catch (error) {
-    console.error('Error submitting task progress info:', error);
-    sendError(res, 500, 'Failed to submit task info');
   }
 });
 
@@ -524,58 +428,6 @@ app.post('/api/task-progress/:identifier/submit', async (req, res) => {
   } catch (error) {
     console.error('Error submitting task progress info:', error);
     sendError(res, 500, 'Failed to submit task info');
-  }
-});
-
-app.post('/api/journey/claim/:jID', async (req, res) => {
-  const actor = await requireActor(req, res);
-  if (!actor) return;
-
-  const jID = parseInteger(req.params.jID);
-  if (!jID) {
-    return sendError(res, 400, 'Invalid jID');
-  }
-
-  try {
-    const taskProgress = await DatabaseService.getTaskProgress(jID);
-    if (!taskProgress) {
-      return sendError(res, 404, 'Task progress not found');
-    }
-
-    if (taskProgress.uID !== actor.user.uID) {
-      return sendError(res, 403, 'Forbidden');
-    }
-
-    if (!taskProgress.time_checked) {
-      return sendError(res, 400, 'Task progress is not verified yet');
-    }
-
-    if (taskProgress.time_claimed) {
-      const currentAsset = (await DatabaseService.getUserAsset(actor.user.uID)) || (await DatabaseService.upsertAsset(actor.user.uID, 0));
-      return sendSuccess(res, {
-        ...taskProgress,
-        reward_points: taskProgress.points_claimed,
-        user_points_total: currentAsset.points,
-      });
-    }
-
-    const task = await DatabaseService.getTask(taskProgress.tID);
-    const rewardPoints = taskProgress.points_claimed || task?.points || 0;
-    const updatedTaskProgress = await DatabaseService.claimTaskProgress(jID, rewardPoints);
-    const updatedAsset = await DatabaseService.upsertAsset(actor.user.uID, rewardPoints);
-
-    if (!updatedTaskProgress) {
-      return sendError(res, 404, 'Task progress not found');
-    }
-
-    sendSuccess(res, {
-      ...updatedTaskProgress,
-      reward_points: rewardPoints,
-      user_points_total: updatedAsset.points,
-    }, 'Task progress reward claimed');
-  } catch (error) {
-    console.error('Error claiming task progress reward:', error);
-    sendError(res, 500, 'Failed to claim reward');
   }
 });
 
@@ -966,7 +818,7 @@ app.post('/api/admin/task/delete', async (req, res) => {
   }
 });
 
-app.post('/api/admin/brand/create', async (req, res) => {
+app.post('/api/admin/prize/create', async (req, res) => {
   const actor = await requireAdmin(req, res, ['manage_rewards', 'publish_prizes']);
   if (!actor) return;
 
@@ -979,7 +831,7 @@ app.post('/api/admin/brand/create', async (req, res) => {
   }
 });
 
-app.post('/api/admin/brand/update', async (req, res) => {
+app.post('/api/admin/prize/update', async (req, res) => {
   const actor = await requireAdmin(req, res, 'manage_rewards');
   if (!actor) return;
 
@@ -1000,7 +852,7 @@ app.post('/api/admin/brand/update', async (req, res) => {
   }
 });
 
-app.post('/api/admin/brand/delete', async (req, res) => {
+app.post('/api/admin/prize/delete', async (req, res) => {
   const actor = await requireAdmin(req, res, 'manage_rewards');
   if (!actor) return;
 
@@ -1016,21 +868,6 @@ app.post('/api/admin/brand/delete', async (req, res) => {
     console.error('Error deleting prize:', error);
     sendError(res, 400, error instanceof Error ? error.message : 'Failed to delete prize');
   }
-});
-
-app.post('/api/admin/prize/create', async (req, res) => {
-  req.url = '/api/admin/brand/create';
-  return app._router.handle(req, res, () => undefined);
-});
-
-app.post('/api/admin/prize/update', async (req, res) => {
-  req.url = '/api/admin/brand/update';
-  return app._router.handle(req, res, () => undefined);
-});
-
-app.post('/api/admin/prize/delete', async (req, res) => {
-  req.url = '/api/admin/brand/delete';
-  return app._router.handle(req, res, () => undefined);
 });
 
 app.get('/api/user/all', async (req, res) => {

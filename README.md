@@ -125,14 +125,11 @@ npm run build
 - `GET /api/task/:tID`
 - `GET /api/prize/all`
 - `GET /api/prize/:bID`
-- `GET /api/brand/all`（兼容别名，内部仍读取 `prize`）
 
 鉴权接口：
 
 - `GET /api/user`
-- `GET /api/gift`
 - `GET /api/prize-item`
-- `GET /api/journey`
 - `GET /api/task-progress`
 - `GET /api/user/asset/:uID`
 
@@ -147,16 +144,15 @@ npm run build
 
 ## 迁移说明
 
-从旧实现迁移后，当前保留的兼容策略只有两类：
+从旧实现迁移后，当前运行时只保留两类迁移保障：
 
-- API 别名兼容
-  - 例如 `/api/brand/all` 继续可用，但底层读取的是 `prize`
-  - 例如 `/api/gift`、`/api/journey` 继续可用，但底层表已经迁移到 `prize_item`、`task_progress`
+- 启动时自动把历史表 `gift`、`journey` 迁移为正式表 `prize_item`、`task_progress`
 - 输出字段兼容
   - 某些前端仍会消费历史字段别名，后端会在返回层做兼容映射
 
 已经不再保留的内容：
 
+- `/api/brand/all`、`/api/gift`、`/api/journey` 等历史路由别名
 - Python/FastAPI 运行入口
 - SQLite 数据文件与运维命令
 - `brand` / `task_type` 老表读取逻辑
@@ -165,5 +161,5 @@ npm run build
 
 - 新代码以 PostgreSQL 正式字段为准
 - 优先修正真实数据，不使用虚拟/兜底数据
-- 兼容层只保留前端还在实际消费的部分
+- 兼容层只保留必要的迁移保障
 - 新增功能默认落在 `prize`、`task`、`market_*` 等正式结构上

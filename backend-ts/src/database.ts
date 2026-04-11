@@ -330,20 +330,6 @@ const ensureSupportSchema = async () => {
     `;
 
     await sql`
-      DO $$
-      BEGIN
-        IF to_regclass('public.gift') IS NULL THEN
-          EXECUTE 'CREATE VIEW gift AS SELECT * FROM prize_item';
-        END IF;
-
-        IF to_regclass('public.journey') IS NULL THEN
-          EXECUTE 'CREATE VIEW journey AS SELECT * FROM task_progress';
-        END IF;
-      END
-      $$;
-    `;
-
-    await sql`
       CREATE TABLE IF NOT EXISTS market_order (
         "oID" bigserial PRIMARY KEY,
         "bID" integer NOT NULL,
@@ -509,6 +495,16 @@ const ensureSupportSchema = async () => {
       WHERE COALESCE(NULLIF(BTRIM(link0), ''), '') = ''
         AND COALESCE(NULLIF(BTRIM("linkA"), ''), '') <> ''
     `;
+
+    await sql`CREATE INDEX IF NOT EXISTS idx_user_uid ON "user" ("uID")`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_user_evm_lower ON "user" (LOWER("EVM"))`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_asset_uid ON asset ("uID")`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_prize_item_uid_gid ON prize_item ("uID", "gID" DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_prize_item_bid_uid ON prize_item ("bID", "uID")`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_task_progress_uid_jid ON task_progress ("uID", "jID" DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_task_progress_tid ON task_progress ("tID")`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_shard_bid ON shard ("bID")`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_shard_transfer_bid_reason ON shard_transfer ("bID", reason)`;
   })().catch((error) => {
     supportSchemaPromise = null;
     throw error;
@@ -591,8 +587,6 @@ export interface PrizeItemRecord {
   time_actived: number;
 }
 
-export type GiftRecord = PrizeItemRecord;
-
 export interface TaskRecord {
   tID: number;
   title: string;
@@ -628,8 +622,6 @@ export interface TaskProgressRecord {
   time_claimed: number;
   points_claimed: number;
 }
-
-export type JourneyRecord = TaskProgressRecord;
 
 export interface PendingVerificationRecord extends TaskProgressRecord {
   task: TaskRecord | null;
@@ -1026,33 +1018,33 @@ export class DatabaseService {
           activated_count: number;
         }>(await sql`
           SELECT
-            COALESCE((to_jsonb(g)->>'bID')::int, 0) AS bid,
+            COALESCE(g."bID", 0) AS bid,
             COUNT(1) FILTER (
-              WHERE COALESCE((to_jsonb(g)->>'uID')::int, 0) = 0
+              WHERE COALESCE(g."uID", 0) = 0
             )::int AS stores_count,
             COUNT(1) FILTER (
-              WHERE COALESCE((to_jsonb(g)->>'uID')::int, 0) <> 0
+              WHERE COALESCE(g."uID", 0) <> 0
             )::int AS claims_count,
             COUNT(1) FILTER (
-              WHERE COALESCE((to_jsonb(g)->>'uID')::int, 0) <> 0
-                AND COALESCE(NULLIF(TRIM(COALESCE(to_jsonb(g)->>'time_actived', '')), ''), '') <> ''
+              WHERE COALESCE(g."uID", 0) <> 0
+                AND g.time_actived IS NOT NULL
             )::int AS activated_count
           FROM prize_item AS g
           GROUP BY bid
         `),
         asItems<{ bid: number; volume: number }>(await sql`
           SELECT
-            COALESCE((to_jsonb(s)->>'bID')::int, 0) AS bid,
-            COALESCE(SUM(COALESCE((to_jsonb(s)->>'volume')::int, 0)), 0)::int AS volume
+            COALESCE(s."bID", 0) AS bid,
+            COALESCE(SUM(COALESCE(s.volume, 0)), 0)::int AS volume
           FROM shard AS s
           GROUP BY bid
         `),
         asItems<{ bid: number; volume: number }>(await sql`
           SELECT
-            COALESCE((to_jsonb(st)->>'bID')::int, 0) AS bid,
-            COALESCE(SUM(COALESCE((to_jsonb(st)->>'volume')::int, 0)), 0)::int AS volume
+            COALESCE(st."bID", 0) AS bid,
+            COALESCE(SUM(COALESCE(st.volume, 0)), 0)::int AS volume
           FROM shard_transfer AS st
-          WHERE COALESCE(to_jsonb(st)->>'reason', '') = 'free_chest'
+          WHERE COALESCE(st.reason, '') = 'free_chest'
           GROUP BY bid
         `),
       ]);
@@ -1097,7 +1089,7 @@ export class DatabaseService {
     try {
       const rows = asItems<{ tid: number; count: number }>(await sql`
         SELECT
-          COALESCE((to_jsonb(j)->>'tID')::int, 0) AS tid,
+          COALESCE(j."tID", 0) AS tid,
           COUNT(1)::int AS count
         FROM task_progress AS j
         GROUP BY tid
@@ -1211,9 +1203,9 @@ export class DatabaseService {
     try {
       const sql = getSql();
       const row = firstRow(await sql`
-        SELECT to_jsonb(a) AS row
+        SELECT a.*
         FROM asset AS a
-        WHERE COALESCE((to_jsonb(a)->>'uID')::int, 0) = ${uID}
+        WHERE a."uID" = ${uID}
         LIMIT 1
       `);
       return row ? normalizeAsset(row) : null;
@@ -1232,8 +1224,8 @@ export class DatabaseService {
         UPDATE asset AS a
         SET points = COALESCE(points, 0) + ${pointsDelta},
             "time_updated" = NOW()
-        WHERE COALESCE((to_jsonb(a)->>'uID')::int, 0) = ${uID}
-        RETURNING to_jsonb(a) AS row
+        WHERE a."uID" = ${uID}
+        RETURNING a.*
       `);
 
       if (!row) {
@@ -1246,7 +1238,7 @@ export class DatabaseService {
     const row = firstRow(await sql`
       INSERT INTO asset AS a ("uID", points, lucks, "time_updated")
       VALUES (${uID}, ${pointsDelta}, 0, NOW())
-      RETURNING to_jsonb(a) AS row
+      RETURNING a.*
     `);
 
     if (!row) {
@@ -1308,17 +1300,68 @@ export class DatabaseService {
     await ensureSupportSchema();
     const sql = getSql();
     const rows = extractRows(await sql`
-      SELECT to_jsonb(b) AS row
-      FROM prize AS b
-      ORDER BY COALESCE((to_jsonb(b)->>'bID')::int, 0)
-      LIMIT ${limit} OFFSET ${skip}
+      WITH selected_prizes AS (
+        SELECT b.*
+        FROM prize AS b
+        ORDER BY b."bID"
+        LIMIT ${limit} OFFSET ${skip}
+      ),
+      gift_counts AS (
+        SELECT
+          g."bID" AS bid,
+          COUNT(1) FILTER (
+            WHERE COALESCE(g."uID", 0) = 0
+          )::int AS stores_count,
+          COUNT(1) FILTER (
+            WHERE COALESCE(g."uID", 0) <> 0
+          )::int AS claims_count,
+          COUNT(1) FILTER (
+            WHERE COALESCE(g."uID", 0) <> 0
+              AND g.time_actived IS NOT NULL
+          )::int AS activated_count
+        FROM prize_item AS g
+        JOIN selected_prizes AS p ON p."bID" = g."bID"
+        GROUP BY g."bID"
+      ),
+      shard_counts AS (
+        SELECT
+          s."bID" AS bid,
+          COALESCE(SUM(COALESCE(s.volume, 0)), 0)::int AS current_shard_supply
+        FROM shard AS s
+        JOIN selected_prizes AS p ON p."bID" = s."bID"
+        GROUP BY s."bID"
+      ),
+      transfer_counts AS (
+        SELECT
+          st."bID" AS bid,
+          COALESCE(SUM(COALESCE(st.volume, 0)), 0)::int AS free_shards_distributed
+        FROM shard_transfer AS st
+        JOIN selected_prizes AS p ON p."bID" = st."bID"
+        WHERE COALESCE(st.reason, '') = 'free_chest'
+        GROUP BY st."bID"
+      )
+      SELECT
+        p.*,
+        COALESCE(gc.stores_count, 0)::int AS stores_count,
+        COALESCE(gc.claims_count, 0)::int AS claims_count,
+        COALESCE(gc.activated_count, 0)::int AS activated_count,
+        COALESCE(sc.current_shard_supply, 0)::int AS current_shard_supply,
+        COALESCE(tc.free_shards_distributed, 0)::int AS free_shards_distributed
+      FROM selected_prizes AS p
+      LEFT JOIN gift_counts AS gc ON gc.bid = p."bID"
+      LEFT JOIN shard_counts AS sc ON sc.bid = p."bID"
+      LEFT JOIN transfer_counts AS tc ON tc.bid = p."bID"
+      ORDER BY p."bID"
     `);
-    const counts = await this.getBrandAggregateCounts();
 
     return rows.map((row) => {
-      const bID = toNumberValue(getValue(row, 'bID'));
-      const aggregate = counts.get(bID);
-      return normalizeBrand(row, aggregate);
+      return normalizeBrand(row, {
+        stores_count: toNumberValue(getValue(row, 'stores_count')),
+        claims_count: toNumberValue(getValue(row, 'claims_count')),
+        activated_count: toNumberValue(getValue(row, 'activated_count')),
+        current_shard_supply: toNumberValue(getValue(row, 'current_shard_supply')),
+        free_shards_distributed: toNumberValue(getValue(row, 'free_shards_distributed')),
+      });
     });
   }
 
@@ -1380,34 +1423,42 @@ export class DatabaseService {
   static async listPrizeItemsByUser(uID: number, skip = 0, limit = 200): Promise<PrizeItemRecord[]> {
     const sql = getSql();
     const rows = extractRows(await sql`
-      SELECT to_jsonb(g) AS row
+      SELECT g.*
       FROM prize_item AS g
-      WHERE COALESCE((to_jsonb(g)->>'uID')::int, 0) = ${uID}
-      ORDER BY COALESCE((to_jsonb(g)->>'gID')::int, 0) DESC
+      WHERE g."uID" = ${uID}
+      ORDER BY g."gID" DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
     return rows.map(normalizePrizeItem);
   }
 
-  static async listGiftsByUser(uID: number, skip = 0, limit = 200): Promise<GiftRecord[]> {
-    return this.listPrizeItemsByUser(uID, skip, limit);
-  }
-
   static async listTasks(skip = 0, limit = 100): Promise<TaskRecord[]> {
     const sql = getSql();
     const rows = extractRows(await sql`
-      SELECT to_jsonb(t) AS row
-      FROM task AS t
-      ORDER BY COALESCE((to_jsonb(t)->>'tID')::int, 0)
-      LIMIT ${limit} OFFSET ${skip}
+      WITH selected_tasks AS (
+        SELECT t.*
+        FROM task AS t
+        ORDER BY t."tID"
+        LIMIT ${limit} OFFSET ${skip}
+      ),
+      participant_counts AS (
+        SELECT
+          j."tID" AS tid,
+          COUNT(1)::int AS participants_count
+        FROM task_progress AS j
+        JOIN selected_tasks AS t ON t."tID" = j."tID"
+        GROUP BY j."tID"
+      )
+      SELECT
+        t.*,
+        COALESCE(pc.participants_count, 0)::int AS participants_count
+      FROM selected_tasks AS t
+      LEFT JOIN participant_counts AS pc ON pc.tid = t."tID"
+      ORDER BY t."tID"
     `);
-    const participantCounts = await this.getTaskParticipantCounts();
 
-    return rows.map((row) => {
-      const tID = toNumberValue(getValue(row, 'tID'));
-      return normalizeTask(row, participantCounts.get(tID) || 0);
-    });
+    return rows.map((row) => normalizeTask(row, toNumberValue(getValue(row, 'participants_count'))));
   }
 
   static async getTask(tID: number): Promise<TaskRecord | null> {
@@ -1446,10 +1497,6 @@ export class DatabaseService {
     return row ? normalizeTaskProgress(row) : null;
   }
 
-  static async getJourney(jID: number): Promise<JourneyRecord | null> {
-    return this.getTaskProgress(jID);
-  }
-
   static async listTaskProgressByUser(uID: number, skip = 0, limit = 100): Promise<TaskProgressRecord[]> {
     const sql = getSql();
     const rows = extractRows(await sql`
@@ -1461,10 +1508,6 @@ export class DatabaseService {
     `);
 
     return rows.map(normalizeTaskProgress);
-  }
-
-  static async listJourneysByUser(uID: number, skip = 0, limit = 100): Promise<JourneyRecord[]> {
-    return this.listTaskProgressByUser(uID, skip, limit);
   }
 
   static async findTaskProgressByUserAndTask(uID: number, tID: number): Promise<TaskProgressRecord | null> {
@@ -1479,10 +1522,6 @@ export class DatabaseService {
     `);
 
     return row ? normalizeTaskProgress(row) : null;
-  }
-
-  static async findJourneyByUserAndTask(uID: number, tID: number): Promise<JourneyRecord | null> {
-    return this.findTaskProgressByUserAndTask(uID, tID);
   }
 
   static async createTaskProgress(uID: number, tID: number): Promise<TaskProgressRecord> {
@@ -1500,10 +1539,6 @@ export class DatabaseService {
     return normalizeTaskProgress(row);
   }
 
-  static async createJourney(uID: number, tID: number): Promise<JourneyRecord> {
-    return this.createTaskProgress(uID, tID);
-  }
-
   static async ensureTaskProgressForUserTask(uID: number, tID: number): Promise<TaskProgressRecord> {
     const existingTaskProgress = await this.findTaskProgressByUserAndTask(uID, tID);
     if (existingTaskProgress) {
@@ -1511,10 +1546,6 @@ export class DatabaseService {
     }
 
     return this.createTaskProgress(uID, tID);
-  }
-
-  static async ensureJourneyForUserTask(uID: number, tID: number): Promise<JourneyRecord> {
-    return this.ensureTaskProgressForUserTask(uID, tID);
   }
 
   static async submitTaskProgressInfo(jID: number, infoInput: string): Promise<TaskProgressRecord | null> {
@@ -1530,10 +1561,6 @@ export class DatabaseService {
     return row ? normalizeTaskProgress(row) : null;
   }
 
-  static async submitJourneyInfo(jID: number, infoInput: string): Promise<JourneyRecord | null> {
-    return this.submitTaskProgressInfo(jID, infoInput);
-  }
-
   static async markTaskProgressChecked(jID: number): Promise<TaskProgressRecord | null> {
     const sql = getSql();
     const row = firstRow(await sql`
@@ -1544,10 +1571,6 @@ export class DatabaseService {
     `);
 
     return row ? normalizeTaskProgress(row) : null;
-  }
-
-  static async markJourneyChecked(jID: number): Promise<JourneyRecord | null> {
-    return this.markTaskProgressChecked(jID);
   }
 
   static async claimTaskProgress(jID: number, rewardPoints: number): Promise<TaskProgressRecord | null> {
@@ -1561,10 +1584,6 @@ export class DatabaseService {
     `);
 
     return row ? normalizeTaskProgress(row) : null;
-  }
-
-  static async claimJourney(jID: number, rewardPoints: number): Promise<JourneyRecord | null> {
-    return this.claimTaskProgress(jID, rewardPoints);
   }
 
   static async listPendingVerification(skip = 0, limit = 50): Promise<PendingVerificationRecord[]> {
@@ -1632,10 +1651,6 @@ export class DatabaseService {
     `);
 
     return row ? normalizeTaskProgress(row) : null;
-  }
-
-  static async rejectPendingJourney(jID: number): Promise<JourneyRecord | null> {
-    return this.rejectPendingTaskProgress(jID);
   }
 
   static async getUserStats(): Promise<{
@@ -2932,10 +2947,6 @@ export class DatabaseService {
     }
 
     return normalizePrizeItem(row);
-  }
-
-  static async redeemShardGift(uID: number, bID: number): Promise<GiftRecord> {
-    return this.redeemPrizeItemFromShards(uID, bID);
   }
 
   static buildAdminAccess(

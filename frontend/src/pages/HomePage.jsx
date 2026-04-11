@@ -14,12 +14,14 @@ import { fetchApiJson, getAuthHeaders } from '../auth'
 import { useAuth } from '../auth-context'
 
 const HomePage = () => {
+  const HOME_TASK_LIMIT = 6
+  const HOME_REWARD_LIMIT = 8
   const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const { user, isAuthenticated } = useAuth()
   const [tasks, setTasks] = useState([])
-  const [gifts, setGifts] = useState([])
+  const [rewards, setRewards] = useState([])
   const [loading, setLoading] = useState(true)
   const [userPoints, setUserPoints] = useState(0)
   const [selectedTask, setSelectedTask] = useState(null)
@@ -59,37 +61,37 @@ const HomePage = () => {
     }))
   )
 
-  const mapRewardsForHome = (brandRows, lang, claimedBrandIds = new Set()) => (
-    (brandRows || []).map((gift) => {
-      const isClaimed = claimedBrandIds.has(gift.bID)
-      const storesCount = gift.stores_count || 0
+  const mapRewardsForHome = (prizeRows, lang, claimedPrizeIds = new Set()) => (
+    (prizeRows || []).map((prize) => {
+      const isClaimed = claimedPrizeIds.has(prize.bID)
+      const storesCount = prize.stores_count || 0
       return {
-        ...gift,
+        ...prize,
         title: lang === 'en'
-          ? (gift.name_en ?? gift.name)
+          ? (prize.name_en ?? prize.name)
           : lang === 'hk'
-            ? (gift.name_hk ?? gift.name)
+            ? (prize.name_hk ?? prize.name)
             : lang === 'vn'
-              ? (gift.name_vn ?? gift.name)
-              : gift.name,
+              ? (prize.name_vn ?? prize.name)
+              : prize.name,
         description: lang === 'en'
-          ? (gift.description_en ?? gift.description)
+          ? (prize.description_en ?? prize.description)
           : lang === 'hk'
-            ? (gift.description_hk ?? gift.description)
+            ? (prize.description_hk ?? prize.description)
             : lang === 'vn'
-              ? (gift.description_vn ?? gift.description)
-              : gift.description,
-        points_required: gift.points || 0,
+              ? (prize.description_vn ?? prize.description)
+              : prize.description,
+        points_required: prize.points || 0,
         status: isClaimed ? 'claimed' : storesCount > 0 ? 'available' : 'locked',
         statusText: isClaimed ? '已兑换' : storesCount > 0 ? '可兑换' : '库存不足',
-        rarity: gift.points > 5000 ? 'epic' : gift.points > 2000 ? 'rare' : 'common',
-        image: gift.image_url || gift.url_image || '/placeholder.jpg',
-        claimed: gift.claims_count || 0,
-        total: (gift.claims_count || 0) + storesCount,
-        limited: Boolean(gift.gift_limit || gift.time_end),
+        rarity: prize.points > 5000 ? 'epic' : prize.points > 2000 ? 'rare' : 'common',
+        image: prize.image_url || prize.url_image || '/placeholder.jpg',
+        claimed: prize.claims_count || 0,
+        total: (prize.claims_count || 0) + storesCount,
+        limited: Boolean(prize.gift_limit || prize.time_end),
         brand: {
-          name: gift.name,
-          logo: gift.image_url || gift.url_image || '',
+          name: prize.name,
+          logo: prize.image_url || prize.url_image || '',
         },
       }
     })
@@ -105,27 +107,27 @@ const HomePage = () => {
       try {
         const lang = getCurrentLang()
 
-        const tasksPromise = fetchApiJson('/api/task/all', { signal })
-        const brandsPromise = fetchApiJson('/api/prize/all', { signal })
+        const tasksPromise = fetchApiJson(`/api/task/all?limit=${HOME_TASK_LIMIT}`, { signal })
+        const brandsPromise = fetchApiJson(`/api/prize/all?limit=${HOME_REWARD_LIMIT}`, { signal })
         const [taskRows, brandRows] = await Promise.all([tasksPromise, brandsPromise])
 
         if (cancelled) return
 
         setTasks(mapTasksForHome(taskRows, lang))
-        setGifts(mapRewardsForHome(brandRows, lang))
+        setRewards(mapRewardsForHome(brandRows, lang))
         setUserPoints(0)
         setLoading(false)
 
         if (isAuthenticated && user?.uID) {
-          const [claimedGiftRows, asset] = await Promise.all([
+          const [claimedPrizeItems, asset] = await Promise.all([
             fetchApiJson('/api/prize-item', { headers: getAuthHeaders(user), signal }).catch(() => []),
             fetchApiJson(`/api/user/asset/${user.uID}`, { signal }).catch(() => ({ points: 0 })),
           ])
 
           if (cancelled) return
 
-          const claimedBrandIds = new Set((claimedGiftRows || []).map((gift) => gift.bID))
-          setGifts(mapRewardsForHome(brandRows, lang, claimedBrandIds))
+          const claimedPrizeIds = new Set((claimedPrizeItems || []).map((prizeItem) => prizeItem.bID))
+          setRewards(mapRewardsForHome(brandRows, lang, claimedPrizeIds))
           setUserPoints(asset?.points || 0)
         }
       } catch (error) {
@@ -252,10 +254,10 @@ const HomePage = () => {
               </Link>
             </div>
 
-            {gifts.length > 0 ? (
+            {rewards.length > 0 ? (
               <StaggerContainer>
                 <ResponsiveGrid sm={1} md={2} lg={4} gap={6}>
-                  {gifts.slice(0, 8).map((reward, index) => (
+                  {rewards.map((reward, index) => (
                     <FadeIn key={reward.bID} delay={index * 100}>
                       <RewardCard
                         reward={reward}
