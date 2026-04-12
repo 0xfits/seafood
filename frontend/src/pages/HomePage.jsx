@@ -100,15 +100,50 @@ const HomePage = () => {
     const controller = new AbortController()
     const { signal } = controller
 
+    const loadLegacyHomePayload = async () => {
+      const [taskRows, prizeRows] = await Promise.all([
+        fetchApiJson(`/api/task/all?limit=${HOME_TASK_LIMIT}`, { signal }),
+        fetchApiJson(`/api/prize/all?limit=${HOME_REWARD_LIMIT}`, { signal }),
+      ])
+
+      if (!isAuthenticated || !user?.uID) {
+        return {
+          tasks: taskRows,
+          prizes: prizeRows,
+          claimed_prize_ids: [],
+          user_points: 0,
+        }
+      }
+
+      const [claimedPrizeItems, asset] = await Promise.all([
+        fetchApiJson('/api/prize-item', { headers: getAuthHeaders(user), signal }).catch(() => []),
+        fetchApiJson(`/api/user/asset/${user.uID}`, { signal }).catch(() => ({ points: 0 })),
+      ])
+
+      return {
+        tasks: taskRows,
+        prizes: prizeRows,
+        claimed_prize_ids: (claimedPrizeItems || []).map((prizeItem) => prizeItem.bID),
+        user_points: asset?.points || 0,
+      }
+    }
+
     const loadData = async () => {
       setLoading(true)
       try {
         const lang = getCurrentLang()
         const headers = isAuthenticated ? getAuthHeaders(user) : undefined
-        const homePayload = await fetchApiJson(
-          `/api/home?task_limit=${HOME_TASK_LIMIT}&prize_limit=${HOME_REWARD_LIMIT}`,
-          { headers, signal },
-        )
+        let homePayload
+
+        try {
+          homePayload = await fetchApiJson(
+            `/api/home?task_limit=${HOME_TASK_LIMIT}&prize_limit=${HOME_REWARD_LIMIT}`,
+            { headers, signal },
+          )
+        } catch (homeError) {
+          console.warn('Home aggregate endpoint failed, falling back to legacy requests:', homeError)
+          homePayload = await loadLegacyHomePayload()
+        }
 
         if (cancelled) return
 
