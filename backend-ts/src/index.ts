@@ -346,6 +346,41 @@ app.get('/api/user/asset/:uID', async (req, res) => {
   }
 });
 
+app.get('/api/home', async (req, res) => {
+  const taskLimit = Math.min(12, Math.max(1, parseInteger(req.query.task_limit, 6)));
+  const prizeLimit = Math.min(16, Math.max(1, parseInteger(req.query.prize_limit, 8)));
+
+  try {
+    const actor = await resolveActor(req);
+    const [tasks, prizes, claimedPrizeIds, asset] = await Promise.all([
+      DatabaseService.listTasks(0, taskLimit),
+      DatabaseService.listPrizes(0, prizeLimit),
+      actor
+        ? DatabaseService.listPrizeItemsByUser(actor.user.uID, 0, 200).then((items) => (
+            Array.from(new Set(items.map((item) => item.bID)))
+          ))
+        : Promise.resolve([] as number[]),
+      actor
+        ? (
+            (await DatabaseService.getUserAsset(actor.user.uID)) ||
+            (await DatabaseService.upsertAsset(actor.user.uID, 0))
+          )
+        : Promise.resolve(null),
+    ]);
+
+    sendSuccess(res, {
+      tasks,
+      prizes,
+      claimed_prize_ids: claimedPrizeIds,
+      user_points: asset?.points || 0,
+      is_authenticated: Boolean(actor),
+    });
+  } catch (error) {
+    console.error('Error loading home payload:', error);
+    sendError(res, 500, 'Failed to load home payload');
+  }
+});
+
 app.get('/api/prize-item', async (req, res) => {
   const actor = await requireActor(req, res);
   if (!actor) return;

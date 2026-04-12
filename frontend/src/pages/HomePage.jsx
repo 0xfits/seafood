@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
@@ -16,7 +15,6 @@ import { useAuth } from '../auth-context'
 const HomePage = () => {
   const HOME_TASK_LIMIT = 6
   const HOME_REWARD_LIMIT = 8
-  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const { user, isAuthenticated } = useAuth()
@@ -106,30 +104,20 @@ const HomePage = () => {
       setLoading(true)
       try {
         const lang = getCurrentLang()
-
-        const tasksPromise = fetchApiJson(`/api/task/all?limit=${HOME_TASK_LIMIT}`, { signal })
-        const brandsPromise = fetchApiJson(`/api/prize/all?limit=${HOME_REWARD_LIMIT}`, { signal })
-        const [taskRows, brandRows] = await Promise.all([tasksPromise, brandsPromise])
+        const headers = isAuthenticated ? getAuthHeaders(user) : undefined
+        const homePayload = await fetchApiJson(
+          `/api/home?task_limit=${HOME_TASK_LIMIT}&prize_limit=${HOME_REWARD_LIMIT}`,
+          { headers, signal },
+        )
 
         if (cancelled) return
 
+        const taskRows = homePayload?.tasks || []
+        const prizeRows = homePayload?.prizes || []
+        const claimedPrizeIds = new Set(homePayload?.claimed_prize_ids || [])
         setTasks(mapTasksForHome(taskRows, lang))
-        setRewards(mapRewardsForHome(brandRows, lang))
-        setUserPoints(0)
-        setLoading(false)
-
-        if (isAuthenticated && user?.uID) {
-          const [claimedPrizeItems, asset] = await Promise.all([
-            fetchApiJson('/api/prize-item', { headers: getAuthHeaders(user), signal }).catch(() => []),
-            fetchApiJson(`/api/user/asset/${user.uID}`, { signal }).catch(() => ({ points: 0 })),
-          ])
-
-          if (cancelled) return
-
-          const claimedPrizeIds = new Set((claimedPrizeItems || []).map((prizeItem) => prizeItem.bID))
-          setRewards(mapRewardsForHome(brandRows, lang, claimedPrizeIds))
-          setUserPoints(asset?.points || 0)
-        }
+        setRewards(mapRewardsForHome(prizeRows, lang, claimedPrizeIds))
+        setUserPoints(homePayload?.user_points || 0)
       } catch (error) {
         if (!cancelled) {
           console.error('Load data error:', error)
@@ -145,7 +133,7 @@ const HomePage = () => {
       cancelled = true
       controller.abort()
     }
-  }, [isAuthenticated, location.pathname, t, user?.uID])
+  }, [isAuthenticated, location.pathname, user?.uID, user?.token, user?.access_token])
 
   const handleTaskAction = (task) => {
     setSelectedTask(task)
