@@ -53,6 +53,7 @@ const resolveMinimumShardPrice = (marketFloorPoints: number) => (
 
 let sqlClient: ReturnType<typeof neon> | null = null;
 let supportSchemaPromise: Promise<void> | null = null;
+let legacyTableEnsurePromise: Promise<void> | null = null;
 
 const resolveDatabaseUrl = () => (
   process.env.DATABASE_URL ||
@@ -234,12 +235,12 @@ const slugify = (value: string) => (
     .replace(/^-+|-+$/g, '')
 );
 
-const ensureSupportSchema = async () => {
-  if (supportSchemaPromise) {
-    return supportSchemaPromise;
+const ensureLegacyTableNames = async () => {
+  if (legacyTableEnsurePromise) {
+    return legacyTableEnsurePromise;
   }
 
-  supportSchemaPromise = (async () => {
+  legacyTableEnsurePromise = (async () => {
     const sql = getSql();
 
     await sql`
@@ -255,6 +256,22 @@ const ensureSupportSchema = async () => {
       END
       $$;
     `;
+  })().catch((error) => {
+    legacyTableEnsurePromise = null;
+    throw error;
+  });
+
+  return legacyTableEnsurePromise;
+};
+
+const ensureSupportSchema = async () => {
+  if (supportSchemaPromise) {
+    return supportSchemaPromise;
+  }
+
+  supportSchemaPromise = (async () => {
+    await ensureLegacyTableNames();
+    const sql = getSql();
 
     await sql`
       CREATE TABLE IF NOT EXISTS app_config (
@@ -1298,7 +1315,7 @@ export class DatabaseService {
   }
 
   static async listBrands(skip = 0, limit = 100): Promise<BrandRecord[]> {
-    await ensureSupportSchema();
+    await ensureLegacyTableNames();
     const sql = getSql();
     const rows = extractRows(await sql`
       WITH selected_prizes AS (
@@ -1449,6 +1466,7 @@ export class DatabaseService {
   }
 
   static async listTasks(skip = 0, limit = 100): Promise<TaskRecord[]> {
+    await ensureLegacyTableNames();
     const sql = getSql();
     const rows = extractRows(await sql`
       WITH selected_tasks AS (
@@ -1697,7 +1715,7 @@ export class DatabaseService {
   }
 
   static async getBrandById(bID: number): Promise<BrandRecord | null> {
-    await ensureSupportSchema();
+    await ensureLegacyTableNames();
     const sql = getSql();
     const row = firstRow(await sql`
       SELECT to_jsonb(b) AS row

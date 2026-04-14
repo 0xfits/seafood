@@ -41,6 +41,14 @@ const sendError = (res: Response, statusCode: number, message: string) => res.st
   error: message,
 });
 
+const setPublicCache = (res: Response, maxAgeSeconds = 30, staleWhileRevalidateSeconds = 300) => {
+  res.setHeader('Cache-Control', `public, s-maxage=${maxAgeSeconds}, stale-while-revalidate=${staleWhileRevalidateSeconds}`);
+};
+
+const setPrivateNoStore = (res: Response) => {
+  res.setHeader('Cache-Control', 'private, no-store');
+};
+
 const parseInteger = (value: unknown, fallback = 0) => {
   const next = Number(value);
   return Number.isFinite(next) ? Math.trunc(next) : fallback;
@@ -239,6 +247,7 @@ app.get('/api/prize/all', async (req, res) => {
   try {
     const { skip, limit } = getPagination(req);
     const prizes = await DatabaseService.listPrizes(skip, limit);
+    setPublicCache(res);
     sendSuccess(res, prizes);
   } catch (error) {
     console.error('Error loading prizes:', error);
@@ -250,6 +259,7 @@ app.get('/api/task/all', async (req, res) => {
   try {
     const { skip, limit } = getPagination(req);
     const tasks = await DatabaseService.listTasks(skip, limit);
+    setPublicCache(res);
     sendSuccess(res, tasks);
   } catch (error) {
     console.error('Error loading tasks:', error);
@@ -269,6 +279,7 @@ app.get('/api/task/:tID', async (req, res) => {
       return sendError(res, 404, 'Task not found');
     }
 
+    setPublicCache(res);
     sendSuccess(res, task);
   } catch (error) {
     console.error('Error loading task detail:', error);
@@ -288,6 +299,7 @@ app.get('/api/prize/:bID', async (req, res) => {
       return sendError(res, 404, 'Prize not found');
     }
 
+    setPublicCache(res);
     sendSuccess(res, prize);
   } catch (error) {
     console.error('Error loading prize detail:', error);
@@ -349,6 +361,7 @@ app.get('/api/user/asset/:uID', async (req, res) => {
 app.get('/api/home', async (req, res) => {
   const taskLimit = Math.min(12, Math.max(1, parseInteger(req.query.task_limit, 6)));
   const prizeLimit = Math.min(16, Math.max(1, parseInteger(req.query.prize_limit, 8)));
+  res.setHeader('Vary', 'Authorization');
 
   try {
     const actor = await resolveActor(req);
@@ -365,6 +378,12 @@ app.get('/api/home', async (req, res) => {
           )
         : Promise.resolve(null),
     ]);
+
+    if (actor) {
+      setPrivateNoStore(res);
+    } else {
+      setPublicCache(res);
+    }
 
     sendSuccess(res, {
       tasks,
