@@ -500,6 +500,7 @@ const ensureSupportSchema = async () => {
     await sql`CREATE INDEX IF NOT EXISTS idx_user_evm_lower ON "user" (LOWER("EVM"))`;
     await sql`CREATE INDEX IF NOT EXISTS idx_asset_uid ON asset ("uID")`;
     await sql`CREATE INDEX IF NOT EXISTS idx_prize_item_uid_gid ON prize_item ("uID", "gID" DESC)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_prize_item_uid_bid ON prize_item ("uID", "bID")`;
     await sql`CREATE INDEX IF NOT EXISTS idx_prize_item_bid_uid ON prize_item ("bID", "uID")`;
     await sql`CREATE INDEX IF NOT EXISTS idx_task_progress_uid_jid ON task_progress ("uID", "jID" DESC)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_task_progress_tid ON task_progress ("tID")`;
@@ -1308,37 +1309,37 @@ export class DatabaseService {
       ),
       gift_counts AS (
         SELECT
-          g."bID" AS bid,
+          COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'bID', '')), '')::bigint, 0) AS bid,
           COUNT(1) FILTER (
-            WHERE COALESCE(g."uID", 0) = 0
+            WHERE COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'uID', '')), '')::int, 0) = 0
           )::int AS stores_count,
           COUNT(1) FILTER (
-            WHERE COALESCE(g."uID", 0) <> 0
+            WHERE COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'uID', '')), '')::int, 0) <> 0
           )::int AS claims_count,
           COUNT(1) FILTER (
-            WHERE COALESCE(g."uID", 0) <> 0
-              AND g.time_actived IS NOT NULL
+            WHERE COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'uID', '')), '')::int, 0) <> 0
+              AND COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'time_actived', '')), ''), '') <> ''
           )::int AS activated_count
         FROM prize_item AS g
-        JOIN selected_prizes AS p ON p."bID" = g."bID"
-        GROUP BY g."bID"
+        JOIN selected_prizes AS p ON p."bID" = COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'bID', '')), '')::bigint, 0)
+        GROUP BY COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'bID', '')), '')::bigint, 0)
       ),
       shard_counts AS (
         SELECT
-          s."bID" AS bid,
-          COALESCE(SUM(COALESCE(s.volume, 0)), 0)::int AS current_shard_supply
+          COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(s)->>'bID', '')), '')::bigint, 0) AS bid,
+          COALESCE(SUM(COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(s)->>'volume', '')), '')::int, 0)), 0)::int AS current_shard_supply
         FROM shard AS s
-        JOIN selected_prizes AS p ON p."bID" = s."bID"
-        GROUP BY s."bID"
+        JOIN selected_prizes AS p ON p."bID" = COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(s)->>'bID', '')), '')::bigint, 0)
+        GROUP BY COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(s)->>'bID', '')), '')::bigint, 0)
       ),
       transfer_counts AS (
         SELECT
-          st."bID" AS bid,
-          COALESCE(SUM(COALESCE(st.volume, 0)), 0)::int AS free_shards_distributed
+          COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(st)->>'bID', '')), '')::bigint, 0) AS bid,
+          COALESCE(SUM(COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(st)->>'volume', '')), '')::int, 0)), 0)::int AS free_shards_distributed
         FROM shard_transfer AS st
-        JOIN selected_prizes AS p ON p."bID" = st."bID"
-        WHERE COALESCE(st.reason, '') = 'free_chest'
-        GROUP BY st."bID"
+        JOIN selected_prizes AS p ON p."bID" = COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(st)->>'bID', '')), '')::bigint, 0)
+        WHERE COALESCE(to_jsonb(st)->>'reason', '') = 'free_chest'
+        GROUP BY COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(st)->>'bID', '')), '')::bigint, 0)
       )
       SELECT
         p.*,
@@ -1425,12 +1426,26 @@ export class DatabaseService {
     const rows = extractRows(await sql`
       SELECT g.*
       FROM prize_item AS g
-      WHERE g."uID" = ${uID}
-      ORDER BY g."gID" DESC
+      WHERE COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'uID', '')), '')::int, 0) = ${uID}
+      ORDER BY COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'gID', '')), '')::bigint, 0) DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
     return rows.map(normalizePrizeItem);
+  }
+
+  static async listClaimedPrizeIdsByUser(uID: number): Promise<number[]> {
+    const sql = getSql();
+    const rows = asItems<{ bID: number }>(await sql`
+      SELECT DISTINCT COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'bID', '')), '')::bigint, 0) AS "bID"
+      FROM prize_item AS g
+      WHERE COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'uID', '')), '')::int, 0) = ${uID}
+      ORDER BY "bID"
+    `);
+
+    return rows
+      .map((row) => Number(row.bID || 0))
+      .filter((bID) => bID > 0);
   }
 
   static async listTasks(skip = 0, limit = 100): Promise<TaskRecord[]> {

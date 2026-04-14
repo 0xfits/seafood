@@ -356,9 +356,7 @@ app.get('/api/home', async (req, res) => {
       DatabaseService.listTasks(0, taskLimit),
       DatabaseService.listPrizes(0, prizeLimit),
       actor
-        ? DatabaseService.listPrizeItemsByUser(actor.user.uID, 0, 200).then((items) => (
-            Array.from(new Set(items.map((item) => item.bID)))
-          ))
+        ? DatabaseService.listClaimedPrizeIdsByUser(actor.user.uID)
         : Promise.resolve([] as number[]),
       actor
         ? (
