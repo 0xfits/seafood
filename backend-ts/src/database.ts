@@ -1124,9 +1124,9 @@ export class DatabaseService {
     try {
       const sql = getSql();
       const rows = extractRows(await sql`
-        SELECT to_jsonb(u) AS row
+        SELECT u.*
         FROM "user" AS u
-        ORDER BY COALESCE((to_jsonb(u)->>'uID')::int, 0)
+        ORDER BY COALESCE(NULLIF(BTRIM(u."uID"), '')::int, 0)
         LIMIT ${limit} OFFSET ${skip}
       `);
       return rows.map(normalizeUser);
@@ -1140,9 +1140,9 @@ export class DatabaseService {
     await ensureSupportSchema();
     const sql = getSql();
     const row = firstRow(await sql`
-      SELECT to_jsonb(u) AS row
+      SELECT u.*
       FROM "user" AS u
-      WHERE COALESCE((to_jsonb(u)->>'uID')::int, 0) = ${uID}
+      WHERE COALESCE(NULLIF(BTRIM(u."uID"), '')::int, 0) = ${uID}
       LIMIT 1
     `);
 
@@ -1154,9 +1154,9 @@ export class DatabaseService {
     const sql = getSql();
     const normalizedAddress = String(evmAddress || '').trim().toLowerCase();
     const row = firstRow(await sql`
-      SELECT to_jsonb(u) AS row
+      SELECT u.*
       FROM "user" AS u
-      WHERE LOWER(COALESCE(to_jsonb(u)->>'EVM', '')) = ${normalizedAddress}
+      WHERE LOWER(COALESCE(u."EVM", '')) = ${normalizedAddress}
       LIMIT 1
     `);
 
@@ -1171,7 +1171,7 @@ export class DatabaseService {
     const row = firstRow(await sql`
       INSERT INTO "user" AS u ("uID", "EVM", "bio", "is_admin", "time_reg", "time_login_last")
       VALUES (${String(nextUserId)}, ${normalizedAddress}, '', false, NOW(), NOW())
-      RETURNING to_jsonb(u) AS row
+      RETURNING u.*
     `);
     if (!row) throw new Error('User insert returned no row');
     return normalizeUser(row);
@@ -1182,7 +1182,7 @@ export class DatabaseService {
     await sql`
       UPDATE "user" AS u
       SET "time_login_last" = NOW()
-      WHERE COALESCE((to_jsonb(u)->>'uID')::int, 0) = ${uID}
+      WHERE COALESCE(NULLIF(BTRIM(u."uID"), '')::int, 0) = ${uID}
     `;
   }
 
@@ -1206,13 +1206,13 @@ export class DatabaseService {
     await ensureSupportSchema();
     const sql = getSql();
     const bio = fields.bio;
-    const isAdmin = fields.is_admin;
+    const isAdmin = fields.is_admin === undefined ? null : String(fields.is_admin);
     const row = firstRow(await sql`
       UPDATE "user" AS u
       SET "bio" = COALESCE(${bio}, "bio"),
           "is_admin" = COALESCE(${isAdmin}, "is_admin")
-      WHERE COALESCE((to_jsonb(u)->>'uID')::int, 0) = ${uID}
-      RETURNING to_jsonb(u) AS row
+      WHERE COALESCE(NULLIF(BTRIM(u."uID"), '')::int, 0) = ${uID}
+      RETURNING u.*
     `);
     return row ? normalizeUser(row) : null;
   }
@@ -1326,37 +1326,37 @@ export class DatabaseService {
       ),
       gift_counts AS (
         SELECT
-          COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'bID', '')), '')::bigint, 0) AS bid,
+          COALESCE(NULLIF(BTRIM(COALESCE(g."bID", '')), '')::bigint, 0) AS bid,
           COUNT(1) FILTER (
-            WHERE COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'uID', '')), '')::int, 0) = 0
+            WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) = 0
           )::int AS stores_count,
           COUNT(1) FILTER (
-            WHERE COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'uID', '')), '')::int, 0) <> 0
+            WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) <> 0
           )::int AS claims_count,
           COUNT(1) FILTER (
-            WHERE COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'uID', '')), '')::int, 0) <> 0
-              AND COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'time_actived', '')), ''), '') <> ''
+            WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) <> 0
+              AND COALESCE(NULLIF(BTRIM(COALESCE(g.time_actived, '')), ''), '') <> ''
           )::int AS activated_count
         FROM prize_item AS g
-        JOIN selected_prizes AS p ON p."bID" = COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'bID', '')), '')::bigint, 0)
-        GROUP BY COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'bID', '')), '')::bigint, 0)
+        JOIN selected_prizes AS p ON p."bID" = COALESCE(NULLIF(BTRIM(COALESCE(g."bID", '')), '')::bigint, 0)
+        GROUP BY COALESCE(NULLIF(BTRIM(COALESCE(g."bID", '')), '')::bigint, 0)
       ),
       shard_counts AS (
         SELECT
-          COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(s)->>'bID', '')), '')::bigint, 0) AS bid,
-          COALESCE(SUM(COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(s)->>'volume', '')), '')::int, 0)), 0)::int AS current_shard_supply
+          s."bID" AS bid,
+          COALESCE(SUM(COALESCE(s.volume, 0)), 0)::int AS current_shard_supply
         FROM shard AS s
-        JOIN selected_prizes AS p ON p."bID" = COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(s)->>'bID', '')), '')::bigint, 0)
-        GROUP BY COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(s)->>'bID', '')), '')::bigint, 0)
+        JOIN selected_prizes AS p ON p."bID" = s."bID"
+        GROUP BY s."bID"
       ),
       transfer_counts AS (
         SELECT
-          COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(st)->>'bID', '')), '')::bigint, 0) AS bid,
-          COALESCE(SUM(COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(st)->>'volume', '')), '')::int, 0)), 0)::int AS free_shards_distributed
+          st."bID" AS bid,
+          COALESCE(SUM(COALESCE(st.volume, 0)), 0)::int AS free_shards_distributed
         FROM shard_transfer AS st
-        JOIN selected_prizes AS p ON p."bID" = COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(st)->>'bID', '')), '')::bigint, 0)
-        WHERE COALESCE(to_jsonb(st)->>'reason', '') = 'free_chest'
-        GROUP BY COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(st)->>'bID', '')), '')::bigint, 0)
+        JOIN selected_prizes AS p ON p."bID" = st."bID"
+        WHERE COALESCE(st.reason, '') = 'free_chest'
+        GROUP BY st."bID"
       )
       SELECT
         p.*,
@@ -1388,8 +1388,8 @@ export class DatabaseService {
     const rows = asItems<{ count: number }>(await sql`
       SELECT COUNT(1)::int AS count
       FROM prize_item AS g
-      WHERE COALESCE((to_jsonb(g)->>'bID')::int, 0) = ${bID}
-        AND COALESCE((to_jsonb(g)->>'uID')::int, 0) = 0
+      WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."bID", '')), '')::int, 0) = ${bID}
+        AND COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) = 0
     `);
     return Number(rows[0]?.count || 0);
   }
@@ -1399,8 +1399,8 @@ export class DatabaseService {
     const rows = asItems<{ count: number }>(await sql`
       SELECT COUNT(1)::int AS count
       FROM prize_item AS g
-      WHERE COALESCE((to_jsonb(g)->>'bID')::int, 0) = ${bID}
-        AND COALESCE((to_jsonb(g)->>'uID')::int, 0) <> 0
+      WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."bID", '')), '')::int, 0) = ${bID}
+        AND COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) <> 0
     `);
     return Number(rows[0]?.count || 0);
   }
@@ -1410,9 +1410,9 @@ export class DatabaseService {
     const rows = asItems<{ count: number }>(await sql`
       SELECT COUNT(1)::int AS count
       FROM prize_item AS g
-      WHERE COALESCE((to_jsonb(g)->>'bID')::int, 0) = ${bID}
-        AND COALESCE((to_jsonb(g)->>'uID')::int, 0) <> 0
-        AND COALESCE(NULLIF(TRIM(COALESCE(to_jsonb(g)->>'time_actived', '')), ''), '') <> ''
+      WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."bID", '')), '')::int, 0) = ${bID}
+        AND COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) <> 0
+        AND COALESCE(NULLIF(BTRIM(COALESCE(g.time_actived, '')), ''), '') <> ''
     `);
     return Number(rows[0]?.count || 0);
   }
@@ -1420,9 +1420,9 @@ export class DatabaseService {
   static async getCurrentShardSupplyByBrand(bID: number): Promise<number> {
     const sql = getSql();
     const rows = asItems<{ volume: number }>(await sql`
-      SELECT COALESCE(SUM(COALESCE((to_jsonb(s)->>'volume')::int, 0)), 0)::int AS volume
+      SELECT COALESCE(SUM(COALESCE(s.volume, 0)), 0)::int AS volume
       FROM shard AS s
-      WHERE COALESCE((to_jsonb(s)->>'bID')::int, 0) = ${bID}
+      WHERE s."bID" = ${bID}
     `);
     return Number(rows[0]?.volume || 0);
   }
@@ -1430,10 +1430,10 @@ export class DatabaseService {
   static async countFreeShardsDistributedByBrand(bID: number): Promise<number> {
     const sql = getSql();
     const rows = asItems<{ volume: number }>(await sql`
-      SELECT COALESCE(SUM(COALESCE((to_jsonb(st)->>'volume')::int, 0)), 0)::int AS volume
+      SELECT COALESCE(SUM(COALESCE(st.volume, 0)), 0)::int AS volume
       FROM shard_transfer AS st
-      WHERE COALESCE((to_jsonb(st)->>'bID')::int, 0) = ${bID}
-        AND COALESCE(to_jsonb(st)->>'reason', '') = 'free_chest'
+      WHERE st."bID" = ${bID}
+        AND COALESCE(st.reason, '') = 'free_chest'
     `);
     return Number(rows[0]?.volume || 0);
   }
@@ -1443,8 +1443,8 @@ export class DatabaseService {
     const rows = extractRows(await sql`
       SELECT g.*
       FROM prize_item AS g
-      WHERE COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'uID', '')), '')::int, 0) = ${uID}
-      ORDER BY COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'gID', '')), '')::bigint, 0) DESC
+      WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) = ${uID}
+      ORDER BY COALESCE(NULLIF(BTRIM(COALESCE(g."gID", '')), '')::bigint, 0) DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
@@ -1454,9 +1454,9 @@ export class DatabaseService {
   static async listClaimedPrizeIdsByUser(uID: number): Promise<number[]> {
     const sql = getSql();
     const rows = asItems<{ bID: number }>(await sql`
-      SELECT DISTINCT COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'bID', '')), '')::bigint, 0) AS "bID"
+      SELECT DISTINCT COALESCE(NULLIF(BTRIM(COALESCE(g."bID", '')), '')::bigint, 0) AS "bID"
       FROM prize_item AS g
-      WHERE COALESCE(NULLIF(BTRIM(COALESCE(to_jsonb(g)->>'uID', '')), '')::int, 0) = ${uID}
+      WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) = ${uID}
       ORDER BY "bID"
     `);
 
@@ -1495,17 +1495,34 @@ export class DatabaseService {
   }
 
   static async getTask(tID: number): Promise<TaskRecord | null> {
+    await ensureLegacyTableNames();
     const sql = getSql();
     const row = firstRow(await sql`
-      SELECT to_jsonb(t) AS row
-      FROM task AS t
-      WHERE COALESCE((to_jsonb(t)->>'tID')::int, 0) = ${tID}
+      WITH selected_task AS (
+        SELECT t.*
+        FROM task AS t
+        WHERE COALESCE(NULLIF(BTRIM(t."tID"), '')::int, 0) = ${tID}
+        LIMIT 1
+      ),
+      participant_counts AS (
+        SELECT
+          COALESCE(NULLIF(BTRIM(j."tID"), '')::int, 0) AS tid,
+          COUNT(1)::int AS participants_count
+        FROM task_progress AS j
+        JOIN selected_task AS t ON t."tID" = j."tID"
+        GROUP BY COALESCE(NULLIF(BTRIM(j."tID"), '')::int, 0)
+      )
+      SELECT
+        t.*,
+        COALESCE(pc.participants_count, 0)::int AS participants_count
+      FROM selected_task AS t
+      LEFT JOIN participant_counts AS pc
+        ON pc.tid = COALESCE(NULLIF(BTRIM(t."tID"), '')::int, 0)
       LIMIT 1
     `);
 
     if (!row) return null;
-    const participantsCount = await this.countTaskParticipants(tID);
-    return normalizeTask(row, participantsCount);
+    return normalizeTask(row, toNumberValue(getValue(row, 'participants_count')));
   }
 
   static async countTaskParticipants(tID: number): Promise<number> {
@@ -1513,7 +1530,7 @@ export class DatabaseService {
     const rows = asItems<{ count: number }>(await sql`
       SELECT COUNT(1)::int AS count
       FROM task_progress AS j
-      WHERE COALESCE((to_jsonb(j)->>'tID')::int, 0) = ${tID}
+      WHERE COALESCE(NULLIF(BTRIM(j."tID"), '')::int, 0) = ${tID}
     `);
     return Number(rows[0]?.count || 0);
   }
@@ -1521,9 +1538,9 @@ export class DatabaseService {
   static async getTaskProgress(jID: number): Promise<TaskProgressRecord | null> {
     const sql = getSql();
     const row = firstRow(await sql`
-      SELECT to_jsonb(j) AS row
+      SELECT j.*
       FROM task_progress AS j
-      WHERE COALESCE((to_jsonb(j)->>'jID')::int, 0) = ${jID}
+      WHERE COALESCE(NULLIF(BTRIM(j."jID"), '')::int, 0) = ${jID}
       LIMIT 1
     `);
 
@@ -1533,10 +1550,10 @@ export class DatabaseService {
   static async listTaskProgressByUser(uID: number, skip = 0, limit = 100): Promise<TaskProgressRecord[]> {
     const sql = getSql();
     const rows = extractRows(await sql`
-      SELECT to_jsonb(j) AS row
+      SELECT j.*
       FROM task_progress AS j
-      WHERE COALESCE((to_jsonb(j)->>'uID')::int, 0) = ${uID}
-      ORDER BY COALESCE((to_jsonb(j)->>'jID')::int, 0) DESC
+      WHERE COALESCE(NULLIF(BTRIM(j."uID"), '')::int, 0) = ${uID}
+      ORDER BY COALESCE(NULLIF(BTRIM(j."jID"), '')::int, 0) DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
@@ -1546,11 +1563,11 @@ export class DatabaseService {
   static async findTaskProgressByUserAndTask(uID: number, tID: number): Promise<TaskProgressRecord | null> {
     const sql = getSql();
     const row = firstRow(await sql`
-      SELECT to_jsonb(j) AS row
+      SELECT j.*
       FROM task_progress AS j
-      WHERE COALESCE((to_jsonb(j)->>'uID')::int, 0) = ${uID}
-        AND COALESCE((to_jsonb(j)->>'tID')::int, 0) = ${tID}
-      ORDER BY COALESCE((to_jsonb(j)->>'jID')::int, 0) DESC
+      WHERE COALESCE(NULLIF(BTRIM(j."uID"), '')::int, 0) = ${uID}
+        AND COALESCE(NULLIF(BTRIM(j."tID"), '')::int, 0) = ${tID}
+      ORDER BY COALESCE(NULLIF(BTRIM(j."jID"), '')::int, 0) DESC
       LIMIT 1
     `);
 
@@ -1562,7 +1579,7 @@ export class DatabaseService {
     const row = firstRow(await sql`
       INSERT INTO task_progress AS j ("tID", "uID", info_input, time_created, points_claimed)
       VALUES (${tID}, ${uID}, NULL, NOW(), 0)
-      RETURNING to_jsonb(j) AS row
+      RETURNING j.*
     `);
 
     if (!row) {
@@ -1587,8 +1604,8 @@ export class DatabaseService {
       UPDATE task_progress AS j
       SET info_input = ${infoInput},
           time_submitted = NOW()
-      WHERE COALESCE((to_jsonb(j)->>'jID')::int, 0) = ${jID}
-      RETURNING to_jsonb(j) AS row
+      WHERE COALESCE(NULLIF(BTRIM(j."jID"), '')::int, 0) = ${jID}
+      RETURNING j.*
     `);
 
     return row ? normalizeTaskProgress(row) : null;
@@ -1599,8 +1616,8 @@ export class DatabaseService {
     const row = firstRow(await sql`
       UPDATE task_progress AS j
       SET time_checked = NOW()
-      WHERE COALESCE((to_jsonb(j)->>'jID')::int, 0) = ${jID}
-      RETURNING to_jsonb(j) AS row
+      WHERE COALESCE(NULLIF(BTRIM(j."jID"), '')::int, 0) = ${jID}
+      RETURNING j.*
     `);
 
     return row ? normalizeTaskProgress(row) : null;
@@ -1612,8 +1629,8 @@ export class DatabaseService {
       UPDATE task_progress AS j
       SET points_claimed = ${rewardPoints},
           time_claimed = NOW()
-      WHERE COALESCE((to_jsonb(j)->>'jID')::int, 0) = ${jID}
-      RETURNING to_jsonb(j) AS row
+      WHERE COALESCE(NULLIF(BTRIM(j."jID"), '')::int, 0) = ${jID}
+      RETURNING j.*
     `);
 
     return row ? normalizeTaskProgress(row) : null;
@@ -1622,16 +1639,19 @@ export class DatabaseService {
   static async listPendingVerification(skip = 0, limit = 50): Promise<PendingVerificationRecord[]> {
     const sql = getSql();
     const rows = extractRows(await sql`
-      SELECT to_jsonb(j) AS row
+      SELECT j.*
       FROM task_progress AS j
       JOIN "user" AS u
-        ON COALESCE((to_jsonb(u)->>'uID')::int, 0) = COALESCE((to_jsonb(j)->>'uID')::int, 0)
-      WHERE COALESCE(NULLIF(TRIM(COALESCE(to_jsonb(j)->>'info_input', '')), ''), '') <> ''
-        AND COALESCE(to_jsonb(j)->>'time_checked', '') = ''
-        AND COALESCE(to_jsonb(j)->>'time_claimed', '') = ''
-        AND COALESCE((to_jsonb(u)->>'is_admin')::boolean, false) = false
-      ORDER BY COALESCE((to_jsonb(j)->>'time_submitted')::timestamptz, (to_jsonb(j)->>'time_created')::timestamptz) DESC NULLS LAST,
-               COALESCE((to_jsonb(j)->>'jID')::int, 0) DESC
+        ON COALESCE(NULLIF(BTRIM(u."uID"), '')::int, 0) = COALESCE(NULLIF(BTRIM(j."uID"), '')::int, 0)
+      WHERE COALESCE(NULLIF(BTRIM(COALESCE(j.info_input, '')), ''), '') <> ''
+        AND COALESCE(NULLIF(BTRIM(COALESCE(j.time_checked, '')), ''), '') = ''
+        AND COALESCE(NULLIF(BTRIM(COALESCE(j.time_claimed, '')), ''), '') = ''
+        AND COALESCE(NULLIF(BTRIM(COALESCE(u.is_admin, '')), '')::boolean, false) = false
+      ORDER BY COALESCE(
+                 NULLIF(BTRIM(j.time_submitted), '')::timestamptz,
+                 NULLIF(BTRIM(j.time_created), '')::timestamptz
+               ) DESC NULLS LAST,
+               COALESCE(NULLIF(BTRIM(j."jID"), '')::int, 0) DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
@@ -1664,11 +1684,11 @@ export class DatabaseService {
       SELECT COUNT(1)::int AS count
       FROM task_progress AS j
       JOIN "user" AS u
-        ON COALESCE((to_jsonb(u)->>'uID')::int, 0) = COALESCE((to_jsonb(j)->>'uID')::int, 0)
-      WHERE COALESCE(NULLIF(TRIM(COALESCE(to_jsonb(j)->>'info_input', '')), ''), '') <> ''
-        AND COALESCE(to_jsonb(j)->>'time_checked', '') = ''
-        AND COALESCE(to_jsonb(j)->>'time_claimed', '') = ''
-        AND COALESCE((to_jsonb(u)->>'is_admin')::boolean, false) = false
+        ON COALESCE(NULLIF(BTRIM(u."uID"), '')::int, 0) = COALESCE(NULLIF(BTRIM(j."uID"), '')::int, 0)
+      WHERE COALESCE(NULLIF(BTRIM(COALESCE(j.info_input, '')), ''), '') <> ''
+        AND COALESCE(NULLIF(BTRIM(COALESCE(j.time_checked, '')), ''), '') = ''
+        AND COALESCE(NULLIF(BTRIM(COALESCE(j.time_claimed, '')), ''), '') = ''
+        AND COALESCE(NULLIF(BTRIM(COALESCE(u.is_admin, '')), '')::boolean, false) = false
     `);
     return Number(rows[0]?.count || 0);
   }
@@ -1679,8 +1699,8 @@ export class DatabaseService {
       UPDATE task_progress AS j
       SET info_input = NULL,
           time_submitted = NULL
-      WHERE COALESCE((to_jsonb(j)->>'jID')::int, 0) = ${jID}
-      RETURNING to_jsonb(j) AS row
+      WHERE COALESCE(NULLIF(BTRIM(j."jID"), '')::int, 0) = ${jID}
+      RETURNING j.*
     `);
 
     return row ? normalizeTaskProgress(row) : null;
@@ -1718,9 +1738,57 @@ export class DatabaseService {
     await ensureLegacyTableNames();
     const sql = getSql();
     const row = firstRow(await sql`
-      SELECT to_jsonb(b) AS row
-      FROM prize AS b
-      WHERE COALESCE((to_jsonb(b)->>'bID')::int, 0) = ${bID}
+      WITH selected_prize AS (
+        SELECT b.*
+        FROM prize AS b
+        WHERE b."bID" = ${bID}
+        LIMIT 1
+      ),
+      gift_counts AS (
+        SELECT
+          COALESCE(NULLIF(BTRIM(COALESCE(g."bID", '')), '')::bigint, 0) AS bid,
+          COUNT(1) FILTER (
+            WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) = 0
+          )::int AS stores_count,
+          COUNT(1) FILTER (
+            WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) <> 0
+          )::int AS claims_count,
+          COUNT(1) FILTER (
+            WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) <> 0
+              AND COALESCE(NULLIF(BTRIM(COALESCE(g.time_actived, '')), ''), '') <> ''
+          )::int AS activated_count
+        FROM prize_item AS g
+        JOIN selected_prize AS p ON p."bID" = COALESCE(NULLIF(BTRIM(COALESCE(g."bID", '')), '')::bigint, 0)
+        GROUP BY COALESCE(NULLIF(BTRIM(COALESCE(g."bID", '')), '')::bigint, 0)
+      ),
+      shard_counts AS (
+        SELECT
+          s."bID" AS bid,
+          COALESCE(SUM(COALESCE(s.volume, 0)), 0)::int AS current_shard_supply
+        FROM shard AS s
+        JOIN selected_prize AS p ON p."bID" = s."bID"
+        GROUP BY s."bID"
+      ),
+      transfer_counts AS (
+        SELECT
+          st."bID" AS bid,
+          COALESCE(SUM(COALESCE(st.volume, 0)), 0)::int AS free_shards_distributed
+        FROM shard_transfer AS st
+        JOIN selected_prize AS p ON p."bID" = st."bID"
+        WHERE COALESCE(st.reason, '') = 'free_chest'
+        GROUP BY st."bID"
+      )
+      SELECT
+        p.*,
+        COALESCE(gc.stores_count, 0)::int AS stores_count,
+        COALESCE(gc.claims_count, 0)::int AS claims_count,
+        COALESCE(gc.activated_count, 0)::int AS activated_count,
+        COALESCE(sc.current_shard_supply, 0)::int AS current_shard_supply,
+        COALESCE(tc.free_shards_distributed, 0)::int AS free_shards_distributed
+      FROM selected_prize AS p
+      LEFT JOIN gift_counts AS gc ON gc.bid = p."bID"
+      LEFT JOIN shard_counts AS sc ON sc.bid = p."bID"
+      LEFT JOIN transfer_counts AS tc ON tc.bid = p."bID"
       LIMIT 1
     `);
 
@@ -1728,20 +1796,12 @@ export class DatabaseService {
       return null;
     }
 
-    const [storesCount, claimsCount, activatedCount, currentShardSupply, freeShardsDistributed] = await Promise.all([
-      this.countGiftStoresByBrand(bID),
-      this.countGiftClaimsByBrand(bID),
-      this.countGiftActivatedByBrand(bID),
-      this.getCurrentShardSupplyByBrand(bID),
-      this.countFreeShardsDistributedByBrand(bID),
-    ]);
-
     return normalizeBrand(row, {
-      stores_count: storesCount,
-      claims_count: claimsCount,
-      activated_count: activatedCount,
-      current_shard_supply: currentShardSupply,
-      free_shards_distributed: freeShardsDistributed,
+      stores_count: toNumberValue(getValue(row, 'stores_count')),
+      claims_count: toNumberValue(getValue(row, 'claims_count')),
+      activated_count: toNumberValue(getValue(row, 'activated_count')),
+      current_shard_supply: toNumberValue(getValue(row, 'current_shard_supply')),
+      free_shards_distributed: toNumberValue(getValue(row, 'free_shards_distributed')),
     });
   }
 
@@ -2343,16 +2403,16 @@ export class DatabaseService {
     const sql = getSql();
     const rows = asItems<RawRow>(await sql`
       SELECT
-        MIN(COALESCE((to_jsonb(s)->>'sID')::bigint, 0))::int AS "sID",
-        COALESCE((to_jsonb(s)->>'bID')::int, 0) AS "bID",
-        COALESCE((to_jsonb(s)->>'uID')::int, 0) AS "uID",
-        SUM(COALESCE((to_jsonb(s)->>'volume')::int, 0))::int AS volume,
-        MAX(COALESCE((to_jsonb(s)->>'time_created')::timestamptz, NOW())) AS time_created
+        MIN(COALESCE(s."sID", 0))::int AS "sID",
+        s."bID" AS "bID",
+        s."uID" AS "uID",
+        SUM(COALESCE(s.volume, 0))::int AS volume,
+        MAX(COALESCE(s.time_created, NOW())) AS time_created
       FROM shard AS s
-      WHERE COALESCE((to_jsonb(s)->>'uID')::int, 0) = ${uID}
-      GROUP BY COALESCE((to_jsonb(s)->>'bID')::int, 0), COALESCE((to_jsonb(s)->>'uID')::int, 0)
-      HAVING SUM(COALESCE((to_jsonb(s)->>'volume')::int, 0)) > 0
-      ORDER BY COALESCE((to_jsonb(s)->>'bID')::int, 0)
+      WHERE s."uID" = ${uID}
+      GROUP BY s."bID", s."uID"
+      HAVING SUM(COALESCE(s.volume, 0)) > 0
+      ORDER BY s."bID"
       LIMIT ${limit} OFFSET ${skip}
     `);
 
@@ -2370,10 +2430,10 @@ export class DatabaseService {
     await ensureSupportSchema();
     const sql = getSql();
     const rows = asItems<{ volume: number }>(await sql`
-      SELECT COALESCE(SUM(COALESCE((to_jsonb(s)->>'volume')::int, 0)), 0)::int AS volume
+      SELECT COALESCE(SUM(COALESCE(s.volume, 0)), 0)::int AS volume
       FROM shard AS s
-      WHERE COALESCE((to_jsonb(s)->>'uID')::int, 0) = ${uID}
-        AND COALESCE((to_jsonb(s)->>'bID')::int, 0) = ${bID}
+      WHERE s."uID" = ${uID}
+        AND s."bID" = ${bID}
     `);
     return Number(rows[0]?.volume || 0);
   }
@@ -2423,7 +2483,7 @@ export class DatabaseService {
         ${input.related_trID ?? null},
         NOW()
       )
-      RETURNING to_jsonb(st) AS row
+      RETURNING st.*
     `);
 
     if (!row) {
@@ -2438,12 +2498,12 @@ export class DatabaseService {
     await ensureSupportSchema();
     const sql = getSql();
     const rows = extractRows(await sql`
-      SELECT to_jsonb(st) AS row
+      SELECT st.*
       FROM shard_transfer AS st
-      WHERE COALESCE((to_jsonb(st)->>'from_uID')::int, 0) = ${uID}
-         OR COALESCE((to_jsonb(st)->>'to_uID')::int, 0) = ${uID}
-      ORDER BY COALESCE((to_jsonb(st)->>'time_created')::timestamptz, NOW()) DESC,
-               COALESCE((to_jsonb(st)->>'txID')::bigint, 0) DESC
+      WHERE st."from_uID" = ${uID}
+         OR st."to_uID" = ${uID}
+      ORDER BY COALESCE(st.time_created, NOW()) DESC,
+               COALESCE(st."txID", 0) DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
@@ -2461,9 +2521,9 @@ export class DatabaseService {
     await ensureSupportSchema();
     const sql = getSql();
     const row = firstRow(await sql`
-      SELECT to_jsonb(o) AS row
+      SELECT o.*
       FROM market_order AS o
-      WHERE COALESCE((to_jsonb(o)->>'oID')::bigint, 0) = ${oID}
+      WHERE o."oID" = ${oID}
       LIMIT 1
     `);
 
@@ -2486,8 +2546,8 @@ export class DatabaseService {
             ELSE 'partial'
           END,
           time_updated = NOW()
-      WHERE COALESCE((to_jsonb(o)->>'oID')::bigint, 0) = ${oID}
-      RETURNING to_jsonb(o) AS row
+      WHERE o."oID" = ${oID}
+      RETURNING o.*
     `);
 
     if (!row) {
@@ -2512,31 +2572,31 @@ export class DatabaseService {
     const sql = getSql();
     const row = order.side === 'buy'
       ? firstRow(await sql`
-          SELECT to_jsonb(o) AS row
+          SELECT o.*
           FROM market_order AS o
-          WHERE COALESCE((to_jsonb(o)->>'bID')::int, 0) = ${order.bID}
+          WHERE o."bID" = ${order.bID}
             AND side = 'sell'
-            AND COALESCE((to_jsonb(o)->>'uID')::int, 0) <> ${order.uID}
+            AND o."uID" <> ${order.uID}
             AND status IN ('open', 'partial')
-            AND COALESCE((to_jsonb(o)->>'price')::int, 0) <= ${order.price}
-            AND COALESCE((to_jsonb(o)->>'volume_total')::int, 0) > COALESCE((to_jsonb(o)->>'volume_filled')::int, 0)
-          ORDER BY COALESCE((to_jsonb(o)->>'price')::int, 0) ASC,
-                   COALESCE((to_jsonb(o)->>'time_created')::timestamptz, NOW()) ASC,
-                   COALESCE((to_jsonb(o)->>'oID')::bigint, 0) ASC
+            AND o.price <= ${order.price}
+            AND o.volume_total > o.volume_filled
+          ORDER BY o.price ASC,
+                   COALESCE(o.time_created, NOW()) ASC,
+                   o."oID" ASC
           LIMIT 1
         `)
       : firstRow(await sql`
-          SELECT to_jsonb(o) AS row
+          SELECT o.*
           FROM market_order AS o
-          WHERE COALESCE((to_jsonb(o)->>'bID')::int, 0) = ${order.bID}
+          WHERE o."bID" = ${order.bID}
             AND side = 'buy'
-            AND COALESCE((to_jsonb(o)->>'uID')::int, 0) <> ${order.uID}
+            AND o."uID" <> ${order.uID}
             AND status IN ('open', 'partial')
-            AND COALESCE((to_jsonb(o)->>'price')::int, 0) >= ${Math.max(order.price, minimumShardPrice)}
-            AND COALESCE((to_jsonb(o)->>'volume_total')::int, 0) > COALESCE((to_jsonb(o)->>'volume_filled')::int, 0)
-          ORDER BY COALESCE((to_jsonb(o)->>'price')::int, 0) DESC,
-                   COALESCE((to_jsonb(o)->>'time_created')::timestamptz, NOW()) ASC,
-                   COALESCE((to_jsonb(o)->>'oID')::bigint, 0) ASC
+            AND o.price >= ${Math.max(order.price, minimumShardPrice)}
+            AND o.volume_total > o.volume_filled
+          ORDER BY o.price DESC,
+                   COALESCE(o.time_created, NOW()) ASC,
+                   o."oID" ASC
           LIMIT 1
         `);
 
@@ -2579,7 +2639,7 @@ export class DatabaseService {
         ${input.volume},
         NOW()
       )
-      RETURNING to_jsonb(t) AS row
+      RETURNING t.*
     `);
 
     if (!row) {
@@ -2656,11 +2716,11 @@ export class DatabaseService {
     await ensureSupportSchema();
     const sql = getSql();
     const rows = extractRows(await sql`
-      SELECT to_jsonb(o) AS row
+      SELECT o.*
       FROM market_order AS o
-      WHERE COALESCE((to_jsonb(o)->>'uID')::int, 0) = ${uID}
-      ORDER BY COALESCE((to_jsonb(o)->>'time_created')::timestamptz, NOW()) DESC,
-               COALESCE((to_jsonb(o)->>'oID')::bigint, 0) DESC
+      WHERE o."uID" = ${uID}
+      ORDER BY COALESCE(o.time_created, NOW()) DESC,
+               o."oID" DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
@@ -2750,7 +2810,7 @@ export class DatabaseService {
         NOW(),
         NOW()
       )
-      RETURNING to_jsonb(o) AS row
+      RETURNING o.*
     `);
 
     if (!row) {
@@ -2817,8 +2877,8 @@ export class DatabaseService {
       UPDATE market_order AS o
       SET status = 'cancelled',
           time_updated = NOW()
-      WHERE COALESCE((to_jsonb(o)->>'oID')::bigint, 0) = ${oID}
-      RETURNING to_jsonb(o) AS row
+      WHERE o."oID" = ${oID}
+      RETURNING o.*
     `);
 
     const order = row ? normalizeMarketOrder(row, await this.getBrandById(existing.bID)) : existing;
@@ -2854,7 +2914,7 @@ export class DatabaseService {
         price,
         SUM(volume_total - volume_filled)::int AS volume
       FROM market_order AS o
-      WHERE COALESCE((to_jsonb(o)->>'bID')::int, 0) = ${bID}
+      WHERE o."bID" = ${bID}
         AND status IN ('open', 'partial')
         AND volume_total > volume_filled
       GROUP BY side, price
@@ -2872,11 +2932,11 @@ export class DatabaseService {
     await ensureSupportSchema();
     const sql = getSql();
     const rows = extractRows(await sql`
-      SELECT to_jsonb(t) AS row
+      SELECT t.*
       FROM market_trade AS t
-      WHERE COALESCE((to_jsonb(t)->>'bID')::int, 0) = ${bID}
-      ORDER BY COALESCE((to_jsonb(t)->>'time_created')::timestamptz, NOW()) DESC,
-               COALESCE((to_jsonb(t)->>'trID')::bigint, 0) DESC
+      WHERE t."bID" = ${bID}
+      ORDER BY COALESCE(t.time_created, NOW()) DESC,
+               t."trID" DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
