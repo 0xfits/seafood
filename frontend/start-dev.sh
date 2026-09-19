@@ -35,8 +35,8 @@ echo "✅ Dependencies installed successfully"
 
 # Start development server
 echo "🌟 Starting development server..."
-echo "📱 Frontend will be available at: http://localhost:3000"
-echo "🔧 Backend API should be running at: http://localhost:8000"
+echo "📱 Frontend will be available at: http://localhost:5777"
+echo "🔧 Backend API should be running at: http://localhost:5778"
 echo ""
 echo "Press Ctrl+C to stop the server"
 echo ""

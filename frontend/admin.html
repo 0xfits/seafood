@@ -196,10 +196,10 @@
             <div class="card hero">
               <div class="card-inner">
                 <div class="title">Backend Configuration</div>
-                <p class="subtitle">Default address http://localhost:8000; modify and click "Refresh Endpoints"</p>
+                <p class="subtitle">Default address http://localhost:5778; modify and click "Refresh Endpoints"</p>
                 <div class="row">
                   <label for="baseUrl">Backend Address</label>
-                  <input type="text" id="baseUrl" value="http://localhost:8000" />
+                  <input type="text" id="baseUrl" value="http://localhost:5778" />
                   <button id="refresh">Refresh Endpoints</button>
                 </div>
                 <div class="row">
@@ -899,7 +899,7 @@
       initAdminGate();
 
       // ===== 动态匹配首页链接（Home）=====
-      // 目标：在本地开发时，优先跳转到 Vite 开发服务器 (http://localhost:3000/)；
+      // 目标：在本地开发时，优先跳转到 Vite 开发服务器 (http://localhost:5777/)；
       // 在生产或同源部署时，跳转到当前 origin 的根路径。
       (function dynamicHomeLink() {
         const link = document.getElementById('homeLink');
@@ -911,13 +911,13 @@
 
         // 候选地址按优先级排列：
         // 1) 本地 Vite 开发服务器
-        // 2) 将 8001 替换为 3000 的同主机
+        // 2) 将 8001 替换为 5777 的同主机
         // 3) 当前 origin 根路径（生产/同源）
         const candidates = [];
         if (isLocal) {
-          candidates.push('http://localhost:3000/');
+          candidates.push('http://localhost:5777/');
           if (origin.includes(':8001')) {
-            candidates.push(origin.replace(':8001', ':3000') + '/');
+            candidates.push(origin.replace(':8001', ':5777') + '/');
           }
         }
         candidates.push(origin + '/');
