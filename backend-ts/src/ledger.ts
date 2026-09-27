@@ -5,7 +5,10 @@
  *   §2   三张核心表数据契约（currency / account / ledger_entry）
  *   §3   币种语义与「状态 × 操作」矩阵（R26 / R28）
  *   §4   余额语义与三态记账（balance / frozen、同账户两条分录）
- *   §5   22 个 kind 关闭集（R40）+ 配对不变式（R41）
+ *   §5   20 个 kind 关闭集（R40）+ 配对不变式（R41）
+ *        〔P1c 收口（Zang 裁定）：22 → 20 —— 删 `listing_deposit_refund`（spec v0.2 已删）
+ *          与 `listing_deposit_forfeit`（保证金上市时即消耗，强制下架不存在可罚没标的物）；
+ *          见 `migrations/0003_kind_close_set_20.sql`。spec §5.1 回写由 Jing 另单执行。〕
  *   §6   幂等键（R48 全局唯一 + R49 前缀强制 + R50 确定性派生 + R51 协议 + R52 返回语义）
  *   §7   事务边界（R55 写路径必须在 withTransaction 内 + R57 一事件一事务）
  *   §8   金额表示（R66 bigint 最小单位 + R70 出入参十进制字符串 + R71 上限 + R72 入参校验）
@@ -36,6 +39,11 @@
  *   LEDGER_RESERVED_UID          { field, uid, reason? }
  *   LEDGER_UNKNOWN_KIND          { kind } / LEDGER_HOLD_NOT_ALLOWED { uid, cid, reason }
  *   LEDGER_NEGATIVE_BALANCE_GUARD / LEDGER_ACCOUNT_GUARD_VIOLATION / LEDGER_APPEND_ONLY_VIOLATION { constraint? }
+ *   〔P1c 收口新增〕驱动级 / 非 PG 错误的可机读 reason（Zang 裁定，spec §14.4 待同步）：
+ *   LEDGER_TX_TIMEOUT            { reason: 'pool_connection_timeout' | 'driver_connection_error', ... }
+ *                                —— 连接池过载 / 拿连接超时 / 驱动连接级错误，HTTP 503（原本被误报成 500）
+ *   LEDGER_TRANSACTION_REQUIRED  { cause, reason: 'unclassified_non_pg_error' | 'unclassified_driver_error'
+ *                                  | 'unclassified_pg_error', error_name, error_code|pg_code }
  *
  * ---------------------------------------------------------------- 本阶段**未**实现（明确留白，勿误判为遗漏）
  *   - 招工 / 商品 / 交易所 / 返佣 / 上市费 / 保证金冻结 等业务动作（P3/P4/P5）
@@ -76,7 +84,7 @@ export const PLATFORM_UID = {
   FEE: -1n,
   /** 佣金池（唯一入口 job_fee，唯一出口 commission） */
   COMMISSION: -2n,
-  /** 罚没账户（hold_forfeit / listing_deposit_forfeit） */
+  /** 罚没账户（hold_forfeit） */
   FORFEIT: -3n,
 } as const;
 
@@ -86,13 +94,20 @@ export const SYSTEM_CURRENCY_CID = 1n;
 /** R71：单笔金额上限（最小单位整数），远低于 bigint 上限 */
 export const MAX_SINGLE_AMOUNT = 1_000_000_000_000_000n; // 1e15
 
-/** §5.1 22 个 kind 关闭集（R40：改这个集合必须走 migration + 回写 spec） */
+/**
+ * §5.1 kind 关闭集（R40：改这个集合必须走 migration + 回写 spec）。
+ * P1c 收口后 = **20 个**（Zang 裁定 22 → 20）：
+ *   - `listing_deposit_refund`：spec v0.2 已删（保证金 = 消耗不可退）
+ *   - `listing_deposit_forfeit`：P1c 新裁定删（保证金在上市时即消耗、进平台收入 `uid=-1`，
+ *     强制下架时**不存在可罚没的标的物**；将来若做「强制下架罚款」属**新语义、新 kind**，需单独定）
+ *   DB 侧同款删除见 `migrations/0003_kind_close_set_20.sql`（CHECK 约束重建，非 enum 类型）。
+ */
 export const LEDGER_KINDS = [
   'mint', 'burn', 'transfer', 'hold', 'hold_release', 'hold_forfeit',
   'job_escrow', 'job_escrow_refund', 'job_payout', 'job_fee', 'commission',
   'purchase', 'sale', 'purchase_refund',
   'trade', 'trade_fee',
-  'listing_fee', 'listing_deposit', 'listing_deposit_refund', 'listing_deposit_forfeit',
+  'listing_fee', 'listing_deposit',
   'currency_create_fee', 'reversal',
 ] as const;
 export type LedgerKind = (typeof LEDGER_KINDS)[number];
@@ -107,13 +122,13 @@ export type RefType = (typeof REF_TYPES)[number];
 export const CURRENCY_STATUSES = ['draft', 'listed', 'frozen', 'delisted'] as const;
 export type CurrencyStatus = (typeof CURRENCY_STATUSES)[number];
 
-/** §4.2 三态记账：hold 家族（同账户搬运，必须是 2 条分录） */
+/** §4.2 三态记账：hold 家族（同账户搬运，必须是 2 条分录）〔P1c：移除已删的 `listing_deposit_refund`〕 */
 export const HOLD_KINDS: LedgerKind[] = ['hold', 'hold_release', 'job_escrow', 'job_escrow_refund',
-  'listing_deposit', 'listing_deposit_refund'];
+  'listing_deposit'];
 
-/** §4.2 / §5：冻结资金可以直接支付给对方的 kind 白名单（R33 ① ②） */
+/** §4.2 / §5：冻结资金可以直接支付给对方的 kind 白名单（R33 ① ②）〔P1c：移除已删的 `listing_deposit_forfeit`〕 */
 export const FROZEN_SETTLE_KINDS: LedgerKind[] = [
-  'job_payout', 'purchase', 'trade', 'hold_forfeit', 'listing_deposit_forfeit',
+  'job_payout', 'purchase', 'trade', 'hold_forfeit',
 ];
 
 /** §5：成对出账时的受款方 kind（如买家侧 purchase 对卖家侧 sale） */
@@ -122,7 +137,6 @@ export const SETTLE_PAYEE_KIND: Partial<Record<LedgerKind, LedgerKind>> = {
   trade: 'trade',
   job_payout: 'job_payout',
   hold_forfeit: 'hold_forfeit',
-  listing_deposit_forfeit: 'listing_deposit_forfeit',
 };
 
 /** R28「状态 × 操作」矩阵（逐格判定；未列入的操作见 assertCurrencyOperable 注释） */
@@ -364,7 +378,7 @@ const PLATFORM_KIND_WHITELIST: Record<string, { credit: LedgerKind[]; debit: Led
   '-2': { credit: ['job_fee'], debit: ['commission'] },
   // R38 说明「退还 = 反向 hold_forfeit 或从 −3 transfer」；R101 却禁止平台账户用 transfer
   // ⇒ spec 内部张力，本实现取宽松侧（允许退还路径），已登记为歧义点。
-  '-3': { credit: ['hold_forfeit', 'listing_deposit_forfeit'], debit: ['hold_forfeit', 'listing_deposit_forfeit', 'transfer'] },
+  '-3': { credit: ['hold_forfeit'], debit: ['hold_forfeit', 'transfer'] },
 };
 
 export const assertPlatformAccountMutation = (uid: bigint, kind: LedgerKind, dir: 'credit' | 'debit'): void => {
@@ -1058,7 +1072,7 @@ export interface SettleFrozenInput {
   toUid: Amount;
   cid: Amount;
   amount: Amount;
-  /** R33 出账白名单：job_payout / purchase / trade / hold_forfeit / listing_deposit_forfeit */
+  /** R33 出账白名单：job_payout / purchase / trade / hold_forfeit〔P1c：移除已删的 `listing_deposit_forfeit`〕 */
   kind: LedgerKind;
   /** 受款方分录的 kind；缺省按 SETTLE_PAYEE_KIND 映射（purchase ⇒ sale） */
   payeeKind?: LedgerKind;
@@ -1079,7 +1093,7 @@ export const settleFrozen = async (input: SettleFrozenInput): Promise<LedgerOpRe
     if (!FROZEN_SETTLE_KINDS.includes(kind)) {
       throw new LedgerError('LEDGER_UNKNOWN_KIND', { kind, reason: 'NOT_IN_FROZEN_SETTLE_WHITELIST' });
     }
-    const isForfeit = kind === 'hold_forfeit' || kind === 'listing_deposit_forfeit';
+    const isForfeit = kind === 'hold_forfeit';
     const toUid = isForfeit
       ? PLATFORM_UID.FORFEIT
       : assertUserUid(input.toUid, 'toUid');

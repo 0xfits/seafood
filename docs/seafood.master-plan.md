@@ -203,6 +203,15 @@ BEGIN…COMMIT 单独 2250 / 1377 / 1478 ms
 > **排期**：P1c（进行中，动 `ledger.ts`）交回后，立即排 **P1e = 变体 B 改造**（同一文件同时只有一个写者，不得并行）。
 
 
+### 5.7 跨轮硬口径（**必须逐字进每一份 brief**）
+
+| # | 口径 | 依据（实测） |
+|---|---|---|
+| **硬1** | **引用 `user` 表必须写成 `"user"`（双引号）** | `user` 是 PostgreSQL **保留字**：`SELECT count(*) FROM user` **不报错**，而是被解析成 `current_user`、**静默返回 1 行**。实测同一时刻不加引号=1、加引号=`public."user"`=**0**（真值）。⇒ 任何出现在 `FROM`/`JOIN`/`UPDATE`/`INSERT INTO`/建表位置的裸 `user` 都是**静默错答案**。现状：`backend-ts/src` **零命中裸写法**、17 处正确加引号 ⇒ **新增代码与质检探针一律加引号**。 |
+| **硬2** | **禁 `pkill -f` / `killall`；清进程只按精确 PID** | 本机多会话共用；跨项目同名启动命令（`jinli/backend-ts` 与本项目**同为 `ts-node src/index.ts`**）已造成误停 Kevin 活站点的事故。 |
+| **硬3** | **派单里的「运行时真值」必须当场现取**，不得从文档转抄；brief 须逐字写明「若与运行时真源冲突，以真源为准并上报该冲突」 | 文档可能停在中间态：已出过 `xiai/web` → `xiai/yinsuo` → `xiai/yinyuan` 三态、而我把中间态当"真值"下达的事故。 |
+| **硬4** | 测试数据 **uid 固定 ≥ 900000**、自建币 **symbol 前缀固定**（跑完清理） | 本轮已按此完成清理（308 流水 / 27 账户 / 8 币种，判据 1 与判据 8 归零）。 |
+
 ## 6. 分期路线图
 
 每期格式：**目标 / 交付物 / 验收 AC / 主责**
@@ -313,8 +322,10 @@ Kong 实现 ──→ Neng 立即闭环质检 ──→ 过 → Jing 更新规�
 | R3-P1b（并发质检） | Neng | `docs/qa/p1-ledger-concurrency.md` — §10 R85 五条并发用例 + 判负对抗 + 并发真实性 | ✅ **已验收**（749 行；**报告被 max_iterations 截断，但结论自洽且证据链完整**）。五条用例**安全侧全部成立**：100 并发后总额守恒（drift=0 双向互证）、同键 100 并发**只落 2 条流水**（1 首次 + 8 重放，`distinct_txids=[184]`）、并发无负余额（`min(balance)>=0`）、并发 mint **恰好 1 成功**（`total_supply` 0→1 == cap）、**真实死锁 40P01 已构造**（`pg_stat_database.deadlocks` 0→1→15→17，重试后 `total_supply` 仅 +3、该键恰好 3 条 ⇒ **重试不双铸**）。**判负能力成立**：3 个注入全部被判据当场判红、3 个被 DB 守卫 `P0001` 拒绝，回滚后 6/6 回绿。并发真实性：`distinct_pids=32 / max_simultaneous_tx=32`（池=1 负例降到 1）。 |
 | R3-P1b 缺陷① | — | 连接池过载被误报为 **500 类**「实现缺陷」码 | 🔴 **真缺陷**：WS 池 `connectionTimeoutMillis=10000` 超时抛**无 `code` 的裸 `Error`**，被 `ledger-errors.ts:197` 兜底分支改写成 `LEDGER_TRANSACTION_REQUIRED`（**500**，`cause='non_pg_error'`）⇒ 过载（应 503）污染 R108 的「500 必须告警」规则、线上无法区分。已派 P1c 修。 |
 | R3-P1b 待裁定② | — | 「100 并发全部成功」字面口径 vs 实测单笔 `transfer` **3.3–4.4s** | ⚠️ **架构问题，已升级给 Kevin**（见 §5.5 延迟分析）。实测：本地↔Neon 每语句 RTT **190–290ms**，一笔 transfer 需 ~10–14 条语句 ⇒ 单笔 3.3–4.4s、连 `BEGIN…COMMIT` 都 1.4–2.3s；而 `lock_timeout=3s` 只能容纳「再等 1 个持有者」⇒ **同一行有效并发上限 ≈ 2**。 |
-| R3-P1c（P1 收口） | Kong | 修连接池过载错误分类（503）+ kind 关闭集与 spec 同步（21 个，需 `0003_*.sql` 改 enum）+ 真库测试数据清理 | 🔄 跑中 |
-| R3-P1d | Neng | 复验 P1c（错误分类可判负 + enum 与 spec 逐字一致 + 清理后判据 1/8 干净） | ⏳ 排队 |
+| R3-P1c（P1 收口） | Kong | 修连接池过载错误分类 + kind 关闭集 22→20 + 真库测试数据清理 | ✅ **已验收**（提交待入）。Zang 独立复核：`tsc --noEmit` **0 error**；migrate **幂等**（0001/0002/0003 全 `skipped`，`schema_version=0003`）；**真库已归零**（`ledger_entry=0` / `account=4` 仅平台账户 `-1,-2,-3,0` / `currency=1` 仅 `$` / `ledger_owner=4`）；`kind` 白名单 **20 值**且两删值均不存在；**7 个触发器全部 `tgenabled='O'`**；归类矩阵自检 `any_bare_error_in_500_class=false`、`fallback_rows_missing_reason=[]`。**错误分类可判负**：改前 62/62 与 93/93 落 `LEDGER_TRANSACTION_REQUIRED`(500) ⇒ 改后 75/75 与 92/93 落 `LEDGER_TX_TIMEOUT`(**503**, `reason=pool_connection_timeout`)，**500 类归零**。清理脚本**自带判负**（`PURGE_FALSIFY_FLOOR=-99` ⇒ exit 3 中止并列红线命中；加 `--apply` ⇒ exit 4 拒绝）。⚠️ 它**推翻了派单的一个错误前提**：本库 `kind` 是 **`text` + 同名 CHECK 约束**、**不存在** PG enum 类型 ⇒ 按真实 schema 做约束替换（我误信了 spec 措辞，它的处理是对的）。 |
+| R3-P1d | — | P1c 的独立质检 | ⏭️ **Zang 决定跳过独立轮**：P1c 的三项产物里，**写路径很快会被 P1e 整体重写**，而 P1c 自带的判负取证（含脚本自证）已足够；Zang 已亲跑 tsc/migrate/真库盘点/归类矩阵四组读数。分类映射逻辑在 P1e 后仍存活 ⇒ **其独立复验并入 P1e 的质检单**。 |
+| R3-P1e（**变体 B 改造**） | Kong | 记账压进 DB 函数 `ledger_post_event(jsonb)`（D10） | 🔄 跑中 |
+| R3-P1f（spec 同步） | Jing | `docs/ledger.spec.md` v0.3：kind 22→20 + 非 PG 错误归类 + 清理登记（19 行清单） | 🔄 跑中 |
 
 **并行前端投入**：`frontend/node_modules` 缺失已补（`npm install`，548 包，vite 5.4.20）。
 
@@ -350,3 +361,4 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.7 | 2026-09-27 | **P0 全部收口**：收口单入库（`ca3c2e3`）、**ctrl 面板注册 seafood 完成 16/16**、`frontend/node_modules` 补装；派 R3-P1a（账本服务层）与 R3-P1b（账本质检） |
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
+| v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |

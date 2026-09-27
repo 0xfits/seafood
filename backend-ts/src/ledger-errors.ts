@@ -143,10 +143,71 @@ interface PgErrorLike {
 const pgCode = (e: unknown): string => String((e as PgErrorLike)?.code ?? '');
 const pgConstraint = (e: unknown): string => String((e as PgErrorLike)?.constraint ?? '');
 const pgMessage = (e: unknown): string => String((e as PgErrorLike)?.message ?? '');
+const errName = (e: unknown): string => String((e as { name?: unknown })?.name ?? 'Error').slice(0, 64);
+
+// ---------------------------------------------------------------------------
+// P1c 收口（Zang 裁定）：**非 PG 错误**（驱动级 / 无 `code` 的裸 Error）单独归类
+// ---------------------------------------------------------------------------
+// 实测缺陷（P1b §2.4）：`@neondatabase/serverless` 的 WS 连接池在并发超过池 `max`
+// （`db.ts` 默认 4）时，抛开一个**无 `code`** 的裸 `Error`（message = `timeout exceeded
+// when trying to connect`，源自 `connectionTimeoutMillis`）。该错误原先被本文件的 `default`
+// 兜底统一改写成 `LEDGER_TRANSACTION_REQUIRED`（500 类「实现缺陷」）——
+// 于是**过载（503「暂时不可用、可重试」）被误报成 500**，污染 R108 的「500 必须告警」规则。
+//
+// 裁定（逐字执行）：
+//   ① 不新增错误码（§14.1 关闭集不动）；连接/拿连接超时一律归 **`LEDGER_TX_TIMEOUT`（503）**
+//      + 可机读 `details.reason = 'pool_connection_timeout'`（语义一致：系统繁忙、可重试）；
+//   ② 其余无 `code` 的裸错误仍可保留 500 类语义，但 `details.reason` 必须写明可机读原因
+//      （不得只留 `cause = 'non_pg_error'`）。
+
+/** 连接池「拿连接」超时/耗尽（驱动原文，pg-pool 与 @neondatabase/serverless 共用此措辞） */
+const POOL_CONNECTION_TIMEOUT_RE =
+  /timeout exceeded when trying to connect|connection (acquisition )?timeout|timed out (while )?(acquiring|waiting for) (a )?connection|pool (is )?(full|exhausted)/i;
+
+/** 驱动 / OS 级瞬时错误码（非 PG SQLSTATE）——同属 503「暂时不可用」语义 */
+const DRIVER_TRANSIENT_CODES = new Set([
+  'ECONNREFUSED', 'ECONNRESET', 'ENOTFOUND', 'ETIMEDOUT', 'EHOSTUNREACH', 'ENETUNREACH', 'EPIPE', 'EAI_AGAIN',
+]);
+
+/** 非 PG 错误的机器可读原因（R107：`details` 只放非敏感标量，值是枚举而非中文自由文本） */
+export type NonPgErrorReason =
+  /** 连接池过载 / 拿连接超时 ⇒ `LEDGER_TX_TIMEOUT`（503） */
+  | 'pool_connection_timeout'
+  /** 驱动 / OS 连接级错误 ⇒ `LEDGER_TX_TIMEOUT`（503） */
+  | 'driver_connection_error'
+  /** 其余无 `code` 的裸错误 ⇒ 仍 500 类，但带 reason/error_name */
+  | 'unclassified_non_pg_error'
+  /** 带非 SQLSTATE 码且未识别的错误 ⇒ 仍 500 类 */
+  | 'unclassified_driver_error';
+
+/** PG SQLSTATE 形状（5 位大写字母/数字），用于把 PG 错误与非 PG 错误分开 */
+const isSqlstate = (code: string): boolean => /^[0-9A-Z]{5}$/.test(code);
+
+/**
+ * 分类「非 PG 错误」。返回 `null` ⇒ 是 PG SQLSTATE 或账本命名码，交给下面的 switch / 命名分支。
+ * 导出以便质检脚本直接取证分类逻辑（不引入副作用）。
+ */
+export const classifyNonPgError = (e: unknown): NonPgErrorReason | null => {
+  const code = pgCode(e);
+  const message = pgMessage(e);
+  if (code.startsWith('LEDGER_') || isSqlstate(code)) return null;
+  if (POOL_CONNECTION_TIMEOUT_RE.test(message)) return 'pool_connection_timeout';
+  if (DRIVER_TRANSIENT_CODES.has(code)
+      || /ECONNREFUSED|ECONNRESET|ENOTFOUND|ETIMEDOUT|socket hang up|connection refused|connection closed|connection terminated/i.test(message)) {
+    return 'driver_connection_error';
+  }
+  return code ? 'unclassified_driver_error' : 'unclassified_non_pg_error';
+};
+
+/** 归入 503 类的非 PG 原因（「暂时不可用、可重试」） */
+const TRANSIENT_NON_PG_REASONS: NonPgErrorReason[] = ['pool_connection_timeout', 'driver_connection_error'];
 
 /**
  * 把 DB 层抛出的原始错误归类到 §14 错误码。
  * 目的：`500` 四兄弟（R108）能真正落到「代码缺陷」语义上，而不是裸 pg 错误冒到路由层。
+ *
+ * P1c 收口后新增前置分支：**非 PG 错误**（驱动级 / 无 `code` 的裸 Error）单独归类，
+ * 不再无差别落入 500 类兜底（见文件上方「P1c 收口」注释块）。
  */
 export const normalizeLedgerError = (e: unknown): LedgerError => {
   if (isLedgerError(e)) return e;
@@ -158,6 +219,19 @@ export const normalizeLedgerError = (e: unknown): LedgerError => {
   if (code === 'LEDGER_LOCK_TIMEOUT' || code === 'LEDGER_TX_TIMEOUT' || code === 'LEDGER_DEADLOCK_RETRY_EXHAUSTED'
       || code === 'LEDGER_TRANSACTION_REQUIRED') {
     return new LedgerError(code as LedgerErrorCode);
+  }
+
+  // --- P1c：驱动级 / 非 PG 错误先归类（绝不再让「过载」冒充 500 实现缺陷）
+  const nonPgReason = classifyNonPgError(e);
+  if (nonPgReason !== null && TRANSIENT_NON_PG_REASONS.includes(nonPgReason)) {
+    // 连接池过载 / 拿连接超时 / 驱动连接级错误 ⇒ 503「暂时不可用、可重试」
+    // 裁定：不新增错误码，统一借 LEDGER_TX_TIMEOUT（503）+ 可机读 reason
+    return new LedgerError('LEDGER_TX_TIMEOUT', {
+      reason: nonPgReason,
+      ...(nonPgReason === 'pool_connection_timeout'
+        ? { source: 'connection_pool' }
+        : { error_code: code || 'none' }),
+    });
   }
 
   switch (code) {
@@ -193,8 +267,22 @@ export const normalizeLedgerError = (e: unknown): LedgerError => {
       break;
   }
 
-  // 兜底：非账本错误不外泄原始信息（R107），但仍要能被上层区分
+  // 兜底：非账本错误不外泄原始信息（R107），但仍要能被上层区分。
+  // P1c 收口：**必须**带可机读 `reason`（不得只留 `cause='non_pg_error'`），并登记错误形态
+  // （name / 原始 code），否则 500 告警（R108）无法定位「哪个不变量被破坏」。
+  if (nonPgReason !== null) {
+    return new LedgerError('LEDGER_TRANSACTION_REQUIRED', {
+      cause: 'non_pg_error',
+      reason: nonPgReason,
+      error_name: errName(e),
+      error_code: code || 'none',
+    });
+  }
+
   return new LedgerError('LEDGER_TRANSACTION_REQUIRED', {
     cause: code || 'non_pg_error',
+    reason: 'unclassified_pg_error',
+    error_name: errName(e),
+    pg_code: code || 'none',
   });
 };
