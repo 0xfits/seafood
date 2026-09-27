@@ -1,0 +1,2210 @@
+{
+  "run": "20260927T103933Z",
+  "ts": "2026-09-27T10:39:33.403Z",
+  "script": "scripts/p2d-00-commission-m-criteria.ts",
+  "assert_mode": true,
+  "0_setup": {
+    "currency": {
+      "cid": "142",
+      "symbol": "p1sP2D",
+      "decimals": 0,
+      "note": "绝不触碰 cid=1"
+    },
+    "mint": {
+      "ok": true,
+      "err": null
+    },
+    "binds": [
+      {
+        "edge": "951109->951110",
+        "ok": true,
+        "depth": "1"
+      },
+      {
+        "edge": "951108->951109",
+        "ok": true,
+        "depth": "2"
+      },
+      {
+        "edge": "951107->951108",
+        "ok": true,
+        "depth": "3"
+      },
+      {
+        "edge": "951106->951107",
+        "ok": true,
+        "depth": "4"
+      },
+      {
+        "edge": "951105->951106",
+        "ok": true,
+        "depth": "5"
+      },
+      {
+        "edge": "951104->951105",
+        "ok": true,
+        "depth": "6"
+      },
+      {
+        "edge": "951103->951104",
+        "ok": true,
+        "depth": "7"
+      },
+      {
+        "edge": "951102->951103",
+        "ok": true,
+        "depth": "8"
+      },
+      {
+        "edge": "951101->951102",
+        "ok": true,
+        "depth": "9"
+      },
+      {
+        "edge": "951002->951101",
+        "ok": true,
+        "depth": "10"
+      },
+      {
+        "edge": "951112->951113",
+        "ok": true,
+        "depth": "1"
+      },
+      {
+        "edge": "951111->951112",
+        "ok": true,
+        "depth": "2"
+      },
+      {
+        "edge": "951003->951111",
+        "ok": true,
+        "depth": "3"
+      },
+      {
+        "edge": "951121->951122",
+        "ok": true,
+        "depth": "1"
+      },
+      {
+        "edge": "951005->951121",
+        "ok": true,
+        "depth": "2"
+      },
+      {
+        "edge": "951131->951132",
+        "ok": true,
+        "depth": "1"
+      },
+      {
+        "edge": "951006->951131",
+        "ok": true,
+        "depth": "2"
+      }
+    ],
+    "bind_failures": 0,
+    "seed_policy": [
+      {
+        "policy_id": "1",
+        "fee_rate_bp": 100,
+        "levels": 10,
+        "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+        "effective_from": "1970-01-01 00:00:00+00"
+      },
+      {
+        "policy_id": "20",
+        "fee_rate_bp": 500,
+        "levels": 9,
+        "weights_bp": "{1000,1000,1000,1000,1000,1000,1000,1000,1000}",
+        "effective_from": "2026-09-27 10:25:41.081836+00"
+      },
+      {
+        "policy_id": "21",
+        "fee_rate_bp": 100,
+        "levels": 2,
+        "weights_bp": "{2500,2500}",
+        "effective_from": "2026-09-27 10:25:45.960436+00"
+      },
+      {
+        "policy_id": "22",
+        "fee_rate_bp": 100,
+        "levels": 10,
+        "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+        "effective_from": "2026-09-27 10:25:48.409564+00"
+      },
+      {
+        "policy_id": "23",
+        "fee_rate_bp": 500,
+        "levels": 9,
+        "weights_bp": "{1000,1000,1000,1000,1000,1000,1000,1000,1000}",
+        "effective_from": "2026-09-27 10:28:11.373321+00"
+      },
+      {
+        "policy_id": "24",
+        "fee_rate_bp": 100,
+        "levels": 2,
+        "weights_bp": "{2500,2500}",
+        "effective_from": "2026-09-27 10:28:16.618299+00"
+      },
+      {
+        "policy_id": "25",
+        "fee_rate_bp": 100,
+        "levels": 10,
+        "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+        "effective_from": "2026-09-27 10:28:19.249653+00"
+      },
+      {
+        "policy_id": "26",
+        "fee_rate_bp": 500,
+        "levels": 9,
+        "weights_bp": "{1000,1000,1000,1000,1000,1000,1000,1000,1000}",
+        "effective_from": "2026-09-27 10:29:39.108009+00"
+      },
+      {
+        "policy_id": "27",
+        "fee_rate_bp": 100,
+        "levels": 2,
+        "weights_bp": "{2500,2500}",
+        "effective_from": "2026-09-27 10:29:44.252091+00"
+      },
+      {
+        "policy_id": "28",
+        "fee_rate_bp": 100,
+        "levels": 10,
+        "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+        "effective_from": "2026-09-27 10:29:47.07447+00"
+      },
+      {
+        "policy_id": "29",
+        "fee_rate_bp": 500,
+        "levels": 9,
+        "weights_bp": "{1000,1000,1000,1000,1000,1000,1000,1000,1000}",
+        "effective_from": "2026-09-27 10:38:07.115576+00"
+      },
+      {
+        "policy_id": "30",
+        "fee_rate_bp": 100,
+        "levels": 2,
+        "weights_bp": "{2500,2500}",
+        "effective_from": "2026-09-27 10:38:11.845112+00"
+      },
+      {
+        "policy_id": "31",
+        "fee_rate_bp": 100,
+        "levels": 10,
+        "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+        "effective_from": "2026-09-27 10:38:14.693873+00"
+      }
+    ]
+  },
+  "0b_holds": {
+    "c1": {
+      "ok": true,
+      "err": null
+    },
+    "c2": {
+      "ok": true,
+      "err": null
+    },
+    "c3": {
+      "ok": true,
+      "err": null
+    },
+    "c4": {
+      "ok": true,
+      "err": null
+    },
+    "c5": {
+      "ok": true,
+      "err": null
+    },
+    "c6": {
+      "ok": true,
+      "err": null
+    },
+    "c7": {
+      "ok": true,
+      "err": null
+    }
+  },
+  "1_c1_full_depth": {
+    "tag": "c1",
+    "job_id": "951790505573404",
+    "idempotency_key": "biz:job:settle:951790505573404",
+    "ok": true,
+    "replay": false,
+    "txid": "3626",
+    "plan": {
+      "gross": "10000",
+      "fee": "100",
+      "net": "9900",
+      "pool": "100",
+      "chain_depth": 10,
+      "M": 10,
+      "N": 10,
+      "W": "10000",
+      "weights_bp": [
+        "3000",
+        "2000",
+        "1500",
+        "1000",
+        "800",
+        "600",
+        "500",
+        "300",
+        "200",
+        "100"
+      ],
+      "fee_credit_uid": "-2",
+      "zero_amount": false,
+      "no_referrer": false,
+      "layers": [
+        {
+          "L": 1,
+          "uid": "951101",
+          "w": "3000",
+          "q": "30",
+          "r": "0",
+          "x": "30"
+        },
+        {
+          "L": 2,
+          "uid": "951102",
+          "w": "2000",
+          "q": "20",
+          "r": "0",
+          "x": "20"
+        },
+        {
+          "L": 3,
+          "uid": "951103",
+          "w": "1500",
+          "q": "15",
+          "r": "0",
+          "x": "15"
+        },
+        {
+          "L": 4,
+          "uid": "951104",
+          "w": "1000",
+          "q": "10",
+          "r": "0",
+          "x": "10"
+        },
+        {
+          "L": 5,
+          "uid": "951105",
+          "w": "800",
+          "q": "8",
+          "r": "0",
+          "x": "8"
+        },
+        {
+          "L": 6,
+          "uid": "951106",
+          "w": "600",
+          "q": "6",
+          "r": "0",
+          "x": "6"
+        },
+        {
+          "L": 7,
+          "uid": "951107",
+          "w": "500",
+          "q": "5",
+          "r": "0",
+          "x": "5"
+        },
+        {
+          "L": 8,
+          "uid": "951108",
+          "w": "300",
+          "q": "3",
+          "r": "0",
+          "x": "3"
+        },
+        {
+          "L": 9,
+          "uid": "951109",
+          "w": "200",
+          "q": "2",
+          "r": "0",
+          "x": "2"
+        },
+        {
+          "L": 10,
+          "uid": "951110",
+          "w": "100",
+          "q": "1",
+          "r": "0",
+          "x": "1"
+        }
+      ],
+      "split": {
+        "W": "10000",
+        "D": "0",
+        "plus_one_levels": [],
+        "sum_x": "100",
+        "sum_ok": true
+      }
+    },
+    "entry_count": 24,
+    "derived_keys": [
+      "biz:job:settle:951790505573404",
+      "biz:job:settle:951790505573404#2",
+      "biz:job:settle:951790505573404#3",
+      "biz:job:settle:951790505573404#4",
+      "biz:job:settle:951790505573404#5",
+      "biz:job:settle:951790505573404#6",
+      "biz:job:settle:951790505573404#7",
+      "biz:job:settle:951790505573404#8",
+      "biz:job:settle:951790505573404#9",
+      "biz:job:settle:951790505573404#10",
+      "biz:job:settle:951790505573404#11",
+      "biz:job:settle:951790505573404#12",
+      "biz:job:settle:951790505573404#13",
+      "biz:job:settle:951790505573404#14",
+      "biz:job:settle:951790505573404#15",
+      "biz:job:settle:951790505573404#16",
+      "biz:job:settle:951790505573404#17",
+      "biz:job:settle:951790505573404#18",
+      "biz:job:settle:951790505573404#19",
+      "biz:job:settle:951790505573404#20",
+      "biz:job:settle:951790505573404#21",
+      "biz:job:settle:951790505573404#22",
+      "biz:job:settle:951790505573404#23",
+      "biz:job:settle:951790505573404#24"
+    ],
+    "app_assertions": {
+      "entry_count": 24,
+      "account_count": 13,
+      "sum_delta_frozen": "0",
+      "commission_rows": 20,
+      "sum_commission_credit": "100",
+      "sum_x_equals_pool": true
+    },
+    "facts": {
+      "idempotency_key": "biz:job:settle:951790505573404",
+      "rows_total": "24",
+      "root_rows": "1",
+      "commission_rows": "20",
+      "payout_rows": "2",
+      "job_fee_rows": "2",
+      "pool_in": "100",
+      "commission_out": "100",
+      "minus2_net": "0",
+      "minus1_net": "0",
+      "minus1_fee_in": "0",
+      "employer_frozen_out": "10000",
+      "employer_delta": "0",
+      "worker_got": "9900",
+      "ev_net_sum": "0",
+      "credit_rows": "10",
+      "distinct_beneficiaries": "10",
+      "minus2_commission_payer_rows": "1",
+      "commission_uid_delta": "-2:-30,951101:30,-2:-20,951102:20,-2:-15,951103:15,-2:-10,951104:10,-2:-8,951105:8,-2:-6,951106:6,-2:-5,951107:5,-2:-3,951108:3,-2:-2,951109:2,-2:-1,951110:1",
+      "key_family_net_by_root": "0",
+      "key_family_net_by_key_arithmetic": "0",
+      "derived_keys": "biz:job:settle:951790505573404,biz:job:settle:951790505573404#2,biz:job:settle:951790505573404#3,biz:job:settle:951790505573404#4,biz:job:settle:951790505573404#5,biz:job:settle:951790505573404#6,biz:job:settle:951790505573404#7,biz:job:settle:951790505573404#8,biz:job:settle:951790505573404#9,biz:job:settle:951790505573404#10,biz:job:settle:951790505573404#11,biz:job:settle:951790505573404#12,biz:job:settle:951790505573404#13,biz:job:settle:951790505573404#14,biz:job:settle:951790505573404#15,biz:job:settle:951790505573404#16,biz:job:settle:951790505573404#17,biz:job:settle:951790505573404#18,biz:job:settle:951790505573404#19,biz:job:settle:951790505573404#20,biz:job:settle:951790505573404#21,biz:job:settle:951790505573404#22,biz:job:settle:951790505573404#23,biz:job:settle:951790505573404#24"
+    },
+    "criteria": {
+      "m1_pool": "100",
+      "m1_paid": "100",
+      "m1_sum_equals_pool": true,
+      "m1_pool_in_equals_fee": true,
+      "m2_gross_from_frozen": "10000",
+      "m2_net_equals_gross_minus_fee": true,
+      "m2_sum_ok": true,
+      "m2_employer_balance_unchanged": true,
+      "m3_minus2_net": "0",
+      "m3_a_net_zero": true,
+      "m3_c_no_referrer": true,
+      "m3_fee_credit_to_minus1": true,
+      "shape_rows_total": "24",
+      "shape_rows_expected": "24",
+      "shape_rows_match": true,
+      "shape_root_rows_exactly_1": true,
+      "shape_commission_rows": "20",
+      "shape_commission_rows_expected": "20",
+      "shape_commission_ok": true,
+      "shape_job_fee_rows": "2",
+      "shape_job_fee_expected": "2",
+      "shape_job_fee_ok": true,
+      "m4_credit_rows": "10",
+      "m4_distinct_beneficiaries": "10",
+      "m4_payer_rows_distinct": "1",
+      "m4_layers_expected": "10",
+      "m4_credit_rows_ok": true,
+      "m4_distinct_ok": true,
+      "m4_payer_single_account": true,
+      "m8_ev_sum": "0",
+      "m8_ev_sum_zero": true,
+      "m8_key_family_root_zero": true,
+      "m8_key_family_arithmetic_zero": true,
+      "attribution_uid_delta": "-2:-30,951101:30,-2:-20,951102:20,-2:-15,951103:15,-2:-10,951104:10,-2:-8,951105:8,-2:-6,951106:6,-2:-5,951107:5,-2:-3,951108:3,-2:-2,951109:2,-2:-1,951110:1",
+      "attribution_matches_plan": true,
+      "derived_keys": "biz:job:settle:951790505573404,biz:job:settle:951790505573404#2,biz:job:settle:951790505573404#3,biz:job:settle:951790505573404#4,biz:job:settle:951790505573404#5,biz:job:settle:951790505573404#6,biz:job:settle:951790505573404#7,biz:job:settle:951790505573404#8,biz:job:settle:951790505573404#9,biz:job:settle:951790505573404#10,biz:job:settle:951790505573404#11,biz:job:settle:951790505573404#12,biz:job:settle:951790505573404#13,biz:job:settle:951790505573404#14,biz:job:settle:951790505573404#15,biz:job:settle:951790505573404#16,biz:job:settle:951790505573404#17,biz:job:settle:951790505573404#18,biz:job:settle:951790505573404#19,biz:job:settle:951790505573404#20,biz:job:settle:951790505573404#21,biz:job:settle:951790505573404#22,biz:job:settle:951790505573404#23,biz:job:settle:951790505573404#24"
+    },
+    "expected_custom": {
+      "x_equals_hand_computed": true
+    },
+    "fingerprint": "d853f34319a6ae87d3503bb034179737a6fe3b8a66b9c2d3bd04d56aa5bd209c",
+    "payload_for_replay": {
+      "op": "entries",
+      "idempotency_key": "biz:job:settle:951790505573404",
+      "request_fingerprint": "d853f34319a6ae87d3503bb034179737a6fe3b8a66b9c2d3bd04d56aa5bd209c",
+      "ref_type": "job",
+      "ref_id": "951790505573404",
+      "memo": "招工验收结算 job=951790505573404",
+      "entries": [
+        {
+          "uid": "951001",
+          "cid": "142",
+          "kind": "job_payout",
+          "delta": "0",
+          "frozen_delta": "-9900",
+          "memo": "招工验收结算 job=951790505573404",
+          "ref_type": "job",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "951002",
+          "cid": "142",
+          "kind": "job_payout",
+          "delta": "9900",
+          "frozen_delta": "0",
+          "memo": "招工验收结算 job=951790505573404（打工人到手）",
+          "ref_type": "job",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "951001",
+          "cid": "142",
+          "kind": "job_fee",
+          "delta": "0",
+          "frozen_delta": "-100",
+          "memo": "招工验收结算 job=951790505573404（手续费）",
+          "ref_type": "job",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "-2",
+          "cid": "142",
+          "kind": "job_fee",
+          "delta": "100",
+          "frozen_delta": "0",
+          "memo": "招工验收结算 job=951790505573404（手续费入 佣金池）",
+          "ref_type": "job",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "-2",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "-30",
+          "frozen_delta": "0",
+          "memo": "佣金出池 L=1",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "951101",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "30",
+          "frozen_delta": "0",
+          "memo": "佣金第 1 层",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "-2",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "-20",
+          "frozen_delta": "0",
+          "memo": "佣金出池 L=2",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "951102",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "20",
+          "frozen_delta": "0",
+          "memo": "佣金第 2 层",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "-2",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "-15",
+          "frozen_delta": "0",
+          "memo": "佣金出池 L=3",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "951103",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "15",
+          "frozen_delta": "0",
+          "memo": "佣金第 3 层",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "-2",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "-10",
+          "frozen_delta": "0",
+          "memo": "佣金出池 L=4",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "951104",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "10",
+          "frozen_delta": "0",
+          "memo": "佣金第 4 层",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "-2",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "-8",
+          "frozen_delta": "0",
+          "memo": "佣金出池 L=5",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "951105",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "8",
+          "frozen_delta": "0",
+          "memo": "佣金第 5 层",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "-2",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "-6",
+          "frozen_delta": "0",
+          "memo": "佣金出池 L=6",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "951106",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "6",
+          "frozen_delta": "0",
+          "memo": "佣金第 6 层",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "-2",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "-5",
+          "frozen_delta": "0",
+          "memo": "佣金出池 L=7",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "951107",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "5",
+          "frozen_delta": "0",
+          "memo": "佣金第 7 层",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "-2",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "-3",
+          "frozen_delta": "0",
+          "memo": "佣金出池 L=8",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "951108",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "3",
+          "frozen_delta": "0",
+          "memo": "佣金第 8 层",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "-2",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "-2",
+          "frozen_delta": "0",
+          "memo": "佣金出池 L=9",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "951109",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "2",
+          "frozen_delta": "0",
+          "memo": "佣金第 9 层",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "-2",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "-1",
+          "frozen_delta": "0",
+          "memo": "佣金出池 L=10",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573404"
+        },
+        {
+          "uid": "951110",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "1",
+          "frozen_delta": "0",
+          "memo": "佣金第 10 层",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573404"
+        }
+      ]
+    }
+  },
+  "2_c2_short_chain": {
+    "tag": "c2",
+    "job_id": "951790505573405",
+    "idempotency_key": "biz:job:settle:951790505573405",
+    "ok": true,
+    "replay": false,
+    "txid": "3650",
+    "plan": {
+      "gross": "1000000",
+      "fee": "10000",
+      "net": "990000",
+      "pool": "10000",
+      "chain_depth": 3,
+      "M": 3,
+      "N": 3,
+      "W": "6500",
+      "weights_bp": [
+        "3000",
+        "2000",
+        "1500"
+      ],
+      "fee_credit_uid": "-2",
+      "zero_amount": false,
+      "no_referrer": false,
+      "layers": [
+        {
+          "L": 1,
+          "uid": "951111",
+          "w": "3000",
+          "q": "4615",
+          "r": "2500",
+          "x": "4615"
+        },
+        {
+          "L": 2,
+          "uid": "951112",
+          "w": "2000",
+          "q": "3076",
+          "r": "6000",
+          "x": "3077"
+        },
+        {
+          "L": 3,
+          "uid": "951113",
+          "w": "1500",
+          "q": "2307",
+          "r": "4500",
+          "x": "2308"
+        }
+      ],
+      "split": {
+        "W": "6500",
+        "D": "2",
+        "plus_one_levels": [
+          2,
+          3
+        ],
+        "sum_x": "10000",
+        "sum_ok": true
+      }
+    },
+    "entry_count": 10,
+    "derived_keys": [
+      "biz:job:settle:951790505573405",
+      "biz:job:settle:951790505573405#2",
+      "biz:job:settle:951790505573405#3",
+      "biz:job:settle:951790505573405#4",
+      "biz:job:settle:951790505573405#5",
+      "biz:job:settle:951790505573405#6",
+      "biz:job:settle:951790505573405#7",
+      "biz:job:settle:951790505573405#8",
+      "biz:job:settle:951790505573405#9",
+      "biz:job:settle:951790505573405#10"
+    ],
+    "app_assertions": {
+      "entry_count": 10,
+      "account_count": 6,
+      "sum_delta_frozen": "0",
+      "commission_rows": 6,
+      "sum_commission_credit": "10000",
+      "sum_x_equals_pool": true
+    },
+    "facts": {
+      "idempotency_key": "biz:job:settle:951790505573405",
+      "rows_total": "10",
+      "root_rows": "1",
+      "commission_rows": "6",
+      "payout_rows": "2",
+      "job_fee_rows": "2",
+      "pool_in": "10000",
+      "commission_out": "10000",
+      "minus2_net": "0",
+      "minus1_net": "0",
+      "minus1_fee_in": "0",
+      "employer_frozen_out": "1000000",
+      "employer_delta": "0",
+      "worker_got": "990000",
+      "ev_net_sum": "0",
+      "credit_rows": "3",
+      "distinct_beneficiaries": "3",
+      "minus2_commission_payer_rows": "1",
+      "commission_uid_delta": "-2:-4615,951111:4615,-2:-3077,951112:3077,-2:-2308,951113:2308",
+      "key_family_net_by_root": "0",
+      "key_family_net_by_key_arithmetic": "0",
+      "derived_keys": "biz:job:settle:951790505573405,biz:job:settle:951790505573405#2,biz:job:settle:951790505573405#3,biz:job:settle:951790505573405#4,biz:job:settle:951790505573405#5,biz:job:settle:951790505573405#6,biz:job:settle:951790505573405#7,biz:job:settle:951790505573405#8,biz:job:settle:951790505573405#9,biz:job:settle:951790505573405#10"
+    },
+    "criteria": {
+      "m1_pool": "10000",
+      "m1_paid": "10000",
+      "m1_sum_equals_pool": true,
+      "m1_pool_in_equals_fee": true,
+      "m2_gross_from_frozen": "1000000",
+      "m2_net_equals_gross_minus_fee": true,
+      "m2_sum_ok": true,
+      "m2_employer_balance_unchanged": true,
+      "m3_minus2_net": "0",
+      "m3_a_net_zero": true,
+      "m3_c_no_referrer": true,
+      "m3_fee_credit_to_minus1": true,
+      "shape_rows_total": "10",
+      "shape_rows_expected": "10",
+      "shape_rows_match": true,
+      "shape_root_rows_exactly_1": true,
+      "shape_commission_rows": "6",
+      "shape_commission_rows_expected": "6",
+      "shape_commission_ok": true,
+      "shape_job_fee_rows": "2",
+      "shape_job_fee_expected": "2",
+      "shape_job_fee_ok": true,
+      "m4_credit_rows": "3",
+      "m4_distinct_beneficiaries": "3",
+      "m4_payer_rows_distinct": "1",
+      "m4_layers_expected": "3",
+      "m4_credit_rows_ok": true,
+      "m4_distinct_ok": true,
+      "m4_payer_single_account": true,
+      "m8_ev_sum": "0",
+      "m8_ev_sum_zero": true,
+      "m8_key_family_root_zero": true,
+      "m8_key_family_arithmetic_zero": true,
+      "attribution_uid_delta": "-2:-4615,951111:4615,-2:-3077,951112:3077,-2:-2308,951113:2308",
+      "attribution_matches_plan": true,
+      "derived_keys": "biz:job:settle:951790505573405,biz:job:settle:951790505573405#2,biz:job:settle:951790505573405#3,biz:job:settle:951790505573405#4,biz:job:settle:951790505573405#5,biz:job:settle:951790505573405#6,biz:job:settle:951790505573405#7,biz:job:settle:951790505573405#8,biz:job:settle:951790505573405#9,biz:job:settle:951790505573405#10"
+    },
+    "expected_custom": {
+      "x_equals_spec_example2": true,
+      "renormalized_denominator_W": "6500",
+      "W_is_sum_of_existing_levels_not_10000": true
+    },
+    "fingerprint": "67e1184bb0ae590a0b3e5b8b30917f30ca6754b70511090b24fdeb34e12d2e2f",
+    "payload_for_replay": {
+      "op": "entries",
+      "idempotency_key": "biz:job:settle:951790505573405",
+      "request_fingerprint": "67e1184bb0ae590a0b3e5b8b30917f30ca6754b70511090b24fdeb34e12d2e2f",
+      "ref_type": "job",
+      "ref_id": "951790505573405",
+      "memo": "招工验收结算 job=951790505573405",
+      "entries": [
+        {
+          "uid": "951001",
+          "cid": "142",
+          "kind": "job_payout",
+          "delta": "0",
+          "frozen_delta": "-990000",
+          "memo": "招工验收结算 job=951790505573405",
+          "ref_type": "job",
+          "ref_id": "951790505573405"
+        },
+        {
+          "uid": "951003",
+          "cid": "142",
+          "kind": "job_payout",
+          "delta": "990000",
+          "frozen_delta": "0",
+          "memo": "招工验收结算 job=951790505573405（打工人到手）",
+          "ref_type": "job",
+          "ref_id": "951790505573405"
+        },
+        {
+          "uid": "951001",
+          "cid": "142",
+          "kind": "job_fee",
+          "delta": "0",
+          "frozen_delta": "-10000",
+          "memo": "招工验收结算 job=951790505573405（手续费）",
+          "ref_type": "job",
+          "ref_id": "951790505573405"
+        },
+        {
+          "uid": "-2",
+          "cid": "142",
+          "kind": "job_fee",
+          "delta": "10000",
+          "frozen_delta": "0",
+          "memo": "招工验收结算 job=951790505573405（手续费入 佣金池）",
+          "ref_type": "job",
+          "ref_id": "951790505573405"
+        },
+        {
+          "uid": "-2",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "-4615",
+          "frozen_delta": "0",
+          "memo": "佣金出池 L=1",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573405"
+        },
+        {
+          "uid": "951111",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "4615",
+          "frozen_delta": "0",
+          "memo": "佣金第 1 层",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573405"
+        },
+        {
+          "uid": "-2",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "-3077",
+          "frozen_delta": "0",
+          "memo": "佣金出池 L=2",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573405"
+        },
+        {
+          "uid": "951112",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "3077",
+          "frozen_delta": "0",
+          "memo": "佣金第 2 层",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573405"
+        },
+        {
+          "uid": "-2",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "-2308",
+          "frozen_delta": "0",
+          "memo": "佣金出池 L=3",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573405"
+        },
+        {
+          "uid": "951113",
+          "cid": "142",
+          "kind": "commission",
+          "delta": "2308",
+          "frozen_delta": "0",
+          "memo": "佣金第 3 层",
+          "ref_type": "commission_payout",
+          "ref_id": "951790505573405"
+        }
+      ]
+    }
+  },
+  "3_c3_no_referrer": {
+    "tag": "c3",
+    "job_id": "951790505573406",
+    "idempotency_key": "biz:job:settle:951790505573406",
+    "ok": true,
+    "replay": false,
+    "txid": "3660",
+    "plan": {
+      "gross": "100",
+      "fee": "1",
+      "net": "99",
+      "pool": "1",
+      "chain_depth": 0,
+      "M": 0,
+      "N": 0,
+      "W": "0",
+      "weights_bp": [],
+      "fee_credit_uid": "-1",
+      "zero_amount": false,
+      "no_referrer": true,
+      "layers": [],
+      "split": null
+    },
+    "entry_count": 4,
+    "derived_keys": [
+      "biz:job:settle:951790505573406",
+      "biz:job:settle:951790505573406#2",
+      "biz:job:settle:951790505573406#3",
+      "biz:job:settle:951790505573406#4"
+    ],
+    "app_assertions": {
+      "entry_count": 4,
+      "account_count": 3,
+      "sum_delta_frozen": "0",
+      "commission_rows": 0,
+      "sum_commission_credit": "0",
+      "sum_x_equals_pool": true
+    },
+    "facts": {
+      "idempotency_key": "biz:job:settle:951790505573406",
+      "rows_total": "4",
+      "root_rows": "1",
+      "commission_rows": "0",
+      "payout_rows": "2",
+      "job_fee_rows": "2",
+      "pool_in": "0",
+      "commission_out": "0",
+      "minus2_net": "0",
+      "minus1_net": "1",
+      "minus1_fee_in": "1",
+      "employer_frozen_out": "100",
+      "employer_delta": "0",
+      "worker_got": "99",
+      "ev_net_sum": "0",
+      "credit_rows": "0",
+      "distinct_beneficiaries": "0",
+      "minus2_commission_payer_rows": "0",
+      "commission_uid_delta": "",
+      "key_family_net_by_root": "0",
+      "key_family_net_by_key_arithmetic": "0",
+      "derived_keys": "biz:job:settle:951790505573406,biz:job:settle:951790505573406#2,biz:job:settle:951790505573406#3,biz:job:settle:951790505573406#4"
+    },
+    "criteria": {
+      "m1_pool": "0",
+      "m1_paid": "0",
+      "m1_sum_equals_pool": true,
+      "m1_pool_in_equals_fee": true,
+      "m2_gross_from_frozen": "100",
+      "m2_net_equals_gross_minus_fee": true,
+      "m2_sum_ok": true,
+      "m2_employer_balance_unchanged": true,
+      "m3_minus2_net": "0",
+      "m3_a_net_zero": true,
+      "m3_c_no_referrer": true,
+      "m3_fee_credit_to_minus1": true,
+      "shape_rows_total": "4",
+      "shape_rows_expected": "4",
+      "shape_rows_match": true,
+      "shape_root_rows_exactly_1": true,
+      "shape_commission_rows": "0",
+      "shape_commission_rows_expected": "0",
+      "shape_commission_ok": true,
+      "shape_job_fee_rows": "2",
+      "shape_job_fee_expected": "2",
+      "shape_job_fee_ok": true,
+      "m4_credit_rows": "0",
+      "m4_distinct_beneficiaries": "0",
+      "m4_payer_rows_distinct": "0",
+      "m4_layers_expected": "0",
+      "m4_credit_rows_ok": true,
+      "m4_distinct_ok": true,
+      "m4_payer_single_account": true,
+      "m8_ev_sum": "0",
+      "m8_ev_sum_zero": true,
+      "m8_key_family_root_zero": true,
+      "m8_key_family_arithmetic_zero": true,
+      "attribution_uid_delta": "",
+      "attribution_matches_plan": true,
+      "derived_keys": "biz:job:settle:951790505573406,biz:job:settle:951790505573406#2,biz:job:settle:951790505573406#3,biz:job:settle:951790505573406#4"
+    },
+    "expected_custom": {
+      "fee_credit_uid_is_minus1": true,
+      "commission_layers_zero": true,
+      "minus2_absent_from_event": true
+    },
+    "fingerprint": "21b47b360d6381474ae151ec7d379812a8996d54af3ffbbcd1a31f7931ed640e",
+    "payload_for_replay": {
+      "op": "entries",
+      "idempotency_key": "biz:job:settle:951790505573406",
+      "request_fingerprint": "21b47b360d6381474ae151ec7d379812a8996d54af3ffbbcd1a31f7931ed640e",
+      "ref_type": "job",
+      "ref_id": "951790505573406",
+      "memo": "招工验收结算 job=951790505573406",
+      "entries": [
+        {
+          "uid": "951001",
+          "cid": "142",
+          "kind": "job_payout",
+          "delta": "0",
+          "frozen_delta": "-99",
+          "memo": "招工验收结算 job=951790505573406",
+          "ref_type": "job",
+          "ref_id": "951790505573406"
+        },
+        {
+          "uid": "951004",
+          "cid": "142",
+          "kind": "job_payout",
+          "delta": "99",
+          "frozen_delta": "0",
+          "memo": "招工验收结算 job=951790505573406（打工人到手）",
+          "ref_type": "job",
+          "ref_id": "951790505573406"
+        },
+        {
+          "uid": "951001",
+          "cid": "142",
+          "kind": "job_fee",
+          "delta": "0",
+          "frozen_delta": "-1",
+          "memo": "招工验收结算 job=951790505573406（手续费）",
+          "ref_type": "job",
+          "ref_id": "951790505573406"
+        },
+        {
+          "uid": "-1",
+          "cid": "142",
+          "kind": "job_fee",
+          "delta": "1",
+          "frozen_delta": "0",
+          "memo": "招工验收结算 job=951790505573406（手续费入 平台收入）",
+          "ref_type": "job",
+          "ref_id": "951790505573406"
+        }
+      ]
+    }
+  },
+  "4_c4_zero_amount": {
+    "tag": "c4",
+    "job_id": "951790505573407",
+    "idempotency_key": "biz:job:settle:951790505573407",
+    "ok": true,
+    "replay": false,
+    "txid": "3664",
+    "plan": {
+      "gross": "30",
+      "fee": "0",
+      "net": "30",
+      "pool": "0",
+      "chain_depth": 2,
+      "M": 2,
+      "N": 0,
+      "W": "0",
+      "weights_bp": [
+        "3000",
+        "2000"
+      ],
+      "fee_credit_uid": "-2",
+      "zero_amount": true,
+      "no_referrer": false,
+      "layers": [],
+      "split": null
+    },
+    "entry_count": 2,
+    "derived_keys": [
+      "biz:job:settle:951790505573407",
+      "biz:job:settle:951790505573407#2"
+    ],
+    "app_assertions": {
+      "entry_count": 2,
+      "account_count": 2,
+      "sum_delta_frozen": "0",
+      "commission_rows": 0,
+      "sum_commission_credit": "0",
+      "sum_x_equals_pool": true
+    },
+    "facts": {
+      "idempotency_key": "biz:job:settle:951790505573407",
+      "rows_total": "2",
+      "root_rows": "1",
+      "commission_rows": "0",
+      "payout_rows": "2",
+      "job_fee_rows": "0",
+      "pool_in": "0",
+      "commission_out": "0",
+      "minus2_net": "0",
+      "minus1_net": "0",
+      "minus1_fee_in": "0",
+      "employer_frozen_out": "30",
+      "employer_delta": "0",
+      "worker_got": "30",
+      "ev_net_sum": "0",
+      "credit_rows": "0",
+      "distinct_beneficiaries": "0",
+      "minus2_commission_payer_rows": "0",
+      "commission_uid_delta": "",
+      "key_family_net_by_root": "0",
+      "key_family_net_by_key_arithmetic": "0",
+      "derived_keys": "biz:job:settle:951790505573407,biz:job:settle:951790505573407#2"
+    },
+    "criteria": {
+      "m1_pool": "0",
+      "m1_paid": "0",
+      "m1_sum_equals_pool": true,
+      "m1_pool_in_equals_fee": true,
+      "m2_gross_from_frozen": "30",
+      "m2_net_equals_gross_minus_fee": true,
+      "m2_sum_ok": true,
+      "m2_employer_balance_unchanged": true,
+      "m3_minus2_net": "0",
+      "m3_a_net_zero": true,
+      "m3_c_no_referrer": true,
+      "m3_fee_credit_to_minus1": true,
+      "shape_rows_total": "2",
+      "shape_rows_expected": "2",
+      "shape_rows_match": true,
+      "shape_root_rows_exactly_1": true,
+      "shape_commission_rows": "0",
+      "shape_commission_rows_expected": "0",
+      "shape_commission_ok": true,
+      "shape_job_fee_rows": "0",
+      "shape_job_fee_expected": "0",
+      "shape_job_fee_ok": true,
+      "m4_credit_rows": "0",
+      "m4_distinct_beneficiaries": "0",
+      "m4_payer_rows_distinct": "0",
+      "m4_layers_expected": "0",
+      "m4_credit_rows_ok": true,
+      "m4_distinct_ok": true,
+      "m4_payer_single_account": true,
+      "m8_ev_sum": "0",
+      "m8_ev_sum_zero": true,
+      "m8_key_family_root_zero": true,
+      "m8_key_family_arithmetic_zero": true,
+      "attribution_uid_delta": "",
+      "attribution_matches_plan": true,
+      "derived_keys": "biz:job:settle:951790505573407,biz:job:settle:951790505573407#2"
+    },
+    "expected_custom": {
+      "gross_below_50_implies_fee_zero": true,
+      "worker_gets_full_gross": true,
+      "derived_keys_are_K_and_K2": true
+    },
+    "fingerprint": "7c3b935ec877cdcd0456d62818e351eb7ae4b1cda238bca3223b3d727b5051f9",
+    "payload_for_replay": {
+      "op": "entries",
+      "idempotency_key": "biz:job:settle:951790505573407",
+      "request_fingerprint": "7c3b935ec877cdcd0456d62818e351eb7ae4b1cda238bca3223b3d727b5051f9",
+      "ref_type": "job",
+      "ref_id": "951790505573407",
+      "memo": "招工验收结算 job=951790505573407",
+      "entries": [
+        {
+          "uid": "951001",
+          "cid": "142",
+          "kind": "job_payout",
+          "delta": "0",
+          "frozen_delta": "-30",
+          "memo": "招工验收结算 job=951790505573407",
+          "ref_type": "job",
+          "ref_id": "951790505573407"
+        },
+        {
+          "uid": "951005",
+          "cid": "142",
+          "kind": "job_payout",
+          "delta": "30",
+          "frozen_delta": "0",
+          "memo": "招工验收结算 job=951790505573407（打工人到手）",
+          "ref_type": "job",
+          "ref_id": "951790505573407"
+        }
+      ]
+    }
+  },
+  "5_m6_concurrency": {
+    "concurrency": 8,
+    "elapsed_ms": 3351,
+    "responses": [
+      {
+        "ok": true,
+        "replay": false,
+        "txid": "3666",
+        "entries": 24
+      },
+      {
+        "ok": true,
+        "replay": true,
+        "txid": "3666",
+        "entries": 24
+      },
+      {
+        "ok": true,
+        "replay": true,
+        "txid": "3666",
+        "entries": 24
+      },
+      {
+        "ok": true,
+        "replay": true,
+        "txid": "3666",
+        "entries": 24
+      },
+      {
+        "ok": true,
+        "replay": true,
+        "txid": "3666",
+        "entries": 24
+      },
+      {
+        "ok": true,
+        "replay": true,
+        "txid": "3666",
+        "entries": 24
+      },
+      {
+        "ok": true,
+        "replay": true,
+        "txid": "3666",
+        "entries": 24
+      },
+      {
+        "ok": true,
+        "replay": true,
+        "txid": "3666",
+        "entries": 24
+      }
+    ],
+    "ok_count": 8,
+    "replay_count": 7,
+    "root_rows": "1",
+    "rows_total": "24",
+    "rows_expected": "24",
+    "commission_rows": "20",
+    "minus2_net": "0",
+    "worker_got": "9900",
+    "root_rows_exactly_1": true,
+    "rows_total_not_doubled": true,
+    "replay_count_is_n_minus_1": true,
+    "all_2xx": true,
+    "worker_paid_once": true
+  },
+  "5b_m6_negative_control": {
+    "design": "同 business 内容、**每请求一个不同 job_id/键**（= 没有共享幂等探针）⇒ 3 个独立事件、3 次支付",
+    "events": [
+      {
+        "job_id": "951790505573453",
+        "key": "biz:job:settle:951790505573453",
+        "ok": true,
+        "replay": false,
+        "worker_got_this_event": "9900"
+      },
+      {
+        "job_id": "951790505573454",
+        "key": "biz:job:settle:951790505573454",
+        "ok": true,
+        "replay": false,
+        "worker_got_this_event": "9900"
+      },
+      {
+        "job_id": "951790505573455",
+        "key": "biz:job:settle:951790505573455",
+        "ok": true,
+        "replay": false,
+        "worker_got_this_event": "9900"
+      }
+    ],
+    "all_ok": true,
+    "triple_paid": true,
+    "reading": "⇒ 无幂等键必然多付；M6 的「恰一组分录」来自 DB 唯一索引 + 单语句隐式事务（CR58），不是测试无并发"
+  },
+  "6_m1_negative_tamper": {
+    "design": "手工构造 Σx ≠ P 的 payload（① 第 1 层 +1；② 删掉第 1 层整对）⇒ 0007 的只读后置断言必须抛 LD032",
+    "cases": [
+      {
+        "tag": "tamper_plus1_on_L1",
+        "key": "biz:job:settle:951790505573463",
+        "ok": false,
+        "error": {
+          "code": "LD016",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "detail": "{\"field\": \"entries\", \"reason\": \"EVENT_NOT_BALANCED\", \"net_sum\": \"1\", \"delta_sum\": \"10001\", \"frozen_delta_sum\": \"-10000\"}",
+          "constraint": null,
+          "hint": null,
+          "name": "error"
+        },
+        "rows_landed": "0",
+        "ts_code": "LEDGER_RECONCILE_MISMATCH"
+      },
+      {
+        "tag": "tamper_drop_L1_pair",
+        "key": "biz:job:settle:951790505573464",
+        "ok": false,
+        "error": {
+          "code": "LD032",
+          "message": "LEDGER_RECONCILE_MISMATCH",
+          "detail": "{\"reason\": \"COMMISSION_SPLIT_SUM_MISMATCH\", \"pool_in\": \"100\", \"job_fee_rows\": \"1\", \"commission_out\": \"54\", \"commission_rows\": \"2\", \"idempotency_key\": \"biz:job:settle:951790505573464\"}",
+          "constraint": null,
+          "hint": null,
+          "name": "error"
+        },
+        "rows_landed": "0",
+        "ts_code": "LEDGER_RECONCILE_MISMATCH"
+      },
+      {
+        "tag": "tamper_shift_pool_vs_credit",
+        "key": "biz:job:settle:951790505573465",
+        "ok": false,
+        "error": {
+          "code": "LD032",
+          "message": "LEDGER_RECONCILE_MISMATCH",
+          "detail": "{\"reason\": \"COMMISSION_SPLIT_SUM_MISMATCH\", \"pool_in\": \"100\", \"job_fee_rows\": \"1\", \"commission_out\": \"99\", \"commission_rows\": \"3\", \"idempotency_key\": \"biz:job:settle:951790505573465\"}",
+          "constraint": null,
+          "hint": null,
+          "name": "error"
+        },
+        "rows_landed": "0",
+        "ts_code": "LEDGER_RECONCILE_MISMATCH"
+      }
+    ],
+    "all_rejected": true,
+    "ld032_rows": 2,
+    "balance_preserving_case_is_LD032": true,
+    "ld032_reason_is_split_mismatch": true,
+    "ld016_balance_guard_also_fires": true,
+    "rows_written_0": true,
+    "ledger_rows_before": "1280",
+    "ledger_rows_after": "1280"
+  },
+  "6b_app_layer_negatives": {
+    "split_pool_sum_property": [
+      {
+        "P": "1",
+        "w": [
+          "2500",
+          "2500"
+        ],
+        "x": [
+          "0",
+          "1"
+        ],
+        "sum_x": "1",
+        "ok": true,
+        "D": "1",
+        "plus_one_levels": [
+          2
+        ]
+      },
+      {
+        "P": "10000",
+        "w": [
+          "3000",
+          "2000",
+          "1500"
+        ],
+        "x": [
+          "4615",
+          "3077",
+          "2308"
+        ],
+        "sum_x": "10000",
+        "ok": true,
+        "D": "2",
+        "plus_one_levels": [
+          2,
+          3
+        ]
+      },
+      {
+        "P": "7",
+        "w": [
+          "1",
+          "1",
+          "1"
+        ],
+        "x": [
+          "2",
+          "2",
+          "3"
+        ],
+        "sum_x": "7",
+        "ok": true,
+        "D": "1",
+        "plus_one_levels": [
+          3
+        ]
+      },
+      {
+        "P": "3",
+        "w": [
+          "5000",
+          "5000"
+        ],
+        "x": [
+          "1",
+          "2"
+        ],
+        "sum_x": "3",
+        "ok": true,
+        "D": "1",
+        "plus_one_levels": [
+          2
+        ]
+      },
+      {
+        "P": "0",
+        "w": [
+          "1",
+          "2",
+          "3"
+        ],
+        "x": [
+          "0",
+          "0",
+          "0"
+        ],
+        "sum_x": "0",
+        "ok": true,
+        "D": "0",
+        "plus_one_levels": []
+      }
+    ],
+    "split_pool_all_sum_ok": true,
+    "hand_example3_P1_M3": [
+      "1",
+      "0",
+      "0"
+    ],
+    "hand_example5_tie_P1_M2": [
+      "0",
+      "1"
+    ],
+    "example3_ok": true,
+    "example5_ok": true,
+    "policy_guard_negatives": [
+      {
+        "label": "sum_over_10000",
+        "threw": true,
+        "code": "LEDGER_AMOUNT_INVALID",
+        "httpStatus": 400,
+        "status": 400,
+        "reason": "WEIGHTS_SUM_EXCEEDS_10000"
+      },
+      {
+        "label": "sum_zero",
+        "threw": true,
+        "code": "LEDGER_AMOUNT_INVALID",
+        "httpStatus": 400,
+        "status": 400,
+        "reason": "POLICY_WEIGHTS_ALL_ZERO"
+      },
+      {
+        "label": "weights_1_zero",
+        "threw": true,
+        "code": "LEDGER_AMOUNT_INVALID",
+        "httpStatus": 400,
+        "status": 400,
+        "reason": "POLICY_WEIGHTS_ALL_ZERO"
+      },
+      {
+        "label": "negative_weight",
+        "threw": true,
+        "code": "LEDGER_AMOUNT_INVALID",
+        "httpStatus": 400,
+        "status": 400,
+        "reason": "POLICY_SHAPE_INVALID"
+      },
+      {
+        "label": "fee_rate_out_of_range",
+        "threw": true,
+        "code": "LEDGER_AMOUNT_INVALID",
+        "httpStatus": 400,
+        "status": 400,
+        "reason": "FEE_RATE_OUT_OF_RANGE"
+      },
+      {
+        "label": "levels_over_10",
+        "threw": true,
+        "code": "LEDGER_AMOUNT_INVALID",
+        "httpStatus": 400,
+        "status": 400,
+        "reason": "POLICY_SHAPE_INVALID"
+      },
+      {
+        "label": "len_mismatch",
+        "threw": true,
+        "code": "LEDGER_AMOUNT_INVALID",
+        "httpStatus": 400,
+        "status": 400,
+        "reason": "POLICY_SHAPE_INVALID"
+      }
+    ],
+    "policy_guard_all_400": true,
+    "policy_guard_reasons_ok": true
+  },
+  "7_m7_no_retroactive": {
+    "policy_versions": [
+      {
+        "policy_id": "1",
+        "fee_rate_bp": 100,
+        "levels": 10,
+        "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+        "effective_from": "1970-01-01 00:00:00+00"
+      },
+      {
+        "policy_id": "20",
+        "fee_rate_bp": 500,
+        "levels": 9,
+        "weights_bp": "{1000,1000,1000,1000,1000,1000,1000,1000,1000}",
+        "effective_from": "2026-09-27 10:25:41.081836+00"
+      },
+      {
+        "policy_id": "21",
+        "fee_rate_bp": 100,
+        "levels": 2,
+        "weights_bp": "{2500,2500}",
+        "effective_from": "2026-09-27 10:25:45.960436+00"
+      },
+      {
+        "policy_id": "22",
+        "fee_rate_bp": 100,
+        "levels": 10,
+        "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+        "effective_from": "2026-09-27 10:25:48.409564+00"
+      },
+      {
+        "policy_id": "23",
+        "fee_rate_bp": 500,
+        "levels": 9,
+        "weights_bp": "{1000,1000,1000,1000,1000,1000,1000,1000,1000}",
+        "effective_from": "2026-09-27 10:28:11.373321+00"
+      },
+      {
+        "policy_id": "24",
+        "fee_rate_bp": 100,
+        "levels": 2,
+        "weights_bp": "{2500,2500}",
+        "effective_from": "2026-09-27 10:28:16.618299+00"
+      },
+      {
+        "policy_id": "25",
+        "fee_rate_bp": 100,
+        "levels": 10,
+        "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+        "effective_from": "2026-09-27 10:28:19.249653+00"
+      },
+      {
+        "policy_id": "26",
+        "fee_rate_bp": 500,
+        "levels": 9,
+        "weights_bp": "{1000,1000,1000,1000,1000,1000,1000,1000,1000}",
+        "effective_from": "2026-09-27 10:29:39.108009+00"
+      },
+      {
+        "policy_id": "27",
+        "fee_rate_bp": 100,
+        "levels": 2,
+        "weights_bp": "{2500,2500}",
+        "effective_from": "2026-09-27 10:29:44.252091+00"
+      },
+      {
+        "policy_id": "28",
+        "fee_rate_bp": 100,
+        "levels": 10,
+        "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+        "effective_from": "2026-09-27 10:29:47.07447+00"
+      },
+      {
+        "policy_id": "29",
+        "fee_rate_bp": 500,
+        "levels": 9,
+        "weights_bp": "{1000,1000,1000,1000,1000,1000,1000,1000,1000}",
+        "effective_from": "2026-09-27 10:38:07.115576+00"
+      },
+      {
+        "policy_id": "30",
+        "fee_rate_bp": 100,
+        "levels": 2,
+        "weights_bp": "{2500,2500}",
+        "effective_from": "2026-09-27 10:38:11.845112+00"
+      },
+      {
+        "policy_id": "31",
+        "fee_rate_bp": 100,
+        "levels": 10,
+        "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+        "effective_from": "2026-09-27 10:38:14.693873+00"
+      },
+      {
+        "policy_id": "32",
+        "fee_rate_bp": 500,
+        "levels": 9,
+        "weights_bp": "{1000,1000,1000,1000,1000,1000,1000,1000,1000}",
+        "effective_from": "2026-09-27 10:40:03.090896+00"
+      }
+    ],
+    "new_policy_inserted": {
+      "policy_id": "32",
+      "fee_rate_bp": 500,
+      "levels": 9,
+      "effective_from": "2026-09-27 10:40:03.090896+00"
+    },
+    "policy_now_in_effect": {
+      "policy_id": "32",
+      "fee_rate_bp": 500,
+      "levels": 9
+    },
+    "step3_history_fingerprint_unchanged": true,
+    "fingerprint_before": "f449abfe1d78e1684d68853b036af5ae1959cf9c11c290648a20f4131e94fdca",
+    "fingerprint_after": "f449abfe1d78e1684d68853b036af5ae1959cf9c11c290648a20f4131e94fdca",
+    "step3_rows_unchanged": true,
+    "step4_replay_same_payload": {
+      "ok": true,
+      "replay": true,
+      "txid": "3626",
+      "error": null
+    },
+    "step4_zero_new_rows": true,
+    "step4b_replanned_under_new_policy": {
+      "ok": true,
+      "replay": true,
+      "fee": "500"
+    },
+    "step4b_interpretation": "重算后的 payload 在**金额**上已按新政策（fee=500），但本模块的 `settleJobFingerprint` 只覆盖 business 字段（job_id/employer/worker/cid/gross）⇒ 指纹**不变** ⇒ DB 走**重放分支**（不是 409）：既没有双发、也没有把金额改掉。⇒ 与 CR26②「重放必须复用同一 payload/指纹」自洽；同时登记为**口径待确认项**：spec §5.1 写 `request_fingerprint = sha256(规范化请求体)`，本实现把「请求体」限定为 business 字段（金额是服务端派生量，且 CR28 禁止把政策/金额进幂等键）。",
+    "step5_new_event_uses_new_policy": {
+      "m1_pool": "500",
+      "m1_paid": "500",
+      "m1_sum_equals_pool": true,
+      "m1_pool_in_equals_fee": true,
+      "m2_gross_from_frozen": "10000",
+      "m2_net_equals_gross_minus_fee": true,
+      "m2_sum_ok": true,
+      "m2_employer_balance_unchanged": true,
+      "m3_minus2_net": "0",
+      "m3_a_net_zero": true,
+      "m3_c_no_referrer": true,
+      "m3_fee_credit_to_minus1": true,
+      "shape_rows_total": "22",
+      "shape_rows_expected": "22",
+      "shape_rows_match": true,
+      "shape_root_rows_exactly_1": true,
+      "shape_commission_rows": "18",
+      "shape_commission_rows_expected": "18",
+      "shape_commission_ok": true,
+      "shape_job_fee_rows": "2",
+      "shape_job_fee_expected": "2",
+      "shape_job_fee_ok": true,
+      "m4_credit_rows": "9",
+      "m4_distinct_beneficiaries": "9",
+      "m4_payer_rows_distinct": "1",
+      "m4_layers_expected": "9",
+      "m4_credit_rows_ok": true,
+      "m4_distinct_ok": true,
+      "m4_payer_single_account": true,
+      "m8_ev_sum": "0",
+      "m8_ev_sum_zero": true,
+      "m8_key_family_root_zero": true,
+      "m8_key_family_arithmetic_zero": true,
+      "attribution_uid_delta": "-2:-55,951101:55,-2:-55,951102:55,-2:-55,951103:55,-2:-55,951104:55,-2:-56,951105:56,-2:-56,951106:56,-2:-56,951107:56,-2:-56,951108:56,-2:-56,951109:56",
+      "attribution_matches_plan": true,
+      "derived_keys": "biz:job:settle:951790505573409,biz:job:settle:951790505573409#2,biz:job:settle:951790505573409#3,biz:job:settle:951790505573409#4,biz:job:settle:951790505573409#5,biz:job:settle:951790505573409#6,biz:job:settle:951790505573409#7,biz:job:settle:951790505573409#8,biz:job:settle:951790505573409#9,biz:job:settle:951790505573409#10,biz:job:settle:951790505573409#11,biz:job:settle:951790505573409#12,biz:job:settle:951790505573409#13,biz:job:settle:951790505573409#14,biz:job:settle:951790505573409#15,biz:job:settle:951790505573409#16,biz:job:settle:951790505573409#17,biz:job:settle:951790505573409#18,biz:job:settle:951790505573409#19,biz:job:settle:951790505573409#20,biz:job:settle:951790505573409#21,biz:job:settle:951790505573409#22"
+    },
+    "step5_expected_custom": {
+      "used_new_policy_fee_500bp": true,
+      "levels_9_caps_depth": true,
+      "tie_break_deeper_first_x": "[\"55\",\"55\",\"55\",\"55\",\"56\",\"56\",\"56\",\"56\",\"56\"]"
+    },
+    "new_event": {
+      "job_id": "951790505573409",
+      "plan": {
+        "gross": "10000",
+        "fee": "500",
+        "net": "9500",
+        "pool": "500",
+        "chain_depth": 9,
+        "M": 9,
+        "N": 9,
+        "W": "9000",
+        "weights_bp": [
+          "1000",
+          "1000",
+          "1000",
+          "1000",
+          "1000",
+          "1000",
+          "1000",
+          "1000",
+          "1000"
+        ],
+        "fee_credit_uid": "-2",
+        "zero_amount": false,
+        "no_referrer": false,
+        "layers": [
+          {
+            "L": 1,
+            "uid": "951101",
+            "w": "1000",
+            "q": "55",
+            "r": "5000",
+            "x": "55"
+          },
+          {
+            "L": 2,
+            "uid": "951102",
+            "w": "1000",
+            "q": "55",
+            "r": "5000",
+            "x": "55"
+          },
+          {
+            "L": 3,
+            "uid": "951103",
+            "w": "1000",
+            "q": "55",
+            "r": "5000",
+            "x": "55"
+          },
+          {
+            "L": 4,
+            "uid": "951104",
+            "w": "1000",
+            "q": "55",
+            "r": "5000",
+            "x": "55"
+          },
+          {
+            "L": 5,
+            "uid": "951105",
+            "w": "1000",
+            "q": "55",
+            "r": "5000",
+            "x": "56"
+          },
+          {
+            "L": 6,
+            "uid": "951106",
+            "w": "1000",
+            "q": "55",
+            "r": "5000",
+            "x": "56"
+          },
+          {
+            "L": 7,
+            "uid": "951107",
+            "w": "1000",
+            "q": "55",
+            "r": "5000",
+            "x": "56"
+          },
+          {
+            "L": 8,
+            "uid": "951108",
+            "w": "1000",
+            "q": "55",
+            "r": "5000",
+            "x": "56"
+          },
+          {
+            "L": 9,
+            "uid": "951109",
+            "w": "1000",
+            "q": "55",
+            "r": "5000",
+            "x": "56"
+          }
+        ],
+        "split": {
+          "W": "9000",
+          "D": "5",
+          "plus_one_levels": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "sum_x": "500",
+          "sum_ok": true
+        }
+      },
+      "facts": {
+        "idempotency_key": "biz:job:settle:951790505573409",
+        "rows_total": "22",
+        "root_rows": "1",
+        "commission_rows": "18",
+        "payout_rows": "2",
+        "job_fee_rows": "2",
+        "pool_in": "500",
+        "commission_out": "500",
+        "minus2_net": "0",
+        "minus1_net": "0",
+        "minus1_fee_in": "0",
+        "employer_frozen_out": "10000",
+        "employer_delta": "0",
+        "worker_got": "9500",
+        "ev_net_sum": "0",
+        "credit_rows": "9",
+        "distinct_beneficiaries": "9",
+        "minus2_commission_payer_rows": "1",
+        "commission_uid_delta": "-2:-55,951101:55,-2:-55,951102:55,-2:-55,951103:55,-2:-55,951104:55,-2:-56,951105:56,-2:-56,951106:56,-2:-56,951107:56,-2:-56,951108:56,-2:-56,951109:56",
+        "key_family_net_by_root": "0",
+        "key_family_net_by_key_arithmetic": "0",
+        "derived_keys": "biz:job:settle:951790505573409,biz:job:settle:951790505573409#2,biz:job:settle:951790505573409#3,biz:job:settle:951790505573409#4,biz:job:settle:951790505573409#5,biz:job:settle:951790505573409#6,biz:job:settle:951790505573409#7,biz:job:settle:951790505573409#8,biz:job:settle:951790505573409#9,biz:job:settle:951790505573409#10,biz:job:settle:951790505573409#11,biz:job:settle:951790505573409#12,biz:job:settle:951790505573409#13,biz:job:settle:951790505573409#14,biz:job:settle:951790505573409#15,biz:job:settle:951790505573409#16,biz:job:settle:951790505573409#17,biz:job:settle:951790505573409#18,biz:job:settle:951790505573409#19,biz:job:settle:951790505573409#20,biz:job:settle:951790505573409#21,biz:job:settle:951790505573409#22"
+      },
+      "criteria": {
+        "m1_pool": "500",
+        "m1_paid": "500",
+        "m1_sum_equals_pool": true,
+        "m1_pool_in_equals_fee": true,
+        "m2_gross_from_frozen": "10000",
+        "m2_net_equals_gross_minus_fee": true,
+        "m2_sum_ok": true,
+        "m2_employer_balance_unchanged": true,
+        "m3_minus2_net": "0",
+        "m3_a_net_zero": true,
+        "m3_c_no_referrer": true,
+        "m3_fee_credit_to_minus1": true,
+        "shape_rows_total": "22",
+        "shape_rows_expected": "22",
+        "shape_rows_match": true,
+        "shape_root_rows_exactly_1": true,
+        "shape_commission_rows": "18",
+        "shape_commission_rows_expected": "18",
+        "shape_commission_ok": true,
+        "shape_job_fee_rows": "2",
+        "shape_job_fee_expected": "2",
+        "shape_job_fee_ok": true,
+        "m4_credit_rows": "9",
+        "m4_distinct_beneficiaries": "9",
+        "m4_payer_rows_distinct": "1",
+        "m4_layers_expected": "9",
+        "m4_credit_rows_ok": true,
+        "m4_distinct_ok": true,
+        "m4_payer_single_account": true,
+        "m8_ev_sum": "0",
+        "m8_ev_sum_zero": true,
+        "m8_key_family_root_zero": true,
+        "m8_key_family_arithmetic_zero": true,
+        "attribution_uid_delta": "-2:-55,951101:55,-2:-55,951102:55,-2:-55,951103:55,-2:-55,951104:55,-2:-56,951105:56,-2:-56,951106:56,-2:-56,951107:56,-2:-56,951108:56,-2:-56,951109:56",
+        "attribution_matches_plan": true,
+        "derived_keys": "biz:job:settle:951790505573409,biz:job:settle:951790505573409#2,biz:job:settle:951790505573409#3,biz:job:settle:951790505573409#4,biz:job:settle:951790505573409#5,biz:job:settle:951790505573409#6,biz:job:settle:951790505573409#7,biz:job:settle:951790505573409#8,biz:job:settle:951790505573409#9,biz:job:settle:951790505573409#10,biz:job:settle:951790505573409#11,biz:job:settle:951790505573409#12,biz:job:settle:951790505573409#13,biz:job:settle:951790505573409#14,biz:job:settle:951790505573409#15,biz:job:settle:951790505573409#16,biz:job:settle:951790505573409#17,biz:job:settle:951790505573409#18,biz:job:settle:951790505573409#19,biz:job:settle:951790505573409#20,biz:job:settle:951790505573409#21,biz:job:settle:951790505573409#22"
+      }
+    }
+  },
+  "8_m5_tie_break": {
+    "policy": {
+      "policy_id": "33",
+      "effective_from": "2026-09-27 10:40:08.719548+00"
+    },
+    "policy_now": {
+      "policy_id": "33",
+      "levels": 2,
+      "weights": [
+        2500,
+        2500
+      ]
+    },
+    "case": {
+      "job_id": "951790505573410",
+      "plan": {
+        "gross": "100",
+        "fee": "1",
+        "net": "99",
+        "pool": "1",
+        "chain_depth": 2,
+        "M": 2,
+        "N": 1,
+        "W": "5000",
+        "weights_bp": [
+          "2500",
+          "2500"
+        ],
+        "fee_credit_uid": "-2",
+        "zero_amount": false,
+        "no_referrer": false,
+        "layers": [
+          {
+            "L": 1,
+            "uid": "951131",
+            "w": "2500",
+            "q": "0",
+            "r": "2500",
+            "x": "0"
+          },
+          {
+            "L": 2,
+            "uid": "951132",
+            "w": "2500",
+            "q": "0",
+            "r": "2500",
+            "x": "1"
+          }
+        ],
+        "split": {
+          "W": "5000",
+          "D": "1",
+          "plus_one_levels": [
+            2
+          ],
+          "sum_x": "1",
+          "sum_ok": true
+        }
+      },
+      "facts": {
+        "idempotency_key": "biz:job:settle:951790505573410",
+        "rows_total": "6",
+        "root_rows": "1",
+        "commission_rows": "2",
+        "payout_rows": "2",
+        "job_fee_rows": "2",
+        "pool_in": "1",
+        "commission_out": "1",
+        "minus2_net": "0",
+        "minus1_net": "0",
+        "minus1_fee_in": "0",
+        "employer_frozen_out": "100",
+        "employer_delta": "0",
+        "worker_got": "99",
+        "ev_net_sum": "0",
+        "credit_rows": "1",
+        "distinct_beneficiaries": "1",
+        "minus2_commission_payer_rows": "1",
+        "commission_uid_delta": "-2:-1,951132:1",
+        "key_family_net_by_root": "0",
+        "key_family_net_by_key_arithmetic": "0",
+        "derived_keys": "biz:job:settle:951790505573410,biz:job:settle:951790505573410#2,biz:job:settle:951790505573410#3,biz:job:settle:951790505573410#4,biz:job:settle:951790505573410#5,biz:job:settle:951790505573410#6"
+      },
+      "criteria": {
+        "m1_pool": "1",
+        "m1_paid": "1",
+        "m1_sum_equals_pool": true,
+        "m1_pool_in_equals_fee": true,
+        "m2_gross_from_frozen": "100",
+        "m2_net_equals_gross_minus_fee": true,
+        "m2_sum_ok": true,
+        "m2_employer_balance_unchanged": true,
+        "m3_minus2_net": "0",
+        "m3_a_net_zero": true,
+        "m3_c_no_referrer": true,
+        "m3_fee_credit_to_minus1": true,
+        "shape_rows_total": "6",
+        "shape_rows_expected": "6",
+        "shape_rows_match": true,
+        "shape_root_rows_exactly_1": true,
+        "shape_commission_rows": "2",
+        "shape_commission_rows_expected": "2",
+        "shape_commission_ok": true,
+        "shape_job_fee_rows": "2",
+        "shape_job_fee_expected": "2",
+        "shape_job_fee_ok": true,
+        "m4_credit_rows": "1",
+        "m4_distinct_beneficiaries": "1",
+        "m4_payer_rows_distinct": "1",
+        "m4_layers_expected": "1",
+        "m4_credit_rows_ok": true,
+        "m4_distinct_ok": true,
+        "m4_payer_single_account": true,
+        "m8_ev_sum": "0",
+        "m8_ev_sum_zero": true,
+        "m8_key_family_root_zero": true,
+        "m8_key_family_arithmetic_zero": true,
+        "attribution_uid_delta": "-2:-1,951132:1",
+        "attribution_matches_plan": true,
+        "derived_keys": "biz:job:settle:951790505573410,biz:job:settle:951790505573410#2,biz:job:settle:951790505573410#3,biz:job:settle:951790505573410#4,biz:job:settle:951790505573410#5,biz:job:settle:951790505573410#6"
+      }
+    },
+    "expected_custom": {
+      "pool_is_1": true,
+      "x_is_0_1_deeper_wins": true,
+      "level1_skipped_no_entry": true
+    }
+  },
+  "8b_policy_restore": {
+    "policy_id": "34",
+    "effective_from": "2026-09-27 10:40:11.250001+00",
+    "note": "commission_policy 是 INSERT-only（不可删）⇒ 用同值新版本收尾，使后续跑批回到种子口径"
+  },
+  "9_m9_graph_invariants": {
+    "baseline": {
+      "cycles": "0",
+      "bad_depth": "0",
+      "referral_rows": "21"
+    },
+    "bypass_contrast": {
+      "injected_rows": 2,
+      "injected_pair": "951143<->951144",
+      "cycles": "100",
+      "bad_depth": "2",
+      "note": "事务内 DISABLE TRIGGER + 直插 2-环 ⇒ 测量后 ROLLBACK，不留脏数据"
+    },
+    "restored": {
+      "cycles": "0",
+      "bad_depth": "0",
+      "referral_rows": "21"
+    },
+    "baseline_clean": true,
+    "bypass_red_as_expected": true,
+    "restored_clean": true,
+    "bind_cycle_negative": {
+      "2a_bind_A_to_B_ok": {
+        "ok": true,
+        "depth": "1"
+      },
+      "2b_bind_B_to_A_MUST_REJECT": {
+        "ok": false,
+        "state": "LD016",
+        "message": "LEDGER_AMOUNT_INVALID",
+        "pg_detail": "{\"reason\": \"REFERRAL_CYCLE_REJECTED\", \"child_uid\": \"951146\", \"parent_uid\": \"951145\"}",
+        "reason": "REFERRAL_CYCLE_REJECTED",
+        "err_name": "error",
+        "ts_code": null,
+        "ts_http_status": null,
+        "ts_status": null
+      },
+      "rejected": true,
+      "code_is_400_amount_invalid": true,
+      "reason_is_cycle_rejected": true,
+      "note": "CR79 的机读要求：先 A→B 再 B→A ⇒ 第二条绑定必须被拒（2-环反例）"
+    }
+  },
+  "10_whitelist_sync": {
+    "ts_side": [
+      {
+        "label": "minus1_job_fee_credit_ALLOW",
+        "threw": false
+      },
+      {
+        "label": "minus1_commission_credit_MUST_REJECT",
+        "threw": true,
+        "code": "LEDGER_RESERVED_UID",
+        "reason": "PLATFORM_CREDIT_KIND_FORBIDDEN"
+      },
+      {
+        "label": "minus1_job_fee_debit_MUST_REJECT",
+        "threw": true,
+        "code": "LEDGER_RESERVED_UID",
+        "reason": "PLATFORM_DEBIT_FORBIDDEN"
+      },
+      {
+        "label": "minus2_commission_debit_ALLOW",
+        "threw": false
+      },
+      {
+        "label": "minus2_job_fee_credit_ALLOW",
+        "threw": false
+      }
+    ],
+    "ts_ok": true,
+    "db_side_job_fee_to_minus1_ok": true,
+    "db_ld032_bucket": {
+      "code": "LEDGER_RECONCILE_MISMATCH",
+      "bucket": "defect",
+      "reason": "reconcile_mismatch",
+      "pg_code": "LD032",
+      "retryable": false,
+      "constraint": ""
+    }
+  },
+  "11_summary": {
+    "reds": [],
+    "red_count": 0,
+    "case_reds": {
+      "c1": [],
+      "c2": [],
+      "c3": [],
+      "c4": [],
+      "c6": [],
+      "c7": []
+    },
+    "M1": {
+      "pass": true,
+      "note": "Σx == P 逐分不差（构造出来）；判负 = tamper payload 被拦（保平衡的 Σ 篡改必须 LD032）"
+    },
+    "M2": {
+      "pass": true,
+      "note": "net = gross − fee 且 net+fee = gross 且雇主余额不变"
+    },
+    "M3": {
+      "pass": true,
+      "note": "A：-2 净额 0；C（无邀请人）：-2 净额 0 / -1 净额 +fee / 0 条 commission"
+    },
+    "M4": {
+      "pass": true,
+      "note": "10 级全深度 credit_rows=10；对照 levels=9 ⇒ 9"
+    },
+    "M5": {
+      "pass": true,
+      "note": "①无邀请人 ②短链逐值{4615,3077,2308} ③零额 ④平局{0,1}"
+    },
+    "M6": {
+      "pass": true,
+      "note": "8 并发同键 ⇒ root_rows=1、不双发、N−1 次重放"
+    },
+    "M7": {
+      "pass": true,
+      "note": "双向：历史不变 + 同键重放零新增 + 新事件必须按新政策"
+    },
+    "M8": {
+      "pass": true,
+      "note": "Σ(delta+frozen_delta)=0 且键族两口径归零"
+    },
+    "M9": {
+      "pass": true,
+      "note": "cycles=0 / bad_depth=0；判负 = 绕过守卫直插 2-环 ⇒ 两者变红（事务内 ROLLBACK 复原）"
+    }
+  },
+  "12_artifacts": {
+    "ledger_rows_now": "1450",
+    "referral_rows_now": "21",
+    "platform_accounts_test_cid": [
+      {
+        "uid": "-1",
+        "balance": "5",
+        "frozen": "0"
+      },
+      {
+        "uid": "-2",
+        "balance": "0",
+        "frozen": "0"
+      }
+    ],
+    "cid_1_untouched": [
+      {
+        "n": "0"
+      }
+    ]
+  }
+}

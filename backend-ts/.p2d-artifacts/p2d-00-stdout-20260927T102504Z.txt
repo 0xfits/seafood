@@ -1,0 +1,1 @@
+FATAL {"length":212,"name":"error","severity":"ERROR","code":"23505","detail":"Key (symbol)=(p1sP2D) already exists.","schema":"public","table":"currency","constraint":"currency_symbol_uniq","file":"nbtinsert.c","line":"667","routine":"_bt_check_unique"}

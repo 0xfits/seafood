@@ -1,0 +1,56 @@
+WROTE /Users/kevin/bistro/seafood/backend-ts/.p1f-artifacts/p1o-00-escape-sweep-after-MUJOLUQJ.json
+{
+ "phase": "after",
+ "run": "MUJOLUQJ",
+ "symbol": "P1PMUJOLUQJ",
+ "cid": "152",
+ "aggregates": {
+  "cells_total": 604,
+  "cells_executed": 590,
+  "cells_skipped": 14,
+  "cells_thrown": 518,
+  "cells_no_throw": 86,
+  "raw_sqlstate_escapes": 0,
+  "unmapped": 0,
+  "missing_status": 0,
+  "ld_sqlstate_leaked": 0,
+  "unexpected_500": 0,
+  "expectation_mismatches": 0,
+  "valid_shape_false_reject": 0
+ },
+ "verdicts": {
+  "raw_sqlstate_escapes_zero": true,
+  "unmapped_zero": true,
+  "missing_status_zero": true,
+  "ld_sqlstate_no_leak": true,
+  "no_unexpected_500_from_caller_input": true,
+  "all_cells_match_expectation": true
+ },
+ "failures": [],
+ "escape_cells": [],
+ "mismatch_cells": [],
+ "rows_touched": {
+  "ledger_entry_before": "1068",
+  "ledger_entry_after": "1068",
+  "wrote_no_ledger_rows": true
+ }
+}
+--- 每入口点读数分布（code/status × 计数）---
+E-R1_getCurrency                   cells= 17 thrown= 14  {"LEDGER_AMOUNT_INVALID/400":10,"LEDGER_CURRENCY_NOT_FOUND/404":4}
+E-R2_getAccount                    cells= 34 thrown= 25  {"LEDGER_AMOUNT_INVALID/400":20,"LEDGER_CURRENCY_NOT_FOUND/404":4,"LEDGER_RESERVED_UID/400":1}
+E-R3_limit                         cells=  6 thrown=  0  {}
+E-R3_listEntries                   cells= 51 thrown= 34  {"LEDGER_AMOUNT_INVALID/400":29,"LEDGER_RESERVED_UID/400":1,"LEDGER_CURRENCY_NOT_FOUND/404":4}
+E-R4_getCurrencyBySymbol           cells= 10 thrown=  0  {}
+E-R5_findEntriesByIdempotencyKey   cells=  7 thrown=  6  {"LEDGER_IDEMPOTENCY_KEY_REQUIRED/400":2,"LEDGER_IDEMPOTENCY_KEY_INVALID/400":4}
+E-W10_parseUserAmount              cells= 15 thrown= 13  {"LEDGER_AMOUNT_INVALID/400":11,"LEDGER_AMOUNT_NOT_POSITIVE/400":2}
+E-W11_assertUserUid                cells= 17 thrown= 15  {"LEDGER_AMOUNT_INVALID/400":10,"LEDGER_RESERVED_UID/400":5}
+E-W11_toAmount                     cells= 34 thrown= 20  {"LEDGER_AMOUNT_INVALID/400":20}
+E-W1_transfer                      cells= 66 thrown= 66  {"LEDGER_INSUFFICIENT_BALANCE/409":8,"LEDGER_AMOUNT_INVALID/400":41,"LEDGER_CURRENCY_NOT_FOUND/404":5,"LEDGER_RESERVED_UID/400":10,"LEDGER_AMOUNT_NOT_POSITIVE/400":2}
+E-W2_mint                          cells= 49 thrown= 49  {"LEDGER_UNAUTHORIZED_MINT/403":10,"LEDGER_AMOUNT_INVALID/400":31,"LEDGER_CURRENCY_NOT_FOUND/404":5,"LEDGER_RESERVED_UID/400":1,"LEDGER_AMOUNT_NOT_POSITIVE/400":2}
+E-W3_freeze                        cells= 49 thrown= 49  {"LEDGER_INSUFFICIENT_BALANCE/409":6,"LEDGER_AMOUNT_INVALID/400":31,"LEDGER_CURRENCY_NOT_FOUND/404":5,"LEDGER_RESERVED_UID/400":5,"LEDGER_AMOUNT_NOT_POSITIVE/400":2}
+E-W4_unfreeze                      cells= 49 thrown= 49  {"LEDGER_INSUFFICIENT_FROZEN/409":6,"LEDGER_AMOUNT_INVALID/400":31,"LEDGER_CURRENCY_NOT_FOUND/404":5,"LEDGER_RESERVED_UID/400":5,"LEDGER_AMOUNT_NOT_POSITIVE/400":2}
+E-W5_settleFrozen                  cells= 66 thrown= 66  {"LEDGER_INSUFFICIENT_FROZEN/409":8,"LEDGER_AMOUNT_INVALID/400":41,"LEDGER_CURRENCY_NOT_FOUND/404":5,"LEDGER_RESERVED_UID/400":10,"LEDGER_AMOUNT_NOT_POSITIVE/400":2}
+E-W6_postEvent                     cells= 66 thrown= 66  {"LEDGER_INSUFFICIENT_BALANCE/409":10,"LEDGER_AMOUNT_INVALID/400":41,"LEDGER_CURRENCY_NOT_FOUND/404":5,"LEDGER_RESERVED_UID/400":8,"LEDGER_AMOUNT_NOT_POSITIVE/400":2}
+E-W7_getOrCreateAccount            cells= 34 thrown= 26  {"LEDGER_AMOUNT_INVALID/400":20,"LEDGER_CURRENCY_NOT_FOUND/404":5,"LEDGER_RESERVED_UID/400":1}
+E-W8_ensurePlatformAccounts        cells= 17 thrown= 10  {"LEDGER_AMOUNT_INVALID/400":10}
+E-W9_lockAccounts                  cells= 17 thrown= 10  {"LEDGER_AMOUNT_INVALID/400":10}

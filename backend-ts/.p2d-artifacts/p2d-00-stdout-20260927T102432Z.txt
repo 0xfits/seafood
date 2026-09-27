@@ -1,0 +1,1 @@
+FATAL {"name":"LedgerError","code":"LEDGER_IDEMPOTENCY_KEY_REQUIRED","status":400,"httpStatus":400,"i18nKey":"ledger.err.LEDGER_IDEMPOTENCY_KEY_REQUIRED","details":{}}

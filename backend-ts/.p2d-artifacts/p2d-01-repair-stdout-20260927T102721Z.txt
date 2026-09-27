@@ -1,0 +1,15 @@
+{
+ "file": "/Users/kevin/bistro/seafood/backend-ts/.p2d-artifacts/p2d-01-depth-repair-20260927T102721Z.json",
+ "bad_before": 13,
+ "bad_after": 0,
+ "global_before": {
+  "cycles": "0",
+  "bad_depth": "13"
+ },
+ "global_after": {
+  "cycles": "0",
+  "bad_depth": "0"
+ },
+ "updated_rows": 13,
+ "ok": true
+}

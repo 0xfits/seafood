@@ -531,7 +531,14 @@ const toCid = (cid: Amount): bigint => {
  */
 const PLATFORM_KIND_WHITELIST: Record<string, { credit: LedgerKind[]; debit: LedgerKind[] }> = {
   '0': { credit: ['mint', 'transfer', 'reversal'], debit: ['transfer', 'burn', 'reversal'] },
-  '-1': { credit: ['trade_fee', 'listing_fee', 'currency_create_fee'], debit: [] }, // R103：只进不出
+  // R103：只进不出。
+  // 🆕 P2（commission.spec v0.2 裁定 #11 / CR84 / CR85 ④）：`-1` 的 credit 增加 `job_fee` ——
+  //    「无邀请人 ⇒ 手续费仍收、但入 `-1`（平台收入）】，不入 `-2`（`-2` 只作佣金中转、同事件净额 0）」。
+  //    **必须与 DB 侧同改**：`migrations/0008_platform_revenue_job_fee.sql` 的
+  //    `ledger_assert_platform_mutation` 已把 `job_fee` 加入 `-1` 的 `credit` 白名单（0008 已应用）。
+  //    ⇒ 本行是那次迁移的 **TS 侧同步**（0008 文件头把这一项登记为「下一单的第一件事」）。
+  //    `debit` 仍恒为空（不许被顺带松掉；0008 的自检负例②已取证）。
+  '-1': { credit: ['trade_fee', 'listing_fee', 'currency_create_fee', 'job_fee'], debit: [] },
   '-2': { credit: ['job_fee'], debit: ['commission'] },
   // R38 说明「退还 = 反向 hold_forfeit 或从 −3 transfer」；R101 却禁止平台账户用 transfer
   // ⇒ spec 内部张力，本实现取宽松侧（允许退还路径），已登记为歧义点。

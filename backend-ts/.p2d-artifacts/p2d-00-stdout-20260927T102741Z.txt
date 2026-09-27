@@ -1,0 +1,597 @@
+{
+ "run": "20260927T102741Z",
+ "reds": [
+  "m1_neg.rows_written_0",
+  "m9.bind_cycle_negative"
+ ],
+ "red_count": 2,
+ "json": "/Users/kevin/bistro/seafood/backend-ts/.p2d-artifacts/p2d-00-m-criteria-20260927T102741Z.json",
+ "md": "/Users/kevin/bistro/seafood/backend-ts/.p2d-artifacts/p2d-REPORT-20260927T102741Z.md",
+ "summary": {
+  "reds": [
+   "m1_neg.rows_written_0",
+   "m9.bind_cycle_negative"
+  ],
+  "red_count": 2,
+  "case_reds": {
+   "c1": [],
+   "c2": [],
+   "c3": [],
+   "c4": [],
+   "c6": [],
+   "c7": []
+  },
+  "M1": {
+   "pass": false,
+   "note": "Σx == P 逐分不差（构造出来）；判负 = tamper payload 被 0007 断言拦（LD032）"
+  },
+  "M2": {
+   "pass": true,
+   "note": "net = gross − fee 且 net+fee = gross 且雇主余额不变"
+  },
+  "M3": {
+   "pass": true,
+   "note": "A：-2 净额 0；C（无邀请人）：-2 净额 0 / -1 净额 +fee / 0 条 commission"
+  },
+  "M4": {
+   "pass": true,
+   "note": "10 级全深度 credit_rows=10；对照 levels=9 ⇒ 9"
+  },
+  "M5": {
+   "pass": true,
+   "note": "①无邀请人 ②短链逐值{4615,3077,2308} ③零额 ④平局{0,1}"
+  },
+  "M6": {
+   "pass": true,
+   "note": "8 并发同键 ⇒ root_rows=1、不双发、N−1 次重放"
+  },
+  "M7": {
+   "pass": true,
+   "note": "双向：历史不变 + 同键重放零新增 + 新事件必须按新政策"
+  },
+  "M8": {
+   "pass": true,
+   "note": "Σ(delta+frozen_delta)=0 且键族两口径归零"
+  },
+  "M9": {
+   "pass": true,
+   "note": "cycles=0 / bad_depth=0；判负 = 绕过守卫直插 2-环 ⇒ 两者变红（事务内 ROLLBACK 复原）"
+  }
+ },
+ "m6": {
+  "concurrency": 8,
+  "elapsed_ms": 2808,
+  "responses": [
+   {
+    "ok": true,
+    "replay": false,
+    "txid": "2926",
+    "entries": 24
+   },
+   {
+    "ok": true,
+    "replay": true,
+    "txid": "2926",
+    "entries": 24
+   },
+   {
+    "ok": true,
+    "replay": true,
+    "txid": "2926",
+    "entries": 24
+   },
+   {
+    "ok": true,
+    "replay": true,
+    "txid": "2926",
+    "entries": 24
+   },
+   {
+    "ok": true,
+    "replay": true,
+    "txid": "2926",
+    "entries": 24
+   },
+   {
+    "ok": true,
+    "replay": true,
+    "txid": "2926",
+    "entries": 24
+   },
+   {
+    "ok": true,
+    "replay": true,
+    "txid": "2926",
+    "entries": 24
+   },
+   {
+    "ok": true,
+    "replay": true,
+    "txid": "2926",
+    "entries": 24
+   }
+  ],
+  "ok_count": 8,
+  "replay_count": 7,
+  "root_rows": "1",
+  "rows_total": "24",
+  "rows_expected": "24",
+  "commission_rows": "20",
+  "minus2_net": "0",
+  "worker_got": "9900",
+  "root_rows_exactly_1": true,
+  "rows_total_not_doubled": true,
+  "replay_count_is_n_minus_1": true,
+  "all_2xx": true,
+  "worker_paid_once": true
+ },
+ "m7": {
+  "policy_versions": [
+   {
+    "policy_id": "1",
+    "fee_rate_bp": 100,
+    "levels": 10,
+    "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+    "effective_from": "1970-01-01 00:00:00+00"
+   },
+   {
+    "policy_id": "20",
+    "fee_rate_bp": 500,
+    "levels": 9,
+    "weights_bp": "{1000,1000,1000,1000,1000,1000,1000,1000,1000}",
+    "effective_from": "2026-09-27 10:25:41.081836+00"
+   },
+   {
+    "policy_id": "21",
+    "fee_rate_bp": 100,
+    "levels": 2,
+    "weights_bp": "{2500,2500}",
+    "effective_from": "2026-09-27 10:25:45.960436+00"
+   },
+   {
+    "policy_id": "22",
+    "fee_rate_bp": 100,
+    "levels": 10,
+    "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+    "effective_from": "2026-09-27 10:25:48.409564+00"
+   },
+   {
+    "policy_id": "23",
+    "fee_rate_bp": 500,
+    "levels": 9,
+    "weights_bp": "{1000,1000,1000,1000,1000,1000,1000,1000,1000}",
+    "effective_from": "2026-09-27 10:28:11.373321+00"
+   }
+  ],
+  "new_policy_inserted": {
+   "policy_id": "23",
+   "fee_rate_bp": 500,
+   "levels": 9,
+   "effective_from": "2026-09-27 10:28:11.373321+00"
+  },
+  "policy_now_in_effect": {
+   "policy_id": "23",
+   "fee_rate_bp": 500,
+   "levels": 9
+  },
+  "step3_history_fingerprint_unchanged": true,
+  "fingerprint_before": "c1d2658117e2c2d3dff98c85aa53ef0398da51e38bb6996ff4b9ddc1359e861b",
+  "fingerprint_after": "c1d2658117e2c2d3dff98c85aa53ef0398da51e38bb6996ff4b9ddc1359e861b",
+  "step3_rows_unchanged": true,
+  "step4_replay_same_payload": {
+   "ok": true,
+   "replay": true,
+   "txid": "2886",
+   "error": null
+  },
+  "step4_zero_new_rows": true,
+  "step4b_replanned_under_new_policy_409": {
+   "ok": true,
+   "replay": true,
+   "fee": "500"
+  },
+  "step5_new_event_uses_new_policy": {
+   "m1_pool": "500",
+   "m1_paid": "500",
+   "m1_sum_equals_pool": true,
+   "m1_pool_in_equals_fee": true,
+   "m2_gross_from_frozen": "10000",
+   "m2_net_equals_gross_minus_fee": true,
+   "m2_sum_ok": true,
+   "m2_employer_balance_unchanged": true,
+   "m3_minus2_net": "0",
+   "m3_a_net_zero": true,
+   "m3_c_no_referrer": true,
+   "m3_fee_credit_to_minus1": true,
+   "shape_rows_total": "22",
+   "shape_rows_expected": "22",
+   "shape_rows_match": true,
+   "shape_root_rows_exactly_1": true,
+   "shape_commission_rows": "18",
+   "shape_commission_rows_expected": "18",
+   "shape_commission_ok": true,
+   "shape_job_fee_rows": "2",
+   "shape_job_fee_expected": "2",
+   "shape_job_fee_ok": true,
+   "m4_credit_rows": "9",
+   "m4_distinct_beneficiaries": "9",
+   "m4_payer_rows_distinct": "1",
+   "m4_layers_expected": "9",
+   "m4_credit_rows_ok": true,
+   "m4_distinct_ok": true,
+   "m4_payer_single_account": true,
+   "m8_ev_sum": "0",
+   "m8_ev_sum_zero": true,
+   "m8_key_family_root_zero": true,
+   "m8_key_family_arithmetic_zero": true,
+   "attribution_uid_delta": "-2:-55,951101:55,-2:-55,951102:55,-2:-55,951103:55,-2:-55,951104:55,-2:-56,951105:56,-2:-56,951106:56,-2:-56,951107:56,-2:-56,951108:56,-2:-56,951109:56",
+   "attribution_matches_plan": true,
+   "derived_keys": "biz:job:settle:951790504862532,biz:job:settle:951790504862532#2,biz:job:settle:951790504862532#3,biz:job:settle:951790504862532#4,biz:job:settle:951790504862532#5,biz:job:settle:951790504862532#6,biz:job:settle:951790504862532#7,biz:job:settle:951790504862532#8,biz:job:settle:951790504862532#9,biz:job:settle:951790504862532#10,biz:job:settle:951790504862532#11,biz:job:settle:951790504862532#12,biz:job:settle:951790504862532#13,biz:job:settle:951790504862532#14,biz:job:settle:951790504862532#15,biz:job:settle:951790504862532#16,biz:job:settle:951790504862532#17,biz:job:settle:951790504862532#18,biz:job:settle:951790504862532#19,biz:job:settle:951790504862532#20,biz:job:settle:951790504862532#21,biz:job:settle:951790504862532#22"
+  },
+  "step5_expected_custom": {
+   "used_new_policy_fee_500bp": true,
+   "levels_9_caps_depth": true,
+   "tie_break_deeper_first_x": "[\"55\",\"55\",\"55\",\"55\",\"56\",\"56\",\"56\",\"56\",\"56\"]"
+  },
+  "new_event": {
+   "job_id": "951790504862532",
+   "plan": {
+    "gross": "10000",
+    "fee": "500",
+    "net": "9500",
+    "pool": "500",
+    "chain_depth": 9,
+    "M": 9,
+    "N": 9,
+    "W": "9000",
+    "weights_bp": [
+     "1000",
+     "1000",
+     "1000",
+     "1000",
+     "1000",
+     "1000",
+     "1000",
+     "1000",
+     "1000"
+    ],
+    "fee_credit_uid": "-2",
+    "zero_amount": false,
+    "no_referrer": false,
+    "layers": [
+     {
+      "L": 1,
+      "uid": "951101",
+      "w": "1000",
+      "q": "55",
+      "r": "5000",
+      "x": "55"
+     },
+     {
+      "L": 2,
+      "uid": "951102",
+      "w": "1000",
+      "q": "55",
+      "r": "5000",
+      "x": "55"
+     },
+     {
+      "L": 3,
+      "uid": "951103",
+      "w": "1000",
+      "q": "55",
+      "r": "5000",
+      "x": "55"
+     },
+     {
+      "L": 4,
+      "uid": "951104",
+      "w": "1000",
+      "q": "55",
+      "r": "5000",
+      "x": "55"
+     },
+     {
+      "L": 5,
+      "uid": "951105",
+      "w": "1000",
+      "q": "55",
+      "r": "5000",
+      "x": "56"
+     },
+     {
+      "L": 6,
+      "uid": "951106",
+      "w": "1000",
+      "q": "55",
+      "r": "5000",
+      "x": "56"
+     },
+     {
+      "L": 7,
+      "uid": "951107",
+      "w": "1000",
+      "q": "55",
+      "r": "5000",
+      "x": "56"
+     },
+     {
+      "L": 8,
+      "uid": "951108",
+      "w": "1000",
+      "q": "55",
+      "r": "5000",
+      "x": "56"
+     },
+     {
+      "L": 9,
+      "uid": "951109",
+      "w": "1000",
+      "q": "55",
+      "r": "5000",
+      "x": "56"
+     }
+    ],
+    "split": {
+     "W": "9000",
+     "D": "5",
+     "plus_one_levels": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "sum_x": "500",
+     "sum_ok": true
+    }
+   },
+   "facts": {
+    "idempotency_key": "biz:job:settle:951790504862532",
+    "rows_total": "22",
+    "root_rows": "1",
+    "commission_rows": "18",
+    "payout_rows": "2",
+    "job_fee_rows": "2",
+    "pool_in": "500",
+    "commission_out": "500",
+    "minus2_net": "0",
+    "minus1_net": "0",
+    "minus1_fee_in": "0",
+    "employer_frozen_out": "10000",
+    "employer_delta": "0",
+    "worker_got": "9500",
+    "ev_net_sum": "0",
+    "credit_rows": "9",
+    "distinct_beneficiaries": "9",
+    "minus2_commission_payer_rows": "1",
+    "commission_uid_delta": "-2:-55,951101:55,-2:-55,951102:55,-2:-55,951103:55,-2:-55,951104:55,-2:-56,951105:56,-2:-56,951106:56,-2:-56,951107:56,-2:-56,951108:56,-2:-56,951109:56",
+    "key_family_net_by_root": "0",
+    "key_family_net_by_key_arithmetic": "0",
+    "derived_keys": "biz:job:settle:951790504862532,biz:job:settle:951790504862532#2,biz:job:settle:951790504862532#3,biz:job:settle:951790504862532#4,biz:job:settle:951790504862532#5,biz:job:settle:951790504862532#6,biz:job:settle:951790504862532#7,biz:job:settle:951790504862532#8,biz:job:settle:951790504862532#9,biz:job:settle:951790504862532#10,biz:job:settle:951790504862532#11,biz:job:settle:951790504862532#12,biz:job:settle:951790504862532#13,biz:job:settle:951790504862532#14,biz:job:settle:951790504862532#15,biz:job:settle:951790504862532#16,biz:job:settle:951790504862532#17,biz:job:settle:951790504862532#18,biz:job:settle:951790504862532#19,biz:job:settle:951790504862532#20,biz:job:settle:951790504862532#21,biz:job:settle:951790504862532#22"
+   },
+   "criteria": {
+    "m1_pool": "500",
+    "m1_paid": "500",
+    "m1_sum_equals_pool": true,
+    "m1_pool_in_equals_fee": true,
+    "m2_gross_from_frozen": "10000",
+    "m2_net_equals_gross_minus_fee": true,
+    "m2_sum_ok": true,
+    "m2_employer_balance_unchanged": true,
+    "m3_minus2_net": "0",
+    "m3_a_net_zero": true,
+    "m3_c_no_referrer": true,
+    "m3_fee_credit_to_minus1": true,
+    "shape_rows_total": "22",
+    "shape_rows_expected": "22",
+    "shape_rows_match": true,
+    "shape_root_rows_exactly_1": true,
+    "shape_commission_rows": "18",
+    "shape_commission_rows_expected": "18",
+    "shape_commission_ok": true,
+    "shape_job_fee_rows": "2",
+    "shape_job_fee_expected": "2",
+    "shape_job_fee_ok": true,
+    "m4_credit_rows": "9",
+    "m4_distinct_beneficiaries": "9",
+    "m4_payer_rows_distinct": "1",
+    "m4_layers_expected": "9",
+    "m4_credit_rows_ok": true,
+    "m4_distinct_ok": true,
+    "m4_payer_single_account": true,
+    "m8_ev_sum": "0",
+    "m8_ev_sum_zero": true,
+    "m8_key_family_root_zero": true,
+    "m8_key_family_arithmetic_zero": true,
+    "attribution_uid_delta": "-2:-55,951101:55,-2:-55,951102:55,-2:-55,951103:55,-2:-55,951104:55,-2:-56,951105:56,-2:-56,951106:56,-2:-56,951107:56,-2:-56,951108:56,-2:-56,951109:56",
+    "attribution_matches_plan": true,
+    "derived_keys": "biz:job:settle:951790504862532,biz:job:settle:951790504862532#2,biz:job:settle:951790504862532#3,biz:job:settle:951790504862532#4,biz:job:settle:951790504862532#5,biz:job:settle:951790504862532#6,biz:job:settle:951790504862532#7,biz:job:settle:951790504862532#8,biz:job:settle:951790504862532#9,biz:job:settle:951790504862532#10,biz:job:settle:951790504862532#11,biz:job:settle:951790504862532#12,biz:job:settle:951790504862532#13,biz:job:settle:951790504862532#14,biz:job:settle:951790504862532#15,biz:job:settle:951790504862532#16,biz:job:settle:951790504862532#17,biz:job:settle:951790504862532#18,biz:job:settle:951790504862532#19,biz:job:settle:951790504862532#20,biz:job:settle:951790504862532#21,biz:job:settle:951790504862532#22"
+   }
+  }
+ },
+ "m9": {
+  "baseline": {
+   "cycles": "0",
+   "bad_depth": "0",
+   "referral_rows": "20"
+  },
+  "bypass_contrast": {
+   "injected_rows": 2,
+   "injected_pair": "951143<->951144",
+   "cycles": "100",
+   "bad_depth": "2",
+   "note": "事务内 DISABLE TRIGGER + 直插 2-环 ⇒ 测量后 ROLLBACK，不留脏数据"
+  },
+  "restored": {
+   "cycles": "0",
+   "bad_depth": "0",
+   "referral_rows": "20"
+  },
+  "baseline_clean": true,
+  "bypass_red_as_expected": true,
+  "restored_clean": true,
+  "bind_cycle_negative": {
+   "2a_bind_A_to_B_ok": {
+    "ok": false,
+    "state": "LD016",
+    "message": "LEDGER_AMOUNT_INVALID",
+    "pg_detail": "{\"reason\": \"REFERRAL_CYCLE_REJECTED\", \"child_uid\": \"951141\", \"parent_uid\": \"951142\"}",
+    "reason": "REFERRAL_CYCLE_REJECTED",
+    "err_name": "error",
+    "ts_code": null,
+    "ts_http_status": null,
+    "ts_status": null
+   },
+   "2b_bind_B_to_A_MUST_REJECT": {
+    "ok": true,
+    "depth": "1"
+   },
+   "rejected": false,
+   "code_is_400_amount_invalid": false,
+   "reason_is_cycle_rejected": false,
+   "note": "CR79 的机读要求：先 A→B 再 B→A ⇒ 第二条绑定必须被拒（2-环反例）"
+  }
+ },
+ "c1_plan": {
+  "gross": "10000",
+  "fee": "100",
+  "net": "9900",
+  "pool": "100",
+  "chain_depth": 10,
+  "M": 10,
+  "N": 10,
+  "W": "10000",
+  "weights_bp": [
+   "3000",
+   "2000",
+   "1500",
+   "1000",
+   "800",
+   "600",
+   "500",
+   "300",
+   "200",
+   "100"
+  ],
+  "fee_credit_uid": "-2",
+  "zero_amount": false,
+  "no_referrer": false,
+  "layers": [
+   {
+    "L": 1,
+    "uid": "951101",
+    "w": "3000",
+    "q": "30",
+    "r": "0",
+    "x": "30"
+   },
+   {
+    "L": 2,
+    "uid": "951102",
+    "w": "2000",
+    "q": "20",
+    "r": "0",
+    "x": "20"
+   },
+   {
+    "L": 3,
+    "uid": "951103",
+    "w": "1500",
+    "q": "15",
+    "r": "0",
+    "x": "15"
+   },
+   {
+    "L": 4,
+    "uid": "951104",
+    "w": "1000",
+    "q": "10",
+    "r": "0",
+    "x": "10"
+   },
+   {
+    "L": 5,
+    "uid": "951105",
+    "w": "800",
+    "q": "8",
+    "r": "0",
+    "x": "8"
+   },
+   {
+    "L": 6,
+    "uid": "951106",
+    "w": "600",
+    "q": "6",
+    "r": "0",
+    "x": "6"
+   },
+   {
+    "L": 7,
+    "uid": "951107",
+    "w": "500",
+    "q": "5",
+    "r": "0",
+    "x": "5"
+   },
+   {
+    "L": 8,
+    "uid": "951108",
+    "w": "300",
+    "q": "3",
+    "r": "0",
+    "x": "3"
+   },
+   {
+    "L": 9,
+    "uid": "951109",
+    "w": "200",
+    "q": "2",
+    "r": "0",
+    "x": "2"
+   },
+   {
+    "L": 10,
+    "uid": "951110",
+    "w": "100",
+    "q": "1",
+    "r": "0",
+    "x": "1"
+   }
+  ],
+  "split": {
+   "W": "10000",
+   "D": "0",
+   "plus_one_levels": [],
+   "sum_x": "100",
+   "sum_ok": true
+  }
+ },
+ "c1_facts": {
+  "idempotency_key": "biz:job:settle:951790504862527",
+  "rows_total": "24",
+  "root_rows": "1",
+  "commission_rows": "20",
+  "payout_rows": "2",
+  "job_fee_rows": "2",
+  "pool_in": "100",
+  "commission_out": "100",
+  "minus2_net": "0",
+  "minus1_net": "0",
+  "minus1_fee_in": "0",
+  "employer_frozen_out": "10000",
+  "employer_delta": "0",
+  "worker_got": "9900",
+  "ev_net_sum": "0",
+  "credit_rows": "10",
+  "distinct_beneficiaries": "10",
+  "minus2_commission_payer_rows": "1",
+  "commission_uid_delta": "-2:-30,951101:30,-2:-20,951102:20,-2:-15,951103:15,-2:-10,951104:10,-2:-8,951105:8,-2:-6,951106:6,-2:-5,951107:5,-2:-3,951108:3,-2:-2,951109:2,-2:-1,951110:1",
+  "key_family_net_by_root": "0",
+  "key_family_net_by_key_arithmetic": "0",
+  "derived_keys": "biz:job:settle:951790504862527,biz:job:settle:951790504862527#2,biz:job:settle:951790504862527#3,biz:job:settle:951790504862527#4,biz:job:settle:951790504862527#5,biz:job:settle:951790504862527#6,biz:job:settle:951790504862527#7,biz:job:settle:951790504862527#8,biz:job:settle:951790504862527#9,biz:job:settle:951790504862527#10,biz:job:settle:951790504862527#11,biz:job:settle:951790504862527#12,biz:job:settle:951790504862527#13,biz:job:settle:951790504862527#14,biz:job:settle:951790504862527#15,biz:job:settle:951790504862527#16,biz:job:settle:951790504862527#17,biz:job:settle:951790504862527#18,biz:job:settle:951790504862527#19,biz:job:settle:951790504862527#20,biz:job:settle:951790504862527#21,biz:job:settle:951790504862527#22,biz:job:settle:951790504862527#23,biz:job:settle:951790504862527#24"
+ },
+ "c2_extra": {
+  "x_equals_spec_example2": true,
+  "re
+FAIL: 2 red readings
