@@ -6,7 +6,6 @@ import toast from 'react-hot-toast'
 import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdminPermission } from '../../admin-utils'
 
 const DEFAULT_SETTINGS = {
-  siteName: 'Jinli Club',
   siteDescription: '去中心化社区奖励平台',
   maintenance: false,
   allowRegistration: true,
@@ -193,15 +192,6 @@ const SystemSettings = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">网站名称</label>
-              <input
-                type="text"
-                value={settings.siteName}
-                onChange={(e) => handleSettingChange('siteName', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
-              />
-            </div>
             <div>
               <label className="block text-sm font-medium mb-2">网站描述</label>
               <textarea

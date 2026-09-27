@@ -47,6 +47,24 @@ const LanguageWrapper = ({ children }) => {
   return <div className="min-h-screen flex flex-col">{children}</div>
 }
 
+// 浏览器标签标题（document.title）的唯一运行时写入点：
+// 单一真源是 locale 文件里的 siteTitle；依赖 i18n.language 而非挂载点，才能同时覆盖
+// 「首次加载」与两条语言切换路径（Header 的 navigate 改 URL → LanguageWrapper 切语言，以及直接 changeLanguage）。
+const HTML_LANG_BY_KEY = { zh: 'zh-CN', hk: 'zh-HK', vn: 'vi', en: 'en' }
+
+const DocumentTitle = () => {
+  const { t, i18n } = useTranslation()
+  const lang = i18n.resolvedLanguage || i18n.language
+
+  useEffect(() => {
+    document.title = t('siteTitle')
+    // 顺带把 <html lang> 同步为当前语言（index.html 里写死的 zh-CN 只是启动前回退值）
+    document.documentElement.setAttribute('lang', HTML_LANG_BY_KEY[lang] || 'zh-CN')
+  }, [t, lang])
+
+  return null
+}
+
 // 受保护的路由组件
 const ProtectedRoute = ({ children, adminOnly = false, requiredPermission = null }) => {
   const { isAuthenticated, user } = useAuth()
@@ -134,6 +152,7 @@ function App() {
 
   return (
     <div className="app-container gradient-bg">
+      <DocumentTitle />
       <Routes>
         {/* 登录页面 */}
         <Route path="/login" element={<AuthPage mode="login" />} />

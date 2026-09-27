@@ -174,7 +174,7 @@ const Header = () => {
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
             <Link to={buildPath('')} className="text-xl font-bold text-yellow-600 dark:text-yellow-400">
-              {t('siteTitle')}
+              {t('siteBrand')}
             </Link>
           </div>
           
