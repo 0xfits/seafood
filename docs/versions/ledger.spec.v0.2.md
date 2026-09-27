@@ -1,7 +1,6 @@
 # 海鲜市场 · 多币种账本口径冻结裁定书
 
-> **文档状态**：v0.3 · 已完成（19 章 + 目录 + 规则总索引，共 108 条规则 R1–R108）。待 Kevin 拍板项集中于 §15（其中 R31 上市保证金性质已于 v0.2 裁定，见 §19.0；`listing_deposit_forfeit` 已删除一事已于 v0.3（P1c）裁定，见 §19.8），未实测边界见 §16。
-> **本版修订（v0.3 · Zang P1c 收口）**：按 Zang 对 P1c 实现（Kong）的裁定与实测取证就地更正三处（改前快照：`docs/versions/ledger.spec.v0.2.md`，md5 `1a63a2f4e84ec199b463c536c3911cda`，1071 行 / 156707 字节）：① **kind 关闭集 21 → 20**（删 `listing_deposit_forfeit`；Zang 裁定：保证金在上市时即消耗、强制下架无可罚没标的物；DB 侧落点 `backend-ts/migrations/0003_kind_close_set_20.sql`）；② **非 PG 错误归类**（无 `code` 的裸 `Error`：连接池取连接超时/过载 → `503 LEDGER_TX_TIMEOUT` + `details.reason = 'pool_connection_timeout'`；驱动/OS 级连接错误 → `503` + `reason = 'driver_connection_error'`；**不得**再兜底改写为 `500 LEDGER_TRANSACTION_REQUIRED`）；③ **事实更正**：本库 `ledger_entry.kind` 为 **`text` + CHECK 约束**（约束名恰为 `ledger_kind_enum`），**不是** PostgreSQL enum 类型 ⇒ 删 kind 的手段是 `DROP CONSTRAINT` + `ADD CONSTRAINT`（**约束替换**），**不是** `ALTER TYPE`。并追加 §19.8「裁定与事实更正（Zang · P1c 收口）」。**所有改写一律留痕**：旧口径以「v0.2 旧写法 / v0.1 旧写法」形式保留在同处，不做静默重写；章节编号未重排（P1c 内容一律追加为 §19.8）。
+> **文档状态**：v0.2 · 已完成（19 章 + 目录 + 规则总索引，共 108 条规则 R1–R108）。待 Kevin 拍板项集中于 §15（其中 R31 上市保证金性质已于 v0.2 裁定，见 §19.0），未实测边界见 §16。
 > **本版修订（v0.2 · Zang P1a 收口）**：按 Zang 对 P1a 实现挖出的口径冲突所作的三项裁定（① 上市保证金 = 消耗不可退；② §11 判据 8 正式形状；③ §14 错误码借用映射 + R107 `details` 形状表）就地更正，并新增 §19「已裁定口径登记」。**所有改写一律留痕**：旧口径以「v0.1 旧写法」形式保留在同处，不做静默重写。
 > **权威性**：本文件是「海鲜市场」金融内核（账本 / 币种 / 余额 / 幂等 / 对账）的**唯一权威口径**。
 > 与 `docs/seafood.master-plan.md` §3.1（领域模型草案，明确标注「正式口径由 Jing 落 spec」）冲突时，**以本文件为准**。
@@ -68,7 +67,7 @@
 |---|---|
 | D1（保留 Express + Vercel，访问层升级为支持交互式事务的连接池） | §7 事务边界、§10 并发、§16 未实测 #2/#3 |
 | D6（酬金 1%–5% 全额进佣金池，平台不抽成） | §5 kind `job_fee`/`commission`、§13 佣金池账户 |
-| D7 —— **手续费消耗不可退** ✅ 承继；**保证金「冻结可退」❌ 已于 v0.2 被 Kevin 原文推翻** | §4 三态记账、§5 `listing_deposit` / ~~`listing_deposit_forfeit`~~（**v0.3 已删**，见 §19.8.B）/ `trade_fee`；保证金性质的更正见 §3.1 R31（v0.2）与 §19.0 |
+| D7 —— **手续费消耗不可退** ✅ 承继；**保证金「冻结可退」❌ 已于 v0.2 被 Kevin 原文推翻** | §4 三态记账、§5 `listing_deposit` / `listing_deposit_forfeit` / `trade_fee`；保证金性质的更正见 §3.1 R31（v0.2）与 §19.0 |
 | 术语冻结（`$` = 系统币、自建单位、招工、打工、商品、交易所） | §1 |
 
 ---
@@ -176,9 +175,8 @@ CREATE TABLE ledger_entry (
       'job_escrow','job_escrow_refund','job_payout','job_fee','commission',
       'purchase','sale','purchase_refund',
       'trade','trade_fee',
-      'listing_fee','listing_deposit',
+      'listing_fee','listing_deposit','listing_deposit_forfeit',
       -- v0.2 更正：移除 'listing_deposit_refund'（保证金改为消耗不可退，不存在退还 kind，见 §3.1 R31 / §19.0）
-      -- v0.3 更正：移除 'listing_deposit_forfeit'（P1c 裁定：保证金上市时即消耗 ⇒ 强制下架无可罚没标的物，见 §5.1 #21 / §19.8.B）
       'currency_create_fee','reversal'
   )),
   CONSTRAINT ledger_ref_type_enum CHECK (ref_type IS NULL OR ref_type IN (
@@ -189,10 +187,6 @@ CREATE TABLE ledger_entry (
 CREATE UNIQUE INDEX ledger_reversal_of_uniq
   ON ledger_entry (reversal_of_txid) WHERE reversal_of_txid IS NOT NULL;
 ```
-
-> ⚠️ **v0.3 事实更正（实测取证，非提案）**：上列 `ledger_kind_enum` **不是 PostgreSQL enum 类型**，而是 `ledger_entry.kind`（`text`）上的 **CHECK 约束**。本库实测：`information_schema.columns` 中 `ledger_entry.kind` 为 `data_type = 'text'` / `udt_name = 'text'`；`pg_constraint` 中 `ledger_kind_enum` 的 `contype = 'c'`（CHECK）、`def` 形如 `kind = ANY (ARRAY[...])`；`pg_type` 中**无** `typname LIKE '%ledger_kind%'` 的行。⇒ **删 kind 的手段 = 约束替换**（`ALTER TABLE ledger_entry DROP CONSTRAINT ledger_kind_enum;` + `ADD CONSTRAINT ledger_kind_enum CHECK (...)`），**不是** `ALTER TYPE`（PostgreSQL 本就不支持删 enum 值；且本库无该类型可改）。实作见 `backend-ts/migrations/0003_kind_close_set_20.sql`；裁定登记见 §19.8.A。
-> 📌 **v0.2 旧写法（留痕，仅措辞）**：本册 v0.2 及以前对 `ledger_kind_enum` 的引用**未显式声明「它是 CHECK 约束而非类型」**，约束名里的 `_enum` 易被读作「同名 enum 类型」。经逐字核查，本册正文**没有**把它直述为「enum 类型」的句子（§2.2 R17 / §15 #16 早已明写「**不使用** PostgreSQL `ENUM` 类型」，与实测一致）——故本次是**补明确标注 + 补「删 kind 的操作手段」**，不是推翻 v0.2。凡以「enum 类型」描述 `ledger_kind_enum` 之处，**一律以本块为准**。
-> ✅ **v0.3 值集 = 20 个，与 `0003_kind_close_set_20.sql` 逐字一致**：`mint` / `burn` / `transfer` / `hold` / `hold_release` / `hold_forfeit` / `job_escrow` / `job_escrow_refund` / `job_payout` / `job_fee` / `commission` / `purchase` / `sale` / `purchase_refund` / `trade` / `trade_fee` / `listing_fee` / `listing_deposit` / `currency_create_fee` / `reversal`。
 
 ### 2.2 规则
 
@@ -248,7 +242,7 @@ draft ──放弃/下架──▶ delisted(终态)
 | `draft → listed` | 创建者提交上市 | `currency_create_fee`（若适用）+ `listing_fee` + `listing_deposit`（**消耗**：`$` 从创建者 `balance` 扣，记 `delta` 负数并转入 `uid = −1`）〔v0.1 旧写法：`listing_deposit`（冻结）〕 |
 | `listed → frozen` | 平台合规冻结 | 无账务动作（**不**动 user 余额；已挂单需另行撤销，见 R28） |
 | `frozen → listed` | 平台解冻 | 无账务动作 |
-| `listed / frozen → delisted` | 下架（创建者申请或平台强制） | 正常下架：**无账务动作**（保证金已在上市时消耗，**不退**）〔v0.1 旧写法：`listing_deposit_refund`（解冻退回）—— 该 kind 已于 v0.2 删除，见 §5.1〕；**强制下架亦无账务动作**（保证金已消耗 ⇒ 不存在可罚没的标的物）〔**v0.3 更正**：原此处为「强制下架：`listing_deposit_forfeit`（⚠️ 保证金已改消耗 ⇒ 该 kind 的标的物待澄清，见 R31 v0.2 留白）」—— 该 kind 已于 v0.3（P1c）删除，见 §5.1 #21 / §19.8.B〕 |
+| `listed / frozen → delisted` | 下架（创建者申请或平台强制） | 正常下架：**无账务动作**（保证金已在上市时消耗，**不退**）〔v0.1 旧写法：`listing_deposit_refund`（解冻退回）—— 该 kind 已于 v0.2 删除，见 §5.1〕；强制下架：`listing_deposit_forfeit`（⚠️ 保证金已改消耗 ⇒ 该 kind 的标的物待澄清，见 R31 v0.2 留白） |
 | `draft → delisted` | 放弃创建 | 无 |
 
 ### 3.3 规则
@@ -263,7 +257,7 @@ draft ──放弃/下架──▶ delisted(终态)
 | **R28** | 「状态 × 操作」矩阵（**逐格判定，不允许实现自选**）：<br>`mint`（owner 铸币）：`draft`✅ `listed`✅ `frozen`❌ `delisted`❌<br>`transfer`（用户间转账）：`draft`✅ `listed`✅ `frozen`✅ `delisted`✅（存量持仓永远可转）<br>`hold` / 交易所挂单：`draft`❌ `listed`✅ `frozen`❌ `delisted`❌<br>商品标价：`draft`❌ `listed`✅ `frozen`❌ `delisted`❌<br>招工酬金计价：`draft`❌ `listed`✅ `frozen`❌ `delisted`❌<br>✅ **已裁定（Zang · P1a 收口，登记见 §19.3）**：本矩阵**只定义了 5 个操作**（`mint` / `transfer` / `hold` / 商品标价 / 招工酬金计价），**未覆盖 `hold_release` 与结算类**。裁定：**`hold_release` 四态全可**（`draft`/`listed`/`frozen`/`delisted` 均可；依据 §7.2 #14「下架必须撤销挂单并解冻」——否则撤单会卡死在 `delisted` 币种上）；**结算类（`job_payout` / `purchase` / `sale` / `trade` / `hold_forfeit` 等）与 `hold` 同档 —— 仅 `listed`**。 | 服务层 `assertCurrencyOperable(cid, op)`；错误码 `LEDGER_CURRENCY_NOT_LISTED` / `LEDGER_CURRENCY_FROZEN` / `LEDGER_CURRENCY_DELISTED` | 前端币种选择器必须按此矩阵过滤可选项，不得展示不可用币种 | 待拍板（**四态 × 五操作矩阵允许调整，但必须整表一次定性**） |
 | **R29** | `frozen` 是**平台合规冻结**（涉诈/违规调查），**不是**用户可自行触发的操作；解冻同样只能平台发起。冻结/解冻**不产生任何账务分录**（不动 balance/frozen，用户钱仍在），但**必须**写一条 `app_config` 之外的审计记录（建议 `currency_status_log` 或在后台操作日志表）。 | `currency.status`；后台操作日志表（P6 spec 定字段，本册只要求「必须留痕」） | 用户侧余额页面在币种 `frozen` 时应显示「该单位已暂停交易」而非隐藏余额 | 待拍板（一句话可改） |
 | **R30** | `delisted` 是**终态**：不可复活，如要恢复必须**新建币种**（新 `cid`，新 `symbol` 也不行，因为 `symbol` 仍被旧行占用）。因此下架时**必须**同时处理该币种的未成交挂单（全部撤销 + 解冻）。 | 状态机校验 + 下架事务（见 §7 R62） | 下架事务必须扫 `market_order` 中该 `cid` 的活跃挂单；数量级大时需分批，但**每批仍是独立事务**，不允许跨批冻结资金 | 待拍板（一句话可改） |
-| **R31** | 「上市收费」拆成两笔**性质不同**的动作，且都必须在下架时口径明确：<br>① `listing_deposit` = **消耗** `deposit_amount` 的 `$`（**不可退** ⇒ 记 `delta` 负数，转入平台手续费归集账户 `uid = −1`，即**计入平台收入**）；<br>② `listing_fee` / `currency_create_fee` = **消耗** `$`（不可退 ⇒ 记 `delta` 负数，转入 `uid = −1`）。<br>✅ **v0.2 更正（依据 Kevin 原文）**：Kevin 原文「用户自定义的社区积分如需上市，需要**消耗**一定的积分作为保证金」⇒ **保证金是消耗、计入平台收入；不存在可退保证金；`listing_deposit_refund` 这个 kind 不存在**（kind 关闭集 22 → 21，见 §5.1）。<br>📌 **v0.1 旧写法（留痕，不删）**：`listing_deposit` = *冻结* `deposit_amount` 的 `$`（「D7：可退 ⇒ 记 `frozen_delta`」）；下架时以 `listing_deposit_refund`（解冻退回）；平台「上市相关收入」由 `listing_fee` / `currency_create_fee` 承载、**不含**在冻的 `listing_deposit`。→ 该写法与 Kevin 原文冲突，**作废**。<br>⚠️ **D6/D7 仲裁（v0.2 版）**：D6「上市保证金计入平台收入」✅ 成立；D7 中「保证金冻结可退」的部分 ❌ 被 Kevin 原文推翻（D7 的「手续费消耗不可退」部分不受影响）。 | `currency.deposit_amount`；kind `listing_deposit` / `listing_fee` / `currency_create_fee`〔**v0.3 更正**：原列含 `listing_deposit_forfeit`，该 kind 已于 v0.3（P1c）删除，见 §5.1 #21 / §19.8.B〕 | 后台「平台收入」报表口径 = `sum(trade_fee) + sum(listing_fee) + sum(currency_create_fee) + sum(listing_deposit)`（**v0.2 新增 `listing_deposit`**，v0.1 明确「不含」，现因消耗入 `−1` 而计入）〔**v0.3 更正**：原此处为「+ `sum(listing_deposit_forfeit)`（标的物待澄清）」—— 该 kind 已于 v0.3（P1c）删除，故**平台收入口径不含它**，见 §5.1 #21 / §19.8.B〕 | 已裁定（Zang · P1a 收口；v0.1「待拍板」作废） |
+| **R31** | 「上市收费」拆成两笔**性质不同**的动作，且都必须在下架时口径明确：<br>① `listing_deposit` = **消耗** `deposit_amount` 的 `$`（**不可退** ⇒ 记 `delta` 负数，转入平台手续费归集账户 `uid = −1`，即**计入平台收入**）；<br>② `listing_fee` / `currency_create_fee` = **消耗** `$`（不可退 ⇒ 记 `delta` 负数，转入 `uid = −1`）。<br>✅ **v0.2 更正（依据 Kevin 原文）**：Kevin 原文「用户自定义的社区积分如需上市，需要**消耗**一定的积分作为保证金」⇒ **保证金是消耗、计入平台收入；不存在可退保证金；`listing_deposit_refund` 这个 kind 不存在**（kind 关闭集 22 → 21，见 §5.1）。<br>📌 **v0.1 旧写法（留痕，不删）**：`listing_deposit` = *冻结* `deposit_amount` 的 `$`（「D7：可退 ⇒ 记 `frozen_delta`」）；下架时以 `listing_deposit_refund`（解冻退回）；平台「上市相关收入」由 `listing_fee` / `currency_create_fee` 承载、**不含**在冻的 `listing_deposit`。→ 该写法与 Kevin 原文冲突，**作废**。<br>⚠️ **D6/D7 仲裁（v0.2 版）**：D6「上市保证金计入平台收入」✅ 成立；D7 中「保证金冻结可退」的部分 ❌ 被 Kevin 原文推翻（D7 的「手续费消耗不可退」部分不受影响）。 | `currency.deposit_amount`；kind `listing_deposit` / `listing_fee` / `currency_create_fee` / `listing_deposit_forfeit` | 后台「平台收入」报表口径 = `sum(trade_fee) + sum(listing_fee) + sum(currency_create_fee) + sum(listing_deposit)`（**v0.2 新增 `listing_deposit`**，v0.1 明确「不含」，现因消耗入 `−1` 而计入）+ `sum(listing_deposit_forfeit)`（标的物待澄清） | 已裁定（Zang · P1a 收口；v0.1「待拍板」作废） |
 
 ---
 
@@ -298,7 +292,7 @@ account.balance + account.frozen = 该账户的净资产
 | 编号 | 口径 | 落点建议 | 连带影响 | 状态 |
 |---|---|---|---|---|
 | **R32** | 一切扣款（转账、购买、手续费、保证金、成交费）**只能从 `balance` 扣**；`frozen` 永不作为自动扣款来源。 | 服务层 `debitAvailable()` 唯一入口 | 所有「余额不足」判定只看 `balance`，不看 `balance + frozen`；错误文案要明确区分「可用不足」与「冻结中」 | 已冻结（D7：手续费消耗不可退）〔v0.1 旧写法：「D7 保证金冻结可退」—— 保证金性质已于 v0.2 更正，见 R31〕 |
-| **R33** | `frozen` 的**流动方向白名单**：只能流向 ① 同账户 `balance`（`hold_release`）、② 同账户外的合法受款方（`job_payout` 给打工人 / `purchase`/`trade` 给卖方 / `hold_forfeit` 给罚没账户 `uid = −3`，见 §4.2）〔**v0.3 更正**：原列 `listing_deposit_forfeit` 给罚没账户 —— 该 kind 已于 v0.3（P1c）删除，改列实际存在的 `hold_forfeit`，见 §5.1 #21 / §19.8.B〕。任何「frozen → 无关第三方」的路径都属于实现缺陷。 | 服务层冻结出账函数（建议名 `releaseOrSettleFrozen()`）；§5 kind 表的减方列 | 前台「冻结中」的资产必须能在账单里逐笔落到具体业务单（`ref_type`/`ref_id`） | 待拍板（一句话可改） |
+| **R33** | `frozen` 的**流动方向白名单**：只能流向 ① 同账户 `balance`（`hold_release`）、② 同账户外的合法受款方（`job_payout` 给打工人 / `purchase`/`trade` 给卖方 / `listing_deposit_forfeit` 给罚没账户）。任何「frozen → 无关第三方」的路径都属于实现缺陷。 | 服务层冻结出账函数（建议名 `releaseOrSettleFrozen()`）；§5 kind 表的减方列 | 前台「冻结中」的资产必须能在账单里逐笔落到具体业务单（`ref_type`/`ref_id`） | 待拍板（一句话可改） |
 | **R34** | 冻结与解冻**必须成对记账**且都为**同事务**：`hold` 的分录与其 `hold_release`（或结算流出）之间不要求同一事务，但**每一次单边变动都必须是完整的会计事件**（一次 hold = 2 条分录，一次 release = 2 条分录）。 | §7 R57 冻结事务 | 「冻结总额」在任何中间态都必须能由流水解释，禁止出现单边分录 | 待拍板（一句话可改） |
 | **R35** | **禁止隐式解冻**：当用户可用余额不足时，系统**不得**自动动用 `frozen` 补足（例如「余额不够，自动解冻挂单的钱来付款」）。要动用冻结资金必须是显式的业务动作（撤单/解冻接口）。 | 扣款路径校验；错误码 `LEDGER_INSUFFICIENT_BALANCE` | 前端下单页在可用不足时只能提示，不能提供「用冻结余额支付」的隐式行为 | 待拍板（**这是一条用户可感知的口径**，一句话可改） |
 | **R36** | `account.frozen` 只是**聚合投影**，冻结的「归属」真源在业务表（挂单未成交量、招工托管额）〔v0.1 旧写法含 `currency.deposit_amount`（上市保证金）—— 保证金自 v0.2 起为消耗、不进 `frozen`，故不再是冻结归属来源〕。因此**任何解冻都必须由业务表证明对应冻结仍存在**，且本次解冻额 `<=` 业务表记录的在冻额。 | 业务表 ↔ `account.frozen` 的双向对账（§11 判据 5） | ⚠️ 本册**不**新增 `frozen_breakdown` 表（会引入「聚合 + 明细」双真源）；改为「业务表为归属真源，frozen 为投影」 | 待拍板（**本册第三条重要设计裁决**） |
@@ -310,11 +304,11 @@ account.balance + account.frozen = 该账户的净资产
 
 ## §5 ledger_entry.kind 全量枚举与借贷双方
 
-### 5.1 `kind` 全量枚举（**20 个**，**关闭集**）　〔**v0.3 更正**：`listing_deposit_forfeit` 已于 **P1c（v0.3）删除**（kind 关闭集 **21 → 20**），见 §19.8.B；v0.2 旧写法：21 个 —— `listing_deposit_refund` 已于 v0.2 删除，见 R31；v0.1 旧写法：22 个〕
+### 5.1 `kind` 全量枚举（**21 个**，**关闭集**）　〔v0.1 旧写法：22 个 —— `listing_deposit_refund` 已于 v0.2 删除，见 R31〕
 
 `−` 表示减方（余额减少），`+` 表示增方（余额增加）。`delta` 列指可用余额变动，`frozen` 列指冻结余额变动。
 
-> ⚠️ **行号沿用 v0.1 编号（1..22）以留痕**：其中 **#20 `listing_deposit_refund` 已于 v0.2 作废**、**#21 `listing_deposit_forfeit` 已于 v0.3（P1c）作废删除**，故现存 kind = **20 个**（#1–#19、#22）—— 即 **#20 与 #21 双双作废**（表体保留两行删除留痕，不再计入关闭集）。下游引用 kind 时请用 **kind 名**，不要用行号。
+> ⚠️ **行号沿用 v0.1 编号（1..22）以留痕**：其中 **#20 `listing_deposit_refund` 已于 v0.2 作废**，故现存 kind = **21 个**（#1–#19、#21、#22）。下游引用 kind 时请用 **kind 名**，不要用行号。
 
 | # | `kind` | 业务场景 | 减方（`delta`/`frozen` 变动） | 增方（`delta`/`frozen` 变动） | 净增发 | 典型 `ref_type` |
 |---|---|---|---|---|---|---|
@@ -338,7 +332,7 @@ account.balance + account.frozen = 该账户的净资产
 | 18 | `currency_create_fee` | 创建自建单位费（消耗 `$`） | 创建者 `balance −f` | `uid −1` `balance +f` | 0 | `currency` |
 | 19 | `listing_deposit` | **上市保证金消耗（不可退）**：`$` 从创建者 `balance` 扣、进平台手续费归集账户 `uid = −1`　〔v0.1 旧写法：上市保证金冻结（可退）—— 减方 创建者 `balance −d`、增方 创建者 `frozen +d`〕 | 创建者 `balance −d` | `uid −1` `balance +d` | 0 | `currency` |
 | ~~20~~ | ~~`listing_deposit_refund`~~ | **已作废删除（v0.2）**：保证金改为消耗不可退 ⇒ **不存在退还动作，不存在该 kind**　〔v0.1 旧写法：保证金退还 —— 创建者 `frozen −d` → 创建者 `balance +d`〕 | — | — | — | — |
-| ~~21~~ | ~~`listing_deposit_forfeit`~~ | **已作废删除（v0.3 · P1c 裁定）**：保证金**在上市时即消耗**（`listing_deposit` 已转入平台收入 `uid = −1`），**强制下架时不存在可罚没的标的物** ⇒ 该 kind 删除。将来若要做「强制下架罚款」，那是**新语义、新 kind**，须单独裁定并登记后再启用。　〔v0.2 旧写法：标「待澄清」，kind 保留在关闭集内、不删；v0.1 旧写法：保证金罚没 —— 创建者 `frozen −d` → `uid −3` `balance +d`〕 | — | — | — | — |
+| 21 | `listing_deposit_forfeit` | 保证金罚没（⚠️ **待澄清**：保证金自 v0.2 起已在上市时消耗，本 kind 在「强制下架」场景下是否仍有标的物，需上游裁定；澄清前本 kind **保留**在关闭集内，不删） | 创建者 `frozen −d` | `uid −3` `balance +d` | 0 | `currency` |
 | 22 | `reversal` | 冲正（纠错唯一手段） | 与被冲正分录**完全相反** | 同左 | 仅当冲正 `mint`/`burn` 时非 0 | 同原分录 |
 
 > **`trade` 的 4 条分录**：买方付 `quote` 收 `base`、卖方付 `base` 收 `quote`。按币种分组后每币种 `Σdelta = 0`〔v0.2 更正：货款从 `frozen` 出时正式形状为 `Σ(delta + frozen_delta) = 0`，见 §11 判据 8 与 §19.2〕。已冻结的挂单资金从 `frozen` 出，未冻结部分从 `balance` 出（`frozen_delta` 与 `delta` 按实际来源分配）。
@@ -347,7 +341,7 @@ account.balance + account.frozen = 该账户的净资产
 
 | 编号 | 口径 | 落点建议 | 连带影响 | 状态 |
 |---|---|---|---|---|
-| **R40** | 上表 **20 个** `kind` 是**关闭集**〔**v0.3（P1c）**：删 `listing_deposit_forfeit`（DB 侧落点为 `backend-ts/migrations/0003_kind_close_set_20.sql`，见 §19.8.B）；v0.2 旧写法为 21 个（删 `listing_deposit_refund`，见 R31）；v0.1 旧写法为 22 个〕。**删除 kind 的手段 = 约束替换**：`DROP CONSTRAINT ledger_kind_enum` + `ADD CONSTRAINT ledger_kind_enum CHECK (...)`，并**先断言无行在用**（否则中止）——**不可**用 `ALTER TYPE`（本库 `ledger_entry.kind` 为 `text`，白名单是 **CHECK 约束** `ledger_kind_enum`，**非** enum 类型，见 §2.1 v0.3 事实更正块 / §19.8.A）。删 kind 同样走 migration 并回写 §5.1。新增/删除 kind 必须走 migration（改 `ledger_kind_enum`）**并**同步在本册 §5.1 登记「减方/增方/净增发」三列，两者缺一不可。 | `ledger_kind_enum`（**CHECK 约束，非 enum 类型** —— v0.3 按实测更正）；本册 §5.1 | 后台不得提供「自定义分录类型」；任何绕过 CHECK 的写法（如把业务码写进 `memo`）属实现缺陷 | 已冻结（append-only + 可审计要求） |
+| **R40** | 上表 **21 个** `kind` 是**关闭集**〔v0.1 旧写法为 22 个；`listing_deposit_refund` 于 v0.2 删除（见 R31），删 kind 同样走 migration 并回写 §5.1〕。新增/删除 kind 必须走 migration（改 `ledger_kind_enum`）**并**同步在本册 §5.1 登记「减方/增方/净增发」三列，两者缺一不可。 | `ledger_kind_enum`；本册 §5.1 | 后台不得提供「自定义分录类型」；任何绕过 CHECK 的写法（如把业务码写进 `memo`）属实现缺陷 | 已冻结（append-only + 可审计要求） |
 | **R41** | **配对不变式**：一笔业务事件（同 `ref_type` + `ref_id` + 同一次提交）产生的全部分录必须满足<br>`Σ delta = 0` 且 `Σ frozen_delta = 0`，<br>**唯一例外**是含 `mint` / `burn` 的事件，此时差额恰好等于净增发额。〔⚠️ **v0.2 更正（留痕）**：上句中的 `Σ delta = 0` 且 `Σ frozen_delta = 0` 是**字面式**，与 §4.2「一次 hold 产生 `delta = −n`、`frozen_delta = +n`」自相矛盾（两个字面式不可能同时为 0）；**正式形状 = `Σ(delta + frozen_delta) = 0`**，理由与 SQL 见 §11 判据 8，登记见 §19.2。原文保留以留痕，不再作为实现依据〕 | 服务层在提交前对分录集合做不变式断言（建议名 `assertBalanced(entries)`）；§11 判据 3 在库层复核 | 这是「凭空造币 / 吞钱」类缺陷最有效的拦截点；任何净额不为 0 又不含 mint/burn 的提交必须在**写库前**被拒 | 待拍板（一句话可改） |
 | **R42** | **禁止单边分录**：除 `mint` / `burn`（对手方为「系统」）外，任何余额变动都必须同时写出减方与增方分录，**不得**只写一条带 `memo` 说明的行。 | 服务层 `assertBalanced`；`ledger_move_guard` | `hold` / `hold_release` 的减增双方是同一主体，因此必然是 **2 条**分录（见 §4.2） | 待拍板（一句话可改） |
 | **R43** | 交易所挂单冻结**复用 `hold`**（`ref_type = 'market_order'`），**不**新增 `market_hold` kind；商品/招工各自的冻结入口也统一为 `hold` 家族〔v0.1 旧写法含「保证金」—— v0.2 起保证金为消耗，不走 `hold`〕。招工托管因语义特殊**例外**，使用 `job_escrow` / `job_escrow_refund` 专用 kind。 | `hold` + `ref_type` 组合；`job_escrow*` | 避免 kind 随业务模块线性膨胀；代价是「冻结原因」必须靠 `ref_type` 读取，账单页做「冻结原因」文案时要 join 业务表 | 待拍板（可改为「每个业务模块各用自己的 hold kind」，一句话可改） |
@@ -408,7 +402,7 @@ account.balance + account.frozen = 该账户的净资产
 | 11 | **交易所撮合成交** | 锁活跃 `market_order` 行（`FOR UPDATE`，与下单同序）→ 计算成交量 → 更新 `market_order.volume_filled` / `status` → 写 `market_trade` 行 → 写 `trade` 分录（4 条）→ `trade_fee` 分录（2 条）→ 更新买卖双方 `account`（含 `frozen` 释放）→ 追加 `candle` 聚合 | 买卖双方 `account` + `market_order` 行 + `candle` 行 | 撮合是「读后写」，且价格与成交量必须一次定死 |
 | 12 | 挂单 / 撤单 | 写 `market_order` 行 + `hold`/`hold_release` 2 条分录 + 更新 `account` | `account` + `market_order` | 挂单存在但未冻结 = 可超卖 |
 | 13 | 币种上市 | 改 `currency.status`/`listed_at` → `listing_fee` / `currency_create_fee` 分录 → `listing_deposit` 分录（**消耗**：`$` 从创建者 `balance` 扣、入 `uid = −1`）→ 更新创建者 `account`　〔v0.1 旧写法：`listing_deposit` **2 条冻结分录**，增方为创建者本人 `frozen`〕 | 创建者 `account` + `currency` 行 | 状态已上市但保证金没收〔v0.1 旧写法：「状态已上市但保证金没冻住」〕 |
-| 14 | 币种下架 | 改 `currency.status` → **无账务动作**（保证金上市时已消耗、**不退**；**强制下架亦无账务动作** —— 不存在可罚没的标的物）〔**v0.3 更正**：删原括号内「或 `_forfeit`」—— `listing_deposit_forfeit` 已于 v0.3（P1c）删除，见 §5.1 #21 / §19.8.B；v0.1 旧写法：`listing_deposit_refund`（或 `_forfeit`）分录〕 → 撤销该币种全部活跃挂单（`hold_release` + `market_order` 状态） | 创建者 `account` + `currency` + 该币种活跃 `market_order` | 终态不可复活，下架必须一次做干净 |
+| 14 | 币种下架 | 改 `currency.status` → **保证金无账务动作**（上市时已消耗、**不退**）〔v0.1 旧写法：`listing_deposit_refund`（或 `_forfeit`）分录〕 → 撤销该币种全部活跃挂单（`hold_release` + `market_order` 状态） | 创建者 `account` + `currency` + 该币种活跃 `market_order` | 终态不可复活，下架必须一次做干净 |
 | 15 | 冲正 | 校验原分录未被冲正 → 写 `reversal` 分录（逐列取反）→ 更新 `account` → （若冲正 mint/burn）反向调整 `total_supply` | 相关 `account` + `currency` | 冲正本身也是会计事件 |
 
 ### 7.3 规则
@@ -578,7 +572,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | **R79** | **加锁全序强制**（§10.1）。任何事务在取第二把锁之前必须先确认它是全序中的后位；违反全序的写法（如按「用户传入顺序」遍历扣款）必须重写。 | 服务层锁辅助函数（建议名 `lockAccounts(sortedUids, cid)`），**只接受已排序数组** | 10 级佣金结算涉及最多 13 个账户，是死锁高发点；`lockAccounts` 是唯一允许的加锁入口 | 待拍板（**本册第六条重要裁决**，一句话可改） |
 | **R80** | **负余额禁令**：`CHECK (balance >= 0)` / `CHECK (frozen >= 0)` / `CHECK (balance_after >= 0)` / `CHECK (frozen_after >= 0)` 是**DB 层兜底**；应用层**必须**在此之前显式校验并返回业务错误码。**不允许**把「靠 CHECK 报错」当作正常流程（会污染日志、暴露 `500`）。 | `account_bal_guard` / `account_frz_guard` / `ledger_after_guard` | 一旦 CHECK 被触发，错误码统一为 `LEDGER_NEGATIVE_BALANCE_GUARD`（`500`），并且**必须**记入告警（说明代码里有漏判） | 已冻结（P1 AC：负余额必须不可能出现） |
 | **R81** | **加锁策略（v0.2 已裁定）**：**写路径一律使用 `SELECT ... FOR UPDATE`**（行锁），**不做** `account.version` 乐观锁分支（即不实现 `UPDATE ... WHERE uid=$1 AND cid=$2 AND version=$3` 这条轻量路径）。`account.version` 列**保留**、仍按 R13 在每笔加分录事务里 `+1`，**仅作审计/诊断**，不作为互斥手段。<br>✅ **已裁定（Zang · P1a 收口，登记见 §19.4）**。<br>📌 **v0.1 旧写法（留痕）**：乐观锁 `account.version` 用于「单账户、单分录、无跨账户搬运」的轻量写路径（`mint` / `burn` / `hold` / `hold_release`），跨账户搬运（转账/结算/撮合）才用 `FOR UPDATE`。→ 作废。 | `account.version`（**仅审计**）；服务层**单一**写路径（行锁） | 因为只剩一套机制，不存在「乐观锁事务与行锁事务互相看不见」的假安全感；`version` 的跳跃/回退**不得**作为业务判断依据 | 已裁定（Zang · P1a 收口；v0.1「待拍板」作废） |
-| **R82** | **锁等待与语句超时**：必须设置 `lock_timeout`（建议 3s）与 `statement_timeout`（建议 10s），超时分别映射为 `503 LEDGER_LOCK_TIMEOUT` / `503 LEDGER_TX_TIMEOUT`。**禁止**不设超时（会拖垮连接池、连带打挂整个 API）。〔**v0.3（P1c）补充**：**非 PG / 驱动级连接错误**（无 SQLSTATE，如 WS 连接池取连接超时 / 过载、`ECONNREFUSED`）同样映射 `503 LEDGER_TX_TIMEOUT` + `details.reason = 'pool_connection_timeout' \| 'driver_connection_error'`，**不得**兜底为 `500 LEDGER_TRANSACTION_REQUIRED`；借用映射见 §14.3，`details` 形状见 §14.4，触发条件见 §14.1 #27，登记见 §19.8.C〕 | 事务包装器 `SET LOCAL lock_timeout` / `statement_timeout` | 这两条超时是 Vercel serverless 下的**必配项**：函数超时前若未释放连接，后续请求会排队 | 待拍板（时长可改） |
+| **R82** | **锁等待与语句超时**：必须设置 `lock_timeout`（建议 3s）与 `statement_timeout`（建议 10s），超时分别映射为 `503 LEDGER_LOCK_TIMEOUT` / `503 LEDGER_TX_TIMEOUT`。**禁止**不设超时（会拖垮连接池、连带打挂整个 API）。 | 事务包装器 `SET LOCAL lock_timeout` / `statement_timeout` | 这两条超时是 Vercel serverless 下的**必配项**：函数超时前若未释放连接，后续请求会排队 | 待拍板（时长可改） |
 | **R83** | 并发 `mint` / `burn` / 状态变更**必须先锁 `currency` 行**（`SELECT ... FOR UPDATE`），再动 `account`，顺序不可颠倒（否则与 R79 全序冲突）。 | §7.2 #2/#3/#13/#14 事务 | 币种状态变更（上市/下架/冻结）与铸造共用同一把行锁 ⇒ 天然互斥 | 待拍板（一句话可改） |
 | **R84** | 挂单的「撤销」与「成交」必须争抢同一把 `market_order` 行锁，且锁后**必须复查** `status` 与 `volume_filled`（不能信任锁前读到的值）。 | §7.2 #11/#12 事务 | 「一单卖两次」这类缺陷只会在并发下出现，单线程测试**测不出来** ⇒ 质检必须写并发用例（§11 R93） | 待拍板（一句话可改） |
 | **R85** | **并发验收清单（P1 AC 直引）**：① 同一账户 100 并发转账后**总额守恒**；② 同一幂等键 100 并发提交**只生效一次**；③ 并发扣款不会出现负余额（余额 100，100 笔各扣 1 ⇒ 恰好 100 笔成功）；④ 并发 `mint` 不超 `supply_cap`；⑤ 死锁重试生效（人为制造反向加锁顺序 ⇒ 观察到 `40P01` 并最终成功或明确报错）。 | P1 质检用例集；Neng 执行 | 只跑串行用例不算通过；每条都要求「人为注入偏差后能报错」的判负能力（§11 R92/R93 同法） | 已冻结（P1 AC）+ 条目 ③④⑤ 为待拍板补充 |
@@ -598,7 +592,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | 4 | **币种发行量** | `currency.total_supply == Σ(mint.delta) − Σ(burn 的绝对额) + Σ(冲正对 mint/burn 的净调整)` | 三个聚合按 `cid` 比对 |
 | 5 | **冻结归属守恒** | 每个 `(uid, cid)`：`account.frozen == Σ(业务表在冻额)`（挂单未成交量 + 招工托管额 + …）〔v0.1 旧写法含「+ 上市保证金」—— 保证金自 v0.2 起为消耗、不进 `frozen`，不在本判据内〕 | **待 P3/P4/P5 业务表落地后补 SQL**；本册只冻结「必须存在这条判据」 |
 | 6 | **佣金池守恒** | `account(−2, cid).balance == Σ(job_fee 入池额) − Σ(commission 出池额)` | `SELECT balance FROM account WHERE uid=-2 AND cid=$1` 对比两组聚合 |
-| 7 | **平台收入守恒** | `account(−1, cid).balance == Σ(trade_fee) + Σ(listing_fee) + Σ(currency_create_fee) + Σ(listing_deposit)`〔v0.2 新增 `listing_deposit`；v0.1 旧写法不含（当时保证金是冻结、不计收入）〕；罚没账户 `−3`：`balance == Σ(hold_forfeit) − Σ(退还)`〔**v0.3 更正**：删 `+ Σ(listing_deposit_forfeit)` —— 该 kind 已于 v0.3（P1c）删除，见 §5.1 #21 / §19.8.B〕 | 按 `uid = −1` / `uid = −3` 分别比对 |
+| 7 | **平台收入守恒** | `account(−1, cid).balance == Σ(trade_fee) + Σ(listing_fee) + Σ(currency_create_fee) + Σ(listing_deposit)`〔v0.2 新增 `listing_deposit`；v0.1 旧写法不含（当时保证金是冻结、不计收入）〕；罚没账户 `−3`：`balance == Σ(hold_forfeit) + Σ(listing_deposit_forfeit) − Σ(退还)` | 按 `uid = −1` / `uid = −3` 分别比对 |
 | 8 | **事件配对不变式（v0.2 更正正式形状）** | 每个业务事件（`ref_type` + `ref_id` + 同一提交）内 **`Σ(delta + frozen_delta) == 0`**，**除非**该事件含 `mint` / `burn`（此时差额恰好等于净增发额）。<br>**为什么 v0.1 的字面式不成立**：§4.2 三态记账规定「一次 `hold` 必然产生 `delta = −n`、`frozen_delta = +n`」（同账户两条分录，见 R34 / R42），于是该事件内 `Σ delta = −n ≠ 0` 且 `Σ frozen_delta = +n ≠ 0` —— **两个字面式在任何一次冻结/解冻事件上都不可能同时为 0**，与 §4.2 自相矛盾。同一形式化错误也出现在 R41 与 §5.1 `trade` 注（v0.2 已就 R41/`trade` 加指针与更正）。<br>正确形状：账户净资产 = `balance + frozen`（§4.1 恒等式），故「同一事件不造钱、不吞钱」的等价表述是把两个余额维度**相加**：`Σ(delta + frozen_delta) = 0`。`hold` / `hold_release` 的 `+n − n` 自动归零；`frozen → 对方 balance` 的结算类与 `hold_forfeit` 也自动归零。<br>📌 **v0.1 旧写法（留痕，作废）**：`Σ delta == 0` **且** `Σ frozen_delta == 0`。 | `SELECT ref_type, ref_id, SUM(delta + frozen_delta) FROM ledger_entry WHERE ref_type IS NOT NULL GROUP BY 1,2 HAVING SUM(delta + frozen_delta) <> 0`（含 `mint` / `burn` 的事件按净增发额豁免） |
 | 9 | **平台账户非负** | 所有 `uid <= 0` 的账户也必须满足 `balance >= 0 AND frozen >= 0`（平台账户不得透支；池子空了就是登记口径出错） | 复用判据 1 的命中集，额外过滤 `uid <= 0` |
 
@@ -660,7 +654,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | `0` | 平台主体 | `$` 的 `owner_uid`；铸币源；平台系统身份 | `mint` | `mint` 到用户、平台运维转账 |
 | `−1` | **手续费归集账户** | **平台收入**：`trade_fee` + `listing_fee` + `currency_create_fee` + **`listing_deposit`（v0.2 新增：上市保证金已改为消耗，直接入本账户）** | 上述四 kind 的增方〔v0.1 旧写法：「上述三 kind」〕 | 平台运维提取（需独立 kind，**当前 kind 集未含，见 §15 待拍板**） |
 | `−2` | **佣金池** | 招工手续费的唯一入口，只能经 `commission` 流出 | `job_fee` 的增方 | `commission` 的减方；未分配余额累计留存 |
-| `−3` | **罚没账户** | `hold_forfeit`〔**v0.3 更正**：删 `+ listing_deposit_forfeit`（该 kind 已于 v0.3（P1c）删除，见 §5.1 #21 / §19.8.B）；v0.2 旧写法：`hold_forfeit` + `listing_deposit_forfeit`〕 | 上述 kind 的增方〔v0.3：原「两 kind」→ 现仅一 kind〕 | 退还（反向 `hold_forfeit`，或**以 `transfer` 出账 —— 全平台仅本账户允许**，见 R101 已裁定）/ 提取 |
+| `−3` | **罚没账户** | `hold_forfeit` + `listing_deposit_forfeit` | 上述两 kind 的增方 | 退还（反向 `hold_forfeit`，或**以 `transfer` 出账 —— 全平台仅本账户允许**，见 R101 已裁定）/ 提取 |
 | `−4` … `−99` | **预留** | 后续池子（如争议保证金、活动池） | — | — |
 | `−100` 及以下 | **禁止使用** | — | — | — |
 
@@ -675,9 +669,9 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | **R98** | 保留 uid 区间 = `0` 与 `−1 … −99`；**真实用户 uid 必须 `> 0`**。任何创建 uid ≤ 0 用户的路径都必须被拒绝（`LEDGER_RESERVED_UID`）。 | `ledger_owner.owner_type`；用户注册路径校验 | 与 legacy `"user"."uID"` 的自增分配兼容（自增从 1 起） | 待拍板（区间可改，语义不可改） |
 | **R99** | 平台账户的 `account` 行必须由 **migration 种子**创建（`balance = 0, frozen = 0`，满足 R75 的开户 0/0 约束），**不得**依赖运行期懒创建（懒创建会与 `account_guard` 的 INSERT 分支交互出竞态）。 | migration 种子 SQL：为每个保留 uid × 每个已存在币种开户 | 新增币种时必须同步为保留 uid 开户 —— 这条要落成一个**统一的开户函数**（建议名 `ensureAccount(uid, cid)`），避免遗漏 | 待拍板（一句话可改） |
 | **R100** | **用户请求不得命中平台账户**：路由/服务层必须校验「调用方 uid 与请求涉及的 uid」均 `> 0`（除平台受信任路径外）。例如 `/transfer` 不允许 `to_uid = −2`。 | 路由层守卫（建议名 `assertUserUid()`）；错误码 `LEDGER_RESERVED_UID` | 这是防止「用户把手续费池当收款人」这类经济漏洞的第一道闸；**必须**有专门的负向用例（尝试向好 `−1` 转账 ⇒ 必须 4xx） | 待拍板（**强烈建议冻结**） |
-| **R101** | 平台账户的**允许 kind 白名单**：`−1` 只接受 `trade_fee` / `listing_fee` / `currency_create_fee`（增方）与运维提取（待定 kind）；`−2` 只接受 `job_fee`（增）与 `commission`（减）；`−3` 只接受 `hold_forfeit`（增）与退还〔**v0.3 更正**：删 `listing_deposit_forfeit` —— 该 kind 已于 v0.3（P1c）删除，见 §5.1 #21 / §19.8.B；v0.2 旧写法：`hold_forfeit` / `listing_deposit_forfeit`〕（另见下款已裁定例外：**仅 `−3` 允许以 `transfer` 出账**）。**禁止**对平台账户使用 `transfer` / `hold` / `purchase`。<br>✅ **已裁定（Zang · P1a 收口，登记见 §19.1）**：**仅 `uid = −3`（罚没池）允许以 `transfer` 出账**（对应 R38 的「罚没退还」），其余平台账户（`0` / `−1` / `−2` / `−4…`）的白名单**从严**、`transfer` 一律禁止；本裁定**不放宽任何其他格**（`hold` / `purchase` 对全部平台账户仍禁止）。 | 服务层白名单校验（建议名 `assertPlatformAccountMutation()`） | 平台账户只读展示为主，任何写都必须能对应到一个明确 kind，便于判据 6/7 复算 | 待拍板（一句话可改） |
+| **R101** | 平台账户的**允许 kind 白名单**：`−1` 只接受 `trade_fee` / `listing_fee` / `currency_create_fee`（增方）与运维提取（待定 kind）；`−2` 只接受 `job_fee`（增）与 `commission`（减）；`−3` 只接受 `hold_forfeit` / `listing_deposit_forfeit`（增）与退还。**禁止**对平台账户使用 `transfer` / `hold` / `purchase`。<br>✅ **已裁定（Zang · P1a 收口，登记见 §19.1）**：**仅 `uid = −3`（罚没池）允许以 `transfer` 出账**（对应 R38 的「罚没退还」），其余平台账户（`0` / `−1` / `−2` / `−4…`）的白名单**从严**、`transfer` 一律禁止；本裁定**不放宽任何其他格**（`hold` / `purchase` 对全部平台账户仍禁止）。 | 服务层白名单校验（建议名 `assertPlatformAccountMutation()`） | 平台账户只读展示为主，任何写都必须能对应到一个明确 kind，便于判据 6/7 复算 | 待拍板（一句话可改） |
 | **R102** | 平台账户**不得透支**（`balance >= 0` 同样适用，判据 9）：若某笔 `commission` 需要从 `−2` 支出而池子不足 ⇒ 说明整个事务的中止逻辑有缺陷，必须回滚整笔业务，**不得**让池子变负、也**不得**跳过该笔佣金。 | `account_bal_guard` + 判据 9；§7.2 #8 事务 | 「佣金池不足」在正常情况下不可能发生（`job_fee` 与 `commission` 同事务、金额相等），若发生即为缺陷告警 | 待拍板（**强烈建议冻结**） |
-| **R103** | 「平台运维提取」（把 `−1` 的钱转出平台）**当前 kind 集不覆盖**：现有 **20 个** kind（**v0.3（P1c）**：删 `listing_deposit_forfeit`，见 §19.8.B；v0.2 旧写法：21 个；v0.1 旧写法：22 个，其中 `listing_deposit_refund` 已于 v0.2 删除）里没有任何一个表示「平台账户 → 外部/运维」。因此：① 在补 kind 之前，平台收入账户**只进不出**；② 补 kind 的建议名为 `platform_withdraw`（减方 `−1`，增方 `uid = 0` 或指定主体），并在 §5.1 登记后再启用。 | kind 集的后续扩展；§15 待拍板第 4 条 | ⚠️ 这是本册主动暴露的**口径缺口**（不是遗漏，是刻意留白）：在没有 `platform_withdraw` 之前，后台**不得**提供「提取平台收入」按钮，否则会绕过账本 | 待拍板（**需 Kevin 拍板是否需要提取动作**） |
+| **R103** | 「平台运维提取」（把 `−1` 的钱转出平台）**当前 kind 集不覆盖**：现有 21 个 kind（v0.1 旧写法：22 个；`listing_deposit_refund` 已于 v0.2 删除）里没有任何一个表示「平台账户 → 外部/运维」。因此：① 在补 kind 之前，平台收入账户**只进不出**；② 补 kind 的建议名为 `platform_withdraw`（减方 `−1`，增方 `uid = 0` 或指定主体），并在 §5.1 登记后再启用。 | kind 集的后续扩展；§15 待拍板第 4 条 | ⚠️ 这是本册主动暴露的**口径缺口**（不是遗漏，是刻意留白）：在没有 `platform_withdraw` 之前，后台**不得**提供「提取平台收入」按钮，否则会绕过账本 | 待拍板（**需 Kevin 拍板是否需要提取动作**） |
 
 ---
 
@@ -715,7 +709,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | 24 | `LEDGER_UNKNOWN_KIND` | `400` | 传入 kind 不在 §5.1 白名单内 | 不支持的账务类型 |
 | 25 | `LEDGER_TRANSACTION_REQUIRED` | `500` | 写路径未在事务上下文中执行（§7 R55） | 服务暂不可用，请稍后重试 |
 | 26 | `LEDGER_LOCK_TIMEOUT` | `503` | `lock_timeout` 触发 | 系统繁忙，请稍后重试 |
-| 27 | `LEDGER_TX_TIMEOUT` | `503` | `statement_timeout` 触发，**或连接池获取连接超时 / 过载**〔v0.3 扩写〕；无 SQLSTATE 的**驱动级 / 非 PG 错误**亦借用本码（`details.reason` 区分） | 系统繁忙，请稍后重试 |
+| 27 | `LEDGER_TX_TIMEOUT` | `503` | `statement_timeout` 触发 | 系统繁忙，请稍后重试 |
 | 28 | `LEDGER_DEADLOCK_RETRY_EXHAUSTED` | `503` | 死锁/序列化失败重试 3 次仍失败 | 系统繁忙，请稍后重试 |
 | 29 | `LEDGER_NEGATIVE_BALANCE_GUARD` | `500` | DB `CHECK` 被触发（**实现缺陷告警**） | 服务异常，请联系客服 |
 | 30 | `LEDGER_APPEND_ONLY_VIOLATION` | `500` | DB trigger 拒绝 UPDATE/DELETE（**实现缺陷告警**） | 服务异常，请联系客服 |
@@ -732,7 +726,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | **R106** | **幂等重放不是错误**：`LEDGER_IDEMPOTENCY_REPLAY` 必须以 `200` + `idempotent_replay: true` 返回，前端按成功处理。它虽然在错误码表里登记（便于日志检索与统计），但**不得**进入错误分支。 | 响应包装层 | 「用户连点两次，第二次弹错误」是这类项目最常见的体验缺陷；本册明确禁止 | 待拍板（**建议冻结**） |
 | **R107** | **统一错误响应结构**：`{ "error": { "code": "LEDGER_XXX", "message": "中文文案", "i18n_key": "ledger.err.LEDGER_XXX", "details": { ... } } }`。`details` 只允许放**非敏感**上下文（涉及的 `cid`、`symbol`、期望值/实际值），**禁止**放 SQL、约束名、堆栈、表名、连接串。 | 响应包装层中间件 | 前后端契约唯一；`details` 的形状按 code 固定并在本册登记 —— **已于 v0.2 补齐：见 §14.4**（P1a 曾暂存于 `backend-ts/src/ledger.ts` 文件头） | 待拍板（结构可改，但必须唯一） |
 | **R108** | `500` 类错误（#29 / #30 / #31 / #32）**必须触发告警**（日志 `error` 级 + 计数指标 + 可选通知），因为它们**只**代表代码缺陷，不可能是用户输入造成。告警信息必须含「哪个不变量被破坏」与「涉及的 `uid`/`cid`/`txid`」，便于直接定位。 | 日志/监控；`details` 中的诊断上下文（仅入日志，不入响应体） | 这四条错误一旦在生产出现，应当立即触发一次全量对账（§11 R92 ③） | 待拍板（**建议冻结**） |
-### 14.3 参数非法 / 守卫情形的错误码映射（**P1a 借用方案 + v0.3 扩充，已裁定**）
+### 14.3 参数非法 / 守卫情形的错误码映射（**P1a 借用方案，已裁定**）
 
 > **背景（留痕）**：§14.1 的 33 个错误码里**没有**「uid / cid 格式非法」「`ref_type`/`ref_id` 不成对」「冲正守卫」「平台账户 kind 白名单」这类**入参形态非法**的专用码。P1 实现（Kong · P1a）采用**借用法**：复用语义最接近的既有错误码，并用 `details.reason` 区分具体情形。**Zang 已裁定采纳借用方案**（不新增错误码，避免与 R104 的「唯一来源 + i18n key 契约」打架），现正式登记于此，后续一律按 R105 的 HTTP 语义映射执行。
 
@@ -745,7 +739,6 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | `reversal_of_txid` 与 `kind` 不匹配（违反 R20 / 约束 `ledger_reversal_guard`） | `LEDGER_AMOUNT_INVALID` | `400` | `REVERSAL_GUARD` | 同上；注意它是**请求形状**错误，不是 `500` 实现缺陷 |
 | 违反 R101 平台账户 kind 白名单（对平台账户发起出账类 `kind`） | `LEDGER_RESERVED_UID` | `400` | `PLATFORM_DEBIT_FORBIDDEN` | 平台账户「不可作为该动作的主体」⇒ 归入 uid 违规维度 |
 | 违反 R103 平台账户只进不出（`−1` 等账户出账 / `platform_withdraw` 未获批） | `LEDGER_RESERVED_UID` | `400` | `PLATFORM_CREDIT_KIND_FORBIDDEN` | 同上；`platform_withdraw` 获批并登记后本格作废 |
-| **驱动级 / 非 PG 错误（无 SQLSTATE）**：连接池获取连接超时 / 过载、`ECONNREFUSED` 等驱动或 OS 级连接错误〔**v0.3 新增**〕 | `LEDGER_TX_TIMEOUT` | `503` | `pool_connection_timeout` / `driver_connection_error` | 这类错误**不是**实现缺陷（可重试）⇒ 归 `503`，**不得**兜底成 `500 LEDGER_TRANSACTION_REQUIRED`（v0.2 及以前实现曾如此归类）。与 §11.2 R82、§14.1 #27 互引；`details` 形状见 §14.4；裁定见 §19.8.C |
 
 > ⚠️ **两条纪律**：① 借用**不改变** §14.1 各码自身的触发条件 —— 上表只在「§14.1 无覆盖」的情形下使用；② `details.reason` 的取值是**机器可读枚举**，必须进 R104 的常量表，**不得**写中文自由文本（R107：`details` 只放非敏感上下文）。
 
@@ -767,9 +760,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | `LEDGER_UNKNOWN_KIND` | `{ kind }` | |
 | `LEDGER_HOLD_NOT_ALLOWED` | `{ uid, cid, reason }` | |
 | `LEDGER_NEGATIVE_BALANCE_GUARD` / `LEDGER_ACCOUNT_GUARD_VIOLATION` / `LEDGER_APPEND_ONLY_VIOLATION` | `{ constraint? }` | **`500` 类**：`details` 仅入日志（R108）；响应体**不得**含约束名 / 表名 / SQL / 堆栈（R107 禁止项） |
-| `LEDGER_TX_TIMEOUT` | `{ reason: 'pool_connection_timeout' \| 'driver_connection_error' }`〔**v0.3 新增单列**〕 | `reason` 枚举见 §14.3 新增行；`pool_connection_timeout` = 连接池取连接超时 / 过载（**WS 连接池拿不到连接时抛的是无 `code` 的裸 `Error`**，**不得**再兜底改写成 `LEDGER_TRANSACTION_REQUIRED` / `500`）；`driver_connection_error` = 驱动 / OS 级连接错误（如 `ECONNREFUSED`）。纯 `statement_timeout` 触发时**省略**本字段（即 `{}`）。见 §14.1 #27 / §11.2 R82 / §19.8.C |
-| `LEDGER_TRANSACTION_REQUIRED` | `{ cause, reason: 'unclassified_non_pg_error' \| 'unclassified_driver_error' \| 'unclassified_pg_error', error_name, error_code? \| pg_code? }`〔**v0.3 新增单列**〕 | **不得只留 `cause = 'non_pg_error'`**（v0.3 更正：`cause` 只是归类标签，`reason` 才是机器可读枚举，须进 R104 常量表）；`error_name` = 原始 `Error.name`；`error_code` = 非 PG 错误自身的 `code`，`pg_code` = PG SQLSTATE，按实际来源二选一。本码为 `500` 类 ⇒ `details` 仅入日志（R108），响应体不得含 SQL / 约束名 / 堆栈（R107） |
-| 其余码（`IDEMPOTENCY_KEY_REQUIRED` / `_INVALID` / `LOCK_TIMEOUT` / `DEADLOCK_RETRY_EXHAUSTED` / `FEE_RATE_INVALID` / `REF_NOT_FOUND` / `ACCOUNT_NOT_FOUND` / `CURRENCY_SYMBOL_TAKEN`） | `{}` 或省略 | 无附加上下文〔**v0.3**：`LEDGER_TX_TIMEOUT` 与 `LEDGER_TRANSACTION_REQUIRED` 已自本行移出、各自单列于上（v0.2 旧写法：两码均在本行、形状为「`{}` 或省略」）〕 |
+| 其余码（`IDEMPOTENCY_KEY_REQUIRED` / `_INVALID` / `TRANSACTION_REQUIRED` / `LOCK_TIMEOUT` / `TX_TIMEOUT` / `DEADLOCK_RETRY_EXHAUSTED` / `FEE_RATE_INVALID` / `REF_NOT_FOUND` / `ACCOUNT_NOT_FOUND` / `CURRENCY_SYMBOL_TAKEN`） | `{}` 或省略 | 无附加上下文 |
 
 ---
 
@@ -780,7 +771,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | # | 条目 | 本册建议值 | 一句话可改的替代方案 | 影响面 | 优先级 |
 |---|---|---|---|---|---|
 | 1 | **R15 分录双字段** | `ledger_entry` 同时有 `delta`（可用变动）与 `frozen_delta`（冻结变动） | 改回单一 `delta`（master-plan 草案写法）—— 代价：冻结资金直接支付给对方时无法记账，必须伪造「先解冻再付款」两步 | 表结构 + 全部 kind + 对账判据 1/2/8 | ★★★ |
-| 2 | ~~**R31 保证金性质（D6 vs D7 冲突）**~~ ✅ **已于 v0.2 裁定** | **保证金 = 消耗（不可退），计入平台收入**（依据 Kevin 原文「用户自定义的社区积分如需上市，需要消耗一定的积分作为保证金」）；`listing_deposit_refund` 删除（kind 关闭集 22 → 21 →〔**P1c（v0.3）**〕**20**：`listing_deposit_forfeit` 已于 v0.3 删除，见 §19.8.B） | ~~「本册建议值：保证金=冻结可退」~~ **作废** —— Kevin 已按「消耗不可退」拍板（原表内「一句话可改的替代方案」被采纳） | 币种状态机 + 平台收入报表 + kind 集（22 → 21，〔P1c〕→ **20**） | 已裁定（Zang · P1a 收口，见 §19.0；kind 关闭集后续于 v0.3 收至 **20**，见 §19.8.B） |
+| 2 | ~~**R31 保证金性质（D6 vs D7 冲突）**~~ ✅ **已于 v0.2 裁定** | **保证金 = 消耗（不可退），计入平台收入**（依据 Kevin 原文「用户自定义的社区积分如需上市，需要消耗一定的积分作为保证金」）；`listing_deposit_refund` 删除（kind 关闭集 22 → 21） | ~~「本册建议值：保证金=冻结可退」~~ **作废** —— Kevin 已按「消耗不可退」拍板（原表内「一句话可改的替代方案」被采纳） | 币种状态机 + 平台收入报表 + kind 集（22 → 21） | 已裁定（Zang · P1a 收口，见 §19.0） |
 | 3 | **R103 平台收入能否提取** | 当前 kind 集**不覆盖**提取动作；在补 `platform_withdraw` 之前平台收入账户只进不出 | 明确「不需要提取」（则永久保持只进不出，无需新 kind）；或批准新增 `platform_withdraw` kind | kind 集 + 后台按钮 + §13 R101 白名单 | ★★★ |
 | 4 | **R48 幂等键作用域** | 全局唯一 `UNIQUE (idempotency_key)` + 强制前缀 | 改为 `UNIQUE (uid, idempotency_key)` —— 代价：所有 dedupe 查询都要带 uid，且平台账户事件需单独处理 | 唯一约束 + 幂等协议 + 索引 | ★★ |
 | 5 | **R74 写入顺序 + account 守卫触发器** | 「先插分录、后更新 account」，并用 `trg_account_guard` 在 DB 层校验余额 == 最新分录快照 | 去掉触发器，仅靠应用层 —— 代价：本册唯一能在 DB 层拦住「扣了钱没落流水」的手段消失 | DDL + 每笔写入的语句顺序 | ★★ |
@@ -864,14 +855,14 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | R28 | 「状态 × 操作」矩阵（逐格判定，不允许实现自选）： `mint`（owner 铸币）：`draft`✅ `listed`✅ `frozen`❌ `delisted`❌ `tr… | 待拍板〔v0.2 补格：`hold_release` 四态全可、结算类与 `hold` 同档，见 §19.3〕 |
 | R29 | `frozen` 是平台合规冻结（涉诈/违规调查），不是用户可自行触发的操作；解冻同样只能平台发起。冻结/解冻不产生任何账务分录（不动 balance/frozen，用户钱仍在… | 待拍板（一句话可改） |
 | R30 | `delisted` 是终态：不可复活，如要恢复必须新建币种（新 `cid`，新 `symbol` 也不行，因为 `symbol` 仍被旧行占用）。因此下架时必须同时处理该币种… | 待拍板（一句话可改） |
-| R31 | 〔**v0.2 已更正（见 §19.0）**：`listing_deposit` = 消耗不可退、入 `uid = −1`；`listing_deposit_refund` 已删除。**v0.3（P1c）补**：`listing_deposit_forfeit` 亦已删除、平台收入口径不含它，见 §19.8.B〕「上市收费」拆成两笔性质不同的动作，且都必须在下架时口径明确： ① `listing_deposit` = 冻结 `deposit_amount` 的 `$`（D7：可退 ⇒ … | 已裁定（Zang：保证金 = 消耗不可退） |
+| R31 | 〔**v0.2 已更正（见 §19.0）**：`listing_deposit` = 消耗不可退、入 `uid = −1`；`listing_deposit_refund` 已删除〕「上市收费」拆成两笔性质不同的动作，且都必须在下架时口径明确： ① `listing_deposit` = 冻结 `deposit_amount` 的 `$`（D7：可退 ⇒ … | 已裁定（Zang：保证金 = 消耗不可退） |
 
 **§4 余额语义：balance / frozen 与三态记账**
 
 | 编号 | 口径摘要 | 状态 |
 |---|---|---|
 | R32 | 一切扣款（转账、购买、手续费、保证金、成交费）只能从 `balance` 扣；`frozen` 永不作为自动扣款来源。 | 已冻结（D7：手续费消耗不可退）〔保证金性质见 R31 v0.2〕 |
-| R33 | `frozen` 的流动方向白名单：只能流向 ① 同账户 `balance`（`hold_release`）、② 同账户外的合法受款方（`job_payout` 给打工人 / … | 待拍板（一句话可改）〔v0.3（P1c）：白名单中删 `listing_deposit_forfeit`、改列 `hold_forfeit`，见 §4.3 R33 正文 / §19.8.B〕 |
+| R33 | `frozen` 的流动方向白名单：只能流向 ① 同账户 `balance`（`hold_release`）、② 同账户外的合法受款方（`job_payout` 给打工人 / … | 待拍板（一句话可改） |
 | R34 | 冻结与解冻必须成对记账且都为同事务：`hold` 的分录与其 `hold_release`（或结算流出）之间不要求同一事务，但每一次单边变动都必须是完整的会计事件（一次 hol… | 待拍板（一句话可改） |
 | R35 | 禁止隐式解冻：当用户可用余额不足时，系统不得自动动用 `frozen` 补足（例如「余额不够，自动解冻挂单的钱来付款」）。要动用冻结资金必须是显式的业务动作（撤单/解冻接口）。 | 待拍板（这是一条用户可感知的口径，一句话可改） |
 | R36 | `account.frozen` 只是聚合投影，冻结的「归属」真源在业务表（挂单未成交量、招工托管额，v0.2 去 deposit_amount）。因此任何解冻都必须由… | 待拍板（本册第三条重要设计裁决） |
@@ -883,7 +874,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 
 | 编号 | 口径摘要 | 状态 |
 |---|---|---|
-| R40 | 上表 **20 个** `kind` 是关闭集〔**v0.3（P1c）：删 `listing_deposit_forfeit`**（落点 `backend-ts/migrations/0003_kind_close_set_20.sql`，见 §19.8.B）；v0.2 旧写法：21 个（删 `listing_deposit_refund`）〕。新增/删除 kind 必须走 migration（改 `ledger_kind_enum`）并同步在本册 §5.1 登记「减方/增方/净… | 已冻结（append-only + 可审计要求） |
+| R40 | 上表 21 个 `kind` 是关闭集〔v0.2：删 `listing_deposit_refund`〕。新增/删除 kind 必须走 migration（改 `ledger_kind_enum`）并同步在本册 §5.1 登记「减方/增方/净… | 已冻结（append-only + 可审计要求） |
 | R41 | 配对不变式：一笔业务事件（同 `ref_type` + `ref_id` + 同一次提交）产生的全部分录必须满足 `Σ delta = 0` 且 `Σ frozen_delta… | 待拍板（一句话可改） |
 | R42 | 禁止单边分录：除 `mint` / `burn`（对手方为「系统」）外，任何余额变动都必须同时写出减方与增方分录，不得只写一条带 `memo` 说明的行。 | 待拍板（一句话可改） |
 | R43 | 交易所挂单冻结复用 `hold`（`ref_type = 'market_order'`），不新增 `market_hold` kind；商品/招工/保证金各自的冻结入口也统一… | 待拍板（可改为「每个业务模块各用自己的 hold kind」，一句话可改） |
@@ -950,7 +941,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | R79 | 加锁全序强制（§10.1）。任何事务在取第二把锁之前必须先确认它是全序中的后位；违反全序的写法（如按「用户传入顺序」遍历扣款）必须重写。 | 待拍板（本册第六条重要裁决，一句话可改） |
 | R80 | 负余额禁令：`CHECK (balance >= 0)` / `CHECK (frozen >= 0)` / `CHECK (balance_after >= 0)` / `C… | 已冻结（P1 AC：负余额必须不可能出现） |
 | R81 | 乐观锁 `account.version` 的使用边界：只在「单账户、单分录、无跨账户搬运」的轻量写路径使用（如 `mint` / `burn` / `hold` / `hol… | 已裁定（Zang · v0.2：全部 `FOR UPDATE`，`version` 列保留仅作审计，见 §19.4） |
-| R82 | 锁等待与语句超时：必须设置 `lock_timeout`（建议 3s）与 `statement_timeout`（建议 10s），超时分别映射为 `503 LEDGER_LOC… | 待拍板（时长可改）〔v0.3（P1c）：驱动级 / 非 PG 连接错误借用 `503 LEDGER_TX_TIMEOUT` + `details.reason`，见 §14.1 #27 / §14.3 / §14.4 / §19.8.C〕 |
+| R82 | 锁等待与语句超时：必须设置 `lock_timeout`（建议 3s）与 `statement_timeout`（建议 10s），超时分别映射为 `503 LEDGER_LOC… | 待拍板（时长可改） |
 | R83 | 并发 `mint` / `burn` / 状态变更必须先锁 `currency` 行（`SELECT ... FOR UPDATE`），再动 `account`，顺序不可颠倒（… | 待拍板（一句话可改） |
 | R84 | 挂单的「撤销」与「成交」必须争抢同一把 `market_order` 行锁，且锁后必须复查 `status` 与 `volume_filled`（不能信任锁前读到的值）。 | 待拍板（一句话可改） |
 | R85 | 并发验收清单（P1 AC 直引）：① 同一账户 100 并发转账后总额守恒；② 同一幂等键 100 并发提交只生效一次；③ 并发扣款不会出现负余额（余额 100，100 笔各扣… | 已冻结（P1 AC）+ 条目 ③④⑤ 为待拍板补充 |
@@ -984,9 +975,9 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | R98 | 保留 uid 区间 = `0` 与 `−1 … −99`；真实用户 uid 必须 `> 0`。任何创建 uid ≤ 0 用户的路径都必须被拒绝（`LEDGER_RESERVED… | 待拍板（区间可改，语义不可改） |
 | R99 | 平台账户的 `account` 行必须由 migration 种子创建（`balance = 0, frozen = 0`，满足 R75 的开户 0/0 约束），不得依赖运行期… | 待拍板（一句话可改） |
 | R100 | 用户请求不得命中平台账户：路由/服务层必须校验「调用方 uid 与请求涉及的 uid」均 `> 0`（除平台受信任路径外）。例如 `/transfer` 不允许 `to_uid… | 待拍板（强烈建议冻结） |
-| R101 | 平台账户的允许 kind 白名单：`−1` 只接受 `trade_fee` / `listing_fee` / `currency_create_fee`（增方）与运维提取（待… | 待拍板〔v0.2 裁定：仅 uid `−3`（罚没池）允许以 `transfer` 出账，其余平台账户从严，见 §19.1；v0.3（P1c）：`−3` 白名单删 `listing_deposit_forfeit`，见 §19.8.B〕 |
+| R101 | 平台账户的允许 kind 白名单：`−1` 只接受 `trade_fee` / `listing_fee` / `currency_create_fee`（增方）与运维提取（待… | 待拍板〔v0.2 裁定：仅 uid `−3`（罚没池）允许以 `transfer` 出账，其余平台账户从严，见 §19.1〕 |
 | R102 | 平台账户不得透支（`balance >= 0` 同样适用，判据 9）：若某笔 `commission` 需要从 `−2` 支出而池子不足 ⇒ 说明整个事务的中止逻辑有缺陷，必须… | 待拍板（强烈建议冻结） |
-| R103 | 「平台运维提取」（把 `−1` 的钱转出平台）当前 kind 集不覆盖：现有 **20 个** kind（v0.3（P1c）删 `listing_deposit_forfeit`，见 §19.8.B；v0.1 旧写法：22 个） 里没有任何一个表示「平台账户 → 外部/运维」。因此：① 在补 kind 之前… | 待拍板（需 Kevin 拍板是否需要提取动作） |
+| R103 | 「平台运维提取」（把 `−1` 的钱转出平台）当前 kind 集不覆盖：现有 21 个 kind（v0.1 旧写法：22 个） 里没有任何一个表示「平台账户 → 外部/运维」。因此：① 在补 kind 之前… | 待拍板（需 Kevin 拍板是否需要提取动作） |
 
 **§14 统一错误码清单**
 
@@ -1005,8 +996,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | 版本 | 日期 | 变更 | 变更人 |
 |---|---|---|---|
 | v0.1 | 2026-09-27 | 首版骨架落盘（章节目录 + §0–§18 占位），随即逐节填充：§0 范围与阅读约定、§1 术语、§2 三表契约（含 DDL）、§3 币种状态机、§4 三态记账、§5 kind 全量枚举（22 个）、§6 幂等、§7 事务边界（15 类操作）、§8 金额表示、§9 append-only 与 DB 守卫、§10 并发、§11 对账判据（9 条）+ 判负能力、§12 索引（11 个）、§13 平台账户（保留 uid）、§14 错误码（33 个）、§15 待拍板（20 条）、§16 未实测（5 条）、§17 规则总索引（R1–R108）。 | Jing |
-| v0.2 | 2026-09-27 | **Zang「P1a 收口」版**（快照：`docs/versions/ledger.spec.v0.1.md`，md5 `ef7a9a2633d36b2db0d2b43705372df6`，962 行 / 131972 字节；本版 md5 / 行数 / 字节数见交付报告）。落位：① 上市保证金「冻结可退」→「**消耗不可退**」（依据 Kevin 原文；`listing_deposit_refund` 删除、kind 关闭集 22 → 21；留痕见 §3.1 R31 / §3.2 / §5.1 / §5.2 / §2.1 DDL / §4.3 / §7.2 / §11 / §13 / §15 #2），总述见 §19.0；② §11 判据 8 正式形状改为 `Σ(delta + frozen_delta) = 0`，并写明字面式为何不成立（同源更正 R41 与 §5.1 `trade` 注），见 §19.2；③ §14 新增 §14.3（错误码借用映射表）与 §14.4（R107 要求的 `details` 形状表，自 `backend-ts/src/ledger.ts` 文件头**只读**回写）。另登记 5 条已裁定口径于 §19：R101×R38 的 `−3` `transfer` 例外、R28 补 `hold_release`/结算类、R51 幂等派生键 `<key>#<i>`、R81 全部 `FOR UPDATE`、R52② 指纹策略。**规则总数不变（R1–R108，108 条）**。〔**v0.3 后续（留痕）**：本行「kind 关闭集 **22 → 21**」为该版当时口径；v0.3（P1c）再删 `listing_deposit_forfeit` ⇒ 关闭集 **21 → 20**，见下行 v0.3 与 §19.8〕 | Jing |
-| v0.3 | 2026-09-27 | **Zang「P1c 收口」版**（改前快照：`docs/versions/ledger.spec.v0.2.md`，md5 `1a63a2f4e84ec199b463c536c3911cda`，1071 行 / 156707 字节；本版 md5 / 行数 / 字节数见交付报告）。落位：① **kind 关闭集 21 → 20**（删 `listing_deposit_forfeit`，Zang 裁定见 §19.8.B；DB 落点 `backend-ts/migrations/0003_kind_close_set_20.sql`；留痕见 §5.1 标题/行号说明/#21 行、§5.2 R40、§2.1 DDL、§3.2 转移表、§3.1 R31、§4.3 R33、§7.2 #14、§11 判据 7、§13.2 `−3` 行、§13.3 R101/R103、§15 #2、§17 索引）；② **非 PG 错误归类**（§14.1 #27 触发条件扩写、§14.3 新增「驱动级 / 非 PG 错误」行、§14.4 为 `LEDGER_TX_TIMEOUT` 与 `LEDGER_TRANSACTION_REQUIRED` 各单列 `details` 形状、§11.2 R82 互引；Zang 裁定见 §19.8.C）；③ **事实更正**：`ledger_kind_enum` 是 `kind`（`text`）上的 **CHECK 约束**、**非** enum 类型（§2.1 加实测取证块；删 kind 手段 = `DROP CONSTRAINT` + `ADD CONSTRAINT`，见 §19.8.A）。**规则总数不变（R1–R108，108 条）**；章节编号未重排（P1c 内容一律向后追加为 §19.8）。 | Jing |
+| v0.2 | 2026-09-27 | **Zang「P1a 收口」版**（快照：`docs/versions/ledger.spec.v0.1.md`，md5 `ef7a9a2633d36b2db0d2b43705372df6`，962 行 / 131972 字节；本版 md5 / 行数 / 字节数见交付报告）。落位：① 上市保证金「冻结可退」→「**消耗不可退**」（依据 Kevin 原文；`listing_deposit_refund` 删除、kind 关闭集 22 → 21；留痕见 §3.1 R31 / §3.2 / §5.1 / §5.2 / §2.1 DDL / §4.3 / §7.2 / §11 / §13 / §15 #2），总述见 §19.0；② §11 判据 8 正式形状改为 `Σ(delta + frozen_delta) = 0`，并写明字面式为何不成立（同源更正 R41 与 §5.1 `trade` 注），见 §19.2；③ §14 新增 §14.3（错误码借用映射表）与 §14.4（R107 要求的 `details` 形状表，自 `backend-ts/src/ledger.ts` 文件头**只读**回写）。另登记 5 条已裁定口径于 §19：R101×R38 的 `−3` `transfer` 例外、R28 补 `hold_release`/结算类、R51 幂等派生键 `<key>#<i>`、R81 全部 `FOR UPDATE`、R52② 指纹策略。**规则总数不变（R1–R108，108 条）**。 | Jing |
 
 **本册待 Kevin 拍板的三条 ★★★（P1 开工前必须表态）**：R15 分录双字段、~~R31 保证金性质（D6/D7 冲突仲裁）~~（**已于 v0.2 裁定：消耗不可退**，见 §19.0）、R103 平台收入能否提取。其余 17 条已集中列于 §15（其中 #17 乐观锁亦已于 v0.2 裁定，见 §19.4），均为「一句话可改」。
 
@@ -1018,7 +1008,6 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 
 > **本节性质**：P1a 实现（Kong）逐条比对 `docs/ledger.spec.md`（v0.1 / 962 行 / R1–R108）后挖出 **3 处 spec 自身的错误 / 缺漏**，Zang 已裁定。**三项裁定**已就地改写正文（每一处都留痕，见下表落位）；**另 5 条已裁定口径**只登记在此，**不改动上游规则原文**（R101 / R28 / R51 / R52 / R81 条文原样保留，仅追加「见 §19.x」指针）。
 > **效力**：本节与上游条文冲突时，**以本节为准**（本节是 Zang 对 v0.1 的最终收口口径）。
-> **v0.3 追加（Zang · P1c 收口）**：新增 **§19.8**（kind 关闭集 21 → 20、非 PG 错误归类、以及「`ledger_kind_enum` 是 CHECK 约束、不是 enum 类型」的事实更正）。**节标题与 §19.0–§19.7 编号沿用 v0.2、不重排**（锚点与下游引用不得断裂），P1c 内容一律向后追加为 §19.8。
 > **体例（编号顺序即被引用顺序，未重排）**：`19.0` = 裁定一（保证金消耗不可退）、`19.1` = 登记 1（R101×R38）、`19.2` = 裁定二（判据 8 正式形状）、`19.3`–`19.6` = 登记 2–5、`19.7` = 落位索引。**裁定三**（§14 错误码借用表 + `details` 形状表）就地落在 §14.3 / §14.4，其登记见 §19.7。
 
 ### 19.0 裁定一（最要紧）：上市保证金 = **消耗（不可退）**
@@ -1027,7 +1016,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 - **v0.1 旧写法（错，留痕）**：`listing_deposit` = **冻结**（可退）⇒ 记 `frozen_delta`；下架时 `listing_deposit_refund`（解冻退回）；平台「上市相关收入」**不含**在冻的 `listing_deposit`（「D6 vs D7」仲裁为「平时只冻结、违约才 `listing_deposit_forfeit`」）。
 - **v0.2 新写法（对）**：`listing_deposit` = **消耗** —— `$` 从创建者 `balance` 扣（`delta` 负数），转入平台手续费归集账户 `uid = −1`，**计入平台收入**；**不可退**；**不存在可退保证金，`listing_deposit_refund` 这个 kind 不存在**（kind 关闭集 **22 → 21**）。
 - **落位**：§3.1 R31（正文重写 + 旧写法留痕）、§3.2（状态机图 + 转移表两行）、§5.1（`hold` 行 / `listing_deposit` 行 / `listing_deposit_refund` 行标作废 / `trade` 注）、§5.2 R40（22→21）、§2.1 DDL（`ledger_kind_enum` 删该值）、§4.3 R32/R36/R37、§7.2 #13/#14、§11 判据 5/7、§13.2（`−1` 收入口径）、§13「不设保证金池」段、§15 #2、§0.4。
-- **⚠️ 遗留（不在本次裁定范围，需上游澄清 / 实现侧同步）**：~~① `listing_deposit_forfeit` 在「保证金已于上市时消耗」之后是否仍有标的物（§5.1 #21 已标「待澄清」，kind **暂不删**）~~ ✅ **已于 v0.3（Zang · P1c 收口）裁定：删除该 kind**（保证金上市时即消耗 ⇒ 强制下架无可罚没标的物；详见 §19.8.B）。此处保留 v0.2 原文字以留痕，**该条已不再是遗留项**；② `backend-ts/migrations/0001_ledger_core.sql` 与 `backend-ts/src/ledger.ts` 中的旧枚举值需在实现侧同步（**本册不改代码**，见 §0.2 分工）。
+- **⚠️ 遗留（不在本次裁定范围，需上游澄清 / 实现侧同步）**：① `listing_deposit_forfeit` 在「保证金已于上市时消耗」之后是否仍有标的物（§5.1 #21 已标「待澄清」，kind **暂不删**）；② `backend-ts/migrations/0001_ledger_core.sql` 与 `backend-ts/src/ledger.ts` 中的旧枚举值需在实现侧同步（**本册不改代码**，见 §0.2 分工）。
 
 ### 19.1 裁定（登记）：R101（平台账户禁 `transfer`）vs R38（罚没退还）
 
@@ -1079,51 +1068,4 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | 登记 4：R81 全部 `FOR UPDATE` | 登记（采纳实现现状） | §19.4、§10.3 R81、§15 #17、§17 索引 R81 |
 | 登记 5：R52② 指纹策略（未传指纹 = 重放；路由层强制传） | 登记 | §19.6、§6.2 R52、§17 索引 R52 |
 
-> ▶ **P1c 收口（v0.3）的落位索引见 §19.8.D**；§19.7 本表仅覆盖 P1a 收口（不重排、不合并）。
-
-**未纳入本次裁定（留待后续）**：~~`listing_deposit_forfeit` 的标的物（见 §19.0 遗留①）~~ ✅ **已于 v0.3（Zang · P1c 收口）裁定：删除该 kind（详见 §19.8.B）—— 自本「未纳入」清单移除、改列为已裁定**、`platform_withdraw`（R103 / §15 #3）、R15 分录双字段（§15 #1）、P0 migration 与 DDL 实测（§16 #1/#2/#3）。
-
-### 19.8 裁定与事实更正（Zang · P1c 收口，v0.3）
-
-> **本节性质**：P1c 实现（Kong）在 v0.2 基础上落地三件事，并对一处 schema 事实做了实测取证。Zang 已裁定。**本节与上游条文冲突时以本节为准**；§19.0–§19.7 为 P1a 收口、编号不重排，P1c 内容全部追加于此。
-
-#### 19.8.A 事实更正（取证）：`ledger_kind_enum` 是 **CHECK 约束**，**不是** enum 类型
-
-- **口径**：本库 `ledger_entry.kind` 是 **`text`** 列；其白名单是一个 **CHECK 约束**，约束名恰为 `ledger_kind_enum`（名字里带 `_enum`，但**不是** PostgreSQL enum 类型）。§2.1 DDL 现按此加注（见该节 v0.3 事实更正块）。
-- **实测取证（P1c，真库）**：
-  - `information_schema.columns` → `ledger_entry.kind`：`data_type = 'text'`、`udt_name = 'text'`；
-  - `pg_constraint` → `ledger_kind_enum`：`contype = 'c'`（CHECK），`def` 形如 `kind = ANY (ARRAY[...])`；
-  - `pg_type` → **不存在** `typname LIKE '%ledger_kind%'` 的行。
-- **直接后果（必须按此实现）**：**删 kind = 约束替换** —— `ALTER TABLE ledger_entry DROP CONSTRAINT ledger_kind_enum;` + `ALTER TABLE ledger_entry ADD CONSTRAINT ledger_kind_enum CHECK (kind IN (...));`，且**先断言无行在用**（否则中止；禁止借改约束静默改写历史流水语义）。**不可**用 `ALTER TYPE`：本库无该类型可改；且 PostgreSQL 本就不支持从 enum 类型里删值 —— 派单文字里的 `ALTER TYPE ... RENAME` 方案在本库**不可执行**。实作见 `backend-ts/migrations/0003_kind_close_set_20.sql`。
-- **留痕（改的是措辞，不是判断）**：v0.2 及以前本册对 `ledger_kind_enum` 的引用**未显式声明「它是 CHECK 约束而非类型」**，约束名里的 `_enum` 易被读成「同名 enum 类型」。经逐字核查：本册正文**没有**把 `ledger_kind_enum` 直述为「enum 类型」的句子（§2.2 R17 与 §15 #16 早已明写「**不使用** PostgreSQL `ENUM` 类型」，与实测一致）；v0.3 的改动是**补明确标注 + 补「删 kind 的操作手段」**，**不是**推翻 v0.2。§2.1 与 §5.2 R40 已按实测加注。
-
-#### 19.8.B 裁定：kind 关闭集 **21 → 20**（删 `listing_deposit_forfeit`）
-
-- **依据**：保证金**在上市时即消耗**（`listing_deposit` 已转入平台收入 `uid = −1`，见 §3.1 R31）⇒ **强制下架时不存在可罚没的标的物**，该 kind 无业务场景。
-- **口径**：**`listing_deposit_forfeit` 删除**（kind 关闭集 **21 → 20**）；**强制下架与正常下架均为无账务动作**（§3.2 转移表已改）。
-- **将来若要做「强制下架罚款」**：那是**新语义、新 kind**，须单独裁定后按 §5.1 登记「减方/增方/净增发」再启用；**不得**复活 `listing_deposit_forfeit` 这个已删名（已发布编号不复用）。
-- **DB 侧落点**：`backend-ts/migrations/0003_kind_close_set_20.sql` —— 前置断言（若仍有行在用被删值则 `RAISE EXCEPTION` 中止）→ `DROP CONSTRAINT` + `ADD CONSTRAINT`（20 个值）→ 收尾断言（恰好 1 个 `ledger_kind_enum` CHECK）。该 migration 已在真库生效，值集与 §2.1 DDL / §5.1 现存集**逐字一致**。
-
-#### 19.8.C 裁定：非 PG 错误归类（`500` 兜底 → `503` + `details.reason`）
-
-> **背景（留痕）**：事务包装器在「拿不到连接」与「SQL 执行失败」两条路径上共用过一个兜底分支。P1c 之前，**WS 连接池取不到连接时抛的是无 `code` 的裸 `Error`**，被兜底改写成 `LEDGER_TRANSACTION_REQUIRED`（`500`）。而 R105 把 `500` 定义为**实现缺陷**（并触发 R108 告警），但连接池超时 / 驱动级连接失败是**可重试**的「暂时不可用」⇒ **归类错误**（用户看到「服务异常」，缺陷告警被污染）。P1c 已修正。
-
-- **C1（连接池获取连接超时 / 过载）**：归 **`503 LEDGER_TX_TIMEOUT`** + `details.reason = 'pool_connection_timeout'`；**不得**再兜底为 `500 LEDGER_TRANSACTION_REQUIRED`。
-- **C2（驱动 / OS 级连接错误，如 `ECONNREFUSED`）**：归 **`503 LEDGER_TX_TIMEOUT`** + `details.reason = 'driver_connection_error'`。
-- **C3（归类纪律）**：`LEDGER_TRANSACTION_REQUIRED`（`500`）**只**保留其字面语义 —— 「写路径未在事务上下文中执行」（§7 R55，实现缺陷）；任何**无 SQLSTATE** 的连接 / 驱动错误**不得**归入该码。若确实无法细分，用 `details.cause` + `details.reason = 'unclassified_non_pg_error' | 'unclassified_driver_error' | 'unclassified_pg_error'`（配 `error_name`，及 `error_code` 或 `pg_code`）**如实标注「未归类」**，而不是伪装成某个有语义的码；**不得只留 `cause = 'non_pg_error'`**。
-- **落位**：§14.1 #27（触发条件扩写）、§14.3（新增「驱动级 / 非 PG 错误」借用行）、§14.4（`LEDGER_TX_TIMEOUT` 与 `LEDGER_TRANSACTION_REQUIRED` 各单列 `details` 形状）、§11.2 R82（加补充句并互引）。
-
-#### 19.8.D P1c 落位索引（供下游 brief / 验收清单与代码注释对号）
-
-| 裁定 / 更正 | 正文落位（逐处） |
-|---|---|
-| **A**：`ledger_kind_enum` = CHECK 约束（非 enum 类型）；删 kind 用 `DROP` / `ADD CONSTRAINT` | §2.1（DDL 值集 + 实测取证块）、§2.2 R17（口径早已一致，未改）、§5.2 R40、§19.8.A |
-| **B**：kind 关闭集 21 → 20（删 `listing_deposit_forfeit`） | §5.1（标题 / 行号说明 / #21 行）、§5.2 R40、§2.1 DDL、§3.2 转移表、§3.1 R31、§4.3 R33、§7.2 #14、§11 判据 7、§13.2 `−3` 行、§13.3 R101 / R103、§15 #2、§17 索引（R31 / R33 / R40 / R101 / R103）、§19.0 遗留①、§19 结尾「未纳入」 |
-| **C**：非 PG 错误归类（`503` + `reason`） | §14.1 #27、§14.3（新增行）、§14.4（两行单列）、§11.2 R82、§17 索引 R82 |
-
-**本次实测取证（P1c，真库）**：
-1. `ledger_entry.kind` 的 `data_type = 'text'`；`ledger_kind_enum` 的 `contype = 'c'`；`pg_type` 中无同名类型（见 19.8.A）。
-2. 旁证：`0003` migration 在真库执行成功 —— 该文件自身以 `pg_constraint`（`contype = 'c'`）断言约束存在性、并在替换后断言恰好 1 个 `ledger_kind_enum` CHECK ⇒ 该约束可被 `DROP` / `ADD` 替换，且替换后无行在用被删值。
-3. 真库测试数据已清理：删 308 条流水 / 27 个账户 / 8 个自建币；现仅剩平台账户（`0` / `−1` / `−2` / `−3`，均 `0/0`）与 `cid = 1` 的 `$`；`schema_migration` 登记 `0001` / `0002` / `0003`。
-
-**未纳入本次裁定（v0.3 新增留白）**：`platform_withdraw`（R103 / §15 #3）、R15 分录双字段（§15 #1）、P0 migration 与 DDL 实测（§16 #1/#2/#3），以及「强制下架罚款」若将来要做须新定 kind（见 19.8.B）。
+**未纳入本次裁定（留待后续）**：`listing_deposit_forfeit` 的标的物（见 §19.0 遗留①）、`platform_withdraw`（R103 / §15 #3）、R15 分录双字段（§15 #1）、P0 migration 与 DDL 实测（§16 #1/#2/#3）。

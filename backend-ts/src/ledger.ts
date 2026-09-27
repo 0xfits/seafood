@@ -10,16 +10,21 @@
  *          与 `listing_deposit_forfeit`（保证金上市时即消耗，强制下架不存在可罚没标的物）；
  *          见 `migrations/0003_kind_close_set_20.sql`。spec §5.1 回写由 Jing 另单执行。〕
  *   §6   幂等键（R48 全局唯一 + R49 前缀强制 + R50 确定性派生 + R51 协议 + R52 返回语义）
- *   §7   事务边界（R55 写路径必须在 withTransaction 内 + R57 一事件一事务）
+ *   §7   事务边界（R55 写路径必须在事务内 + R57 一事件一事务）
+ *        〔P1e/D10 变更：写路径的单条 `SELECT ledger_post_event(...)` 自带隐式事务即满足 R55/R57，
+ *          不再需要应用层 BEGIN…COMMIT；需 spec 同步，见交付报告「需 spec 同步的行清单」〕
  *   §8   金额表示（R66 bigint 最小单位 + R70 出入参十进制字符串 + R71 上限 + R72 入参校验）
  *   §9   append-only + account 守卫（R74 先插分录后更账户 + R75 开户必须 0/0）
  *   §10  加锁全序（R79 currency(cid 升序) → account(uid 升序) → 业务行）+ 负余额禁令（R80）
  *   §13  平台保留 uid（R98 / R100 / R101 / R103：只进不出）
  *   §14  统一错误码（R104 唯一来源 = ./ledger-errors.ts）
  *
- * 基础设施（不重写）：`src/db.ts` 的 withTransaction / txQuery / readQuery / healthCheck。
+ * 基础设施：读路径已重写为 `src/db.ts` 的 readQuery / healthCheck；
+ *   写路径（P1e / D10 变体 B）**不再走 withTransaction**，改由单条 `SELECT ledger_post_event($1::jsonb)`
+ *   承载（见 `migrations/0004_ledger_post_event.sql` 与本文件 §5b）。
  *
  * ---------------------------------------------------------------- 幂等键分工（R51 落地口径）
+ * 〔P1e：以下协议**已整体下沉**到 DB 函数 `ledger_post_event`（0004），此处保留为口径说明〕
  * 一次业务事件写 N 条分录，而 `ledger_entry.idempotency_key` 是**全局唯一**（R48），
  * 因此：第 1 条分录使用**调用方传入的键**（它就是幂等探针本身），第 i 条（i≥2）使用
  * `deriveEventKey(key, i)` = `<key>#<i>`：同一键空间、前缀不变、可确定性派生（R49/R50）。
@@ -47,25 +52,28 @@
  *
  * ---------------------------------------------------------------- 本阶段**未**实现（明确留白，勿误判为遗漏）
  *   - 招工 / 商品 / 交易所 / 返佣 / 上市费 / 保证金冻结 等业务动作（P3/P4/P5）
- *   - `burn`（P1a 未在交付清单内；kind 白名单与 §5 已就绪，实现时可复用 postEntry）
+ *   - `burn`（P1a 未在交付清单内；kind 白名单与 §5 已就绪，实现时走 DB 函数的 op='entries'）
  *   - `reversal` 冲正动作（表结构与 R20/R46 约束已就绪，未写服务函数）
  *   - R81 乐观锁分支：本阶段**全部**走 `SELECT ... FOR UPDATE`（spec §15 #17 明示「可改」）
  *   - R108 告警通道：仅提供 `isDefectError()` 判定，未接日志/指标
  *   - R92/R87 对账脚本与判负演练：属下一阶段交付物
  *   - `platform_withdraw`：未实现，平台账户**只进不出**（D7 更正版 + R103，未获批准前禁止）
  */
+import { Pool, neon } from '@neondatabase/serverless';
 import {
   TxClient,
   withTransaction,
   txQuery,
   readQuery,
-  assertInTransaction,
+  resolveReadUrl,
+  resolveTransactionUrl,
 } from './db';
 import {
   LedgerError,
   LedgerErrorCode,
   LedgerErrorDetails,
   isLedgerError,
+  isLedgerErrorCode,
   normalizeLedgerError,
   toErrorResponse,
 } from './ledger-errors';
@@ -230,6 +238,8 @@ export interface LedgerOpResult {
   entries: LedgerEntryRecord[];
   accounts: AccountSnapshot[];
   extra: Record<string, string | null>;
+  /** P1e 新增（可选，加字段不影响既有调用方）：DB 函数回传的取证信息 —— op + 真实加锁顺序（R79） */
+  meta?: LedgerEventMeta;
 }
 
 type RawRow = Record<string, unknown>;
@@ -567,27 +577,9 @@ export const ensurePlatformAccounts = async (cid: Amount, tx?: TxClient): Promis
 };
 
 // ============================================================================
-// §5 分录写入器（原子：先插 ledger_entry，后更新 account，R74）
+// §5 分录写入器（保留件：分录列集 / 行映射 / 配对不变式 / 按键取回 / 快照聚合）
+//    —— 这些是**读**与**纯校验**用的，不再包含任何写库语句（写路径见下面的 §5b）
 // ============================================================================
-
-export interface PostEntryInput {
-  uid: Amount;
-  cid: Amount;
-  /** 可用余额变动（可为 0，但不得与 frozenDelta 同时为 0 —— ledger_move_guard） */
-  delta: Amount;
-  /** 冻结余额变动（R15 双字段） */
-  frozenDelta?: Amount;
-  kind: LedgerKind;
-  refType?: RefType | null;
-  refId?: Amount | null;
-  /** R49：必须带 biz:/cm:/cli:/ops: 前缀；首次事件的首条分录用调用方原始键 */
-  idempotencyKey: string;
-  /** R53：规范化请求体的 sha256；NULL = 「同键即重放」 */
-  requestFingerprint?: string | null;
-  memo?: string;
-  /** kind = 'reversal' 时必须给出（ledger_reversal_guard） */
-  reversalOfTxid?: Amount | null;
-}
 
 const ENTRY_COLS = 'txid, uid, cid, delta, frozen_delta, balance_after, frozen_after, kind, ref_type, '
   + 'ref_id, idempotency_key, request_fingerprint, reversal_of_txid, memo, time_created';
@@ -609,96 +601,6 @@ const mapEntry = (r: RawRow): LedgerEntryRecord => ({
   memo: rawStr(r.memo),
   time_created: tsOrNull(r.time_created),
 });
-
-/** 同键重放哨兵：**只在事务内部**抛出，事务必须 ROLLBACK，再由外层按键取回既有结果（R51） */
-class IdempotencyReplayDetected extends Error {
-  readonly key: string;
-  constructor(key: string) {
-    super(`idempotency replay detected: ${key}`);
-    this.name = 'IdempotencyReplayDetected';
-    this.key = key;
-  }
-}
-
-/**
- * 分录写入器（R55：**必须在调用方事务内**；R74：先插分录后更账户，两者原子）。
- * 返回落账后的完整分录行（含 txid / balance_after / frozen_after）。
- */
-export const postEntry = async (tx: TxClient, input: PostEntryInput): Promise<LedgerEntryRecord> => {
-  assertInTransaction(tx); // R55 运行时断言：写路径无事务 ⇒ LEDGER_TRANSACTION_REQUIRED
-
-  const kind = assertLedgerKind(input.kind);
-  const uid = toUid(input.uid);
-  const cid = toCid(input.cid);
-  const delta = toAmount(input.delta, 'delta');
-  const frozenDelta = toAmount(input.frozenDelta ?? 0n, 'frozenDelta');
-  const key = normalizeIdempotencyKey(input.idempotencyKey);
-
-  if (delta === 0n && frozenDelta === 0n) {
-    throw new LedgerError('LEDGER_AMOUNT_INVALID', { field: 'delta/frozen_delta', reason: 'BOTH_ZERO' });
-  }
-
-  const { refType, refId } = normalizeRef(input.refType, input.refId);
-  const reversalOf = input.reversalOfTxid === null || input.reversalOfTxid === undefined
-    ? null
-    : toAmount(input.reversalOfTxid, 'reversal_of_txid').toString();
-  if ((kind === 'reversal') !== (reversalOf !== null)) {
-    throw new LedgerError('LEDGER_AMOUNT_INVALID', { field: 'reversal_of_txid', reason: 'REVERSAL_GUARD' });
-  }
-
-  // R101：平台账户 kind 白名单（先判方向：delta/frozen_delta 谁非 0）
-  if (delta > 0n || frozenDelta > 0n) assertPlatformAccountMutation(uid, kind, 'credit');
-  if (delta < 0n || frozenDelta < 0n) assertPlatformAccountMutation(uid, kind, 'debit');
-
-  // ① 锁账户（并按需 0/0 开户）
-  const account = await lockAccount(tx, uid, cid);
-  const balance = BigInt(account.balance);
-  const frozen = BigInt(account.frozen);
-
-  // ② 负余额禁令（R80：应用层先判，DB CHECK 只作兜底）
-  const balanceAfter = balance + delta;
-  const frozenAfter = frozen + frozenDelta;
-  if (balanceAfter < 0n) {
-    throw new LedgerError('LEDGER_INSUFFICIENT_BALANCE', {
-      uid: uid.toString(), cid: cid.toString(), required: (-delta).toString(), available: balance.toString(),
-    });
-  }
-  if (frozenAfter < 0n) {
-    throw new LedgerError('LEDGER_INSUFFICIENT_FROZEN', {
-      uid: uid.toString(), cid: cid.toString(), required: (-frozenDelta).toString(), available: frozen.toString(),
-    });
-  }
-
-  // ③ 幂等探针 = 本事务的第一条 ledger_entry 插入（R51：靠唯一约束，禁止先查后插）
-  const inserted = await txQuery<RawRow>(
-    tx,
-    `INSERT INTO ledger_entry
-       (uid, cid, delta, frozen_delta, balance_after, frozen_after, kind, ref_type, ref_id,
-        idempotency_key, request_fingerprint, reversal_of_txid, memo)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
-     ON CONFLICT (idempotency_key) DO NOTHING
-     RETURNING ${ENTRY_COLS}`,
-    [
-      uid.toString(), cid.toString(), delta.toString(), frozenDelta.toString(),
-      balanceAfter.toString(), frozenAfter.toString(), kind, refType, refId,
-      key, input.requestFingerprint ?? null, reversalOf, input.memo ?? '',
-    ],
-  );
-  if (!inserted.length) throw new IdempotencyReplayDetected(key);
-
-  // ④ 更新账户（必须逐列等于刚插入的快照，否则 trg_account_guard 直接拒）
-  const updated = await txQuery<RawRow>(
-    tx,
-    'UPDATE account SET balance = $3, frozen = $4, version = version + 1, time_updated = now() '
-    + 'WHERE uid = $1 AND cid = $2 RETURNING ' + ACCOUNT_COLS,
-    [uid.toString(), cid.toString(), balanceAfter.toString(), frozenAfter.toString()],
-  );
-  if (!updated.length) {
-    throw new LedgerError('LEDGER_ACCOUNT_NOT_FOUND', { uid: uid.toString(), cid: cid.toString() });
-  }
-
-  return mapEntry(inserted[0]);
-};
 
 /**
  * R41 配对不变式：写库前断言「本事件不凭空造钱 / 不吞钱」。
@@ -773,62 +675,398 @@ const snapshotsOf = (entries: LedgerEntryRecord[]): AccountSnapshot[] => {
   return [...byAccount.values()];
 };
 
-const buildResult = (
-  key: string,
-  entries: LedgerEntryRecord[],
-  replayed: boolean,
-  extra: Record<string, string | null> = {},
-): LedgerOpResult => ({
-  ok: true,
-  idempotent_replay: replayed,
-  idempotency_key: key,
-  txid: entries[0]?.txid ?? '',
-  entries,
-  accounts: snapshotsOf(entries),
-  extra,
-});
+// ============================================================================
+// §5b · 记账写路径（D10 变体 B / P1e）：一个业务事件 = 一条语句 = 一趟往返
+// ============================================================================
+// Kevin 拍板口径（D10，2026-09）：把「参数校验 + 幂等占位 + 加锁全序 + 分录写入 +
+// 余额/冻结更新 + 配对不变式」**全部**下沉到 DB 函数 `ledger_post_event(jsonb)`
+// （`migrations/0004_ledger_post_event.sql`，PL/pgSQL）。本文件在写路径上只剩三件事：
+//   ① 组装 payload（纯数据组装：金额语义分流、ref 成对、uid/cid 形状；**不换算、不加锁、不写库**）
+//   ② 发**一条** `SELECT ledger_post_event($1::jsonb)` —— 单语句自带隐式事务，
+//      即 R57「一个业务事件一个事务」；不再需要 `withTransaction` 的 BEGIN…COMMIT 往返
+//   ③ 把 DB 抛出的自定义 SQLSTATE（LD001..LD033）映射回 §14 错误码（R104 唯一来源）
+//
+// 为什么（P1b 实测，非推测）：本机 ↔ Neon(新加坡) 每语句 RTT 190–290 ms，旧实现一笔
+// `transfer` 要 10–14 条语句 ⇒ 单笔 3.3–4.4 s，连 BEGIN…COMMIT 都要 1.4–2.3 s；
+// 压成一条语句后，行锁持有时间 = 该语句执行时间，R82 的 lock_timeout 不再被「语句数 × RTT」放大。
+//
+// **已删除，禁止双真源**：`postEntry`（逐条 INSERT + UPDATE account）、`withIdempotentEvent`
+// （withTransaction 外壳）、`IdempotencyReplayDetected`（旧哨兵）、`PostEntryInput`。
+// 旧 TS 记账逻辑在本文件已不存在；金额换算/幂等/加锁/分录/不变式**只有 DB 一份实现**。
+// 结构复杂但分录集合预先已知的事件（P2 十级返佣、P5 交易所成交 4 条分录）走
+// `postEvent({ op: 'entries', ... })`，后续阶段不必再改 DB 函数。
+//
+// TS 侧仍保留的**纯函数**校验（不入库、不加锁、语义与 DB 相同，只为保持既有错误形状/快速失败）：
+//   toUid/assertUserUid/toCid/toAmount/normalizeRef/assertLedgerKind/assertBalanced。
+// 注意：这些校验**不是**唯一防线 —— DB 函数对同一批规则再判一次（判负演练已证，见
+// scripts/p1e-04-db-fn-probe.ts 的 30 例裸 SQL 拒绝读数）。
 
-/** R52：同键同指纹 ⇒ 200 + idempotent_replay；同键不同指纹 ⇒ 409 LEDGER_IDEMPOTENCY_CONFLICT */
-const replayResult = async (key: string, fingerprint: string | null): Promise<LedgerOpResult> => {
-  const entries = await findByKey(key);
-  if (!entries.length) {
-    throw new LedgerError('LEDGER_IDEMPOTENCY_CONFLICT', { idempotency_key: key, reason: 'REPLAY_WITHOUT_EXISTING_ENTRY' });
+/** 六个 op（与 DB 函数 `ledger_post_event` 的 dispatch 一一对应） */
+export type LedgerEventOp = 'mint' | 'transfer' | 'hold' | 'hold_release' | 'settle' | 'entries';
+
+/** `op = 'entries'` 的显式分录入参（金额一律**最小单位**整数，R66/R70） */
+export interface LedgerEventEntryInput {
+  uid: Amount;
+  cid: Amount;
+  /** 可用余额变动；与 frozenDelta 不得同时为 0（ledger_move_guard） */
+  delta: Amount;
+  frozenDelta?: Amount | null;
+  kind: LedgerKind;
+  refType?: RefType | null;
+  refId?: Amount | null;
+  memo?: string;
+  /** kind = 'reversal' 时必须给出（ledger_reversal_guard） */
+  reversalOfTxid?: Amount | null;
+}
+
+/** TS 侧入口 `postEvent(payload)` 的入参形状（字段名与 DB 契约逐字一致，见 0004 文件头） */
+export interface LedgerEventPayload {
+  op: LedgerEventOp;
+  idempotencyKey: string;
+  /** R53：规范化请求体的 sha256；NULL = 「同键即重放」 */
+  requestFingerprint?: string | null;
+  memo?: string;
+  refType?: RefType | null;
+  refId?: Amount | null;
+  /** mint / hold / hold_release */
+  uid?: Amount;
+  /** transfer / settle */
+  fromUid?: Amount;
+  toUid?: Amount;
+  cid?: Amount;
+  /** 用户输入形态十进制字符串（DB 按 currency.decimals 换算）或最小单位整数 */
+  amount?: Amount;
+  /** mint：R23 平台受信任路径 */
+  platform?: boolean;
+  /** settle：R33 出账白名单 kind */
+  kind?: LedgerKind;
+  /** settle：受款方 kind（缺省由 DB 按 SETTLE_PAYEE_KIND 映射） */
+  payeeKind?: LedgerKind;
+  /** hold / hold_release / settle：R36 业务表证明的在冻额上界（最小单位整数） */
+  businessFrozenCap?: Amount | null;
+  /** op = 'entries'：显式分录列表（1..32 条，去重后账户 ≤ 16） */
+  entries?: LedgerEventEntryInput[];
+  /** op = 'entries'：可选，对该事件涉及的每个 cid 施加 R28 状态矩阵 */
+  currencyOp?: CurrencyOp;
+}
+
+/** DB 函数返回的余额快照（与 LedgerOpResult.accounts 同形） */
+interface DbAccounts {
+  uid: string;
+  cid: string;
+  balance: string;
+  frozen: string;
+}
+
+/** DB 函数返回的取证信息：op + 加锁顺序（R79 取证读数） */
+export interface LedgerEventMeta {
+  op: string;
+  /** 例：["currency:10","account:920001:10","account:920002:10"] —— 真实加锁顺序 */
+  lock_trace: string[];
+}
+
+// ---------------------------------------------------------------- 驱动选择（评估用）
+/**
+ * 写路径驱动（默认 `pool`；三种都只发**同一条**语句，差别只在传输层）：
+ *   - `pool`   ：`db.ts` 的只读池（WS over pooler）—— 单语句无会话态，PgBouncer transaction 模式安全
+ *   - `direct` ：自建池走 `DATABASE_URL_UNPOOLED`（R56 直连口径）
+ *   - `neon`   ：SQL-over-HTTP（`neon()`），用于评估「`ws` / `Pool` 能否整体移除」
+ * 环境变量：`SEAFOOD_LEDGER_WRITE_DRIVER = pool | direct | neon`
+ * 注意：HTTP 模式下 PostgreSQL 的 `DETAIL` 不进 `error.detail`（驱动只搬运 message+code），
+ * 因此 §14.4 的 details 形状在 `neon` 模式下会退化为 `{ detail_unavailable: 'http_driver' }`；
+ * code/status 映射**不受影响**（闭包性不破）。要细节就留在 ws 池（默认）。
+ */
+type LedgerWriteDriver = 'pool' | 'direct' | 'neon';
+
+const ledgerWriteDriver = (): LedgerWriteDriver => {
+  const v = (process.env.SEAFOOD_LEDGER_WRITE_DRIVER ?? 'pool').trim().toLowerCase();
+  return v === 'direct' || v === 'neon' ? v : 'pool';
+};
+
+let ledgerWritePool: Pool | null = null;
+
+const getLedgerWritePool = (): Pool => {
+  if (ledgerWritePool) return ledgerWritePool;
+  const url = resolveTransactionUrl();
+  if (!url) throw new LedgerError('LEDGER_TRANSACTION_REQUIRED', { cause: 'non_pg_error', reason: 'unclassified_non_pg_error', error_code: 'DATABASE_URL_MISSING' });
+  ledgerWritePool = new Pool({
+    connectionString: url,
+    max: Number(process.env.SEAFOOD_LEDGER_WRITE_POOL_MAX ?? 4),
+    idleTimeoutMillis: 10_000,
+    connectionTimeoutMillis: 10_000,
+  });
+  return ledgerWritePool;
+};
+
+/** 收尾：脚本必须调用（否则 `direct` 模式的池会吊住事件循环） */
+export const closeLedgerWritePool = async (): Promise<void> => {
+  if (ledgerWritePool) {
+    const p = ledgerWritePool;
+    ledgerWritePool = null;
+    await p.end().catch(() => undefined);
   }
-  const stored = entries[0].request_fingerprint;
-  if (fingerprint && stored && fingerprint !== stored) {
-    throw new LedgerError('LEDGER_IDEMPOTENCY_CONFLICT', {
-      idempotency_key: key, expected: stored, actual: fingerprint,
+};
+
+const LEDGER_FN_SQL = 'SELECT ledger_post_event($1::jsonb) AS r';
+
+/** 发**一条**语句（三种驱动同形）；返回函数的 jsonb 结果 */
+const callLedgerFnOnce = async (payloadJson: string): Promise<unknown> => {
+  const driver = ledgerWriteDriver();
+  if (driver === 'neon') {
+    const url = resolveReadUrl();
+    if (!url) throw new LedgerError('LEDGER_TRANSACTION_REQUIRED', { cause: 'non_pg_error', reason: 'unclassified_non_pg_error', error_code: 'DATABASE_URL_MISSING' });
+    const rows = await neon(url)(LEDGER_FN_SQL, [payloadJson]) as unknown as RawRow[];
+    return rows?.[0]?.r ?? null;
+  }
+  if (driver === 'direct') {
+    const res = await getLedgerWritePool().query<RawRow>(LEDGER_FN_SQL, [payloadJson]);
+    return res.rows?.[0]?.r ?? null;
+  }
+  const rows = await readQuery<RawRow>(LEDGER_FN_SQL, [payloadJson]);
+  return rows?.[0]?.r ?? null;
+};
+
+// ---------------------------------------------------------------- 错误映射（DB SQLSTATE → §14）
+/** DB 自定义 SQLSTATE → §14 码（逐条对应 0004 的 `ledger_sqlstate_of`，两侧必须同步）
+ *  导出：质检脚本需枚举这张表的容量（封闭性反证：非账本 SQLSTATE 不得被误映射）。 */
+export const LEDGER_SQLSTATE_TO_CODE: Record<string, LedgerErrorCode> = {
+  LD001: 'LEDGER_INSUFFICIENT_BALANCE',
+  LD002: 'LEDGER_INSUFFICIENT_FROZEN',
+  LD003: 'LEDGER_IDEMPOTENCY_CONFLICT',
+  LD004: 'LEDGER_IDEMPOTENCY_KEY_REQUIRED',
+  LD005: 'LEDGER_IDEMPOTENCY_KEY_INVALID',
+  LD006: 'LEDGER_IDEMPOTENCY_REPLAY',
+  LD007: 'LEDGER_CURRENCY_NOT_FOUND',
+  LD008: 'LEDGER_CURRENCY_NOT_LISTED',
+  LD009: 'LEDGER_CURRENCY_FROZEN',
+  LD010: 'LEDGER_CURRENCY_DELISTED',
+  LD011: 'LEDGER_CURRENCY_INVALID_TRANSITION',
+  LD012: 'LEDGER_CURRENCY_MISMATCH',
+  LD013: 'LEDGER_SUPPLY_CAP_EXCEEDED',
+  LD014: 'LEDGER_UNAUTHORIZED_MINT',
+  LD015: 'LEDGER_HOLD_NOT_ALLOWED',
+  LD016: 'LEDGER_AMOUNT_INVALID',
+  LD017: 'LEDGER_AMOUNT_NOT_POSITIVE',
+  LD018: 'LEDGER_DECIMALS_OVERFLOW',
+  LD019: 'LEDGER_SELF_TRANSFER',
+  LD020: 'LEDGER_ACCOUNT_NOT_FOUND',
+  LD021: 'LEDGER_RESERVED_UID',
+  LD022: 'LEDGER_REF_NOT_FOUND',
+  LD023: 'LEDGER_UNKNOWN_KIND',
+  LD024: 'LEDGER_TRANSACTION_REQUIRED',
+  LD025: 'LEDGER_LOCK_TIMEOUT',
+  LD026: 'LEDGER_TX_TIMEOUT',
+  LD027: 'LEDGER_DEADLOCK_RETRY_EXHAUSTED',
+  LD028: 'LEDGER_NEGATIVE_BALANCE_GUARD',
+  LD029: 'LEDGER_APPEND_ONLY_VIOLATION',
+  LD030: 'LEDGER_ACCOUNT_GUARD_VIOLATION',
+  LD031: 'LEDGER_FEE_RATE_INVALID',
+  LD032: 'LEDGER_RECONCILE_MISMATCH',
+  LD033: 'LEDGER_CURRENCY_SYMBOL_TAKEN',
+};
+
+/** 内部哨兵（**不是**对外错误）：探针冲突但重放行在当前语句快照里不可见 ⇒ 同键重发一次 */
+const REPLAY_NOT_VISIBLE_SQLSTATE = 'LD006';
+const REPLAY_NOT_VISIBLE_MESSAGE = 'LEDGER_IDEMPOTENCY_REPLAY';
+
+/** 可重试 SQLSTATE（R60：40001/40P01 同键重试；其余一律不重试） */
+const RETRYABLE_SQLSTATES = new Set(['40001', '40P01']);
+
+const sqlstateOf = (e: unknown): string => String((e as { code?: unknown })?.code ?? '');
+const messageOf = (e: unknown): string => String((e as { message?: unknown })?.message ?? '');
+
+/**
+ * DB 抛出的**账本命名错误** → `LedgerError`。
+ * 返回 `null` ⇒ 不是本函数抛的（PG 原生约束/超时/驱动级错误）⇒ 交给 `normalizeLedgerError`。
+ *
+ * 映射口径（R107）：只搬运 `DETAIL` 里的 §14.4 形状 JSON；不搬运 SQL/约束名/堆栈。
+ * 导出：`ledgerErrorFromDbError` 供质检脚本对**同一份原始 PG 错误**两路取证
+ * （DB SQLSTATE + TS 映射码），证明映射封闭。
+ */
+export const ledgerErrorFromDbError = (e: unknown, fallbackKey?: string): LedgerError | null => {
+  const sqlstate = sqlstateOf(e);
+  const mapped = LEDGER_SQLSTATE_TO_CODE[sqlstate];
+  if (!mapped) return null;
+
+  const details: LedgerErrorDetails = {};
+  const rawDetail = (e as { detail?: unknown })?.detail;
+  if (typeof rawDetail === 'string' && rawDetail.trim().startsWith('{')) {
+    try {
+      const parsed = JSON.parse(rawDetail) as Record<string, unknown>;
+      for (const [k, v] of Object.entries(parsed)) {
+        if (v === null || ['string', 'number', 'boolean'].includes(typeof v)) {
+          details[k] = v as string | number | boolean | null;
+        } else {
+          details[k] = JSON.stringify(v);
+        }
+      }
+    } catch {
+      details.detail_unparsed = rawDetail.slice(0, 200);
+    }
+  } else {
+    // HTTP 驱动不搬运 DETAIL（见驱动选择注释）⇒ 明确标注，便于质检区分「无 details」与「解析失败」
+    details.detail_unavailable = 'driver_did_not_carry_detail';
+  }
+  if (mapped === 'LEDGER_IDEMPOTENCY_CONFLICT' && fallbackKey !== undefined && details.idempotency_key === undefined) {
+    details.idempotency_key = fallbackKey;
+  }
+  // 双保险：MESSAGE 也必须是 §14 码名；两侧不一致 = migration 与 TS 表漂移 ⇒ 以 SQLSTATE 为准并留证
+  const msg = messageOf(e);
+  if (isLedgerErrorCode(msg) && msg !== mapped) details.db_message_mismatch = msg;
+
+  return new LedgerError(mapped, details);
+};
+
+/** 解析函数返回值（三种驱动都可能给到对象或 JSON 文本） */
+const parseFnResult = (raw: unknown): Record<string, unknown> => {
+  let obj: unknown = raw;
+  if (typeof obj === 'string') {
+    try {
+      obj = JSON.parse(obj);
+    } catch {
+      obj = null;
+    }
+  }
+  if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) {
+    throw new LedgerError('LEDGER_TRANSACTION_REQUIRED', {
+      cause: 'bad_ledger_function_result', reason: 'unclassified_pg_error',
+      error_code: 'LEDGER_FUNCTION_BAD_RESULT',
     });
   }
-  return buildResult(key, entries, true);
+  return obj as Record<string, unknown>;
 };
 
-/** 五个动作的公共外壳：一个业务事件一个事务（R57），重放检测在事务外完成（R51） */
-const withIdempotentEvent = async (
-  rawKey: unknown,
-  fingerprint: string | null,
-  body: (tx: TxClient, key: string) => Promise<LedgerOpResult>,
-): Promise<LedgerOpResult> => {
-  const key = normalizeIdempotencyKey(rawKey);
-  try {
-    return await withTransaction((tx) => body(tx, key));
-  } catch (e) {
-    if (e instanceof IdempotencyReplayDetected) return replayResult(key, fingerprint);
-    throw normalizeLedgerError(e);
+/** 发一条语句 + 解析 + 映射（含 R60 重试与「重放行不可见」同键重发） */
+const runLedgerFn = async (payload: Record<string, unknown>): Promise<LedgerOpResult> => {
+  const json = JSON.stringify(payload);
+  const key = rawStr(payload.idempotency_key);
+  let retries = 0;
+  for (;;) {
+    try {
+      const res = parseFnResult(await callLedgerFnOnce(json));
+      const entries = ((res.entries as RawRow[] | undefined) ?? []).map(mapEntry);
+      const accountsRaw = (res.accounts as RawRow[] | undefined) ?? [];
+      const accounts: AccountSnapshot[] = accountsRaw.length
+        ? accountsRaw.map((a) => ({
+          uid: rawStr(a.uid), cid: rawStr(a.cid), balance: rawStr(a.balance), frozen: rawStr(a.frozen),
+        }))
+        : snapshotsOf(entries);
+      const extraRaw = (res.extra as Record<string, unknown> | undefined) ?? {};
+      const extra: Record<string, string | null> = {};
+      for (const [k, v] of Object.entries(extraRaw)) extra[k] = rawStrOrNull(v);
+      const metaRaw = res.meta as RawRow | undefined;
+      return {
+        ok: true,
+        idempotent_replay: res.idempotent_replay === true,
+        idempotency_key: rawStr(res.idempotency_key) || key,
+        txid: rawStr(res.txid),
+        entries,
+        accounts,
+        extra,
+        meta: metaRaw
+          ? { op: rawStr(metaRaw.op), lock_trace: ((metaRaw.lock_trace as unknown[]) ?? []).map((x) => rawStr(x)) }
+          : undefined,
+      };
+    } catch (e) {
+      const sqlstate = sqlstateOf(e);
+      if (RETRYABLE_SQLSTATES.has(sqlstate) && retries < 3) {
+        // R60：同键重试（键不变 ⇒ 重试安全；幂等约束保证只生效一次）
+        await new Promise((r) => setTimeout(r, [50, 200, 800][retries]));
+        retries += 1;
+        continue;
+      }
+      if (sqlstate === REPLAY_NOT_VISIBLE_SQLSTATE && messageOf(e) === REPLAY_NOT_VISIBLE_MESSAGE && retries < 1) {
+        // R51 ④：探针冲突说明该键已被占用，但重放行在本语句快照里不可见（并发提交中）⇒ 同键重发一次
+        retries += 1;
+        continue;
+      }
+      const mapped = ledgerErrorFromDbError(e, key);
+      if (mapped) throw mapped;
+      throw normalizeLedgerError(e);
+    }
   }
 };
 
-/** 按顺序写出一整组分录：第 1 条用调用方键，其余用派生键（见文件头「幂等键分工」） */
-const postEvent = async (
-  tx: TxClient,
-  key: string,
-  inputs: Array<Omit<PostEntryInput, 'idempotencyKey'>>,
-): Promise<LedgerEntryRecord[]> => {
-  assertBalanced(inputs);
-  const out: LedgerEntryRecord[] = [];
-  for (let i = 0; i < inputs.length; i += 1) {
-    out.push(await postEntry(tx, { ...inputs[i], idempotencyKey: i === 0 ? key : deriveEventKey(key, i + 1) }));
+/** 显式入参形状（TS 侧纯校验用） */
+type LedgerEventPayloadInput = LedgerEventPayload;
+
+/**
+ * **TS 侧写路径唯一入口**（新增，P1e）：组装 payload → 一条语句 → 结构化结果。
+ * 上层需要写「结构复杂但分录集合预先已知」的事件（P2/P5）时用它；五个高层动作也走它。
+ */
+export const postEvent = async (input: LedgerEventPayloadInput): Promise<LedgerOpResult> => {
+  const key = normalizeIdempotencyKey(input.idempotencyKey);
+  const { refType, refId } = normalizeRef(input.refType ?? null, input.refId ?? null);
+  const payload: Record<string, unknown> = {
+    op: input.op,
+    idempotency_key: key,
+    memo: input.memo ?? '',
+  };
+  if (input.requestFingerprint !== undefined && input.requestFingerprint !== null) {
+    payload.request_fingerprint = input.requestFingerprint;
   }
+  if (refType !== null) {
+    payload.ref_type = refType;
+    payload.ref_id = refId;
+  }
+
+  if (input.uid !== undefined) payload.uid = toUid(input.uid).toString();
+  if (input.fromUid !== undefined) payload.from_uid = toUid(input.fromUid, 'fromUid').toString();
+  if (input.toUid !== undefined) payload.to_uid = toUid(input.toUid, 'toUid').toString();
+  if (input.cid !== undefined) payload.cid = toCid(input.cid).toString();
+  if (input.amount !== undefined) Object.assign(payload, amountToPayload(input.amount));
+  if (input.platform !== undefined) payload.platform = Boolean(input.platform);
+  if (input.kind !== undefined) payload.kind = assertLedgerKind(input.kind);
+  if (input.payeeKind !== undefined) payload.payee_kind = assertLedgerKind(input.payeeKind);
+  if (input.currencyOp !== undefined) payload.currency_op = input.currencyOp;
+  if (input.businessFrozenCap !== undefined && input.businessFrozenCap !== null) {
+    payload.business_frozen_cap = toAmount(input.businessFrozenCap, 'businessFrozenCap').toString();
+  }
+  if (input.entries !== undefined) {
+    assertBalanced(input.entries.map((e) => ({
+      delta: e.delta, frozenDelta: e.frozenDelta ?? undefined, kind: e.kind,
+    })));
+    payload.entries = input.entries.map(entryToPayload);
+  }
+  return runLedgerFn(payload);
+};
+
+/**
+ * 金额入参 → payload 字段（与 DB 侧 `ledger_payload_amount` 的二选一契约逐字对应）：
+ *   - `bigint` / `number` ⇒ **最小单位**语义（R66）：`amount_units`，TS 只做整数/安全整数判定；
+ *   - `string`            ⇒ **用户输入十进制**语义（R72）：`amount`，换算与校验由 DB 用
+ *     `currency.decimals` 一笔完成（否则 TS 得先 SELECT 一次拿 decimals ⇒ 又变成两趟往返）。
+ */
+const amountToPayload = (v: Amount, field = 'amount'): Record<string, string> =>
+  (typeof v === 'string' ? { amount: v } : { amount_units: toAmount(v, field).toString() });
+
+/** 单条显式分录 → DB 契约（op='entries'；金额一律最小单位字符串） */
+const entryToPayload = (e: LedgerEventEntryInput): Record<string, unknown> => {
+  const uid = toUid(e.uid);
+  const cid = toCid(e.cid);
+  const delta = toAmount(e.delta, 'delta');
+  const frozenDelta = toAmount(e.frozenDelta ?? 0n, 'frozenDelta');
+  const kind = assertLedgerKind(e.kind);
+  if (delta === 0n && frozenDelta === 0n) {
+    throw new LedgerError('LEDGER_AMOUNT_INVALID', { field: 'delta/frozen_delta', reason: 'BOTH_ZERO' });
+  }
+  const reversalOf = e.reversalOfTxid === null || e.reversalOfTxid === undefined
+    ? null
+    : toAmount(e.reversalOfTxid, 'reversal_of_txid').toString();
+  if ((kind === 'reversal') !== (reversalOf !== null)) {
+    throw new LedgerError('LEDGER_AMOUNT_INVALID', { field: 'reversal_of_txid', reason: 'REVERSAL_GUARD' });
+  }
+  const { refType, refId } = normalizeRef(e.refType ?? null, e.refId ?? null);
+  const out: Record<string, unknown> = {
+    uid: uid.toString(), cid: cid.toString(),
+    delta: delta.toString(), frozen_delta: frozenDelta.toString(),
+    kind, memo: e.memo ?? '',
+  };
+  if (refType !== null) {
+    out.ref_type = refType;
+    out.ref_id = refId;
+  }
+  if (reversalOf !== null) out.reversal_of_txid = reversalOf;
   return out;
 };
 
@@ -852,58 +1090,17 @@ export interface MintInput {
 }
 
 export const mint = async (input: MintInput): Promise<LedgerOpResult> =>
-  withIdempotentEvent(input.idempotencyKey, input.requestFingerprint ?? null, async (tx, key) => {
-    const cid = toCid(input.cid);
-    const uid = toUid(input.uid);
-
-    // R83：先锁 currency 行，再动 account（与 R79 全序一致）
-    const cur = await lockCurrency(tx, cid);
-    const n = parseUserAmount(input.amount, cur.decimals, 'amount', cur.cid);
-    const ownerUid = BigInt(cur.owner_uid);
-
-    // R28：mint 仅 draft / listed
-    assertCurrencyOperable(cur, 'mint');
-
-    // R23 授权：owner 自铸，或平台受信任路径铸 `$`
-    if (ownerUid > 0n) {
-      if (uid !== ownerUid) {
-        throw new LedgerError('LEDGER_UNAUTHORIZED_MINT', {
-          cid: cur.cid, owner_uid: cur.owner_uid, actor_uid: uid.toString(), platform: Boolean(input.platform),
-        });
-      }
-    } else if (!input.platform) {
-      throw new LedgerError('LEDGER_UNAUTHORIZED_MINT', {
-        cid: cur.cid, owner_uid: cur.owner_uid, actor_uid: uid.toString(), platform: false,
-      });
-    }
-    if (uid < 0n) throw new LedgerError('LEDGER_RESERVED_UID', { field: 'uid', uid: uid.toString(), reason: 'MINT_TO_POOL' });
-
-    // R24 供给上限（`$` 的 supply_cap = NULL ⇒ 无限）
-    const supply = BigInt(cur.total_supply);
-    const cap = cur.supply_cap === null ? null : BigInt(cur.supply_cap);
-    if (cap !== null && supply + n > cap) {
-      throw new LedgerError('LEDGER_SUPPLY_CAP_EXCEEDED', {
-        cid: cur.cid, symbol: cur.symbol, total_supply: supply.toString(), supply_cap: cap.toString(), requested: n.toString(),
-      });
-    }
-
-    const entries = await postEvent(tx, key, [{
-      uid: uid.toString(), cid: cid.toString(), delta: n, frozenDelta: 0n, kind: 'mint',
-      refType: input.refType ?? null, refId: input.refId ?? null, memo: input.memo ?? '',
-      requestFingerprint: input.requestFingerprint ?? null,
-    }]);
-
-    // 双写 currency.total_supply（R9：必须与分录同事务）
-    const updated = await txQuery<RawRow>(
-      tx, 'UPDATE currency SET total_supply = total_supply + $2, time_updated = now() WHERE cid = $1 RETURNING total_supply',
-      [cid.toString(), n.toString()],
-    );
-
-    return buildResult(key, entries, false, {
-      supply_before: supply.toString(),
-      supply_after: rawStr(updated[0]?.total_supply),
-      supply_cap: cap === null ? null : cap.toString(),
-    });
+  postEvent({
+    op: 'mint',
+    uid: input.uid,
+    cid: input.cid,
+    amount: input.amount,
+    platform: input.platform ?? false,
+    idempotencyKey: input.idempotencyKey,
+    requestFingerprint: input.requestFingerprint ?? null,
+    refType: input.refType ?? null,
+    refId: input.refId ?? null,
+    memo: input.memo ?? '',
   });
 
 // ============================================================================
@@ -922,35 +1119,24 @@ export interface TransferInput {
   requestFingerprint?: string | null;
 }
 
-export const transfer = async (input: TransferInput): Promise<LedgerOpResult> =>
-  withIdempotentEvent(input.idempotencyKey, input.requestFingerprint ?? null, async (tx, key) => {
-    const cid = toCid(input.cid);
-    const fromUid = assertUserUid(input.fromUid, 'fromUid'); // R100：用户请求不得命中平台账户
-    const toUid = assertUserUid(input.toUid, 'toUid');
-    if (fromUid === toUid) throw new LedgerError('LEDGER_SELF_TRANSFER', { uid: fromUid.toString(), cid: cid.toString() });
-
-    const cur = await getCurrency(cid, tx);
-    if (!cur) throw new LedgerError('LEDGER_CURRENCY_NOT_FOUND', { cid: cid.toString() });
-    assertCurrencyOperable(cur, 'transfer'); // R28：transfer 四态全可
-    const n = parseUserAmount(input.amount, cur.decimals, 'amount', cur.cid);
-
-    // R79：跨账户搬运先按 uid 升序把两把行锁都拿到，再写分录
-    await lockAccounts(tx, [{ uid: fromUid, cid }, { uid: toUid, cid }]);
-
-    const entries = await postEvent(tx, key, [
-      {
-        uid: fromUid.toString(), cid: cid.toString(), delta: -n, frozenDelta: 0n, kind: 'transfer',
-        refType: input.refType ?? null, refId: input.refId ?? null, memo: input.memo ?? '',
-        requestFingerprint: input.requestFingerprint ?? null,
-      },
-      {
-        uid: toUid.toString(), cid: cid.toString(), delta: n, frozenDelta: 0n, kind: 'transfer',
-        refType: input.refType ?? null, refId: input.refId ?? null, memo: input.memo ?? '',
-      },
-    ]);
-
-    return buildResult(key, entries, false, { amount: n.toString(), symbol: cur.symbol });
+export const transfer = async (input: TransferInput): Promise<LedgerOpResult> => {
+  // R100：**用户请求**不得把平台账户当对手方（TS 侧保留；R101×R38 的 `-3` 出账例外只对
+  // DB 函数 / postEvent 的内部调用开放，见 docs/ledger.spec.md §19.1）
+  const fromUid = assertUserUid(input.fromUid, 'fromUid');
+  const toUid = assertUserUid(input.toUid, 'toUid');
+  if (fromUid === toUid) {
+    throw new LedgerError('LEDGER_SELF_TRANSFER', { uid: fromUid.toString(), cid: toCid(input.cid).toString() });
+  }
+  return postEvent({
+    op: 'transfer',
+    fromUid, toUid, cid: input.cid, amount: input.amount,
+    idempotencyKey: input.idempotencyKey,
+    requestFingerprint: input.requestFingerprint ?? null,
+    refType: input.refType ?? null,
+    refId: input.refId ?? null,
+    memo: input.memo ?? '',
   });
+};
 
 // ============================================================================
 // 高层动作 ③：freeze 可用 → 冻结（hold，同账户 2 条分录）
@@ -970,46 +1156,28 @@ export interface FreezeInput {
   businessFrozenCap?: Amount | null;
 }
 
-export const freeze = async (input: FreezeInput): Promise<LedgerOpResult> =>
-  withIdempotentEvent(input.idempotencyKey, input.requestFingerprint ?? null, async (tx, key) => {
-    const cid = toCid(input.cid);
-    const uid = assertUserUid(input.uid); // R37/R101：平台账户不接受 hold
+/** R37 共用前置：无业务单 ⇒ LEDGER_HOLD_NOT_ALLOWED（纯校验，不查库） */
+const requireBusinessRef = (uid: bigint, cid: bigint, refType: RefType | null | undefined, refId: Amount | null | undefined): void => {
+  if (!refType || refId === undefined || refId === null || String(refId) === '') {
+    throw new LedgerError('LEDGER_HOLD_NOT_ALLOWED', { uid: uid.toString(), cid: cid.toString(), reason: 'BUSINESS_REF_REQUIRED' });
+  }
+};
 
-    // R37：不存在「用户手动冻结自己余额」⇒ 没有业务单就不给冻
-    if (!input.refType || input.refId === undefined || input.refId === null) {
-      throw new LedgerError('LEDGER_HOLD_NOT_ALLOWED', { uid: uid.toString(), cid: cid.toString(), reason: 'BUSINESS_REF_REQUIRED' });
-    }
-
-    const cur = await getCurrency(cid, tx);
-    if (!cur) throw new LedgerError('LEDGER_CURRENCY_NOT_FOUND', { cid: cid.toString() });
-    assertCurrencyOperable(cur, 'hold');
-    const n = parseUserAmount(input.amount, cur.decimals, 'amount', cur.cid);
-
-    if (input.businessFrozenCap !== undefined && input.businessFrozenCap !== null) {
-      const cap = toAmount(input.businessFrozenCap, 'businessFrozenCap');
-      if (n > cap) {
-        throw new LedgerError('LEDGER_INSUFFICIENT_FROZEN', {
-          uid: uid.toString(), cid: cid.toString(), required: n.toString(), available: cap.toString(),
-          reason: 'business_frozen_cap',
-        });
-      }
-    }
-
-    await lockAccount(tx, uid, cid);
-    const entries = await postEvent(tx, key, [
-      {
-        uid: uid.toString(), cid: cid.toString(), delta: -n, frozenDelta: 0n, kind: 'hold',
-        refType: input.refType, refId: input.refId, memo: input.memo ?? '',
-        requestFingerprint: input.requestFingerprint ?? null,
-      },
-      {
-        uid: uid.toString(), cid: cid.toString(), delta: 0n, frozenDelta: n, kind: 'hold',
-        refType: input.refType, refId: input.refId, memo: input.memo ?? '',
-      },
-    ]);
-
-    return buildResult(key, entries, false, { amount: n.toString(), symbol: cur.symbol });
+export const freeze = async (input: FreezeInput): Promise<LedgerOpResult> => {
+  const uid = assertUserUid(input.uid); // R37/R101：平台账户不接受 hold
+  const cid = toCid(input.cid);
+  requireBusinessRef(uid, cid, input.refType, input.refId);
+  return postEvent({
+    op: 'hold',
+    uid, cid, amount: input.amount,
+    businessFrozenCap: input.businessFrozenCap ?? null,
+    idempotencyKey: input.idempotencyKey,
+    requestFingerprint: input.requestFingerprint ?? null,
+    refType: input.refType ?? null,
+    refId: input.refId ?? null,
+    memo: input.memo ?? '',
   });
+};
 
 // ============================================================================
 // 高层动作 ④：unfreeze 冻结 → 可用（hold_release，同账户 2 条分录）
@@ -1020,46 +1188,21 @@ export interface UnfreezeInput extends Omit<FreezeInput, 'businessFrozenCap'> {
   businessFrozenCap?: Amount | null;
 }
 
-export const unfreeze = async (input: UnfreezeInput): Promise<LedgerOpResult> =>
-  withIdempotentEvent(input.idempotencyKey, input.requestFingerprint ?? null, async (tx, key) => {
-    const cid = toCid(input.cid);
-    const uid = assertUserUid(input.uid);
-
-    if (!input.refType || input.refId === undefined || input.refId === null) {
-      throw new LedgerError('LEDGER_HOLD_NOT_ALLOWED', { uid: uid.toString(), cid: cid.toString(), reason: 'BUSINESS_REF_REQUIRED' });
-    }
-
-    const cur = await getCurrency(cid, tx);
-    if (!cur) throw new LedgerError('LEDGER_CURRENCY_NOT_FOUND', { cid: cid.toString() });
-    // §7.2 #14：下架必须能撤销挂单并解冻 ⇒ hold_release 四态全可（见 CURRENCY_OP_MATRIX 注释）
-    assertCurrencyOperable(cur, 'hold_release');
-    const n = parseUserAmount(input.amount, cur.decimals, 'amount', cur.cid);
-
-    if (input.businessFrozenCap !== undefined && input.businessFrozenCap !== null) {
-      const cap = toAmount(input.businessFrozenCap, 'businessFrozenCap');
-      if (n > cap) {
-        throw new LedgerError('LEDGER_INSUFFICIENT_FROZEN', {
-          uid: uid.toString(), cid: cid.toString(), required: n.toString(), available: cap.toString(),
-          reason: 'business_frozen_cap',
-        });
-      }
-    }
-
-    await lockAccount(tx, uid, cid);
-    const entries = await postEvent(tx, key, [
-      {
-        uid: uid.toString(), cid: cid.toString(), delta: 0n, frozenDelta: -n, kind: 'hold_release',
-        refType: input.refType, refId: input.refId, memo: input.memo ?? '',
-        requestFingerprint: input.requestFingerprint ?? null,
-      },
-      {
-        uid: uid.toString(), cid: cid.toString(), delta: n, frozenDelta: 0n, kind: 'hold_release',
-        refType: input.refType, refId: input.refId, memo: input.memo ?? '',
-      },
-    ]);
-
-    return buildResult(key, entries, false, { amount: n.toString(), symbol: cur.symbol });
+export const unfreeze = async (input: UnfreezeInput): Promise<LedgerOpResult> => {
+  const uid = assertUserUid(input.uid);
+  const cid = toCid(input.cid);
+  requireBusinessRef(uid, cid, input.refType, input.refId);
+  return postEvent({
+    op: 'hold_release',
+    uid, cid, amount: input.amount,
+    businessFrozenCap: input.businessFrozenCap ?? null,
+    idempotencyKey: input.idempotencyKey,
+    requestFingerprint: input.requestFingerprint ?? null,
+    refType: input.refType ?? null,
+    refId: input.refId ?? null,
+    memo: input.memo ?? '',
   });
+};
 
 // ============================================================================
 // 高层动作 ⑤：settleFrozen 冻结资金直接支付给对方（R15 双字段的存在理由 / R33 白名单）
@@ -1085,60 +1228,35 @@ export interface SettleFrozenInput {
   businessFrozenCap?: Amount | null;
 }
 
-export const settleFrozen = async (input: SettleFrozenInput): Promise<LedgerOpResult> =>
-  withIdempotentEvent(input.idempotencyKey, input.requestFingerprint ?? null, async (tx, key) => {
-    const cid = toCid(input.cid);
-    const fromUid = assertUserUid(input.fromUid, 'fromUid');
-    const kind = assertLedgerKind(input.kind);
-    if (!FROZEN_SETTLE_KINDS.includes(kind)) {
-      throw new LedgerError('LEDGER_UNKNOWN_KIND', { kind, reason: 'NOT_IN_FROZEN_SETTLE_WHITELIST' });
-    }
-    const isForfeit = kind === 'hold_forfeit';
-    const toUid = isForfeit
-      ? PLATFORM_UID.FORFEIT
-      : assertUserUid(input.toUid, 'toUid');
-    if (isForfeit && input.toUid !== undefined && input.toUid !== null && BigInt(toAmount(input.toUid, 'toUid')) !== PLATFORM_UID.FORFEIT) {
-      throw new LedgerError('LEDGER_RESERVED_UID', {
-        field: 'toUid', uid: String(input.toUid), reason: 'FORFEIT_MUST_GO_TO_-3',
-      });
-    }
-    if (fromUid === toUid) throw new LedgerError('LEDGER_SELF_TRANSFER', { uid: fromUid.toString(), cid: cid.toString() });
-
-    const cur = await getCurrency(cid, tx);
-    if (!cur) throw new LedgerError('LEDGER_CURRENCY_NOT_FOUND', { cid: cid.toString() });
-    assertCurrencyOperable(cur, 'settle');
-    const n = parseUserAmount(input.amount, cur.decimals, 'amount', cur.cid);
-
-    if (input.businessFrozenCap !== undefined && input.businessFrozenCap !== null) {
-      const cap = toAmount(input.businessFrozenCap, 'businessFrozenCap');
-      if (n > cap) {
-        throw new LedgerError('LEDGER_INSUFFICIENT_FROZEN', {
-          uid: fromUid.toString(), cid: cid.toString(), required: n.toString(), available: cap.toString(),
-          reason: 'business_frozen_cap',
-        });
-      }
-    }
-
-    // R79：跨账户搬运按 uid 升序加锁（−3 < 真实 uid，天然满足「数值升序」）
-    await lockAccounts(tx, [{ uid: fromUid, cid }, { uid: toUid, cid }]);
-
-    const payeeKind = isForfeit ? kind : (input.payeeKind ?? SETTLE_PAYEE_KIND[kind] ?? kind);
-    const entries = await postEvent(tx, key, [
-      {
-        // 减方：可用不动，只冻减（这正是 R15 双字段要解决的记账形态）
-        uid: fromUid.toString(), cid: cid.toString(), delta: 0n, frozenDelta: -n, kind,
-        refType: input.refType ?? null, refId: input.refId ?? null, memo: input.memo ?? '',
-        requestFingerprint: input.requestFingerprint ?? null,
-      },
-      {
-        // 增方：受款方可用余额增加
-        uid: toUid.toString(), cid: cid.toString(), delta: n, frozenDelta: 0n, kind: payeeKind,
-        refType: input.refType ?? null, refId: input.refId ?? null, memo: input.memo ?? '',
-      },
-    ]);
-
-    return buildResult(key, entries, false, { amount: n.toString(), symbol: cur.symbol, kind, payee_kind: payeeKind });
+export const settleFrozen = async (input: SettleFrozenInput): Promise<LedgerOpResult> => {
+  const cid = toCid(input.cid);
+  const fromUid = assertUserUid(input.fromUid, 'fromUid');
+  const kind = assertLedgerKind(input.kind);
+  if (!FROZEN_SETTLE_KINDS.includes(kind)) {
+    throw new LedgerError('LEDGER_UNKNOWN_KIND', { kind, reason: 'NOT_IN_FROZEN_SETTLE_WHITELIST' });
+  }
+  const isForfeit = kind === 'hold_forfeit';
+  const toUid = isForfeit ? PLATFORM_UID.FORFEIT : assertUserUid(input.toUid, 'toUid');
+  if (isForfeit && input.toUid !== undefined && input.toUid !== null
+      && BigInt(toAmount(input.toUid, 'toUid')) !== PLATFORM_UID.FORFEIT) {
+    throw new LedgerError('LEDGER_RESERVED_UID', {
+      field: 'toUid', uid: String(input.toUid), reason: 'FORFEIT_MUST_GO_TO_-3',
+    });
+  }
+  if (fromUid === toUid) throw new LedgerError('LEDGER_SELF_TRANSFER', { uid: fromUid.toString(), cid: cid.toString() });
+  const payeeKind = isForfeit ? kind : (input.payeeKind ?? SETTLE_PAYEE_KIND[kind] ?? kind);
+  return postEvent({
+    op: 'settle',
+    fromUid, toUid, cid, amount: input.amount,
+    kind, payeeKind,
+    businessFrozenCap: input.businessFrozenCap ?? null,
+    idempotencyKey: input.idempotencyKey,
+    requestFingerprint: input.requestFingerprint ?? null,
+    refType: input.refType ?? null,
+    refId: input.refId ?? null,
+    memo: input.memo ?? '',
   });
+};
 
 // ============================================================================
 // 只读辅助（供上层 / 脚本使用；不参与写路径）
