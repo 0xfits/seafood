@@ -70,6 +70,26 @@
  *      形状合法但该行不存在 ⇒ 404（`cid <= 0` 属**不存在**这一类）。⇒ 需 spec 同步：§14.3 附补一行。
  *   ⇒ 需 spec 同步：R48/R49/R50/R51/R52、§11、§14.1/§14.3/§14.4、§19.5（详见交付报告）。
  *
+ * 〔P1o 收口（Kong，2026-09）—— 读路径「超 `bigint`」逃逸回归的**按类修**，对外契约变化逐条登记〕
+ *   ① **`toAmount` 增「真 `bigint` 范围闸」**（`bigint` 分支 + 十进制字符串分支都查）：
+ *      超界 ⇒ `400 LEDGER_AMOUNT_INVALID` + `details.reason = 'OUT_OF_BIGINT_RANGE'`
+ *      （`details.field` 标字段、`details.value` 截 40 字符，与 DB 侧 `ledger_int_amount` 同形）。
+ *      修前 TS `BigInt(s)` 无界 ⇒ `getCurrency('99999999999999999999999')` 把该串直交 PG ⇒
+ *      PG 抛 `22003`（`status = undefined` / `mapped = false`）逃到调用方。**唯一共用形状闸**，
+ *      读路径 + 写路径全部入口点一次收敛（不再按点补）。
+ *   ② **`reason` 名对齐**（§14.3 v0.6 增补块 (B) / §19.10.D）：**缺失**（`undefined` / `null`）
+ *      ⇒ `'MISSING'`（原 `'BAD_TYPE'`，与 DB 侧 `ledger_int_amount(p_raw IS NULL)` 逐字一致）；
+ *      **其余非字符串类型**（对象 / 数组 / 布尔）⇒ `'NOT_STRING'`（`ledger_parse_user_amount` 同改）。
+ *      三种失败仍是 `400 LEDGER_AMOUNT_INVALID` ⇒ **状态类不变**。
+ *   ③ **账户自建路径的错误收敛**（`lockAccounts` / `getOrCreateAccount` / `ensurePlatformAccounts`）：
+ *      `cid` 形状合法但不存在时，`account.cid → currency(cid)` 外键炸出的裸 `23503` 原先直接逃到
+ *      调用方 ⇒ 现交 `normalizeLedgerError` 归 `LEDGER_CURRENCY_NOT_FOUND` / `404`（§14.3 枚举块 ②）。
+ *   ④ **`listEntriesByAccount` 的 `limit` 闸**（附带发现）：`NaN` / 非数值原先被发成 `LIMIT "NaN"`
+ *      ⇒ 裸 `22P02` 逃逸；现非有限值取默认 50，仍钳 `[1,200]`。
+ *   ⑤ 取证脚本：`scripts/p1o-00-escape-sweep.ts`（入口点 × 输入形状矩阵，605+ 格，三条硬判据
+ *      `raw_sqlstate_escapes = 0` / `unmapped = 0` / `missing_status = 0`，run-tagged 落盘）。
+ *   ⇒ 需 spec 同步：§14.3 v0.6 增补块 (A) ④ d 的「修后读数回填」（§16 #12，由 Jing 执行）。
+ *
  * ---------------------------------------------------------------- 本阶段**未**实现（明确留白，勿误判为遗漏）
  *   - 招工 / 商品 / 交易所 / 返佣 / 上市费 / 保证金冻结 等业务动作（P3/P4/P5）
  *   - `burn`（P1a 未在交付清单内；kind 白名单与 §5 已就绪，实现时走 DB 函数的 op='entries'）
@@ -274,9 +294,49 @@ const tsOrNull = (v: unknown): string | null =>
   (v === null || v === undefined ? null : new Date(v as string | number | Date).toISOString());
 const big = (v: Amount): string => toAmount(v, 'amount').toString();
 
-/** 严格整数金额（允许负数，供 delta 使用）。浮点 JSON number 一律拒绝（R72①） */
+/**
+ * `bigint` 的**真**边界（与 PG `bigint` 上下界同值；`§8.3 R66`）。
+ * P1o（Kong，2026-09）：TS 侧 `BigInt` **无界** ⇒ 23 位十进制串能穿过形状闸、被直交 PG，
+ * 由 PG 抛 `22003`（**未映射的原始 SQLSTATE 逃到调用方**，见 `docs/ledger.spec.md`
+ * §14.3 v0.6 增补块 (A)）。本闸把它收在**唯一共用形状闸**内 ⇒ 一次修掉全部经 `toAmount`
+ * 的入口点（读 + 写），不再按点补。
+ */
+const BIGINT_MAX = 9223372036854775807n;
+const BIGINT_MIN = -9223372036854775808n;
+
+/** 超 `bigint` 的统一抛法：`400 LEDGER_AMOUNT_INVALID` + `reason = OUT_OF_BIGINT_RANGE`（**不新增码**） */
+const throwOutOfBigintRange = (field: string, raw: string): never => {
+  throw new LedgerError('LEDGER_AMOUNT_INVALID', {
+    field, value: raw.slice(0, 40), reason: 'OUT_OF_BIGINT_RANGE',
+  });
+};
+
+/**
+ * 严格整数金额（允许负数，供 delta 使用）。浮点 JSON number 一律拒绝（R72①）。
+ *
+ * P1o 收口（Zang 裁定 / §14.3 v0.6 增补块 (A)③ · 增补块 (B)）：
+ *   ① **真 `bigint` 范围闸（`bigint` 分支与十进制字符串分支都要查）**：
+ *      `> 9223372036854775807` 或 `< -9223372036854775808` ⇒ `400 LEDGER_AMOUNT_INVALID` +
+ *      `reason = 'OUT_OF_BIGINT_RANGE'` —— 与 DB 侧 `ledger_int_amount`（0005：`numeric` 查界后
+ *      再转型）**同族同码**（**不新增错误码**，33 码关闭集不动）。
+ *      修前实测：`getCurrency('99999999999999999999999')` 把该串直交 PG ⇒ PG 抛 `22003`
+ *      （`status = undefined` / `mapped = false`）⇒ 违反「33 码关闭集 + `bucket↔状态类` 映射、
+ *      不得吐未映射原始 SQLSTATE」的硬口径（`.p1f-artifacts/p1o-00-escape-sweep-before-*.json`）。
+ *   ② **`reason` 名对齐**（§19.10.D）：**缺失**（`undefined` / `null`）⇒ `'MISSING'`（原 `'BAD_TYPE'`，
+ *      与 DB 侧 `ledger_int_amount(p_raw IS NULL)` 逐字一致）；**其余非字符串类型**
+ *      （对象 / 数组 / 布尔等）⇒ `'NOT_STRING'`（DB 侧身份字段只收 JSON 字符串，同 reason）。
+ *   ③ `number` 分支**保留**：`Amount = bigint | number | string` 是本模块既有契约，且实测
+ *      `getCurrency(0)`（JSON number）走到的是**存在性判定**（`404`，见 `p1n-tocid-shape-*`）⇒
+ *      整数 number **不**归 `NOT_STRING`（登记项：`docs/ledger.spec.md` §19.9.F 对拍表把
+ *      `cid = 0`（JSON number）标为与 DB 一致的 `404`）。
+ *   ④ 三种失败一律仍是 **`400 LEDGER_AMOUNT_INVALID`** ⇒ **状态类不变**，只改 `reason` 名。
+ */
 export const toAmount = (v: Amount, field: string): bigint => {
-  if (typeof v === 'bigint') return v;
+  if (typeof v === 'bigint') {
+    // TS `bigint` 无界 ⇒ 必须查界（`BigInt('9'.repeat(25))` 是合法 bigint，但超 PG bigint）
+    if (v > BIGINT_MAX || v < BIGINT_MIN) throwOutOfBigintRange(field, v.toString());
+    return v;
+  }
   if (typeof v === 'number') {
     if (!Number.isInteger(v) || !Number.isSafeInteger(v)) {
       throw new LedgerError('LEDGER_AMOUNT_INVALID', { field, reason: 'NOT_INTEGER_OR_UNSAFE' });
@@ -286,9 +346,14 @@ export const toAmount = (v: Amount, field: string): bigint => {
   if (typeof v === 'string') {
     const s = v.trim();
     if (!/^-?\d+$/.test(s)) throw new LedgerError('LEDGER_AMOUNT_INVALID', { field, reason: 'NOT_DECIMAL_INTEGER' });
-    return BigInt(s);
+    const n = BigInt(s); // 无界：下面显式查界（修前缺这一步 ⇒ 22003 逃逸）
+    if (n > BIGINT_MAX || n < BIGINT_MIN) throwOutOfBigintRange(field, s);
+    return n;
   }
-  throw new LedgerError('LEDGER_AMOUNT_INVALID', { field, reason: 'BAD_TYPE' });
+  if (v === null || v === undefined) {
+    throw new LedgerError('LEDGER_AMOUNT_INVALID', { field, reason: 'MISSING' });
+  }
+  throw new LedgerError('LEDGER_AMOUNT_INVALID', { field, reason: 'NOT_STRING', provided_type: typeof v });
 };
 
 /**
@@ -316,8 +381,13 @@ export const parseUserAmount = (v: Amount, decimals: number, field = 'amount', c
     }
     const scale = 10n ** BigInt(decimals);
     units = BigInt(m[1]) * scale + BigInt(frac.padEnd(decimals, '0') || '0');
+  } else if (v === null || v === undefined) {
+    // P1o · reason 名对齐（§14.3 v0.6 增补块 (B) / §19.10.D）：缺失 ⇒ MISSING
+    // （DB 侧 ledger_parse_user_amount 的 `p_raw IS NULL` 分支即 MISSING）
+    throw new LedgerError('LEDGER_AMOUNT_INVALID', { field, reason: 'MISSING' });
   } else {
-    throw new LedgerError('LEDGER_AMOUNT_INVALID', { field, reason: 'BAD_TYPE' });
+    // 其余非字符串类型（对象 / 数组 / 布尔等）⇒ NOT_STRING（修前为 BAD_TYPE；状态类不变，仍 400）
+    throw new LedgerError('LEDGER_AMOUNT_INVALID', { field, reason: 'NOT_STRING', provided_type: typeof v });
   }
 
   if (units <= 0n) throw new LedgerError('LEDGER_AMOUNT_NOT_POSITIVE', { field, value: units.toString() });
@@ -615,43 +685,67 @@ const lockAccount = async (tx: TxClient, uid: bigint, cid: bigint): Promise<Acco
   return mapAccount(rows[0]);
 };
 
-/** R79：按 uid 升序（同 uid 再按 cid 升序）批量加锁，只接受已排序集合 */
-export const lockAccounts = async (tx: TxClient, targets: Array<{ uid: Amount; cid: Amount }>): Promise<AccountRecord[]> => {
-  const pairs = targets
-    .map((t) => ({ uid: toUid(t.uid).toString(), cid: toCid(t.cid).toString() }))
-    .sort((a, b) => (BigInt(a.uid) < BigInt(b.uid) ? -1 : BigInt(a.uid) > BigInt(b.uid) ? 1
-      : BigInt(a.cid) < BigInt(b.cid) ? -1 : BigInt(a.cid) > BigInt(b.cid) ? 1 : 0));
-  const out: AccountRecord[] = [];
-  for (const p of pairs) out.push(await lockAccount(tx, BigInt(p.uid), BigInt(p.cid)));
-  return out;
+/**
+ * P1o（Kong，2026-09）· **账户自建路径**的错误收敛：不得让原始 PG SQLSTATE 逃到调用方。
+ *
+ * 场景（P1o 逃逸扫描实测，见 `.p1f-artifacts/p1o-00-escape-sweep-before-*.json` 的
+ * `E-W7/E-W8/E-W9`）：`cid` **形状合法但该行不存在**时，`ensureAccount` 的 `INSERT` 撞
+ * `account.cid REFERENCES currency(cid)` ⇒ PG 抛裸 `23503`（`mapped = false` / `status = undefined`）
+ * 直接逃到调用方 —— 与 §14.3 v0.5 枚举块 ②（**形状合法但不存在 ⇒ `404`**）不符，同属
+ * 「33 码关闭集 + 不得吐未映射原始 SQLSTATE」的硬口径（`normalizeLedgerError` 早已把 `23503`
+ * 归 `LEDGER_CURRENCY_NOT_FOUND` / `404`，只是这三条账户自建路径此前没走它）。
+ * ⇒ 本包装只做**归类**：`LedgerError` 原样透传，其余（含裸 `23503`）交 `normalizeLedgerError`。
+ * 这三条路径当前无任何脚本/上层调用（`grep` 实测只有定义），故对既有读数零影响。
+ */
+const withLedgerErrorMapping = async <T>(fn: () => Promise<T>): Promise<T> => {
+  try {
+    return await fn();
+  } catch (e) {
+    if (isLedgerError(e)) throw e;
+    throw normalizeLedgerError(e);
+  }
 };
+
+/** R79：按 uid 升序（同 uid 再按 cid 升序）批量加锁，只接受已排序集合 */
+export const lockAccounts = async (tx: TxClient, targets: Array<{ uid: Amount; cid: Amount }>): Promise<AccountRecord[]> =>
+  withLedgerErrorMapping(async () => {
+    const pairs = targets
+      .map((t) => ({ uid: toUid(t.uid).toString(), cid: toCid(t.cid).toString() }))
+      .sort((a, b) => (BigInt(a.uid) < BigInt(b.uid) ? -1 : BigInt(a.uid) > BigInt(b.uid) ? 1
+        : BigInt(a.cid) < BigInt(b.cid) ? -1 : BigInt(a.cid) > BigInt(b.cid) ? 1 : 0));
+    const out: AccountRecord[] = [];
+    for (const p of pairs) out.push(await lockAccount(tx, BigInt(p.uid), BigInt(p.cid)));
+    return out;
+  });
 
 /**
  * 取账户，不存在则按 0/0 开出来（R75 + R99）。
  * 传入 tx ⇒ 用当前事务的连接（**业务事件内必须传 tx**，R57；不传则自开一个事务）。
  */
-export const getOrCreateAccount = async (uid: Amount, cid: Amount, tx?: TxClient): Promise<AccountRecord> => {
-  const u = toUid(uid);
-  const c = toCid(cid);
-  if (tx) return lockAccount(tx, u, c);
-  return withTransaction((t) => lockAccount(t, u, c));
-};
+export const getOrCreateAccount = async (uid: Amount, cid: Amount, tx?: TxClient): Promise<AccountRecord> =>
+  withLedgerErrorMapping(async () => {
+    const u = toUid(uid);
+    const c = toCid(cid);
+    if (tx) return lockAccount(tx, u, c);
+    return withTransaction((t) => lockAccount(t, u, c));
+  });
 
 /**
  * R99：为某个新币种为**全部平台保留 uid** 开户（新币种创建流程必须调用，防遗漏）。
  * P1a 未实现币种创建动作，此函数供后续阶段直接复用。
  */
-export const ensurePlatformAccounts = async (cid: Amount, tx?: TxClient): Promise<AccountRecord[]> => {
-  const c = toCid(cid);
-  const run = async (t: TxClient): Promise<AccountRecord[]> => {
-    const out: AccountRecord[] = [];
-    for (const uid of [0n, PLATFORM_UID.FEE, PLATFORM_UID.COMMISSION, PLATFORM_UID.FORFEIT]) {
-      out.push(await lockAccount(t, uid, c));
-    }
-    return out;
-  };
-  return tx ? run(tx) : withTransaction(run);
-};
+export const ensurePlatformAccounts = async (cid: Amount, tx?: TxClient): Promise<AccountRecord[]> =>
+  withLedgerErrorMapping(async () => {
+    const c = toCid(cid);
+    const run = async (t: TxClient): Promise<AccountRecord[]> => {
+      const out: AccountRecord[] = [];
+      for (const uid of [0n, PLATFORM_UID.FEE, PLATFORM_UID.COMMISSION, PLATFORM_UID.FORFEIT]) {
+        out.push(await lockAccount(t, uid, c));
+      }
+      return out;
+    };
+    return tx ? run(tx) : withTransaction(run);
+  });
 
 // ============================================================================
 // §5 分录写入器（保留件：分录列集 / 行映射 / 配对不变式 / 按键取回 / 快照聚合）
@@ -1365,7 +1459,12 @@ export const listEntriesByAccount = async (
 ): Promise<LedgerEntryRecord[]> => {
   const u = toUid(uid).toString();
   const c = toCid(cid).toString();
-  const n = Math.max(1, Math.min(200, Math.trunc(limit)));
+  // P1o 附带发现（同属「不得吐未映射原始 SQLSTATE」的硬口径）：`Math.trunc(NaN)` / `Math.trunc('abc')`
+  // 都得到 `NaN`，`NaN` 作为 `LIMIT` 参数被驱动发成 `"NaN"` ⇒ PG 抛裸 `22P02`
+  // （实测：`.p1f-artifacts/p1o-00-escape-sweep-before-*.json` 的 `E-R3_limit`）。
+  // ⇒ 非有限 / 非数值一律取分页默认值 50；仍钳在 [1, 200]（R95）。
+  const rawLimit = typeof limit === 'number' ? limit : Number(limit);
+  const n = Number.isFinite(rawLimit) ? Math.max(1, Math.min(200, Math.trunc(rawLimit))) : 50;
   const sql = beforeTxid === null
     ? `SELECT ${ENTRY_COLS} FROM ledger_entry WHERE uid = $1 AND cid = $2 ORDER BY txid DESC LIMIT $3`
     : `SELECT ${ENTRY_COLS} FROM ledger_entry WHERE uid = $1 AND cid = $2 AND txid < $3 ORDER BY txid DESC LIMIT $4`;
