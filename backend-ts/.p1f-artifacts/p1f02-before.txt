@@ -1,0 +1,763 @@
+M01_amount_units_19x9            !22003 → LEDGER_TRANSACTION_REQUIRED/500  19 位但超 bigint ⇒ 修前 22003/500
+M02_from_uid_19x9                !22003 → LEDGER_TRANSACTION_REQUIRED/500  同上（身份字段）
+M03_ref_id_19x9                  !22003 → LEDGER_TRANSACTION_REQUIRED/500  同上（ref）
+M04_entry_delta_19x9             !22003 → LEDGER_TRANSACTION_REQUIRED/500  entries 分支
+M05_cap_19x9                     !22003 → LEDGER_TRANSACTION_REQUIRED/500  上界字段
+M06_sum_overflow                 !22003 → LEDGER_TRANSACTION_REQUIRED/500  Σdelta 溢出（单条都在界内）
+M07_platform_maybe               !22P02 → LEDGER_TRANSACTION_REQUIRED/500  ::boolean 非法 ⇒ 修前 22P02/500
+M08_amount_units_nonnum           LD016 → LEDGER_AMOUNT_INVALID/400  形态非法
+M09_amount_units_decimal          LD016 → LEDGER_AMOUNT_INVALID/400  小数
+M10_amount_units_negative         LD017 → LEDGER_AMOUNT_NOT_POSITIVE/400  负数
+M11_mint_uid_neg1                 LD014 → LEDGER_UNAUTHORIZED_MINT/403  平台账户
+M12_from_uid_neg1                 LD021 → LEDGER_RESERVED_UID/400  平台账户
+M13_to_uid_neg1                   LD021 → LEDGER_RESERVED_UID/400  平台账户
+M14_cid_zero                      LD007 → LEDGER_CURRENCY_NOT_FOUND/404  非法 cid
+M15_cid_abc                       LD016 → LEDGER_AMOUNT_INVALID/400  非法 cid
+M16_cid_json_number              ✓ok       【裁定】JSON number ⇒ 收紧 400
+M17_ref_type_bogus                LD016 → LEDGER_AMOUNT_INVALID/400  白名单
+M18_ref_type_no_ref_id            LD016 → LEDGER_AMOUNT_INVALID/400  成对性
+M19_ref_id_no_ref_type            LD016 → LEDGER_AMOUNT_INVALID/400  成对性
+M20_memo_object                  ✓ok       【裁定】嵌套对象 ⇒ 收紧 400
+M21_memo_array                   ✓ok       【裁定】数组 ⇒ 收紧 400
+M22_entries_object                LD016 → LEDGER_AMOUNT_INVALID/400  形状
+M23_entries_33                    LD016 → LEDGER_AMOUNT_INVALID/400  R64 上限
+M24_entries_17_accounts           LD016 → LEDGER_AMOUNT_INVALID/400  R64 账户上限
+M25_entry_delta_json_number       LD016 → LEDGER_AMOUNT_INVALID/400  金额列必须字符串
+M26_entry_both_zero               LD016 → LEDGER_AMOUNT_INVALID/400  ledger_move_guard 前置
+M27_settle_kind_bogus             LD023 → LEDGER_UNKNOWN_KIND/400  kind 白名单
+M28_reversal_guard                LD016 → LEDGER_AMOUNT_INVALID/400  R20 冲正守卫
+M29_op_unknown                    LD016 → LEDGER_AMOUNT_INVALID/400  op 白名单
+M30_payload_array                 LD016 → LEDGER_AMOUNT_INVALID/400  payload 形状
+M31_amount_over_cap              ✓ok       R66 单笔上限
+M32_from_uid_spaces              ✓ok       【裁定】btrim 后照收 ⇒ **允许**
+M33_key_missing                   LD004 → LEDGER_IDEMPOTENCY_KEY_REQUIRED/400  R49
+M34_key_json_number               LD004 → LEDGER_IDEMPOTENCY_KEY_REQUIRED/400  键形状
+M35_key_empty                     LD004 → LEDGER_IDEMPOTENCY_KEY_REQUIRED/400  键形状
+M36_key_no_prefix                 LD005 → LEDGER_IDEMPOTENCY_KEY_INVALID/400  R49 前缀
+M37_key_with_hash                ✓ok       【F1 修复】派生键分隔符 ⇒ 400
+M38_key_too_long                  LD005 → LEDGER_IDEMPOTENCY_KEY_INVALID/400  R52 长度
+M39_amount_units_20_digits        LD016 → LEDGER_AMOUNT_INVALID/400  20 位
+M40_uid_json_number              ✓ok       【裁定】JSON number ⇒ 收紧 400
+M41_entry_uid_json_number        ✓ok       【裁定】JSON number ⇒ 收紧 400
+M42_platform_json_number         ✓ok       【裁定】JSON number ⇒ 收紧 400
+M43_amount_exponent              ✓ok       形态
+M44_currency_op_bogus             LD016 → LEDGER_AMOUNT_INVALID/400  状态矩阵
+M45_hold_no_ref                   LD015 → LEDGER_HOLD_NOT_ALLOWED/403  R37
+M46_cap_abc                       LD016 → LEDGER_AMOUNT_INVALID/400  形态
+M47_self_transfer                 LD019 → LEDGER_SELF_TRANSFER/400  R19
+M48_cid_missing_currency          LD007 → LEDGER_CURRENCY_NOT_FOUND/404  币种不存在
+M49_entry_cid_mismatch            LD016 → LEDGER_AMOUNT_INVALID/400  配对不变式
+M50_key_control_char             ✓ok       【F1】控制字符 ⇒ 400
+
+{
+  "probe": "P1F-02",
+  "run": "MUJFHTPI",
+  "symbol": "P1GMUJFHTPI",
+  "cid": "68",
+  "summary": {
+    "cases_total": 50,
+    "unmapped_escape": 7,
+    "status_500": 7,
+    "not_in_closed_set": 0,
+    "accepted_200_cases": [
+      "M16_cid_json_number",
+      "M20_memo_object",
+      "M21_memo_array",
+      "M31_amount_over_cap",
+      "M32_from_uid_spaces",
+      "M37_key_with_hash",
+      "M40_uid_json_number",
+      "M41_entry_uid_json_number",
+      "M42_platform_json_number",
+      "M43_amount_exponent",
+      "M50_key_control_char"
+    ],
+    "unregistered_raised_codes": [],
+    "classifier_missing": true,
+    "classifier_bucket_status_violations": [],
+    "classifier_sample": {
+      "__error__": "function ledger_error_for_sqlstate(text, unknown) does not exist"
+    }
+  },
+  "verdicts": {
+    "no_unmapped_escape": false,
+    "no_status_500_from_caller_input": false,
+    "everything_in_closed_set": true,
+    "no_unregistered_raise_codes": true,
+    "classifier_present": false,
+    "classifier_bucket_status_consistent": true,
+    "cid_json_number_tightened": false,
+    "memo_object_tightened": false,
+    "uid_json_number_tightened": false,
+    "uid_spaces_allowed": true,
+    "hash_key_rejected_400": false,
+    "control_char_key_rejected_400": false,
+    "platform_maybe_400": false,
+    "sum_overflow_400": false
+  },
+  "failures": [
+    "no_unmapped_escape",
+    "no_status_500_from_caller_input",
+    "classifier_present",
+    "cid_json_number_tightened",
+    "memo_object_tightened",
+    "uid_json_number_tightened",
+    "hash_key_rejected_400",
+    "control_char_key_rejected_400",
+    "platform_maybe_400",
+    "sum_overflow_400"
+  ],
+  "pass": false,
+  "results": {
+    "M01_amount_units_19x9": {
+      "note": "19 位但超 bigint ⇒ 修前 22003/500",
+      "sqlstate": "22003",
+      "sqlstate_escaped_raw": true,
+      "db_message": "value \"9999999999999999999\" is out of range for type bigint",
+      "db_detail": null,
+      "ts_code": "LEDGER_TRANSACTION_REQUIRED",
+      "status": 500,
+      "in_closed_set": true,
+      "details": {
+        "cause": "22003",
+        "reason": "unclassified_pg_error",
+        "error_name": "error",
+        "pg_code": "22003"
+      }
+    },
+    "M02_from_uid_19x9": {
+      "note": "同上（身份字段）",
+      "sqlstate": "22003",
+      "sqlstate_escaped_raw": true,
+      "db_message": "value \"9999999999999999999\" is out of range for type bigint",
+      "db_detail": null,
+      "ts_code": "LEDGER_TRANSACTION_REQUIRED",
+      "status": 500,
+      "in_closed_set": true,
+      "details": {
+        "cause": "22003",
+        "reason": "unclassified_pg_error",
+        "error_name": "error",
+        "pg_code": "22003"
+      }
+    },
+    "M03_ref_id_19x9": {
+      "note": "同上（ref）",
+      "sqlstate": "22003",
+      "sqlstate_escaped_raw": true,
+      "db_message": "value \"9999999999999999999\" is out of range for type bigint",
+      "db_detail": null,
+      "ts_code": "LEDGER_TRANSACTION_REQUIRED",
+      "status": 500,
+      "in_closed_set": true,
+      "details": {
+        "cause": "22003",
+        "reason": "unclassified_pg_error",
+        "error_name": "error",
+        "pg_code": "22003"
+      }
+    },
+    "M04_entry_delta_19x9": {
+      "note": "entries 分支",
+      "sqlstate": "22003",
+      "sqlstate_escaped_raw": true,
+      "db_message": "value \"9999999999999999999\" is out of range for type bigint",
+      "db_detail": null,
+      "ts_code": "LEDGER_TRANSACTION_REQUIRED",
+      "status": 500,
+      "in_closed_set": true,
+      "details": {
+        "cause": "22003",
+        "reason": "unclassified_pg_error",
+        "error_name": "error",
+        "pg_code": "22003"
+      }
+    },
+    "M05_cap_19x9": {
+      "note": "上界字段",
+      "sqlstate": "22003",
+      "sqlstate_escaped_raw": true,
+      "db_message": "value \"9999999999999999999\" is out of range for type bigint",
+      "db_detail": null,
+      "ts_code": "LEDGER_TRANSACTION_REQUIRED",
+      "status": 500,
+      "in_closed_set": true,
+      "details": {
+        "cause": "22003",
+        "reason": "unclassified_pg_error",
+        "error_name": "error",
+        "pg_code": "22003"
+      }
+    },
+    "M06_sum_overflow": {
+      "note": "Σdelta 溢出（单条都在界内）",
+      "sqlstate": "22003",
+      "sqlstate_escaped_raw": true,
+      "db_message": "bigint out of range",
+      "db_detail": null,
+      "ts_code": "LEDGER_TRANSACTION_REQUIRED",
+      "status": 500,
+      "in_closed_set": true,
+      "details": {
+        "cause": "22003",
+        "reason": "unclassified_pg_error",
+        "error_name": "error",
+        "pg_code": "22003"
+      }
+    },
+    "M07_platform_maybe": {
+      "note": "::boolean 非法 ⇒ 修前 22P02/500",
+      "sqlstate": "22P02",
+      "sqlstate_escaped_raw": true,
+      "db_message": "invalid input syntax for type boolean: \"maybe\"",
+      "db_detail": null,
+      "ts_code": "LEDGER_TRANSACTION_REQUIRED",
+      "status": 500,
+      "in_closed_set": true,
+      "details": {
+        "cause": "22P02",
+        "reason": "unclassified_pg_error",
+        "error_name": "error",
+        "pg_code": "22P02"
+      }
+    },
+    "M08_amount_units_nonnum": {
+      "note": "形态非法",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"amount\", \"value\": \"abc\", \"reason\": \"NOT_DECIMAL_INTEGER\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "amount",
+        "value": "abc",
+        "reason": "NOT_DECIMAL_INTEGER"
+      }
+    },
+    "M09_amount_units_decimal": {
+      "note": "小数",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"amount\", \"value\": \"1.5\", \"reason\": \"NOT_DECIMAL_INTEGER\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "amount",
+        "value": "1.5",
+        "reason": "NOT_DECIMAL_INTEGER"
+      }
+    },
+    "M10_amount_units_negative": {
+      "note": "负数",
+      "sqlstate": "LD017",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_NOT_POSITIVE",
+      "db_detail": "{\"field\": \"amount\", \"value\": \"-1\"}",
+      "ts_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "amount",
+        "value": "-1"
+      }
+    },
+    "M11_mint_uid_neg1": {
+      "note": "平台账户",
+      "sqlstate": "LD014",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_UNAUTHORIZED_MINT",
+      "db_detail": "{\"cid\": \"68\", \"platform\": false, \"actor_uid\": \"-1\", \"owner_uid\": \"941001\"}",
+      "ts_code": "LEDGER_UNAUTHORIZED_MINT",
+      "status": 403,
+      "in_closed_set": true,
+      "details": {
+        "cid": "68",
+        "platform": false,
+        "actor_uid": "-1",
+        "owner_uid": "941001"
+      }
+    },
+    "M12_from_uid_neg1": {
+      "note": "平台账户",
+      "sqlstate": "LD021",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_RESERVED_UID",
+      "db_detail": "{\"uid\": \"-1\", \"kind\": \"transfer\", \"field\": \"fromUid\", \"reason\": \"PLATFORM_TRANSFER_DEBIT_FORBIDDEN\"}",
+      "ts_code": "LEDGER_RESERVED_UID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "uid": "-1",
+        "kind": "transfer",
+        "field": "fromUid",
+        "reason": "PLATFORM_TRANSFER_DEBIT_FORBIDDEN"
+      }
+    },
+    "M13_to_uid_neg1": {
+      "note": "平台账户",
+      "sqlstate": "LD021",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_RESERVED_UID",
+      "db_detail": "{\"uid\": \"-1\", \"kind\": \"transfer\", \"field\": \"toUid\", \"reason\": \"PLATFORM_TRANSFER_CREDIT_FORBIDDEN\"}",
+      "ts_code": "LEDGER_RESERVED_UID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "uid": "-1",
+        "kind": "transfer",
+        "field": "toUid",
+        "reason": "PLATFORM_TRANSFER_CREDIT_FORBIDDEN"
+      }
+    },
+    "M14_cid_zero": {
+      "note": "非法 cid",
+      "sqlstate": "LD007",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_CURRENCY_NOT_FOUND",
+      "db_detail": "{\"cid\": \"0\"}",
+      "ts_code": "LEDGER_CURRENCY_NOT_FOUND",
+      "status": 404,
+      "in_closed_set": true,
+      "details": {
+        "cid": "0"
+      }
+    },
+    "M15_cid_abc": {
+      "note": "非法 cid",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"cid\", \"value\": \"abc\", \"reason\": \"NOT_DECIMAL_INTEGER\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "cid",
+        "value": "abc",
+        "reason": "NOT_DECIMAL_INTEGER"
+      }
+    },
+    "M16_cid_json_number": {
+      "note": "【裁定】JSON number ⇒ 收紧 400",
+      "sqlstate": null,
+      "ts_code": null,
+      "status": null,
+      "outcome": "accepted_200"
+    },
+    "M17_ref_type_bogus": {
+      "note": "白名单",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"ref_type\", \"value\": \"bogus\", \"reason\": \"NOT_IN_WHITELIST\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "ref_type",
+        "value": "bogus",
+        "reason": "NOT_IN_WHITELIST"
+      }
+    },
+    "M18_ref_type_no_ref_id": {
+      "note": "成对性",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"ref_type/ref_id\", \"reason\": \"REF_PAIR_MISMATCH\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "ref_type/ref_id",
+        "reason": "REF_PAIR_MISMATCH"
+      }
+    },
+    "M19_ref_id_no_ref_type": {
+      "note": "成对性",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"ref_type/ref_id\", \"reason\": \"REF_PAIR_MISMATCH\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "ref_type/ref_id",
+        "reason": "REF_PAIR_MISMATCH"
+      }
+    },
+    "M20_memo_object": {
+      "note": "【裁定】嵌套对象 ⇒ 收紧 400",
+      "sqlstate": null,
+      "ts_code": null,
+      "status": null,
+      "outcome": "accepted_200"
+    },
+    "M21_memo_array": {
+      "note": "【裁定】数组 ⇒ 收紧 400",
+      "sqlstate": null,
+      "ts_code": null,
+      "status": null,
+      "outcome": "accepted_200"
+    },
+    "M22_entries_object": {
+      "note": "形状",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"entries\", \"reason\": \"NOT_A_NON_EMPTY_ARRAY\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "entries",
+        "reason": "NOT_A_NON_EMPTY_ARRAY"
+      }
+    },
+    "M23_entries_33": {
+      "note": "R64 上限",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"entries\", \"limit\": 32, \"reason\": \"TOO_MANY_ENTRIES\", \"provided\": 33}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "entries",
+        "limit": 32,
+        "reason": "TOO_MANY_ENTRIES",
+        "provided": 33
+      }
+    },
+    "M24_entries_17_accounts": {
+      "note": "R64 账户上限",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"entries\", \"reason\": \"EVENT_NOT_BALANCED\", \"net_sum\": \"-1\", \"delta_sum\": \"-1\", \"frozen_delta_sum\": \"0\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "entries",
+        "reason": "EVENT_NOT_BALANCED",
+        "net_sum": "-1",
+        "delta_sum": "-1",
+        "frozen_delta_sum": "0"
+      }
+    },
+    "M25_entry_delta_json_number": {
+      "note": "金额列必须字符串",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"entries[0].delta\", \"reason\": \"NOT_STRING\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "entries[0].delta",
+        "reason": "NOT_STRING"
+      }
+    },
+    "M26_entry_both_zero": {
+      "note": "ledger_move_guard 前置",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"entry\": \"entries[0]\", \"field\": \"delta/frozen_delta\", \"reason\": \"BOTH_ZERO\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "entry": "entries[0]",
+        "field": "delta/frozen_delta",
+        "reason": "BOTH_ZERO"
+      }
+    },
+    "M27_settle_kind_bogus": {
+      "note": "kind 白名单",
+      "sqlstate": "LD023",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_UNKNOWN_KIND",
+      "db_detail": "{\"kind\": \"bogus\", \"reason\": \"NOT_IN_FROZEN_SETTLE_WHITELIST\"}",
+      "ts_code": "LEDGER_UNKNOWN_KIND",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "kind": "bogus",
+        "reason": "NOT_IN_FROZEN_SETTLE_WHITELIST"
+      }
+    },
+    "M28_reversal_guard": {
+      "note": "R20 冲正守卫",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"entry\": \"entries[0]\", \"field\": \"reversal_of_txid\", \"reason\": \"REVERSAL_GUARD\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "entry": "entries[0]",
+        "field": "reversal_of_txid",
+        "reason": "REVERSAL_GUARD"
+      }
+    },
+    "M29_op_unknown": {
+      "note": "op 白名单",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"op\", \"value\": \"nope\", \"reason\": \"UNKNOWN_OP\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "op",
+        "value": "nope",
+        "reason": "UNKNOWN_OP"
+      }
+    },
+    "M30_payload_array": {
+      "note": "payload 形状",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"payload\", \"reason\": \"BAD_TYPE\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "payload",
+        "reason": "BAD_TYPE"
+      }
+    },
+    "M31_amount_over_cap": {
+      "note": "R66 单笔上限",
+      "sqlstate": null,
+      "ts_code": null,
+      "status": null,
+      "outcome": "accepted_200"
+    },
+    "M32_from_uid_spaces": {
+      "note": "【裁定】btrim 后照收 ⇒ **允许**",
+      "sqlstate": null,
+      "ts_code": null,
+      "status": null,
+      "outcome": "accepted_200"
+    },
+    "M33_key_missing": {
+      "note": "R49",
+      "sqlstate": "LD004",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "db_detail": "{}",
+      "ts_code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {}
+    },
+    "M34_key_json_number": {
+      "note": "键形状",
+      "sqlstate": "LD004",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "db_detail": "{}",
+      "ts_code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {}
+    },
+    "M35_key_empty": {
+      "note": "键形状",
+      "sqlstate": "LD004",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "db_detail": "{}",
+      "ts_code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {}
+    },
+    "M36_key_no_prefix": {
+      "note": "R49 前缀",
+      "sqlstate": "LD005",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "db_detail": "{\"reason\": \"PREFIX_REQUIRED\", \"provided\": \"noprefix\"}",
+      "ts_code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "reason": "PREFIX_REQUIRED",
+        "provided": "noprefix"
+      }
+    },
+    "M37_key_with_hash": {
+      "note": "【F1 修复】派生键分隔符 ⇒ 400",
+      "sqlstate": null,
+      "ts_code": null,
+      "status": null,
+      "outcome": "accepted_200"
+    },
+    "M38_key_too_long": {
+      "note": "R52 长度",
+      "sqlstate": "LD005",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "db_detail": "{\"reason\": \"TOO_LONG\"}",
+      "ts_code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "reason": "TOO_LONG"
+      }
+    },
+    "M39_amount_units_20_digits": {
+      "note": "20 位",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"amount\", \"value\": \"19999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "amount",
+        "value": "19999999999999999999",
+        "reason": "OVER_MAX_SINGLE_AMOUNT"
+      }
+    },
+    "M40_uid_json_number": {
+      "note": "【裁定】JSON number ⇒ 收紧 400",
+      "sqlstate": null,
+      "ts_code": null,
+      "status": null,
+      "outcome": "accepted_200"
+    },
+    "M41_entry_uid_json_number": {
+      "note": "【裁定】JSON number ⇒ 收紧 400",
+      "sqlstate": null,
+      "ts_code": null,
+      "status": null,
+      "outcome": "accepted_200"
+    },
+    "M42_platform_json_number": {
+      "note": "【裁定】JSON number ⇒ 收紧 400",
+      "sqlstate": null,
+      "ts_code": null,
+      "status": null,
+      "outcome": "accepted_200"
+    },
+    "M43_amount_exponent": {
+      "note": "形态",
+      "sqlstate": null,
+      "ts_code": null,
+      "status": null,
+      "outcome": "accepted_200"
+    },
+    "M44_currency_op_bogus": {
+      "note": "状态矩阵",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"currency_op\", \"value\": \"bogus\", \"reason\": \"UNKNOWN_CURRENCY_OP\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "currency_op",
+        "value": "bogus",
+        "reason": "UNKNOWN_CURRENCY_OP"
+      }
+    },
+    "M45_hold_no_ref": {
+      "note": "R37",
+      "sqlstate": "LD015",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_HOLD_NOT_ALLOWED",
+      "db_detail": "{\"cid\": \"68\", \"uid\": \"941001\", \"reason\": \"BUSINESS_REF_REQUIRED\"}",
+      "ts_code": "LEDGER_HOLD_NOT_ALLOWED",
+      "status": 403,
+      "in_closed_set": true,
+      "details": {
+        "cid": "68",
+        "uid": "941001",
+        "reason": "BUSINESS_REF_REQUIRED"
+      }
+    },
+    "M46_cap_abc": {
+      "note": "形态",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"business_frozen_cap\", \"value\": \"abc\", \"reason\": \"NOT_DECIMAL_INTEGER\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "business_frozen_cap",
+        "value": "abc",
+        "reason": "NOT_DECIMAL_INTEGER"
+      }
+    },
+    "M47_self_transfer": {
+      "note": "R19",
+      "sqlstate": "LD019",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_SELF_TRANSFER",
+      "db_detail": "{\"cid\": \"68\", \"uid\": \"941001\"}",
+      "ts_code": "LEDGER_SELF_TRANSFER",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "cid": "68",
+        "uid": "941001"
+      }
+    },
+    "M48_cid_missing_currency": {
+      "note": "币种不存在",
+      "sqlstate": "LD007",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_CURRENCY_NOT_FOUND",
+      "db_detail": "{\"cid\": \"9007199254740991\"}",
+      "ts_code": "LEDGER_CURRENCY_NOT_FOUND",
+      "status": 404,
+      "in_closed_set": true,
+      "details": {
+        "cid": "9007199254740991"
+      }
+    },
+    "M49_entry_cid_mismatch": {
+      "note": "配对不变式",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"entries\", \"reason\": \"EVENT_NOT_BALANCED\", \"net_sum\": \"1\", \"delta_sum\": \"1\", \"frozen_delta_sum\": \"0\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "entries",
+        "reason": "EVENT_NOT_BALANCED",
+        "net_sum": "1",
+        "delta_sum": "1",
+        "frozen_delta_sum": "0"
+      }
+    },
+    "M50_key_control_char": {
+      "note": "【F1】控制字符 ⇒ 400",
+      "sqlstate": null,
+      "ts_code": null,
+      "status": null,
+      "outcome": "accepted_200"
+    }
+  }
+}

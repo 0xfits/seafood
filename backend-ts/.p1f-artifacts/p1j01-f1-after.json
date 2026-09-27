@@ -1,0 +1,196 @@
+{
+  "probe": "P1F-01",
+  "run": "MUJG2X9H",
+  "symbol": "P1HMUJG2X9H",
+  "cid": "77",
+  "pre": {
+    "entry_count": "1388",
+    "root_column": true
+  },
+  "readings": {
+    "direction1": {
+      "A": {
+        "ok": true,
+        "replay": false,
+        "txid": "1896",
+        "entries": 2
+      },
+      "A_rows": [
+        {
+          "txid": "1896",
+          "key": "ops:p1h:MUJG2X9H:coll:a",
+          "uid": "942001",
+          "delta": "-1000",
+          "root": "ops:p1h:MUJG2X9H:coll:a"
+        },
+        {
+          "txid": "1897",
+          "key": "ops:p1h:MUJG2X9H:coll:a#2",
+          "uid": "942002",
+          "delta": "1000",
+          "root": "ops:p1h:MUJG2X9H:coll:a"
+        }
+      ],
+      "B_payload_key": "ops:p1h:MUJG2X9H:coll:a#2",
+      "B": {
+        "ok": false,
+        "error_code": "LD005",
+        "error_msg": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+        "error_detail": "{\"note\": \"char # is reserved for internal derived entry keys (<key>#<i>)\", \"value\": \"ops:p1h:MUJG2X9H:coll:a#2\", \"reason\": \"RESERVED_SEPARATOR\"}"
+      },
+      "balances": {
+        "before": {
+          "u1": "999000",
+          "u2": "1001000",
+          "u3": "1000000"
+        },
+        "after": {
+          "u1": "999000",
+          "u2": "1001000",
+          "u3": "1000000"
+        }
+      },
+      "u3_entries_before": "3",
+      "u3_entries_after": "3",
+      "rows_exactly_keyed_B": 1,
+      "A_rows_after_B": 2,
+      "B_txid_is_A_second_entry_txid": false,
+      "B_silently_dropped_and_reported_success": false,
+      "B_rejected_400": true
+    },
+    "direction2": {
+      "prefixed_event": {
+        "ok": false,
+        "error_code": "LD005",
+        "error_msg": "LEDGER_IDEMPOTENCY_KEY_INVALID"
+      },
+      "legit_event": {
+        "ok": true,
+        "replay": false,
+        "txid": "1898",
+        "entries": 2,
+        "error_code": null,
+        "error_msg": null,
+        "error_detail": null
+      },
+      "legit_event_bogus_conflict_409": false,
+      "legit_event_success": true
+    },
+    "control": {
+      "replay_same_key": {
+        "ok": true,
+        "replay": true,
+        "txid": "1896",
+        "entries": 2,
+        "same_txid_as_first": true,
+        "error_code": null
+      },
+      "same_key_diff_fingerprint": {
+        "ok": false,
+        "error_code": "LD003",
+        "error_msg": "LEDGER_IDEMPOTENCY_CONFLICT"
+      },
+      "u2_balance_before_replays": "1001050",
+      "u2_balance_after_replays": "1001050",
+      "u2_balance_after_direction1": "1001000"
+    },
+    "hash_key_rejection": {
+      "mint": {
+        "ok": false,
+        "code": "LD005",
+        "message": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+        "detail": "{\"note\": \"char # is reserved for internal derived entry keys (<key>#<i>)\", \"value\": \"ops:p1h:MUJG2X9H:coll:h:mint#2\", \"reason\": \"RESERVED_SEPARATOR\"}"
+      },
+      "transfer": {
+        "ok": false,
+        "code": "LD005",
+        "message": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+        "detail": "{\"note\": \"char # is reserved for internal derived entry keys (<key>#<i>)\", \"value\": \"ops:p1h:MUJG2X9H:coll:h:transfer#2\", \"reason\": \"RESERVED_SEPARATOR\"}"
+      },
+      "hold": {
+        "ok": false,
+        "code": "LD005",
+        "message": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+        "detail": "{\"note\": \"char # is reserved for internal derived entry keys (<key>#<i>)\", \"value\": \"ops:p1h:MUJG2X9H:coll:h:hold#2\", \"reason\": \"RESERVED_SEPARATOR\"}"
+      },
+      "hold_release": {
+        "ok": false,
+        "code": "LD005",
+        "message": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+        "detail": "{\"note\": \"char # is reserved for internal derived entry keys (<key>#<i>)\", \"value\": \"ops:p1h:MUJG2X9H:coll:h:rel#2\", \"reason\": \"RESERVED_SEPARATOR\"}"
+      },
+      "settle": {
+        "ok": false,
+        "code": "LD005",
+        "message": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+        "detail": "{\"note\": \"char # is reserved for internal derived entry keys (<key>#<i>)\", \"value\": \"ops:p1h:MUJG2X9H:coll:h:settle#2\", \"reason\": \"RESERVED_SEPARATOR\"}"
+      },
+      "entries": {
+        "ok": false,
+        "code": "LD005",
+        "message": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+        "detail": "{\"note\": \"char # is reserved for internal derived entry keys (<key>#<i>)\", \"value\": \"ops:p1h:MUJG2X9H:coll:h:entries#2\", \"reason\": \"RESERVED_SEPARATOR\"}"
+      },
+      "entries(entry-level #)": {
+        "ok": false,
+        "code": "LD005",
+        "message": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+        "detail": "{\"note\": \"char # is reserved for internal derived entry keys (<key>#<i>)\", \"field\": \"entries[1].idempotency_key\", \"value\": \"ops:p1h:MUJG2X9H:coll:h:inner#2\", \"reason\": \"RESERVED_SEPARATOR\"}"
+      }
+    },
+    "hash_key_rejection_all_400": true,
+    "hash_key_rejection_ok_shapes": [],
+    "structure": {
+      "root_column": true,
+      "constraint": "1",
+      "null_root_rows": "1306",
+      "wrong_root_rows": "0",
+      "entry_count": "1397",
+      "A_rows_all_attributed": true,
+      "A_rows": [
+        {
+          "txid": "1896",
+          "key": "ops:p1h:MUJG2X9H:coll:a",
+          "root": "ops:p1h:MUJG2X9H:coll:a"
+        },
+        {
+          "txid": "1897",
+          "key": "ops:p1h:MUJG2X9H:coll:a#2",
+          "root": "ops:p1h:MUJG2X9H:coll:a"
+        }
+      ]
+    },
+    "legacy_collision": {
+      "legit_event": {
+        "ok": false,
+        "entries": 0,
+        "error_code": "LD024",
+        "error_msg": "LEDGER_TRANSACTION_REQUIRED",
+        "error_detail": "{\"cause\": \"23505\", \"reason\": \"derived_key_collision\", \"pg_code\": \"23505\", \"error_name\": \"DerivedKeyCollision\"}"
+      },
+      "root_row_written": 0,
+      "legacy_row_still_present": 1,
+      "bogus_409_LD003": false,
+      "loud_defect_LD024": true,
+      "no_partial_event": true
+    }
+  },
+  "verdicts": {
+    "B_key_rejected_400": true,
+    "B_not_silently_dropped": true,
+    "direction1_A_intact": true,
+    "direction2_hash_key_rejected": true,
+    "direction2_legit_event_ok": true,
+    "replay_same_key_ok": true,
+    "replay_diff_fp_409": true,
+    "no_double_debit_on_replay": true,
+    "all_op_shapes_reject_hash": true,
+    "root_column_present": true,
+    "guard_constraint_present": true,
+    "attribution_all_consistent": true,
+    "A_rows_attributed_to_root": true,
+    "legacy_collision_is_loud_not_bogus_409": true
+  },
+  "failures": [],
+  "pass": true
+}

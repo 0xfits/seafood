@@ -1,0 +1,2079 @@
+{
+  "run": "g6ahk",
+  "symbols": {
+    "S": "p1eSg6ahk",
+    "T": "p1eTg6ahk",
+    "DRAFT": "p1eEg6ahk",
+    "CAPPED": "p1eKg6ahk"
+  },
+  "cids": {
+    "S": "80",
+    "T": "81",
+    "DRAFT": "82",
+    "CAPPED": "83"
+  },
+  "uids": {
+    "A": "920021",
+    "B": "920022"
+  },
+  "summary": {
+    "passed": 11,
+    "failed": 0
+  },
+  "checks": [
+    {
+      "name": "mint：A 可用 10.00（1000 最小单位）+ 1 条分录 + extra.supply_after",
+      "pass": true,
+      "reading": {
+        "op": "mint 10.00 → A",
+        "before": {
+          "920021/80": "-|-"
+        },
+        "after": {
+          "920021/80": "1000|0"
+        },
+        "txid": "1947",
+        "entry_count": 1,
+        "idempotent_replay": false,
+        "extra": {
+          "supply_cap": null,
+          "supply_after": "1000",
+          "supply_before": "0"
+        },
+        "lock_trace": [
+          "currency:80",
+          "account:920021:80"
+        ]
+      }
+    },
+    {
+      "name": "transfer：A 700 / B 300 + 2 条分录 + amount/symbol",
+      "pass": true,
+      "reading": {
+        "op": "transfer 3.00 A→B",
+        "before": {
+          "920021/80": "1000|0",
+          "920022/80": "-|-"
+        },
+        "after": {
+          "920021/80": "700|0",
+          "920022/80": "300|0"
+        },
+        "txid": "1948",
+        "entry_count": 2,
+        "idempotent_replay": false,
+        "extra": {
+          "amount": "300",
+          "symbol": "p1eSg6ahk"
+        },
+        "lock_trace": [
+          "account:920021:80",
+          "account:920022:80"
+        ]
+      }
+    },
+    {
+      "name": "freeze：B 可用 100 / 冻结 200 + 2 条分录（三态记账）",
+      "pass": true,
+      "reading": {
+        "op": "freeze 2.00 (B)",
+        "before": {
+          "920022/80": "300|0"
+        },
+        "after": {
+          "920022/80": "100|200"
+        },
+        "txid": "1950",
+        "entry_count": 2,
+        "idempotent_replay": false,
+        "extra": {
+          "amount": "200",
+          "symbol": "p1eSg6ahk"
+        },
+        "lock_trace": [
+          "account:920022:80"
+        ]
+      }
+    },
+    {
+      "name": "unfreeze：B 可用 200 / 冻结 100",
+      "pass": true,
+      "reading": {
+        "op": "unfreeze 1.00 (B)",
+        "before": {
+          "920022/80": "100|200"
+        },
+        "after": {
+          "920022/80": "200|100"
+        },
+        "txid": "1952",
+        "entry_count": 2,
+        "idempotent_replay": false,
+        "extra": {
+          "amount": "100",
+          "symbol": "p1eSg6ahk"
+        },
+        "lock_trace": [
+          "account:920022:80"
+        ]
+      }
+    },
+    {
+      "name": "settleFrozen：B 冻结 100→0、A 可用 700→800，kind=purchase/sale",
+      "pass": true,
+      "reading": {
+        "op": "settleFrozen purchase 1.00 B→A",
+        "before": {
+          "920022/80": "200|100",
+          "920021/80": "700|0"
+        },
+        "after": {
+          "920022/80": "200|0",
+          "920021/80": "800|0"
+        },
+        "txid": "1954",
+        "entry_count": 2,
+        "idempotent_replay": false,
+        "extra": {
+          "kind": "purchase",
+          "amount": "100",
+          "symbol": "p1eSg6ahk",
+          "payee_kind": "sale"
+        },
+        "lock_trace": [
+          "account:920021:80",
+          "account:920022:80"
+        ]
+      }
+    },
+    {
+      "name": "op=entries：4 条分录 / 4 个账户 / 跨 2 个 cid / 派生键 #2..#4",
+      "pass": true,
+      "reading": {
+        "op": "postEvent op=entries（4 条 / 2 cid）",
+        "before": {
+          "920021/80": "800|0",
+          "920022/80": "200|0",
+          "920021/81": "-|-",
+          "920022/81": "100|0"
+        },
+        "after": {
+          "920021/80": "700|0",
+          "920022/80": "300|0",
+          "920021/81": "20|0",
+          "920022/81": "80|0"
+        },
+        "txid": "1958",
+        "entry_count": 4,
+        "idempotent_replay": false,
+        "extra": {
+          "symbol": "p1eSg6ahk",
+          "entries": "4"
+        },
+        "lock_trace": [
+          "account:920021:80",
+          "account:920021:81",
+          "account:920022:80",
+          "account:920022:81"
+        ]
+      }
+    },
+    {
+      "name": "幂等：同键两次只生效一次（流水 +2 → 不变），第 2 次 idempotent_replay=true 且 txid 相同",
+      "pass": true,
+      "first_replay": false,
+      "second_replay": true,
+      "counts": [
+        "1450",
+        "1452",
+        "1452"
+      ],
+      "family": 2
+    },
+    {
+      "name": "余额不足：LEDGER_INSUFFICIENT_BALANCE(409) 且流水/余额基座零变化（无半成品）",
+      "pass": true,
+      "code": "LEDGER_INSUFFICIENT_BALANCE",
+      "status": 409,
+      "count": [
+        "1452",
+        "1452"
+      ]
+    },
+    {
+      "name": "总额守恒：Σ(balance+frozen) 按 cid 完全不变（5 笔串行 transfer 前后）",
+      "pass": true,
+      "before": [
+        {
+          "cid": "1",
+          "total_balance": "7200",
+          "total_frozen": "0",
+          "total_net": "7200"
+        },
+        {
+          "cid": "10",
+          "total_balance": "100008",
+          "total_frozen": "0",
+          "total_net": "100008"
+        },
+        {
+          "cid": "11",
+          "total_balance": "151",
+          "total_frozen": "0",
+          "total_net": "151"
+        },
+        {
+          "cid": "12",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        },
+        {
+          "cid": "13",
+          "total_balance": "1",
+          "total_frozen": "0",
+          "total_net": "1"
+        },
+        {
+          "cid": "15",
+          "total_balance": "10151",
+          "total_frozen": "0",
+          "total_net": "10151"
+        },
+        {
+          "cid": "16",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        },
+        {
+          "cid": "21",
+          "total_balance": "10151",
+          "total_frozen": "0",
+          "total_net": "10151"
+        },
+        {
+          "cid": "22",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        },
+        {
+          "cid": "27",
+          "total_balance": "40000",
+          "total_frozen": "0",
+          "total_net": "40000"
+        },
+        {
+          "cid": "28",
+          "total_balance": "40000",
+          "total_frozen": "0",
+          "total_net": "40000"
+        },
+        {
+          "cid": "29",
+          "total_balance": "10151",
+          "total_frozen": "0",
+          "total_net": "10151"
+        },
+        {
+          "cid": "30",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        },
+        {
+          "cid": "35",
+          "total_balance": "1000",
+          "total_frozen": "0",
+          "total_net": "1000"
+        },
+        {
+          "cid": "36",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        },
+        {
+          "cid": "39",
+          "total_balance": "1000",
+          "total_frozen": "0",
+          "total_net": "1000"
+        },
+        {
+          "cid": "40",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        },
+        {
+          "cid": "43",
+          "total_balance": "40000",
+          "total_frozen": "0",
+          "total_net": "40000"
+        },
+        {
+          "cid": "44",
+          "total_balance": "1000",
+          "total_frozen": "0",
+          "total_net": "1000"
+        },
+        {
+          "cid": "45",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        },
+        {
+          "cid": "48",
+          "total_balance": "40000",
+          "total_frozen": "0",
+          "total_net": "40000"
+        },
+        {
+          "cid": "49",
+          "total_balance": "1000000",
+          "total_frozen": "0",
+          "total_net": "1000000"
+        },
+        {
+          "cid": "50",
+          "total_balance": "10000",
+          "total_frozen": "0",
+          "total_net": "10000"
+        },
+        {
+          "cid": "51",
+          "total_balance": "5000",
+          "total_frozen": "0",
+          "total_net": "5000"
+        },
+        {
+          "cid": "52",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        },
+        {
+          "cid": "53",
+          "total_balance": "10000",
+          "total_frozen": "0",
+          "total_net": "10000"
+        },
+        {
+          "cid": "54",
+          "total_balance": "10000",
+          "total_frozen": "0",
+          "total_net": "10000"
+        },
+        {
+          "cid": "55",
+          "total_balance": "100004",
+          "total_frozen": "0",
+          "total_net": "100004"
+        },
+        {
+          "cid": "58",
+          "total_balance": "475",
+          "total_frozen": "0",
+          "total_net": "475"
+        },
+        {
+          "cid": "59",
+          "total_balance": "25",
+          "total_frozen": "0",
+          "total_net": "25"
+        },
+        {
+          "cid": "60",
+          "total_balance": "5000",
+          "total_frozen": "0",
+          "total_net": "5000"
+        },
+        {
+          "cid": "61",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        },
+        {
+          "cid": "62",
+          "total_balance": "1000000",
+          "total_frozen": "0",
+          "total_net": "1000000"
+        },
+        {
+          "cid": "63",
+          "total_balance": "1000000",
+          "total_frozen": "0",
+          "total_net": "1000000"
+        },
+        {
+          "cid": "64",
+          "total_balance": "3000008",
+          "total_frozen": "0",
+          "total_net": "3000008"
+        },
+        {
+          "cid": "65",
+          "total_balance": "3000008",
+          "total_frozen": "0",
+          "total_net": "3000008"
+        },
+        {
+          "cid": "66",
+          "total_balance": "3000008",
+          "total_frozen": "0",
+          "total_net": "3000008"
+        },
+        {
+          "cid": "67",
+          "total_balance": "3000009",
+          "total_frozen": "0",
+          "total_net": "3000009"
+        },
+        {
+          "cid": "68",
+          "total_balance": "1000001",
+          "total_frozen": "0",
+          "total_net": "1000001"
+        },
+        {
+          "cid": "69",
+          "total_balance": "40000",
+          "total_frozen": "0",
+          "total_net": "40000"
+        },
+        {
+          "cid": "70",
+          "total_balance": "1000",
+          "total_frozen": "0",
+          "total_net": "1000"
+        },
+        {
+          "cid": "71",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        },
+        {
+          "cid": "74",
+          "total_balance": "3000001",
+          "total_frozen": "0",
+          "total_net": "3000001"
+        },
+        {
+          "cid": "75",
+          "total_balance": "3000001",
+          "total_frozen": "0",
+          "total_net": "3000001"
+        },
+        {
+          "cid": "76",
+          "total_balance": "1000000",
+          "total_frozen": "0",
+          "total_net": "1000000"
+        },
+        {
+          "cid": "77",
+          "total_balance": "3000001",
+          "total_frozen": "0",
+          "total_net": "3000001"
+        },
+        {
+          "cid": "78",
+          "total_balance": "1000000",
+          "total_frozen": "0",
+          "total_net": "1000000"
+        },
+        {
+          "cid": "79",
+          "total_balance": "40000",
+          "total_frozen": "0",
+          "total_net": "40000"
+        },
+        {
+          "cid": "80",
+          "total_balance": "1000",
+          "total_frozen": "0",
+          "total_net": "1000"
+        },
+        {
+          "cid": "81",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        }
+      ],
+      "after": [
+        {
+          "cid": "1",
+          "total_balance": "7200",
+          "total_frozen": "0",
+          "total_net": "7200"
+        },
+        {
+          "cid": "10",
+          "total_balance": "100008",
+          "total_frozen": "0",
+          "total_net": "100008"
+        },
+        {
+          "cid": "11",
+          "total_balance": "151",
+          "total_frozen": "0",
+          "total_net": "151"
+        },
+        {
+          "cid": "12",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        },
+        {
+          "cid": "13",
+          "total_balance": "1",
+          "total_frozen": "0",
+          "total_net": "1"
+        },
+        {
+          "cid": "15",
+          "total_balance": "10151",
+          "total_frozen": "0",
+          "total_net": "10151"
+        },
+        {
+          "cid": "16",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        },
+        {
+          "cid": "21",
+          "total_balance": "10151",
+          "total_frozen": "0",
+          "total_net": "10151"
+        },
+        {
+          "cid": "22",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        },
+        {
+          "cid": "27",
+          "total_balance": "40000",
+          "total_frozen": "0",
+          "total_net": "40000"
+        },
+        {
+          "cid": "28",
+          "total_balance": "40000",
+          "total_frozen": "0",
+          "total_net": "40000"
+        },
+        {
+          "cid": "29",
+          "total_balance": "10151",
+          "total_frozen": "0",
+          "total_net": "10151"
+        },
+        {
+          "cid": "30",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        },
+        {
+          "cid": "35",
+          "total_balance": "1000",
+          "total_frozen": "0",
+          "total_net": "1000"
+        },
+        {
+          "cid": "36",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        },
+        {
+          "cid": "39",
+          "total_balance": "1000",
+          "total_frozen": "0",
+          "total_net": "1000"
+        },
+        {
+          "cid": "40",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        },
+        {
+          "cid": "43",
+          "total_balance": "40000",
+          "total_frozen": "0",
+          "total_net": "40000"
+        },
+        {
+          "cid": "44",
+          "total_balance": "1000",
+          "total_frozen": "0",
+          "total_net": "1000"
+        },
+        {
+          "cid": "45",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        },
+        {
+          "cid": "48",
+          "total_balance": "40000",
+          "total_frozen": "0",
+          "total_net": "40000"
+        },
+        {
+          "cid": "49",
+          "total_balance": "1000000",
+          "total_frozen": "0",
+          "total_net": "1000000"
+        },
+        {
+          "cid": "50",
+          "total_balance": "10000",
+          "total_frozen": "0",
+          "total_net": "10000"
+        },
+        {
+          "cid": "51",
+          "total_balance": "5000",
+          "total_frozen": "0",
+          "total_net": "5000"
+        },
+        {
+          "cid": "52",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        },
+        {
+          "cid": "53",
+          "total_balance": "10000",
+          "total_frozen": "0",
+          "total_net": "10000"
+        },
+        {
+          "cid": "54",
+          "total_balance": "10000",
+          "total_frozen": "0",
+          "total_net": "10000"
+        },
+        {
+          "cid": "55",
+          "total_balance": "100004",
+          "total_frozen": "0",
+          "total_net": "100004"
+        },
+        {
+          "cid": "58",
+          "total_balance": "475",
+          "total_frozen": "0",
+          "total_net": "475"
+        },
+        {
+          "cid": "59",
+          "total_balance": "25",
+          "total_frozen": "0",
+          "total_net": "25"
+        },
+        {
+          "cid": "60",
+          "total_balance": "5000",
+          "total_frozen": "0",
+          "total_net": "5000"
+        },
+        {
+          "cid": "61",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        },
+        {
+          "cid": "62",
+          "total_balance": "1000000",
+          "total_frozen": "0",
+          "total_net": "1000000"
+        },
+        {
+          "cid": "63",
+          "total_balance": "1000000",
+          "total_frozen": "0",
+          "total_net": "1000000"
+        },
+        {
+          "cid": "64",
+          "total_balance": "3000008",
+          "total_frozen": "0",
+          "total_net": "3000008"
+        },
+        {
+          "cid": "65",
+          "total_balance": "3000008",
+          "total_frozen": "0",
+          "total_net": "3000008"
+        },
+        {
+          "cid": "66",
+          "total_balance": "3000008",
+          "total_frozen": "0",
+          "total_net": "3000008"
+        },
+        {
+          "cid": "67",
+          "total_balance": "3000009",
+          "total_frozen": "0",
+          "total_net": "3000009"
+        },
+        {
+          "cid": "68",
+          "total_balance": "1000001",
+          "total_frozen": "0",
+          "total_net": "1000001"
+        },
+        {
+          "cid": "69",
+          "total_balance": "40000",
+          "total_frozen": "0",
+          "total_net": "40000"
+        },
+        {
+          "cid": "70",
+          "total_balance": "1000",
+          "total_frozen": "0",
+          "total_net": "1000"
+        },
+        {
+          "cid": "71",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        },
+        {
+          "cid": "74",
+          "total_balance": "3000001",
+          "total_frozen": "0",
+          "total_net": "3000001"
+        },
+        {
+          "cid": "75",
+          "total_balance": "3000001",
+          "total_frozen": "0",
+          "total_net": "3000001"
+        },
+        {
+          "cid": "76",
+          "total_balance": "1000000",
+          "total_frozen": "0",
+          "total_net": "1000000"
+        },
+        {
+          "cid": "77",
+          "total_balance": "3000001",
+          "total_frozen": "0",
+          "total_net": "3000001"
+        },
+        {
+          "cid": "78",
+          "total_balance": "1000000",
+          "total_frozen": "0",
+          "total_net": "1000000"
+        },
+        {
+          "cid": "79",
+          "total_balance": "40000",
+          "total_frozen": "0",
+          "total_net": "40000"
+        },
+        {
+          "cid": "80",
+          "total_balance": "1000",
+          "total_frozen": "0",
+          "total_net": "1000"
+        },
+        {
+          "cid": "81",
+          "total_balance": "100",
+          "total_frozen": "0",
+          "total_net": "100"
+        }
+      ]
+    },
+    {
+      "name": "错误映射封闭性：12 类故障，DB SQLSTATE→TS §14 码逐行可映射，0 行落入不可归类分支",
+      "pass": true,
+      "faults": [
+        {
+          "case": "① 余额不足（transfer）",
+          "ts_code": "LEDGER_INSUFFICIENT_BALANCE",
+          "ts_status": 409,
+          "ts_is_ledger_error": true,
+          "db_sqlstate": "LD001",
+          "db_message": "LEDGER_INSUFFICIENT_BALANCE",
+          "db_detail": "{\"cid\": \"80\", \"uid\": \"920021\", \"required\": \"99999900\", \"available\": \"690\"}",
+          "mapped_from_raw": "LEDGER_INSUFFICIENT_BALANCE",
+          "ts_details": {
+            "cid": "80",
+            "uid": "920021",
+            "required": "99999900",
+            "available": "690"
+          }
+        },
+        {
+          "case": "② 幂等冲突（同键不同指纹）",
+          "ts_code": "LEDGER_IDEMPOTENCY_CONFLICT",
+          "ts_status": 409,
+          "ts_is_ledger_error": true,
+          "db_sqlstate": "LD003",
+          "db_message": "LEDGER_IDEMPOTENCY_CONFLICT",
+          "db_detail": "{\"actual\": \"fp-OTHER\", \"expected\": \"fp-1\", \"idempotency_key\": \"ops:p1e:smoke:g6ahk:idem\"}",
+          "mapped_from_raw": "LEDGER_IDEMPOTENCY_CONFLICT",
+          "ts_details": {
+            "actual": "fp-OTHER",
+            "expected": "fp-1",
+            "idempotency_key": "ops:p1e:smoke:g6ahk:idem"
+          }
+        },
+        {
+          "case": "③ 币种未上市（freeze on draft）",
+          "ts_code": "LEDGER_CURRENCY_NOT_LISTED",
+          "ts_status": 409,
+          "ts_is_ledger_error": true,
+          "db_sqlstate": "LD008",
+          "db_message": "LEDGER_CURRENCY_NOT_LISTED",
+          "db_detail": "{\"op\": \"hold\", \"cid\": \"82\", \"status\": \"draft\", \"symbol\": \"p1eEg6ahk\"}",
+          "mapped_from_raw": "LEDGER_CURRENCY_NOT_LISTED",
+          "ts_details": {
+            "op": "hold",
+            "cid": "82",
+            "status": "draft",
+            "symbol": "p1eEg6ahk"
+          }
+        },
+        {
+          "case": "④ 非 owner 铸币（R23）",
+          "ts_code": "LEDGER_UNAUTHORIZED_MINT",
+          "ts_status": 403,
+          "ts_is_ledger_error": true,
+          "db_sqlstate": "LD014",
+          "db_message": "LEDGER_UNAUTHORIZED_MINT",
+          "db_detail": "{\"cid\": \"80\", \"platform\": false, \"actor_uid\": \"920022\", \"owner_uid\": \"920021\"}",
+          "mapped_from_raw": "LEDGER_UNAUTHORIZED_MINT",
+          "ts_details": {
+            "cid": "80",
+            "platform": false,
+            "actor_uid": "920022",
+            "owner_uid": "920021"
+          }
+        },
+        {
+          "case": "⑤ 超 supply_cap（R24）",
+          "ts_code": "LEDGER_SUPPLY_CAP_EXCEEDED",
+          "ts_status": 409,
+          "ts_is_ledger_error": true,
+          "db_sqlstate": "LD013",
+          "db_message": "LEDGER_SUPPLY_CAP_EXCEEDED",
+          "db_detail": "{\"cid\": \"83\", \"symbol\": \"p1eKg6ahk\", \"requested\": \"1001\", \"supply_cap\": \"1000\", \"total_supply\": \"0\"}",
+          "mapped_from_raw": "LEDGER_SUPPLY_CAP_EXCEEDED",
+          "ts_details": {
+            "cid": "83",
+            "symbol": "p1eKg6ahk",
+            "requested": "1001",
+            "supply_cap": "1000",
+            "total_supply": "0"
+          }
+        },
+        {
+          "case": "⑥ 非法金额（amount=\"abc\"）",
+          "ts_code": "LEDGER_AMOUNT_INVALID",
+          "ts_status": 400,
+          "ts_is_ledger_error": true,
+          "db_sqlstate": "LD016",
+          "db_message": "LEDGER_AMOUNT_INVALID",
+          "db_detail": "{\"field\": \"amount\", \"value\": \"abc\", \"reason\": \"NOT_DECIMAL_STRING\"}",
+          "mapped_from_raw": "LEDGER_AMOUNT_INVALID",
+          "ts_details": {
+            "field": "amount",
+            "value": "abc",
+            "reason": "NOT_DECIMAL_STRING"
+          }
+        },
+        {
+          "case": "⑦ 小数位溢出（\"1.234\" vs decimals=2）",
+          "ts_code": "LEDGER_DECIMALS_OVERFLOW",
+          "ts_status": 400,
+          "ts_is_ledger_error": true,
+          "db_sqlstate": "LD018",
+          "db_message": "LEDGER_DECIMALS_OVERFLOW",
+          "db_detail": "{\"cid\": \"80\", \"field\": \"amount\", \"decimals\": 2, \"provided\": 3}",
+          "mapped_from_raw": "LEDGER_DECIMALS_OVERFLOW",
+          "ts_details": {
+            "cid": "80",
+            "field": "amount",
+            "decimals": 2,
+            "provided": 3
+          }
+        },
+        {
+          "case": "⑧ 自转（R31）",
+          "ts_code": "LEDGER_SELF_TRANSFER",
+          "ts_status": 400,
+          "ts_is_ledger_error": true,
+          "db_sqlstate": "LD019",
+          "db_message": "LEDGER_SELF_TRANSFER",
+          "db_detail": "{\"cid\": \"80\", \"uid\": \"920021\"}",
+          "mapped_from_raw": "LEDGER_SELF_TRANSFER",
+          "ts_details": {
+            "uid": "920021",
+            "cid": "80"
+          }
+        },
+        {
+          "case": "⑨ 冻结无业务单（R37）",
+          "ts_code": "LEDGER_HOLD_NOT_ALLOWED",
+          "ts_status": 403,
+          "ts_is_ledger_error": true,
+          "db_sqlstate": "LD015",
+          "db_message": "LEDGER_HOLD_NOT_ALLOWED",
+          "db_detail": "{\"cid\": \"80\", \"uid\": \"920021\", \"reason\": \"BUSINESS_REF_REQUIRED\"}",
+          "mapped_from_raw": "LEDGER_HOLD_NOT_ALLOWED",
+          "ts_details": {
+            "uid": "920021",
+            "cid": "80",
+            "reason": "BUSINESS_REF_REQUIRED"
+          }
+        },
+        {
+          "case": "⑩ settle kind 不在白名单（R33）",
+          "ts_code": "LEDGER_UNKNOWN_KIND",
+          "ts_status": 400,
+          "ts_is_ledger_error": true,
+          "db_sqlstate": "LD023",
+          "db_message": "LEDGER_UNKNOWN_KIND",
+          "db_detail": "{\"kind\": \"commission\", \"reason\": \"NOT_IN_FROZEN_SETTLE_WHITELIST\"}",
+          "mapped_from_raw": "LEDGER_UNKNOWN_KIND",
+          "ts_details": {
+            "kind": "commission",
+            "reason": "NOT_IN_FROZEN_SETTLE_WHITELIST"
+          }
+        },
+        {
+          "case": "⑪ 冻结不足（settle 超出在冻额）",
+          "ts_code": "LEDGER_INSUFFICIENT_FROZEN",
+          "ts_status": 409,
+          "ts_is_ledger_error": true,
+          "db_sqlstate": "LD002",
+          "db_message": "LEDGER_INSUFFICIENT_FROZEN",
+          "db_detail": "{\"cid\": \"80\", \"uid\": \"920021\", \"required\": \"500\", \"available\": \"0\"}",
+          "mapped_from_raw": "LEDGER_INSUFFICIENT_FROZEN",
+          "ts_details": {
+            "cid": "80",
+            "uid": "920021",
+            "required": "500",
+            "available": "0"
+          }
+        },
+        {
+          "case": "⑫ 币种不存在（cid=999999）",
+          "ts_code": "LEDGER_CURRENCY_NOT_FOUND",
+          "ts_status": 404,
+          "ts_is_ledger_error": true,
+          "db_sqlstate": "LD007",
+          "db_message": "LEDGER_CURRENCY_NOT_FOUND",
+          "db_detail": "{\"cid\": \"999999\"}",
+          "mapped_from_raw": "LEDGER_CURRENCY_NOT_FOUND",
+          "ts_details": {
+            "cid": "999999"
+          }
+        }
+      ],
+      "unclassified": [],
+      "ts_always_ledger_error": true
+    },
+    {
+      "name": "封闭性反证：LD 表 33 项；非账本 SQLSTATE（23514）不被误映射，且经 normalizeLedgerError 仍落在 §14 码",
+      "pass": true,
+      "sqlstate_table_size": 33,
+      "mapped_null": true,
+      "normalized": "LEDGER_NEGATIVE_BALANCE_GUARD"
+    }
+  ],
+  "readings": [
+    {
+      "op": "mint 10.00 → A",
+      "before": {
+        "920021/80": "-|-"
+      },
+      "after": {
+        "920021/80": "1000|0"
+      },
+      "txid": "1947",
+      "entry_count": 1,
+      "idempotent_replay": false,
+      "extra": {
+        "supply_cap": null,
+        "supply_after": "1000",
+        "supply_before": "0"
+      },
+      "lock_trace": [
+        "currency:80",
+        "account:920021:80"
+      ]
+    },
+    {
+      "op": "transfer 3.00 A→B",
+      "before": {
+        "920021/80": "1000|0",
+        "920022/80": "-|-"
+      },
+      "after": {
+        "920021/80": "700|0",
+        "920022/80": "300|0"
+      },
+      "txid": "1948",
+      "entry_count": 2,
+      "idempotent_replay": false,
+      "extra": {
+        "amount": "300",
+        "symbol": "p1eSg6ahk"
+      },
+      "lock_trace": [
+        "account:920021:80",
+        "account:920022:80"
+      ]
+    },
+    {
+      "op": "freeze 2.00 (B)",
+      "before": {
+        "920022/80": "300|0"
+      },
+      "after": {
+        "920022/80": "100|200"
+      },
+      "txid": "1950",
+      "entry_count": 2,
+      "idempotent_replay": false,
+      "extra": {
+        "amount": "200",
+        "symbol": "p1eSg6ahk"
+      },
+      "lock_trace": [
+        "account:920022:80"
+      ]
+    },
+    {
+      "op": "unfreeze 1.00 (B)",
+      "before": {
+        "920022/80": "100|200"
+      },
+      "after": {
+        "920022/80": "200|100"
+      },
+      "txid": "1952",
+      "entry_count": 2,
+      "idempotent_replay": false,
+      "extra": {
+        "amount": "100",
+        "symbol": "p1eSg6ahk"
+      },
+      "lock_trace": [
+        "account:920022:80"
+      ]
+    },
+    {
+      "op": "settleFrozen purchase 1.00 B→A",
+      "before": {
+        "920022/80": "200|100",
+        "920021/80": "700|0"
+      },
+      "after": {
+        "920022/80": "200|0",
+        "920021/80": "800|0"
+      },
+      "txid": "1954",
+      "entry_count": 2,
+      "idempotent_replay": false,
+      "extra": {
+        "kind": "purchase",
+        "amount": "100",
+        "symbol": "p1eSg6ahk",
+        "payee_kind": "sale"
+      },
+      "lock_trace": [
+        "account:920021:80",
+        "account:920022:80"
+      ]
+    },
+    {
+      "op": "postEvent op=entries（4 条 / 2 cid）",
+      "before": {
+        "920021/80": "800|0",
+        "920022/80": "200|0",
+        "920021/81": "-|-",
+        "920022/81": "100|0"
+      },
+      "after": {
+        "920021/80": "700|0",
+        "920022/80": "300|0",
+        "920021/81": "20|0",
+        "920022/81": "80|0"
+      },
+      "txid": "1958",
+      "entry_count": 4,
+      "idempotent_replay": false,
+      "extra": {
+        "symbol": "p1eSg6ahk",
+        "entries": "4"
+      },
+      "lock_trace": [
+        "account:920021:80",
+        "account:920021:81",
+        "account:920022:80",
+        "account:920022:81"
+      ]
+    },
+    {
+      "idempotency": {
+        "first": {
+          "replay": false,
+          "txid": "1962",
+          "entries": 2
+        },
+        "second": {
+          "replay": true,
+          "txid": "1962",
+          "entries": 2
+        },
+        "entry_count": {
+          "before": "1450",
+          "after_first": "1452",
+          "after_replay": "1452"
+        },
+        "key_family_rows": 2
+      }
+    },
+    {
+      "insufficient": {
+        "code": "LEDGER_INSUFFICIENT_BALANCE",
+        "status": 409,
+        "entry_count": [
+          "1452",
+          "1452"
+        ],
+        "totals_equal": true
+      }
+    },
+    {
+      "conservation": {
+        "before": [
+          {
+            "cid": "1",
+            "total_balance": "7200",
+            "total_frozen": "0",
+            "total_net": "7200"
+          },
+          {
+            "cid": "10",
+            "total_balance": "100008",
+            "total_frozen": "0",
+            "total_net": "100008"
+          },
+          {
+            "cid": "11",
+            "total_balance": "151",
+            "total_frozen": "0",
+            "total_net": "151"
+          },
+          {
+            "cid": "12",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          },
+          {
+            "cid": "13",
+            "total_balance": "1",
+            "total_frozen": "0",
+            "total_net": "1"
+          },
+          {
+            "cid": "15",
+            "total_balance": "10151",
+            "total_frozen": "0",
+            "total_net": "10151"
+          },
+          {
+            "cid": "16",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          },
+          {
+            "cid": "21",
+            "total_balance": "10151",
+            "total_frozen": "0",
+            "total_net": "10151"
+          },
+          {
+            "cid": "22",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          },
+          {
+            "cid": "27",
+            "total_balance": "40000",
+            "total_frozen": "0",
+            "total_net": "40000"
+          },
+          {
+            "cid": "28",
+            "total_balance": "40000",
+            "total_frozen": "0",
+            "total_net": "40000"
+          },
+          {
+            "cid": "29",
+            "total_balance": "10151",
+            "total_frozen": "0",
+            "total_net": "10151"
+          },
+          {
+            "cid": "30",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          },
+          {
+            "cid": "35",
+            "total_balance": "1000",
+            "total_frozen": "0",
+            "total_net": "1000"
+          },
+          {
+            "cid": "36",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          },
+          {
+            "cid": "39",
+            "total_balance": "1000",
+            "total_frozen": "0",
+            "total_net": "1000"
+          },
+          {
+            "cid": "40",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          },
+          {
+            "cid": "43",
+            "total_balance": "40000",
+            "total_frozen": "0",
+            "total_net": "40000"
+          },
+          {
+            "cid": "44",
+            "total_balance": "1000",
+            "total_frozen": "0",
+            "total_net": "1000"
+          },
+          {
+            "cid": "45",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          },
+          {
+            "cid": "48",
+            "total_balance": "40000",
+            "total_frozen": "0",
+            "total_net": "40000"
+          },
+          {
+            "cid": "49",
+            "total_balance": "1000000",
+            "total_frozen": "0",
+            "total_net": "1000000"
+          },
+          {
+            "cid": "50",
+            "total_balance": "10000",
+            "total_frozen": "0",
+            "total_net": "10000"
+          },
+          {
+            "cid": "51",
+            "total_balance": "5000",
+            "total_frozen": "0",
+            "total_net": "5000"
+          },
+          {
+            "cid": "52",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          },
+          {
+            "cid": "53",
+            "total_balance": "10000",
+            "total_frozen": "0",
+            "total_net": "10000"
+          },
+          {
+            "cid": "54",
+            "total_balance": "10000",
+            "total_frozen": "0",
+            "total_net": "10000"
+          },
+          {
+            "cid": "55",
+            "total_balance": "100004",
+            "total_frozen": "0",
+            "total_net": "100004"
+          },
+          {
+            "cid": "58",
+            "total_balance": "475",
+            "total_frozen": "0",
+            "total_net": "475"
+          },
+          {
+            "cid": "59",
+            "total_balance": "25",
+            "total_frozen": "0",
+            "total_net": "25"
+          },
+          {
+            "cid": "60",
+            "total_balance": "5000",
+            "total_frozen": "0",
+            "total_net": "5000"
+          },
+          {
+            "cid": "61",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          },
+          {
+            "cid": "62",
+            "total_balance": "1000000",
+            "total_frozen": "0",
+            "total_net": "1000000"
+          },
+          {
+            "cid": "63",
+            "total_balance": "1000000",
+            "total_frozen": "0",
+            "total_net": "1000000"
+          },
+          {
+            "cid": "64",
+            "total_balance": "3000008",
+            "total_frozen": "0",
+            "total_net": "3000008"
+          },
+          {
+            "cid": "65",
+            "total_balance": "3000008",
+            "total_frozen": "0",
+            "total_net": "3000008"
+          },
+          {
+            "cid": "66",
+            "total_balance": "3000008",
+            "total_frozen": "0",
+            "total_net": "3000008"
+          },
+          {
+            "cid": "67",
+            "total_balance": "3000009",
+            "total_frozen": "0",
+            "total_net": "3000009"
+          },
+          {
+            "cid": "68",
+            "total_balance": "1000001",
+            "total_frozen": "0",
+            "total_net": "1000001"
+          },
+          {
+            "cid": "69",
+            "total_balance": "40000",
+            "total_frozen": "0",
+            "total_net": "40000"
+          },
+          {
+            "cid": "70",
+            "total_balance": "1000",
+            "total_frozen": "0",
+            "total_net": "1000"
+          },
+          {
+            "cid": "71",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          },
+          {
+            "cid": "74",
+            "total_balance": "3000001",
+            "total_frozen": "0",
+            "total_net": "3000001"
+          },
+          {
+            "cid": "75",
+            "total_balance": "3000001",
+            "total_frozen": "0",
+            "total_net": "3000001"
+          },
+          {
+            "cid": "76",
+            "total_balance": "1000000",
+            "total_frozen": "0",
+            "total_net": "1000000"
+          },
+          {
+            "cid": "77",
+            "total_balance": "3000001",
+            "total_frozen": "0",
+            "total_net": "3000001"
+          },
+          {
+            "cid": "78",
+            "total_balance": "1000000",
+            "total_frozen": "0",
+            "total_net": "1000000"
+          },
+          {
+            "cid": "79",
+            "total_balance": "40000",
+            "total_frozen": "0",
+            "total_net": "40000"
+          },
+          {
+            "cid": "80",
+            "total_balance": "1000",
+            "total_frozen": "0",
+            "total_net": "1000"
+          },
+          {
+            "cid": "81",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          }
+        ],
+        "after": [
+          {
+            "cid": "1",
+            "total_balance": "7200",
+            "total_frozen": "0",
+            "total_net": "7200"
+          },
+          {
+            "cid": "10",
+            "total_balance": "100008",
+            "total_frozen": "0",
+            "total_net": "100008"
+          },
+          {
+            "cid": "11",
+            "total_balance": "151",
+            "total_frozen": "0",
+            "total_net": "151"
+          },
+          {
+            "cid": "12",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          },
+          {
+            "cid": "13",
+            "total_balance": "1",
+            "total_frozen": "0",
+            "total_net": "1"
+          },
+          {
+            "cid": "15",
+            "total_balance": "10151",
+            "total_frozen": "0",
+            "total_net": "10151"
+          },
+          {
+            "cid": "16",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          },
+          {
+            "cid": "21",
+            "total_balance": "10151",
+            "total_frozen": "0",
+            "total_net": "10151"
+          },
+          {
+            "cid": "22",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          },
+          {
+            "cid": "27",
+            "total_balance": "40000",
+            "total_frozen": "0",
+            "total_net": "40000"
+          },
+          {
+            "cid": "28",
+            "total_balance": "40000",
+            "total_frozen": "0",
+            "total_net": "40000"
+          },
+          {
+            "cid": "29",
+            "total_balance": "10151",
+            "total_frozen": "0",
+            "total_net": "10151"
+          },
+          {
+            "cid": "30",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          },
+          {
+            "cid": "35",
+            "total_balance": "1000",
+            "total_frozen": "0",
+            "total_net": "1000"
+          },
+          {
+            "cid": "36",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          },
+          {
+            "cid": "39",
+            "total_balance": "1000",
+            "total_frozen": "0",
+            "total_net": "1000"
+          },
+          {
+            "cid": "40",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          },
+          {
+            "cid": "43",
+            "total_balance": "40000",
+            "total_frozen": "0",
+            "total_net": "40000"
+          },
+          {
+            "cid": "44",
+            "total_balance": "1000",
+            "total_frozen": "0",
+            "total_net": "1000"
+          },
+          {
+            "cid": "45",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          },
+          {
+            "cid": "48",
+            "total_balance": "40000",
+            "total_frozen": "0",
+            "total_net": "40000"
+          },
+          {
+            "cid": "49",
+            "total_balance": "1000000",
+            "total_frozen": "0",
+            "total_net": "1000000"
+          },
+          {
+            "cid": "50",
+            "total_balance": "10000",
+            "total_frozen": "0",
+            "total_net": "10000"
+          },
+          {
+            "cid": "51",
+            "total_balance": "5000",
+            "total_frozen": "0",
+            "total_net": "5000"
+          },
+          {
+            "cid": "52",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          },
+          {
+            "cid": "53",
+            "total_balance": "10000",
+            "total_frozen": "0",
+            "total_net": "10000"
+          },
+          {
+            "cid": "54",
+            "total_balance": "10000",
+            "total_frozen": "0",
+            "total_net": "10000"
+          },
+          {
+            "cid": "55",
+            "total_balance": "100004",
+            "total_frozen": "0",
+            "total_net": "100004"
+          },
+          {
+            "cid": "58",
+            "total_balance": "475",
+            "total_frozen": "0",
+            "total_net": "475"
+          },
+          {
+            "cid": "59",
+            "total_balance": "25",
+            "total_frozen": "0",
+            "total_net": "25"
+          },
+          {
+            "cid": "60",
+            "total_balance": "5000",
+            "total_frozen": "0",
+            "total_net": "5000"
+          },
+          {
+            "cid": "61",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          },
+          {
+            "cid": "62",
+            "total_balance": "1000000",
+            "total_frozen": "0",
+            "total_net": "1000000"
+          },
+          {
+            "cid": "63",
+            "total_balance": "1000000",
+            "total_frozen": "0",
+            "total_net": "1000000"
+          },
+          {
+            "cid": "64",
+            "total_balance": "3000008",
+            "total_frozen": "0",
+            "total_net": "3000008"
+          },
+          {
+            "cid": "65",
+            "total_balance": "3000008",
+            "total_frozen": "0",
+            "total_net": "3000008"
+          },
+          {
+            "cid": "66",
+            "total_balance": "3000008",
+            "total_frozen": "0",
+            "total_net": "3000008"
+          },
+          {
+            "cid": "67",
+            "total_balance": "3000009",
+            "total_frozen": "0",
+            "total_net": "3000009"
+          },
+          {
+            "cid": "68",
+            "total_balance": "1000001",
+            "total_frozen": "0",
+            "total_net": "1000001"
+          },
+          {
+            "cid": "69",
+            "total_balance": "40000",
+            "total_frozen": "0",
+            "total_net": "40000"
+          },
+          {
+            "cid": "70",
+            "total_balance": "1000",
+            "total_frozen": "0",
+            "total_net": "1000"
+          },
+          {
+            "cid": "71",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          },
+          {
+            "cid": "74",
+            "total_balance": "3000001",
+            "total_frozen": "0",
+            "total_net": "3000001"
+          },
+          {
+            "cid": "75",
+            "total_balance": "3000001",
+            "total_frozen": "0",
+            "total_net": "3000001"
+          },
+          {
+            "cid": "76",
+            "total_balance": "1000000",
+            "total_frozen": "0",
+            "total_net": "1000000"
+          },
+          {
+            "cid": "77",
+            "total_balance": "3000001",
+            "total_frozen": "0",
+            "total_net": "3000001"
+          },
+          {
+            "cid": "78",
+            "total_balance": "1000000",
+            "total_frozen": "0",
+            "total_net": "1000000"
+          },
+          {
+            "cid": "79",
+            "total_balance": "40000",
+            "total_frozen": "0",
+            "total_net": "40000"
+          },
+          {
+            "cid": "80",
+            "total_balance": "1000",
+            "total_frozen": "0",
+            "total_net": "1000"
+          },
+          {
+            "cid": "81",
+            "total_balance": "100",
+            "total_frozen": "0",
+            "total_net": "100"
+          }
+        ]
+      }
+    },
+    {
+      "fault": "① 余额不足（transfer）",
+      "case": "① 余额不足（transfer）",
+      "ts_code": "LEDGER_INSUFFICIENT_BALANCE",
+      "ts_status": 409,
+      "ts_is_ledger_error": true,
+      "db_sqlstate": "LD001",
+      "db_message": "LEDGER_INSUFFICIENT_BALANCE",
+      "db_detail": "{\"cid\": \"80\", \"uid\": \"920021\", \"required\": \"99999900\", \"available\": \"690\"}",
+      "mapped_from_raw": "LEDGER_INSUFFICIENT_BALANCE",
+      "ts_details": {
+        "cid": "80",
+        "uid": "920021",
+        "required": "99999900",
+        "available": "690"
+      }
+    },
+    {
+      "fault": "② 幂等冲突（同键不同指纹）",
+      "case": "② 幂等冲突（同键不同指纹）",
+      "ts_code": "LEDGER_IDEMPOTENCY_CONFLICT",
+      "ts_status": 409,
+      "ts_is_ledger_error": true,
+      "db_sqlstate": "LD003",
+      "db_message": "LEDGER_IDEMPOTENCY_CONFLICT",
+      "db_detail": "{\"actual\": \"fp-OTHER\", \"expected\": \"fp-1\", \"idempotency_key\": \"ops:p1e:smoke:g6ahk:idem\"}",
+      "mapped_from_raw": "LEDGER_IDEMPOTENCY_CONFLICT",
+      "ts_details": {
+        "actual": "fp-OTHER",
+        "expected": "fp-1",
+        "idempotency_key": "ops:p1e:smoke:g6ahk:idem"
+      }
+    },
+    {
+      "fault": "③ 币种未上市（freeze on draft）",
+      "case": "③ 币种未上市（freeze on draft）",
+      "ts_code": "LEDGER_CURRENCY_NOT_LISTED",
+      "ts_status": 409,
+      "ts_is_ledger_error": true,
+      "db_sqlstate": "LD008",
+      "db_message": "LEDGER_CURRENCY_NOT_LISTED",
+      "db_detail": "{\"op\": \"hold\", \"cid\": \"82\", \"status\": \"draft\", \"symbol\": \"p1eEg6ahk\"}",
+      "mapped_from_raw": "LEDGER_CURRENCY_NOT_LISTED",
+      "ts_details": {
+        "op": "hold",
+        "cid": "82",
+        "status": "draft",
+        "symbol": "p1eEg6ahk"
+      }
+    },
+    {
+      "fault": "④ 非 owner 铸币（R23）",
+      "case": "④ 非 owner 铸币（R23）",
+      "ts_code": "LEDGER_UNAUTHORIZED_MINT",
+      "ts_status": 403,
+      "ts_is_ledger_error": true,
+      "db_sqlstate": "LD014",
+      "db_message": "LEDGER_UNAUTHORIZED_MINT",
+      "db_detail": "{\"cid\": \"80\", \"platform\": false, \"actor_uid\": \"920022\", \"owner_uid\": \"920021\"}",
+      "mapped_from_raw": "LEDGER_UNAUTHORIZED_MINT",
+      "ts_details": {
+        "cid": "80",
+        "platform": false,
+        "actor_uid": "920022",
+        "owner_uid": "920021"
+      }
+    },
+    {
+      "fault": "⑤ 超 supply_cap（R24）",
+      "case": "⑤ 超 supply_cap（R24）",
+      "ts_code": "LEDGER_SUPPLY_CAP_EXCEEDED",
+      "ts_status": 409,
+      "ts_is_ledger_error": true,
+      "db_sqlstate": "LD013",
+      "db_message": "LEDGER_SUPPLY_CAP_EXCEEDED",
+      "db_detail": "{\"cid\": \"83\", \"symbol\": \"p1eKg6ahk\", \"requested\": \"1001\", \"supply_cap\": \"1000\", \"total_supply\": \"0\"}",
+      "mapped_from_raw": "LEDGER_SUPPLY_CAP_EXCEEDED",
+      "ts_details": {
+        "cid": "83",
+        "symbol": "p1eKg6ahk",
+        "requested": "1001",
+        "supply_cap": "1000",
+        "total_supply": "0"
+      }
+    },
+    {
+      "fault": "⑥ 非法金额（amount=\"abc\"）",
+      "case": "⑥ 非法金额（amount=\"abc\"）",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "ts_status": 400,
+      "ts_is_ledger_error": true,
+      "db_sqlstate": "LD016",
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"amount\", \"value\": \"abc\", \"reason\": \"NOT_DECIMAL_STRING\"}",
+      "mapped_from_raw": "LEDGER_AMOUNT_INVALID",
+      "ts_details": {
+        "field": "amount",
+        "value": "abc",
+        "reason": "NOT_DECIMAL_STRING"
+      }
+    },
+    {
+      "fault": "⑦ 小数位溢出（\"1.234\" vs decimals=2）",
+      "case": "⑦ 小数位溢出（\"1.234\" vs decimals=2）",
+      "ts_code": "LEDGER_DECIMALS_OVERFLOW",
+      "ts_status": 400,
+      "ts_is_ledger_error": true,
+      "db_sqlstate": "LD018",
+      "db_message": "LEDGER_DECIMALS_OVERFLOW",
+      "db_detail": "{\"cid\": \"80\", \"field\": \"amount\", \"decimals\": 2, \"provided\": 3}",
+      "mapped_from_raw": "LEDGER_DECIMALS_OVERFLOW",
+      "ts_details": {
+        "cid": "80",
+        "field": "amount",
+        "decimals": 2,
+        "provided": 3
+      }
+    },
+    {
+      "fault": "⑧ 自转（R31）",
+      "case": "⑧ 自转（R31）",
+      "ts_code": "LEDGER_SELF_TRANSFER",
+      "ts_status": 400,
+      "ts_is_ledger_error": true,
+      "db_sqlstate": "LD019",
+      "db_message": "LEDGER_SELF_TRANSFER",
+      "db_detail": "{\"cid\": \"80\", \"uid\": \"920021\"}",
+      "mapped_from_raw": "LEDGER_SELF_TRANSFER",
+      "ts_details": {
+        "uid": "920021",
+        "cid": "80"
+      }
+    },
+    {
+      "fault": "⑨ 冻结无业务单（R37）",
+      "case": "⑨ 冻结无业务单（R37）",
+      "ts_code": "LEDGER_HOLD_NOT_ALLOWED",
+      "ts_status": 403,
+      "ts_is_ledger_error": true,
+      "db_sqlstate": "LD015",
+      "db_message": "LEDGER_HOLD_NOT_ALLOWED",
+      "db_detail": "{\"cid\": \"80\", \"uid\": \"920021\", \"reason\": \"BUSINESS_REF_REQUIRED\"}",
+      "mapped_from_raw": "LEDGER_HOLD_NOT_ALLOWED",
+      "ts_details": {
+        "uid": "920021",
+        "cid": "80",
+        "reason": "BUSINESS_REF_REQUIRED"
+      }
+    },
+    {
+      "fault": "⑩ settle kind 不在白名单（R33）",
+      "case": "⑩ settle kind 不在白名单（R33）",
+      "ts_code": "LEDGER_UNKNOWN_KIND",
+      "ts_status": 400,
+      "ts_is_ledger_error": true,
+      "db_sqlstate": "LD023",
+      "db_message": "LEDGER_UNKNOWN_KIND",
+      "db_detail": "{\"kind\": \"commission\", \"reason\": \"NOT_IN_FROZEN_SETTLE_WHITELIST\"}",
+      "mapped_from_raw": "LEDGER_UNKNOWN_KIND",
+      "ts_details": {
+        "kind": "commission",
+        "reason": "NOT_IN_FROZEN_SETTLE_WHITELIST"
+      }
+    },
+    {
+      "fault": "⑪ 冻结不足（settle 超出在冻额）",
+      "case": "⑪ 冻结不足（settle 超出在冻额）",
+      "ts_code": "LEDGER_INSUFFICIENT_FROZEN",
+      "ts_status": 409,
+      "ts_is_ledger_error": true,
+      "db_sqlstate": "LD002",
+      "db_message": "LEDGER_INSUFFICIENT_FROZEN",
+      "db_detail": "{\"cid\": \"80\", \"uid\": \"920021\", \"required\": \"500\", \"available\": \"0\"}",
+      "mapped_from_raw": "LEDGER_INSUFFICIENT_FROZEN",
+      "ts_details": {
+        "cid": "80",
+        "uid": "920021",
+        "required": "500",
+        "available": "0"
+      }
+    },
+    {
+      "fault": "⑫ 币种不存在（cid=999999）",
+      "case": "⑫ 币种不存在（cid=999999）",
+      "ts_code": "LEDGER_CURRENCY_NOT_FOUND",
+      "ts_status": 404,
+      "ts_is_ledger_error": true,
+      "db_sqlstate": "LD007",
+      "db_message": "LEDGER_CURRENCY_NOT_FOUND",
+      "db_detail": "{\"cid\": \"999999\"}",
+      "mapped_from_raw": "LEDGER_CURRENCY_NOT_FOUND",
+      "ts_details": {
+        "cid": "999999"
+      }
+    },
+    {
+      "error_mapping_table": [
+        {
+          "case": "① 余额不足（transfer）",
+          "db_sqlstate": "LD001",
+          "db_message": "LEDGER_INSUFFICIENT_BALANCE",
+          "ts_code": "LEDGER_INSUFFICIENT_BALANCE",
+          "ts_status": 409,
+          "mapped_from_raw": "LEDGER_INSUFFICIENT_BALANCE"
+        },
+        {
+          "case": "② 幂等冲突（同键不同指纹）",
+          "db_sqlstate": "LD003",
+          "db_message": "LEDGER_IDEMPOTENCY_CONFLICT",
+          "ts_code": "LEDGER_IDEMPOTENCY_CONFLICT",
+          "ts_status": 409,
+          "mapped_from_raw": "LEDGER_IDEMPOTENCY_CONFLICT"
+        },
+        {
+          "case": "③ 币种未上市（freeze on draft）",
+          "db_sqlstate": "LD008",
+          "db_message": "LEDGER_CURRENCY_NOT_LISTED",
+          "ts_code": "LEDGER_CURRENCY_NOT_LISTED",
+          "ts_status": 409,
+          "mapped_from_raw": "LEDGER_CURRENCY_NOT_LISTED"
+        },
+        {
+          "case": "④ 非 owner 铸币（R23）",
+          "db_sqlstate": "LD014",
+          "db_message": "LEDGER_UNAUTHORIZED_MINT",
+          "ts_code": "LEDGER_UNAUTHORIZED_MINT",
+          "ts_status": 403,
+          "mapped_from_raw": "LEDGER_UNAUTHORIZED_MINT"
+        },
+        {
+          "case": "⑤ 超 supply_cap（R24）",
+          "db_sqlstate": "LD013",
+          "db_message": "LEDGER_SUPPLY_CAP_EXCEEDED",
+          "ts_code": "LEDGER_SUPPLY_CAP_EXCEEDED",
+          "ts_status": 409,
+          "mapped_from_raw": "LEDGER_SUPPLY_CAP_EXCEEDED"
+        },
+        {
+          "case": "⑥ 非法金额（amount=\"abc\"）",
+          "db_sqlstate": "LD016",
+          "db_message": "LEDGER_AMOUNT_INVALID",
+          "ts_code": "LEDGER_AMOUNT_INVALID",
+          "ts_status": 400,
+          "mapped_from_raw": "LEDGER_AMOUNT_INVALID"
+        },
+        {
+          "case": "⑦ 小数位溢出（\"1.234\" vs decimals=2）",
+          "db_sqlstate": "LD018",
+          "db_message": "LEDGER_DECIMALS_OVERFLOW",
+          "ts_code": "LEDGER_DECIMALS_OVERFLOW",
+          "ts_status": 400,
+          "mapped_from_raw": "LEDGER_DECIMALS_OVERFLOW"
+        },
+        {
+          "case": "⑧ 自转（R31）",
+          "db_sqlstate": "LD019",
+          "db_message": "LEDGER_SELF_TRANSFER",
+          "ts_code": "LEDGER_SELF_TRANSFER",
+          "ts_status": 400,
+          "mapped_from_raw": "LEDGER_SELF_TRANSFER"
+        },
+        {
+          "case": "⑨ 冻结无业务单（R37）",
+          "db_sqlstate": "LD015",
+          "db_message": "LEDGER_HOLD_NOT_ALLOWED",
+          "ts_code": "LEDGER_HOLD_NOT_ALLOWED",
+          "ts_status": 403,
+          "mapped_from_raw": "LEDGER_HOLD_NOT_ALLOWED"
+        },
+        {
+          "case": "⑩ settle kind 不在白名单（R33）",
+          "db_sqlstate": "LD023",
+          "db_message": "LEDGER_UNKNOWN_KIND",
+          "ts_code": "LEDGER_UNKNOWN_KIND",
+          "ts_status": 400,
+          "mapped_from_raw": "LEDGER_UNKNOWN_KIND"
+        },
+        {
+          "case": "⑪ 冻结不足（settle 超出在冻额）",
+          "db_sqlstate": "LD002",
+          "db_message": "LEDGER_INSUFFICIENT_FROZEN",
+          "ts_code": "LEDGER_INSUFFICIENT_FROZEN",
+          "ts_status": 409,
+          "mapped_from_raw": "LEDGER_INSUFFICIENT_FROZEN"
+        },
+        {
+          "case": "⑫ 币种不存在（cid=999999）",
+          "db_sqlstate": "LD007",
+          "db_message": "LEDGER_CURRENCY_NOT_FOUND",
+          "ts_code": "LEDGER_CURRENCY_NOT_FOUND",
+          "ts_status": 404,
+          "mapped_from_raw": "LEDGER_CURRENCY_NOT_FOUND"
+        }
+      ]
+    }
+  ]
+}

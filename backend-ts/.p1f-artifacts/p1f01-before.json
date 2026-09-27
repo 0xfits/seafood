@@ -1,0 +1,203 @@
+{
+  "probe": "P1F-01",
+  "run": "MUJFG3W5",
+  "symbol": "P1FMUJFG3W5",
+  "cid": "67",
+  "pre": {
+    "entry_count": "1260",
+    "root_column": false
+  },
+  "readings": {
+    "direction1": {
+      "A": {
+        "ok": true,
+        "replay": false,
+        "txid": "1745",
+        "entries": 2
+      },
+      "A_rows": [
+        {
+          "txid": "1745",
+          "key": "ops:p1f:MUJFG3W5:coll:a",
+          "uid": "941001",
+          "delta": "-1000",
+          "root": null
+        },
+        {
+          "txid": "1746",
+          "key": "ops:p1f:MUJFG3W5:coll:a#2",
+          "uid": "941002",
+          "delta": "1000",
+          "root": null
+        }
+      ],
+      "B_payload_key": "ops:p1f:MUJFG3W5:coll:a#2",
+      "B": {
+        "ok": true,
+        "replay": true,
+        "txid": "1746",
+        "error_code": null,
+        "error_msg": null,
+        "error_detail": null
+      },
+      "balances": {
+        "before": {
+          "u1": "999000",
+          "u2": "1001000",
+          "u3": "1000000"
+        },
+        "after": {
+          "u1": "999000",
+          "u2": "1001000",
+          "u3": "1000000"
+        }
+      },
+      "u3_entries_before": "4",
+      "u3_entries_after": "4",
+      "rows_exactly_keyed_B": 1,
+      "A_rows_after_B": 2,
+      "B_txid_is_A_second_entry_txid": true,
+      "B_silently_dropped_and_reported_success": true,
+      "B_rejected_400": false
+    },
+    "direction2": {
+      "prefixed_event": {
+        "ok": true,
+        "error_code": null,
+        "error_msg": null
+      },
+      "legit_event": {
+        "ok": false,
+        "entries": 0,
+        "error_code": "LD003",
+        "error_msg": "LEDGER_IDEMPOTENCY_CONFLICT",
+        "error_detail": "{\"reason\": \"UNIQUE_KEY_FAMILY_COLLISION\", \"idempotency_key\": \"ops:p1f:MUJFG3W5:coll:p\"}"
+      },
+      "legit_event_bogus_conflict_409": true,
+      "legit_event_success": false
+    },
+    "control": {
+      "replay_same_key": {
+        "ok": true,
+        "replay": true,
+        "txid": "1745",
+        "entries": 2,
+        "same_txid_as_first": true,
+        "error_code": null
+      },
+      "same_key_diff_fingerprint": {
+        "ok": false,
+        "error_code": "LD003",
+        "error_msg": "LEDGER_IDEMPOTENCY_CONFLICT"
+      },
+      "u2_balance_after_replays": "1001000"
+    },
+    "hash_key_rejection": {
+      "mint": {
+        "ok": true,
+        "code": null,
+        "message": null,
+        "detail": null
+      },
+      "transfer": {
+        "ok": true,
+        "code": null,
+        "message": null,
+        "detail": null
+      },
+      "hold": {
+        "ok": true,
+        "code": null,
+        "message": null,
+        "detail": null
+      },
+      "hold_release": {
+        "ok": true,
+        "code": null,
+        "message": null,
+        "detail": null
+      },
+      "settle": {
+        "ok": false,
+        "code": "LD002",
+        "message": "LEDGER_INSUFFICIENT_FROZEN",
+        "detail": "{\"cid\": \"67\", \"uid\": \"941002\", \"required\": \"1\", \"available\": \"0\"}"
+      },
+      "entries": {
+        "ok": true,
+        "code": null,
+        "message": null,
+        "detail": null
+      },
+      "entries(entry-level #)": {
+        "ok": true,
+        "code": null,
+        "message": null,
+        "detail": null
+      }
+    },
+    "structure": {
+      "root_column": false,
+      "constraint": null,
+      "null_root_rows": null,
+      "wrong_root_rows": null,
+      "entry_count": "1279",
+      "A_rows_all_attributed": false,
+      "A_rows": [
+        {
+          "txid": "1745",
+          "key": "ops:p1f:MUJFG3W5:coll:a",
+          "root": null
+        },
+        {
+          "txid": "1746",
+          "key": "ops:p1f:MUJFG3W5:coll:a#2",
+          "root": null
+        }
+      ]
+    },
+    "legacy_collision": {
+      "legit_event": {
+        "ok": false,
+        "entries": 0,
+        "error_code": "LD003",
+        "error_msg": "LEDGER_IDEMPOTENCY_CONFLICT",
+        "error_detail": "{\"reason\": \"UNIQUE_KEY_FAMILY_COLLISION\", \"idempotency_key\": \"ops:p1f:MUJFG3W5:coll:legacy\"}"
+      },
+      "root_row_written": 0,
+      "legacy_row_still_present": 1,
+      "bogus_409_LD003": true,
+      "loud_defect_LD024": false,
+      "no_partial_event": true
+    }
+  },
+  "verdicts": {
+    "B_key_rejected_400": false,
+    "B_not_silently_dropped": false,
+    "direction1_A_intact": true,
+    "direction2_hash_key_rejected": false,
+    "direction2_legit_event_ok": false,
+    "replay_same_key_ok": true,
+    "replay_diff_fp_409": true,
+    "no_double_debit_on_replay": true,
+    "all_op_shapes_reject_hash": false,
+    "root_column_present": false,
+    "guard_constraint_present": false,
+    "attribution_all_consistent": false,
+    "A_rows_attributed_to_root": false,
+    "legacy_collision_is_loud_not_bogus_409": false
+  },
+  "failures": [
+    "B_key_rejected_400",
+    "B_not_silently_dropped",
+    "direction2_hash_key_rejected",
+    "direction2_legit_event_ok",
+    "all_op_shapes_reject_hash",
+    "root_column_present",
+    "guard_constraint_present",
+    "attribution_all_consistent",
+    "A_rows_attributed_to_root",
+    "legacy_collision_is_loud_not_bogus_409"
+  ],
+  "pass": false
+}

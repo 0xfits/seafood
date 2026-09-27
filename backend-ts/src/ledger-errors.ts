@@ -183,6 +183,50 @@ export type NonPgErrorReason =
 /** PG SQLSTATE 形状（5 位大写字母/数字），用于把 PG 错误与非 PG 错误分开 */
 const isSqlstate = (code: string): boolean => /^[0-9A-Z]{5}$/.test(code);
 
+// ---------------------------------------------------------------------------
+// P1i（F3③）：**基础设施类** OK SQLSTATE → `LEDGER_TX_TIMEOUT`（503，可重试）
+// ---------------------------------------------------------------------------
+// 缺陷（P1e 质检 F3）：基础设施错误（资源不足 / 系统错误 / 内部错误 / 运维干预 / 连接类）
+// 修前会落到本文件末尾的 500 类兜底 ⇒ 与「代码缺陷（R108 必须告警）」混为一谈，
+// 调用方也无法区分「重试可能成功」与「重试必然失败」。
+// 裁定（逐字执行）：与 DB 侧 `ledger_error_for_sqlstate`（0005 §C）的 `infra` 桶**同集同码** ——
+//   53*（资源不足） / 58*（系统错误） / XX*（内部错误） / 57* 除 57014（运维干预）
+//   / 08* 除 08P01（连接类） / 另有 25006（只读事务）与 3D000（库不可达）两条同样归 infra；
+//   ⇒ 一律 `LEDGER_TX_TIMEOUT`（§14.1 已登记码，**不新增码**；与 503 的「系统繁忙、请稍后重试」语义一致）。
+//   两个**排除**项（都不是瞬时故障，必须留在 500 类供 R108 告警）：
+//     · `08P01` 启动协议参数错误 = 我方连接配置缺陷（如向 pooler 传 `options=`，实测被拒）；
+//     · `57014` 语句超时/取消 —— 已在下面的 switch 归 `LEDGER_TX_TIMEOUT`（语义更精确，此处排除重复）。
+const INFRA_SQLSTATE_REASONS: Record<string, string> = {
+  '53300': 'too_many_connections',
+  '53200': 'out_of_memory',
+  '53100': 'disk_full',
+  '57P01': 'admin_shutdown',
+  '57P02': 'crash_shutdown',
+  '57P03': 'cannot_connect_now',
+  '58030': 'io_error',
+  '25006': 'read_only_transaction',
+  '3D000': 'database_unavailable',
+};
+
+/** 按 SQLSTATE 类别兜底的 infra reason（逐字对齐 0005 §C 的分类器输出） */
+const INFRA_CLASS_REASONS: Record<string, string> = {
+  '53': 'insufficient_resources',
+  '57': 'operator_intervention',
+  '58': 'system_error',
+  '08': 'connection_error',
+  XX: 'internal_error',
+};
+
+/**
+ * 判「基础设施类」SQLSTATE ⇒ 返回可机读 reason；非 infra（含两个排除项）⇒ `null`。
+ * 导出以便质检脚本直接取证分类逻辑（与 DB 侧分类器做同集对拍，不引入副作用）。
+ */
+export const infraSqlstateReason = (code: string): string | null => {
+  if (INFRA_SQLSTATE_REASONS[code] !== undefined) return INFRA_SQLSTATE_REASONS[code];
+  if (code === '08P01' || code === '57014') return null; // 见上方「两个排除项」
+  return INFRA_CLASS_REASONS[code.slice(0, 2)] ?? null;
+};
+
 /**
  * 分类「非 PG 错误」。返回 `null` ⇒ 是 PG SQLSTATE 或账本命名码，交给下面的 switch / 命名分支。
  * 导出以便质检脚本直接取证分类逻辑（不引入副作用）。
@@ -257,6 +301,11 @@ export const normalizeLedgerError = (e: unknown): LedgerError => {
     case '40001':
     case '40P01':
       return new LedgerError('LEDGER_DEADLOCK_RETRY_EXHAUSTED');
+    case '08P01': // 启动协议参数错误：我方连接配置缺陷（**不是**瞬时故障）⇒ 500 类（R108 告警）
+      return new LedgerError('LEDGER_TRANSACTION_REQUIRED', {
+        cause: '08P01', reason: 'protocol_violation',
+        error_name: 'ProtocolViolation', pg_code: '08P01',
+      });
     case 'P0001': // trigger 主动 RAISE
       if (/append-only/i.test(message)) return new LedgerError('LEDGER_APPEND_ONLY_VIOLATION');
       if (/account\b|account rows|must start at 0\/0|without any ledger_entry/i.test(message)) {
@@ -265,6 +314,14 @@ export const normalizeLedgerError = (e: unknown): LedgerError => {
       break;
     default:
       break;
+  }
+
+  // --- P1i（F3③）：基础设施类 ⇒ 503（可重试），**不得**落 500（见上方 INFRA_* 注释块）
+  const infraReason = infraSqlstateReason(code);
+  if (infraReason !== null) {
+    return new LedgerError('LEDGER_TX_TIMEOUT', {
+      reason: infraReason, pg_code: code, retryable: true, source: 'pg_infra_class',
+    });
   }
 
   // 兜底：非账本错误不外泄原始信息（R107），但仍要能被上层区分。

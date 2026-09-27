@@ -1,0 +1,29 @@
+{
+  "ok": true,
+  "deleted": [
+    {
+      "version": "0005",
+      "name": "0005_ledger_event_root_key.sql",
+      "checksum": "37307f9e4541c9e9f06ce555c106b4eb337efac7cd5186a519f36df7e2f72bee"
+    }
+  ],
+  "rows_before": [
+    "0001",
+    "0002",
+    "0003",
+    "0004",
+    "0005"
+  ],
+  "rows_after": [
+    "0001",
+    "0002",
+    "0003",
+    "0004"
+  ],
+  "kept_untouched": [
+    "0001:4f902d3c4750",
+    "0002:688b1935f6bc",
+    "0003:f268e03075eb",
+    "0004:55fd1ce8085b"
+  ]
+}
