@@ -1,0 +1,308 @@
+{
+ "file": "/Users/kevin/bistro/seafood/backend-ts/.p2b-artifacts/p2b-04-cases-20260927T095245Z.json",
+ "run": "20260927T095245Z",
+ "ts": "2026-09-27T09:52:46.428Z",
+ "0_users_created": {
+  "n": "11"
+ },
+ "0_test_currency": {
+  "cid": "124",
+  "symbol": "p1qP2B",
+  "owner": "949010",
+  "note": "绝不触碰 cid=1"
+ },
+ "1_cycle_cases": {
+  "1a_bind_A_to_B_ok": {
+   "ok": true,
+   "result": {
+    "ok": true,
+    "depth": "1",
+    "bound_at": "2026-09-27T09:52:53.635954+00:00",
+    "child_uid": "949001",
+    "parent_uid": "949002",
+    "idempotent_replay": false
+   }
+  },
+  "1b_bind_B_to_A_MUST_REJECT": {
+   "ok": false,
+   "state": "LD016",
+   "message": "LEDGER_AMOUNT_INVALID",
+   "reason": "REFERRAL_CYCLE_REJECTED",
+   "pg_detail": "{\"reason\": \"REFERRAL_CYCLE_REJECTED\", \"child_uid\": \"949002\", \"parent_uid\": \"949001\"}",
+   "ts_code": "LEDGER_AMOUNT_INVALID",
+   "ts_status": 400
+  },
+  "1c_raw_insert_B_to_A_MUST_REJECT": {
+   "threw": true,
+   "state": "LD016",
+   "message": "LEDGER_AMOUNT_INVALID",
+   "reason": "REFERRAL_CYCLE_REJECTED",
+   "pg_detail": "{\"reason\": \"REFERRAL_CYCLE_REJECTED\", \"child_uid\": \"949002\", \"parent_uid\": \"949001\"}",
+   "ts_code": "LEDGER_AMOUNT_INVALID",
+   "ts_status": 400
+  },
+  "1d_self_bind_MUST_REJECT": {
+   "threw": true,
+   "state": "LD016",
+   "message": "LEDGER_AMOUNT_INVALID",
+   "reason": "REFERRAL_SELF_BIND",
+   "pg_detail": "{\"reason\": \"REFERRAL_SELF_BIND\", \"child_uid\": \"949001\", \"parent_uid\": \"949001\"}",
+   "ts_code": "LEDGER_AMOUNT_INVALID",
+   "ts_status": 400
+  },
+  "1e_idempotent_replay": {
+   "ok": true,
+   "result": {
+    "ok": true,
+    "depth": "1",
+    "bound_at": "2026-09-27T09:52:53.635954+00:00",
+    "child_uid": "949001",
+    "parent_uid": "949002",
+    "idempotent_replay": true
+   }
+  },
+  "1f_rebind_conflict_409": {
+   "ok": false,
+   "state": "LD003",
+   "message": "LEDGER_IDEMPOTENCY_CONFLICT",
+   "reason": "REFERRAL_ALREADY_BOUND",
+   "pg_detail": "{\"reason\": \"REFERRAL_ALREADY_BOUND\", \"child_uid\": \"949001\", \"bound_parent_uid\": \"949002\", \"requested_parent_uid\": \"949016\"}",
+   "ts_code": "LEDGER_IDEMPOTENCY_CONFLICT",
+   "ts_status": 409
+  }
+ },
+ "1g_referral_rows": [
+  {
+   "child_uid": "949001",
+   "parent_uid": "949002",
+   "depth": "1"
+  }
+ ],
+ "2_serialization": {
+  "t0": 1790502774908,
+  "t1_bind_C_to_D_done": 170,
+  "conn1_result": {
+   "ok": true,
+   "depth": "1",
+   "bound_at": "2026-09-27T09:52:59.283742+00:00",
+   "child_uid": "949003",
+   "parent_uid": "949004",
+   "idempotent_replay": false
+  },
+  "conn2_still_pending_after_1500ms": true,
+  "lock_wait_row": {
+   "pid": "1727",
+   "wait_event_type": "Lock",
+   "wait_event": "transactionid",
+   "q": "SELECT referral_bind($1::bigint,$2::bigint) AS j"
+  },
+  "t_commit_conn1": 1790502777467,
+  "conn2_outcome": {
+   "rejected": true,
+   "state": "LD016",
+   "message": "LEDGER_AMOUNT_INVALID",
+   "reason": "REFERRAL_CYCLE_REJECTED",
+   "pg_detail": "{\"reason\": \"REFERRAL_CYCLE_REJECTED\", \"child_uid\": \"949004\", \"parent_uid\": \"949003\"}",
+   "ts_code": "LEDGER_AMOUNT_INVALID",
+   "ts_status": 400
+  },
+  "conn2_elapsed_after_commit_ms": 615
+ },
+ "2b_graph_after": [
+  {
+   "child_uid": "949001",
+   "parent_uid": "949002",
+   "depth": "1"
+  },
+  {
+   "child_uid": "949003",
+   "parent_uid": "949004",
+   "depth": "1"
+  }
+ ],
+ "3a_M9_baseline": {
+  "cycles": "0",
+  "bad_depth": "0"
+ },
+ "3b_M9_bypass_contrast": {
+  "inserted_rows": 2,
+  "cycles": "100",
+  "bad_depth": "2",
+  "note": "事务内测量后 ROLLBACK ⇒ 不留脏数据"
+ },
+ "3c_M9_restored": {
+  "cycles": "0",
+  "bad_depth": "0"
+ },
+ "4_referral_insert_only": [
+  {
+   "label": "referral.UPDATE",
+   "threw": true,
+   "state": "P0001",
+   "message": "referral is append-only: UPDATE forbidden (child_uid=949001)",
+   "reason": null,
+   "pg_detail": "",
+   "ts_code": null,
+   "ts_status": null
+  },
+  {
+   "label": "referral.DELETE",
+   "threw": true,
+   "state": "P0001",
+   "message": "referral is append-only: DELETE forbidden (child_uid=949001)",
+   "reason": null,
+   "pg_detail": "",
+   "ts_code": null,
+   "ts_status": null
+  }
+ ],
+ "5_setup": {
+  "mint_ok": true,
+  "mint_err": null,
+  "freeze_ok": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "freeze_failed": [
+   {
+    "code": "LD015",
+    "message": "LEDGER_HOLD_NOT_ALLOWED",
+    "detail": "{\"cid\": \"124\", \"uid\": \"949010\", \"reason\": \"BUSINESS_REF_REQUIRED\"}",
+    "constraint": null,
+    "hint": null,
+    "name": "error"
+   },
+   {
+    "code": "LD015",
+    "message": "LEDGER_HOLD_NOT_ALLOWED",
+    "detail": "{\"cid\": \"124\", \"uid\": \"949010\", \"reason\": \"BUSINESS_REF_REQUIRED\"}",
+    "constraint": null,
+    "hint": null,
+    "name": "error"
+   },
+   {
+    "code": "LD015",
+    "message": "LEDGER_HOLD_NOT_ALLOWED",
+    "detail": "{\"cid\": \"124\", \"uid\": \"949010\", \"reason\": \"BUSINESS_REF_REQUIRED\"}",
+    "constraint": null,
+    "hint": null,
+    "name": "error"
+   },
+   {
+    "code": "LD015",
+    "message": "LEDGER_HOLD_NOT_ALLOWED",
+    "detail": "{\"cid\": \"124\", \"uid\": \"949010\", \"reason\": \"BUSINESS_REF_REQUIRED\"}",
+    "constraint": null,
+    "hint": null,
+    "name": "error"
+   }
+  ],
+  "owner_account": {
+   "balance": "1000",
+   "frozen": "0"
+  }
+ },
+ "6_sigma_positive": {
+  "ok": false,
+  "txid": null,
+  "n_entries": 0,
+  "error": {
+   "code": "LD002",
+   "message": "LEDGER_INSUFFICIENT_FROZEN",
+   "detail": "{\"cid\": \"124\", \"uid\": \"949010\", \"required\": \"60\", \"available\": \"0\"}",
+   "constraint": null,
+   "hint": null,
+   "name": "error"
+  },
+  "M1_readback": {
+   "pool_in": "0",
+   "paid_out": "0",
+   "commission_rows": "0",
+   "minus2_net": "0"
+  }
+ },
+ "7_sigma_negative": {
+  "ok": false,
+  "error": {
+   "code": "LD002",
+   "message": "LEDGER_INSUFFICIENT_FROZEN",
+   "detail": "{\"cid\": \"124\", \"uid\": \"949010\", \"required\": \"60\", \"available\": \"0\"}",
+   "constraint": null,
+   "hint": null,
+   "name": "error"
+  },
+  "db_classifier": {
+   "code": "LEDGER_TRANSACTION_REQUIRED",
+   "bucket": "defect",
+   "reason": "unclassified_db_error",
+   "pg_code": "LD002",
+   "retryable": false,
+   "constraint": null
+  },
+  "ledger_rows_before": {
+   "n": "241"
+  },
+  "ledger_rows_after": {
+   "n": "241"
+  },
+  "rows_written_0": true,
+  "rows_landed_for_neg_key": {
+   "n": "0"
+  }
+ },
+ "7b_sigma_negative_missing_commissions": {
+  "ok": false,
+  "error": {
+   "code": "LD016",
+   "message": "LEDGER_AMOUNT_INVALID",
+   "detail": "{\"cid\": \"124\", \"uid\": \"949010\", \"kind\": \"job_escrow\", \"field\": \"entries\", \"reason\": \"HOLD_PAIR_REQUIRED\"}",
+   "constraint": null,
+   "hint": null,
+   "name": "error"
+  }
+ },
+ "8_minus1": {
+  "8a_positive_job_fee_to_minus1": {
+   "ok": false,
+   "txid": null,
+   "error": {
+    "code": "LD002",
+    "message": "LEDGER_INSUFFICIENT_FROZEN",
+    "detail": "{\"cid\": \"124\", \"uid\": \"949010\", \"required\": \"40\", \"available\": \"0\"}",
+    "constraint": null,
+    "hint": null,
+    "name": "error"
+   },
+   "readback": {
+    "minus1_fee_in": "0",
+    "minus2_net": "0",
+    "commission_rows": "0"
+   }
+  },
+  "8b_negative_commission_to_minus1_MUST_REJECT": {
+   "ok": false,
+   "error": {
+    "code": "LD002",
+    "message": "LEDGER_INSUFFICIENT_FROZEN",
+    "detail": "{\"cid\": \"124\", \"uid\": \"949010\", \"required\": \"30\", \"available\": \"0\"}",
+    "constraint": null,
+    "hint": null,
+    "name": "error"
+   },
+   "rows_landed": {
+    "n": "0"
+   }
+  }
+ },
+ "9_conservation_trigger": {
+  "trigger_def": {
+   "tgname": "trg_ledger_entry_commission_conservation",
+   "tgdeferrable": "true",
+   "tginitdeferred": "true",
+   "tgenabled": "O"
+  },
+  "fires_on_relevant_rows_only": "负例 7b（无 commission 行，仅 job_fee 入 -2）也被拦 ⇒ 非「仅 commission 行触发」的收窄形态"
+ }
+}

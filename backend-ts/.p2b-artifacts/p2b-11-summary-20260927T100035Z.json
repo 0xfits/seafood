@@ -1,0 +1,5 @@
+FATAL Error: All attempts to open a WebSocket to connect to the database failed. Please refer to https://github.com/neondatabase/serverless/blob/main/CONFIG.md#websocketconstructor-typeof-websocket--undefined. Details: fetch failed
+    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async q (/Users/kevin/bistro/seafood/backend-ts/scripts/p2b-03-summary.ts:10:35)
+    at async /Users/kevin/bistro/seafood/backend-ts/scripts/p2b-03-summary.ts:12:24

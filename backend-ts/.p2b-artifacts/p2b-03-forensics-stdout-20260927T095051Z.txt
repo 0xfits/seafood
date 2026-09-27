@@ -1,0 +1,23 @@
+FATAL error: column "c" does not exist
+    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async q (/Users/kevin/bistro/seafood/backend-ts/scripts/p2b-01-forensics.ts:22:56)
+    at async /Users/kevin/bistro/seafood/backend-ts/scripts/p2b-01-forensics.ts:163:25 {
+  length: 103,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '1064',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3854',
+  routine: 'errorMissingColumn'
+}

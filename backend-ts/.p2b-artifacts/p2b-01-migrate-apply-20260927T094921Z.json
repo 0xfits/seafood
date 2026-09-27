@@ -1,0 +1,107 @@
+{
+  "ok": true,
+  "applied_now": [
+    {
+      "version": "0001",
+      "name": "0001_ledger_core.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 11:48:15 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0002",
+      "name": "0002_user_identity.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 11:48:20 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0003",
+      "name": "0003_kind_close_set_20.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 12:57:40 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0004",
+      "name": "0004_ledger_post_event.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 13:26:01 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0005",
+      "name": "0005_ledger_event_root_key.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 14:34:21 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0006",
+      "name": "0006_user_to_users.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 15:09:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0007",
+      "name": "0007_referral_and_commission_policy.sql",
+      "action": "applied",
+      "checksum": "7044c6be33f7",
+      "ms": 917
+    },
+    {
+      "version": "0008",
+      "name": "0008_platform_revenue_job_fee.sql",
+      "action": "applied",
+      "checksum": "e98ac1a0470e",
+      "ms": 741
+    }
+  ],
+  "schema_version": "0008",
+  "schema_migration_rows": [
+    {
+      "version": "0001",
+      "name": "0001_ledger_core.sql"
+    },
+    {
+      "version": "0002",
+      "name": "0002_user_identity.sql"
+    },
+    {
+      "version": "0003",
+      "name": "0003_kind_close_set_20.sql"
+    },
+    {
+      "version": "0004",
+      "name": "0004_ledger_post_event.sql"
+    },
+    {
+      "version": "0005",
+      "name": "0005_ledger_event_root_key.sql"
+    },
+    {
+      "version": "0006",
+      "name": "0006_user_to_users.sql"
+    },
+    {
+      "version": "0007",
+      "name": "0007_referral_and_commission_policy.sql"
+    },
+    {
+      "version": "0008",
+      "name": "0008_platform_revenue_job_fee.sql"
+    }
+  ],
+  "public_base_tables": [
+    "account",
+    "commission_policy",
+    "currency",
+    "ledger_entry",
+    "ledger_owner",
+    "referral",
+    "schema_migration",
+    "users"
+  ],
+  "public_base_table_count": 8
+}

@@ -1,0 +1,226 @@
+{
+ "file": "/Users/kevin/bistro/seafood/backend-ts/.p2b-artifacts/p2b-03-forensics-20260927T095135Z.json",
+ "seed": [
+  {
+   "policy_id": "1",
+   "fee_rate_bp": 100,
+   "levels": 10,
+   "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+   "effective_from": "1970-01-01 00:00:00+00",
+   "created_by": "0",
+   "time_created": "2026-09-27 09:49:28.131292+00"
+  }
+ ],
+ "seed_count": {
+  "n": "1"
+ },
+ "constraints_n": 23,
+ "triggers": [
+  "commission_policy.trg_commission_policy_append_only(enabled=O,deferrable=false,initdeferred=false)",
+  "commission_policy.trg_commission_policy_weights_guard(enabled=O,deferrable=false,initdeferred=false)",
+  "ledger_entry.trg_ledger_entry_append_only(enabled=O,deferrable=false,initdeferred=false)",
+  "ledger_entry.trg_ledger_entry_commission_conservation(enabled=O,deferrable=true,initdeferred=true)",
+  "referral.trg_referral_append_only(enabled=O,deferrable=false,initdeferred=false)",
+  "referral.trg_referral_cycle_guard(enabled=O,deferrable=false,initdeferred=false)"
+ ],
+ "insert_only": [
+  {
+   "label": "referral.UPDATE",
+   "threw": false,
+   "ms": 195
+  },
+  {
+   "label": "referral.DELETE",
+   "threw": false,
+   "ms": 183
+  },
+  {
+   "label": "commission_policy.UPDATE",
+   "threw": true,
+   "state": "P0001",
+   "message": "commission_policy is append-only: UPDATE forbidden (policy_id=1)",
+   "ms": 175
+  },
+  {
+   "label": "commission_policy.DELETE",
+   "threw": true,
+   "state": "P0001",
+   "message": "commission_policy is append-only: DELETE forbidden (policy_id=1)",
+   "ms": 862
+  },
+  {
+   "label": "ledger_entry.UPDATE",
+   "threw": true,
+   "state": "P0001",
+   "message": "ledger_entry is append-only: UPDATE forbidden (txid=2447)",
+   "ms": 913
+  },
+  {
+   "label": "ledger_entry.DELETE",
+   "threw": true,
+   "state": "P0001",
+   "message": "ledger_entry is append-only: DELETE forbidden (txid=2447)",
+   "ms": 904
+  }
+ ],
+ "guard_verdicts": [
+  "C1_fee_rate_bp_below_100: threw=true state=23514 bucket=input ts=LEDGER_AMOUNT_INVALID/400 => OK(400 类)",
+  "C1b_fee_rate_bp_above_500: threw=true state=23514 bucket=input ts=LEDGER_AMOUNT_INVALID/400 => OK(400 类)",
+  "C2_levels_over_10: threw=true state=23514 bucket=input ts=LEDGER_AMOUNT_INVALID/400 => OK(400 类)",
+  "C3_weights_sum_exceeds_10000: threw=true state=23514 bucket=input ts=LEDGER_AMOUNT_INVALID/400 => OK(400 类)",
+  "C3b_weights_sum_zero: threw=true state=23514 bucket=input ts=LEDGER_AMOUNT_INVALID/400 => OK(400 类)",
+  "C4_w1_zero: threw=true state=23514 bucket=input ts=LEDGER_AMOUNT_INVALID/400 => OK(400 类)",
+  "C4b_weights_len_ne_levels: threw=true state=23514 bucket=input ts=LEDGER_AMOUNT_INVALID/400 => OK(400 类)",
+  "C4c_negative_weight: threw=true state=23514 bucket=input ts=LEDGER_AMOUNT_INVALID/400 => OK(400 类)",
+  "C6_created_by_disallowed: threw=true state=23514 bucket=input ts=LEDGER_AMOUNT_INVALID/400 => OK(400 类)"
+ ],
+ "whitelist": {
+  "minus1_credit_job_fee": {
+   "uid": -1,
+   "kind": "job_fee",
+   "dir": "credit",
+   "allowed": true
+  },
+  "minus1_credit_trade_fee": {
+   "uid": -1,
+   "kind": "trade_fee",
+   "dir": "credit",
+   "allowed": true
+  },
+  "minus1_credit_listing_fee": {
+   "uid": -1,
+   "kind": "listing_fee",
+   "dir": "credit",
+   "allowed": true
+  },
+  "minus1_credit_currency_create_fee": {
+   "uid": -1,
+   "kind": "currency_create_fee",
+   "dir": "credit",
+   "allowed": true
+  },
+  "minus1_credit_commission_NEGATIVE": {
+   "uid": -1,
+   "kind": "commission",
+   "dir": "credit",
+   "allowed": false,
+   "state": "LD021",
+   "message": "LEDGER_RESERVED_UID",
+   "reason": "PLATFORM_CREDIT_KIND_FORBIDDEN"
+  },
+  "minus1_credit_mint_NEGATIVE": {
+   "uid": -1,
+   "kind": "mint",
+   "dir": "credit",
+   "allowed": false,
+   "state": "LD021",
+   "message": "LEDGER_RESERVED_UID",
+   "reason": "PLATFORM_CREDIT_KIND_FORBIDDEN"
+  },
+  "minus1_debit_job_fee_NEGATIVE": {
+   "uid": -1,
+   "kind": "job_fee",
+   "dir": "debit",
+   "allowed": false,
+   "state": "LD021",
+   "message": "LEDGER_RESERVED_UID",
+   "reason": "PLATFORM_DEBIT_FORBIDDEN"
+  },
+  "minus1_debit_transfer_NEGATIVE": {
+   "uid": -1,
+   "kind": "transfer",
+   "dir": "debit",
+   "allowed": false,
+   "state": "LD021",
+   "message": "LEDGER_RESERVED_UID",
+   "reason": "PLATFORM_DEBIT_FORBIDDEN"
+  },
+  "minus2_credit_job_fee": {
+   "uid": -2,
+   "kind": "job_fee",
+   "dir": "credit",
+   "allowed": true
+  },
+  "minus2_debit_commission": {
+   "uid": -2,
+   "kind": "commission",
+   "dir": "debit",
+   "allowed": true
+  },
+  "minus2_debit_job_fee_NEGATIVE": {
+   "uid": -2,
+   "kind": "job_fee",
+   "dir": "debit",
+   "allowed": false,
+   "state": "LD021",
+   "message": "LEDGER_RESERVED_UID",
+   "reason": "PLATFORM_DEBIT_FORBIDDEN"
+  },
+  "minus2_credit_trade_fee_NEGATIVE": {
+   "uid": -2,
+   "kind": "trade_fee",
+   "dir": "credit",
+   "allowed": false,
+   "state": "LD021",
+   "message": "LEDGER_RESERVED_UID",
+   "reason": "PLATFORM_CREDIT_KIND_FORBIDDEN"
+  },
+  "minus3_debit_transfer": {
+   "uid": -3,
+   "kind": "transfer",
+   "dir": "debit",
+   "allowed": true
+  },
+  "zero_credit_mint": {
+   "uid": 0,
+   "kind": "mint",
+   "dir": "credit",
+   "allowed": true
+  }
+ },
+ "closed_set": {
+  "count": 33,
+  "has_reconcile": true
+ },
+ "closed_set_db": [
+  {
+   "n": "33"
+  }
+ ],
+ "F": [
+  {
+   "sqlstate": "LD032",
+   "bucket_json": {
+    "code": "LEDGER_TRANSACTION_REQUIRED",
+    "bucket": "defect",
+    "reason": "unclassified_db_error",
+    "pg_code": "LD032",
+    "retryable": false,
+    "constraint": null
+   },
+   "bucket_json_literal": {
+    "code": "LEDGER_TRANSACTION_REQUIRED",
+    "bucket": "defect",
+    "reason": "unclassified_db_error",
+    "pg_code": "LD032",
+    "retryable": false,
+    "constraint": null
+   },
+   "bucket_json_23514": {
+    "code": "LEDGER_AMOUNT_INVALID",
+    "bucket": "input",
+    "reason": "CHECK_VIOLATION",
+    "pg_code": "23514",
+    "retryable": false,
+    "constraint": null
+   }
+  }
+ ],
+ "F_ts": {
+  "code": "LEDGER_RECONCILE_MISMATCH",
+  "status": null,
+  "details": {
+   "reason": "COMMISSION_SPLIT_SUM_MISMATCH"
+  }
+ }
+}

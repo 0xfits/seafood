@@ -1,0 +1,195 @@
+{
+ "p1q_currencies": [
+  {
+   "cid": "124",
+   "symbol": "p1qP2B",
+   "owner_uid": "949010",
+   "decimals": 0,
+   "status": "listed"
+  }
+ ],
+ "p1q_ledger_rows": [
+  {
+   "idempotency_key": "ops:p1q:hold-a-20260927T095352Z",
+   "n": "1"
+  },
+  {
+   "idempotency_key": "ops:p1q:hold-a-20260927T095352Z#2",
+   "n": "1"
+  },
+  {
+   "idempotency_key": "ops:p1q:hold-b-20260927T095352Z",
+   "n": "1"
+  },
+  {
+   "idempotency_key": "ops:p1q:hold-b-20260927T095352Z#2",
+   "n": "1"
+  },
+  {
+   "idempotency_key": "ops:p1q:hold-c-20260927T095352Z",
+   "n": "1"
+  },
+  {
+   "idempotency_key": "ops:p1q:hold-c-20260927T095352Z#2",
+   "n": "1"
+  },
+  {
+   "idempotency_key": "ops:p1q:hold-d-20260927T095352Z",
+   "n": "1"
+  },
+  {
+   "idempotency_key": "ops:p1q:hold-d-20260927T095352Z#2",
+   "n": "1"
+  },
+  {
+   "idempotency_key": "ops:p1q:mint-20260927T095245Z",
+   "n": "1"
+  },
+  {
+   "idempotency_key": "ops:p1q:mint-20260927T095352Z",
+   "n": "1"
+  },
+  {
+   "idempotency_key": "ops:p1q:minus1-pos-20260927T095352Z",
+   "n": "1"
+  },
+  {
+   "idempotency_key": "ops:p1q:minus1-pos-20260927T095352Z#2",
+   "n": "1"
+  },
+  {
+   "idempotency_key": "ops:p1q:settle-pos-20260927T095352Z",
+   "n": "1"
+  },
+  {
+   "idempotency_key": "ops:p1q:settle-pos-20260927T095352Z#2",
+   "n": "1"
+  },
+  {
+   "idempotency_key": "ops:p1q:settle-pos-20260927T095352Z#3",
+   "n": "1"
+  },
+  {
+   "idempotency_key": "ops:p1q:settle-pos-20260927T095352Z#4",
+   "n": "1"
+  },
+  {
+   "idempotency_key": "ops:p1q:settle-pos-20260927T095352Z#5",
+   "n": "1"
+  },
+  {
+   "idempotency_key": "ops:p1q:settle-pos-20260927T095352Z#6",
+   "n": "1"
+  },
+  {
+   "idempotency_key": "ops:p1q:settle-pos-20260927T095352Z#7",
+   "n": "1"
+  },
+  {
+   "idempotency_key": "ops:p1q:settle-pos-20260927T095352Z#8",
+   "n": "1"
+  }
+ ],
+ "p1q_rows_total": [
+  {
+   "n": "20"
+  }
+ ],
+ "referral_rows": [
+  {
+   "child_uid": "949001",
+   "parent_uid": "949002",
+   "depth": "1",
+   "bound_at": "2026-09-27 09:52:53.635954+00"
+  },
+  {
+   "child_uid": "949003",
+   "parent_uid": "949004",
+   "depth": "1",
+   "bound_at": "2026-09-27 09:52:59.283742+00"
+  }
+ ],
+ "policy_rows": [
+  {
+   "policy_id": "1",
+   "fee_rate_bp": 100,
+   "levels": 10,
+   "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+   "created_by": "0"
+  }
+ ],
+ "ledger_total": [
+  {
+   "n": "334"
+  }
+ ],
+ "compat_after": [
+  {
+   "n": "0"
+  }
+ ],
+ "schema_migration": [
+  {
+   "version": "0001",
+   "name": "0001_ledger_core.sql",
+   "checksum12": "4f902d3c4750",
+   "applied_at": "2026-09-27 03:48:15.617808+00"
+  },
+  {
+   "version": "0002",
+   "name": "0002_user_identity.sql",
+   "checksum12": "688b1935f6bc",
+   "applied_at": "2026-09-27 03:48:20.093949+00"
+  },
+  {
+   "version": "0003",
+   "name": "0003_kind_close_set_20.sql",
+   "checksum12": "f268e03075eb",
+   "applied_at": "2026-09-27 04:57:40.94416+00"
+  },
+  {
+   "version": "0004",
+   "name": "0004_ledger_post_event.sql",
+   "checksum12": "55fd1ce8085b",
+   "applied_at": "2026-09-27 05:26:01.859398+00"
+  },
+  {
+   "version": "0005",
+   "name": "0005_ledger_event_root_key.sql",
+   "checksum12": "4de12361cf7d",
+   "applied_at": "2026-09-27 06:34:21.897469+00"
+  },
+  {
+   "version": "0006",
+   "name": "0006_user_to_users.sql",
+   "checksum12": "4aa19b148700",
+   "applied_at": "2026-09-27 07:09:27.38362+00"
+  },
+  {
+   "version": "0007",
+   "name": "0007_referral_and_commission_policy.sql",
+   "checksum12": "7044c6be33f7",
+   "applied_at": "2026-09-27 09:49:28.131292+00"
+  },
+  {
+   "version": "0008",
+   "name": "0008_platform_revenue_job_fee.sql",
+   "checksum12": "e98ac1a0470e",
+   "applied_at": "2026-09-27 09:49:29.040584+00"
+  }
+ ],
+ "trigger_count": [
+  {
+   "relname": "commission_policy",
+   "n": "2"
+  },
+  {
+   "relname": "ledger_entry",
+   "n": "2"
+  },
+  {
+   "relname": "referral",
+   "n": "2"
+  }
+ ]
+}

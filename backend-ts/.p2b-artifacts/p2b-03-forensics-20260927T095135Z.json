@@ -1,0 +1,680 @@
+{
+  "run": "20260927T095135Z",
+  "ts": "2026-09-27T09:51:36.015Z",
+  "A_tables": [
+    {
+      "relname": "commission_policy",
+      "relkind": "r"
+    },
+    {
+      "relname": "referral",
+      "relkind": "r"
+    }
+  ],
+  "A_columns": [
+    {
+      "table_name": "commission_policy",
+      "ordinal_position": 1,
+      "column_name": "policy_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "commission_policy",
+      "ordinal_position": 2,
+      "column_name": "fee_rate_bp",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "commission_policy",
+      "ordinal_position": 3,
+      "column_name": "levels",
+      "data_type": "smallint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "commission_policy",
+      "ordinal_position": 4,
+      "column_name": "weights_bp",
+      "data_type": "ARRAY",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "commission_policy",
+      "ordinal_position": 5,
+      "column_name": "effective_from",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "commission_policy",
+      "ordinal_position": 6,
+      "column_name": "created_by",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "commission_policy",
+      "ordinal_position": 7,
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "referral",
+      "ordinal_position": 1,
+      "column_name": "child_uid",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "referral",
+      "ordinal_position": 2,
+      "column_name": "parent_uid",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "referral",
+      "ordinal_position": 3,
+      "column_name": "depth",
+      "data_type": "smallint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "referral",
+      "ordinal_position": 4,
+      "column_name": "bound_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    }
+  ],
+  "A_constraints": [
+    {
+      "tbl": "commission_policy",
+      "conname": "commission_policy_created_by_not_null",
+      "contype": "n",
+      "def": "NOT NULL created_by"
+    },
+    {
+      "tbl": "commission_policy",
+      "conname": "commission_policy_created_by_rng",
+      "contype": "c",
+      "def": "CHECK (((created_by >= 0) OR (created_by = ANY (ARRAY[('-1'::integer)::bigint, ('-2'::integer)::bigint, ('-3'::integer)::bigint]))))"
+    },
+    {
+      "tbl": "commission_policy",
+      "conname": "commission_policy_effective_from_not_null",
+      "contype": "n",
+      "def": "NOT NULL effective_from"
+    },
+    {
+      "tbl": "commission_policy",
+      "conname": "commission_policy_effective_uniq",
+      "contype": "u",
+      "def": "UNIQUE (effective_from)"
+    },
+    {
+      "tbl": "commission_policy",
+      "conname": "commission_policy_fee_rate_bp_not_null",
+      "contype": "n",
+      "def": "NOT NULL fee_rate_bp"
+    },
+    {
+      "tbl": "commission_policy",
+      "conname": "commission_policy_fee_rate_rng",
+      "contype": "c",
+      "def": "CHECK (((fee_rate_bp >= 100) AND (fee_rate_bp <= 500)))"
+    },
+    {
+      "tbl": "commission_policy",
+      "conname": "commission_policy_levels_not_null",
+      "contype": "n",
+      "def": "NOT NULL levels"
+    },
+    {
+      "tbl": "commission_policy",
+      "conname": "commission_policy_levels_rng",
+      "contype": "c",
+      "def": "CHECK (((levels >= 1) AND (levels <= 10)))"
+    },
+    {
+      "tbl": "commission_policy",
+      "conname": "commission_policy_pkey",
+      "contype": "p",
+      "def": "PRIMARY KEY (policy_id)"
+    },
+    {
+      "tbl": "commission_policy",
+      "conname": "commission_policy_policy_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL policy_id"
+    },
+    {
+      "tbl": "commission_policy",
+      "conname": "commission_policy_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "tbl": "commission_policy",
+      "conname": "commission_policy_weights_bp_not_null",
+      "contype": "n",
+      "def": "NOT NULL weights_bp"
+    },
+    {
+      "tbl": "commission_policy",
+      "conname": "commission_policy_weights_len",
+      "contype": "c",
+      "def": "CHECK ((array_length(weights_bp, 1) = levels))"
+    },
+    {
+      "tbl": "commission_policy",
+      "conname": "commission_policy_weights_nonneg",
+      "contype": "c",
+      "def": "CHECK ((0 <= ALL (weights_bp)))"
+    },
+    {
+      "tbl": "referral",
+      "conname": "referral_bound_at_not_null",
+      "contype": "n",
+      "def": "NOT NULL bound_at"
+    },
+    {
+      "tbl": "referral",
+      "conname": "referral_child_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (child_uid) REFERENCES users(uid)"
+    },
+    {
+      "tbl": "referral",
+      "conname": "referral_child_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL child_uid"
+    },
+    {
+      "tbl": "referral",
+      "conname": "referral_depth_not_null",
+      "contype": "n",
+      "def": "NOT NULL depth"
+    },
+    {
+      "tbl": "referral",
+      "conname": "referral_depth_rng",
+      "contype": "c",
+      "def": "CHECK ((depth >= 1))"
+    },
+    {
+      "tbl": "referral",
+      "conname": "referral_no_self",
+      "contype": "c",
+      "def": "CHECK ((child_uid <> parent_uid))"
+    },
+    {
+      "tbl": "referral",
+      "conname": "referral_parent_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (parent_uid) REFERENCES users(uid)"
+    },
+    {
+      "tbl": "referral",
+      "conname": "referral_parent_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL parent_uid"
+    },
+    {
+      "tbl": "referral",
+      "conname": "referral_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (child_uid)"
+    }
+  ],
+  "A_indexes": [
+    {
+      "tablename": "commission_policy",
+      "indexname": "commission_policy_effective_uniq",
+      "indexdef": "CREATE UNIQUE INDEX commission_policy_effective_uniq ON public.commission_policy USING btree (effective_from)"
+    },
+    {
+      "tablename": "commission_policy",
+      "indexname": "commission_policy_pkey",
+      "indexdef": "CREATE UNIQUE INDEX commission_policy_pkey ON public.commission_policy USING btree (policy_id)"
+    },
+    {
+      "tablename": "referral",
+      "indexname": "idx_referral_parent",
+      "indexdef": "CREATE INDEX idx_referral_parent ON public.referral USING btree (parent_uid)"
+    },
+    {
+      "tablename": "referral",
+      "indexname": "referral_pk",
+      "indexdef": "CREATE UNIQUE INDEX referral_pk ON public.referral USING btree (child_uid)"
+    }
+  ],
+  "A_triggers": [
+    {
+      "tbl": "commission_policy",
+      "tgname": "trg_commission_policy_append_only",
+      "tgenabled": "O",
+      "tgdeferrable": false,
+      "tginitdeferred": false,
+      "def": "CREATE TRIGGER trg_commission_policy_append_only BEFORE DELETE OR UPDATE ON public.commission_policy FOR EACH ROW EXECUTE FUNCTION commission_policy_append_only()"
+    },
+    {
+      "tbl": "commission_policy",
+      "tgname": "trg_commission_policy_weights_guard",
+      "tgenabled": "O",
+      "tgdeferrable": false,
+      "tginitdeferred": false,
+      "def": "CREATE TRIGGER trg_commission_policy_weights_guard BEFORE INSERT OR UPDATE ON public.commission_policy FOR EACH ROW EXECUTE FUNCTION commission_policy_weights_guard()"
+    },
+    {
+      "tbl": "ledger_entry",
+      "tgname": "trg_ledger_entry_append_only",
+      "tgenabled": "O",
+      "tgdeferrable": false,
+      "tginitdeferred": false,
+      "def": "CREATE TRIGGER trg_ledger_entry_append_only BEFORE DELETE OR UPDATE ON public.ledger_entry FOR EACH ROW EXECUTE FUNCTION ledger_entry_append_only()"
+    },
+    {
+      "tbl": "ledger_entry",
+      "tgname": "trg_ledger_entry_commission_conservation",
+      "tgenabled": "O",
+      "tgdeferrable": true,
+      "tginitdeferred": true,
+      "def": "CREATE CONSTRAINT TRIGGER trg_ledger_entry_commission_conservation AFTER INSERT ON public.ledger_entry DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION ledger_assert_commission_conservation()"
+    },
+    {
+      "tbl": "referral",
+      "tgname": "trg_referral_append_only",
+      "tgenabled": "O",
+      "tgdeferrable": false,
+      "tginitdeferred": false,
+      "def": "CREATE TRIGGER trg_referral_append_only BEFORE DELETE OR UPDATE ON public.referral FOR EACH ROW EXECUTE FUNCTION referral_append_only()"
+    },
+    {
+      "tbl": "referral",
+      "tgname": "trg_referral_cycle_guard",
+      "tgenabled": "O",
+      "tgdeferrable": false,
+      "tginitdeferred": false,
+      "def": "CREATE TRIGGER trg_referral_cycle_guard BEFORE INSERT ON public.referral FOR EACH ROW EXECUTE FUNCTION referral_cycle_guard()"
+    }
+  ],
+  "A_functions": [
+    {
+      "proname": "commission_policy_append_only",
+      "args": "",
+      "provolatile": "v"
+    },
+    {
+      "proname": "commission_policy_weights_guard",
+      "args": "",
+      "provolatile": "v"
+    },
+    {
+      "proname": "ledger_assert_commission_conservation",
+      "args": "",
+      "provolatile": "v"
+    },
+    {
+      "proname": "ledger_assert_platform_mutation",
+      "args": "p_uid bigint, p_kind text, p_dir text",
+      "provolatile": "i"
+    },
+    {
+      "proname": "referral_append_only",
+      "args": "",
+      "provolatile": "v"
+    },
+    {
+      "proname": "referral_bind",
+      "args": "p_child_uid bigint, p_parent_uid bigint",
+      "provolatile": "v"
+    },
+    {
+      "proname": "referral_cycle_guard",
+      "args": "",
+      "provolatile": "v"
+    }
+  ],
+  "A_seed": [
+    {
+      "policy_id": "1",
+      "fee_rate_bp": 100,
+      "levels": 10,
+      "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+      "effective_from": "1970-01-01 00:00:00+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 09:49:28.131292+00"
+    }
+  ],
+  "A_seed_count": {
+    "n": "1"
+  },
+  "A_referral_rows": {
+    "n": "0"
+  },
+  "B_insert_only": [
+    {
+      "label": "referral.UPDATE",
+      "threw": false,
+      "ms": 195
+    },
+    {
+      "label": "referral.DELETE",
+      "threw": false,
+      "ms": 183
+    },
+    {
+      "label": "commission_policy.UPDATE",
+      "threw": true,
+      "state": "P0001",
+      "message": "commission_policy is append-only: UPDATE forbidden (policy_id=1)",
+      "ms": 175
+    },
+    {
+      "label": "commission_policy.DELETE",
+      "threw": true,
+      "state": "P0001",
+      "message": "commission_policy is append-only: DELETE forbidden (policy_id=1)",
+      "ms": 862
+    },
+    {
+      "label": "ledger_entry.UPDATE",
+      "threw": true,
+      "state": "P0001",
+      "message": "ledger_entry is append-only: UPDATE forbidden (txid=2447)",
+      "ms": 913
+    },
+    {
+      "label": "ledger_entry.DELETE",
+      "threw": true,
+      "state": "P0001",
+      "message": "ledger_entry is append-only: DELETE forbidden (txid=2447)",
+      "ms": 904
+    }
+  ],
+  "C_policy_guard_negatives": [
+    {
+      "id": "C1_fee_rate_bp_below_100",
+      "desc": "fee_rate_bp 越界（下界 99）",
+      "threw": true,
+      "pg_state": "23514",
+      "pg_message": "new row for relation \"commission_policy\" violates check constraint \"commission_policy_fee_rate_rng\"",
+      "db_bucket": "input",
+      "db_code": "LEDGER_AMOUNT_INVALID",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "ts_status": 400,
+      "verdict": "OK(400 类)"
+    },
+    {
+      "id": "C1b_fee_rate_bp_above_500",
+      "desc": "fee_rate_bp 越界（上界 501）",
+      "threw": true,
+      "pg_state": "23514",
+      "pg_message": "new row for relation \"commission_policy\" violates check constraint \"commission_policy_fee_rate_rng\"",
+      "db_bucket": "input",
+      "db_code": "LEDGER_AMOUNT_INVALID",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "ts_status": 400,
+      "verdict": "OK(400 类)"
+    },
+    {
+      "id": "C2_levels_over_10",
+      "desc": "levels > 10（11）",
+      "threw": true,
+      "pg_state": "23514",
+      "pg_message": "new row for relation \"commission_policy\" violates check constraint \"commission_policy_levels_rng\"",
+      "db_bucket": "input",
+      "db_code": "LEDGER_AMOUNT_INVALID",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "ts_status": 400,
+      "verdict": "OK(400 类)"
+    },
+    {
+      "id": "C3_weights_sum_exceeds_10000",
+      "desc": "Σweights_bp > 10000（10001）",
+      "threw": true,
+      "pg_state": "23514",
+      "pg_message": "commission_policy_weights_guard: sum(weights_bp) = 10001 > 10000",
+      "db_bucket": "input",
+      "db_code": "LEDGER_AMOUNT_INVALID",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "ts_status": 400,
+      "verdict": "OK(400 类)"
+    },
+    {
+      "id": "C3b_weights_sum_zero",
+      "desc": "Σweights_bp = 0",
+      "threw": true,
+      "pg_state": "23514",
+      "pg_message": "commission_policy_weights_guard: sum(weights_bp) = 0 (degenerate denominator W = 0)",
+      "db_bucket": "input",
+      "db_code": "LEDGER_AMOUNT_INVALID",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "ts_status": 400,
+      "verdict": "OK(400 类)"
+    },
+    {
+      "id": "C4_w1_zero",
+      "desc": "weights_bp[1] = 0（前 M 层全零）",
+      "threw": true,
+      "pg_state": "23514",
+      "pg_message": "commission_policy_weights_guard: weights_bp[1] = 0 (prefix-all-zero => W = 0 when M = 1)",
+      "db_bucket": "input",
+      "db_code": "LEDGER_AMOUNT_INVALID",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "ts_status": 400,
+      "verdict": "OK(400 类)"
+    },
+    {
+      "id": "C4b_weights_len_ne_levels",
+      "desc": "len(weights_bp) <> levels",
+      "threw": true,
+      "pg_state": "23514",
+      "pg_message": "commission_policy_weights_guard: weights_bp length (2) <> levels (3)",
+      "db_bucket": "input",
+      "db_code": "LEDGER_AMOUNT_INVALID",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "ts_status": 400,
+      "verdict": "OK(400 类)"
+    },
+    {
+      "id": "C4c_negative_weight",
+      "desc": "含负权重",
+      "threw": true,
+      "pg_state": "23514",
+      "pg_message": "commission_policy_weights_guard: negative/null weight in {11000,-5000,-4000}",
+      "db_bucket": "input",
+      "db_code": "LEDGER_AMOUNT_INVALID",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "ts_status": 400,
+      "verdict": "OK(400 类)"
+    },
+    {
+      "id": "C6_created_by_disallowed",
+      "desc": "created_by 不在 {>=0, -1..-3}（-5）",
+      "threw": true,
+      "pg_state": "23514",
+      "pg_message": "new row for relation \"commission_policy\" violates check constraint \"commission_policy_created_by_rng\"",
+      "db_bucket": "input",
+      "db_code": "LEDGER_AMOUNT_INVALID",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "ts_status": 400,
+      "verdict": "OK(400 类)"
+    }
+  ],
+  "C_policy_rows_after": {
+    "n": "1"
+  },
+  "C_policy_seed_untouched": [
+    {
+      "policy_id": "1",
+      "fee_rate_bp": 100,
+      "effective_from": "1970-01-01 00:00:00+00",
+      "created_by": "0"
+    }
+  ],
+  "D_whitelist": {
+    "minus1_credit_job_fee": {
+      "uid": -1,
+      "kind": "job_fee",
+      "dir": "credit",
+      "allowed": true
+    },
+    "minus1_credit_trade_fee": {
+      "uid": -1,
+      "kind": "trade_fee",
+      "dir": "credit",
+      "allowed": true
+    },
+    "minus1_credit_listing_fee": {
+      "uid": -1,
+      "kind": "listing_fee",
+      "dir": "credit",
+      "allowed": true
+    },
+    "minus1_credit_currency_create_fee": {
+      "uid": -1,
+      "kind": "currency_create_fee",
+      "dir": "credit",
+      "allowed": true
+    },
+    "minus1_credit_commission_NEGATIVE": {
+      "uid": -1,
+      "kind": "commission",
+      "dir": "credit",
+      "allowed": false,
+      "state": "LD021",
+      "message": "LEDGER_RESERVED_UID",
+      "reason": "PLATFORM_CREDIT_KIND_FORBIDDEN"
+    },
+    "minus1_credit_mint_NEGATIVE": {
+      "uid": -1,
+      "kind": "mint",
+      "dir": "credit",
+      "allowed": false,
+      "state": "LD021",
+      "message": "LEDGER_RESERVED_UID",
+      "reason": "PLATFORM_CREDIT_KIND_FORBIDDEN"
+    },
+    "minus1_debit_job_fee_NEGATIVE": {
+      "uid": -1,
+      "kind": "job_fee",
+      "dir": "debit",
+      "allowed": false,
+      "state": "LD021",
+      "message": "LEDGER_RESERVED_UID",
+      "reason": "PLATFORM_DEBIT_FORBIDDEN"
+    },
+    "minus1_debit_transfer_NEGATIVE": {
+      "uid": -1,
+      "kind": "transfer",
+      "dir": "debit",
+      "allowed": false,
+      "state": "LD021",
+      "message": "LEDGER_RESERVED_UID",
+      "reason": "PLATFORM_DEBIT_FORBIDDEN"
+    },
+    "minus2_credit_job_fee": {
+      "uid": -2,
+      "kind": "job_fee",
+      "dir": "credit",
+      "allowed": true
+    },
+    "minus2_debit_commission": {
+      "uid": -2,
+      "kind": "commission",
+      "dir": "debit",
+      "allowed": true
+    },
+    "minus2_debit_job_fee_NEGATIVE": {
+      "uid": -2,
+      "kind": "job_fee",
+      "dir": "debit",
+      "allowed": false,
+      "state": "LD021",
+      "message": "LEDGER_RESERVED_UID",
+      "reason": "PLATFORM_DEBIT_FORBIDDEN"
+    },
+    "minus2_credit_trade_fee_NEGATIVE": {
+      "uid": -2,
+      "kind": "trade_fee",
+      "dir": "credit",
+      "allowed": false,
+      "state": "LD021",
+      "message": "LEDGER_RESERVED_UID",
+      "reason": "PLATFORM_CREDIT_KIND_FORBIDDEN"
+    },
+    "minus3_debit_transfer": {
+      "uid": -3,
+      "kind": "transfer",
+      "dir": "debit",
+      "allowed": true
+    },
+    "zero_credit_mint": {
+      "uid": 0,
+      "kind": "mint",
+      "dir": "credit",
+      "allowed": true
+    }
+  },
+  "E_closed_set_ts": {
+    "count": 33,
+    "has_reconcile": true
+  },
+  "E_closed_set_db": [
+    {
+      "n": "33"
+    }
+  ],
+  "F_reconcile_bucket": [
+    {
+      "sqlstate": "LD032",
+      "bucket_json": {
+        "code": "LEDGER_TRANSACTION_REQUIRED",
+        "bucket": "defect",
+        "reason": "unclassified_db_error",
+        "pg_code": "LD032",
+        "retryable": false,
+        "constraint": null
+      },
+      "bucket_json_literal": {
+        "code": "LEDGER_TRANSACTION_REQUIRED",
+        "bucket": "defect",
+        "reason": "unclassified_db_error",
+        "pg_code": "LD032",
+        "retryable": false,
+        "constraint": null
+      },
+      "bucket_json_23514": {
+        "code": "LEDGER_AMOUNT_INVALID",
+        "bucket": "input",
+        "reason": "CHECK_VIOLATION",
+        "pg_code": "23514",
+        "retryable": false,
+        "constraint": null
+      }
+    }
+  ],
+  "F_ts_map_ld032": {
+    "code": "LEDGER_RECONCILE_MISMATCH",
+    "status": null,
+    "details": {
+      "reason": "COMMISSION_SPLIT_SUM_MISMATCH"
+    }
+  }
+}
