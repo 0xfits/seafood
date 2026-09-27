@@ -180,7 +180,7 @@ app.get('/', (req, res) => {
       message: 'Seafood TypeScript Backend',
       timestamp: new Date().toISOString(),
       endpoints: {
-        health: '/api/test/data',
+        health: '/health',
         authChallenge: '/api/auth/challenge',
         authVerify: '/api/auth/verify',
         prizes: '/api/prize/all',
