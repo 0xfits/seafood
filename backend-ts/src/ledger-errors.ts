@@ -86,6 +86,75 @@ export const DEFECT_ERROR_CODES: LedgerErrorCode[] = [
 
 export const isDefectError = (code: LedgerErrorCode): boolean => DEFECT_ERROR_CODES.includes(code);
 
+/**
+ * §14.1 码 → 分类器桶（**与 DB 侧 `ledger_error_for_sqlstate`（`0009` 的 LD0nn 分支）同表同值**）
+ * ============================================================================
+ * 依据：`docs/ledger.spec.md` §14.3 附（bucket 纪律冻结，S1）+ `migrations/0009_…sql` 文件头。
+ * 取值规则（真源 = 本表 `status` + 冻结的 `bucket↔状态类` 映射，逐条可复核）：
+ *   `400 ⇒ input` / `404|409 ⇒ integrity` / `500 ⇒ defect` / `503 ⇒ retryable`；
+ *   冻结映射**未覆盖**的状态类取**最小扩展**（与 `0009` 逐字一致，供追认）：
+ *   `403 ⇒ input`（权限不足 = 调用方身份不对）· `423 ⇒ integrity`（资源被锁定 = 合规冻结）·
+ *   `200 ⇒ input`（`LEDGER_IDEMPOTENCY_REPLAY` **不是错误**，R106）· `null ⇒ defect`（对账不符）。
+ * ⚠️ **27 个 4xx 码集中在 `input`/`integrity` 两桶**：这两桶都含 400，故桶不能由状态反推，
+ *    必须按码定死 —— 与 `0009` 的逐条 `WHEN` 一一对应。两侧漂移由
+ *    `scripts/p2c-00-code-roundtrip.ts`（33 码全量往返闭合测试）逐条对拍，非零即缺陷。
+ * 用途：① 质检脚本对拍 DB 桶与 JS 桶；② `httpStatusOf` 的缺陷类兜底判据。
+ * **本表不新增任何错误码**（§14.1 关闭集 33 不动；键集 = `LEDGER_ERROR_TABLE` 的键集）。
+ */
+export type LedgerErrorBucket = 'input' | 'integrity' | 'retryable' | 'infra' | 'defect';
+
+export const LEDGER_ERROR_BUCKETS: Record<LedgerErrorCode, LedgerErrorBucket> = {
+  // --- input：400 类（调用方可触发）+ 403（权限不足，扩展档）；LD006 是「非错误」哨兵（R106）
+  LEDGER_IDEMPOTENCY_KEY_REQUIRED: 'input',
+  LEDGER_IDEMPOTENCY_KEY_INVALID: 'input',
+  LEDGER_IDEMPOTENCY_REPLAY: 'input',
+  LEDGER_CURRENCY_MISMATCH: 'input',
+  LEDGER_UNAUTHORIZED_MINT: 'input',
+  LEDGER_HOLD_NOT_ALLOWED: 'input',
+  LEDGER_AMOUNT_INVALID: 'input',
+  LEDGER_AMOUNT_NOT_POSITIVE: 'input',
+  LEDGER_DECIMALS_OVERFLOW: 'input',
+  LEDGER_SELF_TRANSFER: 'input',
+  LEDGER_RESERVED_UID: 'input',
+  LEDGER_UNKNOWN_KIND: 'input',
+  // --- integrity：完整性 / 状态冲突 / 目标不存在（400|404|409）+ 423（资源被锁定，扩展档）
+  LEDGER_INSUFFICIENT_BALANCE: 'integrity',
+  LEDGER_INSUFFICIENT_FROZEN: 'integrity',
+  LEDGER_IDEMPOTENCY_CONFLICT: 'integrity',
+  LEDGER_CURRENCY_NOT_FOUND: 'integrity',
+  LEDGER_CURRENCY_NOT_LISTED: 'integrity',
+  LEDGER_CURRENCY_FROZEN: 'integrity',
+  LEDGER_CURRENCY_DELISTED: 'integrity',
+  LEDGER_CURRENCY_INVALID_TRANSITION: 'integrity',
+  LEDGER_SUPPLY_CAP_EXCEEDED: 'integrity',
+  LEDGER_ACCOUNT_NOT_FOUND: 'integrity',
+  LEDGER_REF_NOT_FOUND: 'integrity',
+  LEDGER_CURRENCY_SYMBOL_TAKEN: 'integrity',
+  // --- retryable：503（事务冲突 / 超时；调用方同键重试，R60）
+  LEDGER_LOCK_TIMEOUT: 'retryable',
+  LEDGER_TX_TIMEOUT: 'retryable',
+  LEDGER_DEADLOCK_RETRY_EXHAUSTED: 'retryable',
+  // --- defect：500 类 = 实现缺陷（R108 必须告警）
+  LEDGER_TRANSACTION_REQUIRED: 'defect',
+  LEDGER_NEGATIVE_BALANCE_GUARD: 'defect',
+  LEDGER_APPEND_ONLY_VIOLATION: 'defect',
+  LEDGER_ACCOUNT_GUARD_VIOLATION: 'defect',
+  LEDGER_FEE_RATE_INVALID: 'defect',
+  LEDGER_RECONCILE_MISMATCH: 'defect',
+};
+
+/**
+ * **响应层兜底规则**：`defect` 类码的 `status` **不得为 `null`** ⇒ HTTP 状态取 `status ?? 500`。
+ *
+ * 为什么需要它：`LEDGER_RECONCILE_MISMATCH` 在本表登记为 `status: null` —— `null` 是**脚本退出码
+ * 语义**（§11 R88：对账脚本不映射 HTTP），不是「没有状态」的占位。**但同一个码现在会被 HTTP 路径
+ * 见到**：`0007` 的佣金守恒断言（`trg_ledger_entry_commission_conservation`）失败时抛的正是
+ * `LD032` ⇒ `LEDGER_RECONCILE_MISMATCH`（账实不符 = 实现缺陷）。若响应层直接透传 `null`，
+ * 会得到「状态码缺失」的响应（实测形态：`status = undefined` / 前端无法按 5xx 报警）。
+ * ⇒ 表内保留 `null`（脚本语义不变），**响应层一律走本函数**：`defect` 类码兜底 `500`（R105/R108）。
+ */
+export const httpStatusOf = (code: LedgerErrorCode): number => LEDGER_ERROR_TABLE[code].status ?? 500;
+
 /** details 只允许非敏感标量/数组（R107） */
 export type LedgerErrorDetails = Record<string, string | number | boolean | null | undefined>;
 
@@ -93,6 +162,12 @@ export class LedgerError extends Error {
   readonly code: LedgerErrorCode;
   /** HTTP 状态码（R105）；null = 非 HTTP（对账脚本语义） */
   readonly status: number | null;
+  /**
+   * **HTTP 响应层必须用的状态**（R105 + 兜底规则）：`status ?? 500`。
+   * `status = null` 只对脚本有意义（§11 R88），**不得**透传到 HTTP（会变成缺状态码的响应）；
+   * `defect` 类码（如 LD032 对账不符）一律兜底 `500`（R108 必须告警）。见 `httpStatusOf`。
+   */
+  readonly httpStatus: number;
   /** i18n key：`ledger.err.<CODE>`（D4） */
   readonly i18nKey: string;
   readonly details: LedgerErrorDetails;
@@ -103,6 +178,7 @@ export class LedgerError extends Error {
     this.name = 'LedgerError';
     this.code = code;
     this.status = meta.status;
+    this.httpStatus = httpStatusOf(code);
     this.i18nKey = `ledger.err.${code}`;
     this.details = details;
   }
@@ -120,6 +196,13 @@ export interface LedgerErrorResponse {
   };
 }
 
+/**
+ * R107 统一错误响应体。
+ * ⚠️ **HTTP 状态码一律取 `isLedgerError(e) ? e.httpStatus : 500`（= `status ?? 500`）**，
+ *    **不得**用 `err.status` 直接写响应：`status = null` 是脚本退出码语义（§11 R88），
+ *    透传到 HTTP 会得到「缺状态码」的响应（现实例：`LD032` / `LEDGER_RECONCILE_MISMATCH`，
+ *    由 `0007` 的佣金守恒断言抛出）。见 `httpStatusOf`。
+ */
 export const toErrorResponse = (e: unknown): LedgerErrorResponse => {
   const err = isLedgerError(e) ? e : normalizeLedgerError(e);
   return {
