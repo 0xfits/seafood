@@ -1,7 +1,6 @@
 # 海鲜市场 · 多币种账本口径冻结裁定书
 
-> **文档状态**：v0.4 · 已完成（19 章 + 目录 + 规则总索引，共 108 条规则 R1–R108）。待 Kevin 拍板项集中于 §15（其中 R31 上市保证金性质已于 v0.2 裁定，见 §19.0；`listing_deposit_forfeit` 已删除一事已于 v0.3（P1c）裁定，见 §19.8），未实测边界见 §16。
-> **本版修订（v0.4 · Zang P1e/P1i/F3 收口 + P1g 改名）**：P1e 独立质检**判定不通过** ⇒ 修三缺陷 ⇒ 复验（F1 14/14、F2 52 例闭集全绿、F3 六项真机读数、`tsc --noEmit` 0 error、`ledger-smoke` 29/0、`ledger-smoke-db` 11/0）。本版就地落位**九类契约项**并追加 §19.9。**改前快照：`docs/versions/ledger.spec.v0.3.md`（md5 `6b0a852ce73c748f4db178a52c7dceb8`，1129 行 / 175122 字节）**；本版 md5 / 行数 / 字节数见交付报告。九类落位：① **键字符集收紧**（R49/R50/R51/R52：禁 `#`（`RESERVED_SEPARATOR`）与控制字符（`CONTROL_CHARACTER`），校验顺序固定 `TOO_LONG→PREFIX_REQUIRED→RESERVED_SEPARATOR→CONTROL_CHARACTER`，**作用于每一个 `idempotency_key` 位置**含 `entries[].idempotency_key`）；② **重放语义改写**（新增列 `ledger_entry.event_root_key` + 索引 `idx_ledger_event_root_key` + 守卫 `ledger_event_root_guard`；按**事件根键精确归属**，**不再用字符串前缀「键族」匹配**）；③ **R60**（TS `RETRYABLE_SQLSTATES` 必须含 `LD027`；DB 层 **0 次重试**、`retry_owner=caller`）；④ **金额二选一**（R70/R71/R72：`amount` 与 `amount_units` 同时出现 ⇒ 400 `AMBIGUOUS_AMOUNT`；指数形式 ⇒ 400 `EXPONENT_NOT_ALLOWED`；单笔上限**两条路径都过闸**）；⑤ **R82 超时口径改写**（删除「函数内 `set_config(statement_timeout,…)` 生效」这一**实测无效**的声明，改为**函数内自证预算**：预算 10s、每次等锁前把 `lock_timeout` 压到 `min(3000, 剩余预算)`、越界 ⇒ `LD026 reason=statement_budget_exhausted`）；⑥ **§11 判据 8 键族口径**（改按 `event_root_key` 归组，历史行回退 `split_part(idempotency_key,'#',1)`，两种口径均应归零）；⑦ **§14 系列**（`LD025←55P03` / `LD026←预算耗尽·基础设施类` / `LD027←40001·40P01`；`08P01` 归 500 `protocol_violation`；**分类器 bucket↔状态类纪律冻结**；`cid`/`uid` **形状非法 = 400**（§14.3 旧写 404 **是错的**）；登记五类新 reason 枚举）；⑧ **§19.5**（一个业务事件 = 一条 `SELECT ledger_post_event($1::jsonb)`，**自带隐式事务** ⇒ 应用层不再需要 `BEGIN…COMMIT`）；⑨ **改名（D11）**（身份表由 migration `0006` 从旧表名 `user` 改名 **`public.users`**，关联对象全部改名、**列名未动**（`uid` 为 `bigint`）；活文档引用已同步）。**所有改写一律留痕**：旧口径以「v0.3 旧写法 / v0.2 旧写法 / v0.1 旧写法」形式保留在同处，不做静默重写；**规则总数不变（R1–R108，108 条）**，章节编号未重排（P1f/P1g 内容一律追加为 §19.9）。
+> **文档状态**：v0.3 · 已完成（19 章 + 目录 + 规则总索引，共 108 条规则 R1–R108）。待 Kevin 拍板项集中于 §15（其中 R31 上市保证金性质已于 v0.2 裁定，见 §19.0；`listing_deposit_forfeit` 已删除一事已于 v0.3（P1c）裁定，见 §19.8），未实测边界见 §16。
 > **本版修订（v0.3 · Zang P1c 收口）**：按 Zang 对 P1c 实现（Kong）的裁定与实测取证就地更正三处（改前快照：`docs/versions/ledger.spec.v0.2.md`，md5 `1a63a2f4e84ec199b463c536c3911cda`，1071 行 / 156707 字节）：① **kind 关闭集 21 → 20**（删 `listing_deposit_forfeit`；Zang 裁定：保证金在上市时即消耗、强制下架无可罚没标的物；DB 侧落点 `backend-ts/migrations/0003_kind_close_set_20.sql`）；② **非 PG 错误归类**（无 `code` 的裸 `Error`：连接池取连接超时/过载 → `503 LEDGER_TX_TIMEOUT` + `details.reason = 'pool_connection_timeout'`；驱动/OS 级连接错误 → `503` + `reason = 'driver_connection_error'`；**不得**再兜底改写为 `500 LEDGER_TRANSACTION_REQUIRED`）；③ **事实更正**：本库 `ledger_entry.kind` 为 **`text` + CHECK 约束**（约束名恰为 `ledger_kind_enum`），**不是** PostgreSQL enum 类型 ⇒ 删 kind 的手段是 `DROP CONSTRAINT` + `ADD CONSTRAINT`（**约束替换**），**不是** `ALTER TYPE`。并追加 §19.8「裁定与事实更正（Zang · P1c 收口）」。**所有改写一律留痕**：旧口径以「v0.2 旧写法 / v0.1 旧写法」形式保留在同处，不做静默重写；章节编号未重排（P1c 内容一律追加为 §19.8）。
 > **本版修订（v0.2 · Zang P1a 收口）**：按 Zang 对 P1a 实现挖出的口径冲突所作的三项裁定（① 上市保证金 = 消耗不可退；② §11 判据 8 正式形状；③ §14 错误码借用映射 + R107 `details` 形状表）就地更正，并新增 §19「已裁定口径登记」。**所有改写一律留痕**：旧口径以「v0.1 旧写法」形式保留在同处，不做静默重写。
 > **权威性**：本文件是「海鲜市场」金融内核（账本 / 币种 / 余额 / 幂等 / 对账）的**唯一权威口径**。
@@ -49,7 +48,7 @@
 | 订单状态机（job / listing / market_order 的生命周期流转） | P3/P4/P5 各自的 spec |
 | 返佣权重矩阵的具体数值与账龄分档 | P2 spec（本册只冻结「佣金池如何流入 / 流出」的账务部分） |
 | 邀请关系绑定（`referral_edge` / `referral_closure`） | P2 spec |
-| 用户表 / 身份 / 登录与会话 | P0 身份 spec（本册只引用 `uID`）〔**v0.4 注**：业务身份表已由 migration `0006` 从 `public.user` 改名为 **`public.users`**（关联对象 `users_pk` / `users_evm_uniq` / `idx_users_evm_lower` / `users_uid_seq` 一并改名；**列名未动**，`uid` 为 `bigint`）。建表语句由 `backend-ts/migrations/0002_user_identity.sql` 提供〕 |
+| 用户表 / 身份 / 登录与会话 | P0 身份 spec（本册只引用 `uID`） |
 | 前端展示、i18n 文案、符号渲染 | P7 视觉 spec |
 | 后台运营面板的字段与权限 | P6 spec |
 
@@ -164,7 +163,6 @@ CREATE TABLE ledger_entry (
   ref_id              bigint,
   idempotency_key     text        NOT NULL,
   request_fingerprint text,
-  event_root_key      text,        -- v0.4 新增（P1f F1②）：事件根键归属列；0005 之前写入的行本列为 NULL
   reversal_of_txid    bigint      REFERENCES ledger_entry(txid),
   memo                text        NOT NULL DEFAULT '',
   time_created        timestamptz NOT NULL DEFAULT now(),
@@ -172,8 +170,6 @@ CREATE TABLE ledger_entry (
   CONSTRAINT ledger_after_guard   CHECK (balance_after >= 0 AND frozen_after >= 0),
   CONSTRAINT ledger_ref_pair      CHECK ((ref_type IS NULL) = (ref_id IS NULL)),
   CONSTRAINT ledger_idem_uniq     UNIQUE (idempotency_key),
-  CONSTRAINT ledger_event_root_guard CHECK (        -- v0.4 新增（P1f F1②）结构性守卫
-      event_root_key IS NULL OR event_root_key = split_part(idempotency_key, '#'::text, 1)),
   CONSTRAINT ledger_reversal_guard CHECK ((kind = 'reversal') = (reversal_of_txid IS NOT NULL)),
   CONSTRAINT ledger_kind_enum     CHECK (kind IN (
       'mint','burn','transfer','hold','hold_release','hold_forfeit',
@@ -192,21 +188,11 @@ CREATE TABLE ledger_entry (
 
 CREATE UNIQUE INDEX ledger_reversal_of_uniq
   ON ledger_entry (reversal_of_txid) WHERE reversal_of_txid IS NOT NULL;
-
--- v0.4 新增（P1f F1②）：事件根键归属列索引（重放判定走本列精确等值 ⇒ 索引可用）
-CREATE INDEX idx_ledger_event_root_key ON ledger_entry (event_root_key);
 ```
 
 > ⚠️ **v0.3 事实更正（实测取证，非提案）**：上列 `ledger_kind_enum` **不是 PostgreSQL enum 类型**，而是 `ledger_entry.kind`（`text`）上的 **CHECK 约束**。本库实测：`information_schema.columns` 中 `ledger_entry.kind` 为 `data_type = 'text'` / `udt_name = 'text'`；`pg_constraint` 中 `ledger_kind_enum` 的 `contype = 'c'`（CHECK）、`def` 形如 `kind = ANY (ARRAY[...])`；`pg_type` 中**无** `typname LIKE '%ledger_kind%'` 的行。⇒ **删 kind 的手段 = 约束替换**（`ALTER TABLE ledger_entry DROP CONSTRAINT ledger_kind_enum;` + `ADD CONSTRAINT ledger_kind_enum CHECK (...)`），**不是** `ALTER TYPE`（PostgreSQL 本就不支持删 enum 值；且本库无该类型可改）。实作见 `backend-ts/migrations/0003_kind_close_set_20.sql`；裁定登记见 §19.8.A。
 > 📌 **v0.2 旧写法（留痕，仅措辞）**：本册 v0.2 及以前对 `ledger_kind_enum` 的引用**未显式声明「它是 CHECK 约束而非类型」**，约束名里的 `_enum` 易被读作「同名 enum 类型」。经逐字核查，本册正文**没有**把它直述为「enum 类型」的句子（§2.2 R17 / §15 #16 早已明写「**不使用** PostgreSQL `ENUM` 类型」，与实测一致）——故本次是**补明确标注 + 补「删 kind 的操作手段」**，不是推翻 v0.2。凡以「enum 类型」描述 `ledger_kind_enum` 之处，**一律以本块为准**。
 > ✅ **v0.3 值集 = 20 个，与 `0003_kind_close_set_20.sql` 逐字一致**：`mint` / `burn` / `transfer` / `hold` / `hold_release` / `hold_forfeit` / `job_escrow` / `job_escrow_refund` / `job_payout` / `job_fee` / `commission` / `purchase` / `sale` / `purchase_refund` / `trade` / `trade_fee` / `listing_fee` / `listing_deposit` / `currency_create_fee` / `reversal`。
-
-> 🆕 **v0.4 增补（P1f F1②，实测落地于 `backend-ts/migrations/0005_ledger_event_root_key.sql`）——`ledger_entry.event_root_key`（事件根键归属列）**：
-> ① **列**：`event_root_key text`（可空）。函数在**每一条**分录上写入其事件根键（事件内派生分录与其根键共用一值）；`0005` 之前写入的行本列为 **NULL**（历史数据，清理由后续单负责）。
-> ② **索引**：`idx_ledger_event_root_key ON ledger_entry (event_root_key)` —— 重放判定由「字符串前缀算术」改为「本列精确等值」后，才**首次**有了可用索引（v0.3 旧写法：`left(idempotency_key, length($1)+1) = $1 || '#'`，**无索引可用且语义错误**）。
-> ③ **守卫 CHECK**：`ledger_event_root_guard CHECK (event_root_key IS NULL OR event_root_key = split_part(idempotency_key, '#'::text, 1))` —— 归属列必须等于「按派生规则 `<key>#<i>` 从键反解出的根键」，杜绝将来写入错误的归属（历史行 NULL 通过）。
-> ④ **查询口径（冻结）**：**归属列优先，历史行按 `idempotency_key` 精确等值兜底** —— `WHERE event_root_key = $1 OR (event_root_key IS NULL AND idempotency_key = $1)`。**禁止**再用任何形式的前缀/`LIKE`/`left()` 家族匹配（那正是 F1 缺陷的根因，见 R52 v0.4 块）。
-> ⑤ 结构守卫的**反例读数**：`wrong_root_rows = 0`、`guard_constraint = 1`（F1 用例 §5）。
 
 ### 2.2 规则
 
@@ -227,7 +213,7 @@ CREATE INDEX idx_ledger_event_root_key ON ledger_entry (event_root_key);
 | **R18** | `ref_type` 与 `ref_id` **成对出现或成对为 NULL**（`CHECK ((ref_type IS NULL) = (ref_id IS NULL))`）；`ref_type` 取值受 `ledger_ref_type_enum` 白名单约束。严禁把「订单号」塞进 `memo` 代替 `ref_id`。 | `ledger_ref_pair` / `ledger_ref_type_enum` | 业务单据页的「相关流水」入口由 `(ref_type, ref_id)` 索引支撑（见 §12 R95） | 待拍板（白名单取值可增可改） |
 | **R19** | `idempotency_key` `text NOT NULL` + `UNIQUE`；`request_fingerprint` `text NULL`（存放请求体指纹，用于区分「同键同请求」与「同键不同请求」）。`memo` `NOT NULL DEFAULT ''` 供人读，**不参与任何逻辑判断**。 | `ledger_idem_uniq` | 幂等语义见 §6；`UNIQUE` 是「防重复扣款」的最终屏障 | 已冻结（master-plan §3.1「幂等：所有写接口必须带 idempotency_key」） |
 | **R20** | 冲正用 `reversal_of_txid`（自引用 FK）表达，且加**部分唯一索引** `UNIQUE (reversal_of_txid) WHERE NOT NULL` ⇒ 一条分录**最多只能被冲正一次**。冲正分录自身不得再被冲正（应用层 + §9 trigger 校验）。 | `ledger_reversal_of_uniq`；kind `reversal` | 纠错流程 = 追加 + 反转，绝不 UPDATE；对账脚本必须能把「原分录 + 冲正分录」配对，净额为 0 | 待拍板（一句话可改） |
-| **R21** | **不**对 `account.uid` / `ledger_entry.uid` 建 FK 到 legacy `"users"` 表：实测 `"users".uid` 在 v0.1 实测时是 **`text`** 列，而 `asset`/`shard` 用 `integer`，类型已经分叉〔**v0.4 更正（D11 落位）**：身份表已由 migration `0006_user_to_users.sql` 改名为 **`public.users`**（关联对象 `users_pk` / `users_evm_uniq` / `idx_users_evm_lower` / `users_uid_seq` 一并改名）；**列名未动**，且该列现为 **`bigint`** —— v0.1 所说的 `text`/`integer` 类型分叉**已由 `backend-ts/migrations/0002_user_identity.sql` 消除**，故「类型收敛」不再是待办〕。建议新增轻量表 `ledger_owner(uid bigint PRIMARY KEY, owner_type text, name text, time_created timestamptz)`（`owner_type IN ('user','platform')`）承载 FK，并把平台负 uid 登记在内。 | `ledger_owner`（可选第 4 张辅助表）；P0 用户表规范 | ⚠️ 连带：`"users".uid` 从 `text` 收敛为 `bigint`〔**v0.4**：该收敛已由 `0002_user_identity.sql` 完成〕会牵动 50 条路由里所有 `"uID"` 比较（`src/database.ts` 现有多处 `BTRIM("uID")::int`）；这一步属于 P0 身份 spec，不在本册范围 | 待拍板（可改：先不建 FK，仅保留应用层校验） |
+| **R21** | **不**对 `account.uid` / `ledger_entry.uid` 建 FK 到 legacy `"user"` 表：实测 `"user"."uID"` 是 **`text`** 列，而 `asset`/`shard` 用 `integer`，类型已经分叉。建议新增轻量表 `ledger_owner(uid bigint PRIMARY KEY, owner_type text, name text, time_created timestamptz)`（`owner_type IN ('user','platform')`）承载 FK，并把平台负 uid 登记在内。 | `ledger_owner`（可选第 4 张辅助表）；P0 用户表规范 | ⚠️ 连带：`"user"."uID"` 从 `text` 收敛为 `bigint` 会牵动 50 条路由里所有 `"uID"` 比较（`src/database.ts` 现有多处 `BTRIM("uID")::int`）；这一步属于 P0 身份 spec，不在本册范围 | 待拍板（可改：先不建 FK，仅保留应用层校验） |
 | **R22** | 三张新表**统一 snake_case 无引号**列名（`uid` / `cid` / `balance` / `frozen` / `delta` / `time_created`）；对外 API(JSON) 仍用 camelCase（`uID` / `cID`），映射在路由层完成。 | 三张表的列名 | ⚠️ 与 legacy 表（`"uID"` / `"bID"` / `"sID"` 带引号驼峰）风格不一致；混用两套风格时必须**在 SQL 里始终给 legacy 列加双引号**。选 snake_case 的理由：带引号驼峰在 TS 模板字符串与第三方工具里极易漏引号而导致 `column "uid" does not exist` 型事故 | 待拍板（一句话可改回 `"uID"` 风格） |
 
 ---
@@ -395,35 +381,6 @@ account.balance + account.frozen = 该账户的净资产
 | **R53** | `request_fingerprint` = 对**规范化请求体**（键排序、去除空白、剔除 `Idempotency-Key` 与时间戳字段本身）取 `sha256` 十六进制。由接收请求的**路由层**计算并透传给服务层，服务层不得自行改写。 | 路由层中间件（建议名 `fingerprintRequest()`） | 指纹**不参与**唯一约束（只做冲突判定），因此可以 `NULL`（如内部 `ops:` 事件可不带指纹，此时视为「同键即重放」） | 待拍板（一句话可改） |
 | **R54** | 幂等键**不设 TTL、不在任何清理任务里删除**（它就是流水唯一键，而流水 append-only）。所有**内部/异步**事件同样必须带键：分佣器（`cm:`）、对账修正（`ops:`）、定时任务（`biz:<task>:<run_key>`）—— 防的是「cron 重跑双发佣金」这类事故，而不是网络重试。 | `idempotency_key` 列；定时任务传入 `run_key` | 键空间随流水行数线性增长，无需额外清理；若将来需要「客户端键有效期」策略，只能在**接受请求时**拒绝过老的 `cli:` 键（`time_created` 已可用），不得事后删除 | 待拍板（一句话可改） |
 
-> 🆕 **v0.4 就地落位（§6.2 R48–R52，P1f F1① + P1i 覆盖面）——键字符集收紧与重放精确归属**（**上表条文一字未改**，本条为就地更正）：
->
-> **（1）R48/R49 —— 键字符集闸（两道，缺一不可）**：键除「前缀强制」外还必须过两道闸，**校验顺序固定为 `TOO_LONG → PREFIX_REQUIRED → RESERVED_SEPARATOR → CONTROL_CHARACTER`**，TS（`src/ledger.ts:normalizeIdempotencyKey`）与 DB（`0005` 的 `ledger_post_event` C0 段）**同序同码** —— 同一非法键在两侧必须得到**逐字相同**的 `code` / `reason`：
-> ① **`#` 禁止**（`400 LEDGER_IDEMPOTENCY_KEY_INVALID` + `reason = 'RESERVED_SEPARATOR'`，DETAIL 带 `value = key[0..40)` 与 `note`）：`#` 是**内部派生键** `<key>#<i>`（R51/§19.5）的分隔符；禁掉它使「调用方键集合 `K`」与「内部派生键集合 `D = { k||'#'||i | k ∈ K, i ≥ 2 }`」**按构造互斥**，且派生函数在合法键域上**单射**（两个派生键相等 ⇒ 首个 `#` 位置相同 ⇒ 根键相同且序号相同）。
-> ② **控制字符禁止**（`reason = 'CONTROL_CHARACTER'`）：C0（` `–``）与 DEL（``），与 DB 侧 `v_key ~ '[[:cntrl:]]'` **同集**；TS 侧常量 `CONTROL_CHAR_RE = /[\u0000-\u001F\u007F]/`。
-> 〔**v0.3 旧写法（留痕，作废）**：R49 只写「前缀强制」，**对「键里允许出现什么字符」无任何约束** —— 这正是 F1（幂等派生键碰撞）的根因。〕
->
-> **（2）R49 覆盖面 —— 该规则作用于每一个 `idempotency_key` 位置**：**包括 `entries[].idempotency_key`**（若调用方给出该字段）。逐条键**不是** DB 契约字段（函数自行派生、其值被忽略），故对逐条键**只做硬约束**（禁 `#` / 禁控制字符 / 必须是 JSON 字符串，`reason` 同上并带 `field = 'entries[i].idempotency_key'`），**不引入前缀或长度等事件级规则** ⇒ 对既有调用方零影响（TS 侧 `entryToPayload` 从不发该字段）。**修前实测**：`entries[]` 处的 `#` 被**静默忽略** ⇒ 7 种 op 形状（`mint` / `transfer` / `hold` / `hold_release` / `settle` / `entries` / `entries(entry-level #)`）里最后一种是「静默接受」而非 400；修后 `hash_key_rejection_all_400 = true`、`hash_key_rejection_ok_shapes = []`（无一漏网）。
->
-> **（3）R50 —— 派生键空间**：第 1 条分录用**调用方原始键**（它就是幂等探针本身），第 `i` 条（`i ≥ 2`）用**确定性派生键 `<key>#<i>`**（前缀不变、可推导、可重放）。R49 的 `#` 禁令保证调用方无法构造出与任何派生键相等的键 ⇒ F1 的**两个方向**（①「他人事件的派生键被当成自己的重放结果」；②「先落 `#` 键再落正常键」）都由这一条闸 + 归属列**双重**封死。
->
-> **（4）R51/R52 —— 重放语义改写（F1②，本版最要紧的一处）**：**重放/冲突判定不再用字符串前缀「键族」匹配**，改为**按事件根键精确归属**：
-> ```sql
-> -- v0.4（修后）
-> SELECT ... FROM ledger_entry
->  WHERE event_root_key = $1
->     OR (event_root_key IS NULL AND idempotency_key = $1)   -- 历史行：键精确等值兜底
->  ORDER BY txid ASC;
-> -- v0.3 旧写法（修前，**作废**）：字符串前缀算术，正是 F1 根因
-> -- WHERE idempotency_key = $1
-> --    OR left(idempotency_key, length($1) + 1) = $1 || '#'
-> ```
-> 旧写法会把他**人事件**的派生行（`<别人根键>#<i>`）当成自己的重放结果返回 → 「静默丢弃却报成功」（方向①）/「误判 409」（方向②）。
-> **根行归属校验**：幂等探针命中的行必须就是「键 = 根键」的**根行**且其归属等于本键，否则一律 `409 LEDGER_IDEMPOTENCY_CONFLICT` + `reason = 'KEY_OWNED_BY_ANOTHER_EVENT_ROOT'`（**绝不冒充重放**）；指纹取自**事件自己的根行**（派生行的 `request_fingerprint` 恒为 NULL ⇒ 不可能再把指纹校验短路）。
-> **派生分录撞唯一约束 = 实现缺陷** ⇒ DB 抛 `LD024` / `LEDGER_TRANSACTION_REQUIRED`（`500`，R108 必告警）/ `reason = 'derived_key_collision'`，**不得伪装成 409「幂等冲突」**（实测判据：`bogus_409_LD003 = false`、`loud_defect_LD024 = true`、`root_row_written = 0`（无半成品））。新协议下该分支**不可达**（C0 已禁调用方键含 `#`），它是对历史脏数据与将来回归的**守卫**（legacy 撞键实测：`LD024` 响亮缺陷，非伪 409）。
-> **R52 的三种返回语义不变**（①同键同指纹 ⇒ 200 重放 / ②同键异指纹 ⇒ 409 / ③无键 ⇒ 400），改的只是**判定依据**（归属列而非前缀算术）。
->
-> **（5）v0.4 实测读数（F1 修后，`p1f-01 --assert`）**：14/14 全绿；方向① B 用 A 的派生键 ⇒ `LD005 / reason=RESERVED_SEPARATOR`（**400 拒收**，不再静默丢弃却报成功）；方向② 先 `…#2` 再落正常键 ⇒ `LD005` 400 + `legit_event = ok, replay=false, entries=2`；同键重放 ⇒ `replay=true`、`same_txid_as_first=true`、不重复扣账。
-
 ---
 
 ## §7 事务边界
@@ -433,7 +390,6 @@ account.balance + account.frozen = 该账户的净资产
 - 现有实现：`backend-ts/src/database.ts:81` 使用 `neon(databaseUrl)`，即 **HTTP 单语句驱动**；`backend-ts/src/simple-test.ts:8` 同上。
 - D1 已冻结：保留 Express + Vercel，但**必须换成支持交互式事务的连接池**。
 - `.env.local` 中同时存在 `DATABASE_URL`（带 `channel_binding=require`，走 Neon pooler）与 `DATABASE_URL_UNPOOLED`（直连）。本册对两条串的用途作出裁定（见 R56）。
-- 🆕 **v0.4（P1e/P1i，写路径形态已定）**：账本写路径现为**一条语句** —— `SELECT ledger_post_event($1::jsonb)`（PL/pgSQL 单函数，DB 侧 `0004` 定义、`0005` 覆盖），**一条语句自带隐式事务**，函数内部依次完成「信封校验 → 幂等占位 → 按全序加锁 → 分录 → 余额/冻结更新 → 配对不变式」。⇒ 应用层**不再需要也不得**自己发 `BEGIN…COMMIT` 去包裹一个账本事件（D1 的「交互式事务」要求由该语句的原子性承接）；多语句事务只适用于**非账本**写路径。
 
 ### 7.2 必须落在**同一个交互式事务**内的操作清单（逐条，不可合并、不可拆分）
 
@@ -470,12 +426,6 @@ account.balance + account.frozen = 该账户的净资产
 | **R63** | **禁止跨事务的「检查-使用」**：所有余额校验必须在**扣款所在的那个事务内**、且在取得 `FOR UPDATE` 行锁**之后**执行。禁止在路由层先查一次余额「预校验」再进事务扣款（预校验只能用于前端提示，不得作为正确性依据）。 | 服务层；前端预校验仅作 UX | 前端可以显示「余额不足」，但后端仍必须独立校验并返回 `LEDGER_INSUFFICIENT_BALANCE` | 待拍板（一句话可改） |
 | **R64** | 事务**不得长**：单事务内涉及的分录条数上限建议 **≤ 32 条**、涉及账户数上限建议 **≤ 16 个**（招工结算 10 级佣金 = 10 受益 + 3 主体 = 13，安全余量内）。超限的操作（如下架批量撤单）必须**分批，每批一个事务**，且每批自身必须完整（不得跨批冻结资金）。 | 服务层批次上限常量；下架/清退任务 | 分批意味着「下架不原子」，因此下架必须先置 `status = delisted`（阻止新挂单）再分批清挂单 —— 顺序不可颠倒 | 待拍板（上限值可改） |
 | **R65** | **「扣了钱没落流水」是最高优先级缺陷**：任何 `UPDATE account` 必须与对应 `ledger_entry` 插入在同一事务内，且 §9 的 DB 层 trigger 会**主动拒绝**没有对应流水的 `account` 变更。质检必须有一条用例专门构造该场景（在事务里只更新 `account` 不写分录 ⇒ 必须报错回滚）。 | §9 `account_guard` trigger；P1 质检用例 | 这条 trigger 是本册唯一能**在 DB 层**拦住「账实不符」的手段（应用层保证不了），必须实现，不得以「性能」为由跳过 | 待拍板（但**强烈建议保留**） |
-
-> 🆕 **v0.4 就地落位（§7.3 R60，P1f F3④ / §11 S8）——`LD027` 必须进 TS 的可重试集合**（**上表 R60 条文一字未改**）：
-> ① **TS 侧**：`RETRYABLE_SQLSTATES` **必须**含 `'LD027'` —— DB 层自 `0005` 起把 `40001` / `40P01` **归一后抛 `LD027`**（裸 `40P01` 不再逃出函数）；**不同步这一项 = 死锁不再被重试 = R60 形同失效**（行为回归）。`'40001'` / `'40P01'` **保留**：它们是**函数之外**（只读路径、非账本语句）仍可能逃出的原始码。修后：`new Set(['40001', '40P01', 'LD027'])`；修前：`new Set(['40001', '40P01'])`。
-> ② **DB 层 `0` 次重试，重试主权显式归调用方**：`LD027` 的 DETAIL **固定**含 `retries_performed = 0` / `retry_owner = 'caller'` / `retryable = true`（外加 `reason` = `'deadlock_detected' | 'serialization_failure'` 与 `pg_code`）。⇒ 「谁重试」有唯一答案：**调用方**（同键重试，安全）。
-> ③ **行为读数（非仅代码）**：公开 API 路径实测捕获到**内部**错误确为 `LD027`（`captured_first_error_is_LD027 = true`）、`retry_actually_reissued = true`（`distinct_fn_statements_observed = 3`，第 3 条 = 同键重发）、最终 `api_ok = true`；`no_double_debit = true`（A `−100` / B `+100`，`findByKey` 返回 2 行、debit 恰 1）。**若 TS 未同步 `'LD027'`，该路径会在第一次 `LD027` 时直接抛 503**，不会出现第 3 条同键语句 —— `retry_actually_reissued` 就是「R60 未被错误面归类改动打断」的机读证据。
-> ④ **R60 的「最多 3 次 / 指数退避 50·200·800ms」口径不变**（`retries < 3`）。
 
 ---
 
@@ -517,24 +467,6 @@ account.balance + account.frozen = 该账户的净资产
 | **R70** | **驱动与序列化口径**：DB 驱动返回的 `bigint` 必须按**字符串**或 `BigInt` 处理，**禁止**转 `Number`；API 出参的金额字段必须是**十进制字符串**（`"100000"`），入参同样接受字符串。`JSON.stringify` 对 `BigInt` 会抛错，因此**出参前统一转字符串**。 | 驱动配置（`pg` 的 `types` 解析）+ 响应包装层；建议在架构层增加「金额字段名单」自动转换 | 前端 `api` 层也不得 `Number()` 化金额；余额展示直接用字符串做千分位切分 | 待拍板（可改：用 `Number` 并在金额上限内 —— **本册不建议**） |
 | **R71** | **溢出与上限口径**：单笔金额上限由 `app_config` 配置（建议 `1e15` 最小单位，远低于 `bigint` 上限）；`a * b` 类乘法中间量可能超出 `bigint`，**中间量必须用 `numeric`**（Postgres 任意精度）或在应用层用 `BigInt` 乘法。`currency_supply_guard` 已保证 `total_supply <= supply_cap`，`supply_cap` 也不得超过 `app_config` 的全局上限。 | `app_config` 上限键；SQL 中的 `::numeric` 中间量 | 「无限」是相对概念：`$` 的 `supply_cap = NULL`，但仍受单笔上限与 `bigint` 上限约束 | 待拍板（上限值可改） |
 | **R72** | 金额**入参校验**（进入服务层之前）：① 必须是字符串或整数，**不接受** `1.5` 这类浮点 JSON number（会被拒，而不是被四舍五入）；② 必须 `> 0`（除 `delta` 内部取负）；③ 小数位不得超过该币种 `decimals`（超过 ⇒ `LEDGER_DECIMALS_OVERFLOW`）；④ 不得超过单笔上限。 | 路由层 DTO 校验（建议名 `parseAmount(str, decimal)`） | 「超过 decimals 的小数」**直接拒绝**而非静默截断，避免出现「用户输入 1.005，系统扣 1.00」的争议 | 待拍板（一句话可改） |
-
-> 🆕 **v0.4 就地落位（§8.3 R70 / R71 / R72，P1f §D2 + M31 / M43）——「金额字段恰一个」**（**上表三条条文一字未改**）：
->
-> **（1）口径（冻结）**：`amount`（**R72 用户十进制字符串**）与 `amount_units`（**R66 最小单位整数串**）**二选一**，**恰一个**：
-> ① **两个同时出现** ⇒ `400 LEDGER_AMOUNT_INVALID` + `reason = 'AMBIGUOUS_AMOUNT'`（DETAIL 含 `field` / `provided = 'amount,amount_units'` / `note`）；**绝不静默挑一个**；
-> ② **单给 `amount`** ⇒ `ledger_parse_user_amount`：锚定白名单 `^[0-9]+(\.[0-9]*)?$` + **显式封死指数形式** ⇒ `400 LEDGER_AMOUNT_INVALID` + `reason = 'EXPONENT_NOT_ALLOWED'`（合法字母表只有 `[0-9.]`，故出现 `e` / `E` 必为指数/非法记法 ⇒ 专属 reason）；
-> ③ **单给 `amount_units`** ⇒ `ledger_int_amount` + 真范围闸（`numeric` 查界后再转型，杜绝 19 位但超 `bigint` max 的 `22003` 逃逸）+ **R71 单笔上限**；
-> ④ **缺失 / 非字符串** ⇒ `400`（`reason = 'MISSING'` / `'NOT_STRING'`，逐格保留 `0004` 口径）。
->
-> **（2）修前缺陷（M31 / M43，根因）**：`0004` 的 `ledger_payload_amount` 把 `amount_units` 放在**优先级首位**、命中即 `RETURN` ⇒ 同一 payload 里的 `amount` **一个字都不校验**。于是 `{amount_units:'1', amount:'1000000000000001'}`（超 R66/R71 单笔上限）与 `{amount_units:'1', amount:'1e5'}`（指数形式）**都被静默接受 `200`**（修前读数：`sqlstate: null` / `ts_code: null` / `status: null` / `outcome: "accepted_200"`）。修后四例全 400：`amount_over_cap_rejected_400` / `amount_over_cap_amount_only_400` / `amount_exponent_rejected_400` / `amount_exponent_amount_only_400` **全 `true`**。
->
-> **（3）R71 的两条路径都必须过闸（S12-同类漏闸的封堵）**：单给 `amount_units` 与单给 `amount` **各自独立**过 `ledger_max_single_amount()`（= `1000000000000000`，即 `1e15`，与 TS 侧 `MAX_SINGLE_AMOUNT = 1_000_000_000_000_000n` **同值**）；超限 `reason = 'OVER_MAX_SINGLE_AMOUNT'`。
->
-> **（4）「对外 API 零破坏」的逐字旁证**：TS 侧 `amountToPayload` 是**三元表达式**，**恒只产生 `amount` 或 `amount_units` 之一**（调用点 `postEvent` 为 `if (input.amount !== undefined) Object.assign(payload, amountToPayload(input.amount));`）⇒ `AMBIGUOUS_AMOUNT` 闸**不会打到 TS 自己的写路径**。
->
-> **（5）一处读数提示（防误读，§11 S11）**：`M31b_amount_only_over_cap` 的 DETAIL `value` 是 `"100000000000000100"`，即 R72 语义下**换算后的最小单位**（入参十进制 `1000000000000001` × 10²），**不是**入参原值 —— 引用该值时不得读成「入参」。
->
-> **（6）R70 补充（身份字段形状）**：`uid` / `cid` / `ref_id` 等身份字段**只接受 JSON 字符串**（R70 口径：入参一律文本）；传 JSON number 不再被静默转换，而是 `400 LEDGER_AMOUNT_INVALID` + `reason = 'NOT_STRING'`（`provided_type` 带原始 `jsonb_typeof`）。`memo` 同理只接受字符串（对象/数组/数字 ⇒ `NOT_STRING`）；`platform` 只接受 JSON boolean 或 `'true'` / `'false'`（其余 ⇒ `reason = 'NOT_BOOLEAN'`）。
 
 ---
 
@@ -652,27 +584,6 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | **R85** | **并发验收清单（P1 AC 直引）**：① 同一账户 100 并发转账后**总额守恒**；② 同一幂等键 100 并发提交**只生效一次**；③ 并发扣款不会出现负余额（余额 100，100 笔各扣 1 ⇒ 恰好 100 笔成功）；④ 并发 `mint` 不超 `supply_cap`；⑤ 死锁重试生效（人为制造反向加锁顺序 ⇒ 观察到 `40P01` 并最终成功或明确报错）。 | P1 质检用例集；Neng 执行 | 只跑串行用例不算通过；每条都要求「人为注入偏差后能报错」的判负能力（§11 R92/R93 同法） | 已冻结（P1 AC）+ 条目 ③④⑤ 为待拍板补充 |
 | **R86** | **禁止用应用层/外部分布式锁替代 DB 事务与行锁**（Redis 锁、进程内 mutex、「单实例部署所以不会并发」的假设）。所有正确性保证必须落在「DB 事务 + 行锁 + 唯一约束 + CHECK」四件套上；分布式锁只能作为**性能优化**（减少冲突重试），不得作为**正确性依据**。 | 架构规约；code review 检查项 | Vercel serverless 天然多实例，「单实例假设」必然失效 | 待拍板（但**强烈建议冻结**） |
 
-> 🆕 **v0.4 就地改写（§10.3 R82，P1f F3① / §11 S5 + S6 + S12）——超时口径改写为「函数内自证预算」**（**上表 R82 条文一字未改**；本块为就地更正，与条文冲突时以本块为准）：
->
-> **（1）删除的旧声明（留痕）**：~~「函数内 `set_config('statement_timeout', <10s>, true)` 给本条语句设上界，超时映射 `503 LEDGER_TX_TIMEOUT`」~~ —— **实测对「它自己那条语句」完全无效**（同语句 `set_config` 后跑慢语句**不被取消**；机制隔离实验：同语句 `set_config(1500,true)` + `pg_sleep(4)` = 4311ms 未被取消、`is_local=false` 同样 4193ms 未被取消；而对照「**独立语句** `SET statement_timeout=1500` 后再跑」在 1705ms 被取消并返回 `57014`）。⇒ v0.4 **作废该假声明**（**本册 v0.3 正文并无该句，它出现在实现侧 `0004` 的 C1 段与 `docs/seafood.master-plan.md` D-03 行**；本版在 spec 中**新增显式否证行**）。
->
-> **（2）v0.4 口径（函数内自证预算，实测有效）**：
-> · `ledger_stmt_budget_ms() = 10000`（单条语句 = 一个业务事件的**自证总预算**，与 R82 的 10s 建议同值）；
-> · `ledger_lock_timeout_ms() = 3000`（单次等锁上限，与 R82 的 3s 建议同值）；
-> · `ledger_arm_lock_timeout(deadline, label)`：**每次等锁前**把 `lock_timeout` 压到 **`min(3000, 剩余预算)`**（`lock_timeout` 是**逐次获取**生效的，实测有效）；剩余 ≤ 0 时**不尝试等锁**，直接报 `LD026`；
-> · `ledger_check_budget(deadline, stage)`：**取锁前后 / 关键阶段间**查 deadline，越界即报 `LD026`；
-> · `LD026` = SQLSTATE **`LD026`** / MESSAGE `LEDGER_TX_TIMEOUT` / **`503`** / DETAIL `{ reason: 'statement_budget_exhausted', budget_ms: 10000, remaining_ms, stage, retryable: true }`。
-> **钳位实测（`budget_clamp`）**：deadline = `now()+1s` ⇒ `lock_timeout = 999ms`；`+1.5s` ⇒ `1499ms`；`+60s` ⇒ **`3s`**（被 3s 常量封顶）；`NULL` ⇒ **`3s`**；`now()−1s`（逾期）⇒ 抛 `LD026`。三个分支各有独立读数。
->
-> **（3）上限的**尺度**（S12，必须原样写入，不得美化）**：R82 的 10s 是**语句级**上限，**不是端到端上限**。
-> · **实测（两轮同一场景「6 持锁者 × 单键」）**：落盘原始读数 `p1f03-f3-readings.json`（`total_wait_chain`，run tag `H262V`）—— DB 侧单语句 `max_db_elapsed_ms = **10142**`（39 次 `pg_stat_activity` 取样），客户端总耗时 `measured_total_wait_ms = **11283**`，其中 `client_overhead_ms = **1141**`；`p1f-acceptance.md §7.5` 引用的**更早一轮**（run `GT4OR`）为 `10106` / `10897` / `791`。⇒ **「端到端 ≤10s」未验证、也未实现**（客户端/连接开销另计 +0.8~1.3s）。
-> · 对照：**修前**同场景实测 `15583ms`；**旧宣称最坏值 `48000ms`**（= 「16 账户 × 3s」的乘法推算；出处为 `docs/seafood.master-plan.md` D-03 行，**非本册**）。⇒ 累计等待的**乘法效应**确已被预算钳住（`clamped_to_le_10s = true`），但**机读上限 10s 应理解为语句级**（登记为 §16 #6）。
-> · 两轮的另一处差异：终局码（`LD026 reason=statement_budget_exhausted` vs `LD025 reason=lock_timeout`）—— 二者都是 `503` 类且 `rows_written_0 = true`，**终局码口径未统一**，见 §19.9.F。
->
-> **（4）§E 单一 EXCEPTION 处理器接不住 `57014`（S6，必须原样写入）**：`statement_timeout` **绕过** plpgsql 的 `EXCEPTION` 处理器 —— `stmt_timeout_catchable_by_plpgsql = **false**`（逃逸矩阵 5 组对照 A1/A2/B1/B2/B3 + 附测 B4/B5 一致）；`lock_timeout` 则**可**接住（`lock_timeout_catchable_by_plpgsql = **true**`，B2 组观测到内层捕获 `55P03` 后改抛 `ZZ999`）。⇒ **`LD026` 的唯一产生源是预算助手**（`ledger_arm_lock_timeout` / `ledger_check_budget`），**不得**写成「§E 处理器接住 `57014` 再转码」；`57014` 只能由 **§C 分类器**机读归类（`bucket = 'retryable'` → `LEDGER_TX_TIMEOUT`，TS 侧 503）。
->
-> **（5）池化路径的已知边界**：pooler 端点**拒绝** `options` 启动参数（`08P01` `unsupported startup parameter in options`）⇒ 连接级 `statement_timeout` 在**池化路径不可用**；连接级超时只在**直连**端点可用（`options=-c statement_timeout=10000`，实测 `SHOW = 10000ms` 且按预期取消）。⇒ **池化路径一律依赖本节的自证预算**（登记为 §16 #8）。
-
 ---
 
 ## §11 对账判据与判负能力
@@ -691,18 +602,6 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | 8 | **事件配对不变式（v0.2 更正正式形状）** | 每个业务事件（`ref_type` + `ref_id` + 同一提交）内 **`Σ(delta + frozen_delta) == 0`**，**除非**该事件含 `mint` / `burn`（此时差额恰好等于净增发额）。<br>**为什么 v0.1 的字面式不成立**：§4.2 三态记账规定「一次 `hold` 必然产生 `delta = −n`、`frozen_delta = +n`」（同账户两条分录，见 R34 / R42），于是该事件内 `Σ delta = −n ≠ 0` 且 `Σ frozen_delta = +n ≠ 0` —— **两个字面式在任何一次冻结/解冻事件上都不可能同时为 0**，与 §4.2 自相矛盾。同一形式化错误也出现在 R41 与 §5.1 `trade` 注（v0.2 已就 R41/`trade` 加指针与更正）。<br>正确形状：账户净资产 = `balance + frozen`（§4.1 恒等式），故「同一事件不造钱、不吞钱」的等价表述是把两个余额维度**相加**：`Σ(delta + frozen_delta) = 0`。`hold` / `hold_release` 的 `+n − n` 自动归零；`frozen → 对方 balance` 的结算类与 `hold_forfeit` 也自动归零。<br>📌 **v0.1 旧写法（留痕，作废）**：`Σ delta == 0` **且** `Σ frozen_delta == 0`。 | `SELECT ref_type, ref_id, SUM(delta + frozen_delta) FROM ledger_entry WHERE ref_type IS NOT NULL GROUP BY 1,2 HAVING SUM(delta + frozen_delta) <> 0`（含 `mint` / `burn` 的事件按净增发额豁免） |
 | 9 | **平台账户非负** | 所有 `uid <= 0` 的账户也必须满足 `balance >= 0 AND frozen >= 0`（平台账户不得透支；池子空了就是登记口径出错） | 复用判据 1 的命中集，额外过滤 `uid <= 0` |
 
-> 🆕 **v0.4 就地落位（§11.1 判据 8，P1f F1② / §11 S4 + F1 修后取证）——判据 8 的**键族**归组口径改写**（判据 8 的公式本体不变，改的是「按什么把分录归成一个事件」）：
-> ① **旧口径（v0.3，作废）**：键族靠 `split_part(idempotency_key, '#', 1)`（纯**字符串前缀算术**）归组 —— 在「调用方键可含 `#`」的前提下它**必然**把他人的派生行算进自己的事件（F1 缺陷）。
-> ② **v0.4 正式口径（归属列优先）**：按 **`event_root_key`** 归组；**历史行**（`event_root_key IS NULL`，`0005` 之前写入）**回退** `split_part(idempotency_key,'#',1)`：
-> ```sql
-> SELECT event_root_key, count(*), sum(delta), sum(frozen_delta)
->   FROM ledger_entry
->  GROUP BY COALESCE(event_root_key, split_part(idempotency_key, '#'::text, 1))
-> HAVING ...;                       -- 口径①：归属列优先 + 历史行回退
-> ```
-> ③ **两种口径都必须归零**（判据 8 的键族形状）：口径①（归属列优先，历史行回退 `split_part`）与口径②（**纯键前缀算术，无视归属列** = 历史行口径）**均须 0 行**。实测（F1 修后）：`judgement8_bykey_mixed_rows = 0`、`judgement8_bykey_prefixonly_rows = 0`、`judgement8_byref_rows = 0`。
-> ④ **判据 8 的 ref 形状**（按 `ref_type` + `ref_id` 分组 `Σ(delta + frozen_delta) ≠ 0`）与判据 1 一并维持：`judgement1_rows = 0`（写入测试数据后复读仍 0 行）。
-
 ### 11.2 规则
 
 | 编号 | 口径 | 落点建议 | 连带影响 | 状态 |
@@ -719,7 +618,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 
 ## §12 索引清单
 
-### 12.1 索引清单（**必建**，共 **12** 个〔v0.4 新增 1 个：`idx_ledger_event_root_key`，见 §19.9.A/S4〕）
+### 12.1 索引清单（**必建**，共 11 个）
 
 | 表 | 索引名 | 定义 | 服务的查询 |
 |---|---|---|---|
@@ -731,7 +630,6 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | `currency` | `idx_currency_status` | `(status) WHERE status <> 'delisted'` | 交易所/商品选择器只列可用币种（R28） |
 | `ledger_entry` | `ledger_entry_pkey` | `PRIMARY KEY (txid)` | 单条取证、冲正自引用 FK |
 | `ledger_entry` | `ledger_idem_uniq` | `UNIQUE (idempotency_key)` | **幂等探测**（R51，最高频写路径） |
-| `ledger_entry` | `idx_ledger_event_root_key` | `(event_root_key)`〔**v0.4 新增（P1f F1②）**，见 §19.9.A/S4〕 | **重放判定**（按事件根键**精确归属**；R51/R52）〔v0.3 旧口径：重放靠 `left(idempotency_key, …)` 字符串前缀算术 ⇒ **无索引可用**〕 |
 | `ledger_entry` | `idx_ledger_uid_cid_txid` | `(uid, cid, txid DESC)` | 流水分页、余额快照链、判据 1/2（**最重要的读索引**） |
 | `ledger_entry` | `idx_ledger_ref` | `(ref_type, ref_id)` | 业务单据页「相关流水」 |
 | `ledger_entry` | `idx_ledger_kind_time` | `(kind, time_created DESC)` | 佣金池/平台收入对账（判据 6/7）、按类型统计 |
@@ -744,7 +642,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 |---|---|---|---|---|
 | **R94** | §12.1 的 11 个索引为**必建**；其中 `ledger_idem_uniq` 与 `idx_ledger_uid_cid_txid` 是**性能关键路径**，缺失会导致幂等探测退化为全表扫描、流水分页退化为排序。 | migration 中显式 `CREATE INDEX`；P1 验收项 | 索引必须在**建表同一 migration** 内创建（不要留到「以后再加」，实测中这类「以后」不会发生） | 待拍板（清单可增，不可减） |
 | **R95** | **流水分页必须用 keyset 分页**：`WHERE uid=$1 AND cid=$2 AND txid < $last_txid ORDER BY txid DESC LIMIT n`。**禁止** `OFFSET`（大偏移会退化为 O(offset) 扫描，且翻页期间有新流水时会重复/漏项）。 | 账单接口；前端 `before_txid` 游标 | 响应体必须回传 `next_before_txid`（或 `null` 表示到底），前端不得自行算页码 | 待拍板（一句话可改） |
-| **R96** | `ledger_entry` 是**热写表**，二级索引数量上限建议 **≤ 6 个**（v0.4 起 **当前 6 个** = 原 5 个 + `idx_ledger_event_root_key`，见 §12.1 / §19.9.A）。新增索引必须说明「为什么现有索引不能覆盖」，并评估写放大。 | migration 审查清单 | 若将来必须高并发写入，优先考虑按 `time_created` 分区，**不是**继续加索引 | 待拍板（上限可改） |
+| **R96** | `ledger_entry` 是**热写表**，二级索引数量上限建议 **≤ 6 个**（当前 5 个）。新增索引必须说明「为什么现有索引不能覆盖」，并评估写放大。 | migration 审查清单 | 若将来必须高并发写入，优先考虑按 `time_created` 分区，**不是**继续加索引 | 待拍板（上限可改） |
 | **R97** | **对账查询的执行口径**：① 判据 1/2 的聚合必须能走 `idx_ledger_uid_cid_txid`（按 `(uid, cid)` 分组，**禁止** `GROUP BY (uid, cid)` 全表后再 join 的小学生写法 —— 大表会 OOM）；② 大表场景按 `cid` 分批、每批按 `txid` 区间切片；③ 判据 2 用 `LATERAL ... ORDER BY txid DESC LIMIT 1` 已是最优形状。 | `reconcile-ledger.ts` 的查询写法 | ⚠️ 与 §11 R87 判据 1 的示意 SQL 有张力：示意版适合小表打样，**生产版必须走游标分批**（同一判据、两种形状，验收时以生产版为准） | 待拍板（**本册第七条重要裁决**） |
 
 ---
@@ -766,7 +664,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | `−4` … `−99` | **预留** | 后续池子（如争议保证金、活动池） | — | — |
 | `−100` 及以下 | **禁止使用** | — | — | — |
 
-真实用户 uid **恒为正整数**（legacy `"users".uid` 由自增分配〔**v0.4 更正（D11）**：身份表已由 `0006` 改名 `users`，列名为 `uid`（`bigint`，自增从 1 起）〕，见 §16 未实测 #6）。
+真实用户 uid **恒为正整数**（legacy `"user"."uID"` 由自增分配，见 §16 未实测 #6）。
 
 **不设「保证金池」账户（v0.2 口径）**：上市保证金是**消耗**：在上市事务内直接从创建者 `balance` 扣、转入平台手续费归集账户 `uid = −1`（kind `listing_deposit`），**既不设保证金池、也不再表现为用户账户的 `frozen`**。<br>📌 **v0.1 旧写法（留痕）**：D7 已冻结保证金是**冻结的可退资金**，故它表现为用户自己账户的 `frozen`，不搬到平台账户（R36：业务表是在冻归属真源）。→ 已按 Kevin 原文更正，见 §3.1 R31。
 
@@ -774,7 +672,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 
 | 编号 | 口径 | 落点建议 | 连带影响 | 状态 |
 |---|---|---|---|---|
-| **R98** | 保留 uid 区间 = `0` 与 `−1 … −99`；**真实用户 uid 必须 `> 0`**。任何创建 uid ≤ 0 用户的路径都必须被拒绝（`LEDGER_RESERVED_UID`）。 | `ledger_owner.owner_type`；用户注册路径校验 | 与 legacy `"users".uid` 的自增分配兼容（自增从 1 起）〔**v0.4 更正（D11）**：表名 `users`（`0006`）、列名 `uid`〕 | 待拍板（区间可改，语义不可改） |
+| **R98** | 保留 uid 区间 = `0` 与 `−1 … −99`；**真实用户 uid 必须 `> 0`**。任何创建 uid ≤ 0 用户的路径都必须被拒绝（`LEDGER_RESERVED_UID`）。 | `ledger_owner.owner_type`；用户注册路径校验 | 与 legacy `"user"."uID"` 的自增分配兼容（自增从 1 起） | 待拍板（区间可改，语义不可改） |
 | **R99** | 平台账户的 `account` 行必须由 **migration 种子**创建（`balance = 0, frozen = 0`，满足 R75 的开户 0/0 约束），**不得**依赖运行期懒创建（懒创建会与 `account_guard` 的 INSERT 分支交互出竞态）。 | migration 种子 SQL：为每个保留 uid × 每个已存在币种开户 | 新增币种时必须同步为保留 uid 开户 —— 这条要落成一个**统一的开户函数**（建议名 `ensureAccount(uid, cid)`），避免遗漏 | 待拍板（一句话可改） |
 | **R100** | **用户请求不得命中平台账户**：路由/服务层必须校验「调用方 uid 与请求涉及的 uid」均 `> 0`（除平台受信任路径外）。例如 `/transfer` 不允许 `to_uid = −2`。 | 路由层守卫（建议名 `assertUserUid()`）；错误码 `LEDGER_RESERVED_UID` | 这是防止「用户把手续费池当收款人」这类经济漏洞的第一道闸；**必须**有专门的负向用例（尝试向好 `−1` 转账 ⇒ 必须 4xx） | 待拍板（**强烈建议冻结**） |
 | **R101** | 平台账户的**允许 kind 白名单**：`−1` 只接受 `trade_fee` / `listing_fee` / `currency_create_fee`（增方）与运维提取（待定 kind）；`−2` 只接受 `job_fee`（增）与 `commission`（减）；`−3` 只接受 `hold_forfeit`（增）与退还〔**v0.3 更正**：删 `listing_deposit_forfeit` —— 该 kind 已于 v0.3（P1c）删除，见 §5.1 #21 / §19.8.B；v0.2 旧写法：`hold_forfeit` / `listing_deposit_forfeit`〕（另见下款已裁定例外：**仅 `−3` 允许以 `transfer` 出账**）。**禁止**对平台账户使用 `transfer` / `hold` / `purchase`。<br>✅ **已裁定（Zang · P1a 收口，登记见 §19.1）**：**仅 `uid = −3`（罚没池）允许以 `transfer` 出账**（对应 R38 的「罚没退还」），其余平台账户（`0` / `−1` / `−2` / `−4…`）的白名单**从严**、`transfer` 一律禁止；本裁定**不放宽任何其他格**（`hold` / `purchase` 对全部平台账户仍禁止）。 | 服务层白名单校验（建议名 `assertPlatformAccountMutation()`） | 平台账户只读展示为主，任何写都必须能对应到一个明确 kind，便于判据 6/7 复算 | 待拍板（一句话可改） |
@@ -815,10 +713,10 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | 22 | `LEDGER_RESERVED_UID` | `400` | 请求命中平台保留 uid（§13 R100/R98） | 目标账户无效 |
 | 23 | `LEDGER_REF_NOT_FOUND` | `404` | `ref_type`/`ref_id` 指向的业务单不存在 | 关联单据不存在 |
 | 24 | `LEDGER_UNKNOWN_KIND` | `400` | 传入 kind 不在 §5.1 白名单内 | 不支持的账务类型 |
-| 25 | `LEDGER_TRANSACTION_REQUIRED` | `500` | 写路径未在事务上下文中执行（§7 R55）〔**v0.4 扩写**：DB 侧 `LD024` 的**唯一**码；另承接 `08P01`（启动协议参数错误 = 我方连接配置缺陷 ⇒ `reason = 'protocol_violation'`）与「派生分录撞唯一约束」（`reason = 'derived_key_collision'`）两类**实现缺陷**（R108 必告警）；见 §14.3 附 / §19.9.A〕 | 服务暂不可用，请稍后重试 |
-| 26 | `LEDGER_LOCK_TIMEOUT` | `503` | `lock_timeout` 触发〔**v0.4 落位**：DB 侧 `55P03` ⇒ **`LD025`**，DETAIL `{ reason: 'lock_timeout', pg_code: '55P03', lock_timeout_ms, retryable: true }`；`lock_timeout` 由 §11.2 R82 的预算助手压到 `min(3s, 剩余)`〕 | 系统繁忙，请稍后重试 |
-| 27 | `LEDGER_TX_TIMEOUT` | `503` | `statement_timeout` 触发，**或连接池获取连接超时 / 过载**〔v0.3 扩写〕；无 SQLSTATE 的**驱动级 / 非 PG 错误**亦借用本码（`details.reason` 区分）〔**v0.4 扩写**：`LD026` 的**唯一**产生源 = **函数内自证预算耗尽**（`reason = 'statement_budget_exhausted'`，见 §11.2 R82）；**基础设施类**（`53000` 系列 / `57xxx`（除 `57014`）/ `58xxx` / `08xxx`（**除 `08P01`**）/ `XXxxx` / `25006` / `3D000`）亦归本码 + 各自 `reason`（见 §14.3 附）；**会话级 `statement_timeout` 触发的 `57014`**（`reason = 'statement_timeout_or_cancel'`）**不可能在函数内被转码为 `LD026`** —— `statement_timeout` 绕过 plpgsql `EXCEPTION`，见 §19.9.B/S6〕 | 系统繁忙，请稍后重试 |
-| 28 | `LEDGER_DEADLOCK_RETRY_EXHAUSTED` | `503` | 死锁/序列化失败重试 3 次仍失败〔**v0.4 落位**：DB 侧 `40001` / `40P01` ⇒ **`LD027`**，DETAIL 固定 `{ reason: 'deadlock_detected' \| 'serialization_failure', pg_code, retries_performed: 0, retry_owner: 'caller', retryable: true }`；**DB 层 0 次重试，重试归调用方** ⇒ TS `RETRYABLE_SQLSTATES` **必须**含 `'LD027'`（R60）〕 | 系统繁忙，请稍后重试 |
+| 25 | `LEDGER_TRANSACTION_REQUIRED` | `500` | 写路径未在事务上下文中执行（§7 R55） | 服务暂不可用，请稍后重试 |
+| 26 | `LEDGER_LOCK_TIMEOUT` | `503` | `lock_timeout` 触发 | 系统繁忙，请稍后重试 |
+| 27 | `LEDGER_TX_TIMEOUT` | `503` | `statement_timeout` 触发，**或连接池获取连接超时 / 过载**〔v0.3 扩写〕；无 SQLSTATE 的**驱动级 / 非 PG 错误**亦借用本码（`details.reason` 区分） | 系统繁忙，请稍后重试 |
+| 28 | `LEDGER_DEADLOCK_RETRY_EXHAUSTED` | `503` | 死锁/序列化失败重试 3 次仍失败 | 系统繁忙，请稍后重试 |
 | 29 | `LEDGER_NEGATIVE_BALANCE_GUARD` | `500` | DB `CHECK` 被触发（**实现缺陷告警**） | 服务异常，请联系客服 |
 | 30 | `LEDGER_APPEND_ONLY_VIOLATION` | `500` | DB trigger 拒绝 UPDATE/DELETE（**实现缺陷告警**） | 服务异常，请联系客服 |
 | 31 | `LEDGER_ACCOUNT_GUARD_VIOLATION` | `500` | 账户余额与最新分录不符（**实现缺陷告警**） | 服务异常，请联系客服 |
@@ -840,10 +738,8 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 
 | 情形 | 借用错误码 | HTTP status | `details.reason` | 说明 |
 |---|---|---|---|---|
-| ~~`uid` 参数格式非法（非整数 / 超 `bigint` 范围）~~ ⛔ **v0.4 裁定：本格旧写法作废（`404` 是错的）** | ~~`LEDGER_ACCOUNT_NOT_FOUND`~~ | ~~`404`~~ | — | 📌 **v0.3 旧写法（留痕，已作废）**：「uid 无法解析 ⇒ 视同该账户不存在，不向调用方泄露参数形态」。**v0.4 更正：形状非法 = 参数校验失败 = `400`**（见下两行） |
-| 🆕 **v0.4 更正**：`uid` **形状非法**（非整数 / 非字符串 / 超 `bigint` 范围） | `LEDGER_AMOUNT_INVALID` | **`400`** | `NOT_STRING` / `NOT_DECIMAL_INTEGER` / `OUT_OF_BIGINT_RANGE` / `MISSING` | 「参数的**形状**」与「目标**是否存在**」是两件事：混成 `404` 会让调用方把「写错了参数」当成「账户不存在」去重试 / 触发补开户逻辑。形状闸在 `ledger_strict_text` + `ledger_int_amount`（DB）与 `toAmount`（TS）内，**先于**任何存在性查询 |
-| ~~`cid` 参数格式非法~~ ⛔ **v0.4 裁定：同 uid，`404` 作废** | ~~`LEDGER_CURRENCY_NOT_FOUND`~~ | ~~`404`~~ | — | **v0.4 更正**：`cid` **形状非法** ⇒ `400 LEDGER_AMOUNT_INVALID` + 同上 `reason`（`cid` 维度）；旧写法已作废 |
-| `uid` / `cid` **形状合法但目标不存在**（未开户 / 无此币） | `LEDGER_ACCOUNT_NOT_FOUND` / `LEDGER_CURRENCY_NOT_FOUND` | **`404`** | — | **这才是 `404` 的正确用途**（R105：`404` = 目标不存在，**不是**参数格式错误） |
+| `uid` 参数格式非法（非整数 / 超 `bigint` 范围） | `LEDGER_ACCOUNT_NOT_FOUND` | `404` | — | uid 无法解析 ⇒ 视同「该账户不存在」；不向调用方泄露「参数形态」与「账户是否存在」的区别 |
+| `cid` 参数格式非法 | `LEDGER_CURRENCY_NOT_FOUND` | `404` | — | 同上（`cid` 维度） |
 | 金额类非法（非数字串 / 非法字符 / 超上限） | `LEDGER_AMOUNT_INVALID` | `400` | — | 金额是**入参格式**问题 ⇒ `400`（R105）；金额 ≤ 0 仍归 `LEDGER_AMOUNT_NOT_POSITIVE` |
 | `ref_type` / `ref_id` 不成对（违反 R18） | `LEDGER_AMOUNT_INVALID` | `400` | `REF_PAIR_MISMATCH` | 无专用码；借 400 类 + 前缀化 `reason` 区分 |
 | `reversal_of_txid` 与 `kind` 不匹配（违反 R20 / 约束 `ledger_reversal_guard`） | `LEDGER_AMOUNT_INVALID` | `400` | `REVERSAL_GUARD` | 同上；注意它是**请求形状**错误，不是 `500` 实现缺陷 |
@@ -852,34 +748,6 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | **驱动级 / 非 PG 错误（无 SQLSTATE）**：连接池获取连接超时 / 过载、`ECONNREFUSED` 等驱动或 OS 级连接错误〔**v0.3 新增**〕 | `LEDGER_TX_TIMEOUT` | `503` | `pool_connection_timeout` / `driver_connection_error` | 这类错误**不是**实现缺陷（可重试）⇒ 归 `503`，**不得**兜底成 `500 LEDGER_TRANSACTION_REQUIRED`（v0.2 及以前实现曾如此归类）。与 §11.2 R82、§14.1 #27 互引；`details` 形状见 §14.4；裁定见 §19.8.C |
 
 > ⚠️ **两条纪律**：① 借用**不改变** §14.1 各码自身的触发条件 —— 上表只在「§14.1 无覆盖」的情形下使用；② `details.reason` 的取值是**机器可读枚举**，必须进 R104 的常量表，**不得**写中文自由文本（R107：`details` 只放非敏感上下文）。
-
-**§14.3 附（v0.4 新增）· DB 侧自定义 SQLSTATE（`LDxxx`）↔ §14.1 码 的映射**（P1f F3②/F3③，§11 S7 + S10；**不新增错误码** —— §14.1 的 33 个关闭集不动）。自 `0005` 起账本函数把 SQLSTATE **统一映射后再抛**（不再原样逃出）：
-
-| 原始 SQLSTATE / 情形 | DB 抛出的 SQLSTATE | MESSAGE（= §14.1 码名） | HTTP | DETAIL（机读） |
-|---|---|---|---|---|
-| `55P03`（lock_timeout 触发） | **`LD025`** | `LEDGER_LOCK_TIMEOUT` | `503` | `{ reason: 'lock_timeout', pg_code: '55P03', lock_timeout_ms, retryable: true }`（`raw_55P03_escaped = false`） |
-| **预算耗尽**（`ledger_arm_lock_timeout` / `ledger_check_budget` 越界） | **`LD026`** | `LEDGER_TX_TIMEOUT` | `503` | `{ reason: 'statement_budget_exhausted', budget_ms: 10000, remaining_ms, stage, retryable: true }` |
-| **基础设施类**：`53000` 系列 / `57xxx`（除 `57014`）/ `58xxx` / `08xxx`（**除 `08P01`**）/ `XXxxx` / `25006` / `3D000` | 各自 | `LEDGER_TX_TIMEOUT` | `503` | `{ reason: 'too_many_connections' \| 'out_of_memory' \| 'disk_full' \| 'admin_shutdown' \| 'crash_shutdown' \| 'cannot_connect_now' \| 'io_error' \| 'read_only_transaction' \| 'database_unavailable' \| 'insufficient_resources' \| 'operator_intervention' \| 'system_error' \| 'connection_error' \| 'internal_error', … }` |
-| `40001` / `40P01` | **`LD027`** | `LEDGER_DEADLOCK_RETRY_EXHAUSTED` | `503` | `{ reason: 'serialization_failure' \| 'deadlock_detected', pg_code, retries_performed: 0, retry_owner: 'caller', retryable: true }`（`raw_40P01_escaped = false`） |
-| `57014`（会话级 `statement_timeout` / cancel） | 各自 | `LEDGER_TX_TIMEOUT` | `503` | `{ reason: 'statement_timeout_or_cancel', pg_code: '57014' }`（由 **§C 分类器**归类；**不可能**由函数内处理器转码，见 §19.9.B） |
-| **`08P01`**（启动协议参数错误 = 我方连接配置缺陷，**不是**瞬时故障） | 各自 | **`LEDGER_TRANSACTION_REQUIRED`** | **`500`** | `{ cause, reason: 'protocol_violation', error_name: 'ProtocolViolation', pg_code: '08P01' }` ⇒ **刻意排除在 infra 之外**（R108 告警） |
-| 其余未归类 SQLSTATE | 各自 | `LEDGER_TRANSACTION_REQUIRED` | `500` | `{ cause, reason: 'unclassified_db_error', … }` |
-
-**分类器 bucket ↔ §14.1 状态类纪律（v0.4 **冻结为可机读判据**）** —— DB 侧 `ledger_error_for_sqlstate(state, constraint)` 是**全定义域**（**永不返回 NULL**，40 个 SQLSTATE 抽样 `never_null = true`），其 `bucket` 与 HTTP 状态类**一一对应且封闭**：`input ⇒ 400 类`；`integrity ⇒ 400 \| 404 \| 409（**绝不 500**）`；`retryable ⇒ 503`；`infra ⇒ 503`；`defect ⇒ 500`。⇒ **「500 类码只可能来自 `bucket = 'defect'`」是一条可机读判据**（质检脚本据此对拍：`classifier_500_outside_defect_bucket = []`、`violations = []`；40 个 SQLSTATE 逐个对拍）。
-📌 **v0.3 旧写法（留痕，已更正）**：修前口径把 `integrity` **一律钉成 `400`**，与 §14.1 冻结的 `404` / `409`（如 `LEDGER_IDEMPOTENCY_CONFLICT = 409`）**冲突** ⇒ 该探针公式曾误报红；v0.4 按本段重写（只改**判据公式**，未放宽任何一条对**产品行为**的断言）。
-📌 **`23514` 的分桶细则（v0.4 明确）**：三条余额/冻结节界守卫（`account_bal_guard` / `account_frz_guard` / `ledger_after_guard`）映射 `LEDGER_NEGATIVE_BALANCE_GUARD`（`500`）⇒ 归 **`defect`**（能走到这层 CHECK 说明函数内 R80 前置判定漏了 = 实现缺陷，R108 告警）；`currency_supply_guard` ⇒ **`integrity`**（`LEDGER_SUPPLY_CAP_EXCEEDED` `409`）；`ledger_kind_enum` ⇒ **`input`**（`LEDGER_UNKNOWN_KIND` `400`）；其余 `23514` ⇒ `input` / `LEDGER_AMOUNT_INVALID`。
-
-**新登记的 `reason` 枚举（五类，均进 R104 常量表）**：
-
-| 类 | `reason` 取值（逐字；来源 = `0005` §C 分类器 + 函数内各闸 + TS 分类器） |
-|---|---|
-| **键类**（`400 LEDGER_IDEMPOTENCY_KEY_INVALID` / `_REQUIRED`） | `TOO_LONG` / `PREFIX_REQUIRED` / `RESERVED_SEPARATOR` / `CONTROL_CHARACTER` / `NOT_STRING`（TS 侧另有 `EMPTY`；`entries[]` 逐条键的 `reason` 同集并带 `field = 'entries[i].idempotency_key'`） |
-| **金额类**（`400 LEDGER_AMOUNT_INVALID`） | `MISSING` / `NOT_STRING` / `NOT_DECIMAL_STRING` / `NOT_DECIMAL_INTEGER` / `EXPONENT_NOT_ALLOWED` / `OVER_MAX_SINGLE_AMOUNT` / `OUT_OF_BIGINT_RANGE` / `AMBIGUOUS_AMOUNT` / `REF_PAIR_MISMATCH` / `REVERSAL_GUARD` / `CHECK_VIOLATION` / `FK_VIOLATION` / `MISSING_REQUIRED_FIELD` / `NUMERIC_VALUE_OUT_OF_RANGE` / `INVALID_TEXT_REPRESENTATION` / `STRING_DATA_TOO_LONG` / `INVALID_DATETIME` / `MALFORMED_INPUT_VALUE` / `CARDINALITY_VIOLATION` / `EXCLUSION_VIOLATION` / `UNIQUE_KEY_FAMILY_COLLISION` |
-| **事务类**（`503`） | `lock_timeout` / `deadlock_detected` / `serialization_failure` / `statement_timeout_or_cancel` / **`statement_budget_exhausted`（v0.4 新增）** |
-| **基础设施类**（`503`） | `too_many_connections` / `out_of_memory` / `disk_full` / `admin_shutdown` / `crash_shutdown` / `cannot_connect_now` / `io_error` / `read_only_transaction` / `database_unavailable` / `insufficient_resources` / `operator_intervention` / `system_error` / `connection_error` / `internal_error`（TS 侧另有 `pool_connection_timeout` / `driver_connection_error`，见 v0.3 本表上方行） |
-| **缺陷类**（`500`，R108 必须告警） | `protocol_violation` / **`derived_key_collision`（v0.4 新增）** / `negative_balance_guard` / `unclassified_db_error` / `unclassified_db_raise` / `unclassified_pg_error` / `unclassified_non_pg_error` / `unclassified_driver_error` / `unmapped_ledger_error_code` |
-
-（其余 `supply_cap_guard` / `kind_enum_guard` / `KEY_OWNED_BY_ANOTHER_EVENT_ROOT` / `UNKNOWN_OP` / `BAD_TYPE` / `BOTH_ZERO` / `SLOT_MISSING` / `HOLD_PAIR_REQUIRED` / `EVENT_NOT_BALANCED` / `EVENT_SUM_OUT_OF_RANGE` / `BALANCE_OUT_OF_RANGE` / `TOO_MANY_ENTRIES` / `TOO_MANY_ACCOUNTS` / `BUSINESS_REF_REQUIRED` / `NOT_A_NON_EMPTY_ARRAY` / `NOT_BOOLEAN` / `NOT_IN_WHITELIST` / `NOT_IN_FROZEN_SETTLE_WHITELIST` / `PLATFORM_*_FORBIDDEN` 系列 / `FORFEIT_MUST_GO_TO_-3` / `MINT_TO_POOL` / `business_frozen_cap` 为 §14.3 既有业务类 `reason`，本次新增/改动**不含**它们。）
 
 ### 14.4 `details` 形状表（**R107 要求的登记表，v0.2 补齐**）
 
@@ -899,11 +767,9 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | `LEDGER_UNKNOWN_KIND` | `{ kind }` | |
 | `LEDGER_HOLD_NOT_ALLOWED` | `{ uid, cid, reason }` | |
 | `LEDGER_NEGATIVE_BALANCE_GUARD` / `LEDGER_ACCOUNT_GUARD_VIOLATION` / `LEDGER_APPEND_ONLY_VIOLATION` | `{ constraint? }` | **`500` 类**：`details` 仅入日志（R108）；响应体**不得**含约束名 / 表名 / SQL / 堆栈（R107 禁止项） |
-| `LEDGER_TX_TIMEOUT` | `{ reason: 'pool_connection_timeout' \| 'driver_connection_error' }`〔**v0.3 新增单列**〕<br>🆕 **v0.4 补两形状**：① **预算耗尽（`LD026`）**：`{ reason: 'statement_budget_exhausted', budget_ms: 10000, remaining_ms, stage, retryable: true }`（`stage` 形如 `'lock:wakeup'` / `'unit_probe'` / 关键阶段名）；② **基础设施类**：`{ reason: 'too_many_connections' \| 'disk_full' \| … \| 'read_only_transaction' \| 'database_unavailable' \| 'connection_error' \| 'internal_error', pg_code, retryable: true, source: 'pg_infra_class' }`（TS 侧；DB 侧同 `reason` 不带 `source`）。 | `reason` 枚举见 §14.3 附（本版登记五类）；`pool_connection_timeout` = 连接池取连接超时 / 过载（**WS 连接池拿不到连接时抛的是无 `code` 的裸 `Error`**，**不得**再兜底改写成 `LEDGER_TRANSACTION_REQUIRED` / `500`）；`driver_connection_error` = 驱动 / OS 级连接错误（如 `ECONNREFUSED`）。**纯会话级 `statement_timeout`（`57014`）触发时**仍**省略**本字段（即 `{}` —— 它走 SQLSTATE 表分支，不走 `infraSqlstateReason`）。见 §14.1 #27 / §11.2 R82 / §19.8.C / §19.9.A |
+| `LEDGER_TX_TIMEOUT` | `{ reason: 'pool_connection_timeout' \| 'driver_connection_error' }`〔**v0.3 新增单列**〕 | `reason` 枚举见 §14.3 新增行；`pool_connection_timeout` = 连接池取连接超时 / 过载（**WS 连接池拿不到连接时抛的是无 `code` 的裸 `Error`**，**不得**再兜底改写成 `LEDGER_TRANSACTION_REQUIRED` / `500`）；`driver_connection_error` = 驱动 / OS 级连接错误（如 `ECONNREFUSED`）。纯 `statement_timeout` 触发时**省略**本字段（即 `{}`）。见 §14.1 #27 / §11.2 R82 / §19.8.C |
 | `LEDGER_TRANSACTION_REQUIRED` | `{ cause, reason: 'unclassified_non_pg_error' \| 'unclassified_driver_error' \| 'unclassified_pg_error', error_name, error_code? \| pg_code? }`〔**v0.3 新增单列**〕 | **不得只留 `cause = 'non_pg_error'`**（v0.3 更正：`cause` 只是归类标签，`reason` 才是机器可读枚举，须进 R104 常量表）；`error_name` = 原始 `Error.name`；`error_code` = 非 PG 错误自身的 `code`，`pg_code` = PG SQLSTATE，按实际来源二选一。本码为 `500` 类 ⇒ `details` 仅入日志（R108），响应体不得含 SQL / 约束名 / 堆栈（R107） |
-| 🆕 `LEDGER_LOCK_TIMEOUT` | `{ reason: 'lock_timeout', pg_code: '55P03', lock_timeout_ms, retryable: true }`〔**v0.4 新增单列**〕 | DB 侧 `LD025`。`lock_timeout_ms` = 本次等锁的**实际**上限（已被预算助手压到 `min(3000, 剩余)`）。见 §14.1 #26 / §14.3 附 |
-| 🆕 `LEDGER_DEADLOCK_RETRY_EXHAUSTED` | `{ reason: 'deadlock_detected' \| 'serialization_failure', pg_code, retries_performed: 0, retry_owner: 'caller', retryable: true }`〔**v0.4 新增单列**〕 | DB 侧 `LD027`。`retries_performed = 0` / `retry_owner = 'caller'` 是 **R60 重试主权**的机读证据（DB 不重试，调用方重试）。见 §7.3 R60 |
-| 其余码（`IDEMPOTENCY_KEY_REQUIRED` / `_INVALID` / `FEE_RATE_INVALID` / `REF_NOT_FOUND` / `ACCOUNT_NOT_FOUND` / `CURRENCY_SYMBOL_TAKEN`） | `{}` 或省略 | 无附加上下文〔**v0.4**：`LEDGER_LOCK_TIMEOUT` / `LEDGER_DEADLOCK_RETRY_EXHAUSTED` 亦已自本行移出、各自单列于上（v0.3 旧写法：两码均在本行）〕 |
+| 其余码（`IDEMPOTENCY_KEY_REQUIRED` / `_INVALID` / `LOCK_TIMEOUT` / `DEADLOCK_RETRY_EXHAUSTED` / `FEE_RATE_INVALID` / `REF_NOT_FOUND` / `ACCOUNT_NOT_FOUND` / `CURRENCY_SYMBOL_TAKEN`） | `{}` 或省略 | 无附加上下文〔**v0.3**：`LEDGER_TX_TIMEOUT` 与 `LEDGER_TRANSACTION_REQUIRED` 已自本行移出、各自单列于上（v0.2 旧写法：两码均在本行、形状为「`{}` 或省略」）〕 |
 
 ---
 
@@ -920,7 +786,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | 5 | **R74 写入顺序 + account 守卫触发器** | 「先插分录、后更新 account」，并用 `trg_account_guard` 在 DB 层校验余额 == 最新分录快照 | 去掉触发器，仅靠应用层 —— 代价：本册唯一能在 DB 层拦住「扣了钱没落流水」的手段消失 | DDL + 每笔写入的语句顺序 | ★★ |
 | 6 | **R79 加锁全序** | currency(cid 升序) → account(uid 升序) → 业务行(主键升序) | 允许按业务自然顺序加锁并接受偶发死锁 + 重试 —— 代价：10 级佣金结算的死锁率显著上升 | 全部多账户事务 | ★★ |
 | 7 | **R22 新表列名风格** | snake_case 无引号（`uid` / `cid` / `delta`） | 沿用 legacy 带引号驼峰（`"uID"` / `"cID"`） | 三张表 + 所有 SQL + 驱动映射 | ★ |
-| 8 | **R21 `ledger_owner` 辅助表 & legacy `"users".uid` 类型**〔**v0.4 更正（D11）**：表已由 `0006` 改名 `users`〕 | 新增 `ledger_owner(uid, owner_type, name)` 承载 FK；legacy `"users".uid` 收敛为 `bigint`〔**v0.4**：该收敛**已由 `0002_user_identity.sql` 完成**（列现为 `bigint`），不再是 P0 待办〕 | 不建 FK、不做类型收敛（仅应用层校验）—— 代价：保留 text/int 类型分叉〔**v0.4**：该「代价」已部分消失 —— 类型分叉已消除，仅剩「不建 FK」一项〕 | 表数（3→4）+ 50 条路由 | ★★ |
+| 8 | **R21 `ledger_owner` 辅助表 & legacy `"user"."uID"` 类型** | 新增 `ledger_owner(uid, owner_type, name)` 承载 FK；legacy `"user"."uID"`（text）收敛为 bigint（属 P0 身份 spec） | 不建 FK、不做类型收敛（仅应用层校验）—— 代价：保留 text/int 类型分叉 | 表数（3→4）+ 50 条路由 | ★★ |
 | 9 | **R56 事务连接串** | 事务走 `DATABASE_URL_UNPOOLED`（直连），只读走 pooled | 全部走 pooler —— 需先实测 advisory lock 可用性 | 连接层配置 + 并发上限 | ★ |
 | 10 | **R2 `$` 的 `cid`** | 固定 `cid = 1`（migration 显式插入） | 用其他固定值或不用固定值（则需额外唯一索引定位 $） | 种子数据 + 所有 `deposit_cid` | ★ |
 | 11 | **R8/R9 `$` 的 decimals 与用户币上限** | `$` 的 `decimals = 0`（整数积分）；用户币创建时**必须**指定 `supply_cap` | `$` 用 `decimals = 2`（1% 手续费在小额下更精确）；允许用户币不设上限 | 金额换算 + 手续费取整 + 前端输入 | ★★ |
@@ -931,14 +797,14 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | 16 | **R17 kind 用 text + CHECK** | text + CHECK 约束（新增 kind 必须走 migration） | 用 PG `ENUM` 类型 / 字典表 + FK | DDL + migration 流程 | ★ |
 | 17 | ~~**R13 `account.version` 乐观锁**~~ ✅ **已于 v0.2 裁定** | **保留 `version` 列**（仍按 R13 每笔加分录事务 `+1`，**仅作审计**）；**写路径一律 `SELECT ... FOR UPDATE`**，不做乐观锁分支 | ~~全部用 `FOR UPDATE`，删除 `version` 列~~ —— 最终口径：**用 `FOR UPDATE` 但保留 `version` 列**（见 §19.4） | account 表 + 写路径 | 已裁定（Zang · P1a 收口） |
 | 18 | **R71 单笔金额上限** | `app_config` 配置，建议 `1e15` 最小单位 | 其他上限值 | 入参校验 | ★ |
-| 19 | **R82 锁/语句超时** | `lock_timeout = 3s` / `statement_timeout = 10s`〔**v0.4 口径已改写**：见 §11.2 R82 v0.4 块 / §19.9.B —— 上限是**函数内自证预算**（语句级 10s、`min(3s,剩余)`），**不是**端到端 10s〕 | 其他时长 | serverless 稳定性 | ★ |
+| 19 | **R82 锁/语句超时** | `lock_timeout = 3s` / `statement_timeout = 10s` | 其他时长 | serverless 稳定性 | ★ |
 | 20 | **R97 对账查询的生产版形状** | 按 `cid` 分批 + `txid` 区间切片的游标版（示意 SQL 仅用于小表演示） | 全表聚合（小数据量下可接受，大数据量会 OOM） | 对账脚本实现 | ★ |
 
 ---
 
 ## §16 未能核实 / 未实测诚实清单
 
-> 本节是本册的**诚实边界**。以下 **11** 项（v0.1 原始 5 项 + **v0.4 新增 6 项**）未被实测或未能核实，**不得**在 P1 验收时当作已通过。v0.4 新增的 #6–#11 来自 P1e/P1i/F3 的实测与未验证面（出处：`backend-ts/.p1f-artifacts/p1f-acceptance.md` §7 / §10、`p1f03-f3-readings.json`）。
+> 本节是本册的**诚实边界**。以下 5 项未被实测或未能核实，**不得**在 P1 验收时当作已通过。
 
 | # | 未实测 / 未核实项 | 具体到什么程度 | 后果与建议 |
 |---|---|---|---|
@@ -946,14 +812,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | **2** | **`trg_account_guard` 的核心假设未实测** | 该触发器依赖「同一事务内先插入的 `ledger_entry` 对后续 `account` 更新**可见**」。这在 PostgreSQL 里应当成立（同事务可见自己的未提交写入），但**未在 Neon 上实跑验证**。若该假设不成立，R74 这条 DB 层守卫会直接失效（要么误报、要么形同虚设）。 | 建库后必须做一次最小验证：单事务内「插一条分录 + 更新 account」应通过；「只更新 account 不插分录」应被拒；顺序颠倒应被拒。三条用例缺一不可 |
 | **3** | **D1 的访问层升级未实测（本册最大的工程不确定项）** | `.env.local` 确有 `DATABASE_URL`（pooler，带 `channel_binding=require`）与 `DATABASE_URL_UNPOOLED`（直连）两条串，但以下均**未实测**：① `@neondatabase/serverless@0.6.0` 的 `Pool` over WebSocket 能否提供交互式事务（该版本较旧，可能需升级）；② `pg` 驱动 + Neon 直连串的 `channel_binding=require` 是否被当前 `pg` 版本支持；③ `pg_advisory_xact_lock` 经 Neon pooler（PgBouncer transaction 模式）是否可用（R62 撮合串行化依赖它）；④ 直连的连接数上限与 Vercel serverless 并发是否匹配。 | R55/R56/R61/R62 四条规则的可实现性都挂在这一项上。**建议 P0 的第一步就是写一个最小的「事务连通性探针」**（起事务 → 两条写 → 回滚 → 再读），把①②③④逐个打勾或打叉，再决定 D1 的最终形态 |
 | **4** | **全部并发与判负用例未跑** | §10 R85 的五条并发用例（100 并发转账守恒、同键并发只生效一次、并发不产生负余额、并发 mint 不超上限、死锁重试生效）、§11 R93 的对照组实验、§11 R89 的注入-还原演练，**一条都没执行**。对账脚本本身也**不存在**（`backend-ts/scripts/` 目录不存在）。 | 这些正是 P1 的验收 AC，本册只提供「判据与判负方法」，**不构成验收证据**。P1 验收时必须由 Neng 独立执行并附读数 |
-| **5** | **legacy → 新模型的映射未逐条核实；且 D3 的措辞与代码现状不符** | 已实测：`src/index.ts` 共 **50 条路由**（`grep` 计数）；`src/database.ts` 中 `CREATE TABLE` 只覆盖 **9 张表**（`app_config` / `permission_group` / `prize` / `prize_item` / `task_progress` / `market_order` / `market_trade` / `shard_transfer` / `shard`）—— **`"users"`、`asset`、`task` 三张表的建表语句在仓库里根本不存在**〔**v0.4 更正（D11）**：`users` 的建表语句**现由 `backend-ts/migrations/0002_user_identity.sql` 提供** ⇒ 该项**不再是缺口**；`asset` / `task` 仍未核实〕（`ensureSupportSchema` 只做 `ALTER TABLE IF EXISTS`，对空库是空操作），这是**空库 P0 的现存缺口**。另外 `src/auth.ts` 的登录流程只返回 `{ evm }`，`uID` 由 `"users"` 表的自增逻辑分配（见 `src/database.ts:410` 的 `MAX(...)+rn`），因此 **D3 所称「uID 沿用现有 EVM 派生逻辑」与代码现状不一致**。最后：legacy `"users".uid` 在 v0.1 实测时是 **`text`** 列〔**v0.4 更正**：表已改名 `users`；该列现为 **`bigint`**（`0002` 已收敛），类型分叉不再是现状〕，而 `asset` / `shard` / `prize_item` 的 `"uID"` 是 **`integer`**，**类型已经分叉**；本册对 50 条路由与新表的逐条映射**未做**。 | 需 Kevin 拍板两件事：① `"users"` / `asset` / `task` 的建表语句由谁在 P0 补（属身份 spec；`users` 已由 `0002_user_identity.sql` 提供 ⇒ 只剩 `asset` / `task`）；② D3 的措辞是否改订为「uID 由 `"users"` 表自增分配，登录凭 EVM 签名」 |
-| **6** | **「端到端 ≤10s」未验证、也未实现** —— 预算钳的是**单条语句** | 两轮同场景实测：**DB 侧单语句 10142ms / 10106ms**；**客户端总耗时 11283ms / 10897ms**，差值为客户端/连接开销 **1141ms / 791ms**（≈ +0.8~1.3s）。⇒ 「端到端 10s 上限」**不存在**（`clamped_to_le_10s = true` 指的是**语句级**）。 | **不得**在验收/对外文案里写「端到端 ≤10s」。机读上限只到语句级（见 §11.2 R82 v0.4 块 (3) / §19.9.B） |
-| **7** | **`57014` 的「DB 内转码」路径不存在** | `statement_timeout` **绕过** plpgsql `EXCEPTION` 处理器（逃逸矩阵 5 组对照 A1/A2/B1/B2/B3 + 附测 B4/B5：`stmt_timeout_catchable_by_plpgsql = false`、`statement_timeout_bypasses_plpgsql_handler = true`、`raw_57014_escaped = true`、`final_detail_raw = null`）；`lock_timeout` **则可以被接住**（`lock_timeout_catchable_by_plpgsql = true`，内层捕获 `55P03` 后改抛）。 | ⇒ **`LD026` 的唯一产生源是预算助手**（§11.2 R82）；`57014` 只能由 §C 分类器归类为 `LEDGER_TX_TIMEOUT` / `503`。**禁止**把它写成「§E 处理器接住 `57014` 再转码」（v0.4 已就地否证） |
-| **8** | **池化路径的连接级 `statement_timeout` 不可用** | pooler 端点**拒绝** `options` 启动参数（`08P01` `unsupported startup parameter in options`，实测）；连接级超时只在**直连**端点可用（`options=-c statement_timeout=10000`，`SHOW = 10000ms` 且按预期取消）。本轮所有预算探测均走非池化 / 直连语义。 | 池化路径**只能**依赖函数内自证预算；「池化下与直连语义等价」**未验证**。另：`xact` 级 `set_config(..., true)` 对自身语句无效已登记为坑，**未探究**其它 GUC 注入方式 |
-| **9** | **持锁链累计等待只在「单账户 / 单键 / 6 持锁者」规模验证** | 构造为 6 个持锁者按 `spacing_ms = 2600` 串行占用同一账户行、调用方串行重试同一键。**更高并发、多账户交叉、跨 `currency` 的累计等待未取读数**。 | 不得把「6 持锁链钳到语句级 10s」外推为「任意规模的累计等待上界」 |
-| **10** | **判据归零与分类器「永不 NULL」的覆盖面有限** | §11 判据 1 / 判据 8（键族两口径）归零是在**当轮测试数据**上取得（`judgement1_rows = 0`、`judgement8_bykey_mixed_rows = 0`、`judgement8_bykey_prefixonly_rows = 0`）；`ledger_error_for_sqlstate` 的「全定义域永不 NULL」只在 **40 个 SQLSTATE 抽样**上验证（`never_null = true`），**非全定义域穷举**；死锁路径的 `pg_stat_database.deadlocks` 是全库口径、取样时未有其它并发写负载（未做长时窗漂移校正）。 | 验收时不得读作「全定义域已证明」 |
-| **11** | **改名（D11）相关：端到端 HTTP 复测未做；`user` 保留字陷阱**未被消除**** | ① `seafood-api`（5788）是**面板托管常驻进程**，本单**禁止重启** ⇒ 它跑的仍是**改名前的已加载代码**；`/api/user`、`/api/user/profile`、`/api/user/asset/:uID` 走 HTTP 的路径**未在改名后的进程里实测**（`ledger-smoke` 的 29 条走**直接 import**，已实测）。② 改名**未消除** `user` 保留字行为：改后 `SELECT count(*) FROM user` **依旧**静默返回 `current_user` 的 1 行；消除的是**事故类别**（正确表名 `users` 不再是保留字 ⇒ 写错时无同名表可被「碰对」，`42P01` 立现）。③ `ensureSupportSchema()` 的既存失配（用 legacy 列名 `"uID"` / `"EVM"`，并引用本库**不存在**的 `asset` 表）**仍存在**，与改名无关（pre-existing）。 | **不得**对外表述为「保留字陷阱已消除」；**不得**读作「改名后端到端已验证」 |
-|  | **（v0.4 附）未纳入的裁定留白** | `platform_withdraw`（R103 / §15 #3）、R15 分录双字段（§15 #1）、「强制下架罚款」若要做须新定 kind（§19.8.B）—— 三项**本次未动**。 | 与 §19.9.E 的「未纳入」清单一致 |
+| **5** | **legacy → 新模型的映射未逐条核实；且 D3 的措辞与代码现状不符** | 已实测：`src/index.ts` 共 **50 条路由**（`grep` 计数）；`src/database.ts` 中 `CREATE TABLE` 只覆盖 **9 张表**（`app_config` / `permission_group` / `prize` / `prize_item` / `task_progress` / `market_order` / `market_trade` / `shard_transfer` / `shard`）—— **`"user"`、`asset`、`task` 三张表的建表语句在仓库里根本不存在**（`ensureSupportSchema` 只做 `ALTER TABLE IF EXISTS`，对空库是空操作），这是**空库 P0 的现存缺口**。另外 `src/auth.ts` 的登录流程只返回 `{ evm }`，`uID` 由 `"user"` 表的自增逻辑分配（见 `src/database.ts:410` 的 `MAX(...)+rn`），因此 **D3 所称「uID 沿用现有 EVM 派生逻辑」与代码现状不一致**。最后：legacy `"user"."uID"` 是 **`text`** 列，而 `asset` / `shard` / `prize_item` 的 `"uID"` 是 **`integer`**，**类型已经分叉**；本册对 50 条路由与新表的逐条映射**未做**。 | 需 Kevin 拍板两件事：① `"user"` / `asset` / `task` 的建表语句由谁在 P0 补（属身份 spec）；② D3 的措辞是否改订为「uID 由 `"user"` 表自增分配，登录凭 EVM 签名」 |
 
 ---
 
@@ -990,7 +849,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | R18 | `ref_type` 与 `ref_id` 成对出现或成对为 NULL（`CHECK ((ref_type IS NULL) = (ref_id IS NULL))`）；`re… | 待拍板（白名单取值可增可改） |
 | R19 | `idempotency_key` `text NOT NULL` + `UNIQUE`；`request_fingerprint` `text NULL`（存放请求体指纹，用… | 已冻结（master-plan §3.1「幂等：所有写接口必须带 idempotency_key」） |
 | R20 | 冲正用 `reversal_of_txid`（自引用 FK）表达，且加部分唯一索引 `UNIQUE (reversal_of_txid) WHERE NOT NULL` ⇒ 一… | 待拍板（一句话可改） |
-| R21 | 不对 `account.uid` / `ledger_entry.uid` 建 FK 到 legacy `"users"` 表：实测 `"users".uid` 是 `text…〔**v0.4 更正（D11）**：表名 `users`（`0006`）；列 `uid` 现为 `bigint`，见 §2.2 R21 正文〕 | 待拍板（可改：先不建 FK，仅保留应用层校验） |
+| R21 | 不对 `account.uid` / `ledger_entry.uid` 建 FK 到 legacy `"user"` 表：实测 `"user"."uID"` 是 `text… | 待拍板（可改：先不建 FK，仅保留应用层校验） |
 | R22 | 三张新表统一 snake_case 无引号列名（`uid` / `cid` / `balance` / `frozen` / `delta` / `time_created`）… | 待拍板（一句话可改回 `"uID"` 风格） |
 
 **§3 币种语义与生命周期状态机**
@@ -1038,10 +897,10 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | 编号 | 口径摘要 | 状态 |
 |---|---|---|
 | R48 | 幂等键作用域 = 全局唯一（`UNIQUE (idempotency_key)`），不是 `(uid, scope, key)` 复合作用域。理由：① 全局唯一让「重放检测」只… | 待拍板（本册第四条重要裁决，可改为 `(uid, key)` 复合唯一，但需同步改所有 dedupe 查询） |
-| R49 | 键前缀（`biz:` / `cm:` / `cli:` / `ops:`）是强制的，`CHECK (idempotency_key ~ '^(biz | 待拍板（一句话可改）〔**v0.4**：键字符集收紧 —— 禁 `#`（`RESERVED_SEPARATOR`）/ 禁 C0·DEL（`CONTROL_CHARACTER`）；顺序固定 `TOO_LONG → PREFIX_REQUIRED → RESERVED_SEPARATOR → CONTROL_CHARACTER`，且作用于**每一个** `idempotency_key` 位置（含 `entries[].idempotency_key`），TS 与 DB 同序同码，见 §6.2 v0.4 块 / §19.9.A〕 |
+| R49 | 键前缀（`biz:` / `cm:` / `cli:` / `ops:`）是强制的，`CHECK (idempotency_key ~ '^(biz | 待拍板（一句话可改） |
 | R50 | 键必须由业务事实确定性派生，禁止使用 `randomUUID()` 直接当键（那只能防网络重试，防不住「用户连点两次提交」）。派生输入只允许不可变标识：业务单 id、uid、k… | 待拍板（一句话可改） |
-| R51 | 幂等协议（并发安全，顺序固定）：① 事务内先执行带 `ON CONFLICT (idempotency_key) DO NOTHING` 的首条分录插入；② 返回 0 行 ⇒ … | 已冻结（master-plan §3.1 幂等要求）+ 协议细节待拍板〔v0.2 裁定：首条用原始键、第 i 条用 `<key>#<i>`，见 §19.5〕〔**v0.4**：实现为**单语句** `SELECT ledger_post_event($1::jsonb)`（**自带隐式事务**，应用层不再 `BEGIN…COMMIT`）；重放判定改按 `event_root_key` **精确归属**；派生分录撞唯一约束 ⇒ `LD024 reason=derived_key_collision`（**不得伪装 409**），见 §19.5 补注 / §19.9.A〕 |
-| R52 | 重复提交的返回语义： ① 同键 且 `request_fingerprint` 相同 ⇒ `200 OK`，`{ idempotent_replay: true, txid, … | 待拍板〔v0.2 裁定：未传指纹 = 按重放（不 409）；路由层写路径强制传指纹，见 §19.6〕〔**v0.4**：重放/冲突判定**不再用字符串前缀「键族」匹配**，改为按事件根键精确归属（历史行按键精确等值兜底）；根行归属不符 ⇒ `409 + reason=KEY_OWNED_BY_ANOTHER_EVENT_ROOT`（绝不冒充重放），见 §6.2 v0.4 块 / §19.9.A〕 |
+| R51 | 幂等协议（并发安全，顺序固定）：① 事务内先执行带 `ON CONFLICT (idempotency_key) DO NOTHING` 的首条分录插入；② 返回 0 行 ⇒ … | 已冻结（master-plan §3.1 幂等要求）+ 协议细节待拍板〔v0.2 裁定：首条用原始键、第 i 条用 `<key>#<i>`，见 §19.5〕 |
+| R52 | 重复提交的返回语义： ① 同键 且 `request_fingerprint` 相同 ⇒ `200 OK`，`{ idempotent_replay: true, txid, … | 待拍板〔v0.2 裁定：未传指纹 = 按重放（不 409）；路由层写路径强制传指纹，见 §19.6〕 |
 | R53 | `request_fingerprint` = 对规范化请求体（键排序、去除空白、剔除 `Idempotency-Key` 与时间戳字段本身）取 `sha256` 十六进制。由… | 待拍板（一句话可改） |
 | R54 | 幂等键不设 TTL、不在任何清理任务里删除（它就是流水唯一键，而流水 append-only）。所有内部/异步事件同样必须带键：分佣器（`cm:`）、对账修正（`ops:`）、… | 待拍板（一句话可改） |
 
@@ -1054,7 +913,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | R57 | 事务粒度 = 一个业务事件一个事务。禁止在一个事务里合并两个不相关的业务事件（例如「转账 + 顺手发一笔佣金」）；也禁止把一个业务事件拆成两个事务。 | 待拍板（一句话可改） |
 | R58 | 严禁「先扣钱、后落流水」的异步形态：不得把分录写入、`account` 更新、`total_supply` 调整放到队列/定时任务/第二个事务里。若业务需要异步（如分佣计算量大… | 待拍板（一句话可改，但改动必须回写本册） |
 | R59 | 事务内禁止任何外部 IO：HTTP 请求、邮件、链上交互、日志外发、S3 上传、`fetch` 到第三方。这些动作只能在提交成功后执行；若提交失败则不得执行。 | 待拍板（一句话可改） |
-| R60 | 死锁 / 序列化失败重试：最多 3 次，指数退避（如 50ms / 200ms / 800ms），仍失败返回 `503 LEDGER_DEADLOCK_RETRY_EXHAUS… | 待拍板（次数与退避可改）〔**v0.4**：TS `RETRYABLE_SQLSTATES` **必须**含 `'LD027'`（DB 自 `0005` 起把 `40001`/`40P01` 归一后抛 `LD027`；不同步 = 死锁不再重试 = R60 形同失效）；**DB 层 0 次重试**、DETAIL `retries_performed=0 / retry_owner=caller`，见 §7.3 v0.4 块 / §19.9.A〕 |
+| R60 | 死锁 / 序列化失败重试：最多 3 次，指数退避（如 50ms / 200ms / 800ms），仍失败返回 `503 LEDGER_DEADLOCK_RETRY_EXHAUS… | 待拍板（次数与退避可改） |
 | R61 | 隔离级别 = `READ COMMITTED`（Neon 默认）+ 显式行锁。不使用 `SERIALIZABLE`（代价高、Neon 上重试成本大）。 | 待拍板（一句话可改） |
 | R62 | 撮合必须串行化：同一 `(base_cid, quote_cid)` 币对的撮合在同一时刻只允许一个写者。手段优先级：① `pg_advisory_xact_lock(hash… | 待拍板（一句话可改） |
 | R63 | 禁止跨事务的「检查-使用」：所有余额校验必须在扣款所在的那个事务内、且在取得 `FOR UPDATE` 行锁之后执行。禁止在路由层先查一次余额「预校验」再进事务扣款（预校验只能… | 待拍板（一句话可改） |
@@ -1069,9 +928,9 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | R67 | 禁止出现 `real` / `double precision` / `float` / `numeric(p,s)` 且 `s <> 0` 的金额列。DDL 评审必须逐列确认… | 已冻结（「禁止浮点」为硬要求） |
 | R68 | 取整规则（全整数运算，禁浮点）： `fee = floor_half_up(numerator, denominator) = (a * b + denominator / 2… | 已冻结（D6 费率）+ 取整方向待拍板 |
 | R69 | `decimals` 只用于：① 用户输入解析；② 展示格式化；③ 交易所价格/数量的显示位数。禁止用它做任何存储层计算、参与比较、或作为除法因子出现在 SQL 里。 | 待拍板（一句话可改） |
-| R70 | 驱动与序列化口径：DB 驱动返回的 `bigint` 必须按字符串或 `BigInt` 处理，禁止转 `Number`；API 出参的金额字段必须是十进制字符串（`"10000… | 待拍板（可改：用 `Number` 并在金额上限内 —— 本册不建议）〔**v0.4**：payload 的金额字段**恰一个**（见 R72 v0.4 块）；身份字段（`uid`/`cid`/`ref_id`）与 `memo` 只接受 JSON 字符串 ⇒ 非字符串 `400 + reason=NOT_STRING`〕 |
+| R70 | 驱动与序列化口径：DB 驱动返回的 `bigint` 必须按字符串或 `BigInt` 处理，禁止转 `Number`；API 出参的金额字段必须是十进制字符串（`"10000… | 待拍板（可改：用 `Number` 并在金额上限内 —— 本册不建议） |
 | R71 | 溢出与上限口径：单笔金额上限由 `app_config` 配置（建议 `1e15` 最小单位，远低于 `bigint` 上限）；`a * b` 类乘法中间量可能超出 `bigi… | 待拍板（上限值可改） |
-| R72 | 金额入参校验（进入服务层之前）：① 必须是字符串或整数，不接受 `1.5` 这类浮点 JSON number（会被拒，而不是被四舍五入）；② 必须 `> 0`（除 `delta… | 待拍板（一句话可改）〔**v0.4**：`amount`（用户十进制）与 `amount_units`（最小单位）**二选一** —— 同时出现 ⇒ `400 AMBIGUOUS_AMOUNT`（**绝不静默挑一个**）；`amount` 单给时**显式封死指数形式** ⇒ `400 EXPONENT_NOT_ALLOWED`；单笔上限**两条路径都过闸**，见 §8.3 v0.4 块 / §19.9.A〕 |
+| R72 | 金额入参校验（进入服务层之前）：① 必须是字符串或整数，不接受 `1.5` 这类浮点 JSON number（会被拒，而不是被四舍五入）；② 必须 `> 0`（除 `delta… | 待拍板（一句话可改） |
 
 **§9 append-only 不可变约束**
 
@@ -1091,7 +950,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | R79 | 加锁全序强制（§10.1）。任何事务在取第二把锁之前必须先确认它是全序中的后位；违反全序的写法（如按「用户传入顺序」遍历扣款）必须重写。 | 待拍板（本册第六条重要裁决，一句话可改） |
 | R80 | 负余额禁令：`CHECK (balance >= 0)` / `CHECK (frozen >= 0)` / `CHECK (balance_after >= 0)` / `C… | 已冻结（P1 AC：负余额必须不可能出现） |
 | R81 | 乐观锁 `account.version` 的使用边界：只在「单账户、单分录、无跨账户搬运」的轻量写路径使用（如 `mint` / `burn` / `hold` / `hol… | 已裁定（Zang · v0.2：全部 `FOR UPDATE`，`version` 列保留仅作审计，见 §19.4） |
-| R82 | 锁等待与语句超时：必须设置 `lock_timeout`（建议 3s）与 `statement_timeout`（建议 10s），超时分别映射为 `503 LEDGER_LOC… | 待拍板（时长可改）〔v0.3（P1c）：驱动级 / 非 PG 连接错误借用 `503 LEDGER_TX_TIMEOUT` + `details.reason`，见 §14.1 #27 / §14.3 / §14.4 / §19.8.C〕〔**v0.4 口径改写**：删除「函数内 `set_config(statement_timeout,…)` 生效」这一**实测无效**的声明 ⇒ 改为**函数内自证预算**（预算 10s、等锁前 `lock_timeout := min(3000, 剩余)`、越界 ⇒ `LD026 reason=statement_budget_exhausted`）；`57014` **不可能**由函数内处理器转码（`statement_timeout` 绕过 plpgsql `EXCEPTION`）；上限是**语句级**、**不是**端到端 —— 见 §11.2 R82 v0.4 块 / §19.9.B / §16 #6 #7〕 |
+| R82 | 锁等待与语句超时：必须设置 `lock_timeout`（建议 3s）与 `statement_timeout`（建议 10s），超时分别映射为 `503 LEDGER_LOC… | 待拍板（时长可改）〔v0.3（P1c）：驱动级 / 非 PG 连接错误借用 `503 LEDGER_TX_TIMEOUT` + `details.reason`，见 §14.1 #27 / §14.3 / §14.4 / §19.8.C〕 |
 | R83 | 并发 `mint` / `burn` / 状态变更必须先锁 `currency` 行（`SELECT ... FOR UPDATE`），再动 `account`，顺序不可颠倒（… | 待拍板（一句话可改） |
 | R84 | 挂单的「撤销」与「成交」必须争抢同一把 `market_order` 行锁，且锁后必须复查 `status` 与 `volume_filled`（不能信任锁前读到的值）。 | 待拍板（一句话可改） |
 | R85 | 并发验收清单（P1 AC 直引）：① 同一账户 100 并发转账后总额守恒；② 同一幂等键 100 并发提交只生效一次；③ 并发扣款不会出现负余额（余额 100，100 笔各扣… | 已冻结（P1 AC）+ 条目 ③④⑤ 为待拍板补充 |
@@ -1115,7 +974,7 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 |---|---|---|
 | R94 | §12.1 的 11 个索引为必建；其中 `ledger_idem_uniq` 与 `idx_ledger_uid_cid_txid` 是性能关键路径，缺失会导致幂等探测退化为… | 待拍板（清单可增，不可减） |
 | R95 | 流水分页必须用 keyset 分页：`WHERE uid=$1 AND cid=$2 AND txid < $last_txid ORDER BY txid DESC LIMI… | 待拍板（一句话可改） |
-| R96 | `ledger_entry` 是热写表，二级索引数量上限建议 ≤ 6 个（v0.4 起 **当前 6 个** = 原 5 个 + `idx_ledger_event_root_key`）。新增索引必须说明「为什么现有索引不能覆盖」，并评估写放大。 | 待拍板（上限可改）〔**v0.4**：本次新增 `idx_ledger_event_root_key` 已用尽上限，理由 = 「重放判定改按 `event_root_key` 精确等值，原前缀算术无索引可用」，见 §12.1 / §19.9.A〕 |
+| R96 | `ledger_entry` 是热写表，二级索引数量上限建议 ≤ 6 个（当前 5 个）。新增索引必须说明「为什么现有索引不能覆盖」，并评估写放大。 | 待拍板（上限可改） |
 | R97 | 对账查询的执行口径：① 判据 1/2 的聚合必须能走 `idx_ledger_uid_cid_txid`（按 `(uid, cid)` 分组，禁止 `GROUP BY (uid… | 待拍板（本册第七条重要裁决） |
 
 **§13 平台账户建模**
@@ -1148,7 +1007,6 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 | v0.1 | 2026-09-27 | 首版骨架落盘（章节目录 + §0–§18 占位），随即逐节填充：§0 范围与阅读约定、§1 术语、§2 三表契约（含 DDL）、§3 币种状态机、§4 三态记账、§5 kind 全量枚举（22 个）、§6 幂等、§7 事务边界（15 类操作）、§8 金额表示、§9 append-only 与 DB 守卫、§10 并发、§11 对账判据（9 条）+ 判负能力、§12 索引（11 个）、§13 平台账户（保留 uid）、§14 错误码（33 个）、§15 待拍板（20 条）、§16 未实测（5 条）、§17 规则总索引（R1–R108）。 | Jing |
 | v0.2 | 2026-09-27 | **Zang「P1a 收口」版**（快照：`docs/versions/ledger.spec.v0.1.md`，md5 `ef7a9a2633d36b2db0d2b43705372df6`，962 行 / 131972 字节；本版 md5 / 行数 / 字节数见交付报告）。落位：① 上市保证金「冻结可退」→「**消耗不可退**」（依据 Kevin 原文；`listing_deposit_refund` 删除、kind 关闭集 22 → 21；留痕见 §3.1 R31 / §3.2 / §5.1 / §5.2 / §2.1 DDL / §4.3 / §7.2 / §11 / §13 / §15 #2），总述见 §19.0；② §11 判据 8 正式形状改为 `Σ(delta + frozen_delta) = 0`，并写明字面式为何不成立（同源更正 R41 与 §5.1 `trade` 注），见 §19.2；③ §14 新增 §14.3（错误码借用映射表）与 §14.4（R107 要求的 `details` 形状表，自 `backend-ts/src/ledger.ts` 文件头**只读**回写）。另登记 5 条已裁定口径于 §19：R101×R38 的 `−3` `transfer` 例外、R28 补 `hold_release`/结算类、R51 幂等派生键 `<key>#<i>`、R81 全部 `FOR UPDATE`、R52② 指纹策略。**规则总数不变（R1–R108，108 条）**。〔**v0.3 后续（留痕）**：本行「kind 关闭集 **22 → 21**」为该版当时口径；v0.3（P1c）再删 `listing_deposit_forfeit` ⇒ 关闭集 **21 → 20**，见下行 v0.3 与 §19.8〕 | Jing |
 | v0.3 | 2026-09-27 | **Zang「P1c 收口」版**（改前快照：`docs/versions/ledger.spec.v0.2.md`，md5 `1a63a2f4e84ec199b463c536c3911cda`，1071 行 / 156707 字节；本版 md5 / 行数 / 字节数见交付报告）。落位：① **kind 关闭集 21 → 20**（删 `listing_deposit_forfeit`，Zang 裁定见 §19.8.B；DB 落点 `backend-ts/migrations/0003_kind_close_set_20.sql`；留痕见 §5.1 标题/行号说明/#21 行、§5.2 R40、§2.1 DDL、§3.2 转移表、§3.1 R31、§4.3 R33、§7.2 #14、§11 判据 7、§13.2 `−3` 行、§13.3 R101/R103、§15 #2、§17 索引）；② **非 PG 错误归类**（§14.1 #27 触发条件扩写、§14.3 新增「驱动级 / 非 PG 错误」行、§14.4 为 `LEDGER_TX_TIMEOUT` 与 `LEDGER_TRANSACTION_REQUIRED` 各单列 `details` 形状、§11.2 R82 互引；Zang 裁定见 §19.8.C）；③ **事实更正**：`ledger_kind_enum` 是 `kind`（`text`）上的 **CHECK 约束**、**非** enum 类型（§2.1 加实测取证块；删 kind 手段 = `DROP CONSTRAINT` + `ADD CONSTRAINT`，见 §19.8.A）。**规则总数不变（R1–R108，108 条）**；章节编号未重排（P1c 内容一律向后追加为 §19.8）。 | Jing |
-| v0.4 | 2026-09-27 | **Zang「P1e/P1i/F3 收口 + P1g 改名」版**（改前快照：`docs/versions/ledger.spec.v0.3.md`，md5 `6b0a852ce73c748f4db178a52c7dceb8`，1129 行 / 175122 字节；本版 md5 / 行数 / 字节数见交付报告）。背景：P1e 独立质检**判定不通过**（3 条真缺陷）⇒ 修三缺陷 ⇒ 复验通过。落位（§11 S1–S12 逐条 + P1g §8/§9）：① **键字符集收紧**（§6.2 v0.4 块：禁 `#` / 控制字符、顺序固定、覆盖每一个 `idempotency_key` 位置；§17 R49）；② **重放语义改写**（§2.1 增列 `event_root_key` + 索引 + 守卫 CHECK、§12.1 索引 11→12、§6.2 R51/R52）；③ **R60 + `LD027`**（§7.3 v0.4 块、§14.1 #28、§17 R60）；④ **金额二选一 / 指数形式**（§8.3 v0.4 块、§17 R70/R72）；⑤ **R82 口径改写**（§10.3 v0.4 块：自证预算替代失效的 `set_config`、`57014` 不可由处理器接住、上限为语句级）；⑥ **§11 判据 8 键族口径**（§11.1 v0.4 块：改按 `event_root_key` 归组、历史行回退 `split_part`、两口径均归零）；⑦ **§14 系列**（§14.1 #25–#28扩写、§14.3 `uid`/`cid` 形状非法 **404→400** 更正 + 新增 §14.3 附（`LD025/026/027` 映射、bucket 纪律冻结、五类 reason 枚举）、§14.4 三条单列形状）；⑧ **§19.5 补注**（单语句 `SELECT ledger_post_event` = 隐式事务，应用层不再 `BEGIN…COMMIT`）；⑨ **改名（D11）落位**（§0.2、§13.2、§13.3 R98、§15 #8、§16 #5 与 §17 R21：旧写法 `user.uID` → `users.uid`；建表语句现由 `migrations/0002_user_identity.sql` 提供）；⑩ **§16 未实测补 6 项**（#6–#11：端到端 10s 未实现、`57014` 转码路径不存在、池化连接级超时不可用、持锁链规模有限、判据归零覆盖面有限、改名端到端未复测 + 保留字陷阱未消除）。并新增 **§19.9**（P1f 收口登记 A–F，含「**发现的不一致**」6 条）。**规则总数不变（R1–R108，108 条）**；章节编号未重排（P1f/P1g 内容一律追加为 §19.9）。 | Jing |
 
 **本册待 Kevin 拍板的三条 ★★★（P1 开工前必须表态）**：R15 分录双字段、~~R31 保证金性质（D6/D7 冲突仲裁）~~（**已于 v0.2 裁定：消耗不可退**，见 §19.0）、R103 平台收入能否提取。其余 17 条已集中列于 §15（其中 #17 乐观锁亦已于 v0.2 裁定，见 §19.4），均为「一句话可改」。
 
@@ -1162,7 +1020,6 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 > **效力**：本节与上游条文冲突时，**以本节为准**（本节是 Zang 对 v0.1 的最终收口口径）。
 > **v0.3 追加（Zang · P1c 收口）**：新增 **§19.8**（kind 关闭集 21 → 20、非 PG 错误归类、以及「`ledger_kind_enum` 是 CHECK 约束、不是 enum 类型」的事实更正）。**节标题与 §19.0–§19.7 编号沿用 v0.2、不重排**（锚点与下游引用不得断裂），P1c 内容一律向后追加为 §19.8。
 > **体例（编号顺序即被引用顺序，未重排）**：`19.0` = 裁定一（保证金消耗不可退）、`19.1` = 登记 1（R101×R38）、`19.2` = 裁定二（判据 8 正式形状）、`19.3`–`19.6` = 登记 2–5、`19.7` = 落位索引。**裁定三**（§14 错误码借用表 + `details` 形状表）就地落在 §14.3 / §14.4，其登记见 §19.7。
-> **v0.4 追加（Zang · P1f 收口）**：新增 **§19.9**（键字符集 / 重放精确归属 / R60 / 金额 / R82 预算口径 / 判据 8 键族 / §14 系列 / §19.5 单语句 / P1g 改名 的登记 + 落位索引 + **§19.9.F 发现的不一致**）。**节标题与 §19.0–§19.8 编号沿用 v0.2 / v0.3、不重排**（锚点与下游引用不得断裂），P1f/P1g 内容一律向后追加为 §19.9。
 
 ### 19.0 裁定一（最要紧）：上市保证金 = **消耗（不可退）**
 
@@ -1202,9 +1059,6 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 - **口径**：**第 1 条分录用调用方原始键**（它就是幂等探针本身）；**第 i 条（i ≥ 2）用确定性派生键 `<key>#<i>`**（同一键空间、前缀不变、可推导、可重放）。
 - **为什么**：R51 只规定「**首条**分录带 `ON CONFLICT (idempotency_key) DO NOTHING`」，未规定同事件其余分录的键；而 R48 要求 `idempotency_key` **全局唯一** ⇒ 一次事件写 N 条分录必然撞唯一约束（首条之外的键无定义）。派生键同时满足唯一性（R48）与「同一业务事实 ⇒ 同一键族」的可重放性（R50）。
 - **落位**：§6.2 R51（追加登记）；§17 索引 R51。
-- 🆕 **v0.4 补注（P1e/P1i 实现形态，S4 + §19.5 口径改写）**：**一个业务事件 = 一条 `SELECT ledger_post_event($1::jsonb)`** —— 上述「第 1 条用原始键 / 第 `i` 条用 `<key>#<i>`」现由**该函数内部**实现。**一条语句自带隐式事务**（`0004` 定义、`0005` 覆盖）⇒ **不再需要应用层的 `BEGIN…COMMIT`**，也不再存在「应用层先 SELECT 再 INSERT」的空间。
-- 🆕 **v0.4 补注（重放归属）**：**「键族」不再靠 `split_part(idempotency_key,'#',1)` 这种字符串前缀算术判定**（它就是 F1 缺陷的根因），改为 **`ledger_entry.event_root_key` 精确归属**；历史行（`event_root_key IS NULL`）按 `idempotency_key` **精确等值**兜底。⇒ §19.5 里「同一键族」一语，v0.4 起一律以「**同一 `event_root_key`**」为准。
-- 🆕 **v0.4 补注（键的字符集，本裁定的前提）**：派生键 `<key>#<i>` 只有在**调用方键禁止含 `#`** 时才是单射；该禁令已于 v0.4 落为 R49 的字符集闸（见 §6.2 v0.4 块）。**派生分录撞唯一约束 = 实现缺陷** ⇒ `LD024` / `LEDGER_TRANSACTION_REQUIRED`（`500`）/ `reason = 'derived_key_collision'`，**不得**伪装成 `409`「幂等冲突」。
 
 ### 19.6 裁定（登记）：R52② 指纹策略 + 路由层强制项
 
@@ -1272,87 +1126,4 @@ FOR EACH ROW EXECUTE FUNCTION account_guard();
 2. 旁证：`0003` migration 在真库执行成功 —— 该文件自身以 `pg_constraint`（`contype = 'c'`）断言约束存在性、并在替换后断言恰好 1 个 `ledger_kind_enum` CHECK ⇒ 该约束可被 `DROP` / `ADD` 替换，且替换后无行在用被删值。
 3. 真库测试数据已清理：删 308 条流水 / 27 个账户 / 8 个自建币；现仅剩平台账户（`0` / `−1` / `−2` / `−3`，均 `0/0`）与 `cid = 1` 的 `$`；`schema_migration` 登记 `0001` / `0002` / `0003`。
 
-**未纳入本次裁定（v0.3 新增留白）**：`platform_withdraw`（R103 / §15 #3）、R15 分录双字段（§15 #1）、P0 migration 与 DDL 实测（§16 #1/#2/#3），以及「强制下架罚款」若将来要做须新定 kind（见 19.8.B）。---
-
-### 19.9 P1f 收口登记（Zang · P1e/P1i/F3 + P1g 改名，v0.4）
-
-> **本节性质**：**P1e 独立质检判定不通过**（3 条真缺陷：①【高】幂等派生键碰撞 ⇒ 无关业务事件被静默丢弃却报成功；②【中高】未映射 SQLSTATE 面成立 ⇒ 调用方可构造 `500`；③【中】`LD025/026/027` 三条 `503` 投影全为死代码 + 函数内 `set_config(statement_timeout,…)` 实测**无效**）⇒ **修三缺陷** ⇒ **复验通过**（F1 14/14；F2 52 例闭集全绿且 `unmapped_escape = 0` / `status_500 = 0` / `not_in_closed_set = 0`；F3 六项真机读数全取；`tsc --noEmit` 0 error；`ledger-smoke` 29/0；`ledger-smoke-db` 11/0）。本节登记 v0.4 的**契约变化**与落位索引，并单列 **§19.9.F 发现的不一致**。
-> **效力**：本节与上游条文冲突时**以本节为准**。§19.0–§19.8 编号不重排，P1f/P1g 内容全部追加于此。
-> **规则总数不变（R1–R108，108 条）**；本版**不新增任何错误码**（§14.1 的 33 个关闭集不动）。
-> **真源（本节所有读数与逐字值的出处）**：`backend-ts/.p1f-artifacts/p1f-acceptance.md`（§3 TS 四处改动逐字 diff / §4 `§D2` 四条款 / §7 F3 读数 / §10 未验证面 / §11 S1–S12 清单）、`backend-ts/.p1f-artifacts/p1f03-f3-readings.json`（F3 原始读数）、`backend-ts/.p1g-artifacts/p1g-acceptance.md`（§4/§8/§9）与 `impact-inventory.md`、`backend-ts/migrations/0005_ledger_event_root_key.sql`（1407 行）、`0006_user_to_users.sql`、`backend-ts/src/ledger.ts`、`ledger-errors.ts`。**未从真源读到的一律标「未验证/无法核对」，不补看起来合理的值。**
-
-#### 19.9.A §11 S1–S12 逐条落位表（P1f）
-
-| S# | 应写成（v0.4 口径） | 正文落位 | 说明 / 旧写法留痕 |
-| - | - | - | - |
-| S1 | bucket 纪律冻结为**可机读**：`input ⇒ 400 类` / `integrity ⇒ 400 \| 404 \| 409（绝不 500）` / `retryable \| infra ⇒ 503` / `defect ⇒ 500`；追加判据「**500 类码只可能来自 `defect` 桶**」 | §14.3 附、§19.9.C | 修前口径把 `integrity` 一律钉成 400，与 §14.1 的 `404/409` 冲突（探针公式过严而误报红） |
-| S2 | 400 `LEDGER_AMOUNT_INVALID` + `reason = 'AMBIGUOUS_AMOUNT'`（两字段同时出现） | §8.3 R72 v0.4 块 | 修前被**静默接受 200**（M31） |
-| S3 | 400 + `reason = 'EXPONENT_NOT_ALLOWED'`（`amount:'1e5'`） | §8.3 R72 v0.4 块 | 修前被静默接受 200（M43） |
-| S4 | 列 `event_root_key` + 索引 `idx_ledger_event_root_key` + 守卫 `ledger_event_root_guard`；查询口径 = **归属列优先、历史行键精确等值兜底** | §2.1 v0.4 块、§12.1、§6.2 v0.4 块 | v0.3 无此列/守卫/索引 |
-| S5 | 预算助手语义：`10000` / `3000` / `min(3s, 剩余)` / 逾期 ⇒ `LD026 reason=statement_budget_exhausted` | §11.2 R82 v0.4 块、§19.9.B | 修前「假上限」（`set_config` 无效） |
-| S6 | **新增（显式否证）**：`statement_timeout` **绕过** plpgsql 处理器；`57014` 原样逃出；只有 `lock_timeout` 可接 | §11.2 R82 v0.4 块 (4)、§16 #7、§19.9.B | v0.3 隐含「§E 单一处理器接住一切」 |
-| S7 | `LD025 = LEDGER_LOCK_TIMEOUT(503)` / `LD026 = LEDGER_TX_TIMEOUT(503)` / `LD027 = LEDGER_DEADLOCK_RETRY_EXHAUSTED(503)` | §14.1 #26/#27/#28、§14.3 附 | 三条投影修前全是死代码，`55P03/40P01/57014` 原样逃出 |
-| S8 | R60 追加 `LD027`（TS `RETRYABLE_SQLSTATES` **必须**含）；`40001/40P01` 保留为函数外原始码 | §7.3 R60 v0.4 块、§14.1 #28 | 不同步 = 死锁不再重试 = R60 形同失效 |
-| S9 | 键字符集闸：禁 `#`（`RESERVED_SEPARATOR`）/ 禁 C0·DEL（`CONTROL_CHARACTER`），与 DB `v_key ~ '[[:cntrl:]]'` **同集**；作用于**每一个** `idempotency_key` 位置 | §6.2 R49 v0.4 块 | v0.3 只写前缀要求 |
-| S10 | 基础设施类 ⇒ `LEDGER_TX_TIMEOUT` **503**；**显式排除** `08P01`（⇒ `500` 缺陷告警）与 `57014`（移交 SQLSTATE 表分支） | §14.1 #27、§14.3 附 | 修前 infra SQLSTATE 全落 `500` 兜底 |
-| S11 | `M31b_amount_only_over_cap` 的 DETAIL `value` = R72 语义下**换算后的最小单位**（`"100000000000000100"`），**不是**入参原值 | §8.3 R72 v0.4 块 (5) | 防误读 |
-| S12 | 「最坏等待」声明改为**语句级**预算上限 `10000ms`（实测 DB 侧 `10142ms` / 客户端 `11283ms`，端到端另计） | §11.2 R82 v0.4 块 (3)、§16 #6、§19.9.B | 旧宣称最坏 `48000ms`（出处 `docs/seafood.master-plan.md` D-03 行，非本册） |
-
-#### 19.9.B 两条**必须原样写入、不得美化**的诚实口径
-
-**（B1）预算钳的是「语句级」≤10s，端到端**不是****
-- 机读上限 = **单条语句**（= 一个业务事件）`ledger_stmt_budget_ms() = 10000ms`。
-- **实测（不得改写为「端到端 ≤10s」）**：落盘原始读数 `p1f03-f3-readings.json` → `total_wait_chain`（run tag `H262V`，6 持锁者 / 单键 `ops:p1k:H262V:chain6`，`spacing_ms = 2600`）：**DB 侧单语句 `max_db_elapsed_ms = 10142`**（39 次 `pg_stat_activity` 取样；`last_row.db_elapsed_ms = 10141.602`）、**客户端总耗时 `measured_total_wait_ms = 11283`**、`client_overhead_ms = 1141`、`clamped_to_le_10s = true`、`rows_written_0 = true`。
-- `p1f-acceptance.md §7.5` 引用的是**更早一轮**（run `GT4OR`）读数：DB 侧 `10106` / 客户端 `10897` / 开销 `791`。**两轮都 > 10s 的端到端**，差值全部来自客户端 / 连接开销（**+0.8~1.3s**），不是等待被累加。
-- 对照：**修前**同场景 `15583ms`；**旧宣称最坏 `48000ms`**。⇒ **累计等待的乘法效应确已被预算钳住**，但「可机读上限 10s」**应理解为语句级而非端到端级**；「端到端 ≤10s」**未验证、也未实现**（§16 #6）。
-
-**（B2）`57014` 不可能在函数内转码；`LD026` 的唯一产生源是预算助手**
-- `statement_timeout` **绕过** plpgsql 的 `EXCEPTION` 处理器：`stmt_timeout_catchable_by_plpgsql = **false**`、`statement_timeout_bypasses_plpgsql_handler = true`（逃逸矩阵 5 组对照 A1/A2/B1/B2/B3 + 附测 B4/B5 一致）；真拿到 `57014` 的旁证（独立语句先 `SET statement_timeout='600ms'`、`SHOW` 回读确认后再调函数）：`final_sqlstate = 57014`、`final_detail_raw = null`（**未被 §E 处理器接住**）、`raw_57014_escaped = true`、`rows_written_0 = true`。
-- `lock_timeout` 则**可以**被接住：`lock_timeout_catchable_by_plpgsql = **true**`（B2 组内层捕获 `55P03` 后改抛 `ZZ999`）；B4 组（`lock_timeout` + 无 handler + 等锁）实测**未观测到 `55P03`**（见 §19.9.F 第 2 条）。
-- ⇒ **`LD026` 的唯一产生源 = 函数内自证预算**（`ledger_arm_lock_timeout` / `ledger_check_budget`，预算耗尽 `reason = 'statement_budget_exhausted'`：实测 `remaining_ms = -1001` / `-1` 两个读数，`stage = 'unit_probe'` / `'lock:wakeup'`）。
-- ⇒ **禁止**把本册写成「§E 处理器接住 `57014` 再转码为 `LD026`」；`57014` 只能由 **§C 分类器**归类（`bucket = 'retryable'` → `LEDGER_TX_TIMEOUT`；TS 侧 `503`，DETAIL 不带 `reason`（即 `{}`），因为它走 SQLSTATE 表分支而**不是** `infraSqlstateReason`）。
-- 另注（同源事实）：`set_config('statement_timeout', N, true)` 对**它自己那条语句无效**（同语句 `set_config(1500,true)` + `pg_sleep(4)` = 4311ms 未被取消；`is_local=false` 亦 4193ms 未被取消；对照「独立语句 `SET`」在 1705ms 被取消）⇒ 对「一条语句 = 一个业务事件」的形态，**唯一**引擎无关且实测有效的语句级约束就是本节的自证预算。
-
-#### 19.9.C §14 系列落位（不新增码 + bucket 纪律冻结 + reason 枚举登记）
-
-- **不新增错误码**：`LD025/LD026/LD027` **不是**新码 —— 它们是 DB 侧自定义 SQLSTATE，MESSAGE 分别是既有的 `LEDGER_LOCK_TIMEOUT` / `LEDGER_TX_TIMEOUT` / `LEDGER_DEADLOCK_RETRY_EXHAUSTED`（§14.1 #26/#27/#28）。TS 侧 `LEDGER_SQLSTATE_TO_CODE` 三条映射与 DB 侧**同码**（`LD025→LOCK_TIMEOUT` / `LD026→TX_TIMEOUT` / `LD027→DEADLOCK_RETRY_EXHAUSTED`）。
-- **映射表 + bucket 纪律 + 五类 reason 枚举**：就地落在 **§14.3 附（v0.4 新增）**，`details` 形状就地落在 **§14.4**（`LEDGER_LOCK_TIMEOUT` / `LEDGER_DEADLOCK_RETRY_EXHAUSTED` 各自**单列**；`LEDGER_TX_TIMEOUT` 补「预算耗尽」与「基础设施类」两形状）。
-- **`08P01` 归 `500 protocol_violation`**：DB §C 分类器与 TS `normalizeLedgerError` **两侧一致**（DETAIL `{ cause: '08P01', reason: 'protocol_violation', error_name: 'ProtocolViolation', pg_code: '08P01' }`；`bucket = 'defect'`）⇒ 它是**我方连接配置缺陷**（如向 pooler 传 `options=`，实测被拒），**不是**瞬时故障，**刻意排除在 infra 之外**。
-- **§14.3 裁定（形状非法 vs 不存在）**：`cid` / `uid` **形状非法 = 参数校验失败 = `400`**（`LEDGER_AMOUNT_INVALID` + `reason = 'NOT_STRING' | 'NOT_DECIMAL_INTEGER' | 'OUT_OF_BIGINT_RANGE' | 'MISSING'`）；**形状合法但目标不存在 = `404`**（`LEDGER_ACCOUNT_NOT_FOUND` / `LEDGER_CURRENCY_NOT_FOUND`）。§14.3 原写「uid/cid 格式非法 ⇒ `404`」**是错的**，已就地标作废（留痕）。残留偏差见 §19.9.F 第 6 条。
-- **分类器实现纪律**：`ledger_error_for_sqlstate(state, constraint)` 必须**全定义域、永不返回 NULL**（任何未登记 SQLSTATE 落 `defect` + `LEDGER_TRANSACTION_REQUIRED` + `unclassified_db_error`）；`bucket` 与 `retryable` 由 bucket 派生（`retryable = bucket IN ('retryable','infra')`）。
-
-#### 19.9.D 改名（D11）落位（P1g）
-
-- **事实**：身份表已由 `backend-ts/migrations/0006_user_to_users.sql` 从 `public."user"` 改名为 **`public.users`**；关联对象**全部改名**：约束 `users_pk` / `users_evm_uniq` / `users_evm_fmt` / `users_uid_positive` / `users_*_not_null`×6、独立索引 `idx_users_evm_lower`、identity 序列 `users_uid_seq`；**列名一个未动**（`uid bigint IDENTITY` / `evm` / `bio` / `is_admin` / `time_reg` / `time_login_last`）。
-- **不做的事（诚实边界）**：本迁移**未触碰** `neon_auth."user"`（Neon Auth 自有表，本库有 4 条 FK 指向**它**，与 D11 无关）；**未消除** `user` 保留字行为（改后 `SELECT count(*) FROM user` **依旧**静默返回 `current_user` 的 1 行）—— 消除的是**事故类别**（正确表名 `users` **不是**保留字；写错时无同名表可被「碰对」，`42P01` 立现）。**不得**表述为「陷阱已消除」（§16 #11）。
-- **活文档引用已同步（本册 6 行）**：§2.2 **R21**（`:216`）、§13.2 「真实用户 uid 恒为正整数」（`:667`）、§13.3 **R98** 附注（`:675`）、§15 决策表 **#8**（`:789`）、§16 **未实测 #5**（`:815`，并注明 `users` 建表语句**现由 `backend-ts/migrations/0002_user_identity.sql` 提供**）、§17 索引 **R21**（`:852`）。⇒ `"user"."uID"` 一律改为 **`"users".uid`**；同时更正「该列现为 `bigint`、v0.1 实测的 `text`/`integer` 类型分叉**已由 `0002` 消除**」。
-- **未由本轮改动（按授权范围）**：`docs/seafood.master-plan.md` 的改名同步**不在本轮授权范围**（派单只授权本册 + 版本快照 + QA 读数）⇒ 本轮**未动该文件**；事实是该文件**已由另一写者在同一时间窗内更新**（`master-plan v0.18`，`mtime 2026-09-27 15:18:46`：`§5.7` **硬1 作废、新增硬1′**（「业务身份表 = `public.users`；一律写 `users` 不写 `user`；不得描述为『陷阱已消除』」）、新增 `§5.14`（D11 执行完毕 / `0006` / checksum `4aa19b148700`）与两条既有缺陷记录）。`docs/versions/ledger.spec.v0.1.md` / `v0.2.md`（各 6 行）与 `docs/qa/p0-acceptance.md`（4 行）/ `p1-ledger-concurrency.md`（1 行）按**版本快照 / 取证读数**纪律**只加注不改写**（各加 1 行注记，原读数逐字节保留）。详见 §19.9.F 第 5 条与交付报告。
-
-#### 19.9.E 落位索引（逐处对号）
-
-| 项 | 正文落位（逐处） |
-| - | - |
-| 键字符集收紧（S9） | §6.2 v0.4 块 (1)(2)、§17 R49、§14.3 附（键类 reason） |
-| 重放精确归属（S4 / F1②） | §2.1 v0.4 块 (1)–(5)（含 DDL 列/索引/守卫）、§12.1（清单 11→12、R96 注）、§6.2 v0.4 块 (3)(4)、§11.1 判据 8 v0.4 块、§17 R51/R52、§19.5 补注 |
-| `LD024 derived_key_collision`（缺陷，非 409） | §6.2 v0.4 块 (4)、§14.1 #25、§14.3 附（缺陷类 reason）、§19.5 补注 |
-| R60 + `LD027`（S8） | §7.3 v0.4 块 (1)–(4)、§14.1 #28、§14.4 单列、§17 R60 |
-| 金额二选一 / 指数形式（S2 S3 S11） | §8.3 v0.4 块 (1)–(6)、§17 R70/R72、§14.3 附（金额类 reason） |
-| R82 预算口径改写（S5 S6 S12） | §10.3 v0.4 块 (1)–(5)、§14.1 #26/#27、§14.3 附（事务/基础设施类 reason）、§15 #19、§17 R82、§16 #6/#7/#8 |
-| 判据 8 键族归组（S1 相邻） | §11.1 判据 8 v0.4 块 (1)–(4)、§16 #10 |
-| §14 系列（S1 S7 S10 + 裁定） | §14.1 #25–#28（扩写）、§14.3（uid/cid 形状行更正 + **新增 §14.3 附**）、§14.4（三条单列/补形状） |
-| §19.5 单语句 = 隐式事务 | §7.1 v0.4 bullet、§19.5 三条补注、§17 R51 |
-| 改名（D11） | §0.2 注、§13.2、§13.3 R98、§15 #8、§16 #5/#11、§17 R21、§19.9.D |
-| 诚实边界补 6 项 | §16 #6–#11（表头 5 → 11） |
-
-#### 19.9.F 发现的不一致（按 Zang 要求单列；真源之间矛盾时**以代码与实测读数为准**）
-
-1. **`p1f-acceptance.md §7` 的引数与它自己声称的原始读数文件不是同一轮**。报告 §7 声称读数出自 `p1f03-f3-readings.json`（「1311 行，34,438 字节」，运行窗 `06:56:10Z → 06:57:56Z`，run tag `GT4OR`）；**现盘文件**为 1311 行 / **34,475 字节** / mtime `2026-09-27 15:04:52 CST`，其 `run = H262V`、`total_wait_chain.key = ops:p1k:H262V:chain6`、`db_side_sampled_wait_ms.last_row.qs = 2026-09-27 07:04:31Z`（≈15:04 CST）⇒ **该文件已被 07:04Z 的一轮覆盖**。逐项差异（报告 §7 ↔ 现盘 json）：chain6 客户端总等待 `10897` ↔ **`11283`**；DB 侧 `10106` ↔ **`10142`**；客户端开销 `791` ↔ **`1141`**；终局码 `LD025 / LEDGER_LOCK_TIMEOUT（lock_timeout_ms = 0）` ↔ **`LD026 / LEDGER_TX_TIMEOUT（reason = statement_budget_exhausted, stage = 'lock:wakeup', remaining_ms = -1）`**；`55P03` 第一次/重试用时 `3208 / 264` ↔ **`3244 / 207`**；死锁等锁 `839`（直调）/ `921`（API）↔ **`163` / `1146`**；死锁 API 耗时 `4068` ↔ **`4265`**；`57014` 用时 `869` ↔ **`790`**。**口径建议（本版采用）**：以**落盘 json 为原始读数**、报告文本视为**更早一轮**；两轮**结论方向一致**（`clamped_to_le_10s = true`、`rows_written_0 = true`、不双扣），故 S12/B1 的**量级**结论不受影响，但**终局码**与**端到端数值**应以后续轮的 json 为准（本版 §11.2 R82 v0.4 块已按「两轮并列 + 标注差异」写，未擅自二选一）。**待 Zang 裁定是否需要统一为一轮。**
-2. **报告 §7.3 的一条判据行与落盘读数相反**：报告写 `lock_timeout_lockwait_raw_55P03_when_no_handler = true`；现盘 json 的 `escape_isolation_57014.verdicts.lock_timeout_lockwait_raw_55P03_when_no_handler = **false**`（B4 组 `sqlstate_seen = None`、`caught = False`）⇒ **该格未被读数支持**。本版 §19.9.B 只引用被两侧一致的判据（`stmt_timeout_catchable_by_plpgsql = false`、`lock_timeout_catchable_by_plpgsql = true`、`statement_timeout_bypasses_plpgsql_handler = true`），并如实标注 B4 组的反例。
-3. **派单所述 `0005_ledger_event_root_key.sql` = 1288 行；实测 1407 行**（`wc -l`）。本册按 **1407 行**登记（§19.9 真源行）。
-4. **派单所述「旧声明：函数内 `set_config(statement_timeout,10000)` 生效」在 `docs/ledger.spec.md` v0.3 正文中并不存在**（v0.3 全文 `grep set_config` = 0 命中）。该声明实际出现在 **`docs/seafood.master-plan.md:243`（裁定 B）与 `:209`（D-03 行）**、**`docs/qa/p1e-db-function.md:33/37/83/91`**，以及实现侧 `0004` 的 C1 段注释里。⇒ 本版在 spec 中**新增一条显式否证行**（§11.2 R82 v0.4 块 (1)），**「删除」在 spec 层面无事可删**；另注：v0.3 正文的 R82 只写了「必须设置 `lock_timeout` / `statement_timeout`」这句**未被推翻**的主张（真正被推翻的是「函数内 `set_config` 能给出语句上界」的机制）。
-5. **派单 §D 的 6 个 spec 行号逐条复核全部命中，无偏移**（`:216` / `:667` / `:675` / `:789` / `:815` / `:852`）—— 已全部改为 `"users".uid`（活引用归零）。`grep -rn '"user"' docs/` 实测：**本轮开工时 = 6 文件 26 行**（`master-plan` 3 / 本册 6 / `v0.2` 6 / `v0.1` 6 / `qa/p1-ledger-concurrency` 1 / `qa/p0-acceptance` 4 —— 与派单所载**逐字一致**）；**本轮收工时 = 7 文件 33 行**：本册 6 → **5**（该 5 处全在 §19.9 内，是**改名留痕的历史叙述**（旧表名 / `neon_auth` 同名表 / 硬1 原文引用），**不是活引用**）；`master-plan` 3 → **5**（**由同一时间窗内另一写者的 `master-plan v0.18` 改动所致，mtime `15:18:46`，本轮未触碰该文件**）；`v0.1` / `v0.2` / `qa/*` 行数**不变**（只加 1 行注记，原读数逐字节保留）。⇒ 结论：**本册 6 处活引用全部改为 `users`**；`master-plan` 的改名同步由 `v0.18` 自行完成（`§5.7` 硬1 作废 → 新增硬1′），本轮未改该文件（授权范围外）。
-6. **§14.3 裁定「`cid` 形状非法 ⇒ `400`」在 TS 侧有一处残留偏差**：`src/ledger.ts:toCid` 对 `cid <= 0` 抛 `LEDGER_CURRENCY_NOT_FOUND`（`404`），**未**走 `400` 形状闸（DB 侧 `ledger_strict_text` + `ledger_int_amount` 已是 `400 LEDGER_AMOUNT_INVALID`）。同理 `toUid` 对 `< -99` 抛 `LEDGER_RESERVED_UID`（`400`，**与裁定相容**）。⇒ **按裁定，TS 侧 `toCid` 这一处待实现方收敛**（本册只登记口径，不改代码）。
-7. **（口径提示，非矛盾）** 两处「读数的语义」容易被误读，已在正文显式标注：① `M31b_amount_only_over_cap` 的 DETAIL `value = "100000000000000100"` 是**换算后的最小单位**（§8.3 R72 v0.4 块 (5)）；② `p1f-acceptance.md §7.7` 的测试数据分区（uid `944xxx` / symbol `P1K…` / 键 `ops:p1k:*`）与 json 的实际 run tag（`H262V`，而报告 §7.7 写 `GT4OR`）**不同** —— 同属第 1 条的「两轮混记」。
-
-**未纳入本次裁定（v0.4 新增留白）**：`platform_withdraw`（R103 / §15 #3）、R15 分录双字段（§15 #1）、「强制下架罚款」若要做须新定 kind（§19.8.B）、以及 **`docs/seafood.master-plan.md` 的改名同步**（§19.9.F 第 5 条）与 **TS `toCid` 的形状闸收敛**（§19.9.F 第 6 条）—— 后两项是**已识别、未执行**的待办，非本册遗漏。
-
+**未纳入本次裁定（v0.3 新增留白）**：`platform_withdraw`（R103 / §15 #3）、R15 分录双字段（§15 #1）、P0 migration 与 DDL 实测（§16 #1/#2/#3），以及「强制下架罚款」若将来要做须新定 kind（见 19.8.B）。
