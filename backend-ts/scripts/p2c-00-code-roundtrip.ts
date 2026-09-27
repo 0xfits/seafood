@@ -25,18 +25,30 @@
  *        · **扩展项**违例（status ∉ 冻结覆盖面的码：见下方「扩展」段，逐条按档位对拍）
  *        · **两侧不一致**（DB 桶 ≠ JS 侧由 `LEDGER_ERROR_TABLE` 状态派生的桶）
  *        · `retryable` 标志与桶不自洽（`retryable ≠ bucket ∈ {retryable,infra}`）
+ *        ⚠️ **`benign_outcomes` 一类的码不参与上述任何「bucket↔状态类」校验**（见下），
+ *           但**仍**参与 ① 往返闭合 / ② 未知码 / 两侧一致 / `retryable` 自洽 —— 只豁免「状态类」这一维。
  *   ④ `null_status_defect`    = defect 桶码中 `(LEDGER_ERROR_TABLE[code].status ?? 500) ≠ 500` 的项数
+ *   ⑤ `benign_outcomes`       = **良性结果码**类（本单新增；master-plan §5.23）：
+ *        `LD006 = LEDGER_IDEMPOTENCY_REPLAY` 是 **200**，它是**良性结果**（R106：调用方重复提交，
+ *        永不进错误分支）⇒ **单列一类、不参与 bucket↔状态类校验**；`bucket` 字段**仍记 `'input'`**
+ *        （= input 起源的良性结果，与**已应用**的 `0009` 的 DB 侧逐字一致）。
+ *        计数字段：`count`（码数）/ `excluded_from_bucket_class_validation`（被排除出校验的码数），
+ *        断言「**不参与校验的码数 = 1**」且良性码的 DB 桶/JS 桶**仍是 `input`**（防「为了让校验变绿去改桶」）。
  *
  *   ⚠️ **冻结映射的真实覆盖面不完整（本单登记的既有事实，非本脚本放宽断言）**：
- *     §14.1 的状态集含 `403`（LD014/LD015）、`423`（LD009）、`200`（LD006，R106 明定**不是错误**），
- *     冻结的 `bucket↔状态类` 四条**一个都没覆盖**这三个状态类 ⇒ 任何分桶都必然「超出冻结面」。
- *     本单取**最小扩展**并逐条留痕（落 `bucket_map_extension` 字段，供 Zang 追认）：
- *       · `403` ⇒ `input`     （权限不足 = 调用方身份不对；非完整性、非状态冲突）
- *       · `423` ⇒ `integrity` （资源被锁定 = 合规冻结，R105 把「币种状态」归 409 语义族）
- *       · `200` ⇒ `input`     （LD006 幂等重放是**调用方重复提交**；R106 保证它不进错误分支）
- *       · `null`（LD032）⇒ `defect` ⇒ `status ?? 500` ⇒ `500`（**响应层兜底规则**，见 ledger-errors.ts）
+ *     §14.1 的状态集含 `403`（LD014/LD015）、`423`（LD009）、`200`（LD006）、`null`（LD032），
+ *     冻结的 `bucket↔状态类` 四条一个都没覆盖 ⇒ 任何分桶都必然「超出冻结面」。处置**分两种**（不得混为一谈）：
+ *       · **扩展档位**（真的是一条「状态类 ⇒ 桶」映射，逐条留痕供追认）：
+ *         `403` ⇒ `input`     （权限不足 = 调用方身份不对；非完整性、非状态冲突）
+ *         `423` ⇒ `integrity` （资源被锁定 = 合规冻结，R105 把「币种状态」归 409 语义族）
+ *         `null`（LD032）⇒ `defect` ⇒ `status ?? 500` ⇒ `500`（**响应层兜底规则**，见 ledger-errors.ts）
+ *       · **良性结果**（**`200` 不是错误类** ⇒ 单列 `benign_outcomes`，**不做**状态类映射、**不进**
+ *         `EXTENSION_STATUS_BUCKET`）：`LD006` 一个码。它此前被硬塞成扩展档位 `200 ⇒ input`，
+ *         §5.23 已改判 ⇒ 本脚本按改判执行（**改的是期望模型，不是 DB**；`0009` 已应用，改它就是撒谎态）。
  *     ⇒ 覆盖内的码走**严格冻结公式**（`frozen_map_violations`），覆盖外的码走**扩展档位**
- *     （`extension_violations`），两者都进 `bucket_violations`。**没有任何一条断言被放宽或跳过。**
+ *     （`extension_violations`），良性码走**豁免**（`benign_outcomes`），三者互补且**互不重叠**。
+ *     **没有任何一条断言被放宽或跳过** —— 良性码的豁免是**逐码白名单**（当前 1 个码），
+ *     且「良性命中数」本身是被断言的对象（非 1 即红 ⇒ 白名单被悄悄扩大会立刻变红）。
  *
  * ---------------------------------------------------------------- 用法 / 落盘
  *   cd backend-ts
@@ -56,7 +68,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
 import { mkPool, raw } from './p1f-lib';
-import { LEDGER_ERROR_TABLE, LEDGER_ERROR_CODES } from '../src/ledger-errors';
+import { LEDGER_ERROR_TABLE, LEDGER_ERROR_CODES, LEDGER_BENIGN_CODES } from '../src/ledger-errors';
 import { LEDGER_SQLSTATE_TO_CODE, ledgerErrorFromDbError } from '../src/ledger';
 
 // ============================================================================
@@ -94,13 +106,24 @@ const BUCKET_CLOSED_SET = Object.keys(FROZEN_BUCKET_STATUS);
 /**
  * 最小扩展档位（仅在 status ∉ 冻结覆盖面时生效）：`status ⇒ 桶`。
  * 依据与理由见文件头「扩展」段；`null` = LD032 由「响应层 status ?? 500」兜底成 500 ⇒ defect。
+ * ⚠️ **`200` 已从本表移除**（master-plan §5.23 改判）：`LD006 = LEDGER_IDEMPOTENCY_REPLAY` 是
+ *    **良性结果**，单列 `benign_outcomes` 一类、**不参与** bucket↔状态类校验
+ *    ⇒ 它若仍留在此处，就是把「不是错误类的东西」当成一条状态类映射来对拍（语义错）。
+ *    豁免是**逐码**的（`LEDGER_BENIGN_CODES`），不是「凡 200 都免检」。
  */
 const EXTENSION_STATUS_BUCKET: Record<string, string> = {
-  '200': 'input',    // LD006 幂等重放（R106：不是错误，调用方重复提交）
   '403': 'input',    // 权限不足（调用方身份不对）
   '423': 'integrity', // 资源被锁定（合规冻结，R105 的「币种状态」族）
   null: 'defect',    // LD032 对账不符（实现缺陷，R108 必告警）；HTTP 层 status ?? 500
 };
+
+/**
+ * **良性结果码**（`benign_outcomes`）—— 真源 = TS 侧 `LEDGER_BENIGN_CODES`（**单一来源，不在此另抄一份**）。
+ * 这些码：① 仍走往返闭合 / 未知码 / 两侧一致 / `retryable` 自洽；② **跳过** bucket↔状态类校验
+ * （既不查冻结公式，也不查扩展档位）⇒ `frozen_ok = extension_ok = null`、`bucket_class_validated = false`。
+ */
+const BENIGN_CODES: readonly string[] = LEDGER_BENIGN_CODES as readonly string[];
+const isBenignCode = (name: string): boolean => BENIGN_CODES.includes(name);
 
 /** 冻结覆盖面 = 允许状态的全集（用于判定某个 status 是否「覆盖内」） */
 const FROZEN_COVERED_STATUSES = new Set<number>(
@@ -170,6 +193,8 @@ interface Row {
   ts_reverse_code: string | null;          // TS 侧反向表（LEDGER_SQLSTATE_TO_CODE）
   ts_status: number | null;                // TS 侧状态（LEDGER_ERROR_TABLE）
   js_bucket: string | null;                // JS 侧派生桶
+  benign: boolean;                         // 良性结果码（200，benign_outcomes）⇒ 豁免「状态类」校验
+  bucket_class_validated: boolean;         // 是否参与了 bucket↔状态类校验（良性码 = false）
   roundtrip_ok: boolean;
   frozen_ok: boolean | null;               // 覆盖内严格公式；覆盖外 = null
   extension_ok: boolean | null;            // 覆盖外扩展档位；覆盖内 = null
@@ -208,6 +233,7 @@ interface Row {
       name, sqlstate, db_code: null, db_bucket: null, db_reason: null, db_retryable: null,
       ts_reverse_code: LEDGER_SQLSTATE_TO_CODE[sqlstate ?? ''] ?? null,
       ts_status: status, js_bucket: derived.bucket,
+      benign: isBenignCode(name), bucket_class_validated: false,
       roundtrip_ok: false, frozen_ok: null, extension_ok: null, sides_agree: false, retryable_ok: false,
       defects: [],
     };
@@ -247,9 +273,17 @@ interface Row {
     if (status !== null && FROZEN_COVERED_STATUSES.has(status)) {
       row.frozen_ok = (FROZEN_BUCKET_STATUS[bucket] ?? []).includes(status);
       row.extension_ok = null;
+      row.bucket_class_validated = true;
+    } else if (row.benign) {
+      // 良性结果（200，benign_outcomes）：**不参与** bucket↔状态类校验（master-plan §5.23）
+      // 既不算冻结公式，也不算扩展档位 —— 两项都记 null 以示「未校验」（不是「校验通过」）。
+      row.frozen_ok = null;
+      row.extension_ok = null;
+      row.bucket_class_validated = false;
     } else {
       row.extension_ok = EXTENSION_STATUS_BUCKET[String(status)] === bucket;
       row.frozen_ok = null;
+      row.bucket_class_validated = true;
     }
     if (row.frozen_ok === false) row.defects.push(`frozen_map: status=${status} bucket=${bucket}`);
     if (row.extension_ok === false) {
@@ -293,6 +327,20 @@ interface Row {
   // TS 侧桶资产（修后新增；修前 absent ⇒ 计数为「未就绪」，不静默跳过）
   const mod = (await import('../src/ledger-errors')) as Record<string, unknown>;
   const asset = mod.LEDGER_ERROR_BUCKETS as Record<string, string> | undefined;
+  // 良性结果码资产（本单新增；缺席 ⇒ 断言失败，不静默跳过）
+  const benignAsset = mod.LEDGER_BENIGN_CODES as readonly string[] | undefined;
+  const benignAssetMismatch: string[] = [];
+  if (benignAsset) {
+    // 资产必须与脚本内用于豁免的名单**逐字一致**（单一来源：这里只是复核，不是另抄）
+    if (JSON.stringify([...benignAsset]) !== JSON.stringify([...BENIGN_CODES])) {
+      benignAssetMismatch.push(`asset=${JSON.stringify([...benignAsset])} used=${JSON.stringify([...BENIGN_CODES])}`);
+    }
+    // 资产里的每个码必须真的存在，且其 §14.1 状态 = 200（否则「良性」名不副实）
+    for (const c of benignAsset) {
+      const st = (LEDGER_ERROR_TABLE as Record<string, { status: number | null }>)[c]?.status ?? null;
+      if (st !== 200) benignAssetMismatch.push(`${c}: status=${st}（良性码应为 200）`);
+    }
+  }
   const assetMismatch: string[] = [];
   if (asset) {
     for (const r of rows) {
@@ -301,7 +349,10 @@ interface Row {
   }
   const httpStatusOf = mod.httpStatusOf as ((c: string) => number) | undefined;
   const httpStatusProbe = httpStatusOf
-    ? { LD032: httpStatusOf('LEDGER_RECONCILE_MISMATCH'), LD031: httpStatusOf('LEDGER_FEE_RATE_INVALID'), LD033: httpStatusOf('LEDGER_CURRENCY_SYMBOL_TAKEN') }
+    ? { LD032: httpStatusOf('LEDGER_RECONCILE_MISMATCH'), LD031: httpStatusOf('LEDGER_FEE_RATE_INVALID'),
+        LD033: httpStatusOf('LEDGER_CURRENCY_SYMBOL_TAKEN'),
+        // 良性结果码：**恒 200**（R106；不得落 500 兜底）—— 本单新增取证
+        [`LD006:${BENIGN_CODES.join(',')}`]: BENIGN_CODES.map((c) => ({ code: c, httpStatus: httpStatusOf(c) })) }
     : null;
 
   // ============================================================================
@@ -321,6 +372,21 @@ interface Row {
     .filter((r) => (r.ts_status ?? 500) !== 500)
     .map((r) => `${r.name}:status=${r.ts_status}`);
 
+  // ---- 良性结果码（benign_outcomes，master-plan §5.23）：豁免 bucket↔状态类校验，单独计数 ----
+  const benignRows = rows.filter((r) => r.benign);
+  const benignExcluded = benignRows.filter((r) => !r.bucket_class_validated);
+  const benignOutcomes = {
+    codes: benignRows.map((r) => r.name),
+    statuses: benignRows.map((r) => r.ts_status),
+    count: benignRows.length,
+    excluded_from_bucket_class_validation: benignExcluded.length,
+    /** 豁免必须是**逐码白名单**（真源 = `src/ledger-errors.ts` 的 `LEDGER_BENIGN_CODES`），不是「凡 200 都免检」 */
+    whitelist_source: 'src/ledger-errors.ts#LEDGER_BENIGN_CODES',
+    buckets_unchanged: benignRows.map((r) => ({ code: r.name, db_bucket: r.db_bucket, js_bucket: r.js_bucket,
+      note: '桶字段仍为 input（与已应用的 0009 一致）；改桶 = 撒谎态，禁止' })),
+    note: '200 不是错误类 ⇒ 单列一类、不参与 bucket↔状态类校验；仍参与往返闭合/未知码/两侧一致/retryable 自洽',
+  };
+
   const unknownCodes = unknown.slice();
   // 反向映射里指向「TS 关闭集之外」的项（域外输入不计，只查 33 码域内）
   for (const r of rows) {
@@ -338,6 +404,13 @@ interface Row {
       bucketClosedSetViolations.length + frozenViolations.length + extensionViolations.length
       + sidesViolations.length + retryableViolations.length,
     null_status_defect: nullStatusDefect.length,
+    /** 良性结果码：码数 / 被排除出 bucket↔状态类校验的码数（断言「= 1」；见下方断言） */
+    benign_outcomes: {
+      count: benignOutcomes.count,
+      excluded_from_bucket_class_validation: benignOutcomes.excluded_from_bucket_class_validation,
+      codes: benignOutcomes.codes,
+      whitelist_source: benignOutcomes.whitelist_source,
+    },
     // —— 明细（每一条都能逐项复核）
     roundtrip_mismatch_list: roundtripMismatches,
     unknown_code_list: unknownCodes,
@@ -353,10 +426,14 @@ interface Row {
     ts_reverse_map_violations: tsReverseViolations,
     ts_bucket_asset: asset ? 'present' : 'absent',
     ts_bucket_asset_mismatch: assetMismatch,
+    ts_benign_asset: benignAsset ? 'present' : 'absent',
+    ts_benign_asset_mismatch: benignAssetMismatch,
     httpStatusOf_probe: httpStatusProbe,
     bucket_map_extension_used: rows
       .filter((r) => r.extension_ok !== null)
       .map((r) => ({ code: r.name, status: r.ts_status, bucket: r.db_bucket, slot: EXTENSION_STATUS_BUCKET[String(r.ts_status)] })),
+    /** 良性结果码明细（豁免名单 + 桶字段「未改动」取证；逐条可复核） */
+    benign_outcomes_detail: benignOutcomes,
   };
 
   const artifact = {
@@ -387,7 +464,7 @@ interface Row {
   // ============================================================================
   // 4. 打印
   // ============================================================================
-  console.log('name'.padEnd(34) + 'sqlstate  db_code                     bucket       js_bucket    status  rt  froz ext sides retry');
+  console.log('name'.padEnd(34) + 'sqlstate  db_code                     bucket       js_bucket    status  rt  froz ext sides retry benign');
   for (const r of rows) {
     console.log(
       r.name.padEnd(34)
@@ -400,7 +477,9 @@ interface Row {
       + (r.frozen_ok === null ? '  -  ' : r.frozen_ok ? ' ok  ' : ' XX  ')
       + (r.extension_ok === null ? ' -   ' : r.extension_ok ? ' ok  ' : ' XX  ')
       + (r.sides_agree ? ' ok   ' : ' XX   ')
-      + (r.retryable_ok ? ' ok' : ' XX'),
+      + (r.retryable_ok ? ' ok' : ' XX')
+      // 良性结果码 = 未参与 bucket↔状态类校验（`--` 明示「未校验」，不是「通过」）
+      + (r.benign ? '  benign(未校验)' : ''),
     );
   }
   console.log('\n--- 硬判据 ---');
@@ -412,10 +491,13 @@ interface Row {
     unknown_codes: summary.unknown_codes,
     bucket_violations: summary.bucket_violations,
     null_status_defect: summary.null_status_defect,
+    benign_outcomes: summary.benign_outcomes,
     stale_unclassified_reason: summary.stale_unclassified_reason,
     ts_reverse_map_violations: summary.ts_reverse_map_violations,
     ts_bucket_asset: summary.ts_bucket_asset,
     ts_bucket_asset_mismatch: summary.ts_bucket_asset_mismatch,
+    ts_benign_asset: summary.ts_benign_asset,
+    ts_benign_asset_mismatch: summary.ts_benign_asset_mismatch,
     httpStatusOf_probe: summary.httpStatusOf_probe,
     bucket_map_extension_used: summary.bucket_map_extension_used,
   }, null, 1));
@@ -436,6 +518,36 @@ interface Row {
   if (!asset) failed.push('ts_bucket_asset_absent');
   if (assetMismatch.length !== 0) failed.push(`ts_bucket_asset_mismatch=${assetMismatch.length}`);
   if (!httpStatusOf) failed.push('httpStatusOf_absent');
+  // ---- 良性结果码（benign_outcomes，master-plan §5.23）：**不参与** bucket↔状态类校验，且计数被断言 ----
+  if (!benignAsset) failed.push('ts_benign_asset_absent');
+  if (benignAssetMismatch.length !== 0) failed.push(`ts_benign_asset_mismatch=${benignAssetMismatch.length}`);
+  if (benignOutcomes.count !== 1) {
+    failed.push(`benign_outcomes.count=${benignOutcomes.count}（期望 1：§5.23 裁定 LD006 单列一类）`);
+  }
+  if (benignOutcomes.excluded_from_bucket_class_validation !== benignOutcomes.count) {
+    failed.push(`benign_outcomes.excluded_from_bucket_class_validation=${benignOutcomes.excluded_from_bucket_class_validation}`
+      + ` ≠ count=${benignOutcomes.count}（豁免必须逐码生效）`);
+  }
+  if (benignOutcomes.count !== benignRows.filter((r) => !r.bucket_class_validated).length) {
+    failed.push('benign_outcomes 计数与逐行 bucket_class_validated 标记不一致');
+  }
+  // 良性码的桶字段必须**未改动**（仍 input，与已应用的 0009 一致）⇒ 防「为了让校验变绿去改桶」
+  for (const r of benignRows) {
+    if (r.db_bucket !== 'input' || r.js_bucket !== 'input') {
+      failed.push(`benign_bucket_drift: ${r.name} db=${r.db_bucket} js=${r.js_bucket}（期望 input，未改动）`);
+    }
+    if (r.ts_status !== 200) failed.push(`benign_status_not_200: ${r.name}=${r.ts_status}`);
+  }
+  if (benignOutcomes.codes.join(',') !== 'LEDGER_IDEMPOTENCY_REPLAY') {
+    failed.push(`benign_outcomes.codes=${benignOutcomes.codes.join(',')}（期望 LEDGER_IDEMPOTENCY_REPLAY）`);
+  }
+  // 良性码的 HTTP 语义：恒 200（R106）—— 不得落 500 兜底
+  if (httpStatusOf) {
+    for (const c of benignRows.map((r) => r.name)) {
+      const got = httpStatusOf(c);
+      if (got !== 200) failed.push(`httpStatusOf(${c})=${got}（良性码期望 200，不得落 500）`);
+    }
+  }
 
   console.log('\nassertions_failed = ' + JSON.stringify(failed));
   await pool.end();

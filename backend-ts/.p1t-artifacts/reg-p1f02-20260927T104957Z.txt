@@ -1,0 +1,1179 @@
+M01_amount_units_19x9             LD016 → LEDGER_AMOUNT_INVALID/400  19 位但超 bigint ⇒ 修前 22003/500
+M02_from_uid_19x9                 LD016 → LEDGER_AMOUNT_INVALID/400  同上（身份字段）
+M03_ref_id_19x9                   LD016 → LEDGER_AMOUNT_INVALID/400  同上（ref）
+M04_entry_delta_19x9              LD016 → LEDGER_AMOUNT_INVALID/400  entries 分支
+M05_cap_19x9                      LD016 → LEDGER_AMOUNT_INVALID/400  上界字段
+M06_sum_overflow                  LD016 → LEDGER_AMOUNT_INVALID/400  Σdelta 溢出（单条都在界内）
+M07_platform_maybe                LD016 → LEDGER_AMOUNT_INVALID/400  ::boolean 非法 ⇒ 修前 22P02/500
+M08_amount_units_nonnum           LD016 → LEDGER_AMOUNT_INVALID/400  形态非法
+M09_amount_units_decimal          LD016 → LEDGER_AMOUNT_INVALID/400  小数
+M10_amount_units_negative         LD017 → LEDGER_AMOUNT_NOT_POSITIVE/400  负数
+M11_mint_uid_neg1                 LD014 → LEDGER_UNAUTHORIZED_MINT/403  平台账户
+M12_from_uid_neg1                 LD021 → LEDGER_RESERVED_UID/400  平台账户
+M13_to_uid_neg1                   LD021 → LEDGER_RESERVED_UID/400  平台账户
+M14_cid_zero                      LD007 → LEDGER_CURRENCY_NOT_FOUND/404  非法 cid
+M15_cid_abc                       LD016 → LEDGER_AMOUNT_INVALID/400  非法 cid
+M16_cid_json_number               LD016 → LEDGER_AMOUNT_INVALID/400  【裁定】JSON number ⇒ 收紧 400
+M17_ref_type_bogus                LD016 → LEDGER_AMOUNT_INVALID/400  白名单
+M18_ref_type_no_ref_id            LD016 → LEDGER_AMOUNT_INVALID/400  成对性
+M19_ref_id_no_ref_type            LD016 → LEDGER_AMOUNT_INVALID/400  成对性
+M20_memo_object                   LD016 → LEDGER_AMOUNT_INVALID/400  【裁定】嵌套对象 ⇒ 收紧 400
+M21_memo_array                    LD016 → LEDGER_AMOUNT_INVALID/400  【裁定】数组 ⇒ 收紧 400
+M22_entries_object                LD016 → LEDGER_AMOUNT_INVALID/400  形状
+M23_entries_33                    LD016 → LEDGER_AMOUNT_INVALID/400  R64 上限
+M24_entries_17_accounts           LD016 → LEDGER_AMOUNT_INVALID/400  R64 账户上限
+M25_entry_delta_json_number       LD016 → LEDGER_AMOUNT_INVALID/400  金额列必须字符串
+M26_entry_both_zero               LD016 → LEDGER_AMOUNT_INVALID/400  ledger_move_guard 前置
+M27_settle_kind_bogus             LD023 → LEDGER_UNKNOWN_KIND/400  kind 白名单
+M28_reversal_guard                LD016 → LEDGER_AMOUNT_INVALID/400  R20 冲正守卫
+M29_op_unknown                    LD016 → LEDGER_AMOUNT_INVALID/400  op 白名单
+M30_payload_array                 LD016 → LEDGER_AMOUNT_INVALID/400  payload 形状
+M31_amount_over_cap               LD016 → LEDGER_AMOUNT_INVALID/400  【P1i】amount 超 R66/R71 单笔上限 ⇒ 400（修前 amount 被 amount_units 静默忽略）
+M31b_amount_only_over_cap         LD016 → LEDGER_AMOUNT_INVALID/400  【P1i 对照】只给 amount ⇒ 400 OVER_MAX_SINGLE_AMOUNT
+M32_from_uid_spaces              ✓ok       【裁定】btrim 后照收 ⇒ **允许**
+M33_key_missing                   LD004 → LEDGER_IDEMPOTENCY_KEY_REQUIRED/400  R49
+M34_key_json_number               LD004 → LEDGER_IDEMPOTENCY_KEY_REQUIRED/400  键形状
+M35_key_empty                     LD004 → LEDGER_IDEMPOTENCY_KEY_REQUIRED/400  键形状
+M36_key_no_prefix                 LD005 → LEDGER_IDEMPOTENCY_KEY_INVALID/400  R49 前缀
+M37_key_with_hash                 LD005 → LEDGER_IDEMPOTENCY_KEY_INVALID/400  【F1 修复】派生键分隔符 ⇒ 400
+M38_key_too_long                  LD005 → LEDGER_IDEMPOTENCY_KEY_INVALID/400  R52 长度
+M39_amount_units_20_digits        LD016 → LEDGER_AMOUNT_INVALID/400  20 位
+M40_uid_json_number               LD016 → LEDGER_AMOUNT_INVALID/400  【裁定】JSON number ⇒ 收紧 400
+M41_entry_uid_json_number         LD016 → LEDGER_AMOUNT_INVALID/400  【裁定】JSON number ⇒ 收紧 400
+M42_platform_json_number          LD016 → LEDGER_AMOUNT_INVALID/400  【裁定】JSON number ⇒ 收紧 400
+M43_amount_exponent               LD016 → LEDGER_AMOUNT_INVALID/400  【P1i】指数形式字符串 ⇒ 400（修前 amount 被静默忽略）
+M43b_amount_only_exponent         LD016 → LEDGER_AMOUNT_INVALID/400  【P1i 对照】只给 amount ⇒ 400 EXPONENT_NOT_ALLOWED
+M44_currency_op_bogus             LD016 → LEDGER_AMOUNT_INVALID/400  状态矩阵
+M45_hold_no_ref                   LD015 → LEDGER_HOLD_NOT_ALLOWED/403  R37
+M46_cap_abc                       LD016 → LEDGER_AMOUNT_INVALID/400  形态
+M47_self_transfer                 LD019 → LEDGER_SELF_TRANSFER/400  R19
+M48_cid_missing_currency          LD007 → LEDGER_CURRENCY_NOT_FOUND/404  币种不存在
+M49_entry_cid_mismatch            LD016 → LEDGER_AMOUNT_INVALID/400  配对不变式
+M50_key_control_char              LD005 → LEDGER_IDEMPOTENCY_KEY_INVALID/400  【F1】控制字符 ⇒ 400
+
+{
+  "probe": "P1F-02",
+  "run": "MUJP7K1X",
+  "symbol": "P1HMUJP7K1X",
+  "cid": "159",
+  "summary": {
+    "cases_total": 52,
+    "unmapped_escape": 0,
+    "status_500": 0,
+    "not_in_closed_set": 0,
+    "accepted_200_cases": [
+      "M32_from_uid_spaces"
+    ],
+    "unregistered_raised_codes": [],
+    "classifier_missing": false,
+    "classifier_bucket_status_violations": [],
+    "classifier_500_outside_defect_bucket": [],
+    "classifier_sample": {
+      "21000": {
+        "code": "LEDGER_AMOUNT_INVALID",
+        "bucket": "input",
+        "reason": "CARDINALITY_VIOLATION",
+        "pg_code": "21000",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "22001": {
+        "code": "LEDGER_AMOUNT_INVALID",
+        "bucket": "input",
+        "reason": "STRING_DATA_TOO_LONG",
+        "pg_code": "22001",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "22003": {
+        "code": "LEDGER_AMOUNT_INVALID",
+        "bucket": "input",
+        "reason": "NUMERIC_VALUE_OUT_OF_RANGE",
+        "pg_code": "22003",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "22007": {
+        "code": "LEDGER_AMOUNT_INVALID",
+        "bucket": "input",
+        "reason": "INVALID_DATETIME",
+        "pg_code": "22007",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "22012": {
+        "code": "LEDGER_AMOUNT_INVALID",
+        "bucket": "input",
+        "reason": "MALFORMED_INPUT_VALUE",
+        "pg_code": "22012",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "23502": {
+        "code": "LEDGER_AMOUNT_INVALID",
+        "bucket": "input",
+        "reason": "MISSING_REQUIRED_FIELD",
+        "pg_code": "23502",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "23503": {
+        "code": "LEDGER_CURRENCY_NOT_FOUND",
+        "bucket": "integrity",
+        "reason": "FK_VIOLATION",
+        "pg_code": "23503",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "23505": {
+        "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+        "bucket": "integrity",
+        "reason": "UNIQUE_KEY_FAMILY_COLLISION",
+        "pg_code": "23505",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "23514": {
+        "code": "LEDGER_NEGATIVE_BALANCE_GUARD",
+        "bucket": "defect",
+        "reason": "negative_balance_guard",
+        "pg_code": "23514",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "25006": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "bucket": "infra",
+        "reason": "read_only_transaction",
+        "pg_code": "25006",
+        "retryable": true,
+        "constraint": "account_bal_guard"
+      },
+      "40001": {
+        "code": "LEDGER_DEADLOCK_RETRY_EXHAUSTED",
+        "bucket": "retryable",
+        "reason": "serialization_failure",
+        "pg_code": "40001",
+        "retryable": true,
+        "constraint": "account_bal_guard"
+      },
+      "42703": {
+        "code": "LEDGER_TRANSACTION_REQUIRED",
+        "bucket": "defect",
+        "reason": "unclassified_db_error",
+        "pg_code": "42703",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "53000": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "bucket": "infra",
+        "reason": "insufficient_resources",
+        "pg_code": "53000",
+        "retryable": true,
+        "constraint": "account_bal_guard"
+      },
+      "53100": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "bucket": "infra",
+        "reason": "disk_full",
+        "pg_code": "53100",
+        "retryable": true,
+        "constraint": "account_bal_guard"
+      },
+      "53200": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "bucket": "infra",
+        "reason": "out_of_memory",
+        "pg_code": "53200",
+        "retryable": true,
+        "constraint": "account_bal_guard"
+      },
+      "53300": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "bucket": "infra",
+        "reason": "too_many_connections",
+        "pg_code": "53300",
+        "retryable": true,
+        "constraint": "account_bal_guard"
+      },
+      "54000": {
+        "code": "LEDGER_TRANSACTION_REQUIRED",
+        "bucket": "defect",
+        "reason": "unclassified_db_error",
+        "pg_code": "54000",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "55006": {
+        "code": "LEDGER_TRANSACTION_REQUIRED",
+        "bucket": "defect",
+        "reason": "unclassified_db_error",
+        "pg_code": "55006",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "57014": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "bucket": "retryable",
+        "reason": "statement_timeout_or_cancel",
+        "pg_code": "57014",
+        "retryable": true,
+        "constraint": "account_bal_guard"
+      },
+      "58030": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "bucket": "infra",
+        "reason": "io_error",
+        "pg_code": "58030",
+        "retryable": true,
+        "constraint": "account_bal_guard"
+      },
+      "22P02": {
+        "code": "LEDGER_AMOUNT_INVALID",
+        "bucket": "input",
+        "reason": "INVALID_TEXT_REPRESENTATION",
+        "pg_code": "22P02",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "22P01": {
+        "code": "LEDGER_AMOUNT_INVALID",
+        "bucket": "input",
+        "reason": "MALFORMED_INPUT_VALUE",
+        "pg_code": "22P01",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "23P01": {
+        "code": "LEDGER_AMOUNT_INVALID",
+        "bucket": "input",
+        "reason": "EXCLUSION_VIOLATION",
+        "pg_code": "23P01",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "40P01": {
+        "code": "LEDGER_DEADLOCK_RETRY_EXHAUSTED",
+        "bucket": "retryable",
+        "reason": "deadlock_detected",
+        "pg_code": "40P01",
+        "retryable": true,
+        "constraint": "account_bal_guard"
+      },
+      "55P03": {
+        "code": "LEDGER_LOCK_TIMEOUT",
+        "bucket": "retryable",
+        "reason": "lock_timeout",
+        "pg_code": "55P03",
+        "retryable": true,
+        "constraint": "account_bal_guard"
+      },
+      "57P01": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "bucket": "infra",
+        "reason": "admin_shutdown",
+        "pg_code": "57P01",
+        "retryable": true,
+        "constraint": "account_bal_guard"
+      },
+      "57P02": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "bucket": "infra",
+        "reason": "crash_shutdown",
+        "pg_code": "57P02",
+        "retryable": true,
+        "constraint": "account_bal_guard"
+      },
+      "57P03": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "bucket": "infra",
+        "reason": "cannot_connect_now",
+        "pg_code": "57P03",
+        "retryable": true,
+        "constraint": "account_bal_guard"
+      },
+      "08P01": {
+        "code": "LEDGER_TRANSACTION_REQUIRED",
+        "bucket": "defect",
+        "reason": "protocol_violation",
+        "pg_code": "08P01",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "08000": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "bucket": "infra",
+        "reason": "connection_error",
+        "pg_code": "08000",
+        "retryable": true,
+        "constraint": "account_bal_guard"
+      },
+      "08006": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "bucket": "infra",
+        "reason": "connection_error",
+        "pg_code": "08006",
+        "retryable": true,
+        "constraint": "account_bal_guard"
+      },
+      "XX000": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "bucket": "infra",
+        "reason": "internal_error",
+        "pg_code": "XX000",
+        "retryable": true,
+        "constraint": "account_bal_guard"
+      },
+      "XX001": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "bucket": "infra",
+        "reason": "internal_error",
+        "pg_code": "XX001",
+        "retryable": true,
+        "constraint": "account_bal_guard"
+      },
+      "25P03": {
+        "code": "LEDGER_TRANSACTION_REQUIRED",
+        "bucket": "defect",
+        "reason": "unclassified_db_error",
+        "pg_code": "25P03",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "3D000": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "bucket": "infra",
+        "reason": "database_unavailable",
+        "pg_code": "3D000",
+        "retryable": true,
+        "constraint": "account_bal_guard"
+      },
+      "42P01": {
+        "code": "LEDGER_TRANSACTION_REQUIRED",
+        "bucket": "defect",
+        "reason": "unclassified_db_error",
+        "pg_code": "42P01",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "P0001": {
+        "code": "LEDGER_TRANSACTION_REQUIRED",
+        "bucket": "defect",
+        "reason": "unclassified_db_error",
+        "pg_code": "P0001",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "P0002": {
+        "code": "LEDGER_TRANSACTION_REQUIRED",
+        "bucket": "defect",
+        "reason": "unclassified_db_error",
+        "pg_code": "P0002",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "0A000": {
+        "code": "LEDGER_TRANSACTION_REQUIRED",
+        "bucket": "defect",
+        "reason": "unclassified_db_error",
+        "pg_code": "0A000",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      },
+      "40P02": {
+        "code": "LEDGER_TRANSACTION_REQUIRED",
+        "bucket": "defect",
+        "reason": "unclassified_db_error",
+        "pg_code": "40P02",
+        "retryable": false,
+        "constraint": "account_bal_guard"
+      }
+    }
+  },
+  "verdicts": {
+    "no_unmapped_escape": true,
+    "no_status_500_from_caller_input": true,
+    "everything_in_closed_set": true,
+    "no_unregistered_raise_codes": true,
+    "classifier_present": true,
+    "classifier_bucket_status_consistent": true,
+    "no_500_class_outside_defect_bucket": true,
+    "cid_json_number_tightened": true,
+    "memo_object_tightened": true,
+    "uid_json_number_tightened": true,
+    "uid_spaces_allowed": true,
+    "hash_key_rejected_400": true,
+    "control_char_key_rejected_400": true,
+    "platform_maybe_400": true,
+    "sum_overflow_400": true,
+    "amount_over_cap_rejected_400": true,
+    "amount_over_cap_amount_only_400": true,
+    "amount_exponent_rejected_400": true,
+    "amount_exponent_amount_only_400": true,
+    "memo_array_tightened": true,
+    "entry_uid_json_number_tightened": true,
+    "platform_json_number_tightened": true,
+    "only_allowed_case_is_uid_spaces": true
+  },
+  "failures": [],
+  "pass": true,
+  "results": {
+    "M01_amount_units_19x9": {
+      "note": "19 位但超 bigint ⇒ 修前 22003/500",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"amount\", \"value\": \"9999999999999999999\", \"reason\": \"OUT_OF_BIGINT_RANGE\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "amount",
+        "value": "9999999999999999999",
+        "reason": "OUT_OF_BIGINT_RANGE"
+      }
+    },
+    "M02_from_uid_19x9": {
+      "note": "同上（身份字段）",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"fromUid\", \"value\": \"9999999999999999999\", \"reason\": \"OUT_OF_BIGINT_RANGE\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "fromUid",
+        "value": "9999999999999999999",
+        "reason": "OUT_OF_BIGINT_RANGE"
+      }
+    },
+    "M03_ref_id_19x9": {
+      "note": "同上（ref）",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"ref_id\", \"value\": \"9999999999999999999\", \"reason\": \"OUT_OF_BIGINT_RANGE\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "ref_id",
+        "value": "9999999999999999999",
+        "reason": "OUT_OF_BIGINT_RANGE"
+      }
+    },
+    "M04_entry_delta_19x9": {
+      "note": "entries 分支",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"entries[0].delta\", \"value\": \"9999999999999999999\", \"reason\": \"OUT_OF_BIGINT_RANGE\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "entries[0].delta",
+        "value": "9999999999999999999",
+        "reason": "OUT_OF_BIGINT_RANGE"
+      }
+    },
+    "M05_cap_19x9": {
+      "note": "上界字段",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"business_frozen_cap\", \"value\": \"9999999999999999999\", \"reason\": \"OUT_OF_BIGINT_RANGE\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "business_frozen_cap",
+        "value": "9999999999999999999",
+        "reason": "OUT_OF_BIGINT_RANGE"
+      }
+    },
+    "M06_sum_overflow": {
+      "note": "Σdelta 溢出（单条都在界内）",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"entries\", \"reason\": \"EVENT_SUM_OUT_OF_RANGE\", \"delta_sum\": \"9223372036854775808\", \"frozen_delta_sum\": \"0\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "entries",
+        "reason": "EVENT_SUM_OUT_OF_RANGE",
+        "delta_sum": "9223372036854775808",
+        "frozen_delta_sum": "0"
+      }
+    },
+    "M07_platform_maybe": {
+      "note": "::boolean 非法 ⇒ 修前 22P02/500",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"platform\", \"value\": \"maybe\", \"reason\": \"NOT_BOOLEAN\", \"provided_type\": \"string\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "platform",
+        "value": "maybe",
+        "reason": "NOT_BOOLEAN",
+        "provided_type": "string"
+      }
+    },
+    "M08_amount_units_nonnum": {
+      "note": "形态非法",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"amount\", \"value\": \"abc\", \"reason\": \"NOT_DECIMAL_INTEGER\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "amount",
+        "value": "abc",
+        "reason": "NOT_DECIMAL_INTEGER"
+      }
+    },
+    "M09_amount_units_decimal": {
+      "note": "小数",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"amount\", \"value\": \"1.5\", \"reason\": \"NOT_DECIMAL_INTEGER\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "amount",
+        "value": "1.5",
+        "reason": "NOT_DECIMAL_INTEGER"
+      }
+    },
+    "M10_amount_units_negative": {
+      "note": "负数",
+      "sqlstate": "LD017",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_NOT_POSITIVE",
+      "db_detail": "{\"field\": \"amount\", \"value\": \"-1\"}",
+      "ts_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "amount",
+        "value": "-1"
+      }
+    },
+    "M11_mint_uid_neg1": {
+      "note": "平台账户",
+      "sqlstate": "LD014",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_UNAUTHORIZED_MINT",
+      "db_detail": "{\"cid\": \"159\", \"platform\": false, \"actor_uid\": \"-1\", \"owner_uid\": \"942001\"}",
+      "ts_code": "LEDGER_UNAUTHORIZED_MINT",
+      "status": 403,
+      "in_closed_set": true,
+      "details": {
+        "cid": "159",
+        "platform": false,
+        "actor_uid": "-1",
+        "owner_uid": "942001"
+      }
+    },
+    "M12_from_uid_neg1": {
+      "note": "平台账户",
+      "sqlstate": "LD021",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_RESERVED_UID",
+      "db_detail": "{\"uid\": \"-1\", \"kind\": \"transfer\", \"field\": \"fromUid\", \"reason\": \"PLATFORM_TRANSFER_DEBIT_FORBIDDEN\"}",
+      "ts_code": "LEDGER_RESERVED_UID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "uid": "-1",
+        "kind": "transfer",
+        "field": "fromUid",
+        "reason": "PLATFORM_TRANSFER_DEBIT_FORBIDDEN"
+      }
+    },
+    "M13_to_uid_neg1": {
+      "note": "平台账户",
+      "sqlstate": "LD021",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_RESERVED_UID",
+      "db_detail": "{\"uid\": \"-1\", \"kind\": \"transfer\", \"field\": \"toUid\", \"reason\": \"PLATFORM_TRANSFER_CREDIT_FORBIDDEN\"}",
+      "ts_code": "LEDGER_RESERVED_UID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "uid": "-1",
+        "kind": "transfer",
+        "field": "toUid",
+        "reason": "PLATFORM_TRANSFER_CREDIT_FORBIDDEN"
+      }
+    },
+    "M14_cid_zero": {
+      "note": "非法 cid",
+      "sqlstate": "LD007",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_CURRENCY_NOT_FOUND",
+      "db_detail": "{\"cid\": \"0\"}",
+      "ts_code": "LEDGER_CURRENCY_NOT_FOUND",
+      "status": 404,
+      "in_closed_set": true,
+      "details": {
+        "cid": "0"
+      }
+    },
+    "M15_cid_abc": {
+      "note": "非法 cid",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"cid\", \"value\": \"abc\", \"reason\": \"NOT_DECIMAL_INTEGER\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "cid",
+        "value": "abc",
+        "reason": "NOT_DECIMAL_INTEGER"
+      }
+    },
+    "M16_cid_json_number": {
+      "note": "【裁定】JSON number ⇒ 收紧 400",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"cid\", \"reason\": \"NOT_STRING\", \"provided_type\": \"number\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "cid",
+        "reason": "NOT_STRING",
+        "provided_type": "number"
+      }
+    },
+    "M17_ref_type_bogus": {
+      "note": "白名单",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"ref_type\", \"value\": \"bogus\", \"reason\": \"NOT_IN_WHITELIST\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "ref_type",
+        "value": "bogus",
+        "reason": "NOT_IN_WHITELIST"
+      }
+    },
+    "M18_ref_type_no_ref_id": {
+      "note": "成对性",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"ref_type/ref_id\", \"reason\": \"REF_PAIR_MISMATCH\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "ref_type/ref_id",
+        "reason": "REF_PAIR_MISMATCH"
+      }
+    },
+    "M19_ref_id_no_ref_type": {
+      "note": "成对性",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"ref_type/ref_id\", \"reason\": \"REF_PAIR_MISMATCH\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "ref_type/ref_id",
+        "reason": "REF_PAIR_MISMATCH"
+      }
+    },
+    "M20_memo_object": {
+      "note": "【裁定】嵌套对象 ⇒ 收紧 400",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"memo\", \"reason\": \"NOT_STRING\", \"provided_type\": \"object\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "memo",
+        "reason": "NOT_STRING",
+        "provided_type": "object"
+      }
+    },
+    "M21_memo_array": {
+      "note": "【裁定】数组 ⇒ 收紧 400",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"memo\", \"reason\": \"NOT_STRING\", \"provided_type\": \"array\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "memo",
+        "reason": "NOT_STRING",
+        "provided_type": "array"
+      }
+    },
+    "M22_entries_object": {
+      "note": "形状",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"entries\", \"reason\": \"NOT_A_NON_EMPTY_ARRAY\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "entries",
+        "reason": "NOT_A_NON_EMPTY_ARRAY"
+      }
+    },
+    "M23_entries_33": {
+      "note": "R64 上限",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"entries\", \"limit\": 32, \"reason\": \"TOO_MANY_ENTRIES\", \"provided\": 33}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "entries",
+        "limit": 32,
+        "reason": "TOO_MANY_ENTRIES",
+        "provided": 33
+      }
+    },
+    "M24_entries_17_accounts": {
+      "note": "R64 账户上限",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"entries\", \"reason\": \"EVENT_NOT_BALANCED\", \"net_sum\": \"-1\", \"delta_sum\": \"-1\", \"frozen_delta_sum\": \"0\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "entries",
+        "reason": "EVENT_NOT_BALANCED",
+        "net_sum": "-1",
+        "delta_sum": "-1",
+        "frozen_delta_sum": "0"
+      }
+    },
+    "M25_entry_delta_json_number": {
+      "note": "金额列必须字符串",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"entries[0].delta\", \"reason\": \"NOT_STRING\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "entries[0].delta",
+        "reason": "NOT_STRING"
+      }
+    },
+    "M26_entry_both_zero": {
+      "note": "ledger_move_guard 前置",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"entry\": \"entries[0]\", \"field\": \"delta/frozen_delta\", \"reason\": \"BOTH_ZERO\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "entry": "entries[0]",
+        "field": "delta/frozen_delta",
+        "reason": "BOTH_ZERO"
+      }
+    },
+    "M27_settle_kind_bogus": {
+      "note": "kind 白名单",
+      "sqlstate": "LD023",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_UNKNOWN_KIND",
+      "db_detail": "{\"kind\": \"bogus\", \"reason\": \"NOT_IN_FROZEN_SETTLE_WHITELIST\"}",
+      "ts_code": "LEDGER_UNKNOWN_KIND",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "kind": "bogus",
+        "reason": "NOT_IN_FROZEN_SETTLE_WHITELIST"
+      }
+    },
+    "M28_reversal_guard": {
+      "note": "R20 冲正守卫",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"entry\": \"entries[0]\", \"field\": \"reversal_of_txid\", \"reason\": \"REVERSAL_GUARD\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "entry": "entries[0]",
+        "field": "reversal_of_txid",
+        "reason": "REVERSAL_GUARD"
+      }
+    },
+    "M29_op_unknown": {
+      "note": "op 白名单",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"op\", \"value\": \"nope\", \"reason\": \"UNKNOWN_OP\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "op",
+        "value": "nope",
+        "reason": "UNKNOWN_OP"
+      }
+    },
+    "M30_payload_array": {
+      "note": "payload 形状",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"payload\", \"reason\": \"BAD_TYPE\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "payload",
+        "reason": "BAD_TYPE"
+      }
+    },
+    "M31_amount_over_cap": {
+      "note": "【P1i】amount 超 R66/R71 单笔上限 ⇒ 400（修前 amount 被 amount_units 静默忽略）",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"note\": \"exactly one of amount (user decimal, R72) / amount_units (minimal unit, R66) is accepted\", \"field\": \"amount\", \"reason\": \"AMBIGUOUS_AMOUNT\", \"provided\": \"amount,amount_units\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "note": "exactly one of amount (user decimal, R72) / amount_units (minimal unit, R66) is accepted",
+        "field": "amount",
+        "reason": "AMBIGUOUS_AMOUNT",
+        "provided": "amount,amount_units"
+      }
+    },
+    "M31b_amount_only_over_cap": {
+      "note": "【P1i 对照】只给 amount ⇒ 400 OVER_MAX_SINGLE_AMOUNT",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"amount\", \"value\": \"100000000000000100\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "amount",
+        "value": "100000000000000100",
+        "reason": "OVER_MAX_SINGLE_AMOUNT"
+      }
+    },
+    "M32_from_uid_spaces": {
+      "note": "【裁定】btrim 后照收 ⇒ **允许**",
+      "sqlstate": null,
+      "ts_code": null,
+      "status": null,
+      "outcome": "accepted_200"
+    },
+    "M33_key_missing": {
+      "note": "R49",
+      "sqlstate": "LD004",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "db_detail": "{}",
+      "ts_code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {}
+    },
+    "M34_key_json_number": {
+      "note": "键形状",
+      "sqlstate": "LD004",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "db_detail": "{}",
+      "ts_code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {}
+    },
+    "M35_key_empty": {
+      "note": "键形状",
+      "sqlstate": "LD004",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "db_detail": "{}",
+      "ts_code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {}
+    },
+    "M36_key_no_prefix": {
+      "note": "R49 前缀",
+      "sqlstate": "LD005",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "db_detail": "{\"reason\": \"PREFIX_REQUIRED\", \"provided\": \"noprefix\"}",
+      "ts_code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "reason": "PREFIX_REQUIRED",
+        "provided": "noprefix"
+      }
+    },
+    "M37_key_with_hash": {
+      "note": "【F1 修复】派生键分隔符 ⇒ 400",
+      "sqlstate": "LD005",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "db_detail": "{\"note\": \"char # is reserved for internal derived entry keys (<key>#<i>)\", \"value\": \"ops:p1h:MUJP7K1X:mal:m37#2\", \"reason\": \"RESERVED_SEPARATOR\"}",
+      "ts_code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "note": "char # is reserved for internal derived entry keys (<key>#<i>)",
+        "value": "ops:p1h:MUJP7K1X:mal:m37#2",
+        "reason": "RESERVED_SEPARATOR"
+      }
+    },
+    "M38_key_too_long": {
+      "note": "R52 长度",
+      "sqlstate": "LD005",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "db_detail": "{\"reason\": \"TOO_LONG\"}",
+      "ts_code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "reason": "TOO_LONG"
+      }
+    },
+    "M39_amount_units_20_digits": {
+      "note": "20 位",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"amount\", \"value\": \"19999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "amount",
+        "value": "19999999999999999999",
+        "reason": "OVER_MAX_SINGLE_AMOUNT"
+      }
+    },
+    "M40_uid_json_number": {
+      "note": "【裁定】JSON number ⇒ 收紧 400",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"fromUid\", \"reason\": \"NOT_STRING\", \"provided_type\": \"number\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "fromUid",
+        "reason": "NOT_STRING",
+        "provided_type": "number"
+      }
+    },
+    "M41_entry_uid_json_number": {
+      "note": "【裁定】JSON number ⇒ 收紧 400",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"entries[0].uid\", \"reason\": \"NOT_STRING\", \"provided_type\": \"number\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "entries[0].uid",
+        "reason": "NOT_STRING",
+        "provided_type": "number"
+      }
+    },
+    "M42_platform_json_number": {
+      "note": "【裁定】JSON number ⇒ 收紧 400",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"platform\", \"value\": \"1\", \"reason\": \"NOT_BOOLEAN\", \"provided_type\": \"number\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "platform",
+        "value": "1",
+        "reason": "NOT_BOOLEAN",
+        "provided_type": "number"
+      }
+    },
+    "M43_amount_exponent": {
+      "note": "【P1i】指数形式字符串 ⇒ 400（修前 amount 被静默忽略）",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"note\": \"exactly one of amount (user decimal, R72) / amount_units (minimal unit, R66) is accepted\", \"field\": \"amount\", \"reason\": \"AMBIGUOUS_AMOUNT\", \"provided\": \"amount,amount_units\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "note": "exactly one of amount (user decimal, R72) / amount_units (minimal unit, R66) is accepted",
+        "field": "amount",
+        "reason": "AMBIGUOUS_AMOUNT",
+        "provided": "amount,amount_units"
+      }
+    },
+    "M43b_amount_only_exponent": {
+      "note": "【P1i 对照】只给 amount ⇒ 400 EXPONENT_NOT_ALLOWED",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"amount\", \"value\": \"1e5\", \"reason\": \"EXPONENT_NOT_ALLOWED\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "amount",
+        "value": "1e5",
+        "reason": "EXPONENT_NOT_ALLOWED"
+      }
+    },
+    "M44_currency_op_bogus": {
+      "note": "状态矩阵",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"currency_op\", \"value\": \"bogus\", \"reason\": \"UNKNOWN_CURRENCY_OP\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "currency_op",
+        "value": "bogus",
+        "reason": "UNKNOWN_CURRENCY_OP"
+      }
+    },
+    "M45_hold_no_ref": {
+      "note": "R37",
+      "sqlstate": "LD015",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_HOLD_NOT_ALLOWED",
+      "db_detail": "{\"cid\": \"159\", \"uid\": \"942001\", \"reason\": \"BUSINESS_REF_REQUIRED\"}",
+      "ts_code": "LEDGER_HOLD_NOT_ALLOWED",
+      "status": 403,
+      "in_closed_set": true,
+      "details": {
+        "cid": "159",
+        "uid": "942001",
+        "reason": "BUSINESS_REF_REQUIRED"
+      }
+    },
+    "M46_cap_abc": {
+      "note": "形态",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"business_frozen_cap\", \"value\": \"abc\", \"reason\": \"NOT_DECIMAL_INTEGER\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "business_frozen_cap",
+        "value": "abc",
+        "reason": "NOT_DECIMAL_INTEGER"
+      }
+    },
+    "M47_self_transfer": {
+      "note": "R19",
+      "sqlstate": "LD019",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_SELF_TRANSFER",
+      "db_detail": "{\"cid\": \"159\", \"uid\": \"942001\"}",
+      "ts_code": "LEDGER_SELF_TRANSFER",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "cid": "159",
+        "uid": "942001"
+      }
+    },
+    "M48_cid_missing_currency": {
+      "note": "币种不存在",
+      "sqlstate": "LD007",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_CURRENCY_NOT_FOUND",
+      "db_detail": "{\"cid\": \"9007199254740991\"}",
+      "ts_code": "LEDGER_CURRENCY_NOT_FOUND",
+      "status": 404,
+      "in_closed_set": true,
+      "details": {
+        "cid": "9007199254740991"
+      }
+    },
+    "M49_entry_cid_mismatch": {
+      "note": "配对不变式",
+      "sqlstate": "LD016",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_AMOUNT_INVALID",
+      "db_detail": "{\"field\": \"entries\", \"reason\": \"EVENT_NOT_BALANCED\", \"net_sum\": \"1\", \"delta_sum\": \"1\", \"frozen_delta_sum\": \"0\"}",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "field": "entries",
+        "reason": "EVENT_NOT_BALANCED",
+        "net_sum": "1",
+        "delta_sum": "1",
+        "frozen_delta_sum": "0"
+      }
+    },
+    "M50_key_control_char": {
+      "note": "【F1】控制字符 ⇒ 400",
+      "sqlstate": "LD005",
+      "sqlstate_escaped_raw": false,
+      "db_message": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "db_detail": "{\"reason\": \"CONTROL_CHARACTER\"}",
+      "ts_code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "status": 400,
+      "in_closed_set": true,
+      "details": {
+        "reason": "CONTROL_CHARACTER"
+      }
+    }
+  }
+}

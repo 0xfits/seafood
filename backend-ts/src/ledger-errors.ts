@@ -89,12 +89,18 @@ export const isDefectError = (code: LedgerErrorCode): boolean => DEFECT_ERROR_CO
 /**
  * §14.1 码 → 分类器桶（**与 DB 侧 `ledger_error_for_sqlstate`（`0009` 的 LD0nn 分支）同表同值**）
  * ============================================================================
- * 依据：`docs/ledger.spec.md` §14.3 附（bucket 纪律冻结，S1）+ `migrations/0009_…sql` 文件头。
+ * 依据：`docs/ledger.spec.md` §14.3 附（bucket 纪律冻结，S1）+ `migrations/0009_…sql` 文件头 +
+ *       `docs/seafood.master-plan.md` §5.23（`200` 改判：**不是错误类，不参与 bucket 校验**）。
  * 取值规则（真源 = 本表 `status` + 冻结的 `bucket↔状态类` 映射，逐条可复核）：
  *   `400 ⇒ input` / `404|409 ⇒ integrity` / `500 ⇒ defect` / `503 ⇒ retryable`；
- *   冻结映射**未覆盖**的状态类取**最小扩展**（与 `0009` 逐字一致，供追认）：
+ *   冻结映射**未覆盖**的状态类取**最小扩展**（与 `0009` 逐字一致）：
  *   `403 ⇒ input`（权限不足 = 调用方身份不对）· `423 ⇒ integrity`（资源被锁定 = 合规冻结）·
- *   `200 ⇒ input`（`LEDGER_IDEMPOTENCY_REPLAY` **不是错误**，R106）· `null ⇒ defect`（对账不符）。
+ *   `null ⇒ defect`（对账不符）。
+ * ⚠️ **`200` 不再作为「扩展档位」参与 bucket↔状态类校验**（master-plan §5.23 裁定）：
+ *    `LEDGER_IDEMPOTENCY_REPLAY`（`LD006`）是**良性结果**，单列 `benign_outcomes` 一类
+ *    —— 见 `LEDGER_BENIGN_CODES`。但**本表的桶字段对它仍记 `'input'`**（= 「input 起源的良性结果」，
+ *    与**已应用**的 `0009` 的 DB 侧 `bucket='input'` 保持一致）；**改桶 = 改已应用迁移的语义 = 撒谎态**，
+ *    且会立刻把往返闭合测试的 `db_js_bucket_mismatch` 打红。**纪律：桶字段不动，改的是「谁参与校验」。**
  * ⚠️ **27 个 4xx 码集中在 `input`/`integrity` 两桶**：这两桶都含 400，故桶不能由状态反推，
  *    必须按码定死 —— 与 `0009` 的逐条 `WHEN` 一一对应。两侧漂移由
  *    `scripts/p2c-00-code-roundtrip.ts`（33 码全量往返闭合测试）逐条对拍，非零即缺陷。
@@ -144,7 +150,35 @@ export const LEDGER_ERROR_BUCKETS: Record<LedgerErrorCode, LedgerErrorBucket> = 
 };
 
 /**
- * **响应层兜底规则**：`defect` 类码的 `status` **不得为 `null`** ⇒ HTTP 状态取 `status ?? 500`。
+ * **良性结果码**（`benign_outcomes`）—— **不是错误类，不参与 `bucket ↔ 状态类` 校验**
+ * ============================================================================
+ * 裁定（`docs/seafood.master-plan.md` §5.23）：`200` 曾被塞进「扩展档位：`200 ⇒ input`」，
+ * 语义不对 —— `LD006 = LEDGER_IDEMPOTENCY_REPLAY`（200 + `idempotent_replay`）是**良性结果**
+ * （调用方重复提交；R106 保证它**永不进入错误分支**），不是「调用方但书类错误」。
+ * ⇒ **单列 `benign_outcomes` 一类**，校验侧（`scripts/p2c-00-code-roundtrip.ts`）把它
+ *   从 bucket↔状态类校验中**排除**并单独计数（不参与校验的码数 = 1），**而不是**为了让校验变绿去改桶。
+ *
+ * ⚠️ 纪律（两条必须**同时**成立，不得只做一半）：
+ *   ① `LEDGER_ERROR_BUCKETS[c]` **保持 `'input'`** —— 桶字段描述的是「**来源**」（input 起源），
+ *      且必须与**已应用**的 `0009`（DB 侧 `bucket='input'`）**逐字一致**
+ *      ⇒ 改桶 = 改已应用迁移的语义 = 撒谎态，并立刻打红 `db_js_bucket_mismatch`。
+ *   ② 但**校验侧不得再把 `200` 当成一条合法的「状态类 ⇒ 桶」映射来对拍** —— 这是本单的改动点。
+ *
+ * 附：`httpStatusOf` 对良性码恒返 **200**（R106：不是错误，**不得**落 500 兜底）。
+ * 本清单**不新增错误码**（§14.1 关闭集 33 不动）。
+ */
+export const LEDGER_BENIGN_CODES: readonly LedgerErrorCode[] = ['LEDGER_IDEMPOTENCY_REPLAY'];
+
+const BENIGN_CODE_SET: ReadonlySet<string> = new Set<string>(LEDGER_BENIGN_CODES);
+
+/** 良性结果码的 HTTP 语义（R106：200，不是错误） */
+export const BENIGN_HTTP_STATUS = 200;
+
+export const isBenignLedgerCode = (code: LedgerErrorCode): boolean => BENIGN_CODE_SET.has(code);
+
+/**
+ * **响应层兜底规则**：`defect` 类码的 `status` **不得为 `null`** ⇒ HTTP 状态取 `status ?? 500`；
+ * **良性码恒取 200**（R106 —— 它根本不是错误，不得落 500）。
  *
  * 为什么需要它：`LEDGER_RECONCILE_MISMATCH` 在本表登记为 `status: null` —— `null` 是**脚本退出码
  * 语义**（§11 R88：对账脚本不映射 HTTP），不是「没有状态」的占位。**但同一个码现在会被 HTTP 路径
@@ -153,7 +187,10 @@ export const LEDGER_ERROR_BUCKETS: Record<LedgerErrorCode, LedgerErrorBucket> = 
  * 会得到「状态码缺失」的响应（实测形态：`status = undefined` / 前端无法按 5xx 报警）。
  * ⇒ 表内保留 `null`（脚本语义不变），**响应层一律走本函数**：`defect` 类码兜底 `500`（R105/R108）。
  */
-export const httpStatusOf = (code: LedgerErrorCode): number => LEDGER_ERROR_TABLE[code].status ?? 500;
+export const httpStatusOf = (code: LedgerErrorCode): number =>
+  isBenignLedgerCode(code)
+    ? BENIGN_HTTP_STATUS                                    // R106 良性结果：200，**不**走 500 兜底
+    : LEDGER_ERROR_TABLE[code].status ?? 500;
 
 /** details 只允许非敏感标量/数组（R107） */
 export type LedgerErrorDetails = Record<string, string | number | boolean | null | undefined>;
