@@ -1,2 +1,7 @@
 .vercel
 .env*.local
+
+# 例外：版本化迁移是源码，必须入库。
+# 根 .gitignore 的 `*.sql` 属「Database backups」段（给数据库导出用的），会连迁移脚本一起吞掉，
+# 导致「库里建了表、仓库里没有 SQL」——别人 clone 后无法重建 schema（已实测踩到）。
+!migrations/*.sql

@@ -14,9 +14,10 @@ import {
   TaskProgressRecord,
   UserRecord,
 } from './database';
+import { healthCheck } from './db';
 
 const app = express();
-const PORT = Number(process.env.PORT || 5778);
+const PORT = Number(process.env.PORT || 5788);
 
 app.use(helmet());
 app.use(cors());
@@ -189,6 +190,21 @@ app.get('/', (req, res) => {
     },
     'Backend ready',
   );
+});
+
+app.get('/health', async (req, res) => {
+  try {
+    const report = await healthCheck();
+    res.status(report.ok ? 200 : 503).json(report);
+  } catch (error) {
+    console.error('Health check failed:', error);
+    res.status(503).json({
+      ok: false,
+      db_version: 'unknown',
+      schema_version: null,
+      time: new Date().toISOString(),
+    });
+  }
 });
 
 app.get('/api/test/data', (req, res) => {
@@ -1079,7 +1095,7 @@ app.use((req, res) => {
 if (!process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`TypeScript backend running on port ${PORT}`);
-    console.log('Using Neon PostgreSQL for Jinli API routes');
+    console.log('Using Neon PostgreSQL for Seafood API routes');
   });
 }
 
