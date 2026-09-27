@@ -1,0 +1,554 @@
+{
+  "run": "p1v-rerun-2",
+  "ts": "2026-09-27T11:05:44.771Z",
+  "script": "scripts/p1t-00-bind-protocol-guard.ts",
+  "uid_window": {
+    "base": 955011,
+    "source": "auto-scan",
+    "size": 9,
+    "stride": 10,
+    "partition": "[955001, 955999]",
+    "slots": {
+      "A": {
+        "uid": 955011,
+        "role": "① 判负：子（先绑 A→B）"
+      },
+      "B": {
+        "uid": 955012,
+        "role": "① 判负：叶（后绑 B→P 必须被拒）"
+      },
+      "P": {
+        "uid": 955013,
+        "role": "① 判负：上级"
+      },
+      "L": {
+        "uid": 955014,
+        "role": "② 正向：孙"
+      },
+      "M": {
+        "uid": 955015,
+        "role": "② 正向：子"
+      },
+      "N": {
+        "uid": 955016,
+        "role": "② 正向：根"
+      },
+      "X": {
+        "uid": 955017,
+        "role": "③ 2-环：子"
+      },
+      "Y": {
+        "uid": 955018,
+        "role": "③ 2-环：父"
+      },
+      "REBIND": {
+        "uid": 955019,
+        "role": "⑥ 改绑冲突对照（409）"
+      }
+    },
+    "fresh_verified_occupied": [],
+    "note": "每次运行独占一个全新窗口（referral 是 INSERT-only + 绑定幂等 ⇒ 固定 uid 的第二次运行会让「绕开触发器直插」撞 referral_pk，判负自证失真）"
+  },
+  "0_pre": {
+    "schema_migration": [
+      {
+        "version": "0001",
+        "name": "0001_ledger_core.sql",
+        "checksum12": "4f902d3c4750"
+      },
+      {
+        "version": "0002",
+        "name": "0002_user_identity.sql",
+        "checksum12": "688b1935f6bc"
+      },
+      {
+        "version": "0003",
+        "name": "0003_kind_close_set_20.sql",
+        "checksum12": "f268e03075eb"
+      },
+      {
+        "version": "0004",
+        "name": "0004_ledger_post_event.sql",
+        "checksum12": "55fd1ce8085b"
+      },
+      {
+        "version": "0005",
+        "name": "0005_ledger_event_root_key.sql",
+        "checksum12": "4de12361cf7d"
+      },
+      {
+        "version": "0006",
+        "name": "0006_user_to_users.sql",
+        "checksum12": "4aa19b148700"
+      },
+      {
+        "version": "0007",
+        "name": "0007_referral_and_commission_policy.sql",
+        "checksum12": "7044c6be33f7"
+      },
+      {
+        "version": "0008",
+        "name": "0008_platform_revenue_job_fee.sql",
+        "checksum12": "e98ac1a0470e"
+      },
+      {
+        "version": "0009",
+        "name": "0009_ledger_error_reverse_map_complete.sql",
+        "checksum12": "6688e2ce35c6"
+      },
+      {
+        "version": "0010",
+        "name": "0010_referral_bind_protocol_guard.sql",
+        "checksum12": "73e7ac8b6fd4"
+      }
+    ],
+    "guard_fingerprint": {
+      "md5_prosrc": "959fcd0eb2e58cd44c991946f3caf99d",
+      "has_new_reason": true,
+      "has_cycle_reason": true
+    },
+    "referral_count": {
+      "n": "37"
+    },
+    "ledger_entry_count_readonly": {
+      "n": "1766"
+    },
+    "baseline": {
+      "cycles": "0",
+      "bad_depth": "0"
+    },
+    "idempotency_key_prefix_reserved": "ops:p1v:",
+    "symbol_prefix_reserved": "p1v",
+    "guard_code_borrowed": {
+      "j": {
+        "code": "LEDGER_AMOUNT_INVALID",
+        "bucket": "input",
+        "reason": "amount_invalid",
+        "pg_code": "LD016",
+        "retryable": false,
+        "constraint": null
+      },
+      "projection": "LD016"
+    },
+    "closed_set_size": 33
+  },
+  "0b_trigger_enablement_precheck": {
+    "sql": "\n  SELECT n.nspname AS schema_name,\n         c.relname AS table_name,\n         t.tgname  AS trigger_name,\n         t.tgenabled::text AS tgenabled,\n         CASE t.tgenabled\n           WHEN 'O' THEN 'enabled' WHEN 'D' THEN 'disabled'\n           WHEN 'R' THEN 'replica' WHEN 'A' THEN 'always'\n           ELSE 'unknown:' || t.tgenabled::text END AS state\n    FROM pg_trigger t\n    JOIN pg_class     c ON c.oid = t.tgrelid\n    JOIN pg_namespace n ON n.oid = c.relnamespace\n   WHERE n.nspname = 'public' AND NOT t.tgisinternal\n   ORDER BY c.relname, t.tgname",
+    "total": 7,
+    "enabled": 7,
+    "vacuous": false,
+    "ok": true,
+    "anomalies": [],
+    "rows": [
+      {
+        "schema": "public",
+        "table": "account",
+        "trigger": "trg_account_guard",
+        "tgenabled": "O",
+        "state": "enabled"
+      },
+      {
+        "schema": "public",
+        "table": "commission_policy",
+        "trigger": "trg_commission_policy_append_only",
+        "tgenabled": "O",
+        "state": "enabled"
+      },
+      {
+        "schema": "public",
+        "table": "commission_policy",
+        "trigger": "trg_commission_policy_weights_guard",
+        "tgenabled": "O",
+        "state": "enabled"
+      },
+      {
+        "schema": "public",
+        "table": "ledger_entry",
+        "trigger": "trg_ledger_entry_append_only",
+        "tgenabled": "O",
+        "state": "enabled"
+      },
+      {
+        "schema": "public",
+        "table": "ledger_entry",
+        "trigger": "trg_ledger_entry_commission_conservation",
+        "tgenabled": "O",
+        "state": "enabled"
+      },
+      {
+        "schema": "public",
+        "table": "referral",
+        "trigger": "trg_referral_append_only",
+        "tgenabled": "O",
+        "state": "enabled"
+      },
+      {
+        "schema": "public",
+        "table": "referral",
+        "trigger": "trg_referral_cycle_guard",
+        "tgenabled": "O",
+        "state": "enabled"
+      }
+    ],
+    "fingerprint_md5": "67c1825602034322845d64593fc338bf",
+    "fingerprint": {
+      "account.trg_account_guard": "O",
+      "commission_policy.trg_commission_policy_append_only": "O",
+      "commission_policy.trg_commission_policy_weights_guard": "O",
+      "ledger_entry.trg_ledger_entry_append_only": "O",
+      "ledger_entry.trg_ledger_entry_commission_conservation": "O",
+      "referral.trg_referral_append_only": "O",
+      "referral.trg_referral_cycle_guard": "O"
+    },
+    "rule": "public 下全部非 internal 触发器 tgenabled='O'（enabled）；任一 D(disabled)/R(replica)/A(always) ⇒ 判红并逐项列出",
+    "vacuous_rule": "扫到 0 条 ⇒ 视为真空 ⇒ 同样判红（防「触发器被删光」骗过判据）",
+    "why": "上一单事务内 DISABLE 后未复原；不可变前提必须进常态判据，不能只登记"
+  },
+  "1_users": [
+    {
+      "n": "9"
+    }
+  ],
+  "2_falsification_bypass_rolled_back": {
+    "pre_existing_rows_in_window": 0,
+    "inserted_rowcount": 2,
+    "rows_after_bypass_insert": 2,
+    "injected_edges": [
+      "955011->955012",
+      "955012->955013"
+    ],
+    "injected_edges_readback": [
+      {
+        "child_uid": "955011",
+        "parent_uid": "955012",
+        "depth": "1"
+      },
+      {
+        "child_uid": "955012",
+        "parent_uid": "955013",
+        "depth": "1"
+      }
+    ],
+    "depth_of_B_must_be_2_but_is": "1",
+    "cycles": "0",
+    "bad_depth": "1",
+    "expected": "bad_depth >= 1（叶/父顺序被追溯破坏：B 的 depth 应为 2）",
+    "note": "事务内 DISABLE TRIGGER + **真插 2 行** ⇒ 测量后 ROLLBACK，零残留；用于证明 ① 的判据可红"
+  },
+  "2b_referral_after_bypass": {
+    "cycles": "0",
+    "bad_depth": "0",
+    "rows_for_probe_uids": {
+      "n": "0"
+    },
+    "note": "ROLLBACK 后本 RUN 窗口内应当 0 行（零残留）"
+  },
+  "3_case1_leaf_first_bind_parent_MUST_REJECT": {
+    "1a_bind_A_to_B_ok": {
+      "path": "referral_bind",
+      "ok": true,
+      "result": {
+        "ok": true,
+        "depth": "1",
+        "bound_at": "2026-09-27T11:05:51.151459+00:00",
+        "child_uid": "955011",
+        "parent_uid": "955012",
+        "idempotent_replay": false
+      }
+    },
+    "1b_bind_B_to_P_MUST_REJECT_STALE_DEPTH": {
+      "path": "referral_bind",
+      "ok": false,
+      "state": "LD016",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "reason": "REFERRAL_BIND_WOULD_STALE_DEPTH",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "ts_status": 400
+    },
+    "1c_raw_insert_B_to_P_MUST_REJECT": {
+      "path": "raw_insert",
+      "threw": true,
+      "state": "LD016",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "reason": "REFERRAL_BIND_WOULD_STALE_DEPTH",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "ts_status": 400
+    },
+    "1d_self_bind_still_rejected": {
+      "path": "referral_bind",
+      "ok": false,
+      "state": "LD016",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "reason": "REFERRAL_SELF_BIND",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "ts_status": 400
+    },
+    "reads": {
+      "rejected": true,
+      "state": "LD016",
+      "reason": "REFERRAL_BIND_WOULD_STALE_DEPTH",
+      "reason_is_new_guard": true,
+      "code_is_borrowed_ld016": true,
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "ts_status": 400,
+      "raw_path_rejected_too": true,
+      "rows_landed_for_B": {
+        "n": "0"
+      },
+      "depth_of_A": {
+        "depth": "1"
+      },
+      "depth_of_B": null
+    }
+  },
+  "4_case2_normal_protocol_parent_first_PASS": {
+    "2a_bind_M_to_N_ok_parent_first": {
+      "path": "referral_bind",
+      "ok": true,
+      "result": {
+        "ok": true,
+        "depth": "1",
+        "bound_at": "2026-09-27T11:05:55.662216+00:00",
+        "child_uid": "955015",
+        "parent_uid": "955016",
+        "idempotent_replay": false
+      }
+    },
+    "2b_bind_L_to_M_ok_child_after": {
+      "path": "referral_bind",
+      "ok": true,
+      "result": {
+        "ok": true,
+        "depth": "2",
+        "bound_at": "2026-09-27T11:05:55.861845+00:00",
+        "child_uid": "955014",
+        "parent_uid": "955015",
+        "idempotent_replay": false
+      }
+    },
+    "reads": {
+      "both_ok": true,
+      "depth_M": {
+        "depth": "1"
+      },
+      "depth_L": {
+        "depth": "2"
+      },
+      "expected": {
+        "depth_M": "1",
+        "depth_L": "2"
+      }
+    }
+  },
+  "5_case3_existing_2cycle_negative_no_regression": {
+    "3a_bind_X_to_Y_ok": {
+      "path": "referral_bind",
+      "ok": true,
+      "result": {
+        "ok": true,
+        "depth": "1",
+        "bound_at": "2026-09-27T11:05:56.373495+00:00",
+        "child_uid": "955017",
+        "parent_uid": "955018",
+        "idempotent_replay": false
+      }
+    },
+    "3b_bind_Y_to_X_MUST_REJECT_CYCLE": {
+      "path": "referral_bind",
+      "ok": false,
+      "state": "LD016",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "reason": "REFERRAL_CYCLE_REJECTED",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "ts_status": 400
+    },
+    "3c_raw_insert_Y_to_X_MUST_REJECT": {
+      "path": "raw_insert",
+      "threw": true,
+      "state": "LD016",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "reason": "REFERRAL_CYCLE_REJECTED",
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "ts_status": 400
+    },
+    "reads": {
+      "rejected": true,
+      "state": "LD016",
+      "reason": "REFERRAL_CYCLE_REJECTED",
+      "reason_is_cycle_not_new_guard": true,
+      "ts_code": "LEDGER_AMOUNT_INVALID",
+      "ts_status": 400,
+      "check_order_note": "C=Y 同时「已有下级(X)」且「成环」⇒ reason 仍是 REFERRAL_CYCLE_REJECTED ⇒ 环检查在 ④ 之前（顺序未被改动）"
+    }
+  },
+  "6_referral_bind_semantics_unchanged": {
+    "4a_idempotent_replay": {
+      "path": "referral_bind",
+      "ok": true,
+      "result": {
+        "ok": true,
+        "depth": "1",
+        "bound_at": "2026-09-27T11:05:51.151459+00:00",
+        "child_uid": "955011",
+        "parent_uid": "955012",
+        "idempotent_replay": true
+      }
+    },
+    "4b_rebind_conflict_409": {
+      "path": "referral_bind",
+      "ok": false,
+      "state": "LD003",
+      "message": "LEDGER_IDEMPOTENCY_CONFLICT",
+      "reason": "REFERRAL_ALREADY_BOUND",
+      "ts_code": "LEDGER_IDEMPOTENCY_CONFLICT",
+      "ts_status": 409
+    },
+    "reads": {
+      "replay_ok": true,
+      "conflict_code": "LD003",
+      "conflict_reason": "REFERRAL_ALREADY_BOUND"
+    }
+  },
+  "7_case4_depth_invariant": {
+    "global": {
+      "cycles": "0",
+      "bad_depth": "0"
+    },
+    "per_row_for_this_run": [
+      {
+        "start": "955011",
+        "expected_depth": "1",
+        "actual_depth": "1"
+      },
+      {
+        "start": "955014",
+        "expected_depth": "2",
+        "actual_depth": "2"
+      },
+      {
+        "start": "955015",
+        "expected_depth": "1",
+        "actual_depth": "1"
+      },
+      {
+        "start": "955017",
+        "expected_depth": "1",
+        "actual_depth": "1"
+      }
+    ],
+    "expected": {
+      "cycles": "0",
+      "bad_depth": "0"
+    },
+    "note": "全局（含既有历史行）cycles=0 且 bad_depth=0 ⇒ 新守卫与既有行相容、未引入追溯破坏"
+  },
+  "8_ts_end_to_end_borrowed_code": {
+    "new_guard": {
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "httpStatus": 400,
+      "reason": "REFERRAL_BIND_WOULD_STALE_DEPTH"
+    },
+    "cycle": {
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "httpStatus": 400,
+      "reason": "REFERRAL_CYCLE_REJECTED"
+    }
+  },
+  "9_post": {
+    "guard_fingerprint_md5": "959fcd0eb2e58cd44c991946f3caf99d",
+    "guard_unchanged_during_run": true,
+    "schema_version": {
+      "version": "0010"
+    },
+    "trigger_enablement_after": {
+      "sql": "\n  SELECT n.nspname AS schema_name,\n         c.relname AS table_name,\n         t.tgname  AS trigger_name,\n         t.tgenabled::text AS tgenabled,\n         CASE t.tgenabled\n           WHEN 'O' THEN 'enabled' WHEN 'D' THEN 'disabled'\n           WHEN 'R' THEN 'replica' WHEN 'A' THEN 'always'\n           ELSE 'unknown:' || t.tgenabled::text END AS state\n    FROM pg_trigger t\n    JOIN pg_class     c ON c.oid = t.tgrelid\n    JOIN pg_namespace n ON n.oid = c.relnamespace\n   WHERE n.nspname = 'public' AND NOT t.tgisinternal\n   ORDER BY c.relname, t.tgname",
+      "total": 7,
+      "enabled": 7,
+      "vacuous": false,
+      "ok": true,
+      "anomalies": [],
+      "rows": [
+        {
+          "schema": "public",
+          "table": "account",
+          "trigger": "trg_account_guard",
+          "tgenabled": "O",
+          "state": "enabled"
+        },
+        {
+          "schema": "public",
+          "table": "commission_policy",
+          "trigger": "trg_commission_policy_append_only",
+          "tgenabled": "O",
+          "state": "enabled"
+        },
+        {
+          "schema": "public",
+          "table": "commission_policy",
+          "trigger": "trg_commission_policy_weights_guard",
+          "tgenabled": "O",
+          "state": "enabled"
+        },
+        {
+          "schema": "public",
+          "table": "ledger_entry",
+          "trigger": "trg_ledger_entry_append_only",
+          "tgenabled": "O",
+          "state": "enabled"
+        },
+        {
+          "schema": "public",
+          "table": "ledger_entry",
+          "trigger": "trg_ledger_entry_commission_conservation",
+          "tgenabled": "O",
+          "state": "enabled"
+        },
+        {
+          "schema": "public",
+          "table": "referral",
+          "trigger": "trg_referral_append_only",
+          "tgenabled": "O",
+          "state": "enabled"
+        },
+        {
+          "schema": "public",
+          "table": "referral",
+          "trigger": "trg_referral_cycle_guard",
+          "tgenabled": "O",
+          "state": "enabled"
+        }
+      ],
+      "fingerprint_md5": "67c1825602034322845d64593fc338bf"
+    },
+    "trigger_fingerprint_unchanged_by_this_run": true,
+    "trigger_fingerprint_diff": [],
+    "note": "自证那一步在事务内 DISABLE 了 trg_referral_cycle_guard 并 ROLLBACK ⇒ 此处复核「本 RUN 结束后 pg_trigger 指纹与运行前逐字一致」",
+    "referral_rows_created_by_this_run": [
+      {
+        "child_uid": "955011",
+        "parent_uid": "955012",
+        "depth": "1"
+      },
+      {
+        "child_uid": "955014",
+        "parent_uid": "955015",
+        "depth": "2"
+      },
+      {
+        "child_uid": "955015",
+        "parent_uid": "955016",
+        "depth": "1"
+      },
+      {
+        "child_uid": "955017",
+        "parent_uid": "955018",
+        "depth": "1"
+      }
+    ]
+  },
+  "uid_window_base": 955011,
+  "assertions_failed": [],
+  "ok": true
+}

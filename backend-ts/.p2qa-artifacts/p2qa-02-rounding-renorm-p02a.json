@@ -1,0 +1,1072 @@
+{
+  "run": "p02a",
+  "name": "p2qa-02-rounding-renorm",
+  "at": "2026-09-27T11:07:08.606Z",
+  "script": "scripts/p2qa-02-rounding-renorm.ts",
+  "grid": {
+    "cases": 1400,
+    "bad": 0,
+    "bad_detail": []
+  },
+  "ties": [
+    {
+      "name": "例5 P=1 M=2 w={2500,2500}",
+      "P": "1",
+      "w": [
+        "2500",
+        "2500"
+      ],
+      "x": [
+        "0",
+        "1"
+      ],
+      "D": "1",
+      "addl": [
+        2
+      ],
+      "order": [
+        1,
+        0
+      ],
+      "r": [
+        "2500",
+        "2500"
+      ],
+      "tied_levels_at_max_remainder": [
+        1,
+        2
+      ],
+      "matches_reference": true,
+      "sum_equals_P": true
+    },
+    {
+      "name": "P=1 M=3 w={1000,1000,1000}",
+      "P": "1",
+      "w": [
+        "1000",
+        "1000",
+        "1000"
+      ],
+      "x": [
+        "0",
+        "0",
+        "1"
+      ],
+      "D": "1",
+      "addl": [
+        3
+      ],
+      "order": [
+        2,
+        1,
+        0
+      ],
+      "r": [
+        "1000",
+        "1000",
+        "1000"
+      ],
+      "tied_levels_at_max_remainder": [
+        1,
+        2,
+        3
+      ],
+      "matches_reference": true,
+      "sum_equals_P": true
+    },
+    {
+      "name": "P=2 M=3 w={1000,1000,1000}（两个 +1 都该给更深）",
+      "P": "2",
+      "w": [
+        "1000",
+        "1000",
+        "1000"
+      ],
+      "x": [
+        "0",
+        "1",
+        "1"
+      ],
+      "D": "2",
+      "addl": [
+        2,
+        3
+      ],
+      "order": [
+        2,
+        1,
+        0
+      ],
+      "r": [
+        "2000",
+        "2000",
+        "2000"
+      ],
+      "tied_levels_at_max_remainder": [
+        1,
+        2,
+        3
+      ],
+      "matches_reference": true,
+      "sum_equals_P": true
+    },
+    {
+      "name": "P=1 M=10 w=全 1000",
+      "P": "1",
+      "w": [
+        "1000",
+        "1000",
+        "1000",
+        "1000",
+        "1000",
+        "1000",
+        "1000",
+        "1000",
+        "1000",
+        "1000"
+      ],
+      "x": [
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "1"
+      ],
+      "D": "1",
+      "addl": [
+        10
+      ],
+      "order": [
+        9,
+        8,
+        7,
+        6,
+        5,
+        4,
+        3,
+        2,
+        1,
+        0
+      ],
+      "r": [
+        "1000",
+        "1000",
+        "1000",
+        "1000",
+        "1000",
+        "1000",
+        "1000",
+        "1000",
+        "1000",
+        "1000"
+      ],
+      "tied_levels_at_max_remainder": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "matches_reference": true,
+      "sum_equals_P": true
+    },
+    {
+      "name": "P=5 M=5 w={2000,2000,2000,2000,2000}（D=5 全平局）",
+      "P": "5",
+      "w": [
+        "2000",
+        "2000",
+        "2000",
+        "2000",
+        "2000"
+      ],
+      "x": [
+        "1",
+        "1",
+        "1",
+        "1",
+        "1"
+      ],
+      "D": "0",
+      "addl": [],
+      "order": [
+        4,
+        3,
+        2,
+        1,
+        0
+      ],
+      "r": [
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      "tied_levels_at_max_remainder": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "matches_reference": true,
+      "sum_equals_P": true
+    },
+    {
+      "name": "P=7 M=4 w={1000,1000,1000,1000}",
+      "P": "7",
+      "w": [
+        "1000",
+        "1000",
+        "1000",
+        "1000"
+      ],
+      "x": [
+        "1",
+        "2",
+        "2",
+        "2"
+      ],
+      "D": "3",
+      "addl": [
+        2,
+        3,
+        4
+      ],
+      "order": [
+        3,
+        2,
+        1,
+        0
+      ],
+      "r": [
+        "3000",
+        "3000",
+        "3000",
+        "3000"
+      ],
+      "tied_levels_at_max_remainder": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "matches_reference": true,
+      "sum_equals_P": true
+    },
+    {
+      "name": "P=1 M=2 w={3000,2000}（无平局 ⇒ 最大余数者得）",
+      "P": "1",
+      "w": [
+        "3000",
+        "2000"
+      ],
+      "x": [
+        "1",
+        "0"
+      ],
+      "D": "1",
+      "addl": [
+        1
+      ],
+      "order": [
+        0,
+        1
+      ],
+      "r": [
+        "3000",
+        "2000"
+      ],
+      "tied_levels_at_max_remainder": [
+        1
+      ],
+      "matches_reference": true,
+      "sum_equals_P": true
+    },
+    {
+      "name": "P=1 M=10 w=默认（无平局）",
+      "P": "1",
+      "w": [
+        "3000",
+        "2000",
+        "1500",
+        "1000",
+        "800",
+        "600",
+        "500",
+        "300",
+        "200",
+        "100"
+      ],
+      "x": [
+        "1",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      "D": "1",
+      "addl": [
+        1
+      ],
+      "order": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "r": [
+        "3000",
+        "2000",
+        "1500",
+        "1000",
+        "800",
+        "600",
+        "500",
+        "300",
+        "200",
+        "100"
+      ],
+      "tied_levels_at_max_remainder": [
+        1
+      ],
+      "matches_reference": true,
+      "sum_equals_P": true
+    },
+    {
+      "name": "P=100 M=3 w={3000,2000,1500} 全余 0?",
+      "P": "100",
+      "w": [
+        "3000",
+        "2000",
+        "1500"
+      ],
+      "x": [
+        "46",
+        "31",
+        "23"
+      ],
+      "D": "1",
+      "addl": [
+        2
+      ],
+      "order": [
+        1,
+        0,
+        2
+      ],
+      "r": [
+        "1000",
+        "5000",
+        "500"
+      ],
+      "tied_levels_at_max_remainder": [
+        2
+      ],
+      "matches_reference": true,
+      "sum_equals_P": true
+    }
+  ],
+  "fee_rounding": [
+    {
+      "gross": "1",
+      "fee_100bp": "0",
+      "fee_500bp": "0",
+      "net_100": "1",
+      "net_plus_fee_eq_gross": true
+    },
+    {
+      "gross": "49",
+      "fee_100bp": "0",
+      "fee_500bp": "2",
+      "net_100": "49",
+      "net_plus_fee_eq_gross": true
+    },
+    {
+      "gross": "50",
+      "fee_100bp": "1",
+      "fee_500bp": "3",
+      "net_100": "49",
+      "net_plus_fee_eq_gross": true
+    },
+    {
+      "gross": "51",
+      "fee_100bp": "1",
+      "fee_500bp": "3",
+      "net_100": "50",
+      "net_plus_fee_eq_gross": true
+    },
+    {
+      "gross": "99",
+      "fee_100bp": "1",
+      "fee_500bp": "5",
+      "net_100": "98",
+      "net_plus_fee_eq_gross": true
+    },
+    {
+      "gross": "100",
+      "fee_100bp": "1",
+      "fee_500bp": "5",
+      "net_100": "99",
+      "net_plus_fee_eq_gross": true
+    },
+    {
+      "gross": "101",
+      "fee_100bp": "1",
+      "fee_500bp": "5",
+      "net_100": "100",
+      "net_plus_fee_eq_gross": true
+    },
+    {
+      "gross": "149",
+      "fee_100bp": "1",
+      "fee_500bp": "7",
+      "net_100": "148",
+      "net_plus_fee_eq_gross": true
+    },
+    {
+      "gross": "150",
+      "fee_100bp": "2",
+      "fee_500bp": "8",
+      "net_100": "148",
+      "net_plus_fee_eq_gross": true
+    },
+    {
+      "gross": "199",
+      "fee_100bp": "2",
+      "fee_500bp": "10",
+      "net_100": "197",
+      "net_plus_fee_eq_gross": true
+    },
+    {
+      "gross": "200",
+      "fee_100bp": "2",
+      "fee_500bp": "10",
+      "net_100": "198",
+      "net_plus_fee_eq_gross": true
+    },
+    {
+      "gross": "9223372036854775807",
+      "fee_100bp": "92233720368547758",
+      "fee_500bp": "461168601842738790",
+      "net_100": "9131138316486228049",
+      "net_plus_fee_eq_gross": true
+    },
+    {
+      "gross": "18446744073709551615",
+      "throw": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "details": {
+          "field": "gross",
+          "value": "18446744073709551615",
+          "reason": "OUT_OF_BIGINT_RANGE"
+        }
+      }
+    },
+    {
+      "gross": "92233720368547758079999",
+      "throw": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "details": {
+          "field": "gross",
+          "value": "92233720368547758079999",
+          "reason": "OUT_OF_BIGINT_RANGE"
+        }
+      }
+    }
+  ],
+  "muldiv_den_zero": {
+    "ts_code": "LEDGER_AMOUNT_INVALID",
+    "http": 400,
+    "details": {
+      "field": "den",
+      "reason": "NOT_POSITIVE"
+    }
+  },
+  "huge": {
+    "cases": [
+      {
+        "P": "9223372036854775807",
+        "M": 10,
+        "sum_equals_P": true,
+        "matches_reference": true,
+        "first": "2767011611056432742",
+        "last": "92233720368547758",
+        "D": "3",
+        "W": "10000"
+      },
+      {
+        "P": "9223372036854775807",
+        "M": 2,
+        "sum_equals_P": true,
+        "matches_reference": true,
+        "first": "4611686018427387903",
+        "last": "4611686018427387904",
+        "D": "1",
+        "W": "5000"
+      },
+      {
+        "P": "9223372036854775807",
+        "M": 10,
+        "sum_equals_P": true,
+        "matches_reference": true,
+        "first": "922337203685477580",
+        "last": "922337203685477581",
+        "D": "7",
+        "W": "10000"
+      },
+      {
+        "P": "9223372036854775806",
+        "M": 10,
+        "sum_equals_P": true,
+        "matches_reference": true,
+        "first": "2767011611056432742",
+        "last": "92233720368547758",
+        "D": "4",
+        "W": "10000"
+      },
+      {
+        "P": "9223372036854775806",
+        "M": 2,
+        "sum_equals_P": true,
+        "matches_reference": true,
+        "first": "4611686018427387903",
+        "last": "4611686018427387903",
+        "D": "0",
+        "W": "5000"
+      },
+      {
+        "P": "9223372036854775806",
+        "M": 10,
+        "sum_equals_P": true,
+        "matches_reference": true,
+        "first": "922337203685477580",
+        "last": "922337203685477581",
+        "D": "6",
+        "W": "10000"
+      },
+      {
+        "P": "1000000000000000000",
+        "M": 10,
+        "sum_equals_P": true,
+        "matches_reference": true,
+        "first": "300000000000000000",
+        "last": "10000000000000000",
+        "D": "0",
+        "W": "10000"
+      },
+      {
+        "P": "1000000000000000000",
+        "M": 2,
+        "sum_equals_P": true,
+        "matches_reference": true,
+        "first": "500000000000000000",
+        "last": "500000000000000000",
+        "D": "0",
+        "W": "5000"
+      },
+      {
+        "P": "1000000000000000000",
+        "M": 10,
+        "sum_equals_P": true,
+        "matches_reference": true,
+        "first": "100000000000000000",
+        "last": "100000000000000000",
+        "D": "0",
+        "W": "10000"
+      }
+    ],
+    "db_max_single_amount": {
+      "m": "1000000000000000"
+    }
+  },
+  "huge_fee_reject": {
+    "ok": true,
+    "rows": [
+      {
+        "x": "10000000000000000000000000000000000000000"
+      }
+    ],
+    "elapsed_ms": 200
+  },
+  "binds": [
+    {
+      "name": "m1",
+      "edge": "954601->954611",
+      "ok": true,
+      "err": null
+    },
+    {
+      "name": "m4",
+      "edge": "954623->954624",
+      "ok": true,
+      "err": null
+    },
+    {
+      "name": "m4",
+      "edge": "954622->954623",
+      "ok": true,
+      "err": null
+    },
+    {
+      "name": "m4",
+      "edge": "954621->954622",
+      "ok": true,
+      "err": null
+    },
+    {
+      "name": "m4",
+      "edge": "954602->954621",
+      "ok": true,
+      "err": null
+    },
+    {
+      "name": "m5",
+      "edge": "954634->954635",
+      "ok": true,
+      "err": null
+    },
+    {
+      "name": "m5",
+      "edge": "954633->954634",
+      "ok": true,
+      "err": null
+    },
+    {
+      "name": "m5",
+      "edge": "954632->954633",
+      "ok": true,
+      "err": null
+    },
+    {
+      "name": "m5",
+      "edge": "954631->954632",
+      "ok": true,
+      "err": null
+    },
+    {
+      "name": "m5",
+      "edge": "954603->954631",
+      "ok": true,
+      "err": null
+    },
+    {
+      "name": "dec6",
+      "edge": "954641->954642",
+      "ok": true,
+      "err": null
+    },
+    {
+      "name": "dec6",
+      "edge": "954604->954641",
+      "ok": true,
+      "err": null
+    }
+  ],
+  "binds_failed": [],
+  "real_cases": {
+    "m1_chain": {
+      "tag": "m1",
+      "job_id": "954500000000001",
+      "cid": "162",
+      "hold_ok": true,
+      "hold_err": null,
+      "fee": "10000",
+      "net": "990000",
+      "pool": "10000",
+      "M": 1,
+      "N": 1,
+      "W": "3000",
+      "chain_depth": 1,
+      "weights": [
+        "3000"
+      ],
+      "x": [
+        "10000"
+      ],
+      "uids": [
+        "954611"
+      ],
+      "split": {
+        "D": "0",
+        "order": [
+          0
+        ],
+        "plus": [],
+        "r": [
+          "0"
+        ],
+        "sum_x": "10000"
+      },
+      "zero": false,
+      "no_referrer": false
+    },
+    "m4_chain": {
+      "tag": "m4",
+      "job_id": "954500000000002",
+      "cid": "162",
+      "hold_ok": true,
+      "hold_err": null,
+      "fee": "10000",
+      "net": "990000",
+      "pool": "10000",
+      "M": 4,
+      "N": 4,
+      "W": "7500",
+      "chain_depth": 4,
+      "weights": [
+        "3000",
+        "2000",
+        "1500",
+        "1000"
+      ],
+      "x": [
+        "4000",
+        "2667",
+        "2000",
+        "1333"
+      ],
+      "uids": [
+        "954621",
+        "954622",
+        "954623",
+        "954624"
+      ],
+      "split": {
+        "D": "1",
+        "order": [
+          1,
+          3,
+          2,
+          0
+        ],
+        "plus": [
+          2
+        ],
+        "r": [
+          "0",
+          "5000",
+          "0",
+          "2500"
+        ],
+        "sum_x": "10000"
+      },
+      "zero": false,
+      "no_referrer": false
+    },
+    "m5_chain": {
+      "tag": "m5",
+      "job_id": "954500000000003",
+      "cid": "162",
+      "hold_ok": true,
+      "hold_err": null,
+      "fee": "10000",
+      "net": "990000",
+      "pool": "10000",
+      "M": 5,
+      "N": 5,
+      "W": "8300",
+      "chain_depth": 5,
+      "weights": [
+        "3000",
+        "2000",
+        "1500",
+        "1000",
+        "800"
+      ],
+      "x": [
+        "3614",
+        "2410",
+        "1807",
+        "1205",
+        "964"
+      ],
+      "uids": [
+        "954631",
+        "954632",
+        "954633",
+        "954634",
+        "954635"
+      ],
+      "split": {
+        "D": "3",
+        "order": [
+          4,
+          3,
+          1,
+          0,
+          2
+        ],
+        "plus": [
+          2,
+          4,
+          5
+        ],
+        "r": [
+          "3800",
+          "5300",
+          "1900",
+          "6800",
+          "7100"
+        ],
+        "sum_x": "10000"
+      },
+      "zero": false,
+      "no_referrer": false
+    },
+    "m5_small_gross_50": {
+      "tag": "m5g50",
+      "job_id": "954500000000004",
+      "cid": "162",
+      "hold_ok": true,
+      "hold_err": null,
+      "fee": "1",
+      "net": "49",
+      "pool": "1",
+      "M": 5,
+      "N": 1,
+      "W": "8300",
+      "chain_depth": 5,
+      "weights": [
+        "3000",
+        "2000",
+        "1500",
+        "1000",
+        "800"
+      ],
+      "x": [
+        "1",
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      "uids": [
+        "954631",
+        "954632",
+        "954633",
+        "954634",
+        "954635"
+      ],
+      "split": {
+        "D": "1",
+        "order": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "plus": [
+          1
+        ],
+        "r": [
+          "3000",
+          "2000",
+          "1500",
+          "1000",
+          "800"
+        ],
+        "sum_x": "1"
+      },
+      "zero": false,
+      "no_referrer": false
+    },
+    "m5_gross_lt_levels": {
+      "tag": "m5g5",
+      "job_id": "954500000000005",
+      "cid": "162",
+      "hold_ok": true,
+      "hold_err": null,
+      "fee": "0",
+      "net": "5",
+      "pool": "0",
+      "M": 5,
+      "N": 0,
+      "W": "0",
+      "chain_depth": 5,
+      "weights": [
+        "3000",
+        "2000",
+        "1500",
+        "1000",
+        "800"
+      ],
+      "x": [],
+      "uids": [],
+      "split": null,
+      "zero": true,
+      "no_referrer": false
+    },
+    "dec6_m2": {
+      "tag": "dec6",
+      "job_id": "954500000000006",
+      "cid": "163",
+      "hold_ok": true,
+      "hold_err": null,
+      "fee": "10000",
+      "net": "990000",
+      "pool": "10000",
+      "M": 2,
+      "N": 2,
+      "W": "5000",
+      "chain_depth": 2,
+      "weights": [
+        "3000",
+        "2000"
+      ],
+      "x": [
+        "6000",
+        "4000"
+      ],
+      "uids": [
+        "954641",
+        "954642"
+      ],
+      "split": {
+        "D": "0",
+        "order": [
+          1,
+          0
+        ],
+        "plus": [],
+        "r": [
+          "0",
+          "0"
+        ],
+        "sum_x": "10000"
+      },
+      "zero": false,
+      "no_referrer": false
+    },
+    "dec0_m2_same": {
+      "tag": "dec0",
+      "job_id": "954500000000007",
+      "cid": "162",
+      "hold_ok": true,
+      "hold_err": null,
+      "fee": "10000",
+      "net": "990000",
+      "pool": "10000",
+      "M": 2,
+      "N": 2,
+      "W": "5000",
+      "chain_depth": 2,
+      "weights": [
+        "3000",
+        "2000"
+      ],
+      "x": [
+        "6000",
+        "4000"
+      ],
+      "uids": [
+        "954641",
+        "954642"
+      ],
+      "split": {
+        "D": "0",
+        "order": [
+          1,
+          0
+        ],
+        "plus": [],
+        "r": [
+          "0",
+          "0"
+        ],
+        "sum_x": "10000"
+      },
+      "zero": false,
+      "no_referrer": false
+    }
+  },
+  "committed": {
+    "m1_pool_one_level": {
+      "tag": "m1",
+      "job_id": "954600000000001",
+      "ok": true,
+      "key": "biz:job:settle:954600000000001",
+      "plan_x": [
+        "10000"
+      ],
+      "plan_W": "3000",
+      "C0": "162",
+      "facts": {
+        "pool_in": "10000",
+        "comm_out": "10000",
+        "minus2_net": "0",
+        "ev_net_sum": "0",
+        "rows_total": "6"
+      },
+      "expected_entry_count": 6
+    },
+    "dec6_two_levels": {
+      "tag": "dec6",
+      "job_id": "954600000000002",
+      "ok": true,
+      "key": "biz:job:settle:954600000000002",
+      "plan_x": [
+        "6000",
+        "4000"
+      ],
+      "plan_W": "5000",
+      "C0": "163",
+      "facts": {
+        "pool_in": "10000",
+        "comm_out": "10000",
+        "minus2_net": "0",
+        "ev_net_sum": "0",
+        "rows_total": "8"
+      },
+      "expected_entry_count": 8
+    },
+    "m5_fee_one_unit": {
+      "tag": "m5p1",
+      "job_id": "954600000000003",
+      "ok": true,
+      "key": "biz:job:settle:954600000000003",
+      "plan_x": [
+        "1",
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      "plan_W": "8300",
+      "C0": "162",
+      "facts": {
+        "pool_in": "1",
+        "comm_out": "1",
+        "minus2_net": "0",
+        "ev_net_sum": "0",
+        "rows_total": "6"
+      },
+      "expected_entry_count": 6
+    }
+  }
+}

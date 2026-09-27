@@ -1,0 +1,497 @@
+{
+  "run": "base00",
+  "name": "p2qa-00-baseline",
+  "at": "2026-09-27T11:03:51.259Z",
+  "script": "scripts/p2qa-00-baseline.ts",
+  "env": {
+    "head": "f78714f feat(P2/0010): 绑定协议守卫 + 200=>benign 校验侧同步 + spec v0.10/v0.3",
+    "head_full": "f78714f219871ec6a0bec4e01fd0b8ebd8a2d61b",
+    "status_porcelain": "?? backend-ts/.p1f-artifacts/p1o-00-escape-sweep-after-MUJOLUQJ.json\n?? backend-ts/.p1f-artifacts/p1o-00-escape-sweep-after-MUJPEOEO.json\n?? backend-ts/.p2d-artifacts/p2d-00-m-criteria-20260927T105610Z.json\n?? backend-ts/.p2d-artifacts/p2d-REPORT-20260927T105610Z.md\n?? backend-ts/scripts/p1v-00-trigger-enablement-guard-assert.ts\n?? backend-ts/scripts/p2qa-00-baseline.ts\n?? backend-ts/scripts/p2qa-lib.ts\n?? backend-ts/scripts/tmp-p1v-pre.ts",
+    "pg": {
+      "v": "PostgreSQL 18.6 (6569466) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit"
+    },
+    "db_now": {
+      "t": "2026-09-27 11:03:39.573186+00"
+    }
+  },
+  "triggers": [
+    {
+      "tbl": "account",
+      "tgname": "trg_account_guard",
+      "tgenabled": "O",
+      "tgtype": 31,
+      "timing": "BEFORE",
+      "fn": "account_guard",
+      "is_constraint": false,
+      "deferrable": false
+    },
+    {
+      "tbl": "commission_policy",
+      "tgname": "trg_commission_policy_append_only",
+      "tgenabled": "O",
+      "tgtype": 27,
+      "timing": "BEFORE",
+      "fn": "commission_policy_append_only",
+      "is_constraint": false,
+      "deferrable": false
+    },
+    {
+      "tbl": "commission_policy",
+      "tgname": "trg_commission_policy_weights_guard",
+      "tgenabled": "O",
+      "tgtype": 23,
+      "timing": "BEFORE",
+      "fn": "commission_policy_weights_guard",
+      "is_constraint": false,
+      "deferrable": false
+    },
+    {
+      "tbl": "ledger_entry",
+      "tgname": "trg_ledger_entry_append_only",
+      "tgenabled": "O",
+      "tgtype": 27,
+      "timing": "BEFORE",
+      "fn": "ledger_entry_append_only",
+      "is_constraint": false,
+      "deferrable": false
+    },
+    {
+      "tbl": "ledger_entry",
+      "tgname": "trg_ledger_entry_commission_conservation",
+      "tgenabled": "O",
+      "tgtype": 5,
+      "timing": "AFTER",
+      "fn": "ledger_assert_commission_conservation",
+      "is_constraint": true,
+      "deferrable": true
+    },
+    {
+      "tbl": "referral",
+      "tgname": "trg_referral_append_only",
+      "tgenabled": "O",
+      "tgtype": 27,
+      "timing": "BEFORE",
+      "fn": "referral_append_only",
+      "is_constraint": false,
+      "deferrable": false
+    },
+    {
+      "tbl": "referral",
+      "tgname": "trg_referral_cycle_guard",
+      "tgenabled": "O",
+      "tgtype": 7,
+      "timing": "BEFORE",
+      "fn": "referral_cycle_guard",
+      "is_constraint": false,
+      "deferrable": false
+    }
+  ],
+  "triggers_disabled": [],
+  "triggers_all_enabled": true,
+  "append_only": {
+    "ledger_entry": {
+      "update": {
+        "sqlstate": "P0001",
+        "message": "ledger_entry is append-only: UPDATE forbidden (txid=2172)",
+        "constraint": null,
+        "detail": "",
+        "reason": null,
+        "detail_parsed": null
+      },
+      "delete": {
+        "sqlstate": "P0001",
+        "message": "ledger_entry is append-only: DELETE forbidden (txid=2172)",
+        "constraint": null,
+        "detail": "",
+        "reason": null,
+        "detail_parsed": null
+      },
+      "rolled_back": true
+    },
+    "referral": {
+      "update": {
+        "sqlstate": "P0001",
+        "message": "referral is append-only: UPDATE forbidden (child_uid=949001)",
+        "constraint": null,
+        "detail": "",
+        "reason": null,
+        "detail_parsed": null
+      },
+      "delete": {
+        "sqlstate": "P0001",
+        "message": "referral is append-only: DELETE forbidden (child_uid=949001)",
+        "constraint": null,
+        "detail": "",
+        "reason": null,
+        "detail_parsed": null
+      },
+      "rolled_back": true
+    },
+    "commission_policy": {
+      "update": {
+        "sqlstate": "42703",
+        "message": "column \"depth\" does not exist",
+        "constraint": null,
+        "detail": "",
+        "reason": null,
+        "detail_parsed": null
+      },
+      "delete": {
+        "sqlstate": "P0001",
+        "message": "commission_policy is append-only: DELETE forbidden (policy_id=1)",
+        "constraint": null,
+        "detail": "",
+        "reason": null,
+        "detail_parsed": null
+      },
+      "rolled_back": true
+    }
+  },
+  "invariants": {
+    "referral_rows": {
+      "n": "28"
+    },
+    "referral_max_uid": {
+      "m": "953007"
+    },
+    "graph": {
+      "cycles": "0",
+      "bad_depth": "0"
+    },
+    "negatives": {
+      "n": "0"
+    },
+    "conservation_mismatch_rows": {
+      "n": "0"
+    },
+    "event_net_nonzero_rows": {
+      "n": "0"
+    },
+    "ledger_entry_count": {
+      "n": "1715"
+    },
+    "ledger_entry_uid_census": [
+      {
+        "uid": "-1",
+        "kind": "job_fee",
+        "n": "7",
+        "sum_delta": "46"
+      },
+      {
+        "uid": "-2",
+        "kind": "commission",
+        "n": "380",
+        "sum_delta": "-66046"
+      },
+      {
+        "uid": "-2",
+        "kind": "job_fee",
+        "n": "49",
+        "sum_delta": "66046"
+      }
+    ]
+  },
+  "platform_accounts": [
+    {
+      "uid": "-1",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0",
+      "version": "0"
+    },
+    {
+      "uid": "-1",
+      "cid": "124",
+      "balance": "40",
+      "frozen": "0",
+      "version": "1"
+    },
+    {
+      "uid": "-1",
+      "cid": "142",
+      "balance": "6",
+      "frozen": "0",
+      "version": "6"
+    },
+    {
+      "uid": "-2",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0",
+      "version": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "124",
+      "balance": "0",
+      "frozen": "0",
+      "version": "1"
+    },
+    {
+      "uid": "-2",
+      "cid": "142",
+      "balance": "0",
+      "frozen": "0",
+      "version": "48"
+    },
+    {
+      "uid": "-3",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0",
+      "version": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0",
+      "version": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "114",
+      "balance": "0",
+      "frozen": "0",
+      "version": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "115",
+      "balance": "0",
+      "frozen": "0",
+      "version": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "123",
+      "balance": "0",
+      "frozen": "0",
+      "version": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "132",
+      "balance": "0",
+      "frozen": "0",
+      "version": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "140",
+      "balance": "0",
+      "frozen": "0",
+      "version": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "141",
+      "balance": "0",
+      "frozen": "0",
+      "version": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "152",
+      "balance": "0",
+      "frozen": "0",
+      "version": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "160",
+      "balance": "0",
+      "frozen": "0",
+      "version": "0"
+    }
+  ],
+  "policies": [
+    {
+      "policy_id": "1",
+      "fee_rate_bp": "100",
+      "levels": "10",
+      "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+      "effective_from": "1970-01-01 00:00:00+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 09:49:28.131292+00"
+    },
+    {
+      "policy_id": "20",
+      "fee_rate_bp": "500",
+      "levels": "9",
+      "weights_bp": "{1000,1000,1000,1000,1000,1000,1000,1000,1000}",
+      "effective_from": "2026-09-27 10:25:41.081836+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 10:25:41.081836+00"
+    },
+    {
+      "policy_id": "21",
+      "fee_rate_bp": "100",
+      "levels": "2",
+      "weights_bp": "{2500,2500}",
+      "effective_from": "2026-09-27 10:25:45.960436+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 10:25:45.960436+00"
+    },
+    {
+      "policy_id": "22",
+      "fee_rate_bp": "100",
+      "levels": "10",
+      "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+      "effective_from": "2026-09-27 10:25:48.409564+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 10:25:48.409564+00"
+    },
+    {
+      "policy_id": "23",
+      "fee_rate_bp": "500",
+      "levels": "9",
+      "weights_bp": "{1000,1000,1000,1000,1000,1000,1000,1000,1000}",
+      "effective_from": "2026-09-27 10:28:11.373321+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 10:28:11.373321+00"
+    },
+    {
+      "policy_id": "24",
+      "fee_rate_bp": "100",
+      "levels": "2",
+      "weights_bp": "{2500,2500}",
+      "effective_from": "2026-09-27 10:28:16.618299+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 10:28:16.618299+00"
+    },
+    {
+      "policy_id": "25",
+      "fee_rate_bp": "100",
+      "levels": "10",
+      "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+      "effective_from": "2026-09-27 10:28:19.249653+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 10:28:19.249653+00"
+    },
+    {
+      "policy_id": "26",
+      "fee_rate_bp": "500",
+      "levels": "9",
+      "weights_bp": "{1000,1000,1000,1000,1000,1000,1000,1000,1000}",
+      "effective_from": "2026-09-27 10:29:39.108009+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 10:29:39.108009+00"
+    },
+    {
+      "policy_id": "27",
+      "fee_rate_bp": "100",
+      "levels": "2",
+      "weights_bp": "{2500,2500}",
+      "effective_from": "2026-09-27 10:29:44.252091+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 10:29:44.252091+00"
+    },
+    {
+      "policy_id": "28",
+      "fee_rate_bp": "100",
+      "levels": "10",
+      "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+      "effective_from": "2026-09-27 10:29:47.07447+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 10:29:47.07447+00"
+    },
+    {
+      "policy_id": "29",
+      "fee_rate_bp": "500",
+      "levels": "9",
+      "weights_bp": "{1000,1000,1000,1000,1000,1000,1000,1000,1000}",
+      "effective_from": "2026-09-27 10:38:07.115576+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 10:38:07.115576+00"
+    },
+    {
+      "policy_id": "30",
+      "fee_rate_bp": "100",
+      "levels": "2",
+      "weights_bp": "{2500,2500}",
+      "effective_from": "2026-09-27 10:38:11.845112+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 10:38:11.845112+00"
+    },
+    {
+      "policy_id": "31",
+      "fee_rate_bp": "100",
+      "levels": "10",
+      "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+      "effective_from": "2026-09-27 10:38:14.693873+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 10:38:14.693873+00"
+    },
+    {
+      "policy_id": "32",
+      "fee_rate_bp": "500",
+      "levels": "9",
+      "weights_bp": "{1000,1000,1000,1000,1000,1000,1000,1000,1000}",
+      "effective_from": "2026-09-27 10:40:03.090896+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 10:40:03.090896+00"
+    },
+    {
+      "policy_id": "33",
+      "fee_rate_bp": "100",
+      "levels": "2",
+      "weights_bp": "{2500,2500}",
+      "effective_from": "2026-09-27 10:40:08.719548+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 10:40:08.719548+00"
+    },
+    {
+      "policy_id": "34",
+      "fee_rate_bp": "100",
+      "levels": "10",
+      "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+      "effective_from": "2026-09-27 10:40:11.250001+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 10:40:11.250001+00"
+    },
+    {
+      "policy_id": "35",
+      "fee_rate_bp": "500",
+      "levels": "9",
+      "weights_bp": "{1000,1000,1000,1000,1000,1000,1000,1000,1000}",
+      "effective_from": "2026-09-27 10:56:38.930553+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 10:56:38.930553+00"
+    },
+    {
+      "policy_id": "36",
+      "fee_rate_bp": "100",
+      "levels": "2",
+      "weights_bp": "{2500,2500}",
+      "effective_from": "2026-09-27 10:56:43.995566+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 10:56:43.995566+00"
+    },
+    {
+      "policy_id": "37",
+      "fee_rate_bp": "100",
+      "levels": "10",
+      "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+      "effective_from": "2026-09-27 10:56:46.580869+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 10:56:46.580869+00"
+    }
+  ],
+  "policies_seed_only": false,
+  "baseline_fingerprints": {
+    "graph_all": "c9a6e6e98552e89154ad966cd81e7a2dab2f6062403c16e0bb662a1cafe4150a",
+    "graph_excluding_954xxx": "c9a6e6e98552e89154ad966cd81e7a2dab2f6062403c16e0bb662a1cafe4150a",
+    "ledger_all": "997e5fb4e57868fa008fd4c294819ff7ac168eed08874098ef8ca4c07edd5c13",
+    "policy_all": "35a455bad2c5cc3f5a0bf46d834fda39064319d09d0e18137f91a76363975daf",
+    "note": "本轮结束时会再取一次；graph_excluding_954xxx / policy_all / ledger 的「归属本单之外」部分必须逐字节不变"
+  },
+  "partition_probe": {
+    "uid_954_used": {
+      "n": "0"
+    },
+    "sym_p1u_used": {
+      "n": "0"
+    }
+  }
+}

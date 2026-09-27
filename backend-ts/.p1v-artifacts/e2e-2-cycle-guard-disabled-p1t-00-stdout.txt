@@ -1,0 +1,25 @@
+# cmd: npx ts-node --transpile-only scripts/p1t-00-bind-protocol-guard.ts --assert
+# attempts(exit)=[3]
+# exit=3
+{
+ "fatal": "PRECONDITION_NOT_MET",
+ "run": "p1v-e2e-2-cycle-guard-disabled-p1v-redproof-e2e-3-try1",
+ "detail": "trg_referral_cycle_guard 处于禁用态 ⇒ 继续跑会把「已有下级者绑上级」的 stale-depth 边**真的写进** INSERT-only 的 referral（不可改、不可删）⇒ 永久污染 depth 不变式",
+ "anomalies": [
+  {
+   "table": "referral",
+   "trigger": "trg_referral_cycle_guard",
+   "tgenabled": "D",
+   "state": "disabled",
+   "label": "referral.trg_referral_cycle_guard=disabled(D)"
+  }
+ ],
+ "remedy": "ALTER TABLE public.referral ENABLE TRIGGER trg_referral_cycle_guard;（若在事务内禁用，请在**同一事务内**复原）后重跑；判据与红色自证见 scripts/p1v-00-trigger-enablement-guard-assert.ts",
+ "assertions_failed": [
+  "0b 触发器启用态：触发器未启用 ⇒ referral.trg_referral_cycle_guard=disabled(D)"
+ ],
+ "file": "/Users/kevin/bistro/seafood/backend-ts/.p1t-artifacts/p1t-00-bind-protocol-guard-p1v-e2e-2-cycle-guard-disabled-p1v-redproof-e2e-3-try1.json"
+}
+
+# ---- stderr ----
+PRECONDITION_NOT_MET：trg_referral_cycle_guard 被禁用（见 stdout 的 anomalies）

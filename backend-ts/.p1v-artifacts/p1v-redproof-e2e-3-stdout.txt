@@ -1,0 +1,95 @@
+{
+ "file": "/Users/kevin/bistro/seafood/backend-ts/.p1v-artifacts/p1v-00-trigger-enablement-guard-assert-p1v-redproof-e2e-3.json",
+ "run": "p1v-redproof-e2e-3",
+ "ok": true,
+ "assertions_failed": [],
+ "main_reads": {
+  "A_baseline": {
+   "ok": true,
+   "total": 7,
+   "anomalies": []
+  },
+  "A2_synthetic": {
+   "input": [
+    {
+     "referral.trg_referral_append_only": "D"
+    },
+    {
+     "referral.trg_referral_cycle_guard": "O"
+    }
+   ],
+   "ok": false,
+   "anomalies": [
+    {
+     "table": "referral",
+     "trigger": "trg_referral_append_only",
+     "tgenabled": "D",
+     "state": "disabled",
+     "label": "referral.trg_referral_append_only=disabled(D)"
+    }
+   ],
+   "expected": "ok=false 且 anomalies=[referral.trg_referral_append_only=disabled(D)]"
+  },
+  "B_in_tx": [
+   {
+    "target": "referral.trg_referral_append_only",
+    "why": "上一单 p2d-01 事务内 DISABLE 后未复原的正是这一条",
+    "1_scan_before_disable_ok": true,
+    "2_raw_tgenabled_after_disable": "D",
+    "3_scan_after_disable": {
+     "ok": false,
+     "anomalies": [
+      {
+       "table": "referral",
+       "trigger": "trg_referral_append_only",
+       "tgenabled": "D",
+       "state": "disabled",
+       "label": "referral.trg_referral_append_only=disabled(D)"
+      }
+     ]
+    },
+    "4_scan_after_enable": {
+     "ok": true,
+     "anomalies": []
+    },
+    "5_raw_tgenabled_after_enable": "O"
+   },
+   {
+    "target": "referral.trg_referral_cycle_guard",
+    "why": "绑定守卫；它被禁用则 p1t-00 的判负用例会失去意义",
+    "1_scan_before_disable_ok": true,
+    "2_raw_tgenabled_after_disable": "D",
+    "3_scan_after_disable": {
+     "ok": false,
+     "anomalies": [
+      {
+       "table": "referral",
+       "trigger": "trg_referral_cycle_guard",
+       "tgenabled": "D",
+       "state": "disabled",
+       "label": "referral.trg_referral_cycle_guard=disabled(D)"
+      }
+     ]
+    },
+    "4_scan_after_enable": {
+     "ok": true,
+     "anomalies": []
+    },
+    "5_raw_tgenabled_after_enable": "O"
+   }
+  ],
+  "C_post": {
+   "scan_ok": true,
+   "enabled": 7,
+   "total": 7,
+   "anomalies": [],
+   "fingerprint_md5": "67c1825602034322845d64593fc338bf",
+   "equals_baseline_fingerprint": true,
+   "diff_vs_baseline": [],
+   "referral_count_before": "75",
+   "referral_count_after": "75",
+   "ledger_entry_count": "1811",
+   "zero_writes_by_this_script": true
+  }
+ }
+}

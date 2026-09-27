@@ -1,0 +1,716 @@
+{
+  "run": "p03b",
+  "name": "p2qa-03-chain-depth-guard",
+  "at": "2026-09-27T11:10:27.205Z",
+  "script": "scripts/p2qa-03-chain-depth-guard.ts",
+  "setup": {
+    "cid": "165",
+    "binds": [
+      {
+        "tag": "stale",
+        "edge": "954712->954713",
+        "ok": true,
+        "depth": "1",
+        "err": null
+      },
+      {
+        "tag": "stale",
+        "edge": "954711->954712",
+        "ok": true,
+        "depth": "2",
+        "err": null
+      },
+      {
+        "tag": "stale",
+        "edge": "954701->954711",
+        "ok": true,
+        "depth": "3",
+        "err": null
+      },
+      {
+        "tag": "deep12",
+        "edge": "954751->954752",
+        "ok": true,
+        "depth": "1",
+        "err": null
+      },
+      {
+        "tag": "deep12",
+        "edge": "954750->954751",
+        "ok": true,
+        "depth": "2",
+        "err": null
+      },
+      {
+        "tag": "deep12",
+        "edge": "954749->954750",
+        "ok": true,
+        "depth": "3",
+        "err": null
+      },
+      {
+        "tag": "deep12",
+        "edge": "954748->954749",
+        "ok": true,
+        "depth": "4",
+        "err": null
+      },
+      {
+        "tag": "deep12",
+        "edge": "954747->954748",
+        "ok": true,
+        "depth": "5",
+        "err": null
+      },
+      {
+        "tag": "deep12",
+        "edge": "954746->954747",
+        "ok": true,
+        "depth": "6",
+        "err": null
+      },
+      {
+        "tag": "deep12",
+        "edge": "954745->954746",
+        "ok": true,
+        "depth": "7",
+        "err": null
+      },
+      {
+        "tag": "deep12",
+        "edge": "954744->954745",
+        "ok": true,
+        "depth": "8",
+        "err": null
+      },
+      {
+        "tag": "deep12",
+        "edge": "954743->954744",
+        "ok": true,
+        "depth": "9",
+        "err": null
+      },
+      {
+        "tag": "deep12",
+        "edge": "954742->954743",
+        "ok": true,
+        "depth": "10",
+        "err": null
+      },
+      {
+        "tag": "deep12",
+        "edge": "954741->954742",
+        "ok": true,
+        "depth": "11",
+        "err": null
+      },
+      {
+        "tag": "deep12",
+        "edge": "954731->954741",
+        "ok": true,
+        "depth": "12",
+        "err": null
+      }
+    ],
+    "binds_failed": []
+  },
+  "graph_pre": {
+    "cycles": "0",
+    "bad_depth": "0",
+    "referral_rows": "79"
+  },
+  "Q1_depth_not_used_by_chain_walk": {
+    "question": "链游走是否依赖可陈旧的 referral.depth？（陈旧 depth 会不会静默截断/少付/多付）",
+    "chain_pre": [
+      {
+        "beneficiary_uid": "954711",
+        "level": 1
+      },
+      {
+        "beneficiary_uid": "954712",
+        "level": 2
+      },
+      {
+        "beneficiary_uid": "954713",
+        "level": 3
+      }
+    ],
+    "chain_pre_assertions": {
+      "contiguous_levels": true,
+      "within_cap": true,
+      "all_user_uids": true,
+      "no_duplicate_uid": true
+    },
+    "plan_pre": {
+      "M": 3,
+      "N": 3,
+      "W": "6500",
+      "x": [
+        "4615",
+        "3077",
+        "2308"
+      ],
+      "uids": [
+        "954711",
+        "954712",
+        "954713"
+      ],
+      "chain_depth": 3
+    },
+    "invariants_pre": {
+      "cycles": "0",
+      "bad_depth": "0",
+      "referral_rows": "79"
+    },
+    "row_fingerprint_pre": {
+      "rows": "[{\"child_uid\":\"954701\",\"parent_uid\":\"954711\",\"depth\":\"3\"},{\"child_uid\":\"954711\",\"parent_uid\":\"954712\",\"depth\":\"2\"},{\"child_uid\":\"954712\",\"parent_uid\":\"954713\",\"depth\":\"1\"}]",
+      "hash": "85e08fb5f050edcbd8ce98ea609523b96172160230af45e7b00f84fcf607a789"
+    },
+    "in_tx": null,
+    "tx_error": "error: current transaction is aborted, commands ignored until end of transaction block",
+    "row_fingerprint_post_rollback": {
+      "rows": "[{\"child_uid\":\"954701\",\"parent_uid\":\"954711\",\"depth\":\"3\"},{\"child_uid\":\"954711\",\"parent_uid\":\"954712\",\"depth\":\"2\"},{\"child_uid\":\"954712\",\"parent_uid\":\"954713\",\"depth\":\"1\"}]",
+      "hash": "85e08fb5f050edcbd8ce98ea609523b96172160230af45e7b00f84fcf607a789"
+    },
+    "restored": true,
+    "verdict_note": "chain_mid_nodes 必须与 chain_pre 逐元素相同（= 链游走不读 depth）；invariants_mid.bad_depth 必须 > 0（= 不变式确有观测力）",
+    "chain_identical_despite_stale_depth": false,
+    "plan_identical_despite_stale_depth": true
+  },
+  "Q2_chain_longer_than_cap": {
+    "full_chain_of_leaf": [
+      {
+        "uid": "954741",
+        "level": "1"
+      },
+      {
+        "uid": "954742",
+        "level": "2"
+      },
+      {
+        "uid": "954743",
+        "level": "3"
+      },
+      {
+        "uid": "954744",
+        "level": "4"
+      },
+      {
+        "uid": "954745",
+        "level": "5"
+      },
+      {
+        "uid": "954746",
+        "level": "6"
+      },
+      {
+        "uid": "954747",
+        "level": "7"
+      },
+      {
+        "uid": "954748",
+        "level": "8"
+      },
+      {
+        "uid": "954749",
+        "level": "9"
+      },
+      {
+        "uid": "954750",
+        "level": "10"
+      },
+      {
+        "uid": "954751",
+        "level": "11"
+      },
+      {
+        "uid": "954752",
+        "level": "12"
+      }
+    ],
+    "chain_cap10": {
+      "nodes": [
+        {
+          "beneficiary_uid": "954741",
+          "level": 1
+        },
+        {
+          "beneficiary_uid": "954742",
+          "level": 2
+        },
+        {
+          "beneficiary_uid": "954743",
+          "level": 3
+        },
+        {
+          "beneficiary_uid": "954744",
+          "level": 4
+        },
+        {
+          "beneficiary_uid": "954745",
+          "level": 5
+        },
+        {
+          "beneficiary_uid": "954746",
+          "level": 6
+        },
+        {
+          "beneficiary_uid": "954747",
+          "level": 7
+        },
+        {
+          "beneficiary_uid": "954748",
+          "level": 8
+        },
+        {
+          "beneficiary_uid": "954749",
+          "level": 9
+        },
+        {
+          "beneficiary_uid": "954750",
+          "level": 10
+        }
+      ],
+      "chain_depth": 10,
+      "assertions": {
+        "contiguous_levels": true,
+        "within_cap": true,
+        "all_user_uids": true,
+        "no_duplicate_uid": true
+      }
+    },
+    "chain_cap3": [
+      {
+        "beneficiary_uid": "954741",
+        "level": 1
+      },
+      {
+        "beneficiary_uid": "954742",
+        "level": 2
+      },
+      {
+        "beneficiary_uid": "954743",
+        "level": 3
+      }
+    ],
+    "plan_cap10": {
+      "chain_depth_reported": 10,
+      "M": 10,
+      "x": [
+        "3000",
+        "2000",
+        "1500",
+        "1000",
+        "800",
+        "600",
+        "500",
+        "300",
+        "200",
+        "100"
+      ],
+      "W": "10000",
+      "uids": [
+        "954741",
+        "954742",
+        "954743",
+        "954744",
+        "954745",
+        "954746",
+        "954747",
+        "954748",
+        "954749",
+        "954750"
+      ]
+    },
+    "invariants": {
+      "cycles": "0",
+      "bad_depth": "0",
+      "referral_rows": "79"
+    }
+  },
+  "Q3_cycle_poison": {
+    "hypothesis": "环污染后链游走会重复同一 uid（含打工人自己）；Σ x == P 仍成立 ⇒ 层会产出「保平衡但归属错」的载荷",
+    "in_tx": {
+      "disable_cycle": true,
+      "disable_append": true,
+      "insert_edges": [
+        true,
+        true
+      ],
+      "chain_nodes": [
+        {
+          "beneficiary_uid": "954722",
+          "level": 1
+        },
+        {
+          "beneficiary_uid": "954721",
+          "level": 2
+        },
+        {
+          "beneficiary_uid": "954722",
+          "level": 3
+        },
+        {
+          "beneficiary_uid": "954721",
+          "level": 4
+        },
+        {
+          "beneficiary_uid": "954722",
+          "level": 5
+        },
+        {
+          "beneficiary_uid": "954721",
+          "level": 6
+        },
+        {
+          "beneficiary_uid": "954722",
+          "level": 7
+        },
+        {
+          "beneficiary_uid": "954721",
+          "level": 8
+        },
+        {
+          "beneficiary_uid": "954722",
+          "level": 9
+        },
+        {
+          "beneficiary_uid": "954721",
+          "level": 10
+        }
+      ],
+      "chain_assertions": {
+        "contiguous_levels": true,
+        "within_cap": true,
+        "all_user_uids": true,
+        "no_duplicate_uid": false
+      },
+      "invariants": {
+        "cycles": "100",
+        "bad_depth": "2",
+        "referral_rows": "81"
+      },
+      "layer_x": [
+        "300",
+        "200",
+        "150",
+        "100",
+        "80",
+        "60",
+        "50",
+        "30",
+        "20",
+        "10"
+      ],
+      "layer_uids": [
+        "954722",
+        "954721",
+        "954722",
+        "954721",
+        "954722",
+        "954721",
+        "954722",
+        "954721",
+        "954722",
+        "954721"
+      ],
+      "N": 10,
+      "M": 10,
+      "pool": "1000",
+      "ev_assertions": {
+        "entry_count": 24,
+        "account_count": 4,
+        "sum_delta_frozen": "0",
+        "commission_rows": 20,
+        "sum_commission_credit": "1000",
+        "sum_x_equals_pool": true
+      },
+      "posted_ok": true,
+      "posted_error": null,
+      "posted_entries": 24,
+      "forced_constraint_check_ok": true,
+      "forced_constraint_error": null,
+      "worker_self_paid": [
+        "200",
+        "100",
+        "60",
+        "30",
+        "10"
+      ],
+      "duplicate_beneficiaries": [
+        "954722",
+        "954721",
+        "954722",
+        "954721",
+        "954722",
+        "954721",
+        "954722",
+        "954721"
+      ]
+    },
+    "tx_error": null,
+    "db_verdict_on_balanced_but_wrong_attribution": {
+      "posted_ok": true,
+      "forced_constraint_check_ok": true,
+      "forced_constraint_error": null
+    },
+    "control_imbalanced_must_be_rejected": {
+      "posted_ok": true,
+      "posted_error": null,
+      "forced_ok": false,
+      "forced_error": {
+        "sqlstate": "LD032",
+        "message": "LEDGER_RECONCILE_MISMATCH",
+        "constraint": null,
+        "detail": "{\"reason\": \"COMMISSION_SPLIT_SUM_MISMATCH\", \"pool_in\": \"1000\", \"job_fee_rows\": \"1\", \"commission_out\": \"999\", \"commission_rows\": \"1\", \"idempotency_key\": \"ops:p1u:ctl-imbalanced-p03b\"}",
+        "reason": "COMMISSION_SPLIT_SUM_MISMATCH",
+        "detail_parsed": {
+          "reason": "COMMISSION_SPLIT_SUM_MISMATCH",
+          "pool_in": "1000",
+          "job_fee_rows": "1",
+          "commission_out": "999",
+          "commission_rows": "1",
+          "idempotency_key": "ops:p1u:ctl-imbalanced-p03b"
+        }
+      }
+    },
+    "residue_check": {
+      "ok": true,
+      "rows": [
+        {
+          "n": "0"
+        }
+      ],
+      "elapsed_ms": 171
+    }
+  },
+  "Q4_guard_order": [
+    {
+      "tag": "o1_self_bind_且_has_descendant",
+      "child": 954802,
+      "parent": 954802,
+      "referral_bind": {
+        "sqlstate": "LD016",
+        "reason": "REFERRAL_SELF_BIND",
+        "constraint": null,
+        "message": "LEDGER_AMOUNT_INVALID"
+      },
+      "raw_insert": {
+        "sqlstate": null,
+        "reason": null,
+        "constraint": null,
+        "message": "Client network socket disconnected before secure TLS connection was established"
+      }
+    },
+    {
+      "tag": "o2_cycle_且_has_descendant",
+      "child": 954802,
+      "parent": 954801,
+      "referral_bind": {
+        "sqlstate": "LD016",
+        "reason": "REFERRAL_CYCLE_REJECTED",
+        "constraint": null,
+        "message": "LEDGER_AMOUNT_INVALID"
+      },
+      "raw_insert": {
+        "sqlstate": "LD016",
+        "reason": "REFERRAL_CYCLE_REJECTED",
+        "constraint": null,
+        "message": "LEDGER_AMOUNT_INVALID"
+      }
+    },
+    {
+      "tag": "o3_only_has_descendant",
+      "child": 954802,
+      "parent": 954803,
+      "referral_bind": {
+        "sqlstate": "LD016",
+        "reason": "REFERRAL_BIND_WOULD_STALE_DEPTH",
+        "constraint": null,
+        "message": "LEDGER_AMOUNT_INVALID"
+      },
+      "raw_insert": {
+        "sqlstate": "LD016",
+        "reason": "REFERRAL_BIND_WOULD_STALE_DEPTH",
+        "constraint": null,
+        "message": "LEDGER_AMOUNT_INVALID"
+      }
+    },
+    {
+      "tag": "o4_already_bound_child_other_parent",
+      "child": 954801,
+      "parent": 954805,
+      "referral_bind": {
+        "sqlstate": "LD003",
+        "reason": "REFERRAL_ALREADY_BOUND",
+        "constraint": null,
+        "message": "LEDGER_IDEMPOTENCY_CONFLICT"
+      },
+      "raw_insert": {
+        "sqlstate": "23505",
+        "reason": null,
+        "constraint": "referral_pk",
+        "message": "duplicate key value violates unique constraint \"referral_pk\""
+      }
+    },
+    {
+      "tag": "o5_child_not_in_users",
+      "child": 954999,
+      "parent": 954806,
+      "referral_bind": {
+        "sqlstate": "23503",
+        "reason": null,
+        "constraint": "referral_child_fk",
+        "message": "insert or update on table \"referral\" violates foreign key constraint \"referral_child_fk\""
+      },
+      "raw_insert": {
+        "sqlstate": "23503",
+        "reason": null,
+        "constraint": "referral_child_fk",
+        "message": "insert or update on table \"referral\" violates foreign key constraint \"referral_child_fk\""
+      }
+    },
+    {
+      "tag": "o6_parent_is_platform_uid",
+      "child": 954804,
+      "parent": -2,
+      "referral_bind": {
+        "sqlstate": "23503",
+        "reason": null,
+        "constraint": "referral_child_fk",
+        "message": "insert or update on table \"referral\" violates foreign key constraint \"referral_child_fk\""
+      },
+      "raw_insert": {
+        "sqlstate": "23503",
+        "reason": null,
+        "constraint": "referral_child_fk",
+        "message": "insert or update on table \"referral\" violates foreign key constraint \"referral_child_fk\""
+      }
+    }
+  ],
+  "Q4b_depth_input_ignored": {
+    "inserted": true,
+    "returned_depth": "1",
+    "stored_depth": "1",
+    "note": "G803 是根（无行）⇒ 正确 depth = 1；调用方传的 5 必须被触发器覆写"
+  },
+  "Q5_bypass_makes_m9_red": {
+    "in_tx": {
+      "invariants_after_bypass": {
+        "cycles": "100",
+        "bad_depth": "2",
+        "referral_rows": "82"
+      },
+      "chain": [
+        {
+          "beneficiary_uid": "954722",
+          "level": 1
+        },
+        {
+          "beneficiary_uid": "954721",
+          "level": 2
+        },
+        {
+          "beneficiary_uid": "954722",
+          "level": 3
+        },
+        {
+          "beneficiary_uid": "954721",
+          "level": 4
+        },
+        {
+          "beneficiary_uid": "954722",
+          "level": 5
+        },
+        {
+          "beneficiary_uid": "954721",
+          "level": 6
+        },
+        {
+          "beneficiary_uid": "954722",
+          "level": 7
+        },
+        {
+          "beneficiary_uid": "954721",
+          "level": 8
+        },
+        {
+          "beneficiary_uid": "954722",
+          "level": 9
+        },
+        {
+          "beneficiary_uid": "954721",
+          "level": 10
+        }
+      ]
+    },
+    "error": null,
+    "invariants_after_rollback": {
+      "cycles": "0",
+      "bad_depth": "0",
+      "referral_rows": "80"
+    },
+    "rows_after_rollback": {
+      "ok": true,
+      "rows": [
+        {
+          "n": "0"
+        }
+      ],
+      "elapsed_ms": 587
+    }
+  },
+  "final": {
+    "triggers": [
+      {
+        "tbl": "account",
+        "tgname": "trg_account_guard",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "commission_policy",
+        "tgname": "trg_commission_policy_append_only",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "commission_policy",
+        "tgname": "trg_commission_policy_weights_guard",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "ledger_entry",
+        "tgname": "trg_ledger_entry_append_only",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "ledger_entry",
+        "tgname": "trg_ledger_entry_commission_conservation",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "referral",
+        "tgname": "trg_referral_append_only",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "referral",
+        "tgname": "trg_referral_cycle_guard",
+        "tgenabled": "O"
+      }
+    ],
+    "graph": {
+      "cycles": "0",
+      "bad_depth": "0",
+      "referral_rows": "80"
+    },
+    "my_partition_rows": {
+      "ok": true,
+      "rows": [
+        {
+          "n": "52"
+        }
+      ],
+      "elapsed_ms": 208
+    }
+  }
+}

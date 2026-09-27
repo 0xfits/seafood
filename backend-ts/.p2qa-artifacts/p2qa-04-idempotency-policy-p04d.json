@@ -1,0 +1,374 @@
+{
+  "run": "p04d",
+  "name": "p2qa-04-idempotency-policy",
+  "at": "2026-09-27T11:18:00.844Z",
+  "script": "scripts/p2qa-04-idempotency-policy.ts",
+  "setup": {
+    "cid": "172"
+  },
+  "Q1_concurrent_same_key": {
+    "concurrency": 8,
+    "responses": [
+      {
+        "ok": true,
+        "replay": true,
+        "entries": 8
+      },
+      {
+        "ok": true,
+        "replay": true,
+        "entries": 8
+      },
+      {
+        "ok": true,
+        "replay": false,
+        "entries": 8
+      },
+      {
+        "ok": true,
+        "replay": true,
+        "entries": 8
+      },
+      {
+        "ok": true,
+        "replay": true,
+        "entries": 8
+      },
+      {
+        "ok": true,
+        "replay": true,
+        "entries": 8
+      },
+      {
+        "ok": true,
+        "replay": true,
+        "entries": 8
+      },
+      {
+        "ok": true,
+        "replay": true,
+        "entries": 8
+      }
+    ],
+    "ok_count": 8,
+    "replay_count": 7,
+    "root_rows": "1",
+    "rows_total": "8",
+    "commission_rows": "4",
+    "minus2_net": "0",
+    "minus1_net": "0",
+    "worker_got": "99000",
+    "ev_net_sum": "0",
+    "distinct_beneficiaries": "2",
+    "expected_entry_count": 8,
+    "rows_not_doubled": true,
+    "worker_paid_once": true,
+    "event_rows_hash": {
+      "hash": "dbe4dea67e108b8df4fe233bf6a33f8c4442258dde91aff6ead8785b9a033bc5",
+      "rows": 8
+    }
+  },
+  "Q2_same_key_diff_content": {
+    "cases": [
+      {
+        "tag": "gross_lower_50000",
+        "threw": {
+          "ts_code": "LEDGER_IDEMPOTENCY_CONFLICT",
+          "http": 409,
+          "details": {
+            "actual": "8b0c45e5f103c8c1f95ff633bbc216b7e70e1bb8aeadb04f3488903f29a91572",
+            "expected": "97d42bcfcbe9ba9a022de299d7bbf9f0de3c3c9fde9304ad5c8dd48864521260",
+            "idempotency_key": "biz:job:settle:954800054237152"
+          }
+        }
+      },
+      {
+        "tag": "worker_changed",
+        "threw": {
+          "ts_code": "LEDGER_IDEMPOTENCY_CONFLICT",
+          "http": 409,
+          "details": {
+            "actual": "475152878b6c619aa0f103c7aae220353cbf749a4dcc250099d7c1816974c60c",
+            "expected": "97d42bcfcbe9ba9a022de299d7bbf9f0de3c3c9fde9304ad5c8dd48864521260",
+            "idempotency_key": "biz:job:settle:954800054237152"
+          }
+        }
+      },
+      {
+        "tag": "gross_higher_unfunded",
+        "threw": {
+          "ts_code": "LEDGER_INSUFFICIENT_FROZEN",
+          "http": 409,
+          "details": {
+            "cid": "172",
+            "uid": "954001",
+            "required": "990000",
+            "available": "100000"
+          }
+        }
+      },
+      {
+        "tag": "identical_replay",
+        "returned_ok": true,
+        "replay": true
+      }
+    ],
+    "rows_hash_before": {
+      "hash": "dbe4dea67e108b8df4fe233bf6a33f8c4442258dde91aff6ead8785b9a033bc5",
+      "rows": 8
+    },
+    "rows_hash_after": {
+      "hash": "dbe4dea67e108b8df4fe233bf6a33f8c4442258dde91aff6ead8785b9a033bc5",
+      "rows": 8
+    },
+    "rows_unchanged": true,
+    "note": "同一 job_id ⇒ 同一幂等键；只改 business 字段 ⇒ 指纹不同（不该重放）；账上必须原封不动"
+  },
+  "Q3_same_key_policy_revision": {
+    "policy_old": {
+      "policy_id": "20",
+      "fee_rate_bp": 500,
+      "levels": 9,
+      "w": [
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000
+      ]
+    },
+    "policy_new": {
+      "policy_id": "33",
+      "fee_rate_bp": 100,
+      "levels": 2,
+      "w": [
+        2500,
+        2500
+      ]
+    },
+    "plan_old": {
+      "fee": "50000",
+      "M": 3,
+      "x": [
+        "16666",
+        "16667",
+        "16667"
+      ]
+    },
+    "plan_new_if_recomputed": {
+      "fee": "10000",
+      "M": 2,
+      "x": [
+        "5000",
+        "5000"
+      ]
+    },
+    "first_call": {
+      "ok": true,
+      "replay": false,
+      "fee": "50000",
+      "x": [
+        "16666",
+        "16667",
+        "16667"
+      ],
+      "policy_id": "20",
+      "fingerprint": "87e3576cccdcf04093fd1ddf2dfe28ee2054f160ab66e30dc9263ca1de963606"
+    },
+    "second_call": {
+      "ok": true,
+      "replay": true,
+      "fee_planned": "10000",
+      "x_planned": [
+        "5000",
+        "5000"
+      ],
+      "policy_id_planned": "33",
+      "fingerprint": "87e3576cccdcf04093fd1ddf2dfe28ee2054f160ab66e30dc9263ca1de963606"
+    },
+    "rows_hash_before_second": {
+      "hash": "cf801efa6b9e786438e65a78865c91cfc811073af6697be2211293ba191153d4",
+      "rows": 10
+    },
+    "rows_hash_after_second": {
+      "hash": "cf801efa6b9e786438e65a78865c91cfc811073af6697be2211293ba191153d4",
+      "rows": 10
+    },
+    "rows_unchanged": true,
+    "facts": {
+      "rows_total": "10",
+      "root_rows": "1",
+      "minus2_net": "0",
+      "ev_net_sum": "0",
+      "commission_rows": "6"
+    },
+    "same_fingerprint": true,
+    "verdict_note": "CR87：第二次应 replay=true 且账上金额仍是第一版（不追溯、不双发、不 409）"
+  },
+  "Q4_same_content_diff_key": {
+    "key1": "biz:job:settle:954800054237154",
+    "key2": "biz:job:settle:954800054237155",
+    "both_ok": true,
+    "replay1": false,
+    "replay2": false,
+    "note": "幂等键由 job_id 派生 ⇒ 两个 job 是两个事件（设计如此，不是双发缺陷）"
+  },
+  "Q5_policy_selection": {
+    "picks": [
+      {
+        "at": "1969-12-31T00:00:00Z",
+        "threw": {
+          "ts_code": "LEDGER_FEE_RATE_INVALID",
+          "http": 500,
+          "details": {
+            "reason": "COMMISSION_POLICY_MISSING",
+            "at": "1969-12-31T00:00:00Z"
+          }
+        }
+      },
+      {
+        "at": "1970-01-01T00:00:01Z",
+        "policy_id": "1",
+        "fee": 100,
+        "levels": 10,
+        "eff": "1970-01-01 00:00:00+00"
+      },
+      {
+        "at": "2026-09-27T10:25:40Z",
+        "policy_id": "1",
+        "fee": 100,
+        "levels": 10,
+        "eff": "1970-01-01 00:00:00+00"
+      },
+      {
+        "at": "2026-09-27T10:25:43Z",
+        "policy_id": "20",
+        "fee": 500,
+        "levels": 9,
+        "eff": "2026-09-27 10:25:41.081836+00"
+      },
+      {
+        "at": "2026-09-27T10:40:09Z",
+        "policy_id": "33",
+        "fee": 100,
+        "levels": 2,
+        "eff": "2026-09-27 10:40:08.719548+00"
+      },
+      {
+        "at": "2026-09-27T10:56:44Z",
+        "policy_id": "36",
+        "fee": 100,
+        "levels": 2,
+        "eff": "2026-09-27 10:56:43.995566+00"
+      },
+      {
+        "at": "2030-01-01T00:00:00Z",
+        "policy_id": "37",
+        "fee": 100,
+        "levels": 10,
+        "eff": "2026-09-27 10:56:46.580869+00"
+      }
+    ],
+    "now_policy": {
+      "policy_id": "37",
+      "fee_rate_bp": 100,
+      "levels": 10,
+      "weights_bp": [
+        3000,
+        2000,
+        1500,
+        1000,
+        800,
+        600,
+        500,
+        300,
+        200,
+        100
+      ],
+      "effective_from": "2026-09-27 10:56:46.580869+00",
+      "created_by": "0",
+      "time_created": "2026-09-27 10:56:46.580869+00",
+      "weights_sum_bp": 10000
+    },
+    "insert_cases": [
+      {
+        "tag": "future_scheduled",
+        "at": "2026-09-27T17:17:55.842Z",
+        "inserted": true,
+        "policy_id": "73",
+        "effective_from": "2026-09-27 17:17:55.842+00",
+        "visible_now": "37",
+        "rolled_back": true
+      },
+      {
+        "tag": "backdated_1970",
+        "at": "1970-01-01T00:00:00Z",
+        "inserted": false,
+        "err": {
+          "ts_code": "LEDGER_AMOUNT_INVALID",
+          "http": 400,
+          "details": {
+            "field": "effective_from",
+            "reason": "POLICY_EFFECTIVE_BACKDATED",
+            "provided": "1970-01-01T00:00:00Z"
+          }
+        },
+        "rolled_back": true
+      },
+      {
+        "tag": "backdated_2026",
+        "at": "2026-01-01T00:00:00Z",
+        "inserted": false,
+        "err": {
+          "ts_code": "LEDGER_AMOUNT_INVALID",
+          "http": 400,
+          "details": {
+            "field": "effective_from",
+            "reason": "POLICY_EFFECTIVE_BACKDATED",
+            "provided": "2026-01-01T00:00:00Z"
+          }
+        },
+        "rolled_back": true
+      },
+      {
+        "tag": "equal_to_existing",
+        "at": "2026-09-27T10:56:46.580869Z",
+        "inserted": false,
+        "err": {
+          "ts_code": "LEDGER_AMOUNT_INVALID",
+          "http": 400,
+          "details": {
+            "field": "effective_from",
+            "reason": "POLICY_EFFECTIVE_BACKDATED",
+            "provided": "2026-09-27T10:56:46.580869Z"
+          }
+        },
+        "rolled_back": true
+      },
+      {
+        "tag": "null_now",
+        "at": null,
+        "inserted": true,
+        "policy_id": "74",
+        "effective_from": "2026-09-27 11:17:59.538577+00",
+        "visible_now": "74",
+        "rolled_back": true
+      }
+    ],
+    "policies_count_unchanged": {
+      "n": "19"
+    }
+  },
+  "Q6_global": {
+    "nonzero_event_net": {
+      "nonzero_events": "0"
+    },
+    "minus2_negative": {
+      "n": "0"
+    }
+  }
+}

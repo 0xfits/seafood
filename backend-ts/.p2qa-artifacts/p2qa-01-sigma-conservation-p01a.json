@@ -1,0 +1,1352 @@
+{
+  "run": "p01a",
+  "name": "p2qa-01-sigma-conservation",
+  "at": "2026-09-27T11:05:48.414Z",
+  "script": "scripts/p2qa-01-sigma-conservation.ts",
+  "setup": {
+    "cid": "161",
+    "symbol": "p1u0P01A",
+    "mint": {
+      "ok": true,
+      "err": null
+    },
+    "hold": {
+      "ok": true,
+      "err": null
+    },
+    "binds": [
+      {
+        "edge": "954112->954113",
+        "ok": true,
+        "err": null,
+        "j": {
+          "j": {
+            "ok": true,
+            "depth": "1",
+            "bound_at": "2026-09-27T11:05:22.506681+00:00",
+            "child_uid": "954112",
+            "parent_uid": "954113",
+            "idempotent_replay": false
+          }
+        }
+      },
+      {
+        "edge": "954111->954112",
+        "ok": true,
+        "err": null,
+        "j": {
+          "j": {
+            "ok": true,
+            "depth": "2",
+            "bound_at": "2026-09-27T11:05:22.702736+00:00",
+            "child_uid": "954111",
+            "parent_uid": "954112",
+            "idempotent_replay": false
+          }
+        }
+      },
+      {
+        "edge": "954003->954111",
+        "ok": true,
+        "err": null,
+        "j": {
+          "j": {
+            "ok": true,
+            "depth": "3",
+            "bound_at": "2026-09-27T11:05:23.470304+00:00",
+            "child_uid": "954003",
+            "parent_uid": "954111",
+            "idempotent_replay": false
+          }
+        }
+      },
+      {
+        "edge": "954101->954102",
+        "ok": true,
+        "err": null,
+        "j": {
+          "j": {
+            "ok": true,
+            "depth": "1",
+            "bound_at": "2026-09-27T11:05:23.627566+00:00",
+            "child_uid": "954101",
+            "parent_uid": "954102",
+            "idempotent_replay": false
+          }
+        }
+      },
+      {
+        "edge": "954002->954101",
+        "ok": true,
+        "err": null,
+        "j": {
+          "j": {
+            "ok": true,
+            "depth": "2",
+            "bound_at": "2026-09-27T11:05:23.814401+00:00",
+            "child_uid": "954002",
+            "parent_uid": "954101",
+            "idempotent_replay": false
+          }
+        }
+      }
+    ],
+    "effective_policy_now": {
+      "policy_id": "37",
+      "fee_rate_bp": 100,
+      "levels": 10,
+      "weights": [
+        3000,
+        2000,
+        1500,
+        1000,
+        800,
+        600,
+        500,
+        300,
+        200,
+        100
+      ]
+    }
+  },
+  "o_chain": {
+    "ok": true,
+    "rows": [
+      {
+        "uid": "954111",
+        "level": "1"
+      },
+      {
+        "uid": "954112",
+        "level": "2"
+      },
+      {
+        "uid": "954113",
+        "level": "3"
+      }
+    ],
+    "elapsed_ms": 680
+  },
+  "attack_sigma": [
+    {
+      "tag": "sigma-short-100",
+      "note": null,
+      "job_id": "954000000000001",
+      "pool": null,
+      "layer_possible_x": null,
+      "key": "ops:p1u:sigma-short-100-p01a",
+      "ok": false,
+      "entry_count": null,
+      "error": {
+        "sqlstate": "LD032",
+        "message": "LEDGER_RECONCILE_MISMATCH",
+        "constraint": null,
+        "detail": "{\"reason\": \"COMMISSION_SPLIT_SUM_MISMATCH\", \"pool_in\": \"1000\", \"job_fee_rows\": \"1\", \"commission_out\": \"900\", \"commission_rows\": \"1\", \"idempotency_key\": \"ops:p1u:sigma-short-100-p01a\"}",
+        "reason": "COMMISSION_SPLIT_SUM_MISMATCH",
+        "detail_parsed": {
+          "reason": "COMMISSION_SPLIT_SUM_MISMATCH",
+          "pool_in": "1000",
+          "job_fee_rows": "1",
+          "commission_out": "900",
+          "commission_rows": "1",
+          "idempotency_key": "ops:p1u:sigma-short-100-p01a"
+        }
+      }
+    },
+    {
+      "tag": "pool-in-no-out",
+      "note": null,
+      "job_id": "954000000000002",
+      "pool": null,
+      "layer_possible_x": null,
+      "key": "ops:p1u:pool-in-no-out-p01a",
+      "ok": false,
+      "entry_count": null,
+      "error": {
+        "sqlstate": "LD032",
+        "message": "LEDGER_RECONCILE_MISMATCH",
+        "constraint": null,
+        "detail": "{\"reason\": \"COMMISSION_SPLIT_SUM_MISMATCH\", \"pool_in\": \"1000\", \"job_fee_rows\": \"1\", \"commission_out\": \"0\", \"commission_rows\": \"0\", \"idempotency_key\": \"ops:p1u:pool-in-no-out-p01a\"}",
+        "reason": "COMMISSION_SPLIT_SUM_MISMATCH",
+        "detail_parsed": {
+          "reason": "COMMISSION_SPLIT_SUM_MISMATCH",
+          "pool_in": "1000",
+          "job_fee_rows": "1",
+          "commission_out": "0",
+          "commission_rows": "0",
+          "idempotency_key": "ops:p1u:pool-in-no-out-p01a"
+        }
+      }
+    },
+    {
+      "tag": "credit-without-payer",
+      "note": null,
+      "job_id": "954000000000003",
+      "pool": null,
+      "layer_possible_x": null,
+      "key": "ops:p1u:credit-without-payer-p01a",
+      "ok": false,
+      "entry_count": null,
+      "error": {
+        "sqlstate": "LD016",
+        "message": "LEDGER_AMOUNT_INVALID",
+        "constraint": null,
+        "detail": "{\"field\": \"entries\", \"reason\": \"EVENT_NOT_BALANCED\", \"net_sum\": \"1000\", \"delta_sum\": \"2000\", \"frozen_delta_sum\": \"-1000\"}",
+        "reason": "EVENT_NOT_BALANCED",
+        "detail_parsed": {
+          "field": "entries",
+          "reason": "EVENT_NOT_BALANCED",
+          "net_sum": "1000",
+          "delta_sum": "2000",
+          "frozen_delta_sum": "-1000"
+        }
+      }
+    },
+    {
+      "tag": "attribution-swapped",
+      "note": "L1/L2 金额互换，Σ 不变",
+      "job_id": "954000000000004",
+      "pool": "1000",
+      "layer_possible_x": [
+        "954101:600",
+        "954102:400"
+      ],
+      "key": "ops:p1u:attribution-swapped-p01a",
+      "ok": true,
+      "entry_count": 6,
+      "error": null
+    },
+    {
+      "tag": "duplicate-beneficiary",
+      "note": "同一 uid 吃两层，Σ 不变",
+      "job_id": "954000000000005",
+      "pool": "1000",
+      "layer_possible_x": [
+        "954111:461",
+        "954112:308",
+        "954113:231"
+      ],
+      "key": "ops:p1u:duplicate-beneficiary-p01a",
+      "ok": true,
+      "entry_count": 8,
+      "error": null
+    }
+  ],
+  "accepted_attribution_evidence": {
+    "swapped_rows": [
+      {
+        "uid": "954001",
+        "kind": "job_fee",
+        "delta": "0"
+      },
+      {
+        "uid": "-2",
+        "kind": "job_fee",
+        "delta": "1000"
+      },
+      {
+        "uid": "-2",
+        "kind": "commission",
+        "delta": "-400"
+      },
+      {
+        "uid": "954101",
+        "kind": "commission",
+        "delta": "400"
+      },
+      {
+        "uid": "-2",
+        "kind": "commission",
+        "delta": "-600"
+      },
+      {
+        "uid": "954102",
+        "kind": "commission",
+        "delta": "600"
+      }
+    ],
+    "duplicate_rows": [
+      {
+        "uid": "954001",
+        "kind": "job_fee",
+        "delta": "0"
+      },
+      {
+        "uid": "-2",
+        "kind": "job_fee",
+        "delta": "1000"
+      },
+      {
+        "uid": "-2",
+        "kind": "commission",
+        "delta": "-461"
+      },
+      {
+        "uid": "954111",
+        "kind": "commission",
+        "delta": "461"
+      },
+      {
+        "uid": "-2",
+        "kind": "commission",
+        "delta": "-308"
+      },
+      {
+        "uid": "954111",
+        "kind": "commission",
+        "delta": "308"
+      },
+      {
+        "uid": "-2",
+        "kind": "commission",
+        "delta": "-231"
+      },
+      {
+        "uid": "954112",
+        "kind": "commission",
+        "delta": "231"
+      }
+    ]
+  },
+  "boundaries": {
+    "fee_one_unit": {
+      "tag": "b28",
+      "job_id": "954000000000048",
+      "hold": {
+        "ok": true,
+        "err": null
+      },
+      "ok": true,
+      "replay": false,
+      "key": "biz:job:settle:954000000000048",
+      "plan": {
+        "fee": "1",
+        "net": "49",
+        "pool": "1",
+        "M": 3,
+        "N": 1,
+        "W": "6500",
+        "chain_depth": 3,
+        "weights": [
+          "3000",
+          "2000",
+          "1500"
+        ],
+        "x": [
+          "1",
+          "0",
+          "0"
+        ],
+        "uids": [
+          "954111",
+          "954112",
+          "954113"
+        ],
+        "split": {
+          "D": "1",
+          "plus_one_levels": [
+            1
+          ]
+        }
+      },
+      "entry_count": 6,
+      "derived_keys": [
+        "biz:job:settle:954000000000048",
+        "biz:job:settle:954000000000048#2",
+        "biz:job:settle:954000000000048#3",
+        "biz:job:settle:954000000000048#4",
+        "biz:job:settle:954000000000048#5",
+        "biz:job:settle:954000000000048#6"
+      ],
+      "assertions": {
+        "entry_count": 6,
+        "account_count": 4,
+        "sum_delta_frozen": "0",
+        "commission_rows": 2,
+        "sum_commission_credit": "1",
+        "sum_x_equals_pool": true
+      },
+      "fingerprint": "340182cbc29fdcb4b14cd8aa549f60756bffb7e251b8ce866404344329915e4f",
+      "facts": {
+        "pool_in": "1",
+        "comm_out": "1",
+        "minus2_net": "0",
+        "minus1_net": "0",
+        "ev_net_sum": "0",
+        "rows_total": "6"
+      }
+    },
+    "fee_zero": {
+      "tag": "b29",
+      "job_id": "954000000000049",
+      "hold": {
+        "ok": true,
+        "err": null
+      },
+      "ok": true,
+      "replay": false,
+      "key": "biz:job:settle:954000000000049",
+      "plan": {
+        "fee": "0",
+        "net": "30",
+        "pool": "0",
+        "M": 3,
+        "N": 0,
+        "W": "0",
+        "chain_depth": 3,
+        "weights": [
+          "3000",
+          "2000",
+          "1500"
+        ],
+        "x": [],
+        "uids": [],
+        "split": null
+      },
+      "entry_count": 2,
+      "derived_keys": [
+        "biz:job:settle:954000000000049",
+        "biz:job:settle:954000000000049#2"
+      ],
+      "assertions": {
+        "entry_count": 2,
+        "account_count": 2,
+        "sum_delta_frozen": "0",
+        "commission_rows": 0,
+        "sum_commission_credit": "0",
+        "sum_x_equals_pool": true
+      },
+      "fingerprint": "73adebf59d1a88be67a51b71f330b2c8b2047e9f0016fb7913490e0ccf9e5780",
+      "facts": {
+        "pool_in": "0",
+        "comm_out": "0",
+        "minus2_net": "0",
+        "minus1_net": "0",
+        "ev_net_sum": "0",
+        "rows_total": "2"
+      }
+    },
+    "short_chain_m3": {
+      "tag": "b30",
+      "job_id": "954000000000050",
+      "hold": {
+        "ok": true,
+        "err": null
+      },
+      "ok": true,
+      "replay": false,
+      "key": "biz:job:settle:954000000000050",
+      "plan": {
+        "fee": "10000",
+        "net": "990000",
+        "pool": "10000",
+        "M": 3,
+        "N": 3,
+        "W": "6500",
+        "chain_depth": 3,
+        "weights": [
+          "3000",
+          "2000",
+          "1500"
+        ],
+        "x": [
+          "4615",
+          "3077",
+          "2308"
+        ],
+        "uids": [
+          "954111",
+          "954112",
+          "954113"
+        ],
+        "split": {
+          "D": "2",
+          "plus_one_levels": [
+            2,
+            3
+          ]
+        }
+      },
+      "entry_count": 10,
+      "derived_keys": [
+        "biz:job:settle:954000000000050",
+        "biz:job:settle:954000000000050#2",
+        "biz:job:settle:954000000000050#3",
+        "biz:job:settle:954000000000050#4",
+        "biz:job:settle:954000000000050#5",
+        "biz:job:settle:954000000000050#6",
+        "biz:job:settle:954000000000050#7",
+        "biz:job:settle:954000000000050#8",
+        "biz:job:settle:954000000000050#9",
+        "biz:job:settle:954000000000050#10"
+      ],
+      "assertions": {
+        "entry_count": 10,
+        "account_count": 6,
+        "sum_delta_frozen": "0",
+        "commission_rows": 6,
+        "sum_commission_credit": "10000",
+        "sum_x_equals_pool": true
+      },
+      "fingerprint": "f14acd41f7c12b2e508d1a0fc796f8f3b283c32e9c01cf744cbf2d7653d69a43",
+      "facts": {
+        "pool_in": "10000",
+        "comm_out": "10000",
+        "minus2_net": "0",
+        "minus1_net": "0",
+        "ev_net_sum": "0",
+        "rows_total": "10"
+      }
+    },
+    "chain_m2": {
+      "tag": "b31",
+      "job_id": "954000000000051",
+      "hold": {
+        "ok": true,
+        "err": null
+      },
+      "ok": true,
+      "replay": false,
+      "key": "biz:job:settle:954000000000051",
+      "plan": {
+        "fee": "1000",
+        "net": "99000",
+        "pool": "1000",
+        "M": 2,
+        "N": 2,
+        "W": "5000",
+        "chain_depth": 2,
+        "weights": [
+          "3000",
+          "2000"
+        ],
+        "x": [
+          "600",
+          "400"
+        ],
+        "uids": [
+          "954101",
+          "954102"
+        ],
+        "split": {
+          "D": "0",
+          "plus_one_levels": []
+        }
+      },
+      "entry_count": 8,
+      "derived_keys": [
+        "biz:job:settle:954000000000051",
+        "biz:job:settle:954000000000051#2",
+        "biz:job:settle:954000000000051#3",
+        "biz:job:settle:954000000000051#4",
+        "biz:job:settle:954000000000051#5",
+        "biz:job:settle:954000000000051#6",
+        "biz:job:settle:954000000000051#7",
+        "biz:job:settle:954000000000051#8"
+      ],
+      "assertions": {
+        "entry_count": 8,
+        "account_count": 5,
+        "sum_delta_frozen": "0",
+        "commission_rows": 4,
+        "sum_commission_credit": "1000",
+        "sum_x_equals_pool": true
+      },
+      "fingerprint": "99f8c3416a5d52aa5e214fe2e693aa9ba6c6b62b36dc3a13168dd4a4b981ef0f",
+      "facts": {
+        "pool_in": "1000",
+        "comm_out": "1000",
+        "minus2_net": "0",
+        "minus1_net": "0",
+        "ev_net_sum": "0",
+        "rows_total": "8"
+      }
+    }
+  },
+  "static": {
+    "fee_of_50_at_100bp": "1",
+    "fee_of_30_at_100bp": "0",
+    "split_p1_m2_2500": {
+      "pool": "1",
+      "M": 2,
+      "weights_bp": [
+        "2500",
+        "2500"
+      ],
+      "W": "5000",
+      "q": [
+        "0",
+        "0"
+      ],
+      "r": [
+        "2500",
+        "2500"
+      ],
+      "D": "1",
+      "x": [
+        "0",
+        "1"
+      ],
+      "sum_x": "1",
+      "plus_one_levels": [
+        2
+      ],
+      "order": [
+        1,
+        0
+      ],
+      "sum_ok": true
+    },
+    "split_p0": {
+      "pool": "0",
+      "M": 2,
+      "weights_bp": [
+        "3000",
+        "2000"
+      ],
+      "W": "5000",
+      "q": [
+        "0",
+        "0"
+      ],
+      "r": [
+        "0",
+        "0"
+      ],
+      "D": "0",
+      "x": [
+        "0",
+        "0"
+      ],
+      "sum_x": "0",
+      "plus_one_levels": [],
+      "order": [
+        1,
+        0
+      ],
+      "sum_ok": true
+    },
+    "split_w0_branch": {
+      "ts_code": "LEDGER_FEE_RATE_INVALID",
+      "http": 500,
+      "status_field": 500,
+      "details": {
+        "reason": "POLICY_WEIGHTS_ALL_ZERO",
+        "levels": 2,
+        "note": "runtime W=0 branch is unreachable under 0007 write-time guard"
+      }
+    },
+    "split_m0_with_pool": {
+      "ts_code": "LEDGER_ACCOUNT_GUARD_VIOLATION",
+      "http": 500,
+      "status_field": 500,
+      "details": {
+        "reason": "COMMISSION_SPLIT_SUM_MISMATCH",
+        "note": "M=0 with non-zero pool (caller must route fee to -1 per CR52)",
+        "pool": "1000"
+      }
+    },
+    "split_m0_zero_pool": {
+      "pool": "0",
+      "M": 0,
+      "weights_bp": [],
+      "W": "0",
+      "q": [],
+      "r": [],
+      "D": "0",
+      "x": [],
+      "sum_x": "0",
+      "plus_one_levels": [],
+      "order": [],
+      "sum_ok": true
+    }
+  },
+  "policy_write_guards": [
+    {
+      "tag": "levels_mismatch",
+      "fee": 100,
+      "levels": 3,
+      "weights": [
+        3000,
+        2000
+      ],
+      "at": null,
+      "db_insert": {
+        "ok": false,
+        "error": {
+          "sqlstate": "23514",
+          "message": "commission_policy_weights_guard: weights_bp length (2) <> levels (3)",
+          "constraint": null,
+          "detail": "",
+          "reason": null,
+          "detail_parsed": null
+        }
+      },
+      "ts_guard": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "status_field": 400,
+        "details": {
+          "field": "commission_policy",
+          "reason": "POLICY_SHAPE_INVALID",
+          "weights_len": 2,
+          "levels": 3
+        }
+      },
+      "ts_insert": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "status_field": 400,
+        "details": {
+          "field": "commission_policy",
+          "reason": "POLICY_SHAPE_INVALID",
+          "weights_len": 2,
+          "levels": 3
+        }
+      },
+      "tx_error": null,
+      "rolled_back": true
+    },
+    {
+      "tag": "sum_over_10000",
+      "fee": 100,
+      "levels": 2,
+      "weights": [
+        6000,
+        5000
+      ],
+      "at": null,
+      "db_insert": {
+        "ok": false,
+        "error": {
+          "sqlstate": "23514",
+          "message": "commission_policy_weights_guard: sum(weights_bp) = 11000 > 10000",
+          "constraint": null,
+          "detail": "",
+          "reason": null,
+          "detail_parsed": null
+        }
+      },
+      "ts_guard": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "status_field": 400,
+        "details": {
+          "field": "commission_policy",
+          "reason": "WEIGHTS_SUM_EXCEEDS_10000",
+          "weights_sum_bp": 11000,
+          "max": 10000
+        }
+      },
+      "ts_insert": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "status_field": 400,
+        "details": {
+          "field": "commission_policy",
+          "reason": "WEIGHTS_SUM_EXCEEDS_10000",
+          "weights_sum_bp": 11000,
+          "max": 10000
+        }
+      },
+      "tx_error": null,
+      "rolled_back": true
+    },
+    {
+      "tag": "w1_zero",
+      "fee": 100,
+      "levels": 2,
+      "weights": [
+        0,
+        3000
+      ],
+      "at": null,
+      "db_insert": {
+        "ok": false,
+        "error": {
+          "sqlstate": "23514",
+          "message": "commission_policy_weights_guard: weights_bp[1] = 0 (prefix-all-zero => W = 0 when M = 1)",
+          "constraint": null,
+          "detail": "",
+          "reason": null,
+          "detail_parsed": null
+        }
+      },
+      "ts_guard": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "status_field": 400,
+        "details": {
+          "field": "commission_policy",
+          "reason": "POLICY_WEIGHTS_ALL_ZERO",
+          "weights_bp_1": 0
+        }
+      },
+      "ts_insert": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "status_field": 400,
+        "details": {
+          "field": "commission_policy",
+          "reason": "POLICY_WEIGHTS_ALL_ZERO",
+          "weights_bp_1": 0
+        }
+      },
+      "tx_error": null,
+      "rolled_back": true
+    },
+    {
+      "tag": "sum_zero",
+      "fee": 100,
+      "levels": 2,
+      "weights": [
+        0,
+        0
+      ],
+      "at": null,
+      "db_insert": {
+        "ok": false,
+        "error": {
+          "sqlstate": "23514",
+          "message": "commission_policy_weights_guard: sum(weights_bp) = 0 (degenerate denominator W = 0)",
+          "constraint": null,
+          "detail": "",
+          "reason": null,
+          "detail_parsed": null
+        }
+      },
+      "ts_guard": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "status_field": 400,
+        "details": {
+          "field": "commission_policy",
+          "reason": "POLICY_WEIGHTS_ALL_ZERO",
+          "weights_sum_bp": 0
+        }
+      },
+      "ts_insert": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "status_field": 400,
+        "details": {
+          "field": "commission_policy",
+          "reason": "POLICY_WEIGHTS_ALL_ZERO",
+          "weights_sum_bp": 0
+        }
+      },
+      "tx_error": null,
+      "rolled_back": true
+    },
+    {
+      "tag": "negative_weight",
+      "fee": 100,
+      "levels": 2,
+      "weights": [
+        -100,
+        3000
+      ],
+      "at": null,
+      "db_insert": {
+        "ok": false,
+        "error": {
+          "sqlstate": "23514",
+          "message": "commission_policy_weights_guard: negative/null weight in {-100,3000}",
+          "constraint": null,
+          "detail": "",
+          "reason": null,
+          "detail_parsed": null
+        }
+      },
+      "ts_guard": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "status_field": 400,
+        "details": {
+          "field": "commission_policy",
+          "reason": "POLICY_SHAPE_INVALID",
+          "negative_or_noninteger": "true"
+        }
+      },
+      "ts_insert": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "status_field": 400,
+        "details": {
+          "field": "commission_policy",
+          "reason": "POLICY_SHAPE_INVALID",
+          "negative_or_noninteger": "true"
+        }
+      },
+      "tx_error": null,
+      "rolled_back": true
+    },
+    {
+      "tag": "fee_rate_99",
+      "fee": 99,
+      "levels": 2,
+      "weights": [
+        2500,
+        2500
+      ],
+      "at": null,
+      "db_insert": {
+        "ok": false,
+        "error": {
+          "sqlstate": "23514",
+          "message": "new row for relation \"commission_policy\" violates check constraint \"commission_policy_fee_rate_rng\"",
+          "constraint": "commission_policy_fee_rate_rng",
+          "detail": "Failing row contains (43, 99, 2, {2500,2500}, 2026-09-27 11:05:39.522258+00, 0, 2026-09-27 11:05:39.522258+00).",
+          "reason": null,
+          "detail_parsed": null
+        }
+      },
+      "ts_guard": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "status_field": 400,
+        "details": {
+          "field": "commission_policy",
+          "reason": "FEE_RATE_OUT_OF_RANGE",
+          "fee_rate_bp": 99,
+          "min": 100,
+          "max": 500
+        }
+      },
+      "ts_insert": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "status_field": 400,
+        "details": {
+          "field": "commission_policy",
+          "reason": "FEE_RATE_OUT_OF_RANGE",
+          "fee_rate_bp": 99,
+          "min": 100,
+          "max": 500
+        }
+      },
+      "tx_error": null,
+      "rolled_back": true
+    },
+    {
+      "tag": "fee_rate_501",
+      "fee": 501,
+      "levels": 2,
+      "weights": [
+        2500,
+        2500
+      ],
+      "at": null,
+      "db_insert": {
+        "ok": false,
+        "error": {
+          "sqlstate": "23514",
+          "message": "new row for relation \"commission_policy\" violates check constraint \"commission_policy_fee_rate_rng\"",
+          "constraint": "commission_policy_fee_rate_rng",
+          "detail": "Failing row contains (44, 501, 2, {2500,2500}, 2026-09-27 11:05:41.004308+00, 0, 2026-09-27 11:05:41.004308+00).",
+          "reason": null,
+          "detail_parsed": null
+        }
+      },
+      "ts_guard": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "status_field": 400,
+        "details": {
+          "field": "commission_policy",
+          "reason": "FEE_RATE_OUT_OF_RANGE",
+          "fee_rate_bp": 501,
+          "min": 100,
+          "max": 500
+        }
+      },
+      "ts_insert": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "status_field": 400,
+        "details": {
+          "field": "commission_policy",
+          "reason": "FEE_RATE_OUT_OF_RANGE",
+          "fee_rate_bp": 501,
+          "min": 100,
+          "max": 500
+        }
+      },
+      "tx_error": null,
+      "rolled_back": true
+    },
+    {
+      "tag": "levels_11",
+      "fee": 100,
+      "levels": 11,
+      "weights": [
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000
+      ],
+      "at": null,
+      "db_insert": {
+        "ok": false,
+        "error": {
+          "sqlstate": "23514",
+          "message": "commission_policy_weights_guard: sum(weights_bp) = 11000 > 10000",
+          "constraint": null,
+          "detail": "",
+          "reason": null,
+          "detail_parsed": null
+        }
+      },
+      "ts_guard": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "status_field": 400,
+        "details": {
+          "field": "commission_policy",
+          "reason": "POLICY_SHAPE_INVALID",
+          "levels": 11,
+          "min": 1,
+          "max": 10
+        }
+      },
+      "ts_insert": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "status_field": 400,
+        "details": {
+          "field": "commission_policy",
+          "reason": "POLICY_SHAPE_INVALID",
+          "levels": 11,
+          "min": 1,
+          "max": 10
+        }
+      },
+      "tx_error": null,
+      "rolled_back": true
+    },
+    {
+      "tag": "levels_0",
+      "fee": 100,
+      "levels": 0,
+      "weights": [],
+      "at": null,
+      "db_insert": {
+        "ok": false,
+        "error": {
+          "sqlstate": "23514",
+          "message": "commission_policy_weights_guard: weights_bp length (<NULL>) <> levels (0)",
+          "constraint": null,
+          "detail": "",
+          "reason": null,
+          "detail_parsed": null
+        }
+      },
+      "ts_guard": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "status_field": 400,
+        "details": {
+          "field": "commission_policy",
+          "reason": "POLICY_SHAPE_INVALID",
+          "levels": 0,
+          "min": 1,
+          "max": 10
+        }
+      },
+      "ts_insert": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "status_field": 400,
+        "details": {
+          "field": "commission_policy",
+          "reason": "POLICY_SHAPE_INVALID",
+          "levels": 0,
+          "min": 1,
+          "max": 10
+        }
+      },
+      "tx_error": null,
+      "rolled_back": true
+    },
+    {
+      "tag": "sum_9999_ok",
+      "fee": 100,
+      "levels": 2,
+      "weights": [
+        4999,
+        5000
+      ],
+      "at": null,
+      "db_insert": {
+        "ok": true,
+        "policy_id": "47"
+      },
+      "ts_guard": "NO_THROW",
+      "ts_insert": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "status_field": 400,
+        "details": {
+          "field": "effective_from",
+          "reason": "POLICY_EFFECTIVE_BACKDATED",
+          "provided": "db_now()"
+        }
+      },
+      "tx_error": null,
+      "rolled_back": true
+    },
+    {
+      "tag": "dup_effective_from",
+      "fee": 100,
+      "levels": 2,
+      "weights": [
+        2500,
+        2500
+      ],
+      "at": "1970-01-01T00:00:00Z",
+      "db_insert": {
+        "ok": false,
+        "error": {
+          "sqlstate": "23505",
+          "message": "duplicate key value violates unique constraint \"commission_policy_effective_uniq\"",
+          "constraint": "commission_policy_effective_uniq",
+          "detail": "Key (effective_from)=(1970-01-01 00:00:00+00) already exists.",
+          "reason": null,
+          "detail_parsed": null
+        }
+      },
+      "ts_guard": "NO_THROW",
+      "ts_insert": {
+        "ts_code": "LEDGER_TRANSACTION_REQUIRED",
+        "http": 500,
+        "details": {
+          "cause": "25P02",
+          "reason": "unclassified_pg_error",
+          "error_name": "error",
+          "pg_code": "25P02"
+        }
+      },
+      "tx_error": null,
+      "rolled_back": true
+    },
+    {
+      "tag": "created_by_positive_user",
+      "fee": 100,
+      "levels": 2,
+      "weights": [
+        2500,
+        2500
+      ],
+      "at": null,
+      "createdBy": "954001",
+      "db_insert": {
+        "ok": true,
+        "policy_id": "49"
+      },
+      "ts_guard": "NO_THROW",
+      "ts_insert": {
+        "ts_code": "LEDGER_AMOUNT_INVALID",
+        "http": 400,
+        "status_field": 400,
+        "details": {
+          "field": "effective_from",
+          "reason": "POLICY_EFFECTIVE_BACKDATED",
+          "provided": "db_now()"
+        }
+      },
+      "tx_error": null,
+      "rolled_back": true
+    },
+    {
+      "tag": "created_by_minus4",
+      "fee": 100,
+      "levels": 2,
+      "weights": [
+        2500,
+        2500
+      ],
+      "at": null,
+      "createdBy": "-4",
+      "db_insert": {
+        "ok": false,
+        "error": {
+          "sqlstate": "23514",
+          "message": "new row for relation \"commission_policy\" violates check constraint \"commission_policy_created_by_rng\"",
+          "constraint": "commission_policy_created_by_rng",
+          "detail": "Failing row contains (50, 100, 2, {2500,2500}, 2026-09-27 11:05:45.723896+00, -4, 2026-09-27 11:05:45.723896+00).",
+          "reason": null,
+          "detail_parsed": null
+        }
+      },
+      "ts_guard": "NO_THROW",
+      "ts_insert": {
+        "ts_code": "LEDGER_TRANSACTION_REQUIRED",
+        "http": 500,
+        "details": {
+          "cause": "25P02",
+          "reason": "unclassified_pg_error",
+          "error_name": "error",
+          "pg_code": "25P02"
+        }
+      },
+      "tx_error": null,
+      "rolled_back": true
+    }
+  ],
+  "runtime_w0_reachability": {
+    "result": {
+      "disable_trigger": true,
+      "insert_bad_policy": {
+        "ok": true,
+        "policy_id": "51"
+      },
+      "read_path": {
+        "ts_code": "LEDGER_FEE_RATE_INVALID",
+        "http": 500,
+        "status_field": 500,
+        "details": {
+          "field": "commission_policy",
+          "reason": "POLICY_WEIGHTS_ALL_ZERO",
+          "stage": "read",
+          "weights_bp_1": 0
+        }
+      },
+      "plan_path": {
+        "threw": true,
+        "err": {
+          "ts_code": "LEDGER_FEE_RATE_INVALID",
+          "http": 500,
+          "status_field": 500,
+          "details": {
+            "field": "commission_policy",
+            "reason": "POLICY_WEIGHTS_ALL_ZERO",
+            "stage": "read",
+            "weights_bp_1": 0
+          }
+        }
+      },
+      "rolled_back_note": "本事务末尾一律 ROLLBACK"
+    },
+    "error": null,
+    "rolled_back": true
+  },
+  "no_residue": {
+    "ledger_entry_before": {
+      "n": "1715"
+    },
+    "ledger_entry_after": {
+      "n": "1766"
+    },
+    "delta": "51",
+    "note": "Δ 只应等于本轮**被接受**的测试事件条数；被拒的 tamper 事件必须 0 残留",
+    "tamper_keys_root_rows": [
+      {
+        "idempotency_key": "ops:p1u:attribution-swapped-p01a",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:attribution-swapped-p01a#2",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:attribution-swapped-p01a#3",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:attribution-swapped-p01a#4",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:attribution-swapped-p01a#5",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:attribution-swapped-p01a#6",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:duplicate-beneficiary-p01a",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:duplicate-beneficiary-p01a#2",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:duplicate-beneficiary-p01a#3",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:duplicate-beneficiary-p01a#4",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:duplicate-beneficiary-p01a#5",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:duplicate-beneficiary-p01a#6",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:duplicate-beneficiary-p01a#7",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:duplicate-beneficiary-p01a#8",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:hold-b28-p01a",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:hold-b28-p01a#2",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:hold-b29-p01a",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:hold-b29-p01a#2",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:hold-b30-p01a",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:hold-b30-p01a#2",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:hold-b31-p01a",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:hold-b31-p01a#2",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:hold-p01a",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:hold-p01a#2",
+        "n": "1"
+      },
+      {
+        "idempotency_key": "ops:p1u:mint-p01a",
+        "n": "1"
+      }
+    ]
+  }
+}

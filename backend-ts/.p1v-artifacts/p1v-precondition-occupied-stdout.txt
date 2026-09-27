@@ -1,0 +1,21 @@
+{
+ "fatal": "PRECONDITION_NOT_MET",
+ "detail": "P1T_BASE_UID=955001 的窗口内有已占用 uid（窗口必须**全新**）",
+ "occupied_uids": [
+  "955001",
+  "955002",
+  "955003",
+  "955004",
+  "955005",
+  "955006",
+  "955007",
+  "955008",
+  "955009"
+ ],
+ "why": "referral 是 INSERT-only 且 referral_bind 幂等：窗口不新鲜时「绕开触发器直插两行」会撞 referral_pk(child_uid)，判负自证会失真（假红）",
+ "hint": "换一个空闲窗口（步长 10，如 955011 / 955021 / …），或**不要**设 P1T_BASE_UID 让脚本自动扫描下一个空闲窗口",
+ "run": "p1v-precondition-occupied",
+ "file": "/Users/kevin/bistro/seafood/backend-ts/.p1t-artifacts/p1t-00-bind-protocol-guard-p1v-precondition-occupied.json",
+ "assertions_failed": []
+}
+PRECONDITION_NOT_MET：P1T_BASE_UID=955001 的窗口内有已占用 uid（窗口必须**全新**）

@@ -1,0 +1,120 @@
+# cmd: npx ts-node --transpile-only scripts/p1t-00-bind-protocol-guard.ts --assert
+# attempts(exit)=[2,1]
+# exit=1
+{
+ "file": "/Users/kevin/bistro/seafood/backend-ts/.p1t-artifacts/p1t-00-bind-protocol-guard-p1v-e2e-1-append-only-disabled-p1v-redproof-e2e-3-try2.json",
+ "run": "p1v-e2e-1-append-only-disabled-p1v-redproof-e2e-3-try2",
+ "uid_window_base": 955041,
+ "uid_window_source": "auto-scan",
+ "assertions_failed": [
+  "0b 触发器启用态：触发器未启用 ⇒ referral.trg_referral_append_only=disabled(D)",
+  "回归对照：幂等 replay 语义变了",
+  "9 尾复核：触发器未启用 ⇒ referral.trg_referral_append_only=disabled(D)"
+ ],
+ "main_reads": {
+  "case1": {
+   "rejected": true,
+   "state": "LD016",
+   "reason": "REFERRAL_BIND_WOULD_STALE_DEPTH",
+   "reason_is_new_guard": true,
+   "code_is_borrowed_ld016": true,
+   "ts_code": "LEDGER_AMOUNT_INVALID",
+   "ts_status": 400,
+   "raw_path_rejected_too": true,
+   "rows_landed_for_B": {
+    "n": "0"
+   },
+   "depth_of_A": {
+    "depth": "1"
+   },
+   "depth_of_B": null
+  },
+  "case2": {
+   "both_ok": true,
+   "depth_M": {
+    "depth": "1"
+   },
+   "depth_L": {
+    "depth": "2"
+   },
+   "expected": {
+    "depth_M": "1",
+    "depth_L": "2"
+   }
+  },
+  "case3": {
+   "rejected": true,
+   "state": "LD016",
+   "reason": "REFERRAL_CYCLE_REJECTED",
+   "reason_is_cycle_not_new_guard": true,
+   "ts_code": "LEDGER_AMOUNT_INVALID",
+   "ts_status": 400,
+   "check_order_note": "C=Y 同时「已有下级(X)」且「成环」⇒ reason 仍是 REFERRAL_CYCLE_REJECTED ⇒ 环检查在 ④ 之前（顺序未被改动）"
+  },
+  "case4": {
+   "global": {
+    "cycles": "0",
+    "bad_depth": "0"
+   },
+   "per_row_for_this_run": [
+    {
+     "start": "955041",
+     "expected_depth": "1",
+     "actual_depth": "1"
+    },
+    {
+     "start": "955044",
+     "expected_depth": "2",
+     "actual_depth": "2"
+    },
+    {
+     "start": "955045",
+     "expected_depth": "1",
+     "actual_depth": "1"
+    },
+    {
+     "start": "955047",
+     "expected_depth": "1",
+     "actual_depth": "1"
+    }
+   ],
+   "expected": {
+    "cycles": "0",
+    "bad_depth": "0"
+   },
+   "note": "全局（含既有历史行）cycles=0 且 bad_depth=0 ⇒ 新守卫与既有行相容、未引入追溯破坏"
+  },
+  "bypass_selfproof": {
+   "inserted_rowcount": 2,
+   "bad_depth": "1",
+   "rolled_back": true
+  },
+  "trigger_enablement": {
+   "total": 7,
+   "enabled": 6,
+   "anomalies": [
+    {
+     "table": "referral",
+     "trigger": "trg_referral_append_only",
+     "tgenabled": "D",
+     "state": "disabled",
+     "label": "referral.trg_referral_append_only=disabled(D)"
+    }
+   ],
+   "post_total": 7,
+   "post_enabled": 6,
+   "post_anomalies": [
+    {
+     "table": "referral",
+     "trigger": "trg_referral_append_only",
+     "tgenabled": "D",
+     "state": "disabled",
+     "label": "referral.trg_referral_append_only=disabled(D)"
+    }
+   ]
+  }
+ },
+ "ok": false
+}
+
+# ---- stderr ----
