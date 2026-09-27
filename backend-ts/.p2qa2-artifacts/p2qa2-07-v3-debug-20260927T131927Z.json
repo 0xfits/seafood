@@ -1,0 +1,16 @@
+{
+  "run": "20260927T131927Z",
+  "name": "p2qa2-07-v3-debug",
+  "phase": "after",
+  "at": "2026-09-27T13:28:15.909Z",
+  "injected_at": 27805,
+  "injected_context": "=============================== C4.5 重放前置闸（0012 新增 · **只读**）\n  -- 0012-REPLAY-PRE-GATE-BEGIN\n  -- 为什么在这里（R51 / R52 / R63 的相对顺序，spec §7.1「函数内依次完成：信封校验 → 幂等占位 →\n  --   按全序加锁 → 分录 → 余",
+  "db": {
+    "b": 27751,
+    "e": 30678,
+    "win_len": 2927,
+    "pos_update": 27696,
+    "readonly_violation": false,
+    "code_head": "0012-REPLAY-PRE-GATE-BEGIN\n   \n   \n   \n   \n   \n   \n   \n   \n   \n   \n   \n   \n   \n   \n   \n   \n   \n   \n   \n  SELECT t.txid, t.request_fingerprint\n    INTO v_gate_txid, v_gate_fp\n    FROM ledger_entry t\n   WHERE t.event_root_key = v_key\n   ORDER BY t.txid\n   LIMIT 1;\n\n  IF FOUND THEN\n     \n    IF v_fp IS NOT NULL AND v_gate_fp IS NOT NULL AND v_fp <> v_gate_fp THEN\n      PERFORM ledger_raise('LEDGER_ID"
+  }
+}

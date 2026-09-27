@@ -1,0 +1,150 @@
+{
+  "run": "20260927T131927Z",
+  "name": "p2qa2-02-intel",
+  "phase": "after",
+  "at": "2026-09-27T13:22:57.133Z",
+  "ops_in_source": [
+    "mint",
+    "transfer",
+    "hold",
+    "settle"
+  ],
+  "ops_in_clause": [],
+  "codes_seen": [
+    "LD002",
+    "LD024",
+    "LD001",
+    "LD033",
+    "LD027"
+  ],
+  "ledger_functions": [
+    "ledger_accounts_from_entries",
+    "ledger_arm_lock_timeout",
+    "ledger_assert_commission_conservation",
+    "ledger_assert_currency_op",
+    "ledger_assert_platform_mutation",
+    "ledger_budget_remaining_ms",
+    "ledger_check_budget",
+    "ledger_cid_arg",
+    "ledger_entry_append_only",
+    "ledger_entry_json",
+    "ledger_error_for_sqlstate",
+    "ledger_int_amount",
+    "ledger_kind_ok",
+    "ledger_lock_timeout_ms",
+    "ledger_max_single_amount",
+    "ledger_norm_entry",
+    "ledger_optional_bool",
+    "ledger_optional_text",
+    "ledger_parse_user_amount",
+    "ledger_payload_amount",
+    "ledger_payload_cap",
+    "ledger_post_event",
+    "ledger_raise",
+    "ledger_sqlstate_of",
+    "ledger_stmt_budget_ms",
+    "ledger_strict_text",
+    "ledger_uid_arg"
+  ],
+  "null_event_root_key_rows": 7,
+  "null_root_sample": [
+    {
+      "idempotency_key": "ops:p1h:MUJI3ABV:coll:legacy#2",
+      "txid": "2250",
+      "request_fingerprint": null,
+      "kind": "mint"
+    },
+    {
+      "idempotency_key": "ops:p1h:MUJIGVZ3:coll:legacy#2",
+      "txid": "2354",
+      "request_fingerprint": null,
+      "kind": "mint"
+    },
+    {
+      "idempotency_key": "ops:p1h:MUJJ8XY2:coll:legacy#2",
+      "txid": "2440",
+      "request_fingerprint": null,
+      "kind": "mint"
+    },
+    {
+      "idempotency_key": "ops:p1h:MUJN7UK1:coll:legacy#2",
+      "txid": "2556",
+      "request_fingerprint": null,
+      "kind": "mint"
+    },
+    {
+      "idempotency_key": "ops:p1h:MUJNRLL3:coll:legacy#2",
+      "txid": "2642",
+      "request_fingerprint": null,
+      "kind": "mint"
+    }
+  ],
+  "kind_whitelist_probe": [
+    {
+      "kind": "job_payout",
+      "ok": true,
+      "ok_frozen": true
+    },
+    {
+      "kind": "hold",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "kind": "hold_release",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "kind": "mint",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "kind": "job_fee",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "kind": "reversal",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "kind": "purchase",
+      "ok": true,
+      "ok_frozen": true
+    },
+    {
+      "kind": "sale",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "kind": "commission",
+      "ok": true,
+      "ok_frozen": false
+    }
+  ],
+  "config_tables": [],
+  "ledger_error_code_sample": [],
+  "now": "2026-09-27 13:22:57.112844+00",
+  "arm_lock_defs": [
+    {
+      "proname": "ledger_raise",
+      "def_len": 688
+    },
+    {
+      "proname": "ledger_arm_lock_timeout",
+      "def_len": 679
+    },
+    {
+      "proname": "ledger_check_budget",
+      "def_len": 508
+    }
+  ],
+  "net_retries": {
+    "n": 0,
+    "last": null
+  }
+}

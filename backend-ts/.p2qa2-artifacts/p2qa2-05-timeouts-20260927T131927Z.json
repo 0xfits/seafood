@@ -1,0 +1,53 @@
+{
+  "run": "20260927T131927Z",
+  "name": "p2qa2-05-timeouts",
+  "phase": "after",
+  "at": "2026-09-27T13:25:18.040Z",
+  "defs": [
+    {
+      "proname": "ledger_lock_timeout_ms",
+      "prosrc": " SELECT 3000 "
+    },
+    {
+      "proname": "ledger_budget_remaining_ms",
+      "prosrc": "\nBEGIN\n  IF p_deadline IS NULL THEN RETURN ledger_stmt_budget_ms(); END IF;\n  RETURN floor(EXTRACT(EPOCH FROM (p_deadline - clock_timestamp())) * 1000)::int;\nEND "
+    },
+    {
+      "proname": "ledger_stmt_budget_ms",
+      "prosrc": " SELECT 10000 "
+    },
+    {
+      "proname": "ledger_arm_lock_timeout",
+      "prosrc": "\nDECLARE v_remaining int; v_ms int;\nBEGIN\n  v_remaining := ledger_budget_remaining_ms(p_deadline);\n  IF v_remaining <= 0 THEN\n    PERFORM ledger_raise('LEDGER_TX_TIMEOUT', jsonb_build_object(\n      'reason', 'statement_budget_exhausted', 'budget_ms', ledger_stmt_budget_ms(),\n      'remaining_ms', v_remaining, 'stage', COALESCE(p_what, 'unknown'), 'retryable', true));\n  END IF;\n  v_ms := least(ledger_lock_timeout_ms(), v_remaining);\n  PERFORM set_config('lock_timeout', v_ms::text, true);\nEND "
+    },
+    {
+      "proname": "ledger_check_budget",
+      "prosrc": "\nBEGIN\n  IF p_deadline IS NOT NULL AND clock_timestamp() >= p_deadline THEN\n    PERFORM ledger_raise('LEDGER_TX_TIMEOUT', jsonb_build_object(\n      'reason', 'statement_budget_exhausted', 'budget_ms', ledger_stmt_budget_ms(),\n      'remaining_ms', ledger_budget_remaining_ms(p_deadline),\n      'stage', p_stage, 'retryable', true));\n  END IF;\nEND "
+    }
+  ],
+  "pg_settings": [
+    {
+      "name": "default_transaction_isolation",
+      "setting": "read committed",
+      "source": "default"
+    },
+    {
+      "name": "lock_timeout",
+      "setting": "0",
+      "source": "default"
+    },
+    {
+      "name": "statement_timeout",
+      "setting": "0",
+      "source": "default"
+    }
+  ],
+  "probes": [
+    {
+      "lock_ms": "3000",
+      "stmt_ms": "10000",
+      "cur_lock_timeout": "0",
+      "cur_stmt_timeout": "0"
+    }
+  ]
+}

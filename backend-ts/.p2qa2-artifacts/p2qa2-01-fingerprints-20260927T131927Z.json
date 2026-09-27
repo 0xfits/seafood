@@ -1,0 +1,487 @@
+{
+  "run": "20260927T131927Z",
+  "name": "p2qa2-01-fingerprints",
+  "phase": "after",
+  "at": "2026-09-27T13:21:06.569Z",
+  "direct_url_host": "postgresql://neondb_owner:***@ep-holy-forest-b3fi7u3u.c-4.ap-southeast-1.aws.neon.tech/neondb",
+  "disk_files": [
+    {
+      "file": "0001_ledger_core.sql",
+      "version": "0001",
+      "size": 8703,
+      "md5": "eb464b76603848f9bc00cc92e0f98161",
+      "sha256_of_utf8_text": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+      "sha256_of_raw_bytes": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4"
+    },
+    {
+      "file": "0002_user_identity.sql",
+      "version": "0002",
+      "size": 1671,
+      "md5": "7db2f617ab562b5a62d72b5353b9aee7",
+      "sha256_of_utf8_text": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+      "sha256_of_raw_bytes": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990"
+    },
+    {
+      "file": "0003_kind_close_set_20.sql",
+      "version": "0003",
+      "size": 4050,
+      "md5": "d5392844045e279da98c469875b19b6f",
+      "sha256_of_utf8_text": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+      "sha256_of_raw_bytes": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23"
+    },
+    {
+      "file": "0004_ledger_post_event.sql",
+      "version": "0004",
+      "size": 58938,
+      "md5": "0832bcc6fd575bb67529cfa939a9b347",
+      "sha256_of_utf8_text": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+      "sha256_of_raw_bytes": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932"
+    },
+    {
+      "file": "0005_ledger_event_root_key.sql",
+      "version": "0005",
+      "size": 79031,
+      "md5": "bbf2c52e5ed07ba40b8321a291fb45b3",
+      "sha256_of_utf8_text": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+      "sha256_of_raw_bytes": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231"
+    },
+    {
+      "file": "0006_user_to_users.sql",
+      "version": "0006",
+      "size": 7977,
+      "md5": "dd0f60e74777e581c01d4f11ddb7b326",
+      "sha256_of_utf8_text": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+      "sha256_of_raw_bytes": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47"
+    },
+    {
+      "file": "0007_referral_and_commission_policy.sql",
+      "version": "0007",
+      "size": 23271,
+      "md5": "693485f371784b53b8a79cb4af21b04f",
+      "sha256_of_utf8_text": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+      "sha256_of_raw_bytes": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a"
+    },
+    {
+      "file": "0008_platform_revenue_job_fee.sql",
+      "version": "0008",
+      "size": 7326,
+      "md5": "e003eb203da837f65a887ff9384a229a",
+      "sha256_of_utf8_text": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+      "sha256_of_raw_bytes": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210"
+    },
+    {
+      "file": "0009_ledger_error_reverse_map_complete.sql",
+      "version": "0009",
+      "size": 23808,
+      "md5": "d8e31785f505073f5bca243fc2a96c3f",
+      "sha256_of_utf8_text": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+      "sha256_of_raw_bytes": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870"
+    },
+    {
+      "file": "0010_referral_bind_protocol_guard.sql",
+      "version": "0010",
+      "size": 19713,
+      "md5": "7847ae8490ce5f63339fe1c0ba3caa0f",
+      "sha256_of_utf8_text": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+      "sha256_of_raw_bytes": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc"
+    },
+    {
+      "file": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "version": "0011",
+      "size": 39211,
+      "md5": "50772ffd643f08c0bf690ced93b5c507",
+      "sha256_of_utf8_text": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+      "sha256_of_raw_bytes": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe"
+    },
+    {
+      "file": "0012_replay_pre_gate_before_balance_gate.sql",
+      "version": "0012",
+      "size": 71238,
+      "md5": "5b97c96b3e6279799b8781e2222d01e3",
+      "sha256_of_utf8_text": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe",
+      "sha256_of_raw_bytes": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe"
+    }
+  ],
+  "three_way": [
+    {
+      "version": "0001",
+      "file": "0001_ledger_core.sql",
+      "disk_size": 8703,
+      "disk_md5": "eb464b76603848f9bc00cc92e0f98161",
+      "disk_sha256_utf8": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+      "disk_sha256_bytes": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+      "db_checksum": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+      "db_name": "0001_ledger_core.sql",
+      "applied_at": "Sun Sep 27 2026 11:48:15 GMT+0800 (China Standard Time)",
+      "MATCH_disk_utf8_vs_db": true,
+      "MATCH_disk_bytes_equals_utf8": true
+    },
+    {
+      "version": "0002",
+      "file": "0002_user_identity.sql",
+      "disk_size": 1671,
+      "disk_md5": "7db2f617ab562b5a62d72b5353b9aee7",
+      "disk_sha256_utf8": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+      "disk_sha256_bytes": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+      "db_checksum": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+      "db_name": "0002_user_identity.sql",
+      "applied_at": "Sun Sep 27 2026 11:48:20 GMT+0800 (China Standard Time)",
+      "MATCH_disk_utf8_vs_db": true,
+      "MATCH_disk_bytes_equals_utf8": true
+    },
+    {
+      "version": "0003",
+      "file": "0003_kind_close_set_20.sql",
+      "disk_size": 4050,
+      "disk_md5": "d5392844045e279da98c469875b19b6f",
+      "disk_sha256_utf8": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+      "disk_sha256_bytes": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+      "db_checksum": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+      "db_name": "0003_kind_close_set_20.sql",
+      "applied_at": "Sun Sep 27 2026 12:57:40 GMT+0800 (China Standard Time)",
+      "MATCH_disk_utf8_vs_db": true,
+      "MATCH_disk_bytes_equals_utf8": true
+    },
+    {
+      "version": "0004",
+      "file": "0004_ledger_post_event.sql",
+      "disk_size": 58938,
+      "disk_md5": "0832bcc6fd575bb67529cfa939a9b347",
+      "disk_sha256_utf8": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+      "disk_sha256_bytes": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+      "db_checksum": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+      "db_name": "0004_ledger_post_event.sql",
+      "applied_at": "Sun Sep 27 2026 13:26:01 GMT+0800 (China Standard Time)",
+      "MATCH_disk_utf8_vs_db": true,
+      "MATCH_disk_bytes_equals_utf8": true
+    },
+    {
+      "version": "0005",
+      "file": "0005_ledger_event_root_key.sql",
+      "disk_size": 79031,
+      "disk_md5": "bbf2c52e5ed07ba40b8321a291fb45b3",
+      "disk_sha256_utf8": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+      "disk_sha256_bytes": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+      "db_checksum": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+      "db_name": "0005_ledger_event_root_key.sql",
+      "applied_at": "Sun Sep 27 2026 14:34:21 GMT+0800 (China Standard Time)",
+      "MATCH_disk_utf8_vs_db": true,
+      "MATCH_disk_bytes_equals_utf8": true
+    },
+    {
+      "version": "0006",
+      "file": "0006_user_to_users.sql",
+      "disk_size": 7977,
+      "disk_md5": "dd0f60e74777e581c01d4f11ddb7b326",
+      "disk_sha256_utf8": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+      "disk_sha256_bytes": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+      "db_checksum": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+      "db_name": "0006_user_to_users.sql",
+      "applied_at": "Sun Sep 27 2026 15:09:27 GMT+0800 (China Standard Time)",
+      "MATCH_disk_utf8_vs_db": true,
+      "MATCH_disk_bytes_equals_utf8": true
+    },
+    {
+      "version": "0007",
+      "file": "0007_referral_and_commission_policy.sql",
+      "disk_size": 23271,
+      "disk_md5": "693485f371784b53b8a79cb4af21b04f",
+      "disk_sha256_utf8": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+      "disk_sha256_bytes": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+      "db_checksum": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+      "db_name": "0007_referral_and_commission_policy.sql",
+      "applied_at": "Sun Sep 27 2026 17:49:28 GMT+0800 (China Standard Time)",
+      "MATCH_disk_utf8_vs_db": true,
+      "MATCH_disk_bytes_equals_utf8": true
+    },
+    {
+      "version": "0008",
+      "file": "0008_platform_revenue_job_fee.sql",
+      "disk_size": 7326,
+      "disk_md5": "e003eb203da837f65a887ff9384a229a",
+      "disk_sha256_utf8": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+      "disk_sha256_bytes": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+      "db_checksum": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+      "db_name": "0008_platform_revenue_job_fee.sql",
+      "applied_at": "Sun Sep 27 2026 17:49:29 GMT+0800 (China Standard Time)",
+      "MATCH_disk_utf8_vs_db": true,
+      "MATCH_disk_bytes_equals_utf8": true
+    },
+    {
+      "version": "0009",
+      "file": "0009_ledger_error_reverse_map_complete.sql",
+      "disk_size": 23808,
+      "disk_md5": "d8e31785f505073f5bca243fc2a96c3f",
+      "disk_sha256_utf8": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+      "disk_sha256_bytes": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+      "db_checksum": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+      "db_name": "0009_ledger_error_reverse_map_complete.sql",
+      "applied_at": "Sun Sep 27 2026 18:09:16 GMT+0800 (China Standard Time)",
+      "MATCH_disk_utf8_vs_db": true,
+      "MATCH_disk_bytes_equals_utf8": true
+    },
+    {
+      "version": "0010",
+      "file": "0010_referral_bind_protocol_guard.sql",
+      "disk_size": 19713,
+      "disk_md5": "7847ae8490ce5f63339fe1c0ba3caa0f",
+      "disk_sha256_utf8": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+      "disk_sha256_bytes": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+      "db_checksum": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+      "db_name": "0010_referral_bind_protocol_guard.sql",
+      "applied_at": "Sun Sep 27 2026 18:45:22 GMT+0800 (China Standard Time)",
+      "MATCH_disk_utf8_vs_db": true,
+      "MATCH_disk_bytes_equals_utf8": true
+    },
+    {
+      "version": "0011",
+      "file": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "disk_size": 39211,
+      "disk_md5": "50772ffd643f08c0bf690ced93b5c507",
+      "disk_sha256_utf8": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+      "disk_sha256_bytes": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+      "db_checksum": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+      "db_name": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "applied_at": "Sun Sep 27 2026 19:35:24 GMT+0800 (China Standard Time)",
+      "MATCH_disk_utf8_vs_db": true,
+      "MATCH_disk_bytes_equals_utf8": true
+    },
+    {
+      "version": "0012",
+      "file": "0012_replay_pre_gate_before_balance_gate.sql",
+      "disk_size": 71238,
+      "disk_md5": "5b97c96b3e6279799b8781e2222d01e3",
+      "disk_sha256_utf8": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe",
+      "disk_sha256_bytes": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe",
+      "db_checksum": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe",
+      "db_name": "0012_replay_pre_gate_before_balance_gate.sql",
+      "applied_at": "Sun Sep 27 2026 21:09:02 GMT+0800 (China Standard Time)",
+      "MATCH_disk_utf8_vs_db": true,
+      "MATCH_disk_bytes_equals_utf8": true
+    }
+  ],
+  "all_disk_db_match": true,
+  "schema_version": "0012",
+  "fn": {
+    "prosrc_len": 45598,
+    "prosrc_md5": "d94dd902697dfe60aba409d808c6d63a",
+    "pos_pre_gate": 27698,
+    "pos_c4_account_lock": 26917,
+    "pos_c5_balance_section": 30721,
+    "pos_r80_balance_gate": 32617,
+    "pos_on_conflict_probe": 34625,
+    "order_ok_gate_after_lock_before_balance": true,
+    "on_conflict_still_after_gate": true,
+    "all_gate_markers": [
+      {
+        "marker": "0012-REPLAY-PRE-GATE-BEGIN",
+        "pos": 27698
+      },
+      {
+        "marker": "0012-REPLAY-PRE-GATE-END",
+        "pos": 30625
+      },
+      {
+        "marker": "0012-REPLAY-PRE-GATE",
+        "pos": 27698
+      }
+    ],
+    "gate_body_bytes": 2901,
+    "gate_body_stripped_bytes": 1535,
+    "gate_body_write_tokens": []
+  },
+  "money_guard_baseline": {
+    "cid1": {
+      "hash": "2abde15ad1ae7e2d301a982493cbf925",
+      "rows": "7",
+      "balance_sum": "8400",
+      "frozen_sum": "0"
+    },
+    "platform_other_cids": {
+      "hash": "332fffe6b61ce717f8774301d6fd67d4",
+      "rows": "29",
+      "balance_sum": "46",
+      "frozen_sum": "0"
+    },
+    "ledger_entry_rows": 2136
+  },
+  "pg_proc_identity": [
+    {
+      "oid": "32783",
+      "args": "payload jsonb",
+      "ret": "jsonb",
+      "lanname": "plpgsql",
+      "secdef": false,
+      "provolatile": "v"
+    }
+  ],
+  "ledger_indexes": [
+    {
+      "indexname": "ledger_entry_pkey",
+      "indexdef": "CREATE UNIQUE INDEX ledger_entry_pkey ON public.ledger_entry USING btree (txid)"
+    },
+    {
+      "indexname": "ledger_idem_uniq",
+      "indexdef": "CREATE UNIQUE INDEX ledger_idem_uniq ON public.ledger_entry USING btree (idempotency_key)"
+    },
+    {
+      "indexname": "ledger_reversal_of_uniq",
+      "indexdef": "CREATE UNIQUE INDEX ledger_reversal_of_uniq ON public.ledger_entry USING btree (reversal_of_txid) WHERE (reversal_of_txid IS NOT NULL)"
+    },
+    {
+      "indexname": "idx_ledger_uid_cid_txid",
+      "indexdef": "CREATE INDEX idx_ledger_uid_cid_txid ON public.ledger_entry USING btree (uid, cid, txid DESC)"
+    },
+    {
+      "indexname": "idx_ledger_ref",
+      "indexdef": "CREATE INDEX idx_ledger_ref ON public.ledger_entry USING btree (ref_type, ref_id)"
+    },
+    {
+      "indexname": "idx_ledger_kind_time",
+      "indexdef": "CREATE INDEX idx_ledger_kind_time ON public.ledger_entry USING btree (kind, time_created DESC)"
+    },
+    {
+      "indexname": "idx_ledger_event_root_key",
+      "indexdef": "CREATE INDEX idx_ledger_event_root_key ON public.ledger_entry USING btree (event_root_key)"
+    }
+  ],
+  "base_tables": [
+    {
+      "table_name": "account"
+    },
+    {
+      "table_name": "commission_policy"
+    },
+    {
+      "table_name": "currency"
+    },
+    {
+      "table_name": "ledger_entry"
+    },
+    {
+      "table_name": "ledger_owner"
+    },
+    {
+      "table_name": "referral"
+    },
+    {
+      "table_name": "schema_migration"
+    },
+    {
+      "table_name": "users"
+    }
+  ],
+  "ledger_entry_columns": [
+    {
+      "column_name": "txid",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "uid",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "cid",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "delta",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "frozen_delta",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "balance_after",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "frozen_after",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "kind",
+      "data_type": "text"
+    },
+    {
+      "column_name": "ref_type",
+      "data_type": "text"
+    },
+    {
+      "column_name": "ref_id",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "idempotency_key",
+      "data_type": "text"
+    },
+    {
+      "column_name": "request_fingerprint",
+      "data_type": "text"
+    },
+    {
+      "column_name": "reversal_of_txid",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "memo",
+      "data_type": "text"
+    },
+    {
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "column_name": "event_root_key",
+      "data_type": "text"
+    }
+  ],
+  "users_columns": [
+    {
+      "column_name": "uid"
+    },
+    {
+      "column_name": "evm"
+    },
+    {
+      "column_name": "bio"
+    },
+    {
+      "column_name": "is_admin"
+    },
+    {
+      "column_name": "time_reg"
+    },
+    {
+      "column_name": "time_login_last"
+    }
+  ],
+  "account_columns": [
+    {
+      "column_name": "uid"
+    },
+    {
+      "column_name": "cid"
+    },
+    {
+      "column_name": "balance"
+    },
+    {
+      "column_name": "frozen"
+    },
+    {
+      "column_name": "version"
+    },
+    {
+      "column_name": "time_created"
+    },
+    {
+      "column_name": "time_updated"
+    }
+  ],
+  "net_retries": {
+    "n": 0,
+    "last": null
+  }
+}

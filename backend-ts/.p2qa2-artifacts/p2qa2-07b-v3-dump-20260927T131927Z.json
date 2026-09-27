@@ -1,0 +1,16 @@
+{
+  "run": "20260927T131927Z",
+  "name": "p2qa2-07b-v3-dump",
+  "phase": "after",
+  "at": "2026-09-27T13:28:56.026Z",
+  "def_header": "CREATE OR REPLACE FUNCTION public.ledger_post_event(payload jsonb)\n RETURNS jsonb\n LANGUAGE plpgsql\nAS $function$\nDECLARE\n  -- 信封\n",
+  "bm_in_def": 27811,
+  "gs": 27805,
+  "ge": 27805,
+  "def_ctx": "=========== C4.5 重放前置闸（0012 新增 · **只读**）\n  -- 0012-REPLAY-PRE-GATE-BEGIN\n  -- 为什么在这里（R51 / R52 / R63",
+  "db": {
+    "b": 27751,
+    "pos_update": 27696,
+    "ctx": "============================ C4.5 重放前置闸（0012 新增 · **只读**）\n  UPDATE account SET balance = balance WHERE false;\n  -- 0012-REPLAY-PRE-GATE-BEGIN\n  -- 为什么在这里（R51 / "
+  }
+}

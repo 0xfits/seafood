@@ -1,0 +1,41 @@
+{
+ "file": "/Users/kevin/bistro/seafood/backend-ts/.p2qa2-artifacts/p2qa2-06-negative-control-20260927T131927Z-2.json",
+ "fn_restored_to_original": true,
+ "all_as_expected": true,
+ "summary": {
+  "structural_only_all_raised": false,
+  "structural_only_all_selfcheck_msg": false,
+  "behavioral_pass_all_raised": true,
+  "behavioral_pass_selfcheck_msg_ids": [
+   "V1",
+   "V3",
+   "V4",
+   "V6"
+  ],
+  "behavioral_pass_other_msg_ids": [
+   "V2:LD002:LEDGER_INSUFFICIENT_FROZEN",
+   "V5:LD006:LEDGER_IDEMPOTENCY_REPLAY",
+   "V7:LD002:LEDGER_INSUFFICIENT_FROZEN"
+  ],
+  "any_malformed_array_literal": false
+ },
+ "variants": [
+  "OK   [bhv][V0] raised=false sqlstate=null restored=true msg=",
+  "OK   [bhv][V1] raised=true sqlstate=P0001 restored=true msg=0012 self-check failed: 重放前置闸标记缺失或错位（BEGIN/END） | 重放前置闸**不在** C4 账户加锁（account:for-update）之后 | 闸体缺 R52② 分支（同键异指纹 ⇒ LD003 409） | 闸体缺 R52① 分支（idempotent_replay 返回） | 闸体未按 event_root_key = v_key 归属查询 | 闸体",
+  "WARN [bhv][V2] raised=true sqlstate=LD002 restored=true msg=LEDGER_INSUFFICIENT_FROZEN",
+  "OK   [bhv][V3] raised=true sqlstate=P0001 restored=true msg=0012 self-check failed: 重放前置闸体出现写/加锁关键字（必须只读）",
+  "OK   [bhv][V4] raised=true sqlstate=P0001 restored=true msg=0012 self-check failed: R51 的 ON CONFLICT (idempotency_key) DO NOTHING 首条分录探针**消失了**",
+  "WARN [bhv][V5] raised=true sqlstate=LD006 restored=true msg=LEDGER_IDEMPOTENCY_REPLAY",
+  "OK   [bhv][V6] raised=true sqlstate=P0001 restored=true msg=0012 self-check failed: 闸体未标注既有索引用途（idx_ledger_event_root_key）",
+  "WARN [bhv][V7] raised=true sqlstate=LD002 restored=true msg=LEDGER_INSUFFICIENT_FROZEN",
+  "OK   [struc][V0] raised=false sqlstate=null restored=true msg=",
+  "OK   [struc][V1] raised=true sqlstate=P0001 restored=true msg=0012 self-check failed: 重放前置闸标记缺失或错位（BEGIN/END） | 重放前置闸**不在** C4 账户加锁（account:for-update）之后 | 闸体缺 R52② 分支（同键异指纹 ⇒ LD003 409） | 闸体缺 R52① 分支（idempotent_replay 返回） | 闸体未按 event_root_key = v_key 归属查询 | 闸体",
+  "OK   [struc][V2] raised=true sqlstate=P0001 restored=true msg=0012 self-check failed: 重放前置闸**不在** C5 段（余额/冻结闸）之前 | 重放前置闸**不在** R80 余额闸（INSUFFICIENT_BALANCE / INSUFFICIENT_FROZEN）之前 | ON CONFLICT 探针被挪到重放前置闸之前（顺序被改，R51 权威性受损）",
+  "OK   [struc][V3] raised=true sqlstate=P0001 restored=true msg=0012 self-check failed: 重放前置闸体出现写/加锁关键字（必须只读）",
+  "OK   [struc][V4] raised=true sqlstate=P0001 restored=true msg=0012 self-check failed: R51 的 ON CONFLICT (idempotency_key) DO NOTHING 首条分录探针**消失了**",
+  "BAD  [struc][V5] raised=false sqlstate=null restored=true msg=",
+  "OK   [struc][V6] raised=true sqlstate=P0001 restored=true msg=0012 self-check failed: 闸体未标注既有索引用途（idx_ledger_event_root_key）",
+  "OK   [struc][V7] raised=true sqlstate=P0001 restored=true msg=0012 self-check failed: 重放前置闸标记缺失或错位（BEGIN/END） | 重放前置闸**不在** C4 账户加锁（account:for-update）之后 | 闸体缺 R52② 分支（同键异指纹 ⇒ LD003 409） | 闸体缺 R52① 分支（idempotent_replay 返回） | 闸体未按 event_root_key = v_key 归属查询 | 闸体"
+ ]
+}
+EXIT=0
