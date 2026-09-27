@@ -2,11 +2,34 @@
  * p2w-00 · P2 独立质检（不通过）修复单的**验收探针** —— 六项缺陷的判据 + 判负对照，run-tagged 落盘。
  * ==========================================================================
  * 被测对象：`src/commission.ts`（F1 / F7① / F7②）+ `migrations/0011`（F3 / F6 / F2）。
- * 数据分区：uid **956xxx** / symbol 前缀 **p1w** / 幂等键前缀 **ops:p1w:**（绝不触碰 cid = 1
- *           与平台账户 0/-1/-2/-3 的既有余额；破坏性探针一律跑在**回滚事务**里）。
  * 用法：`npx ts-node --transpile-only scripts/p2w-00-p2fix-verify.ts [--assert]`
- *       `--assert` ⇒ 有红项则退出码 1（回归用）；读数落 `.p2w-artifacts/p2w-00-<RUN>.json`。
- * 判据（逐条对应质检单）：
+ *       `--assert` ⇒ 有红项则退出码 1（回归用）；读数落 `.p2w-artifacts/p2w-00-verify-<RUN>.{json,txt}`。
+ * 退出码：0 全绿 / 1 判红（`--assert`）/ 2 致命 / 3 前置不满足（命名空间分配失败，明白话见 stdout+stderr）
+ *
+ * ---------------------------------------------------------------- 可重跑设计（本次修订，#2）
+ * 上一版**不可重跑**，且两次失败**同因**（不是「夹具没复位」）：
+ *   ① **命名空间固定**：uid 写死 `956xxx`、symbol 由 `RUNTAG` 派生、job 号段由 `RUNTAG` 派生。
+ *      本机 shell **导出了 `P2W_RUN=pre011-…`** ⇒ 两次运行的 `RUNTAG` 完全相同 ⇒ 同一个 `symbol` /
+ *      同一批 job id / 同一批幂等键 ⇒ 第二跑与第一跑**共用一份已被真落账消耗掉的账户状态**。
+ *   ② **托管夹具的 mint 从未成功**（真根因，库上取证 + 探针复现见报告）：
+ *      `ensureCurrency(p, SYM, '0', 8)` 造出的币 `owner_uid = 0`（平台），而 `mint` 的授权口径是
+ *      「`owner_uid > 0` ⇒ 只许 owner 自铸；`owner_uid = 0` ⇒ 必须带 `platform: true` 受信标记」
+ *      ⇒ 演员 uid 956001 的 mint 一律 `LD014 LEDGER_UNAUTHORIZED_MINT`。夹具 mint/hold 全灭后，
+ *      §A 的**正向对照** `settleJobCommission`（唯一没有 try 包裹的落账调用）抛
+ *      `LD002 LEDGER_INSUFFICIENT_FROZEN {cid:'…', uid:'956001', required:'99000', available:'0'}`
+ *      ⇒ 顶层 `FATAL` + `exit 2`。**「上一跑的结算把托管余额花掉了」这个诊断是错的**：
+ *      cid 180 名下**没有任何** account 行、`ops:p1w:` 键下**没有任何** ledger 行（supply = 0）。
+ *   ⇒ 本次修订：① 一律走 `scripts/ns-alloc.ts`（**共享唯一实现**）取「本跑独占的新命名空间」
+ *      （uid 窗口 / 币 symbol / 幂等键前缀 / job 号段；每次运行都不同且逐个验证未被占用）；
+ *      ② 币的 `owner_uid` = 雇主（夹具演员）⇒ mint 走「owner 自铸」授权路径；
+ *      ③ 夹具成功与否**进判据**（`F0x`），夹具坏了就判红（而不是让后面的落账抛 FATAL 把证据打碎）。
+ *
+ * ---------------------------------------------------------------- 数据分区
+ * uid **959xxx**（本跑独占窗口，`959001..959949`）/ symbol 前缀 **p1y** / 幂等键前缀 **`ops:p1y:*`**。
+ * 绝不触碰 `cid = 1` 与平台账户 0/-1/-2/-3 的既有余额；破坏性探针一律跑在**回滚事务**里（末尾一律 ROLLBACK，
+ * 且每次尝试都用 SAVEPOINT 包裹 —— 事务内一次报错即整事务 aborted，不包 SAVEPOINT 会让后续判据全部失真）。
+ *
+ * ---------------------------------------------------------------- 判据（逐条对应质检单）
  *   §A F1  坏链（2-环污染）⇒ `planJobSettlement`/`settleJobCommission` **落账前**响亮拒绝：
  *           500 类（`LEDGER_RECONCILE_MISMATCH` / `httpStatus=500`）+ reason
  *           `COMMISSION_CHAIN_ASSERTION_VIOLATED` + `failed_assertions` 含 `no_duplicate_uid`；
@@ -23,18 +46,21 @@
  *           判负对照：关掉守卫 ⇒ 裸 INSERT 退回 `23505`/`referral_pk`（= 修前形态）。
  *   §F F2  父存储 `depth` 陈旧 ⇒ 绑定被拒（LD016 + `REFERRAL_PARENT_DEPTH_INCONSISTENT`）；
  *           父 depth 一致 ⇒ 放行；判负对照：关掉守卫 ⇒ 新孩子继承陈旧 depth（50 ⇒ 51 = 修前形态）。
- *   §G 尾  全局图不变式 / 触发器启用态 / cid=1 平台账户未被触碰 / 残留登记。
+ *   §G 尾  全局图不变式 / 触发器启用态 / cid=1 平台账户未被触碰 / 残留登记（**限定在本跑命名空间内**）。
+ * ==========================================================================
  */
 import {
   COMMISSION_REASON, LedgerError, planJobSettlement, settleJobCommission, getReferralChain,
   readEventFacts, readLedgerSettlement, readLedgerEventRows, readGraphInvariants,
   buildSettleEvent, splitPool, toPayloadEntry, settleJobFingerprint, getCommissionPolicy,
-  type SettlementPlan, type SettleJobInput, type CommissionPolicy,
+  jobSettleKey, COMMISSION_POOL_UID,
+  type SettlementPlan, type SettleJobInput,
 } from '../src/commission';
 import {
-  mkPool, raw, raw1, save, pgErr, tryFn, callFn, trySql, inRollbackTx, ensureUsers, ensureCurrency,
-  mintTo, holdFor, triggerEnablement, sha256, RUN, type Qx, type PgErr,
+  mkPool, raw, raw1, save, saveText, tryFn, callFn, trySql, inRollbackTx, ensureUsers, ensureCurrency,
+  mintTo, holdFor, triggerEnablement, sha256, pgErr, RUN, type Qx, type PgErr,
 } from './p2w-lib';
+import { allocNamespace, exitPrecondition, occupiedUids, windowUids } from './ns-alloc';
 
 const ASSERT_MODE = process.argv.includes('--assert');
 const reds: string[] = [];
@@ -43,7 +69,6 @@ const judge = (name: string, ok: boolean, extra?: unknown) => {
   if (!ok) reds.push(extra === undefined ? name : `${name} :: ${JSON.stringify(extra)}`);
 };
 const rec = (k: string, v: unknown) => { reads[k] = v; };
-const range = (start: number, n: number) => Array.from({ length: n }, (_, i) => String(start + i));
 const errInfo = (e: unknown): Record<string, unknown> => {
   if (e instanceof LedgerError) {
     return { kind: 'LedgerError', code: e.code, httpStatus: e.httpStatus, status: e.status,
@@ -59,27 +84,63 @@ const planRead = (p: SettlementPlan) => ({
   fee_credit_uid: p.fee_credit_uid, no_referrer: p.no_referrer, zero_amount: p.zero_amount,
 });
 
-// ---------------------------------------------------------------- 分区标识
-const RUNTAG = String((Math.abs(parseInt(sha256(RUN).slice(0, 8), 16)) % 900000) + 100000);
-const SYM = `p1w${RUNTAG}`;                       // symbol 前缀 p1w ✓
-const JOB = (k: number) => `${RUNTAG}${k}`;       // 每次运行唯一（避免跑第二遍退化成重放）
-const KEY = (what: string, k: string) => `ops:p1w:${RUNTAG}:${what}:${k}`;
-const EMP = '956001';
-const W_SHORT = '956002', W_DEEP = '956003', W_EV3 = '956006', W_F7B1 = '956008', W_EXACT10 = '956009';
-const ANC3 = ['956101'];
-const ANC12 = range(956111, 12);
-const ANC3C = ['956141', '956142', '956143'];
-const ANC2 = ['956161', '956162'];
-const ANC10 = range(956171, 10);
-const POISON = ['956701', '956702'];
-const PROBE2 = range(956711, 9);
+// ---------------------------------------------------------------- 本跑独占命名空间（见文件头「可重跑设计」）
+const WIN_SIZE = 45;                       // 槽位数（下表合计 45）
+const WIN_STRIDE = 50;                     // 窗口基准步长
+const WIN_PARTITION: readonly [number, number] = [959001, 959949];   // uid 959xxx（959950+ 留给 p2w-01 自测块）
+const SLOT = {
+  EMP: 0, W_SHORT: 1, W_DEEP: 2, W_EV3: 3, W_F7B1: 4, W_EXACT10: 5,
+  ANC3: 6, ANC12: 7, ANC3C: 19, ANC2: 22, ANC10: 24, POISON: 34, PROBE2: 36,
+} as const;
 const GROSS_STD = '100000';   // levels=10 ⇒ fee=1000 ⇒ 20 条 commission + 4 = 24 条分录
 
 (async () => {
   const p = mkPool(4);
-  const cid = await ensureCurrency(p, SYM, '0', 8);
-  await ensureUsers(p, [EMP, W_SHORT, W_DEEP, W_EV3, W_F7B1, W_EXACT10, ...ANC3, ...ANC12, ...ANC3C, ...ANC2, ...ANC10, ...POISON, ...PROBE2]);
-  rec('env', { run: RUN, cid, symbol: SYM, jobtag: RUNTAG, gross_std: GROSS_STD });
+  // ---- 前置：分配本跑独占的命名空间（只读扫描；失败 ⇒ 落盘 + exit 3 + 明白话）
+  const nsRes = await allocNamespace(p, {
+    tagPrefix: 'p2w', seed: RUN, uidCount: WIN_SIZE, uidStride: WIN_STRIDE, uidPartitions: [WIN_PARTITION],
+    symbolPrefix: 'p1y', keyPrefix: 'ops:p1y',
+    purpose: 'ledger_entry 是 append-only（键唯一）+ referral 是 INSERT-only（绑定幂等）+ currency.symbol 唯一且其账户余额会被真落账消耗 ⇒ 夹具不可复位，每一跑必须换新命名空间',
+    hint: `本跑主分区 ${WIN_PARTITION[0]}..${WIN_PARTITION[1]}（可 export P2W_UID_PARTITION="958001-958949,959001-959949" 扩分区）；P2W_BASE_UID=<空闲基准> 可显式指定窗口`,
+  });
+  if (!nsRes.ok) {
+    rec('namespace_allocation_fatal', nsRes.fatal);
+    const f = save('p2w-00-verify-FATAL-namespace', { run: RUN, fatal: nsRes.fatal });
+    console.error(`[p2w-00] 命名空间分配失败，已落盘 ${f}`);
+    exitPrecondition(nsRes.fatal);
+  }
+  const ns = nsRes;
+  const U = (i: number) => ns.uids[i];
+  const at = (from: number, n: number) => ns.uids.slice(from, from + n);
+  const SYM = ns.symbol;
+  const KEYPREFIX = ns.key_prefix;                        // `ops:p1y:<token>:`
+  const RUNTAG = ns.job_tag;                              // 9 位十进制号段
+  const JOB = (k: number) => `${RUNTAG}${k}`;
+  const KEY = (what: string, k: string) => `${KEYPREFIX}${what}:${k}`;
+  const EMP = U(SLOT.EMP);
+  const W_SHORT = U(SLOT.W_SHORT), W_DEEP = U(SLOT.W_DEEP), W_EV3 = U(SLOT.W_EV3);
+  const W_F7B1 = U(SLOT.W_F7B1), W_EXACT10 = U(SLOT.W_EXACT10);
+  const ANC3 = at(SLOT.ANC3, 1);
+  const ANC12 = at(SLOT.ANC12, 12);
+  const ANC3C = at(SLOT.ANC3C, 3);
+  const ANC2 = at(SLOT.ANC2, 2);
+  const ANC10 = at(SLOT.ANC10, 10);
+  const POISON = at(SLOT.POISON, 2);
+  const PROBE2 = at(SLOT.PROBE2, 9);
+  const ALL_UIDS = ns.uids;
+
+  // 币：**owner = 雇主**（mint 授权口径：owner_uid > 0 ⇒ 只许 owner 自铸，见文件头「真根因」）
+  const cid = await ensureCurrency(p, SYM, EMP, 8);
+  await ensureUsers(p, ALL_UIDS);
+  rec('env', { run: RUN, run_tag_from_env: process.env.P2W_RUN ?? null, cid, symbol: SYM, job_tag: RUNTAG,
+    key_prefix: KEYPREFIX, gross_std: GROSS_STD,
+    namespace: { uid_base: ns.uid_base, uid_count: WIN_SIZE, uid_stride: WIN_STRIDE,
+      uid_source: ns.uid_source, partition: ns.uid_partition, occupied_recheck: ns.occupied_recheck,
+      slots: SLOT, uids: ALL_UIDS } });
+  judge('N0 本跑 uid 窗口分配后复核为空（夹具新鲜）', ns.occupied_recheck.length === 0, ns.occupied_recheck);
+  judge('N1 本跑 uid 窗口全部落在 959xxx 本单分区内（绝不越界）',
+    ns.uid_base >= WIN_PARTITION[0] && ns.uid_base + WIN_SIZE - 1 <= WIN_PARTITION[1], ns.uid_base);
+  judge('N2 币 symbol 前缀 = p1y 且幂等键前缀 = ops:p1y:', SYM.startsWith('p1y') && KEYPREFIX.startsWith('ops:p1y:'), { SYM, KEYPREFIX });
 
   const platformSnapshot = () => raw<Record<string, unknown>>(p, `
     SELECT uid::text AS uid, cid::text AS cid, balance::text AS balance, frozen::text AS frozen, version::text AS version
@@ -111,11 +172,76 @@ const GROSS_STD = '100000';   // levels=10 ⇒ fee=1000 ⇒ 20 条 commission + 
   });
 
   // 已提交夹具资金：只给两个**会真落账**的 job 冻结（其余探针在回滚事务里自筹）
-  rec('fixture_mint', (await mintTo(p, EMP, cid, '1000000', KEY('mint', 'committed'))).ok);
-  rec('fixture_hold_ctrl', (await holdFor(p, EMP, cid, GROSS_STD, JOB(1), KEY('hold', JOB(1)))).ok);
-  rec('fixture_hold_replay', (await holdFor(p, EMP, cid, GROSS_STD, JOB(2), KEY('hold', JOB(2)))).ok);
+  const fixMint = await mintTo(p, EMP, cid, '1000000', KEY('mint', 'committed'));
+  const fixHold1 = await holdFor(p, EMP, cid, GROSS_STD, JOB(1), KEY('hold', JOB(1)));
+  // ⚠️ JOB(2) 托管**双倍**：账本的余额闸在幂等短路**之前**（见 scripts/p2w-03-ledger-replay-balance-gate.ts 的 A/B 读数）
+  //    ⇒ F7② 的三次调用（首写=旧政策 5% ⇒ 100000；重放=当前政策 1% ⇒ 100000；C9 复用账上载荷 ⇒ 100000）
+  //      每一次都要**各自**通过余额闸，故 frozen 必须 ≥ 2×GROSS_STD（否则第二次会拿到 LD002 而不是重放）
+  const fixHold2 = await holdFor(p, EMP, cid, '200000', JOB(2), KEY('hold', JOB(2)));
+  rec('fixture_mint', { ok: fixMint.ok, replay: fixMint.replay, err: fixMint.error });
+  rec('fixture_hold_ctrl', { ok: fixHold1.ok, replay: fixHold1.replay, err: fixHold1.error });
+  rec('fixture_hold_replay', { ok: fixHold2.ok, replay: fixHold2.replay, err: fixHold2.error });
+  rec('fixture_currency_owner', await raw1<Record<string, unknown>>(p,
+    `SELECT symbol, owner_uid::text AS owner_uid, cid::text AS cid, total_supply::text AS supply FROM currency WHERE cid = $1`, [cid]));
+  rec('fixture_emp_account', await raw1<Record<string, unknown>>(p,
+    `SELECT uid::text AS uid, balance::text AS balance, frozen::text AS frozen FROM account WHERE uid = $1 AND cid = $2`, [EMP, cid]));
+  // F0x：夹具本身进判据（**旧版把夹具失败留成后续 FATAL，把证据打碎** —— 这里判红而不是崩）
+  judge('F01 夹具 mint 成功（owner 自铸路径；非 LD014）', fixMint.ok === true, reads.fixture_mint);
+  judge('F02 夹具 hold（正向对照用的 job）成功', fixHold1.ok === true, reads.fixture_hold_ctrl);
+  judge('F03 夹具 hold（F7② 重放用的 job）成功', fixHold2.ok === true, reads.fixture_hold_replay);
+  // 夹具是**后续全部落账判据的先决**：不成立就带红退出（并留下 run-tagged 证据），
+  // 而不是让 §A 的正向对照抛 FATAL 把整份读数打碎（旧版正是如此）。
+  if (fixMint.ok !== true || fixHold1.ok !== true || fixHold2.ok !== true) {
+    rec('aborted_before_cases', { reason: 'FIXTURE_FAILED', fixture: { mint: reads.fixture_mint, hold_ctrl: reads.fixture_hold_ctrl, hold_replay: reads.fixture_hold_replay } });
+    const out = { run: RUN, reds, reads };
+    const fileF = save('p2w-00-verify', out);
+    const txtF = saveText('p2w-00-verify', JSON.stringify(out, null, 1));
+    console.log(JSON.stringify({ file: fileF, txt: txtF, run: RUN, reds_count: reds.length, reds, aborted: 'FIXTURE_FAILED' }, null, 1));
+    await p.end();
+    process.exit(ASSERT_MODE ? 1 : 2);
+  }
 
-  // 回滚事务内自筹（mint + hold），使破坏性探针**零残留**
+  // 回滚事务内自筹（mint + hold），使破坏性探针**零残留**。
+  // ⚠️ 事务内**一次报错即整事务 aborted（25P02）**⇒ 凡「预期失败」的语句必须用 SAVEPOINT 包裹，
+  //    否则后续读数全部退化成 25P02（= 判据假红；旧版 §D/§E/§F 就是被这一条打红的）。
+  const sp = async <T>(tx: Qx, fn: () => Promise<T>): Promise<{ ok: boolean; value: T | null; err: PgErr | null }> => {
+    await tx.query('SAVEPOINT ns_sp');
+    try {
+      const value = await fn();
+      await tx.query('RELEASE SAVEPOINT ns_sp');
+      return { ok: true, value, err: null };
+    } catch (e) {
+      await tx.query(`ROLLBACK TO SAVEPOINT ns_sp`);
+      return { ok: false, value: null, err: pgErr(e) };
+    }
+  };
+  /** SAVEPOINT 包裹的裸 SQL（形状同 p2w-lib 的 trySql，但**不打死事务**） */
+  const spQ = async (tx: Qx, sql: string, params: unknown[] = []):
+  Promise<{ ok: boolean; rows: Array<Record<string, unknown>>; error: PgErr | null }> => {
+    await tx.query('SAVEPOINT ns_sp');
+    try {
+      const r = await tx.query(sql, params);
+      await tx.query('RELEASE SAVEPOINT ns_sp');
+      return { ok: true, rows: r.rows as Array<Record<string, unknown>>, error: null };
+    } catch (e) {
+      await tx.query(`ROLLBACK TO SAVEPOINT ns_sp`);
+      return { ok: false, rows: [], error: pgErr(e) };
+    }
+  };
+  /** SAVEPOINT 包裹的 ledger_post_event（形状同 p2w-lib 的 tryFn，但**不打死事务**） */
+  const spFn = async (tx: Qx, payload: unknown): Promise<{ ok: boolean; replay: boolean; rows: number; error: PgErr | null; raw: Record<string, unknown> | null }> => {
+    await tx.query('SAVEPOINT ns_sp');
+    try {
+      const r = await callFn(tx, payload);
+      await tx.query('RELEASE SAVEPOINT ns_sp');
+      return { ok: r?.ok === true, replay: r?.idempotent_replay === true,
+        rows: ((r?.entries as unknown[]) ?? []).length, error: null, raw: r };
+    } catch (e) {
+      await tx.query(`ROLLBACK TO SAVEPOINT ns_sp`);
+      return { ok: false, replay: false, rows: 0, error: pgErr(e), raw: null };
+    }
+  };
+  const txErr = (x: { error?: unknown }): string | null => (x?.error ? String((x.error as Error)?.message ?? x.error).slice(0, 200) : null);
   const selfFund = async (tx: Qx, gross: string, jobId: string) => {
     const m = await mintTo(tx, EMP, cid, '1000000', KEY('mint', `tx${jobId}`));
     const h = await holdFor(tx, EMP, cid, gross, jobId, KEY('hold', jobId));
@@ -159,17 +285,18 @@ const GROSS_STD = '100000';   // levels=10 ⇒ fee=1000 ⇒ 20 条 commission + 
     out.chain_has_duplicates = new Set(chain.nodes.map((n) => n.beneficiary_uid)).size !== chain.nodes.length;
     // ① TS 闸：计划/服务两个入口都必须拒
     out.plan_result = await planTry({ jobId: JOB(3), employerUid: EMP, workerUid: POISON[0], cid, gross: GROSS_STD, ex: tx });
-    try {
-      const r = await settleJobCommission({ jobId: JOB(3), employerUid: EMP, workerUid: POISON[0], cid, gross: GROSS_STD, ex: tx });
-      out.settle_result = { ok: true, replay: r.business.replay, plan_source: r.business.plan_source };
-    } catch (e) { out.settle_result = { ok: false, err: errInfo(e) }; }
-    out.ledger_rows_for_key = (await raw1<{ n: string }>(tx, `SELECT count(*)::text AS n FROM ledger_entry WHERE COALESCE(event_root_key, split_part(idempotency_key,'#',1)) = $1`, [jobSettleKey(JOB(3))]))?.n;
+    const s1 = await sp(tx, () => settleJobCommission({ jobId: JOB(3), employerUid: EMP, workerUid: POISON[0], cid, gross: GROSS_STD, ex: tx }));
+    out.settle_result = s1.ok
+      ? { ok: true, replay: s1.value?.business.replay, plan_source: s1.value?.business.plan_source }
+      : { ok: false, err: errInfo(s1.err) };
+    out.ledger_rows_for_key = (await raw1<{ n: string }>(tx, `SELECT count(*)::text AS n FROM ledger_entry
+      WHERE COALESCE(event_root_key, split_part(idempotency_key,'#',1)) = $1`, [jobSettleKey(JOB(3))]))?.n;
     // ② 判负对照：绕过 TS 闸，按**同一份污染链**手工组装载荷（= 修前 planJobSettlement 会产出的形态）
     const M = Math.min(pol.levels, chain.chain_depth);
     const weights = pol.weights_bp.slice(0, M).map((w) => BigInt(w));
-    const split = splitPool(BigInt(GROSS_STD) === 0n ? 0n : (BigInt(GROSS_STD) * BigInt(pol.fee_rate_bp) + 5000n) / 10000n, weights);
     const fee = (BigInt(GROSS_STD) * BigInt(pol.fee_rate_bp) + 5000n) / 10000n;
     const net = BigInt(GROSS_STD) - fee;
+    const split = splitPool(BigInt(GROSS_STD) === 0n ? 0n : fee, weights);
     const fakePlan: SettlementPlan = {
       job_id: JOB(3), idempotency_key: jobSettleKey(JOB(3)), employer_uid: EMP, worker_uid: POISON[0], cid,
       gross: GROSS_STD, fee: fee.toString(), net: net.toString(), pool: fee.toString(),
@@ -191,7 +318,7 @@ const GROSS_STD = '100000';   // levels=10 ⇒ fee=1000 ⇒ 20 条 commission + 
     out.bypass_first_entry_kind = firstRow?.kind ?? null;
     return out;
   });
-  rec('A_f1_poisoned_chain', A.result);
+  rec('A_f1_poisoned_chain', { ...(A.result ?? {}), tx_error: txErr(A) });
   judge('A0 回滚事务内自筹成功（mint+hold）', (A.result?.fund as Record<string, unknown>)?.hold_ok === true, A.result?.fund);
   const Achain = A.result?.chain_nodes as string[] | undefined;
   judge('A1 污染链：节点重复（no_duplicate_uid=false）', (A.result?.assertions as Record<string, unknown>)?.no_duplicate_uid === false, A.result?.assertions);
@@ -212,16 +339,21 @@ const GROSS_STD = '100000';   // levels=10 ⇒ fee=1000 ⇒ 20 条 commission + 
   judge('A11 判负对照：打工人本人被错付（多行佣金入己）',
     BigInt(String(A.result?.bypass_worker_credit ?? '0')) > 0n, A.result?.bypass_worker_credit);
 
-  // 正向对照：健康链照常出计划并落账
+  // 正向对照：健康链照常出计划并落账（**夹具先决已进判据 F02**，故此处不再裸抛）
   const ctrlInput: SettleJobInput = { jobId: JOB(1), employerUid: EMP, workerUid: W_SHORT, cid, gross: GROSS_STD };
   const ctrlPlan = await planJobSettlement(ctrlInput);
   rec('A_ctrl_plan', planRead(ctrlPlan));
-  const ctrlOut = await settleJobCommission(ctrlInput);
-  rec('A_ctrl_settle', { ok: ctrlOut.result.ok, replay: ctrlOut.business.replay, plan_source: ctrlOut.business.plan_source,
+  const ctrl = await (async () => {
+    try { return { ok: true as const, out: await settleJobCommission(ctrlInput) }; }
+    catch (e) { return { ok: false as const, err: errInfo(e) }; }
+  })();
+  const ctrlOut = ctrl.ok ? ctrl.out : null;
+  rec('A_ctrl_settle', ctrlOut ? { ok: ctrlOut.result.ok, replay: ctrlOut.business.replay, plan_source: ctrlOut.business.plan_source,
     entries: ctrlOut.business.expected_entry_count, commission_rows: ctrlOut.business.expected_commission_rows,
-    fee: ctrlOut.plan.fee, chain_truncated: ctrlOut.plan.chain_truncated });
+    fee: ctrlOut.plan.fee, chain_truncated: ctrlOut.plan.chain_truncated } : { ok: false, err: ctrl.err });
   judge('A12 正向对照：健康链出计划（断言全 true）', ctrlPlan.M === 1 && ctrlPlan.layers.length === 1, planRead(ctrlPlan));
-  judge('A13 正向对照：健康链落账 ok 且 plan_source=computed', ctrlOut.result.ok === true && ctrlOut.business.plan_source === 'computed', reads.A_ctrl_settle);
+  judge('A13 正向对照：健康链落账 ok 且 plan_source=computed',
+    ctrlOut?.result.ok === true && ctrlOut.business.plan_source === 'computed', reads.A_ctrl_settle);
 
   // ================================================================ §B F7①
   const capCases: Record<string, unknown> = {};
@@ -253,7 +385,7 @@ const GROSS_STD = '100000';   // levels=10 ⇒ fee=1000 ⇒ 20 条 commission + 
   const oldPol = [...pols].sort((a, b) => Number(b.bp) - Number(a.bp) || (a.ef < b.ef ? -1 : 1))[0];
   const nowPol = pols[pols.length - 1];
   rec('C_policies', { all: pols, picked_old: oldPol, picked_now: nowPol });
-  judge('C0 选到两版不同政策（否则本项空跑）', oldPol && nowPol && oldPol.bp !== nowPol.bp, { oldPol, nowPol });
+  judge('C0 选到两版不同政策（否则本项空跑）', Boolean(oldPol) && Boolean(nowPol) && oldPol.bp !== nowPol.bp, { oldPol, nowPol });
   const replayInputOld: SettleJobInput = { jobId: JOB(2), employerUid: EMP, workerUid: W_F7B1, cid, gross: GROSS_STD, at: oldPol?.ef };
   const replayInputNow: SettleJobInput = { jobId: JOB(2), employerUid: EMP, workerUid: W_F7B1, cid, gross: GROSS_STD, at: nowPol?.ef };
   const first = await settleJobCommission(replayInputOld);
@@ -305,58 +437,58 @@ const GROSS_STD = '100000';   // levels=10 ⇒ fee=1000 ⇒ 20 条 commission + 
   const d1 = await inRollbackTx(p, async (tx) => {
     const s = await f3Setup(tx, JOB(3));
     await tx.query(`SET CONSTRAINTS ALL IMMEDIATE`);
-    const r = await tryFn(tx, s.payload);
+    const r = await spFn(tx, s.payload);
     return { entries: (s.payload.entries as unknown[]).length, commission_rows: s.plan.layers.length * 2, posted: r };
   });
   D.d1_immediate_before_post = { entries: d1.result?.entries, commission_rows: d1.result?.commission_rows,
-    ok: d1.result?.posted.ok, rows: d1.result?.posted.rows, err: d1.result?.posted.error };
+    ok: d1.result?.posted.ok, rows: d1.result?.posted.rows, err: d1.result?.posted.error, tx_error: txErr(d1) };
   // ③ 默认 DEFERRED：同一载荷必须照常成功
   const d2 = await inRollbackTx(p, async (tx) => {
     const s = await f3Setup(tx, JOB(4));
-    const r = await tryFn(tx, s.payload);
+    const r = await spFn(tx, s.payload);
     return { entries: (s.payload.entries as unknown[]).length, posted: r };
   });
-  D.d2_deferred_default = { entries: d2.result?.entries, ok: d2.result?.posted.ok, err: d2.result?.posted.error };
+  D.d2_deferred_default = { entries: d2.result?.entries, ok: d2.result?.posted.ok, err: d2.result?.posted.error, tx_error: txErr(d2) };
   // ②a 真 Σ 不符：丢最后一对佣金（Σ-中性，事件级平衡闸不响）⇒ 必须 LD032
   const d3 = await inRollbackTx(p, async (tx) => {
     const s = await f3Setup(tx, JOB(5));
     await tx.query(`SET CONSTRAINTS trg_ledger_entry_commission_conservation DEFERRED`);
     const t = dropEntries(s.payload, (_e, i, n) => i < n - 2);
-    const r = await tryFn(tx, t);
+    const r = await spFn(tx, t);
     return { entries: (t.entries as unknown[]).length, posted: r };
   });
-  D.d3_tamper_drop_pair = { entries: d3.result?.entries, ok: d3.result?.posted.ok, err: d3.result?.posted.error };
+  D.d3_tamper_drop_pair = { entries: d3.result?.entries, ok: d3.result?.posted.ok, err: d3.result?.posted.error, tx_error: txErr(d3) };
   // ②b 只入不出：commission_rows=0 且 pool_in>0（Σ-中性；窄签名修法会**静默放过**的形态）⇒ 必须 LD032
   const d4 = await inRollbackTx(p, async (tx) => {
     const s = await f3Setup(tx, JOB(6));
     await tx.query(`SET CONSTRAINTS trg_ledger_entry_commission_conservation DEFERRED`);
     const t = dropEntries(s.payload, (_e, i) => i < 4);
-    const r = await tryFn(tx, t);
+    const r = await spFn(tx, t);
     return { entries: (t.entries as unknown[]).length, posted: r };
   });
-  D.d4_pool_in_no_out = { entries: d4.result?.entries, ok: d4.result?.posted.ok, err: d4.result?.posted.error };
+  D.d4_pool_in_no_out = { entries: d4.result?.entries, ok: d4.result?.posted.ok, err: d4.result?.posted.error, tx_error: txErr(d4) };
   // ③ 先落账、后强制结算（p2qa-03 形态）：合法事件不得报，非法事件必须报
   const d5 = await inRollbackTx(p, async (tx) => {
     const s = await f3Setup(tx, JOB(7));
-    const okPost = await tryFn(tx, s.payload);
-    const afterImmediate = await trySql(tx, `SET CONSTRAINTS ALL IMMEDIATE`);
+    const okPost = await spFn(tx, s.payload);
+    const afterImmediate = await spQ(tx, `SET CONSTRAINTS ALL IMMEDIATE`);
     const s2 = await f3Setup(tx, JOB(8));
     const bad = dropEntries(s2.payload, (_e, i) => i < 4);
-    const badPost = await tryFn(tx, bad);
-    const afterImmediate2 = await trySql(tx, `SET CONSTRAINTS ALL IMMEDIATE`);
+    const badPost = await spFn(tx, bad);
+    const afterImmediate2 = await spQ(tx, `SET CONSTRAINTS ALL IMMEDIATE`);
     return { okPost_ok: okPost.ok, after_immediate: { ok: afterImmediate.ok, err: afterImmediate.error },
       badPost: { ok: badPost.ok, err: badPost.error }, after_immediate2: { ok: afterImmediate2.ok, err: afterImmediate2.error } };
   });
-  D.d5_post_then_immediate = d5.result;
+  D.d5_post_then_immediate = { ...(d5.result ?? {}), tx_error: txErr(d5) };
   // ④ 边界登记（**不判**，如实登记）：强制 IMMEDIATE 期间，Σ 断言不再判负（本修法的设计代价）
   const d6 = await inRollbackTx(p, async (tx) => {
     const s = await f3Setup(tx, JOB(9));
     await tx.query(`SET CONSTRAINTS ALL IMMEDIATE`);
     const t = dropEntries(s.payload, (_e, i) => i < 4);
-    const r = await tryFn(tx, t);
+    const r = await spFn(tx, t);
     return { entries: (t.entries as unknown[]).length, ok: r.ok, err: r.error?.reason ?? null };
   });
-  D.d6_boundary_immediate_tamper = d6.result;
+  D.d6_boundary_immediate_tamper = { ...(d6.result ?? {}), tx_error: txErr(d6) };
   rec('D_f3', D);
   judge('D1 IMMEDIATE 前置：真事件不再假报（ok=true）', d1.result?.posted.ok === true,
     { ok: d1.result?.posted.ok, err: d1.result?.posted.error });
@@ -372,19 +504,19 @@ const GROSS_STD = '100000';   // levels=10 ⇒ fee=1000 ⇒ 20 条 commission + 
   judge('D6 先落账后强制结算：合法事件不报', d5.result?.okPost_ok === true && d5.result?.after_immediate.ok === true, d5.result);
   judge('D7 先落账后强制结算：非法事件仍报 LD032',
     d5.result?.badPost.ok === false && d5.result?.after_immediate2.ok === false
-    && String(d5.result?.after_immediate2.err?.sqlstate) === 'LD032', { badPost: d5.result?.badPost.error, after: d5.result?.after_immediate2 });
+    && String(d5.result?.after_immediate2.err?.sqlstate) === 'LD032', { badPost: d5.result?.badPost.err, after: d5.result?.after_immediate2 });
 
   // ================================================================ §E F6
   const E = await inRollbackTx(p, async (tx) => {
     const [child, parentB, parentC] = PROBE2;
-    const firstBind = await trySql(tx, `INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,0)`, [child, parentB]);
-    const rawRebind = await trySql(tx, `INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,0)`, [child, parentC]);
-    const fnRebind = await trySql(tx, `SELECT referral_bind($1::bigint, $2::bigint)`, [child, parentC]);
+    const firstBind = await spQ(tx, `INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,0)`, [child, parentB]);
+    const rawRebind = await spQ(tx, `INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,0)`, [child, parentC]);
+    const fnRebind = await spQ(tx, `SELECT referral_bind($1::bigint, $2::bigint)`, [child, parentC]);
     return { first_bind: { ok: firstBind.ok, err: firstBind.error },
       raw_rebind: { ok: rawRebind.ok, err: rawRebind.error },
       fn_rebind: { ok: fnRebind.ok, err: fnRebind.error } };
   });
-  rec('E_f6_two_paths', E.result);
+  rec('E_f6_two_paths', { ...(E.result ?? {}), tx_error: txErr(E) });
   const eRaw = E.result?.raw_rebind as Record<string, unknown> | undefined;
   const eFn = E.result?.fn_rebind as Record<string, unknown> | undefined;
   const eRawErr = eRaw?.err as PgErr | null | undefined;
@@ -400,10 +532,10 @@ const GROSS_STD = '100000';   // levels=10 ⇒ fee=1000 ⇒ 20 条 commission + 
     const [child, parentB, parentC] = PROBE2;
     await tx.query(`ALTER TABLE referral DISABLE TRIGGER trg_referral_cycle_guard`);
     await tx.query(`INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,0)`, [child, parentB]);
-    const r = await trySql(tx, `INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,0)`, [child, parentC]);
+    const r = await spQ(tx, `INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,0)`, [child, parentC]);
     return { ok: r.ok, err: r.error };
   });
-  rec('E_f6_pre_fix_control', Ectrl.result);
+  rec('E_f6_pre_fix_control', { ...(Ectrl.result ?? {}), tx_error: txErr(Ectrl) });
   judge('E4 判负对照：无守卫时裸 INSERT 退回 23505/referral_pk（= 修前形态）',
     (Ectrl.result?.err as PgErr | undefined)?.sqlstate === '23505'
     && (Ectrl.result?.err as PgErr | undefined)?.constraint === 'referral_pk', Ectrl.result);
@@ -411,17 +543,17 @@ const GROSS_STD = '100000';   // levels=10 ⇒ fee=1000 ⇒ 20 条 commission + 
   // ================================================================ §F F2
   const F = await inRollbackTx(p, async (tx) => {
     const [stale, child, root] = PROBE2.slice(3, 6);
-    const setup = await trySql(tx, `INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,0)`, [stale, root]);
+    const setup = await spQ(tx, `INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,0)`, [stale, root]);
     await tx.query(`ALTER TABLE referral DISABLE TRIGGER trg_referral_append_only`);
     await tx.query(`UPDATE referral SET depth = 50 WHERE child_uid = $1`, [stale]);
     await tx.query(`ALTER TABLE referral ENABLE TRIGGER trg_referral_append_only`);
-    const toStale = await trySql(tx, `INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,0)`, [child, stale]);
-    const toRoot = await trySql(tx, `INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,0)`, [child, root]);
+    const toStale = await spQ(tx, `INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,0)`, [child, stale]);
+    const toRoot = await spQ(tx, `INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,0)`, [child, root]);
     const depthNow = await raw1<{ depth: string }>(tx, `SELECT depth::text AS depth FROM referral WHERE child_uid = $1`, [child]);
     return { setup: { ok: setup.ok, err: setup.error }, bind_to_stale: { ok: toStale.ok, err: toStale.error },
       bind_to_consistent: { ok: toRoot.ok, err: toRoot.error }, depth_after: depthNow?.depth ?? null };
   });
-  rec('F_f2_stale_parent', F.result);
+  rec('F_f2_stale_parent', { ...(F.result ?? {}), tx_error: txErr(F) });
   const fErr = (F.result?.bind_to_stale as Record<string, unknown> | undefined)?.err as PgErr | null | undefined;
   judge('F1 绑到陈旧 depth 的父 ⇒ 拒（LD016 + REFERRAL_PARENT_DEPTH_INCONSISTENT）',
     fErr?.sqlstate === 'LD016' && fErr?.reason === 'REFERRAL_PARENT_DEPTH_INCONSISTENT', fErr);
@@ -438,7 +570,7 @@ const GROSS_STD = '100000';   // levels=10 ⇒ fee=1000 ⇒ 20 条 commission + 
     const d = await raw1<{ depth: string }>(tx, `SELECT depth::text AS depth FROM referral WHERE child_uid = $1`, [child]);
     return { inherited_depth: d?.depth ?? null };
   });
-  rec('F_f2_pre_fix_control', Fctrl.result);
+  rec('F_f2_pre_fix_control', { ...(Fctrl.result ?? {}), tx_error: txErr(Fctrl) });
   judge('F3 判负对照：无守卫时陈旧 depth 被继承（50 ⇒ 51 = 修前形态）', Fctrl.result?.inherited_depth === '51', Fctrl.result);
 
   // ================================================================ §G 尾
@@ -447,11 +579,18 @@ const GROSS_STD = '100000';   // levels=10 ⇒ fee=1000 ⇒ 20 条 commission + 
   rec('trigger_enablement_after', await triggerEnablement(p));
   rec('graph_invariants_after', await readGraphInvariants(p));
   rec('residue', {
-    committed_referral_956xxx: (await raw1<{ n: string }>(p, `SELECT count(*)::text AS n FROM referral WHERE child_uid BETWEEN 956000 AND 956999 OR parent_uid BETWEEN 956000 AND 956999`))?.n,
-    committed_ledger_rows_my_jobs: (await raw1<{ n: string }>(p, `SELECT count(*)::text AS n FROM ledger_entry WHERE ref_type = 'job' AND split_part(idempotency_key, ':', 4) LIKE ANY (ARRAY['9%'])`))?.n,
-    committed_ledger_rows_my_keys: (await raw1<{ n: string }>(p, `SELECT count(*)::text AS n FROM ledger_entry WHERE idempotency_key LIKE 'ops:p1w:%'`))?.n,
-    probe_currency_rows: (await raw1<{ n: string }>(p, `SELECT count(*)::text AS n FROM currency WHERE symbol LIKE 'p1w%'`))?.n,
-    poison_uids_in_graph: (await raw1<{ n: string }>(p, `SELECT count(*)::text AS n FROM referral WHERE child_uid IN (956701,956702) OR parent_uid IN (956701,956702)`))?.n,
+    // 残留登记**限定在本跑命名空间内**（库里同时有别的探针/别的脚本在写，全局计数不可作为本跑的判据）
+    my_window_users: (await raw1<{ n: string }>(p, `SELECT count(*)::text AS n FROM users WHERE uid = ANY($1::bigint[])`,
+      [ALL_UIDS.map(String)]))?.n,
+    my_window_referral_rows: (await raw1<{ n: string }>(p, `SELECT count(*)::text AS n FROM referral
+      WHERE child_uid = ANY($1::bigint[]) OR parent_uid = ANY($1::bigint[])`, [ALL_UIDS.map(String)]))?.n,
+    poison_uids_in_graph: (await raw1<{ n: string }>(p, `SELECT count(*)::text AS n FROM referral
+      WHERE child_uid = ANY($1::bigint[]) OR parent_uid = ANY($1::bigint[])`, [POISON.map(String)]))?.n,
+    my_key_prefix_rows: (await raw1<{ n: string }>(p, `SELECT count(*)::text AS n FROM ledger_entry WHERE idempotency_key LIKE $1`,
+      [`${KEYPREFIX}%`]))?.n,
+    my_job_rows: (await raw1<{ n: string }>(p, `SELECT count(*)::text AS n FROM ledger_entry WHERE idempotency_key LIKE $1`,
+      [`biz:job:settle:${RUNTAG}%`]))?.n,
+    my_currency_rows: (await raw1<{ n: string }>(p, `SELECT count(*)::text AS n FROM currency WHERE symbol = $1`, [SYM]))?.n,
   });
   judge('G1 cid=1 平台账户（-1/-2/-3）未被触碰',
     JSON.stringify(cid1Before) === JSON.stringify(cid1After), { before: cid1Before, after: cid1After });
@@ -459,12 +598,21 @@ const GROSS_STD = '100000';   // levels=10 ⇒ fee=1000 ⇒ 20 条 commission + 
   judge('G2 全部触发器启用（无异常）', Array.isArray(te?.anomalies) && te?.anomalies.length === 0, te?.anomalies);
   const gi = reads.graph_invariants_after as { cycles: string; bad_depth: string } | undefined;
   judge('G3 全局图不变式：cycles=0 且 bad_depth=0', gi?.cycles === '0' && gi?.bad_depth === '0', gi);
-  judge('G4 残留：回滚探针的毒环未留下（952701/952702 无行）', reads.residue && (reads.residue as Record<string, unknown>).poison_uids_in_graph === '0', reads.residue);
+  judge(`G4 残留：回滚探针的毒环未留下（${POISON.join('/')} 在图里 0 行）`,
+    (reads.residue as Record<string, unknown> | undefined)?.poison_uids_in_graph === '0', reads.residue);
+  judge('G5 本跑窗口内的 uid 窗口复核仍空闲之外无异常（本跑自建夹具行数已登记）',
+    Number((reads.residue as Record<string, string | undefined>)?.my_currency_rows ?? '0') >= 1, reads.residue);
+  const stillOccupied = await occupiedUids(p, windowUids(ns.uid_base, WIN_SIZE));
+  judge('G6 本跑窗口已写夹具（users/referral 占用数 = 45）',
+    stillOccupied.length === WIN_SIZE, { occupied: stillOccupied.length, window_base: ns.uid_base });
 
   const out = { run: RUN, reds, reads };
   const file = save('p2w-00-verify', out);
-  console.log(JSON.stringify({ file, reds_count: reds.length, reds,
-    key_readings: { A: reads.A_f1_poisoned_chain ? {
+  const txt = saveText('p2w-00-verify', JSON.stringify(out, null, 1));
+  console.log(JSON.stringify({ file, txt, run: RUN, uid_window_base: ns.uid_base, symbol: SYM, job_tag: RUNTAG,
+    reds_count: reds.length, reds,
+    key_readings: { fixture: { mint: reads.fixture_mint, hold_ctrl: reads.fixture_hold_ctrl },
+      A: reads.A_f1_poisoned_chain ? {
       assertions: (reads.A_f1_poisoned_chain as Record<string, unknown>).assertions,
       plan_err: ((reads.A_f1_poisoned_chain as Record<string, unknown>).plan_result as Record<string, unknown>)?.err,
       bypass_post: (reads.A_f1_poisoned_chain as Record<string, unknown>).bypass_post,

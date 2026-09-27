@@ -1,0 +1,1199 @@
+{
+  "run": "P2XBEF03",
+  "phase": "before",
+  "name": "p2x-00-replay-order",
+  "at": "2026-09-27T12:20:28.672Z",
+  "script": "scripts/p2x-00-idempotency-replay-order.ts",
+  "question": "同键第二次调用：账本先做余额/冻结闸，还是先做幂等短路（R52①）？",
+  "namespace": {
+    "uid_base": 960057,
+    "uids": [
+      "960057",
+      "960058",
+      "960059",
+      "960060",
+      "960061",
+      "960062",
+      "960063",
+      "960064",
+      "960065",
+      "960066",
+      "960067",
+      "960068",
+      "960069",
+      "960070"
+    ],
+    "partition": [
+      960001,
+      960900
+    ],
+    "symbol_rollback": "p2xr960057",
+    "symbol_concurrent": "p2xc960057",
+    "symbol_staged": "p2xd960057",
+    "key_prefix": "ops:p2x:960057:",
+    "job_refs": [
+      "960058",
+      "960059",
+      "960060"
+    ],
+    "occupied_recheck": []
+  },
+  "fn_fingerprint": {
+    "schema_version": "0011",
+    "prosrc_len": 42449,
+    "prosrc_md5": "0cf1bb98ee3a30da55b1620c309d5541",
+    "pre_gate_present": false,
+    "pos_pre_gate": -1,
+    "pos_c4_account_lock": 26825,
+    "pos_c5_balance_section": 27572,
+    "pos_r80_balance_gate": 29468,
+    "pos_on_conflict_probe": 31476,
+    "order_ok_gate_after_lock_before_balance": false,
+    "on_conflict_still_after_gate": true,
+    "idx_ledger_event_root_key_rows": 1,
+    "on_conflict_probe_present": true
+  },
+  "money_before": {
+    "cid1": {
+      "hash": "2abde15ad1ae7e2d301a982493cbf925",
+      "rows": "7",
+      "balance_sum": "8400"
+    },
+    "platform_other_cids": {
+      "hash": "332fffe6b61ce717f8774301d6fd67d4",
+      "rows": "29",
+      "balance_sum": "46"
+    },
+    "ledger_entry_rows": 2106
+  },
+  "committed_fixtures": {
+    "cidC": "217",
+    "cidD": "218",
+    "fx5": {
+      "mint_ok": true,
+      "hold_ok": true,
+      "mint_err": null,
+      "hold_err": null
+    },
+    "fx5b": {
+      "mint_ok": true,
+      "hold_ok": true,
+      "mint_err": null,
+      "hold_err": null
+    },
+    "note": "提交式（用例 5/5b 必须让第二个连接看得见根行）"
+  },
+  "money_after": {
+    "cid1": {
+      "hash": "2abde15ad1ae7e2d301a982493cbf925",
+      "rows": "7",
+      "balance_sum": "8400"
+    },
+    "platform_other_cids": {
+      "hash": "332fffe6b61ce717f8774301d6fd67d4",
+      "rows": "29",
+      "balance_sum": "46"
+    },
+    "ledger_entry_rows": 2116
+  },
+  "cases": {
+    "1_headline_replay_after_escrow_spent": {
+      "cid": "219",
+      "fixture": {
+        "mint_ok": true,
+        "hold_ok": true,
+        "mint_err": null,
+        "hold_err": null
+      },
+      "frozen_after_first": "0",
+      "balance_after_first": "910000",
+      "first": {
+        "ok": true,
+        "idempotent_replay": false,
+        "entries_n": 4,
+        "ms": 185,
+        "sqlstate": null,
+        "reason": null,
+        "err_message": null,
+        "txid": "5185",
+        "result_keys": [
+          "accounts",
+          "entries",
+          "extra",
+          "idempotency_key",
+          "idempotent_replay",
+          "meta",
+          "ok",
+          "txid"
+        ],
+        "entries_sha256": "f194a6d43c0866c091c6773f7eb303a742ded09e79feccaf1c6d5fb2569883cb",
+        "accounts_sha256": "a92c521d836d7ed4e0dac159a013b864deb6cc0f04e7e3f06f533a771b47fad0",
+        "extra": {
+          "symbol": "p2xr960057",
+          "entries": "4"
+        },
+        "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:-2:219\",\"account:960057:219\",\"account:960058:219\"]},\"txid\":\"5185\",\"extra\":{\"symbol\":\"p2xr960057\",\"entries\":\"4\"},\"entries\":[{\"cid\":\"219\",\"uid\":\"960057\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5185\",\"delta\":\"0\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"1000\",\"frozen_delta\":\"-89000\",\"time_created\":\"2026-09-27T12:19:50.381Z\",\"balance_after\":\"910000\",\"idempotency_key\":\"ops:p2x:960057:c1\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-c1\"},{\"cid\":\"219\",\"uid\":\"960058\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5186\",\"delta\":\"89000\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:19:50.381Z\",\"balance_after\":\"89000\",\"idempotency_key\":\"ops:p2x:960057:c1#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null},{\"cid\":\"219\",\"uid\":\"960057\",\"kind\":\"job_fee\",\"memo\":\"\",\"txid\":\"5187\",\"delta\":\"0\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"-1000\",\"time_created\":\"2026-09-27T12:19:50.381Z\",\"balance_after\":\"910000\",\"idempotency_key\":\"ops:p2x:960057:c1#3\",\"reversal_of_txid\":null,\"request_fingerprint\":null},{\"cid\":\"219\",\"uid\":\"-2\",\"kind\":\"job_fee\",\"memo\":\"\",\"txid\":\"5188\",\"delta\":\"1000\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:19:50.381Z\",\"balance_after\":\"1000\",\"idempotency_key\":\"ops:p2x:960057:c1#4\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"219\",\"uid\":\"960057\",\"frozen\":\"0\",\"balance\":\"910000\"},{\"cid\":\"219\",\"uid\":\"960058\",\"frozen\":\"0\",\"balance\":\"89000\"},{\"cid\":\"219\",\"uid\":\"-2\",\"frozen\":\"0\",\"balance\":\"1000\"}],\"idempotency_key\":\"ops:p2x:960057:c1\",\"idempotent_replay\":false}"
+      },
+      "second": {
+        "ok": false,
+        "idempotent_replay": false,
+        "entries_n": 0,
+        "ms": 254,
+        "sqlstate": "LD002",
+        "reason": null,
+        "err_message": "LEDGER_INSUFFICIENT_FROZEN",
+        "txid": null,
+        "result_keys": null,
+        "entries_sha256": null,
+        "accounts_sha256": null,
+        "extra": null,
+        "raw_json": null
+      },
+      "third": {
+        "ok": false,
+        "idempotent_replay": false,
+        "entries_n": 0,
+        "ms": 207,
+        "sqlstate": "LD002",
+        "reason": null,
+        "err_message": "LEDGER_INSUFFICIENT_FROZEN",
+        "txid": null,
+        "result_keys": null,
+        "entries_sha256": null,
+        "accounts_sha256": null,
+        "extra": null,
+        "raw_json": null
+      },
+      "rows_for_key": 4
+    },
+    "2_replay_with_escrow_left": {
+      "cid": "220",
+      "fixture": {
+        "mint_ok": true,
+        "hold_ok": true,
+        "mint_err": null,
+        "hold_err": null
+      },
+      "frozen_after_first": "90000",
+      "first": {
+        "ok": true,
+        "idempotent_replay": false,
+        "entries_n": 4,
+        "ms": 239,
+        "sqlstate": null,
+        "reason": null,
+        "err_message": null,
+        "txid": "5192",
+        "result_keys": [
+          "accounts",
+          "entries",
+          "extra",
+          "idempotency_key",
+          "idempotent_replay",
+          "meta",
+          "ok",
+          "txid"
+        ],
+        "entries_sha256": "93d01bc3f9fdcd3e09a048b17603f023cd7fb484482141b6f3c831c1961a7c40",
+        "accounts_sha256": "3e78b61ed1fd934103b3da1f98bc1bfb56a70328dee2de13a3bed2de85872622",
+        "extra": {
+          "symbol": "p2xr960057",
+          "entries": "4"
+        },
+        "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:-2:220\",\"account:960059:220\",\"account:960060:220\"]},\"txid\":\"5192\",\"extra\":{\"symbol\":\"p2xr960057\",\"entries\":\"4\"},\"entries\":[{\"cid\":\"220\",\"uid\":\"960059\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5192\",\"delta\":\"0\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"91000\",\"frozen_delta\":\"-89000\",\"time_created\":\"2026-09-27T12:19:55.425Z\",\"balance_after\":\"820000\",\"idempotency_key\":\"ops:p2x:960057:c2\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-c2\"},{\"cid\":\"220\",\"uid\":\"960060\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5193\",\"delta\":\"89000\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:19:55.425Z\",\"balance_after\":\"89000\",\"idempotency_key\":\"ops:p2x:960057:c2#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null},{\"cid\":\"220\",\"uid\":\"960059\",\"kind\":\"job_fee\",\"memo\":\"\",\"txid\":\"5194\",\"delta\":\"0\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"90000\",\"frozen_delta\":\"-1000\",\"time_created\":\"2026-09-27T12:19:55.425Z\",\"balance_after\":\"820000\",\"idempotency_key\":\"ops:p2x:960057:c2#3\",\"reversal_of_txid\":null,\"request_fingerprint\":null},{\"cid\":\"220\",\"uid\":\"-2\",\"kind\":\"job_fee\",\"memo\":\"\",\"txid\":\"5195\",\"delta\":\"1000\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:19:55.425Z\",\"balance_after\":\"1000\",\"idempotency_key\":\"ops:p2x:960057:c2#4\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"220\",\"uid\":\"960059\",\"frozen\":\"90000\",\"balance\":\"820000\"},{\"cid\":\"220\",\"uid\":\"960060\",\"frozen\":\"0\",\"balance\":\"89000\"},{\"cid\":\"220\",\"uid\":\"-2\",\"frozen\":\"0\",\"balance\":\"1000\"}],\"idempotency_key\":\"ops:p2x:960057:c2\",\"idempotent_replay\":false}"
+      },
+      "second": {
+        "ok": true,
+        "idempotent_replay": true,
+        "entries_n": 4,
+        "ms": 316,
+        "sqlstate": null,
+        "reason": null,
+        "err_message": null,
+        "txid": "5192",
+        "result_keys": [
+          "accounts",
+          "entries",
+          "extra",
+          "idempotency_key",
+          "idempotent_replay",
+          "meta",
+          "ok",
+          "txid"
+        ],
+        "entries_sha256": "93d01bc3f9fdcd3e09a048b17603f023cd7fb484482141b6f3c831c1961a7c40",
+        "accounts_sha256": "3e78b61ed1fd934103b3da1f98bc1bfb56a70328dee2de13a3bed2de85872622",
+        "extra": {},
+        "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:-2:220\",\"account:960059:220\",\"account:960060:220\"]},\"txid\":\"5192\",\"extra\":{},\"entries\":[{\"cid\":\"220\",\"uid\":\"960059\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5192\",\"delta\":\"0\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"91000\",\"frozen_delta\":\"-89000\",\"time_created\":\"2026-09-27T12:19:55.425Z\",\"balance_after\":\"820000\",\"idempotency_key\":\"ops:p2x:960057:c2\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-c2\"},{\"cid\":\"220\",\"uid\":\"960060\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5193\",\"delta\":\"89000\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:19:55.425Z\",\"balance_after\":\"89000\",\"idempotency_key\":\"ops:p2x:960057:c2#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null},{\"cid\":\"220\",\"uid\":\"960059\",\"kind\":\"job_fee\",\"memo\":\"\",\"txid\":\"5194\",\"delta\":\"0\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"90000\",\"frozen_delta\":\"-1000\",\"time_created\":\"2026-09-27T12:19:55.425Z\",\"balance_after\":\"820000\",\"idempotency_key\":\"ops:p2x:960057:c2#3\",\"reversal_of_txid\":null,\"request_fingerprint\":null},{\"cid\":\"220\",\"uid\":\"-2\",\"kind\":\"job_fee\",\"memo\":\"\",\"txid\":\"5195\",\"delta\":\"1000\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:19:55.425Z\",\"balance_after\":\"1000\",\"idempotency_key\":\"ops:p2x:960057:c2#4\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"220\",\"uid\":\"960059\",\"frozen\":\"90000\",\"balance\":\"820000\"},{\"cid\":\"220\",\"uid\":\"960060\",\"frozen\":\"0\",\"balance\":\"89000\"},{\"cid\":\"220\",\"uid\":\"-2\",\"frozen\":\"0\",\"balance\":\"1000\"}],\"idempotency_key\":\"ops:p2x:960057:c2\",\"idempotent_replay\":true}"
+      },
+      "rows_for_key": 4
+    },
+    "3_same_key_different_fingerprint": {
+      "cid": "221",
+      "fixture": {
+        "mint_ok": true,
+        "hold_ok": true,
+        "mint_err": null,
+        "hold_err": null
+      },
+      "frozen_after_first": "0",
+      "first": {
+        "ok": true,
+        "idempotent_replay": false,
+        "entries_n": 4,
+        "ms": 1021,
+        "sqlstate": null,
+        "reason": null,
+        "err_message": null,
+        "txid": "5200",
+        "result_keys": [
+          "accounts",
+          "entries",
+          "extra",
+          "idempotency_key",
+          "idempotent_replay",
+          "meta",
+          "ok",
+          "txid"
+        ],
+        "entries_sha256": "713aaee07c33977ad3cee46f599475ba5cb8fb6806347e606e6b0ff39ea9df3e",
+        "accounts_sha256": "359d33deb5da0b5fe855a8850ed0583b0d90019216d1ca8ca9d502945baef266",
+        "extra": {
+          "symbol": "p2xr960057",
+          "entries": "4"
+        },
+        "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:-2:221\",\"account:960061:221\",\"account:960062:221\"]},\"txid\":\"5200\",\"extra\":{\"symbol\":\"p2xr960057\",\"entries\":\"4\"},\"entries\":[{\"cid\":\"221\",\"uid\":\"960061\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5200\",\"delta\":\"0\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"1000\",\"frozen_delta\":\"-89000\",\"time_created\":\"2026-09-27T12:19:59.943Z\",\"balance_after\":\"910000\",\"idempotency_key\":\"ops:p2x:960057:c3\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-c3\"},{\"cid\":\"221\",\"uid\":\"960062\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5201\",\"delta\":\"89000\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:19:59.943Z\",\"balance_after\":\"89000\",\"idempotency_key\":\"ops:p2x:960057:c3#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null},{\"cid\":\"221\",\"uid\":\"960061\",\"kind\":\"job_fee\",\"memo\":\"\",\"txid\":\"5202\",\"delta\":\"0\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"-1000\",\"time_created\":\"2026-09-27T12:19:59.943Z\",\"balance_after\":\"910000\",\"idempotency_key\":\"ops:p2x:960057:c3#3\",\"reversal_of_txid\":null,\"request_fingerprint\":null},{\"cid\":\"221\",\"uid\":\"-2\",\"kind\":\"job_fee\",\"memo\":\"\",\"txid\":\"5203\",\"delta\":\"1000\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:19:59.943Z\",\"balance_after\":\"1000\",\"idempotency_key\":\"ops:p2x:960057:c3#4\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"221\",\"uid\":\"960061\",\"frozen\":\"0\",\"balance\":\"910000\"},{\"cid\":\"221\",\"uid\":\"960062\",\"frozen\":\"0\",\"balance\":\"89000\"},{\"cid\":\"221\",\"uid\":\"-2\",\"frozen\":\"0\",\"balance\":\"1000\"}],\"idempotency_key\":\"ops:p2x:960057:c3\",\"idempotent_replay\":false}"
+      },
+      "conflict_call": {
+        "ok": false,
+        "idempotent_replay": false,
+        "entries_n": 0,
+        "ms": 229,
+        "sqlstate": "LD002",
+        "reason": null,
+        "err_message": "LEDGER_INSUFFICIENT_FROZEN",
+        "txid": null,
+        "result_keys": null,
+        "entries_sha256": null,
+        "accounts_sha256": null,
+        "extra": null,
+        "raw_json": null
+      },
+      "rows_for_key_after_conflict": 4,
+      "replay_after_conflict_call": {
+        "ok": false,
+        "idempotent_replay": false,
+        "entries_n": 0,
+        "ms": 180,
+        "sqlstate": "LD002",
+        "reason": null,
+        "err_message": "LEDGER_INSUFFICIENT_FROZEN",
+        "txid": null,
+        "result_keys": null,
+        "entries_sha256": null,
+        "accounts_sha256": null,
+        "extra": null,
+        "raw_json": null
+      }
+    },
+    "4_brand_new_event_still_gated": {
+      "cid": "222",
+      "new_event_frozen_insufficient": {
+        "ok": false,
+        "idempotent_replay": false,
+        "entries_n": 0,
+        "ms": 417,
+        "sqlstate": "LD002",
+        "reason": null,
+        "err_message": "LEDGER_INSUFFICIENT_FROZEN",
+        "txid": null,
+        "result_keys": null,
+        "entries_sha256": null,
+        "accounts_sha256": null,
+        "extra": null,
+        "raw_json": null
+      },
+      "new_event_balance_insufficient": {
+        "ok": false,
+        "idempotent_replay": false,
+        "entries_n": 0,
+        "ms": 296,
+        "sqlstate": "LD001",
+        "reason": null,
+        "err_message": "LEDGER_INSUFFICIENT_BALANCE",
+        "txid": null,
+        "result_keys": null,
+        "entries_sha256": null,
+        "accounts_sha256": null,
+        "extra": null,
+        "raw_json": null
+      },
+      "rows_left_by_rejected_frozen_event": 0,
+      "rows_left_by_rejected_balance_event": 0
+    },
+    "5_true_concurrency_same_key": {
+      "concurrent": true,
+      "conn_a": {
+        "ok": true,
+        "idempotent_replay": false,
+        "entries_n": 2,
+        "ms": 297,
+        "sqlstate": null,
+        "reason": null,
+        "err_message": null,
+        "txid": "5204",
+        "result_keys": [
+          "accounts",
+          "entries",
+          "extra",
+          "idempotency_key",
+          "idempotent_replay",
+          "meta",
+          "ok",
+          "txid"
+        ],
+        "entries_sha256": "b77b43e1d40383fbba3573e3eb2c2df038e15ed357465a2ff4c0dbe148d33af0",
+        "accounts_sha256": "dc2cb2e86cd38aafa135566b536130b4affafc3542e33e195c496ff48a440447",
+        "extra": {
+          "symbol": "p2xc960057",
+          "entries": "2"
+        },
+        "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:960063:217\",\"account:960064:217\"]},\"txid\":\"5204\",\"extra\":{\"symbol\":\"p2xc960057\",\"entries\":\"2\"},\"entries\":[{\"cid\":\"217\",\"uid\":\"960063\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5204\",\"delta\":\"0\",\"ref_id\":\"960059\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"-90000\",\"time_created\":\"2026-09-27T12:20:10.056Z\",\"balance_after\":\"910000\",\"idempotency_key\":\"ops:p2x:960057:c5\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-c5\"},{\"cid\":\"217\",\"uid\":\"960064\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5205\",\"delta\":\"90000\",\"ref_id\":\"960059\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:20:10.056Z\",\"balance_after\":\"90000\",\"idempotency_key\":\"ops:p2x:960057:c5#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"217\",\"uid\":\"960063\",\"frozen\":\"0\",\"balance\":\"910000\"},{\"cid\":\"217\",\"uid\":\"960064\",\"frozen\":\"0\",\"balance\":\"90000\"}],\"idempotency_key\":\"ops:p2x:960057:c5\",\"idempotent_replay\":false}"
+      },
+      "conn_b": {
+        "ok": false,
+        "idempotent_replay": false,
+        "entries_n": 0,
+        "ms": 3203,
+        "sqlstate": "LD025",
+        "reason": "lock_timeout",
+        "err_message": "LEDGER_LOCK_TIMEOUT",
+        "txid": null,
+        "result_keys": null,
+        "entries_sha256": null,
+        "accounts_sha256": null,
+        "extra": null,
+        "raw_json": null
+      },
+      "landed_count": 1,
+      "replay_count": 0,
+      "error_count": 1,
+      "rows_for_key": 2,
+      "commit_errors": {
+        "conn_a": null,
+        "conn_b": null
+      },
+      "emp_balance_after": "910000",
+      "emp_frozen_after": "0",
+      "expected_balance": "910000"
+    },
+    "5b_staged_race_retry_while_inflight": {
+      "staged_race": true,
+      "first_call_committed_after": {
+        "ok": true,
+        "idempotent_replay": false,
+        "entries_n": 2,
+        "ms": 210,
+        "sqlstate": null,
+        "reason": null,
+        "err_message": null,
+        "txid": "5206",
+        "result_keys": [
+          "accounts",
+          "entries",
+          "extra",
+          "idempotency_key",
+          "idempotent_replay",
+          "meta",
+          "ok",
+          "txid"
+        ],
+        "entries_sha256": "5f3ec43048b5d782f8303cf5a80cba28a1db2a9e110f3441b748516df81197b8",
+        "accounts_sha256": "a4f60743f873f83cfda6c0f07087f6a899c3fe204def96493f7d13b9163bee03",
+        "extra": {
+          "symbol": "p2xd960057",
+          "entries": "2"
+        },
+        "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:960065:218\",\"account:960066:218\"]},\"txid\":\"5206\",\"extra\":{\"symbol\":\"p2xd960057\",\"entries\":\"2\"},\"entries\":[{\"cid\":\"218\",\"uid\":\"960065\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5206\",\"delta\":\"0\",\"ref_id\":\"960060\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"-90000\",\"time_created\":\"2026-09-27T12:20:16.678Z\",\"balance_after\":\"910000\",\"idempotency_key\":\"ops:p2x:960057:c5b\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-c5b\"},{\"cid\":\"218\",\"uid\":\"960066\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5207\",\"delta\":\"90000\",\"ref_id\":\"960060\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:20:16.678Z\",\"balance_after\":\"90000\",\"idempotency_key\":\"ops:p2x:960057:c5b#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"218\",\"uid\":\"960065\",\"frozen\":\"0\",\"balance\":\"910000\"},{\"cid\":\"218\",\"uid\":\"960066\",\"frozen\":\"0\",\"balance\":\"90000\"}],\"idempotency_key\":\"ops:p2x:960057:c5b\",\"idempotent_replay\":false}"
+      },
+      "blocked_retry": {
+        "ok": false,
+        "idempotent_replay": false,
+        "entries_n": 0,
+        "ms": 967,
+        "sqlstate": "LD002",
+        "reason": null,
+        "err_message": "LEDGER_INSUFFICIENT_FROZEN",
+        "txid": null,
+        "result_keys": null,
+        "entries_sha256": null,
+        "accounts_sha256": null,
+        "extra": null,
+        "raw_json": null,
+        "blocked_ms": 967
+      },
+      "retry_txid_equals_first": false,
+      "rows_for_key": 2,
+      "commit_error_conn_a": null,
+      "emp_balance_after": "910000",
+      "emp_frozen_after": "0",
+      "expected_balance": "910000"
+    },
+    "6_no_such_event_behaviour_unchanged": {
+      "cid": "223",
+      "mint_ok": true,
+      "first_new_key": {
+        "ok": true,
+        "idempotent_replay": false,
+        "entries_n": 2,
+        "ms": 197,
+        "sqlstate": null,
+        "reason": null,
+        "err_message": null,
+        "txid": "5209",
+        "result_keys": [
+          "accounts",
+          "entries",
+          "extra",
+          "idempotency_key",
+          "idempotent_replay",
+          "meta",
+          "ok",
+          "txid"
+        ],
+        "entries_sha256": "b991b4d20176fd6857be4565d8ac612087956ea6d9d0223033683faff4eb5da0",
+        "accounts_sha256": "e942055c336721a51bf6120f7725921d45f8cd1d3303c6dec33d5f8a17bc1bc0",
+        "extra": {
+          "symbol": "p2xr960057",
+          "entries": "2"
+        },
+        "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:960057:223\",\"account:960070:223\"]},\"txid\":\"5209\",\"extra\":{\"symbol\":\"p2xr960057\",\"entries\":\"2\"},\"entries\":[{\"cid\":\"223\",\"uid\":\"960057\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5209\",\"delta\":\"-10\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:20:20.571Z\",\"balance_after\":\"990\",\"idempotency_key\":\"ops:p2x:960057:c6:newkey\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-c6\"},{\"cid\":\"223\",\"uid\":\"960070\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5210\",\"delta\":\"10\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:20:20.571Z\",\"balance_after\":\"10\",\"idempotency_key\":\"ops:p2x:960057:c6:newkey#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"223\",\"uid\":\"960057\",\"frozen\":\"0\",\"balance\":\"990\"},{\"cid\":\"223\",\"uid\":\"960070\",\"frozen\":\"0\",\"balance\":\"10\"}],\"idempotency_key\":\"ops:p2x:960057:c6:newkey\",\"idempotent_replay\":false}"
+      },
+      "same_payload_new_key": {
+        "ok": true,
+        "idempotent_replay": false,
+        "entries_n": 2,
+        "ms": 213,
+        "sqlstate": null,
+        "reason": null,
+        "err_message": null,
+        "txid": "5211",
+        "result_keys": [
+          "accounts",
+          "entries",
+          "extra",
+          "idempotency_key",
+          "idempotent_replay",
+          "meta",
+          "ok",
+          "txid"
+        ],
+        "entries_sha256": "68ef922b6706128a5611916b5228c094f88cde71d5975d9c7a7d737dc198fea1",
+        "accounts_sha256": "51c76551354750bf7e2fbeb43430b3f0081a585af4b617507e297fb887524fb5",
+        "extra": {
+          "symbol": "p2xr960057",
+          "entries": "2"
+        },
+        "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:960057:223\",\"account:960070:223\"]},\"txid\":\"5211\",\"extra\":{\"symbol\":\"p2xr960057\",\"entries\":\"2\"},\"entries\":[{\"cid\":\"223\",\"uid\":\"960057\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5211\",\"delta\":\"-10\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:20:20.571Z\",\"balance_after\":\"980\",\"idempotency_key\":\"ops:p2x:960057:c6:newkey-2\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-c6\"},{\"cid\":\"223\",\"uid\":\"960070\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5212\",\"delta\":\"10\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:20:20.571Z\",\"balance_after\":\"20\",\"idempotency_key\":\"ops:p2x:960057:c6:newkey-2#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"223\",\"uid\":\"960057\",\"frozen\":\"0\",\"balance\":\"980\"},{\"cid\":\"223\",\"uid\":\"960070\",\"frozen\":\"0\",\"balance\":\"20\"}],\"idempotency_key\":\"ops:p2x:960057:c6:newkey-2\",\"idempotent_replay\":false}"
+      },
+      "replay_first_key_again": {
+        "ok": true,
+        "idempotent_replay": true,
+        "entries_n": 2,
+        "ms": 191,
+        "sqlstate": null,
+        "reason": null,
+        "err_message": null,
+        "txid": "5209",
+        "result_keys": [
+          "accounts",
+          "entries",
+          "extra",
+          "idempotency_key",
+          "idempotent_replay",
+          "meta",
+          "ok",
+          "txid"
+        ],
+        "entries_sha256": "b991b4d20176fd6857be4565d8ac612087956ea6d9d0223033683faff4eb5da0",
+        "accounts_sha256": "e942055c336721a51bf6120f7725921d45f8cd1d3303c6dec33d5f8a17bc1bc0",
+        "extra": {},
+        "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:960057:223\",\"account:960070:223\"]},\"txid\":\"5209\",\"extra\":{},\"entries\":[{\"cid\":\"223\",\"uid\":\"960057\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5209\",\"delta\":\"-10\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:20:20.571Z\",\"balance_after\":\"990\",\"idempotency_key\":\"ops:p2x:960057:c6:newkey\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-c6\"},{\"cid\":\"223\",\"uid\":\"960070\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5210\",\"delta\":\"10\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:20:20.571Z\",\"balance_after\":\"10\",\"idempotency_key\":\"ops:p2x:960057:c6:newkey#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"223\",\"uid\":\"960057\",\"frozen\":\"0\",\"balance\":\"990\"},{\"cid\":\"223\",\"uid\":\"960070\",\"frozen\":\"0\",\"balance\":\"10\"}],\"idempotency_key\":\"ops:p2x:960057:c6:newkey\",\"idempotent_replay\":true}"
+      },
+      "rows_first_key": 2,
+      "rows_second_key": 2
+    }
+  },
+  "checks": [
+    {
+      "case": "1",
+      "name": "首写必须真落（否则本用例空跑）",
+      "ok": true,
+      "detail": {
+        "ok": true,
+        "idempotent_replay": false,
+        "entries_n": 4,
+        "ms": 185,
+        "sqlstate": null,
+        "reason": null,
+        "err_message": null,
+        "txid": "5185",
+        "result_keys": [
+          "accounts",
+          "entries",
+          "extra",
+          "idempotency_key",
+          "idempotent_replay",
+          "meta",
+          "ok",
+          "txid"
+        ],
+        "entries_sha256": "f194a6d43c0866c091c6773f7eb303a742ded09e79feccaf1c6d5fb2569883cb",
+        "accounts_sha256": "a92c521d836d7ed4e0dac159a013b864deb6cc0f04e7e3f06f533a771b47fad0",
+        "extra": {
+          "symbol": "p2xr960057",
+          "entries": "4"
+        },
+        "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:-2:219\",\"account:960057:219\",\"account:960058:219\"]},\"txid\":\"5185\",\"extra\":{\"symbol\":\"p2xr960057\",\"entries\":\"4\"},\"entries\":[{\"cid\":\"219\",\"uid\":\"960057\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5185\",\"delta\":\"0\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"1000\",\"frozen_delta\":\"-89000\",\"time_created\":\"2026-09-27T12:19:50.381Z\",\"balance_after\":\"910000\",\"idempotency_key\":\"ops:p2x:960057:c1\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-c1\"},{\"cid\":\"219\",\"uid\":\"960058\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5186\",\"delta\":\"89000\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:19:50.381Z\",\"balance_after\":\"89000\",\"idempotency_key\":\"ops:p2x:960057:c1#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null},{\"cid\":\"219\",\"uid\":\"960057\",\"kind\":\"job_fee\",\"memo\":\"\",\"txid\":\"5187\",\"delta\":\"0\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"-1000\",\"time_created\":\"2026-09-27T12:19:50.381Z\",\"balance_after\":\"910000\",\"idempotency_key\":\"ops:p2x:960057:c1#3\",\"reversal_of_txid\":null,\"request_fingerprint\":null},{\"cid\":\"219\",\"uid\":\"-2\",\"kind\":\"job_fee\",\"memo\":\"\",\"txid\":\"5188\",\"delta\":\"1000\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:19:50.381Z\",\"balance_after\":\"1000\",\"idempotency_key\":\"ops:p2x:960057:c1#4\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"219\",\"uid\":\"960057\",\"frozen\":\"0\",\"balance\":\"910000\"},{\"cid\":\"219\",\"uid\":\"960058\",\"frozen\":\"0\",\"balance\":\"89000\"},{\"cid\":\"219\",\"uid\":\"-2\",\"frozen\":\"0\",\"balance\":\"1000\"}],\"idempotency_key\":\"ops:p2x:960057:c1\",\"idempotent_replay\":false}"
+      }
+    },
+    {
+      "case": "1",
+      "name": "首写后托管恰花光（冻结 = 0）",
+      "ok": true,
+      "detail": "0"
+    },
+    {
+      "case": "1",
+      "name": "托管花光后同键同载荷再发 ⇒ 200 + idempotent_replay:true（R52①）",
+      "ok": false,
+      "detail": {
+        "ok": false,
+        "idempotent_replay": false,
+        "entries_n": 0,
+        "ms": 254,
+        "sqlstate": "LD002",
+        "reason": null,
+        "err_message": "LEDGER_INSUFFICIENT_FROZEN",
+        "txid": null,
+        "result_keys": null,
+        "entries_sha256": null,
+        "accounts_sha256": null,
+        "extra": null,
+        "raw_json": null
+      }
+    },
+    {
+      "case": "1",
+      "name": "重放 txid 与首写逐字相同",
+      "ok": false,
+      "detail": {
+        "first": "5185",
+        "second": null
+      }
+    },
+    {
+      "case": "1",
+      "name": "重放 entries 与首写逐字相同（entries_sha256）",
+      "ok": false,
+      "detail": {
+        "first": "f194a6d43c0866c091c6773f7eb303a742ded09e79feccaf1c6d5fb2569883cb",
+        "second": null
+      }
+    },
+    {
+      "case": "1",
+      "name": "重放 accounts 与首写逐字相同（accounts_sha256）",
+      "ok": false,
+      "detail": {
+        "first": "a92c521d836d7ed4e0dac159a013b864deb6cc0f04e7e3f06f533a771b47fad0",
+        "second": null
+      }
+    },
+    {
+      "case": "1",
+      "name": "重放零写入：键下分录数恒 4",
+      "ok": true,
+      "detail": 4
+    },
+    {
+      "case": "1",
+      "name": "重放幂等：第三次调用逐字等于第二次",
+      "ok": true,
+      "detail": {
+        "third": null,
+        "second": null
+      }
+    },
+    {
+      "case": "2",
+      "name": "首写真落 + 托管仍有余量（对照条件成立）",
+      "ok": true,
+      "detail": "90000"
+    },
+    {
+      "case": "2",
+      "name": "仍留足额 frozen 时同键重发 ⇒ 200 重放（行为不变）",
+      "ok": true,
+      "detail": {
+        "ok": true,
+        "idempotent_replay": true,
+        "entries_n": 4,
+        "ms": 316,
+        "sqlstate": null,
+        "reason": null,
+        "err_message": null,
+        "txid": "5192",
+        "result_keys": [
+          "accounts",
+          "entries",
+          "extra",
+          "idempotency_key",
+          "idempotent_replay",
+          "meta",
+          "ok",
+          "txid"
+        ],
+        "entries_sha256": "93d01bc3f9fdcd3e09a048b17603f023cd7fb484482141b6f3c831c1961a7c40",
+        "accounts_sha256": "3e78b61ed1fd934103b3da1f98bc1bfb56a70328dee2de13a3bed2de85872622",
+        "extra": {},
+        "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:-2:220\",\"account:960059:220\",\"account:960060:220\"]},\"txid\":\"5192\",\"extra\":{},\"entries\":[{\"cid\":\"220\",\"uid\":\"960059\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5192\",\"delta\":\"0\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"91000\",\"frozen_delta\":\"-89000\",\"time_created\":\"2026-09-27T12:19:55.425Z\",\"balance_after\":\"820000\",\"idempotency_key\":\"ops:p2x:960057:c2\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-c2\"},{\"cid\":\"220\",\"uid\":\"960060\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5193\",\"delta\":\"89000\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:19:55.425Z\",\"balance_after\":\"89000\",\"idempotency_key\":\"ops:p2x:960057:c2#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null},{\"cid\":\"220\",\"uid\":\"960059\",\"kind\":\"job_fee\",\"memo\":\"\",\"txid\":\"5194\",\"delta\":\"0\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"90000\",\"frozen_delta\":\"-1000\",\"time_created\":\"2026-09-27T12:19:55.425Z\",\"balance_after\":\"820000\",\"idempotency_key\":\"ops:p2x:960057:c2#3\",\"reversal_of_txid\":null,\"request_fingerprint\":null},{\"cid\":\"220\",\"uid\":\"-2\",\"kind\":\"job_fee\",\"memo\":\"\",\"txid\":\"5195\",\"delta\":\"1000\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:19:55.425Z\",\"balance_after\":\"1000\",\"idempotency_key\":\"ops:p2x:960057:c2#4\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"220\",\"uid\":\"960059\",\"frozen\":\"90000\",\"balance\":\"820000\"},{\"cid\":\"220\",\"uid\":\"960060\",\"frozen\":\"0\",\"balance\":\"89000\"},{\"cid\":\"220\",\"uid\":\"-2\",\"frozen\":\"0\",\"balance\":\"1000\"}],\"idempotency_key\":\"ops:p2x:960057:c2\",\"idempotent_replay\":true}"
+      }
+    },
+    {
+      "case": "2",
+      "name": "重放零写入：键下分录数恒 4",
+      "ok": true,
+      "detail": 4
+    },
+    {
+      "case": "2",
+      "name": "重放结果形状与用例 1 的闸路径**逐字相同**（result_keys / extra / txid 语义）",
+      "ok": false,
+      "detail": {
+        "case2": {
+          "k": [
+            "accounts",
+            "entries",
+            "extra",
+            "idempotency_key",
+            "idempotent_replay",
+            "meta",
+            "ok",
+            "txid"
+          ],
+          "e": {}
+        },
+        "case1": {
+          "k": null,
+          "e": null
+        }
+      }
+    },
+    {
+      "case": "3",
+      "name": "首写真落 + 托管恰花光",
+      "ok": true,
+      "detail": "0"
+    },
+    {
+      "case": "3",
+      "name": "同键异指纹 ⇒ 409 LD003 LEDGER_IDEMPOTENCY_CONFLICT（R52②，而非 LD002）",
+      "ok": false,
+      "detail": {
+        "ok": false,
+        "idempotent_replay": false,
+        "entries_n": 0,
+        "ms": 229,
+        "sqlstate": "LD002",
+        "reason": null,
+        "err_message": "LEDGER_INSUFFICIENT_FROZEN",
+        "txid": null,
+        "result_keys": null,
+        "entries_sha256": null,
+        "accounts_sha256": null,
+        "extra": null,
+        "raw_json": null
+      }
+    },
+    {
+      "case": "3",
+      "name": "冲突调用零写入：键下分录数仍 4",
+      "ok": true,
+      "detail": 4
+    },
+    {
+      "case": "3",
+      "name": "冲突后同键同指纹仍是 200 重放（指纹闸未污染状态）",
+      "ok": false,
+      "detail": {
+        "ok": false,
+        "idempotent_replay": false,
+        "entries_n": 0,
+        "ms": 180,
+        "sqlstate": "LD002",
+        "reason": null,
+        "err_message": "LEDGER_INSUFFICIENT_FROZEN",
+        "txid": null,
+        "result_keys": null,
+        "entries_sha256": null,
+        "accounts_sha256": null,
+        "extra": null,
+        "raw_json": null
+      }
+    },
+    {
+      "case": "4",
+      "name": "全新键 + 冻结不足 ⇒ 仍 LD002（余额/冻结闸未被拆掉；R63 仍成立）",
+      "ok": true,
+      "detail": {
+        "ok": false,
+        "idempotent_replay": false,
+        "entries_n": 0,
+        "ms": 417,
+        "sqlstate": "LD002",
+        "reason": null,
+        "err_message": "LEDGER_INSUFFICIENT_FROZEN",
+        "txid": null,
+        "result_keys": null,
+        "entries_sha256": null,
+        "accounts_sha256": null,
+        "extra": null,
+        "raw_json": null
+      }
+    },
+    {
+      "case": "4",
+      "name": "全新键 + 余额不足 ⇒ 仍 LD001",
+      "ok": true,
+      "detail": {
+        "ok": false,
+        "idempotent_replay": false,
+        "entries_n": 0,
+        "ms": 296,
+        "sqlstate": "LD001",
+        "reason": null,
+        "err_message": "LEDGER_INSUFFICIENT_BALANCE",
+        "txid": null,
+        "result_keys": null,
+        "entries_sha256": null,
+        "accounts_sha256": null,
+        "extra": null,
+        "raw_json": null
+      }
+    },
+    {
+      "case": "4",
+      "name": "被拒的新事件零残留（键下 0 条分录）",
+      "ok": true,
+      "detail": {
+        "frozen": 0,
+        "balance": 0
+      }
+    },
+    {
+      "case": "5",
+      "name": "真并发同键 ⇒ 恰一个落账（landed_count = 1）",
+      "ok": true,
+      "detail": {
+        "a": {
+          "ok": true,
+          "idempotent_replay": false,
+          "entries_n": 2,
+          "ms": 297,
+          "sqlstate": null,
+          "reason": null,
+          "err_message": null,
+          "txid": "5204",
+          "result_keys": [
+            "accounts",
+            "entries",
+            "extra",
+            "idempotency_key",
+            "idempotent_replay",
+            "meta",
+            "ok",
+            "txid"
+          ],
+          "entries_sha256": "b77b43e1d40383fbba3573e3eb2c2df038e15ed357465a2ff4c0dbe148d33af0",
+          "accounts_sha256": "dc2cb2e86cd38aafa135566b536130b4affafc3542e33e195c496ff48a440447",
+          "extra": {
+            "symbol": "p2xc960057",
+            "entries": "2"
+          },
+          "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:960063:217\",\"account:960064:217\"]},\"txid\":\"5204\",\"extra\":{\"symbol\":\"p2xc960057\",\"entries\":\"2\"},\"entries\":[{\"cid\":\"217\",\"uid\":\"960063\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5204\",\"delta\":\"0\",\"ref_id\":\"960059\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"-90000\",\"time_created\":\"2026-09-27T12:20:10.056Z\",\"balance_after\":\"910000\",\"idempotency_key\":\"ops:p2x:960057:c5\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-c5\"},{\"cid\":\"217\",\"uid\":\"960064\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5205\",\"delta\":\"90000\",\"ref_id\":\"960059\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:20:10.056Z\",\"balance_after\":\"90000\",\"idempotency_key\":\"ops:p2x:960057:c5#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"217\",\"uid\":\"960063\",\"frozen\":\"0\",\"balance\":\"910000\"},{\"cid\":\"217\",\"uid\":\"960064\",\"frozen\":\"0\",\"balance\":\"90000\"}],\"idempotency_key\":\"ops:p2x:960057:c5\",\"idempotent_replay\":false}"
+        },
+        "b": {
+          "ok": false,
+          "idempotent_replay": false,
+          "entries_n": 0,
+          "ms": 3203,
+          "sqlstate": "LD025",
+          "reason": "lock_timeout",
+          "err_message": "LEDGER_LOCK_TIMEOUT",
+          "txid": null,
+          "result_keys": null,
+          "entries_sha256": null,
+          "accounts_sha256": null,
+          "extra": null,
+          "raw_json": null
+        }
+      }
+    },
+    {
+      "case": "5",
+      "name": "另一个必须 200 重放（replay_count = 1，error_count = 0）",
+      "ok": false,
+      "detail": {
+        "a": {
+          "ok": true,
+          "idempotent_replay": false,
+          "entries_n": 2,
+          "ms": 297,
+          "sqlstate": null,
+          "reason": null,
+          "err_message": null,
+          "txid": "5204",
+          "result_keys": [
+            "accounts",
+            "entries",
+            "extra",
+            "idempotency_key",
+            "idempotent_replay",
+            "meta",
+            "ok",
+            "txid"
+          ],
+          "entries_sha256": "b77b43e1d40383fbba3573e3eb2c2df038e15ed357465a2ff4c0dbe148d33af0",
+          "accounts_sha256": "dc2cb2e86cd38aafa135566b536130b4affafc3542e33e195c496ff48a440447",
+          "extra": {
+            "symbol": "p2xc960057",
+            "entries": "2"
+          },
+          "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:960063:217\",\"account:960064:217\"]},\"txid\":\"5204\",\"extra\":{\"symbol\":\"p2xc960057\",\"entries\":\"2\"},\"entries\":[{\"cid\":\"217\",\"uid\":\"960063\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5204\",\"delta\":\"0\",\"ref_id\":\"960059\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"-90000\",\"time_created\":\"2026-09-27T12:20:10.056Z\",\"balance_after\":\"910000\",\"idempotency_key\":\"ops:p2x:960057:c5\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-c5\"},{\"cid\":\"217\",\"uid\":\"960064\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5205\",\"delta\":\"90000\",\"ref_id\":\"960059\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:20:10.056Z\",\"balance_after\":\"90000\",\"idempotency_key\":\"ops:p2x:960057:c5#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"217\",\"uid\":\"960063\",\"frozen\":\"0\",\"balance\":\"910000\"},{\"cid\":\"217\",\"uid\":\"960064\",\"frozen\":\"0\",\"balance\":\"90000\"}],\"idempotency_key\":\"ops:p2x:960057:c5\",\"idempotent_replay\":false}"
+        },
+        "b": {
+          "ok": false,
+          "idempotent_replay": false,
+          "entries_n": 0,
+          "ms": 3203,
+          "sqlstate": "LD025",
+          "reason": "lock_timeout",
+          "err_message": "LEDGER_LOCK_TIMEOUT",
+          "txid": null,
+          "result_keys": null,
+          "entries_sha256": null,
+          "accounts_sha256": null,
+          "extra": null,
+          "raw_json": null
+        }
+      }
+    },
+    {
+      "case": "5",
+      "name": "重放方 txid == 落账方 txid",
+      "ok": false,
+      "detail": {
+        "a": "5204",
+        "b": null
+      }
+    },
+    {
+      "case": "5",
+      "name": "两次提交都成功（无 DEFERRED 约束在 COMMIT 判负）",
+      "ok": false,
+      "detail": {
+        "conn_a": null,
+        "conn_b": null
+      }
+    },
+    {
+      "case": "5",
+      "name": "不双扣：键下分录恒 2 条（净额 + 入账）",
+      "ok": true,
+      "detail": 2
+    },
+    {
+      "case": "5",
+      "name": "不双扣：余额/冻结恰扣一次（balance = 首铸 − 净额 − 手续费，frozen = 0）",
+      "ok": true,
+      "detail": {
+        "balance": "910000",
+        "frozen": "0"
+      }
+    },
+    {
+      "case": "5b",
+      "name": "A 首写落账（提交）",
+      "ok": true,
+      "detail": {
+        "ok": true,
+        "idempotent_replay": false,
+        "entries_n": 2,
+        "ms": 210,
+        "sqlstate": null,
+        "reason": null,
+        "err_message": null,
+        "txid": "5206",
+        "result_keys": [
+          "accounts",
+          "entries",
+          "extra",
+          "idempotency_key",
+          "idempotent_replay",
+          "meta",
+          "ok",
+          "txid"
+        ],
+        "entries_sha256": "5f3ec43048b5d782f8303cf5a80cba28a1db2a9e110f3441b748516df81197b8",
+        "accounts_sha256": "a4f60743f873f83cfda6c0f07087f6a899c3fe204def96493f7d13b9163bee03",
+        "extra": {
+          "symbol": "p2xd960057",
+          "entries": "2"
+        },
+        "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:960065:218\",\"account:960066:218\"]},\"txid\":\"5206\",\"extra\":{\"symbol\":\"p2xd960057\",\"entries\":\"2\"},\"entries\":[{\"cid\":\"218\",\"uid\":\"960065\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5206\",\"delta\":\"0\",\"ref_id\":\"960060\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"-90000\",\"time_created\":\"2026-09-27T12:20:16.678Z\",\"balance_after\":\"910000\",\"idempotency_key\":\"ops:p2x:960057:c5b\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-c5b\"},{\"cid\":\"218\",\"uid\":\"960066\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5207\",\"delta\":\"90000\",\"ref_id\":\"960060\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:20:16.678Z\",\"balance_after\":\"90000\",\"idempotency_key\":\"ops:p2x:960057:c5b#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"218\",\"uid\":\"960065\",\"frozen\":\"0\",\"balance\":\"910000\"},{\"cid\":\"218\",\"uid\":\"960066\",\"frozen\":\"0\",\"balance\":\"90000\"}],\"idempotency_key\":\"ops:p2x:960057:c5b\",\"idempotent_replay\":false}"
+      }
+    },
+    {
+      "case": "5b",
+      "name": "B 确实阻塞过（blocked_ms > 300 ⇒ 竞态真的发生）",
+      "ok": true,
+      "detail": 967
+    },
+    {
+      "case": "5b",
+      "name": "A 提交后 B 同键重试 ⇒ 200 重放（不是 LD002）",
+      "ok": false,
+      "detail": {
+        "ok": false,
+        "idempotent_replay": false,
+        "entries_n": 0,
+        "ms": 967,
+        "sqlstate": "LD002",
+        "reason": null,
+        "err_message": "LEDGER_INSUFFICIENT_FROZEN",
+        "txid": null,
+        "result_keys": null,
+        "entries_sha256": null,
+        "accounts_sha256": null,
+        "extra": null,
+        "raw_json": null,
+        "blocked_ms": 967
+      }
+    },
+    {
+      "case": "5b",
+      "name": "B 重放 txid == A 首写 txid",
+      "ok": false,
+      "detail": {
+        "a": "5206",
+        "b": null
+      }
+    },
+    {
+      "case": "5b",
+      "name": "A 的提交成功（无 DEFERRED 约束在 COMMIT 判负）",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "case": "5b",
+      "name": "不双扣：键下分录恒 2 条 + 余额/冻结恰扣一次",
+      "ok": true,
+      "detail": {
+        "rows": 2,
+        "balance": "910000",
+        "frozen": "0"
+      }
+    },
+    {
+      "case": "6",
+      "name": "键不存在（新键）⇒ 正常落账、idempotent_replay=false（闸不误报重放）",
+      "ok": true,
+      "detail": {
+        "ok": true,
+        "idempotent_replay": false,
+        "entries_n": 2,
+        "ms": 197,
+        "sqlstate": null,
+        "reason": null,
+        "err_message": null,
+        "txid": "5209",
+        "result_keys": [
+          "accounts",
+          "entries",
+          "extra",
+          "idempotency_key",
+          "idempotent_replay",
+          "meta",
+          "ok",
+          "txid"
+        ],
+        "entries_sha256": "b991b4d20176fd6857be4565d8ac612087956ea6d9d0223033683faff4eb5da0",
+        "accounts_sha256": "e942055c336721a51bf6120f7725921d45f8cd1d3303c6dec33d5f8a17bc1bc0",
+        "extra": {
+          "symbol": "p2xr960057",
+          "entries": "2"
+        },
+        "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:960057:223\",\"account:960070:223\"]},\"txid\":\"5209\",\"extra\":{\"symbol\":\"p2xr960057\",\"entries\":\"2\"},\"entries\":[{\"cid\":\"223\",\"uid\":\"960057\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5209\",\"delta\":\"-10\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:20:20.571Z\",\"balance_after\":\"990\",\"idempotency_key\":\"ops:p2x:960057:c6:newkey\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-c6\"},{\"cid\":\"223\",\"uid\":\"960070\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5210\",\"delta\":\"10\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:20:20.571Z\",\"balance_after\":\"10\",\"idempotency_key\":\"ops:p2x:960057:c6:newkey#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"223\",\"uid\":\"960057\",\"frozen\":\"0\",\"balance\":\"990\"},{\"cid\":\"223\",\"uid\":\"960070\",\"frozen\":\"0\",\"balance\":\"10\"}],\"idempotency_key\":\"ops:p2x:960057:c6:newkey\",\"idempotent_replay\":false}"
+      }
+    },
+    {
+      "case": "6",
+      "name": "同一载荷换新键 ⇒ 仍落新账（闸不误伤新事件）",
+      "ok": true,
+      "detail": {
+        "ok": true,
+        "idempotent_replay": false,
+        "entries_n": 2,
+        "ms": 213,
+        "sqlstate": null,
+        "reason": null,
+        "err_message": null,
+        "txid": "5211",
+        "result_keys": [
+          "accounts",
+          "entries",
+          "extra",
+          "idempotency_key",
+          "idempotent_replay",
+          "meta",
+          "ok",
+          "txid"
+        ],
+        "entries_sha256": "68ef922b6706128a5611916b5228c094f88cde71d5975d9c7a7d737dc198fea1",
+        "accounts_sha256": "51c76551354750bf7e2fbeb43430b3f0081a585af4b617507e297fb887524fb5",
+        "extra": {
+          "symbol": "p2xr960057",
+          "entries": "2"
+        },
+        "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:960057:223\",\"account:960070:223\"]},\"txid\":\"5211\",\"extra\":{\"symbol\":\"p2xr960057\",\"entries\":\"2\"},\"entries\":[{\"cid\":\"223\",\"uid\":\"960057\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5211\",\"delta\":\"-10\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:20:20.571Z\",\"balance_after\":\"980\",\"idempotency_key\":\"ops:p2x:960057:c6:newkey-2\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-c6\"},{\"cid\":\"223\",\"uid\":\"960070\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5212\",\"delta\":\"10\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:20:20.571Z\",\"balance_after\":\"20\",\"idempotency_key\":\"ops:p2x:960057:c6:newkey-2#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"223\",\"uid\":\"960057\",\"frozen\":\"0\",\"balance\":\"980\"},{\"cid\":\"223\",\"uid\":\"960070\",\"frozen\":\"0\",\"balance\":\"20\"}],\"idempotency_key\":\"ops:p2x:960057:c6:newkey-2\",\"idempotent_replay\":false}"
+      }
+    },
+    {
+      "case": "6",
+      "name": "再次用首个新键 ⇒ 200 重放且 txid 与首写相同",
+      "ok": true,
+      "detail": {
+        "ok": true,
+        "idempotent_replay": true,
+        "entries_n": 2,
+        "ms": 191,
+        "sqlstate": null,
+        "reason": null,
+        "err_message": null,
+        "txid": "5209",
+        "result_keys": [
+          "accounts",
+          "entries",
+          "extra",
+          "idempotency_key",
+          "idempotent_replay",
+          "meta",
+          "ok",
+          "txid"
+        ],
+        "entries_sha256": "b991b4d20176fd6857be4565d8ac612087956ea6d9d0223033683faff4eb5da0",
+        "accounts_sha256": "e942055c336721a51bf6120f7725921d45f8cd1d3303c6dec33d5f8a17bc1bc0",
+        "extra": {},
+        "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:960057:223\",\"account:960070:223\"]},\"txid\":\"5209\",\"extra\":{},\"entries\":[{\"cid\":\"223\",\"uid\":\"960057\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5209\",\"delta\":\"-10\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:20:20.571Z\",\"balance_after\":\"990\",\"idempotency_key\":\"ops:p2x:960057:c6:newkey\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-c6\"},{\"cid\":\"223\",\"uid\":\"960070\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5210\",\"delta\":\"10\",\"ref_id\":\"960058\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T12:20:20.571Z\",\"balance_after\":\"10\",\"idempotency_key\":\"ops:p2x:960057:c6:newkey#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"223\",\"uid\":\"960057\",\"frozen\":\"0\",\"balance\":\"990\"},{\"cid\":\"223\",\"uid\":\"960070\",\"frozen\":\"0\",\"balance\":\"10\"}],\"idempotency_key\":\"ops:p2x:960057:c6:newkey\",\"idempotent_replay\":true}"
+      }
+    },
+    {
+      "case": "6",
+      "name": "两个新键各自 2 条分录",
+      "ok": true,
+      "detail": {
+        "a": 2,
+        "b": 2
+      }
+    },
+    {
+      "case": "0",
+      "name": "cid = 1 账户余额哈希前后一致（绝未触碰 $ 账户）",
+      "ok": true,
+      "detail": {
+        "before": {
+          "hash": "2abde15ad1ae7e2d301a982493cbf925",
+          "rows": "7",
+          "balance_sum": "8400"
+        },
+        "after": {
+          "hash": "2abde15ad1ae7e2d301a982493cbf925",
+          "rows": "7",
+          "balance_sum": "8400"
+        }
+      }
+    },
+    {
+      "case": "0",
+      "name": "平台账户 0/-1/-2/-3（排除本 run 新建 cid）余额哈希前后一致",
+      "ok": true,
+      "detail": {
+        "before": {
+          "hash": "332fffe6b61ce717f8774301d6fd67d4",
+          "rows": "29",
+          "balance_sum": "46"
+        },
+        "after": {
+          "hash": "332fffe6b61ce717f8774301d6fd67d4",
+          "rows": "29",
+          "balance_sum": "46"
+        }
+      }
+    }
+  ],
+  "reds": [
+    "1 :: 托管花光后同键同载荷再发 ⇒ 200 + idempotent_replay:true（R52①）",
+    "1 :: 重放 txid 与首写逐字相同",
+    "1 :: 重放 entries 与首写逐字相同（entries_sha256）",
+    "1 :: 重放 accounts 与首写逐字相同（accounts_sha256）",
+    "2 :: 重放结果形状与用例 1 的闸路径**逐字相同**（result_keys / extra / txid 语义）",
+    "3 :: 同键异指纹 ⇒ 409 LD003 LEDGER_IDEMPOTENCY_CONFLICT（R52②，而非 LD002）",
+    "3 :: 冲突后同键同指纹仍是 200 重放（指纹闸未污染状态）",
+    "5 :: 另一个必须 200 重放（replay_count = 1，error_count = 0）",
+    "5 :: 重放方 txid == 落账方 txid",
+    "5 :: 两次提交都成功（无 DEFERRED 约束在 COMMIT 判负）",
+    "5b :: A 提交后 B 同键重试 ⇒ 200 重放（不是 LD002）",
+    "5b :: B 重放 txid == A 首写 txid"
+  ],
+  "red_cases": [
+    "1",
+    "2",
+    "3",
+    "5",
+    "5b"
+  ],
+  "ok": false,
+  "notes": [],
+  "verdict": "契约被判红：1,2,3,5,5b —— before 相位时这正是被修复的缺陷（幂等判定被余额闸挡住）",
+  "test_data_created": {
+    "note": "用例 1/2/3/4/6 在回滚事务内（零残留）；用例 5/5b 提交（真并发/竞态必须让第二个连接看见根行）",
+    "committed_currency_symbols": [
+      "p2xc960057",
+      "p2xd960057"
+    ],
+    "committed_cids": [
+      "217",
+      "218"
+    ],
+    "committed_uids": [
+      "960063",
+      "960064",
+      "960065",
+      "960066"
+    ],
+    "committed_keys": [
+      "ops:p2x:960057:c5",
+      "ops:p2x:960057:c5b",
+      "ops:p2x:960057:c5:mint",
+      "ops:p2x:960057:c5:hold",
+      "ops:p2x:960057:c5b:mint",
+      "ops:p2x:960057:c5b:hold"
+    ],
+    "job_refs": [
+      "960059",
+      "960060"
+    ]
+  }
+}
