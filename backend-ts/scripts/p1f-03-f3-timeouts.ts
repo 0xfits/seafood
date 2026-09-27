@@ -2,7 +2,15 @@
  * P1F-03 · F3【中】超时 / 预算 / 基础设施分类 —— 「实测生效」原始读数
  * ============================================================================
  * 用法：cd backend-ts && npx ts-node --transpile-only scripts/p1f-03-f3-timeouts.ts
- * 落盘：.p1f-artifacts/p1f03-f3-readings.json（**只新增**，不改既有读数文件）
+ * 落盘：.p1f-artifacts/p1f03-f3-readings-<run>.json（**run-tagged，每次运行一个新文件**）
+ *       —— `<run>` = 启动时生成的 5 位 run tag（与脚本内 `RUN` 同值）。
+ *       〔P1n 修正（Zang 裁定 F-1）〕修前写死固定路径 `p1f03-f3-readings.json`，验证方复跑会**覆盖
+ *       实施方那轮原件**（曾出事故：报告读数 run=GT4OR ↔ 盘上文件 run=H262V）。
+ *       无后缀的 `p1f03-f3-readings.json` 是**历史原始证据**，**不删不改**；此后一律 run-tagged。
+ * ⚠️ chain 用例的**终局码是合法的非确定性**（Zang 裁定 F-1b）：末次等锁先撞 3s `lock_timeout` ⇒
+ *    `LD025 LEDGER_LOCK_TIMEOUT`；10s 预算先耗尽 ⇒ `LD026 LEDGER_TX_TIMEOUT / statement_budget_exhausted`。
+ *    **两个码都合法**（两条路径都被钳住）⇒ 断言只能针对「**等待有界**」（`wait_bounded`），
+ *    **不得**钉死某一个码（`terminal_code_in_legal_set` 即该判据的机读投影）。
  *
  * 六项读数（逐项取原始 SQLSTATE / MESSAGE / DETAIL / 计时）：
  *   ① `55P03 → LD025`：伙伴事务持锁 → 直调 transfer。最终码不得再是裸 `55P03`；
@@ -78,6 +86,14 @@ const U = {
 };
 const K = (s: string): string => `ops:p1k:${RUN}:${s}`;
 const out: Record<string, unknown> = { run: RUN, symbol: SYM, started_at: new Date().toISOString() };
+
+/**
+ * Zang 裁定 F-1b：chain 用例的终局码是**合法的非确定性** —— 末次等锁先撞 3s `lock_timeout`
+ * ⇒ `LD025 LEDGER_LOCK_TIMEOUT`；10s 自证预算先耗尽 ⇒ `LD026 LEDGER_TX_TIMEOUT /
+ * statement_budget_exhausted`。**两者都被钳住、都合法** ⇒ 判据只能写「等待有界」，
+ * 不得把某一个码钉成期望值（本集合 = 该判据的机读投影）。
+ */
+const TERMINAL_CODE_LEGAL_SET = ['LD025', 'LD026'] as const;
 
 const callFnRaw = async (url: string, pool: Pool, payload: unknown) => {
   const t0 = Date.now();
@@ -558,6 +574,13 @@ const main = async (): Promise<void> => {
         measured_total_wait_ms: measured,
         db_side_sampled_wait_ms: dbSample,
         clamped_to_le_10s: (dbSample?.max_db_elapsed_ms ?? measured) <= 10300,
+        // ---------------- Zang 裁定 F-1b：断言只针对「等待有界」，不钉死某一个终局码
+        terminal_code_legal_set: [...TERMINAL_CODE_LEGAL_SET],
+        terminal_code_observed: attempt.error?.code ?? null,
+        terminal_code_in_legal_set: attempt.ok_roundtrip
+          ? null
+          : (TERMINAL_CODE_LEGAL_SET as readonly string[]).includes(String(attempt.error?.code ?? '')),
+        wait_bounded: (dbSample?.max_db_elapsed_ms ?? measured) <= 10300,
         client_overhead_ms: dbSample ? measured - dbSample.max_db_elapsed_ms : null,
         terminal_sqlstate: attempt.error?.code ?? null,
         terminal_message: attempt.error?.message ?? null,
@@ -651,7 +674,9 @@ const main = async (): Promise<void> => {
   out.finished_at = new Date().toISOString();
   const dir = path.resolve(__dirname, '..', '.p1f-artifacts');
   fs.mkdirSync(dir, { recursive: true });
-  const file = path.join(dir, 'p1f03-f3-readings.json');
+  // P1n（Zang 裁定 F-1）：输出**必须 run-tagged** —— 固定路径会让「验证方的复跑」覆盖
+  // 「实施方的原件」（曾致报告读数与盘上文件对不上）。无后缀旧件是历史证据，只读不删。
+  const file = path.join(dir, `p1f03-f3-readings-${RUN}.json`);
   fs.writeFileSync(file, JSON.stringify(out, null, 1));
   console.log(`WROTE ${file}`);
   console.log(JSON.stringify({
@@ -674,6 +699,9 @@ const main = async (): Promise<void> => {
       ms: (out.total_wait_chain as Record<string, unknown>).measured_total_wait_ms,
       db_ms: ((out.total_wait_chain as Record<string, unknown>).db_side_sampled_wait_ms as Record<string, unknown>)?.max_db_elapsed_ms ?? null,
       code: (out.total_wait_chain as Record<string, unknown>).terminal_sqlstate,
+      code_in_legal_set: (out.total_wait_chain as Record<string, unknown>).terminal_code_in_legal_set,
+      legal_set: (out.total_wait_chain as Record<string, unknown>).terminal_code_legal_set,
+      wait_bounded: (out.total_wait_chain as Record<string, unknown>).wait_bounded,
       detail: (out.total_wait_chain as Record<string, unknown>).terminal_detail_parsed,
       clamped: (out.total_wait_chain as Record<string, unknown>).clamped_to_le_10s,
     } : null,

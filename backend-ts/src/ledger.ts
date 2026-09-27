@@ -60,6 +60,14 @@
  *   ③ `findByKey` 改按 `event_root_key` **精确归属**（删除字符串前缀「键族」匹配）。
  *   ④ `ledger-errors.ts` 基础设施类（`53*`/`58*`/`XX*`、`57*` 除 `57014`、`08*` 除 `08P01`）
  *      → `LEDGER_TX_TIMEOUT`（503 可重试），**不再落 500**（R108 的「500 = 代码缺陷」语义不被污染）。
+ *   ⑤ 〔P1n 收口 · **回退轮**（Kong，2026-09）〕`toCid` 对 `cid <= 0` **回到** 404
+ *      `LEDGER_CURRENCY_NOT_FOUND` + `{ cid }`（与 DB 侧 `ledger_cid_arg` 逐字一致）。
+ *      上一轮曾依「`cid<=0` 属形状非法」的**错误前提**把它改成 400 `LEDGER_AMOUNT_NOT_POSITIVE`；
+ *      该前提已被实测证伪：DB 侧 `ledger_cid_arg('0')`/`('-5')` 一直是 `LD007`/404，即**改前两侧本就一致**
+ *      ⇒ 上一轮的改动是引入了原本不存在的不一致，本轮逐字回退（详情见交付报告 P1n 与
+ *      `src/ledger.ts` 中 `toCid` 的注释块）。**重新裁定的口径**：`cid`/`uid` 等**标识符**参数 ——
+ *      形状非法（非十进制整数 / 空 / 超 bigint / 缺失）⇒ 400 `LEDGER_AMOUNT_INVALID` + `details.reason`；
+ *      形状合法但该行不存在 ⇒ 404（`cid <= 0` 属**不存在**这一类）。⇒ 需 spec 同步：§14.3 附补一行。
  *   ⇒ 需 spec 同步：R48/R49/R50/R51/R52、§11、§14.1/§14.3/§14.4、§19.5（详见交付报告）。
  *
  * ---------------------------------------------------------------- 本阶段**未**实现（明确留白，勿误判为遗漏）
@@ -415,8 +423,34 @@ const toUid = (uid: Amount, field = 'uid'): bigint => {
   return u;
 };
 
+/**
+ * `cid` 形状闸（Zang **重新裁定**（P1n 回退轮）/ spec §14.3）：
+ *   「**形状**」与「目标**是否存在**」是两件事：
+ *     ① 形状非法（非十进制整数 / 空 / 超 bigint / 缺失）⇒ **400** `LEDGER_AMOUNT_INVALID`
+ *        + `details.reason ∈ {NOT_DECIMAL_INTEGER, NOT_STRING, OUT_OF_BIGINT_RANGE, MISSING}`
+ *        + `details.field` —— 码名 `LEDGER_AMOUNT_INVALID` 是历史名，被兼用作「参数形状非法」码，
+ *        靠 `details.field` 区分字段（**不新增错误码**）。
+ *     ② 形状合法但该行不存在 ⇒ **404**（`LEDGER_CURRENCY_NOT_FOUND` / `LEDGER_ACCOUNT_NOT_FOUND`）。
+ *   `cid <= 0`（含负数）属**第 ②类**：`currency.cid` 是正整数序列，构造上不存在
+ *   ⇒ **404，不是 400**。
+ *
+ * P1n 回退说明（Kong，2026-09 —— 修订上一轮的错改）：
+ *   上一轮派单把 `cid <= 0` 误归为「形状非法」，据此把本闸改成 400 `LEDGER_AMOUNT_NOT_POSITIVE`
+ *   —— 该前提**已被实测证伪**：DB 侧 `ledger_cid_arg('0')` / `ledger_cid_arg('-5')` 自 0004 起
+ *   一直是 `LD007` / `LEDGER_CURRENCY_NOT_FOUND` / 404 / DETAIL `{"cid":"0"}`（见
+ *   `migrations/0004_ledger_post_event.sql` 的 `ledger_cid_arg`，实测读数落盘于
+ *   `.p1f-artifacts/p1n-tocid-shape-*.json`）。⇒ **改之前 TS 与 DB 两侧本来就一致（都是 404）**，
+ *   上一轮的改动反而引入了原本不存在的不一致；本轮逐字回退为 DB 侧口径：
+ *     - **404** `LEDGER_CURRENCY_NOT_FOUND` + `details = { cid }`（`cid` 为十进制字符串）；
+ *     - 与 `ledger_cid_arg(p_raw)` 的 `ledger_raise('LEDGER_CURRENCY_NOT_FOUND', {"cid": v_c::text})`
+ *       **同码 / 同 status / 同 details 形状**。
+ *   形状分支（非十进制整数串）仍走 `toAmount`，其 `reason = NOT_DECIMAL_INTEGER` 与 DB 侧
+ *   `ledger_int_amount` 同码同 reason（DB 侧另附 `value` 字段，为 0004/0005 既有形态，非本轮引入）。
+ *   DB 侧（`migrations/**`）**未改动**且无需改动 —— 它本来就是对的。
+ */
 const toCid = (cid: Amount): bigint => {
   const c = toAmount(cid, 'cid');
+  // cid <= 0 ⇒ 该币种不存在（currency.cid 为正整数序列）⇒ 404，与 DB 侧 ledger_cid_arg 逐字一致
   if (c <= 0n) throw new LedgerError('LEDGER_CURRENCY_NOT_FOUND', { cid: c.toString() });
   return c;
 };

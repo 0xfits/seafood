@@ -1,0 +1,1033 @@
+{
+  "run": "uji1kf3",
+  "uid_a": "900001",
+  "uid_b": "900002",
+  "uid_c": "900003",
+  "cid": "1",
+  "unit_cid": "99",
+  "passed": 29,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "R2 系统币 cid=1 / symbol=$ / owner_uid=0",
+      "pass": true,
+      "detail": "{\"cid\":\"1\",\"symbol\":\"$\",\"owner_uid\":\"0\",\"status\":\"listed\",\"supply_cap\":null,\"decimals\":0}"
+    },
+    {
+      "name": "mint 落 1 条分录且可用余额 +1000",
+      "pass": true,
+      "detail": "entries=mint d=1000 delta={\"balance\":\"1000\",\"frozen\":\"0\",\"d_balance\":\"1000\",\"d_frozen\":\"0\"}"
+    },
+    {
+      "name": "R9 total_supply 与分录同事务双写（+1000）",
+      "pass": true,
+      "detail": "total_supply 0→1000（extra 0→1000）"
+    },
+    {
+      "name": "transfer 写 2 条分录（减方/增方各一）且净额 0",
+      "pass": true,
+      "detail": "uid=900001 d=-300 | uid=900002 d=300"
+    },
+    {
+      "name": "hold = 同账户 2 条分录（−可用 / +冻结）",
+      "pass": true,
+      "detail": "d=-100 f=0 => 600/0 | d=0 f=100 => 600/100"
+    },
+    {
+      "name": "R41 配对不变式（hold 形态：Σdelta=−n、Σfrozen=+n、Σ净值=0）",
+      "pass": true,
+      "detail": "{\"delta_sum\":\"-100\",\"frozen_delta_sum\":\"100\",\"net_sum\":\"0\",\"net_issuance\":\"0\",\"has_mint_or_burn\":false}"
+    },
+    {
+      "name": "hold_release = 2 条分录（−冻结 / +可用）",
+      "pass": true,
+      "detail": "d=0 f=-40 => 600/60 | d=40 f=0 => 640/60"
+    },
+    {
+      "name": "settleFrozen 减方只动 frozen、不动 balance（R15 双字段的存在理由）",
+      "pass": true,
+      "detail": "uid=900001 d=0 f=-60 | uid=900002 d=60 f=0"
+    },
+    {
+      "name": "幂等：同键两次 ⇒ 流水只 +1（第二次不再写）",
+      "pass": true,
+      "detail": "rows=[ops:smoke:uji1kf3:idem, #2] before=0 after1st=2 after2nd=2"
+    },
+    {
+      "name": "幂等：第二次返回 idempotent_replay=true 且 txid 与首次相同",
+      "pass": true,
+      "detail": "1st={txid:2182,replay:false} 2nd={txid:2182,replay:true}"
+    },
+    {
+      "name": "R52②：同键不同指纹 ⇒ 409 LEDGER_IDEMPOTENCY_CONFLICT",
+      "pass": true,
+      "detail": "{\"code\":\"LEDGER_IDEMPOTENCY_CONFLICT\",\"status\":409,\"message\":\"该请求与先前的请求内容不一致\",\"response\":{\"error\":{\"code\":\"LEDGER_IDEMPOTENCY_CONFLICT\",\"message\":\"该请求与先前的请求内容不一致\",\"i18n_key\":\"ledger.err.LEDGER_IDEMPOTENCY_CONFLICT\",\"details\":{\"actual\":\"fp-99\",\"expected\":\"fp-25\",\"idempotency_key\":\"ops:smoke:uji1kf3:idem\"}}},\"raw\":\"该请求与先前的请求内容不一致\"}"
+    },
+    {
+      "name": "R53：未带指纹 ⇒ 「同键即重放」（即便金额不同也不 409）",
+      "pass": true,
+      "detail": "replay=true txid=2182"
+    },
+    {
+      "name": "R49 前缀强制 / R52③ 缺键",
+      "pass": true,
+      "detail": "LEDGER_IDEMPOTENCY_KEY_INVALID / LEDGER_IDEMPOTENCY_KEY_REQUIRED"
+    },
+    {
+      "name": "余额不足 ⇒ 409 LEDGER_INSUFFICIENT_BALANCE",
+      "pass": true,
+      "detail": "{\"code\":\"LEDGER_INSUFFICIENT_BALANCE\",\"status\":409,\"message\":\"可用余额不足\",\"response\":{\"error\":{\"code\":\"LEDGER_INSUFFICIENT_BALANCE\",\"message\":\"可用余额不足\",\"i18n_key\":\"ledger.err.LEDGER_INSUFFICIENT_BALANCE\",\"details\":{\"cid\":\"1\",\"uid\":\"900001\",\"required\":\"1000000000000000\",\"available\":\"665\"}}},\"raw\":\"可用余额不足\"}"
+    },
+    {
+      "name": "余额不足 ⇒ 流水 0 条、双方余额不变（无半成品）",
+      "pass": true,
+      "detail": "rows=0→0 balances={\"900001\":{\"balance\":\"665\",\"frozen\":\"0\"},\"900002\":{\"balance\":\"360\",\"frozen\":\"0\"}}→{\"900001\":{\"balance\":\"665\",\"frozen\":\"0\"},\"900002\":{\"balance\":\"360\",\"frozen\":\"0\"}}"
+    },
+    {
+      "name": "总额守恒：10 笔串行转账后 Σ(balance+frozen) 不变",
+      "pass": true,
+      "detail": "before=[{\"cid\":\"1\",\"total_balance\":\"1200\",\"total_frozen\":\"0\",\"total_net\":\"1200\"}] after=[{\"cid\":\"1\",\"total_balance\":\"1200\",\"total_frozen\":\"0\",\"total_net\":\"1200\"}]"
+    },
+    {
+      "name": "§11 判据1 账户级守恒（balance=Σdelta / frozen=Σfrozen_delta）无差异行",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "name": "DB 兜底①：负 balance_after 被 ledger_after_guard 拒（23514）",
+      "pass": true,
+      "detail": "ledger_after_guard rows=0"
+    },
+    {
+      "name": "DB 兜底②：无分录的 account 变更被 trg_account_guard 拒（P0001）",
+      "pass": true,
+      "detail": "P0001: account(675/0) != latest ledger snapshot(674/0) for uid=900001 cid=1"
+    },
+    {
+      "name": "DB 兜底③：UPDATE 流水被 append-only trigger 拒（P0001）",
+      "pass": true,
+      "detail": "ledger_entry is append-only: UPDATE forbidden (txid=2172)"
+    },
+    {
+      "name": "R72③ decimals=2 的 \"400.00\" 解析为 40000 最小单位",
+      "pass": true,
+      "detail": "delta=40000"
+    },
+    {
+      "name": "R24 超 supply_cap ⇒ 409 LEDGER_SUPPLY_CAP_EXCEEDED",
+      "pass": true,
+      "detail": "{\"code\":\"LEDGER_SUPPLY_CAP_EXCEEDED\",\"status\":409,\"message\":\"已达该单位发行上限\",\"response\":{\"error\":{\"code\":\"LEDGER_SUPPLY_CAP_EXCEEDED\",\"message\":\"已达该单位发行上限\",\"i18n_key\":\"ledger.err.LEDGER_SUPPLY_CAP_EXCEEDED\",\"details\":{\"cid\":\"99\",\"symbol\":\"smkuji1kf3\",\"requested\":\"20000\",\"supply_cap\":\"50000\",\"total_supply\":\"40000\"}}},\"raw\":\"已达该单位发行上限\"}"
+    },
+    {
+      "name": "R23 自建单位非 owner 铸币 ⇒ 403 LEDGER_UNAUTHORIZED_MINT",
+      "pass": true,
+      "detail": "{\"code\":\"LEDGER_UNAUTHORIZED_MINT\",\"status\":403,\"message\":\"你没有发行该单位的权限\",\"response\":{\"error\":{\"code\":\"LEDGER_UNAUTHORIZED_MINT\",\"message\":\"你没有发行该单位的权限\",\"i18n_key\":\"ledger.err.LEDGER_UNAUTHORIZED_MINT\",\"details\":{\"cid\":\"99\",\"platform\":false,\"actor_uid\":\"900002\",\"owner_uid\":\"900001\"}}},\"raw\":\"你没有发行该单位的权限\"}"
+    },
+    {
+      "name": "R23 $ 非平台路径铸币 ⇒ 403 LEDGER_UNAUTHORIZED_MINT",
+      "pass": true,
+      "detail": "{\"code\":\"LEDGER_UNAUTHORIZED_MINT\",\"status\":403,\"message\":\"你没有发行该单位的权限\",\"response\":{\"error\":{\"code\":\"LEDGER_UNAUTHORIZED_MINT\",\"message\":\"你没有发行该单位的权限\",\"i18n_key\":\"ledger.err.LEDGER_UNAUTHORIZED_MINT\",\"details\":{\"cid\":\"1\",\"platform\":false,\"actor_uid\":\"900001\",\"owner_uid\":\"0\"}}},\"raw\":\"你没有发行该单位的权限\"}"
+    },
+    {
+      "name": "R72③ 小数位超币种 decimals ⇒ 400 LEDGER_DECIMALS_OVERFLOW",
+      "pass": true,
+      "detail": "{\"code\":\"LEDGER_DECIMALS_OVERFLOW\",\"status\":400,\"message\":\"该单位支持的小数位数不足\",\"response\":{\"error\":{\"code\":\"LEDGER_DECIMALS_OVERFLOW\",\"message\":\"该单位支持的小数位数不足\",\"i18n_key\":\"ledger.err.LEDGER_DECIMALS_OVERFLOW\",\"details\":{\"cid\":\"99\",\"field\":\"amount\",\"decimals\":2,\"provided\":3}}},\"raw\":\"该单位支持的小数位数不足\"}"
+    },
+    {
+      "name": "R100 向平台保留 uid 转账 ⇒ 400 LEDGER_RESERVED_UID",
+      "pass": true,
+      "detail": "{\"code\":\"LEDGER_RESERVED_UID\",\"status\":400,\"message\":\"目标账户无效\",\"response\":{\"error\":{\"code\":\"LEDGER_RESERVED_UID\",\"message\":\"目标账户无效\",\"i18n_key\":\"ledger.err.LEDGER_RESERVED_UID\",\"details\":{\"field\":\"toUid\",\"uid\":\"-1\"}}},\"raw\":\"目标账户无效\"}"
+    },
+    {
+      "name": "转给自己 ⇒ 400 LEDGER_SELF_TRANSFER",
+      "pass": true,
+      "detail": "{\"code\":\"LEDGER_SELF_TRANSFER\",\"status\":400,\"message\":\"不能转给自己\",\"response\":{\"error\":{\"code\":\"LEDGER_SELF_TRANSFER\",\"message\":\"不能转给自己\",\"i18n_key\":\"ledger.err.LEDGER_SELF_TRANSFER\",\"details\":{\"uid\":\"900001\",\"cid\":\"1\"}}},\"raw\":\"不能转给自己\"}"
+    },
+    {
+      "name": "R33 非白名单 kind 结算冻结 ⇒ LEDGER_UNKNOWN_KIND",
+      "pass": true,
+      "detail": "{\"code\":\"LEDGER_UNKNOWN_KIND\",\"status\":400,\"message\":\"不支持的账务类型\",\"response\":{\"error\":{\"code\":\"LEDGER_UNKNOWN_KIND\",\"message\":\"不支持的账务类型\",\"i18n_key\":\"ledger.err.LEDGER_UNKNOWN_KIND\",\"details\":{\"kind\":\"commission\",\"reason\":\"NOT_IN_FROZEN_SETTLE_WHITELIST\"}}},\"raw\":\"不支持的账务类型\"}"
+    },
+    {
+      "name": "R95 账单 keyset 分页可读",
+      "pass": true,
+      "detail": "2205:transfer:-23/0 | 2204:transfer:19/0 | 2199:transfer:-13/0 | 2198:transfer:11/0 | 2193:transfer:-5/0"
+    }
+  ],
+  "steps": [
+    {
+      "step": "getSystemCurrency()",
+      "result": {
+        "cid": "1",
+        "symbol": "$",
+        "name": "平台积分",
+        "icon_url": "",
+        "owner_uid": "0",
+        "decimals": 0,
+        "total_supply": "0",
+        "supply_cap": null,
+        "status": "listed",
+        "deposit_amount": "0",
+        "deposit_cid": "1",
+        "listed_at": "2026-09-27T03:48:15.617Z",
+        "time_created": "2026-09-27T03:48:15.617Z",
+        "time_updated": "2026-09-27T07:11:28.123Z"
+      }
+    },
+    {
+      "step": "mint 1000 $ → uid 900001（platform=true）",
+      "before": {
+        "900001": null
+      },
+      "after": {
+        "900001": {
+          "balance": "1000",
+          "frozen": "0"
+        }
+      },
+      "delta": {
+        "900001": {
+          "balance": "1000",
+          "frozen": "0",
+          "d_balance": "1000",
+          "d_frozen": "0"
+        }
+      },
+      "result": {
+        "txid": "2172",
+        "idempotent_replay": false,
+        "idempotency_key": "ops:smoke:uji1kf3:mint",
+        "entries": [
+          {
+            "txid": "2172",
+            "uid": "900001",
+            "kind": "mint",
+            "delta": "1000",
+            "frozen_delta": "0",
+            "balance_after": "1000",
+            "frozen_after": "0",
+            "key": "ops:smoke:uji1kf3:mint",
+            "ref": "system:1"
+          }
+        ],
+        "accounts": [
+          {
+            "uid": "900001",
+            "cid": "1",
+            "balance": "1000",
+            "frozen": "0"
+          }
+        ],
+        "extra": {
+          "supply_cap": null,
+          "supply_after": "1000",
+          "supply_before": "0"
+        }
+      }
+    },
+    {
+      "step": "mint 200 $ → uid 900003（幂等用例的发起方需要余额）",
+      "before": {
+        "900003": null
+      },
+      "after": {
+        "900003": {
+          "balance": "200",
+          "frozen": "0"
+        }
+      },
+      "delta": {
+        "900003": {
+          "balance": "200",
+          "frozen": "0",
+          "d_balance": "200",
+          "d_frozen": "0"
+        }
+      },
+      "result": {
+        "txid": "2173",
+        "idempotent_replay": false,
+        "idempotency_key": "ops:smoke:uji1kf3:mint-c",
+        "entries": [
+          {
+            "txid": "2173",
+            "uid": "900003",
+            "kind": "mint",
+            "delta": "200",
+            "frozen_delta": "0",
+            "balance_after": "200",
+            "frozen_after": "0",
+            "key": "ops:smoke:uji1kf3:mint-c",
+            "ref": "system:9"
+          }
+        ],
+        "accounts": [
+          {
+            "uid": "900003",
+            "cid": "1",
+            "balance": "200",
+            "frozen": "0"
+          }
+        ],
+        "extra": {
+          "supply_cap": null,
+          "supply_after": "1200",
+          "supply_before": "1000"
+        }
+      }
+    },
+    {
+      "step": "transfer 300 $ : 900001 → 900002",
+      "before": {
+        "900001": {
+          "balance": "1000",
+          "frozen": "0"
+        },
+        "900002": null
+      },
+      "after": {
+        "900001": {
+          "balance": "700",
+          "frozen": "0"
+        },
+        "900002": {
+          "balance": "300",
+          "frozen": "0"
+        }
+      },
+      "delta": {
+        "900001": {
+          "balance": "700",
+          "frozen": "0",
+          "d_balance": "-300",
+          "d_frozen": "0"
+        },
+        "900002": {
+          "balance": "300",
+          "frozen": "0",
+          "d_balance": "300",
+          "d_frozen": "0"
+        }
+      },
+      "result": {
+        "txid": "2174",
+        "idempotent_replay": false,
+        "idempotency_key": "ops:smoke:uji1kf3:transfer",
+        "entries": [
+          {
+            "txid": "2174",
+            "uid": "900001",
+            "kind": "transfer",
+            "delta": "-300",
+            "frozen_delta": "0",
+            "balance_after": "700",
+            "frozen_after": "0",
+            "key": "ops:smoke:uji1kf3:transfer",
+            "ref": "system:2"
+          },
+          {
+            "txid": "2175",
+            "uid": "900002",
+            "kind": "transfer",
+            "delta": "300",
+            "frozen_delta": "0",
+            "balance_after": "300",
+            "frozen_after": "0",
+            "key": "ops:smoke:uji1kf3:transfer#2",
+            "ref": "system:2"
+          }
+        ],
+        "accounts": [
+          {
+            "uid": "900001",
+            "cid": "1",
+            "balance": "700",
+            "frozen": "0"
+          },
+          {
+            "uid": "900002",
+            "cid": "1",
+            "balance": "300",
+            "frozen": "0"
+          }
+        ],
+        "extra": {
+          "amount": "300",
+          "symbol": "$"
+        }
+      }
+    },
+    {
+      "step": "freeze 100 $ : uid 900001（ref=market_order:900001）",
+      "before": {
+        "900001": {
+          "balance": "700",
+          "frozen": "0"
+        }
+      },
+      "after": {
+        "900001": {
+          "balance": "600",
+          "frozen": "100"
+        }
+      },
+      "delta": {
+        "900001": {
+          "balance": "600",
+          "frozen": "100",
+          "d_balance": "-100",
+          "d_frozen": "100"
+        }
+      },
+      "result": {
+        "txid": "2176",
+        "idempotent_replay": false,
+        "idempotency_key": "ops:smoke:uji1kf3:freeze",
+        "entries": [
+          {
+            "txid": "2176",
+            "uid": "900001",
+            "kind": "hold",
+            "delta": "-100",
+            "frozen_delta": "0",
+            "balance_after": "600",
+            "frozen_after": "0",
+            "key": "ops:smoke:uji1kf3:freeze",
+            "ref": "market_order:900001"
+          },
+          {
+            "txid": "2177",
+            "uid": "900001",
+            "kind": "hold",
+            "delta": "0",
+            "frozen_delta": "100",
+            "balance_after": "600",
+            "frozen_after": "100",
+            "key": "ops:smoke:uji1kf3:freeze#2",
+            "ref": "market_order:900001"
+          }
+        ],
+        "accounts": [
+          {
+            "uid": "900001",
+            "cid": "1",
+            "balance": "600",
+            "frozen": "100"
+          }
+        ],
+        "extra": {
+          "amount": "100",
+          "symbol": "$"
+        }
+      }
+    },
+    {
+      "step": "unfreeze 40 $ : uid 900001",
+      "before": {
+        "900001": {
+          "balance": "600",
+          "frozen": "100"
+        }
+      },
+      "after": {
+        "900001": {
+          "balance": "640",
+          "frozen": "60"
+        }
+      },
+      "delta": {
+        "900001": {
+          "balance": "640",
+          "frozen": "60",
+          "d_balance": "40",
+          "d_frozen": "-40"
+        }
+      },
+      "result": {
+        "txid": "2178",
+        "idempotent_replay": false,
+        "idempotency_key": "ops:smoke:uji1kf3:unfreeze",
+        "entries": [
+          {
+            "txid": "2178",
+            "uid": "900001",
+            "kind": "hold_release",
+            "delta": "0",
+            "frozen_delta": "-40",
+            "balance_after": "600",
+            "frozen_after": "60",
+            "key": "ops:smoke:uji1kf3:unfreeze",
+            "ref": "market_order:900001"
+          },
+          {
+            "txid": "2179",
+            "uid": "900001",
+            "kind": "hold_release",
+            "delta": "40",
+            "frozen_delta": "0",
+            "balance_after": "640",
+            "frozen_after": "60",
+            "key": "ops:smoke:uji1kf3:unfreeze#2",
+            "ref": "market_order:900001"
+          }
+        ],
+        "accounts": [
+          {
+            "uid": "900001",
+            "cid": "1",
+            "balance": "640",
+            "frozen": "60"
+          }
+        ],
+        "extra": {
+          "amount": "40",
+          "symbol": "$"
+        }
+      }
+    },
+    {
+      "step": "settleFrozen 60 $ : 900001(冻结) → 900002(可用)，kind=job_payout",
+      "before": {
+        "900001": {
+          "balance": "640",
+          "frozen": "60"
+        },
+        "900002": {
+          "balance": "300",
+          "frozen": "0"
+        }
+      },
+      "after": {
+        "900001": {
+          "balance": "640",
+          "frozen": "0"
+        },
+        "900002": {
+          "balance": "360",
+          "frozen": "0"
+        }
+      },
+      "delta": {
+        "900001": {
+          "balance": "640",
+          "frozen": "0",
+          "d_balance": "0",
+          "d_frozen": "-60"
+        },
+        "900002": {
+          "balance": "360",
+          "frozen": "0",
+          "d_balance": "60",
+          "d_frozen": "0"
+        }
+      },
+      "result": {
+        "txid": "2180",
+        "idempotent_replay": false,
+        "idempotency_key": "ops:smoke:uji1kf3:settle",
+        "entries": [
+          {
+            "txid": "2180",
+            "uid": "900001",
+            "kind": "job_payout",
+            "delta": "0",
+            "frozen_delta": "-60",
+            "balance_after": "640",
+            "frozen_after": "0",
+            "key": "ops:smoke:uji1kf3:settle",
+            "ref": "job:900001"
+          },
+          {
+            "txid": "2181",
+            "uid": "900002",
+            "kind": "job_payout",
+            "delta": "60",
+            "frozen_delta": "0",
+            "balance_after": "360",
+            "frozen_after": "0",
+            "key": "ops:smoke:uji1kf3:settle#2",
+            "ref": "job:900001"
+          }
+        ],
+        "accounts": [
+          {
+            "uid": "900001",
+            "cid": "1",
+            "balance": "640",
+            "frozen": "0"
+          },
+          {
+            "uid": "900002",
+            "cid": "1",
+            "balance": "360",
+            "frozen": "0"
+          }
+        ],
+        "extra": {
+          "kind": "job_payout",
+          "amount": "60",
+          "symbol": "$",
+          "payee_kind": "job_payout"
+        }
+      }
+    },
+    {
+      "step": "幂等：同一 key 调两次",
+      "idem_count_before": "0",
+      "idem_count_after_1st": "2",
+      "idem_count_after_2nd": "2",
+      "balances": {
+        "900001": {
+          "balance": "665",
+          "frozen": "0"
+        },
+        "900003": {
+          "balance": "175",
+          "frozen": "0"
+        }
+      },
+      "first": {
+        "txid": "2182",
+        "idempotent_replay": false,
+        "idempotency_key": "ops:smoke:uji1kf3:idem",
+        "entries": [
+          {
+            "txid": "2182",
+            "uid": "900003",
+            "kind": "transfer",
+            "delta": "-25",
+            "frozen_delta": "0",
+            "balance_after": "175",
+            "frozen_after": "0",
+            "key": "ops:smoke:uji1kf3:idem",
+            "ref": "system:3"
+          },
+          {
+            "txid": "2183",
+            "uid": "900001",
+            "kind": "transfer",
+            "delta": "25",
+            "frozen_delta": "0",
+            "balance_after": "665",
+            "frozen_after": "0",
+            "key": "ops:smoke:uji1kf3:idem#2",
+            "ref": "system:3"
+          }
+        ],
+        "accounts": [
+          {
+            "uid": "900003",
+            "cid": "1",
+            "balance": "175",
+            "frozen": "0"
+          },
+          {
+            "uid": "900001",
+            "cid": "1",
+            "balance": "665",
+            "frozen": "0"
+          }
+        ],
+        "extra": {
+          "amount": "25",
+          "symbol": "$"
+        }
+      },
+      "second": {
+        "txid": "2182",
+        "idempotent_replay": true,
+        "idempotency_key": "ops:smoke:uji1kf3:idem",
+        "entries": [
+          {
+            "txid": "2182",
+            "uid": "900003",
+            "kind": "transfer",
+            "delta": "-25",
+            "frozen_delta": "0",
+            "balance_after": "175",
+            "frozen_after": "0",
+            "key": "ops:smoke:uji1kf3:idem",
+            "ref": "system:3"
+          },
+          {
+            "txid": "2183",
+            "uid": "900001",
+            "kind": "transfer",
+            "delta": "25",
+            "frozen_delta": "0",
+            "balance_after": "665",
+            "frozen_after": "0",
+            "key": "ops:smoke:uji1kf3:idem#2",
+            "ref": "system:3"
+          }
+        ],
+        "accounts": [
+          {
+            "uid": "900003",
+            "cid": "1",
+            "balance": "175",
+            "frozen": "0"
+          },
+          {
+            "uid": "900001",
+            "cid": "1",
+            "balance": "665",
+            "frozen": "0"
+          }
+        ],
+        "extra": {}
+      }
+    },
+    {
+      "step": "余额不足（A → B 1e15 $）",
+      "rows_before": "0",
+      "rows_after": "0",
+      "balances_before": {
+        "900001": {
+          "balance": "665",
+          "frozen": "0"
+        },
+        "900002": {
+          "balance": "360",
+          "frozen": "0"
+        }
+      },
+      "balances_after": {
+        "900001": {
+          "balance": "665",
+          "frozen": "0"
+        },
+        "900002": {
+          "balance": "360",
+          "frozen": "0"
+        }
+      },
+      "error": {
+        "code": "LEDGER_INSUFFICIENT_BALANCE",
+        "status": 409,
+        "message": "可用余额不足",
+        "response": {
+          "error": {
+            "code": "LEDGER_INSUFFICIENT_BALANCE",
+            "message": "可用余额不足",
+            "i18n_key": "ledger.err.LEDGER_INSUFFICIENT_BALANCE",
+            "details": {
+              "cid": "1",
+              "uid": "900001",
+              "required": "1000000000000000",
+              "available": "665"
+            }
+          }
+        },
+        "raw": "可用余额不足"
+      }
+    },
+    {
+      "step": "总额守恒（10 笔串行转账）",
+      "transfers": [
+        {
+          "step": "900001→900002 10$",
+          "txid": "2187"
+        },
+        {
+          "step": "900002→900003 20$",
+          "txid": "2189"
+        },
+        {
+          "step": "900003→900001 30$",
+          "txid": "2191"
+        },
+        {
+          "step": "900001→900003 5$",
+          "txid": "2193"
+        },
+        {
+          "step": "900003→900002 7$",
+          "txid": "2195"
+        },
+        {
+          "step": "900002→900001 11$",
+          "txid": "2197"
+        },
+        {
+          "step": "900001→900002 13$",
+          "txid": "2199"
+        },
+        {
+          "step": "900002→900003 17$",
+          "txid": "2201"
+        },
+        {
+          "step": "900003→900001 19$",
+          "txid": "2203"
+        },
+        {
+          "step": "900001→900002 23$",
+          "txid": "2205"
+        }
+      ],
+      "totals_before": [
+        {
+          "cid": "1",
+          "total_balance": "1200",
+          "total_frozen": "0",
+          "total_net": "1200"
+        }
+      ],
+      "totals_after": [
+        {
+          "cid": "1",
+          "total_balance": "1200",
+          "total_frozen": "0",
+          "total_net": "1200"
+        }
+      ],
+      "drift": []
+    },
+    {
+      "step": "mint 400.00 smkuji1kf3（owner=900001 自铸）",
+      "before": {
+        "900001": null
+      },
+      "after": {
+        "900001": {
+          "balance": "40000",
+          "frozen": "0"
+        }
+      },
+      "delta": {
+        "900001": {
+          "balance": "40000",
+          "frozen": "0",
+          "d_balance": "40000",
+          "d_frozen": "0"
+        }
+      },
+      "result": {
+        "txid": "2208",
+        "idempotent_replay": false,
+        "idempotency_key": "ops:smoke:uji1kf3:unit-mint",
+        "entries": [
+          {
+            "txid": "2208",
+            "uid": "900001",
+            "kind": "mint",
+            "delta": "40000",
+            "frozen_delta": "0",
+            "balance_after": "40000",
+            "frozen_after": "0",
+            "key": "ops:smoke:uji1kf3:unit-mint",
+            "ref": "currency:99"
+          }
+        ],
+        "accounts": [
+          {
+            "uid": "900001",
+            "cid": "99",
+            "balance": "40000",
+            "frozen": "0"
+          }
+        ],
+        "extra": {
+          "supply_cap": "50000",
+          "supply_after": "40000",
+          "supply_before": "0"
+        }
+      }
+    },
+    {
+      "step": "自建单位 mint 授权/上限/decimals",
+      "currency": {
+        "cid": "99",
+        "symbol": "smkuji1kf3",
+        "name": "烟测自建单位",
+        "icon_url": "",
+        "owner_uid": "900001",
+        "decimals": 2,
+        "total_supply": "0",
+        "supply_cap": "50000",
+        "status": "draft",
+        "deposit_amount": "0",
+        "deposit_cid": "1",
+        "listed_at": null,
+        "time_created": "2026-09-27T07:31:04.765Z",
+        "time_updated": "2026-09-27T07:31:04.765Z"
+      },
+      "owner_mint": {
+        "txid": "2208",
+        "idempotent_replay": false,
+        "idempotency_key": "ops:smoke:uji1kf3:unit-mint",
+        "entries": [
+          {
+            "txid": "2208",
+            "uid": "900001",
+            "kind": "mint",
+            "delta": "40000",
+            "frozen_delta": "0",
+            "balance_after": "40000",
+            "frozen_after": "0",
+            "key": "ops:smoke:uji1kf3:unit-mint",
+            "ref": "currency:99"
+          }
+        ],
+        "accounts": [
+          {
+            "uid": "900001",
+            "cid": "99",
+            "balance": "40000",
+            "frozen": "0"
+          }
+        ],
+        "extra": {
+          "supply_cap": "50000",
+          "supply_after": "40000",
+          "supply_before": "0"
+        }
+      },
+      "over_cap": {
+        "code": "LEDGER_SUPPLY_CAP_EXCEEDED",
+        "status": 409,
+        "message": "已达该单位发行上限",
+        "response": {
+          "error": {
+            "code": "LEDGER_SUPPLY_CAP_EXCEEDED",
+            "message": "已达该单位发行上限",
+            "i18n_key": "ledger.err.LEDGER_SUPPLY_CAP_EXCEEDED",
+            "details": {
+              "cid": "99",
+              "symbol": "smkuji1kf3",
+              "requested": "20000",
+              "supply_cap": "50000",
+              "total_supply": "40000"
+            }
+          }
+        },
+        "raw": "已达该单位发行上限"
+      },
+      "unauthorized": {
+        "code": "LEDGER_UNAUTHORIZED_MINT",
+        "status": 403,
+        "message": "你没有发行该单位的权限",
+        "response": {
+          "error": {
+            "code": "LEDGER_UNAUTHORIZED_MINT",
+            "message": "你没有发行该单位的权限",
+            "i18n_key": "ledger.err.LEDGER_UNAUTHORIZED_MINT",
+            "details": {
+              "cid": "99",
+              "platform": false,
+              "actor_uid": "900002",
+              "owner_uid": "900001"
+            }
+          }
+        },
+        "raw": "你没有发行该单位的权限"
+      },
+      "decimals_overflow": {
+        "code": "LEDGER_DECIMALS_OVERFLOW",
+        "status": 400,
+        "message": "该单位支持的小数位数不足",
+        "response": {
+          "error": {
+            "code": "LEDGER_DECIMALS_OVERFLOW",
+            "message": "该单位支持的小数位数不足",
+            "i18n_key": "ledger.err.LEDGER_DECIMALS_OVERFLOW",
+            "details": {
+              "cid": "99",
+              "field": "amount",
+              "decimals": 2,
+              "provided": 3
+            }
+          }
+        },
+        "raw": "该单位支持的小数位数不足"
+      },
+      "reserved": {
+        "code": "LEDGER_RESERVED_UID",
+        "status": 400,
+        "message": "目标账户无效",
+        "response": {
+          "error": {
+            "code": "LEDGER_RESERVED_UID",
+            "message": "目标账户无效",
+            "i18n_key": "ledger.err.LEDGER_RESERVED_UID",
+            "details": {
+              "field": "toUid",
+              "uid": "-1"
+            }
+          }
+        },
+        "raw": "目标账户无效"
+      },
+      "self_transfer": {
+        "code": "LEDGER_SELF_TRANSFER",
+        "status": 400,
+        "message": "不能转给自己",
+        "response": {
+          "error": {
+            "code": "LEDGER_SELF_TRANSFER",
+            "message": "不能转给自己",
+            "i18n_key": "ledger.err.LEDGER_SELF_TRANSFER",
+            "details": {
+              "uid": "900001",
+              "cid": "1"
+            }
+          }
+        },
+        "raw": "不能转给自己"
+      },
+      "bad_kind": {
+        "code": "LEDGER_UNKNOWN_KIND",
+        "status": 400,
+        "message": "不支持的账务类型",
+        "response": {
+          "error": {
+            "code": "LEDGER_UNKNOWN_KIND",
+            "message": "不支持的账务类型",
+            "i18n_key": "ledger.err.LEDGER_UNKNOWN_KIND",
+            "details": {
+              "kind": "commission",
+              "reason": "NOT_IN_FROZEN_SETTLE_WHITELIST"
+            }
+          }
+        },
+        "raw": "不支持的账务类型"
+      }
+    },
+    {
+      "step": "账单调页（uid A 近 5 条）",
+      "page": [
+        {
+          "txid": "2205",
+          "kind": "transfer",
+          "delta": "-23",
+          "frozen_delta": "0"
+        },
+        {
+          "txid": "2204",
+          "kind": "transfer",
+          "delta": "19",
+          "frozen_delta": "0"
+        },
+        {
+          "txid": "2199",
+          "kind": "transfer",
+          "delta": "-13",
+          "frozen_delta": "0"
+        },
+        {
+          "txid": "2198",
+          "kind": "transfer",
+          "delta": "11",
+          "frozen_delta": "0"
+        },
+        {
+          "txid": "2193",
+          "kind": "transfer",
+          "delta": "-5",
+          "frozen_delta": "0"
+        }
+      ]
+    }
+  ]
+}

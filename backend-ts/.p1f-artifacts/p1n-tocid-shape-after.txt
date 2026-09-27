@@ -1,0 +1,95 @@
+WROTE /Users/kevin/bistro/seafood/backend-ts/.p1f-artifacts/p1n-tocid-shape-after.json
+{
+ "phase": "after",
+ "run": "I5JZU",
+ "ts": {
+  "A1_getCurrency_cid_0_number": {
+   "outcome": "thrown",
+   "code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "status": 400,
+   "details": {
+    "field": "cid",
+    "value": "0"
+   }
+  },
+  "A2_getCurrency_cid_0_string": {
+   "outcome": "thrown",
+   "code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "status": 400,
+   "details": {
+    "field": "cid",
+    "value": "0"
+   }
+  },
+  "A3_getCurrency_cid_neg5": {
+   "outcome": "thrown",
+   "code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "status": 400,
+   "details": {
+    "field": "cid",
+    "value": "-5"
+   }
+  },
+  "A4_getCurrency_cid_min": {
+   "outcome": "thrown",
+   "code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "status": 400,
+   "details": {
+    "field": "cid",
+    "value": "-9223372036854775808"
+   }
+  },
+  "A5_getCurrency_cid_abc": {
+   "outcome": "thrown",
+   "code": "LEDGER_AMOUNT_INVALID",
+   "status": 400,
+   "details": {
+    "field": "cid",
+    "reason": "NOT_DECIMAL_INTEGER"
+   }
+  },
+  "A6_getCurrency_cid_93_absent": {
+   "outcome": "no_throw",
+   "code": null,
+   "status": null,
+   "details": null
+  },
+  "A7_getCurrency_cid_absent": {
+   "outcome": "no_throw",
+   "code": null,
+   "status": null,
+   "details": null
+  },
+  "A8_transfer_cid_0": {
+   "outcome": "thrown",
+   "code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "status": 400,
+   "details": {
+    "field": "cid",
+    "value": "0"
+   }
+  },
+  "A9_transfer_cid_abc": {
+   "outcome": "thrown",
+   "code": "LEDGER_AMOUNT_INVALID",
+   "status": 400,
+   "details": {
+    "field": "cid",
+    "reason": "NOT_DECIMAL_INTEGER"
+   }
+  },
+  "A10_transfer_cid_absent": {
+   "outcome": "thrown",
+   "code": "LEDGER_CURRENCY_NOT_FOUND",
+   "status": 404,
+   "details": {
+    "cid": "999999999999"
+   }
+  }
+ },
+ "rows_touched": {
+  "ledger_entry_before": "74",
+  "ledger_entry_after": "74",
+  "wrote_nothing": true
+ }
+}

@@ -4,6 +4,7 @@
 - 质检人：Neng（独立第三方质检，未参与本模块实现）
 - 质检时间：2026-09-27（CST）
 - 质检对象：`/Users/kevin/bistro/seafood`（后端 `backend-ts`）
+- ⚠️ **改名注记（v0.4 追加；本报告的冻结读数一律原样保留、未改一个字符）**：本报告中出现的 `user` 表名（含冻结 JSON 读数里的表名键值、`public_base_tables` 列表中的表名）均为 **migration `0006_user_to_users.sql` 改名前**（`public.user` → `public.users`）的取证快照；**不得据此认为改名未落地**，也不得改写任何读数。
 - 冻结指纹（开工前复算，**与派单一致**）：
   - `backend-ts/src/ledger.ts` = `5b5163b85388e7bff043dd3d3be87e69e1e91d321d13b01a0119777ddf6e8fbb`
   - `backend-ts/src/ledger-errors.ts` = `b296c7f050c6c3aa2f18d68bf36b3265d9caa66d7fdbfdc0d2487c4c1c564d46`

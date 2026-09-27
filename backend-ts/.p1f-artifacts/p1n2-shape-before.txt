@@ -1,0 +1,163 @@
+WROTE /Users/kevin/bistro/seafood/backend-ts/.p1f-artifacts/p1n-tocid-shape-before-ID5Z7.json
+{
+ "phase": "before",
+ "run": "ID5Z7",
+ "ts": {
+  "A1_getCurrency_cid_0_number": {
+   "outcome": "thrown",
+   "code": "LEDGER_CURRENCY_NOT_FOUND",
+   "status": 404,
+   "details": {
+    "cid": "0"
+   }
+  },
+  "A2_getCurrency_cid_0_string": {
+   "outcome": "thrown",
+   "code": "LEDGER_CURRENCY_NOT_FOUND",
+   "status": 404,
+   "details": {
+    "cid": "0"
+   }
+  },
+  "A3_getCurrency_cid_neg5": {
+   "outcome": "thrown",
+   "code": "LEDGER_CURRENCY_NOT_FOUND",
+   "status": 404,
+   "details": {
+    "cid": "-5"
+   }
+  },
+  "A4_getCurrency_cid_min": {
+   "outcome": "thrown",
+   "code": "LEDGER_CURRENCY_NOT_FOUND",
+   "status": 404,
+   "details": {
+    "cid": "-9223372036854775808"
+   }
+  },
+  "A5_getCurrency_cid_abc": {
+   "outcome": "thrown",
+   "code": "LEDGER_AMOUNT_INVALID",
+   "status": 400,
+   "details": {
+    "field": "cid",
+    "reason": "NOT_DECIMAL_INTEGER"
+   }
+  },
+  "A6_getCurrency_cid_93_absent": {
+   "outcome": "no_throw",
+   "code": null,
+   "status": null,
+   "details": null
+  },
+  "A7_getCurrency_cid_absent": {
+   "outcome": "no_throw",
+   "code": null,
+   "status": null,
+   "details": null
+  },
+  "A8_transfer_cid_0": {
+   "outcome": "thrown",
+   "code": "LEDGER_CURRENCY_NOT_FOUND",
+   "status": 404,
+   "details": {
+    "cid": "0"
+   }
+  },
+  "A9_transfer_cid_abc": {
+   "outcome": "thrown",
+   "code": "LEDGER_AMOUNT_INVALID",
+   "status": 400,
+   "details": {
+    "field": "cid",
+    "reason": "NOT_DECIMAL_INTEGER"
+   }
+  },
+  "A10_transfer_cid_absent": {
+   "outcome": "thrown",
+   "code": "LEDGER_CURRENCY_NOT_FOUND",
+   "status": 404,
+   "details": {
+    "cid": "999999999999"
+   }
+  },
+  "A11_getCurrency_cid_empty": {
+   "outcome": "thrown",
+   "code": "LEDGER_AMOUNT_INVALID",
+   "status": 400,
+   "details": {
+    "field": "cid",
+    "reason": "NOT_DECIMAL_INTEGER"
+   }
+  },
+  "A12_transfer_cid_empty": {
+   "outcome": "thrown",
+   "code": "LEDGER_AMOUNT_INVALID",
+   "status": 400,
+   "details": {
+    "field": "cid",
+    "reason": "NOT_DECIMAL_INTEGER"
+   }
+  },
+  "A13_getCurrency_cid_missing": {
+   "outcome": "thrown",
+   "code": "LEDGER_AMOUNT_INVALID",
+   "status": 400,
+   "details": {
+    "field": "cid",
+    "reason": "BAD_TYPE"
+   }
+  },
+  "A14_transfer_cid_neg5": {
+   "outcome": "thrown",
+   "code": "LEDGER_CURRENCY_NOT_FOUND",
+   "status": 404,
+   "details": {
+    "cid": "-5"
+   }
+  }
+ },
+ "db_path": {
+  "P1_dbpath_cid_0": {
+   "ok": false,
+   "error_code": "LD007",
+   "error_message": "LEDGER_CURRENCY_NOT_FOUND",
+   "error_detail": "{\"cid\": \"0\"}"
+  },
+  "P2_dbpath_cid_neg5": {
+   "ok": false,
+   "error_code": "LD007",
+   "error_message": "LEDGER_CURRENCY_NOT_FOUND",
+   "error_detail": "{\"cid\": \"-5\"}"
+  },
+  "P3_dbpath_cid_abc": {
+   "ok": false,
+   "error_code": "LD016",
+   "error_message": "LEDGER_AMOUNT_INVALID",
+   "error_detail": "{\"field\": \"cid\", \"value\": \"abc\", \"reason\": \"NOT_DECIMAL_INTEGER\"}"
+  },
+  "P4_dbpath_cid_empty": {
+   "ok": false,
+   "error_code": "LD016",
+   "error_message": "LEDGER_AMOUNT_INVALID",
+   "error_detail": "{\"field\": \"cid\", \"value\": \"\", \"reason\": \"NOT_DECIMAL_INTEGER\"}"
+  },
+  "P5_dbpath_cid_absent": {
+   "ok": false,
+   "error_code": "LD007",
+   "error_message": "LEDGER_CURRENCY_NOT_FOUND",
+   "error_detail": "{\"cid\": \"999999999999\"}"
+  },
+  "P6_dbpath_cid_missing": {
+   "ok": false,
+   "error_code": "LD016",
+   "error_message": "LEDGER_AMOUNT_INVALID",
+   "error_detail": "{\"field\": \"cid\", \"reason\": \"MISSING\"}"
+  }
+ },
+ "rows_touched": {
+  "ledger_entry_before": "92",
+  "ledger_entry_after": "92",
+  "wrote_nothing": true
+ }
+}

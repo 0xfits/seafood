@@ -6,6 +6,7 @@
 > 与 `docs/seafood.master-plan.md` §3.1（领域模型草案，明确标注「正式口径由 Jing 落 spec」）冲突时，**以本文件为准**。
 > **制定者**：Jing（制度员） | **裁定者**：Kevin | **落库实现**：Kong | **质检**：Neng
 > **冻结日期**：2026-09-27（CST）
+> **改名注记（v0.4 追加；本快照的正文与读数逐字保留、未改一字）**：本快照中引用的身份表 `user`（含 `user.uID` 一类带引号驼峰写法）**已于 migration `0006_user_to_users.sql` 改名 `public.users`**（关联对象 `users_pk` / `users_evm_uniq` / `idx_users_evm_lower` / `users_uid_seq` 一并改名；**列名未动**，`uid` 为 `bigint`）。本文件是**历史版本快照**，仅加本注。
 
 ---
 

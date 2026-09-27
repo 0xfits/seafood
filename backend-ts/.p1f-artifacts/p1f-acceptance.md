@@ -1,6 +1,10 @@
 # P1i · 收口验收报告（Kong 实现方）
 
 > 状态：**恢复轮（P1j）取证 + F3 专项收尾（p1f-03）均已完成**；§2–§12 **全部已回填**（本轮补 §3 / §4 / §7 / §10 / §11）。
+> **〔P1n 回退轮，Kong，2026-09-27〕** 新增 **§13**：**派单前提更正**（`cid <= 0` 在 DB 侧从来不是 400，
+> 实测 `LD007`/404 ⇒ 上一轮把它改成 400 反而引入了原本不存在的 TS/DB 不一致）**+ `toCid` 逐字回退回 404**；
+> 同轮修 **§7.3 误格**（`lock_timeout_lockwait_raw_55P03_when_no_handler` 按落盘 json 改 `false`，加更正行）
+> 与 **§7.5**（chain 终局码两个合法值 + run-tagged 回读）。本轮**未改 DB 侧**、未新建迁移、未 commit。
 > 仓库：`/Users/kevin/bistro/seafood`　分支：`main`（不 commit / 不 push，Zang 做）
 > 上游单：P1f 修复轮 + F3 专项单。上一轮（R3-P1i-b）结束时库处于**撒谎态**（注册表记 `0004`、函数对象是首版 0005），
 > 本轮第一件事即**重新应用修改后的 0005**，把注册表与文件 sha256 对齐（见 §2）。
@@ -24,9 +28,11 @@
 | 7 | F1 修后同场景对比（`p1f-01 --assert`） | **✅ 14/14（§5）** |
 | 8 | F2 修后 52 例闭集自检（`p1f-02 --assert`） | **✅ 全绿（§6）** |
 | 9 | F3 修后读数（预算钳位 / 55P03 / 40P01 / 基础设施 / 6 持锁链总等待） | **✅ 全部取到（§7）** |
-| 13 | `p1i-forget-migration.ts` 加 `--force` 闸 + 头注释（裁定 D） | **✅ 见 §13**（拒绝路径实测：三道闸 exit=3、零连接、零删行） |
+| 13 | `p1i-forget-migration.ts` 加 `--force` 闸 + 头注释（裁定 D） | **✅ 见 §12 尾「闸门实测」块**（拒绝路径实测：三道闸 exit=3、零连接、零删行；原「见 §13」为悬空引用，§13 号位已被 P1n 回退轮占用） |
 | 10 | 回归：`tsc --noEmit` / `ledger-smoke` 29 / `ledger-smoke-db` | **✅ 见 §8** |
 | 11 | §11 判据 1/8 归零；R79 `lock_trace`；面板；基座 sha256 | **✅ 见 §9** |
+| P1n-1 | **回退轮**：`cid <= 0` 的**派单前提更正**（DB 侧从来不是 400，实测 `LD007`/404）+ `toCid` 逐字回退回 404 | **✅ 见 §13.1–13.4**（三段读数 + TS/DB 对拍表） |
+| P1n-2 | 本轮回归全部重跑（`tsc` / 两份冒烟 / F1 / F2）+ 取证脚本保留登记 | **✅ 见 §13.5 / §13.6**（F1 14/14、F2 三硬判据归零） |
 
 ## 1. 改动文件清单（逐字）
 
@@ -413,7 +419,23 @@ defect       ⇒ 500
 
 **判据**：`statement_timeout_bypasses_plpgsql_handler = true`、`stmt_timeout_catchable_by_plpgsql = false`、
 `lock_timeout_catchable_by_plpgsql = true`、`stmt_timeout_lockwait_raw_57014_when_no_handler = true`、
-`lock_timeout_lockwait_raw_55P03_when_no_handler = true`。
+`lock_timeout_lockwait_raw_55P03_when_no_handler = **false**`。
+
+> **F-2 更正：以落盘 json 为准** —— 本行原先写成 `true`，与本节**已引用的**落盘读数文件
+> `.p1f-artifacts/p1f03-f3-readings.json`（run `H262V`）里的判据值**不符**：该文件
+> `escape_isolation_57014.verdicts.lock_timeout_lockwait_raw_55P03_when_no_handler = **false**`
+> （对应 B4 组 `{ok:true, elapsed_ms:1523, caught:false, sqlstate_seen:null, message:null}`，
+> 即「无 handler 时 B4 **未**观测到逃逸的 `55P03`」）。故按落盘 json 改为 **`false`**，
+> 不静默改（此处保留更正轨迹）。
+>
+> **同判据的不确定性（另注，不藏）**：run-tagged 复跑 `.p1f-artifacts/p1f03-f3-readings-I5XPD.json`
+> （schema `0006`）同一判据读回 **`true`**（B4 `{ok:false, elapsed_ms:1372, caught:false,
+> sqlstate_seen:"55P03"}`）。⇒ 该子探针（「裸 `FOR UPDATE`/无 handler 时逃逸出的 SQLSTATE 是
+> `55P03` 还是空」）**两次运行读数不一致**，属**子探针级不确定性**，不是修复回归。
+> 与本报告结论相关的部分**不受影响**：`lock_timeout_catchable_by_plpgsql = true`（B2 `ZZ999`）在两次运行
+> **都是 true**，`lock_timeout` 可被 plpgsql 接住这一点稳定；而 `statement_timeout` 逃逸
+> （A1/A2/B1/B3 全组 `57014`）两次运行也一致。⇒ 断言口径应写成「`lock_timeout` **可**被 handler 接住、
+> `statement_timeout` **不可**」，**不得**把 B4 行当作确定性判据。
 
 ⇒ 口径（供 spec 同步）：**`57014` 不可能由函数内 §E 处理器转成 `LD026`**；DB 侧对它只有 §C 分类器可机读归类
 （`retryable` 桶 → `LEDGER_TX_TIMEOUT`），TS 侧把它归入 `LEDGER_TX_TIMEOUT`/503。函数内自证预算
@@ -435,23 +457,37 @@ defect       ⇒ 500
 
 ### 7.5 6 持锁链总等待（累计等待是否被钳到 ≤~10s）
 
-构造：6 个持锁者按 `spacing_ms=2600` 依次占用同一账户行（持锁者栅栏同步），调用方串行重试同一键
-`ops:p1k:GT4OR:chain6`，每次等锁前都重新 `ledger_arm_lock_timeout`。
+> **终局码有两个合法值（本节的断言纪律，先读这段再看表）**：chain 用例的**终局码有两个合法值** ——
+> **`LD025`**（末次等锁先撞 3s `lock_timeout`）或 **`LD026`**（10s 自证预算先耗尽）。
+> 两次运行各命中一个（见下表「终局码（回读）」行）⇒ **断言只针对「等待有界」，不得钉死某个码**。
+> 机读判据用落盘字段 `terminal_code_legal_set = ["LD025","LD026"]` / `terminal_code_in_legal_set` /
+> `wait_bounded` / `clamped_to_le_10s`，**不要**写 `terminal_sqlstate === 'LD025'` 这类硬钉断言
+> —— 那会在下一次运行随机变红（本报告 §7.5 上一轮漏的正是这次 run-tagged 回读，本轮补上）。
 
-| 项 | 读数 |
-| - | - |
-| 若**不**钳位（栅栏按 2600ms × 6 串行累积）的理论总等待 | `naive_total_wait_if_unclamped_ms = 15600` |
-| **修前**同场景实测参照 | `pre_fix_reference_ms = 15583` |
-| 旧宣称最坏值 | `legacy_claim_worst_ms = 48000` |
-| **本轮实测总等待（客户端）** | **`10897 ms`** |
-| DB 侧采样（`pg_stat_activity` 38 次取样） | `max_db_elapsed_ms = 10106`（≈ 预算 10000ms，即**单条语句被预算封顶**） |
-| 客户端额外开销 | `client_overhead_ms = 791` |
-| 终局 | `terminal_sqlstate = LD025` / `LEDGER_LOCK_TIMEOUT`，DETAIL `{"reason":"lock_timeout","pg_code":"55P03","retryable":true,"lock_timeout_ms":0}`、`rows_written_0=true` |
-| 判据 | `clamped_to_le_10s = true` |
+构造：6 个持锁者按 `spacing_ms=2600` 依次占用同一账户行（持锁者栅同步），调用方串行重试同一键
+（`ops:p1k:I5XPD:chain6` / `ops:p1k:H262V:chain6`），每次等锁前都重新 `ledger_arm_lock_timeout`。
 
-**诚实口径**：DB 侧单语句被预算钳在 **10106ms**（≤10s + 0.1s 收尾），客户端总耗时 **10897ms** 略超 10s
-0.9s，全部来自 791ms 的客户端/连接开销 —— 不是等待被累加。对照修前 `15583ms` 与旧宣称 `48000ms`，
-**累计等待的乘法效应确已被预算钳住**，但「可机读上限 10s」应理解为**语句级**而非端到端级（列入 §10）。
+**读数（两列并置；左列 = 上一轮新产出的 run-tagged 文件，本轮**回读**并写进本节）**：
+
+| 项 | `p1f03-f3-readings-I5XPD.json`（run `I5XPD`，schema `0006`） | `p1f03-f3-readings.json`（run `H262V`，schema `0005`） |
+| - | - | - |
+| 键 | `ops:p1k:I5XPD:chain6` | `ops:p1k:H262V:chain6` |
+| 持锁者 / 间距 | 6 / `2600ms` | 6 / `2600ms` |
+| 若**不**钳位的理论总等待 | `naive_total_wait_if_unclamped_ms = 15600` | `15600` |
+| **修前**同场景实测参照 | `pre_fix_reference_ms = 15583` | `15583` |
+| 旧宣称最坏值 | `legacy_claim_worst_ms = 48000` | `48000` |
+| **实测总等待（客户端）** | **`11853 ms`** | **`11283 ms`** |
+| DB 侧采样（`pg_stat_activity`） | `max_db_elapsed_ms = 10153`（`samples = 36`，`distinct_stmts = 1`） | `10142`（`samples = 39`，`distinct_stmts = 1`） |
+| 客户端额外开销 | `client_overhead_ms = 1700` | `1141` |
+| **终局码（回读）** | **`LD025`** / `LEDGER_LOCK_TIMEOUT`（`terminal_sqlstate` / `terminal_message`），DETAIL `{"reason":"lock_timeout","pg_code":"55P03","retryable":true,"lock_timeout_ms":0}` | **`LD026`** / `LEDGER_TX_TIMEOUT`，DETAIL `{"stage":"lock:wakeup","reason":"statement_budget_exhausted","budget_ms":10000,"retryable":true,"remaining_ms":-1}` |
+| 终局码合法集判据 | `terminal_code_legal_set = ["LD025","LD026"]`、`terminal_code_in_legal_set = true`、`wait_bounded = true` | 该轮脚本尚无此三格（⇒ 正是本轮要补的回读） |
+| 写入 | `rows_written_0 = true` | `true` |
+| 钳位判据 | `clamped_to_le_10s = true` | `true` |
+
+**诚实口径**：DB 侧单语句被预算钳在 **10153ms**（`I5XPD`）/ **10142ms**（`H262V`）（皆 ≤10s + 0.2s 收尾），
+客户端总耗时 **11853ms** / **11283ms**，超出 10s 的部分全部来自客户端/连接开销（1700ms / 1141ms）
+—— 不是等待被累加。对照修前 `15583ms` 与旧宣称 `48000ms`，
+**累计等待的乘法效应确已被预算钳住**，但「可机读上限 10s」应理解为**语句级**而非端到端级（列入 §10②）。
 
 ### 7.6 基础设施类 → 503（端到端）
 
@@ -628,3 +664,139 @@ F3 五项（预算钳位 / 基础设施 503 / `55P03` / `40P01` / 累计等待�
 **冒烟**：`ledger-smoke.ts`（run `ujg5ih4`，uid 900001/900002/900003 + `cid=1` 只读、`unit_cid=79` `smkujg5ih4`）、
 `ledger-smoke-db.ts`（run `g6ahk`，uid 920021/920022、`cid 80–83` `p1eS/p1eT/p1eE/p1eK`）。
 本轮**未**执行任何清理（`purge-test-data.ts` 未运行），上述数据全部留在库中，供 Zang 裁定后续清理。
+
+## 13. P1n 回退轮：派单前提更正 + `toCid` 逐字回退（Kong，2026-09）
+
+> 本节 = 本轮回退轮的完整登记与原始读数。**先读 13.1（前提更正），再看 13.2/13.3 的对拍表。**
+> 开工 HEAD：`35d030d master-plan v0.19 …`；本轮**不 commit / 不 push**；**未改 DB 侧**（13.1 末条）。
+
+### 13.1 派单前提更正（登记，不得静默）
+
+| # | 项 | 内容 |
+| - | - | - |
+| ① | 原派单前提 | Zang 原裁定「形状非法 = 400；形状合法但不存在 = 404」——**但派单把 `cid <= 0` 错归为「形状非法」**，并据此写下「**DB 侧已是 400**」这句 |
+| ② | 实测证伪 | DB 侧 `ledger_cid_arg('0')` / `ledger_cid_arg('-5')` **自 `0004` 起一直是** `LD007` / `LEDGER_CURRENCY_NOT_FOUND` / **404** / DETAIL `{"cid":"0"}` / `{"cid":"-5"}`。出处：`.p1f-artifacts/p1n-tocid-shape-before.json`（run `I0AUQ`，B1/B2）+ 本轮复测 `.p1f-artifacts/p1n-tocid-shape-revert-IE4VH.json`（B1/B2/B10 同读） |
+| ③ | 后果 | **改之前 TS 与 DB 两侧本来就一致（都是 404）**；上一轮把 `src/ledger.ts` 的 `toCid` 改成 `LEDGER_AMOUNT_NOT_POSITIVE/400`，**引入了一个原本不存在的不一致**（不是「修复偏差」） |
+| ④ | 本轮回退 | `toCid` 逐字回到 **404 `LEDGER_CURRENCY_NOT_FOUND` + `{ cid }`**（见 13.4）；注释块与文件头 ⑤ 条整段重写，**删除**「DB 侧已是 400」这一被证伪的说法 |
+| ⑤ | 重新裁定口径（本轮执行，不自行推导） | `cid`/`uid` 等**标识符**参数 —— **形状非法**（非十进制整数 / 空 / 超 bigint / 缺失）⇒ **400 `LEDGER_AMOUNT_INVALID`** + `details.reason ∈ {NOT_DECIMAL_INTEGER, NOT_STRING, OUT_OF_BIGINT_RANGE, MISSING}` + `details.field`（`LEDGER_AMOUNT_INVALID` 是历史码名，被兼用作「参数形状非法」码，靠 `details.field` 区分字段，**不新增错误码**）；**形状合法但该行不存在 ⇒ 404**，**`cid <= 0` 与负数属于这一类**（`currency.cid` 是正整数序列，构造上不存在） |
+| ⑥ | 上一轮注释里的**错配**一并删除 | 旧注释把 `ledger_parse_user_amount` 的非正分支当作「对齐目标」——那是**用户输入金额**解析器，与 **cid 标识符**闸无关（其实测 `LD017` 读数仅作对照保留在取证文件 B5） |
+| ⑦ | **DB 侧未改动、且无需改动** | `git status --porcelain backend-ts/migrations/` → **空输出**；`schema_migration` 仍 **6 行**（`0001`–`0006`，checksum 见 13.5）；`pg_proc` 函数体指纹：`ledger_cid_arg` = `md5(prosrc) 244789f42fcd035c6555faa7f3f9c1f7`（209 B）、`ledger_int_amount` = `840260502d07279f4cec6a7b1b771c1d`（963 B）、`ledger_post_event` = `0cf1bb98ee3a30da55b1620c309d5541`（42449 B）⇒ **它本来就是对的** |
+
+### 13.2 三段读数（同一脚本、同一组用例；三份文件都在，互不覆盖）
+
+| 段 | 文件 | run | TS 侧 `cid='0'` 读数（`getCurrency('0')` / `transfer` 同码） |
+| - | - | - | - |
+| ① **最初**（回退前的 before） | `.p1f-artifacts/p1n-tocid-shape-before.json` | `I0AUQ` | `LEDGER_CURRENCY_NOT_FOUND` / **404** / `{"cid":"0"}` |
+| ② **中间被改错的 400**（上一轮 after） | `.p1f-artifacts/p1n-tocid-shape-after.json` | `I5JZU` | `LEDGER_AMOUNT_NOT_POSITIVE` / **400** / `{"field":"cid","value":"0"}` |
+| ③ **回退后的 404**（本轮新文件，权威） | `.p1f-artifacts/p1n-tocid-shape-revert-IE4VH.json` | `IE4VH` | `LEDGER_CURRENCY_NOT_FOUND` / **404** / `{"cid":"0"}`（与 ① **逐字相同**） |
+
+- 本轮**两个 phase 都重跑过**，文件名一律带 run tag：`p1n-tocid-shape-before-ID5Z7.json`（run `ID5Z7`）、
+  `p1n-tocid-shape-after-IDNFQ.json`（run `IDNFQ`）—— 回退后**三个 phase 读数全部为 404**
+  （回退把契约恢复成最初的 404 ⇒ 同轮复现与 ①/③ 一致；② 的 400 只存在于上一轮的 `I5JZU` 文件里）。
+- 每份文件自带**不写账本自证**：`rows_touched = {ledger_entry_before:"92", ledger_entry_after:"92", wrote_nothing:true}`
+  （三个 phase 一致）；`env.schema_version = 0006`（`schema_migration` 6 行 0001–0006）。
+- 用例数：TS 14 例（A1–A14）、DB 直调 11 例（B1–B11）、DB 全路径 6 例（P1–P6），**三个 phase 同组同数**。
+- 原始 stdout：`.p1f-artifacts/p1n2-shape-before.txt` / `p1n2-shape-after.txt` / `p1n2-shape-revert.txt`。
+
+### 13.3 TS vs DB **逐字对拍**表（★ 验收对拍，第 1 组 = 5 个指定入参）
+
+TS = `src/ledger.ts` 公开写接口 `transfer`（uid `947001`→`947002`，`amount:'1'`）；
+DB = **全路径** `SELECT ledger_post_event($1::jsonb)`（同 op 形状 `transfer`，同 uid，键前缀 `ops:p1o:`）。
+读数出处：`.p1f-artifacts/p1n-tocid-shape-revert-IE4VH.json`（`ts_cases` × `db_path_cases`）。
+
+| `cid` 入参 | TS `transfer`（code / status / details） | DB `ledger_post_event`（SQLSTATE / MESSAGE / DETAIL） | HTTP | 判定 |
+| - | - | - | - | - |
+| `'0'` | `LEDGER_CURRENCY_NOT_FOUND` / **404** / `{"cid":"0"}` | `LD007` / `LEDGER_CURRENCY_NOT_FOUND` / `{"cid":"0"}` | 404 / 404 | ✅ **逐字一致** |
+| `'-5'` | `LEDGER_CURRENCY_NOT_FOUND` / **404** / `{"cid":"-5"}` | `LD007` / `LEDGER_CURRENCY_NOT_FOUND` / `{"cid":"-5"}` | 404 / 404 | ✅ **逐字一致** |
+| `'abc'` | `LEDGER_AMOUNT_INVALID` / **400** / `{"field":"cid","reason":"NOT_DECIMAL_INTEGER"}` | `LD016` / `LEDGER_AMOUNT_INVALID` / `{"field":"cid","value":"abc","reason":"NOT_DECIMAL_INTEGER"}` | 400 / 400 | ✅ 码 / status / `field` / `reason` 逐字一致；DB 侧多一个 `value` 键（**0004/0005 既有形态，非本轮引入**） |
+| `''` | `LEDGER_AMOUNT_INVALID` / **400** / `{"field":"cid","reason":"NOT_DECIMAL_INTEGER"}` | `LD016` / `LEDGER_AMOUNT_INVALID` / `{"field":"cid","value":"","reason":"NOT_DECIMAL_INTEGER"}` | 400 / 400 | ✅ 同上（空串走形状分支，两侧都不是 404） |
+| `'999999999999'` | `LEDGER_CURRENCY_NOT_FOUND` / **404** / `{"cid":"999999999999"}` | `LD007` / `LEDGER_CURRENCY_NOT_FOUND` / `{"cid":"999999999999"}` | 404 / 404 | ✅ **逐字一致**（形状闸放行 ⇒ 存在性判定给 404） |
+
+**第 2 组：同族边界与直调原语（同批取证）**
+
+| 入参 / 探针 | TS 读数 | DB 读数 | 判定 |
+| - | - | - | - |
+| `getCurrency(0)`（JSON number） | `LEDGER_CURRENCY_NOT_FOUND` / 404 / `{"cid":"0"}`（A1） | `ledger_cid_arg('0')` → `LD007` / `{"cid":"0"}`（B1） | ✅ 一致 |
+| `'-9223372036854775808'`（bigint 下界） | `LEDGER_CURRENCY_NOT_FOUND` / 404 / `{"cid":"-9223372036854775808"}`（A4） | `ledger_cid_arg` → `LD007` / `{"cid":"-9223372036854775808"}`（B10） | ✅ 一致 |
+| `'abc'` 直调原语 | （同上 A5/A9） | `ledger_int_amount('abc','cid')` → `LD016` / `NOT_DECIMAL_INTEGER`（B4） | ✅ 同码 |
+| `getCurrency('999999999999')`（读接口） | **`no_throw` / 返回 `null`**（A7） | `ledger_cid_arg('999999999999')` → **正常返回 `999999999999`**（B9，闸只判形状与 `<=0`） | ✅ 语义一致：读接口「没有就 null」、写接口「没有就 404」；闸本身只管形状与 `<=0` |
+| 分类器：`23503` FK | —（TS 由 `LEDGER_SQLSTATE_TO_CODE` 映射） | `ledger_error_for_sqlstate('23503','fk_account_cid')` → `{code:LEDGER_CURRENCY_NOT_FOUND, bucket:integrity, retryable:false}`（B6） | ✅ 仍归 404 类 |
+| **超 bigint：写接口** `'99999999999999999999999'` | `transfer` → `LEDGER_AMOUNT_INVALID` / **400** / `{"field":"cid","value":"99999999999999999999999","reason":"OVER_MAX_SINGLE_AMOUNT"}`（本轮补测） | `ledger_cid_arg` → `LD016` / `LEDGER_AMOUNT_INVALID` / 400 / `{"field":"cid","value":"99999999999999999999999","reason":"OVER_MAX_SINGLE_AMOUNT"}`（B11） | ✅ 码 / status / `reason` 一致（`value` 两侧都在） |
+| **超 bigint：读接口（🚨 本轮新发现，未修，登记）** | `getCurrency('99999999999999999999999')` → **原始 `22003` 逃出**：`code="22003"`、`message="value \"99999999999999999999999\" is out of range for type bigint"`（**不是** §14 已登记码，也未落 400/404） | 同上（B11 为 400） | ❌ **不一致**：读路径 `toAmount` 用 `BigInt`（无界）⇒ 十进制串直通 PG `WHERE cid = $1` ⇒ PG 22003 原样逃逸。**本轮未改**（越出「回退 `cid<=0`」范围，不自行推导）⇒ 见 13.7② |
+| **差异（登记）**：`cid` **缺失** | `LEDGER_AMOUNT_INVALID` / 400 / `{"field":"cid","reason":"BAD_TYPE"}`（A13，`undefined`） | `LEDGER_AMOUNT_INVALID` / 400 / `{"field":"cid","reason":"MISSING"}`（P6，payload 无 `cid` 键） | ⚠️ **reason 不同**（`BAD_TYPE` vs `MISSING`），双方都 400 ⇒ 见 13.7① |
+
+**读/写接口对称性（防误读）**：`cid <= 0` 在 **TS 读写两侧都是 404**（`toCid` 闸先抛，A2/A8）；
+而「形状合法但库中无此币」在 **TS 读接口是 `null`**（A7）、**写接口是 404**（A10）；DB 侧对应为
+`ledger_cid_arg` 放行 + 调用点存在性检查抛 `LD007`（P5）。⇒ 回退后两侧口径**完全对齐**。
+
+### 13.4 `toCid` 回退逐字 diff（事一）
+
+```diff
+ const toCid = (cid: Amount): bigint => {
+   const c = toAmount(cid, 'cid');
+-  if (c <= 0n) throw new LedgerError('LEDGER_AMOUNT_NOT_POSITIVE', { field: 'cid', value: c.toString() });
++  // cid <= 0 ⇒ 该币种不存在（currency.cid 为正整数序列）⇒ 404，与 DB 侧 ledger_cid_arg 逐字一致
++  if (c <= 0n) throw new LedgerError('LEDGER_CURRENCY_NOT_FOUND', { cid: c.toString() });
+   return c;
+ };
+```
+
+- 文件头「对外契约变化」**⑤ 条**整段重写：由「改为 400 / 与 `ledger_parse_user_amount` 逐字一致」
+  改为「**回到** 404 `LEDGER_CURRENCY_NOT_FOUND` + `{cid}`（与 `ledger_cid_arg` 逐字一致）+ 前提已被证伪 + 重新裁定口径」。
+- `toCid` 上方**注释块**整段重写：写明「形状非法 ⇒ 400 / 不存在 ⇒ 404（`cid<=0` 属此）」的分档、
+  上一轮错改的证伪链条、以及「DB 侧未改动且无需改动」。
+- 代码净变化 = **1 行**（`LEDGER_AMOUNT_NOT_POSITIVE+{field,value}` → `LEDGER_CURRENCY_NOT_FOUND+{cid}`），
+  注释变化 = 文件头 ⑤（+8 行）/ `toCid` 注释块（+26 行）。`git diff src/ledger.ts` 共 2 个 hunk。
+
+### 13.5 本轮回归读数（逐条原始读数；命令与退出码均**不取自管道之后**）
+
+| 项 | 命令 | 读数 |
+| - | - | - |
+| `tsc --noEmit` | `npx tsc --noEmit; echo $?` | `tsc_exit=0`、输出 **0 行** ⇒ **0 error** |
+| `ledger-smoke`（API 路径，P1a 契约回归） | `npx ts-node --transpile-only scripts/ledger-smoke.ts` | `api_exit=0`；`{"passed":29,"failed":0}`（run `ujif1ld`）→ `.p1f-artifacts/p1n2-smoke-api.txt` |
+| `ledger-smoke-db`（DB 直调） | `npx ts-node --transpile-only scripts/ledger-smoke-db.ts` | `db_exit=0`；`summary {"passed":11,"failed":0}`（run `ifvf8`）→ `.p1f-artifacts/p1n2-smoke-db.txt` |
+| **F1** | `npx ts-node --transpile-only scripts/p1f-01-f1-collision.ts --assert` | `f1_exit=0`；**14/14** verdict 全 `true`、`failures=[]`、`pass=true`（run `MUJIGVZ3`）→ `.p1f-artifacts/p1n2-01-f1.json` |
+| **F2** | `npx ts-node --transpile-only scripts/p1f-02-f2-malformed.ts --assert` | `f2_exit=0`；`pass=true`、`failures=[]`、52 例；**三硬判据仍归零**：`unmapped_escape=0`、`status_500=0`、`not_in_closed_set=0`；唯一 `accepted_200` 仍只有 `M32_from_uid_spaces`；`M14_cid_zero` = **404**（DB 侧口径未变）、`M15_cid_abc` = 400、`M16_cid_json_number` = 400（run `MUJIHGW8`）→ `.p1f-artifacts/p1n2-02-f2.json` |
+
+**DB 侧未被触碰（事一硬约束的机读证据）**：
+`git status --porcelain backend-ts/migrations/` → **空**；
+`schema_migration` 6 行 `0001 4f902d3c… / 0002 688b1935… / 0003 f268e030… / 0004 55fd1ce8… / 0005 4de12361… / 0006 4aa19b14…`；
+`pg_proc` 三函数 `md5(prosrc)` 见 13.1⑦。**本轮未新建任何迁移**。
+
+### 13.6 `scripts/p1n-00-cid-shape.ts` **保留**（登记）
+
+- 它是本组读数（13.2 三段 ①/②/③ + 13.3 对拍表）的**唯一可复跑取证脚本** ⇒ **保留，不删、不改名**。
+- 复跑：`npx ts-node --transpile-only scripts/p1n-00-cid-shape.ts --phase before|after|revert`；
+  落盘文件名**一律带 run tag**（`p1n-tocid-shape-<phase>-<RUN>.json`），**绝不覆盖**既有读数文件。
+- 分区纪律：uid **947xxx** / symbol 前缀 **p1o** / 键前缀 **`ops:p1o:*`**；脚本**不写账本**
+  （`rows_touched.wrote_nothing = true` 自证）；**绝不触碰 `cid=1` 与平台账户**。
+
+### 13.7 本轮新增未验证面（补充 §10，不掩饰）
+
+① **`cid` 缺失的 reason 分档**：TS 给 `BAD_TYPE`、DB 给 `MISSING`（A13 vs P6，双方都 400）。
+   重新裁定所列 reason 集里的 `MISSING` / `NOT_STRING` **目前只有 DB 侧产出**；TS 是否补这两个分档
+   **未改、未验**（本轮范围只到回退 `cid<=0`，**不自行推导**）。
+② **🚨 超 bigint 的 cid 在 TS 读路径漏闸（本轮新发现，未改、未验修复）**：
+   `getCurrency('99999999999999999999999')` ⇒ **原始 PG `22003` 原样逃出**
+   （`code="22003"`、`message="value \"99999999999999999999999\" is out of range for type bigint"`），
+   既不是 §14 已登记码，也不是 400/404 —— 与重新裁定「超 bigint ⇒ 400 `LEDGER_AMOUNT_INVALID`
+   + `reason=OUT_OF_BIGINT_RANGE`」**不符**；根因：`toCid`→`toAmount` 用 `BigInt(s)`（无界），
+   没有像 DB 侧 `ledger_int_amount` 那样做 19 位 + 真范围闸，读路径把十进制串直接交给 PG。
+   **写路径不受影响**：`transfer` 同入参 = 400 `LEDGER_AMOUNT_INVALID` +
+   `{"field":"cid","value":"99999999999999999999999","reason":"OVER_MAX_SINGLE_AMOUNT"}`（与 DB B11 同码同 reason）。
+   本轮**未动这段代码**（越出「回退 `cid<=0`」范围；不自行推导），仅登记供 Zang 裁定；
+   读数 = 本轮 `ts-node -e` 直测（未落盘文件），`getCurrency` 侧的 `22003` 逃逸**未做**多入参穷举。
+③ **§7.3 逃逸矩阵 B4 组读数跨运行不稳定**（`false` / `true`，见 §7.3 更正注）⇒ 该子探针不是确定性判据，
+   不要把 `lock_timeout_lockwait_raw_55P03_when_no_handler` 当硬断言。
+④ `getCurrency('0')` 的 `elapsed_ms` 为 0–1ms、`getCurrency('93')` 首次 967ms（冷连接），未做重复取样统计。
+
+### 13.8 本轮测试数据（uid 947xxx / symbol p1o / 键 `ops:p1o:*`）
+
+- 本轮 `p1n-00-cid-shape.ts` **未写任何账本行**（三个 phase 全部 `wrote_nothing=true`；各文件自证 `ledger_entry` 92 → 92）；
+  仅用 `947001`/`947002` 作**参数校验失败**的调用主体，**未建账户、未建币种、未落分录**。
+- 幂等键（全部落在**未执行**的失败路径，无行落库）：`ops:p1o:{RUN}:{cid0, cidabc, cidabsent, cidempty, cidneg5, dbpath:P1..P6}`。
+- 冒烟/F1/F2 沿用其脚本自身分区（`900001–900003` + `cid=1` / `920021/920022` / `942xxx`+`p1h`），与 P1n 分区不重叠。
+- **本轮末复读**：`ledger_entry` 总行数 = **166**；`idempotency_key LIKE 'ops:p1o:%'` = **0 行**；
+  `account WHERE uid IN (947001,947002)` = **0 行**（⇒ P1n 探针的账本贡献为 **0** 行；166 的增量全部来自**按设计**写入的回归套件，见 §12）。
+- 平台账户未被触碰：`cid=1` 上 uid `0 / -1 / -2 / -3` 仍全部 `balance=0 frozen=0`
+  （`cid=1` 上非零余额的 3 个账户是 `900001/900002/900003`，即冒烟用户，按设计）。
