@@ -1,0 +1,75 @@
+### p1f-03 / Zang 裁定 D：p1i-forget-migration.ts 闸门实测（2026-09-27T06:59:05Z）
+### A) script 0005 不带 --force
+{
+  "ok": false,
+  "refused": true,
+  "reason": "FORCE_REQUIRED",
+  "db_connections_opened": 0,
+  "rows_deleted": 0,
+  "version": "0005",
+  "hint": "必须显式带 --force 才会执行删行；且仅限**尚未交付**的迁移。已 push 的迁移一律新建后续迁移修正。",
+  "note": "闸门拒绝：什么都没做。本工具只能用于**尚未交付**的迁移；已 push 的迁移不得使用。"
+}
+EXIT_A=3
+### B) script 0004 --force（基座硬拒）
+{
+  "ok": false,
+  "refused": true,
+  "reason": "BASE_PROTECTED",
+  "db_connections_opened": 0,
+  "rows_deleted": 0,
+  "version": "0004",
+  "protected_versions": [
+    "0001",
+    "0002",
+    "0003",
+    "0004"
+  ],
+  "hint": "0001–0004 属基座，本工具只允许动 0005+（确需请显式 --allow-base，仍须 --force）",
+  "note": "闸门拒绝：什么都没做。本工具只能用于**尚未交付**的迁移；已 push 的迁移不得使用。"
+}
+EXIT_B=3
+### C) 无参
+{
+  "ok": false,
+  "refused": true,
+  "reason": "USAGE",
+  "db_connections_opened": 0,
+  "rows_deleted": 0,
+  "usage": "npx ts-node --transpile-only scripts/p1i-forget-migration.ts <version> --force",
+  "note": "闸门拒绝：什么都没做。本工具只能用于**尚未交付**的迁移；已 push 的迁移不得使用。"
+}
+EXIT_C=3
+### D) 拒绝路径后 schema_migration 逐行（应 5 行、0005 仍在）
+[
+ {
+  "version": "0001",
+  "ck": "4f902d3c4750",
+  "applied_at": "2026-09-27 03:48:15.617808+00"
+ },
+ {
+  "version": "0002",
+  "ck": "688b1935f6bc",
+  "applied_at": "2026-09-27 03:48:20.093949+00"
+ },
+ {
+  "version": "0003",
+  "ck": "f268e03075eb",
+  "applied_at": "2026-09-27 04:57:40.94416+00"
+ },
+ {
+  "version": "0004",
+  "ck": "55fd1ce8085b",
+  "applied_at": "2026-09-27 05:26:01.859398+00"
+ },
+ {
+  "version": "0005",
+  "ck": "4de12361cf7d",
+  "applied_at": "2026-09-27 06:34:21.897469+00"
+ }
+]
+EXIT_D=0
+### E) tsc --noEmit
+TSC_EXIT=0
+### F) 面板 /health
+health5788=200

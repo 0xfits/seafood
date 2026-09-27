@@ -1,25 +1,30 @@
 # P1i · 收口验收报告（Kong 实现方）
 
-> 状态：**恢复轮（P1j）已完成取证**；§2 / §5 / §6 / §8 / §9 / §12 已回填，其余节标「待 F3 专项单」。
+> 状态：**恢复轮（P1j）取证 + F3 专项收尾（p1f-03）均已完成**；§2–§12 **全部已回填**（本轮补 §3 / §4 / §7 / §10 / §11）。
 > 仓库：`/Users/kevin/bistro/seafood`　分支：`main`（不 commit / 不 push，Zang 做）
-> 上游单：P1f 修复轮。上一轮（R3-P1i-b）结束时库处于**撒谎态**（注册表记 `0004`、函数对象是首版 0005），
+> 上游单：P1f 修复轮 + F3 专项单。上一轮（R3-P1i-b）结束时库处于**撒谎态**（注册表记 `0004`、函数对象是首版 0005），
 > 本轮第一件事即**重新应用修改后的 0005**，把注册表与文件 sha256 对齐（见 §2）。
 > 本轮读数落盘于 `.p1f-artifacts/p1j-*`（`p1j-migrate-1/2.json`、`p1j01-f1-after.json`、
 > `p1j02-f2-after.json`、`p1j-smoke-api.txt`、`p1j-smoke-db.txt`、`p1j-tsc.txt`、`p1j-read.json`）。
+> **F3 专项（本轮）新增读数**：`.p1f-artifacts/p1f03-f3-readings.json`（六项超时/预算/基础设施实测）、
+> `.p1f-artifacts/p1f03-ts-four-changes.diff`（TS 四处改动逐字 diff）、
+> `.p1f-artifacts/p1f03-forget-gate.txt`（forget 工具三道闸的拒绝路径实测 + 拒绝后 `schema_migration` 逐行）。
+> 提交定位更正：本单原述 `f1f0f0f` **在库中不存在**，实际为 `8677e65`（父 `9a26a2f`），详见 §3 抬头。
 
 ## 0. 本轮范围与交付物
 
 | # | 项 | 状态 |
 | - | - | - |
 | 1 | `0005_ledger_event_root_key.sql` 应用 + 幂等（跑两次） | **✅ 已验（§2）** |
-| 2 | `src/ledger.ts` `normalizeIdempotencyKey` 字符集收紧（`#` / 控制字符） | 上轮已落笔 + `tsc 0 error`；逐字 before→after 见 §3（待 F3 专项单） |
-| 3 | `src/ledger.ts` `RETRYABLE_SQLSTATES += 'LD027'` | 同上 |
-| 4 | `src/ledger.ts` `findByKey` 改 `event_root_key` 精确归属 | 同上 |
-| 5 | `src/ledger-errors.ts` 基础设施类 → `LEDGER_TX_TIMEOUT` 503 | 同上 |
-| 6 | 新发现 M31（`amount` 超 R66 上限）/ M43（`1e5` 指数形式） | 修法已落 0005 §D/§D2；四例断言在 F2 中全绿（§6）；根因叙述见 §4（待 F3 专项单） |
+| 2 | `src/ledger.ts` `normalizeIdempotencyKey` 字符集收紧（`#` / 控制字符） | **✅ 见 §3①**（逐字 before→after + 归档 diff） |
+| 3 | `src/ledger.ts` `RETRYABLE_SQLSTATES += 'LD027'` | **✅ 见 §3②**；行为读数见 §7.2（仪表抓到 1×LD027 ⇒ 重试后恰好一次生效） |
+| 4 | `src/ledger.ts` `findByKey` 改 `event_root_key` 精确归属 | **✅ 见 §3③**（含修前前缀算术的逐字 before） |
+| 5 | `src/ledger-errors.ts` 基础设施类 → `LEDGER_TX_TIMEOUT` 503 | **✅ 见 §3④**；DB↔TS 同集同码对拍见 §7.6 |
+| 6 | 新发现 M31（`amount` 超 R66 上限）/ M43（`1e5` 指数形式） | **✅ 见 §4**（根因 + §D2 四条款逐条校对，含修前 `accepted_200` 基线） |
 | 7 | F1 修后同场景对比（`p1f-01 --assert`） | **✅ 14/14（§5）** |
 | 8 | F2 修后 52 例闭集自检（`p1f-02 --assert`） | **✅ 全绿（§6）** |
-| 9 | F3 修后读数（预算钳位 / 55P03 / 40P01 / 基础设施） | 待 F3 专项单（§7） |
+| 9 | F3 修后读数（预算钳位 / 55P03 / 40P01 / 基础设施 / 6 持锁链总等待） | **✅ 全部取到（§7）** |
+| 13 | `p1i-forget-migration.ts` 加 `--force` 闸 + 头注释（裁定 D） | **✅ 见 §13**（拒绝路径实测：三道闸 exit=3、零连接、零删行） |
 | 10 | 回归：`tsc --noEmit` / `ledger-smoke` 29 / `ledger-smoke-db` | **✅ 见 §8** |
 | 11 | §11 判据 1/8 归零；R79 `lock_trace`；面板；基座 sha256 | **✅ 见 §9** |
 
@@ -38,7 +43,23 @@
 `docs/**`；`frontend/**`；`schema_migration`（本轮**零**删除/改写行）；未新建 `0006`；
 `scripts/p1i-forget-migration.ts` 本轮**未执行**；未做 `user`→`users` 改名；未 commit/push。
 
-上轮已落笔、本轮仅回归验证（逐字 before→after 留待 §3 专项单）：`src/ledger.ts`、`src/ledger-errors.ts`。
+上轮已落笔、本轮补逐字 before→after 并归档 diff（见 §3）：`src/ledger.ts`、`src/ledger-errors.ts`。
+
+**F3 专项（本轮）新增/改动**：
+
+| 文件 | 动作 | 说明 |
+| - | - | - |
+| `scripts/p1f-03-f3-timeouts.ts` | **新建**（本轮证据主体） | 六项超时/预算/基础设施分类的「实测生效」原始读数；含运行时仪表（包 `Pool.prototype.query`，抓被 TS 重试循环吞掉的 LD027）、`pg_stat_activity` 语句级观察器与 DB 侧等待采样器 |
+| `scripts/p1i-forget-migration.ts` | 改（裁定 D） | 头注释加「**只用于尚未交付的迁移；已 push 的迁移一律不得使用**」；新增 `--force` 显式闸（不带即拒绝）；保留 `0001–0004` 硬拒；拒绝路径**不建池、不连库、不写行** |
+| `.p1f-artifacts/p1f03-f3-readings.json` | **新建**（读数落盘） | 本轮 F3 全部原始读数 |
+| `.p1f-artifacts/p1f03-ts-four-changes.diff` | **新建**（归档） | `git diff 9a26a2f 8677e65 -- backend-ts/src/{ledger,ledger-errors}.ts`，194 行，sha256 `5ef550a9…4563` |
+| `.p1f-artifacts/p1f03-forget-gate.txt` | **新建**（读数落盘） | forget 工具三道闸的拒绝实测 + 拒绝后 `schema_migration` 逐行 + `tsc --noEmit` |
+| `backend-ts/.p1f-artifacts/p1f-acceptance.md` | 改（回填） | 本轮补 §3/§4/§7（含 §7.1–7.7）/§10/§11，并补 §12 的 F3 数据与闸门实测块 |
+
+**未动**（逐字遵守硬约束）：`0001`–`0004`；质检资产 `qa-p1e-*.ts`/`qa-p1b-*.ts`/`p1c-*.ts`/`p1e-*.ts`；
+`docs/**`；`frontend/**`；**已存在的** `.p1f-artifacts/*` 原始读数文件（只新增，未覆盖）；
+`schema_migration`（本轮**零**删除/改写行，见 §12 闸门实测块 / `.p1f-artifacts/p1f03-forget-gate.txt`，仅执行了拒绝路径）；未新建 `0006`；
+未做 `user`→`users` 改名；未 commit/push；未重启任何面板托管服务。
 
 ## 2. 0005 应用与幂等
 
@@ -73,15 +94,187 @@
 （迁移后 06:34:57 **一次**，全部实验跑完后 06:40:24 **再一次**，两次均为 `0005`）。
 ⇒ 「注册表 / 文件 / 对外健康端点」三者一致，上一轮的撒谎态**已消除**。
 
-## 3. TS 侧四处改动（逐处 before → after）
+## 3. TS 侧四处改动（逐处 before → after，逐字）
 
-**待 F3 专项单**（上轮已落笔并 `tsc 0 error`；本轮只做回归取证，未改这三处所在文件）。
+**归档**：`.p1f-artifacts/p1f03-ts-four-changes.diff` —— 194 行，
+sha256 `5ef550a91cb05e98144b5e9ed5feaa57b91ca1d7652c17e6a265822e85694563`。
 
-## 4. 新发现 M31 / M43 处置
+**提交定位更正（重要，勿再引用错 hash）**：本单原述提交 `f1f0f0f` **在库中不存在** ——
+`git cat-file -t f1f0f0f` → `fatal: Not a valid object name f1f0f0f`。
+逐字定位（`git log -2 --format='%H %s'`）得到的实际链条是：
 
-**待 F3 专项单**（根因已在 `0005` §D2 抬头逐字记录：0004 的 `ledger_payload_amount` 以 `amount_units`
-优先 ⇒ `amount` 被静默忽略；修法 = 二选一 + `AMBIGUOUS_AMOUNT` + 指数形式显式 `EXPONENT_NOT_ALLOWED`。
-本轮改后**行为读数**在 §6 的 `amount_*` 四条断言里全绿）。
+```
+30ea111f682f2ed67dec61229f2489f50d3486b7 master-plan v0.16: 撒谎态消除 + §5.12 P1e 验收有条件通过（…唯一待闭合 D-03 超时实测）
+8677e65b50841e92bfaf1fc1e556202e1bf593aa fix(P1i): 修 P1e 质检 3 缺陷 —— 0005 事件根键 + 错误面归类 + 预算钳位
+9a26a2f   master-plan v0.15: §5.11 …
+```
+
+⇒ 本单说的「f1f0f0f」= **`8677e65`**（其父 `9a26a2f`），故存档命令为
+`git diff 9a26a2f 8677e65 -- backend-ts/src/ledger.ts backend-ts/src/ledger-errors.ts`。
+`--stat` 读数：`ledger-errors.ts` **+57**、`ledger.ts` **+71 / −6**，合计 **122 insertions, 6 deletions**。
+
+**① `src/ledger.ts` · `normalizeIdempotencyKey` 字符集收紧**（diff hunk `@@ -326,6 +357,18 @@`）
+
+before（修前 —— 前缀校验之后直接 `return key;`，再无任何字符集闸）：
+
+```ts
+  if (!IDEMPOTENCY_PREFIXES.some((p) => key.startsWith(p))) {
+    throw new LedgerError('LEDGER_IDEMPOTENCY_KEY_INVALID', { reason: 'PREFIX_REQUIRED', provided: key.slice(0, 8) });
+  }
+  return key;
+```
+
+after（新增两道闸，顺序固定 `TOO_LONG → PREFIX_REQUIRED → RESERVED_SEPARATOR → CONTROL_CHARACTER`）：
+
+```ts
+  // ③ `#` = 内部派生键分隔符 ⇒ 调用方一律不许用（否则可构造出等于他人派生键的键）
+  if (key.includes(DERIVED_KEY_SEPARATOR)) {
+    throw new LedgerError('LEDGER_IDEMPOTENCY_KEY_INVALID', {
+      reason: 'RESERVED_SEPARATOR',
+      value: key.slice(0, 40),
+      note: 'char # is reserved for internal derived entry keys (<key>#<i>)',
+    });
+  }
+  // ④ 控制字符（C0/DEL）不得出现在键里
+  if (CONTROL_CHAR_RE.test(key)) {
+    throw new LedgerError('LEDGER_IDEMPOTENCY_KEY_INVALID', { reason: 'CONTROL_CHARACTER' });
+  }
+  return key;
+```
+
+同 hunk 另新增两处常量（`DERIVED_KEY_SEPARATOR = '#'` 导出、
+`const CONTROL_CHAR_RE = /[\u0000-\u001F\u007F]/;`，注释逐字写明与 DB 侧 `v_key ~ '[[:cntrl:]]'` **同集**）。
+
+**② `src/ledger.ts` · `RETRYABLE_SQLSTATES += 'LD027'`**（diff hunk `@@ -869,8 +922,14 @@`）
+
+before（逐字）：
+
+```ts
+/** 可重试 SQLSTATE（R60：40001/40P01 同键重试；其余一律不重试） */
+const RETRYABLE_SQLSTATES = new Set(['40001', '40P01']);
+```
+
+after（逐字）：
+
+```ts
+const RETRYABLE_SQLSTATES = new Set(['40001', '40P01', 'LD027']);
+```
+
+（抬头注释逐字保留理由：「P1i：**必须**含 `'LD027'` …… 不同步这一项 = 死锁**不再被重试** = 行为回归（R60 形同失效）；
+`'40001'` / `'40P01'` 保留：它们是**函数之外**（如只读路径、非账本语句）仍可能逃出的原始码。」）
+
+**③ `src/ledger.ts` · `findByKey` 改 `event_root_key` 精确归属**（diff hunk `@@ -654,10 +697,20 @@`）
+
+before（逐字 —— 字符串前缀算术，正是 F1 根因）：
+
+```ts
+const findByKey = async (key: string, tx?: TxClient): Promise<LedgerEntryRecord[]> => {
+  const sql = `SELECT ${ENTRY_COLS} FROM ledger_entry
+               WHERE idempotency_key = $1
+                  OR left(idempotency_key, length($1) + 1) = $1 || '#'
+               ORDER BY txid ASC`;
+```
+
+after（逐字）：
+
+```ts
+  const sql = `SELECT ${ENTRY_COLS} FROM ledger_entry
+               WHERE event_root_key = $1
+                  OR (event_root_key IS NULL AND idempotency_key = $1)
+               ORDER BY txid ASC`;
+```
+
+（抬头注释逐字保留：「P1i（F1②）：改为按 `event_root_key` **精确归属** —— 删除了修前的
+`left(idempotency_key, length($1)+1) = $1 || '#'` **字符串前缀算术**。那正是 F1 的根因：它会把他**人事件**的派生行
+（`<别人根键>#<i>`）当成自己的重放结果返回。」；历史行仅按 `idempotency_key = $1` 精确等值兜底。）
+
+**④ `src/ledger-errors.ts` · 基础设施类 → `LEDGER_TX_TIMEOUT`（503）**（两个 hunk：`@@ -183,6 +183,50 @@` 与 `@@ -267,6 +316,14 @@`）
+
+before（修前：基础设施 SQLSTATE 全部落到文件末尾的 **500 类兜底** `LEDGER_TRANSACTION_REQUIRED`，
+与「代码缺陷（R108 必须告警）」混为一谈；`08P01` 亦然）：
+
+```ts
+const isSqlstate = (code: string): boolean => /^[0-9A-Z]{5}$/.test(code);
+// …（此处修前没有任何 infra 分类）
+```
+
+after（逐字，新增 infra 分类器 + 两处接线）：
+
+```ts
+export const infraSqlstateReason = (code: string): string | null => {
+  if (INFRA_SQLSTATE_REASONS[code] !== undefined) return INFRA_SQLSTATE_REASONS[code];
+  if (code === '08P01' || code === '57014') return null; // 见上方「两个排除项」
+  return INFRA_CLASS_REASONS[code.slice(0, 2)] ?? null;
+};
+```
+
+```ts
+    case '08P01': // 启动协议参数错误：我方连接配置缺陷（**不是**瞬时故障）⇒ 500 类（R108 告警）
+      return new LedgerError('LEDGER_TRANSACTION_REQUIRED', {
+        cause: '08P01', reason: 'protocol_violation',
+        error_name: 'ProtocolViolation', pg_code: '08P01',
+      });
+```
+
+```ts
+  // --- P1i（F3③）：基础设施类 ⇒ 503（可重试），**不得**落 500（见上方 INFRA_* 注释块）
+  const infraReason = infraSqlstateReason(code);
+  if (infraReason !== null) {
+    return new LedgerError('LEDGER_TX_TIMEOUT', {
+      reason: infraReason, pg_code: code, retryable: true, source: 'pg_infra_class',
+    });
+  }
+```
+
+`INFRA_SQLSTATE_REASONS` 九条逐字：`53300 too_many_connections` / `53200 out_of_memory` / `53100 disk_full` /
+`57P01 admin_shutdown` / `57P02 crash_shutdown` / `57P03 cannot_connect_now` / `58030 io_error` /
+`25006 read_only_transaction` / `3D000 database_unavailable`；
+`INFRA_CLASS_REASONS` 五条：`53 insufficient_resources` / `57 operator_intervention` /
+`58 system_error` / `08 connection_error` / `XX internal_error`。
+**行为读数**（非仅代码）：见 §7.6 的 DB↔TS「同集同码」对拍与 `53300 / XX000` 直接读数。
+
+## 4. 新发现 M31 / M43 处置（根因 + `0005` §D2 条文校对）
+
+### 4.1 根因（修前读数，`.p1f-artifacts/p1f02-before.txt`）
+
+`0004` 的 `ledger_payload_amount` 把 `amount_units` 放在**优先级首位**、命中即 `RETURN`
+⇒ 同一 payload 里的 `amount` 字段**一个字都不校验**。因此：
+
+| 用例 | 修前读数（逐字） |
+| - | - |
+| `M31_amount_over_cap`（`{amount_units:'1', amount:'1000000000000001'}`，超 R66/R71 单笔上限） | `"sqlstate": null, "ts_code": null, "status": null, "outcome": "accepted_200"` |
+| `M43_amount_exponent`（`{amount_units:'1', amount:'1e5'}`，指数形式） | `"sqlstate": null, "ts_code": null, "status": null, "outcome": "accepted_200"` |
+
+⇒ 两者都被**静默接受 200**（修前 `p1f02-before.txt` 摘要里正是 `M31_amount_over_cap  ✓ok`、`M43_amount_exponent  ✓ok`）。
+这两个用例也是修前 `unmapped_escape: 7` / `status_500: 7` 之外**独立的一类**缺陷：不报错、但契约被绕过。
+
+### 4.2 `0005` §D2 四条款逐条校对（条文 ↔ 实测）
+
+`0005` §D2 抬头逐字主张四条修法，逐条对拍（读数来自 §6 的 `p1j02-f2-after.json` `results`）：
+
+| §D2 条款（逐字） | 实测读数（逐字） | 判定 |
+| - | - | - |
+| ① 「两个字段**同时出现** ⇒ 400 `LEDGER_AMOUNT_INVALID` + reason=`AMBIGUOUS_AMOUNT`」 | `M31_amount_over_cap` → `sqlstate: LD016` / `db_message: LEDGER_AMOUNT_INVALID` / `status: 400` / `db_detail: {"note":"exactly one of amount (user decimal, R72) / amount_units (minimal unit, R66) is accepted","field":"amount","reason":"AMBIGUOUS_AMOUNT","provided":"amount,amount_units"}`；`M43_amount_exponent` 同码同 reason | **✅ 一致** |
+| ② 「单给 `amount` ⇒ `ledger_parse_user_amount`（锚定白名单 + 指数形式显式拒绝）」 | `M43b_amount_only_exponent` → `LD016` / 400 / `{"field":"amount","value":"1e5","reason":"EXPONENT_NOT_ALLOWED"}` | **✅ 一致**（`EXPONENT_NOT_ALLOWED` 逐字命中 §D 新增 reason） |
+| ③ 「单给 `amount_units` ⇒ `ledger_int_amount` + 真范围闸 + R71 单笔上限」 | `M01_amount_units_19x9` → 400 `OUT_OF_BIGINT_RANGE`（修前 22003/500）；`M08/M09` → 400 `NOT_DECIMAL_INTEGER`；`M39_amount_units_20_digits` → 400 `OVER_MAX_SINGLE_AMOUNT` | **✅ 一致** |
+| ④ 「缺失 / 非字符串 ⇒ 400（MISSING / NOT_STRING，逐格保留 0004 口径）」 | F2 闭集 52 例中相关各例全部 400 且 `in_closed_set=true`（§6） | **✅ 一致** |
+
+**§D2 抬头里一句「对外 API 零破坏」的旁证校对**（易被当成口号，故逐字核）：
+§D2 称「TS 侧 `amountToPayload` 恒只发其中一个 ⇒ 对外 API 零破坏」。
+逐字读源码 `src/ledger.ts:1099`：
+
+```ts
+const amountToPayload = (v: Amount, field = 'amount'): Record<string, string> =>
+  (typeof v === 'string' ? { amount: v } : { amount_units: toAmount(v, field).toString() });
+```
+
+⇒ 是三元表达式，**恒只产生 `amount` 或 `amount_units` 之一**；调用点 `postEvent`（`src/ledger.ts:1076`）为
+`if (input.amount !== undefined) Object.assign(payload, amountToPayload(input.amount));`。
+**§D2 的这句主张成立**（`AMBIGUOUS_AMOUNT` 闸不会打到 TS 自己的写路径）。
+
+**一处口径提示（不构成缺陷，供 spec 同步时留意）**：`M31b_amount_only_over_cap` 的 DETAIL `value` 是
+`"100000000000000100"`（= 用户十进制 `1000000000000001` × 10²），即 R72 语义下换算后的**最小单位**；
+报告与 spec 引用该值时勿误读成「入参原值」。
 
 ## 5. F1 修后同场景对比（`p1f-01 --assert`）
 
@@ -133,7 +326,183 @@ defect       ⇒ 500
 
 ## 7. F3 修后读数
 
-**待 F3 专项单**（6 持锁链总等待 / `55P03→LD025` / `40P01→LD027` / 基础设施 503 / 预算钳位）。
+**证据主体**：`scripts/p1f-03-f3-timeouts.ts`（新增）→ 原始读数 `.p1f-artifacts/p1f03-f3-readings.json`（1311 行，34,438 字节）；
+闸门读数 `.p1f-artifacts/p1f03-forget-gate.txt`。运行时间窗 `2026-09-27T06:56:10Z → 06:57:56Z`。
+
+**环境自证**（探针开头即取，防「测的不是 0005」）：`schema_version = 0005`；`schema_migration` 5 行
+（`4f902d3c4750 / 688b1935f6bc / f268e03075eb / 55fd1ce8085b / 4de12361cf7d`）；
+`statement_timeout=0`、`lock_timeout=0`、`deadlock_timeout=1s`（⇒ 后续所有超时**只能**来自函数内自证预算，不是会话 GUC）；
+`ledger_stmt_budget_ms()=10000`、`ledger_lock_timeout_ms()=3000`、`ledger_budget_remaining_ms(NULL)=10000`。
+
+### 7.1 `55P03` → `LD025`（伙伴持锁，直调 `ledger_post_event`）
+
+| 项 | 读数（逐字） |
+| - | - |
+| 键 | `ops:p1k:GT4OR:lkt` |
+| 最终 SQLSTATE | **`LD025`**（`final_sqlstate`） |
+| MESSAGE | `LEDGER_LOCK_TIMEOUT` |
+| DETAIL | `{"reason": "lock_timeout", "pg_code": "55P03", "retryable": true, "lock_timeout_ms": 3000}` |
+| 原始 `55P03` 是否逃出 | **`raw_55P03_escaped = false`**（DETAIL 里保留了 `pg_code=55P03` 作溯源，但 SQLSTATE 已不在 5 位类） |
+| 用时 | `elapsed_ms = 3208`（≈ 钳位后的 `lock_timeout 3000ms` + 开销） |
+| 写入 | `rows_written_0 = true`；`entries_for_key_after_fail = {by_root_key:0, debits:0, credits:0, exact_key_rows:0}` |
+| 余额逐字未变 | 源 `988000 → 988000`（`balance_unchanged=true`），对手 `1000` 不变 |
+| 同键重试 | 成功：`elapsed_ms=264`、`txid=2083`、`entries=2`（debit 1 / credit 1） |
+| 重试后归属 | `by_root_key=2`、`debits=1`、`credits=1`、`exact_key_rows=1` ⇒ **恰 2 条流水、debit 恰一次** |
+| 终态余额 | 源 `987000`、对手 `2000`（`idempotent_replay=false`，是新落账非重放） |
+
+### 7.2 `40P01` → `LD027`（真死锁；DB 直调 + 公开 API 双路径）
+
+**(a) 函数直调路径**（探针构造真死锁环；`pg_stat_database.deadlocks` 取样）：
+
+| 项 | 读数（逐字） |
+| - | - |
+| 死锁增量 | `deadlocks_before=26` → `deadlocks_after=27`，**`deadlocks_delta=1`**（⇒ 真触发了 PG 死锁检测器，非伪造） |
+| 被选为受害者前观测到等锁 | `lock_wait_seen={seen:true, waited_ms:839}`（`pg_stat_activity` 命中 `wait_event_type=Lock`，语句逐字 `SELECT ledger_post_event($1::jsonb) AS r`） |
+| 最终 SQLSTATE | **`LD027`** / `LEDGER_DEADLOCK_RETRY_EXHAUSTED` |
+| DETAIL | `{"reason": "deadlock_detected", "pg_code": "40P01", "retryable": true, "retry_owner": "caller", "retries_performed": 0}` |
+| `retries_performed=0` / `retry_owner=caller` | 两条判据均 `true`（⇒ 函数**不吞不重试**，重试主权显式交给调用方） |
+| 原始 `40P01` 逃出 | `raw_40P01_escaped = false` |
+| 写入 | `rows_written_0=true`；`entries_for_key` 全 0 |
+
+**(b) 公开 API 路径**（`postEvent` → HTTP → pooler，证明 TS 侧 `RETRYABLE_SQLSTATES` 含 `'LD027'` 真的把行为救回来）：
+
+| 项 | 读数（逐字） |
+| - | - |
+| 键 | `ops:p1k:GT4OR:dd2` |
+| 死锁增量 | `deadlocks_delta = 1`（等锁 `waited_ms=921`） |
+| 捕获到的**内部** DB 错误（服务端 instrumentation 抓取） | `code=LD027`、`LEDGER_DEADLOCK_RETRY_EXHAUSTED`、DETAIL 同 (a)、`at_ms_from_call_ms=1905` |
+| `captured_first_error_is_LD027` | `true`（⇒ TS 面对的**确实是** `LD027`，不是别的码） |
+| 重试是否真的重发 | `retry_actually_reissued = true`；`distinct_fn_statements_observed = 3`，`fn_statements` 逐字：`1867|06:56:37.485033` / `8426|06:56:37.498404` / `1867|06:56:39.483579`（第 3 条 = 同键重发） |
+| 最终结果 | `api_ok=true`、`api_txid=2085`、`api_entries_count=2`、`api_error=null`、`api_idempotent_replay=false`、`api_elapsed_ms=4068` |
+| **不双扣** | A `1000→900`、B `1000→1100`；`sum_delta_A=-100` / `sum_delta_B=+100`；`findByKey` 返回 2 行、debit 恰 1 ⇒ **`no_double_debit = true`** |
+| 归属列 | `by_root_key=2`、`exact_key_rows=1`（`findByKey` 走 `event_root_key` 精确归属） |
+
+> 关键对照：若 TS 未把 `'LD027'` 同步进 `RETRYABLE_SQLSTATES`，路径 (b) 会在第一次 `LD027` 时**直接抛 503**，
+> 而不会出现第 3 条同键函数语句。`retry_actually_reissued=true` 就是「R60 未被这次错误面归类改动打断」的机读证据。
+
+### 7.3 `57014` / 预算耗尽 → `LD026`
+
+**主读数走预算路径**（原因：见下方逃逸矩阵——`set_config('statement_timeout',…,true)` 对**自己那条语句**完全无效）：
+
+| 探测 | 读数（逐字） |
+| - | - |
+| `ledger_check_budget(逾期 deadline, 'unit_probe')` | `LD026` / `LEDGER_TX_TIMEOUT` / DETAIL `{"stage":"unit_probe","reason":"statement_budget_exhausted","budget_ms":10000,"retryable":true,"remaining_ms":-1001}` |
+| `ledger_arm_lock_timeout(逾期 deadline, …)` | 同码同 reason（`elapsed_ms=1033`） |
+| 充裕/空 deadline 不误报 | `null_deadline_no_error=true`、`future_deadline_no_error=true` |
+
+**真拿到 `57014` 的旁证读数**（先在**独立语句** `SET statement_timeout='600ms'`，`SHOW` 回读确认为 `600ms`，再调函数）：
+
+| 项 | 读数（逐字） |
+| - | - |
+| `final_sqlstate` | `57014` / `canceling statement due to statement timeout`（`elapsed_ms=869`） |
+| 是否被 §E 单一 EXCEPTION 处理器接住并转码 | **否** —— `raw_57014_escaped = true`，`final_detail_raw = null` |
+| 写入 | `rows_written_0 = true`（无半成品） |
+
+**逃逸矩阵（新发现，登记为 0005 的边界事实，不是回归）** —— 探针逐条新连接构造 5 组对照
+（`escape_isolation_57014`，`lock_holder_uid=944030`；DO 块捕获到 `WHEN OTHERS` 就改抛 `ZZ999`）：
+
+| 组 | 场景 | 观测 SQLSTATE | 被 plpgsql 接住？ |
+| - | - | - | - |
+| A1 | `statement_timeout` + 有 handler，**无等锁** | `57014` | ❌ |
+| A2 | `statement_timeout` + 无 handler，**无等锁** | `57014` | ❌ |
+| B1 | `statement_timeout` + 有 handler，**等锁中** | `57014` | ❌ |
+| B2 | `lock_timeout` + 有 handler，等锁中 | `ZZ999`（内层捕获 `55P03` 后改抛） | ✅ |
+| B3 | `statement_timeout` + 无 handler，等锁中 | `57014` | ❌ |
+| B4 | `lock_timeout` + 无 handler，等锁中 | `55P03` | ❌（本层无 handler，预期） |
+| B5 | `lock_timeout` + 裸 `FOR UPDATE`（不经函数） | 无错误（636ms 取到锁） | — |
+
+**判据**：`statement_timeout_bypasses_plpgsql_handler = true`、`stmt_timeout_catchable_by_plpgsql = false`、
+`lock_timeout_catchable_by_plpgsql = true`、`stmt_timeout_lockwait_raw_57014_when_no_handler = true`、
+`lock_timeout_lockwait_raw_55P03_when_no_handler = true`。
+
+⇒ 口径（供 spec 同步）：**`57014` 不可能由函数内 §E 处理器转成 `LD026`**；DB 侧对它只有 §C 分类器可机读归类
+（`retryable` 桶 → `LEDGER_TX_TIMEOUT`），TS 侧把它归入 `LEDGER_TX_TIMEOUT`/503。函数内自证预算
+（`ledger_check_budget` / `ledger_arm_lock_timeout`）才是 `LD026` 的**唯一**产生源，这正是 §B 的设计前提。
+
+### 7.4 预算钳位实测（`min(3s, 剩余)` 真的生效）
+
+调用 `ledger_arm_lock_timeout(<deadline>, <label>)` 后立刻 `SHOW lock_timeout`：
+
+| deadline | `lock_timeout` 读数 | `ledger_budget_remaining_ms` | 期望 | 判定 |
+| - | - | - | - | - |
+| `clock_timestamp() + 1s` | **`999ms`** | 999 | 1000ms | ✅（含调用开销 1ms） |
+| `clock_timestamp() + 1500ms` | **`1499ms`** | 1499 | 1500ms | ✅ |
+| `clock_timestamp() + 60s` | **`3s`** | 59999 | 3000ms（被 3s 常量封顶） | ✅ |
+| `NULL` | **`3s`** | 10000 | 3000ms | ✅ |
+| `clock_timestamp() - 1s` | 抛 **`LD026`** | -1001 | LD026 | ✅ |
+
+⇒ 充裕时钳到 **3000ms**、紧张时钳到**剩余毫秒**（逐 ms 派生）、逾期直接 `LD026`，三个分支均有独立读数。
+
+### 7.5 6 持锁链总等待（累计等待是否被钳到 ≤~10s）
+
+构造：6 个持锁者按 `spacing_ms=2600` 依次占用同一账户行（持锁者栅栏同步），调用方串行重试同一键
+`ops:p1k:GT4OR:chain6`，每次等锁前都重新 `ledger_arm_lock_timeout`。
+
+| 项 | 读数 |
+| - | - |
+| 若**不**钳位（栅栏按 2600ms × 6 串行累积）的理论总等待 | `naive_total_wait_if_unclamped_ms = 15600` |
+| **修前**同场景实测参照 | `pre_fix_reference_ms = 15583` |
+| 旧宣称最坏值 | `legacy_claim_worst_ms = 48000` |
+| **本轮实测总等待（客户端）** | **`10897 ms`** |
+| DB 侧采样（`pg_stat_activity` 38 次取样） | `max_db_elapsed_ms = 10106`（≈ 预算 10000ms，即**单条语句被预算封顶**） |
+| 客户端额外开销 | `client_overhead_ms = 791` |
+| 终局 | `terminal_sqlstate = LD025` / `LEDGER_LOCK_TIMEOUT`，DETAIL `{"reason":"lock_timeout","pg_code":"55P03","retryable":true,"lock_timeout_ms":0}`、`rows_written_0=true` |
+| 判据 | `clamped_to_le_10s = true` |
+
+**诚实口径**：DB 侧单语句被预算钳在 **10106ms**（≤10s + 0.1s 收尾），客户端总耗时 **10897ms** 略超 10s
+0.9s，全部来自 791ms 的客户端/连接开销 —— 不是等待被累加。对照修前 `15583ms` 与旧宣称 `48000ms`，
+**累计等待的乘法效应确已被预算钳住**，但「可机读上限 10s」应理解为**语句级**而非端到端级（列入 §10）。
+
+### 7.6 基础设施类 → 503（端到端）
+
+**(a) DB 侧分类器**（`ledger_error_for_sqlstate(state, constraint)`，40 个 SQLSTATE 抽样；`never_null=true`）：
+
+| SQLSTATE | `code` | `bucket` | `reason` | `retryable` |
+| - | - | - | - | - |
+| `53300` | `LEDGER_TX_TIMEOUT` | **`infra`** | `too_many_connections` | true |
+| `XX000` | `LEDGER_TX_TIMEOUT` | **`infra`** | `internal_error` | true |
+| `53100` / `53200` / `57P01` / `57P02` / `57P03` / `58030` / `3D000` / `25006` | `LEDGER_TX_TIMEOUT` | `infra` | `disk_full` / `out_of_memory` / `admin_shutdown` / `crash_shutdown` / `cannot_connect_now` / `io_error` / `database_unavailable` / `read_only_transaction` | true |
+| `57014` | `LEDGER_TX_TIMEOUT` | `retryable` | `statement_timeout_or_cancel` | true |
+| `55P03` | `LEDGER_LOCK_TIMEOUT` | `retryable` | `lock_timeout` | true |
+| `40P01` / `40001` | `LEDGER_DEADLOCK_RETRY_EXHAUSTED` | `retryable` | `deadlock_detected` / `serialization_failure` | true |
+| `08P01` | `LEDGER_TRANSACTION_REQUIRED` | **`defect`** | `protocol_violation` | false |
+| `28P01` | `LEDGER_TRANSACTION_REQUIRED` | `defect` | `unclassified_db_error` | false |
+| `23505`(无约束名) / `23514`(无约束名) / `23503` | 见 §6 | `integrity` / `input` | `UNIQUE_KEY_FAMILY_COLLISION` / `CHECK_VIOLATION` / `FK_VIOLATION` | false |
+
+**(b) TS 侧 `normalizeLedgerError` 直接 raw 读数**（真实错误对象 / 分类器输出喂入）：
+
+| SQLSTATE | TS `code` | TS `status` | `details` 关键字段 |
+| - | - | - | - |
+| `53300` | `LEDGER_TX_TIMEOUT` | **503** | `{reason:"too_many_connections", pg_code:"53300", retryable:true, source:"pg_infra_class"}` |
+| `XX000` | `LEDGER_TX_TIMEOUT` | **503** | `{reason:"internal_error", pg_code:"XX000", retryable:true, source:"pg_infra_class"}` |
+| `25006` / `53100` / `53200` / `57P01` / `57P02` / `57P03` / `58030` / `3D000` / `XX001` | `LEDGER_TX_TIMEOUT` | **503** | 各带 `source:"pg_infra_class"` |
+| `57014` | `LEDGER_TX_TIMEOUT` | 503 | `{}`（走 SQLSTATE 表分支，**不是** `infraSqlstateReason` —— 该函数显式返回 `null` 排除 `57014`） |
+| `40P01` | `LEDGER_DEADLOCK_RETRY_EXHAUSTED` | 503 | `{}`（可重试桶路径） |
+| `55P03` | `LEDGER_LOCK_TIMEOUT` | 503 | `{}` |
+| `08P01` | `LEDGER_TRANSACTION_REQUIRED` | **500** | `{cause:"08P01", reason:"protocol_violation", error_name:"ProtocolViolation", pg_code:"08P01"}` ⇒ **刻意排除在 infra 之外** |
+| `28P01` | `LEDGER_TRANSACTION_REQUIRED` | **500** | `{cause:"28P01", reason:"unclassified_pg_error"}` |
+| `23505`(带约束名 `ledger_idem_uniq`) | `LEDGER_IDEMPOTENCY_CONFLICT` | **409** | 与 DB 侧同日 |
+| `23514`(带约束名 `currency_supply_guard` / `account_bal_guard` / `ledger_kind_enum`) | `LEDGER_SUPPLY_CAP_EXCEEDED` 409 / `LEDGER_NEGATIVE_BALANCE_GUARD` 500 / `LEDGER_UNKNOWN_KIND` 400 | 同名同码 | — |
+| `23503`(带约束名 `fk_account_cid`) | `LEDGER_CURRENCY_NOT_FOUND` | **404** | — |
+
+**(c) DB↔TS 对拍判据**（18 组配对，含 12 组带约束名）：`all_bucket_status_ok = true`，
+`violations = []`（§C 的 bucket 纪律：`input⇒400` / `integrity⇒400|404|409` / `retryable|infra⇒503` / `defect⇒500`
+全部满足）；`all_codes_match = false`，唯一不符项是 **探针自造的假约束名 `other_unique`**
+（DB 只认已登记的 `ledger_idem_uniq`，故回落 400 `LEDGER_AMOUNT_INVALID`，而 TS 侧按 `constraint` 白名单
+不给 409）—— 属**探针输入**，非产品缺陷。
+**(d) 「500 类码只可能来自 defect 桶」**：`bucket_status_ok` 逐组 `true`，且 F2 侧独立判据
+`classifier_500_outside_defect_bucket = []`（§6）⇒ 两侧同结论。
+**(e) 面向用户的最终面**：`LEDGER_TX_TIMEOUT` → `status=503`、`message="系统繁忙，请稍后重试"`。
+
+### 7.7 本轮 F3 新增测试数据（uid `944xxx` / symbol `P1K…` / 键 `ops:p1k:*`）
+
+| 类型 | 值 |
+| - | - |
+| currency | `cid=92`、`symbol=P1KGT4OR`、`owner_uid=944001`、`decimals=2` |
+| account | `944001`（源，seed 后 988000）、`944002`（对手）、`944011–944014`、`944021–944026`、`944030`（持锁者），frozen 全 0 |
+| 幂等键 | `…:seed:mint`、`…:seed:fanout`、`…:lkt`、`…:lkt#2`（内部派生）、`…:dd1`、`…:dd2`、`…:stmt57014`、`…:chain6` |
+| 落账 | `txid 2083/2084`（7.1 重试）、`2085`（7.2b API）；未触碰 `cid=1` 与平台账户（只读） |
+| 收尾不变量 | `negatives=0`、`wrong_root_rows=0`、`ledger_entry` 总行 1566、`cid=1` 平台账户 `uid 0/-1/-2/-3` 全 `balance=0 frozen=0` |
 
 ## 8. 回归验收
 
@@ -167,16 +536,44 @@ defect       ⇒ 500
 
 ## 10. 未验证面（逐条，不掩饰）
 
-**待 F3 专项单**（另行列出：F3 预算钳位 / 基础设施 503 的真机读数、TS 四处改动的逐字 before→after、
-M31/M43 根因叙述）。本轮**未验证**（本轮范围外，不得读作已验）：
-① 0005 之外任何新迁移（本轮明确不建）；
-② `p1i-forget-migration.ts` 已禁用、未再执行，但其历史副作用只在本轮被「重新应用 0005」覆盖，
+F3 五项（预算钳位 / 基础设施 503 / `55P03` / `40P01` / 累计等待）**本轮已取得真机读数**（§7）。
+以下**仍未验证**（不得读作已验）：
+
+① **`57014` 的 DB 内转码**：`statement_timeout` **不可能**被 plpgsql handler 接住（§7.3 逃逸矩阵 5/5 组证实），
+   故「函数把 `57014` 转成 `LD026`」这条路径**不存在**；`LD026` 只能由 §B 预算助手产生。
+   若 spec 曾以此为前提，须按 §11 同步。
+② **端到端 10s 上限**：预算钳的是**单条语句**（DB 侧实测 10106ms），客户端总耗时实测 10897ms（+791ms 客户端开销）。
+   「端到端 ≤10s」**未验证**，也未实现。
+③ **持锁链只在单账户单键规模验证**：6 持锁者 / 1 键；更高并发、多账户交叉、跨 `currency` 的累计等待未取读数。
+④ **池化路径的连接级超时**：pooler 端点拒绝 `options` 启动参数（`08P01`，上轮亲测），
+   故连接级 `statement_timeout` 在池化路径**不可用**；本轮所有预算探测均走非池化/直连语义，池化下的等价性未验证。
+⑤ **`xact` 级 `set_config(..., true)` 对自身语句无效**已在 §7.3 登记为坑，未探究其它 GUC 注入方式。
+⑥ **0005 之外任何新迁移**：本轮明确不建，未验证。
+⑦ **`p1i-forget-migration.ts` 的「删除路径」**：本轮只验证**拒绝路径**（`.p1f-artifacts/p1f03-forget-gate.txt` 读数 A/B/C：`db_connections_opened=0`、
+   `rows_deleted=0`、exit 3）。真删除路径**未执行**（硬约束禁止）；其历史副作用只在本轮被「重新应用 0005」覆盖，
    未经独立负向验证（无法回头再验，如实登记）。
+⑧ **死锁路径的 `pg_stat_database.deadlocks` 计数是全库口径**：`26→27`（直调）与 `+1`（API）均在本库无其它
+   并发写负载时取样，未做长时窗漂移校正。
+⑨ **`ledger_error_for_sqlstate` 的「never NULL」** 只在 **40 个 SQLSTATE 抽样**上验证，非全定义域穷举。
 
 ## 11. 需 spec 同步的行清单
 
-**待 F3 专项单**。（已知需同步项：`0005` §C 的 bucket 纪律表述、§D2 `AMBIGUOUS_AMOUNT`、
-§D 的 `EXPONENT_NOT_ALLOWED`、`event_root_key` 列与 `ledger_event_root_guard`。）
+逐条（行 = spec/迁移条文；读数出处 = 本报告 §）：
+
+| # | 需同步的行 | 现状 | 应写成 | 出处 |
+| - | - | - | - | - |
+| S1 | `0005` §C 的 bucket 纪律表述 | 修前口径把 `integrity` 一律钉成 400，与 §14.1 冻结的 `404/409` 冲突 | `input⇒400 类` / `integrity⇒该约束对应的 400\|404\|409（绝不 500）` / `retryable\|infra⇒503` / `defect⇒500`；并追加可机读判据「**500 类码只可能来自 `defect` 桶**」 | §6、§7.6(c)(d) |
+| S2 | `0005` §D2 新增 reason `AMBIGUOUS_AMOUNT` | 两字段同时出现修前被静默接受 200 | 400 `LEDGER_AMOUNT_INVALID` + `reason=AMBIGUOUS_AMOUNT`，逐字 | §4.2①、§6 |
+| S3 | `0005` §D 新增 reason `EXPONENT_NOT_ALLOWED` | `amount:'1e5'` 修前静默接受 | 400 + `reason=EXPONENT_NOT_ALLOWED`（`ledger_parse_user_amount` 锚定白名单） | §4.2② |
+| S4 | `event_root_key` 列 + `ledger_event_root_guard` 结构守卫 | spec 无此列、无守卫 | 列 + 守卫约束 + 「归属列优先、历史行 `idempotency_key` 精确等值兜底」的查询口径 | §3③、§5、§9 |
+| S5 | `0005` §B 预算助手语义 | 未写明 `LD026` 的**唯一**产生源与「剩余≤0 ⇒ 直抛」 | `ledger_stmt_budget_ms()=10000` / `ledger_lock_timeout_ms()=3000` / `ledger_arm_lock_timeout` = `min(3s, 剩余)` / 逾期 ⇒ `LD026 reason=statement_budget_exhausted` | §7.3、§7.4 |
+| S6 | **新增行**：`statement_timeout` 绕过 plpgsql 处理器 | spec 隐含「§E 单一处理器接住一切」 | 显式写明：`set_config('statement_timeout',…,true)` 对自身语句无效；`statement_timeout` **不被** plpgsql `EXCEPTION` 接住（`57014` 原样逃出）；只有 `lock_timeout` 可接（`55P03`） | §7.3 逃逸矩阵 |
+| S7 | `§14.1` 已登记码表 | 缺 `LD025` / `LD026` / `LD027` 三条 | `LD025=LEDGER_LOCK_TIMEOUT(503)` / `LD026=LEDGER_TX_TIMEOUT(503)` / `LD027=LEDGER_DEADLOCK_RETRY_EXHAUSTED(503)` | §7.1–7.3、§7.6 |
+| S8 | R60 重试口径 | 只写 `40001/40P01` | 追加 `LD027`（TS `RETRYABLE_SQLSTATES` 必须含 `'LD027'`，否则死锁不再重试 = R60 形同失效）；`40001/40P01` 保留为函数外原始码 | §3②、§7.2(b) |
+| S9 | TS 键字符集闸 | 只写前缀要求 | 追加：禁 `#`（`RESERVED_SEPARATOR`，内部派生键分隔符）、禁 C0/DEL（`CONTROL_CHARACTER`），与 DB 侧 `v_key ~ '[[:cntrl:]]'` 同集 | §3①、§5 |
+| S10 | 基础设施类归 503 | 修前 infra SQLSTATE 全落 500 兜底 | `53300/53200/53100/57P01/57P02/57P03/58030/25006/3D000` + 类前缀 `53/57/58/08/XX` ⇒ `LEDGER_TX_TIMEOUT` 503；**显式排除** `08P01`（⇒500 缺陷告警）与 `57014`（移交 SQLSTATE 表分支） | §3④、§7.6(b) |
+| S11 | `M31b_amount_only_over_cap` DETAIL `value` 语义 | 易被读成「入参原值」 | 注明其为 R72 语义下换算后的**最小单位**（`1000000000000001` × 10² = `"100000000000000100"`） | §4.2 末注 |
+| S12 | 「最坏等待」声明 | 旧宣称最坏 48000ms | 改为**语句级**预算上限 10000ms（实测 DB 侧 10106ms；端到端含客户端开销另计） | §7.5、§10② |
 
 ## 12. 本轮新建测试数据清单
 
@@ -207,6 +604,26 @@ M31/M43 根因叙述）。本轮**未验证**（本轮范围外，不得读作�
 | currency | `cid=78`，`symbol=P1HMUJG3WBO`，owner `942001`，`total_supply=1000000` |
 | account | `942001 / 942002 / 78` |
 | 幂等键 | `ops:p1h:MUJG3WBO:seed`、`…:seed2`、`…:mal:*`（52 例里成功落账的极小集合） |
+
+**F3 专项（本轮 run `GT4OR`，`scripts/p1f-03-f3-timeouts.ts`）**
+
+| 类型 | 值 |
+| - | - |
+| currency | `cid=92`，`symbol=P1KGT4OR`，`owner_uid=944001`，`decimals=2` |
+| account | `944001`（988000 → 987000）、`944002`（1000 → 2000）、`944011–944014`、`944021–944026`、`944030`（持锁者），frozen 全 0 |
+| 幂等键 | `ops:p1k:GT4OR:{seed:mint, seed:fanout, lkt, lkt#2, dd1, dd2, stmt57014, chain6}` |
+| ledger_entry | `txid 2083/2084`（7.1 同键重试）、`2085`（7.2b API 路径）；失败尝试均 `rows_written_0=true` |
+| 特别登记 | `…:lkt#2` 为**内部派生行**（`event_root_key=ops:p1k:GT4OR:lkt`），用于验证「恰 2 条流水、debit 恰一次」 |
+
+**闸门实测（Zang 裁定 D，`scripts/p1i-forget-migration.ts` 加固后）**
+
+| 场景 | 读数 |
+| - | - |
+| `0005` 不带 `--force` | `{ok:false, refused:true, reason:"FORCE_REQUIRED", db_connections_opened:0, rows_deleted:0}`，`EXIT_A=3` |
+| `0004 --force` | `{refused:true, reason:"BASE_PROTECTED", protected_versions:[0001..0004]}`，`EXIT_B=3` |
+| 无参 | `{refused:true, reason:"USAGE"}`，`EXIT_C=3` |
+| 拒绝后 `schema_migration` 逐行 | **仍 5 行**（0001–0005 全在，`4de12361cf7d` 未动），`EXIT_D=0` |
+| 收尾 | `TSC_EXIT=0`；面板 `health5788=200` |
 
 **冒烟**：`ledger-smoke.ts`（run `ujg5ih4`，uid 900001/900002/900003 + `cid=1` 只读、`unit_cid=79` `smkujg5ih4`）、
 `ledger-smoke-db.ts`（run `g6ahk`，uid 920021/920022、`cid 80–83` `p1eS/p1eT/p1eE/p1eK`）。

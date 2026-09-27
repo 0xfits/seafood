@@ -1,0 +1,1312 @@
+{
+ "run": "H262V",
+ "symbol": "P1KH262V",
+ "started_at": "2026-09-27T07:03:12.199Z",
+ "env": {
+  "schema_version": {
+   "v": "0005"
+  },
+  "schema_migration_rows": [
+   {
+    "version": "0001",
+    "ck": "4f902d3c4750"
+   },
+   {
+    "version": "0002",
+    "ck": "688b1935f6bc"
+   },
+   {
+    "version": "0003",
+    "ck": "f268e03075eb"
+   },
+   {
+    "version": "0004",
+    "ck": "55fd1ce8085b"
+   },
+   {
+    "version": "0005",
+    "ck": "4de12361cf7d"
+   }
+  ],
+  "gucs": [
+   {
+    "statement_timeout": "0",
+    "lock_timeout": "0",
+    "deadlock_timeout": "1s"
+   }
+  ],
+  "fns": [
+   {
+    "proname": "ledger_arm_lock_timeout",
+    "args": "p_deadline timestamp with time zone, p_what text"
+   },
+   {
+    "proname": "ledger_budget_remaining_ms",
+    "args": "p_deadline timestamp with time zone"
+   },
+   {
+    "proname": "ledger_check_budget",
+    "args": "p_deadline timestamp with time zone, p_stage text"
+   },
+   {
+    "proname": "ledger_error_for_sqlstate",
+    "args": "p_state text, p_constraint text"
+   },
+   {
+    "proname": "ledger_lock_timeout_ms",
+    "args": ""
+   },
+   {
+    "proname": "ledger_post_event",
+    "args": "payload jsonb"
+   },
+   {
+    "proname": "ledger_stmt_budget_ms",
+    "args": ""
+   }
+  ],
+  "budget_constants": {
+   "stmt_budget_ms": "10000",
+   "lock_timeout_ms": "3000",
+   "remaining_null": "10000"
+  }
+ },
+ "test_data": {
+  "currency": {
+   "cid": "93",
+   "symbol": "P1KH262V",
+   "owner_uid": 944001,
+   "decimals": 2
+  },
+  "seed_mint": {
+   "key": "ops:p1k:H262V:seed:mint",
+   "ok": true,
+   "error": null
+  },
+  "seed_fanout": {
+   "key": "ops:p1k:H262V:seed:fanout",
+   "ok": true,
+   "error": null,
+   "accounts": 13
+  },
+  "balances_after_seed": [
+   {
+    "uid": "944001",
+    "balance": "988000",
+    "frozen": "0"
+   },
+   {
+    "uid": "944002",
+    "balance": "1000",
+    "frozen": "0"
+   },
+   {
+    "uid": "944011",
+    "balance": "1000",
+    "frozen": "0"
+   },
+   {
+    "uid": "944012",
+    "balance": "1000",
+    "frozen": "0"
+   },
+   {
+    "uid": "944013",
+    "balance": "1000",
+    "frozen": "0"
+   },
+   {
+    "uid": "944014",
+    "balance": "1000",
+    "frozen": "0"
+   },
+   {
+    "uid": "944021",
+    "balance": "1000",
+    "frozen": "0"
+   },
+   {
+    "uid": "944022",
+    "balance": "1000",
+    "frozen": "0"
+   },
+   {
+    "uid": "944023",
+    "balance": "1000",
+    "frozen": "0"
+   },
+   {
+    "uid": "944024",
+    "balance": "1000",
+    "frozen": "0"
+   },
+   {
+    "uid": "944025",
+    "balance": "1000",
+    "frozen": "0"
+   },
+   {
+    "uid": "944026",
+    "balance": "1000",
+    "frozen": "0"
+   },
+   {
+    "uid": "944030",
+    "balance": "1000",
+    "frozen": "0"
+   }
+  ]
+ },
+ "locktimeout_55P03": {
+  "key": "ops:p1k:H262V:lkt",
+  "attempt1": {
+   "via": "direct",
+   "ok_roundtrip": false,
+   "elapsed_ms": 3244,
+   "error": {
+    "code": "LD025",
+    "message": "LEDGER_LOCK_TIMEOUT",
+    "detail": "{\"reason\": \"lock_timeout\", \"pg_code\": \"55P03\", \"retryable\": true, \"lock_timeout_ms\": 3000}",
+    "constraint": null,
+    "hint": null,
+    "name": "error"
+   }
+  },
+  "final_sqlstate": "LD025",
+  "final_message": "LEDGER_LOCK_TIMEOUT",
+  "final_detail": "{\"reason\": \"lock_timeout\", \"pg_code\": \"55P03\", \"retryable\": true, \"lock_timeout_ms\": 3000}",
+  "raw_55P03_escaped": false,
+  "rows_written_0": true,
+  "entries_for_key_after_fail": {
+   "by_root_key": "0",
+   "debits": "0",
+   "credits": "0",
+   "exact_key_rows": "0"
+  },
+  "src_balance_before": "988000",
+  "src_balance_after_fail": "988000",
+  "tot_balance_after_fail": "1000",
+  "balance_unchanged": true,
+  "attempt2_same_key": {
+   "via": "direct",
+   "ok_roundtrip": true,
+   "elapsed_ms": 207,
+   "result": {
+    "ok": true,
+    "meta": {
+     "op": "transfer",
+     "lock_trace": [
+      "account:944001:93",
+      "account:944002:93"
+     ]
+    },
+    "txid": "2101",
+    "extra": {
+     "amount": "1000",
+     "symbol": "P1KH262V"
+    },
+    "entries": [
+     {
+      "cid": "93",
+      "uid": "944001",
+      "kind": "transfer",
+      "memo": "",
+      "txid": "2101",
+      "delta": "-1000",
+      "ref_id": null,
+      "ref_type": null,
+      "frozen_after": "0",
+      "frozen_delta": "0",
+      "time_created": "2026-09-27T07:03:23.256Z",
+      "balance_after": "987000",
+      "idempotency_key": "ops:p1k:H262V:lkt",
+      "reversal_of_txid": null,
+      "request_fingerprint": null
+     },
+     {
+      "cid": "93",
+      "uid": "944002",
+      "kind": "transfer",
+      "memo": "",
+      "txid": "2102",
+      "delta": "1000",
+      "ref_id": null,
+      "ref_type": null,
+      "frozen_after": "0",
+      "frozen_delta": "0",
+      "time_created": "2026-09-27T07:03:23.256Z",
+      "balance_after": "2000",
+      "idempotency_key": "ops:p1k:H262V:lkt#2",
+      "reversal_of_txid": null,
+      "request_fingerprint": null
+     }
+    ],
+    "accounts": [
+     {
+      "cid": "93",
+      "uid": "944001",
+      "frozen": "0",
+      "balance": "987000"
+     },
+     {
+      "cid": "93",
+      "uid": "944002",
+      "frozen": "0",
+      "balance": "2000"
+     }
+    ],
+    "idempotency_key": "ops:p1k:H262V:lkt",
+    "idempotent_replay": false
+   }
+  },
+  "retry_result": {
+   "txid": "2101",
+   "entries": 2
+  },
+  "entries_for_key_after_retry": {
+   "by_root_key": "2",
+   "debits": "1",
+   "credits": "1",
+   "exact_key_rows": "1"
+  },
+  "src_balance_final": "987000",
+  "tot_balance_final": "2000"
+ },
+ "deadlock_40P01_db": {
+  "key": "ops:p1k:H262V:dd1",
+  "lock_wait_seen": {
+   "seen": true,
+   "waited_ms": 163,
+   "row": {
+    "pid": "9613",
+    "wait_event_type": "Lock",
+    "q": "SELECT ledger_post_event($1::jsonb) AS r"
+   }
+  },
+  "deadlocks_before": 28,
+  "deadlocks_after": 29,
+  "deadlocks_delta": 1,
+  "caller_elapsed_ms": 1422,
+  "caller_final_sqlstate": "LD027",
+  "caller_final_message": "LEDGER_DEADLOCK_RETRY_EXHAUSTED",
+  "caller_detail_raw": "{\"reason\": \"deadlock_detected\", \"pg_code\": \"40P01\", \"retryable\": true, \"retry_owner\": \"caller\", \"retries_performed\": 0}",
+  "caller_detail_parsed": {
+   "reason": "deadlock_detected",
+   "pg_code": "40P01",
+   "retryable": true,
+   "retry_owner": "caller",
+   "retries_performed": 0
+  },
+  "raw_40P01_escaped": false,
+  "retries_performed_0": true,
+  "retry_owner_caller": true,
+  "partner_after_cycle": "no_error(acquired_after_victim_abort)",
+  "rows_written_0": true,
+  "entries_for_key": {
+   "by_root_key": "0",
+   "debits": "0",
+   "credits": "0",
+   "exact_key_rows": "0"
+  }
+ },
+ "deadlock_40P01_public_api": {
+  "key": "ops:p1k:H262V:dd2",
+  "lock_wait_seen": {
+   "seen": true,
+   "waited_ms": 1146,
+   "row": {
+    "pid": "1867",
+    "wait_event_type": "Lock",
+    "q": "SELECT ledger_post_event($1::jsonb) AS r"
+   }
+  },
+  "deadlocks_delta": 1,
+  "api_elapsed_ms": 4265,
+  "api_ok": true,
+  "api_idempotent_replay": false,
+  "api_txid": "2103",
+  "api_entries_count": 2,
+  "api_error": null,
+  "captured_internal_db_errors": [
+   {
+    "at_ms": 1790492617978,
+    "sql_head": "SELECT ledger_post_event($1::jsonb) AS r",
+    "code": "LD027",
+    "message": "LEDGER_DEADLOCK_RETRY_EXHAUSTED",
+    "detail": "{\"reason\": \"deadlock_detected\", \"pg_code\": \"40P01\", \"retryable\": true, \"retry_owner\": \"caller\", \"retries_performed\": 0}",
+    "at_ms_from_call_ms": 2557
+   }
+  ],
+  "captured_first_error_is_LD027": true,
+  "distinct_fn_statements_observed": 3,
+  "fn_statements": [
+   "9567|2026-09-27 07:03:36.621557+00|Client",
+   "1867|2026-09-27 07:03:36.542001+00|Client",
+   "1867|2026-09-27 07:03:39.191606+00|Client"
+  ],
+  "retry_actually_reissued": true,
+  "api_ms_ge_deadlock_probe_plus_hold": true,
+  "partner_sqlstate": "no_error(acquired_after_victim_abort)",
+  "entries_for_key": {
+   "by_root_key": "2",
+   "debits": "1",
+   "credits": "1",
+   "exact_key_rows": "1"
+  },
+  "find_by_key_rows": 2,
+  "find_by_key_debits": 1,
+  "sum_delta_A": -100,
+  "sum_delta_B": 100,
+  "bal_A_before": "1000",
+  "bal_A_after": "900",
+  "bal_B_before": "1000",
+  "bal_B_after": "1100",
+  "no_double_debit": true
+ },
+ "budget_exhausted_LD026": {
+  "expired_deadline_check_budget": {
+   "ok": false,
+   "elapsed_ms": 153,
+   "error": {
+    "code": "LD026",
+    "message": "LEDGER_TX_TIMEOUT",
+    "detail": "{\"stage\": \"unit_probe\", \"reason\": \"statement_budget_exhausted\", \"budget_ms\": 10000, \"retryable\": true, \"remaining_ms\": -1001}",
+    "constraint": null,
+    "hint": null,
+    "name": "error"
+   }
+  },
+  "expired_deadline_arm_lock_timeout": {
+   "ok": false,
+   "elapsed_ms": 1153,
+   "error": {
+    "code": "LD026",
+    "message": "LEDGER_TX_TIMEOUT",
+    "detail": "{\"stage\": \"unit_probe\", \"reason\": \"statement_budget_exhausted\", \"budget_ms\": 10000, \"retryable\": true, \"remaining_ms\": -1001}",
+    "constraint": null,
+    "hint": null,
+    "name": "error"
+   }
+  },
+  "null_deadline_no_error": true,
+  "future_deadline_no_error": true,
+  "real_57014": {
+   "set_statement_timeout": {
+    "ok": true,
+    "elapsed_ms": 0,
+    "rows": []
+   },
+   "show_after_set": [
+    {
+     "statement_timeout": "600ms"
+    }
+   ],
+   "reset": true,
+   "key": "ops:p1k:H262V:stmt57014",
+   "elapsed_ms": 790,
+   "final_sqlstate": "57014",
+   "final_message": "canceling statement due to statement timeout",
+   "final_detail_raw": null,
+   "final_detail_parsed": null,
+   "raw_57014_escaped": true,
+   "rows_written_0": true
+  }
+ },
+ "escape_isolation_57014": {
+  "note": "DO 块（匿名 plpgsql，无 DDL）：捕获到 WHEN OTHERS ⇒ 改抛 ZZ999；否则看到原始 SQLSTATE。每探测一条新连接。",
+  "lock_holder_uid": "944030",
+  "A1_stmt_timeout_handler_no_lockwait": {
+   "label": "A1_stmt_timeout+handler(no lock wait)",
+   "ok": false,
+   "elapsed_ms": 1380,
+   "caught": false,
+   "sqlstate_seen": "57014",
+   "message": "canceling statement due to statement timeout"
+  },
+  "A2_stmt_timeout_no_handler_no_lockwait": {
+   "label": "A2_stmt_timeout+NO handler(no lock wait)",
+   "ok": false,
+   "elapsed_ms": 1965,
+   "caught": false,
+   "sqlstate_seen": "57014",
+   "message": "canceling statement due to statement timeout"
+  },
+  "B1_stmt_timeout_handler_lockwait": {
+   "label": "B1_stmt_timeout+handler(lock wait)",
+   "ok": false,
+   "elapsed_ms": 1499,
+   "caught": false,
+   "sqlstate_seen": "57014",
+   "message": "canceling statement due to statement timeout"
+  },
+  "B2_lock_timeout_handler_lockwait": {
+   "label": "B2_lock_timeout+handler(lock wait)",
+   "ok": false,
+   "elapsed_ms": 1979,
+   "caught": true,
+   "sqlstate_seen": "ZZ999",
+   "message": "CAUGHT:55P03"
+  },
+  "B3_stmt_timeout_no_handler_lockwait": {
+   "label": "B3_stmt_timeout+NO handler(lock wait)",
+   "ok": false,
+   "elapsed_ms": 1389,
+   "caught": false,
+   "sqlstate_seen": "57014",
+   "message": "canceling statement due to statement timeout"
+  },
+  "B4_lock_timeout_no_handler_lockwait": {
+   "label": "B4_lock_timeout+NO handler(lock wait)",
+   "ok": true,
+   "elapsed_ms": 1523,
+   "caught": false,
+   "sqlstate_seen": null,
+   "message": null
+  },
+  "B5_lock_timeout_plain_for_update": {
+   "label": "B5_lock_timeout+plain FOR UPDATE(no function)",
+   "ok": true,
+   "elapsed_ms": 1138,
+   "caught": false,
+   "sqlstate_seen": null,
+   "message": null
+  },
+  "verdicts": {
+   "stmt_timeout_catchable_by_plpgsql": false,
+   "lock_timeout_catchable_by_plpgsql": true,
+   "stmt_timeout_lockwait_raw_57014_when_no_handler": true,
+   "lock_timeout_lockwait_raw_55P03_when_no_handler": false,
+   "statement_timeout_bypasses_plpgsql_handler": true
+  }
+ },
+ "budget_clamp": {
+  "tight_1s": {
+   "label": "tight_1s(should=1000ms)",
+   "deadline_expr": "clock_timestamp() + interval '1 second'",
+   "arm_rows": 1,
+   "lock_timeout": "999ms",
+   "remaining_ms_at_call": "999"
+  },
+  "tight_1_5s": {
+   "label": "tight_1_5s(should=1500ms)",
+   "deadline_expr": "clock_timestamp() + interval '1500 milliseconds'",
+   "arm_rows": 1,
+   "lock_timeout": "1499ms",
+   "remaining_ms_at_call": "1499"
+  },
+  "ample_60s": {
+   "label": "ample_60s(should=3000ms)",
+   "deadline_expr": "clock_timestamp() + interval '60 seconds'",
+   "arm_rows": 1,
+   "lock_timeout": "3s",
+   "remaining_ms_at_call": "59999"
+  },
+  "null_deadline": {
+   "label": "null(should=3000ms)",
+   "deadline_expr": "NULL::timestamptz",
+   "arm_rows": 1,
+   "lock_timeout": "3s",
+   "remaining_ms_at_call": "10000"
+  },
+  "expired": {
+   "label": "expired(should=LD026)",
+   "deadline_expr": "clock_timestamp() - interval '1 second'",
+   "error": {
+    "code": "LD026",
+    "message": "LEDGER_TX_TIMEOUT",
+    "detail": "{\"stage\": \"expired(should=LD026)\", \"reason\": \"statement_budget_exhausted\", \"budget_ms\": 10000, \"retryable\": true, \"remaining_ms\": -1001}",
+    "constraint": null,
+    "hint": null,
+    "name": "error"
+   }
+  }
+ },
+ "total_wait_chain": {
+  "key": "ops:p1k:H262V:chain6",
+  "holders": 6,
+  "spacing_ms": 2600,
+  "naive_total_wait_if_unclamped_ms": 15600,
+  "pre_fix_reference_ms": 15583,
+  "legacy_claim_worst_ms": 48000,
+  "measured_total_wait_ms": 11283,
+  "db_side_sampled_wait_ms": {
+   "max_db_elapsed_ms": 10142,
+   "samples": 39,
+   "last_row": {
+    "pid": "9832",
+    "qs": "2026-09-27 07:04:31.834855+00",
+    "we": "Client",
+    "db_elapsed_ms": "10141.602000"
+   },
+   "distinct_stmts": 1,
+   "statements": [
+    "9832|2026-09-27 07:04:31.834855+00"
+   ]
+  },
+  "clamped_to_le_10s": true,
+  "client_overhead_ms": 1141,
+  "terminal_sqlstate": "LD026",
+  "terminal_message": "LEDGER_TX_TIMEOUT",
+  "terminal_detail_raw": "{\"stage\": \"lock:wakeup\", \"reason\": \"statement_budget_exhausted\", \"budget_ms\": 10000, \"retryable\": true, \"remaining_ms\": -1}",
+  "terminal_detail_parsed": {
+   "stage": "lock:wakeup",
+   "reason": "statement_budget_exhausted",
+   "budget_ms": 10000,
+   "retryable": true,
+   "remaining_ms": -1
+  },
+  "function_result_if_ok": null,
+  "rows_written_0": true,
+  "setup_ms": 8982
+ },
+ "infra_503": {
+  "db_classifier": [
+   {
+    "sqlstate": "08P01",
+    "json_noconstraint": {
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "bucket": "defect",
+     "reason": "protocol_violation",
+     "pg_code": "08P01",
+     "retryable": false,
+     "constraint": null
+    },
+    "raw": "{\"code\": \"LEDGER_TRANSACTION_REQUIRED\", \"bucket\": \"defect\", \"reason\": \"protocol_violation\", \"pg_code\": \"08P01\", \"retryable\": false, \"constraint\": null}"
+   },
+   {
+    "sqlstate": "23505",
+    "json_noconstraint": {
+     "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+     "bucket": "integrity",
+     "reason": "UNIQUE_KEY_FAMILY_COLLISION",
+     "pg_code": "23505",
+     "retryable": false,
+     "constraint": null
+    },
+    "raw": "{\"code\": \"LEDGER_IDEMPOTENCY_CONFLICT\", \"bucket\": \"integrity\", \"reason\": \"UNIQUE_KEY_FAMILY_COLLISION\", \"pg_code\": \"23505\", \"retryable\": false, \"constraint\": null}"
+   },
+   {
+    "sqlstate": "23514",
+    "json_noconstraint": {
+     "code": "LEDGER_AMOUNT_INVALID",
+     "bucket": "input",
+     "reason": "CHECK_VIOLATION",
+     "pg_code": "23514",
+     "retryable": false,
+     "constraint": null
+    },
+    "raw": "{\"code\": \"LEDGER_AMOUNT_INVALID\", \"bucket\": \"input\", \"reason\": \"CHECK_VIOLATION\", \"pg_code\": \"23514\", \"retryable\": false, \"constraint\": null}"
+   },
+   {
+    "sqlstate": "25006",
+    "json_noconstraint": {
+     "code": "LEDGER_TX_TIMEOUT",
+     "bucket": "infra",
+     "reason": "read_only_transaction",
+     "pg_code": "25006",
+     "retryable": true,
+     "constraint": null
+    },
+    "raw": "{\"code\": \"LEDGER_TX_TIMEOUT\", \"bucket\": \"infra\", \"reason\": \"read_only_transaction\", \"pg_code\": \"25006\", \"retryable\": true, \"constraint\": null}"
+   },
+   {
+    "sqlstate": "28P01",
+    "json_noconstraint": {
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "bucket": "defect",
+     "reason": "unclassified_db_error",
+     "pg_code": "28P01",
+     "retryable": false,
+     "constraint": null
+    },
+    "raw": "{\"code\": \"LEDGER_TRANSACTION_REQUIRED\", \"bucket\": \"defect\", \"reason\": \"unclassified_db_error\", \"pg_code\": \"28P01\", \"retryable\": false, \"constraint\": null}"
+   },
+   {
+    "sqlstate": "3D000",
+    "json_noconstraint": {
+     "code": "LEDGER_TX_TIMEOUT",
+     "bucket": "infra",
+     "reason": "database_unavailable",
+     "pg_code": "3D000",
+     "retryable": true,
+     "constraint": null
+    },
+    "raw": "{\"code\": \"LEDGER_TX_TIMEOUT\", \"bucket\": \"infra\", \"reason\": \"database_unavailable\", \"pg_code\": \"3D000\", \"retryable\": true, \"constraint\": null}"
+   },
+   {
+    "sqlstate": "40001",
+    "json_noconstraint": {
+     "code": "LEDGER_DEADLOCK_RETRY_EXHAUSTED",
+     "bucket": "retryable",
+     "reason": "serialization_failure",
+     "pg_code": "40001",
+     "retryable": true,
+     "constraint": null
+    },
+    "raw": "{\"code\": \"LEDGER_DEADLOCK_RETRY_EXHAUSTED\", \"bucket\": \"retryable\", \"reason\": \"serialization_failure\", \"pg_code\": \"40001\", \"retryable\": true, \"constraint\": null}"
+   },
+   {
+    "sqlstate": "40P01",
+    "json_noconstraint": {
+     "code": "LEDGER_DEADLOCK_RETRY_EXHAUSTED",
+     "bucket": "retryable",
+     "reason": "deadlock_detected",
+     "pg_code": "40P01",
+     "retryable": true,
+     "constraint": null
+    },
+    "raw": "{\"code\": \"LEDGER_DEADLOCK_RETRY_EXHAUSTED\", \"bucket\": \"retryable\", \"reason\": \"deadlock_detected\", \"pg_code\": \"40P01\", \"retryable\": true, \"constraint\": null}"
+   },
+   {
+    "sqlstate": "53100",
+    "json_noconstraint": {
+     "code": "LEDGER_TX_TIMEOUT",
+     "bucket": "infra",
+     "reason": "disk_full",
+     "pg_code": "53100",
+     "retryable": true,
+     "constraint": null
+    },
+    "raw": "{\"code\": \"LEDGER_TX_TIMEOUT\", \"bucket\": \"infra\", \"reason\": \"disk_full\", \"pg_code\": \"53100\", \"retryable\": true, \"constraint\": null}"
+   },
+   {
+    "sqlstate": "53200",
+    "json_noconstraint": {
+     "code": "LEDGER_TX_TIMEOUT",
+     "bucket": "infra",
+     "reason": "out_of_memory",
+     "pg_code": "53200",
+     "retryable": true,
+     "constraint": null
+    },
+    "raw": "{\"code\": \"LEDGER_TX_TIMEOUT\", \"bucket\": \"infra\", \"reason\": \"out_of_memory\", \"pg_code\": \"53200\", \"retryable\": true, \"constraint\": null}"
+   },
+   {
+    "sqlstate": "53300",
+    "json_noconstraint": {
+     "code": "LEDGER_TX_TIMEOUT",
+     "bucket": "infra",
+     "reason": "too_many_connections",
+     "pg_code": "53300",
+     "retryable": true,
+     "constraint": null
+    },
+    "raw": "{\"code\": \"LEDGER_TX_TIMEOUT\", \"bucket\": \"infra\", \"reason\": \"too_many_connections\", \"pg_code\": \"53300\", \"retryable\": true, \"constraint\": null}"
+   },
+   {
+    "sqlstate": "55P03",
+    "json_noconstraint": {
+     "code": "LEDGER_LOCK_TIMEOUT",
+     "bucket": "retryable",
+     "reason": "lock_timeout",
+     "pg_code": "55P03",
+     "retryable": true,
+     "constraint": null
+    },
+    "raw": "{\"code\": \"LEDGER_LOCK_TIMEOUT\", \"bucket\": \"retryable\", \"reason\": \"lock_timeout\", \"pg_code\": \"55P03\", \"retryable\": true, \"constraint\": null}"
+   },
+   {
+    "sqlstate": "57014",
+    "json_noconstraint": {
+     "code": "LEDGER_TX_TIMEOUT",
+     "bucket": "retryable",
+     "reason": "statement_timeout_or_cancel",
+     "pg_code": "57014",
+     "retryable": true,
+     "constraint": null
+    },
+    "raw": "{\"code\": \"LEDGER_TX_TIMEOUT\", \"bucket\": \"retryable\", \"reason\": \"statement_timeout_or_cancel\", \"pg_code\": \"57014\", \"retryable\": true, \"constraint\": null}"
+   },
+   {
+    "sqlstate": "57P01",
+    "json_noconstraint": {
+     "code": "LEDGER_TX_TIMEOUT",
+     "bucket": "infra",
+     "reason": "admin_shutdown",
+     "pg_code": "57P01",
+     "retryable": true,
+     "constraint": null
+    },
+    "raw": "{\"code\": \"LEDGER_TX_TIMEOUT\", \"bucket\": \"infra\", \"reason\": \"admin_shutdown\", \"pg_code\": \"57P01\", \"retryable\": true, \"constraint\": null}"
+   },
+   {
+    "sqlstate": "57P02",
+    "json_noconstraint": {
+     "code": "LEDGER_TX_TIMEOUT",
+     "bucket": "infra",
+     "reason": "crash_shutdown",
+     "pg_code": "57P02",
+     "retryable": true,
+     "constraint": null
+    },
+    "raw": "{\"code\": \"LEDGER_TX_TIMEOUT\", \"bucket\": \"infra\", \"reason\": \"crash_shutdown\", \"pg_code\": \"57P02\", \"retryable\": true, \"constraint\": null}"
+   },
+   {
+    "sqlstate": "57P03",
+    "json_noconstraint": {
+     "code": "LEDGER_TX_TIMEOUT",
+     "bucket": "infra",
+     "reason": "cannot_connect_now",
+     "pg_code": "57P03",
+     "retryable": true,
+     "constraint": null
+    },
+    "raw": "{\"code\": \"LEDGER_TX_TIMEOUT\", \"bucket\": \"infra\", \"reason\": \"cannot_connect_now\", \"pg_code\": \"57P03\", \"retryable\": true, \"constraint\": null}"
+   },
+   {
+    "sqlstate": "58030",
+    "json_noconstraint": {
+     "code": "LEDGER_TX_TIMEOUT",
+     "bucket": "infra",
+     "reason": "io_error",
+     "pg_code": "58030",
+     "retryable": true,
+     "constraint": null
+    },
+    "raw": "{\"code\": \"LEDGER_TX_TIMEOUT\", \"bucket\": \"infra\", \"reason\": \"io_error\", \"pg_code\": \"58030\", \"retryable\": true, \"constraint\": null}"
+   },
+   {
+    "sqlstate": "XX000",
+    "json_noconstraint": {
+     "code": "LEDGER_TX_TIMEOUT",
+     "bucket": "infra",
+     "reason": "internal_error",
+     "pg_code": "XX000",
+     "retryable": true,
+     "constraint": null
+    },
+    "raw": "{\"code\": \"LEDGER_TX_TIMEOUT\", \"bucket\": \"infra\", \"reason\": \"internal_error\", \"pg_code\": \"XX000\", \"retryable\": true, \"constraint\": null}"
+   },
+   {
+    "sqlstate": "XX001",
+    "json_noconstraint": {
+     "code": "LEDGER_TX_TIMEOUT",
+     "bucket": "infra",
+     "reason": "internal_error",
+     "pg_code": "XX001",
+     "retryable": true,
+     "constraint": null
+    },
+    "raw": "{\"code\": \"LEDGER_TX_TIMEOUT\", \"bucket\": \"infra\", \"reason\": \"internal_error\", \"pg_code\": \"XX001\", \"retryable\": true, \"constraint\": null}"
+   }
+  ],
+  "ts_normalize": {
+   "23505": {
+    "ts_code": "LEDGER_AMOUNT_INVALID",
+    "ts_status": 400,
+    "ts_details": {
+     "constraint": "synthetic_constraint"
+    },
+    "ts_infra_reason": null
+   },
+   "23514": {
+    "ts_code": "LEDGER_AMOUNT_INVALID",
+    "ts_status": 400,
+    "ts_details": {
+     "constraint": "synthetic_constraint"
+    },
+    "ts_infra_reason": null
+   },
+   "25006": {
+    "ts_code": "LEDGER_TX_TIMEOUT",
+    "ts_status": 503,
+    "ts_details": {
+     "reason": "read_only_transaction",
+     "pg_code": "25006",
+     "retryable": true,
+     "source": "pg_infra_class"
+    },
+    "ts_infra_reason": "read_only_transaction"
+   },
+   "40001": {
+    "ts_code": "LEDGER_DEADLOCK_RETRY_EXHAUSTED",
+    "ts_status": 503,
+    "ts_details": {},
+    "ts_infra_reason": null
+   },
+   "53100": {
+    "ts_code": "LEDGER_TX_TIMEOUT",
+    "ts_status": 503,
+    "ts_details": {
+     "reason": "disk_full",
+     "pg_code": "53100",
+     "retryable": true,
+     "source": "pg_infra_class"
+    },
+    "ts_infra_reason": "disk_full"
+   },
+   "53200": {
+    "ts_code": "LEDGER_TX_TIMEOUT",
+    "ts_status": 503,
+    "ts_details": {
+     "reason": "out_of_memory",
+     "pg_code": "53200",
+     "retryable": true,
+     "source": "pg_infra_class"
+    },
+    "ts_infra_reason": "out_of_memory"
+   },
+   "53300": {
+    "ts_code": "LEDGER_TX_TIMEOUT",
+    "ts_status": 503,
+    "ts_details": {
+     "reason": "too_many_connections",
+     "pg_code": "53300",
+     "retryable": true,
+     "source": "pg_infra_class"
+    },
+    "ts_infra_reason": "too_many_connections"
+   },
+   "57014": {
+    "ts_code": "LEDGER_TX_TIMEOUT",
+    "ts_status": 503,
+    "ts_details": {},
+    "ts_infra_reason": null
+   },
+   "58030": {
+    "ts_code": "LEDGER_TX_TIMEOUT",
+    "ts_status": 503,
+    "ts_details": {
+     "reason": "io_error",
+     "pg_code": "58030",
+     "retryable": true,
+     "source": "pg_infra_class"
+    },
+    "ts_infra_reason": "io_error"
+   },
+   "57P01": {
+    "ts_code": "LEDGER_TX_TIMEOUT",
+    "ts_status": 503,
+    "ts_details": {
+     "reason": "admin_shutdown",
+     "pg_code": "57P01",
+     "retryable": true,
+     "source": "pg_infra_class"
+    },
+    "ts_infra_reason": "admin_shutdown"
+   },
+   "57P02": {
+    "ts_code": "LEDGER_TX_TIMEOUT",
+    "ts_status": 503,
+    "ts_details": {
+     "reason": "crash_shutdown",
+     "pg_code": "57P02",
+     "retryable": true,
+     "source": "pg_infra_class"
+    },
+    "ts_infra_reason": "crash_shutdown"
+   },
+   "57P03": {
+    "ts_code": "LEDGER_TX_TIMEOUT",
+    "ts_status": 503,
+    "ts_details": {
+     "reason": "cannot_connect_now",
+     "pg_code": "57P03",
+     "retryable": true,
+     "source": "pg_infra_class"
+    },
+    "ts_infra_reason": "cannot_connect_now"
+   },
+   "3D000": {
+    "ts_code": "LEDGER_TX_TIMEOUT",
+    "ts_status": 503,
+    "ts_details": {
+     "reason": "database_unavailable",
+     "pg_code": "3D000",
+     "retryable": true,
+     "source": "pg_infra_class"
+    },
+    "ts_infra_reason": "database_unavailable"
+   },
+   "XX000": {
+    "ts_code": "LEDGER_TX_TIMEOUT",
+    "ts_status": 503,
+    "ts_details": {
+     "reason": "internal_error",
+     "pg_code": "XX000",
+     "retryable": true,
+     "source": "pg_infra_class"
+    },
+    "ts_infra_reason": "internal_error"
+   },
+   "XX001": {
+    "ts_code": "LEDGER_TX_TIMEOUT",
+    "ts_status": 503,
+    "ts_details": {
+     "reason": "internal_error",
+     "pg_code": "XX001",
+     "retryable": true,
+     "source": "pg_infra_class"
+    },
+    "ts_infra_reason": "internal_error"
+   },
+   "08P01": {
+    "ts_code": "LEDGER_TRANSACTION_REQUIRED",
+    "ts_status": 500,
+    "ts_details": {
+     "cause": "08P01",
+     "reason": "protocol_violation",
+     "error_name": "ProtocolViolation",
+     "pg_code": "08P01"
+    },
+    "ts_infra_reason": null
+   },
+   "40P01": {
+    "ts_code": "LEDGER_DEADLOCK_RETRY_EXHAUSTED",
+    "ts_status": 503,
+    "ts_details": {},
+    "ts_infra_reason": null
+   },
+   "55P03": {
+    "ts_code": "LEDGER_LOCK_TIMEOUT",
+    "ts_status": 503,
+    "ts_details": {},
+    "ts_infra_reason": null
+   },
+   "28P01": {
+    "ts_code": "LEDGER_TRANSACTION_REQUIRED",
+    "ts_status": 500,
+    "ts_details": {
+     "cause": "28P01",
+     "reason": "unclassified_pg_error",
+     "error_name": "Error",
+     "pg_code": "28P01"
+    },
+    "ts_infra_reason": null
+   }
+  },
+  "db_ts_pairing": [
+   {
+    "sqlstate": "23505",
+    "constraint": "ledger_idem_uniq",
+    "db_code": "LEDGER_IDEMPOTENCY_CONFLICT",
+    "db_bucket": "integrity",
+    "db_reason": "UNIQUE_KEY_FAMILY_COLLISION",
+    "db_retryable": false,
+    "ts_code": "LEDGER_IDEMPOTENCY_CONFLICT",
+    "ts_status": 409,
+    "code_match": true,
+    "bucket_status_ok": true
+   },
+   {
+    "sqlstate": "23505",
+    "constraint": "other_unique",
+    "db_code": "LEDGER_IDEMPOTENCY_CONFLICT",
+    "db_bucket": "integrity",
+    "db_reason": "UNIQUE_KEY_FAMILY_COLLISION",
+    "db_retryable": false,
+    "ts_code": "LEDGER_AMOUNT_INVALID",
+    "ts_status": 400,
+    "code_match": false,
+    "bucket_status_ok": true
+   },
+   {
+    "sqlstate": "23514",
+    "constraint": "currency_supply_guard",
+    "db_code": "LEDGER_SUPPLY_CAP_EXCEEDED",
+    "db_bucket": "integrity",
+    "db_reason": "supply_cap_guard",
+    "db_retryable": false,
+    "ts_code": "LEDGER_SUPPLY_CAP_EXCEEDED",
+    "ts_status": 409,
+    "code_match": true,
+    "bucket_status_ok": true
+   },
+   {
+    "sqlstate": "23514",
+    "constraint": "account_bal_guard",
+    "db_code": "LEDGER_NEGATIVE_BALANCE_GUARD",
+    "db_bucket": "defect",
+    "db_reason": "negative_balance_guard",
+    "db_retryable": false,
+    "ts_code": "LEDGER_NEGATIVE_BALANCE_GUARD",
+    "ts_status": 500,
+    "code_match": true,
+    "bucket_status_ok": true
+   },
+   {
+    "sqlstate": "23514",
+    "constraint": "account_frz_guard",
+    "db_code": "LEDGER_NEGATIVE_BALANCE_GUARD",
+    "db_bucket": "defect",
+    "db_reason": "negative_balance_guard",
+    "db_retryable": false,
+    "ts_code": "LEDGER_NEGATIVE_BALANCE_GUARD",
+    "ts_status": 500,
+    "code_match": true,
+    "bucket_status_ok": true
+   },
+   {
+    "sqlstate": "23514",
+    "constraint": "ledger_after_guard",
+    "db_code": "LEDGER_NEGATIVE_BALANCE_GUARD",
+    "db_bucket": "defect",
+    "db_reason": "negative_balance_guard",
+    "db_retryable": false,
+    "ts_code": "LEDGER_NEGATIVE_BALANCE_GUARD",
+    "ts_status": 500,
+    "code_match": true,
+    "bucket_status_ok": true
+   },
+   {
+    "sqlstate": "23514",
+    "constraint": "ledger_kind_enum",
+    "db_code": "LEDGER_UNKNOWN_KIND",
+    "db_bucket": "input",
+    "db_reason": "kind_enum_guard",
+    "db_retryable": false,
+    "ts_code": "LEDGER_UNKNOWN_KIND",
+    "ts_status": 400,
+    "code_match": true,
+    "bucket_status_ok": true
+   },
+   {
+    "sqlstate": "23514",
+    "constraint": "some_other_check",
+    "db_code": "LEDGER_AMOUNT_INVALID",
+    "db_bucket": "input",
+    "db_reason": "CHECK_VIOLATION",
+    "db_retryable": false,
+    "ts_code": "LEDGER_AMOUNT_INVALID",
+    "ts_status": 400,
+    "code_match": true,
+    "bucket_status_ok": true
+   },
+   {
+    "sqlstate": "23503",
+    "constraint": "fk_account_cid",
+    "db_code": "LEDGER_CURRENCY_NOT_FOUND",
+    "db_bucket": "integrity",
+    "db_reason": "FK_VIOLATION",
+    "db_retryable": false,
+    "ts_code": "LEDGER_CURRENCY_NOT_FOUND",
+    "ts_status": 404,
+    "code_match": true,
+    "bucket_status_ok": true
+   },
+   {
+    "sqlstate": "53300",
+    "constraint": null,
+    "db_code": "LEDGER_TX_TIMEOUT",
+    "db_bucket": "infra",
+    "db_reason": "too_many_connections",
+    "db_retryable": true,
+    "ts_code": "LEDGER_TX_TIMEOUT",
+    "ts_status": 503,
+    "code_match": true,
+    "bucket_status_ok": true
+   },
+   {
+    "sqlstate": "XX000",
+    "constraint": null,
+    "db_code": "LEDGER_TX_TIMEOUT",
+    "db_bucket": "infra",
+    "db_reason": "internal_error",
+    "db_retryable": true,
+    "ts_code": "LEDGER_TX_TIMEOUT",
+    "ts_status": 503,
+    "code_match": true,
+    "bucket_status_ok": true
+   },
+   {
+    "sqlstate": "57014",
+    "constraint": null,
+    "db_code": "LEDGER_TX_TIMEOUT",
+    "db_bucket": "retryable",
+    "db_reason": "statement_timeout_or_cancel",
+    "db_retryable": true,
+    "ts_code": "LEDGER_TX_TIMEOUT",
+    "ts_status": 503,
+    "code_match": true,
+    "bucket_status_ok": true
+   },
+   {
+    "sqlstate": "55P03",
+    "constraint": null,
+    "db_code": "LEDGER_LOCK_TIMEOUT",
+    "db_bucket": "retryable",
+    "db_reason": "lock_timeout",
+    "db_retryable": true,
+    "ts_code": "LEDGER_LOCK_TIMEOUT",
+    "ts_status": 503,
+    "code_match": true,
+    "bucket_status_ok": true
+   },
+   {
+    "sqlstate": "08P01",
+    "constraint": null,
+    "db_code": "LEDGER_TRANSACTION_REQUIRED",
+    "db_bucket": "defect",
+    "db_reason": "protocol_violation",
+    "db_retryable": false,
+    "ts_code": "LEDGER_TRANSACTION_REQUIRED",
+    "ts_status": 500,
+    "code_match": true,
+    "bucket_status_ok": true
+   },
+   {
+    "sqlstate": "40P01",
+    "constraint": null,
+    "db_code": "LEDGER_DEADLOCK_RETRY_EXHAUSTED",
+    "db_bucket": "retryable",
+    "db_reason": "deadlock_detected",
+    "db_retryable": true,
+    "ts_code": "LEDGER_DEADLOCK_RETRY_EXHAUSTED",
+    "ts_status": 503,
+    "code_match": true,
+    "bucket_status_ok": true
+   },
+   {
+    "sqlstate": "25006",
+    "constraint": null,
+    "db_code": "LEDGER_TX_TIMEOUT",
+    "db_bucket": "infra",
+    "db_reason": "read_only_transaction",
+    "db_retryable": true,
+    "ts_code": "LEDGER_TX_TIMEOUT",
+    "ts_status": 503,
+    "code_match": true,
+    "bucket_status_ok": true
+   }
+  ],
+  "pairing_verdicts": {
+   "all_codes_match": false,
+   "all_bucket_status_ok": true,
+   "violations": [
+    {
+     "sqlstate": "23505",
+     "constraint": "other_unique",
+     "db_code": "LEDGER_IDEMPOTENCY_CONFLICT",
+     "db_bucket": "integrity",
+     "db_reason": "UNIQUE_KEY_FAMILY_COLLISION",
+     "db_retryable": false,
+     "ts_code": "LEDGER_AMOUNT_INVALID",
+     "ts_status": 400,
+     "code_match": false,
+     "bucket_status_ok": true
+    }
+   ]
+  },
+  "db_53300": {
+   "sqlstate": "53300",
+   "json_noconstraint": {
+    "code": "LEDGER_TX_TIMEOUT",
+    "bucket": "infra",
+    "reason": "too_many_connections",
+    "pg_code": "53300",
+    "retryable": true,
+    "constraint": null
+   },
+   "raw": "{\"code\": \"LEDGER_TX_TIMEOUT\", \"bucket\": \"infra\", \"reason\": \"too_many_connections\", \"pg_code\": \"53300\", \"retryable\": true, \"constraint\": null}"
+  },
+  "db_XX000": {
+   "sqlstate": "XX000",
+   "json_noconstraint": {
+    "code": "LEDGER_TX_TIMEOUT",
+    "bucket": "infra",
+    "reason": "internal_error",
+    "pg_code": "XX000",
+    "retryable": true,
+    "constraint": null
+   },
+   "raw": "{\"code\": \"LEDGER_TX_TIMEOUT\", \"bucket\": \"infra\", \"reason\": \"internal_error\", \"pg_code\": \"XX000\", \"retryable\": true, \"constraint\": null}"
+  },
+  "ts_53300_503": {
+   "ts_code": "LEDGER_TX_TIMEOUT",
+   "ts_status": 503,
+   "ts_details": {
+    "reason": "too_many_connections",
+    "pg_code": "53300",
+    "retryable": true,
+    "source": "pg_infra_class"
+   },
+   "ts_infra_reason": "too_many_connections"
+  },
+  "ts_XX000_503": {
+   "ts_code": "LEDGER_TX_TIMEOUT",
+   "ts_status": 503,
+   "ts_details": {
+    "reason": "internal_error",
+    "pg_code": "XX000",
+    "retryable": true,
+    "source": "pg_infra_class"
+   },
+   "ts_infra_reason": "internal_error"
+  },
+  "ts_08P01_500_not_infra": {
+   "ts_code": "LEDGER_TRANSACTION_REQUIRED",
+   "ts_status": 500,
+   "ts_details": {
+    "cause": "08P01",
+    "reason": "protocol_violation",
+    "error_name": "ProtocolViolation",
+    "pg_code": "08P01"
+   },
+   "ts_infra_reason": null
+  },
+  "ts_57014_503": {
+   "ts_code": "LEDGER_TX_TIMEOUT",
+   "ts_status": 503,
+   "ts_details": {},
+   "ts_infra_reason": null
+  },
+  "ledger_tx_timeout_meta": {
+   "status": 503,
+   "message": "系统繁忙，请稍后重试"
+  },
+  "sqlstate_to_code": {
+   "LD025": "LEDGER_LOCK_TIMEOUT",
+   "LD026": "LEDGER_TX_TIMEOUT",
+   "LD027": "LEDGER_DEADLOCK_RETRY_EXHAUSTED"
+  }
+ },
+ "invariants_tail": {
+  "negatives": {
+   "n": "0"
+  },
+  "platform_cid1": [
+   {
+    "uid": "-1",
+    "balance": "0",
+    "frozen": "0"
+   },
+   {
+    "uid": "-2",
+    "balance": "0",
+    "frozen": "0"
+   },
+   {
+    "uid": "-3",
+    "balance": "0",
+    "frozen": "0"
+   },
+   {
+    "uid": "0",
+    "balance": "0",
+    "frozen": "0"
+   },
+   {
+    "uid": "900001",
+    "balance": "4044",
+    "frozen": "0"
+   },
+   {
+    "uid": "900002",
+    "balance": "2190",
+    "frozen": "0"
+   },
+   {
+    "uid": "900003",
+    "balance": "966",
+    "frozen": "0"
+   }
+  ],
+  "ledger_entry_total": {
+   "n": "1584"
+  },
+  "wrong_root_rows": {
+   "n": "0"
+  }
+ },
+ "finished_at": "2026-09-27T07:04:52.815Z"
+}

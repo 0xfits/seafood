@@ -1,0 +1,194 @@
+diff --git a/backend-ts/src/ledger-errors.ts b/backend-ts/src/ledger-errors.ts
+index d6f7362..3babf9c 100644
+--- a/backend-ts/src/ledger-errors.ts
++++ b/backend-ts/src/ledger-errors.ts
+@@ -183,6 +183,50 @@ export type NonPgErrorReason =
+ /** PG SQLSTATE 形状（5 位大写字母/数字），用于把 PG 错误与非 PG 错误分开 */
+ const isSqlstate = (code: string): boolean => /^[0-9A-Z]{5}$/.test(code);
+ 
++// ---------------------------------------------------------------------------
++// P1i（F3③）：**基础设施类** OK SQLSTATE → `LEDGER_TX_TIMEOUT`（503，可重试）
++// ---------------------------------------------------------------------------
++// 缺陷（P1e 质检 F3）：基础设施错误（资源不足 / 系统错误 / 内部错误 / 运维干预 / 连接类）
++// 修前会落到本文件末尾的 500 类兜底 ⇒ 与「代码缺陷（R108 必须告警）」混为一谈，
++// 调用方也无法区分「重试可能成功」与「重试必然失败」。
++// 裁定（逐字执行）：与 DB 侧 `ledger_error_for_sqlstate`（0005 §C）的 `infra` 桶**同集同码** ——
++//   53*（资源不足） / 58*（系统错误） / XX*（内部错误） / 57* 除 57014（运维干预）
++//   / 08* 除 08P01（连接类） / 另有 25006（只读事务）与 3D000（库不可达）两条同样归 infra；
++//   ⇒ 一律 `LEDGER_TX_TIMEOUT`（§14.1 已登记码，**不新增码**；与 503 的「系统繁忙、请稍后重试」语义一致）。
++//   两个**排除**项（都不是瞬时故障，必须留在 500 类供 R108 告警）：
++//     · `08P01` 启动协议参数错误 = 我方连接配置缺陷（如向 pooler 传 `options=`，实测被拒）；
++//     · `57014` 语句超时/取消 —— 已在下面的 switch 归 `LEDGER_TX_TIMEOUT`（语义更精确，此处排除重复）。
++const INFRA_SQLSTATE_REASONS: Record<string, string> = {
++  '53300': 'too_many_connections',
++  '53200': 'out_of_memory',
++  '53100': 'disk_full',
++  '57P01': 'admin_shutdown',
++  '57P02': 'crash_shutdown',
++  '57P03': 'cannot_connect_now',
++  '58030': 'io_error',
++  '25006': 'read_only_transaction',
++  '3D000': 'database_unavailable',
++};
++
++/** 按 SQLSTATE 类别兜底的 infra reason（逐字对齐 0005 §C 的分类器输出） */
++const INFRA_CLASS_REASONS: Record<string, string> = {
++  '53': 'insufficient_resources',
++  '57': 'operator_intervention',
++  '58': 'system_error',
++  '08': 'connection_error',
++  XX: 'internal_error',
++};
++
++/**
++ * 判「基础设施类」SQLSTATE ⇒ 返回可机读 reason；非 infra（含两个排除项）⇒ `null`。
++ * 导出以便质检脚本直接取证分类逻辑（与 DB 侧分类器做同集对拍，不引入副作用）。
++ */
++export const infraSqlstateReason = (code: string): string | null => {
++  if (INFRA_SQLSTATE_REASONS[code] !== undefined) return INFRA_SQLSTATE_REASONS[code];
++  if (code === '08P01' || code === '57014') return null; // 见上方「两个排除项」
++  return INFRA_CLASS_REASONS[code.slice(0, 2)] ?? null;
++};
++
+ /**
+  * 分类「非 PG 错误」。返回 `null` ⇒ 是 PG SQLSTATE 或账本命名码，交给下面的 switch / 命名分支。
+  * 导出以便质检脚本直接取证分类逻辑（不引入副作用）。
+@@ -257,6 +301,11 @@ export const normalizeLedgerError = (e: unknown): LedgerError => {
+     case '40001':
+     case '40P01':
+       return new LedgerError('LEDGER_DEADLOCK_RETRY_EXHAUSTED');
++    case '08P01': // 启动协议参数错误：我方连接配置缺陷（**不是**瞬时故障）⇒ 500 类（R108 告警）
++      return new LedgerError('LEDGER_TRANSACTION_REQUIRED', {
++        cause: '08P01', reason: 'protocol_violation',
++        error_name: 'ProtocolViolation', pg_code: '08P01',
++      });
+     case 'P0001': // trigger 主动 RAISE
+       if (/append-only/i.test(message)) return new LedgerError('LEDGER_APPEND_ONLY_VIOLATION');
+       if (/account\b|account rows|must start at 0\/0|without any ledger_entry/i.test(message)) {
+@@ -267,6 +316,14 @@ export const normalizeLedgerError = (e: unknown): LedgerError => {
+       break;
+   }
+ 
++  // --- P1i（F3③）：基础设施类 ⇒ 503（可重试），**不得**落 500（见上方 INFRA_* 注释块）
++  const infraReason = infraSqlstateReason(code);
++  if (infraReason !== null) {
++    return new LedgerError('LEDGER_TX_TIMEOUT', {
++      reason: infraReason, pg_code: code, retryable: true, source: 'pg_infra_class',
++    });
++  }
++
+   // 兜底：非账本错误不外泄原始信息（R107），但仍要能被上层区分。
+   // P1c 收口：**必须**带可机读 `reason`（不得只留 `cause='non_pg_error'`），并登记错误形态
+   // （name / 原始 code），否则 500 告警（R108）无法定位「哪个不变量被破坏」。
+diff --git a/backend-ts/src/ledger.ts b/backend-ts/src/ledger.ts
+index af9a3ba..23b06fe 100644
+--- a/backend-ts/src/ledger.ts
++++ b/backend-ts/src/ledger.ts
+@@ -48,7 +48,19 @@
+  *   LEDGER_TX_TIMEOUT            { reason: 'pool_connection_timeout' | 'driver_connection_error', ... }
+  *                                —— 连接池过载 / 拿连接超时 / 驱动连接级错误，HTTP 503（原本被误报成 500）
+  *   LEDGER_TRANSACTION_REQUIRED  { cause, reason: 'unclassified_non_pg_error' | 'unclassified_driver_error'
+- *                                  | 'unclassified_pg_error', error_name, error_code|pg_code }
++ *                                  | 'unclassified_pg_error' | 'protocol_violation', error_name, error_code|pg_code }
++ *
++ * 〔P1i 收口（Kong，2026-09）—— 本文件在 F1/F2/F3 修复轮的对外契约变化，逐条登记〕
++ *   ① `normalizeIdempotencyKey` **字符集收紧**：调用方键禁 `#`（内部派生键分隔符）与控制字符
++ *      ⇒ 违规 400 `LEDGER_IDEMPOTENCY_KEY_INVALID`（`reason=RESERVED_SEPARATOR` / `CONTROL_CHARACTER`）；
++ *      校验顺序固定 `TOO_LONG → PREFIX_REQUIRED → RESERVED_SEPARATOR → CONTROL_CHARACTER`，
++ *      与 DB 侧 C0（`migrations/0005…`）**同序同码**。R60 的键空间互斥由 MK 单射性保证。
++ *   ② `RETRYABLE_SQLSTATES` 增 `'LD027'`：DB 层自 0005 起把 `40P01`/`40001` 归一为 LD027
++ *      （`retries_performed=0` / `retry_owner=caller`）⇒ 不在 TS 侧补上就等于**死锁不再重试**。
++ *   ③ `findByKey` 改按 `event_root_key` **精确归属**（删除字符串前缀「键族」匹配）。
++ *   ④ `ledger-errors.ts` 基础设施类（`53*`/`58*`/`XX*`、`57*` 除 `57014`、`08*` 除 `08P01`）
++ *      → `LEDGER_TX_TIMEOUT`（503 可重试），**不再落 500**（R108 的「500 = 代码缺陷」语义不被污染）。
++ *   ⇒ 需 spec 同步：R48/R49/R50/R51/R52、§11、§14.1/§14.3/§14.4、§19.5（详见交付报告）。
+  *
+  * ---------------------------------------------------------------- 本阶段**未**实现（明确留白，勿误判为遗漏）
+  *   - 招工 / 商品 / 交易所 / 返佣 / 上市费 / 保证金冻结 等业务动作（P3/P4/P5）
+@@ -313,7 +325,26 @@ export const parseUserAmount = (v: Amount, decimals: number, field = 'amount', c
+ 
+ const IDEMPOTENCY_PREFIXES = ['biz:', 'cm:', 'cli:', 'ops:'] as const;
+ 
+-/** R49：键前缀强制；R52③：写路径必须带键 ⇒ 缺失抛 LEDGER_IDEMPOTENCY_KEY_REQUIRED */
++/**
++ * 内部派生键分隔符（`deriveEventKey` 用 `#`）。**调用方键禁止出现**：
++ * 「调用方键集合 K」与「内部派生键集合 D = { k || '#' || i | k ∈ K, i ≥ 2 }」由此**按构造互斥**，
++ * 且派生函数在合法键域上单射 ⇒ F1 的「键族碰撞」两个方向都无法再构造。
++ */
++export const DERIVED_KEY_SEPARATOR = '#';
++
++/**
++ * 控制字符（C0 `\u0000`–`\u001F` + DEL `\u007F`）。
++ * 与 DB 侧 `v_key ~ '[[:cntrl:]]'`（0005 C0）**同集**；两侧必须同时改，否则读数会分叉。
++ */
++const CONTROL_CHAR_RE = /[\u0000-\u001F\u007F]/;
++
++/**
++ * R49：键前缀强制；R52③：写路径必须带键 ⇒ 缺失抛 LEDGER_IDEMPOTENCY_KEY_REQUIRED。
++ * P1f（F1①）/ P1i：字符集收紧 —— 校验**顺序固定**为
++ *   `TOO_LONG → PREFIX_REQUIRED → RESERVED_SEPARATOR → CONTROL_CHARACTER`，
++ * 与 DB 侧 `ledger_post_event` C0（0005）**同序同码**（同一条规则的两处投影，
++ * 同一非法键在 TS 与 DB 必须得到逐字相同的 code/reason）。
++ */
+ export const normalizeIdempotencyKey = (v: unknown): string => {
+   if (v === null || v === undefined || v === '') {
+     throw new LedgerError('LEDGER_IDEMPOTENCY_KEY_REQUIRED');
+@@ -326,6 +357,18 @@ export const normalizeIdempotencyKey = (v: unknown): string => {
+   if (!IDEMPOTENCY_PREFIXES.some((p) => key.startsWith(p))) {
+     throw new LedgerError('LEDGER_IDEMPOTENCY_KEY_INVALID', { reason: 'PREFIX_REQUIRED', provided: key.slice(0, 8) });
+   }
++  // ③ `#` = 内部派生键分隔符 ⇒ 调用方一律不许用（否则可构造出等于他人派生键的键）
++  if (key.includes(DERIVED_KEY_SEPARATOR)) {
++    throw new LedgerError('LEDGER_IDEMPOTENCY_KEY_INVALID', {
++      reason: 'RESERVED_SEPARATOR',
++      value: key.slice(0, 40),
++      note: 'char # is reserved for internal derived entry keys (<key>#<i>)',
++    });
++  }
++  // ④ 控制字符（C0/DEL）不得出现在键里
++  if (CONTROL_CHAR_RE.test(key)) {
++    throw new LedgerError('LEDGER_IDEMPOTENCY_KEY_INVALID', { reason: 'CONTROL_CHARACTER' });
++  }
+   return key;
+ };
+ 
+@@ -654,10 +697,20 @@ export const assertBalanced = (entries: ReadonlyArray<{ delta: Amount; frozenDel
+ // 幂等重放（R51 ③④ / R52）
+ // ============================================================================
+ 
++/**
++ * 事件自己的流水（R51③④ 只读侧）。
++ * P1i（F1②）：改为按 `event_root_key` **精确归属** ——
++ *   删除了修前的 `left(idempotency_key, length($1)+1) = $1 || '#'` **字符串前缀算术**。
++ *   那正是 F1 的根因：它会把他**人事件**的派生行（`<别人根键>#<i>`）当成自己的重放结果返回。
++ *   历史行（0005 之前写入 ⇒ 归属列为 NULL）只按 `idempotency_key = $1` 的**精确等值**兜底，
++ *   不做任何前缀匹配；历史脏数据的清理由后续单负责（见交付报告「测试数据」节）。
++ *   注：`event_root_key` 只作**过滤谓词**，不进 `ENTRY_COLS` / `LedgerEntryRecord`
++ *   ⇒ 出参形状逐字不变（对外 API 零破坏）。
++ */
+ const findByKey = async (key: string, tx?: TxClient): Promise<LedgerEntryRecord[]> => {
+   const sql = `SELECT ${ENTRY_COLS} FROM ledger_entry
+-               WHERE idempotency_key = $1
+-                  OR left(idempotency_key, length($1) + 1) = $1 || '#'
++               WHERE event_root_key = $1
++                  OR (event_root_key IS NULL AND idempotency_key = $1)
+                ORDER BY txid ASC`;
+   const rows = tx ? await txQuery<RawRow>(tx, sql, [key]) : await readQuery<RawRow>(sql, [key]);
+   return rows.map(mapEntry);
+@@ -869,8 +922,14 @@ export const LEDGER_SQLSTATE_TO_CODE: Record<string, LedgerErrorCode> = {
+ const REPLAY_NOT_VISIBLE_SQLSTATE = 'LD006';
+ const REPLAY_NOT_VISIBLE_MESSAGE = 'LEDGER_IDEMPOTENCY_REPLAY';
+ 
+-/** 可重试 SQLSTATE（R60：40001/40P01 同键重试；其余一律不重试） */
+-const RETRYABLE_SQLSTATES = new Set(['40001', '40P01']);
++/**
++ * 可重试 SQLSTATE（R60：同键重试；其余一律不重试）。
++ * P1i：**必须**含 `'LD027'` —— 0005 起 DB 层把 `40001` / `40P01` 归一化后**抛 LD027**
++ * （DETAIL: `retries_performed=0` / `retry_owner=caller`，见 F3④），裸 `40P01` 不再逃出函数。
++ * 不同步这一项 = 死锁**不再被重试** = 行为回归（R60 形同失效）。
++ * `'40001'` / `'40P01'` 保留：它们是**函数之外**（如只读路径、非账本语句）仍可能逃出的原始码。
++ */
++const RETRYABLE_SQLSTATES = new Set(['40001', '40P01', 'LD027']);
+ 
+ const sqlstateOf = (e: unknown): string => String((e as { code?: unknown })?.code ?? '');
+ const messageOf = (e: unknown): string => String((e as { message?: unknown })?.message ?? '');
