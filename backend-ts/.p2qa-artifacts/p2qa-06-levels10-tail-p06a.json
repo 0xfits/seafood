@@ -1,0 +1,510 @@
+{
+  "run": "p06a",
+  "name": "p2qa-06-levels10-tail",
+  "at": "2026-09-27T11:30:04.926Z",
+  "script": "scripts/p2qa-06-levels10-tail.ts",
+  "question": "levels=10、链长 12 时：第 11/12 级祖先在**账上**是否真的零得（不是只看 plan 的 chain_depth 截断读数）？",
+  "policy_now": {
+    "policy_id": "37",
+    "fee_rate_bp": 100,
+    "levels": 10,
+    "weights_bp": [
+      3000,
+      2000,
+      1500,
+      1000,
+      800,
+      600,
+      500,
+      300,
+      200,
+      100
+    ],
+    "effective_from": "2026-09-27 10:56:46.580869+00",
+    "created_by": "0",
+    "time_created": "2026-09-27 10:56:46.580869+00",
+    "weights_sum_bp": 10000
+  },
+  "setup": {
+    "cid": "177",
+    "uid_window": [
+      954901,
+      954902,
+      954903,
+      954904,
+      954905,
+      954906,
+      954907,
+      954908,
+      954909,
+      954910,
+      954911,
+      954912,
+      954913
+    ],
+    "pre_existing_referral_rows": [
+      {
+        "n": "0"
+      }
+    ],
+    "binds": [
+      {
+        "edge": "954912->954913",
+        "ok": true,
+        "depth": "1",
+        "err": null
+      },
+      {
+        "edge": "954911->954912",
+        "ok": true,
+        "depth": "2",
+        "err": null
+      },
+      {
+        "edge": "954910->954911",
+        "ok": true,
+        "depth": "3",
+        "err": null
+      },
+      {
+        "edge": "954909->954910",
+        "ok": true,
+        "depth": "4",
+        "err": null
+      },
+      {
+        "edge": "954908->954909",
+        "ok": true,
+        "depth": "5",
+        "err": null
+      },
+      {
+        "edge": "954907->954908",
+        "ok": true,
+        "depth": "6",
+        "err": null
+      },
+      {
+        "edge": "954906->954907",
+        "ok": true,
+        "depth": "7",
+        "err": null
+      },
+      {
+        "edge": "954905->954906",
+        "ok": true,
+        "depth": "8",
+        "err": null
+      },
+      {
+        "edge": "954904->954905",
+        "ok": true,
+        "depth": "9",
+        "err": null
+      },
+      {
+        "edge": "954903->954904",
+        "ok": true,
+        "depth": "10",
+        "err": null
+      },
+      {
+        "edge": "954902->954903",
+        "ok": true,
+        "depth": "11",
+        "err": null
+      },
+      {
+        "edge": "954901->954902",
+        "ok": true,
+        "depth": "12",
+        "err": null
+      }
+    ],
+    "binds_failed": []
+  },
+  "chain_above_worker": [
+    {
+      "uid": "954902",
+      "distance": "1",
+      "depth": "11"
+    },
+    {
+      "uid": "954903",
+      "distance": "2",
+      "depth": "10"
+    },
+    {
+      "uid": "954904",
+      "distance": "3",
+      "depth": "9"
+    },
+    {
+      "uid": "954905",
+      "distance": "4",
+      "depth": "8"
+    },
+    {
+      "uid": "954906",
+      "distance": "5",
+      "depth": "7"
+    },
+    {
+      "uid": "954907",
+      "distance": "6",
+      "depth": "6"
+    },
+    {
+      "uid": "954908",
+      "distance": "7",
+      "depth": "5"
+    },
+    {
+      "uid": "954909",
+      "distance": "8",
+      "depth": "4"
+    },
+    {
+      "uid": "954910",
+      "distance": "9",
+      "depth": "3"
+    },
+    {
+      "uid": "954911",
+      "distance": "10",
+      "depth": "2"
+    },
+    {
+      "uid": "954912",
+      "distance": "11",
+      "depth": "1"
+    },
+    {
+      "uid": "954913",
+      "distance": "12",
+      "depth": "0"
+    }
+  ],
+  "chain_above_worker_len": 12,
+  "settlement": {
+    "job_id": "954600025538996",
+    "key": "biz:job:settle:954600025538996",
+    "gross": "10000000",
+    "plan_M": 10,
+    "plan_chain_depth": 10,
+    "plan_x": [
+      "30000",
+      "20000",
+      "15000",
+      "10000",
+      "8000",
+      "6000",
+      "5000",
+      "3000",
+      "2000",
+      "1000"
+    ],
+    "plan_uids": [
+      "954902",
+      "954903",
+      "954904",
+      "954905",
+      "954906",
+      "954907",
+      "954908",
+      "954909",
+      "954910",
+      "954911"
+    ],
+    "plan_W": "10000",
+    "plan_sum_x": "100000",
+    "posted": {
+      "ok": true,
+      "replay": false,
+      "fee": "100000",
+      "pool": "100000",
+      "M": 10,
+      "chain_depth": 10,
+      "x": [
+        "30000",
+        "20000",
+        "15000",
+        "10000",
+        "8000",
+        "6000",
+        "5000",
+        "3000",
+        "2000",
+        "1000"
+      ],
+      "uids": [
+        "954902",
+        "954903",
+        "954904",
+        "954905",
+        "954906",
+        "954907",
+        "954908",
+        "954909",
+        "954910",
+        "954911"
+      ]
+    }
+  },
+  "account_level_per_ancestor": [
+    {
+      "uid": "954902",
+      "distance": "1",
+      "comm_rows": "1",
+      "comm_delta": "30000",
+      "balance": "30000",
+      "frozen": "0"
+    },
+    {
+      "uid": "954903",
+      "distance": "2",
+      "comm_rows": "1",
+      "comm_delta": "20000",
+      "balance": "20000",
+      "frozen": "0"
+    },
+    {
+      "uid": "954904",
+      "distance": "3",
+      "comm_rows": "1",
+      "comm_delta": "15000",
+      "balance": "15000",
+      "frozen": "0"
+    },
+    {
+      "uid": "954905",
+      "distance": "4",
+      "comm_rows": "1",
+      "comm_delta": "10000",
+      "balance": "10000",
+      "frozen": "0"
+    },
+    {
+      "uid": "954906",
+      "distance": "5",
+      "comm_rows": "1",
+      "comm_delta": "8000",
+      "balance": "8000",
+      "frozen": "0"
+    },
+    {
+      "uid": "954907",
+      "distance": "6",
+      "comm_rows": "1",
+      "comm_delta": "6000",
+      "balance": "6000",
+      "frozen": "0"
+    },
+    {
+      "uid": "954908",
+      "distance": "7",
+      "comm_rows": "1",
+      "comm_delta": "5000",
+      "balance": "5000",
+      "frozen": "0"
+    },
+    {
+      "uid": "954909",
+      "distance": "8",
+      "comm_rows": "1",
+      "comm_delta": "3000",
+      "balance": "3000",
+      "frozen": "0"
+    },
+    {
+      "uid": "954910",
+      "distance": "9",
+      "comm_rows": "1",
+      "comm_delta": "2000",
+      "balance": "2000",
+      "frozen": "0"
+    },
+    {
+      "uid": "954911",
+      "distance": "10",
+      "comm_rows": "1",
+      "comm_delta": "1000",
+      "balance": "1000",
+      "frozen": "0"
+    },
+    {
+      "uid": "954912",
+      "distance": "11",
+      "comm_rows": "0",
+      "comm_delta": "0",
+      "balance": null,
+      "frozen": null
+    },
+    {
+      "uid": "954913",
+      "distance": "12",
+      "comm_rows": "0",
+      "comm_delta": "0",
+      "balance": null,
+      "frozen": null
+    }
+  ],
+  "event_rows_by_uid_kind": [
+    {
+      "uid": "-2",
+      "kind": "commission",
+      "n": "10",
+      "sum_delta": "-100000"
+    },
+    {
+      "uid": "-2",
+      "kind": "job_fee",
+      "n": "1",
+      "sum_delta": "100000"
+    },
+    {
+      "uid": "954001",
+      "kind": "job_fee",
+      "n": "1",
+      "sum_delta": "0"
+    },
+    {
+      "uid": "954001",
+      "kind": "job_payout",
+      "n": "1",
+      "sum_delta": "0"
+    },
+    {
+      "uid": "954901",
+      "kind": "job_payout",
+      "n": "1",
+      "sum_delta": "9900000"
+    },
+    {
+      "uid": "954902",
+      "kind": "commission",
+      "n": "1",
+      "sum_delta": "30000"
+    },
+    {
+      "uid": "954903",
+      "kind": "commission",
+      "n": "1",
+      "sum_delta": "20000"
+    },
+    {
+      "uid": "954904",
+      "kind": "commission",
+      "n": "1",
+      "sum_delta": "15000"
+    },
+    {
+      "uid": "954905",
+      "kind": "commission",
+      "n": "1",
+      "sum_delta": "10000"
+    },
+    {
+      "uid": "954906",
+      "kind": "commission",
+      "n": "1",
+      "sum_delta": "8000"
+    },
+    {
+      "uid": "954907",
+      "kind": "commission",
+      "n": "1",
+      "sum_delta": "6000"
+    },
+    {
+      "uid": "954908",
+      "kind": "commission",
+      "n": "1",
+      "sum_delta": "5000"
+    },
+    {
+      "uid": "954909",
+      "kind": "commission",
+      "n": "1",
+      "sum_delta": "3000"
+    },
+    {
+      "uid": "954910",
+      "kind": "commission",
+      "n": "1",
+      "sum_delta": "2000"
+    },
+    {
+      "uid": "954911",
+      "kind": "commission",
+      "n": "1",
+      "sum_delta": "1000"
+    }
+  ],
+  "event_facts": {
+    "idempotency_key": "biz:job:settle:954600025538996",
+    "rows_total": "24",
+    "root_rows": "1",
+    "commission_rows": "20",
+    "payout_rows": "2",
+    "job_fee_rows": "2",
+    "pool_in": "100000",
+    "commission_out": "100000",
+    "minus2_net": "0",
+    "minus1_net": "0",
+    "minus1_fee_in": "0",
+    "employer_frozen_out": "10000000",
+    "employer_delta": "0",
+    "worker_got": "9900000",
+    "ev_net_sum": "0",
+    "credit_rows": "10",
+    "distinct_beneficiaries": "10",
+    "minus2_commission_payer_rows": "1",
+    "commission_uid_delta": "-2:-30000,954902:30000,-2:-20000,954903:20000,-2:-15000,954904:15000,-2:-10000,954905:10000,-2:-8000,954906:8000,-2:-6000,954907:6000,-2:-5000,954908:5000,-2:-3000,954909:3000,-2:-2000,954910:2000,-2:-1000,954911:1000",
+    "key_family_net_by_root": "0",
+    "key_family_net_by_key_arithmetic": "0",
+    "derived_keys": "biz:job:settle:954600025538996,biz:job:settle:954600025538996#2,biz:job:settle:954600025538996#3,biz:job:settle:954600025538996#4,biz:job:settle:954600025538996#5,biz:job:settle:954600025538996#6,biz:job:settle:954600025538996#7,biz:job:settle:954600025538996#8,biz:job:settle:954600025538996#9,biz:job:settle:954600025538996#10,biz:job:settle:954600025538996#11,biz:job:settle:954600025538996#12,biz:job:settle:954600025538996#13,biz:job:settle:954600025538996#14,biz:job:settle:954600025538996#15,biz:job:settle:954600025538996#16,biz:job:settle:954600025538996#17,biz:job:settle:954600025538996#18,biz:job:settle:954600025538996#19,biz:job:settle:954600025538996#20,biz:job:settle:954600025538996#21,biz:job:settle:954600025538996#22,biz:job:settle:954600025538996#23,biz:job:settle:954600025538996#24"
+  },
+  "verdict": {
+    "distance_le_10_all_paid": true,
+    "distance_11_12_zero_rows": true,
+    "distance_11_12_zero_delta": true,
+    "distance_11_12_account_zero": true,
+    "plan_M_eq_10": true,
+    "plan_chain_depth_eq_10": true,
+    "plan_x_len_10": true,
+    "sum_x_equals_pool": true,
+    "chain_has_12_ancestors": true
+  },
+  "platform_cid1_unchanged": true,
+  "platform_cid1": {
+    "pre": [
+      {
+        "uid": "-1",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0"
+      },
+      {
+        "uid": "-2",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0"
+      }
+    ],
+    "post": [
+      {
+        "uid": "-1",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0"
+      },
+      {
+        "uid": "-2",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0"
+      }
+    ]
+  }
+}

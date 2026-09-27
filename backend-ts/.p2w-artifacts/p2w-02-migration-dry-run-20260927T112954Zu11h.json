@@ -1,0 +1,111 @@
+{
+  "run": "20260927T112954Zu11h",
+  "name": "p2w-02-migration-dry-run",
+  "at": "2026-09-27T11:29:58.420Z",
+  "script": "scripts/p2w-02-migration-dry-run.ts",
+  "file": "migrations/0011_commission_assert_closure_and_referral_depth_guard.sql",
+  "sql_sha256": "50772ffd643f08c0bf690ced93b5c507",
+  "sql_bytes": 30560,
+  "fingerprint_before": {
+    "functions": [
+      {
+        "proname": "ledger_assert_commission_conservation",
+        "md5": "ee1cdf291abeb9a1ad5ae66b07bf763b",
+        "len": 1275
+      },
+      {
+        "proname": "referral_cycle_guard",
+        "md5": "959fcd0eb2e58cd44c991946f3caf99d",
+        "len": 2363
+      }
+    ],
+    "triggers": [
+      {
+        "tgname": "trg_account_guard",
+        "tgenabled": "O",
+        "def": false
+      },
+      {
+        "tgname": "trg_ledger_entry_append_only",
+        "tgenabled": "O",
+        "def": false
+      },
+      {
+        "tgname": "trg_ledger_entry_commission_conservation",
+        "tgenabled": "O",
+        "def": true
+      },
+      {
+        "tgname": "trg_referral_append_only",
+        "tgenabled": "O",
+        "def": false
+      },
+      {
+        "tgname": "trg_referral_cycle_guard",
+        "tgenabled": "O",
+        "def": false
+      }
+    ],
+    "schema_migration_rows": "10"
+  },
+  "dry_run": {
+    "result": {
+      "executed": true
+    },
+    "error": null,
+    "error_sqlstate": null,
+    "rolled_back": true,
+    "ms": 796,
+    "note": "整份文件在一个事务里执行后 ROLLBACK；DO 自检的探针数据在子事务里，已随回滚消失"
+  },
+  "fingerprint_after": {
+    "functions": [
+      {
+        "proname": "ledger_assert_commission_conservation",
+        "md5": "ee1cdf291abeb9a1ad5ae66b07bf763b",
+        "len": 1275
+      },
+      {
+        "proname": "referral_cycle_guard",
+        "md5": "959fcd0eb2e58cd44c991946f3caf99d",
+        "len": 2363
+      }
+    ],
+    "triggers": [
+      {
+        "tgname": "trg_account_guard",
+        "tgenabled": "O",
+        "def": false
+      },
+      {
+        "tgname": "trg_ledger_entry_append_only",
+        "tgenabled": "O",
+        "def": false
+      },
+      {
+        "tgname": "trg_ledger_entry_commission_conservation",
+        "tgenabled": "O",
+        "def": true
+      },
+      {
+        "tgname": "trg_referral_append_only",
+        "tgenabled": "O",
+        "def": false
+      },
+      {
+        "tgname": "trg_referral_cycle_guard",
+        "tgenabled": "O",
+        "def": false
+      }
+    ],
+    "schema_migration_rows": "10"
+  },
+  "zero_residue": true,
+  "probe_residue": {
+    "probe_users": "0",
+    "probe_referral": "0",
+    "probe_currency": "0",
+    "probe_ledger": "0"
+  },
+  "ok": true
+}

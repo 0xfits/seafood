@@ -1,0 +1,442 @@
+{
+  "run": "p05c",
+  "name": "p2qa-05-cycle3-and-order",
+  "at": "2026-09-27T11:29:51.977Z",
+  "script": "scripts/p2qa-05-cycle3-and-order.ts",
+  "question": "3/4 节点环被拒的 reason 是什么？0010 的 ③(环) 与 ④(已有下级) 谁先？两路（referral_bind / 裸 INSERT）报的闸是否同一道？",
+  "setup": {
+    "cid": "175",
+    "uid_window": [
+      954851,
+      954852,
+      954853,
+      954861,
+      954862,
+      954863,
+      954864,
+      954871,
+      954872,
+      954888,
+      954895,
+      954890,
+      954891,
+      954892,
+      954893,
+      954894
+    ]
+  },
+  "pre": {
+    "invariants": {
+      "cycles": "0",
+      "bad_depth": "0",
+      "referral_rows": "88"
+    },
+    "triggers": [
+      {
+        "tbl": "account",
+        "tgname": "trg_account_guard",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "commission_policy",
+        "tgname": "trg_commission_policy_append_only",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "commission_policy",
+        "tgname": "trg_commission_policy_weights_guard",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "ledger_entry",
+        "tgname": "trg_ledger_entry_append_only",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "ledger_entry",
+        "tgname": "trg_ledger_entry_commission_conservation",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "referral",
+        "tgname": "trg_referral_append_only",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "referral",
+        "tgname": "trg_referral_cycle_guard",
+        "tgenabled": "O"
+      }
+    ],
+    "triggers_disabled": [],
+    "my_window_referral_rows": [
+      {
+        "referral_rows": "0"
+      }
+    ]
+  },
+  "in_tx": {
+    "setup3": [
+      {
+        "edge": "954852->954853",
+        "ok": true,
+        "depth": "1",
+        "err": null
+      },
+      {
+        "edge": "954851->954852",
+        "ok": true,
+        "depth": "2",
+        "err": null
+      }
+    ],
+    "setup4": [
+      {
+        "edge": "954863->954864",
+        "ok": true,
+        "depth": "1",
+        "err": null
+      },
+      {
+        "edge": "954862->954863",
+        "ok": true,
+        "depth": "2",
+        "err": null
+      },
+      {
+        "edge": "954861->954862",
+        "ok": true,
+        "depth": "3",
+        "err": null
+      }
+    ],
+    "setup2": [
+      {
+        "edge": "954871->954872",
+        "ok": true,
+        "depth": "1",
+        "err": null
+      }
+    ],
+    "setupLeaf": [
+      {
+        "edge": "954888->954853",
+        "ok": true,
+        "depth": "1",
+        "err": null
+      }
+    ],
+    "edge_rows_after_setup": [
+      {
+        "child_uid": "954851",
+        "parent_uid": "954852",
+        "depth": "2"
+      },
+      {
+        "child_uid": "954852",
+        "parent_uid": "954853",
+        "depth": "1"
+      },
+      {
+        "child_uid": "954861",
+        "parent_uid": "954862",
+        "depth": "3"
+      },
+      {
+        "child_uid": "954862",
+        "parent_uid": "954863",
+        "depth": "2"
+      },
+      {
+        "child_uid": "954863",
+        "parent_uid": "954864",
+        "depth": "1"
+      },
+      {
+        "child_uid": "954871",
+        "parent_uid": "954872",
+        "depth": "1"
+      },
+      {
+        "child_uid": "954888",
+        "parent_uid": "954853",
+        "depth": "1"
+      }
+    ],
+    "cells": [
+      {
+        "tag": "c1_self_bind",
+        "parent": 954853,
+        "via_referral_bind": {
+          "ok": false,
+          "sqlstate": "LD016",
+          "reason": "REFERRAL_SELF_BIND",
+          "constraint": null,
+          "message": "LEDGER_AMOUNT_INVALID"
+        }
+      },
+      {
+        "tag": "c1b_self_bind_via_raw_insert",
+        "parent": 954853,
+        "via_raw_insert": {
+          "ok": false,
+          "sqlstate": "LD016",
+          "reason": "REFERRAL_SELF_BIND",
+          "constraint": null,
+          "message": "LEDGER_AMOUNT_INVALID"
+        }
+      },
+      {
+        "tag": "c2_cycle3_with_descendant",
+        "parent": 954851,
+        "via_referral_bind": {
+          "ok": false,
+          "sqlstate": "LD016",
+          "reason": "REFERRAL_CYCLE_REJECTED",
+          "constraint": null,
+          "message": "LEDGER_AMOUNT_INVALID"
+        },
+        "via_raw_insert": {
+          "ok": false,
+          "sqlstate": "LD016",
+          "reason": "REFERRAL_CYCLE_REJECTED",
+          "constraint": null,
+          "message": "LEDGER_AMOUNT_INVALID"
+        }
+      },
+      {
+        "tag": "c3_cycle4_with_descendant",
+        "parent": 954861,
+        "via_referral_bind": {
+          "ok": false,
+          "sqlstate": "LD016",
+          "reason": "REFERRAL_CYCLE_REJECTED",
+          "constraint": null,
+          "message": "LEDGER_AMOUNT_INVALID"
+        },
+        "via_raw_insert": {
+          "ok": false,
+          "sqlstate": "LD016",
+          "reason": "REFERRAL_CYCLE_REJECTED",
+          "constraint": null,
+          "message": "LEDGER_AMOUNT_INVALID"
+        }
+      },
+      {
+        "tag": "c4_cycle2_baseline",
+        "parent": 954871,
+        "via_referral_bind": {
+          "ok": false,
+          "sqlstate": "LD016",
+          "reason": "REFERRAL_CYCLE_REJECTED",
+          "constraint": null,
+          "message": "LEDGER_AMOUNT_INVALID"
+        },
+        "via_raw_insert": {
+          "ok": false,
+          "sqlstate": "LD016",
+          "reason": "REFERRAL_CYCLE_REJECTED",
+          "constraint": null,
+          "message": "LEDGER_AMOUNT_INVALID"
+        }
+      },
+      {
+        "tag": "c5_root_with_descendants",
+        "parent": 954895,
+        "via_referral_bind": {
+          "ok": false,
+          "sqlstate": "LD016",
+          "reason": "REFERRAL_BIND_WOULD_STALE_DEPTH",
+          "constraint": null,
+          "message": "LEDGER_AMOUNT_INVALID"
+        }
+      },
+      {
+        "tag": "c5b_root_with_descendants_via_raw_insert",
+        "parent": 954895,
+        "via_raw_insert": {
+          "ok": false,
+          "sqlstate": "LD016",
+          "reason": "REFERRAL_BIND_WOULD_STALE_DEPTH",
+          "constraint": null,
+          "message": "LEDGER_AMOUNT_INVALID"
+        }
+      },
+      {
+        "tag": "c5c_already_bound_with_descendant",
+        "parent": 954888,
+        "via_referral_bind": {
+          "ok": false,
+          "sqlstate": "LD003",
+          "reason": "REFERRAL_ALREADY_BOUND",
+          "constraint": null,
+          "message": "LEDGER_IDEMPOTENCY_CONFLICT"
+        },
+        "via_raw_insert": {
+          "ok": false,
+          "sqlstate": "LD016",
+          "reason": "REFERRAL_BIND_WOULD_STALE_DEPTH",
+          "constraint": null,
+          "message": "LEDGER_AMOUNT_INVALID"
+        }
+      },
+      {
+        "tag": "c6_legal_leaf_to_root",
+        "parent": 954853,
+        "via_referral_bind": {
+          "ok": true,
+          "rows": 1,
+          "depth": "1"
+        },
+        "via_raw_insert": {
+          "ok": true,
+          "rows": 1,
+          "depth": "1"
+        }
+      },
+      {
+        "tag": "c7_depth_forge_parent_is_root",
+        "parent": 954864,
+        "via_raw_insert": {
+          "ok": true,
+          "rows": 1,
+          "depth": "1"
+        }
+      },
+      {
+        "tag": "c7b_depth_forge_parent_depth1",
+        "parent": 954863,
+        "via_raw_insert": {
+          "ok": true,
+          "rows": 1,
+          "depth": "2"
+        }
+      }
+    ],
+    "invariants_in_tx": {
+      "cycles": "0",
+      "bad_depth": "0",
+      "referral_rows": "99"
+    },
+    "triggers_in_tx": [
+      {
+        "tbl": "account",
+        "tgname": "trg_account_guard",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "commission_policy",
+        "tgname": "trg_commission_policy_append_only",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "commission_policy",
+        "tgname": "trg_commission_policy_weights_guard",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "ledger_entry",
+        "tgname": "trg_ledger_entry_append_only",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "ledger_entry",
+        "tgname": "trg_ledger_entry_commission_conservation",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "referral",
+        "tgname": "trg_referral_append_only",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "referral",
+        "tgname": "trg_referral_cycle_guard",
+        "tgenabled": "O"
+      }
+    ],
+    "triggers_disabled_in_tx": []
+  },
+  "tx_error": null,
+  "post": {
+    "invariants": {
+      "cycles": "0",
+      "bad_depth": "0",
+      "referral_rows": "88"
+    },
+    "triggers": [
+      {
+        "tbl": "account",
+        "tgname": "trg_account_guard",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "commission_policy",
+        "tgname": "trg_commission_policy_append_only",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "commission_policy",
+        "tgname": "trg_commission_policy_weights_guard",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "ledger_entry",
+        "tgname": "trg_ledger_entry_append_only",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "ledger_entry",
+        "tgname": "trg_ledger_entry_commission_conservation",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "referral",
+        "tgname": "trg_referral_append_only",
+        "tgenabled": "O"
+      },
+      {
+        "tbl": "referral",
+        "tgname": "trg_referral_cycle_guard",
+        "tgenabled": "O"
+      }
+    ],
+    "triggers_disabled": [],
+    "my_window_referral_rows": [
+      {
+        "referral_rows": "0"
+      }
+    ],
+    "my_window_users_rows": [
+      {
+        "users_rows": "0"
+      }
+    ],
+    "my_window_account_rows": [
+      {
+        "account_rows": "0"
+      }
+    ]
+  },
+  "restored": {
+    "invariants_identical": true,
+    "triggers_identical": true,
+    "all_triggers_enabled": true,
+    "zero_residue_in_window": true,
+    "rolled_back": true
+  },
+  "verdict_cells": {
+    "c1 自指 → REFERRAL_SELF_BIND": true,
+    "c1b 自指(裸 INSERT 路) → REFERRAL_SELF_BIND": true,
+    "c2 3-环 → REFERRAL_CYCLE_REJECTED（③ 先于 ④）": true,
+    "c2 3-环(裸 INSERT 路) → REFERRAL_CYCLE_REJECTED": true,
+    "c3 4-环 → REFERRAL_CYCLE_REJECTED": true,
+    "c4 2-环（不回归） → REFERRAL_CYCLE_REJECTED": true,
+    "c5 根且有下级 → REFERRAL_BIND_WOULD_STALE_DEPTH": true,
+    "c5b 同上(裸 INSERT 路) → REFERRAL_BIND_WOULD_STALE_DEPTH": true,
+    "c6 新叶→根 放行": true,
+    "c7 depth 伪造(父=根) 被覆写为 1": true,
+    "c7b depth 伪造(父 depth=1) 被覆写为 2": true
+  },
+  "verdict_all_green": true
+}

@@ -1,0 +1,90 @@
+{
+  "run": "pre011-20260927193514",
+  "name": "migration-state",
+  "at": "2026-09-27T11:38:16.932Z",
+  "schema_version": "0011",
+  "schema_migration": [
+    "0001:0001_ledger_core.sql@2026-09-27 03:48:15.617808+00",
+    "0002:0002_user_identity.sql@2026-09-27 03:48:20.093949+00",
+    "0003:0003_kind_close_set_20.sql@2026-09-27 04:57:40.94416+00",
+    "0004:0004_ledger_post_event.sql@2026-09-27 05:26:01.859398+00",
+    "0005:0005_ledger_event_root_key.sql@2026-09-27 06:34:21.897469+00",
+    "0006:0006_user_to_users.sql@2026-09-27 07:09:27.38362+00",
+    "0007:0007_referral_and_commission_policy.sql@2026-09-27 09:49:28.131292+00",
+    "0008:0008_platform_revenue_job_fee.sql@2026-09-27 09:49:29.040584+00",
+    "0009:0009_ledger_error_reverse_map_complete.sql@2026-09-27 10:09:16.665946+00",
+    "0010:0010_referral_bind_protocol_guard.sql@2026-09-27 10:45:22.18861+00",
+    "0011:0011_commission_assert_closure_and_referral_depth_guard.sql@2026-09-27 11:35:24.353246+00"
+  ],
+  "functions": [
+    {
+      "proname": "ledger_assert_commission_conservation",
+      "body_md5": "27ddc76b842594cb6ee8673c171e6526",
+      "body_len": 2624
+    },
+    {
+      "proname": "referral_bind",
+      "body_md5": "fe598897e38c0a369a80d8f501caab04",
+      "body_len": 1600
+    },
+    {
+      "proname": "referral_cycle_guard",
+      "body_md5": "7bd5874f7145989a43567003048a9f04",
+      "body_len": 4560
+    }
+  ],
+  "triggers": [
+    {
+      "tbl": "account",
+      "tgname": "trg_account_guard",
+      "tgenabled": "O",
+      "tgdeferrable": false,
+      "tginitdeferred": false,
+      "is_constraint": false
+    },
+    {
+      "tbl": "ledger_entry",
+      "tgname": "trg_ledger_entry_append_only",
+      "tgenabled": "O",
+      "tgdeferrable": false,
+      "tginitdeferred": false,
+      "is_constraint": false
+    },
+    {
+      "tbl": "ledger_entry",
+      "tgname": "trg_ledger_entry_commission_conservation",
+      "tgenabled": "O",
+      "tgdeferrable": true,
+      "tginitdeferred": true,
+      "is_constraint": true
+    },
+    {
+      "tbl": "referral",
+      "tgname": "trg_referral_append_only",
+      "tgenabled": "O",
+      "tgdeferrable": false,
+      "tginitdeferred": false,
+      "is_constraint": false
+    },
+    {
+      "tbl": "referral",
+      "tgname": "trg_referral_cycle_guard",
+      "tgenabled": "O",
+      "tgdeferrable": false,
+      "tginitdeferred": false,
+      "is_constraint": false
+    }
+  ],
+  "probes": [
+    {
+      "users_9529xx": "0",
+      "referral_9529xx": "0",
+      "probe_currency": "0"
+    }
+  ],
+  "fingerprints": {
+    "ledger_assert_commission_conservation": "27ddc76b842594cb6ee8673c171e6526",
+    "referral_bind": "fe598897e38c0a369a80d8f501caab04",
+    "referral_cycle_guard": "7bd5874f7145989a43567003048a9f04"
+  }
+}
