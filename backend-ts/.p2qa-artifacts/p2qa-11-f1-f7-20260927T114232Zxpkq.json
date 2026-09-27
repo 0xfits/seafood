@@ -1,0 +1,1044 @@
+{
+  "run": "20260927T114232Zxpkq",
+  "name": "p2qa-11-f1-f7",
+  "at": "2026-09-27T11:42:57.350Z",
+  "script": "scripts/p2qa-11-f1-f7.ts",
+  "F1": {
+    "uids": {
+      "X": 958501,
+      "Y": 958502,
+      "EMP": 958503
+    },
+    "result": null,
+    "tx_error": {
+      "sqlstate": "23514",
+      "message": "new row for relation \"referral\" violates check constraint \"referral_depth_rng\"",
+      "constraint": "referral_depth_rng",
+      "detail": "Failing row contains (958501, 958502, 0, 2026-09-27 11:42:35.474109+00).",
+      "reason": null,
+      "detail_parsed": null
+    },
+    "rolled_back": true
+  },
+  "F7_truncation": {
+    "cid": "182",
+    "binds": [
+      {
+        "edge": "958522->958523",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958521->958522",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958520->958521",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958519->958520",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958518->958519",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958517->958518",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958516->958517",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958515->958516",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958514->958515",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958513->958514",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958512->958513",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958511->958512",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958533->958534",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958532->958533",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958531->958532",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958530->958531",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958529->958530",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958528->958529",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958527->958528",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958526->958527",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958525->958526",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958524->958525",
+        "ok": true,
+        "err": null
+      }
+    ],
+    "binds_failed": [],
+    "w1_12deep_cap10": {
+      "nodes_len": 10,
+      "chain_depth": 10,
+      "truncated": true,
+      "last_node": "958521",
+      "assertions": {
+        "contiguous_levels": true,
+        "within_cap": true,
+        "all_user_uids": true,
+        "no_duplicate_uid": true
+      },
+      "tail_uids": [
+        "8:958519",
+        "9:958520",
+        "10:958521"
+      ]
+    },
+    "w2_10deep_cap10": {
+      "nodes_len": 10,
+      "chain_depth": 10,
+      "truncated": false,
+      "last_node": "958534",
+      "assertions": {
+        "contiguous_levels": true,
+        "within_cap": true,
+        "all_user_uids": true,
+        "no_duplicate_uid": true
+      },
+      "tail_uids": [
+        "8:958532",
+        "9:958533",
+        "10:958534"
+      ]
+    },
+    "w1_12deep_cap12": {
+      "nodes_len": 12,
+      "chain_depth": 12,
+      "truncated": false,
+      "last_node": "958523",
+      "assertions": {
+        "contiguous_levels": true,
+        "within_cap": true,
+        "all_user_uids": true,
+        "no_duplicate_uid": true
+      },
+      "tail_uids": [
+        "10:958521",
+        "11:958522",
+        "12:958523"
+      ]
+    },
+    "w2_10deep_cap11": {
+      "nodes_len": 10,
+      "chain_depth": 10,
+      "truncated": false,
+      "last_node": "958534",
+      "assertions": {
+        "contiguous_levels": true,
+        "within_cap": true,
+        "all_user_uids": true,
+        "no_duplicate_uid": true
+      },
+      "tail_uids": [
+        "8:958532",
+        "9:958533",
+        "10:958534"
+      ]
+    },
+    "w1_12deep_cap3": {
+      "nodes_len": 3,
+      "chain_depth": 3,
+      "truncated": true,
+      "last_node": "958514",
+      "assertions": {
+        "contiguous_levels": true,
+        "within_cap": true,
+        "all_user_uids": true,
+        "no_duplicate_uid": true
+      },
+      "tail_uids": [
+        "1:958512",
+        "2:958513",
+        "3:958514"
+      ]
+    },
+    "policy_now": {
+      "policy_id": "37",
+      "levels": 10,
+      "fee_rate_bp": 100
+    },
+    "plan_w1_chain_truncated": true,
+    "plan_w1_chain_depth": 10,
+    "plan_w1_M": 10,
+    "plan_w2_chain_truncated": false,
+    "plan_w2_chain_depth": 10,
+    "plan_w2_M": 10,
+    "verdict": {
+      "truncated_true_when_12deep_cap10": true,
+      "truncated_false_when_exactly_10deep": true,
+      "chain_depth_identical_both_cases": true
+    },
+    "tx_error": null,
+    "rolled_back": true
+  },
+  "F7_replay": {
+    "cid": "183",
+    "uids": {
+      "EMP2": 958541,
+      "WRK": 958542,
+      "A1": 958543,
+      "A2": 958544
+    },
+    "binds": [
+      {
+        "edge": "958543->958544",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958542->958543",
+        "ok": true,
+        "err": null
+      }
+    ],
+    "mint": {
+      "ok": true,
+      "err": null
+    },
+    "hold": {
+      "ok": true,
+      "err": null
+    },
+    "policy_at_now": {
+      "policy_id": "37",
+      "fee_rate_bp": 100,
+      "levels": 10
+    },
+    "policy_alt_candidate": {
+      "policy_id": "35",
+      "fee_rate_bp": "500",
+      "levels": "9",
+      "effective_from": "2026-09-27 10:56:38.930553+00",
+      "t_alt": "2026-09-27 10:56:39.930553+00"
+    },
+    "T_ALT": "2026-09-27 10:56:39.930553+00",
+    "gross": "1000000",
+    "call1_committed": {
+      "ok": true,
+      "tag": "first",
+      "at": "2026-09-27 10:56:39.930553+00",
+      "elapsed_ms": 2065,
+      "replay": false,
+      "plan_source": "computed",
+      "plan_policy_id": "35",
+      "plan_policy_reported": true,
+      "plan_fee": "50000",
+      "plan_net": "950000",
+      "plan_gross": "1000000",
+      "plan_pool": "50000",
+      "plan_chain_depth": 2,
+      "plan_M": 2,
+      "plan_N": 2,
+      "plan_layers": [
+        {
+          "level": 1,
+          "uid": "958543",
+          "x": "25000"
+        },
+        {
+          "level": 2,
+          "uid": "958544",
+          "x": "25000"
+        }
+      ],
+      "event_assertions": {
+        "entry_count": 8,
+        "account_count": 5,
+        "sum_delta_frozen": "0",
+        "commission_rows": 4,
+        "sum_commission_credit": "50000",
+        "sum_x_equals_pool": true
+      },
+      "result": {
+        "ok": true,
+        "idempotent_replay": false,
+        "idempotency_key": "biz:job:settle:958300175123069",
+        "txid": "4603",
+        "entries": [
+          {
+            "txid": "4603",
+            "uid": "958541",
+            "cid": "183",
+            "delta": "0",
+            "frozen_delta": "-950000",
+            "balance_after": "3000000",
+            "frozen_after": "1050000",
+            "kind": "job_payout",
+            "ref_type": "job",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069",
+            "request_fingerprint": "f708366732c7a9130d742e1fda24d7b54a4ba7769014f9229b4ad442de1b7bdb",
+            "reversal_of_txid": null,
+            "memo": "p2qa F7② first",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4604",
+            "uid": "958542",
+            "cid": "183",
+            "delta": "950000",
+            "frozen_delta": "0",
+            "balance_after": "950000",
+            "frozen_after": "0",
+            "kind": "job_payout",
+            "ref_type": "job",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#2",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "p2qa F7② first（打工人到手）",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4605",
+            "uid": "958541",
+            "cid": "183",
+            "delta": "0",
+            "frozen_delta": "-50000",
+            "balance_after": "3000000",
+            "frozen_after": "1000000",
+            "kind": "job_fee",
+            "ref_type": "job",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#3",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "p2qa F7② first（手续费）",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4606",
+            "uid": "-2",
+            "cid": "183",
+            "delta": "50000",
+            "frozen_delta": "0",
+            "balance_after": "50000",
+            "frozen_after": "0",
+            "kind": "job_fee",
+            "ref_type": "job",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#4",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "p2qa F7② first（手续费入 佣金池）",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4607",
+            "uid": "-2",
+            "cid": "183",
+            "delta": "-25000",
+            "frozen_delta": "0",
+            "balance_after": "25000",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "commission_payout",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#5",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "佣金出池 L=1",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4608",
+            "uid": "958543",
+            "cid": "183",
+            "delta": "25000",
+            "frozen_delta": "0",
+            "balance_after": "25000",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "commission_payout",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#6",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "佣金第 1 层",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4609",
+            "uid": "-2",
+            "cid": "183",
+            "delta": "-25000",
+            "frozen_delta": "0",
+            "balance_after": "0",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "commission_payout",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#7",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "佣金出池 L=2",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4610",
+            "uid": "958544",
+            "cid": "183",
+            "delta": "25000",
+            "frozen_delta": "0",
+            "balance_after": "25000",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "commission_payout",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#8",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "佣金第 2 层",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          }
+        ],
+        "accounts": [
+          {
+            "uid": "958541",
+            "cid": "183",
+            "balance": "3000000",
+            "frozen": "1000000"
+          },
+          {
+            "uid": "958542",
+            "cid": "183",
+            "balance": "950000",
+            "frozen": "0"
+          },
+          {
+            "uid": "-2",
+            "cid": "183",
+            "balance": "0",
+            "frozen": "0"
+          },
+          {
+            "uid": "958543",
+            "cid": "183",
+            "balance": "25000",
+            "frozen": "0"
+          },
+          {
+            "uid": "958544",
+            "cid": "183",
+            "balance": "25000",
+            "frozen": "0"
+          }
+        ],
+        "extra": {
+          "symbol": "p1x2ZXPKQ",
+          "entries": "8"
+        },
+        "meta": {
+          "op": "entries",
+          "lock_trace": [
+            "account:-2:183",
+            "account:958541:183",
+            "account:958542:183",
+            "account:958543:183",
+            "account:958544:183"
+          ]
+        }
+      },
+      "ledger_facts": {
+        "commission_rows": "4",
+        "pool_in": "50000",
+        "commission_out": "50000",
+        "worker_got": "950000",
+        "employer_frozen_out": "1000000",
+        "ev_net_sum": "0",
+        "commission_uid_delta": "-2:-25000,958543:25000,-2:-25000,958544:25000"
+      },
+      "plan_fee_eq_ledger_commission_out": true
+    },
+    "ledger_rows_after_call1": [
+      "958541:job_payout:0",
+      "958542:job_payout:950000",
+      "958541:job_fee:0",
+      "-2:job_fee:50000",
+      "-2:commission:-25000",
+      "958543:commission:25000",
+      "-2:commission:-25000",
+      "958544:commission:25000"
+    ],
+    "ledger_entry_total_after_call1": "2007",
+    "call2_replay_under_now_policy": {
+      "ok": true,
+      "tag": "replay-diff-at",
+      "at": null,
+      "elapsed_ms": 1364,
+      "replay": true,
+      "plan_source": "replayed_from_ledger",
+      "plan_policy_id": "ledger_replay",
+      "plan_policy_reported": false,
+      "plan_fee": "50000",
+      "plan_net": "950000",
+      "plan_gross": "1000000",
+      "plan_pool": "50000",
+      "plan_chain_depth": 2,
+      "plan_M": 2,
+      "plan_N": 2,
+      "plan_layers": [
+        {
+          "level": 1,
+          "uid": "958543",
+          "x": "25000"
+        },
+        {
+          "level": 2,
+          "uid": "958544",
+          "x": "25000"
+        }
+      ],
+      "event_assertions": {
+        "entry_count": 8,
+        "account_count": 5,
+        "sum_delta_frozen": "0",
+        "commission_rows": 4,
+        "sum_commission_credit": "50000",
+        "sum_x_equals_pool": true
+      },
+      "result": {
+        "ok": true,
+        "idempotent_replay": true,
+        "idempotency_key": "biz:job:settle:958300175123069",
+        "txid": "4603",
+        "entries": [
+          {
+            "txid": "4603",
+            "uid": "958541",
+            "cid": "183",
+            "delta": "0",
+            "frozen_delta": "-950000",
+            "balance_after": "3000000",
+            "frozen_after": "1050000",
+            "kind": "job_payout",
+            "ref_type": "job",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069",
+            "request_fingerprint": "f708366732c7a9130d742e1fda24d7b54a4ba7769014f9229b4ad442de1b7bdb",
+            "reversal_of_txid": null,
+            "memo": "p2qa F7② first",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4604",
+            "uid": "958542",
+            "cid": "183",
+            "delta": "950000",
+            "frozen_delta": "0",
+            "balance_after": "950000",
+            "frozen_after": "0",
+            "kind": "job_payout",
+            "ref_type": "job",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#2",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "p2qa F7② first（打工人到手）",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4605",
+            "uid": "958541",
+            "cid": "183",
+            "delta": "0",
+            "frozen_delta": "-50000",
+            "balance_after": "3000000",
+            "frozen_after": "1000000",
+            "kind": "job_fee",
+            "ref_type": "job",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#3",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "p2qa F7② first（手续费）",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4606",
+            "uid": "-2",
+            "cid": "183",
+            "delta": "50000",
+            "frozen_delta": "0",
+            "balance_after": "50000",
+            "frozen_after": "0",
+            "kind": "job_fee",
+            "ref_type": "job",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#4",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "p2qa F7② first（手续费入 佣金池）",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4607",
+            "uid": "-2",
+            "cid": "183",
+            "delta": "-25000",
+            "frozen_delta": "0",
+            "balance_after": "25000",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "commission_payout",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#5",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "佣金出池 L=1",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4608",
+            "uid": "958543",
+            "cid": "183",
+            "delta": "25000",
+            "frozen_delta": "0",
+            "balance_after": "25000",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "commission_payout",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#6",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "佣金第 1 层",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4609",
+            "uid": "-2",
+            "cid": "183",
+            "delta": "-25000",
+            "frozen_delta": "0",
+            "balance_after": "0",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "commission_payout",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#7",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "佣金出池 L=2",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4610",
+            "uid": "958544",
+            "cid": "183",
+            "delta": "25000",
+            "frozen_delta": "0",
+            "balance_after": "25000",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "commission_payout",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#8",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "佣金第 2 层",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          }
+        ],
+        "accounts": [
+          {
+            "uid": "958541",
+            "cid": "183",
+            "balance": "3000000",
+            "frozen": "1000000"
+          },
+          {
+            "uid": "958542",
+            "cid": "183",
+            "balance": "950000",
+            "frozen": "0"
+          },
+          {
+            "uid": "-2",
+            "cid": "183",
+            "balance": "0",
+            "frozen": "0"
+          },
+          {
+            "uid": "958543",
+            "cid": "183",
+            "balance": "25000",
+            "frozen": "0"
+          },
+          {
+            "uid": "958544",
+            "cid": "183",
+            "balance": "25000",
+            "frozen": "0"
+          }
+        ],
+        "extra": {},
+        "meta": {
+          "op": "entries",
+          "lock_trace": [
+            "account:-2:183",
+            "account:958541:183",
+            "account:958542:183",
+            "account:958543:183",
+            "account:958544:183"
+          ]
+        }
+      },
+      "ledger_facts": {
+        "commission_rows": "4",
+        "pool_in": "50000",
+        "commission_out": "50000",
+        "worker_got": "950000",
+        "employer_frozen_out": "1000000",
+        "ev_net_sum": "0",
+        "commission_uid_delta": "-2:-25000,958543:25000,-2:-25000,958544:25000"
+      },
+      "plan_fee_eq_ledger_commission_out": true
+    },
+    "ledger_entry_total_after_call2": "2007",
+    "rows_not_doubled": true,
+    "call3_replay_identical_at": {
+      "ok": true,
+      "tag": "replay-same-at",
+      "at": "2026-09-27 10:56:39.930553+00",
+      "elapsed_ms": 1914,
+      "replay": true,
+      "plan_source": "replayed_from_ledger",
+      "plan_policy_id": "ledger_replay",
+      "plan_policy_reported": false,
+      "plan_fee": "50000",
+      "plan_net": "950000",
+      "plan_gross": "1000000",
+      "plan_pool": "50000",
+      "plan_chain_depth": 2,
+      "plan_M": 2,
+      "plan_N": 2,
+      "plan_layers": [
+        {
+          "level": 1,
+          "uid": "958543",
+          "x": "25000"
+        },
+        {
+          "level": 2,
+          "uid": "958544",
+          "x": "25000"
+        }
+      ],
+      "event_assertions": {
+        "entry_count": 8,
+        "account_count": 5,
+        "sum_delta_frozen": "0",
+        "commission_rows": 4,
+        "sum_commission_credit": "50000",
+        "sum_x_equals_pool": true
+      },
+      "result": {
+        "ok": true,
+        "idempotent_replay": true,
+        "idempotency_key": "biz:job:settle:958300175123069",
+        "txid": "4603",
+        "entries": [
+          {
+            "txid": "4603",
+            "uid": "958541",
+            "cid": "183",
+            "delta": "0",
+            "frozen_delta": "-950000",
+            "balance_after": "3000000",
+            "frozen_after": "1050000",
+            "kind": "job_payout",
+            "ref_type": "job",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069",
+            "request_fingerprint": "f708366732c7a9130d742e1fda24d7b54a4ba7769014f9229b4ad442de1b7bdb",
+            "reversal_of_txid": null,
+            "memo": "p2qa F7② first",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4604",
+            "uid": "958542",
+            "cid": "183",
+            "delta": "950000",
+            "frozen_delta": "0",
+            "balance_after": "950000",
+            "frozen_after": "0",
+            "kind": "job_payout",
+            "ref_type": "job",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#2",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "p2qa F7② first（打工人到手）",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4605",
+            "uid": "958541",
+            "cid": "183",
+            "delta": "0",
+            "frozen_delta": "-50000",
+            "balance_after": "3000000",
+            "frozen_after": "1000000",
+            "kind": "job_fee",
+            "ref_type": "job",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#3",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "p2qa F7② first（手续费）",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4606",
+            "uid": "-2",
+            "cid": "183",
+            "delta": "50000",
+            "frozen_delta": "0",
+            "balance_after": "50000",
+            "frozen_after": "0",
+            "kind": "job_fee",
+            "ref_type": "job",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#4",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "p2qa F7② first（手续费入 佣金池）",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4607",
+            "uid": "-2",
+            "cid": "183",
+            "delta": "-25000",
+            "frozen_delta": "0",
+            "balance_after": "25000",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "commission_payout",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#5",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "佣金出池 L=1",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4608",
+            "uid": "958543",
+            "cid": "183",
+            "delta": "25000",
+            "frozen_delta": "0",
+            "balance_after": "25000",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "commission_payout",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#6",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "佣金第 1 层",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4609",
+            "uid": "-2",
+            "cid": "183",
+            "delta": "-25000",
+            "frozen_delta": "0",
+            "balance_after": "0",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "commission_payout",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#7",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "佣金出池 L=2",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          },
+          {
+            "txid": "4610",
+            "uid": "958544",
+            "cid": "183",
+            "delta": "25000",
+            "frozen_delta": "0",
+            "balance_after": "25000",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "commission_payout",
+            "ref_id": "958300175123069",
+            "idempotency_key": "biz:job:settle:958300175123069#8",
+            "request_fingerprint": null,
+            "reversal_of_txid": null,
+            "memo": "佣金第 2 层",
+            "time_created": "2026-09-27T11:42:52.182Z"
+          }
+        ],
+        "accounts": [
+          {
+            "uid": "958541",
+            "cid": "183",
+            "balance": "3000000",
+            "frozen": "1000000"
+          },
+          {
+            "uid": "958542",
+            "cid": "183",
+            "balance": "950000",
+            "frozen": "0"
+          },
+          {
+            "uid": "-2",
+            "cid": "183",
+            "balance": "0",
+            "frozen": "0"
+          },
+          {
+            "uid": "958543",
+            "cid": "183",
+            "balance": "25000",
+            "frozen": "0"
+          },
+          {
+            "uid": "958544",
+            "cid": "183",
+            "balance": "25000",
+            "frozen": "0"
+          }
+        ],
+        "extra": {},
+        "meta": {
+          "op": "entries",
+          "lock_trace": [
+            "account:-2:183",
+            "account:958541:183",
+            "account:958542:183",
+            "account:958543:183",
+            "account:958544:183"
+          ]
+        }
+      },
+      "ledger_facts": {
+        "commission_rows": "4",
+        "pool_in": "50000",
+        "commission_out": "50000",
+        "worker_got": "950000",
+        "employer_frozen_out": "1000000",
+        "ev_net_sum": "0",
+        "commission_uid_delta": "-2:-25000,958543:25000,-2:-25000,958544:25000"
+      },
+      "plan_fee_eq_ledger_commission_out": true
+    },
+    "verdict": {
+      "call2_is_replay": true,
+      "call2_plan_source_replayed": true,
+      "call2_policy_reported_false": true,
+      "call2_policy_id_placeholder": true,
+      "call2_fee_equals_ledger": true,
+      "call2_fee_differs_from_now_policy_recompute": true,
+      "now_policy_recompute_fee": "10000",
+      "call1_plan_source_computed": true,
+      "call3_replay_identical_ok": true,
+      "no_false_replay_inconsistent": true,
+      "call2_layers_match_ledger_credits": true,
+      "rows_not_doubled": true
+    }
+  },
+  "platform_cid1_unchanged": true,
+  "residue": {
+    "referral_mine_958": [
+      {
+        "child_uid": "958542",
+        "parent_uid": "958543",
+        "depth": "2"
+      },
+      {
+        "child_uid": "958543",
+        "parent_uid": "958544",
+        "depth": "1"
+      }
+    ],
+    "users_mine_958": "4",
+    "cycles_global": "0",
+    "my_triggers": [
+      {
+        "tgname": "trg_referral_append_only",
+        "tgenabled": "O"
+      },
+      {
+        "tgname": "trg_referral_cycle_guard",
+        "tgenabled": "O"
+      }
+    ]
+  }
+}

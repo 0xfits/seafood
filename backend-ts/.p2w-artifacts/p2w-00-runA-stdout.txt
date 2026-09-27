@@ -1,0 +1,12 @@
+FATAL LedgerError: 冻结余额不足
+    at ledgerErrorFromDbError (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1111:10)
+    at runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1177:44)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async settleJobCommission (/Users/kevin/bistro/seafood/backend-ts/src/commission.ts:826:18)
+    at async /Users/kevin/bistro/seafood/backend-ts/scripts/p2w-00-p2fix-verify.ts:362:20 {
+  code: 'LEDGER_INSUFFICIENT_FROZEN',
+  status: 409,
+  httpStatus: 409,
+  i18nKey: 'ledger.err.LEDGER_INSUFFICIENT_FROZEN',
+  details: { cid: '193', uid: '959501', required: '99000', available: '0' }
+}

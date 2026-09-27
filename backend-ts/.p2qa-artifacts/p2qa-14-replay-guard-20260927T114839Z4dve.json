@@ -1,0 +1,86 @@
+{
+  "run": "20260927T114839Z4dve",
+  "name": "p2qa-14-replay-guard",
+  "at": "2026-09-27T11:48:41.651Z",
+  "script": "scripts/p2qa-14-replay-guard.ts",
+  "candidate_events": [
+    {
+      "k": "biz:job:settle:958300967222759",
+      "job": "958300967222759",
+      "rows": "8"
+    },
+    {
+      "k": "biz:job:settle:958300175123069",
+      "job": "958300175123069",
+      "rows": "8"
+    }
+  ],
+  "tested_key": "biz:job:settle:958300967222759",
+  "derived": {
+    "employer_uid": "958636",
+    "worker_uid": "958637",
+    "wrong_worker_uid": "958636",
+    "rows": 8,
+    "row_uids_kinds": [
+      "958636:job_payout:0:-950000",
+      "958637:job_payout:950000:0",
+      "958636:job_fee:0:-50000",
+      "-2:job_fee:50000:0",
+      "-2:commission:-25000:0",
+      "958638:commission:25000:0",
+      "-2:commission:-25000:0",
+      "958639:commission:25000:0"
+    ]
+  },
+  "normal_event_no_false_positive": {
+    "threw": false,
+    "fee": "50000",
+    "net": "950000",
+    "gross": "1000000",
+    "employer_frozen_out": "1000000",
+    "minus1_fee_in": "0",
+    "pool_in": "50000",
+    "layers": [
+      "1:958638:25000:memo",
+      "2:958639:25000:memo"
+    ],
+    "no_referrer": false,
+    "zero_amount": false
+  },
+  "misbound_worker_must_throw": {
+    "threw": true,
+    "err": {
+      "ts_code": "LEDGER_RECONCILE_MISMATCH",
+      "http": 500,
+      "details": {
+        "reason": "COMMISSION_LEDGER_REPLAY_INCONSISTENT",
+        "idempotency_key": "biz:job:settle:958300967222759",
+        "net": "0",
+        "fee": "50000",
+        "gross": "50000",
+        "employer_frozen_out": "1000000",
+        "note": "ledger event is self-inconsistent: worker_got + (pool_in + minus1_fee_in) != employer_frozen_out"
+      }
+    }
+  },
+  "verdict": {
+    "no_false_positive_on_normal_event": true,
+    "guard_is_live_not_dead_branch": true,
+    "guard_http_class": 500
+  },
+  "db_borrow_map": [
+    {
+      "ld032": "LD032",
+      "ld032_bucket": "defect",
+      "ld032_code": "LEDGER_RECONCILE_MISMATCH",
+      "ld003": "LD003",
+      "ld003_bucket": "integrity",
+      "ld016": "LD016",
+      "ld016_bucket": "input"
+    }
+  ],
+  "db_error_code_closure": {
+    "note": "DB 侧码集 = 0009 的 ledger_error_for_sqlstate 分支（本轮迁移只 CREATE OR REPLACE 两个函数、未触碰 0009）",
+    "ld032": "LD032"
+  }
+}

@@ -1,0 +1,819 @@
+{
+  "run": "p2w-rr-1",
+  "name": "p2w-00-verify",
+  "at": "2026-09-27T11:54:46.328Z",
+  "reds": [
+    "D4 丢一对佣金（Σ-中性）⇒ 仍报 LD032 + COMMISSION_SPLIT_SUM_MISMATCH :: null",
+    "D5 只入不出（commission_rows=0 且 pool_in>0）⇒ 仍报 LD032 :: null",
+    "D7 先落账后强制结算：非法事件仍报 LD032 :: {\"badPost\":null,\"after\":{\"ok\":true,\"err\":null}}",
+    "E4 判负对照：无守卫时裸 INSERT 退回 23505/referral_pk（= 修前形态） :: null",
+    "F3 判负对照：无守卫时陈旧 depth 被继承（50 ⇒ 51 = 修前形态） :: null"
+  ],
+  "reads": {
+    "env": {
+      "run": "p2w-rr-1",
+      "run_tag_from_env": "p2w-rr-1",
+      "cid": "196",
+      "symbol": "p1y3khacf",
+      "job_tag": "423170642",
+      "key_prefix": "ops:p1y:3khacf:",
+      "gross_std": "100000",
+      "namespace": {
+        "uid_base": 959751,
+        "uid_count": 45,
+        "uid_stride": 50,
+        "uid_source": "auto-scan",
+        "partition": [
+          959001,
+          959949
+        ],
+        "occupied_recheck": [],
+        "slots": {
+          "EMP": 0,
+          "W_SHORT": 1,
+          "W_DEEP": 2,
+          "W_EV3": 3,
+          "W_F7B1": 4,
+          "W_EXACT10": 5,
+          "ANC3": 6,
+          "ANC12": 7,
+          "ANC3C": 19,
+          "ANC2": 22,
+          "ANC10": 24,
+          "POISON": 34,
+          "PROBE2": 36
+        },
+        "uids": [
+          "959751",
+          "959752",
+          "959753",
+          "959754",
+          "959755",
+          "959756",
+          "959757",
+          "959758",
+          "959759",
+          "959760",
+          "959761",
+          "959762",
+          "959763",
+          "959764",
+          "959765",
+          "959766",
+          "959767",
+          "959768",
+          "959769",
+          "959770",
+          "959771",
+          "959772",
+          "959773",
+          "959774",
+          "959775",
+          "959776",
+          "959777",
+          "959778",
+          "959779",
+          "959780",
+          "959781",
+          "959782",
+          "959783",
+          "959784",
+          "959785",
+          "959786",
+          "959787",
+          "959788",
+          "959789",
+          "959790",
+          "959791",
+          "959792",
+          "959793",
+          "959794",
+          "959795"
+        ]
+      }
+    },
+    "cid1_platform_accounts_before": [
+      {
+        "uid": "-1",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0",
+        "version": "0"
+      },
+      {
+        "uid": "-2",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0",
+        "version": "0"
+      },
+      {
+        "uid": "-3",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0",
+        "version": "0"
+      }
+    ],
+    "schema_version": "0011",
+    "trigger_enablement_before": {
+      "total": 7,
+      "enabled": 7,
+      "anomalies": []
+    },
+    "graph_invariants_before": {
+      "cycles": "0",
+      "bad_depth": "0",
+      "referral_rows": "188"
+    },
+    "chain_setup": {
+      "W_SHORT": [
+        "bound"
+      ],
+      "W_DEEP": [
+        "bound",
+        "bound",
+        "bound",
+        "bound",
+        "bound",
+        "bound",
+        "bound",
+        "bound",
+        "bound",
+        "bound",
+        "bound",
+        "bound"
+      ],
+      "W_EV3": [
+        "bound",
+        "bound",
+        "bound"
+      ],
+      "W_F7B1": [
+        "bound",
+        "bound"
+      ],
+      "W_EXACT10": [
+        "bound",
+        "bound",
+        "bound",
+        "bound",
+        "bound",
+        "bound",
+        "bound",
+        "bound",
+        "bound",
+        "bound"
+      ]
+    },
+    "fixture_mint": {
+      "ok": true,
+      "replay": false,
+      "err": null
+    },
+    "fixture_hold_ctrl": {
+      "ok": true,
+      "replay": false,
+      "err": null
+    },
+    "fixture_hold_replay": {
+      "ok": true,
+      "replay": false,
+      "err": null
+    },
+    "fixture_currency_owner": {
+      "symbol": "p1y3khacf",
+      "owner_uid": "959751",
+      "cid": "196",
+      "supply": "1000000"
+    },
+    "fixture_emp_account": {
+      "uid": "959751",
+      "balance": "700000",
+      "frozen": "300000"
+    },
+    "A_f1_poisoned_chain": {
+      "fund": {
+        "mint_ok": true,
+        "hold_ok": true,
+        "hold_err": null
+      },
+      "chain_depth": 10,
+      "chain_truncated": true,
+      "assertions": {
+        "contiguous_levels": true,
+        "within_cap": true,
+        "all_user_uids": true,
+        "no_duplicate_uid": false
+      },
+      "chain_nodes": [
+        "1:959786",
+        "2:959785",
+        "3:959786",
+        "4:959785",
+        "5:959786",
+        "6:959785",
+        "7:959786",
+        "8:959785",
+        "9:959786",
+        "10:959785"
+      ],
+      "chain_contains_worker": true,
+      "chain_has_duplicates": true,
+      "plan_result": {
+        "ok": false,
+        "err": {
+          "kind": "LedgerError",
+          "code": "LEDGER_RECONCILE_MISMATCH",
+          "httpStatus": 500,
+          "status": null,
+          "reason": "COMMISSION_CHAIN_ASSERTION_VIOLATED",
+          "details": {
+            "reason": "COMMISSION_CHAIN_ASSERTION_VIOLATED",
+            "failed_assertions": "no_duplicate_uid",
+            "failed_count": 1,
+            "chain_depth": 10,
+            "chain_truncated": true,
+            "within_cap": true,
+            "worker_uid": "959785",
+            "job_id": "4231706423",
+            "chain_nodes": "1:959786,2:959785,3:959786,4:959785,5:959786,6:959785,7:959786,8:959785,9:959786,10:959785",
+            "note": "referral graph invariants broken (cycle / platform uid / level gap) => attribution untrustworthy, refusing before ledger post"
+          }
+        }
+      },
+      "settle_result": {
+        "ok": false,
+        "err": {
+          "kind": "other",
+          "message": ""
+        }
+      },
+      "ledger_rows_for_key": "0",
+      "bypass_post": {
+        "ok": true,
+        "rows": 24,
+        "err": null
+      },
+      "bypass_entries": 24,
+      "bypass_worker_credit": "400",
+      "bypass_self_paid_levels": 5,
+      "bypass_first_entry_kind": "job_payout",
+      "tx_error": null
+    },
+    "A_ctrl_plan": {
+      "job_id": "4231706421",
+      "fee": "1000",
+      "net": "99000",
+      "gross": "100000",
+      "pool": "1000",
+      "chain_depth": 1,
+      "chain_truncated": false,
+      "plan_source": "computed",
+      "policy_reported": true,
+      "policy_id": "37",
+      "fee_rate_bp": 100,
+      "M": 1,
+      "N": 1,
+      "layers": [
+        "1:959757:1000"
+      ],
+      "fee_credit_uid": "-2",
+      "no_referrer": false,
+      "zero_amount": false
+    },
+    "A_ctrl_settle": {
+      "ok": true,
+      "replay": false,
+      "plan_source": "computed",
+      "entries": 6,
+      "commission_rows": 2,
+      "fee": "1000",
+      "chain_truncated": false
+    },
+    "B_chain_cap_cases": {
+      "short_cap1_exact": {
+        "cap": 1,
+        "chain_depth": 1,
+        "truncated": false,
+        "levels": [
+          1
+        ]
+      },
+      "ev3_cap3_exact": {
+        "cap": 3,
+        "chain_depth": 3,
+        "truncated": false,
+        "levels": [
+          1,
+          2,
+          3
+        ]
+      },
+      "ev3_cap2_truncated": {
+        "cap": 2,
+        "chain_depth": 2,
+        "truncated": true,
+        "levels": [
+          1,
+          2
+        ]
+      },
+      "deep_cap10_truncated": {
+        "cap": 10,
+        "chain_depth": 10,
+        "truncated": true,
+        "levels": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ]
+      },
+      "deep_cap12_exact": {
+        "cap": 12,
+        "chain_depth": 12,
+        "truncated": false,
+        "levels": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ]
+      }
+    },
+    "B_plan_level": {
+      "exact10": {
+        "job_id": "4231706424",
+        "fee": "1000",
+        "net": "99000",
+        "gross": "100000",
+        "pool": "1000",
+        "chain_depth": 10,
+        "chain_truncated": false,
+        "plan_source": "computed",
+        "policy_reported": true,
+        "policy_id": "37",
+        "fee_rate_bp": 100,
+        "M": 10,
+        "N": 10,
+        "layers": [
+          "1:959775:300",
+          "2:959776:200",
+          "3:959777:150",
+          "4:959778:100",
+          "5:959779:80",
+          "6:959780:60",
+          "7:959781:50",
+          "8:959782:30",
+          "9:959783:20",
+          "10:959784:10"
+        ],
+        "fee_credit_uid": "-2",
+        "no_referrer": false,
+        "zero_amount": false
+      },
+      "deep12": {
+        "job_id": "4231706425",
+        "fee": "1000",
+        "net": "99000",
+        "gross": "100000",
+        "pool": "1000",
+        "chain_depth": 10,
+        "chain_truncated": true,
+        "plan_source": "computed",
+        "policy_reported": true,
+        "policy_id": "37",
+        "fee_rate_bp": 100,
+        "M": 10,
+        "N": 10,
+        "layers": [
+          "1:959758:300",
+          "2:959759:200",
+          "3:959760:150",
+          "4:959761:100",
+          "5:959762:80",
+          "6:959763:60",
+          "7:959764:50",
+          "8:959765:30",
+          "9:959766:20",
+          "10:959767:10"
+        ],
+        "fee_credit_uid": "-2",
+        "no_referrer": false,
+        "zero_amount": false
+      }
+    },
+    "C_policies": {
+      "all": [
+        {
+          "id": "1",
+          "bp": "100",
+          "lv": "10",
+          "ef": "1970-01-01 00:00:00+00"
+        },
+        {
+          "id": "20",
+          "bp": "500",
+          "lv": "9",
+          "ef": "2026-09-27 10:25:41.081836+00"
+        },
+        {
+          "id": "21",
+          "bp": "100",
+          "lv": "2",
+          "ef": "2026-09-27 10:25:45.960436+00"
+        },
+        {
+          "id": "22",
+          "bp": "100",
+          "lv": "10",
+          "ef": "2026-09-27 10:25:48.409564+00"
+        },
+        {
+          "id": "23",
+          "bp": "500",
+          "lv": "9",
+          "ef": "2026-09-27 10:28:11.373321+00"
+        },
+        {
+          "id": "24",
+          "bp": "100",
+          "lv": "2",
+          "ef": "2026-09-27 10:28:16.618299+00"
+        },
+        {
+          "id": "25",
+          "bp": "100",
+          "lv": "10",
+          "ef": "2026-09-27 10:28:19.249653+00"
+        },
+        {
+          "id": "26",
+          "bp": "500",
+          "lv": "9",
+          "ef": "2026-09-27 10:29:39.108009+00"
+        },
+        {
+          "id": "27",
+          "bp": "100",
+          "lv": "2",
+          "ef": "2026-09-27 10:29:44.252091+00"
+        },
+        {
+          "id": "28",
+          "bp": "100",
+          "lv": "10",
+          "ef": "2026-09-27 10:29:47.07447+00"
+        },
+        {
+          "id": "29",
+          "bp": "500",
+          "lv": "9",
+          "ef": "2026-09-27 10:38:07.115576+00"
+        },
+        {
+          "id": "30",
+          "bp": "100",
+          "lv": "2",
+          "ef": "2026-09-27 10:38:11.845112+00"
+        },
+        {
+          "id": "31",
+          "bp": "100",
+          "lv": "10",
+          "ef": "2026-09-27 10:38:14.693873+00"
+        },
+        {
+          "id": "32",
+          "bp": "500",
+          "lv": "9",
+          "ef": "2026-09-27 10:40:03.090896+00"
+        },
+        {
+          "id": "33",
+          "bp": "100",
+          "lv": "2",
+          "ef": "2026-09-27 10:40:08.719548+00"
+        },
+        {
+          "id": "34",
+          "bp": "100",
+          "lv": "10",
+          "ef": "2026-09-27 10:40:11.250001+00"
+        },
+        {
+          "id": "35",
+          "bp": "500",
+          "lv": "9",
+          "ef": "2026-09-27 10:56:38.930553+00"
+        },
+        {
+          "id": "36",
+          "bp": "100",
+          "lv": "2",
+          "ef": "2026-09-27 10:56:43.995566+00"
+        },
+        {
+          "id": "37",
+          "bp": "100",
+          "lv": "10",
+          "ef": "2026-09-27 10:56:46.580869+00"
+        }
+      ],
+      "picked_old": {
+        "id": "20",
+        "bp": "500",
+        "lv": "9",
+        "ef": "2026-09-27 10:25:41.081836+00"
+      },
+      "picked_now": {
+        "id": "37",
+        "bp": "100",
+        "lv": "10",
+        "ef": "2026-09-27 10:56:46.580869+00"
+      }
+    },
+    "C_first_write": {
+      "plan": {
+        "job_id": "4231706422",
+        "fee": "5000",
+        "net": "95000",
+        "gross": "100000",
+        "pool": "5000",
+        "chain_depth": 2,
+        "chain_truncated": false,
+        "plan_source": "computed",
+        "policy_reported": true,
+        "policy_id": "20",
+        "fee_rate_bp": 500,
+        "M": 2,
+        "N": 2,
+        "layers": [
+          "1:959773:2500",
+          "2:959774:2500"
+        ],
+        "fee_credit_uid": "-2",
+        "no_referrer": false,
+        "zero_amount": false
+      },
+      "replay": false,
+      "plan_source": "computed",
+      "assertions": {
+        "entry_count": 8,
+        "account_count": 5,
+        "sum_delta_frozen": "0",
+        "commission_rows": 4,
+        "sum_commission_credit": "5000",
+        "sum_x_equals_pool": true
+      },
+      "policy_fee_rate_bp": 500
+    },
+    "C_recompute_with_current_policy": {
+      "fee": "1000",
+      "layers": [
+        "1:959773:600",
+        "2:959774:400"
+      ],
+      "policy_fee_rate_bp": 100
+    },
+    "C_replay": {
+      "plan": {
+        "job_id": "4231706422",
+        "fee": "5000",
+        "net": "95000",
+        "gross": "100000",
+        "pool": "5000",
+        "chain_depth": 2,
+        "chain_truncated": false,
+        "plan_source": "replayed_from_ledger",
+        "policy_reported": false,
+        "policy_id": "ledger_replay",
+        "fee_rate_bp": 0,
+        "M": 2,
+        "N": 2,
+        "layers": [
+          "1:959773:2500",
+          "2:959774:2500"
+        ],
+        "fee_credit_uid": "-2",
+        "no_referrer": false,
+        "zero_amount": false
+      },
+      "replay": true,
+      "plan_source": "replayed_from_ledger",
+      "event_entries": 8,
+      "event_assertions": {
+        "entry_count": 8,
+        "account_count": 5,
+        "sum_delta_frozen": "0",
+        "commission_rows": 4,
+        "sum_commission_credit": "5000",
+        "sum_x_equals_pool": true
+      }
+    },
+    "C_ledger_truth": {
+      "facts": {
+        "rows_total": "8",
+        "pool_in": "5000",
+        "commission_rows": "4",
+        "worker_got": "95000"
+      },
+      "settlement": {
+        "fee": "5000",
+        "net": "95000",
+        "gross": "100000",
+        "layers": [
+          "1:959773:2500:memo",
+          "2:959774:2500:memo"
+        ]
+      },
+      "rows": 8
+    },
+    "C_repost_same_payload": {
+      "ok": true,
+      "replay": true
+    },
+    "D_f3": {
+      "d1_immediate_before_post": {
+        "entries": 24,
+        "commission_rows": 20,
+        "ok": true,
+        "rows": 24,
+        "err": null,
+        "tx_error": null
+      },
+      "d2_deferred_default": {
+        "entries": 24,
+        "ok": true,
+        "err": null,
+        "tx_error": null
+      },
+      "d3_tamper_drop_pair": {
+        "entries": 22,
+        "ok": true,
+        "err": null,
+        "tx_error": null
+      },
+      "d4_pool_in_no_out": {
+        "entries": 4,
+        "ok": true,
+        "err": null,
+        "tx_error": null
+      },
+      "d5_post_then_immediate": {
+        "okPost_ok": true,
+        "after_immediate": {
+          "ok": true,
+          "err": null
+        },
+        "badPost": {
+          "ok": true,
+          "err": null
+        },
+        "after_immediate2": {
+          "ok": true,
+          "err": null
+        },
+        "tx_error": null
+      },
+      "d6_boundary_immediate_tamper": {
+        "entries": 4,
+        "ok": true,
+        "err": null,
+        "tx_error": null
+      }
+    },
+    "E_f6_two_paths": {
+      "first_bind": {
+        "ok": true,
+        "err": null
+      },
+      "raw_rebind": {
+        "ok": false,
+        "err": {
+          "sqlstate": "LD003",
+          "message": "LEDGER_IDEMPOTENCY_CONFLICT",
+          "detail": "{\"path\": \"trg_referral_cycle_guard\", \"reason\": \"REFERRAL_ALREADY_BOUND\", \"child_uid\": \"959787\", \"bound_parent_uid\": \"959788\", \"requested_parent_uid\": \"959789\"}",
+          "reason": "REFERRAL_ALREADY_BOUND",
+          "constraint": null,
+          "raw_detail": {
+            "path": "trg_referral_cycle_guard",
+            "reason": "REFERRAL_ALREADY_BOUND",
+            "child_uid": "959787",
+            "bound_parent_uid": "959788",
+            "requested_parent_uid": "959789"
+          }
+        }
+      },
+      "fn_rebind": {
+        "ok": false,
+        "err": {
+          "sqlstate": "LD003",
+          "message": "LEDGER_IDEMPOTENCY_CONFLICT",
+          "detail": "{\"reason\": \"REFERRAL_ALREADY_BOUND\", \"child_uid\": \"959787\", \"bound_parent_uid\": \"959788\", \"requested_parent_uid\": \"959789\"}",
+          "reason": "REFERRAL_ALREADY_BOUND",
+          "constraint": null,
+          "raw_detail": {
+            "reason": "REFERRAL_ALREADY_BOUND",
+            "child_uid": "959787",
+            "bound_parent_uid": "959788",
+            "requested_parent_uid": "959789"
+          }
+        }
+      },
+      "tx_error": null
+    },
+    "E_f6_pre_fix_control": {
+      "tx_error": "new row for relation \"referral\" violates check constraint \"referral_depth_rng\""
+    },
+    "F_f2_stale_parent": {
+      "setup": {
+        "ok": true,
+        "err": null
+      },
+      "bind_to_stale": {
+        "ok": false,
+        "err": {
+          "sqlstate": "LD016",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "detail": "{\"note\": \"parent stored depth must equal its true hop count; a stale depth would be inherited by the new edge\", \"reason\": \"REFERRAL_PARENT_DEPTH_INCONSISTENT\", \"child_uid\": \"959791\", \"parent_uid\": \"959790\", \"parent_true_depth\": \"1\", \"parent_stored_depth\": \"50\"}",
+          "reason": "REFERRAL_PARENT_DEPTH_INCONSISTENT",
+          "constraint": null,
+          "raw_detail": {
+            "note": "parent stored depth must equal its true hop count; a stale depth would be inherited by the new edge",
+            "reason": "REFERRAL_PARENT_DEPTH_INCONSISTENT",
+            "child_uid": "959791",
+            "parent_uid": "959790",
+            "parent_true_depth": "1",
+            "parent_stored_depth": "50"
+          }
+        }
+      },
+      "bind_to_consistent": {
+        "ok": true,
+        "err": null
+      },
+      "depth_after": "1",
+      "tx_error": null
+    },
+    "F_f2_pre_fix_control": {
+      "tx_error": "new row for relation \"referral\" violates check constraint \"referral_depth_rng\""
+    },
+    "cid1_platform_accounts_after": [
+      {
+        "uid": "-1",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0",
+        "version": "0"
+      },
+      {
+        "uid": "-2",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0",
+        "version": "0"
+      },
+      {
+        "uid": "-3",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0",
+        "version": "0"
+      }
+    ],
+    "trigger_enablement_after": {
+      "total": 7,
+      "enabled": 7,
+      "anomalies": []
+    },
+    "graph_invariants_after": {
+      "cycles": "0",
+      "bad_depth": "0",
+      "referral_rows": "216"
+    },
+    "residue": {
+      "my_window_users": "45",
+      "my_window_referral_rows": "28",
+      "poison_uids_in_graph": "0",
+      "my_key_prefix_rows": "5",
+      "my_job_rows": "14",
+      "my_currency_rows": "1"
+    }
+  }
+}

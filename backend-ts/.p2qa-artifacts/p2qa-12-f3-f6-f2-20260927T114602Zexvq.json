@@ -1,0 +1,279 @@
+{
+  "run": "20260927T114602Zexvq",
+  "name": "p2qa-12-f3-f6-f2",
+  "at": "2026-09-27T11:46:21.220Z",
+  "script": "scripts/p2qa-12-f3-f6-f2.ts",
+  "F3": {
+    "cid": "191",
+    "binds": [
+      {
+        "edge": "958603->958604",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958602->958603",
+        "ok": true,
+        "err": null
+      }
+    ],
+    "mint": {
+      "ok": true
+    },
+    "hold": {
+      "ok": true
+    },
+    "plan_good": {
+      "fee": "100",
+      "net": "9900",
+      "M": 2,
+      "layers": [
+        "958603:60",
+        "958604:40"
+      ],
+      "assertions": {
+        "entry_count": 8,
+        "account_count": 5,
+        "sum_delta_frozen": "0",
+        "commission_rows": 4,
+        "sum_commission_credit": "100",
+        "sum_x_equals_pool": true
+      }
+    },
+    "f3a_immediate_before_post_balanced": {
+      "posted_ok": true,
+      "error": null,
+      "as_found_old_reading": "LD032 COMMISSION_SPLIT_SUM_MISMATCH（pool_in=1000 / commission_out=0 / commission_rows=0）",
+      "verdict_no_false_alarm": true
+    },
+    "f3b_total_shape_pool_in_no_out": {
+      "posted_ok": true,
+      "posted_err": null,
+      "forced_check_error": {
+        "sqlstate": "LD032",
+        "message": "LEDGER_RECONCILE_MISMATCH",
+        "constraint": null,
+        "detail": "{\"reason\": \"COMMISSION_SPLIT_SUM_MISMATCH\", \"pool_in\": \"1000\", \"event_closed\": \"true\", \"job_fee_rows\": \"1\", \"commission_out\": \"0\", \"commission_rows\": \"0\", \"idempotency_key\": \"ops:p1x:f3b-total-20260927T114602Zexvq\", \"trigger_account_cid\": \"191\", \"trigger_account_uid\": \"-2\"}",
+        "reason": "COMMISSION_SPLIT_SUM_MISMATCH",
+        "detail_parsed": {
+          "reason": "COMMISSION_SPLIT_SUM_MISMATCH",
+          "pool_in": "1000",
+          "event_closed": "true",
+          "job_fee_rows": "1",
+          "commission_out": "0",
+          "commission_rows": "0",
+          "idempotency_key": "ops:p1x:f3b-total-20260927T114602Zexvq",
+          "trigger_account_cid": "191",
+          "trigger_account_uid": "-2"
+        }
+      },
+      "verdict_still_reports": true
+    },
+    "f3c_balanced_shape_short_split": {
+      "posted_ok": true,
+      "posted_err": null,
+      "forced_check_error": {
+        "sqlstate": "LD032",
+        "message": "LEDGER_RECONCILE_MISMATCH",
+        "constraint": null,
+        "detail": "{\"reason\": \"COMMISSION_SPLIT_SUM_MISMATCH\", \"pool_in\": \"1000\", \"event_closed\": \"true\", \"job_fee_rows\": \"1\", \"commission_out\": \"900\", \"commission_rows\": \"1\", \"idempotency_key\": \"ops:p1x:f3c-balanced-20260927T114602Zexvq\", \"trigger_account_cid\": \"191\", \"trigger_account_uid\": \"-2\"}",
+        "reason": "COMMISSION_SPLIT_SUM_MISMATCH",
+        "detail_parsed": {
+          "reason": "COMMISSION_SPLIT_SUM_MISMATCH",
+          "pool_in": "1000",
+          "event_closed": "true",
+          "job_fee_rows": "1",
+          "commission_out": "900",
+          "commission_rows": "1",
+          "idempotency_key": "ops:p1x:f3c-balanced-20260927T114602Zexvq",
+          "trigger_account_cid": "191",
+          "trigger_account_uid": "-2"
+        }
+      },
+      "verdict_still_reports": true,
+      "reason_is_split_sum_mismatch": true
+    },
+    "policy_now": {
+      "policy_id": "37",
+      "fee_rate_bp": 100,
+      "levels": 10
+    },
+    "tx_error": null,
+    "rolled_back": true
+  },
+  "F3_verdict": {
+    "immediate_no_false_alarm": {
+      "posted_ok": true,
+      "error": null,
+      "as_found_old_reading": "LD032 COMMISSION_SPLIT_SUM_MISMATCH（pool_in=1000 / commission_out=0 / commission_rows=0）",
+      "verdict_no_false_alarm": true
+    },
+    "total_shape_still_LD032": {
+      "posted_ok": true,
+      "posted_err": null,
+      "forced_check_error": {
+        "sqlstate": "LD032",
+        "message": "LEDGER_RECONCILE_MISMATCH",
+        "constraint": null,
+        "detail": "{\"reason\": \"COMMISSION_SPLIT_SUM_MISMATCH\", \"pool_in\": \"1000\", \"event_closed\": \"true\", \"job_fee_rows\": \"1\", \"commission_out\": \"0\", \"commission_rows\": \"0\", \"idempotency_key\": \"ops:p1x:f3b-total-20260927T114602Zexvq\", \"trigger_account_cid\": \"191\", \"trigger_account_uid\": \"-2\"}",
+        "reason": "COMMISSION_SPLIT_SUM_MISMATCH",
+        "detail_parsed": {
+          "reason": "COMMISSION_SPLIT_SUM_MISMATCH",
+          "pool_in": "1000",
+          "event_closed": "true",
+          "job_fee_rows": "1",
+          "commission_out": "0",
+          "commission_rows": "0",
+          "idempotency_key": "ops:p1x:f3b-total-20260927T114602Zexvq",
+          "trigger_account_cid": "191",
+          "trigger_account_uid": "-2"
+        }
+      },
+      "verdict_still_reports": true
+    },
+    "balanced_shape_still_LD032": {
+      "posted_ok": true,
+      "posted_err": null,
+      "forced_check_error": {
+        "sqlstate": "LD032",
+        "message": "LEDGER_RECONCILE_MISMATCH",
+        "constraint": null,
+        "detail": "{\"reason\": \"COMMISSION_SPLIT_SUM_MISMATCH\", \"pool_in\": \"1000\", \"event_closed\": \"true\", \"job_fee_rows\": \"1\", \"commission_out\": \"900\", \"commission_rows\": \"1\", \"idempotency_key\": \"ops:p1x:f3c-balanced-20260927T114602Zexvq\", \"trigger_account_cid\": \"191\", \"trigger_account_uid\": \"-2\"}",
+        "reason": "COMMISSION_SPLIT_SUM_MISMATCH",
+        "detail_parsed": {
+          "reason": "COMMISSION_SPLIT_SUM_MISMATCH",
+          "pool_in": "1000",
+          "event_closed": "true",
+          "job_fee_rows": "1",
+          "commission_out": "900",
+          "commission_rows": "1",
+          "idempotency_key": "ops:p1x:f3c-balanced-20260927T114602Zexvq",
+          "trigger_account_cid": "191",
+          "trigger_account_uid": "-2"
+        }
+      },
+      "verdict_still_reports": true,
+      "reason_is_split_sum_mismatch": true
+    }
+  },
+  "F6": {
+    "first_bind": {
+      "ok": true,
+      "stored_depth": "1",
+      "err": null
+    },
+    "raw_insert_rebind": {
+      "ok": false,
+      "err": {
+        "sqlstate": "LD003",
+        "message": "LEDGER_IDEMPOTENCY_CONFLICT",
+        "constraint": null,
+        "detail": "{\"path\": \"trg_referral_cycle_guard\", \"reason\": \"REFERRAL_ALREADY_BOUND\", \"child_uid\": \"958611\", \"bound_parent_uid\": \"958612\", \"requested_parent_uid\": \"958613\"}",
+        "reason": "REFERRAL_ALREADY_BOUND",
+        "detail_parsed": {
+          "path": "trg_referral_cycle_guard",
+          "reason": "REFERRAL_ALREADY_BOUND",
+          "child_uid": "958611",
+          "bound_parent_uid": "958612",
+          "requested_parent_uid": "958613"
+        }
+      }
+    },
+    "referral_bind_rebind": {
+      "ok": false,
+      "err": {
+        "sqlstate": "LD003",
+        "message": "LEDGER_IDEMPOTENCY_CONFLICT",
+        "constraint": null,
+        "detail": "{\"reason\": \"REFERRAL_ALREADY_BOUND\", \"child_uid\": \"958611\", \"bound_parent_uid\": \"958612\", \"requested_parent_uid\": \"958613\"}",
+        "reason": "REFERRAL_ALREADY_BOUND",
+        "detail_parsed": {
+          "reason": "REFERRAL_ALREADY_BOUND",
+          "child_uid": "958611",
+          "bound_parent_uid": "958612",
+          "requested_parent_uid": "958613"
+        }
+      }
+    },
+    "same_code_and_reason": {
+      "raw_sqlstate": "LD003",
+      "fn_sqlstate": "LD003",
+      "raw_reason": "REFERRAL_ALREADY_BOUND",
+      "fn_reason": "REFERRAL_ALREADY_BOUND",
+      "same_code": true,
+      "same_reason": true,
+      "as_found_old": "LD003/REFERRAL_ALREADY_BOUND（bind） vs 23505/ referral_pk、reason=null（裸 INSERT）"
+    },
+    "fresh_child_raw_insert_allowed": {
+      "ok": true,
+      "depth": "1",
+      "err": null
+    },
+    "tx_error": null,
+    "rolled_back": true
+  },
+  "F2": {
+    "parent_p2": {
+      "ok": true,
+      "stored_depth": "1"
+    },
+    "true_depth_of_p2": {
+      "d": "1"
+    },
+    "corrupted": {
+      "d": "50"
+    },
+    "bind_to_stale_parent": {
+      "ok": false,
+      "err": {
+        "sqlstate": "LD016",
+        "message": "LEDGER_AMOUNT_INVALID",
+        "constraint": null,
+        "detail": "{\"note\": \"parent stored depth must equal its true hop count; a stale depth would be inherited by the new edge\", \"reason\": \"REFERRAL_PARENT_DEPTH_INCONSISTENT\", \"child_uid\": \"958623\", \"parent_uid\": \"958622\", \"parent_true_depth\": \"1\", \"parent_stored_depth\": \"50\"}",
+        "reason": "REFERRAL_PARENT_DEPTH_INCONSISTENT",
+        "detail_parsed": {
+          "note": "parent stored depth must equal its true hop count; a stale depth would be inherited by the new edge",
+          "reason": "REFERRAL_PARENT_DEPTH_INCONSISTENT",
+          "child_uid": "958623",
+          "parent_uid": "958622",
+          "parent_true_depth": "1",
+          "parent_stored_depth": "50"
+        }
+      }
+    },
+    "rejected_as_expected": true,
+    "child_row_not_written": {
+      "n": "0"
+    },
+    "positive_control_after_restore": {
+      "ok": true,
+      "stored_depth": "2",
+      "err": null
+    },
+    "invariants_in_tx": {
+      "cycles": "0"
+    },
+    "tx_error": null,
+    "rolled_back": true
+  },
+  "platform_cid1_unchanged": true,
+  "triggers_identical_pre_post": true,
+  "triggers_disabled_now": [],
+  "residue": {
+    "referral_mine_958_6xx": {
+      "n": "2"
+    },
+    "users_mine_958_6xx": {
+      "n": "4"
+    },
+    "currency_p1x4": {
+      "n": "0"
+    },
+    "ledger_rows_ref_job4": {
+      "n": "0"
+    }
+  },
+  "error_codes_closed_set_check": {
+    "note": "本轮修复**未新增错误码**：TS 侧 33 码（见 p2qa-10 的 error_codes）；DB 侧借码投影见 p2qa-10 的 db_borrow_map"
+  }
+}

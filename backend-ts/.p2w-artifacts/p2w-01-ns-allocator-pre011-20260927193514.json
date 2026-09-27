@@ -1,0 +1,319 @@
+{
+  "run": "pre011-20260927193514",
+  "name": "p2w-01-ns-allocator",
+  "at": "2026-09-27T11:43:57.801Z",
+  "ts": "2026-09-27T11:43:15.432Z",
+  "script": "scripts/p2w-01-ns-allocator-probe.ts",
+  "partition_convention": {
+    "main": "959001..959949",
+    "consume_block": "959950..959996",
+    "negative_block": "959997..959999"
+  },
+  "uid_count": 45,
+  "seeds": [
+    "probe#1",
+    "probe#2",
+    "probe#3",
+    "probe#4",
+    "probe#5",
+    "probe#6"
+  ],
+  "0_before": {
+    "users": "232",
+    "referral": "130",
+    "currency": "81",
+    "ledger_entry": "2007",
+    "occupied_959xxx": "0",
+    "occupied_956xxx": "45"
+  },
+  "0_db_facts_for_p2w00_fatal": {
+    "why": "解释 p2w-00 上一跑 FATAL LEDGER_INSUFFICIENT_FROZEN{cid,uid:956001,required:99000,available:0}",
+    "p1w_currencies": [
+      {
+        "symbol": "p1w242848",
+        "cid": "180",
+        "owner": "0",
+        "supply": "0"
+      }
+    ],
+    "emp_956001_accounts_in_p1w": [],
+    "ledger_rows_under_p1w_keys": {
+      "n": "0"
+    },
+    "cid1_platform_accounts_untouched_check": [
+      {
+        "uid": "-1",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0"
+      },
+      {
+        "uid": "-2",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0"
+      },
+      {
+        "uid": "-3",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0"
+      }
+    ]
+  },
+  "A1_uid_windows": {
+    "uid_count": 45,
+    "runs": [
+      {
+        "seed": "probe#1",
+        "base": 959856,
+        "source": "auto-scan",
+        "first": "959856",
+        "last": "959900",
+        "self_recheck": [],
+        "independent_occupied": [],
+        "in_main_partition": true,
+        "within_959xxx": true
+      },
+      {
+        "seed": "probe#2",
+        "base": 959496,
+        "source": "auto-scan",
+        "first": "959496",
+        "last": "959540",
+        "self_recheck": [],
+        "independent_occupied": [],
+        "in_main_partition": true,
+        "within_959xxx": true
+      },
+      {
+        "seed": "probe#3",
+        "base": 959001,
+        "source": "auto-scan",
+        "first": "959001",
+        "last": "959045",
+        "self_recheck": [],
+        "independent_occupied": [],
+        "in_main_partition": true,
+        "within_959xxx": true
+      },
+      {
+        "seed": "probe#4",
+        "base": 959271,
+        "source": "auto-scan",
+        "first": "959271",
+        "last": "959315",
+        "self_recheck": [],
+        "independent_occupied": [],
+        "in_main_partition": true,
+        "within_959xxx": true
+      },
+      {
+        "seed": "probe#5",
+        "base": 959136,
+        "source": "auto-scan",
+        "first": "959136",
+        "last": "959180",
+        "self_recheck": [],
+        "independent_occupied": [],
+        "in_main_partition": true,
+        "within_959xxx": true
+      },
+      {
+        "seed": "probe#6",
+        "base": 959361,
+        "source": "auto-scan",
+        "first": "959361",
+        "last": "959405",
+        "self_recheck": [],
+        "independent_occupied": [],
+        "in_main_partition": true,
+        "within_959xxx": true
+      }
+    ],
+    "distinct_bases": 6,
+    "all_free": true,
+    "note": "分配器**只读**：同一 DB 现状下，不同 seed 用「旋转挑选」返回不同窗口（否则 6 次会返回同一个）"
+  },
+  "A2_symbol_suffix_keyprefix_jobtag": {
+    "symbols": [
+      {
+        "seed": "probe#1",
+        "symbol": "p1y2wkv7h",
+        "used": false
+      },
+      {
+        "seed": "probe#2",
+        "symbol": "p1y2di5j0",
+        "used": false
+      },
+      {
+        "seed": "probe#3",
+        "symbol": "p1y1pxai9",
+        "used": false
+      },
+      {
+        "seed": "probe#4",
+        "symbol": "p1y184qcm",
+        "used": false
+      },
+      {
+        "seed": "probe#5",
+        "symbol": "p1yafpiol",
+        "used": false
+      },
+      {
+        "seed": "probe#6",
+        "symbol": "p1y24n2bw",
+        "used": false
+      }
+    ],
+    "key_prefixes": [
+      {
+        "seed": "probe#1",
+        "key_prefix": "ops:p1y:2wkv7h:",
+        "used": false
+      },
+      {
+        "seed": "probe#2",
+        "key_prefix": "ops:p1y:2di5j0:",
+        "used": false
+      },
+      {
+        "seed": "probe#3",
+        "key_prefix": "ops:p1y:1pxai9:",
+        "used": false
+      },
+      {
+        "seed": "probe#4",
+        "key_prefix": "ops:p1y:184qcm:",
+        "used": false
+      },
+      {
+        "seed": "probe#5",
+        "key_prefix": "ops:p1y:afpiol:",
+        "used": false
+      },
+      {
+        "seed": "probe#6",
+        "key_prefix": "ops:p1y:24n2bw:",
+        "used": false
+      }
+    ],
+    "job_tags": [
+      {
+        "seed": "probe#1",
+        "tag": "687271980",
+        "used": false
+      },
+      {
+        "seed": "probe#2",
+        "tag": "401031692",
+        "used": false
+      },
+      {
+        "seed": "probe#3",
+        "tag": "505790628",
+        "used": false
+      },
+      {
+        "seed": "probe#4",
+        "tag": "311721882",
+        "used": false
+      },
+      {
+        "seed": "probe#5",
+        "tag": "952442374",
+        "used": false
+      },
+      {
+        "seed": "probe#6",
+        "tag": "612247432",
+        "used": false
+      }
+    ],
+    "distinct_symbols": 6,
+    "distinct_key_prefixes": 6,
+    "distinct_job_tags": 6
+  },
+  "B_consume_advances": {
+    "seed": "consume-advance#1",
+    "first_window": {
+      "base": 959974,
+      "uids": [
+        "959974",
+        "959975",
+        "959976"
+      ]
+    },
+    "second_window": {
+      "base": 959953,
+      "uids": [
+        "959953",
+        "959954",
+        "959955"
+      ],
+      "independent_occupied": []
+    },
+    "written": [
+      "959974",
+      "959975",
+      "959976"
+    ],
+    "note": "本探针唯一的写：3 个 users 行（959950..959996 保留块）；用于证明「消耗 ⇒ 窗口推进」"
+  },
+  "C_negative_cases": {
+    "occupied_base": {
+      "mode": "env-occupied",
+      "env": {
+        "P2W_BASE_UID": "959997",
+        "P2W_PROBE_UID_COUNT": "3"
+      },
+      "status": 3,
+      "stdout": "{\n \"fatal\": \"PRECONDITION_NOT_MET\",\n \"kind\": \"ENV_BASE_UID_OCCUPIED\",\n \"detail\": \"P2W_BASE_UID=959997 的窗口内有已占用 uid（窗口必须**全新**）\",\n \"hint\": \"换一个空闲窗口（步长 3），或**不要**设 P2W_BASE_UID 让脚本自动扫描下一个空闲窗口\",\n \"occupied_uids\": [\n  \"959997\",\n  \"959998\",\n  \"959999\"\n ],\n \"window\": [\n  959997,\n  959999\n ],\n \"why\": \"夹具不可复位（append-only 账本 / INSERT-only referral / 唯一 symbol）⇒ 每一跑必须换新命名空间\"\n}\n",
+      "stderr": "PRECONDITION_NOT_MET [ENV_BASE_UID_OCCUPIED]：P2W_BASE_UID=959997 的窗口内有已占用 uid（窗口必须**全新**）\n  ⇒ 换一个空闲窗口（步长 3），或**不要**设 P2W_BASE_UID 让脚本自动扫描下一个空闲窗口\n",
+      "json": null
+    },
+    "no_window": {
+      "mode": "no-window",
+      "env": {
+        "P2W_UID_PARTITION": "959997-959999",
+        "P2W_PROBE_UID_COUNT": "3"
+      },
+      "status": 3,
+      "stdout": "{\n \"fatal\": \"PRECONDITION_NOT_MET\",\n \"kind\": \"NO_FREE_UID_WINDOW\",\n \"detail\": \"uid 空间不足：分区 959997..959999 内已无「连续 3 个全空闲 uid」的窗口（扫描基准步长 3，理论上限 1 个窗口）\",\n \"hint\": \"扩大分区后重跑（例：export P2W_UID_PARTITION=\\\"958001-958999,959001-959999\\\"），或确认无外部引用后人工登记清理该分区\",\n \"partitions\": [\n  [\n   959997,\n   959999\n  ]\n ],\n \"window_count\": 3,\n \"stride\": 3,\n \"capacity_windows\": 1,\n \"why\": \"夹具不可复位（append-only 账本 / INSERT-only referral / 唯一 symbol）⇒ 每一跑必须换新命名空间\",\n \"note\": \"每个 run 都会永久占用若干 uid（users 行 + 已提交的 referral 行），故窗口是**消耗品**\"\n}\n",
+      "stderr": "PRECONDITION_NOT_MET [NO_FREE_UID_WINDOW]：uid 空间不足：分区 959997..959999 内已无「连续 3 个全空闲 uid」的窗口（扫描基准步长 3，理论上限 1 个窗口）\n  ⇒ 扩大分区后重跑（例：export P2W_UID_PARTITION=\"958001-958999,959001-959999\"），或确认无外部引用后人工登记清理该分区\n",
+      "json": null
+    },
+    "invalid_base": {
+      "mode": "env-invalid",
+      "env": {
+        "P2W_BASE_UID": "1",
+        "P2W_PROBE_UID_COUNT": "3"
+      },
+      "status": 3,
+      "stdout": "{\n \"fatal\": \"PRECONDITION_NOT_MET\",\n \"kind\": \"ENV_BASE_UID_INVALID\",\n \"detail\": \"P2W_BASE_UID=1 非法：必须是整数且整个窗口 [base, base+2] 落在分区 959997..959999 内\",\n \"hint\": \"例：P2W_BASE_UID=959997 ⇒ 窗口 959997..959999\",\n \"partitions\": [\n  [\n   959997,\n   959999\n  ]\n ],\n \"window_count\": 3,\n \"stride\": 3\n}\n",
+      "stderr": "PRECONDITION_NOT_MET [ENV_BASE_UID_INVALID]：P2W_BASE_UID=1 非法：必须是整数且整个窗口 [base, base+2] 落在分区 959997..959999 内\n  ⇒ 例：P2W_BASE_UID=959997 ⇒ 窗口 959997..959999\n",
+      "json": null
+    }
+  },
+  "D_after": {
+    "users": "242",
+    "referral": "132",
+    "currency": "82",
+    "ledger_entry": "2018",
+    "occupied_959xxx": "6",
+    "occupied_956xxx": "45"
+  },
+  "assertions_failed": [
+    "①C 占用态基准 ⇒ exit 3 + ENV_BASE_UID_OCCUPIED :: {\"status\":3}",
+    "①C 分区占满 ⇒ exit 3 + NO_FREE_UID_WINDOW :: {\"status\":3}",
+    "①C 基准越界 ⇒ exit 3 + ENV_BASE_UID_INVALID :: {\"status\":3}",
+    "①C 负例的明白话里必须有 detail + hint :: [null,null,null]",
+    "①D 分配器本身不写库（users 净增 = ①B 的 3 + ①C 占满负例块的 3 = 6） :: {\"before\":\"232\",\"after\":\"242\"}",
+    "①D 分配不改 referral :: {\"before\":\"130\",\"after\":\"132\"}",
+    "①D 分配不改 currency :: {\"before\":\"81\",\"after\":\"82\"}",
+    "①D 分配不改 ledger_entry :: {\"before\":\"2007\",\"after\":\"2018\"}"
+  ],
+  "ok": false
+}

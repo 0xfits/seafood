@@ -1,0 +1,214 @@
+# run=p2qa-mig-20260927T114715Zt3ag  at=2026-09-27T11:47:15Z  cmd=npx ts-node --transpile-only scripts/migrate.ts
+{
+  "ok": true,
+  "applied_now": [
+    {
+      "version": "0001",
+      "name": "0001_ledger_core.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 11:48:15 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0002",
+      "name": "0002_user_identity.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 11:48:20 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0003",
+      "name": "0003_kind_close_set_20.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 12:57:40 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0004",
+      "name": "0004_ledger_post_event.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 13:26:01 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0005",
+      "name": "0005_ledger_event_root_key.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 14:34:21 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0006",
+      "name": "0006_user_to_users.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 15:09:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0007",
+      "name": "0007_referral_and_commission_policy.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 17:49:28 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0008",
+      "name": "0008_platform_revenue_job_fee.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 17:49:29 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0009",
+      "name": "0009_ledger_error_reverse_map_complete.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 18:09:16 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0010",
+      "name": "0010_referral_bind_protocol_guard.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 18:45:22 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0011",
+      "name": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 19:35:24 GMT+0800 (China Standard Time)"
+    }
+  ],
+  "schema_version": "0011",
+  "schema_migration_rows": [
+    {
+      "version": "0001",
+      "name": "0001_ledger_core.sql"
+    },
+    {
+      "version": "0002",
+      "name": "0002_user_identity.sql"
+    },
+    {
+      "version": "0003",
+      "name": "0003_kind_close_set_20.sql"
+    },
+    {
+      "version": "0004",
+      "name": "0004_ledger_post_event.sql"
+    },
+    {
+      "version": "0005",
+      "name": "0005_ledger_event_root_key.sql"
+    },
+    {
+      "version": "0006",
+      "name": "0006_user_to_users.sql"
+    },
+    {
+      "version": "0007",
+      "name": "0007_referral_and_commission_policy.sql"
+    },
+    {
+      "version": "0008",
+      "name": "0008_platform_revenue_job_fee.sql"
+    },
+    {
+      "version": "0009",
+      "name": "0009_ledger_error_reverse_map_complete.sql"
+    },
+    {
+      "version": "0010",
+      "name": "0010_referral_bind_protocol_guard.sql"
+    },
+    {
+      "version": "0011",
+      "name": "0011_commission_assert_closure_and_referral_depth_guard.sql"
+    }
+  ],
+  "public_base_tables": [
+    "account",
+    "commission_policy",
+    "currency",
+    "ledger_entry",
+    "ledger_owner",
+    "referral",
+    "schema_migration",
+    "users"
+  ],
+  "public_base_table_count": 8
+}
+MIGRATE_EXIT=0
+# ---- migrate --status ----
+{
+  "schema_migration": [
+    {
+      "version": "0001",
+      "name": "0001_ledger_core.sql",
+      "checksum": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+      "applied_at": "2026-09-27T03:48:15.617Z"
+    },
+    {
+      "version": "0002",
+      "name": "0002_user_identity.sql",
+      "checksum": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+      "applied_at": "2026-09-27T03:48:20.093Z"
+    },
+    {
+      "version": "0003",
+      "name": "0003_kind_close_set_20.sql",
+      "checksum": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+      "applied_at": "2026-09-27T04:57:40.944Z"
+    },
+    {
+      "version": "0004",
+      "name": "0004_ledger_post_event.sql",
+      "checksum": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+      "applied_at": "2026-09-27T05:26:01.859Z"
+    },
+    {
+      "version": "0005",
+      "name": "0005_ledger_event_root_key.sql",
+      "checksum": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+      "applied_at": "2026-09-27T06:34:21.897Z"
+    },
+    {
+      "version": "0006",
+      "name": "0006_user_to_users.sql",
+      "checksum": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+      "applied_at": "2026-09-27T07:09:27.383Z"
+    },
+    {
+      "version": "0007",
+      "name": "0007_referral_and_commission_policy.sql",
+      "checksum": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+      "applied_at": "2026-09-27T09:49:28.131Z"
+    },
+    {
+      "version": "0008",
+      "name": "0008_platform_revenue_job_fee.sql",
+      "checksum": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+      "applied_at": "2026-09-27T09:49:29.040Z"
+    },
+    {
+      "version": "0009",
+      "name": "0009_ledger_error_reverse_map_complete.sql",
+      "checksum": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+      "applied_at": "2026-09-27T10:09:16.665Z"
+    },
+    {
+      "version": "0010",
+      "name": "0010_referral_bind_protocol_guard.sql",
+      "checksum": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+      "applied_at": "2026-09-27T10:45:22.188Z"
+    },
+    {
+      "version": "0011",
+      "name": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "checksum": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+      "applied_at": "2026-09-27T11:35:24.353Z"
+    }
+  ]
+}
+STATUS_EXIT=0

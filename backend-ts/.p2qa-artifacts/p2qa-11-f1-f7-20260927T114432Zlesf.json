@@ -1,0 +1,432 @@
+{
+  "run": "20260927T114432Zlesf",
+  "name": "p2qa-11-f1-f7",
+  "at": "2026-09-27T11:44:55.060Z",
+  "script": "scripts/p2qa-11-f1-f7.ts",
+  "F1": {
+    "uids": {
+      "X": 958501,
+      "Y": 958502,
+      "EMP": 958503
+    },
+    "result": {
+      "cid": "187",
+      "cycle_rows": [
+        {
+          "child_uid": "958501",
+          "parent_uid": "958502",
+          "depth": "1"
+        },
+        {
+          "child_uid": "958502",
+          "parent_uid": "958501",
+          "depth": "1"
+        }
+      ],
+      "triggers_during": [
+        {
+          "tgname": "trg_referral_append_only",
+          "tgenabled": "O"
+        },
+        {
+          "tgname": "trg_referral_cycle_guard",
+          "tgenabled": "D"
+        }
+      ],
+      "chain_nodes": [
+        {
+          "beneficiary_uid": "958502",
+          "level": 1
+        },
+        {
+          "beneficiary_uid": "958501",
+          "level": 2
+        },
+        {
+          "beneficiary_uid": "958502",
+          "level": 3
+        },
+        {
+          "beneficiary_uid": "958501",
+          "level": 4
+        },
+        {
+          "beneficiary_uid": "958502",
+          "level": 5
+        },
+        {
+          "beneficiary_uid": "958501",
+          "level": 6
+        },
+        {
+          "beneficiary_uid": "958502",
+          "level": 7
+        },
+        {
+          "beneficiary_uid": "958501",
+          "level": 8
+        },
+        {
+          "beneficiary_uid": "958502",
+          "level": 9
+        },
+        {
+          "beneficiary_uid": "958501",
+          "level": 10
+        }
+      ],
+      "chain_assertions": {
+        "contiguous_levels": true,
+        "within_cap": true,
+        "all_user_uids": true,
+        "no_duplicate_uid": false
+      },
+      "chain_truncated": true,
+      "duplicate_uids": [
+        "958502",
+        "958501",
+        "958502",
+        "958501",
+        "958502",
+        "958501",
+        "958502",
+        "958501"
+      ],
+      "worker_self_on_chain": true,
+      "settle_entry_call": {
+        "threw": true,
+        "err": {
+          "ts_code": "LEDGER_RECONCILE_MISMATCH",
+          "http": 500,
+          "status_field": null,
+          "details": {
+            "reason": "COMMISSION_CHAIN_ASSERTION_VIOLATED",
+            "failed_assertions": "no_duplicate_uid",
+            "failed_count": 1,
+            "chain_depth": 10,
+            "chain_truncated": true,
+            "within_cap": true,
+            "worker_uid": "958501",
+            "job_id": "958300338027167",
+            "chain_nodes": "1:958502,2:958501,3:958502,4:958501,5:958502,6:958501,7:958502,8:958501,9:958502,10:958501",
+            "note": "referral graph invariants broken (cycle / platform uid / level gap) => attribution untrustworthy, refusing before ledger post"
+          },
+          "httpStatusOf_code": 500
+        }
+      },
+      "no_ledger_write": {
+        "ledger_entry_before": "2021",
+        "ledger_entry_after": "2021",
+        "rows_for_settle_key": "0",
+        "rows_for_job_ref_id_incl_hold": "2",
+        "unchanged": true
+      },
+      "db_control_duplicate_beneficiary_accepted": {
+        "posted_ok": true,
+        "error": null,
+        "duplicate_beneficiary_uids": [
+          "958502",
+          "958501",
+          "958502",
+          "958501",
+          "958502",
+          "958501",
+          "958502",
+          "958501",
+          "958502",
+          "958501"
+        ],
+        "note": "Σ x == P（总量守恒）⇒ DB 侧 Σ 断言放行；重复 uid 占多层 ⇒ 归属错。这是 F1 的「静默错付」证据。"
+      },
+      "within_cap_not_hard_rejected": {
+        "only_within_cap_false": {
+          "threw": false,
+          "detail": {
+            "threw": false
+          }
+        },
+        "within_cap_false_plus_duplicate": {
+          "threw": true,
+          "err": {
+            "ts_code": "LEDGER_RECONCILE_MISMATCH",
+            "http": 500,
+            "status_field": null,
+            "details": {
+              "reason": "COMMISSION_CHAIN_ASSERTION_VIOLATED",
+              "failed_assertions": "no_duplicate_uid",
+              "failed_count": 1,
+              "chain_depth": 1,
+              "chain_truncated": true,
+              "within_cap": false,
+              "worker_uid": "",
+              "job_id": "",
+              "chain_nodes": "1:958501",
+              "note": "referral graph invariants broken (cycle / platform uid / level gap) => attribution untrustworthy, refusing before ledger post"
+            },
+            "httpStatusOf_code": 500
+          }
+        },
+        "note": "within_cap=false 单独 ⇒ 不抛（设计内）；within_cap=false + no_duplicate_uid=false ⇒ 抛（不放过真缺陷）"
+      },
+      "within_cap_reachable_via_real_walk": false
+    },
+    "tx_error": null,
+    "rolled_back": true
+  },
+  "F7_truncation": {
+    "cid": "188",
+    "binds": [
+      {
+        "edge": "958522->958523",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958521->958522",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958520->958521",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958519->958520",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958518->958519",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958517->958518",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958516->958517",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958515->958516",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958514->958515",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958513->958514",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958512->958513",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958511->958512",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958533->958534",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958532->958533",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958531->958532",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958530->958531",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958529->958530",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958528->958529",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958527->958528",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958526->958527",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958525->958526",
+        "ok": true,
+        "err": null
+      },
+      {
+        "edge": "958524->958525",
+        "ok": true,
+        "err": null
+      }
+    ],
+    "binds_failed": [],
+    "w1_12deep_cap10": {
+      "nodes_len": 10,
+      "chain_depth": 10,
+      "truncated": true,
+      "last_node": "958521",
+      "assertions": {
+        "contiguous_levels": true,
+        "within_cap": true,
+        "all_user_uids": true,
+        "no_duplicate_uid": true
+      },
+      "tail_uids": [
+        "8:958519",
+        "9:958520",
+        "10:958521"
+      ]
+    },
+    "w2_10deep_cap10": {
+      "nodes_len": 10,
+      "chain_depth": 10,
+      "truncated": false,
+      "last_node": "958534",
+      "assertions": {
+        "contiguous_levels": true,
+        "within_cap": true,
+        "all_user_uids": true,
+        "no_duplicate_uid": true
+      },
+      "tail_uids": [
+        "8:958532",
+        "9:958533",
+        "10:958534"
+      ]
+    },
+    "w1_12deep_cap12": {
+      "nodes_len": 12,
+      "chain_depth": 12,
+      "truncated": false,
+      "last_node": "958523",
+      "assertions": {
+        "contiguous_levels": true,
+        "within_cap": true,
+        "all_user_uids": true,
+        "no_duplicate_uid": true
+      },
+      "tail_uids": [
+        "10:958521",
+        "11:958522",
+        "12:958523"
+      ]
+    },
+    "w2_10deep_cap11": {
+      "nodes_len": 10,
+      "chain_depth": 10,
+      "truncated": false,
+      "last_node": "958534",
+      "assertions": {
+        "contiguous_levels": true,
+        "within_cap": true,
+        "all_user_uids": true,
+        "no_duplicate_uid": true
+      },
+      "tail_uids": [
+        "8:958532",
+        "9:958533",
+        "10:958534"
+      ]
+    },
+    "w1_12deep_cap3": {
+      "nodes_len": 3,
+      "chain_depth": 3,
+      "truncated": true,
+      "last_node": "958514",
+      "assertions": {
+        "contiguous_levels": true,
+        "within_cap": true,
+        "all_user_uids": true,
+        "no_duplicate_uid": true
+      },
+      "tail_uids": [
+        "1:958512",
+        "2:958513",
+        "3:958514"
+      ]
+    },
+    "policy_now": {
+      "policy_id": "37",
+      "levels": 10,
+      "fee_rate_bp": 100
+    },
+    "plan_w1_chain_truncated": true,
+    "plan_w1_chain_depth": 10,
+    "plan_w1_M": 10,
+    "plan_w2_chain_truncated": false,
+    "plan_w2_chain_depth": 10,
+    "plan_w2_M": 10,
+    "verdict": {
+      "truncated_true_when_12deep_cap10": true,
+      "truncated_false_when_exactly_10deep": true,
+      "chain_depth_identical_both_cases": true
+    },
+    "tx_error": null,
+    "rolled_back": true
+  },
+  "platform_cid1_unchanged": true,
+  "residue": {
+    "referral_mine_958": [
+      {
+        "child_uid": "958542",
+        "parent_uid": "958543",
+        "depth": "2"
+      },
+      {
+        "child_uid": "958543",
+        "parent_uid": "958544",
+        "depth": "1"
+      },
+      {
+        "child_uid": "958637",
+        "parent_uid": "958638",
+        "depth": "2"
+      },
+      {
+        "child_uid": "958638",
+        "parent_uid": "958639",
+        "depth": "1"
+      }
+    ],
+    "users_mine_958": "8",
+    "cycles_global": "0",
+    "my_triggers": [
+      {
+        "tgname": "trg_referral_append_only",
+        "tgenabled": "O"
+      },
+      {
+        "tgname": "trg_referral_cycle_guard",
+        "tgenabled": "O"
+      }
+    ]
+  }
+}

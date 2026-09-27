@@ -1,0 +1,65 @@
+{
+  "run": "pre011-20260927193514",
+  "name": "p2w-03-replay-vs-balance",
+  "at": "2026-09-27T11:51:02.166Z",
+  "script": "scripts/p2w-03-ledger-replay-balance-gate.ts",
+  "key": "biz:job:settle:959717",
+  "cid": "194",
+  "symbol": "p1y959717",
+  "emp": "959717",
+  "worker": "959718",
+  "partition_used": [
+    959001,
+    959949
+  ],
+  "uid_base": 959717,
+  "question": "同键第二次调用：账本先做余额闸还是先做幂等短路？",
+  "readings": {
+    "A_second_call_after_escrow_spent": {
+      "mint_ok": true,
+      "hold_ok": true,
+      "first": {
+        "ok": true,
+        "replay": false,
+        "err": null
+      },
+      "frozen_after_first": "0",
+      "second": {
+        "ok": false,
+        "replay": false,
+        "err": {
+          "sqlstate": "LD002",
+          "message": "LEDGER_INSUFFICIENT_FROZEN",
+          "detail": "{\"cid\": \"194\", \"uid\": \"959717\", \"required\": \"99000\", \"available\": \"0\"}",
+          "reason": null,
+          "constraint": null,
+          "raw_detail": {
+            "cid": "194",
+            "uid": "959717",
+            "required": "99000",
+            "available": "0"
+          }
+        }
+      }
+    },
+    "B_second_call_with_escrow_left": {
+      "mint_ok": true,
+      "hold_ok": true,
+      "first": {
+        "ok": true,
+        "replay": false,
+        "err": null
+      },
+      "frozen_after_first": "100000",
+      "second": {
+        "ok": true,
+        "replay": true,
+        "err": null
+      },
+      "ledger_rows_for_key": "4"
+    }
+  },
+  "note": "两个判据都在**回滚事务**内（零残留）；A/B 唯一差别是 hold 的 frozen 是否够第二次调用所需",
+  "reds": [],
+  "ok": true
+}

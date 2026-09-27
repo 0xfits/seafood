@@ -1,0 +1,245 @@
+{
+  "run": "20260927T114919Zvesq",
+  "name": "p2qa-15-final-state",
+  "at": "2026-09-27T11:49:25.924Z",
+  "script": "scripts/p2qa-15-final-state.ts",
+  "triggers": [
+    {
+      "tbl": "account",
+      "tgname": "trg_account_guard",
+      "tgenabled": "O",
+      "deferrable": "false",
+      "initdeferred": "false",
+      "is_constraint_trigger": "false"
+    },
+    {
+      "tbl": "commission_policy",
+      "tgname": "trg_commission_policy_append_only",
+      "tgenabled": "O",
+      "deferrable": "false",
+      "initdeferred": "false",
+      "is_constraint_trigger": "false"
+    },
+    {
+      "tbl": "commission_policy",
+      "tgname": "trg_commission_policy_weights_guard",
+      "tgenabled": "O",
+      "deferrable": "false",
+      "initdeferred": "false",
+      "is_constraint_trigger": "false"
+    },
+    {
+      "tbl": "ledger_entry",
+      "tgname": "trg_ledger_entry_append_only",
+      "tgenabled": "O",
+      "deferrable": "false",
+      "initdeferred": "false",
+      "is_constraint_trigger": "false"
+    },
+    {
+      "tbl": "ledger_entry",
+      "tgname": "trg_ledger_entry_commission_conservation",
+      "tgenabled": "O",
+      "deferrable": "true",
+      "initdeferred": "true",
+      "is_constraint_trigger": "true"
+    },
+    {
+      "tbl": "referral",
+      "tgname": "trg_referral_append_only",
+      "tgenabled": "O",
+      "deferrable": "false",
+      "initdeferred": "false",
+      "is_constraint_trigger": "false"
+    },
+    {
+      "tbl": "referral",
+      "tgname": "trg_referral_cycle_guard",
+      "tgenabled": "O",
+      "deferrable": "false",
+      "initdeferred": "false",
+      "is_constraint_trigger": "false"
+    }
+  ],
+  "user_triggers_all_O": [
+    {
+      "tgname": "trg_account_guard",
+      "tgenabled": "O"
+    },
+    {
+      "tgname": "trg_commission_policy_append_only",
+      "tgenabled": "O"
+    },
+    {
+      "tgname": "trg_commission_policy_weights_guard",
+      "tgenabled": "O"
+    },
+    {
+      "tgname": "trg_ledger_entry_append_only",
+      "tgenabled": "O"
+    },
+    {
+      "tgname": "trg_ledger_entry_commission_conservation",
+      "tgenabled": "O"
+    },
+    {
+      "tgname": "trg_referral_append_only",
+      "tgenabled": "O"
+    },
+    {
+      "tgname": "trg_referral_cycle_guard",
+      "tgenabled": "O"
+    }
+  ],
+  "all_user_triggers_enabled": true,
+  "invariants": {
+    "cycles": "0",
+    "bad_depth": "0",
+    "referral_rows": "160"
+  },
+  "schema_version": "0011",
+  "counts": {
+    "referral_total": "160",
+    "ledger_entry_total": "2028",
+    "commission_policy_total": "19",
+    "users_total": "289",
+    "currency_total": "84"
+  },
+  "my_partition": {
+    "uid_958_referral": [
+      {
+        "child_uid": "958542",
+        "parent_uid": "958543",
+        "depth": "2"
+      },
+      {
+        "child_uid": "958543",
+        "parent_uid": "958544",
+        "depth": "1"
+      },
+      {
+        "child_uid": "958637",
+        "parent_uid": "958638",
+        "depth": "2"
+      },
+      {
+        "child_uid": "958638",
+        "parent_uid": "958639",
+        "depth": "1"
+      }
+    ],
+    "uid_958_users": [
+      "958541",
+      "958542",
+      "958543",
+      "958544",
+      "958636",
+      "958637",
+      "958638",
+      "958639"
+    ],
+    "uid_958_accounts": [
+      {
+        "uid": "958541",
+        "cid": "183",
+        "balance": "3000000",
+        "frozen": "1000000"
+      },
+      {
+        "uid": "958542",
+        "cid": "183",
+        "balance": "950000",
+        "frozen": "0"
+      },
+      {
+        "uid": "958543",
+        "cid": "183",
+        "balance": "25000",
+        "frozen": "0"
+      },
+      {
+        "uid": "958544",
+        "cid": "183",
+        "balance": "25000",
+        "frozen": "0"
+      },
+      {
+        "uid": "958636",
+        "cid": "186",
+        "balance": "3000000",
+        "frozen": "1000000"
+      },
+      {
+        "uid": "958637",
+        "cid": "186",
+        "balance": "950000",
+        "frozen": "0"
+      },
+      {
+        "uid": "958638",
+        "cid": "186",
+        "balance": "25000",
+        "frozen": "0"
+      },
+      {
+        "uid": "958639",
+        "cid": "186",
+        "balance": "25000",
+        "frozen": "0"
+      }
+    ],
+    "currency_p1x": [
+      {
+        "cid": "183",
+        "symbol": "p1x2ZXPKQ"
+      },
+      {
+        "cid": "186",
+        "symbol": "p1x2ZXQFD"
+      }
+    ],
+    "ledger_rows_958_or_p1x": "22",
+    "all_my_ref_ids": [
+      {
+        "ref_id": "958300175123069"
+      },
+      {
+        "ref_id": "958300967222759"
+      }
+    ],
+    "rolled_back_case_uids_present": [],
+    "rolled_back_case_referral_present": []
+  },
+  "platform_cid1": [
+    {
+      "uid": "-1",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-3",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    }
+  ],
+  "spec_files_sha256": {
+    "docs/ledger.spec.md": "1ea17c20b12c5d580712c0e33784c9aa83b8a019328f0397f1fe4804503d4932",
+    "docs/commission.spec.md": "0928df273826b34b627193d8df1dcae93db919acef11c06f6d6da1e0df2121e4",
+    "docs/seafood.master-plan.md": "ae13c8b43cee02437a2c8316bb5a8b9f322db42e6b168329257bcbae098e19e9",
+    "docs/qa/p2-commission.md": "8030c1b1f467eef0844b28cdda93c9048e04840b4221202efc0fc65bbba7ab25"
+  }
+}

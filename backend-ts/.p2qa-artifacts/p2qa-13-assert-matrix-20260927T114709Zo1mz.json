@@ -1,0 +1,123 @@
+{
+  "run": "20260927T114709Zo1mz",
+  "name": "p2qa-13-assert-matrix",
+  "at": "2026-09-27T11:47:09.655Z",
+  "script": "scripts/p2qa-13-assert-matrix.ts",
+  "reason_constants": {
+    "CHAIN_ASSERTION_VIOLATED": "COMMISSION_CHAIN_ASSERTION_VIOLATED",
+    "LEDGER_REPLAY_INCONSISTENT": "COMMISSION_LEDGER_REPLAY_INCONSISTENT"
+  },
+  "cells": {
+    "all_true": {
+      "assertions": {},
+      "threw": false
+    },
+    "only_within_cap_false": {
+      "assertions": {
+        "within_cap": false
+      },
+      "threw": false
+    },
+    "only_no_duplicate_false": {
+      "assertions": {
+        "no_duplicate_uid": false
+      },
+      "threw": true,
+      "code": "LEDGER_RECONCILE_MISMATCH",
+      "http_status": 500,
+      "status_field": null,
+      "reason": "COMMISSION_CHAIN_ASSERTION_VIOLATED",
+      "failed_assertions": "no_duplicate_uid",
+      "failed_count": 1,
+      "worker_uid": "958701"
+    },
+    "only_contiguous_false": {
+      "assertions": {
+        "contiguous_levels": false
+      },
+      "threw": true,
+      "code": "LEDGER_RECONCILE_MISMATCH",
+      "http_status": 500,
+      "status_field": null,
+      "reason": "COMMISSION_CHAIN_ASSERTION_VIOLATED",
+      "failed_assertions": "contiguous_levels",
+      "failed_count": 1,
+      "worker_uid": "958701"
+    },
+    "only_all_user_uids_false": {
+      "assertions": {
+        "all_user_uids": false
+      },
+      "threw": true,
+      "code": "LEDGER_RECONCILE_MISMATCH",
+      "http_status": 500,
+      "status_field": null,
+      "reason": "COMMISSION_CHAIN_ASSERTION_VIOLATED",
+      "failed_assertions": "all_user_uids",
+      "failed_count": 1,
+      "worker_uid": "958701"
+    },
+    "duplicate_plus_contiguous": {
+      "assertions": {
+        "no_duplicate_uid": false,
+        "contiguous_levels": false
+      },
+      "threw": true,
+      "code": "LEDGER_RECONCILE_MISMATCH",
+      "http_status": 500,
+      "status_field": null,
+      "reason": "COMMISSION_CHAIN_ASSERTION_VIOLATED",
+      "failed_assertions": "no_duplicate_uid,contiguous_levels",
+      "failed_count": 2,
+      "worker_uid": "958701"
+    },
+    "all_three_false": {
+      "assertions": {
+        "no_duplicate_uid": false,
+        "contiguous_levels": false,
+        "all_user_uids": false
+      },
+      "threw": true,
+      "code": "LEDGER_RECONCILE_MISMATCH",
+      "http_status": 500,
+      "status_field": null,
+      "reason": "COMMISSION_CHAIN_ASSERTION_VIOLATED",
+      "failed_assertions": "no_duplicate_uid,contiguous_levels,all_user_uids",
+      "failed_count": 3,
+      "worker_uid": "958701"
+    },
+    "within_cap_false_plus_all_three": {
+      "assertions": {
+        "within_cap": false,
+        "no_duplicate_uid": false,
+        "contiguous_levels": false,
+        "all_user_uids": false
+      },
+      "threw": true,
+      "code": "LEDGER_RECONCILE_MISMATCH",
+      "http_status": 500,
+      "status_field": null,
+      "reason": "COMMISSION_CHAIN_ASSERTION_VIOLATED",
+      "failed_assertions": "no_duplicate_uid,contiguous_levels,all_user_uids",
+      "failed_count": 3,
+      "worker_uid": "958701"
+    }
+  },
+  "code_closure": {
+    "count": 33,
+    "is_closed_set_33": true,
+    "CHAIN_ASSERTION_VIOLATED_is_not_a_code": true,
+    "LEDGER_REPLAY_INCONSISTENT_is_not_a_code": true,
+    "LD032_in_table": true,
+    "http_status_of_LD032": 500,
+    "bucket_LD032": "defect"
+  },
+  "verdict": {
+    "names_exact_failing_assertion": true,
+    "all_three_named_and_counted": true,
+    "within_cap_alone_not_rejected": true,
+    "within_cap_false_still_reports_others": true,
+    "error_is_500_class": true,
+    "error_code_is_existing_closed_set_code": true
+  }
+}

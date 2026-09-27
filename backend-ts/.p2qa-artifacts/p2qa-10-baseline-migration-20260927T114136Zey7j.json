@@ -1,0 +1,396 @@
+{
+  "run": "20260927T114136Zey7j",
+  "name": "p2qa-10-baseline-migration",
+  "at": "2026-09-27T11:41:40.737Z",
+  "script": "scripts/p2qa-10-baseline-migration.ts",
+  "question": "修复轮环境底线：HEAD / 迁移版本 / 0001-0010 未动 / 触发器启用态 / 分区残留",
+  "git": {
+    "head": "647851f fix(P2): 质检六项缺陷修复轮（0011 + 佣金层）+ 质检报告落盘",
+    "head_full": "647851f3295a18dbd30a3351b4167bdcccef86e9",
+    "head_1": "6f62954 test(P2): 独立质检（不通过）+ 探针可重跑性修复 + 触发器启用态常态判据",
+    "status_porcelain": [
+      "?? backend-ts/scripts/p2qa-10-baseline-migration.ts"
+    ],
+    "diff_migrations_stat": "...ion_assert_closure_and_referral_depth_guard.sql | 596 +++++++++++++++++++++\n 1 file changed, 596 insertions(+)",
+    "diff_src_stat": "backend-ts/src/commission.ts | 391 ++++++++++++++++++++++++++++++++++++++++++-\n 1 file changed, 384 insertions(+), 7 deletions(-)",
+    "per_file_same_as_head1": {
+      "0001": true,
+      "0002": true,
+      "0003": true,
+      "0004": true,
+      "0005": true,
+      "0006": true,
+      "0007": true,
+      "0008": true,
+      "0009": true,
+      "0010": true
+    }
+  },
+  "file_sha256": {
+    "migrations/0011_commission_assert_closure_and_referral_depth_guard.sql": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+    "src/commission.ts": "7b5ff9b36bfd7a34899145e7c1c5e61fe9522a8c446c82ae522b9efa5bf48d02",
+    "src/ledger.ts": "cb7ef5c8b7c6166c3d4f2620a2b141b91dae8cf45f73ba301037be114d0377d7",
+    "src/ledger-errors.ts": "721156cbf296b19c7c4a480264f88b49878d99104b8f87453bafce564745df8b"
+  },
+  "schema_migration": [
+    {
+      "version": "0001",
+      "name": "0001_ledger_core.sql",
+      "checksum": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+      "applied_at": "2026-09-27 03:48:15.617808+00"
+    },
+    {
+      "version": "0002",
+      "name": "0002_user_identity.sql",
+      "checksum": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+      "applied_at": "2026-09-27 03:48:20.093949+00"
+    },
+    {
+      "version": "0003",
+      "name": "0003_kind_close_set_20.sql",
+      "checksum": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+      "applied_at": "2026-09-27 04:57:40.94416+00"
+    },
+    {
+      "version": "0004",
+      "name": "0004_ledger_post_event.sql",
+      "checksum": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+      "applied_at": "2026-09-27 05:26:01.859398+00"
+    },
+    {
+      "version": "0005",
+      "name": "0005_ledger_event_root_key.sql",
+      "checksum": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+      "applied_at": "2026-09-27 06:34:21.897469+00"
+    },
+    {
+      "version": "0006",
+      "name": "0006_user_to_users.sql",
+      "checksum": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+      "applied_at": "2026-09-27 07:09:27.38362+00"
+    },
+    {
+      "version": "0007",
+      "name": "0007_referral_and_commission_policy.sql",
+      "checksum": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+      "applied_at": "2026-09-27 09:49:28.131292+00"
+    },
+    {
+      "version": "0008",
+      "name": "0008_platform_revenue_job_fee.sql",
+      "checksum": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+      "applied_at": "2026-09-27 09:49:29.040584+00"
+    },
+    {
+      "version": "0009",
+      "name": "0009_ledger_error_reverse_map_complete.sql",
+      "checksum": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+      "applied_at": "2026-09-27 10:09:16.665946+00"
+    },
+    {
+      "version": "0010",
+      "name": "0010_referral_bind_protocol_guard.sql",
+      "checksum": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+      "applied_at": "2026-09-27 10:45:22.18861+00"
+    },
+    {
+      "version": "0011",
+      "name": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "checksum": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+      "applied_at": "2026-09-27 11:35:24.353246+00"
+    }
+  ],
+  "schema_version_max": "0011",
+  "schema_version_count": 11,
+  "migration_files_on_disk": [
+    {
+      "version": "0001",
+      "n": "1"
+    },
+    {
+      "version": "0002",
+      "n": "1"
+    },
+    {
+      "version": "0003",
+      "n": "1"
+    },
+    {
+      "version": "0004",
+      "n": "1"
+    },
+    {
+      "version": "0005",
+      "n": "1"
+    },
+    {
+      "version": "0006",
+      "n": "1"
+    },
+    {
+      "version": "0007",
+      "n": "1"
+    },
+    {
+      "version": "0008",
+      "n": "1"
+    },
+    {
+      "version": "0009",
+      "n": "1"
+    },
+    {
+      "version": "0010",
+      "n": "1"
+    },
+    {
+      "version": "0011",
+      "n": "1"
+    }
+  ],
+  "triggers": [
+    {
+      "tbl": "account",
+      "tgname": "trg_account_guard",
+      "tgenabled": "O"
+    },
+    {
+      "tbl": "commission_policy",
+      "tgname": "trg_commission_policy_append_only",
+      "tgenabled": "O"
+    },
+    {
+      "tbl": "commission_policy",
+      "tgname": "trg_commission_policy_weights_guard",
+      "tgenabled": "O"
+    },
+    {
+      "tbl": "ledger_entry",
+      "tgname": "trg_ledger_entry_append_only",
+      "tgenabled": "O"
+    },
+    {
+      "tbl": "ledger_entry",
+      "tgname": "trg_ledger_entry_commission_conservation",
+      "tgenabled": "O"
+    },
+    {
+      "tbl": "referral",
+      "tgname": "trg_referral_append_only",
+      "tgenabled": "O"
+    },
+    {
+      "tbl": "referral",
+      "tgname": "trg_referral_cycle_guard",
+      "tgenabled": "O"
+    }
+  ],
+  "triggers_expected_present": [
+    {
+      "tgname": "trg_account_guard",
+      "tgenabled": "O"
+    },
+    {
+      "tgname": "trg_commission_policy_append_only",
+      "tgenabled": "O"
+    },
+    {
+      "tgname": "trg_commission_policy_weights_guard",
+      "tgenabled": "O"
+    },
+    {
+      "tgname": "trg_ledger_entry_append_only",
+      "tgenabled": "O"
+    },
+    {
+      "tgname": "trg_ledger_entry_commission_conservation",
+      "tgenabled": "O"
+    },
+    {
+      "tgname": "trg_referral_append_only",
+      "tgenabled": "O"
+    },
+    {
+      "tgname": "trg_referral_cycle_guard",
+      "tgenabled": "O"
+    }
+  ],
+  "triggers_all_enabled_O": true,
+  "triggers_disabled_or_absent": [],
+  "conservation_trigger_shape": [
+    {
+      "tgname": "trg_ledger_entry_commission_conservation",
+      "tgdeferrable": "true",
+      "tginitdeferred": "true",
+      "has_constraint": "true"
+    }
+  ],
+  "partition_snapshot": {
+    "referral_mine_958": "0",
+    "users_mine_958": "0",
+    "referral_total": "128",
+    "ledger_entry_total": "1996",
+    "commission_policy_total": "19",
+    "users_total": "228",
+    "currency_p1x": []
+  },
+  "platform_cid1_baseline": [
+    {
+      "uid": "-1",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-3",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    }
+  ],
+  "policy_now": [
+    {
+      "policy_id": "37",
+      "levels": "10",
+      "fee_rate_bp": "100",
+      "effective_from": "2026-09-27 10:56:46.580869+00",
+      "weights": "3000,2000,1500,1000,800,600,500,300,200,100"
+    }
+  ],
+  "policy_tail": [
+    {
+      "policy_id": "37",
+      "levels": "10",
+      "fee_rate_bp": "100",
+      "effective_from": "2026-09-27 10:56:46.580869+00"
+    },
+    {
+      "policy_id": "36",
+      "levels": "2",
+      "fee_rate_bp": "100",
+      "effective_from": "2026-09-27 10:56:43.995566+00"
+    },
+    {
+      "policy_id": "35",
+      "levels": "9",
+      "fee_rate_bp": "500",
+      "effective_from": "2026-09-27 10:56:38.930553+00"
+    },
+    {
+      "policy_id": "34",
+      "levels": "10",
+      "fee_rate_bp": "100",
+      "effective_from": "2026-09-27 10:40:11.250001+00"
+    },
+    {
+      "policy_id": "33",
+      "levels": "2",
+      "fee_rate_bp": "100",
+      "effective_from": "2026-09-27 10:40:08.719548+00"
+    },
+    {
+      "policy_id": "32",
+      "levels": "9",
+      "fee_rate_bp": "500",
+      "effective_from": "2026-09-27 10:40:03.090896+00"
+    },
+    {
+      "policy_id": "31",
+      "levels": "10",
+      "fee_rate_bp": "100",
+      "effective_from": "2026-09-27 10:38:14.693873+00"
+    },
+    {
+      "policy_id": "30",
+      "levels": "2",
+      "fee_rate_bp": "100",
+      "effective_from": "2026-09-27 10:38:11.845112+00"
+    }
+  ],
+  "error_codes": {
+    "count": 33,
+    "list": [
+      "LEDGER_INSUFFICIENT_BALANCE",
+      "LEDGER_INSUFFICIENT_FROZEN",
+      "LEDGER_IDEMPOTENCY_REPLAY",
+      "LEDGER_IDEMPOTENCY_CONFLICT",
+      "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "LEDGER_CURRENCY_NOT_FOUND",
+      "LEDGER_CURRENCY_NOT_LISTED",
+      "LEDGER_CURRENCY_FROZEN",
+      "LEDGER_CURRENCY_DELISTED",
+      "LEDGER_CURRENCY_INVALID_TRANSITION",
+      "LEDGER_CURRENCY_SYMBOL_TAKEN",
+      "LEDGER_CURRENCY_MISMATCH",
+      "LEDGER_SUPPLY_CAP_EXCEEDED",
+      "LEDGER_UNAUTHORIZED_MINT",
+      "LEDGER_HOLD_NOT_ALLOWED",
+      "LEDGER_AMOUNT_INVALID",
+      "LEDGER_AMOUNT_NOT_POSITIVE",
+      "LEDGER_DECIMALS_OVERFLOW",
+      "LEDGER_SELF_TRANSFER",
+      "LEDGER_ACCOUNT_NOT_FOUND",
+      "LEDGER_RESERVED_UID",
+      "LEDGER_REF_NOT_FOUND",
+      "LEDGER_UNKNOWN_KIND",
+      "LEDGER_TRANSACTION_REQUIRED",
+      "LEDGER_LOCK_TIMEOUT",
+      "LEDGER_TX_TIMEOUT",
+      "LEDGER_DEADLOCK_RETRY_EXHAUSTED",
+      "LEDGER_NEGATIVE_BALANCE_GUARD",
+      "LEDGER_APPEND_ONLY_VIOLATION",
+      "LEDGER_ACCOUNT_GUARD_VIOLATION",
+      "LEDGER_FEE_RATE_INVALID",
+      "LEDGER_RECONCILE_MISMATCH"
+    ],
+    "has_LEDGER_RECONCILE_MISMATCH": true,
+    "has_chain_assertion_violated_as_code": false,
+    "has_replay_inconsistent_as_code": false,
+    "httpStatusOf_LD032": 500,
+    "bucket_LD032": "defect",
+    "httpStatusOf_LD003": 409,
+    "bucket_LD003": "integrity",
+    "httpStatusOf_LD016": 400,
+    "bucket_LD016": "input"
+  },
+  "db_borrow_map": [
+    {
+      "ld032": "LD032",
+      "ld003": "LD003",
+      "ld016": "LD016",
+      "ld032_bucket": "defect",
+      "ld032_code": "LEDGER_RECONCILE_MISMATCH",
+      "ld003_bucket": "integrity",
+      "ld016_bucket": "input"
+    }
+  ],
+  "function_bodies": [
+    {
+      "proname": "ledger_assert_commission_conservation",
+      "has_v_closed": "true",
+      "has_f6": "false",
+      "has_f2": "false",
+      "len": "2624"
+    },
+    {
+      "proname": "referral_cycle_guard",
+      "has_v_closed": "false",
+      "has_f6": "true",
+      "has_f2": "true",
+      "len": "4560"
+    }
+  ]
+}

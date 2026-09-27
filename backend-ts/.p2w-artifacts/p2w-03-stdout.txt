@@ -1,0 +1,36 @@
+{
+ "file": "/Users/kevin/bistro/seafood/backend-ts/.p2w-artifacts/p2w-03-replay-vs-balance-pre011-20260927193514.json",
+ "txt": "/Users/kevin/bistro/seafood/backend-ts/.p2w-artifacts/p2w-03-replay-vs-balance-pre011-20260927193514.txt",
+ "run": "pre011-20260927193514",
+ "ok": true,
+ "reds": [],
+ "A": {
+  "second": {
+   "ok": false,
+   "replay": false,
+   "err": {
+    "sqlstate": "LD002",
+    "message": "LEDGER_INSUFFICIENT_FROZEN",
+    "detail": "{\"cid\": \"194\", \"uid\": \"959717\", \"required\": \"99000\", \"available\": \"0\"}",
+    "reason": null,
+    "constraint": null,
+    "raw_detail": {
+     "cid": "194",
+     "uid": "959717",
+     "required": "99000",
+     "available": "0"
+    }
+   }
+  },
+  "frozen_after_first": "0"
+ },
+ "B": {
+  "second": {
+   "ok": true,
+   "replay": true,
+   "err": null
+  },
+  "frozen_after_first": "100000",
+  "ledger_rows_for_key": "4"
+ }
+}
