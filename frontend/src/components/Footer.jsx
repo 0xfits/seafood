@@ -1,6 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
+import { buildLangPath, getLanguageFromUrl } from '../utils'
 
 // CAT 品牌描述文案（随机选择）
 const catDescriptions = [
@@ -36,21 +37,7 @@ const Footer = () => {
   const location = useLocation()
 
   // 获取当前语言
-  const getCurrentLang = () => {
-    const pathParts = location.pathname.split('/')
-    if (pathParts.length > 1 && ['en', 'hk', 'vn'].includes(pathParts[1])) {
-      return pathParts[1]
-    }
-    return 'zh'
-  }
-
-  // 构建带语言前缀的路径
-  const buildPath = (path, lang) => {
-    if (lang === 'zh') {
-      return path === '' ? '/' : `/${path}`
-    }
-    return `/${lang}/${path}`
-  }
+  const getCurrentLang = () => getLanguageFromUrl(location.pathname)
 
   // 语言列表
   const languages = [
@@ -97,7 +84,7 @@ const Footer = () => {
           {languages.map((lang) => (
             <Link
               key={lang.code}
-              to={buildPath('', lang.code)}
+              to={buildLangPath(location.pathname, lang.code)}
               className={`text-sm ${getCurrentLang() === lang.code ? 'text-primary font-medium' : 'text-text-secondary hover:text-text-primary'}`}
             >
               {lang.label}

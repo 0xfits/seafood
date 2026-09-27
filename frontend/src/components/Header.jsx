@@ -10,6 +10,7 @@ import HoverMenu from './ui/HoverMenu'
 import DashJ from './ui/DashJ'
 import { fetchAdminAccess } from '../admin-utils'
 import { useAuth } from '../auth-context'
+import { buildLangPath, getLanguageFromUrl } from '../utils'
 
 const Header = () => {
   const { t } = useTranslation()
@@ -84,28 +85,11 @@ const Header = () => {
   }
 
   // 获取当前语言
-  const getCurrentLang = () => {
-    const pathParts = location.pathname.split('/')
-    if (pathParts.length > 1 && ['en', 'hk', 'vn'].includes(pathParts[1])) {
-      return pathParts[1]
-    }
-    return 'zh'
-  }
+  const getCurrentLang = () => getLanguageFromUrl(location.pathname)
 
-  // 切换语言
+  // 切换语言：先剥离已有（可能重复的）语言前缀，再按目标语言重建
   const changeLanguage = (lang) => {
-    const currentPath = location.pathname
-    let newPath = ''
-    
-    if (currentPath.startsWith('/' + getCurrentLang() + '/')) {
-      newPath = currentPath.replace('/' + getCurrentLang() + '/', '/' + lang + '/')
-    } else if (currentPath === '/') {
-      newPath = lang === 'zh' ? '/' : '/' + lang
-    } else {
-      newPath = lang === 'zh' ? currentPath : '/' + lang + currentPath
-    }
-    
-    navigate(newPath)
+    navigate(`${buildLangPath(location.pathname, lang)}${location.search}${location.hash}`)
   }
 
   // 处理登出
@@ -137,18 +121,14 @@ const Header = () => {
     ...(isAuthenticated && isAdmin ? [{ path: adminPath, label: t('admin_panel') || '管理面板', absolute: true }] : [])
   ]
 
-  // 构建带语言前缀的路径
+  // 构建带语言前缀的路径（前缀逻辑统一走 utils，避免自造前缀/尾斜杠）
   const buildPath = (path) => {
     // dashboard 路径不需要语言前缀
     if (path === 'dashboard' || path.startsWith('/dashboard')) {
       return path.startsWith('/dashboard') ? path : '/dashboard'
     }
-    
-    const currentLang = getCurrentLang()
-    if (currentLang === 'zh') {
-      return path === '' ? '/' : `/${path}`
-    }
-    return `/${currentLang}/${path}`
+
+    return buildLangPath(`/${path}`, getCurrentLang())
   }
 
   // 语言对应国旗映射

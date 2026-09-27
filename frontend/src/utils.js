@@ -41,34 +41,63 @@ export const generateId = () => {
 }
 
 /**
- * 从URL获取当前语言
+ * 支持的语言代码（唯一白名单，顺序即语言菜单顺序）
+ * @type {string[]}
+ */
+export const SUPPORTED_LANGS = ['zh', 'en', 'hk', 'vn']
+
+/**
+ * 从URL获取当前语言（只识别首位语言段，其余位置的语言词是普通路径）
  * @param {string} pathname - URL路径
- * @returns {string} 语言代码
+ * @returns {string} 语言代码，无语言前缀时返回 'zh'
  */
 export const getLanguageFromUrl = (pathname) => {
-  const lang = pathname.split('/')[1]
-  const supportedLanguages = ['en', 'hk', 'vn']
-  
-  if (supportedLanguages.includes(lang)) {
-    return lang
-  }
-  
-  return 'zh' // 默认返回中文
+  const lang = (pathname || '/').split('/')[1]
+
+  return SUPPORTED_LANGS.includes(lang) ? lang : 'zh'
 }
 
 /**
- * 构建带语言前缀的URL
- * @param {string} path - 基础路径
- * @param {string} lang - 语言代码
- * @returns {string} 带语言前缀的URL
+ * 剥离路径中所有前导语言段
+ * @param {string} pathname - URL路径
+ * @returns {string} 剩余路径，形如 '' 或 '/reward'
  */
-export const buildUrlWithLang = (path, lang) => {
-  if (lang === 'zh') {
-    return path.startsWith('/') ? path : `/${path}`
+export const stripLangPrefix = (pathname) => {
+  const parts = (pathname || '/').split('/')
+  let index = 1
+
+  while (index < parts.length && SUPPORTED_LANGS.includes(parts[index])) {
+    index += 1
   }
-  
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path
-  return `/${lang}/${cleanPath}`
+
+  const rest = parts.slice(index).join('/')
+
+  return rest ? `/${rest}` : ''
+}
+
+/**
+ * 按目标语言重建路径：先剥离所有语言前缀，再按目标语言加前缀
+ * @param {string} pathname - 当前URL路径
+ * @param {string} targetLang - 目标语言代码
+ * @returns {string} 带目标语言前缀的路径；剩余路径为空时不带尾斜杠
+ */
+export const buildLangPath = (pathname, targetLang) => {
+  const rest = stripLangPrefix(pathname).replace(/\/+$/, '')
+
+  if (targetLang === 'zh') {
+    return rest || '/'
+  }
+
+  return `/${targetLang}${rest}`
+}
+
+/**
+ * 计算URL的规范路径，用于判定「该不该重定向」
+ * @param {string} pathname - URL路径
+ * @returns {string} 规范路径（统一去尾斜杠，根路径 '/' 除外）
+ */
+export const canonicalLangPath = (pathname) => {
+  return buildLangPath(pathname, getLanguageFromUrl(pathname))
 }
 
 /**

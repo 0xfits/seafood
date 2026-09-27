@@ -26,6 +26,7 @@ import Footer from './components/Footer'
 import AdminLayout from './components/layout/AdminLayout'
 import { fetchAdminAccess, hasAdminPermission } from './admin-utils'
 import { useAuth } from './auth-context'
+import { canonicalLangPath, SUPPORTED_LANGS } from './utils'
 
 // 模态框组件
 import LoginModal from './components/LoginModal'
@@ -34,15 +35,24 @@ import LoginModal from './components/LoginModal'
 const LanguageWrapper = ({ children }) => {
   const { lang } = useParams()
   const { i18n } = useTranslation()
+  const location = useLocation()
 
   useEffect(() => {
     // 从URL路径更新语言
-    if (lang && ['zh', 'en', 'hk', 'vn'].includes(lang)) {
+    if (lang && SUPPORTED_LANGS.includes(lang)) {
       i18n.changeLanguage(lang)
     } else if (!lang) {
       i18n.changeLanguage('zh')
     }
   }, [lang, i18n])
+
+  // 语言前缀规范化：/hk/vn、/zh、/en/en 这类历史链接或手输地址先自愈到规范路径，
+  // 否则内层路由无匹配会渲染成空白页（无语言前缀的 /dashboard*、/login、/register 不在首位语言表内，不会被加前缀）
+  const canonicalPath = canonicalLangPath(location.pathname)
+
+  if (canonicalPath !== location.pathname) {
+    return <Navigate to={`${canonicalPath}${location.search}${location.hash}`} replace />
+  }
 
   return <div className="min-h-screen flex flex-col">{children}</div>
 }
