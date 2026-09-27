@@ -82,9 +82,9 @@ const buildWalletSignMessage = (evmAddress: string, nonce: string, issuedAt: num
   const expiresIso = new Date(expiresAt * 1000).toISOString().replace('T', ' ').replace('.000Z', ' UTC');
 
   return [
-    'Jinli Club Wallet Sign-In',
+    'Seafood Wallet Sign-In',
     '',
-    '请签名确认你持有该钱包地址，用于登录 Jinli Club。',
+    '请签名确认你持有该钱包地址，用于登录 Seafood。',
     '本次签名不会发起链上交易，也不会消耗 gas。',
     '',
     `钱包地址: ${evmAddress}`,

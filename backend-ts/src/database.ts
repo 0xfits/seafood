@@ -22,7 +22,7 @@ const ALL_ADMIN_PERMISSIONS = [
 ] as const;
 
 const DEFAULT_SYSTEM_SETTINGS = {
-  siteName: 'Jinli Club',
+  siteName: 'Seafood Club',
   siteDescription: '去中心化社区奖励平台',
   maintenance: false,
   allowRegistration: true,

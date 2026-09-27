@@ -177,7 +177,7 @@ app.get('/', (req, res) => {
     res,
     {
       status: 'ok',
-      message: 'Jinli TypeScript Backend',
+      message: 'Seafood TypeScript Backend',
       timestamp: new Date().toISOString(),
       endpoints: {
         health: '/api/test/data',
@@ -193,6 +193,8 @@ app.get('/', (req, res) => {
 });
 
 app.get('/health', async (req, res) => {
+  // 健康检查不得被 CDN / 中间缓存（否则会长期报陈旧状态）
+  res.setHeader('Cache-Control', 'no-store');
   try {
     const report = await healthCheck();
     res.status(report.ok ? 200 : 503).json(report);

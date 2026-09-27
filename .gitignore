@@ -303,6 +303,13 @@ temp/
 *.sql
 *.sqlite
 
+# 例外（通用白名单；与上面两条备份规则同段）：版本化迁移 / DDL 属源码，必须入库。
+# 任何项目目录下 migrations/ 里的 SQL 都不得被上面的 `*.sql`（"Database backups" 段）静默吞掉，
+# 否则会出现「库里建了表、仓库里没有 SQL」——别人 clone 后无法重建 schema。
+# 注：上面 `*.sql` 那一行本身不动——数据库导出 / 备份文件仍必须被忽略。
+!**/migrations/*.sql
+!**/migrations/**/*.sql
+
 # Build artifact directories
 build/
 

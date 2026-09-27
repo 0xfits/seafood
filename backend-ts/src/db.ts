@@ -93,6 +93,7 @@ const IN_TX = Symbol.for('seafood.inTransaction');
 type BrandedClient = TxClient & { release?: (err?: Error | boolean) => void; [IN_TX]?: true };
 
 let txPool: Pool | null = null;
+let readPool: Pool | null = null;
 
 export const getTransactionPool = (): Pool => {
   if (txPool) return txPool;
@@ -107,11 +108,32 @@ export const getTransactionPool = (): Pool => {
   return txPool;
 };
 
+/**
+ * 只读（单语句）连接池：走 pooler（R56）。
+ * 与事务池物理分离——直连端点 max_connections = 112，只读单语句不得占直连配额。
+ */
+export const getReadPool = (): Pool => {
+  if (readPool) return readPool;
+  const url = resolveReadUrl();
+  if (!url) throw new DbTxError('DATABASE_URL_MISSING', '缺少 DATABASE_URL / POSTGRES_URL');
+  readPool = new Pool({
+    connectionString: url,
+    max: Number(process.env.SEAFOOD_READ_POOL_MAX || 4),
+    idleTimeoutMillis: 10_000,
+    connectionTimeoutMillis: 10_000,
+  });
+  return readPool;
+};
+
 /** 关闭连接池（脚本收尾 / 优雅退出用；服务常驻时不需要调用） */
 export const closePools = async (): Promise<void> => {
   if (txPool) {
     await txPool.end().catch(() => undefined);
     txPool = null;
+  }
+  if (readPool) {
+    await readPool.end().catch(() => undefined);
+    readPool = null;
   }
 };
 
@@ -200,12 +222,12 @@ export const txQuery = async <R = Record<string, unknown>>(
 ): Promise<R[]> => (await tx.query<R>(text, params)).rows;
 
 // ---------------------------------------------------------------- 只读查询（单语句，不占显式事务）
-// 现有 database.ts 的 neon() HTTP 单语句驱动对「只读单语句」仍可用（R55 只禁写）。
+// R56：只读单语句走 DATABASE_URL(pooler) 的独立只读池；事务/锁仍走 DATABASE_URL_UNPOOLED（getTransactionPool）。
 export const readQuery = async <R = Record<string, unknown>>(
   text: string,
   params?: unknown[],
 ): Promise<R[]> => {
-  const pool = getTransactionPool() as unknown as {
+  const pool = getReadPool() as unknown as {
     query: (t: string, p?: unknown[]) => Promise<TxResult<R>>;
   };
   const result = await pool.query(text, params);
