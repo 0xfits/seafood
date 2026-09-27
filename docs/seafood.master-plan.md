@@ -576,7 +576,7 @@ BEGIN…COMMIT 单独 2250 / 1377 / 1478 ms
 **待登记的连带发现（不在本单范围，避免顺手扩面）**：`frontend/src` 里仍有 jinli 品牌残留多处（`AdminLayout.jsx` / `LoginModal.jsx` / `HomePage.jsx` / `AuthPage.jsx` / `images/Jinli_logo.svg`）—— 品牌清理应**单独立项**。
 
 
-"""### 5.25 **幂等前置闸 = R51 的「快路径」，不取代 `ON CONFLICT` 探针**（2026-09-27）
+### 5.25 **幂等前置闸 = R51 的「快路径」，不取代 `ON CONFLICT` 探针**（2026-09-27）
 
 **症状（不是成因）**：托管花光后，同键同载荷重试得到 `LD002 冻结余额不足（409）` 而不是 `200 + idempotent_replay:true`；客户端超时后**无法区分「已成功」与「余额不足」**。
 
@@ -592,11 +592,9 @@ BEGIN…COMMIT 单独 2250 / 1377 / 1478 ms
 
 **六项矩阵 after（`p2x-00` 34/37；唯一 red 是用例 5 的探针排序缺陷 —— 该探针先 `await Promise.all` 再提交胜者 ⇒ 败者只能等 R82 的 3s `lock_timeout`（`LD025`），且 before 三份读到同一 `LD025` ⇒ 与 `0012` 无关，为保 before/after 可比未改脚本）**：① 头号**已修**（`200 + idempotent_replay:true` + 同 txid + 键下恒 4 行**零写入** + `entries_sha256`/`accounts_sha256` 与首写逐字相同）；② 有足额 frozen 时重放不变；③ 同键异指纹 ⇒ `409 LD003` 零写入；④ 全新键仍 `LD001/LD002`、零残留（**R63 未破**）；⑤ **真并发**（新探针 `p2x-02`，胜者先提交不等败者）13/13 ⇒ `landed 1 / replay 1 / error 0`、败者得胜者 txid、余额恰扣一次；⑤b 分阶段竞态 B 阻塞 936ms 后 200 重放同 txid；⑥ 新键/换键/回首键行为不变。**判负自证三步齐全**：闸整段挪到余额闸之后 ⇒ `migrate` exit 4 FAILED（文件自带行为探针判负 `LD002`）；只删闸的 `END` 标记行（函数行为逐字不变）⇒ FAILED `P0001` 结构性断言；还原 ⇒ md5 逐字回到 `5b97c96b…`；重跑 ⇒ applied。**没碰别人钱**：`cid=1` 与平台 `0/-1/-2/-3` 余额哈希前后一致。
 
-**`0012` 干跑失败的根因（两层，全在 §C 的 `DO` 自检块内，函数体一字未动）**：① 第 1151 行 `position(` + Q3 + `idempotent_replay` + Q3 + ` IN v_window)` **少一个收尾引号** ⇒ 引号奇偶翻转 ⇒ 第 1178 行的 `0x` 字面量被当代码态十六进制数 ⇒ `42601 invalid hexadecimal integer`；② §C 里 **17 处 `text[]` 与裸字面量的 `||`** 被 PG 解析成 `array_cat` ⇒ `22P02`，**把自检报错消息掩盖**（改为 `array_append`）。**层判定（对照实验，非推断）**：`migrate.ts`(L39/L94) 与干跑探针(L18/L24) 都是 `readFileSync` + `client.query(整份 sql)`，**无切分/无正则/无插值**，且两条路径报**同一错误同一位置** ⇒ **干跑不是假阴性，缺陷在文件本身**；三变体 `t_g/t_h/t_i` 读数完全相同（`22P02`）⇒ **证伪**了「多字节注释丢定界符」的假设。作者级纪律已入 `data-migration-governance` 技能。
+**`0012` 干跑失败的根因（两层，全在 §C 的 `DO` 自检块内，函数体一字未动）**：① 第 1151 行 `position('''idempotent_replay''' IN v_window)` **少一个收尾引号** ⇒ 引号奇偶翻转 ⇒ 第 1178 行的 `0x` 字面量被当代码态十六进制数 ⇒ `42601 invalid hexadecimal integer`；② §C 里 **17 处 `text[]` 与裸字面量的 `||`** 被 PG 解析成 `array_cat` ⇒ `22P02`，**把自检报错消息掩盖**（改为 `array_append`）。**层判定（对照实验，非推断）**：`migrate.ts`(L39/L94) 与干跑探针(L18/L24) 都是 `readFileSync` + `client.query(整份 sql)`，**无切分/无正则/无插值**，且两条路径报**同一错误同一位置** ⇒ **干跑不是假阴性，缺陷在文件本身**；三变体 `t_g/t_h/t_i` 读数完全相同（`22P02`）⇒ **证伪**了「多字节注释丢定界符」的假设。作者级纪律已入 `data-migration-governance` 技能。
 
 **遗留（登记，不在本单修）**：`p2x-00` 用例 5 的探针排序缺陷（修它会改基线 ⇒ 需重新基线）；`p2w-00-p2fix-verify.ts` 仍未跑绿（5 处红已定位到判据写法）；未验：未传指纹分支、`event_root_key IS NULL` 历史行、≥3 连接/压力、**pooler 路径**（全部经 `DATABASE_URL_UNPOOLED`；`0005` 已注明 pooler 拒绝 `lock_timeout` 启动参数）、`settle`/`hold_release`/`transfer` 等其它 op 的重放路径。
-
-"""
 ### 5.6 延迟问题的三个处置变体（**已拍板：变体 B**，见 D10）
 
 | 变体 | 做法 | 本地单笔预期 | 代价 |
