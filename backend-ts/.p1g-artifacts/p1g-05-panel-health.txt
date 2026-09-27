@@ -1,0 +1,27 @@
+===== 面板（5555）=====
+panel_services_total = 16
+panel_running = 16
+panel_running/total = 16/16
+  jiazu-api running 3100 True
+  jiazu running 5199 True
+  xiai-api running 5191 True
+  shu running 5164 True
+  feicui-api running 5196 True
+  feicui-web running 5195 True
+  xiai running 5163 True
+  jinli-api running 5778 True
+  jinli running 5777 True
+  seafood-api running 5788 True
+  seafood running 5787 True
+  cat running 5701 True
+  aranya-api running 5181 True
+  liwu-proxy running 3020 True
+  liwu-web running 5175 True
+  liwu-app running 5176 True
+
+===== /health 5788 (seafood-api) =====
+{"ok":true,"db_version":"PostgreSQL 18.6 (6569466) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit","schema_version":"0006","time":"2026-09-27T07:14:21.525Z"}
+HTTP_STATUS=200
+
+===== /health 5787 (seafood web, [::1]) =====
+HTTP_STATUS=200

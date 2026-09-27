@@ -1,0 +1,82 @@
+
+### public_base_tables (6)
+{"table_name":"account"}
+{"table_name":"currency"}
+{"table_name":"ledger_entry"}
+{"table_name":"ledger_owner"}
+{"table_name":"schema_migration"}
+{"table_name":"users"}
+
+### old_name_gone_in_information_schema (1)
+{"n":"0"}
+
+### new_name_present_in_information_schema (1)
+{"n":"1"}
+
+### count_users (1)
+{"n":"0"}
+
+### pg_class_user_objects (5)
+{"relkind":"S","relname":"users_uid_seq"}
+{"relkind":"i","relname":"idx_users_evm_lower"}
+{"relkind":"i","relname":"users_evm_uniq"}
+{"relkind":"i","relname":"users_pk"}
+{"relkind":"r","relname":"users"}
+
+### constraints_on_users (10)
+{"conname":"users_evm_fmt","contype":"c","def":"CHECK ((evm ~ '^0x[0-9a-f]{40}$'::text))"}
+{"conname":"users_uid_positive","contype":"c","def":"CHECK ((uid > 0))"}
+{"conname":"users_bio_not_null","contype":"n","def":"NOT NULL bio"}
+{"conname":"users_evm_not_null","contype":"n","def":"NOT NULL evm"}
+{"conname":"users_is_admin_not_null","contype":"n","def":"NOT NULL is_admin"}
+{"conname":"users_time_login_last_not_null","contype":"n","def":"NOT NULL time_login_last"}
+{"conname":"users_time_reg_not_null","contype":"n","def":"NOT NULL time_reg"}
+{"conname":"users_uid_not_null","contype":"n","def":"NOT NULL uid"}
+{"conname":"users_pk","contype":"p","def":"PRIMARY KEY (uid)"}
+{"conname":"users_evm_uniq","contype":"u","def":"UNIQUE (evm)"}
+
+### indexes_on_users (3)
+{"index_name":"idx_users_evm_lower","indisprimary":false,"indisunique":false,"def":"CREATE INDEX idx_users_evm_lower ON public.users USING btree (lower(evm))"}
+{"index_name":"users_evm_uniq","indisprimary":false,"indisunique":true,"def":"CREATE UNIQUE INDEX users_evm_uniq ON public.users USING btree (evm)"}
+{"index_name":"users_pk","indisprimary":true,"indisunique":true,"def":"CREATE UNIQUE INDEX users_pk ON public.users USING btree (uid)"}
+
+### sequence_of_users (6)
+{"attname":"uid","attidentity":"d","seq":"public.users_uid_seq"}
+{"attname":"evm","attidentity":"","seq":null}
+{"attname":"bio","attidentity":"","seq":null}
+{"attname":"is_admin","attidentity":"","seq":null}
+{"attname":"time_reg","attidentity":"","seq":null}
+{"attname":"time_login_last","attidentity":"","seq":null}
+
+### columns_of_users (6)
+{"column_name":"uid","data_type":"bigint","is_nullable":"NO"}
+{"column_name":"evm","data_type":"text","is_nullable":"NO"}
+{"column_name":"bio","data_type":"text","is_nullable":"NO"}
+{"column_name":"is_admin","data_type":"boolean","is_nullable":"NO"}
+{"column_name":"time_reg","data_type":"timestamp with time zone","is_nullable":"NO"}
+{"column_name":"time_login_last","data_type":"timestamp with time zone","is_nullable":"NO"}
+
+### fk_into_public_users (0)
+
+### neon_auth_untouched (2)
+{"table_schema":"neon_auth","table_name":"user"}
+{"table_schema":"public","table_name":"users"}
+
+### funcs_prosrc_quoted_user (0)
+
+### schema_migration (6)
+{"version":"0001","name":"0001_ledger_core.sql"}
+{"version":"0002","name":"0002_user_identity.sql"}
+{"version":"0003","name":"0003_kind_close_set_20.sql"}
+{"version":"0004","name":"0004_ledger_post_event.sql"}
+{"version":"0005","name":"0005_ledger_event_root_key.sql"}
+{"version":"0006","name":"0006_user_to_users.sql"}
+
+### trap_post_rename (1)
+{"quoted_users":"0","bare_user":"1"}
+
+### old_quoted_form (1)
+{"error":"relation \"user\" does not exist","code":"42P01"}
+
+### new_bare_form (1)
+{"result":"OK (unquoted users works — not a reserved word)"}

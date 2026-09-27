@@ -46,7 +46,7 @@ const url = process.env.DATABASE_URL_UNPOOLED || process.env.POSTGRES_URL_NON_PO
     UNION ALL SELECT 'account', count(*)::int FROM account
     UNION ALL SELECT 'ledger_owner', count(*)::int FROM ledger_owner
     UNION ALL SELECT 'ledger_entry', count(*)::int FROM ledger_entry
-    UNION ALL SELECT 'user', count(*)::int FROM "user"`);
+    UNION ALL SELECT 'users', count(*)::int FROM "users"`);
   const floatCols = await q(`
     SELECT table_name, column_name, data_type FROM information_schema.columns
      WHERE table_schema='public'

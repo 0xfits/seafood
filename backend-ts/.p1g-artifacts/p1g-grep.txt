@@ -1,0 +1,61 @@
+==============================================================
+P1g 改名后 · 真表引用残留 grep（原始输出）
+==============================================================
+
+### [1] 产品代码 src/**  （期望：0 命中，grep exit=1）
+$ grep -rn '"user"' src/
+--> grep exit=1
+
+### [2] 产品代码 scripts/**（排除冻结质检资产）  （期望：0 命中，grep exit=1）
+$ grep -rn '"user"' scripts/ --exclude='p1c-*.ts' --exclude='p1e-*.ts' --exclude='p1f-*.ts' --exclude='qa-p1b-*.ts' --exclude='qa-p1e-*.ts' --exclude='p1j-read.ts'
+--> grep exit=1
+
+### [3] 冻结质检资产（**硬约束禁止修改**，其 '"user"' 是历史取证读数，按约束保留）
+$ grep -rn '"user"' scripts/ --include='p1c-*.ts' --include='p1e-*.ts' --include='p1f-*.ts' --include='qa-p1b-*.ts' --include='qa-p1e-*.ts' --include='p1j-read.ts'
+scripts/p1c-06-post-verify.ts:36:    UNION ALL SELECT 'user', count(*)::text FROM "user"
+scripts/p1e-05-inventory.ts:13: * 注意：`user` 表必须写成 `"user"`（裸 user 会被解析成 current_user 并静默返回 1 行）。
+scripts/p1e-05-inventory.ts:25:            (SELECT count(*) FROM "user") AS user_rows`))[0];
+scripts/qa-p1b-00-env.ts:49:      UNION ALL SELECT 'user', count(*) FROM "user"
+scripts/qa-p1e-00-baseline.ts:45:      UNION ALL SELECT '"user"', count(*)::text FROM "user" ORDER BY 1`);
+
+### [4] frontend/** 真表引用  （期望：0 命中，grep exit=1）
+$ grep -rniE 'FROM +"user"|FROM user|INSERT INTO user|UPDATE user ' /Users/kevin/bistro/seafood/frontend/src
+--> grep exit=1
+
+### [5] docs/** 真表引用（只交清单给 Jing，本单不改）
+$ grep -rn '"user"' /Users/kevin/bistro/seafood/docs/ | wc -l
+      26
+$ grep -rn '"user"' /Users/kevin/bistro/seafood/docs/ --include='*.md' -l | sort
+/Users/kevin/bistro/seafood/docs/ledger.spec.md
+/Users/kevin/bistro/seafood/docs/qa/p0-acceptance.md
+/Users/kevin/bistro/seafood/docs/qa/p1-ledger-concurrency.md
+/Users/kevin/bistro/seafood/docs/seafood.master-plan.md
+/Users/kevin/bistro/seafood/docs/versions/ledger.spec.v0.1.md
+/Users/kevin/bistro/seafood/docs/versions/ledger.spec.v0.2.md
+
+### [6] 改名后新名引用计数
+src/database.ts 含 "users" 的行数 = 17
+$ grep -n '"users"' src/database.ts
+405:    await sql`ALTER TABLE IF EXISTS "users" ADD COLUMN IF NOT EXISTS "bio" text DEFAULT ''`;
+406:    await sql`ALTER TABLE IF EXISTS "users" ADD COLUMN IF NOT EXISTS "is_admin" boolean DEFAULT false`;
+407:    await sql`ALTER TABLE IF EXISTS "users" ADD COLUMN IF NOT EXISTS "time_login_last" timestamptz DEFAULT NOW()`;
+411:        FROM "users"
+422:        FROM "users"
+425:      UPDATE "users" AS u
+518:    await sql`CREATE INDEX IF NOT EXISTS idx_user_uid ON "users" ("uID")`;
+519:    await sql`CREATE INDEX IF NOT EXISTS idx_user_evm_lower ON "users" (LOWER("EVM"))`;
+1015:      FROM "users"
+1130:        FROM "users" AS u
+1146:      FROM "users" AS u
+1160:      FROM "users" AS u
+1174:      INSERT INTO "users" AS u ("uID", "EVM", "bio", "is_admin", "time_reg", "time_login_last")
+1185:      UPDATE "users" AS u
+1213:      UPDATE "users" AS u
+1646:      JOIN "users" AS u
+1688:      JOIN "users" AS u
+
+### [7] 裸写法（无引号的 FROM/JOIN/UPDATE/INSERT INTO user）  —— 产品代码期望 0
+$ grep -rniE '(FROM|JOIN|UPDATE|INSERT +INTO) +user\b' src/ scripts/ --exclude='p1c-*.ts' --exclude='p1e-*.ts' --exclude='p1f-*.ts' --exclude='qa-p1b-*.ts' --exclude='qa-p1e-*.ts' --exclude='p1j-read.ts'
+src/database.ts:1201:      console.warn('Failed to update user login time:', error);
+src/index.ts:835:    sendError(res, 400, error instanceof Error ? error.message : 'Failed to update user');
+--> grep exit=0

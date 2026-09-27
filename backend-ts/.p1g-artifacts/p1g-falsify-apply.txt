@@ -1,0 +1,1 @@
+ABORT: PURGE_FALSIFY_FLOOR 仅允许 dry-run（判负演练），不得与 --apply 同时使用。

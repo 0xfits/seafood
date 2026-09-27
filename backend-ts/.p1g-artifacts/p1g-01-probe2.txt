@@ -1,0 +1,32 @@
+
+### funcs_prosrc_bare_user_word (1)
+{"nspname":"public","proname":"ledger_payload_amount","args":"p_payload jsonb, p_decimals integer, p_field text, p_cid text","ctx":"ason', 'AMBIGUOUS_AMOUNT', 'provided', 'amount,amount_units',\n      'note', 'exactly one of amount (user decimal, R72) / amount_units (minimal unit, R66) is accepted'));\n  END IF;\n\n  IF v_has_units THEN\n    IF jsonb_typeof(p_payload->'amount_units') <> 'string"}
+
+### funcs_depending_on_user_rel (5)
+{"dependent":"constraint user_evm_fmt on table \"user\"","deptype":"n"}
+{"dependent":"constraint user_uid_positive on table \"user\"","deptype":"n"}
+{"dependent":"sequence user_uid_seq","deptype":"i"}
+{"dependent":"toast table pg_toast.pg_toast_24750","deptype":"i"}
+{"dependent":"type \"user\"","deptype":"i"}
+
+### fk_from_public_schema_only (0)
+
+### public_objects_named_like_user (5)
+{"relkind":"S","relname":"user_uid_seq"}
+{"relkind":"i","relname":"idx_user_evm_lower"}
+{"relkind":"i","relname":"user_evm_uniq"}
+{"relkind":"i","relname":"user_pk"}
+{"relkind":"r","relname":"user"}
+
+### all_schemas_user_tables (2)
+{"table_schema":"neon_auth","table_name":"user"}
+{"table_schema":"public","table_name":"user"}
+
+### grants_on_user (7)
+{"grantee":"neondb_owner","privilege_type":"DELETE"}
+{"grantee":"neondb_owner","privilege_type":"INSERT"}
+{"grantee":"neondb_owner","privilege_type":"REFERENCES"}
+{"grantee":"neondb_owner","privilege_type":"SELECT"}
+{"grantee":"neondb_owner","privilege_type":"TRIGGER"}
+{"grantee":"neondb_owner","privilege_type":"TRUNCATE"}
+{"grantee":"neondb_owner","privilege_type":"UPDATE"}

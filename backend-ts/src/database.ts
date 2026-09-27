@@ -402,13 +402,13 @@ const ensureSupportSchema = async () => {
       )
     `;
 
-    await sql`ALTER TABLE IF EXISTS "user" ADD COLUMN IF NOT EXISTS "bio" text DEFAULT ''`;
-    await sql`ALTER TABLE IF EXISTS "user" ADD COLUMN IF NOT EXISTS "is_admin" boolean DEFAULT false`;
-    await sql`ALTER TABLE IF EXISTS "user" ADD COLUMN IF NOT EXISTS "time_login_last" timestamptz DEFAULT NOW()`;
+    await sql`ALTER TABLE IF EXISTS "users" ADD COLUMN IF NOT EXISTS "bio" text DEFAULT ''`;
+    await sql`ALTER TABLE IF EXISTS "users" ADD COLUMN IF NOT EXISTS "is_admin" boolean DEFAULT false`;
+    await sql`ALTER TABLE IF EXISTS "users" ADD COLUMN IF NOT EXISTS "time_login_last" timestamptz DEFAULT NOW()`;
     await sql`
       WITH base AS (
         SELECT COALESCE(MAX(NULLIF(BTRIM("uID"), '')::int), 0) AS max_uid
-        FROM "user"
+        FROM "users"
         WHERE NULLIF(BTRIM("uID"), '') IS NOT NULL
       ),
       missing AS (
@@ -419,10 +419,10 @@ const ensureSupportSchema = async () => {
               COALESCE(NULLIF(BTRIM("time_reg"), ''), ''),
               COALESCE(NULLIF(BTRIM("EVM"), ''), '')
           ) AS rn
-        FROM "user"
+        FROM "users"
         WHERE NULLIF(BTRIM("uID"), '') IS NULL
       )
-      UPDATE "user" AS u
+      UPDATE "users" AS u
       SET "uID" = (base.max_uid + missing.rn)::text
       FROM base, missing
       WHERE u.ctid = missing.ctid
@@ -515,8 +515,8 @@ const ensureSupportSchema = async () => {
         AND COALESCE(NULLIF(BTRIM("linkA"), ''), '') <> ''
     `;
 
-    await sql`CREATE INDEX IF NOT EXISTS idx_user_uid ON "user" ("uID")`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_user_evm_lower ON "user" (LOWER("EVM"))`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_user_uid ON "users" ("uID")`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_user_evm_lower ON "users" (LOWER("EVM"))`;
     await sql`CREATE INDEX IF NOT EXISTS idx_asset_uid ON asset ("uID")`;
     await sql`CREATE INDEX IF NOT EXISTS idx_prize_item_uid_gid ON prize_item ("uID", "gID" DESC)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_prize_item_uid_bid ON prize_item ("uID", "bID")`;
@@ -1012,7 +1012,7 @@ export class DatabaseService {
     const sql = getSql();
     const rows = asItems<{ next_id: number }>(await sql`
       SELECT COALESCE(MAX(NULLIF(BTRIM("uID"), '')::int), 0)::int + 1 AS next_id
-      FROM "user"
+      FROM "users"
       WHERE NULLIF(BTRIM("uID"), '') IS NOT NULL
     `);
     return Number(rows[0]?.next_id || 1);
@@ -1127,7 +1127,7 @@ export class DatabaseService {
       const sql = getSql();
       const rows = extractRows(await sql`
         SELECT u.*
-        FROM "user" AS u
+        FROM "users" AS u
         ORDER BY COALESCE(NULLIF(BTRIM(u."uID"), '')::int, 0)
         LIMIT ${limit} OFFSET ${skip}
       `);
@@ -1143,7 +1143,7 @@ export class DatabaseService {
     const sql = getSql();
     const row = firstRow(await sql`
       SELECT u.*
-      FROM "user" AS u
+      FROM "users" AS u
       WHERE COALESCE(NULLIF(BTRIM(u."uID"), '')::int, 0) = ${uID}
       LIMIT 1
     `);
@@ -1157,7 +1157,7 @@ export class DatabaseService {
     const normalizedAddress = String(evmAddress || '').trim().toLowerCase();
     const row = firstRow(await sql`
       SELECT u.*
-      FROM "user" AS u
+      FROM "users" AS u
       WHERE LOWER(COALESCE(u."EVM", '')) = ${normalizedAddress}
       LIMIT 1
     `);
@@ -1171,7 +1171,7 @@ export class DatabaseService {
     const normalizedAddress = String(evmAddress || '').trim().toLowerCase();
     const nextUserId = await this.getNextUserId();
     const row = firstRow(await sql`
-      INSERT INTO "user" AS u ("uID", "EVM", "bio", "is_admin", "time_reg", "time_login_last")
+      INSERT INTO "users" AS u ("uID", "EVM", "bio", "is_admin", "time_reg", "time_login_last")
       VALUES (${String(nextUserId)}, ${normalizedAddress}, '', false, NOW(), NOW())
       RETURNING u.*
     `);
@@ -1182,7 +1182,7 @@ export class DatabaseService {
   static async touchUserLogin(uID: number): Promise<void> {
     const sql = getSql();
     await sql`
-      UPDATE "user" AS u
+      UPDATE "users" AS u
       SET "time_login_last" = NOW()
       WHERE COALESCE(NULLIF(BTRIM(u."uID"), '')::int, 0) = ${uID}
     `;
@@ -1210,7 +1210,7 @@ export class DatabaseService {
     const bio = fields.bio;
     const isAdmin = fields.is_admin === undefined ? null : String(fields.is_admin);
     const row = firstRow(await sql`
-      UPDATE "user" AS u
+      UPDATE "users" AS u
       SET "bio" = COALESCE(${bio}, "bio"),
           "is_admin" = COALESCE(${isAdmin}, "is_admin")
       WHERE COALESCE(NULLIF(BTRIM(u."uID"), '')::int, 0) = ${uID}
@@ -1643,7 +1643,7 @@ export class DatabaseService {
     const rows = extractRows(await sql`
       SELECT j.*
       FROM task_progress AS j
-      JOIN "user" AS u
+      JOIN "users" AS u
         ON COALESCE(NULLIF(BTRIM(u."uID"), '')::int, 0) = COALESCE(NULLIF(BTRIM(j."uID"), '')::int, 0)
       WHERE COALESCE(NULLIF(BTRIM(COALESCE(j.info_input, '')), ''), '') <> ''
         AND COALESCE(NULLIF(BTRIM(COALESCE(j.time_checked, '')), ''), '') = ''
@@ -1685,7 +1685,7 @@ export class DatabaseService {
     const rows = asItems<{ count: number }>(await sql`
       SELECT COUNT(1)::int AS count
       FROM task_progress AS j
-      JOIN "user" AS u
+      JOIN "users" AS u
         ON COALESCE(NULLIF(BTRIM(u."uID"), '')::int, 0) = COALESCE(NULLIF(BTRIM(j."uID"), '')::int, 0)
       WHERE COALESCE(NULLIF(BTRIM(COALESCE(j.info_input, '')), ''), '') <> ''
         AND COALESCE(NULLIF(BTRIM(COALESCE(j.time_checked, '')), ''), '') = ''

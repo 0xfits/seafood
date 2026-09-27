@@ -1,0 +1,2358 @@
+{
+  "mode": "APPLY",
+  "counts_before": {
+    "ledger_entry": 1643,
+    "account": 201,
+    "currency": 90,
+    "ledger_owner": 4,
+    "schema_migration": 6,
+    "users": 0
+  },
+  "trigger_state_before": [
+    {
+      "relname": "account",
+      "tgname": "trg_account_guard",
+      "tgenabled": "O"
+    },
+    {
+      "relname": "ledger_entry",
+      "tgname": "trg_ledger_entry_append_only",
+      "tgenabled": "O"
+    }
+  ],
+  "judgements_before": {
+    "judgement_1_rows": 0,
+    "judgement_8_rows_raw": 19,
+    "judgement_8_rows_excl_mint_burn": 0
+  },
+  "planned_deletions": {
+    "ledger_entry": 1643,
+    "account": 197,
+    "currency": 89,
+    "ledger_owner": 0
+  },
+  "planned_detail": {
+    "currency_cids": [
+      "cid=10 symbol=p1eGLD",
+      "cid=11 symbol=p1eRd7x3p",
+      "cid=12 symbol=p1eBd7x3p",
+      "cid=13 symbol=p1eDd7x3p",
+      "cid=14 symbol=p1eCd7x3p",
+      "cid=15 symbol=p1eRda1zr",
+      "cid=16 symbol=p1eBda1zr",
+      "cid=17 symbol=p1eDda1zr",
+      "cid=18 symbol=p1eFda1zr",
+      "cid=19 symbol=p1eXda1zr",
+      "cid=20 symbol=p1eCda1zr",
+      "cid=21 symbol=p1eRdbq2o",
+      "cid=22 symbol=p1eBdbq2o",
+      "cid=23 symbol=p1eDdbq2o",
+      "cid=24 symbol=p1eFdbq2o",
+      "cid=25 symbol=p1eXdbq2o",
+      "cid=26 symbol=p1eCdbq2o",
+      "cid=27 symbol=smkujdh5r3",
+      "cid=28 symbol=smkujdhz0x",
+      "cid=29 symbol=p1eRdlgg6",
+      "cid=30 symbol=p1eBdlgg6",
+      "cid=31 symbol=p1eDdlgg6",
+      "cid=32 symbol=p1eFdlgg6",
+      "cid=33 symbol=p1eXdlgg6",
+      "cid=34 symbol=p1eCdlgg6",
+      "cid=35 symbol=p1eSdmue6",
+      "cid=36 symbol=p1eTdmue6",
+      "cid=37 symbol=p1eEdmue6",
+      "cid=38 symbol=p1eKdmue6",
+      "cid=39 symbol=p1eSdnsa5",
+      "cid=40 symbol=p1eTdnsa5",
+      "cid=41 symbol=p1eEdnsa5",
+      "cid=42 symbol=p1eKdnsa5",
+      "cid=43 symbol=smkujdot2a",
+      "cid=44 symbol=p1eSdxf3f",
+      "cid=45 symbol=p1eTdxf3f",
+      "cid=46 symbol=p1eEdxf3f",
+      "cid=47 symbol=p1eKdxf3f",
+      "cid=48 symbol=smkujdygkm",
+      "cid=49 symbol=qaeCe4rkl",
+      "cid=50 symbol=qaeIe6zeh",
+      "cid=51 symbol=qaeAe93ef",
+      "cid=52 symbol=qaeMe9jok",
+      "cid=53 symbol=qaeLec7yb",
+      "cid=54 symbol=qaeLeeo48",
+      "cid=55 symbol=qaeNAB",
+      "cid=56 symbol=qaeOOen73t",
+      "cid=57 symbol=qaePPen73t",
+      "cid=58 symbol=qaeOOenuq6",
+      "cid=59 symbol=qaePPenuq6",
+      "cid=60 symbol=qaeAetbyq",
+      "cid=61 symbol=qaeMeur17",
+      "cid=62 symbol=P1FMUJFARFL",
+      "cid=63 symbol=P1FMUJFB7Y4",
+      "cid=64 symbol=P1FMUJFBON1",
+      "cid=65 symbol=P1FMUJFCGXP",
+      "cid=66 symbol=P1FMUJFDPX8",
+      "cid=67 symbol=P1FMUJFG3W5",
+      "cid=68 symbol=P1GMUJFHTPI",
+      "cid=69 symbol=smkujfpyfm",
+      "cid=70 symbol=p1eSfqu18",
+      "cid=71 symbol=p1eTfqu18",
+      "cid=72 symbol=p1eEfqu18",
+      "cid=73 symbol=p1eKfqu18",
+      "cid=74 symbol=P1HMUJFTUJL",
+      "cid=75 symbol=P1HMUJFVAU8",
+      "cid=76 symbol=P1HMUJFW7AP",
+      "cid=77 symbol=P1HMUJG2X9H",
+      "cid=78 symbol=P1HMUJG3WBO",
+      "cid=79 symbol=smkujg5ih4",
+      "cid=80 symbol=p1eSg6ahk",
+      "cid=81 symbol=p1eTg6ahk",
+      "cid=82 symbol=p1eEg6ahk",
+      "cid=83 symbol=p1eKg6ahk",
+      "cid=84 symbol=P1JMUJG7B26",
+      "cid=85 symbol=P1JMUJGB240",
+      "cid=86 symbol=qaeAgbcdz",
+      "cid=87 symbol=P1HMUJGBMC9",
+      "cid=88 symbol=P1HMUJGC681",
+      "cid=89 symbol=P1KGIAOA",
+      "cid=90 symbol=P1KGJNVY",
+      "cid=91 symbol=P1KGONLZ",
+      "cid=92 symbol=P1KGT4OR",
+      "cid=93 symbol=P1KH262V",
+      "cid=94 symbol=smkujhcpow",
+      "cid=95 symbol=p1eShdf4h",
+      "cid=96 symbol=p1eThdf4h",
+      "cid=97 symbol=p1eEhdf4h",
+      "cid=98 symbol=p1eKhdf4h"
+    ],
+    "account_uids": [
+      "900001",
+      "900001",
+      "900001",
+      "900001",
+      "900001",
+      "900001",
+      "900001",
+      "900001",
+      "900002",
+      "900003",
+      "920001",
+      "920002",
+      "920011",
+      "920011",
+      "920011",
+      "920011",
+      "920011",
+      "920011",
+      "920011",
+      "920011",
+      "920012",
+      "920012",
+      "920012",
+      "920012",
+      "920012",
+      "920012",
+      "920012",
+      "920012",
+      "920013",
+      "920013",
+      "920013",
+      "920013",
+      "920021",
+      "920021",
+      "920021",
+      "920021",
+      "920021",
+      "920021",
+      "920021",
+      "920021",
+      "920021",
+      "920021",
+      "920021",
+      "920021",
+      "920022",
+      "920022",
+      "920022",
+      "920022",
+      "920022",
+      "920022",
+      "920022",
+      "920022",
+      "920022",
+      "920022",
+      "920022",
+      "920022",
+      "931001",
+      "931002",
+      "931003",
+      "932001",
+      "932002",
+      "932003",
+      "933001",
+      "933001",
+      "933002",
+      "933002",
+      "933011",
+      "933012",
+      "933013",
+      "933014",
+      "934001",
+      "934001",
+      "934001",
+      "934002",
+      "934002",
+      "934002",
+      "934003",
+      "934003",
+      "935001",
+      "935001",
+      "935002",
+      "935002",
+      "936001",
+      "936002",
+      "937001",
+      "937002",
+      "937002",
+      "941001",
+      "941001",
+      "941001",
+      "941001",
+      "941001",
+      "941001",
+      "941001",
+      "941002",
+      "941002",
+      "941002",
+      "941002",
+      "941002",
+      "941003",
+      "941003",
+      "941003",
+      "941003",
+      "941009",
+      "941009",
+      "941009",
+      "941009",
+      "941009",
+      "942001",
+      "942001",
+      "942001",
+      "942001",
+      "942001",
+      "942001",
+      "942001",
+      "942002",
+      "942002",
+      "942002",
+      "942002",
+      "942002",
+      "942002",
+      "942002",
+      "942003",
+      "942003",
+      "942003",
+      "942003",
+      "943001",
+      "943001",
+      "943002",
+      "943002",
+      "943003",
+      "943003",
+      "944001",
+      "944001",
+      "944001",
+      "944001",
+      "944001",
+      "944002",
+      "944002",
+      "944002",
+      "944002",
+      "944002",
+      "944011",
+      "944011",
+      "944011",
+      "944011",
+      "944011",
+      "944012",
+      "944012",
+      "944012",
+      "944012",
+      "944012",
+      "944013",
+      "944013",
+      "944013",
+      "944013",
+      "944013",
+      "944014",
+      "944014",
+      "944014",
+      "944014",
+      "944014",
+      "944021",
+      "944021",
+      "944021",
+      "944021",
+      "944021",
+      "944022",
+      "944022",
+      "944022",
+      "944022",
+      "944022",
+      "944023",
+      "944023",
+      "944023",
+      "944023",
+      "944023",
+      "944024",
+      "944024",
+      "944024",
+      "944024",
+      "944024",
+      "944025",
+      "944025",
+      "944025",
+      "944025",
+      "944025",
+      "944026",
+      "944026",
+      "944026",
+      "944026",
+      "944026",
+      "944030",
+      "944030",
+      "944030",
+      "944030",
+      "944030"
+    ],
+    "ledger_entry_txid_numeric_range": [
+      "370",
+      "2169"
+    ]
+  },
+  "predicted_set_predicate": "account.uid >= 900000  ∪  currency.cid <> 1 AND ((symbol ILIKE 'qa1b%' OR symbol ILIKE 'smk%' OR symbol ILIKE 'p1e%' OR symbol ILIKE 'p1f%' OR symbol ILIKE 'p1g%' OR symbol ILIKE 'p1h%' OR symbol ILIKE 'p1i%' OR symbol ILIKE 'p1j%' OR symbol ILIKE 'p1k%' OR symbol ILIKE 'qae%'))",
+  "symbol_prefixes": [
+    "qa1b",
+    "smk",
+    "p1e",
+    "p1f",
+    "p1g",
+    "p1h",
+    "p1i",
+    "p1j",
+    "p1k",
+    "qae"
+  ],
+  "assert_out_of_predicate": [],
+  "assert_forbidden_hits": [],
+  "observed_test_cid_entries_with_platform_uid": [],
+  "assert_pass": true,
+  "supply_audit_before": [
+    {
+      "cid": "1",
+      "symbol": "$",
+      "total_supply": "14000",
+      "supply_cap": null,
+      "sum_mint": "8400",
+      "sum_burn": "0",
+      "residue_count": "224",
+      "consistent_target": "8400"
+    },
+    {
+      "cid": "10",
+      "symbol": "p1eGLD",
+      "total_supply": "100008",
+      "supply_cap": null,
+      "sum_mint": "100008",
+      "sum_burn": "0",
+      "residue_count": "41",
+      "consistent_target": "100008"
+    },
+    {
+      "cid": "11",
+      "symbol": "p1eRd7x3p",
+      "total_supply": "151",
+      "supply_cap": null,
+      "sum_mint": "151",
+      "sum_burn": "0",
+      "residue_count": "14",
+      "consistent_target": "151"
+    },
+    {
+      "cid": "12",
+      "symbol": "p1eBd7x3p",
+      "total_supply": "100",
+      "supply_cap": null,
+      "sum_mint": "100",
+      "sum_burn": "0",
+      "residue_count": "3",
+      "consistent_target": "100"
+    },
+    {
+      "cid": "13",
+      "symbol": "p1eDd7x3p",
+      "total_supply": "1",
+      "supply_cap": null,
+      "sum_mint": "1",
+      "sum_burn": "0",
+      "residue_count": "1",
+      "consistent_target": "1"
+    },
+    {
+      "cid": "14",
+      "symbol": "p1eCd7x3p",
+      "total_supply": "0",
+      "supply_cap": "1000",
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "15",
+      "symbol": "p1eRda1zr",
+      "total_supply": "10151",
+      "supply_cap": null,
+      "sum_mint": "10151",
+      "sum_burn": "0",
+      "residue_count": "19",
+      "consistent_target": "10151"
+    },
+    {
+      "cid": "16",
+      "symbol": "p1eBda1zr",
+      "total_supply": "100",
+      "supply_cap": null,
+      "sum_mint": "100",
+      "sum_burn": "0",
+      "residue_count": "5",
+      "consistent_target": "100"
+    },
+    {
+      "cid": "17",
+      "symbol": "p1eDda1zr",
+      "total_supply": "0",
+      "supply_cap": null,
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "18",
+      "symbol": "p1eFda1zr",
+      "total_supply": "0",
+      "supply_cap": null,
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "19",
+      "symbol": "p1eXda1zr",
+      "total_supply": "0",
+      "supply_cap": null,
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "20",
+      "symbol": "p1eCda1zr",
+      "total_supply": "0",
+      "supply_cap": "1000",
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "21",
+      "symbol": "p1eRdbq2o",
+      "total_supply": "10151",
+      "supply_cap": null,
+      "sum_mint": "10151",
+      "sum_burn": "0",
+      "residue_count": "19",
+      "consistent_target": "10151"
+    },
+    {
+      "cid": "22",
+      "symbol": "p1eBdbq2o",
+      "total_supply": "100",
+      "supply_cap": null,
+      "sum_mint": "100",
+      "sum_burn": "0",
+      "residue_count": "5",
+      "consistent_target": "100"
+    },
+    {
+      "cid": "23",
+      "symbol": "p1eDdbq2o",
+      "total_supply": "0",
+      "supply_cap": null,
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "24",
+      "symbol": "p1eFdbq2o",
+      "total_supply": "0",
+      "supply_cap": null,
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "25",
+      "symbol": "p1eXdbq2o",
+      "total_supply": "0",
+      "supply_cap": null,
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "26",
+      "symbol": "p1eCdbq2o",
+      "total_supply": "0",
+      "supply_cap": "1000",
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "27",
+      "symbol": "smkujdh5r3",
+      "total_supply": "40000",
+      "supply_cap": "50000",
+      "sum_mint": "40000",
+      "sum_burn": "0",
+      "residue_count": "1",
+      "consistent_target": "40000"
+    },
+    {
+      "cid": "28",
+      "symbol": "smkujdhz0x",
+      "total_supply": "40000",
+      "supply_cap": "50000",
+      "sum_mint": "40000",
+      "sum_burn": "0",
+      "residue_count": "1",
+      "consistent_target": "40000"
+    },
+    {
+      "cid": "29",
+      "symbol": "p1eRdlgg6",
+      "total_supply": "10151",
+      "supply_cap": null,
+      "sum_mint": "10151",
+      "sum_burn": "0",
+      "residue_count": "19",
+      "consistent_target": "10151"
+    },
+    {
+      "cid": "30",
+      "symbol": "p1eBdlgg6",
+      "total_supply": "100",
+      "supply_cap": null,
+      "sum_mint": "100",
+      "sum_burn": "0",
+      "residue_count": "5",
+      "consistent_target": "100"
+    },
+    {
+      "cid": "31",
+      "symbol": "p1eDdlgg6",
+      "total_supply": "0",
+      "supply_cap": null,
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "32",
+      "symbol": "p1eFdlgg6",
+      "total_supply": "0",
+      "supply_cap": null,
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "33",
+      "symbol": "p1eXdlgg6",
+      "total_supply": "0",
+      "supply_cap": null,
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "34",
+      "symbol": "p1eCdlgg6",
+      "total_supply": "0",
+      "supply_cap": "1000",
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "35",
+      "symbol": "p1eSdmue6",
+      "total_supply": "1000",
+      "supply_cap": null,
+      "sum_mint": "1000",
+      "sum_burn": "0",
+      "residue_count": "23",
+      "consistent_target": "1000"
+    },
+    {
+      "cid": "36",
+      "symbol": "p1eTdmue6",
+      "total_supply": "100",
+      "supply_cap": null,
+      "sum_mint": "100",
+      "sum_burn": "0",
+      "residue_count": "3",
+      "consistent_target": "100"
+    },
+    {
+      "cid": "37",
+      "symbol": "p1eEdmue6",
+      "total_supply": "0",
+      "supply_cap": null,
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "38",
+      "symbol": "p1eKdmue6",
+      "total_supply": "0",
+      "supply_cap": "1000",
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "39",
+      "symbol": "p1eSdnsa5",
+      "total_supply": "1000",
+      "supply_cap": null,
+      "sum_mint": "1000",
+      "sum_burn": "0",
+      "residue_count": "23",
+      "consistent_target": "1000"
+    },
+    {
+      "cid": "40",
+      "symbol": "p1eTdnsa5",
+      "total_supply": "100",
+      "supply_cap": null,
+      "sum_mint": "100",
+      "sum_burn": "0",
+      "residue_count": "3",
+      "consistent_target": "100"
+    },
+    {
+      "cid": "41",
+      "symbol": "p1eEdnsa5",
+      "total_supply": "0",
+      "supply_cap": null,
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "42",
+      "symbol": "p1eKdnsa5",
+      "total_supply": "0",
+      "supply_cap": "1000",
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "43",
+      "symbol": "smkujdot2a",
+      "total_supply": "40000",
+      "supply_cap": "50000",
+      "sum_mint": "40000",
+      "sum_burn": "0",
+      "residue_count": "1",
+      "consistent_target": "40000"
+    },
+    {
+      "cid": "44",
+      "symbol": "p1eSdxf3f",
+      "total_supply": "1000",
+      "supply_cap": null,
+      "sum_mint": "1000",
+      "sum_burn": "0",
+      "residue_count": "23",
+      "consistent_target": "1000"
+    },
+    {
+      "cid": "45",
+      "symbol": "p1eTdxf3f",
+      "total_supply": "100",
+      "supply_cap": null,
+      "sum_mint": "100",
+      "sum_burn": "0",
+      "residue_count": "3",
+      "consistent_target": "100"
+    },
+    {
+      "cid": "46",
+      "symbol": "p1eEdxf3f",
+      "total_supply": "0",
+      "supply_cap": null,
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "47",
+      "symbol": "p1eKdxf3f",
+      "total_supply": "0",
+      "supply_cap": "1000",
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "48",
+      "symbol": "smkujdygkm",
+      "total_supply": "40000",
+      "supply_cap": "50000",
+      "sum_mint": "40000",
+      "sum_burn": "0",
+      "residue_count": "1",
+      "consistent_target": "40000"
+    },
+    {
+      "cid": "49",
+      "symbol": "qaeCe4rkl",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "sum_mint": "1000000",
+      "sum_burn": "0",
+      "residue_count": "739",
+      "consistent_target": "1000000"
+    },
+    {
+      "cid": "50",
+      "symbol": "qaeIe6zeh",
+      "total_supply": "10000",
+      "supply_cap": null,
+      "sum_mint": "10000",
+      "sum_burn": "0",
+      "residue_count": "9",
+      "consistent_target": "10000"
+    },
+    {
+      "cid": "51",
+      "symbol": "qaeAe93ef",
+      "total_supply": "5000",
+      "supply_cap": null,
+      "sum_mint": "5000",
+      "sum_burn": "0",
+      "residue_count": "5",
+      "consistent_target": "5000"
+    },
+    {
+      "cid": "52",
+      "symbol": "qaeMe9jok",
+      "total_supply": "100",
+      "supply_cap": "1000",
+      "sum_mint": "100",
+      "sum_burn": "0",
+      "residue_count": "7",
+      "consistent_target": "100"
+    },
+    {
+      "cid": "53",
+      "symbol": "qaeLec7yb",
+      "total_supply": "10000",
+      "supply_cap": null,
+      "sum_mint": "10000",
+      "sum_burn": "0",
+      "residue_count": "11",
+      "consistent_target": "10000"
+    },
+    {
+      "cid": "54",
+      "symbol": "qaeLeeo48",
+      "total_supply": "10000",
+      "supply_cap": null,
+      "sum_mint": "10000",
+      "sum_burn": "0",
+      "residue_count": "33",
+      "consistent_target": "10000"
+    },
+    {
+      "cid": "55",
+      "symbol": "qaeNAB",
+      "total_supply": "100004",
+      "supply_cap": null,
+      "sum_mint": "100004",
+      "sum_burn": "0",
+      "residue_count": "29",
+      "consistent_target": "100004"
+    },
+    {
+      "cid": "56",
+      "symbol": "qaeOOen73t",
+      "total_supply": "0",
+      "supply_cap": "1000",
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "57",
+      "symbol": "qaePPen73t",
+      "total_supply": "0",
+      "supply_cap": null,
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "58",
+      "symbol": "qaeOOenuq6",
+      "total_supply": "500",
+      "supply_cap": "1000",
+      "sum_mint": "500",
+      "sum_burn": "0",
+      "residue_count": "14",
+      "consistent_target": "500"
+    },
+    {
+      "cid": "59",
+      "symbol": "qaePPenuq6",
+      "total_supply": "0",
+      "supply_cap": null,
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "1",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "60",
+      "symbol": "qaeAetbyq",
+      "total_supply": "5000",
+      "supply_cap": null,
+      "sum_mint": "5000",
+      "sum_burn": "0",
+      "residue_count": "5",
+      "consistent_target": "5000"
+    },
+    {
+      "cid": "61",
+      "symbol": "qaeMeur17",
+      "total_supply": "100",
+      "supply_cap": "1000",
+      "sum_mint": "100",
+      "sum_burn": "0",
+      "residue_count": "7",
+      "consistent_target": "100"
+    },
+    {
+      "cid": "62",
+      "symbol": "P1FMUJFARFL",
+      "total_supply": "1000000",
+      "supply_cap": "100000000000",
+      "sum_mint": "1000000",
+      "sum_burn": "0",
+      "residue_count": "1",
+      "consistent_target": "1000000"
+    },
+    {
+      "cid": "63",
+      "symbol": "P1FMUJFB7Y4",
+      "total_supply": "1000000",
+      "supply_cap": "100000000000",
+      "sum_mint": "1000000",
+      "sum_burn": "0",
+      "residue_count": "1",
+      "consistent_target": "1000000"
+    },
+    {
+      "cid": "64",
+      "symbol": "P1FMUJFBON1",
+      "total_supply": "3000008",
+      "supply_cap": "100000000000",
+      "sum_mint": "3000008",
+      "sum_burn": "0",
+      "residue_count": "19",
+      "consistent_target": "3000008"
+    },
+    {
+      "cid": "65",
+      "symbol": "P1FMUJFCGXP",
+      "total_supply": "3000008",
+      "supply_cap": "100000000000",
+      "sum_mint": "3000008",
+      "sum_burn": "0",
+      "residue_count": "19",
+      "consistent_target": "3000008"
+    },
+    {
+      "cid": "66",
+      "symbol": "P1FMUJFDPX8",
+      "total_supply": "3000008",
+      "supply_cap": "100000000000",
+      "sum_mint": "3000008",
+      "sum_burn": "0",
+      "residue_count": "19",
+      "consistent_target": "3000008"
+    },
+    {
+      "cid": "67",
+      "symbol": "P1FMUJFG3W5",
+      "total_supply": "3000008",
+      "supply_cap": "100000000000",
+      "sum_mint": "3000009",
+      "sum_burn": "0",
+      "residue_count": "20",
+      "consistent_target": "3000009"
+    },
+    {
+      "cid": "68",
+      "symbol": "P1GMUJFHTPI",
+      "total_supply": "1000001",
+      "supply_cap": "100000000000",
+      "sum_mint": "1000001",
+      "sum_burn": "0",
+      "residue_count": "24",
+      "consistent_target": "1000001"
+    },
+    {
+      "cid": "69",
+      "symbol": "smkujfpyfm",
+      "total_supply": "40000",
+      "supply_cap": "50000",
+      "sum_mint": "40000",
+      "sum_burn": "0",
+      "residue_count": "1",
+      "consistent_target": "40000"
+    },
+    {
+      "cid": "70",
+      "symbol": "p1eSfqu18",
+      "total_supply": "1000",
+      "supply_cap": null,
+      "sum_mint": "1000",
+      "sum_burn": "0",
+      "residue_count": "23",
+      "consistent_target": "1000"
+    },
+    {
+      "cid": "71",
+      "symbol": "p1eTfqu18",
+      "total_supply": "100",
+      "supply_cap": null,
+      "sum_mint": "100",
+      "sum_burn": "0",
+      "residue_count": "3",
+      "consistent_target": "100"
+    },
+    {
+      "cid": "72",
+      "symbol": "p1eEfqu18",
+      "total_supply": "0",
+      "supply_cap": null,
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "73",
+      "symbol": "p1eKfqu18",
+      "total_supply": "0",
+      "supply_cap": "1000",
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "74",
+      "symbol": "P1HMUJFTUJL",
+      "total_supply": "3000000",
+      "supply_cap": "100000000000",
+      "sum_mint": "3000001",
+      "sum_burn": "0",
+      "residue_count": "10",
+      "consistent_target": "3000001"
+    },
+    {
+      "cid": "75",
+      "symbol": "P1HMUJFVAU8",
+      "total_supply": "3000000",
+      "supply_cap": "100000000000",
+      "sum_mint": "3000001",
+      "sum_burn": "0",
+      "residue_count": "10",
+      "consistent_target": "3000001"
+    },
+    {
+      "cid": "76",
+      "symbol": "P1HMUJFW7AP",
+      "total_supply": "1000000",
+      "supply_cap": "100000000000",
+      "sum_mint": "1000000",
+      "sum_burn": "0",
+      "residue_count": "5",
+      "consistent_target": "1000000"
+    },
+    {
+      "cid": "77",
+      "symbol": "P1HMUJG2X9H",
+      "total_supply": "3000000",
+      "supply_cap": "100000000000",
+      "sum_mint": "3000001",
+      "sum_burn": "0",
+      "residue_count": "10",
+      "consistent_target": "3000001"
+    },
+    {
+      "cid": "78",
+      "symbol": "P1HMUJG3WBO",
+      "total_supply": "1000000",
+      "supply_cap": "100000000000",
+      "sum_mint": "1000000",
+      "sum_burn": "0",
+      "residue_count": "5",
+      "consistent_target": "1000000"
+    },
+    {
+      "cid": "79",
+      "symbol": "smkujg5ih4",
+      "total_supply": "40000",
+      "supply_cap": "50000",
+      "sum_mint": "40000",
+      "sum_burn": "0",
+      "residue_count": "1",
+      "consistent_target": "40000"
+    },
+    {
+      "cid": "80",
+      "symbol": "p1eSg6ahk",
+      "total_supply": "1000",
+      "supply_cap": null,
+      "sum_mint": "1000",
+      "sum_burn": "0",
+      "residue_count": "23",
+      "consistent_target": "1000"
+    },
+    {
+      "cid": "81",
+      "symbol": "p1eTg6ahk",
+      "total_supply": "100",
+      "supply_cap": null,
+      "sum_mint": "100",
+      "sum_burn": "0",
+      "residue_count": "3",
+      "consistent_target": "100"
+    },
+    {
+      "cid": "82",
+      "symbol": "p1eEg6ahk",
+      "total_supply": "0",
+      "supply_cap": null,
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "83",
+      "symbol": "p1eKg6ahk",
+      "total_supply": "0",
+      "supply_cap": "1000",
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "84",
+      "symbol": "P1JMUJG7B26",
+      "total_supply": "2000000",
+      "supply_cap": "100000000000",
+      "sum_mint": "2000000",
+      "sum_burn": "0",
+      "residue_count": "8",
+      "consistent_target": "2000000"
+    },
+    {
+      "cid": "85",
+      "symbol": "P1JMUJGB240",
+      "total_supply": "2000000",
+      "supply_cap": "100000000000",
+      "sum_mint": "2000000",
+      "sum_burn": "0",
+      "residue_count": "8",
+      "consistent_target": "2000000"
+    },
+    {
+      "cid": "86",
+      "symbol": "qaeAgbcdz",
+      "total_supply": "5000",
+      "supply_cap": null,
+      "sum_mint": "5000",
+      "sum_burn": "0",
+      "residue_count": "5",
+      "consistent_target": "5000"
+    },
+    {
+      "cid": "87",
+      "symbol": "P1HMUJGBMC9",
+      "total_supply": "3000000",
+      "supply_cap": "100000000000",
+      "sum_mint": "3000001",
+      "sum_burn": "0",
+      "residue_count": "10",
+      "consistent_target": "3000001"
+    },
+    {
+      "cid": "88",
+      "symbol": "P1HMUJGC681",
+      "total_supply": "1000000",
+      "supply_cap": "100000000000",
+      "sum_mint": "1000000",
+      "sum_burn": "0",
+      "residue_count": "5",
+      "consistent_target": "1000000"
+    },
+    {
+      "cid": "89",
+      "symbol": "P1KGIAOA",
+      "total_supply": "1000000",
+      "supply_cap": "100000000000",
+      "sum_mint": "1000000",
+      "sum_burn": "0",
+      "residue_count": "16",
+      "consistent_target": "1000000"
+    },
+    {
+      "cid": "90",
+      "symbol": "P1KGJNVY",
+      "total_supply": "1000000",
+      "supply_cap": "100000000000",
+      "sum_mint": "1000000",
+      "sum_burn": "0",
+      "residue_count": "16",
+      "consistent_target": "1000000"
+    },
+    {
+      "cid": "91",
+      "symbol": "P1KGONLZ",
+      "total_supply": "1000000",
+      "supply_cap": "100000000000",
+      "sum_mint": "1000000",
+      "sum_burn": "0",
+      "residue_count": "18",
+      "consistent_target": "1000000"
+    },
+    {
+      "cid": "92",
+      "symbol": "P1KGT4OR",
+      "total_supply": "1000000",
+      "supply_cap": "100000000000",
+      "sum_mint": "1000000",
+      "sum_burn": "0",
+      "residue_count": "18",
+      "consistent_target": "1000000"
+    },
+    {
+      "cid": "93",
+      "symbol": "P1KH262V",
+      "total_supply": "1000000",
+      "supply_cap": "100000000000",
+      "sum_mint": "1000000",
+      "sum_burn": "0",
+      "residue_count": "18",
+      "consistent_target": "1000000"
+    },
+    {
+      "cid": "94",
+      "symbol": "smkujhcpow",
+      "total_supply": "40000",
+      "supply_cap": "50000",
+      "sum_mint": "40000",
+      "sum_burn": "0",
+      "residue_count": "1",
+      "consistent_target": "40000"
+    },
+    {
+      "cid": "95",
+      "symbol": "p1eShdf4h",
+      "total_supply": "1000",
+      "supply_cap": null,
+      "sum_mint": "1000",
+      "sum_burn": "0",
+      "residue_count": "23",
+      "consistent_target": "1000"
+    },
+    {
+      "cid": "96",
+      "symbol": "p1eThdf4h",
+      "total_supply": "100",
+      "supply_cap": null,
+      "sum_mint": "100",
+      "sum_burn": "0",
+      "residue_count": "3",
+      "consistent_target": "100"
+    },
+    {
+      "cid": "97",
+      "symbol": "p1eEhdf4h",
+      "total_supply": "0",
+      "supply_cap": null,
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    },
+    {
+      "cid": "98",
+      "symbol": "p1eKhdf4h",
+      "total_supply": "0",
+      "supply_cap": "1000",
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    }
+  ]
+}
+{
+  "mode": "APPLY",
+  "applied": {
+    "deleted": {
+      "ledger_entry": 1643,
+      "account": 197,
+      "currency": 89,
+      "ledger_owner": 0
+    },
+    "expected": {
+      "ledger_entry": 1643,
+      "account": 197,
+      "currency": 89,
+      "ledger_owner": 0
+    },
+    "trigger_state_before": [
+      {
+        "relname": "account",
+        "tgname": "trg_account_guard",
+        "tgenabled": "O"
+      },
+      {
+        "relname": "ledger_entry",
+        "tgname": "trg_ledger_entry_append_only",
+        "tgenabled": "O"
+      }
+    ],
+    "trigger_state_disabled_in_tx": [
+      {
+        "relname": "account",
+        "tgname": "trg_account_guard",
+        "tgenabled": "D"
+      },
+      {
+        "relname": "ledger_entry",
+        "tgname": "trg_ledger_entry_append_only",
+        "tgenabled": "D"
+      }
+    ],
+    "trigger_state_reenabled_in_tx": [
+      {
+        "relname": "account",
+        "tgname": "trg_account_guard",
+        "tgenabled": "O"
+      },
+      {
+        "relname": "ledger_entry",
+        "tgname": "trg_ledger_entry_append_only",
+        "tgenabled": "O"
+      }
+    ],
+    "survivors_after_delete_in_tx": [
+      {
+        "uid": "-1",
+        "cid": "1"
+      },
+      {
+        "uid": "-2",
+        "cid": "1"
+      },
+      {
+        "uid": "-3",
+        "cid": "1"
+      },
+      {
+        "uid": "0",
+        "cid": "1"
+      }
+    ],
+    "platform_accounts_after_delete_in_tx": [
+      {
+        "uid": "-1",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0"
+      },
+      {
+        "uid": "-2",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0"
+      },
+      {
+        "uid": "-3",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0"
+      },
+      {
+        "uid": "0",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0"
+      }
+    ],
+    "cid1_currency_row_before": {
+      "cid": "1",
+      "symbol": "$",
+      "total_supply": "14000",
+      "supply_cap": null
+    },
+    "cid1_currency_row_after": {
+      "cid": "1",
+      "symbol": "$",
+      "total_supply": "0",
+      "supply_cap": null,
+      "status": "listed",
+      "owner_uid": "0",
+      "decimals": "0"
+    },
+    "supply_audit_in_tx_before_reconcile": [
+      {
+        "cid": "1",
+        "symbol": "$",
+        "total_supply": "14000",
+        "supply_cap": null,
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      }
+    ],
+    "supply_audit_in_tx_after_reconcile": [
+      {
+        "cid": "1",
+        "symbol": "$",
+        "total_supply": "0",
+        "supply_cap": null,
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      }
+    ],
+    "reconcile_updated_rows": [
+      {
+        "cid": "1",
+        "symbol": "$",
+        "total_supply_before": "14000",
+        "total_supply_after": "0"
+      }
+    ],
+    "supply_audit_before_any_change": [
+      {
+        "cid": "1",
+        "symbol": "$",
+        "total_supply": "14000",
+        "supply_cap": null,
+        "sum_mint": "8400",
+        "sum_burn": "0",
+        "residue_count": "224",
+        "consistent_target": "8400"
+      },
+      {
+        "cid": "10",
+        "symbol": "p1eGLD",
+        "total_supply": "100008",
+        "supply_cap": null,
+        "sum_mint": "100008",
+        "sum_burn": "0",
+        "residue_count": "41",
+        "consistent_target": "100008"
+      },
+      {
+        "cid": "11",
+        "symbol": "p1eRd7x3p",
+        "total_supply": "151",
+        "supply_cap": null,
+        "sum_mint": "151",
+        "sum_burn": "0",
+        "residue_count": "14",
+        "consistent_target": "151"
+      },
+      {
+        "cid": "12",
+        "symbol": "p1eBd7x3p",
+        "total_supply": "100",
+        "supply_cap": null,
+        "sum_mint": "100",
+        "sum_burn": "0",
+        "residue_count": "3",
+        "consistent_target": "100"
+      },
+      {
+        "cid": "13",
+        "symbol": "p1eDd7x3p",
+        "total_supply": "1",
+        "supply_cap": null,
+        "sum_mint": "1",
+        "sum_burn": "0",
+        "residue_count": "1",
+        "consistent_target": "1"
+      },
+      {
+        "cid": "14",
+        "symbol": "p1eCd7x3p",
+        "total_supply": "0",
+        "supply_cap": "1000",
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "15",
+        "symbol": "p1eRda1zr",
+        "total_supply": "10151",
+        "supply_cap": null,
+        "sum_mint": "10151",
+        "sum_burn": "0",
+        "residue_count": "19",
+        "consistent_target": "10151"
+      },
+      {
+        "cid": "16",
+        "symbol": "p1eBda1zr",
+        "total_supply": "100",
+        "supply_cap": null,
+        "sum_mint": "100",
+        "sum_burn": "0",
+        "residue_count": "5",
+        "consistent_target": "100"
+      },
+      {
+        "cid": "17",
+        "symbol": "p1eDda1zr",
+        "total_supply": "0",
+        "supply_cap": null,
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "18",
+        "symbol": "p1eFda1zr",
+        "total_supply": "0",
+        "supply_cap": null,
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "19",
+        "symbol": "p1eXda1zr",
+        "total_supply": "0",
+        "supply_cap": null,
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "20",
+        "symbol": "p1eCda1zr",
+        "total_supply": "0",
+        "supply_cap": "1000",
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "21",
+        "symbol": "p1eRdbq2o",
+        "total_supply": "10151",
+        "supply_cap": null,
+        "sum_mint": "10151",
+        "sum_burn": "0",
+        "residue_count": "19",
+        "consistent_target": "10151"
+      },
+      {
+        "cid": "22",
+        "symbol": "p1eBdbq2o",
+        "total_supply": "100",
+        "supply_cap": null,
+        "sum_mint": "100",
+        "sum_burn": "0",
+        "residue_count": "5",
+        "consistent_target": "100"
+      },
+      {
+        "cid": "23",
+        "symbol": "p1eDdbq2o",
+        "total_supply": "0",
+        "supply_cap": null,
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "24",
+        "symbol": "p1eFdbq2o",
+        "total_supply": "0",
+        "supply_cap": null,
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "25",
+        "symbol": "p1eXdbq2o",
+        "total_supply": "0",
+        "supply_cap": null,
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "26",
+        "symbol": "p1eCdbq2o",
+        "total_supply": "0",
+        "supply_cap": "1000",
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "27",
+        "symbol": "smkujdh5r3",
+        "total_supply": "40000",
+        "supply_cap": "50000",
+        "sum_mint": "40000",
+        "sum_burn": "0",
+        "residue_count": "1",
+        "consistent_target": "40000"
+      },
+      {
+        "cid": "28",
+        "symbol": "smkujdhz0x",
+        "total_supply": "40000",
+        "supply_cap": "50000",
+        "sum_mint": "40000",
+        "sum_burn": "0",
+        "residue_count": "1",
+        "consistent_target": "40000"
+      },
+      {
+        "cid": "29",
+        "symbol": "p1eRdlgg6",
+        "total_supply": "10151",
+        "supply_cap": null,
+        "sum_mint": "10151",
+        "sum_burn": "0",
+        "residue_count": "19",
+        "consistent_target": "10151"
+      },
+      {
+        "cid": "30",
+        "symbol": "p1eBdlgg6",
+        "total_supply": "100",
+        "supply_cap": null,
+        "sum_mint": "100",
+        "sum_burn": "0",
+        "residue_count": "5",
+        "consistent_target": "100"
+      },
+      {
+        "cid": "31",
+        "symbol": "p1eDdlgg6",
+        "total_supply": "0",
+        "supply_cap": null,
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "32",
+        "symbol": "p1eFdlgg6",
+        "total_supply": "0",
+        "supply_cap": null,
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "33",
+        "symbol": "p1eXdlgg6",
+        "total_supply": "0",
+        "supply_cap": null,
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "34",
+        "symbol": "p1eCdlgg6",
+        "total_supply": "0",
+        "supply_cap": "1000",
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "35",
+        "symbol": "p1eSdmue6",
+        "total_supply": "1000",
+        "supply_cap": null,
+        "sum_mint": "1000",
+        "sum_burn": "0",
+        "residue_count": "23",
+        "consistent_target": "1000"
+      },
+      {
+        "cid": "36",
+        "symbol": "p1eTdmue6",
+        "total_supply": "100",
+        "supply_cap": null,
+        "sum_mint": "100",
+        "sum_burn": "0",
+        "residue_count": "3",
+        "consistent_target": "100"
+      },
+      {
+        "cid": "37",
+        "symbol": "p1eEdmue6",
+        "total_supply": "0",
+        "supply_cap": null,
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "38",
+        "symbol": "p1eKdmue6",
+        "total_supply": "0",
+        "supply_cap": "1000",
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "39",
+        "symbol": "p1eSdnsa5",
+        "total_supply": "1000",
+        "supply_cap": null,
+        "sum_mint": "1000",
+        "sum_burn": "0",
+        "residue_count": "23",
+        "consistent_target": "1000"
+      },
+      {
+        "cid": "40",
+        "symbol": "p1eTdnsa5",
+        "total_supply": "100",
+        "supply_cap": null,
+        "sum_mint": "100",
+        "sum_burn": "0",
+        "residue_count": "3",
+        "consistent_target": "100"
+      },
+      {
+        "cid": "41",
+        "symbol": "p1eEdnsa5",
+        "total_supply": "0",
+        "supply_cap": null,
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "42",
+        "symbol": "p1eKdnsa5",
+        "total_supply": "0",
+        "supply_cap": "1000",
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "43",
+        "symbol": "smkujdot2a",
+        "total_supply": "40000",
+        "supply_cap": "50000",
+        "sum_mint": "40000",
+        "sum_burn": "0",
+        "residue_count": "1",
+        "consistent_target": "40000"
+      },
+      {
+        "cid": "44",
+        "symbol": "p1eSdxf3f",
+        "total_supply": "1000",
+        "supply_cap": null,
+        "sum_mint": "1000",
+        "sum_burn": "0",
+        "residue_count": "23",
+        "consistent_target": "1000"
+      },
+      {
+        "cid": "45",
+        "symbol": "p1eTdxf3f",
+        "total_supply": "100",
+        "supply_cap": null,
+        "sum_mint": "100",
+        "sum_burn": "0",
+        "residue_count": "3",
+        "consistent_target": "100"
+      },
+      {
+        "cid": "46",
+        "symbol": "p1eEdxf3f",
+        "total_supply": "0",
+        "supply_cap": null,
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "47",
+        "symbol": "p1eKdxf3f",
+        "total_supply": "0",
+        "supply_cap": "1000",
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "48",
+        "symbol": "smkujdygkm",
+        "total_supply": "40000",
+        "supply_cap": "50000",
+        "sum_mint": "40000",
+        "sum_burn": "0",
+        "residue_count": "1",
+        "consistent_target": "40000"
+      },
+      {
+        "cid": "49",
+        "symbol": "qaeCe4rkl",
+        "total_supply": "1000000",
+        "supply_cap": null,
+        "sum_mint": "1000000",
+        "sum_burn": "0",
+        "residue_count": "739",
+        "consistent_target": "1000000"
+      },
+      {
+        "cid": "50",
+        "symbol": "qaeIe6zeh",
+        "total_supply": "10000",
+        "supply_cap": null,
+        "sum_mint": "10000",
+        "sum_burn": "0",
+        "residue_count": "9",
+        "consistent_target": "10000"
+      },
+      {
+        "cid": "51",
+        "symbol": "qaeAe93ef",
+        "total_supply": "5000",
+        "supply_cap": null,
+        "sum_mint": "5000",
+        "sum_burn": "0",
+        "residue_count": "5",
+        "consistent_target": "5000"
+      },
+      {
+        "cid": "52",
+        "symbol": "qaeMe9jok",
+        "total_supply": "100",
+        "supply_cap": "1000",
+        "sum_mint": "100",
+        "sum_burn": "0",
+        "residue_count": "7",
+        "consistent_target": "100"
+      },
+      {
+        "cid": "53",
+        "symbol": "qaeLec7yb",
+        "total_supply": "10000",
+        "supply_cap": null,
+        "sum_mint": "10000",
+        "sum_burn": "0",
+        "residue_count": "11",
+        "consistent_target": "10000"
+      },
+      {
+        "cid": "54",
+        "symbol": "qaeLeeo48",
+        "total_supply": "10000",
+        "supply_cap": null,
+        "sum_mint": "10000",
+        "sum_burn": "0",
+        "residue_count": "33",
+        "consistent_target": "10000"
+      },
+      {
+        "cid": "55",
+        "symbol": "qaeNAB",
+        "total_supply": "100004",
+        "supply_cap": null,
+        "sum_mint": "100004",
+        "sum_burn": "0",
+        "residue_count": "29",
+        "consistent_target": "100004"
+      },
+      {
+        "cid": "56",
+        "symbol": "qaeOOen73t",
+        "total_supply": "0",
+        "supply_cap": "1000",
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "57",
+        "symbol": "qaePPen73t",
+        "total_supply": "0",
+        "supply_cap": null,
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "58",
+        "symbol": "qaeOOenuq6",
+        "total_supply": "500",
+        "supply_cap": "1000",
+        "sum_mint": "500",
+        "sum_burn": "0",
+        "residue_count": "14",
+        "consistent_target": "500"
+      },
+      {
+        "cid": "59",
+        "symbol": "qaePPenuq6",
+        "total_supply": "0",
+        "supply_cap": null,
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "1",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "60",
+        "symbol": "qaeAetbyq",
+        "total_supply": "5000",
+        "supply_cap": null,
+        "sum_mint": "5000",
+        "sum_burn": "0",
+        "residue_count": "5",
+        "consistent_target": "5000"
+      },
+      {
+        "cid": "61",
+        "symbol": "qaeMeur17",
+        "total_supply": "100",
+        "supply_cap": "1000",
+        "sum_mint": "100",
+        "sum_burn": "0",
+        "residue_count": "7",
+        "consistent_target": "100"
+      },
+      {
+        "cid": "62",
+        "symbol": "P1FMUJFARFL",
+        "total_supply": "1000000",
+        "supply_cap": "100000000000",
+        "sum_mint": "1000000",
+        "sum_burn": "0",
+        "residue_count": "1",
+        "consistent_target": "1000000"
+      },
+      {
+        "cid": "63",
+        "symbol": "P1FMUJFB7Y4",
+        "total_supply": "1000000",
+        "supply_cap": "100000000000",
+        "sum_mint": "1000000",
+        "sum_burn": "0",
+        "residue_count": "1",
+        "consistent_target": "1000000"
+      },
+      {
+        "cid": "64",
+        "symbol": "P1FMUJFBON1",
+        "total_supply": "3000008",
+        "supply_cap": "100000000000",
+        "sum_mint": "3000008",
+        "sum_burn": "0",
+        "residue_count": "19",
+        "consistent_target": "3000008"
+      },
+      {
+        "cid": "65",
+        "symbol": "P1FMUJFCGXP",
+        "total_supply": "3000008",
+        "supply_cap": "100000000000",
+        "sum_mint": "3000008",
+        "sum_burn": "0",
+        "residue_count": "19",
+        "consistent_target": "3000008"
+      },
+      {
+        "cid": "66",
+        "symbol": "P1FMUJFDPX8",
+        "total_supply": "3000008",
+        "supply_cap": "100000000000",
+        "sum_mint": "3000008",
+        "sum_burn": "0",
+        "residue_count": "19",
+        "consistent_target": "3000008"
+      },
+      {
+        "cid": "67",
+        "symbol": "P1FMUJFG3W5",
+        "total_supply": "3000008",
+        "supply_cap": "100000000000",
+        "sum_mint": "3000009",
+        "sum_burn": "0",
+        "residue_count": "20",
+        "consistent_target": "3000009"
+      },
+      {
+        "cid": "68",
+        "symbol": "P1GMUJFHTPI",
+        "total_supply": "1000001",
+        "supply_cap": "100000000000",
+        "sum_mint": "1000001",
+        "sum_burn": "0",
+        "residue_count": "24",
+        "consistent_target": "1000001"
+      },
+      {
+        "cid": "69",
+        "symbol": "smkujfpyfm",
+        "total_supply": "40000",
+        "supply_cap": "50000",
+        "sum_mint": "40000",
+        "sum_burn": "0",
+        "residue_count": "1",
+        "consistent_target": "40000"
+      },
+      {
+        "cid": "70",
+        "symbol": "p1eSfqu18",
+        "total_supply": "1000",
+        "supply_cap": null,
+        "sum_mint": "1000",
+        "sum_burn": "0",
+        "residue_count": "23",
+        "consistent_target": "1000"
+      },
+      {
+        "cid": "71",
+        "symbol": "p1eTfqu18",
+        "total_supply": "100",
+        "supply_cap": null,
+        "sum_mint": "100",
+        "sum_burn": "0",
+        "residue_count": "3",
+        "consistent_target": "100"
+      },
+      {
+        "cid": "72",
+        "symbol": "p1eEfqu18",
+        "total_supply": "0",
+        "supply_cap": null,
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "73",
+        "symbol": "p1eKfqu18",
+        "total_supply": "0",
+        "supply_cap": "1000",
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "74",
+        "symbol": "P1HMUJFTUJL",
+        "total_supply": "3000000",
+        "supply_cap": "100000000000",
+        "sum_mint": "3000001",
+        "sum_burn": "0",
+        "residue_count": "10",
+        "consistent_target": "3000001"
+      },
+      {
+        "cid": "75",
+        "symbol": "P1HMUJFVAU8",
+        "total_supply": "3000000",
+        "supply_cap": "100000000000",
+        "sum_mint": "3000001",
+        "sum_burn": "0",
+        "residue_count": "10",
+        "consistent_target": "3000001"
+      },
+      {
+        "cid": "76",
+        "symbol": "P1HMUJFW7AP",
+        "total_supply": "1000000",
+        "supply_cap": "100000000000",
+        "sum_mint": "1000000",
+        "sum_burn": "0",
+        "residue_count": "5",
+        "consistent_target": "1000000"
+      },
+      {
+        "cid": "77",
+        "symbol": "P1HMUJG2X9H",
+        "total_supply": "3000000",
+        "supply_cap": "100000000000",
+        "sum_mint": "3000001",
+        "sum_burn": "0",
+        "residue_count": "10",
+        "consistent_target": "3000001"
+      },
+      {
+        "cid": "78",
+        "symbol": "P1HMUJG3WBO",
+        "total_supply": "1000000",
+        "supply_cap": "100000000000",
+        "sum_mint": "1000000",
+        "sum_burn": "0",
+        "residue_count": "5",
+        "consistent_target": "1000000"
+      },
+      {
+        "cid": "79",
+        "symbol": "smkujg5ih4",
+        "total_supply": "40000",
+        "supply_cap": "50000",
+        "sum_mint": "40000",
+        "sum_burn": "0",
+        "residue_count": "1",
+        "consistent_target": "40000"
+      },
+      {
+        "cid": "80",
+        "symbol": "p1eSg6ahk",
+        "total_supply": "1000",
+        "supply_cap": null,
+        "sum_mint": "1000",
+        "sum_burn": "0",
+        "residue_count": "23",
+        "consistent_target": "1000"
+      },
+      {
+        "cid": "81",
+        "symbol": "p1eTg6ahk",
+        "total_supply": "100",
+        "supply_cap": null,
+        "sum_mint": "100",
+        "sum_burn": "0",
+        "residue_count": "3",
+        "consistent_target": "100"
+      },
+      {
+        "cid": "82",
+        "symbol": "p1eEg6ahk",
+        "total_supply": "0",
+        "supply_cap": null,
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "83",
+        "symbol": "p1eKg6ahk",
+        "total_supply": "0",
+        "supply_cap": "1000",
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "84",
+        "symbol": "P1JMUJG7B26",
+        "total_supply": "2000000",
+        "supply_cap": "100000000000",
+        "sum_mint": "2000000",
+        "sum_burn": "0",
+        "residue_count": "8",
+        "consistent_target": "2000000"
+      },
+      {
+        "cid": "85",
+        "symbol": "P1JMUJGB240",
+        "total_supply": "2000000",
+        "supply_cap": "100000000000",
+        "sum_mint": "2000000",
+        "sum_burn": "0",
+        "residue_count": "8",
+        "consistent_target": "2000000"
+      },
+      {
+        "cid": "86",
+        "symbol": "qaeAgbcdz",
+        "total_supply": "5000",
+        "supply_cap": null,
+        "sum_mint": "5000",
+        "sum_burn": "0",
+        "residue_count": "5",
+        "consistent_target": "5000"
+      },
+      {
+        "cid": "87",
+        "symbol": "P1HMUJGBMC9",
+        "total_supply": "3000000",
+        "supply_cap": "100000000000",
+        "sum_mint": "3000001",
+        "sum_burn": "0",
+        "residue_count": "10",
+        "consistent_target": "3000001"
+      },
+      {
+        "cid": "88",
+        "symbol": "P1HMUJGC681",
+        "total_supply": "1000000",
+        "supply_cap": "100000000000",
+        "sum_mint": "1000000",
+        "sum_burn": "0",
+        "residue_count": "5",
+        "consistent_target": "1000000"
+      },
+      {
+        "cid": "89",
+        "symbol": "P1KGIAOA",
+        "total_supply": "1000000",
+        "supply_cap": "100000000000",
+        "sum_mint": "1000000",
+        "sum_burn": "0",
+        "residue_count": "16",
+        "consistent_target": "1000000"
+      },
+      {
+        "cid": "90",
+        "symbol": "P1KGJNVY",
+        "total_supply": "1000000",
+        "supply_cap": "100000000000",
+        "sum_mint": "1000000",
+        "sum_burn": "0",
+        "residue_count": "16",
+        "consistent_target": "1000000"
+      },
+      {
+        "cid": "91",
+        "symbol": "P1KGONLZ",
+        "total_supply": "1000000",
+        "supply_cap": "100000000000",
+        "sum_mint": "1000000",
+        "sum_burn": "0",
+        "residue_count": "18",
+        "consistent_target": "1000000"
+      },
+      {
+        "cid": "92",
+        "symbol": "P1KGT4OR",
+        "total_supply": "1000000",
+        "supply_cap": "100000000000",
+        "sum_mint": "1000000",
+        "sum_burn": "0",
+        "residue_count": "18",
+        "consistent_target": "1000000"
+      },
+      {
+        "cid": "93",
+        "symbol": "P1KH262V",
+        "total_supply": "1000000",
+        "supply_cap": "100000000000",
+        "sum_mint": "1000000",
+        "sum_burn": "0",
+        "residue_count": "18",
+        "consistent_target": "1000000"
+      },
+      {
+        "cid": "94",
+        "symbol": "smkujhcpow",
+        "total_supply": "40000",
+        "supply_cap": "50000",
+        "sum_mint": "40000",
+        "sum_burn": "0",
+        "residue_count": "1",
+        "consistent_target": "40000"
+      },
+      {
+        "cid": "95",
+        "symbol": "p1eShdf4h",
+        "total_supply": "1000",
+        "supply_cap": null,
+        "sum_mint": "1000",
+        "sum_burn": "0",
+        "residue_count": "23",
+        "consistent_target": "1000"
+      },
+      {
+        "cid": "96",
+        "symbol": "p1eThdf4h",
+        "total_supply": "100",
+        "supply_cap": null,
+        "sum_mint": "100",
+        "sum_burn": "0",
+        "residue_count": "3",
+        "consistent_target": "100"
+      },
+      {
+        "cid": "97",
+        "symbol": "p1eEhdf4h",
+        "total_supply": "0",
+        "supply_cap": null,
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      },
+      {
+        "cid": "98",
+        "symbol": "p1eKhdf4h",
+        "total_supply": "0",
+        "supply_cap": "1000",
+        "sum_mint": "0",
+        "sum_burn": "0",
+        "residue_count": "0",
+        "consistent_target": "0"
+      }
+    ],
+    "trigger_state_after_commit": [
+      {
+        "relname": "account",
+        "tgname": "trg_account_guard",
+        "tgenabled": "O"
+      },
+      {
+        "relname": "ledger_entry",
+        "tgname": "trg_ledger_entry_append_only",
+        "tgenabled": "O"
+      }
+    ]
+  },
+  "counts_after": {
+    "ledger_entry": 0,
+    "account": 4,
+    "currency": 1,
+    "ledger_owner": 4,
+    "schema_migration": 6,
+    "users": 0
+  },
+  "delta": {
+    "ledger_entry": 1643,
+    "account": 197,
+    "currency": 89,
+    "ledger_owner": 0,
+    "schema_migration": 0,
+    "users": 0
+  },
+  "trigger_state_after": [
+    {
+      "relname": "account",
+      "tgname": "trg_account_guard",
+      "tgenabled": "O"
+    },
+    {
+      "relname": "ledger_entry",
+      "tgname": "trg_ledger_entry_append_only",
+      "tgenabled": "O"
+    }
+  ],
+  "triggers_all_enabled_after": true,
+  "supply_audit_after_commit": [
+    {
+      "cid": "1",
+      "symbol": "$",
+      "total_supply": "0",
+      "supply_cap": null,
+      "sum_mint": "0",
+      "sum_burn": "0",
+      "residue_count": "0",
+      "consistent_target": "0"
+    }
+  ],
+  "supply_all_consistent_after_commit": true,
+  "judgements_after": {
+    "judgement_1_rows": 0,
+    "judgement_1_detail": [],
+    "judgement_8_rows_raw": 0,
+    "judgement_8_rows_excl_mint_burn": 0,
+    "judgement_8_detail": []
+  },
+  "judgement_1_ok": true,
+  "judgement_8_ok": true
+}

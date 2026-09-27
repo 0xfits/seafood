@@ -1,0 +1,115 @@
+
+### tables_relkind  (1 rows)
+{"relname":"user","relkind":"r","note":null}
+
+### public_base_tables  (6 rows)
+{"table_name":"account","table_type":"BASE TABLE"}
+{"table_name":"currency","table_type":"BASE TABLE"}
+{"table_name":"ledger_entry","table_type":"BASE TABLE"}
+{"table_name":"ledger_owner","table_type":"BASE TABLE"}
+{"table_name":"schema_migration","table_type":"BASE TABLE"}
+{"table_name":"user","table_type":"BASE TABLE"}
+
+### fk_contype_f_all  (4 rows)
+{"conname":"account_userId_fkey","contype":"f","src_table":"account","dst_table":"user","def":"FOREIGN KEY (\"userId\") REFERENCES neon_auth.\"user\"(id) ON DELETE CASCADE"}
+{"conname":"invitation_inviterId_fkey","contype":"f","src_table":"invitation","dst_table":"user","def":"FOREIGN KEY (\"inviterId\") REFERENCES neon_auth.\"user\"(id) ON DELETE CASCADE"}
+{"conname":"member_userId_fkey","contype":"f","src_table":"member","dst_table":"user","def":"FOREIGN KEY (\"userId\") REFERENCES neon_auth.\"user\"(id) ON DELETE CASCADE"}
+{"conname":"session_userId_fkey","contype":"f","src_table":"session","dst_table":"user","def":"FOREIGN KEY (\"userId\") REFERENCES neon_auth.\"user\"(id) ON DELETE CASCADE"}
+
+### constraints_on_user  (18 rows)
+{"conname":"user_evm_fmt","contype":"c","condeferrable":false,"convalidated":true,"def":"CHECK ((evm ~ '^0x[0-9a-f]{40}$'::text))"}
+{"conname":"user_uid_positive","contype":"c","condeferrable":false,"convalidated":true,"def":"CHECK ((uid > 0))"}
+{"conname":"user_bio_not_null","contype":"n","condeferrable":false,"convalidated":true,"def":"NOT NULL bio"}
+{"conname":"user_createdAt_not_null","contype":"n","condeferrable":false,"convalidated":true,"def":"NOT NULL \"createdAt\""}
+{"conname":"user_emailVerified_not_null","contype":"n","condeferrable":false,"convalidated":true,"def":"NOT NULL \"emailVerified\""}
+{"conname":"user_email_not_null","contype":"n","condeferrable":false,"convalidated":true,"def":"NOT NULL email"}
+{"conname":"user_evm_not_null","contype":"n","condeferrable":false,"convalidated":true,"def":"NOT NULL evm"}
+{"conname":"user_id_not_null","contype":"n","condeferrable":false,"convalidated":true,"def":"NOT NULL id"}
+{"conname":"user_is_admin_not_null","contype":"n","condeferrable":false,"convalidated":true,"def":"NOT NULL is_admin"}
+{"conname":"user_name_not_null","contype":"n","condeferrable":false,"convalidated":true,"def":"NOT NULL name"}
+{"conname":"user_time_login_last_not_null","contype":"n","condeferrable":false,"convalidated":true,"def":"NOT NULL time_login_last"}
+{"conname":"user_time_reg_not_null","contype":"n","condeferrable":false,"convalidated":true,"def":"NOT NULL time_reg"}
+{"conname":"user_uid_not_null","contype":"n","condeferrable":false,"convalidated":true,"def":"NOT NULL uid"}
+{"conname":"user_updatedAt_not_null","contype":"n","condeferrable":false,"convalidated":true,"def":"NOT NULL \"updatedAt\""}
+{"conname":"user_pk","contype":"p","condeferrable":false,"convalidated":true,"def":"PRIMARY KEY (uid)"}
+{"conname":"user_pkey","contype":"p","condeferrable":false,"convalidated":true,"def":"PRIMARY KEY (id)"}
+{"conname":"user_email_key","contype":"u","condeferrable":false,"convalidated":true,"def":"UNIQUE (email)"}
+{"conname":"user_evm_uniq","contype":"u","condeferrable":false,"convalidated":true,"def":"UNIQUE (evm)"}
+
+### indexes_on_user  (5 rows)
+{"index_name":"idx_user_evm_lower","indisprimary":false,"indisunique":false,"def":"CREATE INDEX idx_user_evm_lower ON public.\"user\" USING btree (lower(evm))"}
+{"index_name":"user_email_key","indisprimary":false,"indisunique":true,"def":"CREATE UNIQUE INDEX user_email_key ON neon_auth.\"user\" USING btree (email)"}
+{"index_name":"user_evm_uniq","indisprimary":false,"indisunique":true,"def":"CREATE UNIQUE INDEX user_evm_uniq ON public.\"user\" USING btree (evm)"}
+{"index_name":"user_pk","indisprimary":true,"indisunique":true,"def":"CREATE UNIQUE INDEX user_pk ON public.\"user\" USING btree (uid)"}
+{"index_name":"user_pkey","indisprimary":true,"indisunique":true,"def":"CREATE UNIQUE INDEX user_pkey ON neon_auth.\"user\" USING btree (id)"}
+
+### identity_and_sequences  (6 rows)
+{"attname":"uid","attidentity":"d","attgenerated":"","seq":"public.user_uid_seq"}
+{"attname":"evm","attidentity":"","attgenerated":"","seq":null}
+{"attname":"bio","attidentity":"","attgenerated":"","seq":null}
+{"attname":"is_admin","attidentity":"","attgenerated":"","seq":null}
+{"attname":"time_reg","attidentity":"","attgenerated":"","seq":null}
+{"attname":"time_login_last","attidentity":"","attgenerated":"","seq":null}
+
+### sequences_owned_or_named_user  (1 rows)
+{"seqname":"user_uid_seq","owned_by":"\"user\"","guess":"public.user_uid_seq"}
+
+### all_public_sequences  (1 rows)
+{"sequence_name":"schema_migration_id_seq"}
+
+### triggers  (8 rows)
+{"relname":"user","tgname":"RI_ConstraintTrigger_a_16604","tgenabled":"O","tgisinternal":true,"def":"CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_16604\" AFTER DELETE ON neon_auth.\"user\" FROM neon_auth.session NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_cascade_del\"()"}
+{"relname":"user","tgname":"RI_ConstraintTrigger_a_16605","tgenabled":"O","tgisinternal":true,"def":"CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_16605\" AFTER UPDATE ON neon_auth.\"user\" FROM neon_auth.session NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_noaction_upd\"()"}
+{"relname":"user","tgname":"RI_ConstraintTrigger_a_16624","tgenabled":"O","tgisinternal":true,"def":"CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_16624\" AFTER DELETE ON neon_auth.\"user\" FROM neon_auth.account NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_cascade_del\"()"}
+{"relname":"user","tgname":"RI_ConstraintTrigger_a_16625","tgenabled":"O","tgisinternal":true,"def":"CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_16625\" AFTER UPDATE ON neon_auth.\"user\" FROM neon_auth.account NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_noaction_upd\"()"}
+{"relname":"user","tgname":"RI_ConstraintTrigger_a_16689","tgenabled":"O","tgisinternal":true,"def":"CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_16689\" AFTER DELETE ON neon_auth.\"user\" FROM neon_auth.member NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_cascade_del\"()"}
+{"relname":"user","tgname":"RI_ConstraintTrigger_a_16690","tgenabled":"O","tgisinternal":true,"def":"CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_16690\" AFTER UPDATE ON neon_auth.\"user\" FROM neon_auth.member NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_noaction_upd\"()"}
+{"relname":"user","tgname":"RI_ConstraintTrigger_a_16715","tgenabled":"O","tgisinternal":true,"def":"CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_16715\" AFTER DELETE ON neon_auth.\"user\" FROM neon_auth.invitation NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_cascade_del\"()"}
+{"relname":"user","tgname":"RI_ConstraintTrigger_a_16716","tgenabled":"O","tgisinternal":true,"def":"CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_16716\" AFTER UPDATE ON neon_auth.\"user\" FROM neon_auth.invitation NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_noaction_upd\"()"}
+
+### views_referencing  (0 rows)
+
+### rls_policies  (0 rows)
+
+### rls_enabled  (1 rows)
+{"relname":"user","relrowsecurity":false,"relforcerowsecurity":false}
+
+### functions_with_quoted_user  (0 rows)
+
+### function_bodies_matching  (0 rows)
+
+### dependency_graph_on_user  (20 rows)
+{"dependent":"constraint user_bio_not_null on table \"user\"","deptype":"a"}
+{"dependent":"constraint user_evm_fmt on table \"user\"","deptype":"a"}
+{"dependent":"constraint user_evm_fmt on table \"user\"","deptype":"n"}
+{"dependent":"constraint user_evm_not_null on table \"user\"","deptype":"a"}
+{"dependent":"constraint user_evm_uniq on table \"user\"","deptype":"a"}
+{"dependent":"constraint user_is_admin_not_null on table \"user\"","deptype":"a"}
+{"dependent":"constraint user_pk on table \"user\"","deptype":"a"}
+{"dependent":"constraint user_time_login_last_not_null on table \"user\"","deptype":"a"}
+{"dependent":"constraint user_time_reg_not_null on table \"user\"","deptype":"a"}
+{"dependent":"constraint user_uid_not_null on table \"user\"","deptype":"a"}
+{"dependent":"constraint user_uid_positive on table \"user\"","deptype":"a"}
+{"dependent":"constraint user_uid_positive on table \"user\"","deptype":"n"}
+{"dependent":"default value for column bio of table \"user\"","deptype":"a"}
+{"dependent":"default value for column is_admin of table \"user\"","deptype":"a"}
+{"dependent":"default value for column time_login_last of table \"user\"","deptype":"a"}
+{"dependent":"default value for column time_reg of table \"user\"","deptype":"a"}
+{"dependent":"index idx_user_evm_lower","deptype":"a"}
+{"dependent":"sequence user_uid_seq","deptype":"i"}
+{"dependent":"toast table pg_toast.pg_toast_24750","deptype":"i"}
+{"dependent":"type \"user\"","deptype":"i"}
+
+### count_quoted_vs_bare  (1 rows)
+{"quoted":"0","bare":"1"}
+
+### columns  (6 rows)
+{"column_name":"uid","data_type":"bigint","is_nullable":"NO","column_default":null,"is_identity":"YES","identity_generation":"BY DEFAULT"}
+{"column_name":"evm","data_type":"text","is_nullable":"NO","column_default":null,"is_identity":"NO","identity_generation":null}
+{"column_name":"bio","data_type":"text","is_nullable":"NO","column_default":"''::text","is_identity":"NO","identity_generation":null}
+{"column_name":"is_admin","data_type":"boolean","is_nullable":"NO","column_default":"false","is_identity":"NO","identity_generation":null}
+{"column_name":"time_reg","data_type":"timestamp with time zone","is_nullable":"NO","column_default":"now()","is_identity":"NO","identity_generation":null}
+{"column_name":"time_login_last","data_type":"timestamp with time zone","is_nullable":"NO","column_default":"now()","is_identity":"NO","identity_generation":null}
+
+### row_count_user  (1 rows)
+{"n":"0"}

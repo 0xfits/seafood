@@ -1,0 +1,79 @@
+
+### public_base_tables (6)
+{"table_name":"account"}
+{"table_name":"currency"}
+{"table_name":"ledger_entry"}
+{"table_name":"ledger_owner"}
+{"table_name":"schema_migration"}
+{"table_name":"users"}
+
+### public_base_table_count (1)
+{"n":"6"}
+
+### base_table_named_users (1)
+{"table_name":"users"}
+
+### row_counts (6)
+{"t":"account","n":"4"}
+{"t":"currency","n":"1"}
+{"t":"ledger_entry","n":"0"}
+{"t":"ledger_owner","n":"4"}
+{"t":"schema_migration","n":"6"}
+{"t":"users","n":"0"}
+
+### judgement_1_hits (0)
+
+### judgement_1_rowcount (1)
+{"n":"0"}
+
+### judgement_8_hits_raw (0)
+
+### judgement_8_hits_excl_mint_burn (0)
+
+### judgement_8_rowcounts (1)
+{"raw_n":"0","excl_n":"0"}
+
+### currency_after_purge (1)
+{"cid":"1","symbol":"$","name":"平台积分","total_supply":"0","supply_cap":null,"status":"listed","owner_uid":"0","decimals":"0"}
+
+### cid1_reconcile_check (1)
+{"cid":"1","symbol":"$","total_supply":"0","sum_mint":"0","sum_burn":"0","sum_mint_minus_burn":"0","cid1_consistent":"true","residue_entry_count":"0"}
+
+### all_cids_consistent (1)
+{"inconsistent_cids":"0"}
+
+### platform_accounts (4)
+{"uid":"-3","cid":"1","balance":"0","frozen":"0"}
+{"uid":"-2","cid":"1","balance":"0","frozen":"0"}
+{"uid":"-1","cid":"1","balance":"0","frozen":"0"}
+{"uid":"0","cid":"1","balance":"0","frozen":"0"}
+
+### any_nonzero_balance (0)
+
+### ledger_owner_untouched (4)
+{"uid":"-3","owner_type":"platform","name":"罚没账户"}
+{"uid":"-2","owner_type":"platform","name":"佣金池"}
+{"uid":"-1","owner_type":"platform","name":"手续费归集账户"}
+{"uid":"0","owner_type":"platform","name":"平台主体"}
+
+### schema_migration_rows (6)
+{"version":"0001","name":"0001_ledger_core.sql","applied_at":"2026-09-27T03:48:15.617Z"}
+{"version":"0002","name":"0002_user_identity.sql","applied_at":"2026-09-27T03:48:20.093Z"}
+{"version":"0003","name":"0003_kind_close_set_20.sql","applied_at":"2026-09-27T04:57:40.944Z"}
+{"version":"0004","name":"0004_ledger_post_event.sql","applied_at":"2026-09-27T05:26:01.859Z"}
+{"version":"0005","name":"0005_ledger_event_root_key.sql","applied_at":"2026-09-27T06:34:21.897Z"}
+{"version":"0006","name":"0006_user_to_users.sql","applied_at":"2026-09-27T07:09:27.383Z"}
+
+### schema_version (1)
+{"version":"0006"}
+
+### trigger_state (2)
+{"relname":"account","tgname":"trg_account_guard","tgenabled":"O"}
+{"relname":"ledger_entry","tgname":"trg_ledger_entry_append_only","tgenabled":"O"}
+
+### objects_named_like_user (5)
+{"relkind":"S","relname":"users_uid_seq"}
+{"relkind":"i","relname":"idx_users_evm_lower"}
+{"relkind":"i","relname":"users_evm_uniq"}
+{"relkind":"i","relname":"users_pk"}
+{"relkind":"r","relname":"users"}
