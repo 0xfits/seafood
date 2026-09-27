@@ -1,0 +1,402 @@
+{
+  "run": "P2XFIN01",
+  "phase": "after",
+  "name": "p2x-02-concurrency-same-key",
+  "at": "2026-09-27T13:14:23.812Z",
+  "script": "scripts/p2x-02-concurrency-same-key.ts",
+  "question": "两个连接**同时在飞**的同键请求：胜者一返回就提交 ⇒ 败者解锁后拿到 200 重放还是 LD002/LD025？",
+  "namespace": {
+    "uid_base": 960453,
+    "uids": [
+      "960453",
+      "960454",
+      "960455",
+      "960456"
+    ],
+    "uid_source": "auto-scan",
+    "partition": [
+      960001,
+      960900
+    ],
+    "symbol": "p2xq960453",
+    "key_prefix": "ops:p2x:960453:",
+    "job_ref": "960456",
+    "occupied_recheck": []
+  },
+  "fn_fingerprint": {
+    "schema_version": "0012",
+    "prosrc_len": 45598,
+    "prosrc_md5": "d94dd902697dfe60aba409d808c6d63a",
+    "pre_gate_present": true,
+    "pos_pre_gate": 27698,
+    "pos_c4_account_lock": 26917,
+    "pos_c5_balance_section": 30721,
+    "pos_r80_balance_gate": 32617,
+    "pos_on_conflict_probe": 34625,
+    "order_ok_gate_after_lock_before_balance": true,
+    "on_conflict_still_after_gate": true,
+    "idx_ledger_event_root_key_rows": 1,
+    "on_conflict_probe_present": true
+  },
+  "money_before": {
+    "cid1": {
+      "hash": "2abde15ad1ae7e2d301a982493cbf925",
+      "rows": "7",
+      "balance_sum": "8400"
+    },
+    "platform_other_cids": {
+      "hash": "332fffe6b61ce717f8774301d6fd67d4",
+      "rows": "29",
+      "balance_sum": "46"
+    },
+    "ledger_entry_rows": 2131
+  },
+  "fixture": {
+    "mint": {
+      "ok": true,
+      "idempotent_replay": false,
+      "entries_n": 1,
+      "ms": 376,
+      "sqlstate": null,
+      "reason": null,
+      "err_message": null,
+      "txid": "5275",
+      "result_keys": [
+        "accounts",
+        "entries",
+        "extra",
+        "idempotency_key",
+        "idempotent_replay",
+        "meta",
+        "ok",
+        "txid"
+      ],
+      "entries_sha256": "724db1d359dbe609983bf93b75f56a95d0fd5ee73c6e7f7064179b42c3ba032e",
+      "accounts_sha256": "b48221b8f9b19ee21230a158a48f3342d1dd866a24e26bdeea669524117ebaa8",
+      "extra": {
+        "supply_cap": null,
+        "supply_after": "1000000",
+        "supply_before": "0"
+      },
+      "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"mint\",\"lock_trace\":[\"currency:236\",\"account:960453:236\"]},\"txid\":\"5275\",\"extra\":{\"supply_cap\":null,\"supply_after\":\"1000000\",\"supply_before\":\"0\"},\"entries\":[{\"cid\":\"236\",\"uid\":\"960453\",\"kind\":\"mint\",\"memo\":\"\",\"txid\":\"5275\",\"delta\":\"1000000\",\"ref_id\":null,\"ref_type\":null,\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T13:14:15.592Z\",\"balance_after\":\"1000000\",\"idempotency_key\":\"ops:p2x:960453:mint\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"236\",\"uid\":\"960453\",\"frozen\":\"0\",\"balance\":\"1000000\"}],\"idempotency_key\":\"ops:p2x:960453:mint\",\"idempotent_replay\":false}"
+    },
+    "hold": {
+      "ok": true,
+      "idempotent_replay": false,
+      "entries_n": 2,
+      "ms": 243,
+      "sqlstate": null,
+      "reason": null,
+      "err_message": null,
+      "txid": "5276",
+      "result_keys": [
+        "accounts",
+        "entries",
+        "extra",
+        "idempotency_key",
+        "idempotent_replay",
+        "meta",
+        "ok",
+        "txid"
+      ],
+      "entries_sha256": "9c9a5a613e31e3d97d6b5f57ea9ae2eac0aa84182227c8263d056b1246a744c1",
+      "accounts_sha256": "2cf86c481b5d098729d5d084dfc23673c930d5aa4be6f0b2f63617d00a41d609",
+      "extra": {
+        "amount": "90000",
+        "symbol": "p2xq960453"
+      },
+      "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"hold\",\"lock_trace\":[\"account:960453:236\"]},\"txid\":\"5276\",\"extra\":{\"amount\":\"90000\",\"symbol\":\"p2xq960453\"},\"entries\":[{\"cid\":\"236\",\"uid\":\"960453\",\"kind\":\"hold\",\"memo\":\"\",\"txid\":\"5276\",\"delta\":\"-90000\",\"ref_id\":\"960456\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T13:14:15.592Z\",\"balance_after\":\"910000\",\"idempotency_key\":\"ops:p2x:960453:hold\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-hold\"},{\"cid\":\"236\",\"uid\":\"960453\",\"kind\":\"hold\",\"memo\":\"\",\"txid\":\"5277\",\"delta\":\"0\",\"ref_id\":\"960456\",\"ref_type\":\"job\",\"frozen_after\":\"90000\",\"frozen_delta\":\"90000\",\"time_created\":\"2026-09-27T13:14:15.592Z\",\"balance_after\":\"910000\",\"idempotency_key\":\"ops:p2x:960453:hold#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"236\",\"uid\":\"960453\",\"frozen\":\"90000\",\"balance\":\"910000\"}],\"idempotency_key\":\"ops:p2x:960453:hold\",\"idempotent_replay\":false}"
+    },
+    "hold_ok": true,
+    "commit_error": null,
+    "note": "提交式夹具：并发用例必须让第二个连接看得见根行"
+  },
+  "account_after_fixture": {
+    "b": "910000",
+    "f": "90000"
+  },
+  "concurrency": {
+    "both_in_flight": true,
+    "winner_side": "B",
+    "first_returned_at_ms": 230,
+    "winner": {
+      "ok": true,
+      "idempotent_replay": false,
+      "entries_n": 2,
+      "ms": 230,
+      "sqlstate": null,
+      "reason": null,
+      "err_message": null,
+      "txid": "5278",
+      "result_keys": [
+        "accounts",
+        "entries",
+        "extra",
+        "idempotency_key",
+        "idempotent_replay",
+        "meta",
+        "ok",
+        "txid"
+      ],
+      "entries_sha256": "a0347311f9392c4d3e12c6e3f930d42bdcb231958ef045f9492ffdb315cac54e",
+      "accounts_sha256": "ca47064e7aec953fc452fcdf7f64b70ff6f3631e5a686752731b13f1f37eb876",
+      "extra": {
+        "symbol": "p2xq960453",
+        "entries": "2"
+      },
+      "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:960453:236\",\"account:960454:236\"]},\"txid\":\"5278\",\"extra\":{\"symbol\":\"p2xq960453\",\"entries\":\"2\"},\"entries\":[{\"cid\":\"236\",\"uid\":\"960453\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5278\",\"delta\":\"0\",\"ref_id\":\"960456\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"-90000\",\"time_created\":\"2026-09-27T13:14:19.924Z\",\"balance_after\":\"910000\",\"idempotency_key\":\"ops:p2x:960453:conc\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-conc\"},{\"cid\":\"236\",\"uid\":\"960454\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5279\",\"delta\":\"90000\",\"ref_id\":\"960456\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T13:14:19.924Z\",\"balance_after\":\"90000\",\"idempotency_key\":\"ops:p2x:960453:conc#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"236\",\"uid\":\"960453\",\"frozen\":\"0\",\"balance\":\"910000\"},{\"cid\":\"236\",\"uid\":\"960454\",\"frozen\":\"0\",\"balance\":\"90000\"}],\"idempotency_key\":\"ops:p2x:960453:conc\",\"idempotent_replay\":false}",
+      "side": "B",
+      "at_ms": 230
+    },
+    "loser": {
+      "ok": true,
+      "idempotent_replay": true,
+      "entries_n": 2,
+      "ms": 476,
+      "sqlstate": null,
+      "reason": null,
+      "err_message": null,
+      "txid": "5278",
+      "result_keys": [
+        "accounts",
+        "entries",
+        "extra",
+        "idempotency_key",
+        "idempotent_replay",
+        "meta",
+        "ok",
+        "txid"
+      ],
+      "entries_sha256": "a0347311f9392c4d3e12c6e3f930d42bdcb231958ef045f9492ffdb315cac54e",
+      "accounts_sha256": "ca47064e7aec953fc452fcdf7f64b70ff6f3631e5a686752731b13f1f37eb876",
+      "extra": {},
+      "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:960453:236\",\"account:960454:236\"]},\"txid\":\"5278\",\"extra\":{},\"entries\":[{\"cid\":\"236\",\"uid\":\"960453\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5278\",\"delta\":\"0\",\"ref_id\":\"960456\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"-90000\",\"time_created\":\"2026-09-27T13:14:19.924Z\",\"balance_after\":\"910000\",\"idempotency_key\":\"ops:p2x:960453:conc\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-conc\"},{\"cid\":\"236\",\"uid\":\"960454\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5279\",\"delta\":\"90000\",\"ref_id\":\"960456\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T13:14:19.924Z\",\"balance_after\":\"90000\",\"idempotency_key\":\"ops:p2x:960453:conc#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"236\",\"uid\":\"960453\",\"frozen\":\"0\",\"balance\":\"910000\"},{\"cid\":\"236\",\"uid\":\"960454\",\"frozen\":\"0\",\"balance\":\"90000\"}],\"idempotency_key\":\"ops:p2x:960453:conc\",\"idempotent_replay\":true}",
+      "side": "A",
+      "at_ms": 476
+    },
+    "winner_commit_error": null,
+    "loser_commit_error": null,
+    "landed_count": 1,
+    "replay_count": 1,
+    "error_count": 0,
+    "rows_for_key_mid": 2,
+    "rows_for_key": 2,
+    "account_after": {
+      "b": "910000",
+      "f": "0"
+    },
+    "expected_balance": "910000",
+    "note": "胜者 = 先返回者；它一返回就 COMMIT（不等败者）⇒ 败者等锁结束后必须看见根行"
+  },
+  "money_after": {
+    "cid1": {
+      "hash": "2abde15ad1ae7e2d301a982493cbf925",
+      "rows": "7",
+      "balance_sum": "8400"
+    },
+    "platform_other_cids": {
+      "hash": "332fffe6b61ce717f8774301d6fd67d4",
+      "rows": "29",
+      "balance_sum": "46"
+    },
+    "ledger_entry_rows": 2136
+  },
+  "money_guard_cid_created_by_this_run": "236",
+  "checks": [
+    {
+      "case": "5",
+      "name": "两个连接**同时在飞**（不是同进程串行）：两次调用都先发出再等结果",
+      "ok": true,
+      "detail": {
+        "a_at_ms": 476,
+        "b_at_ms": 230
+      }
+    },
+    {
+      "case": "5",
+      "name": "胜者真落账（ok + idempotent_replay=false + 有 txid）",
+      "ok": true,
+      "detail": {
+        "ok": true,
+        "idempotent_replay": false,
+        "entries_n": 2,
+        "ms": 230,
+        "sqlstate": null,
+        "reason": null,
+        "err_message": null,
+        "txid": "5278",
+        "result_keys": [
+          "accounts",
+          "entries",
+          "extra",
+          "idempotency_key",
+          "idempotent_replay",
+          "meta",
+          "ok",
+          "txid"
+        ],
+        "entries_sha256": "a0347311f9392c4d3e12c6e3f930d42bdcb231958ef045f9492ffdb315cac54e",
+        "accounts_sha256": "ca47064e7aec953fc452fcdf7f64b70ff6f3631e5a686752731b13f1f37eb876",
+        "extra": {
+          "symbol": "p2xq960453",
+          "entries": "2"
+        },
+        "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:960453:236\",\"account:960454:236\"]},\"txid\":\"5278\",\"extra\":{\"symbol\":\"p2xq960453\",\"entries\":\"2\"},\"entries\":[{\"cid\":\"236\",\"uid\":\"960453\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5278\",\"delta\":\"0\",\"ref_id\":\"960456\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"-90000\",\"time_created\":\"2026-09-27T13:14:19.924Z\",\"balance_after\":\"910000\",\"idempotency_key\":\"ops:p2x:960453:conc\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-conc\"},{\"cid\":\"236\",\"uid\":\"960454\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5279\",\"delta\":\"90000\",\"ref_id\":\"960456\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T13:14:19.924Z\",\"balance_after\":\"90000\",\"idempotency_key\":\"ops:p2x:960453:conc#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"236\",\"uid\":\"960453\",\"frozen\":\"0\",\"balance\":\"910000\"},{\"cid\":\"236\",\"uid\":\"960454\",\"frozen\":\"0\",\"balance\":\"90000\"}],\"idempotency_key\":\"ops:p2x:960453:conc\",\"idempotent_replay\":false}"
+      }
+    },
+    {
+      "case": "5",
+      "name": "败者 200 重放（ok + idempotent_replay=true）",
+      "ok": true,
+      "detail": {
+        "ok": true,
+        "idempotent_replay": true,
+        "entries_n": 2,
+        "ms": 476,
+        "sqlstate": null,
+        "reason": null,
+        "err_message": null,
+        "txid": "5278",
+        "result_keys": [
+          "accounts",
+          "entries",
+          "extra",
+          "idempotency_key",
+          "idempotent_replay",
+          "meta",
+          "ok",
+          "txid"
+        ],
+        "entries_sha256": "a0347311f9392c4d3e12c6e3f930d42bdcb231958ef045f9492ffdb315cac54e",
+        "accounts_sha256": "ca47064e7aec953fc452fcdf7f64b70ff6f3631e5a686752731b13f1f37eb876",
+        "extra": {},
+        "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:960453:236\",\"account:960454:236\"]},\"txid\":\"5278\",\"extra\":{},\"entries\":[{\"cid\":\"236\",\"uid\":\"960453\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5278\",\"delta\":\"0\",\"ref_id\":\"960456\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"-90000\",\"time_created\":\"2026-09-27T13:14:19.924Z\",\"balance_after\":\"910000\",\"idempotency_key\":\"ops:p2x:960453:conc\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-conc\"},{\"cid\":\"236\",\"uid\":\"960454\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5279\",\"delta\":\"90000\",\"ref_id\":\"960456\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T13:14:19.924Z\",\"balance_after\":\"90000\",\"idempotency_key\":\"ops:p2x:960453:conc#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"236\",\"uid\":\"960453\",\"frozen\":\"0\",\"balance\":\"910000\"},{\"cid\":\"236\",\"uid\":\"960454\",\"frozen\":\"0\",\"balance\":\"90000\"}],\"idempotency_key\":\"ops:p2x:960453:conc\",\"idempotent_replay\":true}"
+      }
+    },
+    {
+      "case": "5",
+      "name": "败者确实等过锁（败者耗时 > 胜者耗时 ⇒ 竞态真的发生）",
+      "ok": true,
+      "detail": {
+        "winner_ms": 230,
+        "loser_ms": 476
+      }
+    },
+    {
+      "case": "5",
+      "name": "重放 txid == 落账 txid",
+      "ok": true,
+      "detail": {
+        "winner": "5278",
+        "loser": "5278"
+      }
+    },
+    {
+      "case": "5",
+      "name": "重放 entries/accounts 与首写**逐字相同**（sha256 对撞）",
+      "ok": true,
+      "detail": {
+        "w": {
+          "e": "a0347311f9392c4d3e12c6e3f930d42bdcb231958ef045f9492ffdb315cac54e",
+          "a": "ca47064e7aec953fc452fcdf7f64b70ff6f3631e5a686752731b13f1f37eb876"
+        },
+        "l": {
+          "e": "a0347311f9392c4d3e12c6e3f930d42bdcb231958ef045f9492ffdb315cac54e",
+          "a": "ca47064e7aec953fc452fcdf7f64b70ff6f3631e5a686752731b13f1f37eb876"
+        }
+      }
+    },
+    {
+      "case": "5",
+      "name": "不双扣：键下分录恒 2 条",
+      "ok": true,
+      "detail": 2
+    },
+    {
+      "case": "5",
+      "name": "不双扣：余额/冻结恰扣一次（balance = 1000000−90000，frozen = 0）",
+      "ok": true,
+      "detail": {
+        "b": "910000",
+        "f": "0"
+      }
+    },
+    {
+      "case": "5",
+      "name": "胜者提交成功（无 DEFERRED 约束在 COMMIT 判负）",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "case": "5",
+      "name": "败者（纯重放、零写入）提交也成功",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "case": "5",
+      "name": "重放方零写入：胜者提交后键下已 2 行，败者重放后仍是 2 行（extra_rows_added = 0）",
+      "ok": true,
+      "detail": {
+        "rows_mid_before_loser_replay": 2,
+        "rows_after_loser_replay": 2,
+        "extra_rows_added": 0
+      }
+    },
+    {
+      "case": "0",
+      "name": "cid = 1 账户哈希前后一致（绝未触碰 $ 账户）",
+      "ok": true,
+      "detail": {
+        "before": {
+          "hash": "2abde15ad1ae7e2d301a982493cbf925",
+          "rows": "7",
+          "balance_sum": "8400"
+        },
+        "after": {
+          "hash": "2abde15ad1ae7e2d301a982493cbf925",
+          "rows": "7",
+          "balance_sum": "8400"
+        }
+      }
+    },
+    {
+      "case": "0",
+      "name": "平台账户 0/-1/-2/-3（排除本 run 新建 cid）哈希前后一致",
+      "ok": true,
+      "detail": {
+        "before": {
+          "hash": "332fffe6b61ce717f8774301d6fd67d4",
+          "rows": "29",
+          "balance_sum": "46"
+        },
+        "after": {
+          "hash": "332fffe6b61ce717f8774301d6fd67d4",
+          "rows": "29",
+          "balance_sum": "46"
+        }
+      }
+    }
+  ],
+  "reds": [],
+  "ok": true,
+  "verdict": "真并发同键：恰一次落账 + 败者 200 重放 + 不双扣",
+  "test_data_created": {
+    "committed": true,
+    "symbol": "p2xq960453",
+    "cid": "236",
+    "uids": [
+      "960453",
+      "960454",
+      "960455",
+      "960456"
+    ],
+    "keys": [
+      "ops:p2x:960453:conc",
+      "ops:p2x:960453:mint",
+      "ops:p2x:960453:hold"
+    ],
+    "job_ref": "960456",
+    "note": "本脚本夹具一律提交（并发用例的第二个连接必须看得见根行）；账本 append-only ⇒ 不可复位"
+  }
+}

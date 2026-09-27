@@ -21,10 +21,19 @@ import { mkPool, raw, raw1, inRollbackTx, save, fnFingerprint, REPO_BACKEND, RUN
   const p = mkPool(2);
   try {
     out.fn_before = await fnFingerprint(p);
-    const run = await inRollbackTx(p, async (c) => { await c.query(sql); return { executed: true }; });
+    // 关键（Zang 补料 ②/③）：`fn_after` 必须在**同一事务内、执行之后**读。
+    //   PG 的 DDL 在本事务内立刻生效；若等 ROLLBACK 之后再读，读到的是回滚后的**旧**函数体
+    //   ⇒ before 与 after 逐字段相同（旧版探针的假绿缺陷：据此会误判「迁移没做事」）。
+    const run = await inRollbackTx(p, async (c) => {
+      await c.query(sql);
+      return { executed: true, fn_in_tx: await fnFingerprint(c) };
+    });
     const e = run.error as Record<string, unknown> | null;
+    // 事务内（执行后）的指纹 = 真正的「after」；从 result 里取出，别混进 dry_run.result
+    const inTx = ((run.result as { fn_in_tx?: Record<string, unknown> } | null)?.fn_in_tx) ?? null;
+    out.fn_after_in_tx = inTx;
     out.dry_run = {
-      result: run.result,
+      result: run.result ? { executed: true } : null,
       error: e ? String(e?.message ?? e).slice(0, 800) : null,
       error_sqlstate: e ? ((e?.code as string) ?? null) : null,
       // 定位用（迁移写坏了要能一眼看出是哪条语句的哪个字符）
@@ -34,8 +43,15 @@ import { mkPool, raw, raw1, inRollbackTx, save, fnFingerprint, REPO_BACKEND, RUN
       ms: run.ms, rolled_back: run.rolled_back,
       note: '整份文件在一个事务里执行后 ROLLBACK；DO 自检的探针数据在子事务里，随回滚消失',
     };
-    out.fn_after = await fnFingerprint(p);
-    out.zero_residue_fn_body = (out.fn_before as Record<string, unknown>).prosrc_md5 === (out.fn_after as Record<string, unknown>).prosrc_md5;
+    out.fn_after_post_rollback = await fnFingerprint(p);
+    out.zero_residue_fn_body = (out.fn_before as Record<string, unknown>).prosrc_md5 === (out.fn_after_post_rollback as Record<string, unknown>).prosrc_md5;
+    const gi = inTx as Record<string, unknown> | null;
+    out.fn_changed_in_tx = !!gi && gi.prosrc_md5 !== (out.fn_before as Record<string, unknown>).prosrc_md5;
+    out.fn_in_tx_asserts = gi ? {
+      pre_gate_present: gi.pre_gate_present,
+      order_ok_gate_after_lock_before_balance: gi.order_ok_gate_after_lock_before_balance,
+      on_conflict_still_after_gate: gi.on_conflict_still_after_gate,
+    } : null;
     // 干跑期间的残留核对：0012 DO 自检的探针 uid / symbol / 键必须 0 行
     const residue = await raw<{ probe_users: string; probe_currency: string; probe_ledger: string; probe_accounts: string }>(p, `SELECT
         (SELECT count(*)::text FROM users WHERE uid BETWEEN 960901 AND 960902) AS probe_users,
@@ -45,13 +61,19 @@ import { mkPool, raw, raw1, inRollbackTx, save, fnFingerprint, REPO_BACKEND, RUN
     out.probe_residue = residue[0] ?? null;
     const r = out.probe_residue as Record<string, string> | null;
     out.residue_zero = !!r && r.probe_users === '0' && r.probe_currency === '0' && r.probe_ledger === '0' && r.probe_accounts === '0';
-    out.ok = out.dry_run !== null && (out.dry_run as Record<string, unknown>).error === null && out.zero_residue_fn_body === true && out.residue_zero === true;
+    out.ok = out.dry_run !== null && (out.dry_run as Record<string, unknown>).error === null && out.zero_residue_fn_body === true && out.residue_zero === true
+      && out.fn_changed_in_tx === true
+      && (out.fn_in_tx_asserts as Record<string, unknown> | null)?.pre_gate_present === true
+      && (out.fn_in_tx_asserts as Record<string, unknown> | null)?.order_ok_gate_after_lock_before_balance === true
+      && (out.fn_in_tx_asserts as Record<string, unknown> | null)?.on_conflict_still_after_gate === true;
   } finally {
     await p.end();
   }
   const f = save('p2x-01-migration-dry-run', out);
   console.log(JSON.stringify({ saved: f, ok: out.ok, dry_run: out.dry_run,
     zero_residue_fn_body: out.zero_residue_fn_body, probe_residue: out.probe_residue,
-    fn_before: out.fn_before, fn_after: out.fn_after }, null, 1));
+    fn_before: out.fn_before, fn_after_in_tx: out.fn_after_in_tx,
+    fn_after_post_rollback: out.fn_after_post_rollback, fn_changed_in_tx: out.fn_changed_in_tx,
+    fn_in_tx_asserts: out.fn_in_tx_asserts }, null, 1));
   if (out.ok !== true) process.exit(1);
 })().catch((e) => { console.error('FATAL', e); process.exit(2); });

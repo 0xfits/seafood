@@ -1100,12 +1100,12 @@ BEGIN
      AND pg_get_function_identity_arguments(p.oid) = 'payload jsonb';
 
   IF v_src IS NULL THEN
-    v_bad := v_bad || '找不到 public.ledger_post_event(payload jsonb)';
+    v_bad := array_append(v_bad, '找不到 public.ledger_post_event(payload jsonb)');
   ELSE
     v_gate_b := position('0012-REPLAY-PRE-GATE-BEGIN' IN v_src);
     v_gate_e := position('0012-REPLAY-PRE-GATE-END'   IN v_src);
     IF v_gate_b = 0 OR v_gate_e = 0 OR v_gate_e <= v_gate_b THEN
-      v_bad := v_bad || '重放前置闸标记缺失或错位（BEGIN/END）';
+      v_bad := array_append(v_bad, '重放前置闸标记缺失或错位（BEGIN/END）');
       v_window := '';
     ELSE
       v_window := substr(v_src, v_gate_b, v_gate_e - v_gate_b);
@@ -1114,55 +1114,55 @@ BEGIN
     -- ① 必须在 C4 账户加锁**之后**（'account:for-update' 是 C4 独有标记）
     v_pos := position('account:for-update' IN v_src);
     IF v_pos = 0 OR v_gate_b < v_pos THEN
-      v_bad := v_bad || '重放前置闸**不在** C4 账户加锁（account:for-update）之后';
+      v_bad := array_append(v_bad, '重放前置闸**不在** C4 账户加锁（account:for-update）之后');
     END IF;
 
     -- ② 必须在 C5 余额/冻结闸**之前**（C5 段首标记 + R80 余额判据点）
     v_pos := position('C5 推演 + 前置判定' IN v_src);
     IF v_pos = 0 OR v_gate_e > v_pos THEN
-      v_bad := v_bad || '重放前置闸**不在** C5 段（余额/冻结闸）之前';
+      v_bad := array_append(v_bad, '重放前置闸**不在** C5 段（余额/冻结闸）之前');
     END IF;
     v_pos := position('R80：库内先判' IN v_src);
     IF v_pos = 0 OR v_gate_e > v_pos THEN
-      v_bad := v_bad || '重放前置闸**不在** R80 余额闸（INSUFFICIENT_BALANCE / INSUFFICIENT_FROZEN）之前';
+      v_bad := array_append(v_bad, '重放前置闸**不在** R80 余额闸（INSUFFICIENT_BALANCE / INSUFFICIENT_FROZEN）之前');
     END IF;
 
     -- ③ R51 的 ON CONFLICT 首条分录探针必须**仍在**、且在闸**之后**（不得被闸取代）
     v_pos := position('ON CONFLICT (idempotency_key) DO NOTHING' IN v_src);
     IF v_pos = 0 THEN
-      v_bad := v_bad || 'R51 的 ON CONFLICT (idempotency_key) DO NOTHING 首条分录探针**消失了**';
+      v_bad := array_append(v_bad, 'R51 的 ON CONFLICT (idempotency_key) DO NOTHING 首条分录探针**消失了**');
     ELSIF v_pos < v_gate_b THEN
-      v_bad := v_bad || 'ON CONFLICT 探针被挪到重放前置闸之前（顺序被改，R51 权威性受损）';
+      v_bad := array_append(v_bad, 'ON CONFLICT 探针被挪到重放前置闸之前（顺序被改，R51 权威性受损）');
     END IF;
     IF position('v_entries->0->>''idempotency_key''' IN v_src) = 0 THEN
-      v_bad := v_bad || 'ON CONFLICT 探针不再写入调用方原始键（v_entries->0->>idempotency_key）';
+      v_bad := array_append(v_bad, 'ON CONFLICT 探针不再写入调用方原始键（v_entries->0->>idempotency_key）');
     END IF;
 
     -- ④ 闸体必须**只读**（剥掉 SQL 行注释后再查写/加锁关键字）
     v_code := regexp_replace(v_window, '--[^' || chr(10) || ']*', ' ', 'g');
     IF v_code ~* '(insert[[:space:]]|update[[:space:]]|delete[[:space:]]|for update|for share|lock table|set constraints)' THEN
-      v_bad := v_bad || '重放前置闸体出现写/加锁关键字（必须只读）';
+      v_bad := array_append(v_bad, '重放前置闸体出现写/加锁关键字（必须只读）');
     END IF;
 
     -- ⑤ 闸体必须真的覆盖 R52 两支 + 按归属列查询
     IF position('LEDGER_IDEMPOTENCY_CONFLICT' IN v_window) = 0 THEN
-      v_bad := v_bad || '闸体缺 R52② 分支（同键异指纹 ⇒ LD003 409）';
+      v_bad := array_append(v_bad, '闸体缺 R52② 分支（同键异指纹 ⇒ LD003 409）');
     END IF;
-    IF position('''idempotent_replay'' IN v_window) = 0 THEN
-      v_bad := v_bad || '闸体缺 R52① 分支（idempotent_replay 返回）';
+    IF position('''idempotent_replay''' IN v_window) = 0 THEN
+      v_bad := array_append(v_bad, '闸体缺 R52① 分支（idempotent_replay 返回）');
     END IF;
     IF position('t.event_root_key = v_key' IN v_window) = 0 THEN
-      v_bad := v_bad || '闸体未按 event_root_key = v_key 归属查询';
+      v_bad := array_append(v_bad, '闸体未按 event_root_key = v_key 归属查询');
     END IF;
     IF position('idx_ledger_event_root_key' IN v_window) = 0 THEN
-      v_bad := v_bad || '闸体未标注既有索引用途（idx_ledger_event_root_key）';
+      v_bad := array_append(v_bad, '闸体未标注既有索引用途（idx_ledger_event_root_key）');
     END IF;
 
     -- ⑥ 索引必须还在（否则闸退化为顺序扫描）
     IF NOT EXISTS (SELECT 1 FROM pg_indexes
                     WHERE schemaname = 'public' AND tablename = 'ledger_entry'
                       AND indexname = 'idx_ledger_event_root_key') THEN
-      v_bad := v_bad || '索引 idx_ledger_event_root_key 不存在（闸退化为顺序扫描）';
+      v_bad := array_append(v_bad, '索引 idx_ledger_event_root_key 不存在（闸退化为顺序扫描）');
     END IF;
   END IF;
 
@@ -1203,7 +1203,7 @@ BEGIN
       v_r1 := ledger_post_event(v_evt);
       v_txid1 := v_r1->>'txid';
       IF COALESCE((v_r1->>'idempotent_replay')::boolean, true) THEN
-        v_bad := v_bad || '探针①：首写竟报 idempotent_replay=true（首写必须是新事件）';
+        v_bad := array_append(v_bad, '探针①：首写竟报 idempotent_replay=true（首写必须是新事件）');
       END IF;
 
       SELECT frozen INTO v_rows FROM account WHERE uid = v_owner AND cid = v_cid;
@@ -1229,7 +1229,7 @@ BEGIN
       -- ② 同键**异指纹**（托管仍花光）⇒ 必须 409 LD003（而不是 LD002）
       BEGIN
         PERFORM ledger_post_event(jsonb_set(v_evt, '{request_fingerprint}', '"zfix-fp-other"'::jsonb));
-        v_bad := v_bad || '探针②：同键异指纹**未被拒**（期望 LD003）';
+        v_bad := array_append(v_bad, '探针②：同键异指纹**未被拒**（期望 LD003）');
       EXCEPTION WHEN OTHERS THEN
         GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE;
         IF v_state <> 'LD003' THEN
@@ -1247,7 +1247,7 @@ BEGIN
                                'kind', 'job_payout', 'delta', '0', 'frozen_delta', '-1'),
             jsonb_build_object('uid', v_payee::text, 'cid', v_cid::text,
                                'kind', 'job_payout', 'delta', '1', 'frozen_delta', '0'))));
-        v_bad := v_bad || '探针③：全新键 + 冻结不足**未被拒**（期望 LD002）';
+        v_bad := array_append(v_bad, '探针③：全新键 + 冻结不足**未被拒**（期望 LD002）');
       EXCEPTION WHEN OTHERS THEN
         GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE;
         IF v_state <> 'LD002' THEN

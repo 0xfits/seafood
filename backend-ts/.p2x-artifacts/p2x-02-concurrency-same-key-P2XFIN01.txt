@@ -1,0 +1,108 @@
+{
+ "run": "P2XFIN01",
+ "phase": "after",
+ "fn_fingerprint": {
+  "schema_version": "0012",
+  "prosrc_len": 45598,
+  "prosrc_md5": "d94dd902697dfe60aba409d808c6d63a",
+  "pre_gate_present": true,
+  "pos_pre_gate": 27698,
+  "pos_c4_account_lock": 26917,
+  "pos_c5_balance_section": 30721,
+  "pos_r80_balance_gate": 32617,
+  "pos_on_conflict_probe": 34625,
+  "order_ok_gate_after_lock_before_balance": true,
+  "on_conflict_still_after_gate": true,
+  "idx_ledger_event_root_key_rows": 1,
+  "on_conflict_probe_present": true
+ },
+ "concurrency": {
+  "both_in_flight": true,
+  "winner_side": "B",
+  "first_returned_at_ms": 230,
+  "winner": {
+   "ok": true,
+   "idempotent_replay": false,
+   "entries_n": 2,
+   "ms": 230,
+   "sqlstate": null,
+   "reason": null,
+   "err_message": null,
+   "txid": "5278",
+   "result_keys": [
+    "accounts",
+    "entries",
+    "extra",
+    "idempotency_key",
+    "idempotent_replay",
+    "meta",
+    "ok",
+    "txid"
+   ],
+   "entries_sha256": "a0347311f9392c4d3e12c6e3f930d42bdcb231958ef045f9492ffdb315cac54e",
+   "accounts_sha256": "ca47064e7aec953fc452fcdf7f64b70ff6f3631e5a686752731b13f1f37eb876",
+   "extra": {
+    "symbol": "p2xq960453",
+    "entries": "2"
+   },
+   "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:960453:236\",\"account:960454:236\"]},\"txid\":\"5278\",\"extra\":{\"symbol\":\"p2xq960453\",\"entries\":\"2\"},\"entries\":[{\"cid\":\"236\",\"uid\":\"960453\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5278\",\"delta\":\"0\",\"ref_id\":\"960456\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"-90000\",\"time_created\":\"2026-09-27T13:14:19.924Z\",\"balance_after\":\"910000\",\"idempotency_key\":\"ops:p2x:960453:conc\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-conc\"},{\"cid\":\"236\",\"uid\":\"960454\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5279\",\"delta\":\"90000\",\"ref_id\":\"960456\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T13:14:19.924Z\",\"balance_after\":\"90000\",\"idempotency_key\":\"ops:p2x:960453:conc#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"236\",\"uid\":\"960453\",\"frozen\":\"0\",\"balance\":\"910000\"},{\"cid\":\"236\",\"uid\":\"960454\",\"frozen\":\"0\",\"balance\":\"90000\"}],\"idempotency_key\":\"ops:p2x:960453:conc\",\"idempotent_replay\":false}",
+   "side": "B",
+   "at_ms": 230
+  },
+  "loser": {
+   "ok": true,
+   "idempotent_replay": true,
+   "entries_n": 2,
+   "ms": 476,
+   "sqlstate": null,
+   "reason": null,
+   "err_message": null,
+   "txid": "5278",
+   "result_keys": [
+    "accounts",
+    "entries",
+    "extra",
+    "idempotency_key",
+    "idempotent_replay",
+    "meta",
+    "ok",
+    "txid"
+   ],
+   "entries_sha256": "a0347311f9392c4d3e12c6e3f930d42bdcb231958ef045f9492ffdb315cac54e",
+   "accounts_sha256": "ca47064e7aec953fc452fcdf7f64b70ff6f3631e5a686752731b13f1f37eb876",
+   "extra": {},
+   "raw_json": "{\"ok\":true,\"meta\":{\"op\":\"entries\",\"lock_trace\":[\"account:960453:236\",\"account:960454:236\"]},\"txid\":\"5278\",\"extra\":{},\"entries\":[{\"cid\":\"236\",\"uid\":\"960453\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5278\",\"delta\":\"0\",\"ref_id\":\"960456\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"-90000\",\"time_created\":\"2026-09-27T13:14:19.924Z\",\"balance_after\":\"910000\",\"idempotency_key\":\"ops:p2x:960453:conc\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-conc\"},{\"cid\":\"236\",\"uid\":\"960454\",\"kind\":\"job_payout\",\"memo\":\"\",\"txid\":\"5279\",\"delta\":\"90000\",\"ref_id\":\"960456\",\"ref_type\":\"job\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-09-27T13:14:19.924Z\",\"balance_after\":\"90000\",\"idempotency_key\":\"ops:p2x:960453:conc#2\",\"reversal_of_txid\":null,\"request_fingerprint\":null}],\"accounts\":[{\"cid\":\"236\",\"uid\":\"960453\",\"frozen\":\"0\",\"balance\":\"910000\"},{\"cid\":\"236\",\"uid\":\"960454\",\"frozen\":\"0\",\"balance\":\"90000\"}],\"idempotency_key\":\"ops:p2x:960453:conc\",\"idempotent_replay\":true}",
+   "side": "A",
+   "at_ms": 476
+  },
+  "winner_commit_error": null,
+  "loser_commit_error": null,
+  "landed_count": 1,
+  "replay_count": 1,
+  "error_count": 0,
+  "rows_for_key_mid": 2,
+  "rows_for_key": 2,
+  "account_after": {
+   "b": "910000",
+   "f": "0"
+  },
+  "expected_balance": "910000",
+  "note": "胜者 = 先返回者；它一返回就 COMMIT（不等败者）⇒ 败者等锁结束后必须看见根行"
+ },
+ "reds": [],
+ "checks": [
+  "GREEN [5] 两个连接**同时在飞**（不是同进程串行）：两次调用都先发出再等结果",
+  "GREEN [5] 胜者真落账（ok + idempotent_replay=false + 有 txid）",
+  "GREEN [5] 败者 200 重放（ok + idempotent_replay=true）",
+  "GREEN [5] 败者确实等过锁（败者耗时 > 胜者耗时 ⇒ 竞态真的发生）",
+  "GREEN [5] 重放 txid == 落账 txid",
+  "GREEN [5] 重放 entries/accounts 与首写**逐字相同**（sha256 对撞）",
+  "GREEN [5] 不双扣：键下分录恒 2 条",
+  "GREEN [5] 不双扣：余额/冻结恰扣一次（balance = 1000000−90000，frozen = 0）",
+  "GREEN [5] 胜者提交成功（无 DEFERRED 约束在 COMMIT 判负）",
+  "GREEN [5] 败者（纯重放、零写入）提交也成功",
+  "GREEN [5] 重放方零写入：胜者提交后键下已 2 行，败者重放后仍是 2 行（extra_rows_added = 0）",
+  "GREEN [0] cid = 1 账户哈希前后一致（绝未触碰 $ 账户）",
+  "GREEN [0] 平台账户 0/-1/-2/-3（排除本 run 新建 cid）哈希前后一致"
+ ]
+}

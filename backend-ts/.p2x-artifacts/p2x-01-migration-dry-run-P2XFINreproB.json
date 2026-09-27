@@ -1,0 +1,62 @@
+{
+  "run": "P2XFINreproB",
+  "phase": "unset",
+  "name": "p2x-01-migration-dry-run",
+  "at": "2026-09-27T13:05:23.302Z",
+  "script": "scripts/p2x-01-migration-dry-run.ts",
+  "file": "../../../.hermes/profiles/zang/cache/scratch/p2xfin/repro_broken.sql",
+  "sql_bytes": 126,
+  "fn_before": {
+    "schema_version": "0011",
+    "prosrc_len": 42449,
+    "prosrc_md5": "0cf1bb98ee3a30da55b1620c309d5541",
+    "pre_gate_present": false,
+    "pos_pre_gate": -1,
+    "pos_c4_account_lock": 26825,
+    "pos_c5_balance_section": 27572,
+    "pos_r80_balance_gate": 29468,
+    "pos_on_conflict_probe": 31476,
+    "order_ok_gate_after_lock_before_balance": false,
+    "on_conflict_still_after_gate": true,
+    "idx_ledger_event_root_key_rows": 1,
+    "on_conflict_probe_present": true
+  },
+  "fn_after_in_tx": null,
+  "dry_run": {
+    "result": null,
+    "error": "unterminated hexadecimal string literal at or near \"x') AS p;\n\"",
+    "error_sqlstate": "42601",
+    "error_position": "117",
+    "error_where": "",
+    "error_internal_query": "",
+    "ms": 2570,
+    "rolled_back": true,
+    "note": "整份文件在一个事务里执行后 ROLLBACK；DO 自检的探针数据在子事务里，随回滚消失"
+  },
+  "fn_after_post_rollback": {
+    "schema_version": "0011",
+    "prosrc_len": 42449,
+    "prosrc_md5": "0cf1bb98ee3a30da55b1620c309d5541",
+    "pre_gate_present": false,
+    "pos_pre_gate": -1,
+    "pos_c4_account_lock": 26825,
+    "pos_c5_balance_section": 27572,
+    "pos_r80_balance_gate": 29468,
+    "pos_on_conflict_probe": 31476,
+    "order_ok_gate_after_lock_before_balance": false,
+    "on_conflict_still_after_gate": true,
+    "idx_ledger_event_root_key_rows": 1,
+    "on_conflict_probe_present": true
+  },
+  "zero_residue_fn_body": true,
+  "fn_changed_in_tx": false,
+  "fn_in_tx_asserts": null,
+  "probe_residue": {
+    "probe_users": "0",
+    "probe_currency": "0",
+    "probe_ledger": "0",
+    "probe_accounts": "0"
+  },
+  "residue_zero": true,
+  "ok": false
+}
