@@ -67,6 +67,13 @@
 ### 2b. ★ 重放后发现 v2 仍有真缺陷（⇒ 授权内更正为 v3）
 
 - **缺陷（实测）**：`listing_post_event` 的 **refund 分支从不给 `v_cur` 赋值**，而 RETURN 的 `extra` 块**无条件**求值 `CASE WHEN v_cur IS NULL …` ⇒ **任何成功的退款**都在 RETURN 抛 `55000 record "v_cur" is not assigned yet`（行为用例 K6 退款链首次触达即崩）。
+
+> **⚠️ 更正注（2026-09-28 · Kong 在 `0016_market.sql` 单内就地加注；上文原文逐字保留不删）**
+> 上文「任何**成功**的退款都在 RETURN 抛 `55000`（K6 首次触达即崩）」**已被证伪**，本注为唯一有效口径：
+> - **证伪方 = `docs/qa/p3-0015-listing-review.md` §3**（Neng 独立质检）：用**字节级 v2 体**（`git show bf5129b:backend-ts/migrations/0015_listing.sql` 取出 v2 全文，切段 sha256 `a55d50d1…`；装入后库里 `prosrc` md5 变 `dc42a556b87be8d74ec027c663d91f05`，证实**确已换体**）在**同一事务**内造单 + 退款 ⇒ **v2 下成功退款 `ok=true`、全程无 `55000`**（仅 `extra.currency_status=null`；`order_status=refunded` / 2 条 `purchase_refund` / `frozen_delta=["0","0"]`）；再装回 v3 体 ⇒ 同场景成功且 `currency_status='listed'`；`ROLLBACK` 后**零残留**（订单行 0 / `biz:listing:buy:*` 分录 0 / 库存回 5/5 / 余额回 60/60）。
+> - **机制（实测驱动）**：**未赋值**的 `record` 变量做 `IS NULL` 判定 ⇒ **返回 `TRUE`、不抛错**；`55000 record "v_cur" is not assigned yet` **只在取字段**（`v_cur.status`）时抛，而 `CASE WHEN v_cur IS NULL THEN NULL ELSE v_cur.status END` 在该情形下**永不走取字段那一支** ⇒ 该分支安全。文本侧同证：v2 的 `INTO v_cur` 只出现在 **buy 分支**（`v_cur` 出现 4 次 vs v3 的 8 次）。
+> - **⇒ v3 相对 v2 的实际效果 = 回填 `extra.currency_status`**（`null` ⇒ `'listed'`，自洽性回填），**不是**修任何崩溃。
+> - **本条原断言的支撑度 = 无**：本单 3 份 cases artifacts（`.p3l-artifacts/p3l-20260928kong15-cases*.json`）里 **`55000` 零命中、`v_cur` 零命中** ⇒ 按本轮纪律②「标『实测』者必须附支撑读数」，该「实测」标注**不合格**（把代码推断写成实测 + 崩溃归因错；属报告级缺陷，非交付件缺陷）。
 - **更正（v3）**：在 refund 分支锁 `listing` 之后、与 buy 的步骤 ⑧ 对称补齐币种查询（`SELECT c.cid,c.status INTO v_cur … WHERE c.cid = v_order.cid`）+ 现场留痕注释。
   - 改前 sha256 `911c7be4…`（981 行，快照 `.p3l-artifacts/p3l-20260928kong15-0015-v2-snapshot.sql`）
   - 改后 sha256 `f856a1316e9d3bc79c3b54b89c63273102ce87733ef1c9a835c81f1b9a56624e`（991 行，快照 `…-0015-v3-snapshot.sql`）
@@ -130,6 +137,9 @@ entries_len=2  entries_frozen=["0","0"]  kinds=purchase,sale  currency_status=li
 | K6 | ✅ | 购买/退款 Σ(`delta+frozen_delta`)=0 且分录全 `frozen_delta=0`；kind 恰 `purchase,sale` / `purchase_refund`；平台账户(0,−1,−2,−3)零参与；ref 落 `listing_order/order_id`；退款 `paid→refunded`+`refund_txid`；**cid=1 收工 Σ(`balance+frozen`) == `currency.total_supply`**（基线实测 4878+3522=8400=total_supply） |
 
 夹具命名空间：uid 窗口 **9903xx**（`990301..990304`，窗口起始为空、`users.uid` 为 `BY DEFAULT` identity 故允许显式值）；`create_key` 前缀 **`cli:kong15-`**。首测（v3 前的 v2）为 **5/6**，其中 K2 失败系**我方断言漏写 `await`**（非迁移缺陷）、K4 一项的 `sqlstate` 为 `null`（**读数捕获瑕疵**，重跑即 `LD011`）——两处均已修正后重跑得 **6/6**。
+
+> **⚠️ 更正注（2026-09-28 · Kong 在 `0016_market.sql` 单内就地加注；上文原文逐字保留不删）**
+> 首测 **5/6** 的**失败项恰为两条，且与上文同段一致地「不含 K6、不含 `55000`」** —— ① **K2**：本单断言**漏写 `await`**（我方探针缺陷，非迁移缺陷）；② **K4**：该项 `sqlstate` 读数为 **`null`**（读数捕获瑕疵，重跑即 `LD011`）。**K6（结算链守恒）在首测即通过**。⇒ 前文 §2b 把「退款链崩溃」记在「K6 首次触达即崩」名下，与本节**自相矛盾**（同轮纪律③「报告内部不得自相矛盾」）；§2b 已就地加更正注。
 
 ---
 

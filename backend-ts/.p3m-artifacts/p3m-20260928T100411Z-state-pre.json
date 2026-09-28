@@ -1,0 +1,1211 @@
+{
+  "run": "20260928T100411Z",
+  "label": "state-pre",
+  "at": "2026-09-28T10:04:26.350Z",
+  "db_url_present": true,
+  "schema_version": "0015",
+  "registry_rows": 15,
+  "registry_tail": [
+    {
+      "version": "0013",
+      "name": "0013_job_core.sql",
+      "checksum": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+      "applied_at": "2026-09-28 05:08:33.801443+00"
+    },
+    {
+      "version": "0014",
+      "name": "0014_job_flow.sql",
+      "checksum": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d",
+      "applied_at": "2026-09-28 05:34:21.434834+00"
+    },
+    {
+      "version": "0015",
+      "name": "0015_listing.sql",
+      "checksum": "f856a1316e9d3bc79c3b54b89c63273102ce87733ef1c9a835c81f1b9a56624e",
+      "applied_at": "2026-09-28 09:32:14.373793+00"
+    }
+  ],
+  "public_base_tables": [
+    "account",
+    "commission_policy",
+    "currency",
+    "job",
+    "job_application",
+    "job_submission",
+    "ledger_entry",
+    "ledger_owner",
+    "listing",
+    "listing_order",
+    "referral",
+    "schema_migration",
+    "users"
+  ],
+  "public_base_table_count": 13,
+  "public_views": [],
+  "public_functions_count": 62,
+  "public_functions": [
+    {
+      "proname": "account_guard",
+      "args": "",
+      "bytes": 914,
+      "md5": "c64fcc47eeaf8cf64070dc52a4602531"
+    },
+    {
+      "proname": "commission_policy_append_only",
+      "args": "",
+      "bytes": 135,
+      "md5": "cba8b1e8a53b9c48b75032f3368921d5"
+    },
+    {
+      "proname": "commission_policy_weights_guard",
+      "args": "",
+      "bytes": 1394,
+      "md5": "7d9331e16ff3bade184334422bb3aab0"
+    },
+    {
+      "proname": "job_application_create_key_guard",
+      "args": "",
+      "bytes": 347,
+      "md5": "76ffe4770fa90ba38a24ef368918f14b"
+    },
+    {
+      "proname": "job_application_no_delete",
+      "args": "",
+      "bytes": 245,
+      "md5": "90522573862fe71040b6704a350aebfd"
+    },
+    {
+      "proname": "job_application_status_guard",
+      "args": "",
+      "bytes": 495,
+      "md5": "56df5d0d13255d2045afa4dbb7184c83"
+    },
+    {
+      "proname": "job_application_status_transition_ok",
+      "args": "p_from text, p_to text",
+      "bytes": 183,
+      "md5": "4b2fd4b01f6fe448230ddf3153f6325f"
+    },
+    {
+      "proname": "job_application_touch_time_updated",
+      "args": "",
+      "bytes": 54,
+      "md5": "02cd283c681f3259449b59141b5af903"
+    },
+    {
+      "proname": "job_core_immutable_guard",
+      "args": "",
+      "bytes": 1225,
+      "md5": "ccaeec6a38586496e12a85e48a731ace"
+    },
+    {
+      "proname": "job_ledger_ref_guard",
+      "args": "",
+      "bytes": 985,
+      "md5": "5c1d3b5dd6fabd066f32d15448520747"
+    },
+    {
+      "proname": "job_no_delete",
+      "args": "",
+      "bytes": 182,
+      "md5": "39fcf8bbc8352c5657e4150a9b875dd8"
+    },
+    {
+      "proname": "job_post_event",
+      "args": "payload jsonb",
+      "bytes": 13594,
+      "md5": "0cedbb9ea60dcbda28e3ef3dafdd119b"
+    },
+    {
+      "proname": "job_settle_plan",
+      "args": "p_job_id bigint, p_employer bigint, p_worker bigint, p_cid bigint, p_gross bigint",
+      "bytes": 6807,
+      "md5": "2618367b0f423a9a2071d3c2326f0d7d"
+    },
+    {
+      "proname": "job_status_guard",
+      "args": "",
+      "bytes": 416,
+      "md5": "70b3d7f47e523105796fab4e70c30e51"
+    },
+    {
+      "proname": "job_status_transition_ok",
+      "args": "p_from text, p_to text",
+      "bytes": 397,
+      "md5": "f7d191b0b6f868b418597178356358f4"
+    },
+    {
+      "proname": "job_submission_immutable_guard",
+      "args": "",
+      "bytes": 2183,
+      "md5": "3d8606f4175476a65b5479faff519466"
+    },
+    {
+      "proname": "job_submission_no_delete",
+      "args": "",
+      "bytes": 241,
+      "md5": "5ee70b3c78701747ceace5cff63e31d0"
+    },
+    {
+      "proname": "job_touch_time_updated",
+      "args": "",
+      "bytes": 54,
+      "md5": "02cd283c681f3259449b59141b5af903"
+    },
+    {
+      "proname": "ledger_accounts_from_entries",
+      "args": "p_entries jsonb",
+      "bytes": 1093,
+      "md5": "abdf17fb9770659fc590492b7afb8e94"
+    },
+    {
+      "proname": "ledger_arm_lock_timeout",
+      "args": "p_deadline timestamp with time zone, p_what text",
+      "bytes": 496,
+      "md5": "447cc7741cbed4b9acf772fba9b68c34"
+    },
+    {
+      "proname": "ledger_assert_commission_conservation",
+      "args": "",
+      "bytes": 2967,
+      "md5": "27ddc76b842594cb6ee8673c171e6526"
+    },
+    {
+      "proname": "ledger_assert_currency_op",
+      "args": "p_cur currency, p_op text",
+      "bytes": 1364,
+      "md5": "8ef734b27eb738f9fbbeaedc9af78b54"
+    },
+    {
+      "proname": "ledger_assert_platform_mutation",
+      "args": "p_uid bigint, p_kind text, p_dir text",
+      "bytes": 1176,
+      "md5": "da47d35328b01b5ce9162640b18e0ed8"
+    },
+    {
+      "proname": "ledger_budget_remaining_ms",
+      "args": "p_deadline timestamp with time zone",
+      "bytes": 162,
+      "md5": "7d9960297207c4d1ff603f19c6c52ebc"
+    },
+    {
+      "proname": "ledger_check_budget",
+      "args": "p_deadline timestamp with time zone, p_stage text",
+      "bytes": 347,
+      "md5": "8bf53995acd2ffe37081589221666b12"
+    },
+    {
+      "proname": "ledger_cid_arg",
+      "args": "p_raw text",
+      "bytes": 209,
+      "md5": "244789f42fcd035c6555faa7f3f9c1f7"
+    },
+    {
+      "proname": "ledger_entry_append_only",
+      "args": "",
+      "bytes": 121,
+      "md5": "2b9675f5256afe1373d66534a45e1119"
+    },
+    {
+      "proname": "ledger_entry_json",
+      "args": "r ledger_entry",
+      "bytes": 851,
+      "md5": "6453e2643564b0631b565ca837477fa8"
+    },
+    {
+      "proname": "ledger_error_for_sqlstate",
+      "args": "p_state text, p_constraint text",
+      "bytes": 12645,
+      "md5": "457051b742fd8b7e307bf96f600bc334"
+    },
+    {
+      "proname": "ledger_int_amount",
+      "args": "p_raw text, p_field text",
+      "bytes": 1001,
+      "md5": "840260502d07279f4cec6a7b1b771c1d"
+    },
+    {
+      "proname": "ledger_kind_ok",
+      "args": "p_kind text, p_frozen_settle boolean",
+      "bytes": 384,
+      "md5": "cfbf3dc71b595080aca97ccf37c1ea8d"
+    },
+    {
+      "proname": "ledger_lock_timeout_ms",
+      "args": "",
+      "bytes": 13,
+      "md5": "00658b8095a905674057f6a7f035fc1e"
+    },
+    {
+      "proname": "ledger_max_single_amount",
+      "args": "",
+      "bytes": 33,
+      "md5": "0f5a641a0888d1c24956e22397f7db6c"
+    },
+    {
+      "proname": "ledger_norm_entry",
+      "args": "p_uid bigint, p_cid bigint, p_delta bigint, p_frozen_delta bigint, p_kind text, p_ref_type text, p_ref_id bigint, p_memo text, p_reversal bigint, p_idem_key text, p_fingerprint text",
+      "bytes": 590,
+      "md5": "df20bc0284ff550539cf5ac40ad25c18"
+    },
+    {
+      "proname": "ledger_optional_bool",
+      "args": "p_obj jsonb, p_key text, p_field text",
+      "bytes": 601,
+      "md5": "8f24a1f89982d0812becf973d8433581"
+    },
+    {
+      "proname": "ledger_optional_text",
+      "args": "p_obj jsonb, p_key text, p_field text",
+      "bytes": 359,
+      "md5": "7dbb39fc9d0140071e751d728567b85a"
+    },
+    {
+      "proname": "ledger_parse_user_amount",
+      "args": "p_raw text, p_decimals integer, p_field text, p_cid text",
+      "bytes": 2673,
+      "md5": "3cace396177f6a751eada886b1bbb719"
+    },
+    {
+      "proname": "ledger_payload_amount",
+      "args": "p_payload jsonb, p_decimals integer, p_field text, p_cid text",
+      "bytes": 1695,
+      "md5": "8f2d792eceff7a53c638c86009645ba6"
+    },
+    {
+      "proname": "ledger_payload_cap",
+      "args": "p_payload jsonb, p_field text",
+      "bytes": 344,
+      "md5": "314bbe4635cf5a6daf76590aae18c05f"
+    },
+    {
+      "proname": "ledger_post_event",
+      "args": "payload jsonb",
+      "bytes": 51429,
+      "md5": "d94dd902697dfe60aba409d808c6d63a"
+    },
+    {
+      "proname": "ledger_raise",
+      "args": "p_code text, p_details jsonb",
+      "bytes": 535,
+      "md5": "5496ac332147b107ea457bf3a161bc0a"
+    },
+    {
+      "proname": "ledger_sqlstate_of",
+      "args": "p_code text",
+      "bytes": 1989,
+      "md5": "b074cbc166d16f28c62c65090525ddc7"
+    },
+    {
+      "proname": "ledger_stmt_budget_ms",
+      "args": "",
+      "bytes": 14,
+      "md5": "19d323ab53a977ad9601a7dd08bf5f67"
+    },
+    {
+      "proname": "ledger_strict_text",
+      "args": "p_obj jsonb, p_key text, p_field text",
+      "bytes": 458,
+      "md5": "d1b4a7c5d11afe975bebd7fdbc30d093"
+    },
+    {
+      "proname": "ledger_uid_arg",
+      "args": "p_raw text, p_field text",
+      "bytes": 55,
+      "md5": "158bc8983b99a072dd91b5bd7a244123"
+    },
+    {
+      "proname": "listing_create_key_guard",
+      "args": "",
+      "bytes": 323,
+      "md5": "0355a85a6f8e2f0e3869408341df70cd"
+    },
+    {
+      "proname": "listing_no_delete",
+      "args": "",
+      "bytes": 221,
+      "md5": "e2e1b4b079d66740691756a49e30c13f"
+    },
+    {
+      "proname": "listing_order_core_immutable_guard",
+      "args": "",
+      "bytes": 586,
+      "md5": "b3b16b5bf1a875c1acb0499970cc1539"
+    },
+    {
+      "proname": "listing_order_create_key_guard",
+      "args": "",
+      "bytes": 331,
+      "md5": "f88ac1442b3ad7d001300423f5cb2573"
+    },
+    {
+      "proname": "listing_order_ledger_ref_guard",
+      "args": "",
+      "bytes": 695,
+      "md5": "73bfe1f33193bb4142421aaa9c1a96f9"
+    },
+    {
+      "proname": "listing_order_no_delete",
+      "args": "",
+      "bytes": 229,
+      "md5": "773e07ff5b3f98c5ed4e6b42e0430d8c"
+    },
+    {
+      "proname": "listing_order_status_guard",
+      "args": "",
+      "bytes": 477,
+      "md5": "030d0f3d781769b162100c115e524414"
+    },
+    {
+      "proname": "listing_order_status_transition_ok",
+      "args": "p_from text, p_to text",
+      "bytes": 201,
+      "md5": "b8c40d6001a1a9f6596546bca6090d06"
+    },
+    {
+      "proname": "listing_order_touch_time_updated",
+      "args": "",
+      "bytes": 54,
+      "md5": "02cd283c681f3259449b59141b5af903"
+    },
+    {
+      "proname": "listing_post_event",
+      "args": "payload jsonb",
+      "bytes": 17858,
+      "md5": "0e187c20b56d45202d83978c8a02b31d"
+    },
+    {
+      "proname": "listing_status_guard",
+      "args": "",
+      "bytes": 463,
+      "md5": "bf7787c0bb9725e166986d1ac83b717b"
+    },
+    {
+      "proname": "listing_status_transition_ok",
+      "args": "p_from text, p_to text",
+      "bytes": 234,
+      "md5": "583aef2c89a55c6708c9678c1ca3e466"
+    },
+    {
+      "proname": "listing_stock_guard",
+      "args": "",
+      "bytes": 438,
+      "md5": "a0be15a91fd5dd5c1331b6319cbbc534"
+    },
+    {
+      "proname": "listing_touch_time_updated",
+      "args": "",
+      "bytes": 54,
+      "md5": "02cd283c681f3259449b59141b5af903"
+    },
+    {
+      "proname": "referral_append_only",
+      "args": "",
+      "bytes": 126,
+      "md5": "2dd3ed31d12238b447fc5293f42162b1"
+    },
+    {
+      "proname": "referral_bind",
+      "args": "p_child_uid bigint, p_parent_uid bigint",
+      "bytes": 1726,
+      "md5": "fe598897e38c0a369a80d8f501caab04"
+    },
+    {
+      "proname": "referral_cycle_guard",
+      "args": "",
+      "bytes": 6075,
+      "md5": "7bd5874f7145989a43567003048a9f04"
+    }
+  ],
+  "helper_checks": {
+    "public.ledger_post_event(jsonb)": true,
+    "public.ledger_raise(text,jsonb)": true,
+    "public.ledger_int_amount(text,text)": true,
+    "public.ledger_uid_arg(text,text)": true,
+    "public.ledger_max_single_amount()": true,
+    "public.ledger_kind_ok(text)": false,
+    "public.ledger_assert_currency_op(public.currency,text)": true,
+    "public.ledger_payload_amount(jsonb,integer,text,text)": true,
+    "public.ledger_foreign_namespace_roots()": false
+  },
+  "ledger_post_event": {
+    "bytes": 51429,
+    "md5": "d94dd902697dfe60aba409d808c6d63a",
+    "tokens": {
+      "entries": 27,
+      "hold": 7,
+      "hold_release": 6,
+      "settle": 4,
+      "mint": 7,
+      "transfer": 8,
+      "release": 0,
+      "freeze": 0,
+      "reversal": 1,
+      "job_escrow": 1,
+      "trade": 0
+    },
+    "v_op_NOT_IN": [
+      "'mint', 'transfer', 'hold', 'hold_release', 'settle', 'entries'"
+    ],
+    "currency_op_lines": [
+      "PERFORM ledger_assert_currency_op(v_cur, 'mint');   -- R28 + R26",
+      "PERFORM ledger_assert_currency_op(v_cur, 'transfer');   -- R28：四态全可",
+      "PERFORM ledger_assert_currency_op(v_cur, v_op);",
+      "PERFORM ledger_assert_currency_op(v_cur, 'settle');    -- §19.3：结算类仅 listed",
+      "v_cur_op := NULLIF(ledger_optional_text(payload, 'currency_op', 'currency_op'), '');",
+      "-- 币种存在性 + 可选状态矩阵（currency_op）+ R26（$ 恒 listed）",
+      "PERFORM ledger_assert_currency_op(v_cur, v_cur_op);"
+    ],
+    "prosrc_file": "/Users/kevin/bistro/seafood/backend-ts/.p3m-artifacts/p3m-20260928T100411Z-ledger_post_event.prosrc.sql"
+  },
+  "code_holders": [
+    {
+      "proname": "ledger_error_for_sqlstate",
+      "bytes": 12645
+    },
+    {
+      "proname": "ledger_post_event",
+      "bytes": 51429
+    },
+    {
+      "proname": "ledger_sqlstate_of",
+      "bytes": 1989
+    }
+  ],
+  "ledger_raise_codes_count": 1,
+  "ledger_raise_codes": [
+    "LEDGER_TRANSACTION_REQUIRED"
+  ],
+  "ledger_assert_currency_op_prosrc": "\nDECLARE v_ok boolean; v_details jsonb;\nBEGIN\n  IF p_cur.cid = 1 AND p_cur.status <> 'listed' THEN\n    PERFORM ledger_raise('LEDGER_CURRENCY_INVALID_TRANSITION',\n      jsonb_build_object('cid', p_cur.cid::text, 'from', 'listed', 'to', p_cur.status));\n  END IF;\n  v_ok := CASE p_op\n    WHEN 'mint'         THEN p_cur.status IN ('draft', 'listed')\n    WHEN 'transfer'     THEN p_cur.status IN ('draft', 'listed', 'frozen', 'delisted')\n    WHEN 'hold'         THEN p_cur.status IN ('listed')\n    WHEN 'price'        THEN p_cur.status IN ('listed')\n    WHEN 'hold_release' THEN p_cur.status IN ('draft', 'listed', 'frozen', 'delisted')\n    WHEN 'settle'       THEN p_cur.status IN ('listed')\n    ELSE NULL\n  END;\n  IF v_ok IS NULL THEN\n    PERFORM ledger_raise('LEDGER_AMOUNT_INVALID',\n      jsonb_build_object('field', 'currency_op', 'value', p_op, 'reason', 'UNKNOWN_CURRENCY_OP'));\n  END IF;\n  IF v_ok THEN RETURN; END IF;\n  v_details := jsonb_build_object('cid', p_cur.cid::text, 'symbol', p_cur.symbol,\n                                  'status', p_cur.status, 'op', p_op);\n  IF p_cur.status = 'frozen' THEN\n    PERFORM ledger_raise('LEDGER_CURRENCY_FROZEN', v_details);\n  ELSIF p_cur.status = 'delisted' THEN\n    PERFORM ledger_raise('LEDGER_CURRENCY_DELISTED', v_details);\n  ELSE\n    PERFORM ledger_raise('LEDGER_CURRENCY_NOT_LISTED', v_details);\n  END IF;\nEND ",
+  "users_columns": [
+    {
+      "column_name": "uid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "data_type": "bigint",
+      "identity_generation": "BY DEFAULT"
+    },
+    {
+      "column_name": "evm",
+      "is_nullable": "NO",
+      "column_default": null,
+      "data_type": "text",
+      "identity_generation": null
+    },
+    {
+      "column_name": "bio",
+      "is_nullable": "NO",
+      "column_default": "''::text",
+      "data_type": "text",
+      "identity_generation": null
+    },
+    {
+      "column_name": "is_admin",
+      "is_nullable": "NO",
+      "column_default": "false",
+      "data_type": "boolean",
+      "identity_generation": null
+    },
+    {
+      "column_name": "time_reg",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "data_type": "timestamp with time zone",
+      "identity_generation": null
+    },
+    {
+      "column_name": "time_login_last",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "data_type": "timestamp with time zone",
+      "identity_generation": null
+    }
+  ],
+  "uid_window_9905xx_pre": [],
+  "users_uid_seq": {
+    "last_value": "55",
+    "is_called": true
+  },
+  "listed_currencies": [
+    {
+      "cid": "1",
+      "symbol": "$",
+      "decimals": 0,
+      "status": "listed",
+      "owner_uid": "0",
+      "total_supply": "8400",
+      "holders": "13",
+      "max_bal": "3888"
+    },
+    {
+      "cid": "100",
+      "symbol": "p1eSi2cqn",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "920021",
+      "total_supply": "1000",
+      "holders": "2",
+      "max_bal": "690"
+    },
+    {
+      "cid": "101",
+      "symbol": "p1eTi2cqn",
+      "decimals": 0,
+      "status": "listed",
+      "owner_uid": "920022",
+      "total_supply": "100",
+      "holders": "2",
+      "max_bal": "80"
+    },
+    {
+      "cid": "103",
+      "symbol": "p1eKi2cqn",
+      "decimals": 0,
+      "status": "listed",
+      "owner_uid": "920021",
+      "total_supply": "0",
+      "holders": "0",
+      "max_bal": "0"
+    },
+    {
+      "cid": "104",
+      "symbol": "P1HMUJI3ABV",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "942001",
+      "total_supply": "3000000",
+      "holders": "4",
+      "max_bal": "1001050"
+    },
+    {
+      "cid": "105",
+      "symbol": "P1HMUJI41DM",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "942001",
+      "total_supply": "1000000",
+      "holders": "2",
+      "max_bal": "500001"
+    },
+    {
+      "cid": "106",
+      "symbol": "P1KI5XPD",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "944001",
+      "total_supply": "1000000",
+      "holders": "13",
+      "max_bal": "987000"
+    },
+    {
+      "cid": "108",
+      "symbol": "p1eSifvf8",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "920021",
+      "total_supply": "1000",
+      "holders": "2",
+      "max_bal": "690"
+    },
+    {
+      "cid": "109",
+      "symbol": "p1eTifvf8",
+      "decimals": 0,
+      "status": "listed",
+      "owner_uid": "920022",
+      "total_supply": "100",
+      "holders": "2",
+      "max_bal": "80"
+    },
+    {
+      "cid": "111",
+      "symbol": "p1eKifvf8",
+      "decimals": 0,
+      "status": "listed",
+      "owner_uid": "920021",
+      "total_supply": "0",
+      "holders": "0",
+      "max_bal": "0"
+    },
+    {
+      "cid": "112",
+      "symbol": "P1HMUJIGVZ3",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "942001",
+      "total_supply": "3000000",
+      "holders": "4",
+      "max_bal": "1001050"
+    },
+    {
+      "cid": "113",
+      "symbol": "P1HMUJIHGW8",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "942001",
+      "total_supply": "1000000",
+      "holders": "2",
+      "max_bal": "500001"
+    },
+    {
+      "cid": "114",
+      "symbol": "P1PMUJIUD5J",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "948001",
+      "total_supply": "0",
+      "holders": "0",
+      "max_bal": "0"
+    },
+    {
+      "cid": "115",
+      "symbol": "P1PMUJJ2PHX",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "948001",
+      "total_supply": "0",
+      "holders": "0",
+      "max_bal": "0"
+    },
+    {
+      "cid": "117",
+      "symbol": "p1eSj7tbc",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "920021",
+      "total_supply": "1000",
+      "holders": "2",
+      "max_bal": "690"
+    },
+    {
+      "cid": "118",
+      "symbol": "p1eTj7tbc",
+      "decimals": 0,
+      "status": "listed",
+      "owner_uid": "920022",
+      "total_supply": "100",
+      "holders": "2",
+      "max_bal": "80"
+    },
+    {
+      "cid": "120",
+      "symbol": "p1eKj7tbc",
+      "decimals": 0,
+      "status": "listed",
+      "owner_uid": "920021",
+      "total_supply": "0",
+      "holders": "0",
+      "max_bal": "0"
+    },
+    {
+      "cid": "121",
+      "symbol": "P1HMUJJ8XY2",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "942001",
+      "total_supply": "3000000",
+      "holders": "4",
+      "max_bal": "1001050"
+    },
+    {
+      "cid": "122",
+      "symbol": "P1HMUJJ9VTP",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "942001",
+      "total_supply": "1000000",
+      "holders": "2",
+      "max_bal": "500001"
+    },
+    {
+      "cid": "123",
+      "symbol": "P1PMUJJBPT2",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "948001",
+      "total_supply": "0",
+      "holders": "0",
+      "max_bal": "0"
+    },
+    {
+      "cid": "124",
+      "symbol": "p1qP2B",
+      "decimals": 0,
+      "status": "listed",
+      "owner_uid": "949010",
+      "total_supply": "2000",
+      "holders": "5",
+      "max_bal": "1730"
+    },
+    {
+      "cid": "126",
+      "symbol": "p1eSn750p",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "920021",
+      "total_supply": "1000",
+      "holders": "2",
+      "max_bal": "690"
+    },
+    {
+      "cid": "127",
+      "symbol": "p1eTn750p",
+      "decimals": 0,
+      "status": "listed",
+      "owner_uid": "920022",
+      "total_supply": "100",
+      "holders": "2",
+      "max_bal": "80"
+    },
+    {
+      "cid": "129",
+      "symbol": "p1eKn750p",
+      "decimals": 0,
+      "status": "listed",
+      "owner_uid": "920021",
+      "total_supply": "0",
+      "holders": "0",
+      "max_bal": "0"
+    },
+    {
+      "cid": "130",
+      "symbol": "P1HMUJN7UK1",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "942001",
+      "total_supply": "3000000",
+      "holders": "4",
+      "max_bal": "1001050"
+    },
+    {
+      "cid": "131",
+      "symbol": "P1HMUJN8ILT",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "942001",
+      "total_supply": "1000000",
+      "holders": "2",
+      "max_bal": "500001"
+    },
+    {
+      "cid": "132",
+      "symbol": "P1PMUJN9W9C",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "948001",
+      "total_supply": "0",
+      "holders": "0",
+      "max_bal": "0"
+    },
+    {
+      "cid": "134",
+      "symbol": "p1eSnqvdd",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "920021",
+      "total_supply": "1000",
+      "holders": "2",
+      "max_bal": "690"
+    },
+    {
+      "cid": "135",
+      "symbol": "p1eTnqvdd",
+      "decimals": 0,
+      "status": "listed",
+      "owner_uid": "920022",
+      "total_supply": "100",
+      "holders": "2",
+      "max_bal": "80"
+    },
+    {
+      "cid": "137",
+      "symbol": "p1eKnqvdd",
+      "decimals": 0,
+      "status": "listed",
+      "owner_uid": "920021",
+      "total_supply": "0",
+      "holders": "0",
+      "max_bal": "0"
+    },
+    {
+      "cid": "138",
+      "symbol": "P1HMUJNRLL3",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "942001",
+      "total_supply": "3000000",
+      "holders": "4",
+      "max_bal": "1001050"
+    },
+    {
+      "cid": "139",
+      "symbol": "P1HMUJNSASD",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "942001",
+      "total_supply": "1000000",
+      "holders": "2",
+      "max_bal": "500001"
+    },
+    {
+      "cid": "140",
+      "symbol": "P1PMUJNTM9U",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "948001",
+      "total_supply": "0",
+      "holders": "0",
+      "max_bal": "0"
+    },
+    {
+      "cid": "141",
+      "symbol": "P1PMUJNXSI6",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "948001",
+      "total_supply": "0",
+      "holders": "0",
+      "max_bal": "0"
+    },
+    {
+      "cid": "142",
+      "symbol": "p1sP2D",
+      "decimals": 0,
+      "status": "listed",
+      "owner_uid": "951001",
+      "total_supply": "14000000",
+      "holders": "21",
+      "max_bal": "6438390"
+    },
+    {
+      "cid": "145",
+      "symbol": "p1eSogsdm",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "920021",
+      "total_supply": "1000",
+      "holders": "2",
+      "max_bal": "690"
+    },
+    {
+      "cid": "146",
+      "symbol": "p1eTogsdm",
+      "decimals": 0,
+      "status": "listed",
+      "owner_uid": "920022",
+      "total_supply": "100",
+      "holders": "2",
+      "max_bal": "80"
+    },
+    {
+      "cid": "148",
+      "symbol": "p1eKogsdm",
+      "decimals": 0,
+      "status": "listed",
+      "owner_uid": "920021",
+      "total_supply": "0",
+      "holders": "0",
+      "max_bal": "0"
+    },
+    {
+      "cid": "149",
+      "symbol": "P1HMUJOHWSX",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "942001",
+      "total_supply": "3000000",
+      "holders": "4",
+      "max_bal": "1001050"
+    },
+    {
+      "cid": "150",
+      "symbol": "P1HMUJOIETS",
+      "decimals": 2,
+      "status": "listed",
+      "owner_uid": "942001",
+      "total_supply": "1000000",
+      "holders": "2",
+      "max_bal": "500001"
+    }
+  ],
+  "cid1_invariant": {
+    "sum_bal_frozen": "8400",
+    "sum_bal": "4878",
+    "sum_frozen": "3522",
+    "total_supply": "8400"
+  },
+  "platform_accounts": [
+    {
+      "uid": "-1",
+      "cid": "1",
+      "balance": "5",
+      "frozen": "0"
+    },
+    {
+      "uid": "-1",
+      "cid": "124",
+      "balance": "40",
+      "frozen": "0"
+    },
+    {
+      "uid": "-1",
+      "cid": "142",
+      "balance": "6",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "124",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "142",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "161",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "162",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "163",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "168",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "169",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "172",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "177",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "183",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "186",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "193",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "195",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "196",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-3",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "114",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "115",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "123",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "132",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "140",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "141",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "152",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "160",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "178",
+      "balance": "0",
+      "frozen": "0"
+    }
+  ],
+  "ledger_entry_total": {
+    "n": "2471"
+  },
+  "kinds_check_20": [
+    {
+      "kind": "purchase",
+      "ok": true
+    },
+    {
+      "kind": "sale",
+      "ok": true
+    },
+    {
+      "kind": "purchase_refund",
+      "ok": true
+    },
+    {
+      "kind": "hold",
+      "ok": true
+    },
+    {
+      "kind": "hold_release",
+      "ok": true
+    },
+    {
+      "kind": "hold_forfeit",
+      "ok": true
+    },
+    {
+      "kind": "trade",
+      "ok": true
+    },
+    {
+      "kind": "trade_fee",
+      "ok": true
+    },
+    {
+      "kind": "job_escrow",
+      "ok": true
+    },
+    {
+      "kind": "job_payout",
+      "ok": true
+    },
+    {
+      "kind": "job_fee",
+      "ok": true
+    },
+    {
+      "kind": "transfer",
+      "ok": true
+    },
+    {
+      "kind": "mint",
+      "ok": true
+    },
+    {
+      "kind": "burn",
+      "ok": true
+    },
+    {
+      "kind": "reversal",
+      "ok": true
+    },
+    {
+      "kind": "commission",
+      "ok": true
+    },
+    {
+      "kind": "listing_fee",
+      "ok": true
+    },
+    {
+      "kind": "listing_deposit",
+      "ok": true
+    },
+    {
+      "kind": "currency_create_fee",
+      "ok": true
+    },
+    {
+      "kind": "job_escrow_refund",
+      "ok": true
+    }
+  ],
+  "trigger_enabled_global": {
+    "enabled": "29",
+    "not_enabled": "0"
+  },
+  "namespace_pre": {
+    "market_order_absent": true,
+    "market_trade_absent": true,
+    "candle_view_absent": true,
+    "registry_0016_rows": "0",
+    "biz_market_entries": "0",
+    "kong16_entries": "0",
+    "p3m_entries": "0"
+  }
+}

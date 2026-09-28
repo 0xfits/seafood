@@ -1,0 +1,1046 @@
+{
+  "run": "20260928T103826Z",
+  "label": "cases",
+  "at": "2026-09-28T10:39:35.244Z",
+  "cases": [
+    {
+      "id": "K1a",
+      "name": "买单挂单：status=open / 冻结 quote=(amount)×price / hold ×2 / 账本落 ref=market_order",
+      "pass": true,
+      "readout": {
+        "order_id": "17",
+        "status": "open",
+        "frozen_hold": "50",
+        "entries": 2,
+        "kinds": [
+          "hold"
+        ],
+        "sigma": "0",
+        "txid": "5859",
+        "buyer_1_before": {
+          "balance": "448",
+          "frozen": "20",
+          "version": "10"
+        },
+        "buyer_1_after": {
+          "balance": "398",
+          "frozen": "70",
+          "version": "11"
+        },
+        "ret_ledger_event_keys": [
+          "cli:kong16-20260928T103826Z-buy1"
+        ]
+      }
+    },
+    {
+      "id": "K1b",
+      "name": "卖单挂单：冻结 base=(amount) / hold ×2 / 同 uid 同 cid 两条（R34/R39）",
+      "pass": true,
+      "readout": {
+        "order_id": "18",
+        "status": "open",
+        "frozen_hold": "5",
+        "kinds": [
+          "hold"
+        ],
+        "sigma": "0",
+        "seller_base_before": {
+          "balance": "137",
+          "frozen": "0",
+          "version": "11"
+        },
+        "seller_base_after": {
+          "balance": "132",
+          "frozen": "5",
+          "version": "12"
+        }
+      }
+    },
+    {
+      "id": "K1",
+      "name": "★头号：首笔成交（trade ×4 + trade_fee ×2，6 条；taker 付 $1 手续费；守恒 Σ=0；两边进度与余额逐个对齐）",
+      "pass": false,
+      "readout": {
+        "trade_id": "5",
+        "txid": "5863",
+        "entries": 6,
+        "kinds": [
+          "trade",
+          "trade_fee"
+        ],
+        "sigma": "0",
+        "buy_status": "partial",
+        "sell_status": "partial",
+        "trade_row": {
+          "trade_id": "5",
+          "base_cid": "170",
+          "quote_cid": "1",
+          "price": "10",
+          "amount": "3",
+          "buy_order_id": "17",
+          "sell_order_id": "18",
+          "taker_uid": "990501",
+          "fee": "1",
+          "time_created": "2026-09-28 10:38:36.075184+00"
+        },
+        "buyer_quote_after": {
+          "balance": "397",
+          "frozen": "40",
+          "version": "12"
+        },
+        "buyer_base_after": {
+          "balance": "16",
+          "frozen": "0",
+          "version": "5"
+        },
+        "seller_quote_after": {
+          "balance": "160",
+          "frozen": "0",
+          "version": "5"
+        },
+        "seller_base_after": {
+          "balance": "132",
+          "frozen": "2",
+          "version": "13"
+        },
+        "platform_m1": {
+          "balance": "8",
+          "frozen": "0",
+          "version": "8"
+        },
+        "ledger_event_keys": [
+          "cli:kong16-20260928T103826Z-buy1",
+          "biz:market:trade:17:1"
+        ]
+      }
+    },
+    {
+      "id": "K2",
+      "name": "DL149：同键同指纹重放（trade + order）⇒ idempotent_replay=true / txid 相同 / 账本 +0 / 成交行 +0 / amount_filled 不变 / ledger_event_keys 逐字不变",
+      "pass": false,
+      "readout": {
+        "replay_trade": {
+          "idempotent_replay": true,
+          "txid": "5863",
+          "amount": "3",
+          "buy_amount_filled": "3"
+        },
+        "replay_order": {
+          "idempotent_replay": true,
+          "txid": "5861",
+          "keys": [
+            "cli:kong16-20260928T103826Z-sell1",
+            "biz:market:trade:17:1"
+          ],
+          "keys_first": [
+            "cli:kong16-20260928T103826Z-sell1"
+          ]
+        },
+        "ledger_total": "2557 -> 2557",
+        "trade_rows": "5 -> 5",
+        "amount_filled_unchanged": "3 -> 3",
+        "keys_unchanged": true
+      }
+    },
+    {
+      "id": "K5",
+      "name": "边界：不存在 FK(23503)/未 listed 币种/金额 0 与负/quote_cid≠1/base=quote/坏键前缀与 #/平台 uid/不存在订单/成交价≠买单限价/超额/自成交/余额不足 —— 逐条原始读数",
+      "pass": false,
+      "readout": {
+        "op_unknown": {
+          "rejected": true,
+          "sqlstate": "LD016",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "reason": "UNKNOWN_MARKET_OP",
+          "field": "op"
+        },
+        "side_unknown": {
+          "rejected": true,
+          "sqlstate": "LD016",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "reason": "UNKNOWN_MARKET_SIDE",
+          "field": "side"
+        },
+        "price_zero": {
+          "rejected": true,
+          "sqlstate": "LD017",
+          "message": "LEDGER_AMOUNT_NOT_POSITIVE",
+          "reason": null,
+          "field": "price"
+        },
+        "amount_zero": {
+          "rejected": true,
+          "sqlstate": "LD017",
+          "message": "LEDGER_AMOUNT_NOT_POSITIVE",
+          "reason": null,
+          "field": "amount"
+        },
+        "amount_negative": {
+          "rejected": true,
+          "sqlstate": "LD017",
+          "message": "LEDGER_AMOUNT_NOT_POSITIVE",
+          "reason": null,
+          "field": "amount"
+        },
+        "quote_cid_not_one": {
+          "rejected": true,
+          "sqlstate": "LD016",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "reason": "QUOTE_CID_MUST_BE_ONE",
+          "field": "quote_cid"
+        },
+        "base_eq_quote": {
+          "rejected": true,
+          "sqlstate": "LD016",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "reason": "BASE_QUOTE_CID_EQUAL",
+          "field": "base_cid"
+        },
+        "key_no_prefix": {
+          "rejected": true,
+          "sqlstate": "LD005",
+          "message": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+          "reason": "PREFIX_REQUIRED",
+          "field": "create_key"
+        },
+        "key_reserved_sep": {
+          "rejected": true,
+          "sqlstate": "LD005",
+          "message": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+          "reason": "RESERVED_SEPARATOR",
+          "field": "create_key"
+        },
+        "owner_platform": {
+          "rejected": true,
+          "sqlstate": "LD021",
+          "message": "LEDGER_RESERVED_UID",
+          "reason": "PLATFORM_OWNER_FORBIDDEN",
+          "field": "owner_uid"
+        },
+        "base_cid_not_found": {
+          "rejected": true,
+          "sqlstate": "LD007",
+          "message": "LEDGER_CURRENCY_NOT_FOUND",
+          "reason": null,
+          "field": null
+        },
+        "base_not_listed": {
+          "rejected": true,
+          "sqlstate": "LD008",
+          "message": "LEDGER_CURRENCY_NOT_LISTED",
+          "reason": null,
+          "field": null
+        },
+        "cancel_missing_order": {
+          "rejected": true,
+          "sqlstate": "LD022",
+          "message": "LEDGER_REF_NOT_FOUND",
+          "reason": "order_not_found",
+          "field": "order_id"
+        },
+        "trade_price_ne_buy_limit": {
+          "rejected": true,
+          "sqlstate": "LD016",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "reason": "MARKET_PRICE_MUST_EQUAL_BUY_LIMIT",
+          "field": "price"
+        },
+        "trade_amount_over_remaining": {
+          "rejected": true,
+          "sqlstate": "LD001",
+          "message": "LEDGER_INSUFFICIENT_BALANCE",
+          "reason": "market_order_amount_insufficient",
+          "field": "market_order.amount"
+        },
+        "trade_same_order_id": {
+          "rejected": true,
+          "sqlstate": "LD019",
+          "message": "LEDGER_SELF_TRANSFER",
+          "reason": "self_trade_not_allowed",
+          "field": "buy_order_id"
+        },
+        "trade_taker_not_a_party": {
+          "rejected": true,
+          "sqlstate": "LD022",
+          "message": "LEDGER_REF_NOT_FOUND",
+          "reason": "order_not_found",
+          "field": "buy_order_id"
+        },
+        "insufficient_balance_hold": {
+          "rejected": true,
+          "sqlstate": "LD001",
+          "message": "LEDGER_INSUFFICIENT_BALANCE",
+          "reason": null,
+          "field": null
+        },
+        "raw_insert_bad_fk": {
+          "rejected": true,
+          "sqlstate": "23503",
+          "constraint": "market_order_base_fk",
+          "message": "insert or update on table \"market_order\" violates foreign key constraint \"market_order_base_fk\""
+        },
+        "b12_raw": {
+          "rejected": true,
+          "sqlstate": "LD008",
+          "message": "LEDGER_CURRENCY_NOT_LISTED",
+          "reason": null,
+          "field": null
+        },
+        "unlisted_currency": {
+          "cid": "102",
+          "status": "draft"
+        }
+      }
+    },
+    {
+      "id": "K4",
+      "name": "守卫矩阵：owner_uid/side/base_cid/quote_cid/price/amount/create_key 逐个改 + amount_filled 回退与超额 + order DELETE + trade UPDATE/DELETE = 12/12 拒；对照项 open→partial 正常通过",
+      "pass": true,
+      "readout": {
+        "order.owner_uid": {
+          "rejected": true,
+          "sqlstate": "LD011",
+          "reason": "market_order_core_immutable",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "order.side": {
+          "rejected": true,
+          "sqlstate": "LD011",
+          "reason": "market_order_core_immutable",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "order.base_cid": {
+          "rejected": true,
+          "sqlstate": "LD011",
+          "reason": "market_order_core_immutable",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "order.quote_cid": {
+          "rejected": true,
+          "sqlstate": "LD011",
+          "reason": "market_order_core_immutable",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "order.price": {
+          "rejected": true,
+          "sqlstate": "LD011",
+          "reason": "market_order_core_immutable",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "order.amount": {
+          "rejected": true,
+          "sqlstate": "LD011",
+          "reason": "market_order_core_immutable",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "order.create_key": {
+          "rejected": true,
+          "sqlstate": "LD011",
+          "reason": "market_order_create_key_immutable",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "order.amount_filled_back": {
+          "rejected": true,
+          "sqlstate": "LD011",
+          "reason": "market_order_amount_filled_monotonic",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "order.amount_filled_over": {
+          "rejected": true,
+          "sqlstate": "23514",
+          "reason": null,
+          "message": "new row for relation \"market_order\" violates check constraint \"market_order_filled_le_amount\""
+        },
+        "order.delete": {
+          "rejected": true,
+          "sqlstate": "LD011",
+          "reason": "market_order_delete_forbidden",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "trade.update": {
+          "rejected": true,
+          "sqlstate": "LD029",
+          "reason": "market_trade_is_append_only",
+          "message": "LEDGER_APPEND_ONLY_VIOLATION"
+        },
+        "trade.delete": {
+          "rejected": true,
+          "sqlstate": "LD029",
+          "reason": "market_trade_is_append_only",
+          "message": "LEDGER_APPEND_ONLY_VIOLATION"
+        },
+        "_positive_control_open_to_partial": {
+          "rejected": false,
+          "rows": 1
+        }
+      }
+    },
+    {
+      "id": "K3",
+      "name": "状态机白名单正 5/5 + 负 9/9（纯函数）；终态 filled 后再迁移（cancel）被拒且零账本写入；零额手续费成交 = trade ×4（无 trade_fee）",
+      "pass": true,
+      "readout": {
+        "positives": [
+          "open->cancelled",
+          "open->filled",
+          "open->partial",
+          "partial->cancelled",
+          "partial->filled"
+        ],
+        "negatives": [
+          "cancelled->filled",
+          "cancelled->open",
+          "cancelled->partial",
+          "filled->cancelled",
+          "filled->open",
+          "filled->partial",
+          "open->open",
+          "partial->open",
+          "partial->partial"
+        ],
+        "t2": {
+          "trade_id": "6",
+          "entries": 4,
+          "kinds": [
+            "trade"
+          ],
+          "sigma": "0"
+        },
+        "filled_order": {
+          "order_id": "22",
+          "owner_uid": "990501",
+          "side": "buy",
+          "base_cid": "170",
+          "quote_cid": "1",
+          "price": "10",
+          "amount": "5",
+          "amount_filled": "5",
+          "status": "filled",
+          "create_key": "cli:kong16-20260928T103826Z-buy3",
+          "ledger_event_keys": [
+            "cli:kong16-20260928T103826Z-buy3",
+            "biz:market:trade:22:1"
+          ],
+          "time_created": "2026-09-28 10:39:27.538731+00",
+          "time_updated": "2026-09-28 10:39:27.923189+00"
+        },
+        "cancel_rejected": {
+          "sqlstate": "LD011",
+          "reason": "MARKET_ORDER_STATE_INVALID"
+        },
+        "ledger_rows": "2567 -> 2567"
+      }
+    },
+    {
+      "id": "K5b",
+      "name": "自成交（买/卖两单同 owner）被账本与函数双闸拒绝（LEDGER_SELF_TRANSFER / self_trade_not_allowed）",
+      "pass": true,
+      "readout": {
+        "sqlstate": "LD019",
+        "message": "LEDGER_SELF_TRANSFER",
+        "reason": "self_trade_not_allowed",
+        "field": "owner_uid",
+        "detail": "{\"uid\": \"990503\", \"field\": \"owner_uid\", \"reason\": \"self_trade_not_allowed\", \"buy_order_id\": \"24\", \"sell_order_id\": \"25\"}"
+      }
+    },
+    {
+      "id": "K1c",
+      "name": "撤单：hold_release ×2 / status=cancelled / 剩余冻结全部回余额 / 守恒 Σ=0",
+      "pass": false,
+      "readout": {
+        "order_id": "18",
+        "status": "cancelled",
+        "frozen_hold": "2",
+        "entries": 2,
+        "kinds": [
+          "hold_release"
+        ],
+        "sigma": "0",
+        "seller_base_after_cancel": {
+          "balance": "129",
+          "frozen": "0",
+          "version": "16"
+        }
+      }
+    },
+    {
+      "id": "K6",
+      "name": "结算链守恒：每个事件 Σ(delta+frozen_delta)=0 且 kind 恰在白名单内；平台账户仅 −1 收 trade_fee（0/−2/−3 零参与）；cid=1 收工 Σ(balance+frozen)==total_supply；DL68 挂单判据 5 对账（账面在冻额 == business 表公式）",
+      "pass": true,
+      "readout": {
+        "per_event": [
+          {
+            "key": "cli:kong16-20260928T103826Z-buy1",
+            "op": "order",
+            "entries": 2,
+            "kinds": [
+              "hold"
+            ],
+            "sigma_delta_plus_frozen": "0"
+          },
+          {
+            "key": "cli:kong16-20260928T103826Z-sell1",
+            "op": "order",
+            "entries": 2,
+            "kinds": [
+              "hold"
+            ],
+            "sigma_delta_plus_frozen": "0"
+          },
+          {
+            "key": "biz:market:trade:17:1",
+            "op": "trade",
+            "entries": 6,
+            "kinds": [
+              "trade",
+              "trade_fee"
+            ],
+            "sigma_delta_plus_frozen": "0"
+          },
+          {
+            "key": "cli:kong16-20260928T103826Z-spare-buy",
+            "op": "order",
+            "entries": 2,
+            "kinds": [
+              "hold"
+            ],
+            "sigma_delta_plus_frozen": "0"
+          },
+          {
+            "key": "cli:kong16-20260928T103826Z-buy3",
+            "op": "order",
+            "entries": 2,
+            "kinds": [
+              "hold"
+            ],
+            "sigma_delta_plus_frozen": "0"
+          },
+          {
+            "key": "cli:kong16-20260928T103826Z-sell3",
+            "op": "order",
+            "entries": 2,
+            "kinds": [
+              "hold"
+            ],
+            "sigma_delta_plus_frozen": "0"
+          },
+          {
+            "key": "biz:market:trade:22:1",
+            "op": "trade(fee=0)",
+            "entries": 4,
+            "kinds": [
+              "trade"
+            ],
+            "sigma_delta_plus_frozen": "0"
+          },
+          {
+            "key": "cli:kong16-20260928T103826Z-s2-buy",
+            "op": "order",
+            "entries": 2,
+            "kinds": [
+              "hold"
+            ],
+            "sigma_delta_plus_frozen": "0"
+          },
+          {
+            "key": "cli:kong16-20260928T103826Z-s2-sell",
+            "op": "order",
+            "entries": 2,
+            "kinds": [
+              "hold"
+            ],
+            "sigma_delta_plus_frozen": "0"
+          },
+          {
+            "key": "biz:market:cancel:18",
+            "op": "cancel",
+            "entries": 2,
+            "kinds": [
+              "hold_release"
+            ],
+            "sigma_delta_plus_frozen": "0"
+          }
+        ],
+        "platform": {
+          "fee_credits_to_m1": "3",
+          "other_platform_rows": "0"
+        },
+        "recon_market_order_book_vs_account": {
+          "book_buy_quote": "100",
+          "book_sell_base": "3",
+          "acct_quote_frozen": "100",
+          "acct_base_frozen": "3",
+          "fixture_orders": "19"
+        },
+        "cid1_end": {
+          "sum_bal_frozen": "8400",
+          "total_supply": "8400"
+        },
+        "cid1_before": {
+          "sum_bal_frozen": "8400",
+          "total_supply": "8400"
+        },
+        "base": {
+          "cid": "170",
+          "symbol": "p1u4P04B",
+          "decimals": 0,
+          "donor": "954001"
+        },
+        "funding": {
+          "buyer": {
+            "need": "200",
+            "cid": "1",
+            "donors_used": [
+              {
+                "from_uid": "990302",
+                "cid": "1",
+                "amount": "200",
+                "txid": "5849",
+                "idempotent_replay": false
+              }
+            ]
+          },
+          "seller2": {
+            "need": "50",
+            "cid": "1",
+            "donors_used": [
+              {
+                "from_uid": "990302",
+                "cid": "1",
+                "amount": "50",
+                "txid": "5851",
+                "idempotent_replay": false
+              }
+            ]
+          },
+          "spare": {
+            "need": "20",
+            "cid": "1",
+            "donors_used": [
+              {
+                "from_uid": "990302",
+                "cid": "1",
+                "amount": "20",
+                "txid": "5853",
+                "idempotent_replay": false
+              }
+            ]
+          },
+          "base_xfer_seller": {
+            "ok": true,
+            "meta": {
+              "op": "transfer",
+              "lock_trace": [
+                "account:954001:170",
+                "account:990502:170"
+              ]
+            },
+            "txid": "5855",
+            "extra": {
+              "amount": "50",
+              "symbol": "p1u4P04B"
+            },
+            "entries": [
+              {
+                "cid": "170",
+                "uid": "954001",
+                "kind": "transfer",
+                "memo": "",
+                "txid": "5855",
+                "delta": "-50",
+                "ref_id": null,
+                "ref_type": null,
+                "frozen_after": "200000",
+                "frozen_delta": "0",
+                "time_created": "2026-09-28T10:38:32.747Z",
+                "balance_after": "49799750",
+                "idempotency_key": "ops:p3m:20260928T103826Z:base:990502:a",
+                "reversal_of_txid": null,
+                "request_fingerprint": null
+              },
+              {
+                "cid": "170",
+                "uid": "990502",
+                "kind": "transfer",
+                "memo": "",
+                "txid": "5856",
+                "delta": "50",
+                "ref_id": null,
+                "ref_type": null,
+                "frozen_after": "0",
+                "frozen_delta": "0",
+                "time_created": "2026-09-28T10:38:32.747Z",
+                "balance_after": "137",
+                "idempotency_key": "ops:p3m:20260928T103826Z:base:990502:a#2",
+                "reversal_of_txid": null,
+                "request_fingerprint": null
+              }
+            ],
+            "accounts": [
+              {
+                "cid": "170",
+                "uid": "954001",
+                "frozen": "200000",
+                "balance": "49799750"
+              },
+              {
+                "cid": "170",
+                "uid": "990502",
+                "frozen": "0",
+                "balance": "137"
+              }
+            ],
+            "idempotency_key": "ops:p3m:20260928T103826Z:base:990502:a",
+            "idempotent_replay": false
+          },
+          "base_xfer_seller2": {
+            "ok": true,
+            "meta": {
+              "op": "transfer",
+              "lock_trace": [
+                "account:954001:170",
+                "account:990503:170"
+              ]
+            },
+            "txid": "5857",
+            "extra": {
+              "amount": "50",
+              "symbol": "p1u4P04B"
+            },
+            "entries": [
+              {
+                "cid": "170",
+                "uid": "954001",
+                "kind": "transfer",
+                "memo": "",
+                "txid": "5857",
+                "delta": "-50",
+                "ref_id": null,
+                "ref_type": null,
+                "frozen_after": "200000",
+                "frozen_delta": "0",
+                "time_created": "2026-09-28T10:38:32.924Z",
+                "balance_after": "49799700",
+                "idempotency_key": "ops:p3m:20260928T103826Z:base:990503:b",
+                "reversal_of_txid": null,
+                "request_fingerprint": null
+              },
+              {
+                "cid": "170",
+                "uid": "990503",
+                "kind": "transfer",
+                "memo": "",
+                "txid": "5858",
+                "delta": "50",
+                "ref_id": null,
+                "ref_type": null,
+                "frozen_after": "2",
+                "frozen_delta": "0",
+                "time_created": "2026-09-28T10:38:32.924Z",
+                "balance_after": "148",
+                "idempotency_key": "ops:p3m:20260928T103826Z:base:990503:b#2",
+                "reversal_of_txid": null,
+                "request_fingerprint": null
+              }
+            ],
+            "accounts": [
+              {
+                "cid": "170",
+                "uid": "954001",
+                "frozen": "200000",
+                "balance": "49799700"
+              },
+              {
+                "cid": "170",
+                "uid": "990503",
+                "frozen": "2",
+                "balance": "148"
+              }
+            ],
+            "idempotency_key": "ops:p3m:20260928T103826Z:base:990503:b",
+            "idempotent_replay": false
+          }
+        }
+      }
+    }
+  ],
+  "pass": 6,
+  "total": 10,
+  "boundaries": {
+    "op_unknown": {
+      "rejected": true,
+      "sqlstate": "LD016",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "reason": "UNKNOWN_MARKET_OP",
+      "field": "op"
+    },
+    "side_unknown": {
+      "rejected": true,
+      "sqlstate": "LD016",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "reason": "UNKNOWN_MARKET_SIDE",
+      "field": "side"
+    },
+    "price_zero": {
+      "rejected": true,
+      "sqlstate": "LD017",
+      "message": "LEDGER_AMOUNT_NOT_POSITIVE",
+      "reason": null,
+      "field": "price"
+    },
+    "amount_zero": {
+      "rejected": true,
+      "sqlstate": "LD017",
+      "message": "LEDGER_AMOUNT_NOT_POSITIVE",
+      "reason": null,
+      "field": "amount"
+    },
+    "amount_negative": {
+      "rejected": true,
+      "sqlstate": "LD017",
+      "message": "LEDGER_AMOUNT_NOT_POSITIVE",
+      "reason": null,
+      "field": "amount"
+    },
+    "quote_cid_not_one": {
+      "rejected": true,
+      "sqlstate": "LD016",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "reason": "QUOTE_CID_MUST_BE_ONE",
+      "field": "quote_cid"
+    },
+    "base_eq_quote": {
+      "rejected": true,
+      "sqlstate": "LD016",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "reason": "BASE_QUOTE_CID_EQUAL",
+      "field": "base_cid"
+    },
+    "key_no_prefix": {
+      "rejected": true,
+      "sqlstate": "LD005",
+      "message": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "reason": "PREFIX_REQUIRED",
+      "field": "create_key"
+    },
+    "key_reserved_sep": {
+      "rejected": true,
+      "sqlstate": "LD005",
+      "message": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "reason": "RESERVED_SEPARATOR",
+      "field": "create_key"
+    },
+    "owner_platform": {
+      "rejected": true,
+      "sqlstate": "LD021",
+      "message": "LEDGER_RESERVED_UID",
+      "reason": "PLATFORM_OWNER_FORBIDDEN",
+      "field": "owner_uid"
+    },
+    "base_cid_not_found": {
+      "rejected": true,
+      "sqlstate": "LD007",
+      "message": "LEDGER_CURRENCY_NOT_FOUND",
+      "reason": null,
+      "field": null
+    },
+    "base_not_listed": {
+      "rejected": true,
+      "sqlstate": "LD008",
+      "message": "LEDGER_CURRENCY_NOT_LISTED",
+      "reason": null,
+      "field": null
+    },
+    "cancel_missing_order": {
+      "rejected": true,
+      "sqlstate": "LD022",
+      "message": "LEDGER_REF_NOT_FOUND",
+      "reason": "order_not_found",
+      "field": "order_id"
+    },
+    "trade_price_ne_buy_limit": {
+      "rejected": true,
+      "sqlstate": "LD016",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "reason": "MARKET_PRICE_MUST_EQUAL_BUY_LIMIT",
+      "field": "price"
+    },
+    "trade_amount_over_remaining": {
+      "rejected": true,
+      "sqlstate": "LD001",
+      "message": "LEDGER_INSUFFICIENT_BALANCE",
+      "reason": "market_order_amount_insufficient",
+      "field": "market_order.amount"
+    },
+    "trade_same_order_id": {
+      "rejected": true,
+      "sqlstate": "LD019",
+      "message": "LEDGER_SELF_TRANSFER",
+      "reason": "self_trade_not_allowed",
+      "field": "buy_order_id"
+    },
+    "trade_taker_not_a_party": {
+      "rejected": true,
+      "sqlstate": "LD022",
+      "message": "LEDGER_REF_NOT_FOUND",
+      "reason": "order_not_found",
+      "field": "buy_order_id"
+    },
+    "insufficient_balance_hold": {
+      "rejected": true,
+      "sqlstate": "LD001",
+      "message": "LEDGER_INSUFFICIENT_BALANCE",
+      "reason": null,
+      "field": null
+    },
+    "raw_insert_bad_fk": {
+      "rejected": true,
+      "sqlstate": "23503",
+      "constraint": "market_order_base_fk",
+      "message": "insert or update on table \"market_order\" violates foreign key constraint \"market_order_base_fk\""
+    }
+  },
+  "guard": {
+    "order.owner_uid": {
+      "rejected": true,
+      "sqlstate": "LD011",
+      "reason": "market_order_core_immutable",
+      "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+    },
+    "order.side": {
+      "rejected": true,
+      "sqlstate": "LD011",
+      "reason": "market_order_core_immutable",
+      "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+    },
+    "order.base_cid": {
+      "rejected": true,
+      "sqlstate": "LD011",
+      "reason": "market_order_core_immutable",
+      "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+    },
+    "order.quote_cid": {
+      "rejected": true,
+      "sqlstate": "LD011",
+      "reason": "market_order_core_immutable",
+      "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+    },
+    "order.price": {
+      "rejected": true,
+      "sqlstate": "LD011",
+      "reason": "market_order_core_immutable",
+      "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+    },
+    "order.amount": {
+      "rejected": true,
+      "sqlstate": "LD011",
+      "reason": "market_order_core_immutable",
+      "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+    },
+    "order.create_key": {
+      "rejected": true,
+      "sqlstate": "LD011",
+      "reason": "market_order_create_key_immutable",
+      "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+    },
+    "order.amount_filled_back": {
+      "rejected": true,
+      "sqlstate": "LD011",
+      "reason": "market_order_amount_filled_monotonic",
+      "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+    },
+    "order.amount_filled_over": {
+      "rejected": true,
+      "sqlstate": "23514",
+      "reason": null,
+      "message": "new row for relation \"market_order\" violates check constraint \"market_order_filled_le_amount\""
+    },
+    "order.delete": {
+      "rejected": true,
+      "sqlstate": "LD011",
+      "reason": "market_order_delete_forbidden",
+      "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+    },
+    "trade.update": {
+      "rejected": true,
+      "sqlstate": "LD029",
+      "reason": "market_trade_is_append_only",
+      "message": "LEDGER_APPEND_ONLY_VIOLATION"
+    },
+    "trade.delete": {
+      "rejected": true,
+      "sqlstate": "LD029",
+      "reason": "market_trade_is_append_only",
+      "message": "LEDGER_APPEND_ONLY_VIOLATION"
+    },
+    "_positive_control_open_to_partial": {
+      "rejected": false,
+      "rows": 1
+    }
+  },
+  "events": [
+    {
+      "key": "cli:kong16-20260928T103826Z-buy1",
+      "op": "order",
+      "txid": "5859"
+    },
+    {
+      "key": "cli:kong16-20260928T103826Z-sell1",
+      "op": "order",
+      "txid": "5861"
+    },
+    {
+      "key": "biz:market:trade:17:1",
+      "op": "trade",
+      "txid": "5863"
+    },
+    {
+      "key": "cli:kong16-20260928T103826Z-spare-buy",
+      "op": "order",
+      "txid": "5869"
+    },
+    {
+      "key": "cli:kong16-20260928T103826Z-buy3",
+      "op": "order",
+      "txid": "5871"
+    },
+    {
+      "key": "cli:kong16-20260928T103826Z-sell3",
+      "op": "order",
+      "txid": "5873"
+    },
+    {
+      "key": "biz:market:trade:22:1",
+      "op": "trade(fee=0)",
+      "txid": "5875"
+    },
+    {
+      "key": "cli:kong16-20260928T103826Z-s2-buy",
+      "op": "order",
+      "txid": "5879"
+    },
+    {
+      "key": "cli:kong16-20260928T103826Z-s2-sell",
+      "op": "order",
+      "txid": "5881"
+    },
+    {
+      "key": "biz:market:cancel:18",
+      "op": "cancel",
+      "txid": "5883"
+    }
+  ],
+  "fixture": {
+    "BUYER": 990501,
+    "SELLER": 990502,
+    "SELLER2": 990503,
+    "SPARE": 990504,
+    "BASE": "170",
+    "buyId": "17",
+    "sellId": "18",
+    "tradeIds": [
+      "5",
+      "6"
+    ]
+  }
+}

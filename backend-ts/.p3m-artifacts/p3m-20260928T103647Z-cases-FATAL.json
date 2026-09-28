@@ -1,0 +1,477 @@
+{
+  "run": "20260928T103647Z",
+  "label": "cases-FATAL",
+  "at": "2026-09-28T10:37:58.546Z",
+  "cases": [
+    {
+      "id": "K1a",
+      "name": "买单挂单：status=open / 冻结 quote=(amount)×price / hold ×2 / 账本落 ref=market_order",
+      "pass": true,
+      "readout": {
+        "order_id": "8",
+        "status": "open",
+        "frozen_hold": "50",
+        "entries": 2,
+        "kinds": [
+          "hold"
+        ],
+        "sigma": "0",
+        "txid": "5823",
+        "buyer_1_before": {
+          "balance": "349",
+          "frozen": "0",
+          "version": "5"
+        },
+        "buyer_1_after": {
+          "balance": "299",
+          "frozen": "50",
+          "version": "6"
+        },
+        "ret_ledger_event_keys": [
+          "cli:kong16-20260928T103647Z-buy1"
+        ]
+      }
+    },
+    {
+      "id": "K1b",
+      "name": "卖单挂单：冻结 base=(amount) / hold ×2 / 同 uid 同 cid 两条（R34/R39）",
+      "pass": true,
+      "readout": {
+        "order_id": "9",
+        "status": "open",
+        "frozen_hold": "5",
+        "kinds": [
+          "hold"
+        ],
+        "sigma": "0",
+        "seller_base_before": {
+          "balance": "95",
+          "frozen": "0",
+          "version": "5"
+        },
+        "seller_base_after": {
+          "balance": "90",
+          "frozen": "5",
+          "version": "6"
+        }
+      }
+    },
+    {
+      "id": "K1",
+      "name": "★头号：首笔成交（trade ×4 + trade_fee ×2，6 条；taker 付 $1 手续费；守恒 Σ=0；两边进度与余额逐个对齐）",
+      "pass": false,
+      "readout": {
+        "trade_id": "3",
+        "txid": "5827",
+        "entries": 6,
+        "kinds": [
+          "trade",
+          "trade_fee"
+        ],
+        "sigma": "0",
+        "buy_status": "partial",
+        "sell_status": "partial",
+        "trade_row": {
+          "trade_id": "3",
+          "base_cid": "170",
+          "quote_cid": "1",
+          "price": "10",
+          "amount": "3",
+          "buy_order_id": "8",
+          "sell_order_id": "9",
+          "taker_uid": "990501",
+          "fee": "1",
+          "time_created": "2026-09-28 10:36:59.999786+00"
+        },
+        "buyer_quote_after": {
+          "balance": "298",
+          "frozen": "20",
+          "version": "7"
+        },
+        "buyer_base_after": {
+          "balance": "8",
+          "frozen": "0",
+          "version": "3"
+        },
+        "seller_quote_after": {
+          "balance": "80",
+          "frozen": "0",
+          "version": "3"
+        },
+        "seller_base_after": {
+          "balance": "90",
+          "frozen": "2",
+          "version": "7"
+        },
+        "platform_m1": {
+          "balance": "7",
+          "frozen": "0",
+          "version": "7"
+        },
+        "ledger_event_keys": [
+          "cli:kong16-20260928T103647Z-buy1",
+          "biz:market:trade:8:1"
+        ]
+      }
+    },
+    {
+      "id": "K2",
+      "name": "DL149：同键同指纹重放（trade + order）⇒ idempotent_replay=true / txid 相同 / 账本 +0 / 成交行 +0 / amount_filled 不变 / ledger_event_keys 逐字不变",
+      "pass": false,
+      "readout": {
+        "replay_trade": {
+          "idempotent_replay": true,
+          "txid": "5827",
+          "amount": "3",
+          "buy_amount_filled": "3"
+        },
+        "replay_order": {
+          "idempotent_replay": true,
+          "txid": "5825",
+          "keys": [
+            "cli:kong16-20260928T103647Z-sell1",
+            "biz:market:trade:8:1"
+          ],
+          "keys_first": [
+            "cli:kong16-20260928T103647Z-sell1"
+          ]
+        },
+        "ledger_total": "2521 -> 2521",
+        "trade_rows": "3 -> 3",
+        "amount_filled_unchanged": "3 -> 3",
+        "keys_unchanged": true
+      }
+    },
+    {
+      "id": "K5",
+      "name": "边界：不存在 FK(23503)/未 listed 币种/金额 0 与负/quote_cid≠1/base=quote/坏键前缀与 #/平台 uid/不存在订单/成交价≠买单限价/超额/自成交/余额不足 —— 逐条原始读数",
+      "pass": false,
+      "readout": {
+        "op_unknown": {
+          "rejected": true,
+          "sqlstate": "LD016",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "reason": "UNKNOWN_MARKET_OP",
+          "field": "op"
+        },
+        "side_unknown": {
+          "rejected": true,
+          "sqlstate": "LD016",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "reason": "UNKNOWN_MARKET_SIDE",
+          "field": "side"
+        },
+        "price_zero": {
+          "rejected": true,
+          "sqlstate": "LD017",
+          "message": "LEDGER_AMOUNT_NOT_POSITIVE",
+          "reason": null,
+          "field": "price"
+        },
+        "amount_zero": {
+          "rejected": true,
+          "sqlstate": "LD017",
+          "message": "LEDGER_AMOUNT_NOT_POSITIVE",
+          "reason": null,
+          "field": "amount"
+        },
+        "amount_negative": {
+          "rejected": true,
+          "sqlstate": "LD017",
+          "message": "LEDGER_AMOUNT_NOT_POSITIVE",
+          "reason": null,
+          "field": "amount"
+        },
+        "quote_cid_not_one": {
+          "rejected": true,
+          "sqlstate": "LD016",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "reason": "QUOTE_CID_MUST_BE_ONE",
+          "field": "quote_cid"
+        },
+        "base_eq_quote": {
+          "rejected": true,
+          "sqlstate": "LD016",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "reason": "BASE_QUOTE_CID_EQUAL",
+          "field": "base_cid"
+        },
+        "key_no_prefix": {
+          "rejected": true,
+          "sqlstate": "LD005",
+          "message": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+          "reason": "PREFIX_REQUIRED",
+          "field": "create_key"
+        },
+        "key_reserved_sep": {
+          "rejected": true,
+          "sqlstate": "LD005",
+          "message": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+          "reason": "RESERVED_SEPARATOR",
+          "field": "create_key"
+        },
+        "owner_platform": {
+          "rejected": true,
+          "sqlstate": "LD021",
+          "message": "LEDGER_RESERVED_UID",
+          "reason": "PLATFORM_OWNER_FORBIDDEN",
+          "field": "owner_uid"
+        },
+        "base_cid_not_found": {
+          "rejected": true,
+          "sqlstate": "LD007",
+          "message": "LEDGER_CURRENCY_NOT_FOUND",
+          "reason": null,
+          "field": null
+        },
+        "base_not_listed": {
+          "rejected": true,
+          "sqlstate": "LD008",
+          "message": "LEDGER_CURRENCY_NOT_LISTED",
+          "reason": null,
+          "field": null
+        },
+        "cancel_missing_order": {
+          "rejected": true,
+          "sqlstate": "LD022",
+          "message": "LEDGER_REF_NOT_FOUND",
+          "reason": "order_not_found",
+          "field": "order_id"
+        },
+        "trade_price_ne_buy_limit": {
+          "rejected": true,
+          "sqlstate": "LD016",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "reason": "MARKET_PRICE_MUST_EQUAL_BUY_LIMIT",
+          "field": "price"
+        },
+        "trade_amount_over_remaining": {
+          "rejected": true,
+          "sqlstate": "LD001",
+          "message": "LEDGER_INSUFFICIENT_BALANCE",
+          "reason": "market_order_amount_insufficient",
+          "field": "market_order.amount"
+        },
+        "trade_same_order_id": {
+          "rejected": true,
+          "sqlstate": "LD019",
+          "message": "LEDGER_SELF_TRANSFER",
+          "reason": "self_trade_not_allowed",
+          "field": "buy_order_id"
+        },
+        "trade_taker_not_a_party": {
+          "rejected": true,
+          "sqlstate": "LD022",
+          "message": "LEDGER_REF_NOT_FOUND",
+          "reason": "order_not_found",
+          "field": "buy_order_id"
+        },
+        "insufficient_balance_hold": {
+          "rejected": true,
+          "sqlstate": "LD001",
+          "message": "LEDGER_INSUFFICIENT_BALANCE",
+          "reason": null,
+          "field": null
+        },
+        "raw_insert_bad_fk": {
+          "rejected": true,
+          "sqlstate": "23503",
+          "constraint": "market_order_base_fk",
+          "message": "insert or update on table \"market_order\" violates foreign key constraint \"market_order_base_fk\""
+        },
+        "b12_raw": {
+          "rejected": true,
+          "sqlstate": "LD008",
+          "message": "LEDGER_CURRENCY_NOT_LISTED",
+          "reason": null,
+          "field": null
+        },
+        "unlisted_currency": {
+          "cid": "102",
+          "status": "draft"
+        }
+      }
+    },
+    {
+      "id": "K4",
+      "name": "守卫矩阵：owner_uid/side/base_cid/quote_cid/price/amount/create_key 逐个改 + amount_filled 回退与超额 + order DELETE + trade UPDATE/DELETE = 12/12 拒；对照项 open→partial 正常通过",
+      "pass": true,
+      "readout": {
+        "order.owner_uid": {
+          "rejected": true,
+          "sqlstate": "LD011",
+          "reason": "market_order_core_immutable",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "order.side": {
+          "rejected": true,
+          "sqlstate": "LD011",
+          "reason": "market_order_core_immutable",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "order.base_cid": {
+          "rejected": true,
+          "sqlstate": "LD011",
+          "reason": "market_order_core_immutable",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "order.quote_cid": {
+          "rejected": true,
+          "sqlstate": "LD011",
+          "reason": "market_order_core_immutable",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "order.price": {
+          "rejected": true,
+          "sqlstate": "LD011",
+          "reason": "market_order_core_immutable",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "order.amount": {
+          "rejected": true,
+          "sqlstate": "LD011",
+          "reason": "market_order_core_immutable",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "order.create_key": {
+          "rejected": true,
+          "sqlstate": "LD011",
+          "reason": "market_order_create_key_immutable",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "order.amount_filled_back": {
+          "rejected": true,
+          "sqlstate": "LD011",
+          "reason": "market_order_amount_filled_monotonic",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "order.amount_filled_over": {
+          "rejected": true,
+          "sqlstate": "23514",
+          "reason": null,
+          "message": "new row for relation \"market_order\" violates check constraint \"market_order_filled_le_amount\""
+        },
+        "order.delete": {
+          "rejected": true,
+          "sqlstate": "LD011",
+          "reason": "market_order_delete_forbidden",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "trade.update": {
+          "rejected": true,
+          "sqlstate": "LD029",
+          "reason": "market_trade_is_append_only",
+          "message": "LEDGER_APPEND_ONLY_VIOLATION"
+        },
+        "trade.delete": {
+          "rejected": true,
+          "sqlstate": "LD029",
+          "reason": "market_trade_is_append_only",
+          "message": "LEDGER_APPEND_ONLY_VIOLATION"
+        },
+        "_positive_control_open_to_partial": {
+          "rejected": false,
+          "rows": 1
+        }
+      }
+    },
+    {
+      "id": "K3",
+      "name": "状态机白名单正 5/5 + 负 9/9（纯函数）；终态 filled 后再迁移（cancel）被拒且零账本写入；零额手续费成交 = trade ×4（无 trade_fee）",
+      "pass": true,
+      "readout": {
+        "positives": [
+          "open->cancelled",
+          "open->filled",
+          "open->partial",
+          "partial->cancelled",
+          "partial->filled"
+        ],
+        "negatives": [
+          "cancelled->filled",
+          "cancelled->open",
+          "cancelled->partial",
+          "filled->cancelled",
+          "filled->open",
+          "filled->partial",
+          "open->open",
+          "partial->open",
+          "partial->partial"
+        ],
+        "t2": {
+          "trade_id": "4",
+          "entries": 4,
+          "kinds": [
+            "trade"
+          ],
+          "sigma": "0"
+        },
+        "filled_order": {
+          "order_id": "13",
+          "owner_uid": "990501",
+          "side": "buy",
+          "base_cid": "170",
+          "quote_cid": "1",
+          "price": "10",
+          "amount": "5",
+          "amount_filled": "5",
+          "status": "filled",
+          "create_key": "cli:kong16-20260928T103647Z-buy3",
+          "ledger_event_keys": [
+            "cli:kong16-20260928T103647Z-buy3",
+            "biz:market:trade:13:1"
+          ],
+          "time_created": "2026-09-28 10:37:50.705656+00",
+          "time_updated": "2026-09-28 10:37:51.169726+00"
+        },
+        "cancel_rejected": {
+          "sqlstate": "LD011",
+          "reason": "MARKET_ORDER_STATE_INVALID"
+        },
+        "ledger_rows": "2531 -> 2531"
+      }
+    },
+    {
+      "id": "K5b",
+      "name": "自成交（买/卖两单同 owner）被账本与函数双闸拒绝（LEDGER_SELF_TRANSFER / self_trade_not_allowed）",
+      "pass": true,
+      "readout": {
+        "sqlstate": "LD019",
+        "message": "LEDGER_SELF_TRANSFER",
+        "reason": "self_trade_not_allowed",
+        "field": "owner_uid",
+        "detail": "{\"uid\": \"990503\", \"field\": \"owner_uid\", \"reason\": \"self_trade_not_allowed\", \"buy_order_id\": \"15\", \"sell_order_id\": \"16\"}"
+      }
+    },
+    {
+      "id": "K1c",
+      "name": "撤单：hold_release ×2 / status=cancelled / 剩余冻结全部回余额 / 守恒 Σ=0",
+      "pass": false,
+      "readout": {
+        "order_id": "9",
+        "status": "cancelled",
+        "frozen_hold": "2",
+        "entries": 2,
+        "kinds": [
+          "hold_release"
+        ],
+        "sigma": "0",
+        "seller_base_after_cancel": {
+          "balance": "87",
+          "frozen": "0",
+          "version": "10"
+        }
+      }
+    }
+  ],
+  "error": {
+    "sqlstate": "42P02",
+    "message": "there is no parameter $1",
+    "detail": "",
+    "constraint": null,
+    "reason": null,
+    "field": null,
+    "detail_parsed": null
+  },
+  "at_stage": "see error"
+}

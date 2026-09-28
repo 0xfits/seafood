@@ -1,0 +1,202 @@
+{
+  "ok": true,
+  "applied_now": [
+    {
+      "version": "0001",
+      "name": "0001_ledger_core.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 11:48:15 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0002",
+      "name": "0002_user_identity.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 11:48:20 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0003",
+      "name": "0003_kind_close_set_20.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 12:57:40 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0004",
+      "name": "0004_ledger_post_event.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 13:26:01 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0005",
+      "name": "0005_ledger_event_root_key.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 14:34:21 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0006",
+      "name": "0006_user_to_users.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 15:09:27 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0007",
+      "name": "0007_referral_and_commission_policy.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 17:49:28 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0008",
+      "name": "0008_platform_revenue_job_fee.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 17:49:29 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0009",
+      "name": "0009_ledger_error_reverse_map_complete.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 18:09:16 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0010",
+      "name": "0010_referral_bind_protocol_guard.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 18:45:22 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0011",
+      "name": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 19:35:24 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0012",
+      "name": "0012_replay_pre_gate_before_balance_gate.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Sun Sep 27 2026 21:09:02 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0013",
+      "name": "0013_job.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Mon Sep 28 2026 13:08:33 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0014",
+      "name": "0014_job_flow.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Mon Sep 28 2026 13:34:21 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0015",
+      "name": "0015_listing.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Mon Sep 28 2026 17:32:14 GMT+0800 (China Standard Time)"
+    },
+    {
+      "version": "0016",
+      "name": "0016_market.sql",
+      "action": "skipped",
+      "reason": "already applied, checksum match",
+      "applied_at": "Mon Sep 28 2026 18:20:11 GMT+0800 (China Standard Time)"
+    }
+  ],
+  "schema_version": "0016",
+  "schema_migration_rows": [
+    {
+      "version": "0001",
+      "name": "0001_ledger_core.sql"
+    },
+    {
+      "version": "0002",
+      "name": "0002_user_identity.sql"
+    },
+    {
+      "version": "0003",
+      "name": "0003_kind_close_set_20.sql"
+    },
+    {
+      "version": "0004",
+      "name": "0004_ledger_post_event.sql"
+    },
+    {
+      "version": "0005",
+      "name": "0005_ledger_event_root_key.sql"
+    },
+    {
+      "version": "0006",
+      "name": "0006_user_to_users.sql"
+    },
+    {
+      "version": "0007",
+      "name": "0007_referral_and_commission_policy.sql"
+    },
+    {
+      "version": "0008",
+      "name": "0008_platform_revenue_job_fee.sql"
+    },
+    {
+      "version": "0009",
+      "name": "0009_ledger_error_reverse_map_complete.sql"
+    },
+    {
+      "version": "0010",
+      "name": "0010_referral_bind_protocol_guard.sql"
+    },
+    {
+      "version": "0011",
+      "name": "0011_commission_assert_closure_and_referral_depth_guard.sql"
+    },
+    {
+      "version": "0012",
+      "name": "0012_replay_pre_gate_before_balance_gate.sql"
+    },
+    {
+      "version": "0013",
+      "name": "0013_job_core.sql"
+    },
+    {
+      "version": "0014",
+      "name": "0014_job_flow.sql"
+    },
+    {
+      "version": "0015",
+      "name": "0015_listing.sql"
+    },
+    {
+      "version": "0016",
+      "name": "0016_market.sql"
+    }
+  ],
+  "public_base_tables": [
+    "account",
+    "commission_policy",
+    "currency",
+    "job",
+    "job_application",
+    "job_submission",
+    "ledger_entry",
+    "ledger_owner",
+    "listing",
+    "listing_order",
+    "market_order",
+    "market_trade",
+    "referral",
+    "schema_migration",
+    "users"
+  ],
+  "public_base_table_count": 15
+}

@@ -1,0 +1,130 @@
+{
+  "run": "20260928T104520Z",
+  "label": "falsify",
+  "at": "2026-09-28T10:45:31.714Z",
+  "scratch": {
+    "dir": "/var/folders/19/cqv1pr9n7tq5_75h0tgp7pqr0000gn/T/",
+    "broken_copy": "/var/folders/19/cqv1pr9n7tq5_75h0tgp7pqr0000gn/T/p3m-0016-scratch-20260928T104520Z.sql",
+    "restore_source": "/var/folders/19/cqv1pr9n7tq5_75h0tgp7pqr0000gn/T/p3m-0016-pristine-20260928T104520Z.sql",
+    "sha256_pristine": "f5ce7c79c584805f1d97bb2468475b2ce10b770ef4dabd16e2ea79d5531b76df",
+    "sha256_broken": "cbcf7653ca62ab194dbdc10a52244495b7534455a1493e17d4a8caff25035e77",
+    "sha256_restored": "f5ce7c79c584805f1d97bb2468475b2ce10b770ef4dabd16e2ea79d5531b76df",
+    "restored_equals_pristine": true
+  },
+  "main_workspace_file": {
+    "path": "/Users/kevin/bistro/seafood/backend-ts/migrations/0016_market.sql",
+    "sha256_before": "f5ce7c79c584805f1d97bb2468475b2ce10b770ef4dabd16e2ea79d5531b76df",
+    "sha256_after": "f5ce7c79c584805f1d97bb2468475b2ce10b770ef4dabd16e2ea79d5531b76df",
+    "untouched": true,
+    "mtime_before": "2026-09-28T10:19:09.009Z",
+    "mtime_after": "2026-09-28T10:19:09.009Z",
+    "size_before": 70570,
+    "size_after": 70570
+  },
+  "structural_change": {
+    "target": "public.market_order_status_transition_ok",
+    "change": "ELSE false  ->  ELSE true（终态无出边 ⇒ 终态出边被打开）",
+    "patched_function_text_sha256": "a6af0484b0580ab0f64316b8641f291814e701eda87187e791753517da65c935"
+  },
+  "fn_md5": {
+    "before": "545518bcd9f0379119a944b5eefc370f",
+    "in_tx_broken": "ebef74326c9d166be764dede02122199",
+    "after_rollback": "545518bcd9f0379119a944b5eefc370f",
+    "bytes_before": 223,
+    "bytes_after": 223
+  },
+  "ledger_rows_before": "2609",
+  "ledger_rows_after": "2609",
+  "foreign_rows_present": [],
+  "foreign_raw": {
+    "foreign_order_rows": "0",
+    "foreign_order_owners": "0",
+    "foreign_trade_takers": "0",
+    "null_ref_rows": "0"
+  },
+  "target_fixture": {
+    "order_id": "1",
+    "status": "filled",
+    "create_key": "cli:kong16-20260928T103505Z-buy1",
+    "owner_uid": "990501",
+    "rem": "0",
+    "status_before": "filled",
+    "status_after": "filled"
+  },
+  "GREEN_before": {
+    "upd": {
+      "rejected": true,
+      "rows": 0,
+      "err": {
+        "sqlstate": "LD011",
+        "message": "LEDGER_CURRENCY_INVALID_TRANSITION",
+        "detail": "{\"to\": \"cancelled\", \"from\": \"filled\", \"field\": \"market_order.status\", \"reason\": \"MARKET_ORDER_STATE_INVALID\", \"order_id\": \"1\"}",
+        "constraint": null,
+        "reason": "MARKET_ORDER_STATE_INVALID",
+        "field": "market_order.status",
+        "detail_parsed": {
+          "to": "cancelled",
+          "from": "filled",
+          "field": "market_order.status",
+          "reason": "MARKET_ORDER_STATE_INVALID",
+          "order_id": "1"
+        }
+      }
+    },
+    "fn": {
+      "rejected": true,
+      "reason": "MARKET_ORDER_STATE_INVALID",
+      "sqlstate": "LD011",
+      "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+    }
+  },
+  "RED_broken": {
+    "upd": {
+      "rejected": false,
+      "rows": 1,
+      "err": null
+    },
+    "fn": {
+      "rejected": true,
+      "reason": "market_order_nothing_to_release",
+      "sqlstate": "LD011",
+      "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+    }
+  },
+  "GREEN_restored": {
+    "upd": {
+      "rejected": true,
+      "rows": 0,
+      "err": {
+        "sqlstate": "LD011",
+        "message": "LEDGER_CURRENCY_INVALID_TRANSITION",
+        "detail": "{\"to\": \"cancelled\", \"from\": \"filled\", \"field\": \"market_order.status\", \"reason\": \"MARKET_ORDER_STATE_INVALID\", \"order_id\": \"1\"}",
+        "constraint": null,
+        "reason": "MARKET_ORDER_STATE_INVALID",
+        "field": "market_order.status",
+        "detail_parsed": {
+          "to": "cancelled",
+          "from": "filled",
+          "field": "market_order.status",
+          "reason": "MARKET_ORDER_STATE_INVALID",
+          "order_id": "1"
+        }
+      }
+    },
+    "fn": {
+      "rejected": true,
+      "reason": "MARKET_ORDER_STATE_INVALID",
+      "sqlstate": "LD011",
+      "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+    }
+  },
+  "verdict": {
+    "green_before_rejects": true,
+    "red_broken_upd_succeeds": true,
+    "red_broken_fn_reason_changed": true,
+    "green_restored_rejects": true,
+    "sha_after_equal_pristine": true,
+    "workspace_untouched": true,
+    "zero_perturbation": true
+  }
+}

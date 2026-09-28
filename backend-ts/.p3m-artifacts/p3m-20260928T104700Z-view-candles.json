@@ -1,0 +1,188 @@
+{
+  "run": "20260928T104700Z",
+  "label": "view-candles",
+  "at": "2026-09-28T10:47:03.974Z",
+  "fixture_currency": {
+    "cid": "170",
+    "symbol": "p1u4P04B",
+    "decimals": 0
+  },
+  "view_rows": [
+    {
+      "base_cid": "170",
+      "quote_cid": "1",
+      "bucket_start": "2026-09-28 10:35:00+00",
+      "open": "10",
+      "high": "10",
+      "low": "10",
+      "close": "10",
+      "volume": "3"
+    },
+    {
+      "base_cid": "170",
+      "quote_cid": "1",
+      "bucket_start": "2026-09-28 10:36:00+00",
+      "open": "10",
+      "high": "10",
+      "low": "10",
+      "close": "10",
+      "volume": "5"
+    },
+    {
+      "base_cid": "170",
+      "quote_cid": "1",
+      "bucket_start": "2026-09-28 10:37:00+00",
+      "open": "10",
+      "high": "10",
+      "low": "10",
+      "close": "10",
+      "volume": "5"
+    },
+    {
+      "base_cid": "170",
+      "quote_cid": "1",
+      "bucket_start": "2026-09-28 10:38:00+00",
+      "open": "10",
+      "high": "10",
+      "low": "10",
+      "close": "10",
+      "volume": "3"
+    },
+    {
+      "base_cid": "170",
+      "quote_cid": "1",
+      "bucket_start": "2026-09-28 10:39:00+00",
+      "open": "10",
+      "high": "10",
+      "low": "10",
+      "close": "10",
+      "volume": "5"
+    },
+    {
+      "base_cid": "170",
+      "quote_cid": "1",
+      "bucket_start": "2026-09-28 10:43:00+00",
+      "open": "10",
+      "high": "10",
+      "low": "10",
+      "close": "10",
+      "volume": "3"
+    },
+    {
+      "base_cid": "170",
+      "quote_cid": "1",
+      "bucket_start": "2026-09-28 10:44:00+00",
+      "open": "10",
+      "high": "10",
+      "low": "10",
+      "close": "10",
+      "volume": "5"
+    }
+  ],
+  "manual_aggregation": [
+    {
+      "base_cid": "170",
+      "quote_cid": "1",
+      "bucket_start": "2026-09-28 10:35:00+00",
+      "open": "10",
+      "high": "10",
+      "low": "10",
+      "close": "10",
+      "volume": "3"
+    },
+    {
+      "base_cid": "170",
+      "quote_cid": "1",
+      "bucket_start": "2026-09-28 10:36:00+00",
+      "open": "10",
+      "high": "10",
+      "low": "10",
+      "close": "10",
+      "volume": "5"
+    },
+    {
+      "base_cid": "170",
+      "quote_cid": "1",
+      "bucket_start": "2026-09-28 10:37:00+00",
+      "open": "10",
+      "high": "10",
+      "low": "10",
+      "close": "10",
+      "volume": "5"
+    },
+    {
+      "base_cid": "170",
+      "quote_cid": "1",
+      "bucket_start": "2026-09-28 10:38:00+00",
+      "open": "10",
+      "high": "10",
+      "low": "10",
+      "close": "10",
+      "volume": "3"
+    },
+    {
+      "base_cid": "170",
+      "quote_cid": "1",
+      "bucket_start": "2026-09-28 10:39:00+00",
+      "open": "10",
+      "high": "10",
+      "low": "10",
+      "close": "10",
+      "volume": "5"
+    },
+    {
+      "base_cid": "170",
+      "quote_cid": "1",
+      "bucket_start": "2026-09-28 10:43:00+00",
+      "open": "10",
+      "high": "10",
+      "low": "10",
+      "close": "10",
+      "volume": "3"
+    },
+    {
+      "base_cid": "170",
+      "quote_cid": "1",
+      "bucket_start": "2026-09-28 10:44:00+00",
+      "open": "10",
+      "high": "10",
+      "low": "10",
+      "close": "10",
+      "volume": "5"
+    }
+  ],
+  "view_types": [
+    {
+      "column_name": "bucket_start",
+      "data_type": "timestamp with time zone",
+      "numeric_precision": null
+    },
+    {
+      "column_name": "close",
+      "data_type": "bigint",
+      "numeric_precision": 64
+    },
+    {
+      "column_name": "high",
+      "data_type": "bigint",
+      "numeric_precision": 64
+    },
+    {
+      "column_name": "low",
+      "data_type": "bigint",
+      "numeric_precision": 64
+    },
+    {
+      "column_name": "open",
+      "data_type": "bigint",
+      "numeric_precision": 64
+    },
+    {
+      "column_name": "volume",
+      "data_type": "numeric",
+      "numeric_precision": null
+    }
+  ],
+  "view_equals_manual": true,
+  "note": "grouping expression in the view is date_trunc(minute, time_created); the same trade set is 逐桶对比"
+}

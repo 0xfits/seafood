@@ -1,0 +1,697 @@
+{
+  "run": "20260928T103457Z",
+  "label": "fingerprint-post",
+  "at": "2026-09-28T10:35:03.750Z",
+  "schema_version": "0016",
+  "registry_rows": 16,
+  "registry_row_0016": [
+    {
+      "version": "0016",
+      "name": "0016_market.sql",
+      "checksum": "f5ce7c79c584805f1d97bb2468475b2ce10b770ef4dabd16e2ea79d5531b76df",
+      "checksum_md5": "c62af8f16cf25586fc78942542470593",
+      "applied_at": "2026-09-28 10:20:11.637287+00"
+    }
+  ],
+  "public_base_tables": [
+    "account",
+    "commission_policy",
+    "currency",
+    "job",
+    "job_application",
+    "job_submission",
+    "ledger_entry",
+    "ledger_owner",
+    "listing",
+    "listing_order",
+    "market_order",
+    "market_trade",
+    "referral",
+    "schema_migration",
+    "users"
+  ],
+  "public_base_table_count": 15,
+  "public_views": [
+    "candle_view"
+  ],
+  "market_order_columns": [
+    {
+      "column_name": "order_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null,
+      "identity_generation": "BY DEFAULT",
+      "ordinal_position": 1
+    },
+    {
+      "column_name": "owner_uid",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 2
+    },
+    {
+      "column_name": "side",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 3
+    },
+    {
+      "column_name": "base_cid",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 4
+    },
+    {
+      "column_name": "quote_cid",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 5
+    },
+    {
+      "column_name": "price",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 6
+    },
+    {
+      "column_name": "amount",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 7
+    },
+    {
+      "column_name": "amount_filled",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "identity_generation": null,
+      "ordinal_position": 8
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": "'open'::text",
+      "identity_generation": null,
+      "ordinal_position": 9
+    },
+    {
+      "column_name": "create_key",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 10
+    },
+    {
+      "column_name": "ledger_event_keys",
+      "data_type": "ARRAY",
+      "is_nullable": "NO",
+      "column_default": "'{}'::text[]",
+      "identity_generation": null,
+      "ordinal_position": 11
+    },
+    {
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "identity_generation": null,
+      "ordinal_position": 12
+    },
+    {
+      "column_name": "time_updated",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "identity_generation": null,
+      "ordinal_position": 13
+    }
+  ],
+  "market_trade_columns": [
+    {
+      "column_name": "trade_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null,
+      "identity_generation": "BY DEFAULT",
+      "ordinal_position": 1
+    },
+    {
+      "column_name": "base_cid",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 2
+    },
+    {
+      "column_name": "quote_cid",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 3
+    },
+    {
+      "column_name": "price",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 4
+    },
+    {
+      "column_name": "amount",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 5
+    },
+    {
+      "column_name": "buy_order_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 6
+    },
+    {
+      "column_name": "sell_order_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 7
+    },
+    {
+      "column_name": "taker_uid",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 8
+    },
+    {
+      "column_name": "fee",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "identity_generation": null,
+      "ordinal_position": 9
+    },
+    {
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "identity_generation": null,
+      "ordinal_position": 10
+    }
+  ],
+  "candle_view_columns": [
+    {
+      "column_name": "base_cid",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 1
+    },
+    {
+      "column_name": "quote_cid",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 2
+    },
+    {
+      "column_name": "bucket_start",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 3
+    },
+    {
+      "column_name": "open",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 4
+    },
+    {
+      "column_name": "high",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 5
+    },
+    {
+      "column_name": "low",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 6
+    },
+    {
+      "column_name": "close",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 7
+    },
+    {
+      "column_name": "volume",
+      "data_type": "numeric",
+      "is_nullable": "YES",
+      "column_default": null,
+      "identity_generation": null,
+      "ordinal_position": 8
+    }
+  ],
+  "market_constraints": [
+    {
+      "tbl": "market_order",
+      "conname": "market_order_amount_filled_nonneg",
+      "contype": "c",
+      "def": "CHECK ((amount_filled >= 0))"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_amount_positive",
+      "contype": "c",
+      "def": "CHECK ((amount > 0))"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_cid_distinct",
+      "contype": "c",
+      "def": "CHECK ((base_cid <> quote_cid))"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_filled_le_amount",
+      "contype": "c",
+      "def": "CHECK ((amount_filled <= amount))"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_price_positive",
+      "contype": "c",
+      "def": "CHECK ((price > 0))"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_quote_cid_is_one",
+      "contype": "c",
+      "def": "CHECK ((quote_cid = 1))"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_side_enum",
+      "contype": "c",
+      "def": "CHECK ((side = ANY (ARRAY['buy'::text, 'sell'::text])))"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_status_enum",
+      "contype": "c",
+      "def": "CHECK ((status = ANY (ARRAY['open'::text, 'partial'::text, 'filled'::text, 'cancelled'::text])))"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_base_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (base_cid) REFERENCES currency(cid)"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_owner_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (owner_uid) REFERENCES users(uid)"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_quote_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (quote_cid) REFERENCES currency(cid)"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_amount_filled_not_null",
+      "contype": "n",
+      "def": "NOT NULL amount_filled"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_amount_not_null",
+      "contype": "n",
+      "def": "NOT NULL amount"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_base_cid_not_null",
+      "contype": "n",
+      "def": "NOT NULL base_cid"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_create_key_not_null",
+      "contype": "n",
+      "def": "NOT NULL create_key"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_ledger_event_keys_not_null",
+      "contype": "n",
+      "def": "NOT NULL ledger_event_keys"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_order_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL order_id"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_owner_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL owner_uid"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_price_not_null",
+      "contype": "n",
+      "def": "NOT NULL price"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_quote_cid_not_null",
+      "contype": "n",
+      "def": "NOT NULL quote_cid"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_side_not_null",
+      "contype": "n",
+      "def": "NOT NULL side"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_status_not_null",
+      "contype": "n",
+      "def": "NOT NULL status"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_time_updated_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_updated"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (order_id)"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_create_key_uniq",
+      "contype": "u",
+      "def": "UNIQUE (create_key)"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_amount_positive",
+      "contype": "c",
+      "def": "CHECK ((amount > 0))"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_cid_distinct",
+      "contype": "c",
+      "def": "CHECK ((base_cid <> quote_cid))"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_fee_nonneg",
+      "contype": "c",
+      "def": "CHECK ((fee >= 0))"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_pair_distinct",
+      "contype": "c",
+      "def": "CHECK ((buy_order_id <> sell_order_id))"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_price_positive",
+      "contype": "c",
+      "def": "CHECK ((price > 0))"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_base_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (base_cid) REFERENCES currency(cid)"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_buy_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (buy_order_id) REFERENCES market_order(order_id)"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_quote_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (quote_cid) REFERENCES currency(cid)"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_sell_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (sell_order_id) REFERENCES market_order(order_id)"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_taker_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (taker_uid) REFERENCES users(uid)"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_amount_not_null",
+      "contype": "n",
+      "def": "NOT NULL amount"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_base_cid_not_null",
+      "contype": "n",
+      "def": "NOT NULL base_cid"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_buy_order_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL buy_order_id"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_fee_not_null",
+      "contype": "n",
+      "def": "NOT NULL fee"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_price_not_null",
+      "contype": "n",
+      "def": "NOT NULL price"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_quote_cid_not_null",
+      "contype": "n",
+      "def": "NOT NULL quote_cid"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_sell_order_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL sell_order_id"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_taker_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL taker_uid"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_trade_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL trade_id"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (trade_id)"
+    }
+  ],
+  "market_indexes": [
+    {
+      "tablename": "market_order",
+      "indexname": "market_order_create_key_uniq",
+      "indexdef": "CREATE UNIQUE INDEX market_order_create_key_uniq ON public.market_order USING btree (create_key)"
+    },
+    {
+      "tablename": "market_order",
+      "indexname": "market_order_pk",
+      "indexdef": "CREATE UNIQUE INDEX market_order_pk ON public.market_order USING btree (order_id)"
+    },
+    {
+      "tablename": "market_trade",
+      "indexname": "market_trade_pk",
+      "indexdef": "CREATE UNIQUE INDEX market_trade_pk ON public.market_trade USING btree (trade_id)"
+    }
+  ],
+  "partial_unique_indexes": [],
+  "market_triggers": [
+    {
+      "tbl": "market_order",
+      "tgname": "trg_market_order_amount_filled_guard",
+      "tgenabled": "O",
+      "def": "CREATE TRIGGER trg_market_order_amount_filled_guard BEFORE UPDATE ON public.market_order FOR EACH ROW EXECUTE FUNCTION market_order_amount_filled_guard()"
+    },
+    {
+      "tbl": "market_order",
+      "tgname": "trg_market_order_core_immutable_guard",
+      "tgenabled": "O",
+      "def": "CREATE TRIGGER trg_market_order_core_immutable_guard BEFORE UPDATE ON public.market_order FOR EACH ROW EXECUTE FUNCTION market_order_core_immutable_guard()"
+    },
+    {
+      "tbl": "market_order",
+      "tgname": "trg_market_order_create_key_guard",
+      "tgenabled": "O",
+      "def": "CREATE TRIGGER trg_market_order_create_key_guard BEFORE UPDATE ON public.market_order FOR EACH ROW EXECUTE FUNCTION market_order_create_key_guard()"
+    },
+    {
+      "tbl": "market_order",
+      "tgname": "trg_market_order_no_delete",
+      "tgenabled": "O",
+      "def": "CREATE TRIGGER trg_market_order_no_delete BEFORE DELETE ON public.market_order FOR EACH ROW EXECUTE FUNCTION market_order_no_delete()"
+    },
+    {
+      "tbl": "market_order",
+      "tgname": "trg_market_order_status_guard",
+      "tgenabled": "O",
+      "def": "CREATE TRIGGER trg_market_order_status_guard BEFORE UPDATE ON public.market_order FOR EACH ROW EXECUTE FUNCTION market_order_status_guard()"
+    },
+    {
+      "tbl": "market_order",
+      "tgname": "trg_market_order_touch_time_updated",
+      "tgenabled": "O",
+      "def": "CREATE TRIGGER trg_market_order_touch_time_updated BEFORE UPDATE ON public.market_order FOR EACH ROW EXECUTE FUNCTION market_order_touch_time_updated()"
+    },
+    {
+      "tbl": "market_trade",
+      "tgname": "trg_market_trade_append_only",
+      "tgenabled": "O",
+      "def": "CREATE TRIGGER trg_market_trade_append_only BEFORE DELETE OR UPDATE ON public.market_trade FOR EACH ROW EXECUTE FUNCTION market_trade_append_only()"
+    }
+  ],
+  "function_fingerprints": {
+    "ledger_post_event": {
+      "bytes": 51429,
+      "md5": "d94dd902697dfe60aba409d808c6d63a",
+      "chars": 45598
+    },
+    "market_post_event": {
+      "bytes": 30194,
+      "md5": "74841611252726e1cc0f57cb46ea6c6d",
+      "chars": 28848
+    },
+    "market_order_status_transition_ok": {
+      "bytes": 223,
+      "md5": "545518bcd9f0379119a944b5eefc370f",
+      "chars": 209
+    },
+    "market_order_status_guard": {
+      "bytes": 474,
+      "md5": "3d14452a75bafc683c71bb892bcc717f",
+      "chars": 474
+    },
+    "market_trade_append_only": {
+      "bytes": 256,
+      "md5": "9090b9683a4f31080edc75cdfbd87066",
+      "chars": 256
+    }
+  },
+  "external_fks_to_market": [
+    {
+      "conname": "market_trade_buy_fk",
+      "from_table": "market_trade",
+      "to_table": "market_order"
+    },
+    {
+      "conname": "market_trade_sell_fk",
+      "from_table": "market_trade",
+      "to_table": "market_order"
+    }
+  ],
+  "fks_to_ledger_entry": {
+    "n": "0"
+  },
+  "namespace_audit": {
+    "market_order_rows": "0",
+    "market_trade_rows": "0",
+    "foreign_order_rows": "0",
+    "foreign_order_owners": "0",
+    "foreign_trade_takers": "0",
+    "biz_market_entries": "0",
+    "cli_kong16_entries": "0",
+    "ops_p3m_entries": "0",
+    "ledger_total": "2471"
+  },
+  "invariants": {
+    "sum_bal_frozen": "8400",
+    "total_supply": "8400",
+    "disabled_triggers": "0",
+    "market_functions": "9",
+    "base_tables": "15"
+  }
+}
