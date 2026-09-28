@@ -1,0 +1,2563 @@
+{
+  "probe": "P3S-01 · 只读清点（真库行数 + public 触发器计数口径）",
+  "tag": "pre-suite",
+  "utc": "2026-09-28T14:56:58.201Z",
+  "readings": {
+    "rows": {
+      "sql": "SELECT 'users' AS t, count(*)::text AS n FROM public.users\n            UNION ALL SELECT 'account', count(*)::text FROM public.account\n            UNION ALL SELECT 'ledger_entry', count(*)::text FROM public.ledger_entry\n            UNION ALL SELECT 'currency', count(*)::text FROM public.currency\n            UNION ALL SELECT 'referral', count(*)::text FROM public.referral",
+      "rows": [
+        {
+          "t": "users",
+          "n": "583"
+        },
+        {
+          "t": "account",
+          "n": "365"
+        },
+        {
+          "t": "ledger_entry",
+          "n": "3201"
+        },
+        {
+          "t": "currency",
+          "n": "114"
+        },
+        {
+          "t": "referral",
+          "n": "293"
+        }
+      ]
+    },
+    "T1_public_not_internal": {
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid\n     JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' AND NOT t.tgisinternal",
+      "rows": [
+        {
+          "n": "43"
+        }
+      ]
+    },
+    "T2_public_all": {
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid\n     JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public'",
+      "rows": [
+        {
+          "n": "175"
+        }
+      ]
+    },
+    "T3_public_not_internal_by_enabled": {
+      "sql": "SELECT t.tgenabled::text AS en, count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid\n     JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' AND NOT t.tgisinternal GROUP BY 1 ORDER BY 1",
+      "rows": [
+        {
+          "en": "O",
+          "n": "43"
+        }
+      ]
+    },
+    "T4_public_all_by_enabled": {
+      "sql": "SELECT t.tgenabled::text AS en, count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid\n     JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' GROUP BY 1 ORDER BY 1",
+      "rows": [
+        {
+          "en": "O",
+          "n": "175"
+        }
+      ]
+    },
+    "T5_per_namespace_all": {
+      "sql": "SELECT n.nspname AS ns, count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid\n     JOIN pg_namespace n ON n.oid = c.relnamespace GROUP BY 1 ORDER BY 1",
+      "rows": [
+        {
+          "ns": "neon_auth",
+          "n": "24"
+        },
+        {
+          "ns": "public",
+          "n": "175"
+        }
+      ]
+    },
+    "T6_per_namespace_not_internal": {
+      "sql": "SELECT n.nspname AS ns, count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid\n     JOIN pg_namespace n ON n.oid = c.relnamespace WHERE NOT t.tgisinternal GROUP BY 1 ORDER BY 1",
+      "rows": [
+        {
+          "ns": "public",
+          "n": "43"
+        }
+      ]
+    },
+    "T7_public_not_internal_by_relkind": {
+      "sql": "SELECT c.relkind::text AS relkind, count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid\n     JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' AND NOT t.tgisinternal GROUP BY 1 ORDER BY 1",
+      "rows": [
+        {
+          "relkind": "r",
+          "n": "43"
+        }
+      ]
+    },
+    "T8_public_all_by_relkind": {
+      "sql": "SELECT c.relkind::text AS relkind, count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid\n     JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' GROUP BY 1 ORDER BY 1",
+      "rows": [
+        {
+          "relkind": "r",
+          "n": "175"
+        }
+      ]
+    },
+    "T9_public_all_by_tgisinternal": {
+      "sql": "SELECT t.tgisinternal::text AS internal, count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid\n     JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' GROUP BY 1 ORDER BY 1",
+      "rows": [
+        {
+          "internal": "false",
+          "n": "43"
+        },
+        {
+          "internal": "true",
+          "n": "132"
+        }
+      ]
+    },
+    "T10_public_not_internal_by_tgparentid": {
+      "sql": "SELECT CASE WHEN t.tgparentid = 0 THEN 'parent=0' ELSE 'cloned(parent<>0)' END AS k, count(*)::text AS n\n     FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace\n     WHERE n.nspname = 'public' AND NOT t.tgisinternal GROUP BY 1 ORDER BY 1",
+      "rows": [
+        {
+          "k": "parent=0",
+          "n": "43"
+        }
+      ]
+    },
+    "T11_public_rows_any_enabled_non_O": {
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid\n     JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' AND t.tgenabled <> 'O'",
+      "rows": [
+        {
+          "n": "0"
+        }
+      ]
+    },
+    "T12_information_schema_public": {
+      "sql": "SELECT count(*)::text AS n FROM information_schema.triggers WHERE trigger_schema = 'public'",
+      "rows": [
+        {
+          "n": "51"
+        }
+      ]
+    },
+    "T13_information_schema_all": {
+      "sql": "SELECT count(*)::text AS n FROM information_schema.triggers",
+      "rows": [
+        {
+          "n": "51"
+        }
+      ]
+    },
+    "T14_information_schema_public_distinct": {
+      "sql": "SELECT (count(DISTINCT (trigger_schema, event_object_table, trigger_name)))::text AS n FROM information_schema.triggers WHERE trigger_schema = 'public'",
+      "rows": [
+        {
+          "n": "43"
+        }
+      ]
+    },
+    "T15_pg_trigger_no_class_join": {
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid WHERE c.relnamespace = 'public'::regnamespace AND NOT t.tgisinternal",
+      "rows": [
+        {
+          "n": "43"
+        }
+      ]
+    },
+    "T16_pg_event_trigger": {
+      "sql": "SELECT count(*)::text AS n FROM pg_event_trigger",
+      "rows": [
+        {
+          "n": "0"
+        }
+      ]
+    },
+    "T17_public_not_internal_excl_partition_clones": {
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid\n     JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' AND NOT t.tgisinternal AND t.tgparentid = 0",
+      "rows": [
+        {
+          "n": "43"
+        }
+      ]
+    },
+    "LIST_ALL_TRIGGERS": {
+      "sql": "SELECT n.nspname AS ns, c.relname AS rel, c.relkind::text AS relkind, t.tgname AS trig,\n    t.tgisinternal::text AS internal, t.tgenabled::text AS en, t.tgparentid::text AS parent,\n    (t.tgconstraint <> 0)::text AS is_constraint, t.tgtype::text AS tgtype\n  FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace\n  ORDER BY n.nspname, c.relname, t.tgname",
+      "rows": [
+        {
+          "ns": "neon_auth",
+          "rel": "account",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_16626",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "account",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_16627",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "invitation",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_16712",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "invitation",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_16713",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "invitation",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_16717",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "invitation",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_16718",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "member",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_16686",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "member",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_16687",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "member",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_16691",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "member",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_16692",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "organization",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_16684",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "organization",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_16685",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "organization",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_16710",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "organization",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_16711",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "session",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_16606",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "session",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_16607",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "user",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_16604",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "user",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_16605",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "user",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_16624",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "user",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_16625",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "user",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_16689",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "user",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_16690",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "user",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_16715",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "neon_auth",
+          "rel": "user",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_16716",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "account",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_24679",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "account",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_24680",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "account",
+          "relkind": "r",
+          "trig": "trg_account_guard",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "31"
+        },
+        {
+          "ns": "public",
+          "rel": "admin_permission",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_131123",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "admin_permission",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_131124",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "admin_permission",
+          "relkind": "r",
+          "trig": "trg_admin_permission_key_immutable",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "admin_role",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_131118",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "admin_role",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_131119",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "admin_role",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_131142",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "admin_role",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_131143",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "admin_role",
+          "relkind": "r",
+          "trig": "trg_admin_role_key_immutable",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "admin_role_permission",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_131120",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "admin_role_permission",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_131121",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "admin_role_permission",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_131125",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "admin_role_permission",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_131126",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "admin_role_permission",
+          "relkind": "r",
+          "trig": "trg_admin_role_permission_key_immutable",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "admin_user_role",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_131139",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "admin_user_role",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_131140",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "admin_user_role",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_131144",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "admin_user_role",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_131145",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "admin_user_role",
+          "relkind": "r",
+          "trig": "trg_admin_user_role_key_immutable",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "app_config",
+          "relkind": "r",
+          "trig": "trg_app_config_key_immutable",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "app_config",
+          "relkind": "r",
+          "trig": "trg_app_config_touch_updated",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "commission_policy",
+          "relkind": "r",
+          "trig": "trg_commission_policy_append_only",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "27"
+        },
+        {
+          "ns": "public",
+          "rel": "commission_policy",
+          "relkind": "r",
+          "trig": "trg_commission_policy_weights_guard",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "23"
+        },
+        {
+          "ns": "public",
+          "rel": "currency",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_106660",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "currency",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_106661",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "currency",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_106711",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "currency",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_106712",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "currency",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_122923",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "currency",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_122924",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "currency",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_122928",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "currency",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_122929",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "currency",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_122956",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "currency",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_122957",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "currency",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_122961",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "currency",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_122962",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "currency",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_131162",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "currency",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_131163",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "currency",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_24677",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "currency",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_24678",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "currency",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_24713",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "currency",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_24714",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "currency",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_90213",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "currency",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_90214",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "currency_status_log",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_131164",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "currency_status_log",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_131165",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "currency_status_log",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_131169",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "currency_status_log",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_131170",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "currency_status_log",
+          "relkind": "r",
+          "trig": "trg_currency_status_log_append_only",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "27"
+        },
+        {
+          "ns": "public",
+          "rel": "job",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_90300",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "job",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_90301",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "job",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_90334",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "job",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_90335",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "job",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_90205",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "job",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_90206",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "job",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_90210",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "job",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_90211",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "job",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_90215",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "job",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_90216",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "job",
+          "relkind": "r",
+          "trig": "trg_job_core_immutable_guard",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "job",
+          "relkind": "r",
+          "trig": "trg_job_ledger_ref_guard",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "job",
+          "relkind": "r",
+          "trig": "trg_job_no_delete",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "11"
+        },
+        {
+          "ns": "public",
+          "rel": "job",
+          "relkind": "r",
+          "trig": "trg_job_status_guard",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "job",
+          "relkind": "r",
+          "trig": "trg_job_touch_time_updated",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "job_application",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_90302",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "job_application",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_90303",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "job_application",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_90307",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "job_application",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_90308",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "job_application",
+          "relkind": "r",
+          "trig": "trg_job_application_create_key_guard",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "job_application",
+          "relkind": "r",
+          "trig": "trg_job_application_no_delete",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "11"
+        },
+        {
+          "ns": "public",
+          "rel": "job_application",
+          "relkind": "r",
+          "trig": "trg_job_application_status_guard",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "job_application",
+          "relkind": "r",
+          "trig": "trg_job_application_touch_time_updated",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "job_submission",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_90336",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "job_submission",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_90337",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "job_submission",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_90341",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "job_submission",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_90342",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "job_submission",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_90346",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "job_submission",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_90347",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "job_submission",
+          "relkind": "r",
+          "trig": "trg_job_submission_immutable_guard",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "job_submission",
+          "relkind": "r",
+          "trig": "trg_job_submission_no_delete",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "11"
+        },
+        {
+          "ns": "public",
+          "rel": "ledger_entry",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_24718",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "ledger_entry",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_24719",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "ledger_entry",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_24715",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "ledger_entry",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_24716",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "ledger_entry",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_24720",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "ledger_entry",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_24721",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "ledger_entry",
+          "relkind": "r",
+          "trig": "trg_ledger_entry_append_only",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "27"
+        },
+        {
+          "ns": "public",
+          "rel": "ledger_entry",
+          "relkind": "r",
+          "trig": "trg_ledger_entry_commission_conservation",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "listing",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_106696",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "listing",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_106697",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "listing",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_106657",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "listing",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_106658",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "listing",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_106662",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "listing",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_106663",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "listing",
+          "relkind": "r",
+          "trig": "trg_listing_create_key_guard",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "listing",
+          "relkind": "r",
+          "trig": "trg_listing_no_delete",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "11"
+        },
+        {
+          "ns": "public",
+          "rel": "listing",
+          "relkind": "r",
+          "trig": "trg_listing_status_guard",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "listing",
+          "relkind": "r",
+          "trig": "trg_listing_stock_guard",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "listing",
+          "relkind": "r",
+          "trig": "trg_listing_touch_time_updated",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "listing_order",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_106698",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "listing_order",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_106699",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "listing_order",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_106703",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "listing_order",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_106704",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "listing_order",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_106708",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "listing_order",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_106709",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "listing_order",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_106713",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "listing_order",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_106714",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "listing_order",
+          "relkind": "r",
+          "trig": "trg_listing_order_core_immutable_guard",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "listing_order",
+          "relkind": "r",
+          "trig": "trg_listing_order_create_key_guard",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "listing_order",
+          "relkind": "r",
+          "trig": "trg_listing_order_ledger_ref_guard",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "listing_order",
+          "relkind": "r",
+          "trig": "trg_listing_order_no_delete",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "11"
+        },
+        {
+          "ns": "public",
+          "rel": "listing_order",
+          "relkind": "r",
+          "trig": "trg_listing_order_status_guard",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "listing_order",
+          "relkind": "r",
+          "trig": "trg_listing_order_touch_time_updated",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "market_order",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_122966",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "market_order",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_122967",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "market_order",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_122971",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "market_order",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_122972",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "market_order",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_122920",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "market_order",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_122921",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "market_order",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_122925",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "market_order",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_122926",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "market_order",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_122930",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "market_order",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_122931",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "market_order",
+          "relkind": "r",
+          "trig": "trg_market_order_amount_filled_guard",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "market_order",
+          "relkind": "r",
+          "trig": "trg_market_order_core_immutable_guard",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "market_order",
+          "relkind": "r",
+          "trig": "trg_market_order_create_key_guard",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "market_order",
+          "relkind": "r",
+          "trig": "trg_market_order_no_delete",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "11"
+        },
+        {
+          "ns": "public",
+          "rel": "market_order",
+          "relkind": "r",
+          "trig": "trg_market_order_status_guard",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "market_order",
+          "relkind": "r",
+          "trig": "trg_market_order_touch_time_updated",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "19"
+        },
+        {
+          "ns": "public",
+          "rel": "market_trade",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_122958",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "market_trade",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_122959",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "market_trade",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_122963",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "market_trade",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_122964",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "market_trade",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_122968",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "market_trade",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_122969",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "market_trade",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_122973",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "market_trade",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_122974",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "market_trade",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_122978",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "market_trade",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_122979",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "market_trade",
+          "relkind": "r",
+          "trig": "trg_market_trade_append_only",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "27"
+        },
+        {
+          "ns": "public",
+          "rel": "referral",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_49167",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "referral",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_49168",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "referral",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_49172",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "5"
+        },
+        {
+          "ns": "public",
+          "rel": "referral",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_c_49173",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "referral",
+          "relkind": "r",
+          "trig": "trg_referral_append_only",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "27"
+        },
+        {
+          "ns": "public",
+          "rel": "referral",
+          "relkind": "r",
+          "trig": "trg_referral_cycle_guard",
+          "internal": "false",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "false",
+          "tgtype": "7"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_106655",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_106656",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_106701",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_106702",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_106706",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_106707",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_122918",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_122919",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_122976",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_122977",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_131137",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_131138",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_131167",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_131168",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_49165",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_49166",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_49170",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_49171",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_90203",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_90204",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_90208",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_90209",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_90305",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_90306",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_90339",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_90340",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_90344",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "9"
+        },
+        {
+          "ns": "public",
+          "rel": "users",
+          "relkind": "r",
+          "trig": "RI_ConstraintTrigger_a_90345",
+          "internal": "true",
+          "en": "O",
+          "parent": "0",
+          "is_constraint": "true",
+          "tgtype": "17"
+        }
+      ]
+    }
+  },
+  "public_all_n": 175,
+  "public_not_internal_n": 43,
+  "public_not_internal_names": [
+    "account.trg_account_guard",
+    "admin_permission.trg_admin_permission_key_immutable",
+    "admin_role.trg_admin_role_key_immutable",
+    "admin_role_permission.trg_admin_role_permission_key_immutable",
+    "admin_user_role.trg_admin_user_role_key_immutable",
+    "app_config.trg_app_config_key_immutable",
+    "app_config.trg_app_config_touch_updated",
+    "commission_policy.trg_commission_policy_append_only",
+    "commission_policy.trg_commission_policy_weights_guard",
+    "currency_status_log.trg_currency_status_log_append_only",
+    "job.trg_job_core_immutable_guard",
+    "job.trg_job_ledger_ref_guard",
+    "job.trg_job_no_delete",
+    "job.trg_job_status_guard",
+    "job.trg_job_touch_time_updated",
+    "job_application.trg_job_application_create_key_guard",
+    "job_application.trg_job_application_no_delete",
+    "job_application.trg_job_application_status_guard",
+    "job_application.trg_job_application_touch_time_updated",
+    "job_submission.trg_job_submission_immutable_guard",
+    "job_submission.trg_job_submission_no_delete",
+    "ledger_entry.trg_ledger_entry_append_only",
+    "ledger_entry.trg_ledger_entry_commission_conservation",
+    "listing.trg_listing_create_key_guard",
+    "listing.trg_listing_no_delete",
+    "listing.trg_listing_status_guard",
+    "listing.trg_listing_stock_guard",
+    "listing.trg_listing_touch_time_updated",
+    "listing_order.trg_listing_order_core_immutable_guard",
+    "listing_order.trg_listing_order_create_key_guard",
+    "listing_order.trg_listing_order_ledger_ref_guard",
+    "listing_order.trg_listing_order_no_delete",
+    "listing_order.trg_listing_order_status_guard",
+    "listing_order.trg_listing_order_touch_time_updated",
+    "market_order.trg_market_order_amount_filled_guard",
+    "market_order.trg_market_order_core_immutable_guard",
+    "market_order.trg_market_order_create_key_guard",
+    "market_order.trg_market_order_no_delete",
+    "market_order.trg_market_order_status_guard",
+    "market_order.trg_market_order_touch_time_updated",
+    "market_trade.trg_market_trade_append_only",
+    "referral.trg_referral_append_only",
+    "referral.trg_referral_cycle_guard"
+  ],
+  "public_internal_names": [
+    "account(r).RI_ConstraintTrigger_c_24679",
+    "account(r).RI_ConstraintTrigger_c_24680",
+    "admin_permission(r).RI_ConstraintTrigger_a_131123",
+    "admin_permission(r).RI_ConstraintTrigger_a_131124",
+    "admin_role(r).RI_ConstraintTrigger_a_131118",
+    "admin_role(r).RI_ConstraintTrigger_a_131119",
+    "admin_role(r).RI_ConstraintTrigger_a_131142",
+    "admin_role(r).RI_ConstraintTrigger_a_131143",
+    "admin_role_permission(r).RI_ConstraintTrigger_c_131120",
+    "admin_role_permission(r).RI_ConstraintTrigger_c_131121",
+    "admin_role_permission(r).RI_ConstraintTrigger_c_131125",
+    "admin_role_permission(r).RI_ConstraintTrigger_c_131126",
+    "admin_user_role(r).RI_ConstraintTrigger_c_131139",
+    "admin_user_role(r).RI_ConstraintTrigger_c_131140",
+    "admin_user_role(r).RI_ConstraintTrigger_c_131144",
+    "admin_user_role(r).RI_ConstraintTrigger_c_131145",
+    "currency(r).RI_ConstraintTrigger_a_106660",
+    "currency(r).RI_ConstraintTrigger_a_106661",
+    "currency(r).RI_ConstraintTrigger_a_106711",
+    "currency(r).RI_ConstraintTrigger_a_106712",
+    "currency(r).RI_ConstraintTrigger_a_122923",
+    "currency(r).RI_ConstraintTrigger_a_122924",
+    "currency(r).RI_ConstraintTrigger_a_122928",
+    "currency(r).RI_ConstraintTrigger_a_122929",
+    "currency(r).RI_ConstraintTrigger_a_122956",
+    "currency(r).RI_ConstraintTrigger_a_122957",
+    "currency(r).RI_ConstraintTrigger_a_122961",
+    "currency(r).RI_ConstraintTrigger_a_122962",
+    "currency(r).RI_ConstraintTrigger_a_131162",
+    "currency(r).RI_ConstraintTrigger_a_131163",
+    "currency(r).RI_ConstraintTrigger_a_24677",
+    "currency(r).RI_ConstraintTrigger_a_24678",
+    "currency(r).RI_ConstraintTrigger_a_24713",
+    "currency(r).RI_ConstraintTrigger_a_24714",
+    "currency(r).RI_ConstraintTrigger_a_90213",
+    "currency(r).RI_ConstraintTrigger_a_90214",
+    "currency_status_log(r).RI_ConstraintTrigger_c_131164",
+    "currency_status_log(r).RI_ConstraintTrigger_c_131165",
+    "currency_status_log(r).RI_ConstraintTrigger_c_131169",
+    "currency_status_log(r).RI_ConstraintTrigger_c_131170",
+    "job(r).RI_ConstraintTrigger_a_90300",
+    "job(r).RI_ConstraintTrigger_a_90301",
+    "job(r).RI_ConstraintTrigger_a_90334",
+    "job(r).RI_ConstraintTrigger_a_90335",
+    "job(r).RI_ConstraintTrigger_c_90205",
+    "job(r).RI_ConstraintTrigger_c_90206",
+    "job(r).RI_ConstraintTrigger_c_90210",
+    "job(r).RI_ConstraintTrigger_c_90211",
+    "job(r).RI_ConstraintTrigger_c_90215",
+    "job(r).RI_ConstraintTrigger_c_90216",
+    "job_application(r).RI_ConstraintTrigger_c_90302",
+    "job_application(r).RI_ConstraintTrigger_c_90303",
+    "job_application(r).RI_ConstraintTrigger_c_90307",
+    "job_application(r).RI_ConstraintTrigger_c_90308",
+    "job_submission(r).RI_ConstraintTrigger_c_90336",
+    "job_submission(r).RI_ConstraintTrigger_c_90337",
+    "job_submission(r).RI_ConstraintTrigger_c_90341",
+    "job_submission(r).RI_ConstraintTrigger_c_90342",
+    "job_submission(r).RI_ConstraintTrigger_c_90346",
+    "job_submission(r).RI_ConstraintTrigger_c_90347",
+    "ledger_entry(r).RI_ConstraintTrigger_a_24718",
+    "ledger_entry(r).RI_ConstraintTrigger_a_24719",
+    "ledger_entry(r).RI_ConstraintTrigger_c_24715",
+    "ledger_entry(r).RI_ConstraintTrigger_c_24716",
+    "ledger_entry(r).RI_ConstraintTrigger_c_24720",
+    "ledger_entry(r).RI_ConstraintTrigger_c_24721",
+    "listing(r).RI_ConstraintTrigger_a_106696",
+    "listing(r).RI_ConstraintTrigger_a_106697",
+    "listing(r).RI_ConstraintTrigger_c_106657",
+    "listing(r).RI_ConstraintTrigger_c_106658",
+    "listing(r).RI_ConstraintTrigger_c_106662",
+    "listing(r).RI_ConstraintTrigger_c_106663",
+    "listing_order(r).RI_ConstraintTrigger_c_106698",
+    "listing_order(r).RI_ConstraintTrigger_c_106699",
+    "listing_order(r).RI_ConstraintTrigger_c_106703",
+    "listing_order(r).RI_ConstraintTrigger_c_106704",
+    "listing_order(r).RI_ConstraintTrigger_c_106708",
+    "listing_order(r).RI_ConstraintTrigger_c_106709",
+    "listing_order(r).RI_ConstraintTrigger_c_106713",
+    "listing_order(r).RI_ConstraintTrigger_c_106714",
+    "market_order(r).RI_ConstraintTrigger_a_122966",
+    "market_order(r).RI_ConstraintTrigger_a_122967",
+    "market_order(r).RI_ConstraintTrigger_a_122971",
+    "market_order(r).RI_ConstraintTrigger_a_122972",
+    "market_order(r).RI_ConstraintTrigger_c_122920",
+    "market_order(r).RI_ConstraintTrigger_c_122921",
+    "market_order(r).RI_ConstraintTrigger_c_122925",
+    "market_order(r).RI_ConstraintTrigger_c_122926",
+    "market_order(r).RI_ConstraintTrigger_c_122930",
+    "market_order(r).RI_ConstraintTrigger_c_122931",
+    "market_trade(r).RI_ConstraintTrigger_c_122958",
+    "market_trade(r).RI_ConstraintTrigger_c_122959",
+    "market_trade(r).RI_ConstraintTrigger_c_122963",
+    "market_trade(r).RI_ConstraintTrigger_c_122964",
+    "market_trade(r).RI_ConstraintTrigger_c_122968",
+    "market_trade(r).RI_ConstraintTrigger_c_122969",
+    "market_trade(r).RI_ConstraintTrigger_c_122973",
+    "market_trade(r).RI_ConstraintTrigger_c_122974",
+    "market_trade(r).RI_ConstraintTrigger_c_122978",
+    "market_trade(r).RI_ConstraintTrigger_c_122979",
+    "referral(r).RI_ConstraintTrigger_c_49167",
+    "referral(r).RI_ConstraintTrigger_c_49168",
+    "referral(r).RI_ConstraintTrigger_c_49172",
+    "referral(r).RI_ConstraintTrigger_c_49173",
+    "users(r).RI_ConstraintTrigger_a_106655",
+    "users(r).RI_ConstraintTrigger_a_106656",
+    "users(r).RI_ConstraintTrigger_a_106701",
+    "users(r).RI_ConstraintTrigger_a_106702",
+    "users(r).RI_ConstraintTrigger_a_106706",
+    "users(r).RI_ConstraintTrigger_a_106707",
+    "users(r).RI_ConstraintTrigger_a_122918",
+    "users(r).RI_ConstraintTrigger_a_122919",
+    "users(r).RI_ConstraintTrigger_a_122976",
+    "users(r).RI_ConstraintTrigger_a_122977",
+    "users(r).RI_ConstraintTrigger_a_131137",
+    "users(r).RI_ConstraintTrigger_a_131138",
+    "users(r).RI_ConstraintTrigger_a_131167",
+    "users(r).RI_ConstraintTrigger_a_131168",
+    "users(r).RI_ConstraintTrigger_a_49165",
+    "users(r).RI_ConstraintTrigger_a_49166",
+    "users(r).RI_ConstraintTrigger_a_49170",
+    "users(r).RI_ConstraintTrigger_a_49171",
+    "users(r).RI_ConstraintTrigger_a_90203",
+    "users(r).RI_ConstraintTrigger_a_90204",
+    "users(r).RI_ConstraintTrigger_a_90208",
+    "users(r).RI_ConstraintTrigger_a_90209",
+    "users(r).RI_ConstraintTrigger_a_90305",
+    "users(r).RI_ConstraintTrigger_a_90306",
+    "users(r).RI_ConstraintTrigger_a_90339",
+    "users(r).RI_ConstraintTrigger_a_90340",
+    "users(r).RI_ConstraintTrigger_a_90344",
+    "users(r).RI_ConstraintTrigger_a_90345"
+  ],
+  "other_namespaces": [
+    "neon_auth",
+    "public"
+  ]
+}

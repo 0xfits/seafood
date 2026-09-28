@@ -1,0 +1,300 @@
+{
+  "probe": "P3S-03 · 非 PG 错误折叠路径的离线合成复现",
+  "run": "20260928T152422Z",
+  "utc": "2026-09-28T15:24:22.643Z",
+  "source_refs": {
+    "classifyNonPgError": "src/ledger-errors.ts:354-364",
+    "fold_branch": "src/ledger-errors.ts:450-456（cause=non_pg_error / reason=NonPgReason / error_name=errName(e) / error_code=code||none）",
+    "errName_fallback": "src/ledger-errors.ts:266（e.name ?? 'Error' ⇒ 无 name 的 ErrorEvent 会被记成 \"Error\"）",
+    "pg_message_header": "src/ledger.ts:50（LEDGER_TRANSACTION_REQUIRED 的 cause/reason 形状登记）"
+  },
+  "outcomes": [
+    {
+      "key": "plain_Error_ws_closed_before_established",
+      "note": "ws 连接被关闭（TLS/握手失败常见原文）",
+      "input_name": "Error",
+      "input_own_code": false,
+      "input_code": null,
+      "input_has_stack": true,
+      "input_message": "WebSocket was closed before the connection was established",
+      "non_pg_reason": "unclassified_non_pg_error",
+      "mapped_code": "LEDGER_TRANSACTION_REQUIRED",
+      "mapped_status": 500,
+      "mapped_message": "服务暂不可用，请稍后重试",
+      "mapped_details": {
+        "cause": "non_pg_error",
+        "reason": "unclassified_non_pg_error",
+        "error_name": "Error",
+        "error_code": "none"
+      },
+      "details_preserves_message": false,
+      "details_preserves_stack_hint": false,
+      "info_lost": true
+    },
+    {
+      "key": "plain_Error_ws_closed_code_1006",
+      "note": "ws 异常关闭",
+      "input_name": "Error",
+      "input_own_code": false,
+      "input_code": null,
+      "input_has_stack": true,
+      "input_message": "WebSocket was closed abnormally (code 1006)",
+      "non_pg_reason": "unclassified_non_pg_error",
+      "mapped_code": "LEDGER_TRANSACTION_REQUIRED",
+      "mapped_status": 500,
+      "mapped_message": "服务暂不可用，请稍后重试",
+      "mapped_details": {
+        "cause": "non_pg_error",
+        "reason": "unclassified_non_pg_error",
+        "error_name": "Error",
+        "error_code": "none"
+      },
+      "details_preserves_message": false,
+      "details_preserves_stack_hint": false,
+      "info_lost": true
+    },
+    {
+      "key": "plain_Error_socket_hang_up",
+      "note": "Node http/socket",
+      "input_name": "Error",
+      "input_own_code": false,
+      "input_code": null,
+      "input_has_stack": true,
+      "input_message": "socket hang up",
+      "non_pg_reason": "driver_connection_error",
+      "mapped_code": "LEDGER_TX_TIMEOUT",
+      "mapped_status": 503,
+      "mapped_message": "系统繁忙，请稍后重试",
+      "mapped_details": {
+        "reason": "driver_connection_error",
+        "error_code": "none"
+      },
+      "details_preserves_message": false,
+      "details_preserves_stack_hint": false,
+      "info_lost": true
+    },
+    {
+      "key": "plain_Error_fetch_failed",
+      "note": "undici/Node fetch",
+      "input_name": "Error",
+      "input_own_code": false,
+      "input_code": null,
+      "input_has_stack": true,
+      "input_message": "fetch failed",
+      "non_pg_reason": "unclassified_non_pg_error",
+      "mapped_code": "LEDGER_TRANSACTION_REQUIRED",
+      "mapped_status": 500,
+      "mapped_message": "服务暂不可用，请稍后重试",
+      "mapped_details": {
+        "cause": "non_pg_error",
+        "reason": "unclassified_non_pg_error",
+        "error_name": "Error",
+        "error_code": "none"
+      },
+      "details_preserves_message": false,
+      "details_preserves_stack_hint": false,
+      "info_lost": true
+    },
+    {
+      "key": "plain_Error_no_message",
+      "note": "空 message 的裸 Error",
+      "input_name": "Error",
+      "input_own_code": false,
+      "input_code": null,
+      "input_has_stack": true,
+      "input_message": "",
+      "non_pg_reason": "unclassified_non_pg_error",
+      "mapped_code": "LEDGER_TRANSACTION_REQUIRED",
+      "mapped_status": 500,
+      "mapped_message": "服务暂不可用，请稍后重试",
+      "mapped_details": {
+        "cause": "non_pg_error",
+        "reason": "unclassified_non_pg_error",
+        "error_name": "Error",
+        "error_code": "none"
+      },
+      "details_preserves_message": false,
+      "details_preserves_stack_hint": false,
+      "info_lost": true
+    },
+    {
+      "key": "type_error_driver_connectionCallback",
+      "note": "本机实测的驱动崩溃形态（ErrorEvent.message 只读）",
+      "input_name": "TypeError",
+      "input_own_code": false,
+      "input_code": null,
+      "input_has_stack": true,
+      "input_message": "Cannot set property message of #<ErrorEvent> which has only a getter",
+      "non_pg_reason": "unclassified_non_pg_error",
+      "mapped_code": "LEDGER_TRANSACTION_REQUIRED",
+      "mapped_status": 500,
+      "mapped_message": "服务暂不可用，请稍后重试",
+      "mapped_details": {
+        "cause": "non_pg_error",
+        "reason": "unclassified_non_pg_error",
+        "error_name": "TypeError",
+        "error_code": "none"
+      },
+      "details_preserves_message": false,
+      "details_preserves_stack_hint": false,
+      "info_lost": true
+    },
+    {
+      "key": "error_like_plain_object",
+      "note": "没有 name/code 的字面量对象（driver 转手后常见）",
+      "input_name": null,
+      "input_own_code": false,
+      "input_code": null,
+      "input_has_stack": false,
+      "input_message": "TLS handshake failed",
+      "non_pg_reason": "unclassified_non_pg_error",
+      "mapped_code": "LEDGER_TRANSACTION_REQUIRED",
+      "mapped_status": 500,
+      "mapped_message": "服务暂不可用，请稍后重试",
+      "mapped_details": {
+        "cause": "non_pg_error",
+        "reason": "unclassified_non_pg_error",
+        "error_name": "Error",
+        "error_code": "none"
+      },
+      "details_preserves_message": false,
+      "details_preserves_stack_hint": false,
+      "info_lost": true
+    },
+    {
+      "key": "error_event_like_getter_only_message",
+      "note": "**关键**：像 ws/lib/event-target.js 的 ErrorEvent —— name/code 均 undefined、message 是 getter-only",
+      "input_name": null,
+      "input_own_code": false,
+      "input_code": null,
+      "input_has_stack": false,
+      "input_message": "stream error: TLS handshake failed",
+      "non_pg_reason": "unclassified_non_pg_error",
+      "mapped_code": "LEDGER_TRANSACTION_REQUIRED",
+      "mapped_status": 500,
+      "mapped_message": "服务暂不可用，请稍后重试",
+      "mapped_details": {
+        "cause": "non_pg_error",
+        "reason": "unclassified_non_pg_error",
+        "error_name": "Error",
+        "error_code": "none"
+      },
+      "details_preserves_message": false,
+      "details_preserves_stack_hint": false,
+      "info_lost": true
+    },
+    {
+      "key": "frozen_object_assign_message_fails",
+      "note": "属性只读（复现 `o.message = ...` 抛 TypeError 的前置条件）",
+      "input_name": null,
+      "input_own_code": true,
+      "input_code": null,
+      "input_has_stack": false,
+      "input_message": null,
+      "non_pg_reason": "unclassified_non_pg_error",
+      "mapped_code": "LEDGER_TRANSACTION_REQUIRED",
+      "mapped_status": 500,
+      "mapped_message": "服务暂不可用，请稍后重试",
+      "mapped_details": {
+        "cause": "non_pg_error",
+        "reason": "unclassified_non_pg_error",
+        "error_name": "Error",
+        "error_code": "none"
+      },
+      "details_preserves_message": false,
+      "details_preserves_stack_hint": false,
+      "info_lost": true
+    },
+    {
+      "key": "pool_timeout_plain",
+      "note": "对照组：池拿连接超时 ⇒ 应 503",
+      "input_name": "Error",
+      "input_own_code": false,
+      "input_code": null,
+      "input_has_stack": true,
+      "input_message": "timeout exceeded when trying to connect",
+      "non_pg_reason": "pool_connection_timeout",
+      "mapped_code": "LEDGER_TX_TIMEOUT",
+      "mapped_status": 503,
+      "mapped_message": "系统繁忙，请稍后重试",
+      "mapped_details": {
+        "reason": "pool_connection_timeout",
+        "source": "connection_pool"
+      },
+      "details_preserves_message": false,
+      "details_preserves_stack_hint": false,
+      "info_lost": true
+    },
+    {
+      "key": "driver_transient_ECONNRESET",
+      "note": "对照组：驱动瞬时码 ⇒ 应 503",
+      "input_name": "Error",
+      "input_own_code": true,
+      "input_code": "ECONNRESET",
+      "input_has_stack": true,
+      "input_message": "read ECONNRESET",
+      "non_pg_reason": "driver_connection_error",
+      "mapped_code": "LEDGER_TX_TIMEOUT",
+      "mapped_status": 503,
+      "mapped_message": "系统繁忙，请稍后重试",
+      "mapped_details": {
+        "reason": "driver_connection_error",
+        "error_code": "ECONNRESET"
+      },
+      "details_preserves_message": false,
+      "details_preserves_stack_hint": false,
+      "info_lost": true
+    },
+    {
+      "key": "pg_sqlstate_22003_control",
+      "note": "对照组：PG 22003（本应被 DB 闸收住，不应出现）",
+      "input_name": "Error",
+      "input_own_code": true,
+      "input_code": "22003",
+      "input_has_stack": true,
+      "input_message": "numeric field overflow",
+      "non_pg_reason": null,
+      "mapped_code": "LEDGER_TRANSACTION_REQUIRED",
+      "mapped_status": 500,
+      "mapped_message": "服务暂不可用，请稍后重试",
+      "mapped_details": {
+        "cause": "22003",
+        "reason": "unclassified_pg_error",
+        "error_name": "Error",
+        "pg_code": "22003"
+      },
+      "details_preserves_message": false,
+      "details_preserves_stack_hint": false,
+      "info_lost": true
+    }
+  ],
+  "three_state": {
+    "RED_info_lost_500": [
+      "plain_Error_ws_closed_before_established",
+      "plain_Error_ws_closed_code_1006",
+      "plain_Error_fetch_failed",
+      "plain_Error_no_message",
+      "type_error_driver_connectionCallback",
+      "error_like_plain_object",
+      "error_event_like_getter_only_message",
+      "frozen_object_assign_message_fails",
+      "pg_sqlstate_22003_control"
+    ],
+    "GREEN_info_preserved_or_retryable": [
+      "plain_Error_socket_hang_up",
+      "pool_timeout_plain",
+      "driver_transient_ECONNRESET"
+    ],
+    "RECOVERY_criteria": [
+      "修法：`normalizeLedgerError` 的非 PG 兜底分支保留原始信息（`details.error_message`/`details.error_stack_head`/`cause` 链），并把 500 诊断字段接到告警（DL126）；",
+      "恢复判据（本脚本复跑即可判）：RED 集合为空 ⇒ 每个 500 形态的 `details` 都能查到原始 message 或 stack 头；",
+      "不得改变对外 `code`/`status`（§14 关闭集 33 不动）：仅新增可机读 `details` 字段。"
+    ]
+  },
+  "counts": {
+    "total": 12,
+    "become_500": 9,
+    "become_503": 3,
+    "info_lost_among_500": 9
+  }
+}

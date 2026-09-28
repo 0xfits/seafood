@@ -1,0 +1,3142 @@
+{
+  "probe": "P3S-00 · p1o-00 500 族红项 RCA（外部探针 · 驱动层插桩）",
+  "run": "20260928T150937Z",
+  "started_tag": "20260928T150937Z",
+  "utc": "2026-09-28T15:11:24.034Z",
+  "symbols": {
+    "SYM": "P3ST150937Z",
+    "CID": "278",
+    "U1": "991101",
+    "U2": "991102",
+    "key_prefix": "cli:kong20-"
+  },
+  "n_per_series": 3,
+  "env": {
+    "write_driver": "pool(default)",
+    "tx_pool_max": "4(default)",
+    "read_pool_max": "4(default)",
+    "direct_url_host": "ep-holy-forest-b3fi7u3u.c-4.ap-southeast-1.aws.neon.tech",
+    "pooled_url_host": "ep-holy-forest-b3fi7u3u-pooler.c-4.ap-southeast-1.aws.neon.tech"
+  },
+  "control": {
+    "member": "CONTROL/E-W1_transfer/amount/valid_1",
+    "form": "i_suite",
+    "seq": 0,
+    "thrown": true,
+    "code": "LEDGER_INSUFFICIENT_BALANCE",
+    "status": 409,
+    "reason": null,
+    "cause": null,
+    "message": "可用余额不足",
+    "details": {
+      "cid": "278",
+      "uid": "991101",
+      "required": "100",
+      "available": "0"
+    },
+    "returned_kind": null,
+    "elapsed_ms": 1862,
+    "raw_errors": [
+      {
+        "where": "pool.query",
+        "tag": "CONTROL/E-W1_transfer/amount/valid_1|i_suite|0",
+        "name": "error",
+        "message": "LEDGER_INSUFFICIENT_BALANCE",
+        "code": "LD001",
+        "has_own_code": true,
+        "detail": "{\"cid\": \"278\", \"uid\": \"991101\", \"required\": \"100\", \"available\": \"0\"}",
+        "constraint": null,
+        "hint": null,
+        "cause": null,
+        "stack": [
+          "error: LEDGER_INSUFFICIENT_BALANCE",
+          "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+          "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+          "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+          "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+          "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+          "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+          "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+          "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:297:19)"
+        ]
+      }
+    ],
+    "sent": [
+      {
+        "tag": "CONTROL/E-W1_transfer/amount/valid_1|i_suite|0",
+        "via": "pool.query",
+        "text": "SELECT ledger_post_event($1::jsonb) AS r",
+        "params": {
+          "jsonb": "{\"op\":\"transfer\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-control-valid-1\",\"memo\":\"\",\"from_uid\":\"991101\",\"to_uid\":\"991102\",\"cid\":\"278\",\"amount\":\"1\"}"
+        }
+      }
+    ],
+    "raw_sig": "error|LEDGER_INSUFFICIENT_BALANCE"
+  },
+  "series": [
+    {
+      "member": "E-W1_transfer/amount/over_bigint_far",
+      "form": "i_suite",
+      "n": 3,
+      "thrown": 3,
+      "expected_400": 3,
+      "unexpected_500": 0,
+      "other": [],
+      "codes": {
+        "LEDGER_AMOUNT_INVALID|400": 3
+      },
+      "raw_sigs": {
+        "error|LEDGER_AMOUNT_INVALID": 3
+      }
+    },
+    {
+      "member": "E-W1_transfer/amount/over_bigint_far",
+      "form": "ii_contract_in_tx",
+      "n": 3,
+      "thrown": 3,
+      "expected_400": 0,
+      "unexpected_500": 0,
+      "other": [
+        0,
+        0,
+        0
+      ],
+      "codes": {
+        "LD016|null": 3
+      },
+      "raw_sigs": {}
+    },
+    {
+      "member": "E-W1_transfer/amount/over_bigint_far",
+      "form": "iii_transport_replay",
+      "n": 3,
+      "thrown": 3,
+      "expected_400": 0,
+      "unexpected_500": 0,
+      "other": [
+        0,
+        0,
+        0
+      ],
+      "codes": {
+        "LD016|null": 3
+      },
+      "raw_sigs": {
+        "error|LEDGER_AMOUNT_INVALID": 3
+      }
+    },
+    {
+      "member": "E-W1_transfer/amount/over_bigint_far",
+      "form": "ii_b_ts_units",
+      "n": 3,
+      "thrown": 3,
+      "expected_400": 3,
+      "unexpected_500": 0,
+      "other": [],
+      "codes": {
+        "LEDGER_AMOUNT_INVALID|400": 3
+      },
+      "raw_sigs": {}
+    },
+    {
+      "member": "E-W1_transfer/amount/bigint_max_plus_1",
+      "form": "i_suite",
+      "n": 3,
+      "thrown": 3,
+      "expected_400": 3,
+      "unexpected_500": 0,
+      "other": [],
+      "codes": {
+        "LEDGER_AMOUNT_INVALID|400": 3
+      },
+      "raw_sigs": {
+        "error|LEDGER_AMOUNT_INVALID": 3
+      }
+    },
+    {
+      "member": "E-W1_transfer/amount/bigint_max_plus_1",
+      "form": "ii_contract_in_tx",
+      "n": 3,
+      "thrown": 3,
+      "expected_400": 0,
+      "unexpected_500": 0,
+      "other": [
+        0,
+        0,
+        0
+      ],
+      "codes": {
+        "LD016|null": 3
+      },
+      "raw_sigs": {}
+    },
+    {
+      "member": "E-W1_transfer/amount/bigint_max_plus_1",
+      "form": "iii_transport_replay",
+      "n": 3,
+      "thrown": 3,
+      "expected_400": 0,
+      "unexpected_500": 0,
+      "other": [
+        0,
+        0,
+        0
+      ],
+      "codes": {
+        "LD016|null": 3
+      },
+      "raw_sigs": {
+        "error|LEDGER_AMOUNT_INVALID": 3
+      }
+    },
+    {
+      "member": "E-W1_transfer/amount/bigint_max_plus_1",
+      "form": "ii_b_ts_units",
+      "n": 3,
+      "thrown": 3,
+      "expected_400": 3,
+      "unexpected_500": 0,
+      "other": [],
+      "codes": {
+        "LEDGER_AMOUNT_INVALID|400": 3
+      },
+      "raw_sigs": {}
+    },
+    {
+      "member": "E-W3_freeze/amount/over_bigint_far",
+      "form": "i_suite",
+      "n": 3,
+      "thrown": 3,
+      "expected_400": 3,
+      "unexpected_500": 0,
+      "other": [],
+      "codes": {
+        "LEDGER_AMOUNT_INVALID|400": 3
+      },
+      "raw_sigs": {
+        "error|LEDGER_AMOUNT_INVALID": 3
+      }
+    },
+    {
+      "member": "E-W3_freeze/amount/over_bigint_far",
+      "form": "ii_contract_in_tx",
+      "n": 3,
+      "thrown": 3,
+      "expected_400": 0,
+      "unexpected_500": 0,
+      "other": [
+        0,
+        0,
+        0
+      ],
+      "codes": {
+        "LD016|null": 3
+      },
+      "raw_sigs": {}
+    },
+    {
+      "member": "E-W3_freeze/amount/over_bigint_far",
+      "form": "iii_transport_replay",
+      "n": 3,
+      "thrown": 3,
+      "expected_400": 0,
+      "unexpected_500": 0,
+      "other": [
+        0,
+        0,
+        0
+      ],
+      "codes": {
+        "LD016|null": 3
+      },
+      "raw_sigs": {
+        "error|LEDGER_AMOUNT_INVALID": 3
+      }
+    },
+    {
+      "member": "E-W3_freeze/amount/over_bigint_far",
+      "form": "ii_b_ts_units",
+      "n": 3,
+      "thrown": 3,
+      "expected_400": 3,
+      "unexpected_500": 0,
+      "other": [],
+      "codes": {
+        "LEDGER_AMOUNT_INVALID|400": 3
+      },
+      "raw_sigs": {}
+    },
+    {
+      "member": "E-W4_unfreeze/amount/scientific_1e5",
+      "form": "i_suite",
+      "n": 3,
+      "thrown": 3,
+      "expected_400": 3,
+      "unexpected_500": 0,
+      "other": [],
+      "codes": {
+        "LEDGER_AMOUNT_INVALID|400": 3
+      },
+      "raw_sigs": {
+        "error|LEDGER_AMOUNT_INVALID": 3
+      }
+    },
+    {
+      "member": "E-W4_unfreeze/amount/scientific_1e5",
+      "form": "ii_contract_in_tx",
+      "n": 3,
+      "thrown": 3,
+      "expected_400": 0,
+      "unexpected_500": 0,
+      "other": [
+        0,
+        0,
+        0
+      ],
+      "codes": {
+        "LD016|null": 3
+      },
+      "raw_sigs": {}
+    },
+    {
+      "member": "E-W4_unfreeze/amount/scientific_1e5",
+      "form": "iii_transport_replay",
+      "n": 3,
+      "thrown": 3,
+      "expected_400": 0,
+      "unexpected_500": 0,
+      "other": [
+        0,
+        0,
+        0
+      ],
+      "codes": {
+        "LD016|null": 3
+      },
+      "raw_sigs": {
+        "error|LEDGER_AMOUNT_INVALID": 3
+      }
+    },
+    {
+      "member": "E-W5_settleFrozen/amount/undefined",
+      "form": "i_suite",
+      "n": 3,
+      "thrown": 3,
+      "expected_400": 3,
+      "unexpected_500": 0,
+      "other": [],
+      "codes": {
+        "LEDGER_AMOUNT_INVALID|400": 3
+      },
+      "raw_sigs": {
+        "error|LEDGER_AMOUNT_INVALID": 3
+      }
+    },
+    {
+      "member": "E-W5_settleFrozen/amount/undefined",
+      "form": "ii_contract_in_tx",
+      "n": 3,
+      "thrown": 3,
+      "expected_400": 0,
+      "unexpected_500": 0,
+      "other": [
+        0,
+        0,
+        0
+      ],
+      "codes": {
+        "LD016|null": 3
+      },
+      "raw_sigs": {}
+    },
+    {
+      "member": "E-W5_settleFrozen/amount/undefined",
+      "form": "iii_transport_replay",
+      "n": 3,
+      "thrown": 3,
+      "expected_400": 0,
+      "unexpected_500": 0,
+      "other": [
+        0,
+        0,
+        0
+      ],
+      "codes": {
+        "LD016|null": 3
+      },
+      "raw_sigs": {
+        "error|LEDGER_AMOUNT_INVALID": 3
+      }
+    }
+  ],
+  "attempts": [
+    {
+      "member": "CONTROL/E-W1_transfer/amount/valid_1",
+      "form": "i_suite",
+      "seq": 0,
+      "thrown": true,
+      "code": "LEDGER_INSUFFICIENT_BALANCE",
+      "status": 409,
+      "reason": null,
+      "cause": null,
+      "message": "可用余额不足",
+      "details": {
+        "cid": "278",
+        "uid": "991101",
+        "required": "100",
+        "available": "0"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 1862,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "CONTROL/E-W1_transfer/amount/valid_1|i_suite|0",
+          "name": "error",
+          "message": "LEDGER_INSUFFICIENT_BALANCE",
+          "code": "LD001",
+          "has_own_code": true,
+          "detail": "{\"cid\": \"278\", \"uid\": \"991101\", \"required\": \"100\", \"available\": \"0\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_INSUFFICIENT_BALANCE",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+            "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:297:19)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "CONTROL/E-W1_transfer/amount/valid_1|i_suite|0",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"transfer\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-control-valid-1\",\"memo\":\"\",\"from_uid\":\"991101\",\"to_uid\":\"991102\",\"cid\":\"278\",\"amount\":\"1\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_INSUFFICIENT_BALANCE"
+    },
+    {
+      "member": "E-W1_transfer/amount/over_bigint_far",
+      "form": "i_suite",
+      "seq": 1,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "OVER_MAX_SINGLE_AMOUNT",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "99999999999999999999999",
+        "reason": "OVER_MAX_SINGLE_AMOUNT"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 2649,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W1_transfer/amount/over_bigint_far|i_suite|1",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+            "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W1_transfer/amount/over_bigint_far|i_suite|1",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"transfer\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w1-amt-over_bigint_far\",\"memo\":\"\",\"from_uid\":\"991101\",\"to_uid\":\"991102\",\"cid\":\"278\",\"amount\":\"99999999999999999999999\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W1_transfer/amount/over_bigint_far",
+      "form": "i_suite",
+      "seq": 2,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "OVER_MAX_SINGLE_AMOUNT",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "99999999999999999999999",
+        "reason": "OVER_MAX_SINGLE_AMOUNT"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 1249,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W1_transfer/amount/over_bigint_far|i_suite|2",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+            "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W1_transfer/amount/over_bigint_far|i_suite|2",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"transfer\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w1-amt-over_bigint_far\",\"memo\":\"\",\"from_uid\":\"991101\",\"to_uid\":\"991102\",\"cid\":\"278\",\"amount\":\"99999999999999999999999\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W1_transfer/amount/over_bigint_far",
+      "form": "i_suite",
+      "seq": 3,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "OVER_MAX_SINGLE_AMOUNT",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "99999999999999999999999",
+        "reason": "OVER_MAX_SINGLE_AMOUNT"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 1144,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W1_transfer/amount/over_bigint_far|i_suite|3",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+            "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W1_transfer/amount/over_bigint_far|i_suite|3",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"transfer\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w1-amt-over_bigint_far\",\"memo\":\"\",\"from_uid\":\"991101\",\"to_uid\":\"991102\",\"cid\":\"278\",\"amount\":\"99999999999999999999999\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W1_transfer/amount/over_bigint_far",
+      "form": "ii_contract_in_tx",
+      "seq": 1,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 2698,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W1_transfer/amount/over_bigint_far",
+      "form": "ii_contract_in_tx",
+      "seq": 2,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 2734,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W1_transfer/amount/over_bigint_far",
+      "form": "ii_contract_in_tx",
+      "seq": 3,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 1637,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W1_transfer/amount/over_bigint_far",
+      "form": "iii_transport_replay",
+      "seq": 1,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 1679,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W1_transfer/amount/over_bigint_far|iii_transport_replay|1",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W1_transfer/amount/over_bigint_far|iii_transport_replay|1",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"transfer\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w1-amt-over_bigint_far\",\"memo\":\"\",\"from_uid\":\"991101\",\"to_uid\":\"991102\",\"cid\":\"278\",\"amount\":\"99999999999999999999999\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W1_transfer/amount/over_bigint_far",
+      "form": "iii_transport_replay",
+      "seq": 2,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 2420,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W1_transfer/amount/over_bigint_far|iii_transport_replay|2",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W1_transfer/amount/over_bigint_far|iii_transport_replay|2",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"transfer\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w1-amt-over_bigint_far\",\"memo\":\"\",\"from_uid\":\"991101\",\"to_uid\":\"991102\",\"cid\":\"278\",\"amount\":\"99999999999999999999999\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W1_transfer/amount/over_bigint_far",
+      "form": "iii_transport_replay",
+      "seq": 3,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 1909,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W1_transfer/amount/over_bigint_far|iii_transport_replay|3",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W1_transfer/amount/over_bigint_far|iii_transport_replay|3",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"transfer\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w1-amt-over_bigint_far\",\"memo\":\"\",\"from_uid\":\"991101\",\"to_uid\":\"991102\",\"cid\":\"278\",\"amount\":\"99999999999999999999999\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W1_transfer/amount/over_bigint_far",
+      "form": "ii_b_ts_units",
+      "seq": 1,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "OUT_OF_BIGINT_RANGE",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "99999999999999999999999",
+        "reason": "OUT_OF_BIGINT_RANGE"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 0,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W1_transfer/amount/over_bigint_far",
+      "form": "ii_b_ts_units",
+      "seq": 2,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "OUT_OF_BIGINT_RANGE",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "99999999999999999999999",
+        "reason": "OUT_OF_BIGINT_RANGE"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 0,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W1_transfer/amount/over_bigint_far",
+      "form": "ii_b_ts_units",
+      "seq": 3,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "OUT_OF_BIGINT_RANGE",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "99999999999999999999999",
+        "reason": "OUT_OF_BIGINT_RANGE"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 0,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W1_transfer/amount/bigint_max_plus_1",
+      "form": "i_suite",
+      "seq": 1,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "OVER_MAX_SINGLE_AMOUNT",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "9223372036854775808",
+        "reason": "OVER_MAX_SINGLE_AMOUNT"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 2953,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W1_transfer/amount/bigint_max_plus_1|i_suite|1",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"9223372036854775808\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+            "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W1_transfer/amount/bigint_max_plus_1|i_suite|1",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"transfer\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w1-amt-bigint_max_plus_1\",\"memo\":\"\",\"from_uid\":\"991101\",\"to_uid\":\"991102\",\"cid\":\"278\",\"amount\":\"9223372036854775808\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W1_transfer/amount/bigint_max_plus_1",
+      "form": "i_suite",
+      "seq": 2,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "OVER_MAX_SINGLE_AMOUNT",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "9223372036854775808",
+        "reason": "OVER_MAX_SINGLE_AMOUNT"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 1469,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W1_transfer/amount/bigint_max_plus_1|i_suite|2",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"9223372036854775808\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+            "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W1_transfer/amount/bigint_max_plus_1|i_suite|2",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"transfer\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w1-amt-bigint_max_plus_1\",\"memo\":\"\",\"from_uid\":\"991101\",\"to_uid\":\"991102\",\"cid\":\"278\",\"amount\":\"9223372036854775808\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W1_transfer/amount/bigint_max_plus_1",
+      "form": "i_suite",
+      "seq": 3,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "OVER_MAX_SINGLE_AMOUNT",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "9223372036854775808",
+        "reason": "OVER_MAX_SINGLE_AMOUNT"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 2033,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W1_transfer/amount/bigint_max_plus_1|i_suite|3",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"9223372036854775808\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+            "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W1_transfer/amount/bigint_max_plus_1|i_suite|3",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"transfer\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w1-amt-bigint_max_plus_1\",\"memo\":\"\",\"from_uid\":\"991101\",\"to_uid\":\"991102\",\"cid\":\"278\",\"amount\":\"9223372036854775808\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W1_transfer/amount/bigint_max_plus_1",
+      "form": "ii_contract_in_tx",
+      "seq": 1,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 2918,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W1_transfer/amount/bigint_max_plus_1",
+      "form": "ii_contract_in_tx",
+      "seq": 2,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 1604,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W1_transfer/amount/bigint_max_plus_1",
+      "form": "ii_contract_in_tx",
+      "seq": 3,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 1747,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W1_transfer/amount/bigint_max_plus_1",
+      "form": "iii_transport_replay",
+      "seq": 1,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 4044,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W1_transfer/amount/bigint_max_plus_1|iii_transport_replay|1",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"9223372036854775808\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W1_transfer/amount/bigint_max_plus_1|iii_transport_replay|1",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"transfer\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w1-amt-bigint_max_plus_1\",\"memo\":\"\",\"from_uid\":\"991101\",\"to_uid\":\"991102\",\"cid\":\"278\",\"amount\":\"9223372036854775808\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W1_transfer/amount/bigint_max_plus_1",
+      "form": "iii_transport_replay",
+      "seq": 2,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 1537,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W1_transfer/amount/bigint_max_plus_1|iii_transport_replay|2",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"9223372036854775808\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W1_transfer/amount/bigint_max_plus_1|iii_transport_replay|2",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"transfer\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w1-amt-bigint_max_plus_1\",\"memo\":\"\",\"from_uid\":\"991101\",\"to_uid\":\"991102\",\"cid\":\"278\",\"amount\":\"9223372036854775808\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W1_transfer/amount/bigint_max_plus_1",
+      "form": "iii_transport_replay",
+      "seq": 3,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 3253,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W1_transfer/amount/bigint_max_plus_1|iii_transport_replay|3",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"9223372036854775808\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W1_transfer/amount/bigint_max_plus_1|iii_transport_replay|3",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"transfer\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w1-amt-bigint_max_plus_1\",\"memo\":\"\",\"from_uid\":\"991101\",\"to_uid\":\"991102\",\"cid\":\"278\",\"amount\":\"9223372036854775808\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W1_transfer/amount/bigint_max_plus_1",
+      "form": "ii_b_ts_units",
+      "seq": 1,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "OUT_OF_BIGINT_RANGE",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "9223372036854775808",
+        "reason": "OUT_OF_BIGINT_RANGE"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 1,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W1_transfer/amount/bigint_max_plus_1",
+      "form": "ii_b_ts_units",
+      "seq": 2,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "OUT_OF_BIGINT_RANGE",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "9223372036854775808",
+        "reason": "OUT_OF_BIGINT_RANGE"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 0,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W1_transfer/amount/bigint_max_plus_1",
+      "form": "ii_b_ts_units",
+      "seq": 3,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "OUT_OF_BIGINT_RANGE",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "9223372036854775808",
+        "reason": "OUT_OF_BIGINT_RANGE"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 0,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W3_freeze/amount/over_bigint_far",
+      "form": "i_suite",
+      "seq": 1,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "OVER_MAX_SINGLE_AMOUNT",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "99999999999999999999999",
+        "reason": "OVER_MAX_SINGLE_AMOUNT"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 2661,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W3_freeze/amount/over_bigint_far|i_suite|1",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+            "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W3_freeze/amount/over_bigint_far|i_suite|1",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"hold\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w3-amt-over_bigint_far\",\"memo\":\"\",\"ref_type\":\"job\",\"ref_id\":\"1\",\"uid\":\"991101\",\"cid\":\"278\",\"amount\":\"99999999999999999999999\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W3_freeze/amount/over_bigint_far",
+      "form": "i_suite",
+      "seq": 2,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "OVER_MAX_SINGLE_AMOUNT",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "99999999999999999999999",
+        "reason": "OVER_MAX_SINGLE_AMOUNT"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 1045,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W3_freeze/amount/over_bigint_far|i_suite|2",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+            "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W3_freeze/amount/over_bigint_far|i_suite|2",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"hold\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w3-amt-over_bigint_far\",\"memo\":\"\",\"ref_type\":\"job\",\"ref_id\":\"1\",\"uid\":\"991101\",\"cid\":\"278\",\"amount\":\"99999999999999999999999\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W3_freeze/amount/over_bigint_far",
+      "form": "i_suite",
+      "seq": 3,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "OVER_MAX_SINGLE_AMOUNT",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "99999999999999999999999",
+        "reason": "OVER_MAX_SINGLE_AMOUNT"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 1865,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W3_freeze/amount/over_bigint_far|i_suite|3",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+            "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W3_freeze/amount/over_bigint_far|i_suite|3",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"hold\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w3-amt-over_bigint_far\",\"memo\":\"\",\"ref_type\":\"job\",\"ref_id\":\"1\",\"uid\":\"991101\",\"cid\":\"278\",\"amount\":\"99999999999999999999999\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W3_freeze/amount/over_bigint_far",
+      "form": "ii_contract_in_tx",
+      "seq": 1,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 4286,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W3_freeze/amount/over_bigint_far",
+      "form": "ii_contract_in_tx",
+      "seq": 2,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 1851,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W3_freeze/amount/over_bigint_far",
+      "form": "ii_contract_in_tx",
+      "seq": 3,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 1739,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W3_freeze/amount/over_bigint_far",
+      "form": "iii_transport_replay",
+      "seq": 1,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 1010,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W3_freeze/amount/over_bigint_far|iii_transport_replay|1",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W3_freeze/amount/over_bigint_far|iii_transport_replay|1",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"hold\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w3-amt-over_bigint_far\",\"memo\":\"\",\"ref_type\":\"job\",\"ref_id\":\"1\",\"uid\":\"991101\",\"cid\":\"278\",\"amount\":\"99999999999999999999999\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W3_freeze/amount/over_bigint_far",
+      "form": "iii_transport_replay",
+      "seq": 2,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 1450,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W3_freeze/amount/over_bigint_far|iii_transport_replay|2",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W3_freeze/amount/over_bigint_far|iii_transport_replay|2",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"hold\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w3-amt-over_bigint_far\",\"memo\":\"\",\"ref_type\":\"job\",\"ref_id\":\"1\",\"uid\":\"991101\",\"cid\":\"278\",\"amount\":\"99999999999999999999999\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W3_freeze/amount/over_bigint_far",
+      "form": "iii_transport_replay",
+      "seq": 3,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 2909,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W3_freeze/amount/over_bigint_far|iii_transport_replay|3",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W3_freeze/amount/over_bigint_far|iii_transport_replay|3",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"hold\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w3-amt-over_bigint_far\",\"memo\":\"\",\"ref_type\":\"job\",\"ref_id\":\"1\",\"uid\":\"991101\",\"cid\":\"278\",\"amount\":\"99999999999999999999999\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W3_freeze/amount/over_bigint_far",
+      "form": "ii_b_ts_units",
+      "seq": 1,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "OUT_OF_BIGINT_RANGE",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "99999999999999999999999",
+        "reason": "OUT_OF_BIGINT_RANGE"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 0,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W3_freeze/amount/over_bigint_far",
+      "form": "ii_b_ts_units",
+      "seq": 2,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "OUT_OF_BIGINT_RANGE",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "99999999999999999999999",
+        "reason": "OUT_OF_BIGINT_RANGE"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 0,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W3_freeze/amount/over_bigint_far",
+      "form": "ii_b_ts_units",
+      "seq": 3,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "OUT_OF_BIGINT_RANGE",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "99999999999999999999999",
+        "reason": "OUT_OF_BIGINT_RANGE"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 0,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W4_unfreeze/amount/scientific_1e5",
+      "form": "i_suite",
+      "seq": 1,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "EXPONENT_NOT_ALLOWED",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "1e5",
+        "reason": "EXPONENT_NOT_ALLOWED"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 1751,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W4_unfreeze/amount/scientific_1e5|i_suite|1",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"1e5\", \"reason\": \"EXPONENT_NOT_ALLOWED\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+            "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W4_unfreeze/amount/scientific_1e5|i_suite|1",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"hold_release\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w4-amt-scientific_1e5\",\"memo\":\"\",\"ref_type\":\"job\",\"ref_id\":\"1\",\"uid\":\"991101\",\"cid\":\"278\",\"amount\":\"1e5\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W4_unfreeze/amount/scientific_1e5",
+      "form": "i_suite",
+      "seq": 2,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "EXPONENT_NOT_ALLOWED",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "1e5",
+        "reason": "EXPONENT_NOT_ALLOWED"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 1611,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W4_unfreeze/amount/scientific_1e5|i_suite|2",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"1e5\", \"reason\": \"EXPONENT_NOT_ALLOWED\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+            "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W4_unfreeze/amount/scientific_1e5|i_suite|2",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"hold_release\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w4-amt-scientific_1e5\",\"memo\":\"\",\"ref_type\":\"job\",\"ref_id\":\"1\",\"uid\":\"991101\",\"cid\":\"278\",\"amount\":\"1e5\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W4_unfreeze/amount/scientific_1e5",
+      "form": "i_suite",
+      "seq": 3,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "EXPONENT_NOT_ALLOWED",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "value": "1e5",
+        "reason": "EXPONENT_NOT_ALLOWED"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 1910,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W4_unfreeze/amount/scientific_1e5|i_suite|3",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"1e5\", \"reason\": \"EXPONENT_NOT_ALLOWED\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+            "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W4_unfreeze/amount/scientific_1e5|i_suite|3",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"hold_release\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w4-amt-scientific_1e5\",\"memo\":\"\",\"ref_type\":\"job\",\"ref_id\":\"1\",\"uid\":\"991101\",\"cid\":\"278\",\"amount\":\"1e5\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W4_unfreeze/amount/scientific_1e5",
+      "form": "ii_contract_in_tx",
+      "seq": 1,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 4202,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W4_unfreeze/amount/scientific_1e5",
+      "form": "ii_contract_in_tx",
+      "seq": 2,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 2948,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W4_unfreeze/amount/scientific_1e5",
+      "form": "ii_contract_in_tx",
+      "seq": 3,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 2322,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W4_unfreeze/amount/scientific_1e5",
+      "form": "iii_transport_replay",
+      "seq": 1,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 1813,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W4_unfreeze/amount/scientific_1e5|iii_transport_replay|1",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"1e5\", \"reason\": \"EXPONENT_NOT_ALLOWED\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W4_unfreeze/amount/scientific_1e5|iii_transport_replay|1",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"hold_release\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w4-amt-scientific_1e5\",\"memo\":\"\",\"ref_type\":\"job\",\"ref_id\":\"1\",\"uid\":\"991101\",\"cid\":\"278\",\"amount\":\"1e5\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W4_unfreeze/amount/scientific_1e5",
+      "form": "iii_transport_replay",
+      "seq": 2,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 1493,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W4_unfreeze/amount/scientific_1e5|iii_transport_replay|2",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"1e5\", \"reason\": \"EXPONENT_NOT_ALLOWED\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W4_unfreeze/amount/scientific_1e5|iii_transport_replay|2",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"hold_release\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w4-amt-scientific_1e5\",\"memo\":\"\",\"ref_type\":\"job\",\"ref_id\":\"1\",\"uid\":\"991101\",\"cid\":\"278\",\"amount\":\"1e5\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W4_unfreeze/amount/scientific_1e5",
+      "form": "iii_transport_replay",
+      "seq": 3,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 1425,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W4_unfreeze/amount/scientific_1e5|iii_transport_replay|3",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"value\": \"1e5\", \"reason\": \"EXPONENT_NOT_ALLOWED\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W4_unfreeze/amount/scientific_1e5|iii_transport_replay|3",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"hold_release\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w4-amt-scientific_1e5\",\"memo\":\"\",\"ref_type\":\"job\",\"ref_id\":\"1\",\"uid\":\"991101\",\"cid\":\"278\",\"amount\":\"1e5\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W5_settleFrozen/amount/undefined",
+      "form": "i_suite",
+      "seq": 1,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "MISSING",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "reason": "MISSING"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 1049,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W5_settleFrozen/amount/undefined|i_suite|1",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"reason\": \"MISSING\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+            "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W5_settleFrozen/amount/undefined|i_suite|1",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"settle\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w5-amt-undefined\",\"memo\":\"\",\"ref_type\":\"job\",\"ref_id\":\"1\",\"from_uid\":\"991101\",\"to_uid\":\"991102\",\"cid\":\"278\",\"kind\":\"job_payout\",\"payee_kind\":\"job_payout\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W5_settleFrozen/amount/undefined",
+      "form": "i_suite",
+      "seq": 2,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "MISSING",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "reason": "MISSING"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 2810,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W5_settleFrozen/amount/undefined|i_suite|2",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"reason\": \"MISSING\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+            "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W5_settleFrozen/amount/undefined|i_suite|2",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"settle\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w5-amt-undefined\",\"memo\":\"\",\"ref_type\":\"job\",\"ref_id\":\"1\",\"from_uid\":\"991101\",\"to_uid\":\"991102\",\"cid\":\"278\",\"kind\":\"job_payout\",\"payee_kind\":\"job_payout\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W5_settleFrozen/amount/undefined",
+      "form": "i_suite",
+      "seq": 3,
+      "thrown": true,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "status": 400,
+      "reason": "MISSING",
+      "cause": null,
+      "message": "金额格式不正确",
+      "details": {
+        "field": "amount",
+        "reason": "MISSING"
+      },
+      "returned_kind": null,
+      "elapsed_ms": 2043,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W5_settleFrozen/amount/undefined|i_suite|3",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"reason\": \"MISSING\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+            "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W5_settleFrozen/amount/undefined|i_suite|3",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"settle\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w5-amt-undefined\",\"memo\":\"\",\"ref_type\":\"job\",\"ref_id\":\"1\",\"from_uid\":\"991101\",\"to_uid\":\"991102\",\"cid\":\"278\",\"kind\":\"job_payout\",\"payee_kind\":\"job_payout\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W5_settleFrozen/amount/undefined",
+      "form": "ii_contract_in_tx",
+      "seq": 1,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 2335,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W5_settleFrozen/amount/undefined",
+      "form": "ii_contract_in_tx",
+      "seq": 2,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 3169,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W5_settleFrozen/amount/undefined",
+      "form": "ii_contract_in_tx",
+      "seq": 3,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 1485,
+      "raw_errors": [],
+      "sent": [],
+      "raw_sig": null
+    },
+    {
+      "member": "E-W5_settleFrozen/amount/undefined",
+      "form": "iii_transport_replay",
+      "seq": 1,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 1183,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W5_settleFrozen/amount/undefined|iii_transport_replay|1",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"reason\": \"MISSING\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W5_settleFrozen/amount/undefined|iii_transport_replay|1",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"settle\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w5-amt-undefined\",\"memo\":\"\",\"ref_type\":\"job\",\"ref_id\":\"1\",\"from_uid\":\"991101\",\"to_uid\":\"991102\",\"cid\":\"278\",\"kind\":\"job_payout\",\"payee_kind\":\"job_payout\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W5_settleFrozen/amount/undefined",
+      "form": "iii_transport_replay",
+      "seq": 2,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 3425,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W5_settleFrozen/amount/undefined|iii_transport_replay|2",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"reason\": \"MISSING\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W5_settleFrozen/amount/undefined|iii_transport_replay|2",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"settle\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w5-amt-undefined\",\"memo\":\"\",\"ref_type\":\"job\",\"ref_id\":\"1\",\"from_uid\":\"991101\",\"to_uid\":\"991102\",\"cid\":\"278\",\"kind\":\"job_payout\",\"payee_kind\":\"job_payout\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    },
+    {
+      "member": "E-W5_settleFrozen/amount/undefined",
+      "form": "iii_transport_replay",
+      "seq": 3,
+      "thrown": true,
+      "code": "LD016",
+      "status": null,
+      "reason": null,
+      "cause": null,
+      "message": "LEDGER_AMOUNT_INVALID",
+      "details": null,
+      "returned_kind": null,
+      "elapsed_ms": 1037,
+      "raw_errors": [
+        {
+          "where": "pool.query",
+          "tag": "E-W5_settleFrozen/amount/undefined|iii_transport_replay|3",
+          "name": "error",
+          "message": "LEDGER_AMOUNT_INVALID",
+          "code": "LD016",
+          "has_own_code": true,
+          "detail": "{\"field\": \"amount\", \"reason\": \"MISSING\"}",
+          "constraint": null,
+          "hint": null,
+          "cause": null,
+          "stack": [
+            "error: LEDGER_AMOUNT_INVALID",
+            "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+            "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+            "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+            "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+            "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+            "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+          ]
+        }
+      ],
+      "sent": [
+        {
+          "tag": "E-W5_settleFrozen/amount/undefined|iii_transport_replay|3",
+          "via": "pool.query",
+          "text": "SELECT ledger_post_event($1::jsonb) AS r",
+          "params": {
+            "jsonb": "{\"op\":\"settle\",\"idempotency_key\":\"cli:kong20-P3ST150937Z-w5-amt-undefined\",\"memo\":\"\",\"ref_type\":\"job\",\"ref_id\":\"1\",\"from_uid\":\"991101\",\"to_uid\":\"991102\",\"cid\":\"278\",\"kind\":\"job_payout\",\"payee_kind\":\"job_payout\"}"
+          }
+        }
+      ],
+      "raw_sig": "error|LEDGER_AMOUNT_INVALID"
+    }
+  ],
+  "raw_errors": [
+    {
+      "where": "pool.query",
+      "tag": "CONTROL/E-W1_transfer/amount/valid_1|i_suite|0",
+      "name": "error",
+      "message": "LEDGER_INSUFFICIENT_BALANCE",
+      "code": "LD001",
+      "has_own_code": true,
+      "detail": "{\"cid\": \"278\", \"uid\": \"991101\", \"required\": \"100\", \"available\": \"0\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_INSUFFICIENT_BALANCE",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+        "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:297:19)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W1_transfer/amount/over_bigint_far|i_suite|1",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+        "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W1_transfer/amount/over_bigint_far|i_suite|2",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+        "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W1_transfer/amount/over_bigint_far|i_suite|3",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+        "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W1_transfer/amount/over_bigint_far|iii_transport_replay|1",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W1_transfer/amount/over_bigint_far|iii_transport_replay|2",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W1_transfer/amount/over_bigint_far|iii_transport_replay|3",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W1_transfer/amount/bigint_max_plus_1|i_suite|1",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"9223372036854775808\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+        "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W1_transfer/amount/bigint_max_plus_1|i_suite|2",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"9223372036854775808\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+        "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W1_transfer/amount/bigint_max_plus_1|i_suite|3",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"9223372036854775808\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+        "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W1_transfer/amount/bigint_max_plus_1|iii_transport_replay|1",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"9223372036854775808\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W1_transfer/amount/bigint_max_plus_1|iii_transport_replay|2",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"9223372036854775808\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W1_transfer/amount/bigint_max_plus_1|iii_transport_replay|3",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"9223372036854775808\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W3_freeze/amount/over_bigint_far|i_suite|1",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+        "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W3_freeze/amount/over_bigint_far|i_suite|2",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+        "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W3_freeze/amount/over_bigint_far|i_suite|3",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+        "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W3_freeze/amount/over_bigint_far|iii_transport_replay|1",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W3_freeze/amount/over_bigint_far|iii_transport_replay|2",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W3_freeze/amount/over_bigint_far|iii_transport_replay|3",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"99999999999999999999999\", \"reason\": \"OVER_MAX_SINGLE_AMOUNT\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W4_unfreeze/amount/scientific_1e5|i_suite|1",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"1e5\", \"reason\": \"EXPONENT_NOT_ALLOWED\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+        "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W4_unfreeze/amount/scientific_1e5|i_suite|2",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"1e5\", \"reason\": \"EXPONENT_NOT_ALLOWED\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+        "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W4_unfreeze/amount/scientific_1e5|i_suite|3",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"1e5\", \"reason\": \"EXPONENT_NOT_ALLOWED\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+        "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W4_unfreeze/amount/scientific_1e5|iii_transport_replay|1",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"1e5\", \"reason\": \"EXPONENT_NOT_ALLOWED\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W4_unfreeze/amount/scientific_1e5|iii_transport_replay|2",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"1e5\", \"reason\": \"EXPONENT_NOT_ALLOWED\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W4_unfreeze/amount/scientific_1e5|iii_transport_replay|3",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"value\": \"1e5\", \"reason\": \"EXPONENT_NOT_ALLOWED\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W5_settleFrozen/amount/undefined|i_suite|1",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"reason\": \"MISSING\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+        "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W5_settleFrozen/amount/undefined|i_suite|2",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"reason\": \"MISSING\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+        "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W5_settleFrozen/amount/undefined|i_suite|3",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"reason\": \"MISSING\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async callLedgerFnOnce (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1013:16)",
+        "    at async runLedgerFn (/Users/kevin/bistro/seafood/backend-ts/src/ledger.ts:1140:33)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:321:17)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W5_settleFrozen/amount/undefined|iii_transport_replay|1",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"reason\": \"MISSING\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W5_settleFrozen/amount/undefined|iii_transport_replay|2",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"reason\": \"MISSING\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+      ]
+    },
+    {
+      "where": "pool.query",
+      "tag": "E-W5_settleFrozen/amount/undefined|iii_transport_replay|3",
+      "name": "error",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "code": "LD016",
+      "has_own_code": true,
+      "detail": "{\"field\": \"amount\", \"reason\": \"MISSING\"}",
+      "constraint": null,
+      "hint": null,
+      "cause": null,
+      "stack": [
+        "error: LEDGER_AMOUNT_INVALID",
+        "    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74",
+        "    at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+        "    at async An.PROTO.query (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:113:12)",
+        "    at async readQuery (/Users/kevin/bistro/seafood/backend-ts/src/db.ts:233:18)",
+        "    at async runOne (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:184:15)",
+        "    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3s-00-500-rca-probe.ts:333:49)"
+      ]
+    }
+  ],
+  "raw_error_count": 31,
+  "ws_events": [],
+  "ws_constructs": 0,
+  "ws_closes": 0,
+  "ws_close_details": [],
+  "db_rows_before": [
+    {
+      "t": "users",
+      "n": "583"
+    },
+    {
+      "t": "account",
+      "n": "369"
+    },
+    {
+      "t": "ledger_entry",
+      "n": "3201"
+    },
+    {
+      "t": "currency",
+      "n": "116"
+    },
+    {
+      "t": "referral",
+      "n": "293"
+    }
+  ],
+  "db_rows_after": [
+    {
+      "t": "users",
+      "n": "583"
+    },
+    {
+      "t": "account",
+      "n": "370"
+    },
+    {
+      "t": "ledger_entry",
+      "n": "3201"
+    },
+    {
+      "t": "currency",
+      "n": "117"
+    },
+    {
+      "t": "referral",
+      "n": "293"
+    }
+  ],
+  "db_rows_delta": {
+    "users": 0,
+    "account": 1,
+    "ledger_entry": 0,
+    "currency": 1,
+    "referral": 0
+  },
+  "finished_at": "2026-09-28T15:11:24.034Z"
+}

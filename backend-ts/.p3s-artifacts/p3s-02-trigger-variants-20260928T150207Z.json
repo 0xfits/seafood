@@ -1,0 +1,480 @@
+{
+  "probe": "P3S-02 · 44 变体搜捕",
+  "run": "20260928T150207Z",
+  "utc": "2026-09-28T15:02:07.847Z",
+  "variants": {
+    "V01": {
+      "label": "pg_trigger：public 且 NOT tgisinternal（我用的口径）",
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal",
+      "rows": [
+        {
+          "n": "43"
+        }
+      ]
+    },
+    "V02": {
+      "label": "pg_trigger：public 全部（含 internal）",
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public'",
+      "rows": [
+        {
+          "n": "175"
+        }
+      ]
+    },
+    "V03": {
+      "label": "pg_trigger：public 且 tgisinternal IS NOT TRUE（NULL 也算）",
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND t.tgisinternal IS NOT TRUE",
+      "rows": [
+        {
+          "n": "43"
+        }
+      ]
+    },
+    "V04": {
+      "label": "pg_trigger：全库 NOT tgisinternal（不限 schema）",
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t WHERE NOT t.tgisinternal",
+      "rows": [
+        {
+          "n": "43"
+        }
+      ]
+    },
+    "V05": {
+      "label": "pg_trigger：全库 全部",
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger",
+      "rows": [
+        {
+          "n": "199"
+        }
+      ]
+    },
+    "V06": {
+      "label": "pg_trigger：public 且 tgname NOT LIKE 'RI_%'",
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND t.tgname NOT LIKE 'RI\\_%'",
+      "rows": [
+        {
+          "n": "43"
+        }
+      ]
+    },
+    "V07": {
+      "label": "pg_trigger：public 且 tgisinternal=false 且 tgconstraint=0（非约束触发器）",
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal AND t.tgconstraint = 0",
+      "rows": [
+        {
+          "n": "42"
+        }
+      ]
+    },
+    "V08": {
+      "label": "pg_trigger：public 且 tgisinternal=false，按 DISTINCT tgname",
+      "sql": "SELECT count(DISTINCT t.tgname)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal",
+      "rows": [
+        {
+          "n": "43"
+        }
+      ]
+    },
+    "V09": {
+      "label": "pg_trigger：public 且 tgisinternal=false，按 DISTINCT tgrelid（有触发器的表数）",
+      "sql": "SELECT count(DISTINCT t.tgrelid)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal",
+      "rows": [
+        {
+          "n": "17"
+        }
+      ]
+    },
+    "V10": {
+      "label": "pg_trigger：按**函数**所在 schema=public 且 NOT tgisinternal",
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_proc p ON p.oid = t.tgfoid JOIN pg_namespace pn ON pn.oid = p.pronamespace WHERE pn.nspname='public' AND NOT t.tgisinternal",
+      "rows": [
+        {
+          "n": "43"
+        }
+      ]
+    },
+    "V11": {
+      "label": "pg_trigger：按**函数**所在 schema<>public 且 NOT tgisinternal",
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_proc p ON p.oid = t.tgfoid JOIN pg_namespace pn ON pn.oid = p.pronamespace WHERE pn.nspname <> 'public' AND NOT t.tgisinternal",
+      "rows": [
+        {
+          "n": "0"
+        }
+      ]
+    },
+    "V12": {
+      "label": "pg_trigger：public 且 NOT tgisinternal 且 tgparentid=0",
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal AND t.tgparentid = 0",
+      "rows": [
+        {
+          "n": "43"
+        }
+      ]
+    },
+    "V13": {
+      "label": "pg_trigger：public 且 NOT tgisinternal 且 tgparentid<>0（分区克隆）",
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal AND t.tgparentid <> 0",
+      "rows": [
+        {
+          "n": "0"
+        }
+      ]
+    },
+    "V14": {
+      "label": "pg_trigger：public 且 NOT tgisinternal 且 relkind='r'",
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal AND c.relkind='r'",
+      "rows": [
+        {
+          "n": "43"
+        }
+      ]
+    },
+    "V15": {
+      "label": "pg_trigger：public 且 NOT tgisinternal 且 relkind<> 'r'（视图/外部表）",
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal AND c.relkind<>'r'",
+      "rows": [
+        {
+          "n": "0"
+        }
+      ]
+    },
+    "V16": {
+      "label": "pg_trigger：public 且 NOT tgisinternal 且 tgenabled='O'",
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal AND t.tgenabled='O'",
+      "rows": [
+        {
+          "n": "43"
+        }
+      ]
+    },
+    "V17": {
+      "label": "pg_trigger：public 且 NOT tgisinternal 且 tgenabled<>'D'",
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal AND t.tgenabled<>'D'",
+      "rows": [
+        {
+          "n": "43"
+        }
+      ]
+    },
+    "V18": {
+      "label": "information_schema.triggers：trigger_schema=public 行数",
+      "sql": "SELECT count(*)::text AS n FROM information_schema.triggers WHERE trigger_schema='public'",
+      "rows": [
+        {
+          "n": "51"
+        }
+      ]
+    },
+    "V19": {
+      "label": "information_schema.triggers：public 去重 (table,name)",
+      "sql": "SELECT count(DISTINCT (event_object_table, trigger_name))::text AS n FROM information_schema.triggers WHERE trigger_schema='public'",
+      "rows": [
+        {
+          "n": "43"
+        }
+      ]
+    },
+    "V20": {
+      "label": "information_schema.triggers：action_timing/event_manipulation 组合数（替代无效列 action_schema）",
+      "sql": "SELECT count(*)::text AS n FROM information_schema.triggers WHERE trigger_schema='public' AND action_timing='AFTER'",
+      "rows": [
+        {
+          "n": "1"
+        }
+      ]
+    },
+    "V21": {
+      "label": "information_schema.triggers：全库行数",
+      "sql": "SELECT count(*)::text AS n FROM information_schema.triggers",
+      "rows": [
+        {
+          "n": "51"
+        }
+      ]
+    },
+    "V22": {
+      "label": "information_schema.triggers：public 行数（仅 ROW 级 / action_orientation=ROW）",
+      "sql": "SELECT count(*)::text AS n FROM information_schema.triggers WHERE trigger_schema='public' AND action_orientation='ROW'",
+      "rows": [
+        {
+          "n": "51"
+        }
+      ]
+    },
+    "V23": {
+      "label": "pg_constraint：public 表上全部约束数",
+      "sql": "SELECT count(*)::text AS n FROM pg_constraint k JOIN pg_class c ON c.oid=k.conrelid JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public'",
+      "rows": [
+        {
+          "n": "264"
+        }
+      ]
+    },
+    "V24": {
+      "label": "pg_constraint：public 表上 FOREIGN KEY 约束数",
+      "sql": "SELECT count(*)::text AS n FROM pg_constraint k JOIN pg_class c ON c.oid=k.conrelid JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND k.contype='f'",
+      "rows": [
+        {
+          "n": "33"
+        }
+      ]
+    },
+    "V25": {
+      "label": "pg_event_trigger：全库",
+      "sql": "SELECT count(*)::text AS n FROM pg_event_trigger",
+      "rows": [
+        {
+          "n": "0"
+        }
+      ]
+    },
+    "V26": {
+      "label": "pg_trigger：public NOT tgisinternal 且 tgtype 含 ROW(1) 位",
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal AND (t.tgtype::int & 1) = 1",
+      "rows": [
+        {
+          "n": "43"
+        }
+      ]
+    },
+    "V27": {
+      "label": "pg_trigger：public NOT tgisinternal 且 tgtype 含 BEFORE(2) 位",
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal AND (t.tgtype::int & 2) = 2",
+      "rows": [
+        {
+          "n": "42"
+        }
+      ]
+    },
+    "V28": {
+      "label": "pg_trigger：public NOT tgisinternal 且 tgtype 含 AFTER(64) 位",
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal AND (t.tgtype::int & 64) = 64",
+      "rows": [
+        {
+          "n": "0"
+        }
+      ]
+    },
+    "V29": {
+      "label": "pg_trigger：public NOT tgisinternal 且 tgtype 含 INSTEAD(32) 位",
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal AND (t.tgtype::int & 32) = 32",
+      "rows": [
+        {
+          "n": "0"
+        }
+      ]
+    },
+    "V30": {
+      "label": "pg_trigger：public NOT tgisinternal，tgname 以 trg_ 开头",
+      "sql": "SELECT count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal AND t.tgname LIKE 'trg\\_%'",
+      "rows": [
+        {
+          "n": "43"
+        }
+      ]
+    },
+    "V31": {
+      "label": "pg_trigger：public NOT tgisinternal，且 tgfoid 属于 0013–0017 之后建的对象（tgfoid > 0 恒真，占位口径）",
+      "sql": "SELECT count(DISTINCT t.tgfoid)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal",
+      "rows": [
+        {
+          "n": "39"
+        }
+      ]
+    },
+    "V32": {
+      "label": "pg_trigger：public NOT tgisinternal，按 tgfoid 去重后的**函数数**与触发器数差",
+      "sql": "SELECT (count(*) - count(DISTINCT t.tgfoid))::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal",
+      "rows": [
+        {
+          "n": "4"
+        }
+      ]
+    }
+  },
+  "breakdown": {
+    "B_event_manipulation": {
+      "sql": "SELECT event_manipulation AS k, count(*)::text AS n FROM information_schema.triggers WHERE trigger_schema='public' GROUP BY 1 ORDER BY 1",
+      "rows": [
+        {
+          "k": "DELETE",
+          "n": "12"
+        },
+        {
+          "k": "INSERT",
+          "n": "4"
+        },
+        {
+          "k": "UPDATE",
+          "n": "35"
+        }
+      ]
+    },
+    "B_timing": {
+      "sql": "SELECT action_timing AS k, count(*)::text AS n FROM information_schema.triggers WHERE trigger_schema='public' GROUP BY 1 ORDER BY 1",
+      "rows": [
+        {
+          "k": "AFTER",
+          "n": "1"
+        },
+        {
+          "k": "BEFORE",
+          "n": "50"
+        }
+      ]
+    },
+    "B_event_orientation": {
+      "sql": "SELECT event_manipulation || '/' || action_orientation AS k, count(*)::text AS n FROM information_schema.triggers WHERE trigger_schema='public' GROUP BY 1 ORDER BY 1",
+      "rows": [
+        {
+          "k": "DELETE/ROW",
+          "n": "12"
+        },
+        {
+          "k": "INSERT/ROW",
+          "n": "4"
+        },
+        {
+          "k": "UPDATE/ROW",
+          "n": "35"
+        }
+      ]
+    },
+    "B_per_table": {
+      "sql": "SELECT c.relname AS k, count(*)::text AS n FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal GROUP BY 1 ORDER BY 1",
+      "rows": [
+        {
+          "k": "account",
+          "n": "1"
+        },
+        {
+          "k": "admin_permission",
+          "n": "1"
+        },
+        {
+          "k": "admin_role",
+          "n": "1"
+        },
+        {
+          "k": "admin_role_permission",
+          "n": "1"
+        },
+        {
+          "k": "admin_user_role",
+          "n": "1"
+        },
+        {
+          "k": "app_config",
+          "n": "2"
+        },
+        {
+          "k": "commission_policy",
+          "n": "2"
+        },
+        {
+          "k": "currency_status_log",
+          "n": "1"
+        },
+        {
+          "k": "job",
+          "n": "5"
+        },
+        {
+          "k": "job_application",
+          "n": "4"
+        },
+        {
+          "k": "job_submission",
+          "n": "2"
+        },
+        {
+          "k": "ledger_entry",
+          "n": "2"
+        },
+        {
+          "k": "listing",
+          "n": "5"
+        },
+        {
+          "k": "listing_order",
+          "n": "6"
+        },
+        {
+          "k": "market_order",
+          "n": "6"
+        },
+        {
+          "k": "market_trade",
+          "n": "1"
+        },
+        {
+          "k": "referral",
+          "n": "2"
+        }
+      ]
+    },
+    "B_schemas": {
+      "sql": "SELECT n.nspname AS k, count(*)::text AS n FROM pg_namespace n GROUP BY 1 ORDER BY 1",
+      "rows": [
+        {
+          "k": "information_schema",
+          "n": "1"
+        },
+        {
+          "k": "neon_auth",
+          "n": "1"
+        },
+        {
+          "k": "pg_catalog",
+          "n": "1"
+        },
+        {
+          "k": "pg_toast",
+          "n": "1"
+        },
+        {
+          "k": "public",
+          "n": "1"
+        }
+      ]
+    }
+  },
+  "equals_44": [],
+  "info_schema_multievent": [
+    {
+      "tbl": "account",
+      "trg": "trg_account_guard",
+      "rows_per_event": "3"
+    },
+    {
+      "tbl": "commission_policy",
+      "trg": "trg_commission_policy_append_only",
+      "rows_per_event": "2"
+    },
+    {
+      "tbl": "commission_policy",
+      "trg": "trg_commission_policy_weights_guard",
+      "rows_per_event": "2"
+    },
+    {
+      "tbl": "currency_status_log",
+      "trg": "trg_currency_status_log_append_only",
+      "rows_per_event": "2"
+    },
+    {
+      "tbl": "ledger_entry",
+      "trg": "trg_ledger_entry_append_only",
+      "rows_per_event": "2"
+    },
+    {
+      "tbl": "market_trade",
+      "trg": "trg_market_trade_append_only",
+      "rows_per_event": "2"
+    },
+    {
+      "tbl": "referral",
+      "trg": "trg_referral_append_only",
+      "rows_per_event": "2"
+    }
+  ]
+}
