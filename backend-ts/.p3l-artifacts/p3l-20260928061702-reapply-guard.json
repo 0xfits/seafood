@@ -1,0 +1,407 @@
+{
+  "run": "20260928061702",
+  "label": "reapply-guard",
+  "at": "2026-09-28T06:17:09.099Z",
+  "mode": "apply",
+  "repo": "/Users/kevin/bistro/seafood/backend-ts",
+  "corrected_file": {
+    "path": "migrations/0015_listing.sql",
+    "sha256": "911c7be4c08642fe875a6bae33b42570e5baa06481400becb05589308a6a1688",
+    "md5": "f29e213565888ab528260ea2842363e8",
+    "bytes": 54688
+  },
+  "applied_row_before": {
+    "version": "0015",
+    "name": "0015_listing.sql",
+    "checksum": "eca40487a5e81700dd01a68d24c3c13a0d0575f92c7c77ebd4c08e9e7232492f",
+    "applied_at": "2026-09-28 06:11:41.325743+00"
+  },
+  "safe_to_replay": false,
+  "gate": {
+    "listing_order_non_created_must_be_0": "0",
+    "ledger_entry_ref_listing_order_must_be_0": "14",
+    "listing_with_keys_must_be_0": "0"
+  },
+  "deleted": {
+    "refused": true,
+    "reason": "NOT_SAFE: 首版留下了已提交残迹 ⇒ 只准前滚，禁止同版本重放（立停上报）"
+  },
+  "before": {
+    "listing_order_total": "0",
+    "listing_order_non_created": "0",
+    "listing_order_paid_rows": [],
+    "ledger_ref_listing_order": "14",
+    "ledger_entries_ref_listing_order": [
+      {
+        "txid": "2216",
+        "uid": "920022",
+        "kind": "purchase",
+        "event_root_key": "ops:p1e:smoke:i2cqn:settle"
+      },
+      {
+        "txid": "2217",
+        "uid": "920021",
+        "kind": "sale",
+        "event_root_key": "ops:p1e:smoke:i2cqn:settle"
+      },
+      {
+        "txid": "2320",
+        "uid": "920022",
+        "kind": "purchase",
+        "event_root_key": "ops:p1e:smoke:ifvf8:settle"
+      },
+      {
+        "txid": "2321",
+        "uid": "920021",
+        "kind": "sale",
+        "event_root_key": "ops:p1e:smoke:ifvf8:settle"
+      },
+      {
+        "txid": "2406",
+        "uid": "920022",
+        "kind": "purchase",
+        "event_root_key": "ops:p1e:smoke:j7tbc:settle"
+      },
+      {
+        "txid": "2407",
+        "uid": "920021",
+        "kind": "sale",
+        "event_root_key": "ops:p1e:smoke:j7tbc:settle"
+      },
+      {
+        "txid": "2522",
+        "uid": "920022",
+        "kind": "purchase",
+        "event_root_key": "ops:p1e:smoke:n750p:settle"
+      },
+      {
+        "txid": "2523",
+        "uid": "920021",
+        "kind": "sale",
+        "event_root_key": "ops:p1e:smoke:n750p:settle"
+      },
+      {
+        "txid": "2608",
+        "uid": "920022",
+        "kind": "purchase",
+        "event_root_key": "ops:p1e:smoke:nqvdd:settle"
+      },
+      {
+        "txid": "2609",
+        "uid": "920021",
+        "kind": "sale",
+        "event_root_key": "ops:p1e:smoke:nqvdd:settle"
+      },
+      {
+        "txid": "3351",
+        "uid": "920022",
+        "kind": "purchase",
+        "event_root_key": "ops:p1e:smoke:ogsdm:settle"
+      },
+      {
+        "txid": "3352",
+        "uid": "920021",
+        "kind": "sale",
+        "event_root_key": "ops:p1e:smoke:ogsdm:settle"
+      },
+      {
+        "txid": "3873",
+        "uid": "920022",
+        "kind": "purchase",
+        "event_root_key": "ops:p1e:smoke:p6da5:settle"
+      },
+      {
+        "txid": "3874",
+        "uid": "920021",
+        "kind": "sale",
+        "event_root_key": "ops:p1e:smoke:p6da5:settle"
+      }
+    ],
+    "listing_with_keys": "0",
+    "migration_rows": [
+      {
+        "version": "0001",
+        "name": "0001_ledger_core.sql",
+        "checksum": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+        "applied_at": "2026-09-27 03:48:15.617808+00"
+      },
+      {
+        "version": "0002",
+        "name": "0002_user_identity.sql",
+        "checksum": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+        "applied_at": "2026-09-27 03:48:20.093949+00"
+      },
+      {
+        "version": "0003",
+        "name": "0003_kind_close_set_20.sql",
+        "checksum": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+        "applied_at": "2026-09-27 04:57:40.94416+00"
+      },
+      {
+        "version": "0004",
+        "name": "0004_ledger_post_event.sql",
+        "checksum": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+        "applied_at": "2026-09-27 05:26:01.859398+00"
+      },
+      {
+        "version": "0005",
+        "name": "0005_ledger_event_root_key.sql",
+        "checksum": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+        "applied_at": "2026-09-27 06:34:21.897469+00"
+      },
+      {
+        "version": "0006",
+        "name": "0006_user_to_users.sql",
+        "checksum": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+        "applied_at": "2026-09-27 07:09:27.38362+00"
+      },
+      {
+        "version": "0007",
+        "name": "0007_referral_and_commission_policy.sql",
+        "checksum": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+        "applied_at": "2026-09-27 09:49:28.131292+00"
+      },
+      {
+        "version": "0008",
+        "name": "0008_platform_revenue_job_fee.sql",
+        "checksum": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+        "applied_at": "2026-09-27 09:49:29.040584+00"
+      },
+      {
+        "version": "0009",
+        "name": "0009_ledger_error_reverse_map_complete.sql",
+        "checksum": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+        "applied_at": "2026-09-27 10:09:16.665946+00"
+      },
+      {
+        "version": "0010",
+        "name": "0010_referral_bind_protocol_guard.sql",
+        "checksum": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+        "applied_at": "2026-09-27 10:45:22.18861+00"
+      },
+      {
+        "version": "0011",
+        "name": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+        "checksum": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+        "applied_at": "2026-09-27 11:35:24.353246+00"
+      },
+      {
+        "version": "0012",
+        "name": "0012_replay_pre_gate_before_balance_gate.sql",
+        "checksum": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe",
+        "applied_at": "2026-09-27 13:09:02.882269+00"
+      },
+      {
+        "version": "0013",
+        "name": "0013_job_core.sql",
+        "checksum": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+        "applied_at": "2026-09-28 05:08:33.801443+00"
+      },
+      {
+        "version": "0014",
+        "name": "0014_job_flow.sql",
+        "checksum": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d",
+        "applied_at": "2026-09-28 05:34:21.434834+00"
+      },
+      {
+        "version": "0015",
+        "name": "0015_listing.sql",
+        "checksum": "eca40487a5e81700dd01a68d24c3c13a0d0575f92c7c77ebd4c08e9e7232492f",
+        "applied_at": "2026-09-28 06:11:41.325743+00"
+      }
+    ],
+    "listing_post_event_prosrc_md5": {
+      "m": "9c5d75d61063683ed695dfa268b20a76",
+      "bytes": "15963"
+    }
+  },
+  "after": {
+    "listing_order_total": "0",
+    "listing_order_non_created": "0",
+    "listing_order_paid_rows": [],
+    "ledger_ref_listing_order": "14",
+    "ledger_entries_ref_listing_order": [
+      {
+        "txid": "2216",
+        "uid": "920022",
+        "kind": "purchase",
+        "event_root_key": "ops:p1e:smoke:i2cqn:settle"
+      },
+      {
+        "txid": "2217",
+        "uid": "920021",
+        "kind": "sale",
+        "event_root_key": "ops:p1e:smoke:i2cqn:settle"
+      },
+      {
+        "txid": "2320",
+        "uid": "920022",
+        "kind": "purchase",
+        "event_root_key": "ops:p1e:smoke:ifvf8:settle"
+      },
+      {
+        "txid": "2321",
+        "uid": "920021",
+        "kind": "sale",
+        "event_root_key": "ops:p1e:smoke:ifvf8:settle"
+      },
+      {
+        "txid": "2406",
+        "uid": "920022",
+        "kind": "purchase",
+        "event_root_key": "ops:p1e:smoke:j7tbc:settle"
+      },
+      {
+        "txid": "2407",
+        "uid": "920021",
+        "kind": "sale",
+        "event_root_key": "ops:p1e:smoke:j7tbc:settle"
+      },
+      {
+        "txid": "2522",
+        "uid": "920022",
+        "kind": "purchase",
+        "event_root_key": "ops:p1e:smoke:n750p:settle"
+      },
+      {
+        "txid": "2523",
+        "uid": "920021",
+        "kind": "sale",
+        "event_root_key": "ops:p1e:smoke:n750p:settle"
+      },
+      {
+        "txid": "2608",
+        "uid": "920022",
+        "kind": "purchase",
+        "event_root_key": "ops:p1e:smoke:nqvdd:settle"
+      },
+      {
+        "txid": "2609",
+        "uid": "920021",
+        "kind": "sale",
+        "event_root_key": "ops:p1e:smoke:nqvdd:settle"
+      },
+      {
+        "txid": "3351",
+        "uid": "920022",
+        "kind": "purchase",
+        "event_root_key": "ops:p1e:smoke:ogsdm:settle"
+      },
+      {
+        "txid": "3352",
+        "uid": "920021",
+        "kind": "sale",
+        "event_root_key": "ops:p1e:smoke:ogsdm:settle"
+      },
+      {
+        "txid": "3873",
+        "uid": "920022",
+        "kind": "purchase",
+        "event_root_key": "ops:p1e:smoke:p6da5:settle"
+      },
+      {
+        "txid": "3874",
+        "uid": "920021",
+        "kind": "sale",
+        "event_root_key": "ops:p1e:smoke:p6da5:settle"
+      }
+    ],
+    "listing_with_keys": "0",
+    "migration_rows": [
+      {
+        "version": "0001",
+        "name": "0001_ledger_core.sql",
+        "checksum": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+        "applied_at": "2026-09-27 03:48:15.617808+00"
+      },
+      {
+        "version": "0002",
+        "name": "0002_user_identity.sql",
+        "checksum": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+        "applied_at": "2026-09-27 03:48:20.093949+00"
+      },
+      {
+        "version": "0003",
+        "name": "0003_kind_close_set_20.sql",
+        "checksum": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+        "applied_at": "2026-09-27 04:57:40.94416+00"
+      },
+      {
+        "version": "0004",
+        "name": "0004_ledger_post_event.sql",
+        "checksum": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+        "applied_at": "2026-09-27 05:26:01.859398+00"
+      },
+      {
+        "version": "0005",
+        "name": "0005_ledger_event_root_key.sql",
+        "checksum": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+        "applied_at": "2026-09-27 06:34:21.897469+00"
+      },
+      {
+        "version": "0006",
+        "name": "0006_user_to_users.sql",
+        "checksum": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+        "applied_at": "2026-09-27 07:09:27.38362+00"
+      },
+      {
+        "version": "0007",
+        "name": "0007_referral_and_commission_policy.sql",
+        "checksum": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+        "applied_at": "2026-09-27 09:49:28.131292+00"
+      },
+      {
+        "version": "0008",
+        "name": "0008_platform_revenue_job_fee.sql",
+        "checksum": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+        "applied_at": "2026-09-27 09:49:29.040584+00"
+      },
+      {
+        "version": "0009",
+        "name": "0009_ledger_error_reverse_map_complete.sql",
+        "checksum": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+        "applied_at": "2026-09-27 10:09:16.665946+00"
+      },
+      {
+        "version": "0010",
+        "name": "0010_referral_bind_protocol_guard.sql",
+        "checksum": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+        "applied_at": "2026-09-27 10:45:22.18861+00"
+      },
+      {
+        "version": "0011",
+        "name": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+        "checksum": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+        "applied_at": "2026-09-27 11:35:24.353246+00"
+      },
+      {
+        "version": "0012",
+        "name": "0012_replay_pre_gate_before_balance_gate.sql",
+        "checksum": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe",
+        "applied_at": "2026-09-27 13:09:02.882269+00"
+      },
+      {
+        "version": "0013",
+        "name": "0013_job_core.sql",
+        "checksum": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+        "applied_at": "2026-09-28 05:08:33.801443+00"
+      },
+      {
+        "version": "0014",
+        "name": "0014_job_flow.sql",
+        "checksum": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d",
+        "applied_at": "2026-09-28 05:34:21.434834+00"
+      },
+      {
+        "version": "0015",
+        "name": "0015_listing.sql",
+        "checksum": "eca40487a5e81700dd01a68d24c3c13a0d0575f92c7c77ebd4c08e9e7232492f",
+        "applied_at": "2026-09-28 06:11:41.325743+00"
+      }
+    ],
+    "listing_post_event_prosrc_md5": {
+      "m": "9c5d75d61063683ed695dfa268b20a76",
+      "bytes": "15963"
+    }
+  }
+}

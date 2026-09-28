@@ -1083,6 +1083,26 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 **⑤ 15 条未验证中值得跟的**：U1 持锁形状 `57014`（QA harness 未复现 Kong 的形态 ⇒ 两侧口径未对齐，登记）/ U5 其余 5 个触发器的 `DISABLE` 旁路未逐项测 / U9 `time_updated` 多次 UPDATE 与时钟回拨 / U11 高隔离级别 / U12 规模面压测 ⇒ 均属**边界与规模面**，**不阻塞**。
 
+### 5.47 **P3 商品柱 `0015_listing.sql`：撞满预算无摘要；按盘核出「已应用后被改」的 checksum 漂移 + 一条它自查出的真缺陷 ⇒ 我裁定「同版本重放」**（2026-09-28）
+
+**① 交付面（`deleg_b93ac678`，60 calls / 637s，**TRUNCATED·无摘要**）**
+- 盘上产物：`0015_listing.sql` **981 行 / 54688 B / sha256 `911c7be4c08642fe875a6bae33b42570e5baa06481400becb05589308a6a1688`**；探针 4 件（`p3l-lib.ts` / `p3l-00-post.ts` / `p3l-01-cases.ts` / `p3l-02-reapply-guard.ts`）；`.p3l-artifacts/` **8 份 run-tagged 读数**（run `20260928061103`）；**受限小项已落地** ⇒ `docs/audit/p3-job-flow-0014.md` **+3/−1**（① 全称断言改条件句 + 反例原文 + 来源 `§3.5`；② v0.4⇒v0.5 加注）**两处都改到位、未越界** ✓；冻结面 `0001`–`0014` + `src/` + `frontend/` **零改动** ✓
+- **报告 `docs/audit/p3-listing-0015.md` 未建** ⇒ 唯一缺口（行为用例读数与判负自证也未见落盘）
+- 两次 apply：① `ok=False` ⇒ `DL48` 自检拦下、整体回滚、**不写版本行** ✓（`schema_version` 仍 `0014`）② `ok=True` ⇒ `schema_version=**0015**`、registry **15 行**、`public` 表 **11→13**（`listing` 13 列 / `listing_order` 14 列）；一次 rerun ⇒ **15/15 `skipped`** ✓
+
+**② ★ 它自查出 v1 的真缺陷（这一条是加分项）**：v1 的 `listing_post_event` 用 `ledger_post_event(op='settle', kind='purchase')` 实现购买 ⇒ 账本把**付款方**建模成 `frozen_delta=−n`（冻结释放形态）⇒ 买家无冻结额 ⇒ **首次购买即 `LD002 LEDGER_INSUFFICIENT_FROZEN`**，与 §7.1「买家 `balance −n`」不符。修正（v2）= 改走 `op='entries'` 两条显式分录（`delta=∓n`、`frozen_delta=0`）+ `currency_op='settle'`（4 处 patch 全在函数体内 + 注释，未动表结构）。
+
+**③ ★ 但修复发生在「已应用」之后 ⇒ checksum 漂移（本轮真问题）**：DB 里是 **v1 对象**、盘上是 **v2 文件** ⇒ registry `eca40487a5e81700dd01a68d24c3c13a0d0575f92c7c77ebd4c08e9e7232492f` ≠ 文件 sha256 `911c7be4…`。**我实测**：`npx ts-node --transpile-only scripts/migrate.ts` ⇒ **`MIGRATE_EXIT=3`**（漂移闸，退出码取命令本身）⇒ **后续任何 `0016` 都会被挡死**。它自己写了 `p3l-02-reapply-guard.ts`（设计正确：引 `DL49`，同版本重放是「修正后重放」的唯一合法路径）并**立停上报**（`safe_to_replay=false`、`deleted.refused=true`，理由 `NOT_SAFE: 首版留下了已提交残迹`）—— **这一条是合规行为**（宁可停手也不静默重放）。
+
+**④ 我裁定：闸的判别量用宽了，重放实为安全 ⇒ 授权「同版本重放」**（我的只读核，run-tagged `zang-0015-drift-20260928062613.json`）
+- 它算 `safe` 用的是 `ledger_entry.ref_type='listing_order'` = **14** ⇒ 拒；但它**同脚本里已备好正确判别量**（`biz:listing:*` 命名空间 + `ledger_foreign_namespace_roots`）。我实测那 14 条**全是 `ops:p1e:smoke:*:settle` 的历史残迹**（7 组 purchase/sale 配对，P1e 阶段产物）⇒ **非本片产物**；**本片命名空间 `biz:listing:*` 分录 = 0** ✓
+- 其余前置我逐条核死：`listing_order` **0 行**（`non_created=0`）；`listing` **6 行**（本单夹具，`ledger_event_keys` 非空者 **0**）；`ref_type='listing'` 分录 **0**；**指向 `listing*` 的外键只有 `listing_order.listing_id → listing.listing_id`**（两新表之间），**无任何外部表 FK** ⇒ `DROP` 不产生孤儿
+- ⇒ **裁定：走同版本重放**（**不新建版本号** —— `DL47` 编号定死 + `DL46` 一迁一主题；前滚会把「首次购买必失败」永久留在 `0015`，对空库首装是地雷）。**条件**：删 registry `0015` 行 + 清掉该版本创建的对象（2 表 + **14 函数** + **11 触发器**，逐名列出）⇒ 以修正版**干净重放**；重放前先把 6 行 `listing` 夹具 **dump 留痕**；**不得碰 `0001`–`0014`、不得碰那 14 条历史分录**；重放后 registry checksum 必须 == 文件 sha256 且 `migrate.ts` **exit 0 / 15 `skipped`**，并复跑「首次购买」用例**变绿**（`balance −n`、非 `LD002`）。
+
+**⑤ 两条纪律固化（入技能）**
+- 「**判别『是不是我造的』必须用本片独占命名空间**，不得用跨片共用字段」—— `ref_type` 这类共用列会把别片/历史残迹算进本片 ⇒ 误判 `NOT_SAFE`（本轮实证：14 条 P1e 残迹挡住重放）。
+- 「**我自己的口径错**：`length(prosrc)` 是**字符数**、`octet_length` 才是**字节数**」⇒ 我此前报的 `ledger_post_event = 45598 B` 实为 **45598 字符 / 51429 字节**；两侧 `md5` 一致 ⇒ 「内容未变」的结论**不受影响**（Kong 读数用 `octet_length`，无矛盾）。
+
 ### 5.6 延迟问题的三个处置变体（**已拍板：变体 B**，见 D10）
 
 | 变体 | 做法 | 本地单笔预期 | 代价 |

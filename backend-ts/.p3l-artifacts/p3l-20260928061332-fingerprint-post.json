@@ -1,0 +1,926 @@
+{
+  "run": "20260928061332",
+  "label": "fingerprint-post",
+  "at": "2026-09-28T06:13:38.142Z",
+  "repo": "/Users/kevin/bistro/seafood/backend-ts",
+  "out_dir": "/Users/kevin/bistro/seafood/backend-ts/.p3l-artifacts",
+  "public_base_tables": [
+    "schema_migration",
+    "currency",
+    "account",
+    "ledger_entry",
+    "ledger_owner",
+    "users",
+    "referral",
+    "commission_policy",
+    "job",
+    "job_application",
+    "job_submission",
+    "listing",
+    "listing_order"
+  ],
+  "public_base_table_count": 13,
+  "migration_pre": {
+    "public_base_table_count": 11,
+    "schema_version": "0014",
+    "schema_migration_rows": 14,
+    "measured_by_this_probe": false,
+    "source": "Zang 本单环境真值（现取）; 递推自 0014 报告 §3.1（9→11）"
+  },
+  "migration_post": {
+    "public_base_table_count": 13,
+    "schema_version": "0015",
+    "schema_migration_rows": 15,
+    "new_tables": [
+      "listing",
+      "listing_order"
+    ]
+  },
+  "oid_evidence": {
+    "note": "新建对象在 oid 序上位于末尾 ⇒ 本次只**新增** 2 张表，既有 11 张未被重建（重建会换 oid）",
+    "min_new_oid": "98429",
+    "oid_listing": "98429",
+    "oid_listing_order": "98474",
+    "pre_existing_all_below_new": true,
+    "pre_existing_max_oid": "90312",
+    "ordered": [
+      "schema_migration:24604",
+      "currency:24621",
+      "account:24657",
+      "ledger_entry:24682",
+      "ledger_owner:24723",
+      "users:24750",
+      "referral:49152",
+      "commission_policy:49178",
+      "job:90174",
+      "job_application:90277",
+      "job_submission:90312",
+      "listing:98429",
+      "listing_order:98474"
+    ]
+  },
+  "schema_migration_row_15": {
+    "id": "16",
+    "version": "0015",
+    "name": "0015_listing.sql",
+    "checksum": "eca40487a5e81700dd01a68d24c3c13a0d0575f92c7c77ebd4c08e9e7232492f",
+    "applied_at": "2026-09-28 06:11:41.325743+00"
+  },
+  "schema_migration_all": [
+    {
+      "version": "0001",
+      "name": "0001_ledger_core.sql",
+      "checksum": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+      "applied_at": "2026-09-27 03:48:15.617808+00"
+    },
+    {
+      "version": "0002",
+      "name": "0002_user_identity.sql",
+      "checksum": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+      "applied_at": "2026-09-27 03:48:20.093949+00"
+    },
+    {
+      "version": "0003",
+      "name": "0003_kind_close_set_20.sql",
+      "checksum": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+      "applied_at": "2026-09-27 04:57:40.94416+00"
+    },
+    {
+      "version": "0004",
+      "name": "0004_ledger_post_event.sql",
+      "checksum": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+      "applied_at": "2026-09-27 05:26:01.859398+00"
+    },
+    {
+      "version": "0005",
+      "name": "0005_ledger_event_root_key.sql",
+      "checksum": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+      "applied_at": "2026-09-27 06:34:21.897469+00"
+    },
+    {
+      "version": "0006",
+      "name": "0006_user_to_users.sql",
+      "checksum": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+      "applied_at": "2026-09-27 07:09:27.38362+00"
+    },
+    {
+      "version": "0007",
+      "name": "0007_referral_and_commission_policy.sql",
+      "checksum": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+      "applied_at": "2026-09-27 09:49:28.131292+00"
+    },
+    {
+      "version": "0008",
+      "name": "0008_platform_revenue_job_fee.sql",
+      "checksum": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+      "applied_at": "2026-09-27 09:49:29.040584+00"
+    },
+    {
+      "version": "0009",
+      "name": "0009_ledger_error_reverse_map_complete.sql",
+      "checksum": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+      "applied_at": "2026-09-27 10:09:16.665946+00"
+    },
+    {
+      "version": "0010",
+      "name": "0010_referral_bind_protocol_guard.sql",
+      "checksum": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+      "applied_at": "2026-09-27 10:45:22.18861+00"
+    },
+    {
+      "version": "0011",
+      "name": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "checksum": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+      "applied_at": "2026-09-27 11:35:24.353246+00"
+    },
+    {
+      "version": "0012",
+      "name": "0012_replay_pre_gate_before_balance_gate.sql",
+      "checksum": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe",
+      "applied_at": "2026-09-27 13:09:02.882269+00"
+    },
+    {
+      "version": "0013",
+      "name": "0013_job_core.sql",
+      "checksum": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+      "applied_at": "2026-09-28 05:08:33.801443+00"
+    },
+    {
+      "version": "0014",
+      "name": "0014_job_flow.sql",
+      "checksum": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d",
+      "applied_at": "2026-09-28 05:34:21.434834+00"
+    },
+    {
+      "version": "0015",
+      "name": "0015_listing.sql",
+      "checksum": "eca40487a5e81700dd01a68d24c3c13a0d0575f92c7c77ebd4c08e9e7232492f",
+      "applied_at": "2026-09-28 06:11:41.325743+00"
+    }
+  ],
+  "listing_columns": [
+    {
+      "column_name": "listing_id",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null,
+      "is_identity": "YES",
+      "identity_generation": "BY DEFAULT",
+      "character_maximum_length": null,
+      "numeric_precision": 64,
+      "numeric_scale": 0,
+      "ordinal_position": "1"
+    },
+    {
+      "column_name": "create_key",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null,
+      "ordinal_position": "10"
+    },
+    {
+      "column_name": "ledger_event_keys",
+      "data_type": "ARRAY",
+      "udt_name": "_text",
+      "is_nullable": "NO",
+      "column_default": "'{}'::text[]",
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null,
+      "ordinal_position": "11"
+    },
+    {
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null,
+      "ordinal_position": "12"
+    },
+    {
+      "column_name": "time_updated",
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null,
+      "ordinal_position": "13"
+    },
+    {
+      "column_name": "seller_uid",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null,
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": 64,
+      "numeric_scale": 0,
+      "ordinal_position": "2"
+    },
+    {
+      "column_name": "cid",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null,
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": 64,
+      "numeric_scale": 0,
+      "ordinal_position": "3"
+    },
+    {
+      "column_name": "price",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null,
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": 64,
+      "numeric_scale": 0,
+      "ordinal_position": "4"
+    },
+    {
+      "column_name": "stock",
+      "data_type": "integer",
+      "udt_name": "int4",
+      "is_nullable": "NO",
+      "column_default": null,
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": 32,
+      "numeric_scale": 0,
+      "ordinal_position": "5"
+    },
+    {
+      "column_name": "title",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "''::text",
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null,
+      "ordinal_position": "6"
+    },
+    {
+      "column_name": "description",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "''::text",
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null,
+      "ordinal_position": "7"
+    },
+    {
+      "column_name": "media_urls",
+      "data_type": "ARRAY",
+      "udt_name": "_text",
+      "is_nullable": "NO",
+      "column_default": "'{}'::text[]",
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null,
+      "ordinal_position": "8"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'draft'::text",
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null,
+      "ordinal_position": "9"
+    }
+  ],
+  "listing_column_count": 13,
+  "listing_order_columns": [
+    {
+      "column_name": "order_id",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null,
+      "is_identity": "YES",
+      "identity_generation": "BY DEFAULT",
+      "character_maximum_length": null,
+      "numeric_precision": 64,
+      "numeric_scale": 0,
+      "ordinal_position": "1"
+    },
+    {
+      "column_name": "pay_txid",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "YES",
+      "column_default": null,
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": 64,
+      "numeric_scale": 0,
+      "ordinal_position": "10"
+    },
+    {
+      "column_name": "refund_txid",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "YES",
+      "column_default": null,
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": 64,
+      "numeric_scale": 0,
+      "ordinal_position": "11"
+    },
+    {
+      "column_name": "ledger_event_keys",
+      "data_type": "ARRAY",
+      "udt_name": "_text",
+      "is_nullable": "NO",
+      "column_default": "'{}'::text[]",
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null,
+      "ordinal_position": "12"
+    },
+    {
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null,
+      "ordinal_position": "13"
+    },
+    {
+      "column_name": "time_updated",
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null,
+      "ordinal_position": "14"
+    },
+    {
+      "column_name": "listing_id",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null,
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": 64,
+      "numeric_scale": 0,
+      "ordinal_position": "2"
+    },
+    {
+      "column_name": "buyer_uid",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null,
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": 64,
+      "numeric_scale": 0,
+      "ordinal_position": "3"
+    },
+    {
+      "column_name": "seller_uid",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null,
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": 64,
+      "numeric_scale": 0,
+      "ordinal_position": "4"
+    },
+    {
+      "column_name": "cid",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null,
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": 64,
+      "numeric_scale": 0,
+      "ordinal_position": "5"
+    },
+    {
+      "column_name": "price",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null,
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": 64,
+      "numeric_scale": 0,
+      "ordinal_position": "6"
+    },
+    {
+      "column_name": "quantity",
+      "data_type": "integer",
+      "udt_name": "int4",
+      "is_nullable": "NO",
+      "column_default": null,
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": 32,
+      "numeric_scale": 0,
+      "ordinal_position": "7"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'created'::text",
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null,
+      "ordinal_position": "8"
+    },
+    {
+      "column_name": "create_key",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "is_identity": "NO",
+      "identity_generation": null,
+      "character_maximum_length": null,
+      "numeric_precision": null,
+      "numeric_scale": null,
+      "ordinal_position": "9"
+    }
+  ],
+  "listing_order_column_count": 14,
+  "listing_constraints": [
+    {
+      "conname": "listing_cid_fk",
+      "contype": "f",
+      "definition": "FOREIGN KEY (cid) REFERENCES currency(cid)"
+    },
+    {
+      "conname": "listing_cid_not_null",
+      "contype": "n",
+      "definition": "NOT NULL cid"
+    },
+    {
+      "conname": "listing_create_key_not_null",
+      "contype": "n",
+      "definition": "NOT NULL create_key"
+    },
+    {
+      "conname": "listing_create_key_uniq",
+      "contype": "u",
+      "definition": "UNIQUE (create_key)"
+    },
+    {
+      "conname": "listing_description_not_null",
+      "contype": "n",
+      "definition": "NOT NULL description"
+    },
+    {
+      "conname": "listing_ledger_event_keys_not_null",
+      "contype": "n",
+      "definition": "NOT NULL ledger_event_keys"
+    },
+    {
+      "conname": "listing_listing_id_not_null",
+      "contype": "n",
+      "definition": "NOT NULL listing_id"
+    },
+    {
+      "conname": "listing_media_urls_not_null",
+      "contype": "n",
+      "definition": "NOT NULL media_urls"
+    },
+    {
+      "conname": "listing_pk",
+      "contype": "p",
+      "definition": "PRIMARY KEY (listing_id)"
+    },
+    {
+      "conname": "listing_price_not_null",
+      "contype": "n",
+      "definition": "NOT NULL price"
+    },
+    {
+      "conname": "listing_price_positive",
+      "contype": "c",
+      "definition": "CHECK ((price > 0))"
+    },
+    {
+      "conname": "listing_seller_fk",
+      "contype": "f",
+      "definition": "FOREIGN KEY (seller_uid) REFERENCES users(uid)"
+    },
+    {
+      "conname": "listing_seller_uid_not_null",
+      "contype": "n",
+      "definition": "NOT NULL seller_uid"
+    },
+    {
+      "conname": "listing_status_enum",
+      "contype": "c",
+      "definition": "CHECK ((status = ANY (ARRAY['draft'::text, 'listed'::text, 'delisted'::text, 'frozen'::text])))"
+    },
+    {
+      "conname": "listing_status_not_null",
+      "contype": "n",
+      "definition": "NOT NULL status"
+    },
+    {
+      "conname": "listing_stock_nonneg",
+      "contype": "c",
+      "definition": "CHECK ((stock >= 0))"
+    },
+    {
+      "conname": "listing_stock_not_null",
+      "contype": "n",
+      "definition": "NOT NULL stock"
+    },
+    {
+      "conname": "listing_time_created_not_null",
+      "contype": "n",
+      "definition": "NOT NULL time_created"
+    },
+    {
+      "conname": "listing_time_updated_not_null",
+      "contype": "n",
+      "definition": "NOT NULL time_updated"
+    },
+    {
+      "conname": "listing_title_not_null",
+      "contype": "n",
+      "definition": "NOT NULL title"
+    }
+  ],
+  "listing_order_constraints": [
+    {
+      "conname": "listing_order_buyer_fk",
+      "contype": "f",
+      "definition": "FOREIGN KEY (buyer_uid) REFERENCES users(uid)"
+    },
+    {
+      "conname": "listing_order_buyer_uid_not_null",
+      "contype": "n",
+      "definition": "NOT NULL buyer_uid"
+    },
+    {
+      "conname": "listing_order_cid_fk",
+      "contype": "f",
+      "definition": "FOREIGN KEY (cid) REFERENCES currency(cid)"
+    },
+    {
+      "conname": "listing_order_cid_not_null",
+      "contype": "n",
+      "definition": "NOT NULL cid"
+    },
+    {
+      "conname": "listing_order_create_key_not_null",
+      "contype": "n",
+      "definition": "NOT NULL create_key"
+    },
+    {
+      "conname": "listing_order_create_key_uniq",
+      "contype": "u",
+      "definition": "UNIQUE (create_key)"
+    },
+    {
+      "conname": "listing_order_ledger_event_keys_not_null",
+      "contype": "n",
+      "definition": "NOT NULL ledger_event_keys"
+    },
+    {
+      "conname": "listing_order_listing_fk",
+      "contype": "f",
+      "definition": "FOREIGN KEY (listing_id) REFERENCES listing(listing_id)"
+    },
+    {
+      "conname": "listing_order_listing_id_not_null",
+      "contype": "n",
+      "definition": "NOT NULL listing_id"
+    },
+    {
+      "conname": "listing_order_order_id_not_null",
+      "contype": "n",
+      "definition": "NOT NULL order_id"
+    },
+    {
+      "conname": "listing_order_pk",
+      "contype": "p",
+      "definition": "PRIMARY KEY (order_id)"
+    },
+    {
+      "conname": "listing_order_price_not_null",
+      "contype": "n",
+      "definition": "NOT NULL price"
+    },
+    {
+      "conname": "listing_order_price_positive",
+      "contype": "c",
+      "definition": "CHECK ((price > 0))"
+    },
+    {
+      "conname": "listing_order_quantity_not_null",
+      "contype": "n",
+      "definition": "NOT NULL quantity"
+    },
+    {
+      "conname": "listing_order_quantity_pos",
+      "contype": "c",
+      "definition": "CHECK ((quantity > 0))"
+    },
+    {
+      "conname": "listing_order_seller_fk",
+      "contype": "f",
+      "definition": "FOREIGN KEY (seller_uid) REFERENCES users(uid)"
+    },
+    {
+      "conname": "listing_order_seller_uid_not_null",
+      "contype": "n",
+      "definition": "NOT NULL seller_uid"
+    },
+    {
+      "conname": "listing_order_status_enum",
+      "contype": "c",
+      "definition": "CHECK ((status = ANY (ARRAY['created'::text, 'paid'::text, 'refunded'::text, 'cancelled'::text])))"
+    },
+    {
+      "conname": "listing_order_status_not_null",
+      "contype": "n",
+      "definition": "NOT NULL status"
+    },
+    {
+      "conname": "listing_order_time_created_not_null",
+      "contype": "n",
+      "definition": "NOT NULL time_created"
+    },
+    {
+      "conname": "listing_order_time_updated_not_null",
+      "contype": "n",
+      "definition": "NOT NULL time_updated"
+    }
+  ],
+  "listing_indexes": [
+    {
+      "indexname": "idx_listing_seller",
+      "indexdef": "CREATE INDEX idx_listing_seller ON public.listing USING btree (seller_uid, time_created DESC)"
+    },
+    {
+      "indexname": "idx_listing_status_time",
+      "indexdef": "CREATE INDEX idx_listing_status_time ON public.listing USING btree (status, time_created DESC)"
+    },
+    {
+      "indexname": "listing_create_key_uniq",
+      "indexdef": "CREATE UNIQUE INDEX listing_create_key_uniq ON public.listing USING btree (create_key)"
+    },
+    {
+      "indexname": "listing_pk",
+      "indexdef": "CREATE UNIQUE INDEX listing_pk ON public.listing USING btree (listing_id)"
+    }
+  ],
+  "listing_order_indexes": [
+    {
+      "indexname": "idx_listing_order_buyer",
+      "indexdef": "CREATE INDEX idx_listing_order_buyer ON public.listing_order USING btree (buyer_uid, time_created DESC)"
+    },
+    {
+      "indexname": "idx_listing_order_listing",
+      "indexdef": "CREATE INDEX idx_listing_order_listing ON public.listing_order USING btree (listing_id)"
+    },
+    {
+      "indexname": "listing_order_create_key_uniq",
+      "indexdef": "CREATE UNIQUE INDEX listing_order_create_key_uniq ON public.listing_order USING btree (create_key)"
+    },
+    {
+      "indexname": "listing_order_pk",
+      "indexdef": "CREATE UNIQUE INDEX listing_order_pk ON public.listing_order USING btree (order_id)"
+    }
+  ],
+  "partial_unique_indexes": [],
+  "partial_unique_indexes_note": "DL63 未规定部分唯一索引 ⇒ 本柱无（不是遗漏）",
+  "listing_triggers": [
+    {
+      "tgname": "trg_listing_create_key_guard",
+      "tgenabled": "O",
+      "definition": "CREATE TRIGGER trg_listing_create_key_guard BEFORE UPDATE ON public.listing FOR EACH ROW EXECUTE FUNCTION listing_create_key_guard()"
+    },
+    {
+      "tgname": "trg_listing_no_delete",
+      "tgenabled": "O",
+      "definition": "CREATE TRIGGER trg_listing_no_delete BEFORE DELETE ON public.listing FOR EACH ROW EXECUTE FUNCTION listing_no_delete()"
+    },
+    {
+      "tgname": "trg_listing_status_guard",
+      "tgenabled": "O",
+      "definition": "CREATE TRIGGER trg_listing_status_guard BEFORE UPDATE ON public.listing FOR EACH ROW EXECUTE FUNCTION listing_status_guard()"
+    },
+    {
+      "tgname": "trg_listing_stock_guard",
+      "tgenabled": "O",
+      "definition": "CREATE TRIGGER trg_listing_stock_guard BEFORE UPDATE ON public.listing FOR EACH ROW EXECUTE FUNCTION listing_stock_guard()"
+    },
+    {
+      "tgname": "trg_listing_touch_time_updated",
+      "tgenabled": "O",
+      "definition": "CREATE TRIGGER trg_listing_touch_time_updated BEFORE UPDATE ON public.listing FOR EACH ROW EXECUTE FUNCTION listing_touch_time_updated()"
+    }
+  ],
+  "listing_order_triggers": [
+    {
+      "tgname": "trg_listing_order_core_immutable_guard",
+      "tgenabled": "O",
+      "definition": "CREATE TRIGGER trg_listing_order_core_immutable_guard BEFORE UPDATE ON public.listing_order FOR EACH ROW EXECUTE FUNCTION listing_order_core_immutable_guard()"
+    },
+    {
+      "tgname": "trg_listing_order_create_key_guard",
+      "tgenabled": "O",
+      "definition": "CREATE TRIGGER trg_listing_order_create_key_guard BEFORE UPDATE ON public.listing_order FOR EACH ROW EXECUTE FUNCTION listing_order_create_key_guard()"
+    },
+    {
+      "tgname": "trg_listing_order_ledger_ref_guard",
+      "tgenabled": "O",
+      "definition": "CREATE TRIGGER trg_listing_order_ledger_ref_guard BEFORE UPDATE ON public.listing_order FOR EACH ROW EXECUTE FUNCTION listing_order_ledger_ref_guard()"
+    },
+    {
+      "tgname": "trg_listing_order_no_delete",
+      "tgenabled": "O",
+      "definition": "CREATE TRIGGER trg_listing_order_no_delete BEFORE DELETE ON public.listing_order FOR EACH ROW EXECUTE FUNCTION listing_order_no_delete()"
+    },
+    {
+      "tgname": "trg_listing_order_status_guard",
+      "tgenabled": "O",
+      "definition": "CREATE TRIGGER trg_listing_order_status_guard BEFORE UPDATE ON public.listing_order FOR EACH ROW EXECUTE FUNCTION listing_order_status_guard()"
+    },
+    {
+      "tgname": "trg_listing_order_touch_time_updated",
+      "tgenabled": "O",
+      "definition": "CREATE TRIGGER trg_listing_order_touch_time_updated BEFORE UPDATE ON public.listing_order FOR EACH ROW EXECUTE FUNCTION listing_order_touch_time_updated()"
+    }
+  ],
+  "trigger_enabled_counts": {
+    "listing_O": 5,
+    "listing_order_O": 6,
+    "not_O_anywhere": []
+  },
+  "functions": {
+    "listing_post_event": {
+      "fn": "public.listing_post_event(jsonb)",
+      "args": "payload jsonb",
+      "result": "jsonb",
+      "volatile": "v",
+      "language": "plpgsql",
+      "prosrc_bytes": 15963,
+      "prosrc_chars": 14800,
+      "prosrc_md5": "9c5d75d61063683ed695dfa268b20a76"
+    },
+    "listing_status_transition_ok": {
+      "fn": "public.listing_status_transition_ok(text,text)",
+      "args": "p_from text, p_to text",
+      "result": "boolean",
+      "volatile": "i",
+      "language": "sql",
+      "prosrc_bytes": 234,
+      "prosrc_chars": 220,
+      "prosrc_md5": "583aef2c89a55c6708c9678c1ca3e466"
+    },
+    "listing_order_status_transition_ok": {
+      "fn": "public.listing_order_status_transition_ok(text,text)",
+      "args": "p_from text, p_to text",
+      "result": "boolean",
+      "volatile": "i",
+      "language": "sql",
+      "prosrc_bytes": 201,
+      "prosrc_chars": 187,
+      "prosrc_md5": "b8c40d6001a1a9f6596546bca6090d06"
+    },
+    "ledger_post_event": {
+      "fn": "public.ledger_post_event(jsonb)",
+      "args": "payload jsonb",
+      "result": "jsonb",
+      "volatile": "v",
+      "language": "plpgsql",
+      "prosrc_bytes": 51429,
+      "prosrc_chars": 45598,
+      "prosrc_md5": "d94dd902697dfe60aba409d808c6d63a"
+    },
+    "job_post_event": {
+      "fn": "public.job_post_event(jsonb)",
+      "args": "payload jsonb",
+      "result": "jsonb",
+      "volatile": "v",
+      "language": "plpgsql",
+      "prosrc_bytes": 13594,
+      "prosrc_chars": 12567,
+      "prosrc_md5": "0cedbb9ea60dcbda28e3ef3dafdd119b"
+    }
+  },
+  "protected_fingerprint": {
+    "ledger_post_event_bytes": 51429,
+    "ledger_post_event_md5": "d94dd902697dfe60aba409d808c6d63a",
+    "expected_bytes": 45598,
+    "expected_md5": "d94dd902697dfe60aba409d808c6d63a"
+  },
+  "residual_counts": [
+    {
+      "t": "commission_policy",
+      "n": "19"
+    },
+    {
+      "t": "currency",
+      "n": "101"
+    },
+    {
+      "t": "job",
+      "n": "110"
+    },
+    {
+      "t": "job_application",
+      "n": "32"
+    },
+    {
+      "t": "job_submission",
+      "n": "10"
+    },
+    {
+      "t": "ledger_entry",
+      "n": "2365"
+    },
+    {
+      "t": "listing",
+      "n": "0"
+    },
+    {
+      "t": "listing_order",
+      "n": "0"
+    },
+    {
+      "t": "users",
+      "n": "437"
+    }
+  ],
+  "migration_file_sha256": "eca40487a5e81700dd01a68d24c3c13a0d0575f92c7c77ebd4c08e9e7232492f"
+}

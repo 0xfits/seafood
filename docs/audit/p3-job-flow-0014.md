@@ -2,6 +2,7 @@
 
 > 状态：**已交付 · 已应用 · 已验收（self-check + 6 用例 + 5 判负自证全绿）**。
 > 角色：Kong（实现）。上游：`docs/data-layer.spec.md` **v0.4** §6.2 / `DL46`–`DL56` / `DL7` / `DL48` / `DL99` / `DL151`。
+> 〔**加注（留痕）· 现盘上游版本 = `v0.5`**（md5 `ed8e2a1f19c86b39db880533ee1cbae8`）：v0.4 → v0.5 的改动**只是「§6.1 编号重排向全文传播干净」**（§6.3/§6.4/§6.6 节标题与册内迁移号引用），**与 `0014` 相关内容零改动**（`0014_job_flow.sql` 文件不变、`§6.2` 的 `DL54`–`DL56` 正文一字未动）⇒ **本报告的权威口径与全部读数不受影响**，无须重跑。〕
 > 迁移入口（现取）：`cd backend-ts && npx ts-node --transpile-only scripts/migrate.ts`。
 > 本报告所有数值来自落盘读数（`backend-ts/.p3f-artifacts/`），非记忆。
 
@@ -135,7 +136,8 @@
 | ⑤ | `create_key` 幂等（同键重放不双写） | 重放 ⇒ `23505` / `job_application_create_key_uniq`；`rows_with_key=1` |
 | ⑥ | 边界 | 不存在 `job_id` ⇒ `23503`（FK）；**自雇（worker=employer）DB 层允许**（spec 无 DB 级禁止，本片不越权加约束）；`create_key` 异内容 ⇒ `23505` |
 
-**推论（③/④ 的实测教训，已入产物 `note`）**：UPDATE 路径上「白名单 CHECK」被 `BEFORE UPDATE` 守卫**抢先**（`LD011`），故 `CHECK`（`23514`）**只能由 INSERT 触达**——本片两种路径都测到了。
+**推论（③/④ 的实测教训，已入产物 `note`）**：UPDATE 路径上「白名单 CHECK」被 `BEFORE UPDATE` 守卫**抢先**（`LD011`）⇒ 条件句：**守卫启用（无 owner 旁路）时 INSERT 触达 `23514`、UPDATE 触达 `LD011`**——本片两种路径都测到了。
+> 〔**就地更正（条件化 · 留痕）**：本句原写作「`CHECK 23514` **只能由 INSERT 触达**」——那是**无条件全称断言**，**不成立**。反例原文（表 owner 即可执行，非需超管）：`ALTER TABLE public.job_application DISABLE TRIGGER trg_job_application_status_guard;` 之后执行 **UPDATE** ⇒ 返回 **`23514` / constraint=`job_application_status_enum`**（即 UPDATE **可以**触达 `23514`）。**推翻了该全称断言**，来源 = `docs/qa/p3-0014-job-flow-review.md` **§3.5**（Neng 独立复现 / 推翻：「断言在『**无 owner 旁路**（守卫启用）』前提下**成立**；作为**无条件全称断言不成立**」）。该片测试后已 `ENABLE TRIGGER`，终态 6 触发器全 `O`。原文语义未删，只收窄为条件断言。〕
 
 ## 5. 判负自证 · 尺子必须会响（`p3f-20260928055200-concurrency-and-negative.json`，**5/5 pass**，exit 0）
 
