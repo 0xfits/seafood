@@ -1,0 +1,176 @@
+{
+ "probe": "P3T-01 · 真库增量 + DB 侧指纹（只读）",
+ "label": "pre-sweep",
+ "run": "20260928T153458Z",
+ "tables_present": [
+  "neon_auth.account",
+  "public.account",
+  "public.currency",
+  "public.ledger_entry",
+  "public.referral",
+  "public.users"
+ ],
+ "counts": [
+  {
+   "table": "neon_auth.account",
+   "rows": "0"
+  },
+  {
+   "table": "public.account",
+   "rows": "375"
+  },
+  {
+   "table": "public.currency",
+   "rows": "119"
+  },
+  {
+   "table": "public.ledger_entry",
+   "rows": "3201"
+  },
+  {
+   "table": "public.referral",
+   "rows": "293"
+  },
+  {
+   "table": "public.users",
+   "rows": "583"
+  }
+ ],
+ "db_function_fingerprints": [
+  {
+   "proname": "job_ledger_ref_guard",
+   "fingerprint": "0ca1ad006762ef73cca73a1fc2005023"
+  },
+  {
+   "proname": "ledger_accounts_from_entries",
+   "fingerprint": "4ba87190a05ba6901358ea82ad872d97"
+  },
+  {
+   "proname": "ledger_arm_lock_timeout",
+   "fingerprint": "add843305286158fa977b0f9bf81827a"
+  },
+  {
+   "proname": "ledger_assert_commission_conservation",
+   "fingerprint": "e9c0e3703f22950e8df2606cda32f35c"
+  },
+  {
+   "proname": "ledger_assert_currency_op",
+   "fingerprint": "508a91fc2b48d0f9e504301f4bc933ca"
+  },
+  {
+   "proname": "ledger_assert_platform_mutation",
+   "fingerprint": "f080c5b88168edb17d92f77b1584cf72"
+  },
+  {
+   "proname": "ledger_budget_remaining_ms",
+   "fingerprint": "f7d0de2a5d6e6e156fb10761e5d29333"
+  },
+  {
+   "proname": "ledger_check_budget",
+   "fingerprint": "aca4376617c1a20b816f2ee7ce846669"
+  },
+  {
+   "proname": "ledger_cid_arg",
+   "fingerprint": "d556e7ed45a76f6b49efe68c59e3de77"
+  },
+  {
+   "proname": "ledger_entry_append_only",
+   "fingerprint": "59e69058db58052236aeeacaee2777a2"
+  },
+  {
+   "proname": "ledger_entry_json",
+   "fingerprint": "47efd2726ece49b32de118c5efe83a23"
+  },
+  {
+   "proname": "ledger_error_for_sqlstate",
+   "fingerprint": "fc8330a039afa6255d226c7bca5baf81"
+  },
+  {
+   "proname": "ledger_int_amount",
+   "fingerprint": "6a0dd3f0e61972d3a05ca25b447e4c33"
+  },
+  {
+   "proname": "ledger_kind_ok",
+   "fingerprint": "b7064200983b52a6b3f0a8db65d08260"
+  },
+  {
+   "proname": "ledger_lock_timeout_ms",
+   "fingerprint": "d46468a9c505a1dcd35bba2a08d0e8c5"
+  },
+  {
+   "proname": "ledger_max_single_amount",
+   "fingerprint": "50f41dffe37940885a52dbe857bb06be"
+  },
+  {
+   "proname": "ledger_norm_entry",
+   "fingerprint": "77e9c1232b2a6b6f0650b625be32c3aa"
+  },
+  {
+   "proname": "ledger_optional_bool",
+   "fingerprint": "48b3e093834ffd85f0888407edbaab21"
+  },
+  {
+   "proname": "ledger_optional_text",
+   "fingerprint": "5161fa94ffa0677b6b6968fb06264886"
+  },
+  {
+   "proname": "ledger_parse_user_amount",
+   "fingerprint": "fd728d8ce5ed85848bb225778d789dc1"
+  },
+  {
+   "proname": "ledger_payload_amount",
+   "fingerprint": "bcc27aa8234df56d859287cc971f8643"
+  },
+  {
+   "proname": "ledger_payload_cap",
+   "fingerprint": "a9a25e6c675912ac153bf08a97b457cd"
+  },
+  {
+   "proname": "ledger_post_event",
+   "fingerprint": "e784a58681ae971bcd97f3043f293002"
+  },
+  {
+   "proname": "ledger_raise",
+   "fingerprint": "6cb815387f24a65c8a9caac62981b26a"
+  },
+  {
+   "proname": "ledger_sqlstate_of",
+   "fingerprint": "102e3da747a805792e8fc2c51f1867c0"
+  },
+  {
+   "proname": "ledger_stmt_budget_ms",
+   "fingerprint": "07f1182d4170bff12d9f4f8a58e69e4d"
+  },
+  {
+   "proname": "ledger_strict_text",
+   "fingerprint": "67c27347bd0dfdabc10ef4d0da254cf3"
+  },
+  {
+   "proname": "ledger_uid_arg",
+   "fingerprint": "bb811aafac38cea62adc89e7bc26251f"
+  },
+  {
+   "proname": "listing_order_ledger_ref_guard",
+   "fingerprint": "2b0c48052b09b15097c9dc2af43c5493"
+  }
+ ],
+ "db_trigger_fingerprints": [
+  {
+   "tgname": "trg_job_ledger_ref_guard",
+   "fingerprint": "d6e2d64d5af1328f804e1acacf29f96c"
+  },
+  {
+   "tgname": "trg_ledger_entry_append_only",
+   "fingerprint": "7bc22ddc2081b6a89e8f95ba9190a2ff"
+  },
+  {
+   "tgname": "trg_ledger_entry_commission_conservation",
+   "fingerprint": "84589204d2cef4937c6b2bf98e960c1a"
+  },
+  {
+   "tgname": "trg_listing_order_ledger_ref_guard",
+   "fingerprint": "de412a102545840f1854ac32b531eed3"
+  }
+ ],
+ "schema_migrations_rows": null
+}

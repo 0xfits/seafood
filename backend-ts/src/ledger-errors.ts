@@ -347,6 +347,37 @@ export const infraSqlstateReason = (code: string): string | null => {
   return INFRA_CLASS_REASONS[code.slice(0, 2)] ?? null;
 };
 
+// ---------------------------------------------------------------------------
+// P3T（Unit E · Kong）：**非 PG「事件对象族」**判据 —— 连接建立期故障不再冒充 500
+// ---------------------------------------------------------------------------
+// 缺陷（证据：`docs/audit/p3-p1o-500-rca.md` + `.p3s-artifacts/p3s-03-fold-repro-*.json` 的
+// `three_state.RED_info_lost_500` = 9 项）：驱动连接建立期的故障以**事件对象**（`ws` 的 `ErrorEvent`）
+// 形态冒上来 —— `message` 定义在**原型上的 getter**（实例**没有** own `message`）、**无 `name`、无 `code`**。
+// 旧判据只认「`code` ∈ 瞬时集」或「`message` 命中正则」，事件对象两样都不占
+// ⇒ `unclassified_non_pg_error`（不在 `TRANSIENT_NON_PG_REASONS`）
+// ⇒ 跳过既有 503 通路（见下面 `normalizeLedgerError` 的 P1c 分支）
+// ⇒ 落 `LEDGER_TRANSACTION_REQUIRED`（**LD024 / 500**）：违 `DL126`（500 类码只允许由不变式被破坏
+// 触发且必须告警）—— 把**基础设施故障记成实现缺陷**，污染 R108 告警面、掩盖真因。
+// 裁定（逐字执行）：事件对象族一律归**既有** `driver_connection_error`（**既有 reason、既有 503 通路**）；
+// **不新增错误码、不动 §14 的 33 码闭集、不动状态映射表**。判据（任一成立）：
+//   ① `e instanceof Event`（标准事件对象；Node ≥ 15 有全局 `Event`，DOM 亦有）；
+//   ② `e.type === 'error'`（事件对象的判别位）；
+//   ③ 读得到的 `message` 是字符串，但**不是 own 数据属性** —— 原型 getter / 自有 getter-only 访问器
+//      （`ws` 的 `ErrorEvent` 正落这一条：驱动 `_connectionCallback` 的
+//       `Cannot set property message of #<ErrorEvent>` 崩溃即源于「有 getter 无 setter」）。
+// ⚠️ 判据**只读不写**：缓 `Object.freeze` 的事件对象同样命中（不得依赖给对象赋值）。
+const isEventObjectFamily = (e: unknown): boolean => {
+  if (e === null || typeof e !== 'object') return false;
+  const EventCtor = (globalThis as { Event?: unknown }).Event;
+  if (typeof EventCtor === 'function' && e instanceof (EventCtor as new (...args: unknown[]) => object)) return true;
+  const o = e as { type?: unknown; message?: unknown };
+  if (o.type === 'error') return true;
+  const desc = Object.getOwnPropertyDescriptor(e, 'message');
+  if (desc !== undefined && desc.get !== undefined && desc.set === undefined && typeof o.message === 'string') return true;
+  if (desc === undefined && typeof o.message === 'string') return true;
+  return false;
+};
+
 /**
  * 分类「非 PG 错误」。返回 `null` ⇒ 是 PG SQLSTATE 或账本命名码，交给下面的 switch / 命名分支。
  * 导出以便质检脚本直接取证分类逻辑（不引入副作用）。
@@ -355,7 +386,10 @@ export const classifyNonPgError = (e: unknown): NonPgErrorReason | null => {
   const code = pgCode(e);
   const message = pgMessage(e);
   if (code.startsWith('LEDGER_') || isSqlstate(code)) return null;
+  // ⚠️ 顺序有讲究：池超时正则**先判**（它的 message 来自内层真因，reason 更精确：同样是 503、
+  //    同样在既有 transient 集里）；随后才是事件对象族。事件对象族**不再**看 message 内容。
   if (POOL_CONNECTION_TIMEOUT_RE.test(message)) return 'pool_connection_timeout';
+  if (isEventObjectFamily(e)) return 'driver_connection_error';
   if (DRIVER_TRANSIENT_CODES.has(code)
       || /ECONNREFUSED|ECONNRESET|ENOTFOUND|ETIMEDOUT|socket hang up|connection refused|connection closed|connection terminated/i.test(message)) {
     return 'driver_connection_error';
@@ -365,6 +399,106 @@ export const classifyNonPgError = (e: unknown): NonPgErrorReason | null => {
 
 /** 归入 503 类的非 PG 原因（「暂时不可用、可重试」） */
 const TRANSIENT_NON_PG_REASONS: NonPgErrorReason[] = ['pool_connection_timeout', 'driver_connection_error'];
+
+// ---------------------------------------------------------------------------
+// P3T（Unit E · Kong）：**R108 服务端诊断面**（原始信息只进服务端日志/告警）
+// ---------------------------------------------------------------------------
+// 裁定（逐字执行）：**允许**把原始 `message`（截断）、栈前几帧、`constructor.name`、`cause` 链
+//   保留到**服务端日志 / 告警载荷（R108）**；**严禁**把原始 `message` / `stack` 写进对外
+//   `LedgerError.details`（R107 —— 见 `normalizeLedgerError` 尾部「非账本错误**不外泄原始信息**」）。
+// 为什么单开一个面：`details` 是**对外**的（`toErrorResponse`），`errName` 也只喂对外 details；
+//   真因、栈、cause 链没有别的地方可去（`src/ledger.ts:98` 登记「R108 告警通道：仅提供
+//   `isDefectError()` 判定，未接日志/指标」）。本函数就是那个**载荷**：调用方（进程内日志/告警
+//   通道）拿到它，把「哪个形态崩的、怎么崩的」记下来，而对外响应仍只有 §14 的码 + 非敏感 details。
+// ⚠️ **只读、无副作用、不参与 details 组装、不落任何 sink**（决定写哪儿是调用方的事）。
+export interface LedgerErrorDiagnostics {
+  /** 归一化后的 §14 码（对外那个） */
+  code: string;
+  http_status: number;
+  /** 对外 `details.reason`（可机读原因）；无则 null */
+  reason: string | null;
+  /** 分类器给出的非 PG 原因（分类逻辑的独立取证） */
+  non_pg_class: NonPgErrorReason | null;
+  /** ②要求的 `constructor.name`（`ErrorEvent` 与 `Error` 由此可辨） */
+  constructor_name: string;
+  /** 诊断侧错误形态名（与 `details.error_name` 同源，仅供日志比对） */
+  error_name: string;
+  /** 是否命中「事件对象族」判据（见上方 `isEventObjectFamily`） */
+  event_object_family: boolean;
+  /** 原始 message（截断 `DIAG_MESSAGE_MAX`；超长尾部标 `…[全长]`） */
+  message: string | null;
+  /** 栈前 `DIAG_STACK_FRAMES` 帧（每帧截断 `DIAG_LINE_MAX`）；无栈则 null */
+  stack_head: string[] | null;
+  /** `cause` / `error`（`ErrorEvent` 内层）链，最多 `DIAG_CAUSE_DEPTH` 层 */
+  cause_chain: Array<{ constructor_name: string; message: string | null; code: string | null }>;
+}
+
+const DIAG_MESSAGE_MAX = 200;
+const DIAG_STACK_FRAMES = 5;
+const DIAG_CAUSE_DEPTH = 5;
+const DIAG_LINE_MAX = 300;
+
+/** 安全读 message（getter 可能抛；`ErrorEvent` 的 message 就在原型上） */
+const safeMessage = (v: unknown): string => {
+  try {
+    return pgMessage(v);
+  } catch {
+    return '';
+  }
+};
+
+const truncateText = (v: unknown, max: number): string | null =>
+  typeof v === 'string' ? (v.length > max ? `${v.slice(0, max)}…[${v.length}]` : v) : null;
+
+const stackHeadOf = (e: unknown): string[] | null => {
+  let s: unknown;
+  try {
+    s = (e as { stack?: unknown })?.stack;
+  } catch {
+    return null;
+  }
+  if (typeof s !== 'string' || s === '') return null;
+  return s.split('\n').slice(0, DIAG_STACK_FRAMES).map((l) => l.trim().slice(0, DIAG_LINE_MAX));
+};
+
+const ctorNameOf = (e: unknown): string => {
+  const n = (e as { constructor?: { name?: unknown } })?.constructor?.name;
+  return typeof n === 'string' && n !== '' ? n.slice(0, 64) : 'unknown';
+};
+
+/**
+ * 构造**服务端**诊断/告警载荷（R108）。**只准进服务端日志/告警，永不进对外 `details`（R107）**。
+ * 导出的两个用途：① 进程内告警通道取证；② 质检脚本对拍（纯函数、无副作用）。
+ */
+export const ledgerErrorDiagnostics = (e: unknown): LedgerErrorDiagnostics => {
+  const norm = normalizeLedgerError(e);
+  const chain: LedgerErrorDiagnostics['cause_chain'] = [];
+  const seen = new Set<unknown>([e]);
+  // `cause` 是标准链；`error` 是 `ws` 的 `ErrorEvent` 装内层错误的地方（事件的「真因」）
+  let cur: unknown = (e as { cause?: unknown })?.cause ?? (e as { error?: unknown })?.error;
+  for (let i = 0; i < DIAG_CAUSE_DEPTH && typeof cur === 'object' && cur !== null && !seen.has(cur); i += 1) {
+    seen.add(cur);
+    chain.push({
+      constructor_name: ctorNameOf(cur),
+      message: truncateText(safeMessage(cur), DIAG_MESSAGE_MAX),
+      code: pgCode(cur) || null,
+    });
+    cur = (cur as { cause?: unknown })?.cause ?? (cur as { error?: unknown })?.error;
+  }
+  const reason = (norm.details as { reason?: unknown } | undefined)?.reason;
+  return {
+    code: norm.code,
+    http_status: norm.httpStatus,
+    reason: typeof reason === 'string' ? reason : null,
+    non_pg_class: classifyNonPgError(e),
+    constructor_name: ctorNameOf(e),
+    error_name: errName(e),
+    event_object_family: isEventObjectFamily(e),
+    message: truncateText(safeMessage(e), DIAG_MESSAGE_MAX) || null,
+    stack_head: stackHeadOf(e),
+    cause_chain: chain,
+  };
+};
 
 /**
  * 把 DB 层抛出的原始错误归类到 §14 错误码。

@@ -1,0 +1,50 @@
+RUN=20260928T153437Z  PHASE=after
+event_object_cases=8  control_cases=13
+
+--- 事件对象族（E*） ---
+  E1_dom_errorevent_fake                 | LEDGER_TX_TIMEOUT              http=503  reason=driver_connection_error  class=driver_connection_error    green_ok
+  E2_proto_getter_only_no_type           | LEDGER_TX_TIMEOUT              http=503  reason=driver_connection_error  class=driver_connection_error    green_ok
+  E3_ws_ErrorEvent_real                  | LEDGER_TX_TIMEOUT              http=503  reason=driver_connection_error  class=driver_connection_error    green_ok
+  E4_type_error_only                     | LEDGER_TX_TIMEOUT              http=503  reason=driver_connection_error  class=driver_connection_error    green_ok
+  E5_frozen_event_object                 | LEDGER_TX_TIMEOUT              http=503  reason=driver_connection_error  class=driver_connection_error    green_ok
+  E6_own_getter_only_message             | LEDGER_TX_TIMEOUT              http=503  reason=driver_connection_error  class=driver_connection_error    green_ok
+  E7_event_with_inner_driver_code        | LEDGER_TX_TIMEOUT              http=503  reason=driver_connection_error  class=driver_connection_error    green_ok
+  E8_errorevent_message_matches_pool_re  | LEDGER_TX_TIMEOUT              http=503  reason=pool_connection_timeout  class=pool_connection_timeout    green_ok
+
+--- 对照（C*：逐字段冻结 / 必须逐字节相同） ---
+  C1_pg_22003_error_instance             | LEDGER_TRANSACTION_REQUIRED    http=500  reason=unclassified_pg_error    class=-                          identical_to_frozen
+  C2_pg_22003_plain_object               | LEDGER_TRANSACTION_REQUIRED    http=500  reason=unclassified_pg_error    class=-                          identical_to_frozen
+  C3_db_named_code_LD016                 | LEDGER_TRANSACTION_REQUIRED    http=500  reason=unclassified_pg_error    class=-                          identical_to_frozen
+  C4_econnreset                          | LEDGER_TX_TIMEOUT              http=503  reason=driver_connection_error  class=driver_connection_error    identical_to_frozen
+  C5_pool_connection_timeout             | LEDGER_TX_TIMEOUT              http=503  reason=pool_connection_timeout  class=pool_connection_timeout    identical_to_frozen
+  C6_socket_hang_up                      | LEDGER_TX_TIMEOUT              http=503  reason=driver_connection_error  class=driver_connection_error    identical_to_frozen
+  C7_08p01_protocol_violation            | LEDGER_TRANSACTION_REQUIRED    http=500  reason=protocol_violation       class=-                          identical_to_frozen
+  C8_23514_account_bal_guard             | LEDGER_NEGATIVE_BALANCE_GUARD  http=500  reason=-                        class=-                          identical_to_frozen
+  C9_23505_idem_uniq                     | LEDGER_IDEMPOTENCY_CONFLICT    http=409  reason=-                        class=-                          identical_to_frozen
+  C10_57014_statement_timeout            | LEDGER_TX_TIMEOUT              http=503  reason=-                        class=-                          identical_to_frozen
+  C11_infra_class_53                     | LEDGER_TX_TIMEOUT              http=503  reason=insufficient_resources   class=-                          identical_to_frozen
+  C12_ledger_named_code_tx_timeout       | LEDGER_TX_TIMEOUT              http=503  reason=-                        class=-                          identical_to_frozen
+  C13_ctor_Object_error_shape            | LEDGER_TRANSACTION_REQUIRED    http=500  reason=unclassified_non_pg_error class=unclassified_non_pg_error  identical_to_frozen
+
+--- 服务端诊断面（②：原始 message/栈/constructor.name/cause 链只进服务端） ---
+  E1_dom_errorevent_fake                 | ctor=DomErrorEventLike msg="connection reset by peer while opening ws" stack_head=null
+  E2_proto_getter_only_no_type           | ctor=Object msg="connection closed before message completed" stack_head=null
+  E3_ws_ErrorEvent_real                  | ctor=ErrorEvent msg="connection reset by peer while opening ws" stack_head=null
+  E4_type_error_only                     | ctor=Object msg=null stack_head=null
+  E5_frozen_event_object                 | ctor=Object msg="connection reset by peer while opening ws" stack_head=null
+  E6_own_getter_only_message             | ctor=Object msg="socket hang up (own getter-only)" stack_head=null
+  E7_event_with_inner_driver_code        | ctor=DomErrorEventLike msg="connection reset by peer while opening ws" stack_head=null
+  E8_errorevent_message_matches_pool_re  | ctor=DomErrorEventLike msg="timeout exceeded when trying to connect" stack_head=null
+  C1_pg_22003_error_instance             | ctor=Error msg="numeric_value_out_of_range" stack_head=5 frames
+
+RED_set(0) = []
+control_mismatches = []
+r107_detail_leaks = []
+verdicts = {
+ "before_phase_red_nonempty": "n/a(phase=after)",
+ "after_phase_red_empty": true,
+ "controls_byte_identical": true,
+ "r107_no_raw_leak_in_details": true,
+ "d126_no_event_family_500": true
+}
+json=/Users/kevin/bistro/seafood/backend-ts/.p3t-artifacts/p3t-00-fold-fix-verify-after-20260928T153437Z.json
