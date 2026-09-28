@@ -1,0 +1,276 @@
+{
+  "run": "20260928T141920Zvokg",
+  "name": "p3r-01-facts",
+  "at": "2026-09-28T14:19:25.326Z",
+  "schema_version": {
+    "v": "0017"
+  },
+  "triggers": [
+    {
+      "tbl": "account",
+      "tgname": "trg_account_guard",
+      "tgenabled": "O",
+      "tgdeferrable": false,
+      "tginitdeferred": false,
+      "def": "CREATE TRIGGER trg_account_guard BEFORE INSERT OR DELETE OR UPDATE ON public.account FOR EACH ROW EXECUTE FUNCTION account_guard()"
+    },
+    {
+      "tbl": "ledger_entry",
+      "tgname": "trg_ledger_entry_append_only",
+      "tgenabled": "O",
+      "tgdeferrable": false,
+      "tginitdeferred": false,
+      "def": "CREATE TRIGGER trg_ledger_entry_append_only BEFORE DELETE OR UPDATE ON public.ledger_entry FOR EACH ROW EXECUTE FUNCTION ledger_entry_append_only()"
+    },
+    {
+      "tbl": "ledger_entry",
+      "tgname": "trg_ledger_entry_commission_conservation",
+      "tgenabled": "O",
+      "tgdeferrable": true,
+      "tginitdeferred": true,
+      "def": "CREATE CONSTRAINT TRIGGER trg_ledger_entry_commission_conservation AFTER INSERT ON public.ledger_entry DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION ledger_assert_commission_conservation()"
+    },
+    {
+      "tbl": "referral",
+      "tgname": "trg_referral_append_only",
+      "tgenabled": "O",
+      "tgdeferrable": false,
+      "tginitdeferred": false,
+      "def": "CREATE TRIGGER trg_referral_append_only BEFORE DELETE OR UPDATE ON public.referral FOR EACH ROW EXECUTE FUNCTION referral_append_only()"
+    },
+    {
+      "tbl": "referral",
+      "tgname": "trg_referral_cycle_guard",
+      "tgenabled": "O",
+      "tgdeferrable": false,
+      "tginitdeferred": false,
+      "def": "CREATE TRIGGER trg_referral_cycle_guard BEFORE INSERT ON public.referral FOR EACH ROW EXECUTE FUNCTION referral_cycle_guard()"
+    }
+  ],
+  "referral_constraints": [
+    {
+      "conname": "referral_bound_at_not_null",
+      "contype": "n",
+      "condeferrable": false,
+      "condeferred": false,
+      "def": "NOT NULL bound_at"
+    },
+    {
+      "conname": "referral_child_fk",
+      "contype": "f",
+      "condeferrable": false,
+      "condeferred": false,
+      "def": "FOREIGN KEY (child_uid) REFERENCES users(uid)"
+    },
+    {
+      "conname": "referral_child_uid_not_null",
+      "contype": "n",
+      "condeferrable": false,
+      "condeferred": false,
+      "def": "NOT NULL child_uid"
+    },
+    {
+      "conname": "referral_depth_not_null",
+      "contype": "n",
+      "condeferrable": false,
+      "condeferred": false,
+      "def": "NOT NULL depth"
+    },
+    {
+      "conname": "referral_depth_rng",
+      "contype": "c",
+      "condeferrable": false,
+      "condeferred": false,
+      "def": "CHECK ((depth >= 1))"
+    },
+    {
+      "conname": "referral_no_self",
+      "contype": "c",
+      "condeferrable": false,
+      "condeferred": false,
+      "def": "CHECK ((child_uid <> parent_uid))"
+    },
+    {
+      "conname": "referral_parent_fk",
+      "contype": "f",
+      "condeferrable": false,
+      "condeferred": false,
+      "def": "FOREIGN KEY (parent_uid) REFERENCES users(uid)"
+    },
+    {
+      "conname": "referral_parent_uid_not_null",
+      "contype": "n",
+      "condeferrable": false,
+      "condeferred": false,
+      "def": "NOT NULL parent_uid"
+    },
+    {
+      "conname": "referral_pk",
+      "contype": "p",
+      "condeferrable": false,
+      "condeferred": false,
+      "def": "PRIMARY KEY (child_uid)"
+    }
+  ],
+  "ledger_entry_constraints": [
+    {
+      "conname": "ledger_after_guard",
+      "contype": "c",
+      "def": "CHECK (((balance_after >= 0) AND (frozen_after >= 0)))"
+    },
+    {
+      "conname": "ledger_entry_balance_after_not_null",
+      "contype": "n",
+      "def": "NOT NULL balance_after"
+    },
+    {
+      "conname": "ledger_entry_cid_fkey",
+      "contype": "f",
+      "def": "FOREIGN KEY (cid) REFERENCES currency(cid)"
+    },
+    {
+      "conname": "ledger_entry_cid_not_null",
+      "contype": "n",
+      "def": "NOT NULL cid"
+    },
+    {
+      "conname": "ledger_entry_delta_not_null",
+      "contype": "n",
+      "def": "NOT NULL delta"
+    },
+    {
+      "conname": "ledger_entry_frozen_after_not_null",
+      "contype": "n",
+      "def": "NOT NULL frozen_after"
+    },
+    {
+      "conname": "ledger_entry_frozen_delta_not_null",
+      "contype": "n",
+      "def": "NOT NULL frozen_delta"
+    },
+    {
+      "conname": "ledger_entry_idempotency_key_not_null",
+      "contype": "n",
+      "def": "NOT NULL idempotency_key"
+    },
+    {
+      "conname": "ledger_entry_kind_not_null",
+      "contype": "n",
+      "def": "NOT NULL kind"
+    },
+    {
+      "conname": "ledger_entry_memo_not_null",
+      "contype": "n",
+      "def": "NOT NULL memo"
+    },
+    {
+      "conname": "ledger_entry_pkey",
+      "contype": "p",
+      "def": "PRIMARY KEY (txid)"
+    },
+    {
+      "conname": "ledger_entry_reversal_of_txid_fkey",
+      "contype": "f",
+      "def": "FOREIGN KEY (reversal_of_txid) REFERENCES ledger_entry(txid)"
+    },
+    {
+      "conname": "ledger_entry_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "conname": "ledger_entry_txid_not_null",
+      "contype": "n",
+      "def": "NOT NULL txid"
+    },
+    {
+      "conname": "ledger_entry_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL uid"
+    },
+    {
+      "conname": "ledger_event_root_guard",
+      "contype": "c",
+      "def": "CHECK (((event_root_key IS NULL) OR (event_root_key = split_part(idempotency_key, '#'::text, 1))))"
+    },
+    {
+      "conname": "ledger_idem_uniq",
+      "contype": "u",
+      "def": "UNIQUE (idempotency_key)"
+    },
+    {
+      "conname": "ledger_kind_enum",
+      "contype": "c",
+      "def": "CHECK ((kind = ANY (ARRAY['mint'::text, 'burn'::text, 'transfer'::text, 'hold'::text, 'hold_release'::text, 'hold_forfeit'::text, 'job_escrow'::text, 'job_escrow_refund'::text, 'job_payout'::text, 'job_fee'::text, 'commission'::text, 'purchase'::text, 'sale'::text, 'purchase_refund'::text, 'trade'::text, 'trade_fee'::text, 'listing_fee'::text, 'listing_deposit'::text, 'currency_create_fee'::text, 'reversal'::text])))"
+    },
+    {
+      "conname": "ledger_move_guard",
+      "contype": "c",
+      "def": "CHECK (((delta <> 0) OR (frozen_delta <> 0)))"
+    },
+    {
+      "conname": "ledger_ref_pair",
+      "contype": "c",
+      "def": "CHECK (((ref_type IS NULL) = (ref_id IS NULL)))"
+    },
+    {
+      "conname": "ledger_ref_type_enum",
+      "contype": "c",
+      "def": "CHECK (((ref_type IS NULL) OR (ref_type = ANY (ARRAY['job'::text, 'listing'::text, 'listing_order'::text, 'market_order'::text, 'market_trade'::text, 'currency'::text, 'commission_payout'::text, 'system'::text]))))"
+    },
+    {
+      "conname": "ledger_reversal_guard",
+      "contype": "c",
+      "def": "CHECK (((kind = 'reversal'::text) = (reversal_of_txid IS NOT NULL)))"
+    },
+    {
+      "conname": "trg_ledger_entry_commission_conservation",
+      "contype": "t",
+      "def": "TRIGGER DEFERRABLE INITIALLY DEFERRED"
+    }
+  ],
+  "fn_fingerprints": [
+    {
+      "proname": "job_post_event",
+      "len": "13594",
+      "md5": "0cedbb9ea60dcbda28e3ef3dafdd119b"
+    },
+    {
+      "proname": "ledger_assert_commission_conservation",
+      "len": "2967",
+      "md5": "27ddc76b842594cb6ee8673c171e6526"
+    },
+    {
+      "proname": "ledger_post_event",
+      "len": "51429",
+      "md5": "d94dd902697dfe60aba409d808c6d63a"
+    },
+    {
+      "proname": "listing_post_event",
+      "len": "17858",
+      "md5": "0e187c20b56d45202d83978c8a02b31d"
+    },
+    {
+      "proname": "market_post_event",
+      "len": "30194",
+      "md5": "74841611252726e1cc0f57cb46ea6c6d"
+    },
+    {
+      "proname": "referral_bind",
+      "len": "1726",
+      "md5": "fe598897e38c0a369a80d8f501caab04"
+    },
+    {
+      "proname": "referral_cycle_guard",
+      "len": "6075",
+      "md5": "7bd5874f7145989a43567003048a9f04"
+    }
+  ],
+  "conservation_fn_src": "\nDECLARE\n  v_key      text;\n  v_pool_in  bigint;\n  v_paid_out bigint;\n  v_comm_rows integer;\n  v_fee_rows  integer;\n  v_closed   boolean;\n  v_acct_bal bigint;\n  v_acct_frz bigint;\n  v_new_bal  bigint;\n  v_new_frz  bigint;\nBEGIN\n  -- 只读断言：不写任何表。仅对「相关行」触发（与 `0007` §D 的范围说明逐字相同）。\n  IF NOT (NEW.kind = 'commission' AND NEW.uid = -2)\n     AND NOT (NEW.kind = 'job_fee' AND NEW.uid = -2 AND NEW.delta > 0) THEN\n    RETURN NULL;\n  END IF;\n\n  v_key := COALESCE(NEW.event_root_key, split_part(NEW.idempotency_key, '#', 1));\n\n  SELECT COALESCE(sum(CASE WHEN e.uid = -2 AND e.kind = 'job_fee'    THEN e.delta  ELSE 0 END), 0),\n         COALESCE(sum(CASE WHEN e.uid = -2 AND e.kind = 'commission' THEN -e.delta ELSE 0 END), 0),\n         count(*) FILTER (WHERE e.uid = -2 AND e.kind = 'commission'),\n         count(*) FILTER (WHERE e.uid = -2 AND e.kind = 'job_fee')\n    INTO v_pool_in, v_paid_out, v_comm_rows, v_fee_rows\n    FROM ledger_entry e\n   WHERE COALESCE(e.event_root_key, split_part(e.idempotency_key, '#', 1)) = v_key;\n\n  IF v_pool_in <> v_paid_out THEN\n    -- ---- F3（本单新增）：先判「事件是否已闭合」，未完则跳过（对「被提前结算」免疫）\n    -- 闭合 = 触发行的那个账户（相关行恒为 `-2`）已按事件终值写过：\n    --   `account` 行 == 该 (uid,cid) 的最新一条 ledger_entry 快照（`0001` §9.2 `account_guard`），\n    --   而账户写回在 `0004` C6 ③、顺序上**晚于**全部分录 ⇒ 相等即「该账户分录已收尾」。\n    SELECT a.balance, a.frozen, s.balance_after, s.frozen_after\n      INTO v_acct_bal, v_acct_frz, v_new_bal, v_new_frz\n      FROM account a\n      JOIN LATERAL (SELECT e2.balance_after, e2.frozen_after\n                      FROM ledger_entry e2\n                     WHERE e2.uid = NEW.uid AND e2.cid = NEW.cid\n                     ORDER BY e2.txid DESC\n                     LIMIT 1) s ON true\n     WHERE a.uid = NEW.uid AND a.cid = NEW.cid;\n\n    v_closed := COALESCE(v_acct_bal = v_new_bal AND v_acct_frz = v_new_frz, false);\n\n    IF NOT v_closed THEN\n      -- 事件未完（行级断言被 IMMEDIATE 提前触发）：豁免，不判负。可机读 NOTICE 便于取证。\n      RAISE NOTICE 'ledger_assert_commission_conservation: event not closed, skip Σ check (key=%, account_uid=%, cid=%, pool_in=%, commission_out=%, commission_rows=%)',\n        v_key, NEW.uid, NEW.cid, v_pool_in, v_paid_out, v_comm_rows;\n      RETURN NULL;\n    END IF;\n\n    PERFORM ledger_raise('LEDGER_RECONCILE_MISMATCH', jsonb_build_object(\n      'reason', 'COMMISSION_SPLIT_SUM_MISMATCH',\n      'idempotency_key', v_key,\n      'pool_in', v_pool_in::text, 'commission_out', v_paid_out::text,\n      'commission_rows', v_comm_rows::text, 'job_fee_rows', v_fee_rows::text,\n      'event_closed', 'true',\n      'trigger_account_uid', NEW.uid::text, 'trigger_account_cid', NEW.cid::text));\n  END IF;\n\n  RETURN NULL;\nEND ",
+  "cycle_guard_fn_src": "\nDECLARE\n  v_hit boolean;\n  v_bound_parent     bigint;\n  v_parent_stored_depth bigint;\n  v_parent_true_depth   integer;\nBEGIN\n  -- ① 自指禁令（结构性闸是 `referral_no_self`；此处再挡一次以给出机读 reason）\n  IF NEW.child_uid = NEW.parent_uid THEN\n    PERFORM ledger_raise('LEDGER_AMOUNT_INVALID', jsonb_build_object(\n      'reason', 'REFERRAL_SELF_BIND',\n      'child_uid', NEW.child_uid::text, 'parent_uid', NEW.parent_uid::text));\n  END IF;\n\n  -- ② 绑定串行化点：同一事务内**先**锁 users 的两行（uid 升序）。\n  --    目的：`A→B` 与 `B→A` 并发时两边争抢同一对 users 行 ⇒ 后者等前者提交后再跑 ③，\n  --    此时新边已可见 ⇒ ③ 能拒绝（spec §3.3 ② 的设计意图）。\n  PERFORM u.uid FROM users u WHERE u.uid IN (NEW.child_uid, NEW.parent_uid)\n   ORDER BY u.uid FOR UPDATE;\n\n  -- ③ 已绑检查（**本单新增 · F6**）：同一个 child 已经有行 ⇒ 与 `referral_bind()`（`0007` §C）\n  --    的 409 分支**同码同 reason**（借码 `LEDGER_IDEMPOTENCY_CONFLICT` = `LD003` ⇒ bucket integrity\n  --    ⇒ 409）。裸 `INSERT` 路径原先只会撞 `referral_pk`（`23505` / 无机读 reason）⇒ 同一业务事实\n  --    两条路径两种码。放在 ② 之后 = 与 `referral_bind` 同一串行化点（并发下第二条也能看见已提交的行），\n  --    放在 ④ 之前 = 与 `referral_bind` 的判定优先级一致（已绑 > 图结构）。\n  SELECT r.parent_uid INTO v_bound_parent FROM referral r WHERE r.child_uid = NEW.child_uid;\n  IF FOUND THEN\n    PERFORM ledger_raise('LEDGER_IDEMPOTENCY_CONFLICT', jsonb_build_object(\n      'reason', 'REFERRAL_ALREADY_BOUND',\n      'child_uid', NEW.child_uid::text,\n      'bound_parent_uid', v_bound_parent::text,\n      'requested_parent_uid', NEW.parent_uid::text,\n      'path', 'trg_referral_cycle_guard'));\n  END IF;\n\n  -- ④ 祖先检查：断言**新父 P 不是 child C 的后代**（等价式 C ∉ ancestors(P)）：\n  --    从 P 沿 parent_uid 上行，遇 C 即拒。步行上界 1000 只为防「库里已有环」时无限递归\n  --    （不是防环机制本身；防环 = 本检查 + 串行化）。\n  --    F2（本单）：同一次上行游走**顺带**算出 P 的真实跳数（`max(d)`），供 ⑥ 使用（不额外往返）。\n  WITH RECURSIVE up AS (\n    SELECT r.parent_uid AS cur, 1 AS d\n      FROM referral r WHERE r.child_uid = NEW.parent_uid\n    UNION ALL\n    SELECT r.parent_uid, up.d + 1\n      FROM referral r JOIN up ON r.child_uid = up.cur\n     WHERE up.d < 1000\n  )\n  SELECT EXISTS (SELECT 1 FROM up WHERE cur = NEW.child_uid),\n         COALESCE(max(d), 0)\n    INTO v_hit, v_parent_true_depth\n    FROM up;\n\n  IF v_hit THEN\n    PERFORM ledger_raise('LEDGER_AMOUNT_INVALID', jsonb_build_object(\n      'reason', 'REFERRAL_CYCLE_REJECTED',\n      'child_uid', NEW.child_uid::text, 'parent_uid', NEW.parent_uid::text));\n  END IF;\n\n  -- ⑤ 绑定协议守卫（`0010`）：被绑者 C **已有下级** ⇒ 拒绝（否则 C 的 depth 会就地失效）。\n  --    机制：`depth` 在插入时算 `1 + depth(新父)`，而 `referral` INSERT-only ⇒ 不可修正。\n  --      · 先绑叶、后绑父 ⇒ 叶的 `depth` 停在旧值 ⇒ **不变式失效且无法修**（spec §3.2 的现实后果）；\n  --      · 真实协议（注册时绑一次、终身不变）= **先绑父、再绑子** ⇒ 每次绑定的 C 都还是叶 ⇒ 放行。\n  --    ⇒ 可强制判据 = 「C 现在必须是叶（`referral` 里没有以 C 为 parent 的行）」。\n  --    ⚠️ 位置纪律见文件头：必须在 ④ 之后（成环优先报 `REFERRAL_CYCLE_REJECTED`）、⑥ 之前。\n  --       索引 `idx_referral_parent`（0007）正好支撑本谓词。\n  IF EXISTS (SELECT 1 FROM referral r WHERE r.parent_uid = NEW.child_uid) THEN\n    PERFORM ledger_raise('LEDGER_AMOUNT_INVALID', jsonb_build_object(\n      'reason', 'REFERRAL_BIND_WOULD_STALE_DEPTH',\n      'child_uid', NEW.child_uid::text, 'parent_uid', NEW.parent_uid::text,\n      'protocol', 'BIND_PARENT_BEFORE_DESCENDANTS',\n      'note', 'child already has descendants => binding a parent would retroactively invalidate their depth'));\n  END IF;\n\n  -- ⑥ 父 depth 真实性（**本单新增 · F2**）：守卫既然已经为环检测游走了祖先链，就顺便校验\n  --    「父的**存储** depth == 它的**真实**跳数」。成因：`referral` 是 INSERT-only\n  --    （`trg_referral_append_only`）⇒ 管理员旁路（`ALTER TABLE … DISABLE TRIGGER`）写入的陈旧\n  --    `depth` 会被**原样当基数**继承：新孩子的 depth = 陈旧值 + 1（实测 50 ⇒ 51，真值应为 3）。\n  --    该值不参与钱包计算（链游走不读 depth，已由质检实证），但它污染审计/遍历上界读数，\n  --    且「父真实跳数」本就在 ④ 的同一次游走里算出来了 ⇒ 零额外往返即可拦下。\n  --    机读 reason = `REFERRAL_PARENT_DEPTH_INCONSISTENT`（命名风格对齐既有 REFERRAL_* 常量）；\n  --    借既有闭集码 `LEDGER_AMOUNT_INVALID`（= `LD016` ⇒ bucket input ⇒ **400**）——**不新增错误码**。\n  SELECT r.depth INTO v_parent_stored_depth FROM referral r WHERE r.child_uid = NEW.parent_uid;\n\n  IF COALESCE(v_parent_stored_depth, 0) <> v_parent_true_depth THEN\n    PERFORM ledger_raise('LEDGER_AMOUNT_INVALID', jsonb_build_object(\n      'reason', 'REFERRAL_PARENT_DEPTH_INCONSISTENT',\n      'child_uid', NEW.child_uid::text, 'parent_uid', NEW.parent_uid::text,\n      'parent_stored_depth', COALESCE(v_parent_stored_depth, 0)::text,\n      'parent_true_depth', v_parent_true_depth::text,\n      'note', 'parent stored depth must equal its true hop count; a stale depth would be inherited by the new edge'));\n  END IF;\n\n  -- ⑦ depth 由 DB 侧算（父无行 ⇒ 1）—— 只作层级标签 / 遍历上界 / 审计，不承担防环\n  --    （⑥ 已保证 `v_parent_stored_depth` == 真实跳数 ⇒ 本式与真实跳数一致）\n  NEW.depth := 1 + COALESCE(v_parent_stored_depth, 0);\n  RETURN NEW;\nEND ",
+  "candle_view": [
+    {
+      "n": "1"
+    }
+  ]
+}

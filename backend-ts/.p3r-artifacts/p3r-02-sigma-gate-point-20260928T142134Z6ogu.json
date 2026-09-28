@@ -1,0 +1,207 @@
+{
+  "run": "20260928T142134Z6ogu",
+  "name": "p3r-02",
+  "at": "2026-09-28T14:22:38.157Z",
+  "cid": "269",
+  "symbol": "p3rk186ogu",
+  "gross": "100000",
+  "leg_R": {
+    "setup": {
+      "binds": [
+        true,
+        true
+      ],
+      "mint_ok": true,
+      "mint_err": null,
+      "hold_ok": true,
+      "hold_err": null
+    },
+    "entries_total": 8,
+    "entries_posted": 6,
+    "kinds_all": [
+      "job_payout",
+      "job_payout",
+      "job_fee",
+      "job_fee",
+      "commission",
+      "commission",
+      "commission",
+      "commission"
+    ],
+    "kinds_posted": [
+      "job_payout",
+      "job_payout",
+      "job_fee",
+      "job_fee",
+      "commission",
+      "commission"
+    ],
+    "post": {
+      "ok": true,
+      "err": null
+    },
+    "flush_after_post": {
+      "ok": false,
+      "sqlstate": "LD032",
+      "reason": "COMMISSION_SPLIT_SUM_MISMATCH",
+      "message": "LEDGER_RECONCILE_MISMATCH"
+    },
+    "tx_error": null
+  },
+  "leg_R4": {
+    "setup": {
+      "binds": [
+        true,
+        true
+      ],
+      "mint_ok": true,
+      "mint_err": null,
+      "hold_ok": true,
+      "hold_err": null
+    },
+    "entries_total": 8,
+    "entries_posted": 4,
+    "kinds_all": [
+      "job_payout",
+      "job_payout",
+      "job_fee",
+      "job_fee",
+      "commission",
+      "commission",
+      "commission",
+      "commission"
+    ],
+    "kinds_posted": [
+      "job_payout",
+      "job_payout",
+      "job_fee",
+      "job_fee"
+    ],
+    "post": {
+      "ok": true,
+      "err": null
+    },
+    "flush_after_post": {
+      "ok": false,
+      "sqlstate": "LD032",
+      "reason": "COMMISSION_SPLIT_SUM_MISMATCH",
+      "message": "LEDGER_RECONCILE_MISMATCH"
+    },
+    "tx_error": null
+  },
+  "leg_G": {
+    "setup": {
+      "binds": [
+        true,
+        true
+      ],
+      "mint_ok": true,
+      "mint_err": null,
+      "hold_ok": true,
+      "hold_err": null
+    },
+    "entries_total": 8,
+    "entries_posted": 8,
+    "kinds_all": [
+      "job_payout",
+      "job_payout",
+      "job_fee",
+      "job_fee",
+      "commission",
+      "commission",
+      "commission",
+      "commission"
+    ],
+    "kinds_posted": [
+      "job_payout",
+      "job_payout",
+      "job_fee",
+      "job_fee",
+      "commission",
+      "commission",
+      "commission",
+      "commission"
+    ],
+    "post": {
+      "ok": true,
+      "err": null
+    },
+    "flush_after_post": {
+      "ok": true,
+      "sqlstate": null,
+      "reason": null,
+      "message": null
+    },
+    "tx_error": null
+  },
+  "leg_D7": {
+    "setup": {
+      "binds": [
+        true,
+        true
+      ],
+      "mint_ok": true,
+      "mint_err": null,
+      "hold_ok": true,
+      "hold_err": null
+    },
+    "immediate_before": {
+      "ok": true,
+      "err": null
+    },
+    "post_legal": {
+      "ok": true,
+      "err": null
+    },
+    "post_tampered_while_immediate": {
+      "ok": false,
+      "err": {
+        "sqlstate": "LD002",
+        "message": "LEDGER_INSUFFICIENT_FROZEN",
+        "detail": "{\"cid\": \"269\", \"uid\": \"990901\", \"required\": \"99000\", \"available\": \"0\"}",
+        "reason": null,
+        "constraint": null,
+        "raw_detail": {
+          "cid": "269",
+          "uid": "990901",
+          "required": "99000",
+          "available": "0"
+        }
+      }
+    },
+    "flush_after": {
+      "ok": true,
+      "sqlstate": null,
+      "reason": null
+    },
+    "tx_error": null
+  },
+  "leg_C_guardless": {
+    "disable": true,
+    "insert_depth0_guard_off": {
+      "ok": false,
+      "sqlstate": "23514",
+      "constraint": "referral_depth_rng",
+      "message": "new row for relation \"referral\" violates check constraint \"referral_depth_rng\""
+    },
+    "insert_depth1_guard_off_first": {
+      "ok": true,
+      "err": null
+    },
+    "insert_depth1_guard_off_rebind": {
+      "ok": false,
+      "sqlstate": "23505",
+      "constraint": "referral_pk",
+      "message": "duplicate key value violates unique constraint \"referral_pk\""
+    },
+    "enable": true,
+    "tx_error": null
+  },
+  "leg_C_guard_on": {
+    "insert_depth0_guard_on": {
+      "ok": true,
+      "err": null
+    },
+    "stored_depth": "1"
+  }
+}

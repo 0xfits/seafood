@@ -1,0 +1,177 @@
+{
+  "run": "20260928T142935Z0hwq",
+  "name": "p3r-03",
+  "at": "2026-09-28T14:29:39.757Z",
+  "my_currency_rows": [
+    {
+      "cid": "263",
+      "symbol": "P1PMULB1UXA",
+      "owner": "948001",
+      "supply": "0"
+    },
+    {
+      "cid": "264",
+      "symbol": "P1PMULB9NR3",
+      "owner": "948001",
+      "supply": "0"
+    },
+    {
+      "cid": "267",
+      "symbol": "P1PMULBLGYB",
+      "owner": "948001",
+      "supply": "0"
+    },
+    {
+      "cid": "268",
+      "symbol": "p3rk18ct08",
+      "owner": "990901",
+      "supply": "0"
+    },
+    {
+      "cid": "269",
+      "symbol": "p3rk186ogu",
+      "owner": "990901",
+      "supply": "0"
+    },
+    {
+      "cid": "270",
+      "symbol": "p3rk18mr4a",
+      "owner": "990901",
+      "supply": "0"
+    },
+    {
+      "cid": "271",
+      "symbol": "P1PMULC8WT7",
+      "owner": "948001",
+      "supply": "0"
+    }
+  ],
+  "my_uid_window_accounts": [],
+  "my_uid_window_users": [],
+  "my_uid_window_referral": [],
+  "my_key_prefix_ledger": [],
+  "tail_currency": [
+    {
+      "cid": "991001",
+      "symbol": "neng48-atk",
+      "owner": "990101",
+      "supply": "0"
+    },
+    {
+      "cid": "99",
+      "symbol": "smkuji1kf3",
+      "owner": "900001",
+      "supply": "40000"
+    },
+    {
+      "cid": "271",
+      "symbol": "P1PMULC8WT7",
+      "owner": "948001",
+      "supply": "0"
+    },
+    {
+      "cid": "270",
+      "symbol": "p3rk18mr4a",
+      "owner": "990901",
+      "supply": "0"
+    },
+    {
+      "cid": "269",
+      "symbol": "p3rk186ogu",
+      "owner": "990901",
+      "supply": "0"
+    },
+    {
+      "cid": "268",
+      "symbol": "p3rk18ct08",
+      "owner": "990901",
+      "supply": "0"
+    },
+    {
+      "cid": "267",
+      "symbol": "P1PMULBLGYB",
+      "owner": "948001",
+      "supply": "0"
+    },
+    {
+      "cid": "266",
+      "symbol": "p1yu5073s",
+      "owner": "959301",
+      "supply": "1000000"
+    }
+  ],
+  "tail_accounts": [
+    {
+      "uid": "900001",
+      "cid": "99",
+      "balance": "40000",
+      "frozen": "0"
+    },
+    {
+      "uid": "-5",
+      "cid": "271",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "271",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "9223372036854775807",
+      "cid": "271",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "948001",
+      "cid": "271",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "266",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "959301",
+      "cid": "266",
+      "balance": "700000",
+      "frozen": "100000"
+    },
+    {
+      "uid": "959302",
+      "cid": "266",
+      "balance": "99000",
+      "frozen": "0"
+    },
+    {
+      "uid": "959305",
+      "cid": "266",
+      "balance": "95000",
+      "frozen": "0"
+    },
+    {
+      "uid": "959307",
+      "cid": "266",
+      "balance": "1000",
+      "frozen": "0"
+    },
+    {
+      "uid": "959323",
+      "cid": "266",
+      "balance": "2500",
+      "frozen": "0"
+    },
+    {
+      "uid": "959324",
+      "cid": "266",
+      "balance": "2500",
+      "frozen": "0"
+    }
+  ]
+}

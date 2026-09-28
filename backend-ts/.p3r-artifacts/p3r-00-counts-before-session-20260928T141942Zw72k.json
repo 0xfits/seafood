@@ -1,0 +1,16 @@
+{
+  "run": "20260928T141942Zw72k",
+  "label": "before-session",
+  "at": "2026-09-28T14:19:45.736Z",
+  "counts": {
+    "users": "573",
+    "account": "341",
+    "ledger_entry": "3175",
+    "referral": "287",
+    "currency": "106",
+    "commission_policy": "25",
+    "schema_version": "0017",
+    "usd_total_supply": "8400",
+    "cid1_sum_balance_frozen": "8400"
+  }
+}

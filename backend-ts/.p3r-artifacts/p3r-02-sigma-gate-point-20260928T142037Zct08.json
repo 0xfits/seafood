@@ -1,0 +1,92 @@
+{
+  "run": "20260928T142037Zct08",
+  "name": "p3r-02",
+  "at": "2026-09-28T14:21:18.774Z",
+  "cid": "268",
+  "symbol": "p3rk18ct08",
+  "gross": "100000",
+  "leg_R": {
+    "setup": {
+      "binds": [
+        true,
+        true
+      ],
+      "mint_ok": true,
+      "mint_err": null,
+      "hold_ok": false,
+      "hold_err": "NOT_DECIMAL_INTEGER"
+    },
+    "tx_error": "金额格式不正确"
+  },
+  "leg_R4": {
+    "setup": {
+      "binds": [
+        true,
+        true
+      ],
+      "mint_ok": true,
+      "mint_err": null,
+      "hold_ok": false,
+      "hold_err": "NOT_DECIMAL_INTEGER"
+    },
+    "tx_error": "金额格式不正确"
+  },
+  "leg_G": {
+    "setup": {
+      "binds": [
+        true,
+        true
+      ],
+      "mint_ok": true,
+      "mint_err": null,
+      "hold_ok": false,
+      "hold_err": "NOT_DECIMAL_INTEGER"
+    },
+    "tx_error": "金额格式不正确"
+  },
+  "leg_D7": {
+    "setup": {
+      "binds": [
+        true,
+        true
+      ],
+      "mint_ok": true,
+      "mint_err": null,
+      "hold_ok": false,
+      "hold_err": "NOT_DECIMAL_INTEGER"
+    },
+    "immediate_before": {
+      "ok": true,
+      "err": null
+    },
+    "tx_error": "金额格式不正确"
+  },
+  "leg_C_guardless": {
+    "disable": true,
+    "insert_depth0_guard_off": {
+      "ok": false,
+      "sqlstate": "23514",
+      "constraint": "referral_depth_rng",
+      "message": "new row for relation \"referral\" violates check constraint \"referral_depth_rng\""
+    },
+    "insert_depth1_guard_off_first": {
+      "ok": true,
+      "err": null
+    },
+    "insert_depth1_guard_off_rebind": {
+      "ok": false,
+      "sqlstate": "23505",
+      "constraint": "referral_pk",
+      "message": "duplicate key value violates unique constraint \"referral_pk\""
+    },
+    "enable": true,
+    "tx_error": null
+  },
+  "leg_C_guard_on": {
+    "insert_depth0_guard_on": {
+      "ok": true,
+      "err": null
+    },
+    "stored_depth": "1"
+  }
+}
