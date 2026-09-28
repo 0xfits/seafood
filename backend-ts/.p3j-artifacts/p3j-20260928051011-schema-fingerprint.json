@@ -1,0 +1,511 @@
+{
+  "run": "20260928051011",
+  "label": "schema-fingerprint",
+  "at": "2026-09-28T05:10:15.160Z",
+  "probe": "P3J-01-SCHEMA-FINGERPRINT",
+  "ok": true,
+  "after": {
+    "public_base_tables": [
+      "account",
+      "commission_policy",
+      "currency",
+      "job",
+      "ledger_entry",
+      "ledger_owner",
+      "referral",
+      "schema_migration",
+      "users"
+    ],
+    "public_base_table_count": 9,
+    "public_job_columns": [
+      {
+        "column_name": "job_id",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "employer_uid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "worker_uid",
+        "data_type": "bigint",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "cid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "reward",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "title",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "''::text"
+      },
+      {
+        "column_name": "description",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "''::text"
+      },
+      {
+        "column_name": "status",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "'open'::text"
+      },
+      {
+        "column_name": "create_key",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "escrow_txid",
+        "data_type": "bigint",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "settle_txid",
+        "data_type": "bigint",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "ledger_event_keys",
+        "data_type": "ARRAY",
+        "is_nullable": "NO",
+        "column_default": "'{}'::text[]"
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      },
+      {
+        "column_name": "time_updated",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      }
+    ],
+    "public_job_column_count": 14,
+    "public_job_constraints": [
+      {
+        "conname": "job_cid_fk",
+        "contype": "f",
+        "definition": "FOREIGN KEY (cid) REFERENCES currency(cid)"
+      },
+      {
+        "conname": "job_cid_not_null",
+        "contype": "n",
+        "definition": "NOT NULL cid"
+      },
+      {
+        "conname": "job_create_key_not_null",
+        "contype": "n",
+        "definition": "NOT NULL create_key"
+      },
+      {
+        "conname": "job_create_key_uniq",
+        "contype": "u",
+        "definition": "UNIQUE (create_key)"
+      },
+      {
+        "conname": "job_description_not_null",
+        "contype": "n",
+        "definition": "NOT NULL description"
+      },
+      {
+        "conname": "job_employer_fk",
+        "contype": "f",
+        "definition": "FOREIGN KEY (employer_uid) REFERENCES users(uid)"
+      },
+      {
+        "conname": "job_employer_uid_not_null",
+        "contype": "n",
+        "definition": "NOT NULL employer_uid"
+      },
+      {
+        "conname": "job_job_id_not_null",
+        "contype": "n",
+        "definition": "NOT NULL job_id"
+      },
+      {
+        "conname": "job_ledger_event_keys_not_null",
+        "contype": "n",
+        "definition": "NOT NULL ledger_event_keys"
+      },
+      {
+        "conname": "job_pk",
+        "contype": "p",
+        "definition": "PRIMARY KEY (job_id)"
+      },
+      {
+        "conname": "job_reward_not_null",
+        "contype": "n",
+        "definition": "NOT NULL reward"
+      },
+      {
+        "conname": "job_reward_positive",
+        "contype": "c",
+        "definition": "CHECK ((reward > 0))"
+      },
+      {
+        "conname": "job_status_enum",
+        "contype": "c",
+        "definition": "CHECK ((status = ANY (ARRAY['open'::text, 'accepted'::text, 'submitted'::text, 'settled'::text, 'disputed'::text, 'rejected'::text, 'cancelled'::text])))"
+      },
+      {
+        "conname": "job_status_not_null",
+        "contype": "n",
+        "definition": "NOT NULL status"
+      },
+      {
+        "conname": "job_time_created_not_null",
+        "contype": "n",
+        "definition": "NOT NULL time_created"
+      },
+      {
+        "conname": "job_time_updated_not_null",
+        "contype": "n",
+        "definition": "NOT NULL time_updated"
+      },
+      {
+        "conname": "job_title_not_null",
+        "contype": "n",
+        "definition": "NOT NULL title"
+      },
+      {
+        "conname": "job_worker_fk",
+        "contype": "f",
+        "definition": "FOREIGN KEY (worker_uid) REFERENCES users(uid)"
+      }
+    ],
+    "public_job_indexes": [
+      {
+        "indexname": "idx_job_employer",
+        "indexdef": "CREATE INDEX idx_job_employer ON public.job USING btree (employer_uid, time_created DESC)"
+      },
+      {
+        "indexname": "idx_job_status_time",
+        "indexdef": "CREATE INDEX idx_job_status_time ON public.job USING btree (status, time_created DESC)"
+      },
+      {
+        "indexname": "idx_job_worker",
+        "indexdef": "CREATE INDEX idx_job_worker ON public.job USING btree (worker_uid, time_created DESC) WHERE (worker_uid IS NOT NULL)"
+      },
+      {
+        "indexname": "job_create_key_uniq",
+        "indexdef": "CREATE UNIQUE INDEX job_create_key_uniq ON public.job USING btree (create_key)"
+      },
+      {
+        "indexname": "job_pk",
+        "indexdef": "CREATE UNIQUE INDEX job_pk ON public.job USING btree (job_id)"
+      }
+    ],
+    "public_job_index_count": 5,
+    "public_job_triggers": [
+      {
+        "tgname": "trg_job_core_immutable_guard",
+        "tgenabled": "O",
+        "definition": "CREATE TRIGGER trg_job_core_immutable_guard BEFORE UPDATE ON public.job FOR EACH ROW EXECUTE FUNCTION job_core_immutable_guard()"
+      },
+      {
+        "tgname": "trg_job_ledger_ref_guard",
+        "tgenabled": "O",
+        "definition": "CREATE TRIGGER trg_job_ledger_ref_guard BEFORE UPDATE ON public.job FOR EACH ROW EXECUTE FUNCTION job_ledger_ref_guard()"
+      },
+      {
+        "tgname": "trg_job_no_delete",
+        "tgenabled": "O",
+        "definition": "CREATE TRIGGER trg_job_no_delete BEFORE DELETE ON public.job FOR EACH ROW EXECUTE FUNCTION job_no_delete()"
+      },
+      {
+        "tgname": "trg_job_status_guard",
+        "tgenabled": "O",
+        "definition": "CREATE TRIGGER trg_job_status_guard BEFORE UPDATE ON public.job FOR EACH ROW EXECUTE FUNCTION job_status_guard()"
+      },
+      {
+        "tgname": "trg_job_touch_time_updated",
+        "tgenabled": "O",
+        "definition": "CREATE TRIGGER trg_job_touch_time_updated BEFORE UPDATE ON public.job FOR EACH ROW EXECUTE FUNCTION job_touch_time_updated()"
+      }
+    ],
+    "job_functions": [
+      {
+        "proname": "job_core_immutable_guard",
+        "args": "",
+        "result": "trigger",
+        "provolatile": "v",
+        "src_bytes": "1225"
+      },
+      {
+        "proname": "job_ledger_ref_guard",
+        "args": "",
+        "result": "trigger",
+        "provolatile": "v",
+        "src_bytes": "985"
+      },
+      {
+        "proname": "job_no_delete",
+        "args": "",
+        "result": "trigger",
+        "provolatile": "v",
+        "src_bytes": "182"
+      },
+      {
+        "proname": "job_post_event",
+        "args": "payload jsonb",
+        "result": "jsonb",
+        "provolatile": "v",
+        "src_bytes": "13594"
+      },
+      {
+        "proname": "job_settle_plan",
+        "args": "p_job_id bigint, p_employer bigint, p_worker bigint, p_cid bigint, p_gross bigint",
+        "result": "jsonb",
+        "provolatile": "s",
+        "src_bytes": "6807"
+      },
+      {
+        "proname": "job_status_guard",
+        "args": "",
+        "result": "trigger",
+        "provolatile": "v",
+        "src_bytes": "416"
+      },
+      {
+        "proname": "job_status_transition_ok",
+        "args": "p_from text, p_to text",
+        "result": "boolean",
+        "provolatile": "i",
+        "src_bytes": "397"
+      },
+      {
+        "proname": "job_touch_time_updated",
+        "args": "",
+        "result": "trigger",
+        "provolatile": "v",
+        "src_bytes": "54"
+      }
+    ],
+    "schema_migration": [
+      {
+        "version": "0001",
+        "name": "0001_ledger_core.sql",
+        "checksum": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+        "applied_at": "2026-09-27 03:48:15.617808+00"
+      },
+      {
+        "version": "0002",
+        "name": "0002_user_identity.sql",
+        "checksum": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+        "applied_at": "2026-09-27 03:48:20.093949+00"
+      },
+      {
+        "version": "0003",
+        "name": "0003_kind_close_set_20.sql",
+        "checksum": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+        "applied_at": "2026-09-27 04:57:40.94416+00"
+      },
+      {
+        "version": "0004",
+        "name": "0004_ledger_post_event.sql",
+        "checksum": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+        "applied_at": "2026-09-27 05:26:01.859398+00"
+      },
+      {
+        "version": "0005",
+        "name": "0005_ledger_event_root_key.sql",
+        "checksum": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+        "applied_at": "2026-09-27 06:34:21.897469+00"
+      },
+      {
+        "version": "0006",
+        "name": "0006_user_to_users.sql",
+        "checksum": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+        "applied_at": "2026-09-27 07:09:27.38362+00"
+      },
+      {
+        "version": "0007",
+        "name": "0007_referral_and_commission_policy.sql",
+        "checksum": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+        "applied_at": "2026-09-27 09:49:28.131292+00"
+      },
+      {
+        "version": "0008",
+        "name": "0008_platform_revenue_job_fee.sql",
+        "checksum": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+        "applied_at": "2026-09-27 09:49:29.040584+00"
+      },
+      {
+        "version": "0009",
+        "name": "0009_ledger_error_reverse_map_complete.sql",
+        "checksum": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+        "applied_at": "2026-09-27 10:09:16.665946+00"
+      },
+      {
+        "version": "0010",
+        "name": "0010_referral_bind_protocol_guard.sql",
+        "checksum": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+        "applied_at": "2026-09-27 10:45:22.18861+00"
+      },
+      {
+        "version": "0011",
+        "name": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+        "checksum": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+        "applied_at": "2026-09-27 11:35:24.353246+00"
+      },
+      {
+        "version": "0012",
+        "name": "0012_replay_pre_gate_before_balance_gate.sql",
+        "checksum": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe",
+        "applied_at": "2026-09-27 13:09:02.882269+00"
+      },
+      {
+        "version": "0013",
+        "name": "0013_job_core.sql",
+        "checksum": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+        "applied_at": "2026-09-28 05:08:33.801443+00"
+      }
+    ],
+    "schema_migration_row_count": 13,
+    "max_version_nowread": "0013"
+  },
+  "before": {
+    "source": "migrate.ts 的 run-tagged 产物（盘上现读）",
+    "evidence": [
+      {
+        "file": "/Users/kevin/bistro/seafood/backend-ts/.p3j-artifacts/p3j-20260928050724-migrate-rerun.json",
+        "run_tag_in_name": "p3j-20260928050724-migrate-rerun.json",
+        "ok": false,
+        "schema_version_written": "0012",
+        "public_base_tables": [
+          "account",
+          "commission_policy",
+          "currency",
+          "ledger_entry",
+          "ledger_owner",
+          "referral",
+          "schema_migration",
+          "users"
+        ],
+        "public_base_table_count": 8,
+        "has_job_table": false,
+        "v0013_action": "FAILED"
+      },
+      {
+        "file": "/Users/kevin/bistro/seafood/backend-ts/.p3j-artifacts/p3j-20260928050752-migrate-apply.json",
+        "run_tag_in_name": "p3j-20260928050752-migrate-apply.json",
+        "ok": false,
+        "schema_version_written": "0012",
+        "public_base_tables": [
+          "account",
+          "commission_policy",
+          "currency",
+          "ledger_entry",
+          "ledger_owner",
+          "referral",
+          "schema_migration",
+          "users"
+        ],
+        "public_base_table_count": 8,
+        "has_job_table": false,
+        "v0013_action": "FAILED"
+      },
+      {
+        "file": "/Users/kevin/bistro/seafood/backend-ts/.p3j-artifacts/p3j-20260928050814-migrate-apply.json",
+        "run_tag_in_name": "p3j-20260928050814-migrate-apply.json",
+        "ok": false,
+        "schema_version_written": "0012",
+        "public_base_tables": [
+          "account",
+          "commission_policy",
+          "currency",
+          "ledger_entry",
+          "ledger_owner",
+          "referral",
+          "schema_migration",
+          "users"
+        ],
+        "public_base_table_count": 8,
+        "has_job_table": false,
+        "v0013_action": "FAILED"
+      },
+      {
+        "file": "/Users/kevin/bistro/seafood/backend-ts/.p3j-artifacts/p3j-20260928050831-migrate-apply.json",
+        "run_tag_in_name": "p3j-20260928050831-migrate-apply.json",
+        "ok": true,
+        "schema_version_written": "0013",
+        "public_base_tables": [
+          "account",
+          "commission_policy",
+          "currency",
+          "job",
+          "ledger_entry",
+          "ledger_owner",
+          "referral",
+          "schema_migration",
+          "users"
+        ],
+        "public_base_table_count": 9,
+        "has_job_table": true,
+        "v0013_action": "applied"
+      },
+      {
+        "file": "/Users/kevin/bistro/seafood/backend-ts/.p3j-artifacts/p3j-20260928050854-migrate-rerun-skipped.json",
+        "run_tag_in_name": "p3j-20260928050854-migrate-rerun-skipped.json",
+        "ok": true,
+        "schema_version_written": "0013",
+        "public_base_tables": [
+          "account",
+          "commission_policy",
+          "currency",
+          "job",
+          "ledger_entry",
+          "ledger_owner",
+          "referral",
+          "schema_migration",
+          "users"
+        ],
+        "public_base_table_count": 9,
+        "has_job_table": true,
+        "v0013_action": "skipped"
+      }
+    ]
+  },
+  "health_schema_version": {
+    "health_field": "schema_version",
+    "expectation": "0013",
+    "measured_max_version": "0013",
+    "equals_0013": true,
+    "implementation_file": "src/db.ts",
+    "implementation_body": "export const getSchemaVersion = async (): Promise<string | null> => {\n  const rows = await readQuery<{ version: string }>(\n    'SELECT version FROM schema_migration ORDER BY version DESC LIMIT 1',\n  );\n  return rows[0]?.version ?? null;\n};",
+    "is_hardcoded_constant": false,
+    "reads_db_at_runtime": true,
+    "verdict": "runtime-read, no hardcoded constant (src/ untouched by this unit)",
+    "http_probe": "NOT_MEASURED（本单禁起常驻 server ⇒ 未打 HTTP /health；真源 = max(version) 与取版本实现体）"
+  },
+  "artifact_0013": {
+    "file": "migrations/0013_job_core.sql",
+    "sha256": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+    "bytes": 44130,
+    "lines": 818
+  },
+  "run_tag": "20260928051011"
+}

@@ -1,0 +1,1089 @@
+{
+  "run": "20260928051322",
+  "label": "cases",
+  "at": "2026-09-28T05:13:42.133Z",
+  "probe": "P3J-02-CASES",
+  "run_tag": "20260928051322",
+  "test_data": {
+    "employer_uid": "8",
+    "worker_uid_new": "9",
+    "chain_worker_uid": "954731",
+    "chain_depth": "12",
+    "fund": {
+      "donor_uid": "900002",
+      "donor_balance_before": "2555",
+      "transfer": {
+        "ok": true,
+        "meta": {
+          "op": "transfer",
+          "lock_trace": [
+            "account:8:1",
+            "account:900002:1"
+          ]
+        },
+        "txid": "5443",
+        "extra": {
+          "amount": "1400",
+          "symbol": "$"
+        },
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "900002",
+            "kind": "transfer",
+            "memo": "",
+            "txid": "5443",
+            "delta": "-1400",
+            "ref_id": null,
+            "ref_type": null,
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-28T05:13:25.548Z",
+            "balance_after": "1155",
+            "idempotency_key": "ops:p3j:20260928051322:fund:8",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          },
+          {
+            "cid": "1",
+            "uid": "8",
+            "kind": "transfer",
+            "memo": "",
+            "txid": "5444",
+            "delta": "1400",
+            "ref_id": null,
+            "ref_type": null,
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-28T05:13:25.548Z",
+            "balance_after": "1400",
+            "idempotency_key": "ops:p3j:20260928051322:fund:8#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "900002",
+            "frozen": "0",
+            "balance": "1155"
+          },
+          {
+            "cid": "1",
+            "uid": "8",
+            "frozen": "0",
+            "balance": "1400"
+          }
+        ],
+        "idempotency_key": "ops:p3j:20260928051322:fund:8",
+        "idempotent_replay": false
+      }
+    }
+  },
+  "policy_effective": {
+    "fee_rate_bp": 100,
+    "levels": 10,
+    "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}"
+  },
+  "checks": [
+    {
+      "id": "C1",
+      "name": "正常 publish 一次 ⇒ 业务行 + 分录 + 引用列/事件键回写",
+      "pass": true,
+      "readout": {
+        "job_row": {
+          "job_id": "5",
+          "employer_uid": "8",
+          "worker_uid": null,
+          "cid": "1",
+          "reward": "200",
+          "status": "open",
+          "create_key": "cli:p3j-20260928051322-publish-1",
+          "escrow_txid": "5445",
+          "settle_txid": null,
+          "ledger_event_keys": [
+            "biz:job:escrow:5"
+          ],
+          "time_created": "2026-09-28 05:13:26.433396+00",
+          "time_updated": "2026-09-28 05:13:26.433396+00"
+        },
+        "escrow_key": "biz:job:escrow:5",
+        "ledger_rows": [
+          {
+            "txid": "5445",
+            "uid": "8",
+            "cid": "1",
+            "delta": "-200",
+            "frozen_delta": "0",
+            "balance_after": "1200",
+            "frozen_after": "0",
+            "kind": "job_escrow",
+            "ref_type": "job",
+            "ref_id": "5",
+            "idempotency_key": "biz:job:escrow:5",
+            "has_root_key": true
+          },
+          {
+            "txid": "5446",
+            "uid": "8",
+            "cid": "1",
+            "delta": "0",
+            "frozen_delta": "200",
+            "balance_after": "1200",
+            "frozen_after": "200",
+            "kind": "job_escrow",
+            "ref_type": "job",
+            "ref_id": "5",
+            "idempotency_key": "biz:job:escrow:5#2",
+            "has_root_key": true
+          }
+        ],
+        "account": {
+          "balance": "1200",
+          "frozen": "200"
+        },
+        "account_before": {
+          "balance": "1400",
+          "frozen": "0"
+        },
+        "response": {
+          "txid": "5445",
+          "entries": [
+            {
+              "cid": "1",
+              "uid": "8",
+              "kind": "job_escrow",
+              "memo": "招工发布托管 job=5（雇主余额出账）",
+              "txid": "5445",
+              "delta": "-200",
+              "ref_id": "5",
+              "ref_type": "job",
+              "frozen_after": "0",
+              "frozen_delta": "0",
+              "time_created": "2026-09-28T05:13:26.433Z",
+              "balance_after": "1200",
+              "idempotency_key": "biz:job:escrow:5",
+              "reversal_of_txid": null,
+              "request_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "cid": "1",
+              "uid": "8",
+              "kind": "job_escrow",
+              "memo": "招工发布托管 job=5（入冻结）",
+              "txid": "5446",
+              "delta": "0",
+              "ref_id": "5",
+              "ref_type": "job",
+              "frozen_after": "200",
+              "frozen_delta": "200",
+              "time_created": "2026-09-28T05:13:26.433Z",
+              "balance_after": "1200",
+              "idempotency_key": "biz:job:escrow:5#2",
+              "reversal_of_txid": null,
+              "request_fingerprint": null
+            }
+          ],
+          "created": true,
+          "status": "open"
+        }
+      }
+    },
+    {
+      "id": "C2",
+      "name": "同键重放 ⇒ 200 重放、分录不翻倍、ledger_event_keys 不追加、业务行未重写（DL149②③）",
+      "pass": true,
+      "readout": {
+        "txid_first": "5445",
+        "txid_replay": "5445",
+        "rows_after_replay": 2,
+        "job_row_after_replay": {
+          "job_id": "5",
+          "employer_uid": "8",
+          "worker_uid": null,
+          "cid": "1",
+          "reward": "200",
+          "status": "open",
+          "create_key": "cli:p3j-20260928051322-publish-1",
+          "escrow_txid": "5445",
+          "settle_txid": null,
+          "ledger_event_keys": [
+            "biz:job:escrow:5"
+          ],
+          "time_created": "2026-09-28 05:13:26.433396+00",
+          "time_updated": "2026-09-28 05:13:26.433396+00"
+        },
+        "job_row_before": {
+          "job_id": "5",
+          "employer_uid": "8",
+          "worker_uid": null,
+          "cid": "1",
+          "reward": "200",
+          "status": "open",
+          "create_key": "cli:p3j-20260928051322-publish-1",
+          "escrow_txid": "5445",
+          "settle_txid": null,
+          "ledger_event_keys": [
+            "biz:job:escrow:5"
+          ],
+          "time_created": "2026-09-28 05:13:26.433396+00",
+          "time_updated": "2026-09-28 05:13:26.433396+00"
+        },
+        "account_after_replay": {
+          "balance": "1200",
+          "frozen": "200"
+        }
+      }
+    },
+    {
+      "id": "C2b",
+      "name": "同 create_key 但业务内容不同 ⇒ 拒绝（不改数据）",
+      "pass": true,
+      "readout": {
+        "outcome": {
+          "ok": false,
+          "e": {
+            "sqlstate": "LD003",
+            "message": "LEDGER_IDEMPOTENCY_CONFLICT",
+            "detail": "{\"field\": \"create_key\", \"job_id\": \"5\", \"reason\": \"CREATE_KEY_REUSED_WITH_DIFFERENT_CONTENT\", \"idempotency_key\": \"cli:p3j-20260928051322-publish-1\"}",
+            "constraint": null,
+            "reason": "CREATE_KEY_REUSED_WITH_DIFFERENT_CONTENT",
+            "detail_parsed": {
+              "field": "create_key",
+              "job_id": "5",
+              "reason": "CREATE_KEY_REUSED_WITH_DIFFERENT_CONTENT",
+              "idempotency_key": "cli:p3j-20260928051322-publish-1"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "C5a",
+      "name": "编排函数层：open→settled 非法 ⇒ LD011 + reason=JOB_STATE_INVALID（大写）",
+      "pass": true,
+      "readout": {
+        "outcome": {
+          "ok": false,
+          "e": {
+            "sqlstate": "LD011",
+            "message": "LEDGER_CURRENCY_INVALID_TRANSITION",
+            "detail": "{\"to\": \"settled\", \"from\": \"open\", \"field\": \"job.status\", \"job_id\": \"5\", \"reason\": \"JOB_STATE_INVALID\"}",
+            "constraint": null,
+            "reason": "JOB_STATE_INVALID",
+            "detail_parsed": {
+              "to": "settled",
+              "from": "open",
+              "field": "job.status",
+              "job_id": "5",
+              "reason": "JOB_STATE_INVALID"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "C5b",
+      "name": "DB 触发器层：open→settled 非法 ⇒ LD011 + reason=JOB_STATE_INVALID（大写）",
+      "pass": true,
+      "readout": {
+        "outcome": {
+          "ok": false,
+          "e": {
+            "sqlstate": "LD011",
+            "message": "LEDGER_CURRENCY_INVALID_TRANSITION",
+            "detail": "{\"to\": \"settled\", \"from\": \"open\", \"field\": \"job.status\", \"job_id\": \"5\", \"reason\": \"JOB_STATE_INVALID\"}",
+            "constraint": null,
+            "reason": "JOB_STATE_INVALID",
+            "detail_parsed": {
+              "to": "settled",
+              "from": "open",
+              "field": "job.status",
+              "job_id": "5",
+              "reason": "JOB_STATE_INVALID"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "C3",
+      "name": "refund ⇒ job_escrow_refund 反向（+balance/−frozen）、状态 cancelled、事件键两条",
+      "pass": true,
+      "readout": {
+        "ledger_rows": [
+          {
+            "txid": "5449",
+            "uid": "8",
+            "cid": "1",
+            "delta": "700",
+            "frozen_delta": "0",
+            "balance_after": "1200",
+            "frozen_after": "900",
+            "kind": "job_escrow_refund",
+            "ref_type": "job",
+            "ref_id": "6",
+            "idempotency_key": "biz:job:refund:6",
+            "has_root_key": true
+          },
+          {
+            "txid": "5450",
+            "uid": "8",
+            "cid": "1",
+            "delta": "0",
+            "frozen_delta": "-700",
+            "balance_after": "1200",
+            "frozen_after": "200",
+            "kind": "job_escrow_refund",
+            "ref_type": "job",
+            "ref_id": "6",
+            "idempotency_key": "biz:job:refund:6#2",
+            "has_root_key": true
+          }
+        ],
+        "job_row": {
+          "job_id": "6",
+          "employer_uid": "8",
+          "worker_uid": null,
+          "cid": "1",
+          "reward": "700",
+          "status": "cancelled",
+          "create_key": "cli:p3j-20260928051322-publish-2",
+          "escrow_txid": "5447",
+          "settle_txid": null,
+          "ledger_event_keys": [
+            "biz:job:escrow:6",
+            "biz:job:refund:6"
+          ],
+          "time_created": "2026-09-28 05:13:32.041387+00",
+          "time_updated": "2026-09-28 05:13:32.455294+00"
+        },
+        "account_after_escrow": {
+          "balance": "500",
+          "frozen": "900"
+        },
+        "account_after_refund": {
+          "balance": "1200",
+          "frozen": "200"
+        },
+        "response": {
+          "status": "cancelled",
+          "keys": [
+            "biz:job:escrow:6",
+            "biz:job:refund:6"
+          ]
+        }
+      }
+    },
+    {
+      "id": "C6",
+      "name": "守卫矩阵：核心字段冻结 / 引用列一次写定 / 禁 DELETE / create_key 不可改",
+      "pass": true,
+      "readout": {
+        "core": {
+          "ok": false,
+          "e": {
+            "sqlstate": "LD011",
+            "message": "LEDGER_CURRENCY_INVALID_TRANSITION",
+            "detail": "{\"field\": \"job.core_fields\", \"job_id\": \"6\", \"reason\": \"job_core_fields_immutable\", \"status\": \"cancelled\"}",
+            "constraint": null,
+            "reason": "job_core_fields_immutable",
+            "detail_parsed": {
+              "field": "job.core_fields",
+              "job_id": "6",
+              "reason": "job_core_fields_immutable",
+              "status": "cancelled"
+            }
+          }
+        },
+        "ref": {
+          "ok": false,
+          "e": {
+            "sqlstate": "LD011",
+            "message": "LEDGER_CURRENCY_INVALID_TRANSITION",
+            "detail": "{\"new\": null, \"old\": \"5447\", \"field\": \"job.escrow_txid\", \"job_id\": \"6\", \"reason\": \"job_ledger_ref_immutable\"}",
+            "constraint": null,
+            "reason": "job_ledger_ref_immutable",
+            "detail_parsed": {
+              "new": null,
+              "old": "5447",
+              "field": "job.escrow_txid",
+              "job_id": "6",
+              "reason": "job_ledger_ref_immutable"
+            }
+          }
+        },
+        "del": {
+          "ok": false,
+          "e": {
+            "sqlstate": "LD011",
+            "message": "LEDGER_CURRENCY_INVALID_TRANSITION",
+            "detail": "{\"field\": \"job\", \"job_id\": \"6\", \"reason\": \"job_delete_forbidden\"}",
+            "constraint": null,
+            "reason": "job_delete_forbidden",
+            "detail_parsed": {
+              "field": "job",
+              "job_id": "6",
+              "reason": "job_delete_forbidden"
+            }
+          }
+        },
+        "create_key": {
+          "ok": false,
+          "e": {
+            "sqlstate": "LD011",
+            "message": "LEDGER_CURRENCY_INVALID_TRANSITION",
+            "detail": "{\"field\": \"job.create_key\", \"job_id\": \"6\", \"reason\": \"job_create_key_immutable\"}",
+            "constraint": null,
+            "reason": "job_create_key_immutable",
+            "detail_parsed": {
+              "field": "job.create_key",
+              "job_id": "6",
+              "reason": "job_create_key_immutable"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "C4",
+      "name": "结算链（有链 ⇒ −2）：kind 白名单 / net+fee=gross / Σcommission 出==fee 入 / 状态+settle_txid",
+      "pass": true,
+      "readout": {
+        "job_id": "7",
+        "key": "biz:job:settle:7",
+        "kinds": [
+          "job_payout",
+          "job_payout",
+          "job_fee",
+          "job_fee",
+          "commission",
+          "commission",
+          "commission",
+          "commission",
+          "commission",
+          "commission",
+          "commission",
+          "commission",
+          "commission",
+          "commission",
+          "commission",
+          "commission",
+          "commission",
+          "commission"
+        ],
+        "rows": [
+          {
+            "txid": "5453",
+            "uid": "8",
+            "cid": "1",
+            "delta": "0",
+            "frozen_delta": "-990",
+            "balance_after": "200",
+            "frozen_after": "210",
+            "kind": "job_payout",
+            "ref_type": "job",
+            "ref_id": "7",
+            "idempotency_key": "biz:job:settle:7",
+            "has_root_key": true
+          },
+          {
+            "txid": "5454",
+            "uid": "954731",
+            "cid": "1",
+            "delta": "990",
+            "frozen_delta": "0",
+            "balance_after": "1980",
+            "frozen_after": "0",
+            "kind": "job_payout",
+            "ref_type": "job",
+            "ref_id": "7",
+            "idempotency_key": "biz:job:settle:7#2",
+            "has_root_key": true
+          },
+          {
+            "txid": "5455",
+            "uid": "8",
+            "cid": "1",
+            "delta": "0",
+            "frozen_delta": "-10",
+            "balance_after": "200",
+            "frozen_after": "200",
+            "kind": "job_fee",
+            "ref_type": "job",
+            "ref_id": "7",
+            "idempotency_key": "biz:job:settle:7#3",
+            "has_root_key": true
+          },
+          {
+            "txid": "5456",
+            "uid": "-2",
+            "cid": "1",
+            "delta": "10",
+            "frozen_delta": "0",
+            "balance_after": "10",
+            "frozen_after": "0",
+            "kind": "job_fee",
+            "ref_type": "job",
+            "ref_id": "7",
+            "idempotency_key": "biz:job:settle:7#4",
+            "has_root_key": true
+          },
+          {
+            "txid": "5457",
+            "uid": "-2",
+            "cid": "1",
+            "delta": "-3",
+            "frozen_delta": "0",
+            "balance_after": "7",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "job",
+            "ref_id": "7",
+            "idempotency_key": "biz:job:settle:7#5",
+            "has_root_key": true
+          },
+          {
+            "txid": "5458",
+            "uid": "954741",
+            "cid": "1",
+            "delta": "3",
+            "frozen_delta": "0",
+            "balance_after": "6",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "job",
+            "ref_id": "7",
+            "idempotency_key": "biz:job:settle:7#6",
+            "has_root_key": true
+          },
+          {
+            "txid": "5459",
+            "uid": "-2",
+            "cid": "1",
+            "delta": "-2",
+            "frozen_delta": "0",
+            "balance_after": "5",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "job",
+            "ref_id": "7",
+            "idempotency_key": "biz:job:settle:7#7",
+            "has_root_key": true
+          },
+          {
+            "txid": "5460",
+            "uid": "954742",
+            "cid": "1",
+            "delta": "2",
+            "frozen_delta": "0",
+            "balance_after": "4",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "job",
+            "ref_id": "7",
+            "idempotency_key": "biz:job:settle:7#8",
+            "has_root_key": true
+          },
+          {
+            "txid": "5461",
+            "uid": "-2",
+            "cid": "1",
+            "delta": "-1",
+            "frozen_delta": "0",
+            "balance_after": "4",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "job",
+            "ref_id": "7",
+            "idempotency_key": "biz:job:settle:7#9",
+            "has_root_key": true
+          },
+          {
+            "txid": "5462",
+            "uid": "954743",
+            "cid": "1",
+            "delta": "1",
+            "frozen_delta": "0",
+            "balance_after": "2",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "job",
+            "ref_id": "7",
+            "idempotency_key": "biz:job:settle:7#10",
+            "has_root_key": true
+          },
+          {
+            "txid": "5463",
+            "uid": "-2",
+            "cid": "1",
+            "delta": "-1",
+            "frozen_delta": "0",
+            "balance_after": "3",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "job",
+            "ref_id": "7",
+            "idempotency_key": "biz:job:settle:7#11",
+            "has_root_key": true
+          },
+          {
+            "txid": "5464",
+            "uid": "954744",
+            "cid": "1",
+            "delta": "1",
+            "frozen_delta": "0",
+            "balance_after": "2",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "job",
+            "ref_id": "7",
+            "idempotency_key": "biz:job:settle:7#12",
+            "has_root_key": true
+          },
+          {
+            "txid": "5465",
+            "uid": "-2",
+            "cid": "1",
+            "delta": "-1",
+            "frozen_delta": "0",
+            "balance_after": "2",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "job",
+            "ref_id": "7",
+            "idempotency_key": "biz:job:settle:7#13",
+            "has_root_key": true
+          },
+          {
+            "txid": "5466",
+            "uid": "954745",
+            "cid": "1",
+            "delta": "1",
+            "frozen_delta": "0",
+            "balance_after": "2",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "job",
+            "ref_id": "7",
+            "idempotency_key": "biz:job:settle:7#14",
+            "has_root_key": true
+          },
+          {
+            "txid": "5467",
+            "uid": "-2",
+            "cid": "1",
+            "delta": "-1",
+            "frozen_delta": "0",
+            "balance_after": "1",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "job",
+            "ref_id": "7",
+            "idempotency_key": "biz:job:settle:7#15",
+            "has_root_key": true
+          },
+          {
+            "txid": "5468",
+            "uid": "954746",
+            "cid": "1",
+            "delta": "1",
+            "frozen_delta": "0",
+            "balance_after": "2",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "job",
+            "ref_id": "7",
+            "idempotency_key": "biz:job:settle:7#16",
+            "has_root_key": true
+          },
+          {
+            "txid": "5469",
+            "uid": "-2",
+            "cid": "1",
+            "delta": "-1",
+            "frozen_delta": "0",
+            "balance_after": "0",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "job",
+            "ref_id": "7",
+            "idempotency_key": "biz:job:settle:7#17",
+            "has_root_key": true
+          },
+          {
+            "txid": "5470",
+            "uid": "954747",
+            "cid": "1",
+            "delta": "1",
+            "frozen_delta": "0",
+            "balance_after": "2",
+            "frozen_after": "0",
+            "kind": "commission",
+            "ref_type": "job",
+            "ref_id": "7",
+            "idempotency_key": "biz:job:settle:7#18",
+            "has_root_key": true
+          }
+        ],
+        "expected_fee": "10",
+        "db_plan": {
+          "fee": "10",
+          "net": "990",
+          "M": 10,
+          "N": 7,
+          "W": "10000",
+          "fee_credit_uid": "-2",
+          "layers": [
+            {
+              "q": "3",
+              "r": "0",
+              "x": "3",
+              "level": 1,
+              "weight_bp": "3000",
+              "beneficiary_uid": "954741"
+            },
+            {
+              "q": "2",
+              "r": "0",
+              "x": "2",
+              "level": 2,
+              "weight_bp": "2000",
+              "beneficiary_uid": "954742"
+            },
+            {
+              "q": "1",
+              "r": "5000",
+              "x": "1",
+              "level": 3,
+              "weight_bp": "1500",
+              "beneficiary_uid": "954743"
+            },
+            {
+              "q": "1",
+              "r": "0",
+              "x": "1",
+              "level": 4,
+              "weight_bp": "1000",
+              "beneficiary_uid": "954744"
+            },
+            {
+              "q": "0",
+              "r": "8000",
+              "x": "1",
+              "level": 5,
+              "weight_bp": "800",
+              "beneficiary_uid": "954745"
+            },
+            {
+              "q": "0",
+              "r": "6000",
+              "x": "1",
+              "level": 6,
+              "weight_bp": "600",
+              "beneficiary_uid": "954746"
+            },
+            {
+              "q": "0",
+              "r": "5000",
+              "x": "1",
+              "level": 7,
+              "weight_bp": "500",
+              "beneficiary_uid": "954747"
+            }
+          ]
+        },
+        "job_row": {
+          "job_id": "7",
+          "employer_uid": "8",
+          "worker_uid": "954731",
+          "cid": "1",
+          "reward": "1000",
+          "status": "settled",
+          "create_key": "cli:p3j-20260928051322-p3j-settle-chain",
+          "escrow_txid": "5451",
+          "settle_txid": "5453",
+          "ledger_event_keys": [
+            "biz:job:escrow:7",
+            "biz:job:settle:7"
+          ],
+          "time_created": "2026-09-28 05:13:37.678678+00",
+          "time_updated": "2026-09-28 05:13:38.270891+00"
+        },
+        "response": {
+          "status": "settled",
+          "txid": "5453",
+          "keys": [
+            "biz:job:escrow:7",
+            "biz:job:settle:7"
+          ]
+        }
+      }
+    },
+    {
+      "id": "C4b",
+      "name": "DB 派生 vs `src/commission.ts` 计划器**逐层对拍**（fee/net/M/N/W/fee_credit_uid/layers）",
+      "pass": false,
+      "readout": {
+        "canon_ts": "{\"fee\":\"10\",\"net\":\"990\",\"M\":10,\"N\":7,\"W\":\"10000\",\"fee_credit_uid\":\"-2\",\"layers\":[[1,\"954741\",\"3000\",\"3\",\"0\",\"3\"],[2,\"954742\",\"2000\",\"2\",\"0\",\"2\"],[3,\"954743\",\"1500\",\"1\",\"5000\",\"1\"],[4,\"954744\",\"1000\",\"1\",\"0\",\"1\"],[5,\"954745\",\"800\",\"0\",\"8000\",\"1\"],[6,\"954746\",\"600\",\"0\",\"6000\",\"1\"],[7,\"954747\",\"500\",\"0\",\"5000\",\"1\"],[8,\"954748\",\"300\",\"0\",\"3000\",\"0\"],[9,\"954749\",\"200\",\"0\",\"2000\",\"0\"],[10,\"954750\",\"100\",\"0\",\"1000\",\"0\"]]}",
+        "canon_db": "{\"fee\":\"10\",\"net\":\"990\",\"M\":10,\"N\":7,\"W\":\"10000\",\"fee_credit_uid\":\"-2\",\"layers\":[[1,\"954741\",\"3000\",\"3\",\"0\",\"3\"],[2,\"954742\",\"2000\",\"2\",\"0\",\"2\"],[3,\"954743\",\"1500\",\"1\",\"5000\",\"1\"],[4,\"954744\",\"1000\",\"1\",\"0\",\"1\"],[5,\"954745\",\"800\",\"0\",\"8000\",\"1\"],[6,\"954746\",\"600\",\"0\",\"6000\",\"1\"],[7,\"954747\",\"500\",\"0\",\"5000\",\"1\"]]}",
+        "ts_plan": {
+          "fee": "10",
+          "net": "990",
+          "M": 10,
+          "N": 7,
+          "W": "10000",
+          "fee_credit_uid": "-2",
+          "layers": [
+            {
+              "level": 1,
+              "beneficiary_uid": "954741",
+              "weight_bp": "3000",
+              "q": "3",
+              "r": "0",
+              "x": "3"
+            },
+            {
+              "level": 2,
+              "beneficiary_uid": "954742",
+              "weight_bp": "2000",
+              "q": "2",
+              "r": "0",
+              "x": "2"
+            },
+            {
+              "level": 3,
+              "beneficiary_uid": "954743",
+              "weight_bp": "1500",
+              "q": "1",
+              "r": "5000",
+              "x": "1"
+            },
+            {
+              "level": 4,
+              "beneficiary_uid": "954744",
+              "weight_bp": "1000",
+              "q": "1",
+              "r": "0",
+              "x": "1"
+            },
+            {
+              "level": 5,
+              "beneficiary_uid": "954745",
+              "weight_bp": "800",
+              "q": "0",
+              "r": "8000",
+              "x": "1"
+            },
+            {
+              "level": 6,
+              "beneficiary_uid": "954746",
+              "weight_bp": "600",
+              "q": "0",
+              "r": "6000",
+              "x": "1"
+            },
+            {
+              "level": 7,
+              "beneficiary_uid": "954747",
+              "weight_bp": "500",
+              "q": "0",
+              "r": "5000",
+              "x": "1"
+            },
+            {
+              "level": 8,
+              "beneficiary_uid": "954748",
+              "weight_bp": "300",
+              "q": "0",
+              "r": "3000",
+              "x": "0"
+            },
+            {
+              "level": 9,
+              "beneficiary_uid": "954749",
+              "weight_bp": "200",
+              "q": "0",
+              "r": "2000",
+              "x": "0"
+            },
+            {
+              "level": 10,
+              "beneficiary_uid": "954750",
+              "weight_bp": "100",
+              "q": "0",
+              "r": "1000",
+              "x": "0"
+            }
+          ]
+        },
+        "ts_plan_error": null,
+        "db_plan": {
+          "fee": "10",
+          "net": "990",
+          "M": 10,
+          "N": 7,
+          "W": "10000",
+          "fee_credit_uid": "-2",
+          "layers": [
+            {
+              "q": "3",
+              "r": "0",
+              "x": "3",
+              "level": 1,
+              "weight_bp": "3000",
+              "beneficiary_uid": "954741"
+            },
+            {
+              "q": "2",
+              "r": "0",
+              "x": "2",
+              "level": 2,
+              "weight_bp": "2000",
+              "beneficiary_uid": "954742"
+            },
+            {
+              "q": "1",
+              "r": "5000",
+              "x": "1",
+              "level": 3,
+              "weight_bp": "1500",
+              "beneficiary_uid": "954743"
+            },
+            {
+              "q": "1",
+              "r": "0",
+              "x": "1",
+              "level": 4,
+              "weight_bp": "1000",
+              "beneficiary_uid": "954744"
+            },
+            {
+              "q": "0",
+              "r": "8000",
+              "x": "1",
+              "level": 5,
+              "weight_bp": "800",
+              "beneficiary_uid": "954745"
+            },
+            {
+              "q": "0",
+              "r": "6000",
+              "x": "1",
+              "level": 6,
+              "weight_bp": "600",
+              "beneficiary_uid": "954746"
+            },
+            {
+              "q": "0",
+              "r": "5000",
+              "x": "1",
+              "level": 7,
+              "weight_bp": "500",
+              "beneficiary_uid": "954747"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "C4c",
+      "name": "结算同键重放 ⇒ 不翻倍、不追加事件键、settle_txid/status 未第二次写",
+      "pass": true,
+      "readout": {
+        "txid_first": "5453",
+        "txid_replay": "5453",
+        "rows": 18,
+        "rows_after_replay": 18,
+        "job_row": {
+          "job_id": "7",
+          "employer_uid": "8",
+          "worker_uid": "954731",
+          "cid": "1",
+          "reward": "1000",
+          "status": "settled",
+          "create_key": "cli:p3j-20260928051322-p3j-settle-chain",
+          "escrow_txid": "5451",
+          "settle_txid": "5453",
+          "ledger_event_keys": [
+            "biz:job:escrow:7",
+            "biz:job:settle:7"
+          ],
+          "time_created": "2026-09-28 05:13:37.678678+00",
+          "time_updated": "2026-09-28 05:13:38.270891+00"
+        },
+        "job_row_after_replay": {
+          "job_id": "7",
+          "employer_uid": "8",
+          "worker_uid": "954731",
+          "cid": "1",
+          "reward": "1000",
+          "status": "settled",
+          "create_key": "cli:p3j-20260928051322-p3j-settle-chain",
+          "escrow_txid": "5451",
+          "settle_txid": "5453",
+          "ledger_event_keys": [
+            "biz:job:escrow:7",
+            "biz:job:settle:7"
+          ],
+          "time_created": "2026-09-28 05:13:37.678678+00",
+          "time_updated": "2026-09-28 05:13:38.270891+00"
+        }
+      }
+    },
+    {
+      "id": "C4d",
+      "name": "无邀请人（M=0）⇒ job_fee 入 −1（平台），−2 零命中（DL86）",
+      "pass": true,
+      "readout": {
+        "job_id": "8",
+        "key": "biz:job:settle:8",
+        "kinds": [
+          "job_payout",
+          "job_payout",
+          "job_fee",
+          "job_fee"
+        ],
+        "fee_rows": [
+          {
+            "txid": "5475",
+            "uid": "8",
+            "cid": "1",
+            "delta": "0",
+            "frozen_delta": "-1",
+            "balance_after": "100",
+            "frozen_after": "200",
+            "kind": "job_fee",
+            "ref_type": "job",
+            "ref_id": "8",
+            "idempotency_key": "biz:job:settle:8#3",
+            "has_root_key": true
+          },
+          {
+            "txid": "5476",
+            "uid": "-1",
+            "cid": "1",
+            "delta": "1",
+            "frozen_delta": "0",
+            "balance_after": "2",
+            "frozen_after": "0",
+            "kind": "job_fee",
+            "ref_type": "job",
+            "ref_id": "8",
+            "idempotency_key": "biz:job:settle:8#4",
+            "has_root_key": true
+          }
+        ],
+        "platform_minus1_delta": "1",
+        "minus2_rows": "0",
+        "expected_fee": "1"
+      }
+    }
+  ],
+  "pass_count": 10,
+  "fail_count": 1,
+  "failed": [
+    "C4b"
+  ]
+}

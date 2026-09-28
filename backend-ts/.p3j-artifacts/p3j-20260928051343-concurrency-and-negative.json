@@ -1,0 +1,307 @@
+{
+  "run": "20260928051343",
+  "label": "concurrency-and-negative",
+  "at": "2026-09-28T05:13:59.810Z",
+  "probe": "P3J-03-CONCURRENCY-AND-NEGATIVE",
+  "run_tag": "20260928051343",
+  "scratch_dir": "/Users/kevin/.hermes/profiles/zang/cache/scratch/p3j-20260928051343",
+  "pristine_file": "migrations/0013_job_core.sql",
+  "pristine_sha256": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+  "baseline": {
+    "publish_replay": {
+      "green": true,
+      "idempotent_replay": true,
+      "ledger_event_keys": [
+        "biz:job:escrow:10"
+      ],
+      "ledger_event_keys_before": [
+        "biz:job:escrow:10"
+      ],
+      "ledger_rows": 2,
+      "business_row_rewritten": false,
+      "txid": "5483"
+    },
+    "refund_replay": {
+      "green": true,
+      "idempotent_replay": true,
+      "rows_before": 2,
+      "rows_after": 2,
+      "error": null
+    },
+    "fund": {
+      "donor_uid": "954731",
+      "donor_balance_before": "1980",
+      "transfer": {
+        "ok": true,
+        "meta": {
+          "op": "transfer",
+          "lock_trace": [
+            "account:10:1",
+            "account:954731:1"
+          ]
+        },
+        "txid": "5477",
+        "extra": {
+          "amount": "1200",
+          "symbol": "$"
+        },
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "954731",
+            "kind": "transfer",
+            "memo": "",
+            "txid": "5477",
+            "delta": "-1200",
+            "ref_id": null,
+            "ref_type": null,
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-28T05:13:44.808Z",
+            "balance_after": "780",
+            "idempotency_key": "ops:p3j:20260928051343:fund:10",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          },
+          {
+            "cid": "1",
+            "uid": "10",
+            "kind": "transfer",
+            "memo": "",
+            "txid": "5478",
+            "delta": "1200",
+            "ref_id": null,
+            "ref_type": null,
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-28T05:13:44.808Z",
+            "balance_after": "1200",
+            "idempotency_key": "ops:p3j:20260928051343:fund:10#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "954731",
+            "frozen": "0",
+            "balance": "780"
+          },
+          {
+            "cid": "1",
+            "uid": "10",
+            "frozen": "0",
+            "balance": "1200"
+          }
+        ],
+        "idempotency_key": "ops:p3j:20260928051343:fund:10",
+        "idempotent_replay": false
+      }
+    }
+  },
+  "checks": [
+    {
+      "id": "CN1",
+      "name": "真并发同键退款：两连接恰一次落账、无 40P01/40P03、事件键不追加两次",
+      "pass": true,
+      "readout": {
+        "outcomes": [
+          {
+            "ok": true,
+            "idempotent_replay": false,
+            "txid": "5481",
+            "status": "cancelled"
+          },
+          {
+            "ok": true,
+            "idempotent_replay": true,
+            "txid": "5481",
+            "status": "cancelled"
+          }
+        ],
+        "refund_key": "biz:job:refund:9",
+        "ledger_rows": 2,
+        "job_before": {
+          "job_id": "9",
+          "employer_uid": "10",
+          "worker_uid": null,
+          "cid": "1",
+          "reward": "500",
+          "status": "open",
+          "create_key": "cli:p3j-20260928051343-conc",
+          "escrow_txid": "5479",
+          "settle_txid": null,
+          "ledger_event_keys": [
+            "biz:job:escrow:9"
+          ],
+          "time_created": "2026-09-28 05:13:45.057959+00",
+          "time_updated": "2026-09-28 05:13:45.057959+00"
+        },
+        "job_after": {
+          "job_id": "9",
+          "employer_uid": "10",
+          "worker_uid": null,
+          "cid": "1",
+          "reward": "500",
+          "status": "cancelled",
+          "create_key": "cli:p3j-20260928051343-conc",
+          "escrow_txid": "5479",
+          "settle_txid": null,
+          "ledger_event_keys": [
+            "biz:job:escrow:9",
+            "biz:job:refund:9"
+          ],
+          "time_created": "2026-09-28 05:13:45.057959+00",
+          "time_updated": "2026-09-28 05:13:45.855121+00"
+        },
+        "account_before": {
+          "balance": "700",
+          "frozen": "500"
+        },
+        "account_after": {
+          "balance": "1200",
+          "frozen": "0"
+        },
+        "deadlock": false
+      }
+    },
+    {
+      "id": "CN2",
+      "name": "TAMPER-A（无条件写回）⇒ 重放用例必红",
+      "pass": true,
+      "readout": {
+        "tamper": {
+          "file": "/Users/kevin/.hermes/profiles/zang/cache/scratch/p3j-20260928051343/0013_broken_A_always_write_back.sql",
+          "scratch_sha256": "2a287c8d720e669d3a7005907598894dddae6ee44dab9cf7dae3a8b8f60950bf"
+        },
+        "red": {
+          "applied": {
+            "applied": true,
+            "label": "TAMPER-A"
+          },
+          "case": {
+            "green": false,
+            "idempotent_replay": true,
+            "ledger_event_keys": [
+              "biz:job:escrow:12",
+              "biz:job:escrow:12"
+            ],
+            "ledger_event_keys_before": [
+              "biz:job:escrow:12"
+            ],
+            "ledger_rows": 2,
+            "business_row_rewritten": true,
+            "txid": "5489"
+          },
+          "red": true
+        }
+      }
+    },
+    {
+      "id": "CN3",
+      "name": "逐字节恢复（pristine 重装）⇒ 用例回绿",
+      "pass": true,
+      "readout": {
+        "restore": {
+          "restored": {
+            "applied": true,
+            "label": "RESTORE-A"
+          },
+          "case": {
+            "green": true,
+            "idempotent_replay": true,
+            "ledger_event_keys": [
+              "biz:job:escrow:13"
+            ],
+            "ledger_event_keys_before": [
+              "biz:job:escrow:13"
+            ],
+            "ledger_rows": 2,
+            "business_row_rewritten": false,
+            "txid": "5491"
+          }
+        }
+      }
+    },
+    {
+      "id": "CN4",
+      "name": "TAMPER-E（重放也走状态机闸）⇒ 重放用例必红",
+      "pass": true,
+      "readout": {
+        "tamper": {
+          "file": "/Users/kevin/.hermes/profiles/zang/cache/scratch/p3j-20260928051343/0013_broken_E_always_state_check.sql",
+          "scratch_sha256": "8f6715a3784dfd4a808e44b4c20c9b58d748f3e9325af9af99f13fe854298000"
+        },
+        "red": {
+          "applied": {
+            "applied": true,
+            "label": "TAMPER-E"
+          },
+          "case": {
+            "green": false,
+            "idempotent_replay": null,
+            "rows_before": 2,
+            "rows_after": 2,
+            "error": {
+              "sqlstate": "LD011",
+              "message": "LEDGER_CURRENCY_INVALID_TRANSITION",
+              "detail": "{\"to\": \"cancelled\", \"from\": \"cancelled\", \"field\": \"job.status\", \"job_id\": \"14\", \"reason\": \"JOB_STATE_INVALID\"}",
+              "constraint": null,
+              "reason": "JOB_STATE_INVALID",
+              "detail_parsed": {
+                "to": "cancelled",
+                "from": "cancelled",
+                "field": "job.status",
+                "job_id": "14",
+                "reason": "JOB_STATE_INVALID"
+              }
+            }
+          },
+          "red": true
+        }
+      }
+    },
+    {
+      "id": "CN5",
+      "name": "逐字节恢复（pristine 重装）⇒ 回绿 + 工作区文件未被碰（sha256/字节/行数/大小/mtime 不变）",
+      "pass": true,
+      "readout": {
+        "restore": {
+          "restored": {
+            "applied": true,
+            "label": "RESTORE-E"
+          },
+          "case": {
+            "green": true,
+            "idempotent_replay": true,
+            "rows_before": 2,
+            "rows_after": 2,
+            "error": null
+          }
+        },
+        "worktree": {
+          "sha256_before": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+          "sha256_after": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+          "bytes_before": 44130,
+          "bytes_after": 44130,
+          "mtime_before": "2026-09-28T05:08:22.874Z",
+          "mtime_after": "2026-09-28T05:08:22.874Z"
+        }
+      }
+    },
+    {
+      "id": "CN6",
+      "name": "工作区迁移文件 sha256 前后逐字节相等",
+      "pass": true,
+      "readout": {
+        "sha256_before": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+        "sha256_after": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+        "path": "migrations/0013_job_core.sql"
+      }
+    }
+  ],
+  "pass_count": 6,
+  "fail_count": 0,
+  "failed": []
+}
