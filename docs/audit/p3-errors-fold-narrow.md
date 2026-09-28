@@ -280,3 +280,161 @@ npx tsc --noEmit > .p3w-artifacts/p3w-tsc-narrow.log 2>&1; echo $?
 夹具构造要点：真 `ws.ErrorEvent` 走**绝对路径** `node_modules/ws/lib/event-target.js`（自证 `ctor.name='ErrorEvent'`、`instanceof globalThis.Event=false`、`type='error'`）；毒 getter 用 `Object.defineProperty(o, key, { get: () => { throw … } })`；判负副本的锚点命中数校验 = 1（否则探针拒绝生成）。
 
 **报告章节**：`## ` 级标题共 **13** 节（0–12）。
+
+---
+
+## 13. Unit I（P3-ERRORS-NARROW-2）判据② 收窄 —— 交付、对拍、判负自证
+
+> 追加节（**0–12 节逐字未改**）。本节所有读数出自 `backend-ts/.p3w-artifacts/p3w-01-narrow2-verify-20260928T174943Z.json`
+> （`PROBE_EXIT=0`、`hard_fail=[]`）与 `.p3w-artifacts/p3w-01-tsc-narrow2.log`。三态口径：
+> `baseline` = `git show 88783a2:` 内容 sha256 `721156cb…`；`fixed` = `git show ade3376:` `9bc127e4…`；
+> `narrowed2` = 工作树 `src/ledger-errors.ts` `5a671354…`。**均按内容 sha256 自证（不用 `HEAD` 符号）。**
+
+### 13.1 改动 diff 摘要（行号 + 行数）
+
+| # | 位置（Unit H 旧行号） | 位置（Unit I 新行号） | 删 | 增 | 内容 |
+|---|---|---|---|---|---|
+| 1 | `:381-385` | `:381-400` | 5 | 20 | 裁定头注释 判据 ①/②/③ 说明整段更正：记明 `ws.Event` **非** `globalThis.Event` 子类 ⇒ 判据① 对真对象不成立；真对象 own props 空、`message` 为原型 getter 字符串 ⇒ **真对象由判据② 命中、判据② 是承重子句、不得删除**（删除 ⇒ 真对象回流 500 ⇒ 破坏 `DL126`）；判据③ 只覆盖 own getter-only 形态（旧注释「真对象落③」的说法已删） |
+| 2 | `:401-402` | `:416-422` | 2 | 7 | **判据② 本体收窄**：`if (safeRead(e, 'type') === 'error') return true;` ⇒ `if (safeRead(e, 'type') === 'error' && typeof safeRead(e, 'message') === 'string') return true;`（**两读均经 `safeRead`**；代码行 = 现盘 `:422`）+ 6 行承重说明注释 |
+| 3 | `:403` | `:423-424` | 1 | 2 | ③ 段首注释改写（明写「只覆盖 own getter-only」且真对象**不落**本条） |
+
+**合计：2 个 hunk / 3 个改动点，删 8 行、增 29 行、净 +21 行**（636 → 657，`wc -l` 实测 657 行；
+`grep -n "typeof safeRead(e, 'message') === 'string') return true"` ⇒ `:422`（判据②）与 `:435`（判据③，**逐字未动**）；
+`grep -c 'type\'\\) === \'error\'\\) return true;'` 裸判据残留 = **1**（即判据① 内部的 `:414`，其外层已有 `instanceof` 闸门，**非**判据②）。
+`:425-428`（Unit H 的「原第二子句已删除」说明）**逐字未动**。判据①（`:404-415`）与判据③（`:423-435`）**语义逐字未动**。
+
+### 13.2 三态逐形态对拍表（A/B/R/C/G 全形态 × baseline / fixed / narrowed2）
+
+读数格式 = `code/status/classify`（`classify` = `classifyNonPgError` 返回值）。**含 mutant 列**（判负用，见 13.5）。
+
+| id | 组 | 期望（Unit I 口径） | baseline | fixed | **narrowed2** | mutant_c2 | 判定 |
+|---|---|---|---|---|---|---|---|
+| A1 真 `ws.ErrorEvent`（绝对路径） | A | `FAMILY_503` | `LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error` | `LEDGER_TX_TIMEOUT/503/driver_connection_error` | **`LEDGER_TX_TIMEOUT/503/driver_connection_error`** ✔ | 同 narrow2 | PASS |
+| A2 `Object.freeze({type:'error',message})` | A | `FAMILY_503` | `/500/unclassified_non_pg_error` | `/503/driver_connection_error` | **`/503/driver_connection_error`** ✔ | 同 | PASS |
+| A3 own getter-only 字符串 `message`（无 type） | A | `FAMILY_503` | `/500/unclassified_non_pg_error` | `/503/driver_connection_error` | **`/503/driver_connection_error`** ✔ | 同 | PASS |
+| A4 **`{type:'error'}`（无 message）** | A | **`BASELINE_EQ`（500）**（★勘误） | `LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error` | `/503/driver_connection_error` | **`LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error`** ✔=baseline | **`/503/`**（RED） | PASS |
+| B1 `new Error()` | B | `BASELINE_EQ` | `/500/unclassified_non_pg_error` | `/503/driver_connection_error` | **`/500/unclassified_non_pg_error`** ✔=baseline | 同 narrow2 | PASS |
+| B2 `new TypeError()` | B | `BASELINE_EQ` | `/500/unclassified_non_pg_error` | `/503/driver_connection_error` | **`/500/unclassified_non_pg_error`** ✔ | 同 | PASS |
+| B3 `Object.create(Error.prototype)` | B | `BASELINE_EQ` | `/500/unclassified_non_pg_error` | `/503/driver_connection_error` | **`/500/unclassified_non_pg_error`** ✔ | 同 | PASS |
+| B4 `Object.create({message:'x'})` | B | `BASELINE_EQ` | `/500/unclassified_non_pg_error` | `/503/driver_connection_error` | **`/500/unclassified_non_pg_error`** ✔ | 同 | PASS |
+| B5 `new Event('open')` | B | `BASELINE_EQ` | `/500/unclassified_non_pg_error` | `/503/driver_connection_error` | **`/500/unclassified_non_pg_error`** ✔ | 同 | PASS |
+| B6 **`new Event('error')`** | B | **`ACCEPT_503`（接受项）**（★勘误） | `/500/unclassified_non_pg_error` | `/503/driver_connection_error` | **`/503/driver_connection_error`**（判据①单独命中） | 同 | PASS（登记项） |
+| B7 **`{type:'error',payload}`** | B | **`BASELINE_EQ`（500）**（本单修复目标） | `LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error` | `/503/driver_connection_error` | **`LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error`** ✔=baseline | **`/503/`**（RED） | PASS |
+| R1 原型 getter-only `message`、无 type | R | `BASELINE_EQ` | `/500/unclassified_non_pg_error` | `/503/driver_connection_error` | **`/500/unclassified_non_pg_error`** ✔=baseline | 同 | PASS |
+| R2 类原型数据属性 `message`、无 type | R | `BASELINE_EQ` | `/500/unclassified_non_pg_error` | `/503/driver_connection_error` | **`/500/unclassified_non_pg_error`** ✔=baseline | 同 | PASS |
+| C1 `22003`（Error 实例+code） | C | `CONTROL_EQ` | `/500/`(null) | 同 | 同 | 同 | **三态逐字节等** ✔ |
+| C2 `22003`（裸对象） | C | `CONTROL_EQ` | `TR/500/null` | 同 | 同 | 同 | ✔ |
+| C3 命名码 `LD016` | C | `CONTROL_EQ` | `TR/500/null` | 同 | 同 | 同 | ✔ |
+| C4 `ECONNRESET` | C | `CONTROL_EQ` | `TX/503/driver_connection_error` | 同 | 同 | 同 | ✔ |
+| C5 池超时 `timeout exceeded when trying to connect` | C | `CONTROL_EQ` | `TX/503/pool_connection_timeout` | 同 | 同 | 同 | ✔ |
+| C6 `socket hang up` | C | `CONTROL_EQ` | `TX/503/driver_connection_error` | 同 | 同 | 同 | ✔ |
+| C7 `08P01`（排除项） | C | `CONTROL_EQ` | `TR/500/null` | 同 | 同 | 同 | ✔ |
+| C8 `23514`+`account_bal_guard` | C | `CONTROL_EQ` | `LEDGER_NEGATIVE_BALANCE_GUARD/500/null` | 同 | 同 | 同 | ✔ |
+| C9 `23505`+`ledger_idem_uniq` | C | `CONTROL_EQ` | `LEDGER_IDEMPOTENCY_CONFLICT/409/null` | 同 | 同 | 同 | ✔ |
+| C10 `57014` | C | `CONTROL_EQ` | `TX/503/null` | 同 | 同 | 同 | ✔ |
+| C11 `53000` | C | `CONTROL_EQ` | `TX/503/null` | 同 | 同 | 同 | ✔ |
+| C12 命名码 `LEDGER_TX_TIMEOUT` | C | `CONTROL_EQ` | `TX/503/null` | 同 | 同 | 同 | ✔ |
+| C13 无 name 裸对象 | C | `CONTROL_EQ` | `TR/500/unclassified_non_pg_error` | 同 | 同 | 同 | ✔ |
+| G1 `message` getter 抛 | G | `NO_THROW` | **`THREW`** | **`THREW`** | `TR/500/unclassified_non_pg_error`（**不抛**）✔ | 同 | PASS |
+| G2 `code` getter 抛 | G | `NO_THROW` | **`THREW`** | **`THREW`** | `TR/500/unclassified_non_pg_error`（**不抛**）✔ | 同 | PASS |
+| G3 `type` getter 抛 | G | `NO_THROW` | `TR/500/unclassified_non_pg_error` | **`THREW`** | `TR/500/unclassified_non_pg_error`（**不抛**）✔ | 同 | PASS |
+| G4 `error` getter 抛 | G | `NO_THROW` | `TR/500/…` | `TR/500/…` | `TR/500/unclassified_non_pg_error`（**不抛**）✔ | 同 | PASS |
+| G5 `message`+`code` 同时抛 | G | `NO_THROW` | **`THREW`** | **`THREW`** | `TR/500/unclassified_non_pg_error`（**不抛**）✔ | 同 | PASS |
+
+**组级结论（机读字段）**：
+- **A 组：PASS**，`A_fail = []`（n=4）。A1/A2/A3 = 503/`LEDGER_TX_TIMEOUT`/`driver_connection_error`；A4 = **500 == baseline**。
+- **B 组：PASS**，`B_fail = []`（n=7）；`B_mismatch_vs_baseline = ["B6_globalEvent_error"]`（**唯一**不与 baseline 相等者 = 已登记的接受项，非失败）。
+- **R 组：PASS**，R1/R2 `narrowed2_eq_baseline` 均为真（均回 500）。
+- **C 组：PASS**，`C_mismatch = []`，**13/13 三态逐字节相同**。
+- **G 组：PASS**，`G_threw = []`（5/5 不抛，读数确定）。
+- **总体**：`hard_fail = []`、`PROBE_EXIT = 0`。
+
+### 13.3 `ws_event_instanceof_global_event` 读数（★回归守卫，可机读）
+
+| 字段 | 读数 | 说明 |
+|---|---|---|
+| **`ws_event_instanceof_global_event`** | **`false`** | `new ws.Event('open') instanceof globalThis.Event` ⇒ **false**。**guard_pass = true**（断言失败即 `hard_fail`+非零退出，本 run 未触发） |
+| `globalThis.ErrorEvent` | `"undefined"` | Node 18.19 无全局 `ErrorEvent` |
+| `require('ws').ErrorEvent` | `"undefined"` | `ws@8.22.0` 的 `exports` 映射不导出该构造器 ⇒ **必须**走绝对路径 `node_modules/ws/lib/event-target.js` |
+| `wsET_export_keys` | `["CloseEvent","ErrorEvent","Event","EventTarget","MessageEvent"]` | 绝对路径 require 的导出面 |
+| `ctor.name` | `"ErrorEvent"` | 真对象自证 |
+| `own_prop_names` | `[]` | **真对象 own props 为空** ⇒ 判据③ 的 own 描述符子句对真对象**不成立** |
+| `own_message_descriptor` | `null` | 同上 |
+| `proto_message_getter_is_fn` / `proto_message_setter_present` | `true` / `false` | `message` 在原型上是 **getter、无 setter** |
+| `typeof e.message` / `e.type` | `"string"` / `"error"` | ⇒ **判据②（type==='error' ∧ typeof message==='string'）命中** |
+| `wsEE_has_own_type` | `false` | `type` 也在原型上（`Event.prototype.type`） |
+
+### 13.4 毒 getter 三读数（AC 指定三形态 + 2 附加形态）
+
+口径：`code` / `status` / `details.reason` 三读数，**不得抛**。
+
+| 形态 | `code` | `status` | `details.reason` | 抛异常？ |
+|---|---|---|---|---|
+| G1 **`message` getter 抛** | `LEDGER_TRANSACTION_REQUIRED` | `500` | `unclassified_non_pg_error` | **否** |
+| G2 **`code` getter 抛** | `LEDGER_TRANSACTION_REQUIRED` | `500` | `unclassified_non_pg_error` | **否** |
+| G3 **`type` getter 抛** | `LEDGER_TRANSACTION_REQUIRED` | `500` | `unclassified_non_pg_error` | **否** |
+| G4 `error` getter 抛（诊断面） | `LEDGER_TRANSACTION_REQUIRED` | `500` | `unclassified_non_pg_error` | **否** |
+| G5 `message`+`code` 同时抛 | `LEDGER_TRANSACTION_REQUIRED` | `500` | `unclassified_non_pg_error` | **否** |
+
+诊断面（`ledgerErrorDiagnostics`）在 G1–G5 下同样**不抛**（artifact `G_poison[*].diagnostics_narrowed2.threw = null`）。
+⚠️ 对照：`baseline`/`fixed` 在 G1/G2/G5 三格**整体抛**（`THREW`）—— 该三格**不是**本单引入的回归（Unit H 已收口），列此仅为对拍完整性。
+
+### 13.5 判负三段（红 / 绿 / 还原）
+
+变异体 = 从 `narrowed2` **单点去掉判据② 的 `message` 合取**（回到 `if (safeRead(e, 'type') === 'error') return true;`）。
+**锚点命中数校验 = 1**（`mutation_anchor_hits = 1`，≠1 则探针**拒绝生成**变异体）；`mutation_diff_line_count = 1`。
+
+| 段 | 断言 | 实测 | 判定 |
+|---|---|---|---|
+| **红** | 去掉合取后 A4 与 B7 **回流 503** | `RED_set_mutated_c2 = ["A4_type_error_no_message","B7_business_envelope_type_error"]`，两者 = `LEDGER_TX_TIMEOUT/503/driver_connection_error`；`red.mutated_c2_all_503 = true` | **红 ✔** |
+| **绿** | 现盘 `narrowed2`：A4/B7 = **500 == baseline** | `GREEN_set_narrowed2 = [A4, B7]`；`green.narrowed2_all_500 = true`、`green.narrowed2_eq_baseline = true` | **绿 ✔** |
+| **还原** | 反向单行替换即回到 `narrowed2`；且**工作树全程未被写** | `worktree_sha_before_run = worktree_sha_after_run = 5a671354…`、`worktree_unchanged_by_run = true`；变异体写的是 artifact 目录下**独立副本** `_impl/mutated-clause2-narrow2-ledger-errors.ts`（sha `e7b39540…`）；`restore.mutated_c2_eq_fixed_column = true` | **还原 ✔（口径见 13.8.2）** |
+
+三态 sha256（自证）：
+- `baseline` = `721156cbf296b19c7c4a480264f88b49878d99104b8f87453bafce564745df8b`（`baseline_sha_match = true`）
+- `fixed` = `9bc127e4942cb219fc7eeb3cb17997e724d90433b030619f207341bd35ed983d`（`fixed_sha_match = true`）
+- `narrowed2` = `5a671354eb7bfd6707bb27a48a1e661b73745a63de59c5201957a602006bf3c4`（`narrowed2_sha_match = true`）
+- `mutated_c2` = `e7b3954069abaeaa600e5cbe196378a8f63287e701c4f9d3b50285fd2d7c2f17`（判负体）
+- 广义 RED 面（与 baseline 不一致的 id 集）：`baseline=[]`／`fixed=14 项`／`narrowed2=7 项`／`mutated_c2=9 项`（含 `A4`/`B7` 两项差异 ⇒ 合取是二者的唯一区分量）。
+
+### 13.6 Zang 勘误表（A4 与 B6：原期望作废 —— 为什么 / 新期望）
+
+| 项 | 原期望（作废） | 为什么作废 | **新期望（已执行并实测）** |
+|---|---|---|---|
+| **A4** `{type:'error'}`（无 `message`） | 503（事件对象族） | 真 `ws.ErrorEvent` 的 `message` 是**原型 getter 字符串**，而 `{type:'error'}` 连 `message` 键都没有 ⇒ `safeRead(e,'message') === undefined` ⇒ 判据② 的 `typeof message === 'string'` **不成立**；判据① 要求 `instanceof globalThis.Event`（普通对象不满足）；判据③ 要求 **own** 描述符（无）⇒ 三判据皆不成立 ⇒ 落 `unclassified_non_pg_error`（不在 `TRANSIENT_NON_PG_REASONS`）⇒ **500** | **500 / `LEDGER_TRANSACTION_REQUIRED` / `unclassified_non_pg_error`，且 `narrowed2 == baseline`**（实测）；去掉合取后回流 503 ⇒ 该勘误即判负的承重点 |
+| **B6** `new Event('error')` | 「== baseline（500）」 | 它是**标准**事件对象：判据① = `instanceof globalThis.Event ∧ type === 'error'` **成立** ⇒ 即使判据② 加了 `message` 合取，它仍命中（**503**），不可能回到 baseline 的 500 | **仍 503（`LEDGER_TX_TIMEOUT` / `driver_connection_error`）= 接受项，不要求 == baseline**（实测）。⚠️ 附注：AC 括注「判据①∧② 命中」**不精确** —— 实测 global `Event` **无** `message`（`safeRead(e,'message') === undefined`）⇒ 命中来自**判据① 单独**，判据② **不**命中；结论（503）不变 |
+
+### 13.7 `tsc --noEmit` 读数
+
+```
+TSC_NOEMIT_EXIT=0          # 直接重定向 `> .p3w-artifacts/p3w-01-tsc-narrow2.log 2>&1; echo $?`（非管道，§5.7② 合规）
+```
+`p3w-01-tsc-narrow2.log` **0 行**输出（`wc -l` = 0，即无诊断信息）。**退出码 0 = 通过**。
+
+### 13.8 未验证清单（未测一律 `NOT_MEASURED` / `null`）
+
+| # | 项 | 状态 | 原因 / 口径 |
+|---|---|---|---|
+| 1 | **端到端**：连接层逼出真事件对象 ⇒ 穿路由层 ⇒ 观察 HTTP 503/500 | `NOT_MEASURED` | 本单 **DB 零写**、禁跑写库套件、不做在线故障注入；只在纯函数层（`classifyNonPgError`/`normalizeLedgerError`/`ledgerErrorDiagnostics`）取证 |
+| 2 | **「删除整个判据② ⇒ 真 `ws.ErrorEvent` 回流 500」的单点变异实测** | `NOT_MEASURED` | 本单变异体**只去掉 `message` 合取**（判据② 主体保留）⇒ 对真对象**无影响**（A1 在 mutant 列仍 503）。13.1/13.6 中「删本条 ⇒ 真对象回流 500」是**推理**，由两条**实测**支撑：`instanceof globalThis.Event === false`（判据① 不成立）+ `own_prop_names === []`（判据③ 不成立）；**直接变异体未造**（预算） |
+| 3 | 自有 getter **+ setter** 的 `message` 形态 | `NOT_MEASURED` | 本单未构造；判据③ 第一子句逐字未动 ⇒ 按构造行为不变 |
+| 4 | 源文件/`wsE` 之外其它依赖（非 `ws`）的误捕/漏捕面 | `NOT_MEASURED` | 未做全依赖扫描 |
+| 5 | 生产流量中 `{type:'error'}` / `{type:'error',payload}` 业务信封的出现频率 | `NOT_MEASURED` | 无生产流量数据；本单只证形态存在与归类变化 |
+| 6 | 毒 getter 在**路由/进程层**的表现 | `NOT_MEASURED` | 无 HTTP 层实证；只证分类路径不抛 |
+| 7 | 毒 `name` getter（`errName` 仍直读） | `NOT_MEASURED`（登记残余） | `errName` 按禁项**不动** ⇒ `name` getter 抛时兜底分支仍会抛；本单未构造（AC 只要求 `message`/`code`/`type`） |
+| 8 | §14 码闭集**指纹**（`LEDGER_ERROR_TABLE`/`BUCKETS` sha）在 narrowed2 下的重算 | `NOT_MEASURED`（口径替代） | 改用「diff hunk 包含关系」判定未触及 |
+| 9 | 「还原」的**端到端重跑**（把变异体写回工作树再跑一次绿） | `NOT_MEASURED` | 工作树被硬边界禁止写入 ⇒ 只做「独立副本 + 工作树 sha 未变 + 单行 diff」的等价论证 |
+| 10 | Unit H 报的 DB 指纹 / 迁移读数 | `NOT_MEASURED` | 本单 DB 零写、不连库 ⇒ 不读取、不比对 |
+
+### 13.9 探针缺陷自曝（§5.7④）
+
+1. **首跑编译期失败（未落盘 artifact、不计入 run）**：`npx ts-node scripts/p3w-01-narrow2-verify.ts` 抛 `TSError`（3 类：`safe<T>` 泛型收窄为 `boolean` 与 `'THREW'` 冲突；`safe()` 返回值 `PropertyDescriptor|'THREW'` 联合；print 段对 G 行误取 `.per_impl`），`PROBE_EXIT=1`。因是**编译期**失败，**没有任何 artifact 落盘** ⇒ 不存在「非零退出的 artifact 被误采信」的问题。修正后 run = `20260928T174943Z`（`PROBE_EXIT=0`）。
+2. **★ 同型缺陷重复**：print 段「对派生行误取 `.per_impl`」与 Unit H §11.1 第 1 条**同型**（那次的 `[G]` 打印段，这次是五组打印段）⇒ 说明该模式是**复发性**的，不是一次性手误。已在本节显式登记。
+3. **`RED.restore.restored_column_equals_narrowed2` 是硬编码 `true`（非实测）**：其字段注释写「由 `mutation_diff_line_count === 0` 支撑」—— **该注释错误**（实测 `mutation_diff_line_count = 1`，不是 0）。真正支撑「反向单行替换即还原」的只有三条间接证据：锚点唯一（hits=1）、单行 diff（=1）、工作树 sha before==after。**该字段应读作「论证」而非「实测」**（对应 13.8 #9 的 `NOT_MEASURED`）。这是本单的口径错误，**自曝不掩**。
+4. **`baseline` 无 `isEventObjectFamily`**：`git show 88783a2:` 中该函数**不存在**（Unit E 才引入；`grep` 实测 0 命中）。故 A4/B7 的「== baseline」语义是「== **无判据态**」，**不是**「== 判据② 裸态」；「判据② 裸态」的读数单独由 `fixed` 列给出（A4/B7 = 503），以免混淆。13.2 表已两列并列。
+5. **判负的覆盖面**：单点变异（去合取）只让 **A4/B7** 回流，**不能**让 B1–B5 回流（那需要恢复 Unit H 已删的判据③ 第二子句）⇒ 与 Unit H §11.4 同型：**单点变异 ≠ 完整回退**，两种口径**不合并陈述**。
+6. **外部事件（须登记）**：本单运行期间仓库 `HEAD` 由 `209e556` 推进到 **`0eda41a`**（含 `166836a`），系**其它会话**提交 Unit H 的 artifact + 本报告 + master-plan；本单**未** `git add/commit/push`。**工作树 `src/ledger-errors.ts` sha 在推进前后均为 `5a671354…`**（`narrowed2_sha_match = true`）⇒ 本单结论不受该推进影响。`p3x-*`（另一单的并行面）本单**零触碰**。
+7. **未与并行单交互**：未触碰 `backend-ts/scripts/p3x-*`、`backend-ts/.p3x-artifacts/**`、`docs/audit/p3-d20-rebuild-dryrun.md`；未 `pkill -f`/`killall`（本单未 kill 任何进程）；未起长驻 server；未 `execute_code`；未 `npm install`；未覆写 `p3w-00-*` 或 `_impl/` 既有副本（本单新增文件：`scripts/p3w-01-narrow2-verify.ts`、`.p3w-artifacts/p3w-01-narrow2-verify-20260928T174943Z.json`、`.p3w-artifacts/p3w-01-tsc-narrow2.log`、`.p3w-artifacts/_impl/mutated-clause2-narrow2-ledger-errors.ts`）。
+8. **本节的独立性有限（须声明）**：对拍夹具由我自行构造，`classifyNonPgError` / `normalizeLedgerError` 均是**被验证方本体**的直接调用（非重写）⇒ 能证「归类变化」，**不能**证「生产上一定会收到该形态」。
+
+**本节追加后**：`## ` 级标题共 **14** 节（0–13）。本报告追加后的 sha256 **由终局 `read_file` 复核后写入交付摘要**（不在本节内预填数值——预填未经复核实测的哈希即造假，§5.7⑩）。

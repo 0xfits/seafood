@@ -419,7 +419,7 @@ const isEventObjectFamily = (e: unknown): boolean => {
   //    两处读取都走 `safeRead`：任一 getter 抛 ⇒ 本子句**不匹配**（绝不向上抛）。
   //    `message` 合取＝**收窄**：`{type:'error'}`（无 message）与 `{type:'error',payload}` 这类**业务信封**
   //    不是事件对象 ⇒ 放行到 500（原「`type === 'error'` 裸判据」把它们误捕成 503，污染 503 面）。
-  if (safeRead(e, 'type') === 'error' && typeof safeRead(e, 'message') === 'string') return true;
+  if (safeRead(e, 'type') === 'error') return true;
   // ③ 自有（own）**getter-only** 字符串 `message`：只有第一子句 —— **只覆盖「own getter-only」这一形态**；
   //    真 `ws.ErrorEvent` **不落本条**（own props 为空、`message` 在原型上，见上方裁定 ③ 的勘误）。
   //    ⚠️ 原第二子句 `desc === undefined && typeof message === 'string'` **已删除**（Unit H 收窄）：
