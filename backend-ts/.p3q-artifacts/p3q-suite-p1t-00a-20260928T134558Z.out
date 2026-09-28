@@ -1,0 +1,95 @@
+{
+ "file": "/Users/kevin/bistro/seafood/backend-ts/.p1t-artifacts/p1t-00-bind-protocol-guard-20260928T134559Z.json",
+ "run": "20260928T134559Z",
+ "uid_window_base": 955071,
+ "uid_window_source": "auto-scan",
+ "assertions_failed": [],
+ "main_reads": {
+  "case1": {
+   "rejected": true,
+   "state": "LD016",
+   "reason": "REFERRAL_BIND_WOULD_STALE_DEPTH",
+   "reason_is_new_guard": true,
+   "code_is_borrowed_ld016": true,
+   "ts_code": "LEDGER_AMOUNT_INVALID",
+   "ts_status": 400,
+   "raw_path_rejected_too": true,
+   "rows_landed_for_B": {
+    "n": "0"
+   },
+   "depth_of_A": {
+    "depth": "1"
+   },
+   "depth_of_B": null
+  },
+  "case2": {
+   "both_ok": true,
+   "depth_M": {
+    "depth": "1"
+   },
+   "depth_L": {
+    "depth": "2"
+   },
+   "expected": {
+    "depth_M": "1",
+    "depth_L": "2"
+   }
+  },
+  "case3": {
+   "rejected": true,
+   "state": "LD016",
+   "reason": "REFERRAL_CYCLE_REJECTED",
+   "reason_is_cycle_not_new_guard": true,
+   "ts_code": "LEDGER_AMOUNT_INVALID",
+   "ts_status": 400,
+   "check_order_note": "C=Y 同时「已有下级(X)」且「成环」⇒ reason 仍是 REFERRAL_CYCLE_REJECTED ⇒ 环检查在 ④ 之前（顺序未被改动）"
+  },
+  "case4": {
+   "global": {
+    "cycles": "0",
+    "bad_depth": "0"
+   },
+   "per_row_for_this_run": [
+    {
+     "start": "955071",
+     "expected_depth": "1",
+     "actual_depth": "1"
+    },
+    {
+     "start": "955074",
+     "expected_depth": "2",
+     "actual_depth": "2"
+    },
+    {
+     "start": "955075",
+     "expected_depth": "1",
+     "actual_depth": "1"
+    },
+    {
+     "start": "955077",
+     "expected_depth": "1",
+     "actual_depth": "1"
+    }
+   ],
+   "expected": {
+    "cycles": "0",
+    "bad_depth": "0"
+   },
+   "note": "全局（含既有历史行）cycles=0 且 bad_depth=0 ⇒ 新守卫与既有行相容、未引入追溯破坏"
+  },
+  "bypass_selfproof": {
+   "inserted_rowcount": 2,
+   "bad_depth": "1",
+   "rolled_back": true
+  },
+  "trigger_enablement": {
+   "total": 43,
+   "enabled": 43,
+   "anomalies": [],
+   "post_total": 43,
+   "post_enabled": 43,
+   "post_anomalies": []
+  }
+ },
+ "ok": true
+}

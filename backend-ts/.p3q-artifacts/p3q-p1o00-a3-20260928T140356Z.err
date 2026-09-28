@@ -1,0 +1,14 @@
+/Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1379
+ connect",o),this._clients=this._clients.filter(u=>u!==t),s&&(o.message="Connect\
+                                                                       ^
+TypeError: Cannot set property message of #<ErrorEvent> which has only a getter
+    at _n._connectionCallback (/Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1379:72)
+    at _n._handleErrorWhileConnecting (/Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1285:38)
+    at _n._handleErrorEvent (/Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1286:33)
+    at cn.emit (/Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:395:63)
+    at x.reportStreamError (/Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1196:46)
+    at x.emit (/Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:395:63)
+    at WebSocket.<anonymous> (/Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:983:42)
+    at callListener (/Users/kevin/bistro/seafood/backend-ts/node_modules/ws/lib/event-target.js:290:14)
+    at WebSocket.onError (/Users/kevin/bistro/seafood/backend-ts/node_modules/ws/lib/event-target.js:230:9)
+    at WebSocket.emit (node:events:517:28)

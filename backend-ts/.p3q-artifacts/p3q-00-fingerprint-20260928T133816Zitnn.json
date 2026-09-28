@@ -1,0 +1,991 @@
+{
+  "run": "20260928T133816Zitnn",
+  "ts_utc": "2026-09-28T13:38:16.793Z",
+  "host_readonly": true,
+  "db_version": "PostgreSQL 18.6 (6569466) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit",
+  "schema_migration_versions": [
+    "0017",
+    "0016",
+    "0015",
+    "0014",
+    "0013",
+    "0012",
+    "0011",
+    "0010",
+    "0009",
+    "0008",
+    "0007",
+    "0006",
+    "0005",
+    "0004",
+    "0003",
+    "0002",
+    "0001"
+  ],
+  "registry_rows": 17,
+  "schema_version_max": "0017",
+  "base_tables": [
+    "account",
+    "admin_permission",
+    "admin_role",
+    "admin_role_permission",
+    "admin_user_role",
+    "app_config",
+    "commission_policy",
+    "currency",
+    "currency_status_log",
+    "job",
+    "job_application",
+    "job_submission",
+    "ledger_entry",
+    "ledger_owner",
+    "listing",
+    "listing_order",
+    "market_order",
+    "market_trade",
+    "referral",
+    "schema_migration",
+    "users"
+  ],
+  "views": [
+    "candle_view"
+  ],
+  "base_table_count": 21,
+  "view_count": 1,
+  "functions": {
+    "ledger_post_event": {
+      "found": true,
+      "length_chars": 45598,
+      "octet_length": 51429,
+      "md5_prosrc": "d94dd902697dfe60aba409d808c6d63a",
+      "md5_functiondef": "e784a58681ae971bcd97f3043f293002"
+    },
+    "market_post_event": {
+      "found": true,
+      "length_chars": 28848,
+      "octet_length": 30194,
+      "md5_prosrc": "74841611252726e1cc0f57cb46ea6c6d",
+      "md5_functiondef": "6e74cf49089e71012c4a688792b861e8"
+    },
+    "listing_post_event": {
+      "found": true,
+      "length_chars": 16541,
+      "octet_length": 17858,
+      "md5_prosrc": "0e187c20b56d45202d83978c8a02b31d",
+      "md5_functiondef": "4ba4624c414db37ec188c6d9355f15b1"
+    },
+    "job_post_event": {
+      "found": true,
+      "length_chars": 12567,
+      "octet_length": 13594,
+      "md5_prosrc": "0cedbb9ea60dcbda28e3ef3dafdd119b",
+      "md5_functiondef": "584966956afdf1a1d4d12da5159d7c36"
+    }
+  },
+  "columns": {
+    "account": [
+      {
+        "c": "uid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "cid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "balance",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "frozen",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "version",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "time_created",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      },
+      {
+        "c": "time_updated",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      }
+    ],
+    "admin_permission": [
+      {
+        "c": "permission_key",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "name",
+        "t": "text",
+        "n": "YES"
+      }
+    ],
+    "admin_role": [
+      {
+        "c": "role_key",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "name",
+        "t": "text",
+        "n": "YES"
+      },
+      {
+        "c": "time_created",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      }
+    ],
+    "admin_role_permission": [
+      {
+        "c": "role_key",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "permission_key",
+        "t": "text",
+        "n": "NO"
+      }
+    ],
+    "admin_user_role": [
+      {
+        "c": "uid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "role_key",
+        "t": "text",
+        "n": "NO"
+      }
+    ],
+    "app_config": [
+      {
+        "c": "key",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "value",
+        "t": "jsonb",
+        "n": "NO"
+      },
+      {
+        "c": "updated_by",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "time_updated",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      }
+    ],
+    "candle_view": [
+      {
+        "c": "base_cid",
+        "t": "bigint",
+        "n": "YES"
+      },
+      {
+        "c": "quote_cid",
+        "t": "bigint",
+        "n": "YES"
+      },
+      {
+        "c": "bucket_start",
+        "t": "timestamp with time zone",
+        "n": "YES"
+      },
+      {
+        "c": "open",
+        "t": "bigint",
+        "n": "YES"
+      },
+      {
+        "c": "high",
+        "t": "bigint",
+        "n": "YES"
+      },
+      {
+        "c": "low",
+        "t": "bigint",
+        "n": "YES"
+      },
+      {
+        "c": "close",
+        "t": "bigint",
+        "n": "YES"
+      },
+      {
+        "c": "volume",
+        "t": "numeric",
+        "n": "YES"
+      }
+    ],
+    "commission_policy": [
+      {
+        "c": "policy_id",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "fee_rate_bp",
+        "t": "integer",
+        "n": "NO"
+      },
+      {
+        "c": "levels",
+        "t": "smallint",
+        "n": "NO"
+      },
+      {
+        "c": "weights_bp",
+        "t": "ARRAY",
+        "n": "NO"
+      },
+      {
+        "c": "effective_from",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      },
+      {
+        "c": "created_by",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "time_created",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      }
+    ],
+    "currency": [
+      {
+        "c": "cid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "symbol",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "name",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "icon_url",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "owner_uid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "decimals",
+        "t": "smallint",
+        "n": "NO"
+      },
+      {
+        "c": "total_supply",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "supply_cap",
+        "t": "bigint",
+        "n": "YES"
+      },
+      {
+        "c": "status",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "deposit_amount",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "deposit_cid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "listed_at",
+        "t": "timestamp with time zone",
+        "n": "YES"
+      },
+      {
+        "c": "time_created",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      },
+      {
+        "c": "time_updated",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      }
+    ],
+    "currency_status_log": [
+      {
+        "c": "log_id",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "cid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "from_status",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "to_status",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "actor_uid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "memo",
+        "t": "text",
+        "n": "YES"
+      },
+      {
+        "c": "time_created",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      }
+    ],
+    "job": [
+      {
+        "c": "job_id",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "employer_uid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "worker_uid",
+        "t": "bigint",
+        "n": "YES"
+      },
+      {
+        "c": "cid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "reward",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "title",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "description",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "status",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "create_key",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "escrow_txid",
+        "t": "bigint",
+        "n": "YES"
+      },
+      {
+        "c": "settle_txid",
+        "t": "bigint",
+        "n": "YES"
+      },
+      {
+        "c": "ledger_event_keys",
+        "t": "ARRAY",
+        "n": "NO"
+      },
+      {
+        "c": "time_created",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      },
+      {
+        "c": "time_updated",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      }
+    ],
+    "job_application": [
+      {
+        "c": "application_id",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "job_id",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "worker_uid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "status",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "create_key",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "time_created",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      },
+      {
+        "c": "time_updated",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      }
+    ],
+    "job_submission": [
+      {
+        "c": "submission_id",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "job_id",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "worker_uid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "deliverable",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "review_status",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "reviewed_by",
+        "t": "bigint",
+        "n": "YES"
+      },
+      {
+        "c": "reviewed_at",
+        "t": "timestamp with time zone",
+        "n": "YES"
+      },
+      {
+        "c": "review_memo",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "create_key",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "time_created",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      }
+    ],
+    "ledger_entry": [
+      {
+        "c": "txid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "uid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "cid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "delta",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "frozen_delta",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "balance_after",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "frozen_after",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "kind",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "ref_type",
+        "t": "text",
+        "n": "YES"
+      },
+      {
+        "c": "ref_id",
+        "t": "bigint",
+        "n": "YES"
+      },
+      {
+        "c": "idempotency_key",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "request_fingerprint",
+        "t": "text",
+        "n": "YES"
+      },
+      {
+        "c": "reversal_of_txid",
+        "t": "bigint",
+        "n": "YES"
+      },
+      {
+        "c": "memo",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "time_created",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      },
+      {
+        "c": "event_root_key",
+        "t": "text",
+        "n": "YES"
+      }
+    ],
+    "ledger_owner": [
+      {
+        "c": "uid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "owner_type",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "name",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "time_created",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      }
+    ],
+    "listing": [
+      {
+        "c": "listing_id",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "seller_uid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "cid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "price",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "stock",
+        "t": "integer",
+        "n": "NO"
+      },
+      {
+        "c": "title",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "description",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "media_urls",
+        "t": "ARRAY",
+        "n": "NO"
+      },
+      {
+        "c": "status",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "create_key",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "ledger_event_keys",
+        "t": "ARRAY",
+        "n": "NO"
+      },
+      {
+        "c": "time_created",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      },
+      {
+        "c": "time_updated",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      }
+    ],
+    "listing_order": [
+      {
+        "c": "order_id",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "listing_id",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "buyer_uid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "seller_uid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "cid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "price",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "quantity",
+        "t": "integer",
+        "n": "NO"
+      },
+      {
+        "c": "status",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "create_key",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "pay_txid",
+        "t": "bigint",
+        "n": "YES"
+      },
+      {
+        "c": "refund_txid",
+        "t": "bigint",
+        "n": "YES"
+      },
+      {
+        "c": "ledger_event_keys",
+        "t": "ARRAY",
+        "n": "NO"
+      },
+      {
+        "c": "time_created",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      },
+      {
+        "c": "time_updated",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      }
+    ],
+    "market_order": [
+      {
+        "c": "order_id",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "owner_uid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "side",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "base_cid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "quote_cid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "price",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "amount",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "amount_filled",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "status",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "create_key",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "ledger_event_keys",
+        "t": "ARRAY",
+        "n": "NO"
+      },
+      {
+        "c": "time_created",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      },
+      {
+        "c": "time_updated",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      }
+    ],
+    "market_trade": [
+      {
+        "c": "trade_id",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "base_cid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "quote_cid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "price",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "amount",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "buy_order_id",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "sell_order_id",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "taker_uid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "fee",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "time_created",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      }
+    ],
+    "referral": [
+      {
+        "c": "child_uid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "parent_uid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "depth",
+        "t": "smallint",
+        "n": "NO"
+      },
+      {
+        "c": "bound_at",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      }
+    ],
+    "schema_migration": [
+      {
+        "c": "id",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "version",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "name",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "checksum",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "applied_at",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      }
+    ],
+    "users": [
+      {
+        "c": "uid",
+        "t": "bigint",
+        "n": "NO"
+      },
+      {
+        "c": "evm",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "bio",
+        "t": "text",
+        "n": "NO"
+      },
+      {
+        "c": "is_admin",
+        "t": "boolean",
+        "n": "NO"
+      },
+      {
+        "c": "time_reg",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      },
+      {
+        "c": "time_login_last",
+        "t": "timestamp with time zone",
+        "n": "NO"
+      }
+    ]
+  }
+}

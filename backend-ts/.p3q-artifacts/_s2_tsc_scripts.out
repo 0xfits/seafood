@@ -1,0 +1,19 @@
+scripts/p1f-02-f2-malformed.ts(171,23): error TS2352: Conversion of type '{ readonly LEDGER_INSUFFICIENT_BALANCE: { readonly status: 409; readonly message: "可用余额不足"; }; readonly LEDGER_INSUFFICIENT_FROZEN: { readonly status: 409; readonly message: "冻结余额不足"; }; ... 30 more ...; readonly LEDGER_RECONCILE_MISMATCH: { ...; }; }' to type 'Record<string, { status: number; }>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Property 'LEDGER_RECONCILE_MISMATCH' is incompatible with index signature.
+    Type '{ readonly status: null; readonly message: ""; }' is not comparable to type '{ status: number; }'.
+      Types of property 'status' are incompatible.
+        Type 'null' is not comparable to type 'number'.
+scripts/p2x-00-idempotency-replay-order.ts(106,70): error TS2339: Property 'uid_source' does not exist on type '{ ok: true; } & UidWindow'.
+scripts/p3l-00-post.ts(62,81): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+scripts/p3q-01-d20-residual.ts(210,29): error TS18046: 'out.admin_role_keys' is of type 'unknown'.
+scripts/p3q-01-d20-residual.ts(211,34): error TS18046: 'out.admin_user_role_keys' is of type 'unknown'.
+scripts/p3q-01-d20-residual.ts(214,39): error TS18046: 'out.currency_status_hist' is of type 'unknown'.
+scripts/p3q-01-d20-residual.ts(215,32): error TS18046: 'out.currency_by_cid' is of type 'unknown'.
+scripts/p3q-01-d20-residual.ts(216,40): error TS18046: 'out.commission_policy_ids' is of type 'unknown'.
+scripts/p3s1-00-db-state.ts(30,21): error TS18046: 'out.tables' is of type 'unknown'.
+scripts/qa-p1b-01-setup.ts(80,5): error TS18046: 'lat.tx_begin_commit_ms' is of type 'unknown'.
+scripts/qa-p1e-01-concurrency.ts(97,47): error TS2322: Type 'bigint' is not assignable to type 'string | number'.
+scripts/qa-p1e-01-concurrency.ts(160,44): error TS2322: Type 'bigint' is not assignable to type 'string | number'.
+scripts/qa-p1e-01-concurrency.ts(160,56): error TS2322: Type 'bigint' is not assignable to type 'string | number'.
+scripts/qa-p1e-01-concurrency.ts(160,68): error TS2322: Type 'bigint' is not assignable to type 'string | number'.
+scripts/qa-p1e-05-neon-ab.ts(15,10): error TS2724: '"./qa-p1e-lib"' has no exported member named 'accountOf'. Did you mean 'accountsOf'?

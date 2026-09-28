@@ -1,0 +1,76 @@
+RUN=20260928T134131Zes22
+## needle_scan
+currency.name ~ 'neng' => 1
+currency.symbol ~ 'neng' => 1
+job.create_key ~ 'neng' => 90
+job.description ~ 'neng' => 15
+job.title ~ 'neng' => 15
+job_application.create_key ~ 'neng' => 30
+job_submission.create_key ~ 'neng' => 10
+job_submission.deliverable ~ 'neng' => 10
+ledger_entry.event_root_key ~ 'neng' => 110
+ledger_entry.idempotency_key ~ 'neng' => 110
+ledger_entry.memo ~ 'neng' => 146
+ledger_entry.request_fingerprint ~ 'neng' => 15
+listing.create_key ~ 'neng' => 23
+listing.title ~ 'neng' => 23
+listing_order.create_key ~ 'neng' => 15
+market_order.create_key ~ 'neng' => 42
+job.create_key ~ 'cli:' => 110
+job_application.create_key ~ 'cli:' => 32
+job_submission.create_key ~ 'cli:' => 10
+ledger_entry.event_root_key ~ 'cli:' => 136
+ledger_entry.idempotency_key ~ 'cli:' => 136
+ledger_entry.request_fingerprint ~ 'cli:' => 15
+listing.create_key ~ 'cli:' => 62
+listing_order.create_key ~ 'cli:' => 21
+market_order.create_key ~ 'cli:' => 68
+ledger_entry.event_root_key ~ 'ops:' => 1068
+ledger_entry.idempotency_key ~ 'ops:' => 1075
+## ledger_owner_rows
+{"uid":"-1","owner_type":"platform","name":"手续费归集账户"}
+{"uid":"-2","owner_type":"platform","name":"佣金池"}
+{"uid":"-3","owner_type":"platform","name":"罚没账户"}
+{"uid":"0","owner_type":"platform","name":"平台主体"}
+## users_window_rows (16)
+{"uid":"990301","evm":"0x67efbbfe1bc5cec177159333d371644554cae85b","is_admin":false}
+{"uid":"990302","evm":"0xf8726bb9b3ced25234094414ffac47d0e393bfcb","is_admin":false}
+{"uid":"990303","evm":"0x4e20edc20c115c8c7990cffa6fba2db41aebf3e6","is_admin":false}
+{"uid":"990304","evm":"0xa2602f2cb890dd770f7daa64b33bd2ca3148e23e","is_admin":false}
+{"uid":"990401","evm":"0x9904010000000000000000000000000000000000","is_admin":false}
+{"uid":"990402","evm":"0x9904020000000000000000000000000000000000","is_admin":false}
+{"uid":"990403","evm":"0x9904030000000000000000000000000000000000","is_admin":false}
+{"uid":"990404","evm":"0x9904040000000000000000000000000000000000","is_admin":false}
+{"uid":"990501","evm":"0xe71ad13eacf31b192bfa0e61ce9bea7bd3da802e","is_admin":false}
+{"uid":"990502","evm":"0x6884d1cab01acdae95086f4c0d82cc4eb64758ce","is_admin":false}
+{"uid":"990503","evm":"0xe3c86a0256f2f01b6c2ef2b410e8dcb8d193bbc2","is_admin":false}
+{"uid":"990504","evm":"0xcc52ff5e7e04a07dc8fd8820722fbe15483dfbe1","is_admin":false}
+{"uid":"990601","evm":"0x0000000000000000000000000000000000990601","is_admin":false}
+{"uid":"990602","evm":"0x0000000000000000000000000000000000990602","is_admin":false}
+{"uid":"990603","evm":"0x0000000000000000000000000000000000990603","is_admin":false}
+{"uid":"990604","evm":"0x0000000000000000000000000000000000990604","is_admin":false}
+## account_window_rows (20)
+{"uid":"990301","cid":"1","balance":"200","frozen":"0"}
+{"uid":"990302","cid":"1","balance":"1208","frozen":"0"}
+{"uid":"990303","cid":"1","balance":"100","frozen":"0"}
+{"uid":"990401","cid":"1","balance":"17","frozen":"0"}
+{"uid":"990402","cid":"1","balance":"44","frozen":"0"}
+{"uid":"990404","cid":"1","balance":"59","frozen":"0"}
+{"uid":"990501","cid":"1","balance":"446","frozen":"60"}
+{"uid":"990501","cid":"170","balance":"29","frozen":"0"}
+{"uid":"990502","cid":"1","balance":"290","frozen":"0"}
+{"uid":"990502","cid":"170","balance":"171","frozen":"0"}
+{"uid":"990503","cid":"1","balance":"160","frozen":"40"}
+{"uid":"990503","cid":"170","balance":"196","frozen":"4"}
+{"uid":"990504","cid":"1","balance":"40","frozen":"40"}
+{"uid":"990601","cid":"1","balance":"288","frozen":"240"}
+{"uid":"990601","cid":"170","balance":"27","frozen":"0"}
+{"uid":"990602","cid":"1","balance":"309","frozen":"0"}
+{"uid":"990602","cid":"170","balance":"39","frozen":"30"}
+{"uid":"990603","cid":"1","balance":"340","frozen":"220"}
+{"uid":"990603","cid":"170","balance":"4","frozen":"0"}
+{"uid":"990604","cid":"1","balance":"150","frozen":"50"}
+## currency_window_owners (0)
+artifact_json=/Users/kevin/bistro/seafood/backend-ts/.p3q-artifacts/p3q-02-ns-scan-20260928T134131Zes22.json
+artifact_txt=/Users/kevin/bistro/seafood/backend-ts/.p3q-artifacts/p3q-02-ns-scan-20260928T134131Zes22.txt
+--- EXIT_OK ---

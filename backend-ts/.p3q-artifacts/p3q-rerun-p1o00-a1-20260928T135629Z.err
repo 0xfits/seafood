@@ -1,0 +1,5 @@
+P1O-00 FAILED: Error: Client network socket disconnected before secure TLS connection was established
+    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async raw (/Users/kevin/bistro/seafood/backend-ts/scripts/p1f-lib.ts:29:4)
+    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p1o-00-escape-sweep.ts:348:23)

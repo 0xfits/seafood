@@ -1,0 +1,156 @@
+name                              sqlstate  db_code                     bucket       js_bucket    status  rt  froz ext sides retry benign
+LEDGER_INSUFFICIENT_BALANCE       LD001     LEDGER_INSUFFICIENT_BALANCE integrity    integrity    409      ok  ok   -    ok    ok
+LEDGER_INSUFFICIENT_FROZEN        LD002     LEDGER_INSUFFICIENT_FROZEN  integrity    integrity    409      ok  ok   -    ok    ok
+LEDGER_IDEMPOTENCY_REPLAY         LD006     LEDGER_IDEMPOTENCY_REPLAY   input        input        200      ok   -   -    ok    ok  benign(未校验)
+LEDGER_IDEMPOTENCY_CONFLICT       LD003     LEDGER_IDEMPOTENCY_CONFLICT integrity    integrity    409      ok  ok   -    ok    ok
+LEDGER_IDEMPOTENCY_KEY_REQUIRED   LD004     LEDGER_IDEMPOTENCY_KEY_REQUIREDinput        input        400      ok  ok   -    ok    ok
+LEDGER_IDEMPOTENCY_KEY_INVALID    LD005     LEDGER_IDEMPOTENCY_KEY_INVALIDinput        input        400      ok  ok   -    ok    ok
+LEDGER_CURRENCY_NOT_FOUND         LD007     LEDGER_CURRENCY_NOT_FOUND   integrity    integrity    404      ok  ok   -    ok    ok
+LEDGER_CURRENCY_NOT_LISTED        LD008     LEDGER_CURRENCY_NOT_LISTED  integrity    integrity    409      ok  ok   -    ok    ok
+LEDGER_CURRENCY_FROZEN            LD009     LEDGER_CURRENCY_FROZEN      integrity    integrity    423      ok   -   ok   ok    ok
+LEDGER_CURRENCY_DELISTED          LD010     LEDGER_CURRENCY_DELISTED    integrity    integrity    409      ok  ok   -    ok    ok
+LEDGER_CURRENCY_INVALID_TRANSITIONLD011     LEDGER_CURRENCY_INVALID_TRANSITIONintegrity    integrity    409      ok  ok   -    ok    ok
+LEDGER_CURRENCY_SYMBOL_TAKEN      LD033     LEDGER_CURRENCY_SYMBOL_TAKENintegrity    integrity    409      ok  ok   -    ok    ok
+LEDGER_CURRENCY_MISMATCH          LD012     LEDGER_CURRENCY_MISMATCH    input        input        400      ok  ok   -    ok    ok
+LEDGER_SUPPLY_CAP_EXCEEDED        LD013     LEDGER_SUPPLY_CAP_EXCEEDED  integrity    integrity    409      ok  ok   -    ok    ok
+LEDGER_UNAUTHORIZED_MINT          LD014     LEDGER_UNAUTHORIZED_MINT    input        input        403      ok   -   ok   ok    ok
+LEDGER_HOLD_NOT_ALLOWED           LD015     LEDGER_HOLD_NOT_ALLOWED     input        input        403      ok   -   ok   ok    ok
+LEDGER_AMOUNT_INVALID             LD016     LEDGER_AMOUNT_INVALID       input        input        400      ok  ok   -    ok    ok
+LEDGER_AMOUNT_NOT_POSITIVE        LD017     LEDGER_AMOUNT_NOT_POSITIVE  input        input        400      ok  ok   -    ok    ok
+LEDGER_DECIMALS_OVERFLOW          LD018     LEDGER_DECIMALS_OVERFLOW    input        input        400      ok  ok   -    ok    ok
+LEDGER_SELF_TRANSFER              LD019     LEDGER_SELF_TRANSFER        input        input        400      ok  ok   -    ok    ok
+LEDGER_ACCOUNT_NOT_FOUND          LD020     LEDGER_ACCOUNT_NOT_FOUND    integrity    integrity    404      ok  ok   -    ok    ok
+LEDGER_RESERVED_UID               LD021     LEDGER_RESERVED_UID         input        input        400      ok  ok   -    ok    ok
+LEDGER_REF_NOT_FOUND              LD022     LEDGER_REF_NOT_FOUND        integrity    integrity    404      ok  ok   -    ok    ok
+LEDGER_UNKNOWN_KIND               LD023     LEDGER_UNKNOWN_KIND         input        input        400      ok  ok   -    ok    ok
+LEDGER_TRANSACTION_REQUIRED       LD024     LEDGER_TRANSACTION_REQUIRED defect       defect       500      ok  ok   -    ok    ok
+LEDGER_LOCK_TIMEOUT               LD025     LEDGER_LOCK_TIMEOUT         retryable    retryable    503      ok  ok   -    ok    ok
+LEDGER_TX_TIMEOUT                 LD026     LEDGER_TX_TIMEOUT           retryable    retryable    503      ok  ok   -    ok    ok
+LEDGER_DEADLOCK_RETRY_EXHAUSTED   LD027     LEDGER_DEADLOCK_RETRY_EXHAUSTEDretryable    retryable    503      ok  ok   -    ok    ok
+LEDGER_NEGATIVE_BALANCE_GUARD     LD028     LEDGER_NEGATIVE_BALANCE_GUARDdefect       defect       500      ok  ok   -    ok    ok
+LEDGER_APPEND_ONLY_VIOLATION      LD029     LEDGER_APPEND_ONLY_VIOLATIONdefect       defect       500      ok  ok   -    ok    ok
+LEDGER_ACCOUNT_GUARD_VIOLATION    LD030     LEDGER_ACCOUNT_GUARD_VIOLATIONdefect       defect       500      ok  ok   -    ok    ok
+LEDGER_FEE_RATE_INVALID           LD031     LEDGER_FEE_RATE_INVALID     defect       defect       500      ok  ok   -    ok    ok
+LEDGER_RECONCILE_MISMATCH         LD032     LEDGER_RECONCILE_MISMATCH   defect       defect       null     ok   -   ok   ok    ok
+
+--- 硬判据 ---
+{
+ "run": "MULB34YY",
+ "phase": "after",
+ "artifact": "/Users/kevin/bistro/seafood/backend-ts/.p2c-artifacts/p2c-00-roundtrip-after-MULB34YY.json",
+ "closed_set_size_ts": 33,
+ "closed_set_size_db": 33,
+ "roundtrip_mismatches": 0,
+ "unknown_codes": 0,
+ "bucket_violations": 0,
+ "null_status_defect": 0,
+ "benign_outcomes": {
+  "count": 1,
+  "excluded_from_bucket_class_validation": 1,
+  "codes": [
+   "LEDGER_IDEMPOTENCY_REPLAY"
+  ],
+  "whitelist_source": "src/ledger-errors.ts#LEDGER_BENIGN_CODES"
+ },
+ "stale_unclassified_reason": [],
+ "ts_reverse_map_violations": [],
+ "ts_bucket_asset": "present",
+ "ts_bucket_asset_mismatch": [],
+ "ts_benign_asset": "present",
+ "ts_benign_asset_mismatch": [],
+ "httpStatusOf_probe": {
+  "LD032": 500,
+  "LD031": 500,
+  "LD033": 409,
+  "LD006:LEDGER_IDEMPOTENCY_REPLAY": [
+   {
+    "code": "LEDGER_IDEMPOTENCY_REPLAY",
+    "httpStatus": 200
+   }
+  ]
+ },
+ "bucket_map_extension_used": [
+  {
+   "code": "LEDGER_CURRENCY_FROZEN",
+   "status": 423,
+   "bucket": "integrity",
+   "slot": "integrity"
+  },
+  {
+   "code": "LEDGER_UNAUTHORIZED_MINT",
+   "status": 403,
+   "bucket": "input",
+   "slot": "input"
+  },
+  {
+   "code": "LEDGER_HOLD_NOT_ALLOWED",
+   "status": 403,
+   "bucket": "input",
+   "slot": "input"
+  },
+  {
+   "code": "LEDGER_RECONCILE_MISMATCH",
+   "status": null,
+   "bucket": "defect",
+   "slot": "defect"
+  }
+ ]
+}
+
+--- 物理取证 ledger_error_for_sqlstate(LD031|LD032|LD033) ---
+{
+ "LD031": {
+  "code": "LEDGER_FEE_RATE_INVALID",
+  "bucket": "defect",
+  "reason": "fee_rate_invalid",
+  "pg_code": "LD031",
+  "retryable": false,
+  "constraint": null
+ },
+ "LD032": {
+  "code": "LEDGER_RECONCILE_MISMATCH",
+  "bucket": "defect",
+  "reason": "reconcile_mismatch",
+  "pg_code": "LD032",
+  "retryable": false,
+  "constraint": null
+ },
+ "LD033": {
+  "code": "LEDGER_CURRENCY_SYMBOL_TAKEN",
+  "bucket": "integrity",
+  "reason": "currency_symbol_taken",
+  "pg_code": "LD033",
+  "retryable": false,
+  "constraint": null
+ }
+}
+
+--- TS 端到端（合成 LD0nn 错误对象 ⇒ LedgerError）---
+{
+ "LD031": {
+  "code": "LEDGER_FEE_RATE_INVALID",
+  "status": 500,
+  "status_or_500": 500,
+  "details": {
+   "reason": "SYNTHETIC_PROBE"
+  }
+ },
+ "LD032": {
+  "code": "LEDGER_RECONCILE_MISMATCH",
+  "status": null,
+  "status_or_500": 500,
+  "details": {
+   "reason": "SYNTHETIC_PROBE"
+  }
+ },
+ "LD033": {
+  "code": "LEDGER_CURRENCY_SYMBOL_TAKEN",
+  "status": 409,
+  "status_or_500": 409,
+  "details": {
+   "reason": "SYNTHETIC_PROBE"
+  }
+ }
+}
+
+assertions_failed = []

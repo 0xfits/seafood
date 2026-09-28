@@ -1,0 +1,11 @@
+RUN=20260928T134530Z5cw5 PHASE=pre
+getSchemaVersion() [db.ts]        = "0017"
+getDbVersion() [db.ts]            = "PostgreSQL 18.6 (6569466) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit"
+search_path                       = "$user", public
+current_schema()                  = public
+SQL unqualified  schema_migration = 0017
+SQL public.      schema_migration = 0017
+tables named schema_migration     = [{"s":"public","t":"schema_migration"}]
+artifact_json=/Users/kevin/bistro/seafood/backend-ts/.p3q-artifacts/p3q-03-dl155-pre-20260928T134530Z5cw5.json
+artifact_txt=/Users/kevin/bistro/seafood/backend-ts/.p3q-artifacts/p3q-03-dl155-pre-20260928T134530Z5cw5.txt
+--- EXIT_OK ---

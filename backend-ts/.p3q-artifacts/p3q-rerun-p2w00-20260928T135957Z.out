@@ -1,0 +1,228 @@
+{
+ "file": "/Users/kevin/bistro/seafood/backend-ts/.p2w-artifacts/p2w-00-verify-20260928T135958Z1buc.json",
+ "txt": "/Users/kevin/bistro/seafood/backend-ts/.p2w-artifacts/p2w-00-verify-20260928T135958Z1buc.txt",
+ "run": "20260928T135958Z1buc",
+ "uid_window_base": 959251,
+ "symbol": "p1y7tsj5a",
+ "job_tag": "759015375",
+ "reds_count": 5,
+ "reds": [
+  "D4 丢一对佣金（Σ-中性）⇒ 仍报 LD032 + COMMISSION_SPLIT_SUM_MISMATCH :: null",
+  "D5 只入不出（commission_rows=0 且 pool_in>0）⇒ 仍报 LD032 :: null",
+  "D7 先落账后强制结算：非法事件仍报 LD032 :: {\"badPost\":null,\"after\":{\"ok\":true,\"err\":null}}",
+  "E4 判负对照：无守卫时裸 INSERT 退回 23505/referral_pk（= 修前形态） :: null",
+  "F3 判负对照：无守卫时陈旧 depth 被继承（50 ⇒ 51 = 修前形态） :: null"
+ ],
+ "key_readings": {
+  "fixture": {
+   "mint": {
+    "ok": true,
+    "replay": false,
+    "err": null
+   },
+   "hold_ctrl": {
+    "ok": true,
+    "replay": false,
+    "err": null
+   }
+  },
+  "A": {
+   "assertions": {
+    "contiguous_levels": true,
+    "within_cap": true,
+    "all_user_uids": true,
+    "no_duplicate_uid": false
+   },
+   "plan_err": {
+    "kind": "LedgerError",
+    "code": "LEDGER_RECONCILE_MISMATCH",
+    "httpStatus": 500,
+    "status": null,
+    "reason": "COMMISSION_CHAIN_ASSERTION_VIOLATED",
+    "details": {
+     "reason": "COMMISSION_CHAIN_ASSERTION_VIOLATED",
+     "failed_assertions": "no_duplicate_uid",
+     "failed_count": 1,
+     "chain_depth": 10,
+     "chain_truncated": true,
+     "within_cap": true,
+     "worker_uid": "959285",
+     "job_id": "7590153753",
+     "chain_nodes": "1:959286,2:959285,3:959286,4:959285,5:959286,6:959285,7:959286,8:959285,9:959286,10:959285",
+     "note": "referral graph invariants broken (cycle / platform uid / level gap) => attribution untrustworthy, refusing before ledger post"
+    }
+   },
+   "bypass_post": {
+    "ok": true,
+    "rows": 24,
+    "err": null
+   },
+   "bypass_worker_credit": "400"
+  },
+  "D": {
+   "d1_immediate_before_post": {
+    "entries": 24,
+    "commission_rows": 20,
+    "ok": true,
+    "rows": 24,
+    "err": null,
+    "tx_error": null
+   },
+   "d2_deferred_default": {
+    "entries": 24,
+    "ok": true,
+    "err": null,
+    "tx_error": null
+   },
+   "d3_tamper_drop_pair": {
+    "entries": 22,
+    "ok": true,
+    "err": null,
+    "tx_error": null
+   },
+   "d4_pool_in_no_out": {
+    "entries": 4,
+    "ok": true,
+    "err": null,
+    "tx_error": null
+   },
+   "d5_post_then_immediate": {
+    "okPost_ok": true,
+    "after_immediate": {
+     "ok": true,
+     "err": null
+    },
+    "badPost": {
+     "ok": true,
+     "err": null
+    },
+    "after_immediate2": {
+     "ok": true,
+     "err": null
+    },
+    "tx_error": null
+   },
+   "d6_boundary_immediate_tamper": {
+    "entries": 4,
+    "ok": true,
+    "err": null,
+    "tx_error": null
+   }
+  },
+  "E": {
+   "first_bind": {
+    "ok": true,
+    "err": null
+   },
+   "raw_rebind": {
+    "ok": false,
+    "err": {
+     "sqlstate": "LD003",
+     "message": "LEDGER_IDEMPOTENCY_CONFLICT",
+     "detail": "{\"path\": \"trg_referral_cycle_guard\", \"reason\": \"REFERRAL_ALREADY_BOUND\", \"child_uid\": \"959287\", \"bound_parent_uid\": \"959288\", \"requested_parent_uid\": \"959289\"}",
+     "reason": "REFERRAL_ALREADY_BOUND",
+     "constraint": null,
+     "raw_detail": {
+      "path": "trg_referral_cycle_guard",
+      "reason": "REFERRAL_ALREADY_BOUND",
+      "child_uid": "959287",
+      "bound_parent_uid": "959288",
+      "requested_parent_uid": "959289"
+     }
+    }
+   },
+   "fn_rebind": {
+    "ok": false,
+    "err": {
+     "sqlstate": "LD003",
+     "message": "LEDGER_IDEMPOTENCY_CONFLICT",
+     "detail": "{\"reason\": \"REFERRAL_ALREADY_BOUND\", \"child_uid\": \"959287\", \"bound_parent_uid\": \"959288\", \"requested_parent_uid\": \"959289\"}",
+     "reason": "REFERRAL_ALREADY_BOUND",
+     "constraint": null,
+     "raw_detail": {
+      "reason": "REFERRAL_ALREADY_BOUND",
+      "child_uid": "959287",
+      "bound_parent_uid": "959288",
+      "requested_parent_uid": "959289"
+     }
+    }
+   },
+   "tx_error": null
+  },
+  "F": {
+   "setup": {
+    "ok": true,
+    "err": null
+   },
+   "bind_to_stale": {
+    "ok": false,
+    "err": {
+     "sqlstate": "LD016",
+     "message": "LEDGER_AMOUNT_INVALID",
+     "detail": "{\"note\": \"parent stored depth must equal its true hop count; a stale depth would be inherited by the new edge\", \"reason\": \"REFERRAL_PARENT_DEPTH_INCONSISTENT\", \"child_uid\": \"959291\", \"parent_uid\": \"959290\", \"parent_true_depth\": \"1\", \"parent_stored_depth\": \"50\"}",
+     "reason": "REFERRAL_PARENT_DEPTH_INCONSISTENT",
+     "constraint": null,
+     "raw_detail": {
+      "note": "parent stored depth must equal its true hop count; a stale depth would be inherited by the new edge",
+      "reason": "REFERRAL_PARENT_DEPTH_INCONSISTENT",
+      "child_uid": "959291",
+      "parent_uid": "959290",
+      "parent_true_depth": "1",
+      "parent_stored_depth": "50"
+     }
+    }
+   },
+   "bind_to_consistent": {
+    "ok": true,
+    "err": null
+   },
+   "depth_after": "1",
+   "tx_error": null
+  },
+  "C": {
+   "replay": {
+    "plan": {
+     "job_id": "7590153752",
+     "fee": "5000",
+     "net": "95000",
+     "gross": "100000",
+     "pool": "5000",
+     "chain_depth": 2,
+     "chain_truncated": false,
+     "plan_source": "replayed_from_ledger",
+     "policy_reported": false,
+     "policy_id": "ledger_replay",
+     "fee_rate_bp": 0,
+     "M": 2,
+     "N": 2,
+     "layers": [
+      "1:959273:2500",
+      "2:959274:2500"
+     ],
+     "fee_credit_uid": "-2",
+     "no_referrer": false,
+     "zero_amount": false
+    },
+    "replay": true,
+    "plan_source": "replayed_from_ledger",
+    "event_entries": 8,
+    "event_assertions": {
+     "entry_count": 8,
+     "account_count": 5,
+     "sum_delta_frozen": "0",
+     "commission_rows": 4,
+     "sum_commission_credit": "5000",
+     "sum_x_equals_pool": true
+    }
+   },
+   "recompute": {
+    "fee": "1000",
+    "layers": [
+     "1:959273:600",
+     "2:959274:400"
+    ],
+    "policy_fee_rate_bp": 100
+   }
+  }
+ }
+}

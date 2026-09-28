@@ -249,7 +249,7 @@ export const getDbVersion = async (): Promise<string> => {
 
 export const getSchemaVersion = async (): Promise<string | null> => {
   const rows = await readQuery<{ version: string }>(
-    'SELECT version FROM schema_migration ORDER BY version DESC LIMIT 1',
+    'SELECT version FROM public.schema_migration ORDER BY version DESC LIMIT 1',
   );
   return rows[0]?.version ?? null;
 };
