@@ -1,0 +1,135 @@
+{
+  "run": "20260928T145121Zckl5",
+  "at": "2026-09-28T14:51:21.535Z",
+  "read_only": true,
+  "users": "583",
+  "account": "365",
+  "ledger_entry": "3201",
+  "referral": "293",
+  "currency": "114",
+  "commission_policy": "25",
+  "schema_migration": "17",
+  "cid1": {
+    "supply": "8400",
+    "sum_bal": "8400"
+  },
+  "p1o_currencies": [
+    {
+      "cid": "114",
+      "symbol": "P1PMUJIUD5J",
+      "owner": "948001",
+      "supply": "0"
+    },
+    {
+      "cid": "115",
+      "symbol": "P1PMUJJ2PHX",
+      "owner": "948001",
+      "supply": "0"
+    },
+    {
+      "cid": "123",
+      "symbol": "P1PMUJJBPT2",
+      "owner": "948001",
+      "supply": "0"
+    },
+    {
+      "cid": "132",
+      "symbol": "P1PMUJN9W9C",
+      "owner": "948001",
+      "supply": "0"
+    },
+    {
+      "cid": "140",
+      "symbol": "P1PMUJNTM9U",
+      "owner": "948001",
+      "supply": "0"
+    },
+    {
+      "cid": "141",
+      "symbol": "P1PMUJNXSI6",
+      "owner": "948001",
+      "supply": "0"
+    },
+    {
+      "cid": "151",
+      "symbol": "P1PMUJOJQXJ",
+      "owner": "948001",
+      "supply": "0"
+    },
+    {
+      "cid": "152",
+      "symbol": "P1PMUJOLUQJ",
+      "owner": "948001",
+      "supply": "0"
+    },
+    {
+      "cid": "160",
+      "symbol": "P1PMUJPEOEO",
+      "owner": "948001",
+      "supply": "0"
+    },
+    {
+      "cid": "178",
+      "symbol": "P1PMUJQM252",
+      "owner": "948001",
+      "supply": "0"
+    },
+    {
+      "cid": "263",
+      "symbol": "P1PMULB1UXA",
+      "owner": "948001",
+      "supply": "0"
+    },
+    {
+      "cid": "264",
+      "symbol": "P1PMULB9NR3",
+      "owner": "948001",
+      "supply": "0"
+    },
+    {
+      "cid": "267",
+      "symbol": "P1PMULBLGYB",
+      "owner": "948001",
+      "supply": "0"
+    },
+    {
+      "cid": "271",
+      "symbol": "P1PMULC8WT7",
+      "owner": "948001",
+      "supply": "0"
+    },
+    {
+      "cid": "274",
+      "symbol": "P1PMULCT7CG",
+      "owner": "948001",
+      "supply": "0"
+    },
+    {
+      "cid": "275",
+      "symbol": "P1PMULCZVYR",
+      "owner": "948001",
+      "supply": "0"
+    }
+  ],
+  "p1o_accounts": {
+    "n": "48"
+  },
+  "my_p3n_currencies": [
+    {
+      "cid": "272",
+      "symbol": "p3n196zl7ik",
+      "supply": "1000000"
+    },
+    {
+      "cid": "273",
+      "symbol": "p3n196zzjhp",
+      "supply": "1000000"
+    }
+  ],
+  "my_keys_ledger": {
+    "n": "26"
+  },
+  "users_my_windows": {
+    "n": "10"
+  }
+}

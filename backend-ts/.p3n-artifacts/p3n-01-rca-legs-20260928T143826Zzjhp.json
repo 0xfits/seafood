@@ -1,0 +1,1398 @@
+{
+  "run": "20260928T143826Zzjhp",
+  "name": "p3n-01-rca-legs",
+  "status": "DONE",
+  "stage": "t8-after-done",
+  "started_at": "2026-09-28T14:38:26.987Z",
+  "legs": {},
+  "notes": [],
+  "probe": "Neng 独立质检（p3-baseline-rca.md 复核）",
+  "updated_at": "2026-09-28T14:39:20.580Z",
+  "t8_before": {
+    "counts": {
+      "users": "578",
+      "account": "351",
+      "ledger_entry": "3188",
+      "referral": "290",
+      "currency": "111",
+      "commission_policy": "25",
+      "schema_migration": "17"
+    },
+    "count_errors": {},
+    "fn_fingerprints": [
+      {
+        "name": "job_post_event",
+        "len": "13594",
+        "md5": "0cedbb9ea60dcbda28e3ef3dafdd119b"
+      },
+      {
+        "name": "ledger_assert_commission_conservation",
+        "len": "2967",
+        "md5": "27ddc76b842594cb6ee8673c171e6526"
+      },
+      {
+        "name": "ledger_post_event",
+        "len": "51429",
+        "md5": "d94dd902697dfe60aba409d808c6d63a"
+      },
+      {
+        "name": "listing_post_event",
+        "len": "17858",
+        "md5": "0e187c20b56d45202d83978c8a02b31d"
+      },
+      {
+        "name": "market_post_event",
+        "len": "30194",
+        "md5": "74841611252726e1cc0f57cb46ea6c6d"
+      },
+      {
+        "name": "referral_cycle_guard",
+        "len": "6075",
+        "md5": "7bd5874f7145989a43567003048a9f04"
+      }
+    ],
+    "fn_fingerprints_error": null,
+    "triggers": [
+      {
+        "tbl": "account",
+        "tgname": "trg_account_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "admin_permission",
+        "tgname": "trg_admin_permission_key_immutable",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "admin_role",
+        "tgname": "trg_admin_role_key_immutable",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "admin_role_permission",
+        "tgname": "trg_admin_role_permission_key_immutable",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "admin_user_role",
+        "tgname": "trg_admin_user_role_key_immutable",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "app_config",
+        "tgname": "trg_app_config_key_immutable",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "app_config",
+        "tgname": "trg_app_config_touch_updated",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "commission_policy",
+        "tgname": "trg_commission_policy_append_only",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "commission_policy",
+        "tgname": "trg_commission_policy_weights_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "currency_status_log",
+        "tgname": "trg_currency_status_log_append_only",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job",
+        "tgname": "trg_job_core_immutable_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job",
+        "tgname": "trg_job_ledger_ref_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job",
+        "tgname": "trg_job_no_delete",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job",
+        "tgname": "trg_job_status_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job",
+        "tgname": "trg_job_touch_time_updated",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job_application",
+        "tgname": "trg_job_application_create_key_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job_application",
+        "tgname": "trg_job_application_no_delete",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job_application",
+        "tgname": "trg_job_application_status_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job_application",
+        "tgname": "trg_job_application_touch_time_updated",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job_submission",
+        "tgname": "trg_job_submission_immutable_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job_submission",
+        "tgname": "trg_job_submission_no_delete",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "ledger_entry",
+        "tgname": "trg_ledger_entry_append_only",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "ledger_entry",
+        "tgname": "trg_ledger_entry_commission_conservation",
+        "tgenabled": "O",
+        "deferrable": "true",
+        "initdeferred": "true"
+      },
+      {
+        "tbl": "listing",
+        "tgname": "trg_listing_create_key_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "listing",
+        "tgname": "trg_listing_no_delete",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "listing",
+        "tgname": "trg_listing_status_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "listing",
+        "tgname": "trg_listing_stock_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "listing",
+        "tgname": "trg_listing_touch_time_updated",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "listing_order",
+        "tgname": "trg_listing_order_core_immutable_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "listing_order",
+        "tgname": "trg_listing_order_create_key_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "listing_order",
+        "tgname": "trg_listing_order_ledger_ref_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "listing_order",
+        "tgname": "trg_listing_order_no_delete",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "listing_order",
+        "tgname": "trg_listing_order_status_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "listing_order",
+        "tgname": "trg_listing_order_touch_time_updated",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "market_order",
+        "tgname": "trg_market_order_amount_filled_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "market_order",
+        "tgname": "trg_market_order_core_immutable_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "market_order",
+        "tgname": "trg_market_order_create_key_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "market_order",
+        "tgname": "trg_market_order_no_delete",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "market_order",
+        "tgname": "trg_market_order_status_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "market_order",
+        "tgname": "trg_market_order_touch_time_updated",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "market_trade",
+        "tgname": "trg_market_trade_append_only",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "referral",
+        "tgname": "trg_referral_append_only",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "referral",
+        "tgname": "trg_referral_cycle_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      }
+    ],
+    "triggers_error": null,
+    "conservation_constraint": [
+      {
+        "conname": "trg_ledger_entry_commission_conservation",
+        "contype": "t",
+        "deferrable": "true",
+        "deferred": "true",
+        "def": "TRIGGER DEFERRABLE INITIALLY DEFERRED"
+      }
+    ],
+    "conservation_error": null,
+    "schema_tables": [
+      "schema_migration"
+    ],
+    "schema_reads": {
+      "schema_migration": [
+        {
+          "id": 1,
+          "name": "0001_ledger_core.sql",
+          "version": "0001",
+          "checksum": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+          "applied_at": "2026-09-27T03:48:15.617808+00:00"
+        },
+        {
+          "id": 2,
+          "name": "0002_user_identity.sql",
+          "version": "0002",
+          "checksum": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+          "applied_at": "2026-09-27T03:48:20.093949+00:00"
+        },
+        {
+          "id": 3,
+          "name": "0003_kind_close_set_20.sql",
+          "version": "0003",
+          "checksum": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+          "applied_at": "2026-09-27T04:57:40.94416+00:00"
+        },
+        {
+          "id": 4,
+          "name": "0004_ledger_post_event.sql",
+          "version": "0004",
+          "checksum": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+          "applied_at": "2026-09-27T05:26:01.859398+00:00"
+        },
+        {
+          "id": 6,
+          "name": "0005_ledger_event_root_key.sql",
+          "version": "0005",
+          "checksum": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+          "applied_at": "2026-09-27T06:34:21.897469+00:00"
+        },
+        {
+          "id": 7,
+          "name": "0006_user_to_users.sql",
+          "version": "0006",
+          "checksum": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+          "applied_at": "2026-09-27T07:09:27.38362+00:00"
+        },
+        {
+          "id": 8,
+          "name": "0007_referral_and_commission_policy.sql",
+          "version": "0007",
+          "checksum": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+          "applied_at": "2026-09-27T09:49:28.131292+00:00"
+        },
+        {
+          "id": 9,
+          "name": "0008_platform_revenue_job_fee.sql",
+          "version": "0008",
+          "checksum": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+          "applied_at": "2026-09-27T09:49:29.040584+00:00"
+        },
+        {
+          "id": 10,
+          "name": "0009_ledger_error_reverse_map_complete.sql",
+          "version": "0009",
+          "checksum": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+          "applied_at": "2026-09-27T10:09:16.665946+00:00"
+        },
+        {
+          "id": 11,
+          "name": "0010_referral_bind_protocol_guard.sql",
+          "version": "0010",
+          "checksum": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+          "applied_at": "2026-09-27T10:45:22.18861+00:00"
+        }
+      ]
+    },
+    "registry": {
+      "n": "17",
+      "max_v": "0017"
+    },
+    "cid1_conservation": {
+      "cid": "1",
+      "symbol": "$",
+      "total_supply": "8400",
+      "sum_bal": "8400"
+    }
+  },
+  "residue_before_session": {
+    "ledger_rows_my_event_keys": "0",
+    "ledger_rows_my_prefix": "3",
+    "users_my_window": "1",
+    "accounts_my_cid": null,
+    "referral_my_window": "0",
+    "currency_my_symbol": "0",
+    "currency_my_supply": "0"
+  },
+  "namespace": {
+    "RUN": "20260928T143826Zzjhp",
+    "SYM": "p3n196zzjhp",
+    "JTAG": "9912400",
+    "EMP": "991025",
+    "WORKER": "991026",
+    "A1": "991027",
+    "A2": "991028",
+    "A3": "991029",
+    "REF_UIDS": [
+      "991035",
+      "991036",
+      "991037"
+    ],
+    "key_prefix": "cli:neng19-",
+    "uid_window": "9910xx"
+  },
+  "t1_control": {
+    "tx_error": null,
+    "commit_error": null,
+    "committed": true,
+    "committed_rows_readback": "1",
+    "result": {
+      "cid": "273",
+      "chain_rows": [
+        {
+          "c": "991028",
+          "p": "991029",
+          "d": "1"
+        },
+        {
+          "c": "991027",
+          "p": "991028",
+          "d": "2"
+        },
+        {
+          "c": "991026",
+          "p": "991027",
+          "d": "3"
+        }
+      ],
+      "policy_row": {
+        "id": "80",
+        "fee_bp": "100",
+        "levels": "10"
+      },
+      "plan": {
+        "fee": "100",
+        "net": "9900",
+        "M": 3,
+        "N": 3,
+        "layers": 3,
+        "policy_levels": 10,
+        "fee_rate_bp": 100,
+        "key": "biz:job:settle:991240001"
+      },
+      "entries": [
+        {
+          "uid": "991025",
+          "cid": "273",
+          "kind": "job_payout",
+          "delta": "0",
+          "frozen_delta": "-9900",
+          "memo": "p3n19 质检结算 job=991240001",
+          "ref_type": "job",
+          "ref_id": "991240001"
+        },
+        {
+          "uid": "991026",
+          "cid": "273",
+          "kind": "job_payout",
+          "delta": "9900",
+          "frozen_delta": "0",
+          "memo": "p3n19 质检结算 job=991240001（打工人到手）",
+          "ref_type": "job",
+          "ref_id": "991240001"
+        },
+        {
+          "uid": "991025",
+          "cid": "273",
+          "kind": "job_fee",
+          "delta": "0",
+          "frozen_delta": "-100",
+          "memo": "p3n19 质检结算 job=991240001（手续费）",
+          "ref_type": "job",
+          "ref_id": "991240001"
+        },
+        {
+          "uid": "-2",
+          "cid": "273",
+          "kind": "job_fee",
+          "delta": "100",
+          "frozen_delta": "0",
+          "memo": "p3n19 质检结算 job=991240001（手续费入 佣金池）",
+          "ref_type": "job",
+          "ref_id": "991240001"
+        },
+        {
+          "uid": "-2",
+          "cid": "273",
+          "kind": "commission",
+          "delta": "-46",
+          "frozen_delta": "0",
+          "memo": "佣金出池 L=1",
+          "ref_type": "commission_payout",
+          "ref_id": "991240001"
+        },
+        {
+          "uid": "991027",
+          "cid": "273",
+          "kind": "commission",
+          "delta": "46",
+          "frozen_delta": "0",
+          "memo": "佣金第 1 层",
+          "ref_type": "commission_payout",
+          "ref_id": "991240001"
+        },
+        {
+          "uid": "-2",
+          "cid": "273",
+          "kind": "commission",
+          "delta": "-31",
+          "frozen_delta": "0",
+          "memo": "佣金出池 L=2",
+          "ref_type": "commission_payout",
+          "ref_id": "991240001"
+        },
+        {
+          "uid": "991028",
+          "cid": "273",
+          "kind": "commission",
+          "delta": "31",
+          "frozen_delta": "0",
+          "memo": "佣金第 2 层",
+          "ref_type": "commission_payout",
+          "ref_id": "991240001"
+        },
+        {
+          "uid": "-2",
+          "cid": "273",
+          "kind": "commission",
+          "delta": "-23",
+          "frozen_delta": "0",
+          "memo": "佣金出池 L=3",
+          "ref_type": "commission_payout",
+          "ref_id": "991240001"
+        },
+        {
+          "uid": "991029",
+          "cid": "273",
+          "kind": "commission",
+          "delta": "23",
+          "frozen_delta": "0",
+          "memo": "佣金第 3 层",
+          "ref_type": "commission_payout",
+          "ref_id": "991240001"
+        }
+      ],
+      "entries_n": 10,
+      "kinds": [
+        "job_payout",
+        "job_payout",
+        "job_fee",
+        "job_fee",
+        "commission",
+        "commission",
+        "commission",
+        "commission",
+        "commission",
+        "commission"
+      ],
+      "sum_delta": "10000",
+      "post": {
+        "ok": true,
+        "entries": 10,
+        "error": null,
+        "ms": 267
+      }
+    },
+    "ms": 4825
+  },
+  "t1_tamper_drop_pair_commit": {
+    "tx_error": null,
+    "commit_error": {
+      "sqlstate": "LD032",
+      "message": "LEDGER_RECONCILE_MISMATCH",
+      "detail": "{\"reason\": \"COMMISSION_SPLIT_SUM_MISMATCH\", \"pool_in\": \"100\", \"event_closed\": \"true\", \"job_fee_rows\": \"1\", \"commission_out\": \"77\", \"commission_rows\": \"2\", \"idempotency_key\": \"biz:job:settle:991240002\", \"trigger_account_cid\": \"273\", \"trigger_account_uid\": \"-2\"}",
+      "reason": "COMMISSION_SPLIT_SUM_MISMATCH",
+      "constraint": null
+    },
+    "committed": false,
+    "tamper_landed_rows_after_commit": "0",
+    "result": {
+      "job": "991240002",
+      "entries_before": 10,
+      "entries_after": 8,
+      "dropped_kinds": [
+        "commission",
+        "commission"
+      ],
+      "tamper_valid": true,
+      "sum_delta_before": "10000",
+      "sum_delta_after": "10000",
+      "sum_delta_unchanged": true,
+      "rows_in_db_in_tx": "8",
+      "event_key": "biz:job:settle:991240002",
+      "post": {
+        "ok": true,
+        "entries": 8,
+        "error": null,
+        "ms": 1918
+      }
+    },
+    "residue_after": {
+      "ledger_rows_my_event_keys": "10",
+      "ledger_rows_my_prefix": "6",
+      "users_my_window": "6",
+      "accounts_my_cid": "6",
+      "referral_my_window": "3",
+      "currency_my_symbol": "1",
+      "currency_my_supply": "1000000"
+    },
+    "ms": 3785
+  },
+  "t1_tamper_pool_in_no_out_commit": {
+    "tx_error": null,
+    "commit_error": {
+      "sqlstate": "LD032",
+      "message": "LEDGER_RECONCILE_MISMATCH",
+      "detail": "{\"reason\": \"COMMISSION_SPLIT_SUM_MISMATCH\", \"pool_in\": \"100\", \"event_closed\": \"true\", \"job_fee_rows\": \"1\", \"commission_out\": \"0\", \"commission_rows\": \"0\", \"idempotency_key\": \"biz:job:settle:991240003\", \"trigger_account_cid\": \"273\", \"trigger_account_uid\": \"-2\"}",
+      "reason": "COMMISSION_SPLIT_SUM_MISMATCH",
+      "constraint": null
+    },
+    "committed": false,
+    "tamper_landed_rows_after_commit": "0",
+    "result": {
+      "job": "991240003",
+      "entries_before": 10,
+      "entries_after": 4,
+      "dropped_kinds": [
+        "commission",
+        "commission",
+        "commission",
+        "commission",
+        "commission",
+        "commission"
+      ],
+      "tamper_valid": true,
+      "sum_delta_before": "10000",
+      "sum_delta_after": "10000",
+      "sum_delta_unchanged": true,
+      "rows_in_db_in_tx": "4",
+      "event_key": "biz:job:settle:991240003",
+      "post": {
+        "ok": true,
+        "entries": 4,
+        "error": null,
+        "ms": 277
+      }
+    },
+    "residue_after": {
+      "ledger_rows_my_event_keys": "10",
+      "ledger_rows_my_prefix": "6",
+      "users_my_window": "6",
+      "accounts_my_cid": "6",
+      "referral_my_window": "3",
+      "currency_my_symbol": "1",
+      "currency_my_supply": "1000000"
+    },
+    "ms": 3260
+  },
+  "t2_closed_then_immediate": {
+    "tx_error": null,
+    "result": {
+      "job": "991240004",
+      "entries_after": 8,
+      "sum_delta_after": "10000",
+      "post_before_closure": {
+        "ok": true,
+        "entries": 8,
+        "error": null,
+        "ms": 564
+      },
+      "closure_before_flush": {
+        "bal": "23",
+        "frz": "0",
+        "sna": "23",
+        "snf": "0",
+        "closed_uid_minus2": true
+      },
+      "flush_after_post": {
+        "ok": false,
+        "rows": [],
+        "error": {
+          "sqlstate": "LD032",
+          "message": "LEDGER_RECONCILE_MISMATCH",
+          "detail": "{\"reason\": \"COMMISSION_SPLIT_SUM_MISMATCH\", \"pool_in\": \"100\", \"event_closed\": \"true\", \"job_fee_rows\": \"1\", \"commission_out\": \"77\", \"commission_rows\": \"2\", \"idempotency_key\": \"biz:job:settle:991240004\", \"trigger_account_cid\": \"273\", \"trigger_account_uid\": \"-2\"}",
+          "reason": "COMMISSION_SPLIT_SUM_MISMATCH",
+          "constraint": null
+        }
+      }
+    },
+    "ms": 3537
+  },
+  "t3_unclosed_window_escape": {
+    "tx_error": null,
+    "result": {
+      "job": "991240005",
+      "immediate_before_post": {
+        "ok": true,
+        "rows": [],
+        "error": null
+      },
+      "entries_after": 4,
+      "sum_delta_after": "10000",
+      "post_while_immediate": {
+        "ok": true,
+        "entries": 4,
+        "error": null,
+        "ms": 1042
+      },
+      "closure_after_post": {
+        "bal": "100",
+        "frz": "0",
+        "sna": "100",
+        "snf": "0",
+        "closed_uid_minus2": true
+      },
+      "flush_after": {
+        "ok": true,
+        "rows": [],
+        "error": null
+      }
+    },
+    "ms": 3992
+  },
+  "t3b_unclosed_drop_pair": {
+    "tx_error": null,
+    "result": {
+      "job": "991240006",
+      "immediate_before_post": {
+        "ok": true,
+        "rows": [],
+        "error": null
+      },
+      "entries_after": 8,
+      "post_while_immediate": {
+        "ok": true,
+        "entries": 8,
+        "error": null,
+        "ms": 409
+      },
+      "flush_after": {
+        "ok": true,
+        "rows": [],
+        "error": null
+      }
+    },
+    "ms": 2487
+  },
+  "t4_deferred_noop_then_rollback": {
+    "tx_error": null,
+    "result": {
+      "job": "991240007",
+      "entries_after": 8,
+      "set_deferred_noop": {
+        "ok": true,
+        "rows": [],
+        "error": null
+      },
+      "post": {
+        "ok": true,
+        "entries": 8,
+        "error": null,
+        "ms": 237
+      },
+      "post_flush_probe_note": "无任何 flush（未 SET IMMEDIATE、未 COMMIT），事务随即 ROLLBACK",
+      "subsequent_statement_ok": true
+    },
+    "rolled_back": true,
+    "ms": 4446
+  },
+  "t5_e4_counterexample": {
+    "depth0_leg": {
+      "tx_error": null,
+      "result": {
+        "child": "991035",
+        "parent": "991036",
+        "depth_literal": 0,
+        "disable": {
+          "ok": true,
+          "rows": [],
+          "error": null
+        },
+        "first_insert": {
+          "ok": false,
+          "rows": [],
+          "error": {
+            "sqlstate": "23514",
+            "message": "new row for relation \"referral\" violates check constraint \"referral_depth_rng\"",
+            "detail": "Failing row contains (991035, 991036, 0, 2026-09-28 14:39:09.490677+00).",
+            "reason": null,
+            "constraint": "referral_depth_rng"
+          }
+        }
+      }
+    },
+    "depth1_leg": {
+      "tx_error": null,
+      "result": {
+        "child": "991035",
+        "parent": "991036",
+        "parent2": "991037",
+        "depth_literal": 1,
+        "disable": {
+          "ok": true,
+          "rows": [],
+          "error": null
+        },
+        "first_insert": {
+          "ok": true,
+          "rows": [],
+          "error": null
+        },
+        "rebind": {
+          "ok": false,
+          "rows": [],
+          "error": {
+            "sqlstate": "23505",
+            "message": "duplicate key value violates unique constraint \"referral_pk\"",
+            "detail": "Key (child_uid)=(991035) already exists.",
+            "reason": null,
+            "constraint": "referral_pk"
+          }
+        },
+        "enable": {
+          "ok": false,
+          "rows": [],
+          "error": {
+            "sqlstate": "25P02",
+            "message": "current transaction is aborted, commands ignored until end of transaction block",
+            "detail": null,
+            "reason": null,
+            "constraint": null
+          }
+        }
+      }
+    }
+  },
+  "t8_after": {
+    "counts": {
+      "users": "583",
+      "account": "357",
+      "ledger_entry": "3201",
+      "referral": "293",
+      "currency": "112",
+      "commission_policy": "25",
+      "schema_migration": "17"
+    },
+    "count_errors": {},
+    "fn_fingerprints": [
+      {
+        "name": "job_post_event",
+        "len": "13594",
+        "md5": "0cedbb9ea60dcbda28e3ef3dafdd119b"
+      },
+      {
+        "name": "ledger_assert_commission_conservation",
+        "len": "2967",
+        "md5": "27ddc76b842594cb6ee8673c171e6526"
+      },
+      {
+        "name": "ledger_post_event",
+        "len": "51429",
+        "md5": "d94dd902697dfe60aba409d808c6d63a"
+      },
+      {
+        "name": "listing_post_event",
+        "len": "17858",
+        "md5": "0e187c20b56d45202d83978c8a02b31d"
+      },
+      {
+        "name": "market_post_event",
+        "len": "30194",
+        "md5": "74841611252726e1cc0f57cb46ea6c6d"
+      },
+      {
+        "name": "referral_cycle_guard",
+        "len": "6075",
+        "md5": "7bd5874f7145989a43567003048a9f04"
+      }
+    ],
+    "fn_fingerprints_error": null,
+    "triggers": [
+      {
+        "tbl": "account",
+        "tgname": "trg_account_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "admin_permission",
+        "tgname": "trg_admin_permission_key_immutable",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "admin_role",
+        "tgname": "trg_admin_role_key_immutable",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "admin_role_permission",
+        "tgname": "trg_admin_role_permission_key_immutable",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "admin_user_role",
+        "tgname": "trg_admin_user_role_key_immutable",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "app_config",
+        "tgname": "trg_app_config_key_immutable",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "app_config",
+        "tgname": "trg_app_config_touch_updated",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "commission_policy",
+        "tgname": "trg_commission_policy_append_only",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "commission_policy",
+        "tgname": "trg_commission_policy_weights_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "currency_status_log",
+        "tgname": "trg_currency_status_log_append_only",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job",
+        "tgname": "trg_job_core_immutable_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job",
+        "tgname": "trg_job_ledger_ref_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job",
+        "tgname": "trg_job_no_delete",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job",
+        "tgname": "trg_job_status_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job",
+        "tgname": "trg_job_touch_time_updated",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job_application",
+        "tgname": "trg_job_application_create_key_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job_application",
+        "tgname": "trg_job_application_no_delete",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job_application",
+        "tgname": "trg_job_application_status_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job_application",
+        "tgname": "trg_job_application_touch_time_updated",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job_submission",
+        "tgname": "trg_job_submission_immutable_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "job_submission",
+        "tgname": "trg_job_submission_no_delete",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "ledger_entry",
+        "tgname": "trg_ledger_entry_append_only",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "ledger_entry",
+        "tgname": "trg_ledger_entry_commission_conservation",
+        "tgenabled": "O",
+        "deferrable": "true",
+        "initdeferred": "true"
+      },
+      {
+        "tbl": "listing",
+        "tgname": "trg_listing_create_key_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "listing",
+        "tgname": "trg_listing_no_delete",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "listing",
+        "tgname": "trg_listing_status_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "listing",
+        "tgname": "trg_listing_stock_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "listing",
+        "tgname": "trg_listing_touch_time_updated",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "listing_order",
+        "tgname": "trg_listing_order_core_immutable_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "listing_order",
+        "tgname": "trg_listing_order_create_key_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "listing_order",
+        "tgname": "trg_listing_order_ledger_ref_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "listing_order",
+        "tgname": "trg_listing_order_no_delete",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "listing_order",
+        "tgname": "trg_listing_order_status_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "listing_order",
+        "tgname": "trg_listing_order_touch_time_updated",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "market_order",
+        "tgname": "trg_market_order_amount_filled_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "market_order",
+        "tgname": "trg_market_order_core_immutable_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "market_order",
+        "tgname": "trg_market_order_create_key_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "market_order",
+        "tgname": "trg_market_order_no_delete",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "market_order",
+        "tgname": "trg_market_order_status_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "market_order",
+        "tgname": "trg_market_order_touch_time_updated",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "market_trade",
+        "tgname": "trg_market_trade_append_only",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "referral",
+        "tgname": "trg_referral_append_only",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      },
+      {
+        "tbl": "referral",
+        "tgname": "trg_referral_cycle_guard",
+        "tgenabled": "O",
+        "deferrable": "false",
+        "initdeferred": "false"
+      }
+    ],
+    "triggers_error": null,
+    "conservation_constraint": [
+      {
+        "conname": "trg_ledger_entry_commission_conservation",
+        "contype": "t",
+        "deferrable": "true",
+        "deferred": "true",
+        "def": "TRIGGER DEFERRABLE INITIALLY DEFERRED"
+      }
+    ],
+    "conservation_error": null,
+    "schema_tables": [
+      "schema_migration"
+    ],
+    "schema_reads": {
+      "schema_migration": [
+        {
+          "id": 1,
+          "name": "0001_ledger_core.sql",
+          "version": "0001",
+          "checksum": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+          "applied_at": "2026-09-27T03:48:15.617808+00:00"
+        },
+        {
+          "id": 2,
+          "name": "0002_user_identity.sql",
+          "version": "0002",
+          "checksum": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+          "applied_at": "2026-09-27T03:48:20.093949+00:00"
+        },
+        {
+          "id": 3,
+          "name": "0003_kind_close_set_20.sql",
+          "version": "0003",
+          "checksum": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+          "applied_at": "2026-09-27T04:57:40.94416+00:00"
+        },
+        {
+          "id": 4,
+          "name": "0004_ledger_post_event.sql",
+          "version": "0004",
+          "checksum": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+          "applied_at": "2026-09-27T05:26:01.859398+00:00"
+        },
+        {
+          "id": 6,
+          "name": "0005_ledger_event_root_key.sql",
+          "version": "0005",
+          "checksum": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+          "applied_at": "2026-09-27T06:34:21.897469+00:00"
+        },
+        {
+          "id": 7,
+          "name": "0006_user_to_users.sql",
+          "version": "0006",
+          "checksum": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+          "applied_at": "2026-09-27T07:09:27.38362+00:00"
+        },
+        {
+          "id": 8,
+          "name": "0007_referral_and_commission_policy.sql",
+          "version": "0007",
+          "checksum": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+          "applied_at": "2026-09-27T09:49:28.131292+00:00"
+        },
+        {
+          "id": 9,
+          "name": "0008_platform_revenue_job_fee.sql",
+          "version": "0008",
+          "checksum": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+          "applied_at": "2026-09-27T09:49:29.040584+00:00"
+        },
+        {
+          "id": 10,
+          "name": "0009_ledger_error_reverse_map_complete.sql",
+          "version": "0009",
+          "checksum": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+          "applied_at": "2026-09-27T10:09:16.665946+00:00"
+        },
+        {
+          "id": 11,
+          "name": "0010_referral_bind_protocol_guard.sql",
+          "version": "0010",
+          "checksum": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+          "applied_at": "2026-09-27T10:45:22.18861+00:00"
+        }
+      ]
+    },
+    "registry": {
+      "n": "17",
+      "max_v": "0017"
+    },
+    "cid1_conservation": {
+      "cid": "1",
+      "symbol": "$",
+      "total_supply": "8400",
+      "sum_bal": "8400"
+    }
+  },
+  "t8_invariants": {
+    "fn_fingerprints_identical": true,
+    "schema_reads_identical": true,
+    "registry_rows_identical": true,
+    "triggers_identical": true,
+    "cid1_conservation_identical": true
+  },
+  "residue_after_session": {
+    "ledger_rows_my_event_keys": "10",
+    "ledger_rows_my_prefix": "6",
+    "users_my_window": "6",
+    "accounts_my_cid": "6",
+    "referral_my_window": "3",
+    "currency_my_symbol": "1",
+    "currency_my_supply": "1000000"
+  },
+  "residue_referral_legs": {
+    "ledger_rows_my_event_keys": "10",
+    "ledger_rows_my_prefix": "6",
+    "users_my_window": "6",
+    "accounts_my_cid": "6",
+    "referral_my_window": "3",
+    "currency_my_symbol": "1",
+    "currency_my_supply": "1000000"
+  },
+  "counts_delta": {
+    "users": 5,
+    "account": 6,
+    "ledger_entry": 13,
+    "referral": 3,
+    "currency": 1,
+    "commission_policy": 0,
+    "schema_migration": 0
+  },
+  "notice_capture": "pool.on(notice)",
+  "notices": [],
+  "finished_at": "2026-09-28T14:39:20.580Z"
+}

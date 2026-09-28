@@ -1,0 +1,12 @@
+{
+  "run": "20260928T143647Zknrf",
+  "name": "p3n-01-rca-legs",
+  "status": "CRASHED",
+  "stage": "CRASH-main",
+  "started_at": "2026-09-28T14:36:47.878Z",
+  "legs": {},
+  "notes": [],
+  "probe": "Neng 独立质检（p3-baseline-rca.md 复核）",
+  "updated_at": "2026-09-28T14:36:52.959Z",
+  "crash": "error: relation \"public.schema_version\" does not exist\n    at /Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1340:74\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async q (/Users/kevin/bistro/seafood/backend-ts/scripts/p3n-01-rca-legs.ts:70:5)\n    at async q1 (/Users/kevin/bistro/seafood/backend-ts/scripts/p3n-01-rca-legs.ts:71:88)\n    at async snapshot (/Users/kevin/bistro/seafood/backend-ts/scripts/p3n-01-rca-legs.ts:149:14)\n    at async main (/Users/kevin/bistro/seafood/backend-ts/scripts/p3n-01-rca-legs.ts:206:18)"
+}
