@@ -8,6 +8,14 @@
 
 ---
 
+## 更正 / 登记注（`C1` · `C2`；原文逐字保留，`DL154` 留痕纪律）
+
+> **`C1`（更正注 · 报告级）**：本报告 §6 / §11 关于「`TAKER_NOT_A_PARTY` 已被用例覆盖」的表述**作废**。理由：上游用例 `trade_taker_not_a_party` **名不符实** —— 探针 `backend-ts/scripts/p3m-02-cases.ts` 的 `SpareIds = { spareId: '0' }` 在 **L387 硬编码 `'0'`**，该字段全文件从未被赋值 ⇒ 该用例实际命中函数 L692 的「buy/sell 小于 1」闸，**函数 L697–701 的 `TAKER_NOT_A_PARTY` 闸零用例触达**。已由 `docs/qa/p3-0016-market-review.md` **§2** 用**三个真实有效挂单**（A 买 35 / B 卖 36 / C 第三方 37）补测：`taker_order_id = 37` ⇒ `LD016` / `LEDGER_AMOUNT_INVALID` / `{field: taker_order_id, value: 37, reason: TAKER_NOT_A_PARTY}`；对拍 `sell_order_id = '0'` ⇒ `LD022` / `order_not_found`（与上游 artifact 逐字相符）；三形态零副作用。**本注为 `TAKER_NOT_A_PARTY` 覆盖表述的唯一有效口径。**
+>
+> **`C2`（登记注 · 护栏边界，非缺陷）**：`market_order.amount_filled` 的**单调增**守卫**无法分辨**「经 `market_post_event` 的成交推进」与「绕过编排函数的裸 `UPDATE`」。实测：对 order 38 裸 `UPDATE amount_filled = 2` 后，业务表剩余额 **30** 与账户 `frozen` **50** 出现 **20** 的**对账缺口**；**排除该单后 `DL68` 判据 5 逐 uid 精确相等（`390 == 390`）**。定性 = `DL143`「编排函数是唯一写者」的**护栏边界**。Zang 裁定：**登记不重修**（跨柱一致性：`0015` 的 `listing.stock` 同类边界已被接受），并要求 **P5 路由层禁止对可变态裸写**。
+
+---
+
 ## 0. 交付物清单
 
 | # | 产物 | 现状（现取） | 状态 |

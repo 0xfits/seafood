@@ -1,0 +1,413 @@
+{
+  "run": "20260928T111727Z",
+  "label": "cases",
+  "at": "2026-09-28T11:23:37.417Z",
+  "total": 29,
+  "passed": 29,
+  "failed": [],
+  "checks": [
+    {
+      "id": "F0",
+      "name": "夹具 uid 全落本单窗口 9907xx",
+      "pass": true,
+      "readout": {
+        "U1": "990701",
+        "U2": "990702",
+        "U3": "990703"
+      }
+    },
+    {
+      "id": "F1",
+      "name": "角色键落本单命名空间 p3p:",
+      "pass": true,
+      "readout": {
+        "role_key": "p3p:ops"
+      }
+    },
+    {
+      "id": "C1",
+      "name": "权限单一真源 is_admin=true 且无角色行 ⇒ 可进",
+      "pass": true,
+      "readout": {
+        "uid": "990701",
+        "readout": {
+          "can_access_admin": true
+        }
+      }
+    },
+    {
+      "id": "C2",
+      "name": "权限单一真源 is_admin=false 但有角色行 ⇒ 可进",
+      "pass": true,
+      "readout": {
+        "uid": "990702",
+        "readout": {
+          "can_access_admin": true
+        }
+      }
+    },
+    {
+      "id": "C3",
+      "name": "权限单一真源 两者皆无 ⇒ 不可进",
+      "pass": true,
+      "readout": {
+        "uid": "990703",
+        "readout": {
+          "can_access_admin": false
+        }
+      }
+    },
+    {
+      "id": "C4",
+      "name": "currency_status_log 合法 INSERT 必成功（对照项，尺子不滥杀）",
+      "pass": true,
+      "readout": {
+        "insert": {
+          "rejected": false,
+          "err": null,
+          "rows": 1,
+          "rowCount": 1
+        },
+        "log_id": "4"
+      }
+    },
+    {
+      "id": "C5",
+      "name": "currency_status_log UPDATE 必拒（append-only）",
+      "pass": true,
+      "readout": {
+        "err": {
+          "sqlstate": "P0001",
+          "message": "currency_status_log is append-only: UPDATE forbidden (log_id=4)",
+          "detail": "",
+          "constraint": null,
+          "reason": null,
+          "field": null,
+          "detail_parsed": null
+        }
+      }
+    },
+    {
+      "id": "C6",
+      "name": "currency_status_log DELETE 必拒（append-only / DL79 同向）",
+      "pass": true,
+      "readout": {
+        "err": {
+          "sqlstate": "P0001",
+          "message": "currency_status_log is append-only: DELETE forbidden (log_id=4)",
+          "detail": "",
+          "constraint": null,
+          "reason": null,
+          "field": null,
+          "detail_parsed": null
+        }
+      }
+    },
+    {
+      "id": "C7",
+      "name": "app_config 合法 object 值 INSERT 成功",
+      "pass": true,
+      "readout": {
+        "insert": {
+          "rejected": false,
+          "err": null,
+          "rows": 0,
+          "rowCount": 1
+        }
+      }
+    },
+    {
+      "id": "C8",
+      "name": "app_config key 重复 ⇒ 23505",
+      "pass": true,
+      "readout": {
+        "err": {
+          "sqlstate": "23505",
+          "message": "duplicate key value violates unique constraint \"app_config_pk\"",
+          "detail": "Key (key)=(cli:kong17-demo) already exists.",
+          "constraint": "app_config_pk",
+          "reason": null,
+          "field": null,
+          "detail_parsed": null
+        }
+      }
+    },
+    {
+      "id": "C9",
+      "name": "app_config value 非 jsonb ⇒ 拒（22P02）",
+      "pass": true,
+      "readout": {
+        "err": {
+          "sqlstate": "22P02",
+          "message": "invalid input syntax for type json",
+          "detail": "Token \"not\" is invalid.",
+          "constraint": null,
+          "reason": null,
+          "field": null,
+          "detail_parsed": null
+        }
+      }
+    },
+    {
+      "id": "C10",
+      "name": "app_config value NULL ⇒ 拒（NOT NULL）",
+      "pass": true,
+      "readout": {
+        "err": {
+          "sqlstate": "23502",
+          "message": "null value in column \"value\" of relation \"app_config\" violates not-null constraint",
+          "detail": "Failing row contains (cli:kong17-null, null, 990703, 2026-09-28 11:22:56.092008+00).",
+          "constraint": null,
+          "reason": null,
+          "field": null,
+          "detail_parsed": null
+        }
+      }
+    },
+    {
+      "id": "C11",
+      "name": "app_config 裸标量余额值 ⇒ 拒（DL3 禁存余额 CHECK）",
+      "pass": true,
+      "readout": {
+        "err": {
+          "sqlstate": "23514",
+          "message": "new row for relation \"app_config\" violates check constraint \"app_config_value_is_container\"",
+          "detail": "Failing row contains (cli:kong17-balance, 128, 990703, 2026-09-28 11:22:56.092008+00).",
+          "constraint": "app_config_value_is_container",
+          "reason": null,
+          "field": null,
+          "detail_parsed": null
+        }
+      }
+    },
+    {
+      "id": "C12",
+      "name": "app_config PK key 不可改",
+      "pass": true,
+      "readout": {
+        "err": {
+          "sqlstate": "P0001",
+          "message": "immutable key column: public.app_config.key cannot change (cli:kong17-demo -> cli:kong17-renamed)",
+          "detail": "",
+          "constraint": null,
+          "reason": null,
+          "field": null,
+          "detail_parsed": null
+        }
+      }
+    },
+    {
+      "id": "C13",
+      "name": "app_config 非键列可改（value 更新成功）",
+      "pass": true,
+      "readout": {
+        "update": {
+          "rejected": false,
+          "err": null,
+          "rows": 0,
+          "rowCount": 1
+        }
+      }
+    },
+    {
+      "id": "C14",
+      "name": "admin_role PK role_key 不可改",
+      "pass": true,
+      "readout": {
+        "err": {
+          "sqlstate": "P0001",
+          "message": "immutable key column: public.admin_role.role_key cannot change (p3p:ops -> p3p:renamed)",
+          "detail": "",
+          "constraint": null,
+          "reason": null,
+          "field": null,
+          "detail_parsed": null
+        }
+      }
+    },
+    {
+      "id": "C15",
+      "name": "admin_permission PK permission_key 不可改",
+      "pass": true,
+      "readout": {
+        "err": {
+          "sqlstate": "P0001",
+          "message": "immutable key column: public.admin_permission.permission_key cannot change (p3p:read -> p3p:renamed)",
+          "detail": "",
+          "constraint": null,
+          "reason": null,
+          "field": null,
+          "detail_parsed": null
+        }
+      }
+    },
+    {
+      "id": "C16",
+      "name": "admin_role_permission PK 对不可改",
+      "pass": true,
+      "readout": {
+        "err": {
+          "sqlstate": "P0001",
+          "message": "immutable key column: public.admin_role_permission.role_key cannot change (p3p:ops -> p3p:ghost)",
+          "detail": "",
+          "constraint": null,
+          "reason": null,
+          "field": null,
+          "detail_parsed": null
+        }
+      }
+    },
+    {
+      "id": "C17",
+      "name": "admin_user_role PK 对不可改",
+      "pass": true,
+      "readout": {
+        "err": {
+          "sqlstate": "P0001",
+          "message": "immutable key column: public.admin_user_role.role_key cannot change (p3p:ops -> p3p:ghost)",
+          "detail": "",
+          "constraint": null,
+          "reason": null,
+          "field": null,
+          "detail_parsed": null
+        }
+      }
+    },
+    {
+      "id": "C18",
+      "name": "admin_user_role DELETE 允许（撤销角色分配是合法操作）",
+      "pass": true,
+      "readout": {
+        "del": {
+          "rejected": false,
+          "err": null,
+          "rows": 0,
+          "rowCount": 1
+        }
+      }
+    },
+    {
+      "id": "C19",
+      "name": "边界·cid 不存在 ⇒ 23503（FK currency）",
+      "pass": true,
+      "readout": {
+        "err": {
+          "sqlstate": "23503",
+          "message": "insert or update on table \"currency_status_log\" violates foreign key constraint \"currency_status_log_cid_fk\"",
+          "detail": "Key (cid)=(999999) is not present in table \"currency\".",
+          "constraint": "currency_status_log_cid_fk",
+          "reason": null,
+          "field": null,
+          "detail_parsed": null
+        }
+      }
+    },
+    {
+      "id": "C20",
+      "name": "边界·admin_role_permission 指向不存在角色 ⇒ 23503",
+      "pass": true,
+      "readout": {
+        "err": {
+          "sqlstate": "23503",
+          "message": "insert or update on table \"admin_role_permission\" violates foreign key constraint \"admin_role_permission_role_fk\"",
+          "detail": "Key (role_key)=(p3p:nope) is not present in table \"admin_role\".",
+          "constraint": "admin_role_permission_role_fk",
+          "reason": null,
+          "field": null,
+          "detail_parsed": null
+        }
+      }
+    },
+    {
+      "id": "C21",
+      "name": "边界·admin_user_role.uid 不存在 ⇒ 23503（FK users）",
+      "pass": true,
+      "readout": {
+        "err": {
+          "sqlstate": "23503",
+          "message": "insert or update on table \"admin_user_role\" violates foreign key constraint \"admin_user_role_uid_fk\"",
+          "detail": "Key (uid)=(999999) is not present in table \"users\".",
+          "constraint": "admin_user_role_uid_fk",
+          "reason": null,
+          "field": null,
+          "detail_parsed": null
+        }
+      }
+    },
+    {
+      "id": "C22",
+      "name": "边界·admin_role 重复 PK ⇒ 23505",
+      "pass": true,
+      "readout": {
+        "err": {
+          "sqlstate": "23505",
+          "message": "duplicate key value violates unique constraint \"admin_role_pk\"",
+          "detail": "Key (role_key)=(p3p:ops) already exists.",
+          "constraint": "admin_role_pk",
+          "reason": null,
+          "field": null,
+          "detail_parsed": null
+        }
+      }
+    },
+    {
+      "id": "C23",
+      "name": "边界·admin_role_permission 重复 PK 对 ⇒ 23505",
+      "pass": true,
+      "readout": {
+        "err": {
+          "sqlstate": "23505",
+          "message": "duplicate key value violates unique constraint \"admin_role_permission_pk\"",
+          "detail": "Key (role_key, permission_key)=(p3p:ops, p3p:read) already exists.",
+          "constraint": "admin_role_permission_pk",
+          "reason": null,
+          "field": null,
+          "detail_parsed": null
+        }
+      }
+    },
+    {
+      "id": "C24",
+      "name": "边界·空 name（\"\"）—— 逐列照 spec（name 可空）⇒ 允许（登记为数据质量项）",
+      "pass": true,
+      "readout": {
+        "insert": {
+          "rejected": false,
+          "err": null,
+          "rows": 0,
+          "rowCount": 1
+        }
+      }
+    },
+    {
+      "id": "Z1",
+      "name": "回滚后零本单残留（foreign_rows 全空）",
+      "pass": true,
+      "readout": {
+        "foreign_rows": {
+          "admin_user_role_foreign": "0",
+          "admin_role_foreign": "0",
+          "app_config_foreign": "0",
+          "currency_status_log_foreign": "0",
+          "all_empty": true
+        }
+      }
+    },
+    {
+      "id": "Z2",
+      "name": "回滚后 currency_status_log 无本单夹具行",
+      "pass": true,
+      "readout": {
+        "residue": "0"
+      }
+    },
+    {
+      "id": "S0",
+      "name": "迁移文件 sha256（现取）",
+      "pass": true,
+      "readout": {
+        "sha256": "0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd"
+      }
+    }
+  ]
+}

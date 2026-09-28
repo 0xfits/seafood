@@ -1196,6 +1196,40 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 **⑧ 副作用登记（不清理）**：uid `990601–990604`；`market_order` **26 → 68**（+42，全 `cli:neng16-` 前缀）、`market_trade` **8 → 19**（+11）；`biz:market:*` 分录 **46 → 96**（+50）；`cid=1` `total_supply` **未动**。
 
+### 5.52 **P3 平台配置柱 `0017_platform_config.sql` 交付 + 应用 + 我独立验收通过**（2026-09-28）
+
+**① 交付件（现取）**：`backend-ts/migrations/0017_platform_config.sql` = **454 行 / 31026 B / sha256 `0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd`**（`deleg_84e3ce36` / Kong，26 calls / 546s）；报告 `docs/audit/p3-platform-0017.md` = **202 行 / 21451 B / sha256 `7deada9fc7e87465fefb56872afa241f6d9bdc00fca8f13a196533d5e2b2de3b`**；探针 5 件 + `.p3p-artifacts/` 5 份 run-tagged（含 `ledger_post_event.prosrc` 快照 + 判负 scratch 目录）。
+
+**② 应用与漂移**：**`registry.checksum == 文件 sha256`（零漂移）**；`schema_version=0017`、registry **17 行**；**我复跑 exit 0 / 17/17 `skipped`**、`public_base_table_count = 21`；`public` 基表 **15 → 21**（纯新增 **6 表**）。
+
+**③ 逐列对 §6.6（我现读 `information_schema` + `pg_constraint` 原文）⇒ 全绿**：
+| 表 | 实测列 | 对 spec |
+|---|---|---|
+| `app_config` | **4** = `key text!`(PK) / `value jsonb!` / `updated_by bigint!` / `time_updated tstz! DEFAULT now()` | **逐字 = `DL71`**（**无 `privacy` 列** ✓、**无余额列** ✓） |
+| `admin_role` | **3** = `role_key text!`(PK) / `name text` / `time_created tstz DEFAULT now()` | `DL72` ✓ |
+| `admin_permission` | **2** = `permission_key text!`(PK) / `name text` | `DL72` ✓ |
+| `admin_role_permission` | **2** = `role_key!`+`permission_key!` + **PK(role_key, permission_key)** | `DL72` ✓ |
+| `admin_user_role` | **2** = `uid bigint!` + `role_key text!` + **PK(uid, role_key)** + **FK `uid → users(uid)`** | `DL72` ✓（`DL78`） |
+| `currency_status_log` | **7** = `log_id!`(PK) / `cid!` FK `currency` / `from_status!` / `to_status!` / `actor_uid!` FK `users` / `memo text` | `DL73` ✓（`R29`） |
+
+- **6 个 FK 全部无 `ON DELETE CASCADE`**（默认 NO ACTION）⇒ **删被引用的 `admin_role` 必失败**（不会静默级联清授权）✓
+- 索引**恰 6 个**（每表 PK；**无多余索引**）⇒ 合 `DL74`；触发器 **7/7 `tgenabled='O'`**、**全库非 `O` = 0**：`trg_app_config_key_immutable` + `trg_app_config_touch_updated`（`time_updated` 由触发器刷）+ 4 个 `*_key_immutable` + **`trg_currency_status_log_append_only`** ✓
+- **既有四函数指纹全未变**：`ledger_post_event` **51429 B / `d94dd902…`**、`market_post_event` 30194 B / `7484161125…`、`listing_post_event` 17858 B / `0e187c20…`、`job_post_event` 13594 B / `0cedbb9e…` ✓〔`DL142`〕；`cid=1` 收工 **8400 == 8400** ✓
+- **冻结面**：`git status` 只有本单产物 + 两处受限小项；`0015_listing.sql` sha `f856a131…` / `0016_market.sql` sha `f5ce7c79…` **均未变**；`0001`–`0016` / `src/` / `frontend/` **零改动** ✓
+
+**④ 三处受限小项（攒批）已落地**：`docs/audit/p3-listing-0015.md` **+11/−0** ⇒ 新增顶部「**更正注（同族三处假命题；原文逐字保留；唯一有效口径 = §2b 就地更正注）**」章，把 §0 表行 / 时间线行 / 「为什么」行三处一并指回唯一有效口径；`docs/audit/p3-market-0016.md` **+8/−0** ⇒ 新增顶部「**更正 / 登记注（`C1` · `C2`）**」章（C1 = `TAKER_NOT_A_PARTY` 覆盖表述作废 + 三形态读数；C2 = `amount_filled` 裸写护栏边界 + `390 == 390`）。
+
+**⑤ 它对三条预登记张力的处置（我逐条裁定）**：
+- **① `app_config.updated_by` 是否加 FK** ⇒ 它按指示**逐列照 `DL71` 先落（不加 FK）+ 反断言 FK = 0**；**我采纳不加**：依据「逐列契约优先」+ 「平台/系统写者的 uid 可能在 `users` **之外**（`−1`/`0` 平台账户在 `ledger_owner`）⇒ 加 FK 会**挡住合法平台写入**」⇒ **登记给 Jing**（建议 v0.6 就地澄清「`updated_by` 是写者标识、可为平台保留值，故不设 FK」）。
+- **② `DL75` 三件套 vs §6.6 逐列契约** ⇒ **同 `0016` 缺口 E 的口径采纳**：逐列契约优先 + apply-time **反断言** + 报告登记 ✓。
+- **③ `app_config` / `admin_*` 的守卫口径**（只给 `currency_status_log` append-only；`app_*`/`admin_*` 允许 `DELETE`、PK/键列不可变）⇒ **我认可**（关系/授权表撤销 = 删授权行，无状态位替代、无账本引用 ⇒ `DL79` 的「业务行」不涵盖它们；被引用的 `admin_role` 由 FK 兜住）。**但登记一条同类治理项**：**`currency.status` 的变更与 `currency_status_log` 写入的一致性，DB 层无法强制**（`R29` 要求「冻结/解冻必须写审计记录」）⇒ **路由层硬约束**（改 `currency.status` 必须同事务 INSERT 一行日志）——与 §5.51 的 `C2` **同族**，并入 P5 路由层约束清单。
+
+**⑥ 它自曝的一处（诚实边界，非交付件）**：首跑 5 项 FAIL 系**探针断言用 `rows.length`**（无 `RETURNING` 的 DML 恒为 0），改用 `rowCount` 后全绿 ⇒ **探针缺陷**，报告 §5.1 留痕 ✓。行为用例 **29/29**、判负自证 **14/14**（scratch 破件 + 同事务 `DROP TRIGGER` ⇒ RED ⇒ `ROLLBACK` ⇒ GREEN；主文件 sha256 前后相等）。
+
+**⑦ 待裁/待补（已登记，不阻塞本柱）**：① 上述三条张力（`updated_by` FK / `DL75` vs §6.6 / `admin_*` 守卫归属）统一并入 **Jing 的 spec v0.6 批**；② `currency.status` 与审计日志的一致性 = 路由层硬约束（P5）；③ `can_access_admin` 单一真源的**查询口径**需在路由层实现时保持（本单只做数据层可验证口径）。
+
+**⑧ 裁定**：`0017` 数据层【**我验收通过**】；**已派 Neng 独立质检**（定向项 = 权限三态真值表 / `currency_status_log` append-only 与旁路 / `app_config` 键不可变与 `time_updated` 刷新 / FK 无级联的删除行为 / **`currency.status` 与日志一致性**）。**P3 进度**：`0013` ✅✅ / `0014` ✅✅ / `0015` ✅✅ / `0016` ✅✅ / **`0017` 我验收✅（质检在跑）**；仅剩 **`0018`**。
+
 ### 5.6 延迟问题的三个处置变体（**已拍板：变体 B**，见 D10）
 
 | 变体 | 做法 | 本地单笔预期 | 代价 |

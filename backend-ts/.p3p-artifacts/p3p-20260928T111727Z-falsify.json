@@ -1,0 +1,191 @@
+{
+  "run": "20260928T111727Z",
+  "label": "falsify",
+  "at": "2026-09-28T11:23:53.872Z",
+  "emulation": "scratch 副本删触发器创建块（证明改动只在 scratch）+ 真库同一事务 DROP TRIGGER→用例变红→ROLLBACK 恢复",
+  "scratch_copies": [
+    {
+      "file": "/Users/kevin/bistro/seafood/backend-ts/.p3p-artifacts/scratch-20260928T111727Z/0017-broken-no-append-only.sql",
+      "sha256": "a646369cad582c10f6fa8efaf828b89e81ec8894054a01f66459dc4e1db119d1"
+    },
+    {
+      "file": "/Users/kevin/bistro/seafood/backend-ts/.p3p-artifacts/scratch-20260928T111727Z/0017-broken-no-key-immutable.sql",
+      "sha256": "08157467ce209ce84cf332a50baff17227804866504c8b52c98b76fdb9af525f"
+    }
+  ],
+  "pristine_sha256": {
+    "before": "0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd",
+    "after": "0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd",
+    "equal": true
+  },
+  "total": 14,
+  "passed": 14,
+  "failed": [],
+  "checks": [
+    {
+      "id": "N1",
+      "name": "scratch 破件 1 与原件**不同**（append-only 触发器块已删）",
+      "pass": true,
+      "readout": {
+        "shaA": "0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd",
+        "shaB1": "a646369cad582c10f6fa8efaf828b89e81ec8894054a01f66459dc4e1db119d1"
+      }
+    },
+    {
+      "id": "N2",
+      "name": "scratch 破件 2 与原件**不同**（app_config key-immutable 触发器块已删）",
+      "pass": true,
+      "readout": {
+        "shaA": "0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd",
+        "shaB2": "08157467ce209ce84cf332a50baff17227804866504c8b52c98b76fdb9af525f"
+      }
+    },
+    {
+      "id": "N3",
+      "name": "两破件互不相同（各自只动一处）",
+      "pass": true,
+      "readout": {
+        "shaB1": "a646369cad582c10f6fa8efaf828b89e81ec8894054a01f66459dc4e1db119d1",
+        "shaB2": "08157467ce209ce84cf332a50baff17227804866504c8b52c98b76fdb9af525f"
+      }
+    },
+    {
+      "id": "A-GREEN",
+      "name": "破坏前：currency_status_log UPDATE 被拒（尺子正常）",
+      "pass": true,
+      "readout": {
+        "err": {
+          "sqlstate": "P0001",
+          "message": "currency_status_log is append-only: UPDATE forbidden (log_id=6)",
+          "detail": "",
+          "constraint": null,
+          "reason": null,
+          "field": null,
+          "detail_parsed": null
+        }
+      }
+    },
+    {
+      "id": "A-RED",
+      "name": "去掉 append-only 触发器后：UPDATE **成功** ⇒ 对应用例必红（尺子会响）",
+      "pass": true,
+      "readout": {
+        "update": {
+          "rejected": false,
+          "err": null,
+          "rows": 0,
+          "rowCount": 1
+        }
+      }
+    },
+    {
+      "id": "A-RESTORE",
+      "name": "回滚触发器后：UPDATE 又被拒（逐字节回绿）",
+      "pass": true,
+      "readout": {
+        "err": {
+          "sqlstate": "P0001",
+          "message": "currency_status_log is append-only: UPDATE forbidden (log_id=6)",
+          "detail": "",
+          "constraint": null,
+          "reason": null,
+          "field": null,
+          "detail_parsed": null
+        }
+      }
+    },
+    {
+      "id": "B-GREEN",
+      "name": "破坏前：app_config.key 修改被拒（尺子正常）",
+      "pass": true,
+      "readout": {
+        "err": {
+          "sqlstate": "P0001",
+          "message": "immutable key column: public.app_config.key cannot change (cli:kong17-falsify -> cli:kong17-falsify2)",
+          "detail": "",
+          "constraint": null,
+          "reason": null,
+          "field": null,
+          "detail_parsed": null
+        }
+      }
+    },
+    {
+      "id": "B-RED",
+      "name": "去掉 key-immutable 触发器后：改 PK key **成功** ⇒ 对应用例必红",
+      "pass": true,
+      "readout": {
+        "update": {
+          "rejected": false,
+          "err": null,
+          "rows": 0,
+          "rowCount": 1
+        }
+      }
+    },
+    {
+      "id": "B-RESTORE",
+      "name": "回滚触发器后：改 key 又被拒（逐字节回绿）",
+      "pass": true,
+      "readout": {
+        "err": {
+          "sqlstate": "P0001",
+          "message": "immutable key column: public.app_config.key cannot change (cli:kong17-falsify -> cli:kong17-falsify2)",
+          "detail": "",
+          "constraint": null,
+          "reason": null,
+          "field": null,
+          "detail_parsed": null
+        }
+      }
+    },
+    {
+      "id": "N4",
+      "name": "本柱触发器全为 O（无残留 DISABLE/DROP）",
+      "pass": true,
+      "readout": {
+        "non_enabled": "0"
+      }
+    },
+    {
+      "id": "N5",
+      "name": "主工作区迁移文件 sha256 **前后相等**（未被自证碰）",
+      "pass": true,
+      "readout": {
+        "before": "0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd",
+        "after": "0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd",
+        "scratch_sha": "a646369cad582c10f6fa8efaf828b89e81ec8894054a01f66459dc4e1db119d1"
+      }
+    },
+    {
+      "id": "N6",
+      "name": "冲突行全属本单命名空间（foreign_rows_present=[]）",
+      "pass": true,
+      "readout": {
+        "foreign_rows": {
+          "admin_user_role_foreign": "0",
+          "admin_role_foreign": "0",
+          "app_config_foreign": "0",
+          "currency_status_log_foreign": "0",
+          "all_empty": true
+        }
+      }
+    },
+    {
+      "id": "N7",
+      "name": "回滚后 currency_status_log 无本单夹具行",
+      "pass": true,
+      "readout": {
+        "residue": "0"
+      }
+    },
+    {
+      "id": "N8",
+      "name": "回滚后 app_config 无本单夹具行",
+      "pass": true,
+      "readout": {
+        "residue": "0"
+      }
+    }
+  ]
+}

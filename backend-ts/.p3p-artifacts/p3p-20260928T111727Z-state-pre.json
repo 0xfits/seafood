@@ -1,0 +1,136 @@
+{
+  "run": "20260928T111727Z",
+  "label": "state-pre",
+  "at": "2026-09-28T11:17:33.065Z",
+  "repo": "/Users/kevin/bistro/seafood/backend-ts",
+  "schema_version": "0016",
+  "schema_migration_rows": 16,
+  "schema_migration_versions": [
+    "0001",
+    "0002",
+    "0003",
+    "0004",
+    "0005",
+    "0006",
+    "0007",
+    "0008",
+    "0009",
+    "0010",
+    "0011",
+    "0012",
+    "0013",
+    "0014",
+    "0015",
+    "0016"
+  ],
+  "public_base_tables": [
+    "account",
+    "commission_policy",
+    "currency",
+    "job",
+    "job_application",
+    "job_submission",
+    "ledger_entry",
+    "ledger_owner",
+    "listing",
+    "listing_order",
+    "market_order",
+    "market_trade",
+    "referral",
+    "schema_migration",
+    "users"
+  ],
+  "public_base_table_count": 15,
+  "public_views": [
+    "candle_view"
+  ],
+  "object_exists": {
+    "app_config": false,
+    "admin_role": false,
+    "admin_permission": false,
+    "admin_role_permission": false,
+    "admin_user_role": false,
+    "currency_status_log": false,
+    "referral": true,
+    "commission_policy": true
+  },
+  "ledger_post_event": {
+    "bytes": 51429,
+    "md5": "d94dd902697dfe60aba409d808c6d63a"
+  },
+  "orchestration_functions": [
+    {
+      "proname": "job_post_event",
+      "bytes": 13594,
+      "md5": "0cedbb9ea60dcbda28e3ef3dafdd119b"
+    },
+    {
+      "proname": "listing_post_event",
+      "bytes": 17858,
+      "md5": "0e187c20b56d45202d83978c8a02b31d"
+    },
+    {
+      "proname": "market_post_event",
+      "bytes": 30194,
+      "md5": "74841611252726e1cc0f57cb46ea6c6d"
+    }
+  ],
+  "append_only_precedent_triggers": [
+    {
+      "tgname": "trg_commission_policy_append_only",
+      "tgenabled": "O",
+      "tgrelid": "commission_policy"
+    },
+    {
+      "tgname": "trg_ledger_entry_append_only",
+      "tgenabled": "O",
+      "tgrelid": "ledger_entry"
+    },
+    {
+      "tgname": "trg_referral_append_only",
+      "tgenabled": "O",
+      "tgrelid": "referral"
+    }
+  ],
+  "users_columns": [
+    {
+      "column_name": "uid",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "evm",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "bio",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": "''::text"
+    },
+    {
+      "column_name": "is_admin",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "column_name": "time_reg",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "column_name": "time_login_last",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    }
+  ],
+  "migration_0017_file": {
+    "exists": false
+  }
+}

@@ -1,0 +1,521 @@
+{
+  "run": "20260928T111727Z",
+  "label": "post-fingerprint",
+  "at": "2026-09-28T11:20:08.432Z",
+  "schema_version": "0017",
+  "schema_migration_rows": 17,
+  "schema_migration_row17": {
+    "version": "0017",
+    "name": "0017_platform_config.sql",
+    "checksum": "0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd",
+    "applied_at": "2026-09-28 11:18:43.757394+00"
+  },
+  "public_base_tables": [
+    "account",
+    "admin_permission",
+    "admin_role",
+    "admin_role_permission",
+    "admin_user_role",
+    "app_config",
+    "commission_policy",
+    "currency",
+    "currency_status_log",
+    "job",
+    "job_application",
+    "job_submission",
+    "ledger_entry",
+    "ledger_owner",
+    "listing",
+    "listing_order",
+    "market_order",
+    "market_trade",
+    "referral",
+    "schema_migration",
+    "users"
+  ],
+  "public_base_table_count": 21,
+  "public_views": [
+    "candle_view"
+  ],
+  "per_table": {
+    "app_config": {
+      "columns": [
+        {
+          "ord": 1,
+          "name": "key",
+          "type": "text",
+          "nullable": "NO",
+          "def": null
+        },
+        {
+          "ord": 2,
+          "name": "value",
+          "type": "jsonb",
+          "nullable": "NO",
+          "def": null
+        },
+        {
+          "ord": 3,
+          "name": "updated_by",
+          "type": "bigint",
+          "nullable": "NO",
+          "def": null
+        },
+        {
+          "ord": 4,
+          "name": "time_updated",
+          "type": "timestamp with time zone",
+          "nullable": "NO",
+          "def": "now()"
+        }
+      ],
+      "constraints": [
+        {
+          "name": "app_config_key_not_null",
+          "type": "n",
+          "def": "NOT NULL key"
+        },
+        {
+          "name": "app_config_pk",
+          "type": "p",
+          "def": "PRIMARY KEY (key)"
+        },
+        {
+          "name": "app_config_time_updated_not_null",
+          "type": "n",
+          "def": "NOT NULL time_updated"
+        },
+        {
+          "name": "app_config_updated_by_not_null",
+          "type": "n",
+          "def": "NOT NULL updated_by"
+        },
+        {
+          "name": "app_config_value_is_container",
+          "type": "c",
+          "def": "CHECK ((jsonb_typeof(value) = ANY (ARRAY['object'::text, 'array'::text])))"
+        },
+        {
+          "name": "app_config_value_not_null",
+          "type": "n",
+          "def": "NOT NULL value"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "app_config_pk",
+          "def": "CREATE UNIQUE INDEX app_config_pk ON public.app_config USING btree (key)"
+        }
+      ],
+      "triggers": [
+        {
+          "name": "trg_app_config_key_immutable",
+          "enabled": "O",
+          "tgtype": 19
+        },
+        {
+          "name": "trg_app_config_touch_updated",
+          "enabled": "O",
+          "tgtype": 19
+        }
+      ]
+    },
+    "admin_role": {
+      "columns": [
+        {
+          "ord": 1,
+          "name": "role_key",
+          "type": "text",
+          "nullable": "NO",
+          "def": null
+        },
+        {
+          "ord": 2,
+          "name": "name",
+          "type": "text",
+          "nullable": "YES",
+          "def": null
+        },
+        {
+          "ord": 3,
+          "name": "time_created",
+          "type": "timestamp with time zone",
+          "nullable": "NO",
+          "def": "now()"
+        }
+      ],
+      "constraints": [
+        {
+          "name": "admin_role_pk",
+          "type": "p",
+          "def": "PRIMARY KEY (role_key)"
+        },
+        {
+          "name": "admin_role_role_key_not_null",
+          "type": "n",
+          "def": "NOT NULL role_key"
+        },
+        {
+          "name": "admin_role_time_created_not_null",
+          "type": "n",
+          "def": "NOT NULL time_created"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "admin_role_pk",
+          "def": "CREATE UNIQUE INDEX admin_role_pk ON public.admin_role USING btree (role_key)"
+        }
+      ],
+      "triggers": [
+        {
+          "name": "trg_admin_role_key_immutable",
+          "enabled": "O",
+          "tgtype": 19
+        }
+      ]
+    },
+    "admin_permission": {
+      "columns": [
+        {
+          "ord": 1,
+          "name": "permission_key",
+          "type": "text",
+          "nullable": "NO",
+          "def": null
+        },
+        {
+          "ord": 2,
+          "name": "name",
+          "type": "text",
+          "nullable": "YES",
+          "def": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "admin_permission_permission_key_not_null",
+          "type": "n",
+          "def": "NOT NULL permission_key"
+        },
+        {
+          "name": "admin_permission_pk",
+          "type": "p",
+          "def": "PRIMARY KEY (permission_key)"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "admin_permission_pk",
+          "def": "CREATE UNIQUE INDEX admin_permission_pk ON public.admin_permission USING btree (permission_key)"
+        }
+      ],
+      "triggers": [
+        {
+          "name": "trg_admin_permission_key_immutable",
+          "enabled": "O",
+          "tgtype": 19
+        }
+      ]
+    },
+    "admin_role_permission": {
+      "columns": [
+        {
+          "ord": 1,
+          "name": "role_key",
+          "type": "text",
+          "nullable": "NO",
+          "def": null
+        },
+        {
+          "ord": 2,
+          "name": "permission_key",
+          "type": "text",
+          "nullable": "NO",
+          "def": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "admin_role_permission_perm_fk",
+          "type": "f",
+          "def": "FOREIGN KEY (permission_key) REFERENCES admin_permission(permission_key)"
+        },
+        {
+          "name": "admin_role_permission_permission_key_not_null",
+          "type": "n",
+          "def": "NOT NULL permission_key"
+        },
+        {
+          "name": "admin_role_permission_pk",
+          "type": "p",
+          "def": "PRIMARY KEY (role_key, permission_key)"
+        },
+        {
+          "name": "admin_role_permission_role_fk",
+          "type": "f",
+          "def": "FOREIGN KEY (role_key) REFERENCES admin_role(role_key)"
+        },
+        {
+          "name": "admin_role_permission_role_key_not_null",
+          "type": "n",
+          "def": "NOT NULL role_key"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "admin_role_permission_pk",
+          "def": "CREATE UNIQUE INDEX admin_role_permission_pk ON public.admin_role_permission USING btree (role_key, permission_key)"
+        }
+      ],
+      "triggers": [
+        {
+          "name": "trg_admin_role_permission_key_immutable",
+          "enabled": "O",
+          "tgtype": 19
+        }
+      ]
+    },
+    "admin_user_role": {
+      "columns": [
+        {
+          "ord": 1,
+          "name": "uid",
+          "type": "bigint",
+          "nullable": "NO",
+          "def": null
+        },
+        {
+          "ord": 2,
+          "name": "role_key",
+          "type": "text",
+          "nullable": "NO",
+          "def": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "admin_user_role_pk",
+          "type": "p",
+          "def": "PRIMARY KEY (uid, role_key)"
+        },
+        {
+          "name": "admin_user_role_role_fk",
+          "type": "f",
+          "def": "FOREIGN KEY (role_key) REFERENCES admin_role(role_key)"
+        },
+        {
+          "name": "admin_user_role_role_key_not_null",
+          "type": "n",
+          "def": "NOT NULL role_key"
+        },
+        {
+          "name": "admin_user_role_uid_fk",
+          "type": "f",
+          "def": "FOREIGN KEY (uid) REFERENCES users(uid)"
+        },
+        {
+          "name": "admin_user_role_uid_not_null",
+          "type": "n",
+          "def": "NOT NULL uid"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "admin_user_role_pk",
+          "def": "CREATE UNIQUE INDEX admin_user_role_pk ON public.admin_user_role USING btree (uid, role_key)"
+        }
+      ],
+      "triggers": [
+        {
+          "name": "trg_admin_user_role_key_immutable",
+          "enabled": "O",
+          "tgtype": 19
+        }
+      ]
+    },
+    "currency_status_log": {
+      "columns": [
+        {
+          "ord": 1,
+          "name": "log_id",
+          "type": "bigint",
+          "nullable": "NO",
+          "def": null
+        },
+        {
+          "ord": 2,
+          "name": "cid",
+          "type": "bigint",
+          "nullable": "NO",
+          "def": null
+        },
+        {
+          "ord": 3,
+          "name": "from_status",
+          "type": "text",
+          "nullable": "NO",
+          "def": null
+        },
+        {
+          "ord": 4,
+          "name": "to_status",
+          "type": "text",
+          "nullable": "NO",
+          "def": null
+        },
+        {
+          "ord": 5,
+          "name": "actor_uid",
+          "type": "bigint",
+          "nullable": "NO",
+          "def": null
+        },
+        {
+          "ord": 6,
+          "name": "memo",
+          "type": "text",
+          "nullable": "YES",
+          "def": null
+        },
+        {
+          "ord": 7,
+          "name": "time_created",
+          "type": "timestamp with time zone",
+          "nullable": "NO",
+          "def": "now()"
+        }
+      ],
+      "constraints": [
+        {
+          "name": "currency_status_log_actor_fk",
+          "type": "f",
+          "def": "FOREIGN KEY (actor_uid) REFERENCES users(uid)"
+        },
+        {
+          "name": "currency_status_log_actor_uid_not_null",
+          "type": "n",
+          "def": "NOT NULL actor_uid"
+        },
+        {
+          "name": "currency_status_log_cid_fk",
+          "type": "f",
+          "def": "FOREIGN KEY (cid) REFERENCES currency(cid)"
+        },
+        {
+          "name": "currency_status_log_cid_not_null",
+          "type": "n",
+          "def": "NOT NULL cid"
+        },
+        {
+          "name": "currency_status_log_from_status_not_null",
+          "type": "n",
+          "def": "NOT NULL from_status"
+        },
+        {
+          "name": "currency_status_log_log_id_not_null",
+          "type": "n",
+          "def": "NOT NULL log_id"
+        },
+        {
+          "name": "currency_status_log_pk",
+          "type": "p",
+          "def": "PRIMARY KEY (log_id)"
+        },
+        {
+          "name": "currency_status_log_time_created_not_null",
+          "type": "n",
+          "def": "NOT NULL time_created"
+        },
+        {
+          "name": "currency_status_log_to_status_not_null",
+          "type": "n",
+          "def": "NOT NULL to_status"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "currency_status_log_pk",
+          "def": "CREATE UNIQUE INDEX currency_status_log_pk ON public.currency_status_log USING btree (log_id)"
+        }
+      ],
+      "triggers": [
+        {
+          "name": "trg_currency_status_log_append_only",
+          "enabled": "O",
+          "tgtype": 27
+        }
+      ]
+    }
+  },
+  "functions": [
+    {
+      "proname": "currency_status_log_append_only",
+      "args": "",
+      "bytes": 131,
+      "md5": "0e5750a72822458851433549e4c817d8"
+    },
+    {
+      "proname": "job_post_event",
+      "args": "payload jsonb",
+      "bytes": 13594,
+      "md5": "0cedbb9ea60dcbda28e3ef3dafdd119b"
+    },
+    {
+      "proname": "ledger_post_event",
+      "args": "payload jsonb",
+      "bytes": 51429,
+      "md5": "d94dd902697dfe60aba409d808c6d63a"
+    },
+    {
+      "proname": "listing_post_event",
+      "args": "payload jsonb",
+      "bytes": 17858,
+      "md5": "0e187c20b56d45202d83978c8a02b31d"
+    },
+    {
+      "proname": "market_post_event",
+      "args": "payload jsonb",
+      "bytes": 30194,
+      "md5": "74841611252726e1cc0f57cb46ea6c6d"
+    },
+    {
+      "proname": "platform_config_key_immutable",
+      "args": "",
+      "bytes": 417,
+      "md5": "42f8a65612d09e7a0bd44988fc80702c"
+    },
+    {
+      "proname": "platform_config_touch_updated",
+      "args": "",
+      "bytes": 54,
+      "md5": "02cd283c681f3259449b59141b5af903"
+    }
+  ],
+  "fk_totals_from_new_tables": [
+    {
+      "confrelid": "admin_permission",
+      "n": "1"
+    },
+    {
+      "confrelid": "admin_role",
+      "n": "2"
+    },
+    {
+      "confrelid": "currency",
+      "n": "1"
+    },
+    {
+      "confrelid": "users",
+      "n": "2"
+    }
+  ],
+  "foreign_rows": {
+    "admin_user_role_foreign": "0",
+    "admin_role_foreign": "0",
+    "app_config_foreign": "0",
+    "currency_status_log_foreign": "0",
+    "all_empty": true
+  },
+  "migration_0017_sha256": "0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd"
+}
