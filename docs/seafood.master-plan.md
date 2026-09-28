@@ -669,6 +669,25 @@ BEGIN…COMMIT 单独 2250 / 1377 / 1478 ms
 **新的跨会话纪律**：① 本仓**同一时刻只应有一个会话改 `docs/seafood.master-plan.md`**（共享唯一真源）；② 提交一律**只暂存自己改的文件**，永不用 `git add -A`/`.`；③ 交接/验收前**必须重跑 `git log --oneline -3` + `git status --porcelain` 对锚**（本日已两次实测：HEAD 在我会话期间被他方推进 `45c27d8`、`dbccd89`）；④ 引用任何文件时给 **blob sha256**，并在工作区被改动时改用**固定副本**重跑（上一轮核验已因此作废过一组读数）。
 
 
+### 5.30 **P3 Step 1 验收通过：读不再写，真库回到 == `0012`**（2026-09-28）
+
+**交付**：`backend-ts/src/database.ts` **-302 / +0**（唯一改动的源文件）—— 摘掉 `ensureSupportSchema()` 定义（原 269–534）、孤儿变量 `supportSchemaPromise`（原 :57）与**全部 34 处调用**；无 no-op 空函数、无注释死代码（AGENTS.md 禁死代码）；`tsc --noEmit` exit 0。
+
+**我亲核（不采信报告）**：`git diff --numstat` == `0 302`，且 `backend-ts/src` 下改动文件数**恰 1**；`grep -rc` 两串（`ensureSupportSchema` / `supportSchemaPromise`）计数均 **0**；`curl /health` ⇒ 200 + `schema_version: "0012"`；`lsof` 5788 有监听、**pid 57720 存活 / 旧 45770 已亡**（重载走面板单服务路由 `sid=seafood-api`，零停机；未动 5787、未用 `pm2 restart bistro-ctrl`、未带 `--update-env`）。
+
+**库回归**：**17 → 8 张表**，与 `0012` 目标集**集合逐一相等**（`account, commission_policy, currency, ledger_entry, ledger_owner, referral, schema_migration, users`）；索引 **33 → 24**；`schema_version=0012`、`schema_migration` **12 行**、`users` **411 行**（残差仍在，按 **D20** 待 P3 写真实用户前清）。DROP 前**逐张断言 0 行**（9 张全 0，硬闸未触发），`DROP TABLE IF EXISTS` **无 `CASCADE`**。
+
+**核心断言「读不再写」成立**：修复 + 重载后对**同一批 9 条 GET 打了两轮**，表数恒为 8、`lazy_tables_present=[]` ⇒ **懒表未被读请求重建**（改前同一批 GET **一轮**就造出那 9 张表）。
+
+**九条 GET 仍全 500**（三轮直方图均 `{500:9}`）—— **属预期，不影响本单验收**：根因是 `"uID"` / `"EVM"` 大写引号列名模型（**D18** 数据层重写范围）；本单只负责「不再产生 DDL」。
+
+**更正我 brief 里的错数（留痕）**：我写的「12 处调用」取自**截断的 grep 清单**；**实测 34 处**，Kong 按实测全摘并如实指出 ⇒ **新增纪律：不得把截断的工具输出当作完整事实**（与既有「不信报告，也不信沉默 —— 查盘」同源）。
+
+**新增登记（未处置，交 P3 裁定）**：`ensureLegacyTableNames`（`database.ts:240`，另有 4 处调用 `:1320/:1471/:1500/:1740`）**本单未动未验** —— 它做**条件 RENAME**（`gift→prize_item` / `journey→task_progress`）。⚠️ 懒 DDL 被摘除后它可能已无表可 rename，须与 `ensureSupportSchema` **同族地判去留**。
+
+**入库**：`backend-ts/src/database.ts` + 三个探针（`scripts/p3s1-00-db-state.ts` 只读 / `p3s1-01-get-matrix.ts` 只发 GET / `p3s1-02-drop-lazy-tables.ts` 内置逐张 0 行硬闸，非空 `exit 3` 不 DROP）+ `.p3s1-artifacts/`（run-tagged）+ `docs/audit/`（含全量路由审计 `p3-route-inventory.{json,md}` 55 条 + 人读交付 `p3-step1-ddl-removal.md`）。
+
+
 ### 5.6 延迟问题的三个处置变体（**已拍板：变体 B**，见 D10）
 
 | 变体 | 做法 | 本地单笔预期 | 代价 |
@@ -865,6 +884,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.35 | 2026-09-28 | **§5.30 P3 Step 1 验收通过**（读不再写，库回到 == `0012`）：`database.ts` **-302/+0**（唯一改动源文件），摘 `ensureSupportSchema()` 定义 + 孤儿 `supportSchemaPromise` + **实测 34 处**调用（我 brief 写的 12 处取自截断 grep 清单 ⇒ 已更正并立纪律）；我亲核 `numstat`/两串 grep 全 0/`/health` 200+`0012`/pid 57720 存活；真库 **17→8 张**且与 `0012` 目标集逐一等、索引 33→24、`schema_version=0012`、migration 12 行、users 411；**同一批 9 条 GET 两轮后表数恒为 8 ⇒ 懒表未被重建（读不再写成立）**；九条 GET 仍 500 属预期（列名模型，D18 范围）。新登记 `ensureLegacyTableNames`（`database.ts:240` + 4 处调用）待 P3 与 `ensureSupportSchema` 同族判去留 |
 | v0.34 | 2026-09-28 | **§5.29 P3 数据层重写立项 + 路由审计结论落位**。审计（55 条）：`ok` 仅 7、`column_missing` 40、`table_missing` 6、`legacy_unmapped` 2，**零路由触达账本内核与返佣** ⇒ 内核在 HTTP 层没接上；真根因是**列名模型**（真列 `uid`/`evm` vs 代码 `"uID"`×57 / `"EVM"`×4）；审计的 GET 触发 `ensureSupportSchema()` 懒 DDL ⇒ **真库 8→17 张表**（9 张全空的表不在任何迁移中）；411 条 users 核实为**我方测试残差**。Kevin 裁定 **D18 = 数据层重写（方案 A）**、**D19 = 先修码再 DROP 回到 == 0012**、**D20 = P3 写真实用户前清残差**。登记他方提交 `45c27d8`（Kevin 自修语言前缀规范化 + 空白页，§5.26 #3，待独立核验）。派单：Kong 摘运行时 DDL + DROP；Jing 出 `docs/data-layer.spec.md` v0.1 |
 | v0.33 | 2026-09-27 | **§5.28 P3 立项与拆解**（P1/P2 已闭环）：P3 = 业务模块四柱（招工 / 商品 / 积分交易所 / 邀请返佣用户可见面），管理员不再在后台发 task/reward；**P3 入口先遣＝全量路由审计**（拷来的后端有一批活路由绑在新库不存在的表上，`/api/user/asset/:uID` 实测 500 ⇒ 不知哪些路由是死的就会在死路由上叠新功能）；交付 `docs/audit/p3-route-inventory.{md,json}` 并要求内置判负能力（独立重新发现已知缺口）。**P3 门槛项建议**：把「修仓库自带 e2e」列为 P3 前置（它现在会静默打到 jinli 站点上 ⇒ 不修则每个模块都缺回归能力）+ 双重前缀 URL 随 P3 第一单一起修。**§5.26 四项处置建议**：#2/#3 纳入 P3 前置；#1 需 Kevin 给品牌成句文案口径；**#4 标题闪烁裁定不做**（内联映射会破坏 §5.24 的单一真源，正解是部署层按语言下发 HTML） |
 | v0.32 | 2026-09-27 | **规格与质检报告双收口**。① `docs/ledger.spec.md` 由 **v0.10 → v0.11**（md5 `115b6e8dc36e0f6e2e29ce855cc014d5` / sha256 `473b87fe…` / 1918 行 / 417398 字节；11 处改动 +85/−5；快照 `docs/versions/ledger.spec.v0.10.md` sha256 `1ea17c20…`）：R51 新增「只读重放前置闸是重放**快路径**、不取代 `ON CONFLICT` 探针并发权威性」子句、§7.1 阶段序句更正（行号 **454 → 466**）、R52① 标明重放保证项 + `extra` 非契约、新增 §19.15 落位 `0012` 实现证据与 §19.15.B 两条已知盲区；旧址一律以「v0.10 旧写法」留痕同处，R51/R52 条文一字未改。② `docs/qa/p2-0012-replay-order.md`（sha256 `352192fe…`）落盘：verdict **可验收 PASS**（I1–I10 全 PASS）。**⚠️ 我自己的错前提留痕**：派单写「从 v0.9 推到 v0.10」，而文件当时**已在 v0.10**（`f78714f` §19.14 入册）、`docs/versions/ledger.spec.v0.9.md` 已存在 ⇒ **Jing 未按字面执行**，改 v0.11 + 快照真实改前版 v0.10，并显式回报询问是否需覆盖 v0.9 快照。**裁定：Jing 的做法正确** —— 「版本号只增不复用、已发布快照不得覆盖」**优先于派单字面**；**引用 spec 一律以内容/规则号为准，不得把行号当稳定标识**（本轮行号已漂移 454→466、R51 405→406、R52 406→407）。**连带登记（未修）**：`docs/ledger.spec.md` 第 420 行（§6.2 R49 文本）含**真实** NUL 与 `0x1F` 控制字符各 1 处 —— 经核**同样存在于 v0.10 快照**（非本版引入），但纯文本文件含 NUL 会咬工具链（`grep`/diff 可能判为二进制），列为待清 |
