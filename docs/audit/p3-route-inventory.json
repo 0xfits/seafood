@@ -1,0 +1,6374 @@
+{
+ "summary": {
+  "head_at_start": "45c27d8 fix(i18n): 语言前缀规范化，修连续切语言产生的双重前缀空白页",
+  "head_at_end": "073c683 master-plan v0.33: 5.28 P3 立项与拆解（P1/P2 已闭环）",
+  "audit_date_local": "2026-09-28 08:19:27 CST",
+  "source_files": [
+   "backend-ts/src/index.ts",
+   "backend-ts/src/database.ts",
+   "backend-ts/src/db.ts",
+   "backend-ts/src/auth.ts"
+  ],
+  "routes_total": 55,
+  "routes_breakdown": {
+   "method_routes": 51,
+   "global_middleware": 3,
+   "catch_all_404": 1
+  },
+  "verdict_counts": {
+   "ok": 7,
+   "legacy_unmapped": 2,
+   "column_missing": 40,
+   "table_missing": 6
+  },
+  "verdict_definitions": {
+   "table_missing": "path reaches a table absent from the live DB and nothing on the path creates it",
+   "column_missing": "path reaches an existing table but references a column that does not exist (exact case for quoted identifiers)",
+   "function_missing": "path calls a DB function with no matching signature (0 hits this round)",
+   "legacy_unmapped": "route touches no DB object and is a retired/legacy-only entry point with no new-product counterpart",
+   "ok": "no missing DB object on the path"
+  },
+  "db_baseline_snapshot": {
+   "tables": [
+    "account",
+    "commission_policy",
+    "currency",
+    "ledger_entry",
+    "ledger_owner",
+    "referral",
+    "schema_migration",
+    "users"
+   ],
+   "table_count": 8,
+   "users_columns": [
+    "bio",
+    "evm",
+    "is_admin",
+    "time_login_last",
+    "time_reg",
+    "uid"
+   ],
+   "users_rows": 411,
+   "functions_count": 33
+  },
+  "db_state_after_probing": {
+   "tables": [
+    "account",
+    "app_config",
+    "commission_policy",
+    "currency",
+    "ledger_entry",
+    "ledger_owner",
+    "market_order",
+    "market_trade",
+    "permission_group",
+    "prize",
+    "prize_item",
+    "referral",
+    "schema_migration",
+    "shard",
+    "shard_transfer",
+    "task_progress",
+    "users"
+   ],
+   "table_count": 17,
+   "note": "lazy-DDL side effect of GET /api/market/:bID/{orderbook,trades}"
+  },
+  "lazy_created_tables": [
+   "app_config",
+   "market_order",
+   "market_trade",
+   "permission_group",
+   "prize",
+   "prize_item",
+   "shard",
+   "shard_transfer",
+   "task_progress"
+  ],
+  "legacy_table_renames_attempted_by_ensureLegacyTableNames": [
+   {
+    "from": "gift",
+    "to": "prize_item"
+   },
+   {
+    "from": "journey",
+    "to": "task_progress"
+   }
+  ],
+  "read_only_statement": "all DB access used a read-only session (PGOPTIONS=-c default_transaction_read_only=on) and SELECT/EXPLAIN only; all HTTP was GET only",
+  "connection_stability": {
+   "http_requests_total": 50,
+   "http_retries_needed": 0,
+   "db_query_batches": 6,
+   "db_individual_readonly_statements": "~35",
+   "db_retries_needed": 0,
+   "note": "the known transient \"Client network socket disconnected before secure TLS connection was established\" flap did NOT occur during this audit window (0 retries)"
+  },
+  "known_gap_self_test": {
+   "route": "GET /api/user/asset/:uID",
+   "expected": "table_missing(asset) + live 500",
+   "result": "PASS: verdict=table_missing, tables[asset].exists=false, live HTTP 500 in phases A and C (x2)",
+   "other_gaps_found": "asset is NOT the only one: 11 legacy tables are absent in total, and users.\"uID\"/\"EVM\" do not exist (411 users unreadable)"
+  },
+  "deliverables": [
+   "docs/audit/p3-route-inventory.json",
+   "docs/audit/p3-route-inventory.md"
+  ],
+  "constraints_respected": "no code changes, no DB rows written, no migrations run, no POST/PUT/PATCH/DELETE issued, no commit/push, panel services 5787/5788 not started/stopped/restarted"
+ },
+ "routes": [
+  {
+   "method": "USE",
+   "path": "<global middleware: helmet>",
+   "handler": "global_middleware_helmet",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 22,
+   "source": "backend-ts/src/index.ts:22",
+   "service_methods": [],
+   "ensure_calls": [],
+   "tables": [],
+   "functions": [],
+   "verdict": "ok",
+   "verdict_evidence": "no missing DB object on this path",
+   "secondary_failure_classes": [],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "无（框架中间件 helmet/cors/json）",
+    "proposed_pillar": "平台基础",
+    "proposal": "保留（无业务语义）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "USE",
+   "path": "<global middleware: cors>",
+   "handler": "global_middleware_cors",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 23,
+   "source": "backend-ts/src/index.ts:23",
+   "service_methods": [],
+   "ensure_calls": [],
+   "tables": [],
+   "functions": [],
+   "verdict": "ok",
+   "verdict_evidence": "no missing DB object on this path",
+   "secondary_failure_classes": [],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "无（框架中间件 helmet/cors/json）",
+    "proposed_pillar": "平台基础",
+    "proposal": "保留（无业务语义）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "USE",
+   "path": "<global middleware: express.json>",
+   "handler": "global_middleware_express.json",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 24,
+   "source": "backend-ts/src/index.ts:24",
+   "service_methods": [],
+   "ensure_calls": [],
+   "tables": [],
+   "functions": [],
+   "verdict": "ok",
+   "verdict_evidence": "no missing DB object on this path",
+   "secondary_failure_classes": [],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "无（框架中间件 helmet/cors/json）",
+    "proposed_pillar": "平台基础",
+    "proposal": "保留（无业务语义）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/",
+   "handler": "root_banner",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 175,
+   "source": "backend-ts/src/index.ts:175",
+   "service_methods": [],
+   "ensure_calls": [],
+   "tables": [],
+   "functions": [],
+   "verdict": "ok",
+   "verdict_evidence": "no missing DB object on this path",
+   "secondary_failure_classes": [],
+   "notes": "static banner + endpoint list -> 200.",
+   "live_probe": {
+    "probed_path": "/",
+    "results": [
+     {
+      "phase": "A",
+      "status": 200,
+      "body": "{\"success\":true,\"message\":\"Backend ready\",\"data\":{\"status\":\"ok\",\"message\":\"Seafood TypeScript Backend\",\"timestamp\":\"2026-09-28T00:11:12.795Z\",\"endpoints\":{\"health\":\"/health\",\"authChallenge\":\"/api/auth/challenge\",\"authVerify\":\"/api/auth/verify\",\"prizes\":\"/api/prize/all\",\"tasks\":\"/api/task/all\",\"user\"",
+      "ms": 10,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "无（旧站根路由）",
+    "proposed_pillar": "平台基础",
+    "proposal": "保留；改为新站清单/版本探针",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/health",
+   "handler": "get_health",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 195,
+   "source": "backend-ts/src/index.ts:195",
+   "service_methods": [
+    "healthCheck"
+   ],
+   "ensure_calls": [],
+   "tables": [
+    {
+     "name": "schema_migration",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "version"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "healthCheck"
+     ]
+    }
+   ],
+   "functions": [],
+   "verdict": "ok",
+   "verdict_evidence": "no missing DB object on this path",
+   "secondary_failure_classes": [],
+   "notes": "reads schema_migration.version only -> 200 (schema_version 0012); does NOT touch any legacy table.",
+   "live_probe": {
+    "probed_path": "/health",
+    "results": [
+     {
+      "phase": "A",
+      "status": 200,
+      "body": "{\"ok\":true,\"db_version\":\"PostgreSQL 18.6 (6569466) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit\",\"schema_version\":\"0012\",\"time\":\"2026-09-28T00:11:13.574Z\"}",
+      "ms": 777,
+      "attempts": 1,
+      "error": null
+     },
+     {
+      "phase": "C",
+      "status": 200,
+      "body": "{\"ok\":true,\"db_version\":\"PostgreSQL 18.6 (6569466) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit\",\"schema_version\":\"0012\",\"time\":\"2026-09-28T00:12:54.763Z\"}",
+      "ms": 1173,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "无（运维探针）",
+    "proposed_pillar": "平台运维",
+    "proposal": "保留；schema_version 应指向新迁移链 0001–0012",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/test/data",
+   "handler": "get_test_data",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 212,
+   "source": "backend-ts/src/index.ts:212",
+   "service_methods": [],
+   "ensure_calls": [],
+   "tables": [],
+   "functions": [],
+   "verdict": "legacy_unmapped",
+   "verdict_evidence": "no missing DB object on this path",
+   "secondary_failure_classes": [],
+   "notes": "dev stub; no DB object, no new-product counterpart.",
+   "live_probe": {
+    "probed_path": "/api/test/data",
+    "results": [
+     {
+      "phase": "A",
+      "status": 200,
+      "body": "{\"success\":true,\"message\":\"OK\",\"data\":{\"status\":\"ok\",\"message\":\"TypeScript backend is running\",\"timestamp\":\"2026-09-28T00:11:13.575Z\"}}",
+      "ms": 0,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "无（开发桩）",
+    "proposed_pillar": "与新产品无关",
+    "proposal": "删除（legacy_unmapped）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/auth/register",
+   "handler": "post_auth_register",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 223,
+   "source": "backend-ts/src/index.ts:223",
+   "service_methods": [],
+   "ensure_calls": [],
+   "tables": [],
+   "functions": [],
+   "verdict": "legacy_unmapped",
+   "verdict_evidence": "no missing DB object on this path",
+   "secondary_failure_classes": [],
+   "notes": "retired on purpose (410 Gone, \"Registration has moved to wallet sign-in\"); no DB object, no new-product counterpart.",
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "旧邮箱注册（已 410）",
+    "proposed_pillar": "邀请返佣/身份",
+    "proposal": "删除；注册并入钱包签名 + 邀请绑定 referral_bind",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/auth/challenge",
+   "handler": "post_auth_challenge",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 227,
+   "source": "backend-ts/src/index.ts:227",
+   "service_methods": [
+    "startWalletAuthChallenge"
+   ],
+   "ensure_calls": [],
+   "tables": [],
+   "functions": [],
+   "verdict": "ok",
+   "verdict_evidence": "no missing DB object on this path",
+   "secondary_failure_classes": [],
+   "notes": "in-memory nonce only (auth.ts) -> no DB object; still the entry point of the new wallet sign-in flow.",
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "旧钱包签名挑战",
+    "proposed_pillar": "平台基础（身份）",
+    "proposal": "保留，重写为对新 users(uid,evm) 列读写",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/auth/verify",
+   "handler": "post_auth_verify",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 236,
+   "source": "backend-ts/src/index.ts:236",
+   "service_methods": [
+    "consumeWalletAuthChallenge",
+    "createSessionToken",
+    "findOrCreateUserByEvm",
+    "createUserByEvm",
+    "getNextUserId",
+    "getUserByEvm",
+    "getUserById",
+    "touchUserLogin",
+    "getUserAsset",
+    "upsertAsset"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "asset",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "lucks",
+      "points",
+      "time_updated",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "time_updated",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getUserAsset",
+      "upsertAsset"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "bio",
+      "is_admin",
+      "time_login_last",
+      "time_reg",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "bio",
+      "is_admin",
+      "time_login_last",
+      "time_reg",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "createUserByEvm",
+      "getNextUserId",
+      "getUserByEvm",
+      "getUserById",
+      "touchUserLogin"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "旧钱包登录 + asset 初始化",
+    "proposed_pillar": "平台基础（身份）",
+    "proposal": "重写：users upsert + 余额改由 ledger_entry 派生（废弃 asset 表）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/auth/login",
+   "handler": "post_auth_login",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 259,
+   "source": "backend-ts/src/index.ts:259",
+   "service_methods": [
+    "consumeWalletAuthChallenge",
+    "createSessionToken",
+    "findOrCreateUserByEvm",
+    "createUserByEvm",
+    "getNextUserId",
+    "getUserByEvm",
+    "getUserById",
+    "touchUserLogin",
+    "getUserAsset",
+    "upsertAsset"
+   ],
+   "ensure_calls": [],
+   "tables": [
+    {
+     "name": "asset",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "lucks",
+      "points",
+      "time_updated",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "time_updated",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getUserAsset",
+      "upsertAsset"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "bio",
+      "is_admin",
+      "time_login_last",
+      "time_reg",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "bio",
+      "is_admin",
+      "time_login_last",
+      "time_reg",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "createUserByEvm",
+      "getNextUserId",
+      "getUserByEvm",
+      "getUserById",
+      "touchUserLogin"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "alias of POST /api/auth/verify (re-dispatches req.url = /api/auth/verify); inherits its failures",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": "alias: rewrites req.url to /api/auth/verify and re-dispatches through the router; inherits verify failures (tables/verdict copied).",
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "旧登录别名（内部转发 verify）",
+    "proposed_pillar": "平台基础（身份）",
+    "proposal": "同 verify；建议保留别名但共用新实现",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/prize/all",
+   "handler": "get_prize_all",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 264,
+   "source": "backend-ts/src/index.ts:264",
+   "service_methods": [
+    "listPrizes",
+    "listBrands"
+   ],
+   "ensure_calls": [
+    "ensureLegacyTableNames"
+   ],
+   "tables": [
+    {
+     "name": "prize",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "listBrands"
+     ]
+    },
+    {
+     "name": "prize_item",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "time_actived",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "listBrands"
+     ]
+    },
+    {
+     "name": "shard",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "listBrands"
+     ]
+    },
+    {
+     "name": "shard_transfer",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "reason",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "listBrands"
+     ]
+    }
+   ],
+   "functions": [],
+   "verdict": "table_missing",
+   "verdict_evidence": "reached table(s) absent from the live DB: prize,prize_item,shard,shard_transfer",
+   "secondary_failure_classes": [
+    "table_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": "/api/prize/all",
+    "results": [
+     {
+      "phase": "A",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load prizes\",\"error\":\"Failed to load prizes\"}",
+      "ms": 2280,
+      "attempts": 1,
+      "error": null
+     },
+     {
+      "phase": "C",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load prizes\",\"error\":\"Failed to load prizes\"}",
+      "ms": 669,
+      "attempts": 1,
+      "error": null
+     },
+     {
+      "phase": "C",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load prizes\",\"error\":\"Failed to load prizes\"}",
+      "ms": 160,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "prize/Brand（旧 reward）",
+    "proposed_pillar": "②商品",
+    "proposal": "新 commodity（用户用 $ 标价）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/task/all",
+   "handler": "get_task_all",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 276,
+   "source": "backend-ts/src/index.ts:276",
+   "service_methods": [
+    "listTasks"
+   ],
+   "ensure_calls": [
+    "ensureLegacyTableNames"
+   ],
+   "tables": [
+    {
+     "name": "task",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "tID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "tID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "listTasks"
+     ]
+    },
+    {
+     "name": "task_progress",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "tID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "tID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "listTasks"
+     ]
+    }
+   ],
+   "functions": [],
+   "verdict": "table_missing",
+   "verdict_evidence": "reached table(s) absent from the live DB: task,task_progress",
+   "secondary_failure_classes": [
+    "table_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": "/api/task/all",
+    "results": [
+     {
+      "phase": "A",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load tasks\",\"error\":\"Failed to load tasks\"}",
+      "ms": 972,
+      "attempts": 1,
+      "error": null
+     },
+     {
+      "phase": "C",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load tasks\",\"error\":\"Failed to load tasks\"}",
+      "ms": 204,
+      "attempts": 1,
+      "error": null
+     },
+     {
+      "phase": "C",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load tasks\",\"error\":\"Failed to load tasks\"}",
+      "ms": 154,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "task（旧任务/招工）",
+    "proposed_pillar": "①招工",
+    "proposal": "新任务表（招工单）；或复用 task 表重命名 job",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/task/:tID",
+   "handler": "get_task_tid",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 288,
+   "source": "backend-ts/src/index.ts:288",
+   "service_methods": [
+    "getTask"
+   ],
+   "ensure_calls": [
+    "ensureLegacyTableNames"
+   ],
+   "tables": [
+    {
+     "name": "task",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "tID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "tID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getTask"
+     ]
+    },
+    {
+     "name": "task_progress",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "tID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "tID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getTask"
+     ]
+    }
+   ],
+   "functions": [],
+   "verdict": "table_missing",
+   "verdict_evidence": "reached table(s) absent from the live DB: task,task_progress",
+   "secondary_failure_classes": [
+    "table_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": "/api/task/1",
+    "results": [
+     {
+      "phase": "A",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load task\",\"error\":\"Failed to load task\"}",
+      "ms": 450,
+      "attempts": 1,
+      "error": null
+     },
+     {
+      "phase": "C",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load task\",\"error\":\"Failed to load task\"}",
+      "ms": 193,
+      "attempts": 1,
+      "error": null
+     },
+     {
+      "phase": "C",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load task\",\"error\":\"Failed to load task\"}",
+      "ms": 184,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "task（旧任务/招工）",
+    "proposed_pillar": "①招工",
+    "proposal": "新任务表（招工单）；或复用 task 表重命名 job",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/prize/:bID",
+   "handler": "get_prize_bid",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 308,
+   "source": "backend-ts/src/index.ts:308",
+   "service_methods": [
+    "getPrizeById",
+    "getBrandById"
+   ],
+   "ensure_calls": [
+    "ensureLegacyTableNames"
+   ],
+   "tables": [
+    {
+     "name": "prize",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "prize_item",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "time_actived",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "shard",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "shard_transfer",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "reason",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    }
+   ],
+   "functions": [],
+   "verdict": "table_missing",
+   "verdict_evidence": "reached table(s) absent from the live DB: prize,prize_item,shard,shard_transfer",
+   "secondary_failure_classes": [
+    "table_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": "/api/prize/1",
+    "results": [
+     {
+      "phase": "A",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load prize\",\"error\":\"Failed to load prize\"}",
+      "ms": 497,
+      "attempts": 1,
+      "error": null
+     },
+     {
+      "phase": "C",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load prize\",\"error\":\"Failed to load prize\"}",
+      "ms": 170,
+      "attempts": 1,
+      "error": null
+     },
+     {
+      "phase": "C",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load prize\",\"error\":\"Failed to load prize\"}",
+      "ms": 165,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "prize/Brand（旧 reward）",
+    "proposed_pillar": "②商品",
+    "proposal": "新 commodity（用户用 $ 标价）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/user",
+   "handler": "get_user",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 328,
+   "source": "backend-ts/src/index.ts:328",
+   "service_methods": [
+    "requireActor",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "buildUserPayload",
+    "getUserAsset"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "asset",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getUserAsset"
+     ]
+    },
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": "/api/user",
+    "results": [
+     {
+      "phase": "A",
+      "status": 401,
+      "body": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}",
+      "ms": 0,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "旧用户详情（含 asset.points）",
+    "proposed_pillar": "平台基础（账户）",
+    "proposal": "重写：points 由账本聚合",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/user/profile",
+   "handler": "post_user_profile",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 341,
+   "source": "backend-ts/src/index.ts:341",
+   "service_methods": [
+    "requireActor",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "buildUserPayload",
+    "getUserAsset",
+    "updateUserProfile"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "asset",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getUserAsset"
+     ]
+    },
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "bio",
+      "is_admin",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "bio",
+      "is_admin",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById",
+      "updateUserProfile"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "旧资料补全",
+    "proposed_pillar": "平台基础（账户）",
+    "proposal": "重写为写 users.bio（列名大小写修复）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/user/asset/:uID",
+   "handler": "get_user_asset_uid",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 364,
+   "source": "backend-ts/src/index.ts:364",
+   "service_methods": [
+    "getUserAsset",
+    "upsertAsset"
+   ],
+   "ensure_calls": [],
+   "tables": [
+    {
+     "name": "asset",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "lucks",
+      "points",
+      "time_updated",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "time_updated",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getUserAsset",
+      "upsertAsset"
+     ]
+    }
+   ],
+   "functions": [],
+   "verdict": "table_missing",
+   "verdict_evidence": "reached table(s) absent from the live DB: asset",
+   "secondary_failure_classes": [
+    "table_missing"
+   ],
+   "notes": "KNOWN-GAP SELF-TEST (audit must independently rediscover this): getUserAsset() swallows its own error (try/catch -> null) so the handler falls through to upsertAsset(), whose INSERT INTO asset throws -> 500. Reproduced live in phases A and C. NOTE: this GET is NOT read-only by contract - if the asset table existed, an unauthenticated GET would INSERT an asset row for any uID.",
+   "live_probe": {
+    "probed_path": "/api/user/asset/1",
+    "results": [
+     {
+      "phase": "A",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Internal server error\",\"error\":\"Internal server error\"}",
+      "ms": 2590,
+      "attempts": 1,
+      "error": null
+     },
+     {
+      "phase": "C",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Internal server error\",\"error\":\"Internal server error\"}",
+      "ms": 1475,
+      "attempts": 1,
+      "error": null
+     },
+     {
+      "phase": "C",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Internal server error\",\"error\":\"Internal server error\"}",
+      "ms": 665,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "旧资产（asset 表）",
+    "proposed_pillar": "平台基础（账户）",
+    "proposal": "废弃 asset 表；改 /api/user/points（账本派生）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/home",
+   "handler": "get_home",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 379,
+   "source": "backend-ts/src/index.ts:379",
+   "service_methods": [
+    "resolveActor",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "getUserAsset",
+    "listClaimedPrizeIdsByUser",
+    "listPrizes",
+    "listBrands",
+    "listTasks",
+    "upsertAsset"
+   ],
+   "ensure_calls": [
+    "ensureLegacyTableNames",
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "asset",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "lucks",
+      "points",
+      "time_updated",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "time_updated",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getUserAsset",
+      "upsertAsset"
+     ]
+    },
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "prize",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "listBrands"
+     ]
+    },
+    {
+     "name": "prize_item",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "time_actived",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "listBrands",
+      "listClaimedPrizeIdsByUser"
+     ]
+    },
+    {
+     "name": "shard",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "listBrands"
+     ]
+    },
+    {
+     "name": "shard_transfer",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "reason",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "listBrands"
+     ]
+    },
+    {
+     "name": "task",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "tID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "tID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "listTasks"
+     ]
+    },
+    {
+     "name": "task_progress",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "tID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "tID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "listTasks"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": "public route with optional auth: unauthenticated requests fail first on listTasks (task missing) - that is the live 500 observed. Authenticated requests would fail earlier on users.\"uID\"/\"EVM\".",
+   "live_probe": {
+    "probed_path": "/api/home",
+    "results": [
+     {
+      "phase": "A",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load home payload\",\"error\":\"Failed to load home payload\"}",
+      "ms": 666,
+      "attempts": 1,
+      "error": null
+     },
+     {
+      "phase": "A",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load home payload\",\"error\":\"Failed to load home payload\"}",
+      "ms": 297,
+      "attempts": 1,
+      "error": null
+     },
+     {
+      "phase": "C",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load home payload\",\"error\":\"Failed to load home payload\"}",
+      "ms": 213,
+      "attempts": 1,
+      "error": null
+     },
+     {
+      "phase": "C",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load home payload\",\"error\":\"Failed to load home payload\"}",
+      "ms": 187,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "旧首页聚合（task+prize+asset）",
+    "proposed_pillar": "①招工+②商品",
+    "proposal": "重写：招工列表 + 商品列表 + 我的积分",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/prize-item",
+   "handler": "get_prize_item",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 419,
+   "source": "backend-ts/src/index.ts:419",
+   "service_methods": [
+    "requireActor",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "listPrizeItemsByUser"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "prize_item",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "gID",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "gID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "listPrizeItemsByUser"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": "/api/prize-item",
+    "results": [
+     {
+      "phase": "A",
+      "status": 401,
+      "body": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}",
+      "ms": 0,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "prize_item（旧领取物）",
+    "proposed_pillar": "②商品",
+    "proposal": "商品持有/交付记录",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/task-progress",
+   "handler": "get_task_progress",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 433,
+   "source": "backend-ts/src/index.ts:433",
+   "service_methods": [
+    "requireActor",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "listTaskProgressByUser"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "task_progress",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "jID",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "jID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "listTaskProgressByUser"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": "/api/task-progress",
+    "results": [
+     {
+      "phase": "A",
+      "status": 401,
+      "body": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}",
+      "ms": 0,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "journey/task_progress（旧任务进度）",
+    "proposed_pillar": "①招工",
+    "proposal": "招工报名/提交/审核流水",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/task-progress/:jID",
+   "handler": "get_task_progress_jid",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 447,
+   "source": "backend-ts/src/index.ts:447",
+   "service_methods": [
+    "getTaskProgress"
+   ],
+   "ensure_calls": [],
+   "tables": [
+    {
+     "name": "task_progress",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "jID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "jID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getTaskProgress"
+     ]
+    }
+   ],
+   "functions": [],
+   "verdict": "table_missing",
+   "verdict_evidence": "reached table(s) absent from the live DB: task_progress",
+   "secondary_failure_classes": [
+    "table_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": "/api/task-progress/1",
+    "results": [
+     {
+      "phase": "A",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load task progress\",\"error\":\"Failed to load task progress\"}",
+      "ms": 360,
+      "attempts": 1,
+      "error": null
+     },
+     {
+      "phase": "C",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load task progress\",\"error\":\"Failed to load task progress\"}",
+      "ms": 210,
+      "attempts": 1,
+      "error": null
+     },
+     {
+      "phase": "C",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load task progress\",\"error\":\"Failed to load task progress\"}",
+      "ms": 198,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "journey/task_progress（旧任务进度）",
+    "proposed_pillar": "①招工",
+    "proposal": "招工报名/提交/审核流水",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/task-progress/:identifier/submit",
+   "handler": "post_task_progress_identifier_submit",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 466,
+   "source": "backend-ts/src/index.ts:466",
+   "service_methods": [
+    "requireActor",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "ensureOwnedTaskProgress",
+    "ensureTaskProgressForUserTask",
+    "createTaskProgress",
+    "findTaskProgressByUserAndTask",
+    "getTask",
+    "getTaskProgress",
+    "submitTaskProgressInfo"
+   ],
+   "ensure_calls": [
+    "ensureLegacyTableNames",
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "task",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "tID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "tID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getTask"
+     ]
+    },
+    {
+     "name": "task_progress",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "info_input",
+      "jID",
+      "points_claimed",
+      "tID",
+      "time_created",
+      "time_submitted",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "jID",
+      "tID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "createTaskProgress",
+      "findTaskProgressByUserAndTask",
+      "getTask",
+      "getTaskProgress",
+      "submitTaskProgressInfo"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "journey/task_progress（旧任务进度）",
+    "proposed_pillar": "①招工",
+    "proposal": "招工报名/提交/审核流水",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/task-progress/claim/:jID",
+   "handler": "post_task_progress_claim_jid",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 504,
+   "source": "backend-ts/src/index.ts:504",
+   "service_methods": [
+    "requireActor",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "claimTaskProgress",
+    "getTask",
+    "getTaskProgress",
+    "getUserAsset",
+    "upsertAsset"
+   ],
+   "ensure_calls": [
+    "ensureLegacyTableNames",
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "asset",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "lucks",
+      "points",
+      "time_updated",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "time_updated",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getUserAsset",
+      "upsertAsset"
+     ]
+    },
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "task",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "tID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "tID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getTask"
+     ]
+    },
+    {
+     "name": "task_progress",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "jID",
+      "points_claimed",
+      "tID",
+      "time_claimed"
+     ],
+     "columns_quoted_case_sensitive": [
+      "jID",
+      "tID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "claimTaskProgress",
+      "getTask",
+      "getTaskProgress"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "journey/task_progress（旧任务进度）",
+    "proposed_pillar": "①招工",
+    "proposal": "招工报名/提交/审核流水",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/shard",
+   "handler": "get_shard",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 556,
+   "source": "backend-ts/src/index.ts:556",
+   "service_methods": [
+    "requireActor",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "listShardHoldingsByUser",
+    "getBrandById"
+   ],
+   "ensure_calls": [
+    "ensureLegacyTableNames",
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "prize",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "prize_item",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "time_actived",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "shard",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "sID",
+      "time_created",
+      "uID",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "sID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById",
+      "listShardHoldingsByUser"
+     ]
+    },
+    {
+     "name": "shard_transfer",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "reason",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": "/api/shard",
+    "results": [
+     {
+      "phase": "A",
+      "status": 401,
+      "body": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}",
+      "ms": 1,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "shard/shard_transfer（旧碎片）",
+    "proposed_pillar": "③积分交易所",
+    "proposal": "交易所持仓/转让；dashJ 作为可流通积分单位之一（cid），碎片改为 currency.cid 维度",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/shard/transfer",
+   "handler": "get_shard_transfer",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 570,
+   "source": "backend-ts/src/index.ts:570",
+   "service_methods": [
+    "requireActor",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "listShardTransfersByUser",
+    "getBrandById"
+   ],
+   "ensure_calls": [
+    "ensureLegacyTableNames",
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "prize",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "prize_item",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "time_actived",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "shard",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "shard_transfer",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "from_uID",
+      "reason",
+      "time_created",
+      "to_uID",
+      "txID",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "from_uID",
+      "to_uID",
+      "txID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById",
+      "listShardTransfersByUser"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": "/api/shard/transfer",
+    "results": [
+     {
+      "phase": "A",
+      "status": 401,
+      "body": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}",
+      "ms": 0,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "shard/shard_transfer（旧碎片）",
+    "proposed_pillar": "③积分交易所",
+    "proposal": "交易所持仓/转让；dashJ 作为可流通积分单位之一（cid），碎片改为 currency.cid 维度",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/shard/redeem",
+   "handler": "post_shard_redeem",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 584,
+   "source": "backend-ts/src/index.ts:584",
+   "service_methods": [
+    "requireActor",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "redeemPrizeItemFromShards",
+    "createShardLedgerEntry",
+    "getUserShardBalance",
+    "recordShardTransfer",
+    "getBrandById"
+   ],
+   "ensure_calls": [
+    "ensureLegacyTableNames",
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "prize",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "prize_item",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "time_actived",
+      "time_claimed",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById",
+      "redeemPrizeItemFromShards"
+     ]
+    },
+    {
+     "name": "shard",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "time_created",
+      "time_updated",
+      "uID",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "createShardLedgerEntry",
+      "getBrandById",
+      "getUserShardBalance"
+     ]
+    },
+    {
+     "name": "shard_transfer",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "from_uID",
+      "reason",
+      "related_oID",
+      "related_trID",
+      "time_created",
+      "to_uID",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "from_uID",
+      "related_oID",
+      "related_trID",
+      "to_uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById",
+      "recordShardTransfer"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "shard/shard_transfer（旧碎片）",
+    "proposed_pillar": "③积分交易所",
+    "proposal": "交易所持仓/转让；dashJ 作为可流通积分单位之一（cid），碎片改为 currency.cid 维度",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/chest/:bID/open",
+   "handler": "post_chest_bid_open",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 602,
+   "source": "backend-ts/src/index.ts:602",
+   "service_methods": [
+    "requireActor",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "openFreeShardChest",
+    "createShardLedgerEntry",
+    "getPrizeById",
+    "getBrandById",
+    "getUserShardBalance",
+    "recordShardTransfer"
+   ],
+   "ensure_calls": [
+    "ensureLegacyTableNames",
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "prize",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "prize_item",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "time_actived",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "shard",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "time_created",
+      "time_updated",
+      "uID",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "createShardLedgerEntry",
+      "getBrandById",
+      "getUserShardBalance"
+     ]
+    },
+    {
+     "name": "shard_transfer",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "from_uID",
+      "reason",
+      "related_oID",
+      "related_trID",
+      "time_created",
+      "to_uID",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "from_uID",
+      "related_oID",
+      "related_trID",
+      "to_uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById",
+      "recordShardTransfer"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "shard/shard_transfer（旧碎片）",
+    "proposed_pillar": "③积分交易所",
+    "proposal": "交易所持仓/转让；dashJ 作为可流通积分单位之一（cid），碎片改为 currency.cid 维度",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/order",
+   "handler": "get_order",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 620,
+   "source": "backend-ts/src/index.ts:620",
+   "service_methods": [
+    "requireActor",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "listOrdersByUser",
+    "getBrandById"
+   ],
+   "ensure_calls": [
+    "ensureLegacyTableNames",
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "market_order",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "oID",
+      "time_created",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "oID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "listOrdersByUser"
+     ]
+    },
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "prize",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "prize_item",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "time_actived",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "shard",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "shard_transfer",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "reason",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": "/api/order",
+    "results": [
+     {
+      "phase": "A",
+      "status": 401,
+      "body": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}",
+      "ms": 0,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "market_order/market_trade（旧碎片交易）",
+    "proposed_pillar": "③积分交易所",
+    "proposal": "挂单/撮合迁到账本双分录（ledger_post_event 冻结/划转）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/order",
+   "handler": "post_order",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 634,
+   "source": "backend-ts/src/index.ts:634",
+   "service_methods": [
+    "requireActor",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "placeOrder",
+    "createShardLedgerEntry",
+    "getBrandById",
+    "getMarketOrderById",
+    "getUserAsset",
+    "getUserShardBalance",
+    "matchMarketOrder",
+    "createMarketTrade",
+    "findMatchingOrder",
+    "recordShardTransfer",
+    "updateMarketOrderFill",
+    "upsertAsset"
+   ],
+   "ensure_calls": [
+    "ensureLegacyTableNames",
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "asset",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "lucks",
+      "points",
+      "time_updated",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "time_updated",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getUserAsset",
+      "upsertAsset"
+     ]
+    },
+    {
+     "name": "market_order",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "oID",
+      "price",
+      "side",
+      "status",
+      "time_created",
+      "time_updated",
+      "uID",
+      "volume_filled",
+      "volume_total"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "oID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "findMatchingOrder",
+      "getMarketOrderById",
+      "placeOrder",
+      "updateMarketOrderFill"
+     ]
+    },
+    {
+     "name": "market_trade",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "buy_oID",
+      "buyer_uID",
+      "price",
+      "sell_oID",
+      "seller_uID",
+      "time_created",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "buy_oID",
+      "buyer_uID",
+      "sell_oID",
+      "seller_uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "createMarketTrade"
+     ]
+    },
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "prize",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "prize_item",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "time_actived",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "shard",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "time_created",
+      "time_updated",
+      "uID",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "createShardLedgerEntry",
+      "getBrandById",
+      "getUserShardBalance"
+     ]
+    },
+    {
+     "name": "shard_transfer",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "from_uID",
+      "reason",
+      "related_oID",
+      "related_trID",
+      "time_created",
+      "to_uID",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "from_uID",
+      "related_oID",
+      "related_trID",
+      "to_uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById",
+      "recordShardTransfer"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "market_order/market_trade（旧碎片交易）",
+    "proposed_pillar": "③积分交易所",
+    "proposal": "挂单/撮合迁到账本双分录（ledger_post_event 冻结/划转）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "DELETE",
+   "path": "/api/order",
+   "handler": "delete_order",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 653,
+   "source": "backend-ts/src/index.ts:653",
+   "service_methods": [
+    "requireActor",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "cancelAllOrders",
+    "cancelOrder",
+    "createShardLedgerEntry",
+    "getBrandById",
+    "getMarketOrderById",
+    "recordShardTransfer",
+    "upsertAsset",
+    "getUserAsset",
+    "listOrdersByUser"
+   ],
+   "ensure_calls": [
+    "ensureLegacyTableNames",
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "asset",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "lucks",
+      "points",
+      "time_updated",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "time_updated",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getUserAsset",
+      "upsertAsset"
+     ]
+    },
+    {
+     "name": "market_order",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "oID",
+      "status",
+      "time_created",
+      "time_updated",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "oID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "cancelOrder",
+      "getMarketOrderById",
+      "listOrdersByUser"
+     ]
+    },
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "prize",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "prize_item",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "time_actived",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "shard",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "time_created",
+      "time_updated",
+      "uID",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "createShardLedgerEntry",
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "shard_transfer",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "from_uID",
+      "reason",
+      "related_oID",
+      "related_trID",
+      "time_created",
+      "to_uID",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "from_uID",
+      "related_oID",
+      "related_trID",
+      "to_uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById",
+      "recordShardTransfer"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "market_order/market_trade（旧碎片交易）",
+    "proposed_pillar": "③积分交易所",
+    "proposal": "挂单/撮合迁到账本双分录（ledger_post_event 冻结/划转）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "DELETE",
+   "path": "/api/order/:oID",
+   "handler": "delete_order_oid",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 666,
+   "source": "backend-ts/src/index.ts:666",
+   "service_methods": [
+    "requireActor",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "cancelOrder",
+    "createShardLedgerEntry",
+    "getBrandById",
+    "getMarketOrderById",
+    "recordShardTransfer",
+    "upsertAsset",
+    "getUserAsset"
+   ],
+   "ensure_calls": [
+    "ensureLegacyTableNames",
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "asset",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "lucks",
+      "points",
+      "time_updated",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "time_updated",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getUserAsset",
+      "upsertAsset"
+     ]
+    },
+    {
+     "name": "market_order",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "oID",
+      "status",
+      "time_updated"
+     ],
+     "columns_quoted_case_sensitive": [
+      "oID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "cancelOrder",
+      "getMarketOrderById"
+     ]
+    },
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "prize",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "prize_item",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "time_actived",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "shard",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "time_created",
+      "time_updated",
+      "uID",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "createShardLedgerEntry",
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "shard_transfer",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "from_uID",
+      "reason",
+      "related_oID",
+      "related_trID",
+      "time_created",
+      "to_uID",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "from_uID",
+      "related_oID",
+      "related_trID",
+      "to_uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById",
+      "recordShardTransfer"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "market_order/market_trade（旧碎片交易）",
+    "proposed_pillar": "③积分交易所",
+    "proposal": "挂单/撮合迁到账本双分录（ledger_post_event 冻结/划转）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/market/:bID/orderbook",
+   "handler": "get_market_bid_orderbook",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 684,
+   "source": "backend-ts/src/index.ts:684",
+   "service_methods": [
+    "listOrderBook"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "market_order",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "price",
+      "side",
+      "status",
+      "volume_filled",
+      "volume_total"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "listOrderBook"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing"
+   ],
+   "notes": "SIDE-EFFECT GET: listOrderBook awaits ensureSupportSchema(), which issues CREATE TABLE for 9 legacy tables before failing. Live 500 both before and after that lazy DDL (pre-DDL: relation missing; post-DDL: ensureSupportSchema still rejects at users.\"uID\").",
+   "live_probe": {
+    "probed_path": "/api/market/1/orderbook",
+    "results": [
+     {
+      "phase": "B",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load order book\",\"error\":\"Failed to load order book\"}",
+      "ms": 4295,
+      "attempts": null,
+      "error": null
+     },
+     {
+      "phase": "C",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load order book\",\"error\":\"Failed to load order book\"}",
+      "ms": 2633,
+      "attempts": 1,
+      "error": null
+     },
+     {
+      "phase": "C",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load order book\",\"error\":\"Failed to load order book\"}",
+      "ms": 2131,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "market_order/market_trade（旧碎片交易）",
+    "proposed_pillar": "③积分交易所",
+    "proposal": "挂单/撮合迁到账本双分录（ledger_post_event 冻结/划转）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/market/:bID/trades",
+   "handler": "get_market_bid_trades",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 699,
+   "source": "backend-ts/src/index.ts:699",
+   "service_methods": [
+    "listTradesByBrand",
+    "getBrandById"
+   ],
+   "ensure_calls": [
+    "ensureLegacyTableNames",
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "market_trade",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "time_created",
+      "trID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "trID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "listTradesByBrand"
+     ]
+    },
+    {
+     "name": "prize",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "prize_item",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "time_actived",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "shard",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "shard_transfer",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "reason",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing"
+   ],
+   "notes": "SIDE-EFFECT GET: same ensureSupportSchema lazy-DDL path as orderbook; live 500 pre- and post-DDL.",
+   "live_probe": {
+    "probed_path": "/api/market/1/trades",
+    "results": [
+     {
+      "phase": "B",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load market trades\",\"error\":\"Failed to load market trades\"}",
+      "ms": 3618,
+      "attempts": null,
+      "error": null
+     },
+     {
+      "phase": "C",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load market trades\",\"error\":\"Failed to load market trades\"}",
+      "ms": 3131,
+      "attempts": 1,
+      "error": null
+     },
+     {
+      "phase": "C",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load market trades\",\"error\":\"Failed to load market trades\"}",
+      "ms": 3169,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "market_order/market_trade（旧碎片交易）",
+    "proposed_pillar": "③积分交易所",
+    "proposal": "挂单/撮合迁到账本双分录（ledger_post_event 冻结/划转）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/admin/me",
+   "handler": "get_admin_me",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 715,
+   "source": "backend-ts/src/index.ts:715",
+   "service_methods": [
+    "requireActor",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": "/api/admin/me",
+    "results": [
+     {
+      "phase": "A",
+      "status": 401,
+      "body": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}",
+      "ms": 1,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "permission_group 权限",
+    "proposed_pillar": "后台管理",
+    "proposal": "保留（平台运维）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/admin/settings",
+   "handler": "get_admin_settings",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 721,
+   "source": "backend-ts/src/index.ts:721",
+   "service_methods": [
+    "requireAdmin",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "getSystemSettings"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "app_config",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "value"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "getSystemSettings"
+     ]
+    },
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": "/api/admin/settings",
+    "results": [
+     {
+      "phase": "A",
+      "status": 401,
+      "body": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}",
+      "ms": 1,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "app_config 平台设置",
+    "proposed_pillar": "后台管理",
+    "proposal": "保留（平台运维）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/admin/settings",
+   "handler": "post_admin_settings",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 734,
+   "source": "backend-ts/src/index.ts:734",
+   "service_methods": [
+    "requireAdmin",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "saveSystemSettings",
+    "getSystemSettings"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "app_config",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "time_updated",
+      "value"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "getSystemSettings",
+      "saveSystemSettings"
+     ]
+    },
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "app_config 平台设置",
+    "proposed_pillar": "后台管理",
+    "proposal": "保留（平台运维）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/admin/settings/reset",
+   "handler": "post_admin_settings_reset",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 747,
+   "source": "backend-ts/src/index.ts:747",
+   "service_methods": [
+    "requireAdmin",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "resetSystemSettings",
+    "saveSystemSettings",
+    "getSystemSettings"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "app_config",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "time_updated",
+      "value"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "getSystemSettings",
+      "saveSystemSettings"
+     ]
+    },
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "app_config 平台设置",
+    "proposed_pillar": "后台管理",
+    "proposal": "保留（平台运维）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/admin/permissions",
+   "handler": "get_admin_permissions",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 760,
+   "source": "backend-ts/src/index.ts:760",
+   "service_methods": [
+    "requireAdmin",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "getAllUsers",
+    "listPermissionGroups"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getAllUsers",
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": "/api/admin/permissions",
+    "results": [
+     {
+      "phase": "A",
+      "status": 401,
+      "body": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}",
+      "ms": 0,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "permission_group 权限",
+    "proposed_pillar": "后台管理",
+    "proposal": "保留（平台运维）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/admin/permissions/save",
+   "handler": "post_admin_permissions_save",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 776,
+   "source": "backend-ts/src/index.ts:776",
+   "service_methods": [
+    "requireAdmin",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "savePermissionGroup"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "description",
+      "id",
+      "permissions",
+      "readonly",
+      "time_created",
+      "time_updated",
+      "user_ids"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups",
+      "savePermissionGroup"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "permission_group 权限",
+    "proposed_pillar": "后台管理",
+    "proposal": "保留（平台运维）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/admin/permissions/delete",
+   "handler": "post_admin_permissions_delete",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 797,
+   "source": "backend-ts/src/index.ts:797",
+   "service_methods": [
+    "requireAdmin",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "deletePermissionGroup"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "deletePermissionGroup",
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "permission_group 权限",
+    "proposed_pillar": "后台管理",
+    "proposal": "保留（平台运维）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/admin/user/update",
+   "handler": "post_admin_user_update",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 818,
+   "source": "backend-ts/src/index.ts:818",
+   "service_methods": [
+    "requireAdmin",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "updateUserAdminStatus",
+    "updateUserProfile"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "bio",
+      "is_admin",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "bio",
+      "is_admin",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById",
+      "updateUserProfile"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "permission_group 权限",
+    "proposed_pillar": "后台管理",
+    "proposal": "保留（平台运维）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/admin/task/create",
+   "handler": "post_admin_task_create",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 839,
+   "source": "backend-ts/src/index.ts:839",
+   "service_methods": [
+    "requireAdmin",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "createTask"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "task",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "is_open",
+      "link0",
+      "linkA",
+      "linkB",
+      "note",
+      "points",
+      "refcode",
+      "time_created",
+      "time_updated",
+      "title"
+     ],
+     "columns_quoted_case_sensitive": [
+      "linkA",
+      "linkB"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "createTask"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "admin task CRUD（管理员发布任务）",
+    "proposed_pillar": "①招工",
+    "proposal": "下线（管理员不再发 task）；保留审核能力",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/admin/task/update",
+   "handler": "post_admin_task_update",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 852,
+   "source": "backend-ts/src/index.ts:852",
+   "service_methods": [
+    "requireAdmin",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "updateTask",
+    "countTaskParticipants"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "task",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "is_open",
+      "link0",
+      "linkA",
+      "linkB",
+      "note",
+      "points",
+      "refcode",
+      "time_updated",
+      "title"
+     ],
+     "columns_quoted_case_sensitive": [
+      "linkA",
+      "linkB"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "updateTask"
+     ]
+    },
+    {
+     "name": "task_progress",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "tID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "tID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "countTaskParticipants"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "admin task CRUD（管理员发布任务）",
+    "proposed_pillar": "①招工",
+    "proposal": "下线（管理员不再发 task）；保留审核能力",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/admin/task/delete",
+   "handler": "post_admin_task_delete",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 873,
+   "source": "backend-ts/src/index.ts:873",
+   "service_methods": [
+    "requireAdmin",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "deleteTask",
+    "countTaskParticipants"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "task",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "tID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "tID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "deleteTask"
+     ]
+    },
+    {
+     "name": "task_progress",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "tID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "tID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "countTaskParticipants"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "admin task CRUD（管理员发布任务）",
+    "proposed_pillar": "①招工",
+    "proposal": "下线（管理员不再发 task）；保留审核能力",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/admin/prize/create",
+   "handler": "post_admin_prize_create",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 891,
+   "source": "backend-ts/src/index.ts:891",
+   "service_methods": [
+    "requireAdmin",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "createBrand",
+    "getBrandById",
+    "syncPrizeInventory",
+    "countGiftClaimsByBrand",
+    "countGiftStoresByBrand",
+    "createPrizeInventoryRows",
+    "trimAvailablePrizeInventory"
+   ],
+   "ensure_calls": [
+    "ensureLegacyTableNames",
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "prize",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "description",
+      "free_shard_ratio",
+      "gift_limit",
+      "image_url",
+      "market_floor_points",
+      "points",
+      "symbol",
+      "time_created",
+      "time_end",
+      "time_start",
+      "time_updated",
+      "total_quantity",
+      "url_image"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "createBrand",
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "prize_item",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "gID",
+      "time_actived",
+      "time_created",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "gID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "countGiftClaimsByBrand",
+      "countGiftStoresByBrand",
+      "createPrizeInventoryRows",
+      "getBrandById",
+      "trimAvailablePrizeInventory"
+     ]
+    },
+    {
+     "name": "shard",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "shard_transfer",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "reason",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "prize/Brand（旧 reward）",
+    "proposed_pillar": "②商品",
+    "proposal": "新 commodity（用户用 $ 标价）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/admin/prize/update",
+   "handler": "post_admin_prize_update",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 904,
+   "source": "backend-ts/src/index.ts:904",
+   "service_methods": [
+    "requireAdmin",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "updateBrand",
+    "getBrandById",
+    "syncPrizeInventory",
+    "countGiftClaimsByBrand",
+    "countGiftStoresByBrand",
+    "createPrizeInventoryRows",
+    "trimAvailablePrizeInventory"
+   ],
+   "ensure_calls": [
+    "ensureLegacyTableNames",
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "prize",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "description",
+      "free_shard_ratio",
+      "gift_limit",
+      "image_url",
+      "market_floor_points",
+      "points",
+      "symbol",
+      "time_end",
+      "time_start",
+      "time_updated",
+      "total_quantity",
+      "url_image"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById",
+      "updateBrand"
+     ]
+    },
+    {
+     "name": "prize_item",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "gID",
+      "time_actived",
+      "time_created",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID",
+      "gID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "countGiftClaimsByBrand",
+      "countGiftStoresByBrand",
+      "createPrizeInventoryRows",
+      "getBrandById",
+      "trimAvailablePrizeInventory"
+     ]
+    },
+    {
+     "name": "shard",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "shard_transfer",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID",
+      "reason",
+      "volume"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getBrandById"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "prize/Brand（旧 reward）",
+    "proposed_pillar": "②商品",
+    "proposal": "新 commodity（用户用 $ 标价）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/admin/prize/delete",
+   "handler": "post_admin_prize_delete",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 925,
+   "source": "backend-ts/src/index.ts:925",
+   "service_methods": [
+    "requireAdmin",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "deleteBrand"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "market_order",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "deleteBrand"
+     ]
+    },
+    {
+     "name": "market_trade",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "deleteBrand"
+     ]
+    },
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "prize",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "bID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "bID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "deleteBrand"
+     ]
+    },
+    {
+     "name": "prize_item",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "deleteBrand"
+     ]
+    },
+    {
+     "name": "shard",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "deleteBrand"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "prize/Brand（旧 reward）",
+    "proposed_pillar": "②商品",
+    "proposal": "新 commodity（用户用 $ 标价）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/user/all",
+   "handler": "get_user_all",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 943,
+   "source": "backend-ts/src/index.ts:943",
+   "service_methods": [
+    "requireAdmin",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "getAllUsers"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getAllUsers",
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": "/api/user/all",
+    "results": [
+     {
+      "phase": "A",
+      "status": 401,
+      "body": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}",
+      "ms": 0,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "旧用户列表",
+    "proposed_pillar": "后台管理",
+    "proposal": "重写为只读运维视图（users 新列）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/user/stats",
+   "handler": "get_user_stats",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 957,
+   "source": "backend-ts/src/index.ts:957",
+   "service_methods": [
+    "requireAdmin",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "getUserStats",
+    "getAllUsers",
+    "getUserAsset"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "asset",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getUserAsset"
+     ]
+    },
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getAllUsers",
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": "/api/user/stats",
+    "results": [
+     {
+      "phase": "A",
+      "status": 401,
+      "body": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}",
+      "ms": 0,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "旧用户统计",
+    "proposed_pillar": "后台管理",
+    "proposal": "重写（账本口径统计）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/tasklist/pending-verification/count",
+   "handler": "get_tasklist_pending_verification_count",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 970,
+   "source": "backend-ts/src/index.ts:970",
+   "service_methods": [
+    "requireAdmin",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "countPendingVerification"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "task_progress",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "info_input",
+      "time_checked",
+      "time_claimed",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "countPendingVerification"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "is_admin",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "countPendingVerification",
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": "/api/tasklist/pending-verification/count",
+    "results": [
+     {
+      "phase": "A",
+      "status": 401,
+      "body": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}",
+      "ms": 0,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "tasklist 审核队列",
+    "proposed_pillar": "①招工",
+    "proposal": "招工提交审核队列（管理员改为审核方，不再是发布方）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/api/tasklist/pending-verification",
+   "handler": "get_tasklist_pending_verification",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 983,
+   "source": "backend-ts/src/index.ts:983",
+   "service_methods": [
+    "requireAdmin",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "listPendingVerification",
+    "getTask"
+   ],
+   "ensure_calls": [
+    "ensureLegacyTableNames",
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "task",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "tID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "tID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getTask"
+     ]
+    },
+    {
+     "name": "task_progress",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "info_input",
+      "jID",
+      "tID",
+      "time_checked",
+      "time_claimed",
+      "time_created",
+      "time_submitted",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "jID",
+      "tID",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getTask",
+      "listPendingVerification"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "is_admin",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById",
+      "listPendingVerification"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": "/api/tasklist/pending-verification",
+    "results": [
+     {
+      "phase": "A",
+      "status": 401,
+      "body": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}",
+      "ms": 1,
+      "attempts": 1,
+      "error": null
+     }
+    ]
+   },
+   "mapping_proposal": {
+    "legacy_module": "tasklist 审核队列",
+    "proposed_pillar": "①招工",
+    "proposal": "招工提交审核队列（管理员改为审核方，不再是发布方）",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/tasklist/:jID/verify",
+   "handler": "post_tasklist_jid_verify",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 997,
+   "source": "backend-ts/src/index.ts:997",
+   "service_methods": [
+    "requireAdmin",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "getTask",
+    "getTaskProgress",
+    "markTaskProgressChecked",
+    "rejectPendingTaskProgress"
+   ],
+   "ensure_calls": [
+    "ensureLegacyTableNames",
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "task",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "tID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "tID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getTask"
+     ]
+    },
+    {
+     "name": "task_progress",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "info_input",
+      "jID",
+      "tID",
+      "time_checked",
+      "time_submitted"
+     ],
+     "columns_quoted_case_sensitive": [
+      "jID",
+      "tID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getTask",
+      "getTaskProgress",
+      "markTaskProgressChecked",
+      "rejectPendingTaskProgress"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "tasklist 审核动作（管理员审核）",
+    "proposed_pillar": "①招工",
+    "proposal": "招工提交审核（approve/reject）；管理员由发布方改为审核方",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/admin/assets/init",
+   "handler": "post_admin_assets_init",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 1053,
+   "source": "backend-ts/src/index.ts:1053",
+   "service_methods": [
+    "initializeAllAssets",
+    "getAllUsers",
+    "getUserAsset",
+    "upsertAsset"
+   ],
+   "ensure_calls": [],
+   "tables": [
+    {
+     "name": "asset",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "lucks",
+      "points",
+      "time_updated",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "time_updated",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getUserAsset",
+      "upsertAsset"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "uID"
+     ],
+     "columns_missing": [
+      "uID"
+     ],
+     "reached_via": [
+      "getAllUsers"
+     ]
+    }
+   ],
+   "functions": [],
+   "verdict": "column_missing",
+   "verdict_evidence": "reached table(s) absent from the live DB: asset",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": "SILENT DEGRADATION: initializeAllAssets -> getAllUsers has a try/catch that swallows the users.\"uID\" error and returns []; the handler then answers 200 {\"total\":0,\"initialized\":0} while claiming success. Also note it has NO requireAdmin guard (unauthenticated POST) - reported, not probed (POST = out of scope).",
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "asset 积分管理",
+    "proposed_pillar": "后台管理",
+    "proposal": "改为账本调整（ledger_post_event + 幂等键），废弃 asset",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/api/admin/points/adjust",
+   "handler": "post_admin_points_adjust",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 1063,
+   "source": "backend-ts/src/index.ts:1063",
+   "service_methods": [
+    "requireAdmin",
+    "getUserById",
+    "getUserByEvm",
+    "resolveAdminAccess",
+    "buildAdminAccess",
+    "getPermissionsForUser",
+    "listPersistedPermissionGroups",
+    "adjustPoints",
+    "getUserAsset",
+    "upsertAsset"
+   ],
+   "ensure_calls": [
+    "ensureSupportSchema"
+   ],
+   "tables": [
+    {
+     "name": "asset",
+     "exists": false,
+     "exists_after_lazy_ddl": false,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "lucks",
+      "points",
+      "time_updated",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "time_updated",
+      "uID"
+     ],
+     "columns_missing": [],
+     "reached_via": [
+      "getUserAsset",
+      "upsertAsset"
+     ]
+    },
+    {
+     "name": "permission_group",
+     "exists": false,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": true,
+     "columns_used": [
+      "id",
+      "readonly"
+     ],
+     "columns_quoted_case_sensitive": [],
+     "columns_missing": [],
+     "reached_via": [
+      "listPersistedPermissionGroups"
+     ]
+    },
+    {
+     "name": "users",
+     "exists": true,
+     "exists_after_lazy_ddl": true,
+     "lazily_created_by_ensureSupportSchema": false,
+     "columns_used": [
+      "EVM",
+      "uID"
+     ],
+     "columns_quoted_case_sensitive": [
+      "EVM",
+      "uID"
+     ],
+     "columns_missing": [
+      "EVM",
+      "uID"
+     ],
+     "reached_via": [
+      "getUserByEvm",
+      "getUserById"
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "name": "ensureSupportSchema (inline lazy-DDL, backend-ts/src/database.ts:269)",
+     "exists": false
+    }
+   ],
+   "verdict": "column_missing",
+   "verdict_evidence": "route path awaits ensureSupportSchema(), which dies at UPDATE \"users\" SET \"uID\" = ... (column \"uID\" of relation \"users\" does not exist)",
+   "secondary_failure_classes": [
+    "table_missing",
+    "column_missing"
+   ],
+   "notes": null,
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "asset 积分管理",
+    "proposed_pillar": "后台管理",
+    "proposal": "改为账本调整（ledger_post_event + 幂等键），废弃 asset",
+    "status": "proposal — Zang 终审"
+   }
+  },
+  {
+   "method": "USE",
+   "path": "<catch-all 404 fallback>",
+   "handler": "catch-all_404_fallback",
+   "handler_kind": "anonymous inline arrow (no named function)",
+   "line": 1093,
+   "source": "backend-ts/src/index.ts:1093",
+   "service_methods": [],
+   "ensure_calls": [],
+   "tables": [],
+   "functions": [],
+   "verdict": "ok",
+   "verdict_evidence": "no missing DB object on this path",
+   "secondary_failure_classes": [],
+   "notes": "express terminal handler -> 404 JSON; no DB object.",
+   "live_probe": {
+    "probed_path": null,
+    "results": [],
+    "note": "write method or non-probeable: no request issued (read-only audit)"
+   },
+   "mapping_proposal": {
+    "legacy_module": "无（框架 404 兜底）",
+    "proposed_pillar": "平台基础",
+    "proposal": "保留",
+    "status": "proposal — Zang 终审"
+   }
+  }
+ ]
+}

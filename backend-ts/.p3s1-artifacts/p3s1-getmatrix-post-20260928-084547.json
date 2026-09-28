@@ -1,0 +1,83 @@
+{
+  "probe": "P3S1-01-GET-MATRIX",
+  "label": "post-20260928-084547",
+  "base": "http://127.0.0.1:5788",
+  "routes_total": 9,
+  "status_histogram": {
+    "500": 9
+  },
+  "results": [
+    {
+      "path": "/api/market/1/orderbook",
+      "method": "GET",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load order book\",\"error\":\"Failed to load order book\"}",
+      "transport_error": null,
+      "tries": 1
+    },
+    {
+      "path": "/api/market/1/trades",
+      "method": "GET",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load market trades\",\"error\":\"Failed to load market trades\"}",
+      "transport_error": null,
+      "tries": 1
+    },
+    {
+      "path": "/api/prize/all",
+      "method": "GET",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load prizes\",\"error\":\"Failed to load prizes\"}",
+      "transport_error": null,
+      "tries": 1
+    },
+    {
+      "path": "/api/task/all",
+      "method": "GET",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load tasks\",\"error\":\"Failed to load tasks\"}",
+      "transport_error": null,
+      "tries": 1
+    },
+    {
+      "path": "/api/task/1",
+      "method": "GET",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load task\",\"error\":\"Failed to load task\"}",
+      "transport_error": null,
+      "tries": 1
+    },
+    {
+      "path": "/api/prize/1",
+      "method": "GET",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load prize\",\"error\":\"Failed to load prize\"}",
+      "transport_error": null,
+      "tries": 1
+    },
+    {
+      "path": "/api/user/asset/1",
+      "method": "GET",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Internal server error\",\"error\":\"Internal server error\"}",
+      "transport_error": null,
+      "tries": 1
+    },
+    {
+      "path": "/api/home",
+      "method": "GET",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load home payload\",\"error\":\"Failed to load home payload\"}",
+      "transport_error": null,
+      "tries": 1
+    },
+    {
+      "path": "/api/task-progress/1",
+      "method": "GET",
+      "status": 500,
+      "body": "{\"success\":false,\"message\":\"Failed to load task progress\",\"error\":\"Failed to load task progress\"}",
+      "transport_error": null,
+      "tries": 1
+    }
+  ]
+}

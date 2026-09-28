@@ -1,0 +1,207 @@
+{
+  "probe": "P3S1-DDL-REMOVAL-SUMMARY",
+  "run": "20260928-084547",
+  "run_started_local": "2026-09-28 08:45:47 CST",
+  "head_at_start": "dbccd89 fix(router): 拆显式语言壳，修中文子页被可选语言段吞掉",
+  "head_at_end_observed": "415db62 master-plan v0.34: 5.29 P3 数据层重写立项 + 路由审计结论落位（另一会话提交，非本单产物）",
+  "git_status_at_start": [
+    "?? docs/audit/",
+    "?? docs/qa/45c27d8-lang-path.md",
+    "?? docs/qa/lang-prefix-normalize.md",
+    "?? docs/qa/lang-shell-regression.md"
+  ],
+  "committed": false,
+
+  "step1_static_inventory": {
+    "grep_cmd": "grep -rn 'ensureSupportSchema' backend-ts/src/",
+    "definition": "backend-ts/src/database.ts:269 (arrow const, IIFE + memo promise)",
+    "call_sites_total": 34,
+    "context_said": 12,
+    "discrepancy_note": "上下文给的 12 处是截断清单；实测 34 处调用点，覆盖 34 个不同服务方法（无重复方法）。",
+    "call_sites_by_method": {
+      "getNextUserId": 1011,
+      "getUserById": 1142,
+      "getUserByEvm": 1155,
+      "createUserByEvm": 1169,
+      "findOrCreateUserByEvm": 1192,
+      "updateUserProfile": 1208,
+      "listPersistedPermissionGroups": 1819,
+      "savePermissionGroup": 1898,
+      "deletePermissionGroup": 1965,
+      "getSystemSettings": 1995,
+      "saveSystemSettings": 2008,
+      "updateUserAdminStatus": 2033,
+      "createBrand": 2102,
+      "updateBrand": 2195,
+      "deleteBrand": 2251,
+      "createTask": 2309,
+      "updateTask": 2363,
+      "deleteTask": 2389,
+      "listShardHoldingsByUser": 2404,
+      "getUserShardBalance": 2432,
+      "createShardLedgerEntry": 2444,
+      "recordShardTransfer": 2465,
+      "listShardTransfersByUser": 2500,
+      "getMarketOrderById": 2523,
+      "updateMarketOrderFill": 2541,
+      "findMatchingOrder": 2564,
+      "createMarketTrade": 2621,
+      "listOrdersByUser": 2718,
+      "placeOrder": 2746,
+      "cancelOrder": 2838,
+      "listOrderBook": 2911,
+      "listTradesByBrand": 2934,
+      "openFreeShardChest": 2956,
+      "redeemPrizeItemFromShards": 3001
+    },
+    "read_path_methods_among_call_sites": [
+      "getNextUserId", "getUserById", "getUserByEvm", "listPersistedPermissionGroups",
+      "getSystemSettings", "listShardHoldingsByUser", "getUserShardBalance", "getMarketOrderById",
+      "listOrdersByUser", "listOrderBook", "listTradesByBrand", "listShardTransfersByUser"
+    ],
+    "routes_reached_from_inventory_readonly": 39,
+    "routes_note": "docs/audit/p3-route-inventory.json（只读）中 39 条路由的 service_methods 与本单 34 个方法相交；其中读路由清单见 route_status_matrix。",
+    "orphan_symbol_also_removed": "backend-ts/src/database.ts:57 let supportSchemaPromise（仅定义体内引用，随之删除）",
+    "preserved_not_touched": "ensureLegacyTableNames（定义 :240，另有 4 处调用 :1320/:1471/:1500/:1740，均超出本单范围 ⇒ 保留不动）"
+  },
+
+  "removal_executed": {
+    "file": "backend-ts/src/database.ts",
+    "lines_removed": 302,
+    "lines_added": 0,
+    "breakdown": {
+      "definition_block": "269-534（含尾部空行 535）",
+      "orphan_promise_var": "1 行",
+      "call_sites": 34
+    },
+    "dead_code_check": {
+      "ensureSupportSchema_occurrences_in_src": 0,
+      "supportSchemaPromise_occurrences_in_src": 0,
+      "no_op_stub_left": false,
+      "commented_out_dead_code_left": false,
+      "empty_method_bodies_created": 0,
+      "todo_fixme_markers_introduced": 0
+    },
+    "typecheck": "npx tsc --noEmit -p tsconfig.json → exit 0",
+    "forbidden_paths_touched": []
+  },
+
+  "db_tables": {
+    "before_tables": ["account", "app_config", "commission_policy", "currency", "ledger_entry", "ledger_owner", "market_order", "market_trade", "permission_group", "prize", "prize_item", "referral", "schema_migration", "shard", "shard_transfer", "task_progress", "users"],
+    "before_count": 17,
+    "after_tables": ["account", "commission_policy", "currency", "ledger_entry", "ledger_owner", "referral", "schema_migration", "users"],
+    "after_count": 8,
+    "expected_0012_set": ["account", "commission_policy", "currency", "ledger_entry", "ledger_owner", "referral", "schema_migration", "users"],
+    "equals_0012_set": true,
+    "indexes_before": 33,
+    "indexes_after": 24,
+    "lazy_table_indexes_removed": 9,
+    "lazy_table_index_detail": "9 张表上只有 pkey 索引存在（懒 DDL 的 ALTER/CREATE INDEX 段根本没跑到：函数在 UPDATE users 处即抛错）"
+  },
+
+  "dropped_tables": {
+    "list": ["app_config", "permission_group", "prize", "prize_item", "task_progress", "market_order", "market_trade", "shard", "shard_transfer"],
+    "row_counts_asserted_before_drop": {
+      "app_config": 0, "permission_group": 0, "prize": 0, "prize_item": 0, "task_progress": 0,
+      "market_order": 0, "market_trade": 0, "shard": 0, "shard_transfer": 0
+    },
+    "nonempty_tables_found": [],
+    "gate_passed": true,
+    "gate_policy": "任一张非空即 abort（exit 3）不执行 DROP；本次 9 张全 0 行 ⇒ 放行",
+    "drop_statement": "DROP TABLE IF EXISTS \"<t>\"（不加 CASCADE：有依赖就报错而非静默连带删除）",
+    "drop_errors": [],
+    "order": "改码并重载生效之后才执行"
+  },
+
+  "reload": {
+    "target": "5788 (seafood-api)",
+    "method": "curl -X POST http://127.0.0.1:5555/api/restart -d '{\"sid\":\"seafood-api\"}'",
+    "sid_resolved_via": "grep -n seafood /Users/kevin/bistro/ctrl/index.js → 'seafood-api'（port 5788, cwd backend-ts）",
+    "pid_before": 45770,
+    "ctrl_reported_pid": 57706,
+    "pid_after_listening": 57720,
+    "forbidden_actions_avoided": ["pm2 restart bistro-ctrl", "--update-env", "pkill -f", "killall", "前端 5787 启停"],
+    "health_after_reload": {"http": 200, "db_version": "PostgreSQL 18.6", "schema_version": "0012"}
+  },
+
+  "route_status_matrix": {
+    "routes": ["/api/market/1/orderbook", "/api/market/1/trades", "/api/prize/all", "/api/task/all", "/api/task/1", "/api/prize/1", "/api/user/asset/1", "/api/home", "/api/task-progress/1"],
+    "method_only": "GET",
+    "pre_change": {"histogram": {"500": 9}, "note": "改前基线，9/9 = 500，0 重试"},
+    "post_change_round1": {"histogram": {"500": 9}, "note": "DROP 之后打，9/9 = 500，0 重试"},
+    "post_change_round2": {"histogram": {"500": 9}, "note": "复打一轮，9/9 = 500，0 重试"},
+    "per_route_status": {
+      "/api/market/1/orderbook": {"pre": 500, "post1": 500, "post2": 500, "body": "Failed to load order book"},
+      "/api/market/1/trades": {"pre": 500, "post1": 500, "post2": 500, "body": "Failed to load market trades"},
+      "/api/prize/all": {"pre": 500, "post1": 500, "post2": 500, "body": "Failed to load prizes"},
+      "/api/task/all": {"pre": 500, "post1": 500, "post2": 500, "body": "Failed to load tasks"},
+      "/api/task/1": {"pre": 500, "post1": 500, "post2": 500, "body": "Failed to load task"},
+      "/api/prize/1": {"pre": 500, "post1": 500, "post2": 500, "body": "Failed to load prize"},
+      "/api/user/asset/1": {"pre": 500, "post1": 500, "post2": 500, "body": "Internal server error"},
+      "/api/home": {"pre": 500, "post1": 500, "post2": 500, "body": "Failed to load home payload"},
+      "/api/task-progress/1": {"pre": 500, "post1": 500, "post2": 500, "body": "Failed to load task progress"}
+    },
+    "transport_errors": 0,
+    "retries_needed": 0,
+    "tls_flap_observed": false,
+    "expected": "改后仍 500 —— 根因是 \"uID\"/\"EVM\" 大写列名模型（真列 uid/evm），属 P3 数据层重写（D18）范围，不影响本单验收"
+  },
+
+  "assertions": {
+    "assert_1_read_no_longer_writes": {
+      "claim": "表数前后不变且 == 8，且 9 张懒 DDL 表在 GET 之后仍未重现",
+      "table_count_before_get_round": 8,
+      "table_count_after_get_rounds": 8,
+      "tables_identical_to_0012_set": true,
+      "lazy_tables_present_after_reads": [],
+      "value": true
+    },
+    "assert_2_grep_zero": {
+      "cmd": "grep -rc ensureSupportSchema backend-ts/src/",
+      "sum_of_counts": 0,
+      "files_with_nonzero": 0,
+      "value": true
+    },
+    "assert_3_schema_version": {
+      "schema_version": "0012",
+      "schema_migration_rows": 12,
+      "users_rows": 411,
+      "users_rows_unchanged": true,
+      "value": true
+    }
+  },
+
+  "sql_actually_run_against_live_db": [
+    "SELECT ... information_schema.tables / pg_indexes / count(*) / schema_migration（只读）",
+    "DROP TABLE IF EXISTS \"app_config\"", "DROP TABLE IF EXISTS \"permission_group\"",
+    "DROP TABLE IF EXISTS \"prize\"", "DROP TABLE IF EXISTS \"prize_item\"",
+    "DROP TABLE IF EXISTS \"task_progress\"", "DROP TABLE IF EXISTS \"market_order\"",
+    "DROP TABLE IF EXISTS \"market_trade\"", "DROP TABLE IF EXISTS \"shard\"",
+    "DROP TABLE IF EXISTS \"shard_transfer\""
+  ],
+
+  "not_verified": [
+    "写路由（POST/DELETE）未打：本单只授权 GET，且写路径根因是列名模型（P3 范围）",
+    "GET /api/user/asset/1 的 asset 表仍不存在（table_missing，属 P3 数据层重写）",
+    "ensureLegacyTableNames（database.ts:240，4 处调用）仍在，会做 gift→prize_item / journey→task_progress 的条件 RENAME：本单未动、未验；仅登记",
+    "删掉的 9 个服务方法路径仍 500：只证明了「读不再写」，未证明这些路由可用（D18 范围）",
+    "未 commit / 未 push（按约定由 Zang 执行）",
+    "仓库在本次运行期间被另一会话推进到 HEAD=415db62（与本单无关，未影响差集）"
+  ],
+
+  "artifacts": {
+    "human_doc": "docs/audit/p3-step1-ddl-removal.md",
+    "machine_readings": [
+      "backend-ts/.p3s1-artifacts/p3s1-20260928-084547.json",
+      "backend-ts/.p3s1-artifacts/p3s1-drop-20260928-084547.json",
+      "backend-ts/.p3s1-artifacts/p3s1-getmatrix-pre-20260928-084547.json",
+      "backend-ts/.p3s1-artifacts/p3s1-getmatrix-post-20260928-084547.json",
+      "backend-ts/.p3s1-artifacts/p3s1-getmatrix-post2-20260928-084547.json"
+    ],
+    "probe_scripts": [
+      "backend-ts/scripts/p3s1-00-db-state.ts",
+      "backend-ts/scripts/p3s1-01-get-matrix.ts",
+      "backend-ts/scripts/p3s1-02-drop-lazy-tables.ts"
+    ]
+  }
+}

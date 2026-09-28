@@ -54,7 +54,6 @@ const resolveMinimumShardPrice = (marketFloorPoints: number) => (
 );
 
 let sqlClient: ReturnType<typeof neon> | null = null;
-let supportSchemaPromise: Promise<void> | null = null;
 let legacyTableEnsurePromise: Promise<void> | null = null;
 
 const resolveDatabaseUrl = () => (
@@ -264,273 +263,6 @@ const ensureLegacyTableNames = async () => {
   });
 
   return legacyTableEnsurePromise;
-};
-
-const ensureSupportSchema = async () => {
-  if (supportSchemaPromise) {
-    return supportSchemaPromise;
-  }
-
-  supportSchemaPromise = (async () => {
-    await ensureLegacyTableNames();
-    const sql = getSql();
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS app_config (
-        key text PRIMARY KEY,
-        value jsonb NOT NULL DEFAULT '{}'::jsonb,
-        time_updated timestamptz NOT NULL DEFAULT NOW()
-      )
-    `;
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS permission_group (
-        id text PRIMARY KEY,
-        name text NOT NULL,
-        description text NOT NULL DEFAULT '',
-        permissions jsonb NOT NULL DEFAULT '[]'::jsonb,
-        user_ids jsonb NOT NULL DEFAULT '[]'::jsonb,
-        readonly boolean NOT NULL DEFAULT false,
-        time_created timestamptz NOT NULL DEFAULT NOW(),
-        time_updated timestamptz NOT NULL DEFAULT NOW()
-      )
-    `;
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS prize (
-        "bID" bigserial PRIMARY KEY,
-        symbol text NOT NULL,
-        name text NOT NULL,
-        description text,
-        url_image text,
-        image_url text,
-        points integer NOT NULL DEFAULT 0,
-        market_floor_points integer NOT NULL DEFAULT 0,
-        gift_limit integer NOT NULL DEFAULT 0,
-        total_quantity integer NOT NULL DEFAULT 0,
-        free_shard_ratio numeric NOT NULL DEFAULT 0,
-        time_start timestamptz,
-        time_end timestamptz,
-        time_created timestamptz NOT NULL DEFAULT NOW(),
-        time_updated timestamptz NOT NULL DEFAULT NOW(),
-        time_actived timestamptz,
-        name_en text,
-        name_hk text,
-        name_vn text,
-        description_en text,
-        description_hk text,
-        description_vn text
-      )
-    `;
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS prize_item (
-        "gID" bigserial PRIMARY KEY,
-        "bID" integer NOT NULL,
-        "uID" integer NOT NULL DEFAULT 0,
-        time_created timestamptz NOT NULL DEFAULT NOW(),
-        time_claimed timestamptz,
-        time_actived timestamptz
-      )
-    `;
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS task_progress (
-        "jID" bigserial PRIMARY KEY,
-        "tID" integer NOT NULL,
-        "uID" integer NOT NULL,
-        info_input text,
-        time_created timestamptz NOT NULL DEFAULT NOW(),
-        time_submitted timestamptz,
-        time_checked timestamptz,
-        time_claimed timestamptz,
-        points_claimed integer NOT NULL DEFAULT 0
-      )
-    `;
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS market_order (
-        "oID" bigserial PRIMARY KEY,
-        "bID" integer NOT NULL,
-        "uID" integer NOT NULL,
-        side text NOT NULL CHECK (side IN ('buy', 'sell')),
-        price integer NOT NULL CHECK (price > 0),
-        volume_total integer NOT NULL CHECK (volume_total > 0),
-        volume_filled integer NOT NULL DEFAULT 0 CHECK (volume_filled >= 0),
-        status text NOT NULL DEFAULT 'open',
-        time_created timestamptz NOT NULL DEFAULT NOW(),
-        time_updated timestamptz NOT NULL DEFAULT NOW()
-      )
-    `;
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS market_trade (
-        "trID" bigserial PRIMARY KEY,
-        "bID" integer NOT NULL,
-        "buy_oID" bigint,
-        "sell_oID" bigint,
-        "buyer_uID" integer NOT NULL,
-        "seller_uID" integer NOT NULL,
-        price integer NOT NULL CHECK (price > 0),
-        volume integer NOT NULL CHECK (volume > 0),
-        time_created timestamptz NOT NULL DEFAULT NOW()
-      )
-    `;
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS shard_transfer (
-        "txID" bigserial PRIMARY KEY,
-        "bID" integer NOT NULL,
-        "from_uID" integer,
-        "to_uID" integer,
-        volume integer NOT NULL,
-        reason text NOT NULL DEFAULT '',
-        "related_oID" bigint,
-        "related_trID" bigint,
-        time_created timestamptz NOT NULL DEFAULT NOW()
-      )
-    `;
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS shard (
-        "sID" bigserial PRIMARY KEY,
-        "bID" integer NOT NULL,
-        "uID" integer NOT NULL,
-        time_created timestamptz NOT NULL DEFAULT NOW(),
-        time_updated timestamptz NOT NULL DEFAULT NOW(),
-        volume integer NOT NULL DEFAULT 0
-      )
-    `;
-
-    await sql`ALTER TABLE IF EXISTS "users" ADD COLUMN IF NOT EXISTS "bio" text DEFAULT ''`;
-    await sql`ALTER TABLE IF EXISTS "users" ADD COLUMN IF NOT EXISTS "is_admin" boolean DEFAULT false`;
-    await sql`ALTER TABLE IF EXISTS "users" ADD COLUMN IF NOT EXISTS "time_login_last" timestamptz DEFAULT NOW()`;
-    await sql`
-      WITH base AS (
-        SELECT COALESCE(MAX(NULLIF(BTRIM("uID"), '')::int), 0) AS max_uid
-        FROM "users"
-        WHERE NULLIF(BTRIM("uID"), '') IS NOT NULL
-      ),
-      missing AS (
-        SELECT
-          ctid,
-          ROW_NUMBER() OVER (
-            ORDER BY
-              COALESCE(NULLIF(BTRIM("time_reg"), ''), ''),
-              COALESCE(NULLIF(BTRIM("EVM"), ''), '')
-          ) AS rn
-        FROM "users"
-        WHERE NULLIF(BTRIM("uID"), '') IS NULL
-      )
-      UPDATE "users" AS u
-      SET "uID" = (base.max_uid + missing.rn)::text
-      FROM base, missing
-      WHERE u.ctid = missing.ctid
-    `;
-
-    await sql`ALTER TABLE IF EXISTS asset ADD COLUMN IF NOT EXISTS points integer DEFAULT 0`;
-    await sql`ALTER TABLE IF EXISTS asset ADD COLUMN IF NOT EXISTS lucks integer DEFAULT 0`;
-    await sql`ALTER TABLE IF EXISTS asset ADD COLUMN IF NOT EXISTS "time_updated" timestamptz DEFAULT NOW()`;
-
-    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS points integer DEFAULT 0`;
-    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS market_floor_points integer DEFAULT 0`;
-    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS gift_limit integer DEFAULT 0`;
-    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS total_quantity integer DEFAULT 0`;
-    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS free_shard_ratio numeric DEFAULT 0`;
-    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS image_url text`;
-    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS name_en text`;
-    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS name_hk text`;
-    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS name_vn text`;
-    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS description_en text`;
-    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS description_hk text`;
-    await sql`ALTER TABLE IF EXISTS prize ADD COLUMN IF NOT EXISTS description_vn text`;
-
-    await sql`ALTER TABLE IF EXISTS task ADD COLUMN IF NOT EXISTS points integer DEFAULT 0`;
-    await sql`ALTER TABLE IF EXISTS task ADD COLUMN IF NOT EXISTS type integer DEFAULT 0`;
-    await sql`ALTER TABLE IF EXISTS task ADD COLUMN IF NOT EXISTS "linkA" text`;
-    await sql`ALTER TABLE IF EXISTS task ADD COLUMN IF NOT EXISTS title_en text`;
-    await sql`ALTER TABLE IF EXISTS task ADD COLUMN IF NOT EXISTS title_hk text`;
-    await sql`ALTER TABLE IF EXISTS task ADD COLUMN IF NOT EXISTS title_vn text`;
-    await sql`ALTER TABLE IF EXISTS task ADD COLUMN IF NOT EXISTS note_en text`;
-    await sql`ALTER TABLE IF EXISTS task ADD COLUMN IF NOT EXISTS note_hk text`;
-    await sql`ALTER TABLE IF EXISTS task ADD COLUMN IF NOT EXISTS note_vn text`;
-
-    await sql`ALTER TABLE IF EXISTS task_progress ADD COLUMN IF NOT EXISTS time_submitted timestamptz`;
-    await sql`ALTER TABLE IF EXISTS task_progress ADD COLUMN IF NOT EXISTS points_claimed integer DEFAULT 0`;
-
-    await sql`ALTER TABLE IF EXISTS prize_item ADD COLUMN IF NOT EXISTS time_claimed timestamptz`;
-    await sql`ALTER TABLE IF EXISTS shard ADD COLUMN IF NOT EXISTS time_updated timestamptz DEFAULT NOW()`;
-    await sql`ALTER TABLE IF EXISTS shard_transfer ADD COLUMN IF NOT EXISTS "related_oID" bigint`;
-    await sql`ALTER TABLE IF EXISTS shard_transfer ADD COLUMN IF NOT EXISTS "related_trID" bigint`;
-    await sql`
-      UPDATE shard
-      SET time_updated = COALESCE(time_updated, time_created, NOW())
-      WHERE time_updated IS NULL
-    `;
-
-    await sql`
-      UPDATE prize AS p
-      SET image_url = url_image
-      WHERE COALESCE(NULLIF(BTRIM(image_url), ''), '') = ''
-        AND COALESCE(NULLIF(BTRIM(url_image), ''), '') <> ''
-    `;
-
-    await sql`
-      UPDATE prize AS p
-      SET url_image = image_url
-      WHERE COALESCE(NULLIF(BTRIM(url_image), ''), '') = ''
-        AND COALESCE(NULLIF(BTRIM(image_url), ''), '') <> ''
-    `;
-
-    await sql`
-      WITH gift_counts AS (
-        SELECT
-          COALESCE((to_jsonb(g)->>'bID')::int, 0) AS bid,
-          COUNT(1)::int AS total_quantity
-        FROM prize_item AS g
-        GROUP BY bid
-      )
-      UPDATE prize AS p
-      SET total_quantity = GREATEST(COALESCE(p.total_quantity, 0), gift_counts.total_quantity),
-          gift_limit = GREATEST(COALESCE(p.gift_limit, 0), gift_counts.total_quantity)
-      FROM gift_counts
-      WHERE p."bID" = gift_counts.bid
-        AND (
-          COALESCE(p.total_quantity, 0) = 0
-          OR COALESCE(p.gift_limit, 0) = 0
-        )
-    `;
-
-    await sql`
-      UPDATE task AS t
-      SET "linkA" = link0
-      WHERE COALESCE(NULLIF(BTRIM("linkA"), ''), '') = ''
-        AND COALESCE(NULLIF(BTRIM(link0), ''), '') <> ''
-    `;
-
-    await sql`
-      UPDATE task AS t
-      SET link0 = "linkA"
-      WHERE COALESCE(NULLIF(BTRIM(link0), ''), '') = ''
-        AND COALESCE(NULLIF(BTRIM("linkA"), ''), '') <> ''
-    `;
-
-    await sql`CREATE INDEX IF NOT EXISTS idx_user_uid ON "users" ("uID")`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_user_evm_lower ON "users" (LOWER("EVM"))`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_asset_uid ON asset ("uID")`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_prize_item_uid_gid ON prize_item ("uID", "gID" DESC)`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_prize_item_uid_bid ON prize_item ("uID", "bID")`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_prize_item_bid_uid ON prize_item ("bID", "uID")`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_task_progress_uid_jid ON task_progress ("uID", "jID" DESC)`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_task_progress_tid ON task_progress ("tID")`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_shard_bid ON shard ("bID")`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_shard_transfer_bid_reason ON shard_transfer ("bID", reason)`;
-  })().catch((error) => {
-    supportSchemaPromise = null;
-    throw error;
-  });
-
-  return supportSchemaPromise;
 };
 
 export interface AssetRecord {
@@ -1008,7 +740,6 @@ const normalizeShardTransfer = (
 
 export class DatabaseService {
   static async getNextUserId(): Promise<number> {
-    await ensureSupportSchema();
     const sql = getSql();
     const rows = asItems<{ next_id: number }>(await sql`
       SELECT COALESCE(MAX(NULLIF(BTRIM("uID"), '')::int), 0)::int + 1 AS next_id
@@ -1139,7 +870,6 @@ export class DatabaseService {
   }
 
   static async getUserById(uID: number): Promise<UserRecord | null> {
-    await ensureSupportSchema();
     const sql = getSql();
     const row = firstRow(await sql`
       SELECT u.*
@@ -1152,7 +882,6 @@ export class DatabaseService {
   }
 
   static async getUserByEvm(evmAddress: string): Promise<UserRecord | null> {
-    await ensureSupportSchema();
     const sql = getSql();
     const normalizedAddress = String(evmAddress || '').trim().toLowerCase();
     const row = firstRow(await sql`
@@ -1166,7 +895,6 @@ export class DatabaseService {
   }
 
   static async createUserByEvm(evmAddress: string): Promise<UserRecord> {
-    await ensureSupportSchema();
     const sql = getSql();
     const normalizedAddress = String(evmAddress || '').trim().toLowerCase();
     const nextUserId = await this.getNextUserId();
@@ -1189,7 +917,6 @@ export class DatabaseService {
   }
 
   static async findOrCreateUserByEvm(evmAddress: string): Promise<UserRecord> {
-    await ensureSupportSchema();
     const normalizedAddress = String(evmAddress || '').trim().toLowerCase();
     let user = await this.getUserByEvm(normalizedAddress);
 
@@ -1205,7 +932,6 @@ export class DatabaseService {
   }
 
   static async updateUserProfile(uID: number, fields: { bio?: string; is_admin?: boolean }): Promise<UserRecord | null> {
-    await ensureSupportSchema();
     const sql = getSql();
     const bio = fields.bio;
     const isAdmin = fields.is_admin === undefined ? null : String(fields.is_admin);
@@ -1816,7 +1542,6 @@ export class DatabaseService {
   }
 
   static async listPersistedPermissionGroups(): Promise<PermissionGroupRecord[]> {
-    await ensureSupportSchema();
     const sql = getSql();
     const rows = extractRows(await sql`
       SELECT to_jsonb(pg) AS row
@@ -1895,7 +1620,6 @@ export class DatabaseService {
     permissions?: string[];
     user_ids?: number[];
   }): Promise<PermissionGroupRecord> {
-    await ensureSupportSchema();
 
     const id = String(input.id || '').trim() || slugify(input.name || '') || `group-${Date.now()}`;
     if (id === 'admin_access') {
@@ -1962,7 +1686,6 @@ export class DatabaseService {
   }
 
   static async deletePermissionGroup(id: string): Promise<boolean> {
-    await ensureSupportSchema();
 
     if (id === 'admin_access') {
       throw new Error('System permission group is read-only');
@@ -1992,7 +1715,6 @@ export class DatabaseService {
   }
 
   static async getSystemSettings(): Promise<SystemSettingsRecord> {
-    await ensureSupportSchema();
     const sql = getSql();
     const rows = asItems<{ value: unknown }>(await sql`
       SELECT value
@@ -2005,7 +1727,6 @@ export class DatabaseService {
   }
 
   static async saveSystemSettings(input: Partial<SystemSettingsRecord>): Promise<SystemSettingsRecord> {
-    await ensureSupportSchema();
     const current = await this.getSystemSettings();
     const next = normalizeSystemSettings({
       ...current,
@@ -2030,7 +1751,6 @@ export class DatabaseService {
   }
 
   static async updateUserAdminStatus(uID: number, isAdmin: boolean): Promise<UserRecord | null> {
-    await ensureSupportSchema();
     return this.updateUserProfile(uID, { is_admin: isAdmin });
   }
 
@@ -2099,7 +1819,6 @@ export class DatabaseService {
     time_start?: number | string | null;
     time_end?: number | string | null;
   }): Promise<BrandRecord> {
-    await ensureSupportSchema();
     const symbol = String(input.symbol || '').trim();
     const name = String(input.name || '').trim();
     if (!symbol || !name) {
@@ -2192,7 +1911,6 @@ export class DatabaseService {
       time_end?: number | string | null;
     },
   ): Promise<BrandRecord | null> {
-    await ensureSupportSchema();
     const existingPrize = await this.getBrandById(bID);
     if (!existingPrize) {
       return null;
@@ -2248,7 +1966,6 @@ export class DatabaseService {
   }
 
   static async deleteBrand(bID: number): Promise<boolean> {
-    await ensureSupportSchema();
     const sql = getSql();
     const [giftRows, orderRows, tradeRows, shardRows] = await Promise.all([
       asItems<{ count: number }>(await sql`
@@ -2306,7 +2023,6 @@ export class DatabaseService {
     link0?: string | null;
     linkB?: string | null;
   }): Promise<TaskRecord> {
-    await ensureSupportSchema();
     const title = String(input.title || '').trim();
     if (!title) {
       throw new Error('Task title is required');
@@ -2360,7 +2076,6 @@ export class DatabaseService {
       linkB?: string | null;
     },
   ): Promise<TaskRecord | null> {
-    await ensureSupportSchema();
     const sql = getSql();
     const row = firstRow(await sql`
       UPDATE task AS t
@@ -2386,7 +2101,6 @@ export class DatabaseService {
   }
 
   static async deleteTask(tID: number): Promise<boolean> {
-    await ensureSupportSchema();
     const participantsCount = await this.countTaskParticipants(tID);
     if (participantsCount > 0) {
       throw new Error('Task already has participation records');
@@ -2401,7 +2115,6 @@ export class DatabaseService {
   }
 
   static async listShardHoldingsByUser(uID: number, skip = 0, limit = 100): Promise<ShardHoldingRecord[]> {
-    await ensureSupportSchema();
     const sql = getSql();
     const rows = asItems<RawRow>(await sql`
       SELECT
@@ -2429,7 +2142,6 @@ export class DatabaseService {
   }
 
   static async getUserShardBalance(uID: number, bID: number): Promise<number> {
-    await ensureSupportSchema();
     const sql = getSql();
     const rows = asItems<{ volume: number }>(await sql`
       SELECT COALESCE(SUM(COALESCE(s.volume, 0)), 0)::int AS volume
@@ -2441,7 +2153,6 @@ export class DatabaseService {
   }
 
   static async createShardLedgerEntry(uID: number, bID: number, delta: number): Promise<void> {
-    await ensureSupportSchema();
     if (!delta) {
       return;
     }
@@ -2462,7 +2173,6 @@ export class DatabaseService {
     related_oID?: number | null;
     related_trID?: number | null;
   }): Promise<ShardTransferRecord | null> {
-    await ensureSupportSchema();
     const sql = getSql();
     const row = firstRow(await sql`
       INSERT INTO shard_transfer AS st (
@@ -2497,7 +2207,6 @@ export class DatabaseService {
   }
 
   static async listShardTransfersByUser(uID: number, skip = 0, limit = 100): Promise<ShardTransferRecord[]> {
-    await ensureSupportSchema();
     const sql = getSql();
     const rows = extractRows(await sql`
       SELECT st.*
@@ -2520,7 +2229,6 @@ export class DatabaseService {
   }
 
   static async getMarketOrderById(oID: number): Promise<MarketOrderRecord | null> {
-    await ensureSupportSchema();
     const sql = getSql();
     const row = firstRow(await sql`
       SELECT o.*
@@ -2538,7 +2246,6 @@ export class DatabaseService {
   }
 
   static async updateMarketOrderFill(oID: number, fillDelta: number): Promise<MarketOrderRecord | null> {
-    await ensureSupportSchema();
     const sql = getSql();
     const row = firstRow(await sql`
       UPDATE market_order AS o
@@ -2561,7 +2268,6 @@ export class DatabaseService {
   }
 
   static async findMatchingOrder(order: MarketOrderRecord): Promise<MarketOrderRecord | null> {
-    await ensureSupportSchema();
     const brand = await this.getBrandById(order.bID);
     if (!brand) {
       return null;
@@ -2618,7 +2324,6 @@ export class DatabaseService {
     price: number;
     volume: number;
   }): Promise<MarketTradeRecord> {
-    await ensureSupportSchema();
     const sql = getSql();
     const row = firstRow(await sql`
       INSERT INTO market_trade AS t (
@@ -2715,7 +2420,6 @@ export class DatabaseService {
   }
 
   static async listOrdersByUser(uID: number, skip = 0, limit = 100): Promise<MarketOrderRecord[]> {
-    await ensureSupportSchema();
     const sql = getSql();
     const rows = extractRows(await sql`
       SELECT o.*
@@ -2743,7 +2447,6 @@ export class DatabaseService {
     price: number;
     volume: number;
   }): Promise<{ order: MarketOrderRecord; trades: MarketTradeRecord[] }> {
-    await ensureSupportSchema();
     const bID = Math.trunc(Number(input.bID) || 0);
     const price = Math.trunc(Number(input.price) || 0);
     const volume = Math.trunc(Number(input.volume) || 0);
@@ -2835,7 +2538,6 @@ export class DatabaseService {
     restored_shards: number;
     order: MarketOrderRecord;
   }> {
-    await ensureSupportSchema();
     const existing = await this.getMarketOrderById(oID);
     if (!existing) {
       throw new Error('Order not found');
@@ -2908,7 +2610,6 @@ export class DatabaseService {
   }
 
   static async listOrderBook(bID: number): Promise<MarketOrderBookRow[]> {
-    await ensureSupportSchema();
     const sql = getSql();
     const rows = asItems<MarketOrderBookRow>(await sql`
       SELECT
@@ -2931,7 +2632,6 @@ export class DatabaseService {
   }
 
   static async listTradesByBrand(bID: number, skip = 0, limit = 50): Promise<MarketTradeRecord[]> {
-    await ensureSupportSchema();
     const sql = getSql();
     const rows = extractRows(await sql`
       SELECT t.*
@@ -2953,7 +2653,6 @@ export class DatabaseService {
     prize: PrizeRecord;
     transfer: ShardTransferRecord | null;
   }> {
-    await ensureSupportSchema();
     const prize = await this.getPrizeById(bID);
     if (!prize) {
       throw new Error('Prize not found');
@@ -2998,7 +2697,6 @@ export class DatabaseService {
   }
 
   static async redeemPrizeItemFromShards(uID: number, bID: number): Promise<PrizeItemRecord> {
-    await ensureSupportSchema();
     const holdings = await this.getUserShardBalance(uID, bID);
     if (holdings < 1000) {
       throw new Error('Insufficient shards to redeem gift');
