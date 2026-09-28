@@ -116,6 +116,8 @@ describe('语言前缀规范化重定向（防御层）', () => {
     ['/en/en', '/en', 'home page content'],
     ['/zh', '/', 'home page content'],
     ['/vn/reward/', '/vn/reward', 'reward page content'],
+    ['/vn//reward', '/vn/reward', 'reward page content'],
+    ['//hk', '/hk', 'home page content'],
   ])('把 %s 自愈为 %s 并渲染主体内容', async (from, to, content) => {
     renderAt(from)
 
@@ -124,13 +126,11 @@ describe('语言前缀规范化重定向（防御层）', () => {
     await expectMainNotBlank()
   })
 
-  it('把 /zh/reward 自愈为 /reward，主体不再是空白', async () => {
-    // 注：/reward（无语言前缀）由既有路由决定渲染哪个页面（zh 子路径目前命中首页），
-    // 属既有缺陷、不在本次修复范围；本用例只断言重定向结果与「主体非空」。
+  it('把 /zh/reward 自愈为 /reward 并渲染奖励页', async () => {
     renderAt('/zh/reward')
 
     await expectPathname('/reward')
-    await expectMainNotBlank()
+    expect(screen.getByText('reward page content')).toBeInTheDocument()
   })
 
   it.each([
@@ -145,11 +145,11 @@ describe('语言前缀规范化重定向（防御层）', () => {
     expect(screen.getByText(content)).toBeInTheDocument()
   })
 
-  it('规范路径 /reward 保持原样（不额外加重定向）', async () => {
+  it('规范路径 /reward 保持原样（不额外加重定向）且渲染奖励页', async () => {
     renderAt('/reward')
 
     await expectPathname('/reward')
-    await expectMainNotBlank()
+    expect(screen.getByText('reward page content')).toBeInTheDocument()
   })
 
   it('无语言前缀的 /login 不被加前缀', async () => {
@@ -181,5 +181,40 @@ describe('语言前缀规范化重定向（防御层）', () => {
     await expectPathname('/hk/reward')
     expect(screen.getByTestId('query').textContent).toBe('?tab=open#top')
     expect(screen.getByText('reward page content')).toBeInTheDocument()
+  })
+})
+
+// P0 正向判据：中文无前缀子路径必须渲染各自页面。
+// 判负自证：把外层路由改回 `/:lang?/*`（可选语言段）时，除 '/' 外本组用例全部转红（/reward、/task、/shard ⇒ home page content）。
+describe('中文无前缀子路径渲染（P0）', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+
+    useAuth.mockReturnValue({
+      isAuthenticated: false,
+      user: null,
+    })
+  })
+
+  it.each([
+    ['/', '/', 'home page content'],
+    ['/reward', '/reward', 'reward page content'],
+    ['/task', '/task', 'task page content'],
+    ['/shard', '/shard', 'shard page content'],
+    ['/en/reward', '/en/reward', 'reward page content'],
+    ['/en/task', '/en/task', 'task page content'],
+    ['/hk/shard', '/hk/shard', 'shard page content'],
+    ['/vn/reward', '/vn/reward', 'reward page content'],
+  ])('%s 渲染 %s 对应的页面内容', async (path, expected, content) => {
+    renderAt(path)
+
+    await expectPathname(expected)
+    expect(screen.getByRole('main')).toBeInTheDocument()
+    expect(screen.getByText(content)).toBeInTheDocument()
+
+    if (content !== 'home page content') {
+      // 页面真的换掉了：不再是首页欢迎语
+      expect(screen.queryByText('home page content')).toBeNull()
+    }
   })
 })

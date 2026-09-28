@@ -183,4 +183,20 @@ describe('canonicalLangPath', () => {
     expect(canonicalLangPath('/login')).toBe('/login')
     expect(canonicalLangPath('/register')).toBe('/register')
   })
+
+  it('折叠重复斜杠（中段多余斜杠也要自愈，否则规范化后与自身相等而不触发重定向）', () => {
+    expect(canonicalLangPath('/vn//reward')).toBe('/vn/reward')
+    expect(canonicalLangPath('//hk')).toBe('/hk')
+    expect(canonicalLangPath('//')).toBe('/')
+    expect(canonicalLangPath('/hk//vn')).toBe('/hk')
+    expect(canonicalLangPath('/vn//reward//')).toBe('/vn/reward')
+    expect(canonicalLangPath('//dashboard//users')).toBe('/dashboard/users')
+  })
+
+  it('折叠后的结果仍幂等', () => {
+    ['/vn//reward', '//hk', '//', '/hk//vn', '/vn//reward//'].forEach((pathname) => {
+      const once = canonicalLangPath(pathname)
+      expect(canonicalLangPath(once), `${pathname} -> ${once}`).toBe(once)
+    })
+  })
 })

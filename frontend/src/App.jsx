@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 // 页面组件
@@ -26,27 +26,24 @@ import Footer from './components/Footer'
 import AdminLayout from './components/layout/AdminLayout'
 import { fetchAdminAccess, hasAdminPermission } from './admin-utils'
 import { useAuth } from './auth-context'
-import { canonicalLangPath, SUPPORTED_LANGS } from './utils'
+import { canonicalLangPath, getLanguageFromUrl, SUPPORTED_LANGS } from './utils'
 
 // 模态框组件
 import LoginModal from './components/LoginModal'
 
-// 语言路由包装器
-const LanguageWrapper = ({ children }) => {
-  const { lang } = useParams()
+// 语言路由壳（唯一真源）：显式语言路由（/en|/hk|/vn|/zh/*）与无前缀兜底路由（/*，中文口径）共用这一个壳。
+// 不用 `/:lang?/*` 可选段——那会把 /reward、/task 这类普通首段吃成 lang，内层只剩 index ⇒ 中文子页渲染成首页。
+const LangShell = () => {
   const { i18n } = useTranslation()
   const location = useLocation()
+  // 语言判定统一走 utils 单一真源：首段是白名单语言则取之，否则视为默认语 zh（无前缀口径）
+  const lang = getLanguageFromUrl(location.pathname)
 
   useEffect(() => {
-    // 从URL路径更新语言
-    if (lang && SUPPORTED_LANGS.includes(lang)) {
-      i18n.changeLanguage(lang)
-    } else if (!lang) {
-      i18n.changeLanguage('zh')
-    }
+    i18n.changeLanguage(lang)
   }, [lang, i18n])
 
-  // 语言前缀规范化：/hk/vn、/zh、/en/en 这类历史链接或手输地址先自愈到规范路径，
+  // 语言前缀/重复斜杠规范化：/hk/vn、/zh、/en/en、/vn//reward 这类历史链接或手输地址先自愈到规范路径，
   // 否则内层路由无匹配会渲染成空白页（无语言前缀的 /dashboard*、/login、/register 不在首位语言表内，不会被加前缀）
   const canonicalPath = canonicalLangPath(location.pathname)
 
@@ -54,12 +51,43 @@ const LanguageWrapper = ({ children }) => {
     return <Navigate to={`${canonicalPath}${location.search}${location.hash}`} replace />
   }
 
-  return <div className="min-h-screen flex flex-col">{children}</div>
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-grow">
+        {/* 内层路由用相对路径，语言前缀由外层壳负责，不复制多份 */}
+        <Routes>
+          {/* 首页 */}
+          <Route index element={<HomePage />} />
+
+          {/* 奖励页面 */}
+          <Route path="reward" element={<RewardPage />} />
+
+          {/* 任务页面 */}
+          <Route path="task" element={<TaskPage />} />
+
+          {/* 碎片市场 */}
+          <Route path="shard" element={<ShardPage />} />
+
+          {/* 个人资料页面（需要登录） */}
+          <Route
+            path="profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </main>
+      <Footer />
+    </div>
+  )
 }
 
 // 浏览器标签标题（document.title）的唯一运行时写入点：
 // 单一真源是 locale 文件里的 siteTitle；依赖 i18n.language 而非挂载点，才能同时覆盖
-// 「首次加载」与两条语言切换路径（Header 的 navigate 改 URL → LanguageWrapper 切语言，以及直接 changeLanguage）。
+// 「首次加载」与两条语言切换路径（Header 的 navigate 改 URL → LangShell 切语言，以及直接 changeLanguage）。
 const HTML_LANG_BY_KEY = { zh: 'zh-CN', hk: 'zh-HK', vn: 'vi', en: 'en' }
 
 const DocumentTitle = () => {
@@ -189,41 +217,13 @@ function App() {
           <Route path="settings" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><SystemSettings /></ProtectedRoute>} />
         </Route>
       
-      {/* 带语言前缀的路由 */}
-      <Route 
-        path="/:lang?/*" 
-        element={
-          <LanguageWrapper>
-            <Header />
-            <main className="flex-grow">
-              <Routes>
-                {/* 首页 */}
-                <Route index element={<HomePage />} />
-                
-                {/* 奖励页面 */}
-                <Route path="reward" element={<RewardPage />} />
-                
-                {/* 任务页面 */}
-                <Route path="task" element={<TaskPage />} />
+      {/* 显式语言壳路由：/en/*、/hk/*、/vn/*、/zh/*（顺序即 SUPPORTED_LANGS；zh 也保留显式壳，配合自愈层把 /zh → /） */}
+      {SUPPORTED_LANGS.map((lang) => (
+        <Route key={lang} path={`/${lang}/*`} element={<LangShell />} />
+      ))}
 
-                {/* 碎片市场 */}
-                <Route path="shard" element={<ShardPage />} />
-
-                {/* 个人资料页面（需要登录） */}
-                <Route 
-                  path="profile" 
-                  element={
-                    <ProtectedRoute>
-                      <ProfilePage />
-                    </ProtectedRoute>
-                  } 
-                />
-              </Routes>
-            </main>
-            <Footer />
-          </LanguageWrapper>
-        } 
-      />
+      {/* 无前缀兜底壳（中文口径：/、/reward、/task、/shard…）：登录/注册/管理页在上方更精确匹配，不会被捕获 */}
+      <Route path="/*" element={<LangShell />} />
     </Routes>
 
     <LoginModal 

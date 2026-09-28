@@ -92,12 +92,24 @@ export const buildLangPath = (pathname, targetLang) => {
 }
 
 /**
- * 计算URL的规范路径，用于判定「该不该重定向」
+ * 折叠路径中的重复斜杠（URL 规范化的组成部分：/vn//reward → /vn/reward、//hk → /hk）
  * @param {string} pathname - URL路径
- * @returns {string} 规范路径（统一去尾斜杠，根路径 '/' 除外）
+ * @returns {string} 折叠后的路径
+ */
+const collapseSlashes = (pathname) => {
+  return (pathname || '/').replace(/\/{2,}/g, '/')
+}
+
+/**
+ * 计算URL的规范路径，用于判定「该不该重定向」
+ * 口径：折叠重复斜杠 → 剥离/重建语言前缀 → 去尾斜杠（根路径 '/' 除外）
+ * @param {string} pathname - URL路径
+ * @returns {string} 规范路径
  */
 export const canonicalLangPath = (pathname) => {
-  return buildLangPath(pathname, getLanguageFromUrl(pathname))
+  const collapsed = collapseSlashes(pathname)
+
+  return buildLangPath(collapsed, getLanguageFromUrl(collapsed))
 }
 
 /**
