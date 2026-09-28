@@ -688,6 +688,21 @@ BEGIN…COMMIT 单独 2250 / 1377 / 1478 ms
 **入库**：`backend-ts/src/database.ts` + 三个探针（`scripts/p3s1-00-db-state.ts` 只读 / `p3s1-01-get-matrix.ts` 只发 GET / `p3s1-02-drop-lazy-tables.ts` 内置逐张 0 行硬闸，非空 `exit 3` 不 DROP）+ `.p3s1-artifacts/`（run-tagged）+ `docs/audit/`（含全量路由审计 `p3-route-inventory.{json,md}` 55 条 + 人读交付 `p3-step1-ddl-removal.md`）。
 
 
+### 5.31 **自我更正：v0.35 的「读不再写」下得过宽；第二步 DDL 路径已派 Step 1b**（2026-09-28）
+
+**我上一版的错**：v0.35（§5.30）写「读不再写成立」，但那个结论**只用 `ensureSupportSchema` 一个串的 grep 支撑** —— 我没有先枚举「请求路径上的 schema 变更语句」这一类。同文件里还留着**同族路径**：`ensureLegacyTableNames`（定义 `database.ts:239`，模块级缓存 `legacyTableEnsurePromise` 在 `:57`），体内 `DO $$` 含**两处条件 DDL**：
+- `:250-251` `IF to_regclass('public.prize_item') IS NULL AND to_regclass('public.gift') IS NOT NULL THEN ALTER TABLE gift RENAME TO prize_item;`
+- `:254-255` `IF to_regclass('public.task_progress') IS NULL AND to_regclass('public.journey') IS NOT NULL THEN ALTER TABLE journey RENAME TO task_progress;`
+
+被 **4 个读方法**调用：`listBrands`(:1046) / `listTasks`(:1197) / `getTask`(:1226) / `getBrandById`(:1466)。
+
+**当前实际影响＝无，但这是数据条件侥幸**：新库里 `gift` / `journey` 都不存在 ⇒ `DO $$` 块**条件空转**。**但这恰恰揭穿了我读数的盲区**：条件空转的 DDL **不改表数**，所以我的验收读数（表数前后不变 == 8）**照样「通过」**。⇒ 用「实例级 grep + 表数不变」证明「读不写」是**假证**。
+
+**处置（已派 Step 1b）**：摘除 `ensureLegacyTableNames` + 孤儿 `legacyTableEnsurePromise` + 4 处调用；改以**类级断言**交付：对 `backend-ts/src/` 全目录扫 `CREATE TABLE|ALTER TABLE|DROP TABLE|RENAME TO|CREATE INDEX|ALTER INDEX|DROP INDEX|TRUNCATE|CREATE [OR REPLACE] FUNCTION|DO $$`，**除迁移执行器外必须 0**，并给全量命中清单与允许集判定；同时重跑「读不再写」读数 + `tsc --noEmit`。
+
+**新增纪律（第 ⑳ 条）**：**「验收通过」必须用类级断言，不得用实例级 grep。** 只按被改的那个符号去 grep，会把**同族的孪生路径**整条漏掉；正确姿势是**先枚举该类**（此处＝「请求路径上的 schema 变更语句全集」），再**对全集断言为 0**。本条与既有的第 ⑭ 条同源：⑭ 说「检查要覆盖**被改**的路径」，⑳ 补「也要覆盖同一类的**其它**路径」。
+
+
 ### 5.6 延迟问题的三个处置变体（**已拍板：变体 B**，见 D10）
 
 | 变体 | 做法 | 本地单笔预期 | 代价 |
@@ -884,6 +899,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.36 | 2026-09-28 | **§5.31 自我更正**：v0.35 的「读不再写」**下得过宽** —— 它只用 `ensureSupportSchema` 一个串的 grep 支撑，漏了同族路径 `ensureLegacyTableNames`（`database.ts:239`，含两处条件 `ALTER TABLE … RENAME`，被 4 个**读**方法调用；因 `gift`/`journey` 不存在而当前空转）。**关键教训**：条件空转的 DDL 不改表数 ⇒ 我「表数前后不变」的验收读数对它是**盲的（假证）**。已派 **Step 1b** 摘除并改以**类级断言**交付（DDL 关键字全集扫描，除迁移执行器外 == 0）。**新增纪律 ⑳：「验收通过」必须用类级断言，不得用实例级 grep** |
 | v0.35 | 2026-09-28 | **§5.30 P3 Step 1 验收通过**（读不再写，库回到 == `0012`）：`database.ts` **-302/+0**（唯一改动源文件），摘 `ensureSupportSchema()` 定义 + 孤儿 `supportSchemaPromise` + **实测 34 处**调用（我 brief 写的 12 处取自截断 grep 清单 ⇒ 已更正并立纪律）；我亲核 `numstat`/两串 grep 全 0/`/health` 200+`0012`/pid 57720 存活；真库 **17→8 张**且与 `0012` 目标集逐一等、索引 33→24、`schema_version=0012`、migration 12 行、users 411；**同一批 9 条 GET 两轮后表数恒为 8 ⇒ 懒表未被重建（读不再写成立）**；九条 GET 仍 500 属预期（列名模型，D18 范围）。新登记 `ensureLegacyTableNames`（`database.ts:240` + 4 处调用）待 P3 与 `ensureSupportSchema` 同族判去留 |
 | v0.34 | 2026-09-28 | **§5.29 P3 数据层重写立项 + 路由审计结论落位**。审计（55 条）：`ok` 仅 7、`column_missing` 40、`table_missing` 6、`legacy_unmapped` 2，**零路由触达账本内核与返佣** ⇒ 内核在 HTTP 层没接上；真根因是**列名模型**（真列 `uid`/`evm` vs 代码 `"uID"`×57 / `"EVM"`×4）；审计的 GET 触发 `ensureSupportSchema()` 懒 DDL ⇒ **真库 8→17 张表**（9 张全空的表不在任何迁移中）；411 条 users 核实为**我方测试残差**。Kevin 裁定 **D18 = 数据层重写（方案 A）**、**D19 = 先修码再 DROP 回到 == 0012**、**D20 = P3 写真实用户前清残差**。登记他方提交 `45c27d8`（Kevin 自修语言前缀规范化 + 空白页，§5.26 #3，待独立核验）。派单：Kong 摘运行时 DDL + DROP；Jing 出 `docs/data-layer.spec.md` v0.1 |
 | v0.33 | 2026-09-27 | **§5.28 P3 立项与拆解**（P1/P2 已闭环）：P3 = 业务模块四柱（招工 / 商品 / 积分交易所 / 邀请返佣用户可见面），管理员不再在后台发 task/reward；**P3 入口先遣＝全量路由审计**（拷来的后端有一批活路由绑在新库不存在的表上，`/api/user/asset/:uID` 实测 500 ⇒ 不知哪些路由是死的就会在死路由上叠新功能）；交付 `docs/audit/p3-route-inventory.{md,json}` 并要求内置判负能力（独立重新发现已知缺口）。**P3 门槛项建议**：把「修仓库自带 e2e」列为 P3 前置（它现在会静默打到 jinli 站点上 ⇒ 不修则每个模块都缺回归能力）+ 双重前缀 URL 随 P3 第一单一起修。**§5.26 四项处置建议**：#2/#3 纳入 P3 前置；#1 需 Kevin 给品牌成句文案口径；**#4 标题闪烁裁定不做**（内联映射会破坏 §5.24 的单一真源，正解是部署层按语言下发 HTML） |
