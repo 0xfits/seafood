@@ -663,6 +663,11 @@ BEGIN…COMMIT 单独 2250 / 1377 / 1478 ms
 
 **派单**：Step 1（Kong）摘运行时 DDL + `DROP` 9 张空表 + 验证「读不再写」；Step 2（Jing）`docs/data-layer.spec.md` **v0.1**（编号域 `DL1…`）。
 
+**并发会话冲突（同日发现并裁定）**：`docs/qa/lang-prefix-normalize.md`（40 KB）与 `docs/qa/lang-shell-regression.md`（2.3 KB）的出具方均为**另一路同样的四角色会话的「Neng」**（后者明写「不采信实现方（Kong）自报」并锁定被检 revision `dbccd89`）⇒ **同一仓库、同一条前端语言路由线上，有两路 Zang 会话在并发工作**（`45c27d8` 与 `dbccd89` 两个提交均出自那一路，作者显示 Kevin）。
+**Kevin 裁定（同日）**：**全部归本会话**（请另一会话停手，避免两个会话改同一仓库）；另一会话他本人「只是在看进度」。
+**我据此撤回的重复动作**：已 `stop` 我为核 `dbccd89` 而派的重复 Neng 单（`sa-0-2ee6bd12`）—— 那一路的 Neng 已在核同一 revision，重复核验只会在同一 revision 上撞车。
+**新的跨会话纪律**：① 本仓**同一时刻只应有一个会话改 `docs/seafood.master-plan.md`**（共享唯一真源）；② 提交一律**只暂存自己改的文件**，永不用 `git add -A`/`.`；③ 交接/验收前**必须重跑 `git log --oneline -3` + `git status --porcelain` 对锚**（本日已两次实测：HEAD 在我会话期间被他方推进 `45c27d8`、`dbccd89`）；④ 引用任何文件时给 **blob sha256**，并在工作区被改动时改用**固定副本**重跑（上一轮核验已因此作废过一组读数）。
+
 
 ### 5.6 延迟问题的三个处置变体（**已拍板：变体 B**，见 D10）
 
