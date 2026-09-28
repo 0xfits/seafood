@@ -1,0 +1,781 @@
+{
+  "probe": "P3S1B-MASTER",
+  "run_tag": "20260928-123558",
+  "generated_at": "2026-09-28T04:42:10.159Z",
+  "executor": "Kong",
+  "superscript_note": "接手单：补类级断言 + 正对照 + 报告全文回填 + 机读件。代码面 backend-ts/src/** 由上一任完成且已入 375c5b8，本单未改 src。",
+  "report_path": "docs/audit/p3-step1b-ddl-removal.md",
+  "git_anchor": {
+    "first_read": {
+      "ts": "2026-09-28T12:35:58+08:00",
+      "head": "37c368d70c3557d8a1c0c0408333c7f558b85862",
+      "log_oneline_1": "37c368d master-plan v0.37: 5.32 P3 数据层规范 v0.1 终审（C1-C9 九项裁定）+ 5.33 两条库级发现",
+      "status_porcelain": [
+        " M backend-ts/src/database.ts",
+        " M docs/ledger.spec.md",
+        "?? backend-ts/.p3s1-artifacts/p3s1-getmatrix-20260928-085717-g1.json",
+        "?? backend-ts/.p3s1-artifacts/p3s1-getmatrix-20260928-085717-g2.json",
+        "?? backend-ts/.p3s1-artifacts/p3s1b-catalog-20260928-085717-mid.json",
+        "?? backend-ts/.p3s1-artifacts/p3s1b-catalog-20260928-085717-post.json",
+        "?? backend-ts/.p3s1-artifacts/p3s1b-catalog-20260928-085717-pre.json",
+        "?? backend-ts/scripts/p3s1b-00-catalog-state.ts",
+        "?? docs/audit/p3-step1b-ddl-removal.md",
+        "?? docs/data-layer.spec.md",
+        "?? docs/qa/45c27d8-lang-path.md",
+        "?? docs/qa/lang-prefix-normalize.md",
+        "?? docs/qa/lang-shell-dbccd89-verify.md",
+        "?? docs/qa/lang-shell-regression.md",
+        "?? docs/versions/data-layer.spec.v0.1.md",
+        "?? docs/versions/ledger.spec.v0.11.md"
+      ]
+    },
+    "implementation_start": {
+      "ts": "2026-09-28T12:37:00+08:00",
+      "head": "375c5b8ea9eeea0e6c30395200060db95841742b",
+      "log_oneline_1": "375c5b8 P3 Step 1b: 摘掉第二条运行时 DDL 路径 ensureLegacyTableNames（代码面 + catalog 读数）"
+    },
+    "closing": {
+      "ts": "2026-09-28T12:41:45+08:00",
+      "head": "065e28dad50cd4ed5a0a042c48bdc116fa64b206",
+      "log_oneline_1": "065e28d ledger.spec v0.12: R79 就地扩写并拍板（加锁全序含业务行）+ 新增 R109（业务编排函数原子性与幂等口径）+ v0.11 快照",
+      "note": "期间两笔他方提交：375c5b8（入库上一任产物）、065e28d（他方 ledger.spec v0.12）。本单未 commit / 未 git add / 未 push。"
+    }
+  },
+  "code_change_src": {
+    "file": "backend-ts/src/database.ts",
+    "landed_in_commit": "375c5b8",
+    "numstat": "0\t34",
+    "lines_removed": 34,
+    "lines_added": 0,
+    "new_src_files_written_this_run": 0,
+    "grep_counts_src": {
+      "ensureLegacyTableNames": 0,
+      "legacyTableEnsurePromise": 0,
+      "ensureSupportSchema": 0,
+      "RENAME TO": 0,
+      "to_regclass": 0
+    },
+    "adhoc_union_grep": {
+      "raw_hits_src": 8,
+      "with_word_boundary_hits_src": 0,
+      "cause": "8 条全为 src/commission.ts 的标识符 `truncated`（如 `chain_truncated`），ad-hoc grep 的 TRUNCATE 未加词界 ⇒ 过宽探针的假命中；扫描器用 (?<![\\w.])TRUNCATE\\b 正确排除。"
+    }
+  },
+  "typecheck": {
+    "tsc_noemit": {
+      "cmd": "npx tsc --noEmit",
+      "cwd": "backend-ts",
+      "exit_code": 0,
+      "error_count": 0,
+      "output": "(无输出)",
+      "scope": "窄口径：tsconfig.json 的 include 仅 [\"src/**/*\"]，故本读数只覆盖 src/ —— 不等于「全仓类型检查通过」。"
+    },
+    "tsc_scripts": {
+      "cmd": "npx tsc -p tsconfig.scripts.json",
+      "cwd": "backend-ts",
+      "exit_code": 2,
+      "error_count": 9,
+      "scope": "scripts/**（独立 tsconfig.scripts.json, noEmit）",
+      "note": "预存在残差，不属本单范围，未修。派单 brief 记「15 个真错」，本轮实测 9（首条为 p1f-02-f2-malformed.ts(171,23) TS2352）；如实登记差异。"
+    }
+  },
+  "class_assertion": {
+    "script": "backend-ts/scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+    "class_count": 25,
+    "class_ids": [
+      "C01",
+      "C02",
+      "C03",
+      "C04",
+      "C05",
+      "C06",
+      "C07",
+      "C08",
+      "C09",
+      "C10",
+      "C11",
+      "C12",
+      "C13",
+      "C14",
+      "C15",
+      "C16",
+      "C17",
+      "C18",
+      "C19",
+      "C20",
+      "C21",
+      "C22",
+      "C23",
+      "C24",
+      "C25"
+    ],
+    "surfaces": [
+      {
+        "id": "request-src",
+        "key": "request",
+        "dir": "src",
+        "note": "请求路径：tsconfig rootDir=./src / main=dist/index.js ⇒ 进 API 进程",
+        "files": 8
+      },
+      {
+        "id": "nonreq-scripts",
+        "key": "non-request",
+        "dir": "scripts",
+        "note": "非请求路径：tsconfig.scripts.json(noEmit)，工具脚本不入 bundle",
+        "files": 96
+      },
+      {
+        "id": "nonreq-migrations",
+        "key": "non-request",
+        "dir": "migrations",
+        "note": "非请求路径：迁移文书（SQL 文件，非运行期代码）",
+        "files": 12
+      }
+    ],
+    "request_path_definition": "backend-ts/src/**/*.ts（tsconfig rootDir=./src、main=dist/index.js ⇒ 进 API 进程）",
+    "rule": "comment→允许集；string→请求路径上即「应为 0 的集」；code(裸标识符)→单列登记",
+    "repo_run": {
+      "label": "20260928-123558-repo",
+      "artifact": "p3s1b-classassert-20260928-123558-repo.json",
+      "files_scanned": 116,
+      "request_path": {
+        "files": 8,
+        "hits_total": 0,
+        "allowed_comment": 0,
+        "should_be_zero": 0,
+        "bare_code": 0
+      },
+      "non_request_path": {
+        "hits_total": 254,
+        "files": 108
+      },
+      "class_table": [
+        {
+          "class_id": "C01",
+          "class_name": "CREATE TABLE",
+          "pattern": "(?<![\\w.])CREATE\\s+(?:TEMP(?:ORARY)?\\s+|UNLOGGED\\s+)?TABLE\\b",
+          "hits_total": 13,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 13
+        },
+        {
+          "class_id": "C02",
+          "class_name": "CREATE INDEX",
+          "pattern": "(?<![\\w.])CREATE\\s+(?:UNIQUE\\s+)?INDEX\\b",
+          "hits_total": 13,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 13
+        },
+        {
+          "class_id": "C03",
+          "class_name": "CREATE [OR REPLACE] FUNCTION",
+          "pattern": "(?<![\\w.])CREATE\\s+(?:OR\\s+REPLACE\\s+)?FUNCTION\\b",
+          "hits_total": 53,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 53
+        },
+        {
+          "class_id": "C04",
+          "class_name": "ALTER TABLE",
+          "pattern": "(?<![\\w.])ALTER\\s+TABLE\\b",
+          "hits_total": 56,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 56
+        },
+        {
+          "class_id": "C05",
+          "class_name": "DROP TABLE",
+          "pattern": "(?<![\\w.])DROP\\s+TABLE\\b",
+          "hits_total": 7,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 7
+        },
+        {
+          "class_id": "C06",
+          "class_name": "DROP INDEX",
+          "pattern": "(?<![\\w.])DROP\\s+INDEX\\b",
+          "hits_total": 2,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 2
+        },
+        {
+          "class_id": "C07",
+          "class_name": "TRUNCATE",
+          "pattern": "(?<![\\w.])TRUNCATE\\b",
+          "hits_total": 5,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 5
+        },
+        {
+          "class_id": "C08",
+          "class_name": "DO $$ (plpgsql 匿名块)",
+          "pattern": "\\bdo\\s+\\$",
+          "hits_total": 21,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 21
+        },
+        {
+          "class_id": "C09",
+          "class_name": "RENAME TO",
+          "pattern": "(?<![\\w.])RENAME\\s+TO\\b",
+          "hits_total": 6,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 6
+        },
+        {
+          "class_id": "C10",
+          "class_name": "to_regclass",
+          "pattern": "(?<![\\w.])to_regclass\\b",
+          "hits_total": 9,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 9
+        },
+        {
+          "class_id": "C11",
+          "class_name": "ALTER INDEX",
+          "pattern": "(?<![\\w.])ALTER\\s+INDEX\\b",
+          "hits_total": 2,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 2
+        },
+        {
+          "class_id": "C12",
+          "class_name": "ALTER FUNCTION",
+          "pattern": "(?<![\\w.])ALTER\\s+(?:FUNCTION|PROCEDURE)\\b",
+          "hits_total": 1,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 1
+        },
+        {
+          "class_id": "C13",
+          "class_name": "DROP FUNCTION",
+          "pattern": "(?<![\\w.])DROP\\s+(?:FUNCTION|PROCEDURE)\\b",
+          "hits_total": 1,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 1
+        },
+        {
+          "class_id": "C14",
+          "class_name": "CREATE SCHEMA",
+          "pattern": "(?<![\\w.])CREATE\\s+SCHEMA\\b",
+          "hits_total": 2,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 2
+        },
+        {
+          "class_id": "C15",
+          "class_name": "DROP SCHEMA",
+          "pattern": "(?<![\\w.])DROP\\s+SCHEMA\\b",
+          "hits_total": 3,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 3
+        },
+        {
+          "class_id": "C16",
+          "class_name": "CREATE TRIGGER",
+          "pattern": "(?<![\\w.])CREATE\\s+(?:OR\\s+REPLACE\\s+)?TRIGGER\\b",
+          "hits_total": 7,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 7
+        },
+        {
+          "class_id": "C17",
+          "class_name": "DROP TRIGGER",
+          "pattern": "(?<![\\w.])DROP\\s+TRIGGER\\b",
+          "hits_total": 7,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 7
+        },
+        {
+          "class_id": "C18",
+          "class_name": "CREATE/ALTER/DROP SEQUENCE",
+          "pattern": "(?<![\\w.])(?:CREATE|ALTER|DROP)\\s+SEQUENCE\\b",
+          "hits_total": 2,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 2
+        },
+        {
+          "class_id": "C19",
+          "class_name": "CREATE/ALTER/DROP TYPE",
+          "pattern": "(?<![\\w.])(?:CREATE|ALTER|DROP)\\s+TYPE\\b",
+          "hits_total": 4,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 4
+        },
+        {
+          "class_id": "C20",
+          "class_name": "CREATE/ALTER/DROP VIEW",
+          "pattern": "(?<![\\w.])(?:CREATE|ALTER|DROP)\\s+(?:OR\\s+REPLACE\\s+)?(?:MATERIALIZED\\s+)?VIEW\\b",
+          "hits_total": 1,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 1
+        },
+        {
+          "class_id": "C21",
+          "class_name": "CREATE EXTENSION",
+          "pattern": "(?<![\\w.])CREATE\\s+EXTENSION\\b",
+          "hits_total": 1,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 1
+        },
+        {
+          "class_id": "C22",
+          "class_name": "CREATE/ALTER/DROP POLICY",
+          "pattern": "(?<![\\w.])(?:CREATE|ALTER|DROP)\\s+POLICY\\b",
+          "hits_total": 1,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 1
+        },
+        {
+          "class_id": "C23",
+          "class_name": "ADD CONSTRAINT / ALTER COLUMN",
+          "pattern": "(?<![\\w.])ADD\\s+CONSTRAINT\\b|(?<![\\w.])ALTER\\s+COLUMN\\b",
+          "hits_total": 4,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 4
+        },
+        {
+          "class_id": "C24",
+          "class_name": "COMMENT ON",
+          "pattern": "(?<![\\w.])COMMENT\\s+ON\\b",
+          "hits_total": 29,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 29
+        },
+        {
+          "class_id": "C25",
+          "class_name": "GRANT / REVOKE",
+          "pattern": "(?<![\\w.])(?:GRANT|REVOKE)\\b",
+          "hits_total": 4,
+          "hits_request_path": 0,
+          "hits_should_be_zero": 0,
+          "hits_allowed_comment_on_req": 0,
+          "hits_non_request_allowed": 4
+        }
+      ],
+      "source_fingerprint_sha256_request_path": "fc1045a0f39979ae8ac4f64b3dadf685d0cc3bb7848d48a037b978805f3ab8c3",
+      "assertion": {
+        "name": "请求路径上的「运行期 schema 变更语句」（应为 0 的集）== 0",
+        "expected_zero_set_size": 0,
+        "pass": true
+      },
+      "exit_code": 0
+    },
+    "positive_control": {
+      "injected_file": "scratch/probe-copy/src/__p3s1b_probe_injected.ts (仅 scratch，被检仓库未注入)",
+      "injected_content": [
+        "await pool.query('ALTER TABLE foo_old RENAME TO foo_new;');",
+        "await pool.query('CREATE TABLE probe_tbl (id int);');",
+        "await pool.query(`SELECT to_regclass('public.gift') AS r`);",
+        "await pool.query('DROP INDEX IF EXISTS probe_idx;');",
+        "// 注释行内的 DDL 必须落入「允许集」： ALTER TABLE commented_only RENAME TO nope;"
+      ],
+      "artifact": "scratch/scan-poscontrol.out.json",
+      "files_scanned": 9,
+      "request_path": {
+        "files": 9,
+        "hits_total": 7,
+        "allowed_comment": 2,
+        "should_be_zero": 5,
+        "bare_code": 0
+      },
+      "assertion": {
+        "name": "请求路径上的「运行期 schema 变更语句」（应为 0 的集）== 0",
+        "expected_zero_set_size": 5,
+        "pass": false
+      },
+      "should_be_zero_hits": [
+        {
+          "class_id": "C01",
+          "class_name": "CREATE TABLE",
+          "file": "src/__p3s1b_probe_injected.ts",
+          "line": 7,
+          "col": 21,
+          "state": "string",
+          "surface": "request",
+          "verdict": "should-be-zero",
+          "text": "await pool.query('CREATE TABLE probe_tbl (id int);');             // 预期：C01 → 应为 0 的集"
+        },
+        {
+          "class_id": "C04",
+          "class_name": "ALTER TABLE",
+          "file": "src/__p3s1b_probe_injected.ts",
+          "line": 6,
+          "col": 21,
+          "state": "string",
+          "surface": "request",
+          "verdict": "should-be-zero",
+          "text": "await pool.query('ALTER TABLE foo_old RENAME TO foo_new;');       // 预期：C04 + C09 → 应为 0 的集"
+        },
+        {
+          "class_id": "C06",
+          "class_name": "DROP INDEX",
+          "file": "src/__p3s1b_probe_injected.ts",
+          "line": 9,
+          "col": 21,
+          "state": "string",
+          "surface": "request",
+          "verdict": "should-be-zero",
+          "text": "await pool.query('DROP INDEX IF EXISTS probe_idx;');              // 预期：C06 → 应为 0 的集"
+        },
+        {
+          "class_id": "C09",
+          "class_name": "RENAME TO",
+          "file": "src/__p3s1b_probe_injected.ts",
+          "line": 6,
+          "col": 41,
+          "state": "string",
+          "surface": "request",
+          "verdict": "should-be-zero",
+          "text": "await pool.query('ALTER TABLE foo_old RENAME TO foo_new;');       // 预期：C04 + C09 → 应为 0 的集"
+        },
+        {
+          "class_id": "C10",
+          "class_name": "to_regclass",
+          "file": "src/__p3s1b_probe_injected.ts",
+          "line": 8,
+          "col": 28,
+          "state": "string",
+          "surface": "request",
+          "verdict": "should-be-zero",
+          "text": "await pool.query(`SELECT to_regclass('public.gift') AS r`);       // 预期：C10 → 应为 0 的集"
+        }
+      ],
+      "allowed_comment_hits": [
+        {
+          "class_id": "C04",
+          "class_name": "ALTER TABLE",
+          "file": "src/__p3s1b_probe_injected.ts",
+          "line": 10,
+          "col": 27,
+          "state": "comment",
+          "surface": "request",
+          "verdict": "allowed-comment",
+          "text": "// 注释行内的 DDL 必须落入「允许集」： ALTER TABLE commented_only RENAME TO nope;"
+        },
+        {
+          "class_id": "C09",
+          "class_name": "RENAME TO",
+          "file": "src/__p3s1b_probe_injected.ts",
+          "line": 10,
+          "col": 54,
+          "state": "comment",
+          "surface": "request",
+          "verdict": "allowed-comment",
+          "text": "// 注释行内的 DDL 必须落入「允许集」： ALTER TABLE commented_only RENAME TO nope;"
+        }
+      ],
+      "exit_code": 3,
+      "verdict": "尺子会响：注入的 5 条非注释 SQL 字符串全部命中（C01/C04/C06/C09/C10），2 条注释内 DDL 正确落入允许集；对真仓扫描 0 命中 ⇒ 扫描器既不漏报（正对照）也不过宽（truncated 不误报）。"
+    },
+    "assertion_pass": true
+  },
+  "catalog": {
+    "run_tag": "20260928-123558",
+    "artifacts": [
+      "p3s1b-catalog-20260928-123558-pre.json",
+      "p3s1b-catalog-20260928-123558-mid.json",
+      "p3s1b-catalog-20260928-123558-post.json"
+    ],
+    "expected_tables": [
+      "account",
+      "commission_policy",
+      "currency",
+      "ledger_entry",
+      "ledger_owner",
+      "referral",
+      "schema_migration",
+      "users"
+    ],
+    "pre_mid_post": {
+      "pre": {
+        "table_count": 8,
+        "table_set_matches_expected": true,
+        "schema_version": "0012",
+        "schema_migration_rows": 12,
+        "users_rows": 411,
+        "index_count": 24,
+        "catalog_counts": {
+          "pg_class": 37,
+          "pg_attribute": 187,
+          "pg_index": 24,
+          "pg_constraint": 101,
+          "pg_proc_public": 33
+        },
+        "table_row_counts": {
+          "account": 283,
+          "commission_policy": 19,
+          "currency": 100,
+          "ledger_entry": 2145,
+          "ledger_owner": 4,
+          "referral": 216,
+          "schema_migration": 12,
+          "users": 411
+        },
+        "fingerprint": "ffb357d4ed68c933dc2656670e8921ec01f67c0bcc0ed28dbe18795786a1eb97"
+      },
+      "mid": {
+        "table_count": 8,
+        "table_set_matches_expected": true,
+        "schema_version": "0012",
+        "schema_migration_rows": 12,
+        "users_rows": 411,
+        "index_count": 24,
+        "catalog_counts": {
+          "pg_class": 37,
+          "pg_attribute": 187,
+          "pg_index": 24,
+          "pg_constraint": 101,
+          "pg_proc_public": 33
+        },
+        "table_row_counts": {
+          "account": 283,
+          "commission_policy": 19,
+          "currency": 100,
+          "ledger_entry": 2145,
+          "ledger_owner": 4,
+          "referral": 216,
+          "schema_migration": 12,
+          "users": 411
+        },
+        "fingerprint": "ffb357d4ed68c933dc2656670e8921ec01f67c0bcc0ed28dbe18795786a1eb97"
+      },
+      "post": {
+        "table_count": 8,
+        "table_set_matches_expected": true,
+        "schema_version": "0012",
+        "schema_migration_rows": 12,
+        "users_rows": 411,
+        "index_count": 24,
+        "catalog_counts": {
+          "pg_class": 37,
+          "pg_attribute": 187,
+          "pg_index": 24,
+          "pg_constraint": 101,
+          "pg_proc_public": 33
+        },
+        "table_row_counts": {
+          "account": 283,
+          "commission_policy": 19,
+          "currency": 100,
+          "ledger_entry": 2145,
+          "ledger_owner": 4,
+          "referral": 216,
+          "schema_migration": 12,
+          "users": 411
+        },
+        "fingerprint": "ffb357d4ed68c933dc2656670e8921ec01f67c0bcc0ed28dbe18795786a1eb97"
+      }
+    },
+    "item_by_item_diff_pre_mid_post": [
+      {
+        "field": "table_count",
+        "pre": 8,
+        "mid": 8,
+        "post": 8,
+        "changed": false
+      },
+      {
+        "field": "table_set_matches_expected",
+        "pre": true,
+        "mid": true,
+        "post": true,
+        "changed": false
+      },
+      {
+        "field": "schema_version",
+        "pre": "0012",
+        "mid": "0012",
+        "post": "0012",
+        "changed": false
+      },
+      {
+        "field": "schema_migration_rows",
+        "pre": 12,
+        "mid": 12,
+        "post": 12,
+        "changed": false
+      },
+      {
+        "field": "users_rows",
+        "pre": 411,
+        "mid": 411,
+        "post": 411,
+        "changed": false
+      },
+      {
+        "field": "index_count",
+        "pre": 24,
+        "mid": 24,
+        "post": 24,
+        "changed": false
+      }
+    ],
+    "diff_all_fields_unchanged": true,
+    "indexes_equal": true,
+    "tables_equal": true,
+    "table_row_counts_equal": true,
+    "catalog_counts_equal": true,
+    "index_list": [
+      "account.account_pk",
+      "commission_policy.commission_policy_effective_uniq",
+      "commission_policy.commission_policy_pkey",
+      "currency.currency_pkey",
+      "currency.currency_symbol_uniq",
+      "account.idx_account_cid_balance",
+      "account.idx_account_frozen",
+      "currency.idx_currency_owner",
+      "currency.idx_currency_status",
+      "ledger_entry.idx_ledger_event_root_key",
+      "ledger_entry.idx_ledger_kind_time",
+      "ledger_entry.idx_ledger_ref",
+      "ledger_entry.idx_ledger_uid_cid_txid",
+      "referral.idx_referral_parent",
+      "users.idx_users_evm_lower",
+      "ledger_entry.ledger_entry_pkey",
+      "ledger_entry.ledger_idem_uniq",
+      "ledger_owner.ledger_owner_pkey",
+      "ledger_entry.ledger_reversal_of_uniq",
+      "referral.referral_pk",
+      "schema_migration.schema_migration_pkey",
+      "schema_migration.schema_migration_version_key",
+      "users.users_evm_uniq",
+      "users.users_pk"
+    ],
+    "fingerprint_composition": "sha256(JSON{tables,indexes,table_row_counts,pg_class(oid,relname,relkind,relnatts),pg_attribute(attrelid,attname,attnum,atttypid,attnotnull),pg_index(indexrelid,indrelid,indisunique,indisprimary),pg_constraint(oid,conname,contype,conrelid),pg_proc(oid,proname,prokind,md5(prosrc))})",
+    "note_columns_constraints_functions": "列/约束/函数(含 prosrc md5) 未逐条落盘于快照，改由两个严格更强或等价的读数覆盖：① catalog_counts（pg_attribute=187 / pg_constraint=101 / pg_proc_public=33，pre==mid==post）；② 上述指纹为这五张 catalog 全量元组的 sha256，指纹相等 ⇒ 列/约束/函数逐条相等（构造性等价，非「折叠成一致」）。",
+    "predecessor_cross_check": {
+      "artifacts": [
+        "p3s1b-catalog-20260928-085717-pre.json",
+        "p3s1b-catalog-20260928-085717-mid.json",
+        "p3s1b-catalog-20260928-085717-post.json"
+      ],
+      "fingerprints": [
+        "ffb357d4ed68c933dc2656670e8921ec01f67c0bcc0ed28dbe18795786a1eb97",
+        "ffb357d4ed68c933dc2656670e8921ec01f67c0bcc0ed28dbe18795786a1eb97",
+        "ffb357d4ed68c933dc2656670e8921ec01f67c0bcc0ed28dbe18795786a1eb97"
+      ],
+      "table_count_all_8": true,
+      "all_six_fingerprints_identical": true,
+      "fingerprint": "ffb357d4ed68c933dc2656670e8921ec01f67c0bcc0ed28dbe18795786a1eb97"
+    }
+  },
+  "get_matrix": {
+    "run_tag": "20260928-123558",
+    "artifacts": [
+      "p3s1-getmatrix-20260928-123558-g1.json",
+      "p3s1-getmatrix-20260928-123558-g2.json"
+    ],
+    "g1": {
+      "routes_total": 9,
+      "status_histogram": {
+        "500": 9
+      }
+    },
+    "g2": {
+      "routes_total": 9,
+      "status_histogram": {
+        "500": 9
+      }
+    },
+    "predecessor_g1": {
+      "routes_total": 9,
+      "status_histogram": {
+        "500": 9
+      }
+    },
+    "table_count_before_g1_after_mid": 8,
+    "table_count_after_g2": 8,
+    "judged_regression": false,
+    "caveat": "表数不变对「条件空转的 DDL」是盲的（gift/journey 不存在时那两处 RENAME 空转、不改表数）。故本节只记「未发现回归」，真正的判据是 class_assertion。"
+  },
+  "runtime": {
+    "restart_cmd": "curl -s -X POST http://127.0.0.1:5555/api/restart -H 'Content-Type: application/json' -d '{\"sid\":\"seafood-api\"}'",
+    "restart_response": {
+      "sid": "seafood-api",
+      "ok": true,
+      "state": "running",
+      "pid": 60008,
+      "msg": "已启动"
+    },
+    "pid_before": 74889,
+    "pid_before_started": "Mon Sep 28 08:58:27 2026",
+    "pid_before_note": "非 Step 1 交付时的 57720；启动时刻 08:58:27 落在上一任 pre(085717-pre) 与其 post(085717-post) 两次快照之间，与该任 B 步重载吻合 ⇒ 归属「推定=上一任」，非确证；本单不假设。",
+    "pid_after_panel_reported": 60008,
+    "pid_after_listen": 60022,
+    "pid_after_started": "Mon Sep 28 12:39:46 2026",
+    "pid_after_note": "ctrl 面板回读 pid=60008（spawn 壳），实际 LISTEN 进程为 60022（ts-node 再 exec）——探针差异，已按实际 LISTEN 记。",
+    "health_before": {
+      "http": 200,
+      "schema_version": "0012"
+    },
+    "health_after": {
+      "http": 200,
+      "schema_version": "0012"
+    },
+    "health_after_ready_tries": 2
+  },
+  "artifacts_written_this_run": [
+    "backend-ts/.p3s1-artifacts/p3s1b-classassert-20260928-123558-repo.json",
+    "backend-ts/.p3s1-artifacts/p3s1b-catalog-20260928-123558-pre.json",
+    "backend-ts/.p3s1-artifacts/p3s1b-catalog-20260928-123558-mid.json",
+    "backend-ts/.p3s1-artifacts/p3s1b-catalog-20260928-123558-post.json",
+    "backend-ts/.p3s1-artifacts/p3s1-getmatrix-20260928-123558-g1.json",
+    "backend-ts/.p3s1-artifacts/p3s1-getmatrix-20260928-123558-g2.json",
+    "backend-ts/.p3s1-artifacts/p3s1b-20260928-123558.json (本文件)",
+    "backend-ts/scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+    "docs/audit/p3-step1b-ddl-removal.md"
+  ],
+  "not_measured": {
+    "read_no_longer_writes__runtime_proof": "NOT_MEASURED —— 表数/指纹不变不足以证明（对空转条件 DDL 盲）；本单不宣称。判据为类级断言。",
+    "full_repo_typecheck": "NOT_MEASURED —— 只跑了窄口径 tsc --noEmit(src/)；scripts 口径实测 9 错（预存在残差）。"
+  }
+}
