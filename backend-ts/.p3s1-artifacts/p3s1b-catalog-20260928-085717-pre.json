@@ -1,0 +1,85 @@
+{
+  "probe": "P3S1B-00-CATALOG-STATE",
+  "label": "20260928-085717-pre",
+  "ts": "2026-09-28T00:58:58.460Z",
+  "db": {
+    "d": "neondb",
+    "v": "PostgreSQL 18.6 (6569466) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit"
+  },
+  "tables": [
+    "account",
+    "commission_policy",
+    "currency",
+    "ledger_entry",
+    "ledger_owner",
+    "referral",
+    "schema_migration",
+    "users"
+  ],
+  "table_count": 8,
+  "expected_tables": [
+    "account",
+    "commission_policy",
+    "currency",
+    "ledger_entry",
+    "ledger_owner",
+    "referral",
+    "schema_migration",
+    "users"
+  ],
+  "table_set_matches_expected": true,
+  "indexes": [
+    "account.account_pk",
+    "commission_policy.commission_policy_effective_uniq",
+    "commission_policy.commission_policy_pkey",
+    "currency.currency_pkey",
+    "currency.currency_symbol_uniq",
+    "account.idx_account_cid_balance",
+    "account.idx_account_frozen",
+    "currency.idx_currency_owner",
+    "currency.idx_currency_status",
+    "ledger_entry.idx_ledger_event_root_key",
+    "ledger_entry.idx_ledger_kind_time",
+    "ledger_entry.idx_ledger_ref",
+    "ledger_entry.idx_ledger_uid_cid_txid",
+    "referral.idx_referral_parent",
+    "users.idx_users_evm_lower",
+    "ledger_entry.ledger_entry_pkey",
+    "ledger_entry.ledger_idem_uniq",
+    "ledger_owner.ledger_owner_pkey",
+    "ledger_entry.ledger_reversal_of_uniq",
+    "referral.referral_pk",
+    "schema_migration.schema_migration_pkey",
+    "schema_migration.schema_migration_version_key",
+    "users.users_evm_uniq",
+    "users.users_pk"
+  ],
+  "index_count": 24,
+  "table_row_counts": {
+    "account": 283,
+    "commission_policy": 19,
+    "currency": 100,
+    "ledger_entry": 2145,
+    "ledger_owner": 4,
+    "referral": 216,
+    "schema_migration": 12,
+    "users": 411
+  },
+  "users_rows": 411,
+  "schema_migration_rows": 12,
+  "schema_version": "0012",
+  "pg_stat_database": {
+    "datname": "neondb",
+    "xact_commit": 15914,
+    "xact_rollback": 6446
+  },
+  "catalog_counts": {
+    "pg_class": 37,
+    "pg_attribute": 187,
+    "pg_index": 24,
+    "pg_constraint": 101,
+    "pg_proc_public": 33
+  },
+  "catalog_fingerprint_sha256": "ffb357d4ed68c933dc2656670e8921ec01f67c0bcc0ed28dbe18795786a1eb97",
+  "db_error": null
+}

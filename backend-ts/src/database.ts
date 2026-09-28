@@ -54,7 +54,6 @@ const resolveMinimumShardPrice = (marketFloorPoints: number) => (
 );
 
 let sqlClient: ReturnType<typeof neon> | null = null;
-let legacyTableEnsurePromise: Promise<void> | null = null;
 
 const resolveDatabaseUrl = () => (
   process.env.DATABASE_URL ||
@@ -235,35 +234,6 @@ const slugify = (value: string) => (
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
 );
-
-const ensureLegacyTableNames = async () => {
-  if (legacyTableEnsurePromise) {
-    return legacyTableEnsurePromise;
-  }
-
-  legacyTableEnsurePromise = (async () => {
-    const sql = getSql();
-
-    await sql`
-      DO $$
-      BEGIN
-        IF to_regclass('public.prize_item') IS NULL AND to_regclass('public.gift') IS NOT NULL THEN
-          ALTER TABLE gift RENAME TO prize_item;
-        END IF;
-
-        IF to_regclass('public.task_progress') IS NULL AND to_regclass('public.journey') IS NOT NULL THEN
-          ALTER TABLE journey RENAME TO task_progress;
-        END IF;
-      END
-      $$;
-    `;
-  })().catch((error) => {
-    legacyTableEnsurePromise = null;
-    throw error;
-  });
-
-  return legacyTableEnsurePromise;
-};
 
 export interface AssetRecord {
   index_id: number;
@@ -1043,7 +1013,6 @@ export class DatabaseService {
   }
 
   static async listBrands(skip = 0, limit = 100): Promise<BrandRecord[]> {
-    await ensureLegacyTableNames();
     const sql = getSql();
     const rows = extractRows(await sql`
       WITH selected_prizes AS (
@@ -1194,7 +1163,6 @@ export class DatabaseService {
   }
 
   static async listTasks(skip = 0, limit = 100): Promise<TaskRecord[]> {
-    await ensureLegacyTableNames();
     const sql = getSql();
     const rows = extractRows(await sql`
       WITH selected_tasks AS (
@@ -1223,7 +1191,6 @@ export class DatabaseService {
   }
 
   static async getTask(tID: number): Promise<TaskRecord | null> {
-    await ensureLegacyTableNames();
     const sql = getSql();
     const row = firstRow(await sql`
       WITH selected_task AS (
@@ -1463,7 +1430,6 @@ export class DatabaseService {
   }
 
   static async getBrandById(bID: number): Promise<BrandRecord | null> {
-    await ensureLegacyTableNames();
     const sql = getSql();
     const row = firstRow(await sql`
       WITH selected_prize AS (
