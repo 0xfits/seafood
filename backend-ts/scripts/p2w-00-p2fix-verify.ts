@@ -40,12 +40,17 @@
  *   §C F7② 幂等重放返回的 `plan` 由**账上事件**导出（与账上读数逐字段相等），`plan_source` 可分辨；
  *           同键按**新政策**重算的金额与返回的 `plan` **不同**（证明未用当前政策重算）。
  *   §D F3  ①`SET CONSTRAINTS ALL IMMEDIATE` 前置 ⇒ 真事件不再假报 LD032；②真 Σ 不符（丢一对佣金 /
- *           只入不出两形态）在默认 DEFERRED 下**仍**落 LD032 + `COMMISSION_SPLIT_SUM_MISMATCH`；
- *           ③默认路径与「先落账再强制结算」行为不变；④登记边界：强制 IMMEDIATE 期间不判负（修法代价）。
+ *           只入不出两形态）在**显式裁决点**（`SET CONSTRAINTS ALL IMMEDIATE` = 提交点等价）落
+ *           LD032 + `COMMISSION_SPLIT_SUM_MISMATCH` —— 旧版「只 `DEFERRED` 不 flush」⇒ 闸永无裁决机会
+ *           （= 探针口径错，定案见 `docs/audit/p3-baseline-rca.md` §1.1 D4/D5）；
+ *           ③默认路径与「先落账再强制结算」行为不变；④D7 与同套件 D6 **同口径**（登记不判；依据行号见脚本内注释）；
+ *           ⑤判负自证两路：同裁决点**合法**事件不报（灵敏度·合法侧）+ **摘掉该闸**后同形篡改不再报（灵敏度·闸侧）。
  *   §E F6  「child 已绑」由裸 `INSERT` 与 `referral_bind` 两条路径 ⇒ **同码同 reason**（LD003）；
- *           判负对照：关掉守卫 ⇒ 裸 INSERT 退回 `23505`/`referral_pk`（= 修前形态）。
+ *           判负对照（**可对照形态**）：关掉守卫 ⇒ 字面 `depth=1` 首插成功、重绑退回 `23505`/`referral_pk`；
+ *           原杆 `depth=0` 的 `23514`（摘杆连带摘掉 `0011:252` 的 depth 计算）**保留为第二路读数**（登记性断言）。
  *   §F F2  父存储 `depth` 陈旧 ⇒ 绑定被拒（LD016 + `REFERRAL_PARENT_DEPTH_INCONSISTENT`）；
- *           父 depth 一致 ⇒ 放行；判负对照：关掉守卫 ⇒ 新孩子继承陈旧 depth（50 ⇒ 51 = 修前形态）。
+ *           父 depth 一致 ⇒ 放行；判负对照：旧期望「摘杆后自动继承 50⇒51」**显式标为不可达**（= `0011:252` 本身，
+ *           登记不判），改为**手写等价继承式**的可达对照（父 50 ⇒ 子 51 可写入）。
  *   §G 尾  全局图不变式 / 触发器启用态 / cid=1 平台账户未被触碰 / 残留登记（**限定在本跑命名空间内**）。
  * ==========================================================================
  */
@@ -449,24 +454,56 @@ const GROSS_STD = '100000';   // levels=10 ⇒ fee=1000 ⇒ 20 条 commission + 
     return { entries: (s.payload.entries as unknown[]).length, posted: r };
   });
   D.d2_deferred_default = { entries: d2.result?.entries, ok: d2.result?.posted.ok, err: d2.result?.posted.error, tx_error: txErr(d2) };
-  // ②a 真 Σ 不符：丢最后一对佣金（Σ-中性，事件级平衡闸不响）⇒ 必须 LD032
+  // ②a 真 Σ 不符：丢最后一对佣金（Σ-中性，事件级平衡闸不响）⇒ 在**显式裁决点**必须 LD032
+  //    口径修正（P3-SUITE-CALIBER-FIX）：`SET CONSTRAINTS … DEFERRED` 对 INITIALLY DEFERRED 是 **no-op**，
+  //    旧版**从不 flush**、又跑在回滚事务里 ⇒ 闸永无裁决机会（定案见 `docs/audit/p3-baseline-rca.md` §1.1 D4/D5）。
+  //    修法 = 加**显式裁决点**（`SET CONSTRAINTS ALL IMMEDIATE` = 提交点等价的结算动作），判据只落在该点上。
   const d3 = await inRollbackTx(p, async (tx) => {
     const s = await f3Setup(tx, JOB(5));
-    await tx.query(`SET CONSTRAINTS trg_ledger_entry_commission_conservation DEFERRED`);
+    await tx.query(`SET CONSTRAINTS ALL DEFERRED`);
     const t = dropEntries(s.payload, (_e, i, n) => i < n - 2);
     const r = await spFn(tx, t);
-    return { entries: (t.entries as unknown[]).length, posted: r };
+    const flush = await spQ(tx, `SET CONSTRAINTS ALL IMMEDIATE`);   // ← 显式裁决点
+    return { entries: (t.entries as unknown[]).length, posted: r, flush: { ok: flush.ok, err: flush.error } };
   });
-  D.d3_tamper_drop_pair = { entries: d3.result?.entries, ok: d3.result?.posted.ok, err: d3.result?.posted.error, tx_error: txErr(d3) };
-  // ②b 只入不出：commission_rows=0 且 pool_in>0（Σ-中性；窄签名修法会**静默放过**的形态）⇒ 必须 LD032
+  D.d3_tamper_drop_pair = { entries: d3.result?.entries, ok: d3.result?.posted.ok, err: d3.result?.posted.error,
+    flush_after_post: d3.result?.flush, tx_error: txErr(d3) };
+  // ②b 只入不出：commission_rows=0 且 pool_in>0（Σ-中性；窄签名修法会**静默放过**的形态）⇒ 同裁决点必须 LD032
   const d4 = await inRollbackTx(p, async (tx) => {
     const s = await f3Setup(tx, JOB(6));
-    await tx.query(`SET CONSTRAINTS trg_ledger_entry_commission_conservation DEFERRED`);
+    await tx.query(`SET CONSTRAINTS ALL DEFERRED`);
     const t = dropEntries(s.payload, (_e, i) => i < 4);
     const r = await spFn(tx, t);
-    return { entries: (t.entries as unknown[]).length, posted: r };
+    const flush = await spQ(tx, `SET CONSTRAINTS ALL IMMEDIATE`);   // ← 显式裁决点
+    return { entries: (t.entries as unknown[]).length, posted: r, flush: { ok: flush.ok, err: flush.error } };
   });
-  D.d4_pool_in_no_out = { entries: d4.result?.entries, ok: d4.result?.posted.ok, err: d4.result?.posted.error, tx_error: txErr(d4) };
+  D.d4_pool_in_no_out = { entries: d4.result?.entries, ok: d4.result?.posted.ok, err: d4.result?.posted.error,
+    flush_after_post: d4.result?.flush, tx_error: txErr(d4) };
+  // 判负自证 A（灵敏度·合法侧）：**合法**事件在同一裁决点**不得**报 —— 否则闸就是「一律报」而非判 Σ
+  const dctrl = await inRollbackTx(p, async (tx) => {
+    const s = await f3Setup(tx, JOB(10));
+    const r = await spFn(tx, s.payload);
+    const flush = await spQ(tx, `SET CONSTRAINTS ALL IMMEDIATE`);
+    return { entries: (s.payload.entries as unknown[]).length, ok: r.ok, err: r.error, flush_ok: flush.ok, flush_err: flush.error };
+  });
+  D.d_ctrl_legal_flush = { ...(dctrl.result ?? {}), tx_error: txErr(dctrl) };
+  // 判负自证 B（灵敏度·闸侧）：把**同一道闸**在事务内摘掉（末尾一律 ROLLBACK）
+  //   ⇒ 同形篡改在裁决点不再报 ⇒ 证明上面读到的 LD032 确实出自这道闸（判据对这道闸敏感，不是撞了别的错）
+  const dgateoff = await inRollbackTx(p, async (tx) => {
+    // ⚠️ 顺序铁律（本单实测修正）：**先摘闸，再造夹具**。
+    //    `ALTER TABLE … DISABLE TRIGGER` 在**已有 pending 延迟触发器事件**的事务里被 PG 拒绝：
+    //    首版把 `f3Setup`（mint/hold 也是 `ledger_entry` INSERT）放在前面 ⇒ 实测
+    //    `55006 cannot ALTER TABLE "ledger_entry" because it has pending trigger events`
+    //    ⇒ 控制杆自身没执行、判负自证空转（判据如实判红）。改为先 DISABLE 后 setup。
+    const dis = await spQ(tx, `ALTER TABLE ledger_entry DISABLE TRIGGER trg_ledger_entry_commission_conservation`);
+    const s = await f3Setup(tx, JOB(11));
+    const t = dropEntries(s.payload, (_e, i, n) => i < n - 2);
+    const r = await spFn(tx, t);
+    const flush = await spQ(tx, `SET CONSTRAINTS ALL IMMEDIATE`);
+    return { disable_ok: dis.ok, disable_err: dis.error, entries: (t.entries as unknown[]).length,
+      ok: r.ok, err: r.error, flush_ok: flush.ok, flush_err: flush.error };
+  });
+  D.d_gate_off_control = { ...(dgateoff.result ?? {}), tx_error: txErr(dgateoff) };
   // ③ 先落账、后强制结算（p2qa-03 形态）：合法事件不得报，非法事件必须报
   const d5 = await inRollbackTx(p, async (tx) => {
     const s = await f3Setup(tx, JOB(7));
@@ -495,16 +532,28 @@ const GROSS_STD = '100000';   // levels=10 ⇒ fee=1000 ⇒ 20 条 commission + 
   judge('D2 该事件确为 24 条分录 / 20 条 commission（与 F3 复现同形）',
     d1.result?.entries === 24 && d1.result?.commission_rows === 20, { entries: d1.result?.entries, commission_rows: d1.result?.commission_rows });
   judge('D3 默认 DEFERRED：照常成功', d2.result?.posted.ok === true, d2.result?.posted.error);
-  judge('D4 丢一对佣金（Σ-中性）⇒ 仍报 LD032 + COMMISSION_SPLIT_SUM_MISMATCH',
-    d3.result?.posted.ok === false && d3.result?.posted.error?.sqlstate === 'LD032'
-    && d3.result?.posted.error?.reason === COMMISSION_REASON.COMMISSION_SPLIT_SUM_MISMATCH, d3.result?.posted.error);
-  judge('D5 只入不出（commission_rows=0 且 pool_in>0）⇒ 仍报 LD032',
-    d4.result?.posted.ok === false && d4.result?.posted.error?.sqlstate === 'LD032'
-    && d4.result?.posted.error?.reason === COMMISSION_REASON.COMMISSION_SPLIT_SUM_MISMATCH, d4.result?.posted.error);
+  judge('D4 丢一对佣金（Σ-中性）⇒ 在**显式裁决点**报 LD032 + COMMISSION_SPLIT_SUM_MISMATCH',
+    d3.result?.flush.ok === false && d3.result?.flush.err?.sqlstate === 'LD032'
+    && d3.result?.flush.err?.reason === COMMISSION_REASON.COMMISSION_SPLIT_SUM_MISMATCH, d3.result?.flush);
+  judge('D5 只入不出（commission_rows=0 且 pool_in>0）⇒ 在**显式裁决点**报 LD032',
+    d4.result?.flush.ok === false && d4.result?.flush.err?.sqlstate === 'LD032'
+    && d4.result?.flush.err?.reason === COMMISSION_REASON.COMMISSION_SPLIT_SUM_MISMATCH, d4.result?.flush);
+  judge('D4s 判负自证·合法侧：同一裁决点上**合法**事件不报（闸不是「一律报」而是判 Σ）',
+    dctrl.result?.ok === true && dctrl.result?.flush_ok === true, dctrl.result);
+  judge('D5s 判负自证·闸侧：摘掉这道闸后同形篡改**不再报** ⇒ 上面的 LD032 确出自这道闸',
+    dgateoff.result?.disable_ok === true && dgateoff.result?.flush_ok === true, dgateoff.result);
   judge('D6 先落账后强制结算：合法事件不报', d5.result?.okPost_ok === true && d5.result?.after_immediate.ok === true, d5.result);
-  judge('D7 先落账后强制结算：非法事件仍报 LD032',
-    d5.result?.badPost.ok === false && d5.result?.after_immediate2.ok === false
-    && String(d5.result?.after_immediate2.err?.sqlstate) === 'LD032', { badPost: d5.result?.badPost.err, after: d5.result?.after_immediate2 });
+  // ---- D7 口径修正（P3-SUITE-CALIBER-FIX）：**与同套件 D6 同口径 = 登记不判**（旧版判红 = 探针口径错，非缺陷）
+  //   依据行号：`0011:96–99`（闸只挂 `ledger_entry` INSERT）+ `0011:112–133`（事件**未闭合** ⇒ `RAISE NOTICE … skip` 豁免）
+  //   + 实测（本套件 leg_D7 / rca §1.1 D7）：`post_tampered_while_immediate ok=true` 且**之后再 flush 仍 ok=true**
+  //   ⇒ 该模式下**不存在任何「事件闭合之后」的裁决点** ⇒ 两路（登记 / 独立裁决点）中只能取**登记**。
+  rec('D7_immediate_escape_registered_not_judged', {
+    ...(d5.result ?? {}), tx_error: txErr(d5), judged: false,
+    why: 'IMMEDIATE 钉在 badPost **之前** ⇒ 行级闸在事件中途触发（未闭合 ⇒ 豁免）；账户写回（= 闭合）在其后且不触发复核'
+      + ' ⇒ 闭合后无裁决机会（= 本修法的设计代价；`0011` 文件头与同套件 D6 已自行登记）',
+    refs: ['0011:96–99', '0011:112–133', 'scripts/p2w-00-p2fix-verify.ts:483–491（D6 登记不判）',
+      'docs/audit/p3-baseline-rca.md §1.2（生产不可达：src/** 内 SET CONSTRAINTS 命中数 = 0）'],
+  });
 
   // ================================================================ §E F6
   const E = await inRollbackTx(p, async (tx) => {
@@ -528,17 +577,33 @@ const GROSS_STD = '100000';   // levels=10 ⇒ fee=1000 ⇒ 20 条 commission + 
   judge('E3 两条路径**同码同 reason**', eRawErr?.sqlstate === eFnErr?.sqlstate && eRawErr?.reason === eFnErr?.reason,
     { raw: eRawErr, fn: eFnErr });
   // 判负对照：关掉守卫 ⇒ 退回修前形态（23505 / referral_pk）
+  //   口径修正（P3-SUITE-CALIBER-FIX · rca §1.1 E4 / §3）：`0011:252` 的 `NEW.depth := 1+COALESCE(…,0)`
+  //   **就在被摘掉的那个触发器里** ⇒ 旧版的字面量 `depth=0` 先撞 `0007:60 CHECK (depth>=1)`（`23514`），
+  //   第二次 INSERT 结构上**不可达**。本版**保留两路读数**：(a) 原杆 depth=0（如实登记）；
+  //   (b) **可对照杆** depth=1（首插成功 ⇒ 重绑 ⇒ `23505`/`referral_pk` = 修前形态，**可达**）——判据落在 (b)。
   const Ectrl = await inRollbackTx(p, async (tx) => {
     const [child, parentB, parentC] = PROBE2;
     await tx.query(`ALTER TABLE referral DISABLE TRIGGER trg_referral_cycle_guard`);
-    await tx.query(`INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,0)`, [child, parentB]);
-    const r = await spQ(tx, `INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,0)`, [child, parentC]);
-    return { ok: r.ok, err: r.error };
+    // (a) 原杆：字面 depth=0（旧输入）
+    const zero = await spQ(tx, `INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,0)`, [child, parentB]);
+    // (b) 可对照杆：字面 depth=1（同一摘杆状态）
+    const first1 = await spQ(tx, `INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,1)`, [child, parentB]);
+    const rebind1 = await spQ(tx, `INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,1)`, [child, parentC]);
+    return { depth0_first: { ok: zero.ok, err: zero.error },
+      depth1_first: { ok: first1.ok, err: first1.error },
+      depth1_rebind: { ok: rebind1.ok, err: rebind1.error } };
   });
-  rec('E_f6_pre_fix_control', { ...(Ectrl.result ?? {}), tx_error: txErr(Ectrl) });
-  judge('E4 判负对照：无守卫时裸 INSERT 退回 23505/referral_pk（= 修前形态）',
-    (Ectrl.result?.err as PgErr | undefined)?.sqlstate === '23505'
-    && (Ectrl.result?.err as PgErr | undefined)?.constraint === 'referral_pk', Ectrl.result);
+  rec('E_f6_pre_fix_control', { ...(Ectrl.result ?? {}), tx_error: txErr(Ectrl),
+    both_readings_kept: true,
+    reading_a: '原杆 depth=0 ⇒ 23514/referral_depth_rng（摘杆连带摘掉 0011:252 的 depth 计算；如实登记，不据此判负）',
+    reading_b: '可对照杆 depth=1 ⇒ 23505/referral_pk（= 修前形态，**判据落在这一路**）' });
+  const eZero = (Ectrl.result?.depth0_first?.err ?? null) as PgErr | null;
+  const eRebind = (Ectrl.result?.depth1_rebind?.err ?? null) as PgErr | null;
+  judge('E4 判负对照（可对照形态）：无守卫时字面 depth=1 首插成功、重绑退回 23505/referral_pk（= 修前形态）',
+    Ectrl.result?.depth1_first?.ok === true && eRebind?.sqlstate === '23505' && eRebind?.constraint === 'referral_pk',
+    Ectrl.result?.depth1_rebind);
+  judge('E4b 登记性断言（原杆读数保留）：同一摘杆状态 depth=0 ⇒ 23514/referral_depth_rng',
+    eZero?.sqlstate === '23514' && eZero?.constraint === 'referral_depth_rng', Ectrl.result?.depth0_first);
 
   // ================================================================ §F F2
   const F = await inRollbackTx(p, async (tx) => {
@@ -560,18 +625,36 @@ const GROSS_STD = '100000';   // levels=10 ⇒ fee=1000 ⇒ 20 条 commission + 
   judge('F2 正向对照：父 depth 一致 ⇒ 放行且 depth 正确 = 1',
     (F.result?.bind_to_consistent as Record<string, unknown> | undefined)?.ok === true && F.result?.depth_after === '1', F.result);
   // 判负对照：关掉守卫 ⇒ 陈旧 depth 被继承（50 ⇒ 51）
+  //   口径修正（P3-SUITE-CALIBER-FIX · rca §1.1 F3 / §3）：**旧期望本身不可达** ——「继承」这件事**就是**
+  //   `0011:252`（在被摘掉的那个触发器里）；摘杆后只可能写**字面量**，而字面量 `depth=0` 先撞 `0007:60` 的 CHECK。
+  //   本版 = ① 原杆**显式标为不可达**（登记，不判）+ ② **可达对照**（手写等价继承式 ⇒ 数值 50⇒51 可达）。
   const Fctrl = await inRollbackTx(p, async (tx) => {
     const [stale, child, root] = PROBE2.slice(3, 6);
     await tx.query(`ALTER TABLE referral DISABLE TRIGGER trg_referral_cycle_guard`);
-    await tx.query(`INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,0)`, [stale, root]);
+    // ① 原杆（= 旧版期望的落点，**不可达**）：字面 depth=0 ⇒ CHECK(depth>=1) 先炸，「继承」无从发生
+    const zero = await spQ(tx, `INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,0)`, [stale, root]);
+    const seed = await spQ(tx, `INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,1)`, [stale, root]);
     await tx.query(`ALTER TABLE referral DISABLE TRIGGER trg_referral_append_only`);
     await tx.query(`UPDATE referral SET depth = 50 WHERE child_uid = $1`, [stale]);
-    await tx.query(`INSERT INTO referral (child_uid, parent_uid, depth) VALUES ($1,$2,0)`, [child, stale]);
+    // ② 可达对照：**手写等价继承式**（父存储 depth + 1）。它证明「50 ⇒ 51」这个**数值形态**在摘杆后可达，
+    //    但只能靠探针手写（原实现 = 被摘掉的那段代码）⇒ 它**不是**对原机制的验证，只是可达性对照。
+    const man = await spQ(tx, `INSERT INTO referral (child_uid, parent_uid, depth)
+      SELECT $1, $2, (SELECT depth + 1 FROM referral WHERE child_uid = $2)`, [child, stale]);
     const d = await raw1<{ depth: string }>(tx, `SELECT depth::text AS depth FROM referral WHERE child_uid = $1`, [child]);
-    return { inherited_depth: d?.depth ?? null };
+    return { depth0_original_leg: { ok: zero.ok, err: zero.error }, seed_ok: seed.ok,
+      manual_equivalent_insert: { ok: man.ok, err: man.error }, manual_depth: d?.depth ?? null };
   });
-  rec('F_f2_pre_fix_control', { ...(Fctrl.result ?? {}), tx_error: txErr(Fctrl) });
-  judge('F3 判负对照：无守卫时陈旧 depth 被继承（50 ⇒ 51 = 修前形态）', Fctrl.result?.inherited_depth === '51', Fctrl.result);
+  rec('F_f2_pre_fix_control', { ...(Fctrl.result ?? {}), tx_error: txErr(Fctrl),
+    judged: false, unreachable: true,
+    why: '旧期望「摘杆后自动继承 50⇒51」**不可达**：「继承」= 0011:252（就在被摘掉的触发器内）；摘杆后只能写'
+      + '字面量，而字面量 depth=0 先撞 0007:60 CHECK(depth>=1) ⇒ 旧杆的「红」是探针口径错，不是缺陷',
+    refs: ['0011:252', '0007:60', '0007:274（预写明的后果）'] });
+  const fZeroErr = (Fctrl.result?.depth0_original_leg?.err ?? null) as PgErr | null;
+  judge('F3b 可达对照（手写等价继承式，非原机制）：摘杆后父 depth=50 ⇒ 子 depth=51 可写入（数值形态可达）',
+    Fctrl.result?.manual_equivalent_insert?.ok === true && Fctrl.result?.manual_depth === '51', Fctrl.result);
+  rec('F3_original_expectation_unreachable_evidence', { reading: Fctrl.result?.depth0_original_leg ?? null,
+    sqlstate: fZeroErr?.sqlstate ?? null, constraint: fZeroErr?.constraint ?? null,
+    note: '原杆「红」的成因（23514）在此如实登记；旧期望已显式标为不可达并被上面的可达对照取代' });
 
   // ================================================================ §G 尾
   const cid1After = await platformSnapshot();

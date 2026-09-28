@@ -11,8 +11,21 @@
  *
  * 用法：
  *   cd backend-ts && npx ts-node --transpile-only scripts/p1o-00-escape-sweep.ts --phase before|after [--assert]
- * 落盘：`backend-ts/.p1f-artifacts/p1o-00-escape-sweep-<phase>-<RUN>.json`
- *   —— **只新增**：文件名一律带 `<phase>` + run tag，绝不覆盖任何既有读数文件。
+ *              [--mutate i|ii|iii]      # 判负自证专用变异注入（不加则与本修前逐字同一口径）
+ * 落盘：`backend-ts/.p1f-artifacts/p1o-00-escape-sweep-<phase>[-mut<i|ii|iii>]-<RUN>.json`
+ *   —— **只新增**：文件名一律带 `<phase>`(+变异标签) + run tag，绝不覆盖任何既有读数文件。
+ *
+ * ---------------------------------------------------------------- 口径修正（P3-SUITE-CALIBER-FIX · 既有 transient 档）
+ *   ① **新增单列 `env_jitter`**：某格观测为「**既有**基础设施类码 + **既有** transient reason」
+ *      （`code = LEDGER_TX_TIMEOUT` ∧ `status = 503` ∧ `reason ∈ TRANSIENT_NON_PG_REASONS`
+ *      = `pool_connection_timeout | driver_connection_error`，逐字对齐 `src/ledger-errors.ts:401`）
+ *      ⇒ 计入 `env_jitter`（cells 级明细 + 计数），**不计入** `expectation_mismatches`。
+ *   ② **铁律（不得放宽）**：`unexpected_500` 判据不变（仍必须 0）；**真错码必须仍判负** ——
+ *      「期望 400 却得 409/404」「非 transient 的 5xx」「期望 A 类错误却得 B 类错误」**一律不得**进 `env_jitter`
+ *      （严格档只认上式的**组合**，任一项不符即如实判负）。
+ *   ③ 五项既有 verdict（`raw_sqlstate_escapes_zero` / `unmapped_zero` / `missing_status_zero` /
+ *      `ld_sqlstate_no_leak` / `no_unexpected_500_from_caller_input`）**语义未动**；新增
+ *      `env_jitter_separately_counted` 只证「被移出 mismatch 的格全满足严格档、且非抖动格无一满足」。
  *
  * ---------------------------------------------------------------- 本脚本不做 / 不碰
  *   · 不写账本行：写路径的每一格都被构造成**参数校验失败**或**业务拒绝**
@@ -77,6 +90,45 @@ const assertMode = process.argv.includes('--assert');
 const RUN = Date.now().toString(36).toUpperCase();
 const SYM = `P1P${RUN}`.slice(0, 12);
 const K = (s: string): string => `ops:p1p:${RUN}:${s}`;
+
+// ---------------------------------------------------------------- 判负自证用的**变异开关**（`--mutate`）
+//   i  ：把某格期望改为 **409**（实现给 400）——证明「期望 A 类/状态却得 B 类」仍判负
+//   ii ：注入一个**非 transient 的 500**（既有码 `LEDGER_TX_TIMEOUT` + 既有**非** transient reason
+//        `unclassified_non_pg_error` + status 500）——证明 5xx 仍进 `unexpected_500`、**不**进 `env_jitter`
+//   iii：期望 400 的 **B 码**（`LEDGER_AMOUNT_NOT_POSITIVE`），实现给 A 码（`LEDGER_AMOUNT_INVALID`）
+//        ——证明「同类不同码」仍判负
+//   iv ：注入**既有 transient 档的正向观测**（`LEDGER_TX_TIMEOUT` + 503 + 既有 transient reason
+//        `driver_connection_error`，与 `MULF8X80` 那次真实抖动同形）——证明新档**接得住**：
+//        该格进 `env_jitter`（cells 级明细 + 计数）、**不进** `expectation_mismatches`、整跑仍**绿**
+//   不给 `--mutate` ⇒ 三个分支全部不生效，套件口径与本修前一致（只有 env_jitter 单列是新增）
+const MUTATION = ((): 'none' | 'i' | 'ii' | 'iii' | 'iv' | 'INVALID' => {
+  const i = process.argv.indexOf('--mutate');
+  if (i < 0) return 'none';
+  const v = String(process.argv[i + 1] ?? '');
+  return v === 'i' || v === 'ii' || v === 'iii' || v === 'iv' ? v : 'INVALID';
+})();
+/** `ii`（非 transient 的 500）与 `iv`（既有 transient 503）的注入载荷 */
+const MUT_OBS = {
+  ii: { code: 'LEDGER_TX_TIMEOUT', status: 500, reason: 'unclassified_non_pg_error' },
+  iv: { code: 'LEDGER_TX_TIMEOUT', status: 503, reason: 'driver_connection_error' },
+} as const;
+const MUT_TARGET = { entry: 'E-W1_transfer', field: 'cid' as FieldKind, shape: 'not_decimal_integer' };
+const mutState: { applied: boolean; id: string; target: { entry: string; field: string; shape: string }; effect: unknown; note: string } = {
+  applied: false, id: MUTATION, target: MUT_TARGET, effect: null,
+  note: '未注入（读数即真实观测）',
+};
+const isMutTarget = (entry: string, field: FieldKind, sh: Shape): boolean =>
+  entry === MUT_TARGET.entry && field === MUT_TARGET.field && sh.name === MUT_TARGET.shape;
+
+/**
+ * 「既有 transient 档」严格判据（唯一的不判负豁免）
+ *   逐字对齐 `src/ledger-errors.ts:401` 的 `TRANSIENT_NON_PG_REASONS` + `LEDGER_TX_TIMEOUT` 的 503 通路。
+ *   **只认这四项的组合** ⇒ 真错码（409/404 类、非 transient 的 5xx、同类不同码）一律不满足 ⇒ 仍判负。
+ */
+const TRANSIENT_INFRA_REASONS = ['pool_connection_timeout', 'driver_connection_error'];
+const isExistingTransientInfra = (r: CellResult): boolean =>
+  r.thrown === true && r.code === 'LEDGER_TX_TIMEOUT' && r.status === 503
+  && r.reason !== null && TRANSIENT_INFRA_REASONS.includes(r.reason);
 
 /** uid 分区 948xxx（本组专用） */
 const U1 = '948001';
@@ -205,7 +257,7 @@ const safeInput = (v: unknown): unknown => {
 };
 
 /** 单格期望（用于「这一类被关死」的可机读判定，见 verdict） */
-interface Expect { mode: 'must_400' | 'must_no_shape_reject' | 'must_not_escape' | 'control'; code?: string; reasons?: string[]; note: string }
+interface Expect { mode: 'must_400' | 'must_no_shape_reject' | 'must_not_escape' | 'control'; code?: string; reasons?: string[]; status?: number; note: string }
 
 const SHAPE_INVALID_NAMES = new Set([
   'not_decimal_integer', 'empty_string', 'non_string_object', 'non_string_boolean', 'undefined',
@@ -260,22 +312,47 @@ const cell = async (
     err = e;
   }
   const a = (err ?? {}) as Record<string, unknown>;
-  const code = thrown ? String(a.code ?? '') : null;
-  const status = thrown && typeof a.status === 'number' ? (a.status as number) : null;
+  let code = thrown ? String(a.code ?? '') : null;
+  let status = thrown && typeof a.status === 'number' ? (a.status as number) : null;
+  let reason = ((): string | null => {
+    const d = thrown && a.details && typeof a.details === 'object' ? (a.details as Record<string, unknown>) : null;
+    return d && typeof d.reason === 'string' ? d.reason : null;
+  })();
+  // ---- 变异注入（`--mutate ii|iv`；必须在**派生标志之前**应用，否则读数与派生标志不自洽）
+  if (thrown && (MUTATION === 'ii' || MUTATION === 'iv') && isMutTarget(entry, field, sh)) {
+    const o = MUT_OBS[MUTATION as 'ii' | 'iv'];
+    code = o.code; status = o.status; reason = o.reason;
+    mutState.applied = true;
+    mutState.effect = { injected: { code, status, reason }, note: 'message 字段仍为原驱动错误文本（未改写）' };
+    mutState.note = MUTATION === 'ii'
+      ? 'MUTATION(ii)：注入非 transient 的 500（既有码 + 非 transient reason）⇒ 必须仍判负'
+      : 'MUTATION(iv)：注入**既有 transient**（既有码 + 503 + 既有 transient reason）⇒ 应计入 env_jitter、整跑仍绿';
+  }
   const inClosedSet = thrown && code !== null && closedSet.has(code);
   const ldLeaked = thrown && code !== null && Object.prototype.hasOwnProperty.call(LEDGER_SQLSTATE_TO_CODE, code);
   const rawSqlstate = thrown && code !== null && !inClosedSet && !ldLeaked && /^[0-9A-Z]{5}$/.test(code);
   const details = thrown && a.details && typeof a.details === 'object' ? (a.details as Record<string, unknown>) : null;
-  const reason = details && typeof details.reason === 'string' ? details.reason : null;
   const detailsField = details && typeof details.field === 'string' ? details.field : null;
 
-  const exp = expectationOf(entry, field, sh);
+  let exp = expectationOf(entry, field, sh);
+  // ---- 变异注入（仅 `--mutate i` / `iii`）：改**期望**，实现照旧 ⇒ 必须判负
+  if (isMutTarget(entry, field, sh) && MUTATION === 'i') {
+    exp = { ...exp, status: 409, note: 'MUTATION(i)：把该格期望改为 409（实现给 400）' };
+    mutState.applied = true;
+    mutState.effect = { expected_status: 409, observed: `${code ?? 'null'}/${status ?? 'null'}` };
+    mutState.note = 'MUTATION(i)：期望 409 而实现给 400（状态类不符）';
+  } else if (isMutTarget(entry, field, sh) && MUTATION === 'iii') {
+    exp = { ...exp, code: 'LEDGER_AMOUNT_NOT_POSITIVE', reasons: undefined, note: 'MUTATION(iii)：期望同类**不同码**（B 码 LEDGER_AMOUNT_NOT_POSITIVE），实现给 A 码' };
+    mutState.applied = true;
+    mutState.effect = { expected_code: 'LEDGER_AMOUNT_NOT_POSITIVE', observed: code };
+    mutState.note = 'MUTATION(iii)：同类不同码（同 status 400、同 reason 集）';
+  }
   let verdict: CellResult['verdict'] = 'observed';
   if (exp.mode === 'must_400') {
     const codeOk = thrown && exp.code !== undefined
       ? (exp.code.endsWith('*') ? String(code).startsWith(exp.code.slice(0, -1)) : code === exp.code)
       : true;
-    const statusOk = thrown && status === 400;
+    const statusOk = thrown && status === (exp.status ?? 400);
     const reasonOk = !exp.reasons || (reason !== null && exp.reasons.includes(reason));
     verdict = codeOk && statusOk && reasonOk ? 'ok' : 'mismatch';
   } else if (exp.mode === 'must_no_shape_reject') {
@@ -597,7 +674,15 @@ const main = async (): Promise<void> => {
   const unmapped = results.filter((r) => r.thrown && !r.in_closed_set);
   const missingStatus = results.filter((r) => r.thrown && r.in_closed_set && r.status === null && r.code !== 'LEDGER_RECONCILE_MISMATCH');
   const unexpected500 = results.filter((r) => r.status === 500);
-  const mismatches = results.filter((r) => r.verdict === 'mismatch');
+  if (MUTATION === 'INVALID') {
+    console.error('P1O-00 FAILED: --mutate 取值非法（只接受 i|ii|iii|iv）');
+    process.exit(2);
+  }
+  const mismatchesAll = results.filter((r) => r.verdict === 'mismatch');
+  /** ★新单列：**既有 transient 档**（连接层抖动）—— 唯一不判负的豁免，判据见 isExistingTransientInfra */
+  const envJitter = mismatchesAll.filter(isExistingTransientInfra);
+  /** 真 mismatch（**已剔除**抖动格）；`expectation_mismatches` 取此口径 */
+  const mismatches = mismatchesAll.filter((r) => !isExistingTransientInfra(r));
   const skipped = results.filter((r) => r.returned === 'SKIPPED');
 
   const aggregates = {
@@ -616,8 +701,12 @@ const main = async (): Promise<void> => {
     ld_sqlstate_leaked: ldLeaked.length,
     /** 附：调用方入参可构造的 500（R108 的「500 = 代码缺陷」语义被污染） */
     unexpected_500: unexpected500.length,
-    /** 附：与逐格期望不符的格数（形状闸过弱 / 过强） */
+    /** 附：与逐格期望不符的格数（形状闸过弱 / 过强）——**已剔除** env_jitter 抖动格 */
     expectation_mismatches: mismatches.length,
+    /** 口径留痕：未剔除抖动格时的原始 mismatch 数（= expectation_mismatches + env_jitter） */
+    expectation_mismatches_raw: mismatchesAll.length,
+    /** ★新单列：既有基础设施类码 + 既有 transient reason 的连接层抖动（**不判负**；cells 级明细见 out.env_jitter_cells） */
+    env_jitter: envJitter.length,
     /** 附：形状合法格被误判为形状非法的格数（防御过度拒绝） */
     valid_shape_false_reject: results.filter((r) => r.expected.endsWith('must_no_shape_reject') && r.verdict === 'mismatch').length,
   };
@@ -629,13 +718,25 @@ const main = async (): Promise<void> => {
     ld_sqlstate_no_leak: aggregates.ld_sqlstate_leaked === 0,
     no_unexpected_500_from_caller_input: aggregates.unexpected_500 === 0,
     all_cells_match_expectation: aggregates.expectation_mismatches === 0,
+    /** ★新档自证：被移出 mismatch 的格**全部**满足严格档 ∧ 非抖动格**无一**满足（防「真错码被放走」） */
+    env_jitter_separately_counted: envJitter.every(isExistingTransientInfra)
+      && mismatches.every((r) => !isExistingTransientInfra(r)),
   };
   const failures = Object.entries(verdicts).filter(([, v]) => !v).map(([k]) => k);
+  // 变异注入必须落到目标格（否则「判负自证」是空转）⇒ 未生效即判红
+  if (MUTATION !== 'none' && !mutState.applied) failures.push('mutation_injection_not_applied');
 
   out.env = env;
   out.aggregates = aggregates;
   out.verdicts = verdicts;
   out.failures = failures;
+  out.mutation = mutState;
+  out.env_jitter_note = '既有 transient 档（唯一不判负豁免）：code=LEDGER_TX_TIMEOUT ∧ status=503 ∧ reason∈{pool_connection_timeout,driver_connection_error}；'
+    + '真错码（409/404 类、非 transient 的 5xx、同类不同码）不满足此式 ⇒ 仍进 expectation_mismatches';
+  out.env_jitter_cells = envJitter.map((r) => ({
+    entry: r.entry, field: r.field, shape: r.input_shape, input: r.input_value,
+    code: r.code, status: r.status, reason: r.reason, expected: r.expected, note: r.message,
+  }));
   out.escape_cells = [...rawEscapes, ...ldLeaked, ...unmapped, ...missingStatus]
     .map((r) => ({ entry: r.entry, field: r.field, shape: r.input_shape, input: r.input_value, code: r.code, status: r.status, message: r.message }))
     .filter((v, i, arr) => arr.findIndex((x) => JSON.stringify(x) === JSON.stringify(v)) === i);
@@ -656,7 +757,7 @@ const main = async (): Promise<void> => {
 
   const dir = path.resolve(__dirname, '..', '.p1f-artifacts');
   fs.mkdirSync(dir, { recursive: true });
-  const file = path.join(dir, `p1o-00-escape-sweep-${phaseArg}-${RUN}.json`);
+  const file = path.join(dir, `p1o-00-escape-sweep-${phaseArg}${MUTATION === 'none' ? '' : `-mut${MUTATION}`}-${RUN}.json`);
   if (fs.existsSync(file)) throw new Error(`REFUSE_TO_OVERWRITE ${file}`);
   fs.writeFileSync(file, JSON.stringify(out, null, 1));
 
@@ -665,6 +766,8 @@ const main = async (): Promise<void> => {
   console.log(JSON.stringify({
     phase: phaseArg, run: RUN, symbol: SYM, cid: CID,
     aggregates, verdicts, failures,
+    mutation: out.mutation,
+    env_jitter_cells: out.env_jitter_cells,
     escape_cells: out.escape_cells,
     mismatch_cells: out.mismatch_cells,
     rows_touched: out.rows_touched,

@@ -1,0 +1,33 @@
+{
+ "probe": "p3u-00 · 真库行增量登记（只读）",
+ "label": "after-suite",
+ "run": "20260928T162143Z9de7",
+ "at": "2026-09-28T16:21:47.545Z",
+ "note": "五表行数（每次跑既有套件前/后同口径）+ cid=1 守恒 + 触发器启用态；纯只读",
+ "counts": {
+  "account": "414",
+  "commission_policy": "25",
+  "currency": "130",
+  "ledger_entry": "3220",
+  "referral": "321",
+  "users": "628"
+ },
+ "cid1_conservation": {
+  "total_supply": "8400",
+  "accounts_sum": "8400",
+  "conserved": true
+ },
+ "triggers": {
+  "total": "43",
+  "not_enabled_o": "0"
+ },
+ "schema_version": "0017",
+ "my_namespace": {
+  "uid_window": "991300-991399",
+  "key_prefix": "cli:kong22-",
+  "users_rows": "0",
+  "account_rows": "0",
+  "referral_rows": "0",
+  "ledger_rows": "0"
+ }
+}

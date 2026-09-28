@@ -1,0 +1,4133 @@
+{
+ "probe": "P3V-00 · 事件对象族分类修复独立质检探针（纯函数 · 零 DB/网络 I/O）",
+ "author": "Neng (Unit G / QA-ERRORS-FOLD-FIX)",
+ "run": "20260928T160137Z",
+ "node": "v18.19.0",
+ "impls": {
+  "baseline": {
+   "path": "/Users/kevin/bistro/seafood/backend-ts/.p3v-artifacts/_impl/baseline-ledger-errors.ts",
+   "sha256": "721156cbf296b19c7c4a480264f88b49878d99104b8f87453bafce564745df8b",
+   "load_error": null
+  },
+  "fixed": {
+   "path": "/Users/kevin/bistro/seafood/backend-ts/src/ledger-errors.ts",
+   "sha256": "9bc127e4942cb219fc7eeb3cb17997e724d90433b030619f207341bd35ed983d",
+   "load_error": null
+  },
+  "mutated": {
+   "path": "/Users/kevin/bistro/seafood/backend-ts/.p3v-artifacts/_impl/mutated-ledger-errors.ts",
+   "sha256": "907a7e61a9343ba6d96efa20bc72bd5ea3c39536e10f65b1675944ace71d08af",
+   "load_error": null
+  }
+ },
+ "ws_selfcheck": {
+  "ws_version": "8.22.0",
+  "require_ws_ErrorEvent_typeof": "undefined",
+  "ws_pkg_exports_subpath_for_ErrorEvent": "absent（package.json#exports 只导出 \".\" 与 \"./package.json\"）",
+  "wsET_export_keys": [
+   "CloseEvent",
+   "ErrorEvent",
+   "Event",
+   "EventTarget",
+   "MessageEvent"
+  ],
+  "wsET_ErrorEvent_ctor_name": "ErrorEvent",
+  "ws_msg_on_prototype_not_own": {
+   "own_desc": null,
+   "proto_has_getter": true,
+   "proto_has_setter": false,
+   "instanceof_globalThis_Event": false,
+   "ctor_name": "ErrorEvent"
+  },
+  "event_target_file_used": "/Users/kevin/bistro/seafood/backend-ts/node_modules/ws/lib/event-target.js"
+ },
+ "L1_event_family": [
+  {
+   "id": "Y1_ws_true_ErrorEvent",
+   "desc": "真实 ws.ErrorEvent（绝对路径；ctor.name=ErrorEvent；instanceof globalThis.Event=false）",
+   "classify": "driver_connection_error",
+   "code": "LEDGER_TX_TIMEOUT",
+   "status": 503,
+   "green": true,
+   "baseline": "unclassified_non_pg_error/LEDGER_TRANSACTION_REQUIRED/500"
+  },
+  {
+   "id": "Y2_dom_like_ErrorEvent",
+   "desc": "DOM 形 ErrorEvent（extends globalThis.Event + 原型 get message）",
+   "classify": "driver_connection_error",
+   "code": "LEDGER_TX_TIMEOUT",
+   "status": 503,
+   "green": true,
+   "baseline": "unclassified_non_pg_error/LEDGER_TRANSACTION_REQUIRED/500"
+  },
+  {
+   "id": "Y3_type_error_no_message",
+   "desc": "{type:'error'}（无 message）",
+   "classify": "driver_connection_error",
+   "code": "LEDGER_TX_TIMEOUT",
+   "status": 503,
+   "green": true,
+   "baseline": "unclassified_non_pg_error/LEDGER_TRANSACTION_REQUIRED/500"
+  },
+  {
+   "id": "Y4_frozen_event_object",
+   "desc": "Object.freeze({type:'error',message})",
+   "classify": "driver_connection_error",
+   "code": "LEDGER_TX_TIMEOUT",
+   "status": 503,
+   "green": true,
+   "baseline": "unclassified_non_pg_error/LEDGER_TRANSACTION_REQUIRED/500"
+  },
+  {
+   "id": "Y5_own_getter_only_message",
+   "desc": "自有 getter-only message（无 setter、无 type）",
+   "classify": "driver_connection_error",
+   "code": "LEDGER_TX_TIMEOUT",
+   "status": 503,
+   "green": true,
+   "baseline": "unclassified_non_pg_error/LEDGER_TRANSACTION_REQUIRED/500"
+  },
+  {
+   "id": "Y6_proto_getter_only_message",
+   "desc": "仅原型 getter 提供 message（无 type）",
+   "classify": "driver_connection_error",
+   "code": "LEDGER_TX_TIMEOUT",
+   "status": 503,
+   "green": true,
+   "baseline": "unclassified_non_pg_error/LEDGER_TRANSACTION_REQUIRED/500"
+  },
+  {
+   "id": "Y7_event_with_inner_code",
+   "desc": "外层无 code、内层 e.error.code='ECONNRESET'",
+   "classify": "driver_connection_error",
+   "code": "LEDGER_TX_TIMEOUT",
+   "status": 503,
+   "green": true,
+   "baseline": "unclassified_non_pg_error/LEDGER_TRANSACTION_REQUIRED/500"
+  },
+  {
+   "id": "Y8_event_hits_pool_regex",
+   "desc": "事件对象且 message 命中池超时正则",
+   "classify": "pool_connection_timeout",
+   "code": "LEDGER_TX_TIMEOUT",
+   "status": 503,
+   "green": true,
+   "baseline": "pool_connection_timeout/LEDGER_TX_TIMEOUT/503"
+  }
+ ],
+ "L1_counterexamples": [
+  {
+   "id": "X1_ws_true_not_instanceof_globalEvent",
+   "group": "L1_counterexample",
+   "desc": "ws 真物 instanceof globalThis.Event === false ⇒ 仅 ① 必漏；必须仍被命中",
+   "expected_event_family": true,
+   "note": "KEEP_HIT",
+   "fixture_selfcheck": {
+    "constructor_name": "ErrorEvent",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": false,
+    "type_value": "error"
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "X2_globalEvent_non_error",
+   "group": "L1_counterexample",
+   "desc": "new Event('message') —— 非错误事件；① 会命中（over-capture）",
+   "expected_event_family": false,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Event",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": true,
+    "typeof_message": "undefined",
+    "has_own_message": false,
+    "type_value": "message"
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "X3_globalEvent_open",
+   "group": "L1_counterexample",
+   "desc": "new Event('open') —— 非错误事件；① 会命中（over-capture）",
+   "expected_event_family": false,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Event",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": true,
+    "typeof_message": "undefined",
+    "has_own_message": false,
+    "type_value": "open"
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  }
+ ],
+ "L2_controls": [
+  {
+   "id": "C1_pg_22003_instance",
+   "desc": "PG 22003（Error 实例 + code）",
+   "baseline": "{\"classify\":null,\"code\":\"LEDGER_TRANSACTION_REQUIRED\",\"status\":500,\"details\":\"{\\\"cause\\\":\\\"22003\\\",\\\"error_name\\\":\\\"Error\\\",\\\"pg_code\\\":\\\"22003\\\",\\\"reason\\\":\\\"unclassified_pg_error\\\"}\"}",
+   "fixed": "{\"classify\":null,\"code\":\"LEDGER_TRANSACTION_REQUIRED\",\"status\":500,\"details\":\"{\\\"cause\\\":\\\"22003\\\",\\\"error_name\\\":\\\"Error\\\",\\\"pg_code\\\":\\\"22003\\\",\\\"reason\\\":\\\"unclassified_pg_error\\\"}\"}",
+   "byte_identical": true
+  },
+  {
+   "id": "C2_pg_22003_bare",
+   "desc": "PG 22003（裸对象）",
+   "baseline": "{\"classify\":null,\"code\":\"LEDGER_TRANSACTION_REQUIRED\",\"status\":500,\"details\":\"{\\\"cause\\\":\\\"22003\\\",\\\"error_name\\\":\\\"Error\\\",\\\"pg_code\\\":\\\"22003\\\",\\\"reason\\\":\\\"unclassified_pg_error\\\"}\"}",
+   "fixed": "{\"classify\":null,\"code\":\"LEDGER_TRANSACTION_REQUIRED\",\"status\":500,\"details\":\"{\\\"cause\\\":\\\"22003\\\",\\\"error_name\\\":\\\"Error\\\",\\\"pg_code\\\":\\\"22003\\\",\\\"reason\\\":\\\"unclassified_pg_error\\\"}\"}",
+   "byte_identical": true
+  },
+  {
+   "id": "C3_pg_LD016",
+   "desc": "DB 命名码 LD016",
+   "baseline": "{\"classify\":null,\"code\":\"LEDGER_TRANSACTION_REQUIRED\",\"status\":500,\"details\":\"{\\\"cause\\\":\\\"LD016\\\",\\\"error_name\\\":\\\"Error\\\",\\\"pg_code\\\":\\\"LD016\\\",\\\"reason\\\":\\\"unclassified_pg_error\\\"}\"}",
+   "fixed": "{\"classify\":null,\"code\":\"LEDGER_TRANSACTION_REQUIRED\",\"status\":500,\"details\":\"{\\\"cause\\\":\\\"LD016\\\",\\\"error_name\\\":\\\"Error\\\",\\\"pg_code\\\":\\\"LD016\\\",\\\"reason\\\":\\\"unclassified_pg_error\\\"}\"}",
+   "byte_identical": true
+  },
+  {
+   "id": "C4_ECONNRESET",
+   "desc": "ECONNRESET",
+   "baseline": "{\"classify\":\"driver_connection_error\",\"code\":\"LEDGER_TX_TIMEOUT\",\"status\":503,\"details\":\"{\\\"error_code\\\":\\\"ECONNRESET\\\",\\\"reason\\\":\\\"driver_connection_error\\\"}\"}",
+   "fixed": "{\"classify\":\"driver_connection_error\",\"code\":\"LEDGER_TX_TIMEOUT\",\"status\":503,\"details\":\"{\\\"error_code\\\":\\\"ECONNRESET\\\",\\\"reason\\\":\\\"driver_connection_error\\\"}\"}",
+   "byte_identical": true
+  },
+  {
+   "id": "C5_pool_timeout",
+   "desc": "池「拿连接」超时（Error 实例 + 数据 message）",
+   "baseline": "{\"classify\":\"pool_connection_timeout\",\"code\":\"LEDGER_TX_TIMEOUT\",\"status\":503,\"details\":\"{\\\"reason\\\":\\\"pool_connection_timeout\\\",\\\"source\\\":\\\"connection_pool\\\"}\"}",
+   "fixed": "{\"classify\":\"pool_connection_timeout\",\"code\":\"LEDGER_TX_TIMEOUT\",\"status\":503,\"details\":\"{\\\"reason\\\":\\\"pool_connection_timeout\\\",\\\"source\\\":\\\"connection_pool\\\"}\"}",
+   "byte_identical": true
+  },
+  {
+   "id": "C6_socket_hang_up",
+   "desc": "Error('socket hang up')",
+   "baseline": "{\"classify\":\"driver_connection_error\",\"code\":\"LEDGER_TX_TIMEOUT\",\"status\":503,\"details\":\"{\\\"error_code\\\":\\\"none\\\",\\\"reason\\\":\\\"driver_connection_error\\\"}\"}",
+   "fixed": "{\"classify\":\"driver_connection_error\",\"code\":\"LEDGER_TX_TIMEOUT\",\"status\":503,\"details\":\"{\\\"error_code\\\":\\\"none\\\",\\\"reason\\\":\\\"driver_connection_error\\\"}\"}",
+   "byte_identical": true
+  },
+  {
+   "id": "C7_08P01_excluded",
+   "desc": "08P01（排除项，500 类）",
+   "baseline": "{\"classify\":null,\"code\":\"LEDGER_TRANSACTION_REQUIRED\",\"status\":500,\"details\":\"{\\\"cause\\\":\\\"08P01\\\",\\\"error_name\\\":\\\"ProtocolViolation\\\",\\\"pg_code\\\":\\\"08P01\\\",\\\"reason\\\":\\\"protocol_violation\\\"}\"}",
+   "fixed": "{\"classify\":null,\"code\":\"LEDGER_TRANSACTION_REQUIRED\",\"status\":500,\"details\":\"{\\\"cause\\\":\\\"08P01\\\",\\\"error_name\\\":\\\"ProtocolViolation\\\",\\\"pg_code\\\":\\\"08P01\\\",\\\"reason\\\":\\\"protocol_violation\\\"}\"}",
+   "byte_identical": true
+  },
+  {
+   "id": "C8_23514_bal_guard",
+   "desc": "23514 + account_bal_guard",
+   "baseline": "{\"classify\":null,\"code\":\"LEDGER_NEGATIVE_BALANCE_GUARD\",\"status\":500,\"details\":\"{\\\"constraint\\\":\\\"account_bal_guard\\\"}\"}",
+   "fixed": "{\"classify\":null,\"code\":\"LEDGER_NEGATIVE_BALANCE_GUARD\",\"status\":500,\"details\":\"{\\\"constraint\\\":\\\"account_bal_guard\\\"}\"}",
+   "byte_identical": true
+  },
+  {
+   "id": "C9_23505_idem",
+   "desc": "23505 + ledger_idem_uniq",
+   "baseline": "{\"classify\":null,\"code\":\"LEDGER_IDEMPOTENCY_CONFLICT\",\"status\":409,\"details\":\"{\\\"constraint\\\":\\\"ledger_idem_uniq\\\"}\"}",
+   "fixed": "{\"classify\":null,\"code\":\"LEDGER_IDEMPOTENCY_CONFLICT\",\"status\":409,\"details\":\"{\\\"constraint\\\":\\\"ledger_idem_uniq\\\"}\"}",
+   "byte_identical": true
+  },
+  {
+   "id": "C10_57014",
+   "desc": "57014 语句超时",
+   "baseline": "{\"classify\":null,\"code\":\"LEDGER_TX_TIMEOUT\",\"status\":503,\"details\":\"{}\"}",
+   "fixed": "{\"classify\":null,\"code\":\"LEDGER_TX_TIMEOUT\",\"status\":503,\"details\":\"{}\"}",
+   "byte_identical": true
+  },
+  {
+   "id": "C11_53000",
+   "desc": "53000（53 类 infra）",
+   "baseline": "{\"classify\":null,\"code\":\"LEDGER_TX_TIMEOUT\",\"status\":503,\"details\":\"{\\\"pg_code\\\":\\\"53000\\\",\\\"reason\\\":\\\"insufficient_resources\\\",\\\"retryable\\\":true,\\\"source\\\":\\\"pg_infra_class\\\"}\"}",
+   "fixed": "{\"classify\":null,\"code\":\"LEDGER_TX_TIMEOUT\",\"status\":503,\"details\":\"{\\\"pg_code\\\":\\\"53000\\\",\\\"reason\\\":\\\"insufficient_resources\\\",\\\"retryable\\\":true,\\\"source\\\":\\\"pg_infra_class\\\"}\"}",
+   "byte_identical": true
+  },
+  {
+   "id": "C12_named_LEDGER_TX_TIMEOUT",
+   "desc": "命名码直通 LEDGER_TX_TIMEOUT",
+   "baseline": "{\"classify\":null,\"code\":\"LEDGER_TX_TIMEOUT\",\"status\":503,\"details\":\"{}\"}",
+   "fixed": "{\"classify\":null,\"code\":\"LEDGER_TX_TIMEOUT\",\"status\":503,\"details\":\"{}\"}",
+   "byte_identical": true
+  },
+  {
+   "id": "C13_bare_object_no_name",
+   "desc": "无 name 裸对象（own 数据 message，无 code）",
+   "baseline": "{\"classify\":\"unclassified_non_pg_error\",\"code\":\"LEDGER_TRANSACTION_REQUIRED\",\"status\":500,\"details\":\"{\\\"cause\\\":\\\"non_pg_error\\\",\\\"error_code\\\":\\\"none\\\",\\\"error_name\\\":\\\"Error\\\",\\\"reason\\\":\\\"unclassified_non_pg_error\\\"}\"}",
+   "fixed": "{\"classify\":\"unclassified_non_pg_error\",\"code\":\"LEDGER_TRANSACTION_REQUIRED\",\"status\":500,\"details\":\"{\\\"cause\\\":\\\"non_pg_error\\\",\\\"error_code\\\":\\\"none\\\",\\\"error_name\\\":\\\"Error\\\",\\\"reason\\\":\\\"unclassified_non_pg_error\\\"}\"}",
+   "byte_identical": true
+  }
+ ],
+ "L2_control_mismatches": [],
+ "L3_r107": [
+  {
+   "id": "S1_ws_event_sensitive",
+   "desc": "ws 真 ErrorEvent 带敏感 message + 栈帧文本",
+   "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+   "details_has_sensitive": false,
+   "details_has_stack_frame_text": false,
+   "details_has_own_message_key": false,
+   "details_has_own_stack_key": false,
+   "server_side_diagnostics": {
+    "constructor_name": "ErrorEvent",
+    "message": "password=s3cr3t-T0P-secret-9914 at LedgerPost (/app/src/ledger.ts:12:9)",
+    "stack_head_len": null,
+    "cause_chain_len": 1,
+    "event_object_family": true,
+    "reason": "driver_connection_error",
+    "non_pg_class": "driver_connection_error"
+   },
+   "server_side_message_contains_sensitive": true
+  },
+  {
+   "id": "S2_type_error_sensitive",
+   "desc": "事件对象带敏感 message + 栈帧文本",
+   "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+   "details_has_sensitive": false,
+   "details_has_stack_frame_text": false,
+   "details_has_own_message_key": false,
+   "details_has_own_stack_key": false,
+   "server_side_diagnostics": {
+    "constructor_name": "Object",
+    "message": "password=s3cr3t-T0P-secret-9914 at LedgerPost (/app/src/ledger.ts:12:9)",
+    "stack_head_len": null,
+    "cause_chain_len": 0,
+    "event_object_family": true,
+    "reason": "driver_connection_error",
+    "non_pg_class": "driver_connection_error"
+   },
+   "server_side_message_contains_sensitive": true
+  },
+  {
+   "id": "S3_own_message_sensitive",
+   "desc": "own 数据 message 带敏感文本（走 500 兜底）",
+   "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+   "details_has_sensitive": false,
+   "details_has_stack_frame_text": false,
+   "details_has_own_message_key": false,
+   "details_has_own_stack_key": false,
+   "server_side_diagnostics": {
+    "constructor_name": "Object",
+    "message": "password=s3cr3t-T0P-secret-9914 at LedgerPost (/app/src/ledger.ts:12:9)",
+    "stack_head_len": null,
+    "cause_chain_len": 0,
+    "event_object_family": false,
+    "reason": "unclassified_non_pg_error",
+    "non_pg_class": "unclassified_non_pg_error"
+   },
+   "server_side_message_contains_sensitive": true
+  },
+  {
+   "id": "S4_Error_instance_sensitive",
+   "desc": "Error 实例带敏感 message + 真栈",
+   "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+   "details_has_sensitive": false,
+   "details_has_stack_frame_text": false,
+   "details_has_own_message_key": false,
+   "details_has_own_stack_key": false,
+   "server_side_diagnostics": {
+    "constructor_name": "Error",
+    "message": "password=s3cr3t-T0P-secret-9914 at LedgerPost (/app/src/ledger.ts:12:9)",
+    "stack_head_len": 5,
+    "cause_chain_len": 0,
+    "event_object_family": false,
+    "reason": "unclassified_non_pg_error",
+    "non_pg_class": "unclassified_non_pg_error"
+   },
+   "server_side_message_contains_sensitive": true
+  }
+ ],
+ "L3_r107_detail_leaks": [],
+ "L3_diagnostics_retrievable_ids": [
+  "S1_ws_event_sensitive",
+  "S2_type_error_sensitive",
+  "S3_own_message_sensitive",
+  "S4_Error_instance_sensitive"
+ ],
+ "L4": {
+  "closed_set_size_baseline": 33,
+  "closed_set_size_fixed": 33,
+  "table_fingerprint_baseline": "77af0b20a90d64c5f276ffef6e3b7b83274d5137814336c6816a14ae4a20b129",
+  "table_fingerprint_fixed": "77af0b20a90d64c5f276ffef6e3b7b83274d5137814336c6816a14ae4a20b129",
+  "status_diffs_baseline_vs_fixed": [
+   {
+    "id": "Y1_ws_true_ErrorEvent",
+    "group": "L1_event_family",
+    "desc": "真实 ws.ErrorEvent（绝对路径；ctor.name=ErrorEvent；instanceof globalThis.Event=false）",
+    "baseline": "LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error",
+    "fixed": "LEDGER_TX_TIMEOUT/503/driver_connection_error",
+    "intended_event_family": true
+   },
+   {
+    "id": "Y2_dom_like_ErrorEvent",
+    "group": "L1_event_family",
+    "desc": "DOM 形 ErrorEvent（extends globalThis.Event + 原型 get message）",
+    "baseline": "LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error",
+    "fixed": "LEDGER_TX_TIMEOUT/503/driver_connection_error",
+    "intended_event_family": true
+   },
+   {
+    "id": "Y3_type_error_no_message",
+    "group": "L1_event_family",
+    "desc": "{type:'error'}（无 message）",
+    "baseline": "LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error",
+    "fixed": "LEDGER_TX_TIMEOUT/503/driver_connection_error",
+    "intended_event_family": true
+   },
+   {
+    "id": "Y4_frozen_event_object",
+    "group": "L1_event_family",
+    "desc": "Object.freeze({type:'error',message})",
+    "baseline": "LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error",
+    "fixed": "LEDGER_TX_TIMEOUT/503/driver_connection_error",
+    "intended_event_family": true
+   },
+   {
+    "id": "Y5_own_getter_only_message",
+    "group": "L1_event_family",
+    "desc": "自有 getter-only message（无 setter、无 type）",
+    "baseline": "LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error",
+    "fixed": "LEDGER_TX_TIMEOUT/503/driver_connection_error",
+    "intended_event_family": true
+   },
+   {
+    "id": "Y6_proto_getter_only_message",
+    "group": "L1_event_family",
+    "desc": "仅原型 getter 提供 message（无 type）",
+    "baseline": "LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error",
+    "fixed": "LEDGER_TX_TIMEOUT/503/driver_connection_error",
+    "intended_event_family": true
+   },
+   {
+    "id": "Y7_event_with_inner_code",
+    "group": "L1_event_family",
+    "desc": "外层无 code、内层 e.error.code='ECONNRESET'",
+    "baseline": "LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error",
+    "fixed": "LEDGER_TX_TIMEOUT/503/driver_connection_error",
+    "intended_event_family": true
+   },
+   {
+    "id": "X1_ws_true_not_instanceof_globalEvent",
+    "group": "L1_counterexample",
+    "desc": "ws 真物 instanceof globalThis.Event === false ⇒ 仅 ① 必漏；必须仍被命中",
+    "baseline": "LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error",
+    "fixed": "LEDGER_TX_TIMEOUT/503/driver_connection_error",
+    "intended_event_family": true
+   },
+   {
+    "id": "X2_globalEvent_non_error",
+    "group": "L1_counterexample",
+    "desc": "new Event('message') —— 非错误事件；① 会命中（over-capture）",
+    "baseline": "LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error",
+    "fixed": "LEDGER_TX_TIMEOUT/503/driver_connection_error",
+    "intended_event_family": false
+   },
+   {
+    "id": "X3_globalEvent_open",
+    "group": "L1_counterexample",
+    "desc": "new Event('open') —— 非错误事件；① 会命中（over-capture）",
+    "baseline": "LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error",
+    "fixed": "LEDGER_TX_TIMEOUT/503/driver_connection_error",
+    "intended_event_family": false
+   },
+   {
+    "id": "P1_Object_create_proto_message",
+    "group": "L5_false_positive",
+    "desc": "Object.create({message:'x'})",
+    "baseline": "LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error",
+    "fixed": "LEDGER_TX_TIMEOUT/503/driver_connection_error",
+    "intended_event_family": false
+   },
+   {
+    "id": "P3_class_proto_data_message",
+    "group": "L5_false_positive",
+    "desc": "类实例带原型 message（数据属性）",
+    "baseline": "LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error",
+    "fixed": "LEDGER_TX_TIMEOUT/503/driver_connection_error",
+    "intended_event_family": false
+   },
+   {
+    "id": "P4_business_type_error",
+    "group": "L5_false_positive",
+    "desc": "业务信封 {type:'error', payload}",
+    "baseline": "LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error",
+    "fixed": "LEDGER_TX_TIMEOUT/503/driver_connection_error",
+    "intended_event_family": false
+   },
+   {
+    "id": "P5_new_Error_no_args",
+    "group": "L5_false_positive",
+    "desc": "new Error()（无 own message；Error.prototype.message === \"\")",
+    "baseline": "LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error",
+    "fixed": "LEDGER_TX_TIMEOUT/503/driver_connection_error",
+    "intended_event_family": false
+   },
+   {
+    "id": "P7_new_TypeError_no_args",
+    "group": "L5_false_positive",
+    "desc": "new TypeError()（无 own message）",
+    "baseline": "LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error",
+    "fixed": "LEDGER_TX_TIMEOUT/503/driver_connection_error",
+    "intended_event_family": false
+   },
+   {
+    "id": "P14_custom_error_no_message",
+    "group": "L5_false_positive",
+    "desc": "class X extends Error {} 且 new X() 无 message",
+    "baseline": "LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error",
+    "fixed": "LEDGER_TX_TIMEOUT/503/driver_connection_error",
+    "intended_event_family": false
+   },
+   {
+    "id": "P17_object_create_Error_prototype",
+    "group": "L5_false_positive",
+    "desc": "Object.create(Error.prototype)（继承空串 message）",
+    "baseline": "LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error",
+    "fixed": "LEDGER_TX_TIMEOUT/503/driver_connection_error",
+    "intended_event_family": false
+   },
+   {
+    "id": "S1_ws_event_sensitive",
+    "group": "L3_r107",
+    "desc": "ws 真 ErrorEvent 带敏感 message + 栈帧文本",
+    "baseline": "LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error",
+    "fixed": "LEDGER_TX_TIMEOUT/503/driver_connection_error",
+    "intended_event_family": false
+   },
+   {
+    "id": "S2_type_error_sensitive",
+    "group": "L3_r107",
+    "desc": "事件对象带敏感 message + 栈帧文本",
+    "baseline": "LEDGER_TRANSACTION_REQUIRED/500/unclassified_non_pg_error",
+    "fixed": "LEDGER_TX_TIMEOUT/503/driver_connection_error",
+    "intended_event_family": false
+   }
+  ]
+ },
+ "L5_matrix": [
+  {
+   "id": "X1_ws_true_not_instanceof_globalEvent",
+   "group": "L1_counterexample",
+   "desc": "ws 真物 instanceof globalThis.Event === false ⇒ 仅 ① 必漏；必须仍被命中",
+   "own_message_descriptor": "none",
+   "captured_as_event_family": true,
+   "captured_by_impl_fixed": true,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "driver_connection_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TX_TIMEOUT/503",
+   "became_503_from_500": true,
+   "status_changed": true
+  },
+  {
+   "id": "X2_globalEvent_non_error",
+   "group": "L1_counterexample",
+   "desc": "new Event('message') —— 非错误事件；① 会命中（over-capture）",
+   "own_message_descriptor": "none",
+   "captured_as_event_family": true,
+   "captured_by_impl_fixed": true,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "driver_connection_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TX_TIMEOUT/503",
+   "became_503_from_500": true,
+   "status_changed": true
+  },
+  {
+   "id": "X3_globalEvent_open",
+   "group": "L1_counterexample",
+   "desc": "new Event('open') —— 非错误事件；① 会命中（over-capture）",
+   "own_message_descriptor": "none",
+   "captured_as_event_family": true,
+   "captured_by_impl_fixed": true,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "driver_connection_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TX_TIMEOUT/503",
+   "became_503_from_500": true,
+   "status_changed": true
+  },
+  {
+   "id": "P1_Object_create_proto_message",
+   "group": "L5_false_positive",
+   "desc": "Object.create({message:'x'})",
+   "own_message_descriptor": "none",
+   "captured_as_event_family": true,
+   "captured_by_impl_fixed": true,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "driver_connection_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TX_TIMEOUT/503",
+   "became_503_from_500": true,
+   "status_changed": true
+  },
+  {
+   "id": "P2_plain_own_message",
+   "group": "L5_false_positive",
+   "desc": "{message:'x'}（own 数据属性）",
+   "own_message_descriptor": "data",
+   "captured_as_event_family": false,
+   "captured_by_impl_fixed": false,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "unclassified_non_pg_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TRANSACTION_REQUIRED/500",
+   "became_503_from_500": false,
+   "status_changed": false
+  },
+  {
+   "id": "P3_class_proto_data_message",
+   "group": "L5_false_positive",
+   "desc": "类实例带原型 message（数据属性）",
+   "own_message_descriptor": "none",
+   "captured_as_event_family": true,
+   "captured_by_impl_fixed": true,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "driver_connection_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TX_TIMEOUT/503",
+   "became_503_from_500": true,
+   "status_changed": true
+  },
+  {
+   "id": "P4_business_type_error",
+   "group": "L5_false_positive",
+   "desc": "业务信封 {type:'error', payload}",
+   "own_message_descriptor": "none",
+   "captured_as_event_family": true,
+   "captured_by_impl_fixed": true,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "driver_connection_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TX_TIMEOUT/503",
+   "became_503_from_500": true,
+   "status_changed": true
+  },
+  {
+   "id": "P5_new_Error_no_args",
+   "group": "L5_false_positive",
+   "desc": "new Error()（无 own message；Error.prototype.message === \"\")",
+   "own_message_descriptor": "none",
+   "captured_as_event_family": true,
+   "captured_by_impl_fixed": true,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "driver_connection_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TX_TIMEOUT/503",
+   "became_503_from_500": true,
+   "status_changed": true
+  },
+  {
+   "id": "P6_new_Error_with_msg",
+   "group": "L5_false_positive",
+   "desc": "new Error('boom')（own 数据 message）",
+   "own_message_descriptor": "data",
+   "captured_as_event_family": false,
+   "captured_by_impl_fixed": false,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "unclassified_non_pg_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TRANSACTION_REQUIRED/500",
+   "became_503_from_500": false,
+   "status_changed": false
+  },
+  {
+   "id": "P7_new_TypeError_no_args",
+   "group": "L5_false_positive",
+   "desc": "new TypeError()（无 own message）",
+   "own_message_descriptor": "none",
+   "captured_as_event_family": true,
+   "captured_by_impl_fixed": true,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "driver_connection_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TX_TIMEOUT/503",
+   "became_503_from_500": true,
+   "status_changed": true
+  },
+  {
+   "id": "P8_empty_object",
+   "group": "L5_false_positive",
+   "desc": "{}",
+   "own_message_descriptor": "none",
+   "captured_as_event_family": false,
+   "captured_by_impl_fixed": false,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "unclassified_non_pg_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TRANSACTION_REQUIRED/500",
+   "became_503_from_500": false,
+   "status_changed": false
+  },
+  {
+   "id": "P9_array",
+   "group": "L5_false_positive",
+   "desc": "[]",
+   "own_message_descriptor": "none",
+   "captured_as_event_family": false,
+   "captured_by_impl_fixed": false,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "unclassified_non_pg_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TRANSACTION_REQUIRED/500",
+   "became_503_from_500": false,
+   "status_changed": false
+  },
+  {
+   "id": "P10_object_create_null",
+   "group": "L5_false_positive",
+   "desc": "Object.create(null)",
+   "own_message_descriptor": "none",
+   "captured_as_event_family": false,
+   "captured_by_impl_fixed": false,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "unclassified_non_pg_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TRANSACTION_REQUIRED/500",
+   "became_503_from_500": false,
+   "status_changed": false
+  },
+  {
+   "id": "P11_LedgerError_instance",
+   "group": "L5_false_positive",
+   "desc": "真实业务对象：LedgerError 实例（按各副本自建，避免跨模块 instanceof 假差异）",
+   "own_message_descriptor": "data",
+   "captured_as_event_family": false,
+   "captured_by_impl_fixed": false,
+   "classify_baseline": null,
+   "classify_fixed": null,
+   "baseline": "LEDGER_AMOUNT_INVALID/400",
+   "fixed": "LEDGER_AMOUNT_INVALID/400",
+   "became_503_from_500": false,
+   "status_changed": false
+  },
+  {
+   "id": "P12_plain_dto",
+   "group": "L5_false_positive",
+   "desc": "真实业务对象：普通 DTO",
+   "own_message_descriptor": "none",
+   "captured_as_event_family": false,
+   "captured_by_impl_fixed": false,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "unclassified_non_pg_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TRANSACTION_REQUIRED/500",
+   "became_503_from_500": false,
+   "status_changed": false
+  },
+  {
+   "id": "P13_own_accessor_with_setter",
+   "group": "L5_false_positive",
+   "desc": "自有 getter+setter 的 message（只读判据不该命中）",
+   "own_message_descriptor": "accessor(get,set)",
+   "captured_as_event_family": false,
+   "captured_by_impl_fixed": false,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "unclassified_non_pg_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TRANSACTION_REQUIRED/500",
+   "became_503_from_500": false,
+   "status_changed": false
+  },
+  {
+   "id": "P14_custom_error_no_message",
+   "group": "L5_false_positive",
+   "desc": "class X extends Error {} 且 new X() 无 message",
+   "own_message_descriptor": "none",
+   "captured_as_event_family": true,
+   "captured_by_impl_fixed": true,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "driver_connection_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TX_TIMEOUT/503",
+   "became_503_from_500": true,
+   "status_changed": true
+  },
+  {
+   "id": "P15_pg_like_own_message",
+   "group": "L5_false_positive",
+   "desc": "pg 形对象（own 数据 message + code/constraint）",
+   "own_message_descriptor": "data",
+   "captured_as_event_family": false,
+   "captured_by_impl_fixed": false,
+   "classify_baseline": null,
+   "classify_fixed": null,
+   "baseline": "LEDGER_NEGATIVE_BALANCE_GUARD/500",
+   "fixed": "LEDGER_NEGATIVE_BALANCE_GUARD/500",
+   "became_503_from_500": false,
+   "status_changed": false
+  },
+  {
+   "id": "P16_Buffer",
+   "group": "L5_false_positive",
+   "desc": "Buffer.from(\"x\")",
+   "own_message_descriptor": "none",
+   "captured_as_event_family": false,
+   "captured_by_impl_fixed": false,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "unclassified_non_pg_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TRANSACTION_REQUIRED/500",
+   "became_503_from_500": false,
+   "status_changed": false
+  },
+  {
+   "id": "P17_object_create_Error_prototype",
+   "group": "L5_false_positive",
+   "desc": "Object.create(Error.prototype)（继承空串 message）",
+   "own_message_descriptor": "none",
+   "captured_as_event_family": true,
+   "captured_by_impl_fixed": true,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "driver_connection_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TX_TIMEOUT/503",
+   "became_503_from_500": true,
+   "status_changed": true
+  },
+  {
+   "id": "P18_function_value",
+   "group": "L5_false_positive",
+   "desc": "函数值（typeof function）",
+   "own_message_descriptor": "n/a",
+   "captured_as_event_family": false,
+   "captured_by_impl_fixed": false,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "unclassified_non_pg_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TRANSACTION_REQUIRED/500",
+   "became_503_from_500": false,
+   "status_changed": false
+  },
+  {
+   "id": "P19_string_primitive",
+   "group": "L5_false_positive",
+   "desc": "字符串原始值 'boom'",
+   "own_message_descriptor": "n/a",
+   "captured_as_event_family": false,
+   "captured_by_impl_fixed": false,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "unclassified_non_pg_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TRANSACTION_REQUIRED/500",
+   "became_503_from_500": false,
+   "status_changed": false
+  },
+  {
+   "id": "P20_frozen_plain_message",
+   "group": "L5_false_positive",
+   "desc": "Object.freeze({message:'x'})（own 数据）",
+   "own_message_descriptor": "data",
+   "captured_as_event_family": false,
+   "captured_by_impl_fixed": false,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "unclassified_non_pg_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TRANSACTION_REQUIRED/500",
+   "became_503_from_500": false,
+   "status_changed": false
+  },
+  {
+   "id": "M1_own_accessor_get_and_set",
+   "group": "L5_miss",
+   "desc": "自有 getter+setter、无 type ⇒ 三条判据都不占（判据边界）",
+   "own_message_descriptor": "accessor(get,set)",
+   "captured_as_event_family": false,
+   "captured_by_impl_fixed": false,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "unclassified_non_pg_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TRANSACTION_REQUIRED/500",
+   "became_503_from_500": false,
+   "status_changed": false
+  },
+  {
+   "id": "M2_type_Error_capitalized",
+   "group": "L5_miss",
+   "desc": "{type:'Error', message:'x'}（大小写不同 ⇒ ② 不命中）",
+   "own_message_descriptor": "data",
+   "captured_as_event_family": false,
+   "captured_by_impl_fixed": false,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "unclassified_non_pg_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TRANSACTION_REQUIRED/500",
+   "became_503_from_500": false,
+   "status_changed": false
+  },
+  {
+   "id": "M3_throwing_message_getter",
+   "group": "L5_miss",
+   "desc": "message getter 抛异常 ⇒ 分类器整体抛（修前修后同）",
+   "own_message_descriptor": "accessor(get,no-set)",
+   "captured_as_event_family": "THREW",
+   "captured_by_impl_fixed": false,
+   "classify_baseline": "THREW",
+   "classify_fixed": "THREW",
+   "baseline": "THREW/THREW",
+   "fixed": "THREW/THREW",
+   "became_503_from_500": false,
+   "status_changed": false
+  },
+  {
+   "id": "M4_own_message_epipe",
+   "group": "L5_miss",
+   "desc": "{message:'write EPIPE'}（own 数据、无 code、不命中正则）",
+   "own_message_descriptor": "data",
+   "captured_as_event_family": false,
+   "captured_by_impl_fixed": false,
+   "classify_baseline": "unclassified_non_pg_error",
+   "classify_fixed": "unclassified_non_pg_error",
+   "baseline": "LEDGER_TRANSACTION_REQUIRED/500",
+   "fixed": "LEDGER_TRANSACTION_REQUIRED/500",
+   "became_503_from_500": false,
+   "status_changed": false
+  }
+ ],
+ "L5_false_positive_ids": [
+  "X1_ws_true_not_instanceof_globalEvent",
+  "X2_globalEvent_non_error",
+  "X3_globalEvent_open",
+  "P1_Object_create_proto_message",
+  "P3_class_proto_data_message",
+  "P4_business_type_error",
+  "P5_new_Error_no_args",
+  "P7_new_TypeError_no_args",
+  "P14_custom_error_no_message",
+  "P17_object_create_Error_prototype",
+  "M3_throwing_message_getter"
+ ],
+ "L5_not_captured_ids": [
+  "P2_plain_own_message",
+  "P6_new_Error_with_msg",
+  "P8_empty_object",
+  "P9_array",
+  "P10_object_create_null",
+  "P11_LedgerError_instance",
+  "P12_plain_dto",
+  "P13_own_accessor_with_setter",
+  "P15_pg_like_own_message",
+  "P16_Buffer",
+  "P18_function_value",
+  "P19_string_primitive",
+  "P20_frozen_plain_message",
+  "M1_own_accessor_get_and_set",
+  "M2_type_Error_capitalized",
+  "M4_own_message_epipe"
+ ],
+ "L5_status_change_500_to_503": [
+  {
+   "id": "X1_ws_true_not_instanceof_globalEvent",
+   "group": "L1_counterexample",
+   "desc": "ws 真物 instanceof globalThis.Event === false ⇒ 仅 ① 必漏；必须仍被命中",
+   "from": "LEDGER_TRANSACTION_REQUIRED/500",
+   "to": "LEDGER_TX_TIMEOUT/503"
+  },
+  {
+   "id": "X2_globalEvent_non_error",
+   "group": "L1_counterexample",
+   "desc": "new Event('message') —— 非错误事件；① 会命中（over-capture）",
+   "from": "LEDGER_TRANSACTION_REQUIRED/500",
+   "to": "LEDGER_TX_TIMEOUT/503"
+  },
+  {
+   "id": "X3_globalEvent_open",
+   "group": "L1_counterexample",
+   "desc": "new Event('open') —— 非错误事件；① 会命中（over-capture）",
+   "from": "LEDGER_TRANSACTION_REQUIRED/500",
+   "to": "LEDGER_TX_TIMEOUT/503"
+  },
+  {
+   "id": "P1_Object_create_proto_message",
+   "group": "L5_false_positive",
+   "desc": "Object.create({message:'x'})",
+   "from": "LEDGER_TRANSACTION_REQUIRED/500",
+   "to": "LEDGER_TX_TIMEOUT/503"
+  },
+  {
+   "id": "P3_class_proto_data_message",
+   "group": "L5_false_positive",
+   "desc": "类实例带原型 message（数据属性）",
+   "from": "LEDGER_TRANSACTION_REQUIRED/500",
+   "to": "LEDGER_TX_TIMEOUT/503"
+  },
+  {
+   "id": "P4_business_type_error",
+   "group": "L5_false_positive",
+   "desc": "业务信封 {type:'error', payload}",
+   "from": "LEDGER_TRANSACTION_REQUIRED/500",
+   "to": "LEDGER_TX_TIMEOUT/503"
+  },
+  {
+   "id": "P5_new_Error_no_args",
+   "group": "L5_false_positive",
+   "desc": "new Error()（无 own message；Error.prototype.message === \"\")",
+   "from": "LEDGER_TRANSACTION_REQUIRED/500",
+   "to": "LEDGER_TX_TIMEOUT/503"
+  },
+  {
+   "id": "P7_new_TypeError_no_args",
+   "group": "L5_false_positive",
+   "desc": "new TypeError()（无 own message）",
+   "from": "LEDGER_TRANSACTION_REQUIRED/500",
+   "to": "LEDGER_TX_TIMEOUT/503"
+  },
+  {
+   "id": "P14_custom_error_no_message",
+   "group": "L5_false_positive",
+   "desc": "class X extends Error {} 且 new X() 无 message",
+   "from": "LEDGER_TRANSACTION_REQUIRED/500",
+   "to": "LEDGER_TX_TIMEOUT/503"
+  },
+  {
+   "id": "P17_object_create_Error_prototype",
+   "group": "L5_false_positive",
+   "desc": "Object.create(Error.prototype)（继承空串 message）",
+   "from": "LEDGER_TRANSACTION_REQUIRED/500",
+   "to": "LEDGER_TX_TIMEOUT/503"
+  }
+ ],
+ "L6_mutation": {
+  "impl_sha256": {
+   "baseline": "721156cbf296b19c7c4a480264f88b49878d99104b8f87453bafce564745df8b",
+   "fixed": "9bc127e4942cb219fc7eeb3cb17997e724d90433b030619f207341bd35ed983d",
+   "mutated": "907a7e61a9343ba6d96efa20bc72bd5ea3c39536e10f65b1675944ace71d08af"
+  },
+  "impl_load_error": {
+   "baseline": null,
+   "fixed": null,
+   "mutated": null
+  },
+  "expected_worktree_sha256": "9bc127e4942cb219fc7eeb3cb17997e724d90433b030619f207341bd35ed983d",
+  "expected_baseline_sha256": "721156cbf296b19c7c4a480264f88b49878d99104b8f87453bafce564745df8b",
+  "RED_set_fixed": [],
+  "RED_set_baseline": [
+   "Y1_ws_true_ErrorEvent",
+   "Y2_dom_like_ErrorEvent",
+   "Y3_type_error_no_message",
+   "Y4_frozen_event_object",
+   "Y5_own_getter_only_message",
+   "Y6_proto_getter_only_message",
+   "Y7_event_with_inner_code"
+  ],
+  "RED_set_mutated": [
+   "Y1_ws_true_ErrorEvent",
+   "Y2_dom_like_ErrorEvent",
+   "Y3_type_error_no_message",
+   "Y4_frozen_event_object",
+   "Y5_own_getter_only_message",
+   "Y6_proto_getter_only_message",
+   "Y7_event_with_inner_code"
+  ],
+  "verdicts": {
+   "fixed_green": true,
+   "baseline_red": true,
+   "mutated_red": true
+  }
+ },
+ "all_cases": [
+  {
+   "id": "Y1_ws_true_ErrorEvent",
+   "group": "L1_event_family",
+   "desc": "真实 ws.ErrorEvent（绝对路径；ctor.name=ErrorEvent；instanceof globalThis.Event=false）",
+   "expected_event_family": true,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "ErrorEvent",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": false,
+    "type_value": "error"
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "Y2_dom_like_ErrorEvent",
+   "group": "L1_event_family",
+   "desc": "DOM 形 ErrorEvent（extends globalThis.Event + 原型 get message）",
+   "expected_event_family": true,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "DomErrorEventLike",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": true,
+    "typeof_message": "string",
+    "has_own_message": false,
+    "type_value": "error"
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "Y3_type_error_no_message",
+   "group": "L1_event_family",
+   "desc": "{type:'error'}（无 message）",
+   "expected_event_family": true,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "undefined",
+    "has_own_message": false,
+    "type_value": "error"
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "Y4_frozen_event_object",
+   "group": "L1_event_family",
+   "desc": "Object.freeze({type:'error',message})",
+   "expected_event_family": true,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": "error"
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "Y5_own_getter_only_message",
+   "group": "L1_event_family",
+   "desc": "自有 getter-only message（无 setter、无 type）",
+   "expected_event_family": true,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "accessor(get,no-set)",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "Y6_proto_getter_only_message",
+   "group": "L1_event_family",
+   "desc": "仅原型 getter 提供 message（无 type）",
+   "expected_event_family": true,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": false,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "Y7_event_with_inner_code",
+   "group": "L1_event_family",
+   "desc": "外层无 code、内层 e.error.code='ECONNRESET'",
+   "expected_event_family": true,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": "error"
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "Y8_event_hits_pool_regex",
+   "group": "L1_event_family",
+   "desc": "事件对象且 message 命中池超时正则",
+   "expected_event_family": true,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": "error"
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "pool_connection_timeout",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"reason\":\"pool_connection_timeout\",\"source\":\"connection_pool\"}",
+     "details_keys": [
+      "reason",
+      "source"
+     ],
+     "reason": "pool_connection_timeout",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "pool_connection_timeout",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"reason\":\"pool_connection_timeout\",\"source\":\"connection_pool\"}",
+     "details_keys": [
+      "reason",
+      "source"
+     ],
+     "reason": "pool_connection_timeout",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "pool_connection_timeout",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"reason\":\"pool_connection_timeout\",\"source\":\"connection_pool\"}",
+     "details_keys": [
+      "reason",
+      "source"
+     ],
+     "reason": "pool_connection_timeout",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "X1_ws_true_not_instanceof_globalEvent",
+   "group": "L1_counterexample",
+   "desc": "ws 真物 instanceof globalThis.Event === false ⇒ 仅 ① 必漏；必须仍被命中",
+   "expected_event_family": true,
+   "note": "KEEP_HIT",
+   "fixture_selfcheck": {
+    "constructor_name": "ErrorEvent",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": false,
+    "type_value": "error"
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "X2_globalEvent_non_error",
+   "group": "L1_counterexample",
+   "desc": "new Event('message') —— 非错误事件；① 会命中（over-capture）",
+   "expected_event_family": false,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Event",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": true,
+    "typeof_message": "undefined",
+    "has_own_message": false,
+    "type_value": "message"
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "X3_globalEvent_open",
+   "group": "L1_counterexample",
+   "desc": "new Event('open') —— 非错误事件；① 会命中（over-capture）",
+   "expected_event_family": false,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Event",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": true,
+    "typeof_message": "undefined",
+    "has_own_message": false,
+    "type_value": "open"
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "C1_pg_22003_instance",
+   "group": "L2_controls",
+   "desc": "PG 22003（Error 实例 + code）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Error",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": null,
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"22003\",\"error_name\":\"Error\",\"pg_code\":\"22003\",\"reason\":\"unclassified_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_name",
+      "pg_code",
+      "reason"
+     ],
+     "reason": "unclassified_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": null,
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"22003\",\"error_name\":\"Error\",\"pg_code\":\"22003\",\"reason\":\"unclassified_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_name",
+      "pg_code",
+      "reason"
+     ],
+     "reason": "unclassified_pg_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": null,
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"22003\",\"error_name\":\"Error\",\"pg_code\":\"22003\",\"reason\":\"unclassified_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_name",
+      "pg_code",
+      "reason"
+     ],
+     "reason": "unclassified_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "C2_pg_22003_bare",
+   "group": "L2_controls",
+   "desc": "PG 22003（裸对象）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": null,
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"22003\",\"error_name\":\"Error\",\"pg_code\":\"22003\",\"reason\":\"unclassified_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_name",
+      "pg_code",
+      "reason"
+     ],
+     "reason": "unclassified_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": null,
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"22003\",\"error_name\":\"Error\",\"pg_code\":\"22003\",\"reason\":\"unclassified_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_name",
+      "pg_code",
+      "reason"
+     ],
+     "reason": "unclassified_pg_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": null,
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"22003\",\"error_name\":\"Error\",\"pg_code\":\"22003\",\"reason\":\"unclassified_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_name",
+      "pg_code",
+      "reason"
+     ],
+     "reason": "unclassified_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "C3_pg_LD016",
+   "group": "L2_controls",
+   "desc": "DB 命名码 LD016",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Error",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": null,
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"LD016\",\"error_name\":\"Error\",\"pg_code\":\"LD016\",\"reason\":\"unclassified_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_name",
+      "pg_code",
+      "reason"
+     ],
+     "reason": "unclassified_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": null,
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"LD016\",\"error_name\":\"Error\",\"pg_code\":\"LD016\",\"reason\":\"unclassified_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_name",
+      "pg_code",
+      "reason"
+     ],
+     "reason": "unclassified_pg_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": null,
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"LD016\",\"error_name\":\"Error\",\"pg_code\":\"LD016\",\"reason\":\"unclassified_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_name",
+      "pg_code",
+      "reason"
+     ],
+     "reason": "unclassified_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "C4_ECONNRESET",
+   "group": "L2_controls",
+   "desc": "ECONNRESET",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Error",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"ECONNRESET\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"ECONNRESET\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"ECONNRESET\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "C5_pool_timeout",
+   "group": "L2_controls",
+   "desc": "池「拿连接」超时（Error 实例 + 数据 message）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Error",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "pool_connection_timeout",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"reason\":\"pool_connection_timeout\",\"source\":\"connection_pool\"}",
+     "details_keys": [
+      "reason",
+      "source"
+     ],
+     "reason": "pool_connection_timeout",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "pool_connection_timeout",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"reason\":\"pool_connection_timeout\",\"source\":\"connection_pool\"}",
+     "details_keys": [
+      "reason",
+      "source"
+     ],
+     "reason": "pool_connection_timeout",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "pool_connection_timeout",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"reason\":\"pool_connection_timeout\",\"source\":\"connection_pool\"}",
+     "details_keys": [
+      "reason",
+      "source"
+     ],
+     "reason": "pool_connection_timeout",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "C6_socket_hang_up",
+   "group": "L2_controls",
+   "desc": "Error('socket hang up')",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Error",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "C7_08P01_excluded",
+   "group": "L2_controls",
+   "desc": "08P01（排除项，500 类）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Error",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": null,
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"08P01\",\"error_name\":\"ProtocolViolation\",\"pg_code\":\"08P01\",\"reason\":\"protocol_violation\"}",
+     "details_keys": [
+      "cause",
+      "error_name",
+      "pg_code",
+      "reason"
+     ],
+     "reason": "protocol_violation",
+     "threw": null
+    },
+    "fixed": {
+     "classify": null,
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"08P01\",\"error_name\":\"ProtocolViolation\",\"pg_code\":\"08P01\",\"reason\":\"protocol_violation\"}",
+     "details_keys": [
+      "cause",
+      "error_name",
+      "pg_code",
+      "reason"
+     ],
+     "reason": "protocol_violation",
+     "threw": null
+    },
+    "mutated": {
+     "classify": null,
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"08P01\",\"error_name\":\"ProtocolViolation\",\"pg_code\":\"08P01\",\"reason\":\"protocol_violation\"}",
+     "details_keys": [
+      "cause",
+      "error_name",
+      "pg_code",
+      "reason"
+     ],
+     "reason": "protocol_violation",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "C8_23514_bal_guard",
+   "group": "L2_controls",
+   "desc": "23514 + account_bal_guard",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Error",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": null,
+     "code": "LEDGER_NEGATIVE_BALANCE_GUARD",
+     "status": 500,
+     "details_json": "{\"constraint\":\"account_bal_guard\"}",
+     "details_keys": [
+      "constraint"
+     ],
+     "reason": null,
+     "threw": null
+    },
+    "fixed": {
+     "classify": null,
+     "code": "LEDGER_NEGATIVE_BALANCE_GUARD",
+     "status": 500,
+     "details_json": "{\"constraint\":\"account_bal_guard\"}",
+     "details_keys": [
+      "constraint"
+     ],
+     "reason": null,
+     "threw": null
+    },
+    "mutated": {
+     "classify": null,
+     "code": "LEDGER_NEGATIVE_BALANCE_GUARD",
+     "status": 500,
+     "details_json": "{\"constraint\":\"account_bal_guard\"}",
+     "details_keys": [
+      "constraint"
+     ],
+     "reason": null,
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "C9_23505_idem",
+   "group": "L2_controls",
+   "desc": "23505 + ledger_idem_uniq",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Error",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": null,
+     "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+     "status": 409,
+     "details_json": "{\"constraint\":\"ledger_idem_uniq\"}",
+     "details_keys": [
+      "constraint"
+     ],
+     "reason": null,
+     "threw": null
+    },
+    "fixed": {
+     "classify": null,
+     "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+     "status": 409,
+     "details_json": "{\"constraint\":\"ledger_idem_uniq\"}",
+     "details_keys": [
+      "constraint"
+     ],
+     "reason": null,
+     "threw": null
+    },
+    "mutated": {
+     "classify": null,
+     "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+     "status": 409,
+     "details_json": "{\"constraint\":\"ledger_idem_uniq\"}",
+     "details_keys": [
+      "constraint"
+     ],
+     "reason": null,
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "C10_57014",
+   "group": "L2_controls",
+   "desc": "57014 语句超时",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Error",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": null,
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{}",
+     "details_keys": [],
+     "reason": null,
+     "threw": null
+    },
+    "fixed": {
+     "classify": null,
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{}",
+     "details_keys": [],
+     "reason": null,
+     "threw": null
+    },
+    "mutated": {
+     "classify": null,
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{}",
+     "details_keys": [],
+     "reason": null,
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "C11_53000",
+   "group": "L2_controls",
+   "desc": "53000（53 类 infra）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Error",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": null,
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"pg_code\":\"53000\",\"reason\":\"insufficient_resources\",\"retryable\":true,\"source\":\"pg_infra_class\"}",
+     "details_keys": [
+      "pg_code",
+      "reason",
+      "retryable",
+      "source"
+     ],
+     "reason": "insufficient_resources",
+     "threw": null
+    },
+    "fixed": {
+     "classify": null,
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"pg_code\":\"53000\",\"reason\":\"insufficient_resources\",\"retryable\":true,\"source\":\"pg_infra_class\"}",
+     "details_keys": [
+      "pg_code",
+      "reason",
+      "retryable",
+      "source"
+     ],
+     "reason": "insufficient_resources",
+     "threw": null
+    },
+    "mutated": {
+     "classify": null,
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"pg_code\":\"53000\",\"reason\":\"insufficient_resources\",\"retryable\":true,\"source\":\"pg_infra_class\"}",
+     "details_keys": [
+      "pg_code",
+      "reason",
+      "retryable",
+      "source"
+     ],
+     "reason": "insufficient_resources",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "C12_named_LEDGER_TX_TIMEOUT",
+   "group": "L2_controls",
+   "desc": "命名码直通 LEDGER_TX_TIMEOUT",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Error",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": null,
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{}",
+     "details_keys": [],
+     "reason": null,
+     "threw": null
+    },
+    "fixed": {
+     "classify": null,
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{}",
+     "details_keys": [],
+     "reason": null,
+     "threw": null
+    },
+    "mutated": {
+     "classify": null,
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{}",
+     "details_keys": [],
+     "reason": null,
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "C13_bare_object_no_name",
+   "group": "L2_controls",
+   "desc": "无 name 裸对象（own 数据 message，无 code）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "P1_Object_create_proto_message",
+   "group": "L5_false_positive",
+   "desc": "Object.create({message:'x'})",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": false,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "P2_plain_own_message",
+   "group": "L5_false_positive",
+   "desc": "{message:'x'}（own 数据属性）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "P3_class_proto_data_message",
+   "group": "L5_false_positive",
+   "desc": "类实例带原型 message（数据属性）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "ProtoDto",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": false,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "P4_business_type_error",
+   "group": "L5_false_positive",
+   "desc": "业务信封 {type:'error', payload}",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "undefined",
+    "has_own_message": false,
+    "type_value": "error"
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "P5_new_Error_no_args",
+   "group": "L5_false_positive",
+   "desc": "new Error()（无 own message；Error.prototype.message === \"\")",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Error",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": false,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "P6_new_Error_with_msg",
+   "group": "L5_false_positive",
+   "desc": "new Error('boom')（own 数据 message）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Error",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "P7_new_TypeError_no_args",
+   "group": "L5_false_positive",
+   "desc": "new TypeError()（无 own message）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "TypeError",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": false,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"TypeError\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"TypeError\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "P8_empty_object",
+   "group": "L5_false_positive",
+   "desc": "{}",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "undefined",
+    "has_own_message": false,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "P9_array",
+   "group": "L5_false_positive",
+   "desc": "[]",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Array",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "undefined",
+    "has_own_message": false,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "P10_object_create_null",
+   "group": "L5_false_positive",
+   "desc": "Object.create(null)",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "NOT_MEASURED",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "undefined",
+    "has_own_message": false,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "P11_LedgerError_instance",
+   "group": "L5_false_positive",
+   "desc": "真实业务对象：LedgerError 实例（按各副本自建，避免跨模块 instanceof 假差异）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "LedgerError",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": null,
+     "code": "LEDGER_AMOUNT_INVALID",
+     "status": 400,
+     "details_json": "{\"field\":\"amount\"}",
+     "details_keys": [
+      "field"
+     ],
+     "reason": null,
+     "threw": null
+    },
+    "fixed": {
+     "classify": null,
+     "code": "LEDGER_AMOUNT_INVALID",
+     "status": 400,
+     "details_json": "{\"field\":\"amount\"}",
+     "details_keys": [
+      "field"
+     ],
+     "reason": null,
+     "threw": null
+    },
+    "mutated": {
+     "classify": null,
+     "code": "LEDGER_AMOUNT_INVALID",
+     "status": 400,
+     "details_json": "{\"field\":\"amount\"}",
+     "details_keys": [
+      "field"
+     ],
+     "reason": null,
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "P12_plain_dto",
+   "group": "L5_false_positive",
+   "desc": "真实业务对象：普通 DTO",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "undefined",
+    "has_own_message": false,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "P13_own_accessor_with_setter",
+   "group": "L5_false_positive",
+   "desc": "自有 getter+setter 的 message（只读判据不该命中）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "accessor(get,set)",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "P14_custom_error_no_message",
+   "group": "L5_false_positive",
+   "desc": "class X extends Error {} 且 new X() 无 message",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "BareCustomError",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": false,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "P15_pg_like_own_message",
+   "group": "L5_false_positive",
+   "desc": "pg 形对象（own 数据 message + code/constraint）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": null,
+     "code": "LEDGER_NEGATIVE_BALANCE_GUARD",
+     "status": 500,
+     "details_json": "{\"constraint\":\"account_bal_guard\"}",
+     "details_keys": [
+      "constraint"
+     ],
+     "reason": null,
+     "threw": null
+    },
+    "fixed": {
+     "classify": null,
+     "code": "LEDGER_NEGATIVE_BALANCE_GUARD",
+     "status": 500,
+     "details_json": "{\"constraint\":\"account_bal_guard\"}",
+     "details_keys": [
+      "constraint"
+     ],
+     "reason": null,
+     "threw": null
+    },
+    "mutated": {
+     "classify": null,
+     "code": "LEDGER_NEGATIVE_BALANCE_GUARD",
+     "status": 500,
+     "details_json": "{\"constraint\":\"account_bal_guard\"}",
+     "details_keys": [
+      "constraint"
+     ],
+     "reason": null,
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "P16_Buffer",
+   "group": "L5_false_positive",
+   "desc": "Buffer.from(\"x\")",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Buffer",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "undefined",
+    "has_own_message": false,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "P17_object_create_Error_prototype",
+   "group": "L5_false_positive",
+   "desc": "Object.create(Error.prototype)（继承空串 message）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Error",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": false,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "P18_function_value",
+   "group": "L5_false_positive",
+   "desc": "函数值（typeof function）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "function",
+    "own_message_descriptor": "n/a",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "NOT_MEASURED",
+    "has_own_message": false,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "P19_string_primitive",
+   "group": "L5_false_positive",
+   "desc": "字符串原始值 'boom'",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "string",
+    "own_message_descriptor": "n/a",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "NOT_MEASURED",
+    "has_own_message": false,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "P20_frozen_plain_message",
+   "group": "L5_false_positive",
+   "desc": "Object.freeze({message:'x'})（own 数据）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "M1_own_accessor_get_and_set",
+   "group": "L5_miss",
+   "desc": "自有 getter+setter、无 type ⇒ 三条判据都不占（判据边界）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "accessor(get,set)",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "M2_type_Error_capitalized",
+   "group": "L5_miss",
+   "desc": "{type:'Error', message:'x'}（大小写不同 ⇒ ② 不命中）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": "Error"
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "M3_throwing_message_getter",
+   "group": "L5_miss",
+   "desc": "message getter 抛异常 ⇒ 分类器整体抛（修前修后同）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "accessor(get,no-set)",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "THREW",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "THREW",
+     "code": "THREW",
+     "status": "THREW",
+     "details_json": null,
+     "details_keys": null,
+     "reason": null,
+     "threw": "getter blew up"
+    },
+    "fixed": {
+     "classify": "THREW",
+     "code": "THREW",
+     "status": "THREW",
+     "details_json": null,
+     "details_keys": null,
+     "reason": null,
+     "threw": "getter blew up"
+    },
+    "mutated": {
+     "classify": "THREW",
+     "code": "THREW",
+     "status": "THREW",
+     "details_json": null,
+     "details_keys": null,
+     "reason": null,
+     "threw": "getter blew up"
+    }
+   },
+   "independent_event_family_verdict": "THREW"
+  },
+  {
+   "id": "M4_own_message_epipe",
+   "group": "L5_miss",
+   "desc": "{message:'write EPIPE'}（own 数据、无 code、不命中正则）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "S1_ws_event_sensitive",
+   "group": "L3_r107",
+   "desc": "ws 真 ErrorEvent 带敏感 message + 栈帧文本",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "ErrorEvent",
+    "own_message_descriptor": "none",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": false,
+    "type_value": "error"
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "S2_type_error_sensitive",
+   "group": "L3_r107",
+   "desc": "事件对象带敏感 message + 栈帧文本",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": "error"
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "driver_connection_error",
+     "code": "LEDGER_TX_TIMEOUT",
+     "status": 503,
+     "details_json": "{\"error_code\":\"none\",\"reason\":\"driver_connection_error\"}",
+     "details_keys": [
+      "error_code",
+      "reason"
+     ],
+     "reason": "driver_connection_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": true
+  },
+  {
+   "id": "S3_own_message_sensitive",
+   "group": "L3_r107",
+   "desc": "own 数据 message 带敏感文本（走 500 兜底）",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Object",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  },
+  {
+   "id": "S4_Error_instance_sensitive",
+   "group": "L3_r107",
+   "desc": "Error 实例带敏感 message + 真栈",
+   "expected_event_family": null,
+   "note": null,
+   "fixture_selfcheck": {
+    "constructor_name": "Error",
+    "own_message_descriptor": "data",
+    "instanceof_globalThis_Event": false,
+    "typeof_message": "string",
+    "has_own_message": true,
+    "type_value": null
+   },
+   "per_impl": {
+    "baseline": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "fixed": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    },
+    "mutated": {
+     "classify": "unclassified_non_pg_error",
+     "code": "LEDGER_TRANSACTION_REQUIRED",
+     "status": 500,
+     "details_json": "{\"cause\":\"non_pg_error\",\"error_code\":\"none\",\"error_name\":\"Error\",\"reason\":\"unclassified_non_pg_error\"}",
+     "details_keys": [
+      "cause",
+      "error_code",
+      "error_name",
+      "reason"
+     ],
+     "reason": "unclassified_non_pg_error",
+     "threw": null
+    }
+   },
+   "independent_event_family_verdict": false
+  }
+ ]
+}
