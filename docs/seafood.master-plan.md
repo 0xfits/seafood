@@ -787,6 +787,47 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 `docs/data-layer.spec.md` v0.1 **从未入库**，v0.2 就地覆盖 ⇒ 快照 `docs/versions/data-layer.spec.v0.1.md` 成为 **v0.1 的唯一副本**，其**真伪不可独立复核**（没有任何可比对的基线与它 `cmp`）。同批的 `ledger.spec` 因 v0.11 早已入库，快照可与 `git show HEAD:docs/ledger.spec.md | cmp -` 逐字节校验 ⇒ **两册待遇不同、证据强度也不同**。⇒ 派「就地改版」类单前，**先把待改文件入库**（或至少落一份**可比对**的副本 + 哈希台账）。
 
+### 5.35 **P3 Step 1b 验收通过**（接手单补完；**取代 §5.34 ③ 的「暂不采信」**）（2026-09-28）
+
+> **取代关系**：§5.34 ③ 记的是「真判据已跑出但 `positive_control = None` ⇒ 按纪律**暂不采信**」。该缺口已由接手单 `deleg_ea14f60e` 补齐，本节给读数并**取代**该结论；**§5.34 ③ 原文保留不动**（留痕，不静默重写）。
+
+**① 真判据（类级断言）**
+
+| 面 | 读数 |
+|---|---|
+| 扫描面 | 全树 **116 文件**；**25 类**模式（具名 10 类：`CREATE TABLE` / `CREATE INDEX` / `CREATE OR REPLACE FUNCTION` / `ALTER TABLE` / `DROP TABLE` / `DROP INDEX` / `TRUNCATE` / `DO $$` / `RENAME TO` / `to_regclass`） |
+| 请求路径 | 8 文件、`hits_total=0`、`should_be_zero=0`、`bare_code=0`、`allowed_comment=0` |
+| 断言 | `{ expected_zero_set_size: 0, pass: **true** }` |
+| 非请求路径 | 254 命中 / 108 文件（`scripts/**` + `migrations/**`，**允许集**） |
+
+**② 尺子灵敏度（正对照）—— 上轮唯一缺口，已补**
+
+夹具在 **scratch 副本**（`scratch/step1b-takeover/probe-copy/`，由 `cp -R src/.` 得来、交付前 sha256 双向核对）：
+
+| 注入 | 类 | 结果 |
+|---|---|---|
+| `ALTER TABLE foo_old RENAME TO foo_new;` | C04 + C09 | **报出**（`:6:21` / `:6:41`） |
+| `CREATE TABLE probe_tbl (id int);` | C01 | **报出**（`:7:21`） |
+| `to_regclass('public.gift')` | C10 | **报出**（`:8:28`） |
+| `DROP INDEX IF EXISTS probe_idx;` | C06 | **报出**（`:9:21`） |
+| `// 注释行内的 DDL … ALTER TABLE … RENAME TO` | C04 + C09 | **正确归入允许集**（`state=comment`） |
+
+⇒ 副本扫描 `should_be_zero=5`、**`assertion.pass=false`（退出码 3）** ——「对注入过的东西断言应为 0」**判 FAIL**，**这正是尺子会响的证据**（正对照的 FAIL 是**预期形态**，不是缺陷）。注入物**只在 scratch**；我复核 `backend-ts/src/__p3s1b_probe_injected.ts` **不存在**、`find src -name '*probe*' -o -name '*injected*'` **零命中**。
+
+**③ 不过宽的反证**：未加词界的 `TRUNCATE` 在 `src/commission.ts` 假命中 **8** 条（全是标识符 `chain_truncated` 一族）⇒ 扫描器用 `(?<![\w.])TRUNCATE\b` **排除** ⇒ **8 → 0**（**既不漏报、也不过宽**）。
+
+**④ 类型检查**：`npx tsc --noEmit`（`src/` 窄口径）**exit 0**；`tsconfig.scripts.json` 口径 **exit 2**（9 错，**预存在残差**，如实登记、未顺手修）；`not_measured.full_repo_typecheck` 明写「**只跑了窄口径**」。
+
+**⑤ 运行时与 catalog**：面板单服务路由重载 `seafood-api` ⇒ pid **74889 → 60022**（面板回读 60008 = spawn 壳、实际 LISTEN = 60022，已按实际记）、`/health` **200 + `schema_version 0012`**；catalog pre/mid/post **我独立逐项复核 32 字段** ⇒ **除 `label` / `ts` / `pg_stat_database.xact_commit` / `xact_rollback` 四个元字段外，其余 28 项完全一致**（后两者是**数据库级全局计数器**、被外部会话推高 ⇒ **不构成差异、不判负**）；GET 矩阵两轮 9 条全 500、表数恒 8。**报告逐字声明**：「表数不变对『条件空转的 DDL』是**盲的**…故本节只记『未发现回归』，**真正的判据是 class_assertion**」；`not_measured.read_no_longer_writes__runtime_proof` = **NOT_MEASURED**。
+
+**⑥ 两处口径更正（我复核时发现，结论不变）**：
+1. 报告「catalog 前后逐项无差异」的**准确口径**应为「**除 4 个元字段外逐项一致**」—— 措辞不得升级（同 §17i）。
+2. 报告里 `待回填` 字样出现 2 次属**元叙述**（描述骨架已被替换）；**字面 `[待回填]` 标记 = 0**（与它自报一致）。
+
+**⑦ 入库**：`docs/audit/p3-step1b-ddl-removal.md`（220 行）+ `backend-ts/scripts/p3s1b-01-class-assert-runtime-ddl.ts`（234 行）+ 6 份 run-tagged 读数 + 汇总件 `p3s1b-20260928-123558.json`。
+
+**⇒ Step 1b 验收通过。D19（先修码再 DROP、库回到 == `0012`）至此全链闭合：两条运行时 DDL 路径（`ensureSupportSchema` / `ensureLegacyTableNames`）均已摘除，且以类级断言证明「请求路径上的运行期 schema 变更语句 = 0」。**
+
 ### 5.6 延迟问题的三个处置变体（**已拍板：变体 B**，见 D10）
 
 | 变体 | 做法 | 本地单笔预期 | 代价 |
@@ -983,6 +1024,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.39 | 2026-09-28 | **§5.35 P3 Step 1b 验收通过**（接手单 `deleg_ea14f60e` 补完，**取代 §5.34 ③ 的「暂不采信」**；旧节原文保留留痕）。**真判据**：请求路径 **8 文件 / `hits_total=0` / `should_be_zero=0` / `bare_code=0`**、`assertion.pass=true`；全树 **116 文件 / 25 类模式**；非请求路径 **254 命中 / 108 文件**（`scripts/**`+`migrations/**`，允许集）。**尺子灵敏度（上轮唯一缺口）**：正对照在 **scratch 副本**内注入 5 条 DDL（C01/C04/C06/C09/C10）＋ 1 条**注释内 DDL** ⇒ 副本 `should_be_zero=5`、**`assertion.pass=false`（判 FAIL ＝ 尺子响了）**，且注释行**正确入允许集**；注入物**未进被检仓库**（我复核 `src/__p3s1b_probe_injected.ts` 不存在、`find` 零命中）。**不过宽的反证**：未加词界的 `TRUNCATE` 在 `src/commission.ts` 假命中 **8** 条（全是 `chain_truncated` 一族标识符）⇒ 词界版 `(?<![\w.])TRUNCATE\b` **排除** ⇒ **8→0**。**类型检查**：`npx tsc --noEmit`（`src/` 窄口径）**exit 0**；`tsconfig.scripts.json` 口径 **exit 2**（9 错，**预存在残差**，如实登记、未顺手修）。**运行时**：面板单服务路由重载 `seafood-api` ⇒ pid **74889 → 60022**、`/health` 200 + `schema_version 0012`；catalog pre/mid/post **我独立逐项复核 32 字段** ⇒ 除 `label`/`ts`/`pg_stat_database.xact_commit`/`xact_rollback`（**数据库级全局计数器，被外部会话推高 ⇒ 不判负**）外 **28 项全一致**；GET 矩阵两轮 9 条全 500、表数恒 8，且报告**逐字声明**「表数不变对『条件空转的 DDL』是**盲的**…本节只记『未发现回归』，真正的判据是 class_assertion」、`read_no_longer_writes` 标 **NOT_MEASURED**。**两处口径更正（结论不变）**：① 「catalog 前后逐项无差异」应作「**除 4 个元字段外逐项一致**」；② `待回填` 字样 2 次系元叙述，**字面 `[待回填]` 标记 = 0**。入库 `4ca6988`（9 文件 / **+4673**）。**⇒ D19 全链闭合**：两条运行时 DDL 路径（`ensureSupportSchema` / `ensureLegacyTableNames`）均已摘除，并以类级断言证明「请求路径上的运行期 schema 变更语句 = 0」 |
 | v0.38 | 2026-09-28 | **§5.34 树中止事件与四处盘面事实**。① **事件**：Hermes 侧 `delegation owner exited` ⇒ `deleg_bbe7d6a0`（Jing `ledger.spec` v0.12）回执 **outcome unknown**；按纪律用 `action='list'` 判活（判活在的**唯一**依据）⇒ **3 单仍活**（`e9dd1808` 536.9s / `d9123482` 473.8s / `ea14f60e` 281.1s），**仅 bbe7d6a0 死**。② **死单产物按盘核后完好** ⇒ 入库 `065e28d`（v0.12 + v0.11 快照）：`R1–R109` **109 条、1..109 连续无缺号**、§14.1 仍 **33 码**、「已拍板（Zang · C1 终审」×9、§19.16 存在、变更记录 12 行（v0.1–v0.12）、快照 `v0.11` 与 HEAD 版 `cmp` **逐字节相同**、`git diff --numstat` **+106/−14**；**我亲核 R109/R79 落位与我 C1 终审五条逐条一致**；留证分歧：子代理自检报 `defs=108`、**我复核 = 109（以我为准）**。③ **Step 1b 真判据已跑出但缺正对照**：`p3s1b-classassert-20260928-123558-repo.json` —— `request_path` 8 文件 / `hits_total=0` / `should_be_zero=0` / `assertion.pass=true`；全树 **116 文件**、`class_count=25`；同一扫描器在**非请求路径**面报 **254 条命中**（CREATE TABLE 13 / ALTER TABLE 56 / `DO $$` 21 / RENAME TO 6 …）⇒ 正则**会响**；**但 `positive_control = None`** ⇒ 按「无正对照的 0 命中与检测器坏了不可分」**PASS 暂不采信**，已 steer 令其补；`docs/audit/p3-step1b-ddl-removal.md` 仍 **13 处 `[待回填]`**（接手单**第二次死在报告**上 ⇒ 再证「先落骨架、逐段落盘」）。④ **stale 项更正**：`docs/qa/p2-0012-replay-order.md`（24749 B / sha256 `352192fe…`）**已在盘且已跟踪** ⇒ 前记录「未落盘」**作废**。⑤ **`data-layer.spec` v0.2 在制**（`e9dd1808` 活着、mtime 12:40）：现 910 行 / **DL 定义 152 条、1..152 连续**，而版本头声明 `DL1…DL153` ⇒ **`DL153` 声明未落**；**§14 索引标题仍 `DL1..DL139`**（TOC 已是 `DL1..DL153`）⇒ 待其收尾，未收尾则我裁定。⑥ **新纪律（㉑）：未入库的新文件，改版前必须先入库** —— `data-layer.spec` v0.1 从未入库即被 v0.2 就地覆盖 ⇒ 快照 `docs/versions/data-layer.spec.v0.1.md` 是**唯一副本、真伪不可独立复核**（同批 `ledger` 因 v0.11 已入库，快照可与 HEAD `cmp` 逐字节校验 ⇒ 两册待遇不同）。 |
 | v0.37 | 2026-09-28 | **§5.32 P3 数据层规范 v0.1 终审：C1–C9 九项裁定** + **§5.33 两条库级发现**。Jing 交 `docs/data-layer.spec.md` v0.1（845 行 / 17 章 / **139** 条 DL，编号连续；审计映射 **55/55 表态：采纳 19/修正 28/驳回 8**；55 条路由 **保留 11/重写 27/删除 17**；**kind 扩展请求 0**）。裁定：**C1 采纳编排函数**（并拍板 **R79** 全序含业务行 = 业务行 → currency → account）、**C2 用 `listing`**（`ledger_ref_type_enum` 已应用不可改）+ 定命名风格、**C3 删 prize/settings-reset 且 #54 保留但锁死**、**C4 立 AUTH 域码**、**C5 借 409 码 + 登记债**、**C6 修正本册倾向（改用 AUTH_FORBIDDEN）**、**C7 雇主审（驳回审计）**、**C8 要业务级幂等键**、**C9 用视图**。清盲区 **B10：`$` = `cid=1` 且 `decimals=0`**；**更正 D20 清理范围**（multi-table：users 411 / currency 99 / account 245 / ledger_entry 2145 / referral 216 / commission_policy 19）。§5.33：**`neon_auth.account` 与 `public.account` 跨 schema 同名**（我误报「账本表混 PII」⇒ 撤回，根因是探针缺 schema 限定；新数据层必须限定 `public.`）；**政策表近失**（18 行测试夹具直插生产政策表，末行恰为预期值故未生效，机制不安全）。下一步：Jing 出 `data-layer.spec` v0.2 + `ledger.spec` v0.12 |
 | v0.36 | 2026-09-28 | **§5.31 自我更正**：v0.35 的「读不再写」**下得过宽** —— 它只用 `ensureSupportSchema` 一个串的 grep 支撑，漏了同族路径 `ensureLegacyTableNames`（`database.ts:239`，含两处条件 `ALTER TABLE … RENAME`，被 4 个**读**方法调用；因 `gift`/`journey` 不存在而当前空转）。**关键教训**：条件空转的 DDL 不改表数 ⇒ 我「表数前后不变」的验收读数对它是**盲的（假证）**。已派 **Step 1b** 摘除并改以**类级断言**交付（DDL 关键字全集扫描，除迁移执行器外 == 0）。**新增纪律 ⑳：「验收通过」必须用类级断言，不得用实例级 grep** |
