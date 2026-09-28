@@ -1,0 +1,388 @@
+{
+  "run": "20260928055200",
+  "label": "final",
+  "at": "2026-09-28T05:52:03.557Z",
+  "probe": "P3F-00-FINGERPRINT",
+  "run_tag": "20260928055200",
+  "public_base_table_count": 11,
+  "public_base_tables": [
+    "account",
+    "commission_policy",
+    "currency",
+    "job",
+    "job_application",
+    "job_submission",
+    "ledger_entry",
+    "ledger_owner",
+    "referral",
+    "schema_migration",
+    "users"
+  ],
+  "schema_version": "0014",
+  "schema_migration_row_count": 14,
+  "schema_migration_last_row": {
+    "version": "0014",
+    "name": "0014_job_flow.sql",
+    "checksum": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d",
+    "applied_at": "2026-09-28 05:34:21.434834+00"
+  },
+  "functions": [
+    {
+      "proname": "job_application_create_key_guard",
+      "args": ""
+    },
+    {
+      "proname": "job_application_no_delete",
+      "args": ""
+    },
+    {
+      "proname": "job_application_status_guard",
+      "args": ""
+    },
+    {
+      "proname": "job_application_status_transition_ok",
+      "args": "p_from text, p_to text"
+    },
+    {
+      "proname": "job_application_touch_time_updated",
+      "args": ""
+    },
+    {
+      "proname": "job_submission_immutable_guard",
+      "args": ""
+    },
+    {
+      "proname": "job_submission_no_delete",
+      "args": ""
+    }
+  ],
+  "job_application": {
+    "exists": true,
+    "columns": [
+      {
+        "column_name": "application_id",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "job_id",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "worker_uid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "status",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "'applied'::text"
+      },
+      {
+        "column_name": "create_key",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      },
+      {
+        "column_name": "time_updated",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      }
+    ],
+    "constraints": [
+      {
+        "conname": "job_application_application_id_not_null",
+        "contype": "n",
+        "def": "NOT NULL application_id"
+      },
+      {
+        "conname": "job_application_create_key_not_null",
+        "contype": "n",
+        "def": "NOT NULL create_key"
+      },
+      {
+        "conname": "job_application_create_key_uniq",
+        "contype": "u",
+        "def": "UNIQUE (create_key)"
+      },
+      {
+        "conname": "job_application_job_fk",
+        "contype": "f",
+        "def": "FOREIGN KEY (job_id) REFERENCES job(job_id)"
+      },
+      {
+        "conname": "job_application_job_id_not_null",
+        "contype": "n",
+        "def": "NOT NULL job_id"
+      },
+      {
+        "conname": "job_application_job_worker_uniq",
+        "contype": "u",
+        "def": "UNIQUE (job_id, worker_uid)"
+      },
+      {
+        "conname": "job_application_pk",
+        "contype": "p",
+        "def": "PRIMARY KEY (application_id)"
+      },
+      {
+        "conname": "job_application_status_enum",
+        "contype": "c",
+        "def": "CHECK ((status = ANY (ARRAY['applied'::text, 'withdrawn'::text, 'rejected'::text, 'accepted'::text])))"
+      },
+      {
+        "conname": "job_application_status_not_null",
+        "contype": "n",
+        "def": "NOT NULL status"
+      },
+      {
+        "conname": "job_application_time_created_not_null",
+        "contype": "n",
+        "def": "NOT NULL time_created"
+      },
+      {
+        "conname": "job_application_time_updated_not_null",
+        "contype": "n",
+        "def": "NOT NULL time_updated"
+      },
+      {
+        "conname": "job_application_worker_fk",
+        "contype": "f",
+        "def": "FOREIGN KEY (worker_uid) REFERENCES users(uid)"
+      },
+      {
+        "conname": "job_application_worker_uid_not_null",
+        "contype": "n",
+        "def": "NOT NULL worker_uid"
+      }
+    ],
+    "indexes": [
+      {
+        "indexname": "idx_job_application_worker",
+        "indexdef": "CREATE INDEX idx_job_application_worker ON public.job_application USING btree (worker_uid, time_created DESC)"
+      },
+      {
+        "indexname": "job_application_create_key_uniq",
+        "indexdef": "CREATE UNIQUE INDEX job_application_create_key_uniq ON public.job_application USING btree (create_key)"
+      },
+      {
+        "indexname": "job_application_job_worker_uniq",
+        "indexdef": "CREATE UNIQUE INDEX job_application_job_worker_uniq ON public.job_application USING btree (job_id, worker_uid)"
+      },
+      {
+        "indexname": "job_application_pk",
+        "indexdef": "CREATE UNIQUE INDEX job_application_pk ON public.job_application USING btree (application_id)"
+      },
+      {
+        "indexname": "uniq_job_application_accepted",
+        "indexdef": "CREATE UNIQUE INDEX uniq_job_application_accepted ON public.job_application USING btree (job_id) WHERE (status = 'accepted'::text)"
+      }
+    ],
+    "triggers": [
+      {
+        "tgname": "trg_job_application_create_key_guard",
+        "tgenabled": "O",
+        "proname": "job_application_create_key_guard"
+      },
+      {
+        "tgname": "trg_job_application_no_delete",
+        "tgenabled": "O",
+        "proname": "job_application_no_delete"
+      },
+      {
+        "tgname": "trg_job_application_status_guard",
+        "tgenabled": "O",
+        "proname": "job_application_status_guard"
+      },
+      {
+        "tgname": "trg_job_application_touch_time_updated",
+        "tgenabled": "O",
+        "proname": "job_application_touch_time_updated"
+      }
+    ]
+  },
+  "job_submission": {
+    "exists": true,
+    "columns": [
+      {
+        "column_name": "submission_id",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "job_id",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "worker_uid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "deliverable",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "review_status",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "'pending'::text"
+      },
+      {
+        "column_name": "reviewed_by",
+        "data_type": "bigint",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "reviewed_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "review_memo",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "''::text"
+      },
+      {
+        "column_name": "create_key",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      }
+    ],
+    "constraints": [
+      {
+        "conname": "job_submission_create_key_not_null",
+        "contype": "n",
+        "def": "NOT NULL create_key"
+      },
+      {
+        "conname": "job_submission_create_key_uniq",
+        "contype": "u",
+        "def": "UNIQUE (create_key)"
+      },
+      {
+        "conname": "job_submission_deliverable_not_null",
+        "contype": "n",
+        "def": "NOT NULL deliverable"
+      },
+      {
+        "conname": "job_submission_job_fk",
+        "contype": "f",
+        "def": "FOREIGN KEY (job_id) REFERENCES job(job_id)"
+      },
+      {
+        "conname": "job_submission_job_id_not_null",
+        "contype": "n",
+        "def": "NOT NULL job_id"
+      },
+      {
+        "conname": "job_submission_pk",
+        "contype": "p",
+        "def": "PRIMARY KEY (submission_id)"
+      },
+      {
+        "conname": "job_submission_review_memo_not_null",
+        "contype": "n",
+        "def": "NOT NULL review_memo"
+      },
+      {
+        "conname": "job_submission_review_status_enum",
+        "contype": "c",
+        "def": "CHECK ((review_status = ANY (ARRAY['pending'::text, 'approved'::text, 'rejected'::text])))"
+      },
+      {
+        "conname": "job_submission_review_status_not_null",
+        "contype": "n",
+        "def": "NOT NULL review_status"
+      },
+      {
+        "conname": "job_submission_reviewed_by_fk",
+        "contype": "f",
+        "def": "FOREIGN KEY (reviewed_by) REFERENCES users(uid)"
+      },
+      {
+        "conname": "job_submission_submission_id_not_null",
+        "contype": "n",
+        "def": "NOT NULL submission_id"
+      },
+      {
+        "conname": "job_submission_time_created_not_null",
+        "contype": "n",
+        "def": "NOT NULL time_created"
+      },
+      {
+        "conname": "job_submission_worker_fk",
+        "contype": "f",
+        "def": "FOREIGN KEY (worker_uid) REFERENCES users(uid)"
+      },
+      {
+        "conname": "job_submission_worker_uid_not_null",
+        "contype": "n",
+        "def": "NOT NULL worker_uid"
+      }
+    ],
+    "indexes": [
+      {
+        "indexname": "idx_job_submission_job",
+        "indexdef": "CREATE INDEX idx_job_submission_job ON public.job_submission USING btree (job_id, time_created DESC)"
+      },
+      {
+        "indexname": "idx_job_submission_review",
+        "indexdef": "CREATE INDEX idx_job_submission_review ON public.job_submission USING btree (review_status, time_created DESC)"
+      },
+      {
+        "indexname": "idx_job_submission_worker",
+        "indexdef": "CREATE INDEX idx_job_submission_worker ON public.job_submission USING btree (worker_uid, time_created DESC)"
+      },
+      {
+        "indexname": "job_submission_create_key_uniq",
+        "indexdef": "CREATE UNIQUE INDEX job_submission_create_key_uniq ON public.job_submission USING btree (create_key)"
+      },
+      {
+        "indexname": "job_submission_pk",
+        "indexdef": "CREATE UNIQUE INDEX job_submission_pk ON public.job_submission USING btree (submission_id)"
+      }
+    ],
+    "triggers": [
+      {
+        "tgname": "trg_job_submission_immutable_guard",
+        "tgenabled": "O",
+        "proname": "job_submission_immutable_guard"
+      },
+      {
+        "tgname": "trg_job_submission_no_delete",
+        "tgenabled": "O",
+        "proname": "job_submission_no_delete"
+      }
+    ]
+  }
+}

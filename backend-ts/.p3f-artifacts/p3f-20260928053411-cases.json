@@ -1,0 +1,237 @@
+{
+  "run": "20260928053411",
+  "label": "cases",
+  "at": "2026-09-28T05:48:50.605Z",
+  "probe": "P3F-01-CASES",
+  "run_tag": "20260928053411",
+  "repo": "/Users/kevin/bistro/seafood/backend-ts",
+  "fixture": {
+    "employer": "31",
+    "workers": [
+      "32",
+      "33",
+      "34"
+    ],
+    "job": "105",
+    "status_job": "106"
+  },
+  "transactional": {
+    "begin": true,
+    "ended_with": "ROLLBACK",
+    "residual_rows_for_fixture_jobs": "0"
+  },
+  "checks": [
+    {
+      "id": "C1",
+      "name": "同一 (job_id,worker_uid) 二次报名 ⇒ UNIQUE(job_id,worker_uid) 拒绘",
+      "pass": true,
+      "readout": {
+        "first_insert": {
+          "application_id": "22",
+          "create_key": "cli:p3f-20260928053411-apply-a1"
+        },
+        "second": {
+          "label": "dup-job-worker",
+          "rejected": true,
+          "sqlstate": "23505",
+          "constraint": "job_application_job_worker_uniq",
+          "reason": null,
+          "message": "duplicate key value violates unique constraint \"job_application_job_worker_uniq\""
+        }
+      }
+    },
+    {
+      "id": "C2",
+      "name": "同一 job 第二条 accepted ⇒ 部分唯一索引 uniq_job_application_accepted 拒绘（恰一条 accepted）",
+      "pass": true,
+      "readout": {
+        "second_accept": {
+          "label": "second-accept",
+          "rejected": true,
+          "sqlstate": "23505",
+          "constraint": "uniq_job_application_accepted",
+          "reason": null,
+          "message": "duplicate key value violates unique constraint \"uniq_job_application_accepted\""
+        },
+        "accepted_count": "1",
+        "accepted_application_id": "24"
+      }
+    },
+    {
+      "id": "C3",
+      "name": "job_application.status 白名单：正全集全通 + 负全集全拒（LD011 + JOB_APPLICATION_STATE_INVALID）",
+      "pass": true,
+      "readout": {
+        "positive": [
+          {
+            "to": "accepted",
+            "ok": true,
+            "status": "accepted"
+          },
+          {
+            "to": "rejected",
+            "ok": true,
+            "status": "rejected"
+          },
+          {
+            "to": "withdrawn",
+            "ok": true,
+            "status": "withdrawn"
+          }
+        ],
+        "negative": [
+          {
+            "from": "accepted",
+            "to": "applied",
+            "rejected": true,
+            "sqlstate": "LD011",
+            "reason": "JOB_APPLICATION_STATE_INVALID"
+          },
+          {
+            "from": "accepted",
+            "to": "rejected",
+            "rejected": true,
+            "sqlstate": "LD011",
+            "reason": "JOB_APPLICATION_STATE_INVALID"
+          },
+          {
+            "from": "accepted",
+            "to": "withdrawn",
+            "rejected": true,
+            "sqlstate": "LD011",
+            "reason": "JOB_APPLICATION_STATE_INVALID"
+          },
+          {
+            "from": "rejected",
+            "to": "accepted",
+            "rejected": true,
+            "sqlstate": "LD011",
+            "reason": "JOB_APPLICATION_STATE_INVALID"
+          },
+          {
+            "from": "rejected",
+            "to": "withdrawn",
+            "rejected": true,
+            "sqlstate": "LD011",
+            "reason": "JOB_APPLICATION_STATE_INVALID"
+          },
+          {
+            "from": "withdrawn",
+            "to": "accepted",
+            "rejected": true,
+            "sqlstate": "LD011",
+            "reason": "JOB_APPLICATION_STATE_INVALID"
+          }
+        ]
+      }
+    },
+    {
+      "id": "C4",
+      "name": "job_submission：review_status 白名单（CHECK 23514）+ 结论冻结 + deliverable/create_key 不可变 + 重复提交拒",
+      "pass": false,
+      "readout": {
+        "bad_review_status": {
+          "label": "bad-review-status",
+          "rejected": true,
+          "sqlstate": "LD011",
+          "constraint": null,
+          "reason": "job_review_status_invalid",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "mutate_deliverable": {
+          "label": "mutate-deliverable",
+          "rejected": true,
+          "sqlstate": "LD011",
+          "constraint": null,
+          "reason": "job_submission_core_immutable",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "flip_verdict": {
+          "label": "flip-verdict",
+          "rejected": true,
+          "sqlstate": "LD011",
+          "constraint": null,
+          "reason": "job_review_status_invalid",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "mutate_reviewed_by": {
+          "label": "mutate-reviewed-by",
+          "rejected": true,
+          "sqlstate": "LD011",
+          "constraint": null,
+          "reason": "job_review_immutable",
+          "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+        },
+        "dup_create_key": {
+          "label": "dup-create-key",
+          "rejected": true,
+          "sqlstate": "23505",
+          "constraint": "job_submission_create_key_uniq",
+          "reason": null,
+          "message": "duplicate key value violates unique constraint \"job_submission_create_key_uniq\""
+        },
+        "final": {
+          "submission_id": "3",
+          "job_id": "105",
+          "worker_uid": "32",
+          "deliverable": "交付物链接",
+          "review_status": "approved",
+          "reviewed_by": "31",
+          "reviewed_at": "2026-09-28 05:48:32.281745+00",
+          "review_memo": "ok",
+          "create_key": "cli:p3f-20260928053411-submit-s1",
+          "time_created": "2026-09-28 05:48:32.281745+00"
+        }
+      }
+    },
+    {
+      "id": "C5",
+      "name": "create_key 幂等：同键重放被 UNIQUE(create_key) 拒（不双写；200 重放语义属路由层，本片不建）",
+      "pass": true,
+      "readout": {
+        "first": {
+          "application_id": "29"
+        },
+        "replay": {
+          "label": "replay-same-create-key",
+          "rejected": true,
+          "sqlstate": "23505",
+          "constraint": "job_application_create_key_uniq",
+          "reason": null,
+          "message": "duplicate key value violates unique constraint \"job_application_create_key_uniq\""
+        },
+        "rows_with_key": "1"
+      }
+    },
+    {
+      "id": "C6",
+      "name": "边界：不存在的 job_id ⇒ FK 23503；自雇（worker=employer）DB 层**允许**（spec 无 DB 级禁止）；create_key 异内容 ⇒ 23505",
+      "pass": true,
+      "readout": {
+        "nonexistent_job": {
+          "label": "nonexistent-job",
+          "rejected": true,
+          "sqlstate": "23503",
+          "constraint": "job_application_job_fk",
+          "reason": null,
+          "message": "insert or update on table \"job_application\" violates foreign key constraint \"job_application_job_fk\""
+        },
+        "self_apply_allowed": true,
+        "create_key_diff_content": {
+          "label": "create-key-diff-content",
+          "rejected": true,
+          "sqlstate": "23505",
+          "constraint": "job_application_create_key_uniq",
+          "reason": null,
+          "message": "duplicate key value violates unique constraint \"job_application_create_key_uniq\""
+        },
+        "note": "spec DL54/DL55 未定义「自雇」DB 级禁止 ⇒ 实测为允许（属路由/应用层约束，本片不越权加约束）"
+      }
+    }
+  ],
+  "pass_count": 5,
+  "fail_count": 1,
+  "failed": [
+    "C4"
+  ]
+}

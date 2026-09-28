@@ -1,0 +1,109 @@
+{
+  "run": "20260928055200",
+  "label": "concurrency-and-negative",
+  "at": "2026-09-28T05:51:30.477Z",
+  "probe": "P3F-02-CONCURRENCY-AND-NEGATIVE",
+  "run_tag": "20260928055200",
+  "repo": "/Users/kevin/bistro/seafood/backend-ts",
+  "scratch_dir": "/Users/kevin/.hermes/profiles/zang/cache/scratch/p3f-20260928055200",
+  "pristine_file": "migrations/0014_job_flow.sql",
+  "pristine_sha256": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d",
+  "index_name": "uniq_job_application_accepted",
+  "indexdef_pristine": "CREATE UNIQUE INDEX uniq_job_application_accepted ON public.job_application USING btree (job_id) WHERE (status = 'accepted'::text)",
+  "fixture": {
+    "job": "111",
+    "applications": [
+      "60",
+      "61"
+    ]
+  },
+  "checks": [
+    {
+      "id": "F1",
+      "name": "真并发（有部分唯一索引）：conn2 被索引互斥阻塞 ⇒ statement_timeout 取消（57014），零 accepted 落库",
+      "pass": true,
+      "readout": {
+        "ruler": {
+          "label": "green-1",
+          "dt_ms": 1679,
+          "conn2": {
+            "ok": false,
+            "sqlstate": "57014",
+            "constraint": null,
+            "message": "canceling statement due to statement timeout"
+          },
+          "blocked": true
+        },
+        "note": "conn1 未提交即持有 accepted 索引项；conn2 等待其事务 ⇒ 证明唯一索引在**并发**下串行化 accept"
+      }
+    },
+    {
+      "id": "F2",
+      "name": "判负自证：拿掉部分唯一索引 ⇒ 尺子必红（conn2 立即成功，两行 accepted 并存）",
+      "pass": true,
+      "readout": {
+        "index_after_drop": null,
+        "tamper_file": "../../../.hermes/profiles/zang/cache/scratch/p3f-20260928055200/0014_job_flow.NO_PARTIAL_UNIQUE_INDEX.sql",
+        "ruler": {
+          "label": "red-1",
+          "dt_ms": 168,
+          "conn2": {
+            "ok": true,
+            "sqlstate": null,
+            "constraint": null
+          },
+          "blocked": false
+        },
+        "note": "DROP INDEX 复现「迁移未建该索引」态；scratch 改写件留存为证（sha256 见下）"
+      }
+    },
+    {
+      "id": "F3",
+      "name": "按迁移原文重建部分唯一索引 ⇒ indexdef 与 drop 前逐字符相等 + 尺子回绿",
+      "pass": true,
+      "readout": {
+        "indexdef_before": "CREATE UNIQUE INDEX uniq_job_application_accepted ON public.job_application USING btree (job_id) WHERE (status = 'accepted'::text)",
+        "indexdef_after_restore": "CREATE UNIQUE INDEX uniq_job_application_accepted ON public.job_application USING btree (job_id) WHERE (status = 'accepted'::text)",
+        "indexdef_equal": true,
+        "ruler": {
+          "label": "green-after-restore",
+          "dt_ms": 2060,
+          "conn2": {
+            "ok": false,
+            "sqlstate": "57014",
+            "constraint": null,
+            "message": "canceling statement due to statement timeout"
+          },
+          "blocked": true
+        }
+      }
+    },
+    {
+      "id": "F4",
+      "name": "主工作区迁移文件未被碰（sha256/字节/mtime 前后相等）",
+      "pass": true,
+      "readout": {
+        "path": "migrations/0014_job_flow.sql",
+        "sha256_before": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d",
+        "sha256_after": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d",
+        "bytes_before": 24484,
+        "bytes_after": 24484,
+        "mtime_before": "2026-09-28T05:33:45.625Z",
+        "mtime_after": "2026-09-28T05:33:45.625Z",
+        "tamper_scratch_sha256": "40a78d34946f159c71d7b62587216778910395adfe3ffb9040f72d35e1962790",
+        "tamper_pristine_delta_bytes": 53
+      }
+    },
+    {
+      "id": "F5",
+      "name": "库终态：部分唯一索引在位（与迁移原文一致）",
+      "pass": true,
+      "readout": {
+        "indexdef_final": "CREATE UNIQUE INDEX uniq_job_application_accepted ON public.job_application USING btree (job_id) WHERE (status = 'accepted'::text)"
+      }
+    }
+  ],
+  "pass_count": 5,
+  "fail_count": 0,
+  "failed": []
+}

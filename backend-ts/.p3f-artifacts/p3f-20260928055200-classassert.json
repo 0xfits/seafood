@@ -1,0 +1,3896 @@
+{
+  "probe": "P3S1B-01-CLASS-ASSERT-RUNTIME-DDL",
+  "label": "p3f-20260928055200",
+  "root": "/Users/kevin/bistro/seafood/backend-ts",
+  "ts": "2026-09-28T05:51:44.772Z",
+  "scan_surfaces": [
+    {
+      "id": "request-src",
+      "key": "request",
+      "dir": "src",
+      "note": "请求路径：tsconfig rootDir=./src / main=dist/index.js ⇒ 进 API 进程",
+      "files": 8
+    },
+    {
+      "id": "nonreq-scripts",
+      "key": "non-request",
+      "dir": "scripts",
+      "note": "非请求路径：tsconfig.scripts.json(noEmit)，工具脚本不入 bundle",
+      "files": 105
+    },
+    {
+      "id": "nonreq-migrations",
+      "key": "non-request",
+      "dir": "migrations",
+      "note": "非请求路径：迁移文书（SQL 文件，非运行期代码）",
+      "files": 14
+    }
+  ],
+  "class_count": 25,
+  "class_enumeration": [
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "pattern": "(?<![\\w.])CREATE\\s+(?:TEMP(?:ORARY)?\\s+|UNLOGGED\\s+)?TABLE\\b",
+      "hits_total": 20,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 20
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "pattern": "(?<![\\w.])CREATE\\s+(?:UNIQUE\\s+)?INDEX\\b",
+      "hits_total": 30,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 30
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "pattern": "(?<![\\w.])CREATE\\s+(?:OR\\s+REPLACE\\s+)?FUNCTION\\b",
+      "hits_total": 72,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 72
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "pattern": "(?<![\\w.])ALTER\\s+TABLE\\b",
+      "hits_total": 60,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 60
+    },
+    {
+      "class_id": "C05",
+      "class_name": "DROP TABLE",
+      "pattern": "(?<![\\w.])DROP\\s+TABLE\\b",
+      "hits_total": 9,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 9
+    },
+    {
+      "class_id": "C06",
+      "class_name": "DROP INDEX",
+      "pattern": "(?<![\\w.])DROP\\s+INDEX\\b",
+      "hits_total": 5,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 5
+    },
+    {
+      "class_id": "C07",
+      "class_name": "TRUNCATE",
+      "pattern": "(?<![\\w.])TRUNCATE\\b",
+      "hits_total": 11,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 11
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "pattern": "\\bdo\\s+\\$",
+      "hits_total": 23,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 23
+    },
+    {
+      "class_id": "C09",
+      "class_name": "RENAME TO",
+      "pattern": "(?<![\\w.])RENAME\\s+TO\\b",
+      "hits_total": 8,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 8
+    },
+    {
+      "class_id": "C10",
+      "class_name": "to_regclass",
+      "pattern": "(?<![\\w.])to_regclass\\b",
+      "hits_total": 16,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 16
+    },
+    {
+      "class_id": "C11",
+      "class_name": "ALTER INDEX",
+      "pattern": "(?<![\\w.])ALTER\\s+INDEX\\b",
+      "hits_total": 2,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 2
+    },
+    {
+      "class_id": "C12",
+      "class_name": "ALTER FUNCTION",
+      "pattern": "(?<![\\w.])ALTER\\s+(?:FUNCTION|PROCEDURE)\\b",
+      "hits_total": 1,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 1
+    },
+    {
+      "class_id": "C13",
+      "class_name": "DROP FUNCTION",
+      "pattern": "(?<![\\w.])DROP\\s+(?:FUNCTION|PROCEDURE)\\b",
+      "hits_total": 1,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 1
+    },
+    {
+      "class_id": "C14",
+      "class_name": "CREATE SCHEMA",
+      "pattern": "(?<![\\w.])CREATE\\s+SCHEMA\\b",
+      "hits_total": 2,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 2
+    },
+    {
+      "class_id": "C15",
+      "class_name": "DROP SCHEMA",
+      "pattern": "(?<![\\w.])DROP\\s+SCHEMA\\b",
+      "hits_total": 3,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 3
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "pattern": "(?<![\\w.])CREATE\\s+(?:OR\\s+REPLACE\\s+)?TRIGGER\\b",
+      "hits_total": 20,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 20
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "pattern": "(?<![\\w.])DROP\\s+TRIGGER\\b",
+      "hits_total": 20,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 20
+    },
+    {
+      "class_id": "C18",
+      "class_name": "CREATE/ALTER/DROP SEQUENCE",
+      "pattern": "(?<![\\w.])(?:CREATE|ALTER|DROP)\\s+SEQUENCE\\b",
+      "hits_total": 2,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 2
+    },
+    {
+      "class_id": "C19",
+      "class_name": "CREATE/ALTER/DROP TYPE",
+      "pattern": "(?<![\\w.])(?:CREATE|ALTER|DROP)\\s+TYPE\\b",
+      "hits_total": 4,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 4
+    },
+    {
+      "class_id": "C20",
+      "class_name": "CREATE/ALTER/DROP VIEW",
+      "pattern": "(?<![\\w.])(?:CREATE|ALTER|DROP)\\s+(?:OR\\s+REPLACE\\s+)?(?:MATERIALIZED\\s+)?VIEW\\b",
+      "hits_total": 1,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 1
+    },
+    {
+      "class_id": "C21",
+      "class_name": "CREATE EXTENSION",
+      "pattern": "(?<![\\w.])CREATE\\s+EXTENSION\\b",
+      "hits_total": 1,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 1
+    },
+    {
+      "class_id": "C22",
+      "class_name": "CREATE/ALTER/DROP POLICY",
+      "pattern": "(?<![\\w.])(?:CREATE|ALTER|DROP)\\s+POLICY\\b",
+      "hits_total": 1,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 1
+    },
+    {
+      "class_id": "C23",
+      "class_name": "ADD CONSTRAINT / ALTER COLUMN",
+      "pattern": "(?<![\\w.])ADD\\s+CONSTRAINT\\b|(?<![\\w.])ALTER\\s+COLUMN\\b",
+      "hits_total": 4,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 4
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "pattern": "(?<![\\w.])COMMENT\\s+ON\\b",
+      "hits_total": 47,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 47
+    },
+    {
+      "class_id": "C25",
+      "class_name": "GRANT / REVOKE",
+      "pattern": "(?<![\\w.])(?:GRANT|REVOKE)\\b",
+      "hits_total": 4,
+      "hits_request_path": 0,
+      "hits_should_be_zero": 0,
+      "hits_allowed_comment_on_req": 0,
+      "hits_non_request_allowed": 4
+    }
+  ],
+  "files_scanned": [
+    "src/auth.ts",
+    "src/commission.ts",
+    "src/database.ts",
+    "src/db.ts",
+    "src/index.ts",
+    "src/ledger-errors.ts",
+    "src/ledger.ts",
+    "src/simple-test.ts",
+    "scripts/inspect-schema.ts",
+    "scripts/ledger-smoke-db.ts",
+    "scripts/ledger-smoke.ts",
+    "scripts/migrate.ts",
+    "scripts/ns-alloc.ts",
+    "scripts/p1c-00-probe-schema.ts",
+    "scripts/p1c-01-inventory-pre.ts",
+    "scripts/p1c-02-pool-overload.ts",
+    "scripts/p1c-03-errcause-classify.ts",
+    "scripts/p1c-04-kind-enum-verify.ts",
+    "scripts/p1c-06-post-verify.ts",
+    "scripts/p1e-00-state.ts",
+    "scripts/p1e-01-latency.ts",
+    "scripts/p1e-03-apply-0004-raw.ts",
+    "scripts/p1e-04-db-fn-probe.ts",
+    "scripts/p1e-05-inventory.ts",
+    "scripts/p1e-lib.ts",
+    "scripts/p1f-00-probe-env.ts",
+    "scripts/p1f-01-f1-collision.ts",
+    "scripts/p1f-02-f2-malformed.ts",
+    "scripts/p1f-03-f3-timeouts.ts",
+    "scripts/p1f-lib.ts",
+    "scripts/p1i-forget-migration.ts",
+    "scripts/p1j-read.ts",
+    "scripts/p1n-00-cid-shape.ts",
+    "scripts/p1o-00-escape-sweep.ts",
+    "scripts/p1t-00-bind-protocol-guard.ts",
+    "scripts/p1v-00-trigger-enablement-guard-assert.ts",
+    "scripts/p2b-00-probe-schema.ts",
+    "scripts/p2b-01-forensics.ts",
+    "scripts/p2b-02-cases.ts",
+    "scripts/p2b-03-summary.ts",
+    "scripts/p2c-00-code-roundtrip.ts",
+    "scripts/p2d-00-commission-m-criteria.ts",
+    "scripts/p2d-01-testdata-depth-repair.ts",
+    "scripts/p2qa-00-baseline.ts",
+    "scripts/p2qa-01-sigma-conservation.ts",
+    "scripts/p2qa-02-rounding-renorm.ts",
+    "scripts/p2qa-03-chain-depth-guard.ts",
+    "scripts/p2qa-04-idempotency-policy.ts",
+    "scripts/p2qa-05-cycle3-and-order.ts",
+    "scripts/p2qa-06-levels10-tail.ts",
+    "scripts/p2qa-10-baseline-migration.ts",
+    "scripts/p2qa-11-f1-f7.ts",
+    "scripts/p2qa-12-f3-f6-f2.ts",
+    "scripts/p2qa-13-assert-matrix.ts",
+    "scripts/p2qa-14-replay-guard.ts",
+    "scripts/p2qa-15-final-state.ts",
+    "scripts/p2qa-lib.ts",
+    "scripts/p2w-00-p2fix-verify.ts",
+    "scripts/p2w-00-probe-state.ts",
+    "scripts/p2w-01-ns-allocator-probe.ts",
+    "scripts/p2w-02-migration-dry-run.ts",
+    "scripts/p2w-03-ledger-replay-balance-gate.ts",
+    "scripts/p2w-04-migration-state.ts",
+    "scripts/p2w-lib.ts",
+    "scripts/p2x-00-idempotency-replay-order.ts",
+    "scripts/p2x-01-migration-dry-run.ts",
+    "scripts/p2x-02-concurrency-same-key.ts",
+    "scripts/p2x-lib.ts",
+    "scripts/p3f-00-fingerprint.ts",
+    "scripts/p3f-01-cases.ts",
+    "scripts/p3f-02-concurrency-and-negative.ts",
+    "scripts/p3f-dbg.ts",
+    "scripts/p3f-lib.ts",
+    "scripts/p3j-01-schema-fingerprint.ts",
+    "scripts/p3j-02-cases.ts",
+    "scripts/p3j-03-concurrency-and-negative.ts",
+    "scripts/p3j-lib.ts",
+    "scripts/p3s1-00-db-state.ts",
+    "scripts/p3s1-01-get-matrix.ts",
+    "scripts/p3s1-02-drop-lazy-tables.ts",
+    "scripts/p3s1b-00-catalog-state.ts",
+    "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+    "scripts/probe-tx.ts",
+    "scripts/purge-test-data.ts",
+    "scripts/qa-p1b-00-env.ts",
+    "scripts/qa-p1b-01-setup.ts",
+    "scripts/qa-p1b-02-conserve-hot.ts",
+    "scripts/qa-p1b-03-idem.ts",
+    "scripts/qa-p1b-04-negative.ts",
+    "scripts/qa-p1b-05-supplycap.ts",
+    "scripts/qa-p1b-06-lock-deadlock.ts",
+    "scripts/qa-p1b-07-falsify.ts",
+    "scripts/qa-p1b-08-txproof.ts",
+    "scripts/qa-p1b-10-errcause.ts",
+    "scripts/qa-p1b-11-rawerr.ts",
+    "scripts/qa-p1b-12-inventory.ts",
+    "scripts/qa-p1b-lib.ts",
+    "scripts/qa-p1e-00-baseline.ts",
+    "scripts/qa-p1e-01-concurrency.ts",
+    "scripts/qa-p1e-01b-sweep-high.ts",
+    "scripts/qa-p1e-02-idem-collision.ts",
+    "scripts/qa-p1e-02b-api-collision.ts",
+    "scripts/qa-p1e-03-malformed.ts",
+    "scripts/qa-p1e-04-locktimeout-deadlock.ts",
+    "scripts/qa-p1e-04b-statement-timeout.ts",
+    "scripts/qa-p1e-04c-statement-timeout-mechanism.ts",
+    "scripts/qa-p1e-05-neon-ab.ts",
+    "scripts/qa-p1e-06-falsify.ts",
+    "scripts/qa-p1e-07-inventory.ts",
+    "scripts/qa-p1e-08-surface.ts",
+    "scripts/qa-p1e-09-migration-replay.ts",
+    "scripts/qa-p1e-lib.ts",
+    "scripts/verify-db-layer.ts",
+    "migrations/0001_ledger_core.sql",
+    "migrations/0002_user_identity.sql",
+    "migrations/0003_kind_close_set_20.sql",
+    "migrations/0004_ledger_post_event.sql",
+    "migrations/0005_ledger_event_root_key.sql",
+    "migrations/0006_user_to_users.sql",
+    "migrations/0007_referral_and_commission_policy.sql",
+    "migrations/0008_platform_revenue_job_fee.sql",
+    "migrations/0009_ledger_error_reverse_map_complete.sql",
+    "migrations/0010_referral_bind_protocol_guard.sql",
+    "migrations/0011_commission_assert_closure_and_referral_depth_guard.sql",
+    "migrations/0012_replay_pre_gate_before_balance_gate.sql",
+    "migrations/0013_job.sql",
+    "migrations/0014_job_flow.sql"
+  ],
+  "files_scanned_count": 127,
+  "source_fingerprint_sha256_request_path": "fc1045a0f39979ae8ac4f64b3dadf685d0cc3bb7848d48a037b978805f3ab8c3",
+  "source_hashes": [
+    {
+      "file": "src/auth.ts",
+      "surface": "request",
+      "bytes": 6548,
+      "lines": 213,
+      "sha256": "7a95c4b05d1dc271107c011ae047a95675d129b795bcb162b0201e02b5886299"
+    },
+    {
+      "file": "src/commission.ts",
+      "surface": "request",
+      "bytes": 60774,
+      "lines": 1217,
+      "sha256": "7b5ff9b36bfd7a34899145e7c1c5e61fe9522a8c446c82ae522b9efa5bf48d02"
+    },
+    {
+      "file": "src/database.ts",
+      "surface": "request",
+      "bytes": 87413,
+      "lines": 2743,
+      "sha256": "b40e94ad419664c85279aba3099dfed1e60d5c4b12c44323e5300ca1a8db6b01"
+    },
+    {
+      "file": "src/db.ts",
+      "surface": "request",
+      "bytes": 9823,
+      "lines": 266,
+      "sha256": "b240787f80c2dfdb6633b2c3b2f6595e7bb2fbe9a7cceade1248677ef4f454f3"
+    },
+    {
+      "file": "src/index.ts",
+      "surface": "request",
+      "bytes": 32868,
+      "lines": 1105,
+      "sha256": "5e3767298a4e5e1e8af1e50d128ad8b48a2bf477b55b1ee65a1a54aaf85f0e3b"
+    },
+    {
+      "file": "src/ledger-errors.ts",
+      "surface": "request",
+      "bytes": 25844,
+      "lines": 466,
+      "sha256": "721156cbf296b19c7c4a480264f88b49878d99104b8f87453bafce564745df8b"
+    },
+    {
+      "file": "src/ledger.ts",
+      "surface": "request",
+      "bytes": 76856,
+      "lines": 1513,
+      "sha256": "cb7ef5c8b7c6166c3d4f2620a2b141b91dae8cf45f73ba301037be114d0377d7"
+    },
+    {
+      "file": "src/simple-test.ts",
+      "surface": "request",
+      "bytes": 826,
+      "lines": 30,
+      "sha256": "00035a1b03a355c555b266bee9c20324f7a107d0b1aaa9c6b256d640bb47a2ae"
+    },
+    {
+      "file": "scripts/inspect-schema.ts",
+      "surface": "non-request",
+      "bytes": 3479,
+      "lines": 76,
+      "sha256": "754d07f1d1e6ea2a2246b57a7d7b551df0d6c718e34c55293cbf0f3c8117be3c"
+    },
+    {
+      "file": "scripts/ledger-smoke-db.ts",
+      "surface": "non-request",
+      "bytes": 18355,
+      "lines": 346,
+      "sha256": "51aae84771efe08258f474d53337042ea6b3d3bd56aab06bf17f9cc136fca257"
+    },
+    {
+      "file": "scripts/ledger-smoke.ts",
+      "surface": "non-request",
+      "bytes": 21543,
+      "lines": 384,
+      "sha256": "51123050eca4c89582cbbabfc5ca025c972393600de91bddb66b499dc3b785e0"
+    },
+    {
+      "file": "scripts/migrate.ts",
+      "surface": "non-request",
+      "bytes": 5434,
+      "lines": 140,
+      "sha256": "8b05fd01b796e1d908e78a7989c8161ff0cff3c34f5a9a31aff14e7a305b81ca"
+    },
+    {
+      "file": "scripts/ns-alloc.ts",
+      "surface": "non-request",
+      "bytes": 21938,
+      "lines": 370,
+      "sha256": "93cda9444f3fed71f7f587a51f5f32cab5f2cc13eed7579188c3d220fd740143"
+    },
+    {
+      "file": "scripts/p1c-00-probe-schema.ts",
+      "surface": "non-request",
+      "bytes": 3416,
+      "lines": 89,
+      "sha256": "2967a739d41e791b36671371e152ed38e76f6cadcb741540a331f93ee6ca9e18"
+    },
+    {
+      "file": "scripts/p1c-01-inventory-pre.ts",
+      "surface": "non-request",
+      "bytes": 4895,
+      "lines": 110,
+      "sha256": "bad57fb7ad83ed9534359b41a0b0e708ddaea65b3bfedf50c9fd1342c0cc6077"
+    },
+    {
+      "file": "scripts/p1c-02-pool-overload.ts",
+      "surface": "non-request",
+      "bytes": 4293,
+      "lines": 112,
+      "sha256": "4e467b82cf1070cad664505fd8fbaa2ab5cb213654c85d5f3b399149aa73863b"
+    },
+    {
+      "file": "scripts/p1c-03-errcause-classify.ts",
+      "surface": "non-request",
+      "bytes": 3234,
+      "lines": 58,
+      "sha256": "01225c2e0ff523d26fe7f52e40e44e6026966304dd0771e8dec590d76f133985"
+    },
+    {
+      "file": "scripts/p1c-04-kind-enum-verify.ts",
+      "surface": "non-request",
+      "bytes": 4505,
+      "lines": 104,
+      "sha256": "ea9d104fa1680e2e835fa5d30a6a4ed04667f8037fd5b45a342470bbb09eb463"
+    },
+    {
+      "file": "scripts/p1c-06-post-verify.ts",
+      "surface": "non-request",
+      "bytes": 5310,
+      "lines": 111,
+      "sha256": "74b04ae8bd07bd9afcdc7994c6b53923a4d3f5ee86cded8840ecac3e537b4216"
+    },
+    {
+      "file": "scripts/p1e-00-state.ts",
+      "surface": "non-request",
+      "bytes": 2432,
+      "lines": 48,
+      "sha256": "8bbb11fc8e9558ab6b8d3a5dcca3bc073c2a930ea0a853f98bbdd92997861766"
+    },
+    {
+      "file": "scripts/p1e-01-latency.ts",
+      "surface": "non-request",
+      "bytes": 4247,
+      "lines": 106,
+      "sha256": "2c17552dbb5f4bf6ab86bc281ae72bac3584be901a81556ba60375a720b78081"
+    },
+    {
+      "file": "scripts/p1e-03-apply-0004-raw.ts",
+      "surface": "non-request",
+      "bytes": 3447,
+      "lines": 89,
+      "sha256": "32b7f22addc892379e530bd6dd718eaca834364caa386bd49f3d0fdfc57556a4"
+    },
+    {
+      "file": "scripts/p1e-04-db-fn-probe.ts",
+      "surface": "non-request",
+      "bytes": 20560,
+      "lines": 336,
+      "sha256": "a3303ca2fb30ac6a952c0da11b6c1fd5947b88dbea4527bf0715bbab9b6bcf83"
+    },
+    {
+      "file": "scripts/p1e-05-inventory.ts",
+      "surface": "non-request",
+      "bytes": 2942,
+      "lines": 61,
+      "sha256": "6336ab21fa9864b74214e6de8380fd270181c7125039913b031c82f21425749b"
+    },
+    {
+      "file": "scripts/p1e-lib.ts",
+      "surface": "non-request",
+      "bytes": 8335,
+      "lines": 197,
+      "sha256": "18121ffdb0cfa7240b82649012e04bc334c4d9ea346ec3a446271c2225fc44c5"
+    },
+    {
+      "file": "scripts/p1f-00-probe-env.ts",
+      "surface": "non-request",
+      "bytes": 6699,
+      "lines": 119,
+      "sha256": "87b60fff7f07792e321b10172d99af2d7ee07e9035eedbbfa3b9c9efcbac1d1f"
+    },
+    {
+      "file": "scripts/p1f-01-f1-collision.ts",
+      "surface": "non-request",
+      "bytes": 15007,
+      "lines": 263,
+      "sha256": "1c1a2b30424487eeadce0bdc5e02cd0055a740a04544fb580f0282c08a4dad1f"
+    },
+    {
+      "file": "scripts/p1f-02-f2-malformed.ts",
+      "surface": "non-request",
+      "bytes": 17981,
+      "lines": 241,
+      "sha256": "65199e591467c18c33505e60cdb0ec0972f8d752c2cc5e569bfd670f62c2bb05"
+    },
+    {
+      "file": "scripts/p1f-03-f3-timeouts.ts",
+      "surface": "non-request",
+      "bytes": 42066,
+      "lines": 727,
+      "sha256": "17e038eaade4af88d331b9775aec4725e6b30191fe51fe25b46fa0da1dd6aea8"
+    },
+    {
+      "file": "scripts/p1f-lib.ts",
+      "surface": "non-request",
+      "bytes": 9516,
+      "lines": 193,
+      "sha256": "faf16db7c6e9f33cc3adaf905e3b8b3dd13464e421b2f5a7ce23b67de88c2a01"
+    },
+    {
+      "file": "scripts/p1i-forget-migration.ts",
+      "surface": "non-request",
+      "bytes": 4839,
+      "lines": 101,
+      "sha256": "5c2fc6a7712aa013073dab1853d4d2a71ff227d4c1f2e81b75c1b5fa2d30681f"
+    },
+    {
+      "file": "scripts/p1j-read.ts",
+      "surface": "non-request",
+      "bytes": 7156,
+      "lines": 141,
+      "sha256": "0d4189479bc97a0ac6e0ae24dd7673b8135b5ed97b819f4d76d38f42da83a45e"
+    },
+    {
+      "file": "scripts/p1n-00-cid-shape.ts",
+      "surface": "non-request",
+      "bytes": 13751,
+      "lines": 231,
+      "sha256": "c2748bbb30e7e6e39de32cd4e44c847bc6a6ccadab2cdbea5e87bbbbd141a766"
+    },
+    {
+      "file": "scripts/p1o-00-escape-sweep.ts",
+      "surface": "non-request",
+      "bytes": 39528,
+      "lines": 701,
+      "sha256": "07c0e0aa3622ae3402cc0d7a25312c0159a41fa4d0b2986db6bbddc5625b694b"
+    },
+    {
+      "file": "scripts/p1t-00-bind-protocol-guard.ts",
+      "surface": "non-request",
+      "bytes": 36142,
+      "lines": 496,
+      "sha256": "9dde996864a009fc4e4dda8797a6944eab205911716e90a979c6af01469a4941"
+    },
+    {
+      "file": "scripts/p1v-00-trigger-enablement-guard-assert.ts",
+      "surface": "non-request",
+      "bytes": 22210,
+      "lines": 352,
+      "sha256": "0805ea509ffbe3af710a9427f09b67b1b42322025bf7c7d27945027bba172f95"
+    },
+    {
+      "file": "scripts/p2b-00-probe-schema.ts",
+      "surface": "non-request",
+      "bytes": 4165,
+      "lines": 66,
+      "sha256": "168508053be95e576adf3389df4db878e355d12e4b79ad33fb79c8fc3f4429f4"
+    },
+    {
+      "file": "scripts/p2b-01-forensics.ts",
+      "surface": "non-request",
+      "bytes": 13873,
+      "lines": 199,
+      "sha256": "0d632062446fe1da9c707e82bbfb7a1ff21a9f4701be730902f258143bbbc39f"
+    },
+    {
+      "file": "scripts/p2b-02-cases.ts",
+      "surface": "non-request",
+      "bytes": 17310,
+      "lines": 251,
+      "sha256": "9542eb7938531c168062c1e2757141f9de472b7dbb25696bbc16d4fa4648e6b9"
+    },
+    {
+      "file": "scripts/p2b-03-summary.ts",
+      "surface": "non-request",
+      "bytes": 2392,
+      "lines": 29,
+      "sha256": "9b925717ff41fc4cc6b97cfef71d38c39b248c6bf3e4dab95287912a24d9fee3"
+    },
+    {
+      "file": "scripts/p2c-00-code-roundtrip.ts",
+      "surface": "non-request",
+      "bytes": 33294,
+      "lines": 559,
+      "sha256": "0e2e9a0a9fde582aa9866f87e0f5faeaeb175f47786478353b028e59709c39bc"
+    },
+    {
+      "file": "scripts/p2d-00-commission-m-criteria.ts",
+      "surface": "non-request",
+      "bytes": 45562,
+      "lines": 660,
+      "sha256": "604dd413dfcfe20f9f4b1da3b22deb43a7883ee88cc4a7a371c5d4e950d53a4b"
+    },
+    {
+      "file": "scripts/p2d-01-testdata-depth-repair.ts",
+      "surface": "non-request",
+      "bytes": 5942,
+      "lines": 103,
+      "sha256": "d73c25b428bea467316d26d6895c6a2cc7b6c42b4899653577def13a0442850f"
+    },
+    {
+      "file": "scripts/p2qa-00-baseline.ts",
+      "surface": "non-request",
+      "bytes": 7589,
+      "lines": 135,
+      "sha256": "a860fc67419c2b5ad790c9ec9c5978625edd38d5b2a3b6ac0ed3366609ee877e"
+    },
+    {
+      "file": "scripts/p2qa-01-sigma-conservation.ts",
+      "surface": "non-request",
+      "bytes": 19399,
+      "lines": 286,
+      "sha256": "b6ee44b1fe5872332798096d3e7d37384fc9ac554c8d7bde97568ed66becc8ae"
+    },
+    {
+      "file": "scripts/p2qa-02-rounding-renorm.ts",
+      "surface": "non-request",
+      "bytes": 12974,
+      "lines": 215,
+      "sha256": "c04f57a88e816672758cd676bc7cbfd5634c37f6795eaa785f07eb729e775802"
+    },
+    {
+      "file": "scripts/p2qa-03-chain-depth-guard.ts",
+      "surface": "non-request",
+      "bytes": 21901,
+      "lines": 326,
+      "sha256": "c16cac07023d84f07598a6543a6f534043fc28b67422f773d8eb44bb6e115e45"
+    },
+    {
+      "file": "scripts/p2qa-04-idempotency-policy.ts",
+      "surface": "non-request",
+      "bytes": 13719,
+      "lines": 219,
+      "sha256": "6e71d89fcf5561a02f3342acb5bb5e702a34208aa64d00d4968ff193bc50d726"
+    },
+    {
+      "file": "scripts/p2qa-05-cycle3-and-order.ts",
+      "surface": "non-request",
+      "bytes": 12950,
+      "lines": 191,
+      "sha256": "a2c9849483d8cbd49db3aa64fc983c0f8797b19d5e437af942b2c23a63919e9b"
+    },
+    {
+      "file": "scripts/p2qa-06-levels10-tail.ts",
+      "surface": "non-request",
+      "bytes": 8965,
+      "lines": 142,
+      "sha256": "b8af87de3c10939e248677d643a9043174a819198b672936eea5dab3c029aa7c"
+    },
+    {
+      "file": "scripts/p2qa-10-baseline-migration.ts",
+      "surface": "non-request",
+      "bytes": 10362,
+      "lines": 178,
+      "sha256": "462f5461bcc8f4a9a46d04d6aec31df0a7a5958a3cb5d2bfdc6aec3d28e371ef"
+    },
+    {
+      "file": "scripts/p2qa-11-f1-f7.ts",
+      "surface": "non-request",
+      "bytes": 24016,
+      "lines": 366,
+      "sha256": "30906d7ac41faedfc94eb9f231d0dc3dff194782cdd8926396a1ccd7981e5e57"
+    },
+    {
+      "file": "scripts/p2qa-12-f3-f6-f2.ts",
+      "surface": "non-request",
+      "bytes": 16166,
+      "lines": 249,
+      "sha256": "81e547a1660d72768828ec30a8a5a7fa127696a86e29c836214d13ac3bda580f"
+    },
+    {
+      "file": "scripts/p2qa-13-assert-matrix.ts",
+      "surface": "non-request",
+      "bytes": 4808,
+      "lines": 76,
+      "sha256": "c2473ba92e03ef6360d54702f7a7fbd1adee2419f58b1b2c81649df756391bef"
+    },
+    {
+      "file": "scripts/p2qa-14-replay-guard.ts",
+      "surface": "non-request",
+      "bytes": 5673,
+      "lines": 101,
+      "sha256": "ca73ec4cc4ec26fddb97a8c71cc752520cf7d6e9bf0c58ebf016e528c800277e"
+    },
+    {
+      "file": "scripts/p2qa-15-final-state.ts",
+      "surface": "non-request",
+      "bytes": 4845,
+      "lines": 69,
+      "sha256": "b3ae26aeccbda9a80b401f550ea916e8478f6033b473362b7fa40a6801209fb8"
+    },
+    {
+      "file": "scripts/p2qa-lib.ts",
+      "surface": "non-request",
+      "bytes": 7804,
+      "lines": 174,
+      "sha256": "a7c4bee0af39c17bb1d811b74702d9ac6a7853f37b226823abbde93fa3022d76"
+    },
+    {
+      "file": "scripts/p2w-00-p2fix-verify.ts",
+      "surface": "non-request",
+      "bytes": 47611,
+      "lines": 625,
+      "sha256": "91e80dbfd33bfab6726c908942ad03185da9e3fa2545108bad4db6f2ec27d4e4"
+    },
+    {
+      "file": "scripts/p2w-00-probe-state.ts",
+      "surface": "non-request",
+      "bytes": 2206,
+      "lines": 27,
+      "sha256": "b71e8423719ed6d913ad0211671c91c6f46e581ae8c586562acc83e392e255bc"
+    },
+    {
+      "file": "scripts/p2w-01-ns-allocator-probe.ts",
+      "surface": "non-request",
+      "bytes": 17869,
+      "lines": 235,
+      "sha256": "3462c54dd845c216d351692f6bdeb2360ca9682a1e08b98ebe9050842ff494e4"
+    },
+    {
+      "file": "scripts/p2w-02-migration-dry-run.ts",
+      "surface": "non-request",
+      "bytes": 4636,
+      "lines": 68,
+      "sha256": "da60290e5a4e8fc8b4a9c3bcb5dce377ebde42cbded1d0ec206f1cd26a182175"
+    },
+    {
+      "file": "scripts/p2w-03-ledger-replay-balance-gate.ts",
+      "surface": "non-request",
+      "bytes": 9171,
+      "lines": 121,
+      "sha256": "c9cd9121127e54be9d66fe6f8941cab6b7d86210fde333bcc404a8a2ff6fcd7b"
+    },
+    {
+      "file": "scripts/p2w-04-migration-state.ts",
+      "surface": "non-request",
+      "bytes": 2081,
+      "lines": 37,
+      "sha256": "f61988471ef090c06e65cad83dd3777fc375622e69bd96ed80cbb56700e9ad7e"
+    },
+    {
+      "file": "scripts/p2w-lib.ts",
+      "surface": "non-request",
+      "bytes": 8818,
+      "lines": 159,
+      "sha256": "b4d54cf0afdf59ba1179b9ecfaa11dbd4323fc38246d59976e2e4075c089ecce"
+    },
+    {
+      "file": "scripts/p2x-00-idempotency-replay-order.ts",
+      "surface": "non-request",
+      "bytes": 26474,
+      "lines": 362,
+      "sha256": "ecdb6d2172184e96f1449f3d68216ba942f7c714d7d7d51fb8a6a345f9c25fd1"
+    },
+    {
+      "file": "scripts/p2x-01-migration-dry-run.ts",
+      "surface": "non-request",
+      "bytes": 5579,
+      "lines": 80,
+      "sha256": "f0dd62d74f7ed12ab0279d503a7ef9d8a02ec02b02898dc407b265bfd71bcedb"
+    },
+    {
+      "file": "scripts/p2x-02-concurrency-same-key.ts",
+      "surface": "non-request",
+      "bytes": 11394,
+      "lines": 153,
+      "sha256": "5dbbe3077d8f0ebe0d077e400c8149cbabbd634a642974135bebbad59b36b0c7"
+    },
+    {
+      "file": "scripts/p2x-lib.ts",
+      "surface": "non-request",
+      "bytes": 11404,
+      "lines": 211,
+      "sha256": "1244249e952b499a8b346fbeb08af2fd459acd739c643f421250d3d76834335b"
+    },
+    {
+      "file": "scripts/p3f-00-fingerprint.ts",
+      "surface": "non-request",
+      "bytes": 4191,
+      "lines": 78,
+      "sha256": "1f633fab72050b95ba6c5c726a2a4a13df82dd7508f51043b1f74c831cf0d60c"
+    },
+    {
+      "file": "scripts/p3f-01-cases.ts",
+      "surface": "non-request",
+      "bytes": 13935,
+      "lines": 207,
+      "sha256": "66d4dd869b8ffb1d2c594b04398115012ef5336467372f2f29390710ff4b084d"
+    },
+    {
+      "file": "scripts/p3f-02-concurrency-and-negative.ts",
+      "surface": "non-request",
+      "bytes": 10201,
+      "lines": 162,
+      "sha256": "ae3b610b93d5f9e0c7e108d5b82c8997a154df9210d0096e37bdb5911f61c0cb"
+    },
+    {
+      "file": "scripts/p3f-dbg.ts",
+      "surface": "non-request",
+      "bytes": 1618,
+      "lines": 30,
+      "sha256": "379c8ced1107ff835d25db8e2894bda87d246a60339946897b3c33ef81c35dfa"
+    },
+    {
+      "file": "scripts/p3f-lib.ts",
+      "surface": "non-request",
+      "bytes": 8552,
+      "lines": 167,
+      "sha256": "0f6c21f06b9ddf93d3a38d46cbfea1a4304eb9d716b4da55b18e11524a55f3e1"
+    },
+    {
+      "file": "scripts/p3j-01-schema-fingerprint.ts",
+      "surface": "non-request",
+      "bytes": 7194,
+      "lines": 127,
+      "sha256": "884127b132061def86568063f3973aeb297606df03048d1061ea83d166f61c1d"
+    },
+    {
+      "file": "scripts/p3j-02-cases.ts",
+      "surface": "non-request",
+      "bytes": 18527,
+      "lines": 264,
+      "sha256": "97ec429aff0da6c757f596cc0ea3f1f2bc3c3d952104cc961656a5e468f6f3da"
+    },
+    {
+      "file": "scripts/p3j-03-concurrency-and-negative.ts",
+      "surface": "non-request",
+      "bytes": 12357,
+      "lines": 205,
+      "sha256": "e12a57092b7a0ac242f1a412a5afd1e135d9e4bae697f0e4ca704babaaaaa30c"
+    },
+    {
+      "file": "scripts/p3j-lib.ts",
+      "surface": "non-request",
+      "bytes": 8122,
+      "lines": 155,
+      "sha256": "36fe90f84d5bee5a5255e8a9bf235336c23ada6f59ecae4fcf2dce67c08bf67a"
+    },
+    {
+      "file": "scripts/p3s1-00-db-state.ts",
+      "surface": "non-request",
+      "bytes": 2663,
+      "lines": 56,
+      "sha256": "8bb139e41dd5c9b58143e7301abc210014f6a4c2398324dbce7470acb4aa18cf"
+    },
+    {
+      "file": "scripts/p3s1-01-get-matrix.ts",
+      "surface": "non-request",
+      "bytes": 1918,
+      "lines": 59,
+      "sha256": "3546241cf92b7f9d9e36adc688dd10b9a5f10d69ae4d19549ad57cfa87dd7d35"
+    },
+    {
+      "file": "scripts/p3s1-02-drop-lazy-tables.ts",
+      "surface": "non-request",
+      "bytes": 3808,
+      "lines": 76,
+      "sha256": "e88d737e540b5380f8887edbf4a012a7545f0c2a018d4624a6e45001a14ed9a1"
+    },
+    {
+      "file": "scripts/p3s1b-00-catalog-state.ts",
+      "surface": "non-request",
+      "bytes": 5707,
+      "lines": 113,
+      "sha256": "6d9af21cbcea4582d028f3d748df103cacb65a97aa040a52ed122a06612f387e"
+    },
+    {
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "surface": "non-request",
+      "bytes": 13478,
+      "lines": 235,
+      "sha256": "297382b1b379cf1d47fc228448d28831090b08aed7c03ab8a85b32f4d9aff557"
+    },
+    {
+      "file": "scripts/probe-tx.ts",
+      "surface": "non-request",
+      "bytes": 9944,
+      "lines": 230,
+      "sha256": "8c662180faa2cb5a8a0f466f162ca50ebc0ae2a4ac6b7ebbdffee4d3ef52fdc5"
+    },
+    {
+      "file": "scripts/purge-test-data.ts",
+      "surface": "non-request",
+      "bytes": 21277,
+      "lines": 411,
+      "sha256": "440070a317564462dd5f3f5a996886ca43d90cabfae3733f4c1286b062908d09"
+    },
+    {
+      "file": "scripts/qa-p1b-00-env.ts",
+      "surface": "non-request",
+      "bytes": 4868,
+      "lines": 95,
+      "sha256": "4af283843b962f601fc1ae26926a3a9f219553ed05a2ff507524dc927c38af19"
+    },
+    {
+      "file": "scripts/qa-p1b-01-setup.ts",
+      "surface": "non-request",
+      "bytes": 4248,
+      "lines": 97,
+      "sha256": "7e179e26375de828020b683d3749b9b5cc2a9fca4d46544c6cd22e634efab845"
+    },
+    {
+      "file": "scripts/qa-p1b-02-conserve-hot.ts",
+      "surface": "non-request",
+      "bytes": 5502,
+      "lines": 111,
+      "sha256": "b2cd34d0f9350f864fb064b20daabc92d9649d9c336460618522f655e46d5cb1"
+    },
+    {
+      "file": "scripts/qa-p1b-03-idem.ts",
+      "surface": "non-request",
+      "bytes": 7353,
+      "lines": 136,
+      "sha256": "366a058e2d918ff8ce01a0c60b603c51c708ae5bd24f3377d4170fa999b2df63"
+    },
+    {
+      "file": "scripts/qa-p1b-04-negative.ts",
+      "surface": "non-request",
+      "bytes": 7169,
+      "lines": 139,
+      "sha256": "c36a839d12b13d25253e3b31675673e345590441518bc908f3ea1a83465b1177"
+    },
+    {
+      "file": "scripts/qa-p1b-05-supplycap.ts",
+      "surface": "non-request",
+      "bytes": 6652,
+      "lines": 120,
+      "sha256": "b2b3d6c1d6b4cd7d95a32c8fed7b8019c7b88b76279e5912a8f961d794b3bae1"
+    },
+    {
+      "file": "scripts/qa-p1b-06-lock-deadlock.ts",
+      "surface": "non-request",
+      "bytes": 14088,
+      "lines": 265,
+      "sha256": "4afe68a262a7ef7137a5cce2b24908db3ccae355a3d77402ede9fbc58fef9d6b"
+    },
+    {
+      "file": "scripts/qa-p1b-07-falsify.ts",
+      "surface": "non-request",
+      "bytes": 9287,
+      "lines": 189,
+      "sha256": "037717845c80d220c52384606ab6247bed4ec92db69b0962cdb19efc34c20d5c"
+    },
+    {
+      "file": "scripts/qa-p1b-08-txproof.ts",
+      "surface": "non-request",
+      "bytes": 3806,
+      "lines": 79,
+      "sha256": "807a88e9a0d949f4a65ac85d1fc95a1f9083b5e9bd1bdea017d681dc17dc8ccd"
+    },
+    {
+      "file": "scripts/qa-p1b-10-errcause.ts",
+      "surface": "non-request",
+      "bytes": 2541,
+      "lines": 52,
+      "sha256": "be55af22d71a43b482ef2e77a6fb764f3b139c7d89c493e8b47344de27f4b062"
+    },
+    {
+      "file": "scripts/qa-p1b-11-rawerr.ts",
+      "surface": "non-request",
+      "bytes": 2189,
+      "lines": 48,
+      "sha256": "1f1a6d319a273bd4f3e941e085f0844c294380c47c23e7a0f47d6d84aaaca43e"
+    },
+    {
+      "file": "scripts/qa-p1b-12-inventory.ts",
+      "surface": "non-request",
+      "bytes": 2970,
+      "lines": 57,
+      "sha256": "08ee96814aaeb57e317c585154c102f1e8f2f72413f5d02215ad94cd6156ace1"
+    },
+    {
+      "file": "scripts/qa-p1b-lib.ts",
+      "surface": "non-request",
+      "bytes": 5332,
+      "lines": 133,
+      "sha256": "fed868977dc4311b803a3e52d03e23363f81f2dea21f5d72c6d033060f787eac"
+    },
+    {
+      "file": "scripts/qa-p1e-00-baseline.ts",
+      "surface": "non-request",
+      "bytes": 3432,
+      "lines": 69,
+      "sha256": "93d7aabd314aedce21766f40c3db40b860a5f9bb2fdf38b4aa08a514636230d2"
+    },
+    {
+      "file": "scripts/qa-p1e-01-concurrency.ts",
+      "surface": "non-request",
+      "bytes": 8631,
+      "lines": 180,
+      "sha256": "96f8e4a9a47abdf06b74c6c5392b8a1a65efcb89aecf98a9723bb2d27b122500"
+    },
+    {
+      "file": "scripts/qa-p1e-01b-sweep-high.ts",
+      "surface": "non-request",
+      "bytes": 4195,
+      "lines": 89,
+      "sha256": "67f886d98ef0c6816e115b02951e2b11754b1b4951686e6cf2a6cc35db536ce3"
+    },
+    {
+      "file": "scripts/qa-p1e-02-idem-collision.ts",
+      "surface": "non-request",
+      "bytes": 6112,
+      "lines": 116,
+      "sha256": "22703f044f6153937d07839311abe2b2c81f13a1f4593b16ef32495628cbdd45"
+    },
+    {
+      "file": "scripts/qa-p1e-02b-api-collision.ts",
+      "surface": "non-request",
+      "bytes": 5159,
+      "lines": 104,
+      "sha256": "292975d414a5090de5dce447f1d0ddd117b0e2801d8ed97cb07f13db7ff20117"
+    },
+    {
+      "file": "scripts/qa-p1e-03-malformed.ts",
+      "surface": "non-request",
+      "bytes": 11656,
+      "lines": 210,
+      "sha256": "2dc43754a66656591242193799f4ed03f13621f3c295367f8aea2c882f378ce4"
+    },
+    {
+      "file": "scripts/qa-p1e-04-locktimeout-deadlock.ts",
+      "surface": "non-request",
+      "bytes": 11489,
+      "lines": 222,
+      "sha256": "59409cb451a866d393254262762fb4a95e438a60fc3650b7996b32eab78d2af6"
+    },
+    {
+      "file": "scripts/qa-p1e-04b-statement-timeout.ts",
+      "surface": "non-request",
+      "bytes": 6941,
+      "lines": 138,
+      "sha256": "546f1c3612d200e0f5366eaa7b2a2c396262345658f814de5d5ecd34beffe6cb"
+    },
+    {
+      "file": "scripts/qa-p1e-04c-statement-timeout-mechanism.ts",
+      "surface": "non-request",
+      "bytes": 3289,
+      "lines": 60,
+      "sha256": "234d71d39985d018929b3191e66cb70310ef45bc2aae342a5aa9f04c6b004c41"
+    },
+    {
+      "file": "scripts/qa-p1e-05-neon-ab.ts",
+      "surface": "non-request",
+      "bytes": 4504,
+      "lines": 90,
+      "sha256": "909c5366be886fbc1eaad604016b4565fdf5d7292b4d52f3990dcb42adc079e3"
+    },
+    {
+      "file": "scripts/qa-p1e-06-falsify.ts",
+      "surface": "non-request",
+      "bytes": 4853,
+      "lines": 102,
+      "sha256": "6787bda82110bba03e9415e09abdb02ff3694a1e70a31788514126e66b4cf5f3"
+    },
+    {
+      "file": "scripts/qa-p1e-07-inventory.ts",
+      "surface": "non-request",
+      "bytes": 4265,
+      "lines": 88,
+      "sha256": "f9f91f1c2343c707154697c251f8c8d17299e3dbacf31c79fd921ba1853b2d57"
+    },
+    {
+      "file": "scripts/qa-p1e-08-surface.ts",
+      "surface": "non-request",
+      "bytes": 7504,
+      "lines": 118,
+      "sha256": "9645adfb8897935322a474a1f2780f5736295a1c6599482b3d1cdc631385caa3"
+    },
+    {
+      "file": "scripts/qa-p1e-09-migration-replay.ts",
+      "surface": "non-request",
+      "bytes": 6262,
+      "lines": 116,
+      "sha256": "ec1d23ee2f3df3783703bb64865886dfff07fe89c92c48114d250dc016874e89"
+    },
+    {
+      "file": "scripts/qa-p1e-lib.ts",
+      "surface": "non-request",
+      "bytes": 8883,
+      "lines": 195,
+      "sha256": "bb3e40b91618af9725616ed63270a20433a727bae62a5e0656310e4e3c2ad665"
+    },
+    {
+      "file": "scripts/verify-db-layer.ts",
+      "surface": "non-request",
+      "bytes": 12386,
+      "lines": 264,
+      "sha256": "8b122e1709bb89fa8318fb6597ccae6ba869bf1afa37c6fafeb60b91862ba75b"
+    },
+    {
+      "file": "migrations/0001_ledger_core.sql",
+      "surface": "non-request",
+      "bytes": 8703,
+      "lines": 184,
+      "sha256": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4"
+    },
+    {
+      "file": "migrations/0002_user_identity.sql",
+      "surface": "non-request",
+      "bytes": 1671,
+      "lines": 27,
+      "sha256": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990"
+    },
+    {
+      "file": "migrations/0003_kind_close_set_20.sql",
+      "surface": "non-request",
+      "bytes": 4050,
+      "lines": 84,
+      "sha256": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23"
+    },
+    {
+      "file": "migrations/0004_ledger_post_event.sql",
+      "surface": "non-request",
+      "bytes": 58938,
+      "lines": 1177,
+      "sha256": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932"
+    },
+    {
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "surface": "non-request",
+      "bytes": 79031,
+      "lines": 1408,
+      "sha256": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231"
+    },
+    {
+      "file": "migrations/0006_user_to_users.sql",
+      "surface": "non-request",
+      "bytes": 7977,
+      "lines": 174,
+      "sha256": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47"
+    },
+    {
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "surface": "non-request",
+      "bytes": 23271,
+      "lines": 392,
+      "sha256": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a"
+    },
+    {
+      "file": "migrations/0008_platform_revenue_job_fee.sql",
+      "surface": "non-request",
+      "bytes": 7326,
+      "lines": 118,
+      "sha256": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210"
+    },
+    {
+      "file": "migrations/0009_ledger_error_reverse_map_complete.sql",
+      "surface": "non-request",
+      "bytes": 23808,
+      "lines": 311,
+      "sha256": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870"
+    },
+    {
+      "file": "migrations/0010_referral_bind_protocol_guard.sql",
+      "surface": "non-request",
+      "bytes": 19713,
+      "lines": 294,
+      "sha256": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc"
+    },
+    {
+      "file": "migrations/0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "surface": "non-request",
+      "bytes": 39211,
+      "lines": 597,
+      "sha256": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe"
+    },
+    {
+      "file": "migrations/0012_replay_pre_gate_before_balance_gate.sql",
+      "surface": "non-request",
+      "bytes": 71238,
+      "lines": 1278,
+      "sha256": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe"
+    },
+    {
+      "file": "migrations/0013_job.sql",
+      "surface": "non-request",
+      "bytes": 44130,
+      "lines": 818,
+      "sha256": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230"
+    },
+    {
+      "file": "migrations/0014_job_flow.sql",
+      "surface": "non-request",
+      "bytes": 24484,
+      "lines": 438,
+      "sha256": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d"
+    }
+  ],
+  "request_path": {
+    "files": 8,
+    "hits_total": 0,
+    "allowed_comment": 0,
+    "should_be_zero": 0,
+    "bare_code": 0
+  },
+  "non_request_path": {
+    "hits_total": 367,
+    "files": 119
+  },
+  "assertion": {
+    "name": "请求路径上的「运行期 schema 变更语句」（应为 0 的集）== 0",
+    "expected_zero_set_size": 0,
+    "pass": true
+  },
+  "should_be_zero_hits": [],
+  "allowed_comment_hits_on_request_path": [],
+  "bare_code_hits_on_request_path": [],
+  "non_request_hits": [
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "file": "scripts/migrate.ts",
+      "line": 51,
+      "text": "CREATE TABLE IF NOT EXISTS schema_migration ("
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "scripts/p1e-03-apply-0004-raw.ts",
+      "line": 8,
+      "text": "* 说明：所有语句都是 CREATE OR REPLACE FUNCTION，可重复执行；不写入 schema_migration。"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "scripts/p1f-03-f3-timeouts.ts",
+      "line": 442,
+      "text": "[`SET statement_timeout = '700'`], `DO $do$ BEGIN PERFORM pg_sleep(2); ${CAUGHT} END $do$`);"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "scripts/p1f-03-f3-timeouts.ts",
+      "line": 444,
+      "text": "[`SET statement_timeout = '700'`], `DO $do$ BEGIN PERFORM pg_sleep(2); END $do$`);"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "scripts/p1f-03-f3-timeouts.ts",
+      "line": 446,
+      "text": "[`SET statement_timeout = '700'`], `DO $do$ BEGIN ${forUpdate} ${CAUGHT} END $do$`);"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "scripts/p1f-03-f3-timeouts.ts",
+      "line": 448,
+      "text": "[`SET lock_timeout = '700'`], `DO $do$ BEGIN ${forUpdate} ${CAUGHT} END $do$`);"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "scripts/p1f-03-f3-timeouts.ts",
+      "line": 450,
+      "text": "[`SET statement_timeout = '700'`], `DO $do$ BEGIN ${forUpdate} END $do$`);"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "scripts/p1f-03-f3-timeouts.ts",
+      "line": 452,
+      "text": "[`SET lock_timeout = '700'`], `DO $do$ BEGIN ${forUpdate} END $do$`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p1t-00-bind-protocol-guard.ts",
+      "line": 278,
+      "text": "remedy: 'ALTER TABLE public.referral ENABLE TRIGGER trg_referral_cycle_guard;（若在事务内禁用，请在**同一事务内**复原）后重跑；判据与红色自证见 scripts/p1v-00-trigger-enablement-guard-assert.ts',"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p1t-00-bind-protocol-guard.ts",
+      "line": 304,
+      "text": "await bc.query('ALTER TABLE referral DISABLE TRIGGER trg_referral_cycle_guard');"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p1v-00-trigger-enablement-guard-assert.ts",
+      "line": 5,
+      "text": "*   `p2d-01` 在**事务内** `ALTER TABLE referral DISABLE TRIGGER trg_referral_append_only` 之后"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p1v-00-trigger-enablement-guard-assert.ts",
+      "line": 185,
+      "text": "await conn.query(`ALTER TABLE public.${t.table} DISABLE TRIGGER ${t.trigger}`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p1v-00-trigger-enablement-guard-assert.ts",
+      "line": 190,
+      "text": "await conn.query(`ALTER TABLE public.${t.table} ENABLE TRIGGER ${t.trigger}`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p1v-00-trigger-enablement-guard-assert.ts",
+      "line": 269,
+      "text": "await pool.query(`ALTER TABLE public.${ph.table} DISABLE TRIGGER ${ph.trigger}`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p1v-00-trigger-enablement-guard-assert.ts",
+      "line": 298,
+      "text": "await pool.query(`ALTER TABLE public.${ph.table} ENABLE TRIGGER ${ph.trigger}`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2b-02-cases.ts",
+      "line": 132,
+      "text": "await bc.query('ALTER TABLE referral DISABLE TRIGGER trg_referral_cycle_guard');"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2d-00-commission-m-criteria.ts",
+      "line": 511,
+      "text": "await bc.query('ALTER TABLE referral DISABLE TRIGGER trg_referral_cycle_guard');"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2d-01-testdata-depth-repair.ts",
+      "line": 13,
+      "text": "*   （`ALTER TABLE … DISABLE TRIGGER trg_referral_append_only`，与仓库内 `purge-test-data.ts` 同法；"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2d-01-testdata-depth-repair.ts",
+      "line": 71,
+      "text": "await conn.query('ALTER TABLE referral DISABLE TRIGGER trg_referral_append_only');"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2qa-01-sigma-conservation.ts",
+      "line": 242,
+      "text": "const dis = await trySql(ex, `ALTER TABLE commission_policy DISABLE TRIGGER trg_commission_policy_weights_guard`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2qa-03-chain-depth-guard.ts",
+      "line": 106,
+      "text": "const dis = await trySql(ex, `ALTER TABLE referral DISABLE TRIGGER trg_referral_append_only`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2qa-03-chain-depth-guard.ts",
+      "line": 180,
+      "text": "const d1 = await trySql(ex, `ALTER TABLE referral DISABLE TRIGGER trg_referral_cycle_guard`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2qa-03-chain-depth-guard.ts",
+      "line": 181,
+      "text": "const d2 = await trySql(ex, `ALTER TABLE referral DISABLE TRIGGER trg_referral_append_only`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2qa-03-chain-depth-guard.ts",
+      "line": 283,
+      "text": "const a1 = await trySql(ex, `ALTER TABLE referral DISABLE TRIGGER trg_referral_cycle_guard`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2qa-03-chain-depth-guard.ts",
+      "line": 284,
+      "text": "const a2 = await trySql(ex, `ALTER TABLE referral DISABLE TRIGGER trg_referral_append_only`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2qa-05-cycle3-and-order.ts",
+      "line": 10,
+      "text": "*       PK ⇒ 第二路只会得到 referral_pk 假读数）。本脚本**不** ALTER TABLE、**不** DISABLE 触发器。"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2qa-11-f1-f7.ts",
+      "line": 62,
+      "text": "await c.query(`ALTER TABLE referral DISABLE TRIGGER trg_referral_cycle_guard`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2qa-12-f3-f6-f2.ts",
+      "line": 181,
+      "text": "await c.query(`ALTER TABLE referral DISABLE TRIGGER trg_referral_append_only`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2qa-12-f3-f6-f2.ts",
+      "line": 183,
+      "text": "await c.query(`ALTER TABLE referral ENABLE TRIGGER trg_referral_append_only`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2qa-12-f3-f6-f2.ts",
+      "line": 198,
+      "text": "await c.query(`ALTER TABLE referral DISABLE TRIGGER trg_referral_append_only`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2qa-12-f3-f6-f2.ts",
+      "line": 200,
+      "text": "await c.query(`ALTER TABLE referral ENABLE TRIGGER trg_referral_append_only`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2w-00-p2fix-verify.ts",
+      "line": 273,
+      "text": "await tx.query(`ALTER TABLE referral DISABLE TRIGGER trg_referral_cycle_guard`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2w-00-p2fix-verify.ts",
+      "line": 274,
+      "text": "await tx.query(`ALTER TABLE referral DISABLE TRIGGER trg_referral_append_only`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2w-00-p2fix-verify.ts",
+      "line": 276,
+      "text": "await tx.query(`ALTER TABLE referral ENABLE TRIGGER trg_referral_append_only`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2w-00-p2fix-verify.ts",
+      "line": 277,
+      "text": "await tx.query(`ALTER TABLE referral ENABLE TRIGGER trg_referral_cycle_guard`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2w-00-p2fix-verify.ts",
+      "line": 533,
+      "text": "await tx.query(`ALTER TABLE referral DISABLE TRIGGER trg_referral_cycle_guard`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2w-00-p2fix-verify.ts",
+      "line": 547,
+      "text": "await tx.query(`ALTER TABLE referral DISABLE TRIGGER trg_referral_append_only`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2w-00-p2fix-verify.ts",
+      "line": 549,
+      "text": "await tx.query(`ALTER TABLE referral ENABLE TRIGGER trg_referral_append_only`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2w-00-p2fix-verify.ts",
+      "line": 565,
+      "text": "await tx.query(`ALTER TABLE referral DISABLE TRIGGER trg_referral_cycle_guard`);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p2w-00-p2fix-verify.ts",
+      "line": 567,
+      "text": "await tx.query(`ALTER TABLE referral DISABLE TRIGGER trg_referral_append_only`);"
+    },
+    {
+      "class_id": "C10",
+      "class_name": "to_regclass",
+      "file": "scripts/p3f-00-fingerprint.ts",
+      "line": 20,
+      "text": "WHERE c.conrelid = to_regclass('public.'||$1) ORDER BY c.conname`, [t]);"
+    },
+    {
+      "class_id": "C10",
+      "class_name": "to_regclass",
+      "file": "scripts/p3f-00-fingerprint.ts",
+      "line": 25,
+      "text": "WHERE NOT t.tgisinternal AND t.tgrelid = to_regclass('public.'||$1) ORDER BY t.tgname`, [t]);"
+    },
+    {
+      "class_id": "C10",
+      "class_name": "to_regclass",
+      "file": "scripts/p3f-00-fingerprint.ts",
+      "line": 44,
+      "text": "exists: (await raw1(p, `SELECT to_regclass('public.job_application') AS x`))?.x ? true : false,"
+    },
+    {
+      "class_id": "C10",
+      "class_name": "to_regclass",
+      "file": "scripts/p3f-00-fingerprint.ts",
+      "line": 51,
+      "text": "exists: (await raw1(p, `SELECT to_regclass('public.job_submission') AS x`))?.x ? true : false,"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "scripts/p3f-02-concurrency-and-negative.ts",
+      "line": 91,
+      "text": "const idxLine = 'CREATE UNIQUE INDEX IF NOT EXISTS uniq_job_application_accepted';"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "scripts/p3f-02-concurrency-and-negative.ts",
+      "line": 112,
+      "text": "await setup.query(`CREATE UNIQUE INDEX ${IDX} ON public.job_application USING btree (job_id) WHERE (status = 'accepted'::text)`);"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "scripts/p3f-02-concurrency-and-negative.ts",
+      "line": 152,
+      "text": "await setup.query(`CREATE UNIQUE INDEX IF NOT EXISTS ${IDX} ON public.job_application USING btree (job_id) WHERE (status = 'accepted'::text)`);"
+    },
+    {
+      "class_id": "C06",
+      "class_name": "DROP INDEX",
+      "file": "scripts/p3f-02-concurrency-and-negative.ts",
+      "line": 98,
+      "text": "await setup.query(`DROP INDEX IF EXISTS public.${IDX}`);"
+    },
+    {
+      "class_id": "C06",
+      "class_name": "DROP INDEX",
+      "file": "scripts/p3f-02-concurrency-and-negative.ts",
+      "line": 108,
+      "text": "note: 'DROP INDEX 复现「迁移未建该索引」态；scratch 改写件留存为证（sha256 见下）' });"
+    },
+    {
+      "class_id": "C05",
+      "class_name": "DROP TABLE",
+      "file": "scripts/p3s1-02-drop-lazy-tables.ts",
+      "line": 54,
+      "text": "await q(`DROP TABLE IF EXISTS \"${t}\"`);"
+    },
+    {
+      "class_id": "C05",
+      "class_name": "DROP TABLE",
+      "file": "scripts/p3s1b-00-catalog-state.ts",
+      "line": 8,
+      "text": "*         CREATE/ALTER/DROP TABLE  → pg_class / pg_attribute / pg_constraint"
+    },
+    {
+      "class_id": "C06",
+      "class_name": "DROP INDEX",
+      "file": "scripts/p3s1b-00-catalog-state.ts",
+      "line": 10,
+      "text": "*         CREATE/ALTER/DROP INDEX  → pg_class(relkind='i') / pg_index"
+    },
+    {
+      "class_id": "C07",
+      "class_name": "TRUNCATE",
+      "file": "scripts/p3s1b-00-catalog-state.ts",
+      "line": 12,
+      "text": "*         TRUNCATE                 → 全表行数"
+    },
+    {
+      "class_id": "C07",
+      "class_name": "TRUNCATE",
+      "file": "scripts/p3s1b-00-catalog-state.ts",
+      "line": 56,
+      "text": "// 全表行数（TRUNCATE / 写入都会暴露）"
+    },
+    {
+      "class_id": "C09",
+      "class_name": "RENAME TO",
+      "file": "scripts/p3s1b-00-catalog-state.ts",
+      "line": 9,
+      "text": "*         RENAME TO                → pg_class.relname"
+    },
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 35,
+      "text": "{ id: 'C01', name: 'CREATE TABLE',              re: /(?<![\\w.])CREATE\\s+(?:TEMP(?:ORARY)?\\s+|UNLOGGED\\s+)?TABLE\\b/gi },"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 36,
+      "text": "{ id: 'C02', name: 'CREATE INDEX',              re: /(?<![\\w.])CREATE\\s+(?:UNIQUE\\s+)?INDEX\\b/gi },"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 38,
+      "text": "{ id: 'C04', name: 'ALTER TABLE',               re: /(?<![\\w.])ALTER\\s+TABLE\\b/gi },"
+    },
+    {
+      "class_id": "C05",
+      "class_name": "DROP TABLE",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 39,
+      "text": "{ id: 'C05', name: 'DROP TABLE',                re: /(?<![\\w.])DROP\\s+TABLE\\b/gi },"
+    },
+    {
+      "class_id": "C06",
+      "class_name": "DROP INDEX",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 40,
+      "text": "{ id: 'C06', name: 'DROP INDEX',                re: /(?<![\\w.])DROP\\s+INDEX\\b/gi },"
+    },
+    {
+      "class_id": "C07",
+      "class_name": "TRUNCATE",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 41,
+      "text": "{ id: 'C07', name: 'TRUNCATE',                  re: /(?<![\\w.])TRUNCATE\\b/gi },"
+    },
+    {
+      "class_id": "C07",
+      "class_name": "TRUNCATE",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 41,
+      "text": "{ id: 'C07', name: 'TRUNCATE',                  re: /(?<![\\w.])TRUNCATE\\b/gi },"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 42,
+      "text": "{ id: 'C08', name: 'DO $$ (plpgsql 匿名块)',     re: /\\bdo\\s+\\$/gi },"
+    },
+    {
+      "class_id": "C09",
+      "class_name": "RENAME TO",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 43,
+      "text": "{ id: 'C09', name: 'RENAME TO',                 re: /(?<![\\w.])RENAME\\s+TO\\b/gi },"
+    },
+    {
+      "class_id": "C10",
+      "class_name": "to_regclass",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 44,
+      "text": "{ id: 'C10', name: 'to_regclass',               re: /(?<![\\w.])to_regclass\\b/gi },"
+    },
+    {
+      "class_id": "C10",
+      "class_name": "to_regclass",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 44,
+      "text": "{ id: 'C10', name: 'to_regclass',               re: /(?<![\\w.])to_regclass\\b/gi },"
+    },
+    {
+      "class_id": "C11",
+      "class_name": "ALTER INDEX",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 46,
+      "text": "{ id: 'C11', name: 'ALTER INDEX',               re: /(?<![\\w.])ALTER\\s+INDEX\\b/gi },"
+    },
+    {
+      "class_id": "C12",
+      "class_name": "ALTER FUNCTION",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 47,
+      "text": "{ id: 'C12', name: 'ALTER FUNCTION',            re: /(?<![\\w.])ALTER\\s+(?:FUNCTION|PROCEDURE)\\b/gi },"
+    },
+    {
+      "class_id": "C13",
+      "class_name": "DROP FUNCTION",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 48,
+      "text": "{ id: 'C13', name: 'DROP FUNCTION',             re: /(?<![\\w.])DROP\\s+(?:FUNCTION|PROCEDURE)\\b/gi },"
+    },
+    {
+      "class_id": "C14",
+      "class_name": "CREATE SCHEMA",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 49,
+      "text": "{ id: 'C14', name: 'CREATE SCHEMA',             re: /(?<![\\w.])CREATE\\s+SCHEMA\\b/gi },"
+    },
+    {
+      "class_id": "C15",
+      "class_name": "DROP SCHEMA",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 50,
+      "text": "{ id: 'C15', name: 'DROP SCHEMA',               re: /(?<![\\w.])DROP\\s+SCHEMA\\b/gi },"
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 51,
+      "text": "{ id: 'C16', name: 'CREATE TRIGGER',            re: /(?<![\\w.])CREATE\\s+(?:OR\\s+REPLACE\\s+)?TRIGGER\\b/gi },"
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 52,
+      "text": "{ id: 'C17', name: 'DROP TRIGGER',              re: /(?<![\\w.])DROP\\s+TRIGGER\\b/gi },"
+    },
+    {
+      "class_id": "C18",
+      "class_name": "CREATE/ALTER/DROP SEQUENCE",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 53,
+      "text": "{ id: 'C18', name: 'CREATE/ALTER/DROP SEQUENCE',re: /(?<![\\w.])(?:CREATE|ALTER|DROP)\\s+SEQUENCE\\b/gi },"
+    },
+    {
+      "class_id": "C19",
+      "class_name": "CREATE/ALTER/DROP TYPE",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 54,
+      "text": "{ id: 'C19', name: 'CREATE/ALTER/DROP TYPE',    re: /(?<![\\w.])(?:CREATE|ALTER|DROP)\\s+TYPE\\b/gi },"
+    },
+    {
+      "class_id": "C20",
+      "class_name": "CREATE/ALTER/DROP VIEW",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 55,
+      "text": "{ id: 'C20', name: 'CREATE/ALTER/DROP VIEW',    re: /(?<![\\w.])(?:CREATE|ALTER|DROP)\\s+(?:OR\\s+REPLACE\\s+)?(?:MATERIALIZED\\s+)?VIEW\\b/gi },"
+    },
+    {
+      "class_id": "C21",
+      "class_name": "CREATE EXTENSION",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 56,
+      "text": "{ id: 'C21', name: 'CREATE EXTENSION',          re: /(?<![\\w.])CREATE\\s+EXTENSION\\b/gi },"
+    },
+    {
+      "class_id": "C22",
+      "class_name": "CREATE/ALTER/DROP POLICY",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 57,
+      "text": "{ id: 'C22', name: 'CREATE/ALTER/DROP POLICY',  re: /(?<![\\w.])(?:CREATE|ALTER|DROP)\\s+POLICY\\b/gi },"
+    },
+    {
+      "class_id": "C23",
+      "class_name": "ADD CONSTRAINT / ALTER COLUMN",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 58,
+      "text": "{ id: 'C23', name: 'ADD CONSTRAINT / ALTER COLUMN', re: /(?<![\\w.])ADD\\s+CONSTRAINT\\b|(?<![\\w.])ALTER\\s+COLUMN\\b/gi },"
+    },
+    {
+      "class_id": "C23",
+      "class_name": "ADD CONSTRAINT / ALTER COLUMN",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 58,
+      "text": "{ id: 'C23', name: 'ADD CONSTRAINT / ALTER COLUMN', re: /(?<![\\w.])ADD\\s+CONSTRAINT\\b|(?<![\\w.])ALTER\\s+COLUMN\\b/gi },"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 59,
+      "text": "{ id: 'C24', name: 'COMMENT ON',                re: /(?<![\\w.])COMMENT\\s+ON\\b/gi },"
+    },
+    {
+      "class_id": "C25",
+      "class_name": "GRANT / REVOKE",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 60,
+      "text": "{ id: 'C25', name: 'GRANT / REVOKE',            re: /(?<![\\w.])(?:GRANT|REVOKE)\\b/gi },"
+    },
+    {
+      "class_id": "C25",
+      "class_name": "GRANT / REVOKE",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 60,
+      "text": "{ id: 'C25', name: 'GRANT / REVOKE',            re: /(?<![\\w.])(?:GRANT|REVOKE)\\b/gi },"
+    },
+    {
+      "class_id": "C25",
+      "class_name": "GRANT / REVOKE",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 60,
+      "text": "{ id: 'C25', name: 'GRANT / REVOKE',            re: /(?<![\\w.])(?:GRANT|REVOKE)\\b/gi },"
+    },
+    {
+      "class_id": "C25",
+      "class_name": "GRANT / REVOKE",
+      "file": "scripts/p3s1b-01-class-assert-runtime-ddl.ts",
+      "line": 60,
+      "text": "{ id: 'C25', name: 'GRANT / REVOKE',            re: /(?<![\\w.])(?:GRANT|REVOKE)\\b/gi },"
+    },
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "file": "scripts/probe-tx.ts",
+      "line": 62,
+      "text": "await client.query(`CREATE TABLE ${PROBE_TABLE} (id bigint PRIMARY KEY, note text NOT NULL)`);"
+    },
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "file": "scripts/probe-tx.ts",
+      "line": 88,
+      "text": "await client.query(`CREATE TABLE ${PROBE_TABLE} (id bigint PRIMARY KEY, note text NOT NULL)`);"
+    },
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "file": "scripts/probe-tx.ts",
+      "line": 102,
+      "text": "await client.query(`CREATE TABLE ${PROBE_TABLE} (id bigint PRIMARY KEY, note text NOT NULL)`);"
+    },
+    {
+      "class_id": "C05",
+      "class_name": "DROP TABLE",
+      "file": "scripts/probe-tx.ts",
+      "line": 58,
+      "text": "await client.query(`DROP TABLE IF EXISTS ${PROBE_TABLE}`);"
+    },
+    {
+      "class_id": "C05",
+      "class_name": "DROP TABLE",
+      "file": "scripts/probe-tx.ts",
+      "line": 93,
+      "text": "await client.query(`DROP TABLE IF EXISTS ${PROBE_TABLE}`);"
+    },
+    {
+      "class_id": "C10",
+      "class_name": "to_regclass",
+      "file": "scripts/probe-tx.ts",
+      "line": 78,
+      "text": "const afterRollback = await client.query(`SELECT to_regclass($1) AS tbl`, [PROBE_TABLE]);"
+    },
+    {
+      "class_id": "C10",
+      "class_name": "to_regclass",
+      "file": "scripts/probe-tx.ts",
+      "line": 105,
+      "text": "const residual = await client.query(`SELECT to_regclass($1) AS tbl`, [PROBE_TABLE]);"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/purge-test-data.ts",
+      "line": 27,
+      "text": "*   2) 在**单个事务**里 `ALTER TABLE ... DISABLE TRIGGER USER` → DELETE → 重整 total_supply → `ENABLE TRIGGER USER`"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/purge-test-data.ts",
+      "line": 220,
+      "text": "await tx.query('ALTER TABLE ledger_entry DISABLE TRIGGER USER');"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/purge-test-data.ts",
+      "line": 221,
+      "text": "await tx.query('ALTER TABLE account DISABLE TRIGGER USER');"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/purge-test-data.ts",
+      "line": 257,
+      "text": "await tx.query('ALTER TABLE ledger_entry ENABLE TRIGGER USER');"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/purge-test-data.ts",
+      "line": 258,
+      "text": "await tx.query('ALTER TABLE account ENABLE TRIGGER USER');"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/qa-p1e-06-falsify.ts",
+      "line": 11,
+      "text": "* 不使用任何 `ALTER TABLE … DISABLE TRIGGER`。"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "scripts/qa-p1e-09-migration-replay.ts",
+      "line": 13,
+      "text": "*    否则立刻中止 —— 0003 含 `ALTER TABLE … DROP CONSTRAINT`，若 search_path 丢失"
+    },
+    {
+      "class_id": "C10",
+      "class_name": "to_regclass",
+      "file": "scripts/qa-p1e-09-migration-replay.ts",
+      "line": 65,
+      "text": "SELECT (to_regclass($1) IS NOT NULL)::text AS present`, [`${SCHEMA}.schema_migration`]);"
+    },
+    {
+      "class_id": "C14",
+      "class_name": "CREATE SCHEMA",
+      "file": "scripts/qa-p1e-09-migration-replay.ts",
+      "line": 34,
+      "text": "await raw(p, `CREATE SCHEMA ${SCHEMA}`);"
+    },
+    {
+      "class_id": "C15",
+      "class_name": "DROP SCHEMA",
+      "file": "scripts/qa-p1e-09-migration-replay.ts",
+      "line": 10,
+      "text": "*       完成后 `DROP SCHEMA ... CASCADE` 清除（不留残留）。"
+    },
+    {
+      "class_id": "C15",
+      "class_name": "DROP SCHEMA",
+      "file": "scripts/qa-p1e-09-migration-replay.ts",
+      "line": 102,
+      "text": "await raw(p, `DROP SCHEMA IF EXISTS ${SCHEMA} CASCADE`);"
+    },
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "file": "scripts/verify-db-layer.ts",
+      "line": 113,
+      "text": "await tx.query(`CREATE TABLE ${SCRATCH} (id bigint PRIMARY KEY, note text NOT NULL)`);"
+    },
+    {
+      "class_id": "C05",
+      "class_name": "DROP TABLE",
+      "file": "scripts/verify-db-layer.ts",
+      "line": 81,
+      "text": "await readQuery(`DROP TABLE IF EXISTS ${SCRATCH}`);"
+    },
+    {
+      "class_id": "C05",
+      "class_name": "DROP TABLE",
+      "file": "scripts/verify-db-layer.ts",
+      "line": 120,
+      "text": "await readQuery(`DROP TABLE ${SCRATCH}`);"
+    },
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "file": "migrations/0001_ledger_core.sql",
+      "line": 13,
+      "text": "CREATE TABLE currency ("
+    },
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "file": "migrations/0001_ledger_core.sql",
+      "line": 41,
+      "text": "CREATE TABLE account ("
+    },
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "file": "migrations/0001_ledger_core.sql",
+      "line": 55,
+      "text": "CREATE TABLE ledger_entry ("
+    },
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "file": "migrations/0001_ledger_core.sql",
+      "line": 96,
+      "text": "CREATE TABLE ledger_owner ("
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0001_ledger_core.sql",
+      "line": 89,
+      "text": "CREATE UNIQUE INDEX ledger_reversal_of_uniq"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0001_ledger_core.sql",
+      "line": 110,
+      "text": "CREATE INDEX idx_account_cid_balance ON account (cid, balance DESC);"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0001_ledger_core.sql",
+      "line": 111,
+      "text": "CREATE INDEX idx_account_frozen      ON account (cid, uid) WHERE frozen > 0;"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0001_ledger_core.sql",
+      "line": 112,
+      "text": "CREATE INDEX idx_currency_owner      ON currency (owner_uid);"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0001_ledger_core.sql",
+      "line": 113,
+      "text": "CREATE INDEX idx_currency_status     ON currency (status) WHERE status <> 'delisted';"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0001_ledger_core.sql",
+      "line": 114,
+      "text": "CREATE INDEX idx_ledger_uid_cid_txid ON ledger_entry (uid, cid, txid DESC);"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0001_ledger_core.sql",
+      "line": 115,
+      "text": "CREATE INDEX idx_ledger_ref          ON ledger_entry (ref_type, ref_id);"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0001_ledger_core.sql",
+      "line": 116,
+      "text": "CREATE INDEX idx_ledger_kind_time    ON ledger_entry (kind, time_created DESC);"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0001_ledger_core.sql",
+      "line": 119,
+      "text": "CREATE OR REPLACE FUNCTION ledger_entry_append_only() RETURNS trigger AS $$"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0001_ledger_core.sql",
+      "line": 129,
+      "text": "CREATE OR REPLACE FUNCTION account_guard() RETURNS trigger AS $$"
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "file": "migrations/0001_ledger_core.sql",
+      "line": 125,
+      "text": "CREATE TRIGGER trg_ledger_entry_append_only"
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "file": "migrations/0001_ledger_core.sql",
+      "line": 161,
+      "text": "CREATE TRIGGER trg_account_guard"
+    },
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "file": "migrations/0002_user_identity.sql",
+      "line": 11,
+      "text": "CREATE TABLE \"user\" ("
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0002_user_identity.sql",
+      "line": 26,
+      "text": "CREATE INDEX idx_user_evm_lower ON \"user\" (LOWER(evm));"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "migrations/0003_kind_close_set_20.sql",
+      "line": 58,
+      "text": "ALTER TABLE ledger_entry DROP CONSTRAINT IF EXISTS ledger_kind_enum;"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "migrations/0003_kind_close_set_20.sql",
+      "line": 60,
+      "text": "ALTER TABLE ledger_entry ADD CONSTRAINT ledger_kind_enum CHECK (kind IN ("
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "migrations/0003_kind_close_set_20.sql",
+      "line": 28,
+      "text": "DO $$"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "migrations/0003_kind_close_set_20.sql",
+      "line": 71,
+      "text": "DO $$"
+    },
+    {
+      "class_id": "C19",
+      "class_name": "CREATE/ALTER/DROP TYPE",
+      "file": "migrations/0003_kind_close_set_20.sql",
+      "line": 12,
+      "text": "--   派单要求「ALTER TYPE ledger_kind_enum RENAME ... → CREATE TYPE ...」。"
+    },
+    {
+      "class_id": "C19",
+      "class_name": "CREATE/ALTER/DROP TYPE",
+      "file": "migrations/0003_kind_close_set_20.sql",
+      "line": 12,
+      "text": "--   派单要求「ALTER TYPE ledger_kind_enum RENAME ... → CREATE TYPE ...」。"
+    },
+    {
+      "class_id": "C19",
+      "class_name": "CREATE/ALTER/DROP TYPE",
+      "file": "migrations/0003_kind_close_set_20.sql",
+      "line": 18,
+      "text": "--   ⇒ 无法执行 `ALTER TYPE`（会报 type does not exist）。本 migration 按**实际 schema**"
+    },
+    {
+      "class_id": "C23",
+      "class_name": "ADD CONSTRAINT / ALTER COLUMN",
+      "file": "migrations/0003_kind_close_set_20.sql",
+      "line": 60,
+      "text": "ALTER TABLE ledger_entry ADD CONSTRAINT ledger_kind_enum CHECK (kind IN ("
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0004_ledger_post_event.sql",
+      "line": 84,
+      "text": "CREATE OR REPLACE FUNCTION ledger_sqlstate_of(p_code text) RETURNS text"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0004_ledger_post_event.sql",
+      "line": 130,
+      "text": "CREATE OR REPLACE FUNCTION ledger_raise(p_code text, p_details jsonb DEFAULT '{}'::jsonb)"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0004_ledger_post_event.sql",
+      "line": 160,
+      "text": "CREATE OR REPLACE FUNCTION ledger_max_single_amount() RETURNS bigint"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0004_ledger_post_event.sql",
+      "line": 164,
+      "text": "CREATE OR REPLACE FUNCTION ledger_int_amount(p_raw text, p_field text) RETURNS bigint"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0004_ledger_post_event.sql",
+      "line": 185,
+      "text": "CREATE OR REPLACE FUNCTION ledger_parse_user_amount("
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0004_ledger_post_event.sql",
+      "line": 227,
+      "text": "CREATE OR REPLACE FUNCTION ledger_payload_amount("
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0004_ledger_post_event.sql",
+      "line": 258,
+      "text": "CREATE OR REPLACE FUNCTION ledger_payload_cap(p_payload jsonb, p_field text) RETURNS bigint"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0004_ledger_post_event.sql",
+      "line": 269,
+      "text": "CREATE OR REPLACE FUNCTION ledger_uid_arg(p_raw text, p_field text) RETURNS bigint"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0004_ledger_post_event.sql",
+      "line": 276,
+      "text": "CREATE OR REPLACE FUNCTION ledger_cid_arg(p_raw text) RETURNS bigint"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0004_ledger_post_event.sql",
+      "line": 288,
+      "text": "CREATE OR REPLACE FUNCTION ledger_norm_entry("
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0004_ledger_post_event.sql",
+      "line": 309,
+      "text": "CREATE OR REPLACE FUNCTION ledger_entry_json(r ledger_entry) RETURNS jsonb"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0004_ledger_post_event.sql",
+      "line": 330,
+      "text": "CREATE OR REPLACE FUNCTION ledger_accounts_from_entries(p_entries jsonb) RETURNS jsonb"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0004_ledger_post_event.sql",
+      "line": 362,
+      "text": "CREATE OR REPLACE FUNCTION ledger_assert_currency_op(p_cur currency, p_op text) RETURNS void"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0004_ledger_post_event.sql",
+      "line": 397,
+      "text": "CREATE OR REPLACE FUNCTION ledger_assert_platform_mutation("
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0004_ledger_post_event.sql",
+      "line": 421,
+      "text": "CREATE OR REPLACE FUNCTION ledger_kind_ok(p_kind text, p_frozen_settle boolean DEFAULT false)"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0004_ledger_post_event.sql",
+      "line": 437,
+      "text": "CREATE OR REPLACE FUNCTION ledger_post_event(payload jsonb) RETURNS jsonb"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0004_ledger_post_event.sql",
+      "line": 124,
+      "text": "COMMENT ON FUNCTION ledger_sqlstate_of(text) IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0004_ledger_post_event.sql",
+      "line": 151,
+      "text": "COMMENT ON FUNCTION ledger_raise(text, jsonb) IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0004_ledger_post_event.sql",
+      "line": 1174,
+      "text": "COMMENT ON FUNCTION ledger_post_event(jsonb) IS"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 70,
+      "text": "CREATE INDEX IF NOT EXISTS idx_ledger_event_root_key ON ledger_entry (event_root_key);"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 93,
+      "text": "CREATE OR REPLACE FUNCTION ledger_stmt_budget_ms() RETURNS int"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 99,
+      "text": "CREATE OR REPLACE FUNCTION ledger_lock_timeout_ms() RETURNS int"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 108,
+      "text": "CREATE OR REPLACE FUNCTION ledger_budget_remaining_ms(p_deadline timestamptz) RETURNS int"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 119,
+      "text": "CREATE OR REPLACE FUNCTION ledger_arm_lock_timeout(p_deadline timestamptz, p_what text DEFAULT NULL) RETURNS void"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 137,
+      "text": "CREATE OR REPLACE FUNCTION ledger_check_budget(p_deadline timestamptz, p_stage text) RETURNS void"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 170,
+      "text": "CREATE OR REPLACE FUNCTION ledger_error_for_sqlstate(p_state text, p_constraint text DEFAULT NULL)"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 289,
+      "text": "CREATE OR REPLACE FUNCTION ledger_strict_text(p_obj jsonb, p_key text, p_field text) RETURNS text"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 306,
+      "text": "CREATE OR REPLACE FUNCTION ledger_optional_text(p_obj jsonb, p_key text, p_field text) RETURNS text"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 321,
+      "text": "CREATE OR REPLACE FUNCTION ledger_optional_bool(p_obj jsonb, p_key text, p_field text) RETURNS boolean"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 340,
+      "text": "CREATE OR REPLACE FUNCTION ledger_int_amount(p_raw text, p_field text) RETURNS bigint"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 369,
+      "text": "CREATE OR REPLACE FUNCTION ledger_parse_user_amount("
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 442,
+      "text": "CREATE OR REPLACE FUNCTION ledger_payload_amount("
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 495,
+      "text": "CREATE OR REPLACE FUNCTION ledger_post_event(payload jsonb) RETURNS jsonb"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 64,
+      "text": "ALTER TABLE ledger_entry ADD COLUMN IF NOT EXISTS event_root_key text;"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 74,
+      "text": "ALTER TABLE ledger_entry DROP CONSTRAINT IF EXISTS ledger_event_root_guard;"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 75,
+      "text": "ALTER TABLE ledger_entry ADD CONSTRAINT ledger_event_root_guard"
+    },
+    {
+      "class_id": "C23",
+      "class_name": "ADD CONSTRAINT / ALTER COLUMN",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 75,
+      "text": "ALTER TABLE ledger_entry ADD CONSTRAINT ledger_event_root_guard"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 66,
+      "text": "COMMENT ON COLUMN ledger_entry.event_root_key IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 96,
+      "text": "COMMENT ON FUNCTION ledger_stmt_budget_ms() IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 102,
+      "text": "COMMENT ON FUNCTION ledger_lock_timeout_ms() IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 115,
+      "text": "COMMENT ON FUNCTION ledger_budget_remaining_ms(timestamptz) IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 133,
+      "text": "COMMENT ON FUNCTION ledger_arm_lock_timeout(timestamptz, text) IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 148,
+      "text": "COMMENT ON FUNCTION ledger_check_budget(timestamptz, text) IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 279,
+      "text": "COMMENT ON FUNCTION ledger_error_for_sqlstate(text, text) IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 302,
+      "text": "COMMENT ON FUNCTION ledger_strict_text(jsonb, text, text) IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 317,
+      "text": "COMMENT ON FUNCTION ledger_optional_text(jsonb, text, text) IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 336,
+      "text": "COMMENT ON FUNCTION ledger_optional_bool(jsonb, text, text) IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 365,
+      "text": "COMMENT ON FUNCTION ledger_int_amount(text, text) IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 423,
+      "text": "COMMENT ON FUNCTION ledger_parse_user_amount(text, int, text, text) IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 483,
+      "text": "COMMENT ON FUNCTION ledger_payload_amount(jsonb, int, text, text) IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0005_ledger_event_root_key.sql",
+      "line": 1400,
+      "text": "COMMENT ON FUNCTION ledger_post_event(jsonb) IS"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0006_user_to_users.sql",
+      "line": 28,
+      "text": "--     `CREATE INDEX IF NOT EXISTS idx_user_uid ON \"user\" (\"uID\")` 因 `\"uID\"` 列不存在而"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "migrations/0006_user_to_users.sql",
+      "line": 17,
+      "text": "--   2) `ALTER TABLE public.\"user\" RENAME TO users`（幂等守卫）"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "migrations/0006_user_to_users.sql",
+      "line": 75,
+      "text": "EXECUTE 'ALTER TABLE public.\"user\" RENAME TO users';"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "migrations/0006_user_to_users.sql",
+      "line": 103,
+      "text": "EXECUTE format('ALTER TABLE public.users RENAME CONSTRAINT %I TO %I', r.conname, v_new);"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "migrations/0006_user_to_users.sql",
+      "line": 46,
+      "text": "DO $$"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "migrations/0006_user_to_users.sql",
+      "line": 64,
+      "text": "DO $$"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "migrations/0006_user_to_users.sql",
+      "line": 81,
+      "text": "DO $$"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "migrations/0006_user_to_users.sql",
+      "line": 109,
+      "text": "DO $$"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "migrations/0006_user_to_users.sql",
+      "line": 121,
+      "text": "DO $$"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "migrations/0006_user_to_users.sql",
+      "line": 133,
+      "text": "DO $$"
+    },
+    {
+      "class_id": "C09",
+      "class_name": "RENAME TO",
+      "file": "migrations/0006_user_to_users.sql",
+      "line": 17,
+      "text": "--   2) `ALTER TABLE public.\"user\" RENAME TO users`（幂等守卫）"
+    },
+    {
+      "class_id": "C09",
+      "class_name": "RENAME TO",
+      "file": "migrations/0006_user_to_users.sql",
+      "line": 75,
+      "text": "EXECUTE 'ALTER TABLE public.\"user\" RENAME TO users';"
+    },
+    {
+      "class_id": "C09",
+      "class_name": "RENAME TO",
+      "file": "migrations/0006_user_to_users.sql",
+      "line": 115,
+      "text": "EXECUTE 'ALTER INDEX public.idx_user_evm_lower RENAME TO idx_users_evm_lower';"
+    },
+    {
+      "class_id": "C09",
+      "class_name": "RENAME TO",
+      "file": "migrations/0006_user_to_users.sql",
+      "line": 127,
+      "text": "EXECUTE 'ALTER SEQUENCE public.user_uid_seq RENAME TO users_uid_seq';"
+    },
+    {
+      "class_id": "C10",
+      "class_name": "to_regclass",
+      "file": "migrations/0006_user_to_users.sql",
+      "line": 42,
+      "text": "-- 幂等：全部 DDL 走 `EXECUTE` + `to_regclass` / `pg_constraint` 存在性守卫，重跑为空操作。"
+    },
+    {
+      "class_id": "C11",
+      "class_name": "ALTER INDEX",
+      "file": "migrations/0006_user_to_users.sql",
+      "line": 115,
+      "text": "EXECUTE 'ALTER INDEX public.idx_user_evm_lower RENAME TO idx_users_evm_lower';"
+    },
+    {
+      "class_id": "C18",
+      "class_name": "CREATE/ALTER/DROP SEQUENCE",
+      "file": "migrations/0006_user_to_users.sql",
+      "line": 127,
+      "text": "EXECUTE 'ALTER SEQUENCE public.user_uid_seq RENAME TO users_uid_seq';"
+    },
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 48,
+      "text": "CREATE TABLE IF NOT EXISTS referral ("
+    },
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 84,
+      "text": "CREATE TABLE IF NOT EXISTS commission_policy ("
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 64,
+      "text": "CREATE INDEX IF NOT EXISTS idx_referral_parent ON referral (parent_uid);"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 67,
+      "text": "CREATE OR REPLACE FUNCTION referral_append_only() RETURNS trigger"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 102,
+      "text": "CREATE OR REPLACE FUNCTION commission_policy_append_only() RETURNS trigger"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 120,
+      "text": "CREATE OR REPLACE FUNCTION commission_policy_weights_guard() RETURNS trigger"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 190,
+      "text": "CREATE OR REPLACE FUNCTION referral_cycle_guard() RETURNS trigger"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 241,
+      "text": "CREATE OR REPLACE FUNCTION referral_bind(p_child_uid bigint, p_parent_uid bigint)"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 317,
+      "text": "CREATE OR REPLACE FUNCTION ledger_assert_commission_conservation() RETURNS trigger"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 38,
+      "text": "--     `ALTER TABLE ... DISABLE TRIGGER USER` 可旁路（仓库内 purge-test-data.ts 即此法）。"
+    },
+    {
+      "class_id": "C07",
+      "class_name": "TRUNCATE",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 37,
+      "text": "--   · 「不可变」是**防应用层事故的护栏**：`TRUNCATE` 不触发行触发器；管理员"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 368,
+      "text": "DO $$"
+    },
+    {
+      "class_id": "C10",
+      "class_name": "to_regclass",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 33,
+      "text": "-- 幂等：每条 DDL 自带存在性守卫（`IF NOT EXISTS` / `to_regclass` / `DROP TRIGGER IF EXISTS`"
+    },
+    {
+      "class_id": "C10",
+      "class_name": "to_regclass",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 379,
+      "text": "IF to_regclass('public.referral') IS NULL OR to_regclass('public.commission_policy') IS NULL THEN"
+    },
+    {
+      "class_id": "C10",
+      "class_name": "to_regclass",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 379,
+      "text": "IF to_regclass('public.referral') IS NULL OR to_regclass('public.commission_policy') IS NULL THEN"
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 75,
+      "text": "CREATE TRIGGER trg_referral_append_only"
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 110,
+      "text": "CREATE TRIGGER trg_commission_policy_append_only"
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 153,
+      "text": "CREATE TRIGGER trg_commission_policy_weights_guard"
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 233,
+      "text": "CREATE TRIGGER trg_referral_cycle_guard"
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 33,
+      "text": "-- 幂等：每条 DDL 自带存在性守卫（`IF NOT EXISTS` / `to_regclass` / `DROP TRIGGER IF EXISTS`"
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 74,
+      "text": "DROP TRIGGER IF EXISTS trg_referral_append_only ON referral;"
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 109,
+      "text": "DROP TRIGGER IF EXISTS trg_commission_policy_append_only ON commission_policy;"
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 152,
+      "text": "DROP TRIGGER IF EXISTS trg_commission_policy_weights_guard ON commission_policy;"
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 232,
+      "text": "DROP TRIGGER IF EXISTS trg_referral_cycle_guard ON referral;"
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 356,
+      "text": "DROP TRIGGER IF EXISTS trg_ledger_entry_commission_conservation ON ledger_entry;"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 237,
+      "text": "COMMENT ON FUNCTION referral_cycle_guard() IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 284,
+      "text": "COMMENT ON FUNCTION referral_bind(bigint, bigint) IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0007_referral_and_commission_policy.sql",
+      "line": 353,
+      "text": "COMMENT ON FUNCTION ledger_assert_commission_conservation() IS"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0008_platform_revenue_job_fee.sql",
+      "line": 18,
+      "text": "--   1) `CREATE OR REPLACE FUNCTION ledger_assert_platform_mutation(...)` —— **仅**把 `-1` 的"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0008_platform_revenue_job_fee.sql",
+      "line": 35,
+      "text": "-- 幂等：`CREATE OR REPLACE FUNCTION` 天然幂等；自检块重跑读数一致。"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0008_platform_revenue_job_fee.sql",
+      "line": 38,
+      "text": "CREATE OR REPLACE FUNCTION ledger_assert_platform_mutation("
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "migrations/0008_platform_revenue_job_fee.sql",
+      "line": 69,
+      "text": "DO $$"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0008_platform_revenue_job_fee.sql",
+      "line": 63,
+      "text": "COMMENT ON FUNCTION ledger_assert_platform_mutation(bigint, text, text) IS"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0009_ledger_error_reverse_map_complete.sql",
+      "line": 28,
+      "text": "--   ① `CREATE OR REPLACE FUNCTION ledger_error_for_sqlstate(text, text)`"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0009_ledger_error_reverse_map_complete.sql",
+      "line": 57,
+      "text": "CREATE OR REPLACE FUNCTION ledger_error_for_sqlstate(p_state text, p_constraint text DEFAULT NULL)"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "migrations/0009_ledger_error_reverse_map_complete.sql",
+      "line": 240,
+      "text": "DO $$"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0009_ledger_error_reverse_map_complete.sql",
+      "line": 33,
+      "text": "--   ② `COMMENT ON FUNCTION` 同步改写（说明 LD 分支与扩展档位）。"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0009_ledger_error_reverse_map_complete.sql",
+      "line": 226,
+      "text": "COMMENT ON FUNCTION ledger_error_for_sqlstate(text, text) IS"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0010_referral_bind_protocol_guard.sql",
+      "line": 14,
+      "text": "--   ① `CREATE OR REPLACE FUNCTION referral_cycle_guard()`："
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0010_referral_bind_protocol_guard.sql",
+      "line": 55,
+      "text": "-- 幂等：`CREATE OR REPLACE FUNCTION` + 存在性守卫 ⇒ 可重跑（`migrate.ts` 重跑报 `skipped` + checksum 一致）。"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0010_referral_bind_protocol_guard.sql",
+      "line": 74,
+      "text": "CREATE OR REPLACE FUNCTION referral_cycle_guard() RETURNS trigger"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0010_referral_bind_protocol_guard.sql",
+      "line": 134,
+      "text": "-- 触发器**不重建、不改动**（`CREATE OR REPLACE FUNCTION` 即生效）：重建会短暂移除闸口，"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "migrations/0010_referral_bind_protocol_guard.sql",
+      "line": 37,
+      "text": "--   （上一单只能走管理员旁路 `ALTER TABLE … DISABLE TRIGGER` 事后修，见 `scripts/p2d-01-…ts`）。"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "migrations/0010_referral_bind_protocol_guard.sql",
+      "line": 62,
+      "text": "--     **不是**「任何写入都不可能让 `depth` 失效」：管理员 `ALTER TABLE … DISABLE TRIGGER USER`"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "migrations/0010_referral_bind_protocol_guard.sql",
+      "line": 152,
+      "text": "DO $$"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0010_referral_bind_protocol_guard.sql",
+      "line": 22,
+      "text": "--   ② `COMMENT ON FUNCTION` 同步改写（登记新守卫与**检查顺序**，顺序有判负用例钉着）。"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0010_referral_bind_protocol_guard.sql",
+      "line": 131,
+      "text": "COMMENT ON FUNCTION referral_cycle_guard() IS"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "line": 13,
+      "text": "--   ① F3 · `CREATE OR REPLACE FUNCTION ledger_assert_commission_conservation()`"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "line": 16,
+      "text": "--   ② F6 · `CREATE OR REPLACE FUNCTION referral_cycle_guard()` 新增 ③「child 已绑」前置检查："
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "line": 81,
+      "text": "CREATE OR REPLACE FUNCTION ledger_assert_commission_conservation() RETURNS trigger"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "line": 157,
+      "text": "CREATE OR REPLACE FUNCTION referral_cycle_guard() RETURNS trigger"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "line": 259,
+      "text": "-- 触发器**不重建、不改动**（`CREATE OR REPLACE FUNCTION` 即生效）：重建会短暂移除闸口，"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "migrations/0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "line": 233,
+      "text": "--    （`trg_referral_append_only`）⇒ 管理员旁路（`ALTER TABLE … DISABLE TRIGGER`）写入的陈旧"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "migrations/0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "line": 498,
+      "text": "ALTER TABLE referral DISABLE TRIGGER trg_referral_append_only;"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "migrations/0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "line": 500,
+      "text": "ALTER TABLE referral ENABLE TRIGGER trg_referral_append_only;"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "migrations/0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "line": 557,
+      "text": "ALTER TABLE referral DISABLE TRIGGER trg_referral_append_only;"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "migrations/0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "line": 559,
+      "text": "ALTER TABLE referral ENABLE TRIGGER trg_referral_append_only;"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "migrations/0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "line": 283,
+      "text": "DO $$"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "line": 147,
+      "text": "COMMENT ON FUNCTION ledger_assert_commission_conservation() IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "line": 256,
+      "text": "COMMENT ON FUNCTION referral_cycle_guard() IS"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0012_replay_pre_gate_before_balance_gate.sql",
+      "line": 77,
+      "text": "CREATE OR REPLACE FUNCTION ledger_post_event(payload jsonb) RETURNS jsonb"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "migrations/0012_replay_pre_gate_before_balance_gate.sql",
+      "line": 1070,
+      "text": "DO $chk$"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0012_replay_pre_gate_before_balance_gate.sql",
+      "line": 1053,
+      "text": "COMMENT ON FUNCTION ledger_post_event(jsonb) IS"
+    },
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "file": "migrations/0013_job.sql",
+      "line": 40,
+      "text": "-- 幂等（DL48）：`CREATE TABLE IF NOT EXISTS` / `CREATE INDEX IF NOT EXISTS` /"
+    },
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "file": "migrations/0013_job.sql",
+      "line": 79,
+      "text": "CREATE TABLE IF NOT EXISTS public.job ("
+    },
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "file": "migrations/0013_job.sql",
+      "line": 764,
+      "text": "VALUES ('create table'),('alter table'),('drop table'),('truncate'),('create index'),"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0013_job.sql",
+      "line": 40,
+      "text": "-- 幂等（DL48）：`CREATE TABLE IF NOT EXISTS` / `CREATE INDEX IF NOT EXISTS` /"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0013_job.sql",
+      "line": 110,
+      "text": "CREATE INDEX IF NOT EXISTS idx_job_status_time ON public.job (status, time_created DESC);"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0013_job.sql",
+      "line": 111,
+      "text": "CREATE INDEX IF NOT EXISTS idx_job_employer    ON public.job (employer_uid, time_created DESC);"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0013_job.sql",
+      "line": 112,
+      "text": "CREATE INDEX IF NOT EXISTS idx_job_worker      ON public.job (worker_uid, time_created DESC) WHERE worker_uid IS NOT NULL;"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0013_job.sql",
+      "line": 764,
+      "text": "VALUES ('create table'),('alter table'),('drop table'),('truncate'),('create index'),"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0013_job.sql",
+      "line": 41,
+      "text": "--   `CREATE OR REPLACE FUNCTION` / `DROP TRIGGER IF EXISTS` + `CREATE TRIGGER`；"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0013_job.sql",
+      "line": 60,
+      "text": "CREATE OR REPLACE FUNCTION public.job_status_transition_ok(p_from text, p_to text)"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0013_job.sql",
+      "line": 120,
+      "text": "CREATE OR REPLACE FUNCTION public.job_status_guard() RETURNS trigger"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0013_job.sql",
+      "line": 137,
+      "text": "CREATE OR REPLACE FUNCTION public.job_ledger_ref_guard() RETURNS trigger"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0013_job.sql",
+      "line": 161,
+      "text": "CREATE OR REPLACE FUNCTION public.job_core_immutable_guard() RETURNS trigger"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0013_job.sql",
+      "line": 191,
+      "text": "CREATE OR REPLACE FUNCTION public.job_touch_time_updated() RETURNS trigger"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0013_job.sql",
+      "line": 202,
+      "text": "CREATE OR REPLACE FUNCTION public.job_no_delete() RETURNS trigger"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0013_job.sql",
+      "line": 250,
+      "text": "CREATE OR REPLACE FUNCTION public.job_settle_plan("
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0013_job.sql",
+      "line": 431,
+      "text": "CREATE OR REPLACE FUNCTION public.job_post_event(payload jsonb) RETURNS jsonb"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0013_job.sql",
+      "line": 765,
+      "text": "('create function'),('rename to'),('do ' || chr(36) || chr(36))"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "migrations/0013_job.sql",
+      "line": 46,
+      "text": "--     `ALTER TABLE ... DISABLE TRIGGER USER` 可旁路 ⇒ 不得表述为「绝对不可变」。"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "migrations/0013_job.sql",
+      "line": 764,
+      "text": "VALUES ('create table'),('alter table'),('drop table'),('truncate'),('create index'),"
+    },
+    {
+      "class_id": "C05",
+      "class_name": "DROP TABLE",
+      "file": "migrations/0013_job.sql",
+      "line": 764,
+      "text": "VALUES ('create table'),('alter table'),('drop table'),('truncate'),('create index'),"
+    },
+    {
+      "class_id": "C07",
+      "class_name": "TRUNCATE",
+      "file": "migrations/0013_job.sql",
+      "line": 45,
+      "text": "--   · 「不可变/一次写定」是**防应用层事故的护栏**：`TRUNCATE` 不触发行触发器，超管"
+    },
+    {
+      "class_id": "C07",
+      "class_name": "TRUNCATE",
+      "file": "migrations/0013_job.sql",
+      "line": 158,
+      "text": "'DL52②：escrow_txid / settle_txid 一次写定（OLD 非 NULL 后禁改、禁清空）。护栏强度=行触发器；不拦 TRUNCATE / DISABLE TRIGGER USER。';"
+    },
+    {
+      "class_id": "C07",
+      "class_name": "TRUNCATE",
+      "file": "migrations/0013_job.sql",
+      "line": 764,
+      "text": "VALUES ('create table'),('alter table'),('drop table'),('truncate'),('create index'),"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "migrations/0013_job.sql",
+      "line": 714,
+      "text": "DO $$"
+    },
+    {
+      "class_id": "C09",
+      "class_name": "RENAME TO",
+      "file": "migrations/0013_job.sql",
+      "line": 765,
+      "text": "('create function'),('rename to'),('do ' || chr(36) || chr(36))"
+    },
+    {
+      "class_id": "C10",
+      "class_name": "to_regclass",
+      "file": "migrations/0013_job.sql",
+      "line": 725,
+      "text": "IF to_regclass('public.job') IS NULL THEN"
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "file": "migrations/0013_job.sql",
+      "line": 41,
+      "text": "--   `CREATE OR REPLACE FUNCTION` / `DROP TRIGGER IF EXISTS` + `CREATE TRIGGER`；"
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "file": "migrations/0013_job.sql",
+      "line": 213,
+      "text": "CREATE TRIGGER trg_job_core_immutable_guard"
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "file": "migrations/0013_job.sql",
+      "line": 218,
+      "text": "CREATE TRIGGER trg_job_ledger_ref_guard"
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "file": "migrations/0013_job.sql",
+      "line": 223,
+      "text": "CREATE TRIGGER trg_job_status_guard"
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "file": "migrations/0013_job.sql",
+      "line": 228,
+      "text": "CREATE TRIGGER trg_job_touch_time_updated"
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "file": "migrations/0013_job.sql",
+      "line": 233,
+      "text": "CREATE TRIGGER trg_job_no_delete"
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "file": "migrations/0013_job.sql",
+      "line": 41,
+      "text": "--   `CREATE OR REPLACE FUNCTION` / `DROP TRIGGER IF EXISTS` + `CREATE TRIGGER`；"
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "file": "migrations/0013_job.sql",
+      "line": 212,
+      "text": "DROP TRIGGER IF EXISTS trg_job_core_immutable_guard ON public.job;"
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "file": "migrations/0013_job.sql",
+      "line": 217,
+      "text": "DROP TRIGGER IF EXISTS trg_job_ledger_ref_guard ON public.job;"
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "file": "migrations/0013_job.sql",
+      "line": 222,
+      "text": "DROP TRIGGER IF EXISTS trg_job_status_guard ON public.job;"
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "file": "migrations/0013_job.sql",
+      "line": 227,
+      "text": "DROP TRIGGER IF EXISTS trg_job_touch_time_updated ON public.job;"
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "file": "migrations/0013_job.sql",
+      "line": 232,
+      "text": "DROP TRIGGER IF EXISTS trg_job_no_delete ON public.job;"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0013_job.sql",
+      "line": 72,
+      "text": "COMMENT ON FUNCTION public.job_status_transition_ok(text, text) IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0013_job.sql",
+      "line": 106,
+      "text": "COMMENT ON TABLE public.job IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0013_job.sql",
+      "line": 133,
+      "text": "COMMENT ON FUNCTION public.job_status_guard() IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0013_job.sql",
+      "line": 157,
+      "text": "COMMENT ON FUNCTION public.job_ledger_ref_guard() IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0013_job.sql",
+      "line": 187,
+      "text": "COMMENT ON FUNCTION public.job_core_immutable_guard() IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0013_job.sql",
+      "line": 198,
+      "text": "COMMENT ON FUNCTION public.job_touch_time_updated() IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0013_job.sql",
+      "line": 209,
+      "text": "COMMENT ON FUNCTION public.job_no_delete() IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0013_job.sql",
+      "line": 409,
+      "text": "COMMENT ON FUNCTION public.job_settle_plan(bigint, bigint, bigint, bigint, bigint) IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0013_job.sql",
+      "line": 707,
+      "text": "COMMENT ON FUNCTION public.job_post_event(jsonb) IS"
+    },
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 45,
+      "text": "-- 幂等（DL48）：`CREATE TABLE IF NOT EXISTS` / `CREATE INDEX IF NOT EXISTS` /"
+    },
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 79,
+      "text": "CREATE TABLE IF NOT EXISTS public.job_application ("
+    },
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 115,
+      "text": "CREATE TABLE IF NOT EXISTS public.job_submission ("
+    },
+    {
+      "class_id": "C01",
+      "class_name": "CREATE TABLE",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 414,
+      "text": "(VALUES ('create table'),('alter table'),('drop table'),('truncate'),('create index'),"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 45,
+      "text": "-- 幂等（DL48）：`CREATE TABLE IF NOT EXISTS` / `CREATE INDEX IF NOT EXISTS` /"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 46,
+      "text": "--   `CREATE UNIQUE INDEX IF NOT EXISTS` / `CREATE OR REPLACE FUNCTION` /"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 102,
+      "text": "CREATE UNIQUE INDEX IF NOT EXISTS uniq_job_application_accepted"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 108,
+      "text": "CREATE INDEX IF NOT EXISTS idx_job_application_worker"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 139,
+      "text": "CREATE INDEX IF NOT EXISTS idx_job_submission_job"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 141,
+      "text": "CREATE INDEX IF NOT EXISTS idx_job_submission_worker"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 143,
+      "text": "CREATE INDEX IF NOT EXISTS idx_job_submission_review"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 377,
+      "text": "IF position('CREATE UNIQUE INDEX' in upper(v_def)) = 0"
+    },
+    {
+      "class_id": "C02",
+      "class_name": "CREATE INDEX",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 414,
+      "text": "(VALUES ('create table'),('alter table'),('drop table'),('truncate'),('create index'),"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 46,
+      "text": "--   `CREATE UNIQUE INDEX IF NOT EXISTS` / `CREATE OR REPLACE FUNCTION` /"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 63,
+      "text": "CREATE OR REPLACE FUNCTION public.job_application_status_transition_ok(p_from text, p_to text)"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 152,
+      "text": "CREATE OR REPLACE FUNCTION public.job_application_status_guard() RETURNS trigger"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 170,
+      "text": "CREATE OR REPLACE FUNCTION public.job_application_create_key_guard() RETURNS trigger"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 185,
+      "text": "CREATE OR REPLACE FUNCTION public.job_application_touch_time_updated() RETURNS trigger"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 196,
+      "text": "CREATE OR REPLACE FUNCTION public.job_application_no_delete() RETURNS trigger"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 212,
+      "text": "CREATE OR REPLACE FUNCTION public.job_submission_immutable_guard() RETURNS trigger"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 259,
+      "text": "CREATE OR REPLACE FUNCTION public.job_submission_no_delete() RETURNS trigger"
+    },
+    {
+      "class_id": "C03",
+      "class_name": "CREATE [OR REPLACE] FUNCTION",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 415,
+      "text": "('create function'),('rename to'),('do ' || chr(36) || chr(36))) AS p(p)"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 53,
+      "text": "--     `TRUNCATE` 不触发行触发器，超管 `ALTER TABLE ... DISABLE TRIGGER USER` 可旁路"
+    },
+    {
+      "class_id": "C04",
+      "class_name": "ALTER TABLE",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 414,
+      "text": "(VALUES ('create table'),('alter table'),('drop table'),('truncate'),('create index'),"
+    },
+    {
+      "class_id": "C05",
+      "class_name": "DROP TABLE",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 414,
+      "text": "(VALUES ('create table'),('alter table'),('drop table'),('truncate'),('create index'),"
+    },
+    {
+      "class_id": "C06",
+      "class_name": "DROP INDEX",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 55,
+      "text": "--   · 部分唯一索引是**结构性**保证（并发 accept 由索引挡），但**不拦**「先 DROP INDEX"
+    },
+    {
+      "class_id": "C07",
+      "class_name": "TRUNCATE",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 53,
+      "text": "--     `TRUNCATE` 不触发行触发器，超管 `ALTER TABLE ... DISABLE TRIGGER USER` 可旁路"
+    },
+    {
+      "class_id": "C07",
+      "class_name": "TRUNCATE",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 256,
+      "text": "'DL56：列级不可变守卫（deliverable/job_id/worker_uid/create_key 永不可改；review_* 只允许从 NULL/pending 一次写定，之后冻结）。护栏强度=行触发器；不拦 TRUNCATE / DISABLE TRIGGER USER。';"
+    },
+    {
+      "class_id": "C07",
+      "class_name": "TRUNCATE",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 414,
+      "text": "(VALUES ('create table'),('alter table'),('drop table'),('truncate'),('create index'),"
+    },
+    {
+      "class_id": "C08",
+      "class_name": "DO $$ (plpgsql 匿名块)",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 304,
+      "text": "DO $$"
+    },
+    {
+      "class_id": "C09",
+      "class_name": "RENAME TO",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 415,
+      "text": "('create function'),('rename to'),('do ' || chr(36) || chr(36))) AS p(p)"
+    },
+    {
+      "class_id": "C10",
+      "class_name": "to_regclass",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 313,
+      "text": "IF to_regclass('public.job_application') IS NULL OR to_regclass('public.job_submission') IS NULL THEN"
+    },
+    {
+      "class_id": "C10",
+      "class_name": "to_regclass",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 313,
+      "text": "IF to_regclass('public.job_application') IS NULL OR to_regclass('public.job_submission') IS NULL THEN"
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 47,
+      "text": "--   `DROP TRIGGER IF EXISTS` + `CREATE TRIGGER`；末尾 apply-time `DO` 自检"
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 271,
+      "text": "CREATE TRIGGER trg_job_application_create_key_guard"
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 276,
+      "text": "CREATE TRIGGER trg_job_application_status_guard"
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 281,
+      "text": "CREATE TRIGGER trg_job_application_touch_time_updated"
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 286,
+      "text": "CREATE TRIGGER trg_job_application_no_delete"
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 291,
+      "text": "CREATE TRIGGER trg_job_submission_immutable_guard"
+    },
+    {
+      "class_id": "C16",
+      "class_name": "CREATE TRIGGER",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 296,
+      "text": "CREATE TRIGGER trg_job_submission_no_delete"
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 47,
+      "text": "--   `DROP TRIGGER IF EXISTS` + `CREATE TRIGGER`；末尾 apply-time `DO` 自检"
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 270,
+      "text": "DROP TRIGGER IF EXISTS trg_job_application_create_key_guard ON public.job_application;"
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 275,
+      "text": "DROP TRIGGER IF EXISTS trg_job_application_status_guard ON public.job_application;"
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 280,
+      "text": "DROP TRIGGER IF EXISTS trg_job_application_touch_time_updated ON public.job_application;"
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 285,
+      "text": "DROP TRIGGER IF EXISTS trg_job_application_no_delete ON public.job_application;"
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 290,
+      "text": "DROP TRIGGER IF EXISTS trg_job_submission_immutable_guard ON public.job_submission;"
+    },
+    {
+      "class_id": "C17",
+      "class_name": "DROP TRIGGER",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 295,
+      "text": "DROP TRIGGER IF EXISTS trg_job_submission_no_delete ON public.job_submission;"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 72,
+      "text": "COMMENT ON FUNCTION public.job_application_status_transition_ok(text, text) IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 98,
+      "text": "COMMENT ON TABLE public.job_application IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 135,
+      "text": "COMMENT ON TABLE public.job_submission IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 166,
+      "text": "COMMENT ON FUNCTION public.job_application_status_guard() IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 181,
+      "text": "COMMENT ON FUNCTION public.job_application_create_key_guard() IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 192,
+      "text": "COMMENT ON FUNCTION public.job_application_touch_time_updated() IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 204,
+      "text": "COMMENT ON FUNCTION public.job_application_no_delete() IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 255,
+      "text": "COMMENT ON FUNCTION public.job_submission_immutable_guard() IS"
+    },
+    {
+      "class_id": "C24",
+      "class_name": "COMMENT ON",
+      "file": "migrations/0014_job_flow.sql",
+      "line": 267,
+      "text": "COMMENT ON FUNCTION public.job_submission_no_delete() IS"
+    }
+  ],
+  "positive_control": null,
+  "exit_code": 0
+}

@@ -1,0 +1,42 @@
+{
+  "run": "20260928053411",
+  "label": "pre",
+  "at": "2026-09-28T05:34:14.507Z",
+  "probe": "P3F-00-FINGERPRINT",
+  "run_tag": "20260928053411",
+  "public_base_table_count": 9,
+  "public_base_tables": [
+    "account",
+    "commission_policy",
+    "currency",
+    "job",
+    "ledger_entry",
+    "ledger_owner",
+    "referral",
+    "schema_migration",
+    "users"
+  ],
+  "schema_version": "0013",
+  "schema_migration_row_count": 13,
+  "schema_migration_last_row": {
+    "version": "0013",
+    "name": "0013_job_core.sql",
+    "checksum": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+    "applied_at": "2026-09-28 05:08:33.801443+00"
+  },
+  "functions": [],
+  "job_application": {
+    "exists": false,
+    "columns": [],
+    "constraints": [],
+    "indexes": [],
+    "triggers": []
+  },
+  "job_submission": {
+    "exists": false,
+    "columns": [],
+    "constraints": [],
+    "indexes": [],
+    "triggers": []
+  }
+}
