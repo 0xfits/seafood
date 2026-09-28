@@ -1409,6 +1409,9 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 ⑤ **源码注释必须更正**：写明「判据② 承重、不得删除」，并附本段真值（`ws` Event 非全局 Event / 真对象 own props 空 / message 为原型 getter 字符串）。
 **⇒ 派 Unit I**（收窄一行 + 注释更正 + 回归守卫「`ws` Event 不 `instanceof globalThis.Event`」可机读断言 + 新 AC 矩阵 + 判负自证；DB 零写、纯函数探针）。
 
+**★ 程序性失误登记（我 · 本轮的流程错误，如实记，不掩盖）**：我把 Unit I 派在**入库之前**，而 Unit I 一开工就地改写了 `backend-ts/src/ledger-errors.ts` ⇒ Unit H 那一版（sha `7895390ea5616339…`）**既不在 git（`git cat-file -t` 报 not a valid object）、也不在 `.p3w-artifacts/_impl/`（只有 baseline/fixed/mutated 三件）** ⇒ **该中间态已不可按字节回溯**（我随后才尝试归档，`src` 已被改成 `5a671354…`）。**可回溯性损失面如实界定**：① **行为面未损失** —— 三态逐形态对拍表、判负三段、三态 sha 全在**已入库**的 `p3w-00-fold-narrow-verify-20260928T163708Z.json` + 报告 §3/§5 里；② 损失的是该中间版的**逐字节原文**（差量只能由报告 §3 的 5 个 hunk 行区间 + Unit I 的 diff 间接界定，**不是**逐字节可复原）。**纪律（本仓，自下一轮起硬执行）**：**不得把「会就地改写某已验收产物」的单派在入库之前** —— 先 `git commit` 那一刻的内容 sha（或在 artifact 目录按字节存一份、以内容 sha 命名后入库），**入库动作排在派单之前**；并在 brief 里点名「你的开工态 = sha A，须在改动前 `cp` 一份核 sha A」，把存档义务压给后继单做双保险。
+**★ 同批核出的入库盲区（`git add` 目录 ≠ 目录内全部进索引）**：`.p3w-artifacts/**` 里三份 `*.log`（`p3w-tsc-narrow.log`、`p3w-00-run2/3-stdout.log`）被 **`.gitignore:244` 的 `*.log` 规则静默吞掉** ⇒ `git show --stat` 只 9 个文件、少于 `ls` 所见。**登记口径**：原始 stdout 归**仓库约定不忽略**之外（约定即忽略），**读数以已入库的 `.json` artifact（payload sha `466fc317…`）为准**；今后凡需入库的原始输出一律用 `.json`/`.txt` 后缀，**`.log` 后缀一律视为不入库**。
+
 ---
 
 ### 5.61 **D20 残差处置：只读盘点（我亲跑，双源对拍）+ 路线定案为「事务内重建，先 dry-run 后 apply」—— 破坏性步骤分级：Phase 1（dry-run/ROLLBACK，净零）即刻授权，Phase 2（COMMIT）待 Kevin 点头**（2026-09-28）
