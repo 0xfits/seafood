@@ -1,0 +1,189 @@
+{
+  "run": "20260928kong15",
+  "label": "replay-apply-exec",
+  "at": "2026-09-28T06:32:13.821Z",
+  "mode": "apply",
+  "repo": "/Users/kevin/bistro/seafood/backend-ts",
+  "file": {
+    "path": "migrations/0015_listing.sql",
+    "sha256": "911c7be4c08642fe875a6bae33b42570e5baa06481400becb05589308a6a1688",
+    "bytes": 54688
+  },
+  "gate": {
+    "ledger_biz_listing_ns_must_be_0": "0",
+    "listing_with_keys_must_be_0": "0",
+    "listing_order_rows_must_be_0": "0",
+    "fk_external_must_be_none": [
+      {
+        "conname": "listing_order_listing_fk",
+        "child": "listing_order",
+        "parent": "listing"
+      }
+    ]
+  },
+  "safe_to_replay": true,
+  "action": {
+    "refused": false,
+    "deleted_migration_rows": [
+      {
+        "version": "0015"
+      }
+    ],
+    "dropped_tables": [
+      "listing_order",
+      "listing"
+    ],
+    "dropped_functions": [
+      {
+        "fn": "listing_status_transition_ok",
+        "dropped": true
+      },
+      {
+        "fn": "listing_order_status_transition_ok",
+        "dropped": true
+      },
+      {
+        "fn": "listing_status_guard",
+        "dropped": true
+      },
+      {
+        "fn": "listing_stock_guard",
+        "dropped": true
+      },
+      {
+        "fn": "listing_create_key_guard",
+        "dropped": true
+      },
+      {
+        "fn": "listing_touch_time_updated",
+        "dropped": true
+      },
+      {
+        "fn": "listing_no_delete",
+        "dropped": true
+      },
+      {
+        "fn": "listing_order_status_guard",
+        "dropped": true
+      },
+      {
+        "fn": "listing_order_core_immutable_guard",
+        "dropped": true
+      },
+      {
+        "fn": "listing_order_create_key_guard",
+        "dropped": true
+      },
+      {
+        "fn": "listing_order_ledger_ref_guard",
+        "dropped": true
+      },
+      {
+        "fn": "listing_order_touch_time_updated",
+        "dropped": true
+      },
+      {
+        "fn": "listing_order_no_delete",
+        "dropped": true
+      },
+      {
+        "fn": "listing_post_event",
+        "dropped": true
+      }
+    ]
+  },
+  "before": {
+    "registry_rows": "15",
+    "registry_0015": {
+      "version": "0015",
+      "checksum": "911c7be4c08642fe875a6bae33b42570e5baa06481400becb05589308a6a1688"
+    },
+    "ledger_total": "2379",
+    "ledger_ref_listing_order": "14",
+    "ledger_biz_listing_ns": "0",
+    "fn_present": "14",
+    "trg_present": "11",
+    "fk_to_listing": [
+      {
+        "conname": "listing_order_listing_fk",
+        "child": "listing_order",
+        "parent": "listing"
+      }
+    ],
+    "oids": [
+      {
+        "t": "listing",
+        "oid": "106499"
+      },
+      {
+        "t": "listing_order",
+        "oid": "106544"
+      }
+    ],
+    "other_counts": [
+      {
+        "t": "account",
+        "n": "307"
+      },
+      {
+        "t": "commission_policy",
+        "n": "19"
+      },
+      {
+        "t": "currency",
+        "n": "101"
+      },
+      {
+        "t": "users",
+        "n": "440"
+      }
+    ],
+    "listing_tables_present": true,
+    "listing_rows": "0",
+    "listing_order_rows": "0",
+    "listing_with_keys": "0"
+  },
+  "after": {
+    "registry_rows": "14",
+    "registry_0015": null,
+    "ledger_total": "2379",
+    "ledger_ref_listing_order": "14",
+    "ledger_biz_listing_ns": "0",
+    "fn_present": "0",
+    "trg_present": "0",
+    "fk_to_listing": [],
+    "oids": [],
+    "other_counts": [
+      {
+        "t": "account",
+        "n": "307"
+      },
+      {
+        "t": "commission_policy",
+        "n": "19"
+      },
+      {
+        "t": "currency",
+        "n": "101"
+      },
+      {
+        "t": "users",
+        "n": "440"
+      }
+    ],
+    "listing_tables_present": false,
+    "listing_rows": null,
+    "listing_order_rows": null,
+    "listing_with_keys": null
+  },
+  "untouched_checks": {
+    "registry_rows_after_must_be_14_when_applied": "14",
+    "registry_0015_after": null,
+    "ledger_total_before": "2379",
+    "ledger_total_after": "2379",
+    "ledger_ref_listing_order_before": "14",
+    "ledger_ref_listing_order_after": "14",
+    "fn_present_after": "0",
+    "trg_present_after": "0"
+  }
+}

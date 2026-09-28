@@ -1,0 +1,117 @@
+{
+  "run": "20260928kong15",
+  "label": "reset-registry-0015-negbreak",
+  "at": "2026-09-28T09:31:09.210Z",
+  "repo": "/Users/kevin/bistro/seafood/backend-ts",
+  "requested_version": "0015",
+  "file_sha256_of_0015_now": "cd9bed22fb0f1cf0036ffd6fb603dda7682eda22cc76714a535f7776114622c8",
+  "registry_before": [
+    {
+      "version": "0001",
+      "checksum": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+      "applied_at": "2026-09-27 03:48:15.617808+00"
+    },
+    {
+      "version": "0002",
+      "checksum": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+      "applied_at": "2026-09-27 03:48:20.093949+00"
+    },
+    {
+      "version": "0003",
+      "checksum": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+      "applied_at": "2026-09-27 04:57:40.94416+00"
+    },
+    {
+      "version": "0004",
+      "checksum": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+      "applied_at": "2026-09-27 05:26:01.859398+00"
+    },
+    {
+      "version": "0005",
+      "checksum": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+      "applied_at": "2026-09-27 06:34:21.897469+00"
+    },
+    {
+      "version": "0006",
+      "checksum": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+      "applied_at": "2026-09-27 07:09:27.38362+00"
+    },
+    {
+      "version": "0007",
+      "checksum": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+      "applied_at": "2026-09-27 09:49:28.131292+00"
+    },
+    {
+      "version": "0008",
+      "checksum": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+      "applied_at": "2026-09-27 09:49:29.040584+00"
+    },
+    {
+      "version": "0009",
+      "checksum": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+      "applied_at": "2026-09-27 10:09:16.665946+00"
+    },
+    {
+      "version": "0010",
+      "checksum": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+      "applied_at": "2026-09-27 10:45:22.18861+00"
+    },
+    {
+      "version": "0011",
+      "checksum": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+      "applied_at": "2026-09-27 11:35:24.353246+00"
+    },
+    {
+      "version": "0012",
+      "checksum": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe",
+      "applied_at": "2026-09-27 13:09:02.882269+00"
+    },
+    {
+      "version": "0013",
+      "checksum": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+      "applied_at": "2026-09-28 05:08:33.801443+00"
+    },
+    {
+      "version": "0014",
+      "checksum": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d",
+      "applied_at": "2026-09-28 05:34:21.434834+00"
+    },
+    {
+      "version": "0015",
+      "checksum": "f856a1316e9d3bc79c3b54b89c63273102ce87733ef1c9a835c81f1b9a56624e",
+      "applied_at": "2026-09-28 06:37:14.727605+00"
+    }
+  ],
+  "namespace": {
+    "ledger_biz_listing_ns": "12",
+    "listing_rows": "28",
+    "listing_order_rows": "4",
+    "foreign_listing_rows": [],
+    "foreign_order_rows": [],
+    "uid_window_users": [
+      {
+        "uid": "990301",
+        "evm_prefix": "0x67efbbfe"
+      },
+      {
+        "uid": "990302",
+        "evm_prefix": "0xf8726bb9"
+      },
+      {
+        "uid": "990303",
+        "evm_prefix": "0x4e20edc2"
+      },
+      {
+        "uid": "990304",
+        "evm_prefix": "0xa2602f2c"
+      }
+    ],
+    "users_outside_window_touched_by_this_unit": {
+      "n": "0"
+    }
+  },
+  "deleted": {
+    "version": "0015"
+  },
+  "registry_rows_after": "14"
+}

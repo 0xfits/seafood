@@ -697,6 +697,16 @@ BEGIN
       PERFORM public.ledger_raise('LEDGER_REF_NOT_FOUND',
         jsonb_build_object('field', 'listing_id', 'value', v_order.listing_id::text, 'reason', 'listing_not_found'));
     END IF;
+
+    -- ④′ 币种存在性（**v3 修正 · 留痕**：v2（sha256 911c7be4…）的 refund 分支从未给 `v_cur` 赋值，
+    --   而 RETURN 的 `extra` 块无条件求值 `CASE WHEN v_cur IS NULL …` ⇒ 任何**成功**的 refund 都在
+    --   RETURN 处抛 `55000 record "v_cur" is not assigned yet`（实测：行为用例 K6 退款链被此拦下）。
+    --   现与 buy 的步骤 ⑧ 对称补齐币种查询，使 refund 的 `extra.currency_status` 亦有意义。）
+    SELECT c.cid, c.status INTO v_cur FROM public.currency c WHERE c.cid = v_order.cid;
+    IF NOT FOUND THEN
+      PERFORM public.ledger_raise('LEDGER_CURRENCY_NOT_FOUND', jsonb_build_object('cid', v_order.cid::text));
+    END IF;
+
     v_amount := v_order.price * v_order.quantity;
     IF v_amount <= 0 THEN
       PERFORM public.ledger_raise('LEDGER_AMOUNT_NOT_POSITIVE',

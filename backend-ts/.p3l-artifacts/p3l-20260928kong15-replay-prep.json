@@ -1,0 +1,798 @@
+{
+  "run": "20260928kong15",
+  "label": "replay-prep",
+  "at": "2026-09-28T06:28:41.312Z",
+  "repo": "/Users/kevin/bistro/seafood/backend-ts",
+  "file": {
+    "path": "migrations/0015_listing.sql",
+    "bytes": 54688,
+    "sha256": "911c7be4c08642fe875a6bae33b42570e5baa06481400becb05589308a6a1688",
+    "md5": "f29e213565888ab528260ea2842363e8"
+  },
+  "registry_0015": {
+    "version": "0015",
+    "name": "0015_listing.sql",
+    "checksum": "eca40487a5e81700dd01a68d24c3c13a0d0575f92c7c77ebd4c08e9e7232492f",
+    "applied_at": "2026-09-28 06:11:41.325743+00"
+  },
+  "registry_rows": 15,
+  "registry_all": [
+    {
+      "version": "0001",
+      "name": "0001_ledger_core.sql",
+      "checksum": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+      "applied_at": "2026-09-27 03:48:15.617808+00"
+    },
+    {
+      "version": "0002",
+      "name": "0002_user_identity.sql",
+      "checksum": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+      "applied_at": "2026-09-27 03:48:20.093949+00"
+    },
+    {
+      "version": "0003",
+      "name": "0003_kind_close_set_20.sql",
+      "checksum": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+      "applied_at": "2026-09-27 04:57:40.94416+00"
+    },
+    {
+      "version": "0004",
+      "name": "0004_ledger_post_event.sql",
+      "checksum": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+      "applied_at": "2026-09-27 05:26:01.859398+00"
+    },
+    {
+      "version": "0005",
+      "name": "0005_ledger_event_root_key.sql",
+      "checksum": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+      "applied_at": "2026-09-27 06:34:21.897469+00"
+    },
+    {
+      "version": "0006",
+      "name": "0006_user_to_users.sql",
+      "checksum": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+      "applied_at": "2026-09-27 07:09:27.38362+00"
+    },
+    {
+      "version": "0007",
+      "name": "0007_referral_and_commission_policy.sql",
+      "checksum": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+      "applied_at": "2026-09-27 09:49:28.131292+00"
+    },
+    {
+      "version": "0008",
+      "name": "0008_platform_revenue_job_fee.sql",
+      "checksum": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+      "applied_at": "2026-09-27 09:49:29.040584+00"
+    },
+    {
+      "version": "0009",
+      "name": "0009_ledger_error_reverse_map_complete.sql",
+      "checksum": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+      "applied_at": "2026-09-27 10:09:16.665946+00"
+    },
+    {
+      "version": "0010",
+      "name": "0010_referral_bind_protocol_guard.sql",
+      "checksum": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+      "applied_at": "2026-09-27 10:45:22.18861+00"
+    },
+    {
+      "version": "0011",
+      "name": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "checksum": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+      "applied_at": "2026-09-27 11:35:24.353246+00"
+    },
+    {
+      "version": "0012",
+      "name": "0012_replay_pre_gate_before_balance_gate.sql",
+      "checksum": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe",
+      "applied_at": "2026-09-27 13:09:02.882269+00"
+    },
+    {
+      "version": "0013",
+      "name": "0013_job_core.sql",
+      "checksum": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+      "applied_at": "2026-09-28 05:08:33.801443+00"
+    },
+    {
+      "version": "0014",
+      "name": "0014_job_flow.sql",
+      "checksum": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d",
+      "applied_at": "2026-09-28 05:34:21.434834+00"
+    },
+    {
+      "version": "0015",
+      "name": "0015_listing.sql",
+      "checksum": "eca40487a5e81700dd01a68d24c3c13a0d0575f92c7c77ebd4c08e9e7232492f",
+      "applied_at": "2026-09-28 06:11:41.325743+00"
+    }
+  ],
+  "counts": {
+    "ledger_biz_listing_ns": "0",
+    "ledger_entry_total": "2379",
+    "ledger_ref_type_listing_order": "14",
+    "listing": "6",
+    "listing_order": "0",
+    "listing_with_keys": "0"
+  },
+  "drift": {
+    "registry_checksum": "eca40487a5e81700dd01a68d24c3c13a0d0575f92c7c77ebd4c08e9e7232492f",
+    "file_sha256": "911c7be4c08642fe875a6bae33b42570e5baa06481400becb05589308a6a1688",
+    "equal": false
+  },
+  "ref_type_listing_order_groups": [
+    {
+      "event_root_key": "ops:p1e:smoke:i2cqn:settle",
+      "ref_type": "listing_order",
+      "kind": "purchase",
+      "n": "1"
+    },
+    {
+      "event_root_key": "ops:p1e:smoke:i2cqn:settle",
+      "ref_type": "listing_order",
+      "kind": "sale",
+      "n": "1"
+    },
+    {
+      "event_root_key": "ops:p1e:smoke:ifvf8:settle",
+      "ref_type": "listing_order",
+      "kind": "purchase",
+      "n": "1"
+    },
+    {
+      "event_root_key": "ops:p1e:smoke:ifvf8:settle",
+      "ref_type": "listing_order",
+      "kind": "sale",
+      "n": "1"
+    },
+    {
+      "event_root_key": "ops:p1e:smoke:j7tbc:settle",
+      "ref_type": "listing_order",
+      "kind": "purchase",
+      "n": "1"
+    },
+    {
+      "event_root_key": "ops:p1e:smoke:j7tbc:settle",
+      "ref_type": "listing_order",
+      "kind": "sale",
+      "n": "1"
+    },
+    {
+      "event_root_key": "ops:p1e:smoke:n750p:settle",
+      "ref_type": "listing_order",
+      "kind": "purchase",
+      "n": "1"
+    },
+    {
+      "event_root_key": "ops:p1e:smoke:n750p:settle",
+      "ref_type": "listing_order",
+      "kind": "sale",
+      "n": "1"
+    },
+    {
+      "event_root_key": "ops:p1e:smoke:nqvdd:settle",
+      "ref_type": "listing_order",
+      "kind": "purchase",
+      "n": "1"
+    },
+    {
+      "event_root_key": "ops:p1e:smoke:nqvdd:settle",
+      "ref_type": "listing_order",
+      "kind": "sale",
+      "n": "1"
+    },
+    {
+      "event_root_key": "ops:p1e:smoke:ogsdm:settle",
+      "ref_type": "listing_order",
+      "kind": "purchase",
+      "n": "1"
+    },
+    {
+      "event_root_key": "ops:p1e:smoke:ogsdm:settle",
+      "ref_type": "listing_order",
+      "kind": "sale",
+      "n": "1"
+    },
+    {
+      "event_root_key": "ops:p1e:smoke:p6da5:settle",
+      "ref_type": "listing_order",
+      "kind": "purchase",
+      "n": "1"
+    },
+    {
+      "event_root_key": "ops:p1e:smoke:p6da5:settle",
+      "ref_type": "listing_order",
+      "kind": "sale",
+      "n": "1"
+    }
+  ],
+  "ref_type_listing_order_rows": [
+    {
+      "txid": "2216",
+      "uid": "920022",
+      "cid": "100",
+      "kind": "purchase",
+      "ref_type": "listing_order",
+      "ref_id": "88",
+      "delta": "0",
+      "frozen_delta": "-100",
+      "event_root_key": "ops:p1e:smoke:i2cqn:settle",
+      "time_created": "2026-09-27 07:31:27.381719+00"
+    },
+    {
+      "txid": "2217",
+      "uid": "920021",
+      "cid": "100",
+      "kind": "sale",
+      "ref_type": "listing_order",
+      "ref_id": "88",
+      "delta": "100",
+      "frozen_delta": "0",
+      "event_root_key": "ops:p1e:smoke:i2cqn:settle",
+      "time_created": "2026-09-27 07:31:27.381719+00"
+    },
+    {
+      "txid": "2320",
+      "uid": "920022",
+      "cid": "108",
+      "kind": "purchase",
+      "ref_type": "listing_order",
+      "ref_id": "88",
+      "delta": "0",
+      "frozen_delta": "-100",
+      "event_root_key": "ops:p1e:smoke:ifvf8:settle",
+      "time_created": "2026-09-27 07:41:58.557973+00"
+    },
+    {
+      "txid": "2321",
+      "uid": "920021",
+      "cid": "108",
+      "kind": "sale",
+      "ref_type": "listing_order",
+      "ref_id": "88",
+      "delta": "100",
+      "frozen_delta": "0",
+      "event_root_key": "ops:p1e:smoke:ifvf8:settle",
+      "time_created": "2026-09-27 07:41:58.557973+00"
+    },
+    {
+      "txid": "2406",
+      "uid": "920022",
+      "cid": "117",
+      "kind": "purchase",
+      "ref_type": "listing_order",
+      "ref_id": "88",
+      "delta": "0",
+      "frozen_delta": "-100",
+      "event_root_key": "ops:p1e:smoke:j7tbc:settle",
+      "time_created": "2026-09-27 08:03:41.31526+00"
+    },
+    {
+      "txid": "2407",
+      "uid": "920021",
+      "cid": "117",
+      "kind": "sale",
+      "ref_type": "listing_order",
+      "ref_id": "88",
+      "delta": "100",
+      "frozen_delta": "0",
+      "event_root_key": "ops:p1e:smoke:j7tbc:settle",
+      "time_created": "2026-09-27 08:03:41.31526+00"
+    },
+    {
+      "txid": "2522",
+      "uid": "920022",
+      "cid": "126",
+      "kind": "purchase",
+      "ref_type": "listing_order",
+      "ref_id": "88",
+      "delta": "0",
+      "frozen_delta": "-100",
+      "event_root_key": "ops:p1e:smoke:n750p:settle",
+      "time_created": "2026-09-27 09:55:12.874739+00"
+    },
+    {
+      "txid": "2523",
+      "uid": "920021",
+      "cid": "126",
+      "kind": "sale",
+      "ref_type": "listing_order",
+      "ref_id": "88",
+      "delta": "100",
+      "frozen_delta": "0",
+      "event_root_key": "ops:p1e:smoke:n750p:settle",
+      "time_created": "2026-09-27 09:55:12.874739+00"
+    },
+    {
+      "txid": "2608",
+      "uid": "920022",
+      "cid": "134",
+      "kind": "purchase",
+      "ref_type": "listing_order",
+      "ref_id": "88",
+      "delta": "0",
+      "frozen_delta": "-100",
+      "event_root_key": "ops:p1e:smoke:nqvdd:settle",
+      "time_created": "2026-09-27 10:10:32.913443+00"
+    },
+    {
+      "txid": "2609",
+      "uid": "920021",
+      "cid": "134",
+      "kind": "sale",
+      "ref_type": "listing_order",
+      "ref_id": "88",
+      "delta": "100",
+      "frozen_delta": "0",
+      "event_root_key": "ops:p1e:smoke:nqvdd:settle",
+      "time_created": "2026-09-27 10:10:32.913443+00"
+    },
+    {
+      "txid": "3351",
+      "uid": "920022",
+      "cid": "145",
+      "kind": "purchase",
+      "ref_type": "listing_order",
+      "ref_id": "88",
+      "delta": "0",
+      "frozen_delta": "-100",
+      "event_root_key": "ops:p1e:smoke:ogsdm:settle",
+      "time_created": "2026-09-27 10:30:43.434941+00"
+    },
+    {
+      "txid": "3352",
+      "uid": "920021",
+      "cid": "145",
+      "kind": "sale",
+      "ref_type": "listing_order",
+      "ref_id": "88",
+      "delta": "100",
+      "frozen_delta": "0",
+      "event_root_key": "ops:p1e:smoke:ogsdm:settle",
+      "time_created": "2026-09-27 10:30:43.434941+00"
+    },
+    {
+      "txid": "3873",
+      "uid": "920022",
+      "cid": "154",
+      "kind": "purchase",
+      "ref_type": "listing_order",
+      "ref_id": "88",
+      "delta": "0",
+      "frozen_delta": "-100",
+      "event_root_key": "ops:p1e:smoke:p6da5:settle",
+      "time_created": "2026-09-27 10:50:35.24565+00"
+    },
+    {
+      "txid": "3874",
+      "uid": "920021",
+      "cid": "154",
+      "kind": "sale",
+      "ref_type": "listing_order",
+      "ref_id": "88",
+      "delta": "100",
+      "frozen_delta": "0",
+      "event_root_key": "ops:p1e:smoke:p6da5:settle",
+      "time_created": "2026-09-27 10:50:35.24565+00"
+    }
+  ],
+  "fk_pointing_to_listing_tables": [
+    {
+      "conname": "listing_order_listing_fk",
+      "contype": "f",
+      "child_table": "listing_order",
+      "parent_table": "listing",
+      "confdeltype": "a",
+      "definition": "FOREIGN KEY (listing_id) REFERENCES listing(listing_id)"
+    }
+  ],
+  "fk_on_listing_tables": [
+    {
+      "conname": "listing_cid_fk",
+      "child_table": "listing",
+      "parent_table": "currency",
+      "definition": "FOREIGN KEY (cid) REFERENCES currency(cid)"
+    },
+    {
+      "conname": "listing_order_buyer_fk",
+      "child_table": "listing_order",
+      "parent_table": "users",
+      "definition": "FOREIGN KEY (buyer_uid) REFERENCES users(uid)"
+    },
+    {
+      "conname": "listing_order_cid_fk",
+      "child_table": "listing_order",
+      "parent_table": "currency",
+      "definition": "FOREIGN KEY (cid) REFERENCES currency(cid)"
+    },
+    {
+      "conname": "listing_order_listing_fk",
+      "child_table": "listing_order",
+      "parent_table": "listing",
+      "definition": "FOREIGN KEY (listing_id) REFERENCES listing(listing_id)"
+    },
+    {
+      "conname": "listing_order_seller_fk",
+      "child_table": "listing_order",
+      "parent_table": "users",
+      "definition": "FOREIGN KEY (seller_uid) REFERENCES users(uid)"
+    },
+    {
+      "conname": "listing_seller_fk",
+      "child_table": "listing",
+      "parent_table": "users",
+      "definition": "FOREIGN KEY (seller_uid) REFERENCES users(uid)"
+    }
+  ],
+  "objects_created_by_0015": {
+    "functions_from_db": [
+      {
+        "proname": "listing_create_key_guard",
+        "args": "",
+        "result": "trigger",
+        "lang": "plpgsql",
+        "vol": "v",
+        "bytes": "323",
+        "md5": "0355a85a6f8e2f0e3869408341df70cd"
+      },
+      {
+        "proname": "listing_no_delete",
+        "args": "",
+        "result": "trigger",
+        "lang": "plpgsql",
+        "vol": "v",
+        "bytes": "221",
+        "md5": "e2e1b4b079d66740691756a49e30c13f"
+      },
+      {
+        "proname": "listing_order_core_immutable_guard",
+        "args": "",
+        "result": "trigger",
+        "lang": "plpgsql",
+        "vol": "v",
+        "bytes": "586",
+        "md5": "b3b16b5bf1a875c1acb0499970cc1539"
+      },
+      {
+        "proname": "listing_order_create_key_guard",
+        "args": "",
+        "result": "trigger",
+        "lang": "plpgsql",
+        "vol": "v",
+        "bytes": "331",
+        "md5": "f88ac1442b3ad7d001300423f5cb2573"
+      },
+      {
+        "proname": "listing_order_ledger_ref_guard",
+        "args": "",
+        "result": "trigger",
+        "lang": "plpgsql",
+        "vol": "v",
+        "bytes": "695",
+        "md5": "73bfe1f33193bb4142421aaa9c1a96f9"
+      },
+      {
+        "proname": "listing_order_no_delete",
+        "args": "",
+        "result": "trigger",
+        "lang": "plpgsql",
+        "vol": "v",
+        "bytes": "229",
+        "md5": "773e07ff5b3f98c5ed4e6b42e0430d8c"
+      },
+      {
+        "proname": "listing_order_status_guard",
+        "args": "",
+        "result": "trigger",
+        "lang": "plpgsql",
+        "vol": "v",
+        "bytes": "477",
+        "md5": "030d0f3d781769b162100c115e524414"
+      },
+      {
+        "proname": "listing_order_status_transition_ok",
+        "args": "p_from text, p_to text",
+        "result": "boolean",
+        "lang": "sql",
+        "vol": "i",
+        "bytes": "201",
+        "md5": "b8c40d6001a1a9f6596546bca6090d06"
+      },
+      {
+        "proname": "listing_order_touch_time_updated",
+        "args": "",
+        "result": "trigger",
+        "lang": "plpgsql",
+        "vol": "v",
+        "bytes": "54",
+        "md5": "02cd283c681f3259449b59141b5af903"
+      },
+      {
+        "proname": "listing_post_event",
+        "args": "payload jsonb",
+        "result": "jsonb",
+        "lang": "plpgsql",
+        "vol": "v",
+        "bytes": "15963",
+        "md5": "9c5d75d61063683ed695dfa268b20a76"
+      },
+      {
+        "proname": "listing_status_guard",
+        "args": "",
+        "result": "trigger",
+        "lang": "plpgsql",
+        "vol": "v",
+        "bytes": "463",
+        "md5": "bf7787c0bb9725e166986d1ac83b717b"
+      },
+      {
+        "proname": "listing_status_transition_ok",
+        "args": "p_from text, p_to text",
+        "result": "boolean",
+        "lang": "sql",
+        "vol": "i",
+        "bytes": "234",
+        "md5": "583aef2c89a55c6708c9678c1ca3e466"
+      },
+      {
+        "proname": "listing_stock_guard",
+        "args": "",
+        "result": "trigger",
+        "lang": "plpgsql",
+        "vol": "v",
+        "bytes": "438",
+        "md5": "a0be15a91fd5dd5c1331b6319cbbc534"
+      },
+      {
+        "proname": "listing_touch_time_updated",
+        "args": "",
+        "result": "trigger",
+        "lang": "plpgsql",
+        "vol": "v",
+        "bytes": "54",
+        "md5": "02cd283c681f3259449b59141b5af903"
+      }
+    ],
+    "functions_expected": [
+      "listing_create_key_guard",
+      "listing_no_delete",
+      "listing_order_core_immutable_guard",
+      "listing_order_create_key_guard",
+      "listing_order_ledger_ref_guard",
+      "listing_order_no_delete",
+      "listing_order_status_guard",
+      "listing_order_status_transition_ok",
+      "listing_order_touch_time_updated",
+      "listing_post_event",
+      "listing_status_guard",
+      "listing_status_transition_ok",
+      "listing_stock_guard",
+      "listing_touch_time_updated"
+    ],
+    "functions_ok": true,
+    "triggers_from_db": [
+      {
+        "tgname": "trg_listing_create_key_guard",
+        "on_table": "listing",
+        "tgenabled": "O",
+        "definition": "CREATE TRIGGER trg_listing_create_key_guard BEFORE UPDATE ON public.listing FOR EACH ROW EXECUTE FUNCTION listing_create_key_guard()"
+      },
+      {
+        "tgname": "trg_listing_no_delete",
+        "on_table": "listing",
+        "tgenabled": "O",
+        "definition": "CREATE TRIGGER trg_listing_no_delete BEFORE DELETE ON public.listing FOR EACH ROW EXECUTE FUNCTION listing_no_delete()"
+      },
+      {
+        "tgname": "trg_listing_order_core_immutable_guard",
+        "on_table": "listing_order",
+        "tgenabled": "O",
+        "definition": "CREATE TRIGGER trg_listing_order_core_immutable_guard BEFORE UPDATE ON public.listing_order FOR EACH ROW EXECUTE FUNCTION listing_order_core_immutable_guard()"
+      },
+      {
+        "tgname": "trg_listing_order_create_key_guard",
+        "on_table": "listing_order",
+        "tgenabled": "O",
+        "definition": "CREATE TRIGGER trg_listing_order_create_key_guard BEFORE UPDATE ON public.listing_order FOR EACH ROW EXECUTE FUNCTION listing_order_create_key_guard()"
+      },
+      {
+        "tgname": "trg_listing_order_ledger_ref_guard",
+        "on_table": "listing_order",
+        "tgenabled": "O",
+        "definition": "CREATE TRIGGER trg_listing_order_ledger_ref_guard BEFORE UPDATE ON public.listing_order FOR EACH ROW EXECUTE FUNCTION listing_order_ledger_ref_guard()"
+      },
+      {
+        "tgname": "trg_listing_order_no_delete",
+        "on_table": "listing_order",
+        "tgenabled": "O",
+        "definition": "CREATE TRIGGER trg_listing_order_no_delete BEFORE DELETE ON public.listing_order FOR EACH ROW EXECUTE FUNCTION listing_order_no_delete()"
+      },
+      {
+        "tgname": "trg_listing_order_status_guard",
+        "on_table": "listing_order",
+        "tgenabled": "O",
+        "definition": "CREATE TRIGGER trg_listing_order_status_guard BEFORE UPDATE ON public.listing_order FOR EACH ROW EXECUTE FUNCTION listing_order_status_guard()"
+      },
+      {
+        "tgname": "trg_listing_order_touch_time_updated",
+        "on_table": "listing_order",
+        "tgenabled": "O",
+        "definition": "CREATE TRIGGER trg_listing_order_touch_time_updated BEFORE UPDATE ON public.listing_order FOR EACH ROW EXECUTE FUNCTION listing_order_touch_time_updated()"
+      },
+      {
+        "tgname": "trg_listing_status_guard",
+        "on_table": "listing",
+        "tgenabled": "O",
+        "definition": "CREATE TRIGGER trg_listing_status_guard BEFORE UPDATE ON public.listing FOR EACH ROW EXECUTE FUNCTION listing_status_guard()"
+      },
+      {
+        "tgname": "trg_listing_stock_guard",
+        "on_table": "listing",
+        "tgenabled": "O",
+        "definition": "CREATE TRIGGER trg_listing_stock_guard BEFORE UPDATE ON public.listing FOR EACH ROW EXECUTE FUNCTION listing_stock_guard()"
+      },
+      {
+        "tgname": "trg_listing_touch_time_updated",
+        "on_table": "listing",
+        "tgenabled": "O",
+        "definition": "CREATE TRIGGER trg_listing_touch_time_updated BEFORE UPDATE ON public.listing FOR EACH ROW EXECUTE FUNCTION listing_touch_time_updated()"
+      }
+    ],
+    "triggers_expected": [
+      "trg_listing_create_key_guard",
+      "trg_listing_no_delete",
+      "trg_listing_order_core_immutable_guard",
+      "trg_listing_order_create_key_guard",
+      "trg_listing_order_ledger_ref_guard",
+      "trg_listing_order_no_delete",
+      "trg_listing_order_status_guard",
+      "trg_listing_order_touch_time_updated",
+      "trg_listing_status_guard",
+      "trg_listing_stock_guard",
+      "trg_listing_touch_time_updated"
+    ],
+    "triggers_ok": true,
+    "indexes_from_db": [
+      {
+        "indexname": "idx_listing_order_buyer",
+        "tablename": "listing_order",
+        "indexdef": "CREATE INDEX idx_listing_order_buyer ON public.listing_order USING btree (buyer_uid, time_created DESC)"
+      },
+      {
+        "indexname": "idx_listing_order_listing",
+        "tablename": "listing_order",
+        "indexdef": "CREATE INDEX idx_listing_order_listing ON public.listing_order USING btree (listing_id)"
+      },
+      {
+        "indexname": "idx_listing_seller",
+        "tablename": "listing",
+        "indexdef": "CREATE INDEX idx_listing_seller ON public.listing USING btree (seller_uid, time_created DESC)"
+      },
+      {
+        "indexname": "idx_listing_status_time",
+        "tablename": "listing",
+        "indexdef": "CREATE INDEX idx_listing_status_time ON public.listing USING btree (status, time_created DESC)"
+      }
+    ],
+    "indexes_expected": [
+      "idx_listing_order_buyer",
+      "idx_listing_order_listing",
+      "idx_listing_seller",
+      "idx_listing_status_time"
+    ],
+    "indexes_ok": true
+  },
+  "users_columns": [
+    {
+      "attname": "uid",
+      "attidentity": "d",
+      "attnotnull": true,
+      "type": "bigint"
+    },
+    {
+      "attname": "evm",
+      "attidentity": "",
+      "attnotnull": true,
+      "type": "text"
+    },
+    {
+      "attname": "bio",
+      "attidentity": "",
+      "attnotnull": true,
+      "type": "text"
+    },
+    {
+      "attname": "is_admin",
+      "attidentity": "",
+      "attnotnull": true,
+      "type": "boolean"
+    },
+    {
+      "attname": "time_reg",
+      "attidentity": "",
+      "attnotnull": true,
+      "type": "timestamp with time zone"
+    },
+    {
+      "attname": "time_login_last",
+      "attidentity": "",
+      "attnotnull": true,
+      "type": "timestamp with time zone"
+    }
+  ],
+  "currency_columns": [
+    {
+      "column_name": "cid",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "symbol",
+      "data_type": "text"
+    },
+    {
+      "column_name": "name",
+      "data_type": "text"
+    },
+    {
+      "column_name": "icon_url",
+      "data_type": "text"
+    },
+    {
+      "column_name": "owner_uid",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "decimals",
+      "data_type": "smallint"
+    },
+    {
+      "column_name": "total_supply",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "supply_cap",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text"
+    },
+    {
+      "column_name": "deposit_amount",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "deposit_cid",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "listed_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "column_name": "time_updated",
+      "data_type": "timestamp with time zone"
+    }
+  ],
+  "currency_cid1": {
+    "cid": "1",
+    "symbol": "$",
+    "name": "平台积分",
+    "icon_url": "",
+    "owner_uid": "0",
+    "decimals": 0,
+    "total_supply": "8400",
+    "supply_cap": null,
+    "status": "listed",
+    "deposit_amount": "0",
+    "deposit_cid": "1",
+    "listed_at": "2026-09-27T03:48:15.617Z",
+    "time_created": "2026-09-27T03:48:15.617Z",
+    "time_updated": "2026-09-27T10:50:04.928Z"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "run": "20260928kong15",
+  "label": "env-info",
+  "at": "2026-09-28T06:29:11.360Z",
+  "users_agg": {
+    "n": "440",
+    "min_uid": "6",
+    "max_uid": "990204"
+  },
+  "uid_window_9903_count": {
+    "n": "0"
+  },
+  "uid_window_9903_rows": [],
+  "supply_like_columns": [
+    {
+      "table_name": "currency",
+      "column_name": "supply_cap",
+      "type": "bigint"
+    },
+    {
+      "table_name": "currency",
+      "column_name": "total_supply",
+      "type": "bigint"
+    }
+  ],
+  "currency_cid1": {
+    "cid": "1",
+    "symbol": "$",
+    "name": "平台积分",
+    "icon_url": "",
+    "owner_uid": "0",
+    "decimals": 0,
+    "total_supply": "8400",
+    "supply_cap": null,
+    "status": "listed",
+    "deposit_amount": "0",
+    "deposit_cid": "1",
+    "listed_at": "2026-09-27T03:48:15.617Z",
+    "time_created": "2026-09-27T03:48:15.617Z",
+    "time_updated": "2026-09-27T10:50:04.928Z"
+  },
+  "account_cid1_sum": {
+    "n": "31",
+    "sum_balance": "4878",
+    "sum_frozen": "3522"
+  },
+  "supply_like_functions": [
+    {
+      "proname": "ledger_assert_commission_conservation",
+      "args": ""
+    }
+  ]
+}

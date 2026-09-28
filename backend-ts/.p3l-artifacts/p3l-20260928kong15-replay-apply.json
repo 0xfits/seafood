@@ -1,0 +1,122 @@
+{
+  "run": "20260928kong15",
+  "label": "replay-apply",
+  "at": "2026-09-28T06:29:58.664Z",
+  "mode": "check",
+  "repo": "/Users/kevin/bistro/seafood/backend-ts",
+  "file": {
+    "path": "migrations/0015_listing.sql",
+    "sha256": "911c7be4c08642fe875a6bae33b42570e5baa06481400becb05589308a6a1688",
+    "bytes": 54688
+  },
+  "gate": {
+    "ledger_biz_listing_ns_must_be_0": "0",
+    "listing_with_keys_must_be_0": "0",
+    "listing_order_rows_must_be_0": "0",
+    "fk_external_must_be_none": [
+      {
+        "conname": "listing_order_listing_fk",
+        "child": "listing_order",
+        "parent": "listing"
+      }
+    ]
+  },
+  "safe_to_replay": true,
+  "action": {
+    "refused": true,
+    "reason": "check-only mode"
+  },
+  "before": {
+    "registry_rows": "15",
+    "registry_0015": {
+      "version": "0015",
+      "checksum": "eca40487a5e81700dd01a68d24c3c13a0d0575f92c7c77ebd4c08e9e7232492f"
+    },
+    "ledger_total": "2379",
+    "ledger_ref_listing_order": "14",
+    "ledger_biz_listing_ns": "0",
+    "listing_rows": "6",
+    "listing_order_rows": "0",
+    "listing_with_keys": "0",
+    "fn_present": "14",
+    "trg_present": "11",
+    "fk_to_listing": [
+      {
+        "conname": "listing_order_listing_fk",
+        "child": "listing_order",
+        "parent": "listing"
+      }
+    ],
+    "other_counts": [
+      {
+        "t": "account",
+        "n": "307"
+      },
+      {
+        "t": "commission_policy",
+        "n": "19"
+      },
+      {
+        "t": "currency",
+        "n": "101"
+      },
+      {
+        "t": "users",
+        "n": "440"
+      }
+    ]
+  },
+  "after": {
+    "registry_rows": "15",
+    "registry_0015": {
+      "version": "0015",
+      "checksum": "eca40487a5e81700dd01a68d24c3c13a0d0575f92c7c77ebd4c08e9e7232492f"
+    },
+    "ledger_total": "2379",
+    "ledger_ref_listing_order": "14",
+    "ledger_biz_listing_ns": "0",
+    "listing_rows": "6",
+    "listing_order_rows": "0",
+    "listing_with_keys": "0",
+    "fn_present": "14",
+    "trg_present": "11",
+    "fk_to_listing": [
+      {
+        "conname": "listing_order_listing_fk",
+        "child": "listing_order",
+        "parent": "listing"
+      }
+    ],
+    "other_counts": [
+      {
+        "t": "account",
+        "n": "307"
+      },
+      {
+        "t": "commission_policy",
+        "n": "19"
+      },
+      {
+        "t": "currency",
+        "n": "101"
+      },
+      {
+        "t": "users",
+        "n": "440"
+      }
+    ]
+  },
+  "untouched_checks": {
+    "registry_rows_after_must_be_14_when_applied": "15",
+    "registry_0015_after": {
+      "version": "0015",
+      "checksum": "eca40487a5e81700dd01a68d24c3c13a0d0575f92c7c77ebd4c08e9e7232492f"
+    },
+    "ledger_total_before": "2379",
+    "ledger_total_after": "2379",
+    "ledger_ref_listing_order_before": "14",
+    "ledger_ref_listing_order_after": "14",
+    "fn_present_after": "14",
+    "trg_present_after": "11"
+  }
+}

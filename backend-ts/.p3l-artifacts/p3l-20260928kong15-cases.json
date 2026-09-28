@@ -1,0 +1,749 @@
+{
+  "run": "20260928kong15",
+  "label": "cases",
+  "at": "2026-09-28T06:38:32.742Z",
+  "repo": "/Users/kevin/bistro/seafood/backend-ts",
+  "uid_window": {
+    "seller": "990301",
+    "buyer": "990302",
+    "buyer2": "990303",
+    "poor": "990304"
+  },
+  "passport": "5b7e1a2fix-v3",
+  "funding": {
+    "error": "insufficient residual liquidity for uid 990302: short 1053"
+  },
+  "ledger_before": "2423",
+  "ledger_after": "2427",
+  "namespace_audit_before": {
+    "users_9903xx": {
+      "n": "4"
+    },
+    "listing_cli_kong15": {
+      "n": "9"
+    },
+    "orders_cli_kong15": {
+      "n": "1"
+    },
+    "ledger_biz_listing": {
+      "n": "2"
+    }
+  },
+  "namespace_audit_after": {
+    "users_9903xx": [
+      {
+        "uid": "990301"
+      },
+      {
+        "uid": "990302"
+      },
+      {
+        "uid": "990303"
+      },
+      {
+        "uid": "990304"
+      }
+    ],
+    "listing_cli_kong15": {
+      "n": "18"
+    },
+    "orders_cli_kong15": {
+      "n": "2"
+    },
+    "ledger_biz_listing_ns": [
+      {
+        "event_root_key": "biz:listing:buy:1",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:buy:4",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:4",
+        "n": "2"
+      }
+    ],
+    "foreign_listing_rows": [],
+    "foreign_order_rows": []
+  },
+  "checks": [
+    {
+      "id": "K1",
+      "name": "**首次购买**：买家无冻结额 ⇒ 购买成功、买家 balance −100、卖家 balance +100、买家 frozen 不变、**无 LD002**、恰 2 条分录且 frozen_delta=0",
+      "pass": true,
+      "readout": {
+        "headline": "order_id=4 status=paid err=null | buyer 4062->3962 (frozen 0->0) | seller 0->100",
+        "error": null,
+        "buyer_before": {
+          "balance": "4062",
+          "frozen": "0"
+        },
+        "buyer_after": {
+          "balance": "3962",
+          "frozen": "0"
+        },
+        "seller_before": {
+          "balance": "0",
+          "frozen": "0"
+        },
+        "seller_after": {
+          "balance": "100",
+          "frozen": "0"
+        },
+        "entries": [
+          {
+            "uid": "990302",
+            "cid": "1",
+            "delta": "-100",
+            "frozen_delta": "0",
+            "kind": "purchase",
+            "ref_type": "listing_order",
+            "ref_id": "4",
+            "event_root_key": "biz:listing:buy:4",
+            "txid": "5707"
+          },
+          {
+            "uid": "990301",
+            "cid": "1",
+            "delta": "100",
+            "frozen_delta": "0",
+            "kind": "sale",
+            "ref_type": "listing_order",
+            "ref_id": "4",
+            "event_root_key": "biz:listing:buy:4",
+            "txid": "5708"
+          }
+        ],
+        "ledger_before": "[object Promise]",
+        "ledger_after": "2425",
+        "result": {
+          "ok": true,
+          "op": "buy",
+          "txid": "5707",
+          "extra": {
+            "amount": "100",
+            "event_kinds": "purchase,sale",
+            "currency_status": "listed"
+          },
+          "stock": 4,
+          "created": true,
+          "entries": [
+            {
+              "cid": "1",
+              "uid": "990302",
+              "kind": "purchase",
+              "memo": "listing buy（买家付款 purchase listing_order=4）",
+              "txid": "5707",
+              "delta": "-100",
+              "ref_id": "4",
+              "ref_type": "listing_order",
+              "frozen_after": "0",
+              "frozen_delta": "0",
+              "time_created": "2026-09-28T06:37:43.438Z",
+              "balance_after": "3962",
+              "idempotency_key": "biz:listing:buy:4",
+              "reversal_of_txid": null,
+              "request_fingerprint": "fp-kong15-k1"
+            },
+            {
+              "cid": "1",
+              "uid": "990301",
+              "kind": "sale",
+              "memo": "listing buy（卖家收款 sale listing_order=4）",
+              "txid": "5708",
+              "delta": "100",
+              "ref_id": "4",
+              "ref_type": "listing_order",
+              "frozen_after": "0",
+              "frozen_delta": "0",
+              "time_created": "2026-09-28T06:37:43.438Z",
+              "balance_after": "100",
+              "idempotency_key": "biz:listing:buy:4#2",
+              "reversal_of_txid": null,
+              "request_fingerprint": null
+            }
+          ],
+          "accounts": [
+            {
+              "cid": "1",
+              "uid": "990302",
+              "frozen": "0",
+              "balance": "3962"
+            },
+            {
+              "cid": "1",
+              "uid": "990301",
+              "frozen": "0",
+              "balance": "100"
+            }
+          ],
+          "order_id": "4",
+          "pay_txid": "5707",
+          "listing_id": "12",
+          "refund_txid": null,
+          "order_status": "paid",
+          "listing_status": "listed",
+          "idempotent_replay": false,
+          "ledger_event_keys": [
+            "biz:listing:buy:4"
+          ],
+          "ledger_idempotency_key": "biz:listing:buy:4"
+        }
+      }
+    },
+    {
+      "id": "K2",
+      "name": "幂等键：同 create_key 重放 ⇒ idempotent_replay=true / 同 txid / 账本行 +0 / 订单仍 1 条 / listing.ledger_event_keys 逐字不变 / 库存不二次递减",
+      "pass": false,
+      "readout": {
+        "headline": "replay=true same_txid=true ledger 2425->2425 stock 4->4 keys_eq=true",
+        "stock_before": 4,
+        "stock_after": 4,
+        "keys_before": [],
+        "keys_after": [],
+        "result": {
+          "ok": true,
+          "op": "buy",
+          "txid": "5707",
+          "extra": {
+            "amount": "100",
+            "event_kinds": "purchase,sale",
+            "currency_status": "listed"
+          },
+          "stock": 4,
+          "created": false,
+          "entries": [
+            {
+              "cid": "1",
+              "uid": "990302",
+              "kind": "purchase",
+              "memo": "listing buy（买家付款 purchase listing_order=4）",
+              "txid": "5707",
+              "delta": "-100",
+              "ref_id": "4",
+              "ref_type": "listing_order",
+              "frozen_after": "0",
+              "frozen_delta": "0",
+              "time_created": "2026-09-28T06:37:43.438Z",
+              "balance_after": "3962",
+              "idempotency_key": "biz:listing:buy:4",
+              "reversal_of_txid": null,
+              "request_fingerprint": "fp-kong15-k1"
+            },
+            {
+              "cid": "1",
+              "uid": "990301",
+              "kind": "sale",
+              "memo": "listing buy（卖家收款 sale listing_order=4）",
+              "txid": "5708",
+              "delta": "100",
+              "ref_id": "4",
+              "ref_type": "listing_order",
+              "frozen_after": "0",
+              "frozen_delta": "0",
+              "time_created": "2026-09-28T06:37:43.438Z",
+              "balance_after": "100",
+              "idempotency_key": "biz:listing:buy:4#2",
+              "reversal_of_txid": null,
+              "request_fingerprint": null
+            }
+          ],
+          "accounts": [
+            {
+              "cid": "1",
+              "uid": "990302",
+              "frozen": "0",
+              "balance": "3962"
+            },
+            {
+              "cid": "1",
+              "uid": "990301",
+              "frozen": "0",
+              "balance": "100"
+            }
+          ],
+          "order_id": "4",
+          "pay_txid": "5707",
+          "listing_id": "12",
+          "refund_txid": null,
+          "order_status": "paid",
+          "listing_status": "listed",
+          "idempotent_replay": true,
+          "ledger_event_keys": [
+            "biz:listing:buy:4"
+          ],
+          "ledger_idempotency_key": "biz:listing:buy:4"
+        }
+      }
+    },
+    {
+      "id": "K3",
+      "name": "状态机白名单 正全集（纯函数 4 + UPDATE 路径 5 通过）+ 负全集（纯函数 7 拒 + UPDATE 路径 5 拒 ⇒ LD011/LISTING_STATE_INVALID）+ 终态 delisted 后再迁移 ⇒ 拒且行未写",
+      "pass": true,
+      "readout": {
+        "headline": "pure allowed=4/4 forbidden=7/7 | UPDATE positive=5/5 negative=5/5 | terminal unchanged=true",
+        "pure_listing": {
+          "allowed": {
+            "draft->listed": true,
+            "listed->frozen": true,
+            "frozen->listed": true,
+            "listed->delisted": true
+          },
+          "forbidden": {
+            "draft->frozen": false,
+            "draft->delisted": false,
+            "listed->draft": false,
+            "listed->listed": false,
+            "frozen->delisted": false,
+            "delisted->listed": false,
+            "delisted->frozen": false
+          }
+        },
+        "update_path": {
+          "a_draft_to_listed": {
+            "ok": true,
+            "row": {
+              "status": "listed"
+            }
+          },
+          "a_listed_to_frozen": {
+            "ok": true,
+            "row": {
+              "status": "frozen"
+            }
+          },
+          "a_frozen_to_listed": {
+            "ok": true,
+            "row": {
+              "status": "listed"
+            }
+          },
+          "a_listed_to_delisted": {
+            "ok": true,
+            "row": {
+              "status": "delisted"
+            }
+          },
+          "b_draft_to_frozen": {
+            "ok": false,
+            "sqlstate": "LD011",
+            "reason": "LISTING_STATE_INVALID",
+            "field": "listing.status",
+            "constraint": null
+          },
+          "b_draft_to_delisted": {
+            "ok": false,
+            "sqlstate": "LD011",
+            "reason": "LISTING_STATE_INVALID",
+            "field": "listing.status",
+            "constraint": null
+          },
+          "c_draft_to_listed": {
+            "ok": true,
+            "row": null
+          },
+          "c_listed_to_draft": {
+            "ok": false,
+            "sqlstate": "LD011",
+            "reason": "LISTING_STATE_INVALID",
+            "field": "listing.status",
+            "constraint": null
+          },
+          "a_terminal_delisted_to_listed": {
+            "ok": false,
+            "sqlstate": "LD011",
+            "reason": "LISTING_STATE_INVALID",
+            "field": "listing.status",
+            "constraint": null
+          },
+          "a_terminal_delisted_to_frozen": {
+            "ok": false,
+            "sqlstate": "LD011",
+            "reason": "LISTING_STATE_INVALID",
+            "field": "listing.status",
+            "constraint": null
+          }
+        },
+        "terminal_before": "delisted",
+        "terminal_after": "delisted"
+      }
+    },
+    {
+      "id": "K4",
+      "name": "守卫矩阵：12 项「不得改」逐个试 ⇒ 全 LD011；DELETE 两表 ⇒ LD011；listing.stock 在 listed 下合法可改",
+      "pass": true,
+      "readout": {
+        "headline": "rejected 12/12 as LD011; deletes LD011=LD011/LD011; stock@listed ok=true",
+        "detail": {
+          "listing_create_key": {
+            "ok": false,
+            "sqlstate": "LD011",
+            "reason": "listing_create_key_immutable",
+            "field": "listing.create_key",
+            "constraint": null
+          },
+          "listing_stock_when_listed_ok": {
+            "ok": true,
+            "row": {
+              "stock": 7
+            }
+          },
+          "listing_stock_when_draft": {
+            "ok": false,
+            "sqlstate": "LD011",
+            "reason": "listing_stock_change_requires_listed",
+            "field": "listing.stock",
+            "constraint": null
+          },
+          "listing_delete": {
+            "ok": false,
+            "sqlstate": "LD011",
+            "reason": "listing_delete_forbidden"
+          },
+          "order_listing_id": {
+            "ok": false,
+            "sqlstate": "LD011",
+            "reason": "listing_order_core_immutable",
+            "field": "listing_order.core_fields",
+            "constraint": null
+          },
+          "order_buyer_uid": {
+            "ok": false,
+            "sqlstate": "LD011",
+            "reason": "listing_order_core_immutable",
+            "field": "listing_order.core_fields",
+            "constraint": null
+          },
+          "order_seller_uid": {
+            "ok": false,
+            "sqlstate": "LD011",
+            "reason": "listing_order_core_immutable",
+            "field": "listing_order.core_fields",
+            "constraint": null
+          },
+          "order_cid": {
+            "ok": false,
+            "sqlstate": "LD011",
+            "reason": "listing_order_core_immutable",
+            "field": "listing_order.core_fields",
+            "constraint": null
+          },
+          "order_price": {
+            "ok": false,
+            "sqlstate": "LD011",
+            "reason": "listing_order_core_immutable",
+            "field": "listing_order.core_fields",
+            "constraint": null
+          },
+          "order_quantity": {
+            "ok": false,
+            "sqlstate": "LD011",
+            "reason": "listing_order_core_immutable",
+            "field": "listing_order.core_fields",
+            "constraint": null
+          },
+          "order_create_key": {
+            "ok": false,
+            "sqlstate": "LD011",
+            "reason": "listing_order_create_key_immutable",
+            "field": "listing_order.create_key",
+            "constraint": null
+          },
+          "order_pay_txid_nullout": {
+            "ok": false,
+            "sqlstate": "LD011",
+            "reason": "listing_order_ledger_ref_immutable",
+            "field": "listing_order.pay_txid",
+            "constraint": null
+          },
+          "order_pay_txid_rewrite": {
+            "ok": false,
+            "sqlstate": "LD011",
+            "reason": "listing_order_ledger_ref_immutable",
+            "field": "listing_order.pay_txid",
+            "constraint": null
+          },
+          "order_status_illegal": {
+            "ok": false,
+            "sqlstate": "LD011",
+            "reason": "LISTING_ORDER_STATE_INVALID",
+            "field": "listing_order.status",
+            "constraint": null
+          },
+          "order_delete": {
+            "ok": false,
+            "sqlstate": "LD011",
+            "reason": "listing_order_delete_forbidden"
+          }
+        }
+      }
+    },
+    {
+      "id": "K5",
+      "name": "边界：不存在 listing/order ⇒ listing_not_found/order_not_found；非法 op ⇒ UNKNOWN_LISTING_OP；平台买家 ⇒ PLATFORM_BUYER_FORBIDDEN；自买自卖 ⇒ self_purchase_not_allowed；qty≤0 ⇒ 拒；库存不足 ⇒ listing_stock_insufficient；未 listed ⇒ listing_not_listed；余额不足 ⇒ 拒且零副作用；price=0 ⇒ 23514；坏 FK ⇒ 23503；非 listed 币种 ⇒ 拒",
+      "pass": true,
+      "readout": {
+        "headline": "sqlstates: {\"nonexistent_listing\":\"LD022\",\"nonexistent_order_refund\":\"LD022\",\"bad_op\":\"LD016\",\"platform_buyer\":\"LD021\",\"self_purchase\":\"LD019\",\"qty_zero\":\"LD017\",\"qty_negative\":\"LD017\",\"stock_insufficient\":\"LD001\",\"listing_not_listed\":\"LD011\",\"insufficient_balance\":\"LD001\",\"price_zero_insert\":\"23514\",\"bad_fk_insert\":\"23503\",\"non_listed_currency\":\"LD008\"} | reasons: {\"nonexistent_listing\":\"listing_not_found\",\"nonexistent_order_refund\":\"order_not_found\",\"bad_op\":\"UNKNOWN_LISTING_OP\",\"platform_buyer\":\"PLATFORM_BUYER_FORBIDDEN\",\"self_purchase\":\"self_purchase_not_allowed\",\"qty_zero\":null,\"qty_negative\":null,\"stock_insufficient\":\"listing_stock_insufficient\",\"listing_not_listed\":\"listing_not_listed\",\"insufficient_balance\":null,\"price_zero_insert\":null,\"bad_fk_insert\":null,\"non_listed_currency\":null}",
+        "detail": {
+          "nonexistent_listing": {
+            "ok": false,
+            "sqlstate": "LD022",
+            "reason": "listing_not_found",
+            "field": "listing_id",
+            "constraint": null,
+            "message": "LEDGER_REF_NOT_FOUND"
+          },
+          "nonexistent_order_refund": {
+            "ok": false,
+            "sqlstate": "LD022",
+            "reason": "order_not_found",
+            "field": "order_id",
+            "constraint": null,
+            "message": "LEDGER_REF_NOT_FOUND"
+          },
+          "bad_op": {
+            "ok": false,
+            "sqlstate": "LD016",
+            "reason": "UNKNOWN_LISTING_OP",
+            "field": "op",
+            "constraint": null,
+            "message": "LEDGER_AMOUNT_INVALID"
+          },
+          "platform_buyer": {
+            "ok": false,
+            "sqlstate": "LD021",
+            "reason": "PLATFORM_BUYER_FORBIDDEN",
+            "field": "buyer_uid",
+            "constraint": null,
+            "message": "LEDGER_RESERVED_UID"
+          },
+          "self_purchase": {
+            "ok": false,
+            "sqlstate": "LD019",
+            "reason": "self_purchase_not_allowed",
+            "field": "buyer_uid",
+            "constraint": null,
+            "message": "LEDGER_SELF_TRANSFER"
+          },
+          "qty_zero": {
+            "ok": false,
+            "sqlstate": "LD017",
+            "reason": null,
+            "field": "quantity",
+            "constraint": null,
+            "message": "LEDGER_AMOUNT_NOT_POSITIVE"
+          },
+          "qty_negative": {
+            "ok": false,
+            "sqlstate": "LD017",
+            "reason": null,
+            "field": "quantity",
+            "constraint": null,
+            "message": "LEDGER_AMOUNT_NOT_POSITIVE"
+          },
+          "stock_insufficient": {
+            "ok": false,
+            "sqlstate": "LD001",
+            "reason": "listing_stock_insufficient",
+            "field": "listing.stock",
+            "constraint": null,
+            "message": "LEDGER_INSUFFICIENT_BALANCE"
+          },
+          "listing_not_listed": {
+            "ok": false,
+            "sqlstate": "LD011",
+            "reason": "listing_not_listed",
+            "field": "listing.status",
+            "constraint": null,
+            "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+          },
+          "insufficient_balance": {
+            "ok": false,
+            "sqlstate": "LD001",
+            "reason": null,
+            "field": null,
+            "constraint": null,
+            "message": "LEDGER_INSUFFICIENT_BALANCE"
+          },
+          "insufficient_balance_side_effects": {
+            "balance_before": "0",
+            "balance_after": "0",
+            "ledger_before": "2425",
+            "ledger_after": "2425",
+            "order_row_created": "0"
+          },
+          "price_zero_insert": {
+            "ok": false,
+            "sqlstate": "23514",
+            "reason": null,
+            "field": null,
+            "constraint": "listing_price_positive",
+            "message": "new row for relation \"listing\" violates check constraint \"listing_price_positive\""
+          },
+          "bad_fk_insert": {
+            "ok": false,
+            "sqlstate": "23503",
+            "reason": null,
+            "field": null,
+            "constraint": "listing_seller_fk",
+            "message": "insert or update on table \"listing\" violates foreign key constraint \"listing_seller_fk\""
+          },
+          "non_listed_currency": {
+            "ok": false,
+            "sqlstate": "LD008",
+            "reason": null,
+            "field": null,
+            "constraint": null,
+            "message": "LEDGER_CURRENCY_NOT_LISTED"
+          },
+          "non_listed_currency_source": {
+            "cid": "102",
+            "status": "draft"
+          }
+        }
+      }
+    },
+    {
+      "id": "K6",
+      "name": "结算链守恒：购买/退款 Σ(delta+frozen_delta)=0 且分录全 frozen_delta=0；kind 恰 purchase,sale / purchase_refund；平台账户(0,-1,-2,-3)零参与；ref 落 listing_order/order_id；退款 paid→refunded+refund_txid；cid=1 Σ(balance+frozen)==total_supply",
+      "pass": true,
+      "readout": {
+        "headline": "buy Σ=0 kinds=purchase,sale n=2 | refund Σ=0 kinds=purchase_refund n=2 | platform_touched=0 | order=refunded refund_txid=5709 | cid1 Σ(acc)=8400 total_supply=8400 conserve=true",
+        "buy_entries": [
+          {
+            "uid": "990302",
+            "cid": "1",
+            "delta": "-100",
+            "frozen_delta": "0",
+            "kind": "purchase",
+            "ref_type": "listing_order",
+            "ref_id": "4",
+            "event_root_key": "biz:listing:buy:4",
+            "txid": "5707"
+          },
+          {
+            "uid": "990301",
+            "cid": "1",
+            "delta": "100",
+            "frozen_delta": "0",
+            "kind": "sale",
+            "ref_type": "listing_order",
+            "ref_id": "4",
+            "event_root_key": "biz:listing:buy:4",
+            "txid": "5708"
+          }
+        ],
+        "refund_entries": [
+          {
+            "uid": "990301",
+            "cid": "1",
+            "delta": "-100",
+            "frozen_delta": "0",
+            "kind": "purchase_refund",
+            "ref_type": "listing_order",
+            "ref_id": "4",
+            "event_root_key": "biz:listing:refund:4",
+            "txid": "5709"
+          },
+          {
+            "uid": "990302",
+            "cid": "1",
+            "delta": "100",
+            "frozen_delta": "0",
+            "kind": "purchase_refund",
+            "ref_type": "listing_order",
+            "ref_id": "4",
+            "event_root_key": "biz:listing:refund:4",
+            "txid": "5710"
+          }
+        ],
+        "refund_result": {
+          "ok": true,
+          "op": "refund",
+          "txid": "5709",
+          "extra": {
+            "amount": "100",
+            "event_kinds": "purchase_refund",
+            "currency_status": "listed"
+          },
+          "stock": 4,
+          "created": false,
+          "entries": [
+            {
+              "cid": "1",
+              "uid": "990301",
+              "kind": "purchase_refund",
+              "memo": "listing refund（卖家退回 purchase_refund listing_order=4）",
+              "txid": "5709",
+              "delta": "-100",
+              "ref_id": "4",
+              "ref_type": "listing_order",
+              "frozen_after": "0",
+              "frozen_delta": "0",
+              "time_created": "2026-09-28T06:38:30.196Z",
+              "balance_after": "0",
+              "idempotency_key": "biz:listing:refund:4",
+              "reversal_of_txid": null,
+              "request_fingerprint": "fp-kong15-rf"
+            },
+            {
+              "cid": "1",
+              "uid": "990302",
+              "kind": "purchase_refund",
+              "memo": "listing refund（买家收款 purchase_refund listing_order=4）",
+              "txid": "5710",
+              "delta": "100",
+              "ref_id": "4",
+              "ref_type": "listing_order",
+              "frozen_after": "0",
+              "frozen_delta": "0",
+              "time_created": "2026-09-28T06:38:30.196Z",
+              "balance_after": "4062",
+              "idempotency_key": "biz:listing:refund:4#2",
+              "reversal_of_txid": null,
+              "request_fingerprint": null
+            }
+          ],
+          "accounts": [
+            {
+              "cid": "1",
+              "uid": "990301",
+              "frozen": "0",
+              "balance": "0"
+            },
+            {
+              "cid": "1",
+              "uid": "990302",
+              "frozen": "0",
+              "balance": "4062"
+            }
+          ],
+          "order_id": "4",
+          "pay_txid": "5707",
+          "listing_id": "12",
+          "refund_txid": "5709",
+          "order_status": "refunded",
+          "listing_status": "listed",
+          "idempotent_replay": false,
+          "ledger_event_keys": [
+            "biz:listing:buy:4",
+            "biz:listing:refund:4"
+          ],
+          "ledger_idempotency_key": "biz:listing:refund:4"
+        },
+        "order_after_refund": {
+          "status": "refunded",
+          "refund_txid": "5709",
+          "ledger_event_keys": [
+            "biz:listing:buy:4",
+            "biz:listing:refund:4"
+          ]
+        }
+      }
+    }
+  ],
+  "passed": 5,
+  "total": 6,
+  "notes": {}
+}
