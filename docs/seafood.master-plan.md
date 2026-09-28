@@ -957,6 +957,39 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 **⑦ 留证一条**：`d9123482` 迟到回执**自报 verdict「可验收」（无附加条件）**，与其 §7 收尾单按全量证据给出的「**有条件**可验收 + 10 条未验证」**分歧** ⇒ **以 §7 为准**（§5.39 已记）。
 
+### 5.42 **P3 第一柱（招工）`0013` 交付并验收通过 + 迁移编号一次性重排裁定**（2026-09-28）
+
+**① 交付物**（`deleg_d48f4ac0`，57 calls / 792s；已入库 **`9080772`**，18 文件 / +9935）
+- `backend-ts/migrations/**0013_job.sql**`（**原名 `0013_job_core.sql`，我按内容改名为 spec §6.1 的权威名**；817 行（`wc -l`；自报 818 = NL+1 **口径差**）/ 44130 B / sha256 `720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230`）
+- 探针 4 件（`scripts/p3j-*.ts`）+ **10 个 run-tagged 读数**（`.p3j-artifacts/`，无同名覆写）+ 类级断言产物 + 报告 `docs/audit/p3-job-0013.md`（153 行 / 占位 0 / `NOT_MEASURED` **3**）
+
+**② 我的独立核（不采信自述）**
+
+| 核 | 读数 |
+|---|---|
+| **`ledger_post_event` 未被改**（DL142 铁证） | `prosrc` = **45598 B / md5 `d94dd902697dfe60aba409d808c6d63a`** —— 与 `0012` 后**逐值一致** |
+| 库态 | `max(version)=**0013**` / `schema_migration` **13 行** / `public` 表 **9**（+`job`）/ `job` **14 列** / 索引 **5**（3 必建 + PK + uniq）/ 约束 **18** / 触发器 **5 个全 `tgenabled='O'`** / `public.job*` 函数 **8** |
+| **我亲自重跑 `migrate.ts`** | **`MIGRATE_EXIT=0` + 13/13 `skipped` + `public_base_table_count=9`** ⇒ DB 内 `0013` checksum == 现盘文件（**无 drift**）；`scripts/migrate.ts:45` 证实 checksum = `sha256(sql 内容)` ⇒ **我改文件名前后库态零漂移**（改名后复跑仍 13 skipped） |
+| 列契约对拍 | `DL50`（12 项）+ §6.2 模型草图的 `title`/`description` = **14 列逐项一致，零自创列名** |
+| 触发器对拍 | `DL52` 三条守卫（`job_status_guard` / `job_ledger_ref_guard` / `job_core_immutable_guard`）**全在** + `job_touch_time_updated`（DL75③）+ `job_no_delete`（DL79） |
+| DL142 函数体禁 DDL | **8 个体全 0 命中**（词界版；先前 `create` 命中系 `time_created` **假命中**） |
+| DL151 | 建表/索引/触发器全 `public.` 限定；函数体内**未限定表引用 = 0** |
+| 类级断言 | `request_path.hits_total=0` / `assertion.pass=true` / `class_count=25` / 扫 **121** 文件（migration 落 non-request 允许集） |
+| 冻结件 | `0001`–`0012` 与 `src/` **零改动** |
+| 判负自证 | **6/6**（`TAMPER-A` 重放追加 `ledger_event_keys` ⇒ 红；`TAMPER-E` 状态机闸不给重放让路 ⇒ 红；两次 pristine 重装回绿 + 工作区 sha256 前后相等） |
+
+**③ 裁定一：迁移编号表一次性重排（依 `DL47`）。** spec §6.1 把 `0013` 定为三表（`job` + `job_application` + `job_submission`），而实交付为 **`0013` = `job` 单表**（**我的 brief 只点了 `job` ⇒ 偏差在我**），两表顺延。**裁定**：`0013` **保持已应用不动**（改已应用迁移 = 越 `DL7`/`R77` 红线）；`job_application` / `job_submission` 落 **`0014_job_flow.sql`**（同柱「一迁一主题」`DL46`），四柱**顺延一位** ⇒ **`0015_listing.sql` / `0016_market.sql` / `0017_platform_config.sql`**（原 `0017`「不提案」行顺延为 `0018`）。**此重排一次性定死，此后编号不得再动**（`DL47` 原话）。⇒ 已派 **Jing 出 v0.4** 落 §6.1（含 v0.3 快照，`cmp` 可核）。
+
+**④ 裁定二：`DL52①` 的 `23514` 与 `DL51` 的 C5 冲突 ⇒ 实现为准、spec 修措辞。** 实现走 `ledger_raise('LEDGER_CURRENCY_INVALID_TRANSITION')` ⇒ `LD011` ⇒ **409** + `reason=JOB_STATE_INVALID`，**与 `DL51` 逐字一致**（`DL51` 明写「C5 已裁：借 `LEDGER_CURRENCY_INVALID_TRANSITION`」）⇒ **无实现缺陷**；冲突源是 `DL52①` 的 **v0.1 旧写法**残留 ⇒ 由 Jing **就地标注**（不删原文）。
+
+**⑤ 裁定三：`refund` 无专用 txid 列（自证靠 `ledger_event_keys`）** = 与 `DL50` 字面一致 ⇒ **接受**；`hold_forfeit` 未启用 = 与 `DL91` 一致 ✓。
+
+**⑥ 裁定四（登记项，不阻塞）**：`src/db.ts#getSchemaVersion` 的 `SELECT version FROM schema_migration …` **未限定 `public.`**（与 `DL151` 字面口径不一致，属**既有代码**）⇒ 登记为「**下一接路由的单**一并收紧为 `max(version) FROM public.schema_migration`」。
+
+**⑦ 它的诚实项（加分）**：主动声明「拿掉 `create_key` 读取**不会**让用例变红 —— 创建路径另有 `ON CONFLICT DO NOTHING` + 重读兜底，两道闸互为冗余（**纵深防御**），故不作为『尺子响』的证据」；并如实登记「并发 **publish** 未实测」「HTTP `/health` 未打（本单禁起常驻 server）」；3 次 `migrate-apply` 中**前 3 次 `ok:false`**（`42601` 两次修语法、一次 plpgsql 标识符大小写）**如实留痕**在盘。
+
+**⑧ 库侧副作用（不清理，`D20` 统一）**：探针新增测试 `users` 411→**418** / `account` 245→**298** / `ledger_entry` 2145→**2271** / `job` **19** 行；供资走残差夹具 `transfer`（**净额守恒、不 mint、残差零删除**）。
+
 ### 5.6 延迟问题的三个处置变体（**已拍板：变体 B**，见 D10）
 
 | 变体 | 做法 | 本地单笔预期 | 代价 |
@@ -1153,6 +1186,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.46 | 2026-09-28 | **§5.42 P3 第一柱（招工）`0013` 交付并验收通过 + 迁移编号一次性重排裁定**。交付 `backend-ts/migrations/0013_job.sql`（817 行 `wc -l` / 44130 B / sha256 `720c89e4…c230`；**原名 `0013_job_core.sql` 系我 brief 的自定名，已改名对齐 spec §6.1 权威名**；checksum = `sha256(sql 内容)` ⇒ 改名零漂移）+ 4 探针 + 10 run-tagged 读数 + 报告 153 行。**我的独立核**：`ledger_post_event` 的 `prosrc` **45598 B / md5 `d94dd902…` 与 `0012` 后逐值一致**（DL142 铁证）；`schema_version=0013`、`public` 表 **9**、`job` **14 列** / 5 索引 / 18 约束 / **5 触发器全 O** / 8 函数；**我亲自重跑 migrate ⇒ exit 0 + 13/13 skipped**（无 drift）；列契约与 `DL50`+§6.2 草图 **14 列全中零自创**；`DL52` 三守卫 + `DL75③` + `DL79` 全在；函数体**零 DDL**、`public.` 全限定、体内未限定引用 **0**；类级断言 `hits=0`/`pass=true`；`0001`–`0012` 与 `src/` 零改动；判负自证 6/6。**四条裁定**：① 迁移编号**一次性重排**（`0013`=job 已应用不动；**`0014_job_flow.sql`**=job_application/job_submission；listing/market/platform_config 顺延为 `0015`/`0016`/`0017`；**此后不得再动**，依 DL47）② `DL52①` 的 `23514` 与 `DL51`/C5 的 409 冲突 ⇒ **实现为准、spec 就地标注 v0.1 旧写法**（实现逐字合 `DL51`）③ `refund` 无专用 txid 列 ⇒ 接受（合 `DL50`）④ `src/db.ts#getSchemaVersion` 未限定 `public.`（违 `DL151` 字面）⇒ 登记给下一接路由单。已派 **Jing v0.4**（§6.1 重排 + DL52① 标注 + `DL155` 登记 + v0.3 快照）+ **Neng 对 `0013` 的独立质检**；`0014` 建表单**押后**（同 DB 禁并发写单） |
 | v0.45 | 2026-09-28 | **§5.41 `data-layer.spec` v0.3 验收通过 ⇒ P3 数据层实现门禁解除**。v0.3 = 220752 B / 983 行 / md5 `0a8e228dcbc1dcb517a378ca46dee79c`；**v0.2 快照与入库版 `cmp` 逐字节相同**（⇒ 可独立复核，㉑ 之痛不复现）；audit `p3-data-layer-v03.md` 187 行。八项落位我逐项核过（M1 `ledger_event_keys` 21→24 + `create_key` 统一；M2 仅 2 处留痕；M3 `20–37` + `smallint[]`；M4 `auth.err.*` 与仓内 `ledger.err.${code}` **同构**、前端确无该键 ⇒「需新增键」；M5 新增 `DL154`；R109 0→9；§12.2-11/-12 关闭；O1 路径形唯一权威且 `DL145③` 未动）。结构：DL **154 条 1..154 连续**、占位 0、§15 三行、numstat `57 44`。**④ 零内容丢失 + 我一次自我更正**：我首轮 `grep -c`（数行）比上一轮 `str.count()`（数次）**混口径**，误报 `视图 25→10` 等三处「下降」；同口径复核三处**逐值相同**、且「v0.2 有该词而 v0.3 整行不存在」**= 0 行** ⇒ 零行丢失；**教训：跨版本比计数两侧必须同口径同命令，核零丢失的正解是按行集合差**。⑤ 未连库（M3 转引我 run-tagged 件）/ 未做原文照录（M5 从轻，可选加强）/ `i18n_key` 前端落地待办。⑦ 留证：`d9123482` 自报 verdict「可验收」与 §7「有条件可验收」分歧 ⇒ 以 §7 为准 |
 | v0.44 | 2026-09-28 | **§5.40 v0.2 聚焦复核交回：verdict「需修」（M1–M5 全低危，不推翻任何裁定）+ 我裁定 M3/O1 + 派 v0.3 小修**。报告 `docs/qa/data-layer.spec-v02-review.md` 161 行 / 33158 B / 占位 0；**C1–C9 七忠实 / 两「部分」**（C4 缺 `i18n_key` 具体串、C8 的 `ledger_event_keys` 与 §6 列清单自相矛盾）；**编号层忠实、留痕层节录式（20/139 非逐字）**；**判负自证三种变造**：改 1 汉字报出（`lcs` 348→174）、删 `DL66` 报出（153→152 / `missing=[66]`）、同输入复跑逐字节相同 —— 且**它主动指出布尔断言对 1 字改动不敏感、灵敏度来自数值保留度**。被检件 md5 三次一致（零改写）；它诚实登记基线漂移（HEAD 中途到 `91dcc02`，§5.32/§5.33 正文未变、行号仍 706/734）。**M3 我亲裁（只读库、`public.` 限定，run-tagged `m3-arbitrate-20260928045335.json`）**：**19 行** / `min=1`·`max=37` / id 全集 = **`1` + `20..37`** ⇒ **`DL152` 的「夹具 id 2–19」为错，应为 `20–37`**；末行 `policy_id=37` 三值 = 预期组合 ✓ 成立；附赠**类型事实 `weights_bp smallint[]`**（按 `int[]` 比会报 `operator does not exist`）。**O1 我定性**：**以路径形 `GET /api/market/:baseCid/orderbook` 为唯一权威形态**（依据实存路由 + C2 路径参数 camelCase），query 形登记 v0.1 旧写法废弃、不得复活；非 `$` 计价对走路径双段。**已派 Jing v0.3**：M1–M5 + `R109` 交叉引用 + 关闭 `§12.2-11/-12` + O1 落位；**M5 从轻**（只明写「节录」+ 指向已入库的 v0.1 快照，不要求 20 条全文回贴；全文照录列为可选加强项、不阻塞 P3 开工） |
 | v0.43 | 2026-09-28 | **§5.39 `dbccd89` 语言壳质检收口 + 两份并行质检报告归档**。我的核验单 `docs/qa/lang-shell-dbccd89-verify.md` **249 行 / sha256 `d8529915…`**：§7 由收尾单补齐（**verdict = 有条件可验收** + **10 条未验证枚举到边界**）；**我独立核**：占位 0、**全部章标题行号与 238 行版逐行号相同**（用行号锚证明其余 232 行未动，补上它自报「未跟踪文件无法用 git diff 证明」的缺口）。**结论**：`dbccd89` 核心缺陷**已确证修好**（§3 四者一致 + 反向 6 例 + Footer 链 / §4 四语全等 + 自愈 7/7 + 无前缀 5/5 / §5 单测 9 文件 61 例集合 ∅ vs ∅ / §6 两轮变异负控 17 红与 3 红 + 逐字节恢复 + 回绿）；**唯一未闭合 = reward/task 终态 marker**，成因是**他方** `/api/prize/all` 500（间歇）⇒ 不属本提交缺陷。**条件**：后端恢复后可选补验（不阻塞）；未验证清单第 **⑤⑥⑦**（≠ HEAD 整体可发布 / build-dist-生产路径未验 / `App.jsx`+`Footer.jsx` 未做变异负控）**属发布前必办** ⇒ 并入 P7。**归档两份他方并行质检报告**（我核后入库）：`lang-shell-regression.md`（**717 行 / 51 KB**，`dbccd89`，**PASS 带条件**，判据表全绿含真指针 hover 语言菜单 8/8，自带 sha256 失效条款，已清 131 MB profile 与 worktree）、`lang-prefix-normalize.md`（**566 行 / 40 KB**，`45c27d8`，**PASS 带条件**，其条件②「路由壳重构后 A/C 段 / NEG-1 / `lang-path-redirect` 14 条必须回归复检」）⇒ **两份互锁闭合**：一份立条件、`dbccd89` 正是那次重构、该条件已由我的核验单兑现（**无需再派回归单**）。**弃用骨架** `45c27d8-lang-path.md`（46 行，承诺读数 `find` 零命中）⇒ 不入库不删除，**待 Kevin 一句话** |
