@@ -1,0 +1,5 @@
+/api/shard/redeem                410
+/api/chest/1/open                410
+/api/admin/settings/reset        410
+/api/admin/task/create           410
+/api/admin/task/update           410

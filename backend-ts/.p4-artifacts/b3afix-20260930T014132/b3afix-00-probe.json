@@ -1,0 +1,252 @@
+{
+ "generated_at": "2026-09-29T17:41:42.204Z",
+ "mode": "READ-ONLY",
+ "phase": "pre-fix",
+ "registry": {
+  "label": "registry",
+  "ok": true,
+  "rows": [
+   {
+    "version": "0001",
+    "name": "0001_ledger_core.sql",
+    "applied_at": "2026-09-29 01:15:27.684706+00"
+   },
+   {
+    "version": "0002",
+    "name": "0002_user_identity.sql",
+    "applied_at": "2026-09-29 01:15:27.684706+00"
+   },
+   {
+    "version": "0003",
+    "name": "0003_kind_close_set_20.sql",
+    "applied_at": "2026-09-29 01:15:27.684706+00"
+   },
+   {
+    "version": "0004",
+    "name": "0004_ledger_post_event.sql",
+    "applied_at": "2026-09-29 01:15:27.684706+00"
+   },
+   {
+    "version": "0005",
+    "name": "0005_ledger_event_root_key.sql",
+    "applied_at": "2026-09-29 01:15:27.684706+00"
+   },
+   {
+    "version": "0006",
+    "name": "0006_user_to_users.sql",
+    "applied_at": "2026-09-29 01:15:27.684706+00"
+   },
+   {
+    "version": "0007",
+    "name": "0007_referral_and_commission_policy.sql",
+    "applied_at": "2026-09-29 01:15:27.684706+00"
+   },
+   {
+    "version": "0008",
+    "name": "0008_platform_revenue_job_fee.sql",
+    "applied_at": "2026-09-29 01:15:27.684706+00"
+   },
+   {
+    "version": "0009",
+    "name": "0009_ledger_error_reverse_map_complete.sql",
+    "applied_at": "2026-09-29 01:15:27.684706+00"
+   },
+   {
+    "version": "0010",
+    "name": "0010_referral_bind_protocol_guard.sql",
+    "applied_at": "2026-09-29 01:15:27.684706+00"
+   },
+   {
+    "version": "0011",
+    "name": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+    "applied_at": "2026-09-29 01:15:27.684706+00"
+   },
+   {
+    "version": "0012",
+    "name": "0012_replay_pre_gate_before_balance_gate.sql",
+    "applied_at": "2026-09-29 01:15:27.684706+00"
+   },
+   {
+    "version": "0013",
+    "name": "0013_job.sql",
+    "applied_at": "2026-09-29 01:15:27.684706+00"
+   },
+   {
+    "version": "0014",
+    "name": "0014_job_flow.sql",
+    "applied_at": "2026-09-29 01:15:27.684706+00"
+   },
+   {
+    "version": "0015",
+    "name": "0015_listing.sql",
+    "applied_at": "2026-09-29 01:15:27.684706+00"
+   },
+   {
+    "version": "0016",
+    "name": "0016_market.sql",
+    "applied_at": "2026-09-29 01:15:27.684706+00"
+   },
+   {
+    "version": "0017",
+    "name": "0017_platform_config.sql",
+    "applied_at": "2026-09-29 01:15:27.684706+00"
+   }
+  ]
+ },
+ "registry_count": {
+  "label": "registry_count",
+  "ok": true,
+  "rows": [
+   {
+    "n": 17
+   }
+  ]
+ },
+ "fn_def": {
+  "label": "fn_def",
+  "ok": true,
+  "rows": [
+   {
+    "def": "CREATE OR REPLACE FUNCTION public.ledger_assert_platform_mutation(p_uid bigint, p_kind text, p_dir text)\n RETURNS void\n LANGUAGE plpgsql\n IMMUTABLE\nAS $function$\nDECLARE v_ok boolean;\nBEGIN\n  v_ok := CASE p_uid::text\n    WHEN '0'  THEN CASE p_dir WHEN 'credit' THEN p_kind IN ('mint', 'transfer', 'reversal')\n                                    ELSE p_kind IN ('transfer', 'burn', 'reversal') END\n    -- 🆕 0008（P2 裁定 #11）：`-1` = 平台收入账户 ⇒ 无邀请人时的手续费入这里\n    --    （其余格与 0004 逐字相同：debit 仍恒 false）\n    WHEN '-1' THEN CASE p_dir WHEN 'credit' THEN p_kind IN ('trade_fee', 'listing_fee', 'currency_create_fee', 'job_fee')\n                                    ELSE false END\n    WHEN '-2' THEN CASE p_dir WHEN 'credit' THEN p_kind IN ('job_fee')\n                                    ELSE p_kind IN ('commission') END\n    WHEN '-3' THEN CASE p_dir WHEN 'credit' THEN p_kind IN ('hold_forfeit')\n                                    ELSE p_kind IN ('hold_forfeit', 'transfer') END\n    ELSE NULL\n  END;\n  IF v_ok IS NULL OR v_ok THEN RETURN; END IF;\n  PERFORM ledger_raise('LEDGER_RESERVED_UID', jsonb_build_object(\n    'uid', p_uid::text, 'kind', p_kind,\n    'reason', CASE p_dir WHEN 'debit' THEN 'PLATFORM_DEBIT_FORBIDDEN' ELSE 'PLATFORM_CREDIT_KIND_FORBIDDEN' END));\nEND $function$\n"
+   }
+  ]
+ },
+ "kind_check": {
+  "label": "kind_check",
+  "ok": true,
+  "rows": [
+   {
+    "def": "CHECK ((kind = ANY (ARRAY['mint'::text, 'burn'::text, 'transfer'::text, 'hold'::text, 'hold_release'::text, 'hold_forfeit'::text, 'job_escrow'::text, 'job_escrow_refund'::text, 'job_payout'::text, 'job_fee'::text, 'commission'::text, 'purchase'::text, 'sale'::text, 'purchase_refund'::text, 'trade'::text, 'trade_fee'::text, 'listing_fee'::text, 'listing_deposit'::text, 'currency_create_fee'::text, 'reversal'::text])))"
+   }
+  ]
+ },
+ "kind_constraint_names": {
+  "label": "kind_constraint_names",
+  "ok": true,
+  "rows": [
+   {
+    "conname": "ledger_after_guard",
+    "contype": "c"
+   },
+   {
+    "conname": "ledger_entry_balance_after_not_null",
+    "contype": "n"
+   },
+   {
+    "conname": "ledger_entry_cid_fkey",
+    "contype": "f"
+   },
+   {
+    "conname": "ledger_entry_cid_not_null",
+    "contype": "n"
+   },
+   {
+    "conname": "ledger_entry_delta_not_null",
+    "contype": "n"
+   },
+   {
+    "conname": "ledger_entry_frozen_after_not_null",
+    "contype": "n"
+   },
+   {
+    "conname": "ledger_entry_frozen_delta_not_null",
+    "contype": "n"
+   },
+   {
+    "conname": "ledger_entry_idempotency_key_not_null",
+    "contype": "n"
+   },
+   {
+    "conname": "ledger_entry_kind_not_null",
+    "contype": "n"
+   },
+   {
+    "conname": "ledger_entry_memo_not_null",
+    "contype": "n"
+   },
+   {
+    "conname": "ledger_entry_pkey",
+    "contype": "p"
+   },
+   {
+    "conname": "ledger_entry_reversal_of_txid_fkey",
+    "contype": "f"
+   },
+   {
+    "conname": "ledger_entry_time_created_not_null",
+    "contype": "n"
+   },
+   {
+    "conname": "ledger_entry_txid_not_null",
+    "contype": "n"
+   },
+   {
+    "conname": "ledger_entry_uid_not_null",
+    "contype": "n"
+   },
+   {
+    "conname": "ledger_event_root_guard",
+    "contype": "c"
+   },
+   {
+    "conname": "ledger_idem_uniq",
+    "contype": "u"
+   },
+   {
+    "conname": "ledger_kind_enum",
+    "contype": "c"
+   },
+   {
+    "conname": "ledger_move_guard",
+    "contype": "c"
+   },
+   {
+    "conname": "ledger_ref_pair",
+    "contype": "c"
+   },
+   {
+    "conname": "ledger_ref_type_enum",
+    "contype": "c"
+   },
+   {
+    "conname": "ledger_reversal_guard",
+    "contype": "c"
+   },
+   {
+    "conname": "trg_ledger_entry_commission_conservation",
+    "contype": "t"
+   }
+  ]
+ },
+ "listing_deposit_rows": {
+  "label": "listing_deposit_rows",
+  "ok": true,
+  "rows": [
+   {
+    "kind": "listing_deposit",
+    "n": 4
+   }
+  ]
+ },
+ "probe_neg_listing_deposit_credit": {
+  "label": "probe_neg_listing_deposit_credit",
+  "ok": false,
+  "error": "LEDGER_RESERVED_UID",
+  "code": "LD021"
+ },
+ "probe_pos_job_fee_credit": {
+  "label": "probe_pos_job_fee_credit",
+  "ok": true,
+  "rows": [
+   {
+    "r": ""
+   }
+  ]
+ },
+ "probe_neg_commission_credit": {
+  "label": "probe_neg_commission_credit",
+  "ok": false,
+  "error": "LEDGER_RESERVED_UID",
+  "code": "LD021"
+ }
+}

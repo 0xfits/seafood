@@ -170,9 +170,12 @@ export type RefType = (typeof REF_TYPES)[number];
 export const CURRENCY_STATUSES = ['draft', 'listed', 'frozen', 'delisted'] as const;
 export type CurrencyStatus = (typeof CURRENCY_STATUSES)[number];
 
-/** §4.2 三态记账：hold 家族（同账户搬运，必须是 2 条分录）〔P1c：移除已删的 `listing_deposit_refund`〕 */
-export const HOLD_KINDS: LedgerKind[] = ['hold', 'hold_release', 'job_escrow', 'job_escrow_refund',
-  'listing_deposit'];
+/** §4.2 三态记账：hold 家族（同账户搬运，必须是 2 条分录）〔P1c：移除已删的 `listing_deposit_refund`〕
+ *  〔P4-B3a-FIX-A：**移除 `listing_deposit`** —— 依据 `ledger.spec` R31（v0.2）/ DL67 / DL88（均【已冻结】）：
+ *    保证金**上市即消耗**（余额 → `uid = -1`）、**不可退、无罚没** ⇒ **不是**冻结可退的 hold 家族成员。
+ *    P1c 删 `listing_deposit_forfeit` 时漏删本项；本次补齐（只删这一项）。
+ *    DB 侧同类落点：本 kind 的入账由 `-1` credit 白名单放行，见 `migrations/0019_*.sql`。〕 */
+export const HOLD_KINDS: LedgerKind[] = ['hold', 'hold_release', 'job_escrow', 'job_escrow_refund'];
 
 /** §4.2 / §5：冻结资金可以直接支付给对方的 kind 白名单（R33 ① ②）〔P1c：移除已删的 `listing_deposit_forfeit`〕 */
 export const FROZEN_SETTLE_KINDS: LedgerKind[] = [
@@ -538,7 +541,13 @@ const PLATFORM_KIND_WHITELIST: Record<string, { credit: LedgerKind[]; debit: Led
   //    `ledger_assert_platform_mutation` 已把 `job_fee` 加入 `-1` 的 `credit` 白名单（0008 已应用）。
   //    ⇒ 本行是那次迁移的 **TS 侧同步**（0008 文件头把这一项登记为「下一单的第一件事」）。
   //    `debit` 仍恒为空（不许被顺带松掉；0008 的自检负例②已取证）。
-  '-1': { credit: ['trade_fee', 'listing_fee', 'currency_create_fee', 'job_fee'], debit: [] },
+  // 🆕 P4-B3a-FIX-A（`ledger.spec` R31 v0.2 / `data-layer.spec` DL67 / DL88，均【已冻结】）：
+  //    `-1` 的 credit 增加 `listing_deposit` ——「保证金**上市即消耗**、进平台收入 `-1`、**不可退、无罚没**」
+  //    （`HOLD_KINDS` 侧同轮已把本 kind 移出，见 `HOLD_KINDS` 注释；两处必须同改，否则「消耗入 `-1`」不可实现）。
+  //    **必须与 DB 侧同改**：`migrations/0019_listing_deposit_platform_credit.sql` 的
+  //    `ledger_assert_platform_mutation` 已把 `listing_deposit` 加入 `-1` 的 `credit` 白名单。
+  //    `debit` 仍恒为空（不许被顺带松掉；`0019` 自检负例②已取证）。
+  '-1': { credit: ['trade_fee', 'listing_fee', 'currency_create_fee', 'job_fee', 'listing_deposit'], debit: [] },
   '-2': { credit: ['job_fee'], debit: ['commission'] },
   // R38 说明「退还 = 反向 hold_forfeit 或从 −3 transfer」；R101 却禁止平台账户用 transfer
   // ⇒ spec 内部张力，本实现取宽松侧（允许退还路径），已登记为歧义点。

@@ -1,0 +1,77 @@
+{
+ "generated_at": "2026-09-29T17:47:29.337Z",
+ "run": "b3afix-20260930T014132",
+ "base": "http://127.0.0.1:5788",
+ "panel": "http://127.0.0.1:5555",
+ "results": {
+  "pre_health": {
+   "url": "/health",
+   "status": 200,
+   "error_code": null,
+   "body_head": "{\"ok\":true,\"db_version\":\"PostgreSQL 18.6 (6569466) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit\",\"schema_versio"
+  },
+  "pre_home": {
+   "url": "/api/home",
+   "status": 200,
+   "error_code": null,
+   "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"tasks\":[{\"tID\":2,\"title\":\"p4b2:fixture:A\",\"note\":\"p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）\",\"refcode\":\"\",\"link0\":\"\","
+  },
+  "pre_410_register": {
+   "url": "/api/auth/register",
+   "status": 410,
+   "body_head": "{\"success\":false,\"message\":\"Registration has moved to wallet sign-in plus profile completion\",\"error\":\"Registration has moved to wallet sign-in plus profile completion\"}"
+  },
+  "panel_restart": {
+   "url": "http://127.0.0.1:5555/api/restart",
+   "status": 200,
+   "body_head": "{\"sid\":\"seafood-api\",\"ok\":true,\"state\":\"running\",\"pid\":6569,\"msg\":\"已启动\"}"
+  },
+  "post_restart_health": {
+   "status_200": true,
+   "waited_ms": 1237
+  },
+  "post_health": {
+   "url": "/health",
+   "status": 200,
+   "error_code": null,
+   "body_head": "{\"ok\":true,\"db_version\":\"PostgreSQL 18.6 (6569466) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit\",\"schema_versio"
+  },
+  "post_home": {
+   "url": "/api/home",
+   "status": 200,
+   "error_code": null,
+   "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"tasks\":[{\"tID\":2,\"title\":\"p4b2:fixture:A\",\"note\":\"p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）\",\"refcode\":\"\",\"link0\":\"\","
+  },
+  "post_410_register": {
+   "url": "/api/auth/register",
+   "status": 410,
+   "body_head": "{\"success\":false,\"message\":\"Registration has moved to wallet sign-in plus profile completion\",\"error\":\"Registration has moved to wallet sign-in plus profile completion\"}"
+  },
+  "token_fp12": "938ce397ca14",
+  "token_len": 193,
+  "post_business_user_asset": {
+   "url": "/api/user/asset/970001",
+   "status": 200,
+   "error_code": null,
+   "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"index_id\":0,\"uID\":970001,\"points\":1992799,\"lucks\":0,\"time_update\":1790703995}}"
+  },
+  "post_business_shard": {
+   "url": "/api/shard",
+   "status": 200,
+   "error_code": null,
+   "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":[],\"deprecated\":true}"
+  },
+  "post_business_order": {
+   "url": "/api/order",
+   "status": 200,
+   "error_code": null,
+   "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":[]}"
+  },
+  "post_business_admin_me": {
+   "url": "/api/admin/me",
+   "status": 200,
+   "error_code": null,
+   "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"uID\":970001,\"EVM\":\"0x9700010000000000000000000000000000000000\",\"is_admin\":false,\"permissions\":[],\"can_access_admin\":fals"
+  }
+ }
+}

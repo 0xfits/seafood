@@ -1,0 +1,180 @@
+{
+ "out": {
+  "generated_at": "2026-09-29T17:46:25.751Z",
+  "run": "b3afix-20260930T014132",
+  "phase": "post-fix",
+  "fixture_candidates": [
+   {
+    "uid": "970001",
+    "cid": "1",
+    "balance": "1992800",
+    "symbol": "$",
+    "status": "listed"
+   }
+  ],
+  "fixture": {
+   "uid": "970001",
+   "cid": "1",
+   "balance": "1992800",
+   "symbol": "$",
+   "status": "listed"
+  },
+  "deltas": {
+   "ledger_entry_n": {
+    "before": 18,
+    "after": 20,
+    "delta": 2
+   },
+   "sigma": {
+    "before": "2000000",
+    "after": "2000000",
+    "equal": true
+   },
+   "user_account": {
+    "before": {
+     "b": "1992800",
+     "f": "4000"
+    },
+    "after": {
+     "b": "1992799",
+     "f": "4001"
+    }
+   },
+   "platform_m1_account": {
+    "before": {
+     "b": "3200",
+     "f": "0"
+    },
+    "after": {
+     "b": "3200",
+     "f": "0"
+    }
+   }
+  }
+ },
+ "steps": {
+  "registry_count_and_0019": {
+   "ok": true,
+   "result": {
+    "count": 18,
+    "last": {
+     "version": "0019",
+     "name": "0019_listing_deposit_platform_credit.sql",
+     "applied_at": "2026-09-29 17:43:01.760888+00"
+    }
+   }
+  },
+  "ts_hold_kinds": {
+   "ok": true,
+   "result": {
+    "hold_kinds": [
+     "hold",
+     "hold_release",
+     "job_escrow",
+     "job_escrow_refund"
+    ],
+    "has_listing_deposit": false,
+    "len": 4
+   }
+  },
+  "ts_assert_platform_pos_listing_deposit_credit": {
+   "ok": true,
+   "result": "no-throw (已放行)"
+  },
+  "ts_assert_platform_neg_commission_credit": {
+   "ok": true,
+   "result": "rejected as expected: LEDGER_RESERVED_UID",
+   "details": {
+    "uid": "-1",
+    "kind": "commission",
+    "reason": "PLATFORM_CREDIT_KIND_FORBIDDEN"
+   }
+  },
+  "ts_assert_platform_neg_listing_deposit_debit": {
+   "ok": true,
+   "result": "rejected as expected: LEDGER_RESERVED_UID",
+   "details": {
+    "uid": "-1",
+    "kind": "listing_deposit",
+    "reason": "PLATFORM_DEBIT_FORBIDDEN"
+   }
+  },
+  "db_fn_pos_listing_deposit_credit": {
+   "ok": true,
+   "result": "no-throw (已放行)"
+  },
+  "db_fn_neg_commission_credit": {
+   "ok": true,
+   "result": "rejected as expected: LD021",
+   "details": null
+  },
+  "db_fn_neg_listing_deposit_debit": {
+   "ok": true,
+   "result": "rejected as expected: LD021",
+   "details": null
+  },
+  "event_pos_listing_deposit_to_platform": {
+   "ok": false,
+   "error_code": "LEDGER_AMOUNT_INVALID",
+   "error_message": "金额格式不正确",
+   "details": {
+    "cid": "1",
+    "uid": "970001",
+    "kind": "listing_deposit",
+    "field": "entries",
+    "reason": "HOLD_PAIR_REQUIRED"
+   }
+  },
+  "event_neg_commission_to_platform": {
+   "ok": true,
+   "result": "rejected as expected: LEDGER_RESERVED_UID",
+   "details": {
+    "uid": "-1",
+    "kind": "commission",
+    "reason": "PLATFORM_CREDIT_KIND_FORBIDDEN"
+   }
+  },
+  "event_pair_same_account_listing_deposit": {
+   "ok": true,
+   "result": {
+    "txid": "26",
+    "entry_count": 2
+   }
+  },
+  "entries_persisted": {
+   "ok": true,
+   "result": {
+    "pos": [],
+    "neg": [
+     {
+      "n": 0
+     }
+    ]
+   }
+  },
+  "migration_0019_reapply_idempotent": {
+   "ok": true,
+   "result": "re-applied OK (8760 bytes, 无报错)"
+  },
+  "db_fn_and_kind_readout": {
+   "ok": true,
+   "result": {
+    "fn_def_m1_line": [
+     "    -- 🆕 0019（P4-B3a-FIX-A / R31 v0.2 + DL67 + DL88 已冻结）：`-1` 再接纳 `listing_deposit`",
+     "    WHEN '-1' THEN CASE p_dir WHEN 'credit' THEN p_kind IN ('trade_fee', 'listing_fee', 'currency_create_fee', 'job_fee', 'listing_deposit')"
+    ],
+    "kind_check_def": "CHECK ((kind = ANY (ARRAY['mint'::text, 'burn'::text, 'transfer'::text, 'hold'::text, 'hold_release'::text, 'hold_forfeit'::text, 'job_escrow'::text, 'job_escrow_refund'::text, 'job_payout'::text, 'job_fee'::text, 'commission'::text, 'purchase'::text, 'sale'::text, 'purchase_refund'::text, 'trade'::text, 'trade_fee'::text, 'listing_fee'::text, 'listing_deposit'::text, 'currency_create_fee'::text, 'reversal'::text])))",
+    "kind_check_value_count": 20,
+    "post_event_guard": {
+     "has_deposit": 24415,
+     "has_hold_guard": 24605
+    },
+    "live_post_event_hold_list_line": [
+     "       WHERE t.e->>'kind' IN ('hold','hold_release','job_escrow','job_escrow_refund','listing_deposit')"
+    ],
+    "live_post_event_guard_hint_line": "def-line 525 (0-based 524)",
+    "live_post_event_total_lines": 977
+   }
+  }
+ }
+}
