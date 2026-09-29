@@ -1,0 +1,306 @@
+{
+  "run": "b3d-20260930T023156",
+  "label": "post",
+  "at": "2026-09-29T18:35:23.787Z",
+  "probe": "p4z-b3d-01-snapshot",
+  "account": {
+    "rows": 12,
+    "sum_balance": "1995998",
+    "sum_frozen": "4002",
+    "sum_total": "2000000",
+    "negative_rows": 0,
+    "per_row": [
+      {
+        "uid": "-1",
+        "cid": "1",
+        "balance": "11217",
+        "frozen": "0"
+      },
+      {
+        "uid": "-2",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0"
+      },
+      {
+        "uid": "-3",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0"
+      },
+      {
+        "uid": "0",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0"
+      },
+      {
+        "uid": "2",
+        "cid": "1",
+        "balance": "7600",
+        "frozen": "0"
+      },
+      {
+        "uid": "3",
+        "cid": "1",
+        "balance": "1386",
+        "frozen": "0"
+      },
+      {
+        "uid": "4",
+        "cid": "1",
+        "balance": "4",
+        "frozen": "0"
+      },
+      {
+        "uid": "5",
+        "cid": "1",
+        "balance": "6",
+        "frozen": "0"
+      },
+      {
+        "uid": "6",
+        "cid": "1",
+        "balance": "990",
+        "frozen": "0"
+      },
+      {
+        "uid": "7",
+        "cid": "1",
+        "balance": "5100",
+        "frozen": "0"
+      },
+      {
+        "uid": "8",
+        "cid": "1",
+        "balance": "4900",
+        "frozen": "0"
+      },
+      {
+        "uid": "970001",
+        "cid": "1",
+        "balance": "1964795",
+        "frozen": "4002"
+      }
+    ]
+  },
+  "ledger_entry": {
+    "total_rows": 86,
+    "by_kind": {
+      "commission": 4,
+      "currency_create_fee": 20,
+      "hold": 4,
+      "job_escrow": 10,
+      "job_escrow_refund": 4,
+      "job_fee": 6,
+      "job_payout": 6,
+      "listing_deposit": 16,
+      "mint": 2,
+      "purchase": 2,
+      "purchase_refund": 2,
+      "sale": 2,
+      "transfer": 8
+    },
+    "by_kind_sum": 86,
+    "by_kind_sum_equals_total": true,
+    "listing_order_ref_orphans": 0
+  },
+  "listing": {
+    "rows": [
+      {
+        "listing_id": "1",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "137",
+        "stock": "5",
+        "status": "draft",
+        "create_key": "cli:p4b2c:listing:L1"
+      },
+      {
+        "listing_id": "10",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "137",
+        "stock": "0",
+        "status": "draft",
+        "create_key": "cli:p4b2cr2:listing:S0"
+      },
+      {
+        "listing_id": "11",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "137",
+        "stock": "5",
+        "status": "draft",
+        "create_key": "cli:p4b2cr2:listing:C1"
+      },
+      {
+        "listing_id": "12",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "155",
+        "stock": "5",
+        "status": "draft",
+        "create_key": "cli:p4b2cr2:listing:L2"
+      },
+      {
+        "listing_id": "13",
+        "seller_uid": "7",
+        "cid": "1",
+        "price": "100",
+        "stock": "0",
+        "status": "listed",
+        "create_key": "cli:b3d:b3d-20260930T023156:listing:happy"
+      },
+      {
+        "listing_id": "14",
+        "seller_uid": "7",
+        "cid": "1",
+        "price": "50",
+        "stock": "0",
+        "status": "listed",
+        "create_key": "cli:b3d:b3d-20260930T023156:listing:empty"
+      },
+      {
+        "listing_id": "15",
+        "seller_uid": "7",
+        "cid": "1",
+        "price": "100000000",
+        "stock": "5",
+        "status": "listed",
+        "create_key": "cli:b3d:b3d-20260930T023156:listing:pricey"
+      },
+      {
+        "listing_id": "2",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "137",
+        "stock": "5",
+        "status": "draft",
+        "create_key": "cli:p4b2c:listing:create:970101:1:137:5:p4b2c:listing A:a422c48ca17c1de0"
+      },
+      {
+        "listing_id": "3",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "200",
+        "stock": "5",
+        "status": "draft",
+        "create_key": "cli:p4b2c:listing:P200"
+      },
+      {
+        "listing_id": "4",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "137",
+        "stock": "0",
+        "status": "draft",
+        "create_key": "cli:p4b2c:listing:S0"
+      },
+      {
+        "listing_id": "5",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "137",
+        "stock": "5",
+        "status": "draft",
+        "create_key": "cli:p4b2c:listing:C1"
+      },
+      {
+        "listing_id": "6",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "137",
+        "stock": "5",
+        "status": "draft",
+        "create_key": "cli:p4b2c:listing:L2"
+      },
+      {
+        "listing_id": "7",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "199",
+        "stock": "7",
+        "status": "delisted",
+        "create_key": "cli:p4b2cr2:listing:L1"
+      },
+      {
+        "listing_id": "8",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "137",
+        "stock": "5",
+        "status": "draft",
+        "create_key": "cli:p4b2c:listing:create:970101:1:137:5:p4b2cr2:listing A:0c853465a3cb6468"
+      },
+      {
+        "listing_id": "9",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "200",
+        "stock": "5",
+        "status": "draft",
+        "create_key": "cli:p4b2cr2:listing:P200"
+      }
+    ],
+    "negative_stock_rows": 0
+  },
+  "listing_order": {
+    "rows": [
+      {
+        "order_id": "1",
+        "listing_id": "13",
+        "buyer_uid": "8",
+        "seller_uid": "7",
+        "cid": "1",
+        "price": "100",
+        "quantity": "1",
+        "status": "created",
+        "create_key": "cli:b3d:b3d-20260930T023156:order-created",
+        "pay_txid": null,
+        "refund_txid": null,
+        "ledger_event_keys": []
+      },
+      {
+        "order_id": "2",
+        "listing_id": "13",
+        "buyer_uid": "8",
+        "seller_uid": "7",
+        "cid": "1",
+        "price": "100",
+        "quantity": "2",
+        "status": "refunded",
+        "create_key": "cli:b3d:b3d-20260930T023156:buy1",
+        "pay_txid": "88",
+        "refund_txid": "92",
+        "ledger_event_keys": [
+          "biz:listing:buy:2",
+          "biz:listing:refund:2"
+        ]
+      },
+      {
+        "order_id": "3",
+        "listing_id": "13",
+        "buyer_uid": "8",
+        "seller_uid": "7",
+        "cid": "1",
+        "price": "100",
+        "quantity": "1",
+        "status": "paid",
+        "create_key": "cli:b3d:b3d-20260930T023156:buy-spoof",
+        "pay_txid": "90",
+        "refund_txid": null,
+        "ledger_event_keys": [
+          "biz:listing:buy:3"
+        ]
+      }
+    ]
+  },
+  "counts": {
+    "listing_rows": 15,
+    "order_rows": 3,
+    "listing_listed": 3,
+    "user_rows": 16,
+    "account_rows": 12
+  }
+}

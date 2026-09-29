@@ -1,0 +1,139 @@
+{
+  "run": "b3d-20260930T023156",
+  "at": "2026-09-29T18:36:10.107Z",
+  "probe": "p4z-b3d-03-dbreason",
+  "fixtures": {
+    "listings_by_tag": {
+      "happy": "13",
+      "empty": "14",
+      "pricey": "15"
+    },
+    "seller_uid": "7",
+    "buyer_uid": "8",
+    "created_order": "1"
+  },
+  "cases": [
+    {
+      "id": "buy_stock_insufficient",
+      "ok": false,
+      "sqlstate": "LD001",
+      "message": "LEDGER_INSUFFICIENT_BALANCE",
+      "reason": "listing_stock_insufficient",
+      "detail": "{\"uid\": \"7\", \"field\": \"listing.stock\", \"reason\": \"listing_stock_insufficient\", \"required\": \"1\", \"available\": \"0\", \"listing_id\": \"14\"}",
+      "detail_parsed": {
+        "uid": "7",
+        "field": "listing.stock",
+        "reason": "listing_stock_insufficient",
+        "required": "1",
+        "available": "0",
+        "listing_id": "14"
+      }
+    },
+    {
+      "id": "buy_self_purchase",
+      "ok": false,
+      "sqlstate": "LD019",
+      "message": "LEDGER_SELF_TRANSFER",
+      "reason": "self_purchase_not_allowed",
+      "detail": "{\"uid\": \"7\", \"field\": \"buyer_uid\", \"reason\": \"self_purchase_not_allowed\", \"listing_id\": \"13\"}",
+      "detail_parsed": {
+        "uid": "7",
+        "field": "buyer_uid",
+        "reason": "self_purchase_not_allowed",
+        "listing_id": "13"
+      }
+    },
+    {
+      "id": "buy_unknown_listing",
+      "ok": false,
+      "sqlstate": "LD022",
+      "message": "LEDGER_REF_NOT_FOUND",
+      "reason": "listing_not_found",
+      "detail": "{\"field\": \"listing_id\", \"value\": \"999999999\", \"reason\": \"listing_not_found\"}",
+      "detail_parsed": {
+        "field": "listing_id",
+        "value": "999999999",
+        "reason": "listing_not_found"
+      }
+    },
+    {
+      "id": "refund_order_not_refundable",
+      "ok": false,
+      "sqlstate": "LD011",
+      "message": "LEDGER_CURRENCY_INVALID_TRANSITION",
+      "reason": "order_not_refundable",
+      "detail": "{\"field\": \"listing_order.status\", \"reason\": \"order_not_refundable\", \"status\": \"created\", \"order_id\": \"1\"}",
+      "detail_parsed": {
+        "field": "listing_order.status",
+        "reason": "order_not_refundable",
+        "status": "created",
+        "order_id": "1"
+      }
+    },
+    {
+      "id": "refund_unknown_order",
+      "ok": false,
+      "sqlstate": "LD022",
+      "message": "LEDGER_REF_NOT_FOUND",
+      "reason": "order_not_found",
+      "detail": "{\"field\": \"order_id\", \"value\": \"999999999\", \"reason\": \"order_not_found\"}",
+      "detail_parsed": {
+        "field": "order_id",
+        "value": "999999999",
+        "reason": "order_not_found"
+      }
+    },
+    {
+      "id": "buy_same_key_diff_content",
+      "ok": false,
+      "sqlstate": "LD003",
+      "message": "LEDGER_IDEMPOTENCY_CONFLICT",
+      "reason": "CREATE_KEY_REUSED_WITH_DIFFERENT_CONTENT",
+      "detail": "{\"field\": \"create_key\", \"reason\": \"CREATE_KEY_REUSED_WITH_DIFFERENT_CONTENT\", \"order_id\": \"2\", \"idempotency_key\": \"cli:b3d:b3d-20260930T023156:buy1\"}",
+      "detail_parsed": {
+        "field": "create_key",
+        "reason": "CREATE_KEY_REUSED_WITH_DIFFERENT_CONTENT",
+        "order_id": "2",
+        "idempotency_key": "cli:b3d:b3d-20260930T023156:buy1"
+      }
+    },
+    {
+      "id": "buy_insufficient_balance",
+      "ok": false,
+      "sqlstate": "LD001",
+      "message": "LEDGER_INSUFFICIENT_BALANCE",
+      "reason": null,
+      "detail": "{\"cid\": \"1\", \"uid\": \"8\", \"required\": \"100000000\", \"available\": \"4900\"}",
+      "detail_parsed": {
+        "cid": "1",
+        "uid": "8",
+        "required": "100000000",
+        "available": "4900"
+      }
+    },
+    {
+      "id": "buy_no_create_key",
+      "ok": false,
+      "sqlstate": "LD004",
+      "message": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "reason": null,
+      "detail": "{\"field\": \"create_key\"}",
+      "detail_parsed": {
+        "field": "create_key"
+      }
+    },
+    {
+      "id": "buy_bad_prefix",
+      "ok": false,
+      "sqlstate": "LD005",
+      "message": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "reason": "PREFIX_REQUIRED",
+      "detail": "{\"field\": \"create_key\", \"reason\": \"PREFIX_REQUIRED\", \"provided\": \"zzz:1\"}",
+      "detail_parsed": {
+        "field": "create_key",
+        "reason": "PREFIX_REQUIRED",
+        "provided": "zzz:1"
+      }
+    }
+  ]
+}

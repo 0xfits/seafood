@@ -1754,6 +1754,74 @@ export class DatabaseService {
     return row;
   }
 
+  // ==========================================================================================
+  // P4-B3d（§4.2 P2/P4 + §4.0 R1/R2/DL85）· 商品**资金**编排的唯一调用口
+  // ==========================================================================================
+  /**
+   * **唯一资金写路径**（§4.0 R1）：一条语句调用迁移既有编排函数 `public.listing_post_event($1::jsonb)`
+   * （`migrations/0015_listing.sql:449`）。函数内完成「锁业务行（`FOR UPDATE`，listing 先于
+   * `listing_order`/`account`，DL141 全序）→ 派生分录 → 调 `ledger_post_event` → 回写
+   * `pay_txid`/`refund_txid`/`ledger_event_keys`/`status`/`stock`」⇒ **业务行 + 分录同生同灭**（R2/DL20）。
+   * 本方法**只转发 payload**：不派生分录、不自造幂等键（DL95：键由函数按 §4.5 确定性派生
+   * `biz:listing:buy:<order_id>` / `biz:listing:refund:<order_id>`）、不写 `account`/`ledger_entry`/`listing*`。
+   * **金额/对手方一律服务端取数**：`amount = listing.price × quantity`、`seller_uid = listing.seller_uid`
+   * 均在函数体 `0015:590,647`（refund 侧 `0015:710,721,724`）内取 ⇒ 本方法的 payload 契约**不含** price/seller。
+   * 返回值 = 函数回执 `{ok, idempotent_replay, op, listing_id, order_id, listing_status, order_status,
+   * stock, created, pay_txid, refund_txid, ledger_event_keys, txid, ledger_idempotency_key, entries,
+   * accounts, extra}`。
+   */
+  static async listingPostEvent(payload: Record<string, unknown>): Promise<RawRow> {
+    const sql = getSql();
+    const row = firstRow(await sql`
+      SELECT public.listing_post_event(${JSON.stringify(payload)}::jsonb) AS r
+    `);
+    if (!row) throw new Error('listingPostEvent: no row returned');
+    return row;
+  }
+
+  /**
+   * §4.2 P4 路由前置（**只读**）：解析 `POST /api/listing/order/:orderId/refund` 的 `:orderId`
+   * ⇒ 订单行的**服务端真源字段**（供服务层做「发起人须 = 卖方」的应用层闸）。
+   * **本方法无任何写副作用** —— 授权/金额/状态/库存闸的真源仍是 `listing_post_event` 的单语句
+   * （`0015:670-692` 的 `FOR UPDATE` + 状态机 + `pay_txid IS NULL` 三道 DB 闸）。
+   */
+  static async resolveListingOrder(orderId: number): Promise<{
+    orderId: number;
+    listingId: number;
+    buyerUid: number;
+    sellerUid: number;
+    cid: number;
+    price: string;
+    quantity: number;
+    status: string;
+    hasPayTxid: boolean;
+    hasRefundTxid: boolean;
+  } | null> {
+    const sql = getSql();
+    const row = firstRow(await sql`
+      SELECT o.order_id, o.listing_id, o.buyer_uid, o.seller_uid, o.cid,
+             o.price::text AS price, o.quantity, o.status,
+             (o.pay_txid IS NOT NULL) AS has_pay_txid,
+             (o.refund_txid IS NOT NULL) AS has_refund_txid
+        FROM public.listing_order AS o
+       WHERE o.order_id = ${orderId}
+       LIMIT 1
+    `);
+    if (!row) return null;
+    return {
+      orderId: toNumberValue(getValue(row, 'order_id')),
+      listingId: toNumberValue(getValue(row, 'listing_id')),
+      buyerUid: toNumberValue(getValue(row, 'buyer_uid')),
+      sellerUid: toNumberValue(getValue(row, 'seller_uid')),
+      cid: toNumberValue(getValue(row, 'cid')),
+      price: String(getValue(row, 'price') ?? ''),
+      quantity: toNumberValue(getValue(row, 'quantity')),
+      status: toStringValue(getValue(row, 'status')),
+      hasPayTxid: getValue(row, 'has_pay_txid') === true,
+      hasRefundTxid: getValue(row, 'has_refund_txid') === true,
+    };
+  }
+
   /** §4.2 J4：提交交付物 —— `job_submission` 落行（review_status='pending'）+ `job.status→'submitted'`，同语句原子 */
   static async submitJobWork(
     applicationId: number,

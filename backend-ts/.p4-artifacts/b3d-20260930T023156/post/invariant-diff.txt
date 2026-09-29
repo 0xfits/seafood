@@ -1,0 +1,10 @@
+NEW  7/1 balance=5100 frozen=0
+NEW  8/1 balance=4900 frozen=0
+DIFF 970001/1 balance 1974795 -> 1964795  frozen 4002 -> 4002
+KIND purchase 0 -> 2 (+2)
+KIND purchase_refund 0 -> 2 (+2)
+KIND sale 0 -> 2 (+2)
+KIND transfer 4 -> 8 (+4)
+SIGMA pre  1995998/4002/2000000
+SIGMA post 1995998/4002/2000000
+LEDGER 76 -> 86 (delta 10)  kind_delta_sum=10

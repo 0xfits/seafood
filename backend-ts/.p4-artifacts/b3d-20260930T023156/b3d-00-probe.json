@@ -1,0 +1,283 @@
+{
+  "run": "b3d-20260930T023156",
+  "at": "2026-09-29T18:32:39.396Z",
+  "probe": "p4z-b3d-00-probe",
+  "currency": [
+    {
+      "cid": "1",
+      "symbol": "$",
+      "status": "listed",
+      "owner_uid": "0",
+      "total": 7
+    },
+    {
+      "cid": "10",
+      "symbol": "P4B3A013647",
+      "status": "listed",
+      "owner_uid": "970001",
+      "total": 7
+    },
+    {
+      "cid": "15",
+      "symbol": "P4B3A013647X",
+      "status": "draft",
+      "owner_uid": "970001",
+      "total": 7
+    },
+    {
+      "cid": "16",
+      "symbol": "P4B3B590800",
+      "status": "listed",
+      "owner_uid": "970001",
+      "total": 7
+    },
+    {
+      "cid": "21",
+      "symbol": "P4B3B590800X",
+      "status": "listed",
+      "owner_uid": "970001",
+      "total": 7
+    },
+    {
+      "cid": "4",
+      "symbol": "P4B3A013122",
+      "status": "listed",
+      "owner_uid": "970001",
+      "total": 7
+    },
+    {
+      "cid": "9",
+      "symbol": "P4B3A013122X",
+      "status": "draft",
+      "owner_uid": "970001",
+      "total": 7
+    }
+  ],
+  "listing_columns": [
+    {
+      "column_name": "listing_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "seller_uid",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "cid",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "price",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "stock",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "title",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": "''::text"
+    },
+    {
+      "column_name": "description",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": "''::text"
+    },
+    {
+      "column_name": "media_urls",
+      "data_type": "ARRAY",
+      "is_nullable": "NO",
+      "column_default": "'{}'::text[]"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": "'draft'::text"
+    },
+    {
+      "column_name": "create_key",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "ledger_event_keys",
+      "data_type": "ARRAY",
+      "is_nullable": "NO",
+      "column_default": "'{}'::text[]"
+    },
+    {
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "column_name": "time_updated",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    }
+  ],
+  "listing_order_columns": [
+    {
+      "column_name": "order_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "listing_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "buyer_uid",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "seller_uid",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "cid",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "price",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "quantity",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": "'created'::text"
+    },
+    {
+      "column_name": "create_key",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "pay_txid",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "refund_txid",
+      "data_type": "bigint",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "ledger_event_keys",
+      "data_type": "ARRAY",
+      "is_nullable": "NO",
+      "column_default": "'{}'::text[]"
+    },
+    {
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "column_name": "time_updated",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    }
+  ],
+  "counts": {
+    "listing_rows": 12,
+    "order_rows": 0,
+    "user_rows": 12,
+    "ledger_rows": 76,
+    "account_rows": 10
+  },
+  "donors": [
+    {
+      "uid": "970001",
+      "balance": "1974795"
+    },
+    {
+      "uid": "2",
+      "balance": "7600"
+    },
+    {
+      "uid": "3",
+      "balance": "1386"
+    },
+    {
+      "uid": "6",
+      "balance": "990"
+    },
+    {
+      "uid": "5",
+      "balance": "6"
+    },
+    {
+      "uid": "4",
+      "balance": "4"
+    }
+  ],
+  "listing_triggers": [
+    {
+      "tgname": "trg_listing_create_key_guard",
+      "proname": "listing_create_key_guard"
+    },
+    {
+      "tgname": "trg_listing_no_delete",
+      "proname": "listing_no_delete"
+    },
+    {
+      "tgname": "trg_listing_status_guard",
+      "proname": "listing_status_guard"
+    },
+    {
+      "tgname": "trg_listing_stock_guard",
+      "proname": "listing_stock_guard"
+    },
+    {
+      "tgname": "trg_listing_touch_time_updated",
+      "proname": "listing_touch_time_updated"
+    }
+  ],
+  "listing_post_event": {
+    "fn": "listing_post_event(jsonb)"
+  },
+  "max_single_amount": {
+    "max_amount": "1000000000000000"
+  }
+}

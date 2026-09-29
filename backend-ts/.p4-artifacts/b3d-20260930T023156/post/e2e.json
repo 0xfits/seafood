@@ -1,0 +1,1537 @@
+{
+  "run": "b3d-20260930T023156",
+  "base": "http://127.0.0.1:5788",
+  "at": "2026-09-29T18:35:15.548Z",
+  "probe": "p4z-b3d-02-e2e",
+  "results": {
+    "restart": {
+      "pre_health": 200,
+      "pre_schema_version": "0020",
+      "panel": {
+        "status": 200,
+        "body": "{\"sid\":\"seafood-api\",\"ok\":true,\"state\":\"running\",\"pid\":66079,\"msg\":\"已启动\"}"
+      },
+      "health_200_after": true,
+      "waited_ms": 2219
+    },
+    "fixtures": {
+      "seller_uid": "7",
+      "buyer_uid": "8",
+      "third_uid": "9",
+      "admin_uid": "10",
+      "fund_seller": {
+        "need": "5000",
+        "donors_used": [
+          {
+            "from_uid": "970001",
+            "amount": "5000",
+            "txid": "84",
+            "idempotent_replay": false
+          }
+        ]
+      },
+      "fund_buyer": {
+        "need": "5000",
+        "donors_used": [
+          {
+            "from_uid": "970001",
+            "amount": "5000",
+            "txid": "86",
+            "idempotent_replay": false
+          }
+        ]
+      },
+      "listings": {
+        "happy": 13,
+        "empty_stock": 14,
+        "pricey": 15
+      },
+      "order_created_fixture": 1,
+      "account_snapshot": {
+        "seller": {
+          "balance": "5000",
+          "frozen": "0"
+        },
+        "buyer": {
+          "balance": "5000",
+          "frozen": "0"
+        },
+        "third": null
+      },
+      "listing_snapshot": {
+        "happy": {
+          "listing_id": "13",
+          "seller_uid": "7",
+          "cid": "1",
+          "price": "100",
+          "stock": "3",
+          "status": "listed"
+        },
+        "empty": {
+          "listing_id": "14",
+          "seller_uid": "7",
+          "cid": "1",
+          "price": "50",
+          "stock": "0",
+          "status": "listed"
+        }
+      }
+    },
+    "token": {
+      "key_probe": [
+        {
+          "candidate": "env-SECRET_KEY(.env.local)",
+          "key_len": 64,
+          "token_fp": "a5366f17437d",
+          "status": 200,
+          "reason": null
+        },
+        {
+          "candidate": "auth.ts 硬编码兑底",
+          "key_len": 20,
+          "token_fp": "5be61a4261f8",
+          "status": 401,
+          "reason": null
+        }
+      ],
+      "verdict": "env-SECRET_KEY(.env.local)",
+      "note": "密钥本体不落盘；只记候选名 + token 指纹"
+    },
+    "P2_happy": {
+      "order_id": 2,
+      "buy_key": "biz:listing:buy:2",
+      "legs": [
+        {
+          "txid": "88",
+          "uid": "8",
+          "cid": "1",
+          "delta": "-200",
+          "frozen_delta": "0",
+          "balance_after": "4800",
+          "frozen_after": "0",
+          "kind": "purchase",
+          "ref_type": "listing_order",
+          "ref_id": "2",
+          "idempotency_key": "biz:listing:buy:2"
+        },
+        {
+          "txid": "89",
+          "uid": "7",
+          "cid": "1",
+          "delta": "200",
+          "frozen_delta": "0",
+          "balance_after": "5200",
+          "frozen_after": "0",
+          "kind": "sale",
+          "ref_type": "listing_order",
+          "ref_id": "2",
+          "idempotency_key": "biz:listing:buy:2#2"
+        }
+      ],
+      "legs_check": {
+        "n": 2,
+        "kinds": [
+          "purchase",
+          "sale"
+        ],
+        "uids": [
+          "8",
+          "7"
+        ],
+        "frozen_deltas": [
+          "0",
+          "0"
+        ],
+        "sum_delta": "0",
+        "sum_frozen_delta": "0",
+        "sum_delta_plus_frozen": "0",
+        "pure_transfer": true,
+        "no_frozen_movement": true,
+        "txids": [
+          "88",
+          "89"
+        ]
+      },
+      "order_row": {
+        "order_id": "2",
+        "listing_id": "13",
+        "buyer_uid": "8",
+        "seller_uid": "7",
+        "cid": "1",
+        "price": "100",
+        "quantity": "2",
+        "status": "paid",
+        "pay_txid": "88",
+        "refund_txid": null,
+        "ledger_event_keys": [
+          "biz:listing:buy:2"
+        ]
+      },
+      "listing_after": {
+        "listing_id": "13",
+        "seller_uid": "7",
+        "cid": "1",
+        "price": "100",
+        "stock": "0",
+        "status": "listed"
+      },
+      "buyer_after": {
+        "balance": "4700",
+        "frozen": "0"
+      },
+      "seller_after": {
+        "balance": "5300",
+        "frozen": "0"
+      },
+      "view": {
+        "op": "buy",
+        "listing_id": "13",
+        "order_id": "2",
+        "listing_status": "listed",
+        "order_status": "paid",
+        "stock": "1",
+        "stock_rolled_back": false,
+        "created": true,
+        "idempotent_replay": false,
+        "txid": "88",
+        "ledger_idempotency_key": "biz:listing:buy:2",
+        "pay_txid": "88",
+        "refund_txid": null,
+        "ledger_event_keys": [
+          "biz:listing:buy:2"
+        ],
+        "amount": "200",
+        "currency_status": "listed",
+        "event_kinds": "purchase,sale",
+        "entry_count": 2,
+        "kinds": [
+          "purchase",
+          "sale"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "8",
+            "kind": "purchase",
+            "memo": "listing buy:cli:b3d:b3d-20260930T023156:buy1（买家付款 purchase listing_order=2）",
+            "txid": "88",
+            "delta": "-200",
+            "ref_id": "2",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:35:09.024Z",
+            "balance_after": "4800",
+            "idempotency_key": "biz:listing:buy:2",
+            "reversal_of_txid": null,
+            "request_fingerprint": "494fe1824a25830d74f1cb39b4d492bd90c0e2526d736d2d97392f16b0b99256"
+          },
+          {
+            "cid": "1",
+            "uid": "7",
+            "kind": "sale",
+            "memo": "listing buy:cli:b3d:b3d-20260930T023156:buy1（卖家收款 sale listing_order=2）",
+            "txid": "89",
+            "delta": "200",
+            "ref_id": "2",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:35:09.024Z",
+            "balance_after": "5200",
+            "idempotency_key": "biz:listing:buy:2#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "8",
+            "frozen": "0",
+            "balance": "4800"
+          },
+          {
+            "cid": "1",
+            "uid": "7",
+            "frozen": "0",
+            "balance": "5200"
+          }
+        ],
+        "buyer_uid": "8",
+        "quantity": "2",
+        "client_buyer_uid_ignored": null
+      }
+    },
+    "P2_spoof": {
+      "order_id": 3,
+      "view": {
+        "op": "buy",
+        "listing_id": "13",
+        "order_id": "3",
+        "listing_status": "listed",
+        "order_status": "paid",
+        "stock": "0",
+        "stock_rolled_back": false,
+        "created": true,
+        "idempotent_replay": false,
+        "txid": "90",
+        "ledger_idempotency_key": "biz:listing:buy:3",
+        "pay_txid": "90",
+        "refund_txid": null,
+        "ledger_event_keys": [
+          "biz:listing:buy:3"
+        ],
+        "amount": "100",
+        "currency_status": "listed",
+        "event_kinds": "purchase,sale",
+        "entry_count": 2,
+        "kinds": [
+          "purchase",
+          "sale"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "8",
+            "kind": "purchase",
+            "memo": "listing buy:cli:b3d:b3d-20260930T023156:buy-spoof（买家付款 purchase listing_order=3）",
+            "txid": "90",
+            "delta": "-100",
+            "ref_id": "3",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:35:09.472Z",
+            "balance_after": "4700",
+            "idempotency_key": "biz:listing:buy:3",
+            "reversal_of_txid": null,
+            "request_fingerprint": "d5d306fc4dadefa8029b459c7bfd2d62a75e83debfcb0b40921e6960c646dd8c"
+          },
+          {
+            "cid": "1",
+            "uid": "7",
+            "kind": "sale",
+            "memo": "listing buy:cli:b3d:b3d-20260930T023156:buy-spoof（卖家收款 sale listing_order=3）",
+            "txid": "91",
+            "delta": "100",
+            "ref_id": "3",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:35:09.472Z",
+            "balance_after": "5300",
+            "idempotency_key": "biz:listing:buy:3#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "8",
+            "frozen": "0",
+            "balance": "4700"
+          },
+          {
+            "cid": "1",
+            "uid": "7",
+            "frozen": "0",
+            "balance": "5300"
+          }
+        ],
+        "buyer_uid": "8",
+        "quantity": "1",
+        "client_buyer_uid_ignored": "9"
+      },
+      "legs": [
+        {
+          "txid": "90",
+          "uid": "8",
+          "cid": "1",
+          "delta": "-100",
+          "frozen_delta": "0",
+          "balance_after": "4700",
+          "frozen_after": "0",
+          "kind": "purchase",
+          "ref_type": "listing_order",
+          "ref_id": "3",
+          "idempotency_key": "biz:listing:buy:3"
+        },
+        {
+          "txid": "91",
+          "uid": "7",
+          "cid": "1",
+          "delta": "100",
+          "frozen_delta": "0",
+          "balance_after": "5300",
+          "frozen_after": "0",
+          "kind": "sale",
+          "ref_type": "listing_order",
+          "ref_id": "3",
+          "idempotency_key": "biz:listing:buy:3#2"
+        }
+      ],
+      "legs_check": {
+        "n": 2,
+        "kinds": [
+          "purchase",
+          "sale"
+        ],
+        "uids": [
+          "8",
+          "7"
+        ],
+        "frozen_deltas": [
+          "0",
+          "0"
+        ],
+        "sum_delta": "0",
+        "sum_frozen_delta": "0",
+        "sum_delta_plus_frozen": "0",
+        "pure_transfer": true,
+        "no_frozen_movement": true,
+        "txids": [
+          "90",
+          "91"
+        ]
+      },
+      "note": "body 里 price=1 / seller_uid=THIRD / buyer_uid=THIRD 必须全被忽略（服务端取数）"
+    },
+    "P2_replay": {
+      "view": {
+        "op": "buy",
+        "listing_id": "13",
+        "order_id": "2",
+        "listing_status": "listed",
+        "order_status": "paid",
+        "stock": "0",
+        "stock_rolled_back": false,
+        "created": false,
+        "idempotent_replay": true,
+        "txid": "88",
+        "ledger_idempotency_key": "biz:listing:buy:2",
+        "pay_txid": "88",
+        "refund_txid": null,
+        "ledger_event_keys": [
+          "biz:listing:buy:2"
+        ],
+        "amount": "200",
+        "currency_status": "listed",
+        "event_kinds": "purchase,sale",
+        "entry_count": 2,
+        "kinds": [
+          "purchase",
+          "sale"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "8",
+            "kind": "purchase",
+            "memo": "listing buy:cli:b3d:b3d-20260930T023156:buy1（买家付款 purchase listing_order=2）",
+            "txid": "88",
+            "delta": "-200",
+            "ref_id": "2",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:35:09.024Z",
+            "balance_after": "4800",
+            "idempotency_key": "biz:listing:buy:2",
+            "reversal_of_txid": null,
+            "request_fingerprint": "494fe1824a25830d74f1cb39b4d492bd90c0e2526d736d2d97392f16b0b99256"
+          },
+          {
+            "cid": "1",
+            "uid": "7",
+            "kind": "sale",
+            "memo": "listing buy:cli:b3d:b3d-20260930T023156:buy1（卖家收款 sale listing_order=2）",
+            "txid": "89",
+            "delta": "200",
+            "ref_id": "2",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:35:09.024Z",
+            "balance_after": "5200",
+            "idempotency_key": "biz:listing:buy:2#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "8",
+            "frozen": "0",
+            "balance": "4800"
+          },
+          {
+            "cid": "1",
+            "uid": "7",
+            "frozen": "0",
+            "balance": "5200"
+          }
+        ],
+        "buyer_uid": "8",
+        "quantity": "2",
+        "client_buyer_uid_ignored": null
+      },
+      "stock_before_replay": "0",
+      "stock_after_replay": "0",
+      "legs_n_after_replay": 2,
+      "same_txid_set": true
+    },
+    "P2_conflict": {
+      "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+      "details": {
+        "detail_unavailable": "driver_did_not_carry_detail",
+        "idempotency_key": "listing"
+      },
+      "legs_n_still": 2
+    },
+    "P2_neg_zero_residue": {
+      "empty_listing": {
+        "listing_id": "14",
+        "seller_uid": "7",
+        "cid": "1",
+        "price": "50",
+        "stock": "0",
+        "status": "listed"
+      },
+      "order_rows_total": 3
+    },
+    "P4_happy": {
+      "order_id": 2,
+      "refund_key": "biz:listing:refund:2",
+      "legs": [
+        {
+          "txid": "92",
+          "uid": "7",
+          "cid": "1",
+          "delta": "-200",
+          "frozen_delta": "0",
+          "balance_after": "5100",
+          "frozen_after": "0",
+          "kind": "purchase_refund",
+          "ref_type": "listing_order",
+          "ref_id": "2",
+          "idempotency_key": "biz:listing:refund:2"
+        },
+        {
+          "txid": "93",
+          "uid": "8",
+          "cid": "1",
+          "delta": "200",
+          "frozen_delta": "0",
+          "balance_after": "4900",
+          "frozen_after": "0",
+          "kind": "purchase_refund",
+          "ref_type": "listing_order",
+          "ref_id": "2",
+          "idempotency_key": "biz:listing:refund:2#2"
+        }
+      ],
+      "legs_check": {
+        "n": 2,
+        "kinds": [
+          "purchase_refund",
+          "purchase_refund"
+        ],
+        "uids": [
+          "7",
+          "8"
+        ],
+        "frozen_deltas": [
+          "0",
+          "0"
+        ],
+        "sum_delta": "0",
+        "sum_frozen_delta": "0",
+        "sum_delta_plus_frozen": "0",
+        "pure_transfer": true,
+        "no_frozen_movement": true,
+        "txids": [
+          "92",
+          "93"
+        ]
+      },
+      "order_row": {
+        "order_id": "2",
+        "listing_id": "13",
+        "buyer_uid": "8",
+        "seller_uid": "7",
+        "cid": "1",
+        "price": "100",
+        "quantity": "2",
+        "status": "refunded",
+        "pay_txid": "88",
+        "refund_txid": "92",
+        "ledger_event_keys": [
+          "biz:listing:buy:2",
+          "biz:listing:refund:2"
+        ]
+      },
+      "listing_after": {
+        "listing_id": "13",
+        "seller_uid": "7",
+        "cid": "1",
+        "price": "100",
+        "stock": "0",
+        "status": "listed"
+      },
+      "buyer_after": {
+        "balance": "4900",
+        "frozen": "0"
+      },
+      "seller_after": {
+        "balance": "5100",
+        "frozen": "0"
+      },
+      "view": {
+        "op": "refund",
+        "listing_id": "13",
+        "order_id": "2",
+        "listing_status": "listed",
+        "order_status": "refunded",
+        "stock": "0",
+        "stock_rolled_back": false,
+        "created": false,
+        "idempotent_replay": false,
+        "txid": "92",
+        "ledger_idempotency_key": "biz:listing:refund:2",
+        "pay_txid": "88",
+        "refund_txid": "92",
+        "ledger_event_keys": [
+          "biz:listing:buy:2",
+          "biz:listing:refund:2"
+        ],
+        "amount": "200",
+        "currency_status": "listed",
+        "event_kinds": "purchase_refund",
+        "entry_count": 2,
+        "kinds": [
+          "purchase_refund",
+          "purchase_refund"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "7",
+            "kind": "purchase_refund",
+            "memo": "listing refund:2（卖家退回 purchase_refund listing_order=2）",
+            "txid": "92",
+            "delta": "-200",
+            "ref_id": "2",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:35:15.146Z",
+            "balance_after": "5100",
+            "idempotency_key": "biz:listing:refund:2",
+            "reversal_of_txid": null,
+            "request_fingerprint": "cac668e3d97a784f7e0aa1fa705b572d2feaef44f6dfad157807d43075858b94"
+          },
+          {
+            "cid": "1",
+            "uid": "8",
+            "kind": "purchase_refund",
+            "memo": "listing refund:2（买家收款 purchase_refund listing_order=2）",
+            "txid": "93",
+            "delta": "200",
+            "ref_id": "2",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:35:15.146Z",
+            "balance_after": "4900",
+            "idempotency_key": "biz:listing:refund:2#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "7",
+            "frozen": "0",
+            "balance": "5100"
+          },
+          {
+            "cid": "1",
+            "uid": "8",
+            "frozen": "0",
+            "balance": "4900"
+          }
+        ],
+        "actor_uid": "7",
+        "seller_uid": "7"
+      }
+    },
+    "P4_replay": {
+      "view": {
+        "op": "refund",
+        "listing_id": "13",
+        "order_id": "2",
+        "listing_status": "listed",
+        "order_status": "refunded",
+        "stock": "0",
+        "stock_rolled_back": false,
+        "created": false,
+        "idempotent_replay": true,
+        "txid": "92",
+        "ledger_idempotency_key": "biz:listing:refund:2",
+        "pay_txid": "88",
+        "refund_txid": "92",
+        "ledger_event_keys": [
+          "biz:listing:buy:2",
+          "biz:listing:refund:2"
+        ],
+        "amount": "200",
+        "currency_status": "listed",
+        "event_kinds": "purchase_refund",
+        "entry_count": 2,
+        "kinds": [
+          "purchase_refund",
+          "purchase_refund"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "7",
+            "kind": "purchase_refund",
+            "memo": "listing refund:2（卖家退回 purchase_refund listing_order=2）",
+            "txid": "92",
+            "delta": "-200",
+            "ref_id": "2",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:35:15.146Z",
+            "balance_after": "5100",
+            "idempotency_key": "biz:listing:refund:2",
+            "reversal_of_txid": null,
+            "request_fingerprint": "cac668e3d97a784f7e0aa1fa705b572d2feaef44f6dfad157807d43075858b94"
+          },
+          {
+            "cid": "1",
+            "uid": "8",
+            "kind": "purchase_refund",
+            "memo": "listing refund:2（买家收款 purchase_refund listing_order=2）",
+            "txid": "93",
+            "delta": "200",
+            "ref_id": "2",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:35:15.146Z",
+            "balance_after": "4900",
+            "idempotency_key": "biz:listing:refund:2#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "7",
+            "frozen": "0",
+            "balance": "5100"
+          },
+          {
+            "cid": "1",
+            "uid": "8",
+            "frozen": "0",
+            "balance": "4900"
+          }
+        ],
+        "actor_uid": "7",
+        "seller_uid": "7"
+      },
+      "legs_n_after_replay": 2,
+      "same_txid_set": true,
+      "stock_after_replay": "0"
+    },
+    "P4_neg": {
+      "non_owner_third": {
+        "code": "AUTH_FORBIDDEN",
+        "status": 403,
+        "details": {
+          "reason": "ACTOR_NOT_ALLOWED",
+          "field": "actor.uid",
+          "ref_type": "listing_order",
+          "ref_id": "2",
+          "required_uid": "7"
+        }
+      },
+      "non_owner_buyer": {
+        "code": "AUTH_FORBIDDEN",
+        "status": 403,
+        "details": {
+          "reason": "ACTOR_NOT_ALLOWED",
+          "field": "actor.uid",
+          "ref_type": "listing_order",
+          "ref_id": "2",
+          "required_uid": "7"
+        }
+      },
+      "not_refundable": {
+        "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+        "status": 409,
+        "details": {
+          "detail_unavailable": "driver_did_not_carry_detail"
+        }
+      },
+      "refund_legs_on_created_order": 0,
+      "refund_legs_on_unknown": 0
+    }
+  },
+  "http_records": [
+    {
+      "id": "HTTP_buy_404",
+      "status": 404,
+      "code": null,
+      "reason": null,
+      "success": false,
+      "message": "Not found",
+      "error_details": null,
+      "body_head": null
+    },
+    {
+      "id": "HTTP_refund_404",
+      "status": 404,
+      "code": null,
+      "reason": null,
+      "success": false,
+      "message": "Not found",
+      "error_details": null,
+      "body_head": null
+    }
+  ],
+  "service_records": [
+    {
+      "id": "P2_buy_happy",
+      "status": 200,
+      "ok": true,
+      "replay": false,
+      "view_keys": [
+        "op",
+        "listing_id",
+        "order_id",
+        "listing_status",
+        "order_status",
+        "stock",
+        "stock_rolled_back",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "pay_txid",
+        "refund_txid",
+        "ledger_event_keys",
+        "amount",
+        "currency_status",
+        "event_kinds",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "buyer_uid",
+        "quantity",
+        "client_buyer_uid_ignored"
+      ],
+      "view": {
+        "op": "buy",
+        "listing_id": "13",
+        "order_id": "2",
+        "listing_status": "listed",
+        "order_status": "paid",
+        "stock": "1",
+        "stock_rolled_back": false,
+        "created": true,
+        "idempotent_replay": false,
+        "txid": "88",
+        "ledger_idempotency_key": "biz:listing:buy:2",
+        "pay_txid": "88",
+        "refund_txid": null,
+        "ledger_event_keys": [
+          "biz:listing:buy:2"
+        ],
+        "amount": "200",
+        "currency_status": "listed",
+        "event_kinds": "purchase,sale",
+        "entry_count": 2,
+        "kinds": [
+          "purchase",
+          "sale"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "8",
+            "kind": "purchase",
+            "memo": "listing buy:cli:b3d:b3d-20260930T023156:buy1（买家付款 purchase listing_order=2）",
+            "txid": "88",
+            "delta": "-200",
+            "ref_id": "2",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:35:09.024Z",
+            "balance_after": "4800",
+            "idempotency_key": "biz:listing:buy:2",
+            "reversal_of_txid": null,
+            "request_fingerprint": "494fe1824a25830d74f1cb39b4d492bd90c0e2526d736d2d97392f16b0b99256"
+          },
+          {
+            "cid": "1",
+            "uid": "7",
+            "kind": "sale",
+            "memo": "listing buy:cli:b3d:b3d-20260930T023156:buy1（卖家收款 sale listing_order=2）",
+            "txid": "89",
+            "delta": "200",
+            "ref_id": "2",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:35:09.024Z",
+            "balance_after": "5200",
+            "idempotency_key": "biz:listing:buy:2#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "8",
+            "frozen": "0",
+            "balance": "4800"
+          },
+          {
+            "cid": "1",
+            "uid": "7",
+            "frozen": "0",
+            "balance": "5200"
+          }
+        ],
+        "buyer_uid": "8",
+        "quantity": "2",
+        "client_buyer_uid_ignored": null
+      }
+    },
+    {
+      "id": "P2_buy_spoof_attempt",
+      "status": 200,
+      "ok": true,
+      "replay": false,
+      "view_keys": [
+        "op",
+        "listing_id",
+        "order_id",
+        "listing_status",
+        "order_status",
+        "stock",
+        "stock_rolled_back",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "pay_txid",
+        "refund_txid",
+        "ledger_event_keys",
+        "amount",
+        "currency_status",
+        "event_kinds",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "buyer_uid",
+        "quantity",
+        "client_buyer_uid_ignored"
+      ],
+      "view": {
+        "op": "buy",
+        "listing_id": "13",
+        "order_id": "3",
+        "listing_status": "listed",
+        "order_status": "paid",
+        "stock": "0",
+        "stock_rolled_back": false,
+        "created": true,
+        "idempotent_replay": false,
+        "txid": "90",
+        "ledger_idempotency_key": "biz:listing:buy:3",
+        "pay_txid": "90",
+        "refund_txid": null,
+        "ledger_event_keys": [
+          "biz:listing:buy:3"
+        ],
+        "amount": "100",
+        "currency_status": "listed",
+        "event_kinds": "purchase,sale",
+        "entry_count": 2,
+        "kinds": [
+          "purchase",
+          "sale"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "8",
+            "kind": "purchase",
+            "memo": "listing buy:cli:b3d:b3d-20260930T023156:buy-spoof（买家付款 purchase listing_order=3）",
+            "txid": "90",
+            "delta": "-100",
+            "ref_id": "3",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:35:09.472Z",
+            "balance_after": "4700",
+            "idempotency_key": "biz:listing:buy:3",
+            "reversal_of_txid": null,
+            "request_fingerprint": "d5d306fc4dadefa8029b459c7bfd2d62a75e83debfcb0b40921e6960c646dd8c"
+          },
+          {
+            "cid": "1",
+            "uid": "7",
+            "kind": "sale",
+            "memo": "listing buy:cli:b3d:b3d-20260930T023156:buy-spoof（卖家收款 sale listing_order=3）",
+            "txid": "91",
+            "delta": "100",
+            "ref_id": "3",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:35:09.472Z",
+            "balance_after": "5300",
+            "idempotency_key": "biz:listing:buy:3#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "8",
+            "frozen": "0",
+            "balance": "4700"
+          },
+          {
+            "cid": "1",
+            "uid": "7",
+            "frozen": "0",
+            "balance": "5300"
+          }
+        ],
+        "buyer_uid": "8",
+        "quantity": "1",
+        "client_buyer_uid_ignored": "9"
+      }
+    },
+    {
+      "id": "P2_buy_replay_same_key",
+      "status": 200,
+      "ok": true,
+      "replay": true,
+      "view_keys": [
+        "op",
+        "listing_id",
+        "order_id",
+        "listing_status",
+        "order_status",
+        "stock",
+        "stock_rolled_back",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "pay_txid",
+        "refund_txid",
+        "ledger_event_keys",
+        "amount",
+        "currency_status",
+        "event_kinds",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "buyer_uid",
+        "quantity",
+        "client_buyer_uid_ignored"
+      ],
+      "view": {
+        "op": "buy",
+        "listing_id": "13",
+        "order_id": "2",
+        "listing_status": "listed",
+        "order_status": "paid",
+        "stock": "0",
+        "stock_rolled_back": false,
+        "created": false,
+        "idempotent_replay": true,
+        "txid": "88",
+        "ledger_idempotency_key": "biz:listing:buy:2",
+        "pay_txid": "88",
+        "refund_txid": null,
+        "ledger_event_keys": [
+          "biz:listing:buy:2"
+        ],
+        "amount": "200",
+        "currency_status": "listed",
+        "event_kinds": "purchase,sale",
+        "entry_count": 2,
+        "kinds": [
+          "purchase",
+          "sale"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "8",
+            "kind": "purchase",
+            "memo": "listing buy:cli:b3d:b3d-20260930T023156:buy1（买家付款 purchase listing_order=2）",
+            "txid": "88",
+            "delta": "-200",
+            "ref_id": "2",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:35:09.024Z",
+            "balance_after": "4800",
+            "idempotency_key": "biz:listing:buy:2",
+            "reversal_of_txid": null,
+            "request_fingerprint": "494fe1824a25830d74f1cb39b4d492bd90c0e2526d736d2d97392f16b0b99256"
+          },
+          {
+            "cid": "1",
+            "uid": "7",
+            "kind": "sale",
+            "memo": "listing buy:cli:b3d:b3d-20260930T023156:buy1（卖家收款 sale listing_order=2）",
+            "txid": "89",
+            "delta": "200",
+            "ref_id": "2",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:35:09.024Z",
+            "balance_after": "5200",
+            "idempotency_key": "biz:listing:buy:2#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "8",
+            "frozen": "0",
+            "balance": "4800"
+          },
+          {
+            "cid": "1",
+            "uid": "7",
+            "frozen": "0",
+            "balance": "5200"
+          }
+        ],
+        "buyer_uid": "8",
+        "quantity": "2",
+        "client_buyer_uid_ignored": null
+      }
+    },
+    {
+      "id": "P2_buy_same_key_diff_content",
+      "status": 409,
+      "ok": false,
+      "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+      "details": {
+        "detail_unavailable": "driver_did_not_carry_detail",
+        "idempotency_key": "listing"
+      },
+      "message": "LEDGER_IDEMPOTENCY_CONFLICT"
+    },
+    {
+      "id": "P2_neg_stock_insufficient",
+      "status": 409,
+      "ok": false,
+      "code": "LEDGER_INSUFFICIENT_BALANCE",
+      "details": {
+        "detail_unavailable": "driver_did_not_carry_detail"
+      },
+      "message": "LEDGER_INSUFFICIENT_BALANCE"
+    },
+    {
+      "id": "P2_neg_self_purchase",
+      "status": 400,
+      "ok": false,
+      "code": "LEDGER_SELF_TRANSFER",
+      "details": {
+        "detail_unavailable": "driver_did_not_carry_detail"
+      },
+      "message": "LEDGER_SELF_TRANSFER"
+    },
+    {
+      "id": "P2_neg_unknown_listing",
+      "status": 404,
+      "ok": false,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "details": {
+        "detail_unavailable": "driver_did_not_carry_detail"
+      },
+      "message": "LEDGER_REF_NOT_FOUND"
+    },
+    {
+      "id": "P2_neg_nonnumeric_listing",
+      "status": 404,
+      "ok": false,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "details": {
+        "ref_type": "listing",
+        "ref_id": "abc",
+        "field": "listing_id",
+        "reason": "listing_not_found"
+      },
+      "message": "Referenced object not found"
+    },
+    {
+      "id": "P2_neg_no_create_key",
+      "status": 400,
+      "ok": false,
+      "code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "details": {
+        "field": "create_key"
+      },
+      "message": "Idempotency key is required"
+    },
+    {
+      "id": "P2_neg_bad_prefix",
+      "status": 400,
+      "ok": false,
+      "code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "details": {
+        "field": "create_key",
+        "reason": "PREFIX_REQUIRED",
+        "allowed_prefixes": [
+          "biz:",
+          "cm:",
+          "cli:",
+          "ops:"
+        ]
+      },
+      "message": "Idempotency key is invalid"
+    },
+    {
+      "id": "P2_neg_zero_qty",
+      "status": 400,
+      "ok": false,
+      "code": "LEDGER_AMOUNT_NOT_POSITIVE",
+      "details": {
+        "field": "quantity",
+        "value": "0"
+      },
+      "message": "Amount must be positive"
+    },
+    {
+      "id": "P2_neg_insufficient_balance",
+      "status": 409,
+      "ok": false,
+      "code": "LEDGER_INSUFFICIENT_BALANCE",
+      "details": {
+        "detail_unavailable": "driver_did_not_carry_detail"
+      },
+      "message": "LEDGER_INSUFFICIENT_BALANCE"
+    },
+    {
+      "id": "P4_refund_happy",
+      "status": 200,
+      "ok": true,
+      "replay": false,
+      "view_keys": [
+        "op",
+        "listing_id",
+        "order_id",
+        "listing_status",
+        "order_status",
+        "stock",
+        "stock_rolled_back",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "pay_txid",
+        "refund_txid",
+        "ledger_event_keys",
+        "amount",
+        "currency_status",
+        "event_kinds",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "actor_uid",
+        "seller_uid"
+      ],
+      "view": {
+        "op": "refund",
+        "listing_id": "13",
+        "order_id": "2",
+        "listing_status": "listed",
+        "order_status": "refunded",
+        "stock": "0",
+        "stock_rolled_back": false,
+        "created": false,
+        "idempotent_replay": false,
+        "txid": "92",
+        "ledger_idempotency_key": "biz:listing:refund:2",
+        "pay_txid": "88",
+        "refund_txid": "92",
+        "ledger_event_keys": [
+          "biz:listing:buy:2",
+          "biz:listing:refund:2"
+        ],
+        "amount": "200",
+        "currency_status": "listed",
+        "event_kinds": "purchase_refund",
+        "entry_count": 2,
+        "kinds": [
+          "purchase_refund",
+          "purchase_refund"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "7",
+            "kind": "purchase_refund",
+            "memo": "listing refund:2（卖家退回 purchase_refund listing_order=2）",
+            "txid": "92",
+            "delta": "-200",
+            "ref_id": "2",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:35:15.146Z",
+            "balance_after": "5100",
+            "idempotency_key": "biz:listing:refund:2",
+            "reversal_of_txid": null,
+            "request_fingerprint": "cac668e3d97a784f7e0aa1fa705b572d2feaef44f6dfad157807d43075858b94"
+          },
+          {
+            "cid": "1",
+            "uid": "8",
+            "kind": "purchase_refund",
+            "memo": "listing refund:2（买家收款 purchase_refund listing_order=2）",
+            "txid": "93",
+            "delta": "200",
+            "ref_id": "2",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:35:15.146Z",
+            "balance_after": "4900",
+            "idempotency_key": "biz:listing:refund:2#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "7",
+            "frozen": "0",
+            "balance": "5100"
+          },
+          {
+            "cid": "1",
+            "uid": "8",
+            "frozen": "0",
+            "balance": "4900"
+          }
+        ],
+        "actor_uid": "7",
+        "seller_uid": "7"
+      }
+    },
+    {
+      "id": "P4_refund_replay",
+      "status": 200,
+      "ok": true,
+      "replay": true,
+      "view_keys": [
+        "op",
+        "listing_id",
+        "order_id",
+        "listing_status",
+        "order_status",
+        "stock",
+        "stock_rolled_back",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "pay_txid",
+        "refund_txid",
+        "ledger_event_keys",
+        "amount",
+        "currency_status",
+        "event_kinds",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "actor_uid",
+        "seller_uid"
+      ],
+      "view": {
+        "op": "refund",
+        "listing_id": "13",
+        "order_id": "2",
+        "listing_status": "listed",
+        "order_status": "refunded",
+        "stock": "0",
+        "stock_rolled_back": false,
+        "created": false,
+        "idempotent_replay": true,
+        "txid": "92",
+        "ledger_idempotency_key": "biz:listing:refund:2",
+        "pay_txid": "88",
+        "refund_txid": "92",
+        "ledger_event_keys": [
+          "biz:listing:buy:2",
+          "biz:listing:refund:2"
+        ],
+        "amount": "200",
+        "currency_status": "listed",
+        "event_kinds": "purchase_refund",
+        "entry_count": 2,
+        "kinds": [
+          "purchase_refund",
+          "purchase_refund"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "7",
+            "kind": "purchase_refund",
+            "memo": "listing refund:2（卖家退回 purchase_refund listing_order=2）",
+            "txid": "92",
+            "delta": "-200",
+            "ref_id": "2",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:35:15.146Z",
+            "balance_after": "5100",
+            "idempotency_key": "biz:listing:refund:2",
+            "reversal_of_txid": null,
+            "request_fingerprint": "cac668e3d97a784f7e0aa1fa705b572d2feaef44f6dfad157807d43075858b94"
+          },
+          {
+            "cid": "1",
+            "uid": "8",
+            "kind": "purchase_refund",
+            "memo": "listing refund:2（买家收款 purchase_refund listing_order=2）",
+            "txid": "93",
+            "delta": "200",
+            "ref_id": "2",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:35:15.146Z",
+            "balance_after": "4900",
+            "idempotency_key": "biz:listing:refund:2#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "7",
+            "frozen": "0",
+            "balance": "5100"
+          },
+          {
+            "cid": "1",
+            "uid": "8",
+            "frozen": "0",
+            "balance": "4900"
+          }
+        ],
+        "actor_uid": "7",
+        "seller_uid": "7"
+      }
+    },
+    {
+      "id": "P4_neg_non_owner_third",
+      "status": 403,
+      "ok": false,
+      "code": "AUTH_FORBIDDEN",
+      "details": {
+        "reason": "ACTOR_NOT_ALLOWED",
+        "field": "actor.uid",
+        "ref_type": "listing_order",
+        "ref_id": "2",
+        "required_uid": "7"
+      },
+      "message": "ACTOR_NOT_ALLOWED"
+    },
+    {
+      "id": "P4_neg_non_owner_buyer",
+      "status": 403,
+      "ok": false,
+      "code": "AUTH_FORBIDDEN",
+      "details": {
+        "reason": "ACTOR_NOT_ALLOWED",
+        "field": "actor.uid",
+        "ref_type": "listing_order",
+        "ref_id": "2",
+        "required_uid": "7"
+      },
+      "message": "ACTOR_NOT_ALLOWED"
+    },
+    {
+      "id": "P4_neg_order_not_refundable",
+      "status": 409,
+      "ok": false,
+      "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+      "details": {
+        "detail_unavailable": "driver_did_not_carry_detail"
+      },
+      "message": "LEDGER_CURRENCY_INVALID_TRANSITION"
+    },
+    {
+      "id": "P4_neg_unknown_order",
+      "status": 404,
+      "ok": false,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "details": {
+        "ref_type": "listing_order",
+        "ref_id": "999999999",
+        "field": "order_id",
+        "reason": "order_not_found"
+      },
+      "message": "Referenced object not found"
+    },
+    {
+      "id": "P4_neg_nonnumeric_order",
+      "status": 404,
+      "ok": false,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "details": {
+        "ref_type": "listing_order",
+        "ref_id": "xyz",
+        "field": "order_id",
+        "reason": "order_not_found"
+      },
+      "message": "Referenced object not found"
+    }
+  ],
+  "leak_check": {
+    "eyJ": 0,
+    "secret_occurrences": 0
+  }
+}
