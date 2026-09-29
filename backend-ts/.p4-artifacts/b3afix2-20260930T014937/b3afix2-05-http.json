@@ -1,0 +1,92 @@
+{
+ "generated_at": "2026-09-29T17:59:46.999Z",
+ "run": "b3afix2-20260930T014937",
+ "base": "http://127.0.0.1:5788",
+ "panel": "http://127.0.0.1:5555",
+ "results": {
+  "panel_self_before": {
+   "url": "http://127.0.0.1:5555/api/self",
+   "status": 200,
+   "error_code": null,
+   "body_head": "{\"ok\":true,\"panel\":{\"port\":5555,\"portOpen\":true,\"pid\":84164,\"nodeVersion\":\"v20.20.2\",\"uptimeMs\":47546737,\"startedAt\":\"2026-09-29T04:47:20.52"
+  },
+  "panel_status_seafood_before": {
+   "url": "http://127.0.0.1:5555/api/status",
+   "status": 200,
+   "error_code": null,
+   "body_head": "{\"jiazu-api\":{\"running\":true,\"state\":\"running\",\"stopping\":false,\"portOpen\":true,\"occupier\":null,\"error\":null,\"name\":\"家谱 数据层\",\"group\":\"jiazu\""
+  },
+  "pre_health": {
+   "url": "/health",
+   "status": 200,
+   "error_code": null,
+   "body_head": "{\"ok\":true,\"db_version\":\"PostgreSQL 18.6 (6569466) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64"
+  },
+  "pre_home": {
+   "url": "/api/home",
+   "status": 200,
+   "error_code": null,
+   "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"tasks\":[{\"tID\":2,\"title\":\"p4b2:fixture:A\",\"note\":\"p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）\",\"ref"
+  },
+  "pre_410_register": {
+   "url": "/api/auth/register",
+   "status": 410,
+   "error_code": null,
+   "body_head": "{\"success\":false,\"message\":\"Registration has moved to wallet sign-in plus profile completion\",\"error\":\"Registration has moved to wallet sign-in plus profile completion\"}"
+  },
+  "panel_restart": {
+   "url": "http://127.0.0.1:5555/api/restart",
+   "status": 200,
+   "error_code": null,
+   "body_head": "{\"sid\":\"seafood-api\",\"ok\":true,\"state\":\"running\",\"pid\":21659,\"msg\":\"已启动\"}"
+  },
+  "post_restart_health": {
+   "status_200": true,
+   "waited_ms": 2750
+  },
+  "panel_status_seafood_after": {
+   "url": "http://127.0.0.1:5555/api/status",
+   "status": 200,
+   "error_code": null,
+   "body_head": "{\"jiazu-api\":{\"running\":true,\"state\":\"running\",\"stopping\":false,\"portOpen\":true,\"occupier\":null,\"error\":null,\"name\":\"家谱 数据层\",\"group\":\"jiazu\""
+  },
+  "post_health": {
+   "url": "/health",
+   "status": 200,
+   "error_code": null,
+   "body_head": "{\"ok\":true,\"db_version\":\"PostgreSQL 18.6 (6569466) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64"
+  },
+  "post_home": {
+   "url": "/api/home",
+   "status": 200,
+   "error_code": null,
+   "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"tasks\":[{\"tID\":2,\"title\":\"p4b2:fixture:A\",\"note\":\"p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）\",\"ref"
+  },
+  "post_410_register": {
+   "url": "/api/auth/register",
+   "status": 410,
+   "error_code": null,
+   "body_head": "{\"success\":false,\"message\":\"Registration has moved to wallet sign-in plus profile completion\",\"error\":\"Registration has moved to wallet sign-in plus profile completion\"}"
+  },
+  "token_fp12": "2b789b25f154",
+  "token_len": 193,
+  "post_business_user_asset": {
+   "url": "/api/user/asset/970001",
+   "status": 200,
+   "error_code": null,
+   "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"index_id\":0,\"uID\":970001,\"points\":1992795,\"lucks\":0,\"time_update\":1790704584}}"
+  },
+  "post_business_shard": {
+   "url": "/api/shard",
+   "status": 200,
+   "error_code": null,
+   "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":[],\"deprecated\":true}"
+  },
+  "post_business_order": {
+   "url": "/api/order",
+   "status": 200,
+   "error_code": null,
+   "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":[]}"
+  }
+ }
+}

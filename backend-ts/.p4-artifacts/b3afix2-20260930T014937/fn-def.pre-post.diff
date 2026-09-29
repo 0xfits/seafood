@@ -1,0 +1,11 @@
+--- .p4-artifacts/b3afix2-20260930T014937/pre-ledger_post_event.def.sql	2026-09-30 01:49:58
++++ .p4-artifacts/b3afix2-20260930T014937/post-ledger_post_event.def.sql	2026-09-30 01:53:15
+@@ -517,7 +517,7 @@
+     FOR v_rec IN
+       SELECT t.e->>'uid' AS g_uid, t.e->>'cid' AS g_cid, t.e->>'kind' AS g_kind
+         FROM jsonb_array_elements(v_entries) AS t(e)
+-       WHERE t.e->>'kind' IN ('hold','hold_release','job_escrow','job_escrow_refund','listing_deposit')
++       WHERE t.e->>'kind' IN ('hold','hold_release','job_escrow','job_escrow_refund')
+        GROUP BY 1, 2, 3
+       HAVING count(*) <> 2
+     LOOP

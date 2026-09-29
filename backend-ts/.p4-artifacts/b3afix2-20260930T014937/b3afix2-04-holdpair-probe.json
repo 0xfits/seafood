@@ -1,0 +1,40 @@
+{
+ "generated_at": "2026-09-29T17:58:03.611Z",
+ "mode": "READ-ONLY",
+ "3_legs_same_group_hold": [
+  {
+   "g_uid": "970001",
+   "g_cid": "1",
+   "g_kind": "hold",
+   "n": 3
+  }
+ ],
+ "2_legs_same_group_hold": [],
+ "2_legs_two_kinds_one_each": [
+  {
+   "g_uid": "970001",
+   "g_cid": "1",
+   "g_kind": "job_escrow",
+   "n": 1
+  },
+  {
+   "g_uid": "970001",
+   "g_cid": "1",
+   "g_kind": "hold",
+   "n": 1
+  }
+ ],
+ "live_query_text_lines_517_527": [
+  "517:     FOR v_rec IN",
+  "518:       SELECT t.e->>'uid' AS g_uid, t.e->>'cid' AS g_cid, t.e->>'kind' AS g_kind",
+  "519:         FROM jsonb_array_elements(v_entries) AS t(e)",
+  "520:        WHERE t.e->>'kind' IN ('hold','hold_release','job_escrow','job_escrow_refund')",
+  "521:        GROUP BY 1, 2, 3",
+  "522:       HAVING count(*) <> 2",
+  "523:     LOOP",
+  "524:       PERFORM ledger_raise('LEDGER_AMOUNT_INVALID', jsonb_build_object(",
+  "525:         'field', 'entries', 'reason', 'HOLD_PAIR_REQUIRED',",
+  "526:         'uid', v_rec.g_uid, 'cid', v_rec.g_cid, 'kind', v_rec.g_kind));",
+  "527:     END LOOP;"
+ ]
+}

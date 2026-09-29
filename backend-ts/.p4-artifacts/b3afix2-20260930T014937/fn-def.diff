@@ -1,0 +1,2 @@
+-        WHERE t.e->>'kind' IN ('hold','hold_release','job_escrow','job_escrow_refund','listing_deposit')
++        WHERE t.e->>'kind' IN ('hold','hold_release','job_escrow','job_escrow_refund')

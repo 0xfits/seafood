@@ -1,0 +1,94 @@
+{
+ "generated_at": "2026-09-29T17:55:04.833Z",
+ "mode": "READ-ONLY",
+ "accounts": [
+  {
+   "uid": "-1",
+   "cid": "1",
+   "balance": "3202",
+   "frozen": "0"
+  },
+  {
+   "uid": "-2",
+   "cid": "1",
+   "balance": "0",
+   "frozen": "0"
+  },
+  {
+   "uid": "-3",
+   "cid": "1",
+   "balance": "0",
+   "frozen": "0"
+  },
+  {
+   "uid": "0",
+   "cid": "1",
+   "balance": "0",
+   "frozen": "0"
+  },
+  {
+   "uid": "970001",
+   "cid": "1",
+   "balance": "1992796",
+   "frozen": "4002"
+  }
+ ],
+ "currencies": [
+  {
+   "cid": "1",
+   "symbol": "$",
+   "status": "listed",
+   "decimals": 0
+  },
+  {
+   "cid": "10",
+   "symbol": "P4B3A013647",
+   "status": "listed",
+   "decimals": 2
+  },
+  {
+   "cid": "15",
+   "symbol": "P4B3A013647X",
+   "status": "draft",
+   "decimals": 0
+  },
+  {
+   "cid": "4",
+   "symbol": "P4B3A013122",
+   "status": "listed",
+   "decimals": 2
+  },
+  {
+   "cid": "9",
+   "symbol": "P4B3A013122X",
+   "status": "draft",
+   "decimals": 0
+  }
+ ],
+ "users": [
+  {
+   "uid": "970001",
+   "evm_head": "0x97000100"
+  },
+  {
+   "uid": "970002",
+   "evm_head": "0x97000200"
+  },
+  {
+   "uid": "970101",
+   "evm_head": "0x97010100"
+  },
+  {
+   "uid": "970102",
+   "evm_head": "0x97010200"
+  },
+  {
+   "uid": "970201",
+   "evm_head": "0x00000000"
+  },
+  {
+   "uid": "970202",
+   "evm_head": "0x00000000"
+  }
+ ]
+}

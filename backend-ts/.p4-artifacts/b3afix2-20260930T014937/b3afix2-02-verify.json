@@ -1,0 +1,468 @@
+{
+ "out": {
+  "generated_at": "2026-09-29T17:58:42.869Z",
+  "run": "b3afix2-20260930T014937",
+  "phase": "post-fix-A2",
+  "fixture_candidates": [
+   {
+    "uid": "970001",
+    "cid": "1",
+    "balance": "1992795",
+    "symbol": "$",
+    "status": "listed"
+   }
+  ],
+  "fixture": {
+   "uid": "970001",
+   "cid": "1",
+   "balance": "1992795",
+   "symbol": "$",
+   "status": "listed"
+  },
+  "fixture_other_account": {
+   "uid": "970001",
+   "cid": "1",
+   "balance": "1992795",
+   "symbol": "$",
+   "status": "listed"
+  },
+  "deltas": {
+   "ledger_entry_n": {
+    "before": 30,
+    "after": 30,
+    "delta": 0
+   },
+   "sigma": {
+    "before": "2000000",
+    "after": "2000000",
+    "equal": true
+   },
+   "user_account": {
+    "before": {
+     "b": "1992795",
+     "f": "4002"
+    },
+    "after": {
+     "b": "1992795",
+     "f": "4002"
+    }
+   },
+   "m1_account": {
+    "before": {
+     "b": "3203",
+     "f": "0"
+    },
+    "after": {
+     "b": "3203",
+     "f": "0"
+    }
+   },
+   "m2_account": {
+    "before": {
+     "b": "0",
+     "f": "0"
+    },
+    "after": {
+     "b": "0",
+     "f": "0"
+    }
+   },
+   "m3_account": {
+    "before": {
+     "b": "0",
+     "f": "0"
+    },
+    "after": {
+     "b": "0",
+     "f": "0"
+    }
+   },
+   "sigma_delta_positive_event_only": {
+    "txid": "28",
+    "replayed": null,
+    "entry_count": 2,
+    "entries": [
+     {
+      "txid": "28",
+      "uid": "970001",
+      "cid": "1",
+      "delta": "-1",
+      "frozen_delta": "0",
+      "balance_after": "1992798",
+      "frozen_after": "4001",
+      "kind": "listing_deposit",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "cli:p4b3afix2:b3afix2-20260930T014937:pos:listing_deposit_cross_account",
+      "request_fingerprint": null,
+      "reversal_of_txid": null,
+      "memo": "",
+      "time_created": "2026-09-29T17:54:13.076Z"
+     },
+     {
+      "txid": "29",
+      "uid": "-1",
+      "cid": "1",
+      "delta": "1",
+      "frozen_delta": "0",
+      "balance_after": "3201",
+      "frozen_after": "0",
+      "kind": "listing_deposit",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "cli:p4b3afix2:b3afix2-20260930T014937:pos:listing_deposit_cross_account#2",
+      "request_fingerprint": null,
+      "reversal_of_txid": null,
+      "memo": "",
+      "time_created": "2026-09-29T17:54:13.076Z"
+     }
+    ]
+   }
+  }
+ },
+ "steps": {
+  "A_registry_count_19": {
+   "ok": true,
+   "result": {
+    "count": 19,
+    "last": {
+     "version": "0020",
+     "name": "0020_ledger_post_event_hold_family_drop_listing_deposit.sql",
+     "checksum": "228127d89de90a0d187aff8c2cd12b18aad94130faca7e804f5dd23c1d9cfc4d"
+    },
+    "versions": [
+     "0001",
+     "0002",
+     "0003",
+     "0004",
+     "0005",
+     "0006",
+     "0007",
+     "0008",
+     "0009",
+     "0010",
+     "0011",
+     "0012",
+     "0013",
+     "0014",
+     "0015",
+     "0016",
+     "0017",
+     "0019",
+     "0020"
+    ]
+   }
+  },
+  "B_fn_shape": {
+   "ok": true,
+   "result": {
+    "def_md5": "57fdc800f2762ef3c5b7a2ea73031f55",
+    "def_len": 45704,
+    "prosrc_md5": "0ed7eb9131e67205bbc90ecef5dd2108",
+    "ld_in_body": 0,
+    "list_pos": 24247,
+    "pair_hint_pos": 24474,
+    "having_pos": 24333,
+    "sig": "payload jsonb",
+    "ret": "jsonb",
+    "comment": "P1f（F1/F2/F3 修复版）：一个业务事件 = 一次往返。校验/幂等占位/加锁(R79)/分录/余额与冻结更新(R74)/配对不变式(R41)+§11 判据 8 全在一次调用内完成。F1：调用方键禁止 '#' + event_root_key 归属列 + 根行存在性与归属校验（重放不再可能被他人派生键冒充）。F2：整个函数体一个 EXCEPTION 兜底 + ledger_error_for_sqlstate 全定义域归类 + 金额/求和真范围闸。F3：函数内自证 10s 预算（lock_timeout 按剩余预算收紧）+ 55P03/40P01/57014 统一映射为 LD025/LD027/LD026 + 基础设施错误归 503。op = mint|transfer|hold|hold_release|settle|entries。错误一律用自定义 SQLSTATE(LD001..LD033) + MESSAGE=§14.1 码名 + DETAIL=§14.4 details JSON 机读传出。0012: 在 C4 账户加锁之后、C5 余额/冻结闸之前新增**只读重放前置闸**（按 event_root_key 归属、走 idx_ledger_event_root_key）：键已在库 ⇒ 指纹同/未传即按 R52① 返回既有结果（零写入、零余额校验），指纹异即 R52② 409 ⇒ 修复「托管花光后同键重试得到 LD002 而非 200 重放」的幂等契约缺陷；不取代 R51 的 ON CONFLICT 探针，不放宽 R63。"
+   }
+  },
+  "C_kind_close_set_20": {
+   "ok": true,
+   "result": {
+    "db_text_occurrences": 20,
+    "db_kind_count": 20,
+    "ts_kind_count": 20,
+    "sets_equal": true,
+    "db_only": [],
+    "ts_only": []
+   }
+  },
+  "D_ts_hold_kinds_4": {
+   "ok": true,
+   "result": {
+    "hold_kinds": [
+     "hold",
+     "hold_release",
+     "job_escrow",
+     "job_escrow_refund"
+    ],
+    "len": 4,
+    "has_listing_deposit": false,
+    "ts_assert_pos_m1_listing_deposit_credit": "no-throw"
+   }
+  },
+  "F_event_pos_listing_deposit_cross_account": {
+   "ok": true,
+   "result": {
+    "txid": "28",
+    "replayed": null,
+    "entry_count": 2,
+    "entries": [
+     {
+      "txid": "28",
+      "uid": "970001",
+      "cid": "1",
+      "delta": "-1",
+      "frozen_delta": "0",
+      "balance_after": "1992798",
+      "frozen_after": "4001",
+      "kind": "listing_deposit",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "cli:p4b3afix2:b3afix2-20260930T014937:pos:listing_deposit_cross_account",
+      "request_fingerprint": null,
+      "reversal_of_txid": null,
+      "memo": "",
+      "time_created": "2026-09-29T17:54:13.076Z"
+     },
+     {
+      "txid": "29",
+      "uid": "-1",
+      "cid": "1",
+      "delta": "1",
+      "frozen_delta": "0",
+      "balance_after": "3201",
+      "frozen_after": "0",
+      "kind": "listing_deposit",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "cli:p4b3afix2:b3afix2-20260930T014937:pos:listing_deposit_cross_account#2",
+      "request_fingerprint": null,
+      "reversal_of_txid": null,
+      "memo": "",
+      "time_created": "2026-09-29T17:54:13.076Z"
+     }
+    ]
+   }
+  },
+  "F2_sigma_invariant_around_positive_event": {
+   "ok": true,
+   "result": {
+    "sigma_before": "2000000",
+    "sigma_after": "2000000",
+    "sigma_delta": "0",
+    "user_before": {
+     "b": "1992795",
+     "f": "4002"
+    },
+    "user_after": {
+     "b": "1992795",
+     "f": "4002"
+    },
+    "m1_before": {
+     "b": "3203",
+     "f": "0"
+    },
+    "m1_after": {
+     "b": "3203",
+     "f": "0"
+    },
+    "txid": "36",
+    "entry_count": 2,
+    "per_entry": [
+     {
+      "uid": "970001",
+      "delta": "-1",
+      "frozen_delta": "0"
+     },
+     {
+      "uid": "-1",
+      "delta": "1",
+      "frozen_delta": "0"
+     }
+    ]
+   }
+  },
+  "G_idem_first_post": {
+   "ok": true,
+   "result": {
+    "txid": "30",
+    "replayed": null
+   }
+  },
+  "G_idem_second_post_replay": {
+   "ok": true,
+   "result": {
+    "txid": "30",
+    "replayed": null,
+    "entries_after": 30,
+    "entries_before_second": 30,
+    "second_entry_added": 0
+   }
+  },
+  "H1_neg_hold_single_leg_pair_required": {
+   "ok": true,
+   "result": "rejected as expected: LEDGER_AMOUNT_INVALID",
+   "error_message": "金额格式不正确",
+   "details": {
+    "field": "entries",
+    "reason": "EVENT_NOT_BALANCED",
+    "delta_sum": "-1",
+    "frozen_delta_sum": "0",
+    "net_sum": "-1"
+   }
+  },
+  "H2a_neg_two_hold_family_kinds_one_leg_each": {
+   "ok": true,
+   "result": "code=LEDGER_AMOUNT_INVALID reason=HOLD_PAIR_REQUIRED (want LEDGER_AMOUNT_INVALID/HOLD_PAIR_REQUIRED)",
+   "error_message": "金额格式不正确",
+   "details": {
+    "cid": "1",
+    "uid": "970001",
+    "kind": "job_escrow",
+    "field": "entries",
+    "reason": "HOLD_PAIR_REQUIRED"
+   }
+  },
+  "H2b_neg_hold_same_kind_two_cids": {
+   "ok": true,
+   "result": "code=LEDGER_AMOUNT_INVALID reason=HOLD_PAIR_REQUIRED (want LEDGER_AMOUNT_INVALID/HOLD_PAIR_REQUIRED)",
+   "error_message": "金额格式不正确",
+   "details": {
+    "cid": "10",
+    "uid": "970001",
+    "kind": "hold",
+    "field": "entries",
+    "reason": "HOLD_PAIR_REQUIRED"
+   }
+  },
+  "H2c_neg_hold_three_legs_same_group": {
+   "ok": true,
+   "result": "code=LEDGER_AMOUNT_INVALID reason=HOLD_PAIR_REQUIRED (want LEDGER_AMOUNT_INVALID/HOLD_PAIR_REQUIRED)",
+   "error_message": "金额格式不正确",
+   "details": {
+    "cid": "1",
+    "uid": "970001",
+    "kind": "hold",
+    "field": "entries",
+    "reason": "HOLD_PAIR_REQUIRED"
+   }
+  },
+  "H4_pos_hold_same_account_two_legs_still_ok": {
+   "ok": true,
+   "result": {
+    "txid": "34",
+    "entry_count": 2
+   }
+  },
+  "H5_neg_commission_credit_m1": {
+   "ok": true,
+   "result": "rejected as expected: LEDGER_RESERVED_UID",
+   "error_message": "目标账户无效",
+   "details": {
+    "uid": "-1",
+    "kind": "commission",
+    "reason": "PLATFORM_CREDIT_KIND_FORBIDDEN"
+   }
+  },
+  "H6_neg_listing_deposit_debit_m1": {
+   "ok": true,
+   "result": "rejected as expected: LEDGER_RESERVED_UID",
+   "error_message": "目标账户无效",
+   "details": {
+    "uid": "-1",
+    "kind": "listing_deposit",
+    "reason": "PLATFORM_DEBIT_FORBIDDEN"
+   }
+  },
+  "H7_neg_listing_deposit_credit_m2": {
+   "ok": true,
+   "result": "rejected as expected: LEDGER_RESERVED_UID",
+   "error_message": "目标账户无效",
+   "details": {
+    "uid": "-2",
+    "kind": "listing_deposit",
+    "reason": "PLATFORM_CREDIT_KIND_FORBIDDEN"
+   }
+  },
+  "H8_neg_listing_deposit_credit_m3": {
+   "ok": true,
+   "result": "rejected as expected: LEDGER_RESERVED_UID",
+   "error_message": "目标账户无效",
+   "details": {
+    "uid": "-3",
+    "kind": "listing_deposit",
+    "reason": "PLATFORM_CREDIT_KIND_FORBIDDEN"
+   }
+  },
+  "H9_db_fn_neg_m1_debit": {
+   "ok": true,
+   "result": "rejected as expected: LD021",
+   "error_message": "LEDGER_RESERVED_UID",
+   "details": null
+  },
+  "H9b_db_fn_neg_m2_credit": {
+   "ok": true,
+   "result": "rejected as expected: LD021",
+   "error_message": "LEDGER_RESERVED_UID",
+   "details": null
+  },
+  "H9c_db_fn_neg_m3_credit": {
+   "ok": true,
+   "result": "rejected as expected: LD021",
+   "error_message": "LEDGER_RESERVED_UID",
+   "details": null
+  },
+  "H9d_db_fn_pos_m1_credit": {
+   "ok": true,
+   "result": "no-throw (0019 白名单仍生效)"
+  },
+  "I_positive_event_entries_readback": {
+   "ok": true,
+   "result": {
+    "persisted_rows": [
+     {
+      "txid": "28",
+      "uid": "970001",
+      "cid": "1",
+      "delta": "-1",
+      "frozen_delta": "0",
+      "balance_after": "1992798",
+      "frozen_after": "4001",
+      "kind": "listing_deposit",
+      "idempotency_key": "cli:p4b3afix2:b3afix2-20260930T014937:pos:listing_deposit_cross_account",
+      "event_root_key": "cli:p4b3afix2:b3afix2-20260930T014937:pos:listing_deposit_cross_account"
+     },
+     {
+      "txid": "29",
+      "uid": "-1",
+      "cid": "1",
+      "delta": "1",
+      "frozen_delta": "0",
+      "balance_after": "3201",
+      "frozen_after": "0",
+      "kind": "listing_deposit",
+      "idempotency_key": "cli:p4b3afix2:b3afix2-20260930T014937:pos:listing_deposit_cross_account#2",
+      "event_root_key": "cli:p4b3afix2:b3afix2-20260930T014937:pos:listing_deposit_cross_account"
+     }
+    ],
+    "frozen_delta_sum_for_event": [
+     {
+      "s": "0"
+     }
+    ],
+    "negative_key_row_counts": [
+     {
+      "hold_single_leg": 0,
+      "hold_and_escrow_one_leg_each": 0,
+      "hold_two_cids": 0,
+      "hold_three_legs_same_group": 0,
+      "commission_m1": 0,
+      "ld_debit_m1": 0,
+      "ld_credit_m2": 0,
+      "ld_credit_m3": 0
+     }
+    ]
+   }
+  },
+  "J_migration_0020_reapply_idempotent": {
+   "ok": true,
+   "result": {
+    "re_applied_bytes": 53025,
+    "def_md5_after_reapply": "57fdc800f2762ef3c5b7a2ea73031f55"
+   }
+  }
+ }
+}
