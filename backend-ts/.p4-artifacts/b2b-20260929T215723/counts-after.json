@@ -1,0 +1,450 @@
+{
+  "generated_at": "2026-09-29T14:14:37.999Z",
+  "phase": "after",
+  "driver": "neon-http",
+  "namespace": "p4b2c",
+  "table_counts": {
+    "listing": 12,
+    "listing_order": 0,
+    "ledger_entry": 0,
+    "account": 4,
+    "currency": 1,
+    "users": 4,
+    "job": 3,
+    "job_application": 3,
+    "job_submission": 2,
+    "app_config": 0,
+    "commission_policy": 1
+  },
+  "tables_like_ledger": {
+    "ledger_entry": 0,
+    "ledger_owner": 4
+  },
+  "tables_like_listing": {
+    "listing": 12,
+    "listing_order": 0
+  },
+  "tables_like_prize": {},
+  "row_dump_hashes": {
+    "account": "1e010fd7c5c0dba1306251bed3069743",
+    "currency": "94888b601989b0432a9e0b11fdbb2773",
+    "listing": "a6477fd498dd510bfe4e9bc8678ab84e",
+    "ledger_entry": "4f53cda18c2baa0c0354bb5f9a3ecbe5",
+    "job": "b0fe8d5e248df4138377819e587ee78c",
+    "job_application": "860d4c53c17ff83a659294763c3d6ff1",
+    "job_submission": "fd42a69034dd5d9924630b510f376f37",
+    "users": "3d039fd5872360ee286119640984f21a"
+  },
+  "namespace_counts": {
+    "listing_create_key_like": 12,
+    "listing_order_create_key_like": 0,
+    "users_bio_like": 2,
+    "ledger_entry_event_root_like": 0,
+    "job_create_key_like": 1,
+    "job_submission_create_key_like": 1
+  },
+  "account_invariants": [
+    {
+      "rows": 4,
+      "sum_balance": "0",
+      "sum_frozen": "0"
+    }
+  ],
+  "account_rows": [
+    {
+      "uid": "-3",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-1",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    }
+  ],
+  "currency_rows": [
+    {
+      "cid": "1",
+      "symbol": "$",
+      "status": "listed",
+      "total_supply": "0",
+      "owner_uid": "0"
+    }
+  ],
+  "listing_rows": [
+    {
+      "listing_id": "1",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "137",
+      "stock": 5,
+      "title": "p4b2c:listing A",
+      "status": "draft",
+      "create_key": "cli:p4b2c:listing:L1",
+      "ledger_event_keys": [],
+      "time_created": "2026-09-29T14:05:23.401Z",
+      "time_updated": "2026-09-29T14:05:23.401Z"
+    },
+    {
+      "listing_id": "2",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "137",
+      "stock": 5,
+      "title": "p4b2c:listing A",
+      "status": "draft",
+      "create_key": "cli:p4b2c:listing:create:970101:1:137:5:p4b2c:listing A:a422c48ca17c1de0",
+      "ledger_event_keys": [],
+      "time_created": "2026-09-29T14:05:24.516Z",
+      "time_updated": "2026-09-29T14:05:24.516Z"
+    },
+    {
+      "listing_id": "3",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "200",
+      "stock": 5,
+      "title": "p4b2c:listing A",
+      "status": "draft",
+      "create_key": "cli:p4b2c:listing:P200",
+      "ledger_event_keys": [],
+      "time_created": "2026-09-29T14:05:25.077Z",
+      "time_updated": "2026-09-29T14:05:25.077Z"
+    },
+    {
+      "listing_id": "4",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "137",
+      "stock": 0,
+      "title": "p4b2c:listing A",
+      "status": "draft",
+      "create_key": "cli:p4b2c:listing:S0",
+      "ledger_event_keys": [],
+      "time_created": "2026-09-29T14:05:26.847Z",
+      "time_updated": "2026-09-29T14:05:26.847Z"
+    },
+    {
+      "listing_id": "5",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "137",
+      "stock": 5,
+      "title": "p4b2c:listing A",
+      "status": "draft",
+      "create_key": "cli:p4b2c:listing:C1",
+      "ledger_event_keys": [],
+      "time_created": "2026-09-29T14:05:28.208Z",
+      "time_updated": "2026-09-29T14:05:28.208Z"
+    },
+    {
+      "listing_id": "6",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "137",
+      "stock": 5,
+      "title": "p4b2c:listing B",
+      "status": "draft",
+      "create_key": "cli:p4b2c:listing:L2",
+      "ledger_event_keys": [],
+      "time_created": "2026-09-29T14:05:32.540Z",
+      "time_updated": "2026-09-29T14:05:32.540Z"
+    },
+    {
+      "listing_id": "7",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "199",
+      "stock": 7,
+      "title": "p4b2cr2:listing A v2",
+      "status": "delisted",
+      "create_key": "cli:p4b2cr2:listing:L1",
+      "ledger_event_keys": [],
+      "time_created": "2026-09-29T14:06:34.973Z",
+      "time_updated": "2026-09-29T14:06:53.551Z"
+    },
+    {
+      "listing_id": "8",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "137",
+      "stock": 5,
+      "title": "p4b2cr2:listing A",
+      "status": "draft",
+      "create_key": "cli:p4b2c:listing:create:970101:1:137:5:p4b2cr2:listing A:0c853465a3cb6468",
+      "ledger_event_keys": [],
+      "time_created": "2026-09-29T14:06:41.064Z",
+      "time_updated": "2026-09-29T14:06:41.064Z"
+    },
+    {
+      "listing_id": "9",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "200",
+      "stock": 5,
+      "title": "p4b2cr2:listing A",
+      "status": "draft",
+      "create_key": "cli:p4b2cr2:listing:P200",
+      "ledger_event_keys": [],
+      "time_created": "2026-09-29T14:06:43.344Z",
+      "time_updated": "2026-09-29T14:06:43.344Z"
+    },
+    {
+      "listing_id": "10",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "137",
+      "stock": 0,
+      "title": "p4b2cr2:listing A",
+      "status": "draft",
+      "create_key": "cli:p4b2cr2:listing:S0",
+      "ledger_event_keys": [],
+      "time_created": "2026-09-29T14:06:46.748Z",
+      "time_updated": "2026-09-29T14:06:46.748Z"
+    },
+    {
+      "listing_id": "11",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "137",
+      "stock": 5,
+      "title": "p4b2cr2:listing A",
+      "status": "draft",
+      "create_key": "cli:p4b2cr2:listing:C1",
+      "ledger_event_keys": [],
+      "time_created": "2026-09-29T14:06:47.587Z",
+      "time_updated": "2026-09-29T14:06:47.587Z"
+    },
+    {
+      "listing_id": "12",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "155",
+      "stock": 5,
+      "title": "p4b2cr2:listing B",
+      "status": "draft",
+      "create_key": "cli:p4b2cr2:listing:L2",
+      "ledger_event_keys": [],
+      "time_created": "2026-09-29T14:06:55.873Z",
+      "time_updated": "2026-09-29T14:06:57.197Z"
+    }
+  ],
+  "listing_statuses": [
+    {
+      "status": "delisted",
+      "c": 1
+    },
+    {
+      "status": "draft",
+      "c": 11
+    }
+  ],
+  "job_rows": [
+    {
+      "job_id": "2",
+      "employer_uid": "970001",
+      "worker_uid": null,
+      "status": "open",
+      "create_key": "cli:p4b2:job:A",
+      "escrow_null": true
+    },
+    {
+      "job_id": "3",
+      "employer_uid": "970001",
+      "worker_uid": "970002",
+      "status": "submitted",
+      "create_key": "cli:p4b2:job:B",
+      "escrow_null": true
+    },
+    {
+      "job_id": "4",
+      "employer_uid": "970101",
+      "worker_uid": "970102",
+      "status": "submitted",
+      "create_key": "cli:p4b2c:job:S1",
+      "escrow_null": true
+    }
+  ],
+  "users_rows": [
+    {
+      "uid": "970001",
+      "evm_head": "0x97000100",
+      "bio": "p4b2:fixture user",
+      "is_admin": false
+    },
+    {
+      "uid": "970002",
+      "evm_head": "0x97000200",
+      "bio": "p4b2:fixture user",
+      "is_admin": false
+    },
+    {
+      "uid": "970101",
+      "evm_head": "0x97010100",
+      "bio": "p4b2c:fixture user",
+      "is_admin": false
+    },
+    {
+      "uid": "970102",
+      "evm_head": "0x97010200",
+      "bio": "p4b2c:fixture user",
+      "is_admin": false
+    }
+  ],
+  "schema_assertions": {
+    "listing_columns": [
+      {
+        "column_name": "listing_id",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "seller_uid",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "cid",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "price",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "stock",
+        "data_type": "integer",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "title",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "description",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "media_urls",
+        "data_type": "ARRAY",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "status",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "create_key",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "ledger_event_keys",
+        "data_type": "ARRAY",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "time_updated",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO"
+      }
+    ],
+    "listing_status_fn": [
+      {
+        "ok": true,
+        "p_from": "draft",
+        "p_to": "listed"
+      },
+      {
+        "ok": false,
+        "p_from": "draft",
+        "p_to": "delisted"
+      },
+      {
+        "ok": true,
+        "p_from": "listed",
+        "p_to": "delisted"
+      },
+      {
+        "ok": true,
+        "p_from": "listed",
+        "p_to": "frozen"
+      },
+      {
+        "ok": true,
+        "p_from": "frozen",
+        "p_to": "listed"
+      },
+      {
+        "ok": false,
+        "p_from": "delisted",
+        "p_to": "listed"
+      },
+      {
+        "ok": false,
+        "p_from": "listed",
+        "p_to": "listed"
+      }
+    ],
+    "listing_triggers": [
+      {
+        "tgname": "trg_listing_create_key_guard",
+        "tgenabled": "O"
+      },
+      {
+        "tgname": "trg_listing_no_delete",
+        "tgenabled": "O"
+      },
+      {
+        "tgname": "trg_listing_status_guard",
+        "tgenabled": "O"
+      },
+      {
+        "tgname": "trg_listing_stock_guard",
+        "tgenabled": "O"
+      },
+      {
+        "tgname": "trg_listing_touch_time_updated",
+        "tgenabled": "O"
+      }
+    ],
+    "listing_status_check_constraint": [
+      {
+        "conname": "listing_price_positive",
+        "def": "CHECK ((price > 0))"
+      },
+      {
+        "conname": "listing_status_enum",
+        "def": "CHECK ((status = ANY (ARRAY['draft'::text, 'listed'::text, 'delisted'::text, 'frozen'::text])))"
+      },
+      {
+        "conname": "listing_stock_nonneg",
+        "def": "CHECK ((stock >= 0))"
+      }
+    ]
+  }
+}

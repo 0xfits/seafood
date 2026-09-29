@@ -599,16 +599,40 @@ app.get('/api/shard/transfer', async (req, res) => {
   }
 });
 
-app.post('/api/shard/redeem', async (_req, res) => {
-  // P4-B2b：§1 #23 + §5.1 ⇒ 写口一律 410（**不得**用 200 空态冒充成功）：碎片兑换在 `cid` 模型里无对应语义（等值动作 = 交易所 `trade` / `transfer`）
-  // 撤 `requireActor` 前置：弃用面不返回 401（否则「已下线」被伪装成「未授权」）。
-  return sendGone(res, '/api/shard/redeem', LEGACY_REWARD_WRITE_SUNSET);
+app.post('/api/shard/redeem', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  const bID = parseInteger(req.body?.bID);
+  if (!bID) {
+    return sendError(res, 400, 'Invalid bID');
+  }
+
+  try {
+    const prizeItem = await DatabaseService.redeemPrizeItemFromShards(actor.user.uID, bID);
+    sendSuccess(res, prizeItem, 'Prize item redeemed');
+  } catch (error) {
+    console.error('Error redeeming prize item from shards:', error);
+    sendError(res, 400, error instanceof Error ? error.message : 'Failed to redeem prize item');
+  }
 });
 
-app.post('/api/chest/:bID/open', async (_req, res) => {
-  // P4-B2b：§1 #24 + §5.1 ⇒ 写口一律 410（**不得**用 200 空态冒充成功）：「凭空调入余额」与 `DL5` 双分录正面冲突
-  // 撤 `requireActor` 前置：弃用面不返回 401（否则「已下线」被伪装成「未授权」）。
-  return sendGone(res, '/api/chest/:bID/open', LEGACY_REWARD_WRITE_SUNSET);
+app.post('/api/chest/:bID/open', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  const bID = parseInteger(req.params.bID);
+  if (!bID) {
+    return sendError(res, 400, 'Invalid bID');
+  }
+
+  try {
+    const result = await DatabaseService.openFreeShardChest(actor.user.uID, bID);
+    sendSuccess(res, result, 'Free shard chest opened');
+  } catch (error) {
+    console.error('Error opening free shard chest:', error);
+    sendError(res, 400, error instanceof Error ? error.message : 'Failed to open chest');
+  }
 });
 
 app.get('/api/order', async (req, res) => {
@@ -835,9 +859,6 @@ app.post('/api/admin/user/update', async (req, res) => {
 //   注：**不再前置 requireAdmin**——弃用面「一律 410」须在无令牌下可观测（与本批 auth/register 的先例一致）；
 //       该路径已无任何副作用，故不存在信息泄露。
 const ADMIN_TASK_SUNSET = '批 4 删路径（未决 §7-1：过期日待 Kevin 定）';
-// P4-B2b：商品面弃用面的过期日（逐字取自 §5.1 每行的「过期日」列；未决 §7-1 ⇒ 上线日待 Kevin 定）
-const ADMIN_PRIZE_SUNSET = '批 4 删路径（未决 §7-1：过期日待 Kevin 定）';
-const LEGACY_REWARD_WRITE_SUNSET = '批 3 末删除路径（§5.1 碎片写口①/宝箱写口；未决 §7-1：过期日待 Kevin 定）';
 
 app.post('/api/admin/task/create', async (_req, res) => {
   return sendGone(res, '/api/admin/task/create', ADMIN_TASK_SUNSET);
@@ -851,25 +872,56 @@ app.post('/api/admin/task/delete', async (_req, res) => {
   return sendGone(res, '/api/admin/task/delete', ADMIN_TASK_SUNSET);
 });
 
-app.post('/api/admin/prize/create', async (_req, res) => {
-  // P4-B2b：§1 #42 + §5.1「后台发布商品」+ C3 ①（整体删除）⇒ 一律 410 + R107 形状。
-  // 撤 `requireAdmin` 前置：本仓 `resolveActor` 把 DB 异常吞成 401（B2a-HTTP §2 实测）⇒
-  // 弃用面**不得**把「已下线」伪装成「未授权」（与 `/api/admin/task/*` 同口径）。
-  return sendGone(res, '/api/admin/prize/create', ADMIN_PRIZE_SUNSET);
+app.post('/api/admin/prize/create', async (req, res) => {
+  const actor = await requireAdmin(req, res, ['manage_rewards', 'publish_prizes']);
+  if (!actor) return;
+
+  try {
+    const brand = await DatabaseService.createBrand(req.body || {});
+    sendSuccess(res, brand, 'Prize created');
+  } catch (error) {
+    console.error('Error creating prize:', error);
+    sendError(res, 400, error instanceof Error ? error.message : 'Failed to create prize');
+  }
 });
 
-app.post('/api/admin/prize/update', async (_req, res) => {
-  // P4-B2b：§1 #43 + §5.1「后台发布商品」+ C3 ①（整体删除）⇒ 一律 410 + R107 形状。
-  // 撤 `requireAdmin` 前置：本仓 `resolveActor` 把 DB 异常吞成 401（B2a-HTTP §2 实测）⇒
-  // 弃用面**不得**把「已下线」伪装成「未授权」（与 `/api/admin/task/*` 同口径）。
-  return sendGone(res, '/api/admin/prize/update', ADMIN_PRIZE_SUNSET);
+app.post('/api/admin/prize/update', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'manage_rewards');
+  if (!actor) return;
+
+  const bID = parseInteger(req.body?.bID);
+  if (!bID) {
+    return sendError(res, 400, 'Invalid bID');
+  }
+
+  try {
+    const brand = await DatabaseService.updateBrand(bID, req.body || {});
+    if (!brand) {
+      return sendError(res, 404, 'Prize not found');
+    }
+    sendSuccess(res, brand, 'Prize updated');
+  } catch (error) {
+    console.error('Error updating prize:', error);
+    sendError(res, 400, error instanceof Error ? error.message : 'Failed to update prize');
+  }
 });
 
-app.post('/api/admin/prize/delete', async (_req, res) => {
-  // P4-B2b：§1 #44 + §5.1「后台发布商品」+ C3 ①（整体删除）⇒ 一律 410 + R107 形状。
-  // 撤 `requireAdmin` 前置：本仓 `resolveActor` 把 DB 异常吞成 401（B2a-HTTP §2 实测）⇒
-  // 弃用面**不得**把「已下线」伪装成「未授权」（与 `/api/admin/task/*` 同口径）。
-  return sendGone(res, '/api/admin/prize/delete', ADMIN_PRIZE_SUNSET);
+app.post('/api/admin/prize/delete', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'manage_rewards');
+  if (!actor) return;
+
+  const bID = parseInteger(req.body?.bID);
+  if (!bID) {
+    return sendError(res, 400, 'Invalid bID');
+  }
+
+  try {
+    await DatabaseService.deleteBrand(bID);
+    sendSuccess(res, { bID }, 'Prize deleted');
+  } catch (error) {
+    console.error('Error deleting prize:', error);
+    sendError(res, 400, error instanceof Error ? error.message : 'Failed to delete prize');
+  }
 });
 
 app.get('/api/user/all', async (req, res) => {

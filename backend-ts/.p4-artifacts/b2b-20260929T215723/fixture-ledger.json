@@ -1,0 +1,13 @@
+{
+  "created": {
+    "users:970101": 1,
+    "users:970102": 1
+  },
+  "ns": "p4b2c",
+  "seller_uid": 970101,
+  "other_uid": 970102,
+  "http_submit_fixture": {
+    "job_id": 4,
+    "application_id": 5
+  }
+}

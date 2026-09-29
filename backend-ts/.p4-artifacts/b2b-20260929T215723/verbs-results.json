@@ -1,0 +1,585 @@
+{
+  "generated_at": "2026-09-29T14:06:58.257Z",
+  "results": [
+    {
+      "name": "P1 create(listing A, key L1) -> inserted",
+      "expect": "200 replay=false",
+      "ok": true,
+      "status": 200,
+      "code": "OK",
+      "replay": false,
+      "details": null,
+      "view": {
+        "listing_id": "7",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "137",
+        "stock": 5,
+        "title": "p4b2cr2:listing A",
+        "description": "p4b2cr2 desc",
+        "media_urls": [
+          "p4b2c://a.png"
+        ],
+        "status": "draft",
+        "create_key": "cli:p4b2cr2:listing:L1",
+        "outcome": "inserted",
+        "created_key_derived": false
+      }
+    },
+    {
+      "name": "resolved lidA",
+      "expect": "—",
+      "listing_id": 7,
+      "status": "draft"
+    },
+    {
+      "name": "P1 create(same key+payload) -> REPLAY",
+      "expect": "200 replay=true",
+      "ok": true,
+      "status": 200,
+      "code": "OK",
+      "replay": true,
+      "details": null,
+      "view": {
+        "listing_id": "7",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "137",
+        "stock": 5,
+        "title": "p4b2cr2:listing A",
+        "description": "p4b2cr2 desc",
+        "media_urls": [
+          "p4b2c://a.png"
+        ],
+        "status": "draft",
+        "create_key": "cli:p4b2cr2:listing:L1",
+        "outcome": "existing",
+        "created_key_derived": false
+      }
+    },
+    {
+      "name": "P1 create(same key, diff price) -> 409",
+      "expect": "409 LD003",
+      "ok": false,
+      "status": 409,
+      "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+      "replay": null,
+      "details": {
+        "field": "listing.create_key",
+        "reason": "REPLAY_FINGERPRINT_MISMATCH",
+        "ref_id": "cli:p4b2cr2:listing:L1"
+      },
+      "view": null
+    },
+    {
+      "name": "P1 create(no key -> derived) -> inserted",
+      "expect": "200 replay=false",
+      "ok": true,
+      "status": 200,
+      "code": "OK",
+      "replay": false,
+      "details": null,
+      "view": {
+        "listing_id": "8",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "137",
+        "stock": 5,
+        "title": "p4b2cr2:listing A",
+        "description": "p4b2cr2 desc",
+        "media_urls": [
+          "p4b2c://a.png"
+        ],
+        "status": "draft",
+        "create_key": "cli:p4b2c:listing:create:970101:1:137:5:p4b2cr2:listing A:0c853465a3cb6468",
+        "outcome": "inserted",
+        "created_key_derived": true
+      }
+    },
+    {
+      "name": "P1 create(bad key prefix) -> 400",
+      "expect": "400",
+      "ok": false,
+      "status": 400,
+      "code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "replay": null,
+      "details": {
+        "field": "create_key",
+        "reason": "PREFIX_REQUIRED",
+        "allowed_prefixes": [
+          "biz:",
+          "cm:",
+          "cli:",
+          "ops:"
+        ]
+      },
+      "view": null
+    },
+    {
+      "name": "P1 create(price=0) -> 400",
+      "expect": "400 LD017",
+      "ok": false,
+      "status": 400,
+      "code": "LEDGER_AMOUNT_NOT_POSITIVE",
+      "replay": null,
+      "details": {
+        "field": "listing.price",
+        "value": "0"
+      },
+      "view": null
+    },
+    {
+      "name": "P1 create(price=\"200\" 十进制字符串) -> inserted",
+      "expect": "200",
+      "ok": true,
+      "status": 200,
+      "code": "OK",
+      "replay": false,
+      "details": null,
+      "view": {
+        "listing_id": "9",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "200",
+        "stock": 5,
+        "title": "p4b2cr2:listing A",
+        "description": "p4b2cr2 desc",
+        "media_urls": [
+          "p4b2c://a.png"
+        ],
+        "status": "draft",
+        "create_key": "cli:p4b2cr2:listing:P200",
+        "outcome": "inserted",
+        "created_key_derived": false
+      }
+    },
+    {
+      "name": "P1 create(stock=0) -> inserted",
+      "expect": "200",
+      "ok": true,
+      "status": 200,
+      "code": "OK",
+      "replay": false,
+      "details": null,
+      "view": {
+        "listing_id": "10",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "137",
+        "stock": 0,
+        "title": "p4b2cr2:listing A",
+        "description": "p4b2cr2 desc",
+        "media_urls": [
+          "p4b2c://a.png"
+        ],
+        "status": "draft",
+        "create_key": "cli:p4b2cr2:listing:S0",
+        "outcome": "inserted",
+        "created_key_derived": false
+      }
+    },
+    {
+      "name": "P1 create(seller_uid=0 保留 uid) -> 400",
+      "expect": "400 LD022",
+      "ok": false,
+      "status": 400,
+      "code": "LEDGER_RESERVED_UID",
+      "replay": null,
+      "details": {
+        "field": "listing.seller_uid",
+        "value": "0"
+      },
+      "view": null
+    },
+    {
+      "name": "P1 create(cid=999999 不存在) -> 404",
+      "expect": "404 LD007",
+      "ok": false,
+      "status": 404,
+      "code": "LEDGER_CURRENCY_NOT_FOUND",
+      "replay": null,
+      "details": {
+        "cid": "999999"
+      },
+      "view": null
+    },
+    {
+      "name": "P1 create(cid=1 币种闸实测) -> 见 status",
+      "expect": "闸口径",
+      "ok": true,
+      "status": 200,
+      "code": "OK",
+      "replay": false,
+      "details": null,
+      "view": {
+        "listing_id": "11",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "137",
+        "stock": 5,
+        "title": "p4b2cr2:listing A",
+        "description": "p4b2cr2 desc",
+        "media_urls": [
+          "p4b2c://a.png"
+        ],
+        "status": "draft",
+        "create_key": "cli:p4b2cr2:listing:C1",
+        "outcome": "inserted",
+        "created_key_derived": false
+      }
+    },
+    {
+      "name": "P1 transition(draft->listed)",
+      "expect": "200",
+      "ok": true,
+      "status": 200,
+      "code": "OK",
+      "replay": false,
+      "details": null,
+      "view": {
+        "listing_id": "7",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "137",
+        "stock": 5,
+        "title": "p4b2cr2:listing A",
+        "description": "p4b2cr2 desc",
+        "media_urls": [
+          "p4b2c://a.png"
+        ],
+        "status": "listed",
+        "create_key": "cli:p4b2cr2:listing:L1",
+        "outcome": "updated"
+      }
+    },
+    {
+      "name": "P1 transition(listed->listed 白名单外)",
+      "expect": "409 LD011 LISTING_STATE_INVALID",
+      "ok": false,
+      "status": 409,
+      "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+      "replay": null,
+      "details": {
+        "field": "listing.status",
+        "reason": "LISTING_STATE_INVALID",
+        "from": "listed",
+        "to": "listed",
+        "listing_id": "7"
+      },
+      "view": null
+    },
+    {
+      "name": "P1 update(stock 5->7 @listed)",
+      "expect": "200",
+      "ok": true,
+      "status": 200,
+      "code": "OK",
+      "replay": false,
+      "details": null,
+      "view": {
+        "listing_id": "7",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "137",
+        "stock": 7,
+        "title": "p4b2cr2:listing A",
+        "description": "p4b2cr2 desc",
+        "media_urls": [
+          "p4b2c://a.png"
+        ],
+        "status": "listed",
+        "create_key": "cli:p4b2cr2:listing:L1",
+        "outcome": "updated"
+      }
+    },
+    {
+      "name": "P1 update(price+title @listed)",
+      "expect": "200",
+      "ok": true,
+      "status": 200,
+      "code": "OK",
+      "replay": false,
+      "details": null,
+      "view": {
+        "listing_id": "7",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "199",
+        "stock": 7,
+        "title": "p4b2cr2:listing A v2",
+        "description": "p4b2cr2 desc",
+        "media_urls": [
+          "p4b2c://a.png"
+        ],
+        "status": "listed",
+        "create_key": "cli:p4b2cr2:listing:L1",
+        "outcome": "updated"
+      }
+    },
+    {
+      "name": "P1 update(非卖家) -> 403",
+      "expect": "403 AUTH_FORBIDDEN ACTOR_NOT_ALLOWED",
+      "ok": false,
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "replay": null,
+      "details": {
+        "reason": "ACTOR_NOT_ALLOWED",
+        "ref_type": "listing",
+        "ref_id": "7"
+      },
+      "view": null
+    },
+    {
+      "name": "P1 transition(listed->delisted)",
+      "expect": "200",
+      "ok": true,
+      "status": 200,
+      "code": "OK",
+      "replay": false,
+      "details": null,
+      "view": {
+        "listing_id": "7",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "199",
+        "stock": 7,
+        "title": "p4b2cr2:listing A v2",
+        "description": "p4b2cr2 desc",
+        "media_urls": [
+          "p4b2c://a.png"
+        ],
+        "status": "delisted",
+        "create_key": "cli:p4b2cr2:listing:L1",
+        "outcome": "updated"
+      }
+    },
+    {
+      "name": "P1 update(delisted 终态) -> 409",
+      "expect": "409 LISTING_STATE_INVALID(delisted_terminal)",
+      "ok": false,
+      "status": 409,
+      "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+      "replay": null,
+      "details": {
+        "field": "listing.status",
+        "reason": "LISTING_STATE_INVALID",
+        "listing_id": "7",
+        "status": "delisted",
+        "terminal": "delisted"
+      },
+      "view": null
+    },
+    {
+      "name": "P1 transition(delisted->listed 终态) -> 409",
+      "expect": "409 LISTING_STATE_INVALID",
+      "ok": false,
+      "status": 409,
+      "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+      "replay": null,
+      "details": {
+        "field": "listing.status",
+        "reason": "LISTING_STATE_INVALID",
+        "from": "delisted",
+        "to": "listed",
+        "listing_id": "7"
+      },
+      "view": null
+    },
+    {
+      "name": "P1 transition(miss) -> 404",
+      "expect": "404 LD023 ref_type=listing",
+      "ok": false,
+      "status": 404,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "replay": null,
+      "details": {
+        "ref_type": "listing",
+        "ref_id": "999999999"
+      },
+      "view": null
+    },
+    {
+      "name": "P1 update(miss) -> 404",
+      "expect": "404 LD023",
+      "ok": false,
+      "status": 404,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "replay": null,
+      "details": {
+        "ref_type": "listing",
+        "ref_id": "999999999"
+      },
+      "view": null
+    },
+    {
+      "name": "P1 create(listing B, key L2) -> inserted(draft)",
+      "expect": "200",
+      "ok": true,
+      "status": 200,
+      "code": "OK",
+      "replay": false,
+      "details": null,
+      "view": {
+        "listing_id": "12",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "137",
+        "stock": 5,
+        "title": "p4b2cr2:listing B",
+        "description": "p4b2cr2 desc",
+        "media_urls": [
+          "p4b2c://a.png"
+        ],
+        "status": "draft",
+        "create_key": "cli:p4b2cr2:listing:L2",
+        "outcome": "inserted",
+        "created_key_derived": false
+      }
+    },
+    {
+      "name": "resolved lidB",
+      "expect": "—",
+      "listing_id": 12
+    },
+    {
+      "name": "P1 update(stock @draft) -> 409",
+      "expect": "409 listing_stock_change_requires_listed",
+      "ok": false,
+      "status": 409,
+      "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+      "replay": null,
+      "details": {
+        "field": "listing.stock",
+        "reason": "listing_stock_change_requires_listed",
+        "listing_id": "12",
+        "status": "draft"
+      },
+      "view": null
+    },
+    {
+      "name": "P1 update(price @draft, 非库存) -> 200",
+      "expect": "200（DL60 只闸 stock）",
+      "ok": true,
+      "status": 200,
+      "code": "OK",
+      "replay": false,
+      "details": null,
+      "view": {
+        "listing_id": "12",
+        "seller_uid": "970101",
+        "cid": "1",
+        "price": "155",
+        "stock": 5,
+        "title": "p4b2cr2:listing B",
+        "description": "p4b2cr2 desc",
+        "media_urls": [
+          "p4b2c://a.png"
+        ],
+        "status": "draft",
+        "create_key": "cli:p4b2cr2:listing:L2",
+        "outcome": "updated"
+      }
+    },
+    {
+      "name": "P1 transition(draft->delisted) -> 409",
+      "expect": "409 白名单外",
+      "ok": false,
+      "status": 409,
+      "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+      "replay": null,
+      "details": {
+        "field": "listing.status",
+        "reason": "LISTING_STATE_INVALID",
+        "from": "draft",
+        "to": "delisted",
+        "listing_id": "12"
+      },
+      "view": null
+    },
+    {
+      "name": "P1 transition(draft->frozen) -> 409",
+      "expect": "409 白名单外",
+      "ok": false,
+      "status": 409,
+      "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+      "replay": null,
+      "details": {
+        "field": "listing.status",
+        "reason": "LISTING_STATE_INVALID",
+        "from": "draft",
+        "to": "frozen",
+        "listing_id": "12"
+      },
+      "view": null
+    }
+  ],
+  "final_rows": [
+    {
+      "listing_id": "7",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "199",
+      "stock": 7,
+      "title": "p4b2cr2:listing A v2",
+      "status": "delisted",
+      "create_key": "cli:p4b2cr2:listing:L1",
+      "ledger_event_keys": []
+    },
+    {
+      "listing_id": "8",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "137",
+      "stock": 5,
+      "title": "p4b2cr2:listing A",
+      "status": "draft",
+      "create_key": "cli:p4b2c:listing:create:970101:1:137:5:p4b2cr2:listing A:0c853465a3cb6468",
+      "ledger_event_keys": []
+    },
+    {
+      "listing_id": "9",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "200",
+      "stock": 5,
+      "title": "p4b2cr2:listing A",
+      "status": "draft",
+      "create_key": "cli:p4b2cr2:listing:P200",
+      "ledger_event_keys": []
+    },
+    {
+      "listing_id": "10",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "137",
+      "stock": 0,
+      "title": "p4b2cr2:listing A",
+      "status": "draft",
+      "create_key": "cli:p4b2cr2:listing:S0",
+      "ledger_event_keys": []
+    },
+    {
+      "listing_id": "11",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "137",
+      "stock": 5,
+      "title": "p4b2cr2:listing A",
+      "status": "draft",
+      "create_key": "cli:p4b2cr2:listing:C1",
+      "ledger_event_keys": []
+    },
+    {
+      "listing_id": "12",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "155",
+      "stock": 5,
+      "title": "p4b2cr2:listing B",
+      "status": "draft",
+      "create_key": "cli:p4b2cr2:listing:L2",
+      "ledger_event_keys": []
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"error":{"code":"LEDGER_REF_NOT_FOUND","message":"endpoint deprecated: /api/shard/redeem","i18n_key":"ledger.err.LEDGER_REF_NOT_FOUND","details":{"ref_type":"endpoint","ref_id":"/api/shard/redeem","http_status":410,"sunset":"批 3 末删除路径（§5.1 碎片写口①/宝箱写口；未决 §7-1：过期日待 Kevin 定）"}}}

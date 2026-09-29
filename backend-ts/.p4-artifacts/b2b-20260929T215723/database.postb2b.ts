@@ -1,6 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 import dotenv from 'dotenv';
-import { SYSTEM_CURRENCY_CID } from './ledger';
+import { SYSTEM_CURRENCY_CID } from '/Users/kevin/bistro/seafood/backend-ts/src/ledger';
 
 // 本地凭据在 .env.local，先加载它、再补 .env（dotenv 默认不覆盖已存在的变量，故 .env.local 优先）
 dotenv.config({ path: '.env.local' });
@@ -3012,3 +3012,5 @@ export class DatabaseService {
     };
   }
 }
+
+export { normalizeBrand, normalizePrizeItem };

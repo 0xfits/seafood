@@ -1,0 +1,89 @@
+{
+  "generated_at": "2026-09-29T14:06:25.872Z",
+  "file": "src/database.ts",
+  "before_sha": "71766c5b2f20afd9",
+  "after_sha": "8d89f76e7508259b",
+  "replacements": [
+    {
+      "find": "WHERE c.cid = ${cid}",
+      "hits": 1,
+      "ok": true
+    },
+    {
+      "find": "WHERE create_key = ${input.createKey}",
+      "hits": 1,
+      "ok": true
+    },
+    {
+      "find": "SELECT ${input.sellerUid}, ${input.cid}, ${input.price}, ${input.stock}, ${input.title}, ${input.description}, ${input.mediaUrls}::text[], 'draft', ${input.createKey}",
+      "hits": 1,
+      "ok": true
+    },
+    {
+      "find": "WHEN cur.seller_uid <> ${input.actorUid} THEN",
+      "hits": 1,
+      "ok": true
+    },
+    {
+      "find": "WHEN ${input.stock} IS NOT NULL AND ${input.stock} IS DISTINCT FROM cur.stock",
+      "hits": 1,
+      "ok": true
+    },
+    {
+      "find": "COALESCE(${input.price}, l.price)",
+      "hits": 1,
+      "ok": true
+    },
+    {
+      "find": "COALESCE(${input.stock}, l.stock)",
+      "hits": 1,
+      "ok": true
+    },
+    {
+      "find": "COALESCE(${input.title}, l.title)",
+      "hits": 1,
+      "ok": true
+    },
+    {
+      "find": "COALESCE(${input.description}, l.description)",
+      "hits": 1,
+      "ok": true
+    },
+    {
+      "find": "WHERE listing_id = ${input.listingId}",
+      "hits": 1,
+      "ok": true
+    },
+    {
+      "find": "WHERE l.listing_id = ${input.listingId}",
+      "hits": 1,
+      "ok": true
+    },
+    {
+      "find": "WHEN cur.seller_uid <> ${actorUid} THEN",
+      "hits": 1,
+      "ok": true
+    },
+    {
+      "find": "public.listing_status_transition_ok(cur.status, ${toStatus})",
+      "hits": 1,
+      "ok": true
+    },
+    {
+      "find": "SET status = ${toStatus}",
+      "hits": 1,
+      "ok": true
+    },
+    {
+      "find": "WHERE listing_id = ${listingId}",
+      "hits": 1,
+      "ok": true
+    },
+    {
+      "find": "WHERE l.listing_id = ${listingId}",
+      "hits": 1,
+      "ok": true
+    }
+  ],
+  "stock_guard_occurrences": 1
+}

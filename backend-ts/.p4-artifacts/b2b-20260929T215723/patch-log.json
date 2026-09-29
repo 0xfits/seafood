@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-09-29T14:04:03.654Z",
+  "steps": [
+    {
+      "file": "src/database.ts",
+      "action": "insert 4 methods",
+      "at": "before resolveJobApplication",
+      "db_after_sha": "71766c5b2f20afd9",
+      "bytes": 99277
+    },
+    {
+      "file": "src/index.ts",
+      "action": "add 2 sunset constants"
+    },
+    {
+      "file": "src/index.ts",
+      "action": "admin/prize/{create,update,delete} + shard/redeem + chest/:bID/open ⇒ 410",
+      "routes_after": 51,
+      "bytes": 31986
+    }
+  ],
+  "db_before_sha": "ab8f5b72c99374b4",
+  "db_backup": ".p4-artifacts/b2b-20260929T215723/orig/src_database.ts.orig",
+  "index_before_sha": "a921e822e816adbc",
+  "index_backup": ".p4-artifacts/b2b-20260929T215723/orig/src_index.ts.orig",
+  "routes_before": 51,
+  "routes_after": 51,
+  "index_after_sha": "f1e74c505f9f13b2",
+  "jwt_like_tokens_in_src": 0
+}

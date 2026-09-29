@@ -1,0 +1,146 @@
+{
+  "generated_at": "2026-09-29T14:08:04.112Z",
+  "api": "http://127.0.0.1:5788",
+  "token_minted": true,
+  "results": [
+    {
+      "name": "GET /health",
+      "status": "200",
+      "body_head": "{\"ok\":true,\"db_version\":\"PostgreSQL 18.6 (6569466) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit\",\"schema_version\":\"0017\",\"time\":\"2026-09-29T14:07:20.675Z\"}"
+    },
+    {
+      "name": "auth isolation: token=env-secret",
+      "status": "401",
+      "body_head": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}",
+      "key_len": 64,
+      "token_fp": "6196f62ab3cb"
+    },
+    {
+      "name": "auth isolation: token=fallback-secret",
+      "status": "200",
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"uID\":970102,\"EVM\":\"0x9701020000000000000000000000000000000000\",\"bio\":\"p4b2c:fixt",
+      "key_len": 20,
+      "token_fp": "d3d80ceaf8c9"
+    },
+    {
+      "name": "auth mode",
+      "status": "200",
+      "body_head": "fallback-secret"
+    },
+    {
+      "name": "GET /api/prize/all (回归 200)",
+      "status": "200",
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":[{\"bID\":1,\"symbol\":\"\",\"name\":\"p4b2c:listing A\",\"description\":\"p4b2c desc\",\"image_url\":\"\",\"url_image\":\"\",\"points\":137,\"market_floor_points\":0,\"duration_seconds\":0,\"price_floor_eligible\":false,\"price_floo"
+    },
+    {
+      "name": "GET /api/prize/<fixture lidA> (回归 200)",
+      "status": "200",
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"bID\":7,\"symbol\":\"\",\"name\":\"p4b2cr2:listing A v2\",\"description\":\"p4b2cr2 desc\",\"image_url\":\"\",\"url_image\":\"\",\"points\":199,\"market_floor_points\":0,\"duration_seconds\":0,\"price_floor_eligible\":false,\"pric"
+    },
+    {
+      "name": "GET /api/prize/999999999 (miss -> 404)",
+      "status": "404",
+      "body_head": "{\"success\":false,\"message\":\"Prize not found\",\"error\":\"Prize not found\"}"
+    },
+    {
+      "name": "GET /api/home (回归 200)",
+      "status": "200",
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"tasks\":[{\"tID\":2,\"title\":\"p4b2:fixture:A\",\"note\":\"p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）\",\"refcode\":\"\",\"link0\":\"\",\"linkA\":\"\",\"linkB\":\"\",\"points\":137,\"type\":0,\"time_start\":0,\"time_end\":0,\"time_cr"
+    },
+    {
+      "name": "GET /api/task/all (回归 200)",
+      "status": "200",
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":[{\"tID\":2,\"title\":\"p4b2:fixture:A\",\"note\":\"p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）\",\"refcode\":\"\",\"link0\":\"\",\"linkA\":\"\",\"linkB\":\"\",\"points\":137,\"type\":0,\"time_start\":0,\"time_end\":0,\"time_created\":17"
+    },
+    {
+      "name": "GET /api/market/1/orderbook (回归 200)",
+      "status": "200",
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":[]}"
+    },
+    {
+      "name": "GET /api/prize-item (回归 200 + 键集)",
+      "status": "200",
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":[]}"
+    },
+    {
+      "name": "GET /api/user (回归 200)",
+      "status": "200",
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"uID\":970102,\"EVM\":\"0x9701020000000000000000000000000000000000\",\"bio\":\"p4b2c:fixture user\",\"is_admin\":false,\"time_reg\":1790690699,\"time_login_last\":1790690699,\"points\":0,\"requires_profile_completion\":f"
+    },
+    {
+      "name": "POST /api/admin/prize/create (无 token -> 410)",
+      "status": "410",
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/prize/create\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/prize/create\",\"http_status\":410,\"sunset\":\"批 "
+    },
+    {
+      "name": "POST /api/admin/prize/create (有 token -> 410)",
+      "status": "410",
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/prize/create\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/prize/create\",\"http_status\":410,\"sunset\":\"批 "
+    },
+    {
+      "name": "POST /api/admin/prize/update (无 token -> 410)",
+      "status": "410",
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/prize/update\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/prize/update\",\"http_status\":410,\"sunset\":\"批 "
+    },
+    {
+      "name": "POST /api/admin/prize/update (有 token -> 410)",
+      "status": "410",
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/prize/update\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/prize/update\",\"http_status\":410,\"sunset\":\"批 "
+    },
+    {
+      "name": "POST /api/admin/prize/delete (无 token -> 410)",
+      "status": "410",
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/prize/delete\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/prize/delete\",\"http_status\":410,\"sunset\":\"批 "
+    },
+    {
+      "name": "POST /api/admin/prize/delete (有 token -> 410)",
+      "status": "410",
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/prize/delete\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/prize/delete\",\"http_status\":410,\"sunset\":\"批 "
+    },
+    {
+      "name": "POST /api/shard/redeem (有 token -> 410)",
+      "status": "410",
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/shard/redeem\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/shard/redeem\",\"http_status\":410,\"sunset\":\"批 3 末删除路径（§5.1"
+    },
+    {
+      "name": "POST /api/chest/1/open (有 token -> 410)",
+      "status": "410",
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/chest/:bID/open\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/chest/:bID/open\",\"http_status\":410,\"sunset\":\"批 3 末删除路"
+    },
+    {
+      "name": "POST /api/listing (未注册 -> 404 兜底)",
+      "status": "404",
+      "body_head": "{\"success\":false,\"message\":\"Not found\",\"error\":\"Not found\"}"
+    },
+    {
+      "name": "POST /api/job/2/apply (未注册 -> 404 兜底)",
+      "status": "404",
+      "body_head": "{\"success\":false,\"message\":\"Not found\",\"error\":\"Not found\"}"
+    },
+    {
+      "name": "POST /api/task-progress/5/submit (首发 -> 200)",
+      "status": "200",
+      "body_head": "{\"success\":true,\"message\":\"Task progress submitted\",\"data\":{\"jID\":5,\"tID\":4,\"uID\":970102,\"info_input\":\"p4b2cr2:deliverable-1\",\"time_created\":1790690700,\"time_submitted\":1790690879,\"time_checked\":0,\"time_claimed\":0,\"points_claimed\":0}}"
+    },
+    {
+      "name": "POST /api/task-progress/5/submit (同键同载荷 -> 200 replay)",
+      "status": "200",
+      "body_head": "{\"success\":true,\"message\":\"Task progress submitted\",\"data\":{\"jID\":5,\"tID\":4,\"uID\":970102,\"info_input\":\"p4b2cr2:deliverable-1\",\"time_created\":1790690700,\"time_submitted\":1790690879,\"time_checked\":0,\"time_claimed\":0,\"points_claimed\":0},\"idemp"
+    },
+    {
+      "name": "POST /api/task-progress/5/submit (无 token -> 401)",
+      "status": "401",
+      "body_head": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}"
+    },
+    {
+      "name": "POST /api/shard/redeem (无 token -> 410，不伪装 401)",
+      "status": "410",
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/shard/redeem\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/shard/redeem\",\"http_status\":410,\"sunset\":\"批 3 末删除路径（§5.1"
+    },
+    {
+      "name": "server logs tail (panel)",
+      "status": "FETCHED",
+      "body_head": "见 server-logs-tail.txt（含 resolveActor/token 关键词）"
+    }
+  ]
+}

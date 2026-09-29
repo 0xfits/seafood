@@ -1,0 +1,264 @@
+{
+  "generated_at": "2026-09-29T14:04:37.344Z",
+  "phase": "before",
+  "driver": "neon-http",
+  "namespace": "p4b2c",
+  "table_counts": {
+    "listing": 0,
+    "listing_order": 0,
+    "ledger_entry": 0,
+    "account": 4,
+    "currency": 1,
+    "users": 2,
+    "job": 2,
+    "job_application": 2,
+    "job_submission": 1,
+    "app_config": 0,
+    "commission_policy": 1
+  },
+  "tables_like_ledger": {
+    "ledger_entry": 0,
+    "ledger_owner": 4
+  },
+  "tables_like_listing": {
+    "listing": 0,
+    "listing_order": 0
+  },
+  "tables_like_prize": {},
+  "row_dump_hashes": {
+    "account": "1e010fd7c5c0dba1306251bed3069743",
+    "currency": "94888b601989b0432a9e0b11fdbb2773",
+    "listing": "4f53cda18c2baa0c0354bb5f9a3ecbe5",
+    "ledger_entry": "4f53cda18c2baa0c0354bb5f9a3ecbe5",
+    "job": "d7ff0c9ccc1db7a0ace2377a28fd7563",
+    "job_application": "bb8cf8edf989aad2aa1392af5164b388",
+    "job_submission": "bcbc917bb5c8793295af703d0be42940",
+    "users": "1aef69d2cc0354dfcdf0ef082d9f3986"
+  },
+  "namespace_counts": {
+    "listing_create_key_like": 0,
+    "listing_order_create_key_like": 0,
+    "users_bio_like": 0,
+    "ledger_entry_event_root_like": 0,
+    "job_create_key_like": 0,
+    "job_submission_create_key_like": 0
+  },
+  "account_invariants": [
+    {
+      "rows": 4,
+      "sum_balance": "0",
+      "sum_frozen": "0"
+    }
+  ],
+  "account_rows": [
+    {
+      "uid": "-3",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-1",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    }
+  ],
+  "currency_rows": [
+    {
+      "cid": "1",
+      "symbol": "$",
+      "status": "listed",
+      "total_supply": "0",
+      "owner_uid": "0"
+    }
+  ],
+  "listing_rows": [],
+  "listing_statuses": [],
+  "job_rows": [
+    {
+      "job_id": "2",
+      "employer_uid": "970001",
+      "worker_uid": null,
+      "status": "open",
+      "create_key": "cli:p4b2:job:A",
+      "escrow_null": true
+    },
+    {
+      "job_id": "3",
+      "employer_uid": "970001",
+      "worker_uid": "970002",
+      "status": "submitted",
+      "create_key": "cli:p4b2:job:B",
+      "escrow_null": true
+    }
+  ],
+  "users_rows": [
+    {
+      "uid": "970001",
+      "evm_head": "0x97000100",
+      "bio": "p4b2:fixture user",
+      "is_admin": false
+    },
+    {
+      "uid": "970002",
+      "evm_head": "0x97000200",
+      "bio": "p4b2:fixture user",
+      "is_admin": false
+    }
+  ],
+  "schema_assertions": {
+    "listing_columns": [
+      {
+        "column_name": "listing_id",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "seller_uid",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "cid",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "price",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "stock",
+        "data_type": "integer",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "title",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "description",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "media_urls",
+        "data_type": "ARRAY",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "status",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "create_key",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "ledger_event_keys",
+        "data_type": "ARRAY",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "time_updated",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO"
+      }
+    ],
+    "listing_status_fn": [
+      {
+        "ok": true,
+        "p_from": "draft",
+        "p_to": "listed"
+      },
+      {
+        "ok": false,
+        "p_from": "draft",
+        "p_to": "delisted"
+      },
+      {
+        "ok": true,
+        "p_from": "listed",
+        "p_to": "delisted"
+      },
+      {
+        "ok": true,
+        "p_from": "listed",
+        "p_to": "frozen"
+      },
+      {
+        "ok": true,
+        "p_from": "frozen",
+        "p_to": "listed"
+      },
+      {
+        "ok": false,
+        "p_from": "delisted",
+        "p_to": "listed"
+      },
+      {
+        "ok": false,
+        "p_from": "listed",
+        "p_to": "listed"
+      }
+    ],
+    "listing_triggers": [
+      {
+        "tgname": "trg_listing_create_key_guard",
+        "tgenabled": "O"
+      },
+      {
+        "tgname": "trg_listing_no_delete",
+        "tgenabled": "O"
+      },
+      {
+        "tgname": "trg_listing_status_guard",
+        "tgenabled": "O"
+      },
+      {
+        "tgname": "trg_listing_stock_guard",
+        "tgenabled": "O"
+      },
+      {
+        "tgname": "trg_listing_touch_time_updated",
+        "tgenabled": "O"
+      }
+    ],
+    "listing_status_check_constraint": [
+      {
+        "conname": "listing_price_positive",
+        "def": "CHECK ((price > 0))"
+      },
+      {
+        "conname": "listing_status_enum",
+        "def": "CHECK ((status = ANY (ARRAY['draft'::text, 'listed'::text, 'delisted'::text, 'frozen'::text])))"
+      },
+      {
+        "conname": "listing_stock_nonneg",
+        "def": "CHECK ((stock >= 0))"
+      }
+    ]
+  }
+}
