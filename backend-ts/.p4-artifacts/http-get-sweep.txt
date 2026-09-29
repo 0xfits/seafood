@@ -1,0 +1,25 @@
+GET / -> 200 | {"success":true,"message":"Backend ready","data":{"status":"ok","message":"Seafood TypeScript Backend","timestamp":"2026-09-29T05:11:57.465Z","endpoints":{"health":"/health","authChallenge":"/api/auth
+GET /health -> 200 | {"ok":true,"db_version":"PostgreSQL 18.6 (6569466) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit","schema_version":"0017","time":"2026-09-29T05:11:58.60
+GET /api/test/data -> 200 | {"success":true,"message":"OK","data":{"status":"ok","message":"TypeScript backend is running","timestamp":"2026-09-29T05:11:58.618Z"}}
+GET /api/prize/all -> 500 | {"success":false,"message":"Failed to load prizes","error":"Failed to load prizes"}
+GET /api/task/all -> 500 | {"success":false,"message":"Failed to load tasks","error":"Failed to load tasks"}
+GET /api/task/1 -> 500 | {"success":false,"message":"Failed to load task","error":"Failed to load task"}
+GET /api/prize/1 -> 500 | {"success":false,"message":"Failed to load prize","error":"Failed to load prize"}
+GET /api/user -> 401 | {"success":false,"message":"Unauthorized","error":"Unauthorized"}
+GET /api/user/asset/1 -> 500 | {"success":false,"message":"Internal server error","error":"Internal server error"}
+GET /api/home -> 500 | {"success":false,"message":"Failed to load home payload","error":"Failed to load home payload"}
+GET /api/prize-item -> 401 | {"success":false,"message":"Unauthorized","error":"Unauthorized"}
+GET /api/task-progress -> 401 | {"success":false,"message":"Unauthorized","error":"Unauthorized"}
+GET /api/task-progress/1 -> 500 | {"success":false,"message":"Failed to load task progress","error":"Failed to load task progress"}
+GET /api/shard -> 401 | {"success":false,"message":"Unauthorized","error":"Unauthorized"}
+GET /api/shard/transfer -> 401 | {"success":false,"message":"Unauthorized","error":"Unauthorized"}
+GET /api/order -> 401 | {"success":false,"message":"Unauthorized","error":"Unauthorized"}
+GET /api/market/1/orderbook -> 500 | {"success":false,"message":"Failed to load order book","error":"Failed to load order book"}
+GET /api/market/1/trades -> 500 | {"success":false,"message":"Failed to load market trades","error":"Failed to load market trades"}
+GET /api/admin/me -> 401 | {"success":false,"message":"Unauthorized","error":"Unauthorized"}
+GET /api/admin/settings -> 401 | {"success":false,"message":"Unauthorized","error":"Unauthorized"}
+GET /api/admin/permissions -> 401 | {"success":false,"message":"Unauthorized","error":"Unauthorized"}
+GET /api/user/all -> 401 | {"success":false,"message":"Unauthorized","error":"Unauthorized"}
+GET /api/user/stats -> 401 | {"success":false,"message":"Unauthorized","error":"Unauthorized"}
+GET /api/tasklist/pending-verification/count -> 401 | {"success":false,"message":"Unauthorized","error":"Unauthorized"}
+GET /api/tasklist/pending-verification -> 401 | {"success":false,"message":"Unauthorized","error":"Unauthorized"}

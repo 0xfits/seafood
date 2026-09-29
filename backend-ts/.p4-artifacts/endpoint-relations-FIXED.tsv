@@ -1,0 +1,52 @@
+line	method	path	in_schema	foreign
+175	GET	/		
+195	GET	/health		
+212	GET	/api/test/data		
+223	POST	/api/auth/register		
+227	POST	/api/auth/challenge		
+236	POST	/api/auth/verify	users	asset,user
+259	POST	/api/auth/login		
+264	GET	/api/prize/all		gift_counts,prize,prize_item,selected_prize,shard,shard_counts,shard_transfer,transfer_counts
+276	GET	/api/task/all		participant_counts,selected_tasks,task,task_progress
+288	GET	/api/task/:tID		participant_counts,selected_task,task,task_progress
+308	GET	/api/prize/:bID		gift_counts,prize,prize_item,selected_prize,shard,shard_counts,shard_transfer,transfer_counts
+328	GET	/api/user		
+341	POST	/api/user/profile	users	
+364	GET	/api/user/asset/:uID		asset
+379	GET	/api/home		asset,gift_counts,participant_counts,prize,prize_item,selected_prize,selected_tasks,shard,shard_counts,shard_transfer,task,task_progress,transfer_counts
+419	GET	/api/prize-item		prize_item
+433	GET	/api/task-progress		task_progress
+447	GET	/api/task-progress/:jID		task_progress
+466	POST	/api/task-progress/:identifier/submit		participant_counts,selected_task,task,task_progress
+504	POST	/api/task-progress/claim/:jID		asset,participant_counts,selected_task,task,task_progress
+556	GET	/api/shard		shard
+570	GET	/api/shard/transfer		shard_transfer
+584	POST	/api/shard/redeem		prize_item
+602	POST	/api/chest/:bID/open		shard,shard_transfer
+620	GET	/api/order	market_order	
+634	POST	/api/order	market_order	
+653	DELETE	/api/order	market_order	
+666	DELETE	/api/order/:oID	market_order	
+684	GET	/api/market/:bID/orderbook	market_order	
+699	GET	/api/market/:bID/trades	market_trade	
+715	GET	/api/admin/me		
+721	GET	/api/admin/settings	app_config	
+734	POST	/api/admin/settings	app_config	
+747	POST	/api/admin/settings/reset	app_config	
+760	GET	/api/admin/permissions	users	permission_group
+776	POST	/api/admin/permissions/save		permission_group
+797	POST	/api/admin/permissions/delete		permission_group
+818	POST	/api/admin/user/update	users	
+839	POST	/api/admin/task/create		task
+852	POST	/api/admin/task/update		task
+873	POST	/api/admin/task/delete		task
+891	POST	/api/admin/prize/create		prize,prize_item
+904	POST	/api/admin/prize/update		prize,prize_item
+925	POST	/api/admin/prize/delete	market_order,market_trade	prize,prize_item,shard
+943	GET	/api/user/all	users	
+957	GET	/api/user/stats	users	asset
+970	GET	/api/tasklist/pending-verification/count	users	task_progress
+983	GET	/api/tasklist/pending-verification	users	task_progress
+997	POST	/api/tasklist/:jID/verify	users	participant_counts,selected_task,task,task_progress
+1053	POST	/api/admin/assets/init	users	asset
+1063	POST	/api/admin/points/adjust		asset

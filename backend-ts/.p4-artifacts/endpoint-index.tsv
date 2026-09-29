@@ -1,0 +1,52 @@
+175	GET	/	0	
+195	GET	/health	1	healthCheck
+212	GET	/api/test/data	0	
+223	POST	/api/auth/register	0	
+227	POST	/api/auth/challenge	1	startWalletAuthChallenge
+236	POST	/api/auth/verify	5	consumeWalletAuthChallenge,findOrCreateUserByEvm,getUserAsset,upsertAsset,createSessionToken
+259	POST	/api/auth/login	0	
+264	GET	/api/prize/all	1	listPrizes
+276	GET	/api/task/all	1	listTasks
+288	GET	/api/task/:tID	1	getTask
+308	GET	/api/prize/:bID	1	getPrizeById
+328	GET	/api/user	2	requireActor,buildUserPayload
+341	POST	/api/user/profile	3	requireActor,updateUserProfile,buildUserPayload
+364	GET	/api/user/asset/:uID	2	getUserAsset,upsertAsset
+379	GET	/api/home	6	resolveActor,listTasks,listPrizes,listClaimedPrizeIdsByUser,getUserAsset,upsertAsset
+419	GET	/api/prize-item	2	requireActor,listPrizeItemsByUser
+433	GET	/api/task-progress	2	requireActor,listTaskProgressByUser
+447	GET	/api/task-progress/:jID	1	getTaskProgress
+466	POST	/api/task-progress/:identifier/submit	6	requireActor,ensureOwnedTaskProgress,getTaskProgress,getTask,ensureTaskProgressForUserTask,submitTaskProgressInfo
+504	POST	/api/task-progress/claim/:jID	6	requireActor,getTaskProgress,getUserAsset,upsertAsset,getTask,claimTaskProgress
+556	GET	/api/shard	2	requireActor,listShardHoldingsByUser
+570	GET	/api/shard/transfer	2	requireActor,listShardTransfersByUser
+584	POST	/api/shard/redeem	2	requireActor,redeemPrizeItemFromShards
+602	POST	/api/chest/:bID/open	2	requireActor,openFreeShardChest
+620	GET	/api/order	2	requireActor,listOrdersByUser
+634	POST	/api/order	2	requireActor,placeOrder
+653	DELETE	/api/order	2	requireActor,cancelAllOrders
+666	DELETE	/api/order/:oID	2	requireActor,cancelOrder
+684	GET	/api/market/:bID/orderbook	1	listOrderBook
+699	GET	/api/market/:bID/trades	1	listTradesByBrand
+715	GET	/api/admin/me	1	requireActor
+721	GET	/api/admin/settings	2	requireAdmin,getSystemSettings
+734	POST	/api/admin/settings	2	requireAdmin,saveSystemSettings
+747	POST	/api/admin/settings/reset	2	requireAdmin,resetSystemSettings
+760	GET	/api/admin/permissions	3	requireAdmin,listPermissionGroups,getAllUsers
+776	POST	/api/admin/permissions/save	2	requireAdmin,savePermissionGroup
+797	POST	/api/admin/permissions/delete	2	requireAdmin,deletePermissionGroup
+818	POST	/api/admin/user/update	2	requireAdmin,updateUserAdminStatus
+839	POST	/api/admin/task/create	2	requireAdmin,createTask
+852	POST	/api/admin/task/update	2	requireAdmin,updateTask
+873	POST	/api/admin/task/delete	2	requireAdmin,deleteTask
+891	POST	/api/admin/prize/create	2	requireAdmin,createBrand
+904	POST	/api/admin/prize/update	2	requireAdmin,updateBrand
+925	POST	/api/admin/prize/delete	2	requireAdmin,deleteBrand
+943	GET	/api/user/all	2	requireAdmin,getAllUsers
+957	GET	/api/user/stats	2	requireAdmin,getUserStats
+970	GET	/api/tasklist/pending-verification/count	2	requireAdmin,countPendingVerification
+983	GET	/api/tasklist/pending-verification	2	requireAdmin,listPendingVerification
+997	POST	/api/tasklist/:jID/verify	6	requireAdmin,getTaskProgress,getUserById,markTaskProgressChecked,getTask,rejectPendingTaskProgress
+1053	POST	/api/admin/assets/init	1	initializeAllAssets
+1063	POST	/api/admin/points/adjust	2	requireAdmin,adjustPoints
+#TOTAL_ENDPOINTS	51

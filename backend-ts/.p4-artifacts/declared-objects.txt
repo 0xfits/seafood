@@ -1,0 +1,23 @@
+=== declared relation objects (tables+views) from migrations ===
+account
+admin_permission
+admin_role
+admin_role_permission
+admin_user_role
+app_config
+candle_view
+commission_policy
+currency
+currency_status_log
+if
+job
+job_application
+job_submission
+ledger_entry
+ledger_owner
+listing
+listing_order
+market_order
+market_trade
+referral
+user

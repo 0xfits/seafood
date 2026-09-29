@@ -1,0 +1,660 @@
+{
+ "getNextUserId": {
+  "line": 712,
+  "relations": {
+   "users": [
+    716
+   ]
+  }
+ },
+ "getBrandAggregateCounts": {
+  "line": 722,
+  "relations": {
+   "prize_item": [
+    753
+   ],
+   "shard": [
+    760
+   ],
+   "shard_transfer": [
+    767
+   ]
+  }
+ },
+ "getTaskParticipantCounts": {
+  "line": 808,
+  "relations": {
+   "task_progress": [
+    815
+   ]
+  }
+ },
+ "getAllUsers": {
+  "line": 826,
+  "relations": {
+   "users": [
+    831
+   ]
+  }
+ },
+ "getUserById": {
+  "line": 842,
+  "relations": {
+   "users": [
+    846
+   ]
+  }
+ },
+ "getUserByEvm": {
+  "line": 854,
+  "relations": {
+   "users": [
+    859
+   ]
+  }
+ },
+ "createUserByEvm": {
+  "line": 867,
+  "relations": {
+   "users": [
+    872
+   ]
+  }
+ },
+ "touchUserLogin": {
+  "line": 880,
+  "relations": {
+   "users": [
+    883
+   ]
+  }
+ },
+ "findOrCreateUserByEvm": {
+  "line": 889,
+  "relations": {
+   "user": [
+    898
+   ]
+  }
+ },
+ "updateUserProfile": {
+  "line": 904,
+  "relations": {
+   "users": [
+    909
+   ]
+  }
+ },
+ "getUserAsset": {
+  "line": 918,
+  "relations": {
+   "asset": [
+    923
+   ]
+  }
+ },
+ "upsertAsset": {
+  "line": 934,
+  "relations": {
+   "asset": [
+    940,
+    948,
+    955
+   ]
+  }
+ },
+ "initializeAllAssets": {
+  "line": 967,
+  "relations": {}
+ },
+ "adjustPoints": {
+  "line": 985,
+  "relations": {}
+ },
+ "listBrands": {
+  "line": 1015,
+  "relations": {
+   "prize": [
+    1020
+   ],
+   "prize_item": [
+    1037
+   ],
+   "selected_prizes": [
+    1038,
+    1046,
+    1054,
+    1065
+   ],
+   "shard": [
+    1045
+   ],
+   "shard_transfer": [
+    1053
+   ],
+   "gift_counts": [
+    1066
+   ],
+   "shard_counts": [
+    1067
+   ],
+   "transfer_counts": [
+    1068
+   ]
+  }
+ },
+ "countGiftStoresByBrand": {
+  "line": 1083,
+  "relations": {
+   "prize_item": [
+    1087
+   ]
+  }
+ },
+ "countGiftClaimsByBrand": {
+  "line": 1094,
+  "relations": {
+   "prize_item": [
+    1098
+   ]
+  }
+ },
+ "countGiftActivatedByBrand": {
+  "line": 1105,
+  "relations": {
+   "prize_item": [
+    1109
+   ]
+  }
+ },
+ "getCurrentShardSupplyByBrand": {
+  "line": 1117,
+  "relations": {
+   "shard": [
+    1121
+   ]
+  }
+ },
+ "countFreeShardsDistributedByBrand": {
+  "line": 1127,
+  "relations": {
+   "shard_transfer": [
+    1131
+   ]
+  }
+ },
+ "listPrizeItemsByUser": {
+  "line": 1138,
+  "relations": {
+   "prize_item": [
+    1142
+   ]
+  }
+ },
+ "listClaimedPrizeIdsByUser": {
+  "line": 1151,
+  "relations": {
+   "prize_item": [
+    1155
+   ]
+  }
+ },
+ "listTasks": {
+  "line": 1165,
+  "relations": {
+   "task": [
+    1170
+   ],
+   "task_progress": [
+    1178
+   ],
+   "selected_tasks": [
+    1179,
+    1185
+   ],
+   "participant_counts": [
+    1186
+   ]
+  }
+ },
+ "getTask": {
+  "line": 1193,
+  "relations": {
+   "task": [
+    1198
+   ],
+   "task_progress": [
+    1206
+   ],
+   "selected_task": [
+    1207,
+    1213
+   ],
+   "participant_counts": [
+    1214
+   ]
+  }
+ },
+ "countTaskParticipants": {
+  "line": 1223,
+  "relations": {
+   "task_progress": [
+    1227
+   ]
+  }
+ },
+ "getTaskProgress": {
+  "line": 1233,
+  "relations": {
+   "task_progress": [
+    1237
+   ]
+  }
+ },
+ "listTaskProgressByUser": {
+  "line": 1245,
+  "relations": {
+   "task_progress": [
+    1249
+   ]
+  }
+ },
+ "findTaskProgressByUserAndTask": {
+  "line": 1258,
+  "relations": {
+   "task_progress": [
+    1262
+   ]
+  }
+ },
+ "createTaskProgress": {
+  "line": 1272,
+  "relations": {
+   "task_progress": [
+    1275
+   ]
+  }
+ },
+ "ensureTaskProgressForUserTask": {
+  "line": 1287,
+  "relations": {}
+ },
+ "submitTaskProgressInfo": {
+  "line": 1296,
+  "relations": {
+   "task_progress": [
+    1299
+   ]
+  }
+ },
+ "markTaskProgressChecked": {
+  "line": 1309,
+  "relations": {
+   "task_progress": [
+    1312
+   ]
+  }
+ },
+ "claimTaskProgress": {
+  "line": 1321,
+  "relations": {
+   "task_progress": [
+    1324
+   ]
+  }
+ },
+ "listPendingVerification": {
+  "line": 1334,
+  "relations": {
+   "task_progress": [
+    1338
+   ],
+   "users": [
+    1339
+   ]
+  }
+ },
+ "countPendingVerification": {
+  "line": 1376,
+  "relations": {
+   "task_progress": [
+    1380
+   ],
+   "users": [
+    1381
+   ]
+  }
+ },
+ "rejectPendingTaskProgress": {
+  "line": 1391,
+  "relations": {
+   "task_progress": [
+    1394
+   ]
+  }
+ },
+ "getUserStats": {
+  "line": 1404,
+  "relations": {}
+ },
+ "getBrandById": {
+  "line": 1432,
+  "relations": {
+   "prize": [
+    1437
+   ],
+   "prize_item": [
+    1454
+   ],
+   "selected_prize": [
+    1455,
+    1463,
+    1471,
+    1482
+   ],
+   "shard": [
+    1462
+   ],
+   "shard_transfer": [
+    1470
+   ],
+   "gift_counts": [
+    1483
+   ],
+   "shard_counts": [
+    1484
+   ],
+   "transfer_counts": [
+    1485
+   ]
+  }
+ },
+ "listPrizes": {
+  "line": 1502,
+  "relations": {}
+ },
+ "getPrizeById": {
+  "line": 1506,
+  "relations": {}
+ },
+ "listPersistedPermissionGroups": {
+  "line": 1510,
+  "relations": {
+   "permission_group": [
+    1514
+   ]
+  }
+ },
+ "getPermissionsForUser": {
+  "line": 1521,
+  "relations": {}
+ },
+ "resolveAdminAccess": {
+  "line": 1529,
+  "relations": {}
+ },
+ "listPermissionGroups": {
+  "line": 1537,
+  "relations": {}
+ },
+ "savePermissionGroup": {
+  "line": 1582,
+  "relations": {
+   "permission_group": [
+    1618
+   ]
+  }
+ },
+ "deletePermissionGroup": {
+  "line": 1654,
+  "relations": {
+   "permission_group": [
+    1663,
+    1677
+   ]
+  }
+ },
+ "getSystemSettings": {
+  "line": 1683,
+  "relations": {
+   "app_config": [
+    1687
+   ]
+  }
+ },
+ "saveSystemSettings": {
+  "line": 1695,
+  "relations": {
+   "app_config": [
+    1704
+   ]
+  }
+ },
+ "resetSystemSettings": {
+  "line": 1715,
+  "relations": {}
+ },
+ "updateUserAdminStatus": {
+  "line": 1719,
+  "relations": {}
+ },
+ "createPrizeInventoryRows": {
+  "line": 1723,
+  "relations": {
+   "prize_item": [
+    1730
+   ]
+  }
+ },
+ "trimAvailablePrizeInventory": {
+  "line": 1736,
+  "relations": {
+   "prize_item": [
+    1743,
+    1746
+   ]
+  }
+ },
+ "syncPrizeInventory": {
+  "line": 1755,
+  "relations": {}
+ },
+ "createBrand": {
+  "line": 1775,
+  "relations": {
+   "prize": [
+    1815
+   ]
+  }
+ },
+ "updateBrand": {
+  "line": 1864,
+  "relations": {
+   "prize": [
+    1908
+   ]
+  }
+ },
+ "deleteBrand": {
+  "line": 1934,
+  "relations": {
+   "prize_item": [
+    1939
+   ],
+   "market_order": [
+    1944
+   ],
+   "market_trade": [
+    1949
+   ],
+   "shard": [
+    1956
+   ],
+   "prize": [
+    1977
+   ]
+  }
+ },
+ "createTask": {
+  "line": 1983,
+  "relations": {
+   "task": [
+    1999
+   ]
+  }
+ },
+ "updateTask": {
+  "line": 2033,
+  "relations": {
+   "task": [
+    2047
+   ]
+  }
+ },
+ "deleteTask": {
+  "line": 2069,
+  "relations": {
+   "task": [
+    2077
+   ]
+  }
+ },
+ "listShardHoldingsByUser": {
+  "line": 2083,
+  "relations": {
+   "shard": [
+    2092
+   ]
+  }
+ },
+ "getUserShardBalance": {
+  "line": 2110,
+  "relations": {
+   "shard": [
+    2114
+   ]
+  }
+ },
+ "createShardLedgerEntry": {
+  "line": 2121,
+  "relations": {
+   "shard": [
+    2128
+   ]
+  }
+ },
+ "recordShardTransfer": {
+  "line": 2133,
+  "relations": {
+   "shard_transfer": [
+    2144
+   ]
+  }
+ },
+ "listShardTransfersByUser": {
+  "line": 2175,
+  "relations": {
+   "shard_transfer": [
+    2179
+   ]
+  }
+ },
+ "getMarketOrderById": {
+  "line": 2197,
+  "relations": {
+   "market_order": [
+    2201
+   ]
+  }
+ },
+ "updateMarketOrderFill": {
+  "line": 2214,
+  "relations": {
+   "market_order": [
+    2217
+   ]
+  }
+ },
+ "findMatchingOrder": {
+  "line": 2236,
+  "relations": {
+   "market_order": [
+    2250,
+    2264
+   ]
+  }
+ },
+ "createMarketTrade": {
+  "line": 2284,
+  "relations": {
+   "market_trade": [
+    2295
+   ]
+  }
+ },
+ "matchMarketOrder": {
+  "line": 2326,
+  "relations": {}
+ },
+ "listOrdersByUser": {
+  "line": 2388,
+  "relations": {
+   "market_order": [
+    2392
+   ]
+  }
+ },
+ "placeOrder": {
+  "line": 2409,
+  "relations": {
+   "market_order": [
+    2462
+   ]
+  }
+ },
+ "cancelOrder": {
+  "line": 2501,
+  "relations": {
+   "market_order": [
+    2547
+   ]
+  }
+ },
+ "cancelAllOrders": {
+  "line": 2563,
+  "relations": {}
+ },
+ "listOrderBook": {
+  "line": 2578,
+  "relations": {
+   "market_order": [
+    2585
+   ]
+  }
+ },
+ "listTradesByBrand": {
+  "line": 2600,
+  "relations": {
+   "market_trade": [
+    2604
+   ]
+  }
+ },
+ "openFreeShardChest": {
+  "line": 2615,
+  "relations": {}
+ },
+ "redeemPrizeItemFromShards": {
+  "line": 2665,
+  "relations": {
+   "prize_item": [
+    2674,
+    2696
+   ]
+  }
+ },
+ "buildAdminAccess": {
+  "line": 2711,
+  "relations": {}
+ }
+}

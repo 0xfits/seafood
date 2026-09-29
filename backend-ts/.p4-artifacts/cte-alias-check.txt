@@ -1,0 +1,13 @@
+=== CTE (WITH) aliases in database.ts ===
+1018:      WITH selected_prizes AS (
+1024:      gift_counts AS (
+1041:      shard_counts AS (
+1049:      transfer_counts AS (
+1168:      WITH selected_tasks AS (
+1174:      participant_counts AS (
+1196:      WITH selected_task AS (
+1202:      participant_counts AS (
+1435:      WITH selected_prize AS (
+1441:      gift_counts AS (
+1458:      shard_counts AS (
+1466:      transfer_counts AS (

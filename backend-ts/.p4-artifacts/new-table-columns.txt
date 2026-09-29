@@ -1,0 +1,7 @@
+job: job_id, employer_uid, worker_uid, cid, reward, title, description, status, create_key, escrow_txid, settle_txid, ledger_event_keys, time_created, time_updated
+job_application: application_id, job_id, worker_uid, status, create_key, time_created, time_updated
+job_submission: submission_id, job_id, worker_uid, deliverable, review_status, reviewed_by, reviewed_at, review_memo, create_key, time_created
+listing: listing_id, seller_uid, cid, price, stock, title, description, media_urls, status, create_key, ledger_event_keys, time_created, time_updated
+listing_order: order_id, listing_id, buyer_uid, seller_uid, cid, price, quantity, status, create_key, pay_txid, refund_txid, ledger_event_keys, time_created, time_updated
+market_order: order_id, owner_uid, side, base_cid, quote_cid, price, amount, amount_filled, status, create_key, ledger_event_keys, time_created, time_updated
+market_trade: trade_id, base_cid, quote_cid, price, amount, buy_order_id, sell_order_id, taker_uid, fee, time_created
