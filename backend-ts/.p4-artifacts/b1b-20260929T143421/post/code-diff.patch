@@ -1,0 +1,346 @@
+diff --git a/backend-ts/src/database.ts b/backend-ts/src/database.ts
+index 2fea62d..a939353 100644
+--- a/backend-ts/src/database.ts
++++ b/backend-ts/src/database.ts
+@@ -1,5 +1,6 @@
+ import { neon } from '@neondatabase/serverless';
+ import dotenv from 'dotenv';
++import { SYSTEM_CURRENCY_CID } from './ledger';
+ 
+ // 本地凭据在 .env.local，先加载它、再补 .env（dotenv 默认不覆盖已存在的变量，故 .env.local 优先）
+ dotenv.config({ path: '.env.local' });
+@@ -451,10 +452,12 @@ type BrandAggregateCounts = {
+   free_shards_distributed: number;
+ };
+ 
++// P4-B1-a: 系统币读侧改走 `account`（cid = SYSTEM_CURRENCY_CID）。
++// 键契约不变（index_id/uID/points/lucks/time_update 恒在）；`balance`/`uid` 仅作 account 行的回退键。
+ const normalizeAsset = (row: RawRow): AssetRecord => ({
+   index_id: toNumberValue(getValue(row, 'index_id', 'aID', 'id')),
+-  uID: toNumberValue(getValue(row, 'uID')),
+-  points: toNumberValue(getValue(row, 'points')),
++  uID: toNumberValue(getValue(row, 'uID', 'uid')),
++  points: toNumberValue(getValue(row, 'points', 'balance')),
+   lucks: toNumberValue(getValue(row, 'lucks')),
+   time_update: toTimestamp(getValue(row, 'time_updated')),
+ });
+@@ -578,14 +581,15 @@ const normalizeTask = (row: RawRow, participantsCount = 0): TaskRecord => {
+   const linkA = toStringValue(getValue(row, 'linkA', 'link0'));
+   const isOpenValue = getValue(row, 'is_open');
+   return {
+-    tID: toNumberValue(getValue(row, 'tID')),
++    // P4-B1-b: task→job 读侧换表 —— 旧列名在前、新列名在后（旧行为不变；job 无对应列走既有空态默认）
++    tID: toNumberValue(getValue(row, 'tID', 'job_id')),
+     title: toStringValue(getValue(row, 'title')),
+-    note: toStringValue(getValue(row, 'note')),
++    note: toStringValue(getValue(row, 'note', 'description')),
+     refcode: toStringValue(getValue(row, 'refcode')),
+     link0: toStringValue(getValue(row, 'link0', 'linkA')),
+     linkA,
+     linkB: toStringValue(getValue(row, 'linkB')),
+-    points: toNumberValue(getValue(row, 'points')),
++    points: toNumberValue(getValue(row, 'points', 'reward')),
+     type: toNumberValue(getValue(row, 'type')),
+     time_start: toTimestamp(getValue(row, 'time_start')),
+     time_end: toTimestamp(getValue(row, 'time_end')),
+@@ -915,13 +919,15 @@ export class DatabaseService {
+     return row ? normalizeUser(row) : null;
+   }
+ 
++  // P4-B1-a: 纯读。系统币（`$`，cid = SYSTEM_CURRENCY_CID=1）的余额读侧自 `account` 取（原 `asset` 表不存在）。
+   static async getUserAsset(uID: number): Promise<AssetRecord | null> {
+     try {
+       const sql = getSql();
+       const row = firstRow(await sql`
+         SELECT a.*
+-        FROM asset AS a
+-        WHERE a."uID" = ${uID}
++        FROM account AS a
++        WHERE a."uid" = ${uID}
++          AND a."cid" = ${Number(SYSTEM_CURRENCY_CID)}
+         LIMIT 1
+       `);
+       return row ? normalizeAsset(row) : null;
+@@ -931,6 +937,17 @@ export class DatabaseService {
+     }
+   }
+ 
++  // P4-B1-a: 无 account 行时的空态资产（零值 + 完整键集），供 GET 端点纯读回退，避免隐式写库。
++  static emptyAsset(uID: number): AssetRecord {
++    return {
++      index_id: 0,
++      uID,
++      points: 0,
++      lucks: 0,
++      time_update: 0,
++    };
++  }
++
+   static async upsertAsset(uID: number, pointsDelta: number): Promise<AssetRecord> {
+     const sql = getSql();
+     const existingAsset = await this.getUserAsset(uID);
+@@ -1167,24 +1184,24 @@ export class DatabaseService {
+     const rows = extractRows(await sql`
+       WITH selected_tasks AS (
+         SELECT t.*
+-        FROM task AS t
+-        ORDER BY t."tID"
++        FROM job AS t
++        ORDER BY t.job_id
+         LIMIT ${limit} OFFSET ${skip}
+       ),
+       participant_counts AS (
+         SELECT
+-          j."tID" AS tid,
++          j.job_id AS tid,
+           COUNT(1)::int AS participants_count
+-        FROM task_progress AS j
+-        JOIN selected_tasks AS t ON t."tID" = j."tID"
+-        GROUP BY j."tID"
++        FROM job_application AS j
++        JOIN selected_tasks AS t ON t.job_id = j.job_id
++        GROUP BY j.job_id
+       )
+       SELECT
+         t.*,
+         COALESCE(pc.participants_count, 0)::int AS participants_count
+       FROM selected_tasks AS t
+-      LEFT JOIN participant_counts AS pc ON pc.tid = t."tID"
+-      ORDER BY t."tID"
++      LEFT JOIN participant_counts AS pc ON pc.tid = t.job_id
++      ORDER BY t.job_id
+     `);
+ 
+     return rows.map((row) => normalizeTask(row, toNumberValue(getValue(row, 'participants_count'))));
+@@ -1195,24 +1212,24 @@ export class DatabaseService {
+     const row = firstRow(await sql`
+       WITH selected_task AS (
+         SELECT t.*
+-        FROM task AS t
+-        WHERE COALESCE(NULLIF(BTRIM(t."tID"), '')::int, 0) = ${tID}
++        FROM job AS t
++        WHERE t.job_id = ${tID}
+         LIMIT 1
+       ),
+       participant_counts AS (
+         SELECT
+-          COALESCE(NULLIF(BTRIM(j."tID"), '')::int, 0) AS tid,
++          j.job_id AS tid,
+           COUNT(1)::int AS participants_count
+-        FROM task_progress AS j
+-        JOIN selected_task AS t ON t."tID" = j."tID"
+-        GROUP BY COALESCE(NULLIF(BTRIM(j."tID"), '')::int, 0)
++        FROM job_application AS j
++        JOIN selected_task AS t ON t.job_id = j.job_id
++        GROUP BY j.job_id
+       )
+       SELECT
+         t.*,
+         COALESCE(pc.participants_count, 0)::int AS participants_count
+       FROM selected_task AS t
+       LEFT JOIN participant_counts AS pc
+-        ON pc.tid = COALESCE(NULLIF(BTRIM(t."tID"), '')::int, 0)
++        ON pc.tid = t.job_id
+       LIMIT 1
+     `);
+ 
+@@ -1220,6 +1237,11 @@ export class DatabaseService {
+     return normalizeTask(row, toNumberValue(getValue(row, 'participants_count')));
+   }
+ 
++  // P4-B1-b: 空态任务（完整 TaskRecord 键集），GET miss 回退用（类比 B1-a emptyAsset）；纯内存、零写库
++  static emptyTask(tID: number): TaskRecord {
++    return { ...normalizeTask({}, 0), tID };
++  }
++
+   static async countTaskParticipants(tID: number): Promise<number> {
+     const sql = getSql();
+     const rows = asItems<{ count: number }>(await sql`
+@@ -1233,9 +1255,26 @@ export class DatabaseService {
+   static async getTaskProgress(jID: number): Promise<TaskProgressRecord | null> {
+     const sql = getSql();
+     const row = firstRow(await sql`
+-      SELECT j.*
+-      FROM task_progress AS j
+-      WHERE COALESCE(NULLIF(BTRIM(j."jID"), '')::int, 0) = ${jID}
++      SELECT
++        a.application_id AS "jID",
++        a.job_id AS "tID",
++        a.worker_uid AS "uID",
++        s.deliverable AS info_input,
++        a.time_created,
++        s.time_created AS time_submitted,
++        s.reviewed_at AS time_checked,
++        NULL::timestamptz AS time_claimed,
++        0::int AS points_claimed
++      FROM job_application AS a
++      LEFT JOIN LATERAL (
++        SELECT *
++        FROM job_submission AS s0
++        WHERE s0.job_id = a.job_id AND s0.worker_uid = a.worker_uid
++        ORDER BY s0.submission_id DESC
++        LIMIT 1
++      ) AS s ON TRUE
++      WHERE a.application_id = ${jID}
++      ORDER BY s.submission_id DESC NULLS LAST
+       LIMIT 1
+     `);
+ 
+@@ -1245,10 +1284,26 @@ export class DatabaseService {
+   static async listTaskProgressByUser(uID: number, skip = 0, limit = 100): Promise<TaskProgressRecord[]> {
+     const sql = getSql();
+     const rows = extractRows(await sql`
+-      SELECT j.*
+-      FROM task_progress AS j
+-      WHERE COALESCE(NULLIF(BTRIM(j."uID"), '')::int, 0) = ${uID}
+-      ORDER BY COALESCE(NULLIF(BTRIM(j."jID"), '')::int, 0) DESC
++      SELECT
++        a.application_id AS "jID",
++        a.job_id AS "tID",
++        a.worker_uid AS "uID",
++        s.deliverable AS info_input,
++        a.time_created,
++        s.time_created AS time_submitted,
++        s.reviewed_at AS time_checked,
++        NULL::timestamptz AS time_claimed,
++        0::int AS points_claimed
++      FROM job_application AS a
++      LEFT JOIN LATERAL (
++        SELECT *
++        FROM job_submission AS s0
++        WHERE s0.job_id = a.job_id AND s0.worker_uid = a.worker_uid
++        ORDER BY s0.submission_id DESC
++        LIMIT 1
++      ) AS s ON TRUE
++      WHERE a.worker_uid = ${uID}
++      ORDER BY a.application_id DESC
+       LIMIT ${limit} OFFSET ${skip}
+     `);
+ 
+@@ -1334,19 +1389,31 @@ export class DatabaseService {
+   static async listPendingVerification(skip = 0, limit = 50): Promise<PendingVerificationRecord[]> {
+     const sql = getSql();
+     const rows = extractRows(await sql`
+-      SELECT j.*
+-      FROM task_progress AS j
++      SELECT
++        a.application_id AS "jID",
++        a.job_id AS "tID",
++        a.worker_uid AS "uID",
++        s.deliverable AS info_input,
++        a.time_created,
++        s.time_created AS time_submitted,
++        s.reviewed_at AS time_checked,
++        NULL::timestamptz AS time_claimed,
++        0::int AS points_claimed
++      FROM job_application AS a
+       JOIN "users" AS u
+-        ON COALESCE(NULLIF(BTRIM(u."uID"), '')::int, 0) = COALESCE(NULLIF(BTRIM(j."uID"), '')::int, 0)
+-      WHERE COALESCE(NULLIF(BTRIM(COALESCE(j.info_input, '')), ''), '') <> ''
+-        AND COALESCE(NULLIF(BTRIM(COALESCE(j.time_checked, '')), ''), '') = ''
+-        AND COALESCE(NULLIF(BTRIM(COALESCE(j.time_claimed, '')), ''), '') = ''
+-        AND COALESCE(NULLIF(BTRIM(COALESCE(u.is_admin, '')), '')::boolean, false) = false
+-      ORDER BY COALESCE(
+-                 NULLIF(BTRIM(j.time_submitted), '')::timestamptz,
+-                 NULLIF(BTRIM(j.time_created), '')::timestamptz
+-               ) DESC NULLS LAST,
+-               COALESCE(NULLIF(BTRIM(j."jID"), '')::int, 0) DESC
++        ON u.uid = a.worker_uid
++      LEFT JOIN LATERAL (
++        SELECT *
++        FROM job_submission AS s0
++        WHERE s0.job_id = a.job_id AND s0.worker_uid = a.worker_uid
++        ORDER BY s0.submission_id DESC
++        LIMIT 1
++      ) AS s ON TRUE
++      WHERE COALESCE(NULLIF(BTRIM(COALESCE(s.deliverable, '')), ''), '') <> ''
++        AND s.review_status = 'pending'
++        AND COALESCE(u.is_admin, false) = false
++      ORDER BY COALESCE(s.time_created, a.time_created) DESC NULLS LAST,
++               a.application_id DESC
+       LIMIT ${limit} OFFSET ${skip}
+     `);
+ 
+@@ -1377,13 +1444,19 @@ export class DatabaseService {
+     const sql = getSql();
+     const rows = asItems<{ count: number }>(await sql`
+       SELECT COUNT(1)::int AS count
+-      FROM task_progress AS j
++      FROM job_application AS a
+       JOIN "users" AS u
+-        ON COALESCE(NULLIF(BTRIM(u."uID"), '')::int, 0) = COALESCE(NULLIF(BTRIM(j."uID"), '')::int, 0)
+-      WHERE COALESCE(NULLIF(BTRIM(COALESCE(j.info_input, '')), ''), '') <> ''
+-        AND COALESCE(NULLIF(BTRIM(COALESCE(j.time_checked, '')), ''), '') = ''
+-        AND COALESCE(NULLIF(BTRIM(COALESCE(j.time_claimed, '')), ''), '') = ''
+-        AND COALESCE(NULLIF(BTRIM(COALESCE(u.is_admin, '')), '')::boolean, false) = false
++        ON u.uid = a.worker_uid
++      LEFT JOIN LATERAL (
++        SELECT *
++        FROM job_submission AS s0
++        WHERE s0.job_id = a.job_id AND s0.worker_uid = a.worker_uid
++        ORDER BY s0.submission_id DESC
++        LIMIT 1
++      ) AS s ON TRUE
++      WHERE COALESCE(NULLIF(BTRIM(COALESCE(s.deliverable, '')), ''), '') <> ''
++        AND s.review_status = 'pending'
++        AND COALESCE(u.is_admin, false) = false
+     `);
+     return Number(rows[0]?.count || 0);
+   }
+diff --git a/backend-ts/src/index.ts b/backend-ts/src/index.ts
+index d004f4c..c4af86c 100644
+--- a/backend-ts/src/index.ts
++++ b/backend-ts/src/index.ts
+@@ -292,13 +292,11 @@ app.get('/api/task/:tID', async (req, res) => {
+       return sendError(res, 400, 'Invalid tID');
+     }
+ 
++    // P4-B1-b: miss 回空态任务（完整 TaskRecord 键集，200），止血口径（类比 B1-a emptyAsset）；纯读零写库
+     const task = await DatabaseService.getTask(tID);
+-    if (!task) {
+-      return sendError(res, 404, 'Task not found');
+-    }
+ 
+     setPublicCache(res);
+-    sendSuccess(res, task);
++    sendSuccess(res, task || DatabaseService.emptyTask(tID));
+   } catch (error) {
+     console.error('Error loading task detail:', error);
+     sendError(res, 500, 'Failed to load task');
+@@ -368,8 +366,9 @@ app.get('/api/user/asset/:uID', async (req, res) => {
+       return sendError(res, 400, 'Invalid user ID');
+     }
+ 
+-    const asset = (await DatabaseService.getUserAsset(uID)) || (await DatabaseService.upsertAsset(uID, 0));
+-    sendSuccess(res, asset);
++    // P4-B1-a: 纯读端点，禁止隐式写库（原 `|| upsertAsset(uID, 0)` 回退已移除）。
++    const asset = await DatabaseService.getUserAsset(uID);
++    sendSuccess(res, asset || DatabaseService.emptyAsset(uID));
+   } catch (error) {
+     console.error('Get user asset error:', error);
+     sendError(res, 500, 'Internal server error');
+@@ -390,10 +389,7 @@ app.get('/api/home', async (req, res) => {
+         ? DatabaseService.listClaimedPrizeIdsByUser(actor.user.uID)
+         : Promise.resolve([] as number[]),
+       actor
+-        ? (
+-            (await DatabaseService.getUserAsset(actor.user.uID)) ||
+-            (await DatabaseService.upsertAsset(actor.user.uID, 0))
+-          )
++        ? DatabaseService.getUserAsset(actor.user.uID)
+         : Promise.resolve(null),
+     ]);
+ 
+ M backend-ts/src/database.ts
+ M backend-ts/src/index.ts
+?? backend-ts/.p4-artifacts/.b1-run
+?? backend-ts/.p4-artifacts/.b1a-run
+?? backend-ts/.p4-artifacts/.b1b-run
+?? backend-ts/.p4-artifacts/b1a-20260929T135443/
+?? backend-ts/.p4-artifacts/b1b-20260929T143421/
+?? backend-ts/.p4-artifacts/p4b1-20260929T134838/
+?? backend-ts/scripts/p4z-01-probe.ts
+?? backend-ts/scripts/p4z-02-counts.ts
+?? backend-ts/scripts/p4z-03-keys.ts
+?? backend-ts/scripts/p4z-04-keys-b1b.ts
+?? docs/audit/p4-b1-get-triage.md

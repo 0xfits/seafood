@@ -1,0 +1,233 @@
+{
+  "generated_at": "2026-09-29T10:22:01.603Z",
+  "caliber": "in-memory fixture; zero DB access; compares KEY SETS only (not values)",
+  "pre_source": "contract/database.HEAD.ts = git show HEAD:backend-ts/src/database.ts + tail.HEAD.ts",
+  "post_source": "contract/database.NEW.ts = worktree src/database.ts + tail.NEW.ts",
+  "case_count": 9,
+  "equal_count": 9,
+  "all_key_sets_equal": true,
+  "cases": [
+    {
+      "name": "market_order:empty_row",
+      "pre_keys": [
+        "bID",
+        "brand_name",
+        "oID",
+        "price",
+        "side",
+        "status",
+        "symbol",
+        "time_created",
+        "time_updated",
+        "uID",
+        "volume_filled",
+        "volume_total"
+      ],
+      "post_keys": [
+        "bID",
+        "brand_name",
+        "oID",
+        "price",
+        "side",
+        "status",
+        "symbol",
+        "time_created",
+        "time_updated",
+        "uID",
+        "volume_filled",
+        "volume_total"
+      ],
+      "key_set_equal": true
+    },
+    {
+      "name": "market_order:old_market_order_row",
+      "pre_keys": [
+        "bID",
+        "brand_name",
+        "oID",
+        "price",
+        "side",
+        "status",
+        "symbol",
+        "time_created",
+        "time_updated",
+        "uID",
+        "volume_filled",
+        "volume_total"
+      ],
+      "post_keys": [
+        "bID",
+        "brand_name",
+        "oID",
+        "price",
+        "side",
+        "status",
+        "symbol",
+        "time_created",
+        "time_updated",
+        "uID",
+        "volume_filled",
+        "volume_total"
+      ],
+      "key_set_equal": true
+    },
+    {
+      "name": "market_order:new_market_order_row",
+      "pre_keys": [
+        "bID",
+        "brand_name",
+        "oID",
+        "price",
+        "side",
+        "status",
+        "symbol",
+        "time_created",
+        "time_updated",
+        "uID",
+        "volume_filled",
+        "volume_total"
+      ],
+      "post_keys": [
+        "bID",
+        "brand_name",
+        "oID",
+        "price",
+        "side",
+        "status",
+        "symbol",
+        "time_created",
+        "time_updated",
+        "uID",
+        "volume_filled",
+        "volume_total"
+      ],
+      "key_set_equal": true
+    },
+    {
+      "name": "market_trade:empty_row",
+      "pre_keys": [
+        "bID",
+        "brand_symbol",
+        "buy_oID",
+        "buyer_uID",
+        "price",
+        "sell_oID",
+        "seller_uID",
+        "time_created",
+        "trID",
+        "volume"
+      ],
+      "post_keys": [
+        "bID",
+        "brand_symbol",
+        "buy_oID",
+        "buyer_uID",
+        "price",
+        "sell_oID",
+        "seller_uID",
+        "time_created",
+        "trID",
+        "volume"
+      ],
+      "key_set_equal": true
+    },
+    {
+      "name": "market_trade:old_market_trade_row",
+      "pre_keys": [
+        "bID",
+        "brand_symbol",
+        "buy_oID",
+        "buyer_uID",
+        "price",
+        "sell_oID",
+        "seller_uID",
+        "time_created",
+        "trID",
+        "volume"
+      ],
+      "post_keys": [
+        "bID",
+        "brand_symbol",
+        "buy_oID",
+        "buyer_uID",
+        "price",
+        "sell_oID",
+        "seller_uID",
+        "time_created",
+        "trID",
+        "volume"
+      ],
+      "key_set_equal": true
+    },
+    {
+      "name": "market_trade:new_market_trade_row",
+      "pre_keys": [
+        "bID",
+        "brand_symbol",
+        "buy_oID",
+        "buyer_uID",
+        "price",
+        "sell_oID",
+        "seller_uID",
+        "time_created",
+        "trID",
+        "volume"
+      ],
+      "post_keys": [
+        "bID",
+        "brand_symbol",
+        "buy_oID",
+        "buyer_uID",
+        "price",
+        "sell_oID",
+        "seller_uID",
+        "time_created",
+        "trID",
+        "volume"
+      ],
+      "key_set_equal": true
+    },
+    {
+      "name": "order_book:empty_row",
+      "pre_keys": [
+        "price",
+        "side",
+        "volume"
+      ],
+      "post_keys": [
+        "price",
+        "side",
+        "volume"
+      ],
+      "key_set_equal": true
+    },
+    {
+      "name": "order_book:old_sql_row",
+      "pre_keys": [
+        "price",
+        "side",
+        "volume"
+      ],
+      "post_keys": [
+        "price",
+        "side",
+        "volume"
+      ],
+      "key_set_equal": true
+    },
+    {
+      "name": "order_book:new_sql_row",
+      "pre_keys": [
+        "price",
+        "side",
+        "volume"
+      ],
+      "post_keys": [
+        "price",
+        "side",
+        "volume"
+      ],
+      "key_set_equal": true
+    }
+  ]
+}

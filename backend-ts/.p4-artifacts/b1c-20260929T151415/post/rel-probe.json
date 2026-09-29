@@ -1,0 +1,104 @@
+{
+  "generated_at": "2026-09-29T10:12:30.924Z",
+  "caliber": "triple caliber (pg_class / to_regclass / information_schema) + quoted-name direct count (SQLSTATE); neon() HTTP; read-only",
+  "per_name": {
+    "prize": {
+      "pg_class_n": 0,
+      "to_regclass": false,
+      "information_schema_n": 0,
+      "quoted_probe": {
+        "ok": false,
+        "code": "42P01",
+        "message": "relation \"prize\" does not exist"
+      }
+    },
+    "prize_item": {
+      "pg_class_n": 0,
+      "to_regclass": false,
+      "information_schema_n": 0,
+      "quoted_probe": {
+        "ok": false,
+        "code": "42P01",
+        "message": "relation \"prize_item\" does not exist"
+      }
+    },
+    "shard": {
+      "pg_class_n": 0,
+      "to_regclass": false,
+      "information_schema_n": 0,
+      "quoted_probe": {
+        "ok": false,
+        "code": "42P01",
+        "message": "relation \"shard\" does not exist"
+      }
+    },
+    "shard_transfer": {
+      "pg_class_n": 0,
+      "to_regclass": false,
+      "information_schema_n": 0,
+      "quoted_probe": {
+        "ok": false,
+        "code": "42P01",
+        "message": "relation \"shard_transfer\" does not exist"
+      }
+    },
+    "permission_group": {
+      "pg_class_n": 0,
+      "to_regclass": false,
+      "information_schema_n": 0,
+      "quoted_probe": {
+        "ok": false,
+        "code": "42P01",
+        "message": "relation \"permission_group\" does not exist"
+      }
+    },
+    "asset": {
+      "pg_class_n": 0,
+      "to_regclass": false,
+      "information_schema_n": 0,
+      "quoted_probe": {
+        "ok": false,
+        "code": "42P01",
+        "message": "relation \"asset\" does not exist"
+      }
+    },
+    "task": {
+      "pg_class_n": 0,
+      "to_regclass": false,
+      "information_schema_n": 0,
+      "quoted_probe": {
+        "ok": false,
+        "code": "42P01",
+        "message": "relation \"task\" does not exist"
+      }
+    },
+    "task_progress": {
+      "pg_class_n": 0,
+      "to_regclass": false,
+      "information_schema_n": 0,
+      "quoted_probe": {
+        "ok": false,
+        "code": "42P01",
+        "message": "relation \"task_progress\" does not exist"
+      }
+    },
+    "listing": {
+      "pg_class_n": 1,
+      "to_regclass": true,
+      "information_schema_n": 1,
+      "quoted_probe": {
+        "ok": true,
+        "n": 0
+      }
+    },
+    "listing_order": {
+      "pg_class_n": 1,
+      "to_regclass": true,
+      "information_schema_n": 1,
+      "quoted_probe": {
+        "ok": true,
+        "n": 0
+      }
+    }
+  }
+}

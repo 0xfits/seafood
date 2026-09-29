@@ -1,0 +1,100 @@
+diff --git a/backend-ts/src/database.ts b/backend-ts/src/database.ts
+index 2fea62d..7864fec 100644
+--- a/backend-ts/src/database.ts
++++ b/backend-ts/src/database.ts
+@@ -1,5 +1,6 @@
+ import { neon } from '@neondatabase/serverless';
+ import dotenv from 'dotenv';
++import { SYSTEM_CURRENCY_CID } from './ledger';
+ 
+ // 本地凭据在 .env.local，先加载它、再补 .env（dotenv 默认不覆盖已存在的变量，故 .env.local 优先）
+ dotenv.config({ path: '.env.local' });
+@@ -451,10 +452,12 @@ type BrandAggregateCounts = {
+   free_shards_distributed: number;
+ };
+ 
++// P4-B1-a: 系统币读侧改走 `account`（cid = SYSTEM_CURRENCY_CID）。
++// 键契约不变（index_id/uID/points/lucks/time_update 恒在）；`balance`/`uid` 仅作 account 行的回退键。
+ const normalizeAsset = (row: RawRow): AssetRecord => ({
+   index_id: toNumberValue(getValue(row, 'index_id', 'aID', 'id')),
+-  uID: toNumberValue(getValue(row, 'uID')),
+-  points: toNumberValue(getValue(row, 'points')),
++  uID: toNumberValue(getValue(row, 'uID', 'uid')),
++  points: toNumberValue(getValue(row, 'points', 'balance')),
+   lucks: toNumberValue(getValue(row, 'lucks')),
+   time_update: toTimestamp(getValue(row, 'time_updated')),
+ });
+@@ -915,13 +918,15 @@ export class DatabaseService {
+     return row ? normalizeUser(row) : null;
+   }
+ 
++  // P4-B1-a: 纯读。系统币（`$`，cid = SYSTEM_CURRENCY_CID=1）的余额读侧自 `account` 取（原 `asset` 表不存在）。
+   static async getUserAsset(uID: number): Promise<AssetRecord | null> {
+     try {
+       const sql = getSql();
+       const row = firstRow(await sql`
+         SELECT a.*
+-        FROM asset AS a
+-        WHERE a."uID" = ${uID}
++        FROM account AS a
++        WHERE a."uid" = ${uID}
++          AND a."cid" = ${Number(SYSTEM_CURRENCY_CID)}
+         LIMIT 1
+       `);
+       return row ? normalizeAsset(row) : null;
+@@ -931,6 +936,17 @@ export class DatabaseService {
+     }
+   }
+ 
++  // P4-B1-a: 无 account 行时的空态资产（零值 + 完整键集），供 GET 端点纯读回退，避免隐式写库。
++  static emptyAsset(uID: number): AssetRecord {
++    return {
++      index_id: 0,
++      uID,
++      points: 0,
++      lucks: 0,
++      time_update: 0,
++    };
++  }
++
+   static async upsertAsset(uID: number, pointsDelta: number): Promise<AssetRecord> {
+     const sql = getSql();
+     const existingAsset = await this.getUserAsset(uID);
+diff --git a/backend-ts/src/index.ts b/backend-ts/src/index.ts
+index d004f4c..5763e5c 100644
+--- a/backend-ts/src/index.ts
++++ b/backend-ts/src/index.ts
+@@ -368,8 +368,9 @@ app.get('/api/user/asset/:uID', async (req, res) => {
+       return sendError(res, 400, 'Invalid user ID');
+     }
+ 
+-    const asset = (await DatabaseService.getUserAsset(uID)) || (await DatabaseService.upsertAsset(uID, 0));
+-    sendSuccess(res, asset);
++    // P4-B1-a: 纯读端点，禁止隐式写库（原 `|| upsertAsset(uID, 0)` 回退已移除）。
++    const asset = await DatabaseService.getUserAsset(uID);
++    sendSuccess(res, asset || DatabaseService.emptyAsset(uID));
+   } catch (error) {
+     console.error('Get user asset error:', error);
+     sendError(res, 500, 'Internal server error');
+@@ -390,10 +391,7 @@ app.get('/api/home', async (req, res) => {
+         ? DatabaseService.listClaimedPrizeIdsByUser(actor.user.uID)
+         : Promise.resolve([] as number[]),
+       actor
+-        ? (
+-            (await DatabaseService.getUserAsset(actor.user.uID)) ||
+-            (await DatabaseService.upsertAsset(actor.user.uID, 0))
+-          )
++        ? DatabaseService.getUserAsset(actor.user.uID)
+         : Promise.resolve(null),
+     ]);
+ 
+ M backend-ts/src/database.ts
+ M backend-ts/src/index.ts
+?? backend-ts/.p4-artifacts/.b1-run
+?? backend-ts/.p4-artifacts/.b1a-run
+?? backend-ts/.p4-artifacts/b1a-20260929T135443/
+?? backend-ts/.p4-artifacts/p4b1-20260929T134838/
+?? backend-ts/scripts/p4z-01-probe.ts
+?? backend-ts/scripts/p4z-02-counts.ts
+?? backend-ts/scripts/p4z-03-keys.ts
+?? docs/audit/p4-b1-get-triage.md

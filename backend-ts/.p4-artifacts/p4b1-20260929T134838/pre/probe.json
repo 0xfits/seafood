@@ -1,0 +1,2157 @@
+{
+  "generated_at": "2026-09-29T05:51:30.490Z",
+  "columns": {
+    "account": [
+      {
+        "column_name": "uid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "cid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "balance",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": "0"
+      },
+      {
+        "column_name": "frozen",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": "0"
+      },
+      {
+        "column_name": "version",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": "0"
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      },
+      {
+        "column_name": "time_updated",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      }
+    ],
+    "currency": [
+      {
+        "column_name": "cid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "symbol",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "name",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "icon_url",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "''::text"
+      },
+      {
+        "column_name": "owner_uid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": "0"
+      },
+      {
+        "column_name": "decimals",
+        "data_type": "smallint",
+        "is_nullable": "NO",
+        "column_default": "0"
+      },
+      {
+        "column_name": "total_supply",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": "0"
+      },
+      {
+        "column_name": "supply_cap",
+        "data_type": "bigint",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "status",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "'draft'::text"
+      },
+      {
+        "column_name": "deposit_amount",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": "0"
+      },
+      {
+        "column_name": "deposit_cid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": "1"
+      },
+      {
+        "column_name": "listed_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      },
+      {
+        "column_name": "time_updated",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      }
+    ],
+    "job": [
+      {
+        "column_name": "job_id",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "employer_uid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "worker_uid",
+        "data_type": "bigint",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "cid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "reward",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "title",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "''::text"
+      },
+      {
+        "column_name": "description",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "''::text"
+      },
+      {
+        "column_name": "status",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "'open'::text"
+      },
+      {
+        "column_name": "create_key",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "escrow_txid",
+        "data_type": "bigint",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "settle_txid",
+        "data_type": "bigint",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "ledger_event_keys",
+        "data_type": "ARRAY",
+        "is_nullable": "NO",
+        "column_default": "'{}'::text[]"
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      },
+      {
+        "column_name": "time_updated",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      }
+    ],
+    "job_application": [
+      {
+        "column_name": "application_id",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "job_id",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "worker_uid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "status",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "'applied'::text"
+      },
+      {
+        "column_name": "create_key",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      },
+      {
+        "column_name": "time_updated",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      }
+    ],
+    "job_submission": [
+      {
+        "column_name": "submission_id",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "job_id",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "worker_uid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "deliverable",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "review_status",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "'pending'::text"
+      },
+      {
+        "column_name": "reviewed_by",
+        "data_type": "bigint",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "reviewed_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "review_memo",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "''::text"
+      },
+      {
+        "column_name": "create_key",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      }
+    ],
+    "listing": [
+      {
+        "column_name": "listing_id",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "seller_uid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "cid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "price",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "stock",
+        "data_type": "integer",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "title",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "''::text"
+      },
+      {
+        "column_name": "description",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "''::text"
+      },
+      {
+        "column_name": "media_urls",
+        "data_type": "ARRAY",
+        "is_nullable": "NO",
+        "column_default": "'{}'::text[]"
+      },
+      {
+        "column_name": "status",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "'draft'::text"
+      },
+      {
+        "column_name": "create_key",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "ledger_event_keys",
+        "data_type": "ARRAY",
+        "is_nullable": "NO",
+        "column_default": "'{}'::text[]"
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      },
+      {
+        "column_name": "time_updated",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      }
+    ],
+    "listing_order": [
+      {
+        "column_name": "order_id",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "listing_id",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "buyer_uid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "seller_uid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "cid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "price",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "quantity",
+        "data_type": "integer",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "status",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "'created'::text"
+      },
+      {
+        "column_name": "create_key",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "pay_txid",
+        "data_type": "bigint",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "refund_txid",
+        "data_type": "bigint",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "ledger_event_keys",
+        "data_type": "ARRAY",
+        "is_nullable": "NO",
+        "column_default": "'{}'::text[]"
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      },
+      {
+        "column_name": "time_updated",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      }
+    ],
+    "market_order": [
+      {
+        "column_name": "order_id",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "owner_uid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "side",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "base_cid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "quote_cid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "price",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "amount",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "amount_filled",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": "0"
+      },
+      {
+        "column_name": "status",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "'open'::text"
+      },
+      {
+        "column_name": "create_key",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "ledger_event_keys",
+        "data_type": "ARRAY",
+        "is_nullable": "NO",
+        "column_default": "'{}'::text[]"
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      },
+      {
+        "column_name": "time_updated",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      }
+    ],
+    "market_trade": [
+      {
+        "column_name": "trade_id",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "base_cid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "quote_cid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "price",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "amount",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "buy_order_id",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "sell_order_id",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "taker_uid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "fee",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": "0"
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      }
+    ],
+    "admin_role": [
+      {
+        "column_name": "role_key",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "name",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      }
+    ],
+    "admin_role_permission": [
+      {
+        "column_name": "role_key",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "permission_key",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": null
+      }
+    ],
+    "admin_user_role": [
+      {
+        "column_name": "uid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "role_key",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": null
+      }
+    ],
+    "users": [
+      {
+        "column_name": "uid",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "evm",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "bio",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "''::text"
+      },
+      {
+        "column_name": "is_admin",
+        "data_type": "boolean",
+        "is_nullable": "NO",
+        "column_default": "false"
+      },
+      {
+        "column_name": "time_reg",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      },
+      {
+        "column_name": "time_login_last",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      }
+    ],
+    "app_config": [
+      {
+        "column_name": "key",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "value",
+        "data_type": "jsonb",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "updated_by",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "column_name": "time_updated",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      }
+    ]
+  },
+  "constraints": [
+    {
+      "tbl": "account",
+      "conname": "account_bal_guard",
+      "contype": "c",
+      "def": "CHECK ((balance >= 0))"
+    },
+    {
+      "tbl": "account",
+      "conname": "account_frz_guard",
+      "contype": "c",
+      "def": "CHECK ((frozen >= 0))"
+    },
+    {
+      "tbl": "account",
+      "conname": "account_cid_fkey",
+      "contype": "f",
+      "def": "FOREIGN KEY (cid) REFERENCES currency(cid)"
+    },
+    {
+      "tbl": "account",
+      "conname": "account_balance_not_null",
+      "contype": "n",
+      "def": "NOT NULL balance"
+    },
+    {
+      "tbl": "account",
+      "conname": "account_cid_not_null",
+      "contype": "n",
+      "def": "NOT NULL cid"
+    },
+    {
+      "tbl": "account",
+      "conname": "account_frozen_not_null",
+      "contype": "n",
+      "def": "NOT NULL frozen"
+    },
+    {
+      "tbl": "account",
+      "conname": "account_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "tbl": "account",
+      "conname": "account_time_updated_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_updated"
+    },
+    {
+      "tbl": "account",
+      "conname": "account_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL uid"
+    },
+    {
+      "tbl": "account",
+      "conname": "account_version_not_null",
+      "contype": "n",
+      "def": "NOT NULL version"
+    },
+    {
+      "tbl": "account",
+      "conname": "account_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (uid, cid)"
+    },
+    {
+      "tbl": "admin_role",
+      "conname": "admin_role_role_key_not_null",
+      "contype": "n",
+      "def": "NOT NULL role_key"
+    },
+    {
+      "tbl": "admin_role",
+      "conname": "admin_role_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "tbl": "admin_role",
+      "conname": "admin_role_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (role_key)"
+    },
+    {
+      "tbl": "admin_role_permission",
+      "conname": "admin_role_permission_perm_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (permission_key) REFERENCES admin_permission(permission_key)"
+    },
+    {
+      "tbl": "admin_role_permission",
+      "conname": "admin_role_permission_role_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (role_key) REFERENCES admin_role(role_key)"
+    },
+    {
+      "tbl": "admin_role_permission",
+      "conname": "admin_role_permission_permission_key_not_null",
+      "contype": "n",
+      "def": "NOT NULL permission_key"
+    },
+    {
+      "tbl": "admin_role_permission",
+      "conname": "admin_role_permission_role_key_not_null",
+      "contype": "n",
+      "def": "NOT NULL role_key"
+    },
+    {
+      "tbl": "admin_role_permission",
+      "conname": "admin_role_permission_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (role_key, permission_key)"
+    },
+    {
+      "tbl": "admin_user_role",
+      "conname": "admin_user_role_role_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (role_key) REFERENCES admin_role(role_key)"
+    },
+    {
+      "tbl": "admin_user_role",
+      "conname": "admin_user_role_uid_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (uid) REFERENCES users(uid)"
+    },
+    {
+      "tbl": "admin_user_role",
+      "conname": "admin_user_role_role_key_not_null",
+      "contype": "n",
+      "def": "NOT NULL role_key"
+    },
+    {
+      "tbl": "admin_user_role",
+      "conname": "admin_user_role_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL uid"
+    },
+    {
+      "tbl": "admin_user_role",
+      "conname": "admin_user_role_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (uid, role_key)"
+    },
+    {
+      "tbl": "app_config",
+      "conname": "app_config_value_is_container",
+      "contype": "c",
+      "def": "CHECK ((jsonb_typeof(value) = ANY (ARRAY['object'::text, 'array'::text])))"
+    },
+    {
+      "tbl": "app_config",
+      "conname": "app_config_key_not_null",
+      "contype": "n",
+      "def": "NOT NULL key"
+    },
+    {
+      "tbl": "app_config",
+      "conname": "app_config_time_updated_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_updated"
+    },
+    {
+      "tbl": "app_config",
+      "conname": "app_config_updated_by_not_null",
+      "contype": "n",
+      "def": "NOT NULL updated_by"
+    },
+    {
+      "tbl": "app_config",
+      "conname": "app_config_value_not_null",
+      "contype": "n",
+      "def": "NOT NULL value"
+    },
+    {
+      "tbl": "app_config",
+      "conname": "app_config_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (key)"
+    },
+    {
+      "tbl": "currency",
+      "conname": "currency_decimals_rng",
+      "contype": "c",
+      "def": "CHECK (((decimals >= 0) AND (decimals <= 18)))"
+    },
+    {
+      "tbl": "currency",
+      "conname": "currency_deposit_guard",
+      "contype": "c",
+      "def": "CHECK ((deposit_amount >= 0))"
+    },
+    {
+      "tbl": "currency",
+      "conname": "currency_listed_at",
+      "contype": "c",
+      "def": "CHECK (((status = 'draft'::text) OR (listed_at IS NOT NULL)))"
+    },
+    {
+      "tbl": "currency",
+      "conname": "currency_status_enum",
+      "contype": "c",
+      "def": "CHECK ((status = ANY (ARRAY['draft'::text, 'listed'::text, 'frozen'::text, 'delisted'::text])))"
+    },
+    {
+      "tbl": "currency",
+      "conname": "currency_supply_guard",
+      "contype": "c",
+      "def": "CHECK (((total_supply >= 0) AND ((supply_cap IS NULL) OR ((supply_cap >= 0) AND (total_supply <= supply_cap)))))"
+    },
+    {
+      "tbl": "currency",
+      "conname": "currency_symbol_fmt",
+      "contype": "c",
+      "def": "CHECK ((symbol ~ '^[^[:space:]]{1,16}$'::text))"
+    },
+    {
+      "tbl": "currency",
+      "conname": "currency_cid_not_null",
+      "contype": "n",
+      "def": "NOT NULL cid"
+    },
+    {
+      "tbl": "currency",
+      "conname": "currency_decimals_not_null",
+      "contype": "n",
+      "def": "NOT NULL decimals"
+    },
+    {
+      "tbl": "currency",
+      "conname": "currency_deposit_amount_not_null",
+      "contype": "n",
+      "def": "NOT NULL deposit_amount"
+    },
+    {
+      "tbl": "currency",
+      "conname": "currency_deposit_cid_not_null",
+      "contype": "n",
+      "def": "NOT NULL deposit_cid"
+    },
+    {
+      "tbl": "currency",
+      "conname": "currency_icon_url_not_null",
+      "contype": "n",
+      "def": "NOT NULL icon_url"
+    },
+    {
+      "tbl": "currency",
+      "conname": "currency_name_not_null",
+      "contype": "n",
+      "def": "NOT NULL name"
+    },
+    {
+      "tbl": "currency",
+      "conname": "currency_owner_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL owner_uid"
+    },
+    {
+      "tbl": "currency",
+      "conname": "currency_status_not_null",
+      "contype": "n",
+      "def": "NOT NULL status"
+    },
+    {
+      "tbl": "currency",
+      "conname": "currency_symbol_not_null",
+      "contype": "n",
+      "def": "NOT NULL symbol"
+    },
+    {
+      "tbl": "currency",
+      "conname": "currency_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "tbl": "currency",
+      "conname": "currency_time_updated_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_updated"
+    },
+    {
+      "tbl": "currency",
+      "conname": "currency_total_supply_not_null",
+      "contype": "n",
+      "def": "NOT NULL total_supply"
+    },
+    {
+      "tbl": "currency",
+      "conname": "currency_pkey",
+      "contype": "p",
+      "def": "PRIMARY KEY (cid)"
+    },
+    {
+      "tbl": "currency",
+      "conname": "currency_symbol_uniq",
+      "contype": "u",
+      "def": "UNIQUE (symbol)"
+    },
+    {
+      "tbl": "job",
+      "conname": "job_reward_positive",
+      "contype": "c",
+      "def": "CHECK ((reward > 0))"
+    },
+    {
+      "tbl": "job",
+      "conname": "job_status_enum",
+      "contype": "c",
+      "def": "CHECK ((status = ANY (ARRAY['open'::text, 'accepted'::text, 'submitted'::text, 'settled'::text, 'disputed'::text, 'rejected'::text, 'cancelled'::text])))"
+    },
+    {
+      "tbl": "job",
+      "conname": "job_cid_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (cid) REFERENCES currency(cid)"
+    },
+    {
+      "tbl": "job",
+      "conname": "job_employer_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (employer_uid) REFERENCES users(uid)"
+    },
+    {
+      "tbl": "job",
+      "conname": "job_worker_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (worker_uid) REFERENCES users(uid)"
+    },
+    {
+      "tbl": "job",
+      "conname": "job_cid_not_null",
+      "contype": "n",
+      "def": "NOT NULL cid"
+    },
+    {
+      "tbl": "job",
+      "conname": "job_create_key_not_null",
+      "contype": "n",
+      "def": "NOT NULL create_key"
+    },
+    {
+      "tbl": "job",
+      "conname": "job_description_not_null",
+      "contype": "n",
+      "def": "NOT NULL description"
+    },
+    {
+      "tbl": "job",
+      "conname": "job_employer_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL employer_uid"
+    },
+    {
+      "tbl": "job",
+      "conname": "job_job_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL job_id"
+    },
+    {
+      "tbl": "job",
+      "conname": "job_ledger_event_keys_not_null",
+      "contype": "n",
+      "def": "NOT NULL ledger_event_keys"
+    },
+    {
+      "tbl": "job",
+      "conname": "job_reward_not_null",
+      "contype": "n",
+      "def": "NOT NULL reward"
+    },
+    {
+      "tbl": "job",
+      "conname": "job_status_not_null",
+      "contype": "n",
+      "def": "NOT NULL status"
+    },
+    {
+      "tbl": "job",
+      "conname": "job_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "tbl": "job",
+      "conname": "job_time_updated_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_updated"
+    },
+    {
+      "tbl": "job",
+      "conname": "job_title_not_null",
+      "contype": "n",
+      "def": "NOT NULL title"
+    },
+    {
+      "tbl": "job",
+      "conname": "job_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (job_id)"
+    },
+    {
+      "tbl": "job",
+      "conname": "job_create_key_uniq",
+      "contype": "u",
+      "def": "UNIQUE (create_key)"
+    },
+    {
+      "tbl": "job_application",
+      "conname": "job_application_status_enum",
+      "contype": "c",
+      "def": "CHECK ((status = ANY (ARRAY['applied'::text, 'withdrawn'::text, 'rejected'::text, 'accepted'::text])))"
+    },
+    {
+      "tbl": "job_application",
+      "conname": "job_application_job_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (job_id) REFERENCES job(job_id)"
+    },
+    {
+      "tbl": "job_application",
+      "conname": "job_application_worker_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (worker_uid) REFERENCES users(uid)"
+    },
+    {
+      "tbl": "job_application",
+      "conname": "job_application_application_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL application_id"
+    },
+    {
+      "tbl": "job_application",
+      "conname": "job_application_create_key_not_null",
+      "contype": "n",
+      "def": "NOT NULL create_key"
+    },
+    {
+      "tbl": "job_application",
+      "conname": "job_application_job_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL job_id"
+    },
+    {
+      "tbl": "job_application",
+      "conname": "job_application_status_not_null",
+      "contype": "n",
+      "def": "NOT NULL status"
+    },
+    {
+      "tbl": "job_application",
+      "conname": "job_application_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "tbl": "job_application",
+      "conname": "job_application_time_updated_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_updated"
+    },
+    {
+      "tbl": "job_application",
+      "conname": "job_application_worker_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL worker_uid"
+    },
+    {
+      "tbl": "job_application",
+      "conname": "job_application_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (application_id)"
+    },
+    {
+      "tbl": "job_application",
+      "conname": "job_application_create_key_uniq",
+      "contype": "u",
+      "def": "UNIQUE (create_key)"
+    },
+    {
+      "tbl": "job_application",
+      "conname": "job_application_job_worker_uniq",
+      "contype": "u",
+      "def": "UNIQUE (job_id, worker_uid)"
+    },
+    {
+      "tbl": "job_submission",
+      "conname": "job_submission_review_status_enum",
+      "contype": "c",
+      "def": "CHECK ((review_status = ANY (ARRAY['pending'::text, 'approved'::text, 'rejected'::text])))"
+    },
+    {
+      "tbl": "job_submission",
+      "conname": "job_submission_job_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (job_id) REFERENCES job(job_id)"
+    },
+    {
+      "tbl": "job_submission",
+      "conname": "job_submission_reviewed_by_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (reviewed_by) REFERENCES users(uid)"
+    },
+    {
+      "tbl": "job_submission",
+      "conname": "job_submission_worker_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (worker_uid) REFERENCES users(uid)"
+    },
+    {
+      "tbl": "job_submission",
+      "conname": "job_submission_create_key_not_null",
+      "contype": "n",
+      "def": "NOT NULL create_key"
+    },
+    {
+      "tbl": "job_submission",
+      "conname": "job_submission_deliverable_not_null",
+      "contype": "n",
+      "def": "NOT NULL deliverable"
+    },
+    {
+      "tbl": "job_submission",
+      "conname": "job_submission_job_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL job_id"
+    },
+    {
+      "tbl": "job_submission",
+      "conname": "job_submission_review_memo_not_null",
+      "contype": "n",
+      "def": "NOT NULL review_memo"
+    },
+    {
+      "tbl": "job_submission",
+      "conname": "job_submission_review_status_not_null",
+      "contype": "n",
+      "def": "NOT NULL review_status"
+    },
+    {
+      "tbl": "job_submission",
+      "conname": "job_submission_submission_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL submission_id"
+    },
+    {
+      "tbl": "job_submission",
+      "conname": "job_submission_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "tbl": "job_submission",
+      "conname": "job_submission_worker_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL worker_uid"
+    },
+    {
+      "tbl": "job_submission",
+      "conname": "job_submission_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (submission_id)"
+    },
+    {
+      "tbl": "job_submission",
+      "conname": "job_submission_create_key_uniq",
+      "contype": "u",
+      "def": "UNIQUE (create_key)"
+    },
+    {
+      "tbl": "listing",
+      "conname": "listing_price_positive",
+      "contype": "c",
+      "def": "CHECK ((price > 0))"
+    },
+    {
+      "tbl": "listing",
+      "conname": "listing_status_enum",
+      "contype": "c",
+      "def": "CHECK ((status = ANY (ARRAY['draft'::text, 'listed'::text, 'delisted'::text, 'frozen'::text])))"
+    },
+    {
+      "tbl": "listing",
+      "conname": "listing_stock_nonneg",
+      "contype": "c",
+      "def": "CHECK ((stock >= 0))"
+    },
+    {
+      "tbl": "listing",
+      "conname": "listing_cid_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (cid) REFERENCES currency(cid)"
+    },
+    {
+      "tbl": "listing",
+      "conname": "listing_seller_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (seller_uid) REFERENCES users(uid)"
+    },
+    {
+      "tbl": "listing",
+      "conname": "listing_cid_not_null",
+      "contype": "n",
+      "def": "NOT NULL cid"
+    },
+    {
+      "tbl": "listing",
+      "conname": "listing_create_key_not_null",
+      "contype": "n",
+      "def": "NOT NULL create_key"
+    },
+    {
+      "tbl": "listing",
+      "conname": "listing_description_not_null",
+      "contype": "n",
+      "def": "NOT NULL description"
+    },
+    {
+      "tbl": "listing",
+      "conname": "listing_ledger_event_keys_not_null",
+      "contype": "n",
+      "def": "NOT NULL ledger_event_keys"
+    },
+    {
+      "tbl": "listing",
+      "conname": "listing_listing_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL listing_id"
+    },
+    {
+      "tbl": "listing",
+      "conname": "listing_media_urls_not_null",
+      "contype": "n",
+      "def": "NOT NULL media_urls"
+    },
+    {
+      "tbl": "listing",
+      "conname": "listing_price_not_null",
+      "contype": "n",
+      "def": "NOT NULL price"
+    },
+    {
+      "tbl": "listing",
+      "conname": "listing_seller_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL seller_uid"
+    },
+    {
+      "tbl": "listing",
+      "conname": "listing_status_not_null",
+      "contype": "n",
+      "def": "NOT NULL status"
+    },
+    {
+      "tbl": "listing",
+      "conname": "listing_stock_not_null",
+      "contype": "n",
+      "def": "NOT NULL stock"
+    },
+    {
+      "tbl": "listing",
+      "conname": "listing_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "tbl": "listing",
+      "conname": "listing_time_updated_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_updated"
+    },
+    {
+      "tbl": "listing",
+      "conname": "listing_title_not_null",
+      "contype": "n",
+      "def": "NOT NULL title"
+    },
+    {
+      "tbl": "listing",
+      "conname": "listing_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (listing_id)"
+    },
+    {
+      "tbl": "listing",
+      "conname": "listing_create_key_uniq",
+      "contype": "u",
+      "def": "UNIQUE (create_key)"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_price_positive",
+      "contype": "c",
+      "def": "CHECK ((price > 0))"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_quantity_pos",
+      "contype": "c",
+      "def": "CHECK ((quantity > 0))"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_status_enum",
+      "contype": "c",
+      "def": "CHECK ((status = ANY (ARRAY['created'::text, 'paid'::text, 'refunded'::text, 'cancelled'::text])))"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_buyer_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (buyer_uid) REFERENCES users(uid)"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_cid_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (cid) REFERENCES currency(cid)"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_listing_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (listing_id) REFERENCES listing(listing_id)"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_seller_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (seller_uid) REFERENCES users(uid)"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_buyer_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL buyer_uid"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_cid_not_null",
+      "contype": "n",
+      "def": "NOT NULL cid"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_create_key_not_null",
+      "contype": "n",
+      "def": "NOT NULL create_key"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_ledger_event_keys_not_null",
+      "contype": "n",
+      "def": "NOT NULL ledger_event_keys"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_listing_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL listing_id"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_order_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL order_id"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_price_not_null",
+      "contype": "n",
+      "def": "NOT NULL price"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_quantity_not_null",
+      "contype": "n",
+      "def": "NOT NULL quantity"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_seller_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL seller_uid"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_status_not_null",
+      "contype": "n",
+      "def": "NOT NULL status"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_time_updated_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_updated"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (order_id)"
+    },
+    {
+      "tbl": "listing_order",
+      "conname": "listing_order_create_key_uniq",
+      "contype": "u",
+      "def": "UNIQUE (create_key)"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_amount_filled_nonneg",
+      "contype": "c",
+      "def": "CHECK ((amount_filled >= 0))"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_amount_positive",
+      "contype": "c",
+      "def": "CHECK ((amount > 0))"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_cid_distinct",
+      "contype": "c",
+      "def": "CHECK ((base_cid <> quote_cid))"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_filled_le_amount",
+      "contype": "c",
+      "def": "CHECK ((amount_filled <= amount))"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_price_positive",
+      "contype": "c",
+      "def": "CHECK ((price > 0))"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_quote_cid_is_one",
+      "contype": "c",
+      "def": "CHECK ((quote_cid = 1))"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_side_enum",
+      "contype": "c",
+      "def": "CHECK ((side = ANY (ARRAY['buy'::text, 'sell'::text])))"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_status_enum",
+      "contype": "c",
+      "def": "CHECK ((status = ANY (ARRAY['open'::text, 'partial'::text, 'filled'::text, 'cancelled'::text])))"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_base_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (base_cid) REFERENCES currency(cid)"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_owner_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (owner_uid) REFERENCES users(uid)"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_quote_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (quote_cid) REFERENCES currency(cid)"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_amount_filled_not_null",
+      "contype": "n",
+      "def": "NOT NULL amount_filled"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_amount_not_null",
+      "contype": "n",
+      "def": "NOT NULL amount"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_base_cid_not_null",
+      "contype": "n",
+      "def": "NOT NULL base_cid"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_create_key_not_null",
+      "contype": "n",
+      "def": "NOT NULL create_key"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_ledger_event_keys_not_null",
+      "contype": "n",
+      "def": "NOT NULL ledger_event_keys"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_order_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL order_id"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_owner_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL owner_uid"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_price_not_null",
+      "contype": "n",
+      "def": "NOT NULL price"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_quote_cid_not_null",
+      "contype": "n",
+      "def": "NOT NULL quote_cid"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_side_not_null",
+      "contype": "n",
+      "def": "NOT NULL side"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_status_not_null",
+      "contype": "n",
+      "def": "NOT NULL status"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_time_updated_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_updated"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (order_id)"
+    },
+    {
+      "tbl": "market_order",
+      "conname": "market_order_create_key_uniq",
+      "contype": "u",
+      "def": "UNIQUE (create_key)"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_amount_positive",
+      "contype": "c",
+      "def": "CHECK ((amount > 0))"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_cid_distinct",
+      "contype": "c",
+      "def": "CHECK ((base_cid <> quote_cid))"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_fee_nonneg",
+      "contype": "c",
+      "def": "CHECK ((fee >= 0))"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_pair_distinct",
+      "contype": "c",
+      "def": "CHECK ((buy_order_id <> sell_order_id))"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_price_positive",
+      "contype": "c",
+      "def": "CHECK ((price > 0))"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_base_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (base_cid) REFERENCES currency(cid)"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_buy_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (buy_order_id) REFERENCES market_order(order_id)"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_quote_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (quote_cid) REFERENCES currency(cid)"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_sell_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (sell_order_id) REFERENCES market_order(order_id)"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_taker_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (taker_uid) REFERENCES users(uid)"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_amount_not_null",
+      "contype": "n",
+      "def": "NOT NULL amount"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_base_cid_not_null",
+      "contype": "n",
+      "def": "NOT NULL base_cid"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_buy_order_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL buy_order_id"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_fee_not_null",
+      "contype": "n",
+      "def": "NOT NULL fee"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_price_not_null",
+      "contype": "n",
+      "def": "NOT NULL price"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_quote_cid_not_null",
+      "contype": "n",
+      "def": "NOT NULL quote_cid"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_sell_order_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL sell_order_id"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_taker_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL taker_uid"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_trade_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL trade_id"
+    },
+    {
+      "tbl": "market_trade",
+      "conname": "market_trade_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (trade_id)"
+    },
+    {
+      "tbl": "users",
+      "conname": "users_evm_fmt",
+      "contype": "c",
+      "def": "CHECK ((evm ~ '^0x[0-9a-f]{40}$'::text))"
+    },
+    {
+      "tbl": "users",
+      "conname": "users_uid_positive",
+      "contype": "c",
+      "def": "CHECK ((uid > 0))"
+    },
+    {
+      "tbl": "users",
+      "conname": "users_bio_not_null",
+      "contype": "n",
+      "def": "NOT NULL bio"
+    },
+    {
+      "tbl": "users",
+      "conname": "users_evm_not_null",
+      "contype": "n",
+      "def": "NOT NULL evm"
+    },
+    {
+      "tbl": "users",
+      "conname": "users_is_admin_not_null",
+      "contype": "n",
+      "def": "NOT NULL is_admin"
+    },
+    {
+      "tbl": "users",
+      "conname": "users_time_login_last_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_login_last"
+    },
+    {
+      "tbl": "users",
+      "conname": "users_time_reg_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_reg"
+    },
+    {
+      "tbl": "users",
+      "conname": "users_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL uid"
+    },
+    {
+      "tbl": "users",
+      "conname": "users_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (uid)"
+    },
+    {
+      "tbl": "users",
+      "conname": "users_evm_uniq",
+      "contype": "u",
+      "def": "UNIQUE (evm)"
+    }
+  ],
+  "indexes": [
+    {
+      "tablename": "account",
+      "indexname": "account_pk",
+      "indexdef": "CREATE UNIQUE INDEX account_pk ON public.account USING btree (uid, cid)"
+    },
+    {
+      "tablename": "account",
+      "indexname": "idx_account_cid_balance",
+      "indexdef": "CREATE INDEX idx_account_cid_balance ON public.account USING btree (cid, balance DESC)"
+    },
+    {
+      "tablename": "account",
+      "indexname": "idx_account_frozen",
+      "indexdef": "CREATE INDEX idx_account_frozen ON public.account USING btree (cid, uid) WHERE (frozen > 0)"
+    },
+    {
+      "tablename": "admin_role",
+      "indexname": "admin_role_pk",
+      "indexdef": "CREATE UNIQUE INDEX admin_role_pk ON public.admin_role USING btree (role_key)"
+    },
+    {
+      "tablename": "admin_role_permission",
+      "indexname": "admin_role_permission_pk",
+      "indexdef": "CREATE UNIQUE INDEX admin_role_permission_pk ON public.admin_role_permission USING btree (role_key, permission_key)"
+    },
+    {
+      "tablename": "admin_user_role",
+      "indexname": "admin_user_role_pk",
+      "indexdef": "CREATE UNIQUE INDEX admin_user_role_pk ON public.admin_user_role USING btree (uid, role_key)"
+    },
+    {
+      "tablename": "app_config",
+      "indexname": "app_config_pk",
+      "indexdef": "CREATE UNIQUE INDEX app_config_pk ON public.app_config USING btree (key)"
+    },
+    {
+      "tablename": "currency",
+      "indexname": "currency_pkey",
+      "indexdef": "CREATE UNIQUE INDEX currency_pkey ON public.currency USING btree (cid)"
+    },
+    {
+      "tablename": "currency",
+      "indexname": "currency_symbol_uniq",
+      "indexdef": "CREATE UNIQUE INDEX currency_symbol_uniq ON public.currency USING btree (symbol)"
+    },
+    {
+      "tablename": "currency",
+      "indexname": "idx_currency_owner",
+      "indexdef": "CREATE INDEX idx_currency_owner ON public.currency USING btree (owner_uid)"
+    },
+    {
+      "tablename": "currency",
+      "indexname": "idx_currency_status",
+      "indexdef": "CREATE INDEX idx_currency_status ON public.currency USING btree (status) WHERE (status <> 'delisted'::text)"
+    },
+    {
+      "tablename": "job",
+      "indexname": "idx_job_employer",
+      "indexdef": "CREATE INDEX idx_job_employer ON public.job USING btree (employer_uid, time_created DESC)"
+    },
+    {
+      "tablename": "job",
+      "indexname": "idx_job_status_time",
+      "indexdef": "CREATE INDEX idx_job_status_time ON public.job USING btree (status, time_created DESC)"
+    },
+    {
+      "tablename": "job",
+      "indexname": "idx_job_worker",
+      "indexdef": "CREATE INDEX idx_job_worker ON public.job USING btree (worker_uid, time_created DESC) WHERE (worker_uid IS NOT NULL)"
+    },
+    {
+      "tablename": "job",
+      "indexname": "job_create_key_uniq",
+      "indexdef": "CREATE UNIQUE INDEX job_create_key_uniq ON public.job USING btree (create_key)"
+    },
+    {
+      "tablename": "job",
+      "indexname": "job_pk",
+      "indexdef": "CREATE UNIQUE INDEX job_pk ON public.job USING btree (job_id)"
+    },
+    {
+      "tablename": "job_application",
+      "indexname": "idx_job_application_worker",
+      "indexdef": "CREATE INDEX idx_job_application_worker ON public.job_application USING btree (worker_uid, time_created DESC)"
+    },
+    {
+      "tablename": "job_application",
+      "indexname": "job_application_create_key_uniq",
+      "indexdef": "CREATE UNIQUE INDEX job_application_create_key_uniq ON public.job_application USING btree (create_key)"
+    },
+    {
+      "tablename": "job_application",
+      "indexname": "job_application_job_worker_uniq",
+      "indexdef": "CREATE UNIQUE INDEX job_application_job_worker_uniq ON public.job_application USING btree (job_id, worker_uid)"
+    },
+    {
+      "tablename": "job_application",
+      "indexname": "job_application_pk",
+      "indexdef": "CREATE UNIQUE INDEX job_application_pk ON public.job_application USING btree (application_id)"
+    },
+    {
+      "tablename": "job_application",
+      "indexname": "uniq_job_application_accepted",
+      "indexdef": "CREATE UNIQUE INDEX uniq_job_application_accepted ON public.job_application USING btree (job_id) WHERE (status = 'accepted'::text)"
+    },
+    {
+      "tablename": "job_submission",
+      "indexname": "idx_job_submission_job",
+      "indexdef": "CREATE INDEX idx_job_submission_job ON public.job_submission USING btree (job_id, time_created DESC)"
+    },
+    {
+      "tablename": "job_submission",
+      "indexname": "idx_job_submission_review",
+      "indexdef": "CREATE INDEX idx_job_submission_review ON public.job_submission USING btree (review_status, time_created DESC)"
+    },
+    {
+      "tablename": "job_submission",
+      "indexname": "idx_job_submission_worker",
+      "indexdef": "CREATE INDEX idx_job_submission_worker ON public.job_submission USING btree (worker_uid, time_created DESC)"
+    },
+    {
+      "tablename": "job_submission",
+      "indexname": "job_submission_create_key_uniq",
+      "indexdef": "CREATE UNIQUE INDEX job_submission_create_key_uniq ON public.job_submission USING btree (create_key)"
+    },
+    {
+      "tablename": "job_submission",
+      "indexname": "job_submission_pk",
+      "indexdef": "CREATE UNIQUE INDEX job_submission_pk ON public.job_submission USING btree (submission_id)"
+    },
+    {
+      "tablename": "listing",
+      "indexname": "idx_listing_seller",
+      "indexdef": "CREATE INDEX idx_listing_seller ON public.listing USING btree (seller_uid, time_created DESC)"
+    },
+    {
+      "tablename": "listing",
+      "indexname": "idx_listing_status_time",
+      "indexdef": "CREATE INDEX idx_listing_status_time ON public.listing USING btree (status, time_created DESC)"
+    },
+    {
+      "tablename": "listing",
+      "indexname": "listing_create_key_uniq",
+      "indexdef": "CREATE UNIQUE INDEX listing_create_key_uniq ON public.listing USING btree (create_key)"
+    },
+    {
+      "tablename": "listing",
+      "indexname": "listing_pk",
+      "indexdef": "CREATE UNIQUE INDEX listing_pk ON public.listing USING btree (listing_id)"
+    },
+    {
+      "tablename": "listing_order",
+      "indexname": "idx_listing_order_buyer",
+      "indexdef": "CREATE INDEX idx_listing_order_buyer ON public.listing_order USING btree (buyer_uid, time_created DESC)"
+    },
+    {
+      "tablename": "listing_order",
+      "indexname": "idx_listing_order_listing",
+      "indexdef": "CREATE INDEX idx_listing_order_listing ON public.listing_order USING btree (listing_id)"
+    },
+    {
+      "tablename": "listing_order",
+      "indexname": "listing_order_create_key_uniq",
+      "indexdef": "CREATE UNIQUE INDEX listing_order_create_key_uniq ON public.listing_order USING btree (create_key)"
+    },
+    {
+      "tablename": "listing_order",
+      "indexname": "listing_order_pk",
+      "indexdef": "CREATE UNIQUE INDEX listing_order_pk ON public.listing_order USING btree (order_id)"
+    },
+    {
+      "tablename": "market_order",
+      "indexname": "market_order_create_key_uniq",
+      "indexdef": "CREATE UNIQUE INDEX market_order_create_key_uniq ON public.market_order USING btree (create_key)"
+    },
+    {
+      "tablename": "market_order",
+      "indexname": "market_order_pk",
+      "indexdef": "CREATE UNIQUE INDEX market_order_pk ON public.market_order USING btree (order_id)"
+    },
+    {
+      "tablename": "market_trade",
+      "indexname": "market_trade_pk",
+      "indexdef": "CREATE UNIQUE INDEX market_trade_pk ON public.market_trade USING btree (trade_id)"
+    },
+    {
+      "tablename": "users",
+      "indexname": "idx_users_evm_lower",
+      "indexdef": "CREATE INDEX idx_users_evm_lower ON public.users USING btree (lower(evm))"
+    },
+    {
+      "tablename": "users",
+      "indexname": "users_evm_uniq",
+      "indexdef": "CREATE UNIQUE INDEX users_evm_uniq ON public.users USING btree (evm)"
+    },
+    {
+      "tablename": "users",
+      "indexname": "users_pk",
+      "indexdef": "CREATE UNIQUE INDEX users_pk ON public.users USING btree (uid)"
+    }
+  ],
+  "row_counts": {
+    "account": 4,
+    "admin_permission": 0,
+    "admin_role": 0,
+    "admin_role_permission": 0,
+    "admin_user_role": 0,
+    "app_config": 0,
+    "candle_view": 0,
+    "commission_policy": 1,
+    "currency": 1,
+    "currency_status_log": 0,
+    "job": 0,
+    "job_application": 0,
+    "job_submission": 0,
+    "ledger_entry": 0,
+    "ledger_owner": 4,
+    "listing": 0,
+    "listing_order": 0,
+    "market_order": 0,
+    "market_trade": 0,
+    "referral": 0,
+    "schema_migration": 17,
+    "users": 0
+  },
+  "relations": [
+    "account",
+    "admin_permission",
+    "admin_role",
+    "admin_role_permission",
+    "admin_user_role",
+    "app_config",
+    "candle_view",
+    "commission_policy",
+    "currency",
+    "currency_status_log",
+    "job",
+    "job_application",
+    "job_submission",
+    "ledger_entry",
+    "ledger_owner",
+    "listing",
+    "listing_order",
+    "market_order",
+    "market_trade",
+    "referral",
+    "schema_migration",
+    "users"
+  ]
+}

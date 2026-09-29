@@ -23,7 +23,7 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-const sendSuccess = (res: Response, data?: unknown, message = 'OK', statusCode = 200) => {
+const sendSuccess = (res: Response, data?: unknown, message = 'OK', statusCode = 200, extra?: Record<string, unknown>) => {
   const payload: Record<string, unknown> = {
     success: true,
     message,
@@ -31,6 +31,11 @@ const sendSuccess = (res: Response, data?: unknown, message = 'OK', statusCode =
 
   if (data !== undefined) {
     payload.data = data;
+  }
+
+  // P4-B1-c: 可选附加顶层键（如 deprecated: true），不改变 data 形状。
+  if (extra) {
+    Object.assign(payload, extra);
   }
 
   return res.status(statusCode).json(payload);
@@ -292,13 +297,11 @@ app.get('/api/task/:tID', async (req, res) => {
       return sendError(res, 400, 'Invalid tID');
     }
 
+    // P4-B1-b: miss 回空态任务（完整 TaskRecord 键集，200），止血口径（类比 B1-a emptyAsset）；纯读零写库
     const task = await DatabaseService.getTask(tID);
-    if (!task) {
-      return sendError(res, 404, 'Task not found');
-    }
 
     setPublicCache(res);
-    sendSuccess(res, task);
+    sendSuccess(res, task || DatabaseService.emptyTask(tID));
   } catch (error) {
     console.error('Error loading task detail:', error);
     sendError(res, 500, 'Failed to load task');
@@ -368,8 +371,9 @@ app.get('/api/user/asset/:uID', async (req, res) => {
       return sendError(res, 400, 'Invalid user ID');
     }
 
-    const asset = (await DatabaseService.getUserAsset(uID)) || (await DatabaseService.upsertAsset(uID, 0));
-    sendSuccess(res, asset);
+    // P4-B1-a: 纯读端点，禁止隐式写库（原 `|| upsertAsset(uID, 0)` 回退已移除）。
+    const asset = await DatabaseService.getUserAsset(uID);
+    sendSuccess(res, asset || DatabaseService.emptyAsset(uID));
   } catch (error) {
     console.error('Get user asset error:', error);
     sendError(res, 500, 'Internal server error');
@@ -390,10 +394,7 @@ app.get('/api/home', async (req, res) => {
         ? DatabaseService.listClaimedPrizeIdsByUser(actor.user.uID)
         : Promise.resolve([] as number[]),
       actor
-        ? (
-            (await DatabaseService.getUserAsset(actor.user.uID)) ||
-            (await DatabaseService.upsertAsset(actor.user.uID, 0))
-          )
+        ? DatabaseService.getUserAsset(actor.user.uID)
         : Promise.resolve(null),
     ]);
 
@@ -560,7 +561,8 @@ app.get('/api/shard', async (req, res) => {
   try {
     const { skip, limit } = getPagination(req);
     const shards = await DatabaseService.listShardHoldingsByUser(actor.user.uID, skip, limit);
-    sendSuccess(res, shards);
+    // P4-B1-c: shard 读侧恒空态（无对应表）+ 顶层 deprecated 标记（碎片语义已被积分交易所取代）。
+    sendSuccess(res, shards, 'OK', 200, { deprecated: true });
   } catch (error) {
     console.error('Error loading shard holdings:', error);
     sendError(res, 500, 'Failed to load shard holdings');
@@ -574,7 +576,8 @@ app.get('/api/shard/transfer', async (req, res) => {
   try {
     const { skip, limit } = getPagination(req);
     const transfers = await DatabaseService.listShardTransfersByUser(actor.user.uID, skip, limit);
-    sendSuccess(res, transfers);
+    // P4-B1-c: shard_transfer 读侧恒空态（无对应表）+ 顶层 deprecated 标记。
+    sendSuccess(res, transfers, 'OK', 200, { deprecated: true });
   } catch (error) {
     console.error('Error loading shard transfers:', error);
     sendError(res, 500, 'Failed to load shard transfers');
@@ -766,7 +769,7 @@ app.get('/api/admin/permissions', async (req, res) => {
       DatabaseService.listPermissionGroups(),
       DatabaseService.getAllUsers(0, 1000),
     ]);
-    sendSuccess(res, { groups, users });
+    sendSuccess(res, { groups, users }, 'OK', 200, { deprecated: true });
   } catch (error) {
     console.error('Error loading permission groups:', error);
     sendError(res, 500, 'Failed to load permission groups');

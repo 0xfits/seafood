@@ -522,15 +522,13 @@ const normalizeBrand = (
     0,
   );
   return {
-    // P4-B1-c: listing 读侧回退键（旧列名在前 ⇒ 旧行为不变；listing 列名在后）：
-    // bID←listing_id、name←title、points←price。symbol/image_url/时间窗等 listing 无对应列 ⇒ 沿用空态默认（不编值）。
-    bID: toNumberValue(getValue(row, 'bID', 'listing_id')),
+    bID: toNumberValue(getValue(row, 'bID')),
     symbol: toStringValue(getValue(row, 'symbol')),
-    name: toStringValue(getValue(row, 'name', 'title')),
+    name: toStringValue(getValue(row, 'name')),
     description: toStringValue(getValue(row, 'description')),
     image_url: imageUrl,
     url_image: imageUrl,
-    points: toNumberValue(getValue(row, 'points', 'price')),
+    points: toNumberValue(getValue(row, 'points')),
     market_floor_points: marketFloorPoints,
     duration_seconds: durationSeconds,
     price_floor_eligible: priceFloorEligible,
@@ -583,15 +581,14 @@ const normalizeTask = (row: RawRow, participantsCount = 0): TaskRecord => {
   const linkA = toStringValue(getValue(row, 'linkA', 'link0'));
   const isOpenValue = getValue(row, 'is_open');
   return {
-    // P4-B1-b: task→job 读侧换表 —— 旧列名在前、新列名在后（旧行为不变；job 无对应列走既有空态默认）
-    tID: toNumberValue(getValue(row, 'tID', 'job_id')),
+    tID: toNumberValue(getValue(row, 'tID')),
     title: toStringValue(getValue(row, 'title')),
-    note: toStringValue(getValue(row, 'note', 'description')),
+    note: toStringValue(getValue(row, 'note')),
     refcode: toStringValue(getValue(row, 'refcode')),
     link0: toStringValue(getValue(row, 'link0', 'linkA')),
     linkA,
     linkB: toStringValue(getValue(row, 'linkB')),
-    points: toNumberValue(getValue(row, 'points', 'reward')),
+    points: toNumberValue(getValue(row, 'points')),
     type: toNumberValue(getValue(row, 'type')),
     time_start: toTimestamp(getValue(row, 'time_start')),
     time_end: toTimestamp(getValue(row, 'time_end')),
@@ -664,20 +661,17 @@ const normalizeShardHolding = (
   brand_name: brand?.name || toStringValue(getValue(row, 'brand_name', 'name')),
 });
 
-// P4-B1-d: market 读侧列名回退键（旧列名在前 ⇒ 旧行为不变；新表列名在后）。
-// market_order: oID←order_id、bID←base_cid（币对基准币）、uID←owner_uid（挂单人）、
-//               volume_total←amount、volume_filled←amount_filled。
 const normalizeMarketOrder = (
   row: RawRow,
   brand?: BrandRecord | null,
 ): MarketOrderRecord => ({
-  oID: toNumberValue(getValue(row, 'oID', 'order_id', 'id')),
-  bID: toNumberValue(getValue(row, 'bID', 'base_cid')),
-  uID: toNumberValue(getValue(row, 'uID', 'owner_uid')),
+  oID: toNumberValue(getValue(row, 'oID', 'id')),
+  bID: toNumberValue(getValue(row, 'bID')),
+  uID: toNumberValue(getValue(row, 'uID')),
   side: toStringValue(getValue(row, 'side')) === 'sell' ? 'sell' : 'buy',
   price: toNumberValue(getValue(row, 'price')),
-  volume_total: toNumberValue(getValue(row, 'volume_total', 'amount')),
-  volume_filled: toNumberValue(getValue(row, 'volume_filled', 'amount_filled')),
+  volume_total: toNumberValue(getValue(row, 'volume_total')),
+  volume_filled: toNumberValue(getValue(row, 'volume_filled')),
   status: toStringValue(getValue(row, 'status')) || 'open',
   time_created: toTimestamp(getValue(row, 'time_created')),
   time_updated: toTimestamp(getValue(row, 'time_updated')),
@@ -685,29 +679,18 @@ const normalizeMarketOrder = (
   brand_name: brand?.name || toStringValue(getValue(row, 'brand_name', 'name')),
 });
 
-// P4-B1-d: listOrderBook 的行映射抽为纯函数（键集 {side,price,volume} 与 HEAD 内联映射逐字等价），
-// 供 key 契约夹具直接调用；零 DB 访问。
-export const normalizeOrderBookRow = (row: RawRow): MarketOrderBookRow => ({
-  side: row.side === 'sell' ? 'sell' : 'buy',
-  price: toNumberValue(row.price),
-  volume: toNumberValue(row.volume),
-});
-
-// P4-B1-d: market_trade 列名回退键：trID←trade_id、bID←base_cid、buy_oID←buy_order_id、
-// sell_oID←sell_order_id、volume←amount；buyer_uID/seller_uID 由 listTradesByBrand 的
-// LEFT JOIN market_order（buy_order_id/sell_order_id 各自的 owner_uid）合成别名供给，故无回退键。
 const normalizeMarketTrade = (
   row: RawRow,
   brand?: BrandRecord | null,
 ): MarketTradeRecord => ({
-  trID: toNumberValue(getValue(row, 'trID', 'trade_id', 'id')),
-  bID: toNumberValue(getValue(row, 'bID', 'base_cid')),
-  buy_oID: toNumberValue(getValue(row, 'buy_oID', 'buy_order_id')),
-  sell_oID: toNumberValue(getValue(row, 'sell_oID', 'sell_order_id')),
+  trID: toNumberValue(getValue(row, 'trID', 'id')),
+  bID: toNumberValue(getValue(row, 'bID')),
+  buy_oID: toNumberValue(getValue(row, 'buy_oID')),
+  sell_oID: toNumberValue(getValue(row, 'sell_oID')),
   buyer_uID: toNumberValue(getValue(row, 'buyer_uID')),
   seller_uID: toNumberValue(getValue(row, 'seller_uID')),
   price: toNumberValue(getValue(row, 'price')),
-  volume: toNumberValue(getValue(row, 'volume', 'amount')),
+  volume: toNumberValue(getValue(row, 'volume')),
   time_created: toTimestamp(getValue(row, 'time_created')),
   brand_symbol: brand?.symbol || toStringValue(getValue(row, 'brand_symbol', 'symbol')),
 });
@@ -740,10 +723,89 @@ export class DatabaseService {
   }
 
   static async getBrandAggregateCounts(): Promise<Map<number, BrandAggregateCounts>> {
-    // P4-B1-c: 旧实现查询 prize_item/shard/shard_transfer —— 新 schema 均无对应表（probe.json 三口径 42P01）
-    // ⇒ 聚合键（stores_count/claims_count/activated_count/current_shard_supply/free_shards_distributed）
-    // 保留、值恒 0（不编值）；返回空 Map，调用方按零计数回退。语义已被积分交易所取代。
-    return new Map();
+    const sql = getSql();
+    let giftRows: Array<{
+      bid: number;
+      stores_count: number;
+      claims_count: number;
+      activated_count: number;
+    }> = [];
+    let shardRows: Array<{ bid: number; volume: number }> = [];
+    let transferRows: Array<{ bid: number; volume: number }> = [];
+
+    try {
+      [giftRows, shardRows, transferRows] = await Promise.all([
+        asItems<{
+          bid: number;
+          stores_count: number;
+          claims_count: number;
+          activated_count: number;
+        }>(await sql`
+          SELECT
+            COALESCE(g."bID", 0) AS bid,
+            COUNT(1) FILTER (
+              WHERE COALESCE(g."uID", 0) = 0
+            )::int AS stores_count,
+            COUNT(1) FILTER (
+              WHERE COALESCE(g."uID", 0) <> 0
+            )::int AS claims_count,
+            COUNT(1) FILTER (
+              WHERE COALESCE(g."uID", 0) <> 0
+                AND g.time_actived IS NOT NULL
+            )::int AS activated_count
+          FROM prize_item AS g
+          GROUP BY bid
+        `),
+        asItems<{ bid: number; volume: number }>(await sql`
+          SELECT
+            COALESCE(s."bID", 0) AS bid,
+            COALESCE(SUM(COALESCE(s.volume, 0)), 0)::int AS volume
+          FROM shard AS s
+          GROUP BY bid
+        `),
+        asItems<{ bid: number; volume: number }>(await sql`
+          SELECT
+            COALESCE(st."bID", 0) AS bid,
+            COALESCE(SUM(COALESCE(st.volume, 0)), 0)::int AS volume
+          FROM shard_transfer AS st
+          WHERE COALESCE(st.reason, '') = 'free_chest'
+          GROUP BY bid
+        `),
+      ]);
+    } catch (error) {
+      console.warn('Failed to load brand aggregate counts, falling back to zero counts:', error);
+    }
+
+    const counts = new Map<number, BrandAggregateCounts>();
+    const ensureCounts = (bID: number) => {
+      if (!counts.has(bID)) {
+        counts.set(bID, {
+          stores_count: 0,
+          claims_count: 0,
+          activated_count: 0,
+          current_shard_supply: 0,
+          free_shards_distributed: 0,
+        });
+      }
+      return counts.get(bID)!;
+    };
+
+    for (const row of giftRows) {
+      const entry = ensureCounts(Number(row.bid || 0));
+      entry.stores_count = Number(row.stores_count || 0);
+      entry.claims_count = Number(row.claims_count || 0);
+      entry.activated_count = Number(row.activated_count || 0);
+    }
+
+    for (const row of shardRows) {
+      ensureCounts(Number(row.bid || 0)).current_shard_supply = Number(row.volume || 0);
+    }
+
+    for (const row of transferRows) {
+      ensureCounts(Number(row.bid || 0)).free_shards_distributed = Number(row.volume || 0);
+    }
+
+    return counts;
   }
 
   static async getTaskParticipantCounts(): Promise<Map<number, number>> {
@@ -968,21 +1030,59 @@ export class DatabaseService {
 
   static async listBrands(skip = 0, limit = 100): Promise<BrandRecord[]> {
     const sql = getSql();
-    // P4-B1-c: prize→listing 读侧换表（bID←listing_id、points←price、name←title；description/status/
-    // time_created/time_updated 同名核对）。旧 gift_counts/shard_counts/transfer_counts CTE 引用的
-    // prize_item/shard/shard_transfer 在新 schema 无对应表（probe.json 三口径 42P01）
-    // ⇒ 聚合键保留、值恒 0（不编值）。
     const rows = extractRows(await sql`
+      WITH selected_prizes AS (
+        SELECT b.*
+        FROM prize AS b
+        ORDER BY b."bID"
+        LIMIT ${limit} OFFSET ${skip}
+      ),
+      gift_counts AS (
+        SELECT
+          COALESCE(NULLIF(BTRIM(COALESCE(g."bID", '')), '')::bigint, 0) AS bid,
+          COUNT(1) FILTER (
+            WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) = 0
+          )::int AS stores_count,
+          COUNT(1) FILTER (
+            WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) <> 0
+          )::int AS claims_count,
+          COUNT(1) FILTER (
+            WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) <> 0
+              AND COALESCE(NULLIF(BTRIM(COALESCE(g.time_actived, '')), ''), '') <> ''
+          )::int AS activated_count
+        FROM prize_item AS g
+        JOIN selected_prizes AS p ON p."bID" = COALESCE(NULLIF(BTRIM(COALESCE(g."bID", '')), '')::bigint, 0)
+        GROUP BY COALESCE(NULLIF(BTRIM(COALESCE(g."bID", '')), '')::bigint, 0)
+      ),
+      shard_counts AS (
+        SELECT
+          s."bID" AS bid,
+          COALESCE(SUM(COALESCE(s.volume, 0)), 0)::int AS current_shard_supply
+        FROM shard AS s
+        JOIN selected_prizes AS p ON p."bID" = s."bID"
+        GROUP BY s."bID"
+      ),
+      transfer_counts AS (
+        SELECT
+          st."bID" AS bid,
+          COALESCE(SUM(COALESCE(st.volume, 0)), 0)::int AS free_shards_distributed
+        FROM shard_transfer AS st
+        JOIN selected_prizes AS p ON p."bID" = st."bID"
+        WHERE COALESCE(st.reason, '') = 'free_chest'
+        GROUP BY st."bID"
+      )
       SELECT
-        l.*,
-        0::int AS stores_count,
-        0::int AS claims_count,
-        0::int AS activated_count,
-        0::int AS current_shard_supply,
-        0::int AS free_shards_distributed
-      FROM listing AS l
-      ORDER BY l.listing_id
-      LIMIT ${limit} OFFSET ${skip}
+        p.*,
+        COALESCE(gc.stores_count, 0)::int AS stores_count,
+        COALESCE(gc.claims_count, 0)::int AS claims_count,
+        COALESCE(gc.activated_count, 0)::int AS activated_count,
+        COALESCE(sc.current_shard_supply, 0)::int AS current_shard_supply,
+        COALESCE(tc.free_shards_distributed, 0)::int AS free_shards_distributed
+      FROM selected_prizes AS p
+      LEFT JOIN gift_counts AS gc ON gc.bid = p."bID"
+      LEFT JOIN shard_counts AS sc ON sc.bid = p."bID"
+      LEFT JOIN transfer_counts AS tc ON tc.bid = p."bID"
+      ORDER BY p."bID"
     `);
 
     return rows.map((row) => {
@@ -996,51 +1096,68 @@ export class DatabaseService {
     });
   }
 
-  // P4-B1-c: 以下 5 个计数函数的源表 prize_item/shard/shard_transfer 新 schema 无对应表
-  //（P4-0 §4.1 裁定勿硬凑建表）⇒ 恒 0（不编值）；「免费礼品店/领取/激活/碎片供给/免费碎片发放」
-  // 语义已被积分交易所取代。HTTP 层无独立端点，值经 BrandRecord 聚合键与 prize 明细暴露。
   static async countGiftStoresByBrand(bID: number): Promise<number> {
-    void bID;
-    return 0;
+    const sql = getSql();
+    const rows = asItems<{ count: number }>(await sql`
+      SELECT COUNT(1)::int AS count
+      FROM prize_item AS g
+      WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."bID", '')), '')::int, 0) = ${bID}
+        AND COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) = 0
+    `);
+    return Number(rows[0]?.count || 0);
   }
 
   static async countGiftClaimsByBrand(bID: number): Promise<number> {
-    void bID;
-    return 0;
+    const sql = getSql();
+    const rows = asItems<{ count: number }>(await sql`
+      SELECT COUNT(1)::int AS count
+      FROM prize_item AS g
+      WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."bID", '')), '')::int, 0) = ${bID}
+        AND COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) <> 0
+    `);
+    return Number(rows[0]?.count || 0);
   }
 
   static async countGiftActivatedByBrand(bID: number): Promise<number> {
-    void bID;
-    return 0;
+    const sql = getSql();
+    const rows = asItems<{ count: number }>(await sql`
+      SELECT COUNT(1)::int AS count
+      FROM prize_item AS g
+      WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."bID", '')), '')::int, 0) = ${bID}
+        AND COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) <> 0
+        AND COALESCE(NULLIF(BTRIM(COALESCE(g.time_actived, '')), ''), '') <> ''
+    `);
+    return Number(rows[0]?.count || 0);
   }
 
   static async getCurrentShardSupplyByBrand(bID: number): Promise<number> {
-    void bID;
-    return 0;
+    const sql = getSql();
+    const rows = asItems<{ volume: number }>(await sql`
+      SELECT COALESCE(SUM(COALESCE(s.volume, 0)), 0)::int AS volume
+      FROM shard AS s
+      WHERE s."bID" = ${bID}
+    `);
+    return Number(rows[0]?.volume || 0);
   }
 
   static async countFreeShardsDistributedByBrand(bID: number): Promise<number> {
-    void bID;
-    return 0;
+    const sql = getSql();
+    const rows = asItems<{ volume: number }>(await sql`
+      SELECT COALESCE(SUM(COALESCE(st.volume, 0)), 0)::int AS volume
+      FROM shard_transfer AS st
+      WHERE st."bID" = ${bID}
+        AND COALESCE(st.reason, '') = 'free_chest'
+    `);
+    return Number(rows[0]?.volume || 0);
   }
 
   static async listPrizeItemsByUser(uID: number, skip = 0, limit = 200): Promise<PrizeItemRecord[]> {
     const sql = getSql();
-    // P4-B1-c: prize_item→listing_order 换表（buyer_uid = uID 且已支付 status='paid'；
-    // listing_order_status_enum CHECK 真值 = created/paid/refunded/cancelled，probe.json）。
-    // time_claimed/time_actived 无对应列 ⇒ 恒 NULL（不编值，B1-b 同口径）；键经 SQL 别名保留旧形状。
     const rows = extractRows(await sql`
-      SELECT
-        o.order_id AS "gID",
-        o.listing_id AS "bID",
-        o.buyer_uid AS "uID",
-        o.time_created,
-        NULL::timestamptz AS time_claimed,
-        NULL::timestamptz AS time_actived
-      FROM listing_order AS o
-      WHERE o.buyer_uid = ${uID}
-        AND o.status = 'paid'
-      ORDER BY o.order_id DESC
+      SELECT g.*
+      FROM prize_item AS g
+      WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) = ${uID}
+      ORDER BY COALESCE(NULLIF(BTRIM(COALESCE(g."gID", '')), '')::bigint, 0) DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
@@ -1049,12 +1166,10 @@ export class DatabaseService {
 
   static async listClaimedPrizeIdsByUser(uID: number): Promise<number[]> {
     const sql = getSql();
-    // P4-B1-c: prize_item→listing_order 换表（已支付 = status 'paid'）；空库 ⇒ 空数组。
     const rows = asItems<{ bID: number }>(await sql`
-      SELECT DISTINCT o.listing_id AS "bID"
-      FROM listing_order AS o
-      WHERE o.buyer_uid = ${uID}
-        AND o.status = 'paid'
+      SELECT DISTINCT COALESCE(NULLIF(BTRIM(COALESCE(g."bID", '')), '')::bigint, 0) AS "bID"
+      FROM prize_item AS g
+      WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) = ${uID}
       ORDER BY "bID"
     `);
 
@@ -1068,24 +1183,24 @@ export class DatabaseService {
     const rows = extractRows(await sql`
       WITH selected_tasks AS (
         SELECT t.*
-        FROM job AS t
-        ORDER BY t.job_id
+        FROM task AS t
+        ORDER BY t."tID"
         LIMIT ${limit} OFFSET ${skip}
       ),
       participant_counts AS (
         SELECT
-          j.job_id AS tid,
+          j."tID" AS tid,
           COUNT(1)::int AS participants_count
-        FROM job_application AS j
-        JOIN selected_tasks AS t ON t.job_id = j.job_id
-        GROUP BY j.job_id
+        FROM task_progress AS j
+        JOIN selected_tasks AS t ON t."tID" = j."tID"
+        GROUP BY j."tID"
       )
       SELECT
         t.*,
         COALESCE(pc.participants_count, 0)::int AS participants_count
       FROM selected_tasks AS t
-      LEFT JOIN participant_counts AS pc ON pc.tid = t.job_id
-      ORDER BY t.job_id
+      LEFT JOIN participant_counts AS pc ON pc.tid = t."tID"
+      ORDER BY t."tID"
     `);
 
     return rows.map((row) => normalizeTask(row, toNumberValue(getValue(row, 'participants_count'))));
@@ -1096,34 +1211,29 @@ export class DatabaseService {
     const row = firstRow(await sql`
       WITH selected_task AS (
         SELECT t.*
-        FROM job AS t
-        WHERE t.job_id = ${tID}
+        FROM task AS t
+        WHERE COALESCE(NULLIF(BTRIM(t."tID"), '')::int, 0) = ${tID}
         LIMIT 1
       ),
       participant_counts AS (
         SELECT
-          j.job_id AS tid,
+          COALESCE(NULLIF(BTRIM(j."tID"), '')::int, 0) AS tid,
           COUNT(1)::int AS participants_count
-        FROM job_application AS j
-        JOIN selected_task AS t ON t.job_id = j.job_id
-        GROUP BY j.job_id
+        FROM task_progress AS j
+        JOIN selected_task AS t ON t."tID" = j."tID"
+        GROUP BY COALESCE(NULLIF(BTRIM(j."tID"), '')::int, 0)
       )
       SELECT
         t.*,
         COALESCE(pc.participants_count, 0)::int AS participants_count
       FROM selected_task AS t
       LEFT JOIN participant_counts AS pc
-        ON pc.tid = t.job_id
+        ON pc.tid = COALESCE(NULLIF(BTRIM(t."tID"), '')::int, 0)
       LIMIT 1
     `);
 
     if (!row) return null;
     return normalizeTask(row, toNumberValue(getValue(row, 'participants_count')));
-  }
-
-  // P4-B1-b: 空态任务（完整 TaskRecord 键集），GET miss 回退用（类比 B1-a emptyAsset）；纯内存、零写库
-  static emptyTask(tID: number): TaskRecord {
-    return { ...normalizeTask({}, 0), tID };
   }
 
   static async countTaskParticipants(tID: number): Promise<number> {
@@ -1139,26 +1249,9 @@ export class DatabaseService {
   static async getTaskProgress(jID: number): Promise<TaskProgressRecord | null> {
     const sql = getSql();
     const row = firstRow(await sql`
-      SELECT
-        a.application_id AS "jID",
-        a.job_id AS "tID",
-        a.worker_uid AS "uID",
-        s.deliverable AS info_input,
-        a.time_created,
-        s.time_created AS time_submitted,
-        s.reviewed_at AS time_checked,
-        NULL::timestamptz AS time_claimed,
-        0::int AS points_claimed
-      FROM job_application AS a
-      LEFT JOIN LATERAL (
-        SELECT *
-        FROM job_submission AS s0
-        WHERE s0.job_id = a.job_id AND s0.worker_uid = a.worker_uid
-        ORDER BY s0.submission_id DESC
-        LIMIT 1
-      ) AS s ON TRUE
-      WHERE a.application_id = ${jID}
-      ORDER BY s.submission_id DESC NULLS LAST
+      SELECT j.*
+      FROM task_progress AS j
+      WHERE COALESCE(NULLIF(BTRIM(j."jID"), '')::int, 0) = ${jID}
       LIMIT 1
     `);
 
@@ -1168,26 +1261,10 @@ export class DatabaseService {
   static async listTaskProgressByUser(uID: number, skip = 0, limit = 100): Promise<TaskProgressRecord[]> {
     const sql = getSql();
     const rows = extractRows(await sql`
-      SELECT
-        a.application_id AS "jID",
-        a.job_id AS "tID",
-        a.worker_uid AS "uID",
-        s.deliverable AS info_input,
-        a.time_created,
-        s.time_created AS time_submitted,
-        s.reviewed_at AS time_checked,
-        NULL::timestamptz AS time_claimed,
-        0::int AS points_claimed
-      FROM job_application AS a
-      LEFT JOIN LATERAL (
-        SELECT *
-        FROM job_submission AS s0
-        WHERE s0.job_id = a.job_id AND s0.worker_uid = a.worker_uid
-        ORDER BY s0.submission_id DESC
-        LIMIT 1
-      ) AS s ON TRUE
-      WHERE a.worker_uid = ${uID}
-      ORDER BY a.application_id DESC
+      SELECT j.*
+      FROM task_progress AS j
+      WHERE COALESCE(NULLIF(BTRIM(j."uID"), '')::int, 0) = ${uID}
+      ORDER BY COALESCE(NULLIF(BTRIM(j."jID"), '')::int, 0) DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
@@ -1273,31 +1350,19 @@ export class DatabaseService {
   static async listPendingVerification(skip = 0, limit = 50): Promise<PendingVerificationRecord[]> {
     const sql = getSql();
     const rows = extractRows(await sql`
-      SELECT
-        a.application_id AS "jID",
-        a.job_id AS "tID",
-        a.worker_uid AS "uID",
-        s.deliverable AS info_input,
-        a.time_created,
-        s.time_created AS time_submitted,
-        s.reviewed_at AS time_checked,
-        NULL::timestamptz AS time_claimed,
-        0::int AS points_claimed
-      FROM job_application AS a
+      SELECT j.*
+      FROM task_progress AS j
       JOIN "users" AS u
-        ON u.uid = a.worker_uid
-      LEFT JOIN LATERAL (
-        SELECT *
-        FROM job_submission AS s0
-        WHERE s0.job_id = a.job_id AND s0.worker_uid = a.worker_uid
-        ORDER BY s0.submission_id DESC
-        LIMIT 1
-      ) AS s ON TRUE
-      WHERE COALESCE(NULLIF(BTRIM(COALESCE(s.deliverable, '')), ''), '') <> ''
-        AND s.review_status = 'pending'
-        AND COALESCE(u.is_admin, false) = false
-      ORDER BY COALESCE(s.time_created, a.time_created) DESC NULLS LAST,
-               a.application_id DESC
+        ON COALESCE(NULLIF(BTRIM(u."uID"), '')::int, 0) = COALESCE(NULLIF(BTRIM(j."uID"), '')::int, 0)
+      WHERE COALESCE(NULLIF(BTRIM(COALESCE(j.info_input, '')), ''), '') <> ''
+        AND COALESCE(NULLIF(BTRIM(COALESCE(j.time_checked, '')), ''), '') = ''
+        AND COALESCE(NULLIF(BTRIM(COALESCE(j.time_claimed, '')), ''), '') = ''
+        AND COALESCE(NULLIF(BTRIM(COALESCE(u.is_admin, '')), '')::boolean, false) = false
+      ORDER BY COALESCE(
+                 NULLIF(BTRIM(j.time_submitted), '')::timestamptz,
+                 NULLIF(BTRIM(j.time_created), '')::timestamptz
+               ) DESC NULLS LAST,
+               COALESCE(NULLIF(BTRIM(j."jID"), '')::int, 0) DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
@@ -1328,19 +1393,13 @@ export class DatabaseService {
     const sql = getSql();
     const rows = asItems<{ count: number }>(await sql`
       SELECT COUNT(1)::int AS count
-      FROM job_application AS a
+      FROM task_progress AS j
       JOIN "users" AS u
-        ON u.uid = a.worker_uid
-      LEFT JOIN LATERAL (
-        SELECT *
-        FROM job_submission AS s0
-        WHERE s0.job_id = a.job_id AND s0.worker_uid = a.worker_uid
-        ORDER BY s0.submission_id DESC
-        LIMIT 1
-      ) AS s ON TRUE
-      WHERE COALESCE(NULLIF(BTRIM(COALESCE(s.deliverable, '')), ''), '') <> ''
-        AND s.review_status = 'pending'
-        AND COALESCE(u.is_admin, false) = false
+        ON COALESCE(NULLIF(BTRIM(u."uID"), '')::int, 0) = COALESCE(NULLIF(BTRIM(j."uID"), '')::int, 0)
+      WHERE COALESCE(NULLIF(BTRIM(COALESCE(j.info_input, '')), ''), '') <> ''
+        AND COALESCE(NULLIF(BTRIM(COALESCE(j.time_checked, '')), ''), '') = ''
+        AND COALESCE(NULLIF(BTRIM(COALESCE(j.time_claimed, '')), ''), '') = ''
+        AND COALESCE(NULLIF(BTRIM(COALESCE(u.is_admin, '')), '')::boolean, false) = false
     `);
     return Number(rows[0]?.count || 0);
   }
@@ -1388,18 +1447,58 @@ export class DatabaseService {
 
   static async getBrandById(bID: number): Promise<BrandRecord | null> {
     const sql = getSql();
-    // P4-B1-c: prize→listing 读侧换表（单行，bID=listing_id）；旧 selected_prize/gift_counts/shard_counts/
-    // transfer_counts CTE 的表在新 schema 无对应 ⇒ 聚合键保留、值恒 0。miss ⇒ null（路由层 404 语义保留）。
     const row = firstRow(await sql`
+      WITH selected_prize AS (
+        SELECT b.*
+        FROM prize AS b
+        WHERE b."bID" = ${bID}
+        LIMIT 1
+      ),
+      gift_counts AS (
+        SELECT
+          COALESCE(NULLIF(BTRIM(COALESCE(g."bID", '')), '')::bigint, 0) AS bid,
+          COUNT(1) FILTER (
+            WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) = 0
+          )::int AS stores_count,
+          COUNT(1) FILTER (
+            WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) <> 0
+          )::int AS claims_count,
+          COUNT(1) FILTER (
+            WHERE COALESCE(NULLIF(BTRIM(COALESCE(g."uID", '')), '')::int, 0) <> 0
+              AND COALESCE(NULLIF(BTRIM(COALESCE(g.time_actived, '')), ''), '') <> ''
+          )::int AS activated_count
+        FROM prize_item AS g
+        JOIN selected_prize AS p ON p."bID" = COALESCE(NULLIF(BTRIM(COALESCE(g."bID", '')), '')::bigint, 0)
+        GROUP BY COALESCE(NULLIF(BTRIM(COALESCE(g."bID", '')), '')::bigint, 0)
+      ),
+      shard_counts AS (
+        SELECT
+          s."bID" AS bid,
+          COALESCE(SUM(COALESCE(s.volume, 0)), 0)::int AS current_shard_supply
+        FROM shard AS s
+        JOIN selected_prize AS p ON p."bID" = s."bID"
+        GROUP BY s."bID"
+      ),
+      transfer_counts AS (
+        SELECT
+          st."bID" AS bid,
+          COALESCE(SUM(COALESCE(st.volume, 0)), 0)::int AS free_shards_distributed
+        FROM shard_transfer AS st
+        JOIN selected_prize AS p ON p."bID" = st."bID"
+        WHERE COALESCE(st.reason, '') = 'free_chest'
+        GROUP BY st."bID"
+      )
       SELECT
-        l.*,
-        0::int AS stores_count,
-        0::int AS claims_count,
-        0::int AS activated_count,
-        0::int AS current_shard_supply,
-        0::int AS free_shards_distributed
-      FROM listing AS l
-      WHERE l.listing_id = ${bID}
+        p.*,
+        COALESCE(gc.stores_count, 0)::int AS stores_count,
+        COALESCE(gc.claims_count, 0)::int AS claims_count,
+        COALESCE(gc.activated_count, 0)::int AS activated_count,
+        COALESCE(sc.current_shard_supply, 0)::int AS current_shard_supply,
+        COALESCE(tc.free_shards_distributed, 0)::int AS free_shards_distributed
+      FROM selected_prize AS p
+      LEFT JOIN gift_counts AS gc ON gc.bid = p."bID"
+      LEFT JOIN shard_counts AS sc ON sc.bid = p."bID"
+      LEFT JOIN transfer_counts AS tc ON tc.bid = p."bID"
       LIMIT 1
     `);
 
@@ -1425,10 +1524,14 @@ export class DatabaseService {
   }
 
   static async listPersistedPermissionGroups(): Promise<PermissionGroupRecord[]> {
-    // P4-B1-c: permission_group 表新 schema 无对应 ⇒ 恒空数组（只读空态，零写库）。
-    // getPermissionsForUser/listPermissionGroups 消费方按空组处理（⇒ 无额外权限）；admin_role*/
-    // admin_role_permission/admin_user_role 的真实权限映射重写属批 2。/api/admin/permissions 响应体带 deprecated: true。
-    return [];
+    const sql = getSql();
+    const rows = extractRows(await sql`
+      SELECT to_jsonb(pg) AS row
+      FROM permission_group AS pg
+      ORDER BY pg.readonly DESC, pg.name ASC, pg.id ASC
+    `);
+
+    return rows.map(normalizePermissionGroup);
   }
 
   static async getPermissionsForUser(uID: number): Promise<string[]> {
@@ -1993,20 +2096,42 @@ export class DatabaseService {
     return true;
   }
 
-  // P4-B1-c: shard 新 schema 无对应表（P4-0 §4.1 裁定「勿硬凑建表」）⇒ 碎片族读侧恒空态（不编值）；
-  // 碎片/开箱语义已被积分交易所取代（listing/listing_order）。/api/shard 响应体带 deprecated: true（index.ts）。
   static async listShardHoldingsByUser(uID: number, skip = 0, limit = 100): Promise<ShardHoldingRecord[]> {
-    void uID;
-    void skip;
-    void limit;
-    return [];
+    const sql = getSql();
+    const rows = asItems<RawRow>(await sql`
+      SELECT
+        MIN(COALESCE(s."sID", 0))::int AS "sID",
+        s."bID" AS "bID",
+        s."uID" AS "uID",
+        SUM(COALESCE(s.volume, 0))::int AS volume,
+        MAX(COALESCE(s.time_created, NOW())) AS time_created
+      FROM shard AS s
+      WHERE s."uID" = ${uID}
+      GROUP BY s."bID", s."uID"
+      HAVING SUM(COALESCE(s.volume, 0)) > 0
+      ORDER BY s."bID"
+      LIMIT ${limit} OFFSET ${skip}
+    `);
+
+    const brandCache = new Map<number, BrandRecord | null>();
+    return Promise.all(rows.map(async (row) => {
+      const bID = toNumberValue(getValue(row, 'bID'));
+      if (!brandCache.has(bID)) {
+        brandCache.set(bID, await this.getBrandById(bID));
+      }
+      return normalizeShardHolding(row, brandCache.get(bID) || null);
+    }));
   }
 
   static async getUserShardBalance(uID: number, bID: number): Promise<number> {
-    // P4-B1-c: shard 无对应表 ⇒ 恒 0（不编值）；语义已被积分交易所取代。
-    void uID;
-    void bID;
-    return 0;
+    const sql = getSql();
+    const rows = asItems<{ volume: number }>(await sql`
+      SELECT COALESCE(SUM(COALESCE(s.volume, 0)), 0)::int AS volume
+      FROM shard AS s
+      WHERE s."uID" = ${uID}
+        AND s."bID" = ${bID}
+    `);
+    return Number(rows[0]?.volume || 0);
   }
 
   static async createShardLedgerEntry(uID: number, bID: number, delta: number): Promise<void> {
@@ -2063,13 +2188,26 @@ export class DatabaseService {
     return normalizeShardTransfer(row, brand);
   }
 
-  // P4-B1-c: shard_transfer 无对应表 ⇒ 恒空（不编值）；语义已被积分交易所取代。
-  // /api/shard/transfer 响应体带 deprecated: true（index.ts）。
   static async listShardTransfersByUser(uID: number, skip = 0, limit = 100): Promise<ShardTransferRecord[]> {
-    void uID;
-    void skip;
-    void limit;
-    return [];
+    const sql = getSql();
+    const rows = extractRows(await sql`
+      SELECT st.*
+      FROM shard_transfer AS st
+      WHERE st."from_uID" = ${uID}
+         OR st."to_uID" = ${uID}
+      ORDER BY COALESCE(st.time_created, NOW()) DESC,
+               COALESCE(st."txID", 0) DESC
+      LIMIT ${limit} OFFSET ${skip}
+    `);
+
+    const brandCache = new Map<number, BrandRecord | null>();
+    return Promise.all(rows.map(async (row) => {
+      const bID = toNumberValue(getValue(row, 'bID'));
+      if (!brandCache.has(bID)) {
+        brandCache.set(bID, await this.getBrandById(bID));
+      }
+      return normalizeShardTransfer(row, brandCache.get(bID) || null);
+    }));
   }
 
   static async getMarketOrderById(oID: number): Promise<MarketOrderRecord | null> {
@@ -2268,15 +2406,15 @@ export class DatabaseService {
     const rows = extractRows(await sql`
       SELECT o.*
       FROM market_order AS o
-      WHERE o.owner_uid = ${uID}
+      WHERE o."uID" = ${uID}
       ORDER BY COALESCE(o.time_created, NOW()) DESC,
-               o.order_id DESC
+               o."oID" DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
     const brandCache = new Map<number, BrandRecord | null>();
     return Promise.all(rows.map(async (row) => {
-      const bID = toNumberValue(getValue(row, 'bID', 'base_cid'));
+      const bID = toNumberValue(getValue(row, 'bID'));
       if (!brandCache.has(bID)) {
         brandCache.set(bID, await this.getBrandById(bID));
       }
@@ -2455,35 +2593,34 @@ export class DatabaseService {
 
   static async listOrderBook(bID: number): Promise<MarketOrderBookRow[]> {
     const sql = getSql();
-    const rows = asItems<RawRow>(await sql`
+    const rows = asItems<MarketOrderBookRow>(await sql`
       SELECT
         side,
         price,
-        SUM(amount - amount_filled)::int AS volume
+        SUM(volume_total - volume_filled)::int AS volume
       FROM market_order AS o
-      WHERE o.base_cid = ${bID}
+      WHERE o."bID" = ${bID}
         AND status IN ('open', 'partial')
-        AND amount > amount_filled
+        AND volume_total > volume_filled
       GROUP BY side, price
       ORDER BY side ASC, price DESC
     `);
 
-    return rows.map((row) => normalizeOrderBookRow(row));
+    return rows.map((row) => ({
+      side: row.side === 'sell' ? 'sell' : 'buy',
+      price: toNumberValue(row.price),
+      volume: toNumberValue(row.volume),
+    }));
   }
 
   static async listTradesByBrand(bID: number, skip = 0, limit = 50): Promise<MarketTradeRecord[]> {
     const sql = getSql();
     const rows = extractRows(await sql`
-      SELECT
-        t.*,
-        buy_o.owner_uid AS "buyer_uID",
-        sell_o.owner_uid AS "seller_uID"
+      SELECT t.*
       FROM market_trade AS t
-      LEFT JOIN market_order AS buy_o ON buy_o.order_id = t.buy_order_id
-      LEFT JOIN market_order AS sell_o ON sell_o.order_id = t.sell_order_id
-      WHERE t.base_cid = ${bID}
+      WHERE t."bID" = ${bID}
       ORDER BY COALESCE(t.time_created, NOW()) DESC,
-               t.trade_id DESC
+               t."trID" DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
@@ -2619,3 +2756,5 @@ export class DatabaseService {
     };
   }
 }
+
+export { normalizeAsset, normalizeTask, normalizeBrand, normalizeUser };

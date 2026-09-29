@@ -1,0 +1,40 @@
+== asset :: bare (FROM|JOIN|INTO|UPDATE|DELETE|TABLE +[space]+ name + non-word) ==
+880:        UPDATE asset AS a
+895:      INSERT INTO asset AS a ("uID", points, lucks, "time_updated")
+== asset :: quoted ("asset") ==
+== task :: bare (FROM|JOIN|INTO|UPDATE|DELETE|TABLE +[space]+ name + non-word) ==
+1898:      INSERT INTO task AS t (
+1946:      UPDATE task AS t
+== task :: quoted ("task") ==
+== task_progress :: bare (FROM|JOIN|INTO|UPDATE|DELETE|TABLE +[space]+ name + non-word) ==
+742:        FROM task_progress AS j
+1119:      FROM task_progress AS j
+1187:      FROM task_progress AS j
+1200:      INSERT INTO task_progress AS j ("tID", "uID", info_input, time_created, points_claimed)
+1224:      UPDATE task_progress AS j
+1237:      UPDATE task_progress AS j
+1249:      UPDATE task_progress AS j
+1337:      UPDATE task_progress AS j
+== task_progress :: quoted ("task_progress") ==
+== prize :: bare (FROM|JOIN|INTO|UPDATE|DELETE|TABLE +[space]+ name + non-word) ==
+1714:      INSERT INTO prize AS b (
+1807:      UPDATE prize AS b
+== prize :: quoted ("prize") ==
+== prize_item :: bare (FROM|JOIN|INTO|UPDATE|DELETE|TABLE +[space]+ name + non-word) ==
+1629:      INSERT INTO prize_item AS g ("bID", "uID", time_created)
+1645:        FROM prize_item AS g
+1838:        FROM prize_item AS g
+2538:      FROM prize_item AS g
+2560:      UPDATE prize_item AS g
+== prize_item :: quoted ("prize_item") ==
+== shard :: bare (FROM|JOIN|INTO|UPDATE|DELETE|TABLE +[space]+ name + non-word) ==
+1855:          FROM shard AS s
+2005:      INSERT INTO shard AS s ("bID", "uID", time_created, time_updated, volume)
+== shard :: quoted ("shard") ==
+== shard_transfer :: bare (FROM|JOIN|INTO|UPDATE|DELETE|TABLE +[space]+ name + non-word) ==
+2021:      INSERT INTO shard_transfer AS st (
+== shard_transfer :: quoted ("shard_transfer") ==
+== permission_group :: bare (FROM|JOIN|INTO|UPDATE|DELETE|TABLE +[space]+ name + non-word) ==
+1517:      INSERT INTO permission_group AS pg (
+1562:      FROM permission_group AS pg
+== permission_group :: quoted ("permission_group") ==

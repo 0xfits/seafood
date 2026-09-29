@@ -2619,3 +2619,4 @@ export class DatabaseService {
     };
   }
 }
+export { normalizeMarketOrder, normalizeMarketTrade };

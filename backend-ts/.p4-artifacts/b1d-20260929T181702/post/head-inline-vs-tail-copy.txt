@@ -1,0 +1,12 @@
+# HEAD a8e958b database.ts:2594-2596 (inline mapping body inside listOrderBook)
+      side: row.side === 'sell' ? 'sell' : 'buy',
+      price: toNumberValue(row.price),
+      volume: toNumberValue(row.volume),
+
+# contract/tail.HEAD.ts:6-8 (PRE fixture copy body)
+  side: row.side === 'sell' ? 'sell' : 'buy',
+  price: toNumberValue(row.price),
+  volume: toNumberValue(row.volume),
+
+# diff of the two bodies (leading whitespace stripped):
+VERBATIM_COPY=IDENTICAL

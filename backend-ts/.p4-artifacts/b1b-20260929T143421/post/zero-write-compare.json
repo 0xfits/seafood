@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-09-29T06:45:34.439Z",
+  "caliber": "p4z-02-counts.ts run twice (same script, same neon() HTTP caliber) around BOTH curl sweeps + panel restart; per-relation count(*)::int quoted",
+  "relations_n": 22,
+  "identical": true,
+  "diffs": {},
+  "job_side": {
+    "pre": {
+      "job": 0,
+      "job_application": 0,
+      "job_submission": 0
+    },
+    "post": {
+      "job": 0,
+      "job_application": 0,
+      "job_submission": 0
+    }
+  }
+}

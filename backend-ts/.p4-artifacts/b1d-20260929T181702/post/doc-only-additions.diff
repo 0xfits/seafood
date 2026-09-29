@@ -1,0 +1,223 @@
+--- .p4-artifacts/b1d-20260929T181702/pre/doc-original.md	2026-09-29 18:17:15
++++ ../docs/audit/p4-b1-get-triage.md	2026-09-29 18:22:32
+@@ -57,6 +57,21 @@
+ | `/` | 200 | **200** | 回归 ✓ |
+ | `/health` | 200 | **200** | 回归 + 重启 READY 判据 ✓ |
+ 
++
++> **B1-d 回填（本片口径，run tag `b1d-20260929T181702`）** —— `curl --max-time 20`、无 `Authorization`、status 取自 `%{http_code}`（不经管道）。原始读数：`backend-ts/.p4-artifacts/b1d-20260929T181702/pre/get-status.txt`（改动前）/ `post/get-status.txt`（改动后）；响应体 `post/bodies/market-orderbook.json`、`post/bodies/market-trades.json`。重启由面板 `POST /api/restart {"sid":"seafood-api"}` 完成（响应 `{"sid":"seafood-api","ok":true,"state":"running","pid":73377,"msg":"已启动"}`），`/health` 200 后才开测。
++
++| 端点 | 改动前 | 改动后 | 说明 |
++|---|---|---|---|
++| `/api/market/1/orderbook` | 500 | **200** | **本片验收锚点 1**：空态 `{"success":true,"message":"OK","data":[]}`；根因 = 42703 列名不匹配（**非缺表**，见 B1-d B-d5） |
++| `/api/market/1/trades` | 500 | **200** | **本片验收锚点 2**：空态 `{"success":true,"message":"OK","data":[]}`（同上） |
++| `/api/order` | 401 | **401** | 需鉴权、非 500 ✓（`requireActor` 先于 handler）；其读侧 `listOrdersByUser` 本片同批改列名，带令牌真读**未验证** ⇒ NOT_MEASURED #1 |
++| `/api/home` | 200 | **200** | 无回归 ✓（B1-c 锚点） |
++| `/api/prize/all` | 200 | **200** | 无回归 ✓ |
++| `/api/task/all` | 200 | **200** | 无回归 ✓ |
++| `/api/user/asset/1` | 200 | **200** | 无回归 ✓ |
++| `/` | 200 | **200** | 回归 ✓ |
++| `/health` | 200 | **200** | 回归 + 重启 READY 判据 ✓ |
++
+ ## 2. A 类 8 名在 `src/**` 归零证明（双口径）
+ 
+ > **STATUS: 待回填（§2）**
+@@ -112,6 +127,11 @@
+ >
+ > **结果：`all_key_sets_equal: true`，8/8 例 key 集完全相等**（读数：`post/fixture-keys.json`，`FIXTURE_EXIT=0`）：`brand:empty_row`、`brand:old_prize_row_full+counts`、`brand:old_prize_row_no_counts`、`brand:new_listing_row+zero_counts`（`BrandRecord` 45 键恒等）；`prize_item:empty_row`、`prize_item:old_prize_item_row`、`prize_item:new_listing_order_aliased_row`、`prize_item:raw_listing_order_row`（`PrizeItemRecord` 6 键恒等）。`listClaimedPrizeIdsByUser` 返回 `number[]`（无对象键），其契约由 SQL 列别名 + `filter(bID>0)` 保证，见 B1-c §5。
+ 
++
++> **B1-d 回填（本片口径，run tag `b1d-20260929T181702`）** —— 夹具 `backend-ts/scripts/p4z-08-keys-b1d.ts`（**新建**，零依赖、零 DB 访问/零写库）：同一组合成行分别喂改动前 mapper（`contract/database.HEAD.ts` = `git show HEAD:backend-ts/src/database.ts` + `contract/tail.HEAD.ts`）与改动后 mapper（`contract/database.NEW.ts` = 工作树 `src/database.ts` 快照 + `contract/tail.NEW.ts`；`./ledger` 以 `contract/ledger.ts` stub `SYSTEM_CURRENCY_CID=1n`），逐 key 比对（只比 key 集，不比值）。
++>
++> **结果：`all_key_sets_equal: true`，9/9 例 key 集完全相等**（`FIXTURE_EXIT=0`；读数 `post/fixture-keys.json`、`post/fixture-stdout.txt`，`post/fixture-stderr.txt` 0 字节）：`market_order:empty_row` / `:old_market_order_row` / `:new_market_order_row` ⇒ `MarketOrderRecord` 12 键恒等（服务 `listOrdersByUser`）；`market_trade:empty_row` / `:old_market_trade_row` / `:new_market_trade_row` ⇒ `MarketTradeRecord` 10 键恒等（服务 `listTradesByBrand`）；`order_book:empty_row` / `:old_sql_row` / `:new_sql_row` ⇒ `MarketOrderBookRow` 3 键恒等（服务 `listOrderBook`）。
++
+ ## 4. GET 零写库证明（逐表计数前后）
+ 
+ > **STATUS: 待回填（§4）**
+@@ -124,6 +144,11 @@
+ > **B1-b 回填（本片口径）** —— 同一脚本 `p4z-02-counts.ts`（未改）前后各跑一次：`backend-ts/.p4-artifacts/b1b-20260929T143421/pre/counts.json` → `post/counts.json`，逐表比对 `post/zero-write-compare.json` ⇒ **22/22 表逐值相同（`identical: true`，`diffs: {}`）**。代表值（前后相同）：`account=4`、`currency=1`、`commission_policy=1`、`ledger_owner=4`、`schema_migration=17`、`users=0`、`job=0`、`job_application=0`、`job_submission=0`，其余业务表=0。覆盖区间：pre 计数 → 改动前扫荡 → 代码改动 → 面板重启 → 改动后扫荡 → post 计数；本片 GET 路径无任何写入型 SQL。
+ 
+ > **B1-c 回填（本片口径，run tag `b1c-20260929T151415`）** —— 同一脚本 `p4z-02-counts.ts`（未改）前后各跑一次（`neon()` HTTP，`SELECT count(*)::int FROM "<rel>"` 带引号，对 pg_class 全部 public relation）：`pre/counts.json` → `post/counts.json`，逐表比对 `post/zero-write-compare.json`（由**新建** `scripts/p4z-06-zero-write-compare.ts` 生成，只读、零 DB 访问）⇒ **`IDENTICAL=true`，`DIFFS=0`，22/22 表逐值相同**（`REL_BEFORE=22 REL_AFTER=22`）。代表值（前后相同）：`account=4`、`currency=1`、`commission_policy=1`、`ledger_owner=4`、`schema_migration=17`、`listing=0`、`listing_order=0`、`job=0`、`job_application=0`、`job_submission=0`、`market_order=0`、`market_trade=0`、`users=0`、`admin_role*=0`，其余业务表=0。覆盖区间：pre 计数 → 改动前扫荡 → 代码改动 → 面板重启 → 改动后扫荡 → post 计数；本片 GET 路径代码内无任何写入型 SQL（`post/code-diff.patch` 全文可核）。
++
++
++> **B1-d 回填（本片口径，run tag `b1d-20260929T181702`）** —— 同一脚本 `p4z-02-counts.ts`（未改）前后各跑一次（`neon()` HTTP、带引号 `SELECT count(*)::int FROM "<rel>"`，对 `pg_class` 全部 public relation），比对脚本 `p4z-06-zero-write-compare.ts`（未改）：`pre/counts.json` → `post/counts.json` ⇒ `post/zero-write-compare.json`。
++>
++> **`IDENTICAL=true`、`DIFFS=0`、`REL_BEFORE=22 REL_AFTER=22`（22/22 表逐值相同）**。代表值（前后相同）：`account=4`、`currency=1`、`commission_policy=1`、`ledger_owner=4`、`schema_migration=17`、`listing=0`、`listing_order=0`、`market_order=0`、`market_trade=0`、`users=0`。覆盖区间：pre 计数 → 改动前扫荡 → 代码改动 → 面板重启 → 改动后扫荡 → post 计数；本片对 `src/**` 零写入型 SQL 改动。
+ 
+ ## 5. 逐字段映射表（旧列 → 新列）
+ 
+@@ -148,6 +173,9 @@
+ 
+ > **B1-c 回填（本片口径，run tag `b1c-20260929T151415`）** —— `listBrands`/`getBrandById`（`prize`→`listing`）、`listPrizeItemsByUser`/`listClaimedPrizeIdsByUser`（`prize_item`→`listing_order`）、碎片族（无对应表 ⇒ 恒 0/空 + HTTP 顶层 `deprecated:true`）的**全量逐字段映射表**见本文件 `## B1-c ·` 节 **B-c5**（含「无对应 → 恒 0/空、不编值」逐条，以及发行方语义 `prize`（平台发行）↔ `listing.seller_uid`（用户上架）的记录）。
+ 
++
++> **B1-d 回填（本片口径，run tag `b1d-20260929T181702`）** —— `market_order`/`market_trade` 读侧的**逐字段映射表（旧列 → 新列 → 响应键 + 依据 + 置信度）**见本文件 `## B1-d ·` 节 **B-d5**。要点：`"bID"`→`base_cid`（币对基准币）、`volume_total`→`amount`、`volume_filled`→`amount_filled`、`"oID"`→`order_id`、`"uID"`→`owner_uid`（挂单人，**不选** `taker_uid`）、`"trID"`→`trade_id`、`buy_oID/sell_oID`→`buy_order_id/sell_order_id`；`buyer_uID`/`seller_uID` 由 `LEFT JOIN market_order` 的 `owner_uid` 合成别名（置信度**中**，结构推断）；`taker_uid`/`fee`/`quote_cid` 无对应键 ⇒ 不消费、不编值。
++
+ ## 6. 「范围外」清单（写端点 = 批 2 / 批 3）
+ 
+ > **STATUS: 待回填（§6）**
+@@ -174,6 +202,9 @@
+ 
+ > **B1-c 回填（本片口径，run tag `b1c-20260929T151415`）** —— `cd backend-ts && node_modules/.bin/tsc --noEmit > .p4-artifacts/b1c-20260929T151415/post/tsc-b1c.log 2>&1; echo "TSC_EXIT=$?"` ⇒ **`TSC_EXIT=0`**，log 0 字节（`post/tsc-b1c.log`）。退出码直接取自该命令（不经管道）。
+ 
++
++> **B1-d 回填（本片口径，run tag `b1d-20260929T181702`）** —— `cd backend-ts && node_modules/.bin/tsc --noEmit > .p4-artifacts/b1d-20260929T181702/post/tsc-b1d.log 2>&1; echo "TSC_EXIT=$?"` ⇒ **`TSC_EXIT=0`**，log 0 字节（`post/tsc-b1d.log`）。退出码直接取自该命令（不经管道）。
++
+ ## 8. NOT_MEASURED 清单 + 探针自曝
+ 
+ > **STATUS: 待回填（§8）**
+@@ -203,6 +234,9 @@
+ > **B1-b 回填（本片口径）** —— NOT_MEASURED 10 项 + 探针自曝 7 条见本文件 `## B1-b ·` 节 **B-b7**。要点：非空数据下 `review_status='pending'` 谓词未经验证（库空表）；`time_claimed`/`points_claimed` 为「不编值」映射决策；写侧 task/task_progress SQL 全部属批 2/3 未触碰；计数脚本原样复用（`p4z-02`）、夹具快照 export 行 + ledger stub 自曝；`/api/task/:tID` 404→200(空态) 为派单要求的明示语义变更；`/api/home` 仍 500 属第 3 片（本片点名未越界）。
+ 
+ > **B1-c 回填（本片口径，run tag `b1c-20260929T151415`）** —— NOT_MEASURED 8 项 + 探针自曝 8 条见本文件 `## B1-c ·` 节 **B-c7**。要点：带 Authorization 的空态响应体（`deprecated` 顶层键真实形态）、非空 `listing`/`listing_order` 数据下的映射真值、写侧（批 2/3）全部**未测**；`/api/prize/:bID` ⇒ **404 为「保留 miss 语义」的明示选择**（非 500，本片 `index.ts` 零改动）；`/api/home` 由本片救活为 **200 空载**（批 1 验收锚点）；`/api/prize-item`、`/api/shard`、`/api/shard/transfer` 无令牌 401 已实测（非 500）。
++
++
++> **B1-d 回填（本片口径，run tag `b1d-20260929T181702`）** —— NOT_MEASURED 6 项 + 探针自曝 6 条 + 「范围外」逐条点名见本文件 `## B1-d ·` 节 **B-d7**。要点：`listOrdersByUser` 需鉴权 ⇒ 运行期**未验证**（注册 NOT_MEASURED #1）；非空 `market_order`/`market_trade` 数据下的映射真值未测（库为 seed 基线，两表 0 行）；写侧 market SQL（`placeOrder`/`cancelOrder`/`cancelAllOrders`/`findMatchingOrder`/`createMarketTrade`/`updateMarketOrderFill`/`getMarketOrderById`/`deleteBrand`）**逐条点名、本片零触碰**。
+ 
+ ## B1-a · 系统币读侧换表（asset→account）
+ 
+@@ -569,7 +603,144 @@
+ | `post/doc-only-additions.diff` | 本报告 vs `pre/doc-original.md`（仅追加行证明） |
+ 
+ 新增脚本：`backend-ts/scripts/p4z-05-keys-b1c.ts`（key 契约夹具）、`p4z-06-zero-write-compare.ts`（前/后计数比对）、`p4z-07-relprobe.ts`（三口径存在性探针）。`p4z-01-probe.ts`、`p4z-02-counts.ts`、`p4z-03-keys.ts`、`p4z-04-keys-b1b.ts` 未改。
++
++## B1-d · 市场读侧列名重写（bID→base_cid，volume→amount）
+ 
++> 本节 = 批 1 **补漏片（第 4 片）** 正文。run tag **`b1d-20260929T181702`**（`backend-ts/.p4-artifacts/.b1d-run`），落盘 2026-09-29T18:17+0800，工作树基线 = HEAD `a8e958b` + B1-a/B1-b/B1-c 未提交改动。**只追加、未改写上方任何既有文字**（佐证：`pre/doc-original.md` 快照 + `post/doc-only-additions.diff`）。
++
++### B-d0. 口径
++
++| 项 | 值 |
++|---|---|
++| run tag | `b1d-20260929T181702`（`backend-ts/.p4-artifacts/.b1d-run`） |
++| 产物目录 | `/Users/kevin/bistro/seafood/backend-ts/.p4-artifacts/b1d-20260929T181702/{pre,post,contract}` |
++| 基线 | HEAD `a8e958b`；开工工作树 = B1-a/B1-b/B1-c 改动（未提交，见 `pre/git-status.txt`） |
++| 派单根因 | `/api/market/1/orderbook`、`/api/market/1/trades` 500 = **42703 列名不匹配（非缺表）**；`market_order`/`market_trade` 两表存在（P4-0 §5.2 已预警） |
++| schema 真值 | `backend-ts/.p4-artifacts/p4b1-20260929T134838/pre/probe.json`（`columns.market_order` 13 列 / `columns.market_trade` 10 列 + CHECK 枚举 + FK）+ `backend-ts/migrations/0016_market.sql:112-124`（`market_order` 建表）、`:159-169`（`market_trade` 建表）；**未重测、未猜列名** |
++| 库查询 | `neon()` **HTTP**（`p4z-02-counts.ts`、`p4z-06-zero-write-compare.ts` 原样复用未改）；未用 `Client`(ws) |
++| GET 扫荡 | 逐端点 `curl --max-time 20`、**无 `Authorization`**，status 取 `%{http_code}`（不经管道）；两轮（改动前旧代码 / 面板重启后新代码） |
++| 服务重启 | 面板 `POST /api/restart {"sid":"seafood-api"}`（handler 现取：`~/bistro/ctrl/index.js:870-877`，body 仅 `sid` ⇒ stopService→startOne）；响应 `{"sid":"seafood-api","ok":true,"state":"running","pid":73377,"msg":"已启动"}`，`/health` 200（单次探针）后才开测；未用 `pkill`/`killall`，未动其它 sid |
++| 禁写遵守 | 零写入型 SQL；未 `git add/commit/push`；未动 `migrations/**`/`ledger.ts`/`ledger-errors.ts`/`commission.ts`/`frontend/**`/既有脚本/既有 artifacts；只新增 `scripts/p4z-08-keys-b1d.ts` 与本片产物 |
++
++### B-d1. 代码改动（最小；仅 `backend-ts/src/database.ts`）
++
++1. `normalizeMarketOrder`（:667-686）：加回退键 `oID←order_id`、`bID←base_cid`、`uID←owner_uid`、`volume_total←amount`、`volume_filled←amount_filled`（旧列名在前 ⇒ 旧口径行为不变）。`MarketOrderRecord` **12 键不变**。
++2. `normalizeMarketTrade`（:696-714）：加回退键 `trID←trade_id`、`bID←base_cid`、`buy_oID←buy_order_id`、`sell_oID←sell_order_id`、`volume←amount`。`buyer_uID`/`seller_uID` **无回退键** —— 由第 4 条的 JOIN 别名供给。`MarketTradeRecord` **10 键不变**。
++3. `listOrderBook`（:2456-2471）：SQL `SUM(volume_total - volume_filled)::int` → `SUM(amount - amount_filled)::int`、`WHERE o."bID"` → `o.base_cid`、`volume_total > volume_filled` → `amount > amount_filled`；行映射抽为模块级纯函数 **`normalizeOrderBookRow`（新增 export）**，函数体改为 `rows.map((row) => normalizeOrderBookRow(row))`。键集 `{side,price,volume}` 与 HEAD 内联映射逐字等价（B-d7 自曝 2）。
++4. `listTradesByBrand`（:2474-2491）：`SELECT t.*` + `WHERE t."bID"` + `ORDER BY t."trID"` → `SELECT t.*, buy_o.owner_uid AS "buyer_uID", sell_o.owner_uid AS "seller_uID"` + `LEFT JOIN market_order AS buy_o ON buy_o.order_id = t.buy_order_id` + `LEFT JOIN market_order AS sell_o ON sell_o.order_id = t.sell_order_id` + `WHERE t.base_cid` + `ORDER BY t.trade_id`。
++5. `listOrdersByUser`（:2266-2285；需鉴权 ⇒ **NOT_MEASURED #1**）：`WHERE o."uID"` → `o.owner_uid`、`ORDER BY o."oID"` → `o.order_id`、brand 缓存键 `getValue(row,'bID')` → `getValue(row,'bID','base_cid')`。
++6. **`src/index.ts` 零改动**：本片无 HTTP 语义变更（两锚点保留 `sendSuccess(res, rows)` 原样，空表 ⇒ `data: []`）。
++7. 完整 diff：`post/code-diff-b1d.patch`（`git diff -- src/database.ts src/index.ts` + `git status --porcelain`）。注意该 diff 相对 HEAD，**含 B1-a/b/c 的未提交改动**（`database.ts` 累计 244+/365-）；本片自身边界以上述 1–5 逐条清单为准。
++
++### B-d2. 必验读数（curl 逐端点，改动前/后）
++
++见 §1 的 B1-d 表（原始读数 `pre/get-status.txt` / `post/get-status.txt`，响应体 `post/bodies/*.json`）。**验收锚点：`/api/market/1/orderbook` 500→200、`/api/market/1/trades` 500→200（均空态 `data:[]`）**；`/api/home`、`/api/prize/all`、`/api/task/all`、`/api/user/asset/1`、`/`、`/health` 均 200（无回归）；`/api/order` 401（非 500）。
++
++### B-d3. 字段 key 契约（零依赖内存夹具）
++
++见 §3 的 B1-d 回填：**`all_key_sets_equal: true`，9/9**（`post/fixture-keys.json`，`FIXTURE_EXIT=0`）。
++
++### B-d4. 零写库证明
++
++见 §4 的 B1-d 回填：**`IDENTICAL=true`，`DIFFS=0`，22/22 表**（`pre/counts.json` → `post/counts.json`，比对 `post/zero-write-compare.json`）。
++
++### B-d5. 逐字段映射表（旧列 → 新列；逐条依据 + 置信度）
++
++**① `listOrderBook`（`market_order`）与 `normalizeMarketOrder`（服务 `listOrdersByUser`）**
++
++| 旧（HEAD 列名） | 新（`market_order`） | 依据 | 置信度 |
++|---|---|---|---|
++| `o."bID"` → 键 `bID` | `o.base_cid` → 键 `bID` | probe.json `columns.market_order[3]=base_cid`；`0016_market.sql:116 base_cid bigint NOT NULL` + `:146 market_order_base_fk FOREIGN KEY (base_cid) REFERENCES public.currency(cid)`；`quote_cid` 由 `:132 market_order_quote_cid_is_one CHECK (quote_cid = 1)` 恒 = 1 ⇒ 币对 = `base_cid` + `quote_cid`，旧 `bID`（标的）在币对语义下 = **基准币** | **高** |
++| `volume_total` → 键 `volume_total` | `amount` → 键 `volume_total` | `columns.market_order[6]=amount`；`0016:119 amount bigint NOT NULL` + `:138 market_order_amount_positive CHECK (amount > 0)` | **高** |
++| `volume_filled` → 键 `volume_filled` | `amount_filled` → 键 `volume_filled` | `columns.market_order[7]=amount_filled`；`0016:120 amount_filled bigint NOT NULL DEFAULT 0` + `:140/:142` CHECK（非负、不超额） | **高** |
++| `o."oID"` → 键 `oID` | `o.order_id` → 键 `oID` | `columns.market_order[0]=order_id`；`0016:113 order_id bigint GENERATED BY DEFAULT AS IDENTITY` + `:126 market_order_pk PRIMARY KEY (order_id)` | **高** |
++| `o."uID"`（下单人）→ 键 `uID` | `o.owner_uid` → 键 `uID` | `columns.market_order[1]=owner_uid`；`0016:114 owner_uid bigint NOT NULL` + `:145 market_order_owner_fk FOREIGN KEY (owner_uid) REFERENCES users(uid)`。**选 `owner_uid` 而非 `taker_uid` 的依据**：`taker_uid` 只存在于 `market_trade`（`columns.market_trade[7]`）且语义 = 吃单人；`market_order` 表内唯一「人」列即 `owner_uid`（挂单人），与 `listOrdersByUser`「列出我的挂单」语义同一 | **高**（列选依据）；**值未实测** |
++| `status IN ('open','partial')` | 原样保留 | probe.json constraint `market_order_status_enum CHECK (status = ANY (ARRAY['open','partial','filled','cancelled']))` | **高** |
++| `SUM(...)::int AS volume` → 键 `volume` | 同（聚合别名，键保留） | 输出键 `MarketOrderBookRow {side,price,volume}` 保持不变；夹具 `order_book:*` 3 例 key 集相等 | **高**（键集）；聚合数值未实测（NOT_MEASURED #2） |
++
++**② `listTradesByBrand`（`market_trade`）+ `normalizeMarketTrade`**
++
++| 旧（HEAD 列名） | 新（`market_trade` / JOIN 合成） | 依据 | 置信度 |
++|---|---|---|---|
++| `t."bID"` → 键 `bID` | `t.base_cid` | `columns.market_trade[1]=base_cid`；`0016:161 base_cid bigint NOT NULL` | **高** |
++| `t."trID"` → 键 `trID` | `t.trade_id` | `columns.market_trade[0]=trade_id`；`0016:160` + `:170 market_trade_pk PRIMARY KEY (trade_id)` | **高** |
++| `volume` → 键 `volume` | `amount` → 键 `volume` | `columns.market_trade[4]=amount`；`0016:164 amount bigint NOT NULL` + `:174 CHECK (amount > 0)` | **高** |
++| `buy_oID` → 键 `buy_oID` | `t.buy_order_id` | `columns.market_trade[5]=buy_order_id`；`0016:165` + FK `market_trade_buy_fk → market_order(order_id)` | **高** |
++| `sell_oID` → 键 `sell_oID` | `t.sell_order_id` | `columns.market_trade[6]=sell_order_id`；`0016:166` + FK `market_trade_sell_fk → market_order(order_id)` | **高** |
++| `buyer_uID` → 键 `buyer_uID` | `buy_o.owner_uid`（`LEFT JOIN market_order buy_o ON buy_o.order_id = t.buy_order_id`） | **结构推断**：新表**无** `buyer_uID`/`seller_uID` 列；`buy_order_id` NOT NULL + FK ⇒ 买单行必存在，`market_order.owner_uid`（`:114`）= 挂单人 ⇒ 买单挂单人 = 买方 | **中**（口径可议：亦可以 `taker_uid` + `side` 反推 taker 视角的买卖方；本片取「订单挂单人」口径并在此登记） |
++| `seller_uID` → 键 `seller_uID` | `sell_o.owner_uid`（同上对称） | 同上（`sell_order_id` NOT NULL + FK） | **中** |
++| （新表列）`taker_uid` | **不消费**（`MarketTradeRecord` 无 taker 键） | `columns.market_trade[7]=taker_uid`；键集契约禁止增键 ⇒ 不编值 | **高**（不编值决策） |
++| （新表列）`fee`/`quote_cid` | **不消费** | `columns.market_trade[8]=fee`、`[2]=quote_cid`；无对应响应键 ⇒ 不编值 | **高**（不编值决策） |
++| `create_key`/`ledger_event_keys`/`time_updated` | **无此列** | `0016_market.sql` 文件头第 5 条明示：`market_trade` 无 `create_key`/`ledger_event_keys`/`time_updated`（逐列照 §6.4） | **高** |
++
++**③ 未改但需登记的同源错配**：`listOrderBook`/`listTradesByBrand` 仍以 `getBrandById(bID)` 取 `brand`/`brand_symbol`，而 B1-c 后 `getBrandById` 以 `listing.listing_id` 为键；新 schema 下 `base_cid` 是**货币** id、`listing_id` 是**上架** id ⇒ 两者不同源，非空数据下 `brand` 可能为 null（回退到行内 `symbol`/`brand_symbol`）。**本片不修**（属语义层而非 42703，且改动会波及 B1-c 面的键值），登记于 NOT_MEASURED #4。
++
++### B-d6. `tsc --noEmit`
++
++见 §7 的 B1-d 回填：**`TSC_EXIT=0`**，log 0 字节（`post/tsc-b1d.log`）。
++
++### B-d7. NOT_MEASURED + 范围外清单 + 探针自曝
++
++**NOT_MEASURED（未测清单，禁止当 0/空）**：
++
++| # | 项 | 原因 |
++|---|---|---|
++| 1 | `/api/order` 带 `Authorization` 的 `listOrdersByUser` 真读（本片已改其列名） | 无有效会话令牌、未造；无令牌口径实测 **401（非 500）** |
++| 2 | 非空 `market_order` 下 `/api/market/1/orderbook` 的**聚合数值**（`SUM(amount-amount_filled)`、`GROUP BY side,price`、`ORDER BY price DESC`） | 库为 seed 基线：`market_order=0` 行（`post/counts.json`） |
++| 3 | 非空 `market_trade` 下 `/api/market/1/trades` 的**值**（尤其 `buyer_uID`/`seller_uID` 的 JOIN 派生值与 `volume←amount` 真值） | `market_trade=0` 行；JOIN 写法为结构推断（B-d5 ② 置信度**中**） |
++| 4 | `getBrandById(base_cid)` 的 id 同源错配在非空数据下的表现 | 两表均 0 行；按「不改语义、只改列名」处置（B-d5 ③） |
++| 5 | 写侧 market SQL 的行为（见下表 8 项） | **范围外**（批 2 写侧）；本片零触发、零改动（禁写库） |
++| 6 | 两锚点重启后的**长稳/并发**表现 | 本片只做单轮 curl 抽样 |
++
++**「范围外」清单（逐条点名；行号 = 本片改动后工作树 `src/database.ts`）**：
++
++| 项 | 位置 | 归属 |
++|---|---|---|
++| `placeOrder` | `INSERT INTO market_order`（:2340，旧列名 `"bID"`/`"uID"`/`volume_total`/`volume_filled`） | 写侧 ⇒ 批 2（若被调用仍 42703） |
++| `cancelOrder` | `UPDATE market_order`（:2425，旧列名 `"oID"`） | 写侧 ⇒ 批 2 |
++| `cancelAllOrders` | :2441（经 `listOrdersByUser` + 逐单 `cancelOrder`） | 写侧 ⇒ 批 2 |
++| `updateMarketOrderFill` | `UPDATE market_order`（:2095） | 写侧 ⇒ 批 2 |
++| `getMarketOrderById` | :2075-2089（`WHERE o."oID"`；读函数） | **仅由写路径调用**（:2260/:2371/:2385），无 GET 路由触达 ⇒ 批 2 |
++| `findMatchingOrder` | :2114-2160（`WHERE o."bID"` 等，撮合选单；写侧调用点 :2209） | 写侧撮合 ⇒ 批 2 |
++| `createMarketTrade` | :2162 起，`INSERT INTO market_trade`（:2173，旧列名 `"bID"`/`"buy_oID"`/`"sell_oID"`/…） | 写侧 ⇒ 批 2 |
++| `deleteBrand` | `FROM market_order`（:1857）/`FROM market_trade`（:1862），以 `to_jsonb(x)->>'bID'` 计数 | 该表达式**非列引用**（不报 42703），但同函数 `FROM prize_item` 仍 42P01 ⇒ 写侧，批 2/3 |
++
++**探针自曝**：
++
++1. 计数/比对脚本 `p4z-02-counts.ts`、`p4z-06-zero-write-compare.ts` **原样复用（未改）**；夹具 `p4z-08-keys-b1d.ts` 为本片**新建**；`p4z-01-probe.ts` 未改，`p4z-03/04/05/07` 未改。
++2. **PRE 侧 `normalizeOrderBookRow` 是「逐字复制」而非「调用 HEAD 真码」**：HEAD `a8e958b` 的 `listOrderBook` 行映射是**内联字面量**（**HEAD 行号 `database.ts:2593-2597`**；本片改动后工作树为 `:2453-2457`），模块级不可导出 ⇒ `contract/tail.HEAD.ts` 以副本提供并在注释写明出处。**POST 侧是真码**（本片把内联映射抽为 `export const normalizeOrderBookRow`，`listOrderBook` 实际调用它）。逐字一致性证据：`post/head-inline-vs-tail-copy.txt`（含 `diff` 判据行）。
++3. 夹具快照 `contract/database.HEAD.ts`/`database.NEW.ts` 末尾各追加 tail（导出 `normalizeOrderBookRow` + `normalizeMarketOrder`/`normalizeMarketTrade`），`./ledger` 以 `contract/ledger.ts` stub（仅 `SYSTEM_CURRENCY_CID = 1n`）解析 —— **不覆盖 ledger 运行时**；本片对 `src/ledger.ts`/`src/ledger-errors.ts`/`src/commission.ts` 零改动。夹具**只比 key 集，不比值**。
++4. 本片在 `src/database.ts` 新增了一个 **`export`**（`normalizeOrderBookRow`）供夹具调用真码；除此之外 `src/database.ts` 只改 B-d1 逐条列出的 SQL 列名与回退键，**未增删任何函数**。
++5. pre-sweep 打在 B1-a/b/c 后的旧代码服务（重启前），post-sweep 打在新代码（面板单服务重启，新 pid 73377，`/health` 200 后开测）；重启与两轮扫荡区间包含在 pre→post 计数窗口内（22/22 相同已覆盖该区间）。
++6. 两锚点的**响应形状在非空数据下未实测**（NOT_MEASURED #2/#3）；「空态 `data: []` + HTTP 200」是当前能给出的最强运行时证据。
++
++### B-d8. 产物清单
++
++run-tagged，绝对路径前缀 `/Users/kevin/bistro/seafood/backend-ts/.p4-artifacts/b1d-20260929T181702/`：
++
++| 文件 | 内容 |
++|---|---|
++| `pre/git-status.txt` | 开工时工作树基线 |
++| `pre/doc-original.md` | 报告追加前快照（「只追加」验证基准） |
++| `pre/get-status.txt` | 改动前 9 路径 status（旧代码服务） |
++| `pre/body-orderbook.json`、`pre/body-trades.json` | 改动前两锚点 500 响应体 |
++| `pre/counts.json` | 扫荡前逐表计数（22 关系） |
++| `pre/database.WORKTREE-BEFORE.ts` | 改动前工作树 `src/database.ts` 全量快照 |
++| `contract/database.HEAD.ts` | `git show HEAD:backend-ts/src/database.ts` + `tail.HEAD.ts` |
++| `contract/database.NEW.ts` | 改动后工作树 `src/database.ts` + `tail.NEW.ts` |
++| `contract/tail.HEAD.ts`、`tail.NEW.ts`、`ledger.ts` | 夹具 tail 片段（PRE 副本出处注释）+ ledger stub |
++| `post/get-status.txt` | 改动后 9 路径 status（新代码服务 pid 73377） |
++| `post/bodies/market-orderbook.json`、`post/bodies/market-trades.json` | 改动后两锚点 200 空态响应体 |
++| `post/counts.json` | 扫荡后逐表计数（同口径） |
++| `post/zero-write-compare.json` | 前/后逐表比对（`IDENTICAL=true`、`DIFFS=0`、22/22） |
++| `post/fixture-keys.json`、`fixture-stdout.txt`、`fixture-stderr.txt` | key 契约读数（9/9 EQ，`FIXTURE_EXIT=0`，stderr 0 字节） |
++| `post/head-inline-vs-tail-copy.txt` | HEAD 内联映射 vs PRE 夹具副本（逐字一致性证据） |
++| `post/tsc-b1d.log` | `tsc --noEmit` 输出（0 字节；`TSC_EXIT=0` 见 B-d6） |
++| `post/code-diff-b1d.patch` | `git diff -- src/database.ts src/index.ts` + `git status --porcelain` |
++| `post/doc-only-additions.diff` | 本报告 vs `pre/doc-original.md`（仅追加行证明） |
++
++新增脚本：`backend-ts/scripts/p4z-08-keys-b1d.ts`（key 契约夹具）。`p4z-01`…`p4z-07` 未改。
++
+ ## 声明
+ 
+ > **STATUS: 待回填**

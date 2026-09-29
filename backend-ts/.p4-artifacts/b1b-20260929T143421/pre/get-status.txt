@@ -1,0 +1,10 @@
+/api/task/all 500
+/api/task/1 500
+/api/task-progress/1 500
+/api/task-progress 401
+/api/tasklist/pending-verification 401
+/api/tasklist/pending-verification/count 401
+/api/home 500
+/ 200
+/health 200
+/api/user/asset/1 200

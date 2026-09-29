@@ -1,0 +1,152 @@
+{
+  "generated_at": "2026-09-29T07:16:01.874Z",
+  "caliber": "neon() HTTP driver, read-only SELECT/catalog; NOT Client(ws)",
+  "relations": [
+    "account",
+    "admin_permission",
+    "admin_role",
+    "admin_role_permission",
+    "admin_user_role",
+    "app_config",
+    "candle_view",
+    "commission_policy",
+    "currency",
+    "currency_status_log",
+    "job",
+    "job_application",
+    "job_submission",
+    "ledger_entry",
+    "ledger_owner",
+    "listing",
+    "listing_order",
+    "market_order",
+    "market_trade",
+    "referral",
+    "schema_migration",
+    "users"
+  ],
+  "row_counts": {
+    "account": 4,
+    "admin_permission": 0,
+    "admin_role": 0,
+    "admin_role_permission": 0,
+    "admin_user_role": 0,
+    "app_config": 0,
+    "candle_view": 0,
+    "commission_policy": 1,
+    "currency": 1,
+    "currency_status_log": 0,
+    "job": 0,
+    "job_application": 0,
+    "job_submission": 0,
+    "ledger_entry": 0,
+    "ledger_owner": 4,
+    "listing": 0,
+    "listing_order": 0,
+    "market_order": 0,
+    "market_trade": 0,
+    "referral": 0,
+    "schema_migration": 17,
+    "users": 0
+  },
+  "existence_dual_caliber": {
+    "asset": {
+      "pg_class_n": 0,
+      "to_regclass": false,
+      "information_schema_n": 0
+    },
+    "account": {
+      "pg_class_n": 1,
+      "to_regclass": true,
+      "information_schema_n": 1
+    },
+    "currency": {
+      "pg_class_n": 1,
+      "to_regclass": true,
+      "information_schema_n": 1
+    },
+    "users": {
+      "pg_class_n": 1,
+      "to_regclass": true,
+      "information_schema_n": 1
+    },
+    "task": {
+      "pg_class_n": 0,
+      "to_regclass": false,
+      "information_schema_n": 0
+    },
+    "task_progress": {
+      "pg_class_n": 0,
+      "to_regclass": false,
+      "information_schema_n": 0
+    },
+    "prize": {
+      "pg_class_n": 0,
+      "to_regclass": false,
+      "information_schema_n": 0
+    },
+    "prize_item": {
+      "pg_class_n": 0,
+      "to_regclass": false,
+      "information_schema_n": 0
+    },
+    "shard": {
+      "pg_class_n": 0,
+      "to_regclass": false,
+      "information_schema_n": 0
+    },
+    "shard_transfer": {
+      "pg_class_n": 0,
+      "to_regclass": false,
+      "information_schema_n": 0
+    }
+  },
+  "quoted_count_probe": {
+    "asset": {
+      "ok": false,
+      "code": "42P01",
+      "message": "relation \"asset\" does not exist"
+    },
+    "account": {
+      "ok": true,
+      "n": 4
+    },
+    "task": {
+      "ok": false,
+      "code": "42P01",
+      "message": "relation \"task\" does not exist"
+    },
+    "prize": {
+      "ok": false,
+      "code": "42P01",
+      "message": "relation \"prize\" does not exist"
+    },
+    "task_progress": {
+      "ok": false,
+      "code": "42P01",
+      "message": "relation \"task_progress\" does not exist"
+    },
+    "prize_item": {
+      "ok": false,
+      "code": "42P01",
+      "message": "relation \"prize_item\" does not exist"
+    },
+    "shard": {
+      "ok": false,
+      "code": "42P01",
+      "message": "relation \"shard\" does not exist"
+    },
+    "shard_transfer": {
+      "ok": false,
+      "code": "42P01",
+      "message": "relation \"shard_transfer\" does not exist"
+    }
+  },
+  "account_by_cid": [
+    {
+      "cid": "1",
+      "n": 4,
+      "balance_sum": "0"
+    }
+  ]
+}

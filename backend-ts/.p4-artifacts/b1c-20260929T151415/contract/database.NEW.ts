@@ -664,20 +664,17 @@ const normalizeShardHolding = (
   brand_name: brand?.name || toStringValue(getValue(row, 'brand_name', 'name')),
 });
 
-// P4-B1-d: market 读侧列名回退键（旧列名在前 ⇒ 旧行为不变；新表列名在后）。
-// market_order: oID←order_id、bID←base_cid（币对基准币）、uID←owner_uid（挂单人）、
-//               volume_total←amount、volume_filled←amount_filled。
 const normalizeMarketOrder = (
   row: RawRow,
   brand?: BrandRecord | null,
 ): MarketOrderRecord => ({
-  oID: toNumberValue(getValue(row, 'oID', 'order_id', 'id')),
-  bID: toNumberValue(getValue(row, 'bID', 'base_cid')),
-  uID: toNumberValue(getValue(row, 'uID', 'owner_uid')),
+  oID: toNumberValue(getValue(row, 'oID', 'id')),
+  bID: toNumberValue(getValue(row, 'bID')),
+  uID: toNumberValue(getValue(row, 'uID')),
   side: toStringValue(getValue(row, 'side')) === 'sell' ? 'sell' : 'buy',
   price: toNumberValue(getValue(row, 'price')),
-  volume_total: toNumberValue(getValue(row, 'volume_total', 'amount')),
-  volume_filled: toNumberValue(getValue(row, 'volume_filled', 'amount_filled')),
+  volume_total: toNumberValue(getValue(row, 'volume_total')),
+  volume_filled: toNumberValue(getValue(row, 'volume_filled')),
   status: toStringValue(getValue(row, 'status')) || 'open',
   time_created: toTimestamp(getValue(row, 'time_created')),
   time_updated: toTimestamp(getValue(row, 'time_updated')),
@@ -685,29 +682,18 @@ const normalizeMarketOrder = (
   brand_name: brand?.name || toStringValue(getValue(row, 'brand_name', 'name')),
 });
 
-// P4-B1-d: listOrderBook 的行映射抽为纯函数（键集 {side,price,volume} 与 HEAD 内联映射逐字等价），
-// 供 key 契约夹具直接调用；零 DB 访问。
-export const normalizeOrderBookRow = (row: RawRow): MarketOrderBookRow => ({
-  side: row.side === 'sell' ? 'sell' : 'buy',
-  price: toNumberValue(row.price),
-  volume: toNumberValue(row.volume),
-});
-
-// P4-B1-d: market_trade 列名回退键：trID←trade_id、bID←base_cid、buy_oID←buy_order_id、
-// sell_oID←sell_order_id、volume←amount；buyer_uID/seller_uID 由 listTradesByBrand 的
-// LEFT JOIN market_order（buy_order_id/sell_order_id 各自的 owner_uid）合成别名供给，故无回退键。
 const normalizeMarketTrade = (
   row: RawRow,
   brand?: BrandRecord | null,
 ): MarketTradeRecord => ({
-  trID: toNumberValue(getValue(row, 'trID', 'trade_id', 'id')),
-  bID: toNumberValue(getValue(row, 'bID', 'base_cid')),
-  buy_oID: toNumberValue(getValue(row, 'buy_oID', 'buy_order_id')),
-  sell_oID: toNumberValue(getValue(row, 'sell_oID', 'sell_order_id')),
+  trID: toNumberValue(getValue(row, 'trID', 'id')),
+  bID: toNumberValue(getValue(row, 'bID')),
+  buy_oID: toNumberValue(getValue(row, 'buy_oID')),
+  sell_oID: toNumberValue(getValue(row, 'sell_oID')),
   buyer_uID: toNumberValue(getValue(row, 'buyer_uID')),
   seller_uID: toNumberValue(getValue(row, 'seller_uID')),
   price: toNumberValue(getValue(row, 'price')),
-  volume: toNumberValue(getValue(row, 'volume', 'amount')),
+  volume: toNumberValue(getValue(row, 'volume')),
   time_created: toTimestamp(getValue(row, 'time_created')),
   brand_symbol: brand?.symbol || toStringValue(getValue(row, 'brand_symbol', 'symbol')),
 });
@@ -2268,15 +2254,15 @@ export class DatabaseService {
     const rows = extractRows(await sql`
       SELECT o.*
       FROM market_order AS o
-      WHERE o.owner_uid = ${uID}
+      WHERE o."uID" = ${uID}
       ORDER BY COALESCE(o.time_created, NOW()) DESC,
-               o.order_id DESC
+               o."oID" DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
     const brandCache = new Map<number, BrandRecord | null>();
     return Promise.all(rows.map(async (row) => {
-      const bID = toNumberValue(getValue(row, 'bID', 'base_cid'));
+      const bID = toNumberValue(getValue(row, 'bID'));
       if (!brandCache.has(bID)) {
         brandCache.set(bID, await this.getBrandById(bID));
       }
@@ -2455,35 +2441,34 @@ export class DatabaseService {
 
   static async listOrderBook(bID: number): Promise<MarketOrderBookRow[]> {
     const sql = getSql();
-    const rows = asItems<RawRow>(await sql`
+    const rows = asItems<MarketOrderBookRow>(await sql`
       SELECT
         side,
         price,
-        SUM(amount - amount_filled)::int AS volume
+        SUM(volume_total - volume_filled)::int AS volume
       FROM market_order AS o
-      WHERE o.base_cid = ${bID}
+      WHERE o."bID" = ${bID}
         AND status IN ('open', 'partial')
-        AND amount > amount_filled
+        AND volume_total > volume_filled
       GROUP BY side, price
       ORDER BY side ASC, price DESC
     `);
 
-    return rows.map((row) => normalizeOrderBookRow(row));
+    return rows.map((row) => ({
+      side: row.side === 'sell' ? 'sell' : 'buy',
+      price: toNumberValue(row.price),
+      volume: toNumberValue(row.volume),
+    }));
   }
 
   static async listTradesByBrand(bID: number, skip = 0, limit = 50): Promise<MarketTradeRecord[]> {
     const sql = getSql();
     const rows = extractRows(await sql`
-      SELECT
-        t.*,
-        buy_o.owner_uid AS "buyer_uID",
-        sell_o.owner_uid AS "seller_uID"
+      SELECT t.*
       FROM market_trade AS t
-      LEFT JOIN market_order AS buy_o ON buy_o.order_id = t.buy_order_id
-      LEFT JOIN market_order AS sell_o ON sell_o.order_id = t.sell_order_id
-      WHERE t.base_cid = ${bID}
+      WHERE t."bID" = ${bID}
       ORDER BY COALESCE(t.time_created, NOW()) DESC,
-               t.trade_id DESC
+               t."trID" DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
@@ -2619,3 +2604,5 @@ export class DatabaseService {
     };
   }
 }
+
+export { normalizeBrand, normalizePrizeItem };

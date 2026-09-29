@@ -1,0 +1,10 @@
+CASES=9 EQUAL=9 ALL_EQUAL=true
+EQ market_order:empty_row pre=[bID,brand_name,oID,price,side,status,symbol,time_created,time_updated,uID,volume_filled,volume_total]
+EQ market_order:old_market_order_row pre=[bID,brand_name,oID,price,side,status,symbol,time_created,time_updated,uID,volume_filled,volume_total]
+EQ market_order:new_market_order_row pre=[bID,brand_name,oID,price,side,status,symbol,time_created,time_updated,uID,volume_filled,volume_total]
+EQ market_trade:empty_row pre=[bID,brand_symbol,buy_oID,buyer_uID,price,sell_oID,seller_uID,time_created,trID,volume]
+EQ market_trade:old_market_trade_row pre=[bID,brand_symbol,buy_oID,buyer_uID,price,sell_oID,seller_uID,time_created,trID,volume]
+EQ market_trade:new_market_trade_row pre=[bID,brand_symbol,buy_oID,buyer_uID,price,sell_oID,seller_uID,time_created,trID,volume]
+EQ order_book:empty_row pre=[price,side,volume]
+EQ order_book:old_sql_row pre=[price,side,volume]
+EQ order_book:new_sql_row pre=[price,side,volume]

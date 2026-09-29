@@ -1,0 +1,44 @@
+719:      FROM "users"
+756:          FROM prize_item AS g
+763:          FROM shard AS s
+770:          FROM shard_transfer AS st
+818:        FROM task_progress AS j
+834:        FROM "users" AS u
+849:      FROM "users" AS u
+862:      FROM "users" AS u
+927:        FROM account AS a
+1036:        FROM prize AS b
+1053:        FROM prize_item AS g
+1061:        FROM shard AS s
+1069:        FROM shard_transfer AS st
+1103:      FROM prize_item AS g
+1114:      FROM prize_item AS g
+1125:      FROM prize_item AS g
+1137:      FROM shard AS s
+1147:      FROM shard_transfer AS st
+1158:      FROM prize_item AS g
+1171:      FROM prize_item AS g
+1186:        FROM task AS t
+1194:        FROM task_progress AS j
+1214:        FROM task AS t
+1222:        FROM task_progress AS j
+1243:      FROM task_progress AS j
+1253:      FROM task_progress AS j
+1265:      FROM task_progress AS j
+1278:      FROM task_progress AS j
+1354:      FROM task_progress AS j
+1396:      FROM task_progress AS j
+1453:        FROM prize AS b
+1470:        FROM prize_item AS g
+1478:        FROM shard AS s
+1486:        FROM shard_transfer AS st
+1759:      DELETE FROM prize_item
+1762:        FROM prize_item AS g
+1955:        FROM prize_item AS g
+1972:          FROM shard AS s
+1993:      DELETE FROM prize
+2093:      DELETE FROM task
+2108:      FROM shard AS s
+2130:      FROM shard AS s
+2195:      FROM shard_transfer AS st
+2690:      FROM prize_item AS g

@@ -1,0 +1,9 @@
+500 /api/market/1/orderbook
+500 /api/market/1/trades
+200 /api/home
+200 /api/prize/all
+200 /api/task/all
+200 /api/user/asset/1
+401 /api/order
+200 /
+200 /health

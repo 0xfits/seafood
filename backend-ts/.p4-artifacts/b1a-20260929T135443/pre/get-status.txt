@@ -1,0 +1,7 @@
+/ 200
+/health 200
+/api/home 500
+/api/prize/all 500
+/api/task/all 500
+/api/user 401
+/api/user/asset/1 500

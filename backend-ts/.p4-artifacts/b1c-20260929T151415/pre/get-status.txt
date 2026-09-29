@@ -1,0 +1,10 @@
+200 /
+200 /health
+500 /api/home
+500 /api/prize/all
+500 /api/prize/1
+401 /api/prize-item
+401 /api/shard
+401 /api/shard/transfer
+200 /api/user/asset/1
+200 /api/task/all

@@ -1,0 +1,1 @@
+{"all_key_sets_equal":true,"cases":["task:empty_row:EQ","task:old_task_row:EQ","task:new_job_row:EQ","task:new_job_row_minimal:EQ","task_progress:empty_row:EQ","task_progress:old_row:EQ","task_progress:new_synth_row:EQ","pending_verification:old_enriched:EQ","pending_verification:new_enriched:EQ"]}

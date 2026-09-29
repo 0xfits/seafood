@@ -1,0 +1,1 @@
+{"success":true,"message":"Backend ready","data":{"status":"ok","message":"Seafood TypeScript Backend","timestamp":"2026-09-29T10:11:24.340Z","endpoints":{"health":"/health","authChallenge":"/api/auth/challenge","authVerify":"/api/auth/verify","prizes":"/api/prize/all","tasks":"/api/task/all","user":"/api/user"}}}

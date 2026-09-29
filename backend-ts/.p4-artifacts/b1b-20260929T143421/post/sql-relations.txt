@@ -1,0 +1,35 @@
+# sql-relations-b1b — src/database.ts 内 task→job 换表后的关系名分布（grep 口径：^FROM/JOIN/INSERT/UPDATE/DELETE 行）
+# 生成：B1-b (b1b-20260929T143421)。行号为改动后工作树行号。
+# 双口径说明：本清单 = (a) 模式匹配 `FROM job|JOIN job|FROM "users"|FROM task|task_progress` 的命中行；
+#            (b) 以下按「读侧(本片 6 函数) / 写侧(批 2/3) / 死代码 / 无关(users 真表)」人工归类，逐行给出。
+#
+# —— 读侧（本片已换表，job / job_application / job_submission）——
+1187:  FROM job AS t                    # listTasks
+1195:  FROM job_application AS j        # listTasks participant_counts
+1215:  FROM job AS t                    # getTask
+1223:  FROM job_application AS j        # getTask participant_counts
+1268:  FROM job_application AS a        # getTaskProgress（LATERAL s0=1271 job_submission）
+1271:    FROM job_submission AS s0      # getTaskProgress latest-submission
+1297:  FROM job_application AS a        # listTaskProgressByUser（LATERAL s0=1300）
+1300:    FROM job_submission AS s0      # listTaskProgressByUser
+1402:  FROM job_application AS a        # listPendingVerification（users join + LATERAL s0=1407）
+1407:    FROM job_submission AS s0      # listPendingVerification
+1447:  FROM job_application AS a        # countPendingVerification（LATERAL s0=1452）
+1452:    FROM job_submission AS s0      # countPendingVerification
+#
+# —— 仍引用 task/task_progress 的（全部非本片 6 函数；无任何 GET 路径触达，佐证见报告 B1-b2）——
+ 819:  FROM task_progress AS j          # getTaskParticipantCounts —— src 内 0 调用者（死代码），且有 try/catch 回退零计数
+1249:  FROM task_progress AS j          # countTaskParticipants —— 仅被 admin 写侧 createTask/updateTask(2081,2086) 调用
+1317:  FROM task_progress AS j          # findTaskProgressByUserAndTask —— 仅写侧 ensureTaskProgressForUserTask(1342)
+1330:  INSERT INTO task_progress AS j   # createTaskProgress（写侧）
+1354:  UPDATE task_progress AS j        # submitTaskProgressInfo（写侧）
+1367:  UPDATE task_progress AS j        # markTaskProgressChecked（写侧）
+1379:  UPDATE task_progress AS j        # claimTaskProgress（写侧）
+1467:  UPDATE task_progress AS j        # rejectPendingTaskProgress（写侧）
+2150:  DELETE FROM task                 # deleteTask（admin 写侧）
+#
+# —— users（真表名，保留字口径：带引号 FROM "users"）——
+ 720:  FROM "users"                     # 权限/角色读取（未触碰）
+ 835:  FROM "users" AS u                # getAllUsers（未触碰）
+ 850:  FROM "users" AS u                # getUserById（listPendingVerification enrich 用，未触碰）
+ 863:  FROM "users" AS u                # getUserByEvm（未触碰）
