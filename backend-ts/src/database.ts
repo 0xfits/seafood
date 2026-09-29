@@ -1379,7 +1379,8 @@ export class DatabaseService {
   }
 
   // ==========================================================================================
-  // P4-B3a（§4.2 C2 + §7-3）· 上市：上市费 `currency_create_fee` ×2 + 保证金 `listing_deposit` ×2（HOLD）
+  // P4-B3b / FIX-B（§4.2 C2 + §4.3 资金四栏 + §7-3 v0.3）· 上市：
+  //   上市费 `currency_create_fee` ×2（→ `-1`）+ 保证金 `listing_deposit` ×2（→ **贷 `uid = -1`**）
   // ==========================================================================================
   /**
    * 单语句 CTE = 一个隐式事务，含四件事：
@@ -1388,8 +1389,18 @@ export class DatabaseService {
    *   ③ `slog`  ：`public.currency_status_log` 审计行（DL73/DL157②：路由层硬约束，
    *               DB 无兜底 ⇒ 本实现用**同一条语句**保证「改状态必有审计」）
    *   ④ `ev`    ：`FROM apply` 门控 ⇒ 只有真迁移时才调账本 ⇒ 重放 / 状态非法 ⇒ **零分录**
-   * 保证金 = `listing_deposit`（`HOLD_KINDS` 内）⇒ 2 条（`delta=-d` / `frozen_delta=+d`，同 uid 同 cid），
-   * **纯冻结、可退、不进 `-1`**（§7-3）；保证金币种 = 该行 `deposit_cid`（`0001` 既有列，默认 1）。
+   *
+   * ★★ **保证金 = `listing_deposit`「上市即消耗」**（不再是 HOLD 冻结形状）：
+   *   4 条分录**全部落在 `balance`**、**`frozen_delta` 一律不出现（= 零 `frozen` 变动）**：
+   *     ① user `balance -fee` → ② `-1` `balance +fee`（kind `currency_create_fee`，cid 恒 1）
+   *     ③ user `balance -dep` → ④ `-1` `balance +dep`（kind `listing_deposit`，cid = 行 `deposit_cid`）
+   *   权威口径（本片依据，**不自行推导**）：`ledger.spec` §3.1 R31（v0.2 `:287`）/
+   *   `data-layer.spec` DL67（`:454`）/ DL88（`:530`）【均【已冻结】】+ `route-layer.spec`
+   *   §4.2 C2 行 / §4.3 资金四栏 / §7-3（v0.3 更正；Zang §5.81 最终裁定）：
+   *   **不可退、无退还 kind（`listing_deposit_refund` 不存在）、无罚没**（`hold_forfeit` P3 不启用）。
+   *   DB 侧对齐：`0019`（`-1` credit 白名单收 `listing_deposit`）+ `0020`
+   *   （`ledger_post_event` 函数体 hold 家族 IN 列表摘除它）—— **均已应用**（注册表 19）。
+   *   〔**v0.2 旧形状（错，FIX-B 已改，留痕）**：同 uid 同 cid 两条 `delta=-d` / `frozen_delta=+d`〕
    */
   static async listCurrencyWithDeposit(input: {
     cid: number;
@@ -1451,9 +1462,9 @@ export class DatabaseService {
               'cid', (SELECT cur.deposit_cid::text FROM cur),
               'delta', ${String(-input.depositAmount)}::text, 'kind', 'listing_deposit',
               'ref_type', 'currency', 'ref_id', ${String(input.cid)}::text),
-            jsonb_build_object('uid', (SELECT cur.owner_uid::text FROM cur),
+            jsonb_build_object('uid', '-1',
               'cid', (SELECT cur.deposit_cid::text FROM cur),
-              'delta', '0', 'frozen_delta', ${String(input.depositAmount)}::text, 'kind', 'listing_deposit',
+              'delta', ${String(input.depositAmount)}::text, 'kind', 'listing_deposit',
               'ref_type', 'currency', 'ref_id', ${String(input.cid)}::text)
           )
         )) AS r

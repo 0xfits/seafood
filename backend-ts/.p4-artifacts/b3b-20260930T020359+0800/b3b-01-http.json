@@ -1,0 +1,152 @@
+{
+ "generated_at": "2026-09-29T18:08:46.375Z",
+ "run": "b3b-20260930T020359+0800",
+ "base": "http://127.0.0.1:5788",
+ "panel": "http://127.0.0.1:5555",
+ "results": {
+  "registrations": 53,
+  "panel_self": {
+   "url": "http://127.0.0.1:5555/api/self",
+   "status": 200,
+   "body_head": "{\"ok\":true,\"panel\":{\"port\":5555,\"portOpen\":true,\"pid\":84164,\"nodeVersion\":\"v20.20.2\",\"uptimeMs\":48086112,\"startedAt\":\"2026-09-29T04:47:20.521Z\",\"pm2\":{\"name\":\"bistro-ctrl\",\"id\":0,\"status\":\"online\",\"ma"
+  },
+  "pre": {
+   "health": {
+    "url": "/health",
+    "status": 200,
+    "body_head": "{\"ok\":true,\"db_version\":\"PostgreSQL 18.6 (6569466) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit\",\"schema_version\":\"0020\",\"time\":\"2026-09-29T18:08:47.61"
+   },
+   "home": {
+    "url": "/api/home",
+    "status": 200,
+    "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"tasks\":[{\"tID\":2,\"title\":\"p4b2:fixture:A\",\"note\":\"p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）\",\"refcode\":\"\",\"link0\":\"\",\"linkA\":\"\",\"linkB\":\"\",\"points\":137,\"type"
+   },
+   "prize_all": {
+    "url": "/api/prize/all",
+    "status": 200,
+    "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":[{\"bID\":1,\"symbol\":\"\",\"name\":\"p4b2c:listing A\",\"description\":\"p4b2c desc\",\"image_url\":\"\",\"url_image\":\"\",\"points\":137,\"market_floor_points\":0,\"duration_seconds\":0,"
+   },
+   "task_all": {
+    "url": "/api/task/all",
+    "status": 200,
+    "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":[{\"tID\":2,\"title\":\"p4b2:fixture:A\",\"note\":\"p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）\",\"refcode\":\"\",\"link0\":\"\",\"linkA\":\"\",\"linkB\":\"\",\"points\":137,\"type\":0,\"time"
+   },
+   "face_410": {
+    "auth/register": {
+     "url": "/api/auth/register",
+     "status": 410,
+     "body_head": "{\"success\":false,\"message\":\"Registration has moved to wallet sign-in plus profile completion\",\"error\":\"Registration has moved to wallet sign-in plus profile completion\"}"
+    },
+    "shard/redeem": {
+     "url": "/api/shard/redeem",
+     "status": 410,
+     "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/shard/redeem\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/shard/redeem\",\"h"
+    },
+    "chest/open": {
+     "url": "/api/chest/1/open",
+     "status": 410,
+     "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/chest/:bID/open\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/chest/:bID/op"
+    },
+    "admin/prize/create": {
+     "url": "/api/admin/prize/create",
+     "status": 410,
+     "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/prize/create\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/priz"
+    },
+    "admin/prize/update": {
+     "url": "/api/admin/prize/update",
+     "status": 410,
+     "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/prize/update\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/priz"
+    },
+    "admin/prize/delete": {
+     "url": "/api/admin/prize/delete",
+     "status": 410,
+     "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/prize/delete\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/priz"
+    }
+   },
+   "face_410_all_410": true,
+   "face_410_count": 6
+  },
+  "pre_log_tail": {
+   "ok": true,
+   "lines_returned": 59,
+   "text": "[30/9/2026, 1:24:14 am] TypeScript backend running on port 5788\n[30/9/2026, 1:24:14 am] Using Neon PostgreSQL for Seafood API routes\n[30/9/2026, 1:24:16 am] [ctrl/start] seafood-api 启动校验：state=running pid=75028\n[30/9/2026, 1:24:34 am] [ERR] Failed to verify session token: Invalid token signature\n[30/9/2026, 1:24:34 am] [ERR] Failed to verify session token: Invalid token signature\n[30/9/2026, 1:24:34 am] [ERR] Failed to verify session token: Invalid token signature\n[30/9/2026, 1:24:34 am] [ERR] Failed to verify session token: Invalid token format\n[30/9/2026, 1:25:27 am] [ctrl/killTree] 开始清理进程组 seafood-api(75028)（port=5788）\n[30/9/2026, 1:25:27 am] 进程退出，code=null\n[30/9/2026, 1:25:27 am] [ctrl/killTree] 结果 seafood-api(75028)：pid存活=false 端口残留登记进程=无 → 成功\n[30/9/2026, 1:25:28 am] \n> jinli-backend@1.0.0 dev\n> ts-node src/index.ts\n[30/9/2026, 1:25:29 am] TypeScript backend running on port 5788\n[30/9/2026, 1:25:29 am] Using Neon PostgreSQL for Seafood API routes\n[30/9/2026, 1:25:31 am] [ctrl/start] seafood-api 启动校验：state=running pid=76603\n[30/9/2026, 1:25:48 am] [ERR] Failed to verify session token: Invalid token signature\n[30/9/2026, 1:25:48 am] [ERR] Failed to verify session token: Invalid token signature\n[30/9/2026, 1:25:48 am] [ERR] Failed to verify session token: Invalid token signature\n[30/9/2026, 1:25:48 am] [ERR] Failed to verify session token: Invalid token format\n[30/9/2026, 1:27:57 am] [ERR] Failed to verify session token: Invalid token signature\n[30/9/2026, 1:27:57 am] [ERR] Failed to verify session token: Invalid token signature\n[30/9/2026, 1:27:57 am] [ERR] Failed to verify session token: Invalid token signature\n[30/9/2026, 1:33:59 am] [ctrl/killTree] 开始清理进程组 seafood-api(76603)（port=5788）\n[30/9/2026, 1:33:59 am] 进程退出，code=null\n[30/9/2026, 1:33:59 am] [ctrl/killTree] 结果 seafood-api(76603)：pid存活=false 端口残留登记进程=无 → 成功\n[30/9/2026, 1:33:59 am] \n> jinli-backend@1.0.0 dev\n> ts-node src/index.ts\n[30/9/2026, 1:34:00 am] TypeScript backend running on port 5788\n[30/9/2026, 1:34:00 am] Using Neon PostgreSQL for Seafood API routes\n[30/9/2026, 1:34:02 am] [ctrl/start] seafood-api 启动校验：state=running pid=88332\n[30/9/2026, 1:36:42 am] [ctrl/killTree] 开始清理进程组 seafood-api(88332)（port=5788）\n[30/9/2026, 1:36:42 am] 进程退出，code=null\n[30/9/2026, 1:36:42 am] [ctrl/killTree] 结果 seafood-api(88332)：pid存活=false 端口残留登记进程=无 → 成功\n[30/9/2026, 1:36:43 am] \n> jinli-backend@1.0.0 dev\n> ts-node src/index.ts\n[30/9/2026, 1:36:44 am] TypeScript backend running on port 5788\n[30/9/2026, 1:36:44 am] Using Neon PostgreSQL for Seafood API routes\n[30/9/2026, 1:36:46 am] [ctrl/start] seafood-api 启动校验：state=running pid=91246\n[30/9/2026, 1:47:32 am] [ctrl/killTree] 开始清理进程组 seafood-api(91246)（port=5788）\n[30/9/2026, 1:47:32 am] 进程退出，code=null\n[30/9/2026, 1:47:32 am] [ctrl/killTree] 结果 seafood-api(91246)：pid存活=false 端口残留登记进程=无 → 成功\n[30/9/2026, 1:47:32 am] \n> jinli-backend@1.0.0 dev\n> ts-node src/index.ts\n[30/9/2026, 1:47:34 am] TypeScript backend running on port 5788\n[30/9/2026, 1:47:34 am] Using Neon PostgreSQL for Seafood API routes\n[30/9/2026, 1:47:35 am] [ctrl/start] seafood-api 启动校验：state=running pid=6569\n[30/9/2026, 1:59:50 am] [ctrl/killTree] 开始清理进程组 seafood-api(6569)（port=5788）\n[30/9/2026, 1:59:50 am] 进程退出，code=null\n[30/9/2026, 1:59:50 am] [ctrl/killTree] 结果 seafood-api(6569)：pid存活=false 端口残留登记进程=无 → 成功\n[30/9/2026, 1:59:50 am] \n> jinli-backend@1.0.0 dev\n> ts-node src/index.ts\n[30/9/2026, 1:59:51 am] TypeScript backend running on port 5788\n[30/9/2026, 1:59:51 am] Using Neon PostgreSQL for Seafood API routes\n[30/9/2026, 1:59:53 am] [ctrl/start] seafood-api 启动校验：state=running pid=21659"
+  },
+  "panel_restart": {
+   "url": "http://127.0.0.1:5555/api/restart",
+   "status": 200,
+   "body_head": "{\"sid\":\"seafood-api\",\"ok\":true,\"state\":\"running\",\"pid\":33620,\"msg\":\"已启动\"}"
+  },
+  "health_200_after_restart": {
+   "ok": true,
+   "waited_ms": 2011
+  },
+  "post": {
+   "health": {
+    "url": "/health",
+    "status": 200,
+    "body_head": "{\"ok\":true,\"db_version\":\"PostgreSQL 18.6 (6569466) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit\",\"schema_version\":\"0020\",\"time\":\"2026-09-29T18:08:55.61"
+   },
+   "home": {
+    "url": "/api/home",
+    "status": 200,
+    "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"tasks\":[{\"tID\":2,\"title\":\"p4b2:fixture:A\",\"note\":\"p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）\",\"refcode\":\"\",\"link0\":\"\",\"linkA\":\"\",\"linkB\":\"\",\"points\":137,\"type"
+   },
+   "prize_all": {
+    "url": "/api/prize/all",
+    "status": 200,
+    "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":[{\"bID\":1,\"symbol\":\"\",\"name\":\"p4b2c:listing A\",\"description\":\"p4b2c desc\",\"image_url\":\"\",\"url_image\":\"\",\"points\":137,\"market_floor_points\":0,\"duration_seconds\":0,"
+   },
+   "task_all": {
+    "url": "/api/task/all",
+    "status": 200,
+    "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":[{\"tID\":2,\"title\":\"p4b2:fixture:A\",\"note\":\"p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）\",\"refcode\":\"\",\"link0\":\"\",\"linkA\":\"\",\"linkB\":\"\",\"points\":137,\"type\":0,\"time"
+   },
+   "face_410": {
+    "auth/register": {
+     "url": "/api/auth/register",
+     "status": 410,
+     "body_head": "{\"success\":false,\"message\":\"Registration has moved to wallet sign-in plus profile completion\",\"error\":\"Registration has moved to wallet sign-in plus profile completion\"}"
+    },
+    "shard/redeem": {
+     "url": "/api/shard/redeem",
+     "status": 410,
+     "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/shard/redeem\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/shard/redeem\",\"h"
+    },
+    "chest/open": {
+     "url": "/api/chest/1/open",
+     "status": 410,
+     "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/chest/:bID/open\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/chest/:bID/op"
+    },
+    "admin/prize/create": {
+     "url": "/api/admin/prize/create",
+     "status": 410,
+     "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/prize/create\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/priz"
+    },
+    "admin/prize/update": {
+     "url": "/api/admin/prize/update",
+     "status": 410,
+     "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/prize/update\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/priz"
+    },
+    "admin/prize/delete": {
+     "url": "/api/admin/prize/delete",
+     "status": 410,
+     "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/prize/delete\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/priz"
+    }
+   },
+   "face_410_all_410": true,
+   "face_410_count": 6
+  },
+  "post_log_tail": {
+   "ok": true,
+   "lines_returned": 59,
+   "text": "[30/9/2026, 1:25:27 am] [ctrl/killTree] 结果 seafood-api(75028)：pid存活=false 端口残留登记进程=无 → 成功\n[30/9/2026, 1:25:28 am] \n> jinli-backend@1.0.0 dev\n> ts-node src/index.ts\n[30/9/2026, 1:25:29 am] TypeScript backend running on port 5788\n[30/9/2026, 1:25:29 am] Using Neon PostgreSQL for Seafood API routes\n[30/9/2026, 1:25:31 am] [ctrl/start] seafood-api 启动校验：state=running pid=76603\n[30/9/2026, 1:25:48 am] [ERR] Failed to verify session token: Invalid token signature\n[30/9/2026, 1:25:48 am] [ERR] Failed to verify session token: Invalid token signature\n[30/9/2026, 1:25:48 am] [ERR] Failed to verify session token: Invalid token signature\n[30/9/2026, 1:25:48 am] [ERR] Failed to verify session token: Invalid token format\n[30/9/2026, 1:27:57 am] [ERR] Failed to verify session token: Invalid token signature\n[30/9/2026, 1:27:57 am] [ERR] Failed to verify session token: Invalid token signature\n[30/9/2026, 1:27:57 am] [ERR] Failed to verify session token: Invalid token signature\n[30/9/2026, 1:33:59 am] [ctrl/killTree] 开始清理进程组 seafood-api(76603)（port=5788）\n[30/9/2026, 1:33:59 am] 进程退出，code=null\n[30/9/2026, 1:33:59 am] [ctrl/killTree] 结果 seafood-api(76603)：pid存活=false 端口残留登记进程=无 → 成功\n[30/9/2026, 1:33:59 am] \n> jinli-backend@1.0.0 dev\n> ts-node src/index.ts\n[30/9/2026, 1:34:00 am] TypeScript backend running on port 5788\n[30/9/2026, 1:34:00 am] Using Neon PostgreSQL for Seafood API routes\n[30/9/2026, 1:34:02 am] [ctrl/start] seafood-api 启动校验：state=running pid=88332\n[30/9/2026, 1:36:42 am] [ctrl/killTree] 开始清理进程组 seafood-api(88332)（port=5788）\n[30/9/2026, 1:36:42 am] 进程退出，code=null\n[30/9/2026, 1:36:42 am] [ctrl/killTree] 结果 seafood-api(88332)：pid存活=false 端口残留登记进程=无 → 成功\n[30/9/2026, 1:36:43 am] \n> jinli-backend@1.0.0 dev\n> ts-node src/index.ts\n[30/9/2026, 1:36:44 am] TypeScript backend running on port 5788\n[30/9/2026, 1:36:44 am] Using Neon PostgreSQL for Seafood API routes\n[30/9/2026, 1:36:46 am] [ctrl/start] seafood-api 启动校验：state=running pid=91246\n[30/9/2026, 1:47:32 am] [ctrl/killTree] 开始清理进程组 seafood-api(91246)（port=5788）\n[30/9/2026, 1:47:32 am] 进程退出，code=null\n[30/9/2026, 1:47:32 am] [ctrl/killTree] 结果 seafood-api(91246)：pid存活=false 端口残留登记进程=无 → 成功\n[30/9/2026, 1:47:32 am] \n> jinli-backend@1.0.0 dev\n> ts-node src/index.ts\n[30/9/2026, 1:47:34 am] TypeScript backend running on port 5788\n[30/9/2026, 1:47:34 am] Using Neon PostgreSQL for Seafood API routes\n[30/9/2026, 1:47:35 am] [ctrl/start] seafood-api 启动校验：state=running pid=6569\n[30/9/2026, 1:59:50 am] [ctrl/killTree] 开始清理进程组 seafood-api(6569)（port=5788）\n[30/9/2026, 1:59:50 am] 进程退出，code=null\n[30/9/2026, 1:59:50 am] [ctrl/killTree] 结果 seafood-api(6569)：pid存活=false 端口残留登记进程=无 → 成功\n[30/9/2026, 1:59:50 am] \n> jinli-backend@1.0.0 dev\n> ts-node src/index.ts\n[30/9/2026, 1:59:51 am] TypeScript backend running on port 5788\n[30/9/2026, 1:59:51 am] Using Neon PostgreSQL for Seafood API routes\n[30/9/2026, 1:59:53 am] [ctrl/start] seafood-api 启动校验：state=running pid=21659\n[30/9/2026, 2:08:49 am] [ctrl/killTree] 开始清理进程组 seafood-api(21659)（port=5788）\n[30/9/2026, 2:08:49 am] 进程退出，code=null\n[30/9/2026, 2:08:50 am] [ctrl/killTree] 结果 seafood-api(21659)：pid存活=false 端口残留登记进程=无 → 成功\n[30/9/2026, 2:08:50 am] \n> jinli-backend@1.0.0 dev\n> ts-node src/index.ts\n[30/9/2026, 2:08:51 am] TypeScript backend running on port 5788\n[30/9/2026, 2:08:51 am] Using Neon PostgreSQL for Seafood API routes\n[30/9/2026, 2:08:53 am] [ctrl/start] seafood-api 启动校验：state=running pid=33620"
+  },
+  "readings_consistent": {
+   "health": true,
+   "home": true,
+   "prize_all": true,
+   "task_all": true,
+   "face_410": true
+  }
+ }
+}

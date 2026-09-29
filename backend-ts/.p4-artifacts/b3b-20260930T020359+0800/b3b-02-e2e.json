@@ -1,0 +1,1245 @@
+{
+ "generated_at": "2026-09-29T18:09:03.080Z",
+ "base": "http://127.0.0.1:5788",
+ "run": "b3b-20260930T020359+0800",
+ "floors": {
+  "CREATE_FLOOR": 1000,
+  "LIST_FEE_FLOOR": 1000,
+  "LIST_DEPOSIT_FLOOR": 1000
+ },
+ "mints_in_this_run": 0,
+ "subjects": {
+  "owner_uid": 970001,
+  "other_uid": 970002,
+  "token_fp12": [
+   "88195270028a",
+   "1b5879caf4bc"
+  ]
+ },
+ "targets": {
+  "cidC": 15,
+  "SYM_A": "P4B3B590800",
+  "cidC_symbol": "P4B3A013647X"
+ },
+ "pre": {
+  "sigma": "2000000",
+  "sigma_balance": "1995998",
+  "sigma_frozen": "4002",
+  "entries": 30,
+  "kinds": [
+   {
+    "kind": "currency_create_fee",
+    "n": 12
+   },
+   {
+    "kind": "hold",
+    "n": 4
+   },
+   {
+    "kind": "listing_deposit",
+    "n": 12
+   },
+   {
+    "kind": "mint",
+    "n": 2
+   }
+  ],
+  "accounts": [
+   {
+    "uid": "-1",
+    "cid": "1",
+    "balance": "3203",
+    "frozen": "0"
+   },
+   {
+    "uid": "-2",
+    "cid": "1",
+    "balance": "0",
+    "frozen": "0"
+   },
+   {
+    "uid": "-3",
+    "cid": "1",
+    "balance": "0",
+    "frozen": "0"
+   },
+   {
+    "uid": "0",
+    "cid": "1",
+    "balance": "0",
+    "frozen": "0"
+   },
+   {
+    "uid": "970001",
+    "cid": "1",
+    "balance": "1992795",
+    "frozen": "4002"
+   }
+  ],
+  "currencies": [
+   {
+    "cid": "1",
+    "symbol": "$",
+    "status": "listed",
+    "deposit_amount": "0",
+    "deposit_cid": "1"
+   },
+   {
+    "cid": "10",
+    "symbol": "P4B3A013647",
+    "status": "listed",
+    "deposit_amount": "2000",
+    "deposit_cid": "1"
+   },
+   {
+    "cid": "15",
+    "symbol": "P4B3A013647X",
+    "status": "draft",
+    "deposit_amount": "0",
+    "deposit_cid": "1"
+   },
+   {
+    "cid": "4",
+    "symbol": "P4B3A013122",
+    "status": "listed",
+    "deposit_amount": "2000",
+    "deposit_cid": "1"
+   },
+   {
+    "cid": "9",
+    "symbol": "P4B3A013122X",
+    "status": "draft",
+    "deposit_amount": "0",
+    "deposit_cid": "1"
+   }
+  ],
+  "status_log": 2
+ },
+ "C1_below_floor": {
+  "code": "LEDGER_AMOUNT_NOT_POSITIVE",
+  "details": {
+   "field": "fee",
+   "value": "999",
+   "min": "1000",
+   "reason": "BELOW_SERVER_FLOOR"
+  },
+  "delta_entries": 0,
+  "plan_created": false
+ },
+ "C1_happy": {
+  "cid": 16,
+  "txid": "38",
+  "entries_in_event": 2,
+  "fee_source": "client_ge_floor",
+  "entries": [
+   {
+    "uid": "970001",
+    "cid": "1",
+    "delta": "-1500",
+    "fd": "0",
+    "kind": "currency_create_fee"
+   }
+  ],
+  "delta_sigma": "0",
+  "delta_entries": 2,
+  "owner_bal_delta": "-1500",
+  "neg1_bal_delta": "1500",
+  "owner_frz_delta": "0"
+ },
+ "C1_replay": {
+  "replay_flag": true,
+  "delta_sigma": "0",
+  "delta_entries": 0,
+  "currency_rows_delta": 0
+ },
+ "C1_conflict": {
+  "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+  "delta_entries": 0,
+  "delta_sigma": "0"
+ },
+ "C1_symbol_taken": {
+  "delta_entries": 0,
+  "delta_sigma": "0"
+ },
+ "C1_insufficient": {
+  "code": "LEDGER_INSUFFICIENT_BALANCE",
+  "delta_entries": 0,
+  "orphan_row": false
+ },
+ "C1_server_default": {
+  "cid": 21,
+  "fee_in_response": "1000",
+  "fee_source": "server_default",
+  "floor_from_source": 1000,
+  "entries": [
+   {
+    "uid": "970001",
+    "cid": "1",
+    "delta": "-1000",
+    "fd": "0",
+    "kind": "currency_create_fee"
+   }
+  ],
+  "owner_bal_delta": "-1000",
+  "neg1_bal_delta": "1000",
+  "matches_source_floor": true
+ },
+ "C2_below_floor": {
+  "deposit_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+  "deposit_details": {
+   "field": "deposit_amount",
+   "value": "999",
+   "min": "1000",
+   "reason": "BELOW_SERVER_FLOOR"
+  },
+  "fee_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+  "fee_details": {
+   "field": "listing_fee",
+   "value": "999",
+   "min": "1000",
+   "reason": "BELOW_SERVER_FLOOR"
+  },
+  "delta_entries": 0,
+  "delta_sigma": "0",
+  "unit_still_draft": "draft"
+ },
+ "C2_non_owner": {
+  "code": "AUTH_FORBIDDEN",
+  "details": {
+   "reason": "ACTOR_NOT_ALLOWED",
+   "ref_type": "currency",
+   "ref_id": "16",
+   "condition": "not_currency_owner"
+  },
+  "expect_code": "AUTH_FORBIDDEN",
+  "ok_pass": true
+ },
+ "C2_happy": {
+  "cid": 16,
+  "txid": "42",
+  "entries_in_event": 4,
+  "entries": [
+   {
+    "uid": "970001",
+    "cid": "1",
+    "delta": "-1500",
+    "fd": "0",
+    "kind": "currency_create_fee"
+   }
+  ],
+  "entry_kinds": [
+   "currency_create_fee"
+  ],
+  "deposit_consumed": "2000",
+  "deposit_refundable": false,
+  "deposit_credit_uid": "-1",
+  "listing_fee_source": "client_ge_floor",
+  "deposit_source": "client_ge_floor",
+  "kinds_ok": false,
+  "all_entries_on_balance": true,
+  "both_legs_owner_and_neg1": false,
+  "owner_bal_delta": "-3500",
+  "neg1_bal_delta": "3500",
+  "owner_frz_delta": "0",
+  "neg1_frz_delta": "0",
+  "delta_sigma": "0",
+  "delta_entries": 4,
+  "delta_status_log": 1,
+  "unit_row": {
+   "cid": "16",
+   "symbol": "P4B3B590800",
+   "status": "listed",
+   "deposit_amount": "2000",
+   "deposit_cid": "1"
+  }
+ },
+ "C2_replay": {
+  "replay_flag": true,
+  "delta_entries": 0,
+  "delta_sigma": "0",
+  "delta_status_log": 0
+ },
+ "C2_relist": {
+  "delta_entries": 0,
+  "delta_sigma": "0"
+ },
+ "C2_server_default": {
+  "cid": 21,
+  "listing_fee": "1000",
+  "deposit_consumed": "1000",
+  "listing_fee_source": "server_default",
+  "deposit_source": "server_default",
+  "entries": [
+   {
+    "uid": "970001",
+    "cid": "1",
+    "delta": "-1000",
+    "fd": "0",
+    "kind": "currency_create_fee"
+   }
+  ],
+  "owner_bal_delta": "-2000",
+  "neg1_bal_delta": "2000",
+  "owner_frz_delta": "0",
+  "all_entries_on_balance": true,
+  "matches_source_floors": true,
+  "delta_sigma": "0"
+ },
+ "C2_insufficient": {
+  "code": "LEDGER_INSUFFICIENT_BALANCE",
+  "delta_entries": 0,
+  "delta_sigma": "0",
+  "delta_status_log": 0,
+  "unit_row": {
+   "cid": "15",
+   "symbol": "P4B3A013647X",
+   "status": "draft",
+   "deposit_amount": "0",
+   "deposit_cid": "1"
+  }
+ },
+ "post": {
+  "sigma": "2000000",
+  "sigma_balance": "1995998",
+  "sigma_frozen": "4002",
+  "entries": 42,
+  "kinds": [
+   {
+    "kind": "currency_create_fee",
+    "n": 20
+   },
+   {
+    "kind": "hold",
+    "n": 4
+   },
+   {
+    "kind": "listing_deposit",
+    "n": 16
+   },
+   {
+    "kind": "mint",
+    "n": 2
+   }
+  ],
+  "accounts": [
+   {
+    "uid": "-1",
+    "cid": "1",
+    "balance": "11203",
+    "frozen": "0"
+   },
+   {
+    "uid": "-2",
+    "cid": "1",
+    "balance": "0",
+    "frozen": "0"
+   },
+   {
+    "uid": "-3",
+    "cid": "1",
+    "balance": "0",
+    "frozen": "0"
+   },
+   {
+    "uid": "0",
+    "cid": "1",
+    "balance": "0",
+    "frozen": "0"
+   },
+   {
+    "uid": "970001",
+    "cid": "1",
+    "balance": "1984795",
+    "frozen": "4002"
+   }
+  ],
+  "currencies": [
+   {
+    "cid": "1",
+    "symbol": "$",
+    "status": "listed",
+    "deposit_amount": "0",
+    "deposit_cid": "1"
+   },
+   {
+    "cid": "10",
+    "symbol": "P4B3A013647",
+    "status": "listed",
+    "deposit_amount": "2000",
+    "deposit_cid": "1"
+   },
+   {
+    "cid": "15",
+    "symbol": "P4B3A013647X",
+    "status": "draft",
+    "deposit_amount": "0",
+    "deposit_cid": "1"
+   },
+   {
+    "cid": "16",
+    "symbol": "P4B3B590800",
+    "status": "listed",
+    "deposit_amount": "2000",
+    "deposit_cid": "1"
+   },
+   {
+    "cid": "21",
+    "symbol": "P4B3B590800X",
+    "status": "listed",
+    "deposit_amount": "1000",
+    "deposit_cid": "1"
+   },
+   {
+    "cid": "4",
+    "symbol": "P4B3A013122",
+    "status": "listed",
+    "deposit_amount": "2000",
+    "deposit_cid": "1"
+   },
+   {
+    "cid": "9",
+    "symbol": "P4B3A013122X",
+    "status": "draft",
+    "deposit_amount": "0",
+    "deposit_cid": "1"
+   }
+  ],
+  "status_log": 4
+ },
+ "logs_401_403": [
+  "[30/9/2026, 1:25:27 am] 进程退出，code=null",
+  "[30/9/2026, 1:25:27 am] [ctrl/killTree] 结果 seafood-api(75028)：pid存活=false 端口残留登记进程=无 → 成功",
+  "[30/9/2026, 1:25:28 am] ",
+  "> jinli-backend@1.0.0 dev",
+  "> ts-node src/index.ts",
+  "[30/9/2026, 1:25:29 am] TypeScript backend running on port 5788",
+  "[30/9/2026, 1:25:29 am] Using Neon PostgreSQL for Seafood API routes",
+  "[30/9/2026, 1:25:31 am] [ctrl/start] seafood-api 启动校验：state=running pid=76603",
+  "[30/9/2026, 1:25:48 am] [ERR] Failed to verify session token: Invalid token signature",
+  "[30/9/2026, 1:25:48 am] [ERR] Failed to verify session token: Invalid token signature",
+  "[30/9/2026, 1:25:48 am] [ERR] Failed to verify session token: Invalid token signature",
+  "[30/9/2026, 1:25:48 am] [ERR] Failed to verify session token: Invalid token format",
+  "[30/9/2026, 1:27:57 am] [ERR] Failed to verify session token: Invalid token signature",
+  "[30/9/2026, 1:27:57 am] [ERR] Failed to verify session token: Invalid token signature",
+  "[30/9/2026, 1:27:57 am] [ERR] Failed to verify session token: Invalid token signature",
+  "[30/9/2026, 1:33:59 am] [ctrl/killTree] 开始清理进程组 seafood-api(76603)（port=5788）",
+  "[30/9/2026, 1:33:59 am] 进程退出，code=null",
+  "[30/9/2026, 1:33:59 am] [ctrl/killTree] 结果 seafood-api(76603)：pid存活=false 端口残留登记进程=无 → 成功",
+  "[30/9/2026, 1:33:59 am] ",
+  "> jinli-backend@1.0.0 dev",
+  "> ts-node src/index.ts",
+  "[30/9/2026, 1:34:00 am] TypeScript backend running on port 5788",
+  "[30/9/2026, 1:34:00 am] Using Neon PostgreSQL for Seafood API routes",
+  "[30/9/2026, 1:34:02 am] [ctrl/start] seafood-api 启动校验：state=running pid=88332",
+  "[30/9/2026, 1:36:42 am] [ctrl/killTree] 开始清理进程组 seafood-api(88332)（port=5788）",
+  "[30/9/2026, 1:36:42 am] 进程退出，code=null",
+  "[30/9/2026, 1:36:42 am] [ctrl/killTree] 结果 seafood-api(88332)：pid存活=false 端口残留登记进程=无 → 成功",
+  "[30/9/2026, 1:36:43 am] ",
+  "> jinli-backend@1.0.0 dev",
+  "> ts-node src/index.ts",
+  "[30/9/2026, 1:36:44 am] TypeScript backend running on port 5788",
+  "[30/9/2026, 1:36:44 am] Using Neon PostgreSQL for Seafood API routes",
+  "[30/9/2026, 1:36:46 am] [ctrl/start] seafood-api 启动校验：state=running pid=91246",
+  "[30/9/2026, 1:47:32 am] [ctrl/killTree] 开始清理进程组 seafood-api(91246)（port=5788）",
+  "[30/9/2026, 1:47:32 am] 进程退出，code=null",
+  "[30/9/2026, 1:47:32 am] [ctrl/killTree] 结果 seafood-api(91246)：pid存活=false 端口残留登记进程=无 → 成功",
+  "[30/9/2026, 1:47:32 am] ",
+  "> jinli-backend@1.0.0 dev",
+  "> ts-node src/index.ts",
+  "[30/9/2026, 1:47:34 am] TypeScript backend running on port 5788",
+  "[30/9/2026, 1:47:34 am] Using Neon PostgreSQL for Seafood API routes",
+  "[30/9/2026, 1:47:35 am] [ctrl/start] seafood-api 启动校验：state=running pid=6569",
+  "[30/9/2026, 1:59:50 am] [ctrl/killTree] 开始清理进程组 seafood-api(6569)（port=5788）",
+  "[30/9/2026, 1:59:50 am] 进程退出，code=null",
+  "[30/9/2026, 1:59:50 am] [ctrl/killTree] 结果 seafood-api(6569)：pid存活=false 端口残留登记进程=无 → 成功",
+  "[30/9/2026, 1:59:50 am] ",
+  "> jinli-backend@1.0.0 dev",
+  "> ts-node src/index.ts",
+  "[30/9/2026, 1:59:51 am] TypeScript backend running on port 5788",
+  "[30/9/2026, 1:59:51 am] Using Neon PostgreSQL for Seafood API routes",
+  "[30/9/2026, 1:59:53 am] [ctrl/start] seafood-api 启动校验：state=running pid=21659",
+  "[30/9/2026, 2:08:49 am] [ctrl/killTree] 开始清理进程组 seafood-api(21659)（port=5788）",
+  "[30/9/2026, 2:08:49 am] 进程退出，code=null",
+  "[30/9/2026, 2:08:50 am] [ctrl/killTree] 结果 seafood-api(21659)：pid存活=false 端口残留登记进程=无 → 成功",
+  "[30/9/2026, 2:08:50 am] ",
+  "> jinli-backend@1.0.0 dev",
+  "> ts-node src/index.ts",
+  "[30/9/2026, 2:08:51 am] TypeScript backend running on port 5788",
+  "[30/9/2026, 2:08:51 am] Using Neon PostgreSQL for Seafood API routes",
+  "[30/9/2026, 2:08:53 am] [ctrl/start] seafood-api 启动校验：state=running pid=33620"
+ ],
+ "invariants": {
+  "sigma_pre": "2000000",
+  "sigma_post": "2000000",
+  "sigma_delta": "0",
+  "sigma_expected_unchanged": "2000000",
+  "sigma_is_2000000_pre_and_post": true,
+  "sigma_frozen_pre": "4002",
+  "sigma_frozen_post": "4002",
+  "entries_pre": 30,
+  "entries_post": 42,
+  "entries_delta": 12,
+  "ledger_entry_kinds_pre": {
+   "currency_create_fee": 12,
+   "hold": 4,
+   "listing_deposit": 12,
+   "mint": 2
+  },
+  "ledger_entry_kinds_post": {
+   "currency_create_fee": 20,
+   "hold": 4,
+   "listing_deposit": 16,
+   "mint": 2
+  },
+  "ledger_entry_kinds_delta": {
+   "currency_create_fee": 8,
+   "hold": 0,
+   "listing_deposit": 4,
+   "mint": 0
+  },
+  "status_log_delta": 2,
+  "accounts_pre": [
+   {
+    "uid": "-1",
+    "cid": "1",
+    "balance": "3203",
+    "frozen": "0"
+   },
+   {
+    "uid": "-2",
+    "cid": "1",
+    "balance": "0",
+    "frozen": "0"
+   },
+   {
+    "uid": "-3",
+    "cid": "1",
+    "balance": "0",
+    "frozen": "0"
+   },
+   {
+    "uid": "0",
+    "cid": "1",
+    "balance": "0",
+    "frozen": "0"
+   },
+   {
+    "uid": "970001",
+    "cid": "1",
+    "balance": "1992795",
+    "frozen": "4002"
+   }
+  ],
+  "accounts_post": [
+   {
+    "uid": "-1",
+    "cid": "1",
+    "balance": "11203",
+    "frozen": "0"
+   },
+   {
+    "uid": "-2",
+    "cid": "1",
+    "balance": "0",
+    "frozen": "0"
+   },
+   {
+    "uid": "-3",
+    "cid": "1",
+    "balance": "0",
+    "frozen": "0"
+   },
+   {
+    "uid": "0",
+    "cid": "1",
+    "balance": "0",
+    "frozen": "0"
+   },
+   {
+    "uid": "970001",
+    "cid": "1",
+    "balance": "1984795",
+    "frozen": "4002"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "name": "C1-T01 no-token => 401",
+   "status": 401,
+   "expect": 401,
+   "expect_code": "AUTH_UNAUTHORIZED",
+   "error_code": "AUTH_UNAUTHORIZED",
+   "details": {},
+   "ok_pass": true,
+   "txid": null,
+   "entries_in_event": null,
+   "data": {
+    "cid": null,
+    "status": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"AUTH_UNAUTHORIZED\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}"
+  },
+  {
+   "name": "C1-T02 bad-prefix key => 400",
+   "status": 400,
+   "expect": 400,
+   "expect_code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+   "error_code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+   "details": {
+    "field": "create_key",
+    "reason": "PREFIX_REQUIRED",
+    "allowed_prefixes": [
+     "biz:",
+     "cm:",
+     "cli:",
+     "ops:"
+    ]
+   },
+   "ok_pass": true,
+   "txid": null,
+   "entries_in_event": null,
+   "data": {
+    "cid": null,
+    "status": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"LEDGER_IDEMPOTENCY_KEY_INVALID\",\"message\":\"Idempotency key is invalid\",\"i18n_key\":\"ledger.err.LEDGER_IDEMPOTENCY_KEY_INVALID\",\"details\":{\"field\":\"create_key\",\"reason\":\"PREFIX_REQUIRED\",\"allowed_prefixes"
+  },
+  {
+   "name": "C1-T03 decimals=99 => 400",
+   "status": 400,
+   "expect": 400,
+   "expect_code": "LEDGER_AMOUNT_INVALID",
+   "error_code": "LEDGER_AMOUNT_INVALID",
+   "details": {
+    "field": "currency.decimals",
+    "reason": "DECIMALS_OUT_OF_RANGE",
+    "provided": "99",
+    "min": 0,
+    "max": 18
+   },
+   "ok_pass": true,
+   "txid": null,
+   "entries_in_event": null,
+   "data": {
+    "cid": null,
+    "status": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"LEDGER_AMOUNT_INVALID\",\"message\":\"Request shape is invalid\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"currency.decimals\",\"reason\":\"DECIMALS_OUT_OF_RANGE\",\"provided\":\"99\",\"min\":0,"
+  },
+  {
+   "name": "C1-T04 symbol shape => 400",
+   "status": 400,
+   "expect": 400,
+   "expect_code": "LEDGER_AMOUNT_INVALID",
+   "error_code": "LEDGER_AMOUNT_INVALID",
+   "details": {
+    "field": "currency.symbol",
+    "reason": "SYMBOL_FORMAT_INVALID",
+    "provided_len": 7
+   },
+   "ok_pass": true,
+   "txid": null,
+   "entries_in_event": null,
+   "data": {
+    "cid": null,
+    "status": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"LEDGER_AMOUNT_INVALID\",\"message\":\"Request shape is invalid\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"currency.symbol\",\"reason\":\"SYMBOL_FORMAT_INVALID\",\"provided_len\":7}}}"
+  },
+  {
+   "name": "C1-T05 fee=999 (below server floor) => 400",
+   "status": 400,
+   "expect": 400,
+   "expect_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "error_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "details": {
+    "field": "fee",
+    "value": "999",
+    "min": "1000",
+    "reason": "BELOW_SERVER_FLOOR"
+   },
+   "ok_pass": true,
+   "txid": null,
+   "entries_in_event": null,
+   "data": {
+    "cid": null,
+    "status": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"LEDGER_AMOUNT_NOT_POSITIVE\",\"message\":\"Amount is below the server-side floor\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_NOT_POSITIVE\",\"details\":{\"field\":\"fee\",\"value\":\"999\",\"min\":\"1000\",\"reason\":\"BELOW_SERVE"
+  },
+  {
+   "name": "C1-T06 owner_uid != actor => 403",
+   "status": 403,
+   "expect": 403,
+   "expect_code": "AUTH_FORBIDDEN",
+   "error_code": "AUTH_FORBIDDEN",
+   "details": {
+    "reason": "ACTOR_NOT_ALLOWED",
+    "field": "currency.owner_uid"
+   },
+   "ok_pass": true,
+   "txid": null,
+   "entries_in_event": null,
+   "data": {
+    "cid": null,
+    "status": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"AUTH_FORBIDDEN\",\"message\":\"ACTOR_NOT_ALLOWED\",\"i18n_key\":\"auth.err.AUTH_FORBIDDEN\",\"details\":{\"reason\":\"ACTOR_NOT_ALLOWED\",\"field\":\"currency.owner_uid\"}}}"
+  },
+  {
+   "name": "C1-T07 HAPPY create (fee=1500 -> -1)",
+   "status": 200,
+   "expect": 200,
+   "expect_code": null,
+   "error_code": null,
+   "details": null,
+   "ok_pass": true,
+   "txid": "38",
+   "entries_in_event": 2,
+   "data": {
+    "cid": "16",
+    "status": "draft",
+    "fee": "1500",
+    "fee_source": "client_ge_floor",
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": false
+   },
+   "body_head": "{\"success\":true,\"message\":\"Currency created\",\"data\":{\"cid\":\"16\",\"symbol\":\"P4B3B590800\",\"name\":\"P4B3B test unit\",\"owner_uid\":\"970001\",\"decimals\":2,\"status\":\"draft\",\"deposit_amount\":\"0\",\"deposit_cid\":\"1\",\"listed_at\":null,\""
+  },
+  {
+   "name": "C1-T08 REPLAY same key+payload => 200 replay",
+   "status": 200,
+   "expect": 200,
+   "expect_code": null,
+   "error_code": null,
+   "details": null,
+   "ok_pass": true,
+   "txid": null,
+   "entries_in_event": null,
+   "data": {
+    "cid": "16",
+    "status": "draft",
+    "fee": "1500",
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": true
+   },
+   "body_head": "{\"success\":true,\"message\":\"Currency created (idempotent replay)\",\"data\":{\"cid\":\"16\",\"symbol\":\"P4B3B590800\",\"name\":\"P4B3B test unit\",\"owner_uid\":\"970001\",\"decimals\":2,\"status\":\"draft\",\"fee\":\"1500\",\"idempotent_replay\":true"
+  },
+  {
+   "name": "C1-T09 same key / different payload => 409",
+   "status": 409,
+   "expect": 409,
+   "expect_code": "LEDGER_IDEMPOTENCY_CONFLICT",
+   "error_code": "LEDGER_IDEMPOTENCY_CONFLICT",
+   "details": {
+    "detail_unavailable": "driver_did_not_carry_detail",
+    "idempotency_key": "cli:p4b3b:b3b-20260930T020359+0800:c1-create"
+   },
+   "ok_pass": true,
+   "txid": null,
+   "entries_in_event": null,
+   "data": {
+    "cid": null,
+    "status": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"LEDGER_IDEMPOTENCY_CONFLICT\",\"message\":\"LEDGER_IDEMPOTENCY_CONFLICT\",\"i18n_key\":\"ledger.err.LEDGER_IDEMPOTENCY_CONFLICT\",\"details\":{\"detail_unavailable\":\"driver_did_not_carry_detail\",\"idempotency_key\":\""
+  },
+  {
+   "name": "C1-T10 duplicate symbol / different key => 409 SYMBOL_TAKEN",
+   "status": 409,
+   "expect": 409,
+   "expect_code": "LEDGER_CURRENCY_SYMBOL_TAKEN",
+   "error_code": "LEDGER_CURRENCY_SYMBOL_TAKEN",
+   "details": {
+    "field": "currency.symbol",
+    "symbol": "P4B3B590800"
+   },
+   "ok_pass": true,
+   "txid": null,
+   "entries_in_event": null,
+   "data": {
+    "cid": null,
+    "status": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"LEDGER_CURRENCY_SYMBOL_TAKEN\",\"message\":\"Currency symbol is taken\",\"i18n_key\":\"ledger.err.LEDGER_CURRENCY_SYMBOL_TAKEN\",\"details\":{\"field\":\"currency.symbol\",\"symbol\":\"P4B3B590800\"}}}"
+  },
+  {
+   "name": "C1-T11 insufficient balance => 409 + no orphan row",
+   "status": 409,
+   "expect": 409,
+   "expect_code": "LEDGER_INSUFFICIENT_BALANCE",
+   "error_code": "LEDGER_INSUFFICIENT_BALANCE",
+   "details": {
+    "detail_unavailable": "driver_did_not_carry_detail"
+   },
+   "ok_pass": true,
+   "txid": null,
+   "entries_in_event": null,
+   "data": {
+    "cid": null,
+    "status": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"LEDGER_INSUFFICIENT_BALANCE\",\"message\":\"LEDGER_INSUFFICIENT_BALANCE\",\"i18n_key\":\"ledger.err.LEDGER_INSUFFICIENT_BALANCE\",\"details\":{\"detail_unavailable\":\"driver_did_not_carry_detail\"}}}"
+  },
+  {
+   "name": "C1-T12 fee OMITTED => server default (1000)",
+   "status": 200,
+   "expect": 200,
+   "expect_code": null,
+   "error_code": null,
+   "details": null,
+   "ok_pass": true,
+   "txid": "40",
+   "entries_in_event": 2,
+   "data": {
+    "cid": "21",
+    "status": "draft",
+    "fee": "1000",
+    "fee_source": "server_default",
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": false
+   },
+   "body_head": "{\"success\":true,\"message\":\"Currency created\",\"data\":{\"cid\":\"21\",\"symbol\":\"P4B3B590800X\",\"name\":\"server default fee\",\"owner_uid\":\"970001\",\"decimals\":0,\"status\":\"draft\",\"deposit_amount\":\"0\",\"deposit_cid\":\"1\",\"listed_at\":nu"
+  },
+  {
+   "name": "C2-T13 no-token => 401",
+   "status": 401,
+   "expect": 401,
+   "expect_code": "AUTH_UNAUTHORIZED",
+   "error_code": "AUTH_UNAUTHORIZED",
+   "details": {},
+   "ok_pass": true,
+   "txid": null,
+   "entries_in_event": null,
+   "data": {
+    "cid": null,
+    "status": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"AUTH_UNAUTHORIZED\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}"
+  },
+  {
+   "name": "C2-T14 unknown cid 999999 => 404",
+   "status": 404,
+   "expect": 404,
+   "expect_code": "LEDGER_CURRENCY_NOT_FOUND",
+   "error_code": "LEDGER_CURRENCY_NOT_FOUND",
+   "details": {
+    "cid": "999999"
+   },
+   "ok_pass": true,
+   "txid": null,
+   "entries_in_event": null,
+   "data": {
+    "cid": null,
+    "status": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"LEDGER_CURRENCY_NOT_FOUND\",\"message\":\"Currency not found\",\"i18n_key\":\"ledger.err.LEDGER_CURRENCY_NOT_FOUND\",\"details\":{\"cid\":\"999999\"}}}"
+  },
+  {
+   "name": "C2-T15 cid=0 => 404",
+   "status": 404,
+   "expect": 404,
+   "expect_code": "LEDGER_CURRENCY_NOT_FOUND",
+   "error_code": "LEDGER_CURRENCY_NOT_FOUND",
+   "details": {
+    "cid": "0"
+   },
+   "ok_pass": true,
+   "txid": null,
+   "entries_in_event": null,
+   "data": {
+    "cid": null,
+    "status": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"LEDGER_CURRENCY_NOT_FOUND\",\"message\":\"Currency not found\",\"i18n_key\":\"ledger.err.LEDGER_CURRENCY_NOT_FOUND\",\"details\":{\"cid\":\"0\"}}}"
+  },
+  {
+   "name": "C2-T16 deposit_amount=999 (below floor) => 400",
+   "status": 400,
+   "expect": 400,
+   "expect_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "error_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "details": {
+    "field": "deposit_amount",
+    "value": "999",
+    "min": "1000",
+    "reason": "BELOW_SERVER_FLOOR"
+   },
+   "ok_pass": true,
+   "txid": null,
+   "entries_in_event": null,
+   "data": {
+    "cid": null,
+    "status": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"LEDGER_AMOUNT_NOT_POSITIVE\",\"message\":\"Amount is below the server-side floor\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_NOT_POSITIVE\",\"details\":{\"field\":\"deposit_amount\",\"value\":\"999\",\"min\":\"1000\",\"reason\":\""
+  },
+  {
+   "name": "C2-T17 fee=999 (below floor) => 400",
+   "status": 400,
+   "expect": 400,
+   "expect_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "error_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "details": {
+    "field": "listing_fee",
+    "value": "999",
+    "min": "1000",
+    "reason": "BELOW_SERVER_FLOOR"
+   },
+   "ok_pass": true,
+   "txid": null,
+   "entries_in_event": null,
+   "data": {
+    "cid": null,
+    "status": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"LEDGER_AMOUNT_NOT_POSITIVE\",\"message\":\"Amount is below the server-side floor\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_NOT_POSITIVE\",\"details\":{\"field\":\"listing_fee\",\"value\":\"999\",\"min\":\"1000\",\"reason\":\"BEL"
+  },
+  {
+   "name": "C2-T18 non-owner => 403 ACTOR_NOT_ALLOWED",
+   "status": 403,
+   "expect": 403,
+   "expect_code": "AUTH_FORBIDDEN",
+   "error_code": "AUTH_FORBIDDEN",
+   "details": {
+    "reason": "ACTOR_NOT_ALLOWED",
+    "ref_type": "currency",
+    "ref_id": "16",
+    "condition": "not_currency_owner"
+   },
+   "ok_pass": true,
+   "txid": null,
+   "entries_in_event": null,
+   "data": {
+    "cid": null,
+    "status": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"AUTH_FORBIDDEN\",\"message\":\"ACTOR_NOT_ALLOWED\",\"i18n_key\":\"auth.err.AUTH_FORBIDDEN\",\"details\":{\"reason\":\"ACTOR_NOT_ALLOWED\",\"ref_type\":\"currency\",\"ref_id\":\"16\",\"condition\":\"not_currency_owner\"}}}"
+  },
+  {
+   "name": "C2-T19 bad-prefix key => 400",
+   "status": 400,
+   "expect": 400,
+   "expect_code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+   "error_code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+   "details": {
+    "field": "create_key",
+    "reason": "PREFIX_REQUIRED",
+    "allowed_prefixes": [
+     "biz:",
+     "cm:",
+     "cli:",
+     "ops:"
+    ]
+   },
+   "ok_pass": true,
+   "txid": null,
+   "entries_in_event": null,
+   "data": {
+    "cid": null,
+    "status": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"LEDGER_IDEMPOTENCY_KEY_INVALID\",\"message\":\"Idempotency key is invalid\",\"i18n_key\":\"ledger.err.LEDGER_IDEMPOTENCY_KEY_INVALID\",\"details\":{\"field\":\"create_key\",\"reason\":\"PREFIX_REQUIRED\",\"allowed_prefixes"
+  },
+  {
+   "name": "C2-T20 HAPPY list (fee 1500 + deposit 2000 -> both to -1)",
+   "status": 200,
+   "expect": 200,
+   "expect_code": null,
+   "error_code": null,
+   "details": null,
+   "ok_pass": true,
+   "txid": "42",
+   "entries_in_event": 4,
+   "data": {
+    "cid": "16",
+    "status": "listed",
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": "1500",
+    "listing_fee_source": "client_ge_floor",
+    "deposit_consumed": "2000",
+    "deposit_source": "client_ge_floor",
+    "deposit_refundable": false,
+    "deposit_credit_uid": "-1",
+    "replay": false
+   },
+   "body_head": "{\"success\":true,\"message\":\"Currency listed\",\"data\":{\"cid\":\"16\",\"symbol\":\"P4B3B590800\",\"owner_uid\":\"970001\",\"status\":\"listed\",\"deposit_amount\":\"2000\",\"deposit_cid\":\"1\",\"listed_at\":\"2026-09-29T18:10:18.625648+00:00\",\"listi"
+  },
+  {
+   "name": "C2-T21 REPLAY same key+payload => 200 replay",
+   "status": 200,
+   "expect": 200,
+   "expect_code": null,
+   "error_code": null,
+   "details": null,
+   "ok_pass": true,
+   "txid": null,
+   "entries_in_event": null,
+   "data": {
+    "cid": "16",
+    "status": "listed",
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": true
+   },
+   "body_head": "{\"success\":true,\"message\":\"Currency listed (idempotent replay)\",\"data\":{\"cid\":\"16\",\"symbol\":\"\",\"owner_uid\":\"970001\",\"status\":\"listed\",\"idempotent_replay\":true,\"ledger_event\":null}}"
+  },
+  {
+   "name": "C2-T22 re-list already listed (new key) => 409",
+   "status": 409,
+   "expect": 409,
+   "expect_code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+   "error_code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+   "details": {
+    "field": "currency.status",
+    "reason": "CURRENCY_STATE_INVALID",
+    "cid": "16",
+    "from": "listed",
+    "to": "listed",
+    "required_from": "draft"
+   },
+   "ok_pass": true,
+   "txid": null,
+   "entries_in_event": null,
+   "data": {
+    "cid": null,
+    "status": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"LEDGER_CURRENCY_INVALID_TRANSITION\",\"message\":\"Business state transition rejected\",\"i18n_key\":\"ledger.err.LEDGER_CURRENCY_INVALID_TRANSITION\",\"details\":{\"field\":\"currency.status\",\"reason\":\"CURRENCY_STAT"
+  },
+  {
+   "name": "C2-T23 fee+deposit OMITTED => server defaults (1000+1000)",
+   "status": 200,
+   "expect": 200,
+   "expect_code": null,
+   "error_code": null,
+   "details": null,
+   "ok_pass": true,
+   "txid": "46",
+   "entries_in_event": 4,
+   "data": {
+    "cid": "21",
+    "status": "listed",
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": "1000",
+    "listing_fee_source": "server_default",
+    "deposit_consumed": "1000",
+    "deposit_source": "server_default",
+    "deposit_refundable": false,
+    "deposit_credit_uid": "-1",
+    "replay": false
+   },
+   "body_head": "{\"success\":true,\"message\":\"Currency listed\",\"data\":{\"cid\":\"21\",\"symbol\":\"P4B3B590800X\",\"owner_uid\":\"970001\",\"status\":\"listed\",\"deposit_amount\":\"1000\",\"deposit_cid\":\"1\",\"listed_at\":\"2026-09-29T18:10:39.430701+00:00\",\"list"
+  },
+  {
+   "name": "C2-T24 insufficient balance on list => 409 + stays draft + no audit row",
+   "status": 409,
+   "expect": 409,
+   "expect_code": "LEDGER_INSUFFICIENT_BALANCE",
+   "error_code": "LEDGER_INSUFFICIENT_BALANCE",
+   "details": {
+    "detail_unavailable": "driver_did_not_carry_detail"
+   },
+   "ok_pass": true,
+   "txid": null,
+   "entries_in_event": null,
+   "data": {
+    "cid": null,
+    "status": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "deposit_refundable": null,
+    "deposit_credit_uid": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"LEDGER_INSUFFICIENT_BALANCE\",\"message\":\"LEDGER_INSUFFICIENT_BALANCE\",\"i18n_key\":\"ledger.err.LEDGER_INSUFFICIENT_BALANCE\",\"details\":{\"detail_unavailable\":\"driver_did_not_carry_detail\"}}}"
+  }
+ ],
+ "summary": {
+  "pass": 24,
+  "total": 24,
+  "failed": []
+ }
+}

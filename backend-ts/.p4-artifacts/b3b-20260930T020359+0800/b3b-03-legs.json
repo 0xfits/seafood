@@ -1,0 +1,303 @@
+{
+ "generated_at": "2026-09-29T18:12:26.441Z",
+ "run": "b3b-20260930T020359+0800",
+ "mode": "READ-ONLY",
+ "C1_happy_currency_create_fee": {
+  "key": "cli:p4b3b:b3b-20260930T020359+0800:c1-create",
+  "legs": [
+   {
+    "txid": "38",
+    "uid": "970001",
+    "cid": "1",
+    "delta": "-1500",
+    "frozen_delta": "0",
+    "balance_after": "1991295",
+    "frozen_after": "4002",
+    "kind": "currency_create_fee",
+    "ref_type": "currency",
+    "ref_id": "16",
+    "idempotency_key": "cli:p4b3b:b3b-20260930T020359+0800:c1-create"
+   },
+   {
+    "txid": "39",
+    "uid": "-1",
+    "cid": "1",
+    "delta": "1500",
+    "frozen_delta": "0",
+    "balance_after": "4703",
+    "frozen_after": "0",
+    "kind": "currency_create_fee",
+    "ref_type": "currency",
+    "ref_id": "16",
+    "idempotency_key": "cli:p4b3b:b3b-20260930T020359+0800:c1-create#2"
+   }
+  ]
+ },
+ "C1_server_default_fee": {
+  "key": "cli:p4b3b:b3b-20260930T020359+0800:c1-default",
+  "legs": [
+   {
+    "txid": "40",
+    "uid": "970001",
+    "cid": "1",
+    "delta": "-1000",
+    "frozen_delta": "0",
+    "balance_after": "1990295",
+    "frozen_after": "4002",
+    "kind": "currency_create_fee",
+    "ref_type": "currency",
+    "ref_id": "21",
+    "idempotency_key": "cli:p4b3b:b3b-20260930T020359+0800:c1-default"
+   },
+   {
+    "txid": "41",
+    "uid": "-1",
+    "cid": "1",
+    "delta": "1000",
+    "frozen_delta": "0",
+    "balance_after": "5703",
+    "frozen_after": "0",
+    "kind": "currency_create_fee",
+    "ref_type": "currency",
+    "ref_id": "21",
+    "idempotency_key": "cli:p4b3b:b3b-20260930T020359+0800:c1-default#2"
+   }
+  ]
+ },
+ "C2_happy_list": {
+  "key": "cli:p4b3b:b3b-20260930T020359+0800:c2-list",
+  "legs": [
+   {
+    "txid": "42",
+    "uid": "970001",
+    "cid": "1",
+    "delta": "-1500",
+    "frozen_delta": "0",
+    "balance_after": "1988795",
+    "frozen_after": "4002",
+    "kind": "currency_create_fee",
+    "ref_type": "currency",
+    "ref_id": "16",
+    "idempotency_key": "cli:p4b3b:b3b-20260930T020359+0800:c2-list"
+   },
+   {
+    "txid": "43",
+    "uid": "-1",
+    "cid": "1",
+    "delta": "1500",
+    "frozen_delta": "0",
+    "balance_after": "7203",
+    "frozen_after": "0",
+    "kind": "currency_create_fee",
+    "ref_type": "currency",
+    "ref_id": "16",
+    "idempotency_key": "cli:p4b3b:b3b-20260930T020359+0800:c2-list#2"
+   },
+   {
+    "txid": "44",
+    "uid": "970001",
+    "cid": "1",
+    "delta": "-2000",
+    "frozen_delta": "0",
+    "balance_after": "1986795",
+    "frozen_after": "4002",
+    "kind": "listing_deposit",
+    "ref_type": "currency",
+    "ref_id": "16",
+    "idempotency_key": "cli:p4b3b:b3b-20260930T020359+0800:c2-list#3"
+   },
+   {
+    "txid": "45",
+    "uid": "-1",
+    "cid": "1",
+    "delta": "2000",
+    "frozen_delta": "0",
+    "balance_after": "9203",
+    "frozen_after": "0",
+    "kind": "listing_deposit",
+    "ref_type": "currency",
+    "ref_id": "16",
+    "idempotency_key": "cli:p4b3b:b3b-20260930T020359+0800:c2-list#4"
+   }
+  ]
+ },
+ "C2_server_default_list": {
+  "key": "cli:p4b3b:b3b-20260930T020359+0800:c2-default",
+  "legs": [
+   {
+    "txid": "46",
+    "uid": "970001",
+    "cid": "1",
+    "delta": "-1000",
+    "frozen_delta": "0",
+    "balance_after": "1985795",
+    "frozen_after": "4002",
+    "kind": "currency_create_fee",
+    "ref_type": "currency",
+    "ref_id": "21",
+    "idempotency_key": "cli:p4b3b:b3b-20260930T020359+0800:c2-default"
+   },
+   {
+    "txid": "47",
+    "uid": "-1",
+    "cid": "1",
+    "delta": "1000",
+    "frozen_delta": "0",
+    "balance_after": "10203",
+    "frozen_after": "0",
+    "kind": "currency_create_fee",
+    "ref_type": "currency",
+    "ref_id": "21",
+    "idempotency_key": "cli:p4b3b:b3b-20260930T020359+0800:c2-default#2"
+   },
+   {
+    "txid": "48",
+    "uid": "970001",
+    "cid": "1",
+    "delta": "-1000",
+    "frozen_delta": "0",
+    "balance_after": "1984795",
+    "frozen_after": "4002",
+    "kind": "listing_deposit",
+    "ref_type": "currency",
+    "ref_id": "21",
+    "idempotency_key": "cli:p4b3b:b3b-20260930T020359+0800:c2-default#3"
+   },
+   {
+    "txid": "49",
+    "uid": "-1",
+    "cid": "1",
+    "delta": "1000",
+    "frozen_delta": "0",
+    "balance_after": "11203",
+    "frozen_after": "0",
+    "kind": "listing_deposit",
+    "ref_type": "currency",
+    "ref_id": "21",
+    "idempotency_key": "cli:p4b3b:b3b-20260930T020359+0800:c2-default#4"
+   }
+  ]
+ },
+ "C2_not_owner_should_be_empty": {
+  "key": "cli:p4b3b:b3b-20260930T020359+0800:c2-notowner",
+  "legs": []
+ },
+ "C2_insufficient_should_be_empty": {
+  "key": "cli:p4b3b:b3b-20260930T020359+0800:c2-insuf",
+  "legs": []
+ },
+ "C1_insufficient_should_be_empty": {
+  "key": "cli:p4b3b:b3b-20260930T020359+0800:c1-insuf",
+  "legs": []
+ },
+ "assertions": {
+  "c2_happy": {
+   "legs": 4,
+   "kinds": [
+    "currency_create_fee",
+    "currency_create_fee",
+    "listing_deposit",
+    "listing_deposit"
+   ],
+   "all_frozen_delta_zero": true,
+   "frozen_delta_values": [
+    "0",
+    "0",
+    "0",
+    "0"
+   ],
+   "uid_set": [
+    "-1",
+    "970001"
+   ],
+   "balance_legs_only": true,
+   "listing_deposit_legs": [
+    {
+     "txid": "44",
+     "uid": "970001",
+     "cid": "1",
+     "delta": "-2000",
+     "frozen_delta": "0",
+     "balance_after": "1986795",
+     "frozen_after": "4002",
+     "kind": "listing_deposit",
+     "ref_type": "currency",
+     "ref_id": "16",
+     "idempotency_key": "cli:p4b3b:b3b-20260930T020359+0800:c2-list#3"
+    },
+    {
+     "txid": "45",
+     "uid": "-1",
+     "cid": "1",
+     "delta": "2000",
+     "frozen_delta": "0",
+     "balance_after": "9203",
+     "frozen_after": "0",
+     "kind": "listing_deposit",
+     "ref_type": "currency",
+     "ref_id": "16",
+     "idempotency_key": "cli:p4b3b:b3b-20260930T020359+0800:c2-list#4"
+    }
+   ],
+   "delta_sum_zero": "0",
+   "frozen_sum_zero": "0"
+  },
+  "c2_server_default": {
+   "legs": 4,
+   "kinds": [
+    "currency_create_fee",
+    "currency_create_fee",
+    "listing_deposit",
+    "listing_deposit"
+   ],
+   "all_frozen_delta_zero": true,
+   "frozen_delta_values": [
+    "0",
+    "0",
+    "0",
+    "0"
+   ],
+   "uid_set": [
+    "-1",
+    "970001"
+   ],
+   "balance_legs_only": true,
+   "listing_deposit_legs": [
+    {
+     "txid": "48",
+     "uid": "970001",
+     "cid": "1",
+     "delta": "-1000",
+     "frozen_delta": "0",
+     "balance_after": "1984795",
+     "frozen_after": "4002",
+     "kind": "listing_deposit",
+     "ref_type": "currency",
+     "ref_id": "21",
+     "idempotency_key": "cli:p4b3b:b3b-20260930T020359+0800:c2-default#3"
+    },
+    {
+     "txid": "49",
+     "uid": "-1",
+     "cid": "1",
+     "delta": "1000",
+     "frozen_delta": "0",
+     "balance_after": "11203",
+     "frozen_after": "0",
+     "kind": "listing_deposit",
+     "ref_type": "currency",
+     "ref_id": "21",
+     "idempotency_key": "cli:p4b3b:b3b-20260930T020359+0800:c2-default#4"
+    }
+   ],
+   "delta_sum_zero": "0",
+   "frozen_sum_zero": "0"
+  },
+  "take_away_ok": {
+   "both_events_4_legs": true,
+   "no_frozen_anywhere": true,
+   "listing_deposit_credits_neg1": true,
+   "listing_deposit_debits_owner": true
+  }
+ }
+}

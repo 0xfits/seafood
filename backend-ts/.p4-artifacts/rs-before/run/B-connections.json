@@ -1,0 +1,63 @@
+{
+  "self": {
+    "pid": 10772,
+    "db": "neondb",
+    "usr": "neondb_owner"
+  },
+  "others_count": 5,
+  "others": [
+    {
+      "pid": 2392,
+      "usename": "neondb_owner",
+      "application_name": "pgbouncer",
+      "state": "idle",
+      "state_change": "2026-09-29 17:59:58.108282+00",
+      "backend_start": "2026-09-29 17:13:06.157538+00",
+      "xact_start": null,
+      "addr": "127.0.0.1/32"
+    },
+    {
+      "pid": 10237,
+      "usename": "neondb_owner",
+      "application_name": "pgbouncer",
+      "state": "idle",
+      "state_change": "2026-09-29 18:00:02.510523+00",
+      "backend_start": "2026-09-29 17:59:58.106128+00",
+      "xact_start": null,
+      "addr": "::1/128"
+    },
+    {
+      "pid": 10492,
+      "usename": "neondb_owner",
+      "application_name": "",
+      "state": "idle",
+      "state_change": "2026-09-29 18:02:33.316287+00",
+      "backend_start": "2026-09-29 18:01:34.776872+00",
+      "xact_start": null,
+      "addr": "10.67.63.173/32"
+    },
+    {
+      "pid": 10497,
+      "usename": "neondb_owner",
+      "application_name": "",
+      "state": "idle",
+      "state_change": "2026-09-29 18:01:48.642598+00",
+      "backend_start": "2026-09-29 18:01:35.588+00",
+      "xact_start": null,
+      "addr": "10.67.35.1/32"
+    },
+    {
+      "pid": 10652,
+      "usename": "neondb_owner",
+      "application_name": "",
+      "state": "idle",
+      "state_change": "2026-09-29 18:02:33.580175+00",
+      "backend_start": "2026-09-29 18:02:32.433899+00",
+      "xact_start": null,
+      "addr": "10.67.42.197/32"
+    }
+  ],
+  "idle_in_transaction_count": 0,
+  "idle_in_transaction": [],
+  "ungranted_locks_by_other_pids": []
+}

@@ -9,9 +9,15 @@
 //             ⇒ 以「单语句 CTE」等价实现：一条 `SELECT`（隐式事务）= 业务行写 + `ledger_post_event` 调用）
 //   §4.1（kind 关闭集 20）· §4.5（键前缀 `biz:`/`cm:`/`cli:`/`ops:`；禁 `#` 与控制字符）
 //   §3.1/§3.2/§3.3（404 三类 / 逐码适用条件 / R107 收尾规则）· §6.2 附表（403 + ACTOR_NOT_ALLOWED）
-//   §7-3（Zang §5.73 已批准）：上市费 `currency_create_fee` → `-1`；保证金 `listing_deposit`
-//            = `HOLD_KINDS` 内 ⇒ **纯冻结、可退**（担保物，**不进** `-1` credit 白名单）；
-//            违约罚没 `hold_forfeit` → `-3`（**本片不实现**：§4.2 无该事件行，见报告 §7-1）
+//   §4.4-11（**FIX-B 落地** · Zang 裁定 §5.82 7-23）：**费率 / 保证金金额必须服务端取数**
+//            —— 上市费 `currency_create_fee` → `-1`（消耗）+ 保证金 `listing_deposit`
+//            → **贷 `uid = -1`（上市即消耗、不可退、无退还 kind、无罚没）**：
+//            逐条依据 = `ledger.spec` §3.1 R31（v0.2，`:287`）/ `data-layer.spec` DL67（`:454`）/
+//            DL88（`:530`）【均冻结】+ `route-layer.spec` §4.2 C2 行 / §4.3 资金四栏 / §7-3（**v0.3 更正**）
+//            ⇒ 分录形状 = **借用户 `balance` / 贷 `uid=-1` `balance`**，**不得出现任何 `frozen` 变动**；
+//            `hold_forfeit`→`-3` **不启用**（DL91：P3 无罚没标的物；退市/罚没**不实现**，见 §4.2 C3）。
+//            〔**v0.2 旧写法（错，FIX-B 已改，留痕）**：保证金 = `HOLD_KINDS` 内 ⇒ 纯冻结、
+//             可退、不进 `-1` 白名单 —— 该口径由 Zang §5.81 勘误作废〕
 //
 // 硬边界（本文件自证）：
 //   · **不新增 kind**、**不改任何白名单**、**不改迁移**、**不改 `src/ledger.ts`**（调用它，不修改它）。
@@ -120,13 +126,52 @@ const toPosInt = (raw: unknown, field: string): { ok: true; value: number } | { 
   return { ok: true, value };
 };
 
-const toRequiredPositive = (raw: unknown, field: string): { ok: true; value: number } | { ok: false; err: VerbErr } => {
+// ---- 金额服务端取数（§4.4-11 硬口径 · **FIX-B 落地**）------------------------------------------------
+/**
+ * 下限常量 = **服务端代码常量兜底**。★★ 占位值（**非经济定值**）：`TODO: Kevin 定值`
+ * ============================================================================
+ * 依据 Zang 裁定 §5.82 **7-23**：「机制先落地、数值待 Kevin」⇒ 本片只落**机制**：
+ *   ① 金额一律**服务端取数**（调用方未传 ⇒ 用服务端值）；② 调用方传值只允许 `>= 下限`，低于 ⇒ 400。
+ * 数值本身**不由实现方发明**（经济参数属 Kevin 拍板）⇒ 此处取**明显占位**的整数
+ * （**不得为 0、不得小数**），并在注释标 `TODO: Kevin 定值`。
+ * **批 6（配置面）登记**：改为**从平台配置取数**（真源键待 Kevin 给；**不得**从 `app_config`
+ *   硬造键名 —— Zang 裁定 7-16），届时本常量降为兜底。
+ */
+const CURRENCY_CREATE_FEE_FLOOR = 1000; // TODO: Kevin 定值（占位：非经济定值，仅机制占位）
+const CURRENCY_LIST_FEE_FLOOR = 1000; // TODO: Kevin 定值（占位）
+const CURRENCY_LIST_DEPOSIT_FLOOR = 1000; // TODO: Kevin 定值（占位）
+
+/**
+ * 金额解析 = **服务端取数 + 下限校验**（§4.4-11；Zang §5.82 7-23）。语义写死，不自行发挥：
+ *   · **未传**（`undefined`/`null`/`''`）⇒ 取**服务端值**（下限常量兜底）⇒ 调用方**无法**把金额压到下限以下；
+ *   · **传了** ⇒ 先过形状闸（正整数 · `<= 1e15`，§4.4-9），再必须 `>= floor`：低于 ⇒ **400**。
+ *     借码（**不新造码**）= `LEDGER_AMOUNT_NOT_POSITIVE`（§14.1 #18，400 入参类，与「金额量纲不足」同族；
+ *     本文件原有的缺值/非正整数分支同码 ⇒ 家族一致）；`details` = `{field, value, min, reason}`，
+ *     `reason='BELOW_SERVER_FLOOR'`（报告 §4 记明「用了哪个码 + 依据 + 备选码」）。
+ *   · 返回 `source` 仅用于回执视图 / 报告，**不参与**任何分支判定。
+ */
+const resolveServerAmount = (
+  raw: unknown,
+  field: string,
+  floor: number,
+): { ok: true; value: number; source: 'server_default' | 'client_ge_floor' } | { ok: false; err: VerbErr } => {
   if (raw === undefined || raw === null || raw === '') {
-    return { ok: false, err: fail(400, 'LEDGER_AMOUNT_NOT_POSITIVE', { field, value: null }, 'Amount is required and must be positive') };
+    return { ok: true, value: floor, source: 'server_default' };
   }
   const parsed = toPosInt(raw, field);
   if (!parsed.ok) return parsed;
-  return parsed;
+  if (parsed.value < floor) {
+    return {
+      ok: false,
+      err: fail(
+        400,
+        'LEDGER_AMOUNT_NOT_POSITIVE',
+        { field, value: String(parsed.value), min: String(floor), reason: 'BELOW_SERVER_FLOOR' },
+        'Amount is below the server-side floor',
+      ),
+    };
+  }
+  return { ok: true, value: parsed.value, source: 'client_ge_floor' };
 };
 
 const ledgerView = (ledgerResult: unknown): Record<string, unknown> | null => {
@@ -184,8 +229,8 @@ export const createCurrencyVerb = async (params: {
     }
   }
 
-  // 建单位费（§7-3：`currency_create_fee` → `-1`；spec 未给费率 ⇒ 取请求入参，见报告 §7-4）
-  const fee = toRequiredPositive(body.fee ?? body.create_fee, 'fee');
+  // 建单位费（§7-3 / §4.4-11：`currency_create_fee` → `-1`；**金额服务端取数 + 下限校验**）
+  const fee = resolveServerAmount(body.fee ?? body.create_fee, 'fee', CURRENCY_CREATE_FEE_FLOOR);
   if (!fee.ok) return fee.err;
 
   const resolved = resolveCurrencyKey(
@@ -257,6 +302,7 @@ export const createCurrencyVerb = async (params: {
       deposit_cid: '1',
       listed_at: null,
       fee: String(fee.value),
+      fee_source: fee.source,
       fee_kind: 'currency_create_fee',
       fee_credit_uid: '-1',
       create_key: key,
@@ -268,8 +314,15 @@ export const createCurrencyVerb = async (params: {
 };
 
 // ============================================================================
-// C2 · `POST /api/currency/:cid/list`（上市：上市费 `currency_create_fee` → `-1`
-//                                        + 保证金 `listing_deposit` 冻结 HOLD）
+// C2 · `POST /api/currency/:cid/list`（上市：上市费 `currency_create_fee` ×2 → `-1`
+//                                     + 保证金 `listing_deposit` ×2 → **贷 `uid = -1`**）
+// ----------------------------------------------------------------------------
+// **FIX-B 形状**（§4.2 C2 · §4.3 资金四栏 · §7-3 v0.3 · Zang §5.81 最终裁定）：
+//   4 条分录，**全部落在 `balance`**（**零 `frozen` 变动**）：
+//     ① user `balance -fee`  ② `-1` `balance +fee`   → kind = `currency_create_fee`（cid 恒 1）
+//     ③ user `balance -dep`  ④ `-1` `balance +dep`   → kind = `listing_deposit`（cid = 行 `deposit_cid`）
+//   **不可退 · 无退还 kind · 无罚没**（`listing_deposit_refund` 不存在；`hold_forfeit` P3 不启用）。
+//   金额 = **服务端取数**（§4.4-11；Zang §5.82 7-23）⇒ 见 `resolveServerAmount`。
 // ============================================================================
 export const listCurrencyVerb = async (params: {
   cidRaw: unknown;
@@ -289,9 +342,10 @@ export const listCurrencyVerb = async (params: {
   const cid = Number(cidText);
   if (!Number.isSafeInteger(cid) || cid <= 0) return currency404(cidText);
 
-  const fee = toRequiredPositive(body.fee ?? body.listing_fee, 'listing_fee');
+  // §4.4-11（FIX-B）：金额 = **服务端取数 + 下限校验**（调用方可传，但只允许 `>= 下限`）
+  const fee = resolveServerAmount(body.fee ?? body.listing_fee, 'listing_fee', CURRENCY_LIST_FEE_FLOOR);
   if (!fee.ok) return fee.err;
-  const deposit = toRequiredPositive(body.deposit_amount ?? body.deposit, 'deposit_amount');
+  const deposit = resolveServerAmount(body.deposit_amount ?? body.deposit, 'deposit_amount', CURRENCY_LIST_DEPOSIT_FLOOR);
   if (!deposit.ok) return deposit.err;
 
   const resolved = resolveCurrencyKey(
@@ -375,11 +429,15 @@ export const listCurrencyVerb = async (params: {
       deposit_cid: String(appliedRow.deposit_cid ?? '1'),
       listed_at: appliedRow.listed_at === undefined || appliedRow.listed_at === null ? null : String(appliedRow.listed_at),
       listing_fee: String(fee.value),
-      deposit_frozen: String(deposit.value),
+      // ★ FIX-B：保证金**上市即消耗**（不再是「冻结」）⇒ 回执只报「消耗额 + 收款账户」，不报冻结/可退
+      deposit_consumed: String(deposit.value),
+      listing_fee_source: fee.source,
+      deposit_source: deposit.source,
       fee_kind: 'currency_create_fee',
       fee_credit_uid: '-1',
       deposit_kind: 'listing_deposit',
-      deposit_refundable: true,
+      deposit_credit_uid: '-1',
+      deposit_refundable: false,
       list_key: key,
       list_key_derived: resolved.derived,
       idempotent_replay: false,

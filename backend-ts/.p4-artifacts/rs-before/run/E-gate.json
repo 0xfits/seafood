@@ -1,0 +1,24 @@
+{
+  "expect_corrupt": false,
+  "replay_ok": true,
+  "injected": false,
+  "checksums_all_byte_equal": true,
+  "snapshot_taken": true,
+  "comparison_inside_tx": true,
+  "object_diffs_empty": true,
+  "terminal_failed_empty": false,
+  "object_diffs": [],
+  "terminal_failed": [
+    {
+      "name": "schema_migration.row_count",
+      "expected": "17",
+      "actual": "19"
+    }
+  ],
+  "terminal_total": 32,
+  "terminal_ok": 30,
+  "ok": false,
+  "reason": "terminal_failed=1: schema_migration.row_count",
+  "commit_allowed": false,
+  "tx_final": "ROLLBACK"
+}
