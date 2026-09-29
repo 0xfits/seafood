@@ -1,0 +1,97 @@
+{
+  "run": "b3c-20260930T021741",
+  "label": "post",
+  "at": "2026-09-29T18:22:14.604Z",
+  "probe": "p4z-b3c-01-snapshot",
+  "account": {
+    "rows": 10,
+    "sum_balance": "1995998",
+    "sum_frozen": "4002",
+    "sum_total": "2000000",
+    "per_row": [
+      {
+        "uid": "-1",
+        "cid": "1",
+        "balance": "11217",
+        "frozen": "0"
+      },
+      {
+        "uid": "-2",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0"
+      },
+      {
+        "uid": "-3",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0"
+      },
+      {
+        "uid": "0",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0"
+      },
+      {
+        "uid": "2",
+        "cid": "1",
+        "balance": "7600",
+        "frozen": "0"
+      },
+      {
+        "uid": "3",
+        "cid": "1",
+        "balance": "1386",
+        "frozen": "0"
+      },
+      {
+        "uid": "4",
+        "cid": "1",
+        "balance": "4",
+        "frozen": "0"
+      },
+      {
+        "uid": "5",
+        "cid": "1",
+        "balance": "6",
+        "frozen": "0"
+      },
+      {
+        "uid": "6",
+        "cid": "1",
+        "balance": "990",
+        "frozen": "0"
+      },
+      {
+        "uid": "970001",
+        "cid": "1",
+        "balance": "1974795",
+        "frozen": "4002"
+      }
+    ]
+  },
+  "ledger_entry": {
+    "total_rows": 76,
+    "by_kind": {
+      "commission": 4,
+      "currency_create_fee": 20,
+      "hold": 4,
+      "job_escrow": 10,
+      "job_escrow_refund": 4,
+      "job_fee": 6,
+      "job_payout": 6,
+      "listing_deposit": 16,
+      "mint": 2,
+      "transfer": 4
+    },
+    "by_kind_sum": 76,
+    "by_kind_sum_equals_total": true
+  },
+  "job": {
+    "job_rows": 8,
+    "job_b3c": 5,
+    "app_rows": 7,
+    "sub_rows": 6
+  }
+}

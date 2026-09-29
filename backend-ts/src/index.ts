@@ -22,6 +22,8 @@ import { healthCheck } from './db';
 // P4-SEC（缺陷 B）：基础设施异常走**既有** §14 分类器与 R107 错误体（不新增错误码）
 import { ledgerErrorDiagnostics, normalizeLedgerError, toErrorResponse } from './ledger-errors';
 import { ledgerErrorBody, sendGone, sendVerbError, submitWork } from './job-service';
+// P4-B3c：招工**资金**编排（J1 托管 / J5 发放 / J6 退款 ⇒ `job_post_event`）
+import { verifyJobSubmission } from './job-funds-service';
 // P4-B3a：币种面**真资金**编排（§1.1:147-148 · §4.2 C1/C2 · §7-3 已裁）
 import { createCurrencyVerb, listCurrencyVerb } from './currency-service';
 // P4-B2c：权限与设置（非资金面）service（§1 #36/#37/#38 的 verb + DL36 的 ops: 幂等键）
@@ -1060,55 +1062,59 @@ app.post('/api/tasklist/:jID/verify', async (req, res) => {
   const actor = await requireAdmin(req, res, 'review_tasks');
   if (!actor) return;
 
-  const jID = parseInteger(req.params.jID);
   const approved = req.body?.approved !== false;
 
-  if (!jID) {
-    return sendError(res, 400, 'Invalid jID');
-  }
-
   try {
-    const taskProgress = await DatabaseService.getTaskProgress(jID);
-    if (!taskProgress) {
-      return sendError(res, 404, 'Task progress not found');
+    // ========================================================================
+    // P4-B3c（§1 #49【保留·改接】· §4.2 J5/J6 · §4.0 R4「审核通过 → 发放必须原子」）
+    //   · `approve`        ⇒ `job_post_event(op='settle')` = `job_payout`×2 + `job_fee`×2 + `commission`×2N
+    //   · `approved:false` ⇒ `job_post_event(op='refund')` = `job_escrow_refund`×2（`to_status='rejected'`）
+    //   资金写入与 `job_submission.review_status` **结论位**在**同一条 SQL 语句**内
+    //   （`DatabaseService.reviewJobSubmission`）⇒ 不存在「已审核但没发放」/「状态 settled 但没发放」。
+    //   错误面统一 R107（§3.3-8）；成功面**键集冻结**（§2 母约束 F1）。
+    // ========================================================================
+    const result = await verifyJobSubmission({
+      identifierRaw: req.params.jID,
+      approved,
+      actorUid: actor.user.uID,
+    });
+    if (!result.ok) return sendVerbError(res, result);
+
+    // 成功面：仍由 `getTaskProgress`（9 键）产出；approve 分支再补 `task`/`user`（与改接前逐键一致）
+    const record = await DatabaseService.getTaskProgress(Number(result.applicationId));
+    if (!record) {
+      return sendVerbError(res, {
+        ok: false,
+        status: 404,
+        code: 'LEDGER_REF_NOT_FOUND',
+        message: 'Referenced object not found',
+        details: { ref_type: 'job_application', ref_id: String(result.applicationId) },
+      });
     }
 
-    const taskProgressUser = await DatabaseService.getUserById(taskProgress.uID);
-    if (taskProgressUser?.is_admin) {
-      return sendError(res, 400, 'Admin task progress items are not reviewed from the dashboard queue');
+    if (!approved) {
+      return sendSuccess(res, record, 'Task progress rejected', 200, result.replay ? { idempotent_replay: true } : undefined);
     }
 
-    if (approved) {
-      const updated = await DatabaseService.markTaskProgressChecked(jID);
-      if (!updated) {
-        return sendError(res, 404, 'Task progress not found');
-      }
-      const [task, user] = await Promise.all([
-        DatabaseService.getTask(updated.tID),
-        Promise.resolve(taskProgressUser || null),
-      ]);
-      return sendSuccess(res, {
-        ...updated,
-        task,
-        user: user
-          ? {
-              uID: user.uID,
-              EVM: user.EVM,
-              is_admin: user.is_admin,
-            }
-          : null,
-      }, 'Task progress verified');
-    }
-
-    const updated = await DatabaseService.rejectPendingTaskProgress(jID);
-    if (!updated) {
-      return sendError(res, 404, 'Task progress not found');
-    }
-
-    return sendSuccess(res, updated, 'Task progress rejected');
+    const [task, user] = await Promise.all([
+      DatabaseService.getTask(record.tID),
+      DatabaseService.getUserById(record.uID),
+    ]);
+    return sendSuccess(res, {
+      ...record,
+      task,
+      user: user
+        ? {
+            uID: user.uID,
+            EVM: user.EVM,
+            is_admin: user.is_admin,
+          }
+        : null,
+    }, 'Task progress verified', 200, result.replay ? { idempotent_replay: true } : undefined);
   } catch (error) {
-    console.error('Error verifying task progress:', error);
-    sendError(res, 500, 'Failed to verify task progress');
+    const normalized = normalizeLedgerError(unwrapInfraCause(error));
+    console.error('[tasklist.verify] infra failure:', JSON.stringify(ledgerErrorDiagnostics(error)));
+    return res.status(normalized.httpStatus).json(toErrorResponse(normalized));
   }
 });
 

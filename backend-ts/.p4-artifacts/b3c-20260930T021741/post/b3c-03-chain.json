@@ -1,0 +1,196 @@
+{
+  "run": "b3c-20260930T021741",
+  "probe": "p4z-b3c-03-chain",
+  "at": "2026-09-29T18:21:56.613Z",
+  "referral_bind_signature": "p_child_uid bigint, p_parent_uid bigint",
+  "referral_rows_before": 0,
+  "chain": {
+    "binds": [
+      {
+        "child": "5",
+        "parent": "4",
+        "ok": true
+      },
+      {
+        "child": "6",
+        "parent": "5",
+        "ok": true
+      }
+    ],
+    "rows": [
+      {
+        "child_uid": "5",
+        "parent_uid": "4",
+        "depth": "1"
+      },
+      {
+        "child_uid": "6",
+        "parent_uid": "5",
+        "depth": "2"
+      }
+    ]
+  },
+  "publish": {
+    "ok": true,
+    "job_id": "11",
+    "replay": false
+  },
+  "apply": {
+    "ok": true,
+    "application_id": 9
+  },
+  "accept": {
+    "ok": true
+  },
+  "submit": {
+    "ok": true
+  },
+  "verify": {
+    "status": 200,
+    "idempotent_replay": null,
+    "data_keys": [
+      "jID",
+      "tID",
+      "uID",
+      "info_input",
+      "time_created",
+      "time_submitted",
+      "time_checked",
+      "time_claimed",
+      "points_claimed",
+      "task",
+      "user"
+    ],
+    "error": null,
+    "body_head": null
+  },
+  "settle": {
+    "key": "biz:job:settle:11",
+    "job_id": 11,
+    "legs": [
+      {
+        "txid": "76",
+        "uid": "2",
+        "cid": "1",
+        "delta": "0",
+        "frozen_delta": "-990",
+        "kind": "job_payout",
+        "ref_type": "job",
+        "ref_id": "11",
+        "idempotency_key": "biz:job:settle:11"
+      },
+      {
+        "txid": "77",
+        "uid": "6",
+        "cid": "1",
+        "delta": "990",
+        "frozen_delta": "0",
+        "kind": "job_payout",
+        "ref_type": "job",
+        "ref_id": "11",
+        "idempotency_key": "biz:job:settle:11#2"
+      },
+      {
+        "txid": "78",
+        "uid": "2",
+        "cid": "1",
+        "delta": "0",
+        "frozen_delta": "-10",
+        "kind": "job_fee",
+        "ref_type": "job",
+        "ref_id": "11",
+        "idempotency_key": "biz:job:settle:11#3"
+      },
+      {
+        "txid": "79",
+        "uid": "-2",
+        "cid": "1",
+        "delta": "10",
+        "frozen_delta": "0",
+        "kind": "job_fee",
+        "ref_type": "job",
+        "ref_id": "11",
+        "idempotency_key": "biz:job:settle:11#4"
+      },
+      {
+        "txid": "80",
+        "uid": "-2",
+        "cid": "1",
+        "delta": "-6",
+        "frozen_delta": "0",
+        "kind": "commission",
+        "ref_type": "job",
+        "ref_id": "11",
+        "idempotency_key": "biz:job:settle:11#5"
+      },
+      {
+        "txid": "81",
+        "uid": "5",
+        "cid": "1",
+        "delta": "6",
+        "frozen_delta": "0",
+        "kind": "commission",
+        "ref_type": "job",
+        "ref_id": "11",
+        "idempotency_key": "biz:job:settle:11#6"
+      },
+      {
+        "txid": "82",
+        "uid": "-2",
+        "cid": "1",
+        "delta": "-4",
+        "frozen_delta": "0",
+        "kind": "commission",
+        "ref_type": "job",
+        "ref_id": "11",
+        "idempotency_key": "biz:job:settle:11#7"
+      },
+      {
+        "txid": "83",
+        "uid": "4",
+        "cid": "1",
+        "delta": "4",
+        "frozen_delta": "0",
+        "kind": "commission",
+        "ref_type": "job",
+        "ref_id": "11",
+        "idempotency_key": "biz:job:settle:11#8"
+      }
+    ],
+    "n": 8,
+    "kinds": [
+      "job_payout",
+      "job_payout",
+      "job_fee",
+      "job_fee",
+      "commission",
+      "commission",
+      "commission",
+      "commission"
+    ],
+    "pure_transfer": true,
+    "sum_delta": "1000",
+    "sum_frozen_delta": "-1000",
+    "minus2_fee_in": "10",
+    "minus2_commission_out": "-10",
+    "commission_in_sum": "10",
+    "conservation_minus2": true,
+    "minus1_rows": 0,
+    "job_row": {
+      "status": "settled",
+      "settle_txid": "76",
+      "ledger_event_keys": [
+        "biz:job:escrow:11",
+        "biz:job:settle:11"
+      ]
+    },
+    "submission": {
+      "review_status": "approved",
+      "reviewed_by": "1"
+    }
+  },
+  "referral_rows_after": 2,
+  "leak_check": {
+    "eyJ": 0
+  }
+}

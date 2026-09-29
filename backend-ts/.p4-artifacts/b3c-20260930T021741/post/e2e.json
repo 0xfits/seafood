@@ -1,0 +1,2100 @@
+{
+  "run": "b3c-20260930T021741",
+  "base": "http://127.0.0.1:5788",
+  "at": "2026-09-29T18:21:22.227Z",
+  "probe": "p4z-b3c-02-e2e",
+  "results": {
+    "restart": {
+      "pre_health": 200,
+      "panel": {
+        "status": 200,
+        "body": "{\"sid\":\"seafood-api\",\"ok\":true,\"state\":\"running\",\"pid\":48087,\"msg\":\"已启动\"}"
+      },
+      "health_200_after": true,
+      "waited_ms": 2646
+    },
+    "fixtures": {
+      "admin_uid": "1",
+      "employer_uid": "2",
+      "worker_noref_uid": "3",
+      "chain_worker_uid": null,
+      "chain_depth": null,
+      "fund": {
+        "need": "8000",
+        "donors_used": [
+          {
+            "from_uid": "970001",
+            "amount": "8000",
+            "txid": "50",
+            "idempotent_replay": false
+          }
+        ]
+      },
+      "policy": {
+        "fee_rate_bp": 100,
+        "levels": 10
+      }
+    },
+    "token": {
+      "key_probe": [
+        {
+          "candidate": "env-SECRET_KEY(.env.local)",
+          "key_len": 64,
+          "token_fp": "c95ede4807fc",
+          "status": 200,
+          "reason": null
+        },
+        {
+          "candidate": "auth.ts 硬编码兑底",
+          "key_len": 20,
+          "token_fp": "0d761562f2ed",
+          "status": 401,
+          "reason": null
+        }
+      ],
+      "verdict": "env-SECRET_KEY(.env.local)",
+      "note": "密钥本体不落盘；只记候选名 + token 指纹"
+    },
+    "J1_A": {
+      "job_id": 5,
+      "escrow_key": "biz:job:escrow:5",
+      "legs": [
+        {
+          "txid": "52",
+          "uid": "2",
+          "cid": "1",
+          "delta": "-400",
+          "frozen_delta": "0",
+          "balance_after": "7600",
+          "frozen_after": "0",
+          "kind": "job_escrow",
+          "ref_type": "job",
+          "ref_id": "5",
+          "idempotency_key": "biz:job:escrow:5"
+        },
+        {
+          "txid": "53",
+          "uid": "2",
+          "cid": "1",
+          "delta": "0",
+          "frozen_delta": "400",
+          "balance_after": "7600",
+          "frozen_after": "400",
+          "kind": "job_escrow",
+          "ref_type": "job",
+          "ref_id": "5",
+          "idempotency_key": "biz:job:escrow:5#2"
+        }
+      ],
+      "legs_check": {
+        "n": 2,
+        "kinds": [
+          "job_escrow",
+          "job_escrow"
+        ],
+        "uids": [
+          "2"
+        ],
+        "sum_delta": "-400",
+        "sum_frozen_delta": "400",
+        "sum_delta_plus_frozen": "0",
+        "pure_transfer": true
+      },
+      "replay_legs_n": 2
+    },
+    "chain_A_upstream": {
+      "apply": true,
+      "application_id": 6,
+      "accept": true,
+      "submit": true,
+      "job_status_after_submit": "submitted"
+    },
+    "J5_A": {
+      "settle_key": "biz:job:settle:5",
+      "legs": [
+        {
+          "txid": "54",
+          "uid": "2",
+          "cid": "1",
+          "delta": "0",
+          "frozen_delta": "-396",
+          "balance_after": "7600",
+          "frozen_after": "4",
+          "kind": "job_payout",
+          "ref_type": "job",
+          "ref_id": "5",
+          "idempotency_key": "biz:job:settle:5"
+        },
+        {
+          "txid": "55",
+          "uid": "3",
+          "cid": "1",
+          "delta": "396",
+          "frozen_delta": "0",
+          "balance_after": "396",
+          "frozen_after": "0",
+          "kind": "job_payout",
+          "ref_type": "job",
+          "ref_id": "5",
+          "idempotency_key": "biz:job:settle:5#2"
+        },
+        {
+          "txid": "56",
+          "uid": "2",
+          "cid": "1",
+          "delta": "0",
+          "frozen_delta": "-4",
+          "balance_after": "7600",
+          "frozen_after": "0",
+          "kind": "job_fee",
+          "ref_type": "job",
+          "ref_id": "5",
+          "idempotency_key": "biz:job:settle:5#3"
+        },
+        {
+          "txid": "57",
+          "uid": "-1",
+          "cid": "1",
+          "delta": "4",
+          "frozen_delta": "0",
+          "balance_after": "11207",
+          "frozen_after": "0",
+          "kind": "job_fee",
+          "ref_type": "job",
+          "ref_id": "5",
+          "idempotency_key": "biz:job:settle:5#4"
+        }
+      ],
+      "legs_check": {
+        "n": 4,
+        "kinds": [
+          "job_payout",
+          "job_payout",
+          "job_fee",
+          "job_fee"
+        ],
+        "uids": [
+          "2",
+          "3",
+          "-1"
+        ],
+        "sum_delta": "400",
+        "sum_frozen_delta": "-400",
+        "sum_delta_plus_frozen": "0",
+        "pure_transfer": true
+      },
+      "job_row": {
+        "job_id": "5",
+        "status": "settled",
+        "worker_uid": "3",
+        "settle_txid": "54",
+        "escrow_txid": "52",
+        "ledger_event_keys": [
+          "biz:job:escrow:5",
+          "biz:job:settle:5"
+        ],
+        "reward": "400"
+      },
+      "submission": {
+        "submission_id": "7",
+        "review_status": "approved",
+        "reviewed_by": "1",
+        "has_reviewed_at": true,
+        "review_memo": "job settle:5"
+      },
+      "platform_minus1": {
+        "d": "4",
+        "n": 1
+      },
+      "minus2_rows": 0
+    },
+    "J5_A_replay": {
+      "legs_after_replay": 4,
+      "same_txid_set": true
+    },
+    "J5_B": {
+      "settle_key": "biz:job:settle:8",
+      "legs": [
+        {
+          "txid": "60",
+          "uid": "2",
+          "cid": "1",
+          "delta": "0",
+          "frozen_delta": "-990",
+          "balance_after": "6600",
+          "frozen_after": "10",
+          "kind": "job_payout",
+          "ref_type": "job",
+          "ref_id": "8",
+          "idempotency_key": "biz:job:settle:8"
+        },
+        {
+          "txid": "61",
+          "uid": "3",
+          "cid": "1",
+          "delta": "990",
+          "frozen_delta": "0",
+          "balance_after": "1386",
+          "frozen_after": "0",
+          "kind": "job_payout",
+          "ref_type": "job",
+          "ref_id": "8",
+          "idempotency_key": "biz:job:settle:8#2"
+        },
+        {
+          "txid": "62",
+          "uid": "2",
+          "cid": "1",
+          "delta": "0",
+          "frozen_delta": "-10",
+          "balance_after": "6600",
+          "frozen_after": "0",
+          "kind": "job_fee",
+          "ref_type": "job",
+          "ref_id": "8",
+          "idempotency_key": "biz:job:settle:8#3"
+        },
+        {
+          "txid": "63",
+          "uid": "-1",
+          "cid": "1",
+          "delta": "10",
+          "frozen_delta": "0",
+          "balance_after": "11217",
+          "frozen_after": "0",
+          "kind": "job_fee",
+          "ref_type": "job",
+          "ref_id": "8",
+          "idempotency_key": "biz:job:settle:8#4"
+        }
+      ],
+      "legs_check": {
+        "n": 4,
+        "kinds": [
+          "job_payout",
+          "job_payout",
+          "job_fee",
+          "job_fee"
+        ],
+        "uids": [
+          "2",
+          "3",
+          "-1"
+        ],
+        "sum_delta": "1000",
+        "sum_frozen_delta": "-1000",
+        "sum_delta_plus_frozen": "0",
+        "pure_transfer": true
+      },
+      "expected_fee": "10",
+      "fee_rate_bp": "100",
+      "job_row": {
+        "status": "settled",
+        "settle_txid": "60"
+      }
+    },
+    "J6_C": {
+      "refund_key": "biz:job:refund:9",
+      "legs": [
+        {
+          "txid": "66",
+          "uid": "2",
+          "cid": "1",
+          "delta": "300",
+          "frozen_delta": "0",
+          "balance_after": "6600",
+          "frozen_after": "300",
+          "kind": "job_escrow_refund",
+          "ref_type": "job",
+          "ref_id": "9",
+          "idempotency_key": "biz:job:refund:9"
+        },
+        {
+          "txid": "67",
+          "uid": "2",
+          "cid": "1",
+          "delta": "0",
+          "frozen_delta": "-300",
+          "balance_after": "6600",
+          "frozen_after": "0",
+          "kind": "job_escrow_refund",
+          "ref_type": "job",
+          "ref_id": "9",
+          "idempotency_key": "biz:job:refund:9#2"
+        }
+      ],
+      "legs_check": {
+        "n": 2,
+        "kinds": [
+          "job_escrow_refund",
+          "job_escrow_refund"
+        ],
+        "uids": [
+          "2"
+        ],
+        "sum_delta": "300",
+        "sum_frozen_delta": "-300",
+        "sum_delta_plus_frozen": "0",
+        "pure_transfer": true
+      },
+      "job_row": {
+        "status": "rejected",
+        "escrow_txid": "64",
+        "ledger_event_keys": [
+          "biz:job:escrow:9",
+          "biz:job:refund:9"
+        ]
+      },
+      "submission": {
+        "review_status": "rejected",
+        "reviewed_by": "1"
+      }
+    },
+    "J6_D": {
+      "job_id": 10,
+      "legs": [
+        {
+          "txid": "70",
+          "uid": "2",
+          "cid": "1",
+          "delta": "200",
+          "frozen_delta": "0",
+          "balance_after": "6600",
+          "frozen_after": "200",
+          "kind": "job_escrow_refund",
+          "ref_type": "job",
+          "ref_id": "10",
+          "idempotency_key": "biz:job:refund:10"
+        },
+        {
+          "txid": "71",
+          "uid": "2",
+          "cid": "1",
+          "delta": "0",
+          "frozen_delta": "-200",
+          "balance_after": "6600",
+          "frozen_after": "0",
+          "kind": "job_escrow_refund",
+          "ref_type": "job",
+          "ref_id": "10",
+          "idempotency_key": "biz:job:refund:10#2"
+        }
+      ],
+      "legs_check": {
+        "n": 2,
+        "kinds": [
+          "job_escrow_refund",
+          "job_escrow_refund"
+        ],
+        "uids": [
+          "2"
+        ],
+        "sum_delta": "200",
+        "sum_frozen_delta": "-200",
+        "sum_delta_plus_frozen": "0",
+        "pure_transfer": true
+      },
+      "status": "cancelled"
+    }
+  },
+  "http_records": [
+    {
+      "id": "J1_A_publish",
+      "status": 200,
+      "ok": true,
+      "replay": false,
+      "view_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid",
+        "employer_uid",
+        "cid",
+        "reward"
+      ],
+      "view": {
+        "job_id": "5",
+        "status": "open",
+        "created": true,
+        "idempotent_replay": false,
+        "txid": "52",
+        "ledger_idempotency_key": "biz:job:escrow:5",
+        "escrow_txid": "52",
+        "settle_txid": null,
+        "ledger_event_keys": [
+          "biz:job:escrow:5"
+        ],
+        "entry_count": 2,
+        "kinds": [
+          "job_escrow",
+          "job_escrow"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow",
+            "memo": "招工发布托管 job=5（雇主余额出账）",
+            "txid": "52",
+            "delta": "-400",
+            "ref_id": "5",
+            "ref_type": "job",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:20:51.814Z",
+            "balance_after": "7600",
+            "idempotency_key": "biz:job:escrow:5",
+            "reversal_of_txid": null,
+            "request_fingerprint": "6239eb2cd28ad32a90caf33f560fa7a83fa5934d1c1a277aaa08aaa69daad575"
+          },
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow",
+            "memo": "招工发布托管 job=5（入冻结）",
+            "txid": "53",
+            "delta": "0",
+            "ref_id": "5",
+            "ref_type": "job",
+            "frozen_after": "400",
+            "frozen_delta": "400",
+            "time_created": "2026-09-29T18:20:51.814Z",
+            "balance_after": "7600",
+            "idempotency_key": "biz:job:escrow:5#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "frozen": "400",
+            "balance": "7600"
+          }
+        ],
+        "fee_credit_uid": null,
+        "employer_uid": "2",
+        "cid": "1",
+        "reward": "400"
+      }
+    },
+    {
+      "id": "J1_A_publish_replay",
+      "status": 200,
+      "ok": true,
+      "replay": true,
+      "view_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid",
+        "employer_uid",
+        "cid",
+        "reward"
+      ],
+      "view": {
+        "job_id": "5",
+        "status": "open",
+        "created": false,
+        "idempotent_replay": true,
+        "txid": "52",
+        "ledger_idempotency_key": "biz:job:escrow:5",
+        "escrow_txid": "52",
+        "settle_txid": null,
+        "ledger_event_keys": [
+          "biz:job:escrow:5"
+        ],
+        "entry_count": 2,
+        "kinds": [
+          "job_escrow",
+          "job_escrow"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow",
+            "memo": "招工发布托管 job=5（雇主余额出账）",
+            "txid": "52",
+            "delta": "-400",
+            "ref_id": "5",
+            "ref_type": "job",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:20:51.814Z",
+            "balance_after": "7600",
+            "idempotency_key": "biz:job:escrow:5",
+            "reversal_of_txid": null,
+            "request_fingerprint": "6239eb2cd28ad32a90caf33f560fa7a83fa5934d1c1a277aaa08aaa69daad575"
+          },
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow",
+            "memo": "招工发布托管 job=5（入冻结）",
+            "txid": "53",
+            "delta": "0",
+            "ref_id": "5",
+            "ref_type": "job",
+            "frozen_after": "400",
+            "frozen_delta": "400",
+            "time_created": "2026-09-29T18:20:51.814Z",
+            "balance_after": "7600",
+            "idempotency_key": "biz:job:escrow:5#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "frozen": "400",
+            "balance": "7600"
+          }
+        ],
+        "fee_credit_uid": null,
+        "employer_uid": "2",
+        "cid": "1",
+        "reward": "400"
+      }
+    },
+    {
+      "id": "J1_neg_no_key",
+      "status": 400,
+      "ok": false,
+      "code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "details": {
+        "field": "create_key"
+      },
+      "message": "Idempotency key is required"
+    },
+    {
+      "id": "J1_neg_bad_prefix",
+      "status": 400,
+      "ok": false,
+      "code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "details": {
+        "field": "create_key",
+        "reason": "PREFIX_REQUIRED",
+        "allowed_prefixes": [
+          "biz:",
+          "cm:",
+          "cli:",
+          "ops:"
+        ]
+      },
+      "message": "Idempotency key is invalid"
+    },
+    {
+      "id": "J1_neg_other_employer",
+      "status": 403,
+      "ok": false,
+      "code": "AUTH_FORBIDDEN",
+      "details": {
+        "reason": "ACTOR_NOT_ALLOWED",
+        "field": "job.employer_uid"
+      },
+      "message": "ACTOR_NOT_ALLOWED"
+    },
+    {
+      "id": "J1_neg_insufficient",
+      "status": 409,
+      "ok": false,
+      "code": "LEDGER_INSUFFICIENT_BALANCE",
+      "details": {
+        "detail_unavailable": "driver_did_not_carry_detail"
+      },
+      "message": "LEDGER_INSUFFICIENT_BALANCE"
+    },
+    {
+      "id": "J1_neg_unknown_cid",
+      "status": 404,
+      "ok": false,
+      "code": "LEDGER_CURRENCY_NOT_FOUND",
+      "details": {
+        "constraint": "fk"
+      },
+      "message": "LEDGER_CURRENCY_NOT_FOUND"
+    },
+    {
+      "id": "J5_A_verify_approve",
+      "status": 200,
+      "code": null,
+      "reason": null,
+      "success": true,
+      "message": "Task progress verified",
+      "idempotent_replay": null,
+      "data_keys": [
+        "jID",
+        "tID",
+        "uID",
+        "info_input",
+        "time_created",
+        "time_submitted",
+        "time_checked",
+        "time_claimed",
+        "points_claimed",
+        "task",
+        "user"
+      ],
+      "error_details": null,
+      "body_head": null,
+      "jID": 6,
+      "job_id": 5
+    },
+    {
+      "id": "J5_A_verify_replay",
+      "status": 200,
+      "code": null,
+      "reason": null,
+      "success": true,
+      "message": "Task progress verified",
+      "idempotent_replay": true,
+      "data_keys": [
+        "jID",
+        "tID",
+        "uID",
+        "info_input",
+        "time_created",
+        "time_submitted",
+        "time_checked",
+        "time_claimed",
+        "points_claimed",
+        "task",
+        "user"
+      ],
+      "error_details": null,
+      "body_head": null,
+      "jID": 6
+    },
+    {
+      "id": "J1_B_publish",
+      "status": 200,
+      "ok": true,
+      "replay": false,
+      "view_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid",
+        "employer_uid",
+        "cid",
+        "reward"
+      ],
+      "view": {
+        "job_id": "8",
+        "status": "open",
+        "created": true,
+        "idempotent_replay": false,
+        "txid": "58",
+        "ledger_idempotency_key": "biz:job:escrow:8",
+        "escrow_txid": "58",
+        "settle_txid": null,
+        "ledger_event_keys": [
+          "biz:job:escrow:8"
+        ],
+        "entry_count": 2,
+        "kinds": [
+          "job_escrow",
+          "job_escrow"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow",
+            "memo": "招工发布托管 job=8（雇主余额出账）",
+            "txid": "58",
+            "delta": "-1000",
+            "ref_id": "8",
+            "ref_type": "job",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:21:04.128Z",
+            "balance_after": "6600",
+            "idempotency_key": "biz:job:escrow:8",
+            "reversal_of_txid": null,
+            "request_fingerprint": "2234121ae55a578c18a047c57a83c903aab980477f9f981583ef47c74adb5e67"
+          },
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow",
+            "memo": "招工发布托管 job=8（入冻结）",
+            "txid": "59",
+            "delta": "0",
+            "ref_id": "8",
+            "ref_type": "job",
+            "frozen_after": "1000",
+            "frozen_delta": "1000",
+            "time_created": "2026-09-29T18:21:04.128Z",
+            "balance_after": "6600",
+            "idempotency_key": "biz:job:escrow:8#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "frozen": "1000",
+            "balance": "6600"
+          }
+        ],
+        "fee_credit_uid": null,
+        "employer_uid": "2",
+        "cid": "1",
+        "reward": "1000"
+      }
+    },
+    {
+      "id": "J5_B_verify_approve",
+      "status": 200,
+      "code": null,
+      "reason": null,
+      "success": true,
+      "message": "Task progress verified",
+      "idempotent_replay": null,
+      "data_keys": [
+        "jID",
+        "tID",
+        "uID",
+        "info_input",
+        "time_created",
+        "time_submitted",
+        "time_checked",
+        "time_claimed",
+        "points_claimed",
+        "task",
+        "user"
+      ],
+      "error_details": null,
+      "body_head": null,
+      "jID": 7,
+      "job_id": 8,
+      "worker_uid": "3"
+    },
+    {
+      "id": "J1_C_publish",
+      "status": 200,
+      "ok": true,
+      "replay": false,
+      "view_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid",
+        "employer_uid",
+        "cid",
+        "reward"
+      ],
+      "view": {
+        "job_id": "9",
+        "status": "open",
+        "created": true,
+        "idempotent_replay": false,
+        "txid": "64",
+        "ledger_idempotency_key": "biz:job:escrow:9",
+        "escrow_txid": "64",
+        "settle_txid": null,
+        "ledger_event_keys": [
+          "biz:job:escrow:9"
+        ],
+        "entry_count": 2,
+        "kinds": [
+          "job_escrow",
+          "job_escrow"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow",
+            "memo": "招工发布托管 job=9（雇主余额出账）",
+            "txid": "64",
+            "delta": "-300",
+            "ref_id": "9",
+            "ref_type": "job",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:21:11.250Z",
+            "balance_after": "6300",
+            "idempotency_key": "biz:job:escrow:9",
+            "reversal_of_txid": null,
+            "request_fingerprint": "66c934abe4df5200bf8139511849fbb1e920f1c678c61fda83cac075b2ad954e"
+          },
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow",
+            "memo": "招工发布托管 job=9（入冻结）",
+            "txid": "65",
+            "delta": "0",
+            "ref_id": "9",
+            "ref_type": "job",
+            "frozen_after": "300",
+            "frozen_delta": "300",
+            "time_created": "2026-09-29T18:21:11.250Z",
+            "balance_after": "6300",
+            "idempotency_key": "biz:job:escrow:9#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "frozen": "300",
+            "balance": "6300"
+          }
+        ],
+        "fee_credit_uid": null,
+        "employer_uid": "2",
+        "cid": "1",
+        "reward": "300"
+      }
+    },
+    {
+      "id": "J6_C_verify_reject",
+      "status": 200,
+      "code": null,
+      "reason": null,
+      "success": true,
+      "message": "Task progress rejected",
+      "idempotent_replay": null,
+      "data_keys": [
+        "jID",
+        "tID",
+        "uID",
+        "info_input",
+        "time_created",
+        "time_submitted",
+        "time_checked",
+        "time_claimed",
+        "points_claimed"
+      ],
+      "error_details": null,
+      "body_head": null,
+      "jID": 8,
+      "job_id": 9
+    },
+    {
+      "id": "J6_D_refund_cancelled",
+      "status": 200,
+      "ok": true,
+      "replay": false,
+      "view_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid"
+      ],
+      "view": {
+        "job_id": "10",
+        "status": "cancelled",
+        "created": false,
+        "idempotent_replay": false,
+        "txid": "70",
+        "ledger_idempotency_key": "biz:job:refund:10",
+        "escrow_txid": "68",
+        "settle_txid": null,
+        "ledger_event_keys": [
+          "biz:job:escrow:10",
+          "biz:job:refund:10"
+        ],
+        "entry_count": 2,
+        "kinds": [
+          "job_escrow_refund",
+          "job_escrow_refund"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow_refund",
+            "memo": "招工托管退回 job=10（出冻结）",
+            "txid": "70",
+            "delta": "200",
+            "ref_id": "10",
+            "ref_type": "job",
+            "frozen_after": "200",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:21:16.449Z",
+            "balance_after": "6600",
+            "idempotency_key": "biz:job:refund:10",
+            "reversal_of_txid": null,
+            "request_fingerprint": "2694e5ef31b3d20241dd4e5bdd5b3ab8925390d5df0c21bdc5d27cd195813558"
+          },
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow_refund",
+            "memo": "招工托管退回 job=10（回余额）",
+            "txid": "71",
+            "delta": "0",
+            "ref_id": "10",
+            "ref_type": "job",
+            "frozen_after": "0",
+            "frozen_delta": "-200",
+            "time_created": "2026-09-29T18:21:16.449Z",
+            "balance_after": "6600",
+            "idempotency_key": "biz:job:refund:10#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "frozen": "0",
+            "balance": "6600"
+          }
+        ],
+        "fee_credit_uid": null
+      }
+    },
+    {
+      "id": "J6_neg_bad_to_status",
+      "status": 400,
+      "ok": false,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "details": {
+        "field": "to_status",
+        "reason": "not_a_refund_target",
+        "value": "bogus",
+        "allowed": [
+          "cancelled",
+          "rejected"
+        ]
+      },
+      "message": "Request shape is invalid"
+    },
+    {
+      "id": "J6_neg_unknown_job",
+      "status": 404,
+      "ok": false,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "details": {
+        "detail_unavailable": "driver_did_not_carry_detail"
+      },
+      "message": "LEDGER_REF_NOT_FOUND"
+    },
+    {
+      "id": "J6_neg_already_cancelled",
+      "status": 200,
+      "ok": true,
+      "replay": true,
+      "view_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid"
+      ],
+      "view": {
+        "job_id": "10",
+        "status": "cancelled",
+        "created": false,
+        "idempotent_replay": true,
+        "txid": "70",
+        "ledger_idempotency_key": "biz:job:refund:10",
+        "escrow_txid": "68",
+        "settle_txid": null,
+        "ledger_event_keys": [
+          "biz:job:escrow:10",
+          "biz:job:refund:10"
+        ],
+        "entry_count": 2,
+        "kinds": [
+          "job_escrow_refund",
+          "job_escrow_refund"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow_refund",
+            "memo": "招工托管退回 job=10（出冻结）",
+            "txid": "70",
+            "delta": "200",
+            "ref_id": "10",
+            "ref_type": "job",
+            "frozen_after": "200",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:21:16.449Z",
+            "balance_after": "6600",
+            "idempotency_key": "biz:job:refund:10",
+            "reversal_of_txid": null,
+            "request_fingerprint": "2694e5ef31b3d20241dd4e5bdd5b3ab8925390d5df0c21bdc5d27cd195813558"
+          },
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow_refund",
+            "memo": "招工托管退回 job=10（回余额）",
+            "txid": "71",
+            "delta": "0",
+            "ref_id": "10",
+            "ref_type": "job",
+            "frozen_after": "0",
+            "frozen_delta": "-200",
+            "time_created": "2026-09-29T18:21:16.449Z",
+            "balance_after": "6600",
+            "idempotency_key": "biz:job:refund:10#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "frozen": "0",
+            "balance": "6600"
+          }
+        ],
+        "fee_credit_uid": null
+      }
+    },
+    {
+      "id": "J5_neg_unknown_job",
+      "status": 404,
+      "ok": false,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "details": {
+        "detail_unavailable": "driver_did_not_carry_detail"
+      },
+      "message": "LEDGER_REF_NOT_FOUND"
+    },
+    {
+      "id": "HTTP_verify_miss_404",
+      "status": 404,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "reason": "jID_not_found",
+      "success": null,
+      "message": null,
+      "idempotent_replay": null,
+      "data_keys": null,
+      "error_details": {
+        "ref_type": "job_application",
+        "ref_id": "999999999",
+        "reason": "jID_not_found"
+      },
+      "body_head": null
+    },
+    {
+      "id": "HTTP_verify_non_admin_403",
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "reason": "NOT_ADMIN",
+      "success": null,
+      "message": null,
+      "idempotent_replay": null,
+      "data_keys": null,
+      "error_details": {
+        "reason": "NOT_ADMIN"
+      },
+      "body_head": null
+    },
+    {
+      "id": "HTTP_verify_no_token_401",
+      "status": 401,
+      "code": "AUTH_UNAUTHORIZED",
+      "reason": null,
+      "success": null,
+      "message": null,
+      "idempotent_replay": null,
+      "data_keys": null,
+      "error_details": {},
+      "body_head": null
+    },
+    {
+      "id": "HTTP_verify_nonnumeric_404",
+      "status": 404,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "reason": "jID_not_found",
+      "success": null,
+      "message": null,
+      "idempotent_replay": null,
+      "data_keys": null,
+      "error_details": {
+        "ref_type": "job_application",
+        "ref_id": "abc",
+        "reason": "jID_not_found"
+      },
+      "body_head": null
+    },
+    {
+      "id": "SVC_verify_entry_replay_same_call",
+      "status": 200,
+      "ok": true,
+      "replay": true,
+      "view_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid",
+        "submissions_reviewed"
+      ],
+      "view": {
+        "job_id": "5",
+        "status": "settled",
+        "created": false,
+        "idempotent_replay": true,
+        "txid": "54",
+        "ledger_idempotency_key": "biz:job:settle:5",
+        "escrow_txid": "52",
+        "settle_txid": "54",
+        "ledger_event_keys": [
+          "biz:job:escrow:5",
+          "biz:job:settle:5"
+        ],
+        "entry_count": 4,
+        "kinds": [
+          "job_payout",
+          "job_payout",
+          "job_fee",
+          "job_fee"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_payout",
+            "memo": "招工验收结算 job=5（雇主托管出账）",
+            "txid": "54",
+            "delta": "0",
+            "ref_id": "5",
+            "ref_type": "job",
+            "frozen_after": "4",
+            "frozen_delta": "-396",
+            "time_created": "2026-09-29T18:20:57.811Z",
+            "balance_after": "7600",
+            "idempotency_key": "biz:job:settle:5",
+            "reversal_of_txid": null,
+            "request_fingerprint": "133be6d427b5b70c64a5b9b7345ac390993efce89af9f2628ad56ca2e0e22e12"
+          },
+          {
+            "cid": "1",
+            "uid": "3",
+            "kind": "job_payout",
+            "memo": "招工验收结算 job=5（打工人到手）",
+            "txid": "55",
+            "delta": "396",
+            "ref_id": "5",
+            "ref_type": "job",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:20:57.811Z",
+            "balance_after": "396",
+            "idempotency_key": "biz:job:settle:5#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          },
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_fee",
+            "memo": "招工验收结算 job=5（手续费）",
+            "txid": "56",
+            "delta": "0",
+            "ref_id": "5",
+            "ref_type": "job",
+            "frozen_after": "0",
+            "frozen_delta": "-4",
+            "time_created": "2026-09-29T18:20:57.811Z",
+            "balance_after": "7600",
+            "idempotency_key": "biz:job:settle:5#3",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          },
+          {
+            "cid": "1",
+            "uid": "-1",
+            "kind": "job_fee",
+            "memo": "招工验收结算 job=5（手续费入账）",
+            "txid": "57",
+            "delta": "4",
+            "ref_id": "5",
+            "ref_type": "job",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:20:57.811Z",
+            "balance_after": "11207",
+            "idempotency_key": "biz:job:settle:5#4",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "frozen": "0",
+            "balance": "7600"
+          },
+          {
+            "cid": "1",
+            "uid": "3",
+            "frozen": "0",
+            "balance": "396"
+          },
+          {
+            "cid": "1",
+            "uid": "-1",
+            "frozen": "0",
+            "balance": "11207"
+          }
+        ],
+        "fee_credit_uid": "-1",
+        "submissions_reviewed": 0
+      }
+    }
+  ],
+  "service_records": [
+    {
+      "id": "J1_A_publish",
+      "status": 200,
+      "ok": true,
+      "replay": false,
+      "view_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid",
+        "employer_uid",
+        "cid",
+        "reward"
+      ],
+      "view": {
+        "job_id": "5",
+        "status": "open",
+        "created": true,
+        "idempotent_replay": false,
+        "txid": "52",
+        "ledger_idempotency_key": "biz:job:escrow:5",
+        "escrow_txid": "52",
+        "settle_txid": null,
+        "ledger_event_keys": [
+          "biz:job:escrow:5"
+        ],
+        "entry_count": 2,
+        "kinds": [
+          "job_escrow",
+          "job_escrow"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow",
+            "memo": "招工发布托管 job=5（雇主余额出账）",
+            "txid": "52",
+            "delta": "-400",
+            "ref_id": "5",
+            "ref_type": "job",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:20:51.814Z",
+            "balance_after": "7600",
+            "idempotency_key": "biz:job:escrow:5",
+            "reversal_of_txid": null,
+            "request_fingerprint": "6239eb2cd28ad32a90caf33f560fa7a83fa5934d1c1a277aaa08aaa69daad575"
+          },
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow",
+            "memo": "招工发布托管 job=5（入冻结）",
+            "txid": "53",
+            "delta": "0",
+            "ref_id": "5",
+            "ref_type": "job",
+            "frozen_after": "400",
+            "frozen_delta": "400",
+            "time_created": "2026-09-29T18:20:51.814Z",
+            "balance_after": "7600",
+            "idempotency_key": "biz:job:escrow:5#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "frozen": "400",
+            "balance": "7600"
+          }
+        ],
+        "fee_credit_uid": null,
+        "employer_uid": "2",
+        "cid": "1",
+        "reward": "400"
+      }
+    },
+    {
+      "id": "J1_A_publish_replay",
+      "status": 200,
+      "ok": true,
+      "replay": true,
+      "view_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid",
+        "employer_uid",
+        "cid",
+        "reward"
+      ],
+      "view": {
+        "job_id": "5",
+        "status": "open",
+        "created": false,
+        "idempotent_replay": true,
+        "txid": "52",
+        "ledger_idempotency_key": "biz:job:escrow:5",
+        "escrow_txid": "52",
+        "settle_txid": null,
+        "ledger_event_keys": [
+          "biz:job:escrow:5"
+        ],
+        "entry_count": 2,
+        "kinds": [
+          "job_escrow",
+          "job_escrow"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow",
+            "memo": "招工发布托管 job=5（雇主余额出账）",
+            "txid": "52",
+            "delta": "-400",
+            "ref_id": "5",
+            "ref_type": "job",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:20:51.814Z",
+            "balance_after": "7600",
+            "idempotency_key": "biz:job:escrow:5",
+            "reversal_of_txid": null,
+            "request_fingerprint": "6239eb2cd28ad32a90caf33f560fa7a83fa5934d1c1a277aaa08aaa69daad575"
+          },
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow",
+            "memo": "招工发布托管 job=5（入冻结）",
+            "txid": "53",
+            "delta": "0",
+            "ref_id": "5",
+            "ref_type": "job",
+            "frozen_after": "400",
+            "frozen_delta": "400",
+            "time_created": "2026-09-29T18:20:51.814Z",
+            "balance_after": "7600",
+            "idempotency_key": "biz:job:escrow:5#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "frozen": "400",
+            "balance": "7600"
+          }
+        ],
+        "fee_credit_uid": null,
+        "employer_uid": "2",
+        "cid": "1",
+        "reward": "400"
+      }
+    },
+    {
+      "id": "J1_neg_no_key",
+      "status": 400,
+      "ok": false,
+      "code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "details": {
+        "field": "create_key"
+      },
+      "message": "Idempotency key is required"
+    },
+    {
+      "id": "J1_neg_bad_prefix",
+      "status": 400,
+      "ok": false,
+      "code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "details": {
+        "field": "create_key",
+        "reason": "PREFIX_REQUIRED",
+        "allowed_prefixes": [
+          "biz:",
+          "cm:",
+          "cli:",
+          "ops:"
+        ]
+      },
+      "message": "Idempotency key is invalid"
+    },
+    {
+      "id": "J1_neg_other_employer",
+      "status": 403,
+      "ok": false,
+      "code": "AUTH_FORBIDDEN",
+      "details": {
+        "reason": "ACTOR_NOT_ALLOWED",
+        "field": "job.employer_uid"
+      },
+      "message": "ACTOR_NOT_ALLOWED"
+    },
+    {
+      "id": "J1_neg_insufficient",
+      "status": 409,
+      "ok": false,
+      "code": "LEDGER_INSUFFICIENT_BALANCE",
+      "details": {
+        "detail_unavailable": "driver_did_not_carry_detail"
+      },
+      "message": "LEDGER_INSUFFICIENT_BALANCE"
+    },
+    {
+      "id": "J1_neg_unknown_cid",
+      "status": 404,
+      "ok": false,
+      "code": "LEDGER_CURRENCY_NOT_FOUND",
+      "details": {
+        "constraint": "fk"
+      },
+      "message": "LEDGER_CURRENCY_NOT_FOUND"
+    },
+    {
+      "id": "J1_B_publish",
+      "status": 200,
+      "ok": true,
+      "replay": false,
+      "view_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid",
+        "employer_uid",
+        "cid",
+        "reward"
+      ],
+      "view": {
+        "job_id": "8",
+        "status": "open",
+        "created": true,
+        "idempotent_replay": false,
+        "txid": "58",
+        "ledger_idempotency_key": "biz:job:escrow:8",
+        "escrow_txid": "58",
+        "settle_txid": null,
+        "ledger_event_keys": [
+          "biz:job:escrow:8"
+        ],
+        "entry_count": 2,
+        "kinds": [
+          "job_escrow",
+          "job_escrow"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow",
+            "memo": "招工发布托管 job=8（雇主余额出账）",
+            "txid": "58",
+            "delta": "-1000",
+            "ref_id": "8",
+            "ref_type": "job",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:21:04.128Z",
+            "balance_after": "6600",
+            "idempotency_key": "biz:job:escrow:8",
+            "reversal_of_txid": null,
+            "request_fingerprint": "2234121ae55a578c18a047c57a83c903aab980477f9f981583ef47c74adb5e67"
+          },
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow",
+            "memo": "招工发布托管 job=8（入冻结）",
+            "txid": "59",
+            "delta": "0",
+            "ref_id": "8",
+            "ref_type": "job",
+            "frozen_after": "1000",
+            "frozen_delta": "1000",
+            "time_created": "2026-09-29T18:21:04.128Z",
+            "balance_after": "6600",
+            "idempotency_key": "biz:job:escrow:8#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "frozen": "1000",
+            "balance": "6600"
+          }
+        ],
+        "fee_credit_uid": null,
+        "employer_uid": "2",
+        "cid": "1",
+        "reward": "1000"
+      }
+    },
+    {
+      "id": "J1_C_publish",
+      "status": 200,
+      "ok": true,
+      "replay": false,
+      "view_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid",
+        "employer_uid",
+        "cid",
+        "reward"
+      ],
+      "view": {
+        "job_id": "9",
+        "status": "open",
+        "created": true,
+        "idempotent_replay": false,
+        "txid": "64",
+        "ledger_idempotency_key": "biz:job:escrow:9",
+        "escrow_txid": "64",
+        "settle_txid": null,
+        "ledger_event_keys": [
+          "biz:job:escrow:9"
+        ],
+        "entry_count": 2,
+        "kinds": [
+          "job_escrow",
+          "job_escrow"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow",
+            "memo": "招工发布托管 job=9（雇主余额出账）",
+            "txid": "64",
+            "delta": "-300",
+            "ref_id": "9",
+            "ref_type": "job",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:21:11.250Z",
+            "balance_after": "6300",
+            "idempotency_key": "biz:job:escrow:9",
+            "reversal_of_txid": null,
+            "request_fingerprint": "66c934abe4df5200bf8139511849fbb1e920f1c678c61fda83cac075b2ad954e"
+          },
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow",
+            "memo": "招工发布托管 job=9（入冻结）",
+            "txid": "65",
+            "delta": "0",
+            "ref_id": "9",
+            "ref_type": "job",
+            "frozen_after": "300",
+            "frozen_delta": "300",
+            "time_created": "2026-09-29T18:21:11.250Z",
+            "balance_after": "6300",
+            "idempotency_key": "biz:job:escrow:9#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "frozen": "300",
+            "balance": "6300"
+          }
+        ],
+        "fee_credit_uid": null,
+        "employer_uid": "2",
+        "cid": "1",
+        "reward": "300"
+      }
+    },
+    {
+      "id": "J6_D_refund_cancelled",
+      "status": 200,
+      "ok": true,
+      "replay": false,
+      "view_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid"
+      ],
+      "view": {
+        "job_id": "10",
+        "status": "cancelled",
+        "created": false,
+        "idempotent_replay": false,
+        "txid": "70",
+        "ledger_idempotency_key": "biz:job:refund:10",
+        "escrow_txid": "68",
+        "settle_txid": null,
+        "ledger_event_keys": [
+          "biz:job:escrow:10",
+          "biz:job:refund:10"
+        ],
+        "entry_count": 2,
+        "kinds": [
+          "job_escrow_refund",
+          "job_escrow_refund"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow_refund",
+            "memo": "招工托管退回 job=10（出冻结）",
+            "txid": "70",
+            "delta": "200",
+            "ref_id": "10",
+            "ref_type": "job",
+            "frozen_after": "200",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:21:16.449Z",
+            "balance_after": "6600",
+            "idempotency_key": "biz:job:refund:10",
+            "reversal_of_txid": null,
+            "request_fingerprint": "2694e5ef31b3d20241dd4e5bdd5b3ab8925390d5df0c21bdc5d27cd195813558"
+          },
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow_refund",
+            "memo": "招工托管退回 job=10（回余额）",
+            "txid": "71",
+            "delta": "0",
+            "ref_id": "10",
+            "ref_type": "job",
+            "frozen_after": "0",
+            "frozen_delta": "-200",
+            "time_created": "2026-09-29T18:21:16.449Z",
+            "balance_after": "6600",
+            "idempotency_key": "biz:job:refund:10#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "frozen": "0",
+            "balance": "6600"
+          }
+        ],
+        "fee_credit_uid": null
+      }
+    },
+    {
+      "id": "J6_neg_bad_to_status",
+      "status": 400,
+      "ok": false,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "details": {
+        "field": "to_status",
+        "reason": "not_a_refund_target",
+        "value": "bogus",
+        "allowed": [
+          "cancelled",
+          "rejected"
+        ]
+      },
+      "message": "Request shape is invalid"
+    },
+    {
+      "id": "J6_neg_unknown_job",
+      "status": 404,
+      "ok": false,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "details": {
+        "detail_unavailable": "driver_did_not_carry_detail"
+      },
+      "message": "LEDGER_REF_NOT_FOUND"
+    },
+    {
+      "id": "J6_neg_already_cancelled",
+      "status": 200,
+      "ok": true,
+      "replay": true,
+      "view_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid"
+      ],
+      "view": {
+        "job_id": "10",
+        "status": "cancelled",
+        "created": false,
+        "idempotent_replay": true,
+        "txid": "70",
+        "ledger_idempotency_key": "biz:job:refund:10",
+        "escrow_txid": "68",
+        "settle_txid": null,
+        "ledger_event_keys": [
+          "biz:job:escrow:10",
+          "biz:job:refund:10"
+        ],
+        "entry_count": 2,
+        "kinds": [
+          "job_escrow_refund",
+          "job_escrow_refund"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow_refund",
+            "memo": "招工托管退回 job=10（出冻结）",
+            "txid": "70",
+            "delta": "200",
+            "ref_id": "10",
+            "ref_type": "job",
+            "frozen_after": "200",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:21:16.449Z",
+            "balance_after": "6600",
+            "idempotency_key": "biz:job:refund:10",
+            "reversal_of_txid": null,
+            "request_fingerprint": "2694e5ef31b3d20241dd4e5bdd5b3ab8925390d5df0c21bdc5d27cd195813558"
+          },
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_escrow_refund",
+            "memo": "招工托管退回 job=10（回余额）",
+            "txid": "71",
+            "delta": "0",
+            "ref_id": "10",
+            "ref_type": "job",
+            "frozen_after": "0",
+            "frozen_delta": "-200",
+            "time_created": "2026-09-29T18:21:16.449Z",
+            "balance_after": "6600",
+            "idempotency_key": "biz:job:refund:10#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "frozen": "0",
+            "balance": "6600"
+          }
+        ],
+        "fee_credit_uid": null
+      }
+    },
+    {
+      "id": "J5_neg_unknown_job",
+      "status": 404,
+      "ok": false,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "details": {
+        "detail_unavailable": "driver_did_not_carry_detail"
+      },
+      "message": "LEDGER_REF_NOT_FOUND"
+    },
+    {
+      "id": "SVC_verify_entry_replay_same_call",
+      "status": 200,
+      "ok": true,
+      "replay": true,
+      "view_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid",
+        "submissions_reviewed"
+      ],
+      "view": {
+        "job_id": "5",
+        "status": "settled",
+        "created": false,
+        "idempotent_replay": true,
+        "txid": "54",
+        "ledger_idempotency_key": "biz:job:settle:5",
+        "escrow_txid": "52",
+        "settle_txid": "54",
+        "ledger_event_keys": [
+          "biz:job:escrow:5",
+          "biz:job:settle:5"
+        ],
+        "entry_count": 4,
+        "kinds": [
+          "job_payout",
+          "job_payout",
+          "job_fee",
+          "job_fee"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_payout",
+            "memo": "招工验收结算 job=5（雇主托管出账）",
+            "txid": "54",
+            "delta": "0",
+            "ref_id": "5",
+            "ref_type": "job",
+            "frozen_after": "4",
+            "frozen_delta": "-396",
+            "time_created": "2026-09-29T18:20:57.811Z",
+            "balance_after": "7600",
+            "idempotency_key": "biz:job:settle:5",
+            "reversal_of_txid": null,
+            "request_fingerprint": "133be6d427b5b70c64a5b9b7345ac390993efce89af9f2628ad56ca2e0e22e12"
+          },
+          {
+            "cid": "1",
+            "uid": "3",
+            "kind": "job_payout",
+            "memo": "招工验收结算 job=5（打工人到手）",
+            "txid": "55",
+            "delta": "396",
+            "ref_id": "5",
+            "ref_type": "job",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:20:57.811Z",
+            "balance_after": "396",
+            "idempotency_key": "biz:job:settle:5#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          },
+          {
+            "cid": "1",
+            "uid": "2",
+            "kind": "job_fee",
+            "memo": "招工验收结算 job=5（手续费）",
+            "txid": "56",
+            "delta": "0",
+            "ref_id": "5",
+            "ref_type": "job",
+            "frozen_after": "0",
+            "frozen_delta": "-4",
+            "time_created": "2026-09-29T18:20:57.811Z",
+            "balance_after": "7600",
+            "idempotency_key": "biz:job:settle:5#3",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          },
+          {
+            "cid": "1",
+            "uid": "-1",
+            "kind": "job_fee",
+            "memo": "招工验收结算 job=5（手续费入账）",
+            "txid": "57",
+            "delta": "4",
+            "ref_id": "5",
+            "ref_type": "job",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:20:57.811Z",
+            "balance_after": "11207",
+            "idempotency_key": "biz:job:settle:5#4",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "2",
+            "frozen": "0",
+            "balance": "7600"
+          },
+          {
+            "cid": "1",
+            "uid": "3",
+            "frozen": "0",
+            "balance": "396"
+          },
+          {
+            "cid": "1",
+            "uid": "-1",
+            "frozen": "0",
+            "balance": "11207"
+          }
+        ],
+        "fee_credit_uid": "-1",
+        "submissions_reviewed": 0
+      }
+    }
+  ],
+  "leak_check": {
+    "eyJ": 0,
+    "secret_occurrences": 0
+  }
+}

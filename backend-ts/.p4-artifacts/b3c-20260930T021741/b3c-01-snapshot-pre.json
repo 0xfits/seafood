@@ -1,0 +1,61 @@
+{
+  "run": "b3c-20260930T021741",
+  "label": "pre",
+  "at": "2026-09-29T18:17:43.862Z",
+  "probe": "p4z-b3c-01-snapshot",
+  "account": {
+    "rows": 5,
+    "sum_balance": "1995998",
+    "sum_frozen": "4002",
+    "sum_total": "2000000",
+    "per_row": [
+      {
+        "uid": "-1",
+        "cid": "1",
+        "balance": "11203",
+        "frozen": "0"
+      },
+      {
+        "uid": "-2",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0"
+      },
+      {
+        "uid": "-3",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0"
+      },
+      {
+        "uid": "0",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0"
+      },
+      {
+        "uid": "970001",
+        "cid": "1",
+        "balance": "1984795",
+        "frozen": "4002"
+      }
+    ]
+  },
+  "ledger_entry": {
+    "total_rows": 42,
+    "by_kind": {
+      "currency_create_fee": 20,
+      "hold": 4,
+      "listing_deposit": 16,
+      "mint": 2
+    },
+    "by_kind_sum": 42,
+    "by_kind_sum_equals_total": true
+  },
+  "job": {
+    "job_rows": 3,
+    "job_b3c": 0,
+    "app_rows": 3,
+    "sub_rows": 2
+  }
+}

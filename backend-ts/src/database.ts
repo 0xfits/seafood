@@ -1647,6 +1647,113 @@ export class DatabaseService {
     };
   }
 
+  // ==========================================================================================
+  // P4-B3c（§4.2 J1/J5/J6 + §4.0 R1/R2/R4/DL20）· 招工**资金**编排的唯一调用口
+  // ==========================================================================================
+  /**
+   * **唯一资金写路径**（§4.0 R1）：一条语句调用迁移既有编排函数 `public.job_post_event($1::jsonb)`。
+   * 函数内完成「锁业务行（`FOR UPDATE`）→ 派生分录 → 调 `ledger_post_event` → 回写
+   * `escrow_txid`/`settle_txid`/`ledger_event_keys`/`status`」⇒ **业务行 + 分录同生同灭**（R2/DL20）。
+   * 本方法**只转发 payload**：不派生分录、不自造幂等键（DL95：键由函数按 §8 确定性派生
+   * `biz:job:{escrow,settle,refund}:<job_id>`）、不写 `account`/`ledger_entry`。
+   * 返回值 = 函数回执 `{ok, idempotent_replay, op, job_id, status, escrow_txid, settle_txid,
+   * ledger_event_keys, txid, ledger_idempotency_key, entries, accounts, extra}`。
+   */
+  static async jobPostEvent(payload: Record<string, unknown>): Promise<RawRow> {
+    const sql = getSql();
+    const row = firstRow(await sql`
+      SELECT public.job_post_event(${JSON.stringify(payload)}::jsonb) AS r
+    `);
+    if (!row) throw new Error('jobPostEvent: no row returned');
+    return row;
+  }
+
+  /**
+   * §4.2 J5/J6 路由前置（**只读**）：解析 `POST /api/tasklist/:jID/verify` 的 `:jID` → 目标 job。
+   * 口径与 `resolveJobApplication`（DL111）同族：**先按 `application_id` 精确匹配**，未命中再容错按
+   * `job_id` 匹配（前端读口 `getTaskProgress`/`listPendingVerification` 的 `jID` 键 = `application_id`）。
+   * 资金/状态写入**一律不在此处**（仍由 `job_post_event` 的单语句完成）⇒ 本方法无任何写副作用。
+   */
+  static async resolveReviewTarget(identifier: number): Promise<{
+    applicationId: number;
+    jobId: number;
+    applicantUid: number;
+    jobWorkerUid: number | null;
+    employerUid: number;
+    jobStatus: string;
+    applicationStatus: string;
+  } | null> {
+    const sql = getSql();
+    const row = firstRow(await sql`
+      SELECT a.application_id, a.job_id, a.worker_uid AS applicant_uid, a.status AS application_status,
+             j.worker_uid AS job_worker_uid, j.employer_uid, j.status AS job_status
+        FROM public.job_application AS a
+        JOIN public.job AS j ON j.job_id = a.job_id
+       WHERE a.application_id = ${identifier} OR a.job_id = ${identifier}
+       ORDER BY (a.application_id = ${identifier}) DESC, a.application_id DESC
+       LIMIT 1
+    `);
+    if (!row) return null;
+    const jw = getValue(row, 'job_worker_uid');
+    return {
+      applicationId: toNumberValue(getValue(row, 'application_id')),
+      jobId: toNumberValue(getValue(row, 'job_id')),
+      applicantUid: toNumberValue(getValue(row, 'applicant_uid')),
+      jobWorkerUid: jw === null || jw === undefined ? null : toNumberValue(jw),
+      employerUid: toNumberValue(getValue(row, 'employer_uid')),
+      jobStatus: toStringValue(getValue(row, 'job_status')),
+      applicationStatus: toStringValue(getValue(row, 'application_status')),
+    };
+  }
+
+  /**
+   * §4.0 R4 / 派单硬口径 #3「**审核通过 → 发放必须原子**」的本仓等价实现：
+   * `job_post_event(...)`（业务行状态 + 全部资金分录）与 `job_submission.review_status` 的**结论位**
+   * 压在**同一条 SQL 语句**（= 一个隐式事务）内 ⇒ 任一失败 ⇒ **整条回滚**，
+   * **不存在**「状态 `settled` 但没发放」「已审核但没发放」「已发放但未审核」三种半成品。
+   *   · `ev`  ：先跑编排函数（它内部对 `public.job` 行 `FOR UPDATE` —— DL141 全序第一段，
+   *             且它在**自己的语句内**调用 `ledger_post_event`；失败 ⇒ 本语句整体报错、`sub` 一并回滚）
+   *   · `sub` ：只改**该 job × 该 worker 的最新一条 `pending` 提交**的结论位
+   *             （`pending → approved|rejected`；`reviewed_by/reviewed_at/review_memo` 一次写定，
+   *              符合 `0014:209-248` 的 `job_submission_immutable_guard`）
+   * 返回值 = `{ r: <job_post_event 回执>, submissions_reviewed: <int> }`。
+   * 注：重放（同键同指纹）时编排函数返回 `idempotent_replay=true`，此时 `submissions_reviewed` 通常 = 0
+   * （结论位已非 `pending`，`WHERE` 不命中）—— 这是**正确**读数，不是缺陷。
+   */
+  static async reviewJobSubmission(input: {
+    payload: Record<string, unknown>;
+    reviewStatus: 'approved' | 'rejected';
+    reviewedBy: number;
+    reviewMemo: string;
+  }): Promise<RawRow> {
+    const sql = getSql();
+    const jobIdText = String(input.payload.job_id ?? '');
+    const rows = extractRows(await sql`
+      WITH ev AS (
+        SELECT public.job_post_event(${JSON.stringify(input.payload)}::jsonb) AS r
+      ), sub AS (
+        UPDATE public.job_submission AS s
+           SET review_status = ${input.reviewStatus}::text,
+               reviewed_by   = ${input.reviewedBy}::bigint,
+               reviewed_at   = now(),
+               review_memo   = ${input.reviewMemo}::text
+         WHERE s.job_id = ${jobIdText}::bigint
+           AND s.review_status = 'pending'
+           AND s.worker_uid = (SELECT j.worker_uid FROM public.job AS j WHERE j.job_id = ${jobIdText}::bigint)
+           AND s.submission_id = (
+                 SELECT max(s0.submission_id) FROM public.job_submission AS s0
+                  WHERE s0.job_id = ${jobIdText}::bigint
+                    AND s0.worker_uid = (SELECT j.worker_uid FROM public.job AS j WHERE j.job_id = ${jobIdText}::bigint))
+        RETURNING s.submission_id
+      )
+      SELECT (SELECT ev.r FROM ev) AS r,
+             (SELECT count(*)::int FROM sub) AS submissions_reviewed
+    `);
+    const row = rows[0] || null;
+    if (!row) throw new Error('reviewJobSubmission: no row returned');
+    return row;
+  }
+
   /** §4.2 J4：提交交付物 —— `job_submission` 落行（review_status='pending'）+ `job.status→'submitted'`，同语句原子 */
   static async submitJobWork(
     applicationId: number,
