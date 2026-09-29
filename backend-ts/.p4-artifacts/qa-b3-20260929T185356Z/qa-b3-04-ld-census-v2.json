@@ -1,0 +1,600 @@
+{
+  "run": "qa-b3-20260929T185356Z",
+  "at": "2026-09-29T18:58:45.642Z",
+  "probe": "p4z-qa-b3-04-ld-census",
+  "sources": {
+    "truth_map_keys": 33,
+    "error_table_keys": 33,
+    "spec_path": "/Users/kevin/bistro/seafood/docs/route-layer.spec.md"
+  },
+  "lds_in_map_not_in_error_table": [],
+  "census": [
+    {
+      "ld": "LD001",
+      "code": "LEDGER_INSUFFICIENT_BALANCE",
+      "truth_status": 409,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [
+        409
+      ],
+      "spec_occurrences": 7,
+      "consistent": true
+    },
+    {
+      "ld": "LD002",
+      "code": "LEDGER_INSUFFICIENT_FROZEN",
+      "truth_status": 409,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [
+        409
+      ],
+      "spec_occurrences": 2,
+      "consistent": true
+    },
+    {
+      "ld": "LD003",
+      "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+      "truth_status": 409,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [
+        409
+      ],
+      "spec_occurrences": 5,
+      "consistent": true
+    },
+    {
+      "ld": "LD004",
+      "code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "truth_status": 400,
+      "mentioned_in_spec": false,
+      "spec_status_classes": [],
+      "spec_occurrences": 0,
+      "consistent": true
+    },
+    {
+      "ld": "LD005",
+      "code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "truth_status": 400,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [
+        400
+      ],
+      "spec_occurrences": 3,
+      "consistent": true
+    },
+    {
+      "ld": "LD006",
+      "code": "LEDGER_IDEMPOTENCY_REPLAY",
+      "truth_status": 200,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [],
+      "spec_occurrences": 0,
+      "consistent": true
+    },
+    {
+      "ld": "LD007",
+      "code": "LEDGER_CURRENCY_NOT_FOUND",
+      "truth_status": 404,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [
+        404
+      ],
+      "spec_occurrences": 4,
+      "consistent": true
+    },
+    {
+      "ld": "LD008",
+      "code": "LEDGER_CURRENCY_NOT_LISTED",
+      "truth_status": 409,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [
+        409
+      ],
+      "spec_occurrences": 3,
+      "consistent": true
+    },
+    {
+      "ld": "LD009",
+      "code": "LEDGER_CURRENCY_FROZEN",
+      "truth_status": 423,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [],
+      "spec_occurrences": 0,
+      "consistent": true
+    },
+    {
+      "ld": "LD010",
+      "code": "LEDGER_CURRENCY_DELISTED",
+      "truth_status": 409,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [],
+      "spec_occurrences": 0,
+      "consistent": true
+    },
+    {
+      "ld": "LD011",
+      "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+      "truth_status": 409,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [
+        409
+      ],
+      "spec_occurrences": 11,
+      "consistent": true
+    },
+    {
+      "ld": "LD012",
+      "code": "LEDGER_CURRENCY_MISMATCH",
+      "truth_status": 400,
+      "mentioned_in_spec": false,
+      "spec_status_classes": [],
+      "spec_occurrences": 0,
+      "consistent": true
+    },
+    {
+      "ld": "LD013",
+      "code": "LEDGER_SUPPLY_CAP_EXCEEDED",
+      "truth_status": 409,
+      "mentioned_in_spec": false,
+      "spec_status_classes": [],
+      "spec_occurrences": 0,
+      "consistent": true
+    },
+    {
+      "ld": "LD014",
+      "code": "LEDGER_UNAUTHORIZED_MINT",
+      "truth_status": 403,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [],
+      "spec_occurrences": 0,
+      "consistent": true
+    },
+    {
+      "ld": "LD015",
+      "code": "LEDGER_HOLD_NOT_ALLOWED",
+      "truth_status": 403,
+      "mentioned_in_spec": false,
+      "spec_status_classes": [],
+      "spec_occurrences": 0,
+      "consistent": true
+    },
+    {
+      "ld": "LD016",
+      "code": "LEDGER_AMOUNT_INVALID",
+      "truth_status": 400,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [
+        400
+      ],
+      "spec_occurrences": 11,
+      "consistent": true
+    },
+    {
+      "ld": "LD017",
+      "code": "LEDGER_AMOUNT_NOT_POSITIVE",
+      "truth_status": 400,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [
+        400
+      ],
+      "spec_occurrences": 5,
+      "consistent": true
+    },
+    {
+      "ld": "LD018",
+      "code": "LEDGER_DECIMALS_OVERFLOW",
+      "truth_status": 400,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [
+        400
+      ],
+      "spec_occurrences": 3,
+      "consistent": true
+    },
+    {
+      "ld": "LD019",
+      "code": "LEDGER_SELF_TRANSFER",
+      "truth_status": 400,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [
+        400
+      ],
+      "spec_occurrences": 1,
+      "consistent": true
+    },
+    {
+      "ld": "LD020",
+      "code": "LEDGER_ACCOUNT_NOT_FOUND",
+      "truth_status": 404,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [
+        400
+      ],
+      "spec_occurrences": 1,
+      "consistent": false
+    },
+    {
+      "ld": "LD021",
+      "code": "LEDGER_RESERVED_UID",
+      "truth_status": 400,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [
+        400
+      ],
+      "spec_occurrences": 3,
+      "consistent": true
+    },
+    {
+      "ld": "LD022",
+      "code": "LEDGER_REF_NOT_FOUND",
+      "truth_status": 404,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [
+        400,
+        404
+      ],
+      "spec_occurrences": 17,
+      "consistent": false
+    },
+    {
+      "ld": "LD023",
+      "code": "LEDGER_UNKNOWN_KIND",
+      "truth_status": 400,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [
+        400,
+        404
+      ],
+      "spec_occurrences": 6,
+      "consistent": false
+    },
+    {
+      "ld": "LD024",
+      "code": "LEDGER_TRANSACTION_REQUIRED",
+      "truth_status": 500,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [],
+      "spec_occurrences": 0,
+      "consistent": true
+    },
+    {
+      "ld": "LD025",
+      "code": "LEDGER_LOCK_TIMEOUT",
+      "truth_status": 503,
+      "mentioned_in_spec": false,
+      "spec_status_classes": [],
+      "spec_occurrences": 0,
+      "consistent": true
+    },
+    {
+      "ld": "LD026",
+      "code": "LEDGER_TX_TIMEOUT",
+      "truth_status": 503,
+      "mentioned_in_spec": false,
+      "spec_status_classes": [],
+      "spec_occurrences": 0,
+      "consistent": true
+    },
+    {
+      "ld": "LD027",
+      "code": "LEDGER_DEADLOCK_RETRY_EXHAUSTED",
+      "truth_status": 503,
+      "mentioned_in_spec": false,
+      "spec_status_classes": [],
+      "spec_occurrences": 0,
+      "consistent": true
+    },
+    {
+      "ld": "LD028",
+      "code": "LEDGER_NEGATIVE_BALANCE_GUARD",
+      "truth_status": 500,
+      "mentioned_in_spec": false,
+      "spec_status_classes": [],
+      "spec_occurrences": 0,
+      "consistent": true
+    },
+    {
+      "ld": "LD029",
+      "code": "LEDGER_APPEND_ONLY_VIOLATION",
+      "truth_status": 500,
+      "mentioned_in_spec": false,
+      "spec_status_classes": [],
+      "spec_occurrences": 0,
+      "consistent": true
+    },
+    {
+      "ld": "LD030",
+      "code": "LEDGER_ACCOUNT_GUARD_VIOLATION",
+      "truth_status": 500,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [
+        500
+      ],
+      "spec_occurrences": 1,
+      "consistent": true
+    },
+    {
+      "ld": "LD031",
+      "code": "LEDGER_FEE_RATE_INVALID",
+      "truth_status": 500,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [
+        500
+      ],
+      "spec_occurrences": 1,
+      "consistent": true
+    },
+    {
+      "ld": "LD032",
+      "code": "LEDGER_RECONCILE_MISMATCH",
+      "truth_status": null,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [
+        500
+      ],
+      "spec_occurrences": 1,
+      "consistent": false
+    },
+    {
+      "ld": "LD033",
+      "code": "LEDGER_CURRENCY_SYMBOL_TAKEN",
+      "truth_status": 409,
+      "mentioned_in_spec": true,
+      "spec_status_classes": [
+        409
+      ],
+      "spec_occurrences": 1,
+      "consistent": true
+    }
+  ],
+  "coverage": {
+    "lds_mentioned_in_spec": [
+      "LD001",
+      "LD002",
+      "LD003",
+      "LD005",
+      "LD006",
+      "LD007",
+      "LD008",
+      "LD009",
+      "LD010",
+      "LD011",
+      "LD014",
+      "LD016",
+      "LD017",
+      "LD018",
+      "LD019",
+      "LD020",
+      "LD021",
+      "LD022",
+      "LD023",
+      "LD024",
+      "LD030",
+      "LD031",
+      "LD032",
+      "LD033"
+    ],
+    "lds_absent_from_spec": [
+      "LD004",
+      "LD012",
+      "LD013",
+      "LD015",
+      "LD025",
+      "LD026",
+      "LD027",
+      "LD028",
+      "LD029"
+    ],
+    "sec_4_7_1_covered": [
+      "LD020",
+      "LD021",
+      "LD022",
+      "LD023",
+      "LD024"
+    ],
+    "sec_4_7_1_missing": [
+      "LD001",
+      "LD002",
+      "LD003",
+      "LD004",
+      "LD005",
+      "LD006",
+      "LD007",
+      "LD008",
+      "LD009",
+      "LD010",
+      "LD011",
+      "LD012",
+      "LD013",
+      "LD014",
+      "LD015",
+      "LD016",
+      "LD017",
+      "LD018",
+      "LD019",
+      "LD025",
+      "LD026",
+      "LD027",
+      "LD028",
+      "LD029",
+      "LD030",
+      "LD031",
+      "LD032",
+      "LD033"
+    ]
+  },
+  "mismatches": [
+    {
+      "line": 5,
+      "ld": "LD023",
+      "spec_status": 404,
+      "truth_status": 400,
+      "code": "LEDGER_UNKNOWN_KIND",
+      "text": "> **★★ v0.7 本单要点（先说结论，不含糊）**：① **★ 类级订正 `LD023` → `LD022`（4 处）** —— 依据 = **Zang §5.88 裁定④**；真源 = `backend-ts/src/ledger.ts:1051`（`LD022: 'LEDGER_REF_NOT_FOUND'`、**404**）/`:1052`（`LD023: 'LEDGER_UNKNOWN_KIND'`、**400**）+ `"
+    },
+    {
+      "line": 545,
+      "ld": "LD022",
+      "spec_status": 400,
+      "truth_status": 404,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "text": "| **J1** | 招工发布 + 托管 | `POST /api/job` | `job_post_event(op='publish')`（`0013:431`） | `job_escrow` **×2** | `create_key`(`cli:`)、`employer_uid`、`cid`、`reward`、`title?`、`description?`、`request_fingerprint` | **create_key*"
+    },
+    {
+      "line": 552,
+      "ld": "LD020",
+      "spec_status": 400,
+      "truth_status": 404,
+      "code": "LEDGER_ACCOUNT_NOT_FOUND",
+      "text": "| **P2** | 商品下单（付款即交付） | `POST /api/listing/:listingId/buy` | `listing_post_event(op='buy')`（`0015:449`） | `purchase` **×1** + `sale` **×1**（**恰好两条**，`DL85`） | `create_key`(`cli:`)、`listing_id`、`buyer_uid`、`quantity`、`re"
+    },
+    {
+      "line": 555,
+      "ld": "LD022",
+      "spec_status": 400,
+      "truth_status": 404,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "text": "| **M1** | 交易所挂单 | `POST /api/market/order` / `POST /api/order`（:637） | `market_post_event(op='order')`（`0016:393`） | **`hold` ×2**（同 uid 同 cid） | 买单：`create_key`(`cli:`)、`owner_uid`、`side='buy'`、`base_cid`、`quote_cid`、`"
+    },
+    {
+      "line": 564,
+      "ld": "LD022",
+      "spec_status": 400,
+      "truth_status": 404,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "text": "| **A1** | 管理员调分（**保留但锁死**） | `POST /api/admin/points/adjust`（:1066） | `ledger_post_event(op='mint'\\|'burn')` | `mint` / `burn`（**仅 `$` = cid 1**） | `target_uid`、`cid=1`、`amount`、**必填原因码** | `ops:<admin_uid>:points_adjus"
+    },
+    {
+      "line": 680,
+      "ld": "LD023",
+      "spec_status": 404,
+      "truth_status": 400,
+      "code": "LEDGER_UNKNOWN_KIND",
+      "text": "| **§4.2 J1 `:534`** | `404` LD007/**LD023** | 「job 行不存在 ⇒ 关联单据不存在」，真源 = `migrations/0013_job.sql` 3 处 `ledger_raise('LEDGER_REF_NOT_FOUND'`（含 `:503` 同段） | **改** ⇒ `404 LD007/LD022` | **Zang §5.88 裁定④**；`ledger.ts:1051` "
+    },
+    {
+      "line": 681,
+      "ld": "LD023",
+      "spec_status": 404,
+      "truth_status": 400,
+      "code": "LEDGER_UNKNOWN_KIND",
+      "text": "| **§4.2 P2 `:541`** | `404` **LD023** + `listing_not_found` | **明写 `listing_not_found`** ⇒ 关联单据不存在（真源 = `0015_listing.sql` **6 处** `LEDGER_REF_NOT_FOUND`） | **改** ⇒ `404 LD022` | 同上 |"
+    },
+    {
+      "line": 682,
+      "ld": "LD023",
+      "spec_status": 404,
+      "truth_status": 400,
+      "code": "LEDGER_UNKNOWN_KIND",
+      "text": "| **§4.2 P4 `:543`** | `404` **LD023** | 退款 `order_id` 不存在 ⇒ 关联单据不存在 | **改** ⇒ `404 LD022` | 同上 |"
+    },
+    {
+      "line": 683,
+      "ld": "LD023",
+      "spec_status": 404,
+      "truth_status": 400,
+      "code": "LEDGER_UNKNOWN_KIND",
+      "text": "| **§4.2 M2 `:545`** | `404` **LD023** + `order_not_found` | **明写 `order_not_found`** ⇒ 关联单据不存在（真源 = `0016_market.sql` **5 处** `LEDGER_REF_NOT_FOUND`） | **改** ⇒ `404 LD022` | 同上 |"
+    },
+    {
+      "line": 684,
+      "ld": "LD022",
+      "spec_status": 400,
+      "truth_status": 404,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "text": "| §4.2 J1 `:534` | `400` …/**LD022** | `LD022` = **404** 语义 ⇒ 与其所在的 `400` 列表**自相矛盾**；该处 = 「平台/保留 uid 前置闸」（`employer_uid`）⇒ 真值应为 **`LD021`**（真源 = `0013_job.sql:503-505` `LEDGER_RESERVED_UID` + `reason=PLATFORM_EMPLOYER_FO"
+    },
+    {
+      "line": 685,
+      "ld": "LD022",
+      "spec_status": 400,
+      "truth_status": 404,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "text": "| §4.2 M1 `:544` | `400` LD016…/**LD022** | 同上；该处 = 平台/保留 `owner_uid` 闸（真源 = `0016_market.sql:481` `LEDGER_RESERVED_UID`） | **不改（本单）** | 同上（**§7-31**） |"
+    },
+    {
+      "line": 686,
+      "ld": "LD022",
+      "spec_status": 400,
+      "truth_status": 404,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "text": "| §4.2 A1 `:553` | `400` **LD022**/LD016 | 同上；`target_uid` 为保留 uid 时（真源 = 同族 `LEDGER_RESERVED_UID`） | **不改（本单）** | 同上（**§7-31**） |"
+    },
+    {
+      "line": 687,
+      "ld": "LD022",
+      "spec_status": 400,
+      "truth_status": 404,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "text": "| §4.4-6 `:578` | `400` **LD022**（**平台/保留 uid 前置闸**逐字） | 同上；**该行自己写明是「平台/保留 uid 前置闸」** ⇒ 真值应为 **`LD021`**（`ledger-errors.ts:55` = 「目标账户无效」**400**） | **不改（本单）** | 同上（**§7-31**） |"
+    },
+    {
+      "line": 875,
+      "ld": "LD022",
+      "spec_status": 400,
+      "truth_status": 404,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "text": "| **7-31（v0.7 新增）** | **`400 LD022`（4 处）的**反向同类缺陷** —— 真值应为 `LD021`（`LEDGER_RESERVED_UID`）** | **待 Zang（一句话可落）** | **发现过程（本单类级扫描副产物）**：`LD022` = `LEDGER_REF_NOT_FOUND`（**404**，`src/ledger.ts:1051`）⇒ 出现在 **`400` 列表**里属**自"
+    }
+  ],
+  "ld022_in_400_lists": [
+    {
+      "line": 545,
+      "text": "| **J1** | 招工发布 + 托管 | `POST /api/job` | `job_post_event(op='publish')`（`0013:431`） | `job_escrow` **×2** | `create_key`(`cli:`)、`employer_uid`、`cid`、`reward`、`title?`、`description?`、`request_fingerpr"
+    },
+    {
+      "line": 552,
+      "text": "| **P2** | 商品下单（付款即交付） | `POST /api/listing/:listingId/buy` | `listing_post_event(op='buy')`（`0015:449`） | `purchase` **×1** + `sale` **×1**（**恰好两条**，`DL85`） | `create_key`(`cli:`)、`listing_id`、`buyer"
+    },
+    {
+      "line": 555,
+      "text": "| **M1** | 交易所挂单 | `POST /api/market/order` / `POST /api/order`（:637） | `market_post_event(op='order')`（`0016:393`） | **`hold` ×2**（同 uid 同 cid） | 买单：`create_key`(`cli:`)、`owner_uid`、`side='buy'`、`bas"
+    },
+    {
+      "line": 564,
+      "text": "| **A1** | 管理员调分（**保留但锁死**） | `POST /api/admin/points/adjust`（:1066） | `ledger_post_event(op='mint'\\|'burn')` | `mint` / `burn`（**仅 `$` = cid 1**） | `target_uid`、`cid=1`、`amount`、**必填原因码** | `ops:<adm"
+    },
+    {
+      "line": 684,
+      "text": "| §4.2 J1 `:534` | `400` …/**LD022** | `LD022` = **404** 语义 ⇒ 与其所在的 `400` 列表**自相矛盾**；该处 = 「平台/保留 uid 前置闸」（`employer_uid`）⇒ 真值应为 **`LD021`**（真源 = `0013_job.sql:503-505` `LEDGER_RESERVED_UID` + `reason="
+    },
+    {
+      "line": 685,
+      "text": "| §4.2 M1 `:544` | `400` LD016…/**LD022** | 同上；该处 = 平台/保留 `owner_uid` 闸（真源 = `0016_market.sql:481` `LEDGER_RESERVED_UID`） | **不改（本单）** | 同上（**§7-31**） |"
+    },
+    {
+      "line": 686,
+      "text": "| §4.2 A1 `:553` | `400` **LD022**/LD016 | 同上；`target_uid` 为保留 uid 时（真源 = 同族 `LEDGER_RESERVED_UID`） | **不改（本单）** | 同上（**§7-31**） |"
+    },
+    {
+      "line": 687,
+      "text": "| §4.4-6 `:578` | `400` **LD022**（**平台/保留 uid 前置闸**逐字） | 同上；**该行自己写明是「平台/保留 uid 前置闸」** ⇒ 真值应为 **`LD021`**（`ledger-errors.ts:55` = 「目标账户无效」**400**） | **不改（本单）** | 同上（**§7-31**） |"
+    },
+    {
+      "line": 875,
+      "text": "| **7-31（v0.7 新增）** | **`400 LD022`（4 处）的**反向同类缺陷** —— 真值应为 `LD021`（`LEDGER_RESERVED_UID`）** | **待 Zang（一句话可落）** | **发现过程（本单类级扫描副产物）**：`LD022` = `LEDGER_REF_NOT_FOUND`（**404**，`src/ledger.ts:1051`）⇒ 出"
+    }
+  ],
+  "name_pairs_total": 14,
+  "name_mismatches": [
+    {
+      "line": 558,
+      "ld": "LD018",
+      "spec_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+      "truth_code": "LEDGER_DECIMALS_OVERFLOW",
+      "text": "| **C1** | 自定义积分创建（建单位） | `POST /api/currency`（**已注册**：`src/index.ts:1160`） | **单语句 CTE**（迁移冻结 ⇒ 不新增编排函数）：`src/currency-service.ts` `createCurrencyVerb` + `DatabaseService.createCurrencyWithFee`（一条 `S"
+    }
+  ],
+  "null_status_keys": [
+    "LD032"
+  ],
+  "null_status_in_spec": [
+    {
+      "line": 549,
+      "ld": "LD032",
+      "spec_status": 500,
+      "truth_status": null,
+      "text": "| **J5** | **审核通过 → 发放 + 手续费 + 10 级返佣** | `POST /api/tasklist/:jID/verify`（:1000）/ `POST /api/job/:jobId/review` | `job_post_event(op='settle')`（`0013:591-592,6"
+    }
+  ]
+}

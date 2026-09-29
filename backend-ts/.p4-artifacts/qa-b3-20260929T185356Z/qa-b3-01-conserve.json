@@ -1,0 +1,160 @@
+{
+  "run": "qa-b3-20260929T185356Z",
+  "at": "2026-09-29T18:54:25.429Z",
+  "probe": "p4z-qa-b3-01-conserve",
+  "account": {
+    "rows": 23,
+    "recomputed_sum_balance": "2009627",
+    "recomputed_sum_frozen": "10473",
+    "recomputed_sum_total": "2020100",
+    "sql_agg": {
+      "rows": 23,
+      "sum_balance": "2009627",
+      "sum_frozen": "10473",
+      "sum_total": "2020100"
+    },
+    "recompute_matches_sql": true,
+    "negative_rows": 0,
+    "per_cid": {
+      "1": {
+        "rows": 14,
+        "bal": "1989528",
+        "fro": "10472",
+        "total": "2000000"
+      },
+      "4": {
+        "rows": 3,
+        "bal": "10000",
+        "fro": "0",
+        "total": "10000"
+      },
+      "16": {
+        "rows": 3,
+        "bal": "10000",
+        "fro": "0",
+        "total": "10000"
+      },
+      "21": {
+        "rows": 3,
+        "bal": "99",
+        "fro": "1",
+        "total": "100"
+      }
+    },
+    "negative_constraints": [
+      {
+        "conname": "account_bal_guard",
+        "def": "CHECK ((balance >= 0))"
+      },
+      {
+        "conname": "account_frz_guard",
+        "def": "CHECK ((frozen >= 0))"
+      }
+    ]
+  },
+  "ledger": {
+    "total_rows": 189,
+    "by_kind": {
+      "commission": 4,
+      "currency_create_fee": 20,
+      "hold": 46,
+      "hold_release": 6,
+      "job_escrow": 10,
+      "job_escrow_refund": 4,
+      "job_fee": 6,
+      "job_payout": 6,
+      "listing_deposit": 16,
+      "mint": 5,
+      "purchase": 2,
+      "purchase_refund": 2,
+      "sale": 2,
+      "trade": 32,
+      "trade_fee": 16,
+      "transfer": 12
+    },
+    "by_kind_sum": 189,
+    "kind_sum_equals_total": true,
+    "expected_mult": {
+      "hold": 2,
+      "hold_release": 2,
+      "job_escrow": 2,
+      "job_escrow_refund": 2,
+      "trade": 4,
+      "trade_fee": 2,
+      "purchase": 2,
+      "sale": 2,
+      "purchase_refund": 2,
+      "currency_create_fee": 2,
+      "listing_deposit": 2,
+      "job_payout": 2,
+      "job_fee": 2,
+      "commission": 2,
+      "transfer": 2,
+      "hold_forfeit": 2,
+      "mint": 1,
+      "burn": 1,
+      "listing_fee": 2,
+      "reversal": 1
+    },
+    "per_event_count_hist": [
+      {
+        "entries_per_event": 1,
+        "events": 5
+      },
+      {
+        "entries_per_event": 2,
+        "events": 52
+      },
+      {
+        "entries_per_event": 4,
+        "events": 6
+      },
+      {
+        "entries_per_event": 6,
+        "events": 8
+      },
+      {
+        "entries_per_event": 8,
+        "events": 1
+      }
+    ],
+    "events_nonzero_excl_mint_burn": 0,
+    "account_drift_rows": 0,
+    "drift_detail": []
+  },
+  "derived_expected": {
+    "per_cid": {
+      "1": {
+        "mint": "2000000",
+        "burn": "0",
+        "net": "2000000",
+        "mint_entries": 2,
+        "burn_entries": 0
+      },
+      "4": {
+        "mint": "10000",
+        "burn": "0",
+        "net": "10000",
+        "mint_entries": 1,
+        "burn_entries": 0
+      },
+      "16": {
+        "mint": "10000",
+        "burn": "0",
+        "net": "10000",
+        "mint_entries": 1,
+        "burn_entries": 0
+      },
+      "21": {
+        "mint": "100",
+        "burn": "0",
+        "net": "100",
+        "mint_entries": 1,
+        "burn_entries": 0
+      }
+    },
+    "derived_total_all_cid": "2020100",
+    "derived_total_cid1": "2000000",
+    "matches_account_sum_total": true
+  }
+}

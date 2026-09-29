@@ -1,0 +1,542 @@
+{
+  "run": "qa-b3-20260929T185356Z",
+  "at": "2026-09-29T18:57:08.588Z",
+  "probe": "p4z-qa-b3-01-conserve",
+  "account": {
+    "rows": 23,
+    "recomputed_sum_balance": "2009617",
+    "recomputed_sum_frozen": "10483",
+    "recomputed_sum_total": "2020100",
+    "sql_agg": {
+      "rows": 23,
+      "sum_balance": "2009617",
+      "sum_frozen": "10483",
+      "sum_total": "2020100"
+    },
+    "recompute_matches_sql": true,
+    "negative_rows": 0,
+    "per_cid": {
+      "1": {
+        "rows": 14,
+        "bal": "1989518",
+        "fro": "10482",
+        "total": "2000000"
+      },
+      "4": {
+        "rows": 3,
+        "bal": "10000",
+        "fro": "0",
+        "total": "10000"
+      },
+      "16": {
+        "rows": 3,
+        "bal": "10000",
+        "fro": "0",
+        "total": "10000"
+      },
+      "21": {
+        "rows": 3,
+        "bal": "99",
+        "fro": "1",
+        "total": "100"
+      }
+    },
+    "negative_constraints": [
+      {
+        "conname": "account_bal_guard",
+        "def": "CHECK ((balance >= 0))"
+      },
+      {
+        "conname": "account_frz_guard",
+        "def": "CHECK ((frozen >= 0))"
+      }
+    ]
+  },
+  "ledger": {
+    "total_rows": 197,
+    "by_kind": {
+      "commission": 4,
+      "currency_create_fee": 22,
+      "hold": 50,
+      "hold_release": 8,
+      "job_escrow": 10,
+      "job_escrow_refund": 4,
+      "job_fee": 6,
+      "job_payout": 6,
+      "listing_deposit": 16,
+      "mint": 5,
+      "purchase": 2,
+      "purchase_refund": 2,
+      "sale": 2,
+      "trade": 32,
+      "trade_fee": 16,
+      "transfer": 12
+    },
+    "by_kind_sum": 197,
+    "kind_sum_equals_total": true,
+    "expected_mult": {
+      "hold": 2,
+      "hold_release": 2,
+      "job_escrow": 2,
+      "job_escrow_refund": 2,
+      "trade": 4,
+      "trade_fee": 2,
+      "purchase": 2,
+      "sale": 2,
+      "purchase_refund": 2,
+      "currency_create_fee": 2,
+      "listing_deposit": 2,
+      "job_payout": 2,
+      "job_fee": 2,
+      "commission": 2,
+      "transfer": 2,
+      "hold_forfeit": 2,
+      "mint": 1,
+      "burn": 1,
+      "listing_fee": 2,
+      "reversal": 1
+    },
+    "per_event_count_hist": [
+      {
+        "entries_per_event": 1,
+        "events": 5
+      },
+      {
+        "entries_per_event": 2,
+        "events": 56
+      },
+      {
+        "entries_per_event": 4,
+        "events": 6
+      },
+      {
+        "entries_per_event": 6,
+        "events": 8
+      },
+      {
+        "entries_per_event": 8,
+        "events": 1
+      }
+    ],
+    "events_nonzero_excl_mint_burn": 0,
+    "per_event": [
+      {
+        "root_key": "biz:job:settle:11",
+        "n": 8,
+        "kinds": "{job_payout,job_payout,job_fee,job_fee,commission,commission,commission,commission}"
+      },
+      {
+        "root_key": "biz:market:trade:20:1",
+        "n": 6,
+        "kinds": "{trade,trade,trade,trade,trade_fee,trade_fee}"
+      },
+      {
+        "root_key": "biz:market:trade:22:1",
+        "n": 6,
+        "kinds": "{trade,trade,trade,trade,trade_fee,trade_fee}"
+      },
+      {
+        "root_key": "biz:market:trade:2:1",
+        "n": 6,
+        "kinds": "{trade,trade,trade,trade,trade_fee,trade_fee}"
+      },
+      {
+        "root_key": "biz:market:trade:7:1",
+        "n": 6,
+        "kinds": "{trade,trade,trade,trade,trade_fee,trade_fee}"
+      },
+      {
+        "root_key": "biz:market:trade:10:1",
+        "n": 6,
+        "kinds": "{trade,trade,trade,trade,trade_fee,trade_fee}"
+      },
+      {
+        "root_key": "biz:market:trade:12:1",
+        "n": 6,
+        "kinds": "{trade,trade,trade,trade,trade_fee,trade_fee}"
+      },
+      {
+        "root_key": "biz:market:trade:1:1",
+        "n": 6,
+        "kinds": "{trade,trade,trade,trade,trade_fee,trade_fee}"
+      },
+      {
+        "root_key": "biz:market:trade:17:1",
+        "n": 6,
+        "kinds": "{trade,trade,trade,trade,trade_fee,trade_fee}"
+      },
+      {
+        "root_key": "biz:job:settle:5",
+        "n": 4,
+        "kinds": "{job_payout,job_payout,job_fee,job_fee}"
+      },
+      {
+        "root_key": "cli:p4b3a:b3a-20260930T013122:c2-list",
+        "n": 4,
+        "kinds": "{currency_create_fee,currency_create_fee,listing_deposit,listing_deposit}"
+      },
+      {
+        "root_key": "cli:p4b3b:b3b-20260930T020359+0800:c2-list",
+        "n": 4,
+        "kinds": "{currency_create_fee,currency_create_fee,listing_deposit,listing_deposit}"
+      },
+      {
+        "root_key": "cli:p4b3a:b3a-20260930T013647:c2-list",
+        "n": 4,
+        "kinds": "{currency_create_fee,currency_create_fee,listing_deposit,listing_deposit}"
+      },
+      {
+        "root_key": "cli:p4b3b:b3b-20260930T020359+0800:c2-default",
+        "n": 4,
+        "kinds": "{currency_create_fee,currency_create_fee,listing_deposit,listing_deposit}"
+      },
+      {
+        "root_key": "biz:job:settle:8",
+        "n": 4,
+        "kinds": "{job_payout,job_payout,job_fee,job_fee}"
+      },
+      {
+        "root_key": "cli:p4b3a:b3a-20260930T013122:c1-create-d",
+        "n": 2,
+        "kinds": "{currency_create_fee,currency_create_fee}"
+      },
+      {
+        "root_key": "cli:p4b3a:b3a-20260930T013647:c1-create",
+        "n": 2,
+        "kinds": "{currency_create_fee,currency_create_fee}"
+      },
+      {
+        "root_key": "cli:p4b3a:b3a-20260930T013647:c1-create-d",
+        "n": 2,
+        "kinds": "{currency_create_fee,currency_create_fee}"
+      },
+      {
+        "root_key": "cli:p4b3afix2:b3afix2-20260930T014937:neg:hold_cross_account",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:p4b3afix2:b3afix2-20260930T014937:pos:hold_same_account_pair",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:p4b3afix2:b3afix2-20260930T014937:pos:idem_repost",
+        "n": 2,
+        "kinds": "{listing_deposit,listing_deposit}"
+      },
+      {
+        "root_key": "cli:p4b3afix2:b3afix2-20260930T014937:pos:listing_deposit_cross_account",
+        "n": 2,
+        "kinds": "{listing_deposit,listing_deposit}"
+      },
+      {
+        "root_key": "cli:p4b3afix2:b3afix2-20260930T014937:pos:listing_deposit_sigma_probe",
+        "n": 2,
+        "kinds": "{listing_deposit,listing_deposit}"
+      },
+      {
+        "root_key": "cli:p4b3afix:b3afix-20260930T014132:pos:listing_deposit_same_account_pair",
+        "n": 2,
+        "kinds": "{listing_deposit,listing_deposit}"
+      },
+      {
+        "root_key": "cli:p4b3b:b3b-20260930T020359+0800:c1-create",
+        "n": 2,
+        "kinds": "{currency_create_fee,currency_create_fee}"
+      },
+      {
+        "root_key": "cli:p4b3b:b3b-20260930T020359+0800:c1-default",
+        "n": 2,
+        "kinds": "{currency_create_fee,currency_create_fee}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:lp:lock_buy21",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "biz:job:escrow:11",
+        "n": 2,
+        "kinds": "{job_escrow,job_escrow}"
+      },
+      {
+        "root_key": "biz:job:escrow:5",
+        "n": 2,
+        "kinds": "{job_escrow,job_escrow}"
+      },
+      {
+        "root_key": "biz:job:escrow:8",
+        "n": 2,
+        "kinds": "{job_escrow,job_escrow}"
+      },
+      {
+        "root_key": "biz:job:escrow:9",
+        "n": 2,
+        "kinds": "{job_escrow,job_escrow}"
+      },
+      {
+        "root_key": "biz:job:refund:10",
+        "n": 2,
+        "kinds": "{job_escrow_refund,job_escrow_refund}"
+      },
+      {
+        "root_key": "biz:job:refund:9",
+        "n": 2,
+        "kinds": "{job_escrow_refund,job_escrow_refund}"
+      },
+      {
+        "root_key": "biz:listing:buy:2",
+        "n": 2,
+        "kinds": "{purchase,sale}"
+      },
+      {
+        "root_key": "biz:listing:buy:3",
+        "n": 2,
+        "kinds": "{purchase,sale}"
+      },
+      {
+        "root_key": "biz:listing:refund:2",
+        "n": 2,
+        "kinds": "{purchase_refund,purchase_refund}"
+      },
+      {
+        "root_key": "biz:market:cancel:1",
+        "n": 2,
+        "kinds": "{hold_release,hold_release}"
+      },
+      {
+        "root_key": "biz:market:cancel:23",
+        "n": 2,
+        "kinds": "{hold_release,hold_release}"
+      },
+      {
+        "root_key": "biz:market:cancel:3",
+        "n": 2,
+        "kinds": "{hold_release,hold_release}"
+      },
+      {
+        "root_key": "biz:market:cancel:4",
+        "n": 2,
+        "kinds": "{hold_release,hold_release}"
+      },
+      {
+        "root_key": "cli:p4b3a:b3a-20260930T013122:c1-create",
+        "n": 2,
+        "kinds": "{currency_create_fee,currency_create_fee}"
+      },
+      {
+        "root_key": "ops:p3j:20260929182156:fund:2:970001",
+        "n": 2,
+        "kinds": "{transfer,transfer}"
+      },
+      {
+        "root_key": "ops:p3j:20260929183446:fund:7:970001",
+        "n": 2,
+        "kinds": "{transfer,transfer}"
+      },
+      {
+        "root_key": "ops:p3j:20260929183446:fund:8:970001",
+        "n": 2,
+        "kinds": "{transfer,transfer}"
+      },
+      {
+        "root_key": "ops:p3j:b3e-20260930T024237:fund:11:970001",
+        "n": 2,
+        "kinds": "{transfer,transfer}"
+      },
+      {
+        "root_key": "ops:p3j:b3e-20260930T024237:fund:12:970001",
+        "n": 2,
+        "kinds": "{transfer,transfer}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:buy1",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:c16buyA",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:c16buyB",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:c16sell",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:lockBuy16",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:lockBuy4",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:lockSell16",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:lockSell4",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:lp:base_buy21",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:lp:base_extra",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:lp:base_sell21",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:lp:buy1",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:lp:ctl_buy4",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:lp:ctl_sell4",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "biz:job:escrow:10",
+        "n": 2,
+        "kinds": "{job_escrow,job_escrow}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:lp:lock_sell21",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:lp:selfbuy21",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:lp:selfsell21",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:selfbuy",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:selfsell",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:p4b3e30024237:sell1",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:qa-b3-c1-0929T185356Z",
+        "n": 2,
+        "kinds": "{currency_create_fee,currency_create_fee}"
+      },
+      {
+        "root_key": "cli:qa-b3-m1-0929T185356Z",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "cli:qa-b3-m1b-0929T185356Z",
+        "n": 2,
+        "kinds": "{hold,hold}"
+      },
+      {
+        "root_key": "ops:p3j:20260929182032:fund:2:970001",
+        "n": 2,
+        "kinds": "{transfer,transfer}"
+      },
+      {
+        "root_key": "cli:p4b3a:b3a-20260930T013647:fixture-mint",
+        "n": 1,
+        "kinds": "{mint}"
+      },
+      {
+        "root_key": "cli:p4b3a:b3a-20260930T013122:fixture-mint",
+        "n": 1,
+        "kinds": "{mint}"
+      },
+      {
+        "root_key": "ops:p4b3e30024237:lp:mint:21",
+        "n": 1,
+        "kinds": "{mint}"
+      },
+      {
+        "root_key": "ops:p4b3e30024237:mint:16:970001",
+        "n": 1,
+        "kinds": "{mint}"
+      },
+      {
+        "root_key": "ops:p4b3e30024237:mint:4:970001",
+        "n": 1,
+        "kinds": "{mint}"
+      }
+    ],
+    "account_drift_rows": 0,
+    "drift_detail": []
+  },
+  "derived_expected": {
+    "per_cid": {
+      "1": {
+        "mint": "2000000",
+        "burn": "0",
+        "net": "2000000",
+        "mint_entries": 2,
+        "burn_entries": 0
+      },
+      "4": {
+        "mint": "10000",
+        "burn": "0",
+        "net": "10000",
+        "mint_entries": 1,
+        "burn_entries": 0
+      },
+      "16": {
+        "mint": "10000",
+        "burn": "0",
+        "net": "10000",
+        "mint_entries": 1,
+        "burn_entries": 0
+      },
+      "21": {
+        "mint": "100",
+        "burn": "0",
+        "net": "100",
+        "mint_entries": 1,
+        "burn_entries": 0
+      }
+    },
+    "derived_total_all_cid": "2020100",
+    "derived_total_cid1": "2000000",
+    "matches_account_sum_total": true
+  }
+}

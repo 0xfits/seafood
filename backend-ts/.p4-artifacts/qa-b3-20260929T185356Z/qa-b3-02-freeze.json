@@ -1,0 +1,662 @@
+{
+  "run": "qa-b3-20260929T185356Z",
+  "at": "2026-09-29T18:55:37.797Z",
+  "probe": "p4z-qa-b3-02-freeze",
+  "migrations": {
+    "count": 19,
+    "per_file": [
+      {
+        "file": "0001_ledger_core.sql",
+        "sha256": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+        "md5": "eb464b76603848f9bc00cc92e0f98161",
+        "bytes": 8703,
+        "mtime": "2026-09-27T03:48:04.773Z"
+      },
+      {
+        "file": "0002_user_identity.sql",
+        "sha256": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+        "md5": "7db2f617ab562b5a62d72b5353b9aee7",
+        "bytes": 1671,
+        "mtime": "2026-09-27T03:48:10.191Z"
+      },
+      {
+        "file": "0003_kind_close_set_20.sql",
+        "sha256": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+        "md5": "d5392844045e279da98c469875b19b6f",
+        "bytes": 4050,
+        "mtime": "2026-09-27T04:56:05.651Z"
+      },
+      {
+        "file": "0004_ledger_post_event.sql",
+        "sha256": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+        "md5": "0832bcc6fd575bb67529cfa939a9b347",
+        "bytes": 58938,
+        "mtime": "2026-09-27T05:14:49.264Z"
+      },
+      {
+        "file": "0005_ledger_event_root_key.sql",
+        "sha256": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+        "md5": "bbf2c52e5ed07ba40b8321a291fb45b3",
+        "bytes": 79031,
+        "mtime": "2026-09-27T06:32:22.911Z"
+      },
+      {
+        "file": "0006_user_to_users.sql",
+        "sha256": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+        "md5": "dd0f60e74777e581c01d4f11ddb7b326",
+        "bytes": 7977,
+        "mtime": "2026-09-27T07:09:21.405Z"
+      },
+      {
+        "file": "0007_referral_and_commission_policy.sql",
+        "sha256": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+        "md5": "693485f371784b53b8a79cb4af21b04f",
+        "bytes": 23271,
+        "mtime": "2026-09-27T09:49:02.043Z"
+      },
+      {
+        "file": "0008_platform_revenue_job_fee.sql",
+        "sha256": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+        "md5": "e003eb203da837f65a887ff9384a229a",
+        "bytes": 7326,
+        "mtime": "2026-09-27T09:49:16.323Z"
+      },
+      {
+        "file": "0009_ledger_error_reverse_map_complete.sql",
+        "sha256": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+        "md5": "d8e31785f505073f5bca243fc2a96c3f",
+        "bytes": 23808,
+        "mtime": "2026-09-27T10:08:15.644Z"
+      },
+      {
+        "file": "0010_referral_bind_protocol_guard.sql",
+        "sha256": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+        "md5": "7847ae8490ce5f63339fe1c0ba3caa0f",
+        "bytes": 19713,
+        "mtime": "2026-09-27T10:43:25.237Z"
+      },
+      {
+        "file": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+        "sha256": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+        "md5": "50772ffd643f08c0bf690ced93b5c507",
+        "bytes": 39211,
+        "mtime": "2026-09-27T11:29:08.391Z"
+      },
+      {
+        "file": "0012_replay_pre_gate_before_balance_gate.sql",
+        "sha256": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe",
+        "md5": "5b97c96b3e6279799b8781e2222d01e3",
+        "bytes": 71238,
+        "mtime": "2026-09-27T13:08:43.028Z"
+      },
+      {
+        "file": "0013_job.sql",
+        "sha256": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+        "md5": "d61e69be8f88090557b53b81eb6056d1",
+        "bytes": 44130,
+        "mtime": "2026-09-28T05:08:22.874Z"
+      },
+      {
+        "file": "0014_job_flow.sql",
+        "sha256": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d",
+        "md5": "5637cecf723267c9b04dc1782a72eea6",
+        "bytes": 24484,
+        "mtime": "2026-09-28T05:33:45.625Z"
+      },
+      {
+        "file": "0015_listing.sql",
+        "sha256": "f856a1316e9d3bc79c3b54b89c63273102ce87733ef1c9a835c81f1b9a56624e",
+        "md5": "265e81094db54c18d688990ecba24ffb",
+        "bytes": 55410,
+        "mtime": "2026-09-28T09:32:06.517Z"
+      },
+      {
+        "file": "0016_market.sql",
+        "sha256": "f5ce7c79c584805f1d97bb2468475b2ce10b770ef4dabd16e2ea79d5531b76df",
+        "md5": "f5dd916d497bdee1ccc294e148b64475",
+        "bytes": 70570,
+        "mtime": "2026-09-28T10:19:09.009Z"
+      },
+      {
+        "file": "0017_platform_config.sql",
+        "sha256": "0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd",
+        "md5": "bd88c4fe659f52a5303a97586433aa9c",
+        "bytes": 31026,
+        "mtime": "2026-09-28T11:18:36.002Z"
+      },
+      {
+        "file": "0019_listing_deposit_platform_credit.sql",
+        "sha256": "48a9a4e2d506eb1fceb35ec7de1b9e28f983477f6e1dc9f550bff794e9d9902f",
+        "md5": "329320496cda14b9f7405f33ef5085b1",
+        "bytes": 10410,
+        "mtime": "2026-09-29T17:42:54.109Z"
+      },
+      {
+        "file": "0020_ledger_post_event_hold_family_drop_listing_deposit.sql",
+        "sha256": "228127d89de90a0d187aff8c2cd12b18aad94130faca7e804f5dd23c1d9cfc4d",
+        "md5": "32534ea8e9ce6bac8d5f9063b9f1c231",
+        "bytes": 60667,
+        "mtime": "2026-09-29T17:52:19.403Z"
+      }
+    ],
+    "names": [
+      "0001_ledger_core.sql",
+      "0002_user_identity.sql",
+      "0003_kind_close_set_20.sql",
+      "0004_ledger_post_event.sql",
+      "0005_ledger_event_root_key.sql",
+      "0006_user_to_users.sql",
+      "0007_referral_and_commission_policy.sql",
+      "0008_platform_revenue_job_fee.sql",
+      "0009_ledger_error_reverse_map_complete.sql",
+      "0010_referral_bind_protocol_guard.sql",
+      "0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "0012_replay_pre_gate_before_balance_gate.sql",
+      "0013_job.sql",
+      "0014_job_flow.sql",
+      "0015_listing.sql",
+      "0016_market.sql",
+      "0017_platform_config.sql",
+      "0019_listing_deposit_platform_credit.sql",
+      "0020_ledger_post_event_hold_family_drop_listing_deposit.sql"
+    ]
+  },
+  "schema_migration": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "bigint"
+      },
+      {
+        "name": "version",
+        "type": "text"
+      },
+      {
+        "name": "name",
+        "type": "text"
+      },
+      {
+        "name": "checksum",
+        "type": "text"
+      },
+      {
+        "name": "applied_at",
+        "type": "timestamp with time zone"
+      }
+    ],
+    "rows": [
+      {
+        "id": "1",
+        "version": "0001",
+        "name": "0001_ledger_core.sql",
+        "checksum": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+        "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+      },
+      {
+        "id": "2",
+        "version": "0002",
+        "name": "0002_user_identity.sql",
+        "checksum": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+        "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+      },
+      {
+        "id": "3",
+        "version": "0003",
+        "name": "0003_kind_close_set_20.sql",
+        "checksum": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+        "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+      },
+      {
+        "id": "4",
+        "version": "0004",
+        "name": "0004_ledger_post_event.sql",
+        "checksum": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+        "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+      },
+      {
+        "id": "5",
+        "version": "0005",
+        "name": "0005_ledger_event_root_key.sql",
+        "checksum": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+        "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+      },
+      {
+        "id": "6",
+        "version": "0006",
+        "name": "0006_user_to_users.sql",
+        "checksum": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+        "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+      },
+      {
+        "id": "7",
+        "version": "0007",
+        "name": "0007_referral_and_commission_policy.sql",
+        "checksum": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+        "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+      },
+      {
+        "id": "8",
+        "version": "0008",
+        "name": "0008_platform_revenue_job_fee.sql",
+        "checksum": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+        "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+      },
+      {
+        "id": "9",
+        "version": "0009",
+        "name": "0009_ledger_error_reverse_map_complete.sql",
+        "checksum": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+        "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+      },
+      {
+        "id": "10",
+        "version": "0010",
+        "name": "0010_referral_bind_protocol_guard.sql",
+        "checksum": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+        "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+      },
+      {
+        "id": "11",
+        "version": "0011",
+        "name": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+        "checksum": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+        "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+      },
+      {
+        "id": "12",
+        "version": "0012",
+        "name": "0012_replay_pre_gate_before_balance_gate.sql",
+        "checksum": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe",
+        "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+      },
+      {
+        "id": "13",
+        "version": "0013",
+        "name": "0013_job.sql",
+        "checksum": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+        "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+      },
+      {
+        "id": "14",
+        "version": "0014",
+        "name": "0014_job_flow.sql",
+        "checksum": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d",
+        "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+      },
+      {
+        "id": "15",
+        "version": "0015",
+        "name": "0015_listing.sql",
+        "checksum": "f856a1316e9d3bc79c3b54b89c63273102ce87733ef1c9a835c81f1b9a56624e",
+        "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+      },
+      {
+        "id": "16",
+        "version": "0016",
+        "name": "0016_market.sql",
+        "checksum": "f5ce7c79c584805f1d97bb2468475b2ce10b770ef4dabd16e2ea79d5531b76df",
+        "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+      },
+      {
+        "id": "17",
+        "version": "0017",
+        "name": "0017_platform_config.sql",
+        "checksum": "0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd",
+        "applied_at": "Tue Sep 29 2026 09:15:27 GMT+0800 (China Standard Time)"
+      },
+      {
+        "id": "18",
+        "version": "0019",
+        "name": "0019_listing_deposit_platform_credit.sql",
+        "checksum": "48a9a4e2d506eb1fceb35ec7de1b9e28f983477f6e1dc9f550bff794e9d9902f",
+        "applied_at": "Wed Sep 30 2026 01:43:01 GMT+0800 (China Standard Time)"
+      },
+      {
+        "id": "19",
+        "version": "0020",
+        "name": "0020_ledger_post_event_hold_family_drop_listing_deposit.sql",
+        "checksum": "228127d89de90a0d187aff8c2cd12b18aad94130faca7e804f5dd23c1d9cfc4d",
+        "applied_at": "Wed Sep 30 2026 01:53:03 GMT+0800 (China Standard Time)"
+      }
+    ]
+  },
+  "comparison": [
+    {
+      "file": "0001_ledger_core.sql",
+      "version": "0001",
+      "sha256": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+      "md5": "eb464b76603848f9bc00cc92e0f98161",
+      "registry_row": "{\"id\":\"1\",\"version\":\"0001\",\"name\":\"0001_ledger_core.sql\",\"checksum\":\"4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4\",\"applied_at\":\"2026-09-29T01:15:27.684Z\"}",
+      "checksum_match": true,
+      "md5_match": false,
+      "registered_checksum": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4"
+    },
+    {
+      "file": "0002_user_identity.sql",
+      "version": "0002",
+      "sha256": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+      "md5": "7db2f617ab562b5a62d72b5353b9aee7",
+      "registry_row": "{\"id\":\"2\",\"version\":\"0002\",\"name\":\"0002_user_identity.sql\",\"checksum\":\"688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990\",\"applied_at\":\"2026-09-29T01:15:27.684Z\"}",
+      "checksum_match": true,
+      "md5_match": false,
+      "registered_checksum": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990"
+    },
+    {
+      "file": "0003_kind_close_set_20.sql",
+      "version": "0003",
+      "sha256": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+      "md5": "d5392844045e279da98c469875b19b6f",
+      "registry_row": "{\"id\":\"3\",\"version\":\"0003\",\"name\":\"0003_kind_close_set_20.sql\",\"checksum\":\"f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23\",\"applied_at\":\"2026-09-29T01:15:27.684Z\"}",
+      "checksum_match": true,
+      "md5_match": false,
+      "registered_checksum": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23"
+    },
+    {
+      "file": "0004_ledger_post_event.sql",
+      "version": "0004",
+      "sha256": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+      "md5": "0832bcc6fd575bb67529cfa939a9b347",
+      "registry_row": "{\"id\":\"4\",\"version\":\"0004\",\"name\":\"0004_ledger_post_event.sql\",\"checksum\":\"55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932\",\"applied_at\":\"2026-09-29T01:15:27.684Z\"}",
+      "checksum_match": true,
+      "md5_match": false,
+      "registered_checksum": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932"
+    },
+    {
+      "file": "0005_ledger_event_root_key.sql",
+      "version": "0005",
+      "sha256": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+      "md5": "bbf2c52e5ed07ba40b8321a291fb45b3",
+      "registry_row": "{\"id\":\"5\",\"version\":\"0005\",\"name\":\"0005_ledger_event_root_key.sql\",\"checksum\":\"4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231\",\"applied_at\":\"2026-09-29T01:15:27.684Z\"}",
+      "checksum_match": true,
+      "md5_match": false,
+      "registered_checksum": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231"
+    },
+    {
+      "file": "0006_user_to_users.sql",
+      "version": "0006",
+      "sha256": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+      "md5": "dd0f60e74777e581c01d4f11ddb7b326",
+      "registry_row": "{\"id\":\"6\",\"version\":\"0006\",\"name\":\"0006_user_to_users.sql\",\"checksum\":\"4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47\",\"applied_at\":\"2026-09-29T01:15:27.684Z\"}",
+      "checksum_match": true,
+      "md5_match": false,
+      "registered_checksum": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47"
+    },
+    {
+      "file": "0007_referral_and_commission_policy.sql",
+      "version": "0007",
+      "sha256": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+      "md5": "693485f371784b53b8a79cb4af21b04f",
+      "registry_row": "{\"id\":\"7\",\"version\":\"0007\",\"name\":\"0007_referral_and_commission_policy.sql\",\"checksum\":\"7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a\",\"applied_at\":\"2026-09-29T01:15:27.684Z\"}",
+      "checksum_match": true,
+      "md5_match": false,
+      "registered_checksum": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a"
+    },
+    {
+      "file": "0008_platform_revenue_job_fee.sql",
+      "version": "0008",
+      "sha256": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+      "md5": "e003eb203da837f65a887ff9384a229a",
+      "registry_row": "{\"id\":\"8\",\"version\":\"0008\",\"name\":\"0008_platform_revenue_job_fee.sql\",\"checksum\":\"e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210\",\"applied_at\":\"2026-09-29T01:15:27.684Z\"}",
+      "checksum_match": true,
+      "md5_match": false,
+      "registered_checksum": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210"
+    },
+    {
+      "file": "0009_ledger_error_reverse_map_complete.sql",
+      "version": "0009",
+      "sha256": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+      "md5": "d8e31785f505073f5bca243fc2a96c3f",
+      "registry_row": "{\"id\":\"9\",\"version\":\"0009\",\"name\":\"0009_ledger_error_reverse_map_complete.sql\",\"checksum\":\"6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870\",\"applied_at\":\"2026-09-29T01:15:27.684Z\"}",
+      "checksum_match": true,
+      "md5_match": false,
+      "registered_checksum": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870"
+    },
+    {
+      "file": "0010_referral_bind_protocol_guard.sql",
+      "version": "0010",
+      "sha256": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+      "md5": "7847ae8490ce5f63339fe1c0ba3caa0f",
+      "registry_row": "{\"id\":\"10\",\"version\":\"0010\",\"name\":\"0010_referral_bind_protocol_guard.sql\",\"checksum\":\"73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc\",\"applied_at\":\"2026-09-29T01:15:27.684Z\"}",
+      "checksum_match": true,
+      "md5_match": false,
+      "registered_checksum": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc"
+    },
+    {
+      "file": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "version": "0011",
+      "sha256": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+      "md5": "50772ffd643f08c0bf690ced93b5c507",
+      "registry_row": "{\"id\":\"11\",\"version\":\"0011\",\"name\":\"0011_commission_assert_closure_and_referral_depth_guard.sql\",\"checksum\":\"238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe\",\"applied_at\":\"2026-09-29T01:15:27.684Z\"}",
+      "checksum_match": true,
+      "md5_match": false,
+      "registered_checksum": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe"
+    },
+    {
+      "file": "0012_replay_pre_gate_before_balance_gate.sql",
+      "version": "0012",
+      "sha256": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe",
+      "md5": "5b97c96b3e6279799b8781e2222d01e3",
+      "registry_row": "{\"id\":\"12\",\"version\":\"0012\",\"name\":\"0012_replay_pre_gate_before_balance_gate.sql\",\"checksum\":\"2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe\",\"applied_at\":\"2026-09-29T01:15:27.684Z\"}",
+      "checksum_match": true,
+      "md5_match": false,
+      "registered_checksum": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe"
+    },
+    {
+      "file": "0013_job.sql",
+      "version": "0013",
+      "sha256": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+      "md5": "d61e69be8f88090557b53b81eb6056d1",
+      "registry_row": "{\"id\":\"13\",\"version\":\"0013\",\"name\":\"0013_job.sql\",\"checksum\":\"720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230\",\"applied_at\":\"2026-09-29T01:15:27.684Z\"}",
+      "checksum_match": true,
+      "md5_match": false,
+      "registered_checksum": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230"
+    },
+    {
+      "file": "0014_job_flow.sql",
+      "version": "0014",
+      "sha256": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d",
+      "md5": "5637cecf723267c9b04dc1782a72eea6",
+      "registry_row": "{\"id\":\"14\",\"version\":\"0014\",\"name\":\"0014_job_flow.sql\",\"checksum\":\"a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d\",\"applied_at\":\"2026-09-29T01:15:27.684Z\"}",
+      "checksum_match": true,
+      "md5_match": false,
+      "registered_checksum": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d"
+    },
+    {
+      "file": "0015_listing.sql",
+      "version": "0015",
+      "sha256": "f856a1316e9d3bc79c3b54b89c63273102ce87733ef1c9a835c81f1b9a56624e",
+      "md5": "265e81094db54c18d688990ecba24ffb",
+      "registry_row": "{\"id\":\"15\",\"version\":\"0015\",\"name\":\"0015_listing.sql\",\"checksum\":\"f856a1316e9d3bc79c3b54b89c63273102ce87733ef1c9a835c81f1b9a56624e\",\"applied_at\":\"2026-09-29T01:15:27.684Z\"}",
+      "checksum_match": true,
+      "md5_match": false,
+      "registered_checksum": "f856a1316e9d3bc79c3b54b89c63273102ce87733ef1c9a835c81f1b9a56624e"
+    },
+    {
+      "file": "0016_market.sql",
+      "version": "0016",
+      "sha256": "f5ce7c79c584805f1d97bb2468475b2ce10b770ef4dabd16e2ea79d5531b76df",
+      "md5": "f5dd916d497bdee1ccc294e148b64475",
+      "registry_row": "{\"id\":\"16\",\"version\":\"0016\",\"name\":\"0016_market.sql\",\"checksum\":\"f5ce7c79c584805f1d97bb2468475b2ce10b770ef4dabd16e2ea79d5531b76df\",\"applied_at\":\"2026-09-29T01:15:27.684Z\"}",
+      "checksum_match": true,
+      "md5_match": false,
+      "registered_checksum": "f5ce7c79c584805f1d97bb2468475b2ce10b770ef4dabd16e2ea79d5531b76df"
+    },
+    {
+      "file": "0017_platform_config.sql",
+      "version": "0017",
+      "sha256": "0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd",
+      "md5": "bd88c4fe659f52a5303a97586433aa9c",
+      "registry_row": "{\"id\":\"17\",\"version\":\"0017\",\"name\":\"0017_platform_config.sql\",\"checksum\":\"0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd\",\"applied_at\":\"2026-09-29T01:15:27.684Z\"}",
+      "checksum_match": true,
+      "md5_match": false,
+      "registered_checksum": "0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd"
+    },
+    {
+      "file": "0019_listing_deposit_platform_credit.sql",
+      "version": "0019",
+      "sha256": "48a9a4e2d506eb1fceb35ec7de1b9e28f983477f6e1dc9f550bff794e9d9902f",
+      "md5": "329320496cda14b9f7405f33ef5085b1",
+      "registry_row": "{\"id\":\"18\",\"version\":\"0019\",\"name\":\"0019_listing_deposit_platform_credit.sql\",\"checksum\":\"48a9a4e2d506eb1fceb35ec7de1b9e28f983477f6e1dc9f550bff794e9d9902f\",\"applied_at\":\"2026-09-29T17:43:01.760Z\"}",
+      "checksum_match": true,
+      "md5_match": false,
+      "registered_checksum": "48a9a4e2d506eb1fceb35ec7de1b9e28f983477f6e1dc9f550bff794e9d9902f"
+    },
+    {
+      "file": "0020_ledger_post_event_hold_family_drop_listing_deposit.sql",
+      "version": "0020",
+      "sha256": "228127d89de90a0d187aff8c2cd12b18aad94130faca7e804f5dd23c1d9cfc4d",
+      "md5": "32534ea8e9ce6bac8d5f9063b9f1c231",
+      "registry_row": "{\"id\":\"19\",\"version\":\"0020\",\"name\":\"0020_ledger_post_event_hold_family_drop_listing_deposit.sql\",\"checksum\":\"228127d89de90a0d187aff8c2cd12b18aad94130faca7e804f5dd23c1d9cfc4d\",\"applied_at\":\"2026-09-29T17:53:03.540Z\"}",
+      "checksum_match": true,
+      "md5_match": false,
+      "registered_checksum": "228127d89de90a0d187aff8c2cd12b18aad94130faca7e804f5dd23c1d9cfc4d"
+    }
+  ],
+  "all_checksum_match": true,
+  "matched_count": 19,
+  "ledger_entry_checks": [
+    "CHECK (((delta <> 0) OR (frozen_delta <> 0)))",
+    "CHECK (((balance_after >= 0) AND (frozen_after >= 0)))",
+    "CHECK (((ref_type IS NULL) = (ref_id IS NULL)))",
+    "CHECK (((kind = 'reversal'::text) = (reversal_of_txid IS NOT NULL)))",
+    "CHECK (((ref_type IS NULL) OR (ref_type = ANY (ARRAY['job'::text, 'listing'::text, 'listing_order'::text, 'market_order'::text, 'market_trade'::text, 'currency'::text, 'commission_payout'::text, 'system'::text]))))",
+    "CHECK ((kind = ANY (ARRAY['mint'::text, 'burn'::text, 'transfer'::text, 'hold'::text, 'hold_release'::text, 'hold_forfeit'::text, 'job_escrow'::text, 'job_escrow_refund'::text, 'job_payout'::text, 'job_fee'::text, 'commission'::text, 'purchase'::text, 'sale'::text, 'purchase_refund'::text, 'trade'::text, 'trade_fee'::text, 'listing_fee'::text, 'listing_deposit'::text, 'currency_create_fee'::text, 'reversal'::text])))",
+    "CHECK (((event_root_key IS NULL) OR (event_root_key = split_part(idempotency_key, '#'::text, 1))))"
+  ],
+  "users": [
+    {
+      "uid": "1",
+      "username": "undefined",
+      "evm": "undefined"
+    },
+    {
+      "uid": "10",
+      "username": "undefined",
+      "evm": "undefined"
+    },
+    {
+      "uid": "11",
+      "username": "undefined",
+      "evm": "undefined"
+    },
+    {
+      "uid": "12",
+      "username": "undefined",
+      "evm": "undefined"
+    },
+    {
+      "uid": "2",
+      "username": "undefined",
+      "evm": "undefined"
+    },
+    {
+      "uid": "3",
+      "username": "undefined",
+      "evm": "undefined"
+    },
+    {
+      "uid": "4",
+      "username": "undefined",
+      "evm": "undefined"
+    },
+    {
+      "uid": "5",
+      "username": "undefined",
+      "evm": "undefined"
+    },
+    {
+      "uid": "6",
+      "username": "undefined",
+      "evm": "undefined"
+    },
+    {
+      "uid": "7",
+      "username": "undefined",
+      "evm": "undefined"
+    },
+    {
+      "uid": "8",
+      "username": "undefined",
+      "evm": "undefined"
+    },
+    {
+      "uid": "9",
+      "username": "undefined",
+      "evm": "undefined"
+    },
+    {
+      "uid": "970001",
+      "username": "undefined",
+      "evm": "undefined"
+    },
+    {
+      "uid": "970002",
+      "username": "undefined",
+      "evm": "undefined"
+    },
+    {
+      "uid": "970101",
+      "username": "undefined",
+      "evm": "undefined"
+    },
+    {
+      "uid": "970102",
+      "username": "undefined",
+      "evm": "undefined"
+    },
+    {
+      "uid": "970201",
+      "username": "undefined",
+      "evm": "undefined"
+    },
+    {
+      "uid": "970202",
+      "username": "undefined",
+      "evm": "undefined"
+    }
+  ],
+  "rich_accounts_cid1": [
+    {
+      "uid": "2",
+      "cid": "1",
+      "balance": "7600",
+      "frozen": "0"
+    },
+    {
+      "uid": "7",
+      "cid": "1",
+      "balance": "5100",
+      "frozen": "0"
+    },
+    {
+      "uid": "8",
+      "cid": "1",
+      "balance": "4900",
+      "frozen": "0"
+    },
+    {
+      "uid": "12",
+      "cid": "1",
+      "balance": "37778",
+      "frozen": "0"
+    },
+    {
+      "uid": "11",
+      "cid": "1",
+      "balance": "29398",
+      "frozen": "6370"
+    },
+    {
+      "uid": "970001",
+      "cid": "1",
+      "balance": "1891085",
+      "frozen": "4102"
+    },
+    {
+      "uid": "-1",
+      "cid": "1",
+      "balance": "11281",
+      "frozen": "0"
+    }
+  ]
+}

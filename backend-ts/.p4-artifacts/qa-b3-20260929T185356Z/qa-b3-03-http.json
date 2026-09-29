@@ -1,0 +1,863 @@
+{
+  "run": "qa-b3-20260929T185356Z",
+  "at": "2026-09-29T18:56:44.178Z",
+  "probe": "p4z-qa-b3-03-http",
+  "base_url": "http://127.0.0.1:5788",
+  "tokens": {
+    "richUid": 970001,
+    "poorUid": 2,
+    "otherUid": 11
+  },
+  "listed_currencies": [
+    {
+      "cid": "10",
+      "symbol": "P4B3A013647",
+      "owner_uid": "970001"
+    },
+    {
+      "cid": "16",
+      "symbol": "P4B3B590800",
+      "owner_uid": "970001"
+    },
+    {
+      "cid": "21",
+      "symbol": "P4B3B590800X",
+      "owner_uid": "970001"
+    },
+    {
+      "cid": "4",
+      "symbol": "P4B3A013122",
+      "owner_uid": "970001"
+    }
+  ],
+  "fixtures": {
+    "symbol": "QAB30929T185356Z",
+    "create_key": "cli:qa-b3-c1-0929T185356Z",
+    "base_cid": "10"
+  },
+  "cases": [
+    {
+      "id": "T01",
+      "leg": "L7-410",
+      "desc": "POST /api/shard/redeem（无 token）",
+      "expect": "410",
+      "status": 410,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "body": {
+        "error": {
+          "code": "LEDGER_REF_NOT_FOUND",
+          "message": "endpoint deprecated: /api/shard/redeem",
+          "i18n_key": "ledger.err.LEDGER_REF_NOT_FOUND",
+          "details": {
+            "ref_type": "endpoint",
+            "ref_id": "/api/shard/redeem",
+            "http_status": 410,
+            "sunset": "批 3 末删除路径（§5.1 碎片写口①/宝箱写口；未决 §7-1：过期日待 Kevin 定）"
+          }
+        }
+      },
+      "entries_before": 189,
+      "entries_after": 189,
+      "delta_entries": 0
+    },
+    {
+      "id": "T02",
+      "leg": "L7-410",
+      "desc": "POST /api/chest/1/open（无 token）",
+      "expect": "410",
+      "status": 410,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "body": {
+        "error": {
+          "code": "LEDGER_REF_NOT_FOUND",
+          "message": "endpoint deprecated: /api/chest/:bID/open",
+          "i18n_key": "ledger.err.LEDGER_REF_NOT_FOUND",
+          "details": {
+            "ref_type": "endpoint",
+            "ref_id": "/api/chest/:bID/open",
+            "http_status": 410,
+            "sunset": "批 3 末删除路径（§5.1 碎片写口①/宝箱写口；未决 §7-1：过期日待 Kevin 定）"
+          }
+        }
+      },
+      "entries_before": 189,
+      "entries_after": 189,
+      "delta_entries": 0
+    },
+    {
+      "id": "T03",
+      "leg": "L7-410",
+      "desc": "POST /api/admin/settings/reset（无 token）",
+      "expect": "410",
+      "status": 410,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "body": {
+        "error": {
+          "code": "LEDGER_REF_NOT_FOUND",
+          "message": "endpoint deprecated: /api/admin/settings/reset",
+          "i18n_key": "ledger.err.LEDGER_REF_NOT_FOUND",
+          "details": {
+            "ref_type": "endpoint",
+            "ref_id": "/api/admin/settings/reset",
+            "http_status": 410,
+            "sunset": "批 4 删路径（未决 §7-1：过期日待 Kevin 定）"
+          }
+        }
+      },
+      "entries_before": 189,
+      "entries_after": 189,
+      "delta_entries": 0
+    },
+    {
+      "id": "T04",
+      "leg": "L7-410",
+      "desc": "POST /api/admin/assets/init（无 token）",
+      "expect": "410",
+      "status": 410,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "body": {
+        "error": {
+          "code": "LEDGER_REF_NOT_FOUND",
+          "message": "endpoint deprecated: /api/admin/assets/init",
+          "i18n_key": "ledger.err.LEDGER_REF_NOT_FOUND",
+          "details": {
+            "ref_type": "endpoint",
+            "ref_id": "/api/admin/assets/init",
+            "http_status": 410,
+            "sunset": "批 4 删路径（未决 §7-1：过期日待 Kevin 定）"
+          }
+        }
+      },
+      "entries_before": 189,
+      "entries_after": 189,
+      "delta_entries": 0
+    },
+    {
+      "id": "T05",
+      "leg": "L7-410",
+      "desc": "POST /api/admin/task/create（无 token）",
+      "expect": "410",
+      "status": 410,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "body": {
+        "error": {
+          "code": "LEDGER_REF_NOT_FOUND",
+          "message": "endpoint deprecated: /api/admin/task/create",
+          "i18n_key": "ledger.err.LEDGER_REF_NOT_FOUND",
+          "details": {
+            "ref_type": "endpoint",
+            "ref_id": "/api/admin/task/create",
+            "http_status": 410,
+            "sunset": "批 4 删路径（未决 §7-1：过期日待 Kevin 定）"
+          }
+        }
+      },
+      "entries_before": 189,
+      "entries_after": 189,
+      "delta_entries": 0
+    },
+    {
+      "id": "T06",
+      "leg": "L7-410",
+      "desc": "POST /api/admin/prize/create（无 token）",
+      "expect": "410",
+      "status": 410,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "body": {
+        "error": {
+          "code": "LEDGER_REF_NOT_FOUND",
+          "message": "endpoint deprecated: /api/admin/prize/create",
+          "i18n_key": "ledger.err.LEDGER_REF_NOT_FOUND",
+          "details": {
+            "ref_type": "endpoint",
+            "ref_id": "/api/admin/prize/create",
+            "http_status": 410,
+            "sunset": "批 4 删路径（未决 §7-1：过期日待 Kevin 定）"
+          }
+        }
+      },
+      "entries_before": 189,
+      "entries_after": 189,
+      "delta_entries": 0
+    },
+    {
+      "id": "T07",
+      "leg": "L5-idem",
+      "desc": "C1 首建（key=cli:qa-b3-c1-0929T185356Z）",
+      "expect": "200 + Δentries=+2 (currency_create_fee×2)",
+      "status": 200,
+      "code": null,
+      "body": {
+        "success": true,
+        "message": "Currency created",
+        "data": {
+          "cid": "22",
+          "symbol": "QAB30929T185356Z",
+          "name": "QA B3 currency",
+          "owner_uid": "970001",
+          "decimals": 0,
+          "status": "draft",
+          "deposit_amount": "0",
+          "deposit_cid": "1",
+          "listed_at": null,
+          "fee": "1000",
+          "fee_source": "client_ge_floor",
+          "fee_kind": "currency_create_fee",
+          "fee_credit_uid": "-1",
+          "create_key": "cli:qa-b3-c1-0929T185356Z",
+          "create_key_derived": false,
+          "idempotent_replay": false,
+          "ledger_event": {
+            "txid": "197",
+            "idempotency_key": "cli:qa-b3-c1-0929T185356Z",
+            "idempotent_replay": false,
+            "entry_count": 2,
+            "kinds": [
+              "currency_create_fee",
+              "currency_create_fee"
+            ],
+            "accounts": [
+              {
+                "cid": "1",
+                "uid": "970001",
+                "frozen": "4102",
+                "balance": "1890085"
+              },
+              {
+                "cid": "1",
+                "uid": "-1",
+                "frozen": "0",
+                "balance": "12281"
+              }
+            ]
+          }
+        }
+      },
+      "entries_before": 189,
+      "entries_after": 191,
+      "delta_entries": 2
+    },
+    {
+      "id": "T08",
+      "leg": "L5-idem",
+      "desc": "同键同内容 ⇒ 重放",
+      "expect": "200 replay，Δentries=0",
+      "status": 200,
+      "code": null,
+      "body": {
+        "success": true,
+        "message": "Currency created (idempotent replay)",
+        "data": {
+          "cid": "22",
+          "symbol": "QAB30929T185356Z",
+          "name": "QA B3 currency",
+          "owner_uid": "970001",
+          "decimals": 0,
+          "status": "draft",
+          "fee": "1000",
+          "idempotent_replay": true,
+          "ledger_event": null
+        }
+      },
+      "entries_before": 191,
+      "entries_after": 191,
+      "delta_entries": 0,
+      "replay_flag": true
+    },
+    {
+      "id": "T09",
+      "leg": "L5-idem",
+      "desc": "同键异内容 ⇒ 409",
+      "expect": "409 LEDGER_IDEMPOTENCY_CONFLICT，Δentries=0",
+      "status": 409,
+      "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+      "body": {
+        "error": {
+          "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+          "message": "Idempotency conflict",
+          "i18n_key": "ledger.err.LEDGER_IDEMPOTENCY_CONFLICT",
+          "details": {
+            "field": "currency.create_key",
+            "reason": "REPLAY_FINGERPRINT_MISMATCH",
+            "ref_id": "cli:qa-b3-c1-0929T185356Z"
+          }
+        }
+      },
+      "entries_before": 191,
+      "entries_after": 191,
+      "delta_entries": 0
+    },
+    {
+      "id": "T10",
+      "leg": "L5-idem",
+      "desc": "异键同符号 ⇒ 409 占用",
+      "expect": "409 LEDGER_CURRENCY_SYMBOL_TAKEN，Δentries=0",
+      "status": 409,
+      "code": "LEDGER_CURRENCY_SYMBOL_TAKEN",
+      "body": {
+        "error": {
+          "code": "LEDGER_CURRENCY_SYMBOL_TAKEN",
+          "message": "Currency symbol is taken",
+          "i18n_key": "ledger.err.LEDGER_CURRENCY_SYMBOL_TAKEN",
+          "details": {
+            "field": "currency.symbol",
+            "symbol": "QAB30929T185356Z"
+          }
+        }
+      },
+      "entries_before": 191,
+      "entries_after": 191,
+      "delta_entries": 0
+    },
+    {
+      "id": "T11",
+      "leg": "L5-idem",
+      "desc": "非法前缀键 qa-b3: ⇒ 400 PREFIX_REQUIRED",
+      "expect": "400 LEDGER_IDEMPOTENCY_KEY_INVALID/PREFIX_REQUIRED",
+      "status": 400,
+      "code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "body": {
+        "error": {
+          "code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+          "message": "Idempotency key is invalid",
+          "i18n_key": "ledger.err.LEDGER_IDEMPOTENCY_KEY_INVALID",
+          "details": {
+            "field": "create_key",
+            "reason": "PREFIX_REQUIRED",
+            "allowed_prefixes": [
+              "biz:",
+              "cm:",
+              "cli:",
+              "ops:"
+            ]
+          }
+        }
+      },
+      "entries_before": 191,
+      "entries_after": 191,
+      "delta_entries": 0
+    },
+    {
+      "id": "N01",
+      "leg": "L8-neg",
+      "desc": "C1 余额不足（uid=2，fee=1e12）",
+      "expect": "409 LEDGER_INSUFFICIENT_BALANCE，Δentries=0（无孤儿 currency 行）",
+      "status": 409,
+      "code": "LEDGER_INSUFFICIENT_BALANCE",
+      "body": {
+        "error": {
+          "code": "LEDGER_INSUFFICIENT_BALANCE",
+          "message": "LEDGER_INSUFFICIENT_BALANCE",
+          "i18n_key": "ledger.err.LEDGER_INSUFFICIENT_BALANCE",
+          "details": {
+            "detail_unavailable": "driver_did_not_carry_detail"
+          }
+        }
+      },
+      "entries_before": 191,
+      "entries_after": 191,
+      "delta_entries": 0
+    },
+    {
+      "id": "N01b",
+      "leg": "L8-neg",
+      "desc": "余额不足后孤儿 currency 行",
+      "status": 0,
+      "code": null,
+      "expect": "0",
+      "entries_before": null,
+      "entries_after": null,
+      "delta_entries": null
+    },
+    {
+      "id": "N02",
+      "leg": "L8-neg",
+      "desc": "C2 非本人上市（cid=10，actor=11）",
+      "expect": "403 AUTH_FORBIDDEN/ACTOR_NOT_ALLOWED，Δentries=0",
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "body": {
+        "error": {
+          "code": "AUTH_FORBIDDEN",
+          "message": "ACTOR_NOT_ALLOWED",
+          "i18n_key": "auth.err.AUTH_FORBIDDEN",
+          "details": {
+            "reason": "ACTOR_NOT_ALLOWED",
+            "ref_type": "currency",
+            "ref_id": "10",
+            "condition": "not_currency_owner"
+          }
+        }
+      },
+      "entries_before": 191,
+      "entries_after": 191,
+      "delta_entries": 0
+    },
+    {
+      "id": "N03",
+      "leg": "L8-neg",
+      "desc": "未知 cid 上市 ⇒ 404 LEDGER_CURRENCY_NOT_FOUND",
+      "expect": "404 LEDGER_CURRENCY_NOT_FOUND，Δentries=0",
+      "status": 404,
+      "code": "LEDGER_CURRENCY_NOT_FOUND",
+      "body": {
+        "error": {
+          "code": "LEDGER_CURRENCY_NOT_FOUND",
+          "message": "Currency not found",
+          "i18n_key": "ledger.err.LEDGER_CURRENCY_NOT_FOUND",
+          "details": {
+            "cid": "999999"
+          }
+        }
+      },
+      "entries_before": 191,
+      "entries_after": 191,
+      "delta_entries": 0
+    },
+    {
+      "id": "N04",
+      "leg": "L8-neg",
+      "desc": "M2 撤单未知 id ⇒ 404 LEDGER_REF_NOT_FOUND",
+      "expect": "404 LEDGER_REF_NOT_FOUND",
+      "status": 404,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "body": {
+        "error": {
+          "code": "LEDGER_REF_NOT_FOUND",
+          "message": "Referenced object not found",
+          "i18n_key": "ledger.err.LEDGER_REF_NOT_FOUND",
+          "details": {
+            "ref_type": "market_order",
+            "ref_id": "999999999",
+            "field": "order_id",
+            "reason": "order_not_found"
+          }
+        }
+      },
+      "entries_before": 191,
+      "entries_after": 191,
+      "delta_entries": 0
+    },
+    {
+      "id": "T12",
+      "leg": "L5-idem",
+      "desc": "M1 挂单首建（base=10）",
+      "expect": "200，hold×2，Δentries=+2",
+      "status": 200,
+      "code": null,
+      "body": {
+        "success": true,
+        "message": "Order created",
+        "data": {
+          "op": "order",
+          "order_id": "23",
+          "owner_uid": "970001",
+          "side": "buy",
+          "base_cid": "10",
+          "quote_cid": "1",
+          "price": "10",
+          "amount": "5",
+          "amount_filled": "0",
+          "order_status": "open",
+          "frozen_hold": "50",
+          "trade_id": null,
+          "created": true,
+          "idempotent_replay": false,
+          "txid": "199",
+          "ledger_idempotency_key": "cli:qa-b3-m1-0929T185356Z",
+          "ledger_event_keys": [
+            "cli:qa-b3-m1-0929T185356Z"
+          ],
+          "currency_status": "listed",
+          "event_kinds": "hold",
+          "entry_count": 2,
+          "kinds": [
+            "hold",
+            "hold"
+          ],
+          "entries": [
+            {
+              "cid": "1",
+              "uid": "970001",
+              "kind": "hold",
+              "memo": "market order:cli:qa-b3-m1-0929T185356Z（买单冻结 quote market_order=23）",
+              "txid": "199",
+              "delta": "-50",
+              "ref_id": "23",
+              "ref_type": "market_order",
+              "frozen_after": "4102",
+              "frozen_delta": "0",
+              "time_created": "2026-09-29T18:56:41.705Z",
+              "balance_after": "1890035",
+              "idempotency_key": "cli:qa-b3-m1-0929T185356Z",
+              "reversal_of_txid": null,
+              "request_fingerprint": "3ca81972296db50bf6cb3cc4705bdabdceb282890a040641a04d795d518e2894"
+            },
+            {
+              "cid": "1",
+              "uid": "970001",
+              "kind": "hold",
+              "memo": "market order:cli:qa-b3-m1-0929T185356Z（买单冻结 quote market_order=23）",
+              "txid": "200",
+              "delta": "0",
+              "ref_id": "23",
+              "ref_type": "market_order",
+              "frozen_after": "4152",
+              "frozen_delta": "50",
+              "time_created": "2026-09-29T18:56:41.705Z",
+              "balance_after": "1890035",
+              "idempotency_key": "cli:qa-b3-m1-0929T185356Z#2",
+              "reversal_of_txid": null,
+              "request_fingerprint": null
+            }
+          ],
+          "accounts": [
+            {
+              "cid": "1",
+              "uid": "970001",
+              "frozen": "4152",
+              "balance": "1890035"
+            }
+          ],
+          "client_owner_uid_ignored": "11",
+          "pair_lock": "pg_advisory_xact_lock(base_cid::int4, quote_cid::int4)"
+        }
+      },
+      "entries_before": 191,
+      "entries_after": 193,
+      "delta_entries": 2
+    },
+    {
+      "id": "T13",
+      "leg": "L5-idem",
+      "desc": "M1 同键同内容 ⇒ 重放",
+      "expect": "200 replay，Δentries=0",
+      "status": 200,
+      "code": null,
+      "body": {
+        "success": true,
+        "message": "Order created (idempotent replay)",
+        "data": {
+          "op": "order",
+          "order_id": "23",
+          "owner_uid": "970001",
+          "side": "buy",
+          "base_cid": "10",
+          "quote_cid": "1",
+          "price": "10",
+          "amount": "5",
+          "amount_filled": "0",
+          "order_status": "open",
+          "frozen_hold": "50",
+          "trade_id": null,
+          "created": false,
+          "idempotent_replay": true,
+          "txid": "199",
+          "ledger_idempotency_key": "cli:qa-b3-m1-0929T185356Z",
+          "ledger_event_keys": [
+            "cli:qa-b3-m1-0929T185356Z"
+          ],
+          "currency_status": "listed",
+          "event_kinds": "hold",
+          "entry_count": 2,
+          "kinds": [
+            "hold",
+            "hold"
+          ],
+          "entries": [
+            {
+              "cid": "1",
+              "uid": "970001",
+              "kind": "hold",
+              "memo": "market order:cli:qa-b3-m1-0929T185356Z（买单冻结 quote market_order=23）",
+              "txid": "199",
+              "delta": "-50",
+              "ref_id": "23",
+              "ref_type": "market_order",
+              "frozen_after": "4102",
+              "frozen_delta": "0",
+              "time_created": "2026-09-29T18:56:41.705Z",
+              "balance_after": "1890035",
+              "idempotency_key": "cli:qa-b3-m1-0929T185356Z",
+              "reversal_of_txid": null,
+              "request_fingerprint": "3ca81972296db50bf6cb3cc4705bdabdceb282890a040641a04d795d518e2894"
+            },
+            {
+              "cid": "1",
+              "uid": "970001",
+              "kind": "hold",
+              "memo": "market order:cli:qa-b3-m1-0929T185356Z（买单冻结 quote market_order=23）",
+              "txid": "200",
+              "delta": "0",
+              "ref_id": "23",
+              "ref_type": "market_order",
+              "frozen_after": "4152",
+              "frozen_delta": "50",
+              "time_created": "2026-09-29T18:56:41.705Z",
+              "balance_after": "1890035",
+              "idempotency_key": "cli:qa-b3-m1-0929T185356Z#2",
+              "reversal_of_txid": null,
+              "request_fingerprint": null
+            }
+          ],
+          "accounts": [
+            {
+              "cid": "1",
+              "uid": "970001",
+              "frozen": "4152",
+              "balance": "1890035"
+            }
+          ],
+          "client_owner_uid_ignored": "11",
+          "pair_lock": "pg_advisory_xact_lock(base_cid::int4, quote_cid::int4)"
+        },
+        "idempotent_replay": true
+      },
+      "entries_before": 193,
+      "entries_after": 193,
+      "delta_entries": 0,
+      "replay_flag": true,
+      "resolved_order_id": "23"
+    },
+    {
+      "id": "T14",
+      "leg": "L4-spoof",
+      "desc": "M1 客户端 owner_uid 被丢弃（回执登记）",
+      "expect": "200，entries 全落 actuator uid，回执 client_owner_uid_ignored=11",
+      "status": 200,
+      "code": null,
+      "body": {
+        "success": true,
+        "message": "Order created",
+        "data": {
+          "op": "order",
+          "order_id": "24",
+          "owner_uid": "970001",
+          "side": "buy",
+          "base_cid": "10",
+          "quote_cid": "1",
+          "price": "10",
+          "amount": "1",
+          "amount_filled": "0",
+          "order_status": "open",
+          "frozen_hold": "10",
+          "trade_id": null,
+          "created": true,
+          "idempotent_replay": false,
+          "txid": "201",
+          "ledger_idempotency_key": "cli:qa-b3-m1b-0929T185356Z",
+          "ledger_event_keys": [
+            "cli:qa-b3-m1b-0929T185356Z"
+          ],
+          "currency_status": "listed",
+          "event_kinds": "hold",
+          "entry_count": 2,
+          "kinds": [
+            "hold",
+            "hold"
+          ],
+          "entries": [
+            {
+              "cid": "1",
+              "uid": "970001",
+              "kind": "hold",
+              "memo": "market order:cli:qa-b3-m1b-0929T185356Z（买单冻结 quote market_order=24）",
+              "txid": "201",
+              "delta": "-10",
+              "ref_id": "24",
+              "ref_type": "market_order",
+              "frozen_after": "4152",
+              "frozen_delta": "0",
+              "time_created": "2026-09-29T18:56:44.516Z",
+              "balance_after": "1890025",
+              "idempotency_key": "cli:qa-b3-m1b-0929T185356Z",
+              "reversal_of_txid": null,
+              "request_fingerprint": "768b9f21d60211210e325b43f3a1dd27021495c60bc1c2b896c061cdfb235c3f"
+            },
+            {
+              "cid": "1",
+              "uid": "970001",
+              "kind": "hold",
+              "memo": "market order:cli:qa-b3-m1b-0929T185356Z（买单冻结 quote market_order=24）",
+              "txid": "202",
+              "delta": "0",
+              "ref_id": "24",
+              "ref_type": "market_order",
+              "frozen_after": "4162",
+              "frozen_delta": "10",
+              "time_created": "2026-09-29T18:56:44.516Z",
+              "balance_after": "1890025",
+              "idempotency_key": "cli:qa-b3-m1b-0929T185356Z#2",
+              "reversal_of_txid": null,
+              "request_fingerprint": null
+            }
+          ],
+          "accounts": [
+            {
+              "cid": "1",
+              "uid": "970001",
+              "frozen": "4162",
+              "balance": "1890025"
+            }
+          ],
+          "client_owner_uid_ignored": "11",
+          "pair_lock": "pg_advisory_xact_lock(base_cid::int4, quote_cid::int4)"
+        }
+      },
+      "entries_before": 193,
+      "entries_after": 195,
+      "delta_entries": 2
+    },
+    {
+      "id": "T15",
+      "leg": "L5-idem",
+      "desc": "M2 撤自己的单（order_id=23）",
+      "expect": "200，hold_release×2，Δentries=+2",
+      "status": 200,
+      "code": null,
+      "body": {
+        "success": true,
+        "message": "Order cancelled",
+        "data": {
+          "op": "cancel",
+          "order_id": "23",
+          "owner_uid": "970001",
+          "side": "buy",
+          "base_cid": "10",
+          "quote_cid": "1",
+          "price": "10",
+          "amount": "5",
+          "amount_filled": "0",
+          "order_status": "cancelled",
+          "frozen_hold": "50",
+          "trade_id": null,
+          "created": false,
+          "idempotent_replay": false,
+          "txid": "203",
+          "ledger_idempotency_key": "biz:market:cancel:23",
+          "ledger_event_keys": [
+            "cli:qa-b3-m1-0929T185356Z",
+            "biz:market:cancel:23"
+          ],
+          "currency_status": "listed",
+          "event_kinds": "hold_release",
+          "entry_count": 2,
+          "kinds": [
+            "hold_release",
+            "hold_release"
+          ],
+          "entries": [
+            {
+              "cid": "1",
+              "uid": "970001",
+              "kind": "hold_release",
+              "memo": "market cancel:23（撤单解冻 market_order=23）",
+              "txid": "203",
+              "delta": "0",
+              "ref_id": "23",
+              "ref_type": "market_order",
+              "frozen_after": "4112",
+              "frozen_delta": "-50",
+              "time_created": "2026-09-29T18:56:45.893Z",
+              "balance_after": "1890025",
+              "idempotency_key": "biz:market:cancel:23",
+              "reversal_of_txid": null,
+              "request_fingerprint": "11801f39522c5e0e56b630df404cf33798cf2f44c29cb1a7fe4a0193724459b8"
+            },
+            {
+              "cid": "1",
+              "uid": "970001",
+              "kind": "hold_release",
+              "memo": "market cancel:23（撤单解冻 market_order=23）",
+              "txid": "204",
+              "delta": "50",
+              "ref_id": "23",
+              "ref_type": "market_order",
+              "frozen_after": "4112",
+              "frozen_delta": "0",
+              "time_created": "2026-09-29T18:56:45.893Z",
+              "balance_after": "1890075",
+              "idempotency_key": "biz:market:cancel:23#2",
+              "reversal_of_txid": null,
+              "request_fingerprint": null
+            }
+          ],
+          "accounts": [
+            {
+              "cid": "1",
+              "uid": "970001",
+              "frozen": "4112",
+              "balance": "1890075"
+            }
+          ],
+          "pair_lock": "pg_advisory_xact_lock(base_cid::int4, quote_cid::int4)"
+        }
+      },
+      "entries_before": 195,
+      "entries_after": 197,
+      "delta_entries": 2
+    },
+    {
+      "id": "N05",
+      "leg": "L8-neg",
+      "desc": "M2 非 owner 撤单（order_id=23）",
+      "expect": "403 AUTH_FORBIDDEN 或 409（已撤单/无剩余），Δentries=0",
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "body": {
+        "error": {
+          "code": "AUTH_FORBIDDEN",
+          "message": "ACTOR_NOT_ALLOWED",
+          "i18n_key": "auth.err.AUTH_FORBIDDEN",
+          "details": {
+            "reason": "ACTOR_NOT_ALLOWED",
+            "field": "actor.uid",
+            "ref_type": "market_order",
+            "ref_id": "23",
+            "required_uid": "970001"
+          }
+        }
+      },
+      "entries_before": 197,
+      "entries_after": 197,
+      "delta_entries": 0
+    },
+    {
+      "id": "N06",
+      "leg": "L8-neg",
+      "desc": "M1 缺 create_key ⇒ 400 REQUIRED",
+      "expect": "400 LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "status": 400,
+      "code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "body": {
+        "error": {
+          "code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+          "message": "Idempotency key is required",
+          "i18n_key": "ledger.err.LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+          "details": {
+            "field": "create_key"
+          }
+        }
+      },
+      "entries_before": 197,
+      "entries_after": 197,
+      "delta_entries": 0
+    },
+    {
+      "id": "N07",
+      "leg": "L8-neg",
+      "desc": "M1 自成交面（无 M3 路由 ⇒ 以自买同价探测未覆盖）",
+      "expect": "404（M3 撮合端点本批未注册 ⇒ NOT_MEASURED）",
+      "status": 404,
+      "code": null,
+      "body": {
+        "success": false,
+        "message": "Not found",
+        "error": "Not found"
+      },
+      "entries_before": 197,
+      "entries_after": 197,
+      "delta_entries": 0
+    }
+  ]
+}
