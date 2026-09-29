@@ -462,11 +462,9 @@ const normalizeAsset = (row: RawRow): AssetRecord => ({
   time_update: toTimestamp(getValue(row, 'time_updated')),
 });
 
-// P4-B2a-HTTP: users 真列名 = uid/evm（bio/is_admin/time_reg/time_login_last 同名）。
-// 回退键追加在旧键之后 ⇒ 响应键集（uID/EVM/bio/is_admin/time_reg/time_login_last）逐字不变。
 const normalizeUser = (row: RawRow): UserRecord => ({
-  uID: toNumberValue(getValue(row, 'uID', 'uid', 'id')),
-  EVM: toStringValue(getValue(row, 'EVM', 'evm')),
+  uID: toNumberValue(getValue(row, 'uID', 'id')),
+  EVM: toStringValue(getValue(row, 'EVM')),
   bio: toStringValue(getValue(row, 'bio')),
   is_admin: toBooleanValue(getValue(row, 'is_admin')),
   time_reg: toTimestamp(getValue(row, 'time_reg')),
@@ -734,8 +732,9 @@ export class DatabaseService {
   static async getNextUserId(): Promise<number> {
     const sql = getSql();
     const rows = asItems<{ next_id: number }>(await sql`
-      SELECT COALESCE(MAX(uid), 0) + 1 AS next_id
-      FROM public."users"
+      SELECT COALESCE(MAX(NULLIF(BTRIM("uID"), '')::int), 0)::int + 1 AS next_id
+      FROM "users"
+      WHERE NULLIF(BTRIM("uID"), '') IS NOT NULL
     `);
     return Number(rows[0]?.next_id || 1);
   }
@@ -771,7 +770,7 @@ export class DatabaseService {
       const rows = extractRows(await sql`
         SELECT u.*
         FROM "users" AS u
-        ORDER BY u.uid
+        ORDER BY COALESCE(NULLIF(BTRIM(u."uID"), '')::int, 0)
         LIMIT ${limit} OFFSET ${skip}
       `);
       return rows.map(normalizeUser);
@@ -786,7 +785,7 @@ export class DatabaseService {
     const row = firstRow(await sql`
       SELECT u.*
       FROM "users" AS u
-      WHERE u.uid = ${uID}
+      WHERE COALESCE(NULLIF(BTRIM(u."uID"), '')::int, 0) = ${uID}
       LIMIT 1
     `);
 
@@ -799,7 +798,7 @@ export class DatabaseService {
     const row = firstRow(await sql`
       SELECT u.*
       FROM "users" AS u
-      WHERE lower(u.evm) = ${normalizedAddress}
+      WHERE LOWER(COALESCE(u."EVM", '')) = ${normalizedAddress}
       LIMIT 1
     `);
 
@@ -811,8 +810,8 @@ export class DatabaseService {
     const normalizedAddress = String(evmAddress || '').trim().toLowerCase();
     const nextUserId = await this.getNextUserId();
     const row = firstRow(await sql`
-      INSERT INTO public."users" AS u (uid, evm, bio, is_admin, time_reg, time_login_last)
-      VALUES (${nextUserId}, ${normalizedAddress}, '', false, NOW(), NOW())
+      INSERT INTO "users" AS u ("uID", "EVM", "bio", "is_admin", "time_reg", "time_login_last")
+      VALUES (${String(nextUserId)}, ${normalizedAddress}, '', false, NOW(), NOW())
       RETURNING u.*
     `);
     if (!row) throw new Error('User insert returned no row');
@@ -824,7 +823,7 @@ export class DatabaseService {
     await sql`
       UPDATE "users" AS u
       SET "time_login_last" = NOW()
-      WHERE u.uid = ${uID}
+      WHERE COALESCE(NULLIF(BTRIM(u."uID"), '')::int, 0) = ${uID}
     `;
   }
 
@@ -851,7 +850,7 @@ export class DatabaseService {
       UPDATE "users" AS u
       SET "bio" = COALESCE(${bio}, "bio"),
           "is_admin" = COALESCE(${isAdmin}, "is_admin")
-      WHERE u.uid = ${uID}
+      WHERE COALESCE(NULLIF(BTRIM(u."uID"), '')::int, 0) = ${uID}
       RETURNING u.*
     `);
     return row ? normalizeUser(row) : null;

@@ -1,0 +1,715 @@
+{
+  "assert_users_table": [
+    {
+      "users_regclass": "users",
+      "has_uid": "uid",
+      "has_bad_uid": null,
+      "has_evm": "evm",
+      "has_bad_evm": null
+    }
+  ],
+  "columns": {
+    "users": [
+      {
+        "column_name": "uid",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "evm",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "bio",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "is_admin",
+        "data_type": "boolean",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "time_reg",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "time_login_last",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO"
+      }
+    ],
+    "job": [
+      {
+        "column_name": "job_id",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "employer_uid",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "worker_uid",
+        "data_type": "bigint",
+        "is_nullable": "YES"
+      },
+      {
+        "column_name": "cid",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "reward",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "title",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "description",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "status",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "create_key",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "escrow_txid",
+        "data_type": "bigint",
+        "is_nullable": "YES"
+      },
+      {
+        "column_name": "settle_txid",
+        "data_type": "bigint",
+        "is_nullable": "YES"
+      },
+      {
+        "column_name": "ledger_event_keys",
+        "data_type": "ARRAY",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "time_updated",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO"
+      }
+    ],
+    "job_application": [
+      {
+        "column_name": "application_id",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "job_id",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "worker_uid",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "status",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "create_key",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "time_updated",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO"
+      }
+    ],
+    "job_submission": [
+      {
+        "column_name": "submission_id",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "job_id",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "worker_uid",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "deliverable",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "review_status",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "reviewed_by",
+        "data_type": "bigint",
+        "is_nullable": "YES"
+      },
+      {
+        "column_name": "reviewed_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES"
+      },
+      {
+        "column_name": "review_memo",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "create_key",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO"
+      }
+    ],
+    "account": [
+      {
+        "column_name": "uid",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "cid",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "balance",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "frozen",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "version",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "time_updated",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO"
+      }
+    ],
+    "ledger_entry": [
+      {
+        "column_name": "txid",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "uid",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "cid",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "delta",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "frozen_delta",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "balance_after",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "frozen_after",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "kind",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "ref_type",
+        "data_type": "text",
+        "is_nullable": "YES"
+      },
+      {
+        "column_name": "ref_id",
+        "data_type": "bigint",
+        "is_nullable": "YES"
+      },
+      {
+        "column_name": "idempotency_key",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "request_fingerprint",
+        "data_type": "text",
+        "is_nullable": "YES"
+      },
+      {
+        "column_name": "reversal_of_txid",
+        "data_type": "bigint",
+        "is_nullable": "YES"
+      },
+      {
+        "column_name": "memo",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "event_root_key",
+        "data_type": "text",
+        "is_nullable": "YES"
+      }
+    ],
+    "currency": [
+      {
+        "column_name": "cid",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "symbol",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "name",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "icon_url",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "owner_uid",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "decimals",
+        "data_type": "smallint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "total_supply",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "supply_cap",
+        "data_type": "bigint",
+        "is_nullable": "YES"
+      },
+      {
+        "column_name": "status",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "deposit_amount",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "deposit_cid",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "listed_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES"
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "time_updated",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO"
+      }
+    ],
+    "listing": [
+      {
+        "column_name": "listing_id",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "seller_uid",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "cid",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "price",
+        "data_type": "bigint",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "stock",
+        "data_type": "integer",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "title",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "description",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "media_urls",
+        "data_type": "ARRAY",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "status",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "create_key",
+        "data_type": "text",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "ledger_event_keys",
+        "data_type": "ARRAY",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "time_created",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO"
+      },
+      {
+        "column_name": "time_updated",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO"
+      }
+    ]
+  },
+  "row_counts": [
+    {
+      "table_name": "account",
+      "live_tup": "0"
+    },
+    {
+      "table_name": "account",
+      "live_tup": "4"
+    },
+    {
+      "table_name": "admin_permission",
+      "live_tup": "0"
+    },
+    {
+      "table_name": "admin_role",
+      "live_tup": "0"
+    },
+    {
+      "table_name": "admin_role_permission",
+      "live_tup": "0"
+    },
+    {
+      "table_name": "admin_user_role",
+      "live_tup": "0"
+    },
+    {
+      "table_name": "app_config",
+      "live_tup": "0"
+    },
+    {
+      "table_name": "commission_policy",
+      "live_tup": "1"
+    },
+    {
+      "table_name": "currency",
+      "live_tup": "1"
+    },
+    {
+      "table_name": "currency_status_log",
+      "live_tup": "0"
+    },
+    {
+      "table_name": "invitation",
+      "live_tup": "0"
+    },
+    {
+      "table_name": "job",
+      "live_tup": "2"
+    },
+    {
+      "table_name": "job_application",
+      "live_tup": "2"
+    },
+    {
+      "table_name": "job_submission",
+      "live_tup": "0"
+    },
+    {
+      "table_name": "jwks",
+      "live_tup": "0"
+    },
+    {
+      "table_name": "ledger_entry",
+      "live_tup": "0"
+    },
+    {
+      "table_name": "ledger_owner",
+      "live_tup": "4"
+    },
+    {
+      "table_name": "listing",
+      "live_tup": "0"
+    },
+    {
+      "table_name": "listing_order",
+      "live_tup": "0"
+    },
+    {
+      "table_name": "market_order",
+      "live_tup": "0"
+    },
+    {
+      "table_name": "market_trade",
+      "live_tup": "0"
+    },
+    {
+      "table_name": "member",
+      "live_tup": "0"
+    },
+    {
+      "table_name": "organization",
+      "live_tup": "0"
+    },
+    {
+      "table_name": "project_config",
+      "live_tup": "1"
+    },
+    {
+      "table_name": "referral",
+      "live_tup": "0"
+    },
+    {
+      "table_name": "schema_migration",
+      "live_tup": "17"
+    },
+    {
+      "table_name": "session",
+      "live_tup": "0"
+    },
+    {
+      "table_name": "user",
+      "live_tup": "0"
+    },
+    {
+      "table_name": "users",
+      "live_tup": "2"
+    },
+    {
+      "table_name": "verification",
+      "live_tup": "0"
+    }
+  ],
+  "fixtures": {
+    "users": [
+      {
+        "uid": "970001",
+        "evm": "0x9700010000000000000000000000000000000000",
+        "bio": "p4b2:fixture user",
+        "is_admin": false,
+        "time_reg": "2026-09-29T12:12:46.364Z",
+        "time_login_last": "2026-09-29T12:12:46.364Z"
+      },
+      {
+        "uid": "970002",
+        "evm": "0x9700020000000000000000000000000000000000",
+        "bio": "p4b2:fixture user",
+        "is_admin": false,
+        "time_reg": "2026-09-29T12:12:46.879Z",
+        "time_login_last": "2026-09-29T12:12:46.879Z"
+      }
+    ],
+    "job": [
+      {
+        "job_id": "2",
+        "status": "open",
+        "employer_uid": "970001",
+        "worker_uid": null
+      },
+      {
+        "job_id": "3",
+        "status": "accepted",
+        "employer_uid": "970001",
+        "worker_uid": "970002"
+      }
+    ],
+    "job_application": [
+      {
+        "application_id": "1",
+        "job_id": "2",
+        "worker_uid": "970002",
+        "status": "applied",
+        "create_key": "cli:p4b2:app:A2"
+      },
+      {
+        "application_id": "4",
+        "job_id": "3",
+        "worker_uid": "970002",
+        "status": "accepted",
+        "create_key": "cli:p4b2:app:B2"
+      }
+    ],
+    "job_submission": [],
+    "account_nonfund": [
+      {
+        "rows": 4,
+        "sum_balance": "0"
+      }
+    ],
+    "ledger_entry_count": [
+      {
+        "rows": 0
+      }
+    ]
+  },
+  "indexes": [
+    {
+      "tablename": "job_application",
+      "indexname": "idx_job_application_worker",
+      "indexdef": "CREATE INDEX idx_job_application_worker ON public.job_application USING btree (worker_uid, time_created DESC)"
+    },
+    {
+      "tablename": "job_application",
+      "indexname": "job_application_create_key_uniq",
+      "indexdef": "CREATE UNIQUE INDEX job_application_create_key_uniq ON public.job_application USING btree (create_key)"
+    },
+    {
+      "tablename": "job_application",
+      "indexname": "job_application_job_worker_uniq",
+      "indexdef": "CREATE UNIQUE INDEX job_application_job_worker_uniq ON public.job_application USING btree (job_id, worker_uid)"
+    },
+    {
+      "tablename": "job_application",
+      "indexname": "job_application_pk",
+      "indexdef": "CREATE UNIQUE INDEX job_application_pk ON public.job_application USING btree (application_id)"
+    },
+    {
+      "tablename": "job_application",
+      "indexname": "uniq_job_application_accepted",
+      "indexdef": "CREATE UNIQUE INDEX uniq_job_application_accepted ON public.job_application USING btree (job_id) WHERE (status = 'accepted'::text)"
+    },
+    {
+      "tablename": "job_submission",
+      "indexname": "idx_job_submission_job",
+      "indexdef": "CREATE INDEX idx_job_submission_job ON public.job_submission USING btree (job_id, time_created DESC)"
+    },
+    {
+      "tablename": "job_submission",
+      "indexname": "idx_job_submission_review",
+      "indexdef": "CREATE INDEX idx_job_submission_review ON public.job_submission USING btree (review_status, time_created DESC)"
+    },
+    {
+      "tablename": "job_submission",
+      "indexname": "idx_job_submission_worker",
+      "indexdef": "CREATE INDEX idx_job_submission_worker ON public.job_submission USING btree (worker_uid, time_created DESC)"
+    },
+    {
+      "tablename": "job_submission",
+      "indexname": "job_submission_create_key_uniq",
+      "indexdef": "CREATE UNIQUE INDEX job_submission_create_key_uniq ON public.job_submission USING btree (create_key)"
+    },
+    {
+      "tablename": "job_submission",
+      "indexname": "job_submission_pk",
+      "indexdef": "CREATE UNIQUE INDEX job_submission_pk ON public.job_submission USING btree (submission_id)"
+    },
+    {
+      "tablename": "users",
+      "indexname": "idx_users_evm_lower",
+      "indexdef": "CREATE INDEX idx_users_evm_lower ON public.users USING btree (lower(evm))"
+    },
+    {
+      "tablename": "users",
+      "indexname": "users_evm_uniq",
+      "indexdef": "CREATE UNIQUE INDEX users_evm_uniq ON public.users USING btree (evm)"
+    },
+    {
+      "tablename": "users",
+      "indexname": "users_pk",
+      "indexdef": "CREATE UNIQUE INDEX users_pk ON public.users USING btree (uid)"
+    }
+  ]
+}

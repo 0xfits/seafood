@@ -1,0 +1,17 @@
+{
+  "keyProbe": [
+    {
+      "candidate": "env-SECRET_KEY(.env.local/.env 经 dotenv)",
+      "key_len": 64,
+      "token_fp": "06b5d831dbd7",
+      "status": 401
+    },
+    {
+      "candidate": "auth.ts:3 硬编码兑底",
+      "key_len": 20,
+      "token_fp": "7cf048af86a5",
+      "status": 401
+    }
+  ],
+  "verdict": "NO_CANDIDATE_200"
+}

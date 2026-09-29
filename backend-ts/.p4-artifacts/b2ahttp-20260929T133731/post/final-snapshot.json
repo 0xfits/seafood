@@ -1,0 +1,52 @@
+{
+  "run": "b2ahttp-20260929T133731",
+  "at": "2026-09-29T13:48:29.285Z",
+  "caliber": "exact COUNT(*)/SUM；带引号表名 public.\"x\"；: 用 chr(58) 拼（避开 node -e 引号陷阱）",
+  "account": {
+    "n": 4,
+    "sb": "0",
+    "sf": "0"
+  },
+  "account_dump_md5": "7516d8c6a9a30f96eb95417652e07dbd",
+  "ledger_entry_rows": 0,
+  "users_rows": 2,
+  "job_rows": 2,
+  "job_application_rows": 2,
+  "job_submission_rows": 1,
+  "subs": [
+    {
+      "submission_id": "1",
+      "job_id": "3",
+      "worker_uid": "970002",
+      "review_status": "pending",
+      "create_key": "cli:p4b2:submit:J3A"
+    }
+  ],
+  "jobs": [
+    {
+      "job_id": "2",
+      "status": "open",
+      "worker_uid": null
+    },
+    {
+      "job_id": "3",
+      "status": "submitted",
+      "worker_uid": "970002"
+    }
+  ],
+  "apps": [
+    {
+      "application_id": "1",
+      "job_id": "2",
+      "worker_uid": "970002",
+      "status": "applied"
+    },
+    {
+      "application_id": "4",
+      "job_id": "3",
+      "worker_uid": "970002",
+      "status": "accepted"
+    }
+  ],
+  "ns_sub_cli_p4b2": 1
+}

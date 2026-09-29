@@ -1,0 +1,44 @@
+{
+  "target": "backend-ts/src/database.ts",
+  "applied": [
+    {
+      "name": "normalizeUser-fallback-keys",
+      "expect": 1,
+      "found": 1,
+      "ok": true
+    },
+    {
+      "name": "getNextUserId",
+      "expect": 1,
+      "found": 1,
+      "ok": true
+    },
+    {
+      "name": "getAllUsers-order",
+      "expect": 1,
+      "found": 1,
+      "ok": true
+    },
+    {
+      "name": "uid-predicate-x3",
+      "expect": 3,
+      "found": 3,
+      "ok": true
+    },
+    {
+      "name": "getUserByEvm-predicate",
+      "expect": 1,
+      "found": 1,
+      "ok": true
+    },
+    {
+      "name": "createUserByEvm-insert",
+      "expect": 1,
+      "found": 1,
+      "ok": true
+    }
+  ],
+  "bytes_before": 91823,
+  "bytes_after": 91731,
+  "residual_old_cols": []
+}
