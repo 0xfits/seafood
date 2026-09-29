@@ -1270,6 +1270,238 @@ export class DatabaseService {
     return row ? normalizeTaskProgress(row) : null;
   }
 
+  // ==========================================================================
+  // P4-B2a · 招工**非资金**写入（J2 apply / J3 accept / J4 submit）
+  // 依据：docs/route-layer.spec.md §1 #19/#20 · §4.2 J2/J3/J4 · §4.0 R3（无分录的写不得借账本幂等）
+  //   · 表（既有 DDL）：migrations/0014_job_flow.sql:79-133（job_application / job_submission）
+  //                    migrations/0013_job.sql:60-70（job 状态白名单）· :161-197（核心字段/worker 一次写定守卫）
+  //   · 单语句 CTE ⇒ neon HTTP 下一次隐式事务；**零账本**（不写 ledger_entry / account / currency）
+  //   · 状态机非法转移由 DB 守卫触发器或本层显式判定挡下 ⇒ 409（借码 LEDGER_CURRENCY_INVALID_TRANSITION，DL119/C5）
+  // ==========================================================================
+
+  /** §3.1/DL111：解析 :identifier（application_id 或 job_id）→ 该 worker 的申请；他人申请返回 ownership='other' */
+  static async resolveJobApplication(
+    identifier: number,
+    workerUid: number,
+  ): Promise<{ applicationId: number; workerUid: number; ownership: 'self' | 'other' } | null> {
+    const sql = getSql();
+    const row = firstRow(await sql`
+      SELECT a.application_id, a.worker_uid,
+             CASE WHEN a.worker_uid = ${workerUid} THEN 'self' ELSE 'other' END AS ownership
+        FROM public.job_application AS a
+       WHERE a.application_id = ${identifier} OR a.job_id = ${identifier}
+       ORDER BY (a.application_id = ${identifier}) DESC,
+                (a.worker_uid = ${workerUid}) DESC,
+                a.application_id DESC
+       LIMIT 1
+    `);
+
+    if (!row) return null;
+
+    return {
+      applicationId: toNumberValue(getValue(row, 'application_id')),
+      workerUid: toNumberValue(getValue(row, 'worker_uid')),
+      ownership: toStringValue(getValue(row, 'ownership')) === 'self' ? 'self' : 'other',
+    };
+  }
+
+  /** §4.2 J4：提交交付物 —— `job_submission` 落行（review_status='pending'）+ `job.status→'submitted'`，同语句原子 */
+  static async submitJobWork(
+    applicationId: number,
+    workerUid: number,
+    deliverable: string,
+    createKey: string,
+  ): Promise<{
+    outcome: 'inserted' | 'replay' | 'blocked';
+    applicationId: number;
+    applicationStatus: string;
+    jobStatus: string;
+    existingDeliverable: string | null;
+  } | null> {
+    const sql = getSql();
+    const row = firstRow(await sql`
+      WITH target AS (
+        SELECT a.application_id, a.job_id, a.worker_uid, a.status AS app_status,
+               j.status AS job_status
+          FROM public.job_application AS a
+          JOIN public.job AS j ON j.job_id = a.job_id
+         WHERE a.application_id = ${applicationId}
+           AND a.worker_uid = ${workerUid}
+      ), upd_job AS (
+        UPDATE public.job AS j
+           SET status = 'submitted'
+          FROM target AS t
+         WHERE j.job_id = t.job_id
+           AND t.job_status = 'accepted'
+           AND t.app_status = 'accepted'
+        RETURNING j.job_id
+      ), ins AS (
+        INSERT INTO public.job_submission (job_id, worker_uid, deliverable, review_status, create_key)
+        SELECT t.job_id, t.worker_uid, ${deliverable}, 'pending', ${createKey}
+          FROM target AS t
+         WHERE t.app_status = 'accepted'
+        ON CONFLICT (create_key) DO NOTHING
+        RETURNING submission_id, deliverable
+      ), cur AS (
+        SELECT 'inserted' AS outcome, i.submission_id, i.deliverable
+          FROM ins AS i
+        UNION ALL
+        SELECT 'replay', s.submission_id, s.deliverable
+          FROM public.job_submission AS s, target AS t
+         WHERE s.create_key = ${createKey}
+           AND s.job_id = t.job_id
+           AND s.worker_uid = t.worker_uid
+           AND NOT EXISTS (SELECT 1 FROM ins)
+      )
+      SELECT t.application_id AS application_id,
+             t.app_status AS application_status,
+             t.job_status AS job_status,
+             COALESCE(c.outcome, 'blocked') AS outcome,
+             c.deliverable AS existing_deliverable
+        FROM target AS t
+        LEFT JOIN cur AS c ON TRUE
+    `);
+
+    if (!row) return null;
+
+    return {
+      outcome: (toStringValue(getValue(row, 'outcome')) || 'blocked') as 'inserted' | 'replay' | 'blocked',
+      applicationId: toNumberValue(getValue(row, 'application_id')),
+      applicationStatus: toStringValue(getValue(row, 'application_status')),
+      jobStatus: toStringValue(getValue(row, 'job_status')),
+      existingDeliverable: getValue(row, 'existing_deliverable') === null || getValue(row, 'existing_deliverable') === undefined
+        ? null
+        : toStringValue(getValue(row, 'existing_deliverable')),
+    };
+  }
+
+  /** §4.2 J2：报名 —— `job_application` 落行（status='applied'），同语句原子；`job.status` 必须 'open' 且非雇主自投 */
+  static async applyToJob(
+    jobId: number,
+    workerUid: number,
+    createKey: string,
+  ): Promise<{
+    outcome: 'applied' | 'replay' | 'already_applied' | 'not_open' | 'self_application' | 'conflict';
+    applicationId: number | null;
+    jobStatus: string;
+  } | null> {
+    const sql = getSql();
+    const row = firstRow(await sql`
+      WITH j AS (
+        SELECT job.job_id, job.employer_uid, job.status AS job_status
+          FROM public.job AS job
+         WHERE job.job_id = ${jobId}
+      ), ins AS (
+        INSERT INTO public.job_application (job_id, worker_uid, status, create_key)
+        SELECT j.job_id, ${workerUid}, 'applied', ${createKey}
+          FROM j
+         WHERE j.job_status = 'open'
+           AND j.employer_uid <> ${workerUid}
+        ON CONFLICT DO NOTHING
+        RETURNING application_id
+      ), cur AS (
+        SELECT 'applied' AS outcome, i.application_id
+          FROM ins AS i
+        UNION ALL
+        SELECT 'replay', a.application_id
+          FROM public.job_application AS a, j
+         WHERE a.create_key = ${createKey}
+           AND a.job_id = j.job_id
+           AND a.worker_uid = ${workerUid}
+           AND NOT EXISTS (SELECT 1 FROM ins)
+        UNION ALL
+        SELECT 'already_applied', a.application_id
+          FROM public.job_application AS a, j
+         WHERE a.job_id = j.job_id
+           AND a.worker_uid = ${workerUid}
+           AND a.create_key <> ${createKey}
+           AND NOT EXISTS (SELECT 1 FROM ins)
+      )
+      SELECT j.job_id AS job_id, j.job_status AS job_status,
+             COALESCE(c.outcome,
+                      CASE WHEN j.job_status <> 'open' THEN 'not_open'
+                           WHEN j.employer_uid = ${workerUid} THEN 'self_application'
+                           ELSE 'conflict' END) AS outcome,
+             c.application_id AS application_id
+        FROM j
+        LEFT JOIN cur AS c ON TRUE
+    `);
+
+    if (!row) return null;
+
+    return {
+      outcome: (toStringValue(getValue(row, 'outcome')) || 'conflict') as
+        'applied' | 'replay' | 'already_applied' | 'not_open' | 'self_application' | 'conflict',
+      applicationId: getValue(row, 'application_id') === null || getValue(row, 'application_id') === undefined
+        ? null
+        : toNumberValue(getValue(row, 'application_id')),
+      jobStatus: toStringValue(getValue(row, 'job_status')),
+    };
+  }
+
+  /** §4.2 J3：雇主选定打工人 —— `job_application.status→'accepted'` + `job.status→'accepted'` / `job.worker_uid` 一次写定 */
+  static async acceptJobApplication(
+    jobId: number,
+    applicationId: number,
+    actorUid: number,
+  ): Promise<{
+    outcome: 'accepted' | 'not_employer' | 'already_accepted' | 'app_state_invalid' | 'job_state_invalid';
+    applicationId: number;
+    jobId: number;
+    workerUid: number;
+    applicationStatus: string;
+    jobStatus: string;
+  } | null> {
+    const sql = getSql();
+    const row = firstRow(await sql`
+      WITH target AS (
+        SELECT a.application_id, a.job_id, a.worker_uid, a.status AS app_status,
+               j.employer_uid, j.status AS job_status
+          FROM public.job_application AS a
+          JOIN public.job AS j ON j.job_id = a.job_id
+         WHERE a.application_id = ${applicationId}
+           AND a.job_id = ${jobId}
+      ), upd AS (
+        UPDATE public.job_application AS a
+           SET status = 'accepted'
+          FROM target AS t
+         WHERE a.application_id = t.application_id
+           AND t.app_status = 'applied'
+           AND t.employer_uid = ${actorUid}
+           AND t.job_status = 'open'
+        RETURNING a.application_id
+      ), upd_job AS (
+        UPDATE public.job AS j
+           SET status = 'accepted', worker_uid = t.worker_uid
+          FROM target AS t
+         WHERE j.job_id = t.job_id
+           AND t.job_status = 'open'
+           AND EXISTS (SELECT 1 FROM upd)
+        RETURNING j.job_id
+      )
+      SELECT t.application_id AS application_id, t.job_id AS job_id, t.worker_uid AS worker_uid,
+             t.app_status AS application_status, t.job_status AS job_status,
+             COALESCE(CASE WHEN EXISTS (SELECT 1 FROM upd) THEN 'accepted' END,
+                      CASE WHEN t.employer_uid <> ${actorUid} THEN 'not_employer'
+                           WHEN t.app_status = 'accepted' THEN 'already_accepted'
+                           WHEN t.app_status <> 'applied' THEN 'app_state_invalid'
+                           ELSE 'job_state_invalid' END) AS outcome
+        FROM target AS t
+    `);
+
+    if (!row) return null;
+
+    return {
+      outcome: (toStringValue(getValue(row, 'outcome')) || 'app_state_invalid') as
+        'accepted' | 'not_employer' | 'already_accepted' | 'app_state_invalid' | 'job_state_invalid',
+      applicationId: toNumberValue(getValue(row, 'application_id')),
+      jobId: toNumberValue(getValue(row, 'job_id')),
+      workerUid: toNumberValue(getValue(row, 'worker_uid')),
+      applicationStatus: toStringValue(getValue(row, 'application_status')),
+      jobStatus: toStringValue(getValue(row, 'job_status')),
+    };
+  }
+
   static async listPendingVerification(skip = 0, limit = 50): Promise<PendingVerificationRecord[]> {
     const sql = getSql();
     const rows = extractRows(await sql`

@@ -1,0 +1,71 @@
+{
+  "generated_at": "2026-09-29T12:13:06.711Z",
+  "phase": "after",
+  "driver": "neon-http",
+  "table_counts": {
+    "job": 2,
+    "job_application": 2,
+    "job_submission": 0,
+    "ledger_entry": 0,
+    "account": 4,
+    "currency": 1,
+    "users": 2,
+    "app_config": 0,
+    "commission_policy": 1
+  },
+  "ledger_related_tables": {
+    "ledger_entry": 0,
+    "ledger_owner": 4
+  },
+  "row_dump_hashes": {
+    "account": "1e010fd7c5c0dba1306251bed3069743",
+    "currency": "94888b601989b0432a9e0b11fdbb2773",
+    "job": "28e2b686368912135ffda12b3c7cd29d",
+    "job_application": "bb8cf8edf989aad2aa1392af5164b388",
+    "job_submission": "4f53cda18c2baa0c0354bb5f9a3ecbe5"
+  },
+  "namespace_counts": {
+    "job_create_key_like": 0,
+    "job_application_create_key_like": 0,
+    "job_submission_create_key_like": 0,
+    "ledger_entry_event_root_like": 0
+  },
+  "account_invariants": [
+    {
+      "rows": 4,
+      "sum_balance": "0",
+      "sum_frozen": "0"
+    }
+  ],
+  "job_statuses": [
+    {
+      "status": "accepted",
+      "c": 1
+    },
+    {
+      "status": "open",
+      "c": 1
+    }
+  ],
+  "application_statuses": [
+    {
+      "status": "accepted",
+      "c": 1
+    },
+    {
+      "status": "applied",
+      "c": 1
+    }
+  ],
+  "legacy_task_progress_regclass": "null",
+  "users_head": [
+    {
+      "uid": "970001",
+      "evm_head": "0x97000100"
+    },
+    {
+      "uid": "970002",
+      "evm_head": "0x97000200"
+    }
+  ]
+}

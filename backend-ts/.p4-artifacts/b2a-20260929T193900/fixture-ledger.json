@@ -1,0 +1,16 @@
+{
+  "created": {
+    "users:970001": 1,
+    "users:970002": 1,
+    "job:A": 2,
+    "job:B": 3
+  },
+  "reused_uids": [
+    970001,
+    970002
+  ],
+  "employer_uid": 970001,
+  "worker_uid": 970002,
+  "jobA": 2,
+  "jobB": 3
+}

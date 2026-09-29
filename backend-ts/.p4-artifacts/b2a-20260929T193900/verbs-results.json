@@ -1,0 +1,131 @@
+[
+  {
+    "name": "J2 apply(jobA,worker,key1) -> applied",
+    "ok": true,
+    "status": 200,
+    "code": "OK",
+    "replay": false,
+    "details": null
+  },
+  {
+    "name": "J2 apply(jobA,worker,key1 again) -> replay",
+    "ok": true,
+    "status": 200,
+    "code": "OK",
+    "replay": true,
+    "details": null
+  },
+  {
+    "name": "J2 apply(jobA,worker,key2) -> 409 exists",
+    "ok": false,
+    "status": 409,
+    "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+    "replay": null,
+    "details": {
+      "reason": "application_already_exists",
+      "ref_type": "job_application",
+      "ref_id": "1",
+      "job_id": "2"
+    }
+  },
+  {
+    "name": "J2 apply(jobA,EMPLOYER) -> 409 self",
+    "ok": false,
+    "status": 409,
+    "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+    "replay": null,
+    "details": {
+      "field": "job.employer_uid",
+      "reason": "self_application_not_allowed",
+      "job_id": "2"
+    }
+  },
+  {
+    "name": "J2 apply(jobB,worker) -> applied",
+    "ok": true,
+    "status": 200,
+    "code": "OK",
+    "replay": false,
+    "details": null
+  },
+  {
+    "name": "J2 apply(missing job) -> 404",
+    "ok": false,
+    "status": 404,
+    "code": "LEDGER_REF_NOT_FOUND",
+    "replay": null,
+    "details": {
+      "ref_type": "job",
+      "ref_id": "999999999"
+    }
+  },
+  {
+    "name": "J2 apply(bad key prefix) -> 400",
+    "ok": false,
+    "status": 400,
+    "code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+    "replay": null,
+    "details": {
+      "field": "create_key",
+      "reason": "PREFIX_REQUIRED",
+      "allowed_prefixes": [
+        "biz:",
+        "cm:",
+        "cli:",
+        "ops:"
+      ]
+    }
+  },
+  {
+    "name": "resolved ids",
+    "application_id_B": 4,
+    "application_id_A": 1
+  },
+  {
+    "name": "J3 accept(jobB,appB,actor=WORKER) -> 403",
+    "ok": false,
+    "status": 403,
+    "code": "AUTH_FORBIDDEN",
+    "replay": null,
+    "details": {
+      "reason": "ACTOR_NOT_ALLOWED",
+      "ref_type": "job_application",
+      "ref_id": "4"
+    }
+  },
+  {
+    "name": "J3 accept(jobB,appB,actor=EMPLOYER) -> accepted",
+    "ok": true,
+    "status": 200,
+    "code": "OK",
+    "replay": false,
+    "details": null
+  },
+  {
+    "name": "J3 accept again -> 409 already_accepted",
+    "ok": false,
+    "status": 409,
+    "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+    "replay": null,
+    "details": {
+      "field": "job_application.status",
+      "reason": "application_already_accepted",
+      "from": "accepted",
+      "to": "accepted",
+      "application_id": "4"
+    }
+  },
+  {
+    "name": "J2 apply(jobB now accepted) -> 409 not_open",
+    "ok": false,
+    "status": 409,
+    "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+    "replay": null,
+    "details": {
+      "reason": "application_already_exists",
+      "ref_type": "job_application",
+      "ref_id": "4",
+      "job_id": "3"
+    }
+  }
+]

@@ -15,6 +15,8 @@ import {
   UserRecord,
 } from './database';
 import { healthCheck } from './db';
+// P4-B2a：招工非资金写入 service（J2 apply / J3 accept / J4 submit）+ R107/410 helper
+import { sendGone, sendVerbError, submitWork } from './job-service';
 
 const app = express();
 const PORT = Number(process.env.PORT || 5788);
@@ -297,11 +299,20 @@ app.get('/api/task/:tID', async (req, res) => {
       return sendError(res, 400, 'Invalid tID');
     }
 
-    // P4-B1-b: miss 回空态任务（完整 TaskRecord 键集，200），止血口径（类比 B1-a emptyAsset）；纯读零写库
+    // P4-B2a（§3.1 裁定 E1 / §1 #10【保留·改语义】）：detail-miss 统一 404（**撤销** B1-b 的 200 空态）
     const task = await DatabaseService.getTask(tID);
+    if (!task) {
+      return sendVerbError(res, {
+        ok: false,
+        status: 404,
+        code: 'LEDGER_REF_NOT_FOUND',
+        message: 'job not found',
+        details: { ref_type: 'job', ref_id: String(tID) },
+      });
+    }
 
     setPublicCache(res);
-    sendSuccess(res, task || DatabaseService.emptyTask(tID));
+    sendSuccess(res, task);
   } catch (error) {
     console.error('Error loading task detail:', error);
     sendError(res, 500, 'Failed to load task');
@@ -470,6 +481,7 @@ app.post('/api/task-progress/:identifier/submit', async (req, res) => {
 
   const identifier = parseInteger(req.params.identifier);
   const infoInput = String(req.body?.info_input || '').trim();
+  const createKeyRaw = req.body?.create_key ?? req.get('idempotency-key') ?? undefined;
 
   if (!identifier) {
     return sendError(res, 400, 'Invalid task or task progress id');
@@ -480,24 +492,27 @@ app.post('/api/task-progress/:identifier/submit', async (req, res) => {
   }
 
   try {
-    let taskProgress = ensureOwnedTaskProgress(await DatabaseService.getTaskProgress(identifier), actor.user.uID);
+    // P4-B2a（§1 #19【保留·改接】/ §4.2 J4）：submit 落 `job_submission`（review_status='pending'）
+    //   + `job.status→'submitted'`，**无分录**（DL99/R3）；miss⇒404、非法状态⇒409、非打工人⇒403（§3.1/§3.2）
+    //   快路径：复用 B1-b 已改接 job_application 的读口先证归属（未命中则交 service 判定）
+    const ownedProgress = ensureOwnedTaskProgress(await DatabaseService.getTaskProgress(identifier), actor.user.uID);
+    const result = await submitWork({
+      identifier,
+      workerUid: actor.user.uID,
+      deliverable: infoInput,
+      createKeyRaw,
+      applicationHint: ownedProgress ? ownedProgress.jID : null,
+    });
 
-    if (!taskProgress) {
-      const task = await DatabaseService.getTask(identifier);
-      if (!task) {
-        return sendError(res, 404, 'Task not found');
-      }
-      taskProgress = await DatabaseService.ensureTaskProgressForUserTask(actor.user.uID, task.tID);
+    if (!result.ok) {
+      return sendVerbError(res, result);
     }
 
-    const updatedTaskProgress = await DatabaseService.submitTaskProgressInfo(taskProgress.jID, infoInput);
-    if (!updatedTaskProgress) {
-      return sendError(res, 404, 'Task progress not found');
-    }
-
-    sendSuccess(res, updatedTaskProgress, 'Task progress submitted');
+    // 成功分支 data 键集**冻结**（§2 母约束 F1）：仍为 TaskProgressRecord 9 键；
+    // 同键重放顶层标记 `idempotent_replay:true`（§3.2「200（良性）」/ R106），不改 data 形状
+    return sendSuccess(res, result.view, 'Task progress submitted', 200, result.replay ? { idempotent_replay: true } : undefined);
   } catch (error) {
-    console.error('Error submitting task progress info:', error);
+    console.error('Error submitting job work:', error);
     sendError(res, 500, 'Failed to submit task info');
   }
 });
@@ -839,56 +854,22 @@ app.post('/api/admin/user/update', async (req, res) => {
   }
 });
 
-app.post('/api/admin/task/create', async (req, res) => {
-  const actor = await requireAdmin(req, res, ['manage_tasks', 'publish_tasks']);
-  if (!actor) return;
+// P4-B2a（§1 #39–#41【弃用→410】/ §5.1「后台发布招工」行 / §4.1 #42–#44）：管理员不再发布/改/删招工
+//   一律 410 + R107 形状（code=LEDGER_REF_NOT_FOUND）+ 登记过期日（DL35 过渡条；过期日待 Kevin 定，未决 §7-1）
+//   注：**不再前置 requireAdmin**——弃用面「一律 410」须在无令牌下可观测（与本批 auth/register 的先例一致）；
+//       该路径已无任何副作用，故不存在信息泄露。
+const ADMIN_TASK_SUNSET = '批 4 删路径（未决 §7-1：过期日待 Kevin 定）';
 
-  try {
-    const task = await DatabaseService.createTask(req.body || {});
-    sendSuccess(res, task, 'Task created');
-  } catch (error) {
-    console.error('Error creating task:', error);
-    sendError(res, 400, error instanceof Error ? error.message : 'Failed to create task');
-  }
+app.post('/api/admin/task/create', async (_req, res) => {
+  return sendGone(res, '/api/admin/task/create', ADMIN_TASK_SUNSET);
 });
 
-app.post('/api/admin/task/update', async (req, res) => {
-  const actor = await requireAdmin(req, res, 'manage_tasks');
-  if (!actor) return;
-
-  const tID = parseInteger(req.body?.tID);
-  if (!tID) {
-    return sendError(res, 400, 'Invalid tID');
-  }
-
-  try {
-    const task = await DatabaseService.updateTask(tID, req.body || {});
-    if (!task) {
-      return sendError(res, 404, 'Task not found');
-    }
-    sendSuccess(res, task, 'Task updated');
-  } catch (error) {
-    console.error('Error updating task:', error);
-    sendError(res, 400, error instanceof Error ? error.message : 'Failed to update task');
-  }
+app.post('/api/admin/task/update', async (_req, res) => {
+  return sendGone(res, '/api/admin/task/update', ADMIN_TASK_SUNSET);
 });
 
-app.post('/api/admin/task/delete', async (req, res) => {
-  const actor = await requireAdmin(req, res, 'manage_tasks');
-  if (!actor) return;
-
-  const tID = parseInteger(req.body?.tID);
-  if (!tID) {
-    return sendError(res, 400, 'Invalid tID');
-  }
-
-  try {
-    await DatabaseService.deleteTask(tID);
-    sendSuccess(res, { tID }, 'Task deleted');
-  } catch (error) {
-    console.error('Error deleting task:', error);
-    sendError(res, 400, error instanceof Error ? error.message : 'Failed to delete task');
-  }
+app.post('/api/admin/task/delete', async (_req, res) => {
+  return sendGone(res, '/api/admin/task/delete', ADMIN_TASK_SUNSET);
 });
 
 app.post('/api/admin/prize/create', async (req, res) => {

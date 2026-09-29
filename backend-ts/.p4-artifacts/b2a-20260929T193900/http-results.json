@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-09-29T12:44:33.249Z",
+  "api": "http://127.0.0.1:5788",
+  "token_minted": false,
+  "application_id_B": 4,
+  "application_id_A": 1,
+  "results": [
+    {
+      "name": "GET /health",
+      "status": "200",
+      "body_head": "{\"ok\":true,\"db_version\":\"PostgreSQL 18.6 (6569466) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit\",\"schema_version\":\"0017\",\"time\":\"2026-09-29T12:44:28.996Z\"}"
+    },
+    {
+      "name": "GET /api/task/999999999 (miss -> 404)",
+      "status": "404",
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"job not found\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"job\",\"ref_id\":\"999999999\"}}}"
+    },
+    {
+      "name": "GET /api/task/<jobB> (hit -> 200)",
+      "status": "200",
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"tID\":3,\"title\":\"p4b2:fixture:B\",\"note\":\"p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）\",\"refcode\":\"\",\"link0\":\"\",\"linkA\":\"\",\"linkB\":\"\",\"points\":251,\"type\":0,\"time_start\":0,\"time_end\":"
+    },
+    {
+      "name": "GET /api/user token=env-secret (auth isolation)",
+      "status": "401",
+      "body_head": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}"
+    },
+    {
+      "name": "GET /api/user token=fallback-secret (auth isolation)",
+      "status": "401",
+      "body_head": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}"
+    },
+    {
+      "name": "POST /api/admin/task/create (-> 410)",
+      "status": "410",
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/task/create\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/task/create\",\"http_status"
+    },
+    {
+      "name": "POST /api/admin/task/update (-> 410)",
+      "status": "410",
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/task/update\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/task/update\",\"http_status"
+    },
+    {
+      "name": "POST /api/admin/task/delete (-> 410)",
+      "status": "410",
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/task/delete\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/task/delete\",\"http_status"
+    },
+    {
+      "name": "POST /api/task-progress/<appB>/submit 1st (-> 200)",
+      "status": "401",
+      "body_head": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}"
+    },
+    {
+      "name": "POST .../submit same key+payload (-> 200 replay)",
+      "status": "401",
+      "body_head": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}"
+    },
+    {
+      "name": "POST .../submit same key, diff payload (-> 409)",
+      "status": "401",
+      "body_head": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}"
+    },
+    {
+      "name": "POST .../submit bad key (-> 400)",
+      "status": "401",
+      "body_head": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}"
+    },
+    {
+      "name": "POST .../submit app not accepted (-> 409)",
+      "status": "401",
+      "body_head": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}"
+    },
+    {
+      "name": "POST .../submit unknown id (-> 404)",
+      "status": "401",
+      "body_head": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}"
+    },
+    {
+      "name": "POST .../submit no token (-> 401)",
+      "status": "401",
+      "body_head": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}"
+    },
+    {
+      "name": "POST .../claim/<appB> not-verified (无资金)",
+      "status": "401",
+      "body_head": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}"
+    },
+    {
+      "name": "POST .../claim/<appA> not-verified (无资金)",
+      "status": "401",
+      "body_head": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}"
+    },
+    {
+      "name": "POST .../claim/<appB> no token (-> 401)",
+      "status": "401",
+      "body_head": "{\"success\":false,\"message\":\"Unauthorized\",\"error\":\"Unauthorized\"}"
+    }
+  ]
+}
