@@ -1,0 +1,105 @@
+{
+ "generated_at": "2026-09-29T17:26:29.295Z",
+ "mode": "READ-ONLY",
+ "ledger_entry_count": {
+  "label": "ledger_entry_count",
+  "ok": true,
+  "rows": [
+   {
+    "n": 0
+   }
+  ]
+ },
+ "account_count": {
+  "label": "account_count",
+  "ok": true,
+  "rows": [
+   {
+    "n": 4
+   }
+  ]
+ },
+ "currency_count": {
+  "label": "currency_count",
+  "ok": true,
+  "rows": [
+   {
+    "n": 1
+   }
+  ]
+ },
+ "account_rows": {
+  "label": "account_rows",
+  "ok": true,
+  "rows": [
+   {
+    "uid": "-3",
+    "cid": "1",
+    "balance": "0",
+    "frozen": "0",
+    "version": "0",
+    "time_created": "2026-09-29T01:15:27.684Z",
+    "time_updated": "2026-09-29T01:15:27.684Z"
+   },
+   {
+    "uid": "-2",
+    "cid": "1",
+    "balance": "0",
+    "frozen": "0",
+    "version": "0",
+    "time_created": "2026-09-29T01:15:27.684Z",
+    "time_updated": "2026-09-29T01:15:27.684Z"
+   },
+   {
+    "uid": "-1",
+    "cid": "1",
+    "balance": "0",
+    "frozen": "0",
+    "version": "0",
+    "time_created": "2026-09-29T01:15:27.684Z",
+    "time_updated": "2026-09-29T01:15:27.684Z"
+   },
+   {
+    "uid": "0",
+    "cid": "1",
+    "balance": "0",
+    "frozen": "0",
+    "version": "0",
+    "time_created": "2026-09-29T01:15:27.684Z",
+    "time_updated": "2026-09-29T01:15:27.684Z"
+   }
+  ]
+ },
+ "currency_rows": {
+  "label": "currency_rows",
+  "ok": true,
+  "rows": [
+   {
+    "cid": "1",
+    "symbol": "$",
+    "name": "平台积分",
+    "icon_url": "",
+    "owner_uid": "0",
+    "decimals": 0,
+    "total_supply": "0",
+    "supply_cap": null,
+    "status": "listed",
+    "deposit_amount": "0",
+    "deposit_cid": "1",
+    "listed_at": "2026-09-29T01:15:27.684Z",
+    "time_created": "2026-09-29T01:15:27.684Z",
+    "time_updated": "2026-09-29T01:15:27.684Z"
+   }
+  ]
+ },
+ "users_count": {
+  "label": "users_count",
+  "ok": true,
+  "rows": [
+   {
+    "n": 6
+   }
+  ]
+ },
+ "INVARIANT_ledger_entry_is_zero": true
+}

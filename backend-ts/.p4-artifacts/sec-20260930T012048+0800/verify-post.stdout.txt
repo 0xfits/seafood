@@ -1,0 +1,33 @@
+WROTE /Users/kevin/bistro/seafood/backend-ts/.p4-artifacts/sec-20260930T012048+0800/verify-post.json
+{
+ "http_pass": 16,
+ "http_total": 16,
+ "classifier_pass": 5,
+ "classifier_total": 5,
+ "infrastructure_e2e": "legal-token-with-unreachable-DB=503 public-placeholder-token-with-unreachable-DB=401"
+}
+[PASS] 200/200 DUAL-KEY: .env.local SECRET_KEY token code=null
+[PASS] 401/401 DUAL-KEY: public placeholder token (MUST be rejected) code=AUTH_UNAUTHORIZED
+[PASS] 401/401 no token code=AUTH_UNAUTHORIZED
+[PASS] 401/401 wrong key code=AUTH_UNAUTHORIZED
+[PASS] 401/401 tampered signature code=AUTH_UNAUTHORIZED
+[PASS] 401/401 malformed token code=AUTH_UNAUTHORIZED
+[PASS] 200/200 REGRESSION /api/user (real token) code=null
+[PASS] 200/200 REGRESSION /api/admin/me code=null
+[PASS] 200/200 REGRESSION /api/home code=null
+[PASS] 200/200 REGRESSION /api/prize/all code=null
+[PASS] 410/410 GONE /api/shard/redeem code=LEDGER_REF_NOT_FOUND
+[PASS] 410/410 GONE /api/chest/x/open code=LEDGER_REF_NOT_FOUND
+[PASS] 410/410 GONE /api/admin/settings/reset code=LEDGER_REF_NOT_FOUND
+[PASS] 410/410 GONE /api/admin/task/create code=LEDGER_REF_NOT_FOUND
+[PASS] 410/410 GONE /api/admin/prize/create code=LEDGER_REF_NOT_FOUND
+[PASS] 200/200 HEALTH /health code=null
+[PASS] classifier 503/503 ConnectTimeoutError(shape-synth) => LEDGER_TX_TIMEOUT class=pool_connection_timeout
+[PASS] classifier 503/503 NeonDbError(53300 too_many_connections) => LEDGER_TX_TIMEOUT class=null
+[PASS] classifier 503/503 NeonDbError(08006 connection_failure) => LEDGER_TX_TIMEOUT class=null
+[PASS] classifier 503/503 ECONNREFUSED(driver) => LEDGER_TX_TIMEOUT class=driver_connection_error
+[PASS] classifier 500/500 NeonDbError(08P01 protocol_violation) => LEDGER_TRANSACTION_REQUIRED class=null
+infra e2e ready=true
+[infra-e2e] legal-token-with-unreachable-DB status=503 code=LEDGER_TX_TIMEOUT
+[infra-e2e] public-placeholder-token-with-unreachable-DB status=401 code=AUTH_UNAUTHORIZED
+fail-fast: missing_exit_nonzero=true fatal_msg=true control_ok=true

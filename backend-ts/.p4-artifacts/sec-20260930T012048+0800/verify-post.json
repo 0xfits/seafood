@@ -1,0 +1,360 @@
+{
+ "generated_at": "2026-09-29T17:25:45.053Z",
+ "phase": "post",
+ "live_base": "http://127.0.0.1:5788",
+ "repo": "/Users/kevin/bistro/seafood/backend-ts",
+ "env_local_present": true,
+ "secret_key": {
+  "present": true,
+  "length": 64,
+  "fingerprint12": "b1ec01afb2eb",
+  "equals_public_placeholder": false
+ },
+ "target_user": {
+  "uid": 970001,
+  "evm_fingerprint12": "72c8bb383307"
+ },
+ "tokens": {
+  "env_key_token_fp": "ad201fcd5710",
+  "fallback_key_token_fp": "33564af1fc46",
+  "wrong_key_token_fp": "6f1dea75898d",
+  "tampered_token_fp": "e7f28461409a",
+  "note": "只有 sha256 前 12 位；token 本体不落盘"
+ },
+ "http": [
+  {
+   "name": "DUAL-KEY: .env.local SECRET_KEY token",
+   "method": "GET",
+   "url": "http://127.0.0.1:5788/api/user",
+   "expect": 200,
+   "status": 200,
+   "pass": true,
+   "error_code": null,
+   "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"uID\":970001,\"EVM\":\"0x9700010000000000000000000000000000000000\",\"bio\":\"p4b2:fixture user\",\"is_admin\":false,\"time_reg\":1790683966,\"time_login_last\":1790683966,\"points\":0,\"requires_pr",
+   "auth_kind": "bearer(token)"
+  },
+  {
+   "name": "DUAL-KEY: public placeholder token (MUST be rejected)",
+   "method": "GET",
+   "url": "http://127.0.0.1:5788/api/user",
+   "expect": 401,
+   "status": 401,
+   "pass": true,
+   "error_code": "AUTH_UNAUTHORIZED",
+   "body_head": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"AUTH_UNAUTHORIZED\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}",
+   "auth_kind": "bearer(token)"
+  },
+  {
+   "name": "no token",
+   "method": "GET",
+   "url": "http://127.0.0.1:5788/api/user",
+   "expect": 401,
+   "status": 401,
+   "pass": true,
+   "error_code": "AUTH_UNAUTHORIZED",
+   "body_head": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"AUTH_UNAUTHORIZED\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}",
+   "auth_kind": "none"
+  },
+  {
+   "name": "wrong key",
+   "method": "GET",
+   "url": "http://127.0.0.1:5788/api/user",
+   "expect": 401,
+   "status": 401,
+   "pass": true,
+   "error_code": "AUTH_UNAUTHORIZED",
+   "body_head": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"AUTH_UNAUTHORIZED\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}",
+   "auth_kind": "bearer(token)"
+  },
+  {
+   "name": "tampered signature",
+   "method": "GET",
+   "url": "http://127.0.0.1:5788/api/user",
+   "expect": 401,
+   "status": 401,
+   "pass": true,
+   "error_code": "AUTH_UNAUTHORIZED",
+   "body_head": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"AUTH_UNAUTHORIZED\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}",
+   "auth_kind": "bearer(token)"
+  },
+  {
+   "name": "malformed token",
+   "method": "GET",
+   "url": "http://127.0.0.1:5788/api/user",
+   "expect": 401,
+   "status": 401,
+   "pass": true,
+   "error_code": "AUTH_UNAUTHORIZED",
+   "body_head": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"AUTH_UNAUTHORIZED\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}",
+   "auth_kind": "bearer(token)"
+  },
+  {
+   "name": "REGRESSION /api/user (real token)",
+   "method": "GET",
+   "url": "http://127.0.0.1:5788/api/user",
+   "expect": 200,
+   "status": 200,
+   "pass": true,
+   "error_code": null,
+   "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"uID\":970001,\"EVM\":\"0x9700010000000000000000000000000000000000\",\"bio\":\"p4b2:fixture user\",\"is_admin\":false,\"time_reg\":1790683966,\"time_login_last\":1790683966,\"points\":0,\"requires_pr",
+   "auth_kind": "bearer(token)"
+  },
+  {
+   "name": "REGRESSION /api/admin/me",
+   "method": "GET",
+   "url": "http://127.0.0.1:5788/api/admin/me",
+   "expect": 200,
+   "status": 200,
+   "pass": true,
+   "error_code": null,
+   "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"uID\":970001,\"EVM\":\"0x9700010000000000000000000000000000000000\",\"is_admin\":false,\"permissions\":[],\"can_access_admin\":false,\"preferred_admin_path\":\"/\"}}",
+   "auth_kind": "bearer(token)"
+  },
+  {
+   "name": "REGRESSION /api/home",
+   "method": "GET",
+   "url": "http://127.0.0.1:5788/api/home",
+   "expect": 200,
+   "status": 200,
+   "pass": true,
+   "error_code": null,
+   "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"tasks\":[{\"tID\":2,\"title\":\"p4b2:fixture:A\",\"note\":\"p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）\",\"refcode\":\"\",\"link0\":\"\",\"linkA\":\"\",\"linkB\":\"\",\"points\":137,\"type\":0,\"time_start\":0,\"",
+   "auth_kind": "none"
+  },
+  {
+   "name": "REGRESSION /api/prize/all",
+   "method": "GET",
+   "url": "http://127.0.0.1:5788/api/prize/all",
+   "expect": 200,
+   "status": 200,
+   "pass": true,
+   "error_code": null,
+   "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":[{\"bID\":1,\"symbol\":\"\",\"name\":\"p4b2c:listing A\",\"description\":\"p4b2c desc\",\"image_url\":\"\",\"url_image\":\"\",\"points\":137,\"market_floor_points\":0,\"duration_seconds\":0,\"price_floor_eligibl",
+   "auth_kind": "none"
+  },
+  {
+   "name": "GONE /api/shard/redeem",
+   "method": "POST",
+   "url": "http://127.0.0.1:5788/api/shard/redeem",
+   "expect": 410,
+   "status": 410,
+   "pass": true,
+   "error_code": "LEDGER_REF_NOT_FOUND",
+   "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/shard/redeem\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/shard/redeem\",\"http_status\":410,\"sun",
+   "auth_kind": "none"
+  },
+  {
+   "name": "GONE /api/chest/x/open",
+   "method": "POST",
+   "url": "http://127.0.0.1:5788/api/chest/x/open",
+   "expect": 410,
+   "status": 410,
+   "pass": true,
+   "error_code": "LEDGER_REF_NOT_FOUND",
+   "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/chest/:bID/open\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/chest/:bID/open\",\"http_status\":41",
+   "auth_kind": "none"
+  },
+  {
+   "name": "GONE /api/admin/settings/reset",
+   "method": "POST",
+   "url": "http://127.0.0.1:5788/api/admin/settings/reset",
+   "expect": 410,
+   "status": 410,
+   "pass": true,
+   "error_code": "LEDGER_REF_NOT_FOUND",
+   "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/settings/reset\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/settings/reset\",\"http_",
+   "auth_kind": "none"
+  },
+  {
+   "name": "GONE /api/admin/task/create",
+   "method": "POST",
+   "url": "http://127.0.0.1:5788/api/admin/task/create",
+   "expect": 410,
+   "status": 410,
+   "pass": true,
+   "error_code": "LEDGER_REF_NOT_FOUND",
+   "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/task/create\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/task/create\",\"http_status",
+   "auth_kind": "none"
+  },
+  {
+   "name": "GONE /api/admin/prize/create",
+   "method": "POST",
+   "url": "http://127.0.0.1:5788/api/admin/prize/create",
+   "expect": 410,
+   "status": 410,
+   "pass": true,
+   "error_code": "LEDGER_REF_NOT_FOUND",
+   "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/prize/create\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/prize/create\",\"http_stat",
+   "auth_kind": "none"
+  },
+  {
+   "name": "HEALTH /health",
+   "method": "GET",
+   "url": "http://127.0.0.1:5788/health",
+   "expect": 200,
+   "status": 200,
+   "pass": true,
+   "error_code": null,
+   "body_head": "{\"ok\":true,\"db_version\":\"PostgreSQL 18.6 (6569466) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit\",\"schema_version\":\"0017\",\"time\":\"2026-09-29T17:25:52.888Z\"}",
+   "auth_kind": "none"
+  }
+ ],
+ "classifier": {
+  "real_connect_timeout_class_available": false,
+  "rows": [
+   {
+    "case": "ConnectTimeoutError(shape-synth)",
+    "expect_http": 503,
+    "got_http": 503,
+    "code": "LEDGER_TX_TIMEOUT",
+    "details": {
+     "reason": "pool_connection_timeout",
+     "source": "connection_pool"
+    },
+    "detail_keys": [
+     "reason",
+     "source"
+    ],
+    "non_pg_class": "pool_connection_timeout",
+    "error_name": "ConnectTimeoutError",
+    "i18n_key": "ledger.err.LEDGER_TX_TIMEOUT",
+    "pass": true
+   },
+   {
+    "case": "NeonDbError(53300 too_many_connections)",
+    "expect_http": 503,
+    "got_http": 503,
+    "code": "LEDGER_TX_TIMEOUT",
+    "details": {
+     "reason": "too_many_connections",
+     "pg_code": "53300",
+     "retryable": true,
+     "source": "pg_infra_class"
+    },
+    "detail_keys": [
+     "reason",
+     "pg_code",
+     "retryable",
+     "source"
+    ],
+    "non_pg_class": null,
+    "error_name": "NeonDbError",
+    "i18n_key": "ledger.err.LEDGER_TX_TIMEOUT",
+    "pass": true
+   },
+   {
+    "case": "NeonDbError(08006 connection_failure)",
+    "expect_http": 503,
+    "got_http": 503,
+    "code": "LEDGER_TX_TIMEOUT",
+    "details": {
+     "reason": "connection_error",
+     "pg_code": "08006",
+     "retryable": true,
+     "source": "pg_infra_class"
+    },
+    "detail_keys": [
+     "reason",
+     "pg_code",
+     "retryable",
+     "source"
+    ],
+    "non_pg_class": null,
+    "error_name": "NeonDbError",
+    "i18n_key": "ledger.err.LEDGER_TX_TIMEOUT",
+    "pass": true
+   },
+   {
+    "case": "ECONNREFUSED(driver)",
+    "expect_http": 503,
+    "got_http": 503,
+    "code": "LEDGER_TX_TIMEOUT",
+    "details": {
+     "reason": "driver_connection_error",
+     "error_code": "ECONNREFUSED"
+    },
+    "detail_keys": [
+     "reason",
+     "error_code"
+    ],
+    "non_pg_class": "driver_connection_error",
+    "error_name": "Error",
+    "i18n_key": "ledger.err.LEDGER_TX_TIMEOUT",
+    "pass": true
+   },
+   {
+    "case": "NeonDbError(08P01 protocol_violation)",
+    "expect_http": 500,
+    "got_http": 500,
+    "code": "LEDGER_TRANSACTION_REQUIRED",
+    "details": {
+     "cause": "08P01",
+     "reason": "protocol_violation",
+     "error_name": "ProtocolViolation",
+     "pg_code": "08P01"
+    },
+    "detail_keys": [
+     "cause",
+     "reason",
+     "error_name",
+     "pg_code"
+    ],
+    "non_pg_class": null,
+    "error_name": "Error",
+    "i18n_key": "ledger.err.LEDGER_TRANSACTION_REQUIRED",
+    "pass": true
+   }
+  ]
+ },
+ "infra_http_e2e": {
+  "port": 5799,
+  "child_pid": 77320,
+  "ready": true,
+  "results": [
+   {
+    "name": "legal-token-with-unreachable-DB",
+    "ready": true,
+    "status": 503,
+    "error_code": "LEDGER_TX_TIMEOUT",
+    "body_head": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}"
+   },
+   {
+    "name": "public-placeholder-token-with-unreachable-DB",
+    "ready": true,
+    "status": 401,
+    "error_code": "AUTH_UNAUTHORIZED",
+    "body_head": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"AUTH_UNAUTHORIZED\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}"
+   }
+  ],
+  "logs_tail": "    _sender: null,\n    _socket: null,\n    _bufferedAmount: 0,\n    _isServer: false,\n    _redirects: 0,\n    _autoPong: true,\n    _closeTimeout: 30000,\n    _url: 'wss://127.0.0.1/v2',\n    _req: null,\n    [Symbol(kCapture)]: false\n  },\n  [Symbol(kType)]: 'error',\n  [Symbol(kError)]: Error: connect ECONNREFUSED 127.0.0.1:443\n      at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1555:16) {\n    errno: -61,\n    code: 'ECONNREFUSED',\n    syscall: 'connect',\n    address: '127.0.0.1',\n    port: 443\n  },\n  [Symbol(kMessage)]: 'connect ECONNREFUSED 127.0.0.1:443'\n}\n[auth.infra] resolveActor failed on an infrastructure error (NOT an auth failure): {\"code\":\"LEDGER_TRANSACTION_REQUIRED\",\"http_status\":500,\"reason\":\"unclassified_non_pg_error\",\"non_pg_class\":\"unclassified_non_pg_error\",\"constructor_name\":\"NeonDbError\",\"error_name\":\"NeonDbError\",\"event_object_family\":false,\"message\":\"Error connecting to database: fetch failed\",\"stack_head\":[\"NeonDbError: Error connecting to database: fetch failed\",\"at execute (/Users/kevin/bistro/seafood/backend-ts/node_modules/@neondatabase/serverless/index.js:1537:49)\",\"at processTicksAndRejections (node:internal/process/task_queues:95:5)\",\"at async Function.getUserById (/Users/kevin/bistro/seafood/backend-ts/src/database.ts:786:26)\",\"at async resolveActor (/Users/kevin/bistro/seafood/backend-ts/src/index.ts:177:7)\"],\"cause_chain\":[]}\nFailed to verify session token: Invalid token signature\n"
+ },
+ "fail_fast": {
+  "copy_root": "/Users/kevin/bistro/seafood/backend-ts/.p4-artifacts/sec-20260930T012048+0800/failfast",
+  "copy_state": {
+   "has_env_local": false,
+   "has_env": false
+  },
+  "missing_secret_key": {
+   "label": "no_SECRET_KEY",
+   "code": 1,
+   "signal": null,
+   "output": "[FATAL] SECRET_KEY is not set. Refusing to start: the API would either sign/verify sessions with an unknown key or fall back to the public placeholder, letting anyone forge a session token for any uID. Set SECRET_KEY in <backend-ts>/.env.local (or the process environment).\n"
+  },
+  "control": {
+   "label": "control_with_SECRET_KEY",
+   "code": null,
+   "signal": null,
+   "output": "TypeScript backend running on port 5798\nUsing Neon PostgreSQL for Seafood API routes\n"
+  },
+  "missing_exit_nonzero": true,
+  "missing_is_fatal_error": true,
+  "control_has_no_fatal": true
+ },
+ "summary": {
+  "http_pass": 16,
+  "http_total": 16,
+  "classifier_pass": 5,
+  "classifier_total": 5,
+  "infrastructure_e2e": "legal-token-with-unreachable-DB=503 public-placeholder-token-with-unreachable-DB=401"
+ }
+}
