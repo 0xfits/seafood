@@ -1,0 +1,105 @@
+{
+  "run": "b3e-20260930T024237",
+  "at": "2026-09-29T18:50:02.844Z",
+  "probe": "p4z-b3e-03-lockprobe",
+  "tag": "p4b3e30024237",
+  "fixture_mint_cid21": {
+    "txid": "158",
+    "replay": true
+  },
+  "db_reason_probe": {
+    "A1": {
+      "raised": false
+    },
+    "A2_fill_no_required": {
+      "sqlstate": "LD016",
+      "message": "LEDGER_AMOUNT_INVALID",
+      "detail": "{\"field\": \"fill_no\", \"value\": \"\", \"reason\": \"NOT_DECIMAL_INTEGER\"}",
+      "constraint": null,
+      "reason": "NOT_DECIMAL_INTEGER",
+      "detail_parsed": {
+        "field": "fill_no",
+        "value": "",
+        "reason": "NOT_DECIMAL_INTEGER"
+      }
+    },
+    "A3_self_trade": {
+      "sqlstate": "LD019",
+      "message": "LEDGER_SELF_TRANSFER",
+      "detail": "{\"uid\": \"970001\", \"field\": \"owner_uid\", \"reason\": \"self_trade_not_allowed\", \"buy_order_id\": \"14\", \"sell_order_id\": \"15\"}",
+      "constraint": null,
+      "reason": "self_trade_not_allowed",
+      "detail_parsed": {
+        "uid": "970001",
+        "field": "owner_uid",
+        "reason": "self_trade_not_allowed",
+        "buy_order_id": "14",
+        "sell_order_id": "15"
+      }
+    }
+  },
+  "db_reason_probe_orders": {
+    "selfbuy21": 14,
+    "selfsell21": 15
+  },
+  "lock_probe": {
+    "baseline": {
+      "create_order_ms": 651,
+      "match_ms": 2941,
+      "match_ok": true,
+      "match_code": null,
+      "base_pair_orders": {
+        "sell": 16,
+        "buy": 17
+      }
+    },
+    "holder": {
+      "ok": true,
+      "hold_ms": 2500
+    },
+    "holder_hold_ms": 2500,
+    "concurrent": {
+      "both_elapsed_ms": 4297,
+      "same_pair_21": {
+        "ok": true,
+        "status": 200,
+        "code": null,
+        "executed_after_lock_pair": true
+      },
+      "other_pair_4": {
+        "ok": true,
+        "status": 200,
+        "code": null
+      },
+      "same_pair_orders_after": {
+        "sell": {
+          "order_id": "21",
+          "status": "open",
+          "amount_filled": "0"
+        },
+        "buy": {
+          "order_id": "22",
+          "status": "filled",
+          "amount_filled": "1"
+        }
+      },
+      "other_pair_orders_after": {
+        "sell": {
+          "order_id": "19",
+          "status": "filled",
+          "amount_filled": "1"
+        },
+        "buy": {
+          "order_id": "20",
+          "status": "filled",
+          "amount_filled": "1"
+        }
+      }
+    },
+    "verdict": {
+      "both_ms_minus_baseline": 1356,
+      "expected_if_serialized": 5441,
+      "expected_if_not_serialized": 2991
+    }
+  }
+}

@@ -1780,6 +1780,172 @@ export class DatabaseService {
   }
 
   /**
+   * ★★ P4-B3e（§4.2 M1/M2/M3 · **DL68 币对级串行化**）：交易所（market）唯一资金写路径。
+   *
+   * `public.market_post_event($1::jsonb)`（`migrations/0016_market.sql:393`）在**单条语句**内完成
+   * 「锁业务行（主键升序）→ 派生分录 → 调 `ledger_post_event` → 回写 `ledger_event_keys`/`status`/
+   * `amount_filled`」⇒ 业务行 + 分录**同生同灭**（R2/DL20）。本方法**只转发 payload**：不派生分录、
+   * 不自造幂等键（DL95：键由函数按 §4.5 确定性派生）、不写 `account`/`ledger_entry`/`market_*`。
+   *
+   * **★★ DL68 币对级串行化（本片兑现）**：DL68 v0.6 加注逐字「本条的串行化义务**不在 DB 层兑现**，登记为
+   * **P5 路由层 / 撮合服务的必须交付项**」⇒ 本方法在**唯一写语句的外层 CTE** 取
+   * `pg_advisory_xact_lock(base_cid::int4, quote_cid::int4)`（两参 int4 形式；语义等价于
+   * `hash(币对)` 且**无碰撞**、探针可逐字复现）。**取锁是可靠的**：`pg_advisory_xact_lock` 是 **VOLATILE**
+   * ⇒ 含它的 CTE **不被内联**（另加 `OFFSET 0` 强制物化，双保险）⇒ 物化先于外层求值 ⇒
+   * **锁在 `market_post_event` 执行之前取得**，并在**语句（隐式事务）结束**时释放（`xact` 变体）
+   * ⇒ 同币对串行、异币对并行。**残余（明记）**：调用方（`market-service`）的**对手方选择**是锁**之前**的
+   * 一次只读读 ⇒ DL68 v0.6 ②c 的「撮合决策新鲜度」残余风险仍在（并发同币对时后到者在锁内被 DB 闸
+   * **响亮拒绝**，不会超卖）；消除残余需「选择也进锁内」的交互式事务方案（`src/db.ts` R55/R56 已存在）。
+   *
+   * 返回值 = 函数回执 `{ok, idempotent_replay, op, order_id, owner_uid, side, base_cid, quote_cid, price,
+   * amount, amount_filled, status, frozen_hold, created, ledger_event_keys, txid, ledger_idempotency_key,
+   * entries, accounts, extra}`。
+   */
+  static async marketPostEvent(
+    payload: Record<string, unknown>,
+    pair: { baseCid: number; quoteCid: number },
+  ): Promise<RawRow> {
+    const sql = getSql();
+    const row = firstRow(await sql`
+      WITH l AS (
+        SELECT pg_advisory_xact_lock(${pair.baseCid}::int4, ${pair.quoteCid}::int4) AS k
+        OFFSET 0
+      )
+      SELECT public.market_post_event(${JSON.stringify(payload)}::jsonb) AS r
+        FROM l
+    `);
+    if (!row) throw new Error('marketPostEvent: no row returned');
+    return row;
+  }
+
+  /**
+   * §4.2 M2/M3 路由前置（**只读**）：`market_order` 行的服务端真源字段。
+   * 用途 = ① 撤单的「须 = `owner_uid`」应用层授权闸；② 成交的 taker 行（pair/side/price/owner）。
+   * **无任何写副作用** —— 授权/状态/余额/币种闸的真源仍是 `market_post_event` 的单语句
+   * （`0016:517-...` 的 `FOR UPDATE` + 状态机 + `side/cid/price` 自洽闸）。
+   */
+  static async resolveMarketOrder(orderId: number): Promise<{
+    orderId: number;
+    ownerUid: number;
+    side: string;
+    baseCid: number;
+    quoteCid: number;
+    price: string;
+    amount: string;
+    amountFilled: string;
+    status: string;
+  } | null> {
+    const sql = getSql();
+    const row = firstRow(await sql`
+      SELECT o.order_id::text      AS order_id,
+             o.owner_uid::text     AS owner_uid,
+             o.side                AS side,
+             o.base_cid::text      AS base_cid,
+             o.quote_cid::text     AS quote_cid,
+             o.price::text         AS price,
+             o.amount::text        AS amount,
+             o.amount_filled::text AS amount_filled,
+             o.status              AS status
+        FROM public.market_order o
+       WHERE o.order_id = ${orderId}::bigint
+    `);
+    if (!row) return null;
+    return {
+      orderId: Number(getValue(row, 'order_id')),
+      ownerUid: Number(getValue(row, 'owner_uid')),
+      side: String(getValue(row, 'side') ?? ''),
+      baseCid: Number(getValue(row, 'base_cid')),
+      quoteCid: Number(getValue(row, 'quote_cid')),
+      price: String(getValue(row, 'price') ?? ''),
+      amount: String(getValue(row, 'amount') ?? ''),
+      amountFilled: String(getValue(row, 'amount_filled') ?? ''),
+      status: String(getValue(row, 'status') ?? ''),
+    };
+  }
+
+  /**
+   * §4.2 M3（**只读**）：**服务端**选择最优**可成交**对手方（撮合决策口径 = `market-service` 文件头，单点可改）。
+   * 口径：同 `(base_cid,quote_cid)` · 反向 · `status ∈ {open,partial}` · 有余量 · **可成交**
+   * （taker=buy ⇒ `o.price <= 买单限价`；taker=sell ⇒ `o.price >= 卖单限价`）·
+   * **价优优先 → `time_created` → `order_id`**（确定性全序）；`excludeSelf=true` ⇒ 排除同 owner（**自成交**）。
+   * **本方法不接受任何客户端入参**（只接受服务端已解析的订单真值）。
+   */
+  static async resolveMarketCounterparty(input: {
+    baseCid: number;
+    quoteCid: number;
+    takerOrderId: number;
+    takerSide: string;
+    takerPrice: string;
+    takerOwnerUid: number;
+    excludeSelf: boolean;
+  }): Promise<{ orderId: number; ownerUid: number; price: string; remaining: string } | null> {
+    const sql = getSql();
+    const row = firstRow(await sql`
+      SELECT o.order_id::text AS order_id,
+             o.owner_uid::text AS owner_uid,
+             o.price::text AS price,
+             (o.amount - o.amount_filled)::text AS remaining
+        FROM public.market_order o
+       WHERE o.base_cid  = ${input.baseCid}::bigint
+         AND o.quote_cid = ${input.quoteCid}::bigint
+         AND o.side <> ${input.takerSide}::text
+         AND o.status IN ('open','partial')
+         AND o.order_id <> ${input.takerOrderId}::bigint
+         AND o.amount > o.amount_filled
+         AND (CASE WHEN ${input.takerSide}::text = 'buy'
+                   THEN o.price <= ${input.takerPrice}::bigint
+                   ELSE o.price >= ${input.takerPrice}::bigint END)
+         AND (NOT ${input.excludeSelf}::boolean OR o.owner_uid <> ${input.takerOwnerUid}::bigint)
+       ORDER BY (o.owner_uid = ${input.takerOwnerUid}::bigint) ASC,
+                (CASE WHEN ${input.takerSide}::text = 'buy'  THEN o.price END) ASC,
+                (CASE WHEN ${input.takerSide}::text = 'sell' THEN o.price END) DESC,
+                o.time_created ASC,
+                o.order_id ASC
+       LIMIT 1
+    `);
+    if (!row) return null;
+    return {
+      orderId: Number(getValue(row, 'order_id')),
+      ownerUid: Number(getValue(row, 'owner_uid')),
+      price: String(getValue(row, 'price') ?? ''),
+      remaining: String(getValue(row, 'remaining') ?? ''),
+    };
+  }
+
+  /** §4.2 M2「全撤 = 逐单」的**只读**候选集（`status ∈ {open,partial}` 且有余量；`order_id` 升序确定）。 */
+  static async listOpenMarketOrderIds(uid: number): Promise<number[]> {
+    const sql = getSql();
+    const rows = extractRows(await sql`
+      SELECT o.order_id::text AS order_id
+        FROM public.market_order o
+       WHERE o.owner_uid = ${uid}::bigint
+         AND o.status IN ('open','partial')
+         AND o.amount > o.amount_filled
+       ORDER BY o.order_id ASC
+    `);
+    return rows.map((r) => Number(getValue(r, 'order_id'))).filter((n) => Number.isInteger(n) && n > 0);
+  }
+
+  /**
+   * §4.2 M3 / **D-2**（**只读**）：现行佣金政策费率（`fee_rate_bp`）。
+   * 「**唯一真源 = `commission_policy.fee_rate_bp`**」（§4.4-11 逐字）⇒ 交易所手续费**服务端取数**用它，
+   * **不接受客户端传 `fee`**。无政策行 ⇒ 返回 `null`（调用方取 `fee = 0` 并**登记**，不静默编造费率）。
+   */
+  static async currentFeeRateBp(): Promise<number | null> {
+    const sql = getSql();
+    const row = firstRow(await sql`
+      SELECT p.fee_rate_bp::int AS bp
+        FROM public.commission_policy p
+       WHERE p.effective_from <= now()
+       ORDER BY p.effective_from DESC, p.policy_id DESC
+       LIMIT 1
+    `);
+    if (!row) return null;
+    const bp = Number(getValue(row, 'bp'));
+    return Number.isFinite(bp) ? bp : null;
+  }
+
+  /**
    * §4.2 P4 路由前置（**只读**）：解析 `POST /api/listing/order/:orderId/refund` 的 `:orderId`
    * ⇒ 订单行的**服务端真源字段**（供服务层做「发起人须 = 卖方」的应用层闸）。
    * **本方法无任何写副作用** —— 授权/金额/状态/库存闸的真源仍是 `listing_post_event` 的单语句

@@ -1,0 +1,839 @@
+{
+  "run": "b3e-20260930T024237",
+  "label": "post",
+  "at": "2026-09-29T18:50:52.184Z",
+  "probe": "p4z-b3e-01-snapshot",
+  "account": {
+    "rows": 23,
+    "sum_balance": "2009627",
+    "sum_frozen": "10473",
+    "sum_total": "2020100",
+    "cid1": {
+      "rows": 14,
+      "sum_balance": "1989528",
+      "sum_frozen": "10472",
+      "sum_total": "2000000"
+    },
+    "negative_rows": 0,
+    "per_row": [
+      {
+        "uid": "-1",
+        "cid": "1",
+        "balance": "11281",
+        "frozen": "0",
+        "total": "11281"
+      },
+      {
+        "uid": "-2",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0",
+        "total": "0"
+      },
+      {
+        "uid": "-3",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0",
+        "total": "0"
+      },
+      {
+        "uid": "0",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0",
+        "total": "0"
+      },
+      {
+        "uid": "11",
+        "cid": "1",
+        "balance": "29398",
+        "frozen": "6370",
+        "total": "35768"
+      },
+      {
+        "uid": "11",
+        "cid": "16",
+        "balance": "1",
+        "frozen": "0",
+        "total": "1"
+      },
+      {
+        "uid": "11",
+        "cid": "21",
+        "balance": "1",
+        "frozen": "0",
+        "total": "1"
+      },
+      {
+        "uid": "11",
+        "cid": "4",
+        "balance": "4",
+        "frozen": "0",
+        "total": "4"
+      },
+      {
+        "uid": "12",
+        "cid": "1",
+        "balance": "37778",
+        "frozen": "0",
+        "total": "37778"
+      },
+      {
+        "uid": "12",
+        "cid": "16",
+        "balance": "1",
+        "frozen": "0",
+        "total": "1"
+      },
+      {
+        "uid": "12",
+        "cid": "21",
+        "balance": "1",
+        "frozen": "0",
+        "total": "1"
+      },
+      {
+        "uid": "12",
+        "cid": "4",
+        "balance": "2",
+        "frozen": "0",
+        "total": "2"
+      },
+      {
+        "uid": "2",
+        "cid": "1",
+        "balance": "7600",
+        "frozen": "0",
+        "total": "7600"
+      },
+      {
+        "uid": "3",
+        "cid": "1",
+        "balance": "1386",
+        "frozen": "0",
+        "total": "1386"
+      },
+      {
+        "uid": "4",
+        "cid": "1",
+        "balance": "4",
+        "frozen": "0",
+        "total": "4"
+      },
+      {
+        "uid": "5",
+        "cid": "1",
+        "balance": "6",
+        "frozen": "0",
+        "total": "6"
+      },
+      {
+        "uid": "6",
+        "cid": "1",
+        "balance": "990",
+        "frozen": "0",
+        "total": "990"
+      },
+      {
+        "uid": "7",
+        "cid": "1",
+        "balance": "5100",
+        "frozen": "0",
+        "total": "5100"
+      },
+      {
+        "uid": "8",
+        "cid": "1",
+        "balance": "4900",
+        "frozen": "0",
+        "total": "4900"
+      },
+      {
+        "uid": "970001",
+        "cid": "1",
+        "balance": "1891085",
+        "frozen": "4102",
+        "total": "1895187"
+      },
+      {
+        "uid": "970001",
+        "cid": "16",
+        "balance": "9998",
+        "frozen": "0",
+        "total": "9998"
+      },
+      {
+        "uid": "970001",
+        "cid": "21",
+        "balance": "97",
+        "frozen": "1",
+        "total": "98"
+      },
+      {
+        "uid": "970001",
+        "cid": "4",
+        "balance": "9994",
+        "frozen": "0",
+        "total": "9994"
+      }
+    ]
+  },
+  "ledger_entry": {
+    "total_rows": 189,
+    "by_kind": {
+      "commission": 4,
+      "currency_create_fee": 20,
+      "hold": 46,
+      "hold_release": 6,
+      "job_escrow": 10,
+      "job_escrow_refund": 4,
+      "job_fee": 6,
+      "job_payout": 6,
+      "listing_deposit": 16,
+      "mint": 5,
+      "purchase": 2,
+      "purchase_refund": 2,
+      "sale": 2,
+      "trade": 32,
+      "trade_fee": 16,
+      "transfer": 12
+    },
+    "by_kind_sum": 189,
+    "by_kind_sum_equals_total": true,
+    "by_ref_type": [
+      {
+        "ref_type": "currency",
+        "n": 28
+      },
+      {
+        "ref_type": "job",
+        "n": 30
+      },
+      {
+        "ref_type": "listing_order",
+        "n": 6
+      },
+      {
+        "ref_type": "market_order",
+        "n": 48
+      },
+      {
+        "ref_type": "market_trade",
+        "n": 48
+      },
+      {
+        "ref_type": "null",
+        "n": 29
+      }
+    ],
+    "by_ref_type_kind": [
+      {
+        "ref_type": "currency",
+        "kind": "currency_create_fee",
+        "n": 20
+      },
+      {
+        "ref_type": "currency",
+        "kind": "listing_deposit",
+        "n": 8
+      },
+      {
+        "ref_type": "job",
+        "kind": "commission",
+        "n": 4
+      },
+      {
+        "ref_type": "job",
+        "kind": "job_escrow",
+        "n": 10
+      },
+      {
+        "ref_type": "job",
+        "kind": "job_escrow_refund",
+        "n": 4
+      },
+      {
+        "ref_type": "job",
+        "kind": "job_fee",
+        "n": 6
+      },
+      {
+        "ref_type": "job",
+        "kind": "job_payout",
+        "n": 6
+      },
+      {
+        "ref_type": "listing_order",
+        "kind": "purchase",
+        "n": 2
+      },
+      {
+        "ref_type": "listing_order",
+        "kind": "purchase_refund",
+        "n": 2
+      },
+      {
+        "ref_type": "listing_order",
+        "kind": "sale",
+        "n": 2
+      },
+      {
+        "ref_type": "market_order",
+        "kind": "hold",
+        "n": 42
+      },
+      {
+        "ref_type": "market_order",
+        "kind": "hold_release",
+        "n": 6
+      },
+      {
+        "ref_type": "market_trade",
+        "kind": "trade",
+        "n": 32
+      },
+      {
+        "ref_type": "market_trade",
+        "kind": "trade_fee",
+        "n": 16
+      },
+      {
+        "ref_type": "null",
+        "kind": "hold",
+        "n": 4
+      },
+      {
+        "ref_type": "null",
+        "kind": "listing_deposit",
+        "n": 8
+      },
+      {
+        "ref_type": "null",
+        "kind": "mint",
+        "n": 5
+      },
+      {
+        "ref_type": "null",
+        "kind": "transfer",
+        "n": 12
+      }
+    ],
+    "events_with_nonzero_sum": 5,
+    "orphans_market_order": 0,
+    "orphans_market_trade": 0
+  },
+  "market_order": {
+    "rows": 21,
+    "per_row": [
+      {
+        "order_id": "1",
+        "owner_uid": "11",
+        "side": "buy",
+        "base_cid": "4",
+        "quote_cid": "1",
+        "price": "1000",
+        "amount": "5",
+        "amount_filled": "4",
+        "status": "cancelled",
+        "create_key": "cli:p4b3e30024237:buy1",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:buy1",
+          "biz:market:trade:1:1",
+          "biz:market:trade:2:1",
+          "biz:market:cancel:1"
+        ]
+      },
+      {
+        "order_id": "10",
+        "owner_uid": "12",
+        "side": "buy",
+        "base_cid": "4",
+        "quote_cid": "1",
+        "price": "1000",
+        "amount": "1",
+        "amount_filled": "1",
+        "status": "filled",
+        "create_key": "cli:p4b3e30024237:lockBuy4",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:lockBuy4",
+          "biz:market:trade:10:1"
+        ]
+      },
+      {
+        "order_id": "11",
+        "owner_uid": "970001",
+        "side": "sell",
+        "base_cid": "16",
+        "quote_cid": "1",
+        "price": "100",
+        "amount": "1",
+        "amount_filled": "1",
+        "status": "filled",
+        "create_key": "cli:p4b3e30024237:lockSell16",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:lockSell16",
+          "biz:market:trade:12:1"
+        ]
+      },
+      {
+        "order_id": "12",
+        "owner_uid": "11",
+        "side": "buy",
+        "base_cid": "16",
+        "quote_cid": "1",
+        "price": "100",
+        "amount": "1",
+        "amount_filled": "1",
+        "status": "filled",
+        "create_key": "cli:p4b3e30024237:lockBuy16",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:lockBuy16",
+          "biz:market:trade:12:1"
+        ]
+      },
+      {
+        "order_id": "13",
+        "owner_uid": "11",
+        "side": "buy",
+        "base_cid": "4",
+        "quote_cid": "1",
+        "price": "1234",
+        "amount": "5",
+        "amount_filled": "0",
+        "status": "open",
+        "create_key": "cli:p4b3e30024237:lp:buy1",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:lp:buy1"
+        ]
+      },
+      {
+        "order_id": "14",
+        "owner_uid": "970001",
+        "side": "buy",
+        "base_cid": "21",
+        "quote_cid": "1",
+        "price": "100",
+        "amount": "1",
+        "amount_filled": "0",
+        "status": "open",
+        "create_key": "cli:p4b3e30024237:lp:selfbuy21",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:lp:selfbuy21"
+        ]
+      },
+      {
+        "order_id": "15",
+        "owner_uid": "970001",
+        "side": "sell",
+        "base_cid": "21",
+        "quote_cid": "1",
+        "price": "100",
+        "amount": "1",
+        "amount_filled": "1",
+        "status": "filled",
+        "create_key": "cli:p4b3e30024237:lp:selfsell21",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:lp:selfsell21",
+          "biz:market:trade:17:1"
+        ]
+      },
+      {
+        "order_id": "16",
+        "owner_uid": "970001",
+        "side": "sell",
+        "base_cid": "21",
+        "quote_cid": "1",
+        "price": "100",
+        "amount": "1",
+        "amount_filled": "1",
+        "status": "filled",
+        "create_key": "cli:p4b3e30024237:lp:base_sell21",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:lp:base_sell21",
+          "biz:market:trade:22:1"
+        ]
+      },
+      {
+        "order_id": "17",
+        "owner_uid": "11",
+        "side": "buy",
+        "base_cid": "21",
+        "quote_cid": "1",
+        "price": "100",
+        "amount": "1",
+        "amount_filled": "1",
+        "status": "filled",
+        "create_key": "cli:p4b3e30024237:lp:base_buy21",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:lp:base_buy21",
+          "biz:market:trade:17:1"
+        ]
+      },
+      {
+        "order_id": "18",
+        "owner_uid": "11",
+        "side": "buy",
+        "base_cid": "21",
+        "quote_cid": "1",
+        "price": "100",
+        "amount": "1",
+        "amount_filled": "0",
+        "status": "open",
+        "create_key": "cli:p4b3e30024237:lp:base_extra",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:lp:base_extra"
+        ]
+      },
+      {
+        "order_id": "19",
+        "owner_uid": "970001",
+        "side": "sell",
+        "base_cid": "4",
+        "quote_cid": "1",
+        "price": "1000",
+        "amount": "1",
+        "amount_filled": "1",
+        "status": "filled",
+        "create_key": "cli:p4b3e30024237:lp:ctl_sell4",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:lp:ctl_sell4",
+          "biz:market:trade:20:1"
+        ]
+      },
+      {
+        "order_id": "2",
+        "owner_uid": "970001",
+        "side": "sell",
+        "base_cid": "4",
+        "quote_cid": "1",
+        "price": "1000",
+        "amount": "4",
+        "amount_filled": "4",
+        "status": "filled",
+        "create_key": "cli:p4b3e30024237:sell1",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:sell1",
+          "biz:market:trade:1:1",
+          "biz:market:trade:2:1"
+        ]
+      },
+      {
+        "order_id": "20",
+        "owner_uid": "12",
+        "side": "buy",
+        "base_cid": "4",
+        "quote_cid": "1",
+        "price": "1000",
+        "amount": "1",
+        "amount_filled": "1",
+        "status": "filled",
+        "create_key": "cli:p4b3e30024237:lp:ctl_buy4",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:lp:ctl_buy4",
+          "biz:market:trade:20:1"
+        ]
+      },
+      {
+        "order_id": "21",
+        "owner_uid": "970001",
+        "side": "sell",
+        "base_cid": "21",
+        "quote_cid": "1",
+        "price": "100",
+        "amount": "1",
+        "amount_filled": "0",
+        "status": "open",
+        "create_key": "cli:p4b3e30024237:lp:lock_sell21",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:lp:lock_sell21"
+        ]
+      },
+      {
+        "order_id": "22",
+        "owner_uid": "12",
+        "side": "buy",
+        "base_cid": "21",
+        "quote_cid": "1",
+        "price": "100",
+        "amount": "1",
+        "amount_filled": "1",
+        "status": "filled",
+        "create_key": "cli:p4b3e30024237:lp:lock_buy21",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:lp:lock_buy21",
+          "biz:market:trade:22:1"
+        ]
+      },
+      {
+        "order_id": "3",
+        "owner_uid": "970001",
+        "side": "buy",
+        "base_cid": "4",
+        "quote_cid": "1",
+        "price": "1000",
+        "amount": "1",
+        "amount_filled": "0",
+        "status": "cancelled",
+        "create_key": "cli:p4b3e30024237:selfbuy",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:selfbuy",
+          "biz:market:cancel:3"
+        ]
+      },
+      {
+        "order_id": "4",
+        "owner_uid": "970001",
+        "side": "sell",
+        "base_cid": "4",
+        "quote_cid": "1",
+        "price": "1000",
+        "amount": "1",
+        "amount_filled": "0",
+        "status": "cancelled",
+        "create_key": "cli:p4b3e30024237:selfsell",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:selfsell",
+          "biz:market:cancel:4"
+        ]
+      },
+      {
+        "order_id": "6",
+        "owner_uid": "970001",
+        "side": "sell",
+        "base_cid": "16",
+        "quote_cid": "1",
+        "price": "100",
+        "amount": "1",
+        "amount_filled": "1",
+        "status": "filled",
+        "create_key": "cli:p4b3e30024237:c16sell",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:c16sell",
+          "biz:market:trade:7:1"
+        ]
+      },
+      {
+        "order_id": "7",
+        "owner_uid": "12",
+        "side": "buy",
+        "base_cid": "16",
+        "quote_cid": "1",
+        "price": "100",
+        "amount": "1",
+        "amount_filled": "1",
+        "status": "filled",
+        "create_key": "cli:p4b3e30024237:c16buyA",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:c16buyA",
+          "biz:market:trade:7:1"
+        ]
+      },
+      {
+        "order_id": "8",
+        "owner_uid": "11",
+        "side": "buy",
+        "base_cid": "16",
+        "quote_cid": "1",
+        "price": "100",
+        "amount": "1",
+        "amount_filled": "0",
+        "status": "open",
+        "create_key": "cli:p4b3e30024237:c16buyB",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:c16buyB"
+        ]
+      },
+      {
+        "order_id": "9",
+        "owner_uid": "970001",
+        "side": "sell",
+        "base_cid": "4",
+        "quote_cid": "1",
+        "price": "1000",
+        "amount": "1",
+        "amount_filled": "1",
+        "status": "filled",
+        "create_key": "cli:p4b3e30024237:lockSell4",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:lockSell4",
+          "biz:market:trade:10:1"
+        ]
+      }
+    ]
+  },
+  "market_trade": {
+    "rows": 8,
+    "per_row": [
+      {
+        "trade_id": "1",
+        "base_cid": "4",
+        "quote_cid": "1",
+        "price": "1000",
+        "amount": "3",
+        "buy_order_id": "1",
+        "sell_order_id": "2",
+        "taker_uid": "11",
+        "fee": "30",
+        "time_created": "2026-09-29 18:47:47.292149+00"
+      },
+      {
+        "trade_id": "2",
+        "base_cid": "4",
+        "quote_cid": "1",
+        "price": "1000",
+        "amount": "1",
+        "buy_order_id": "1",
+        "sell_order_id": "2",
+        "taker_uid": "970001",
+        "fee": "10",
+        "time_created": "2026-09-29 18:47:49.369508+00"
+      },
+      {
+        "trade_id": "3",
+        "base_cid": "16",
+        "quote_cid": "1",
+        "price": "100",
+        "amount": "1",
+        "buy_order_id": "7",
+        "sell_order_id": "6",
+        "taker_uid": "12",
+        "fee": "1",
+        "time_created": "2026-09-29 18:48:09.080575+00"
+      },
+      {
+        "trade_id": "4",
+        "base_cid": "4",
+        "quote_cid": "1",
+        "price": "1000",
+        "amount": "1",
+        "buy_order_id": "10",
+        "sell_order_id": "9",
+        "taker_uid": "12",
+        "fee": "10",
+        "time_created": "2026-09-29 18:48:13.737378+00"
+      },
+      {
+        "trade_id": "5",
+        "base_cid": "16",
+        "quote_cid": "1",
+        "price": "100",
+        "amount": "1",
+        "buy_order_id": "12",
+        "sell_order_id": "11",
+        "taker_uid": "11",
+        "fee": "1",
+        "time_created": "2026-09-29 18:48:15.812904+00"
+      },
+      {
+        "trade_id": "6",
+        "base_cid": "21",
+        "quote_cid": "1",
+        "price": "100",
+        "amount": "1",
+        "buy_order_id": "17",
+        "sell_order_id": "15",
+        "taker_uid": "11",
+        "fee": "1",
+        "time_created": "2026-09-29 18:50:18.589498+00"
+      },
+      {
+        "trade_id": "7",
+        "base_cid": "4",
+        "quote_cid": "1",
+        "price": "1000",
+        "amount": "1",
+        "buy_order_id": "20",
+        "sell_order_id": "19",
+        "taker_uid": "12",
+        "fee": "10",
+        "time_created": "2026-09-29 18:50:25.39967+00"
+      },
+      {
+        "trade_id": "8",
+        "base_cid": "21",
+        "quote_cid": "1",
+        "price": "100",
+        "amount": "1",
+        "buy_order_id": "22",
+        "sell_order_id": "16",
+        "taker_uid": "12",
+        "fee": "1",
+        "time_created": "2026-09-29 18:50:24.648935+00"
+      }
+    ]
+  },
+  "currency": {
+    "rows": 7,
+    "listed": 5,
+    "per_row": [
+      {
+        "cid": "1",
+        "symbol": "$",
+        "status": "listed",
+        "owner_uid": "0",
+        "decimals": "0"
+      },
+      {
+        "cid": "10",
+        "symbol": "P4B3A013647",
+        "status": "listed",
+        "owner_uid": "970001",
+        "decimals": "2"
+      },
+      {
+        "cid": "15",
+        "symbol": "P4B3A013647X",
+        "status": "draft",
+        "owner_uid": "970001",
+        "decimals": "0"
+      },
+      {
+        "cid": "16",
+        "symbol": "P4B3B590800",
+        "status": "listed",
+        "owner_uid": "970001",
+        "decimals": "2"
+      },
+      {
+        "cid": "21",
+        "symbol": "P4B3B590800X",
+        "status": "listed",
+        "owner_uid": "970001",
+        "decimals": "0"
+      },
+      {
+        "cid": "4",
+        "symbol": "P4B3A013122",
+        "status": "listed",
+        "owner_uid": "970001",
+        "decimals": "2"
+      },
+      {
+        "cid": "9",
+        "symbol": "P4B3A013122X",
+        "status": "draft",
+        "owner_uid": "970001",
+        "decimals": "0"
+      }
+    ]
+  },
+  "commission_policy": {
+    "rows": 1,
+    "per_row": [
+      {
+        "policy_id": "1",
+        "fee_rate_bp": 100,
+        "levels": 10,
+        "effective_from": "1970-01-01 00:00:00+00"
+      }
+    ]
+  },
+  "counts": {
+    "market_order_rows": 21,
+    "market_trade_rows": 8,
+    "user_rows": 18,
+    "account_rows": 23,
+    "currency_listed": 5
+  }
+}

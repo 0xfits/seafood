@@ -24,6 +24,8 @@ import { ledgerErrorDiagnostics, normalizeLedgerError, toErrorResponse } from '.
 import { ledgerErrorBody, sendGone, sendVerbError, submitWork } from './job-service';
 // P4-B3c：招工**资金**编排（J1 托管 / J5 发放 / J6 退款 ⇒ `job_post_event`）
 import { verifyJobSubmission } from './job-funds-service';
+// P4-B3e（§4.2 M1/M2/M3 · §4.3 资金四栏 · DL85/DL87/DL90 + DL68 币对串行化）：交易所资金编排
+import { placeMarketOrder, cancelMarketOrder, cancelAllMarketOrders } from './market-service';
 // P4-B3a：币种面**真资金**编排（§1.1:147-148 · §4.2 C1/C2 · §7-3 已裁）
 import { createCurrencyVerb, listCurrencyVerb } from './currency-service';
 // P4-B2c：权限与设置（非资金面）service（§1 #36/#37/#38 的 verb + DL36 的 ops: 幂等键）
@@ -728,53 +730,89 @@ app.get('/api/order', async (req, res) => {
   }
 });
 
+// ============================================================================
+// P4-B3e（§1 #26【保留·改接】· §4.2 M1 · DL85/DL90/DL64）：交易所**挂单** = `market_post_event(op='order')`
+//   ⇒ `hold` ×2（同 uid 同 cid）：买单冻结 `$` `amount×price` / 卖单冻结 base `amount`
+//   · `owner_uid` = **token 的 actor**（body 传入被丢弃）；`quote_cid` **服务端恒 1**
+//   · `create_key` **必填 fail-loud**（§4.4-14 判据：`market_order.order_id` 是 IDENTITY、无自然键 ⇒ 不派生）
+//     ⇒ **旧前端（`ShardPage.jsx:176`，body `{bID,side,price,volume}`、无键）会 `400`** = 前端同步项（报告 §5）
+//   · **DL68 币对级串行化**：写语句外层 CTE 先取 `pg_advisory_xact_lock(base_cid, quote_cid)`
+// ============================================================================
 app.post('/api/order', async (req, res) => {
   const actor = await requireActor(req, res);
   if (!actor) return;
 
   try {
-    const order = await DatabaseService.placeOrder({
-      uID: actor.user.uID,
-      bID: parseInteger(req.body?.bID),
-      side: String(req.body?.side || 'buy'),
-      price: parseInteger(req.body?.price),
-      volume: parseInteger(req.body?.volume),
+    const result = await placeMarketOrder({
+      actorUid: actor.user.uID,
+      body: (req.body || {}) as Record<string, unknown>,
+      headerKey: req.header('idempotency-key'),
     });
-    sendSuccess(res, order, 'Order created');
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(
+      res,
+      result.view,
+      result.replay ? 'Order created (idempotent replay)' : 'Order created',
+      200,
+      result.replay ? { idempotent_replay: true } : undefined,
+    );
   } catch (error) {
-    console.error('Error creating order:', error);
-    sendError(res, 400, error instanceof Error ? error.message : 'Failed to create order');
+    const normalized = normalizeLedgerError(unwrapInfraCause(error));
+    console.error('[market.order] infra failure:', JSON.stringify(ledgerErrorDiagnostics(error)));
+    return res.status(normalized.httpStatus).json(toErrorResponse(normalized));
   }
 });
 
+// ============================================================================
+// P4-B3e（§1 #27【保留·改语义】· §4.2 M2 · §7-5 已裁）：**全撤** = 逐单 `market_post_event(op='cancel')`
+//   ⇒ 每单 `hold_release` ×2（`balance ↔ frozen` 同账户 2 腿）；根键逐单 `biz:market:cancel:<order_id>`
+//   · **入参一律走 query、不得读 body**（§1 #27 逐字；旧前端 `ShardPage.jsx:328` 的 body 式全撤 = §2.4 S4）
+//   · 返回体保留旧前端读的 `cancelled` 键（`ShardPage.jsx:333`）
+// ============================================================================
 app.delete('/api/order', async (req, res) => {
   const actor = await requireActor(req, res);
   if (!actor) return;
 
   try {
-    const result = await DatabaseService.cancelAllOrders(actor.user.uID);
-    sendSuccess(res, result, 'Orders cancelled');
+    const result = await cancelAllMarketOrders({
+      actorUid: actor.user.uID,
+      query: (req.query || {}) as Record<string, unknown>,
+    });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, 'Orders cancelled');
   } catch (error) {
-    console.error('Error cancelling orders:', error);
-    sendError(res, 500, error instanceof Error ? error.message : 'Failed to cancel orders');
+    const normalized = normalizeLedgerError(unwrapInfraCause(error));
+    console.error('[market.cancel_all] infra failure:', JSON.stringify(ledgerErrorDiagnostics(error)));
+    return res.status(normalized.httpStatus).json(toErrorResponse(normalized));
   }
 });
 
+// ============================================================================
+// P4-B3e（§1 #28【保留·改接】· §4.2 M2）：**单撤** = `market_post_event(op='cancel')` ⇒ `hold_release` ×2
+//   · 授权 = **只有订单 `owner_uid`**（非 owner ⇒ `403 AUTH_FORBIDDEN` + `ACTOR_NOT_ALLOWED`，3c/3d 同族）
+//   · **手续费不可退**（DL87：`trade_fee` 是消耗不是冻结）—— 撤单只释放剩余在冻额
+// ============================================================================
 app.delete('/api/order/:oID', async (req, res) => {
   const actor = await requireActor(req, res);
   if (!actor) return;
 
-  const oID = parseInteger(req.params.oID);
-  if (!oID) {
-    return sendError(res, 400, 'Invalid oID');
-  }
-
   try {
-    const result = await DatabaseService.cancelOrder(actor.user.uID, oID);
-    sendSuccess(res, result, 'Order cancelled');
+    const result = await cancelMarketOrder({
+      actorUid: actor.user.uID,
+      orderIdRaw: req.params.oID,
+    });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(
+      res,
+      result.view,
+      result.replay ? 'Order cancelled (idempotent replay)' : 'Order cancelled',
+      200,
+      result.replay ? { idempotent_replay: true } : undefined,
+    );
   } catch (error) {
-    console.error('Error cancelling order:', error);
-    sendError(res, 400, error instanceof Error ? error.message : 'Failed to cancel order');
+    const normalized = normalizeLedgerError(unwrapInfraCause(error));
+    console.error('[market.cancel] infra failure:', JSON.stringify(ledgerErrorDiagnostics(error)));
+    return res.status(normalized.httpStatus).json(toErrorResponse(normalized));
   }
 });
 

@@ -1,0 +1,299 @@
+{
+  "run": "b3e-20260930T024237",
+  "label": "pre",
+  "at": "2026-09-29T18:45:42.411Z",
+  "probe": "p4z-b3e-01-snapshot",
+  "account": {
+    "rows": 12,
+    "sum_balance": "1995998",
+    "sum_frozen": "4002",
+    "sum_total": "2000000",
+    "cid1": {
+      "rows": 12,
+      "sum_balance": "1995998",
+      "sum_frozen": "4002",
+      "sum_total": "2000000"
+    },
+    "negative_rows": 0,
+    "per_row": [
+      {
+        "uid": "-1",
+        "cid": "1",
+        "balance": "11217",
+        "frozen": "0",
+        "total": "11217"
+      },
+      {
+        "uid": "-2",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0",
+        "total": "0"
+      },
+      {
+        "uid": "-3",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0",
+        "total": "0"
+      },
+      {
+        "uid": "0",
+        "cid": "1",
+        "balance": "0",
+        "frozen": "0",
+        "total": "0"
+      },
+      {
+        "uid": "2",
+        "cid": "1",
+        "balance": "7600",
+        "frozen": "0",
+        "total": "7600"
+      },
+      {
+        "uid": "3",
+        "cid": "1",
+        "balance": "1386",
+        "frozen": "0",
+        "total": "1386"
+      },
+      {
+        "uid": "4",
+        "cid": "1",
+        "balance": "4",
+        "frozen": "0",
+        "total": "4"
+      },
+      {
+        "uid": "5",
+        "cid": "1",
+        "balance": "6",
+        "frozen": "0",
+        "total": "6"
+      },
+      {
+        "uid": "6",
+        "cid": "1",
+        "balance": "990",
+        "frozen": "0",
+        "total": "990"
+      },
+      {
+        "uid": "7",
+        "cid": "1",
+        "balance": "5100",
+        "frozen": "0",
+        "total": "5100"
+      },
+      {
+        "uid": "8",
+        "cid": "1",
+        "balance": "4900",
+        "frozen": "0",
+        "total": "4900"
+      },
+      {
+        "uid": "970001",
+        "cid": "1",
+        "balance": "1964795",
+        "frozen": "4002",
+        "total": "1968797"
+      }
+    ]
+  },
+  "ledger_entry": {
+    "total_rows": 86,
+    "by_kind": {
+      "commission": 4,
+      "currency_create_fee": 20,
+      "hold": 4,
+      "job_escrow": 10,
+      "job_escrow_refund": 4,
+      "job_fee": 6,
+      "job_payout": 6,
+      "listing_deposit": 16,
+      "mint": 2,
+      "purchase": 2,
+      "purchase_refund": 2,
+      "sale": 2,
+      "transfer": 8
+    },
+    "by_kind_sum": 86,
+    "by_kind_sum_equals_total": true,
+    "by_ref_type": [
+      {
+        "ref_type": "currency",
+        "n": 28
+      },
+      {
+        "ref_type": "job",
+        "n": 30
+      },
+      {
+        "ref_type": "listing_order",
+        "n": 6
+      },
+      {
+        "ref_type": "null",
+        "n": 22
+      }
+    ],
+    "by_ref_type_kind": [
+      {
+        "ref_type": "currency",
+        "kind": "currency_create_fee",
+        "n": 20
+      },
+      {
+        "ref_type": "currency",
+        "kind": "listing_deposit",
+        "n": 8
+      },
+      {
+        "ref_type": "job",
+        "kind": "commission",
+        "n": 4
+      },
+      {
+        "ref_type": "job",
+        "kind": "job_escrow",
+        "n": 10
+      },
+      {
+        "ref_type": "job",
+        "kind": "job_escrow_refund",
+        "n": 4
+      },
+      {
+        "ref_type": "job",
+        "kind": "job_fee",
+        "n": 6
+      },
+      {
+        "ref_type": "job",
+        "kind": "job_payout",
+        "n": 6
+      },
+      {
+        "ref_type": "listing_order",
+        "kind": "purchase",
+        "n": 2
+      },
+      {
+        "ref_type": "listing_order",
+        "kind": "purchase_refund",
+        "n": 2
+      },
+      {
+        "ref_type": "listing_order",
+        "kind": "sale",
+        "n": 2
+      },
+      {
+        "ref_type": "null",
+        "kind": "hold",
+        "n": 4
+      },
+      {
+        "ref_type": "null",
+        "kind": "listing_deposit",
+        "n": 8
+      },
+      {
+        "ref_type": "null",
+        "kind": "mint",
+        "n": 2
+      },
+      {
+        "ref_type": "null",
+        "kind": "transfer",
+        "n": 8
+      }
+    ],
+    "events_with_nonzero_sum": 2,
+    "orphans_market_order": 0,
+    "orphans_market_trade": 0
+  },
+  "market_order": {
+    "rows": 0,
+    "per_row": []
+  },
+  "market_trade": {
+    "rows": 0,
+    "per_row": []
+  },
+  "currency": {
+    "rows": 7,
+    "listed": 5,
+    "per_row": [
+      {
+        "cid": "1",
+        "symbol": "$",
+        "status": "listed",
+        "owner_uid": "0",
+        "decimals": "0"
+      },
+      {
+        "cid": "10",
+        "symbol": "P4B3A013647",
+        "status": "listed",
+        "owner_uid": "970001",
+        "decimals": "2"
+      },
+      {
+        "cid": "15",
+        "symbol": "P4B3A013647X",
+        "status": "draft",
+        "owner_uid": "970001",
+        "decimals": "0"
+      },
+      {
+        "cid": "16",
+        "symbol": "P4B3B590800",
+        "status": "listed",
+        "owner_uid": "970001",
+        "decimals": "2"
+      },
+      {
+        "cid": "21",
+        "symbol": "P4B3B590800X",
+        "status": "listed",
+        "owner_uid": "970001",
+        "decimals": "0"
+      },
+      {
+        "cid": "4",
+        "symbol": "P4B3A013122",
+        "status": "listed",
+        "owner_uid": "970001",
+        "decimals": "2"
+      },
+      {
+        "cid": "9",
+        "symbol": "P4B3A013122X",
+        "status": "draft",
+        "owner_uid": "970001",
+        "decimals": "0"
+      }
+    ]
+  },
+  "commission_policy": {
+    "rows": 1,
+    "per_row": [
+      {
+        "policy_id": "1",
+        "fee_rate_bp": 100,
+        "levels": 10,
+        "effective_from": "1970-01-01 00:00:00+00"
+      }
+    ]
+  },
+  "counts": {
+    "market_order_rows": 0,
+    "market_trade_rows": 0,
+    "user_rows": 16,
+    "account_rows": 12,
+    "currency_listed": 5
+  }
+}

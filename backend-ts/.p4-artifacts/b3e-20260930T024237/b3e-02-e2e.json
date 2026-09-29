@@ -1,0 +1,1418 @@
+{
+  "run": "b3e-20260930T024237",
+  "at": "2026-09-29T18:47:27.496Z",
+  "probe": "p4z-b3e-02-e2e",
+  "base": "http://127.0.0.1:5788",
+  "token_fingerprint": "b1ec01afb2eb",
+  "tag": "p4b3e30024237",
+  "fixtures": {
+    "seller": {
+      "uid": "970001",
+      "evm": "0x9700010000000000000000000000000000000000"
+    },
+    "buy1": "11",
+    "buy2": "12",
+    "funds": {
+      "buy1": {
+        "need": "40000",
+        "donors_used": [
+          {
+            "from_uid": "970001",
+            "amount": "40000",
+            "txid": "94",
+            "idempotent_replay": false
+          }
+        ]
+      },
+      "buy2": {
+        "need": "40000",
+        "donors_used": [
+          {
+            "from_uid": "970001",
+            "amount": "40000",
+            "txid": "96",
+            "idempotent_replay": false
+          }
+        ]
+      }
+    },
+    "mint_base": {
+      "4": {
+        "ok": true,
+        "txid": "98",
+        "idempotent_replay": false
+      },
+      "16": {
+        "ok": true,
+        "txid": "99",
+        "idempotent_replay": false
+      }
+    },
+    "balances_after_fixture": {
+      "seller:1": {
+        "balance": "1884795",
+        "frozen": "4002",
+        "total": "1888797"
+      },
+      "seller:4": {
+        "balance": "10000",
+        "frozen": "0",
+        "total": "10000"
+      },
+      "seller:16": {
+        "balance": "10000",
+        "frozen": "0",
+        "total": "10000"
+      },
+      "buy1:1": {
+        "balance": "40000",
+        "frozen": "0",
+        "total": "40000"
+      },
+      "buy2:1": {
+        "balance": "40000",
+        "frozen": "0",
+        "total": "40000"
+      }
+    },
+    "counts_before": {
+      "orders": 0,
+      "trades": 0,
+      "hold_n": 4,
+      "hold_release_n": 0,
+      "trade_n": 0,
+      "trade_fee_n": 0
+    }
+  },
+  "results": [
+    {
+      "id": "T01",
+      "name": "M1 挂单（买 1 手 @1000×5）",
+      "status": 200,
+      "code": null,
+      "order_id": 1,
+      "view": {
+        "op": "order",
+        "order_id": "1",
+        "owner_uid": "11",
+        "side": "buy",
+        "base_cid": "4",
+        "quote_cid": "1",
+        "price": "1000",
+        "amount": "5",
+        "amount_filled": "0",
+        "order_status": "open",
+        "frozen_hold": "5000",
+        "trade_id": null,
+        "created": true,
+        "idempotent_replay": false,
+        "txid": "100",
+        "ledger_idempotency_key": "cli:p4b3e30024237:buy1",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:buy1"
+        ],
+        "currency_status": "listed",
+        "event_kinds": "hold",
+        "entry_count": 2,
+        "kinds": [
+          "hold",
+          "hold"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "11",
+            "kind": "hold",
+            "memo": "market order:cli:p4b3e30024237:buy1（买单冻结 quote market_order=1）",
+            "txid": "100",
+            "delta": "-5000",
+            "ref_id": "1",
+            "ref_type": "market_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:47:41.397Z",
+            "balance_after": "35000",
+            "idempotency_key": "cli:p4b3e30024237:buy1",
+            "reversal_of_txid": null,
+            "request_fingerprint": "7236a6630f76f30f1f6c08e305ee38ba95df5f478344fcd25f8d17fcb029a9da"
+          },
+          {
+            "cid": "1",
+            "uid": "11",
+            "kind": "hold",
+            "memo": "market order:cli:p4b3e30024237:buy1（买单冻结 quote market_order=1）",
+            "txid": "101",
+            "delta": "0",
+            "ref_id": "1",
+            "ref_type": "market_order",
+            "frozen_after": "5000",
+            "frozen_delta": "5000",
+            "time_created": "2026-09-29T18:47:41.397Z",
+            "balance_after": "35000",
+            "idempotency_key": "cli:p4b3e30024237:buy1#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "11",
+            "frozen": "5000",
+            "balance": "35000"
+          }
+        ],
+        "client_owner_uid_ignored": null,
+        "pair_lock": "pg_advisory_xact_lock(base_cid::int4, quote_cid::int4)"
+      },
+      "body_head": "{\"success\":true,\"message\":\"Order created\",\"data\":{\"op\":\"order\",\"order_id\":\"1\",\"owner_uid\":\"11\",\"side\":\"buy\",\"base_cid\":\"4\",\"quote_cid\":\"1\",\"price\":\"1000\",\"amount\":\"5\",\"amount_filled\":\"0\",\"order_status\":\"open\",\"frozen_hold\":\"5000\",\"trade_id\":null,\"created\":true,\"idempotent_replay\":false,\"txid\":\"100\","
+    },
+    {
+      "id": "T01-legs",
+      "name": "M1 hold ×2 逐腿",
+      "key": "cli:p4b3e30024237:buy1",
+      "n": 2,
+      "kinds": [
+        "hold",
+        "hold"
+      ],
+      "legs": [
+        {
+          "txid": "100",
+          "uid": "11",
+          "cid": "1",
+          "delta": "-5000",
+          "frozen_delta": "0",
+          "kind": "hold",
+          "ref_type": "market_order",
+          "ref_id": "1",
+          "idempotency_key": "cli:p4b3e30024237:buy1"
+        },
+        {
+          "txid": "101",
+          "uid": "11",
+          "cid": "1",
+          "delta": "0",
+          "frozen_delta": "5000",
+          "kind": "hold",
+          "ref_type": "market_order",
+          "ref_id": "1",
+          "idempotency_key": "cli:p4b3e30024237:buy1#2"
+        }
+      ],
+      "sum_delta": "-5000",
+      "sum_frozen_delta": "5000",
+      "sum_delta_plus_frozen": "0",
+      "pure_transfer": true,
+      "no_frozen_movement": false,
+      "frozen_legs_are_balance_pair": true
+    },
+    {
+      "id": "T02",
+      "name": "M1 幂等重投（同键同内容 ⇒ 200 replay / 零新增分录）",
+      "status": 200,
+      "code": null,
+      "idempotent_replay_top": true,
+      "entries_n": 2,
+      "order_id": "1",
+      "body_head": "{\"success\":true,\"message\":\"Order created (idempotent replay)\",\"data\":{\"op\":\"order\",\"order_id\":\"1\",\"owner_uid\":\"11\",\"side\":\"buy\",\"base_cid\":\"4\",\"quote_cid\":\"1\",\"price\":\"1000\",\"amount\":\"5\",\"amount_filled\":\"0\",\"order_status\":\"open\",\"frozen_hold\":\"5000\",\"trade_id\":null,\"created\":false,\"idempotent_replay"
+    },
+    {
+      "id": "T03",
+      "name": "M1 同键异内容 ⇒ 409（响亮拒绝）",
+      "status": 409,
+      "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+      "reason": null,
+      "details": {
+        "detail_unavailable": "driver_did_not_carry_detail",
+        "idempotency_key": "market"
+      }
+    },
+    {
+      "id": "T04",
+      "name": "M1 缺 create_key（= 旧前端 `ShardPage.jsx:176` 形状）⇒ 400 fail-loud",
+      "status": 400,
+      "code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "body_head": "{\"error\":{\"code\":\"LEDGER_IDEMPOTENCY_KEY_REQUIRED\",\"message\":\"Idempotency key is required\",\"i18n_key\":\"ledger.err.LEDGER_IDEMPOTENCY_KEY_REQUIRED\",\"details\":{\"field\":\"create_key\"}}}"
+    },
+    {
+      "id": "T05",
+      "name": "M1 挂单（卖 1 手 @1000×4，冻结 base cid4）",
+      "status": 200,
+      "code": null,
+      "order_id": 2,
+      "view": {
+        "op": "order",
+        "order_id": "2",
+        "owner_uid": "970001",
+        "side": "sell",
+        "base_cid": "4",
+        "quote_cid": "1",
+        "price": "1000",
+        "amount": "4",
+        "amount_filled": "0",
+        "order_status": "open",
+        "frozen_hold": "4",
+        "trade_id": null,
+        "created": true,
+        "idempotent_replay": false,
+        "txid": "102",
+        "ledger_idempotency_key": "cli:p4b3e30024237:sell1",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:sell1"
+        ],
+        "currency_status": "listed",
+        "event_kinds": "hold",
+        "entry_count": 2,
+        "kinds": [
+          "hold",
+          "hold"
+        ],
+        "entries": [
+          {
+            "cid": "4",
+            "uid": "970001",
+            "kind": "hold",
+            "memo": "market order:cli:p4b3e30024237:sell1（卖单冻结 base market_order=2）",
+            "txid": "102",
+            "delta": "-4",
+            "ref_id": "2",
+            "ref_type": "market_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:47:44.977Z",
+            "balance_after": "9996",
+            "idempotency_key": "cli:p4b3e30024237:sell1",
+            "reversal_of_txid": null,
+            "request_fingerprint": "bf0a01051c6d9d78281f0a2821ea17ad9de225e8059382ab3cd99c03852db5fe"
+          },
+          {
+            "cid": "4",
+            "uid": "970001",
+            "kind": "hold",
+            "memo": "market order:cli:p4b3e30024237:sell1（卖单冻结 base market_order=2）",
+            "txid": "103",
+            "delta": "0",
+            "ref_id": "2",
+            "ref_type": "market_order",
+            "frozen_after": "4",
+            "frozen_delta": "4",
+            "time_created": "2026-09-29T18:47:44.977Z",
+            "balance_after": "9996",
+            "idempotency_key": "cli:p4b3e30024237:sell1#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "4",
+            "uid": "970001",
+            "frozen": "4",
+            "balance": "9996"
+          }
+        ],
+        "client_owner_uid_ignored": null,
+        "pair_lock": "pg_advisory_xact_lock(base_cid::int4, quote_cid::int4)"
+      }
+    },
+    {
+      "id": "T05-legs",
+      "name": "M1 卖单 hold ×2 逐腿（同 uid 同 cid=4）",
+      "key": "cli:p4b3e30024237:sell1",
+      "n": 2,
+      "kinds": [
+        "hold",
+        "hold"
+      ],
+      "legs": [
+        {
+          "txid": "102",
+          "uid": "970001",
+          "cid": "4",
+          "delta": "-4",
+          "frozen_delta": "0",
+          "kind": "hold",
+          "ref_type": "market_order",
+          "ref_id": "2",
+          "idempotency_key": "cli:p4b3e30024237:sell1"
+        },
+        {
+          "txid": "103",
+          "uid": "970001",
+          "cid": "4",
+          "delta": "0",
+          "frozen_delta": "4",
+          "kind": "hold",
+          "ref_type": "market_order",
+          "ref_id": "2",
+          "idempotency_key": "cli:p4b3e30024237:sell1#2"
+        }
+      ],
+      "sum_delta": "-4",
+      "sum_frozen_delta": "4",
+      "sum_delta_plus_frozen": "0",
+      "pure_transfer": true,
+      "no_frozen_movement": false,
+      "frozen_legs_are_balance_pair": true
+    },
+    {
+      "id": "T06",
+      "name": "M3 部分成交（taker=买单×3 @1000；客户端 price/对手方/fee 全丢弃）",
+      "ok": true,
+      "status": 200,
+      "code": null,
+      "view": {
+        "op": "trade",
+        "order_id": null,
+        "owner_uid": null,
+        "side": "trade",
+        "base_cid": "4",
+        "quote_cid": "1",
+        "price": "1000",
+        "amount": "3",
+        "amount_filled": null,
+        "order_status": null,
+        "frozen_hold": null,
+        "trade_id": "1",
+        "created": true,
+        "idempotent_replay": false,
+        "txid": "104",
+        "ledger_idempotency_key": "biz:market:trade:1:1",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:buy1",
+          "biz:market:trade:1:1"
+        ],
+        "currency_status": "listed",
+        "event_kinds": "trade,trade_fee",
+        "entry_count": 6,
+        "kinds": [
+          "trade",
+          "trade",
+          "trade",
+          "trade",
+          "trade_fee",
+          "trade_fee"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "11",
+            "kind": "trade",
+            "memo": "market trade:1:1（买方出 quote market_trade=1）",
+            "txid": "104",
+            "delta": "0",
+            "ref_id": "1",
+            "ref_type": "market_trade",
+            "frozen_after": "2000",
+            "frozen_delta": "-3000",
+            "time_created": "2026-09-29T18:47:47.292Z",
+            "balance_after": "35000",
+            "idempotency_key": "biz:market:trade:1:1",
+            "reversal_of_txid": null,
+            "request_fingerprint": "24151f71deb4aa20b001e7c50b1ec63ccbff388f056808cd01b1c572d4c2bb33"
+          },
+          {
+            "cid": "4",
+            "uid": "11",
+            "kind": "trade",
+            "memo": "market trade:1:1（买方入 base market_trade=1）",
+            "txid": "105",
+            "delta": "3",
+            "ref_id": "1",
+            "ref_type": "market_trade",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:47:47.292Z",
+            "balance_after": "3",
+            "idempotency_key": "biz:market:trade:1:1#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          },
+          {
+            "cid": "4",
+            "uid": "970001",
+            "kind": "trade",
+            "memo": "market trade:1:1（卖方出 base market_trade=1）",
+            "txid": "106",
+            "delta": "0",
+            "ref_id": "1",
+            "ref_type": "market_trade",
+            "frozen_after": "1",
+            "frozen_delta": "-3",
+            "time_created": "2026-09-29T18:47:47.292Z",
+            "balance_after": "9996",
+            "idempotency_key": "biz:market:trade:1:1#3",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          },
+          {
+            "cid": "1",
+            "uid": "970001",
+            "kind": "trade",
+            "memo": "market trade:1:1（卖方入 quote market_trade=1）",
+            "txid": "107",
+            "delta": "3000",
+            "ref_id": "1",
+            "ref_type": "market_trade",
+            "frozen_after": "4002",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:47:47.292Z",
+            "balance_after": "1887795",
+            "idempotency_key": "biz:market:trade:1:1#4",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          },
+          {
+            "cid": "1",
+            "uid": "11",
+            "kind": "trade_fee",
+            "memo": "market trade:1:1（taker 手续费 trade_fee market_trade=1）",
+            "txid": "108",
+            "delta": "-30",
+            "ref_id": "1",
+            "ref_type": "market_trade",
+            "frozen_after": "2000",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:47:47.292Z",
+            "balance_after": "34970",
+            "idempotency_key": "biz:market:trade:1:1#5",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          },
+          {
+            "cid": "1",
+            "uid": "-1",
+            "kind": "trade_fee",
+            "memo": "market trade:1:1（平台手续费收入 trade_fee market_trade=1）",
+            "txid": "109",
+            "delta": "30",
+            "ref_id": "1",
+            "ref_type": "market_trade",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:47:47.292Z",
+            "balance_after": "11247",
+            "idempotency_key": "biz:market:trade:1:1#6",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "11",
+            "frozen": "2000",
+            "balance": "34970"
+          },
+          {
+            "cid": "4",
+            "uid": "11",
+            "frozen": "0",
+            "balance": "3"
+          },
+          {
+            "cid": "4",
+            "uid": "970001",
+            "frozen": "1",
+            "balance": "9996"
+          },
+          {
+            "cid": "1",
+            "uid": "970001",
+            "frozen": "4002",
+            "balance": "1887795"
+          },
+          {
+            "cid": "1",
+            "uid": "-1",
+            "frozen": "0",
+            "balance": "11247"
+          }
+        ],
+        "taker_order_id": "1",
+        "taker_uid": "11",
+        "buy_order_id": "1",
+        "sell_order_id": "2",
+        "buy_price": "1000",
+        "fill_no": "1",
+        "quantity": "3",
+        "turnover": "3000",
+        "fee": "30",
+        "fee_rate_bp": 100,
+        "fee_rate_source": "commission_policy.fee_rate_bp",
+        "fee_rounding": "half_up:(x*bp+5000)/10000",
+        "counterparty_selected_server_side": true,
+        "client_inputs_ignored": {
+          "client_price": "1",
+          "client_buy_order_id": "1",
+          "client_sell_order_id": "1",
+          "client_fee": "0"
+        },
+        "pair_lock": "pg_advisory_xact_lock(base_cid::int4, quote_cid::int4)"
+      },
+      "err": null
+    },
+    {
+      "id": "T06-legs",
+      "name": "M3 `trade`×4 + `trade_fee`×2 逐腿",
+      "key": "biz:market:trade:1:1",
+      "n": 6,
+      "kinds": [
+        "trade",
+        "trade",
+        "trade",
+        "trade",
+        "trade_fee",
+        "trade_fee"
+      ],
+      "legs": [
+        {
+          "txid": "104",
+          "uid": "11",
+          "cid": "1",
+          "delta": "0",
+          "frozen_delta": "-3000",
+          "kind": "trade",
+          "ref_type": "market_trade",
+          "ref_id": "1",
+          "idempotency_key": "biz:market:trade:1:1"
+        },
+        {
+          "txid": "105",
+          "uid": "11",
+          "cid": "4",
+          "delta": "3",
+          "frozen_delta": "0",
+          "kind": "trade",
+          "ref_type": "market_trade",
+          "ref_id": "1",
+          "idempotency_key": "biz:market:trade:1:1#2"
+        },
+        {
+          "txid": "106",
+          "uid": "970001",
+          "cid": "4",
+          "delta": "0",
+          "frozen_delta": "-3",
+          "kind": "trade",
+          "ref_type": "market_trade",
+          "ref_id": "1",
+          "idempotency_key": "biz:market:trade:1:1#3"
+        },
+        {
+          "txid": "107",
+          "uid": "970001",
+          "cid": "1",
+          "delta": "3000",
+          "frozen_delta": "0",
+          "kind": "trade",
+          "ref_type": "market_trade",
+          "ref_id": "1",
+          "idempotency_key": "biz:market:trade:1:1#4"
+        },
+        {
+          "txid": "108",
+          "uid": "11",
+          "cid": "1",
+          "delta": "-30",
+          "frozen_delta": "0",
+          "kind": "trade_fee",
+          "ref_type": "market_trade",
+          "ref_id": "1",
+          "idempotency_key": "biz:market:trade:1:1#5"
+        },
+        {
+          "txid": "109",
+          "uid": "-1",
+          "cid": "1",
+          "delta": "30",
+          "frozen_delta": "0",
+          "kind": "trade_fee",
+          "ref_type": "market_trade",
+          "ref_id": "1",
+          "idempotency_key": "biz:market:trade:1:1#6"
+        }
+      ],
+      "sum_delta": "3003",
+      "sum_frozen_delta": "-3003",
+      "sum_delta_plus_frozen": "0",
+      "pure_transfer": true,
+      "no_frozen_movement": false,
+      "frozen_legs_are_balance_pair": false
+    },
+    {
+      "id": "T06b",
+      "name": "M3 幂等重投（同 taker+fill_no ⇒ 200 replay / 零新增分录）",
+      "ok": true,
+      "status": 200,
+      "code": null,
+      "replay": true,
+      "entries_n": 6
+    },
+    {
+      "id": "T07",
+      "name": "M3 全额成交（taker=卖单余量 1 ⇒ 卖单 filled）",
+      "ok": true,
+      "status": 200,
+      "code": null,
+      "view": {
+        "order_status": null,
+        "amount_filled": null,
+        "fee": "10",
+        "trade_id": "2"
+      },
+      "err": null,
+      "sell_order_after": {
+        "order_id": "2",
+        "owner_uid": "970001",
+        "side": "sell",
+        "base_cid": "4",
+        "price": "1000",
+        "amount": "4",
+        "amount_filled": "4",
+        "status": "filled",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:sell1",
+          "biz:market:trade:1:1",
+          "biz:market:trade:2:1"
+        ]
+      }
+    },
+    {
+      "id": "T08",
+      "name": "M3 自成交（同 owner 买卖对）⇒ 拒（DB `self_trade_not_allowed`）",
+      "ok": false,
+      "status": 400,
+      "code": "LEDGER_SELF_TRANSFER",
+      "err": {
+        "detail_unavailable": "driver_did_not_carry_detail"
+      },
+      "orders": {
+        "selfbuy": {
+          "status": 200,
+          "id": 3
+        },
+        "selfsell": {
+          "status": 200,
+          "id": 4
+        }
+      }
+    },
+    {
+      "id": "T09",
+      "name": "M1 卖出无持仓（buy2 无 cid4）⇒ 409 余额/持仓不足",
+      "status": 409,
+      "code": "LEDGER_INSUFFICIENT_BALANCE",
+      "reason": null,
+      "details": {
+        "detail_unavailable": "driver_did_not_carry_detail"
+      }
+    },
+    {
+      "id": "T10",
+      "name": "M3 成交量 > 对手余量 ⇒ 409 `market_order_amount_insufficient`",
+      "ok": false,
+      "status": 409,
+      "code": "LEDGER_INSUFFICIENT_BALANCE",
+      "err": {
+        "detail_unavailable": "driver_did_not_carry_detail"
+      }
+    },
+    {
+      "id": "T11",
+      "name": "M3 缺 `fill_no`（D-1 fail-loud）⇒ 400 `FILL_NO_REQUIRED`",
+      "ok": false,
+      "status": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "err": {
+        "field": "fill_no",
+        "reason": "FILL_NO_REQUIRED"
+      }
+    },
+    {
+      "id": "T12",
+      "name": "M3 未知 taker_order_id ⇒ 404 `order_not_found`",
+      "ok": false,
+      "status": 404,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "err": {
+        "ref_type": "market_order",
+        "ref_id": "99999999",
+        "field": "taker_order_id",
+        "reason": "order_not_found"
+      }
+    },
+    {
+      "id": "T13",
+      "name": "M2 单撤（买 1 手剩余 (5−4)×1000=1000 释放；手续费不退）",
+      "status": 200,
+      "code": null,
+      "view": {
+        "op": "cancel",
+        "order_id": "1",
+        "owner_uid": "11",
+        "side": "buy",
+        "base_cid": "4",
+        "quote_cid": "1",
+        "price": "1000",
+        "amount": "5",
+        "amount_filled": "4",
+        "order_status": "cancelled",
+        "frozen_hold": "1000",
+        "trade_id": null,
+        "created": false,
+        "idempotent_replay": false,
+        "txid": "120",
+        "ledger_idempotency_key": "biz:market:cancel:1",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:buy1",
+          "biz:market:trade:1:1",
+          "biz:market:trade:2:1",
+          "biz:market:cancel:1"
+        ],
+        "currency_status": "listed",
+        "event_kinds": "hold_release",
+        "entry_count": 2,
+        "kinds": [
+          "hold_release",
+          "hold_release"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "11",
+            "kind": "hold_release",
+            "memo": "market cancel:1（撤单解冻 market_order=1）",
+            "txid": "120",
+            "delta": "0",
+            "ref_id": "1",
+            "ref_type": "market_order",
+            "frozen_after": "0",
+            "frozen_delta": "-1000",
+            "time_created": "2026-09-29T18:47:57.782Z",
+            "balance_after": "34970",
+            "idempotency_key": "biz:market:cancel:1",
+            "reversal_of_txid": null,
+            "request_fingerprint": "d67e8f0cbb741178e5cae1fd272a4002f93d9427b82e2af52006749d4d7e8a5b"
+          },
+          {
+            "cid": "1",
+            "uid": "11",
+            "kind": "hold_release",
+            "memo": "market cancel:1（撤单解冻 market_order=1）",
+            "txid": "121",
+            "delta": "1000",
+            "ref_id": "1",
+            "ref_type": "market_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T18:47:57.782Z",
+            "balance_after": "35970",
+            "idempotency_key": "biz:market:cancel:1#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "11",
+            "frozen": "0",
+            "balance": "35970"
+          }
+        ],
+        "pair_lock": "pg_advisory_xact_lock(base_cid::int4, quote_cid::int4)"
+      },
+      "legs": {
+        "n": 2,
+        "kinds": [
+          "hold_release",
+          "hold_release"
+        ],
+        "legs": [
+          {
+            "txid": "120",
+            "uid": "11",
+            "cid": "1",
+            "delta": "0",
+            "frozen_delta": "-1000",
+            "kind": "hold_release",
+            "ref_type": "market_order",
+            "ref_id": "1",
+            "idempotency_key": "biz:market:cancel:1"
+          },
+          {
+            "txid": "121",
+            "uid": "11",
+            "cid": "1",
+            "delta": "1000",
+            "frozen_delta": "0",
+            "kind": "hold_release",
+            "ref_type": "market_order",
+            "ref_id": "1",
+            "idempotency_key": "biz:market:cancel:1#2"
+          }
+        ],
+        "sum_delta": "1000",
+        "sum_frozen_delta": "-1000",
+        "sum_delta_plus_frozen": "0",
+        "pure_transfer": true,
+        "no_frozen_movement": false,
+        "frozen_legs_are_balance_pair": true
+      },
+      "counts_before": {
+        "orders": 4,
+        "trades": 2,
+        "hold_n": 12,
+        "hold_release_n": 0,
+        "trade_n": 8,
+        "trade_fee_n": 4
+      },
+      "counts_after": {
+        "orders": 4,
+        "trades": 2,
+        "hold_n": 12,
+        "hold_release_n": 2,
+        "trade_n": 8,
+        "trade_fee_n": 4
+      },
+      "trade_fee_delta": 0,
+      "order_after": {
+        "order_id": "1",
+        "owner_uid": "11",
+        "side": "buy",
+        "base_cid": "4",
+        "price": "1000",
+        "amount": "5",
+        "amount_filled": "4",
+        "status": "cancelled",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:buy1",
+          "biz:market:trade:1:1",
+          "biz:market:trade:2:1",
+          "biz:market:cancel:1"
+        ]
+      },
+      "acct_buy1_1_after": {
+        "balance": "35970",
+        "frozen": "0",
+        "total": "35970"
+      }
+    },
+    {
+      "id": "T14",
+      "name": "M2 幂等重投（同 order_id ⇒ 200 replay）",
+      "status": 200,
+      "code": null,
+      "idempotent_replay_top": true,
+      "body_head": "{\"success\":true,\"message\":\"Order cancelled (idempotent replay)\",\"data\":{\"op\":\"cancel\",\"order_id\":\"1\",\"owner_uid\":\"11\",\"side\":\"buy\",\"base_cid\":\"4\",\"quote_cid\":\"1\",\"price\":\"1000\",\"amount\":\"5\",\"amount_filled\":\"4\",\"order_status\":\"cancelled\",\"frozen_hold\":\"1000\",\"trade_id\":null,\"created\":false,\"idempoten"
+    },
+    {
+      "id": "T15",
+      "name": "M2 越权撤单（buy2 撤 seller 的单）⇒ 403 `ACTOR_NOT_ALLOWED`",
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "reason": "ACTOR_NOT_ALLOWED"
+    },
+    {
+      "id": "T16",
+      "name": "M2 未知 id / 非数字 id ⇒ 404 + `{ref_type,ref_id,reason}`",
+      "unknown": {
+        "status": 404,
+        "code": "LEDGER_REF_NOT_FOUND",
+        "details": {
+          "ref_type": "market_order",
+          "ref_id": "99999999",
+          "field": "order_id",
+          "reason": "order_not_found"
+        }
+      },
+      "nan": {
+        "status": 404,
+        "code": "LEDGER_REF_NOT_FOUND",
+        "details": {
+          "ref_type": "market_order",
+          "ref_id": "abc",
+          "field": "order_id",
+          "reason": "order_not_found"
+        }
+      }
+    },
+    {
+      "id": "T17",
+      "name": "M2 全撤（`DELETE /api/order`，入参走 query ⇒ 逐单 op=cancel）",
+      "status": 200,
+      "code": null,
+      "cancelled": 2,
+      "attempted": 2,
+      "open_before": [
+        "3",
+        "4"
+      ],
+      "orders": [
+        {
+          "order_id": "3",
+          "ok": true,
+          "order_status": "cancelled",
+          "replay": false
+        },
+        {
+          "order_id": "4",
+          "ok": true,
+          "order_status": "cancelled",
+          "replay": false
+        }
+      ],
+      "body_read_ignored": true
+    },
+    {
+      "id": "P1",
+      "name": "同币对（base=16）两笔并发成交 ⇒ 串行：恰 1 成功 / 另 1 被拒；无超额成交",
+      "fixture": {
+        "sell": {
+          "status": 200,
+          "id": 6
+        },
+        "buyA": {
+          "status": 200,
+          "id": 7
+        },
+        "buyB": {
+          "status": 200,
+          "id": 8
+        }
+      },
+      "A": {
+        "ok": true,
+        "status": 200,
+        "code": null,
+        "reason": null
+      },
+      "B": {
+        "ok": false,
+        "status": 404,
+        "code": "LEDGER_REF_NOT_FOUND",
+        "reason": "no_matchable_counterparty"
+      },
+      "successes": 1,
+      "sell_after": {
+        "order_id": "6",
+        "owner_uid": "970001",
+        "side": "sell",
+        "base_cid": "16",
+        "price": "100",
+        "amount": "1",
+        "amount_filled": "1",
+        "status": "filled",
+        "ledger_event_keys": [
+          "cli:p4b3e30024237:c16sell",
+          "biz:market:trade:7:1"
+        ]
+      },
+      "oversell": false
+    },
+    {
+      "id": "P2",
+      "name": "★ 币对锁占位（同币对 (4,1) 持锁 1.5s）⇒ 同币对**阻塞** / 异币对 (16,1) 不阻塞",
+      "holder": {
+        "ok": true
+      },
+      "holder_hold_ms": 1500,
+      "same_pair": {
+        "ok": true,
+        "status": 200,
+        "code": null,
+        "elapsed_ms": 2001
+      },
+      "other_pair": {
+        "ok": true,
+        "status": 200,
+        "code": null,
+        "elapsed_ms": 1040
+      },
+      "blocked_assert": true,
+      "order_pair_locks": {
+        "lock": "pg_advisory_xact_lock(base_cid::int4, quote_cid::int4)",
+        "holder_keys": [
+          4,
+          1
+        ]
+      },
+      "targets_after": {
+        "sell4": {
+          "order_id": "9",
+          "owner_uid": "970001",
+          "side": "sell",
+          "base_cid": "4",
+          "price": "1000",
+          "amount": "1",
+          "amount_filled": "1",
+          "status": "filled",
+          "ledger_event_keys": [
+            "cli:p4b3e30024237:lockSell4",
+            "biz:market:trade:10:1"
+          ]
+        },
+        "buy4": {
+          "order_id": "10",
+          "owner_uid": "12",
+          "side": "buy",
+          "base_cid": "4",
+          "price": "1000",
+          "amount": "1",
+          "amount_filled": "1",
+          "status": "filled",
+          "ledger_event_keys": [
+            "cli:p4b3e30024237:lockBuy4",
+            "biz:market:trade:10:1"
+          ]
+        },
+        "buy16": {
+          "order_id": "12",
+          "owner_uid": "11",
+          "side": "buy",
+          "base_cid": "16",
+          "price": "100",
+          "amount": "1",
+          "amount_filled": "1",
+          "status": "filled",
+          "ledger_event_keys": [
+            "cli:p4b3e30024237:lockBuy16",
+            "biz:market:trade:12:1"
+          ]
+        }
+      }
+    }
+  ],
+  "counts_after": {
+    "orders": 11,
+    "trades": 5,
+    "hold_n": 26,
+    "hold_release_n": 6,
+    "trade_n": 20,
+    "trade_fee_n": 10
+  },
+  "balances_after": {
+    "seller_1": {
+      "balance": "1889985",
+      "frozen": "4002",
+      "total": "1893987"
+    },
+    "seller_4": {
+      "balance": "9995",
+      "frozen": "0",
+      "total": "9995"
+    },
+    "seller_16": {
+      "balance": "9998",
+      "frozen": "0",
+      "total": "9998"
+    },
+    "buy1_1": {
+      "balance": "35769",
+      "frozen": "100",
+      "total": "35869"
+    },
+    "buy2_1": {
+      "balance": "38889",
+      "frozen": "0",
+      "total": "38889"
+    },
+    "buy1_16": {
+      "balance": "1",
+      "frozen": "0",
+      "total": "1"
+    },
+    "buy2_16": {
+      "balance": "1",
+      "frozen": "0",
+      "total": "1"
+    },
+    "minus1_1": {
+      "balance": "11269",
+      "frozen": "0",
+      "total": "11269"
+    }
+  },
+  "all_my_orders": [
+    {
+      "order_id": "1",
+      "owner_uid": "11",
+      "side": "buy",
+      "base_cid": "4",
+      "price": "1000",
+      "amount": "5",
+      "amount_filled": "4",
+      "status": "cancelled",
+      "create_key": "cli:p4b3e30024237:buy1"
+    },
+    {
+      "order_id": "10",
+      "owner_uid": "12",
+      "side": "buy",
+      "base_cid": "4",
+      "price": "1000",
+      "amount": "1",
+      "amount_filled": "1",
+      "status": "filled",
+      "create_key": "cli:p4b3e30024237:lockBuy4"
+    },
+    {
+      "order_id": "11",
+      "owner_uid": "970001",
+      "side": "sell",
+      "base_cid": "16",
+      "price": "100",
+      "amount": "1",
+      "amount_filled": "1",
+      "status": "filled",
+      "create_key": "cli:p4b3e30024237:lockSell16"
+    },
+    {
+      "order_id": "12",
+      "owner_uid": "11",
+      "side": "buy",
+      "base_cid": "16",
+      "price": "100",
+      "amount": "1",
+      "amount_filled": "1",
+      "status": "filled",
+      "create_key": "cli:p4b3e30024237:lockBuy16"
+    },
+    {
+      "order_id": "2",
+      "owner_uid": "970001",
+      "side": "sell",
+      "base_cid": "4",
+      "price": "1000",
+      "amount": "4",
+      "amount_filled": "4",
+      "status": "filled",
+      "create_key": "cli:p4b3e30024237:sell1"
+    },
+    {
+      "order_id": "3",
+      "owner_uid": "970001",
+      "side": "buy",
+      "base_cid": "4",
+      "price": "1000",
+      "amount": "1",
+      "amount_filled": "0",
+      "status": "cancelled",
+      "create_key": "cli:p4b3e30024237:selfbuy"
+    },
+    {
+      "order_id": "4",
+      "owner_uid": "970001",
+      "side": "sell",
+      "base_cid": "4",
+      "price": "1000",
+      "amount": "1",
+      "amount_filled": "0",
+      "status": "cancelled",
+      "create_key": "cli:p4b3e30024237:selfsell"
+    },
+    {
+      "order_id": "6",
+      "owner_uid": "970001",
+      "side": "sell",
+      "base_cid": "16",
+      "price": "100",
+      "amount": "1",
+      "amount_filled": "1",
+      "status": "filled",
+      "create_key": "cli:p4b3e30024237:c16sell"
+    },
+    {
+      "order_id": "7",
+      "owner_uid": "12",
+      "side": "buy",
+      "base_cid": "16",
+      "price": "100",
+      "amount": "1",
+      "amount_filled": "1",
+      "status": "filled",
+      "create_key": "cli:p4b3e30024237:c16buyA"
+    },
+    {
+      "order_id": "8",
+      "owner_uid": "11",
+      "side": "buy",
+      "base_cid": "16",
+      "price": "100",
+      "amount": "1",
+      "amount_filled": "0",
+      "status": "open",
+      "create_key": "cli:p4b3e30024237:c16buyB"
+    },
+    {
+      "order_id": "9",
+      "owner_uid": "970001",
+      "side": "sell",
+      "base_cid": "4",
+      "price": "1000",
+      "amount": "1",
+      "amount_filled": "1",
+      "status": "filled",
+      "create_key": "cli:p4b3e30024237:lockSell4"
+    }
+  ],
+  "all_market_trades": [
+    {
+      "trade_id": "1",
+      "base_cid": "4",
+      "price": "1000",
+      "amount": "3",
+      "buy_order_id": "1",
+      "sell_order_id": "2",
+      "taker_uid": "11",
+      "fee": "30"
+    },
+    {
+      "trade_id": "2",
+      "base_cid": "4",
+      "price": "1000",
+      "amount": "1",
+      "buy_order_id": "1",
+      "sell_order_id": "2",
+      "taker_uid": "970001",
+      "fee": "10"
+    },
+    {
+      "trade_id": "3",
+      "base_cid": "16",
+      "price": "100",
+      "amount": "1",
+      "buy_order_id": "7",
+      "sell_order_id": "6",
+      "taker_uid": "12",
+      "fee": "1"
+    },
+    {
+      "trade_id": "4",
+      "base_cid": "4",
+      "price": "1000",
+      "amount": "1",
+      "buy_order_id": "10",
+      "sell_order_id": "9",
+      "taker_uid": "12",
+      "fee": "10"
+    },
+    {
+      "trade_id": "5",
+      "base_cid": "16",
+      "price": "100",
+      "amount": "1",
+      "buy_order_id": "12",
+      "sell_order_id": "11",
+      "taker_uid": "11",
+      "fee": "1"
+    }
+  ],
+  "trade_fee_legs": [
+    {
+      "txid": "108",
+      "uid": "11",
+      "cid": "1",
+      "delta": "-30",
+      "kind": "trade_fee",
+      "ref_type": "market_trade",
+      "ref_id": "1",
+      "idempotency_key": "biz:market:trade:1:1#5"
+    },
+    {
+      "txid": "109",
+      "uid": "-1",
+      "cid": "1",
+      "delta": "30",
+      "kind": "trade_fee",
+      "ref_type": "market_trade",
+      "ref_id": "1",
+      "idempotency_key": "biz:market:trade:1:1#6"
+    },
+    {
+      "txid": "114",
+      "uid": "970001",
+      "cid": "1",
+      "delta": "-10",
+      "kind": "trade_fee",
+      "ref_type": "market_trade",
+      "ref_id": "2",
+      "idempotency_key": "biz:market:trade:2:1#5"
+    },
+    {
+      "txid": "115",
+      "uid": "-1",
+      "cid": "1",
+      "delta": "10",
+      "kind": "trade_fee",
+      "ref_type": "market_trade",
+      "ref_id": "2",
+      "idempotency_key": "biz:market:trade:2:1#6"
+    },
+    {
+      "txid": "136",
+      "uid": "12",
+      "cid": "1",
+      "delta": "-1",
+      "kind": "trade_fee",
+      "ref_type": "market_trade",
+      "ref_id": "3",
+      "idempotency_key": "biz:market:trade:7:1#5"
+    },
+    {
+      "txid": "137",
+      "uid": "-1",
+      "cid": "1",
+      "delta": "1",
+      "kind": "trade_fee",
+      "ref_type": "market_trade",
+      "ref_id": "3",
+      "idempotency_key": "biz:market:trade:7:1#6"
+    },
+    {
+      "txid": "150",
+      "uid": "12",
+      "cid": "1",
+      "delta": "-10",
+      "kind": "trade_fee",
+      "ref_type": "market_trade",
+      "ref_id": "4",
+      "idempotency_key": "biz:market:trade:10:1#5"
+    },
+    {
+      "txid": "151",
+      "uid": "-1",
+      "cid": "1",
+      "delta": "10",
+      "kind": "trade_fee",
+      "ref_type": "market_trade",
+      "ref_id": "4",
+      "idempotency_key": "biz:market:trade:10:1#6"
+    },
+    {
+      "txid": "156",
+      "uid": "11",
+      "cid": "1",
+      "delta": "-1",
+      "kind": "trade_fee",
+      "ref_type": "market_trade",
+      "ref_id": "5",
+      "idempotency_key": "biz:market:trade:12:1#5"
+    },
+    {
+      "txid": "157",
+      "uid": "-1",
+      "cid": "1",
+      "delta": "1",
+      "kind": "trade_fee",
+      "ref_type": "market_trade",
+      "ref_id": "5",
+      "idempotency_key": "biz:market:trade:12:1#6"
+    }
+  ],
+  "double_three_checks": {
+    "n": 0
+  }
+}
