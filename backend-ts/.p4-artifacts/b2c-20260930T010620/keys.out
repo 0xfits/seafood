@@ -1,0 +1,153 @@
+{
+  "generated_at": "2026-09-29T17:15:36.485Z",
+  "caliber": "STATIC source-text caliber (function body sha + return-object key names); NOT a runtime fixture caliber",
+  "versions": {
+    "HEAD": "/Users/kevin/bistro/seafood/backend-ts/.p4-artifacts/b2c-20260930T010620/database.HEAD.ts",
+    "before": "/Users/kevin/bistro/seafood/backend-ts/.p4-artifacts/b2c-20260930T010620/orig/src_database.ts.orig",
+    "after": "/Users/kevin/bistro/seafood/backend-ts/src/database.ts"
+  },
+  "targets": [
+    {
+      "target": "normalizeUser (→ /api/user, /api/user/all, /api/admin/user/update, admin/me)",
+      "per_version": {
+        "HEAD": {
+          "found": true,
+          "sha": "c0bf4a0d0cbb7c80",
+          "keys": null
+        },
+        "before": {
+          "found": true,
+          "sha": "c0bf4a0d0cbb7c80",
+          "keys": null
+        },
+        "after": {
+          "found": true,
+          "sha": "c0bf4a0d0cbb7c80",
+          "keys": null
+        }
+      },
+      "key_set_equal": true
+    },
+    {
+      "target": "normalizeSystemSettings (→ GET/POST /api/admin/settings)",
+      "per_version": {
+        "HEAD": {
+          "found": true,
+          "sha": "d9db807c3272e673",
+          "keys": null
+        },
+        "before": {
+          "found": true,
+          "sha": "d9db807c3272e673",
+          "keys": null
+        },
+        "after": {
+          "found": true,
+          "sha": "d9db807c3272e673",
+          "keys": null
+        }
+      },
+      "key_set_equal": true
+    },
+    {
+      "target": "normalizePermissionGroup (→ GET /api/admin/permissions)",
+      "per_version": {
+        "HEAD": {
+          "found": true,
+          "sha": "7595a910a5b04266",
+          "keys": null
+        },
+        "before": {
+          "found": true,
+          "sha": "7595a910a5b04266",
+          "keys": null
+        },
+        "after": {
+          "found": true,
+          "sha": "7595a910a5b04266",
+          "keys": null
+        }
+      },
+      "key_set_equal": true
+    },
+    {
+      "target": "getUserStats (→ GET /api/user/stats)",
+      "per_version": {
+        "HEAD": {
+          "found": true,
+          "sha": "803881ac3faa1657",
+          "keys": [
+            "user_count",
+            "admin_count",
+            "asset_count",
+            "total_points",
+            "avg_points"
+          ]
+        },
+        "before": {
+          "found": true,
+          "sha": "803881ac3faa1657",
+          "keys": [
+            "user_count",
+            "admin_count",
+            "asset_count",
+            "total_points",
+            "avg_points"
+          ]
+        },
+        "after": {
+          "found": true,
+          "sha": "803881ac3faa1657",
+          "keys": [
+            "user_count",
+            "admin_count",
+            "asset_count",
+            "total_points",
+            "avg_points"
+          ]
+        }
+      },
+      "key_set_equal": true
+    },
+    {
+      "target": "buildAdminAccess (→ GET /api/admin/me)",
+      "per_version": {
+        "HEAD": {
+          "found": true,
+          "sha": "588d23cf62f234cc",
+          "keys": [
+            "uID",
+            "EVM",
+            "is_admin",
+            "can_access_admin",
+            "preferred_admin_path"
+          ]
+        },
+        "before": {
+          "found": true,
+          "sha": "588d23cf62f234cc",
+          "keys": [
+            "uID",
+            "EVM",
+            "is_admin",
+            "can_access_admin",
+            "preferred_admin_path"
+          ]
+        },
+        "after": {
+          "found": true,
+          "sha": "3877c00da3931469",
+          "keys": [
+            "uID",
+            "EVM",
+            "is_admin",
+            "can_access_admin",
+            "preferred_admin_path"
+          ]
+        }
+      },
+      "key_set_equal": true
+    }
+  ],
+  "all_key_sets_equal": true
+}

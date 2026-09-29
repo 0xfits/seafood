@@ -1817,135 +1817,74 @@ export class DatabaseService {
     return this.getBrandById(bID);
   }
 
-  // P4-B2c（§1 #35 / DL72 / 0017 §B）：数据源换接 `admin_role*` 三表（旧 `permission_group` 已废弃 ⇒ 零引用）。
-  // 三表当前 0 行 = **预期空态**（种子留批 6 走迁移；本片**禁插任何 admin 种子**）。
   static async listPersistedPermissionGroups(): Promise<PermissionGroupRecord[]> {
-    const sql = getSql();
-    const rows = extractRows(await sql`
-      SELECT
-        r.role_key AS id,
-        COALESCE(r.name, '') AS name,
-        ''::text AS description,
-        COALESCE((
-          SELECT jsonb_agg(rp.permission_key ORDER BY rp.permission_key)
-          FROM public.admin_role_permission AS rp
-          WHERE rp.role_key = r.role_key
-        ), '[]'::jsonb) AS permissions,
-        COALESCE((
-          SELECT jsonb_agg(ur.uid ORDER BY ur.uid)
-          FROM public.admin_user_role AS ur
-          WHERE ur.role_key = r.role_key
-        ), '[]'::jsonb) AS user_ids,
-        false AS readonly,
-        r.time_created,
-        r.time_created AS time_updated
-      FROM public.admin_role AS r
-      ORDER BY r.role_key
-    `);
-    return rows.map(normalizePermissionGroup);
+    // P4-B1-c: permission_group 表新 schema 无对应 ⇒ 恒空数组（只读空态，零写库）。
+    // getPermissionsForUser/listPermissionGroups 消费方按空组处理（⇒ 无额外权限）；admin_role*/
+    // admin_role_permission/admin_user_role 的真实权限映射重写属批 2。/api/admin/permissions 响应体带 deprecated: true。
+    return [];
   }
 
-  // P4-B2c（§6.1 / DL72）：can_access_admin 的「角色行」一支 ⇒ 权限位 = admin_user_role ⋈ admin_role_permission。
   static async getPermissionsForUser(uID: number): Promise<string[]> {
-    const sql = getSql();
-    const rows = extractRows(await sql`
-      SELECT DISTINCT rp.permission_key
-      FROM public.admin_user_role AS ur
-      JOIN public.admin_role_permission AS rp ON rp.role_key = ur.role_key
-      WHERE ur.uid = ${uID}
-      ORDER BY rp.permission_key
-    `);
-    return uniqueStrings(rows.map((row) => toStringValue(getValue(row, 'permission_key'))));
-  }
-
-  // P4-B2c（§6.1 第二支）：EXISTS(admin_user_role.uid = :uid) —— 与「有无权限位」解耦
-  //（角色行存在但该角色 0 权限位时，can_access_admin 仍应为 true）。
-  static async hasAdminRoleRow(uID: number): Promise<boolean> {
-    const sql = getSql();
-    const row = firstRow(await sql`
-      SELECT 1 AS present
-      FROM public.admin_user_role AS ur
-      WHERE ur.uid = ${uID}
-      LIMIT 1
-    `);
-    return Boolean(row);
-  }
-
-  // P4-B2c（§6.3 / DL72）：角色是否存在（admin_role PK）。
-  static async roleExists(roleKey: string): Promise<boolean> {
-    const sql = getSql();
-    const row = firstRow(await sql`
-      SELECT 1 AS present
-      FROM public.admin_role AS r
-      WHERE r.role_key = ${roleKey}
-      LIMIT 1
-    `);
-    return Boolean(row);
-  }
-
-  // P4-B2c（§1.3-5 / DL72）：admin_role_permission.permission_key 有 FK ⇒ 落行前先判，
-  // 使 miss 走 404 LEDGER_REF_NOT_FOUND 而**不是**裸 23503（§3.3-4）。
-  static async findMissingPermissions(permissionKeys: string[]): Promise<string[]> {
-    if (permissionKeys.length === 0) {
-      return [];
-    }
-    const sql = getSql();
-    const rows = extractRows(await sql`
-      SELECT x AS permission_key
-      FROM unnest(${permissionKeys}::text[]) AS x
-      WHERE NOT EXISTS (
-        SELECT 1 FROM public.admin_permission AS p WHERE p.permission_key = x
-      )
-      ORDER BY x
-    `);
-    return rows.map((row) => toStringValue(getValue(row, 'permission_key')));
-  }
-
-  // P4-B2c（§1 #38 / DL72）：用户 → 角色的读侧（**不**经 mapper 出对外键，键集冻结）。
-  static async listUserRoles(uID: number): Promise<string[]> {
-    const sql = getSql();
-    const rows = extractRows(await sql`
-      SELECT ur.role_key
-      FROM public.admin_user_role AS ur
-      WHERE ur.uid = ${uID}
-      ORDER BY ur.role_key
-    `);
-    return uniqueStrings(rows.map((row) => toStringValue(getValue(row, 'role_key'))));
-  }
-
-  // P4-B2c（§1 #38）：整体替换该用户的角色分配（单事务；admin_user_role 的 PK 对 DELETE 允许，§6.3）。
-  static async replaceUserRoles(uID: number, roleKeys: string[]): Promise<string[]> {
-    const sql = getSql();
-    await sql.transaction([
-      sql`DELETE FROM public.admin_user_role WHERE uid = ${uID}`,
-      sql`
-        INSERT INTO public.admin_user_role (uid, role_key)
-        SELECT ${uID}, x FROM unnest(${roleKeys}::text[]) AS x
-      `,
-    ]);
-    return this.listUserRoles(uID);
+    const groups = await this.listPersistedPermissionGroups();
+    const permissions = groups.flatMap((group) => (
+      group.user_ids.includes(uID) ? group.permissions : []
+    ));
+    return uniqueStrings(permissions);
   }
 
   static async resolveAdminAccess(user: UserRecord, isAdminAddress: boolean): Promise<AdminAccessRecord> {
-    // P4-B2c（§6.1 / DL72 单一真源）：can_access_admin = users.is_admin OR EXISTS(admin_user_role.uid = :uid)。
-    // 非 admin 时并行取「角色行存在」与「权限位集合」（后者不是前者的子集 ⇒ 两者都要）。
-    const bypass = user.is_admin || isAdminAddress;
-    const [hasRoleRow, extraPermissions] = bypass
-      ? [false, [] as string[]]
-      : await Promise.all([this.hasAdminRoleRow(user.uID), this.getPermissionsForUser(user.uID)]);
+    const extraPermissions = user.is_admin || isAdminAddress
+      ? []
+      : await this.getPermissionsForUser(user.uID);
 
-    return this.buildAdminAccess(user, isAdminAddress, extraPermissions, hasRoleRow);
+    return this.buildAdminAccess(user, isAdminAddress, extraPermissions);
   }
 
-  // P4-B2c（§1 #35 / §5.1「撤销 deprecated」）：唯一数据源 = **admin_role* 三表**（DL72）。
-  // 撤销 B1-c 的 3 个内置合成组（admin_access / task_publishers / prize_publishers）——
-  // 它们是旧 permission_group 语义的替身；新口径下「角色」的唯一定义在 admin_role。
   static async listPermissionGroups(): Promise<PermissionGroupRecord[]> {
-    return this.listPersistedPermissionGroups();
+    const [groups, users] = await Promise.all([
+      this.listPersistedPermissionGroups(),
+      this.getAllUsers(0, 10000),
+    ]);
+
+    const adminUserIds = users
+      .filter((user) => user.is_admin)
+      .map((user) => user.uID);
+
+    return [
+      {
+        id: 'admin_access',
+        name: '管理员访问',
+        description: '系统内置只读权限组，映射完整后台访问权限。',
+        permissions: [...ALL_ADMIN_PERMISSIONS],
+        user_ids: uniqueNumbers(adminUserIds),
+        readonly: true,
+        time_created: 0,
+        time_updated: 0,
+      },
+      {
+        id: 'task_publishers',
+        name: '任务发布组',
+        description: '系统内置权限组，可进入后台并发布任务。',
+        permissions: ['dashboard_access', 'publish_tasks'],
+        user_ids: groups.find((group) => group.id === 'task_publishers')?.user_ids || [],
+        readonly: false,
+        time_created: 0,
+        time_updated: 0,
+      },
+      {
+        id: 'prize_publishers',
+        name: '奖品发布组',
+        description: '系统内置权限组，可进入后台并发布奖品。',
+        permissions: ['dashboard_access', 'publish_prizes'],
+        user_ids: groups.find((group) => group.id === 'prize_publishers')?.user_ids || [],
+        readonly: false,
+        time_created: 0,
+        time_updated: 0,
+      },
+      ...groups.filter((group) => !['admin_access', 'task_publishers', 'prize_publishers'].includes(group.id)),
+    ];
   }
 
-  // P4-B2c（§1 #36 / §4.1 #39 / DL72）：换接 admin_role* 三表（单事务、原子重建）。
-  // 旧 permission_group 表已废弃（B7：已 DROP）⇒ 本函数零引用旧表。
   static async savePermissionGroup(input: {
     id?: string;
     name?: string;
@@ -1953,7 +1892,11 @@ export class DatabaseService {
     permissions?: string[];
     user_ids?: number[];
   }): Promise<PermissionGroupRecord> {
+
     const id = String(input.id || '').trim() || slugify(input.name || '') || `group-${Date.now()}`;
+    if (id === 'admin_access') {
+      throw new Error('System permission group is read-only');
+    }
 
     const name = String(input.name || '').trim();
     if (!name) {
@@ -1961,7 +1904,9 @@ export class DatabaseService {
     }
 
     const permissions = uniqueStrings(
-      (input.permissions || []).map((value) => String(value ?? '').trim()).filter(Boolean),
+      (input.permissions || []).filter((permission) =>
+        ALL_ADMIN_PERMISSIONS.includes(permission as typeof ALL_ADMIN_PERMISSIONS[number]),
+      ),
     );
     if (permissions.length === 0) {
       throw new Error('At least one valid permission is required');
@@ -1975,47 +1920,34 @@ export class DatabaseService {
     );
 
     const sql = getSql();
-    // 单事务（顺序执行，避免同语句 CTE 互不可见导致 FK/唯一键误判）：
-    // upsert 角色 → 清子行 → 重建「角色→权限」/「用户→角色」。
-    await sql.transaction([
-      sql`
-        INSERT INTO public.admin_role AS r (role_key, name, time_created)
-        VALUES (${id}, ${name}, NOW())
-        ON CONFLICT (role_key) DO UPDATE SET name = EXCLUDED.name
-      `,
-      sql`DELETE FROM public.admin_role_permission WHERE role_key = ${id}`,
-      sql`DELETE FROM public.admin_user_role WHERE role_key = ${id}`,
-      sql`
-        INSERT INTO public.admin_role_permission (role_key, permission_key)
-        SELECT ${id}, x FROM unnest(${permissions}::text[]) AS x
-      `,
-      sql`
-        INSERT INTO public.admin_user_role (uid, role_key)
-        SELECT x, ${id} FROM unnest(${userIDs}::bigint[]) AS x
-      `,
-    ]);
-
     const row = firstRow(await sql`
-      SELECT
-        r.role_key AS id,
-        COALESCE(r.name, '') AS name,
-        ''::text AS description,
-        COALESCE((
-          SELECT jsonb_agg(rp.permission_key ORDER BY rp.permission_key)
-          FROM public.admin_role_permission AS rp
-          WHERE rp.role_key = r.role_key
-        ), '[]'::jsonb) AS permissions,
-        COALESCE((
-          SELECT jsonb_agg(ur.uid ORDER BY ur.uid)
-          FROM public.admin_user_role AS ur
-          WHERE ur.role_key = r.role_key
-        ), '[]'::jsonb) AS user_ids,
-        false AS readonly,
-        r.time_created,
-        r.time_created AS time_updated
-      FROM public.admin_role AS r
-      WHERE r.role_key = ${id}
-      LIMIT 1
+      INSERT INTO permission_group AS pg (
+        id,
+        name,
+        description,
+        permissions,
+        user_ids,
+        readonly,
+        time_created,
+        time_updated
+      )
+      VALUES (
+        ${id},
+        ${name},
+        ${String(input.description || '').trim()},
+        ${JSON.stringify(permissions)}::jsonb,
+        ${JSON.stringify(userIDs)}::jsonb,
+        false,
+        NOW(),
+        NOW()
+      )
+      ON CONFLICT (id) DO UPDATE SET
+        name = EXCLUDED.name,
+        description = EXCLUDED.description,
+        permissions = EXCLUDED.permissions,
+        user_ids = EXCLUDED.user_ids,
+        time_updated = NOW()
+      RETURNING to_jsonb(pg) AS row
     `);
 
     if (!row) {
@@ -2025,35 +1957,40 @@ export class DatabaseService {
     return normalizePermissionGroup(row);
   }
 
-  // P4-B2c（§1 #37 / §4.1 #40 / DL72）：删 admin_role（先清子行）；**该角色下无在用用户才可删**。
-  static async deletePermissionGroup(id: string): Promise<"deleted" | "in_use" | "not_found"> {
+  static async deletePermissionGroup(id: string): Promise<boolean> {
+
+    if (id === 'admin_access') {
+      throw new Error('System permission group is read-only');
+    }
+
     const sql = getSql();
     const existing = firstRow(await sql`
-      SELECT r.role_key AS id FROM public.admin_role AS r WHERE r.role_key = ${id} LIMIT 1
+      SELECT to_jsonb(pg) AS row
+      FROM permission_group AS pg
+      WHERE pg.id = ${id}
+      LIMIT 1
     `);
+
     if (!existing) {
-      return 'not_found';
+      return false;
     }
-    const inUse = firstRow(await sql`
-      SELECT ur.uid AS uid FROM public.admin_user_role AS ur WHERE ur.role_key = ${id} LIMIT 1
-    `);
-    if (inUse) {
-      return 'in_use';
+
+    if (toBooleanValue(getValue(existing, 'readonly'))) {
+      throw new Error('Readonly permission group cannot be deleted');
     }
-    await sql.transaction([
-      sql`DELETE FROM public.admin_role_permission WHERE role_key = ${id}`,
-      sql`DELETE FROM public.admin_user_role WHERE role_key = ${id}`,
-      sql`DELETE FROM public.admin_role WHERE role_key = ${id}`,
-    ]);
-    return 'deleted';
+
+    await sql`
+      DELETE FROM permission_group
+      WHERE id = ${id}
+    `;
+    return true;
   }
 
-  // P4-B2c（§1 #32 / DL71 / DL151）：显式 public. 限定；`app_config` 是**单列 key/value**（**无 privacy 列**）。
   static async getSystemSettings(): Promise<SystemSettingsRecord> {
     const sql = getSql();
     const rows = asItems<{ value: unknown }>(await sql`
       SELECT value
-      FROM public.app_config
+      FROM app_config
       WHERE key = 'system_settings'
       LIMIT 1
     `);
@@ -2061,8 +1998,7 @@ export class DatabaseService {
     return normalizeSystemSettings(rows[0]?.value || DEFAULT_SYSTEM_SETTINGS);
   }
 
-  // P4-B2c（§1 #33 / DL36 / DL71）：补 `updated_by`（**NOT NULL 无默认** ⇒ 旧实现必违约）+ 显式 public.。
-  static async saveSystemSettings(input: Partial<SystemSettingsRecord>, updatedBy = 0): Promise<SystemSettingsRecord> {
+  static async saveSystemSettings(input: Partial<SystemSettingsRecord>): Promise<SystemSettingsRecord> {
     const current = await this.getSystemSettings();
     const next = normalizeSystemSettings({
       ...current,
@@ -2071,11 +2007,10 @@ export class DatabaseService {
     const sql = getSql();
 
     const rows = asItems<{ value: unknown }>(await sql`
-      INSERT INTO public.app_config (key, value, updated_by, time_updated)
-      VALUES ('system_settings', ${JSON.stringify(next)}::jsonb, ${Number(updatedBy) || 0}::bigint, NOW())
+      INSERT INTO app_config (key, value, time_updated)
+      VALUES ('system_settings', ${JSON.stringify(next)}::jsonb, NOW())
       ON CONFLICT (key) DO UPDATE SET
         value = EXCLUDED.value,
-        updated_by = EXCLUDED.updated_by,
         time_updated = NOW()
       RETURNING value
     `);
@@ -2083,7 +2018,6 @@ export class DatabaseService {
     return normalizeSystemSettings(rows[0]?.value || next);
   }
 
-  // P4-B2c：**不再有路由**（§1 #34 ⇒ 410；C3 ② 删除）。保留方法体仅作回退点（DL42 可切换点）。
   static async resetSystemSettings(): Promise<SystemSettingsRecord> {
     return this.saveSystemSettings({ ...DEFAULT_SYSTEM_SETTINGS });
   }
@@ -3050,14 +2984,12 @@ export class DatabaseService {
     user: UserRecord,
     isAdminAddress: boolean,
     extraPermissions: string[] = [],
-    hasRoleRow = false,
   ): AdminAccessRecord {
     const isAdmin = user.is_admin || isAdminAddress;
     const permissions = isAdmin
       ? [...ALL_ADMIN_PERMISSIONS]
       : uniqueStrings(extraPermissions);
-    // P4-B2c（§6.1）：can_access_admin = is_admin OR EXISTS(admin_user_role.uid) OR 有权限位。
-    const canAccessAdmin = isAdmin || hasRoleRow || permissions.length > 0;
+    const canAccessAdmin = isAdmin || permissions.length > 0;
 
     let preferredAdminPath = '/';
     if (canAccessAdmin) {

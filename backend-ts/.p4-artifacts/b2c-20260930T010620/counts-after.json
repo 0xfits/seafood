@@ -1,0 +1,112 @@
+{
+  "generated_at": "2026-09-29T17:15:03.000Z",
+  "counts": {
+    "job": {
+      "rows": 3,
+      "present": true
+    },
+    "users": {
+      "rows": 6,
+      "present": true
+    },
+    "account": {
+      "rows": 4,
+      "present": true
+    },
+    "listing": {
+      "rows": 12,
+      "present": true
+    },
+    "currency": {
+      "rows": 1,
+      "present": true
+    },
+    "admin_role": {
+      "rows": 0,
+      "present": true
+    },
+    "app_config": {
+      "rows": 1,
+      "present": true
+    },
+    "ledger_entry": {
+      "rows": 0,
+      "present": true
+    },
+    "market_order": {
+      "rows": 0,
+      "present": true
+    },
+    "market_trade": {
+      "rows": 0,
+      "present": true
+    },
+    "listing_order": {
+      "rows": 0,
+      "present": true
+    },
+    "job_submission": {
+      "rows": 2,
+      "present": true
+    },
+    "admin_user_role": {
+      "rows": 0,
+      "present": true
+    },
+    "job_application": {
+      "rows": 3,
+      "present": true
+    },
+    "admin_permission": {
+      "rows": 0,
+      "present": true
+    },
+    "commission_policy": {
+      "rows": 1,
+      "present": true
+    },
+    "admin_role_permission": {
+      "rows": 0,
+      "present": true
+    }
+  },
+  "account_dump": {
+    "h": "ef5cf7f347cb25e5fdd852c83e0eb452",
+    "n": 4
+  },
+  "currency_dump": {
+    "h": "77cde9630828a468a6bcc7a89843fe7d",
+    "n": 1
+  },
+  "ledger": {
+    "n": 0,
+    "total": "0"
+  },
+  "namespace": {
+    "users_ns": 4,
+    "app_config_ns": 0,
+    "app_config_total": 1,
+    "admin_role_total": 0,
+    "admin_user_role_total": 0,
+    "admin_role_permission_total": 0,
+    "admin_permission_total": 0,
+    "app_config_rows": [
+      {
+        "key": "system_settings",
+        "value": {
+          "siteName": "p4b2c:siteA",
+          "maintenance": false,
+          "maxDailyTasks": 10,
+          "pointsPerTask": 100,
+          "rewardCooldown": 24,
+          "defaultLanguage": "zh",
+          "siteDescription": "去中心化社区奖励平台",
+          "allowRegistration": true,
+          "emailNotifications": true
+        },
+        "updated_by": 970201,
+        "time_updated": "2026-09-29T17:14:33.434419+00:00"
+      }
+    ]
+  }
+}

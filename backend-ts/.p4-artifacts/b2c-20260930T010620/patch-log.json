@@ -1,0 +1,122 @@
+{
+  "run": "b2c-20260930T010620",
+  "at": "2026-09-29T17:11:23.595Z",
+  "files": {
+    "src/database.ts": {
+      "edits": 6,
+      "hits": [
+        {
+          "name": "DB1 listPersistedPermissionGroups+getPermissionsForUser → admin_role*（+4 读辅助方法）",
+          "removed_chars": 650,
+          "added_chars": 3849
+        },
+        {
+          "name": "DB2 resolveAdminAccess（单一真源）+ listPermissionGroups（换数据源、撤合成组）",
+          "removed_chars": 1725,
+          "added_chars": 930
+        },
+        {
+          "name": "DB3 savePermissionGroup → admin_role* 单事务",
+          "removed_chars": 1955,
+          "added_chars": 2677
+        },
+        {
+          "name": "DB4 deletePermissionGroup → admin_role*（无在用用户才可删）",
+          "removed_chars": 639,
+          "added_chars": 849
+        },
+        {
+          "name": "DB5 getSystemSettings/saveSystemSettings（public. + updated_by）/ reset 保留",
+          "removed_chars": 1131,
+          "added_chars": 1503
+        },
+        {
+          "name": "DB6 buildAdminAccess 增 hasRoleRow（§6.1 第二支；返回键集不变）",
+          "removed_chars": 362,
+          "added_chars": 488
+        }
+      ],
+      "bytes_before": 99433,
+      "bytes_after": 103267,
+      "routes": 0,
+      "jwt_like_tokens": 0
+    },
+    "src/index.ts": {
+      "edits": 12,
+      "hits": [
+        {
+          "name": "IX1 import：ledgerErrorBody + admin-service",
+          "removed_chars": 181,
+          "added_chars": 363
+        },
+        {
+          "name": "IX2 requireActor 401 → AUTH_UNAUTHORIZED（R107 形状）",
+          "removed_chars": 200,
+          "added_chars": 918
+        },
+        {
+          "name": "IX3 requireAdmin 403 → AUTH_FORBIDDEN + reason（NOT_ADMIN / PERMISSION_NOT_GRANTED）",
+          "removed_chars": 459,
+          "added_chars": 595
+        },
+        {
+          "name": "IX4 GET /api/admin/settings：message 标注「费率不在本表」",
+          "removed_chars": 95,
+          "added_chars": 283
+        },
+        {
+          "name": "IX5 POST /api/admin/settings：ops: 键 + 禁费率键 + updated_by",
+          "removed_chars": 472,
+          "added_chars": 1263
+        },
+        {
+          "name": "IX6 POST /api/admin/settings/reset → 410（C3 ②）",
+          "removed_chars": 428,
+          "added_chars": 347
+        },
+        {
+          "name": "IX7 GET /api/admin/permissions：撤销 deprecated（§5.1/§5.3）",
+          "removed_chars": 73,
+          "added_chars": 123
+        },
+        {
+          "name": "IX8 POST /api/admin/permissions/save → verb（ops: 键 + 自锁守卫）",
+          "removed_chars": 806,
+          "added_chars": 1041
+        },
+        {
+          "name": "IX9 POST /api/admin/permissions/delete → verb（ops: 键 + 无在用用户才可删）",
+          "removed_chars": 705,
+          "added_chars": 810
+        },
+        {
+          "name": "IX10 POST /api/admin/user/update → verb（DL104 白名单 + ops: 键）",
+          "removed_chars": 647,
+          "added_chars": 768
+        },
+        {
+          "name": "IX11 GET /api/user/stats：message 标注「账本派生」",
+          "removed_chars": 84,
+          "added_chars": 195
+        },
+        {
+          "name": "IX12 GET /api/user/all：只读运维视图注记（分页 + 非敏感列 + 禁 token）",
+          "removed_chars": 114,
+          "added_chars": 286
+        }
+      ],
+      "bytes_before": 31986,
+      "bytes_after": 34714,
+      "routes": 51,
+      "jwt_like_tokens": 0
+    }
+  },
+  "assertions": {
+    "route_count_index": 51,
+    "permission_group_refs_in_src": 3,
+    "jwt_like_tokens_in_src": 0,
+    "deprecated_true_calls": 3,
+    "app_config_public": 2,
+    "admin_role_public_refs": 12
+  }
+}

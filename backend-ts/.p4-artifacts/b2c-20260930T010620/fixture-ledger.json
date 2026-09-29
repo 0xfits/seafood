@@ -1,0 +1,18 @@
+{
+  "run": "b2c-20260930T010620",
+  "at": "2026-09-29T17:13:22.512Z",
+  "fixture": {
+    "970201": {
+      "is_admin": true,
+      "evm": "0x0000000000000000000000000000000000970201",
+      "bio": "p4b2c:fixture uid=970201"
+    },
+    "970202": {
+      "is_admin": false,
+      "evm": "0x0000000000000000000000000000000000970202",
+      "bio": "p4b2c:fixture uid=970202"
+    }
+  },
+  "namespace": "p4b2c",
+  "note": "只 INSERT；禁写 admin_permission/admin_role*"
+}

@@ -1,0 +1,838 @@
+{
+  "generated_at": "2026-09-29T17:14:59.397Z",
+  "host": "http://127.0.0.1:5788",
+  "token_fingerprints": {
+    "admin": "18461396283b",
+    "admin_len": 193,
+    "normal": "1a8ca71fad0d",
+    "bad": "7ba8494ec8f7"
+  },
+  "namespace": "p4b2c",
+  "passed": 39,
+  "total": 39,
+  "results": [
+    {
+      "id": "T01",
+      "endpoint": "GET /health",
+      "token": null,
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "ok",
+        "db_version",
+        "schema_version",
+        "time"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": null,
+      "error_reason": null,
+      "message": null,
+      "body_head": "{\"ok\":true,\"db_version\":\"PostgreSQL 18.6 (6569466) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit\",\"schema_version\":\"0017\",\"time\":\"2026-09-29T17:14:25.095Z\"}"
+    },
+    {
+      "id": "T02",
+      "endpoint": "GET /api/admin/me",
+      "token": "18461396283b",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "data_keys": [
+        "uID",
+        "EVM",
+        "is_admin",
+        "permissions",
+        "can_access_admin",
+        "preferred_admin_path"
+      ],
+      "data_head": "{\"uID\":970201,\"EVM\":\"0x0000000000000000000000000000000000970201\",\"is_admin\":true,\"permissions\":[\"dashboard_access\",\"manage_tasks\",\"publish_tasks\",\"manage_rewards\",\"publish_prizes\",\"read_users\",\"manage_users\",\"manage_points\",\"manage_permissions\",\"manage_settings\",\"review_tasks\"],\"can_access_admin\":tr",
+      "error_code": null,
+      "error_reason": null,
+      "message": "OK",
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"uID\":970201,\"EVM\":\"0x0000000000000000000000000000000000970201\",\"is_admin\":true,\"permissions\":[\"dashboard_access\",\"manage_tasks\",\"publish_tasks\",\"manage_rewards\",\"publish_prizes\",\"read_users\",\"manage_users\",\"manage_points\",\"manage_permissions\",\"manage_settings\",\"review_tasks\"],\"can_access_admin\":true,\"preferred_admin_path\":\"/dashboard/settings\"}}"
+    },
+    {
+      "id": "T03",
+      "endpoint": "GET /api/admin/me",
+      "token": "1a8ca71fad0d",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "data_keys": [
+        "uID",
+        "EVM",
+        "is_admin",
+        "permissions",
+        "can_access_admin",
+        "preferred_admin_path"
+      ],
+      "data_head": "{\"uID\":970202,\"EVM\":\"0x0000000000000000000000000000000000970202\",\"is_admin\":false,\"permissions\":[],\"can_access_admin\":false,\"preferred_admin_path\":\"/\"}",
+      "error_code": null,
+      "error_reason": null,
+      "message": "OK",
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"uID\":970202,\"EVM\":\"0x0000000000000000000000000000000000970202\",\"is_admin\":false,\"permissions\":[],\"can_access_admin\":false,\"preferred_admin_path\":\"/\"}}"
+    },
+    {
+      "id": "T04",
+      "endpoint": "GET /api/admin/settings",
+      "token": "18461396283b",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "data_keys": [
+        "siteName",
+        "siteDescription",
+        "maintenance",
+        "allowRegistration",
+        "emailNotifications",
+        "defaultLanguage",
+        "pointsPerTask",
+        "maxDailyTasks",
+        "rewardCooldown"
+      ],
+      "data_head": "{\"siteName\":\"p4b2c:siteA\",\"siteDescription\":\"去中心化社区奖励平台\",\"maintenance\":false,\"allowRegistration\":true,\"emailNotifications\":true,\"defaultLanguage\":\"zh\",\"pointsPerTask\":100,\"maxDailyTasks\":10,\"rewardCooldown\":24}",
+      "error_code": null,
+      "error_reason": null,
+      "message": "OK（费率不在 app_config；真源 = commission_policy.fee_rate_bp）",
+      "body_head": "{\"success\":true,\"message\":\"OK（费率不在 app_config；真源 = commission_policy.fee_rate_bp）\",\"data\":{\"siteName\":\"p4b2c:siteA\",\"siteDescription\":\"去中心化社区奖励平台\",\"maintenance\":false,\"allowRegistration\":true,\"emailNotifications\":true,\"defaultLanguage\":\"zh\",\"pointsPerTask\":100,\"maxDailyTasks\":10,\"rewardCooldown\":24}}"
+    },
+    {
+      "id": "T05",
+      "endpoint": "GET /api/admin/settings",
+      "token": "1a8ca71fad0d",
+      "expected": 403,
+      "actual": 403,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "AUTH_FORBIDDEN",
+      "error_reason": "NOT_ADMIN",
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"AUTH_FORBIDDEN\",\"message\":\"AUTH_FORBIDDEN\",\"i18n_key\":\"auth.err.AUTH_FORBIDDEN\",\"details\":{\"reason\":\"NOT_ADMIN\"}}}"
+    },
+    {
+      "id": "T06",
+      "endpoint": "GET /api/admin/settings",
+      "token": null,
+      "expected": 401,
+      "actual": 401,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "AUTH_UNAUTHORIZED",
+      "error_reason": null,
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"AUTH_UNAUTHORIZED\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}"
+    },
+    {
+      "id": "T07",
+      "endpoint": "GET /api/admin/settings",
+      "token": "7ba8494ec8f7",
+      "expected": 401,
+      "actual": 401,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "AUTH_UNAUTHORIZED",
+      "error_reason": null,
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"AUTH_UNAUTHORIZED\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}"
+    },
+    {
+      "id": "T08",
+      "endpoint": "POST /api/admin/settings",
+      "token": "18461396283b",
+      "expected": 400,
+      "actual": 400,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "error_reason": null,
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"LEDGER_IDEMPOTENCY_KEY_REQUIRED\",\"message\":\"Idempotency key is required for admin writes\",\"i18n_key\":\"ledger.err.LEDGER_IDEMPOTENCY_KEY_REQUIRED\",\"details\":{\"field\":\"create_key\",\"expected_prefix\":\"ops:\",\"canonical_key\":\"ops:970201:setting:system_settings\"}}}"
+    },
+    {
+      "id": "T09",
+      "endpoint": "POST /api/admin/settings",
+      "token": "18461396283b",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "data_keys": [
+        "siteName",
+        "siteDescription",
+        "maintenance",
+        "allowRegistration",
+        "emailNotifications",
+        "defaultLanguage",
+        "pointsPerTask",
+        "maxDailyTasks",
+        "rewardCooldown"
+      ],
+      "data_head": "{\"siteName\":\"p4b2c:siteA\",\"siteDescription\":\"去中心化社区奖励平台\",\"maintenance\":false,\"allowRegistration\":true,\"emailNotifications\":true,\"defaultLanguage\":\"zh\",\"pointsPerTask\":100,\"maxDailyTasks\":10,\"rewardCooldown\":24}",
+      "error_code": null,
+      "error_reason": null,
+      "message": "System settings saved",
+      "body_head": "{\"success\":true,\"message\":\"System settings saved\",\"data\":{\"siteName\":\"p4b2c:siteA\",\"siteDescription\":\"去中心化社区奖励平台\",\"maintenance\":false,\"allowRegistration\":true,\"emailNotifications\":true,\"defaultLanguage\":\"zh\",\"pointsPerTask\":100,\"maxDailyTasks\":10,\"rewardCooldown\":24}}"
+    },
+    {
+      "id": "T10",
+      "endpoint": "GET /api/admin/settings",
+      "token": "18461396283b",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "data_keys": [
+        "siteName",
+        "siteDescription",
+        "maintenance",
+        "allowRegistration",
+        "emailNotifications",
+        "defaultLanguage",
+        "pointsPerTask",
+        "maxDailyTasks",
+        "rewardCooldown"
+      ],
+      "data_head": "{\"siteName\":\"p4b2c:siteA\",\"siteDescription\":\"去中心化社区奖励平台\",\"maintenance\":false,\"allowRegistration\":true,\"emailNotifications\":true,\"defaultLanguage\":\"zh\",\"pointsPerTask\":100,\"maxDailyTasks\":10,\"rewardCooldown\":24}",
+      "error_code": null,
+      "error_reason": null,
+      "message": "OK（费率不在 app_config；真源 = commission_policy.fee_rate_bp）",
+      "body_head": "{\"success\":true,\"message\":\"OK（费率不在 app_config；真源 = commission_policy.fee_rate_bp）\",\"data\":{\"siteName\":\"p4b2c:siteA\",\"siteDescription\":\"去中心化社区奖励平台\",\"maintenance\":false,\"allowRegistration\":true,\"emailNotifications\":true,\"defaultLanguage\":\"zh\",\"pointsPerTask\":100,\"maxDailyTasks\":10,\"rewardCooldown\":24}}"
+    },
+    {
+      "id": "T11",
+      "endpoint": "POST /api/admin/settings",
+      "token": "18461396283b",
+      "expected": 400,
+      "actual": 400,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "LEDGER_AMOUNT_INVALID",
+      "error_reason": "FEE_RATE_KEY_NOT_IN_APP_CONFIG",
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"LEDGER_AMOUNT_INVALID\",\"message\":\"Fee-rate keys are not writable via /api/admin/settings\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"fee_rate_bp\",\"reason\":\"FEE_RATE_KEY_NOT_IN_APP_CONFIG\",\"authoritative_table\":\"commission_policy\",\"authoritative_column\":\"fee_rate_bp\"}}}"
+    },
+    {
+      "id": "T12",
+      "endpoint": "POST /api/admin/settings",
+      "token": "18461396283b",
+      "expected": 400,
+      "actual": 400,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "error_reason": "PREFIX_REQUIRED",
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"LEDGER_IDEMPOTENCY_KEY_INVALID\",\"message\":\"LEDGER_IDEMPOTENCY_KEY_INVALID\",\"i18n_key\":\"ledger.err.LEDGER_IDEMPOTENCY_KEY_INVALID\",\"details\":{\"field\":\"create_key\",\"reason\":\"PREFIX_REQUIRED\",\"allowed_prefixes\":[\"ops:\"]}}}"
+    },
+    {
+      "id": "T13",
+      "endpoint": "POST /api/admin/settings/reset",
+      "token": "18461396283b",
+      "expected": 410,
+      "actual": 410,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "LEDGER_REF_NOT_FOUND",
+      "error_reason": null,
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/settings/reset\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/settings/reset\",\"http_status\":410,\"sunset\":\"批 4 删路径（未决 §7-1：过期日待 Kevin 定）\"}}}"
+    },
+    {
+      "id": "T14",
+      "endpoint": "POST /api/admin/settings/reset",
+      "token": null,
+      "expected": 410,
+      "actual": 410,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "LEDGER_REF_NOT_FOUND",
+      "error_reason": null,
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/settings/reset\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/settings/reset\",\"http_status\":410,\"sunset\":\"批 4 删路径（未决 §7-1：过期日待 Kevin 定）\"}}}"
+    },
+    {
+      "id": "T15",
+      "endpoint": "GET /api/admin/permissions",
+      "token": "18461396283b",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "data_keys": [
+        "groups",
+        "users"
+      ],
+      "data_head": "{\"groups\":[],\"users\":[{\"uID\":970001,\"EVM\":\"0x9700010000000000000000000000000000000000\",\"bio\":\"p4b2:fixture user\",\"is_admin\":false,\"time_reg\":1790683966,\"time_login_last\":1790683966},{\"uID\":970002,\"EVM\":\"0x9700020000000000000000000000000000000000\",\"bio\":\"p4b2:fixture user\",\"is_admin\":false,\"time_reg\"",
+      "error_code": null,
+      "error_reason": null,
+      "message": "OK",
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"groups\":[],\"users\":[{\"uID\":970001,\"EVM\":\"0x9700010000000000000000000000000000000000\",\"bio\":\"p4b2:fixture user\",\"is_admin\":false,\"time_reg\":1790683966,\"time_login_last\":1790683966},{\"uID\":970002,\"EVM\":\"0x9700020000000000000000000000000000000000\",\"bio\":\"p4b2:fixture user\",\"is_admin\":false,\"time_reg\":1790683966,\"time_login_last\":1790683966},{\"uID\":970101,\"EVM\":"
+    },
+    {
+      "id": "T16",
+      "endpoint": "POST /api/admin/permissions/save",
+      "token": "18461396283b",
+      "expected": 400,
+      "actual": 400,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "error_reason": null,
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"LEDGER_IDEMPOTENCY_KEY_REQUIRED\",\"message\":\"Idempotency key is required for admin writes\",\"i18n_key\":\"ledger.err.LEDGER_IDEMPOTENCY_KEY_REQUIRED\",\"details\":{\"field\":\"create_key\",\"expected_prefix\":\"ops:\",\"canonical_key\":\"ops:970201:permission_save:new\"}}}"
+    },
+    {
+      "id": "T17",
+      "endpoint": "POST /api/admin/permissions/save",
+      "token": "18461396283b",
+      "expected": 404,
+      "actual": 404,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "LEDGER_REF_NOT_FOUND",
+      "error_reason": null,
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"Referenced permission not found\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"admin_permission\",\"ref_id\":\"manage_settings\",\"missing_permission_keys\":[\"manage_settings\"]}}}"
+    },
+    {
+      "id": "T18",
+      "endpoint": "POST /api/admin/permissions/delete",
+      "token": "18461396283b",
+      "expected": 404,
+      "actual": 404,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "LEDGER_REF_NOT_FOUND",
+      "error_reason": null,
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"Permission group not found\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"admin_role\",\"ref_id\":\"p4b2c:role\"}}}"
+    },
+    {
+      "id": "T19",
+      "endpoint": "POST /api/admin/permissions/delete",
+      "token": "1a8ca71fad0d",
+      "expected": 403,
+      "actual": 403,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "AUTH_FORBIDDEN",
+      "error_reason": "NOT_ADMIN",
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"AUTH_FORBIDDEN\",\"message\":\"AUTH_FORBIDDEN\",\"i18n_key\":\"auth.err.AUTH_FORBIDDEN\",\"details\":{\"reason\":\"NOT_ADMIN\"}}}"
+    },
+    {
+      "id": "T20",
+      "endpoint": "POST /api/admin/user/update",
+      "token": "18461396283b",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "data_keys": [
+        "uID",
+        "EVM",
+        "bio",
+        "is_admin",
+        "time_reg",
+        "time_login_last"
+      ],
+      "data_head": "{\"uID\":970202,\"EVM\":\"0x0000000000000000000000000000000000970202\",\"bio\":\"p4b2c:fixture uid=970202\",\"is_admin\":false,\"time_reg\":1790702002,\"time_login_last\":1790702002}",
+      "error_code": null,
+      "error_reason": null,
+      "message": "User updated",
+      "body_head": "{\"success\":true,\"message\":\"User updated\",\"data\":{\"uID\":970202,\"EVM\":\"0x0000000000000000000000000000000000970202\",\"bio\":\"p4b2c:fixture uid=970202\",\"is_admin\":false,\"time_reg\":1790702002,\"time_login_last\":1790702002}}"
+    },
+    {
+      "id": "T21",
+      "endpoint": "POST /api/admin/user/update",
+      "token": "18461396283b",
+      "expected": 400,
+      "actual": 400,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "LEDGER_AMOUNT_INVALID",
+      "error_reason": "FORBIDDEN_FIELD",
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"LEDGER_AMOUNT_INVALID\",\"message\":\"Field is not accepted by this endpoint\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"evm\",\"forbidden_fields\":[\"evm\"],\"reason\":\"FORBIDDEN_FIELD\",\"rule\":\"DL16/DL104\"}}}"
+    },
+    {
+      "id": "T22",
+      "endpoint": "POST /api/admin/user/update",
+      "token": "18461396283b",
+      "expected": 400,
+      "actual": 400,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "LEDGER_AMOUNT_INVALID",
+      "error_reason": "FORBIDDEN_FIELD",
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"LEDGER_AMOUNT_INVALID\",\"message\":\"Field is not accepted by this endpoint\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"points\",\"forbidden_fields\":[\"points\"],\"reason\":\"FORBIDDEN_FIELD\",\"rule\":\"DL16/DL104\"}}}"
+    },
+    {
+      "id": "T23",
+      "endpoint": "POST /api/admin/user/update",
+      "token": "18461396283b",
+      "expected": 404,
+      "actual": 404,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "LEDGER_REF_NOT_FOUND",
+      "error_reason": null,
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"User not found\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"users\",\"ref_id\":\"999999999\"}}}"
+    },
+    {
+      "id": "T24",
+      "endpoint": "GET /api/user/all",
+      "token": "18461396283b",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "data_keys": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "data_head": "[{\"uID\":970001,\"EVM\":\"0x9700010000000000000000000000000000000000\",\"bio\":\"p4b2:fixture user\",\"is_admin\":false,\"time_reg\":1790683966,\"time_login_last\":1790683966},{\"uID\":970002,\"EVM\":\"0x9700020000000000000000000000000000000000\",\"bio\":\"p4b2:fixture user\",\"is_admin\":false,\"time_reg\":1790683966,\"time_log",
+      "error_code": null,
+      "error_reason": null,
+      "message": "OK",
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":[{\"uID\":970001,\"EVM\":\"0x9700010000000000000000000000000000000000\",\"bio\":\"p4b2:fixture user\",\"is_admin\":false,\"time_reg\":1790683966,\"time_login_last\":1790683966},{\"uID\":970002,\"EVM\":\"0x9700020000000000000000000000000000000000\",\"bio\":\"p4b2:fixture user\",\"is_admin\":false,\"time_reg\":1790683966,\"time_login_last\":1790683966},{\"uID\":970101,\"EVM\":\"0x970101000000000000"
+    },
+    {
+      "id": "T25",
+      "endpoint": "GET /api/user/all",
+      "token": "1a8ca71fad0d",
+      "expected": 403,
+      "actual": 403,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "AUTH_FORBIDDEN",
+      "error_reason": "NOT_ADMIN",
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"AUTH_FORBIDDEN\",\"message\":\"AUTH_FORBIDDEN\",\"i18n_key\":\"auth.err.AUTH_FORBIDDEN\",\"details\":{\"reason\":\"NOT_ADMIN\"}}}"
+    },
+    {
+      "id": "T26",
+      "endpoint": "GET /api/user/stats",
+      "token": "18461396283b",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "data_keys": [
+        "user_count",
+        "admin_count",
+        "asset_count",
+        "total_points",
+        "avg_points"
+      ],
+      "data_head": "{\"user_count\":6,\"admin_count\":1,\"asset_count\":0,\"total_points\":0,\"avg_points\":0}",
+      "error_code": null,
+      "error_reason": null,
+      "message": "OK（统计口径 = 账本派生：余额取自 account，DL1/DL24）",
+      "body_head": "{\"success\":true,\"message\":\"OK（统计口径 = 账本派生：余额取自 account，DL1/DL24）\",\"data\":{\"user_count\":6,\"admin_count\":1,\"asset_count\":0,\"total_points\":0,\"avg_points\":0}}"
+    },
+    {
+      "id": "T27",
+      "endpoint": "GET /api/user",
+      "token": null,
+      "expected": 401,
+      "actual": 401,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "AUTH_UNAUTHORIZED",
+      "error_reason": null,
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"AUTH_UNAUTHORIZED\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}"
+    },
+    {
+      "id": "T28",
+      "endpoint": "GET /api/home",
+      "token": null,
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "data_keys": [
+        "tasks",
+        "prizes",
+        "claimed_prize_ids",
+        "user_points",
+        "is_authenticated"
+      ],
+      "data_head": "{\"tasks\":[{\"tID\":2,\"title\":\"p4b2:fixture:A\",\"note\":\"p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）\",\"refcode\":\"\",\"link0\":\"\",\"linkA\":\"\",\"linkB\":\"\",\"points\":137,\"type\":0,\"time_start\":0,\"time_end\":0,\"time_created\":1790683967,\"time_updated\":1790683967,\"is_open\":true,\"participants_count\":1,\"title_en\":\"\",\"t",
+      "error_code": null,
+      "error_reason": null,
+      "message": "OK",
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"tasks\":[{\"tID\":2,\"title\":\"p4b2:fixture:A\",\"note\":\"p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）\",\"refcode\":\"\",\"link0\":\"\",\"linkA\":\"\",\"linkB\":\"\",\"points\":137,\"type\":0,\"time_start\":0,\"time_end\":0,\"time_created\":1790683967,\"time_updated\":1790683967,\"is_open\":true,\"participants_count\":1,\"title_en\":\"\",\"title_hk\":\"\",\"title_vn\":\"\",\"note_en\":\"\",\"note_hk\":\"\",\"note_vn\":"
+    },
+    {
+      "id": "T29",
+      "endpoint": "GET /api/prize/all",
+      "token": null,
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "data_keys": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11"
+      ],
+      "data_head": "[{\"bID\":1,\"symbol\":\"\",\"name\":\"p4b2c:listing A\",\"description\":\"p4b2c desc\",\"image_url\":\"\",\"url_image\":\"\",\"points\":137,\"market_floor_points\":0,\"duration_seconds\":0,\"price_floor_eligible\":false,\"price_floor_enabled\":false,\"price_floor_active\":false,\"minimum_shard_price\":0,\"gift_limit\":0,\"total_quantity",
+      "error_code": null,
+      "error_reason": null,
+      "message": "OK",
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":[{\"bID\":1,\"symbol\":\"\",\"name\":\"p4b2c:listing A\",\"description\":\"p4b2c desc\",\"image_url\":\"\",\"url_image\":\"\",\"points\":137,\"market_floor_points\":0,\"duration_seconds\":0,\"price_floor_eligible\":false,\"price_floor_enabled\":false,\"price_floor_active\":false,\"minimum_shard_price\":0,\"gift_limit\":0,\"total_quantity\":0,\"available_quantity\":0,\"issued_quantity\":0,\"redeemed_quant"
+    },
+    {
+      "id": "T30",
+      "endpoint": "GET /api/task/all",
+      "token": null,
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "data_keys": [
+        "0",
+        "1",
+        "2"
+      ],
+      "data_head": "[{\"tID\":2,\"title\":\"p4b2:fixture:A\",\"note\":\"p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）\",\"refcode\":\"\",\"link0\":\"\",\"linkA\":\"\",\"linkB\":\"\",\"points\":137,\"type\":0,\"time_start\":0,\"time_end\":0,\"time_created\":1790683967,\"time_updated\":1790683967,\"is_open\":true,\"participants_count\":1,\"title_en\":\"\",\"title_hk\":",
+      "error_code": null,
+      "error_reason": null,
+      "message": "OK",
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":[{\"tID\":2,\"title\":\"p4b2:fixture:A\",\"note\":\"p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）\",\"refcode\":\"\",\"link0\":\"\",\"linkA\":\"\",\"linkB\":\"\",\"points\":137,\"type\":0,\"time_start\":0,\"time_end\":0,\"time_created\":1790683967,\"time_updated\":1790683967,\"is_open\":true,\"participants_count\":1,\"title_en\":\"\",\"title_hk\":\"\",\"title_vn\":\"\",\"note_en\":\"\",\"note_hk\":\"\",\"note_vn\":\"\"},{\"tID"
+    },
+    {
+      "id": "T31",
+      "endpoint": "GET /api/market/1/orderbook",
+      "token": null,
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "data_keys": [],
+      "data_head": "[]",
+      "error_code": null,
+      "error_reason": null,
+      "message": "OK",
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":[]}"
+    },
+    {
+      "id": "T32",
+      "endpoint": "GET /api/prize/999999999",
+      "token": null,
+      "expected": 404,
+      "actual": 404,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "success",
+        "message",
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": null,
+      "error_reason": null,
+      "message": "Prize not found",
+      "body_head": "{\"success\":false,\"message\":\"Prize not found\",\"error\":\"Prize not found\"}"
+    },
+    {
+      "id": "T33",
+      "endpoint": "POST /api/admin/prize/create",
+      "token": "18461396283b",
+      "expected": 410,
+      "actual": 410,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "LEDGER_REF_NOT_FOUND",
+      "error_reason": null,
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/prize/create\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/prize/create\",\"http_status\":410,\"sunset\":\"批 4 删路径（未决 §7-1：过期日待 Kevin 定）\"}}}"
+    },
+    {
+      "id": "T34",
+      "endpoint": "POST /api/admin/prize/update",
+      "token": "18461396283b",
+      "expected": 410,
+      "actual": 410,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "LEDGER_REF_NOT_FOUND",
+      "error_reason": null,
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/prize/update\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/prize/update\",\"http_status\":410,\"sunset\":\"批 4 删路径（未决 §7-1：过期日待 Kevin 定）\"}}}"
+    },
+    {
+      "id": "T35",
+      "endpoint": "POST /api/admin/prize/delete",
+      "token": "18461396283b",
+      "expected": 410,
+      "actual": 410,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "LEDGER_REF_NOT_FOUND",
+      "error_reason": null,
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/prize/delete\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/prize/delete\",\"http_status\":410,\"sunset\":\"批 4 删路径（未决 §7-1：过期日待 Kevin 定）\"}}}"
+    },
+    {
+      "id": "T36",
+      "endpoint": "POST /api/shard/redeem",
+      "token": "18461396283b",
+      "expected": 410,
+      "actual": 410,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "LEDGER_REF_NOT_FOUND",
+      "error_reason": null,
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/shard/redeem\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/shard/redeem\",\"http_status\":410,\"sunset\":\"批 3 末删除路径（§5.1 碎片写口①/宝箱写口；未决 §7-1：过期日待 Kevin 定）\"}}}"
+    },
+    {
+      "id": "T37",
+      "endpoint": "POST /api/chest/1/open",
+      "token": "18461396283b",
+      "expected": 410,
+      "actual": 410,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "LEDGER_REF_NOT_FOUND",
+      "error_reason": null,
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/chest/:bID/open\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/chest/:bID/open\",\"http_status\":410,\"sunset\":\"批 3 末删除路径（§5.1 碎片写口①/宝箱写口；未决 §7-1：过期日待 Kevin 定）\"}}}"
+    },
+    {
+      "id": "T38",
+      "endpoint": "POST /api/admin/task/create",
+      "token": "18461396283b",
+      "expected": 410,
+      "actual": 410,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "LEDGER_REF_NOT_FOUND",
+      "error_reason": null,
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/task/create\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/task/create\",\"http_status\":410,\"sunset\":\"批 4 删路径（未决 §7-1：过期日待 Kevin 定）\"}}}"
+    },
+    {
+      "id": "T39",
+      "endpoint": "POST /api/admin/assets/init",
+      "token": "18461396283b",
+      "expected": 410,
+      "actual": 410,
+      "pass": true,
+      "error": null,
+      "top_keys": [
+        "error"
+      ],
+      "data_keys": null,
+      "data_head": null,
+      "error_code": "LEDGER_REF_NOT_FOUND",
+      "error_reason": null,
+      "message": null,
+      "body_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/admin/assets/init\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/admin/assets/init\",\"http_status\":410,\"sunset\":\"批 4 删路径（未决 §7-1：过期日待 Kevin 定）\"}}}"
+    }
+  ]
+}

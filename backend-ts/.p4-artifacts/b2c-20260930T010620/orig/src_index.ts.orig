@@ -15,16 +15,8 @@ import {
   UserRecord,
 } from './database';
 import { healthCheck } from './db';
-import { ledgerErrorBody, sendGone, sendVerbError, submitWork } from './job-service';
-// P4-B2c：权限与设置（非资金面）service（§1 #36/#37/#38 的 verb + DL36 的 ops: 幂等键）
-import {
-  adminPermissionDeleteVerb,
-  adminPermissionSaveVerb,
-  adminUserUpdateVerb,
-  adminVerbError,
-  findFeeRateKey,
-  resolveAdminOpsKey,
-} from './admin-service';
+// P4-B2a：招工非资金写入 service（J2 apply / J3 accept / J4 submit）+ R107/410 helper
+import { sendGone, sendVerbError, submitWork } from './job-service';
 
 const app = express();
 const PORT = Number(process.env.PORT || 5788);
@@ -136,24 +128,10 @@ const resolveActor = async (req: Request): Promise<ActorContext | null> => {
   }
 };
 
-// P4-B2c（§3.3-1 / §3.3-6 / §6.2 / DL105 v0.2 / DL122 / DL147）：401/403 一律 R107 形状，
-// 码域 = AUTH_*（**不**进 LEDGER_* 33 码关闭集；i18n_key 域 = auth.err.*）。
-// DL147③：reason 只准取 §11.3.2 登记值（ACTOR_NOT_ALLOWED / NOT_ADMIN / PERMISSION_NOT_GRANTED）。
-const AUTH_REASONS = ['ACTOR_NOT_ALLOWED', 'NOT_ADMIN', 'PERMISSION_NOT_GRANTED'] as const;
-
-const sendAuthError = (res: Response, statusCode: 401 | 403, reason?: string) => {
-  const code = statusCode === 401 ? 'AUTH_UNAUTHORIZED' : 'AUTH_FORBIDDEN';
-  const details: Record<string, unknown> = {};
-  if (reason && (AUTH_REASONS as readonly string[]).includes(reason)) {
-    details.reason = reason;
-  }
-  return res.status(statusCode).json(ledgerErrorBody(code, code, details, 'auth'));
-};
-
 const requireActor = async (req: Request, res: Response) => {
   const actor = await resolveActor(req);
   if (!actor) {
-    sendAuthError(res, 401);
+    sendError(res, 401, 'Unauthorized');
     return null;
   }
 
@@ -176,14 +154,12 @@ const requireAdmin = async (req: Request, res: Response, requiredPermission?: st
   }
 
   if (!actor.adminAccess.can_access_admin) {
-    // §6.2 步 2 / DL105② / DL147③：reason=NOT_ADMIN
-    sendAuthError(res, 403, 'NOT_ADMIN');
+    sendError(res, 403, 'Forbidden');
     return null;
   }
 
   if (!actor.adminAccess.is_admin && !hasRequiredPermission(actor, requiredPermission)) {
-    // §6.2 步 4 / DL105④ / DL147③：reason=PERMISSION_NOT_GRANTED
-    sendAuthError(res, 403, 'PERMISSION_NOT_GRANTED');
+    sendError(res, 403, 'Forbidden');
     return null;
   }
 
@@ -742,9 +718,7 @@ app.get('/api/admin/settings', async (req, res) => {
 
   try {
     const settings = await DatabaseService.getSystemSettings();
-    // §1 #32 / §4.1 #35：响应必须标注「费率不在本表」（真源 = commission_policy.fee_rate_bp）。
-    // 用 message 承载（**不改 data 键集** —— §2 母约束 F1 优先）。
-    sendSuccess(res, settings, 'OK（费率不在 app_config；真源 = commission_policy.fee_rate_bp）');
+    sendSuccess(res, settings);
   } catch (error) {
     console.error('Error loading system settings:', error);
     sendError(res, 500, 'Failed to load system settings');
@@ -755,25 +729,8 @@ app.post('/api/admin/settings', async (req, res) => {
   const actor = await requireAdmin(req, res, 'manage_settings');
   if (!actor) return;
 
-  // DL36 / §11.2:581：`ops:<admin_uid>:setting:<key>`；无键 ⇒ 400 LEDGER_IDEMPOTENCY_KEY_REQUIRED
-  const opsKey = resolveAdminOpsKey(req, actor.session.uID, 'setting', 'system_settings');
-  if (!opsKey.ok) {
-    return sendVerbError(res, opsKey.error);
-  }
-
   try {
-    const body = (req.body || {}) as Record<string, unknown>;
-    // §1 #33 / §4.1 #36：**禁写费率键**（费率真源 = commission_policy.fee_rate_bp，CR23/CR25）
-    const feeKey = findFeeRateKey(body);
-    if (feeKey) {
-      return sendVerbError(res, adminVerbError(400, 'LEDGER_AMOUNT_INVALID', {
-        field: feeKey,
-        reason: 'FEE_RATE_KEY_NOT_IN_APP_CONFIG',
-        authoritative_table: 'commission_policy',
-        authoritative_column: 'fee_rate_bp',
-      }, 'Fee-rate keys are not writable via /api/admin/settings'));
-    }
-    const settings = await DatabaseService.saveSystemSettings(body, actor.session.uID);
+    const settings = await DatabaseService.saveSystemSettings(req.body || {});
     sendSuccess(res, settings, 'System settings saved');
   } catch (error) {
     console.error('Error saving system settings:', error);
@@ -781,12 +738,17 @@ app.post('/api/admin/settings', async (req, res) => {
   }
 });
 
-// P4-B2c（§1 #34 + §5.1「一键重置设置」+ C3 ②「确认删除」）：无审计的批量破坏写 ⇒ 一律 410 + R107 形状。
-// 撤 requireAdmin 前置（同 B2a/B2b 先例：弃用面不得把「已下线」伪装成「未授权」）。
-const ADMIN_SETTINGS_RESET_SUNSET = '批 4 删路径（未决 §7-1：过期日待 Kevin 定）';
+app.post('/api/admin/settings/reset', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'manage_settings');
+  if (!actor) return;
 
-app.post('/api/admin/settings/reset', async (_req, res) => {
-  return sendGone(res, '/api/admin/settings/reset', ADMIN_SETTINGS_RESET_SUNSET);
+  try {
+    const settings = await DatabaseService.resetSystemSettings();
+    sendSuccess(res, settings, 'System settings reset');
+  } catch (error) {
+    console.error('Error resetting system settings:', error);
+    sendError(res, 500, 'Failed to reset system settings');
+  }
 });
 
 app.get('/api/admin/permissions', async (req, res) => {
@@ -798,8 +760,7 @@ app.get('/api/admin/permissions', async (req, res) => {
       DatabaseService.listPermissionGroups(),
       DatabaseService.getAllUsers(0, 1000),
     ]);
-    // P4-B2c（§5.1「权限面板弃用标」/§5.3）：批 2 换数据源到 admin_role* 后即正式口 ⇒ **撤销 deprecated**。
-    sendSuccess(res, { groups, users });
+    sendSuccess(res, { groups, users }, 'OK', 200, { deprecated: true });
   } catch (error) {
     console.error('Error loading permission groups:', error);
     sendError(res, 500, 'Failed to load permission groups');
@@ -810,26 +771,17 @@ app.post('/api/admin/permissions/save', async (req, res) => {
   const actor = await requireAdmin(req, res, 'manage_permissions');
   if (!actor) return;
 
-  // DL36 / §11.2:582：`ops:<admin_uid>:permission_save:<role_key>`
-  const opsKey = resolveAdminOpsKey(req, actor.session.uID, 'permission_save', String(req.body?.id ?? 'new'));
-  if (!opsKey.ok) {
-    return sendVerbError(res, opsKey.error);
-  }
-
   try {
-    const result = await adminPermissionSaveVerb({
-      actorUid: actor.session.uID,
-      actorIsAdmin: actor.adminAccess.is_admin,
+    const group = await DatabaseService.savePermissionGroup({
       id: req.body?.id,
       name: req.body?.name,
       description: req.body?.description,
-      permissions: req.body?.permissions,
-      user_ids: req.body?.user_ids,
+      permissions: Array.isArray(req.body?.permissions) ? req.body.permissions : [],
+      user_ids: Array.isArray(req.body?.user_ids)
+        ? req.body.user_ids.map((value: unknown) => parseInteger(value)).filter(Boolean)
+        : [],
     });
-    if (!result.ok) {
-      return sendVerbError(res, result);
-    }
-    sendSuccess(res, result.view, 'Permission group saved');
+    sendSuccess(res, group, 'Permission group saved');
   } catch (error) {
     console.error('Error saving permission group:', error);
     sendError(res, 400, error instanceof Error ? error.message : 'Failed to save permission group');
@@ -840,18 +792,17 @@ app.post('/api/admin/permissions/delete', async (req, res) => {
   const actor = await requireAdmin(req, res, 'manage_permissions');
   if (!actor) return;
 
-  // DL36 / §11.2:583：`ops:<admin_uid>:permission_delete:<role_key>`
-  const opsKey = resolveAdminOpsKey(req, actor.session.uID, 'permission_delete', String(req.body?.id ?? ''));
-  if (!opsKey.ok) {
-    return sendVerbError(res, opsKey.error);
+  const id = String(req.body?.id || '').trim();
+  if (!id) {
+    return sendError(res, 400, 'Permission group id is required');
   }
 
   try {
-    const result = await adminPermissionDeleteVerb({ id: req.body?.id });
-    if (!result.ok) {
-      return sendVerbError(res, result);
+    const deleted = await DatabaseService.deletePermissionGroup(id);
+    if (!deleted) {
+      return sendError(res, 404, 'Permission group not found');
     }
-    sendSuccess(res, result.view, 'Permission group deleted');
+    sendSuccess(res, { id }, 'Permission group deleted');
   } catch (error) {
     console.error('Error deleting permission group:', error);
     sendError(res, 400, error instanceof Error ? error.message : 'Failed to delete permission group');
@@ -862,18 +813,17 @@ app.post('/api/admin/user/update', async (req, res) => {
   const actor = await requireAdmin(req, res, 'manage_users');
   if (!actor) return;
 
-  // DL36 / §11.2:584：`ops:<admin_uid>:user_update:<target_uid>`
-  const opsKey = resolveAdminOpsKey(req, actor.session.uID, 'user_update', String(req.body?.target_uid ?? req.body?.uID ?? ''));
-  if (!opsKey.ok) {
-    return sendVerbError(res, opsKey.error);
+  const uID = parseInteger(req.body?.uID);
+  if (!uID) {
+    return sendError(res, 400, 'Invalid uID');
   }
 
   try {
-    const result = await adminUserUpdateVerb({ body: req.body });
-    if (!result.ok) {
-      return sendVerbError(res, result);
+    const user = await DatabaseService.updateUserAdminStatus(uID, parseBoolean(req.body?.is_admin));
+    if (!user) {
+      return sendError(res, 404, 'User not found');
     }
-    sendSuccess(res, result.view, 'User updated');
+    sendSuccess(res, user, 'User updated');
   } catch (error) {
     console.error('Error updating user:', error);
     sendError(res, 400, error instanceof Error ? error.message : 'Failed to update user');
@@ -923,8 +873,6 @@ app.post('/api/admin/prize/delete', async (_req, res) => {
 });
 
 app.get('/api/user/all', async (req, res) => {
-  // P4-B2c（§1 #45 / §4.1 #48）：只读运维视图 —— 分页（getPagination）+ **只出非敏感列**
-  //（UserRecord 6 键：uID/EVM/bio/is_admin/time_reg/time_login_last）+ **禁 token**（mapper 无任何 token 列）。
   const actor = await requireAdmin(req, res);
   if (!actor) return;
 
@@ -944,8 +892,7 @@ app.get('/api/user/stats', async (req, res) => {
 
   try {
     const stats = await DatabaseService.getUserStats();
-    // §1 #46 / §4.1 #49 / DL1 / DL24：统计口径必须标注「账本派生」（余额真源 = account）。
-    sendSuccess(res, stats, 'OK（统计口径 = 账本派生：余额取自 account，DL1/DL24）');
+    sendSuccess(res, stats);
   } catch (error) {
     console.error('Error loading user stats:', error);
     sendError(res, 500, 'Failed to load user stats');
@@ -1035,12 +982,14 @@ app.post('/api/tasklist/:jID/verify', async (req, res) => {
   }
 });
 
-// P4-B2c（§1 #50 + §5.1「资产初始化」+ §4.1 #53「删除」+ R75）：账户由 DB 按需 0/0 开户 ⇒ 该入口无存在理由。
-// 实测：该路径原本**无任何守卫**（§5.1 逐字）且旧实现返回 500（本片 T39 读数）⇒ 补齐 §5.1 的 410 面。
-const ADMIN_ASSETS_INIT_SUNSET = '批 4 删路径（未决 §7-1：过期日待 Kevin 定）';
-
-app.post('/api/admin/assets/init', async (_req, res) => {
-  return sendGone(res, '/api/admin/assets/init', ADMIN_ASSETS_INIT_SUNSET);
+app.post('/api/admin/assets/init', async (req, res) => {
+  try {
+    const result = await DatabaseService.initializeAllAssets();
+    sendSuccess(res, result, `Initialized ${result.initialized} asset records`);
+  } catch (error) {
+    console.error('Asset initialization error:', error);
+    sendError(res, 500, 'Failed to initialize assets');
+  }
 });
 
 app.post('/api/admin/points/adjust', async (req, res) => {
