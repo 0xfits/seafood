@@ -22,6 +22,8 @@ import { healthCheck } from './db';
 // P4-SEC（缺陷 B）：基础设施异常走**既有** §14 分类器与 R107 错误体（不新增错误码）
 import { ledgerErrorDiagnostics, normalizeLedgerError, toErrorResponse } from './ledger-errors';
 import { ledgerErrorBody, sendGone, sendVerbError, submitWork } from './job-service';
+// P4-B3a：币种面**真资金**编排（§1.1:147-148 · §4.2 C1/C2 · §7-3 已裁）
+import { createCurrencyVerb, listCurrencyVerb } from './currency-service';
 // P4-B2c：权限与设置（非资金面）service（§1 #36/#37/#38 的 verb + DL36 的 ops: 幂等键）
 import {
   adminPermissionDeleteVerb,
@@ -1145,6 +1147,52 @@ app.post('/api/admin/points/adjust', async (req, res) => {
   } catch (error) {
     console.error('Points adjustment error:', error);
     sendError(res, 500, '积分调整失败');
+  }
+});
+
+// ============================================================================
+// P4-B3a（§1.1:147-148 · §4.2 C1/C2 · §7-3）：币种面**真资金**编排（首批真资金动作）
+//   · C1 `POST /api/currency`：建自定义积分单位，收 `currency_create_fee` → `-1`（消耗）
+//   · C2 `POST /api/currency/:cid/list`：上市，收上市费（同 kind）+ 保证金 `listing_deposit`（冻结 HOLD）
+//   · 未授权 ⇒ `401`（无 token）/ `403 AUTH_FORBIDDEN`（非货币 owner，reason=ACTOR_NOT_ALLOWED）
+//   · 退市 / 罚没（`hold_release` / `hold_forfeit`）**本片不实现**（§4.2 无对应事件行 ⇒ 报告 §7-1）
+// ============================================================================
+app.post('/api/currency', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  try {
+    const result = await createCurrencyVerb({
+      actorUid: actor.user.uID,
+      body: (req.body || {}) as Record<string, unknown>,
+      headerKey: req.header('idempotency-key'),
+    });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, result.replay ? 'Currency created (idempotent replay)' : 'Currency created');
+  } catch (error) {
+    const normalized = normalizeLedgerError(unwrapInfraCause(error));
+    console.error('[currency.create] infra failure:', JSON.stringify(ledgerErrorDiagnostics(error)));
+    return res.status(normalized.httpStatus).json(toErrorResponse(normalized));
+  }
+});
+
+app.post('/api/currency/:cid/list', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  try {
+    const result = await listCurrencyVerb({
+      cidRaw: req.params.cid,
+      actorUid: actor.user.uID,
+      body: (req.body || {}) as Record<string, unknown>,
+      headerKey: req.header('idempotency-key'),
+    });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, result.replay ? 'Currency listed (idempotent replay)' : 'Currency listed');
+  } catch (error) {
+    const normalized = normalizeLedgerError(unwrapInfraCause(error));
+    console.error('[currency.list] infra failure:', JSON.stringify(ledgerErrorDiagnostics(error)));
+    return res.status(normalized.httpStatus).json(toErrorResponse(normalized));
   }
 });
 

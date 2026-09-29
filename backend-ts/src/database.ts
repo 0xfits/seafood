@@ -1303,6 +1303,176 @@ export class DatabaseService {
     return { cid: Number(getValue(row, 'cid') ?? 0), status: String(getValue(row, 'status') ?? '') };
   }
 
+  // ==========================================================================================
+  // P4-B3a（§4.2 C1）· 建自定义积分单位 + 建单位费 `currency_create_fee` ×2（owner −fee / uid=-1 +fee）
+  // ==========================================================================================
+  /**
+   * **单语句 CTE = 一个隐式事务**（§4.0 R2「业务行 + 分录必须同一事务」在本仓的等价实现：
+   * 迁移冻结 ⇒ 不新增 DB 编排函数 `0018`、不改 `src/ledger.ts` ⇒ 把「锁/写业务行 → 调
+   * `ledger_post_event` → 回写引用列」压进**一条** `SELECT`；任一闸失败 ⇒ 整条语句回滚 ⇒
+   * **不留孤儿 `currency` 行**）。
+   *   · `ins`   ：INSERT `public.currency`（`symbol` UNIQUE ⇒ `ON CONFLICT DO NOTHING`）
+   *   · `keyhit`：同键既有 `ledger_entry.request_fingerprint`（重放判定用；快照口径）
+   *   · `ev`    ：`FROM ins` 门控 ⇒ **只有真插入时才调账本**（重放/符号占用时**不产生分录**）
+   * 口径：`currency` 仅写 DL 既有列（不增删列）；`ref_type='currency'`、`ref_id=新 cid`。
+   */
+  static async createCurrencyWithFee(input: {
+    symbol: string;
+    name: string;
+    ownerUid: number;
+    decimals: number;
+    fee: number;
+    idempotencyKey: string;
+    requestFingerprint: string;
+    memo: string;
+  }): Promise<RawRow> {
+    const sql = getSql();
+    const rows = extractRows(await sql`
+      WITH ins AS (
+        INSERT INTO public.currency (symbol, name, owner_uid, decimals, status, deposit_cid)
+        SELECT ${input.symbol}::text, ${input.name}::text, ${input.ownerUid}::bigint,
+               ${input.decimals}::smallint, 'draft', 1
+        ON CONFLICT (symbol) DO NOTHING
+        RETURNING cid
+      ),
+      keyhit AS (
+        SELECT e.request_fingerprint::text AS fp
+        FROM public.ledger_entry AS e
+        WHERE e.idempotency_key = ${input.idempotencyKey}::text
+        LIMIT 1
+      ),
+      ev AS (
+        SELECT ledger_post_event(jsonb_build_object(
+          'op', 'entries',
+          'idempotency_key', ${input.idempotencyKey}::text,
+          'request_fingerprint', ${input.requestFingerprint}::text,
+          'ref_type', 'currency',
+          'ref_id', (SELECT ins.cid::text FROM ins),
+          'memo', ${input.memo}::text,
+          'entries', jsonb_build_array(
+            jsonb_build_object('uid', ${String(input.ownerUid)}::text, 'cid', '1',
+              'delta', ${String(-input.fee)}::text, 'kind', 'currency_create_fee',
+              'ref_type', 'currency', 'ref_id', (SELECT ins.cid::text FROM ins)),
+            jsonb_build_object('uid', '-1', 'cid', '1',
+              'delta', ${String(input.fee)}::text, 'kind', 'currency_create_fee',
+              'ref_type', 'currency', 'ref_id', (SELECT ins.cid::text FROM ins))
+          )
+        )) AS r
+        FROM ins
+      )
+      SELECT
+        (SELECT count(*)::int FROM ins) AS inserted,
+        (SELECT ins.cid::text FROM ins) AS new_cid,
+        (SELECT ev.r FROM ev) AS ledger_result,
+        (SELECT keyhit.fp FROM keyhit) AS key_fingerprint,
+        (SELECT to_jsonb(t) FROM (
+           SELECT c.cid, c.symbol, c.name, c.owner_uid, c.decimals, c.status,
+                  c.deposit_amount, c.deposit_cid, c.listed_at
+           FROM public.currency AS c
+           WHERE c.symbol = ${input.symbol}::text
+           LIMIT 1
+        ) AS t) AS existing_row
+    `);
+    const row = rows[0] || null;
+    if (!row) throw new Error('createCurrencyWithFee: no row returned');
+    return row;
+  }
+
+  // ==========================================================================================
+  // P4-B3a（§4.2 C2 + §7-3）· 上市：上市费 `currency_create_fee` ×2 + 保证金 `listing_deposit` ×2（HOLD）
+  // ==========================================================================================
+  /**
+   * 单语句 CTE = 一个隐式事务，含四件事：
+   *   ① `cur`   ：业务行 `FOR UPDATE`（DL141 加锁全序的**第一步**：业务行先锁）
+   *   ② `apply` ：`draft → listed` + `listed_at=now()` + `deposit_amount`（**同一事务**）
+   *   ③ `slog`  ：`public.currency_status_log` 审计行（DL73/DL157②：路由层硬约束，
+   *               DB 无兜底 ⇒ 本实现用**同一条语句**保证「改状态必有审计」）
+   *   ④ `ev`    ：`FROM apply` 门控 ⇒ 只有真迁移时才调账本 ⇒ 重放 / 状态非法 ⇒ **零分录**
+   * 保证金 = `listing_deposit`（`HOLD_KINDS` 内）⇒ 2 条（`delta=-d` / `frozen_delta=+d`，同 uid 同 cid），
+   * **纯冻结、可退、不进 `-1`**（§7-3）；保证金币种 = 该行 `deposit_cid`（`0001` 既有列，默认 1）。
+   */
+  static async listCurrencyWithDeposit(input: {
+    cid: number;
+    actorUid: number;
+    fee: number;
+    depositAmount: number;
+    idempotencyKey: string;
+    requestFingerprint: string;
+    memo: string;
+  }): Promise<RawRow> {
+    const sql = getSql();
+    const rows = extractRows(await sql`
+      WITH cur AS (
+        SELECT c.cid, c.owner_uid, c.status, c.deposit_cid
+        FROM public.currency AS c
+        WHERE c.cid = ${input.cid}::bigint
+        FOR UPDATE
+      ),
+      keyhit AS (
+        SELECT e.request_fingerprint::text AS fp
+        FROM public.ledger_entry AS e
+        WHERE e.idempotency_key = ${input.idempotencyKey}::text
+        LIMIT 1
+      ),
+      apply AS (
+        UPDATE public.currency AS c
+        SET status = 'listed',
+            listed_at = now(),
+            deposit_amount = ${input.depositAmount}::bigint,
+            time_updated = now()
+        WHERE c.cid = ${input.cid}::bigint
+          AND c.status = 'draft'
+          AND (SELECT cur.owner_uid FROM cur) = ${input.actorUid}::bigint
+        RETURNING c.cid, c.symbol, c.owner_uid, c.status, c.decimals,
+                  c.deposit_amount, c.deposit_cid, c.listed_at
+      ),
+      slog AS (
+        INSERT INTO public.currency_status_log (cid, from_status, to_status, actor_uid, memo)
+        SELECT ${input.cid}::bigint, 'draft', 'listed', ${input.actorUid}::bigint, ${input.memo}::text
+        FROM apply
+        RETURNING log_id
+      ),
+      ev AS (
+        SELECT ledger_post_event(jsonb_build_object(
+          'op', 'entries',
+          'idempotency_key', ${input.idempotencyKey}::text,
+          'request_fingerprint', ${input.requestFingerprint}::text,
+          'ref_type', 'currency',
+          'ref_id', ${String(input.cid)}::text,
+          'memo', ${input.memo}::text,
+          'entries', jsonb_build_array(
+            jsonb_build_object('uid', (SELECT cur.owner_uid::text FROM cur), 'cid', '1',
+              'delta', ${String(-input.fee)}::text, 'kind', 'currency_create_fee',
+              'ref_type', 'currency', 'ref_id', ${String(input.cid)}::text),
+            jsonb_build_object('uid', '-1', 'cid', '1',
+              'delta', ${String(input.fee)}::text, 'kind', 'currency_create_fee',
+              'ref_type', 'currency', 'ref_id', ${String(input.cid)}::text),
+            jsonb_build_object('uid', (SELECT cur.owner_uid::text FROM cur),
+              'cid', (SELECT cur.deposit_cid::text FROM cur),
+              'delta', ${String(-input.depositAmount)}::text, 'kind', 'listing_deposit',
+              'ref_type', 'currency', 'ref_id', ${String(input.cid)}::text),
+            jsonb_build_object('uid', (SELECT cur.owner_uid::text FROM cur),
+              'cid', (SELECT cur.deposit_cid::text FROM cur),
+              'delta', '0', 'frozen_delta', ${String(input.depositAmount)}::text, 'kind', 'listing_deposit',
+              'ref_type', 'currency', 'ref_id', ${String(input.cid)}::text)
+          )
+        )) AS r
+        FROM apply
+      )
+      SELECT
+        (SELECT count(*)::int FROM cur) AS cur_found,
+        (SELECT cur.status FROM cur) AS cur_status,
+        (SELECT cur.owner_uid::text FROM cur) AS cur_owner,
+        (SELECT count(*)::int FROM apply) AS applied,
+        (SELECT to_jsonb(a) FROM (SELECT * FROM apply) AS a) AS applied_row,
+        (SELECT ev.r FROM ev) AS ledger_result,
+        (SELECT keyhit.fp FROM keyhit) AS key_fingerprint
+    `);
+    const row = rows[0] || null;
+    if (!row) throw new Error('listCurrencyWithDeposit: no row returned');
+    return row;
+  }
+
   /** P1-a 上架：幂等 = `listing.create_key` UNIQUE（同键 ⇒ `existing`，由 service 判重放 / 冲突） */
   static async createListingRow(input: {
     sellerUid: number;

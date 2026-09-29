@@ -1,0 +1,325 @@
+{
+ "generated_at": "2026-09-29T17:36:47.466Z",
+ "phase": "pre",
+ "mode": "READ-ONLY",
+ "count_ledger_entry": {
+  "label": "count_ledger_entry",
+  "ok": true,
+  "rows": [
+   {
+    "n": 9
+   }
+  ]
+ },
+ "count_account": {
+  "label": "count_account",
+  "ok": true,
+  "rows": [
+   {
+    "n": 5
+   }
+  ]
+ },
+ "count_currency": {
+  "label": "count_currency",
+  "ok": true,
+  "rows": [
+   {
+    "n": 3
+   }
+  ]
+ },
+ "count_currency_status_log": {
+  "label": "count_currency_status_log",
+  "ok": true,
+  "rows": [
+   {
+    "n": 1
+   }
+  ]
+ },
+ "count_users": {
+  "label": "count_users",
+  "ok": true,
+  "rows": [
+   {
+    "n": 6
+   }
+  ]
+ },
+ "sigma_all": {
+  "label": "sigma_all",
+  "ok": true,
+  "rows": [
+   {
+    "sigma": "1000000"
+   }
+  ]
+ },
+ "sigma_by_cid": {
+  "label": "sigma_by_cid",
+  "ok": true,
+  "rows": [
+   {
+    "cid": "1",
+    "bal": "998000",
+    "frz": "2000"
+   }
+  ]
+ },
+ "account_dump": {
+  "label": "account_dump",
+  "ok": true,
+  "rows": [
+   {
+    "uid": "-1",
+    "cid": "1",
+    "balance": "1600",
+    "frozen": "0"
+   },
+   {
+    "uid": "-2",
+    "cid": "1",
+    "balance": "0",
+    "frozen": "0"
+   },
+   {
+    "uid": "-3",
+    "cid": "1",
+    "balance": "0",
+    "frozen": "0"
+   },
+   {
+    "uid": "0",
+    "cid": "1",
+    "balance": "0",
+    "frozen": "0"
+   },
+   {
+    "uid": "970001",
+    "cid": "1",
+    "balance": "996400",
+    "frozen": "2000"
+   }
+  ]
+ },
+ "currency_dump": {
+  "label": "currency_dump",
+  "ok": true,
+  "rows": [
+   {
+    "cid": "1",
+    "symbol": "$",
+    "owner_uid": "0",
+    "decimals": "0",
+    "status": "listed",
+    "deposit_amount": "0",
+    "deposit_cid": "1",
+    "listed_at": "2026-09-29 01:15:27.684706+00"
+   },
+   {
+    "cid": "4",
+    "symbol": "P4B3A013122",
+    "owner_uid": "970001",
+    "decimals": "2",
+    "status": "listed",
+    "deposit_amount": "2000",
+    "deposit_cid": "1",
+    "listed_at": "2026-09-29 17:35:45.967237+00"
+   },
+   {
+    "cid": "9",
+    "symbol": "P4B3A013122X",
+    "owner_uid": "970001",
+    "decimals": "0",
+    "status": "draft",
+    "deposit_amount": "0",
+    "deposit_cid": "1",
+    "listed_at": null
+   }
+  ]
+ },
+ "ledger_entry_dump": {
+  "label": "ledger_entry_dump",
+  "ok": true,
+  "rows": [
+   {
+    "txid": "10",
+    "uid": "-1",
+    "cid": "1",
+    "delta": "1000",
+    "frozen_delta": "0",
+    "balance_after": "1000",
+    "frozen_after": "0",
+    "kind": "currency_create_fee",
+    "idempotency_key": "cli:p4b3a:b3a-20260930T013122:c1-create#2",
+    "ref_type": "currency",
+    "ref_id": "4"
+   },
+   {
+    "txid": "11",
+    "uid": "970001",
+    "cid": "1",
+    "delta": "-500",
+    "frozen_delta": "0",
+    "balance_after": "998500",
+    "frozen_after": "0",
+    "kind": "currency_create_fee",
+    "idempotency_key": "cli:p4b3a:b3a-20260930T013122:c2-list",
+    "ref_type": "currency",
+    "ref_id": "4"
+   },
+   {
+    "txid": "12",
+    "uid": "-1",
+    "cid": "1",
+    "delta": "500",
+    "frozen_delta": "0",
+    "balance_after": "1500",
+    "frozen_after": "0",
+    "kind": "currency_create_fee",
+    "idempotency_key": "cli:p4b3a:b3a-20260930T013122:c2-list#2",
+    "ref_type": "currency",
+    "ref_id": "4"
+   },
+   {
+    "txid": "13",
+    "uid": "970001",
+    "cid": "1",
+    "delta": "-2000",
+    "frozen_delta": "0",
+    "balance_after": "996500",
+    "frozen_after": "0",
+    "kind": "listing_deposit",
+    "idempotency_key": "cli:p4b3a:b3a-20260930T013122:c2-list#3",
+    "ref_type": "currency",
+    "ref_id": "4"
+   },
+   {
+    "txid": "14",
+    "uid": "970001",
+    "cid": "1",
+    "delta": "0",
+    "frozen_delta": "2000",
+    "balance_after": "996500",
+    "frozen_after": "2000",
+    "kind": "listing_deposit",
+    "idempotency_key": "cli:p4b3a:b3a-20260930T013122:c2-list#4",
+    "ref_type": "currency",
+    "ref_id": "4"
+   },
+   {
+    "txid": "15",
+    "uid": "970001",
+    "cid": "1",
+    "delta": "-100",
+    "frozen_delta": "0",
+    "balance_after": "996400",
+    "frozen_after": "2000",
+    "kind": "currency_create_fee",
+    "idempotency_key": "cli:p4b3a:b3a-20260930T013122:c1-create-d",
+    "ref_type": "currency",
+    "ref_id": "9"
+   },
+   {
+    "txid": "16",
+    "uid": "-1",
+    "cid": "1",
+    "delta": "100",
+    "frozen_delta": "0",
+    "balance_after": "1600",
+    "frozen_after": "0",
+    "kind": "currency_create_fee",
+    "idempotency_key": "cli:p4b3a:b3a-20260930T013122:c1-create-d#2",
+    "ref_type": "currency",
+    "ref_id": "9"
+   },
+   {
+    "txid": "8",
+    "uid": "970001",
+    "cid": "1",
+    "delta": "1000000",
+    "frozen_delta": "0",
+    "balance_after": "1000000",
+    "frozen_after": "0",
+    "kind": "mint",
+    "idempotency_key": "cli:p4b3a:b3a-20260930T013122:fixture-mint",
+    "ref_type": null,
+    "ref_id": null
+   },
+   {
+    "txid": "9",
+    "uid": "970001",
+    "cid": "1",
+    "delta": "-1000",
+    "frozen_delta": "0",
+    "balance_after": "999000",
+    "frozen_after": "0",
+    "kind": "currency_create_fee",
+    "idempotency_key": "cli:p4b3a:b3a-20260930T013122:c1-create",
+    "ref_type": "currency",
+    "ref_id": "4"
+   }
+  ]
+ },
+ "users_head": {
+  "label": "users_head",
+  "ok": true,
+  "rows": [
+   {
+    "uid": "970001",
+    "evm_head": "0x9700",
+    "is_admin": "false"
+   },
+   {
+    "uid": "970002",
+    "evm_head": "0x9700",
+    "is_admin": "false"
+   },
+   {
+    "uid": "970101",
+    "evm_head": "0x9701",
+    "is_admin": "false"
+   },
+   {
+    "uid": "970102",
+    "evm_head": "0x9701",
+    "is_admin": "false"
+   },
+   {
+    "uid": "970201",
+    "evm_head": "0x0000",
+    "is_admin": "true"
+   },
+   {
+    "uid": "970202",
+    "evm_head": "0x0000",
+    "is_admin": "false"
+   }
+  ]
+ },
+ "balance_winners_cid1": {
+  "label": "balance_winners_cid1",
+  "ok": true,
+  "rows": [
+   {
+    "uid": "970001",
+    "balance": "996400"
+   },
+   {
+    "uid": "-1",
+    "balance": "1600"
+   }
+  ]
+ },
+ "account_dump_sigma_js": "1000000",
+ "account_map": {
+  "-1:1": "1600/0",
+  "-2:1": "0/0",
+  "-3:1": "0/0",
+  "0:1": "0/0",
+  "970001:1": "996400/2000"
+ },
+ "account_row_count": 5,
+ "ledger_entry_rows": 9
+}

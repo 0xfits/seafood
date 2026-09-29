@@ -1,0 +1,714 @@
+{
+ "generated_at": "2026-09-29T17:34:53.101Z",
+ "base": "http://127.0.0.1:5788",
+ "run": "b3a-20260930T013122",
+ "subjects": {
+  "owner_uid": 970001,
+  "other_uid": 970002,
+  "token_fp12": [
+   "a6c18a30388e",
+   "87d1eeec825b"
+  ]
+ },
+ "fixture_mint": {
+  "key": "cli:p4b3a:b3a-20260930T013122:fixture-mint",
+  "amount": 1000000,
+  "platform": true,
+  "cid": 1,
+  "entries_in_event": 1,
+  "idempotent_replay": false,
+  "error": null,
+  "delta_sigma": "1000000",
+  "delta_entries": 1
+ },
+ "C1_happy": {
+  "cid": 4,
+  "status": "draft",
+  "entries_in_event": 2,
+  "delta_sigma": "0",
+  "delta_entries": 2,
+  "owner_accounts_after": [
+   {
+    "uid": "970001",
+    "cid": "1",
+    "balance": "999000",
+    "frozen": "0"
+   }
+  ],
+  "currency_rows_after": [
+   {
+    "cid": "1",
+    "symbol": "$",
+    "status": "listed",
+    "deposit_amount": "0"
+   },
+   {
+    "cid": "4",
+    "symbol": "P4B3A013122",
+    "status": "draft",
+    "deposit_amount": "0"
+   }
+  ]
+ },
+ "C1_replay": {
+  "replay_flag": true,
+  "delta_sigma": "0",
+  "delta_entries": 0,
+  "currency_count_before": 2,
+  "currency_count_after": 2
+ },
+ "C1_conflict": {
+  "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+  "delta_sigma": "0",
+  "delta_entries": 0,
+  "symbol_b_created": false
+ },
+ "C1_symbol_taken": {
+  "delta_sigma": "0",
+  "delta_entries": 0
+ },
+ "C1_insufficient": {
+  "code": "LEDGER_INSUFFICIENT_BALANCE",
+  "delta_sigma": "0",
+  "delta_entries": 0,
+  "symbol_c_created": false
+ },
+ "C2_happy": {
+  "status": "listed",
+  "entries_in_event": 4,
+  "delta_sigma": "0",
+  "delta_entries": 4,
+  "delta_status_log": 1,
+  "owner_accounts_after": [
+   {
+    "uid": "970001",
+    "cid": "1",
+    "balance": "996500",
+    "frozen": "2000"
+   }
+  ],
+  "currency_row_A": {
+   "cid": "4",
+   "symbol": "P4B3A013122",
+   "status": "listed",
+   "deposit_amount": "2000"
+  }
+ },
+ "C2_replay": {
+  "replay_flag": true,
+  "delta_sigma": "0",
+  "delta_entries": 0,
+  "delta_status_log": 0,
+  "owner_accounts_after": [
+   {
+    "uid": "970001",
+    "cid": "1",
+    "balance": "996500",
+    "frozen": "2000"
+   }
+  ]
+ },
+ "C2_relist": {
+  "delta_sigma": "0",
+  "delta_entries": 0
+ },
+ "C2_insufficient": {
+  "code": "LEDGER_INSUFFICIENT_BALANCE",
+  "delta_sigma": "0",
+  "delta_entries": 0,
+  "delta_status_log": 0,
+  "unit_D_row": {
+   "cid": "9",
+   "symbol": "P4B3A013122X",
+   "status": "draft",
+   "deposit_amount": "0"
+  }
+ },
+ "stages": {
+  "S0_pre_fixture": {
+   "sigma": "0",
+   "ledger_entry_n": 0,
+   "status_log_n": 0,
+   "accounts_all": [
+    {
+     "uid": "-1",
+     "cid": "1",
+     "balance": "0",
+     "frozen": "0"
+    },
+    {
+     "uid": "-2",
+     "cid": "1",
+     "balance": "0",
+     "frozen": "0"
+    },
+    {
+     "uid": "-3",
+     "cid": "1",
+     "balance": "0",
+     "frozen": "0"
+    },
+    {
+     "uid": "0",
+     "cid": "1",
+     "balance": "0",
+     "frozen": "0"
+    }
+   ],
+   "owner_accounts": [],
+   "currencies": [
+    {
+     "cid": "1",
+     "symbol": "$",
+     "status": "listed",
+     "deposit_amount": "0"
+    }
+   ]
+  },
+  "S1_post_fixture_mint": {
+   "sigma": "1000000",
+   "ledger_entry_n": 1,
+   "status_log_n": 0,
+   "accounts_all": [
+    {
+     "uid": "-1",
+     "cid": "1",
+     "balance": "0",
+     "frozen": "0"
+    },
+    {
+     "uid": "-2",
+     "cid": "1",
+     "balance": "0",
+     "frozen": "0"
+    },
+    {
+     "uid": "-3",
+     "cid": "1",
+     "balance": "0",
+     "frozen": "0"
+    },
+    {
+     "uid": "0",
+     "cid": "1",
+     "balance": "0",
+     "frozen": "0"
+    },
+    {
+     "uid": "970001",
+     "cid": "1",
+     "balance": "1000000",
+     "frozen": "0"
+    }
+   ],
+   "owner_accounts": [
+    {
+     "uid": "970001",
+     "cid": "1",
+     "balance": "1000000",
+     "frozen": "0"
+    }
+   ],
+   "currencies": [
+    {
+     "cid": "1",
+     "symbol": "$",
+     "status": "listed",
+     "deposit_amount": "0"
+    }
+   ]
+  },
+  "S_final": {
+   "sigma": "1000000",
+   "ledger_entry_n": 9,
+   "status_log_n": 1,
+   "accounts_all": [
+    {
+     "uid": "-1",
+     "cid": "1",
+     "balance": "1600",
+     "frozen": "0"
+    },
+    {
+     "uid": "-2",
+     "cid": "1",
+     "balance": "0",
+     "frozen": "0"
+    },
+    {
+     "uid": "-3",
+     "cid": "1",
+     "balance": "0",
+     "frozen": "0"
+    },
+    {
+     "uid": "0",
+     "cid": "1",
+     "balance": "0",
+     "frozen": "0"
+    },
+    {
+     "uid": "970001",
+     "cid": "1",
+     "balance": "996400",
+     "frozen": "2000"
+    }
+   ],
+   "owner_accounts": [
+    {
+     "uid": "970001",
+     "cid": "1",
+     "balance": "996400",
+     "frozen": "2000"
+    }
+   ],
+   "currencies": [
+    {
+     "cid": "1",
+     "symbol": "$",
+     "status": "listed",
+     "deposit_amount": "0"
+    },
+    {
+     "cid": "4",
+     "symbol": "P4B3A013122",
+     "status": "listed",
+     "deposit_amount": "2000"
+    },
+    {
+     "cid": "9",
+     "symbol": "P4B3A013122X",
+     "status": "draft",
+     "deposit_amount": "0"
+    }
+   ]
+  }
+ },
+ "cases": [
+  {
+   "name": "C1-T01 no-token",
+   "method": "POST",
+   "url": "/api/currency",
+   "expect": 401,
+   "status": 401,
+   "error_code": "AUTH_UNAUTHORIZED",
+   "details": {},
+   "ok_pass": true,
+   "data_cid": null,
+   "data_status": null,
+   "replay": null,
+   "ledger_entries_in_event": null,
+   "body_head": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"AUTH_UNAUTHORIZED\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}",
+   "note": null
+  },
+  {
+   "name": "C1-T02 bad-prefix key",
+   "method": "POST",
+   "url": "/api/currency",
+   "expect": 400,
+   "status": 400,
+   "error_code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+   "details": {
+    "field": "create_key",
+    "reason": "PREFIX_REQUIRED",
+    "allowed_prefixes": [
+     "biz:",
+     "cm:",
+     "cli:",
+     "ops:"
+    ]
+   },
+   "ok_pass": true,
+   "data_cid": null,
+   "data_status": null,
+   "replay": null,
+   "ledger_entries_in_event": null,
+   "body_head": "{\"error\":{\"code\":\"LEDGER_IDEMPOTENCY_KEY_INVALID\",\"message\":\"Idempotency key is invalid\",\"i18n_key\":\"ledger.err.LEDGER_IDEMPOTENCY_KEY_INVALID\",\"details\":{\"field\":\"create_key\",\"reason\":\"PREFIX_REQUIRED\",\"allowed_prefixes\":[\"biz:\",\"cm:\",\"cli:\",\"ops:\"]}}}",
+   "note": null
+  },
+  {
+   "name": "C1-T03 decimals out of range",
+   "method": "POST",
+   "url": "/api/currency",
+   "expect": 400,
+   "status": 400,
+   "error_code": "LEDGER_AMOUNT_INVALID",
+   "details": {
+    "field": "currency.decimals",
+    "reason": "DECIMALS_OUT_OF_RANGE",
+    "provided": "99",
+    "min": 0,
+    "max": 18
+   },
+   "ok_pass": true,
+   "data_cid": null,
+   "data_status": null,
+   "replay": null,
+   "ledger_entries_in_event": null,
+   "body_head": "{\"error\":{\"code\":\"LEDGER_AMOUNT_INVALID\",\"message\":\"Request shape is invalid\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"currency.decimals\",\"reason\":\"DECIMALS_OUT_OF_RANGE\",\"provided\":\"99\",\"min\":0,\"max\":18}}}",
+   "note": null
+  },
+  {
+   "name": "C1-T04 symbol format invalid",
+   "method": "POST",
+   "url": "/api/currency",
+   "expect": 400,
+   "status": 400,
+   "error_code": "LEDGER_AMOUNT_INVALID",
+   "details": {
+    "field": "currency.symbol",
+    "reason": "SYMBOL_FORMAT_INVALID",
+    "provided_len": 7
+   },
+   "ok_pass": true,
+   "data_cid": null,
+   "data_status": null,
+   "replay": null,
+   "ledger_entries_in_event": null,
+   "body_head": "{\"error\":{\"code\":\"LEDGER_AMOUNT_INVALID\",\"message\":\"Request shape is invalid\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"currency.symbol\",\"reason\":\"SYMBOL_FORMAT_INVALID\",\"provided_len\":7}}}",
+   "note": null
+  },
+  {
+   "name": "C1-T05 fee missing",
+   "method": "POST",
+   "url": "/api/currency",
+   "expect": 400,
+   "status": 400,
+   "error_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "details": {
+    "field": "fee",
+    "value": null
+   },
+   "ok_pass": true,
+   "data_cid": null,
+   "data_status": null,
+   "replay": null,
+   "ledger_entries_in_event": null,
+   "body_head": "{\"error\":{\"code\":\"LEDGER_AMOUNT_NOT_POSITIVE\",\"message\":\"Amount is required and must be positive\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_NOT_POSITIVE\",\"details\":{\"field\":\"fee\",\"value\":null}}}",
+   "note": null
+  },
+  {
+   "name": "C1-T06 owner_uid != actor",
+   "method": "POST",
+   "url": "/api/currency",
+   "expect": 403,
+   "status": 403,
+   "error_code": "AUTH_FORBIDDEN",
+   "details": {
+    "reason": "ACTOR_NOT_ALLOWED",
+    "field": "currency.owner_uid"
+   },
+   "ok_pass": true,
+   "data_cid": null,
+   "data_status": null,
+   "replay": null,
+   "ledger_entries_in_event": null,
+   "body_head": "{\"error\":{\"code\":\"AUTH_FORBIDDEN\",\"message\":\"ACTOR_NOT_ALLOWED\",\"i18n_key\":\"auth.err.AUTH_FORBIDDEN\",\"details\":{\"reason\":\"ACTOR_NOT_ALLOWED\",\"field\":\"currency.owner_uid\"}}}",
+   "note": null
+  },
+  {
+   "name": "C1-T07 HAPPY create (fee 1000 -> -1)",
+   "method": "POST",
+   "url": "/api/currency",
+   "expect": 200,
+   "status": 200,
+   "error_code": null,
+   "details": null,
+   "ok_pass": true,
+   "data_cid": "4",
+   "data_status": "draft",
+   "replay": false,
+   "ledger_entries_in_event": 2,
+   "body_head": "{\"success\":true,\"message\":\"Currency created\",\"data\":{\"cid\":\"4\",\"symbol\":\"P4B3A013122\",\"name\":\"P4B3A test unit\",\"owner_uid\":\"970001\",\"decimals\":2,\"status\":\"draft\",\"deposit_amount\":\"0\",\"deposit_cid\":\"1\",\"listed_at\":null,\"fee\":\"1000\",\"fee_kind\":\"currency_create_f",
+   "note": null
+  },
+  {
+   "name": "C1-T08 REPLAY same key+payload",
+   "method": "POST",
+   "url": "/api/currency",
+   "expect": 200,
+   "status": 200,
+   "error_code": null,
+   "details": null,
+   "ok_pass": true,
+   "data_cid": "4",
+   "data_status": "draft",
+   "replay": true,
+   "ledger_entries_in_event": null,
+   "body_head": "{\"success\":true,\"message\":\"Currency created (idempotent replay)\",\"data\":{\"cid\":\"4\",\"symbol\":\"P4B3A013122\",\"name\":\"P4B3A test unit\",\"owner_uid\":\"970001\",\"decimals\":2,\"status\":\"draft\",\"fee\":\"1000\",\"idempotent_replay\":true,\"ledger_event\":null}}",
+   "note": null
+  },
+  {
+   "name": "C1-T09 same key / DIFFERENT payload => 409",
+   "method": "POST",
+   "url": "/api/currency",
+   "expect": 409,
+   "status": 409,
+   "error_code": "LEDGER_IDEMPOTENCY_CONFLICT",
+   "details": {
+    "detail_unavailable": "driver_did_not_carry_detail",
+    "idempotency_key": "cli:p4b3a:b3a-20260930T013122:c1-create"
+   },
+   "ok_pass": true,
+   "data_cid": null,
+   "data_status": null,
+   "replay": null,
+   "ledger_entries_in_event": null,
+   "body_head": "{\"error\":{\"code\":\"LEDGER_IDEMPOTENCY_CONFLICT\",\"message\":\"LEDGER_IDEMPOTENCY_CONFLICT\",\"i18n_key\":\"ledger.err.LEDGER_IDEMPOTENCY_CONFLICT\",\"details\":{\"detail_unavailable\":\"driver_did_not_carry_detail\",\"idempotency_key\":\"cli:p4b3a:b3a-20260930T013122:c1-create\"",
+   "note": null
+  },
+  {
+   "name": "C1-T10 duplicate symbol / DIFFERENT key => 409 SYMBOL_TAKEN",
+   "method": "POST",
+   "url": "/api/currency",
+   "expect": 409,
+   "status": 409,
+   "error_code": "LEDGER_CURRENCY_SYMBOL_TAKEN",
+   "details": {
+    "field": "currency.symbol",
+    "symbol": "P4B3A013122"
+   },
+   "ok_pass": true,
+   "data_cid": null,
+   "data_status": null,
+   "replay": null,
+   "ledger_entries_in_event": null,
+   "body_head": "{\"error\":{\"code\":\"LEDGER_CURRENCY_SYMBOL_TAKEN\",\"message\":\"Currency symbol is taken\",\"i18n_key\":\"ledger.err.LEDGER_CURRENCY_SYMBOL_TAKEN\",\"details\":{\"field\":\"currency.symbol\",\"symbol\":\"P4B3A013122\"}}}",
+   "note": null
+  },
+  {
+   "name": "C1-T11 insufficient balance => 409 + NO orphan row",
+   "method": "POST",
+   "url": "/api/currency",
+   "expect": 409,
+   "status": 409,
+   "error_code": "LEDGER_INSUFFICIENT_BALANCE",
+   "details": {
+    "detail_unavailable": "driver_did_not_carry_detail"
+   },
+   "ok_pass": true,
+   "data_cid": null,
+   "data_status": null,
+   "replay": null,
+   "ledger_entries_in_event": null,
+   "body_head": "{\"error\":{\"code\":\"LEDGER_INSUFFICIENT_BALANCE\",\"message\":\"LEDGER_INSUFFICIENT_BALANCE\",\"i18n_key\":\"ledger.err.LEDGER_INSUFFICIENT_BALANCE\",\"details\":{\"detail_unavailable\":\"driver_did_not_carry_detail\"}}}",
+   "note": null
+  },
+  {
+   "name": "C2-T12 no-token",
+   "method": "POST",
+   "url": "/api/currency/4/list",
+   "expect": 401,
+   "status": 401,
+   "error_code": "AUTH_UNAUTHORIZED",
+   "details": {},
+   "ok_pass": true,
+   "data_cid": null,
+   "data_status": null,
+   "replay": null,
+   "ledger_entries_in_event": null,
+   "body_head": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"AUTH_UNAUTHORIZED\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}",
+   "note": null
+  },
+  {
+   "name": "C2-T13 unknown cid 999999",
+   "method": "POST",
+   "url": "/api/currency/999999/list",
+   "expect": 404,
+   "status": 404,
+   "error_code": "LEDGER_CURRENCY_NOT_FOUND",
+   "details": {
+    "cid": "999999"
+   },
+   "ok_pass": true,
+   "data_cid": null,
+   "data_status": null,
+   "replay": null,
+   "ledger_entries_in_event": null,
+   "body_head": "{\"error\":{\"code\":\"LEDGER_CURRENCY_NOT_FOUND\",\"message\":\"Currency not found\",\"i18n_key\":\"ledger.err.LEDGER_CURRENCY_NOT_FOUND\",\"details\":{\"cid\":\"999999\"}}}",
+   "note": null
+  },
+  {
+   "name": "C2-T14 cid=0 (shape-ok, non-existent)",
+   "method": "POST",
+   "url": "/api/currency/0/list",
+   "expect": 404,
+   "status": 404,
+   "error_code": "LEDGER_CURRENCY_NOT_FOUND",
+   "details": {
+    "cid": "0"
+   },
+   "ok_pass": true,
+   "data_cid": null,
+   "data_status": null,
+   "replay": null,
+   "ledger_entries_in_event": null,
+   "body_head": "{\"error\":{\"code\":\"LEDGER_CURRENCY_NOT_FOUND\",\"message\":\"Currency not found\",\"i18n_key\":\"ledger.err.LEDGER_CURRENCY_NOT_FOUND\",\"details\":{\"cid\":\"0\"}}}",
+   "note": null
+  },
+  {
+   "name": "C2-T15 non-owner => 403",
+   "method": "POST",
+   "url": "/api/currency/4/list",
+   "expect": 403,
+   "status": 403,
+   "error_code": "AUTH_FORBIDDEN",
+   "details": {
+    "reason": "ACTOR_NOT_ALLOWED",
+    "ref_type": "currency",
+    "ref_id": "4",
+    "condition": "not_currency_owner"
+   },
+   "ok_pass": true,
+   "data_cid": null,
+   "data_status": null,
+   "replay": null,
+   "ledger_entries_in_event": null,
+   "body_head": "{\"error\":{\"code\":\"AUTH_FORBIDDEN\",\"message\":\"ACTOR_NOT_ALLOWED\",\"i18n_key\":\"auth.err.AUTH_FORBIDDEN\",\"details\":{\"reason\":\"ACTOR_NOT_ALLOWED\",\"ref_type\":\"currency\",\"ref_id\":\"4\",\"condition\":\"not_currency_owner\"}}}",
+   "note": null
+  },
+  {
+   "name": "C2-T16 bad-prefix key",
+   "method": "POST",
+   "url": "/api/currency/4/list",
+   "expect": 400,
+   "status": 400,
+   "error_code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+   "details": {
+    "field": "create_key",
+    "reason": "PREFIX_REQUIRED",
+    "allowed_prefixes": [
+     "biz:",
+     "cm:",
+     "cli:",
+     "ops:"
+    ]
+   },
+   "ok_pass": true,
+   "data_cid": null,
+   "data_status": null,
+   "replay": null,
+   "ledger_entries_in_event": null,
+   "body_head": "{\"error\":{\"code\":\"LEDGER_IDEMPOTENCY_KEY_INVALID\",\"message\":\"Idempotency key is invalid\",\"i18n_key\":\"ledger.err.LEDGER_IDEMPOTENCY_KEY_INVALID\",\"details\":{\"field\":\"create_key\",\"reason\":\"PREFIX_REQUIRED\",\"allowed_prefixes\":[\"biz:\",\"cm:\",\"cli:\",\"ops:\"]}}}",
+   "note": null
+  },
+  {
+   "name": "C2-T17 deposit missing",
+   "method": "POST",
+   "url": "/api/currency/4/list",
+   "expect": 400,
+   "status": 400,
+   "error_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "details": {
+    "field": "deposit_amount",
+    "value": null
+   },
+   "ok_pass": true,
+   "data_cid": null,
+   "data_status": null,
+   "replay": null,
+   "ledger_entries_in_event": null,
+   "body_head": "{\"error\":{\"code\":\"LEDGER_AMOUNT_NOT_POSITIVE\",\"message\":\"Amount is required and must be positive\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_NOT_POSITIVE\",\"details\":{\"field\":\"deposit_amount\",\"value\":null}}}",
+   "note": null
+  },
+  {
+   "name": "C2-T18 HAPPY list (fee 500 -> -1 ; deposit 2000 HOLD)",
+   "method": "POST",
+   "url": "/api/currency/4/list",
+   "expect": 200,
+   "status": 200,
+   "error_code": null,
+   "details": null,
+   "ok_pass": true,
+   "data_cid": "4",
+   "data_status": "listed",
+   "replay": false,
+   "ledger_entries_in_event": 4,
+   "body_head": "{\"success\":true,\"message\":\"Currency listed\",\"data\":{\"cid\":\"4\",\"symbol\":\"P4B3A013122\",\"owner_uid\":\"970001\",\"status\":\"listed\",\"deposit_amount\":\"2000\",\"deposit_cid\":\"1\",\"listed_at\":\"2026-09-29T17:35:45.967237+00:00\",\"listing_fee\":\"500\",\"deposit_frozen\":\"2000\",\"fe",
+   "note": null
+  },
+  {
+   "name": "C2-T19 REPLAY same key+payload",
+   "method": "POST",
+   "url": "/api/currency/4/list",
+   "expect": 200,
+   "status": 200,
+   "error_code": null,
+   "details": null,
+   "ok_pass": true,
+   "data_cid": "4",
+   "data_status": "listed",
+   "replay": true,
+   "ledger_entries_in_event": null,
+   "body_head": "{\"success\":true,\"message\":\"Currency listed (idempotent replay)\",\"data\":{\"cid\":\"4\",\"symbol\":\"\",\"owner_uid\":\"970001\",\"status\":\"listed\",\"idempotent_replay\":true,\"ledger_event\":null}}",
+   "note": null
+  },
+  {
+   "name": "C2-T20 re-list already listed (new key) => 409",
+   "method": "POST",
+   "url": "/api/currency/4/list",
+   "expect": 409,
+   "status": 409,
+   "error_code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+   "details": {
+    "field": "currency.status",
+    "reason": "CURRENCY_STATE_INVALID",
+    "cid": "4",
+    "from": "listed",
+    "to": "listed"
+   },
+   "ok_pass": true,
+   "data_cid": null,
+   "data_status": null,
+   "replay": null,
+   "ledger_entries_in_event": null,
+   "body_head": "{\"error\":{\"code\":\"LEDGER_CURRENCY_INVALID_TRANSITION\",\"message\":\"Business state transition rejected\",\"i18n_key\":\"ledger.err.LEDGER_CURRENCY_INVALID_TRANSITION\",\"details\":{\"field\":\"currency.status\",\"reason\":\"CURRENCY_STATE_INVALID\",\"cid\":\"4\",\"from\":\"listed\",\"to",
+   "note": null
+  },
+  {
+   "name": "C2-T21 setup: create unit D (fee 100, ok)",
+   "method": "POST",
+   "url": "/api/currency",
+   "expect": 200,
+   "status": 200,
+   "error_code": null,
+   "details": null,
+   "ok_pass": true,
+   "data_cid": "9",
+   "data_status": "draft",
+   "replay": false,
+   "ledger_entries_in_event": 2,
+   "body_head": "{\"success\":true,\"message\":\"Currency created\",\"data\":{\"cid\":\"9\",\"symbol\":\"P4B3A013122X\",\"name\":\"D unit\",\"owner_uid\":\"970001\",\"decimals\":0,\"status\":\"draft\",\"deposit_amount\":\"0\",\"deposit_cid\":\"1\",\"listed_at\":null,\"fee\":\"100\",\"fee_kind\":\"currency_create_fee\",\"fee_",
+   "note": null
+  },
+  {
+   "name": "C2-T22 insufficient balance on list => 409 + stays draft + NO audit row",
+   "method": "POST",
+   "url": "/api/currency/9/list",
+   "expect": 409,
+   "status": 409,
+   "error_code": "LEDGER_INSUFFICIENT_BALANCE",
+   "details": {
+    "detail_unavailable": "driver_did_not_carry_detail"
+   },
+   "ok_pass": true,
+   "data_cid": null,
+   "data_status": null,
+   "replay": null,
+   "ledger_entries_in_event": null,
+   "body_head": "{\"error\":{\"code\":\"LEDGER_INSUFFICIENT_BALANCE\",\"message\":\"LEDGER_INSUFFICIENT_BALANCE\",\"i18n_key\":\"ledger.err.LEDGER_INSUFFICIENT_BALANCE\",\"details\":{\"detail_unavailable\":\"driver_did_not_carry_detail\"}}}",
+   "note": null
+  }
+ ],
+ "summary": {
+  "pass": 22,
+  "total": 22,
+  "failed": [],
+  "sigma_pre": "0",
+  "sigma_post_mint": "1000000",
+  "sigma_final": "1000000",
+  "ledger_entry_n_pre": 0,
+  "ledger_entry_n_final": 9,
+  "net_mint_expected": 1000000
+ }
+}
