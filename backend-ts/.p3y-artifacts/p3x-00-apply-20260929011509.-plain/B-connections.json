@@ -1,0 +1,12 @@
+{
+  "self": {
+    "pid": 726,
+    "db": "neondb",
+    "usr": "neondb_owner"
+  },
+  "others_count": 0,
+  "others": [],
+  "idle_in_transaction_count": 0,
+  "idle_in_transaction": [],
+  "ungranted_locks_by_other_pids": []
+}

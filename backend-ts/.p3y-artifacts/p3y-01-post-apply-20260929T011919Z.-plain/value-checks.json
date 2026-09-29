@@ -1,0 +1,355 @@
+{
+ "probe": "P3Y-01 value checks",
+ "run": "20260929T011919Z",
+ "currency_full_row": [
+  {
+   "cid": "1",
+   "symbol": "$",
+   "name": "平台积分",
+   "owner_uid": "0",
+   "decimals": "0",
+   "total_supply": "0",
+   "status": "listed",
+   "listed_at_notnull": true
+  }
+ ],
+ "ledger_owner_rows": [
+  {
+   "uid": "-1",
+   "owner_type": "platform",
+   "name": "手续费归集账户"
+  },
+  {
+   "uid": "-2",
+   "owner_type": "platform",
+   "name": "佣金池"
+  },
+  {
+   "uid": "-3",
+   "owner_type": "platform",
+   "name": "罚没账户"
+  },
+  {
+   "uid": "0",
+   "owner_type": "platform",
+   "name": "平台主体"
+  }
+ ],
+ "account_uid_le_0_rows": [
+  {
+   "uid": "-1",
+   "cid": "1",
+   "balance": "0",
+   "frozen": "0"
+  },
+  {
+   "uid": "-2",
+   "cid": "1",
+   "balance": "0",
+   "frozen": "0"
+  },
+  {
+   "uid": "-3",
+   "cid": "1",
+   "balance": "0",
+   "frozen": "0"
+  },
+  {
+   "uid": "0",
+   "cid": "1",
+   "balance": "0",
+   "frozen": "0"
+  }
+ ],
+ "commission_policy_ids": [
+  "1"
+ ],
+ "zero_table_counts": [
+  {
+   "table": "users",
+   "rows": "0"
+  },
+  {
+   "table": "referral",
+   "rows": "0"
+  },
+  {
+   "table": "ledger_entry",
+   "rows": "0"
+  },
+  {
+   "table": "job",
+   "rows": "0"
+  },
+  {
+   "table": "job_application",
+   "rows": "0"
+  },
+  {
+   "table": "job_submission",
+   "rows": "0"
+  },
+  {
+   "table": "listing",
+   "rows": "0"
+  },
+  {
+   "table": "listing_order",
+   "rows": "0"
+  },
+  {
+   "table": "market_order",
+   "rows": "0"
+  },
+  {
+   "table": "market_trade",
+   "rows": "0"
+  }
+ ],
+ "m0017_counts": [
+  {
+   "table": "app_config",
+   "rows": "0"
+  },
+  {
+   "table": "admin_role",
+   "rows": "0"
+  },
+  {
+   "table": "admin_permission",
+   "rows": "0"
+  },
+  {
+   "table": "admin_role_permission",
+   "rows": "0"
+  },
+  {
+   "table": "admin_user_role",
+   "rows": "0"
+  },
+  {
+   "table": "currency_status_log",
+   "rows": "0"
+  }
+ ],
+ "schema_migration_rows": "17",
+ "table_row_counts_all": [
+  {
+   "table": "account",
+   "rows": "4"
+  },
+  {
+   "table": "admin_permission",
+   "rows": "0"
+  },
+  {
+   "table": "admin_role",
+   "rows": "0"
+  },
+  {
+   "table": "admin_role_permission",
+   "rows": "0"
+  },
+  {
+   "table": "admin_user_role",
+   "rows": "0"
+  },
+  {
+   "table": "app_config",
+   "rows": "0"
+  },
+  {
+   "table": "commission_policy",
+   "rows": "1"
+  },
+  {
+   "table": "currency",
+   "rows": "1"
+  },
+  {
+   "table": "currency_status_log",
+   "rows": "0"
+  },
+  {
+   "table": "job",
+   "rows": "0"
+  },
+  {
+   "table": "job_application",
+   "rows": "0"
+  },
+  {
+   "table": "job_submission",
+   "rows": "0"
+  },
+  {
+   "table": "ledger_entry",
+   "rows": "0"
+  },
+  {
+   "table": "ledger_owner",
+   "rows": "4"
+  },
+  {
+   "table": "listing",
+   "rows": "0"
+  },
+  {
+   "table": "listing_order",
+   "rows": "0"
+  },
+  {
+   "table": "market_order",
+   "rows": "0"
+  },
+  {
+   "table": "market_trade",
+   "rows": "0"
+  },
+  {
+   "table": "referral",
+   "rows": "0"
+  },
+  {
+   "table": "schema_migration",
+   "rows": "17"
+  },
+  {
+   "table": "users",
+   "rows": "0"
+  }
+ ],
+ "checks": [
+  {
+   "id": "currency.count=1",
+   "group": "V",
+   "sql": "SELECT count(*) FROM public.\"currency\"",
+   "expect": "1",
+   "actual": "1",
+   "pass": true
+  },
+  {
+   "id": "currency.$-row(cid=1,symbol=$,total_supply=0,status=listed)",
+   "group": "V",
+   "sql": "SELECT cid,symbol,total_supply,status FROM public.\"currency\"",
+   "expect": "{\"cid\":\"1\",\"symbol\":\"$\",\"total_supply\":\"0\",\"status\":\"listed\"}",
+   "actual": "{\"cid\":\"1\",\"symbol\":\"$\",\"total_supply\":\"0\",\"status\":\"listed\"}",
+   "pass": true,
+   "note": "另记 name/owner_uid/decimals/listed_at_notnull 于 value-checks.json 的 currency_full_row"
+  },
+  {
+   "id": "ledger_owner.count=4",
+   "group": "V",
+   "sql": "SELECT count(*) FROM public.\"ledger_owner\"",
+   "expect": "4",
+   "actual": "4",
+   "pass": true
+  },
+  {
+   "id": "ledger_owner.rows(uid -3/-2/-1/0 + 名字逐字 + owner_type=platform)",
+   "group": "V",
+   "sql": "SELECT uid,owner_type,name FROM public.\"ledger_owner\" ORDER BY uid；比对前两侧按 uid 数值升序规范化",
+   "expect": "[{\"uid\":\"-3\",\"owner_type\":\"platform\",\"name\":\"罚没账户\"},{\"uid\":\"-2\",\"owner_type\":\"platform\",\"name\":\"佣金池\"},{\"uid\":\"-1\",\"owner_type\":\"platform\",\"name\":\"手续费归集账户\"},{\"uid\":\"0\",\"owner_type\":\"platform\",\"name\":\"平台主体\"}]",
+   "actual": "[{\"uid\":\"-3\",\"owner_type\":\"platform\",\"name\":\"罚没账户\"},{\"uid\":\"-2\",\"owner_type\":\"platform\",\"name\":\"佣金池\"},{\"uid\":\"-1\",\"owner_type\":\"platform\",\"name\":\"手续费归集账户\"},{\"uid\":\"0\",\"owner_type\":\"platform\",\"name\":\"平台主体\"}]",
+   "pass": true,
+   "note": "口径修正记录：DB 的 ORDER BY uid 返回 -3,-2,-1,0；首轮探针误按 seed 书写顺序(0,-1,-2,-3)直接比较而报 FAIL —— 属探针口径错，非数据错。修正为两侧按 uid 数值升序规范化后逐字节比较。"
+  },
+  {
+   "id": "account.count=4(口径:全表)",
+   "group": "V",
+   "sql": "SELECT count(*) FROM public.\"account\"",
+   "expect": "4",
+   "actual": "4",
+   "pass": true
+  },
+  {
+   "id": "account.uid<=0 行=4 且每行 cid=1 且 balance=0 且 frozen=0",
+   "group": "V",
+   "sql": "SELECT count(*) FROM public.\"account\" WHERE uid<=0 AND NOT (cid=1 AND balance=0 AND frozen=0)",
+   "expect": "distinct_uid=4 且 违例行=0",
+   "actual": "distinct_uid=4 违例行=0 rows=[{\"uid\":\"-1\",\"cid\":\"1\",\"balance\":\"0\",\"frozen\":\"0\"},{\"uid\":\"-2\",\"cid\":\"1\",\"balance\":\"0\",\"frozen\":\"0\"},{\"uid\":\"-3\",\"cid\":\"1\",\"balance\":\"0\",\"frozen\":\"0\"},{\"uid\":\"0\",\"cid\":\"1\",\"balance\":\"0\",\"frozen\":\"0\"}]",
+   "pass": true
+  },
+  {
+   "id": "commission_policy.count=1 且 policy_id=1",
+   "group": "V",
+   "sql": "SELECT policy_id FROM public.\"commission_policy\" ORDER BY policy_id",
+   "expect": "[\"1\"]",
+   "actual": "[\"1\"]",
+   "pass": true
+  },
+  {
+   "id": "10 业务表全 0（users/referral/ledger_entry/job/job_application/job_submission/listing/listing_order/market_order/market_trade）",
+   "group": "V",
+   "sql": "SELECT count(*) FROM public.\"users\" ; SELECT count(*) FROM public.\"referral\" ; SELECT count(*) FROM public.\"ledger_entry\" ; SELECT count(*) FROM public.\"job\" ; SELECT count(*) FROM public.\"job_application\" ; SELECT count(*) FROM public.\"job_submission\" ; SELECT count(*) FROM public.\"listing\" ; SELECT count(*) FROM public.\"listing_order\" ; SELECT count(*) FROM public.\"market_order\" ; SELECT count(*) FROM public.\"market_trade\"",
+   "expect": "全部 0",
+   "actual": "[{\"table\":\"users\",\"rows\":\"0\"},{\"table\":\"referral\",\"rows\":\"0\"},{\"table\":\"ledger_entry\",\"rows\":\"0\"},{\"table\":\"job\",\"rows\":\"0\"},{\"table\":\"job_application\",\"rows\":\"0\"},{\"table\":\"job_submission\",\"rows\":\"0\"},{\"table\":\"listing\",\"rows\":\"0\"},{\"table\":\"listing_order\",\"rows\":\"0\"},{\"table\":\"market_order\",\"rows\":\"0\"},{\"table\":\"market_trade\",\"rows\":\"0\"}]",
+   "pass": true
+  },
+  {
+   "id": "0017 六表全 0（app_config/admin_role/admin_permission/admin_role_permission/admin_user_role/currency_status_log）",
+   "group": "V",
+   "sql": "SELECT count(*) FROM public.\"app_config\" ; SELECT count(*) FROM public.\"admin_role\" ; SELECT count(*) FROM public.\"admin_permission\" ; SELECT count(*) FROM public.\"admin_role_permission\" ; SELECT count(*) FROM public.\"admin_user_role\" ; SELECT count(*) FROM public.\"currency_status_log\"",
+   "expect": "全部 0",
+   "actual": "[{\"table\":\"app_config\",\"rows\":\"0\"},{\"table\":\"admin_role\",\"rows\":\"0\"},{\"table\":\"admin_permission\",\"rows\":\"0\"},{\"table\":\"admin_role_permission\",\"rows\":\"0\"},{\"table\":\"admin_user_role\",\"rows\":\"0\"},{\"table\":\"currency_status_log\",\"rows\":\"0\"}]",
+   "pass": true
+  },
+  {
+   "id": "schema_migration.count=17",
+   "group": "V",
+   "sql": "SELECT count(*) FROM public.\"schema_migration\"",
+   "expect": "17",
+   "actual": "17",
+   "pass": true
+  },
+  {
+   "id": "public 非 internal 触发器 = 43",
+   "group": "V",
+   "sql": "pg_trigger ... nspname=public AND NOT tgisinternal",
+   "expect": "43",
+   "actual": "43",
+   "pass": true
+  },
+  {
+   "id": "public 非 internal 且 tgenabled <> 'O' = 0",
+   "group": "V",
+   "sql": "... AND tgenabled <> 'O'",
+   "expect": "0",
+   "actual": "0",
+   "pass": true
+  },
+  {
+   "id": "public 基表计数（口径: information_schema BASE TABLE）",
+   "group": "V",
+   "sql": "information_schema.tables table_type=BASE TABLE",
+   "expect": "21（文件期望 20 + registry 表 schema_migration）",
+   "actual": "21",
+   "pass": true
+  },
+  {
+   "id": "public 视图计数（口径: information_schema VIEW）",
+   "group": "V",
+   "sql": "information_schema.tables table_type=VIEW",
+   "expect": "1",
+   "actual": "1",
+   "pass": true
+  },
+  {
+   "id": "currency.cid 序列下一值 = 4（只读推断）",
+   "group": "V",
+   "sql": "SELECT last_value,is_called FROM public.currency_cid_seq",
+   "expect": "4",
+   "actual": "4",
+   "pass": true,
+   "note": "口径：0011:413 / 0012:1180 各一句无 cid 的 INSERT INTO currency 位于子事务+哨兵回滚块内 ⇒ 行回滚但序列推进不撤；0001 显式给 cid=1 ⇒ 序列仅 setval(1,true)。故重建后下一值 = 4，≠ pre-state(294)，属预期。"
+  },
+  {
+   "id": "5 关键函数 md5(prosrc) 与 pre-state 相等",
+   "group": "V",
+   "sql": "SELECT proname, pg_get_function_identity_arguments, md5(prosrc) FROM pg_proc WHERE nspname=public AND proname IN (5)",
+   "expect": "5/5 相等（pre-state = .p3x-artifacts/p3x-00-dry-20260928174808.-plain/A-pre-state.json .key_functions_md5，口径 md5(prosrc)）",
+   "actual": "[{\"proname\":\"job_post_event\",\"args\":\"payload jsonb\",\"md5_now\":\"0cedbb9ea60dcbda28e3ef3dafdd119b\",\"md5_pre\":\"0cedbb9ea60dcbda28e3ef3dafdd119b\",\"equal\":true},{\"proname\":\"ledger_assert_commission_conservation\",\"args\":\"\",\"md5_now\":\"27ddc76b842594cb6ee8673c171e6526\",\"md5_pre\":\"27ddc76b842594cb6ee8673c171e6526\",\"equal\":true},{\"proname\":\"ledger_post_event\",\"args\":\"payload jsonb\",\"md5_now\":\"d94dd902697dfe60aba409d808c6d63a\",\"md5_pre\":\"d94dd902697dfe60aba409d808c6d63a\",\"equal\":true},{\"proname\":\"listing_post_event\",\"args\":\"payload jsonb\",\"md5_now\":\"0e187c20b56d45202d83978c8a02b31d\",\"md5_pre\":\"0e187c20b56d45202d83978c8a02b31d\",\"equal\":true},{\"proname\":\"market_post_event\",\"args\":\"payload jsonb\",\"md5_now\":\"74841611252726e1cc0f57cb46ea6c6d\",\"md5_pre\":\"74841611252726e1cc0f57cb46ea6c6d\",\"equal\":true}]",
+   "pass": true
+  }
+ ]
+}

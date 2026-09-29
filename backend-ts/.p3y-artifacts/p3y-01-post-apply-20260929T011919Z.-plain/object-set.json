@@ -1,0 +1,134 @@
+{
+ "source": "派生口径：对 migrations/0001..0017 原文做 stripSql()（剥 -- 行注释 / 块注释 / 单引号字面量 / 美元引用体），再用正则抽取 CREATE [OR REPLACE] TABLE|VIEW|FUNCTION|PROCEDURE|TRIGGER|SEQUENCE 的对象名（去 public. 前缀与引号），按对象名去重。",
+ "files_missing": [],
+ "renames_from_files": [
+  {
+   "from": "user",
+   "to": "users",
+   "file": "0006_user_to_users.sql"
+  },
+  {
+   "from": "user",
+   "to": "users",
+   "file": "0006_user_to_users.sql"
+  }
+ ],
+ "expected_tables_pre_rename": [
+  "account",
+  "admin_permission",
+  "admin_role",
+  "admin_role_permission",
+  "admin_user_role",
+  "app_config",
+  "commission_policy",
+  "currency",
+  "currency_status_log",
+  "job",
+  "job_application",
+  "job_submission",
+  "ledger_entry",
+  "ledger_owner",
+  "listing",
+  "listing_order",
+  "market_order",
+  "market_trade",
+  "referral",
+  "user"
+ ],
+ "expectations_from_files": {
+  "TABLE": 20,
+  "VIEW": 1,
+  "FUNCTION": 74,
+  "PROCEDURE": 0,
+  "TRIGGER": 43,
+  "SEQUENCE_create_statement": 0
+ },
+ "actual": {
+  "base_tables": 21,
+  "views": 1,
+  "functions_names": 74,
+  "functions_raw_rows": "74",
+  "procedures_names": 0,
+  "triggers": 43,
+  "sequences": 13
+ },
+ "TABLE": {
+  "expected_count": 20,
+  "actual_count": 21,
+  "missing": [],
+  "extra_raw": [
+   "schema_migration"
+  ],
+  "extra_known": [
+   "schema_migration"
+  ],
+  "extra_unexplained": [],
+  "missing_names": [],
+  "extra_names": []
+ },
+ "VIEW": {
+  "expected_count": 1,
+  "actual_count": 1,
+  "missing": [],
+  "extra_raw": [],
+  "extra_known": [],
+  "extra_unexplained": [],
+  "missing_names": [],
+  "extra_names": []
+ },
+ "FUNCTION": {
+  "expected_count": 74,
+  "actual_count": 74,
+  "missing": [],
+  "extra_raw": [],
+  "extra_known": [],
+  "extra_unexplained": [],
+  "missing_names": [],
+  "extra_names": []
+ },
+ "PROCEDURE": {
+  "expected_count": 0,
+  "actual_count": 0,
+  "missing": [],
+  "extra_raw": [],
+  "extra_known": [],
+  "extra_unexplained": [],
+  "missing_names": [],
+  "extra_names": []
+ },
+ "TRIGGER": {
+  "expected_count": 43,
+  "actual_count": 43,
+  "missing": [],
+  "extra_raw": [],
+  "extra_known": [],
+  "extra_unexplained": [],
+  "missing_names": [],
+  "extra_names": []
+ },
+ "SEQUENCE": {
+  "note": "口径：迁移文件内 CREATE SEQUENCE 语句 = 0，序列名无法由文件声明推出；期望按「IDENTITY 声明数 + SERIAL 声明数 + 1 bootstrap（0001 的 pg_get_serial_sequence('currency','cid') setval）」计数对拍数量，名字比对记为 NOT_MEASURED。",
+  "identity_decls": 12,
+  "serial_decls": 0,
+  "bootstrap": 1,
+  "expected_count_by_declaration": 13,
+  "actual_count": 13,
+  "actual_names": [
+   "commission_policy_policy_id_seq",
+   "currency_cid_seq",
+   "currency_status_log_log_id_seq",
+   "job_application_application_id_seq",
+   "job_job_id_seq",
+   "job_submission_submission_id_seq",
+   "ledger_entry_txid_seq",
+   "listing_listing_id_seq",
+   "listing_order_order_id_seq",
+   "market_order_order_id_seq",
+   "market_trade_trade_id_seq",
+   "schema_migration_id_seq",
+   "users_uid_seq"
+  ],
+  "name_level_compare": "NOT_MEASURED",
+  "pass_count": true
+ }
+}

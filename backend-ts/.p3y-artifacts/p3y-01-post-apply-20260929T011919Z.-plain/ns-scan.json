@@ -1,0 +1,145 @@
+{
+ "scope": "口径：needle 扫描仅覆盖**行数>0 的 public 基表**的 text/varchar 列（重建后 21 表中仅 5 表非空）；uid 窗口用 left(uid::text,4) = ANY(6 个取样前缀)。",
+ "table_row_counts_all": [
+  {
+   "table": "account",
+   "rows": "4"
+  },
+  {
+   "table": "admin_permission",
+   "rows": "0"
+  },
+  {
+   "table": "admin_role",
+   "rows": "0"
+  },
+  {
+   "table": "admin_role_permission",
+   "rows": "0"
+  },
+  {
+   "table": "admin_user_role",
+   "rows": "0"
+  },
+  {
+   "table": "app_config",
+   "rows": "0"
+  },
+  {
+   "table": "commission_policy",
+   "rows": "1"
+  },
+  {
+   "table": "currency",
+   "rows": "1"
+  },
+  {
+   "table": "currency_status_log",
+   "rows": "0"
+  },
+  {
+   "table": "job",
+   "rows": "0"
+  },
+  {
+   "table": "job_application",
+   "rows": "0"
+  },
+  {
+   "table": "job_submission",
+   "rows": "0"
+  },
+  {
+   "table": "ledger_entry",
+   "rows": "0"
+  },
+  {
+   "table": "ledger_owner",
+   "rows": "4"
+  },
+  {
+   "table": "listing",
+   "rows": "0"
+  },
+  {
+   "table": "listing_order",
+   "rows": "0"
+  },
+  {
+   "table": "market_order",
+   "rows": "0"
+  },
+  {
+   "table": "market_trade",
+   "rows": "0"
+  },
+  {
+   "table": "referral",
+   "rows": "0"
+  },
+  {
+   "table": "schema_migration",
+   "rows": "17"
+  },
+  {
+   "table": "users",
+   "rows": "0"
+  }
+ ],
+ "tables_non_empty": [
+  "account",
+  "commission_policy",
+  "currency",
+  "ledger_owner",
+  "schema_migration"
+ ],
+ "needles": [
+  "cli:",
+  "p3p:",
+  "p3q:",
+  "p3x:",
+  "p3y:",
+  "99xxx"
+ ],
+ "text_columns_scanned": 9,
+ "scan_queries": 54,
+ "needle_hits": [],
+ "uid_window_checks": [
+  {
+   "table": "users.uid",
+   "uid_prefix_window": [
+    "9903",
+    "9904",
+    "9905",
+    "9906",
+    "9907",
+    "9908"
+   ],
+   "rows": "0"
+  },
+  {
+   "table": "account.uid",
+   "uid_prefix_window": [
+    "9903",
+    "9904",
+    "9905",
+    "9906",
+    "9907",
+    "9908"
+   ],
+   "rows": "0"
+  },
+  {
+   "table": "currency.owner_uid",
+   "uid_prefix_window": [
+    "9903",
+    "9904",
+    "9905",
+    "9906",
+    "9907",
+    "9908"
+   ],
+   "rows": "0"
+  }
+ ]
+}

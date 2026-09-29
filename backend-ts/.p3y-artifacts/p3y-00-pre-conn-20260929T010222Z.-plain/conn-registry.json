@@ -1,0 +1,131 @@
+{
+ "probe": "P3Y-00 · S0b 前置连接登记",
+ "author": "Kong (Unit J2)",
+ "run": "20260929T010222Z",
+ "mode": "READ_ONLY (SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY + 仅 SELECT)",
+ "self": {
+  "pid": "3322",
+  "db": "neondb",
+  "usr": "neondb_owner",
+  "pg_version": "PostgreSQL 18.6 (6569466) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit"
+ },
+ "connections_non_self_total": 10,
+ "connections_non_self": [
+  {
+   "pid": "3183",
+   "usename": "cloud_admin",
+   "application_name": "neon_compute_sql_exporter",
+   "state": "idle",
+   "state_change": "2026-09-29 01:02:17.608733+00",
+   "backend_start": "2026-09-29 01:01:34.833577+00",
+   "xact_start": null,
+   "client_addr": "127.0.0.1/32",
+   "query_head": "SELECT (neon.backpressure_throttling_time()::pg_catalog.float8 / 1000000) AS throttled;\n"
+  },
+  {
+   "pid": "565",
+   "usename": null,
+   "application_name": "",
+   "state": "",
+   "state_change": null,
+   "backend_start": "2026-09-29 00:46:03.460697+00",
+   "xact_start": null,
+   "client_addr": "local",
+   "query_head": ""
+  },
+  {
+   "pid": "566",
+   "usename": null,
+   "application_name": "",
+   "state": "",
+   "state_change": null,
+   "backend_start": "2026-09-29 00:46:03.461809+00",
+   "xact_start": null,
+   "client_addr": "local",
+   "query_head": ""
+  },
+  {
+   "pid": "572",
+   "usename": null,
+   "application_name": "",
+   "state": "",
+   "state_change": null,
+   "backend_start": "2026-09-29 00:46:03.804394+00",
+   "xact_start": null,
+   "client_addr": "local",
+   "query_head": ""
+  },
+  {
+   "pid": "573",
+   "usename": null,
+   "application_name": "",
+   "state": "",
+   "state_change": null,
+   "backend_start": "2026-09-29 00:46:03.804996+00",
+   "xact_start": null,
+   "client_addr": "local",
+   "query_head": ""
+  },
+  {
+   "pid": "577",
+   "usename": "cloud_admin",
+   "application_name": "pg_cron scheduler",
+   "state": "",
+   "state_change": null,
+   "backend_start": "2026-09-29 00:46:03.812667+00",
+   "xact_start": null,
+   "client_addr": "local",
+   "query_head": ""
+  },
+  {
+   "pid": "578",
+   "usename": "cloud_admin",
+   "application_name": "TimescaleDB Background Worker Launcher",
+   "state": "",
+   "state_change": null,
+   "backend_start": "2026-09-29 00:46:03.815631+00",
+   "xact_start": null,
+   "client_addr": "local",
+   "query_head": ""
+  },
+  {
+   "pid": "581",
+   "usename": "cloud_admin",
+   "application_name": "",
+   "state": "",
+   "state_change": null,
+   "backend_start": "2026-09-29 00:46:03.821943+00",
+   "xact_start": null,
+   "client_addr": "local",
+   "query_head": ""
+  },
+  {
+   "pid": "585",
+   "usename": "cloud_admin",
+   "application_name": "compute_ctl:compute_monitor",
+   "state": "idle",
+   "state_change": "2026-09-29 01:02:23.506783+00",
+   "backend_start": "2026-09-29 00:46:03.834579+00",
+   "xact_start": null,
+   "client_addr": "127.0.0.1/32",
+   "query_head": "select count(*) from pg_stat_activity where backend_type = 'autovacuum worker'"
+  },
+  {
+   "pid": "612",
+   "usename": "cloud_admin",
+   "application_name": "vm-monitor",
+   "state": "idle",
+   "state_change": "2026-09-29 00:46:12.839116+00",
+   "backend_start": "2026-09-29 00:46:07.829352+00",
+   "xact_start": null,
+   "client_addr": "::1/128",
+   "query_head": "SET neon.file_cache_size_limit = '607MB';"
+  }
+ ],
+ "idle_in_transaction_non_self_count": 0,
+ "idle_in_transaction_non_self": [],
+ "verdict": {
+  "blocked": "CLEAR: 无非本会话 idle in transaction"
+ },
+ "note": "只读登记；未调用 pg_terminate_backend/pg_cancel_backend。连接串已 redact。"
+}

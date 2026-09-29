@@ -1,0 +1,50 @@
+{
+ "base_tables": [
+  "account",
+  "admin_permission",
+  "admin_role",
+  "admin_role_permission",
+  "admin_user_role",
+  "app_config",
+  "commission_policy",
+  "currency",
+  "currency_status_log",
+  "job",
+  "job_application",
+  "job_submission",
+  "ledger_entry",
+  "ledger_owner",
+  "listing",
+  "listing_order",
+  "market_order",
+  "market_trade",
+  "referral",
+  "schema_migration",
+  "users"
+ ],
+ "base_table_count": 21,
+ "views": [
+  "candle_view"
+ ],
+ "view_count": 1,
+ "triggers_non_internal": "43",
+ "triggers_not_enabled_not_O": "0",
+ "sequences": [
+  "commission_policy_policy_id_seq",
+  "currency_cid_seq",
+  "currency_status_log_log_id_seq",
+  "job_application_application_id_seq",
+  "job_job_id_seq",
+  "job_submission_submission_id_seq",
+  "ledger_entry_txid_seq",
+  "listing_listing_id_seq",
+  "listing_order_order_id_seq",
+  "market_order_order_id_seq",
+  "market_trade_trade_id_seq",
+  "schema_migration_id_seq",
+  "users_uid_seq"
+ ],
+ "functions_raw_rows": "74",
+ "functions_names": 74,
+ "procedures_names": 0
+}

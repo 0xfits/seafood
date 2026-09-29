@@ -1,0 +1,451 @@
+{
+  "label": "F-post-state",
+  "at": "2026-09-29T01:15:59.947Z",
+  "public_base_tables": [
+    "account",
+    "admin_permission",
+    "admin_role",
+    "admin_role_permission",
+    "admin_user_role",
+    "app_config",
+    "commission_policy",
+    "currency",
+    "currency_status_log",
+    "job",
+    "job_application",
+    "job_submission",
+    "ledger_entry",
+    "ledger_owner",
+    "listing",
+    "listing_order",
+    "market_order",
+    "market_trade",
+    "referral",
+    "schema_migration",
+    "users"
+  ],
+  "public_base_table_count": 21,
+  "business_tables": [
+    "account",
+    "admin_permission",
+    "admin_role",
+    "admin_role_permission",
+    "admin_user_role",
+    "app_config",
+    "commission_policy",
+    "currency",
+    "currency_status_log",
+    "job",
+    "job_application",
+    "job_submission",
+    "ledger_entry",
+    "ledger_owner",
+    "listing",
+    "listing_order",
+    "market_order",
+    "market_trade",
+    "referral",
+    "users"
+  ],
+  "business_table_count": 20,
+  "table_row_counts": {
+    "account": "4",
+    "admin_permission": "0",
+    "admin_role": "0",
+    "admin_role_permission": "0",
+    "admin_user_role": "0",
+    "app_config": "0",
+    "commission_policy": "1",
+    "currency": "1",
+    "currency_status_log": "0",
+    "job": "0",
+    "job_application": "0",
+    "job_submission": "0",
+    "ledger_entry": "0",
+    "ledger_owner": "4",
+    "listing": "0",
+    "listing_order": "0",
+    "market_order": "0",
+    "market_trade": "0",
+    "referral": "0",
+    "schema_migration": "17",
+    "users": "0"
+  },
+  "catalog": {
+    "base_tables": "21",
+    "views": "1",
+    "matviews": "0",
+    "sequences": "13",
+    "indexes": "56",
+    "functions_all": "74",
+    "functions": "74",
+    "procedures": "0"
+  },
+  "catalog_names": {
+    "base_tables": [
+      "account",
+      "admin_permission",
+      "admin_role",
+      "admin_role_permission",
+      "admin_user_role",
+      "app_config",
+      "commission_policy",
+      "currency",
+      "currency_status_log",
+      "job",
+      "job_application",
+      "job_submission",
+      "ledger_entry",
+      "ledger_owner",
+      "listing",
+      "listing_order",
+      "market_order",
+      "market_trade",
+      "referral",
+      "schema_migration",
+      "users"
+    ],
+    "views": [
+      "candle_view"
+    ],
+    "sequences": [
+      "commission_policy_policy_id_seq",
+      "currency_cid_seq",
+      "currency_status_log_log_id_seq",
+      "job_application_application_id_seq",
+      "job_job_id_seq",
+      "job_submission_submission_id_seq",
+      "ledger_entry_txid_seq",
+      "listing_listing_id_seq",
+      "listing_order_order_id_seq",
+      "market_order_order_id_seq",
+      "market_trade_trade_id_seq",
+      "schema_migration_id_seq",
+      "users_uid_seq"
+    ],
+    "functions": [
+      "account_guard",
+      "commission_policy_append_only",
+      "commission_policy_weights_guard",
+      "currency_status_log_append_only",
+      "job_application_create_key_guard",
+      "job_application_no_delete",
+      "job_application_status_guard",
+      "job_application_status_transition_ok",
+      "job_application_touch_time_updated",
+      "job_core_immutable_guard",
+      "job_ledger_ref_guard",
+      "job_no_delete",
+      "job_post_event",
+      "job_settle_plan",
+      "job_status_guard",
+      "job_status_transition_ok",
+      "job_submission_immutable_guard",
+      "job_submission_no_delete",
+      "job_touch_time_updated",
+      "ledger_accounts_from_entries",
+      "ledger_arm_lock_timeout",
+      "ledger_assert_commission_conservation",
+      "ledger_assert_currency_op",
+      "ledger_assert_platform_mutation",
+      "ledger_budget_remaining_ms",
+      "ledger_check_budget",
+      "ledger_cid_arg",
+      "ledger_entry_append_only",
+      "ledger_entry_json",
+      "ledger_error_for_sqlstate",
+      "ledger_int_amount",
+      "ledger_kind_ok",
+      "ledger_lock_timeout_ms",
+      "ledger_max_single_amount",
+      "ledger_norm_entry",
+      "ledger_optional_bool",
+      "ledger_optional_text",
+      "ledger_parse_user_amount",
+      "ledger_payload_amount",
+      "ledger_payload_cap",
+      "ledger_post_event",
+      "ledger_raise",
+      "ledger_sqlstate_of",
+      "ledger_stmt_budget_ms",
+      "ledger_strict_text",
+      "ledger_uid_arg",
+      "listing_create_key_guard",
+      "listing_no_delete",
+      "listing_order_core_immutable_guard",
+      "listing_order_create_key_guard",
+      "listing_order_ledger_ref_guard",
+      "listing_order_no_delete",
+      "listing_order_status_guard",
+      "listing_order_status_transition_ok",
+      "listing_order_touch_time_updated",
+      "listing_post_event",
+      "listing_status_guard",
+      "listing_status_transition_ok",
+      "listing_stock_guard",
+      "listing_touch_time_updated",
+      "market_order_amount_filled_guard",
+      "market_order_core_immutable_guard",
+      "market_order_create_key_guard",
+      "market_order_no_delete",
+      "market_order_status_guard",
+      "market_order_status_transition_ok",
+      "market_order_touch_time_updated",
+      "market_post_event",
+      "market_trade_append_only",
+      "platform_config_key_immutable",
+      "platform_config_touch_updated",
+      "referral_append_only",
+      "referral_bind",
+      "referral_cycle_guard"
+    ],
+    "triggers": [
+      "trg_account_guard",
+      "trg_admin_permission_key_immutable",
+      "trg_admin_role_key_immutable",
+      "trg_admin_role_permission_key_immutable",
+      "trg_admin_user_role_key_immutable",
+      "trg_app_config_key_immutable",
+      "trg_app_config_touch_updated",
+      "trg_commission_policy_append_only",
+      "trg_commission_policy_weights_guard",
+      "trg_currency_status_log_append_only",
+      "trg_job_application_create_key_guard",
+      "trg_job_application_no_delete",
+      "trg_job_application_status_guard",
+      "trg_job_application_touch_time_updated",
+      "trg_job_core_immutable_guard",
+      "trg_job_ledger_ref_guard",
+      "trg_job_no_delete",
+      "trg_job_status_guard",
+      "trg_job_submission_immutable_guard",
+      "trg_job_submission_no_delete",
+      "trg_job_touch_time_updated",
+      "trg_ledger_entry_append_only",
+      "trg_ledger_entry_commission_conservation",
+      "trg_listing_create_key_guard",
+      "trg_listing_no_delete",
+      "trg_listing_order_core_immutable_guard",
+      "trg_listing_order_create_key_guard",
+      "trg_listing_order_ledger_ref_guard",
+      "trg_listing_order_no_delete",
+      "trg_listing_order_status_guard",
+      "trg_listing_order_touch_time_updated",
+      "trg_listing_status_guard",
+      "trg_listing_stock_guard",
+      "trg_listing_touch_time_updated",
+      "trg_market_order_amount_filled_guard",
+      "trg_market_order_core_immutable_guard",
+      "trg_market_order_create_key_guard",
+      "trg_market_order_no_delete",
+      "trg_market_order_status_guard",
+      "trg_market_order_touch_time_updated",
+      "trg_market_trade_append_only",
+      "trg_referral_append_only",
+      "trg_referral_cycle_guard"
+    ]
+  },
+  "triggers": {
+    "non_internal": "43",
+    "enabled_not_o": "0",
+    "enabled_o": "43",
+    "constraint_triggers": "1"
+  },
+  "trigger_enabled_distribution": [
+    {
+      "tgenabled": "O",
+      "n": 43
+    }
+  ],
+  "key_functions_md5": [
+    {
+      "proname": "job_post_event",
+      "args": "payload jsonb",
+      "md5": "0cedbb9ea60dcbda28e3ef3dafdd119b"
+    },
+    {
+      "proname": "ledger_assert_commission_conservation",
+      "args": "",
+      "md5": "27ddc76b842594cb6ee8673c171e6526"
+    },
+    {
+      "proname": "ledger_post_event",
+      "args": "payload jsonb",
+      "md5": "d94dd902697dfe60aba409d808c6d63a"
+    },
+    {
+      "proname": "listing_post_event",
+      "args": "payload jsonb",
+      "md5": "0e187c20b56d45202d83978c8a02b31d"
+    },
+    {
+      "proname": "market_post_event",
+      "args": "payload jsonb",
+      "md5": "74841611252726e1cc0f57cb46ea6c6d"
+    }
+  ],
+  "schema_migration": [
+    {
+      "version": "0001",
+      "name": "0001_ledger_core.sql",
+      "checksum": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+      "applied_at": "2026-09-29 01:15:27.684706+00"
+    },
+    {
+      "version": "0002",
+      "name": "0002_user_identity.sql",
+      "checksum": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+      "applied_at": "2026-09-29 01:15:27.684706+00"
+    },
+    {
+      "version": "0003",
+      "name": "0003_kind_close_set_20.sql",
+      "checksum": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+      "applied_at": "2026-09-29 01:15:27.684706+00"
+    },
+    {
+      "version": "0004",
+      "name": "0004_ledger_post_event.sql",
+      "checksum": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+      "applied_at": "2026-09-29 01:15:27.684706+00"
+    },
+    {
+      "version": "0005",
+      "name": "0005_ledger_event_root_key.sql",
+      "checksum": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+      "applied_at": "2026-09-29 01:15:27.684706+00"
+    },
+    {
+      "version": "0006",
+      "name": "0006_user_to_users.sql",
+      "checksum": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+      "applied_at": "2026-09-29 01:15:27.684706+00"
+    },
+    {
+      "version": "0007",
+      "name": "0007_referral_and_commission_policy.sql",
+      "checksum": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+      "applied_at": "2026-09-29 01:15:27.684706+00"
+    },
+    {
+      "version": "0008",
+      "name": "0008_platform_revenue_job_fee.sql",
+      "checksum": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+      "applied_at": "2026-09-29 01:15:27.684706+00"
+    },
+    {
+      "version": "0009",
+      "name": "0009_ledger_error_reverse_map_complete.sql",
+      "checksum": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+      "applied_at": "2026-09-29 01:15:27.684706+00"
+    },
+    {
+      "version": "0010",
+      "name": "0010_referral_bind_protocol_guard.sql",
+      "checksum": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+      "applied_at": "2026-09-29 01:15:27.684706+00"
+    },
+    {
+      "version": "0011",
+      "name": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "checksum": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+      "applied_at": "2026-09-29 01:15:27.684706+00"
+    },
+    {
+      "version": "0012",
+      "name": "0012_replay_pre_gate_before_balance_gate.sql",
+      "checksum": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe",
+      "applied_at": "2026-09-29 01:15:27.684706+00"
+    },
+    {
+      "version": "0013",
+      "name": "0013_job.sql",
+      "checksum": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+      "applied_at": "2026-09-29 01:15:27.684706+00"
+    },
+    {
+      "version": "0014",
+      "name": "0014_job_flow.sql",
+      "checksum": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d",
+      "applied_at": "2026-09-29 01:15:27.684706+00"
+    },
+    {
+      "version": "0015",
+      "name": "0015_listing.sql",
+      "checksum": "f856a1316e9d3bc79c3b54b89c63273102ce87733ef1c9a835c81f1b9a56624e",
+      "applied_at": "2026-09-29 01:15:27.684706+00"
+    },
+    {
+      "version": "0016",
+      "name": "0016_market.sql",
+      "checksum": "f5ce7c79c584805f1d97bb2468475b2ce10b770ef4dabd16e2ea79d5531b76df",
+      "applied_at": "2026-09-29 01:15:27.684706+00"
+    },
+    {
+      "version": "0017",
+      "name": "0017_platform_config.sql",
+      "checksum": "0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd",
+      "applied_at": "2026-09-29 01:15:27.684706+00"
+    }
+  ],
+  "schema_migration_row_count": "17",
+  "currency_rows": [
+    {
+      "cid": "1",
+      "symbol": "$",
+      "name": "平台积分",
+      "owner_uid": "0",
+      "decimals": "0",
+      "total_supply": "0",
+      "supply_cap": null,
+      "status": "listed"
+    }
+  ],
+  "currency_row": {
+    "cid": "1",
+    "symbol": "$",
+    "name": "平台积分",
+    "owner_uid": "0",
+    "decimals": "0",
+    "total_supply": "0",
+    "supply_cap": null,
+    "status": "listed"
+  },
+  "account_sum": {
+    "rows_all": 4,
+    "all_zero": 4,
+    "cid1_uid_le0_allzero": 4,
+    "sigma_balance_frozen": "0"
+  },
+  "ledger_owner_rows": [
+    {
+      "uid": "-1",
+      "name": "手续费归集账户"
+    },
+    {
+      "uid": "-2",
+      "name": "佣金池"
+    },
+    {
+      "uid": "-3",
+      "name": "罚没账户"
+    },
+    {
+      "uid": "0",
+      "name": "平台主体"
+    }
+  ],
+  "commission_policy_ids": [
+    "1"
+  ],
+  "commission_policy_default": {
+    "row": "{\"levels\": 10, \"policy_id\": 1, \"created_by\": 0, \"weights_bp\": [3000, 2000, 1500, 1000, 800, 600, 500, 300, 200, 100], \"fee_rate_bp\": 100, \"time_created\": \"2026-09-29T01:15:27.684706+00:00\", \"effective_from\": \"1970-01-01T00:00:00+00:00\"}"
+  },
+  "currency_cid_seq": {
+    "seq_name": "public.currency_cid_seq",
+    "last_value": "3",
+    "is_called": true,
+    "next_value_calc": "4",
+    "probe": "read-only SELECT on sequence relation (no nextval)"
+  }
+}

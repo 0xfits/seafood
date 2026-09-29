@@ -1,0 +1,41 @@
+{
+ "source_pre_state": ".p3x-artifacts/p3x-00-dry-20260928174808.-plain/A-pre-state.json (read-only)",
+ "metric": "md5(p.prosrc)",
+ "rows": [
+  {
+   "proname": "job_post_event",
+   "args": "payload jsonb",
+   "md5_now": "0cedbb9ea60dcbda28e3ef3dafdd119b",
+   "md5_pre": "0cedbb9ea60dcbda28e3ef3dafdd119b",
+   "equal": true
+  },
+  {
+   "proname": "ledger_assert_commission_conservation",
+   "args": "",
+   "md5_now": "27ddc76b842594cb6ee8673c171e6526",
+   "md5_pre": "27ddc76b842594cb6ee8673c171e6526",
+   "equal": true
+  },
+  {
+   "proname": "ledger_post_event",
+   "args": "payload jsonb",
+   "md5_now": "d94dd902697dfe60aba409d808c6d63a",
+   "md5_pre": "d94dd902697dfe60aba409d808c6d63a",
+   "equal": true
+  },
+  {
+   "proname": "listing_post_event",
+   "args": "payload jsonb",
+   "md5_now": "0e187c20b56d45202d83978c8a02b31d",
+   "md5_pre": "0e187c20b56d45202d83978c8a02b31d",
+   "equal": true
+  },
+  {
+   "proname": "market_post_event",
+   "args": "payload jsonb",
+   "md5_now": "74841611252726e1cc0f57cb46ea6c6d",
+   "md5_pre": "74841611252726e1cc0f57cb46ea6c6d",
+   "equal": true
+  }
+ ]
+}

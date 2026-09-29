@@ -1,0 +1,144 @@
+{
+ "source": "public.schema_migration.checksum vs sha256(migrations/<name>)",
+ "rows": [
+  {
+   "version": "0001",
+   "name": "0001_ledger_core.sql",
+   "db_checksum": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+   "file_sha256": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+   "byte_equal": true,
+   "applied_at": "2026-09-29 01:15:27.684706+00"
+  },
+  {
+   "version": "0002",
+   "name": "0002_user_identity.sql",
+   "db_checksum": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+   "file_sha256": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+   "byte_equal": true,
+   "applied_at": "2026-09-29 01:15:27.684706+00"
+  },
+  {
+   "version": "0003",
+   "name": "0003_kind_close_set_20.sql",
+   "db_checksum": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+   "file_sha256": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+   "byte_equal": true,
+   "applied_at": "2026-09-29 01:15:27.684706+00"
+  },
+  {
+   "version": "0004",
+   "name": "0004_ledger_post_event.sql",
+   "db_checksum": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+   "file_sha256": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+   "byte_equal": true,
+   "applied_at": "2026-09-29 01:15:27.684706+00"
+  },
+  {
+   "version": "0005",
+   "name": "0005_ledger_event_root_key.sql",
+   "db_checksum": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+   "file_sha256": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+   "byte_equal": true,
+   "applied_at": "2026-09-29 01:15:27.684706+00"
+  },
+  {
+   "version": "0006",
+   "name": "0006_user_to_users.sql",
+   "db_checksum": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+   "file_sha256": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+   "byte_equal": true,
+   "applied_at": "2026-09-29 01:15:27.684706+00"
+  },
+  {
+   "version": "0007",
+   "name": "0007_referral_and_commission_policy.sql",
+   "db_checksum": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+   "file_sha256": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+   "byte_equal": true,
+   "applied_at": "2026-09-29 01:15:27.684706+00"
+  },
+  {
+   "version": "0008",
+   "name": "0008_platform_revenue_job_fee.sql",
+   "db_checksum": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+   "file_sha256": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+   "byte_equal": true,
+   "applied_at": "2026-09-29 01:15:27.684706+00"
+  },
+  {
+   "version": "0009",
+   "name": "0009_ledger_error_reverse_map_complete.sql",
+   "db_checksum": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+   "file_sha256": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+   "byte_equal": true,
+   "applied_at": "2026-09-29 01:15:27.684706+00"
+  },
+  {
+   "version": "0010",
+   "name": "0010_referral_bind_protocol_guard.sql",
+   "db_checksum": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+   "file_sha256": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+   "byte_equal": true,
+   "applied_at": "2026-09-29 01:15:27.684706+00"
+  },
+  {
+   "version": "0011",
+   "name": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+   "db_checksum": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+   "file_sha256": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+   "byte_equal": true,
+   "applied_at": "2026-09-29 01:15:27.684706+00"
+  },
+  {
+   "version": "0012",
+   "name": "0012_replay_pre_gate_before_balance_gate.sql",
+   "db_checksum": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe",
+   "file_sha256": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe",
+   "byte_equal": true,
+   "applied_at": "2026-09-29 01:15:27.684706+00"
+  },
+  {
+   "version": "0013",
+   "name": "0013_job.sql",
+   "db_checksum": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+   "file_sha256": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+   "byte_equal": true,
+   "applied_at": "2026-09-29 01:15:27.684706+00"
+  },
+  {
+   "version": "0014",
+   "name": "0014_job_flow.sql",
+   "db_checksum": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d",
+   "file_sha256": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d",
+   "byte_equal": true,
+   "applied_at": "2026-09-29 01:15:27.684706+00"
+  },
+  {
+   "version": "0015",
+   "name": "0015_listing.sql",
+   "db_checksum": "f856a1316e9d3bc79c3b54b89c63273102ce87733ef1c9a835c81f1b9a56624e",
+   "file_sha256": "f856a1316e9d3bc79c3b54b89c63273102ce87733ef1c9a835c81f1b9a56624e",
+   "byte_equal": true,
+   "applied_at": "2026-09-29 01:15:27.684706+00"
+  },
+  {
+   "version": "0016",
+   "name": "0016_market.sql",
+   "db_checksum": "f5ce7c79c584805f1d97bb2468475b2ce10b770ef4dabd16e2ea79d5531b76df",
+   "file_sha256": "f5ce7c79c584805f1d97bb2468475b2ce10b770ef4dabd16e2ea79d5531b76df",
+   "byte_equal": true,
+   "applied_at": "2026-09-29 01:15:27.684706+00"
+  },
+  {
+   "version": "0017",
+   "name": "0017_platform_config.sql",
+   "db_checksum": "0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd",
+   "file_sha256": "0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd",
+   "byte_equal": true,
+   "applied_at": "2026-09-29 01:15:27.684706+00"
+  }
+ ],
+ "byte_equal_count": 17,
+ "of": 17,
+ "all_equal": true
+}

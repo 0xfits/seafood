@@ -1,0 +1,10 @@
+{
+ "probe": "read-only SELECT last_value,is_called FROM public.currency_cid_seq（未调用 nextval）",
+ "seq_name": "public.currency_cid_seq",
+ "last_value": "3",
+ "is_called": true,
+ "next_value_calc": 4,
+ "pre_state_last_value": 293,
+ "expected_next_after_rebuild": 4,
+ "note": "口径：0011:413 / 0012:1180 各一句无 cid 的 INSERT INTO currency 位于子事务+哨兵回滚块内 ⇒ 行回滚但序列推进不撤；0001 显式给 cid=1 ⇒ 序列仅 setval(1,true)。故重建后下一值 = 4，≠ pre-state(294)，属预期。"
+}
