@@ -1,0 +1,15 @@
+{
+  "job_total": 8,
+  "app_total": 7,
+  "sub_total": 6,
+  "sub_derived_p4b2a": 0,
+  "app_derived_p4b2a": 0,
+  "job_fixture": 0,
+  "app_fixture": 0,
+  "sub_fixture": 0,
+  "sub_fixture_by_deliverable": 0,
+  "ledger_entry_total": 76,
+  "account_rows": 10,
+  "account_sum_balance": "1995998",
+  "account_sum_frozen": "4002"
+}

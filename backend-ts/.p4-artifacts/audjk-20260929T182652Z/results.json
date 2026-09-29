@@ -1,0 +1,497 @@
+{
+  "run": "audjk-20260929T182652Z",
+  "at": "2026-09-29T18:26:53.067Z",
+  "api": "http://127.0.0.1:5788",
+  "ns": "aud-jk",
+  "D1": "aud-jk:deliverable:identical",
+  "D2": "aud-jk:deliverable:different",
+  "assert": {
+    "regclass": [
+      {
+        "job": "job",
+        "app": "job_application",
+        "sub": "job_submission",
+        "users": "users"
+      }
+    ],
+    "job_key_cols": 1,
+    "uniq": [
+      {
+        "tbl": "job",
+        "conname": "job_create_key_uniq",
+        "def": "UNIQUE (create_key)"
+      },
+      {
+        "tbl": "job_application",
+        "conname": "job_application_create_key_uniq",
+        "def": "UNIQUE (create_key)"
+      },
+      {
+        "tbl": "job_application",
+        "conname": "job_application_job_worker_uniq",
+        "def": "UNIQUE (job_id, worker_uid)"
+      },
+      {
+        "tbl": "job_submission",
+        "conname": "job_submission_create_key_uniq",
+        "def": "UNIQUE (create_key)"
+      }
+    ],
+    "insert_triggers": [
+      {
+        "tbl": "job",
+        "tgname": "trg_job_core_immutable_guard",
+        "ev": "UPDATE"
+      },
+      {
+        "tbl": "job",
+        "tgname": "trg_job_ledger_ref_guard",
+        "ev": "UPDATE"
+      },
+      {
+        "tbl": "job",
+        "tgname": "trg_job_no_delete",
+        "ev": "DELETE"
+      },
+      {
+        "tbl": "job",
+        "tgname": "trg_job_status_guard",
+        "ev": "UPDATE"
+      },
+      {
+        "tbl": "job",
+        "tgname": "trg_job_touch_time_updated",
+        "ev": "UPDATE"
+      },
+      {
+        "tbl": "job_application",
+        "tgname": "trg_job_application_create_key_guard",
+        "ev": "UPDATE"
+      },
+      {
+        "tbl": "job_application",
+        "tgname": "trg_job_application_no_delete",
+        "ev": "DELETE"
+      },
+      {
+        "tbl": "job_application",
+        "tgname": "trg_job_application_status_guard",
+        "ev": "UPDATE"
+      },
+      {
+        "tbl": "job_application",
+        "tgname": "trg_job_application_touch_time_updated",
+        "ev": "UPDATE"
+      },
+      {
+        "tbl": "job_submission",
+        "tgname": "trg_job_submission_immutable_guard",
+        "ev": "UPDATE"
+      },
+      {
+        "tbl": "job_submission",
+        "tgname": "trg_job_submission_no_delete",
+        "ev": "DELETE"
+      }
+    ]
+  },
+  "before": {
+    "job_total": 8,
+    "app_total": 7,
+    "sub_total": 6,
+    "sub_derived_p4b2a": 0,
+    "app_derived_p4b2a": 0,
+    "job_fixture": 0,
+    "app_fixture": 0,
+    "sub_fixture": 0,
+    "sub_fixture_by_deliverable": 0,
+    "ledger_entry_total": 76,
+    "account_rows": 10,
+    "account_sum_balance": "1995998",
+    "account_sum_frozen": "4002"
+  },
+  "key_probe": {
+    "candidates": [
+      {
+        "candidate": "env-SECRET_KEY(.env.local 经 dotenv)",
+        "key_len": 64,
+        "token_fp": "d23cb66937ec",
+        "status": 200
+      },
+      {
+        "candidate": "auth.ts 公开常量 your-secret-key-here",
+        "key_len": 20,
+        "token_fp": "9c7c1389ab22",
+        "status": 401
+      }
+    ],
+    "verdict": "env-SECRET_KEY(.env.local 经 dotenv)",
+    "worker_uid": 1
+  },
+  "token_fp": "b1b07a3b0b0c",
+  "fixture": {
+    "worker_uid": 1,
+    "employers": [
+      2,
+      3
+    ],
+    "cid": 1,
+    "jobs": {
+      "jOpenA": {
+        "job_id": 12,
+        "create_key": "cli:aud-jk:job:openA",
+        "reused": false
+      },
+      "jOpenB": {
+        "job_id": 13,
+        "create_key": "cli:aud-jk:job:openB",
+        "reused": false
+      },
+      "jSubA": {
+        "job_id": 14,
+        "create_key": "cli:aud-jk:job:subA",
+        "reused": false
+      },
+      "jSubB": {
+        "job_id": 15,
+        "create_key": "cli:aud-jk:job:subB",
+        "reused": false
+      }
+    },
+    "apps": {
+      "appA": {
+        "application_id": 10,
+        "create_key": "cli:aud-jk:app:subA",
+        "reused": false
+      },
+      "appB": {
+        "application_id": 11,
+        "create_key": "cli:aud-jk:app:subB",
+        "reused": false
+      }
+    }
+  },
+  "after_fixture": {
+    "job_total": 12,
+    "app_total": 9,
+    "sub_total": 6,
+    "sub_derived_p4b2a": 0,
+    "app_derived_p4b2a": 0,
+    "job_fixture": 4,
+    "app_fixture": 2,
+    "sub_fixture": 0,
+    "sub_fixture_by_deliverable": 0,
+    "ledger_entry_total": 76,
+    "account_rows": 10,
+    "account_sum_balance": "1995998",
+    "account_sum_frozen": "4002"
+  },
+  "apply_service_layer": [
+    {
+      "id": "A1_apply_jOpenA_noKey",
+      "jobId": 12,
+      "derived_key": "cli:p4b2a:apply:12:1:02d10f10b9dc5da4",
+      "derived_flag": true,
+      "outcome_ok": true,
+      "replay": false,
+      "status": 200,
+      "code": null,
+      "landed_create_key": "cli:p4b2a:apply:12:1:02d10f10b9dc5da4",
+      "delta_app": 1,
+      "delta_app_fixture": 0
+    },
+    {
+      "id": "A2_apply_jOpenB_noKey",
+      "jobId": 13,
+      "derived_key": "cli:p4b2a:apply:13:1:c3a6715c5d024a07",
+      "derived_flag": true,
+      "outcome_ok": true,
+      "replay": false,
+      "status": 200,
+      "code": null,
+      "landed_create_key": "cli:p4b2a:apply:13:1:c3a6715c5d024a07",
+      "delta_app": 1,
+      "delta_app_fixture": 0
+    },
+    {
+      "id": "A3_apply_jOpenA_noKey_repeat",
+      "jobId": 12,
+      "derived_key": "cli:p4b2a:apply:12:1:02d10f10b9dc5da4",
+      "derived_flag": true,
+      "outcome_ok": true,
+      "replay": true,
+      "status": 200,
+      "code": null,
+      "landed_create_key": "cli:p4b2a:apply:12:1:02d10f10b9dc5da4",
+      "delta_app": 0,
+      "delta_app_fixture": 0
+    }
+  ],
+  "db_truth": {
+    "submissions_fixture": [
+      {
+        "submission_id": "11",
+        "job_id": "14",
+        "worker_uid": "1",
+        "deliverable_head": "aud-jk:deliverable:identical",
+        "create_key": "cli:p4b2a:submit:10:1:ea7b65ad17e2fdc1"
+      },
+      {
+        "submission_id": "12",
+        "job_id": "15",
+        "worker_uid": "1",
+        "deliverable_head": "aud-jk:deliverable:identical",
+        "create_key": "cli:p4b2a:submit:11:1:c8ec5abb119e9fe5"
+      }
+    ],
+    "applications_fixture": [
+      {
+        "application_id": "10",
+        "job_id": "14",
+        "worker_uid": "1",
+        "status": "accepted",
+        "create_key": "cli:aud-jk:app:subA"
+      },
+      {
+        "application_id": "11",
+        "job_id": "15",
+        "worker_uid": "1",
+        "status": "accepted",
+        "create_key": "cli:aud-jk:app:subB"
+      }
+    ],
+    "jobs_fixture": [
+      {
+        "job_id": "12",
+        "employer_uid": "2",
+        "status": "open",
+        "title": "aud-jk:identical-title",
+        "create_key": "cli:aud-jk:job:openA"
+      },
+      {
+        "job_id": "13",
+        "employer_uid": "3",
+        "status": "open",
+        "title": "aud-jk:identical-title",
+        "create_key": "cli:aud-jk:job:openB"
+      },
+      {
+        "job_id": "14",
+        "employer_uid": "2",
+        "status": "submitted",
+        "title": "aud-jk:identical-title",
+        "create_key": "cli:aud-jk:job:subA"
+      },
+      {
+        "job_id": "15",
+        "employer_uid": "3",
+        "status": "submitted",
+        "title": "aud-jk:identical-title",
+        "create_key": "cli:aud-jk:job:subB"
+      }
+    ]
+  },
+  "after": {
+    "job_total": 12,
+    "app_total": 11,
+    "sub_total": 8,
+    "sub_derived_p4b2a": 2,
+    "app_derived_p4b2a": 2,
+    "job_fixture": 4,
+    "app_fixture": 2,
+    "sub_fixture": 0,
+    "sub_fixture_by_deliverable": 2,
+    "ledger_entry_total": 76,
+    "account_rows": 10,
+    "account_sum_balance": "1995998",
+    "account_sum_frozen": "4002"
+  },
+  "requests": [
+    {
+      "id": "T0_POST_/api/job/<openA>/apply",
+      "method": "POST",
+      "path": "/api/job/12/apply",
+      "expect": "期望无路由(404)",
+      "status": 404,
+      "success": false,
+      "message": "Not found",
+      "code": null,
+      "details": null,
+      "idempotent_replay": null,
+      "data_keys": null,
+      "body_head": null,
+      "delta": {
+        "job": 0,
+        "app": 0,
+        "sub": 0,
+        "sub_derived_p4b2a": 0,
+        "ledger_entry": 0,
+        "account_rows": 0
+      },
+      "counts_after": {
+        "job": 12,
+        "app": 9,
+        "sub": 6,
+        "sub_derived_p4b2a": 0
+      }
+    },
+    {
+      "id": "T1_submit_appA_noKey_D1",
+      "method": "POST",
+      "path": "/api/task-progress/10/submit",
+      "expect": "期望 200 落新行",
+      "status": 200,
+      "success": true,
+      "message": "Task progress submitted",
+      "code": null,
+      "details": null,
+      "idempotent_replay": null,
+      "data_keys": [
+        "jID",
+        "tID",
+        "uID",
+        "info_input",
+        "time_created",
+        "time_submitted",
+        "time_checked",
+        "time_claimed",
+        "points_claimed"
+      ],
+      "body_head": null,
+      "delta": {
+        "job": 0,
+        "app": 0,
+        "sub": 1,
+        "sub_derived_p4b2a": 1,
+        "ledger_entry": 0,
+        "account_rows": 0
+      },
+      "counts_after": {
+        "job": 12,
+        "app": 9,
+        "sub": 7,
+        "sub_derived_p4b2a": 1
+      }
+    },
+    {
+      "id": "T2_submit_appB_noKey_D1",
+      "method": "POST",
+      "path": "/api/task-progress/11/submit",
+      "expect": "期望 200 落新行（判据：落两行 ⇒ 碰撞不成立）",
+      "status": 200,
+      "success": true,
+      "message": "Task progress submitted",
+      "code": null,
+      "details": null,
+      "idempotent_replay": null,
+      "data_keys": [
+        "jID",
+        "tID",
+        "uID",
+        "info_input",
+        "time_created",
+        "time_submitted",
+        "time_checked",
+        "time_claimed",
+        "points_claimed"
+      ],
+      "body_head": null,
+      "delta": {
+        "job": 0,
+        "app": 0,
+        "sub": 1,
+        "sub_derived_p4b2a": 1,
+        "ledger_entry": 0,
+        "account_rows": 0
+      },
+      "counts_after": {
+        "job": 12,
+        "app": 9,
+        "sub": 8,
+        "sub_derived_p4b2a": 2
+      }
+    },
+    {
+      "id": "T3_submit_appA_noKey_D1_repeat",
+      "method": "POST",
+      "path": "/api/task-progress/10/submit",
+      "expect": "期望 200 replay 且零新行",
+      "status": 200,
+      "success": true,
+      "message": "Task progress submitted",
+      "code": null,
+      "details": null,
+      "idempotent_replay": true,
+      "data_keys": [
+        "jID",
+        "tID",
+        "uID",
+        "info_input",
+        "time_created",
+        "time_submitted",
+        "time_checked",
+        "time_claimed",
+        "points_claimed"
+      ],
+      "body_head": null,
+      "delta": {
+        "job": 0,
+        "app": 0,
+        "sub": 0,
+        "sub_derived_p4b2a": 0,
+        "ledger_entry": 0,
+        "account_rows": 0
+      },
+      "counts_after": {
+        "job": 12,
+        "app": 9,
+        "sub": 8,
+        "sub_derived_p4b2a": 2
+      }
+    },
+    {
+      "id": "T4_submit_appA_noKey_D2",
+      "method": "POST",
+      "path": "/api/task-progress/10/submit",
+      "expect": "期望 409 REPLAY_FINGERPRINT_MISMATCH 零新行",
+      "status": 409,
+      "success": null,
+      "message": null,
+      "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+      "details": {
+        "field": "job_submission.create_key",
+        "reason": "REPLAY_FINGERPRINT_MISMATCH",
+        "ref_id": "cli:p4b2a:submit:10:1:ea7b65ad17e2fdc1"
+      },
+      "idempotent_replay": null,
+      "data_keys": null,
+      "body_head": null,
+      "delta": {
+        "job": 0,
+        "app": 0,
+        "sub": 0,
+        "sub_derived_p4b2a": 0,
+        "ledger_entry": 0,
+        "account_rows": 0
+      },
+      "counts_after": {
+        "job": 12,
+        "app": 9,
+        "sub": 8,
+        "sub_derived_p4b2a": 2
+      }
+    }
+  ],
+  "self_disclosure": [
+    "计数口径 = count(*)::int 逐表/夹具域；before/after 同脚本同表集。",
+    "T1/T2/T3/T4 走 HTTP 真 token（Bearer，密钥候选实测命中）；T0 证 J2 apply 无路由。",
+    "J2 apply 无 HTTP 路由 ⇒ A1/A2/A3 走服务层 src/job-service.applyToJob（真 resolveJobCreateKey），并回读 DB 落行 create_key。",
+    "派生键「实测」= 回读 DB 真值，非复算。",
+    "产物不落 token 本体/连接串（只 token_fp）。",
+    "夹具 namespace=aud-jk，INSERT-only，无 DELETE，无资金端点。"
+  ],
+  "leak_check": {
+    "bearer_header_occurrences": 0,
+    "secret_value_occurrences": 0
+  }
+}

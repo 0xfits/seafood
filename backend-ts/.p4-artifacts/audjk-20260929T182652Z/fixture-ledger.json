@@ -1,0 +1,42 @@
+{
+  "worker_uid": 1,
+  "employers": [
+    2,
+    3
+  ],
+  "cid": 1,
+  "jobs": {
+    "jOpenA": {
+      "job_id": 12,
+      "create_key": "cli:aud-jk:job:openA",
+      "reused": false
+    },
+    "jOpenB": {
+      "job_id": 13,
+      "create_key": "cli:aud-jk:job:openB",
+      "reused": false
+    },
+    "jSubA": {
+      "job_id": 14,
+      "create_key": "cli:aud-jk:job:subA",
+      "reused": false
+    },
+    "jSubB": {
+      "job_id": 15,
+      "create_key": "cli:aud-jk:job:subB",
+      "reused": false
+    }
+  },
+  "apps": {
+    "appA": {
+      "application_id": 10,
+      "create_key": "cli:aud-jk:app:subA",
+      "reused": false
+    },
+    "appB": {
+      "application_id": 11,
+      "create_key": "cli:aud-jk:app:subB",
+      "reused": false
+    }
+  }
+}
