@@ -1,0 +1,1785 @@
+{
+  "label": "A-pre-state",
+  "at": "2026-09-29T00:54:48.661Z",
+  "public_base_tables": [
+    "account",
+    "admin_permission",
+    "admin_role",
+    "admin_role_permission",
+    "admin_user_role",
+    "app_config",
+    "commission_policy",
+    "currency",
+    "currency_status_log",
+    "job",
+    "job_application",
+    "job_submission",
+    "ledger_entry",
+    "ledger_owner",
+    "listing",
+    "listing_order",
+    "market_order",
+    "market_trade",
+    "referral",
+    "schema_migration",
+    "users"
+  ],
+  "public_base_table_count": 21,
+  "business_tables": [
+    "account",
+    "admin_permission",
+    "admin_role",
+    "admin_role_permission",
+    "admin_user_role",
+    "app_config",
+    "commission_policy",
+    "currency",
+    "currency_status_log",
+    "job",
+    "job_application",
+    "job_submission",
+    "ledger_entry",
+    "ledger_owner",
+    "listing",
+    "listing_order",
+    "market_order",
+    "market_trade",
+    "referral",
+    "users"
+  ],
+  "business_table_count": 20,
+  "table_row_counts": {
+    "account": "425",
+    "admin_permission": "0",
+    "admin_role": "0",
+    "admin_role_permission": "0",
+    "admin_user_role": "0",
+    "app_config": "0",
+    "commission_policy": "25",
+    "currency": "132",
+    "currency_status_log": "0",
+    "job": "110",
+    "job_application": "32",
+    "job_submission": "10",
+    "ledger_entry": "3239",
+    "ledger_owner": "4",
+    "listing": "62",
+    "listing_order": "21",
+    "market_order": "68",
+    "market_trade": "19",
+    "referral": "349",
+    "schema_migration": "17",
+    "users": "673"
+  },
+  "catalog": {
+    "base_tables": "21",
+    "views": "1",
+    "matviews": "0",
+    "sequences": "13",
+    "indexes": "56",
+    "functions_all": "74",
+    "functions": "74",
+    "procedures": "0"
+  },
+  "catalog_names": {
+    "base_tables": [
+      "account",
+      "admin_permission",
+      "admin_role",
+      "admin_role_permission",
+      "admin_user_role",
+      "app_config",
+      "commission_policy",
+      "currency",
+      "currency_status_log",
+      "job",
+      "job_application",
+      "job_submission",
+      "ledger_entry",
+      "ledger_owner",
+      "listing",
+      "listing_order",
+      "market_order",
+      "market_trade",
+      "referral",
+      "schema_migration",
+      "users"
+    ],
+    "views": [
+      "candle_view"
+    ],
+    "sequences": [
+      "commission_policy_policy_id_seq",
+      "currency_cid_seq",
+      "currency_status_log_log_id_seq",
+      "job_application_application_id_seq",
+      "job_job_id_seq",
+      "job_submission_submission_id_seq",
+      "ledger_entry_txid_seq",
+      "listing_listing_id_seq",
+      "listing_order_order_id_seq",
+      "market_order_order_id_seq",
+      "market_trade_trade_id_seq",
+      "schema_migration_id_seq",
+      "users_uid_seq"
+    ],
+    "functions": [
+      "account_guard",
+      "commission_policy_append_only",
+      "commission_policy_weights_guard",
+      "currency_status_log_append_only",
+      "job_application_create_key_guard",
+      "job_application_no_delete",
+      "job_application_status_guard",
+      "job_application_status_transition_ok",
+      "job_application_touch_time_updated",
+      "job_core_immutable_guard",
+      "job_ledger_ref_guard",
+      "job_no_delete",
+      "job_post_event",
+      "job_settle_plan",
+      "job_status_guard",
+      "job_status_transition_ok",
+      "job_submission_immutable_guard",
+      "job_submission_no_delete",
+      "job_touch_time_updated",
+      "ledger_accounts_from_entries",
+      "ledger_arm_lock_timeout",
+      "ledger_assert_commission_conservation",
+      "ledger_assert_currency_op",
+      "ledger_assert_platform_mutation",
+      "ledger_budget_remaining_ms",
+      "ledger_check_budget",
+      "ledger_cid_arg",
+      "ledger_entry_append_only",
+      "ledger_entry_json",
+      "ledger_error_for_sqlstate",
+      "ledger_int_amount",
+      "ledger_kind_ok",
+      "ledger_lock_timeout_ms",
+      "ledger_max_single_amount",
+      "ledger_norm_entry",
+      "ledger_optional_bool",
+      "ledger_optional_text",
+      "ledger_parse_user_amount",
+      "ledger_payload_amount",
+      "ledger_payload_cap",
+      "ledger_post_event",
+      "ledger_raise",
+      "ledger_sqlstate_of",
+      "ledger_stmt_budget_ms",
+      "ledger_strict_text",
+      "ledger_uid_arg",
+      "listing_create_key_guard",
+      "listing_no_delete",
+      "listing_order_core_immutable_guard",
+      "listing_order_create_key_guard",
+      "listing_order_ledger_ref_guard",
+      "listing_order_no_delete",
+      "listing_order_status_guard",
+      "listing_order_status_transition_ok",
+      "listing_order_touch_time_updated",
+      "listing_post_event",
+      "listing_status_guard",
+      "listing_status_transition_ok",
+      "listing_stock_guard",
+      "listing_touch_time_updated",
+      "market_order_amount_filled_guard",
+      "market_order_core_immutable_guard",
+      "market_order_create_key_guard",
+      "market_order_no_delete",
+      "market_order_status_guard",
+      "market_order_status_transition_ok",
+      "market_order_touch_time_updated",
+      "market_post_event",
+      "market_trade_append_only",
+      "platform_config_key_immutable",
+      "platform_config_touch_updated",
+      "referral_append_only",
+      "referral_bind",
+      "referral_cycle_guard"
+    ],
+    "triggers": [
+      "trg_account_guard",
+      "trg_admin_permission_key_immutable",
+      "trg_admin_role_key_immutable",
+      "trg_admin_role_permission_key_immutable",
+      "trg_admin_user_role_key_immutable",
+      "trg_app_config_key_immutable",
+      "trg_app_config_touch_updated",
+      "trg_commission_policy_append_only",
+      "trg_commission_policy_weights_guard",
+      "trg_currency_status_log_append_only",
+      "trg_job_application_create_key_guard",
+      "trg_job_application_no_delete",
+      "trg_job_application_status_guard",
+      "trg_job_application_touch_time_updated",
+      "trg_job_core_immutable_guard",
+      "trg_job_ledger_ref_guard",
+      "trg_job_no_delete",
+      "trg_job_status_guard",
+      "trg_job_submission_immutable_guard",
+      "trg_job_submission_no_delete",
+      "trg_job_touch_time_updated",
+      "trg_ledger_entry_append_only",
+      "trg_ledger_entry_commission_conservation",
+      "trg_listing_create_key_guard",
+      "trg_listing_no_delete",
+      "trg_listing_order_core_immutable_guard",
+      "trg_listing_order_create_key_guard",
+      "trg_listing_order_ledger_ref_guard",
+      "trg_listing_order_no_delete",
+      "trg_listing_order_status_guard",
+      "trg_listing_order_touch_time_updated",
+      "trg_listing_status_guard",
+      "trg_listing_stock_guard",
+      "trg_listing_touch_time_updated",
+      "trg_market_order_amount_filled_guard",
+      "trg_market_order_core_immutable_guard",
+      "trg_market_order_create_key_guard",
+      "trg_market_order_no_delete",
+      "trg_market_order_status_guard",
+      "trg_market_order_touch_time_updated",
+      "trg_market_trade_append_only",
+      "trg_referral_append_only",
+      "trg_referral_cycle_guard"
+    ]
+  },
+  "triggers": {
+    "non_internal": "43",
+    "enabled_not_o": "0",
+    "enabled_o": "43",
+    "constraint_triggers": "1"
+  },
+  "trigger_enabled_distribution": [
+    {
+      "tgenabled": "O",
+      "n": 43
+    }
+  ],
+  "key_functions_md5": [
+    {
+      "proname": "job_post_event",
+      "args": "payload jsonb",
+      "md5": "0cedbb9ea60dcbda28e3ef3dafdd119b"
+    },
+    {
+      "proname": "ledger_assert_commission_conservation",
+      "args": "",
+      "md5": "27ddc76b842594cb6ee8673c171e6526"
+    },
+    {
+      "proname": "ledger_post_event",
+      "args": "payload jsonb",
+      "md5": "d94dd902697dfe60aba409d808c6d63a"
+    },
+    {
+      "proname": "listing_post_event",
+      "args": "payload jsonb",
+      "md5": "0e187c20b56d45202d83978c8a02b31d"
+    },
+    {
+      "proname": "market_post_event",
+      "args": "payload jsonb",
+      "md5": "74841611252726e1cc0f57cb46ea6c6d"
+    }
+  ],
+  "schema_migration": [
+    {
+      "version": "0001",
+      "name": "0001_ledger_core.sql",
+      "checksum": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+      "applied_at": "2026-09-27 03:48:15.617808+00"
+    },
+    {
+      "version": "0002",
+      "name": "0002_user_identity.sql",
+      "checksum": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+      "applied_at": "2026-09-27 03:48:20.093949+00"
+    },
+    {
+      "version": "0003",
+      "name": "0003_kind_close_set_20.sql",
+      "checksum": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+      "applied_at": "2026-09-27 04:57:40.94416+00"
+    },
+    {
+      "version": "0004",
+      "name": "0004_ledger_post_event.sql",
+      "checksum": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+      "applied_at": "2026-09-27 05:26:01.859398+00"
+    },
+    {
+      "version": "0005",
+      "name": "0005_ledger_event_root_key.sql",
+      "checksum": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+      "applied_at": "2026-09-27 06:34:21.897469+00"
+    },
+    {
+      "version": "0006",
+      "name": "0006_user_to_users.sql",
+      "checksum": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+      "applied_at": "2026-09-27 07:09:27.38362+00"
+    },
+    {
+      "version": "0007",
+      "name": "0007_referral_and_commission_policy.sql",
+      "checksum": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+      "applied_at": "2026-09-27 09:49:28.131292+00"
+    },
+    {
+      "version": "0008",
+      "name": "0008_platform_revenue_job_fee.sql",
+      "checksum": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+      "applied_at": "2026-09-27 09:49:29.040584+00"
+    },
+    {
+      "version": "0009",
+      "name": "0009_ledger_error_reverse_map_complete.sql",
+      "checksum": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+      "applied_at": "2026-09-27 10:09:16.665946+00"
+    },
+    {
+      "version": "0010",
+      "name": "0010_referral_bind_protocol_guard.sql",
+      "checksum": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+      "applied_at": "2026-09-27 10:45:22.18861+00"
+    },
+    {
+      "version": "0011",
+      "name": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "checksum": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+      "applied_at": "2026-09-27 11:35:24.353246+00"
+    },
+    {
+      "version": "0012",
+      "name": "0012_replay_pre_gate_before_balance_gate.sql",
+      "checksum": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe",
+      "applied_at": "2026-09-27 13:09:02.882269+00"
+    },
+    {
+      "version": "0013",
+      "name": "0013_job_core.sql",
+      "checksum": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+      "applied_at": "2026-09-28 05:08:33.801443+00"
+    },
+    {
+      "version": "0014",
+      "name": "0014_job_flow.sql",
+      "checksum": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d",
+      "applied_at": "2026-09-28 05:34:21.434834+00"
+    },
+    {
+      "version": "0015",
+      "name": "0015_listing.sql",
+      "checksum": "f856a1316e9d3bc79c3b54b89c63273102ce87733ef1c9a835c81f1b9a56624e",
+      "applied_at": "2026-09-28 09:32:14.373793+00"
+    },
+    {
+      "version": "0016",
+      "name": "0016_market.sql",
+      "checksum": "f5ce7c79c584805f1d97bb2468475b2ce10b770ef4dabd16e2ea79d5531b76df",
+      "applied_at": "2026-09-28 10:20:11.637287+00"
+    },
+    {
+      "version": "0017",
+      "name": "0017_platform_config.sql",
+      "checksum": "0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd",
+      "applied_at": "2026-09-28 11:18:43.757394+00"
+    }
+  ],
+  "schema_migration_row_count": "17",
+  "currency_rows": [
+    {
+      "cid": "1",
+      "symbol": "$",
+      "name": "平台积分",
+      "owner_uid": "0",
+      "decimals": "0",
+      "total_supply": "8400",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "100",
+      "symbol": "p1eSi2cqn",
+      "name": "P1e smoke p1eSi2cqn",
+      "owner_uid": "920021",
+      "decimals": "2",
+      "total_supply": "1000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "101",
+      "symbol": "p1eTi2cqn",
+      "name": "P1e smoke p1eTi2cqn",
+      "owner_uid": "920022",
+      "decimals": "0",
+      "total_supply": "100",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "102",
+      "symbol": "p1eEi2cqn",
+      "name": "P1e smoke p1eEi2cqn",
+      "owner_uid": "920021",
+      "decimals": "0",
+      "total_supply": "0",
+      "supply_cap": null,
+      "status": "draft"
+    },
+    {
+      "cid": "103",
+      "symbol": "p1eKi2cqn",
+      "name": "P1e smoke p1eKi2cqn",
+      "owner_uid": "920021",
+      "decimals": "0",
+      "total_supply": "0",
+      "supply_cap": "1000",
+      "status": "listed"
+    },
+    {
+      "cid": "104",
+      "symbol": "P1HMUJI3ABV",
+      "name": "P1f P1HMUJI3ABV",
+      "owner_uid": "942001",
+      "decimals": "2",
+      "total_supply": "3000000",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "105",
+      "symbol": "P1HMUJI41DM",
+      "name": "P1f P1HMUJI41DM",
+      "owner_uid": "942001",
+      "decimals": "2",
+      "total_supply": "1000000",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "106",
+      "symbol": "P1KI5XPD",
+      "name": "P1f P1KI5XPD",
+      "owner_uid": "944001",
+      "decimals": "2",
+      "total_supply": "1000000",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "107",
+      "symbol": "smkujif1ld",
+      "name": "烟测自建单位",
+      "owner_uid": "900001",
+      "decimals": "2",
+      "total_supply": "40000",
+      "supply_cap": "50000",
+      "status": "draft"
+    },
+    {
+      "cid": "108",
+      "symbol": "p1eSifvf8",
+      "name": "P1e smoke p1eSifvf8",
+      "owner_uid": "920021",
+      "decimals": "2",
+      "total_supply": "1000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "109",
+      "symbol": "p1eTifvf8",
+      "name": "P1e smoke p1eTifvf8",
+      "owner_uid": "920022",
+      "decimals": "0",
+      "total_supply": "100",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "110",
+      "symbol": "p1eEifvf8",
+      "name": "P1e smoke p1eEifvf8",
+      "owner_uid": "920021",
+      "decimals": "0",
+      "total_supply": "0",
+      "supply_cap": null,
+      "status": "draft"
+    },
+    {
+      "cid": "111",
+      "symbol": "p1eKifvf8",
+      "name": "P1e smoke p1eKifvf8",
+      "owner_uid": "920021",
+      "decimals": "0",
+      "total_supply": "0",
+      "supply_cap": "1000",
+      "status": "listed"
+    },
+    {
+      "cid": "112",
+      "symbol": "P1HMUJIGVZ3",
+      "name": "P1f P1HMUJIGVZ3",
+      "owner_uid": "942001",
+      "decimals": "2",
+      "total_supply": "3000000",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "113",
+      "symbol": "P1HMUJIHGW8",
+      "name": "P1f P1HMUJIHGW8",
+      "owner_uid": "942001",
+      "decimals": "2",
+      "total_supply": "1000000",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "114",
+      "symbol": "P1PMUJIUD5J",
+      "name": "P1f P1PMUJIUD5J",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "115",
+      "symbol": "P1PMUJJ2PHX",
+      "name": "P1f P1PMUJJ2PHX",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "116",
+      "symbol": "smkujj741s",
+      "name": "烟测自建单位",
+      "owner_uid": "900001",
+      "decimals": "2",
+      "total_supply": "40000",
+      "supply_cap": "50000",
+      "status": "draft"
+    },
+    {
+      "cid": "117",
+      "symbol": "p1eSj7tbc",
+      "name": "P1e smoke p1eSj7tbc",
+      "owner_uid": "920021",
+      "decimals": "2",
+      "total_supply": "1000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "118",
+      "symbol": "p1eTj7tbc",
+      "name": "P1e smoke p1eTj7tbc",
+      "owner_uid": "920022",
+      "decimals": "0",
+      "total_supply": "100",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "119",
+      "symbol": "p1eEj7tbc",
+      "name": "P1e smoke p1eEj7tbc",
+      "owner_uid": "920021",
+      "decimals": "0",
+      "total_supply": "0",
+      "supply_cap": null,
+      "status": "draft"
+    },
+    {
+      "cid": "120",
+      "symbol": "p1eKj7tbc",
+      "name": "P1e smoke p1eKj7tbc",
+      "owner_uid": "920021",
+      "decimals": "0",
+      "total_supply": "0",
+      "supply_cap": "1000",
+      "status": "listed"
+    },
+    {
+      "cid": "121",
+      "symbol": "P1HMUJJ8XY2",
+      "name": "P1f P1HMUJJ8XY2",
+      "owner_uid": "942001",
+      "decimals": "2",
+      "total_supply": "3000000",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "122",
+      "symbol": "P1HMUJJ9VTP",
+      "name": "P1f P1HMUJJ9VTP",
+      "owner_uid": "942001",
+      "decimals": "2",
+      "total_supply": "1000000",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "123",
+      "symbol": "P1PMUJJBPT2",
+      "name": "P1f P1PMUJJBPT2",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "124",
+      "symbol": "p1qP2B",
+      "name": "P1f p1qP2B",
+      "owner_uid": "949010",
+      "decimals": "0",
+      "total_supply": "2000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "125",
+      "symbol": "smkujn6bog",
+      "name": "烟测自建单位",
+      "owner_uid": "900001",
+      "decimals": "2",
+      "total_supply": "40000",
+      "supply_cap": "50000",
+      "status": "draft"
+    },
+    {
+      "cid": "126",
+      "symbol": "p1eSn750p",
+      "name": "P1e smoke p1eSn750p",
+      "owner_uid": "920021",
+      "decimals": "2",
+      "total_supply": "1000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "127",
+      "symbol": "p1eTn750p",
+      "name": "P1e smoke p1eTn750p",
+      "owner_uid": "920022",
+      "decimals": "0",
+      "total_supply": "100",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "128",
+      "symbol": "p1eEn750p",
+      "name": "P1e smoke p1eEn750p",
+      "owner_uid": "920021",
+      "decimals": "0",
+      "total_supply": "0",
+      "supply_cap": null,
+      "status": "draft"
+    },
+    {
+      "cid": "129",
+      "symbol": "p1eKn750p",
+      "name": "P1e smoke p1eKn750p",
+      "owner_uid": "920021",
+      "decimals": "0",
+      "total_supply": "0",
+      "supply_cap": "1000",
+      "status": "listed"
+    },
+    {
+      "cid": "130",
+      "symbol": "P1HMUJN7UK1",
+      "name": "P1f P1HMUJN7UK1",
+      "owner_uid": "942001",
+      "decimals": "2",
+      "total_supply": "3000000",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "131",
+      "symbol": "P1HMUJN8ILT",
+      "name": "P1f P1HMUJN8ILT",
+      "owner_uid": "942001",
+      "decimals": "2",
+      "total_supply": "1000000",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "132",
+      "symbol": "P1PMUJN9W9C",
+      "name": "P1f P1PMUJN9W9C",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "133",
+      "symbol": "smkujnqcqk",
+      "name": "烟测自建单位",
+      "owner_uid": "900001",
+      "decimals": "2",
+      "total_supply": "40000",
+      "supply_cap": "50000",
+      "status": "draft"
+    },
+    {
+      "cid": "134",
+      "symbol": "p1eSnqvdd",
+      "name": "P1e smoke p1eSnqvdd",
+      "owner_uid": "920021",
+      "decimals": "2",
+      "total_supply": "1000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "135",
+      "symbol": "p1eTnqvdd",
+      "name": "P1e smoke p1eTnqvdd",
+      "owner_uid": "920022",
+      "decimals": "0",
+      "total_supply": "100",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "136",
+      "symbol": "p1eEnqvdd",
+      "name": "P1e smoke p1eEnqvdd",
+      "owner_uid": "920021",
+      "decimals": "0",
+      "total_supply": "0",
+      "supply_cap": null,
+      "status": "draft"
+    },
+    {
+      "cid": "137",
+      "symbol": "p1eKnqvdd",
+      "name": "P1e smoke p1eKnqvdd",
+      "owner_uid": "920021",
+      "decimals": "0",
+      "total_supply": "0",
+      "supply_cap": "1000",
+      "status": "listed"
+    },
+    {
+      "cid": "138",
+      "symbol": "P1HMUJNRLL3",
+      "name": "P1f P1HMUJNRLL3",
+      "owner_uid": "942001",
+      "decimals": "2",
+      "total_supply": "3000000",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "139",
+      "symbol": "P1HMUJNSASD",
+      "name": "P1f P1HMUJNSASD",
+      "owner_uid": "942001",
+      "decimals": "2",
+      "total_supply": "1000000",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "140",
+      "symbol": "P1PMUJNTM9U",
+      "name": "P1f P1PMUJNTM9U",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "141",
+      "symbol": "P1PMUJNXSI6",
+      "name": "P1f P1PMUJNXSI6",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "142",
+      "symbol": "p1sP2D",
+      "name": "P1f p1sP2D",
+      "owner_uid": "951001",
+      "decimals": "0",
+      "total_supply": "18000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "144",
+      "symbol": "smkujog784",
+      "name": "烟测自建单位",
+      "owner_uid": "900001",
+      "decimals": "2",
+      "total_supply": "40000",
+      "supply_cap": "50000",
+      "status": "draft"
+    },
+    {
+      "cid": "145",
+      "symbol": "p1eSogsdm",
+      "name": "P1e smoke p1eSogsdm",
+      "owner_uid": "920021",
+      "decimals": "2",
+      "total_supply": "1000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "146",
+      "symbol": "p1eTogsdm",
+      "name": "P1e smoke p1eTogsdm",
+      "owner_uid": "920022",
+      "decimals": "0",
+      "total_supply": "100",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "147",
+      "symbol": "p1eEogsdm",
+      "name": "P1e smoke p1eEogsdm",
+      "owner_uid": "920021",
+      "decimals": "0",
+      "total_supply": "0",
+      "supply_cap": null,
+      "status": "draft"
+    },
+    {
+      "cid": "148",
+      "symbol": "p1eKogsdm",
+      "name": "P1e smoke p1eKogsdm",
+      "owner_uid": "920021",
+      "decimals": "0",
+      "total_supply": "0",
+      "supply_cap": "1000",
+      "status": "listed"
+    },
+    {
+      "cid": "149",
+      "symbol": "P1HMUJOHWSX",
+      "name": "P1f P1HMUJOHWSX",
+      "owner_uid": "942001",
+      "decimals": "2",
+      "total_supply": "3000000",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "150",
+      "symbol": "P1HMUJOIETS",
+      "name": "P1f P1HMUJOIETS",
+      "owner_uid": "942001",
+      "decimals": "2",
+      "total_supply": "1000000",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "151",
+      "symbol": "P1PMUJOJQXJ",
+      "name": "P1f P1PMUJOJQXJ",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "152",
+      "symbol": "P1PMUJOLUQJ",
+      "name": "P1f P1PMUJOLUQJ",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "153",
+      "symbol": "smkujp5sju",
+      "name": "烟测自建单位",
+      "owner_uid": "900001",
+      "decimals": "2",
+      "total_supply": "40000",
+      "supply_cap": "50000",
+      "status": "draft"
+    },
+    {
+      "cid": "154",
+      "symbol": "p1eSp6da5",
+      "name": "P1e smoke p1eSp6da5",
+      "owner_uid": "920021",
+      "decimals": "2",
+      "total_supply": "1000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "155",
+      "symbol": "p1eTp6da5",
+      "name": "P1e smoke p1eTp6da5",
+      "owner_uid": "920022",
+      "decimals": "0",
+      "total_supply": "100",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "156",
+      "symbol": "p1eEp6da5",
+      "name": "P1e smoke p1eEp6da5",
+      "owner_uid": "920021",
+      "decimals": "0",
+      "total_supply": "0",
+      "supply_cap": null,
+      "status": "draft"
+    },
+    {
+      "cid": "157",
+      "symbol": "p1eKp6da5",
+      "name": "P1e smoke p1eKp6da5",
+      "owner_uid": "920021",
+      "decimals": "0",
+      "total_supply": "0",
+      "supply_cap": "1000",
+      "status": "listed"
+    },
+    {
+      "cid": "158",
+      "symbol": "P1HMUJP73WS",
+      "name": "P1f P1HMUJP73WS",
+      "owner_uid": "942001",
+      "decimals": "2",
+      "total_supply": "3000000",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "159",
+      "symbol": "P1HMUJP7K1X",
+      "name": "P1f P1HMUJP7K1X",
+      "owner_uid": "942001",
+      "decimals": "2",
+      "total_supply": "1000000",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "160",
+      "symbol": "P1PMUJPEOEO",
+      "name": "P1f P1PMUJPEOEO",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "161",
+      "symbol": "p1u0P01A",
+      "name": "P2QA p1u0P01A",
+      "owner_uid": "954001",
+      "decimals": "0",
+      "total_supply": "5000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "162",
+      "symbol": "p1u0P02A",
+      "name": "P2QA p1u0P02A",
+      "owner_uid": "954001",
+      "decimals": "0",
+      "total_supply": "9000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "163",
+      "symbol": "p1u6P02A",
+      "name": "P2QA p1u6P02A",
+      "owner_uid": "954001",
+      "decimals": "6",
+      "total_supply": "9000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "164",
+      "symbol": "p1u0P03A",
+      "name": "P2QA p1u0P03A",
+      "owner_uid": "954001",
+      "decimals": "0",
+      "total_supply": "5000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "165",
+      "symbol": "p1u0P03B",
+      "name": "P2QA p1u0P03B",
+      "owner_uid": "954001",
+      "decimals": "0",
+      "total_supply": "5000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "166",
+      "symbol": "p1u0P03C",
+      "name": "P2QA p1u0P03C",
+      "owner_uid": "954001",
+      "decimals": "0",
+      "total_supply": "5000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "167",
+      "symbol": "p1u0P03D",
+      "name": "P2QA p1u0P03D",
+      "owner_uid": "954001",
+      "decimals": "0",
+      "total_supply": "5000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "168",
+      "symbol": "p1u4P04A",
+      "name": "P2QA p1u4P04A",
+      "owner_uid": "954001",
+      "decimals": "0",
+      "total_supply": "50000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "169",
+      "symbol": "p1u0P01B",
+      "name": "P2QA p1u0P01B",
+      "owner_uid": "954001",
+      "decimals": "0",
+      "total_supply": "5000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "170",
+      "symbol": "p1u4P04B",
+      "name": "P2QA p1u4P04B",
+      "owner_uid": "954001",
+      "decimals": "0",
+      "total_supply": "50000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "171",
+      "symbol": "p1u4P04C",
+      "name": "P2QA p1u4P04C",
+      "owner_uid": "954001",
+      "decimals": "0",
+      "total_supply": "50000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "172",
+      "symbol": "p1u4P04D",
+      "name": "P2QA p1u4P04D",
+      "owner_uid": "954001",
+      "decimals": "0",
+      "total_supply": "50000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "173",
+      "symbol": "p1u5P05A",
+      "name": "P2QA p1u5P05A",
+      "owner_uid": "954001",
+      "decimals": "0",
+      "total_supply": "0",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "174",
+      "symbol": "p1u5P05B",
+      "name": "P2QA p1u5P05B",
+      "owner_uid": "954001",
+      "decimals": "0",
+      "total_supply": "0",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "175",
+      "symbol": "p1u5P05C",
+      "name": "P2QA p1u5P05C",
+      "owner_uid": "954001",
+      "decimals": "0",
+      "total_supply": "0",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "177",
+      "symbol": "p1u6P06A",
+      "name": "P2QA p1u6P06A",
+      "owner_uid": "954001",
+      "decimals": "0",
+      "total_supply": "50000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "178",
+      "symbol": "P1PMUJQM252",
+      "name": "P1f P1PMUJQM252",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "180",
+      "symbol": "p1w242848",
+      "name": "P2W p1w242848",
+      "owner_uid": "0",
+      "decimals": "8",
+      "total_supply": "0",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "183",
+      "symbol": "p1x2ZXPKQ",
+      "name": "P2QA p1x2ZXPKQ",
+      "owner_uid": "958541",
+      "decimals": "0",
+      "total_supply": "5000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "186",
+      "symbol": "p1x2ZXQFD",
+      "name": "P2QA p1x2ZXQFD",
+      "owner_uid": "958636",
+      "decimals": "0",
+      "total_supply": "5000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "192",
+      "symbol": "p1yMINT0002",
+      "name": "NS probe p1yMINT0002",
+      "owner_uid": "959901",
+      "decimals": "8",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "193",
+      "symbol": "p1y1t6jxe",
+      "name": "P2W p1y1t6jxe",
+      "owner_uid": "959501",
+      "decimals": "8",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "194",
+      "symbol": "p1y959717",
+      "name": "P2W p1y959717",
+      "owner_uid": "959717",
+      "decimals": "8",
+      "total_supply": "0",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "195",
+      "symbol": "p1yacvlz3",
+      "name": "P2W p1yacvlz3",
+      "owner_uid": "959201",
+      "decimals": "8",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "196",
+      "symbol": "p1y3khacf",
+      "name": "P2W p1y3khacf",
+      "owner_uid": "959751",
+      "decimals": "8",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "197",
+      "symbol": "p2xc960519",
+      "name": "P2X p2xc960519",
+      "owner_uid": "960525",
+      "decimals": "6",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "198",
+      "symbol": "p2xd960519",
+      "name": "P2X p2xd960519",
+      "owner_uid": "960527",
+      "decimals": "6",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "203",
+      "symbol": "p2xc960379",
+      "name": "P2X p2xc960379",
+      "owner_uid": "960385",
+      "decimals": "6",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "204",
+      "symbol": "p2xd960379",
+      "name": "P2X p2xd960379",
+      "owner_uid": "960387",
+      "decimals": "6",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "210",
+      "symbol": "p2xc960645",
+      "name": "P2X p2xc960645",
+      "owner_uid": "960651",
+      "decimals": "6",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "211",
+      "symbol": "p2xd960645",
+      "name": "P2X p2xd960645",
+      "owner_uid": "960653",
+      "decimals": "6",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "217",
+      "symbol": "p2xc960057",
+      "name": "P2X p2xc960057",
+      "owner_uid": "960063",
+      "decimals": "6",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "218",
+      "symbol": "p2xd960057",
+      "name": "P2X p2xd960057",
+      "owner_uid": "960065",
+      "decimals": "6",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "228",
+      "symbol": "p2xc960197",
+      "name": "P2X p2xc960197",
+      "owner_uid": "960203",
+      "decimals": "6",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "229",
+      "symbol": "p2xd960197",
+      "name": "P2X p2xd960197",
+      "owner_uid": "960205",
+      "decimals": "6",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "235",
+      "symbol": "p2xq960737",
+      "name": "P2X p2xq960737",
+      "owner_uid": "960737",
+      "decimals": "6",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "236",
+      "symbol": "p2xq960453",
+      "name": "P2X p2xq960453",
+      "owner_uid": "960453",
+      "decimals": "6",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "238",
+      "symbol": "p2qa21lue89",
+      "name": "P2QA2 p2qa21lue89",
+      "owner_uid": "961825",
+      "decimals": "6",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "263",
+      "symbol": "P1PMULB1UXA",
+      "name": "P1f P1PMULB1UXA",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "264",
+      "symbol": "P1PMULB9NR3",
+      "name": "P1f P1PMULB9NR3",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "265",
+      "symbol": "p1y7tsj5a",
+      "name": "P2W p1y7tsj5a",
+      "owner_uid": "959251",
+      "decimals": "8",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "266",
+      "symbol": "p1yu5073s",
+      "name": "P2W p1yu5073s",
+      "owner_uid": "959301",
+      "decimals": "8",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "267",
+      "symbol": "P1PMULBLGYB",
+      "name": "P1f P1PMULBLGYB",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "268",
+      "symbol": "p3rk18ct08",
+      "name": "P2W p3rk18ct08",
+      "owner_uid": "990901",
+      "decimals": "8",
+      "total_supply": "0",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "269",
+      "symbol": "p3rk186ogu",
+      "name": "P2W p3rk186ogu",
+      "owner_uid": "990901",
+      "decimals": "8",
+      "total_supply": "0",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "270",
+      "symbol": "p3rk18mr4a",
+      "name": "P2W p3rk18mr4a",
+      "owner_uid": "990901",
+      "decimals": "8",
+      "total_supply": "0",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "271",
+      "symbol": "P1PMULC8WT7",
+      "name": "P1f P1PMULC8WT7",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "272",
+      "symbol": "p3n196zl7ik",
+      "name": "p3n19 20260928T143726Zl7ik",
+      "owner_uid": "991037",
+      "decimals": "8",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "273",
+      "symbol": "p3n196zzjhp",
+      "name": "p3n19 20260928T143826Zzjhp",
+      "owner_uid": "991025",
+      "decimals": "8",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "274",
+      "symbol": "P1PMULCT7CG",
+      "name": "P1f P1PMULCT7CG",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "275",
+      "symbol": "P1PMULCZVYR",
+      "name": "P1f P1PMULCZVYR",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "276",
+      "symbol": "P1PMULDGV9X",
+      "name": "P1f P1PMULDGV9X",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "277",
+      "symbol": "P1PMULDMPGC",
+      "name": "P1f P1PMULDMPGC",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "278",
+      "symbol": "P3ST150937Z",
+      "name": "P3S P3ST150937Z",
+      "owner_uid": "991101",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "1000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "279",
+      "symbol": "P3ST151206Z",
+      "name": "P3S P3ST151206Z",
+      "owner_uid": "991101",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "1000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "280",
+      "symbol": "P1PMULE72UL",
+      "name": "P1f P1PMULE72UL",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "281",
+      "symbol": "P1PMULESN5H",
+      "name": "P1f P1PMULESN5H",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "282",
+      "symbol": "P1PMULEYYXQ",
+      "name": "P1f P1PMULEYYXQ",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "283",
+      "symbol": "P1PMULF5X7S",
+      "name": "P1f P1PMULF5X7S",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "284",
+      "symbol": "P1PMULF8X80",
+      "name": "P1f P1PMULF8X80",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "285",
+      "symbol": "P1PMULFRRL5",
+      "name": "P1f P1PMULFRRL5",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "286",
+      "symbol": "P1PMULFZ8OT",
+      "name": "P1f P1PMULFZ8OT",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "287",
+      "symbol": "P1PMULG1Z0H",
+      "name": "P1f P1PMULG1Z0H",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "288",
+      "symbol": "P1PMULG1Z0V",
+      "name": "P1f P1PMULG1Z0V",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "289",
+      "symbol": "P1PMULG1Z0Y",
+      "name": "P1f P1PMULG1Z0Y",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "290",
+      "symbol": "P1PMULG83F0",
+      "name": "P1f P1PMULG83F0",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "291",
+      "symbol": "p1y102bg7",
+      "name": "P2W p1y102bg7",
+      "owner_uid": "959351",
+      "decimals": "8",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "292",
+      "symbol": "P1PMULGHW3E",
+      "name": "P1f P1PMULGHW3E",
+      "owner_uid": "948001",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": "100000000000",
+      "status": "listed"
+    },
+    {
+      "cid": "293",
+      "symbol": "p1y3cvwr1",
+      "name": "P2W p1y3cvwr1",
+      "owner_uid": "959001",
+      "decimals": "8",
+      "total_supply": "1000000",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    {
+      "cid": "99",
+      "symbol": "smkuji1kf3",
+      "name": "烟测自建单位",
+      "owner_uid": "900001",
+      "decimals": "2",
+      "total_supply": "40000",
+      "supply_cap": "50000",
+      "status": "draft"
+    },
+    {
+      "cid": "991001",
+      "symbol": "neng48-atk",
+      "name": "neng qa draft",
+      "owner_uid": "990101",
+      "decimals": "2",
+      "total_supply": "0",
+      "supply_cap": null,
+      "status": "draft"
+    }
+  ],
+  "currency_row": {
+    "cid": "1",
+    "symbol": "$",
+    "name": "平台积分",
+    "owner_uid": "0",
+    "decimals": "0",
+    "total_supply": "8400",
+    "supply_cap": null,
+    "status": "listed"
+  },
+  "account_sum": {
+    "rows_all": 425,
+    "all_zero": 133,
+    "cid1_uid_le0_allzero": 3,
+    "sigma_balance_frozen": "378298107"
+  },
+  "ledger_owner_rows": [
+    {
+      "uid": "-1",
+      "name": "手续费归集账户"
+    },
+    {
+      "uid": "-2",
+      "name": "佣金池"
+    },
+    {
+      "uid": "-3",
+      "name": "罚没账户"
+    },
+    {
+      "uid": "0",
+      "name": "平台主体"
+    }
+  ],
+  "commission_policy_ids": [
+    "1",
+    "20",
+    "21",
+    "22",
+    "23",
+    "24",
+    "25",
+    "26",
+    "27",
+    "28",
+    "29",
+    "30",
+    "31",
+    "32",
+    "33",
+    "34",
+    "35",
+    "36",
+    "37",
+    "75",
+    "76",
+    "77",
+    "78",
+    "79",
+    "80"
+  ],
+  "commission_policy_default": {
+    "row": "{\"levels\": 10, \"policy_id\": 1, \"created_by\": 0, \"weights_bp\": [3000, 2000, 1500, 1000, 800, 600, 500, 300, 200, 100], \"fee_rate_bp\": 100, \"time_created\": \"2026-09-27T09:49:28.131292+00:00\", \"effective_from\": \"1970-01-01T00:00:00+00:00\"}"
+  },
+  "currency_cid_seq": {
+    "seq_name": "public.currency_cid_seq",
+    "last_value": "293",
+    "is_called": true,
+    "next_value_calc": "294",
+    "probe": "read-only SELECT on sequence relation (no nextval)"
+  }
+}

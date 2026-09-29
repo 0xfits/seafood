@@ -1,0 +1,18 @@
+{
+  "expect_corrupt": false,
+  "replay_ok": true,
+  "injected": false,
+  "checksums_all_byte_equal": true,
+  "snapshot_taken": true,
+  "comparison_inside_tx": true,
+  "object_diffs_empty": true,
+  "terminal_failed_empty": true,
+  "object_diffs": [],
+  "terminal_failed": [],
+  "terminal_total": 32,
+  "terminal_ok": 31,
+  "ok": true,
+  "reason": "all gates green（replay_ok & 无注入 & checksums 全字节相等 & 对象集无差 & 逐值终态无失败 & 事务内快照已取）",
+  "commit_allowed": false,
+  "tx_final": "ROLLBACK"
+}

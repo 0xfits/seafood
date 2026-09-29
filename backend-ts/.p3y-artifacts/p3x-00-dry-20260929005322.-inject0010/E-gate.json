@@ -1,0 +1,18 @@
+{
+  "expect_corrupt": false,
+  "replay_ok": true,
+  "injected": true,
+  "checksums_all_byte_equal": false,
+  "snapshot_taken": false,
+  "comparison_inside_tx": false,
+  "object_diffs_empty": false,
+  "terminal_failed_empty": false,
+  "object_diffs": [],
+  "terminal_failed": [],
+  "terminal_total": null,
+  "terminal_ok": null,
+  "ok": false,
+  "reason": "injection_drill_triggered（注入演练 ⇒ 不得 COMMIT） ; checksums_not_all_byte_equal（file_steps=10/17） ; object_diffs=0（事务内快照未取到） ; terminal_failed=0（事务内快照未取到）",
+  "commit_allowed": false,
+  "tx_final": "ROLLBACK"
+}

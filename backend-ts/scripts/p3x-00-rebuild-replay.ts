@@ -13,12 +13,14 @@
  *   npx ts-node --transpile-only scripts/p3x-00-rebuild-replay.ts --dry-run
  *   npx ts-node --transpile-only scripts/p3x-00-rebuild-replay.ts --inject-fail-after=0010
  *   npx ts-node --transpile-only scripts/p3x-00-rebuild-replay.ts --apply --confirm-irreversible
+ *   npx ts-node --transpile-only scripts/p3x-00-rebuild-replay.ts --dry-run --expect-corrupt  # 判负演练（只改内存期望）
  *
  * 铁律（脚本内强制）：
  *   1. **单连接** `new Client({ connectionString: DATABASE_URL_UNPOOLED })`；禁用 Pool；禁用 pooler。
- *   2. dry-run / 注入演练路径下事务**必须以 ROLLBACK 收尾**（本脚本不含任何隐式 COMMIT）。
- *   3. `--apply` 分支**存在但需双闸**（`--apply` + `--confirm-irreversible`）；
- *      两者缺一即拒绝执行。Phase 2 未获授权 ⇒ 本单**不得调用**。
+ *   2. 事务收尾：**COMMIT 仅当 `mode==='apply' && --confirm-irreversible && gate.ok===true`**，
+ *      其余一律 `ROLLBACK`。`gate` 在**事务内、COMMIT 之前**由 deriveExpectations(迁移文件自身) 对拍得出。
+ *   3. `--apply` 分支需双闸（`--apply` + `--confirm-irreversible`）；两者缺一即拒绝执行（exit 2）。
+ *      `--expect-corrupt` 只改内存期望（造 gate.ok=false 的输入），不写库、不改文件。
  *   4. 不碰 src/**、不碰 p3w-*、不 DELETE/TRUNCATE/UPDATE 真实行、事务外零写库
  *      （连序列都不 nextval —— 用只读 `SELECT last_value, is_called FROM <seq>` 推断下一值）。
  *   5. 输出一律 run-tagged + 同名拒写；连接串永不落盘（redact）。
@@ -39,7 +41,10 @@ neonConfig.webSocketConstructor = WS as unknown as typeof neonConfig.webSocketCo
 
 const ROOT = path.resolve(__dirname, '..');
 const MIG_DIR = path.join(ROOT, 'migrations');
-const ART_ROOT = path.join(ROOT, '.p3x-artifacts');
+// 产物根默认不变（.p3x-artifacts）；装闸单通过 P3_ART_ROOT=.p3y-artifacts 落到自己的 run-tagged 命名空间。
+const ART_ROOT = process.env.P3_ART_ROOT
+  ? path.resolve(ROOT, process.env.P3_ART_ROOT)
+  : path.join(ROOT, '.p3x-artifacts');
 
 const KEY_FUNCTIONS = [
   'ledger_post_event',
@@ -59,11 +64,14 @@ const TABLES_ZERO_EXPECTED = [
   'listing', 'listing_order', 'market_order', 'market_trade',
 ];
 const M0017_TABLES = ['app_config', 'admin_role', 'admin_permission', 'admin_role_permission', 'admin_user_role', 'currency_status_log'];
+// --expect-corrupt 专用的「坏期望」标记（只存在于内存/artifact，不进任何迁移文件）
+const CORRUPT_EXPECT_TABLE = '__p3y_corrupt_expectation__';
 
 // ---------------------------------------------------------------- argv -----
 const argv = process.argv.slice(2);
 const wantsApply = argv.includes('--apply');
 const confirmIrreversible = argv.includes('--confirm-irreversible');
+const EXPECT_CORRUPT = argv.includes('--expect-corrupt');
 const injectArg = argv.find((a) => a.startsWith('--inject-fail-after='));
 const INJECT_AFTER: string | null = injectArg ? injectArg.split('=')[1] : null;
 const MODE: 'dry-run' | 'apply' = wantsApply ? 'apply' : 'dry-run';
@@ -263,7 +271,7 @@ function loadMigrations(): MigrationFile[] {
   });
 }
 
-function deriveExpectations(files: MigrationFile[]) {
+function deriveExpectations(files: MigrationFile[], corrupt: boolean = false) {
   const sets: Record<string, Set<string>> = {};
   let identityDecls = 0;
   let serialDecls = 0;
@@ -336,7 +344,7 @@ function deriveExpectations(files: MigrationFile[]) {
   }
   const derivedNext = setvalFloor === null ? null : String(Number(setvalFloor) + cidAdvancing.length);
 
-  return {
+  const result: any = {
     counts: Object.fromEntries(Object.entries(sets).map(([k, v]) => [k, v.size])),
     names,
     identity_decls: identityDecls,
@@ -362,6 +370,25 @@ function deriveExpectations(files: MigrationFile[]) {
       return { version: f.version, file: f.name, creates: c };
     }),
   };
+
+  // ---- 判负注入（--expect-corrupt）：只改**内存里的期望对象**，不改任何文件、不写库 ----
+  if (corrupt) {
+    result.names.TABLE = Array.from(new Set([...(result.names.TABLE || []), CORRUPT_EXPECT_TABLE])).sort();
+    result.counts.TABLE = ((result.counts.TABLE as number) || 0) + 1;
+    if (result.seed_expectations.currency_from_0001) {
+      result.seed_expectations.currency_from_0001.total_supply = '999';
+    } else {
+      result.seed_expectations.currency_from_0001 = { cid: '1', symbol: "'$'", name: '$', owner_uid: '0', decimals: '0', total_supply: '999', status: 'listed' };
+    }
+    result.corruption_injected = {
+      enabled: true,
+      table_extra_expectation: CORRUPT_EXPECT_TABLE,
+      currency_total_supply_expected_corrupted_to: '999',
+      note: '判负专用：期望对象被有意改坏，用于证明 COMMIT 闸会挡住 gate.ok=false。不改文件、不写库。',
+    };
+  }
+
+  return result;
 }
 
 // --------------------------------------------------------------- probes ----
@@ -610,7 +637,7 @@ function expectedTerminalChecks(exp: any, cmp: any) {
 }
 
 // ------------------------------------------------------------- run mode ----
-async function replayRun(c: Client, mode: 'dry-run' | 'apply', files: MigrationFile[], registry: any) {
+async function replayRun(c: Client, mode: 'dry-run' | 'apply', files: MigrationFile[], registry: any, exp: any) {
   const log: any = { mode, started_at: new Date().toISOString(), steps: [], dropped_schema: false };
   const steps: any[] = [];
   let replayError: any = null;
@@ -715,12 +742,62 @@ async function replayRun(c: Client, mode: 'dry-run' | 'apply', files: MigrationF
     catch (e: any) { log.in_tx_snapshot_error = redact(String(e && e.message ? e.message : e)).slice(0, 400); }
   }
 
+  // ---- 闸（gate）：全部判定在**事务内、COMMIT 之前**完成 -------------------
+  const gateFileSteps = log.steps.filter((x: any) => x.file);
+  const gate: any = {
+    expect_corrupt: EXPECT_CORRUPT,
+    replay_ok: !replayError,
+    injected: !!injected,
+    checksums_all_byte_equal: gateFileSteps.length === files.length && gateFileSteps.every((x: any) => x.checksum_byte_equal === true),
+    snapshot_taken: !!inTxSnapshot,
+    comparison_inside_tx: false,
+    object_diffs_empty: null,
+    terminal_failed_empty: null,
+    object_diffs: [] as string[],
+    terminal_failed: [] as any[],
+    terminal_total: null,
+    terminal_ok: null,
+    ok: false,
+    reason: '',
+  };
+  if (inTxSnapshot && exp) {
+    const gcmp = compareExpectations(exp, inTxSnapshot);
+    const gchecks = expectedTerminalChecks(exp, gcmp);
+    const gfailed = gchecks.filter((k: any) => k.ok === false);
+    gate.comparison_inside_tx = true;
+    gate.object_diffs = gcmp.diffs;
+    gate.object_diffs_empty = gcmp.diffs.length === 0;
+    gate.terminal_failed = gfailed.map((k: any) => ({ name: k.name, expected: k.expected, actual: k.actual }));
+    gate.terminal_failed_empty = gfailed.length === 0;
+    gate.terminal_total = gchecks.length;
+    gate.terminal_ok = gchecks.filter((k: any) => k.ok === true).length;
+  } else {
+    gate.object_diffs_empty = false;
+    gate.terminal_failed_empty = false;
+  }
+  const gateReasons: string[] = [];
+  if (gate.replay_ok !== true) gateReasons.push(`replay_error@${replayError ? replayError.file : 'unknown'}`);
+  if (gate.injected === true) gateReasons.push('injection_drill_triggered（注入演练 ⇒ 不得 COMMIT）');
+  if (gate.checksums_all_byte_equal !== true) gateReasons.push(`checksums_not_all_byte_equal（file_steps=${gateFileSteps.length}/${files.length}）`);
+  if (gate.object_diffs_empty !== true) gateReasons.push(`object_diffs=${gate.object_diffs.length}${gate.object_diffs.length ? ': ' + gate.object_diffs.slice(0, 3).join(' | ') : '（事务内快照未取到）'}`);
+  if (gate.terminal_failed_empty !== true) gateReasons.push(`terminal_failed=${gate.terminal_failed.length}${gate.terminal_failed.length ? ': ' + gate.terminal_failed.map((x: any) => x.name).slice(0, 3).join(',') : '（事务内快照未取到）'}`);
+  gate.ok = gate.replay_ok === true && gate.injected === false
+    && gate.checksums_all_byte_equal === true && gate.snapshot_taken === true
+    && gate.object_diffs_empty === true && gate.terminal_failed_empty === true;
+  gate.reason = gate.ok
+    ? 'all gates green（replay_ok & 无注入 & checksums 全字节相等 & 对象集无差 & 逐值终态无失败 & 事务内快照已取）'
+    : gateReasons.join(' ; ');
+
+  // COMMIT 条件 = mode==='apply' && --confirm-irreversible && gate.ok===true；否则一律 ROLLBACK
+  const canCommit = mode === 'apply' && confirmIrreversible && gate.ok === true;
   let final = '';
-  if (mode === 'apply' && confirmIrreversible) { await c.query('COMMIT'); final = 'COMMIT'; }
+  if (canCommit) { await c.query('COMMIT'); final = 'COMMIT'; }
   else { await c.query('ROLLBACK'); final = 'ROLLBACK'; }
+  gate.commit_allowed = canCommit;
+  gate.tx_final = final;
   log.tx_final = final;
   log.finished_at = new Date().toISOString();
-  return { log, inTxSnapshot };
+  return { log, inTxSnapshot, gate };
 }
 
 function errLineOf(sql: string, position: number | null): number | null {
@@ -734,7 +811,7 @@ function errLineOf(sql: string, position: number | null): number | null {
   const exit = (code: number) => process.exit(code);
 
   if (argv.includes('--help')) {
-    console.log('p3x-00-rebuild-replay: --dry-run(default) | --inject-fail-after=<ver|file> | --apply --confirm-irreversible');
+    console.log('p3x-00-rebuild-replay: --dry-run(default) | --inject-fail-after=<ver|file> | --expect-corrupt | --apply --confirm-irreversible');
     return exit(0);
   }
   if (!URL) { console.log(json({ ok: false, fatal: 'missing DATABASE_URL_UNPOOLED / POSTGRES_URL_NON_POOLING' })); return exit(2); }
@@ -744,7 +821,7 @@ function errLineOf(sql: string, position: number | null): number | null {
   }
 
   const stamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 15);
-  const runTag = `${MODE === 'apply' ? 'p3x-00-apply' : 'p3x-00-dry'}-${stamp}-${INJECT_AFTER ? 'inject' + INJECT_AFTER : 'plain'}`;
+  const runTag = `${MODE === 'apply' ? 'p3x-00-apply' : 'p3x-00-dry'}-${stamp}-${INJECT_AFTER ? 'inject' + INJECT_AFTER : (EXPECT_CORRUPT ? 'corrupt' : 'plain')}`;
   const runDir = path.join(ART_ROOT, runTag);
   if (fs.existsSync(runDir)) { console.log(json({ ok: false, fatal: `artifact run dir exists（同名拒写）: ${runTag}` })); return exit(2); }
   fs.mkdirSync(runDir, { recursive: true });
@@ -810,7 +887,10 @@ function errLineOf(sql: string, position: number | null): number | null {
     }
 
     const registry = preA.schema_migration || [];
-    const { log, inTxSnapshot } = await replayRun(client, MODE, files, registry);
+    const exp = deriveExpectations(files, EXPECT_CORRUPT);
+    const { log, inTxSnapshot, gate } = await replayRun(client, MODE, files, registry, exp);
+    writeArtifact(runDir, 'E-gate.json', gate);
+    console.log(`gate.ok=${gate.ok} reason=${gate.reason}`);
     writeArtifact(runDir, 'C-replay-log.json', log);
     summary.C_replay = {
       tx_final: log.tx_final,
@@ -826,7 +906,6 @@ function errLineOf(sql: string, position: number | null): number | null {
     };
     if (log.injection) summary.E_injection = log.injection;
 
-    const exp = deriveExpectations(files);
     writeArtifact(runDir, 'D-expectations-from-files.json', exp);
 
     if (inTxSnapshot) {

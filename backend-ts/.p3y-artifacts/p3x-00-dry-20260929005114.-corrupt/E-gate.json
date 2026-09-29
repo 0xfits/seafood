@@ -1,0 +1,42 @@
+{
+  "expect_corrupt": true,
+  "replay_ok": true,
+  "injected": false,
+  "checksums_all_byte_equal": true,
+  "snapshot_taken": true,
+  "comparison_inside_tx": true,
+  "object_diffs_empty": false,
+  "terminal_failed_empty": false,
+  "object_diffs": [
+    "TABLE 缺失（文件声明但库内无）: __p3y_corrupt_expectation__"
+  ],
+  "terminal_failed": [
+    {
+      "name": "currency.cid1(逐值)",
+      "expected": {
+        "cid": "1",
+        "symbol": "$",
+        "name": "平台积分",
+        "owner_uid": "0",
+        "decimals": "0",
+        "total_supply": "999",
+        "status": "listed"
+      },
+      "actual": {
+        "cid": "1",
+        "symbol": "$",
+        "name": "平台积分",
+        "owner_uid": "0",
+        "decimals": "0",
+        "total_supply": "0",
+        "status": "listed"
+      }
+    }
+  ],
+  "terminal_total": 32,
+  "terminal_ok": 30,
+  "ok": false,
+  "reason": "object_diffs=1: TABLE 缺失（文件声明但库内无）: __p3y_corrupt_expectation__ ; terminal_failed=1: currency.cid1(逐值)",
+  "commit_allowed": false,
+  "tx_final": "ROLLBACK"
+}
