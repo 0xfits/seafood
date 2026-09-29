@@ -21,9 +21,17 @@ import {
 import { healthCheck } from './db';
 // P4-SEC（缺陷 B）：基础设施异常走**既有** §14 分类器与 R107 错误体（不新增错误码）
 import { ledgerErrorDiagnostics, normalizeLedgerError, toErrorResponse } from './ledger-errors';
-import { ledgerErrorBody, sendGone, sendVerbError, submitWork } from './job-service';
+// P4-B4a：J2/J3（报名 / 选定）与既有 `submitWork`（J4）同族 ⇒ 一并从路由层接线
+import { acceptApplication, applyToJob, ledgerErrorBody, sendGone, sendVerbError, submitWork } from './job-service';
 // P4-B3c：招工**资金**编排（J1 托管 / J5 发放 / J6 退款 ⇒ `job_post_event`）
-import { verifyJobSubmission } from './job-funds-service';
+// P4-B4a：J1 `publishJob`（§1.8 #1）/ J5 `settleJob` / J6 `refundJob` 由本片注册（`verifyJobSubmission` 沿用）
+import { publishJob, refundJob, settleJob, verifyJobSubmission } from './job-funds-service';
+// P4-B4a：商品面（P1 上架/编辑/下架）—— §1.8 #7/#8；**本片首次导入整个模块**（v0.8 §1.8 现取 `grep` = 0）
+import { createListing, transitionListingStatus, updateListing } from './listing-service';
+// P4-B4a：商品**资金**面（P2 购买 / P4 退款）—— §1.8 #9/#10；同样**本片首次导入**（`listing-funds-service` 调用点改前 = 0）
+import { buyListing, refundListingOrder } from './listing-funds-service';
+// P4-B4a：R3 佣金政策插行（§1.8 附注 / §9 A11）；**只读引用**该模块，不改其行为、不改金额来源（§4.8）
+import { insertCommissionPolicy } from './commission';
 // P4-B3e（§4.2 M1/M2/M3 · §4.3 资金四栏 · DL85/DL87/DL90 + DL68 币对串行化）：交易所资金编排
 import { placeMarketOrder, cancelMarketOrder, cancelAllMarketOrders } from './market-service';
 // P4-B3a：币种面**真资金**编排（§1.1:147-148 · §4.2 C1/C2 · §7-3 已裁）
@@ -1237,6 +1245,319 @@ app.post('/api/currency/:cid/list', async (req, res) => {
     const normalized = normalizeLedgerError(unwrapInfraCause(error));
     console.error('[currency.list] infra failure:', JSON.stringify(ledgerErrorDiagnostics(error)));
     return res.status(normalized.httpStatus).json(toErrorResponse(normalized));
+  }
+});
+
+// ============================================================================
+// P4-B4a（§1.8「已实现·未注册清单」10 条 + 1 附注 · §9 A 栏 A1–A11）：**只做路由层注册**
+// ----------------------------------------------------------------------------
+// 硬口径（本片自证 · 逐条对应派单硬边界）：
+//   · **不改任何服务层行为**：每个 verb 一律「取 actor → 极薄形状闸 → 交 service →
+//     错误经 `sendVerbError`（R107，与既有 `POST /api/currency*`、`POST /api/tasklist/:jID/verify` 同先例）」。
+//     错误码 / 状态码 / 成功面键集**全部由服务层产出** —— 本层不新造码、不改码。
+//   · **不改金额来源**（§4.8）：`reward` / `price` / `quantity` 一律**原样透传**，路由层不计算、不默认、不派生。
+//   · 幂等键照 §4.5 三载体：`body.create_key` / `body.idempotency_key` / `Idempotency-Key` 头（取值序同 `:589` 先例）；
+//     **三载体全缺 ⇒ 不注入**（把「缺键」交给服务层的 fail-loud 判定，§4.4-14）。
+//   · 成功面统一 `sendSuccess`；**重放 ⇒ 顶层 `idempotent_replay:true`（非 `data` 键）**（§4.4-17 既有标记手法）。
+//   · 基础设施异常一律走**既有** §14 分类器（`normalizeLedgerError(unwrapInfraCause(e))`），同 currency 面先例。
+// ============================================================================
+
+/** §3.1 三类 404 + §3.1:454 / C1 口径：非数字或缺失 id ⇒ `404 LEDGER_REF_NOT_FOUND`（R107 形状，禁裸 400 文案） */
+const sendRefNotFound = (res: Response, refType: string, refId: string, reason: string) =>
+  res.status(404).json(ledgerErrorBody('LEDGER_REF_NOT_FOUND', 'Referenced object not found', {
+    ref_type: refType, ref_id: refId || 'null', reason,
+  }));
+
+/** 服务层/DB 抛出的基础设施异常 ⇒ 既有 §14 分类器（R107 形状；原始 message/stack 只进服务端日志，R108） */
+const sendInfraMapped = (res: Response, scope: string, error: unknown) => {
+  const normalized = normalizeLedgerError(unwrapInfraCause(error));
+  console.error(`[${scope}] infra failure:`, JSON.stringify(ledgerErrorDiagnostics(error)));
+  return res.status(normalized.httpStatus).json(toErrorResponse(normalized));
+};
+
+/** §4.5 三载体归一（仅注入 `create_key`；**不校验、不派生** —— 校验与 fail-loud 属服务层） */
+const withCreateKey = (req: Request): Record<string, unknown> => {
+  const body = (req.body || {}) as Record<string, unknown>;
+  const raw = body.create_key ?? body.idempotency_key ?? body.idempotencyKey ?? req.get('idempotency-key') ?? undefined;
+  return raw === undefined || raw === null ? body : { ...body, create_key: raw };
+};
+
+const createKeyRawOf = (req: Request): unknown =>
+  req.body?.create_key ?? req.body?.idempotency_key ?? req.body?.idempotencyKey ?? req.get('idempotency-key') ?? undefined;
+
+// ---- A1 · J1 招工发布 + 托管（§1.8 #1；`job-funds-service.ts:149` `publishJob`）--------
+app.post('/api/job', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  try {
+    // `create_key` 必传（fail-loud，§4.4-14）；`reward`/`cid` 原样交服务层（§4.8：金额 = A 类客户端值）
+    const result = await publishJob({ actorUid: actor.user.uID, body: withCreateKey(req) });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, result.replay ? 'Job published (idempotent replay)' : 'Job published', 200,
+      result.replay ? { idempotent_replay: true } : undefined);
+  } catch (error) {
+    return sendInfraMapped(res, 'job.publish', error);
+  }
+});
+
+// ---- A2 · J2 报名（§1.8 #2；`job-service.ts:175` `applyToJob`）-------------------------
+app.post('/api/job/:jobId/apply', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  const jobIdRaw = String(req.params.jobId ?? '').trim();
+  if (!/^[1-9]\d*$/.test(jobIdRaw)) return sendRefNotFound(res, 'job', jobIdRaw, 'job_not_found');
+
+  try {
+    const result = await applyToJob({
+      jobId: Number(jobIdRaw),
+      workerUid: actor.user.uID, // worker 恒 = token 侧 actor（不得代他人报名）
+      createKeyRaw: createKeyRawOf(req),
+    });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, result.replay ? 'Application created (idempotent replay)' : 'Application created', 200,
+      result.replay ? { idempotent_replay: true } : undefined);
+  } catch (error) {
+    return sendInfraMapped(res, 'job.apply', error);
+  }
+});
+
+// ---- A3 · J3 雇主选定打工人（§1.8 #3 · **优先级最高**；`job-service.ts:208` `acceptApplication`）----
+app.post('/api/job/:jobId/accept', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  const jobIdRaw = String(req.params.jobId ?? '').trim();
+  if (!/^[1-9]\d*$/.test(jobIdRaw)) return sendRefNotFound(res, 'job', jobIdRaw, 'job_not_found');
+  const applicationRaw = String(req.body?.application_id ?? '').trim();
+  if (!/^[1-9]\d*$/.test(applicationRaw)) return sendRefNotFound(res, 'job_application', applicationRaw, 'application_not_found');
+
+  try {
+    const result = await acceptApplication({
+      jobId: Number(jobIdRaw),
+      applicationId: Number(applicationRaw),
+      actorUid: actor.user.uID, // 非雇主 ⇒ 服务层 403 + ACTOR_NOT_ALLOWED（§6.2 附表）
+    });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, 'Application accepted');
+  } catch (error) {
+    return sendInfraMapped(res, 'job.accept', error);
+  }
+});
+
+// ---- A4 · J4 提交交付物（**可选别名**；§1.8 #4「服务已接线、仅新路径名未注册」）----------
+// 与既有 `POST /api/task-progress/:identifier/submit`（`:583`）**同 service verb ⇒ 成功面键集逐键一致**（§2 母约束 F1）；
+// 交付物字段名以 §4.2 J4 的 `deliverable` 为准，**兼容**既有前端在用的 `info_input`（既有路径逐字）。
+app.post('/api/job/:jobId/submit', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  const identifier = parseInteger(req.params.jobId);
+  const deliverable = String(req.body?.deliverable ?? req.body?.info_input ?? '').trim();
+
+  if (!identifier) return sendRefNotFound(res, 'job_application', String(req.params.jobId ?? ''), 'jID_not_found');
+  if (!deliverable) return sendError(res, 400, 'info_input is required'); // 与既有 `:595` 逐字一致（别名面）
+
+  try {
+    const result = await submitWork({
+      identifier,
+      workerUid: actor.user.uID,
+      deliverable,
+      createKeyRaw: createKeyRawOf(req),
+    });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, 'Task progress submitted', 200,
+      result.replay ? { idempotent_replay: true } : undefined);
+  } catch (error) {
+    return sendInfraMapped(res, 'job.submit', error);
+  }
+});
+
+// ---- A5 · J5/J6 审核（approve ⇒ settle / reject ⇒ refund `to_status='rejected'`）----------
+// 权限 = `review_tasks`（**与既有 `POST /api/tasklist/:jID/verify`（`:1100`）同权限**，该路径即 J5/J6 的既有承载）；
+// `req.body.approved !== false` ⇒ settle（`settleJob`），`=== false` ⇒ refund（`refundJob`）—— 前端契约同 `:1103`。
+app.post('/api/job/:jobId/review', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'review_tasks');
+  if (!actor) return;
+
+  const jobIdRaw = String(req.params.jobId ?? '').trim();
+  if (!/^[1-9]\d*$/.test(jobIdRaw)) return sendRefNotFound(res, 'job', jobIdRaw, 'job_not_found');
+  const approved = req.body?.approved !== false;
+
+  try {
+    const result = approved
+      ? await settleJob({ jobIdRaw, reviewerUid: actor.user.uID }) // 审核人 ⇒ 结论位与资金**同一语句**（R4 原子）
+      : await refundJob({ jobIdRaw, toStatusRaw: 'rejected', reviewerUid: actor.user.uID });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, approved ? 'Job settled' : 'Job rejected', 200,
+      result.replay ? { idempotent_replay: true } : undefined);
+  } catch (error) {
+    return sendInfraMapped(res, 'job.review', error);
+  }
+});
+
+// ---- A6 · J6 取消 → 退托管（§1.8 #6；`job-funds-service.ts:237` `refundJob`，`to_status='cancelled'`）----
+// 权限：spec 未定义 R/J6 cancel 的 actor ⇒ 本片取**与 J6 唯一既有触发面同权限**（`review_tasks`）；
+//   并**不传 `reviewerUid`**（服务层注释口径：「无审核人 ⇒ 只做资金 + 业务行状态」⇒ 不写结论位）。
+//   「雇主可取消自己的招工」= 需服务层加归属闸 ⇒ **不在本片自选**，登记 §7 待 Zang 裁定。
+app.post('/api/job/:jobId/cancel', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'review_tasks');
+  if (!actor) return;
+
+  const jobIdRaw = String(req.params.jobId ?? '').trim();
+  if (!/^[1-9]\d*$/.test(jobIdRaw)) return sendRefNotFound(res, 'job', jobIdRaw, 'job_not_found');
+
+  try {
+    const result = await refundJob({ jobIdRaw, toStatusRaw: 'cancelled' });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, result.replay ? 'Job cancelled (idempotent replay)' : 'Job cancelled', 200,
+      result.replay ? { idempotent_replay: true } : undefined);
+  } catch (error) {
+    return sendInfraMapped(res, 'job.cancel', error);
+  }
+});
+
+// ---- A7 · P1-a 商品上架（§1.8 #7；`listing-service.ts:164` `createListing`）--------------
+app.post('/api/listing', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  try {
+    const body = withCreateKey(req);
+    const result = await createListing({
+      sellerUid: actor.user.uID, // 卖家恒 = token 侧 actor（保留 uid 前置闸在服务层）
+      cid: body.cid as number,
+      price: body.price as number, // §4.8：A 类客户端值，原样交服务层（不计算、不默认）
+      stock: body.stock as number,
+      title: body.title,
+      description: body.description,
+      mediaUrls: body.media_urls,
+      createKeyRaw: body.create_key,
+    });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, result.replay ? 'Listing created (idempotent replay)' : 'Listing created', 200,
+      result.replay ? { idempotent_replay: true } : undefined);
+  } catch (error) {
+    return sendInfraMapped(res, 'listing.create', error);
+  }
+});
+
+// ---- A8-a · P1-b 商品编辑（§1.8 #8；`listing-service.ts:222` `updateListing`）-------------
+// 语义分工（§9 A8 的 `POST|PATCH` 两 verb）：**`POST` = 编辑**（字段增量维护）/ **`PATCH` = 状态迁移（下架等）**。
+app.post('/api/listing/:listingId', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  const listingId = parseInteger(req.params.listingId);
+  if (!listingId || listingId <= 0) return sendRefNotFound(res, 'listing', String(req.params.listingId ?? ''), 'listing_not_found');
+
+  const body = (req.body || {}) as Record<string, unknown>;
+  try {
+    const result = await updateListing({
+      listingId,
+      actorUid: actor.user.uID, // 非卖家 ⇒ 服务层 403 + ACTOR_NOT_ALLOWED
+      price: body.price,
+      stock: body.stock,
+      title: body.title,
+      description: body.description,
+      mediaUrls: body.media_urls,
+    });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, 'Listing updated');
+  } catch (error) {
+    return sendInfraMapped(res, 'listing.update', error);
+  }
+});
+
+// ---- A8-b · P1-c 商品状态迁移（上架 / 下架 / 冻结 / 复牌；`:286` `transitionListingStatus`）----
+// `delisted` = 终态禁改（§7-18）；白名单唯一真源 = `public.listing_status_transition_ok`（服务层交 DB）。
+app.patch('/api/listing/:listingId', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  const listingId = parseInteger(req.params.listingId);
+  if (!listingId || listingId <= 0) return sendRefNotFound(res, 'listing', String(req.params.listingId ?? ''), 'listing_not_found');
+
+  try {
+    // 入参别名：`to_status`（§4.2 P1 状态机口径）/ `status`（前端常见写法）—— 二者皆缺 ⇒ 交服务层判 400
+    const result = await transitionListingStatus({
+      listingId,
+      actorUid: actor.user.uID,
+      toStatus: req.body?.to_status ?? req.body?.status ?? '',
+    });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, 'Listing status transitioned');
+  } catch (error) {
+    return sendInfraMapped(res, 'listing.transition', error);
+  }
+});
+
+// ---- A9 · P2 商品下单（§1.8 #9；`listing-funds-service.ts:191` `buyListing`）-------------
+// §4.7.3 B8：客户端传的 `price`/`seller_uid`/`buyer_uid` 一律**被服务层忽略**（金额与对手方服务端取数）；
+// `listing_id` 的形状闸在服务层（非数字/0 ⇒ 404 `listing_not_found`）。
+app.post('/api/listing/:listingId/buy', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  try {
+    const result = await buyListing({
+      actorUid: actor.user.uID, // 买方恒 = token 侧 actor（代他人付款结构上不可能）
+      listingIdRaw: req.params.listingId,
+      body: withCreateKey(req),  // `cli:` `create_key` 必传（fail-loud，§4.4-14）
+    });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, result.replay ? 'Listing purchased (idempotent replay)' : 'Listing purchased', 200,
+      result.replay ? { idempotent_replay: true } : undefined);
+  } catch (error) {
+    return sendInfraMapped(res, 'listing.buy', error);
+  }
+});
+
+// ---- A10 · P4 商品退款（**路径正典** `/api/listing-orders/:orderId/refund`，§7-37）--------
+// `listing-funds-service.ts:261` `refundListingOrder`；`actor` = **仅卖方**（`:62` `REFUND_ACTOR_IS_SELLER_ONLY`）
+//   ⇒ 非卖方由服务层判 `403 AUTH_FORBIDDEN` + `ACTOR_NOT_ALLOWED`（本层不前置、不复制该闸）。
+app.post('/api/listing-orders/:orderId/refund', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  try {
+    const result = await refundListingOrder({ actorUid: actor.user.uID, orderIdRaw: req.params.orderId });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view, result.replay ? 'Listing order refunded (idempotent replay)' : 'Listing order refunded', 200,
+      result.replay ? { idempotent_replay: true } : undefined);
+  } catch (error) {
+    return sendInfraMapped(res, 'listing.refund', error);
+  }
+});
+
+// ---- A11 · R3 佣金政策插行（§1.8 附注；`src/commission.ts:240` `insertCommissionPolicy`）----
+// · **无分录**（INSERT-only 政策表）；`created_by` 由 token 侧 admin 注入（不得由调用方自报）；
+// · `effective_from` 严格递增（CR25）；越界/回填 ⇒ 服务层 `400 LD016` + `FEE_RATE_OUT_OF_RANGE` /
+//   `POLICY_SHAPE_INVALID` / `POLICY_EFFECTIVE_BACKDATED` → 经既有 §14 分类器原码/原 status 映射（§3.3-4）；
+// · **不改金额来源**（§4.8）：本端点只「插一行新政策」，既有政策与在途结算不受影响（`effective_from > now` 时）。
+// · 权限：spec 未点名 ⇒ 本片取 §1 #33 指认的权威表同域权限 `manage_settings`（`:872` 同族先例）—— 登记 §7 待裁。
+app.post('/api/admin/commission_policy', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'manage_settings');
+  if (!actor) return;
+
+  const body = (req.body || {}) as Record<string, unknown>;
+  const effectiveFrom = body.effective_from === undefined || body.effective_from === null
+    || String(body.effective_from).trim() === ''
+    ? null : String(body.effective_from);
+
+  try {
+    const policy = await insertCommissionPolicy({
+      fee_rate_bp: Number(body.fee_rate_bp),
+      levels: Number(body.levels),
+      // 非数组 ⇒ 传空数组（让服务层守卫判 `POLICY_SHAPE_INVALID` 400；**不在此层造码**）
+      weights_bp: Array.isArray(body.weights_bp) ? body.weights_bp.map((w) => Number(w)) : [],
+      effective_from: effectiveFrom,
+      created_by: actor.user.uID,
+    });
+    return sendSuccess(res, policy, 'Commission policy inserted');
+  } catch (error) {
+    return sendInfraMapped(res, 'admin.commission_policy', error);
   }
 });
 

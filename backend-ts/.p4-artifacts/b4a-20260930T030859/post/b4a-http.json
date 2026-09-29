@@ -1,0 +1,956 @@
+{
+  "run": "b4a-20260930T030859",
+  "tag": "b4a30030859",
+  "secret_fingerprint": "b1ec01afb2eb",
+  "tests": {
+    "A1_neg_no_key": {
+      "status": 400,
+      "code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": ""
+    },
+    "A1_ok": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid",
+        "employer_uid",
+        "cid",
+        "reward"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data",
+        "idempotent_replay"
+      ],
+      "msg": "Job published (idempotent replay)",
+      "job_id": 16,
+      "escrow_legs": [
+        {
+          "uid": "970001",
+          "kind": "job_escrow",
+          "delta": "-5",
+          "frozen_delta": "0"
+        },
+        {
+          "uid": "970001",
+          "kind": "job_escrow",
+          "delta": "0",
+          "frozen_delta": "5"
+        }
+      ]
+    },
+    "A1_replay": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid",
+        "employer_uid",
+        "cid",
+        "reward"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data",
+        "idempotent_replay"
+      ],
+      "msg": "Job published (idempotent replay)",
+      "note": "同 key 重投",
+      "job_id": 16,
+      "legs_after_replay": 2
+    },
+    "A2_neg_missing_job": {
+      "status": 404,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": ""
+    },
+    "A2_ok": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "application_id",
+        "job_id",
+        "worker_uid",
+        "status"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Application created",
+      "job_id": 16,
+      "application_id": 15
+    },
+    "A2_replay": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "application_id",
+        "job_id",
+        "worker_uid",
+        "status"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data",
+        "idempotent_replay"
+      ],
+      "msg": "Application created (idempotent replay)",
+      "application_id": 15
+    },
+    "A2_neg_already_applied": {
+      "status": 409,
+      "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "",
+      "application_id": 15
+    },
+    "A3_neg_not_employer": {
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "",
+      "ledger_entries_delta": 0
+    },
+    "A3_ok": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "application_id",
+        "job_id",
+        "worker_uid",
+        "status"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Application accepted",
+      "application_id": 15
+    },
+    "A3_neg_already_accepted": {
+      "status": 409,
+      "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "",
+      "ledger_entries_delta": 0
+    },
+    "A4_neg_missing_deliverable": {
+      "status": 400,
+      "code": null,
+      "data_keys": [],
+      "top_keys": [
+        "success",
+        "message",
+        "error"
+      ],
+      "msg": "info_input is required"
+    },
+    "A4_ok": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "jID",
+        "tID",
+        "uID",
+        "info_input",
+        "time_created",
+        "time_submitted",
+        "time_checked",
+        "time_claimed",
+        "points_claimed"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Task progress submitted",
+      "identifier": 15
+    },
+    "A4_keySet_parity": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "jID",
+        "tID",
+        "uID",
+        "info_input",
+        "time_created",
+        "time_submitted",
+        "time_checked",
+        "time_claimed",
+        "points_claimed"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Task progress submitted",
+      "note": "既有路径 /api/task-progress/:identifier/submit",
+      "alias_data_keys": [
+        "jID",
+        "tID",
+        "uID",
+        "info_input",
+        "time_created",
+        "time_submitted",
+        "time_checked",
+        "time_claimed",
+        "points_claimed"
+      ],
+      "sibling_data_keys": [
+        "jID",
+        "tID",
+        "uID",
+        "info_input",
+        "time_created",
+        "time_submitted",
+        "time_checked",
+        "time_claimed",
+        "points_claimed"
+      ],
+      "identical": true,
+      "job2": 17,
+      "app2": 18,
+      "job2_status": 200
+    },
+    "A5_neg_non_admin": {
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "",
+      "ledger_entries_delta": 0
+    },
+    "A5_ok_approve": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid",
+        "submissions_reviewed"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Job settled",
+      "job_id": 16,
+      "settle_legs": [
+        {
+          "uid": "970001",
+          "kind": "job_payout",
+          "delta": "0",
+          "frozen_delta": "-5"
+        },
+        {
+          "uid": "12",
+          "kind": "job_payout",
+          "delta": "5",
+          "frozen_delta": "0"
+        }
+      ]
+    },
+    "A5_replay_approve": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid",
+        "submissions_reviewed"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data",
+        "idempotent_replay"
+      ],
+      "msg": "Job settled",
+      "note": "同键（DB 派生）重投"
+    },
+    "A5_ok_reject": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid",
+        "submissions_reviewed"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Job rejected",
+      "job_id": 17,
+      "refund_legs": [
+        {
+          "uid": "970001",
+          "kind": "job_escrow_refund",
+          "delta": "5",
+          "frozen_delta": "0"
+        },
+        {
+          "uid": "970001",
+          "kind": "job_escrow_refund",
+          "delta": "0",
+          "frozen_delta": "-5"
+        }
+      ]
+    },
+    "A6_neg_non_admin": {
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "",
+      "ledger_entries_delta": 0
+    },
+    "A6_ok_cancel": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Job cancelled",
+      "job_id": 18,
+      "refund_legs": [
+        {
+          "uid": "970001",
+          "kind": "job_escrow_refund",
+          "delta": "5",
+          "frozen_delta": "0"
+        },
+        {
+          "uid": "970001",
+          "kind": "job_escrow_refund",
+          "delta": "0",
+          "frozen_delta": "-5"
+        }
+      ]
+    },
+    "A6_neg_state": {
+      "status": 409,
+      "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "",
+      "note": "job1 已 settled ⇒ 状态机拒"
+    },
+    "A6_neg_escrow_missing": {
+      "status": 409,
+      "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "",
+      "note": "escrow_txid IS NULL（job 15 / status=submitted）"
+    },
+    "A7_neg_shape": {
+      "status": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "",
+      "note": "缺 price"
+    },
+    "A7_ok": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "listing_id",
+        "seller_uid",
+        "cid",
+        "price",
+        "stock",
+        "title",
+        "description",
+        "media_urls",
+        "status",
+        "create_key",
+        "outcome",
+        "created_key_derived"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Listing created",
+      "listing_id": 16,
+      "status_in_db_before_patch": "draft",
+      "status_in_db_after": "listed"
+    },
+    "A8_neg_not_owner": {
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "",
+      "ledger_entries_delta": 0
+    },
+    "A8_ok_update": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "listing_id",
+        "seller_uid",
+        "cid",
+        "price",
+        "stock",
+        "title",
+        "description",
+        "media_urls",
+        "status",
+        "create_key",
+        "outcome"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Listing updated",
+      "listing_id": 16,
+      "price_in_db": "2"
+    },
+    "A8_neg_no_field": {
+      "status": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": ""
+    },
+    "A9_neg_no_key": {
+      "status": 400,
+      "code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": ""
+    },
+    "A9_ok": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "op",
+        "listing_id",
+        "order_id",
+        "listing_status",
+        "order_status",
+        "stock",
+        "stock_rolled_back",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "pay_txid",
+        "refund_txid",
+        "ledger_event_keys",
+        "amount",
+        "currency_status",
+        "event_kinds",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "buyer_uid",
+        "quantity",
+        "client_buyer_uid_ignored"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Listing purchased",
+      "listing_id": 16,
+      "order_id": 6,
+      "buy_legs": [
+        {
+          "uid": "12",
+          "kind": "purchase",
+          "delta": "-2",
+          "frozen_delta": "0"
+        },
+        {
+          "uid": "970001",
+          "kind": "sale",
+          "delta": "2",
+          "frozen_delta": "0"
+        }
+      ]
+    },
+    "A10_neg_not_seller": {
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "",
+      "ledger_entries_delta": 0
+    },
+    "A10_ok": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "op",
+        "listing_id",
+        "order_id",
+        "listing_status",
+        "order_status",
+        "stock",
+        "stock_rolled_back",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "pay_txid",
+        "refund_txid",
+        "ledger_event_keys",
+        "amount",
+        "currency_status",
+        "event_kinds",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "actor_uid",
+        "seller_uid"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Listing order refunded",
+      "order_id": 6,
+      "refund_legs": [
+        {
+          "uid": "970001",
+          "kind": "purchase_refund",
+          "delta": "-2",
+          "frozen_delta": "0"
+        },
+        {
+          "uid": "12",
+          "kind": "purchase_refund",
+          "delta": "2",
+          "frozen_delta": "0"
+        }
+      ]
+    },
+    "A8b_ok_transition_delisted": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "listing_id",
+        "seller_uid",
+        "cid",
+        "price",
+        "stock",
+        "title",
+        "description",
+        "media_urls",
+        "status",
+        "create_key",
+        "outcome"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Listing status transitioned",
+      "listing_id": 16
+    },
+    "A8b_neg_delisted_terminal": {
+      "status": 409,
+      "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "",
+      "ledger_entries_delta": 0
+    },
+    "A11_neg_fee_out_of_range": {
+      "status": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": ""
+    },
+    "A11_neg_non_admin": {
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": ""
+    },
+    "A11_ok": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "policy_id",
+        "fee_rate_bp",
+        "levels",
+        "weights_bp",
+        "effective_from",
+        "created_by",
+        "time_created",
+        "weights_sum_bp"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Commission policy inserted",
+      "note": "与现行政策同参、effective_from=2026-09-30T19:15:36.192Z（严格递增 ⇒ 行为不变）"
+    }
+  },
+  "fixtures": {
+    "candidates": [
+      {
+        "uid": 970001,
+        "bal": "1890070",
+        "user_ok": true,
+        "can_access_admin": false
+      },
+      {
+        "uid": 12,
+        "bal": "37778",
+        "user_ok": true,
+        "can_access_admin": false
+      },
+      {
+        "uid": 11,
+        "bal": "29398",
+        "user_ok": true,
+        "can_access_admin": false
+      },
+      {
+        "uid": 2,
+        "bal": "7600",
+        "user_ok": true,
+        "can_access_admin": false
+      },
+      {
+        "uid": 7,
+        "bal": "5100",
+        "user_ok": true,
+        "can_access_admin": false
+      },
+      {
+        "uid": 8,
+        "bal": "4900",
+        "user_ok": true,
+        "can_access_admin": false
+      },
+      {
+        "uid": 3,
+        "bal": "1386",
+        "user_ok": true,
+        "can_access_admin": false
+      },
+      {
+        "uid": 6,
+        "bal": "990",
+        "user_ok": true,
+        "can_access_admin": false
+      },
+      {
+        "uid": 4,
+        "bal": "4",
+        "user_ok": true,
+        "can_access_admin": false
+      },
+      {
+        "uid": 5,
+        "bal": "6",
+        "user_ok": true,
+        "can_access_admin": false
+      }
+    ],
+    "admin_uid": 1,
+    "employer_uid": 970001,
+    "worker_uid": 12,
+    "non_admin_uid": 970001,
+    "admin_count": 1,
+    "non_admin_count": 10,
+    "admin_discovery": [
+      {
+        "uid": 1,
+        "source": "scan"
+      },
+      {
+        "uid": 10,
+        "source": "scan"
+      },
+      {
+        "uid": 970201,
+        "source": "db_is_admin",
+        "verified": true
+      },
+      {
+        "db_query_failed": "SELECT \"uID\"::text AS uid FROM public.us",
+        "err": "NeonDbError: column \"uID\" does not exist"
+      }
+    ],
+    "listed_cids": [
+      {
+        "cid": "1",
+        "owner": "0"
+      },
+      {
+        "cid": "10",
+        "owner": "970001"
+      },
+      {
+        "cid": "16",
+        "owner": "970001"
+      }
+    ],
+    "used_cid": 1,
+    "commission_policy_current": {
+      "fee": 100,
+      "levels": 10,
+      "w": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+      "eff": "1970-01-01 00:00:00+00",
+      "new_effective_from": "2026-09-30T19:15:36.192Z"
+    }
+  },
+  "invariants": {
+    "sigma_total_pre": "2020100",
+    "ledger_rows_pre": 199,
+    "sigma_total_baseline": "2020100 (派单给定基线 · 本片 pre 现取见 sigma_total_pre)",
+    "sigma_total_post": "2020100",
+    "ledger_rows_post": 213,
+    "job_rows": [
+      {
+        "id": "16",
+        "status": "settled",
+        "esc": "205",
+        "st": "209"
+      },
+      {
+        "id": "17",
+        "status": "rejected",
+        "esc": "207",
+        "st": null
+      },
+      {
+        "id": "18",
+        "status": "cancelled",
+        "esc": "213",
+        "st": null
+      }
+    ],
+    "kinds_total": [
+      {
+        "kind": "commission",
+        "n": 4
+      },
+      {
+        "kind": "currency_create_fee",
+        "n": 22
+      },
+      {
+        "kind": "hold",
+        "n": 50
+      },
+      {
+        "kind": "hold_release",
+        "n": 8
+      },
+      {
+        "kind": "job_escrow",
+        "n": 16
+      },
+      {
+        "kind": "job_escrow_refund",
+        "n": 8
+      },
+      {
+        "kind": "job_fee",
+        "n": 6
+      },
+      {
+        "kind": "job_payout",
+        "n": 8
+      },
+      {
+        "kind": "listing_deposit",
+        "n": 16
+      },
+      {
+        "kind": "mint",
+        "n": 5
+      },
+      {
+        "kind": "purchase",
+        "n": 3
+      },
+      {
+        "kind": "purchase_refund",
+        "n": 4
+      },
+      {
+        "kind": "sale",
+        "n": 3
+      },
+      {
+        "kind": "trade",
+        "n": 32
+      },
+      {
+        "kind": "trade_fee",
+        "n": 16
+      },
+      {
+        "kind": "transfer",
+        "n": 12
+      }
+    ],
+    "commission_policy_rows": [
+      {
+        "policy_id": "1",
+        "fee_rate_bp": 100,
+        "levels": 10,
+        "effective_from": "1970-01-01 00:00:00+00",
+        "created_by": "0"
+      },
+      {
+        "policy_id": "2",
+        "fee_rate_bp": 100,
+        "levels": 10,
+        "effective_from": "2026-09-30 19:15:36.192+00",
+        "created_by": "1"
+      }
+    ]
+  }
+}

@@ -1,0 +1,353 @@
+{
+ "run": "qab4-20260929T191832Z",
+ "tag": "qab429191832",
+ "secret_fingerprint": "b1ec01afb2eb",
+ "legs2": {
+  "sample": {
+   "L2_health_GET_/": {
+    "status": 200,
+    "code": null,
+    "data_keys": [],
+    "top_keys": [
+     "ok",
+     "db_version",
+     "schema_version",
+     "time"
+    ],
+    "msg": ""
+   },
+   "L2_user_GET_/api/user": {
+    "status": 503,
+    "code": "LEDGER_TX_TIMEOUT",
+    "data_keys": [],
+    "top_keys": [
+     "error"
+    ],
+    "msg": "系统繁忙，请稍后重试"
+   },
+   "L2_taskall_GET_/api/task/all": {
+    "status": 500,
+    "code": null,
+    "data_keys": [],
+    "top_keys": [
+     "success",
+     "message",
+     "error"
+    ],
+    "msg": "Failed to load tasks"
+   },
+   "L2_currency_POST_nokey": {
+    "status": 200,
+    "code": null,
+    "data_keys": [
+     "cid",
+     "symbol",
+     "name",
+     "owner_uid",
+     "decimals",
+     "status",
+     "deposit_amount",
+     "deposit_cid",
+     "listed_at",
+     "fee",
+     "fee_source",
+     "fee_kind",
+     "fee_credit_uid",
+     "create_key",
+     "create_key_derived",
+     "idempotent_replay",
+     "ledger_event"
+    ],
+    "top_keys": [
+     "success",
+     "message",
+     "data"
+    ],
+    "msg": "Currency created"
+   },
+   "L2_verify_POST_missing": {
+    "status": 404,
+    "code": "LEDGER_REF_NOT_FOUND",
+    "data_keys": [],
+    "top_keys": [
+     "error"
+    ],
+    "msg": "Referenced object not found"
+   }
+  },
+  "gone": {
+   "/api/shard/redeem": {
+    "status": 410,
+    "code": "LEDGER_REF_NOT_FOUND",
+    "data_keys": [],
+    "top_keys": [
+     "error"
+    ],
+    "msg": "endpoint deprecated: /api/shard/redeem"
+   },
+   "/api/chest/1/open": {
+    "status": 410,
+    "code": "LEDGER_REF_NOT_FOUND",
+    "data_keys": [],
+    "top_keys": [
+     "error"
+    ],
+    "msg": "endpoint deprecated: /api/chest/:bID/open"
+   },
+   "/api/admin/settings/reset": {
+    "status": 410,
+    "code": "LEDGER_REF_NOT_FOUND",
+    "data_keys": [],
+    "top_keys": [
+     "error"
+    ],
+    "msg": "endpoint deprecated: /api/admin/settings/reset"
+   },
+   "/api/admin/task/create": {
+    "status": 410,
+    "code": "LEDGER_REF_NOT_FOUND",
+    "data_keys": [],
+    "top_keys": [
+     "error"
+    ],
+    "msg": "endpoint deprecated: /api/admin/task/create"
+   },
+   "/api/admin/prize/create": {
+    "status": 410,
+    "code": "LEDGER_REF_NOT_FOUND",
+    "data_keys": [],
+    "top_keys": [
+     "error"
+    ],
+    "msg": "endpoint deprecated: /api/admin/prize/create"
+   },
+   "/api/admin/assets/init": {
+    "status": 410,
+    "code": "LEDGER_REF_NOT_FOUND",
+    "data_keys": [],
+    "top_keys": [
+     "error"
+    ],
+    "msg": "endpoint deprecated: /api/admin/assets/init"
+   }
+  }
+ },
+ "legs3": {
+  "A1_post_job": {
+   "status": 200,
+   "code": null,
+   "data_keys": [
+    "job_id",
+    "status",
+    "created",
+    "idempotent_replay",
+    "txid",
+    "ledger_idempotency_key",
+    "escrow_txid",
+    "settle_txid",
+    "ledger_event_keys",
+    "entry_count",
+    "kinds",
+    "entries",
+    "accounts",
+    "fee_credit_uid",
+    "employer_uid",
+    "cid",
+    "reward"
+   ],
+   "top_keys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "msg": "Job published"
+  },
+  "job_id": "19",
+  "A2_post_apply": {
+   "status": 200,
+   "code": null,
+   "data_keys": [
+    "application_id",
+    "job_id",
+    "worker_uid",
+    "status"
+   ],
+   "top_keys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "msg": "Application created"
+  },
+  "application_id": "19",
+  "A3_post_accept": {
+   "status": 200,
+   "code": null,
+   "data_keys": [
+    "application_id",
+    "job_id",
+    "worker_uid",
+    "status"
+   ],
+   "top_keys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "msg": "Application accepted"
+  },
+  "A4_post_submit": {
+   "status": 200,
+   "code": null,
+   "data_keys": [
+    "jID",
+    "tID",
+    "uID",
+    "info_input",
+    "time_created",
+    "time_submitted",
+    "time_checked",
+    "time_claimed",
+    "points_claimed"
+   ],
+   "top_keys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "msg": "Task progress submitted"
+  },
+  "A5_post_review_approve": {
+   "status": 200,
+   "code": null,
+   "data_keys": [
+    "job_id",
+    "status",
+    "created",
+    "idempotent_replay",
+    "txid",
+    "ledger_idempotency_key",
+    "escrow_txid",
+    "settle_txid",
+    "ledger_event_keys",
+    "entry_count",
+    "kinds",
+    "entries",
+    "accounts",
+    "fee_credit_uid",
+    "submissions_reviewed"
+   ],
+   "top_keys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "msg": "Job settled"
+  },
+  "A11_post_commission_policy": {
+   "status": 200,
+   "code": null,
+   "data_keys": [
+    "policy_id",
+    "fee_rate_bp",
+    "levels",
+    "weights_bp",
+    "effective_from",
+    "created_by",
+    "time_created",
+    "weights_sum_bp"
+   ],
+   "top_keys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "msg": "Commission policy inserted",
+   "effective_from_sent": "2026-10-01T19:21:28.285Z"
+  }
+ },
+ "fee_pos": {
+  "settle_job_id": "19",
+  "settle_legs": [
+   {
+    "uid": "970001",
+    "kind": "job_payout",
+    "delta": "0",
+    "frozen_delta": "-99000",
+    "memo": "招工验收结算 job=19（雇主托管出账）"
+   },
+   {
+    "uid": "12",
+    "kind": "job_payout",
+    "delta": "99000",
+    "frozen_delta": "0",
+    "memo": "招工验收结算 job=19（打工人到手）"
+   },
+   {
+    "uid": "970001",
+    "kind": "job_fee",
+    "delta": "0",
+    "frozen_delta": "-1000",
+    "memo": "招工验收结算 job=19（手续费）"
+   },
+   {
+    "uid": "-1",
+    "kind": "job_fee",
+    "delta": "1000",
+    "frozen_delta": "0",
+    "memo": "招工验收结算 job=19（手续费入账）"
+   }
+  ],
+  "settle_legs_n": 4,
+  "kind_counts": {
+   "job_payout": 2,
+   "job_fee": 2
+  },
+  "uid_counts": {
+   "12": 1,
+   "970001": 2,
+   "-1": 1
+  },
+  "job_fee_uids": [
+   "970001",
+   "-1"
+  ],
+  "job_fee_sum_net": "0",
+  "commission_legs_n": 0,
+  "commission_sum_net": "0",
+  "commission_equals_fee": true,
+  "fee_positive": true,
+  "ledger_delta_this_chain": 6
+ },
+ "invariants": {
+  "sigma_total_pre": "2020100",
+  "ledger_rows_pre": 213,
+  "neg_rows_pre": 0,
+  "sigma_total_post": "2020100",
+  "ledger_rows_post": 221,
+  "neg_rows_post": 0,
+  "baseline": "2020100"
+ },
+ "cid_used": "1",
+ "last_slot": {
+  "status": 200,
+  "code": null,
+  "data_keys": [
+   "policy_id",
+   "fee_rate_bp",
+   "levels",
+   "weights_bp",
+   "effective_from",
+   "created_by",
+   "time_created",
+   "weights_sum_bp"
+  ],
+  "top_keys": [
+   "success",
+   "message",
+   "data"
+  ],
+  "msg": "Commission policy inserted",
+  "effective_from_sent": "2026-10-01T19:21:28.285Z"
+ }
+}

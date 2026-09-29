@@ -1,0 +1,102 @@
+{
+  "run_tag": "qab4-20260929T191832Z",
+  "ledger_entry_cols": [
+    "txid:bigint",
+    "uid:bigint",
+    "cid:bigint",
+    "delta:bigint",
+    "frozen_delta:bigint",
+    "balance_after:bigint",
+    "frozen_after:bigint",
+    "kind:text",
+    "ref_type:text",
+    "ref_id:bigint",
+    "idempotency_key:text",
+    "request_fingerprint:text",
+    "reversal_of_txid:bigint",
+    "memo:text",
+    "time_created:timestamp with time zone",
+    "event_root_key:text"
+  ],
+  "account_cols": [
+    "uid:bigint",
+    "cid:bigint",
+    "balance:bigint",
+    "frozen:bigint",
+    "version:bigint",
+    "time_created:timestamp with time zone",
+    "time_updated:timestamp with time zone"
+  ],
+  "ledger_entry_rows": 213,
+  "account_rows": 23,
+  "sum_balance": "2009617",
+  "sum_frozen": "10483",
+  "sum_total": "2020100",
+  "account_neg_rows": 0,
+  "kind_counts": [
+    {
+      "kind": "commission",
+      "n": 4
+    },
+    {
+      "kind": "currency_create_fee",
+      "n": 22
+    },
+    {
+      "kind": "hold",
+      "n": 50
+    },
+    {
+      "kind": "hold_release",
+      "n": 8
+    },
+    {
+      "kind": "job_escrow",
+      "n": 16
+    },
+    {
+      "kind": "job_escrow_refund",
+      "n": 8
+    },
+    {
+      "kind": "job_fee",
+      "n": 6
+    },
+    {
+      "kind": "job_payout",
+      "n": 8
+    },
+    {
+      "kind": "listing_deposit",
+      "n": 16
+    },
+    {
+      "kind": "mint",
+      "n": 5
+    },
+    {
+      "kind": "purchase",
+      "n": 3
+    },
+    {
+      "kind": "purchase_refund",
+      "n": 4
+    },
+    {
+      "kind": "sale",
+      "n": 3
+    },
+    {
+      "kind": "trade",
+      "n": 32
+    },
+    {
+      "kind": "trade_fee",
+      "n": 16
+    },
+    {
+      "kind": "transfer",
+      "n": 12
+    }
+  ]
+}
