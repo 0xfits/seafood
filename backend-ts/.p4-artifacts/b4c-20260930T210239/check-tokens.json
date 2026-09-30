@@ -1,0 +1,21 @@
+{
+  "source_html_lines": 937,
+  "token_keys": 107,
+  "day_keys": 107,
+  "night_keys": 107,
+  "prov_keys": 107,
+  "keysets_equal": true,
+  "key_order_identical": true,
+  "struct_keys": 32,
+  "struct_prov_keys": 32,
+  "structural_has_no_color": true,
+  "equal_in_both_themes": [
+    "up-fg",
+    "jobtag-bg",
+    "jobpay-fg",
+    "btnsm-bg"
+  ],
+  "values_changed": 103,
+  "failures": [],
+  "fail_count": 0
+}

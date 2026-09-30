@@ -8,6 +8,7 @@ import i18n from './i18n'
 import { BrowserRouter } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './auth-context'
+import { ThemeProvider } from './theme/ThemeProvider'
 
 // 初始化主题（尽量在 React 渲染之前执行，减少闪烁）
 const savedTheme = localStorage.getItem('theme')
@@ -31,7 +32,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <AuthProvider>
         <BrowserRouter>
           <Toaster position="top-right" />
-          <App />
+          {/* 主题 Provider 只提供上下文、不产生任何 DOM 节点（日/夜同构的前提之一） */}
+          <ThemeProvider>
+            <App />
+          </ThemeProvider>
         </BrowserRouter>
       </AuthProvider>
     </I18nextProvider>

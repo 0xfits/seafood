@@ -1,0 +1,139 @@
+/* /theme-preview 预览件专用样式。
+ * 只允许出现：几何常量（两档/两屏型同值）与**只读 token 的颜色**。
+ * 这里的 padding / font-size / 列数都是固定常量，绝不按主题分支。
+ */
+
+.sf-preview {
+  padding: 18px 0 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sf-preview h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.sf-preview h2 {
+  margin: 6px 0 0;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.sf-preview-note {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.75;
+  color: var(--sf-rule-fg);
+}
+
+.sf-preview-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.sf-preview-btn {
+  padding: 9px 16px;
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.sf-preview-btn.is-on {
+  outline: var(--sf-st-stroke-w-strong) solid var(--sf-tab-active-fg);
+}
+
+.sf-preview-langs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sf-preview-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sf-preview-chips .sf-chip {
+  font-size: 12.5px;
+  padding: 6px 13px;
+}
+
+.sf-card-body {
+  padding: 10px 11px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.sf-card-title {
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.sf-preview-meta {
+  font-size: 11.5px;
+  color: var(--sf-meta-fg);
+  display: block;
+  line-height: 1.6;
+}
+
+.sf-price {
+  align-self: flex-start;
+  padding: 1px 8px 3px;
+}
+
+.sf-price-cur {
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.sf-price-num {
+  font-weight: 900;
+  letter-spacing: -0.01em;
+}
+
+.sf-price-unit {
+  font-size: 11.5px;
+}
+
+.sf-preview pre.sf-preview-pre {
+  margin: 0;
+  padding: 12px 14px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  overflow: auto;
+  background: var(--sf-panel-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-panel-radius);
+  color: var(--sf-prow-fg);
+}
+
+.sf-preview-table-wrap {
+  overflow: auto;
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-panel-radius);
+}
+
+.sf-preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+}
+
+.sf-preview-table th,
+.sf-preview-table td {
+  text-align: left;
+  padding: 5px 8px;
+  border-bottom: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  color: var(--sf-prow-fg);
+}
+
+.sf-preview-table .sf-swatch {
+  font-variant-numeric: tabular-nums;
+}

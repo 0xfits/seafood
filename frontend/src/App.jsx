@@ -10,6 +10,7 @@ import ProfilePage from './pages/ProfilePage'
 import DashboardPage from './pages/DashboardPage'
 import ShardPage from './pages/ShardPage'
 import AuthPage from './pages/AuthPage'
+import ThemePreviewPage from './pages/ThemePreviewPage'
 
 // 管理页面组件
 import TasksManagement from './pages/admin/TasksManagement'
@@ -21,8 +22,7 @@ import PointsManagement from './pages/admin/PointsManagement'
 import SystemSettings from './pages/admin/SystemSettings'
 
 // 布局组件
-import Header from './components/Header'
-import Footer from './components/Footer'
+import AppShell from './shell/AppShell'
 import AdminLayout from './components/layout/AdminLayout'
 import { fetchAdminAccess, hasAdminPermission } from './admin-utils'
 import { useAuth } from './auth-context'
@@ -52,36 +52,35 @@ const LangShell = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-grow">
-        {/* 内层路由用相对路径，语言前缀由外层壳负责，不复制多份 */}
-        <Routes>
-          {/* 首页 */}
-          <Route index element={<HomePage />} />
+    <AppShell>
+      {/* 内层路由用相对路径，语言前缀由外层壳负责，不复制多份 */}
+      <Routes>
+        {/* 首页 */}
+        <Route index element={<HomePage />} />
 
-          {/* 奖励页面 */}
-          <Route path="reward" element={<RewardPage />} />
+        {/* 奖励页面 */}
+        <Route path="reward" element={<RewardPage />} />
 
-          {/* 任务页面 */}
-          <Route path="task" element={<TaskPage />} />
+        {/* 任务页面 */}
+        <Route path="task" element={<TaskPage />} />
 
-          {/* 碎片市场 */}
-          <Route path="shard" element={<ShardPage />} />
+        {/* 碎片市场 */}
+        <Route path="shard" element={<ShardPage />} />
 
-          {/* 个人资料页面（需要登录） */}
-          <Route
-            path="profile"
-            element={
-              <ProtectedRoute>
-                <ProfilePage />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </main>
-      <Footer />
-    </div>
+        {/* 主题/骨架可交互预览件（地基单 4c-i；四语前缀下同样可达） */}
+        <Route path="theme-preview" element={<ThemePreviewPage />} />
+
+        {/* 个人资料页面（需要登录） */}
+        <Route
+          path="profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </AppShell>
   )
 }
 

@@ -1,0 +1,1237 @@
+{
+  "startedAt": "2026-09-30T13:30:23.327Z",
+  "origin": "http://sf.local",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "arms": {
+    "after_set_day_stable_reads": 2,
+    "day_repeat_stable_reads": 2,
+    "day_A1": {
+      "theme": "day",
+      "attr": "light",
+      "rects": {
+        "[data-sf-m=\"hero\"]": {
+          "x": 28,
+          "y": 91,
+          "w": 1424,
+          "h": 24
+        },
+        "[data-sf-m=\"search\"]": {
+          "x": 28,
+          "y": 215.875,
+          "w": 1424,
+          "h": 21
+        },
+        "[data-sf-m=\"chips\"]": {
+          "x": 28,
+          "y": 250.875,
+          "w": 1424,
+          "h": 29
+        },
+        "[data-sf-m=\"layout\"]": {
+          "x": 28,
+          "y": 293.875,
+          "w": 1424,
+          "h": 323.953
+        },
+        "[data-sf-m=\"grid\"]": {
+          "x": 28,
+          "y": 301.875,
+          "w": 1086,
+          "h": 220.781
+        },
+        "[data-sf-m=\"card-1\"]": {
+          "x": 28,
+          "y": 301.875,
+          "w": 259.5,
+          "h": 102.391
+        },
+        "[data-sf-m=\"card-4\"]": {
+          "x": 854.5,
+          "y": 301.875,
+          "w": 259.5,
+          "h": 102.391
+        },
+        "[data-sf-m=\"side\"]": {
+          "x": 1132,
+          "y": 301.875,
+          "w": 320,
+          "h": 289.953
+        },
+        "[data-sf-m=\"price-1\"]": {
+          "x": 40,
+          "y": 335.875,
+          "w": 91.141,
+          "h": 30
+        },
+        "[data-sf-m=\"toggle-day\"]": {
+          "x": 28,
+          "y": 164.875,
+          "w": 125,
+          "h": 37
+        },
+        "[data-sf-m=\"toggle-night\"]": {
+          "x": 163,
+          "y": 164.875,
+          "w": 138.5,
+          "h": 37
+        },
+        "[data-sf-region=\"tabbar\"]": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "[data-sf-region=\"topnav\"]": {
+          "x": 8,
+          "y": 8,
+          "w": 1424,
+          "h": 65
+        },
+        "#sf-route-container": {
+          "x": 8,
+          "y": 73,
+          "w": 1464,
+          "h": 3600.734
+        }
+      },
+      "skin": {
+        "bg": "rgb(255, 255, 255)",
+        "borderColor": "rgb(3, 4, 2)",
+        "radius": "13px",
+        "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px"
+      },
+      "tabbar": {
+        "display": "none",
+        "cols": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        }
+      },
+      "shellBg": "rgb(253, 232, 21)",
+      "tabRects": [
+        {
+          "nav": "home",
+          "href": "/",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        {
+          "nav": "reward",
+          "href": "/reward",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        {
+          "nav": "task",
+          "href": "/task",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        {
+          "nav": "shard",
+          "href": "/shard",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        }
+      ],
+      "signature": "DIV[shell]>DIV[topnav]>MAIN[content]>DIV[footer]>NAV[tabbar]>A[nav=home]>A[nav=reward]>A[nav=task]>A[nav=shard]",
+      "elementCount": 772,
+      "tokenProbe": {
+        "pageBg": "rgb(253, 232, 21)",
+        "cardRadius": "13px",
+        "cardShadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+        "cardBorder": "rgb(3, 4, 2)"
+      }
+    },
+    "day_A2": {
+      "theme": "day",
+      "attr": "light",
+      "rects": {
+        "[data-sf-m=\"hero\"]": {
+          "x": 28,
+          "y": 91,
+          "w": 1424,
+          "h": 24
+        },
+        "[data-sf-m=\"search\"]": {
+          "x": 28,
+          "y": 215.875,
+          "w": 1424,
+          "h": 21
+        },
+        "[data-sf-m=\"chips\"]": {
+          "x": 28,
+          "y": 250.875,
+          "w": 1424,
+          "h": 29
+        },
+        "[data-sf-m=\"layout\"]": {
+          "x": 28,
+          "y": 293.875,
+          "w": 1424,
+          "h": 323.953
+        },
+        "[data-sf-m=\"grid\"]": {
+          "x": 28,
+          "y": 301.875,
+          "w": 1086,
+          "h": 220.781
+        },
+        "[data-sf-m=\"card-1\"]": {
+          "x": 28,
+          "y": 301.875,
+          "w": 259.5,
+          "h": 102.391
+        },
+        "[data-sf-m=\"card-4\"]": {
+          "x": 854.5,
+          "y": 301.875,
+          "w": 259.5,
+          "h": 102.391
+        },
+        "[data-sf-m=\"side\"]": {
+          "x": 1132,
+          "y": 301.875,
+          "w": 320,
+          "h": 289.953
+        },
+        "[data-sf-m=\"price-1\"]": {
+          "x": 40,
+          "y": 335.875,
+          "w": 91.141,
+          "h": 30
+        },
+        "[data-sf-m=\"toggle-day\"]": {
+          "x": 28,
+          "y": 164.875,
+          "w": 125,
+          "h": 37
+        },
+        "[data-sf-m=\"toggle-night\"]": {
+          "x": 163,
+          "y": 164.875,
+          "w": 138.5,
+          "h": 37
+        },
+        "[data-sf-region=\"tabbar\"]": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "[data-sf-region=\"topnav\"]": {
+          "x": 8,
+          "y": 8,
+          "w": 1424,
+          "h": 65
+        },
+        "#sf-route-container": {
+          "x": 8,
+          "y": 73,
+          "w": 1464,
+          "h": 3600.734
+        }
+      },
+      "skin": {
+        "bg": "rgb(255, 255, 255)",
+        "borderColor": "rgb(3, 4, 2)",
+        "radius": "13px",
+        "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px"
+      },
+      "tabbar": {
+        "display": "none",
+        "cols": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        }
+      },
+      "shellBg": "rgb(253, 232, 21)",
+      "tabRects": [
+        {
+          "nav": "home",
+          "href": "/",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        {
+          "nav": "reward",
+          "href": "/reward",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        {
+          "nav": "task",
+          "href": "/task",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        {
+          "nav": "shard",
+          "href": "/shard",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        }
+      ],
+      "signature": "DIV[shell]>DIV[topnav]>MAIN[content]>DIV[footer]>NAV[tabbar]>A[nav=home]>A[nav=reward]>A[nav=task]>A[nav=shard]",
+      "elementCount": 772,
+      "tokenProbe": {
+        "pageBg": "rgb(253, 232, 21)",
+        "cardRadius": "13px",
+        "cardShadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+        "cardBorder": "rgb(3, 4, 2)"
+      }
+    },
+    "day_repeat_byte_identical": true,
+    "perturbed_stable_reads": 2,
+    "perturbation": {
+      "target": "[data-sf-m=\"chips\"]",
+      "injected": "padding-top: 1px",
+      "before": {
+        "x": 28,
+        "y": 250.875,
+        "w": 1424,
+        "h": 29
+      },
+      "after": {
+        "x": 28,
+        "y": 250.875,
+        "w": 1424,
+        "h": 30
+      },
+      "detected": true
+    },
+    "restored_stable_reads": 2,
+    "perturbation_restored": {
+      "x": 28,
+      "y": 250.875,
+      "w": 1424,
+      "h": 29
+    },
+    "perturbation_restored_byte_identical": true,
+    "after_set_night_stable_reads": 2,
+    "night": {
+      "theme": "night",
+      "attr": "dark",
+      "rects": {
+        "[data-sf-m=\"hero\"]": {
+          "x": 28,
+          "y": 91,
+          "w": 1424,
+          "h": 24
+        },
+        "[data-sf-m=\"search\"]": {
+          "x": 28,
+          "y": 215.875,
+          "w": 1424,
+          "h": 21
+        },
+        "[data-sf-m=\"chips\"]": {
+          "x": 28,
+          "y": 250.875,
+          "w": 1424,
+          "h": 29
+        },
+        "[data-sf-m=\"layout\"]": {
+          "x": 28,
+          "y": 293.875,
+          "w": 1424,
+          "h": 323.953
+        },
+        "[data-sf-m=\"grid\"]": {
+          "x": 28,
+          "y": 301.875,
+          "w": 1086,
+          "h": 220.781
+        },
+        "[data-sf-m=\"card-1\"]": {
+          "x": 28,
+          "y": 301.875,
+          "w": 259.5,
+          "h": 102.391
+        },
+        "[data-sf-m=\"card-4\"]": {
+          "x": 854.5,
+          "y": 301.875,
+          "w": 259.5,
+          "h": 102.391
+        },
+        "[data-sf-m=\"side\"]": {
+          "x": 1132,
+          "y": 301.875,
+          "w": 320,
+          "h": 289.953
+        },
+        "[data-sf-m=\"price-1\"]": {
+          "x": 40,
+          "y": 335.875,
+          "w": 91.141,
+          "h": 30
+        },
+        "[data-sf-m=\"toggle-day\"]": {
+          "x": 28,
+          "y": 164.875,
+          "w": 125,
+          "h": 37
+        },
+        "[data-sf-m=\"toggle-night\"]": {
+          "x": 163,
+          "y": 164.875,
+          "w": 138.5,
+          "h": 37
+        },
+        "[data-sf-region=\"tabbar\"]": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "[data-sf-region=\"topnav\"]": {
+          "x": 8,
+          "y": 8,
+          "w": 1424,
+          "h": 65
+        },
+        "#sf-route-container": {
+          "x": 8,
+          "y": 73,
+          "w": 1464,
+          "h": 3600.734
+        }
+      },
+      "skin": {
+        "bg": "rgb(20, 22, 25)",
+        "borderColor": "rgb(38, 42, 48)",
+        "radius": "2px",
+        "shadow": "none"
+      },
+      "tabbar": {
+        "display": "none",
+        "cols": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        }
+      },
+      "shellBg": "rgb(11, 12, 14)",
+      "tabRects": [
+        {
+          "nav": "home",
+          "href": "/",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        {
+          "nav": "reward",
+          "href": "/reward",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        {
+          "nav": "task",
+          "href": "/task",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        {
+          "nav": "shard",
+          "href": "/shard",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        }
+      ],
+      "signature": "DIV[shell]>DIV[topnav]>MAIN[content]>DIV[footer]>NAV[tabbar]>A[nav=home]>A[nav=reward]>A[nav=task]>A[nav=shard]",
+      "elementCount": 772,
+      "tokenProbe": {
+        "pageBg": "rgb(11, 12, 14)",
+        "cardRadius": "2px",
+        "cardShadow": "none",
+        "cardBorder": "rgb(38, 42, 48)"
+      }
+    },
+    "day_return": {
+      "theme": "day",
+      "attr": "light",
+      "rects": {
+        "[data-sf-m=\"hero\"]": {
+          "x": 28,
+          "y": 91,
+          "w": 1424,
+          "h": 24
+        },
+        "[data-sf-m=\"search\"]": {
+          "x": 28,
+          "y": 215.875,
+          "w": 1424,
+          "h": 21
+        },
+        "[data-sf-m=\"chips\"]": {
+          "x": 28,
+          "y": 250.875,
+          "w": 1424,
+          "h": 29
+        },
+        "[data-sf-m=\"layout\"]": {
+          "x": 28,
+          "y": 293.875,
+          "w": 1424,
+          "h": 323.953
+        },
+        "[data-sf-m=\"grid\"]": {
+          "x": 28,
+          "y": 301.875,
+          "w": 1086,
+          "h": 220.781
+        },
+        "[data-sf-m=\"card-1\"]": {
+          "x": 28,
+          "y": 301.875,
+          "w": 259.5,
+          "h": 102.391
+        },
+        "[data-sf-m=\"card-4\"]": {
+          "x": 854.5,
+          "y": 301.875,
+          "w": 259.5,
+          "h": 102.391
+        },
+        "[data-sf-m=\"side\"]": {
+          "x": 1132,
+          "y": 301.875,
+          "w": 320,
+          "h": 289.953
+        },
+        "[data-sf-m=\"price-1\"]": {
+          "x": 40,
+          "y": 335.875,
+          "w": 91.141,
+          "h": 30
+        },
+        "[data-sf-m=\"toggle-day\"]": {
+          "x": 28,
+          "y": 164.875,
+          "w": 125,
+          "h": 37
+        },
+        "[data-sf-m=\"toggle-night\"]": {
+          "x": 163,
+          "y": 164.875,
+          "w": 138.5,
+          "h": 37
+        },
+        "[data-sf-region=\"tabbar\"]": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "[data-sf-region=\"topnav\"]": {
+          "x": 8,
+          "y": 8,
+          "w": 1424,
+          "h": 65
+        },
+        "#sf-route-container": {
+          "x": 8,
+          "y": 73,
+          "w": 1464,
+          "h": 3600.734
+        }
+      },
+      "skin": {
+        "bg": "rgb(255, 255, 255)",
+        "borderColor": "rgb(3, 4, 2)",
+        "radius": "13px",
+        "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px"
+      },
+      "tabbar": {
+        "display": "none",
+        "cols": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        }
+      },
+      "shellBg": "rgb(253, 232, 21)",
+      "tabRects": [
+        {
+          "nav": "home",
+          "href": "/",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        {
+          "nav": "reward",
+          "href": "/reward",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        {
+          "nav": "task",
+          "href": "/task",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        {
+          "nav": "shard",
+          "href": "/shard",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        }
+      ],
+      "signature": "DIV[shell]>DIV[topnav]>MAIN[content]>DIV[footer]>NAV[tabbar]>A[nav=home]>A[nav=reward]>A[nav=task]>A[nav=shard]",
+      "elementCount": 772,
+      "tokenProbe": {
+        "pageBg": "rgb(253, 232, 21)",
+        "cardRadius": "13px",
+        "cardShadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+        "cardBorder": "rgb(3, 4, 2)"
+      }
+    },
+    "day_return_byte_identical": true,
+    "wide_1440_stable_reads": 2,
+    "portrait_390_stable_reads": 2,
+    "wide_back_stable_reads": 2,
+    "wide_1440": {
+      "theme": "day",
+      "attr": "light",
+      "rects": {
+        "[data-sf-m=\"hero\"]": {
+          "x": 28,
+          "y": 91,
+          "w": 1424,
+          "h": 24
+        },
+        "[data-sf-m=\"search\"]": {
+          "x": 28,
+          "y": 215.875,
+          "w": 1424,
+          "h": 21
+        },
+        "[data-sf-m=\"chips\"]": {
+          "x": 28,
+          "y": 250.875,
+          "w": 1424,
+          "h": 29
+        },
+        "[data-sf-m=\"layout\"]": {
+          "x": 28,
+          "y": 293.875,
+          "w": 1424,
+          "h": 323.953
+        },
+        "[data-sf-m=\"grid\"]": {
+          "x": 28,
+          "y": 301.875,
+          "w": 1086,
+          "h": 220.781
+        },
+        "[data-sf-m=\"card-1\"]": {
+          "x": 28,
+          "y": 301.875,
+          "w": 259.5,
+          "h": 102.391
+        },
+        "[data-sf-m=\"card-4\"]": {
+          "x": 854.5,
+          "y": 301.875,
+          "w": 259.5,
+          "h": 102.391
+        },
+        "[data-sf-m=\"side\"]": {
+          "x": 1132,
+          "y": 301.875,
+          "w": 320,
+          "h": 289.953
+        },
+        "[data-sf-m=\"price-1\"]": {
+          "x": 40,
+          "y": 335.875,
+          "w": 91.141,
+          "h": 30
+        },
+        "[data-sf-m=\"toggle-day\"]": {
+          "x": 28,
+          "y": 164.875,
+          "w": 125,
+          "h": 37
+        },
+        "[data-sf-m=\"toggle-night\"]": {
+          "x": 163,
+          "y": 164.875,
+          "w": 138.5,
+          "h": 37
+        },
+        "[data-sf-region=\"tabbar\"]": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "[data-sf-region=\"topnav\"]": {
+          "x": 8,
+          "y": 8,
+          "w": 1424,
+          "h": 65
+        },
+        "#sf-route-container": {
+          "x": 8,
+          "y": 73,
+          "w": 1464,
+          "h": 3600.734
+        }
+      },
+      "skin": {
+        "bg": "rgb(255, 255, 255)",
+        "borderColor": "rgb(3, 4, 2)",
+        "radius": "13px",
+        "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px"
+      },
+      "tabbar": {
+        "display": "none",
+        "cols": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        }
+      },
+      "shellBg": "rgb(253, 232, 21)",
+      "tabRects": [
+        {
+          "nav": "home",
+          "href": "/",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        {
+          "nav": "reward",
+          "href": "/reward",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        {
+          "nav": "task",
+          "href": "/task",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        {
+          "nav": "shard",
+          "href": "/shard",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        }
+      ],
+      "signature": "DIV[shell]>DIV[topnav]>MAIN[content]>DIV[footer]>NAV[tabbar]>A[nav=home]>A[nav=reward]>A[nav=task]>A[nav=shard]",
+      "elementCount": 772,
+      "tokenProbe": {
+        "pageBg": "rgb(253, 232, 21)",
+        "cardRadius": "13px",
+        "cardShadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+        "cardBorder": "rgb(3, 4, 2)"
+      }
+    },
+    "portrait_390": {
+      "theme": "day",
+      "attr": "light",
+      "rects": {
+        "[data-sf-m=\"hero\"]": {
+          "x": 18,
+          "y": 99,
+          "w": 374,
+          "h": 48
+        },
+        "[data-sf-m=\"search\"]": {
+          "x": 18,
+          "y": 346.5,
+          "w": 374,
+          "h": 59
+        },
+        "[data-sf-m=\"chips\"]": {
+          "x": 18,
+          "y": 419.5,
+          "w": 374,
+          "h": 29
+        },
+        "[data-sf-m=\"layout\"]": {
+          "x": 18,
+          "y": 462.5,
+          "w": 374,
+          "h": 852.078
+        },
+        "[data-sf-m=\"grid\"]": {
+          "x": 18,
+          "y": 470.5,
+          "w": 374,
+          "h": 510.125
+        },
+        "[data-sf-m=\"card-1\"]": {
+          "x": 18,
+          "y": 470.5,
+          "w": 182.5,
+          "h": 120.781
+        },
+        "[data-sf-m=\"card-4\"]": {
+          "x": 209.5,
+          "y": 600.281,
+          "w": 182.5,
+          "h": 120.781
+        },
+        "[data-sf-m=\"side\"]": {
+          "x": 18,
+          "y": 998.625,
+          "w": 374,
+          "h": 289.953
+        },
+        "[data-sf-m=\"price-1\"]": {
+          "x": 30,
+          "y": 504.5,
+          "w": 91.141,
+          "h": 30
+        },
+        "[data-sf-m=\"toggle-day\"]": {
+          "x": 18,
+          "y": 262.5,
+          "w": 125,
+          "h": 37
+        },
+        "[data-sf-m=\"toggle-night\"]": {
+          "x": 153,
+          "y": 262.5,
+          "w": 138.5,
+          "h": 37
+        },
+        "[data-sf-region=\"tabbar\"]": {
+          "x": 8,
+          "y": 785,
+          "w": 374,
+          "h": 59
+        },
+        "[data-sf-region=\"topnav\"]": {
+          "x": 8,
+          "y": 8,
+          "w": 374,
+          "h": 65
+        },
+        "#sf-route-container": {
+          "x": 8,
+          "y": 73,
+          "w": 394,
+          "h": 5969.484
+        }
+      },
+      "skin": {
+        "bg": "rgb(255, 255, 255)",
+        "borderColor": "rgb(3, 4, 2)",
+        "radius": "13px",
+        "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px"
+      },
+      "tabbar": {
+        "display": "grid",
+        "cols": "74.7969px 74.7969px 74.7969px 74.7969px 74.8125px",
+        "rect": {
+          "x": 8,
+          "y": 785,
+          "w": 374,
+          "h": 59
+        }
+      },
+      "shellBg": "rgb(253, 232, 21)",
+      "tabRects": [
+        {
+          "nav": "home",
+          "href": "/",
+          "x": 8,
+          "y": 786,
+          "w": 74.797,
+          "h": 58
+        },
+        {
+          "nav": "reward",
+          "href": "/reward",
+          "x": 82.797,
+          "y": 786,
+          "w": 74.797,
+          "h": 58
+        },
+        {
+          "nav": "task",
+          "href": "/task",
+          "x": 157.594,
+          "y": 786,
+          "w": 74.797,
+          "h": 58
+        },
+        {
+          "nav": "shard",
+          "href": "/shard",
+          "x": 232.391,
+          "y": 786,
+          "w": 74.797,
+          "h": 58
+        }
+      ],
+      "signature": "DIV[shell]>DIV[topnav]>MAIN[content]>DIV[footer]>NAV[tabbar]>A[nav=home]>A[nav=reward]>A[nav=task]>A[nav=shard]",
+      "elementCount": 772,
+      "tokenProbe": {
+        "pageBg": "rgb(253, 232, 21)",
+        "cardRadius": "13px",
+        "cardShadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+        "cardBorder": "rgb(3, 4, 2)"
+      }
+    },
+    "wide_return": {
+      "theme": "day",
+      "attr": "light",
+      "rects": {
+        "[data-sf-m=\"hero\"]": {
+          "x": 28,
+          "y": 91,
+          "w": 1424,
+          "h": 24
+        },
+        "[data-sf-m=\"search\"]": {
+          "x": 28,
+          "y": 215.875,
+          "w": 1424,
+          "h": 21
+        },
+        "[data-sf-m=\"chips\"]": {
+          "x": 28,
+          "y": 250.875,
+          "w": 1424,
+          "h": 29
+        },
+        "[data-sf-m=\"layout\"]": {
+          "x": 28,
+          "y": 293.875,
+          "w": 1424,
+          "h": 323.953
+        },
+        "[data-sf-m=\"grid\"]": {
+          "x": 28,
+          "y": 301.875,
+          "w": 1086,
+          "h": 220.781
+        },
+        "[data-sf-m=\"card-1\"]": {
+          "x": 28,
+          "y": 301.875,
+          "w": 259.5,
+          "h": 102.391
+        },
+        "[data-sf-m=\"card-4\"]": {
+          "x": 854.5,
+          "y": 301.875,
+          "w": 259.5,
+          "h": 102.391
+        },
+        "[data-sf-m=\"side\"]": {
+          "x": 1132,
+          "y": 301.875,
+          "w": 320,
+          "h": 289.953
+        },
+        "[data-sf-m=\"price-1\"]": {
+          "x": 40,
+          "y": 335.875,
+          "w": 91.141,
+          "h": 30
+        },
+        "[data-sf-m=\"toggle-day\"]": {
+          "x": 28,
+          "y": 164.875,
+          "w": 125,
+          "h": 37
+        },
+        "[data-sf-m=\"toggle-night\"]": {
+          "x": 163,
+          "y": 164.875,
+          "w": 138.5,
+          "h": 37
+        },
+        "[data-sf-region=\"tabbar\"]": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "[data-sf-region=\"topnav\"]": {
+          "x": 8,
+          "y": 8,
+          "w": 1424,
+          "h": 65
+        },
+        "#sf-route-container": {
+          "x": 8,
+          "y": 73,
+          "w": 1464,
+          "h": 3600.734
+        }
+      },
+      "skin": {
+        "bg": "rgb(255, 255, 255)",
+        "borderColor": "rgb(3, 4, 2)",
+        "radius": "13px",
+        "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px"
+      },
+      "tabbar": {
+        "display": "none",
+        "cols": "none",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        }
+      },
+      "shellBg": "rgb(253, 232, 21)",
+      "tabRects": [
+        {
+          "nav": "home",
+          "href": "/",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        {
+          "nav": "reward",
+          "href": "/reward",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        {
+          "nav": "task",
+          "href": "/task",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        {
+          "nav": "shard",
+          "href": "/shard",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        }
+      ],
+      "signature": "DIV[shell]>DIV[topnav]>MAIN[content]>DIV[footer]>NAV[tabbar]>A[nav=home]>A[nav=reward]>A[nav=task]>A[nav=shard]",
+      "elementCount": 772,
+      "tokenProbe": {
+        "pageBg": "rgb(253, 232, 21)",
+        "cardRadius": "13px",
+        "cardShadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+        "cardBorder": "rgb(3, 4, 2)"
+      }
+    }
+  },
+  "notes": [
+    "静态资源不经网络服务：page.route 把 http://sf.local/** 映射到 /Users/kevin/bistro/seafood/frontend/dist（playwright-route-disk）；外部 CDN 请求一律 abort。"
+  ],
+  "browserVersion": "154.0.8037.58",
+  "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "verdict": {
+    "measured_elements": 14,
+    "geometry_diff_count": 0,
+    "geometry_diffs": [],
+    "skin_changed": true,
+    "day_skin": {
+      "bg": "rgb(255, 255, 255)",
+      "borderColor": "rgb(3, 4, 2)",
+      "radius": "13px",
+      "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px"
+    },
+    "night_skin": {
+      "bg": "rgb(20, 22, 25)",
+      "borderColor": "rgb(38, 42, 48)",
+      "radius": "2px",
+      "shadow": "none"
+    },
+    "same_dom_signature_day_vs_night": true,
+    "element_count_day": 772,
+    "element_count_night": 772,
+    "attr_day": "light",
+    "attr_night": "dark",
+    "theme_flag_a1": "day",
+    "theme_flag_night": "night"
+  },
+  "responsive": {
+    "signature_equal_wide_vs_portrait": true,
+    "signature_equal_wide_vs_wideBack": true,
+    "element_count_wide": 772,
+    "element_count_portrait": 772,
+    "tabbar_display_wide": "none",
+    "tabbar_display_portrait": "grid",
+    "topnav_rect_wide": {
+      "x": 8,
+      "y": 8,
+      "w": 1424,
+      "h": 65
+    },
+    "topnav_rect_portrait": {
+      "x": 8,
+      "y": 8,
+      "w": 374,
+      "h": 65
+    },
+    "tabbar_rect_wide": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    },
+    "tabbar_rect_portrait": {
+      "x": 8,
+      "y": 785,
+      "w": 374,
+      "h": 59
+    },
+    "tab_rects_wide": [
+      {
+        "nav": "home",
+        "href": "/",
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      },
+      {
+        "nav": "reward",
+        "href": "/reward",
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      },
+      {
+        "nav": "task",
+        "href": "/task",
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      },
+      {
+        "nav": "shard",
+        "href": "/shard",
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    ],
+    "tab_rects_portrait": [
+      {
+        "nav": "home",
+        "href": "/",
+        "x": 8,
+        "y": 786,
+        "w": 74.797,
+        "h": 58
+      },
+      {
+        "nav": "reward",
+        "href": "/reward",
+        "x": 82.797,
+        "y": 786,
+        "w": 74.797,
+        "h": 58
+      },
+      {
+        "nav": "task",
+        "href": "/task",
+        "x": 157.594,
+        "y": 786,
+        "w": 74.797,
+        "h": 58
+      },
+      {
+        "nav": "shard",
+        "href": "/shard",
+        "x": 232.391,
+        "y": 786,
+        "w": 74.797,
+        "h": 58
+      }
+    ],
+    "grid_rect_wide": {
+      "x": 28,
+      "y": 301.875,
+      "w": 1086,
+      "h": 220.781
+    },
+    "grid_rect_portrait": {
+      "x": 18,
+      "y": 470.5,
+      "w": 374,
+      "h": 510.125
+    }
+  },
+  "blocked_external_requests": [
+    "https://cdn.tailwindcss.com",
+    "https://cdnjs.cloudflare.com",
+    "https://fonts.googleapis.com",
+    "https://cdn.jsdelivr.net",
+    "https://raw.githubusercontent.com"
+  ],
+  "page_errors": [
+    "ReferenceError: tailwind is not defined"
+  ],
+  "finishedAt": "2026-09-30T13:30:29.541Z"
+}

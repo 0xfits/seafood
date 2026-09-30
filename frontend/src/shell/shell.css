@@ -1,0 +1,224 @@
+/* 海鲜市场 · 应用外壳骨架（同构优先）
+ *
+ * 硬约束：横屏 / 竖屏 **共用同一套 DOM 与同一元素顺序**；主题日/夜 **共用同一套 DOM**。
+ * 本文件里所有会改几何的量（列数、间距、内边距、图标/标签尺寸）都是**结构常量**
+ * （--sf-st-*，取自 docs/design/style-preview.html，两档同值），
+ * 主题层只提供颜色 / border-radius / box-shadow（--sf-*）。
+ * token 层由 styles.css 全局 @import（前端全站可用，不限于本外壳）。
+ */
+
+/* ---------- 外壳三件套：顶栏 / 路由容器 / 页脚 + 底部 tab ---------- */
+
+.sf-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--sf-page-bg);
+  color: var(--sf-page-fg);
+}
+
+.sf-region-top {
+  position: relative;
+  z-index: 3;
+  background: var(--sf-topbar-bg);
+}
+
+.sf-route-container {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: var(--sf-st-shell-max-w);
+  margin: 0 auto;
+  padding: 0 var(--sf-st-topbar-pad-x);
+}
+
+/* 宽屏多栏骨架：#main 自适应 + #side 固定 320px（style-preview.html:112-114） */
+.sf-layout {
+  display: flex;
+  gap: var(--sf-st-layout-gap);
+  align-items: flex-start;
+  padding: 8px 0 26px;
+}
+
+.sf-layout-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sf-layout-side {
+  flex: 0 0 var(--sf-st-side-w);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sf-st-feed-gap-m);
+}
+
+/* 信息流栅格：宽屏 4 列 / 16px（:115 + :218），竖屏 2 列 / 9px（:116） */
+.sf-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--sf-st-feed-cols), minmax(0, 1fr));
+  gap: var(--sf-st-feed-gap);
+}
+
+/* ---------- 底部 tab：竖屏骨架的导航形态 ---------- */
+
+.sf-tabbar {
+  /* 宽屏隐藏（DOM 始终保留 ⇒ 横竖屏同构）。 */
+  display: none;
+  background: var(--sf-tabbar-bg);
+  border-top: var(--sf-st-stroke-w-thin) solid var(--sf-tabbar-border);
+}
+
+.sf-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sf-st-tab-gap);
+  padding: var(--sf-st-tab-pad);
+  font-size: var(--sf-st-tab-font-size);
+  color: var(--sf-tab-fg);
+  text-decoration: none;
+}
+
+.sf-tab.is-active {
+  color: var(--sf-tab-active-fg);
+  font-weight: 700;
+}
+
+.sf-tab-ic {
+  width: var(--sf-st-tab-ic-size);
+  height: var(--sf-st-tab-ic-size);
+}
+
+/* ---------- 竖屏骨架（≤767px）：栅格 2 列、侧栏下移、底部 tab 出现 ---------- */
+
+@media (max-width: 767px) {
+  .sf-route-container {
+    padding: var(--sf-st-grid-pad-m);
+  }
+
+  .sf-layout {
+    flex-direction: column;
+  }
+
+  .sf-layout-side {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  .sf-grid {
+    grid-template-columns: repeat(var(--sf-st-feed-cols-m), minmax(0, 1fr));
+    gap: var(--sf-st-feed-gap-m);
+  }
+
+  .sf-tabbar {
+    display: grid;
+    grid-template-columns: repeat(var(--sf-st-tabbar-cols), 1fr);
+    align-items: end;
+    position: sticky;
+    bottom: 0;
+    z-index: 4;
+  }
+}
+
+/* ---------- 主题切换只换值、不换几何：以下规则一律只声明颜色/圆角/阴影 ---------- */
+
+.sf-card {
+  background: var(--sf-card-bg);
+  border: var(--sf-st-stroke-w) solid var(--sf-card-border);
+  border-radius: var(--sf-card-radius);
+  box-shadow: var(--sf-card-shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.sf-card-title {
+  color: var(--sf-title-fg);
+}
+
+.sf-price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  background: var(--sf-price-bg);
+  border: var(--sf-st-stroke-w) solid var(--sf-price-border);
+  border-radius: var(--sf-price-radius);
+}
+
+.sf-price-cur {
+  color: var(--sf-price-cur-fg);
+}
+
+.sf-price-num {
+  color: var(--sf-price-num-fg);
+  font-size: var(--sf-st-price-num-size);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--sf-st-num-font);
+}
+
+.sf-price-unit {
+  color: var(--sf-price-unit-fg);
+}
+
+.sf-panel {
+  background: var(--sf-panel-bg);
+  border: var(--sf-st-stroke-w) solid var(--sf-panel-border);
+  border-radius: var(--sf-panel-radius);
+  box-shadow: var(--sf-panel-shadow);
+  padding: 13px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sf-st-feed-gap-m);
+}
+
+.sf-panel-title {
+  color: var(--sf-panel-h4-fg);
+}
+
+.sf-chip {
+  background: var(--sf-cat-bg);
+  border: var(--sf-st-stroke-w) solid var(--sf-cat-border);
+  border-radius: var(--sf-cat-radius);
+  color: var(--sf-cat-fg);
+}
+
+.sf-chip.is-on {
+  background: var(--sf-cat-on-bg);
+  color: var(--sf-cat-on-fg);
+}
+
+.sf-btn {
+  background: var(--sf-btn-bg);
+  color: var(--sf-btn-fg);
+  border: 0;
+  border-radius: var(--sf-btn-radius);
+  box-shadow: var(--sf-btn-shadow);
+}
+
+.sf-box {
+  background: var(--sf-search-bg);
+  border: var(--sf-st-stroke-w) solid var(--sf-search-border);
+  border-radius: var(--sf-search-radius);
+  box-shadow: var(--sf-search-shadow);
+  color: var(--sf-search-fg);
+}
+
+.sf-tag {
+  background: var(--sf-tag-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-tag-border);
+  border-radius: var(--sf-tag-radius);
+  color: var(--sf-tag-fg);
+}
+
+.sf-foot-note {
+  color: var(--sf-foot-fg);
+}
+
+.sf-statusbar {
+  color: var(--sf-statusbar-fg);
+}
+
+.sf-divider {
+  height: var(--sf-st-stroke-w-thin);
+  background: var(--sf-hr-bg);
+}

@@ -3,6 +3,10 @@
 /* 导入动画样式 */
 @import './styles/animations.css';
 @import './styles/tailwind-compat.css';
+/* 海鲜市场主题 token 层（日/夜两档只差值；值提取自 docs/design/style-preview.html 变体 A/B） */
+@import './theme/theme-tokens.css';
+/* 应用外壳骨架（顶栏 / 路由容器 / 页脚 / 底部 tab；横竖屏同构） */
+@import './shell/shell.css';
 
 /* 全局主题变量（与 index.css 同步，保证独立生效） */
 :root {
