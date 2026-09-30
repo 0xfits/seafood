@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { verifyMessage } from 'ethers';
 
 // P4-SEC（缺陷 A）：「硬编码兜底签名密钥」已被**移除**（修前 `process.env.SECRET_KEY || 'your-secret-key-here'`）。
 // 现在**缺失即 fail-fast**：没有真密钥就**不启动**（清晰错误 + 非零退出码），绝不静默用某个默认密钥起来。
@@ -48,6 +49,7 @@ interface AuthChallengeRecord {
   evm: string;
   issuedAt: number;
   expiresAt: number;
+  message: string;
 }
 
 export interface SessionTokenPayload {
@@ -148,10 +150,16 @@ export const startWalletAuthChallenge = (evmAddress: string) => {
   const expiresAt = issuedAt + AUTH_CHALLENGE_EXPIRE_SECONDS;
   const nonce = crypto.randomBytes(16).toString('hex');
 
+  // SIG-VERIFY：原文消息**必须**与 challenge 记录同存 —— verify 侧要对「签发时给出的这一份原文」
+  // 做 EIP-191 personal_sign 恢复（`buildWalletSignMessage` 纯函数，重算只是等价实现；同存可杜绝
+  // 「模板漂移导致旧 challenge 的签名再也验不过」这一隐性回归）。
+  const message = buildWalletSignMessage(normalizedAddress, nonce, issuedAt, expiresAt);
+
   activeAuthChallenges.set(nonce, {
     evm: normalizedAddress,
     issuedAt,
     expiresAt,
+    message,
   });
 
   const challengeToken = signToken({
@@ -165,7 +173,7 @@ export const startWalletAuthChallenge = (evmAddress: string) => {
 
   return {
     evm_address: normalizedAddress,
-    message: buildWalletSignMessage(normalizedAddress, nonce, issuedAt, expiresAt),
+    message,
     challenge_token: challengeToken,
     expires_at: expiresAt,
   };
@@ -204,10 +212,23 @@ export const consumeWalletAuthChallenge = (payload: {
     throw new Error('Challenge has been consumed or expired');
   }
 
+  // SIG-VERIFY（HIGH 安全修复）：**对签发时给出的那份原文消息**做 EIP-191 `personal_sign` 恢复，
+  // 并把恢复出的地址与 challenge 声明地址做**大小写不敏感**比对。
+  // 修前此处直接 return —— 服务端从不校验 `signature`，任何地址 + 任意垃圾签名都能换到真 JWT（完整身份冒充）。
+  // 语义保持：比对通过才 `delete`（消费 nonce）；比对失败**不消费**（合法用户的一次坏签名不会打掉自己的 challenge）。
+  let recoveredAddress: string;
+  try {
+    recoveredAddress = verifyMessage(challengeRecord.message, signature);
+  } catch {
+    throw new Error('Invalid wallet signature');
+  }
+
+  if (recoveredAddress.toLowerCase() !== challengeAddress) {
+    throw new Error('Signature does not match the claimed address');
+  }
+
   activeAuthChallenges.delete(nonce);
 
-  // Historical parity with the final Python backend:
-  // the deleted implementation temporarily bypassed signature verification.
   return {
     evm: normalizedAddress,
   };

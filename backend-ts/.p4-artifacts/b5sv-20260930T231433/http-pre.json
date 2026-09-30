@@ -1,0 +1,178 @@
+{
+  "summary": {
+    "phase": "pre",
+    "total": 11,
+    "pass": 9,
+    "fail": 2,
+    "failed_ids": [
+      "AC2",
+      "AC3"
+    ]
+  },
+  "meta": {
+    "phase": "pre",
+    "host": "127.0.0.1:5788",
+    "at": "2026-09-30T15:14:50.560Z",
+    "wallet_A_address": "0x1cBaf854B7E211861a7cC3D1F58Cdc0865AB86e0",
+    "wallet_A_address_fp": "5fa205501b06",
+    "wallet_B_address": "0x23Ab21F9Bf7c95d5dc10eA731CBb733aA50d9eD8",
+    "wallet_B_address_fp": "b3c4a71cb25e",
+    "challenge_1": {
+      "status": 200,
+      "message_sha256_12": "e7c6d6a459a8",
+      "message_len": 236,
+      "message_head": "Seafood Wallet Sign-In\n\n",
+      "token_fp": "032d95446d42"
+    },
+    "sig_A_sha256_12": "7a74d099fedc",
+    "verify_A": {
+      "status": 200,
+      "success": true,
+      "token_present": true,
+      "token_fp": "86506582f6eb",
+      "token_type": "bearer",
+      "points": 0
+    },
+    "replay": {
+      "status": 401,
+      "message": "Challenge has been consumed or expired"
+    },
+    "garbage": {
+      "status": 200,
+      "success": true,
+      "message": "OK",
+      "token_issued": true
+    },
+    "other_sig": {
+      "status": 200,
+      "message": "OK",
+      "success": true
+    },
+    "after_fail_recover": {
+      "status": 401
+    },
+    "case_variant": {
+      "status": 200,
+      "sent_address": "0x1cBaf854B7E211861a7cC3D1F58Cdc0865AB86e0",
+      "token_present": true
+    },
+    "gone_face_detail": {
+      "/api/admin/task/create": 410,
+      "/api/admin/task/update": 410,
+      "/api/admin/task/delete": 410,
+      "/api/admin/prize/create": 410,
+      "/api/admin/prize/update": 410,
+      "/api/admin/prize/delete": 410
+    }
+  },
+  "rows": [
+    {
+      "id": "P0",
+      "name": "GET /health",
+      "expect": 200,
+      "got": 200,
+      "pass": true,
+      "extra": {}
+    },
+    {
+      "id": "AC1",
+      "name": "真签名（A 签 A 的 challenge）",
+      "expect": 200,
+      "got": 200,
+      "pass": true,
+      "extra": {
+        "success": true,
+        "token_present": true
+      }
+    },
+    {
+      "id": "AC10",
+      "name": "新钱包登录（A 为进程内新造地址）",
+      "expect": 200,
+      "got": 200,
+      "pass": true,
+      "extra": {}
+    },
+    {
+      "id": "AC4",
+      "name": "重放（同 challenge 二次）",
+      "expect": 401,
+      "got": 401,
+      "pass": true,
+      "extra": {
+        "message": "Challenge has been consumed or expired"
+      }
+    },
+    {
+      "id": "AC2",
+      "name": "垃圾签名 0xdeadbeef",
+      "expect": 401,
+      "got": 200,
+      "pass": false,
+      "extra": {
+        "message": "OK",
+        "token_issued": true,
+        "success": true
+      }
+    },
+    {
+      "id": "AC3",
+      "name": "他人签名（B 签 A 的 challenge）",
+      "expect": 401,
+      "got": 200,
+      "pass": false,
+      "extra": {
+        "message": "OK"
+      }
+    },
+    {
+      "id": "AC5",
+      "name": "同地址校验和变体（lower 申领 / checksum 提交）",
+      "expect": 200,
+      "got": 200,
+      "pass": true,
+      "extra": {
+        "sent": "0x1cBaf854B7E211861a7cC3D1F58Cdc0865AB86e0",
+        "token_present": true
+      }
+    },
+    {
+      "id": "R1",
+      "name": "缺 challenge_token",
+      "expect": 401,
+      "got": 401,
+      "pass": true,
+      "extra": {
+        "message": "evm_address, signature and challenge_token required"
+      }
+    },
+    {
+      "id": "R2",
+      "name": "垃圾 challenge_token",
+      "expect": 401,
+      "got": 401,
+      "pass": true,
+      "extra": {
+        "message": "Invalid token signature"
+      }
+    },
+    {
+      "id": "R3",
+      "name": "声明地址与 challenge 不符",
+      "expect": 401,
+      "got": 401,
+      "pass": true,
+      "extra": {
+        "message": "Challenge address mismatch"
+      }
+    },
+    {
+      "id": "AC8",
+      "name": "已落 410 面（6 条）",
+      "expect": 6,
+      "got": 6,
+      "pass": true,
+      "extra": {}
+    }
+  ]
+}

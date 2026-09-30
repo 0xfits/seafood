@@ -1,0 +1,26 @@
+{
+  "ledger_entry_count": {
+    "before": {
+      "n": 267
+    },
+    "after": {
+      "n": 267
+    },
+    "equal": true
+  },
+  "account_rows_cid1": {
+    "after": {
+      "n": 16
+    },
+    "equal": false
+  },
+  "sum_balance_cid1": {
+    "before": {
+      "s": "1989693"
+    },
+    "after": {
+      "s": "1989693"
+    },
+    "equal": true
+  }
+}

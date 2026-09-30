@@ -1,0 +1,39 @@
+[
+  {
+    "label": "ledger_entry_count",
+    "ok": true,
+    "value": {
+      "n": 267
+    },
+    "rows": 1
+  },
+  {
+    "label": "account_rows_cid1",
+    "ok": false,
+    "error": "Error connecting to database: fetch failed"
+  },
+  {
+    "label": "sum_balance_cid1",
+    "ok": true,
+    "value": {
+      "s": "1989693"
+    },
+    "rows": 1
+  },
+  {
+    "label": "users_total",
+    "ok": true,
+    "value": {
+      "n": 29
+    },
+    "rows": 1
+  },
+  {
+    "label": "asset_table_present",
+    "ok": true,
+    "value": {
+      "asset_absent": true
+    },
+    "rows": 1
+  }
+]

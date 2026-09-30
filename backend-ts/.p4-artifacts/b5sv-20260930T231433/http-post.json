@@ -1,0 +1,175 @@
+{
+  "summary": {
+    "phase": "post",
+    "total": 11,
+    "pass": 11,
+    "fail": 0,
+    "failed_ids": []
+  },
+  "meta": {
+    "phase": "post",
+    "host": "127.0.0.1:5788",
+    "at": "2026-09-30T15:15:21.053Z",
+    "wallet_A_address": "0x720c66011B1fa2fa5189Fc2cf806AA76Ca26B94b",
+    "wallet_A_address_fp": "ceb8b1f125b5",
+    "wallet_B_address": "0x57Fa381b986D9975455e78fD79CE1345bc8208e4",
+    "wallet_B_address_fp": "99efefb71651",
+    "challenge_1": {
+      "status": 200,
+      "message_sha256_12": "06f681031833",
+      "message_len": 236,
+      "message_head": "Seafood Wallet Sign-In\n\n",
+      "token_fp": "d70e99688885"
+    },
+    "sig_A_sha256_12": "6882d9ef2b99",
+    "verify_A": {
+      "status": 200,
+      "success": true,
+      "token_present": true,
+      "token_fp": "4357f2276391",
+      "token_type": "bearer",
+      "points": 0
+    },
+    "replay": {
+      "status": 401,
+      "message": "Challenge has been consumed or expired"
+    },
+    "garbage": {
+      "status": 401,
+      "success": false,
+      "message": "Invalid wallet signature",
+      "token_issued": false
+    },
+    "other_sig": {
+      "status": 401,
+      "message": "Signature does not match the claimed address",
+      "success": false
+    },
+    "after_fail_recover": {
+      "status": 200
+    },
+    "case_variant": {
+      "status": 200,
+      "sent_address": "0x720c66011B1fa2fa5189Fc2cf806AA76Ca26B94b",
+      "token_present": true
+    },
+    "gone_face_detail": {
+      "/api/admin/task/create": 410,
+      "/api/admin/task/update": 410,
+      "/api/admin/task/delete": 410,
+      "/api/admin/prize/create": 410,
+      "/api/admin/prize/update": 410,
+      "/api/admin/prize/delete": 410
+    }
+  },
+  "rows": [
+    {
+      "id": "P0",
+      "name": "GET /health",
+      "expect": 200,
+      "got": 200,
+      "pass": true,
+      "extra": {}
+    },
+    {
+      "id": "AC1",
+      "name": "真签名（A 签 A 的 challenge）",
+      "expect": 200,
+      "got": 200,
+      "pass": true,
+      "extra": {
+        "success": true,
+        "token_present": true
+      }
+    },
+    {
+      "id": "AC10",
+      "name": "新钱包登录（A 为进程内新造地址）",
+      "expect": 200,
+      "got": 200,
+      "pass": true,
+      "extra": {}
+    },
+    {
+      "id": "AC4",
+      "name": "重放（同 challenge 二次）",
+      "expect": 401,
+      "got": 401,
+      "pass": true,
+      "extra": {
+        "message": "Challenge has been consumed or expired"
+      }
+    },
+    {
+      "id": "AC2",
+      "name": "垃圾签名 0xdeadbeef",
+      "expect": 401,
+      "got": 401,
+      "pass": true,
+      "extra": {
+        "message": "Invalid wallet signature",
+        "token_issued": false,
+        "success": false
+      }
+    },
+    {
+      "id": "AC3",
+      "name": "他人签名（B 签 A 的 challenge）",
+      "expect": 401,
+      "got": 401,
+      "pass": true,
+      "extra": {
+        "message": "Signature does not match the claimed address"
+      }
+    },
+    {
+      "id": "AC5",
+      "name": "同地址校验和变体（lower 申领 / checksum 提交）",
+      "expect": 200,
+      "got": 200,
+      "pass": true,
+      "extra": {
+        "sent": "0x720c66011B1fa2fa5189Fc2cf806AA76Ca26B94b",
+        "token_present": true
+      }
+    },
+    {
+      "id": "R1",
+      "name": "缺 challenge_token",
+      "expect": 401,
+      "got": 401,
+      "pass": true,
+      "extra": {
+        "message": "evm_address, signature and challenge_token required"
+      }
+    },
+    {
+      "id": "R2",
+      "name": "垃圾 challenge_token",
+      "expect": 401,
+      "got": 401,
+      "pass": true,
+      "extra": {
+        "message": "Invalid token signature"
+      }
+    },
+    {
+      "id": "R3",
+      "name": "声明地址与 challenge 不符",
+      "expect": 401,
+      "got": 401,
+      "pass": true,
+      "extra": {
+        "message": "Challenge address mismatch"
+      }
+    },
+    {
+      "id": "AC8",
+      "name": "已落 410 面（6 条）",
+      "expect": 6,
+      "got": 6,
+      "pass": true,
+      "extra": {}
+    }
+  ]
+}
