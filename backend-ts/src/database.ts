@@ -937,34 +937,72 @@ export class DatabaseService {
     };
   }
 
+  /**
+   * P4-A1-LEDGER-IMPL（Zang §5.99 裁定）：后台调分**改接账本** `ledger_post_event`（**单语句**）。
+   *   · 有符号 `amount`（单位 = `$`(`cid=1`) **最小单位**，R66 `amount_units`）：
+   *       `> 0` ⇒ `op='mint'`（铸币到目标用户；`$(owner_uid=0)` ⇒ 必须 `platform=true`；
+   *                R23 授权 + R24 供给上限由 DB 判；**系统无对手方 ⇒ 恰 1 条 `+n` 分录**）；
+   *       `< 0` ⇒ `op='entries'` + **单腿** `kind='burn'`（`delta = -|n|`，从目标用户销毁、净减发）。
+   *     ⇒ `burn` **只能**走 `entries`：`ledger_post_event` 的 op 白名单 = `mint/transfer/hold/
+   *       hold_release/settle/entries`（`migrations/0020:156`，**其中无 `burn`**；`migrations/**` 已冻结）。
+   *   · **零表写入**：本方法不写 `account` / `ledger_entry` / `asset`（R1）；余额变动只由账本函数落。
+   *   · **不得造幽灵账户**：目标 uid 在 `public."users"` 无行 ⇒ `ev` CTE 零行 ⇒ **不调账本**
+   *     （零分录 / 零开户）⇒ 返回 `user_found = 0`，由路由层映射为既有码 `LEDGER_RESERVED_UID`。
+   *   · `uid <= 0`（平台 / 保留 uid）**故意放行到账本** ⇒ 由 `ledger_uid_arg` 抛 `LD021`（既有码）。
+   *   · 幂等键 / 请求指纹由**路由层**传入（DL36/DL96/DL97/DL146②）：同键同指纹 ⇒ 200 重放（零新增分录）。
+   */
   static async adjustPoints(
     uID: number,
     amount: number,
     reason: string,
-  ): Promise<{ success: boolean; message: string; asset?: AssetRecord }> {
-    try {
-      const existingAsset = await this.getUserAsset(uID);
-      if (!existingAsset) {
-        return {
-          success: false,
-          message: '用户资产记录不存在',
-        };
-      }
-
-      const updatedAsset = await this.upsertAsset(uID, amount);
-      console.log(`[API] 积分调整结果: 用户${uID}, 金额${amount}, 原因: ${reason}`);
-      return {
-        success: true,
-        message: '积分调整成功',
-        asset: updatedAsset,
-      };
-    } catch (error) {
-      console.error('Error adjusting points:', error);
-      return {
-        success: false,
-        message: '积分调整失败',
-      };
+    idempotencyKey: string,
+    requestFingerprint: string,
+  ): Promise<{ user_found: number; txid: string | null; idempotent_replay: boolean; new_balance: string | null }> {
+    const sql = getSql();
+    const envelope: Record<string, unknown> = {
+      op: amount > 0 ? 'mint' : 'entries',
+      idempotency_key: idempotencyKey,
+      request_fingerprint: requestFingerprint,
+      memo: reason,
+      // `data-layer.spec:513`（§4.0 逐事件形态表 A1 行）现取：ref = `currency` / `cid`
+      ref_type: 'currency',
+      ref_id: '1',
+    };
+    if (amount > 0) {
+      envelope.uid = String(uID);
+      envelope.cid = '1';
+      envelope.amount_units = String(amount);
+      envelope.platform = true;
+    } else {
+      envelope.entries = [{ uid: String(uID), cid: '1', delta: String(amount), kind: 'burn' }];
     }
+
+    // 一条语句 = 一个隐式事务（R1/R2）：入参解析 → 目标用户存在性闸 → 账本事件 → 事后余额快照。
+    const row = firstRow(await sql`
+      WITH usr AS (
+        SELECT 1 AS ok FROM public."users" AS u WHERE u.uid = ${uID}::bigint
+      ),
+      gate AS (
+        SELECT 1 AS ok WHERE EXISTS (SELECT 1 FROM usr)
+      ),
+      ev AS (
+        SELECT ledger_post_event(${JSON.stringify(envelope)}::jsonb) AS r
+        FROM gate
+      )
+      SELECT
+        (SELECT count(*)::int FROM usr) AS user_found,
+        (SELECT ev.r->>'txid' FROM ev) AS txid,
+        (SELECT (ev.r->>'idempotent_replay')::boolean FROM ev) AS idempotent_replay,
+        (SELECT (a->>'balance') FROM ev, jsonb_array_elements(ev.r->'accounts') AS a
+          WHERE (a->>'uid')::bigint = ${uID}::bigint AND (a->>'cid')::bigint = 1) AS new_balance
+    `) as Record<string, unknown> | null;
+
+    return {
+      user_found: Number(row?.user_found ?? 0),
+      txid: row?.txid === null || row?.txid === undefined ? null : String(row.txid),
+      idempotent_replay: row?.idempotent_replay === true,
+      new_balance: row?.new_balance === null || row?.new_balance === undefined ? null : String(row.new_balance),
+    };
   }
 
   static async listBrands(skip = 0, limit = 100): Promise<BrandRecord[]> {

@@ -1,0 +1,749 @@
+{
+  "run": "a1li-20260930T1455Z",
+  "mode": "post",
+  "base": "http://127.0.0.1:5788",
+  "cap_const_in_src": 100000,
+  "route_count_from_src": 65,
+  "started_at": "2026-09-30T13:59:25.014Z",
+  "fixtures": {
+    "target_uid": 21,
+    "nonadmin_uid": 22
+  },
+  "actors": {
+    "admin": {
+      "uid": 1,
+      "token_fp12": "bbf91cfb7d7a"
+    },
+    "nonadmin": {
+      "uid": 22,
+      "token_fp12": "3ffe74129503"
+    },
+    "secret_key_fp12": "b1ec01afb2eb"
+  },
+  "asset_table_exists": false,
+  "target_row_before": [],
+  "pre": {
+    "sigma": "2000100",
+    "entries": 251,
+    "kinds": {
+      "burn": 2,
+      "commission": 4,
+      "currency_create_fee": 38,
+      "hold": 50,
+      "hold_release": 8,
+      "job_escrow": 24,
+      "job_escrow_refund": 8,
+      "job_fee": 8,
+      "job_payout": 10,
+      "listing_deposit": 22,
+      "mint": 7,
+      "purchase": 3,
+      "purchase_refund": 4,
+      "sale": 3,
+      "trade": 32,
+      "trade_fee": 16,
+      "transfer": 12
+    }
+  },
+  "target_row_after": [
+    {
+      "bal": "100",
+      "frz": "0"
+    }
+  ],
+  "post": {
+    "sigma": "2000200",
+    "entries": 255,
+    "kinds": {
+      "burn": 4,
+      "commission": 4,
+      "currency_create_fee": 38,
+      "hold": 50,
+      "hold_release": 8,
+      "job_escrow": 24,
+      "job_escrow_refund": 8,
+      "job_fee": 8,
+      "job_payout": 10,
+      "listing_deposit": 22,
+      "mint": 9,
+      "purchase": 3,
+      "purchase_refund": 4,
+      "sale": 3,
+      "trade": 32,
+      "trade_fee": 16,
+      "transfer": 12
+    }
+  },
+  "delta_overall": {
+    "sigma_cid1": "100",
+    "ledger_entries": 4,
+    "kinds_changed": [
+      {
+        "kind": "burn",
+        "pre": 2,
+        "post": 4
+      },
+      {
+        "kind": "mint",
+        "pre": 7,
+        "post": 9
+      }
+    ]
+  },
+  "results": [
+    {
+      "id": "A01",
+      "note": "a) 正向 mint：amount=+137（key K1）",
+      "who": "admin",
+      "key_fp12": "e75d635905da",
+      "sent": {
+        "uID": 21,
+        "amount": 137,
+        "reason": "A1LI mint fixture fund"
+      },
+      "status": 200,
+      "code": null,
+      "reason": null,
+      "msg": "积分调整成功（铸币）",
+      "resp_fp12": "ac0e467bef1e",
+      "resp_data": {
+        "uID": 21,
+        "cid": 1,
+        "op": "mint",
+        "amount": 137,
+        "new_points": 137,
+        "timestamp": 1790776772,
+        "reason": "A1LI mint fixture fund",
+        "txid": "259"
+      },
+      "idempotent_replay": false,
+      "sigma_pre": "2000100",
+      "sigma_post": "2000237",
+      "sigma_delta": "137",
+      "bal_pre": "0",
+      "bal_post": "137",
+      "bal_delta": "137",
+      "entries_pre": 251,
+      "entries_post": 252,
+      "entries_delta": 1,
+      "kinds_delta": [
+        {
+          "kind": "mint",
+          "delta": 1
+        }
+      ],
+      "expect": 200,
+      "pass": true
+    },
+    {
+      "id": "A02",
+      "note": "b) 负向 burn：amount=-37（key K2）",
+      "who": "admin",
+      "key_fp12": "12e676b323ca",
+      "sent": {
+        "uID": 21,
+        "amount": -37,
+        "reason": "A1LI burn"
+      },
+      "status": 200,
+      "code": null,
+      "reason": null,
+      "msg": "积分调整成功（销毁）",
+      "resp_fp12": "2105a91cf9d2",
+      "resp_data": {
+        "uID": 21,
+        "cid": 1,
+        "op": "burn",
+        "amount": -37,
+        "new_points": 100,
+        "timestamp": 1790776774,
+        "reason": "A1LI burn",
+        "txid": "260"
+      },
+      "idempotent_replay": false,
+      "sigma_pre": "2000237",
+      "sigma_post": "2000200",
+      "sigma_delta": "-37",
+      "bal_pre": "137",
+      "bal_post": "100",
+      "bal_delta": "-37",
+      "entries_pre": 252,
+      "entries_post": 253,
+      "entries_delta": 1,
+      "kinds_delta": [
+        {
+          "kind": "burn",
+          "delta": 1
+        }
+      ],
+      "expect": 200,
+      "pass": true
+    },
+    {
+      "id": "A03",
+      "note": "c) 边界上限：amount=+100000（通过）",
+      "who": "admin",
+      "key_fp12": "d0d4e405c349",
+      "sent": {
+        "uID": 21,
+        "amount": 100000,
+        "reason": "A1LI at cap"
+      },
+      "status": 200,
+      "code": null,
+      "reason": null,
+      "msg": "积分调整成功（铸币）",
+      "resp_fp12": "971ee84121e8",
+      "resp_data": {
+        "uID": 21,
+        "cid": 1,
+        "op": "mint",
+        "amount": 100000,
+        "new_points": 100100,
+        "timestamp": 1790776776,
+        "reason": "A1LI at cap",
+        "txid": "261"
+      },
+      "idempotent_replay": false,
+      "sigma_pre": "2000200",
+      "sigma_post": "2100200",
+      "sigma_delta": "100000",
+      "bal_pre": "100",
+      "bal_post": "100100",
+      "bal_delta": "100000",
+      "entries_pre": 253,
+      "entries_post": 254,
+      "entries_delta": 1,
+      "kinds_delta": [
+        {
+          "kind": "mint",
+          "delta": 1
+        }
+      ],
+      "expect": 200,
+      "pass": true
+    },
+    {
+      "id": "A04",
+      "note": "c) 边界上限：amount=-100000（通过 ⇒ 回到 0 附近）",
+      "who": "admin",
+      "key_fp12": "97093ce0b496",
+      "sent": {
+        "uID": 21,
+        "amount": -100000,
+        "reason": "A1LI at cap burn"
+      },
+      "status": 200,
+      "code": null,
+      "reason": null,
+      "msg": "积分调整成功（销毁）",
+      "resp_fp12": "c335d8e0ec11",
+      "resp_data": {
+        "uID": 21,
+        "cid": 1,
+        "op": "burn",
+        "amount": -100000,
+        "new_points": 100,
+        "timestamp": 1790776779,
+        "reason": "A1LI at cap burn",
+        "txid": "262"
+      },
+      "idempotent_replay": false,
+      "sigma_pre": "2100200",
+      "sigma_post": "2000200",
+      "sigma_delta": "-100000",
+      "bal_pre": "100100",
+      "bal_post": "100",
+      "bal_delta": "-100000",
+      "entries_pre": 254,
+      "entries_post": 255,
+      "entries_delta": 1,
+      "kinds_delta": [
+        {
+          "kind": "burn",
+          "delta": 1
+        }
+      ],
+      "expect": 200,
+      "pass": true
+    },
+    {
+      "id": "A05",
+      "note": "c) 超上限：amount=+100001 ⇒ 400 OVER_MAX_SINGLE_AMOUNT",
+      "who": "admin",
+      "key_fp12": "c88dfa4a734f",
+      "sent": {
+        "uID": 21,
+        "amount": 100001,
+        "reason": "A1LI over cap"
+      },
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "msg": "系统繁忙，请稍后重试",
+      "resp_fp12": "de2e845cfbb1",
+      "resp_data": null,
+      "idempotent_replay": false,
+      "sigma_pre": "2000200",
+      "sigma_post": "2000200",
+      "sigma_delta": "0",
+      "bal_pre": "100",
+      "bal_post": "100",
+      "bal_delta": "0",
+      "entries_pre": 255,
+      "entries_post": 255,
+      "entries_delta": 0,
+      "kinds_delta": [],
+      "expect": 400,
+      "pass": false
+    },
+    {
+      "id": "A06",
+      "note": "c) 超上限（绝对値）：amount=-100001 ⇒ 400 OVER_MAX_SINGLE_AMOUNT",
+      "who": "admin",
+      "key_fp12": "db2065553424",
+      "sent": {
+        "uID": 21,
+        "amount": -100001,
+        "reason": "A1LI over cap neg"
+      },
+      "status": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "reason": "OVER_MAX_SINGLE_AMOUNT",
+      "msg": "Request shape is invalid",
+      "resp_fp12": "35eb24fbc174",
+      "resp_data": null,
+      "idempotent_replay": false,
+      "sigma_pre": "2000200",
+      "sigma_post": "2000200",
+      "sigma_delta": "0",
+      "bal_pre": "100",
+      "bal_post": "100",
+      "bal_delta": "0",
+      "entries_pre": 255,
+      "entries_post": 255,
+      "entries_delta": 0,
+      "kinds_delta": [],
+      "expect": 400,
+      "pass": true
+    },
+    {
+      "id": "A07",
+      "note": "d) 零值：amount=0 ⇒ 400 NOT_A_POSITIVE_INTEGER",
+      "who": "admin",
+      "key_fp12": "d8438cc1bcb8",
+      "sent": {
+        "uID": 21,
+        "amount": 0,
+        "reason": "A1LI zero"
+      },
+      "status": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "reason": "NOT_A_POSITIVE_INTEGER",
+      "msg": "Request shape is invalid",
+      "resp_fp12": "688b402e6dc6",
+      "resp_data": null,
+      "idempotent_replay": false,
+      "sigma_pre": "2000200",
+      "sigma_post": "2000200",
+      "sigma_delta": "0",
+      "bal_pre": "100",
+      "bal_post": "100",
+      "bal_delta": "0",
+      "entries_pre": 255,
+      "entries_post": 255,
+      "entries_delta": 0,
+      "kinds_delta": [],
+      "expect": 400,
+      "pass": true
+    },
+    {
+      "id": "A08",
+      "note": "e) 非 admin ⇒ 403（权限闸必须先于一切）",
+      "who": "nonadmin",
+      "key_fp12": "a29fcb4109c6",
+      "sent": {
+        "uID": 21,
+        "amount": 1,
+        "reason": "A1LI nonadmin"
+      },
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "reason": "NOT_ADMIN",
+      "msg": "AUTH_FORBIDDEN",
+      "resp_fp12": "50b9fef1a856",
+      "resp_data": null,
+      "idempotent_replay": false,
+      "sigma_pre": "2000200",
+      "sigma_post": "2000200",
+      "sigma_delta": "0",
+      "bal_pre": "100",
+      "bal_post": "100",
+      "bal_delta": "0",
+      "entries_pre": 255,
+      "entries_post": 255,
+      "entries_delta": 0,
+      "kinds_delta": [],
+      "expect": 403,
+      "pass": true
+    },
+    {
+      "id": "A08b",
+      "note": "e) 非 admin + 超上限（权限闸优先 ⇒ 403 而非 400）",
+      "who": "nonadmin",
+      "key_fp12": "9f6237b01bf1",
+      "sent": {
+        "uID": 21,
+        "amount": 100001,
+        "reason": "A1LI nonadmin overcap"
+      },
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "reason": "NOT_ADMIN",
+      "msg": "AUTH_FORBIDDEN",
+      "resp_fp12": "50b9fef1a856",
+      "resp_data": null,
+      "idempotent_replay": false,
+      "sigma_pre": "2000200",
+      "sigma_post": "2000200",
+      "sigma_delta": "0",
+      "bal_pre": "100",
+      "bal_post": "100",
+      "bal_delta": "0",
+      "entries_pre": 255,
+      "entries_post": 255,
+      "entries_delta": 0,
+      "kinds_delta": [],
+      "expect": 403,
+      "pass": true
+    },
+    {
+      "id": "A09",
+      "note": "e) 无 token ⇒ 401",
+      "who": "none",
+      "key_fp12": "5d7a2a46b89e",
+      "sent": {
+        "uID": 21,
+        "amount": 1,
+        "reason": "A1LI notoken"
+      },
+      "status": 401,
+      "code": "AUTH_UNAUTHORIZED",
+      "reason": null,
+      "msg": "AUTH_UNAUTHORIZED",
+      "resp_fp12": "2f80085fd434",
+      "resp_data": null,
+      "idempotent_replay": false,
+      "sigma_pre": "2000200",
+      "sigma_post": "2000200",
+      "sigma_delta": "0",
+      "bal_pre": "100",
+      "bal_post": "100",
+      "bal_delta": "0",
+      "entries_pre": 255,
+      "entries_post": 255,
+      "entries_delta": 0,
+      "kinds_delta": [],
+      "expect": 401,
+      "pass": true
+    },
+    {
+      "id": "A10",
+      "note": "f) 目标 uid 不存在（987654321）⇒ 拒（不得造幽灵账户）",
+      "who": "admin",
+      "key_fp12": "f695568eded5",
+      "sent": {
+        "uID": 987654321,
+        "amount": 1,
+        "reason": "A1LI ghost"
+      },
+      "status": 400,
+      "code": "LEDGER_RESERVED_UID",
+      "reason": null,
+      "msg": "Target account is invalid",
+      "resp_fp12": "8374d5f20800",
+      "resp_data": null,
+      "idempotent_replay": false,
+      "sigma_pre": "2000200",
+      "sigma_post": "2000200",
+      "sigma_delta": "0",
+      "bal_pre": "100",
+      "bal_post": "100",
+      "bal_delta": "0",
+      "entries_pre": 255,
+      "entries_post": 255,
+      "entries_delta": 0,
+      "kinds_delta": [],
+      "expect": 400,
+      "pass": true
+    },
+    {
+      "id": "A10b",
+      "note": "f) 目标 uid = -1（保留 uid）⇒ 拒（不得当目标用户）",
+      "who": "admin",
+      "key_fp12": "2876aefae2a2",
+      "sent": {
+        "uID": -1,
+        "amount": 1,
+        "reason": "A1LI reserved"
+      },
+      "status": 400,
+      "code": "LEDGER_RESERVED_UID",
+      "reason": null,
+      "msg": "Target account is invalid",
+      "resp_fp12": "e0a5d6af26ee",
+      "resp_data": null,
+      "idempotent_replay": false,
+      "sigma_pre": "2000200",
+      "sigma_post": "2000200",
+      "sigma_delta": "0",
+      "bal_pre": "100",
+      "bal_post": "100",
+      "bal_delta": "0",
+      "entries_pre": 255,
+      "entries_post": 255,
+      "entries_delta": 0,
+      "kinds_delta": [],
+      "expect": 400,
+      "pass": true
+    },
+    {
+      "id": "A11",
+      "note": "g) 幂等：同 key 重投（K1 同体）⇒ 200 replay + 零新增分录",
+      "who": "admin",
+      "key_fp12": "e75d635905da",
+      "sent": {
+        "uID": 21,
+        "amount": 137,
+        "reason": "A1LI mint fixture fund"
+      },
+      "status": 200,
+      "code": null,
+      "reason": null,
+      "msg": "积分调整成功（铸币）",
+      "resp_fp12": "98fd58fd8219",
+      "resp_data": {
+        "uID": 21,
+        "cid": 1,
+        "op": "mint",
+        "amount": 137,
+        "new_points": 137,
+        "timestamp": 1790776879,
+        "reason": "A1LI mint fixture fund",
+        "txid": "259"
+      },
+      "idempotent_replay": false,
+      "sigma_pre": "2000200",
+      "sigma_post": "2000200",
+      "sigma_delta": "0",
+      "bal_pre": "100",
+      "bal_post": "100",
+      "bal_delta": "0",
+      "entries_pre": 255,
+      "entries_post": 255,
+      "entries_delta": 0,
+      "kinds_delta": [],
+      "expect": 200,
+      "pass": true
+    },
+    {
+      "id": "A12",
+      "note": "g) 缺 key ⇒ 400 LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "who": "admin",
+      "key_fp12": null,
+      "sent": {
+        "uID": 21,
+        "amount": 1,
+        "reason": "A1LI nokey"
+      },
+      "status": 400,
+      "code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "reason": null,
+      "msg": "Idempotency key is required for admin writes",
+      "resp_fp12": "e3c6414e90ae",
+      "resp_data": null,
+      "idempotent_replay": false,
+      "sigma_pre": "2000200",
+      "sigma_post": "2000200",
+      "sigma_delta": "0",
+      "bal_pre": "100",
+      "bal_post": "100",
+      "bal_delta": "0",
+      "entries_pre": 255,
+      "entries_post": 255,
+      "entries_delta": 0,
+      "kinds_delta": [],
+      "expect": 400,
+      "pass": true
+    },
+    {
+      "id": "A13",
+      "note": "g) 非 ops: 前缀（cli:）⇒ 400 LEDGER_IDEMPOTENCY_KEY_INVALID + PREFIX_REQUIRED",
+      "who": "admin",
+      "key_fp12": "696f7a19abdb",
+      "sent": {
+        "uID": 21,
+        "amount": 1,
+        "reason": "A1LI badprefix"
+      },
+      "status": 400,
+      "code": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "reason": "PREFIX_REQUIRED",
+      "msg": "LEDGER_IDEMPOTENCY_KEY_INVALID",
+      "resp_fp12": "0e8db663e8d8",
+      "resp_data": null,
+      "idempotent_replay": false,
+      "sigma_pre": "2000200",
+      "sigma_post": "2000200",
+      "sigma_delta": "0",
+      "bal_pre": "100",
+      "bal_post": "100",
+      "bal_delta": "0",
+      "entries_pre": 255,
+      "entries_post": 255,
+      "entries_delta": 0,
+      "kinds_delta": [],
+      "expect": 400,
+      "pass": true
+    },
+    {
+      "id": "A14",
+      "note": "h) 缺 reason ⇒ 既有 400「参数不完整」（未改）",
+      "who": "admin",
+      "key_fp12": "d72201693d74",
+      "sent": {
+        "uID": 21,
+        "amount": 1,
+        "reason": ""
+      },
+      "status": 400,
+      "code": null,
+      "reason": null,
+      "msg": "参数不完整",
+      "resp_fp12": "73dfd74edba8",
+      "resp_data": null,
+      "idempotent_replay": false,
+      "sigma_pre": "2000200",
+      "sigma_post": "2000200",
+      "sigma_delta": "0",
+      "bal_pre": "100",
+      "bal_post": "100",
+      "bal_delta": "0",
+      "entries_pre": 255,
+      "entries_post": 255,
+      "entries_delta": 0,
+      "kinds_delta": [],
+      "expect": 400,
+      "pass": true
+    }
+  ],
+  "failed": [
+    "A05"
+  ],
+  "replay_face": {
+    "id": "A11",
+    "note": "g) 幂等：同 key 重投（K1 同体）⇒ 200 replay + 零新增分录",
+    "who": "admin",
+    "key_fp12": "e75d635905da",
+    "sent": {
+      "uID": 21,
+      "amount": 137,
+      "reason": "A1LI mint fixture fund"
+    },
+    "status": 200,
+    "code": null,
+    "reason": null,
+    "msg": "积分调整成功（铸币）",
+    "resp_fp12": "98fd58fd8219",
+    "resp_data": {
+      "uID": 21,
+      "cid": 1,
+      "op": "mint",
+      "amount": 137,
+      "new_points": 137,
+      "timestamp": 1790776879,
+      "reason": "A1LI mint fixture fund",
+      "txid": "259"
+    },
+    "idempotent_replay": false,
+    "sigma_pre": "2000200",
+    "sigma_post": "2000200",
+    "sigma_delta": "0",
+    "bal_pre": "100",
+    "bal_post": "100",
+    "bal_delta": "0",
+    "entries_pre": 255,
+    "entries_post": 255,
+    "entries_delta": 0,
+    "kinds_delta": [],
+    "expect": 200,
+    "pass": true
+  },
+  "regression": {
+    "health": {
+      "status": 200
+    },
+    "gone_410": [
+      {
+        "face": "/api/auth/register",
+        "method_used": "POST",
+        "status": 410,
+        "code": null,
+        "pass": true
+      },
+      {
+        "face": "/api/shard/redeem",
+        "method_used": "POST",
+        "status": 410,
+        "code": "LEDGER_REF_NOT_FOUND",
+        "pass": true
+      },
+      {
+        "face": "/api/chest/1/open",
+        "method_used": "POST",
+        "status": 410,
+        "code": "LEDGER_REF_NOT_FOUND",
+        "pass": true
+      },
+      {
+        "face": "/api/admin/prize/create",
+        "method_used": "POST",
+        "status": 410,
+        "code": "LEDGER_REF_NOT_FOUND",
+        "pass": true
+      },
+      {
+        "face": "/api/admin/prize/update",
+        "method_used": "POST",
+        "status": 410,
+        "code": "LEDGER_REF_NOT_FOUND",
+        "pass": true
+      },
+      {
+        "face": "/api/admin/prize/delete",
+        "method_used": "POST",
+        "status": 410,
+        "code": "LEDGER_REF_NOT_FOUND",
+        "pass": true
+      }
+    ],
+    "gone_pass": "6/6",
+    "route_count_from_src": 65,
+    "floors": {
+      "create_fee_floor_src": 10000,
+      "list_fee_floor_src": 10000,
+      "list_deposit_floor_src": 50000
+    },
+    "c1_below_floor": {
+      "status": 400,
+      "code": "LEDGER_AMOUNT_NOT_POSITIVE",
+      "reason": "BELOW_SERVER_FLOOR"
+    },
+    "c2_below_floor": {
+      "status": 400,
+      "code": "LEDGER_AMOUNT_NOT_POSITIVE",
+      "reason": "BELOW_SERVER_FLOOR"
+    }
+  },
+  "finished_at": "2026-09-30T14:01:33.977Z"
+}

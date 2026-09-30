@@ -5,6 +5,8 @@ import './env';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+// P4-A1-LEDGER-IMPL（Zang §5.99 / DL96）：路由层计算 `request_fingerprint`（business 字段集合）
+import { createHash } from 'crypto';
 import {
   consumeWalletAuthChallenge,
   createSessionToken,
@@ -1179,6 +1181,13 @@ app.post('/api/admin/assets/init', async (_req, res) => {
 //   · **日累计上限留后续（批 6）**；本常量**不得**改成从 `app_config` 读（那属批 6）。
 const ADMIN_POINTS_ADJUST_MAX_PER_CALL = 100000;
 
+// P4-A1-LEDGER-IMPL（Zang §5.99 裁定）：本路由由「写缺失 `asset` 表」**改接账本** `ledger_post_event`。
+//   · 有符号 `amount`：`> 0` ⇒ `mint`（铸币到目标用户）；`< 0` ⇒ `burn`（从目标用户销毁）；
+//     上限按**绝对值** `ADMIN_POINTS_ADJUST_MAX_PER_CALL`；`0` ⇒ 拒（既有码 + 既有 reason）。
+//   · 幂等键 = 规范形 `ops:<admin_uid>:points_adjust:<target_uid>:1:<seq>`（`DL146②` / `DL36`），
+//     由**既有助手** `resolveAdminOpsKey` 校验（缺键 ⇒ `400 LEDGER_IDEMPOTENCY_KEY_REQUIRED`）；
+//   · 指纹（`DL96`）= business 字段集合（`target_uid` / `cid` / `amount` / `reason_code`）；
+//   · **零新造码**：本路由只用既有错误码（`LD016` / `LD021` / `LD005` / `AUTH_*`）与既有 reason。
 app.post('/api/admin/points/adjust', async (req, res) => {
   const actor = await requireAdmin(req, res);
   if (!actor) return;
@@ -1192,9 +1201,20 @@ app.post('/api/admin/points/adjust', async (req, res) => {
       return sendError(res, 400, '参数不完整');
     }
 
-    // A1-CAP 单点校验位（改前只查 `Number.isNaN`：超限与 ≤0 都能穿透到服务层）：
-    // ≤0 与 > 单笔上限 一律 `400`（同族入参码，R107 形状；`reason` 取既有值，不新造）。
-    if (amount <= 0) {
+    // `route-layer.spec:840`：`LD021` = 「目标账户无效（**平台 / 保留 uid 前置闸**）」⇒ 前置拒
+    // 平台 / 保留 uid（`0`/`-1`/`-2`/`-3`/`-4…-99`）：既有码 + 与 DB 侧 `ledger_uid_arg` 同 details 形状
+    // （`{field, uid}`）⇒ **不得把保留 uid 当目标用户**，也**不得**让账本为其开户。
+    if (uID < 0) {
+      return res.status(400).json(ledgerErrorBody(
+        'LEDGER_RESERVED_UID',
+        'Target account is invalid',
+        { field: 'uid', uid: String(uID) },
+      ));
+    }
+
+    // A1-CAP 单点校验位（值不变，语义由「> 0」改为「绝对值」）：`0` 与 超上限 一律 `400`
+    // （同族入参码，R107 形状；`reason` 取既有值，不新造）。
+    if (amount === 0) {
       return res.status(400).json(ledgerErrorBody(
         'LEDGER_AMOUNT_INVALID',
         'Request shape is invalid',
@@ -1202,7 +1222,7 @@ app.post('/api/admin/points/adjust', async (req, res) => {
       ));
     }
 
-    if (amount > ADMIN_POINTS_ADJUST_MAX_PER_CALL) {
+    if (Math.abs(amount) > ADMIN_POINTS_ADJUST_MAX_PER_CALL) {
       return res.status(400).json(ledgerErrorBody(
         'LEDGER_AMOUNT_INVALID',
         'Request shape is invalid',
@@ -1210,20 +1230,45 @@ app.post('/api/admin/points/adjust', async (req, res) => {
       ));
     }
 
-    const result = await DatabaseService.adjustPoints(uID, amount, reason);
-    if (!result.success) {
-      return sendError(res, 404, result.message);
+    // DL36 / DL97 / DL146②：后台写必带 `ops:` 前缀幂等键（既有助手 ⇒ 零新码、零新校验代码）
+    const opsKey = resolveAdminOpsKey(req, actor.session.uID, 'points_adjust', `${uID}:1`);
+    if (!opsKey.ok) {
+      return sendVerbError(res, opsKey.error);
     }
 
-    sendSuccess(res, {
+    // DL96：路由层必须传 `request_fingerprint`，指纹范围 = business 字段集合（不含派生量）
+    const fingerprint = createHash('sha256')
+      .update(['points_adjust', String(uID), '1', String(amount), reason].join('|'))
+      .digest('hex');
+
+    const result = await DatabaseService.adjustPoints(uID, amount, reason, opsKey.key, fingerprint);
+
+    if (result.user_found !== 1) {
+      // `uid > 0` 但库内无该用户 ⇒ **不调账本、不造幽灵账户**（既有码：`LEDGER_RESERVED_UID`
+      // = `400`「目标账户无效」`src/ledger-errors.ts:55`；`details` 形状与 DB 侧 `ledger_uid_arg` 同）
+      return res.status(400).json(ledgerErrorBody(
+        'LEDGER_RESERVED_UID',
+        'Target account is invalid',
+        { field: 'uid', uid: String(uID) },
+      ));
+    }
+
+    const op = amount > 0 ? 'mint' : 'burn';
+    return sendSuccess(res, {
       uID,
-      new_points: result.asset?.points || 0,
-      timestamp: result.asset?.time_update || Math.floor(Date.now() / 1000),
+      cid: 1,
+      op,
+      amount,
+      new_points: Number(result.new_balance ?? 0),
+      timestamp: Math.floor(Date.now() / 1000),
       reason,
-    }, result.message);
+      txid: result.txid,
+    }, op === 'mint' ? '积分调整成功（铸币）' : '积分调整成功（销毁）', 200,
+      result.idempotent_replay ? { idempotent_replay: true } : undefined);
   } catch (error) {
-    console.error('Points adjustment error:', error);
-    sendError(res, 500, '积分调整失败');
+    const normalized = normalizeLedgerError(unwrapInfraCause(error));
+    console.error('[admin.points.adjust] infra failure:', JSON.stringify(ledgerErrorDiagnostics(error)));
+    return res.status(normalized.httpStatus).json(toErrorResponse(normalized));
   }
 });
 
