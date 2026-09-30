@@ -109,6 +109,23 @@ export const errorCodeOf = (payload) => (
   payload?.error && typeof payload.error === 'object' ? payload.error.code : undefined
 )
 
+/**
+ * P4-B4c-ii-c · §9.B **B14** / §7-48 —— 两条**登录验签失败**文案的四语覆盖。
+ * 真源 = `backend-ts/src/auth.ts:223`（`Invalid wallet signature`）/ `:227`（`Signature does not match the claimed address`）；
+ * 出口 = `sendError(res, 401, error.message)`（`backend-ts/src/index.ts:376-380`）⇒ 形状 = `{ success:false, message, error:<同一字符串> }`，
+ * **无 `code` / 无 `i18n_key`** ⇒ 前端只能按**服务端原文**映射到四语键（`auth.err.*`），**绝不把英文原文直接丢给用户**。
+ * ⚠ 键名 = 按服务端原文归一的**前端映射键**，**不是服务端 code**（§3.6：服务端零新码 / 零新 reason / 零新 kind）。
+ */
+export const SERVER_MESSAGE_I18N_KEYS = Object.freeze({
+  'Invalid wallet signature': 'auth.err.INVALID_WALLET_SIGNATURE',
+  'Signature does not match the claimed address': 'auth.err.SIGNATURE_ADDRESS_MISMATCH',
+})
+
+/** 服务端原文 → 四语键；未登记 ⇒ `undefined`（调用方**必须**保留兜底文案，不得因映射不到而空白）。 */
+export const i18nKeyForServerMessage = (message) => (
+  typeof message === 'string' ? SERVER_MESSAGE_I18N_KEYS[message.trim()] : undefined
+)
+
 const extractApiErrorMessage = (payload, status) => {
   const error = payload?.error
   if (error && typeof error === 'object') {
@@ -121,10 +138,9 @@ const extractApiErrorMessage = (payload, status) => {
   return `请求失败 (${status})`
 }
 
-// `i18n_key`（`R107` 契约键）→ 四语文案。**动态导入**：只在错误路径求值，
+// `i18n_key`（`R107` 契约键）或**原文映射键**（B14 两键）→ 四语文案。**动态导入**：只在错误路径求值，
 // 不把 `i18n.js` 拖进 `auth.js` 的静态依赖图（既有单测对 `react-i18next` 做 mock，静态导入会连带崩）。
-const resolveI18nMessage = async (apiError, fallback) => {
-  const i18nKey = apiError && typeof apiError === 'object' ? apiError.i18n_key : undefined
+const resolveI18nMessage = async (i18nKey, fallback) => {
   if (!i18nKey) return fallback
   try {
     const { default: i18n } = await import('./i18n')
@@ -134,15 +150,25 @@ const resolveI18nMessage = async (apiError, fallback) => {
     }
     return fallback
   } catch {
-    // i18n 不可用 ⇒ 保底回落到服务端 `message`（绝不回落到 `[object Object]`）
+    // i18n 不可用 ⇒ 保底回落到服务端 `message`（绝不回落到 `[object Object]`、绝不空白）
     return fallback
   }
 }
 
-/** 错误文案总入口（可单测）：`R107` 对象面 / 旧字符串面 / 裸状态码三态均能给出**字符串**。 */
-export const apiErrorMessage = async (payload, status) => (
-  resolveI18nMessage(payload?.error, extractApiErrorMessage(payload, status))
-)
+/**
+ * 错误文案总入口（可单测）：`R107` 对象面 / 旧字符串面 / 裸状态码三态均能给出**字符串**。
+ * 优先级 = ① `error.i18n_key`（`R107` 契约键）② **服务端原文映射表**（B14）③ `extractApiErrorMessage` 兜底
+ * （未登记错误 ⇒ 原样服务端文案；连文案都没有 ⇒ `请求失败 (status)`）。
+ */
+export const apiErrorMessage = async (payload, status) => {
+  const error = payload?.error
+  const rawMessage = typeof error === 'string' && error
+    ? error
+    : (error && typeof error === 'object' ? (error.message || error.code) : payload?.message)
+  const mappedKey = (error && typeof error === 'object' ? error.i18n_key : undefined)
+    || i18nKeyForServerMessage(rawMessage)
+  return resolveI18nMessage(mappedKey, extractApiErrorMessage(payload, status))
+}
 
 export const fetchApiJson = async (url, options = {}) => {
   const response = await fetch(url, options)

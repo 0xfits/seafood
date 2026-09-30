@@ -71,7 +71,9 @@
   ,"auth": {
     "err": {
       "AUTH_UNAUTHORIZED": "Phiên đăng nhập không hợp lệ hoặc đã hết hạn, vui lòng đăng nhập lại.",
-      "AUTH_FORBIDDEN": "Tài khoản hiện tại không có quyền thực hiện thao tác này."
+      "AUTH_FORBIDDEN": "Tài khoản hiện tại không có quyền thực hiện thao tác này.",
+      "INVALID_WALLET_SIGNATURE": "Chữ ký ví không hợp lệ, vui lòng ký lại để đăng nhập.",
+      "SIGNATURE_ADDRESS_MISMATCH": "Chữ ký không khớp với địa chỉ ví đã khai báo, vui lòng chuyển lại đúng tài khoản ví rồi thử lại."
     }
   }
   ,"jobs": {
@@ -154,6 +156,7 @@
     "note": "Giá, sổ lệnh và giao dịch là mặt đọc công khai; đặt và huỷ lệnh cần đăng nhập. quote_cid luôn là 1 ở máy chủ.",
     "book": "Sổ lệnh",
     "bookEmpty": "Chưa có sổ lệnh (nhập base_cid để đọc; base_cid=1 mâu thuẫn với quote cố định nên luôn rỗng)",
+    "pairDegenerate": "Cặp tiền suy biến: đồng định giá nền tảng (#1) không thể ghép cặp với chính nó, yêu cầu đã được bỏ qua.",
     "bookNote": "Mặt đọc = GET /api/market/:base_cid/orderbook (đã đăng ký).",
     "trades": "Giao dịch khớp",
     "tradesEmpty": "Chưa có giao dịch",

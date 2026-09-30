@@ -129,7 +129,7 @@ const WalletAuthPanel = ({
   }
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-6', className)} data-sf-m="auth-wallet-panel">
       <div className="text-center">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-200">
           <Wallet className="h-8 w-8" />

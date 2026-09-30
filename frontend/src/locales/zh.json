@@ -71,7 +71,9 @@
   ,"auth": {
     "err": {
       "AUTH_UNAUTHORIZED": "登录凭证无效或已过期，请重新登录。",
-      "AUTH_FORBIDDEN": "当前账号无权执行该操作。"
+      "AUTH_FORBIDDEN": "当前账号无权执行该操作。",
+      "INVALID_WALLET_SIGNATURE": "钱包签名无效，请重新签名后再登录。",
+      "SIGNATURE_ADDRESS_MISMATCH": "签名与所声明的钱包地址不一致，请切回正确的钱包账号再重试。"
     }
   }
   ,"jobs": {
@@ -154,6 +156,7 @@
     "note": "行情/盘口/成交流水为公开只读面；挂单与撤单需登录。计价币 quote_cid 服务端恒 1。",
     "book": "订单簿",
     "bookEmpty": "暂无盘口（填 base_cid 后读取；base_cid=1 与「quote 恒 1」互斥 ⇒ 恒空）",
+    "pairDegenerate": "币对退化：平台计价币（#1）不能与自身成对，该请求已跳过。",
     "bookNote": "读面 = GET /api/market/:base_cid/orderbook（已注册）。",
     "trades": "成交流水",
     "tradesEmpty": "暂无成交",

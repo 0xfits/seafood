@@ -71,7 +71,9 @@
   ,"auth": {
     "err": {
       "AUTH_UNAUTHORIZED": "登錄憑證無效或已過期，請重新登錄。",
-      "AUTH_FORBIDDEN": "當前帳號無權執行該操作。"
+      "AUTH_FORBIDDEN": "當前帳號無權執行該操作。",
+      "INVALID_WALLET_SIGNATURE": "錢包簽名無效，請重新簽名再登入。",
+      "SIGNATURE_ADDRESS_MISMATCH": "簽名同所聲明嘅錢包地址唔一致，請轉返正確嘅錢包帳號再試。"
     }
   }
   ,"jobs": {
@@ -154,6 +156,7 @@
     "note": "行情／盤口／成交流水為公開只讀面；掛單與撤單需登入。計價幣 quote_cid 伺服器恆 1。",
     "book": "訂單簿",
     "bookEmpty": "暫無盤口（填 base_cid 後讀取；base_cid=1 與「quote 恆 1」互斥 ⇒ 恆空）",
+    "pairDegenerate": "幣對退化：平台計價幣（#1）唔可以同自己成對，嗰個請求已經跳過。",
     "bookNote": "讀面 = GET /api/market/:base_cid/orderbook（已註冊）。",
     "trades": "成交流水",
     "tradesEmpty": "暫無成交",

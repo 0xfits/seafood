@@ -15,6 +15,9 @@
  *   真机 i18next 的 `t` 稳定，故这是**测试替身的约束**，不是产品代码缺陷。
  */
 import React from 'react'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -212,11 +215,70 @@ describe('交易所线 · 接线契约', () => {
     expect(callsTo('/api/user/points').length).toBe(0)
   })
 
+  // ---- P4-B4c-ii-c ②（§5.103 裁定）：退化币对（base_cid=1）不发请求 + 空态**可区分** -------------
+  it('§5.103 ①：base_cid=1（`$` 对自身）= 退化币对 ⇒ 页面**不发** orderbook / trades 请求', async () => {
+    const { container } = renderPage(<MarketPage />, '/shard')
+    await waitFor(() => expect(screen.getByText('market.mineEmpty')).toBeTruthy())
+
+    const input = container.querySelector('[data-sf-m="mkt-input-base"]')
+    fireEvent.change(input, { target: { value: '1' } })
+
+    await waitFor(() => expect(screen.getAllByText('market.pairDegenerate').length).toBeGreaterThan(0))
+    expect(callsTo('/api/market/').length).toBe(0)
+    expect(callsTo('/api/market/1/orderbook').length).toBe(0)
+    expect(callsTo('/api/market/1/trades').length).toBe(0)
+  })
+
+  it('§5.103 ②：真无挂单（base_cid=7、回包 = 空数组）⇒ 请求确实发出，空态 = `market.bookEmpty`（与退化区分）', async () => {
+    const { container } = renderPage(<MarketPage />, '/shard')
+    const input = container.querySelector('[data-sf-m="mkt-input-base"]')
+    fireEvent.change(input, { target: { value: '7' } })
+
+    await waitFor(() => expect(callsTo('/api/market/7/orderbook').length).toBe(1))
+    await waitFor(() => expect(screen.getByText('market.bookEmpty')).toBeTruthy())
+    expect(screen.queryByText('market.pairDegenerate')).toBeNull()
+  })
+
   it('交易所页失败态：R107 文案是字符串（含 code/reason），页面无 [object Object]', async () => {
     fetchApiJson.mockImplementation(async () => { throw new Error('AUTH_FORBIDDEN (ACTOR_NOT_ALLOWED)') })
     const { container } = renderPage(<MarketPage />, '/shard')
     await waitFor(() => expect(container.textContent).toContain('AUTH_FORBIDDEN (ACTOR_NOT_ALLOWED)'))
     expect(container.textContent).not.toContain('[object Object]')
+  })
+})
+
+describe('四语 locale（P4-B4c-ii-c ① / ② 新增键）', () => {
+  const LANGS = ['zh', 'en', 'hk', 'vn']
+  // 探针自曝：jsdom 下的 `URL` ≠ node `URL` ⇒ `fs.readFileSync(URL)` 抛 ERR_INVALID_ARG_TYPE；
+  //   `new URL(.., import.meta.url).pathname` 也不可信（vitest 下解析成 `/src/...`）⇒ 与
+  //   `theme-shell-isomorphism.test.jsx:29-30` 同法：`fileURLToPath(import.meta.url)` 推 SRC。
+  const SRC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
+  const tableOf = (lang) => JSON.parse(fs.readFileSync(path.join(SRC, `locales/${lang}.json`), 'utf8'))
+  const keyPaths = (obj, prefix = '') => Object.entries(obj).flatMap(([k, v]) => (
+    v && typeof v === 'object' && !Array.isArray(v) ? keyPaths(v, `${prefix}${k}.`) : [`${prefix}${k}`]
+  )).sort()
+
+  it('四语键集逐文件相同（顶层 + 嵌套逐键对拍）；新增 3 键四语齐备、非空、且不是英文原文照抄', () => {
+    const tables = {}
+    const sets = {}
+    for (const lang of LANGS) {
+      tables[lang] = tableOf(lang)
+      sets[lang] = keyPaths(tables[lang])
+    }
+    for (const lang of LANGS.slice(1)) expect(sets[lang]).toEqual(sets.zh)
+
+    const added = ['auth.err.INVALID_WALLET_SIGNATURE', 'auth.err.SIGNATURE_ADDRESS_MISMATCH', 'market.pairDegenerate']
+    const RAW = ['Invalid wallet signature', 'Signature does not match the claimed address']
+    for (const lang of LANGS) {
+      const values = added.map((kp) => kp.split('.').reduce((acc, part) => acc[part], tables[lang]))
+      for (const value of values) {
+        expect(sets[lang]).toContain(added[values.indexOf(value)])
+        expect(typeof value).toBe('string')
+        expect(value.trim().length).toBeGreaterThan(0)
+        expect(RAW).not.toContain(value)
+      }
+      expect(new Set(values).size).toBe(added.length)
+    }
   })
 })
 

@@ -1,14 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  apiErrorMessage,
   clearAuthSession,
   fetchApiJson,
   getAuthHeaders,
   getAuthToken,
   getStoredUser,
   hasCompletedProfile,
+  i18nKeyForServerMessage,
   mergeAuthSession,
   saveAuthSession,
+  SERVER_MESSAGE_I18N_KEYS,
 } from '../../auth'
+import i18n from '../../i18n'
 
 describe('auth helpers', () => {
   let storage
@@ -121,6 +125,57 @@ describe('auth helpers', () => {
 
     await expect(fetchApiJson('/api/auth/register'))
       .rejects.toThrow('endpoint deprecated: /api/auth/register')
+  })
+
+  // ---- P4-B4c-ii-c ①（§9.B **B14** / §7-48）：两条登录 401 文案的**四语**覆盖 ---------------
+  // 真源 = `backend-ts/src/auth.ts:223` / `:227`；出口 = `backend-ts/src/index.ts:379` `sendError(401, message)`
+  // ⇒ 形状 `{ success:false, message, error:<同一字符串> }`（**无 code、无 i18n_key**）⇒ 只能按**原文**映射。
+  it('B14 ①：`Invalid wallet signature`（sendError 形状）⇒ 映射为四语文案，绝不把英文原文丢给用户', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: false,
+      status: 401,
+      json: async () => ({ success: false, message: 'Invalid wallet signature', error: 'Invalid wallet signature' }),
+    })
+
+    const error = await fetchApiJson('/api/auth/verify').catch((err) => err)
+
+    expect(SERVER_MESSAGE_I18N_KEYS['Invalid wallet signature']).toBe('auth.err.INVALID_WALLET_SIGNATURE')
+    expect(i18nKeyForServerMessage('Invalid wallet signature')).toBe('auth.err.INVALID_WALLET_SIGNATURE')
+    expect(error.message).not.toBe('Invalid wallet signature')
+    expect(error.message).toBe(i18n.t('auth.err.INVALID_WALLET_SIGNATURE'))
+    expect(error.message.trim().length).toBeGreaterThan(0)
+    expect(error.message).not.toContain('[object Object]')
+  })
+
+  it('B14 ②：`Signature does not match the claimed address`（对象面 message）⇒ 第二条映射', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: false,
+      status: 401,
+      json: async () => ({ error: { code: 'AUTH_UNAUTHORIZED', message: 'Signature does not match the claimed address' } }),
+    })
+
+    const error = await fetchApiJson('/api/auth/verify').catch((err) => err)
+
+    expect(i18nKeyForServerMessage('Signature does not match the claimed address')).toBe('auth.err.SIGNATURE_ADDRESS_MISMATCH')
+    expect(error.message).not.toBe('Signature does not match the claimed address')
+    expect(error.message).toBe(i18n.t('auth.err.SIGNATURE_ADDRESS_MISMATCH'))
+    expect(error.message).not.toContain('[object Object]')
+  })
+
+  it('B14 ③：未登记的未知错误 ⇒ 保留服务端文案（映射不到不得空白）', async () => {
+    const message = await apiErrorMessage({ success: false, message: 'database is unreachable' }, 503)
+
+    expect(i18nKeyForServerMessage('database is unreachable')).toBeUndefined()
+    expect(i18nKeyForServerMessage(undefined)).toBeUndefined()
+    expect(message).toBe('database is unreachable')
+  })
+
+  it('B14 ④：连文案都没有的错误体 ⇒ 通用兜底 `请求失败 (status)`（不得空白 / 不得 [object Object]）', async () => {
+    const message = await apiErrorMessage(null, 500)
+
+    expect(message).toBe('请求失败 (500)')
+    expect(message.trim().length).toBeGreaterThan(0)
+    expect(message).not.toContain('[object Object]')
   })
 
   it('clears stored auth session data', () => {

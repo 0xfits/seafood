@@ -48,6 +48,8 @@ export const fetchMyOrders = (user) => getJson('/api/order', user)
  * 订单簿（公开面）。**路径参数 = `base_cid`**（`database.ts:3475 listOrderBook` 的 `WHERE base_cid = $1`）。
  * ⇒ `/api/market/1/orderbook`（base=平台币）与「`quote_cid` 恒 1 且 base≠quote」互斥 ⇒ 该路径**恒空态**
  *   （实测读数见报告 §HTTP）；UI 一律用**真实 base_cid**（挂单表单里那个币种）读。
+ * P4-B4c-ii-c ②（§5.103 裁定）：退化币对（`baseCid === 1`）由**页面层**拦下 —— `MarketPage.jsx:48-58`
+ *   结构性**不发**该请求（空态文案 = `market.pairDegenerate`）；本层不做静默改写（不把 1 换成别的 cid）。
  */
 export const fetchOrderBook = (baseCid, user) => getJson(`/api/market/${baseCid}/orderbook`, user)
 

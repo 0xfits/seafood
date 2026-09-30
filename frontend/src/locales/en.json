@@ -71,7 +71,9 @@
   ,"auth": {
     "err": {
       "AUTH_UNAUTHORIZED": "Your sign-in credential is invalid or has expired. Please sign in again.",
-      "AUTH_FORBIDDEN": "This account is not allowed to perform this action."
+      "AUTH_FORBIDDEN": "This account is not allowed to perform this action.",
+      "INVALID_WALLET_SIGNATURE": "The wallet signature is invalid. Please sign again to log in.",
+      "SIGNATURE_ADDRESS_MISMATCH": "The signed account is not the one that was claimed. Please switch accounts and retry."
     }
   }
   ,"jobs": {
@@ -154,6 +156,7 @@
     "note": "Quotes, order book and trades are public read faces; placing and cancelling orders require sign-in. The quote currency is always cid 1 server-side.",
     "book": "Order book",
     "bookEmpty": "No book yet (fill base_cid to read; base_cid=1 contradicts the fixed quote cid, so it stays empty)",
+    "pairDegenerate": "Degenerate pair: the platform quote currency (#1) cannot be paired against itself, so the request was skipped.",
     "bookNote": "Read face = GET /api/market/:base_cid/orderbook (registered).",
     "trades": "Trades",
     "tradesEmpty": "No trades yet",

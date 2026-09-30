@@ -1,0 +1,84 @@
+{
+  "out": "/Users/kevin/bistro/seafood/backend-ts/.p4-artifacts/b4ciic-20260930T2339+0800/post/b4ciic-geometry.json",
+  "page_errors": [
+    "ReferenceError: tailwind is not defined",
+    "ReferenceError: tailwind is not defined"
+  ],
+  "blocked_origins": [
+    "https://cdn.tailwindcss.com",
+    "https://cdnjs.cloudflare.com",
+    "https://fonts.googleapis.com",
+    "https://cdn.jsdelivr.net",
+    "https://raw.githubusercontent.com"
+  ],
+  "market": {
+    "measured_elements": 44,
+    "present_elements": 21,
+    "geometry_diff_count": 0,
+    "geometry_diffs": [],
+    "skin_changed": true,
+    "day_skin": {
+      "bg": "rgb(255, 255, 255)",
+      "borderColor": "rgb(3, 4, 2)",
+      "radius": "13px",
+      "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+      "color": "rgb(10, 10, 10)"
+    },
+    "night_skin": {
+      "bg": "rgb(20, 22, 25)",
+      "borderColor": "rgb(38, 42, 48)",
+      "radius": "2px",
+      "shadow": "none",
+      "color": "rgb(232, 234, 237)"
+    },
+    "page_bg_day": "rgb(253, 232, 21)",
+    "page_bg_night": "rgb(11, 12, 14)",
+    "attr_day": "light",
+    "attr_night": "dark",
+    "same_dom_signature_day_vs_night": true,
+    "element_count_day": 177,
+    "element_count_night": 177,
+    "contains_object_object": false,
+    "day_repeat_byte_identical": true,
+    "day_return_byte_identical": true,
+    "perturbation_detected": true,
+    "perturbation_restored_byte_identical": true,
+    "responsive": {
+      "signature_equal_wide_vs_portrait": true,
+      "signature_equal_wide_vs_wideBack": true,
+      "tabbar_display_wide": "none",
+      "tabbar_display_portrait": "grid",
+      "element_count_wide": 177,
+      "element_count_portrait": 177
+    }
+  },
+  "login": {
+    "measured_elements": 44,
+    "present_elements": 5,
+    "geometry_diff_count": 0,
+    "geometry_diffs": [],
+    "skin_changed": true,
+    "day_skin": null,
+    "night_skin": null,
+    "page_bg_day": "rgb(253, 232, 21)",
+    "page_bg_night": "rgb(11, 12, 14)",
+    "attr_day": "light",
+    "attr_night": "dark",
+    "same_dom_signature_day_vs_night": true,
+    "element_count_day": 173,
+    "element_count_night": 173,
+    "contains_object_object": false,
+    "day_repeat_byte_identical": true,
+    "day_return_byte_identical": true,
+    "perturbation_detected": false,
+    "perturbation_restored_byte_identical": true,
+    "responsive": {
+      "signature_equal_wide_vs_portrait": true,
+      "signature_equal_wide_vs_wideBack": true,
+      "tabbar_display_wide": "none",
+      "tabbar_display_portrait": "grid",
+      "element_count_wide": 173,
+      "element_count_portrait": 173
+    }
+  }
+}

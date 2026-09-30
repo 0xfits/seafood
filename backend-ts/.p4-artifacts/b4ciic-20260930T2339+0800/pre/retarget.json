@@ -1,0 +1,12 @@
+{
+  "src": "/Users/kevin/bistro/seafood/frontend/scripts/p4z-b4ciib-geometry.mjs",
+  "dst": "/Users/kevin/bistro/seafood/frontend/scripts/p4z-b4ciic-geometry.mjs",
+  "bytes": 12312,
+  "applied": [
+    "const OUT = path.join(OUT_DIR, 'post', 'b4ciib-geometry.json')",
+    "const PAGES = [",
+    "'[data-sf-m=\"mkt-ledger-empty\"]',",
+    "window.localStorage.setItem('user', JSON.stringify({ uID: 1, EVM: '0xp",
+    "// P4-B4c-ii-b ② 真实浏览器几何量测（复制 4c-ii-a 的 `p4z-b4cii-geometry.mjs` 尺子，目标"
+  ]
+}

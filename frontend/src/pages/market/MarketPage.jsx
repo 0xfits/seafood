@@ -27,6 +27,8 @@ import './market.css'
 //   本页**结构性不传**（传了也会被服务端丢弃，回包 `client_owner_uid_ignored`）。成交价 = 买单限价（M3），本页不做撮合。
 // 空态口径（四项确认 ②）：「账本流水」读口（`GET /api/user/ledger`）**未注册** ⇒ 只渲染**空态**、**不得自造**；
 //   本页的「成交流水」是**另一个已注册面**（`market_trade`，只读），两者不可混为一谈。
+// 退化币对（§5.103 裁定 · P4-B4c-ii-c ②）：`baseCid === QUOTE_CID`（`$` 对自身）⇒ **不发** `orderbook`/`trades` 请求，
+//   空态文案 = `market.pairDegenerate`（四语），与「真无挂单」（`market.bookEmpty`，请求发出去、回包为空）**区分**。
 // 失败态：一律走 R107 链（`error.message` 已是字符串）⇒ 页面不会出现 `[object Object]`。
 // 断点：窄屏单列 + 底部 tab（shell 承担）；宽屏行情两列 / 盘口+流水两列（本页 CSS 的断点层）。
 // ============================================================================
@@ -46,10 +48,20 @@ const MarketPage = () => {
   const tracker = useMemo(() => createOrderPlaceTracker(), [])
 
   const baseCid = Number(base)
-  const baseValid = Number.isInteger(baseCid) && baseCid > 0 && baseCid !== QUOTE_CID
+  const basePositive = Number.isInteger(baseCid) && baseCid > 0
+  // §5.103 裁定：`baseCid === QUOTE_CID`（`$` 对自身）= **退化币对** —— 与「`quote_cid` 恒 1 且 base≠quote」互斥
+  // ⇒ 该路径恒空态；本页**结构性不发请求**（不是「请求回来恰好是空」）。
+  const baseDegenerate = basePositive && baseCid === QUOTE_CID
+  const baseValid = basePositive && !baseDegenerate
 
-  // 行情（公开面）：base_cid 合法才请求 —— `/api/market/1/orderbook` 与「quote_cid 恒 1 且 base≠quote」互斥 ⇒ 恒空态（登记见报告）
+  // 行情（公开面）：**只有合法且非退化**的 base_cid 才请求（退化 ⇒ 不发；未填/非法 ⇒ 不发）
   const loadMarket = useCallback(async () => {
+    if (baseDegenerate) {
+      const message = t('market.pairDegenerate')
+      setBook({ phase: 'empty', rows: [], message })
+      setTrades({ phase: 'empty', rows: [], message })
+      return
+    }
     if (!baseValid) {
       setBook({ phase: 'empty', rows: [], message: t('market.bookEmpty') })
       setTrades({ phase: 'empty', rows: [], message: t('market.tradesEmpty') })
