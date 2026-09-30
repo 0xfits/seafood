@@ -8,13 +8,17 @@ import { Button, Card, CardHeader, CardTitle, CardContent, Badge } from '../comp
 import { LoadingPage } from '../components/ui/Loading'
 import { FadeIn, SlideUp } from '../components/ui/Motion'
 import { ResponsiveContainer, ResponsiveGrid } from '../components/ui/Responsive'
+import { useTranslation } from 'react-i18next'
 import { formatEvmAddress } from '../utils'
+// 招工线 / 我的 共用的 token + 栅格层（P4-B4c-ii-a）：与 TaskPage 招工线族同一份样式表
+import './jobs/jobs.css'
 import { fetchApiJson, fetchCurrentUser, getAuthHeaders, updateMyProfile } from '../auth'
 import { useAuth } from '../auth-context'
 
 const toDate = (value) => new Date(typeof value === 'number' ? value * 1000 : value)
 
 const ProfilePage = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { isAuthenticated, updateSession, user: sessionUser } = useAuth()
   const [user, setUser] = useState(null)
@@ -328,6 +332,25 @@ const ProfilePage = () => {
               </ResponsiveGrid>
             </CardContent>
           </Card>
+        </SlideUp>
+
+        {/* 账本读数（P4-B4c-ii-a · 「我的」）：余额 = 已注册读口 /api/user/asset/:uID；
+            流水 = **读口尚未注册**（已注册表内无 /api/user/ledger）⇒ 保留空态并登记，不自造接口。 */}
+        <SlideUp delay={500}>
+          <div className="sf-jobs" data-sf-m="jobs-profile">
+            <div className="sf-jobs-panel" data-sf-m="jobs-balance">
+              <h2 className="sf-jobs-title">{t('ledger.balance')}</h2>
+              <div className="sf-jobs-row">
+                <span className="sf-jobs-pay" data-sf-m="jobs-balance-amount">{userAssets?.points ?? 0}</span>
+                <span className="sf-jobs-pay-unit">$</span>
+              </div>
+              <p className="sf-jobs-meta">{t('ledger.balanceNote')}</p>
+            </div>
+            <div className="sf-jobs-panel" data-sf-m="jobs-flow">
+              <h2 className="sf-jobs-title">{t('ledger.flow')}</h2>
+              <div className="sf-jobs-empty" data-sf-m="jobs-flow-empty">{t('ledger.flowEmpty')}</div>
+            </div>
+          </div>
         </SlideUp>
 
         {/* 任务统计 */}

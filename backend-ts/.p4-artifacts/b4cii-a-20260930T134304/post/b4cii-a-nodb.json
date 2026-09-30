@@ -1,0 +1,54 @@
+{
+  "run": "b4cii-a-20260930T134304",
+  "tag": "b4cii30134304",
+  "base": "http://127.0.0.1:5788",
+  "secret_fingerprint": "b1ec01afb2eb",
+  "db_used": false,
+  "not_measured": [
+    "db_legs: 本版不连库 ⇒ 不发「库侧分录行数/账本 Δ」读数（与 01 版口径一致：01 版在提交步因 DB 连接失败中断）"
+  ],
+  "tests": {
+    "P1_neg_no_key": {
+      "status": "NETERR",
+      "code": null,
+      "reason": null,
+      "data_keys": [],
+      "top_keys": [],
+      "msg": "TypeError: fetch failed",
+      "note": "缺 create_key ⇒ fail-loud（真源 job-funds-service.ts:84）"
+    },
+    "P1_neg_unauth": {
+      "status": "NETERR",
+      "code": null,
+      "reason": null,
+      "data_keys": [],
+      "top_keys": [],
+      "msg": "TypeError: fetch failed",
+      "note": "无 token ⇒ 401 R107"
+    }
+  },
+  "fixtures": {
+    "alive_uids": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "alive_count": 4,
+    "admin_uids": [
+      1
+    ],
+    "list_public_status": "NETERR",
+    "employer_uid": null,
+    "listed_cid": 0,
+    "admin_uid": 1,
+    "publish_attempts": [
+      {
+        "uid": 1,
+        "cid": 1,
+        "status": "NETERR",
+        "code": null
+      }
+    ]
+  }
+}

@@ -74,4 +74,46 @@
       "AUTH_FORBIDDEN": "This account is not allowed to perform this action."
     }
   }
+  ,"jobs": {
+    "line": "Jobs",
+    "list": "Job board",
+    "publish": "Post a job",
+    "publishNote": "Posting moves the reward from available balance into escrow (job_escrow x2); payout happens on approval.",
+    "publishOk": "Job posted and reward escrowed",
+    "review": "Review queue",
+    "reviewNote": "Queue = pending submissions; Approve pays out atomically, Reject refunds the escrow.",
+    "refresh": "Refresh",
+    "myApps": "My applications",
+    "myAppsEmpty": "No applications yet",
+    "pick": "Use for submission",
+    "detail": "Job detail",
+    "title": "Job title",
+    "description": "Job description",
+    "reward": "Reward",
+    "cid": "Currency id",
+    "cidNote": "Currency id: community points $ = 1 (currency read endpoint is not registered yet - enter manually).",
+    "participants": "{{count}} applicants",
+    "apply": "Apply",
+    "applyOk": "Application sent",
+    "accept": "Accept application",
+    "acceptNote": "Enter the application id (the per-job applicant list endpoint is not registered yet - enter manually); non-employers get 403.",
+    "acceptOk": "Worker selected",
+    "applicationId": "Application id",
+    "submit": "Submit deliverable",
+    "submitNote": "Submission uses the existing registered path /api/task-progress/:identifier/submit (idempotency key derived server-side).",
+    "submitOk": "Deliverable submitted, awaiting review",
+    "submitting": "Working...",
+    "itemTitle": "Job #{{job}} - application #{{app}}",
+    "approve": "Approve and pay",
+    "reject": "Reject and refund",
+    "approveOk": "Approved and paid out",
+    "rejectOk": "Rejected and escrow refunded",
+    "queueEmpty": "Nothing pending review"
+  }
+  ,"ledger": {
+    "balance": "Balance",
+    "balanceNote": "Read from /api/user/asset/:uID (registered endpoint).",
+    "flow": "Statement",
+    "flowEmpty": "The ledger statement endpoint is not registered yet, so nothing is shown (logged)."
+  }
 }

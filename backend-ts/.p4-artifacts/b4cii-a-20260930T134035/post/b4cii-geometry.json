@@ -1,0 +1,360 @@
+{
+  "startedAt": "2026-09-30T13:41:41.067Z",
+  "origin": "http://sf.local",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "pages": [
+    "task_new",
+    "task_review"
+  ],
+  "arms": {
+    "task_new_day1_stable_reads": 2,
+    "task_new_day2_stable_reads": 2,
+    "task_new_day_repeat_byte_identical": true,
+    "task_new_perturbed_stable_reads": 2,
+    "task_new_perturbation": {
+      "target": "[data-sf-m=\"jobs-form\"]",
+      "injected": "padding-top: 1px",
+      "day": null,
+      "perturbed": null,
+      "detected": false
+    },
+    "task_new_restored_stable_reads": 2,
+    "task_new_perturbation_restored_byte_identical": true,
+    "task_new_night_stable_reads": 2,
+    "task_new_back_stable_reads": 2,
+    "task_new_night": {
+      "attr": "dark",
+      "path": "/task/new",
+      "rects": {
+        "[data-sf-region=\"topnav\"]": {
+          "x": 8,
+          "y": 8,
+          "w": 1424,
+          "h": 65
+        },
+        "[data-sf-region=\"content\"]": {
+          "x": 8,
+          "y": 73,
+          "w": 1464,
+          "h": 506
+        },
+        "[data-sf-region=\"tabbar\"]": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "#sf-route-container": {
+          "x": 8,
+          "y": 73,
+          "w": 1464,
+          "h": 506
+        },
+        "[data-sf-m=\"jobs-hero\"]": {
+          "x": 28,
+          "y": 73,
+          "w": 1424,
+          "h": 45
+        },
+        "[data-sf-m=\"jobs-form\"]": null,
+        "[data-sf-m=\"jobs-input-title\"]": null,
+        "[data-sf-m=\"jobs-input-reward\"]": null,
+        "[data-sf-m=\"jobs-primary\"]": null,
+        "[data-sf-m=\"jobs-status\"]": null,
+        "[data-sf-m=\"jobs-side\"]": null,
+        "[data-sf-m=\"jobs-queue\"]": null,
+        "[data-sf-m=\"jobs-refresh\"]": null,
+        "[data-sf-region=\"footer\"]": {
+          "x": 8,
+          "y": 579,
+          "w": 1424,
+          "h": 329
+        }
+      },
+      "skin": null,
+      "pageBg": "rgb(11, 12, 14)",
+      "tabbar": {
+        "display": "none",
+        "cols": "none"
+      },
+      "signature": "DIV[shell]>DIV[topnav]>MAIN[content]>DIV[footer]>NAV[tabbar]>A[nav=home]>A[nav=reward]>A[nav=task]>A[nav=shard]",
+      "elementCount": 123,
+      "hasObjectObject": false
+    },
+    "task_new_day_return_byte_identical": true,
+    "task_new_portrait390_stable_reads": 2,
+    "task_new_wide_back_stable_reads": 2,
+    "task_new_portrait390": {
+      "attr": "light",
+      "path": "/task/new",
+      "rects": {
+        "[data-sf-region=\"topnav\"]": {
+          "x": 8,
+          "y": 8,
+          "w": 374,
+          "h": 65
+        },
+        "[data-sf-region=\"content\"]": {
+          "x": 8,
+          "y": 73,
+          "w": 394,
+          "h": 391
+        },
+        "[data-sf-region=\"tabbar\"]": {
+          "x": 8,
+          "y": 785,
+          "w": 374,
+          "h": 59
+        },
+        "#sf-route-container": {
+          "x": 8,
+          "y": 73,
+          "w": 394,
+          "h": 391
+        },
+        "[data-sf-m=\"jobs-hero\"]": {
+          "x": 18,
+          "y": 81,
+          "w": 374,
+          "h": 45
+        },
+        "[data-sf-m=\"jobs-form\"]": null,
+        "[data-sf-m=\"jobs-input-title\"]": null,
+        "[data-sf-m=\"jobs-input-reward\"]": null,
+        "[data-sf-m=\"jobs-primary\"]": null,
+        "[data-sf-m=\"jobs-status\"]": null,
+        "[data-sf-m=\"jobs-side\"]": null,
+        "[data-sf-m=\"jobs-queue\"]": null,
+        "[data-sf-m=\"jobs-refresh\"]": null,
+        "[data-sf-region=\"footer\"]": {
+          "x": 8,
+          "y": 464,
+          "w": 374,
+          "h": 329
+        }
+      },
+      "skin": null,
+      "pageBg": "rgb(253, 232, 21)",
+      "tabbar": {
+        "display": "grid",
+        "cols": "74.7969px 74.7969px 74.7969px 74.7969px 74.8125px"
+      },
+      "signature": "DIV[shell]>DIV[topnav]>MAIN[content]>DIV[footer]>NAV[tabbar]>A[nav=home]>A[nav=reward]>A[nav=task]>A[nav=shard]",
+      "elementCount": 123,
+      "hasObjectObject": false
+    },
+    "task_review_day1_stable_reads": 2,
+    "task_review_day2_stable_reads": 2,
+    "task_review_day_repeat_byte_identical": true,
+    "task_review_perturbed_stable_reads": 2,
+    "task_review_perturbation": {
+      "target": "[data-sf-m=\"jobs-form\"]",
+      "injected": "padding-top: 1px",
+      "day": null,
+      "perturbed": null,
+      "detected": false
+    },
+    "task_review_restored_stable_reads": 2,
+    "task_review_perturbation_restored_byte_identical": true,
+    "task_review_night_stable_reads": 2,
+    "task_review_back_stable_reads": 2,
+    "task_review_night": {
+      "attr": "dark",
+      "path": "/task/review",
+      "rects": {
+        "[data-sf-region=\"topnav\"]": {
+          "x": 8,
+          "y": 8,
+          "w": 1424,
+          "h": 65
+        },
+        "[data-sf-region=\"content\"]": {
+          "x": 8,
+          "y": 73,
+          "w": 1464,
+          "h": 506
+        },
+        "[data-sf-region=\"tabbar\"]": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "#sf-route-container": {
+          "x": 8,
+          "y": 73,
+          "w": 1464,
+          "h": 506
+        },
+        "[data-sf-m=\"jobs-hero\"]": {
+          "x": 28,
+          "y": 73,
+          "w": 1424,
+          "h": 45
+        },
+        "[data-sf-m=\"jobs-form\"]": null,
+        "[data-sf-m=\"jobs-input-title\"]": null,
+        "[data-sf-m=\"jobs-input-reward\"]": null,
+        "[data-sf-m=\"jobs-primary\"]": null,
+        "[data-sf-m=\"jobs-status\"]": null,
+        "[data-sf-m=\"jobs-side\"]": null,
+        "[data-sf-m=\"jobs-queue\"]": null,
+        "[data-sf-m=\"jobs-refresh\"]": null,
+        "[data-sf-region=\"footer\"]": {
+          "x": 8,
+          "y": 579,
+          "w": 1424,
+          "h": 329
+        }
+      },
+      "skin": null,
+      "pageBg": "rgb(11, 12, 14)",
+      "tabbar": {
+        "display": "none",
+        "cols": "none"
+      },
+      "signature": "DIV[shell]>DIV[topnav]>MAIN[content]>DIV[footer]>NAV[tabbar]>A[nav=home]>A[nav=reward]>A[nav=task]>A[nav=shard]",
+      "elementCount": 123,
+      "hasObjectObject": false
+    },
+    "task_review_day_return_byte_identical": true,
+    "task_review_portrait390_stable_reads": 2,
+    "task_review_wide_back_stable_reads": 2,
+    "task_review_portrait390": {
+      "attr": "light",
+      "path": "/task/review",
+      "rects": {
+        "[data-sf-region=\"topnav\"]": {
+          "x": 8,
+          "y": 8,
+          "w": 374,
+          "h": 65
+        },
+        "[data-sf-region=\"content\"]": {
+          "x": 8,
+          "y": 73,
+          "w": 394,
+          "h": 391
+        },
+        "[data-sf-region=\"tabbar\"]": {
+          "x": 8,
+          "y": 785,
+          "w": 374,
+          "h": 59
+        },
+        "#sf-route-container": {
+          "x": 8,
+          "y": 73,
+          "w": 394,
+          "h": 391
+        },
+        "[data-sf-m=\"jobs-hero\"]": {
+          "x": 18,
+          "y": 81,
+          "w": 374,
+          "h": 45
+        },
+        "[data-sf-m=\"jobs-form\"]": null,
+        "[data-sf-m=\"jobs-input-title\"]": null,
+        "[data-sf-m=\"jobs-input-reward\"]": null,
+        "[data-sf-m=\"jobs-primary\"]": null,
+        "[data-sf-m=\"jobs-status\"]": null,
+        "[data-sf-m=\"jobs-side\"]": null,
+        "[data-sf-m=\"jobs-queue\"]": null,
+        "[data-sf-m=\"jobs-refresh\"]": null,
+        "[data-sf-region=\"footer\"]": {
+          "x": 8,
+          "y": 464,
+          "w": 374,
+          "h": 329
+        }
+      },
+      "skin": null,
+      "pageBg": "rgb(253, 232, 21)",
+      "tabbar": {
+        "display": "grid",
+        "cols": "74.7969px 74.7969px 74.7969px 74.7969px 74.8125px"
+      },
+      "signature": "DIV[shell]>DIV[topnav]>MAIN[content]>DIV[footer]>NAV[tabbar]>A[nav=home]>A[nav=reward]>A[nav=task]>A[nav=shard]",
+      "elementCount": 123,
+      "hasObjectObject": false
+    }
+  },
+  "verdict": {
+    "task_new": {
+      "measured_elements": 14,
+      "present_elements": 6,
+      "geometry_diff_count": 0,
+      "geometry_diffs": [],
+      "skin_changed": true,
+      "day_skin": null,
+      "night_skin": null,
+      "page_bg_day": "rgb(253, 232, 21)",
+      "page_bg_night": "rgb(11, 12, 14)",
+      "attr_day": "light",
+      "attr_night": "dark",
+      "same_dom_signature_day_vs_night": true,
+      "element_count_day": 123,
+      "element_count_night": 123,
+      "contains_object_object": false,
+      "day_repeat_byte_identical": true,
+      "day_return_byte_identical": true,
+      "perturbation_detected": false,
+      "perturbation_restored_byte_identical": true,
+      "responsive": {
+        "signature_equal_wide_vs_portrait": true,
+        "signature_equal_wide_vs_wideBack": true,
+        "tabbar_display_wide": "none",
+        "tabbar_display_portrait": "grid",
+        "element_count_wide": 123,
+        "element_count_portrait": 123
+      }
+    },
+    "task_review": {
+      "measured_elements": 14,
+      "present_elements": 6,
+      "geometry_diff_count": 0,
+      "geometry_diffs": [],
+      "skin_changed": true,
+      "day_skin": null,
+      "night_skin": null,
+      "page_bg_day": "rgb(253, 232, 21)",
+      "page_bg_night": "rgb(11, 12, 14)",
+      "attr_day": "light",
+      "attr_night": "dark",
+      "same_dom_signature_day_vs_night": true,
+      "element_count_day": 123,
+      "element_count_night": 123,
+      "contains_object_object": false,
+      "day_repeat_byte_identical": true,
+      "day_return_byte_identical": true,
+      "perturbation_detected": false,
+      "perturbation_restored_byte_identical": true,
+      "responsive": {
+        "signature_equal_wide_vs_portrait": true,
+        "signature_equal_wide_vs_wideBack": true,
+        "tabbar_display_wide": "none",
+        "tabbar_display_portrait": "grid",
+        "element_count_wide": 123,
+        "element_count_portrait": 123
+      }
+    }
+  },
+  "notes": [
+    "静态资源不经网络服务：page.route 把 http://sf.local/** 映射到 /Users/kevin/bistro/seafood/frontend/dist；外部 CDN 请求一律 abort。",
+    "主题切换 = 直接改 <html data-theme>（light/dark）；真换肤由 skin/pageBg 值变化证明。"
+  ],
+  "browserVersion": "154.0.8037.58",
+  "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "blocked_external_origins": [
+    "https://cdn.tailwindcss.com",
+    "https://cdnjs.cloudflare.com",
+    "https://fonts.googleapis.com",
+    "https://cdn.jsdelivr.net"
+  ],
+  "page_errors": [
+    "ReferenceError: tailwind is not defined",
+    "ReferenceError: tailwind is not defined"
+  ],
+  "finishedAt": "2026-09-30T13:41:51.017Z"
+}

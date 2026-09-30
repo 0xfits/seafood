@@ -1,0 +1,428 @@
+{
+  "run": "b4cii-a-20260930T134304",
+  "tag": "b4cii30134304",
+  "base": "http://127.0.0.1:5788",
+  "secret_fingerprint": "b1ec01afb2eb",
+  "tests": {
+    "P1_neg_no_key": {
+      "status": 400,
+      "code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "Idempotency key is required",
+      "note": "缺 create_key ⇒ fail-loud（job-funds-service.ts:84）"
+    },
+    "P1_neg_unauth": {
+      "status": 401,
+      "code": "AUTH_UNAUTHORIZED",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "AUTH_UNAUTHORIZED",
+      "note": "无 token ⇒ 401 R107"
+    },
+    "P1_ok": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid",
+        "employer_uid",
+        "cid",
+        "reward"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Job published",
+      "job_id": 23,
+      "escrow_legs": [
+        {
+          "uid": "11",
+          "kind": "job_escrow",
+          "delta": "-12",
+          "frozen_delta": "0"
+        },
+        {
+          "uid": "11",
+          "kind": "job_escrow",
+          "delta": "0",
+          "frozen_delta": "12"
+        }
+      ],
+      "job_row": {
+        "status": "open",
+        "reward": "12",
+        "emp": "11"
+      }
+    },
+    "P1_replay_same_key": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "job_id",
+        "status",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "escrow_txid",
+        "settle_txid",
+        "ledger_event_keys",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "fee_credit_uid",
+        "employer_uid",
+        "cid",
+        "reward"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data",
+        "idempotent_replay"
+      ],
+      "msg": "Job published (idempotent replay)",
+      "job_id": 23,
+      "note": "同键重投 ⇒ 200 + idempotent_replay（不得落第二行）"
+    },
+    "L1_list_visible": {
+      "status": 200,
+      "code": null,
+      "data_keys": [],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "OK",
+      "job_in_list": true,
+      "list_len": 19,
+      "note": "发布后列表可见（GET /api/task/all ⇒ job）"
+    },
+    "D1_ok": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "tID",
+        "title",
+        "note",
+        "refcode",
+        "link0",
+        "linkA",
+        "linkB",
+        "points",
+        "type",
+        "time_start",
+        "time_end",
+        "time_created",
+        "time_updated",
+        "is_open",
+        "participants_count",
+        "title_en",
+        "title_hk",
+        "title_vn",
+        "note_en",
+        "note_hk",
+        "note_vn"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "OK",
+      "job_id": 23
+    },
+    "D1_neg_miss_404": {
+      "status": 404,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "job not found"
+    },
+    "A_neg_unknown_job": {
+      "status": 404,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "Referenced object not found"
+    },
+    "A_ok": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "application_id",
+        "job_id",
+        "worker_uid",
+        "status"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Application created",
+      "application_id": 24,
+      "server_derived_key": "cli:p4b2a:apply:23:12:a596caa2fd2d3385",
+      "key_derived_by_server": true
+    },
+    "A_replay_same_entity": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "系统繁忙，请稍后重试",
+      "application_id": 24,
+      "note": "同实体重投（服务端同键）⇒ 200 重放"
+    },
+    "A_neg_self_apply": {
+      "status": 409,
+      "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "Business state transition rejected",
+      "note": "雇主自投 ⇒ 409 self_application_not_allowed"
+    },
+    "AC_neg_not_employer_403": {
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "ACTOR_NOT_ALLOWED",
+      "ledger_delta": 0,
+      "note": "非雇主 ⇒ 403 AUTH_FORBIDDEN + ACTOR_NOT_ALLOWED"
+    },
+    "AC_ok_employer": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "application_id",
+        "job_id",
+        "worker_uid",
+        "status"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Application accepted",
+      "application_id": 24,
+      "app_row": {
+        "status": "accepted",
+        "w": "12"
+      }
+    },
+    "S_ok": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "系统繁忙，请稍后重试",
+      "application_id": 24
+    },
+    "S_neg_same_entity_other_content_409": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "jID",
+        "tID",
+        "uID",
+        "info_input",
+        "time_created",
+        "time_submitted",
+        "time_checked",
+        "time_claimed",
+        "points_claimed"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Task progress submitted",
+      "note": "同 (identifier,worker) 异内容 ⇒ 409 LEDGER_IDEMPOTENCY_CONFLICT / REPLAY_FINGERPRINT_MISMATCH"
+    },
+    "R_neg_non_admin": {
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "AUTH_FORBIDDEN",
+      "ledger_delta": 0
+    },
+    "R_ok_approve": "NOT_MEASURED: 本 run 未发现 can_access_admin=true 的夹具（负例已测）",
+    "M_ok_asset_balance": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "index_id",
+        "uID",
+        "points",
+        "lucks",
+        "time_update"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "OK",
+      "uid": 12,
+      "note": "余额读口 = 已注册 5 键"
+    },
+    "M_probe_unregistered_ledger_endpoints": {
+      "status": 404,
+      "code": null,
+      "data_keys": [],
+      "top_keys": [
+        "success",
+        "message",
+        "error"
+      ],
+      "msg": "Not found",
+      "note": "账本流水读口**未注册**（前端只留空态 + 登记，不自造接口）"
+    },
+    "M_probe_unregistered_points_endpoint": {
+      "status": 404,
+      "code": null,
+      "data_keys": [],
+      "top_keys": [
+        "success",
+        "message",
+        "error"
+      ],
+      "msg": "Not found",
+      "note": "积分集合读口未注册（§5.4 第 3 阶段）"
+    }
+  },
+  "fixtures": {
+    "employer_uid": 11,
+    "worker_uid": 12,
+    "admin_uid": null,
+    "listed_cid": 1,
+    "candidate_count": 10
+  },
+  "invariants": {
+    "job_rows_for_key": 1,
+    "alias_face": {
+      "status": 409,
+      "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+      "note": "别名面 /api/job/:identifier/submit（同 service verb）"
+    },
+    "ledger_rows_pre": 245,
+    "ledger_rows_post": 251,
+    "kinds_total": [
+      {
+        "kind": "burn",
+        "n": 2
+      },
+      {
+        "kind": "commission",
+        "n": 4
+      },
+      {
+        "kind": "currency_create_fee",
+        "n": 38
+      },
+      {
+        "kind": "hold",
+        "n": 50
+      },
+      {
+        "kind": "hold_release",
+        "n": 8
+      },
+      {
+        "kind": "job_escrow",
+        "n": 24
+      },
+      {
+        "kind": "job_escrow_refund",
+        "n": 8
+      },
+      {
+        "kind": "job_fee",
+        "n": 8
+      },
+      {
+        "kind": "job_payout",
+        "n": 10
+      },
+      {
+        "kind": "listing_deposit",
+        "n": 22
+      },
+      {
+        "kind": "mint",
+        "n": 7
+      },
+      {
+        "kind": "purchase",
+        "n": 3
+      },
+      {
+        "kind": "purchase_refund",
+        "n": 4
+      },
+      {
+        "kind": "sale",
+        "n": 3
+      },
+      {
+        "kind": "trade",
+        "n": 32
+      },
+      {
+        "kind": "trade_fee",
+        "n": 16
+      },
+      {
+        "kind": "transfer",
+        "n": 12
+      }
+    ],
+    "job_rows": [
+      {
+        "id": "23",
+        "status": "submitted",
+        "esc": "257",
+        "st": null
+      }
+    ]
+  }
+}

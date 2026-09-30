@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
 import { Card, CardContent } from '../components/ui'
@@ -229,6 +229,17 @@ const TaskPage = () => {
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">任务中心</h1>
             <p className="text-xl text-gray-600 mb-8">参与任务，赚取积分，解锁精彩奖励</p>
+
+            {/* 招工线入口条（P4-B4c-ii-a）：列表 = 本页（GET /api/task/all ⇒ 招工）；
+                发布 = task/new（POST /api/job）；审核 = task/review（GET /api/tasklist/pending-verification）。
+                样式只吃 4c-i 的 token + 栅格层（jobs.css），不按主题改几何。 */}
+            <div className="sf-jobs" data-sf-m="jobs-nav">
+              <div className="sf-jobs-actions">
+                <Link className="sf-btn sf-jobs-btn" to="/task/new" data-sf-m="jobs-nav-publish">{t('jobs.publish')}</Link>
+                <Link className="sf-btn sf-jobs-btn" to="/task/review" data-sf-m="jobs-nav-review">{t('jobs.review')}</Link>
+                <span className="sf-jobs-status" data-sf-m="jobs-nav-note">{t('jobs.list')}</span>
+              </div>
+            </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
               <Card variant="primary" className="text-center">

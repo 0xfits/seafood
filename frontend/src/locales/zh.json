@@ -74,4 +74,46 @@
       "AUTH_FORBIDDEN": "当前账号无权执行该操作。"
     }
   }
+  ,"jobs": {
+    "line": "招工线",
+    "list": "招工列表",
+    "publish": "发布招工",
+    "publishNote": "发布即把酬金从可用余额转入托管（job_escrow×2）；审核通过才发放。",
+    "publishOk": "招工已发布并托管酬金",
+    "review": "审核入口",
+    "reviewNote": "队列 = 待审核提交；「通过」= 发放酬金并原子结算，「驳回」= 退回托管。",
+    "refresh": "刷新",
+    "myApps": "我的报名",
+    "myAppsEmpty": "暂无报名记录",
+    "pick": "选为提交对象",
+    "detail": "招工详情",
+    "title": "招工标题",
+    "description": "招工说明",
+    "reward": "酬金",
+    "cid": "币种编号",
+    "cidNote": "币种编号：社区积分 $ = 1（币种读口尚未注册，暂手填）",
+    "participants": "已报名 {{count}} 人",
+    "apply": "申请报名",
+    "applyOk": "报名成功",
+    "accept": "接受申请",
+    "acceptNote": "接受申请需填申请编号（「按招工列申请者」读口尚未注册，暂手填）；非雇主返回 403。",
+    "acceptOk": "已选定打工人",
+    "applicationId": "申请编号",
+    "submit": "提交交付物",
+    "submitNote": "提交面 = 既有已注册路径 /api/task-progress/:identifier/submit（幂等键由服务端派生）。",
+    "submitOk": "交付物已提交，等待审核",
+    "submitting": "处理中…",
+    "itemTitle": "招工 #{{job}} · 申请 #{{app}}",
+    "approve": "通过并发放",
+    "reject": "驳回并退托管",
+    "approveOk": "已通过并完成发放",
+    "rejectOk": "已驳回并退回托管",
+    "queueEmpty": "暂无待审核项"
+  }
+  ,"ledger": {
+    "balance": "余额",
+    "balanceNote": "读数 = /api/user/asset/:uID（已注册读口）。",
+    "flow": "流水",
+    "flowEmpty": "账本流水读口尚未注册，暂不展示（已登记）。"
+  }
 }

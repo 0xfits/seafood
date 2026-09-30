@@ -74,4 +74,46 @@
       "AUTH_FORBIDDEN": "Tài khoản hiện tại không có quyền thực hiện thao tác này."
     }
   }
+  ,"jobs": {
+    "line": "Tuyển việc",
+    "list": "Bảng tuyển việc",
+    "publish": "Đăng việc",
+    "publishNote": "Đăng việc sẽ chuyển thù lao từ số dư khả dụng sang ký quỹ (job_escrow x2); chỉ trả khi được duyệt.",
+    "publishOk": "Đã đăng việc và ký quỹ thù lao",
+    "review": "Hàng chờ duyệt",
+    "reviewNote": "Hàng chờ = bài nộp chờ duyệt; Duyệt = trả thù lao theo giao dịch nguyên tử, Từ chối = hoàn ký quỹ.",
+    "refresh": "Tải lại",
+    "myApps": "Đơn ứng tuyển của tôi",
+    "myAppsEmpty": "Chưa có đơn ứng tuyển",
+    "pick": "Chọn để nộp bài",
+    "detail": "Chi tiết việc",
+    "title": "Tiêu đề việc",
+    "description": "Mô tả việc",
+    "reward": "Thù lao",
+    "cid": "Mã tiền tệ",
+    "cidNote": "Mã tiền tệ: điểm cộng đồng $ = 1 (endpoint đọc tiền tệ chưa đăng ký - nhập tay).",
+    "participants": "{{count}} người ứng tuyển",
+    "apply": "Ứng tuyển",
+    "applyOk": "Đã gửi đơn",
+    "accept": "Nhận đơn",
+    "acceptNote": "Nhập mã đơn ứng tuyển (endpoint liệt kê người ứng tuyển theo việc chưa đăng ký - nhập tay); người không phải chủ việc nhận 403.",
+    "acceptOk": "Đã chọn người làm",
+    "applicationId": "Mã đơn",
+    "submit": "Nộp sản phẩm",
+    "submitNote": "Nộp bài dùng đường dẫn đã đăng ký /api/task-progress/:identifier/submit (khóa idempotency do máy chủ sinh).",
+    "submitOk": "Đã nộp sản phẩm, chờ duyệt",
+    "submitting": "Đang xử lý...",
+    "itemTitle": "Việc #{{job}} - đơn #{{app}}",
+    "approve": "Duyệt và trả tiền",
+    "reject": "Từ chối và hoàn tiền",
+    "approveOk": "Đã duyệt và trả tiền",
+    "rejectOk": "Đã từ chối và hoàn ký quỹ",
+    "queueEmpty": "Không có mục chờ duyệt"
+  }
+  ,"ledger": {
+    "balance": "Số dư",
+    "balanceNote": "Đọc từ /api/user/asset/:uID (endpoint đã đăng ký).",
+    "flow": "Sao kê",
+    "flowEmpty": "Endpoint sao kê sổ cái chưa đăng ký nên chưa hiển thị (đã ghi nhận)."
+  }
 }

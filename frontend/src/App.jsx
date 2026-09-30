@@ -12,6 +12,12 @@ import ShardPage from './pages/ShardPage'
 import AuthPage from './pages/AuthPage'
 import ThemePreviewPage from './pages/ThemePreviewPage'
 
+// 招工线（P4-B4c-ii-a）：页面挂在既有 `task` 路由族下（任务中心 = 招工列表，见 §1 #9【保留·改接】）。
+// 路由名全部由**已注册 API 路径**派生（/api/job[/*]、/api/task-progress/*），不自造新域名。
+import PublishJobPage from './pages/jobs/PublishJobPage'
+import JobDetailPage from './pages/jobs/JobDetailPage'
+import JobReviewPage from './pages/jobs/JobReviewPage'
+
 // 管理页面组件
 import TasksManagement from './pages/admin/TasksManagement'
 import RewardsManagement from './pages/admin/RewardsManagement'
@@ -61,8 +67,17 @@ const LangShell = () => {
         {/* 奖励页面 */}
         <Route path="reward" element={<RewardPage />} />
 
-        {/* 任务页面 */}
+        {/* 任务页面（= 招工列表；消费 /api/task/all、/api/task-progress） */}
         <Route path="task" element={<TaskPage />} />
+
+        {/* 招工线（P4-B4c-ii-a · 真源 = docs/route-layer.spec.md v0.9 §4.2 J1–J6）
+            task/new    ⇒ POST /api/job（发布招工 + 托管；幂等键**前端提供** cli:）
+            task/review ⇒ GET /api/tasklist/pending-verification + POST /api/job/:jobId/review（键服务端派生）
+            task/:jobId ⇒ GET /api/task/:tID + POST /api/job/:jobId/{apply,accept} + /api/task-progress/:id/submit
+            静态段优先于动态段（react-router v6 排名），故 /task/new|/task/review 不会被 :jobId 吃掉 */}
+        <Route path="task/new" element={<PublishJobPage />} />
+        <Route path="task/review" element={<JobReviewPage />} />
+        <Route path="task/:jobId" element={<JobDetailPage />} />
 
         {/* 碎片市场 */}
         <Route path="shard" element={<ShardPage />} />
