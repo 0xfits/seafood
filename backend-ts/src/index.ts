@@ -355,7 +355,13 @@ app.post('/api/auth/verify', async (req, res) => {
   try {
     const challenge = consumeWalletAuthChallenge(req.body || {});
     const user = await DatabaseService.findOrCreateUserByEvm(challenge.evm);
-    const asset = (await DatabaseService.getUserAsset(user.uID)) || (await DatabaseService.upsertAsset(user.uID, 0));
+    // P5-B5-FIX-LOGIN（Zang §5.104①）：登录端点与读端点**同族收口**（对照 `:496` 的
+    // `GET /api/user/asset/:uID`，P4-B1-a 已修面）。原 `|| upsertAsset(uID, 0)` 回退会写 `asset` 表 ——
+    // 该表**不存在**（`data-layer.spec:166`「不存在，且永不创建」）⇒ 无 `cid=1` account 行的用户**必抛 42P01**，
+    // 被本函数 catch 吞成 **401** ⇒ **新 EVM 钱包 100% 登不进站**。
+    // 现只读账本真源 `account`（`getUserAsset` ⇒ `database.ts:861`）；无行 ⇒ `emptyAsset` 空态（零值 + 完整键集）；
+    // **零写库、零建表**：账户行由既有账本机制在首次入账时建立（登录事务内**不**建户）。
+    const asset = (await DatabaseService.getUserAsset(user.uID)) || DatabaseService.emptyAsset(user.uID);
     const token = createSessionToken({
       uID: user.uID,
       evm: user.EVM,

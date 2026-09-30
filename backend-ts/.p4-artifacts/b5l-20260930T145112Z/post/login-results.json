@@ -1,0 +1,131 @@
+{
+  "api": "http://127.0.0.1:5788",
+  "probe_version": "v2",
+  "started_at": "2026-09-30T15:07:38.978Z",
+  "fixture": {
+    "new_evm_address": "0x5392a11a1a8691d0c545c90e6483a14b099e4405",
+    "new_evm_private_key": "NOT_USED（服务端不校验签名内容，见 C7 ⇒ 本单无需私钥）",
+    "existing_user": {
+      "uid": "2",
+      "evm": "0xaf2102ef4ef7e285dbe7558b748f62f16fa67b1e",
+      "balance": "7600"
+    },
+    "new_user_uid": "970205"
+  },
+  "db_before": {
+    "schema_selfcheck": {
+      "account_columns": {
+        "cols": "uid,cid,balance,frozen,version,time_created,time_updated"
+      }
+    },
+    "table_existence": {
+      "account": "READ_ERROR: Error connecting to database: fetch failed",
+      "ledger_entry": "ledger_entry",
+      "users": "users",
+      "asset": "ABSENT (reg=null)",
+      "task_progress": "ABSENT (reg=null)",
+      "shard": "ABSENT (reg=null)",
+      "shard_transfer": "ABSENT (reg=null)",
+      "task": "ABSENT (reg=null)",
+      "prize": "ABSENT (reg=null)",
+      "prize_item": "ABSENT (reg=null)"
+    },
+    "fingerprint": {
+      "users_total": {
+        "n": 26
+      },
+      "account_rows_total": {
+        "n": 25
+      },
+      "account_rows_cid1": {
+        "n": 16
+      },
+      "account_sum_balance_cid1": {
+        "s": "1989693"
+      },
+      "ledger_entry_total": {
+        "n": 267
+      },
+      "users_without_cid1_account": {
+        "n": 14
+      }
+    }
+  },
+  "db_after": {
+    "fingerprint": {
+      "users_total": {
+        "n": 28
+      },
+      "account_rows_total": {
+        "n": 25
+      },
+      "account_rows_cid1": {
+        "n": 16
+      },
+      "account_sum_balance_cid1": {
+        "s": "1989693"
+      },
+      "ledger_entry_total": {
+        "n": 267
+      },
+      "users_without_cid1_account": {
+        "n": 16
+      }
+    }
+  },
+  "http_cases": {
+    "C1_new_user_verify": {
+      "challenge_status": 200,
+      "status": 200,
+      "body": "{\"success\":true,\"message\":\"OK\",\"data\":{\"uID\":970205,\"EVM\":\"0x5392a11a1a8691d0c545c90e6483a14b099e4405\",\"bio\":\"\",\"is_admin\":false,\"time_reg\":1790780898,\"time_login_last\":1790780898,\"points\":0,\"requires_profile_completion\":true,\"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5NzAyMDUiLCJldm0iOiIweDUzOTJhMTFhMWE4NjkxZDBjNTQ1YzkwZTY0ODNhMTRiMDk5ZTQ0MDUiLCJleHAiOjE3OTA3ODI2OTl9.P8EM4bgeozT9H9Xe7ANDs6GUPo0KUV94U7KUcc-r4jQ\",\"access_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5NzAyMDUiLCJldm0iOiIweDUzOTJhMTFhMWE4NjkxZDBjNTQ1YzkwZTY0ODNhMTRiMDk5ZTQ0MDUiLCJleHAiOjE3OTA3ODI2OTl9.P8EM4bgeozT9H9Xe7ANDs6GUPo0KUV94U7KUcc-r4jQ\",\"token_type\":\"bearer\"}}",
+      "points": 0,
+      "has_token": true,
+      "user_row_after": {
+        "uid": "970205"
+      },
+      "error_42P01_in_body": false
+    },
+    "C2_existing_user_verify": {
+      "challenge_status": 200,
+      "status": 200,
+      "points_http": 7600,
+      "balance_db": "7600",
+      "matches": true,
+      "body": "{\"success\":true,\"message\":\"OK\",\"data\":{\"uID\":2,\"EVM\":\"0xaf2102ef4ef7e285dbe7558b748f62f16fa67b1e\",\"bio\":\"\",\"is_admin\":false,\"time_reg\":1790706044,\"time_login_last\":1790780901,\"points\":7600,\"requires_profile_completion\":true,\"token\":\"<TOKEN_REDACTED>\",\"access_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiZXZtIjoiMHhhZjIxMDJlZjRlZjdlMjg1ZGJlNzU1OGI3NDhmNjJmMTZmYTY3YjFlIiwiZXhwIjoxNzkwNzgyNzAxfQ.-VOjs_mb-5mx-AwHAIs1NbMwOxaSpbwrHVtZZDeikiU\",\"token_type\":\"bearer\"}}"
+    },
+    "C8_get_user_asset": {
+      "status": 200,
+      "body": "{\"success\":true,\"message\":\"OK\",\"data\":{\"index_id\":0,\"uID\":2,\"points\":7600,\"lucks\":0,\"time_update\":1790706128}}"
+    },
+    "C3_missing_challenge_token": {
+      "status": 401,
+      "body": "{\"success\":false,\"message\":\"evm_address, signature and challenge_token required\",\"error\":\"evm_address, signature and challenge_token required\"}"
+    },
+    "C4_forged_challenge_token": {
+      "status": 401,
+      "body": "{\"success\":false,\"message\":\"Invalid token format\",\"error\":\"Invalid token format\"}"
+    },
+    "C5_empty_signature": {
+      "status": 401,
+      "body": "{\"success\":false,\"message\":\"evm_address, signature and challenge_token required\",\"error\":\"evm_address, signature and challenge_token required\"}"
+    },
+    "C6_address_mismatch": {
+      "status": 401,
+      "body": "{\"success\":false,\"message\":\"Challenge address mismatch\",\"error\":\"Challenge address mismatch\"}"
+    },
+    "C7_garbage_signature_new_addr": {
+      "status": 200,
+      "body": "{\"success\":true,\"message\":\"OK\",\"data\":{\"uID\":970206,\"EVM\":\"0xee218836518a96874ff446f504af292680be09ac\",\"bio\":\"\",\"is_admin\":false,\"time_reg\":1790780904,\"time_login_last\":1790780904,\"points\":0,\"requires_profile_completion\":true,\"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5NzAyMDYiLCJldm0iOiIweGVlMjE4ODM2NTE4YTk2ODc0ZmY0NDZmNTA0YWYyOTI2ODBiZTA5YWMiLCJleHAiOjE3OTA3ODI3MDV9.0VF2QQQnLZ60CosPLXzK3l8VkqrsPsK7cxcTZRDOUJw\",\"access_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5NzAyMDYiLCJldm0iOiIweGVlMjE4ODM2NTE4YTk2ODc0ZmY0NDZmNTA0YWYyOTI2ODBiZTA5YWMiLCJleHAiOjE3OTA3ODI3MDV9.0VF2QQQnLZ60CosPLXzK3l8VkqrsPsK7cxcTZRDOUJw\",\"token_type\":\"bearer\"}}"
+    }
+  },
+  "invariants": {
+    "delta_ledger_entry": 0,
+    "delta_account_rows_cid1": 0,
+    "delta_account_sum_balance_cid1": "0",
+    "delta_users_total": 2,
+    "asset_table_regclass": "READ_FAILED"
+  },
+  "health_status": 200,
+  "finished_at": "2026-09-30T15:08:37.354Z",
+  "hit_branch": "sql(text,params)"
+}
