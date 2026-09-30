@@ -1,0 +1,101 @@
+{
+  "run_tag": "errfid-20260930T140652Z",
+  "started_at": "2026-09-30T14:09:47.420Z",
+  "base": "http://127.0.0.1:5788",
+  "cases": [
+    {
+      "id": "ROUTE_A_LD021",
+      "endpoint": "POST /api/admin/points/adjust",
+      "sent": {
+        "uID": -1,
+        "amount": 1
+      },
+      "actor_uid": "1",
+      "expected": {
+        "status": 400,
+        "code": "LEDGER_RESERVED_UID"
+      },
+      "measured": {
+        "status": 400,
+        "body": {
+          "error": {
+            "code": "LEDGER_RESERVED_UID",
+            "message": "Target account is invalid",
+            "i18n_key": "ledger.err.LEDGER_RESERVED_UID",
+            "details": {
+              "field": "uid",
+              "uid": "-1"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "ROUTE_B_LD001",
+      "endpoint": "POST /api/currency",
+      "sent": {
+        "symbol": "P4Z399365",
+        "decimals": 2,
+        "owner_uid": 1,
+        "fee": "<default>"
+      },
+      "actor_balance": null,
+      "expected": {
+        "status": 409,
+        "code": "LEDGER_INSUFFICIENT_BALANCE"
+      },
+      "measured": {
+        "status": 409,
+        "body": {
+          "error": {
+            "code": "LEDGER_INSUFFICIENT_BALANCE",
+            "message": "LEDGER_INSUFFICIENT_BALANCE",
+            "i18n_key": "ledger.err.LEDGER_INSUFFICIENT_BALANCE",
+            "details": {
+              "detail_unavailable": "driver_did_not_carry_detail"
+            }
+          }
+        }
+      },
+      "orphan_currency_rows": 0
+    }
+  ],
+  "users_probe": [
+    {
+      "uid": "1",
+      "balance": null
+    },
+    {
+      "uid": "2",
+      "balance": "7600"
+    },
+    {
+      "uid": "3",
+      "balance": "1385"
+    },
+    {
+      "uid": "4",
+      "balance": "4"
+    },
+    {
+      "uid": "5",
+      "balance": "6"
+    }
+  ],
+  "admin_probe": [
+    {
+      "uid": "1"
+    },
+    {
+      "uid": "10"
+    },
+    {
+      "uid": "970201"
+    }
+  ],
+  "token_meta": {
+    "len": 187,
+    "sha256_12": "414fe4bfe8e3"
+  },
+  "finished_at": "2026-09-30T14:10:08.233Z"
+}

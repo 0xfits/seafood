@@ -1,0 +1,677 @@
+{
+  "run_tag": "errfid-20260930T140652Z",
+  "started_at": "2026-09-30T14:07:34.253Z",
+  "driver_version": "0.6.1",
+  "ledger_import_error": null,
+  "sqlstate_map": {
+    "a": "LD021",
+    "b": "LD001",
+    "c": "LD023"
+  },
+  "cases": [
+    {
+      "id": "LD021",
+      "note": "立案案由：保留 uid",
+      "expect_sqlstate": "LD021",
+      "sql": "SELECT public.ledger_raise('LEDGER_RESERVED_UID','{}'::jsonb)",
+      "outcome": "THREW",
+      "raw": {
+        "ctor": "NeonDbError",
+        "name": "NeonDbError",
+        "code": "LD021",
+        "message": "LEDGER_RESERVED_UID",
+        "detail": "<undefined>",
+        "constraint": "<undefined>",
+        "severity": "<undefined>",
+        "sourceError": "<undefined>",
+        "own_props": [
+          "stack",
+          "message",
+          "name",
+          "code",
+          "sourceError"
+        ],
+        "keys": [
+          "name",
+          "code",
+          "sourceError"
+        ]
+      },
+      "raw_code_value": "LD021",
+      "raw_code_is_expected_sqlstate": true,
+      "driver_http_status_leak": null,
+      "metrics": {
+        "is_sqlstate_shape": true
+      },
+      "infra_reason": null,
+      "non_pg_class": null,
+      "chain": {
+        "via_ledgerErrorFromDbError": {
+          "code": "LEDGER_RESERVED_UID",
+          "httpStatus": 400
+        },
+        "normalizeLedgerError": {
+          "code": "LEDGER_TRANSACTION_REQUIRED",
+          "httpStatus": 500,
+          "message": "服务暂不可用，请稍后重试",
+          "details": {
+            "cause": "LD021",
+            "reason": "unclassified_pg_error",
+            "error_name": "NeonDbError",
+            "pg_code": "LD021"
+          }
+        },
+        "outward_code": "LEDGER_RESERVED_UID",
+        "outward_http_status": 400
+      }
+    },
+    {
+      "id": "LD001",
+      "note": "余额不足",
+      "expect_sqlstate": "LD001",
+      "sql": "SELECT public.ledger_raise('LEDGER_INSUFFICIENT_BALANCE','{}'::jsonb)",
+      "outcome": "THREW",
+      "raw": {
+        "ctor": "NeonDbError",
+        "name": "NeonDbError",
+        "code": "LD001",
+        "message": "LEDGER_INSUFFICIENT_BALANCE",
+        "detail": "<undefined>",
+        "constraint": "<undefined>",
+        "severity": "<undefined>",
+        "sourceError": "<undefined>",
+        "own_props": [
+          "stack",
+          "message",
+          "name",
+          "code",
+          "sourceError"
+        ],
+        "keys": [
+          "name",
+          "code",
+          "sourceError"
+        ]
+      },
+      "raw_code_value": "LD001",
+      "raw_code_is_expected_sqlstate": true,
+      "driver_http_status_leak": null,
+      "metrics": {
+        "is_sqlstate_shape": true
+      },
+      "infra_reason": null,
+      "non_pg_class": null,
+      "chain": {
+        "via_ledgerErrorFromDbError": {
+          "code": "LEDGER_INSUFFICIENT_BALANCE",
+          "httpStatus": 409
+        },
+        "normalizeLedgerError": {
+          "code": "LEDGER_TRANSACTION_REQUIRED",
+          "httpStatus": 500,
+          "message": "服务暂不可用，请稍后重试",
+          "details": {
+            "cause": "LD001",
+            "reason": "unclassified_pg_error",
+            "error_name": "NeonDbError",
+            "pg_code": "LD001"
+          }
+        },
+        "outward_code": "LEDGER_INSUFFICIENT_BALANCE",
+        "outward_http_status": 409
+      }
+    },
+    {
+      "id": "LD002",
+      "note": "hold 配对 / 冻结不足",
+      "expect_sqlstate": "LD002",
+      "sql": "SELECT public.ledger_raise('LEDGER_INSUFFICIENT_FROZEN','{}'::jsonb)",
+      "outcome": "THREW",
+      "raw": {
+        "ctor": "NeonDbError",
+        "name": "NeonDbError",
+        "code": "LD002",
+        "message": "LEDGER_INSUFFICIENT_FROZEN",
+        "detail": "<undefined>",
+        "constraint": "<undefined>",
+        "severity": "<undefined>",
+        "sourceError": "<undefined>",
+        "own_props": [
+          "stack",
+          "message",
+          "name",
+          "code",
+          "sourceError"
+        ],
+        "keys": [
+          "name",
+          "code",
+          "sourceError"
+        ]
+      },
+      "raw_code_value": "LD002",
+      "raw_code_is_expected_sqlstate": true,
+      "driver_http_status_leak": null,
+      "metrics": {
+        "is_sqlstate_shape": true
+      },
+      "infra_reason": null,
+      "non_pg_class": null,
+      "chain": {
+        "via_ledgerErrorFromDbError": {
+          "code": "LEDGER_INSUFFICIENT_FROZEN",
+          "httpStatus": 409
+        },
+        "normalizeLedgerError": {
+          "code": "LEDGER_TRANSACTION_REQUIRED",
+          "httpStatus": 500,
+          "message": "服务暂不可用，请稍后重试",
+          "details": {
+            "cause": "LD002",
+            "reason": "unclassified_pg_error",
+            "error_name": "NeonDbError",
+            "pg_code": "LD002"
+          }
+        },
+        "outward_code": "LEDGER_INSUFFICIENT_FROZEN",
+        "outward_http_status": 409
+      }
+    },
+    {
+      "id": "LD003",
+      "note": "幂等冲突",
+      "expect_sqlstate": "LD003",
+      "sql": "SELECT public.ledger_raise('LEDGER_IDEMPOTENCY_CONFLICT','{}'::jsonb)",
+      "outcome": "THREW",
+      "raw": {
+        "ctor": "NeonDbError",
+        "name": "NeonDbError",
+        "code": "LD003",
+        "message": "LEDGER_IDEMPOTENCY_CONFLICT",
+        "detail": "<undefined>",
+        "constraint": "<undefined>",
+        "severity": "<undefined>",
+        "sourceError": "<undefined>",
+        "own_props": [
+          "stack",
+          "message",
+          "name",
+          "code",
+          "sourceError"
+        ],
+        "keys": [
+          "name",
+          "code",
+          "sourceError"
+        ]
+      },
+      "raw_code_value": "LD003",
+      "raw_code_is_expected_sqlstate": true,
+      "driver_http_status_leak": null,
+      "metrics": {
+        "is_sqlstate_shape": true
+      },
+      "infra_reason": null,
+      "non_pg_class": null,
+      "chain": {
+        "via_ledgerErrorFromDbError": {
+          "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+          "httpStatus": 409
+        },
+        "normalizeLedgerError": {
+          "code": "LEDGER_TRANSACTION_REQUIRED",
+          "httpStatus": 500,
+          "message": "服务暂不可用，请稍后重试",
+          "details": {
+            "cause": "LD003",
+            "reason": "unclassified_pg_error",
+            "error_name": "NeonDbError",
+            "pg_code": "LD003"
+          }
+        },
+        "outward_code": "LEDGER_IDEMPOTENCY_CONFLICT",
+        "outward_http_status": 409
+      }
+    },
+    {
+      "id": "LD017",
+      "note": "金额非法（非正）",
+      "expect_sqlstate": "LD017",
+      "sql": "SELECT public.ledger_raise('LEDGER_AMOUNT_NOT_POSITIVE','{}'::jsonb)",
+      "outcome": "THREW",
+      "raw": {
+        "ctor": "NeonDbError",
+        "name": "NeonDbError",
+        "code": "LD017",
+        "message": "LEDGER_AMOUNT_NOT_POSITIVE",
+        "detail": "<undefined>",
+        "constraint": "<undefined>",
+        "severity": "<undefined>",
+        "sourceError": "<undefined>",
+        "own_props": [
+          "stack",
+          "message",
+          "name",
+          "code",
+          "sourceError"
+        ],
+        "keys": [
+          "name",
+          "code",
+          "sourceError"
+        ]
+      },
+      "raw_code_value": "LD017",
+      "raw_code_is_expected_sqlstate": true,
+      "driver_http_status_leak": null,
+      "metrics": {
+        "is_sqlstate_shape": true
+      },
+      "infra_reason": null,
+      "non_pg_class": null,
+      "chain": {
+        "via_ledgerErrorFromDbError": {
+          "code": "LEDGER_AMOUNT_NOT_POSITIVE",
+          "httpStatus": 400
+        },
+        "normalizeLedgerError": {
+          "code": "LEDGER_TRANSACTION_REQUIRED",
+          "httpStatus": 500,
+          "message": "服务暂不可用，请稍后重试",
+          "details": {
+            "cause": "LD017",
+            "reason": "unclassified_pg_error",
+            "error_name": "NeonDbError",
+            "pg_code": "LD017"
+          }
+        },
+        "outward_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+        "outward_http_status": 400
+      }
+    },
+    {
+      "id": "LD022",
+      "note": "引用不存在",
+      "expect_sqlstate": "LD022",
+      "sql": "SELECT public.ledger_raise('LEDGER_REF_NOT_FOUND','{}'::jsonb)",
+      "outcome": "THREW",
+      "raw": {
+        "ctor": "NeonDbError",
+        "name": "NeonDbError",
+        "code": "LD022",
+        "message": "LEDGER_REF_NOT_FOUND",
+        "detail": "<undefined>",
+        "constraint": "<undefined>",
+        "severity": "<undefined>",
+        "sourceError": "<undefined>",
+        "own_props": [
+          "stack",
+          "message",
+          "name",
+          "code",
+          "sourceError"
+        ],
+        "keys": [
+          "name",
+          "code",
+          "sourceError"
+        ]
+      },
+      "raw_code_value": "LD022",
+      "raw_code_is_expected_sqlstate": true,
+      "driver_http_status_leak": null,
+      "metrics": {
+        "is_sqlstate_shape": true
+      },
+      "infra_reason": null,
+      "non_pg_class": null,
+      "chain": {
+        "via_ledgerErrorFromDbError": {
+          "code": "LEDGER_REF_NOT_FOUND",
+          "httpStatus": 404
+        },
+        "normalizeLedgerError": {
+          "code": "LEDGER_TRANSACTION_REQUIRED",
+          "httpStatus": 500,
+          "message": "服务暂不可用，请稍后重试",
+          "details": {
+            "cause": "LD022",
+            "reason": "unclassified_pg_error",
+            "error_name": "NeonDbError",
+            "pg_code": "LD022"
+          }
+        },
+        "outward_code": "LEDGER_REF_NOT_FOUND",
+        "outward_http_status": 404
+      }
+    },
+    {
+      "id": "LD023",
+      "note": "未知 kind",
+      "expect_sqlstate": "LD023",
+      "sql": "SELECT public.ledger_raise('LEDGER_UNKNOWN_KIND','{}'::jsonb)",
+      "outcome": "THREW",
+      "raw": {
+        "ctor": "NeonDbError",
+        "name": "NeonDbError",
+        "code": "LD023",
+        "message": "LEDGER_UNKNOWN_KIND",
+        "detail": "<undefined>",
+        "constraint": "<undefined>",
+        "severity": "<undefined>",
+        "sourceError": "<undefined>",
+        "own_props": [
+          "stack",
+          "message",
+          "name",
+          "code",
+          "sourceError"
+        ],
+        "keys": [
+          "name",
+          "code",
+          "sourceError"
+        ]
+      },
+      "raw_code_value": "LD023",
+      "raw_code_is_expected_sqlstate": true,
+      "driver_http_status_leak": null,
+      "metrics": {
+        "is_sqlstate_shape": true
+      },
+      "infra_reason": null,
+      "non_pg_class": null,
+      "chain": {
+        "via_ledgerErrorFromDbError": {
+          "code": "LEDGER_UNKNOWN_KIND",
+          "httpStatus": 400
+        },
+        "normalizeLedgerError": {
+          "code": "LEDGER_TRANSACTION_REQUIRED",
+          "httpStatus": 500,
+          "message": "服务暂不可用，请稍后重试",
+          "details": {
+            "cause": "LD023",
+            "reason": "unclassified_pg_error",
+            "error_name": "NeonDbError",
+            "pg_code": "LD023"
+          }
+        },
+        "outward_code": "LEDGER_UNKNOWN_KIND",
+        "outward_http_status": 400
+      }
+    },
+    {
+      "id": "LD007",
+      "note": "币种不存在（404）",
+      "expect_sqlstate": "LD007",
+      "sql": "SELECT public.ledger_raise('LEDGER_CURRENCY_NOT_FOUND','{}'::jsonb)",
+      "outcome": "THREW",
+      "raw": {
+        "ctor": "NeonDbError",
+        "name": "NeonDbError",
+        "code": "LD007",
+        "message": "LEDGER_CURRENCY_NOT_FOUND",
+        "detail": "<undefined>",
+        "constraint": "<undefined>",
+        "severity": "<undefined>",
+        "sourceError": "<undefined>",
+        "own_props": [
+          "stack",
+          "message",
+          "name",
+          "code",
+          "sourceError"
+        ],
+        "keys": [
+          "name",
+          "code",
+          "sourceError"
+        ]
+      },
+      "raw_code_value": "LD007",
+      "raw_code_is_expected_sqlstate": true,
+      "driver_http_status_leak": null,
+      "metrics": {
+        "is_sqlstate_shape": true
+      },
+      "infra_reason": null,
+      "non_pg_class": null,
+      "chain": {
+        "via_ledgerErrorFromDbError": {
+          "code": "LEDGER_CURRENCY_NOT_FOUND",
+          "httpStatus": 404
+        },
+        "normalizeLedgerError": {
+          "code": "LEDGER_TRANSACTION_REQUIRED",
+          "httpStatus": 500,
+          "message": "服务暂不可用，请稍后重试",
+          "details": {
+            "cause": "LD007",
+            "reason": "unclassified_pg_error",
+            "error_name": "NeonDbError",
+            "pg_code": "LD007"
+          }
+        },
+        "outward_code": "LEDGER_CURRENCY_NOT_FOUND",
+        "outward_http_status": 404
+      }
+    },
+    {
+      "id": "LD027",
+      "note": "死锁重试耗尽（503）",
+      "expect_sqlstate": "LD027",
+      "sql": "SELECT public.ledger_raise('LEDGER_DEADLOCK_RETRY_EXHAUSTED','{}'::jsonb)",
+      "outcome": "THREW",
+      "raw": {
+        "ctor": "NeonDbError",
+        "name": "NeonDbError",
+        "code": "LD027",
+        "message": "LEDGER_DEADLOCK_RETRY_EXHAUSTED",
+        "detail": "<undefined>",
+        "constraint": "<undefined>",
+        "severity": "<undefined>",
+        "sourceError": "<undefined>",
+        "own_props": [
+          "stack",
+          "message",
+          "name",
+          "code",
+          "sourceError"
+        ],
+        "keys": [
+          "name",
+          "code",
+          "sourceError"
+        ]
+      },
+      "raw_code_value": "LD027",
+      "raw_code_is_expected_sqlstate": true,
+      "driver_http_status_leak": null,
+      "metrics": {
+        "is_sqlstate_shape": true
+      },
+      "infra_reason": null,
+      "non_pg_class": null,
+      "chain": {
+        "via_ledgerErrorFromDbError": {
+          "code": "LEDGER_DEADLOCK_RETRY_EXHAUSTED",
+          "httpStatus": 503
+        },
+        "normalizeLedgerError": {
+          "code": "LEDGER_TRANSACTION_REQUIRED",
+          "httpStatus": 500,
+          "message": "服务暂不可用，请稍后重试",
+          "details": {
+            "cause": "LD027",
+            "reason": "unclassified_pg_error",
+            "error_name": "NeonDbError",
+            "pg_code": "LD027"
+          }
+        },
+        "outward_code": "LEDGER_DEADLOCK_RETRY_EXHAUSTED",
+        "outward_http_status": 503
+      }
+    },
+    {
+      "id": "CTRL_22012",
+      "note": "对照组：标准 SQLSTATE 除零",
+      "expect_sqlstate": "22012",
+      "sql": "SELECT 1/0",
+      "outcome": "THREW",
+      "raw": {
+        "ctor": "NeonDbError",
+        "name": "NeonDbError",
+        "code": "22012",
+        "message": "division by zero",
+        "detail": "<undefined>",
+        "constraint": "<undefined>",
+        "severity": "<undefined>",
+        "sourceError": "<undefined>",
+        "own_props": [
+          "stack",
+          "message",
+          "name",
+          "code",
+          "sourceError"
+        ],
+        "keys": [
+          "name",
+          "code",
+          "sourceError"
+        ]
+      },
+      "raw_code_value": "22012",
+      "raw_code_is_expected_sqlstate": true,
+      "driver_http_status_leak": null,
+      "metrics": {
+        "is_sqlstate_shape": true
+      },
+      "infra_reason": null,
+      "non_pg_class": null,
+      "chain": {
+        "via_ledgerErrorFromDbError": null,
+        "normalizeLedgerError": {
+          "code": "LEDGER_TRANSACTION_REQUIRED",
+          "httpStatus": 500,
+          "message": "服务暂不可用，请稍后重试",
+          "details": {
+            "cause": "22012",
+            "reason": "unclassified_pg_error",
+            "error_name": "NeonDbError",
+            "pg_code": "22012"
+          }
+        },
+        "outward_code": "LEDGER_TRANSACTION_REQUIRED",
+        "outward_http_status": 500
+      }
+    },
+    {
+      "id": "CTRL_42P01",
+      "note": "对照组：标准 SQLSTATE 表不存在",
+      "expect_sqlstate": "42P01",
+      "sql": "SELECT * FROM public.__p4z_no_such_table__",
+      "outcome": "THREW",
+      "raw": {
+        "ctor": "NeonDbError",
+        "name": "NeonDbError",
+        "code": "42P01",
+        "message": "relation \"public.__p4z_no_such_table__\" does not exist",
+        "detail": "<undefined>",
+        "constraint": "<undefined>",
+        "severity": "<undefined>",
+        "sourceError": "<undefined>",
+        "own_props": [
+          "stack",
+          "message",
+          "name",
+          "code",
+          "sourceError"
+        ],
+        "keys": [
+          "name",
+          "code",
+          "sourceError"
+        ]
+      },
+      "raw_code_value": "42P01",
+      "raw_code_is_expected_sqlstate": true,
+      "driver_http_status_leak": null,
+      "metrics": {
+        "is_sqlstate_shape": true
+      },
+      "infra_reason": null,
+      "non_pg_class": null,
+      "chain": {
+        "via_ledgerErrorFromDbError": null,
+        "normalizeLedgerError": {
+          "code": "LEDGER_TRANSACTION_REQUIRED",
+          "httpStatus": 500,
+          "message": "服务暂不可用，请稍后重试",
+          "details": {
+            "cause": "42P01",
+            "reason": "unclassified_pg_error",
+            "error_name": "NeonDbError",
+            "pg_code": "42P01"
+          }
+        },
+        "outward_code": "LEDGER_TRANSACTION_REQUIRED",
+        "outward_http_status": 500
+      }
+    },
+    {
+      "id": "CTRL_42703",
+      "note": "对照组：标准 SQLSTATE 列不存在",
+      "expect_sqlstate": "42703",
+      "sql": "SELECT __p4z_no_such_col__ FROM public.ledger_entry LIMIT 1",
+      "outcome": "THREW",
+      "raw": {
+        "ctor": "NeonDbError",
+        "name": "NeonDbError",
+        "code": "42703",
+        "message": "column \"__p4z_no_such_col__\" does not exist",
+        "detail": "<undefined>",
+        "constraint": "<undefined>",
+        "severity": "<undefined>",
+        "sourceError": "<undefined>",
+        "own_props": [
+          "stack",
+          "message",
+          "name",
+          "code",
+          "sourceError"
+        ],
+        "keys": [
+          "name",
+          "code",
+          "sourceError"
+        ]
+      },
+      "raw_code_value": "42703",
+      "raw_code_is_expected_sqlstate": true,
+      "driver_http_status_leak": null,
+      "metrics": {
+        "is_sqlstate_shape": true
+      },
+      "infra_reason": null,
+      "non_pg_class": null,
+      "chain": {
+        "via_ledgerErrorFromDbError": null,
+        "normalizeLedgerError": {
+          "code": "LEDGER_TRANSACTION_REQUIRED",
+          "httpStatus": 500,
+          "message": "服务暂不可用，请稍后重试",
+          "details": {
+            "cause": "42703",
+            "reason": "unclassified_pg_error",
+            "error_name": "NeonDbError",
+            "pg_code": "42703"
+          }
+        },
+        "outward_code": "LEDGER_TRANSACTION_REQUIRED",
+        "outward_http_status": 500
+      }
+    }
+  ],
+  "finished_at": "2026-09-30T14:07:39.008Z"
+}
