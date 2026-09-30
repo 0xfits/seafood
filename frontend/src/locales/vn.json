@@ -67,4 +67,10 @@
   ,"pleaseLogin": "Vui lòng đăng nhập trước"
   ,"info_input": "Nội dung đã gửi"
   ,"admin_panel": "Bảng quản trị"
+  ,"auth": {
+    "err": {
+      "AUTH_UNAUTHORIZED": "Phiên đăng nhập không hợp lệ hoặc đã hết hạn, vui lòng đăng nhập lại.",
+      "AUTH_FORBIDDEN": "Tài khoản hiện tại không có quyền thực hiện thao tác này."
+    }
+  }
 }

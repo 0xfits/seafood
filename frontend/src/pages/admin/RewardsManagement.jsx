@@ -150,25 +150,8 @@ const RewardsManagement = () => {
         time_end: formState.time_end ? new Date(formState.time_end).toISOString() : null,
       }
 
-      if (modalMode === 'edit' && selectedReward?.bID) {
-        await fetchApiJson('/api/admin/prize/update', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            bID: selectedReward.bID,
-            ...payload,
-          }),
-        })
-        toast.success('奖品已更新')
-      } else {
-        await fetchApiJson('/api/admin/prize/create', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(payload),
-        })
-        toast.success('奖品已创建')
-      }
-
+      // §2.4 S5：`POST /api/admin/prize/{create,update}`（410 + R107 + sunset）**已删除**
+      // ⇒ 写分支不再发起任何调用（页面只读化；判据 = §9.B B5「13 面前端零调用」）。
       setIsModalOpen(false)
       setSelectedReward(null)
       setFormState(EMPTY_BRAND)
@@ -198,12 +181,7 @@ const RewardsManagement = () => {
 
     setDeletingId(reward.bID)
     try {
-      await fetchApiJson('/api/admin/prize/delete', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ bID: reward.bID }),
-      })
-      toast.success('奖品已删除')
+      // §2.4 S5：`POST /api/admin/prize/delete`（410 + R107 + sunset）**已删除** ⇒ 不再发起调用。
       await loadRewards({ silent: true })
     } catch (error) {
       console.error('Error deleting prize:', error)
@@ -223,12 +201,8 @@ const RewardsManagement = () => {
         <div>
           <h2 className="text-2xl font-bold">奖品管理</h2>
           <p className="text-sm text-gray-600 mt-1">
-            当前账号
-            {canManageRewards
-              ? '可管理奖品、有效期和库存。'
-              : canPublishPrizes
-                ? '可发布新奖品，但不能编辑或删除现有奖品。'
-                : '为只读模式。'}
+            当前账号为只读模式：管理员发布/编辑/删除商品入口已下线
+            （`POST /api/admin/prize/*` = `410`，§5.1「后台发布商品」行）。
           </p>
         </div>
         <div className="flex gap-2">
@@ -236,10 +210,7 @@ const RewardsManagement = () => {
             <RefreshCw className="w-4 h-4 mr-2" />
             {refreshing ? '刷新中...' : '刷新'}
           </Button>
-          <Button variant="primary" onClick={openCreateModal} disabled={!canPublishPrizes}>
-            <Plus className="w-4 h-4 mr-2" />
-            发布奖品
-          </Button>
+          {/* §2.4 S5：`POST /api/admin/prize/create` 已 410 ⇒ 发布入口删除（页面只读化） */}
         </div>
       </div>
 
@@ -277,18 +248,7 @@ const RewardsManagement = () => {
                     <Button variant="ghost" size="sm" onClick={() => openViewModal(reward)} title="查看详情">
                       <Eye className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => openEditModal(reward)} disabled={!canManageRewards} title="编辑奖品">
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteReward(reward)}
-                      disabled={!canManageRewards || deletingId === reward.bID}
-                      title="删除奖品"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    {/* §2.4 S5：编辑(`admin/prize/update`)/删除(`admin/prize/delete`) 均 410 ⇒ 只留「查看」 */}
                   </div>
                 </div>
               </CardContent>
@@ -477,11 +437,7 @@ const RewardsManagement = () => {
             <Button variant="secondary" onClick={() => setIsModalOpen(false)} disabled={saving}>
               关闭
             </Button>
-            {!isReadonlyModal && (
-              <Button variant="primary" onClick={saveReward} disabled={saving}>
-                {saving ? '保存中...' : '保存奖品'}
-              </Button>
-            )}
+            {/* §2.4 S5：保存（`admin/prize/create|update`）已 410 ⇒ 保存按钮删除（模态框为只读详情） */}
           </div>
         </div>
       </Modal>

@@ -23,7 +23,6 @@ const RewardPage = () => {
   const [taskProgress, setTaskProgress] = useState(null)
   const [taskDetail, setTaskDetail] = useState(null)
   const [claiming, setClaiming] = useState(false)
-  const [openingChestId, setOpeningChestId] = useState(null)
   const [userPoints, setUserPoints] = useState(0)
   const [activeTab, setActiveTab] = useState('available')
 
@@ -191,74 +190,13 @@ const RewardPage = () => {
     toast('奖品兑换入口暂未开放，请联系管理员准备具体库存后再兑换。')
   }
 
-  const handleRedeem = async (bID) => {
-    try {
-      await fetchApiJson('/api/shard/redeem', {
-        method: 'POST',
-        headers: getAuthHeaders(user),
-        body: JSON.stringify({ bID }),
-      })
-      toast.success('碎片兑换成功！')
-      await loadListMode()
-    } catch (error) {
-      toast.error(`兑换失败: ${error.message}`)
-    }
-  }
-
-  const handleOpenChest = async (reward) => {
-    if (!isAuthenticated) {
-      toast.error('请先登录')
-      navigate('/login', { state: { from: location } })
-      return
-    }
-
-    setOpeningChestId(reward.bID)
-    try {
-      const result = await fetchApiJson(`/api/chest/${reward.bID}/open`, {
-        method: 'POST',
-        headers: getAuthHeaders(user),
-      })
-      toast.success(`宝箱开启成功，获得 ${result?.shards_awarded || 0} 个碎片`)
-      await loadListMode()
-    } catch (error) {
-      toast.error(`开箱失败: ${error.message}`)
-    } finally {
-      setOpeningChestId(null)
-    }
-  }
-
-  const renderRewardActions = (reward) => (
-    <>
-      {isAuthenticated && reward.market_is_open && (reward.free_shards_remaining || 0) > 0 && (
-        <div className="mt-2 space-y-2">
-          <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-            免费碎片宝箱剩余 {reward.free_shards_remaining} 个碎片
-          </div>
-          <Button
-            variant="secondary"
-            size="sm"
-            className="w-full border-amber-300 bg-amber-100 text-amber-900 hover:bg-amber-200"
-            onClick={() => handleOpenChest(reward)}
-            disabled={openingChestId === reward.bID}
-          >
-            {openingChestId === reward.bID ? '开箱中...' : '开启随机碎片宝箱'}
-          </Button>
-        </div>
-      )}
-      {isAuthenticated && shardMap[reward.bID] >= 1000 && (
-        <div className="mt-2">
-          <Button
-            variant="proceed"
-            size="sm"
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
-            onClick={() => handleRedeem(reward.bID)}
-          >
-            兑换奖品 (1000 碎片)
-          </Button>
-        </div>
-      )}
-    </>
-  )
+  // ── 弃用面下线（P4-B4b-i · §2.4 **S5** / §5.2）─────────────────────────────────
+  // `POST /api/shard/redeem`（原 `:196`）与 `POST /api/chest/:bID/open`（原 `:217`）两**写口**
+  // 已由后端落为 **`410` + `R107` + `details.sunset`**（§5.1「碎片写口①」/「宝箱写口」行；**撤守卫**
+  // ⇒ 无 token 亦 `410`）⇒ **前端不得再发起该调用**（判据 = §9.B **B5**「13 面前端零调用」）。
+  // 处置 = **删调用 + 删 UI 分支**（不整页删）：碎片兑换在 `cid` 模型里无对应语义，等值动作 = 交易所
+  // `trade` / `transfer`；宝箱「凭空调入余额」与 `DL5` 双分录正面冲突 ⇒ 二者**均无前端替代入口**。
+  const renderRewardActions = () => null
 
   if (loading) {
     return (

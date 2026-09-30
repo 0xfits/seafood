@@ -67,4 +67,10 @@
   ,"pleaseLogin": "請先登錄"
   ,"info_input": "提交內容"
   ,"admin_panel": "管理面板"
+  ,"auth": {
+    "err": {
+      "AUTH_UNAUTHORIZED": "登錄憑證無效或已過期，請重新登錄。",
+      "AUTH_FORBIDDEN": "當前帳號無權執行該操作。"
+    }
+  }
 }

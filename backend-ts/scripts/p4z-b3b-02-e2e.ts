@@ -48,6 +48,11 @@ const CREATE_FLOOR = floorOf('CURRENCY_CREATE_FEE_FLOOR');
 const LIST_FEE_FLOOR = floorOf('CURRENCY_LIST_FEE_FLOOR');
 const LIST_DEPOSIT_FLOOR = floorOf('CURRENCY_LIST_DEPOSIT_FLOOR');
 
+// ---- NUM-1（2026-09-30 定值）：夹具金额一律**跟随源码下限**，不再写死旧值 --------------------
+const AMT_C1 = CREATE_FLOOR; // 建币费 / 上市费下限（= 10000）
+const AMT_DEP = LIST_DEPOSIT_FLOOR; // 上市保证金下限（= 50000）
+const SIGMA_BASE = '2020100'; // NUM-1 实测资金基线（原 2000000 为旧库基线，已过时）
+
 type Row = Record<string, string>;
 const snap = async () => {
   const s = (await sql('SELECT COALESCE(sum(balance+frozen),0)::text AS sigma, COALESCE(sum(balance),0)::text AS sbal, COALESCE(sum(frozen),0)::text AS sfrz FROM public.account')) as Row[];
@@ -136,19 +141,19 @@ const main = async () => {
   out.pre = pre;
 
   // ---------------- C1 矩阵 ----------------
-  await push({ name: 'C1-T01 no-token => 401', method: 'POST', url: '/api/currency', body: { symbol: SYM_A, name: 'x', fee: 1500 }, expect: 401, expectCode: 'AUTH_UNAUTHORIZED' });
-  await push({ name: 'C1-T02 bad-prefix key => 400', method: 'POST', url: '/api/currency', auth: tOwner, body: { symbol: SYM_A, name: 'x', fee: 1500, create_key: 'nope:x' }, expect: 400, expectCode: 'LEDGER_IDEMPOTENCY_KEY_INVALID' });
-  await push({ name: 'C1-T03 decimals=99 => 400', method: 'POST', url: '/api/currency', auth: tOwner, body: { symbol: SYM_A, name: 'x', decimals: 99, fee: 1500 }, expect: 400, expectCode: 'LEDGER_AMOUNT_INVALID' });
-  await push({ name: 'C1-T04 symbol shape => 400', method: 'POST', url: '/api/currency', auth: tOwner, body: { symbol: 'bad sym', name: 'x', fee: 1500 }, expect: 400, expectCode: 'LEDGER_AMOUNT_INVALID' });
+  await push({ name: 'C1-T01 no-token => 401', method: 'POST', url: '/api/currency', body: { symbol: SYM_A, name: 'x', fee: AMT_C1 }, expect: 401, expectCode: 'AUTH_UNAUTHORIZED' });
+  await push({ name: 'C1-T02 bad-prefix key => 400', method: 'POST', url: '/api/currency', auth: tOwner, body: { symbol: SYM_A, name: 'x', fee: AMT_C1, create_key: 'nope:x' }, expect: 400, expectCode: 'LEDGER_IDEMPOTENCY_KEY_INVALID' });
+  await push({ name: 'C1-T03 decimals=99 => 400', method: 'POST', url: '/api/currency', auth: tOwner, body: { symbol: SYM_A, name: 'x', decimals: 99, fee: AMT_C1 }, expect: 400, expectCode: 'LEDGER_AMOUNT_INVALID' });
+  await push({ name: 'C1-T04 symbol shape => 400', method: 'POST', url: '/api/currency', auth: tOwner, body: { symbol: 'bad sym', name: 'x', fee: AMT_C1 }, expect: 400, expectCode: 'LEDGER_AMOUNT_INVALID' });
   // ★ NEW（FIX-B）：客户端金额 < 服务端下限 ⇒ 400（修前：fee=1 会被**接受并只扣 1**）
   const b1 = await snap();
   const rBelow = await push({ name: `C1-T05 fee=${CREATE_FLOOR - 1} (below server floor) => 400`, method: 'POST', url: '/api/currency', auth: tOwner, body: { symbol: SYM_A, name: 'x', fee: CREATE_FLOOR - 1 }, expect: 400, expectCode: 'LEDGER_AMOUNT_NOT_POSITIVE' });
   const a1 = await snap();
   out.C1_below_floor = { code: rBelow.error_code, details: rBelow.details, delta_entries: a1.entries - b1.entries, plan_created: a1.currencies.some((c) => c.symbol === SYM_A) };
-  await push({ name: 'C1-T06 owner_uid != actor => 403', method: 'POST', url: '/api/currency', auth: tOwner, body: { symbol: SYM_A, name: 'x', fee: 1500, owner_uid: Number(other.uid) }, expect: 403, expectCode: 'AUTH_FORBIDDEN' });
+  await push({ name: 'C1-T06 owner_uid != actor => 403', method: 'POST', url: '/api/currency', auth: tOwner, body: { symbol: SYM_A, name: 'x', fee: AMT_C1, owner_uid: Number(other.uid) }, expect: 403, expectCode: 'AUTH_FORBIDDEN' });
 
   const beforeCreate = await snap();
-  const rCreate = await push({ name: `C1-T07 HAPPY create (fee=${1500} -> -1)`, method: 'POST', url: '/api/currency', auth: tOwner, body: { symbol: SYM_A, name: 'P4B3B test unit', decimals: 2, fee: 1500, create_key: KEY('c1-create') }, expect: 200 });
+  const rCreate = await push({ name: `C1-T07 HAPPY create (fee=${AMT_C1} -> -1)`, method: 'POST', url: '/api/currency', auth: tOwner, body: { symbol: SYM_A, name: 'P4B3B test unit', decimals: 2, fee: AMT_C1, create_key: KEY('c1-create') }, expect: 200 });
   const afterCreate = await snap();
   const cidA = Number(rCreate.data.cid);
   out.C1_happy = {
@@ -162,17 +167,17 @@ const main = async () => {
   };
 
   const beforeReplay = await snap();
-  const rReplay = await push({ name: 'C1-T08 REPLAY same key+payload => 200 replay', method: 'POST', url: '/api/currency', auth: tOwner, body: { symbol: SYM_A, name: 'P4B3B test unit', decimals: 2, fee: 1500, create_key: KEY('c1-create') }, expect: 200 });
+  const rReplay = await push({ name: 'C1-T08 REPLAY same key+payload => 200 replay', method: 'POST', url: '/api/currency', auth: tOwner, body: { symbol: SYM_A, name: 'P4B3B test unit', decimals: 2, fee: AMT_C1, create_key: KEY('c1-create') }, expect: 200 });
   const afterReplay = await snap();
   out.C1_replay = { replay_flag: rReplay.data.replay, delta_sigma: (BigInt(afterReplay.sigma) - BigInt(beforeReplay.sigma)).toString(), delta_entries: afterReplay.entries - beforeReplay.entries, currency_rows_delta: afterReplay.currencies.length - beforeReplay.currencies.length };
 
   const beforeConflict = await snap();
-  const rConflict = await push({ name: 'C1-T09 same key / different payload => 409', method: 'POST', url: '/api/currency', auth: tOwner, body: { symbol: `${SYM_A}Z`.slice(0, 15), name: 'different', decimals: 2, fee: 1500, create_key: KEY('c1-create') }, expect: 409, expectCode: 'LEDGER_IDEMPOTENCY_CONFLICT' });
+  const rConflict = await push({ name: 'C1-T09 same key / different payload => 409', method: 'POST', url: '/api/currency', auth: tOwner, body: { symbol: `${SYM_A}Z`.slice(0, 15), name: 'different', decimals: 2, fee: AMT_C1, create_key: KEY('c1-create') }, expect: 409, expectCode: 'LEDGER_IDEMPOTENCY_CONFLICT' });
   const afterConflict = await snap();
   out.C1_conflict = { code: rConflict.error_code, delta_entries: afterConflict.entries - beforeConflict.entries, delta_sigma: (BigInt(afterConflict.sigma) - BigInt(beforeConflict.sigma)).toString() };
 
   const beforeTaken = await snap();
-  await push({ name: 'C1-T10 duplicate symbol / different key => 409 SYMBOL_TAKEN', method: 'POST', url: '/api/currency', auth: tOwner, body: { symbol: SYM_A, name: 'dup', decimals: 2, fee: 1500, create_key: KEY('c1-dup') }, expect: 409, expectCode: 'LEDGER_CURRENCY_SYMBOL_TAKEN' });
+  await push({ name: 'C1-T10 duplicate symbol / different key => 409 SYMBOL_TAKEN', method: 'POST', url: '/api/currency', auth: tOwner, body: { symbol: SYM_A, name: 'dup', decimals: 2, fee: AMT_C1, create_key: KEY('c1-dup') }, expect: 409, expectCode: 'LEDGER_CURRENCY_SYMBOL_TAKEN' });
   const afterTaken = await snap();
   out.C1_symbol_taken = { delta_entries: afterTaken.entries - beforeTaken.entries, delta_sigma: (BigInt(afterTaken.sigma) - BigInt(beforeTaken.sigma)).toString() };
 
@@ -195,22 +200,22 @@ const main = async () => {
   };
 
   // ---------------- C2 矩阵 ----------------
-  await push({ name: 'C2-T13 no-token => 401', method: 'POST', url: `/api/currency/${cidA}/list`, body: { fee: 1500, deposit_amount: 2000 }, expect: 401, expectCode: 'AUTH_UNAUTHORIZED' });
-  await push({ name: 'C2-T14 unknown cid 999999 => 404', method: 'POST', url: '/api/currency/999999/list', auth: tOwner, body: { fee: 1500, deposit_amount: 2000 }, expect: 404, expectCode: 'LEDGER_CURRENCY_NOT_FOUND' });
-  await push({ name: 'C2-T15 cid=0 => 404', method: 'POST', url: '/api/currency/0/list', auth: tOwner, body: { fee: 1500, deposit_amount: 2000 }, expect: 404, expectCode: 'LEDGER_CURRENCY_NOT_FOUND' });
+  await push({ name: 'C2-T13 no-token => 401', method: 'POST', url: `/api/currency/${cidA}/list`, body: { fee: AMT_C1, deposit_amount: AMT_DEP }, expect: 401, expectCode: 'AUTH_UNAUTHORIZED' });
+  await push({ name: 'C2-T14 unknown cid 999999 => 404', method: 'POST', url: '/api/currency/999999/list', auth: tOwner, body: { fee: AMT_C1, deposit_amount: AMT_DEP }, expect: 404, expectCode: 'LEDGER_CURRENCY_NOT_FOUND' });
+  await push({ name: 'C2-T15 cid=0 => 404', method: 'POST', url: '/api/currency/0/list', auth: tOwner, body: { fee: AMT_C1, deposit_amount: AMT_DEP }, expect: 404, expectCode: 'LEDGER_CURRENCY_NOT_FOUND' });
   // ★ NEW（FIX-B）：保证金 / 上市费低于服务端下限 ⇒ 400（修前：deposit_amount=1 会被接受）
   const b2 = await snap();
-  const rDepBelow = await push({ name: `C2-T16 deposit_amount=${LIST_DEPOSIT_FLOOR - 1} (below floor) => 400`, method: 'POST', url: `/api/currency/${cidA}/list`, auth: tOwner, body: { fee: 1500, deposit_amount: LIST_DEPOSIT_FLOOR - 1 }, expect: 400, expectCode: 'LEDGER_AMOUNT_NOT_POSITIVE' });
-  const rFeeBelow = await push({ name: `C2-T17 fee=${LIST_FEE_FLOOR - 1} (below floor) => 400`, method: 'POST', url: `/api/currency/${cidA}/list`, auth: tOwner, body: { fee: LIST_FEE_FLOOR - 1, deposit_amount: 2000 }, expect: 400, expectCode: 'LEDGER_AMOUNT_NOT_POSITIVE' });
+  const rDepBelow = await push({ name: `C2-T16 deposit_amount=${LIST_DEPOSIT_FLOOR - 1} (below floor) => 400`, method: 'POST', url: `/api/currency/${cidA}/list`, auth: tOwner, body: { fee: AMT_C1, deposit_amount: LIST_DEPOSIT_FLOOR - 1 }, expect: 400, expectCode: 'LEDGER_AMOUNT_NOT_POSITIVE' });
+  const rFeeBelow = await push({ name: `C2-T17 fee=${LIST_FEE_FLOOR - 1} (below floor) => 400`, method: 'POST', url: `/api/currency/${cidA}/list`, auth: tOwner, body: { fee: LIST_FEE_FLOOR - 1, deposit_amount: AMT_DEP }, expect: 400, expectCode: 'LEDGER_AMOUNT_NOT_POSITIVE' });
   const a2 = await snap();
   out.C2_below_floor = { deposit_code: rDepBelow.error_code, deposit_details: rDepBelow.details, fee_code: rFeeBelow.error_code, fee_details: rFeeBelow.details, delta_entries: a2.entries - b2.entries, delta_sigma: (BigInt(a2.sigma) - BigInt(b2.sigma)).toString(), unit_still_draft: (a2.currencies.find((c) => Number(c.cid) === cidA) || {}).status };
-  const rNonOwner = await push({ name: 'C2-T18 non-owner => 403 ACTOR_NOT_ALLOWED', method: 'POST', url: `/api/currency/${cidA}/list`, auth: tOther, body: { fee: 1500, deposit_amount: 2000, create_key: KEY('c2-notowner') }, expect: 403, expectCode: 'AUTH_FORBIDDEN' });
+  const rNonOwner = await push({ name: 'C2-T18 non-owner => 403 ACTOR_NOT_ALLOWED', method: 'POST', url: `/api/currency/${cidA}/list`, auth: tOther, body: { fee: AMT_C1, deposit_amount: AMT_DEP, create_key: KEY('c2-notowner') }, expect: 403, expectCode: 'AUTH_FORBIDDEN' });
   out.C2_non_owner = { code: rNonOwner.error_code, details: rNonOwner.details, expect_code: rNonOwner.expect_code, ok_pass: rNonOwner.ok_pass };
-  await push({ name: 'C2-T19 bad-prefix key => 400', method: 'POST', url: `/api/currency/${cidA}/list`, auth: tOwner, body: { fee: 1500, deposit_amount: 2000, create_key: 'x:y' }, expect: 400, expectCode: 'LEDGER_IDEMPOTENCY_KEY_INVALID' });
+  await push({ name: 'C2-T19 bad-prefix key => 400', method: 'POST', url: `/api/currency/${cidA}/list`, auth: tOwner, body: { fee: AMT_C1, deposit_amount: AMT_DEP, create_key: 'x:y' }, expect: 400, expectCode: 'LEDGER_IDEMPOTENCY_KEY_INVALID' });
 
   // ★ 核心：C2 成功路径 —— **消耗入 uid=-1**（4 条分录全在 balance、frozen 零变动）
   const beforeList = await snap();
-  const rList = await push({ name: 'C2-T20 HAPPY list (fee 1500 + deposit 2000 -> both to -1)', method: 'POST', url: `/api/currency/${cidA}/list`, auth: tOwner, body: { fee: 1500, deposit_amount: 2000, create_key: KEY('c2-list') }, expect: 200 });
+  const rList = await push({ name: 'C2-T20 HAPPY list (fee AMT_C1 + deposit AMT_DEP -> both to -1)', method: 'POST', url: `/api/currency/${cidA}/list`, auth: tOwner, body: { fee: AMT_C1, deposit_amount: AMT_DEP, create_key: KEY('c2-list') }, expect: 200 });
   const afterList = await snap();
   const listEntries = rList.txid ? await entriesOf(String(rList.txid)) : [];
   out.C2_happy = {
@@ -233,12 +238,12 @@ const main = async () => {
   };
 
   const beforeListReplay = await snap();
-  const rListReplay = await push({ name: 'C2-T21 REPLAY same key+payload => 200 replay', method: 'POST', url: `/api/currency/${cidA}/list`, auth: tOwner, body: { fee: 1500, deposit_amount: 2000, create_key: KEY('c2-list') }, expect: 200 });
+  const rListReplay = await push({ name: 'C2-T21 REPLAY same key+payload => 200 replay', method: 'POST', url: `/api/currency/${cidA}/list`, auth: tOwner, body: { fee: AMT_C1, deposit_amount: AMT_DEP, create_key: KEY('c2-list') }, expect: 200 });
   const afterListReplay = await snap();
   out.C2_replay = { replay_flag: rListReplay.data.replay, delta_entries: afterListReplay.entries - beforeListReplay.entries, delta_sigma: (BigInt(afterListReplay.sigma) - BigInt(beforeListReplay.sigma)).toString(), delta_status_log: afterListReplay.status_log - beforeListReplay.status_log };
 
   const beforeDouble = await snap();
-  await push({ name: 'C2-T22 re-list already listed (new key) => 409', method: 'POST', url: `/api/currency/${cidA}/list`, auth: tOwner, body: { fee: 1500, deposit_amount: 2000, create_key: KEY('c2-relis') }, expect: 409, expectCode: 'LEDGER_CURRENCY_INVALID_TRANSITION' });
+  await push({ name: 'C2-T22 re-list already listed (new key) => 409', method: 'POST', url: `/api/currency/${cidA}/list`, auth: tOwner, body: { fee: AMT_C1, deposit_amount: AMT_DEP, create_key: KEY('c2-relis') }, expect: 409, expectCode: 'LEDGER_CURRENCY_INVALID_TRANSITION' });
   const afterDouble = await snap();
   out.C2_relist = { delta_entries: afterDouble.entries - beforeDouble.entries, delta_sigma: (BigInt(afterDouble.sigma) - BigInt(beforeDouble.sigma)).toString() };
 
@@ -261,7 +266,7 @@ const main = async () => {
 
   // 判负：余额不足（保证金 > 可用余额）⇒ 409 + 状态仍 draft + 无审计行 + 零分录
   const beforeCFail = await snap();
-  const rCFail = await push({ name: 'C2-T24 insufficient balance on list => 409 + stays draft + no audit row', method: 'POST', url: `/api/currency/${cidC}/list`, auth: tOwner, body: { fee: 1500, deposit_amount: 99_000_000, create_key: KEY('c2-insuf') }, expect: 409, expectCode: 'LEDGER_INSUFFICIENT_BALANCE' });
+  const rCFail = await push({ name: 'C2-T24 insufficient balance on list => 409 + stays draft + no audit row', method: 'POST', url: `/api/currency/${cidC}/list`, auth: tOwner, body: { fee: AMT_C1, deposit_amount: 99_000_000, create_key: KEY('c2-insuf') }, expect: 409, expectCode: 'LEDGER_INSUFFICIENT_BALANCE' });
   const afterCFail = await snap();
   out.C2_insufficient = {
     code: rCFail.error_code, delta_entries: afterCFail.entries - beforeCFail.entries, delta_sigma: (BigInt(afterCFail.sigma) - BigInt(beforeCFail.sigma)).toString(),
@@ -280,8 +285,8 @@ const main = async () => {
   for (const kk of Array.from(new Set([...Object.keys(preKinds), ...Object.keys(postKinds)])).sort()) kindsDelta[kk] = (postKinds[kk] || 0) - (preKinds[kk] || 0);
   out.invariants = {
     sigma_pre: pre.sigma, sigma_post: post.sigma, sigma_delta: (BigInt(post.sigma) - BigInt(pre.sigma)).toString(),
-    sigma_expected_unchanged: '2000000',
-    sigma_is_2000000_pre_and_post: pre.sigma === '2000000' && post.sigma === '2000000',
+    sigma_expected_unchanged: '2020100',
+    sigma_is_baseline_pre_and_post: pre.sigma === '2020100' && post.sigma === '2020100',
     sigma_frozen_pre: pre.sigma_frozen, sigma_frozen_post: post.sigma_frozen,
     entries_pre: pre.entries, entries_post: post.entries, entries_delta: post.entries - pre.entries,
     ledger_entry_kinds_pre: preKinds, ledger_entry_kinds_post: postKinds, ledger_entry_kinds_delta: kindsDelta,

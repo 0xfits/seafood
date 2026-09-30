@@ -1,0 +1,21 @@
+
+> jinli-frontend@0.0.0 build
+> vite build
+
+vite v5.4.20 building for production...
+transforming...
+✓ 1757 modules transformed.
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) /Users/kevin/bistro/seafood/frontend/node_modules/react-hot-toast/dist/index.mjs is dynamically imported by /Users/kevin/bistro/seafood/frontend/src/utils.js, /Users/kevin/bistro/seafood/frontend/src/utils.js but also statically imported by /Users/kevin/bistro/seafood/frontend/src/components/ActiveTaskModal.jsx, /Users/kevin/bistro/seafood/frontend/src/components/ClaimRewardModal.jsx, /Users/kevin/bistro/seafood/frontend/src/components/auth/WalletAuthPanel.jsx, /Users/kevin/bistro/seafood/frontend/src/main.jsx, /Users/kevin/bistro/seafood/frontend/src/pages/AuthPage.jsx, /Users/kevin/bistro/seafood/frontend/src/pages/DashboardPage.jsx, /Users/kevin/bistro/seafood/frontend/src/pages/HomePage.jsx, /Users/kevin/bistro/seafood/frontend/src/pages/ProfilePage.jsx, /Users/kevin/bistro/seafood/frontend/src/pages/RewardPage.jsx, /Users/kevin/bistro/seafood/frontend/src/pages/ShardPage.jsx, /Users/kevin/bistro/seafood/frontend/src/pages/TaskPage.jsx, /Users/kevin/bistro/seafood/frontend/src/pages/admin/PermissionsManagement.jsx, /Users/kevin/bistro/seafood/frontend/src/pages/admin/PointsManagement.jsx, /Users/kevin/bistro/seafood/frontend/src/pages/admin/RewardsManagement.jsx, /Users/kevin/bistro/seafood/frontend/src/pages/admin/ShardsManagement.jsx, /Users/kevin/bistro/seafood/frontend/src/pages/admin/SystemSettings.jsx, /Users/kevin/bistro/seafood/frontend/src/pages/admin/TasksManagement.jsx, /Users/kevin/bistro/seafood/frontend/src/pages/admin/UsersManagement.jsx, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) /Users/kevin/bistro/seafood/frontend/src/i18n.js is dynamically imported by /Users/kevin/bistro/seafood/frontend/src/auth.js but also statically imported by /Users/kevin/bistro/seafood/frontend/src/main.jsx, dynamic import will not move module into another chunk.
+
+rendering chunks...
+computing gzip size...
+dist/assets/hk-DJjlsSdH.svg       4.61 kB │ gzip:   2.01 kB
+dist/index.html                   4.64 kB │ gzip:   2.30 kB
+dist/assets/us-BUggRluv.svg       7.87 kB │ gzip:   1.24 kB
+dist/assets/index-Dmk27wGY.css   48.70 kB │ gzip:  10.85 kB
+dist/assets/index-CykTcdA6.js   419.95 kB │ gzip: 124.24 kB
+✓ built in 1.53s

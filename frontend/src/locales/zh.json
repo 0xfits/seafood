@@ -67,4 +67,10 @@
   ,"pleaseLogin": "请先登录"
   ,"info_input": "提交内容"
   ,"admin_panel": "管理面板"
+  ,"auth": {
+    "err": {
+      "AUTH_UNAUTHORIZED": "登录凭证无效或已过期，请重新登录。",
+      "AUTH_FORBIDDEN": "当前账号无权执行该操作。"
+    }
+  }
 }

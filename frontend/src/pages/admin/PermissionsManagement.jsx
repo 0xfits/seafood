@@ -4,6 +4,7 @@ import { Button, Card, CardContent, Badge, Modal, ModalHeader, ModalTitle } from
 import { Plus, Edit, Trash2, RefreshCw, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdminPermission } from '../../admin-utils'
+import { adminOpsKey } from '../../idempotency'
 import { formatEvmAddress } from '../../utils'
 
 const EMPTY_FORM = {
@@ -130,6 +131,9 @@ const PermissionsManagement = () => {
 
     setSaving(true)
     try {
+      // §2.4 **S1** / §9.B **B1**（DL36）：`/api/admin/permissions/save` 现为请求侧强校验
+      //   ⇒ 键形态 `ops:<admin_uid>:permission_save:<role_key>`（服务端仅校验 `ops:` 前缀：
+      //   真源 = `backend-ts/src/index.ts:939` + `admin-service.ts:63-78`）。
       await fetchApiJson('/api/admin/permissions/save', {
         method: 'POST',
         headers,
@@ -139,6 +143,7 @@ const PermissionsManagement = () => {
           description: formState.description.trim(),
           permissions,
           user_ids: formState.user_ids,
+          create_key: adminOpsKey(currentUser?.uID, 'permission_save', editingGroupId || 'new'),
         }),
       })
 
@@ -173,10 +178,15 @@ const PermissionsManagement = () => {
 
     setDeletingId(group.id)
     try {
+      // §2.4 **S1** / §9.B **B1**：键形态 `ops:<admin_uid>:permission_delete:<role_key>`
+      //   （真源 = `backend-ts/src/index.ts:969`）。
       await fetchApiJson('/api/admin/permissions/delete', {
         method: 'POST',
         headers,
-        body: JSON.stringify({ id: group.id }),
+        body: JSON.stringify({
+          id: group.id,
+          create_key: adminOpsKey(currentUser?.uID, 'permission_delete', group.id),
+        }),
       })
       toast.success('权限组已删除')
       await loadPermissions({ silent: true })

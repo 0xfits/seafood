@@ -1,0 +1,312 @@
+{
+ "generated_at": "2026-09-30T12:47:32.961Z",
+ "base": "http://127.0.0.1:5788",
+ "run": "num1-20260930T204732",
+ "mints_in_this_run": 0,
+ "floors": {
+  "CREATE_FLOOR": 10000,
+  "LIST_FEE_FLOOR": 10000,
+  "LIST_DEPOSIT_FLOOR": 50000
+ },
+ "fixture_sigma_expected": "2020100",
+ "subject": {
+  "actor_uid": 970001,
+  "actor_cid1_balance": "1776071",
+  "token_fp12": "2179a1bb7f22"
+ },
+ "fixtures": {
+  "SYM_A": "N1A0T204732",
+  "SYM_B": "N1B0T204732",
+  "key_prefix": "cli:num1-0T204732:"
+ },
+ "C1": {
+  "c1a_below": {
+   "status": 400,
+   "code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "details": {
+    "field": "fee",
+    "value": "9999",
+    "min": "10000",
+    "reason": "BELOW_SERVER_FLOOR"
+   }
+  },
+  "c1b_at_floor": {
+   "status": 200,
+   "fee": "10000",
+   "fee_source": "client_ge_floor",
+   "matches_source_floor": true
+  },
+  "c1c_default": {
+   "status": 200,
+   "fee": "10000",
+   "fee_source": "server_default",
+   "matches_source_floor": true
+  },
+  "c1d_replay": {
+   "status": 200,
+   "replay_flag": true,
+   "delta_entries": 4
+  },
+  "cidA": 31,
+  "cidB": 32
+ },
+ "C2": {
+  "c2a_dep_below": {
+   "status": 400,
+   "code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "details": {
+    "field": "deposit_amount",
+    "value": "49999",
+    "min": "50000",
+    "reason": "BELOW_SERVER_FLOOR"
+   }
+  },
+  "c2b_fee_below": {
+   "status": 400,
+   "code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "details": {
+    "field": "listing_fee",
+    "value": "9999",
+    "min": "10000",
+    "reason": "BELOW_SERVER_FLOOR"
+   }
+  },
+  "c2c_at_floor": {
+   "status": 200,
+   "listing_fee": "10000",
+   "deposit_consumed": "50000",
+   "listing_fee_source": "client_ge_floor",
+   "deposit_source": "client_ge_floor"
+  },
+  "c2d_replay": {
+   "status": 200,
+   "replay_flag": true
+  },
+  "c2e_default": {
+   "status": 200,
+   "listing_fee": "10000",
+   "deposit_consumed": "50000",
+   "listing_fee_source": "server_default",
+   "deposit_source": "server_default",
+   "matches_source_floors": true
+  }
+ },
+ "invariants": {
+  "sigma_pre": "2020100",
+  "sigma_post": "2020100",
+  "sigma_delta": "0",
+  "sigma_expected": "2020100",
+  "sigma_is_expected_pre_and_post": true,
+  "sigma_frozen_pre": "10483",
+  "sigma_frozen_post": "10483",
+  "entries_pre": 229,
+  "entries_post": 241,
+  "entries_delta": 12,
+  "currencies_added": [
+   "31:N1A0T204732:listed",
+   "32:N1B0T204732:listed"
+  ]
+ },
+ "cases": [
+  {
+   "name": "C1-a fee=9999 (below floor) => 400",
+   "status": 400,
+   "expect": 400,
+   "expect_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "error_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "details": {
+    "field": "fee",
+    "value": "9999",
+    "min": "10000",
+    "reason": "BELOW_SERVER_FLOOR"
+   },
+   "ok_pass": true,
+   "data": {
+    "cid": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"LEDGER_AMOUNT_NOT_POSITIVE\",\"message\":\"Amount is below the server-side floor\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_NOT_POSITIVE\",\"details\":{\"field\":\"fee\",\"value\":\"9999\",\"min\":\"10000\""
+  },
+  {
+   "name": "C1-b fee=10000 (== floor) => 200",
+   "status": 200,
+   "expect": 200,
+   "expect_code": null,
+   "error_code": null,
+   "details": null,
+   "ok_pass": true,
+   "data": {
+    "cid": "31",
+    "fee": "10000",
+    "fee_source": "client_ge_floor",
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "replay": false
+   },
+   "body_head": "{\"success\":true,\"message\":\"Currency created\",\"data\":{\"cid\":\"31\",\"symbol\":\"N1A0T204732\",\"name\":\"num1 at floor\",\"owner_uid\":\"970001\",\"decimals\":2,\"status\":\"draft\",\"deposit_amount\":\"0\",\"deposit_cid\":\"1\","
+  },
+  {
+   "name": "C1-c fee OMITTED => server default (10000)",
+   "status": 200,
+   "expect": 200,
+   "expect_code": null,
+   "error_code": null,
+   "details": null,
+   "ok_pass": true,
+   "data": {
+    "cid": "32",
+    "fee": "10000",
+    "fee_source": "server_default",
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "replay": false
+   },
+   "body_head": "{\"success\":true,\"message\":\"Currency created\",\"data\":{\"cid\":\"32\",\"symbol\":\"N1B0T204732\",\"name\":\"num1 default\",\"owner_uid\":\"970001\",\"decimals\":2,\"status\":\"draft\",\"deposit_amount\":\"0\",\"deposit_cid\":\"1\",\""
+  },
+  {
+   "name": "C1-d REPLAY same key+payload => 200 replay",
+   "status": 200,
+   "expect": 200,
+   "expect_code": null,
+   "error_code": null,
+   "details": null,
+   "ok_pass": true,
+   "data": {
+    "cid": "32",
+    "fee": "10000",
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "replay": true
+   },
+   "body_head": "{\"success\":true,\"message\":\"Currency created (idempotent replay)\",\"data\":{\"cid\":\"32\",\"symbol\":\"N1B0T204732\",\"name\":\"num1 default\",\"owner_uid\":\"970001\",\"decimals\":2,\"status\":\"draft\",\"fee\":\"10000\",\"idemp"
+  },
+  {
+   "name": "C2-a deposit_amount=49999 (below floor) => 400",
+   "status": 400,
+   "expect": 400,
+   "expect_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "error_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "details": {
+    "field": "deposit_amount",
+    "value": "49999",
+    "min": "50000",
+    "reason": "BELOW_SERVER_FLOOR"
+   },
+   "ok_pass": true,
+   "data": {
+    "cid": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"LEDGER_AMOUNT_NOT_POSITIVE\",\"message\":\"Amount is below the server-side floor\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_NOT_POSITIVE\",\"details\":{\"field\":\"deposit_amount\",\"value\":\"49999\",\""
+  },
+  {
+   "name": "C2-b listing_fee=9999 (below floor) => 400",
+   "status": 400,
+   "expect": 400,
+   "expect_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "error_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "details": {
+    "field": "listing_fee",
+    "value": "9999",
+    "min": "10000",
+    "reason": "BELOW_SERVER_FLOOR"
+   },
+   "ok_pass": true,
+   "data": {
+    "cid": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "replay": null
+   },
+   "body_head": "{\"error\":{\"code\":\"LEDGER_AMOUNT_NOT_POSITIVE\",\"message\":\"Amount is below the server-side floor\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_NOT_POSITIVE\",\"details\":{\"field\":\"listing_fee\",\"value\":\"9999\",\"min\""
+  },
+  {
+   "name": "C2-c fee=10000+deposit=50000 (at floor) => 200",
+   "status": 200,
+   "expect": 200,
+   "expect_code": null,
+   "error_code": null,
+   "details": null,
+   "ok_pass": true,
+   "data": {
+    "cid": "31",
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": "10000",
+    "listing_fee_source": "client_ge_floor",
+    "deposit_consumed": "50000",
+    "deposit_source": "client_ge_floor",
+    "replay": false
+   },
+   "body_head": "{\"success\":true,\"message\":\"Currency listed\",\"data\":{\"cid\":\"31\",\"symbol\":\"N1A0T204732\",\"owner_uid\":\"970001\",\"status\":\"listed\",\"deposit_amount\":\"50000\",\"deposit_cid\":\"1\",\"listed_at\":\"2026-09-30T12:47:43"
+  },
+  {
+   "name": "C2-d REPLAY same key+payload => 200 replay",
+   "status": 200,
+   "expect": 200,
+   "expect_code": null,
+   "error_code": null,
+   "details": null,
+   "ok_pass": true,
+   "data": {
+    "cid": "31",
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "replay": true
+   },
+   "body_head": "{\"success\":true,\"message\":\"Currency listed (idempotent replay)\",\"data\":{\"cid\":\"31\",\"symbol\":\"\",\"owner_uid\":\"970001\",\"status\":\"listed\",\"idempotent_replay\":true,\"ledger_event\":null}}"
+  },
+  {
+   "name": "C2-e OMITTED => server defaults (10000+50000)",
+   "status": 200,
+   "expect": 200,
+   "expect_code": null,
+   "error_code": null,
+   "details": null,
+   "ok_pass": true,
+   "data": {
+    "cid": "32",
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": "10000",
+    "listing_fee_source": "server_default",
+    "deposit_consumed": "50000",
+    "deposit_source": "server_default",
+    "replay": false
+   },
+   "body_head": "{\"success\":true,\"message\":\"Currency listed\",\"data\":{\"cid\":\"32\",\"symbol\":\"N1B0T204732\",\"owner_uid\":\"970001\",\"status\":\"listed\",\"deposit_amount\":\"50000\",\"deposit_cid\":\"1\",\"listed_at\":\"2026-09-30T12:47:45"
+  }
+ ],
+ "summary": {
+  "pass": 9,
+  "total": 9,
+  "failed": []
+ }
+}

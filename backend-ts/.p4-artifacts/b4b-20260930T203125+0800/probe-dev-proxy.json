@@ -1,0 +1,44 @@
+{
+  "run": "b4b-20260930T203125+0800",
+  "steps": [
+    {
+      "step": "backend_direct_api_home",
+      "url": "http://127.0.0.1:5788/api/home",
+      "status": 200,
+      "waited_ms": 29756,
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"tasks\":[{\"tID\":2,\"title\":\"p4b2:fixture:A\",\"note\":\"p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）\",\"refcode\":\"\",\"link0\":\"\",\"linkA\":\"\",\"linkB\":\""
+    },
+    {
+      "step": "vite_dev_server_root",
+      "url": "http://127.0.0.1:5797/",
+      "status": 200,
+      "waited_ms": 31,
+      "body_head": "<!doctype html>\n<html lang=\"zh-CN\">\n  <head>\n    <script type=\"module\">import { injectIntoGlobalHook } from \"/@react-refresh\";\ninjectIntoGlobalHook(window);\nwindow.$RefreshReg$ = ("
+    },
+    {
+      "step": "vite_proxy_api_home",
+      "url": "http://127.0.0.1:5797/api/home",
+      "status": 200,
+      "bytes": 9248,
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"tasks\":[{\"tID\":2,\"title\":\"p4b2:fixture:A\",\"note\":\"p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）\",\"refcode\":\"\",\"link0\":\"\",\"linkA\":\"\",\"linkB\":\""
+    }
+  ],
+  "backend_start_log": "TypeScript backend running on port 5788\nUsing Neon PostgreSQL for Seafood API routes\n",
+  "vite_start_log": "\n  VITE v5.4.20  ready in 138 ms\n\n  ➜  Local:   http://127.0.0.1:5797/\n[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`\n",
+  "orphans_killed_sigkill": [
+    2507,
+    2508
+  ],
+  "children_exit_codes": [
+    {
+      "pid": 2507,
+      "exit_code": null,
+      "signal": "SIGKILL"
+    },
+    {
+      "pid": 2508,
+      "exit_code": null,
+      "signal": "SIGKILL"
+    }
+  ]
+}

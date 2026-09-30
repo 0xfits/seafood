@@ -1,0 +1,21 @@
+{
+  "new_key_sample": {
+    "key": "cli:1a0f2587345-8192a2e1",
+    "has_allowed_prefix": true,
+    "has_reserved_separator": false,
+    "has_control_char": false,
+    "length_ok": true
+  },
+  "ops_key_sample": {
+    "key": "ops:7:setting:system_settings",
+    "has_allowed_prefix": true,
+    "has_reserved_separator": false,
+    "has_control_char": false,
+    "length_ok": true
+  },
+  "ops_key_matches_canonical_shape": true,
+  "sanitize_reserved_separator": "ops:1:permission_save:a-b",
+  "retry_same_key": true,
+  "changed_content_new_key": true,
+  "reset_gives_new_key": true
+}

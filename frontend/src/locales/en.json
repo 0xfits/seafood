@@ -67,4 +67,10 @@
   ,"pleaseLogin": "Please log in first"
   ,"info_input": "Submitted Info"
   ,"admin_panel": "Admin Panel"
+  ,"auth": {
+    "err": {
+      "AUTH_UNAUTHORIZED": "Your sign-in credential is invalid or has expired. Please sign in again.",
+      "AUTH_FORBIDDEN": "This account is not allowed to perform this action."
+    }
+  }
 }

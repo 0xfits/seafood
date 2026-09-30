@@ -117,7 +117,7 @@ async function main() {
   // ================= 腿 5：幂等契约（§4.5 三款） =================
   const cSym = `QAB3${stamp}`.slice(0, 16);
   const cKey = `cli:qa-b3-c1-${stamp}`;
-  const cBody = { symbol: cSym, name: 'QA B3 currency', decimals: 0, fee: 1000 };
+  const cBody = { symbol: cSym, name: 'QA B3 currency', decimals: 0, fee: 10000 };
   await rec('T07', 'L5-idem', `C1 首建（key=${cKey}）`, async () => ({
     res: await call('POST', '/api/currency', { token: richT, body: { ...cBody, create_key: cKey } }),
     expect: '200 + Δentries=+2 (currency_create_fee×2)',
@@ -135,7 +135,7 @@ async function main() {
     expect: '409 LEDGER_CURRENCY_SYMBOL_TAKEN，Δentries=0',
   }));
   await rec('T11', 'L5-idem', '非法前缀键 qa-b3: ⇒ 400 PREFIX_REQUIRED', async () => ({
-    res: await call('POST', '/api/currency', { token: richT, body: { symbol: `QB${stamp.slice(-6)}`, name: 'x', fee: 1000, create_key: 'qa-b3:probe' } }),
+    res: await call('POST', '/api/currency', { token: richT, body: { symbol: `QB${stamp.slice(-6)}`, name: 'x', fee: 10000, create_key: 'qa-b3:probe' } }),
     expect: '400 LEDGER_IDEMPOTENCY_KEY_INVALID/PREFIX_REQUIRED',
   }));
 
@@ -150,11 +150,11 @@ async function main() {
   console.log(`N01b L8-neg orphan_currency_rows=${orphan[0].n} expect=0`);
 
   await rec('N02', 'L8-neg', `C2 非本人上市（cid=${listed.length ? listed[0].cid : 'n/a'}，actor=11）`, async () => ({
-    res: await call('POST', `/api/currency/${listed.length ? listed[0].cid : 1}/list`, { token: otherT, body: { fee: 1000, deposit_amount: 1000 } }),
+    res: await call('POST', `/api/currency/${listed.length ? listed[0].cid : 1}/list`, { token: otherT, body: { fee: 10000, deposit_amount: 50000 } }),
     expect: '403 AUTH_FORBIDDEN/ACTOR_NOT_ALLOWED，Δentries=0',
   }));
   await rec('N03', 'L8-neg', '未知 cid 上市 ⇒ 404 LEDGER_CURRENCY_NOT_FOUND', async () => ({
-    res: await call('POST', '/api/currency/999999/list', { token: richT, body: { fee: 1000, deposit_amount: 1000 } }),
+    res: await call('POST', '/api/currency/999999/list', { token: richT, body: { fee: 10000, deposit_amount: 50000 } }),
     expect: '404 LEDGER_CURRENCY_NOT_FOUND，Δentries=0',
   }));
   await rec('N04', 'L8-neg', 'M2 撤单未知 id ⇒ 404 LEDGER_REF_NOT_FOUND', async () => ({

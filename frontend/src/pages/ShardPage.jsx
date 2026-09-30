@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
@@ -8,6 +8,7 @@ import { FadeIn } from '../components/ui/Motion'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/Tabs'
 import { fetchApiJson, getAuthHeaders } from '../auth'
 import { useAuth } from '../auth-context'
+import { createIdempotencyKeyTracker } from '../idempotency'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -154,6 +155,10 @@ const TradePanel = ({ brands, user, onTraded }) => {
   const [submitting, setSubmitting] = useState(false)
   const selectedPrize = brands.find((brand) => brand.bID === bID) || null
   const minimumShardPrice = selectedPrize?.price_floor_active ? (selectedPrize.minimum_shard_price || 1) : 1
+  // §2.4 S-b3e-1（§9.B **B11**）：`POST /api/order` 的 `create_key` **必填 fail-loud**（无自然键 ⇒ 不派生）。
+  // 载具 = `createIdempotencyKeyTracker`：**同一份表单内容重试 ⇒ 复用同一个键**（= replay，不会变新订单）；
+  // 内容变了 / 上一单已成功 ⇒ 新键（= 新实体）。
+  const idempotencyRef = useRef(createIdempotencyKeyTracker('cli'))
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -173,11 +178,17 @@ const TradePanel = ({ brands, user, onTraded }) => {
     }
     setSubmitting(true)
     try {
+      // §2.4 S-b3e-1 / §9.B **B11**：补 `cli:` 前缀的 `create_key`
+      //   （真源 = 后端 `src/index.ts:745`「`create_key` **必填 fail-loud**」+ §4.5 挂单行 `market_order.create_key`）。
+      // 键取 `keyFor(内容指纹)`：**同一次用户操作重试 ⇒ 同一个键**；成功后 `reset()` ⇒ 下一次挂单 = 新实体。
+      const payload = { bID, side, price: p, volume: v }
+      const createKey = idempotencyRef.current.keyFor(JSON.stringify(payload))
       await fetchApiJson('/api/order', {
         method: 'POST',
         headers: { ...getAuthHeaders(user), 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bID, side, price: p, volume: v }),
+        body: JSON.stringify({ ...payload, create_key: createKey }),
       })
+      idempotencyRef.current.reset()
       toast.success('挂单成功')
       setPrice('')
       setVolume('')
@@ -298,6 +309,10 @@ const MyPanel = ({ user, refreshKey, onRefresh }) => {
     setLoading(true)
     const h = getAuthHeaders(user)
     Promise.all([
+      // §5.1「碎片读口 ①②」= **保留路径 + 保持空态 + 顶层 `deprecated:true`**（读口**不返回错** ⇒ 不属 `400`/`410` 面）。
+      // 迁移目标 = `GET /api/user/points` / `GET /api/user/ledger?kind=transfer`，但**该两读口尚未注册**
+      // （本单现取：`grep -n "user/points\|user/ledger" backend-ts/src/index.ts` = **0 命中**）⇒ §5.1 的
+      // 迁移前置（§5.4 第 3 阶段「规范读口已上线」）**未满足** ⇒ 本单**不迁**（登记：报告 §2 「已弃用面处置」）。
       fetchApiJson('/api/shard', { headers: h }).catch(() => []),
       fetchApiJson('/api/order', { headers: h }).catch(() => []),
       fetchApiJson('/api/shard/transfer', { headers: h }).catch(() => []),
@@ -325,10 +340,12 @@ const MyPanel = ({ user, refreshKey, onRefresh }) => {
   const cancelAll = async () => {
     setCancellingAll(true)
     try {
+      // §2.4 **S4** / §9.B **B12**（`S-b3e-2`）：**入参一律走 query、不得读 body**（§1 #27 逐字；
+      //   真源 = 后端 `src/index.ts:777`）⇒ 旧「带 `body: JSON.stringify({})` 的全撤」已删：
+      //   后端 `cancelAllMarketOrders` 只读 `req.query`（无 query ⇒ 全撤），响应的 `cancelled` 键保留。
       const res = await fetchApiJson('/api/order', {
         method: 'DELETE',
-        headers: { ...getAuthHeaders(user), 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
+        headers: getAuthHeaders(user),
       })
       toast.success(`已撤销 ${res?.cancelled ?? 0} 笔挂单`)
       onRefresh()

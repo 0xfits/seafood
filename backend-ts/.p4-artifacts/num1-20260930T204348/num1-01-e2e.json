@@ -1,0 +1,289 @@
+{
+ "generated_at": "2026-09-30T12:43:48.421Z",
+ "base": "http://127.0.0.1:5788",
+ "run": "num1-20260930T204348",
+ "mints_in_this_run": 0,
+ "floors": {
+  "CREATE_FLOOR": 10000,
+  "LIST_FEE_FLOOR": 10000,
+  "LIST_DEPOSIT_FLOOR": 50000
+ },
+ "fixture_sigma_expected": "2020100",
+ "subject": {
+  "actor_uid": 970001,
+  "actor_cid1_balance": "1776071",
+  "token_fp12": "d1ac5b303fbd"
+ },
+ "fixtures": {
+  "SYM_A": "N1A0T204348",
+  "SYM_B": "N1B0T204348",
+  "key_prefix": "cli:num1-0T204348:"
+ },
+ "C1": {
+  "c1a_below": {
+   "status": null,
+   "code": null,
+   "details": null
+  },
+  "c1b_at_floor": {
+   "status": null,
+   "fee": null,
+   "fee_source": null,
+   "matches_source_floor": false
+  },
+  "c1c_default": {
+   "status": null,
+   "fee": null,
+   "fee_source": null,
+   "matches_source_floor": false
+  },
+  "c1d_replay": {
+   "status": null,
+   "replay_flag": null,
+   "delta_entries": 0
+  },
+  "cidA": 0,
+  "cidB": 0
+ },
+ "C2": {
+  "c2a_dep_below": {
+   "status": null,
+   "code": null,
+   "details": null
+  },
+  "c2b_fee_below": {
+   "status": null,
+   "code": null,
+   "details": null
+  },
+  "c2c_at_floor": {
+   "status": null,
+   "listing_fee": null,
+   "deposit_consumed": null,
+   "listing_fee_source": null,
+   "deposit_source": null
+  },
+  "c2d_replay": {
+   "status": null,
+   "replay_flag": null
+  },
+  "c2e_default": {
+   "status": null,
+   "listing_fee": null,
+   "deposit_consumed": null,
+   "listing_fee_source": null,
+   "deposit_source": null,
+   "matches_source_floors": false
+  }
+ },
+ "invariants": {
+  "sigma_pre": "2020100",
+  "sigma_post": "2020100",
+  "sigma_delta": "0",
+  "sigma_expected": "2020100",
+  "sigma_is_expected_pre_and_post": true,
+  "sigma_frozen_pre": "10483",
+  "sigma_frozen_post": "10483",
+  "entries_pre": 229,
+  "entries_post": 229,
+  "entries_delta": 0,
+  "currencies_added": []
+ },
+ "cases": [
+  {
+   "name": "C1-a fee=9999 (below floor) => 400",
+   "status": null,
+   "expect": 400,
+   "expect_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "error_code": null,
+   "details": null,
+   "ok_pass": false,
+   "data": {
+    "cid": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "replay": null
+   },
+   "body_head": "FETCH_ERROR TypeError: fetch failed"
+  },
+  {
+   "name": "C1-b fee=10000 (== floor) => 200",
+   "status": null,
+   "expect": 200,
+   "expect_code": null,
+   "error_code": null,
+   "details": null,
+   "ok_pass": false,
+   "data": {
+    "cid": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "replay": null
+   },
+   "body_head": "FETCH_ERROR TypeError: fetch failed"
+  },
+  {
+   "name": "C1-c fee OMITTED => server default (10000)",
+   "status": null,
+   "expect": 200,
+   "expect_code": null,
+   "error_code": null,
+   "details": null,
+   "ok_pass": false,
+   "data": {
+    "cid": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "replay": null
+   },
+   "body_head": "FETCH_ERROR TypeError: fetch failed"
+  },
+  {
+   "name": "C1-d REPLAY same key+payload => 200 replay",
+   "status": null,
+   "expect": 200,
+   "expect_code": null,
+   "error_code": null,
+   "details": null,
+   "ok_pass": false,
+   "data": {
+    "cid": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "replay": null
+   },
+   "body_head": "FETCH_ERROR TypeError: fetch failed"
+  },
+  {
+   "name": "C2-a deposit_amount=49999 (below floor) => 400",
+   "status": null,
+   "expect": 400,
+   "expect_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "error_code": null,
+   "details": null,
+   "ok_pass": false,
+   "data": {
+    "cid": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "replay": null
+   },
+   "body_head": "FETCH_ERROR TypeError: fetch failed"
+  },
+  {
+   "name": "C2-b listing_fee=9999 (below floor) => 400",
+   "status": null,
+   "expect": 400,
+   "expect_code": "LEDGER_AMOUNT_NOT_POSITIVE",
+   "error_code": null,
+   "details": null,
+   "ok_pass": false,
+   "data": {
+    "cid": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "replay": null
+   },
+   "body_head": "FETCH_ERROR TypeError: fetch failed"
+  },
+  {
+   "name": "C2-c fee=10000+deposit=50000 (at floor) => 200",
+   "status": null,
+   "expect": 200,
+   "expect_code": null,
+   "error_code": null,
+   "details": null,
+   "ok_pass": false,
+   "data": {
+    "cid": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "replay": null
+   },
+   "body_head": "FETCH_ERROR TypeError: fetch failed"
+  },
+  {
+   "name": "C2-d REPLAY same key+payload => 200 replay",
+   "status": null,
+   "expect": 200,
+   "expect_code": null,
+   "error_code": null,
+   "details": null,
+   "ok_pass": false,
+   "data": {
+    "cid": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "replay": null
+   },
+   "body_head": "FETCH_ERROR TypeError: fetch failed"
+  },
+  {
+   "name": "C2-e OMITTED => server defaults (10000+50000)",
+   "status": null,
+   "expect": 200,
+   "expect_code": null,
+   "error_code": null,
+   "details": null,
+   "ok_pass": false,
+   "data": {
+    "cid": null,
+    "fee": null,
+    "fee_source": null,
+    "listing_fee": null,
+    "listing_fee_source": null,
+    "deposit_consumed": null,
+    "deposit_source": null,
+    "replay": null
+   },
+   "body_head": "FETCH_ERROR TypeError: fetch failed"
+  }
+ ],
+ "summary": {
+  "pass": 0,
+  "total": 9,
+  "failed": [
+   "C1-a fee=9999 (below floor) => 400=null/400:null",
+   "C1-b fee=10000 (== floor) => 200=null/200:null",
+   "C1-c fee OMITTED => server default (10000)=null/200:null",
+   "C1-d REPLAY same key+payload => 200 replay=null/200:null",
+   "C2-a deposit_amount=49999 (below floor) => 400=null/400:null",
+   "C2-b listing_fee=9999 (below floor) => 400=null/400:null",
+   "C2-c fee=10000+deposit=50000 (at floor) => 200=null/200:null",
+   "C2-d REPLAY same key+payload => 200 replay=null/200:null",
+   "C2-e OMITTED => server defaults (10000+50000)=null/200:null"
+  ]
+ }
+}

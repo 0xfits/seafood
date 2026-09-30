@@ -1,0 +1,43 @@
+{
+  "run": "b4b-20260930T203125+0800-rerun",
+  "steps": [
+    {
+      "step": "backend_direct_api_home",
+      "url": "http://127.0.0.1:5788/api/home",
+      "status": 200,
+      "waited_ms": 26104,
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"tasks\":[{\"tID\":2,\"title\":\"p4b2:fixture:A\",\"note\":\"p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）\",\"refcode\":\"\",\"link0\":\"\",\"linkA\":\"\",\"linkB\":\""
+    },
+    {
+      "step": "vite_dev_server_root",
+      "url": "http://127.0.0.1:5797/",
+      "status": 200,
+      "waited_ms": 29,
+      "body_head": "<!doctype html>\n<html lang=\"zh-CN\">\n  <head>\n    <script type=\"module\">import { injectIntoGlobalHook } from \"/@react-refresh\";\ninjectIntoGlobalHook(window);\nwindow.$RefreshReg$ = ("
+    },
+    {
+      "step": "vite_proxy_api_home",
+      "url": "http://127.0.0.1:5797/api/home",
+      "status": 200,
+      "bytes": 9248,
+      "body_head": "{\"success\":true,\"message\":\"OK\",\"data\":{\"tasks\":[{\"tID\":2,\"title\":\"p4b2:fixture:A\",\"note\":\"p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）\",\"refcode\":\"\",\"link0\":\"\",\"linkA\":\"\",\"linkB\":\""
+    }
+  ],
+  "backend_start_log": "disconnected before secure TLS connection was established\n        at connResetException (node:internal/errors:720:14)\n        at TLSSocket.onConnectEnd (node:_tls_wrap:1714:19)\n        at TLSSocket.emit (node:events:529:35)\n        at TLSSocket.emit (node:domain:489:12)\n        at endReadableNT (node:internal/streams/readable:1400:12)\n        at processTicksAndRejections (node:internal/process/task_queues:82:21) {\n      code: 'ECONNRESET',\n      path: undefined,\n      host: 'ep-holy-forest-b3fi7u3u-pooler.c-4.ap-southeast-1.aws.neon.tech',\n      port: 443,\n      localAddress: null\n    }\n  }\n}\n",
+  "vite_start_log": "\n  VITE v5.4.20  ready in 134 ms\n\n  ➜  Local:   http://127.0.0.1:5797/\n[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`\n",
+  "orphans_killed_sigkill": [
+    5206
+  ],
+  "children_exit_codes": [
+    {
+      "pid": 5206,
+      "exit_code": null,
+      "signal": "SIGTERM"
+    },
+    {
+      "pid": 5207,
+      "exit_code": 0,
+      "signal": null
+    }
+  ]
+}

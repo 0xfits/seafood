@@ -5,6 +5,7 @@ import { Users, Shield, Search, AlertCircle, RefreshCw, Coins } from 'lucide-rea
 import toast from 'react-hot-toast'
 import { formatEvmAddress } from '../../utils'
 import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdminPermission, loadAdminUsersWithAssets } from '../../admin-utils'
+import { adminOpsKey } from '../../idempotency'
 
 const formatDateTime = (value) => {
   if (!value) return '未知'
@@ -100,12 +101,16 @@ const UsersManagement = () => {
 
     setUpdatingUserId(user.uID)
     try {
+      // §2.4 **S1** / §9.B **B1**（DL36）：`/api/admin/user/update` 现为请求侧强校验
+      //   ⇒ 键形态 `ops:<admin_uid>:user_update:<target_uid>`（真源 = `backend-ts/src/index.ts:991`；
+      //   前缀硬闸 = `admin-service.ts:76-78`；服务端**只校验前缀、不落库** ⇒ 形状契约）。
       const updated = await fetchApiJson('/api/admin/user/update', {
         method: 'POST',
         headers,
         body: JSON.stringify({
           uID: user.uID,
           is_admin: nextAdmin,
+          create_key: adminOpsKey(currentUser?.uID, 'user_update', user.uID),
         }),
       })
 

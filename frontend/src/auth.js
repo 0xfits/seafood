@@ -97,13 +97,59 @@ export const clearAuthSession = () => {
   dispatchAuthChange()
 }
 
+/**
+ * P4-B4b-i · §2.4 **S2**（`R107` 的 401/403 形状）+ §3.3-1 / §3.4：
+ * `R107` 统一错误体 = `{ error: { code, message, i18n_key, details } }`（**顶层无 `message`、无 `success`**）。
+ * 旧写法 `payload?.message || payload?.error` 在 `R107` 下把 `payload.error`（**对象**）当消息
+ * ⇒ 文案退化成 `[object Object]`（§2.4 S2 的触发原因）。
+ * 新口径：**对象面**取 `error.message`（回退 `error.code`），`details.reason` 附在括号里（机读面）；
+ * 再按 `error.i18n_key`（`auth.err.AUTH_UNAUTHORIZED` / `auth.err.AUTH_FORBIDDEN` = §2.4 **S3** 的两把键）做四语解析。
+ */
+export const errorCodeOf = (payload) => (
+  payload?.error && typeof payload.error === 'object' ? payload.error.code : undefined
+)
+
+const extractApiErrorMessage = (payload, status) => {
+  const error = payload?.error
+  if (error && typeof error === 'object') {
+    const reason = error.details && typeof error.details === 'object' ? error.details.reason : undefined
+    const base = error.message || error.code || ''
+    if (base) return reason ? `${base} (${reason})` : base
+  }
+  if (typeof error === 'string' && error) return error
+  if (payload?.message) return payload.message
+  return `请求失败 (${status})`
+}
+
+// `i18n_key`（`R107` 契约键）→ 四语文案。**动态导入**：只在错误路径求值，
+// 不把 `i18n.js` 拖进 `auth.js` 的静态依赖图（既有单测对 `react-i18next` 做 mock，静态导入会连带崩）。
+const resolveI18nMessage = async (apiError, fallback) => {
+  const i18nKey = apiError && typeof apiError === 'object' ? apiError.i18n_key : undefined
+  if (!i18nKey) return fallback
+  try {
+    const { default: i18n } = await import('./i18n')
+    if (i18n?.exists?.(i18nKey)) {
+      const translated = i18n.t(i18nKey)
+      if (translated && translated !== i18nKey) return translated
+    }
+    return fallback
+  } catch {
+    // i18n 不可用 ⇒ 保底回落到服务端 `message`（绝不回落到 `[object Object]`）
+    return fallback
+  }
+}
+
+/** 错误文案总入口（可单测）：`R107` 对象面 / 旧字符串面 / 裸状态码三态均能给出**字符串**。 */
+export const apiErrorMessage = async (payload, status) => (
+  resolveI18nMessage(payload?.error, extractApiErrorMessage(payload, status))
+)
+
 export const fetchApiJson = async (url, options = {}) => {
   const response = await fetch(url, options)
   const payload = await response.json().catch(() => null)
 
   if (!response.ok || !payload?.success) {
-    const message = payload?.message || payload?.error || `请求失败 (${response.status})`
-    throw new Error(message)
+    throw new Error(await apiErrorMessage(payload, response.status))
   }
 
   return payload.data

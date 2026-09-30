@@ -97,99 +97,13 @@ const TasksManagement = () => {
     setIsModalOpen(true)
   }
 
-  const saveTask = async () => {
-    const currentUser = getStoredUser()
-    const headers = {
-      ...getAuthHeaders(currentUser),
-      'Content-Type': 'application/json',
-    }
+  // ── 弃用面下线（P4-B4b-i · §2.4 **S5** / §5.1「后台发布招工」行）───────────────────
+  // `POST /api/admin/task/{create,update,delete}`（原 `:130` / `:140` / `:177`）三**写口**已由后端落为
+  // **`410` + `R107` + `details.sunset`**（**已撤 `requireAdmin`** ⇒ 无 token 亦 `410`）⇒ 前端**零调用**
+  // （判据 = §9.B **B5**）。处置 = **页面只读化**：列表仍走 `GET /api/task/all`，写按钮与写分支删除。
+  // 口径依据：§5.1 逐字「用户需求③：管理员不再发布 task/reward」+ §5.2「删三条写调用（页面只读化）」。
 
-    if (!headers.Authorization) {
-      toast.error('登录状态已失效，请重新登录')
-      return
-    }
-
-    if (!formState.title.trim()) {
-      toast.error('任务标题不能为空')
-      return
-    }
-
-    setSaving(true)
-    try {
-      const payload = {
-        title: formState.title.trim(),
-        note: formState.note.trim() || null,
-        refcode: formState.refcode.trim() || null,
-        points: Number(formState.points) || 0,
-        is_open: Boolean(formState.is_open),
-        link0: formState.link0.trim() || null,
-        linkB: formState.linkB.trim() || null,
-      }
-
-      if (modalMode === 'edit' && selectedTask?.tID) {
-        await fetchApiJson('/api/admin/task/update', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            tID: selectedTask.tID,
-            ...payload,
-          }),
-        })
-        toast.success('任务已更新')
-      } else {
-        await fetchApiJson('/api/admin/task/create', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(payload),
-        })
-        toast.success('任务已创建')
-      }
-
-      setIsModalOpen(false)
-      setSelectedTask(null)
-      setFormState(EMPTY_TASK)
-      await loadTasks({ silent: true })
-    } catch (error) {
-      console.error('Error saving task:', error)
-      toast.error(`保存任务失败: ${error.message}`)
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const deleteTask = async (task) => {
-    const currentUser = getStoredUser()
-    const headers = {
-      ...getAuthHeaders(currentUser),
-      'Content-Type': 'application/json',
-    }
-
-    if (!headers.Authorization) {
-      toast.error('登录状态已失效，请重新登录')
-      return
-    }
-
-    const confirmed = window.confirm(`确认删除任务“${task.title}”？如果已有参与记录，将不会允许删除。`)
-    if (!confirmed) return
-
-    setDeletingId(task.tID)
-    try {
-      await fetchApiJson('/api/admin/task/delete', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ tID: task.tID }),
-      })
-      toast.success('任务已删除')
-      await loadTasks({ silent: true })
-    } catch (error) {
-      console.error('Error deleting task:', error)
-      toast.error(`删除任务失败: ${error.message}`)
-    } finally {
-      setDeletingId(null)
-    }
-  }
-
-  const isReadonlyModal = modalMode === 'view' || (modalMode === 'create' ? !canPublishTasks : !canManageTasks)
+  const isReadonlyModal = true
 
   return (
     <div className="space-y-6">
@@ -197,12 +111,8 @@ const TasksManagement = () => {
         <div>
           <h2 className="text-2xl font-bold">任务管理</h2>
           <p className="text-sm text-gray-600 mt-1">
-            当前账号
-            {canManageTasks
-              ? '可执行任务的新增、编辑和删除。'
-              : canPublishTasks
-                ? '可新增任务，但不能编辑或删除现有任务。'
-                : '为只读模式。'}
+            当前账号为只读模式：管理员发布/编辑/删除招工入口已下线
+            （`POST /api/admin/task/*` = `410`，§5.1「后台发布招工」行）。
           </p>
         </div>
         <div className="flex gap-2">
@@ -210,10 +120,7 @@ const TasksManagement = () => {
             <RefreshCw className="w-4 h-4 mr-2" />
             {refreshing ? '刷新中...' : '刷新'}
           </Button>
-          <Button variant="primary" onClick={openCreateModal} disabled={!canPublishTasks}>
-            <Plus className="w-4 h-4 mr-2" />
-            添加任务
-          </Button>
+          {/* §2.4 S5：`POST /api/admin/task/create` 已 410 ⇒ 新增入口删除（页面只读化） */}
         </div>
       </div>
 
@@ -241,18 +148,7 @@ const TasksManagement = () => {
                     <Button variant="ghost" size="sm" onClick={() => openViewModal(task)} title="查看详情">
                       <Eye className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => openEditModal(task)} disabled={!canManageTasks} title="编辑任务">
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteTask(task)}
-                      disabled={!canManageTasks || deletingId === task.tID}
-                      title="删除任务"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    {/* §2.4 S5：编辑(`admin/task/update`)/删除(`admin/task/delete`) 均 410 ⇒ 只留「查看」 */}
                   </div>
                 </div>
               </CardContent>
@@ -345,11 +241,7 @@ const TasksManagement = () => {
             <Button variant="secondary" onClick={() => setIsModalOpen(false)} disabled={saving}>
               关闭
             </Button>
-            {!isReadonlyModal && (
-              <Button variant="primary" onClick={saveTask} disabled={saving}>
-                {saving ? '保存中...' : '保存任务'}
-              </Button>
-            )}
+            {/* §2.4 S5：保存（`admin/task/create|update`）已 410 ⇒ 保存按钮删除（模态框为只读详情） */}
           </div>
         </div>
       </Modal>

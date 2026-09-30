@@ -4,6 +4,7 @@ import { Button, Card, CardHeader, CardTitle, CardContent } from '../../componen
 import { Settings, Save, RefreshCw, Database, Globe } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdminPermission } from '../../admin-utils'
+import { adminOpsKey } from '../../idempotency'
 
 const DEFAULT_SETTINGS = {
   siteDescription: '去中心化社区奖励平台',
@@ -82,10 +83,18 @@ const SystemSettings = () => {
         rewardCooldown: Number(settings.rewardCooldown) || 0,
       }
 
+      // §2.4 **S1** / §9.B **B1**（DL36）：`POST /api/admin/settings` 现为**请求侧强校验** ——
+      //   无 `ops:` 前缀的幂等键 ⇒ `400 LEDGER_IDEMPOTENCY_KEY_REQUIRED`
+      //   （真源 = `backend-ts/src/admin-service.ts:63-72`；前缀硬闸 `:76-78`）。
+      //   键形态 = §4.5 的 `ops:<admin_uid>:<action>:<key>`（服务端**只校验前缀、不落库** ⇒ 形状契约，
+      //   非重放机制；同一操作的键**确定性相同** ⇒ 重试不会引入新语义）。
       const saved = await fetchApiJson('/api/admin/settings', {
         method: 'POST',
         headers,
-        body: JSON.stringify(normalized),
+        body: JSON.stringify({
+          ...normalized,
+          create_key: adminOpsKey(currentUser?.uID, 'setting', 'system_settings'),
+        }),
       })
 
       const nextSettings = {
@@ -103,41 +112,11 @@ const SystemSettings = () => {
     }
   }
 
-  const resetSettings = async () => {
-    const currentUser = getStoredUser()
-    const headers = {
-      ...getAuthHeaders(currentUser),
-      'Content-Type': 'application/json',
-    }
-    if (!headers.Authorization) {
-      toast.error('登录状态已失效，请重新登录')
-      navigate('/login')
-      return
-    }
-
-    const confirmed = window.confirm('确认将系统设置重置为默认值？')
-    if (!confirmed) return
-
-    setRefreshing(true)
-    try {
-      const reset = await fetchApiJson('/api/admin/settings/reset', {
-        method: 'POST',
-        headers,
-      })
-      const nextSettings = {
-        ...DEFAULT_SETTINGS,
-        ...reset,
-      }
-      setSettings(nextSettings)
-      setSavedSettings(nextSettings)
-      toast.success('系统设置已重置')
-    } catch (error) {
-      console.error('Error resetting settings:', error)
-      toast.error(`重置失败: ${error.message}`)
-    } finally {
-      setRefreshing(false)
-    }
-  }
+  // ── 弃用面下线（P4-B4b-i · §2.4 **S5** / §5.1「一键重置设置」行；C3 ② 终审「删除」）───────
+  // 原 `resetSettings`（`POST /api/admin/settings/reset`，原 `:123`）已由后端落为 **`410` + `R107` +
+  // `details.sunset`**（无 token 亦 `410`，**不伪装 401**）⇒ 前端**零调用**（判据 = §9.B B5）；
+  // 该端点 = 「无审计的批量破坏写」⇒ 处置 = **删按钮 + 删调用**（逐项改走 `POST /api/admin/settings`，
+  // 每条一键 + 一条留痕）。
 
   const handleSettingChange = (key, value) => {
     setSettings(prev => ({
@@ -155,15 +134,13 @@ const SystemSettings = () => {
         <div>
           <h2 className="text-2xl font-bold">系统设置</h2>
           <p className="text-sm text-gray-600 mt-1">
-            当前页面使用持久化后台设置状态，支持读取、保存和重置默认值。
+            当前页面使用持久化后台设置状态，支持读取与保存
+            （保存按 §2.4 S1/DL36 带 `ops:` 幂等键）；「重置为默认值」入口已下线（§5.1 = `410`）。
             {!canManageSettings && ' 当前账号为只读模式。'}
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="secondary" onClick={resetSettings} disabled={refreshing || loading || !canManageSettings}>
-            <RefreshCw className="w-4 h-4 mr-2" />
-            {refreshing ? '重置中...' : '重置'}
-          </Button>
+          {/* §2.4 S5：`POST /api/admin/settings/reset` 已 410 ⇒ 「重置」按钮删除（页面只读化+逐项保存） */}
           <Button variant="primary" onClick={saveSettings} disabled={loading || !hasChanges || !canManageSettings}>
             <Save className="w-4 h-4 mr-2" />
             {loading ? '保存中...' : '保存设置'}
