@@ -1,0 +1,132 @@
+{
+  "run_tag": "p5triage-20260930T144143Z",
+  "started": "2026-09-30T14:43:53.883Z",
+  "to_regclass": {
+    "asset": null,
+    "task": null,
+    "task_progress": null,
+    "prize": null,
+    "prize_item": null,
+    "shard": null,
+    "shard_transfer": null,
+    "schema_migration": "schema_migration",
+    "users": "users",
+    "account": "account",
+    "ledger_entry": "ledger_entry",
+    "listing": "listing",
+    "listing_order": "listing_order"
+  },
+  "columns": {
+    "users": [
+      "uid:bigint",
+      "evm:text",
+      "bio:text",
+      "is_admin:boolean",
+      "time_reg:timestamp with time zone",
+      "time_login_last:timestamp with time zone"
+    ],
+    "account": [
+      "uid:bigint",
+      "cid:bigint",
+      "balance:bigint",
+      "frozen:bigint",
+      "version:bigint",
+      "time_created:timestamp with time zone",
+      "time_updated:timestamp with time zone"
+    ],
+    "ledger_entry": [
+      "txid:bigint",
+      "uid:bigint",
+      "cid:bigint",
+      "delta:bigint",
+      "frozen_delta:bigint",
+      "balance_after:bigint",
+      "frozen_after:bigint",
+      "kind:text",
+      "ref_type:text",
+      "ref_id:bigint",
+      "idempotency_key:text",
+      "request_fingerprint:text",
+      "reversal_of_txid:bigint",
+      "memo:text",
+      "time_created:timestamp with time zone",
+      "event_root_key:text"
+    ]
+  },
+  "users_total": "24",
+  "account_rows_total": "25",
+  "account_rows_cid1": "16",
+  "users_without_cid1_account": "12",
+  "per_user_sample": [
+    {
+      "uid": "1",
+      "cid1_rows": "0"
+    },
+    {
+      "uid": "2",
+      "cid1_rows": "1"
+    },
+    {
+      "uid": "3",
+      "cid1_rows": "1"
+    },
+    {
+      "uid": "4",
+      "cid1_rows": "1"
+    },
+    {
+      "uid": "5",
+      "cid1_rows": "1"
+    },
+    {
+      "uid": "6",
+      "cid1_rows": "1"
+    },
+    {
+      "uid": "7",
+      "cid1_rows": "1"
+    },
+    {
+      "uid": "8",
+      "cid1_rows": "1"
+    },
+    {
+      "uid": "9",
+      "cid1_rows": "0"
+    },
+    {
+      "uid": "10",
+      "cid1_rows": "0"
+    }
+  ],
+  "task_progress_rowcount": "TABLE_ABSENT",
+  "claim_upsert_reach": {
+    "note": "upsertAsset 内部两分支（UPDATE asset / INSERT INTO asset）**均**指向缺表 ⇒ 只要被调到必 42P01",
+    "path_659_already_claimed_users": "= users_without_cid1_account（同口径短路）",
+    "path_670_first_claim": "无条件调用 upsertAsset(:670) ⇒ 恒 42P01"
+  },
+  "ledger_functions_on_disk": "2",
+  "hit_branch": "sql(text,params)",
+  "steps": [
+    "to_regclass(public.asset) => NULL (NOT EXISTS)",
+    "to_regclass(public.task) => NULL (NOT EXISTS)",
+    "to_regclass(public.task_progress) => NULL (NOT EXISTS)",
+    "to_regclass(public.prize) => NULL (NOT EXISTS)",
+    "to_regclass(public.prize_item) => NULL (NOT EXISTS)",
+    "to_regclass(public.shard) => NULL (NOT EXISTS)",
+    "to_regclass(public.shard_transfer) => NULL (NOT EXISTS)",
+    "to_regclass(public.schema_migration) => schema_migration",
+    "to_regclass(public.users) => users",
+    "to_regclass(public.account) => account",
+    "to_regclass(public.ledger_entry) => ledger_entry",
+    "to_regclass(public.listing) => listing",
+    "to_regclass(public.listing_order) => listing_order",
+    "users columns = uid:bigint, evm:text, bio:text, is_admin:boolean, time_reg:timestamp with time zone, time_login_last:timestamp with time zone",
+    "account columns = uid:bigint, cid:bigint, balance:bigint, frozen:bigint, version:bigint, time_created:timestamp with time zone, time_updated:timestamp with time zone",
+    "users_total=24 account_rows_total=25 account_cid1=16 users_without_cid1_account=12",
+    "per_user_sample = [{\"uid\":\"1\",\"cid1_rows\":\"0\"},{\"uid\":\"2\",\"cid1_rows\":\"1\"},{\"uid\":\"3\",\"cid1_rows\":\"1\"},{\"uid\":\"4\",\"cid1_rows\":\"1\"},{\"uid\":\"5\",\"cid1_rows\":\"1\"},{\"uid\":\"6\",\"cid1_rows\":\"1\"},{\"uid\":\"7\",\"cid1_rows\":\"1\"},{\"uid\":\"8\",\"cid1_rows\":\"1\"},{\"uid\":\"9\",\"cid1_rows\":\"0\"},{\"uid\":\"10\",\"cid1_rows\":\"0\"}]",
+    "task_progress_rowcount = TABLE_ABSENT",
+    "ledger functions on disk = 2"
+  ],
+  "finished": "2026-09-30T14:44:44.856Z"
+}

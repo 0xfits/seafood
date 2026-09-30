@@ -1,0 +1,50 @@
+{
+  "started": "2026-09-30T14:45:43.111Z",
+  "cases": [
+    {
+      "name": "REFUSED_LOCAL_PORT",
+      "note": "本机 1 号端口 = 拒绝连接（ECONNREFUSED）⇒ 传输类，非 HTTP 400",
+      "url_host": "127.0.0.1:1",
+      "outcome": "THREW",
+      "error_name": "NeonDbError",
+      "error_ctor": "NeonDbError",
+      "error_message": "Error connecting to database: fetch failed",
+      "error_code": null,
+      "error_severity": null,
+      "error_status": null,
+      "error_httpStatus": null,
+      "error_sourceError": "TypeError: fetch failed",
+      "error_own_keys": [
+        "name",
+        "code",
+        "sourceError"
+      ],
+      "code_is_null": true
+    },
+    {
+      "name": "UNRESOLVABLE_HOST",
+      "note": "DNS 不可解析 ⇒ 传输类",
+      "url_host": "nonexistent-host-p5triage.invalid",
+      "outcome": "THREW",
+      "error_name": "NeonDbError",
+      "error_ctor": "NeonDbError",
+      "error_message": "Error connecting to database: fetch failed",
+      "error_code": null,
+      "error_severity": null,
+      "error_status": null,
+      "error_httpStatus": null,
+      "error_sourceError": "TypeError: fetch failed",
+      "error_own_keys": [
+        "name",
+        "code",
+        "sourceError"
+      ],
+      "code_is_null": true
+    }
+  ],
+  "structural_claim": {
+    "source": "node_modules/@neondatabase/serverless/index.js",
+    "claim": "仅在 HTTP 400 分支读 {message, code}；非 400 ⇒ throw \"Server error (HTTP status N)\"，code 恒 null"
+  },
+  "finished": "2026-09-30T14:45:44.063Z"
+}
