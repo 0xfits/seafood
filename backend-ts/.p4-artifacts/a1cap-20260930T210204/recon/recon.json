@@ -1,0 +1,272 @@
+{
+  "run": "recon",
+  "tables": [
+    {
+      "table_name": "account"
+    },
+    {
+      "table_name": "admin_permission"
+    },
+    {
+      "table_name": "admin_role"
+    },
+    {
+      "table_name": "admin_role_permission"
+    },
+    {
+      "table_name": "admin_user_role"
+    },
+    {
+      "table_name": "app_config"
+    },
+    {
+      "table_name": "candle_view"
+    },
+    {
+      "table_name": "commission_policy"
+    },
+    {
+      "table_name": "currency"
+    },
+    {
+      "table_name": "currency_status_log"
+    },
+    {
+      "table_name": "job"
+    },
+    {
+      "table_name": "job_application"
+    },
+    {
+      "table_name": "job_submission"
+    },
+    {
+      "table_name": "ledger_entry"
+    },
+    {
+      "table_name": "ledger_owner"
+    },
+    {
+      "table_name": "listing"
+    },
+    {
+      "table_name": "listing_order"
+    },
+    {
+      "table_name": "market_order"
+    },
+    {
+      "table_name": "market_trade"
+    },
+    {
+      "table_name": "referral"
+    },
+    {
+      "table_name": "schema_migration"
+    },
+    {
+      "table_name": "users"
+    }
+  ],
+  "audit_like_tables": [
+    {
+      "table_name": "currency_status_log"
+    }
+  ],
+  "audit_like_columns": [
+    {
+      "table_name": "currency_status_log",
+      "column_name": "log_id",
+      "data_type": "bigint"
+    },
+    {
+      "table_name": "currency_status_log",
+      "column_name": "cid",
+      "data_type": "bigint"
+    },
+    {
+      "table_name": "currency_status_log",
+      "column_name": "from_status",
+      "data_type": "text"
+    },
+    {
+      "table_name": "currency_status_log",
+      "column_name": "to_status",
+      "data_type": "text"
+    },
+    {
+      "table_name": "currency_status_log",
+      "column_name": "actor_uid",
+      "data_type": "bigint"
+    },
+    {
+      "table_name": "currency_status_log",
+      "column_name": "memo",
+      "data_type": "text"
+    },
+    {
+      "table_name": "currency_status_log",
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone"
+    }
+  ],
+  "asset_table_exists": false,
+  "account_cid1": [
+    {
+      "uid": "11",
+      "bal": "29398",
+      "frz": "6370"
+    },
+    {
+      "uid": "12",
+      "bal": "136783",
+      "frz": "0"
+    },
+    {
+      "uid": "2",
+      "bal": "7600",
+      "frz": "0"
+    },
+    {
+      "uid": "3",
+      "bal": "1386",
+      "frz": "0"
+    },
+    {
+      "uid": "4",
+      "bal": "4",
+      "frz": "0"
+    },
+    {
+      "uid": "5",
+      "bal": "6",
+      "frz": "0"
+    },
+    {
+      "uid": "6",
+      "bal": "990",
+      "frz": "0"
+    },
+    {
+      "uid": "7",
+      "bal": "5100",
+      "frz": "0"
+    },
+    {
+      "uid": "8",
+      "bal": "4900",
+      "frz": "0"
+    },
+    {
+      "uid": "970001",
+      "bal": "1636071",
+      "frz": "4112"
+    }
+  ],
+  "account_cid1_tail": [
+    {
+      "uid": "970001",
+      "bal": "1636071",
+      "frz": "4112"
+    }
+  ],
+  "sigma": [
+    {
+      "sigma": "2020100",
+      "sbal": "2009617",
+      "sfrz": "10483"
+    }
+  ],
+  "ledger_entry_count": [
+    {
+      "n": 241
+    }
+  ],
+  "user_admin_cols": [
+    {
+      "column_name": "uid"
+    },
+    {
+      "column_name": "evm"
+    },
+    {
+      "column_name": "bio"
+    },
+    {
+      "column_name": "is_admin"
+    },
+    {
+      "column_name": "time_reg"
+    },
+    {
+      "column_name": "time_login_last"
+    }
+  ],
+  "kinds": [
+    {
+      "kind": "commission",
+      "n": 4
+    },
+    {
+      "kind": "currency_create_fee",
+      "n": 38
+    },
+    {
+      "kind": "hold",
+      "n": 50
+    },
+    {
+      "kind": "hold_release",
+      "n": 8
+    },
+    {
+      "kind": "job_escrow",
+      "n": 18
+    },
+    {
+      "kind": "job_escrow_refund",
+      "n": 8
+    },
+    {
+      "kind": "job_fee",
+      "n": 8
+    },
+    {
+      "kind": "job_payout",
+      "n": 10
+    },
+    {
+      "kind": "listing_deposit",
+      "n": 22
+    },
+    {
+      "kind": "mint",
+      "n": 5
+    },
+    {
+      "kind": "purchase",
+      "n": 3
+    },
+    {
+      "kind": "purchase_refund",
+      "n": 4
+    },
+    {
+      "kind": "sale",
+      "n": 3
+    },
+    {
+      "kind": "trade",
+      "n": 32
+    },
+    {
+      "kind": "trade_fee",
+      "n": 16
+    },
+    {
+      "kind": "transfer",
+      "n": 12
+    }
+  ],
+  "errors": "none"
+}

@@ -1172,6 +1172,13 @@ app.post('/api/admin/assets/init', async (_req, res) => {
   return sendGone(res, '/api/admin/assets/init', ADMIN_ASSETS_INIT_SUNSET);
 });
 
+// P4-A1-CAP（**Kevin 2026-09-30 定值**，Zang 裁定）：后台调分的**单笔上限** = 100000 `$`。
+//   · 「单笔 ≤ 100000」只在此**一处**校验（**单点校验位**，紧贴入参解析；值也只在此出现一次）；
+//   · 超限 ⇒ `400` + `LEDGER_AMOUNT_INVALID`（`ledger-errors.ts:49`，input 类）+ `details.reason = OVER_MAX_SINGLE_AMOUNT`
+//     —— reason **复用** `currency-service.ts:125` 既有值（同族语义：金额超单笔上限），**不新造码 / 不新造 reason**；
+//   · **日累计上限留后续（批 6）**；本常量**不得**改成从 `app_config` 读（那属批 6）。
+const ADMIN_POINTS_ADJUST_MAX_PER_CALL = 100000;
+
 app.post('/api/admin/points/adjust', async (req, res) => {
   const actor = await requireAdmin(req, res);
   if (!actor) return;
@@ -1183,6 +1190,24 @@ app.post('/api/admin/points/adjust', async (req, res) => {
 
     if (!uID || Number.isNaN(amount) || !reason) {
       return sendError(res, 400, '参数不完整');
+    }
+
+    // A1-CAP 单点校验位（改前只查 `Number.isNaN`：超限与 ≤0 都能穿透到服务层）：
+    // ≤0 与 > 单笔上限 一律 `400`（同族入参码，R107 形状；`reason` 取既有值，不新造）。
+    if (amount <= 0) {
+      return res.status(400).json(ledgerErrorBody(
+        'LEDGER_AMOUNT_INVALID',
+        'Request shape is invalid',
+        { field: 'amount', reason: 'NOT_A_POSITIVE_INTEGER', provided: amount },
+      ));
+    }
+
+    if (amount > ADMIN_POINTS_ADJUST_MAX_PER_CALL) {
+      return res.status(400).json(ledgerErrorBody(
+        'LEDGER_AMOUNT_INVALID',
+        'Request shape is invalid',
+        { field: 'amount', reason: 'OVER_MAX_SINGLE_AMOUNT', max: ADMIN_POINTS_ADJUST_MAX_PER_CALL, provided: amount },
+      ));
     }
 
     const result = await DatabaseService.adjustPoints(uID, amount, reason);

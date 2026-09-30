@@ -1,0 +1,387 @@
+{
+  "run": "post",
+  "mode": "post",
+  "base": "http://127.0.0.1:5788",
+  "cap_const_in_src": 100000,
+  "route_count_from_src": 65,
+  "started_at": "2026-09-30T13:25:59.158Z",
+  "actor_probe": [
+    {
+      "uid": 1,
+      "token_fp12": "30346e5c44a8",
+      "user_status": 200,
+      "user_code": null,
+      "admin_status": 200,
+      "admin_code": null,
+      "admin_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "can_access_admin": true
+    },
+    {
+      "uid": 2,
+      "token_fp12": "2d595f037369",
+      "user_status": null,
+      "user_code": null,
+      "admin_status": 200,
+      "admin_code": null,
+      "admin_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "can_access_admin": false
+    }
+  ],
+  "actors": {
+    "admin": {
+      "uid": 1,
+      "token_fp12": "c1bb5a1b64db"
+    },
+    "nonadmin": {
+      "uid": 12,
+      "token_fp12": "783986508b05"
+    },
+    "secret_key_fp12": "b1ec01afb2eb"
+  },
+  "targets": {
+    "cid1_uid": 4,
+    "cid1_candidates": [
+      "4",
+      "5",
+      "6"
+    ],
+    "absent_uid": 987654321
+  },
+  "asset_table_exists": false,
+  "pre": {
+    "snap": {
+      "sigma": "2020100",
+      "sbal": "2009617",
+      "sfrz": "10483",
+      "entries": 241,
+      "kinds": {
+        "commission": 4,
+        "currency_create_fee": 38,
+        "hold": 50,
+        "hold_release": 8,
+        "job_escrow": 18,
+        "job_escrow_refund": 8,
+        "job_fee": 8,
+        "job_payout": 10,
+        "listing_deposit": 22,
+        "mint": 5,
+        "purchase": 3,
+        "purchase_refund": 4,
+        "sale": 3,
+        "trade": 32,
+        "trade_fee": 16,
+        "transfer": 12
+      }
+    },
+    "rows": [
+      {
+        "uid": "4",
+        "cid": "1",
+        "bal": "4",
+        "frz": "0"
+      }
+    ]
+  },
+  "post": {
+    "snap": {
+      "sigma": "2020100",
+      "sbal": "2009617",
+      "sfrz": "10483",
+      "entries": 241,
+      "kinds": {
+        "commission": 4,
+        "currency_create_fee": 38,
+        "hold": 50,
+        "hold_release": 8,
+        "job_escrow": 18,
+        "job_escrow_refund": 8,
+        "job_fee": 8,
+        "job_payout": 10,
+        "listing_deposit": 22,
+        "mint": 5,
+        "purchase": 3,
+        "purchase_refund": 4,
+        "sale": 3,
+        "trade": 32,
+        "trade_fee": 16,
+        "transfer": 12
+      }
+    },
+    "rows": [
+      {
+        "uid": "4",
+        "cid": "1",
+        "bal": "4",
+        "frz": "0"
+      }
+    ]
+  },
+  "delta": {
+    "sigma": "0",
+    "sbal": "0",
+    "sfrz": "0",
+    "ledger_entries": 0,
+    "kinds_changed": []
+  },
+  "results": [
+    {
+      "id": "T01",
+      "note": "cap 边界内 = 100000（改后应过校验 ⇒ 落到服务层）",
+      "who": "admin",
+      "url": "/api/admin/points/adjust",
+      "sent": {
+        "uID": 4,
+        "amount": 100000,
+        "reason": "A1CAP at-limit"
+      },
+      "status": 404,
+      "code": null,
+      "reason": null,
+      "msg": "积分调整失败",
+      "resp_fp12": "615c244bd52b",
+      "expect": null,
+      "pass": null
+    },
+    {
+      "id": "T02",
+      "note": "cap 超限 = 100001（改后应 400 + OVER_MAX_SINGLE_AMOUNT）",
+      "who": "admin",
+      "url": "/api/admin/points/adjust",
+      "sent": {
+        "uID": 4,
+        "amount": 100001,
+        "reason": "A1CAP over-cap"
+      },
+      "status": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "reason": "OVER_MAX_SINGLE_AMOUNT",
+      "msg": "Request shape is invalid",
+      "resp_fp12": "c50be946f79d",
+      "expect": 400,
+      "pass": true
+    },
+    {
+      "id": "T03",
+      "note": "零值 amount = 0（改后应 400）",
+      "who": "admin",
+      "url": "/api/admin/points/adjust",
+      "sent": {
+        "uID": 4,
+        "amount": 0,
+        "reason": "A1CAP zero"
+      },
+      "status": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "reason": "NOT_A_POSITIVE_INTEGER",
+      "msg": "Request shape is invalid",
+      "resp_fp12": "688b402e6dc6",
+      "expect": 400,
+      "pass": true
+    },
+    {
+      "id": "T04",
+      "note": "负值 amount = -5（改后应 400）",
+      "who": "admin",
+      "url": "/api/admin/points/adjust",
+      "sent": {
+        "uID": 4,
+        "amount": -5,
+        "reason": "A1CAP negative"
+      },
+      "status": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "reason": "NOT_A_POSITIVE_INTEGER",
+      "msg": "Request shape is invalid",
+      "resp_fp12": "2cb4950262bd",
+      "expect": 400,
+      "pass": true
+    },
+    {
+      "id": "T05",
+      "note": "非 admin ⇒ 403（不得因新增校验绕过权限闸）",
+      "who": "nonadmin",
+      "url": "/api/admin/points/adjust",
+      "sent": {
+        "uID": 4,
+        "amount": 1,
+        "reason": "A1CAP nonadmin"
+      },
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "reason": "NOT_ADMIN",
+      "msg": "AUTH_FORBIDDEN",
+      "resp_fp12": "50b9fef1a856",
+      "expect": 403,
+      "pass": true
+    },
+    {
+      "id": "T06",
+      "note": "无 token ⇒ 401",
+      "who": "none",
+      "url": "/api/admin/points/adjust",
+      "sent": {
+        "uID": 4,
+        "amount": 1,
+        "reason": "A1CAP notoken"
+      },
+      "status": 401,
+      "code": "AUTH_UNAUTHORIZED",
+      "reason": null,
+      "msg": "AUTH_UNAUTHORIZED",
+      "resp_fp12": "2f80085fd434",
+      "expect": 401,
+      "pass": true
+    },
+    {
+      "id": "T07",
+      "note": "缺 reason ⇒ 既有 400「参数不完整」（未改）",
+      "who": "admin",
+      "url": "/api/admin/points/adjust",
+      "sent": {
+        "uID": 4,
+        "amount": 10,
+        "reason": ""
+      },
+      "status": 400,
+      "code": null,
+      "reason": null,
+      "msg": "参数不完整",
+      "resp_fp12": "73dfd74edba8",
+      "expect": 400,
+      "pass": true
+    },
+    {
+      "id": "T08",
+      "note": "小额 100（cap 内）→ 服务层；库内无该行 ⇒ 404 用户资产记录不存在",
+      "who": "admin",
+      "url": "/api/admin/points/adjust",
+      "sent": {
+        "uID": 987654321,
+        "amount": 100,
+        "reason": "A1CAP small absent"
+      },
+      "status": 404,
+      "code": null,
+      "reason": null,
+      "msg": "用户资产记录不存在",
+      "resp_fp12": "6adea681a9ff",
+      "expect": 404,
+      "pass": true
+    },
+    {
+      "id": "T09",
+      "note": "超上限的浮点 1e21（超 safe-int，改后应被 cap 挡）",
+      "who": "admin",
+      "url": "/api/admin/points/adjust",
+      "sent": {
+        "uID": 4,
+        "amount": 1e+21,
+        "reason": "A1CAP huge"
+      },
+      "status": 400,
+      "code": "LEDGER_AMOUNT_INVALID",
+      "reason": "OVER_MAX_SINGLE_AMOUNT",
+      "msg": "Request shape is invalid",
+      "resp_fp12": "3cb2d705cfec",
+      "expect": 400,
+      "pass": true
+    },
+    {
+      "id": "T10",
+      "note": "非 admin + 超上限（权限闸必须先于金额校验 ⇒ 403 而非 400）",
+      "who": "nonadmin",
+      "url": "/api/admin/points/adjust",
+      "sent": {
+        "uID": 4,
+        "amount": 100001,
+        "reason": "A1CAP nonadmin overcap"
+      },
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "reason": "NOT_ADMIN",
+      "msg": "AUTH_FORBIDDEN",
+      "resp_fp12": "50b9fef1a856",
+      "expect": 403,
+      "pass": true
+    }
+  ],
+  "failed": [],
+  "regression": {
+    "health": {
+      "status": 200
+    },
+    "home": {
+      "status": 200
+    },
+    "gone_410": [
+      {
+        "face": "/api/auth/register",
+        "method_used": "POST",
+        "status": 410,
+        "code": null,
+        "pass": true
+      },
+      {
+        "face": "/api/shard/redeem",
+        "method_used": "POST",
+        "status": 410,
+        "code": "LEDGER_REF_NOT_FOUND",
+        "pass": true
+      },
+      {
+        "face": "/api/chest/1/open",
+        "method_used": "POST",
+        "status": 410,
+        "code": "LEDGER_REF_NOT_FOUND",
+        "pass": true
+      },
+      {
+        "face": "/api/admin/prize/create",
+        "method_used": "POST",
+        "status": 410,
+        "code": "LEDGER_REF_NOT_FOUND",
+        "pass": true
+      },
+      {
+        "face": "/api/admin/prize/update",
+        "method_used": "POST",
+        "status": 410,
+        "code": "LEDGER_REF_NOT_FOUND",
+        "pass": true
+      },
+      {
+        "face": "/api/admin/prize/delete",
+        "method_used": "POST",
+        "status": 410,
+        "code": "LEDGER_REF_NOT_FOUND",
+        "pass": true
+      }
+    ],
+    "gone_pass": "6/6",
+    "route_count_from_src": 65,
+    "floors": {
+      "create_fee_floor_src": 10000,
+      "list_fee_floor_src": 10000,
+      "list_deposit_floor_src": 50000
+    },
+    "c1_below_floor": {
+      "status": 400,
+      "code": "LEDGER_AMOUNT_NOT_POSITIVE",
+      "reason": "BELOW_SERVER_FLOOR"
+    },
+    "c2_below_floor": {
+      "status": 400,
+      "code": "LEDGER_AMOUNT_NOT_POSITIVE",
+      "reason": "BELOW_SERVER_FLOOR"
+    }
+  },
+  "finished_at": "2026-09-30T13:27:58.966Z"
+}
