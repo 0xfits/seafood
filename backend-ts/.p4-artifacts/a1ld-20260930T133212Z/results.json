@@ -1,0 +1,396 @@
+{
+  "run": "a1ld-20260930T133212Z",
+  "caliber": "readonly SELECT/information_schema via HTTP neon()",
+  "caller": "p4z-a1ld-01-probe.ts",
+  "tables": [
+    {
+      "table_name": "account"
+    },
+    {
+      "table_name": "admin_permission"
+    },
+    {
+      "table_name": "admin_role"
+    },
+    {
+      "table_name": "admin_role_permission"
+    },
+    {
+      "table_name": "admin_user_role"
+    },
+    {
+      "table_name": "app_config"
+    },
+    {
+      "table_name": "candle_view"
+    },
+    {
+      "table_name": "commission_policy"
+    },
+    {
+      "table_name": "currency"
+    },
+    {
+      "table_name": "currency_status_log"
+    },
+    {
+      "table_name": "job"
+    },
+    {
+      "table_name": "job_application"
+    },
+    {
+      "table_name": "job_submission"
+    },
+    {
+      "table_name": "ledger_entry"
+    },
+    {
+      "table_name": "ledger_owner"
+    },
+    {
+      "table_name": "listing"
+    },
+    {
+      "table_name": "listing_order"
+    },
+    {
+      "table_name": "market_order"
+    },
+    {
+      "table_name": "market_trade"
+    },
+    {
+      "table_name": "referral"
+    },
+    {
+      "table_name": "schema_migration"
+    },
+    {
+      "table_name": "users"
+    }
+  ],
+  "live_table_count": 22,
+  "src_suspects_presence": [
+    {
+      "table": "asset",
+      "live_exists": false,
+      "migration_created": false
+    },
+    {
+      "table": "task",
+      "live_exists": false,
+      "migration_created": false
+    },
+    {
+      "table": "task_progress",
+      "live_exists": false,
+      "migration_created": false
+    },
+    {
+      "table": "prize",
+      "live_exists": false,
+      "migration_created": false
+    },
+    {
+      "table": "prize_item",
+      "live_exists": false,
+      "migration_created": false
+    },
+    {
+      "table": "shard",
+      "live_exists": false,
+      "migration_created": false
+    },
+    {
+      "table": "shard_transfer",
+      "live_exists": false,
+      "migration_created": false
+    },
+    {
+      "table": "schema_migration",
+      "live_exists": true,
+      "migration_created": false
+    },
+    {
+      "table": "profile",
+      "live_exists": false,
+      "migration_created": false
+    }
+  ],
+  "diff_src_minus_migrations": [
+    "asset",
+    "task",
+    "task_progress",
+    "prize",
+    "prize_item",
+    "shard",
+    "shard_transfer",
+    "schema_migration",
+    "profile"
+  ],
+  "suspect_details": [
+    {
+      "table": "asset",
+      "status": "NOT_EXISTS_IN_DB"
+    },
+    {
+      "table": "task",
+      "status": "NOT_EXISTS_IN_DB"
+    },
+    {
+      "table": "task_progress",
+      "status": "NOT_EXISTS_IN_DB"
+    },
+    {
+      "table": "prize",
+      "status": "NOT_EXISTS_IN_DB"
+    },
+    {
+      "table": "prize_item",
+      "status": "NOT_EXISTS_IN_DB"
+    },
+    {
+      "table": "shard",
+      "status": "NOT_EXISTS_IN_DB"
+    },
+    {
+      "table": "shard_transfer",
+      "status": "NOT_EXISTS_IN_DB"
+    },
+    {
+      "table": "schema_migration",
+      "status": "EXISTS",
+      "columns": [
+        {
+          "column_name": "id",
+          "data_type": "bigint"
+        },
+        {
+          "column_name": "version",
+          "data_type": "text"
+        },
+        {
+          "column_name": "name",
+          "data_type": "text"
+        },
+        {
+          "column_name": "checksum",
+          "data_type": "text"
+        },
+        {
+          "column_name": "applied_at",
+          "data_type": "timestamp with time zone"
+        }
+      ],
+      "rowcount": 19
+    },
+    {
+      "table": "profile",
+      "status": "NOT_EXISTS_IN_DB"
+    }
+  ],
+  "ledger_routines": [
+    {
+      "proname": "ledger_assert_platform_mutation",
+      "args": "p_uid bigint, p_kind text, p_dir text",
+      "src_len": 1250
+    },
+    {
+      "proname": "ledger_post_event",
+      "args": "payload jsonb",
+      "src_len": 45580
+    }
+  ],
+  "ledger_post_event_args_has_mint_token": [
+    {
+      "proname": "ledger_assert_platform_mutation",
+      "src_mentions_quoted_mint": true
+    }
+  ],
+  "ledger_kinds_in_use": [
+    {
+      "kind": "hold",
+      "n": 50
+    },
+    {
+      "kind": "currency_create_fee",
+      "n": 38
+    },
+    {
+      "kind": "trade",
+      "n": 32
+    },
+    {
+      "kind": "listing_deposit",
+      "n": 22
+    },
+    {
+      "kind": "job_escrow",
+      "n": 18
+    },
+    {
+      "kind": "trade_fee",
+      "n": 16
+    },
+    {
+      "kind": "transfer",
+      "n": 12
+    },
+    {
+      "kind": "job_payout",
+      "n": 10
+    },
+    {
+      "kind": "hold_release",
+      "n": 8
+    },
+    {
+      "kind": "job_escrow_refund",
+      "n": 8
+    },
+    {
+      "kind": "job_fee",
+      "n": 8
+    },
+    {
+      "kind": "mint",
+      "n": 5
+    },
+    {
+      "kind": "commission",
+      "n": 4
+    },
+    {
+      "kind": "purchase_refund",
+      "n": 4
+    },
+    {
+      "kind": "purchase",
+      "n": 3
+    },
+    {
+      "kind": "sale",
+      "n": 3
+    }
+  ],
+  "ledger_entry_count": [
+    {
+      "n": 241
+    }
+  ],
+  "platform_accounts": [
+    {
+      "uid": "-1",
+      "cid": 1,
+      "bal": "167280",
+      "frz": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": 1,
+      "bal": "0",
+      "frz": "0"
+    },
+    {
+      "uid": "-3",
+      "cid": 1,
+      "bal": "0",
+      "frz": "0"
+    },
+    {
+      "uid": "0",
+      "cid": 1,
+      "bal": "0",
+      "frz": "0"
+    }
+  ],
+  "currency_rows": [
+    {
+      "cid": 1,
+      "symbol": "$",
+      "owner_uid": "0",
+      "cap": null,
+      "ts": "2000000"
+    },
+    {
+      "cid": 4,
+      "symbol": "P4B3A013122",
+      "owner_uid": "970001",
+      "cap": null,
+      "ts": "10000"
+    },
+    {
+      "cid": 9,
+      "symbol": "P4B3A013122X",
+      "owner_uid": "970001",
+      "cap": null,
+      "ts": "0"
+    },
+    {
+      "cid": 10,
+      "symbol": "P4B3A013647",
+      "owner_uid": "970001",
+      "cap": null,
+      "ts": "0"
+    },
+    {
+      "cid": 15,
+      "symbol": "P4B3A013647X",
+      "owner_uid": "970001",
+      "cap": null,
+      "ts": "0"
+    },
+    {
+      "cid": 16,
+      "symbol": "P4B3B590800",
+      "owner_uid": "970001",
+      "cap": null,
+      "ts": "10000"
+    },
+    {
+      "cid": 21,
+      "symbol": "P4B3B590800X",
+      "owner_uid": "970001",
+      "cap": null,
+      "ts": "100"
+    },
+    {
+      "cid": 22,
+      "symbol": "QAB30929T185356Z",
+      "owner_uid": "970001",
+      "cap": null,
+      "ts": "0"
+    },
+    {
+      "cid": 27,
+      "symbol": "QAB4",
+      "owner_uid": "970001",
+      "cap": null,
+      "ts": "0"
+    },
+    {
+      "cid": 28,
+      "symbol": "N1A0T203917",
+      "owner_uid": "970001",
+      "cap": null,
+      "ts": "0"
+    }
+  ],
+  "schema_migration": [
+    {
+      "version": "0020"
+    },
+    {
+      "version": "0019"
+    },
+    {
+      "version": "0017"
+    }
+  ],
+  "audit_like_tables": [
+    {
+      "table_name": "currency_status_log"
+    }
+  ]
+}

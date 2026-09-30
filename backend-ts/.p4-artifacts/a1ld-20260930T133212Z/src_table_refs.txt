@@ -1,0 +1,28 @@
+src/database.ts:757:        FROM task_progress AS j
+src/database.ts:895:        UPDATE asset AS a
+src/database.ts:903:        throw new Error('Failed to update asset');
+src/database.ts:910:      INSERT INTO asset AS a ("uID", points, lucks, "time_updated")
+src/database.ts:1134:      FROM task_progress AS j
+src/database.ts:1202:      FROM task_progress AS j
+src/database.ts:1215:      INSERT INTO task_progress AS j ("tID", "uID", info_input, time_created, points_claimed)
+src/database.ts:1239:      UPDATE task_progress AS j
+src/database.ts:1252:      UPDATE task_progress AS j
+src/database.ts:1264:      UPDATE task_progress AS j
+src/database.ts:2266:      UPDATE task_progress AS j
+src/database.ts:2624:      INSERT INTO prize_item AS g ("bID", "uID", time_created)
+src/database.ts:2637:      DELETE FROM prize_item
+src/database.ts:2640:        FROM prize_item AS g
+src/database.ts:2709:      INSERT INTO prize AS b (
+src/database.ts:2802:      UPDATE prize AS b
+src/database.ts:2833:        FROM prize_item AS g
+src/database.ts:2850:          FROM shard AS s
+src/database.ts:2871:      DELETE FROM prize
+src/database.ts:2893:      INSERT INTO task AS t (
+src/database.ts:2941:      UPDATE task AS t
+src/database.ts:2971:      DELETE FROM task
+src/database.ts:3000:      INSERT INTO shard AS s ("bID", "uID", time_created, time_updated, volume)
+src/database.ts:3016:      INSERT INTO shard_transfer AS st (
+src/database.ts:3534:      FROM prize_item AS g
+src/database.ts:3556:      UPDATE prize_item AS g
+src/index.ts:483:    sendError(res, 500, 'Failed to update profile');
+src/db.ts:252:    'SELECT version FROM public.schema_migration ORDER BY version DESC LIMIT 1',
