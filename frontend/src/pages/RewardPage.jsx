@@ -54,7 +54,10 @@ const RewardPage = () => {
       const [prizeItems, assetRows, shardRows] = await Promise.all([
         fetchApiJson('/api/prize-item', { headers: getAuthHeaders(user) }).catch(() => []),
         fetchApiJson(`/api/user/asset/${user.uID}`).catch(() => ({ points: 0 })),
-        fetchApiJson('/api/shard', { headers: getAuthHeaders(user) }).catch(() => []),
+        // 四项确认 ④：`/api/shard` = 已 sunset 的碎片读口（恒空态 + 顶层 `deprecated:true`；§5.2 逐字
+        //   「**禁止**新代码再调 `/api/shard`」）⇒ **移除调用**。迁移目标 `GET /api/user/points` **未注册**
+        //   ⇒ 不迁、只留空态（`shardMap` 恒空，不臆造持仓/流水）。
+        Promise.resolve([]),
       ])
 
       claimedBrandIds = new Set((prizeItems || []).map((prizeItem) => prizeItem.bID))

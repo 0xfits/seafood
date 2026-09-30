@@ -1,0 +1,626 @@
+{
+  "run": "b4ciib-20260930T220842+0800",
+  "tag": "b4ciib08420800",
+  "base": "http://127.0.0.1:5788",
+  "secret_fingerprint": "b1ec01afb2eb",
+  "tests": {
+    "L_neg_price0": {
+      "status": 400,
+      "code": "LEDGER_AMOUNT_NOT_POSITIVE",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "Amount must be positive",
+      "note": "price=0 ⇒ 400（金额码 / 形状码，见 code）"
+    },
+    "L_no_key_measured": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "listing_id",
+        "seller_uid",
+        "cid",
+        "price",
+        "stock",
+        "title",
+        "description",
+        "media_urls",
+        "status",
+        "create_key",
+        "outcome",
+        "created_key_derived"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data",
+        "idempotent_replay"
+      ],
+      "msg": "Listing created (idempotent replay)",
+      "note": "派单预期「缺键 ⇒ 400」；实测见 status/code —— 服务端 `resolveListingCreateKey` 缺键会**派生**",
+      "created_key_derived": true
+    },
+    "L_ok": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "listing_id",
+        "seller_uid",
+        "cid",
+        "price",
+        "stock",
+        "title",
+        "description",
+        "media_urls",
+        "status",
+        "create_key",
+        "outcome",
+        "created_key_derived"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data",
+        "idempotent_replay"
+      ],
+      "msg": "Listing created (idempotent replay)",
+      "listing_id": 18,
+      "row": {
+        "status": "draft",
+        "price": "7",
+        "stock": "3",
+        "seller": "970001"
+      }
+    },
+    "L_replay_same_key": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "listing_id",
+        "seller_uid",
+        "cid",
+        "price",
+        "stock",
+        "title",
+        "description",
+        "media_urls",
+        "status",
+        "create_key",
+        "outcome",
+        "created_key_derived"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data",
+        "idempotent_replay"
+      ],
+      "msg": "Listing created (idempotent replay)",
+      "note": "同键重投 ⇒ 200 + idempotent_replay（不得落第二行）",
+      "rows_for_key": 1
+    },
+    "L_transition_listed": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "listing_id",
+        "seller_uid",
+        "cid",
+        "price",
+        "stock",
+        "title",
+        "description",
+        "media_urls",
+        "status",
+        "create_key",
+        "outcome"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Listing status transitioned",
+      "note": "draft → listed（只有 listed 可被购买；DB 侧 createListingRow 硬写 draft）"
+    },
+    "L1_feed_visible": {
+      "status": 200,
+      "code": null,
+      "data_keys": [],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "OK",
+      "listing_in_feed": true,
+      "feed_len": 18,
+      "note": "列表读面 = GET /api/prize/all（读侧换源 listing）"
+    },
+    "D1_detail_ok": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "bID",
+        "symbol",
+        "name",
+        "description",
+        "image_url",
+        "url_image",
+        "points",
+        "market_floor_points",
+        "duration_seconds",
+        "price_floor_eligible",
+        "price_floor_enabled",
+        "price_floor_active",
+        "minimum_shard_price",
+        "gift_limit",
+        "total_quantity",
+        "available_quantity",
+        "issued_quantity",
+        "redeemed_quantity",
+        "free_shard_ratio",
+        "free_shard_quota",
+        "free_shards_distributed",
+        "free_shards_remaining",
+        "market_shard_cap",
+        "current_shard_supply",
+        "remaining_market_shards",
+        "circulation_seconds",
+        "liquidation_seconds",
+        "lifecycle_status",
+        "market_is_open",
+        "time_start",
+        "time_end",
+        "time_created",
+        "time_updated",
+        "time_actived",
+        "stores_count",
+        "claims_count",
+        "activated_count",
+        "name_en",
+        "name_hk",
+        "name_vn",
+        "description_en",
+        "description_hk",
+        "description_vn"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "OK"
+    },
+    "D1_neg_miss_404": {
+      "status": 404,
+      "code": null,
+      "data_keys": [],
+      "top_keys": [
+        "success",
+        "message",
+        "error"
+      ],
+      "msg": "Prize not found",
+      "note": "detail-miss ⇒ 404"
+    },
+    "B_neg_no_key": {
+      "status": 400,
+      "code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "Idempotency key is required",
+      "note": "缺 create_key ⇒ 400 fail-loud"
+    },
+    "B_ok_spoof_ignored": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "op",
+        "listing_id",
+        "order_id",
+        "listing_status",
+        "order_status",
+        "stock",
+        "stock_rolled_back",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "pay_txid",
+        "refund_txid",
+        "ledger_event_keys",
+        "amount",
+        "currency_status",
+        "event_kinds",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "buyer_uid",
+        "quantity",
+        "client_buyer_uid_ignored"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Listing purchased",
+      "order_row": {
+        "order_id": "7",
+        "buyer": "12",
+        "seller": "970001",
+        "price": "7",
+        "quantity": "1",
+        "status": "paid"
+      },
+      "spoof": {
+        "price": "1",
+        "seller_uid": "11",
+        "buyer_uid": "11"
+      },
+      "actual": {
+        "price": 7,
+        "seller_uid": 970001,
+        "buyer_uid": 12
+      },
+      "ignored": true,
+      "legs": [
+        {
+          "uid": "12",
+          "kind": "purchase",
+          "delta": "-7",
+          "frozen_delta": "0"
+        },
+        {
+          "uid": "970001",
+          "kind": "sale",
+          "delta": "7",
+          "frozen_delta": "0"
+        }
+      ],
+      "note": "B8：金额 (price×quantity) 与对手方全由 DB 从 listing 行取 ⇒ 伪造值被忽略"
+    },
+    "B_neg_self_purchase": {
+      "status": 400,
+      "code": "LEDGER_SELF_TRANSFER",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "LEDGER_SELF_TRANSFER",
+      "note": "卖家自购 ⇒ 400 self_purchase_not_allowed"
+    },
+    "O_mine_buyer_axis": {
+      "status": 200,
+      "code": null,
+      "data_keys": [],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "OK",
+      "note": "买家轴读面（GET /api/prize-item）= listing_order，行键 gID=order_id ⇒ **该读面未 sunset（实测）**",
+      "contains_my_order": true
+    },
+    "R_neg_not_seller_403": {
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "ACTOR_NOT_ALLOWED",
+      "note": "非卖方 ⇒ 403 AUTH_FORBIDDEN + ACTOR_NOT_ALLOWED"
+    },
+    "R_ok": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "op",
+        "listing_id",
+        "order_id",
+        "listing_status",
+        "order_status",
+        "stock",
+        "stock_rolled_back",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "pay_txid",
+        "refund_txid",
+        "ledger_event_keys",
+        "amount",
+        "currency_status",
+        "event_kinds",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "actor_uid",
+        "seller_uid"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Listing order refunded",
+      "stock_before": "2",
+      "stock_after": "2",
+      "listing_status": "listed",
+      "stock_unchanged": true,
+      "legs": [
+        {
+          "uid": "970001",
+          "kind": "purchase_refund",
+          "delta": "-7",
+          "frozen_delta": "0"
+        },
+        {
+          "uid": "12",
+          "kind": "purchase_refund",
+          "delta": "7",
+          "frozen_delta": "0"
+        }
+      ],
+      "note": "既有单点裁定：退款**不回滚库存**（REFUND_ROLLS_BACK_STOCK=false）⇒ stock_before == stock_after = 真"
+    },
+    "M_neg_no_key": {
+      "status": 400,
+      "code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "Idempotency key is required",
+      "note": "挂单缺 create_key ⇒ 400 fail-loud（§9.B B11）"
+    },
+    "M_ok_owner_spoof_ignored": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "op",
+        "order_id",
+        "owner_uid",
+        "side",
+        "base_cid",
+        "quote_cid",
+        "price",
+        "amount",
+        "amount_filled",
+        "order_status",
+        "frozen_hold",
+        "trade_id",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "ledger_event_keys",
+        "currency_status",
+        "event_kinds",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "client_owner_uid_ignored",
+        "pair_lock"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Order created",
+      "order_row": {
+        "order_id": "25",
+        "owner": "970001",
+        "base_cid": "10",
+        "quote_cid": "1",
+        "side": "buy",
+        "price": "2",
+        "amount": "3",
+        "filled": "0",
+        "status": "open"
+      },
+      "spoof_owner_uid": 11,
+      "ignored_owner": true,
+      "client_owner_uid_ignored": "11",
+      "frozen_before": {
+        "balance": "1636071",
+        "frozen": "4112"
+      },
+      "frozen_after": {
+        "balance": "1636065",
+        "frozen": "4118"
+      },
+      "legs": [],
+      "note": "owner_uid 传 third 也被忽略（owner = token actor）；买单冻结 amount×price 的 $"
+    },
+    "OB_ok_visible": {
+      "status": 200,
+      "code": null,
+      "data_keys": [],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "OK",
+      "base_cid": 10,
+      "my_level": {
+        "side": "buy",
+        "price": 2,
+        "volume": 3
+      },
+      "note": "订单簿按 base_cid 聚合（SUM(amount-amount_filled)）"
+    },
+    "OB_path1_only": {
+      "status": 200,
+      "code": null,
+      "data_keys": [],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "OK",
+      "len": 0,
+      "note": "`:bID` 语义 = base_cid；base_cid=1 与「quote_cid 恒 1、base≠quote」互斥 ⇒ 该路径**恒空态**（实测）"
+    },
+    "TR_ok_public": {
+      "status": 200,
+      "code": null,
+      "data_keys": [],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "OK",
+      "len": 0,
+      "note": "成交流水（只读、公开面）= market_trade"
+    },
+    "MC_ok_fee_not_refunded": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "op",
+        "order_id",
+        "owner_uid",
+        "side",
+        "base_cid",
+        "quote_cid",
+        "price",
+        "amount",
+        "amount_filled",
+        "order_status",
+        "frozen_hold",
+        "trade_id",
+        "created",
+        "idempotent_replay",
+        "txid",
+        "ledger_idempotency_key",
+        "ledger_event_keys",
+        "currency_status",
+        "event_kinds",
+        "entry_count",
+        "kinds",
+        "entries",
+        "accounts",
+        "pair_lock"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Order cancelled",
+      "frozen_before": {
+        "balance": "1636065",
+        "frozen": "4118"
+      },
+      "frozen_after": {
+        "balance": "1636071",
+        "frozen": "4112"
+      },
+      "order_status": "cancelled",
+      "trade_fee_legs_on_cancel": 0,
+      "legs": [
+        {
+          "uid": "970001",
+          "kind": "hold_release",
+          "delta": "0",
+          "frozen_delta": "-6"
+        },
+        {
+          "uid": "970001",
+          "kind": "hold_release",
+          "delta": "6",
+          "frozen_delta": "0"
+        }
+      ],
+      "note": "撤单 = hold_release ×2（冻结→可用）；**手续费不退**（撤单面无 trade_fee 分录，DL87）"
+    },
+    "MC_neg_not_owner_403": {
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "data_keys": [],
+      "top_keys": [
+        "error"
+      ],
+      "msg": "ACTOR_NOT_ALLOWED",
+      "note": "非 owner ⇒ 403（幂等重放场景：该单已 cancelled ⇒ 仍以 403/409 口径为准，读数为准）"
+    },
+    "MALL_ok_query_only": {
+      "status": 200,
+      "code": null,
+      "data_keys": [
+        "cancelled",
+        "attempted",
+        "failed",
+        "orders",
+        "pair_lock",
+        "scope"
+      ],
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "msg": "Orders cancelled",
+      "order2_status": 200,
+      "cancelled_key": 1,
+      "note": "全撤入参走 query；本层不发 body（§9.B B12）"
+    }
+  },
+  "fixtures": {
+    "seller_uid": 970001,
+    "seller_bal": "1636071",
+    "buyer_uid": 12,
+    "buyer_bal": "136783",
+    "third_uid": 11,
+    "listed_base_cids": [
+      10,
+      16,
+      21,
+      29,
+      31,
+      32,
+      4
+    ],
+    "usable_candidates": 12
+  },
+  "invariants": {
+    "account_cid1_seller": {
+      "balance": "1636071",
+      "frozen": "4112"
+    },
+    "ledger_entry_total": 267,
+    "status_flags": {
+      "listing_price0_400": true,
+      "listing_ok_200": true,
+      "buy_ok_200": true,
+      "buy_spoof_ignored": true,
+      "refund_ok_200": true,
+      "refund_stock_unchanged": true,
+      "refund_not_seller_403": true,
+      "order_ok_200": true,
+      "order_owner_spoof_ignored": true,
+      "orderbook_visible": true,
+      "orderbook_path1_empty": true,
+      "cancel_ok_200": true,
+      "cancel_fee_not_refunded": true,
+      "cancel_all_ok_200": true
+    },
+    "token_bytes_in_artifact": 0
+  },
+  "notes": [],
+  "finishedAt": "2026-09-30T14:14:50.101Z"
+}

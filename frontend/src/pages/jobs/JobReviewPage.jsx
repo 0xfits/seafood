@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
 import { fetchPendingVerification, reviewSubmission } from './job-api'
+import { fetchAdminAccess, hasAdminPermission } from '../../admin-utils'
 import './jobs.css'
 
 // 招工线 · 审核入口（§4.2 J5/J6 · 已注册路径）
@@ -19,8 +20,29 @@ const JobReviewPage = () => {
   const [items, setItems] = useState([])
   const [state, setState] = useState({ phase: 'loading', message: '' })
   const [action, setAction] = useState({ phase: 'idle', message: '', id: null })
+  // 四项确认 ①：审核面 = 管理员面 ⇒ 入口按权限隐藏。唯一真源 = 后端 `requireAdmin(review_tasks)`
+  //   （非 admin ⇒ `403 AUTH_FORBIDDEN`）。前端先取能力集；无 `review_tasks` ⇒ 整页收敛为「无权限」空态，
+  //   且**不发起队列读**（不把 403 当首屏反馈）。
+  const [access, setAccess] = useState(null)
+  const [accessPhase, setAccessPhase] = useState('loading')
+
+  useEffect(() => {
+    let alive = true
+    setAccessPhase('loading')
+    fetchAdminAccess(user)
+      .then((next) => { if (alive) { setAccess(next); setAccessPhase('ok') } })
+      .catch(() => { if (alive) { setAccess(null); setAccessPhase('error') } })
+    return () => { alive = false }
+  }, [user])
+
+  const canReview = hasAdminPermission(access, 'review_tasks')
 
   const load = useCallback(async () => {
+    if (!canReview) {
+      setItems([])
+      setState({ phase: 'denied', message: t('auth.err.AUTH_FORBIDDEN') })
+      return
+    }
     setState({ phase: 'loading', message: t('loading') })
     try {
       const data = await fetchPendingVerification(user)
@@ -31,7 +53,7 @@ const JobReviewPage = () => {
       setItems([])
       setState({ phase: 'error', message: String(error?.message || t('error')) })
     }
-  }, [user, t])
+  }, [canReview, user, t])
 
   useEffect(() => { load() }, [load])
 
@@ -51,6 +73,23 @@ const JobReviewPage = () => {
     return (
       <div className="sf-jobs" data-sf-m="jobs-hero">
         <div className="sf-jobs-empty">{t('pleaseLogin')}</div>
+      </div>
+    )
+  }
+
+  // 能力集未回 ⇒ 中性加载态（不渲染队列）；无 `review_tasks` ⇒ 无权限空态（入口对非 admin **不可见**）
+  if (accessPhase === 'loading') {
+    return (
+      <div className="sf-jobs" data-sf-m="jobs-review-gate">
+        <div className="sf-jobs-empty">{t('loading')}</div>
+      </div>
+    )
+  }
+
+  if (!canReview) {
+    return (
+      <div className="sf-jobs" data-sf-m="jobs-review-denied">
+        <div className="sf-jobs-empty">{t('auth.err.AUTH_FORBIDDEN')}</div>
       </div>
     )
   }

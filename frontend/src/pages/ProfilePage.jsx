@@ -89,16 +89,11 @@ const ProfilePage = () => {
     }
   }
 
-  // 加载碎片持仓
+  // 四项确认 ④：`/api/shard` 已 sunset（恒空态 + 顶层 `deprecated:true`；§5.2「**禁止**新代码再调」）
+  //   ⇒ **移除调用**、只保留空态容忍；迁移目标 `GET /api/user/points` **未注册**（现取 `grep` = 0 命中）⇒ 不迁、登记。
+  //   （同页 `/api/prize-item` 的调用**保留**：实测该路径 = `listing_order` **买家轴**读面、**未 sunset**，报告 §2-④ 已登记。）
   const loadShardHoldings = async () => {
-    try {
-      const headers = getAuthHeaders(sessionUser)
-      const result = await fetchApiJson('/api/shard', { headers })
-      setShardHoldings(result ?? [])
-    } catch (error) {
-      console.warn('Failed to load shard holdings:', error)
-      setShardHoldings([])
-    }
+    setShardHoldings([])
   }
 
   // 加载任务统计

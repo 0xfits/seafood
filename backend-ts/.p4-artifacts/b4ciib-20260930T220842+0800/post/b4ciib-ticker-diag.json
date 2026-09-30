@@ -1,0 +1,146 @@
+{
+  "day": {
+    "theme": "light",
+    "rect": 86,
+    "height": "66px",
+    "minHeight": "auto",
+    "maxHeight": "none",
+    "boxSizing": "content-box",
+    "padding": "10px 12px",
+    "borderWidth": "0px",
+    "borderStyle": "none",
+    "cssVarTickerH": "66px",
+    "display": "grid",
+    "gridRows": "66px",
+    "align": "center",
+    "bodyFont": "\"LXGW WenKai\", \"Noto Sans\", \"EB Garamond\", \"Crimson Text\", system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Apple Color Emoji\", \"Segoe UI Emoji\"",
+    "bodySize": "16px",
+    "bodyLine": "normal",
+    "htmlSize": "16px",
+    "kids": [
+      {
+        "tag": "DIV",
+        "h": 39.578,
+        "fontSize": "16px",
+        "lineHeight": "normal",
+        "fontFamily": "\"LXGW WenKai\", \"Noto Sans\", \"EB Garamond\", \"Crimson Text\", system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Apple Color Emoji\", \"Segoe UI Emoji\"",
+        "margin": "0px",
+        "display": "block"
+      },
+      {
+        "tag": "DIV",
+        "h": 28.781,
+        "fontSize": "16px",
+        "lineHeight": "normal",
+        "fontFamily": "\"LXGW WenKai\", \"Noto Sans\", \"EB Garamond\", \"Crimson Text\", system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Apple Color Emoji\", \"Segoe UI Emoji\"",
+        "margin": "0px",
+        "display": "block"
+      }
+    ],
+    "textRows": [
+      {
+        "cls": "sf-mkt-pair",
+        "h": 14.391,
+        "fontSize": "12px",
+        "lineHeight": "14.4px",
+        "fontFamily": "\"LXGW WenKai\", \"Noto Sans\", \"EB Garamond\", \"Crimson Text\", system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Apple Color Emoji\", \"Segoe UI Emoji\""
+      },
+      {
+        "cls": "sf-mkt-last",
+        "h": 25.188,
+        "fontSize": "21px",
+        "lineHeight": "25.2px",
+        "fontFamily": "\"LXGW WenKai\", \"Noto Sans\", \"EB Garamond\", \"Crimson Text\", system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Apple Color Emoji\", \"Segoe UI Emoji\""
+      },
+      {
+        "cls": "sf-mkt-pair",
+        "h": 14.391,
+        "fontSize": "12px",
+        "lineHeight": "14.4px",
+        "fontFamily": "\"LXGW WenKai\", \"Noto Sans\", \"EB Garamond\", \"Crimson Text\", system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Apple Color Emoji\", \"Segoe UI Emoji\""
+      },
+      {
+        "cls": "sf-mkt-meta",
+        "h": 14.391,
+        "fontSize": "12px",
+        "lineHeight": "14.4px",
+        "fontFamily": "\"LXGW WenKai\", \"Noto Sans\", \"EB Garamond\", \"Crimson Text\", system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Apple Color Emoji\", \"Segoe UI Emoji\""
+      }
+    ]
+  },
+  "night": {
+    "theme": "dark",
+    "rect": 88,
+    "height": "66px",
+    "minHeight": "auto",
+    "maxHeight": "none",
+    "boxSizing": "content-box",
+    "padding": "10px 12px",
+    "borderWidth": "1px",
+    "borderStyle": "solid",
+    "cssVarTickerH": "66px",
+    "display": "grid",
+    "gridRows": "66px",
+    "align": "center",
+    "bodyFont": "\"LXGW WenKai\", \"Noto Sans\", \"EB Garamond\", \"Crimson Text\", system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Apple Color Emoji\", \"Segoe UI Emoji\"",
+    "bodySize": "16px",
+    "bodyLine": "normal",
+    "htmlSize": "16px",
+    "kids": [
+      {
+        "tag": "DIV",
+        "h": 39.578,
+        "fontSize": "16px",
+        "lineHeight": "normal",
+        "fontFamily": "\"LXGW WenKai\", \"Noto Sans\", \"EB Garamond\", \"Crimson Text\", system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Apple Color Emoji\", \"Segoe UI Emoji\"",
+        "margin": "0px",
+        "display": "block"
+      },
+      {
+        "tag": "DIV",
+        "h": 28.781,
+        "fontSize": "16px",
+        "lineHeight": "normal",
+        "fontFamily": "\"LXGW WenKai\", \"Noto Sans\", \"EB Garamond\", \"Crimson Text\", system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Apple Color Emoji\", \"Segoe UI Emoji\"",
+        "margin": "0px",
+        "display": "block"
+      }
+    ],
+    "textRows": [
+      {
+        "cls": "sf-mkt-pair",
+        "h": 14.391,
+        "fontSize": "12px",
+        "lineHeight": "14.4px",
+        "fontFamily": "\"LXGW WenKai\", \"Noto Sans\", \"EB Garamond\", \"Crimson Text\", system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Apple Color Emoji\", \"Segoe UI Emoji\""
+      },
+      {
+        "cls": "sf-mkt-last",
+        "h": 25.188,
+        "fontSize": "21px",
+        "lineHeight": "25.2px",
+        "fontFamily": "\"LXGW WenKai\", \"Noto Sans\", \"EB Garamond\", \"Crimson Text\", system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Apple Color Emoji\", \"Segoe UI Emoji\""
+      },
+      {
+        "cls": "sf-mkt-pair",
+        "h": 14.391,
+        "fontSize": "12px",
+        "lineHeight": "14.4px",
+        "fontFamily": "\"LXGW WenKai\", \"Noto Sans\", \"EB Garamond\", \"Crimson Text\", system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Apple Color Emoji\", \"Segoe UI Emoji\""
+      },
+      {
+        "cls": "sf-mkt-meta",
+        "h": 14.391,
+        "fontSize": "12px",
+        "lineHeight": "14.4px",
+        "fontFamily": "\"LXGW WenKai\", \"Noto Sans\", \"EB Garamond\", \"Crimson Text\", system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Apple Color Emoji\", \"Segoe UI Emoji\""
+      }
+    ]
+  },
+  "cssHas": [
+    {
+      "f": "index-B3BGm4Bk.css",
+      "hasVar": true
+    }
+  ]
+}

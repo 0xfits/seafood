@@ -1,0 +1,1301 @@
+{
+  "startedAt": "2026-09-30T14:34:48.385Z",
+  "origin": "http://sf.local",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "pages": [
+    "listing_feed",
+    "listing_new",
+    "listing_detail",
+    "market"
+  ],
+  "arms": {
+    "listing_feed_day1_stable_reads": 2,
+    "listing_feed_day2_stable_reads": 2,
+    "listing_feed_day_repeat_byte_identical": true,
+    "listing_feed_perturbed_stable_reads": 2,
+    "listing_feed_perturbation": {
+      "target": "[data-sf-m=\"listing-refund\"]",
+      "injected": "padding-top: 1px",
+      "day": {
+        "x": 1132,
+        "y": 297.813,
+        "w": 320,
+        "h": 291.813
+      },
+      "perturbed": {
+        "x": 1132,
+        "y": 297.813,
+        "w": 320,
+        "h": 280.813
+      },
+      "detected": true
+    },
+    "listing_feed_restored_stable_reads": 2,
+    "listing_feed_perturbation_restored_byte_identical": true,
+    "listing_feed_night_stable_reads": 2,
+    "listing_feed_back_stable_reads": 2,
+    "listing_feed_night": {
+      "attr": "dark",
+      "path": "/listing",
+      "rects": {
+        "[data-sf-region=\"topnav\"]": {
+          "x": 8,
+          "y": 8,
+          "w": 1424,
+          "h": 65
+        },
+        "[data-sf-region=\"content\"]": {
+          "x": 8,
+          "y": 73,
+          "w": 1464,
+          "h": 542.625
+        },
+        "[data-sf-region=\"tabbar\"]": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "#sf-route-container": {
+          "x": 8,
+          "y": 73,
+          "w": 1464,
+          "h": 542.625
+        },
+        "[data-sf-region=\"footer\"]": {
+          "x": 8,
+          "y": 615.625,
+          "w": 1424,
+          "h": 329
+        },
+        "[data-sf-m=\"listing-feed-hero\"]": {
+          "x": 28,
+          "y": 81,
+          "w": 1086,
+          "h": 164.875
+        },
+        "[data-sf-m=\"listing-grid\"]": null,
+        "[data-sf-m=\"listing-card\"]": null,
+        "[data-sf-m=\"listing-thumb\"]": null,
+        "[data-sf-m=\"listing-orders\"]": {
+          "x": 1132,
+          "y": 81,
+          "w": 320,
+          "h": 207.813
+        },
+        "[data-sf-m=\"listing-refund\"]": {
+          "x": 1132,
+          "y": 297.813,
+          "w": 320,
+          "h": 291.813
+        },
+        "[data-sf-m=\"listing-input-order\"]": {
+          "x": 1147,
+          "y": 387.625,
+          "w": 290,
+          "h": 33
+        },
+        "[data-sf-m=\"listing-refund-btn\"]": {
+          "x": 1147,
+          "y": 428.625,
+          "w": 50,
+          "h": 34
+        },
+        "[data-sf-m=\"listing-hero\"]": null,
+        "[data-sf-m=\"listing-form\"]": null,
+        "[data-sf-m=\"listing-input-title\"]": null,
+        "[data-sf-m=\"listing-input-price\"]": null,
+        "[data-sf-m=\"listing-primary\"]": null,
+        "[data-sf-m=\"listing-status\"]": null,
+        "[data-sf-m=\"listing-side\"]": null,
+        "[data-sf-m=\"listing-detail-hero\"]": null,
+        "[data-sf-m=\"listing-detail-empty\"]": null,
+        "[data-sf-m=\"listing-buy-form\"]": null,
+        "[data-sf-m=\"listing-input-qty\"]": null,
+        "[data-sf-m=\"listing-buy-btn\"]": null,
+        "[data-sf-m=\"listing-buy-status\"]": null,
+        "[data-sf-m=\"listing-detail-side\"]": null,
+        "[data-sf-m=\"mkt-hero\"]": null,
+        "[data-sf-m=\"mkt-ticker\"]": null,
+        "[data-sf-m=\"mkt-form\"]": null,
+        "[data-sf-m=\"mkt-input-base\"]": null,
+        "[data-sf-m=\"mkt-input-price\"]": null,
+        "[data-sf-m=\"mkt-input-amount\"]": null,
+        "[data-sf-m=\"mkt-primary\"]": null,
+        "[data-sf-m=\"mkt-status\"]": null,
+        "[data-sf-m=\"mkt-book\"]": null,
+        "[data-sf-m=\"mkt-book-empty\"]": null,
+        "[data-sf-m=\"mkt-trades\"]": null,
+        "[data-sf-m=\"mkt-trades-empty\"]": null,
+        "[data-sf-m=\"mkt-mine\"]": null,
+        "[data-sf-m=\"mkt-cancel-all\"]": null,
+        "[data-sf-m=\"mkt-ledger\"]": null,
+        "[data-sf-m=\"mkt-ledger-empty\"]": null
+      },
+      "skin": null,
+      "pageBg": "rgb(11, 12, 14)",
+      "tabbar": {
+        "display": "none",
+        "cols": "none"
+      },
+      "signature": "DIV[shell]>DIV[topnav]>MAIN[content]>DIV[footer]>NAV[tabbar]>A[nav=home]>A[nav=reward]>A[nav=task]>A[nav=shard]>A[nav=profile]",
+      "elementCount": 144,
+      "hasObjectObject": false
+    },
+    "listing_feed_day_return_byte_identical": true,
+    "listing_feed_portrait390_stable_reads": 2,
+    "listing_feed_wide_back_stable_reads": 2,
+    "listing_feed_portrait390": {
+      "attr": "light",
+      "path": "/listing",
+      "rects": {
+        "[data-sf-region=\"topnav\"]": {
+          "x": 8,
+          "y": 8,
+          "w": 374,
+          "h": 65
+        },
+        "[data-sf-region=\"content\"]": {
+          "x": 8,
+          "y": 73,
+          "w": 394,
+          "h": 817.5
+        },
+        "[data-sf-region=\"tabbar\"]": {
+          "x": 8,
+          "y": 785,
+          "w": 374,
+          "h": 59
+        },
+        "#sf-route-container": {
+          "x": 8,
+          "y": 73,
+          "w": 394,
+          "h": 817.5
+        },
+        "[data-sf-region=\"footer\"]": {
+          "x": 8,
+          "y": 890.5,
+          "w": 374,
+          "h": 329
+        },
+        "[data-sf-m=\"listing-feed-hero\"]": {
+          "x": 18,
+          "y": 89,
+          "w": 374,
+          "h": 178.875
+        },
+        "[data-sf-m=\"listing-grid\"]": null,
+        "[data-sf-m=\"listing-card\"]": null,
+        "[data-sf-m=\"listing-thumb\"]": null,
+        "[data-sf-m=\"listing-orders\"]": {
+          "x": 18,
+          "y": 339.875,
+          "w": 374,
+          "h": 207.813
+        },
+        "[data-sf-m=\"listing-refund\"]": {
+          "x": 18,
+          "y": 556.688,
+          "w": 374,
+          "h": 291.813
+        },
+        "[data-sf-m=\"listing-input-order\"]": {
+          "x": 33,
+          "y": 646.5,
+          "w": 344,
+          "h": 33
+        },
+        "[data-sf-m=\"listing-refund-btn\"]": {
+          "x": 33,
+          "y": 687.5,
+          "w": 50,
+          "h": 34
+        },
+        "[data-sf-m=\"listing-hero\"]": null,
+        "[data-sf-m=\"listing-form\"]": null,
+        "[data-sf-m=\"listing-input-title\"]": null,
+        "[data-sf-m=\"listing-input-price\"]": null,
+        "[data-sf-m=\"listing-primary\"]": null,
+        "[data-sf-m=\"listing-status\"]": null,
+        "[data-sf-m=\"listing-side\"]": null,
+        "[data-sf-m=\"listing-detail-hero\"]": null,
+        "[data-sf-m=\"listing-detail-empty\"]": null,
+        "[data-sf-m=\"listing-buy-form\"]": null,
+        "[data-sf-m=\"listing-input-qty\"]": null,
+        "[data-sf-m=\"listing-buy-btn\"]": null,
+        "[data-sf-m=\"listing-buy-status\"]": null,
+        "[data-sf-m=\"listing-detail-side\"]": null,
+        "[data-sf-m=\"mkt-hero\"]": null,
+        "[data-sf-m=\"mkt-ticker\"]": null,
+        "[data-sf-m=\"mkt-form\"]": null,
+        "[data-sf-m=\"mkt-input-base\"]": null,
+        "[data-sf-m=\"mkt-input-price\"]": null,
+        "[data-sf-m=\"mkt-input-amount\"]": null,
+        "[data-sf-m=\"mkt-primary\"]": null,
+        "[data-sf-m=\"mkt-status\"]": null,
+        "[data-sf-m=\"mkt-book\"]": null,
+        "[data-sf-m=\"mkt-book-empty\"]": null,
+        "[data-sf-m=\"mkt-trades\"]": null,
+        "[data-sf-m=\"mkt-trades-empty\"]": null,
+        "[data-sf-m=\"mkt-mine\"]": null,
+        "[data-sf-m=\"mkt-cancel-all\"]": null,
+        "[data-sf-m=\"mkt-ledger\"]": null,
+        "[data-sf-m=\"mkt-ledger-empty\"]": null
+      },
+      "skin": null,
+      "pageBg": "rgb(253, 232, 21)",
+      "tabbar": {
+        "display": "grid",
+        "cols": "74.7969px 74.7969px 74.7969px 74.7969px 74.8125px"
+      },
+      "signature": "DIV[shell]>DIV[topnav]>MAIN[content]>DIV[footer]>NAV[tabbar]>A[nav=home]>A[nav=reward]>A[nav=task]>A[nav=shard]>A[nav=profile]",
+      "elementCount": 144,
+      "hasObjectObject": false
+    },
+    "listing_new_day1_stable_reads": 2,
+    "listing_new_day2_stable_reads": 2,
+    "listing_new_day_repeat_byte_identical": true,
+    "listing_new_perturbed_stable_reads": 2,
+    "listing_new_perturbation": {
+      "target": "[data-sf-m=\"listing-form\"]",
+      "injected": "padding-top: 1px",
+      "day": {
+        "x": 28,
+        "y": 254.875,
+        "w": 1086,
+        "h": 380
+      },
+      "perturbed": {
+        "x": 28,
+        "y": 254.875,
+        "w": 1086,
+        "h": 369
+      },
+      "detected": true
+    },
+    "listing_new_restored_stable_reads": 2,
+    "listing_new_perturbation_restored_byte_identical": true,
+    "listing_new_night_stable_reads": 2,
+    "listing_new_back_stable_reads": 2,
+    "listing_new_night": {
+      "attr": "dark",
+      "path": "/listing/new",
+      "rects": {
+        "[data-sf-region=\"topnav\"]": {
+          "x": 8,
+          "y": 8,
+          "w": 1424,
+          "h": 65
+        },
+        "[data-sf-region=\"content\"]": {
+          "x": 8,
+          "y": 73,
+          "w": 1464,
+          "h": 587.875
+        },
+        "[data-sf-region=\"tabbar\"]": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "#sf-route-container": {
+          "x": 8,
+          "y": 73,
+          "w": 1464,
+          "h": 587.875
+        },
+        "[data-sf-region=\"footer\"]": {
+          "x": 8,
+          "y": 660.875,
+          "w": 1424,
+          "h": 329
+        },
+        "[data-sf-m=\"listing-feed-hero\"]": null,
+        "[data-sf-m=\"listing-grid\"]": null,
+        "[data-sf-m=\"listing-card\"]": null,
+        "[data-sf-m=\"listing-thumb\"]": null,
+        "[data-sf-m=\"listing-orders\"]": null,
+        "[data-sf-m=\"listing-refund\"]": null,
+        "[data-sf-m=\"listing-input-order\"]": null,
+        "[data-sf-m=\"listing-refund-btn\"]": null,
+        "[data-sf-m=\"listing-hero\"]": {
+          "x": 28,
+          "y": 81,
+          "w": 1086,
+          "h": 164.875
+        },
+        "[data-sf-m=\"listing-form\"]": {
+          "x": 28,
+          "y": 254.875,
+          "w": 1086,
+          "h": 380
+        },
+        "[data-sf-m=\"listing-input-title\"]": {
+          "x": 43,
+          "y": 285.875,
+          "w": 545.5,
+          "h": 52
+        },
+        "[data-sf-m=\"listing-input-price\"]": {
+          "x": 575.5,
+          "y": 285.875,
+          "w": 545.5,
+          "h": 52
+        },
+        "[data-sf-m=\"listing-primary\"]": {
+          "x": 43,
+          "y": 587.875,
+          "w": 76,
+          "h": 34
+        },
+        "[data-sf-m=\"listing-status\"]": {
+          "x": 127,
+          "y": 587.875,
+          "w": 0,
+          "h": 34
+        },
+        "[data-sf-m=\"listing-side\"]": {
+          "x": 1132,
+          "y": 81,
+          "w": 320,
+          "h": 214.813
+        },
+        "[data-sf-m=\"listing-detail-hero\"]": null,
+        "[data-sf-m=\"listing-detail-empty\"]": null,
+        "[data-sf-m=\"listing-buy-form\"]": null,
+        "[data-sf-m=\"listing-input-qty\"]": null,
+        "[data-sf-m=\"listing-buy-btn\"]": null,
+        "[data-sf-m=\"listing-buy-status\"]": null,
+        "[data-sf-m=\"listing-detail-side\"]": null,
+        "[data-sf-m=\"mkt-hero\"]": null,
+        "[data-sf-m=\"mkt-ticker\"]": null,
+        "[data-sf-m=\"mkt-form\"]": null,
+        "[data-sf-m=\"mkt-input-base\"]": null,
+        "[data-sf-m=\"mkt-input-price\"]": null,
+        "[data-sf-m=\"mkt-input-amount\"]": null,
+        "[data-sf-m=\"mkt-primary\"]": null,
+        "[data-sf-m=\"mkt-status\"]": null,
+        "[data-sf-m=\"mkt-book\"]": null,
+        "[data-sf-m=\"mkt-book-empty\"]": null,
+        "[data-sf-m=\"mkt-trades\"]": null,
+        "[data-sf-m=\"mkt-trades-empty\"]": null,
+        "[data-sf-m=\"mkt-mine\"]": null,
+        "[data-sf-m=\"mkt-cancel-all\"]": null,
+        "[data-sf-m=\"mkt-ledger\"]": null,
+        "[data-sf-m=\"mkt-ledger-empty\"]": null
+      },
+      "skin": null,
+      "pageBg": "rgb(11, 12, 14)",
+      "tabbar": {
+        "display": "none",
+        "cols": "none"
+      },
+      "signature": "DIV[shell]>DIV[topnav]>MAIN[content]>DIV[footer]>NAV[tabbar]>A[nav=home]>A[nav=reward]>A[nav=task]>A[nav=shard]>A[nav=profile]",
+      "elementCount": 156,
+      "hasObjectObject": false
+    },
+    "listing_new_day_return_byte_identical": true,
+    "listing_new_portrait390_stable_reads": 2,
+    "listing_new_wide_back_stable_reads": 2,
+    "listing_new_portrait390": {
+      "attr": "light",
+      "path": "/listing/new",
+      "rects": {
+        "[data-sf-region=\"topnav\"]": {
+          "x": 8,
+          "y": 8,
+          "w": 374,
+          "h": 65
+        },
+        "[data-sf-region=\"content\"]": {
+          "x": 8,
+          "y": 73,
+          "w": 394,
+          "h": 988.688
+        },
+        "[data-sf-region=\"tabbar\"]": {
+          "x": 8,
+          "y": 785,
+          "w": 374,
+          "h": 59
+        },
+        "#sf-route-container": {
+          "x": 8,
+          "y": 73,
+          "w": 394,
+          "h": 988.688
+        },
+        "[data-sf-region=\"footer\"]": {
+          "x": 8,
+          "y": 1061.688,
+          "w": 374,
+          "h": 329
+        },
+        "[data-sf-m=\"listing-feed-hero\"]": null,
+        "[data-sf-m=\"listing-grid\"]": null,
+        "[data-sf-m=\"listing-card\"]": null,
+        "[data-sf-m=\"listing-thumb\"]": null,
+        "[data-sf-m=\"listing-orders\"]": null,
+        "[data-sf-m=\"listing-refund\"]": null,
+        "[data-sf-m=\"listing-input-order\"]": null,
+        "[data-sf-m=\"listing-refund-btn\"]": null,
+        "[data-sf-m=\"listing-hero\"]": {
+          "x": 18,
+          "y": 89,
+          "w": 334.094,
+          "h": 164.875
+        },
+        "[data-sf-m=\"listing-form\"]": {
+          "x": 18,
+          "y": 262.875,
+          "w": 334.094,
+          "h": 538
+        },
+        "[data-sf-m=\"listing-input-title\"]": {
+          "x": 33,
+          "y": 293.875,
+          "w": 326.094,
+          "h": 52
+        },
+        "[data-sf-m=\"listing-input-price\"]": {
+          "x": 33,
+          "y": 372.875,
+          "w": 326.094,
+          "h": 52
+        },
+        "[data-sf-m=\"listing-primary\"]": {
+          "x": 33,
+          "y": 753.875,
+          "w": 76,
+          "h": 34
+        },
+        "[data-sf-m=\"listing-status\"]": {
+          "x": 117,
+          "y": 753.875,
+          "w": 0,
+          "h": 34
+        },
+        "[data-sf-m=\"listing-side\"]": {
+          "x": 18,
+          "y": 818.875,
+          "w": 374,
+          "h": 200.813
+        },
+        "[data-sf-m=\"listing-detail-hero\"]": null,
+        "[data-sf-m=\"listing-detail-empty\"]": null,
+        "[data-sf-m=\"listing-buy-form\"]": null,
+        "[data-sf-m=\"listing-input-qty\"]": null,
+        "[data-sf-m=\"listing-buy-btn\"]": null,
+        "[data-sf-m=\"listing-buy-status\"]": null,
+        "[data-sf-m=\"listing-detail-side\"]": null,
+        "[data-sf-m=\"mkt-hero\"]": null,
+        "[data-sf-m=\"mkt-ticker\"]": null,
+        "[data-sf-m=\"mkt-form\"]": null,
+        "[data-sf-m=\"mkt-input-base\"]": null,
+        "[data-sf-m=\"mkt-input-price\"]": null,
+        "[data-sf-m=\"mkt-input-amount\"]": null,
+        "[data-sf-m=\"mkt-primary\"]": null,
+        "[data-sf-m=\"mkt-status\"]": null,
+        "[data-sf-m=\"mkt-book\"]": null,
+        "[data-sf-m=\"mkt-book-empty\"]": null,
+        "[data-sf-m=\"mkt-trades\"]": null,
+        "[data-sf-m=\"mkt-trades-empty\"]": null,
+        "[data-sf-m=\"mkt-mine\"]": null,
+        "[data-sf-m=\"mkt-cancel-all\"]": null,
+        "[data-sf-m=\"mkt-ledger\"]": null,
+        "[data-sf-m=\"mkt-ledger-empty\"]": null
+      },
+      "skin": null,
+      "pageBg": "rgb(253, 232, 21)",
+      "tabbar": {
+        "display": "grid",
+        "cols": "74.7969px 74.7969px 74.7969px 74.7969px 74.8125px"
+      },
+      "signature": "DIV[shell]>DIV[topnav]>MAIN[content]>DIV[footer]>NAV[tabbar]>A[nav=home]>A[nav=reward]>A[nav=task]>A[nav=shard]>A[nav=profile]",
+      "elementCount": 156,
+      "hasObjectObject": false
+    },
+    "listing_detail_day1_stable_reads": 2,
+    "listing_detail_day2_stable_reads": 2,
+    "listing_detail_day_repeat_byte_identical": true,
+    "listing_detail_perturbed_stable_reads": 2,
+    "listing_detail_perturbation": {
+      "target": "[data-sf-m=\"listing-buy-form\"]",
+      "injected": "padding-top: 1px",
+      "day": {
+        "x": 28,
+        "y": 308.875,
+        "w": 1086,
+        "h": 260.813
+      },
+      "perturbed": {
+        "x": 28,
+        "y": 308.875,
+        "w": 1086,
+        "h": 249.813
+      },
+      "detected": true
+    },
+    "listing_detail_restored_stable_reads": 2,
+    "listing_detail_perturbation_restored_byte_identical": true,
+    "listing_detail_night_stable_reads": 2,
+    "listing_detail_back_stable_reads": 2,
+    "listing_detail_night": {
+      "attr": "dark",
+      "path": "/listing/1",
+      "rects": {
+        "[data-sf-region=\"topnav\"]": {
+          "x": 8,
+          "y": 8,
+          "w": 1424,
+          "h": 65
+        },
+        "[data-sf-region=\"content\"]": {
+          "x": 8,
+          "y": 73,
+          "w": 1464,
+          "h": 522.688
+        },
+        "[data-sf-region=\"tabbar\"]": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "#sf-route-container": {
+          "x": 8,
+          "y": 73,
+          "w": 1464,
+          "h": 522.688
+        },
+        "[data-sf-region=\"footer\"]": {
+          "x": 8,
+          "y": 595.688,
+          "w": 1424,
+          "h": 329
+        },
+        "[data-sf-m=\"listing-feed-hero\"]": null,
+        "[data-sf-m=\"listing-grid\"]": null,
+        "[data-sf-m=\"listing-card\"]": null,
+        "[data-sf-m=\"listing-thumb\"]": null,
+        "[data-sf-m=\"listing-orders\"]": null,
+        "[data-sf-m=\"listing-refund\"]": null,
+        "[data-sf-m=\"listing-input-order\"]": null,
+        "[data-sf-m=\"listing-refund-btn\"]": null,
+        "[data-sf-m=\"listing-hero\"]": null,
+        "[data-sf-m=\"listing-form\"]": null,
+        "[data-sf-m=\"listing-input-title\"]": null,
+        "[data-sf-m=\"listing-input-price\"]": null,
+        "[data-sf-m=\"listing-primary\"]": null,
+        "[data-sf-m=\"listing-status\"]": null,
+        "[data-sf-m=\"listing-side\"]": null,
+        "[data-sf-m=\"listing-detail-hero\"]": {
+          "x": 28,
+          "y": 81,
+          "w": 1086,
+          "h": 164.875
+        },
+        "[data-sf-m=\"listing-detail-empty\"]": {
+          "x": 28,
+          "y": 254.875,
+          "w": 1086,
+          "h": 45
+        },
+        "[data-sf-m=\"listing-buy-form\"]": {
+          "x": 28,
+          "y": 308.875,
+          "w": 1086,
+          "h": 260.813
+        },
+        "[data-sf-m=\"listing-input-qty\"]": {
+          "x": 43,
+          "y": 416.688,
+          "w": 545.5,
+          "h": 52
+        },
+        "[data-sf-m=\"listing-buy-btn\"]": {
+          "x": 43,
+          "y": 522.688,
+          "w": 76,
+          "h": 34
+        },
+        "[data-sf-m=\"listing-buy-status\"]": {
+          "x": 127,
+          "y": 522.688,
+          "w": 0,
+          "h": 34
+        },
+        "[data-sf-m=\"listing-detail-side\"]": {
+          "x": 1132,
+          "y": 81,
+          "w": 320,
+          "h": 186.813
+        },
+        "[data-sf-m=\"mkt-hero\"]": null,
+        "[data-sf-m=\"mkt-ticker\"]": null,
+        "[data-sf-m=\"mkt-form\"]": null,
+        "[data-sf-m=\"mkt-input-base\"]": null,
+        "[data-sf-m=\"mkt-input-price\"]": null,
+        "[data-sf-m=\"mkt-input-amount\"]": null,
+        "[data-sf-m=\"mkt-primary\"]": null,
+        "[data-sf-m=\"mkt-status\"]": null,
+        "[data-sf-m=\"mkt-book\"]": null,
+        "[data-sf-m=\"mkt-book-empty\"]": null,
+        "[data-sf-m=\"mkt-trades\"]": null,
+        "[data-sf-m=\"mkt-trades-empty\"]": null,
+        "[data-sf-m=\"mkt-mine\"]": null,
+        "[data-sf-m=\"mkt-cancel-all\"]": null,
+        "[data-sf-m=\"mkt-ledger\"]": null,
+        "[data-sf-m=\"mkt-ledger-empty\"]": null
+      },
+      "skin": null,
+      "pageBg": "rgb(11, 12, 14)",
+      "tabbar": {
+        "display": "none",
+        "cols": "none"
+      },
+      "signature": "DIV[shell]>DIV[topnav]>MAIN[content]>DIV[footer]>NAV[tabbar]>A[nav=home]>A[nav=reward]>A[nav=task]>A[nav=shard]>A[nav=profile]",
+      "elementCount": 146,
+      "hasObjectObject": false
+    },
+    "listing_detail_day_return_byte_identical": true,
+    "listing_detail_portrait390_stable_reads": 2,
+    "listing_detail_wide_back_stable_reads": 2,
+    "listing_detail_portrait390": {
+      "attr": "light",
+      "path": "/listing/1",
+      "rects": {
+        "[data-sf-region=\"topnav\"]": {
+          "x": 8,
+          "y": 8,
+          "w": 374,
+          "h": 65
+        },
+        "[data-sf-region=\"content\"]": {
+          "x": 8,
+          "y": 73,
+          "w": 394,
+          "h": 765.5
+        },
+        "[data-sf-region=\"tabbar\"]": {
+          "x": 8,
+          "y": 785,
+          "w": 374,
+          "h": 59
+        },
+        "#sf-route-container": {
+          "x": 8,
+          "y": 73,
+          "w": 394,
+          "h": 765.5
+        },
+        "[data-sf-region=\"footer\"]": {
+          "x": 8,
+          "y": 838.5,
+          "w": 374,
+          "h": 329
+        },
+        "[data-sf-m=\"listing-feed-hero\"]": null,
+        "[data-sf-m=\"listing-grid\"]": null,
+        "[data-sf-m=\"listing-card\"]": null,
+        "[data-sf-m=\"listing-thumb\"]": null,
+        "[data-sf-m=\"listing-orders\"]": null,
+        "[data-sf-m=\"listing-refund\"]": null,
+        "[data-sf-m=\"listing-input-order\"]": null,
+        "[data-sf-m=\"listing-refund-btn\"]": null,
+        "[data-sf-m=\"listing-hero\"]": null,
+        "[data-sf-m=\"listing-form\"]": null,
+        "[data-sf-m=\"listing-input-title\"]": null,
+        "[data-sf-m=\"listing-input-price\"]": null,
+        "[data-sf-m=\"listing-primary\"]": null,
+        "[data-sf-m=\"listing-status\"]": null,
+        "[data-sf-m=\"listing-side\"]": null,
+        "[data-sf-m=\"listing-detail-hero\"]": {
+          "x": 18,
+          "y": 89,
+          "w": 374,
+          "h": 164.875
+        },
+        "[data-sf-m=\"listing-detail-empty\"]": {
+          "x": 18,
+          "y": 262.875,
+          "w": 374,
+          "h": 45
+        },
+        "[data-sf-m=\"listing-buy-form\"]": {
+          "x": 18,
+          "y": 316.875,
+          "w": 374,
+          "h": 274.813
+        },
+        "[data-sf-m=\"listing-input-qty\"]": {
+          "x": 33,
+          "y": 424.688,
+          "w": 366,
+          "h": 52
+        },
+        "[data-sf-m=\"listing-buy-btn\"]": {
+          "x": 33,
+          "y": 544.688,
+          "w": 76,
+          "h": 34
+        },
+        "[data-sf-m=\"listing-buy-status\"]": {
+          "x": 117,
+          "y": 544.688,
+          "w": 0,
+          "h": 34
+        },
+        "[data-sf-m=\"listing-detail-side\"]": {
+          "x": 18,
+          "y": 609.688,
+          "w": 374,
+          "h": 186.813
+        },
+        "[data-sf-m=\"mkt-hero\"]": null,
+        "[data-sf-m=\"mkt-ticker\"]": null,
+        "[data-sf-m=\"mkt-form\"]": null,
+        "[data-sf-m=\"mkt-input-base\"]": null,
+        "[data-sf-m=\"mkt-input-price\"]": null,
+        "[data-sf-m=\"mkt-input-amount\"]": null,
+        "[data-sf-m=\"mkt-primary\"]": null,
+        "[data-sf-m=\"mkt-status\"]": null,
+        "[data-sf-m=\"mkt-book\"]": null,
+        "[data-sf-m=\"mkt-book-empty\"]": null,
+        "[data-sf-m=\"mkt-trades\"]": null,
+        "[data-sf-m=\"mkt-trades-empty\"]": null,
+        "[data-sf-m=\"mkt-mine\"]": null,
+        "[data-sf-m=\"mkt-cancel-all\"]": null,
+        "[data-sf-m=\"mkt-ledger\"]": null,
+        "[data-sf-m=\"mkt-ledger-empty\"]": null
+      },
+      "skin": null,
+      "pageBg": "rgb(253, 232, 21)",
+      "tabbar": {
+        "display": "grid",
+        "cols": "74.7969px 74.7969px 74.7969px 74.7969px 74.8125px"
+      },
+      "signature": "DIV[shell]>DIV[topnav]>MAIN[content]>DIV[footer]>NAV[tabbar]>A[nav=home]>A[nav=reward]>A[nav=task]>A[nav=shard]>A[nav=profile]",
+      "elementCount": 146,
+      "hasObjectObject": false
+    },
+    "market_day1_stable_reads": 2,
+    "market_day2_stable_reads": 2,
+    "market_day_repeat_byte_identical": true,
+    "market_perturbed_stable_reads": 2,
+    "market_perturbation": {
+      "target": "[data-sf-m=\"mkt-form\"]",
+      "injected": "padding-top: 1px",
+      "day": {
+        "x": 28,
+        "y": 329.875,
+        "w": 1086,
+        "h": 263
+      },
+      "perturbed": {
+        "x": 28,
+        "y": 329.875,
+        "w": 1086,
+        "h": 252
+      },
+      "detected": true
+    },
+    "market_restored_stable_reads": 2,
+    "market_perturbation_restored_byte_identical": true,
+    "market_night_stable_reads": 2,
+    "market_back_stable_reads": 2,
+    "market_night": {
+      "attr": "dark",
+      "path": "/shard",
+      "rects": {
+        "[data-sf-region=\"topnav\"]": {
+          "x": 8,
+          "y": 8,
+          "w": 1424,
+          "h": 65
+        },
+        "[data-sf-region=\"content\"]": {
+          "x": 8,
+          "y": 73,
+          "w": 1464,
+          "h": 748.688
+        },
+        "[data-sf-region=\"tabbar\"]": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0
+        },
+        "#sf-route-container": {
+          "x": 8,
+          "y": 73,
+          "w": 1464,
+          "h": 748.688
+        },
+        "[data-sf-region=\"footer\"]": {
+          "x": 8,
+          "y": 821.688,
+          "w": 1424,
+          "h": 329
+        },
+        "[data-sf-m=\"listing-feed-hero\"]": null,
+        "[data-sf-m=\"listing-grid\"]": null,
+        "[data-sf-m=\"listing-card\"]": null,
+        "[data-sf-m=\"listing-thumb\"]": null,
+        "[data-sf-m=\"listing-orders\"]": null,
+        "[data-sf-m=\"listing-refund\"]": null,
+        "[data-sf-m=\"listing-input-order\"]": null,
+        "[data-sf-m=\"listing-refund-btn\"]": null,
+        "[data-sf-m=\"listing-hero\"]": null,
+        "[data-sf-m=\"listing-form\"]": null,
+        "[data-sf-m=\"listing-input-title\"]": null,
+        "[data-sf-m=\"listing-input-price\"]": null,
+        "[data-sf-m=\"listing-primary\"]": null,
+        "[data-sf-m=\"listing-status\"]": null,
+        "[data-sf-m=\"listing-side\"]": null,
+        "[data-sf-m=\"listing-detail-hero\"]": null,
+        "[data-sf-m=\"listing-detail-empty\"]": null,
+        "[data-sf-m=\"listing-buy-form\"]": null,
+        "[data-sf-m=\"listing-input-qty\"]": null,
+        "[data-sf-m=\"listing-buy-btn\"]": null,
+        "[data-sf-m=\"listing-buy-status\"]": null,
+        "[data-sf-m=\"listing-detail-side\"]": null,
+        "[data-sf-m=\"mkt-hero\"]": {
+          "x": 28,
+          "y": 81,
+          "w": 1086,
+          "h": 164.875
+        },
+        "[data-sf-m=\"mkt-ticker\"]": {
+          "x": 28,
+          "y": 254.875,
+          "w": 1086,
+          "h": 66
+        },
+        "[data-sf-m=\"mkt-form\"]": {
+          "x": 28,
+          "y": 329.875,
+          "w": 1086,
+          "h": 263
+        },
+        "[data-sf-m=\"mkt-input-base\"]": {
+          "x": 575.5,
+          "y": 360.875,
+          "w": 545.5,
+          "h": 52
+        },
+        "[data-sf-m=\"mkt-input-price\"]": {
+          "x": 43,
+          "y": 439.875,
+          "w": 545.5,
+          "h": 52
+        },
+        "[data-sf-m=\"mkt-input-amount\"]": {
+          "x": 575.5,
+          "y": 439.875,
+          "w": 545.5,
+          "h": 52
+        },
+        "[data-sf-m=\"mkt-primary\"]": {
+          "x": 43,
+          "y": 499.875,
+          "w": 50,
+          "h": 34
+        },
+        "[data-sf-m=\"mkt-status\"]": {
+          "x": 101,
+          "y": 499.875,
+          "w": 0,
+          "h": 34
+        },
+        "[data-sf-m=\"mkt-book\"]": {
+          "x": 28,
+          "y": 601.875,
+          "w": 535,
+          "h": 193.813
+        },
+        "[data-sf-m=\"mkt-book-empty\"]": {
+          "x": 43,
+          "y": 691.688,
+          "w": 505,
+          "h": 45
+        },
+        "[data-sf-m=\"mkt-trades\"]": {
+          "x": 579,
+          "y": 601.875,
+          "w": 535,
+          "h": 193.813
+        },
+        "[data-sf-m=\"mkt-trades-empty\"]": {
+          "x": 594,
+          "y": 691.688,
+          "w": 505,
+          "h": 45
+        },
+        "[data-sf-m=\"mkt-mine\"]": {
+          "x": 1132,
+          "y": 81,
+          "w": 320,
+          "h": 249.813
+        },
+        "[data-sf-m=\"mkt-cancel-all\"]": {
+          "x": 1147,
+          "y": 170.813,
+          "w": 76,
+          "h": 34
+        },
+        "[data-sf-m=\"mkt-ledger\"]": {
+          "x": 1132,
+          "y": 339.813,
+          "w": 320,
+          "h": 162.813
+        },
+        "[data-sf-m=\"mkt-ledger-empty\"]": {
+          "x": 1147,
+          "y": 429.625,
+          "w": 290,
+          "h": 60
+        }
+      },
+      "skin": {
+        "bg": "rgb(20, 22, 25)",
+        "borderColor": "rgb(38, 42, 48)",
+        "radius": "2px",
+        "shadow": "none",
+        "color": "rgb(232, 234, 237)"
+      },
+      "pageBg": "rgb(11, 12, 14)",
+      "tabbar": {
+        "display": "none",
+        "cols": "none"
+      },
+      "signature": "DIV[shell]>DIV[topnav]>MAIN[content]>DIV[footer]>NAV[tabbar]>A[nav=home]>A[nav=reward]>A[nav=task]>A[nav=shard]>A[nav=profile]",
+      "elementCount": 177,
+      "hasObjectObject": false
+    },
+    "market_day_return_byte_identical": true,
+    "market_portrait390_stable_reads": 2,
+    "market_wide_back_stable_reads": 2,
+    "market_portrait390": {
+      "attr": "light",
+      "path": "/shard",
+      "rects": {
+        "[data-sf-region=\"topnav\"]": {
+          "x": 8,
+          "y": 8,
+          "w": 374,
+          "h": 65
+        },
+        "[data-sf-region=\"content\"]": {
+          "x": 8,
+          "y": 73,
+          "w": 394,
+          "h": 1570.125
+        },
+        "[data-sf-region=\"tabbar\"]": {
+          "x": 8,
+          "y": 785,
+          "w": 374,
+          "h": 59
+        },
+        "#sf-route-container": {
+          "x": 8,
+          "y": 73,
+          "w": 394,
+          "h": 1570.125
+        },
+        "[data-sf-region=\"footer\"]": {
+          "x": 8,
+          "y": 1643.125,
+          "w": 374,
+          "h": 329
+        },
+        "[data-sf-m=\"listing-feed-hero\"]": null,
+        "[data-sf-m=\"listing-grid\"]": null,
+        "[data-sf-m=\"listing-card\"]": null,
+        "[data-sf-m=\"listing-thumb\"]": null,
+        "[data-sf-m=\"listing-orders\"]": null,
+        "[data-sf-m=\"listing-refund\"]": null,
+        "[data-sf-m=\"listing-input-order\"]": null,
+        "[data-sf-m=\"listing-refund-btn\"]": null,
+        "[data-sf-m=\"listing-hero\"]": null,
+        "[data-sf-m=\"listing-form\"]": null,
+        "[data-sf-m=\"listing-input-title\"]": null,
+        "[data-sf-m=\"listing-input-price\"]": null,
+        "[data-sf-m=\"listing-primary\"]": null,
+        "[data-sf-m=\"listing-status\"]": null,
+        "[data-sf-m=\"listing-side\"]": null,
+        "[data-sf-m=\"listing-detail-hero\"]": null,
+        "[data-sf-m=\"listing-detail-empty\"]": null,
+        "[data-sf-m=\"listing-buy-form\"]": null,
+        "[data-sf-m=\"listing-input-qty\"]": null,
+        "[data-sf-m=\"listing-buy-btn\"]": null,
+        "[data-sf-m=\"listing-buy-status\"]": null,
+        "[data-sf-m=\"listing-detail-side\"]": null,
+        "[data-sf-m=\"mkt-hero\"]": {
+          "x": 18,
+          "y": 89,
+          "w": 374,
+          "h": 178.875
+        },
+        "[data-sf-m=\"mkt-ticker\"]": {
+          "x": 18,
+          "y": 276.875,
+          "w": 374,
+          "h": 66
+        },
+        "[data-sf-m=\"mkt-form\"]": {
+          "x": 18,
+          "y": 351.875,
+          "w": 374,
+          "h": 418
+        },
+        "[data-sf-m=\"mkt-input-base\"]": {
+          "x": 33,
+          "y": 444.875,
+          "w": 366,
+          "h": 52
+        },
+        "[data-sf-m=\"mkt-input-price\"]": {
+          "x": 33,
+          "y": 523.875,
+          "w": 366,
+          "h": 52
+        },
+        "[data-sf-m=\"mkt-input-amount\"]": {
+          "x": 33,
+          "y": 602.875,
+          "w": 366,
+          "h": 52
+        },
+        "[data-sf-m=\"mkt-primary\"]": {
+          "x": 33,
+          "y": 662.875,
+          "w": 50,
+          "h": 34
+        },
+        "[data-sf-m=\"mkt-status\"]": {
+          "x": 91,
+          "y": 662.875,
+          "w": 0,
+          "h": 34
+        },
+        "[data-sf-m=\"mkt-book\"]": {
+          "x": 18,
+          "y": 778.875,
+          "w": 374,
+          "h": 208.813
+        },
+        "[data-sf-m=\"mkt-book-empty\"]": {
+          "x": 33,
+          "y": 868.688,
+          "w": 344,
+          "h": 60
+        },
+        "[data-sf-m=\"mkt-trades\"]": {
+          "x": 18,
+          "y": 996.688,
+          "w": 374,
+          "h": 193.813
+        },
+        "[data-sf-m=\"mkt-trades-empty\"]": {
+          "x": 33,
+          "y": 1086.5,
+          "w": 344,
+          "h": 45
+        },
+        "[data-sf-m=\"mkt-mine\"]": {
+          "x": 18,
+          "y": 1208.5,
+          "w": 374,
+          "h": 235.813
+        },
+        "[data-sf-m=\"mkt-cancel-all\"]": {
+          "x": 33,
+          "y": 1298.313,
+          "w": 76,
+          "h": 34
+        },
+        "[data-sf-m=\"mkt-ledger\"]": {
+          "x": 18,
+          "y": 1453.313,
+          "w": 374,
+          "h": 147.813
+        },
+        "[data-sf-m=\"mkt-ledger-empty\"]": {
+          "x": 33,
+          "y": 1543.125,
+          "w": 344,
+          "h": 45
+        }
+      },
+      "skin": {
+        "bg": "rgb(255, 255, 255)",
+        "borderColor": "rgb(3, 4, 2)",
+        "radius": "13px",
+        "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+        "color": "rgb(10, 10, 10)"
+      },
+      "pageBg": "rgb(253, 232, 21)",
+      "tabbar": {
+        "display": "grid",
+        "cols": "74.7969px 74.7969px 74.7969px 74.7969px 74.8125px"
+      },
+      "signature": "DIV[shell]>DIV[topnav]>MAIN[content]>DIV[footer]>NAV[tabbar]>A[nav=home]>A[nav=reward]>A[nav=task]>A[nav=shard]>A[nav=profile]",
+      "elementCount": 177,
+      "hasObjectObject": false
+    }
+  },
+  "verdict": {
+    "listing_feed": {
+      "measured_elements": 43,
+      "present_elements": 10,
+      "geometry_diff_count": 0,
+      "geometry_diffs": [],
+      "skin_changed": true,
+      "day_skin": null,
+      "night_skin": null,
+      "page_bg_day": "rgb(253, 232, 21)",
+      "page_bg_night": "rgb(11, 12, 14)",
+      "attr_day": "light",
+      "attr_night": "dark",
+      "same_dom_signature_day_vs_night": true,
+      "element_count_day": 144,
+      "element_count_night": 144,
+      "contains_object_object": false,
+      "day_repeat_byte_identical": true,
+      "day_return_byte_identical": true,
+      "perturbation_detected": true,
+      "perturbation_restored_byte_identical": true,
+      "responsive": {
+        "signature_equal_wide_vs_portrait": true,
+        "signature_equal_wide_vs_wideBack": true,
+        "tabbar_display_wide": "none",
+        "tabbar_display_portrait": "grid",
+        "element_count_wide": 144,
+        "element_count_portrait": 144
+      }
+    },
+    "listing_new": {
+      "measured_elements": 43,
+      "present_elements": 12,
+      "geometry_diff_count": 0,
+      "geometry_diffs": [],
+      "skin_changed": true,
+      "day_skin": null,
+      "night_skin": null,
+      "page_bg_day": "rgb(253, 232, 21)",
+      "page_bg_night": "rgb(11, 12, 14)",
+      "attr_day": "light",
+      "attr_night": "dark",
+      "same_dom_signature_day_vs_night": true,
+      "element_count_day": 156,
+      "element_count_night": 156,
+      "contains_object_object": false,
+      "day_repeat_byte_identical": true,
+      "day_return_byte_identical": true,
+      "perturbation_detected": true,
+      "perturbation_restored_byte_identical": true,
+      "responsive": {
+        "signature_equal_wide_vs_portrait": true,
+        "signature_equal_wide_vs_wideBack": true,
+        "tabbar_display_wide": "none",
+        "tabbar_display_portrait": "grid",
+        "element_count_wide": 156,
+        "element_count_portrait": 156
+      }
+    },
+    "listing_detail": {
+      "measured_elements": 43,
+      "present_elements": 12,
+      "geometry_diff_count": 0,
+      "geometry_diffs": [],
+      "skin_changed": true,
+      "day_skin": null,
+      "night_skin": null,
+      "page_bg_day": "rgb(253, 232, 21)",
+      "page_bg_night": "rgb(11, 12, 14)",
+      "attr_day": "light",
+      "attr_night": "dark",
+      "same_dom_signature_day_vs_night": true,
+      "element_count_day": 146,
+      "element_count_night": 146,
+      "contains_object_object": false,
+      "day_repeat_byte_identical": true,
+      "day_return_byte_identical": true,
+      "perturbation_detected": true,
+      "perturbation_restored_byte_identical": true,
+      "responsive": {
+        "signature_equal_wide_vs_portrait": true,
+        "signature_equal_wide_vs_wideBack": true,
+        "tabbar_display_wide": "none",
+        "tabbar_display_portrait": "grid",
+        "element_count_wide": 146,
+        "element_count_portrait": 146
+      }
+    },
+    "market": {
+      "measured_elements": 43,
+      "present_elements": 21,
+      "geometry_diff_count": 0,
+      "geometry_diffs": [],
+      "skin_changed": true,
+      "day_skin": {
+        "bg": "rgb(255, 255, 255)",
+        "borderColor": "rgb(3, 4, 2)",
+        "radius": "13px",
+        "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+        "color": "rgb(10, 10, 10)"
+      },
+      "night_skin": {
+        "bg": "rgb(20, 22, 25)",
+        "borderColor": "rgb(38, 42, 48)",
+        "radius": "2px",
+        "shadow": "none",
+        "color": "rgb(232, 234, 237)"
+      },
+      "page_bg_day": "rgb(253, 232, 21)",
+      "page_bg_night": "rgb(11, 12, 14)",
+      "attr_day": "light",
+      "attr_night": "dark",
+      "same_dom_signature_day_vs_night": true,
+      "element_count_day": 177,
+      "element_count_night": 177,
+      "contains_object_object": false,
+      "day_repeat_byte_identical": true,
+      "day_return_byte_identical": true,
+      "perturbation_detected": true,
+      "perturbation_restored_byte_identical": true,
+      "responsive": {
+        "signature_equal_wide_vs_portrait": true,
+        "signature_equal_wide_vs_wideBack": true,
+        "tabbar_display_wide": "none",
+        "tabbar_display_portrait": "grid",
+        "element_count_wide": 177,
+        "element_count_portrait": 177
+      }
+    }
+  },
+  "notes": [
+    "静态资源不经网络服务：page.route 把 http://sf.local/** 映射到 /Users/kevin/bistro/seafood/frontend/dist；外部 CDN 请求一律 abort。",
+    "主题切换 = 直接改 <html data-theme>（light/dark）；真换肤由 skin/pageBg 值变化证明。"
+  ],
+  "browserVersion": "154.0.8037.58",
+  "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "blocked_external_origins": [
+    "https://cdn.tailwindcss.com",
+    "https://cdnjs.cloudflare.com",
+    "https://fonts.googleapis.com",
+    "https://cdn.jsdelivr.net",
+    "https://raw.githubusercontent.com"
+  ],
+  "page_errors": [
+    "ReferenceError: tailwind is not defined",
+    "ReferenceError: tailwind is not defined",
+    "ReferenceError: tailwind is not defined",
+    "ReferenceError: tailwind is not defined"
+  ],
+  "finishedAt": "2026-09-30T14:35:04.948Z"
+}

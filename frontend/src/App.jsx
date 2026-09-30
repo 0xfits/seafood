@@ -17,6 +17,9 @@ import ThemePreviewPage from './pages/ThemePreviewPage'
 import PublishJobPage from './pages/jobs/PublishJobPage'
 import JobDetailPage from './pages/jobs/JobDetailPage'
 import JobReviewPage from './pages/jobs/JobReviewPage'
+import ListingsPage from './pages/listings/ListingsPage'
+import PublishListingPage from './pages/listings/PublishListingPage'
+import ListingDetailPage from './pages/listings/ListingDetailPage'
 
 // 管理页面组件
 import TasksManagement from './pages/admin/TasksManagement'
@@ -77,6 +80,9 @@ const LangShell = () => {
             静态段优先于动态段（react-router v6 排名），故 /task/new|/task/review 不会被 :jobId 吃掉 */}
         <Route path="task/new" element={<PublishJobPage />} />
         <Route path="task/review" element={<JobReviewPage />} />
+        <Route path="listing" element={<ListingsPage />} />
+        <Route path="listing/new" element={<PublishListingPage />} />
+        <Route path="listing/:listingId" element={<ListingDetailPage />} />
         <Route path="task/:jobId" element={<JobDetailPage />} />
 
         {/* 碎片市场 */}

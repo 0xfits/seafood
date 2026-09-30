@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
 import { buildLangPath } from '../../utils'
+import { fetchAdminAccess, hasAdminPermission } from '../../admin-utils'
 import { createJobPublishTracker, jobPublishFingerprint, publishJob } from './job-api'
 import './jobs.css'
 
@@ -18,6 +19,19 @@ const PublishJobPage = () => {
   const [form, setForm] = useState({ cid: '1', reward: '', title: '', description: '' })
   const [state, setState] = useState({ phase: 'idle', message: '' })
   const tracker = useMemo(() => createJobPublishTracker(), [])
+  // 四项确认 ①：审核面 = 管理员面。权限**唯一真源** = 后端 `requireAdmin(review_tasks)`（非 admin ⇒ 403），
+  //   前端不得展示入口 ⇒ 取 `/api/admin/me` 的能力集判定；能力集未回 / 无 `review_tasks` ⇒ 入口不渲染。
+  const [access, setAccess] = useState(null)
+
+  useEffect(() => {
+    let alive = true
+    fetchAdminAccess(user)
+      .then((next) => { if (alive) setAccess(next) })
+      .catch(() => { if (alive) setAccess(null) })
+    return () => { alive = false }
+  }, [user])
+
+  const canReview = hasAdminPermission(access, 'review_tasks')
 
   const setField = (key) => (event) => setForm((prev) => ({ ...prev, [key]: event.target.value }))
 
@@ -64,7 +78,8 @@ const PublishJobPage = () => {
             <p className="sf-jobs-note">{t('jobs.cidNote')}</p>
             <div className="sf-jobs-actions">
               <Link className="sf-jobs-link" to="/task">{t('jobs.list')}</Link>
-              <Link className="sf-jobs-link" to="/task/review">{t('jobs.review')}</Link>
+              {/* 审核入口按权限隐藏（四项确认 ①）：非 admin 不渲染（后端 403 只是兜底，不是首屏反馈） */}
+              {canReview && <Link className="sf-jobs-link" to="/task/review" data-sf-m="jobs-review-link">{t('jobs.review')}</Link>}
             </div>
           </div>
 
