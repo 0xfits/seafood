@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
-import { buildLangPath, getLanguageFromUrl } from '../../utils'
+import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import { contentStatus, localizeFields } from '../../i18n-content'
 import TranslatingBadge from '../../components/i18n/TranslatingBadge'
 import {
@@ -158,7 +158,6 @@ const MarketPage = () => {
     }
   }
 
-  const entry = buildLangPath(location.pathname, undefined)
   const lastTrade = trades.rows[0] || null
   // TR-2：当前语言（`utils.SUPPORTED_LANGS` 同一白名单）。
   //   · 「我的挂单」行 = `market_order` 行（`/api/order`）⇒ 面板渲染的文本键只有 `side`/`status`（枚举文本）。
@@ -176,8 +175,8 @@ const MarketPage = () => {
             <h1 className="sf-mkt-title">{t('market.title')}</h1>
             <p className="sf-mkt-note">{t('market.note')}</p>
             <div className="sf-mkt-actions">
-              <Link className="sf-mkt-link" to={entry === '/' ? '/listing' : `${entry}/listing`}>{t('listings.line')}</Link>
-              <Link className="sf-mkt-link" to={entry === '/' ? '/listing/new' : `${entry}/listing/new`}>{t('listings.publish')}</Link>
+              <Link className="sf-mkt-link" to={buildLocalizedPath(lang, '/listing')}>{t('listings.line')}</Link>
+              <Link className="sf-mkt-link" to={buildLocalizedPath(lang, '/listing/new')}>{t('listings.publish')}</Link>
               <button className="sf-btn sf-mkt-btn" type="button" onClick={refresh} data-sf-m="mkt-refresh">{t('market.refresh')}</button>
             </div>
           </div>

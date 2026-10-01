@@ -76,19 +76,52 @@ export const stripLangPrefix = (pathname) => {
 }
 
 /**
+ * 语言前缀（同源站内链接构造的唯一真源）
+ * 口径：zh = 无前缀 ⇒ ''；其余白名单语言 ⇒ '/en' 形态；非法/缺失语言 ⇒ 按默认语 zh（**绝不产出 `undefined`**）
+ * @param {string} lang - 语言代码
+ * @returns {string} 形如 '' 或 '/en' 的前缀
+ */
+export const langPathPrefix = (lang) => {
+  const code = SUPPORTED_LANGS.includes(lang) ? lang : 'zh'
+
+  return code === 'zh' ? '' : `/${code}`
+}
+
+/**
  * 按目标语言重建路径：先剥离所有语言前缀，再按目标语言加前缀
  * @param {string} pathname - 当前URL路径
- * @param {string} targetLang - 目标语言代码
+ * @param {string} targetLang - 目标语言代码（非法/缺失 ⇒ 按 zh 处理，不拼接 `undefined`）
  * @returns {string} 带目标语言前缀的路径；剩余路径为空时不带尾斜杠
  */
 export const buildLangPath = (pathname, targetLang) => {
   const rest = stripLangPrefix(pathname).replace(/\/+$/, '')
+  // 目标语言非法（缺省/未在白名单）时按默认语 zh 处置：旧实现会拼出 `/undefined/...`（F2 根因之一）
+  const lang = SUPPORTED_LANGS.includes(targetLang) ? targetLang : 'zh'
 
-  if (targetLang === 'zh') {
+  if (lang === 'zh') {
     return rest || '/'
   }
 
-  return `/${targetLang}${rest}`
+  return `/${lang}${rest}`
+}
+
+/**
+ * 同页内站内链接构造器（语言前缀 + 站内路径）—— 页面「语言前缀 + 相对路径」拼接的唯一入口
+ * 契约：zh ⇒ 原样返回站内路径；有前缀语言 ⇒ `/<lang><path>`；语言缺失/非法 ⇒ 等同 zh（**输出不得含 `undefined`**）
+ * @param {string} lang - 当前语言代码
+ * @param {string} path - 站内路径（可带或不带前导斜杠）
+ * @returns {string} 可直接交给 react-router `Link`/`navigate` 的站内路径
+ */
+export const buildLocalizedPath = (lang, path = '/') => {
+  const prefix = langPathPrefix(lang)
+  const raw = String(path || '/')
+  const normalized = raw.startsWith('/') ? raw : `/${raw}`
+
+  if (normalized === '/') {
+    return prefix || '/'
+  }
+
+  return `${prefix}${normalized}`
 }
 
 /**

@@ -35,7 +35,7 @@ import AppShell from './shell/AppShell'
 import AdminLayout from './components/layout/AdminLayout'
 import { fetchAdminAccess, hasAdminPermission } from './admin-utils'
 import { useAuth } from './auth-context'
-import { canonicalLangPath, getLanguageFromUrl, SUPPORTED_LANGS } from './utils'
+import { buildLocalizedPath, canonicalLangPath, getLanguageFromUrl, SUPPORTED_LANGS } from './utils'
 
 // 模态框组件
 import LoginModal from './components/LoginModal'
@@ -90,6 +90,13 @@ const LangShell = () => {
 
         {/* 主题/骨架可交互预览件（地基单 4c-i；四语前缀下同样可达） */}
         <Route path="theme-preview" element={<ThemePreviewPage />} />
+
+        {/* 登录 / 注册（F1 修复：纳入 LangShell 内层管辖，与其它页面同一处置）
+            旧实现在顶层 App 路由里写死 `/login`、`/register` ⇒ 只有无前缀直链可达；
+            /en/login・/hk/login・/vn/login 落到 `/*` 壳的内层无匹配 ⇒ <main> 0 字节空壳。
+            语言前缀一律由外层 LangShell 承担，内层只写相对段，不为某一档语言加特例路由。 */}
+        <Route path="login" element={<AuthPage mode="login" />} />
+        <Route path="register" element={<AuthPage mode="register" />} />
 
         {/* 个人资料页面（需要登录） */}
         <Route
@@ -186,7 +193,8 @@ const ProtectedRoute = ({ children, adminOnly = false, requiredPermission = null
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace state={{ from: location }} />
+    // F1 同族：受保护路由的登录跳转必须保留当前语言前缀，否则 /en/profile ⇒ /login（语言回落中文档）
+    return <Navigate to={buildLocalizedPath(getLanguageFromUrl(location.pathname), '/login')} replace state={{ from: location }} />
   }
 
   if (adminOnly && !hasAccess) {
@@ -213,12 +221,9 @@ function App() {
     <div className="app-container gradient-bg">
       <DocumentTitle />
       <Routes>
-        {/* 登录页面 */}
-        <Route path="/login" element={<AuthPage mode="login" />} />
+        {/* 登录/注册路由已下沉到 LangShell 内层（F1）；此处不再重复声明绝对路径路由 */}
         
-        {/* 注册页面 */}
-        <Route path="/register" element={<AuthPage mode="register" />} />
-        
+
         {/* 管理页面路由 */}
         <Route 
           path="/dashboard/*" 

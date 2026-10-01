@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
-import { buildLangPath, getLanguageFromUrl } from '../../utils'
+import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import { contentStatus, pickLocalized } from '../../i18n-content'
 import TranslatingBadge from '../../components/i18n/TranslatingBadge'
 import { buyListing, createListingBuyTracker, fetchListingDetail, listingBuyFingerprint } from './listing-api'
@@ -57,11 +57,11 @@ const ListingDetailPage = () => {
     }
   }
 
-  const entry = buildLangPath(location.pathname, undefined)
-  const root = (p) => (entry === '/' ? p : `${entry}${p}`)
   const row = detail.row || {}
   // TR-2：当前语言（`utils.SUPPORTED_LANGS` 同一白名单）；用户内容字段取当前语言，空串/缺字段 ⇒ 回落原文
   const lang = getLanguageFromUrl(location.pathname)
+  // F2 修复：站内链接 = 当前语言前缀 + 站内路径（唯一构造器 utils.buildLocalizedPath）
+  const root = (p) => buildLocalizedPath(lang, p)
   const title = pickLocalized(row, 'title', lang) || pickLocalized(row, 'name', lang) || t('listings.detail')
   const description = pickLocalized(row, 'description', lang) || ''
 

@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
-import { buildLangPath } from '../../utils'
+import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import {
   createListingPublishTracker,
   listingPublishFingerprint,
@@ -69,8 +69,9 @@ const PublishListingPage = () => {
     }
   }
 
-  const entry = buildLangPath(location.pathname, undefined)
-  const root = (p) => (entry === '/' ? p : `${entry}${p}`)
+  // F2 修复：站内链接 = 当前语言前缀 + 站内路径（唯一构造器 utils.buildLocalizedPath）
+  const lang = getLanguageFromUrl(location.pathname)
+  const root = (p) => buildLocalizedPath(lang, p)
 
   if (!isAuthenticated) {
     return (

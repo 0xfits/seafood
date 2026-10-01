@@ -9,6 +9,7 @@ import { FadeIn, SlideUp } from '../components/ui/Motion'
 import { ResponsiveContainer } from '../components/ui/Responsive'
 import { updateMyProfile } from '../auth'
 import { useAuth } from '../auth-context'
+import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
 
 const FALLBACK_PATHS = {
   login: '/',
@@ -31,6 +32,8 @@ const AuthPage = ({ mode = 'login' }) => {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
+  // F1 同族：登录/注册互跳必须带当前语言前缀（/en/login ⇄ /en/register），否则跨页丢语言
+  const lang = getLanguageFromUrl(location.pathname)
   const { user, isAuthenticated, isProfileComplete, updateSession } = useAuth()
   const [bio, setBio] = useState(user?.bio || '')
   const [saving, setSaving] = useState(false)
@@ -46,7 +49,7 @@ const AuthPage = ({ mode = 'login' }) => {
 
   const handleAuthSuccess = async (session) => {
     if (session?.requires_profile_completion) {
-      navigate('/register', {
+      navigate(buildLocalizedPath(lang, '/register'), {
         replace: true,
         state: { from: redirectTarget },
       })
@@ -81,7 +84,7 @@ const AuthPage = ({ mode = 'login' }) => {
   }
 
   if (mode === 'login' && isAuthenticated && !isProfileComplete) {
-    return <Navigate to="/register" replace state={{ from: redirectTarget }} />
+    return <Navigate to={buildLocalizedPath(lang, '/register')} replace state={{ from: redirectTarget }} />
   }
 
   if (mode === 'login' && isAuthenticated && isProfileComplete) {
@@ -178,14 +181,14 @@ const AuthPage = ({ mode = 'login' }) => {
                 {mode === 'login' ? (
                   <p className="text-sm text-gray-600">
                     {t('authPage.notBoundYet')}
-                    <Link to="/register" state={{ from: redirectTarget }} className="ml-2 font-medium text-blue-600 hover:text-blue-700">
+                    <Link to={buildLocalizedPath(lang, '/register')} state={{ from: redirectTarget }} className="ml-2 font-medium text-blue-600 hover:text-blue-700">
                       {t('authPage.goRegister')}
                     </Link>
                   </p>
                 ) : (
                   <p className="text-sm text-gray-600">
                     {t('authPage.alreadyBound')}
-                    <Link to="/login" state={{ from: redirectTarget }} className="ml-2 font-medium text-blue-600 hover:text-blue-700">
+                    <Link to={buildLocalizedPath(lang, '/login')} state={{ from: redirectTarget }} className="ml-2 font-medium text-blue-600 hover:text-blue-700">
                       {t('authPage.backToLogin')}
                     </Link>
                   </p>

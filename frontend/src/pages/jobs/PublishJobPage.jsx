@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
-import { buildLangPath } from '../../utils'
+import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import { fetchAdminAccess, hasAdminPermission } from '../../admin-utils'
 import { createJobPublishTracker, jobPublishFingerprint, publishJob } from './job-api'
 import './jobs.css'
@@ -59,7 +59,9 @@ const PublishJobPage = () => {
     }
   }
 
-  const entry = buildLangPath(location.pathname, undefined)
+  // F2 修复：站内链接 = 当前语言前缀 + 站内路径（唯一构造器 utils.buildLocalizedPath）
+  const lang = getLanguageFromUrl(location.pathname)
+  const root = (p) => buildLocalizedPath(lang, p)
 
   if (!isAuthenticated) {
     return (
@@ -77,9 +79,9 @@ const PublishJobPage = () => {
             <h1 className="sf-jobs-title">{t('jobs.publish')}</h1>
             <p className="sf-jobs-note">{t('jobs.cidNote')}</p>
             <div className="sf-jobs-actions">
-              <Link className="sf-jobs-link" to="/task">{t('jobs.list')}</Link>
+              <Link className="sf-jobs-link" to={root('/task')}>{t('jobs.list')}</Link>
               {/* 审核入口按权限隐藏（四项确认 ①）：非 admin 不渲染（后端 403 只是兜底，不是首屏反馈） */}
-              {canReview && <Link className="sf-jobs-link" to="/task/review" data-sf-m="jobs-review-link">{t('jobs.review')}</Link>}
+              {canReview && <Link className="sf-jobs-link" to={root('/task/review')} data-sf-m="jobs-review-link">{t('jobs.review')}</Link>}
             </div>
           </div>
 

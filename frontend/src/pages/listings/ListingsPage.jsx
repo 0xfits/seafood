@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
-import { buildLangPath, getLanguageFromUrl } from '../../utils'
+import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import { contentStatus, pickLocalized } from '../../i18n-content'
 import TranslatingBadge from '../../components/i18n/TranslatingBadge'
 import { fetchListingFeed, fetchMyListingOrders, refundListingOrder } from './listing-api'
@@ -83,8 +83,9 @@ const ListingsPage = () => {
     }
   }
 
-  const entry = buildLangPath(location.pathname, undefined)
-  const root = (p) => (entry === '/' ? p : `${entry}${p}`)
+  // F2 修复：站内链接 = 当前语言前缀 + 站内路径（唯一构造器 utils.buildLocalizedPath）
+  // 旧实现 `buildLangPath(location.pathname, undefined)` 会拼出 `/undefined/listing/<rel>`（前缀 = 'undefined' 且路径段重复）
+  const root = (p) => buildLocalizedPath(lang, p)
 
   return (
     <div className="sf-layout" data-sf-m="listing-feed-layout">
