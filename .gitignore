@@ -318,3 +318,8 @@ Thumbs.db
 .DS_Store
 .vercel
 .env*.local
+
+# 探针运行标记（probe run markers）：探针每轮运行写入的瞬时状态文件，不是源码，不入库。
+# 现有轮次目录为 backend-ts/.p4-artifacts/；用 .p*-artifacts/ 通配同时覆盖后续 .p5-/.p6- 等轮次产生的同名新标记。
+backend-ts/.p*-artifacts/.lastrun
+backend-ts/.p*-artifacts/.a1ld-run
