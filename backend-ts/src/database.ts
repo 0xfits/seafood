@@ -735,7 +735,8 @@ const normalizeShardTransfer = (
  *   · `*_<lang>`（en/hk/vn）**恒有值** —— 有 status='ready' 译文用译文，否则**回落源文（中文）**，永不空串
  *     （除非原文本身为空）；
  *   · `i18n_status`：'ready' = 该对象**所有可译字段** × en/vn/hk 全部有 ready 译文；'pending' = 一个都没有；
- *     否则 'partial'；字段缺省 ⇒ 前端不显示小标（本文件的 job/listing 记录**恒带**此键）；
+ *     否则 'partial'；**P6-TR-1c-FIX2：源文本为空/空白（trim 后为空）的 (字段 × 语言) 格不计入分母**（无内容可翻）；
+ *     **所有可译字段的源皆空（total===0）⇒ 真空态 `ready`**（spec v1.3 §10.15；**该键恒在**）；键缺省 ⇒ 前端不显示小标；
  *   · 语言后缀仅 en/hk/vn；zh 是源语言，**永不入表**。
  * 读失败 / 读不到 ⇒ 全部回落源文（**绝不**让内容面 500）。
  */
@@ -758,7 +759,7 @@ const I18N_SPECS: Record<string, ReadonlyArray<{ out: string; src: readonly stri
 const I18N_LANGS = ['en', 'hk', 'vn'] as const;
 
 /** 就地合并译文（写 `*_<lang>` + `i18n_status`）；index 缺省 ⇒ 全部回落源文、status='pending'。 */
-const applyI18n = (
+export const applyI18n = (
   entityType: string,
   entityId: string,
   record: Record<string, unknown>,
@@ -771,8 +772,10 @@ const applyI18n = (
   let ready = 0;
   for (const spec of specs) {
     const source = typeof record[spec.out] === 'string' ? record[spec.out] as string : '';
+    // P6-TR-1c-FIX2：源为空/空白 ⇒ 该 (字段 × 语言) 格**无内容可翻** ⇒ 不计入分母（否则对象被永久判 partial、小标永挂）
+    const countable = source.trim() !== '';
     for (const lang of I18N_LANGS) {
-      total += 1;
+      if (countable) total += 1;
       let text = '';
       if (got) {
         for (const field of spec.src) {
@@ -780,13 +783,15 @@ const applyI18n = (
           if (typeof candidate === 'string' && candidate) { text = candidate; break; }
         }
       }
-      if (text) ready += 1;
-      record[`${spec.out}_${lang}`] = text || source; // 恒有值：取不到 ⇒ 回落源文
+      if (countable && text) ready += 1;
+      record[`${spec.out}_${lang}`] = text || source; // 恒有值：取不到 ⇒ 回落源文（唯一例外：源文本身为空 ⇒ 回落空串）
     }
   }
-  const status: I18nStatus = total === 0 || ready === 0
-    ? 'pending'
-    : (ready === total ? 'ready' : 'partial');
+  // P6-TR-1c-FIX2 / spec v1.3 §10.15：所有可译字段的源皆空 ⇒ total===0 ⇒ 取**真空态 `ready`**（该键**恒在**；
+  // 前端对 `ready` 与键缺省的处理一致 = 都不显示小标 ⇒ §10.1「该键恒带」保持）
+  const status: I18nStatus = total === 0 || ready === total
+    ? 'ready'
+    : (ready === 0 ? 'pending' : 'partial');
   record.i18n_status = status;
 };
 
