@@ -137,7 +137,7 @@ const DashboardPage = () => {
     if (canReviewTasks && pendingList?.status === 'rejected') errors.push(t('dashPage.errPendingList'))
 
     if (errors.length > 0) {
-      toast.error(t('dashPage.partialLoadFailed', { list: errors.join('、') }))
+      toast.error(t('dashPage.partialLoadFailed', { list: errors.join(t('common.listSeparator')) }))
     }
 
     setDashboardStats({

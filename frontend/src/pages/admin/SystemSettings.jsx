@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Button, Card, CardHeader, CardTitle, CardContent } from '../../components/ui'
 import { Settings, Save, RefreshCw, Database, Globe } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -7,7 +8,7 @@ import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdmin
 import { adminOpsKey } from '../../idempotency'
 
 const DEFAULT_SETTINGS = {
-  siteDescription: '去中心化社区奖励平台',
+  siteDescription: '',
   maintenance: false,
   allowRegistration: true,
   emailNotifications: true,
@@ -18,9 +19,11 @@ const DEFAULT_SETTINGS = {
 }
 
 const SystemSettings = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
-  const [settings, setSettings] = useState(DEFAULT_SETTINGS)
-  const [savedSettings, setSavedSettings] = useState(DEFAULT_SETTINGS)
+  const defaults = { ...DEFAULT_SETTINGS, siteDescription: t('adminSettings.siteDescription') }
+  const [settings, setSettings] = useState(() => ({ ...defaults }))
+  const [savedSettings, setSavedSettings] = useState(() => ({ ...defaults }))
   const [initialLoading, setInitialLoading] = useState(true)
   const [loading, setLoading] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
@@ -35,12 +38,12 @@ const SystemSettings = () => {
       setInitialLoading(true)
       const currentUser = getStoredUser()
       if (!currentUser) {
-        throw new Error('未登录')
+        throw new Error(t('adminCommon.notLoggedIn'))
       }
 
       const accessInfo = await fetchAdminAccess(currentUser)
       if (!accessInfo.can_access_admin) {
-        throw new Error('当前账号没有后台访问权限')
+        throw new Error(t('adminCommon.noAdminAccess'))
       }
 
       setAccess(accessInfo)
@@ -49,14 +52,14 @@ const SystemSettings = () => {
       })
 
       const normalized = {
-        ...DEFAULT_SETTINGS,
+        ...defaults,
         ...data,
       }
       setSettings(normalized)
       setSavedSettings(normalized)
     } catch (error) {
       console.error('Error loading settings:', error)
-      toast.error(`加载系统设置失败: ${error.message}`)
+      toast.error(t('adminSettings.loadFailed', { message: error.message }))
     } finally {
       setInitialLoading(false)
     }
@@ -71,7 +74,7 @@ const SystemSettings = () => {
         'Content-Type': 'application/json',
       }
       if (!headers.Authorization) {
-        toast.error('登录状态已失效，请重新登录')
+        toast.error(t('adminCommon.sessionExpired'))
         navigate('/login')
         return
       }
@@ -98,15 +101,15 @@ const SystemSettings = () => {
       })
 
       const nextSettings = {
-        ...DEFAULT_SETTINGS,
+        ...defaults,
         ...saved,
       }
       setSettings(nextSettings)
       setSavedSettings(nextSettings)
-      toast.success('设置已保存')
+      toast.success(t('adminSettings.saved'))
     } catch (error) {
       console.error('Error saving settings:', error)
-      toast.error(`保存失败: ${error.message}`)
+      toast.error(t('adminSettings.saveFailed', { message: error.message }))
     } finally {
       setLoading(false)
     }
@@ -132,18 +135,17 @@ const SystemSettings = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">系统设置</h2>
+          <h2 className="text-2xl font-bold">{t('adminNav.settings')}</h2>
           <p className="text-sm text-gray-600 mt-1">
-            当前页面使用持久化后台设置状态，支持读取与保存
-            （保存按 §2.4 S1/DL36 带 `ops:` 幂等键）；「重置为默认值」入口已下线（§5.1 = `410`）。
-            {!canManageSettings && ' 当前账号为只读模式。'}
+            {t('adminSettings.intro')}
+            {!canManageSettings && ` ${t('adminCommon.readOnlyNotice')}`}
           </p>
         </div>
         <div className="flex gap-2">
           {/* §2.4 S5：`POST /api/admin/settings/reset` 已 410 ⇒ 「重置」按钮删除（页面只读化+逐项保存） */}
           <Button variant="primary" onClick={saveSettings} disabled={loading || !hasChanges || !canManageSettings}>
             <Save className="w-4 h-4 mr-2" />
-            {loading ? '保存中...' : '保存设置'}
+            {loading ? t('adminCommon.saving') : t('adminSettings.saveButton')}
           </Button>
         </div>
       </div>
@@ -151,12 +153,12 @@ const SystemSettings = () => {
       {initialLoading ? (
         <div className="text-center py-8">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="mt-2 text-gray-600">加载中...</p>
+          <p className="mt-2 text-gray-600">{t('adminCommon.loading')}</p>
         </div>
       ) : (
         <>
           <div className="text-sm text-gray-600">
-            {hasChanges ? '存在未保存修改。' : '当前内容与已保存设置一致。'}
+            {hasChanges ? t('adminSettings.unsavedChanges') : t('adminSettings.noChanges')}
           </div>
 
           <div className="grid gap-6">
@@ -165,12 +167,12 @@ const SystemSettings = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Globe className="w-5 h-5" />
-              基本设置
+              {t('adminSettings.cardBasic')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">网站描述</label>
+              <label className="block text-sm font-medium mb-2">{t('adminSettings.labelSiteDescription')}</label>
               <textarea
                 value={settings.siteDescription}
                 onChange={(e) => handleSettingChange('siteDescription', e.target.value)}
@@ -179,16 +181,16 @@ const SystemSettings = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">默认语言</label>
+              <label className="block text-sm font-medium mb-2">{t('adminSettings.labelDefaultLanguage')}</label>
               <select
                 value={settings.defaultLanguage}
                 onChange={(e) => handleSettingChange('defaultLanguage', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
               >
-                <option value="zh">中文</option>
+                <option value="zh">{t('adminSettings.langZh')}</option>
                 <option value="en">English</option>
-                <option value="hk">繁體中文</option>
-                <option value="vn">Tiếng Việt</option>
+                <option value="hk">{t('adminSettings.langHk')}</option>
+                <option value="vn">{t('adminSettings.langVn')}</option>
               </select>
             </div>
           </CardContent>
@@ -199,14 +201,14 @@ const SystemSettings = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Settings className="w-5 h-5" />
-              系统设置
+              {t('adminNav.settings')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-medium">维护模式</h4>
-                <p className="text-sm text-gray-600">启用后用户无法访问网站</p>
+                <h4 className="font-medium">{t('adminSettings.maintenance')}</h4>
+                <p className="text-sm text-gray-600">{t('adminSettings.maintenanceDesc')}</p>
               </div>
               <input
                 type="checkbox"
@@ -217,8 +219,8 @@ const SystemSettings = () => {
             </div>
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-medium">允许注册</h4>
-                <p className="text-sm text-gray-600">新用户可以注册账号</p>
+                <h4 className="font-medium">{t('adminSettings.allowRegistration')}</h4>
+                <p className="text-sm text-gray-600">{t('adminSettings.allowRegistrationDesc')}</p>
               </div>
               <input
                 type="checkbox"
@@ -229,8 +231,8 @@ const SystemSettings = () => {
             </div>
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-medium">邮件通知</h4>
-                <p className="text-sm text-gray-600">发送系统邮件通知</p>
+                <h4 className="font-medium">{t('adminSettings.emailNotifications')}</h4>
+                <p className="text-sm text-gray-600">{t('adminSettings.emailNotificationsDesc')}</p>
               </div>
               <input
                 type="checkbox"
@@ -247,12 +249,12 @@ const SystemSettings = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Database className="w-5 h-5" />
-              积分设置
+              {t('adminSettings.cardPoints')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">默认任务积分</label>
+              <label className="block text-sm font-medium mb-2">{t('adminSettings.labelPointsPerTask')}</label>
               <input
                 type="number"
                 value={settings.pointsPerTask}
@@ -261,7 +263,7 @@ const SystemSettings = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">每日最大任务数</label>
+              <label className="block text-sm font-medium mb-2">{t('adminSettings.labelMaxDailyTasks')}</label>
               <input
                 type="number"
                 value={settings.maxDailyTasks}
@@ -270,7 +272,7 @@ const SystemSettings = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">奖励冷却时间(小时)</label>
+              <label className="block text-sm font-medium mb-2">{t('adminSettings.labelRewardCooldown')}</label>
               <input
                 type="number"
                 value={settings.rewardCooldown}

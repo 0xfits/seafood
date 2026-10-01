@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Button, Card, CardContent, Badge, Modal, ModalHeader, ModalTitle } from '../../components/ui'
 import { Plus, Edit, Trash2, RefreshCw, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -16,6 +17,7 @@ const EMPTY_FORM = {
 }
 
 const PermissionsManagement = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [groups, setGroups] = useState([])
   const [users, setUsers] = useState([])
@@ -44,12 +46,12 @@ const PermissionsManagement = () => {
 
       const currentUser = getStoredUser()
       if (!currentUser) {
-        throw new Error('未登录')
+        throw new Error(t('adminCommon.notLoggedIn'))
       }
 
       const accessInfo = await fetchAdminAccess(currentUser)
       if (!accessInfo.can_access_admin) {
-        throw new Error('当前账号没有后台访问权限')
+        throw new Error(t('adminCommon.noAdminAccess'))
       }
 
       setAccess(accessInfo)
@@ -61,7 +63,7 @@ const PermissionsManagement = () => {
       setUsers(data.users || [])
     } catch (error) {
       console.error('Error loading permission groups:', error)
-      toast.error(`加载权限数据失败: ${error.message}`)
+      toast.error(t('adminPermissions.loadFailed', { message: error.message }))
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -109,7 +111,7 @@ const PermissionsManagement = () => {
     }
 
     if (!headers.Authorization) {
-      toast.error('登录状态已失效，请重新登录')
+      toast.error(t('adminCommon.sessionExpired'))
       navigate('/login')
       return
     }
@@ -120,12 +122,12 @@ const PermissionsManagement = () => {
       .filter(Boolean)
 
     if (!formState.name.trim()) {
-      toast.error('权限组名称不能为空')
+      toast.error(t('adminPermissions.nameRequired'))
       return
     }
 
     if (permissions.length === 0) {
-      toast.error('至少填写一个权限标识')
+      toast.error(t('adminPermissions.permissionsRequired'))
       return
     }
 
@@ -147,14 +149,14 @@ const PermissionsManagement = () => {
         }),
       })
 
-      toast.success(editingGroupId ? '权限组已更新' : '权限组已创建')
+      toast.success(editingGroupId ? t('adminPermissions.updated') : t('adminPermissions.created'))
       setIsModalOpen(false)
       setFormState(EMPTY_FORM)
       setEditingGroupId(null)
       await loadPermissions({ silent: true })
     } catch (error) {
       console.error('Error saving permission group:', error)
-      toast.error(`保存权限组失败: ${error.message}`)
+      toast.error(t('adminPermissions.saveFailed', { message: error.message }))
     } finally {
       setSaving(false)
     }
@@ -168,12 +170,12 @@ const PermissionsManagement = () => {
     }
 
     if (!headers.Authorization) {
-      toast.error('登录状态已失效，请重新登录')
+      toast.error(t('adminCommon.sessionExpired'))
       navigate('/login')
       return
     }
 
-    const confirmed = window.confirm(`确认删除权限组“${group.name}”？`)
+    const confirmed = window.confirm(t('adminPermissions.confirmDelete', { name: group.name }))
     if (!confirmed) return
 
     setDeletingId(group.id)
@@ -188,11 +190,11 @@ const PermissionsManagement = () => {
           create_key: adminOpsKey(currentUser?.uID, 'permission_delete', group.id),
         }),
       })
-      toast.success('权限组已删除')
+      toast.success(t('adminPermissions.deleted'))
       await loadPermissions({ silent: true })
     } catch (error) {
       console.error('Error deleting permission group:', error)
-      toast.error(`删除权限组失败: ${error.message}`)
+      toast.error(t('adminPermissions.deleteFailed', { message: error.message }))
     } finally {
       setDeletingId(null)
     }
@@ -202,20 +204,20 @@ const PermissionsManagement = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold">权限管理</h2>
+          <h2 className="text-2xl font-bold">{t('adminNav.permissions')}</h2>
           <p className="text-sm text-gray-600 mt-1">
-            “管理员访问”组映射完整后台权限；“任务发布组”和“奖品发布组”可单独分配发布能力。
-            {!canManagePermissions && ' 当前账号为只读模式。'}
+            {t('adminPermissions.intro')}
+            {!canManagePermissions && ` ${t('adminCommon.readOnlyNotice')}`}
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => loadPermissions({ silent: true })} disabled={refreshing}>
             <RefreshCw className="w-4 h-4 mr-2" />
-            {refreshing ? '刷新中...' : '刷新'}
+            {refreshing ? t('adminCommon.refreshing') : t('adminCommon.refresh')}
           </Button>
           <Button variant="primary" onClick={openCreateModal} disabled={!canManagePermissions}>
             <Plus className="w-4 h-4 mr-2" />
-            添加权限组
+            {t('adminPermissions.addGroup')}
           </Button>
         </div>
       </div>
@@ -223,7 +225,7 @@ const PermissionsManagement = () => {
       {loading ? (
         <div className="text-center py-8">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="mt-2 text-gray-600">加载中...</p>
+          <p className="mt-2 text-gray-600">{t('adminCommon.loading')}</p>
         </div>
       ) : (
         <div className="grid gap-4">
@@ -237,13 +239,13 @@ const PermissionsManagement = () => {
                       {group.readonly ? (
                         <Badge variant="warning" size="sm" className="flex items-center gap-1">
                           <Lock className="w-3 h-3" />
-                          只读
+                          {t('adminPermissions.readOnly')}
                         </Badge>
                       ) : (
-                        <Badge variant="secondary" size="sm">可编辑</Badge>
+                        <Badge variant="secondary" size="sm">{t('adminPermissions.editable')}</Badge>
                       )}
                     </div>
-                    <p className="text-sm text-gray-600 mt-1">{group.description || '暂无描述'}</p>
+                    <p className="text-sm text-gray-600 mt-1">{group.description || t('adminCommon.noDescription')}</p>
                     <div className="flex gap-2 mt-3 flex-wrap">
                       {(group.permissions || []).map((permission) => (
                         <Badge key={permission} variant="secondary">{permission}</Badge>
@@ -251,7 +253,7 @@ const PermissionsManagement = () => {
                     </div>
                     <div className="mt-3">
                       <p className="text-xs text-gray-500 mb-2">
-                        {group.user_ids?.length || 0} 个用户
+                        {t('adminPermissions.userCount', { count: group.user_ids?.length || 0 })}
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {(group.user_ids || []).length > 0 ? (
@@ -264,7 +266,7 @@ const PermissionsManagement = () => {
                             )
                           })
                         ) : (
-                          <span className="text-xs text-gray-400">暂无分配成员</span>
+                          <span className="text-xs text-gray-400">{t('adminPermissions.noMembers')}</span>
                         )}
                       </div>
                     </div>
@@ -275,7 +277,7 @@ const PermissionsManagement = () => {
                       size="sm"
                       onClick={() => openEditModal(group)}
                       disabled={group.readonly || !canManagePermissions}
-                      title={!canManagePermissions ? '当前账号没有 manage_permissions 权限' : group.readonly ? '系统权限组不可编辑' : '编辑权限组'}
+                      title={!canManagePermissions ? t('adminPermissions.tipNoManagePermission') : group.readonly ? t('adminPermissions.tipReadonlyEdit') : t('adminPermissions.tipEdit')}
                     >
                       <Edit className="w-4 h-4" />
                     </Button>
@@ -284,7 +286,7 @@ const PermissionsManagement = () => {
                       size="sm"
                       onClick={() => deleteGroup(group)}
                       disabled={group.readonly || deletingId === group.id || !canManagePermissions}
-                      title={!canManagePermissions ? '当前账号没有 manage_permissions 权限' : group.readonly ? '系统权限组不可删除' : '删除权限组'}
+                      title={!canManagePermissions ? t('adminPermissions.tipNoManagePermission') : group.readonly ? t('adminPermissions.tipReadonlyDelete') : t('adminPermissions.tipDelete')}
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -298,41 +300,41 @@ const PermissionsManagement = () => {
 
       <Modal isOpen={isModalOpen} onClose={() => !saving && setIsModalOpen(false)} size="lg">
         <ModalHeader>
-          <ModalTitle>{editingGroupId ? '编辑权限组' : '添加权限组'}</ModalTitle>
+          <ModalTitle>{editingGroupId ? t('adminPermissions.editGroup') : t('adminPermissions.addGroup')}</ModalTitle>
         </ModalHeader>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">名称</label>
+            <label className="block text-sm font-medium mb-2">{t('adminPermissions.labelName')}</label>
             <input
               type="text"
               value={formState.name}
               onChange={(e) => setFormState((prev) => ({ ...prev, name: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
-              placeholder="例如：内容审核组"
+              placeholder={t('adminPermissions.namePlaceholder')}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">描述</label>
+            <label className="block text-sm font-medium mb-2">{t('adminPermissions.labelDescription')}</label>
             <textarea
               value={formState.description}
               onChange={(e) => setFormState((prev) => ({ ...prev, description: e.target.value }))}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
-              placeholder="说明这组权限负责什么。"
+              placeholder={t('adminPermissions.descPlaceholder')}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">权限标识</label>
+            <label className="block text-sm font-medium mb-2">{t('adminPermissions.labelPermissions')}</label>
             <input
               type="text"
               value={formState.permissions}
               onChange={(e) => setFormState((prev) => ({ ...prev, permissions: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
-              placeholder="逗号分隔，例如：review_tasks, publish_prizes"
+              placeholder={t('adminPermissions.permissionsPlaceholder')}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">分配成员</label>
+            <label className="block text-sm font-medium mb-2">{t('adminPermissions.labelMembers')}</label>
             <div className="max-h-[260px] overflow-auto border border-gray-200 rounded-lg p-3 space-y-2">
               {users.map((user) => (
                 <label key={user.uID} className="flex items-center gap-2 text-sm text-gray-700">
@@ -352,10 +354,10 @@ const PermissionsManagement = () => {
           </div>
           <div className="flex justify-end gap-3">
             <Button variant="secondary" onClick={() => setIsModalOpen(false)} disabled={saving}>
-              取消
+              {t('cancel')}
             </Button>
             <Button variant="primary" onClick={saveGroup} disabled={saving || !canManagePermissions}>
-              {saving ? '保存中...' : '保存权限组'}
+              {saving ? t('adminCommon.saving') : t('adminPermissions.saveGroup')}
             </Button>
           </div>
         </div>

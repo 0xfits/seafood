@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Button, Card, CardContent, Badge } from '../../components/ui'
 import { Users, Shield, Search, AlertCircle, RefreshCw, Coins } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -7,13 +8,14 @@ import { formatEvmAddress } from '../../utils'
 import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdminPermission, loadAdminUsersWithAssets } from '../../admin-utils'
 import { adminOpsKey } from '../../idempotency'
 
-const formatDateTime = (value) => {
-  if (!value) return '未知'
+const formatDateTime = (value, t) => {
+  if (!value) return t('unknown')
   const date = new Date(typeof value === 'number' ? value * 1000 : value)
-  return Number.isNaN(date.getTime()) ? '未知' : date.toLocaleString()
+  return Number.isNaN(date.getTime()) ? t('unknown') : date.toLocaleString()
 }
 
 const UsersManagement = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [users, setUsers] = useState([])
   const [stats, setStats] = useState({
@@ -49,12 +51,12 @@ const UsersManagement = () => {
 
       const currentUser = getStoredUser()
       if (!currentUser) {
-        throw new Error('未登录')
+        throw new Error(t('adminCommon.notLoggedIn'))
       }
 
       const accessInfo = await fetchAdminAccess(currentUser)
       if (!accessInfo.can_access_admin) {
-        throw new Error('当前账号没有后台访问权限')
+        throw new Error(t('adminCommon.noAdminAccess'))
       }
 
       setAccess(accessInfo)
@@ -63,7 +65,7 @@ const UsersManagement = () => {
       setStats(result.stats)
     } catch (error) {
       console.error('Error loading users:', error)
-      toast.error(`加载用户数据失败: ${error.message}`)
+      toast.error(t('adminUsers.loadFailed', { message: error.message }))
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -85,7 +87,7 @@ const UsersManagement = () => {
     }
 
     if (!headers.Authorization) {
-      toast.error('登录状态已失效，请重新登录')
+      toast.error(t('adminCommon.sessionExpired'))
       navigate('/login')
       return
     }
@@ -93,8 +95,8 @@ const UsersManagement = () => {
     const nextAdmin = !user.is_admin
     const confirmed = window.confirm(
       nextAdmin
-        ? `确认将用户 #${user.uID} 提升为管理员？`
-        : `确认撤销用户 #${user.uID} 的管理员权限？`
+        ? t('adminUsers.confirmGrant', { id: user.uID })
+        : t('adminUsers.confirmRevoke', { id: user.uID })
     )
 
     if (!confirmed) return
@@ -127,10 +129,10 @@ const UsersManagement = () => {
         adminCount: Math.max(0, prev.adminCount + (nextAdmin ? 1 : -1)),
       }))
 
-      toast.success(nextAdmin ? '管理员权限已授予' : '管理员权限已撤销')
+      toast.success(nextAdmin ? t('adminUsers.grantSuccess') : t('adminUsers.revokeSuccess'))
     } catch (error) {
       console.error('Error updating user role:', error)
-      toast.error(`更新用户失败: ${error.message}`)
+      toast.error(t('adminUsers.updateFailed', { message: error.message }))
     } finally {
       setUpdatingUserId(null)
     }
@@ -143,7 +145,7 @@ const UsersManagement = () => {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">总用户数</p>
+                <p className="text-sm text-gray-600">{t('adminCommon.statUsers')}</p>
                 <p className="text-2xl font-bold">{stats.userCount}</p>
               </div>
               <Users className="w-8 h-8 text-blue-600" />
@@ -155,7 +157,7 @@ const UsersManagement = () => {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">管理员</p>
+                <p className="text-sm text-gray-600">{t('adminCommon.adminRole')}</p>
                 <p className="text-2xl font-bold">{stats.adminCount}</p>
               </div>
               <Shield className="w-8 h-8 text-green-600" />
@@ -167,7 +169,7 @@ const UsersManagement = () => {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">有资产记录</p>
+                <p className="text-sm text-gray-600">{t('adminUsers.statAssets')}</p>
                 <p className="text-2xl font-bold">{stats.assetCount}</p>
               </div>
               <Coins className="w-8 h-8 text-yellow-600" />
@@ -179,7 +181,7 @@ const UsersManagement = () => {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">总积分</p>
+                <p className="text-sm text-gray-600">{t('adminCommon.statTotalPoints')}</p>
                 <p className="text-2xl font-bold">{stats.totalPoints.toLocaleString()}</p>
               </div>
               <AlertCircle className="w-8 h-8 text-orange-600" />
@@ -190,10 +192,10 @@ const UsersManagement = () => {
 
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold">用户管理</h2>
+          <h2 className="text-2xl font-bold">{t('adminNav.users')}</h2>
           <p className="text-sm text-gray-600 mt-1">
-            当前页面使用真实用户和积分资产数据。
-            {canManageUsers ? '你可以调整管理员权限。' : '当前账号为只读模式，可查看用户但不能修改管理员权限。'}
+            {t('adminUsers.intro')}
+            {canManageUsers ? t('adminUsers.introManage') : t('adminUsers.introReadOnly')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -201,7 +203,7 @@ const UsersManagement = () => {
             <Search className="w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder="搜索用户ID、地址或简介..."
+              placeholder={t('adminUsers.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
@@ -213,7 +215,7 @@ const UsersManagement = () => {
             disabled={refreshing}
           >
             <RefreshCw className="w-4 h-4 mr-2" />
-            {refreshing ? '刷新中...' : '刷新数据'}
+            {refreshing ? t('adminCommon.refreshing') : t('adminCommon.refreshData')}
           </Button>
         </div>
       </div>
@@ -221,7 +223,7 @@ const UsersManagement = () => {
       {loading ? (
         <div className="text-center py-8">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="mt-2 text-gray-600">加载中...</p>
+          <p className="mt-2 text-gray-600">{t('adminCommon.loading')}</p>
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -230,28 +232,28 @@ const UsersManagement = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    用户ID
+                    {t('adminCommon.colUserId')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    钱包地址
+                    {t('adminCommon.colWallet')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    简介
+                    {t('adminCommon.colBio')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    积分
+                    {t('common.points')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    角色
+                    {t('adminCommon.colRole')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    注册时间
+                    {t('adminCommon.colRegistered')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    最近登录
+                    {t('adminCommon.colLastLogin')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    操作
+                    {t('adminCommon.colActions')}
                   </th>
                 </tr>
               </thead>
@@ -267,21 +269,21 @@ const UsersManagement = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500 max-w-xs">
-                      {user.bio || '暂无简介'}
+                      {user.bio || t('adminUsers.noBio')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <span className="font-medium">{(user.points || 0).toLocaleString()}</span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <Badge variant={user.is_admin ? 'success' : 'secondary'}>
-                        {user.is_admin ? '管理员' : '普通用户'}
+                        {user.is_admin ? t('adminCommon.adminRole') : t('adminCommon.normalUser')}
                       </Badge>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDateTime(user.time_reg)}
+                      {formatDateTime(user.time_reg, t)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDateTime(user.time_login_last)}
+                      {formatDateTime(user.time_login_last, t)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex gap-2">
@@ -291,7 +293,7 @@ const UsersManagement = () => {
                           onClick={() => toggleAdminRole(user)}
                           disabled={!canManageUsers || updatingUserId === user.uID}
                           className="text-blue-600 hover:text-blue-700"
-                          title={!canManageUsers ? '当前账号没有 manage_users 权限' : user.is_admin ? '撤销管理员权限' : '授予管理员权限'}
+                          title={!canManageUsers ? t('adminUsers.tipNoManageUsers') : user.is_admin ? t('adminUsers.tipRevoke') : t('adminUsers.tipGrant')}
                         >
                           <Shield className="w-4 h-4" />
                         </Button>
@@ -301,7 +303,7 @@ const UsersManagement = () => {
                           onClick={() => canManagePoints && navigate(`/dashboard/points?q=${encodeURIComponent(user.EVM || String(user.uID))}`)}
                           disabled={!canManagePoints}
                           className="text-yellow-600 hover:text-yellow-700"
-                          title={canManagePoints ? '前往积分管理' : '当前账号没有 manage_points 权限'}
+                          title={canManagePoints ? t('adminUsers.tipGoPoints') : t('adminUsers.tipNoManagePoints')}
                         >
                           <Coins className="w-4 h-4" />
                         </Button>
@@ -316,7 +318,7 @@ const UsersManagement = () => {
           {filteredUsers.length === 0 && (
             <div className="text-center py-8">
               <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">没有找到匹配的用户</p>
+              <p className="text-gray-500">{t('adminCommon.noMatchingUsers')}</p>
             </div>
           )}
         </div>

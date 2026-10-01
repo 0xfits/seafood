@@ -105,10 +105,14 @@ describe('P6-I18N-LIT-B4a · 四语 locale 键集（6 命名空间 144 键 + 逐
     v && typeof v === 'object' && !Array.isArray(v) ? keyPaths(v, `${prefix}${k}.`) : [`${prefix}${k}`]
   )).sort()
   // 本批新增命名空间 → 键数（逐命名空间硬断言，防「键名写错但四语同步错」）
-  const NEW_NS = { adminNav: 16, adminLayout: 5, adminCommon: 9, dashPage: 58, adminTasks: 14, adminRewards: 42 }
+  const NEW_NS = { adminNav: 16, adminLayout: 5, adminCommon: 28, dashPage: 58, adminTasks: 14, adminRewards: 42 }
   const NEW_KEY_TOTAL = Object.values(NEW_NS).reduce((a, b) => a + b, 0)
+  // B4a 交付时合计 = 144；B4b（后台剩余面）给既有 `adminCommon` 追加 19 键 ⇒ 现值 163。
+  // 保留 144 作为 B4a 历史口径锚点（防「顺手改大期望值」掩盖键名事故）。
+  const B4A_ADDED = 144
+  const B4B_ADDED_TO_ADMINCOMMON = 19
 
-  it('新增 144 键四语齐备、非空串；四文件拍平键集逐文件相等', () => {
+  it('新增键四语齐备、非空串；四文件拍平键集逐文件相等', () => {
     const tables = {}
     const sets = {}
     const counts = {}
@@ -120,11 +124,11 @@ describe('P6-I18N-LIT-B4a · 四语 locale 键集（6 命名空间 144 键 + 逐
     console.info('[B4a] locale 键数读数', JSON.stringify(counts))
     console.info('[B4a] 本批新增键数', NEW_KEY_TOTAL)
 
-    // ③ 键集相等：四文件拍平键数取值集合 = {506}，且与 zh 逐项对拍
+    // ③ 键集相等：四文件拍平键数取值集合 = {643}（B4b 后），且与 zh 逐项对拍
     for (const lang of LANGS.slice(1)) expect(sets[lang]).toEqual(sets.zh)
     expect(new Set(LANGS.map((l) => counts[l].flat)).size).toBe(1)
-    expect(counts.zh).toEqual({ top: 95, flat: 506 })
-    expect(NEW_KEY_TOTAL).toBe(144)
+    expect(counts.zh).toEqual({ top: 100, flat: 643 })
+    expect(NEW_KEY_TOTAL).toBe(B4A_ADDED + B4B_ADDED_TO_ADMINCOMMON)
 
     // 本批 6 命名空间：键数逐一对齐 + 四语取值齐备非空
     for (const [ns, size] of Object.entries(NEW_NS)) {
