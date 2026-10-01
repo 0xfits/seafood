@@ -123,3 +123,39 @@ wc -l docs/versions/route-layer.spec.v1.1.md
 ## §D12 纪律自检
 
 ① 带引号断言加引号 ✅｜② 退出码不取管道后 ✅｜③ 本机无 `timeout` ✅｜④ 读数异常先怀疑自己 ✅（注册点 65/66/67 三口径差已登记）｜⑤ **先骸架后回填** ✅（§10/§8.14 一次成文、无占位）｜⑥ 报数带口径 ✅（行数/字节/md5 + 非追加 0 处）｜⑦ 凡「实测」可 `grep` 到 ✅（未测项显式 `NOT_MEASURED`）｜⑧ 立案 / 标签前必须自己复现一次 ✅（注册点 67 / `MAX_ATTEMPTS=5` / `0 18 * * *` / 两表 PK+CHECK / `0021`=164 行 —— 均现取）｜⑨ 只追加 ✅（非追加 0 处）｜⑩ 不改代码 / 不启停 / 不写库 / 无 `git` 写 ✅。
+
+---
+
+## §D13 快照惯例补正（Unit JING-TR-FIX · 只追加）
+
+> **本节为追加**：`§D0–§D12` 既有内容**一字未改**（追加前本件 = **125 行 / 14289 B**，追加锚点 = 本件**原末行末字符**）。
+
+### 13.1 本仓快照惯例（逐字 · 以 Zang 裁定为准）
+
+**本仓快照惯例 = 每次改版都留一份「快照文件名取新版本号 + 内容为改后正文、且与本册正文 `cmp` 退出 0（md5 逐位相同）」的快照。**
+- 先例（路由面）：`docs/versions/route-layer.spec.v1.2.md` —— 命名取**新版本号 v1.2**，内容 = **改后正文**，与本册 `cmp`=0（已由 §D0 现取自证）。
+- 因此 `docs/versions/data-layer.spec.v0.7.md` 这类「命名取旧版本号、内容为改前正文」的件，**不是本惯例下的「快照」本体**，而是**改前基线 / 历史留痕**（其命名沿 `docs/seafood.master-plan.md:1809` 逐字所述「DL134 要求留改前快照」的**旧口径**）。
+
+### 13.2 `docs/versions/data-layer.spec.v0.8.md` 的补齐与理由
+
+| 项 | 内容 |
+|---|---|
+| **动作** | 新建 `docs/versions/data-layer.spec.v0.8.md` = `docs/data-layer.spec.md` **的逐字节副本（改后正文）** |
+| **补什么** | 数据面 v0.7→v0.8 改版**此前只留了「改前基线」`v0.7.md`、缺「新版本号 + 改后正文」件** ⇒ 本单补齐，使数据面**同样满足** §13.1 惯例 |
+| **理由** | ① 惯例要求「每版必有一份新版号副本」；② 数据面缺失该件 ⇒ **惯例不完整**（路由面已满足、数据面未满足）；③ 缺失会导致「按版本号取快照」的读方（含后续 delta / 审计）取不到 v0.8 对应正文 |
+| **指纹（交付时现取 · 三口径）** | **本册 `docs/data-layer.spec.md`** = **1046 行 / 274767 B / md5 `bdee0a8f6f5871fbc4512e1dab39f523`**；**新快照 `docs/versions/data-layer.spec.v0.8.md`** = **1046 行 / 274767 B / md5 `bdee0a8f6f5871fbc4512e1dab39f523`**（**逐位相同**） |
+| **`cmp` 自证（逐字 · 退出码**管道外**取）** | `cp docs/data-layer.spec.md docs/versions/data-layer.spec.v0.8.md; echo "cp_exit=$?"; cmp docs/data-layer.spec.md docs/versions/data-layer.spec.v0.8.md; echo "cmp_exit=$?"` ⇒ **读数 `cp_exit=0` / `cmp_exit=0`** |
+| **未动（逐字）** | `docs/versions/data-layer.spec.v0.7.md` = **1023 行 / 268959 B / md5 `ad657c0a5068e91cb57d935bb34fd86b`**（**与 §D9 所记改前基线逐位一致 ⇒ 一字未动**）；`docs/data-layer.spec.md` 本体**未改**；`route-layer.spec.v0.1–v1.2.md` 等**其余快照未动** |
+
+### 13.3 措辞更正留痕（★ Zang 更正）
+
+- **Zang 的 brief 曾写「快照 = 改前内容」—— 该表述属**措辞错误**，**已由 Zang 更正**。**
+- **更正后口径**：快照 = **新版本号 + 改后正文 + `cmp`=0**（即 §13.1）。
+- **说明**：`v0.7.md`（改前内容、取名旧版本号）仍**保留不动**（**只追加 / 历史留痕**），但**它不构成 §13.1 惯例下的快照**；本单**不因该措辞错误回改任何既有件**（`v0.7.md` / 本体 / 其余快照**均零改动**）。
+
+### 13.4 本单写盘范围与红线自证（逐字）
+
+- **只写两个路径**：`docs/versions/data-layer.spec.v0.8.md`（**新建**）、本件 `docs/audit/route-layer-v1.2-delta.md`（**仅追加**，本节）。
+- **未触碰**：`docs/data-layer.spec.md` 本体、`docs/versions/data-layer.spec.v0.7.md`、`docs/versions/*` 其余全部快照、任何 `src/**` / `migrations/**` / `frontend/**` / `backend-ts/**` / `vercel.json` / `docs/seafood.master-plan.md` / 其它任何 spec。
+- **未做**：`git add/commit/push`；`npm`；`vercel`；DDL/DML（**零库连接**）；`pkill -f` / `killall`（**未启停任何进程**）。
+- **★ 安全红线自证**：本单**未读取 / 未打印任何密钥或 `.env*` 值**。
