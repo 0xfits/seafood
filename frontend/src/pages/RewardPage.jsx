@@ -82,7 +82,7 @@ const RewardPage = () => {
         statusText: isClaimed
           ? t('common.redeemed')
           : storesCount > 0
-            ? t('CanClaim')
+            ? t('common.redeemable')
             : t('common.outOfStock'),
         rarity: reward.points > 5000 ? 'epic' : reward.points > 2000 ? 'rare' : 'common',
         claimed: claimsCount,
@@ -282,7 +282,7 @@ const RewardPage = () => {
             <Card variant="primary" className="text-center">
               <CardContent className="py-4">
                 <div className="text-2xl font-bold text-yellow-600">{availableRewards.length}</div>
-                <div className="text-sm text-gray-600">{t('CanClaim')}</div>
+                <div className="text-sm text-gray-600">{t('common.redeemable')}</div>
               </CardContent>
             </Card>
             <Card variant="success" className="text-center">
@@ -309,7 +309,7 @@ const RewardPage = () => {
         <SlideUp delay={400}>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="available">{t('CanClaim')} ({availableRewards.length})</TabsTrigger>
+              <TabsTrigger value="available">{t('common.redeemable')} ({availableRewards.length})</TabsTrigger>
               <TabsTrigger value="limited">{t('rewardPage.limitedEdition')} ({limitedRewards.length})</TabsTrigger>
               <TabsTrigger value="epic">{t('rewardPage.highValue')} ({epicRewards.length})</TabsTrigger>
               <TabsTrigger value="claimed">{t('common.redeemed')} ({claimedRewards.length})</TabsTrigger>

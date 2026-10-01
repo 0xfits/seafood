@@ -101,7 +101,7 @@ describe('P6-I18N-LIT-B2 · en 档渲染英文文案（Task / Reward / Profile�
     expect(screen.getByText('My points')).toBeInTheDocument()
     expect(screen.getByText('Limited edition')).toBeInTheDocument()
     expect(screen.getByText('High value')).toBeInTheDocument()
-    expect(screen.getByText('Claim Now (1)')).toBeInTheDocument()
+    expect(screen.getByText('Redeemable (1)')).toBeInTheDocument()
     // 卡片标题 + 品牌行（`brand.name`）都走 `pickLocalized` ⇒ 两处都渲染英文
     expect(screen.getAllByText('English reward').length).toBeGreaterThanOrEqual(2)
     expect(screen.getByText('English description')).toBeInTheDocument()

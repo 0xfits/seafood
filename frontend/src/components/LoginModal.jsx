@@ -1,11 +1,13 @@
 import React from 'react'
 import { X } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from './ui'
 import WalletAuthPanel from './auth/WalletAuthPanel'
 import { fetchAdminAccess } from '../admin-utils'
 
 const LoginModal = ({ isOpen, onClose, onSuccess }) => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -55,7 +57,7 @@ const LoginModal = ({ isOpen, onClose, onSuccess }) => {
               type="button"
               onClick={onClose}
               className="rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
-              aria-label="关闭登录窗口"
+              aria-label={t('loginModal.closeLabel')}
             >
               <X className="h-5 w-5" />
             </button>
@@ -63,19 +65,19 @@ const LoginModal = ({ isOpen, onClose, onSuccess }) => {
 
           <WalletAuthPanel
             mode="login"
-            title="连接钱包登录"
-            description="通过一次签名验证完成登录。首次登录后可继续补全个人资料。"
+            title={t('loginModal.title')}
+            description={t('loginModal.description')}
             onSuccess={handleAuthSuccess}
           />
 
           <div className="mt-6 border-t border-gray-100 pt-4 text-center text-sm text-gray-600">
-            第一次使用 Jinli Club？
+            {t('loginModal.firstTime')}
             <button
               type="button"
               onClick={goToRegister}
               className="ml-2 font-medium text-blue-600 transition-colors hover:text-blue-700"
             >
-              去完成首次绑定
+              {t('loginModal.goBind')}
             </button>
           </div>
         </CardContent>

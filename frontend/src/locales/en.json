@@ -74,7 +74,9 @@
       "AUTH_UNAUTHORIZED": "Your sign-in credential is invalid or has expired. Please sign in again.",
       "AUTH_FORBIDDEN": "This account is not allowed to perform this action.",
       "INVALID_WALLET_SIGNATURE": "The wallet signature is invalid. Please sign again to log in.",
-      "SIGNATURE_ADDRESS_MISMATCH": "The signed account is not the one that was claimed. Please switch accounts and retry."
+      "SIGNATURE_ADDRESS_MISMATCH": "The signed account is not the one that was claimed. Please switch accounts and retry.",
+      "REQUEST_FAILED": "Request failed ({{status}})",
+      "NO_CREDENTIAL": "No login credential found"
     }
   },
   "jobs": {
@@ -221,7 +223,8 @@
     "unavailable": "Unavailable",
     "participantsUnit": "participants",
     "claimedUnit": "claimed",
-    "shardUnit": "shards"
+    "shardUnit": "shards",
+    "redeemable": "Redeemable"
   },
   "homePage": {
     "welcome": "Welcome to Jinli Club",
@@ -251,8 +254,7 @@
     "catSlogan2": "猫猫大使团｜你的声音，值得被品牌听见。",
     "catSlogan3": "你的代言，从猫猫大使团开始。",
     "cloudSlogan": "云朵计划｜播种童年梦想，浇灌美和希望。"
-  }
-,
+  },
   "taskPage": {
     "requestFailed": "Request failed ({{status}})",
     "title": "Task Center",
@@ -340,5 +342,63 @@
     "noCredential": "No sign-in credential found, please sign in again",
     "badCredential": "Invalid sign-in credential format, please sign in again",
     "submitFailed": "Failed to submit the task"
+  },
+  "loginModal": {
+    "closeLabel": "Close login dialog",
+    "title": "Sign in with your wallet",
+    "description": "Sign once to finish logging in. First-time users can complete their profile afterwards.",
+    "firstTime": "First time on Jinli Club?",
+    "goBind": "Complete first-time binding"
+  },
+  "authPage": {
+    "bioTooShort": "Please write at least 10 characters for your bio",
+    "bioSaved": "Profile saved",
+    "saveFailed": "Save failed: {{message}}",
+    "titleLogin": "Connect your wallet to continue exploring",
+    "titleRegister": "Finish first-time binding and complete your profile",
+    "subLogin": "Sign with your existing wallet to log in; we will take you back to the page you just visited.",
+    "subRegister": "Verify wallet ownership, then complete your bio to activate your account.",
+    "completeBio": "Complete your bio",
+    "completeBioHint": "Your wallet is verified. Once you enter a bio of at least 10 characters, we will take you back to the previous page.",
+    "unknownAddress": "Unknown address",
+    "bio": "Bio",
+    "bioPlaceholder": "Introduce yourself, your expertise, or why you joined Jinli Club.",
+    "saving": "Saving...",
+    "saveAndContinue": "Save and continue",
+    "note": "Notes",
+    "noteBody": "Wallet login only requests one offline signature; it never starts an on-chain transaction or charges gas.",
+    "step1": "1. Connect an EVM wallet.",
+    "step2": "2. Complete the signature verification as prompted.",
+    "step3": "3. First-time users then complete their bio.",
+    "notBoundYet": "Haven't finished your first-time binding yet?",
+    "goRegister": "Register",
+    "alreadyBound": "Already completed binding?",
+    "backToLogin": "Back to login"
+  },
+  "walletAuth": {
+    "loginTitle": "Sign in with your wallet",
+    "loginDesc": "Connect your EVM wallet and complete one signature verification to log in.",
+    "loginAction": "Sign in",
+    "registerTitle": "First-time wallet binding",
+    "registerDesc": "Verify wallet ownership, then continue completing your profile.",
+    "registerAction": "Connect and continue",
+    "noExtension": "No EVM wallet extension detected. Please install MetaMask or OKX Wallet first.",
+    "noAddress": "The wallet did not return a usable address",
+    "connected": "Wallet connected",
+    "connectFailed": "Wallet connection failed",
+    "connectFirst": "Please connect a wallet first",
+    "noWalletInBrowser": "No usable wallet detected in this browser",
+    "verifiedContinue": "Wallet verified, continue completing your profile",
+    "loginSuccess": "Logged in successfully",
+    "signatureFailed": "Signature verification failed",
+    "stateConnected": "Wallet connected",
+    "stateDisconnected": "No wallet connected",
+    "connectPrompt": "Please connect an EVM wallet address",
+    "signNote": "Login only requests one signature; it never starts an on-chain transaction or spends gas.",
+    "noWalletNotice": "MetaMask or OKX Wallet was not detected. Install a wallet extension and refresh the page to continue.",
+    "processing": "Processing...",
+    "switchWallet": "Switch wallet",
+    "connectWallet": "Connect wallet",
+    "verifying": "Verifying signature..."
   }
 }

@@ -74,7 +74,9 @@
       "AUTH_UNAUTHORIZED": "Phiên đăng nhập không hợp lệ hoặc đã hết hạn, vui lòng đăng nhập lại.",
       "AUTH_FORBIDDEN": "Tài khoản hiện tại không có quyền thực hiện thao tác này.",
       "INVALID_WALLET_SIGNATURE": "Chữ ký ví không hợp lệ, vui lòng ký lại để đăng nhập.",
-      "SIGNATURE_ADDRESS_MISMATCH": "Chữ ký không khớp với địa chỉ ví đã khai báo, vui lòng chuyển lại đúng tài khoản ví rồi thử lại."
+      "SIGNATURE_ADDRESS_MISMATCH": "Chữ ký không khớp với địa chỉ ví đã khai báo, vui lòng chuyển lại đúng tài khoản ví rồi thử lại.",
+      "REQUEST_FAILED": "Yêu cầu thất bại ({{status}})",
+      "NO_CREDENTIAL": "Không tìm thấy thông tin đăng nhập"
     }
   },
   "jobs": {
@@ -221,7 +223,8 @@
     "unavailable": "Không khả dụng",
     "participantsUnit": "người tham gia",
     "claimedUnit": "người đã nhận",
-    "shardUnit": "mảnh"
+    "shardUnit": "mảnh",
+    "redeemable": "Có thể đổi"
   },
   "homePage": {
     "welcome": "Chào mừng đến Jinli Club",
@@ -251,8 +254,7 @@
     "catSlogan2": "猫猫大使团｜你的声音，值得被品牌听见。",
     "catSlogan3": "你的代言，从猫猫大使团开始。",
     "cloudSlogan": "云朵计划｜播种童年梦想，浇灌美和希望。"
-  }
-,
+  },
   "taskPage": {
     "requestFailed": "Yêu cầu thất bại ({{status}})",
     "title": "Trung tâm nhiệm vụ",
@@ -340,5 +342,63 @@
     "noCredential": "Không tìm thấy thông tin đăng nhập, vui lòng đăng nhập lại",
     "badCredential": "Định dạng thông tin đăng nhập sai, vui lòng đăng nhập lại",
     "submitFailed": "Gửi nhiệm vụ thất bại"
+  },
+  "loginModal": {
+    "closeLabel": "Đóng cửa sổ đăng nhập",
+    "title": "Đăng nhập bằng ví",
+    "description": "Chỉ cần ký một lần để đăng nhập. Người dùng lần đầu có thể bổ sung hồ sơ sau đó.",
+    "firstTime": "Lần đầu sử dụng Jinli Club?",
+    "goBind": "Hoàn tất liên kết lần đầu"
+  },
+  "authPage": {
+    "bioTooShort": "Vui lòng viết ít nhất 10 ký tự cho phần giới thiệu",
+    "bioSaved": "Đã lưu hồ sơ",
+    "saveFailed": "Lưu thất bại: {{message}}",
+    "titleLogin": "Kết nối ví để tiếp tục khám phá",
+    "titleRegister": "Hoàn tất liên kết lần đầu và bổ sung hồ sơ",
+    "subLogin": "Ký bằng ví hiện có để đăng nhập; sau đó bạn sẽ được đưa về trang vừa truy cập.",
+    "subRegister": "Xác minh quyền sở hữu ví, sau đó bổ sung giới thiệu để kích hoạt tài khoản.",
+    "completeBio": "Bổ sung giới thiệu",
+    "completeBioHint": "Ví của bạn đã được xác minh. Sau khi nhập phần giới thiệu ít nhất 10 ký tự, bạn sẽ được đưa về trang trước đó.",
+    "unknownAddress": "Địa chỉ không xác định",
+    "bio": "Giới thiệu",
+    "bioPlaceholder": "Hãy giới thiệu bản thân, lĩnh vực sở trường hoặc lý do bạn tham gia Jinli Club.",
+    "saving": "Đang lưu...",
+    "saveAndContinue": "Lưu và tiếp tục",
+    "note": "Ghi chú",
+    "noteBody": "Đăng nhập bằng ví chỉ yêu cầu một chữ ký ngoại tuyến, không phát sinh giao dịch on-chain và không tốn gas.",
+    "step1": "1. Kết nối một ví EVM.",
+    "step2": "2. Hoàn tất xác minh chữ ký theo hướng dẫn.",
+    "step3": "3. Người dùng lần đầu tiếp tục bổ sung giới thiệu.",
+    "notBoundYet": "Chưa hoàn tất liên kết lần đầu?",
+    "goRegister": "Đăng ký",
+    "alreadyBound": "Đã hoàn tất liên kết?",
+    "backToLogin": "Quay lại đăng nhập"
+  },
+  "walletAuth": {
+    "loginTitle": "Đăng nhập bằng chữ ký ví",
+    "loginDesc": "Kết nối ví EVM và hoàn tất một lần xác minh chữ ký để đăng nhập.",
+    "loginAction": "Đăng nhập",
+    "registerTitle": "Liên kết ví lần đầu",
+    "registerDesc": "Xác minh quyền sở hữu ví, sau đó tiếp tục bổ sung hồ sơ.",
+    "registerAction": "Kết nối và tiếp tục",
+    "noExtension": "Không phát hiện tiện ích ví EVM. Vui lòng cài MetaMask hoặc OKX Wallet trước.",
+    "noAddress": "Ví không trả về địa chỉ khả dụng",
+    "connected": "Đã kết nối ví",
+    "connectFailed": "Kết nối ví thất bại",
+    "connectFirst": "Vui lòng kết nối ví trước",
+    "noWalletInBrowser": "Trình duyệt hiện tại không phát hiện ví khả dụng",
+    "verifiedContinue": "Xác minh ví thành công, tiếp tục bổ sung hồ sơ",
+    "loginSuccess": "Đăng nhập thành công",
+    "signatureFailed": "Xác minh chữ ký thất bại",
+    "stateConnected": "Đã kết nối ví",
+    "stateDisconnected": "Chưa kết nối ví",
+    "connectPrompt": "Vui lòng kết nối một địa chỉ ví EVM",
+    "signNote": "Đăng nhập chỉ yêu cầu một chữ ký, không phát sinh giao dịch on-chain và không tốn gas.",
+    "noWalletNotice": "Không phát hiện MetaMask hoặc OKX Wallet. Cài tiện ích ví và tải lại trang để tiếp tục.",
+    "processing": "Đang xử lý...",
+    "switchWallet": "Đổi ví",
+    "connectWallet": "Kết nối ví",
+    "verifying": "Đang xác minh chữ ký..."
   }
 }

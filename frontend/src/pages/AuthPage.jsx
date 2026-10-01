@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 
 import { Button, Card, CardContent } from '../components/ui'
@@ -27,6 +28,7 @@ const normalizeRedirectTarget = (target, fallbackPath) => {
 }
 
 const AuthPage = ({ mode = 'login' }) => {
+  const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
   const { user, isAuthenticated, isProfileComplete, updateSession } = useAuth()
@@ -61,7 +63,7 @@ const AuthPage = ({ mode = 'login' }) => {
   const handleProfileSubmit = async () => {
     const nextBio = bio.trim()
     if (nextBio.length < 10) {
-      toast.error('请至少填写 10 个字的个人简介')
+      toast.error(t('authPage.bioTooShort'))
       return
     }
 
@@ -69,10 +71,10 @@ const AuthPage = ({ mode = 'login' }) => {
     try {
       const updatedUser = await updateMyProfile({ bio: nextBio }, user)
       updateSession(updatedUser)
-      toast.success('资料已保存')
+      toast.success(t('authPage.bioSaved'))
       navigate(redirectTarget, { replace: true })
     } catch (error) {
-      toast.error(`保存失败: ${error.message}`)
+      toast.error(t('authPage.saveFailed', { message: error.message }))
     } finally {
       setSaving(false)
     }
@@ -100,12 +102,12 @@ const AuthPage = ({ mode = 'login' }) => {
                 Jinli Club
               </p>
               <h1 className="mt-4 text-3xl font-bold text-gray-900">
-                {mode === 'login' ? '连接钱包继续探索' : '完成首次绑定并补全资料'}
+                {mode === 'login' ? t('authPage.titleLogin') : t('authPage.titleRegister')}
               </h1>
               <p className="mt-3 text-base text-gray-600">
                 {mode === 'login'
-                  ? '使用现有钱包签名即可登录，完成后会返回你刚才访问的页面。'
-                  : '先验证钱包所有权，再补全个人简介，你的账号就可以正式启用。'}
+                  ? t('authPage.subLogin')
+                  : t('authPage.subRegister')}
               </p>
             </div>
           </section>
@@ -118,24 +120,24 @@ const AuthPage = ({ mode = 'login' }) => {
                 {mode === 'register' && isAuthenticated ? (
                   <div className="space-y-5">
                     <div>
-                      <h2 className="text-2xl font-semibold text-gray-900">补全个人简介</h2>
+                      <h2 className="text-2xl font-semibold text-gray-900">{t('authPage.completeBio')}</h2>
                       <p className="mt-2 text-sm leading-6 text-gray-600">
-                        当前钱包已经验证成功。填写至少 10 个字的简介后，系统会把你带回刚才的页面。
+                        {t('authPage.completeBioHint')}
                       </p>
                     </div>
 
                     <div className="rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                      已连接钱包：{user?.EVM || '未知地址'}
+                      {t('walletAuth.stateConnected')}：{user?.EVM || t('authPage.unknownAddress')}
                     </div>
 
                     <label className="block">
-                      <span className="mb-2 block text-sm font-medium text-gray-700">个人简介</span>
+                      <span className="mb-2 block text-sm font-medium text-gray-700">{t('authPage.bio')}</span>
                       <textarea
                         value={bio}
                         onChange={(event) => setBio(event.target.value)}
                         rows={5}
                         className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
-                        placeholder="介绍一下你自己、擅长领域或者参与 Jinli Club 的原因。"
+                        placeholder={t('authPage.bioPlaceholder')}
                       />
                     </label>
 
@@ -146,7 +148,7 @@ const AuthPage = ({ mode = 'login' }) => {
                       disabled={saving}
                       onClick={handleProfileSubmit}
                     >
-                      {saving ? '正在保存...' : '保存并继续'}
+                      {saving ? t('authPage.saving') : t('authPage.saveAndContinue')}
                     </Button>
                   </div>
                 ) : (
@@ -161,30 +163,30 @@ const AuthPage = ({ mode = 'login' }) => {
             <Card variant="secondary" className="border border-gray-100">
               <CardContent className="space-y-4 p-6">
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900">说明</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">{t('authPage.note')}</h2>
                   <p className="mt-2 text-sm leading-6 text-gray-600">
-                    钱包登录只会请求一次离线签名，不会发起链上交易，也不会扣除 gas。
+                    {t('authPage.noteBody')}
                   </p>
                 </div>
 
                 <div className="rounded-2xl bg-white/80 p-4 text-sm leading-6 text-gray-600 ring-1 ring-gray-100">
-                  <p>1. 连接一个 EVM 钱包。</p>
-                  <p>2. 按提示完成签名验证。</p>
-                  <p>3. 首次登录用户继续补全个人简介。</p>
+                  <p>{t('authPage.step1')}</p>
+                  <p>{t('authPage.step2')}</p>
+                  <p>{t('authPage.step3')}</p>
                 </div>
 
                 {mode === 'login' ? (
                   <p className="text-sm text-gray-600">
-                    还没有完成首次绑定？
+                    {t('authPage.notBoundYet')}
                     <Link to="/register" state={{ from: redirectTarget }} className="ml-2 font-medium text-blue-600 hover:text-blue-700">
-                      去注册
+                      {t('authPage.goRegister')}
                     </Link>
                   </p>
                 ) : (
                   <p className="text-sm text-gray-600">
-                    已经完成绑定？
+                    {t('authPage.alreadyBound')}
                     <Link to="/login" state={{ from: redirectTarget }} className="ml-2 font-medium text-blue-600 hover:text-blue-700">
-                      返回登录
+                      {t('authPage.backToLogin')}
                     </Link>
                   </p>
                 )}

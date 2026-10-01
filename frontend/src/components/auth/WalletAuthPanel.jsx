@@ -1,21 +1,23 @@
 import React, { useEffect, useState } from 'react'
 import { AlertCircle, CheckCircle2, KeyRound, Wallet } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { useTranslation } from 'react-i18next'
 import { Button } from '../ui'
 import { requestAuthChallenge, verifyAuthChallenge } from '../../auth'
 import { useAuth } from '../../auth-context'
 import { cn, formatEvmAddress } from '../../utils'
 
+// P6-I18N-LIT-B3：改为**四语键**（渲染处经 `t()` 求值），文案本体在 `locales/*.json` 的 `walletAuth.*`。
 const COPY = {
   login: {
-    title: '钱包签名登录',
-    description: '连接你的 EVM 钱包，并完成一次签名验证即可登录。',
-    actionLabel: '签名登录',
+    title: 'walletAuth.loginTitle',
+    description: 'walletAuth.loginDesc',
+    actionLabel: 'walletAuth.loginAction',
   },
   register: {
-    title: '首次绑定钱包',
-    description: '先验证钱包所有权，再继续补全资料。',
-    actionLabel: '连接并继续',
+    title: 'walletAuth.registerTitle',
+    description: 'walletAuth.registerDesc',
+    actionLabel: 'walletAuth.registerAction',
   },
 }
 
@@ -27,6 +29,7 @@ const WalletAuthPanel = ({
   className,
   onSuccess,
 }) => {
+  const { t } = useTranslation()
   const { setSession } = useAuth()
   const [walletAddress, setWalletAddress] = useState('')
   const [hasWallet, setHasWallet] = useState(typeof window !== 'undefined' && typeof window.ethereum !== 'undefined')
@@ -66,7 +69,7 @@ const WalletAuthPanel = ({
 
   const connectWallet = async () => {
     if (!hasWallet || typeof window.ethereum === 'undefined') {
-      toast.error('未检测到 EVM 钱包扩展，请先安装 MetaMask 或 OKX Wallet')
+      toast.error(t('walletAuth.noExtension'))
       return
     }
 
@@ -75,13 +78,13 @@ const WalletAuthPanel = ({
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
       const nextAddress = accounts?.[0] || ''
       if (!nextAddress) {
-        throw new Error('钱包未返回可用地址')
+        throw new Error(t('walletAuth.noAddress'))
       }
       setWalletAddress(nextAddress)
-      toast.success('钱包连接成功')
+      toast.success(t('walletAuth.connected'))
     } catch (error) {
       console.error('Wallet connection failed:', error)
-      toast.error(error.message || '钱包连接失败')
+      toast.error(error.message || t('walletAuth.connectFailed'))
     } finally {
       setLoading(false)
     }
@@ -89,12 +92,12 @@ const WalletAuthPanel = ({
 
   const authenticate = async () => {
     if (!walletAddress) {
-      toast.error('请先连接钱包')
+      toast.error(t('walletAuth.connectFirst'))
       return
     }
 
     if (!hasWallet || typeof window.ethereum === 'undefined') {
-      toast.error('当前浏览器未检测到可用钱包')
+      toast.error(t('walletAuth.noWalletInBrowser'))
       return
     }
 
@@ -115,14 +118,14 @@ const WalletAuthPanel = ({
       })
 
       const savedSession = setSession(session)
-      toast.success(mode === 'register' ? '钱包验证成功，继续补全资料' : '登录成功')
+      toast.success(mode === 'register' ? t('walletAuth.verifiedContinue') : t('walletAuth.loginSuccess'))
 
       if (onSuccess) {
         await onSuccess(savedSession)
       }
     } catch (error) {
       console.error('Wallet authentication failed:', error)
-      toast.error(error.message || '签名验证失败')
+      toast.error(error.message || t('walletAuth.signatureFailed'))
     } finally {
       setLoading(false)
     }
@@ -135,10 +138,10 @@ const WalletAuthPanel = ({
           <Wallet className="h-8 w-8" />
         </div>
         <h2 className="mt-5 text-2xl font-bold text-gray-900">
-          {title || copy.title}
+          {title || t(copy.title)}
         </h2>
         <p className="mt-2 text-sm text-gray-600">
-          {description || copy.description}
+          {description || t(copy.description)}
         </p>
       </div>
 
@@ -153,13 +156,13 @@ const WalletAuthPanel = ({
           </div>
           <div className="min-w-0 flex-1">
             <div className="text-sm font-medium text-gray-800">
-              {walletAddress ? '已连接钱包' : '尚未连接钱包'}
+              {walletAddress ? t('walletAuth.stateConnected') : t('walletAuth.stateDisconnected')}
             </div>
             <div className="mt-1 break-all font-mono text-sm text-gray-600">
-              {walletAddress ? formatEvmAddress(walletAddress) : '请连接一个 EVM 钱包地址'}
+              {walletAddress ? formatEvmAddress(walletAddress) : t('walletAuth.connectPrompt')}
             </div>
             <p className="mt-2 text-xs leading-5 text-gray-500">
-              登录只会请求一次签名，不会发起链上交易，也不会消耗 gas。
+              {t('walletAuth.signNote')}
             </p>
           </div>
         </div>
@@ -167,7 +170,7 @@ const WalletAuthPanel = ({
 
       {!hasWallet && (
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-          当前环境未检测到 MetaMask 或 OKX Wallet。安装钱包扩展后刷新页面即可继续。
+          {t('walletAuth.noWalletNotice')}
         </div>
       )}
 
@@ -180,7 +183,7 @@ const WalletAuthPanel = ({
           onClick={connectWallet}
         >
           <Wallet className="mr-2 h-4 w-4" />
-          {loading ? '处理中...' : walletAddress ? '切换钱包' : '连接钱包'}
+          {loading ? t('walletAuth.processing') : walletAddress ? t('walletAuth.switchWallet') : t('walletAuth.connectWallet')}
         </Button>
 
         <Button
@@ -191,7 +194,7 @@ const WalletAuthPanel = ({
           onClick={authenticate}
         >
           <KeyRound className="mr-2 h-4 w-4" />
-          {loading ? '签名验证中...' : actionLabel || copy.actionLabel}
+          {loading ? t('walletAuth.verifying') : actionLabel || t(copy.actionLabel)}
         </Button>
       </div>
     </div>

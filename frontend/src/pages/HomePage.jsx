@@ -83,7 +83,7 @@ const HomePage = () => {
               : prize.description,
         points_required: prize.points || 0,
         status: isClaimed ? 'claimed' : storesCount > 0 ? 'available' : 'locked',
-        statusText: isClaimed ? t('common.redeemed') : storesCount > 0 ? t('CanClaim') : t('common.outOfStock'),
+        statusText: isClaimed ? t('common.redeemed') : storesCount > 0 ? t('common.redeemable') : t('common.outOfStock'),
         rarity: prize.points > 5000 ? 'epic' : prize.points > 2000 ? 'rare' : 'common',
         image: prize.image_url || prize.url_image || '/placeholder.jpg',
         claimed: prize.claims_count || 0,

@@ -6,8 +6,9 @@
  *   ① 键数 = **顶层键数** + **拍平键路径数**（逐文件）；
  *   ② 键集相等 = 拍平后的键路径集合逐文件 `===`（排序后逐项对拍）；
  *   ③ 新键 `i18n.translating` 四语齐备、非空串；
- *   ④ 静态断言：本单新接的 6 个文件里**不得**出现 `_(en|hk|vn)\s*\?\?`（空串会穿透 `??`）；
- *      既有三页（HomePage/TaskPage/RewardPage）为**存量登记**（本单只核不改）⇒ 单列读数。
+ *   ④ 静态断言：新接的 6 个文件里**不得**出现 `_(en|hk|vn)\s*\?\?`（空串会穿透 `??`）；
+ *      存量登记 = **仅 `pages/HomePage.jsx`**（B2 已把 `TaskPage.jsx` / `RewardPage.jsx` 单点收口到
+ *      `pickLocalized`）—— 原「既有三页」口径已陈旧，本单（D7）按盘面更正。
  *
  * 用法：node scripts/p6-tr2-i18n-locales.mjs     （只读，不写任何文件）
  */
@@ -66,7 +67,10 @@ const WIRED = [
   'pages/market/MarketPage.jsx',
   'pages/ProfilePage.jsx',
 ]
-const LEGACY = ['pages/HomePage.jsx', 'pages/TaskPage.jsx', 'pages/RewardPage.jsx']
+// D7（P6-I18N-LIT-B3）：B2 已把 `TaskPage.jsx` / `RewardPage.jsx` 改走 `pickLocalized`
+// （`_en ?? base` 命中已为 0，见 `src/test/unit/i18n-content-wiring.test.jsx` / `i18n-batch-b2.test.jsx`），
+// 故存量名单**只剩首页**（B1 面，本单只核不改）。
+const LEGACY = ['pages/HomePage.jsx']
 
 console.log('[TR-2] 静态断言：新接文件不得用 `??` 取多语列（`||` 方可防空串穿透）')
 let guardOk = true
@@ -79,11 +83,11 @@ for (const rel of WIRED) {
 }
 console.log(`[TR-2] 新接文件守卫=${guardOk ? 'PASS' : 'FAIL'}`)
 
-console.log('[TR-2] 存量登记（本单「只核不改」）：三页仍用三目链 + `??`')
+console.log('[TR-2] 存量登记（只核不改）：仍在旧三目链 + `??` 上的页面（B2 收口后仅余首页）')
 for (const rel of LEGACY) {
   const text = fs.readFileSync(path.join(SRC, rel), 'utf8')
   const hits = text.match(/_(en|hk|vn)\s*\?\?/g) || []
-  console.log(`  ${rel}: ??命中=${hits.length}（登记；下单单点收口）`)
+  console.log(`  ${rel}: ??命中=${hits.length}（登记；下单单点收口）`) // HomePage 仍在链上 ⇒ 命中非 0 属预期
 }
 
 const overall = badgeOk && flatTop.size === 1 && setDiff.length === 0 && guardOk

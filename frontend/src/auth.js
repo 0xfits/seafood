@@ -126,7 +126,19 @@ export const i18nKeyForServerMessage = (message) => (
   typeof message === 'string' ? SERVER_MESSAGE_I18N_KEYS[message.trim()] : undefined
 )
 
-const extractApiErrorMessage = (payload, status) => {
+/**
+ * P6-I18N-LIT-B3 · `auth.js` 内两条**通用兜底**文案的键（此前是硬编码中文串）。
+ * `REQUEST_FAILED` = 错误体连文案都没有时的 `请求失败 ({{status}})`；
+ * `NO_CREDENTIAL` = 本地无 token 时抛出的 `未找到登录凭证`。
+ * 取值在 `locales/*.json` 的 `auth.err.*`（四语）；本文件**不再含中文兜底串**，
+ * i18n 不可用时回落到 ASCII 串（绝不空白、绝不 `[object Object]`）。
+ */
+export const FALLBACK_I18N_KEYS = Object.freeze({
+  REQUEST_FAILED: 'auth.err.REQUEST_FAILED',
+  NO_CREDENTIAL: 'auth.err.NO_CREDENTIAL',
+})
+
+const extractApiErrorMessage = (payload) => {
   const error = payload?.error
   if (error && typeof error === 'object') {
     const reason = error.details && typeof error.details === 'object' ? error.details.reason : undefined
@@ -135,17 +147,18 @@ const extractApiErrorMessage = (payload, status) => {
   }
   if (typeof error === 'string' && error) return error
   if (payload?.message) return payload.message
-  return `请求失败 (${status})`
+  // 无任何服务端文案 ⇒ `undefined` 交由 `apiErrorMessage` 走 `auth.err.REQUEST_FAILED` 四语兜底
+  return undefined
 }
 
 // `i18n_key`（`R107` 契约键）或**原文映射键**（B14 两键）→ 四语文案。**动态导入**：只在错误路径求值，
 // 不把 `i18n.js` 拖进 `auth.js` 的静态依赖图（既有单测对 `react-i18next` 做 mock，静态导入会连带崩）。
-const resolveI18nMessage = async (i18nKey, fallback) => {
+const resolveI18nMessage = async (i18nKey, fallback, vars = undefined) => {
   if (!i18nKey) return fallback
   try {
     const { default: i18n } = await import('./i18n')
     if (i18n?.exists?.(i18nKey)) {
-      const translated = i18n.t(i18nKey)
+      const translated = i18n.t(i18nKey, vars)
       if (translated && translated !== i18nKey) return translated
     }
     return fallback
@@ -158,16 +171,19 @@ const resolveI18nMessage = async (i18nKey, fallback) => {
 /**
  * 错误文案总入口（可单测）：`R107` 对象面 / 旧字符串面 / 裸状态码三态均能给出**字符串**。
  * 优先级 = ① `error.i18n_key`（`R107` 契约键）② **服务端原文映射表**（B14）③ `extractApiErrorMessage` 兜底
- * （未登记错误 ⇒ 原样服务端文案；连文案都没有 ⇒ `请求失败 (status)`）。
+ * （未登记错误 ⇒ 原样服务端文案；连文案都没有 ⇒ `auth.err.REQUEST_FAILED` 四语兜底，
+ * i18n 不可用时为 ASCII 的 `Request failed (status)`）。
  */
 export const apiErrorMessage = async (payload, status) => {
   const error = payload?.error
   const rawMessage = typeof error === 'string' && error
     ? error
     : (error && typeof error === 'object' ? (error.message || error.code) : payload?.message)
+  const direct = extractApiErrorMessage(payload)
   const mappedKey = (error && typeof error === 'object' ? error.i18n_key : undefined)
     || i18nKeyForServerMessage(rawMessage)
-  return resolveI18nMessage(mappedKey, extractApiErrorMessage(payload, status))
+    || (direct ? undefined : FALLBACK_I18N_KEYS.REQUEST_FAILED)
+  return resolveI18nMessage(mappedKey, direct || `Request failed (${status})`, { status })
 }
 
 export const fetchApiJson = async (url, options = {}) => {
@@ -205,10 +221,15 @@ export const verifyAuthChallenge = async ({ evmAddress, challengeToken, signatur
   })
 )
 
+/** `未找到登录凭证`（四语键 `auth.err.NO_CREDENTIAL`）；i18n 不可用时回落到 ASCII 串（绝不空白）。 */
+const noCredentialError = async () => new Error(
+  await resolveI18nMessage(FALLBACK_I18N_KEYS.NO_CREDENTIAL, 'No login credential found'),
+)
+
 export const fetchCurrentUser = async (user = undefined) => {
   const token = getAuthToken(user)
   if (!token) {
-    throw new Error('未找到登录凭证')
+    throw await noCredentialError()
   }
 
   return fetchApiJson('/api/user', {
@@ -219,7 +240,7 @@ export const fetchCurrentUser = async (user = undefined) => {
 export const updateMyProfile = async (payload, user = undefined) => {
   const token = getAuthToken(user)
   if (!token) {
-    throw new Error('未找到登录凭证')
+    throw await noCredentialError()
   }
 
   return fetchApiJson('/api/user/profile', {

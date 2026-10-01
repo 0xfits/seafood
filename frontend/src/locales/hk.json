@@ -74,7 +74,9 @@
       "AUTH_UNAUTHORIZED": "登錄憑證無效或已過期，請重新登錄。",
       "AUTH_FORBIDDEN": "當前帳號無權執行該操作。",
       "INVALID_WALLET_SIGNATURE": "錢包簽名無效，請重新簽名再登入。",
-      "SIGNATURE_ADDRESS_MISMATCH": "簽名同所聲明嘅錢包地址唔一致，請轉返正確嘅錢包帳號再試。"
+      "SIGNATURE_ADDRESS_MISMATCH": "簽名同所聲明嘅錢包地址唔一致，請轉返正確嘅錢包帳號再試。",
+      "REQUEST_FAILED": "請求失敗（{{status}}）",
+      "NO_CREDENTIAL": "未找到登入憑證"
     }
   },
   "jobs": {
@@ -221,7 +223,8 @@
     "unavailable": "不可用",
     "participantsUnit": "人參與",
     "claimedUnit": "人已領取",
-    "shardUnit": "碎片"
+    "shardUnit": "碎片",
+    "redeemable": "可兌換"
   },
   "homePage": {
     "welcome": "歡迎嚟到 Jinli Club",
@@ -251,8 +254,7 @@
     "catSlogan2": "猫猫大使团｜你的声音，值得被品牌听见。",
     "catSlogan3": "你的代言，从猫猫大使团开始。",
     "cloudSlogan": "云朵计划｜播种童年梦想，浇灌美和希望。"
-  }
-,
+  },
   "taskPage": {
     "requestFailed": "請求失敗 ({{status}})",
     "title": "任務中心",
@@ -340,5 +342,63 @@
     "noCredential": "搵唔到登入憑證，請重新登入",
     "badCredential": "登入憑證格式錯誤，請重新登入",
     "submitFailed": "提交任務失敗"
+  },
+  "loginModal": {
+    "closeLabel": "關閉登入視窗",
+    "title": "連接錢包登入",
+    "description": "透過一次簽名驗證即可完成登入，首次登入後可繼續補全個人資料。",
+    "firstTime": "第一次使用 Jinli Club？",
+    "goBind": "去完成首次綁定"
+  },
+  "authPage": {
+    "bioTooShort": "請至少填寫 10 個字的個人簡介",
+    "bioSaved": "資料已儲存",
+    "saveFailed": "儲存失敗：{{message}}",
+    "titleLogin": "連接錢包繼續探索",
+    "titleRegister": "完成首次綁定並補全資料",
+    "subLogin": "使用現有錢包簽名即可登入，完成後會返回你剛才訪問的頁面。",
+    "subRegister": "先驗證錢包所有權，再補全個人簡介，你的帳號就可以正式啟用。",
+    "completeBio": "補全個人簡介",
+    "completeBioHint": "目前錢包已經驗證成功。填寫至少 10 個字的簡介後，系統會把你帶回剛才的頁面。",
+    "unknownAddress": "未知地址",
+    "bio": "個人簡介",
+    "bioPlaceholder": "介紹一下你自己、擅長領域或者參與 Jinli Club 的原因。",
+    "saving": "正在儲存……",
+    "saveAndContinue": "儲存並繼續",
+    "note": "說明",
+    "noteBody": "錢包登入只會請求一次離線簽名，不會發起鏈上交易，也不會扣除 gas。",
+    "step1": "1. 連接一個 EVM 錢包。",
+    "step2": "2. 按提示完成簽名驗證。",
+    "step3": "3. 首次登入用戶繼續補全個人簡介。",
+    "notBoundYet": "還沒有完成首次綁定？",
+    "goRegister": "去註冊",
+    "alreadyBound": "已經完成綁定？",
+    "backToLogin": "返回登入"
+  },
+  "walletAuth": {
+    "loginTitle": "錢包簽名登入",
+    "loginDesc": "連接你的 EVM 錢包，並完成一次簽名驗證即可登入。",
+    "loginAction": "簽名登入",
+    "registerTitle": "首次綁定錢包",
+    "registerDesc": "先驗證錢包所有權，再繼續補全資料。",
+    "registerAction": "連接並繼續",
+    "noExtension": "未偵測到 EVM 錢包擴充功能，請先安裝 MetaMask 或 OKX Wallet",
+    "noAddress": "錢包未返回可用地址",
+    "connected": "錢包連接成功",
+    "connectFailed": "錢包連接失敗",
+    "connectFirst": "請先連接錢包",
+    "noWalletInBrowser": "目前瀏覽器未偵測到可用錢包",
+    "verifiedContinue": "錢包驗證成功，繼續補全資料",
+    "loginSuccess": "登入成功",
+    "signatureFailed": "簽名驗證失敗",
+    "stateConnected": "已連接錢包",
+    "stateDisconnected": "尚未連接錢包",
+    "connectPrompt": "請連接一個 EVM 錢包地址",
+    "signNote": "登入只會請求一次簽名，不會發起鏈上交易，也不會消耗 gas。",
+    "noWalletNotice": "目前環境未偵測到 MetaMask 或 OKX Wallet。安裝錢包擴充功能後重新整理頁面即可繼續。",
+    "processing": "處理中……",
+    "switchWallet": "切換錢包",
+    "connectWallet": "連接錢包",
+    "verifying": "簽名驗證中……"
   }
 }
