@@ -4,6 +4,10 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 
+// P6-I18N-LIT-B4a：DashboardPage 已接 `t()`（后台面字面量走 locale）⇒ 测试须挂真实 i18n 实例；
+// jsdom 路径 `/` ⇒ 语言 = zh，故本文既有中文断言（zh 词典取值与原文逐字一致）不受影响。
+import '../../i18n'
+
 const mockNavigate = vi.fn()
 
 vi.mock('react-router-dom', async () => {

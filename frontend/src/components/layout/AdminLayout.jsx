@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
@@ -21,6 +22,7 @@ const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const location = useLocation()
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [access, setAccess] = useState({
     is_admin: false,
     permissions: [],
@@ -29,58 +31,58 @@ const AdminLayout = () => {
 
   const menuItems = [
     {
-      title: '仪表板',
+      title: t('adminNav.dashboard'),
       icon: LayoutDashboard,
       path: '/dashboard',
-      description: '系统概览和统计',
+      description: t('adminNav.dashboardDesc'),
     },
     {
-      title: '任务管理',
+      title: t('adminNav.tasks'),
       icon: Trophy,
       path: '/dashboard/tasks',
-      description: '创建和管理任务',
+      description: t('adminNav.tasksDesc'),
       requiredPermission: ['manage_tasks', 'publish_tasks'],
     },
     {
-      title: '奖品管理',
+      title: t('adminNav.rewards'),
       icon: Gift,
       path: '/dashboard/rewards',
-      description: '创建和管理奖品',
+      description: t('adminNav.rewardsDesc'),
       requiredPermission: ['manage_rewards', 'publish_prizes'],
     },
     {
-      title: '碎片管理',
+      title: t('adminNav.shards'),
       icon: Layers,
       path: '/dashboard/shards',
-      description: '碎片持仓、挂单与成交',
+      description: t('adminNav.shardsDesc'),
       requiredPermission: ['manage_rewards', 'publish_prizes'],
     },
     {
-      title: '用户管理',
+      title: t('adminNav.users'),
       icon: Users,
       path: '/dashboard/users',
-      description: '管理用户账户',
+      description: t('adminNav.usersDesc'),
       requiredPermission: 'read_users',
     },
     {
-      title: '权限管理',
+      title: t('adminNav.permissions'),
       icon: Shield,
       path: '/dashboard/permissions',
-      description: '管理用户权限',
+      description: t('adminNav.permissionsDesc'),
       requiredPermission: 'manage_permissions',
     },
     {
-      title: '积分管理',
+      title: t('adminNav.points'),
       icon: BarChart3,
       path: '/dashboard/points',
-      description: '调整用户积分',
+      description: t('adminNav.pointsDesc'),
       requiredPermission: 'manage_points',
     },
     {
-      title: '系统设置',
+      title: t('adminNav.settings'),
       icon: Settings,
       path: '/dashboard/settings',
-      description: '系统配置',
+      description: t('adminNav.settingsDesc'),
       requiredPermission: 'manage_settings',
     }
   ]
@@ -104,7 +106,7 @@ const AdminLayout = () => {
 
   const visibleMenuItems = useMemo(
     () => menuItems.filter((item) => hasAdminPermission(access, item.requiredPermission)),
-    [access]
+    [access, t]
   )
 
   const isActive = (path) => {
@@ -129,7 +131,7 @@ const AdminLayout = () => {
               </div>
               {sidebarOpen && (
                 <div>
-                  <h1 className="text-lg font-bold text-gray-900">管理面板</h1>
+                  <h1 className="text-lg font-bold text-gray-900">{t('adminLayout.panelTitle')}</h1>
                   <p className="text-xs text-gray-500">Jinli Admin</p>
                 </div>
               )}
@@ -185,7 +187,7 @@ const AdminLayout = () => {
             className={`w-full justify-start ${!sidebarOpen && 'px-2'}`}
           >
             <LogOut className="w-4 h-4" />
-            {sidebarOpen && <span className="ml-2">退出登录</span>}
+            {sidebarOpen && <span className="ml-2">{t('adminLayout.logout')}</span>}
           </Button>
         </div>
       </div>
@@ -197,16 +199,16 @@ const AdminLayout = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                {visibleMenuItems.find(item => isActive(item.path))?.title || '管理面板'}
+                {visibleMenuItems.find(item => isActive(item.path))?.title || t('adminLayout.panelTitle')}
               </h1>
               <p className="text-sm text-gray-500 mt-1">
-                {visibleMenuItems.find(item => isActive(item.path))?.description || '系统管理'}
+                {visibleMenuItems.find(item => isActive(item.path))?.description || t('adminLayout.systemAdmin')}
               </p>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <div className="text-sm font-medium text-gray-900">管理员</div>
-                <div className="text-xs text-gray-500">在线</div>
+                <div className="text-sm font-medium text-gray-900">{t('adminLayout.adminRole')}</div>
+                <div className="text-xs text-gray-500">{t('adminLayout.online')}</div>
               </div>
               <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                 <Users className="w-4 h-4 text-white" />

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 import {
   Users,
@@ -24,10 +25,10 @@ import { formatEvmAddress } from '../utils'
 import { fetchAdminAccess, fetchApiJson, getAuthToken, hasAdminPermission, isAdminUser } from '../admin-utils'
 import { useAuth } from '../auth-context'
 
-const formatTimestamp = (value) => {
-  if (!value) return '未知'
+const formatTimestamp = (value, t) => {
+  if (!value) return t('dashPage.unknown')
   const date = new Date(typeof value === 'number' ? value * 1000 : value)
-  return Number.isNaN(date.getTime()) ? '未知' : date.toLocaleString()
+  return Number.isNaN(date.getTime()) ? t('dashPage.unknown') : date.toLocaleString()
 }
 
 const EMPTY_DASHBOARD_STATS = {
@@ -53,6 +54,7 @@ const resolvePendingVerificationCount = (canReviewTasks, pendingCount, pendingLi
 const DashboardPage = () => {
   const navigate = useNavigate()
   const { user: currentUser, isAuthenticated } = useAuth()
+  const { t } = useTranslation()
   const [pendingVerificationTasks, setPendingVerificationTasks] = useState([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -69,43 +71,43 @@ const DashboardPage = () => {
 
   const managementLinks = [
     {
-      title: '任务管理',
-      description: '查看任务列表、维护任务状态和任务配置。',
+      title: t('adminNav.tasks'),
+      description: t('dashPage.linkTasksDesc'),
       to: '/dashboard/tasks',
       icon: Trophy,
       variant: 'primary',
     },
     {
-      title: '奖品管理',
-      description: '维护奖品、有效期、库存与流通状态。',
+      title: t('adminNav.rewards'),
+      description: t('dashPage.linkRewardsDesc'),
       to: '/dashboard/rewards',
       icon: Gift,
       variant: 'secondary',
     },
     {
-      title: '用户管理',
-      description: '查看用户信息、权限状态和搜索结果。',
+      title: t('adminNav.users'),
+      description: t('dashPage.linkUsersDesc'),
       to: '/dashboard/users',
       icon: Users,
       variant: 'proceed',
     },
     {
-      title: '权限管理',
-      description: '维护管理权限分组和审核角色。',
+      title: t('adminNav.permissions'),
+      description: t('dashPage.linkPermissionsDesc'),
       to: '/dashboard/permissions',
       icon: Shield,
       variant: 'success',
     },
     {
-      title: '积分管理',
-      description: '查看积分分布并执行积分调整。',
+      title: t('adminNav.points'),
+      description: t('dashPage.linkPointsDesc'),
       to: '/dashboard/points',
       icon: BarChart3,
       variant: 'warning',
     },
     {
-      title: '系统设置',
-      description: '维护站点、注册和积分规则设置。',
+      title: t('adminNav.settings'),
+      description: t('dashPage.linkSettingsDesc'),
       to: '/dashboard/settings',
       icon: Settings,
       variant: 'outline',
@@ -128,14 +130,14 @@ const DashboardPage = () => {
     const [userStats, tasks, rewards, pendingCount, pendingList] = results
 
     const errors = []
-    if (userStats.status === 'rejected') errors.push('用户统计')
-    if (tasks.status === 'rejected') errors.push('任务统计')
-    if (rewards.status === 'rejected') errors.push('奖励统计')
-    if (canReviewTasks && pendingCount?.status === 'rejected') errors.push('待审核数量')
-    if (canReviewTasks && pendingList?.status === 'rejected') errors.push('待审核列表')
+    if (userStats.status === 'rejected') errors.push(t('dashPage.errUserStats'))
+    if (tasks.status === 'rejected') errors.push(t('dashPage.errTaskStats'))
+    if (rewards.status === 'rejected') errors.push(t('dashPage.errRewardStats'))
+    if (canReviewTasks && pendingCount?.status === 'rejected') errors.push(t('dashPage.errPendingCount'))
+    if (canReviewTasks && pendingList?.status === 'rejected') errors.push(t('dashPage.errPendingList'))
 
     if (errors.length > 0) {
-      toast.error(`部分数据加载失败：${errors.join('、')}`)
+      toast.error(t('dashPage.partialLoadFailed', { list: errors.join('、') }))
     }
 
     setDashboardStats({
@@ -186,7 +188,7 @@ const DashboardPage = () => {
       } catch (error) {
         console.error('Error loading dashboard:', error)
         if (!cancelled) {
-          toast.error(`加载管理面板失败: ${error.message}`)
+          toast.error(t('dashPage.loadFailed', { message: error.message }))
         }
       } finally {
         if (!cancelled) {
@@ -205,7 +207,7 @@ const DashboardPage = () => {
   const handleVerifyTask = async (jID, approved) => {
     const token = getAuthToken(currentUser)
     if (!token) {
-      toast.error('登录状态已失效，请重新登录')
+      toast.error(t('adminCommon.sessionExpired'))
       navigate('/login')
       return
     }
@@ -213,7 +215,7 @@ const DashboardPage = () => {
     setProcessingTaskId(jID)
     try {
       const confirmed = window.confirm(
-        approved ? '确认通过这条提交并标记为已审核？' : '确认退回这条提交并要求用户重新提交？'
+        approved ? t('dashPage.confirmApprove') : t('dashPage.confirmReject')
       )
       if (!confirmed) {
         setProcessingTaskId(null)
@@ -229,11 +231,11 @@ const DashboardPage = () => {
         body: JSON.stringify({ approved }),
       })
 
-      toast.success(approved ? '任务已通过审核' : '任务已退回，等待用户重新提交')
+      toast.success(approved ? t('dashPage.verifyApproved') : t('dashPage.verifyRejected'))
       await loadDashboardData(currentUser, access)
     } catch (error) {
       console.error('Error verifying task progress:', error)
-      toast.error(`操作失败: ${error.message}`)
+      toast.error(t('dashPage.actionFailed', { message: error.message }))
     } finally {
       setProcessingTaskId(null)
     }
@@ -244,10 +246,10 @@ const DashboardPage = () => {
     setRefreshing(true)
     try {
       await loadDashboardData(currentUser, access)
-      toast.success('管理总览已刷新')
+      toast.success(t('dashPage.refreshSuccess'))
     } catch (error) {
       console.error('Error refreshing dashboard:', error)
-      toast.error(`刷新失败: ${error.message}`)
+      toast.error(t('dashPage.refreshFailed', { message: error.message }))
     } finally {
       setRefreshing(false)
     }
@@ -255,7 +257,7 @@ const DashboardPage = () => {
 
   const normalizedQuery = reviewQuery.trim().toLowerCase()
   const canReviewTasks = hasAdminPermission(access, 'review_tasks')
-  const dashboardRoleLabel = access.is_admin ? '管理员' : canReviewTasks ? '审核员' : '后台成员'
+  const dashboardRoleLabel = access.is_admin ? t('dashPage.roleAdmin') : canReviewTasks ? t('dashPage.roleReviewer') : t('dashPage.roleStaff')
   const filteredPendingTasks = pendingVerificationTasks.filter((task) => {
     if (!normalizedQuery) return true
     return (
@@ -278,7 +280,7 @@ const DashboardPage = () => {
   if (loading) {
     return (
       <ResponsiveContainer>
-        <LoadingPage message="正在加载管理总览..." />
+        <LoadingPage message={t('dashPage.loadingOverview')} />
       </ResponsiveContainer>
     )
   }
@@ -289,10 +291,10 @@ const DashboardPage = () => {
         <Card variant="warning">
           <CardContent className="text-center py-12">
             <Shield className="w-16 h-16 text-orange-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">权限不足</h2>
-            <p className="text-gray-600 mb-6">只有拥有后台权限的账号才能访问管理面板。</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('dashPage.noPermission')}</h2>
+            <p className="text-gray-600 mb-6">{t('dashPage.noPermissionBody')}</p>
             <Button as={Link} to="/" variant="primary">
-              返回首页
+              {t('dashPage.backHome')}
             </Button>
           </CardContent>
         </Card>
@@ -306,9 +308,9 @@ const DashboardPage = () => {
         <FadeIn>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">管理总览</h1>
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">{t('dashPage.title')}</h1>
               <p className="text-lg text-gray-600">
-                优先处理待审核事项，再进入各个管理模块。
+                {t('dashPage.subtitle')}
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -331,7 +333,7 @@ const DashboardPage = () => {
                 <div className="text-3xl font-bold text-gray-900 mb-1">
                   {dashboardStats.totalUsers}
                 </div>
-                <div className="text-sm text-gray-600">总用户数</div>
+                <div className="text-sm text-gray-600">{t('dashPage.statUsers')}</div>
               </CardContent>
             </Card>
 
@@ -341,7 +343,7 @@ const DashboardPage = () => {
                 <div className="text-3xl font-bold text-gray-900 mb-1">
                   {dashboardStats.adminUsers}
                 </div>
-                <div className="text-sm text-gray-600">管理员数量</div>
+                <div className="text-sm text-gray-600">{t('dashPage.statAdmins')}</div>
               </CardContent>
             </Card>
 
@@ -351,7 +353,7 @@ const DashboardPage = () => {
                 <div className="text-3xl font-bold text-gray-900 mb-1">
                   {dashboardStats.totalPoints.toLocaleString()}
                 </div>
-                <div className="text-sm text-gray-600">累计积分</div>
+                <div className="text-sm text-gray-600">{t('dashPage.statPoints')}</div>
               </CardContent>
             </Card>
 
@@ -361,7 +363,7 @@ const DashboardPage = () => {
                 <div className="text-3xl font-bold text-gray-900 mb-1">
                   {dashboardStats.totalTasks}
                 </div>
-                <div className="text-sm text-gray-600">任务类型</div>
+                <div className="text-sm text-gray-600">{t('dashPage.statTasks')}</div>
               </CardContent>
             </Card>
 
@@ -371,7 +373,7 @@ const DashboardPage = () => {
                 <div className="text-3xl font-bold text-gray-900 mb-1">
                   {dashboardStats.totalRewards}
                 </div>
-                <div className="text-sm text-gray-600">奖品数量</div>
+                <div className="text-sm text-gray-600">{t('dashPage.statRewards')}</div>
               </CardContent>
             </Card>
 
@@ -381,7 +383,7 @@ const DashboardPage = () => {
                 <div className="text-3xl font-bold text-gray-900 mb-1">
                   {dashboardStats.pendingVerifications}
                 </div>
-                <div className="text-sm text-gray-600">待审核提交</div>
+                <div className="text-sm text-gray-600">{t('dashPage.statPending')}</div>
               </CardContent>
             </Card>
           </ResponsiveGrid>
@@ -393,7 +395,7 @@ const DashboardPage = () => {
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <CardTitle className="flex items-center gap-2">
                   <Eye className="w-5 h-5" />
-                  普通用户 Task Progress 审批
+                  {t('dashPage.pendingTitle')}
                 </CardTitle>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <div className="flex items-center gap-2">
@@ -402,13 +404,13 @@ const DashboardPage = () => {
                       type="text"
                       value={reviewQuery}
                       onChange={(e) => setReviewQuery(e.target.value)}
-                      placeholder="搜索 Task Progress 任务、地址或提交内容..."
+                      placeholder={t('dashPage.searchPlaceholder')}
                       className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
                     />
                   </div>
                   <Button variant="outline" onClick={refreshDashboard} disabled={refreshing}>
                     <RefreshCw className="w-4 h-4 mr-2" />
-                    {refreshing ? '刷新中...' : '刷新'}
+                    {refreshing ? t('adminCommon.refreshing') : t('adminCommon.refresh')}
                   </Button>
                 </div>
               </div>
@@ -417,14 +419,14 @@ const DashboardPage = () => {
               {!canReviewTasks ? (
                 <div className="text-center py-8">
                   <Shield className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-900 font-medium mb-1">当前账号没有审核权限</p>
-                  <p className="text-sm text-gray-600">如需处理提交审核，请让管理员把你加入具备 `review_tasks` 的权限组。</p>
+                  <p className="text-gray-900 font-medium mb-1">{t('dashPage.noReviewPermission')}</p>
+                  <p className="text-sm text-gray-600">{t('dashPage.noReviewPermissionBody')}</p>
                 </div>
               ) : (
                 <>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
                 <div className="text-sm text-gray-600">
-                  当前显示 {visiblePendingTasks.length} 条，匹配 {filteredPendingTasks.length} 条，待审核总数 {dashboardStats.pendingVerifications}。仅展示普通用户提交的 Task Progress。
+                  {t('dashPage.queueSummary', { visible: visiblePendingTasks.length, matched: filteredPendingTasks.length, total: dashboardStats.pendingVerifications })}
                 </div>
                 {filteredPendingTasks.length > 6 && (
                   <Button
@@ -432,7 +434,7 @@ const DashboardPage = () => {
                     size="sm"
                     onClick={() => setShowAllPending((prev) => !prev)}
                   >
-                    {showAllPending ? '收起列表' : '查看全部'}
+                    {showAllPending ? t('dashPage.collapse') : t('dashPage.viewAll')}
                   </Button>
                 )}
               </div>
@@ -448,23 +450,23 @@ const DashboardPage = () => {
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-2">
                                   <h3 className="font-semibold text-gray-900">
-                                    {task.task?.title || `任务 #${task.tID}`}
+                                    {task.task?.title || t('dashPage.taskFallback', { id: task.tID })}
                                   </h3>
                                   <Badge variant="warning" size="sm">
-                                    {(task.task?.points || 0).toLocaleString()} 积分
+                                    {t('adminCommon.pointsValue', { value: (task.task?.points || 0).toLocaleString() })}
                                   </Badge>
                                 </div>
 
                                 <div className="text-sm text-gray-600 mb-2">
-                                  <strong>提交用户:</strong> {formatEvmAddress(task.user?.EVM)}
+                                  <strong>{t('dashPage.submittedBy')}</strong> {formatEvmAddress(task.user?.EVM)}
                                 </div>
 
                                 <div className="text-sm text-gray-600 mb-2">
-                                  <strong>提交内容:</strong> {task.info_input || '无'}
+                                  <strong>{t('dashPage.submittedContent')}</strong> {task.info_input || t('dashPage.none')}
                                 </div>
 
                                 <div className="text-xs text-gray-500">
-                                  提交时间: {formatTimestamp(task.time_submitted || task.time_created)}
+                                  {t('dashPage.submittedAt')} {formatTimestamp(task.time_submitted || task.time_created, t)}
                                 </div>
                               </div>
 
@@ -474,22 +476,22 @@ const DashboardPage = () => {
                                   size="sm"
                                   onClick={() => handleVerifyTask(task.jID || task.tlistID, true)}
                                   disabled={processingTaskId === (task.jID || task.tlistID)}
-                                  aria-label="通过审核"
-                                  title="通过审核"
+                                  aria-label={t('dashPage.approveLabel')}
+                                  title={t('dashPage.approveLabel')}
                                 >
                                   <CheckCircle className="w-4 h-4 mr-1" />
-                                  通过
+                                  {t('dashPage.approve')}
                                 </Button>
                                 <Button
                                   variant="warning"
                                   size="sm"
                                   onClick={() => handleVerifyTask(task.jID || task.tlistID, false)}
                                   disabled={processingTaskId === (task.jID || task.tlistID)}
-                                  aria-label="退回重提"
-                                  title="退回重提"
+                                  aria-label={t('dashPage.rejectLabel')}
+                                  title={t('dashPage.rejectLabel')}
                                 >
                                   <XCircle className="w-4 h-4 mr-1" />
-                                  退回
+                                  {t('dashPage.reject')}
                                 </Button>
                               </div>
                             </div>
@@ -503,10 +505,10 @@ const DashboardPage = () => {
                 <div className="text-center py-8">
                   <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
                   <p className="text-gray-900 font-medium mb-1">
-                    {dashboardStats.pendingVerifications > 0 ? '当前筛选条件下没有结果' : '当前没有待审核提交'}
+                    {dashboardStats.pendingVerifications > 0 ? t('dashPage.noResults') : t('dashPage.noPending')}
                   </p>
                   <p className="text-sm text-gray-600">
-                    {dashboardStats.pendingVerifications > 0 ? '换一个关键词试试，或点击刷新重新获取最新数据。' : '审核队列为空，管理入口可直接用于日常维护。'}
+                    {dashboardStats.pendingVerifications > 0 ? t('dashPage.noResultsHint') : t('dashPage.noPendingHint')}
                   </p>
                 </div>
               )}
@@ -521,7 +523,7 @@ const DashboardPage = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Settings className="w-5 h-5" />
-                管理入口
+                {t('dashPage.linksTitle')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -540,7 +542,7 @@ const DashboardPage = () => {
                             </div>
                             <p className="text-sm text-gray-600 mb-4">{item.description}</p>
                             <Button as={Link} to={item.to} variant={item.variant}>
-                              进入{item.title}
+                              {t('dashPage.enterLink', { title: item.title })}
                             </Button>
                           </div>
                         </div>

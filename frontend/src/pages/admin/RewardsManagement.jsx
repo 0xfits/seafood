@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button, Card, CardContent, Badge, Modal, ModalHeader, ModalTitle } from '../../components/ui'
 import { Plus, Edit, Trash2, Eye, RefreshCw } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -27,6 +28,7 @@ const EMPTY_BRAND = {
 }
 
 const RewardsManagement = () => {
+  const { t } = useTranslation()
   const [rewards, setRewards] = useState([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -57,7 +59,7 @@ const RewardsManagement = () => {
       setRewards(data || [])
     } catch (error) {
       console.error('Error loading rewards:', error)
-      toast.error(`加载奖品失败: ${error.message}`)
+      toast.error(t('adminRewards.loadFailed', { message: error.message }))
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -118,17 +120,17 @@ const RewardsManagement = () => {
     }
 
     if (!headers.Authorization) {
-      toast.error('登录状态已失效，请重新登录')
+      toast.error(t('adminCommon.sessionExpired'))
       return
     }
 
     if (!formState.name.trim() || !formState.symbol.trim()) {
-      toast.error('奖品名称和符号不能为空')
+      toast.error(t('adminRewards.nameSymbolRequired'))
       return
     }
 
     if (!formState.time_end) {
-      toast.error('请设置奖品有效期截止时间')
+      toast.error(t('adminRewards.endTimeRequired'))
       return
     }
 
@@ -158,7 +160,7 @@ const RewardsManagement = () => {
       await loadRewards({ silent: true })
     } catch (error) {
       console.error('Error saving prize:', error)
-      toast.error(`保存奖品失败: ${error.message}`)
+      toast.error(t('adminRewards.saveFailed', { message: error.message }))
     } finally {
       setSaving(false)
     }
@@ -172,11 +174,11 @@ const RewardsManagement = () => {
     }
 
     if (!headers.Authorization) {
-      toast.error('登录状态已失效，请重新登录')
+      toast.error(t('adminCommon.sessionExpired'))
       return
     }
 
-    const confirmed = window.confirm(`确认删除奖品“${reward.name}”？如果已有库存或领取记录，将不会允许删除。`)
+    const confirmed = window.confirm(t('adminRewards.confirmDelete', { name: reward.name }))
     if (!confirmed) return
 
     setDeletingId(reward.bID)
@@ -185,7 +187,7 @@ const RewardsManagement = () => {
       await loadRewards({ silent: true })
     } catch (error) {
       console.error('Error deleting prize:', error)
-      toast.error(`删除奖品失败: ${error.message}`)
+      toast.error(t('adminRewards.deleteFailed', { message: error.message }))
     } finally {
       setDeletingId(null)
     }
@@ -199,23 +201,20 @@ const RewardsManagement = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold">奖品管理</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            当前账号为只读模式：管理员发布/编辑/删除商品入口已下线
-            （`POST /api/admin/prize/*` = `410`，§5.1「后台发布商品」行）。
-          </p>
+          <h2 className="text-2xl font-bold">{t('adminNav.rewards')}</h2>
+          <p className="text-sm text-gray-600 mt-1">{t('adminRewards.readOnlyNotice')}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => loadRewards({ silent: true })} disabled={refreshing}>
             <RefreshCw className="w-4 h-4 mr-2" />
-            {refreshing ? '刷新中...' : '刷新'}
+            {refreshing ? t('adminCommon.refreshing') : t('adminCommon.refresh')}
           </Button>
           {/* §2.4 S5：`POST /api/admin/prize/create` 已 410 ⇒ 发布入口删除（页面只读化） */}
         </div>
       </div>
 
       {loading ? (
-        <div className="text-center py-8">加载中...</div>
+        <div className="text-center py-8">{t('adminCommon.loading')}</div>
       ) : (
         <div className="grid gap-4">
           {rewards.map((reward) => (
@@ -223,29 +222,29 @@ const RewardsManagement = () => {
               <CardContent className="p-4">
                 <div className="flex justify-between items-start gap-4">
                   <div className="flex-1">
-                    <h3 className="font-semibold">{reward.name || `奖品 #${reward.bID}`}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{reward.description || '暂无描述'}</p>
+                    <h3 className="font-semibold">{reward.name || t('adminRewards.fallbackName', { id: reward.bID })}</h3>
+                    <p className="text-sm text-gray-600 mt-1">{reward.description || t('adminCommon.noDescription')}</p>
                     <div className="flex gap-2 mt-2 flex-wrap">
-                      <Badge variant="primary">{reward.points} 积分</Badge>
-                      <Badge variant="secondary">总量: {reward.total_quantity || reward.gift_limit || 0}</Badge>
-                      <Badge variant="secondary">库存: {reward.stores_count || 0}</Badge>
-                      <Badge variant="secondary">已兑换: {reward.claims_count || 0}</Badge>
-                      <Badge variant="secondary">当前碎片: {reward.current_shard_supply || 0}</Badge>
+                      <Badge variant="primary">{t('adminCommon.pointsValue', { value: reward.points })}</Badge>
+                      <Badge variant="secondary">{t('adminRewards.total', { value: reward.total_quantity || reward.gift_limit || 0 })}</Badge>
+                      <Badge variant="secondary">{t('adminRewards.stock', { value: reward.stores_count || 0 })}</Badge>
+                      <Badge variant="secondary">{t('adminRewards.claimed', { value: reward.claims_count || 0 })}</Badge>
+                      <Badge variant="secondary">{t('adminRewards.currentShards', { value: reward.current_shard_supply || 0 })}</Badge>
                       {reward.price_floor_enabled && (
-                        <Badge variant="secondary">保底价: {reward.minimum_shard_price || 0} J/片</Badge>
+                        <Badge variant="secondary">{t('adminRewards.floorPrice', { value: reward.minimum_shard_price || 0 })}</Badge>
                       )}
                       <Badge variant="warning">
                         {reward.lifecycle_status === 'circulation'
-                          ? `流通中 ${Math.ceil((reward.circulation_seconds || 0) / 86400)} 天`
+                          ? t('adminRewards.circulating', { days: Math.ceil((reward.circulation_seconds || 0) / 86400) })
                           : reward.lifecycle_status === 'liquidation'
-                            ? `清算中 ${Math.ceil((reward.liquidation_seconds || 0) / 86400)} 天`
-                            : '已过期'}
+                            ? t('adminRewards.liquidating', { days: Math.ceil((reward.liquidation_seconds || 0) / 86400) })
+                            : t('adminRewards.expired')}
                       </Badge>
-                      <Badge variant="secondary">免费碎片: {reward.free_shard_ratio || 0}%</Badge>
+                      <Badge variant="secondary">{t('adminRewards.freeShardsRatio', { value: reward.free_shard_ratio || 0 })}</Badge>
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="ghost" size="sm" onClick={() => openViewModal(reward)} title="查看详情">
+                    <Button variant="ghost" size="sm" onClick={() => openViewModal(reward)} title={t('adminCommon.viewDetail')}>
                       <Eye className="w-4 h-4" />
                     </Button>
                     {/* §2.4 S5：编辑(`admin/prize/update`)/删除(`admin/prize/delete`) 均 410 ⇒ 只留「查看」 */}
@@ -260,13 +259,13 @@ const RewardsManagement = () => {
       <Modal isOpen={isModalOpen} onClose={() => !saving && setIsModalOpen(false)} size="lg">
         <ModalHeader>
           <ModalTitle>
-            {modalMode === 'create' ? '发布奖品' : modalMode === 'edit' ? '编辑奖品' : '奖品详情'}
+            {modalMode === 'create' ? t('adminRewards.modalCreate') : modalMode === 'edit' ? t('adminRewards.modalEdit') : t('adminRewards.modalView')}
           </ModalTitle>
         </ModalHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">符号</label>
+              <label className="block text-sm font-medium mb-2">{t('adminRewards.labelSymbol')}</label>
               <input
                 type="text"
                 value={formState.symbol}
@@ -276,7 +275,7 @@ const RewardsManagement = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">名称</label>
+              <label className="block text-sm font-medium mb-2">{t('adminRewards.labelName')}</label>
               <input
                 type="text"
                 value={formState.name}
@@ -287,7 +286,7 @@ const RewardsManagement = () => {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">描述</label>
+            <label className="block text-sm font-medium mb-2">{t('adminRewards.labelDescription')}</label>
             <textarea
               value={formState.description}
               onChange={(e) => setFormState((prev) => ({ ...prev, description: e.target.value }))}
@@ -297,7 +296,7 @@ const RewardsManagement = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">图片 URL</label>
+            <label className="block text-sm font-medium mb-2">{t('adminRewards.labelImageUrl')}</label>
             <input
               type="text"
               value={formState.url_image}
@@ -308,7 +307,7 @@ const RewardsManagement = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">兑换积分</label>
+              <label className="block text-sm font-medium mb-2">{t('adminRewards.labelPoints')}</label>
               <input
                 type="number"
                 min="0"
@@ -319,7 +318,7 @@ const RewardsManagement = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">保底积分值</label>
+              <label className="block text-sm font-medium mb-2">{t('adminRewards.floorPointsLabel')}</label>
               <input
                 type="number"
                 min="0"
@@ -330,14 +329,14 @@ const RewardsManagement = () => {
               />
               <p className="mt-2 text-xs text-gray-500">
                 {priceFloorEligible
-                  ? `当前配置将把单片最低成交价锁定为 ${minimumShardPrice} J；低于该价格的订单不会成交。`
-                  : '奖品有效期需超过 30 天，才可设置市场保底积分值。'}
+                  ? t('adminRewards.floorPriceHint', { price: minimumShardPrice })
+                  : t('adminRewards.floorPriceIneligible')}
               </p>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">奖品总量</label>
+              <label className="block text-sm font-medium mb-2">{t('adminRewards.labelTotalQuantity')}</label>
               <input
                 type="number"
                 min="1"
@@ -348,15 +347,15 @@ const RewardsManagement = () => {
               />
             </div>
             <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-600">
-              保底单片价：
+              {t('adminRewards.floorPriceLabel')}
               <span className="ml-2 font-semibold text-gray-900">
-                {priceFloorEligible ? `${minimumShardPrice} J` : '未启用'}
+                {priceFloorEligible ? `${minimumShardPrice} J` : t('adminRewards.notEnabled')}
               </span>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">有效开始时间</label>
+              <label className="block text-sm font-medium mb-2">{t('adminRewards.labelStart')}</label>
               <input
                 type="datetime-local"
                 value={formState.time_start}
@@ -366,7 +365,7 @@ const RewardsManagement = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">有效截止时间</label>
+              <label className="block text-sm font-medium mb-2">{t('adminRewards.labelEnd')}</label>
               <input
                 type="datetime-local"
                 value={formState.time_end}
@@ -378,7 +377,7 @@ const RewardsManagement = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">免费碎片比例 (%)</label>
+              <label className="block text-sm font-medium mb-2">{t('adminRewards.labelFreeRatio')}</label>
               <input
                 type="number"
                 min="0"
@@ -391,7 +390,7 @@ const RewardsManagement = () => {
               />
             </div>
             <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-600">
-              最多免费碎片：
+              {t('adminRewards.maxFreeShards')}
               <span className="ml-2 font-semibold text-gray-900">
                 {Math.floor((Number(formState.total_quantity) || 0) * 1000 * ((Number(formState.free_shard_ratio) || 0) / 100))}
               </span>
@@ -400,42 +399,42 @@ const RewardsManagement = () => {
           {selectedReward && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
               <div>
-                <div className="text-xs uppercase tracking-wide text-gray-400">已兑换</div>
+                <div className="text-xs uppercase tracking-wide text-gray-400">{t('adminRewards.statRedeemed')}</div>
                 <div className="mt-1 font-semibold text-gray-900">{selectedReward.issued_quantity || selectedReward.claims_count || 0}</div>
               </div>
               <div>
-                <div className="text-xs uppercase tracking-wide text-gray-400">已兑现</div>
+                <div className="text-xs uppercase tracking-wide text-gray-400">{t('adminRewards.statActivated')}</div>
                 <div className="mt-1 font-semibold text-gray-900">{selectedReward.redeemed_quantity || selectedReward.activated_count || 0}</div>
               </div>
               <div>
-                <div className="text-xs uppercase tracking-wide text-gray-400">可流通碎片上限</div>
+                <div className="text-xs uppercase tracking-wide text-gray-400">{t('adminRewards.statShardCap')}</div>
                 <div className="mt-1 font-semibold text-gray-900">{selectedReward.market_shard_cap || 0}</div>
               </div>
               <div>
-                <div className="text-xs uppercase tracking-wide text-gray-400">保底积分值</div>
+                <div className="text-xs uppercase tracking-wide text-gray-400">{t('adminRewards.floorPointsLabel')}</div>
                 <div className="mt-1 font-semibold text-gray-900">{selectedReward.market_floor_points || 0}</div>
               </div>
               <div>
-                <div className="text-xs uppercase tracking-wide text-gray-400">已送出免费碎片</div>
+                <div className="text-xs uppercase tracking-wide text-gray-400">{t('adminRewards.statFreeDistributed')}</div>
                 <div className="mt-1 font-semibold text-gray-900">{selectedReward.free_shards_distributed || 0}</div>
               </div>
               <div>
-                <div className="text-xs uppercase tracking-wide text-gray-400">剩余免费碎片</div>
+                <div className="text-xs uppercase tracking-wide text-gray-400">{t('adminRewards.statFreeRemaining')}</div>
                 <div className="mt-1 font-semibold text-gray-900">{selectedReward.free_shards_remaining || 0}</div>
               </div>
               <div>
-                <div className="text-xs uppercase tracking-wide text-gray-400">剩余流通空间</div>
+                <div className="text-xs uppercase tracking-wide text-gray-400">{t('adminRewards.statMarketRemaining')}</div>
                 <div className="mt-1 font-semibold text-gray-900">{selectedReward.remaining_market_shards || 0}</div>
               </div>
               <div>
-                <div className="text-xs uppercase tracking-wide text-gray-400">保底单片价</div>
+                <div className="text-xs uppercase tracking-wide text-gray-400">{t('adminRewards.statMinShardPrice')}</div>
                 <div className="mt-1 font-semibold text-gray-900">{selectedReward.minimum_shard_price || 0} J</div>
               </div>
             </div>
           )}
           <div className="flex justify-end gap-3">
             <Button variant="secondary" onClick={() => setIsModalOpen(false)} disabled={saving}>
-              关闭
+              {t('adminCommon.close')}
             </Button>
             {/* §2.4 S5：保存（`admin/prize/create|update`）已 410 ⇒ 保存按钮删除（模态框为只读详情） */}
           </div>
