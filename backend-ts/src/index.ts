@@ -1742,7 +1742,9 @@ app.post('/api/translate/backfill', async (req, res) => {
   const body = (req.body as Record<string, unknown> | undefined) || {};
   const rawLimit = body.limit ?? req.query?.limit;
   const parsedLimit = Number(rawLimit);
-  const limit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? Math.min(100, Math.floor(parsedLimit)) : 20;
+  // 默认 100（P6-TR-1c-FIX-FIN）：存量 276 行量级 + cron 每日 1 次，默认 20 需两周才能清完；
+  //   真正的成本闸是 TRANSLATE_DAILY_ITEM_CAP=500（每日条目上限），故默认放到上限 100（**上限不变**）。
+  const limit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? Math.min(100, Math.floor(parsedLimit)) : 100;
 
   const rawMode = String(body.mode ?? req.query?.mode ?? '').trim().toLowerCase();
   const rawScan = body.scan ?? req.query?.scan;
