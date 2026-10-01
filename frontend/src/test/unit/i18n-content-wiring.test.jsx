@@ -24,13 +24,17 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const BADGE = 'TR2-翻译中小标'
 const stableT = (key) => (key === 'i18n.translating' ? BADGE : key)
-const stableI18n = { changeLanguage: vi.fn(), resolvedLanguage: 'en', language: 'en' }
+// TR-FIX：当前语言可切换（zh 档不渲染小标）——`vi.hoisted` 使 mock 工厂与用例共享同一可变对象
+const state = vi.hoisted(() => ({ feedRows: [], lang: 'en' }))
+const stableI18n = {
+  changeLanguage: vi.fn(),
+  get resolvedLanguage() { return state.lang },
+  get language() { return state.lang },
+}
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: stableT, i18n: stableI18n }),
 }))
-
-const state = vi.hoisted(() => ({ feedRows: [] }))
 
 vi.mock('../../auth', () => ({
   fetchApiJson: vi.fn(async (url) => (String(url).includes('/api/prize/all') ? state.feedRows : [])),
@@ -122,9 +126,35 @@ describe('TR-2 · 「翻译中」小标判据 + 组件', () => {
   })
 })
 
+// TR-FIX：小标仅在**非 zh 档**渲染（zh = 源语言，原文即本档，提示无意义）
+describe('TR-FIX · 「翻译中」小标仅非 zh 档渲染', () => {
+  beforeEach(() => { state.lang = 'en' })
+
+  it('zh 档 + `i18n_status:"partial"` ⇒ 无小标（源语言档）', () => {
+    state.lang = 'zh'
+    const { container } = render(<TranslatingBadge status="partial" />)
+    expect(container.textContent).toBe('')
+    expect(container.querySelector('[data-sf-m="i18n-translating"]')).toBeNull()
+  })
+
+  it('en 档 + `pending` ⇒ 有小标', () => {
+    state.lang = 'en'
+    const { container } = render(<TranslatingBadge status="pending" />)
+    expect(container.textContent).toContain(BADGE)
+    expect(container.querySelector('[data-sf-m="i18n-translating"]')).not.toBeNull()
+  })
+
+  it('en 档 + `ready` ⇒ 无小标', () => {
+    state.lang = 'en'
+    const { container } = render(<TranslatingBadge status="ready" />)
+    expect(container.textContent).toBe('')
+  })
+})
+
 describe('TR-2 · 页面接线（商品列表页，`/en/` 档）', () => {
   beforeEach(() => {
     state.feedRows = []
+    state.lang = 'en'
   })
 
   it('en 档 + `i18n_status:"ready"`：渲染 `name_en`（English），**不**渲染中文原文，小标不可见', async () => {
@@ -154,13 +184,14 @@ describe('TR-2 · 页面接线（商品列表页，`/en/` 档）', () => {
   })
 
   it('zh 档（无语言前缀）⇒ 只认无后缀字段：译文不进中文档、无小标', async () => {
+    state.lang = 'zh'
     state.feedRows = [{ bID: 14, name: '中文', name_en: 'English', i18n_status: 'partial' }]
     renderListings('/listing')
 
     expect(await screen.findByText('中文')).toBeInTheDocument()
     expect(screen.queryByText('English')).toBeNull()
-    // `zh` 档不需要翻译提示（本档即原文）⇒ 小标仍按 `i18n_status` 渲染，此处仅钉「pending/partial 才渲染」
-    expect(document.querySelectorAll('[data-sf-m="i18n-translating"]').length).toBe(1)
+    // TR-FIX：`zh` = 源语言 ⇒ 原文即本档，「翻译中」小标不显示
+    expect(document.querySelectorAll('[data-sf-m="i18n-translating"]').length).toBe(0)
   })
 })
 

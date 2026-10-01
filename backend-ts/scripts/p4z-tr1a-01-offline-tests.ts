@@ -231,8 +231,9 @@ async function main(): Promise<void> {
     t('E4', 'cap', s.rows.get('job|1|title|en')!.attempts === 0, 'attempts 不烧(0)', s.rows.get('job|1|title|en')!.attempts);
   }
   {
-    // 边界：used(1) + projected(2) = 3 = cap ⇒ 不超限 ⇒ 放行
-    const s = new MemStore(1);
+    // 边界：used(0) + projected(3) = 3 = cap ⇒ 不超限 ⇒ 放行
+    //   （TR-1b：projected = fields.length(1) × TARGET_LANGS.length(3) = 3；hk 亦占额度）
+    const s = new MemStore(0);
     const f = new SeqFetch([envelope(OK_RESP)]);
     const r = await translateFields({ title: SRC }, { entityType: 'job', entityId: '1', store: s, config: mkCfg({ daily_item_cap: 3 }), fetchImpl: f.fn });
     t('E5', 'cap', r.deferred === false && f.calls === 1, '边界放行(deferred=false, calls=1)', `${r.deferred}/${f.calls}`);
@@ -253,7 +254,9 @@ async function main(): Promise<void> {
     const r = await translateFields({ title: SRC }, { entityType: 'job', entityId: '1', store: s, engine: 'stub', config: mkCfg({ engine: 'stub' }), onWarn: () => undefined });
     t('G1', 'stub', r.texts.title.en === '[en] ' + SRC, `[en] ${SRC}`, r.texts.title.en);
     t('G2', 'stub', r.statuses.title.vn === 'ready' && r.texts.title.vn === '[vn] ' + SRC, 'vn ready', `${r.statuses.title.vn}/${r.texts.title.vn}`);
-    t('G3', 'stub', s.cache.size === 2, '缓存写入 2 条', s.cache.size);
+    t('G3', 'stub', s.cache.size === 3, '缓存写入 3 条(en/vn/hk)', s.cache.size);
+    const g3hk = s.cache.get(`${sha256Hex(SRC)}|zh|hk`);
+    t('G3-hk', 'stub', !!g3hk && g3hk.engine === 'opencc' && g3hk.text_out === toTraditional(SRC), "stub 路径 hk 缓存行 engine='opencc'/繁体", g3hk ? `${g3hk.engine}/${g3hk.text_out}` : 'MISSING');
     const row = s.rows.get('job|1|title|en')!;
     t('G4', 'stub', row.status === 'ready' && row.text === '[en] ' + SRC && row.attempts === 0, 'content_translation 行 = ready/有正文/attempts 0', JSON.stringify(row));
     t('G5', 'stub', stubTranslate(SRC, 'en') === '[en] ' + SRC, 'stub 确定性', stubTranslate(SRC, 'en'));
@@ -261,7 +264,7 @@ async function main(): Promise<void> {
     const gv = validateValue(SRC, 'en', '[en] ' + SRC);
     t('G6', 'stub', gv.ok === false && gv.reason === 'CHARSET', 'stub 输出判负(证明校验非恒真)', `${gv.ok}/${gv.reason}`);
     const r2 = await translateFields({ title: SRC }, { entityType: 'job', entityId: '1', store: s, engine: 'stub', config: mkCfg({ engine: 'stub' }), onWarn: () => undefined });
-    t('G7', 'stub', s.cache.size === 2 && r2.texts.title.en === '[en] ' + SRC, '二次运行幂等(缓存不变)', s.cache.size);
+    t('G7', 'stub', s.cache.size === 3 && r2.texts.title.en === '[en] ' + SRC, '二次运行幂等(缓存不变, 仍 3 条)', s.cache.size);
   }
 
   // ===== H deepseek 路径 =====
@@ -271,7 +274,9 @@ async function main(): Promise<void> {
     const r = await translateFields({ title: SRC }, { entityType: 'job', entityId: '1', store: s, config: mkCfg(), fetchImpl: f.fn });
     t('H1', 'deepseek', f.calls === 1 && r.statuses.title.en === 'ready' && r.statuses.title.vn === 'ready', 'ready/ready, calls=1', `${f.calls}/${r.statuses.title.en}/${r.statuses.title.vn}`);
     t('H2', 'deepseek', (f.lastBody.includes('json_object')) && (f.lastBody.includes('"temperature":0.2')), 'response_format=json_object + 低温度', f.lastBody.slice(0, 300));
-    t('H3', 'deepseek', s.cache.size === 2, '缓存写入 2 条', s.cache.size);
+    t('H3', 'deepseek', s.cache.size === 3, '缓存写入 3 条(en/vn/hk)', s.cache.size);
+    const h3hk = s.cache.get(`${sha256Hex(SRC)}|zh|hk`);
+    t('H3-hk', 'deepseek', !!h3hk && h3hk.engine === 'opencc' && h3hk.text_out === toTraditional(SRC), "hk 缓存行 engine='opencc'/繁体", h3hk ? `${h3hk.engine}/${h3hk.text_out}` : 'MISSING');
   }
   {
     // 键缺 ⇒ 不写脏数据
@@ -280,7 +285,8 @@ async function main(): Promise<void> {
     const r = await translateFields({ title: SRC }, { entityType: 'job', entityId: '1', store: s, config: mkCfg(), fetchImpl: f.fn });
     t('H4', 'deepseek', r.statuses.title.en === 'failed' && r.errors.title.en === 'KEY_SET_MISMATCH', 'failed/KEY_SET_MISMATCH', `${r.statuses.title.en}/${r.errors.title.en}`);
     t('H5', 'deepseek', s.rows.get('job|1|title|en')!.text === null, '行正文为 NULL(不写脏数据)', String(s.rows.get('job|1|title|en')!.text));
-    t('H6', 'deepseek', s.cache.size === 0, '失败不写缓存', s.cache.size);
+    const h6hk = s.cache.get(`${sha256Hex(SRC)}|zh|hk`);
+    t('H6', 'deepseek', s.cache.size === 1 && !!h6hk && h6hk.engine === 'opencc', '失败不写 LLM 缓存；hk 确定性转换仍写 1 条(opencc)', `${s.cache.size}/${h6hk ? h6hk.engine : 'MISSING'}`);
   }
   {
     // 模型不存在 ⇒ MODEL_NOT_AVAILABLE（且不阻塞、不抛穿）
@@ -330,6 +336,21 @@ async function main(): Promise<void> {
       entityType: 'job', entityId: '1', store: s, config: mkCfg(), fetchImpl: f.fn, apiKey: '',
     });
     t('H15', 'deepseek', f.calls === 0 && r.errors.title.en === REASON.NO_API_KEY, 'NO_API_KEY + 不调用', `${f.calls}/${r.errors.title.en}`);
+  }
+
+  // ===== HK hk 维度正向断言（TR-1b：hk = OpenCC 确定性简繁转换，不走 LLM、不付费） =====
+  {
+    const s = new MemStore();
+    const f = new SeqFetch([envelope(OK_RESP)]); // OK_RESP 仅含 en/vn 译文
+    const r = await translateFields({ title: SRC }, { entityType: 'job', entityId: 'hk1', store: s, config: mkCfg(), fetchImpl: f.fn });
+    const hkRow = s.rows.get('job|hk1|title|hk')!;
+    t('HK1', 'hk', hkRow.status === 'ready' && hkRow.text === toTraditional(SRC), 'hk 行落库 ready 且为繁体', `${hkRow.status}/${hkRow.text}`);
+    t('HK2', 'hk', hkRow.text === '招聘服務員', '繁体「招聘服務員」', String(hkRow.text));
+    t('HK3', 'hk', r.statuses.title.hk === 'ready' && r.texts.title.hk === '招聘服務員', 'hk texts/status ready', `${r.statuses.title.hk}/${r.texts.title.hk}`);
+    const hkCache = s.cache.get(`${sha256Hex(SRC)}|zh|hk`);
+    t('HK4', 'hk', !!hkCache && hkCache.engine === 'opencc', "hk 缓存行 engine='opencc'", hkCache ? hkCache.engine : 'MISSING');
+    // LLM 目标集不含 hk ⇒ 一次调用只服务 en/vn ⇒ hk 零 LLM 调用、零付费
+    t('HK5', 'hk', f.calls === 1 && (TRANSLATE_TARGETS as ReadonlyArray<string>).indexOf('hk') === -1, 'hk 不产生 LLM 调用(calls=1; LLM 目标集无 hk)', `${f.calls}/[${(TRANSLATE_TARGETS as ReadonlyArray<string>).join(',')}]`);
   }
 
   // ===== I backfillPending =====
