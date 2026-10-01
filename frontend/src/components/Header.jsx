@@ -116,9 +116,9 @@ const Header = () => {
   const menuItems = [
     { path: 'reward', label: t('reward') },
     { path: 'task', label: t('task') },
-    { path: 'shard', label: t('shard') || '碎片市场' },
+    { path: 'shard', label: t('shard') },
     ...(isAuthenticated ? [{ path: 'profile', label: t('profile') }] : []),
-    ...(isAuthenticated && isAdmin ? [{ path: adminPath, label: t('admin_panel') || '管理面板', absolute: true }] : [])
+    ...(isAuthenticated && isAdmin ? [{ path: adminPath, label: t('admin_panel'), absolute: true }] : [])
   ]
 
   // 构建带语言前缀的路径（前缀逻辑统一走 utils，避免自造前缀/尾斜杠）
@@ -193,7 +193,7 @@ const Header = () => {
                 onClick={() => changeLanguage('zh')}
                 className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${getCurrentLang() === 'zh' ? 'bg-gray-100 dark:bg-gray-700 font-medium' : ''}`}
               >
-                <img src={cnFlag} alt="中文" className="inline-block w-5 h-3 mr-2 align-middle rounded-sm shadow-sm" />
+                <img src={cnFlag} alt={t('chinese')} className="inline-block w-5 h-3 mr-2 align-middle rounded-sm shadow-sm" />
                 {t('chinese')}
               </button>
               <button
@@ -207,7 +207,7 @@ const Header = () => {
                 onClick={() => changeLanguage('hk')}
                 className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${getCurrentLang() === 'hk' ? 'bg-gray-100 dark:bg-gray-700 font-medium' : ''}`}
               >
-                <img src={hkFlag} alt="粵語" className="inline-block w-5 h-3 mr-2 align-middle rounded-sm shadow-sm" />
+                <img src={hkFlag} alt={t('cantonese')} className="inline-block w-5 h-3 mr-2 align-middle rounded-sm shadow-sm" />
                 {t('cantonese')}
               </button>
               <button
@@ -246,7 +246,7 @@ const Header = () => {
                 <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                      社区积分
+                      {t('common.communityPoints')}
                     </span>
                     <div className="flex items-center gap-1">
                       <span className="text-gray-900 dark:text-white font-medium">
@@ -364,7 +364,7 @@ const Header = () => {
                   }}
                   className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'zh' ? 'bg-gray-100 dark:bg-gray-700 font-medium' : 'text-gray-600 dark:text-gray-300'}`}
                 >
-                  <img src={cnFlag} alt="中文" className="inline-block w-5 h-3 mr-2 rounded-sm shadow-sm" />
+                  <img src={cnFlag} alt={t('chinese')} className="inline-block w-5 h-3 mr-2 rounded-sm shadow-sm" />
                   {t('chinese')}
                 </button>
               <button
@@ -384,7 +384,7 @@ const Header = () => {
                   }}
                   className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'hk' ? 'bg-gray-100 dark:bg-gray-700 font-medium' : 'text-gray-600 dark:text-gray-300'}`}
                 >
-                  <img src={hkFlag} alt="粵語" className="inline-block w-5 h-3 mr-2 rounded-sm shadow-sm" />
+                  <img src={hkFlag} alt={t('cantonese')} className="inline-block w-5 h-3 mr-2 rounded-sm shadow-sm" />
                   {t('cantonese')}
                 </button>
               <button

@@ -54,30 +54,30 @@
   "copyright": "© 2024-2026 Abbey Quant & Jinli Club. All rights reserved.",
   "CanClaim": "Claim Now",
   "CanActive": "Active Now",
-  "Actived": "Actived"
-  ,"slogan": "Wealth is like the sea; the wise swim well. Come here to be a true lucky koi."
-  ,"giftStatusHours": "Hours left"
-  ,"giftStatusDays": "Days left"
-  ,"giftStatusWeeks": "Weeks left"
-  ,"giftStatusLimited": "Limited"
-  ,"timeClaimed": "Time Claimed"
-  ,"sessionExpired": "Session expired, please log in again"
-  ,"completeTask": "Complete Task"
-  ,"enterTaskInfo": "Please enter task completion info"
-  ,"taskLink": "Task Link"
-  ,"submitting": "Submitting..."
-  ,"pleaseLogin": "Please log in first"
-  ,"info_input": "Submitted Info"
-  ,"admin_panel": "Admin Panel"
-  ,"auth": {
+  "Actived": "Actived",
+  "slogan": "Wealth is like the sea; the wise swim well. Come here to be a true lucky koi.",
+  "giftStatusHours": "Hours left",
+  "giftStatusDays": "Days left",
+  "giftStatusWeeks": "Weeks left",
+  "giftStatusLimited": "Limited",
+  "timeClaimed": "Time Claimed",
+  "sessionExpired": "Session expired, please log in again",
+  "completeTask": "Complete Task",
+  "enterTaskInfo": "Please enter task completion info",
+  "taskLink": "Task Link",
+  "submitting": "Submitting...",
+  "pleaseLogin": "Please log in first",
+  "info_input": "Submitted Info",
+  "admin_panel": "Admin Panel",
+  "auth": {
     "err": {
       "AUTH_UNAUTHORIZED": "Your sign-in credential is invalid or has expired. Please sign in again.",
       "AUTH_FORBIDDEN": "This account is not allowed to perform this action.",
       "INVALID_WALLET_SIGNATURE": "The wallet signature is invalid. Please sign again to log in.",
       "SIGNATURE_ADDRESS_MISMATCH": "The signed account is not the one that was claimed. Please switch accounts and retry."
     }
-  }
-  ,"jobs": {
+  },
+  "jobs": {
     "line": "Jobs",
     "list": "Job board",
     "publish": "Post a job",
@@ -112,8 +112,8 @@
     "approveOk": "Approved and paid out",
     "rejectOk": "Rejected and escrow refunded",
     "queueEmpty": "Nothing pending review"
-  }
-  ,"listings": {
+  },
+  "listings": {
     "line": "Listings",
     "list": "Listings",
     "listNote": "Read face = GET /api/prize/all (registered; source already switched to the listing table: bID=listing_id, name=title, points=price).",
@@ -150,8 +150,8 @@
     "refundStockNote": "A refund returns money only; listing.stock is not rolled back.",
     "orderId": "Order id",
     "refundNeedId": "Enter an order id first"
-  }
-  ,"market": {
+  },
+  "market": {
     "line": "Exchange",
     "title": "Points exchange",
     "note": "Quotes, order book and trades are public read faces; placing and cancelling orders require sign-in. The quote currency is always cid 1 server-side.",
@@ -181,14 +181,53 @@
     "amount": "Amount",
     "refresh": "Refresh",
     "quoteNote": "Quote currency = $ (cid=1)"
-  }
-  ,"ledger": {
+  },
+  "ledger": {
     "balance": "Balance",
     "balanceNote": "Read from /api/user/asset/:uID (registered endpoint).",
     "flow": "Statement",
     "flowEmpty": "The ledger statement endpoint is not registered yet, so nothing is shown (logged)."
-  }
-  ,"i18n": {
+  },
+  "i18n": {
     "translating": "Translating"
+  },
+  "common": {
+    "viewAll": "View all",
+    "communityPoints": "Community points",
+    "verifyingPermission": "Verifying permissions...",
+    "ongoing": "Ongoing",
+    "ended": "Ended",
+    "joinNow": "Join now",
+    "redeemed": "Redeemed",
+    "outOfStock": "Out of stock"
+  },
+  "homePage": {
+    "welcome": "Welcome to Jinli Club",
+    "loading": "Loading highlights...",
+    "hotTasks": "Hot tasks",
+    "hotTasksLead": "Complete tasks to earn",
+    "featuredRewards": "Featured rewards",
+    "featuredLead": "Redeem",
+    "featuredTail": "for great gifts",
+    "heroLead": "Complete tasks, earn",
+    "heroTail": "and redeem great rewards",
+    "noTasks": "No tasks available",
+    "noRewards": "No rewards available",
+    "browseRewards": "Browse rewards",
+    "continueTask": "Continue tasks",
+    "registerNow": "Sign up now",
+    "rewardAlreadyClaimed": "You have already redeemed this reward",
+    "rewardOutOfStock": "This reward is out of stock",
+    "notEnoughPoints": "Not enough points",
+    "redeemComingSoon": "The redemption portal is coming soon; check the Reward Center for details",
+    "loadFailed": "Failed to load the home page: {{message}}"
+  },
+  "footer": {
+    "websiteLanguages": "This website supports Simplified Chinese, English, Cantonese and Vietnamese.",
+    "contact": "Contact us: {{email}}",
+    "catSlogan1": "猫猫大使团｜不止一份报酬，更加一份经验。",
+    "catSlogan2": "猫猫大使团｜你的声音，值得被品牌听见。",
+    "catSlogan3": "你的代言，从猫猫大使团开始。",
+    "cloudSlogan": "云朵计划｜播种童年梦想，浇灌美和希望。"
   }
 }

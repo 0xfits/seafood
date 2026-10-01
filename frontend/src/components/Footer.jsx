@@ -3,18 +3,13 @@ import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
 import { buildLangPath, getLanguageFromUrl } from '../utils'
 
-// CAT 品牌描述文案（随机选择）
-const catDescriptions = [
-  '猫猫大使团｜不止一份报酬，更加一份经验。',
-  '猫猫大使团｜你的声音，值得被品牌听见。',
-  '你的代言，从猫猫大使团开始。'
-]
+// 联系邮箱为品牌常量：仅标签走 t()，邮箱本体保持字面量（P6-I18N-LIT-B1）
+const CONTACT_EMAIL = 'contact@jinli.club'
 
-// 获取随机描述
-const getRandomCatDescription = () => {
-  const randomIndex = Math.floor(Math.random() * catDescriptions.length)
-  return catDescriptions[randomIndex]
-}
+// 合作品牌（P6-I18N-LIT-B1）：品牌中文 slogan 不译 => 四语同值（语言不变式）；
+// 随机选中项在模块加载时固定，避免每次渲染换文案。
+const CAT_SLOGAN_KEYS = ['footer.catSlogan1', 'footer.catSlogan2', 'footer.catSlogan3']
+const randomCatSloganKey = CAT_SLOGAN_KEYS[Math.floor(Math.random() * CAT_SLOGAN_KEYS.length)]
 
 // 合作品牌数据
 const partnerBrands = [
@@ -22,13 +17,13 @@ const partnerBrands = [
     name: 'CAT',
     url: 'https://catcat.meme',
     image: '/images/partners/CAT_banner.png',
-    description: getRandomCatDescription()
+    descriptionKey: randomCatSloganKey
   },
   {
     name: 'CloudPlan',
     url: 'https://www.yunduojihua.com',
     image: '/images/partners/CloudPlan_banner.png',
-    description: '云朵计划｜播种童年梦想，浇灌美和希望。'
+    descriptionKey: 'footer.cloudSlogan'
   }
 ]
 
@@ -60,13 +55,13 @@ const Footer = () => {
                 href={brand.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                title={brand.description}
+                title={t(brand.descriptionKey)}
                 className="group block rounded-lg overflow-hidden relative"
               >
                 <div className="bg-bg-primary border border-border-color border-l-[5px] border-l-border hover:border-l-[#b6beca] transition-colors duration-300 image-area group-hover:shadow-md">
                   <img
                     src={brand.image}
-                    alt={brand.description || brand.name}
+                    alt={t(brand.descriptionKey) || brand.name}
                     width="160"
                     height="50"
                     className="h-[50px] w-auto object-contain"
@@ -98,20 +93,14 @@ const Footer = () => {
             {t('copyright')}
           </p>
           <p className="text-xs text-text-muted mt-2">
-            {getCurrentLang() === 'zh' && '本网站支持简体中文、英文、粤语和越南语。'} 
-            {getCurrentLang() === 'en' && 'This website supports Simplified Chinese, English, Cantonese and Vietnamese.'} 
-            {getCurrentLang() === 'hk' && '本網站支持簡體中文、英文、粵語和越南語。'} 
-            {getCurrentLang() === 'vn' && 'Trang web này hỗ trợ tiếng Trung giản thế, tiếng Anh, tiếng Quảng Đông và tiếng Việt.'}
+            {t('footer.websiteLanguages')}
           </p>
         </div>
         
         {/* 联系信息 */}
         <div className="mt-6 text-center">
           <p className="text-sm text-text-secondary">
-            {getCurrentLang() === 'zh' && '联系我们：contact@jinli.club'} 
-            {getCurrentLang() === 'en' && 'Contact us: contact@jinli.club'} 
-            {getCurrentLang() === 'hk' && '聯繫我們：contact@jinli.club'} 
-            {getCurrentLang() === 'vn' && 'Liên hệ với chúng tôi: contact@jinli.club'}
+            {t('footer.contact', { email: CONTACT_EMAIL })}
           </p>
         </div>
       </div>

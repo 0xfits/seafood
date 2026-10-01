@@ -52,32 +52,32 @@
   "copyright": "© 2024-2026 Abbey Quant & Jinli Club. Tất cả quyền bảo lưu.",
   "CanClaim": "Nhận ngay",
   "CanActive": "Kích hoạt ngay",
-  "Actived": "Đang sử dụng"
-  ,"slogan": "Tài phú như biển, người khôn biết bơi; đến đây để trở thành một chú cá koi may mắn thực thụ."
-  ,"giftStatusHours": "Còn lại theo giờ"
-  ,"giftStatusDays": "Còn lại theo ngày"
-  ,"giftStatusWeeks": "Còn lại theo tuần"
-  ,"giftStatusLimited": "Giới hạn"
-  ,"timeClaimed": "Thời gian nhận"
-  ,"register": "Đăng ký"
-  ,"cryptoNews": "Tin tức Crypto"
-  ,"sessionExpired": "Phiên đăng nhập hết hạn, vui lòng đăng nhập lại"
-  ,"completeTask": "Hoàn thành nhiệm vụ"
-  ,"enterTaskInfo": "Vui lòng nhập thông tin hoàn thành nhiệm vụ"
-  ,"taskLink": "Liên kết nhiệm vụ"
-  ,"submitting": "Đang gửi..."
-  ,"pleaseLogin": "Vui lòng đăng nhập trước"
-  ,"info_input": "Nội dung đã gửi"
-  ,"admin_panel": "Bảng quản trị"
-  ,"auth": {
+  "Actived": "Đang sử dụng",
+  "slogan": "Tài phú như biển, người khôn biết bơi; đến đây để trở thành một chú cá koi may mắn thực thụ.",
+  "giftStatusHours": "Còn lại theo giờ",
+  "giftStatusDays": "Còn lại theo ngày",
+  "giftStatusWeeks": "Còn lại theo tuần",
+  "giftStatusLimited": "Giới hạn",
+  "timeClaimed": "Thời gian nhận",
+  "register": "Đăng ký",
+  "cryptoNews": "Tin tức Crypto",
+  "sessionExpired": "Phiên đăng nhập hết hạn, vui lòng đăng nhập lại",
+  "completeTask": "Hoàn thành nhiệm vụ",
+  "enterTaskInfo": "Vui lòng nhập thông tin hoàn thành nhiệm vụ",
+  "taskLink": "Liên kết nhiệm vụ",
+  "submitting": "Đang gửi...",
+  "pleaseLogin": "Vui lòng đăng nhập trước",
+  "info_input": "Nội dung đã gửi",
+  "admin_panel": "Bảng quản trị",
+  "auth": {
     "err": {
       "AUTH_UNAUTHORIZED": "Phiên đăng nhập không hợp lệ hoặc đã hết hạn, vui lòng đăng nhập lại.",
       "AUTH_FORBIDDEN": "Tài khoản hiện tại không có quyền thực hiện thao tác này.",
       "INVALID_WALLET_SIGNATURE": "Chữ ký ví không hợp lệ, vui lòng ký lại để đăng nhập.",
       "SIGNATURE_ADDRESS_MISMATCH": "Chữ ký không khớp với địa chỉ ví đã khai báo, vui lòng chuyển lại đúng tài khoản ví rồi thử lại."
     }
-  }
-  ,"jobs": {
+  },
+  "jobs": {
     "line": "Tuyển việc",
     "list": "Bảng tuyển việc",
     "publish": "Đăng việc",
@@ -112,8 +112,8 @@
     "approveOk": "Đã duyệt và trả tiền",
     "rejectOk": "Đã từ chối và hoàn ký quỹ",
     "queueEmpty": "Không có mục chờ duyệt"
-  }
-  ,"listings": {
+  },
+  "listings": {
     "line": "Dòng hàng hoá",
     "list": "Danh sách hàng hoá",
     "listNote": "Mặt đọc = GET /api/prize/all (đã đăng ký; nguồn đọc đã đổi sang bảng listing: bID=listing_id, name=title, points=price).",
@@ -150,8 +150,8 @@
     "refundStockNote": "Hoàn tiền chỉ trả tiền, không hoàn lại listing.stock.",
     "orderId": "Mã đơn",
     "refundNeedId": "Hãy nhập mã đơn trước"
-  }
-  ,"market": {
+  },
+  "market": {
     "line": "Dòng sàn giao dịch",
     "title": "Sàn điểm",
     "note": "Giá, sổ lệnh và giao dịch là mặt đọc công khai; đặt và huỷ lệnh cần đăng nhập. quote_cid luôn là 1 ở máy chủ.",
@@ -181,14 +181,53 @@
     "amount": "Khối lượng",
     "refresh": "Tải lại",
     "quoteNote": "Tiền định giá = $ (cid=1)"
-  }
-  ,"ledger": {
+  },
+  "ledger": {
     "balance": "Số dư",
     "balanceNote": "Đọc từ /api/user/asset/:uID (endpoint đã đăng ký).",
     "flow": "Sao kê",
     "flowEmpty": "Endpoint sao kê sổ cái chưa đăng ký nên chưa hiển thị (đã ghi nhận)."
-  }
-  ,"i18n": {
+  },
+  "i18n": {
     "translating": "Đang dịch"
+  },
+  "common": {
+    "viewAll": "Xem tất cả",
+    "communityPoints": "Điểm cộng đồng",
+    "verifyingPermission": "Đang xác minh quyền...",
+    "ongoing": "Đang diễn ra",
+    "ended": "Đã kết thúc",
+    "joinNow": "Tham gia ngay",
+    "redeemed": "Đã đổi",
+    "outOfStock": "Hết hàng"
+  },
+  "homePage": {
+    "welcome": "Chào mừng đến Jinli Club",
+    "loading": "Đang tải nội dung...",
+    "hotTasks": "Nhiệm vụ nổi bật",
+    "hotTasksLead": "Tham gia nhiệm vụ để kiếm",
+    "featuredRewards": "Phần thưởng nổi bật",
+    "featuredLead": "Dùng",
+    "featuredTail": "để đổi quà hấp dẫn",
+    "heroLead": "Tham gia nhiệm vụ, kiếm",
+    "heroTail": "và đổi phần thưởng hấp dẫn",
+    "noTasks": "Chưa có nhiệm vụ",
+    "noRewards": "Chưa có phần thưởng",
+    "browseRewards": "Xem phần thưởng",
+    "continueTask": "Tiếp tục nhiệm vụ",
+    "registerNow": "Đăng ký ngay",
+    "rewardAlreadyClaimed": "Bạn đã đổi phần thưởng này rồi",
+    "rewardOutOfStock": "Phần thưởng này đã hết hàng",
+    "notEnoughPoints": "Không đủ điểm",
+    "redeemComingSoon": "Cổng đổi thưởng sắp ra mắt, vui lòng xem Trung tâm phần thưởng để biết chi tiết",
+    "loadFailed": "Tải trang chủ thất bại: {{message}}"
+  },
+  "footer": {
+    "websiteLanguages": "Trang web này hỗ trợ tiếng Trung giản thế, tiếng Anh, tiếng Quảng Đông và tiếng Việt.",
+    "contact": "Liên hệ với chúng tôi: {{email}}",
+    "catSlogan1": "猫猫大使团｜不止一份报酬，更加一份经验。",
+    "catSlogan2": "猫猫大使团｜你的声音，值得被品牌听见。",
+    "catSlogan3": "你的代言，从猫猫大使团开始。",
+    "cloudSlogan": "云朵计划｜播种童年梦想，浇灌美和希望。"
   }
 }

@@ -53,31 +53,31 @@
   "copyright": "© 2024-2026 Abbey Quant & Jinli Club. 保留所有權利。",
   "CanClaim": "立即領取",
   "CanActive": "立即激活",
-  "Actived": "使用中"
-  ,"slogan": "財富如海，智者善泳，嚟呢度做一條真正嘅錦鯉。"
-  ,"giftStatusHours": "剩餘小時"
-  ,"giftStatusDays": "剩餘天數"
-  ,"giftStatusWeeks": "剩餘週數"
-  ,"giftStatusLimited": "限時"
-  ,"timeClaimed": "領取時間"
-  ,"register": "注冊"
-  ,"sessionExpired": "登錄已過期，請重新登錄"
-  ,"completeTask": "完成任務"
-  ,"enterTaskInfo": "請輸入任務完成信息"
-  ,"taskLink": "任務鏈接"
-  ,"submitting": "提交中..."
-  ,"pleaseLogin": "請先登錄"
-  ,"info_input": "提交內容"
-  ,"admin_panel": "管理面板"
-  ,"auth": {
+  "Actived": "使用中",
+  "slogan": "財富如海，智者善泳，嚟呢度做一條真正嘅錦鯉。",
+  "giftStatusHours": "剩餘小時",
+  "giftStatusDays": "剩餘天數",
+  "giftStatusWeeks": "剩餘週數",
+  "giftStatusLimited": "限時",
+  "timeClaimed": "領取時間",
+  "register": "注冊",
+  "sessionExpired": "登錄已過期，請重新登錄",
+  "completeTask": "完成任務",
+  "enterTaskInfo": "請輸入任務完成信息",
+  "taskLink": "任務鏈接",
+  "submitting": "提交中...",
+  "pleaseLogin": "請先登錄",
+  "info_input": "提交內容",
+  "admin_panel": "管理面板",
+  "auth": {
     "err": {
       "AUTH_UNAUTHORIZED": "登錄憑證無效或已過期，請重新登錄。",
       "AUTH_FORBIDDEN": "當前帳號無權執行該操作。",
       "INVALID_WALLET_SIGNATURE": "錢包簽名無效，請重新簽名再登入。",
       "SIGNATURE_ADDRESS_MISMATCH": "簽名同所聲明嘅錢包地址唔一致，請轉返正確嘅錢包帳號再試。"
     }
-  }
-  ,"jobs": {
+  },
+  "jobs": {
     "line": "招工線",
     "list": "招工列表",
     "publish": "發佈招工",
@@ -112,8 +112,8 @@
     "approveOk": "已通過並完成發放",
     "rejectOk": "已駁回並退回托管",
     "queueEmpty": "暫無待審核項"
-  }
-  ,"listings": {
+  },
+  "listings": {
     "line": "商品線",
     "list": "商品列表",
     "listNote": "讀面 = GET /api/prize/all（已註冊；讀側已換源 listing 表：bID=listing_id、name=title、points=price）。",
@@ -150,8 +150,8 @@
     "refundStockNote": "退款只退錢、不回滾 listing.stock。",
     "orderId": "訂單號",
     "refundNeedId": "請先填訂單號"
-  }
-  ,"market": {
+  },
+  "market": {
     "line": "交易所線",
     "title": "積分交易所",
     "note": "行情／盤口／成交流水為公開只讀面；掛單與撤單需登入。計價幣 quote_cid 伺服器恆 1。",
@@ -181,14 +181,53 @@
     "amount": "數量",
     "refresh": "重新整理",
     "quoteNote": "報價幣 = $（cid=1）"
-  }
-  ,"ledger": {
+  },
+  "ledger": {
     "balance": "餘額",
     "balanceNote": "讀數 = /api/user/asset/:uID（已註冊讀口）。",
     "flow": "流水",
     "flowEmpty": "賬本流水讀口尚未註冊，暫不展示（已登記）。"
-  }
-  ,"i18n": {
+  },
+  "i18n": {
     "translating": "翻譯中"
+  },
+  "common": {
+    "viewAll": "查看全部",
+    "communityPoints": "社群積分",
+    "verifyingPermission": "正在驗證權限...",
+    "ongoing": "進行中",
+    "ended": "已結束",
+    "joinNow": "即刻參加",
+    "redeemed": "已兌換",
+    "outOfStock": "庫存不足"
+  },
+  "homePage": {
+    "welcome": "歡迎嚟到 Jinli Club",
+    "loading": "載入緊精彩內容...",
+    "hotTasks": "熱門任務",
+    "hotTasksLead": "參與任務賺取",
+    "featuredRewards": "精選獎勵",
+    "featuredLead": "用",
+    "featuredTail": "兌換精彩禮品",
+    "heroLead": "參與任務，賺取",
+    "heroTail": "，兌換精彩獎勵",
+    "noTasks": "暫無可參加任務",
+    "noRewards": "暫無可兌換獎勵",
+    "browseRewards": "查看獎勵",
+    "continueTask": "繼續任務",
+    "registerNow": "即刻註冊",
+    "rewardAlreadyClaimed": "呢個獎勵你已經兌換過喇",
+    "rewardOutOfStock": "當前獎勵庫存不足",
+    "notEnoughPoints": "積分不足",
+    "redeemComingSoon": "獎品兌換入口即將上線，請先前往獎勵中心睇詳情",
+    "loadFailed": "載入首頁失敗: {{message}}"
+  },
+  "footer": {
+    "websiteLanguages": "本網站支持簡體中文、英文、粵語和越南語。",
+    "contact": "聯繫我們：{{email}}",
+    "catSlogan1": "猫猫大使团｜不止一份报酬，更加一份经验。",
+    "catSlogan2": "猫猫大使团｜你的声音，值得被品牌听见。",
+    "catSlogan3": "你的代言，从猫猫大使团开始。",
+    "cloudSlogan": "云朵计划｜播种童年梦想，浇灌美和希望。"
   }
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
+import { useTranslation } from 'react-i18next'
 
 import { Button, Card, CardContent } from '../components/ui'
 import { TaskCard } from '../components/task/TaskCard'
@@ -18,6 +19,7 @@ const HomePage = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, isAuthenticated } = useAuth()
+  const { t } = useTranslation()
   const [tasks, setTasks] = useState([])
   const [rewards, setRewards] = useState([])
   const [loading, setLoading] = useState(true)
@@ -52,10 +54,10 @@ const HomePage = () => {
             : task.note,
       description: task.note,
       status: task.is_open ? 'active' : 'inactive',
-      statusText: task.is_open ? '进行中' : '已结束',
+      statusText: task.is_open ? t('common.ongoing') : t('common.ended'),
       participants: task.participants_count || 0,
       type: task.refcode ? 'trade' : 'join',
-      actionText: '立即参与',
+      actionText: t('common.joinNow'),
     }))
   )
 
@@ -81,7 +83,7 @@ const HomePage = () => {
               : prize.description,
         points_required: prize.points || 0,
         status: isClaimed ? 'claimed' : storesCount > 0 ? 'available' : 'locked',
-        statusText: isClaimed ? '已兑换' : storesCount > 0 ? '可兑换' : '库存不足',
+        statusText: isClaimed ? t('common.redeemed') : storesCount > 0 ? t('CanClaim') : t('common.outOfStock'),
         rarity: prize.points > 5000 ? 'epic' : prize.points > 2000 ? 'rare' : 'common',
         image: prize.image_url || prize.url_image || '/placeholder.jpg',
         claimed: prize.claims_count || 0,
@@ -156,7 +158,7 @@ const HomePage = () => {
       } catch (error) {
         if (!cancelled) {
           console.error('Load data error:', error)
-          toast.error(`加载首页失败: ${error.message}`)
+          toast.error(t('homePage.loadFailed', { message: error.message }))
         }
       } finally {
         if (!cancelled) setLoading(false)
@@ -177,27 +179,27 @@ const HomePage = () => {
 
   const handleRewardClaim = (reward) => {
     if (!isAuthenticated) {
-      toast.error('请先登录')
+      toast.error(t('pleaseLogin'))
       navigate('/login', { state: { from: location } })
       return
     }
 
     if (reward.status === 'claimed') {
-      toast('这个奖励你已经兑换过了')
+      toast(t('homePage.rewardAlreadyClaimed'))
       return
     }
 
     if (reward.status !== 'available') {
-      toast.error('当前奖励库存不足')
+      toast.error(t('homePage.rewardOutOfStock'))
       return
     }
 
     if (userPoints < reward.points_required) {
-      toast.error('积分不足')
+      toast.error(t('homePage.notEnoughPoints'))
       return
     }
 
-    toast('奖品兑换入口即将上线，请先前往奖励中心查看详情')
+    toast(t('homePage.redeemComingSoon'))
     navigate('/reward')
   }
 
@@ -205,7 +207,7 @@ const HomePage = () => {
     return (
       <ResponsiveContainer>
         <div className="flex items-center justify-center min-h-screen">
-          <div className="text-lg text-gray-600">正在加载精彩内容...</div>
+          <div className="text-lg text-gray-600">{t('homePage.loading')}</div>
         </div>
       </ResponsiveContainer>
     )
@@ -216,18 +218,18 @@ const HomePage = () => {
       <div className="space-y-8">
         <FadeIn>
           <section className="bg-gradient-to-r from-yellow-50 to-blue-50 rounded-2xl p-8 text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">欢迎来到 Jinli Club</h1>
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('homePage.welcome')}</h1>
             <p className="text-xl text-gray-600 mb-6">
-              参与任务，赚取<DashJ size="sm" />，兑换精彩奖励
+              {t('homePage.heroLead')}<DashJ size="sm" />{t('homePage.heroTail')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to={isAuthenticated ? '/task' : '/register'}>
                 <Button variant="primary" size="lg">
-                  {isAuthenticated ? '继续任务' : '立即注册'}
+                  {isAuthenticated ? t('homePage.continueTask') : t('homePage.registerNow')}
                 </Button>
               </Link>
               <Link to="/reward">
-                <Button variant="secondary" size="lg">查看奖励</Button>
+                <Button variant="secondary" size="lg">{t('homePage.browseRewards')}</Button>
               </Link>
             </div>
           </section>
@@ -237,11 +239,11 @@ const HomePage = () => {
           <section>
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">热门任务</h2>
-                <p className="text-gray-600">参与任务赚取<DashJ size="sm" /></p>
+                <h2 className="text-2xl font-bold text-gray-900">{t('homePage.hotTasks')}</h2>
+                <p className="text-gray-600">{t('homePage.hotTasksLead')}<DashJ size="sm" /></p>
               </div>
               <Link to="/task">
-                <Button variant="proceed">查看全部</Button>
+                <Button variant="proceed">{t('common.viewAll')}</Button>
               </Link>
             </div>
 
@@ -258,7 +260,7 @@ const HomePage = () => {
             ) : (
               <Card variant="inactive">
                 <CardContent className="text-center py-8">
-                  <p className="text-gray-500">暂无可用任务</p>
+                  <p className="text-gray-500">{t('homePage.noTasks')}</p>
                 </CardContent>
               </Card>
             )}
@@ -269,11 +271,11 @@ const HomePage = () => {
           <section>
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">精选奖励</h2>
-                <p className="text-gray-600">用<DashJ size="sm" />兑换精彩礼品</p>
+                <h2 className="text-2xl font-bold text-gray-900">{t('homePage.featuredRewards')}</h2>
+                <p className="text-gray-600">{t('homePage.featuredLead')}<DashJ size="sm" />{t('homePage.featuredTail')}</p>
               </div>
               <Link to="/reward">
-                <Button variant="proceed">查看全部</Button>
+                <Button variant="proceed">{t('common.viewAll')}</Button>
               </Link>
             </div>
 
@@ -295,7 +297,7 @@ const HomePage = () => {
             ) : (
               <Card variant="inactive">
                 <CardContent className="text-center py-8">
-                  <p className="text-gray-500">暂无可用奖励</p>
+                  <p className="text-gray-500">{t('homePage.noRewards')}</p>
                 </CardContent>
               </Card>
             )}

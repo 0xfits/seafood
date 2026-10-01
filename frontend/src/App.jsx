@@ -130,6 +130,7 @@ const ProtectedRoute = ({ children, adminOnly = false, requiredPermission = null
   const [preferredPath, setPreferredPath] = useState('/')
   const [loading, setLoading] = useState(true)
   const location = useLocation()
+  const { t } = useTranslation()
 
   useEffect(() => {
     let cancelled = false
@@ -179,7 +180,7 @@ const ProtectedRoute = ({ children, adminOnly = false, requiredPermission = null
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-gray-600">正在验证权限...</div>
+        <div className="text-lg text-gray-600">{t('common.verifyingPermission')}</div>
       </div>
     )
   }

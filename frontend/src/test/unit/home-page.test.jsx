@@ -21,6 +21,8 @@ vi.mock('react-hot-toast', () => ({
 }))
 
 import toast from 'react-hot-toast'
+// P6-I18N-LIT-B1：HomePage 已接 useTranslation => 需初始化真实 i18n（jsdom 无前缀路径 = zh 兜底口径）
+import '../../i18n'
 import HomePage from '../../pages/HomePage'
 import { fetchApiJson, getAuthHeaders } from '../../auth'
 import { useAuth } from '../../auth-context'
