@@ -1,4 +1,5 @@
 import React, { Component, useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react'
 import { cn } from '../../utils'
 
@@ -63,6 +64,7 @@ const ErrorFallback = ({
   onReset, 
   showDetails = false 
 }) => {
+  const { t } = useTranslation()
   const [showErrorDetails, setShowErrorDetails] = useState(showDetails)
   
   return (
@@ -75,11 +77,11 @@ const ErrorFallback = ({
         </div>
         
         <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          出现了一些问题
+          {t('uiError.problemTitle')}
         </h1>
         
         <p className="text-gray-600 mb-6">
-          应用程序遇到了意外错误。我们已经记录了这个问题，请稍后再试。
+          {t('uiError.problemBody')}
         </p>
         
         <div className="space-y-3">
@@ -88,7 +90,7 @@ const ErrorFallback = ({
             className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
-            重试
+            {t('uiError.retry')}
           </button>
           
           <button
@@ -96,7 +98,7 @@ const ErrorFallback = ({
             className="w-full flex items-center justify-center gap-2 px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <Home className="w-4 h-4" />
-            返回首页
+            {t('uiError.backHome')}
           </button>
         </div>
         
@@ -107,13 +109,13 @@ const ErrorFallback = ({
               className="flex items-center gap-2 mx-auto text-sm text-gray-500 hover:text-gray-700"
             >
               <Bug className="w-4 h-4" />
-              {showErrorDetails ? '隐藏' : '显示'} 错误详情
+              {showErrorDetails ? t('uiError.hide') : t('uiError.show')} {t('uiError.errorDetails')}
             </button>
             
             {showErrorDetails && (
               <div className="mt-4 text-left">
                 <div className="bg-gray-100 rounded p-3 mb-3">
-                  <h3 className="font-semibold text-sm mb-2">错误信息:</h3>
+                  <h3 className="font-semibold text-sm mb-2">{t('uiError.errorInfo')}</h3>
                   <pre className="text-xs text-red-600 overflow-auto">
                     {error?.toString()}
                   </pre>
@@ -121,7 +123,7 @@ const ErrorFallback = ({
                 
                 {errorInfo && (
                   <div className="bg-gray-100 rounded p-3">
-                    <h3 className="font-semibold text-sm mb-2">组件堆栈:</h3>
+                    <h3 className="font-semibold text-sm mb-2">{t('uiError.componentStack')}</h3>
                     <pre className="text-xs text-gray-600 overflow-auto">
                       {errorInfo.componentStack}
                     </pre>
@@ -142,6 +144,7 @@ const NetworkErrorHandler = ({
   retryCount = 3, 
   onRetry 
 }) => {
+  const { t } = useTranslation()
   const [isOnline, setIsOnline] = useState(navigator.onLine)
   const [retryAttempts, setRetryAttempts] = useState(0)
   
@@ -176,11 +179,11 @@ const NetworkErrorHandler = ({
           </div>
           
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            网络连接异常
+            {t('uiError.networkTitle')}
           </h1>
           
           <p className="text-gray-600 mb-6">
-            请检查您的网络连接，然后重试。
+            {t('uiError.networkBody')}
           </p>
           
           <button
@@ -189,7 +192,7 @@ const NetworkErrorHandler = ({
             className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
-            重试 {retryAttempts > 0 && `(${retryAttempts}/${retryCount})`}
+            {t('uiError.retry')} {retryAttempts > 0 && `(${retryAttempts}/${retryCount})`}
           </button>
         </div>
       </div>
@@ -201,6 +204,7 @@ const NetworkErrorHandler = ({
 
 // API 错误处理 Hook
 const useErrorHandler = () => {
+  const { t } = useTranslation()
   const [error, setError] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   
@@ -208,36 +212,36 @@ const useErrorHandler = () => {
     console.error('API Error:', error)
     
     // 根据错误类型设置不同的错误信息
-    let errorMessage = '发生未知错误'
+    let errorMessage = t('uiError.unknown')
     
     if (error.response) {
       // 服务器响应错误
       const status = error.response.status
       switch (status) {
         case 400:
-          errorMessage = '请求参数错误'
+          errorMessage = t('uiError.badRequest')
           break
         case 401:
-          errorMessage = '未授权访问'
+          errorMessage = t('uiError.unauthorized')
           break
         case 403:
-          errorMessage = '权限不足'
+          errorMessage = t('uiError.forbidden')
           break
         case 404:
-          errorMessage = '请求的资源不存在'
+          errorMessage = t('uiError.notFound')
           break
         case 500:
-          errorMessage = '服务器内部错误'
+          errorMessage = t('uiError.serverError')
           break
         default:
-          errorMessage = `服务器错误 (${status})`
+          errorMessage = t('uiError.serverErrorStatus', { status })
       }
     } else if (error.request) {
       // 网络错误
-      errorMessage = '网络连接失败'
+      errorMessage = t('uiError.networkFailed')
     } else {
       // 其他错误
-      errorMessage = error.message || '发生未知错误'
+      errorMessage = error.message || t('uiError.unknown')
     }
     
     setError({
@@ -275,16 +279,18 @@ const useErrorHandler = () => {
 
 // 错误提示组件
 const ErrorToast = ({ error, onClose }) => {
+  const { t } = useTranslation()
+
   return (
     <div className="fixed top-4 right-4 z-50 max-w-sm bg-red-50 border-2 border-red-200 rounded-lg shadow-lg p-4">
       <div className="flex items-start gap-3">
         <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
         <div className="flex-1">
-          <h3 className="font-semibold text-red-800">错误</h3>
+          <h3 className="font-semibold text-red-800">{t('uiError.toastTitle')}</h3>
           <p className="text-red-700 text-sm mt-1">{error?.message}</p>
           {process.env.NODE_ENV === 'development' && error?.originalError && (
             <details className="mt-2">
-              <summary className="text-xs text-red-600 cursor-pointer">详细信息</summary>
+              <summary className="text-xs text-red-600 cursor-pointer">{t('uiError.details')}</summary>
               <pre className="text-xs text-red-600 mt-1 overflow-auto">
                 {error.originalError.toString()}
               </pre>
@@ -304,17 +310,19 @@ const ErrorToast = ({ error, onClose }) => {
 
 // 404 错误页面
 const NotFoundPage = ({ onGoHome }) => {
+  const { t } = useTranslation()
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-6 text-center">
         <div className="text-6xl font-bold text-gray-300 mb-4">404</div>
         
         <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          页面未找到
+          {t('uiError.notFoundTitle')}
         </h1>
         
         <p className="text-gray-600 mb-6">
-          您访问的页面不存在或已被移动。
+          {t('uiError.notFoundBody')}
         </p>
         
         <button
@@ -322,7 +330,7 @@ const NotFoundPage = ({ onGoHome }) => {
           className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
         >
           <Home className="w-4 h-4" />
-          返回首页
+          {t('uiError.backHome')}
         </button>
       </div>
     </div>
@@ -330,7 +338,8 @@ const NotFoundPage = ({ onGoHome }) => {
 }
 
 // 加载状态组件
-const LoadingFallback = ({ message = '加载中...', size = 'md' }) => {
+const LoadingFallback = ({ message, size = 'md' }) => {
+  const { t } = useTranslation()
   const sizeClasses = {
     sm: 'w-6 h-6',
     md: 'w-8 h-8',
@@ -343,7 +352,7 @@ const LoadingFallback = ({ message = '加载中...', size = 'md' }) => {
         'animate-spin rounded-full border-2 border-gray-300 border-t-yellow-500',
         sizeClasses[size]
       )} />
-      <p className="mt-4 text-gray-600">{message}</p>
+      <p className="mt-4 text-gray-600">{message ?? t('loading')}</p>
     </div>
   )
 }

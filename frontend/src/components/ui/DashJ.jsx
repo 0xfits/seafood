@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '../../utils.js'
 
 // dashJ 符号组件 - 类似美元符号和字母S的关系
@@ -9,6 +10,7 @@ const DashJ = ({
   showText = false,
   amount = null 
 }) => {
+  const { t } = useTranslation()
   const sizeClasses = {
     xs: 'text-xs',
     sm: 'text-sm',
@@ -20,6 +22,7 @@ const DashJ = ({
   }
 
   // dashJ 符号 - J 字母 + 横划线
+  // P6-I18N-LIT-B5：`title` 里的品牌 token `dashJ` 不译，中文部分（社区积分）走 locale
   const symbol = (
     <span 
       className={cn(
@@ -27,7 +30,7 @@ const DashJ = ({
         sizeClasses[size],
         className
       )}
-      title="dashJ 社区积分"
+      title={t('uiCommon.dashJPoints')}
     >
       <span className="relative">
         <span className="font-serif">J</span>

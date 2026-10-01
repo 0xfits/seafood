@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { ChevronUp, ChevronDown, MoreHorizontal } from 'lucide-react'
 import { cn } from '../../utils'
 
@@ -87,9 +88,11 @@ const DataTable = ({
   data, 
   columns, 
   loading = false,
-  emptyMessage = '暂无数据',
+  emptyMessage,
   className 
 }) => {
+  const { t } = useTranslation()
+
   if (loading) {
     return (
       <div className="space-y-2">
@@ -105,7 +108,8 @@ const DataTable = ({
   if (!data || data.length === 0) {
     return (
       <div className="text-center py-12 text-gray-500">
-        {emptyMessage}
+        {/* P6-I18N-LIT-B5：空态文案走 locale（调用方显式传入优先） */}
+        {emptyMessage ?? t('noData')}
       </div>
     )
   }
@@ -205,6 +209,7 @@ const Progress = ({
   showLabel = true,
   className 
 }) => {
+  const { t } = useTranslation()
   const percentage = Math.min((value / max) * 100, 100)
   
   const sizeClasses = {
@@ -225,7 +230,7 @@ const Progress = ({
     <div className={cn('w-full', className)}>
       {showLabel && (
         <div className="flex justify-between text-sm text-gray-600 mb-2">
-          <span>进度</span>
+          <span>{t('uiCommon.progress')}</span>
           <span>{Math.round(percentage)}%</span>
         </div>
       )}

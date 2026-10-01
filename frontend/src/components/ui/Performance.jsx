@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '../../utils'
 
 // 虚拟滚动列表
@@ -66,6 +67,7 @@ const LazyImage = ({
   onLoad,
   onError 
 }) => {
+  const { t } = useTranslation()
   const [isLoaded, setIsLoaded] = useState(false)
   const [isInView, setIsInView] = useState(false)
   const [hasError, setHasError] = useState(false)
@@ -128,7 +130,7 @@ const LazyImage = ({
       {/* 错误状态 */}
       {hasError && (
         <div className="flex items-center justify-center h-full bg-gray-100 rounded">
-          <span className="text-gray-500">加载失败</span>
+          <span className="text-gray-500">{t('uiCommon.loadFailed')}</span>
         </div>
       )}
     </div>
@@ -189,6 +191,7 @@ const ThrottledButton = ({
   className,
   ...props 
 }) => {
+  const { t } = useTranslation()
   const [isThrottled, setIsThrottled] = useState(false)
   const timeoutRef = useRef(null)
   
@@ -224,7 +227,7 @@ const ThrottledButton = ({
       )}
       {...props}
     >
-      {isThrottled ? '请稍候...' : children}
+      {isThrottled ? t('uiCommon.pleaseWait') : children}
     </button>
   )
 }
@@ -237,6 +240,7 @@ const InfiniteScroll = ({
   loading,
   className 
 }) => {
+  const { t } = useTranslation()
   const triggerRef = useRef(null)
   
   useEffect(() => {
@@ -277,7 +281,7 @@ const InfiniteScroll = ({
       {/* 没有更多数据 */}
       {!hasMore && !loading && (
         <div className="text-center py-4 text-gray-500">
-          没有更多数据了
+          {t('uiCommon.noMoreData')}
         </div>
       )}
     </div>
@@ -303,6 +307,7 @@ const MemoizedComponent = React.memo(({
 
 // 性能监控组件
 const PerformanceMonitor = ({ children }) => {
+  const { t } = useTranslation()
   const [metrics, setMetrics] = useState({
     renderTime: 0,
     memoryUsage: 0
@@ -327,8 +332,8 @@ const PerformanceMonitor = ({ children }) => {
       <div>
         {children}
         <div className="fixed bottom-4 right-4 bg-black bg-opacity-75 text-white p-2 rounded text-xs">
-          <div>渲染时间: {metrics.renderTime.toFixed(2)}ms</div>
-          <div>内存使用: {metrics.memoryUsage}MB</div>
+          <div>{t('uiCommon.renderTime')}: {metrics.renderTime.toFixed(2)}ms</div>
+          <div>{t('uiCommon.memoryUsage')}: {metrics.memoryUsage}MB</div>
         </div>
       </div>
     )
@@ -340,9 +345,10 @@ const PerformanceMonitor = ({ children }) => {
 // 代码分割加载组件
 const LazyComponent = ({ 
   componentLoader, 
-  fallback = <div>加载中...</div>,
+  fallback,
   className 
 }) => {
+  const { t } = useTranslation()
   const [Component, setComponent] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -364,13 +370,13 @@ const LazyComponent = ({
   }, [componentLoader])
   
   if (isLoading) {
-    return <div className={cn('text-center py-4', className)}>{fallback}</div>
+    return <div className={cn('text-center py-4', className)}>{fallback ?? <div>{t('loading')}</div>}</div>
   }
   
   if (error) {
     return (
       <div className={cn('text-center py-4 text-red-500', className)}>
-        加载失败: {error.message}
+        {t('uiCommon.loadFailed')}: {error.message}
       </div>
     )
   }

@@ -21,7 +21,13 @@ const DEFAULT_SETTINGS = {
 const SystemSettings = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const defaults = { ...DEFAULT_SETTINGS, siteDescription: t('adminSettings.siteDescription') }
+  // ★ P6-I18N-LIT-B5 必做①：`defaults` 是**待保存值**（`saveSettings` 会把它连同 `settings` 一起 POST），
+  //   因此**必须与界面语言无关** —— 不得把 `siteDescription` 的初值写成 `t(...)` 的求值结果。
+  //   危害：① 同一次「未改动即保存」在不同语言界面会落库**不同数据**；
+  //         ② 本仓翻译管线以 zh 为源，落库英文后会被「当中文再翻译」产生垃圾。
+  //   `t(...)` 只能当 placeholder / 说明用（见下方 textarea 的 `placeholder`）。
+  //   可判负用例：`src/test/unit/i18n-batch-b5.test.jsx`（zh 档与 en 档下待保存值必须相同且为空）。
+  const defaults = { ...DEFAULT_SETTINGS }
   const [settings, setSettings] = useState(() => ({ ...defaults }))
   const [savedSettings, setSavedSettings] = useState(() => ({ ...defaults }))
   const [initialLoading, setInitialLoading] = useState(true)
@@ -176,6 +182,7 @@ const SystemSettings = () => {
               <textarea
                 value={settings.siteDescription}
                 onChange={(e) => handleSettingChange('siteDescription', e.target.value)}
+                placeholder={t('adminSettings.siteDescription')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
                 rows={3}
               />

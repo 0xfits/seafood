@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '../../utils'
 
 const LoadingSpinner = ({ 
@@ -71,9 +72,11 @@ const LoadingCard = ({
 }
 
 const LoadingPage = ({ 
-  message = '加载中...',
+  message,
   className 
 }) => {
+  const { t } = useTranslation()
+
   return (
     <div 
       className={cn(
@@ -82,7 +85,8 @@ const LoadingPage = ({
       )}
     >
       <LoadingSpinner size="xl" />
-      <p className="text-gray-500 text-lg">{message}</p>
+      {/* P6-I18N-LIT-B5：默认文案改走 locale（既有键 `loading`），调用方显式传入优先 */}
+      <p className="text-gray-500 text-lg">{message ?? t('loading')}</p>
     </div>
   )
 }

@@ -1,16 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Search, ChevronDown, X, Calendar, Filter } from 'lucide-react'
 import { cn } from '../../utils'
 
 const SearchBox = ({ 
-  placeholder = '搜索...', 
+  placeholder, 
   value, 
   onChange, 
   onClear,
   className,
   disabled = false 
 }) => {
+  const { t } = useTranslation()
   const [focused, setFocused] = useState(false)
+  // P6-I18N-LIT-B5：占位文案改走 locale（调用方显式传入优先；未传 ⇒ 取当前语言）
+  const resolvedPlaceholder = placeholder ?? t('uiCommon.searchPlaceholder')
   
   return (
     <div className={cn(
@@ -21,7 +25,7 @@ const SearchBox = ({
       <Search className="w-5 h-5 text-gray-400 absolute left-3" />
       <input
         type="text"
-        placeholder={placeholder}
+        placeholder={resolvedPlaceholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setFocused(true)}
@@ -102,12 +106,15 @@ const Dropdown = ({
 const DatePicker = ({ 
   value, 
   onChange, 
-  placeholder = '选择日期',
+  placeholder,
   disabled = false,
   className 
 }) => {
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const dateRef = useRef(null)
+  // P6-I18N-LIT-B5：占位文案改走 locale（调用方显式传入优先；未传 ⇒ 取当前语言）
+  const resolvedPlaceholder = placeholder ?? t('uiCommon.selectDate')
   
   const formatDate = (date) => {
     if (!date) return ''
@@ -133,7 +140,7 @@ const DatePicker = ({
       >
         <Calendar className="w-4 h-4 text-gray-400" />
         <span className="flex-1">
-          {value ? formatDate(value) : placeholder}
+          {value ? formatDate(value) : resolvedPlaceholder}
         </span>
         <ChevronDown className="w-4 h-4 text-gray-400" />
       </div>
@@ -160,6 +167,7 @@ const FilterPanel = ({
   onClearAll,
   className 
 }) => {
+  const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(false)
   
   const getFilterCount = () => {
@@ -176,7 +184,7 @@ const FilterPanel = ({
       >
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-gray-600" />
-          <span className="font-medium text-gray-900">筛选</span>
+          <span className="font-medium text-gray-900">{t('uiCommon.filter')}</span>
           {getFilterCount() > 0 && (
             <span className="bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">
               {getFilterCount()}
@@ -234,13 +242,13 @@ const FilterPanel = ({
               onClick={() => onClearAll?.()}
               className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
             >
-              清除筛选
+              {t('uiCommon.clearFilters')}
             </button>
             <button
               onClick={() => setIsExpanded(false)}
               className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
             >
-              应用筛选
+              {t('uiCommon.applyFilters')}
             </button>
           </div>
         </div>
@@ -256,6 +264,7 @@ const Pagination = ({
   showPageNumbers = true,
   className 
 }) => {
+  const { t } = useTranslation()
   const pages = []
   const maxVisiblePages = 5
   
@@ -281,7 +290,7 @@ const Pagination = ({
           currentPage === 1 && 'opacity-50 cursor-not-allowed'
         )}
       >
-        上一页
+        {t('prev')}
       </button>
       
       {showPageNumbers && pages.map((page) => (
@@ -309,7 +318,7 @@ const Pagination = ({
           currentPage === totalPages && 'opacity-50 cursor-not-allowed'
         )}
       >
-        下一页
+        {t('next')}
       </button>
     </div>
   )

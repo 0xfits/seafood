@@ -7,8 +7,9 @@
  *   ② 键集相等 = 拍平后的键路径集合逐文件 `===`（排序后逐项对拍）；
  *   ③ 新键 `i18n.translating` 四语齐备、非空串；
  *   ④ 静态断言：新接的 6 个文件里**不得**出现 `_(en|hk|vn)\s*\?\?`（空串会穿透 `??`）；
- *      存量登记 = **仅 `pages/HomePage.jsx`**（B2 已把 `TaskPage.jsx` / `RewardPage.jsx` 单点收口到
- *      `pickLocalized`）—— 原「既有三页」口径已陈旧，本单（D7）按盘面更正。
+ *      存量登记 = **空**（B2 已把 `TaskPage.jsx` / `RewardPage.jsx` 单点收口到 `pickLocalized`；
+ *      B5 的 D7 最后一项把 `pages/HomePage.jsx` 也改走 `pickLocalized`）⇒ `LEGACY = []`，
+ *      名单一旦非空即打印其 `??` 命中，不再有「预期非 0」的行。
  *
  * 用法：node scripts/p6-tr2-i18n-locales.mjs     （只读，不写任何文件）
  */
@@ -67,10 +68,11 @@ const WIRED = [
   'pages/market/MarketPage.jsx',
   'pages/ProfilePage.jsx',
 ]
-// D7（P6-I18N-LIT-B3）：B2 已把 `TaskPage.jsx` / `RewardPage.jsx` 改走 `pickLocalized`
-// （`_en ?? base` 命中已为 0，见 `src/test/unit/i18n-content-wiring.test.jsx` / `i18n-batch-b2.test.jsx`），
-// 故存量名单**只剩首页**（B1 面，本单只核不改）。
-const LEGACY = ['pages/HomePage.jsx']
+// D7 收口（P6-I18N-LIT-B2 + B5）：`TaskPage.jsx` / `RewardPage.jsx` 由 B2 收口，
+// `pages/HomePage.jsx` 由 B5 收口（`_en ?? base` 全仓命中已为 0，
+// 见 `src/test/unit/i18n-content-wiring.test.jsx` / `i18n-batch-b5.test.jsx`）
+// ⇒ 存量名单**清零**。
+const LEGACY = []
 
 console.log('[TR-2] 静态断言：新接文件不得用 `??` 取多语列（`||` 方可防空串穿透）')
 let guardOk = true
@@ -83,13 +85,14 @@ for (const rel of WIRED) {
 }
 console.log(`[TR-2] 新接文件守卫=${guardOk ? 'PASS' : 'FAIL'}`)
 
-console.log('[TR-2] 存量登记（只核不改）：仍在旧三目链 + `??` 上的页面（B2 收口后仅余首页）')
+console.log(`[TR-2] 存量登记（只核不改）：仍在旧三目链 + \`??\` 上的页面数 = ${LEGACY.length} 页（D7 收口后应为 0 页）`)
 for (const rel of LEGACY) {
   const text = fs.readFileSync(path.join(SRC, rel), 'utf8')
   const hits = text.match(/_(en|hk|vn)\s*\?\?/g) || []
-  console.log(`  ${rel}: ??命中=${hits.length}（登记；下单单点收口）`) // HomePage 仍在链上 ⇒ 命中非 0 属预期
+  console.log(`  ${rel}: ??命中=${hits.length}（登记；应在下单单点收口）`)
 }
+const legacyOk = LEGACY.length === 0
 
-const overall = badgeOk && flatTop.size === 1 && setDiff.length === 0 && guardOk
+const overall = badgeOk && flatTop.size === 1 && setDiff.length === 0 && guardOk && legacyOk
 console.log(`[TR-2] 总判：${overall ? 'PASS' : 'FAIL'}`)
 process.exit(overall ? 0 : 1)

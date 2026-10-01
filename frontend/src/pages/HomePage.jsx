@@ -12,6 +12,7 @@ import DashJ from '../components/ui/DashJ'
 import ActiveTaskModal from '../components/ActiveTaskModal'
 import { fetchApiJson, getAuthHeaders } from '../auth'
 import { useAuth } from '../auth-context'
+import { pickLocalized } from '../i18n-content'
 
 const HomePage = () => {
   const HOME_TASK_LIMIT = 6
@@ -35,23 +36,15 @@ const HomePage = () => {
     return 'zh'
   }
 
+  // ★ P6-I18N-LIT-B5 必做②（D7 最后一项）：首页的**旧三目链**（语言后缀 + 空值合并运算符）收口为共用
+  //   `pickLocalized`（`src/i18n-content.js`），与其余 8 处已接页一致。
+  //   语义差异是实质修复：后端「未翻译时有值且等于原文、但字段可能缺省 / 误给空串」⇒
+  //   空值合并运算符只在 `null`/`undefined` 时回落，**空串会穿透**；`pickLocalized` 用 `||`，空串回落原文。
   const mapTasksForHome = (taskRows, lang) => (
     (taskRows || []).map((task) => ({
       ...task,
-      title: lang === 'en'
-        ? (task.title_en ?? task.title)
-        : lang === 'hk'
-          ? (task.title_hk ?? task.title)
-          : lang === 'vn'
-            ? (task.title_vn ?? task.title)
-            : task.title,
-      note: lang === 'en'
-        ? (task.note_en ?? task.note)
-        : lang === 'hk'
-          ? (task.note_hk ?? task.note)
-          : lang === 'vn'
-            ? (task.note_vn ?? task.note)
-            : task.note,
+      title: pickLocalized(task, 'title', lang),
+      note: pickLocalized(task, 'note', lang),
       description: task.note,
       status: task.is_open ? 'active' : 'inactive',
       statusText: task.is_open ? t('common.ongoing') : t('common.ended'),
@@ -67,20 +60,8 @@ const HomePage = () => {
       const storesCount = prize.stores_count || 0
       return {
         ...prize,
-        title: lang === 'en'
-          ? (prize.name_en ?? prize.name)
-          : lang === 'hk'
-            ? (prize.name_hk ?? prize.name)
-            : lang === 'vn'
-              ? (prize.name_vn ?? prize.name)
-              : prize.name,
-        description: lang === 'en'
-          ? (prize.description_en ?? prize.description)
-          : lang === 'hk'
-            ? (prize.description_hk ?? prize.description)
-            : lang === 'vn'
-              ? (prize.description_vn ?? prize.description)
-              : prize.description,
+        title: pickLocalized(prize, 'name', lang),
+        description: pickLocalized(prize, 'description', lang),
         points_required: prize.points || 0,
         status: isClaimed ? 'claimed' : storesCount > 0 ? 'available' : 'locked',
         statusText: isClaimed ? t('common.redeemed') : storesCount > 0 ? t('common.redeemable') : t('common.outOfStock'),

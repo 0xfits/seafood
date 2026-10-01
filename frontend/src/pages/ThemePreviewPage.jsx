@@ -4,6 +4,27 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { buildLangPath, getLanguageFromUrl, SUPPORTED_LANGS } from '../utils'
 import { useTheme } from '../theme/ThemeProvider'
 import { STRUCT, TOKEN_KEYS, THEME_ATTR, THEME_TOKENS, THEME_ATTR_VALUES } from '../theme/tokens'
+import {
+  PREVIEW_TITLE,
+  PREVIEW_CURRENT,
+  PREVIEW_SOURCE_NOTE,
+  THEME_BTN_DAY,
+  THEME_BTN_NIGHT,
+  SEARCH_DEMO,
+  CHIP_DEMO,
+  PRICE_UNIT,
+  cardTitle,
+  CARD_META,
+  JOBS_TITLE,
+  JOBS_DEMO,
+  MARKET_TITLE,
+  REBATE_TAG,
+  LIVE_TITLE,
+  tableTitle,
+  TH_DAY,
+  TH_NIGHT,
+  TH_SAME,
+} from './theme-preview-demo'
 import './theme-preview.css'
 
 // 4c-i 的可交互预览件（路由：/theme-preview，四语前缀下同样可达 /en/theme-preview 等）：
@@ -11,6 +32,8 @@ import './theme-preview.css'
 // ② 拖动浏览器窗口宽度即可看到横屏骨架 ↔ 竖屏骨架（≤767px 出现底部 tab）
 // ③ 被量测元素全部带 data-sf-m，window.__sfThemePreview.measure() 一次吐全部读数，
 //    供 CDP 探针做「主题切换前后几何逐值相等」的机器验证。
+// ★ P6-I18N-LIT-B5：本页正文 = **演示数据**（`theme-preview-demo.js`），不国际化；
+//   页内真实 UI 面（语言 chip）照旧走 locale 键。理由见 demo 模块头部。
 const LOCALE_LABEL_KEYS = { zh: 'chinese', en: 'english', hk: 'cantonese', vn: 'vietnamese' }
 
 const MEASURED = ['hero', 'search', 'chips', 'layout', 'grid', 'card-1', 'card-4', 'side', 'price-1', 'toggle-day', 'toggle-night', 'tabbar']
@@ -87,16 +110,15 @@ const ThemePreviewPage = () => {
 
   return (
     <div className="sf-preview">
-      <h1 data-sf-m="hero">主题 token + 横竖屏骨架 · 可交互预览（P4-B4c-i 地基）</h1>
+      <h1 data-sf-m="hero">{PREVIEW_TITLE}</h1>
       <p className="sf-preview-note">
-        当前档：<b data-sf-theme-name>{theme}</b>（&lt;html data-theme=&quot;{THEME_ATTR_VALUES[theme]}&quot;&gt;）。
-        值真源 = docs/design/style-preview.html 变体 A（日档「码头大牌」）/ 变体 B（夜档「夜市行情板」）。
-        拖动窗口宽度：≤767px 进入手机竖屏骨架（底部 tab），≥1024px 为 web 横屏骨架（多栏）。
+        {PREVIEW_CURRENT}<b data-sf-theme-name>{theme}</b>（&lt;html data-theme=&quot;{THEME_ATTR_VALUES[theme]}&quot;&gt;）。
+        {PREVIEW_SOURCE_NOTE}
       </p>
 
       <div className="sf-preview-controls">
-        <button type="button" data-sf-m="toggle-day" className={`sf-btn sf-preview-btn${theme === 'day' ? ' is-on' : ''}`} onClick={() => setTheme('day')}>日档 · 码头大牌</button>
-        <button type="button" data-sf-m="toggle-night" className={`sf-btn sf-preview-btn${theme === 'night' ? ' is-on' : ''}`} onClick={() => setTheme('night')}>夜档 · 夜市行情板</button>
+        <button type="button" data-sf-m="toggle-day" className={`sf-btn sf-preview-btn${theme === 'day' ? ' is-on' : ''}`} onClick={() => setTheme('day')}>{THEME_BTN_DAY}</button>
+        <button type="button" data-sf-m="toggle-night" className={`sf-btn sf-preview-btn${theme === 'night' ? ' is-on' : ''}`} onClick={() => setTheme('night')}>{THEME_BTN_NIGHT}</button>
         <span className="sf-preview-langs">
           {SUPPORTED_LANGS.map((code) => (
             <button
@@ -112,10 +134,10 @@ const ThemePreviewPage = () => {
         </span>
       </div>
 
-      <div className="sf-box" data-sf-m="search">搜 鲜活皮皮虾 / 大黄鱼 / 码头夜班招工 / 兑换 dashJ —— 四语切换与主题切换都不改这一行的高度</div>
+      <div className="sf-box" data-sf-m="search">{SEARCH_DEMO}</div>
 
       <div data-sf-m="chips" className="sf-preview-chips">
-        {['招工', '商品', '积分交易所', '终身返佣', '全部'].map((c, i) => (
+        {CHIP_DEMO.map((c, i) => (
           <span key={c} className={`sf-chip${i === 0 ? ' is-on' : ''}`}>{c}</span>
         ))}
       </div>
@@ -126,13 +148,13 @@ const ThemePreviewPage = () => {
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="sf-card" data-sf-m={`card-${i + 1}`}>
                 <div className="sf-card-body">
-                  <div className="sf-card-title">当日捕 · 鲜活皮皮虾 {i + 1}</div>
+                  <div className="sf-card-title">{cardTitle(i + 1)}</div>
                   <div className="sf-price" data-sf-m={i === 0 ? 'price-1' : undefined}>
                     <span className="sf-price-cur">$</span>
                     <span className="sf-price-num">{320 + i * 10}</span>
-                    <span className="sf-price-unit">/ 斤</span>
+                    <span className="sf-price-unit">{PRICE_UNIT}</span>
                   </div>
-                  <div className="sf-preview-meta">沈家门码头 · 手工开壳 · 当日捕</div>
+                  <div className="sf-preview-meta">{CARD_META}</div>
                 </div>
               </div>
             ))}
@@ -140,30 +162,30 @@ const ThemePreviewPage = () => {
         </div>
         <aside className="sf-layout-side" data-sf-m="side">
           <div className="sf-panel">
-            <div className="sf-panel-title">招工精选 · 今日上新</div>
-            <div className="sf-preview-meta">码头分拣夜班（沈家门）　<b>$320/天</b></div>
+            <div className="sf-panel-title">{JOBS_TITLE}</div>
+            <div className="sf-preview-meta">{JOBS_DEMO[0].name}　<b>{JOBS_DEMO[0].pay}</b></div>
             <div className="sf-divider" />
-            <div className="sf-preview-meta">远洋船务搬运（舟山）　<b>$410/天</b></div>
+            <div className="sf-preview-meta">{JOBS_DEMO[1].name}　<b>{JOBS_DEMO[1].pay}</b></div>
             <div className="sf-divider" />
-            <div className="sf-preview-meta">冷库分装白班（宁波）　<b>$280/天</b></div>
+            <div className="sf-preview-meta">{JOBS_DEMO[2].name}　<b>{JOBS_DEMO[2].pay}</b></div>
           </div>
           <div className="sf-panel">
-            <div className="sf-panel-title">积分行情</div>
+            <div className="sf-panel-title">{MARKET_TITLE}</div>
             <div className="sf-preview-meta">SEAFOOD / $　<b>1.0240</b></div>
             <div className="sf-preview-meta">DASHJ / $　<b>0.3312</b></div>
-            <div className="sf-tag">终身多级返佣 · 十级</div>
+            <div className="sf-tag">{REBATE_TAG}</div>
           </div>
         </aside>
       </div>
 
-      <h2>现行生效值（读 window.getComputedStyle，用于证明「主题确实换了值」）</h2>
+      <h2>{LIVE_TITLE}</h2>
       <pre data-sf-m="live" className="sf-preview-pre">{JSON.stringify(liveValues, null, 2)}</pre>
 
-      <h2>token 提取表（{TOKEN_KEYS.length} 键 · 日/夜键集合相同）</h2>
+      <h2>{tableTitle(TOKEN_KEYS.length)}</h2>
       <div className="sf-preview-table-wrap">
         <table className="sf-preview-table">
           <thead>
-            <tr><th>token</th><th>日档（变体 A）</th><th>夜档（变体 B）</th><th>同值?</th></tr>
+            <tr><th>token</th><th>{TH_DAY}</th><th>{TH_NIGHT}</th><th>{TH_SAME}</th></tr>
           </thead>
           <tbody>
             {table.map((row) => (
