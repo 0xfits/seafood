@@ -1393,7 +1393,8 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 **B. ★ 读回面归零（我亲跑，同一口径前后对比）**：补跑前 `/api/task/all` n=20 `{ready:19, pending:1}` + `/api/prize/all` n=22 `{ready:22}`；我跑一轮 `scan_translate`（`registered=6`，系新出现的 job 实体）⇒ 补跑后 **n=20 `{ready:20}` + n=22 `{ready:22}` ⇒ 合计 `{ready:42}`、`partial=0`、`pending=0`** ✓✓ —— **"翻译中"假信号已彻底消除**。
 **C. 「`scan` 反复报 `registered=6`」疑点 —— 我查证后判定非缺陷**：只读探针显示 `content_translation` 总量稳定 **276**、**无空 `entity_id`**；近 30 分钟写入全部是 **`job 24`**（TR-1b 留的 residual 测试招工）×6 行，更早一批是 **`job 22`** ⇒ 真因 = **新内容实体出现 ⇒ 扫描登记**（正确行为）；**旁证**：`job 8/9/10/11/16/17/18` 各只有 **3 行（仅 `title`，`description` 为空）** ⇒ 恰好解释此前那批 `partial`，与 FIX2 修正后的判定自洽 ✓。
 **D. 诚实登记**：FIX2 拒绝伪造 before/after —— 我给的 before `{41,14,1}`（n=56）含 `/api/home` 聚合体 ⇒ 与它两端点 n=42 **同口径 before = `NOT_MEASURED`**；「14 个 partial = 7 job + 5 listing 空描述」属**代码推断**。另：其用例未并入 `p4z-tr1a-01`（`database.ts` 模块级 `dotenv.config()` 会污染该套件 env 敏感的 J/K/L 组）⇒ 改用同形独立脚本承载，**理由充分**；`spec §10.1/2161` 未含"空源剔除"前提（禁写 spec ⇒ 仅登记）。
-**E.** ⇒ 入库 + 推送 ⇒ 生产构建 ⇒ 生产复验。
+**E. ★ 生产复验（收尾，我亲测）**：入库 `e4777d7`（修复）+ `37bfd6a`（文档）⇒ **推送**（`b98c02f..37bfd6a`，origin 同步）⇒ Git 联动生产构建；**真域名 `--resolve` 三连测**：`/api/task/all` + `/api/prize/all` 均 200，**`i18n_status` 分布恒为 `{ready: 42}`、`partial = 0`、`pending = 0`** ✓✓ —— 首次测量（推送后约 70s）即已是 `{ready:42}` ⇒ 构建已生效。**翻译线就此全链收口**：真英/繁/越落库 + 生产可读 + 无假译文 + 无假信号 + 账本零位移。
+**F. 遗留（登记，非遗漏）**：① 生产/库内**测试夹具数据**（`job 22/24`、`listing 19–22`、`b3c/p4b2c` 系列）保留 —— 按既有裁定「前端阶段需要"有货可看"」（重置会清空，暂不做）；② `waitUntil` **真 Vercel 上下文**与 `limit=100` 的 cron 实跑 = `NOT_MEASURED`；③ `ledger_tx` 关系不存在；④ 同口径 before/after = `NOT_MEASURED`；⑤ 磁盘仍有多轮 `NOT_MEASURED` 登记（0015–0017、批 3、P6-VERCEL-SHAPE、TR 线）。
 
 ---
 ### 5.118 **★★ 里程碑：翻译线在生产上线并全绿（真英文/繁体/越南语）+ TR-1c-FIX 验收 + `i18n_status` 分母裁定**（2026-10-01）
