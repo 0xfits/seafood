@@ -1,18 +1,23 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
 import { Gift, Clock, Star, Crown } from 'lucide-react'
 import { cn } from '../../utils'
 import DashJ from '../ui/DashJ'
+import { contentStatus } from '../../i18n-content'
+import TranslatingBadge from '../i18n/TranslatingBadge'
 
-const RewardCard = ({ 
-  reward, 
-  onClaim, 
+const RewardCard = ({
+  reward,
+  onClaim,
   userPoints = 0,
   showStatus = true,
-  compact = false 
+  compact = false
 }) => {
+  const { t } = useTranslation()
+
   const getStatusVariant = (status) => {
     switch (status) {
       case 'available': return 'success'
@@ -35,7 +40,7 @@ const RewardCard = ({
   const canClaim = reward.status === 'available' && userPoints >= reward.points_required
 
   return (
-    <Card 
+    <Card
       variant={reward.variant || 'primary'}
       hover="glow"
       className={cn(
@@ -65,19 +70,21 @@ const RewardCard = ({
               </Badge>
               {reward.limited && (
                 <Badge variant="warning" size="sm">
-                  限量
+                  {t('rewardCard.limited')}
                 </Badge>
               )}
             </div>
-            
+
             <CardTitle className={cn(
               'text-gray-900 line-clamp-2',
               compact && 'text-base'
             )}>
               {reward.title}
+              {/* 「翻译中」小标（TR-2）：`i18n_status ∈ {pending, partial}` 且非 zh 档才渲染 */}
+              <TranslatingBadge status={contentStatus(reward)} />
             </CardTitle>
           </div>
-          
+
           {reward.points_required && (
             <div className="text-right ml-4">
               <div className="text-2xl font-bold text-yellow-600">
@@ -92,8 +99,8 @@ const RewardCard = ({
       <CardContent className={cn(compact && 'pt-0')}>
         {reward.image && (
           <div className="mb-4 relative">
-            <img 
-              src={reward.image} 
+            <img
+              src={reward.image}
               alt={reward.title}
               className="w-full h-32 object-cover rounded-lg"
             />
@@ -114,8 +121,8 @@ const RewardCard = ({
         {reward.brand && (
           <div className="flex items-center gap-2 mb-4">
             {reward.brand.logo && (
-              <img 
-                src={reward.brand.logo} 
+              <img
+                src={reward.brand.logo}
                 alt={reward.brand.name}
                 className="w-6 h-6 rounded-full object-cover"
               />
@@ -128,30 +135,30 @@ const RewardCard = ({
         {reward.time_end && reward.status === 'available' && (
           <div className="flex items-center gap-1 text-sm text-orange-600 mb-3">
             <Clock className="w-4 h-4" />
-            <span>剩余时间有限</span>
+            <span>{t('rewardCard.timeLimited')}</span>
           </div>
         )}
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <Gift className="w-4 h-4" />
-            <span>{reward.claimed || 0} 人已领取</span>
+            <span>{reward.claimed || 0} {t('common.claimedUnit')}</span>
             {reward.total && (
               <span>/ {reward.total}</span>
             )}
           </div>
-          
-          <Button 
+
+          <Button
             variant={canClaim ? 'success' : 'inactive'}
             size={compact ? 'sm' : 'md'}
             onClick={() => onClaim?.(reward)}
             disabled={!canClaim}
           >
-            {!canClaim && userPoints < reward.points_required 
-              ? 'dashJ不足' 
-              : reward.status === 'claimed' 
-              ? '已领取' 
-              : '立即领取'
+            {!canClaim && userPoints < reward.points_required
+              ? t('rewardCard.insufficient')
+              : reward.status === 'claimed'
+              ? t('common.claimed')
+              : t('rewardCard.claimNow')
             }
           </Button>
         </div>

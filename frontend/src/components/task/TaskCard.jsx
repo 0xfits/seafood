@@ -1,17 +1,22 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
 import { Clock, Users, Trophy, Star } from 'lucide-react'
 import { cn } from '../../utils'
 import DashJ from '../ui/DashJ'
+import { contentStatus } from '../../i18n-content'
+import TranslatingBadge from '../i18n/TranslatingBadge'
 
-const TaskCard = ({ 
-  task, 
-  onAction, 
+const TaskCard = ({
+  task,
+  onAction,
   showStatus = true,
-  compact = false 
+  compact = false
 }) => {
+  const { t } = useTranslation()
+
   const getStatusVariant = (status) => {
     switch (status) {
       case 'active': return 'success'
@@ -35,18 +40,18 @@ const TaskCard = ({
     const now = new Date()
     const end = new Date(endTime)
     const diff = end - now
-    
-    if (diff <= 0) return '已结束'
-    
+
+    if (diff <= 0) return t('common.ended')
+
     const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-    if (days > 30) return '限时'
-    if (days > 7) return `${Math.floor(days / 7)}周`
-    if (days > 1) return `${days}天`
-    return '即将结束'
+    if (days > 30) return t('giftStatusLimited')
+    if (days > 7) return t('taskCard.weeks', { n: Math.floor(days / 7) })
+    if (days > 1) return t('taskCard.days', { n: days })
+    return t('taskCard.endingSoon')
   }
 
   return (
-    <Card 
+    <Card
       variant={task.variant || 'default'}
       hover="lift"
       className={cn(
@@ -78,15 +83,17 @@ const TaskCard = ({
                 </Badge>
               )}
             </div>
-            
+
             <CardTitle className={cn(
               'text-gray-900 line-clamp-2',
               compact && 'text-base'
             )}>
               {task.title}
+              {/* 「翻译中」小标（TR-2）：`i18n_status ∈ {pending, partial}` 且非 zh 档才渲染 */}
+              <TranslatingBadge status={contentStatus(task)} />
             </CardTitle>
           </div>
-          
+
           {task.points && (
             <div className="text-right ml-4">
               <div className="text-2xl font-bold text-yellow-600">
@@ -108,8 +115,8 @@ const TaskCard = ({
         {task.brand && (
           <div className="flex items-center gap-2 mb-4">
             {task.brand.logo && (
-              <img 
-                src={task.brand.logo} 
+              <img
+                src={task.brand.logo}
                 alt={task.brand.name}
                 className="w-6 h-6 rounded-full object-cover"
               />
@@ -121,16 +128,16 @@ const TaskCard = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <Users className="w-4 h-4" />
-            <span>{task.participants || 0} 人参与</span>
+            <span>{task.participants || 0} {t('common.participantsUnit')}</span>
           </div>
-          
-          <Button 
+
+          <Button
             variant={task.status === 'active' ? 'primary' : 'inactive'}
             size={compact ? 'sm' : 'md'}
             onClick={() => onAction?.(task)}
             disabled={task.status !== 'active'}
           >
-            {task.actionText || (task.status === 'active' ? '立即参与' : '不可用')}
+            {task.actionText || (task.status === 'active' ? t('common.joinNow') : t('common.unavailable'))}
           </Button>
         </div>
       </CardContent>

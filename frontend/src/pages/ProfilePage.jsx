@@ -65,7 +65,7 @@ const ProfilePage = () => {
         setUser(nextProfile)
         setBio(nextProfile.bio || '')
         setTempBio(nextProfile.bio || '')
-        
+
         await Promise.all([
           loadUserAssets(nextProfile.uID),
           loadTaskStats(nextProfile.uID),
@@ -73,7 +73,7 @@ const ProfilePage = () => {
         ])
       } catch (error) {
         console.error('Error loading user info:', error)
-        toast.error('加载用户信息失败: ' + error.message)
+        toast.error(t('profilePage.loadFailed', { message: error.message }))
       } finally {
         setLoading(false)
       }
@@ -151,7 +151,7 @@ const ProfilePage = () => {
     try {
       const nextBio = tempBio.trim()
       if (nextBio.length < 10) {
-        toast.error('请至少填写 10 个字的个人简介')
+        toast.error(t('profilePage.bioTooShort'))
         return
       }
 
@@ -161,9 +161,9 @@ const ProfilePage = () => {
       setBio(nextUser.bio || nextBio)
       setTempBio(nextUser.bio || nextBio)
       setIsEditing(false)
-      toast.success('简介保存成功')
+      toast.success(t('profilePage.bioSaved'))
     } catch (error) {
-      toast.error('保存失败: ' + error.message)
+      toast.error(t('profilePage.saveFailed', { message: error.message }))
     }
   }
 
@@ -177,7 +177,7 @@ const ProfilePage = () => {
   if (loading) {
     return (
       <ResponsiveContainer>
-        <LoadingPage message="正在加载用户信息..." />
+        <LoadingPage message={t('common.loadingUser')} />
       </ResponsiveContainer>
     )
   }
@@ -188,9 +188,9 @@ const ProfilePage = () => {
         <Card variant="inactive">
           <CardContent className="text-center py-12">
             <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-lg text-gray-600 mb-4">请先登录</p>
+            <p className="text-lg text-gray-600 mb-4">{t('pleaseLogin')}</p>
             <Button variant="primary" onClick={() => navigate('/login')}>
-              去登录
+              {t('profilePage.goLogin')}
             </Button>
           </CardContent>
         </Card>
@@ -205,10 +205,10 @@ const ProfilePage = () => {
         <FadeIn>
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              个人中心
+              {t('profilePage.title')}
             </h1>
             <p className="text-xl text-gray-600">
-              管理你的账户信息和查看成就
+              {t('profilePage.subtitle')}
             </p>
           </div>
         </FadeIn>
@@ -218,33 +218,33 @@ const ProfilePage = () => {
           <Card variant="primary">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-2xl">基本信息</CardTitle>
+                <CardTitle className="text-2xl">{t('profilePage.basicInfo')}</CardTitle>
                 {!isEditing ? (
-                  <Button 
-                    variant="proceed" 
+                  <Button
+                    variant="proceed"
                     size="sm"
                     onClick={() => setIsEditing(true)}
                   >
                     <Edit3 className="w-4 h-4 mr-1" />
-                    编辑
+                    {t('common.edit')}
                   </Button>
                 ) : (
                   <div className="flex gap-2">
-                    <Button 
-                      variant="success" 
+                    <Button
+                      variant="success"
                       size="sm"
                       onClick={saveBio}
                     >
                       <Save className="w-4 h-4 mr-1" />
-                      保存
+                      {t('common.save')}
                     </Button>
-                    <Button 
-                      variant="inactive" 
+                    <Button
+                      variant="inactive"
                       size="sm"
                       onClick={cancelEdit}
                     >
                       <X className="w-4 h-4 mr-1" />
-                      取消
+                      {t('cancel')}
                     </Button>
                   </div>
                 )}
@@ -259,20 +259,20 @@ const ProfilePage = () => {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <h2 className="text-xl font-semibold text-gray-900">
-                      {user.EVM ? formatEvmAddress(user.EVM) : '未知用户'}
+                      {user.EVM ? formatEvmAddress(user.EVM) : t('profilePage.unknownUser')}
                     </h2>
                     {user.is_admin && (
-                      <Badge variant="warning" size="sm">管理员</Badge>
+                      <Badge variant="warning" size="sm">{t('common.admin')}</Badge>
                     )}
                   </div>
                   <div className="flex items-center gap-4 text-sm text-gray-600">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
-                      注册时间: {user.time_reg ? toDate(user.time_reg).toLocaleDateString() : '未知'}
+                      {t('profilePage.registeredAt')}: {user.time_reg ? toDate(user.time_reg).toLocaleDateString() : t('common.unknown')}
                     </div>
                     <div className="flex items-center gap-1">
                       <Mail className="w-4 h-4" />
-                      钱包地址: {user.EVM ? formatEvmAddress(user.EVM) : '未设置'}
+                      {t('profilePage.walletAddress')}: {user.EVM ? formatEvmAddress(user.EVM) : t('common.notSet')}
                     </div>
                   </div>
                 </div>
@@ -281,7 +281,7 @@ const ProfilePage = () => {
               {/* 用户简介 */}
               <div>
                 <h3 className="font-semibold text-lg mb-2">
-                  个人简介
+                  {t('profilePage.bio')}
                   {/* 「翻译中」小标（`i18n_status ∈ {pending, partial}`；ready/缺省 ⇒ null） */}
                   <TranslatingBadge status={contentStatus(user)} />
                 </h3>
@@ -291,12 +291,12 @@ const ProfilePage = () => {
                     onChange={(e) => setTempBio(e.target.value)}
                     className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-yellow-500 focus:outline-none resize-none"
                     rows={4}
-                    placeholder="介绍一下你自己..."
+                    placeholder={t('profilePage.bioPlaceholder')}
                   />
                 ) : (
                   <div className="p-3 bg-gray-50 rounded-lg min-h-[100px]">
                     {/* TR-2：展示走当前语言（`bio_<lang>`；空串/缺字段 ⇒ 回落原文 `bio`） */}
-                    {pickLocalized(user, 'bio', lang) || bio || '这个人很懒，什么都没有留下...'}
+                    {pickLocalized(user, 'bio', lang) || bio || t('profilePage.bioEmpty')}
                   </div>
                 )}
               </div>
@@ -308,7 +308,7 @@ const ProfilePage = () => {
         <SlideUp delay={400}>
           <Card variant="secondary">
             <CardHeader>
-              <CardTitle className="text-2xl">我的资产</CardTitle>
+              <CardTitle className="text-2xl">{t('profilePage.myAssets')}</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveGrid sm={2} md={4} gap={4}>
@@ -316,25 +316,25 @@ const ProfilePage = () => {
                   <div className="text-3xl font-bold text-yellow-600 mb-1">
                     {userAssets?.points || 0}
                   </div>
-                  <div className="text-sm text-gray-600">积分</div>
+                  <div className="text-sm text-gray-600">{t('common.points')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-600 mb-1">
                     {taskStats.pendingRewards}
                   </div>
-                  <div className="text-sm text-gray-600">待领取</div>
+                  <div className="text-sm text-gray-600">{t('common.pending')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-600 mb-1">
                     {taskStats.claimedRewards}
                   </div>
-                  <div className="text-sm text-gray-600">已兑换奖励</div>
+                  <div className="text-sm text-gray-600">{t('profilePage.redeemedRewards')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-purple-600 mb-1">
                     {userAssets?.time_update ? toDate(userAssets.time_update).toLocaleDateString() : '—'}
                   </div>
-                  <div className="text-sm text-gray-600">最近更新</div>
+                  <div className="text-sm text-gray-600">{t('profilePage.lastUpdate')}</div>
                 </div>
               </ResponsiveGrid>
             </CardContent>
@@ -364,7 +364,7 @@ const ProfilePage = () => {
         <SlideUp delay={600}>
           <Card variant="success">
             <CardHeader>
-              <CardTitle className="text-2xl">任务成就</CardTitle>
+              <CardTitle className="text-2xl">{t('profilePage.taskAchievements')}</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveGrid sm={2} md={4} gap={4}>
@@ -372,54 +372,54 @@ const ProfilePage = () => {
                   <div className="text-3xl font-bold text-blue-600 mb-1">
                     {taskStats.totalTasks}
                   </div>
-                  <div className="text-sm text-gray-600">总任务</div>
+                  <div className="text-sm text-gray-600">{t('profilePage.totalTasks')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-600 mb-1">
                     {taskStats.completedTasks}
                   </div>
-                  <div className="text-sm text-gray-600">已完成</div>
+                  <div className="text-sm text-gray-600">{t('common.completed')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-orange-600 mb-1">
                     {taskStats.pendingTasks}
                   </div>
-                  <div className="text-sm text-gray-600">进行中</div>
+                  <div className="text-sm text-gray-600">{t('common.ongoing')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-yellow-600 mb-1">
                     {taskStats.totalPoints}
                   </div>
-                  <div className="text-sm text-gray-600">总积分</div>
+                  <div className="text-sm text-gray-600">{t('profilePage.totalPoints')}</div>
                 </div>
               </ResponsiveGrid>
-              
+
               {/* 成就徽章 */}
               <div className="mt-6">
-                <h3 className="font-semibold text-lg mb-3">成就徽章</h3>
+                <h3 className="font-semibold text-lg mb-3">{t('profilePage.achievements')}</h3>
                 <div className="flex flex-wrap gap-2">
                   {taskStats.completedTasks >= 1 && (
                     <Badge variant="success" className="flex items-center gap-1">
                       <Trophy className="w-3 h-3" />
-                      新手
+                      {t('profilePage.badgeNovice')}
                     </Badge>
                   )}
                   {taskStats.completedTasks >= 5 && (
                     <Badge variant="primary" className="flex items-center gap-1">
                       <Star className="w-3 h-3" />
-                      达人
+                      {t('profilePage.badgeExpert')}
                     </Badge>
                   )}
                   {taskStats.completedTasks >= 10 && (
                     <Badge variant="warning" className="flex items-center gap-1">
                       <Trophy className="w-3 h-3" />
-                      专家
+                      {t('profilePage.badgeMaster')}
                     </Badge>
                   )}
                   {taskStats.totalPoints >= 1000 && (
                     <Badge variant="secondary" className="flex items-center gap-1">
                       <Star className="w-3 h-3" />
-                      积分达人
+                      {t('profilePage.badgePointsPro')}
                     </Badge>
                   )}
                 </div>
@@ -433,21 +433,21 @@ const ProfilePage = () => {
           <Card variant="inactive">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-2xl">碎片持仓</CardTitle>
+                <CardTitle className="text-2xl">{t('profilePage.shardHoldings')}</CardTitle>
                 <Link to="/shard" className="text-sm text-blue-600 hover:text-blue-800 underline">
-                  去交易
+                  {t('common.goTrade')}
                 </Link>
               </div>
             </CardHeader>
             <CardContent>
               {shardHoldings.length === 0 ? (
-                <p className="text-center text-gray-500 py-4">暂无持仓</p>
+                <p className="text-center text-gray-500 py-4">{t('profilePage.noHoldings')}</p>
               ) : (
                 <div className="divide-y divide-gray-100">
                   {shardHoldings.map((h) => (
                     <div key={h.bID} className="flex items-center justify-between py-2">
                       <span className="font-medium text-gray-800">{h.symbol || h.bID}</span>
-                      <span className="text-gray-600">{h.volume} 碎片</span>
+                      <span className="text-gray-600">{h.volume} {t('common.shardUnit')}</span>
                     </div>
                   ))}
                 </div>

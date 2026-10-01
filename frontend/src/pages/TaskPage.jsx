@@ -11,13 +11,18 @@ import { ResponsiveGrid, ResponsiveContainer } from '../components/ui/Responsive
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/Tabs'
 import ClaimRewardModal from '../components/ClaimRewardModal'
 import ActiveTaskModal from '../components/ActiveTaskModal'
+import { getLanguageFromUrl } from '../utils'
+import { pickLocalized } from '../i18n-content'
 
-const fetchJson = async (url, options = {}) => {
+// P6-I18N-LIT-B2：`t` 由调用点传入（`fetchJson` 在模块作用域，无 hook 上下文）；
+//   缺 `t` 时兜底为非 CJK 的 `HTTP <status>`。
+const fetchJson = async (url, options = {}, t) => {
   const response = await fetch(url, options)
   const data = await response.json().catch(() => null)
 
   if (!response.ok || !data?.success) {
-    throw new Error(data?.message || `请求失败 (${response.status})`)
+    const fallback = t ? t('taskPage.requestFailed', { status: response.status }) : `HTTP ${response.status}`
+    throw new Error(data?.message || fallback)
   }
 
   return data.data
@@ -38,36 +43,20 @@ const TaskPage = () => {
   const [selectedTask, setSelectedTask] = useState(null)
   const [activeTab, setActiveTab] = useState('available')
 
-  const getCurrentLang = () => {
-    const pathParts = location.pathname.split('/')
-    if (pathParts.length > 1 && ['en', 'hk', 'vn'].includes(pathParts[1])) {
-      return pathParts[1]
-    }
-    return 'zh'
-  }
+  // P6-I18N-LIT-B2：语言码走 utils 单一来源（原本地 `getCurrentLang` 复刻 ⇒ 删）；
+  //   内容本地化收口为共用 `pickLocalized`（`||` 语义、防空串穿透；原三目链（`_en` 配 `??` 兜底）删除）。
+  const lang = getLanguageFromUrl(location.pathname)
 
-  const enrichTask = (task, lang) => ({
+  const enrichTask = (task) => ({
     ...task,
-    title: lang === 'en'
-      ? (task.title_en ?? task.title)
-      : lang === 'hk'
-        ? (task.title_hk ?? task.title)
-        : lang === 'vn'
-          ? (task.title_vn ?? task.title)
-          : task.title,
-    note: lang === 'en'
-      ? (task.note_en ?? task.note)
-      : lang === 'hk'
-        ? (task.note_hk ?? task.note)
-        : lang === 'vn'
-          ? (task.note_vn ?? task.note)
-          : task.note,
-    description: task.note,
+    title: pickLocalized(task, 'title', lang),
+    note: pickLocalized(task, 'note', lang),
+    description: pickLocalized(task, 'note', lang),
     status: task.is_open ? 'active' : 'inactive',
-    statusText: task.is_open ? '进行中' : '已结束',
+    statusText: task.is_open ? t('common.ongoing') : t('common.ended'),
     type: task.refcode ? 'trade' : 'join',
     participants: task.participants_count || 0,
-    actionText: '立即参与',
+    actionText: t('common.joinNow'),
   })
 
   const normalizeTaskProgressTask = (taskProgress, task) => ({
@@ -82,13 +71,12 @@ const TaskPage = () => {
     const loadData = async () => {
       setLoading(true)
       try {
-        const lang = getCurrentLang()
         const storedUser = localStorage.getItem('user')
         const parsedUser = storedUser ? JSON.parse(storedUser) : null
         setCurrentUser(parsedUser)
 
-        const taskRows = await fetchJson('/api/task/all')
-        const enrichedTasks = (taskRows || []).map((task) => enrichTask(task, lang))
+        const taskRows = await fetchJson('/api/task/all', {}, t)
+        const enrichedTasks = (taskRows || []).map((task) => enrichTask(task))
         const taskMap = new Map(enrichedTasks.map((task) => [task.tID, task]))
         setTasks(enrichedTasks)
 
@@ -130,8 +118,8 @@ const TaskPage = () => {
             nextCompleted.push({
               ...merged,
               status: 'inactive',
-              statusText: '已完成',
-              actionText: '已领取',
+              statusText: t('common.completed'),
+              actionText: t('common.claimed'),
             })
             return
           }
@@ -140,8 +128,8 @@ const TaskPage = () => {
             nextPendingRewards.push({
               ...merged,
               status: 'active',
-              statusText: '待领取',
-              actionText: '领取奖励',
+              statusText: t('common.pending'),
+              actionText: t('common.claimReward'),
             })
             return
           }
@@ -150,8 +138,8 @@ const TaskPage = () => {
             nextVerification.push({
               ...merged,
               status: 'inactive',
-              statusText: '待验证',
-              actionText: '审核中',
+              statusText: t('pendingVerification'),
+              actionText: t('common.underReview'),
             })
           }
         })
@@ -170,7 +158,7 @@ const TaskPage = () => {
             return {
               ...task,
               jID: taskProgress?.jID,
-              actionText: taskProgress?.jID ? '继续任务' : '立即参与',
+              actionText: taskProgress?.jID ? t('taskPage.continueTask') : t('common.joinNow'),
             }
           })
 
@@ -210,7 +198,7 @@ const TaskPage = () => {
   if (loading) {
     return (
       <ResponsiveContainer>
-        <LoadingPage message="正在加载任务..." />
+        <LoadingPage message={t('common.loadingTasks')} />
       </ResponsiveContainer>
     )
   }
@@ -227,8 +215,8 @@ const TaskPage = () => {
       <div className="space-y-8">
         <FadeIn>
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">任务中心</h1>
-            <p className="text-xl text-gray-600 mb-8">参与任务，赚取积分，解锁精彩奖励</p>
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('taskPage.title')}</h1>
+            <p className="text-xl text-gray-600 mb-8">{t('taskPage.subtitle')}</p>
 
             {/* 招工线入口条（P4-B4c-ii-a）：列表 = 本页（GET /api/task/all ⇒ 招工）；
                 发布 = task/new（POST /api/job）；审核 = task/review（GET /api/tasklist/pending-verification）。
@@ -245,25 +233,25 @@ const TaskPage = () => {
               <Card variant="primary" className="text-center">
                 <CardContent className="py-4">
                   <div className="text-2xl font-bold text-yellow-600">{taskStats.available}</div>
-                  <div className="text-sm text-gray-600">可参与</div>
+                  <div className="text-sm text-gray-600">{t('common.available')}</div>
                 </CardContent>
               </Card>
               <Card variant="warning" className="text-center">
                 <CardContent className="py-4">
                   <div className="text-2xl font-bold text-orange-600">{taskStats.pending}</div>
-                  <div className="text-sm text-gray-600">待领取</div>
+                  <div className="text-sm text-gray-600">{t('common.pending')}</div>
                 </CardContent>
               </Card>
               <Card variant="success" className="text-center">
                 <CardContent className="py-4">
                   <div className="text-2xl font-bold text-green-600">{taskStats.completed}</div>
-                  <div className="text-sm text-gray-600">已完成</div>
+                  <div className="text-sm text-gray-600">{t('common.completed')}</div>
                 </CardContent>
               </Card>
               <Card variant="secondary" className="text-center">
                 <CardContent className="py-4">
                   <div className="text-2xl font-bold text-blue-600">{taskStats.verification}</div>
-                  <div className="text-sm text-gray-600">待验证</div>
+                  <div className="text-sm text-gray-600">{t('pendingVerification')}</div>
                 </CardContent>
               </Card>
             </div>
@@ -273,10 +261,10 @@ const TaskPage = () => {
         <SlideUp delay={200}>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="available">可参与 ({taskStats.available})</TabsTrigger>
-              <TabsTrigger value="pending">待领取 ({taskStats.pending})</TabsTrigger>
-              <TabsTrigger value="completed">已完成 ({taskStats.completed})</TabsTrigger>
-              <TabsTrigger value="verification">待验证 ({taskStats.verification})</TabsTrigger>
+              <TabsTrigger value="available">{t('common.available')} ({taskStats.available})</TabsTrigger>
+              <TabsTrigger value="pending">{t('common.pending')} ({taskStats.pending})</TabsTrigger>
+              <TabsTrigger value="completed">{t('common.completed')} ({taskStats.completed})</TabsTrigger>
+              <TabsTrigger value="verification">{t('pendingVerification')} ({taskStats.verification})</TabsTrigger>
             </TabsList>
 
             <TabsContent value="available" className="space-y-6">
@@ -295,8 +283,8 @@ const TaskPage = () => {
                   <CardContent className="text-center py-12">
                     <div className="text-gray-500 mb-4">
                       <div className="text-6xl mb-4">📋</div>
-                      <p className="text-lg">暂无可用任务</p>
-                      <p className="text-sm mt-2">请稍后再来查看</p>
+                      <p className="text-lg">{t('taskPage.emptyAvailable')}</p>
+                      <p className="text-sm mt-2">{t('taskPage.emptyAvailableHint')}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -319,8 +307,8 @@ const TaskPage = () => {
                   <CardContent className="text-center py-12">
                     <div className="text-gray-500 mb-4">
                       <div className="text-6xl mb-4">⏳</div>
-                      <p className="text-lg">暂无待领取任务</p>
-                      <p className="text-sm mt-2">完成任务并通过审核后可在此领取奖励</p>
+                      <p className="text-lg">{t('taskPage.emptyPending')}</p>
+                      <p className="text-sm mt-2">{t('taskPage.emptyPendingHint')}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -343,8 +331,8 @@ const TaskPage = () => {
                   <CardContent className="text-center py-12">
                     <div className="text-gray-500 mb-4">
                       <div className="text-6xl mb-4">✅</div>
-                      <p className="text-lg">暂无已完成任务</p>
-                      <p className="text-sm mt-2">开始参与任务赚取积分吧</p>
+                      <p className="text-lg">{t('taskPage.emptyCompleted')}</p>
+                      <p className="text-sm mt-2">{t('taskPage.emptyCompletedHint')}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -367,8 +355,8 @@ const TaskPage = () => {
                   <CardContent className="text-center py-12">
                     <div className="text-gray-500 mb-4">
                       <div className="text-6xl mb-4">🔍</div>
-                      <p className="text-lg">暂无待验证任务</p>
-                      <p className="text-sm mt-2">提交的任务审核过程中会显示在这里</p>
+                      <p className="text-lg">{t('taskPage.emptyVerification')}</p>
+                      <p className="text-sm mt-2">{t('taskPage.emptyVerificationHint')}</p>
                     </div>
                   </CardContent>
                 </Card>

@@ -27,26 +27,26 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
     try {
       const user = JSON.parse(localStorage.getItem('user'))
       const token = user?.token || user?.access_token || localStorage.getItem('token')
-      
+
       // 验证 token 格式
       if (!token) {
-        toast.error('未找到登录凭证，请重新登录')
+        toast.error(t('activeTaskModal.noCredential'))
         navigate('/login')
         return
       }
-      
+
       // JWT token 应该包含三个部分（header.payload.signature）
       const tokenParts = token.split('.')
       if (tokenParts.length !== 3) {
         console.error('Invalid token format:', token)
-        toast.error('登录凭证格式错误，请重新登录')
+        toast.error(t('activeTaskModal.badCredential'))
         clearAuthSession()
         navigate('/login')
         return
       }
-      
+
       console.log('Sending request with token:', token.substring(0, 50) + '...')
-      
+
       const response = await fetch(`/api/task-progress/${task.jID || task.tID}/submit`, {
         method: 'POST',
         headers: {
@@ -60,12 +60,12 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
 
       if (response.status === 401) {
         // Token 过期或无效，需要重新登录
-        toast.error(t('sessionExpired') || '登录已过期，请重新登录')
+        toast.error(t('sessionExpired'))
         clearAuthSession()
         navigate('/login')
         return
       }
-      
+
       const data = await response.json()
       if (data.success) {
         toast.success(t('successSubmitTask'))
@@ -73,7 +73,7 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
         // 重定向到任务页面并滚动到待验证部分
         navigate(`/task#pending-verification`)
       } else {
-        toast.error(t('error') + ': ' + (data.message || '提交任务失败'))
+        toast.error(t('error') + ': ' + (data.message || t('activeTaskModal.submitFailed')))
       }
     } catch (error) {
       console.error('Error submitting task:', error)
@@ -91,18 +91,18 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
       <div className="modal-container bg-white dark:bg-bg-dark rounded-lg shadow-xl w-full max-w-md">
         <div className="modal-header p-6 border-b border-border flex justify-between items-center">
           <h3 className="text-xl font-bold">{t('completeTask')}</h3>
-          <button 
+          <button
             className="modal-close text-text-muted hover:text-text-primary transition-colors"
             onClick={onClose}
           >
             ✕
           </button>
         </div>
-        
+
         <div className="modal-body p-6">
           <h4 className="text-lg font-medium mb-4">{task.title}</h4>
           <p className="text-text-secondary mb-6">{task.note}</p>
-          
+
           <form onSubmit={handleSubmit}>
             <div className="mb-6">
               <label htmlFor="infoInput" className="block text-sm font-medium mb-2">
@@ -118,14 +118,14 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
                 required
               />
             </div>
-            
+
             {task.linkA && (
               <div className="mb-6">
                 <p className="text-sm text-text-secondary mb-2">{t('taskLink')}:</p>
-                <a 
-                  href={task.linkA} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
+                <a
+                  href={task.linkA}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-primary hover:underline text-sm inline-flex items-center"
                 >
                   {task.linkA}
@@ -133,9 +133,9 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
                 </a>
               </div>
             )}
-            
+
             <div className="flex justify-end space-x-4">
-              <button 
+              <button
                 type="button"
                 className="btn btn-inactive"
                 onClick={onClose}
@@ -143,7 +143,7 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
               >
                 {t('cancel')}
               </button>
-              <button 
+              <button
                 type="submit"
                 className="btn btn-proceed"
                 disabled={submitting || !infoInput.trim()}

@@ -231,8 +231,9 @@ describe('TR-2 · 四语 locale 键集 + 新键', () => {
 
 describe('TR-2 · 静态不变量：新接页面不得用 `??` 取多语列（空串会穿透）', () => {
   const SRC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
-  // 既有三页（HomePage/TaskPage/RewardPage）在本单「只核不改」⇒ 登记为已知存量，不纳入新页面断言
-  const LEGACY = ['HomePage.jsx', 'TaskPage.jsx', 'RewardPage.jsx']
+  // P6-I18N-LIT-B2：TaskPage / RewardPage 已单点收口（旧三目链 `_en ?? base` ⇒ 共用 `pickLocalized`）
+  //   ⇒ 二者移出存量、转入 WIRED（断言更强）；仅 HomePage.jsx 仍为存量（B1 范围，本批不碰）。
+  const LEGACY = ['HomePage.jsx']
   const WIRED = [
     'pages/listings/ListingsPage.jsx',
     'pages/listings/ListingDetailPage.jsx',
@@ -240,9 +241,11 @@ describe('TR-2 · 静态不变量：新接页面不得用 `??` 取多语列（�
     'pages/jobs/JobReviewPage.jsx',
     'pages/market/MarketPage.jsx',
     'pages/ProfilePage.jsx',
+    'pages/TaskPage.jsx',
+    'pages/RewardPage.jsx',
   ]
 
-  it('六个新接文件里没有 `_en/_hk/_vn` + `??` 组合（取值一律 `||`，经 i18n-content）', () => {
+  it('新接文件（含 B2 收口的 TaskPage / RewardPage）里没有 `_en/_hk/_vn` + `??` 组合（取值一律 `||`，经 i18n-content）', () => {
     for (const rel of WIRED) {
       const text = fs.readFileSync(path.join(SRC, rel), 'utf8')
       expect(text.match(/_(en|hk|vn)\s*\?\?/g)).toBeNull()

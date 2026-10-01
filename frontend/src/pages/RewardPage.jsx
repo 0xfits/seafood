@@ -11,12 +11,17 @@ import { ResponsiveGrid, ResponsiveContainer } from '../components/ui/Responsive
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/Tabs'
 import { fetchApiJson, getAuthHeaders } from '../auth'
 import { useAuth } from '../auth-context'
+import { getLanguageFromUrl } from '../utils'
+import { contentStatus, pickLocalized } from '../i18n-content'
+import TranslatingBadge from '../components/i18n/TranslatingBadge'
 
 const RewardPage = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
   const { user, isAuthenticated } = useAuth()
+  // P6-I18N-LIT-B2：语言码走 utils 单一来源（原本地 `getCurrentLang` 复刻 ⇒ 删）。
+  const lang = getLanguageFromUrl(location.pathname)
   const [rewards, setRewards] = useState([])
   const [shardMap, setShardMap] = useState({})
   const [loading, setLoading] = useState(true)
@@ -29,21 +34,9 @@ const RewardPage = () => {
   const q_jID = params.get('jID')
   const isTaskProgressMode = !!q_jID
 
-  const getCurrentLang = () => {
-    const pathParts = location.pathname.split('/')
-    if (pathParts.length > 1 && ['en', 'hk', 'vn'].includes(pathParts[1])) {
-      return pathParts[1]
-    }
-    return 'zh'
-  }
-
-  const buildPath = (path) => {
-    const lang = getCurrentLang()
-    return lang === 'zh' ? path : `/${lang}${path}`
-  }
+  const buildPath = (path) => (lang === 'zh' ? path : `/${lang}${path}`)
 
   const loadListMode = async () => {
-    const lang = getCurrentLang()
     const brandRows = await fetchApiJson('/api/prize/all')
 
     let claimedBrandIds = new Set()
@@ -74,28 +67,23 @@ const RewardPage = () => {
       const isClaimed = claimedBrandIds.has(reward.bID)
       return {
         ...reward,
-        title: lang === 'en'
-          ? (reward.name_en ?? reward.name)
-          : lang === 'hk'
-            ? (reward.name_hk ?? reward.name)
-            : lang === 'vn'
-              ? (reward.name_vn ?? reward.name)
-              : reward.name,
-        description: lang === 'en'
-          ? (reward.description_en ?? reward.description)
-          : lang === 'hk'
-            ? (reward.description_hk ?? reward.description)
-            : lang === 'vn'
-              ? (reward.description_vn ?? reward.description)
-              : reward.description,
+        // P6-I18N-LIT-B2：内容本地化收口为共用 `pickLocalized`（`||` 语义、防空串穿透）；
+        //   原旧式三目链（`_en` 配 `??` 兜底）删除 —— `??` 会被空串穿透 ⇒ 卡片空白。
+        title: pickLocalized(reward, 'name', lang),
+        description: pickLocalized(reward, 'description', lang),
         points_required: reward.points || 0,
         image: reward.image_url || reward.url_image,
         brand: {
-          name: reward.name,
+          // P6-I18N-LIT-B2：品牌/奖品名同为 UGC ⇒ 一并走 `pickLocalized`（en 档不得回显中文原名）
+          name: pickLocalized(reward, 'name', lang),
           logo: reward.image_url || reward.url_image,
         },
         status: isClaimed ? 'claimed' : storesCount > 0 ? 'available' : 'locked',
-        statusText: isClaimed ? '已兑换' : storesCount > 0 ? '可兑换' : '库存不足',
+        statusText: isClaimed
+          ? t('common.redeemed')
+          : storesCount > 0
+            ? t('CanClaim')
+            : t('common.outOfStock'),
         rarity: reward.points > 5000 ? 'epic' : reward.points > 2000 ? 'rare' : 'common',
         claimed: claimsCount,
         total: claimsCount + storesCount,
@@ -147,27 +135,27 @@ const RewardPage = () => {
 
   const handleRewardClaim = (reward) => {
     if (!isAuthenticated) {
-      toast.error('请先登录')
+      toast.error(t('pleaseLogin'))
       navigate('/login', { state: { from: location } })
       return
     }
 
     if (reward.status === 'claimed') {
-      toast('该奖励已在你的礼品记录中')
+      toast(t('rewardPage.alreadyInGiftRecord'))
       return
     }
 
     if (reward.status !== 'available') {
-      toast.error('当前奖励库存不足')
+      toast.error(t('rewardPage.rewardOutOfStock'))
       return
     }
 
     if (userPoints < reward.points_required) {
-      toast.error('积分不足')
+      toast.error(t('common.notEnoughPoints'))
       return
     }
 
-    toast('奖品兑换入口暂未开放，请联系管理员准备具体库存后再兑换。')
+    toast(t('rewardPage.redeemNotOpen'))
   }
 
   // ── 弃用面下线（P4-B4b-i · §2.4 **S5** / §5.2）─────────────────────────────────
@@ -181,13 +169,15 @@ const RewardPage = () => {
   if (loading) {
     return (
       <ResponsiveContainer>
-        <LoadingPage message="正在加载奖励..." />
+        <LoadingPage message={t('common.loadingRewards')} />
       </ResponsiveContainer>
     )
   }
 
   if (isTaskProgressMode && taskProgress) {
     const rewardPoints = taskProgress.points_claimed || taskDetail?.points || 0
+    const detailTitle = pickLocalized(taskDetail, 'title', lang) || t('rewardPage.taskNumber', { id: taskProgress.tID })
+    const detailNote = pickLocalized(taskDetail, 'note', lang)
 
     return (
       <ResponsiveContainer>
@@ -198,22 +188,26 @@ const RewardPage = () => {
               onClick={() => navigate(buildPath('/reward'))}
               className="mb-4"
             >
-              ← 返回奖励列表
+              {t('rewardPage.backToList')}
             </Button>
 
             <Card variant="primary">
               <CardHeader>
-                <CardTitle className="text-2xl">任务奖励详情</CardTitle>
+                <CardTitle className="text-2xl">{t('rewardPage.detailTitle')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">任务信息</h3>
-                  <p className="text-gray-600">{taskDetail?.title || `任务 #${taskProgress.tID}`}</p>
-                  <p className="text-sm text-gray-500 mt-1">{taskDetail?.note || '暂无说明'}</p>
+                  <h3 className="font-semibold text-lg mb-2">
+                    {t('rewardPage.taskInfo')}
+                    {/* 「翻译中」小标（TR-2）：`i18n_status ∈ {pending, partial}` 且非 zh 档才渲染 */}
+                    <TranslatingBadge status={contentStatus(taskDetail)} />
+                  </h3>
+                  <p className="text-gray-600">{detailTitle}</p>
+                  <p className="text-sm text-gray-500 mt-1">{detailNote || t('rewardPage.noNote')}</p>
                 </div>
 
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">完成进度</h3>
+                  <h3 className="font-semibold text-lg mb-2">{t('rewardPage.progress')}</h3>
                   <div className="flex items-center gap-2">
                     <div className="flex-1 bg-gray-200 rounded-full h-2">
                       <div
@@ -222,20 +216,26 @@ const RewardPage = () => {
                       />
                     </div>
                     <span className="text-sm text-gray-600">
-                      {taskProgress.time_claimed ? '已领取' : taskProgress.time_checked ? '可领取' : taskProgress.info_input ? '审核中' : '进行中'}
+                      {taskProgress.time_claimed
+                        ? t('common.claimed')
+                        : taskProgress.time_checked
+                          ? t('common.claimable')
+                          : taskProgress.info_input
+                            ? t('common.underReview')
+                            : t('common.ongoing')}
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">可获得积分</h3>
+                  <h3 className="font-semibold text-lg mb-2">{t('rewardPage.pointsAvailable')}</h3>
                   <div className="text-3xl font-bold text-yellow-600">{rewardPoints}</div>
-                  <div className="text-sm text-gray-500">积分</div>
+                  <div className="text-sm text-gray-500">{t('common.points')}</div>
                 </div>
 
                 {taskProgress.time_claimed ? (
                   <div className="text-center py-4">
-                    <Badge variant="success" size="lg">已领取</Badge>
+                    <Badge variant="success" size="lg">{t('common.claimed')}</Badge>
                   </div>
                 ) : (
                   <div className="text-center py-4 text-sm text-gray-500">{t('claimRetiredNotice')}</div>
@@ -258,15 +258,15 @@ const RewardPage = () => {
       <div className="space-y-8">
         <FadeIn>
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">奖励中心</h1>
-            <p className="text-xl text-gray-600 mb-8">用积分兑换精彩礼品和特权</p>
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('rewardPage.title')}</h1>
+            <p className="text-xl text-gray-600 mb-8">{t('rewardPage.subtitle')}</p>
 
             {isAuthenticated && (
               <Card variant="primary" className="max-w-md mx-auto">
                 <CardContent className="py-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-sm text-gray-600">我的积分</div>
+                      <div className="text-sm text-gray-600">{t('rewardPage.myPoints')}</div>
                       <div className="text-2xl font-bold text-yellow-600">{userPoints}</div>
                     </div>
                     <div className="text-4xl">🪙</div>
@@ -282,25 +282,25 @@ const RewardPage = () => {
             <Card variant="primary" className="text-center">
               <CardContent className="py-4">
                 <div className="text-2xl font-bold text-yellow-600">{availableRewards.length}</div>
-                <div className="text-sm text-gray-600">可兑换</div>
+                <div className="text-sm text-gray-600">{t('CanClaim')}</div>
               </CardContent>
             </Card>
             <Card variant="success" className="text-center">
               <CardContent className="py-4">
                 <div className="text-2xl font-bold text-green-600">{claimedRewards.length}</div>
-                <div className="text-sm text-gray-600">已兑换</div>
+                <div className="text-sm text-gray-600">{t('common.redeemed')}</div>
               </CardContent>
             </Card>
             <Card variant="warning" className="text-center">
               <CardContent className="py-4">
                 <div className="text-2xl font-bold text-orange-600">{limitedRewards.length}</div>
-                <div className="text-sm text-gray-600">限量版</div>
+                <div className="text-sm text-gray-600">{t('rewardPage.limitedEdition')}</div>
               </CardContent>
             </Card>
             <Card variant="secondary" className="text-center">
               <CardContent className="py-4">
                 <div className="text-2xl font-bold text-blue-600">{epicRewards.length}</div>
-                <div className="text-sm text-gray-600">高价值</div>
+                <div className="text-sm text-gray-600">{t('rewardPage.highValue')}</div>
               </CardContent>
             </Card>
           </div>
@@ -309,10 +309,10 @@ const RewardPage = () => {
         <SlideUp delay={400}>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="available">可兑换 ({availableRewards.length})</TabsTrigger>
-              <TabsTrigger value="limited">限量版 ({limitedRewards.length})</TabsTrigger>
-              <TabsTrigger value="epic">高价值 ({epicRewards.length})</TabsTrigger>
-              <TabsTrigger value="claimed">已兑换 ({claimedRewards.length})</TabsTrigger>
+              <TabsTrigger value="available">{t('CanClaim')} ({availableRewards.length})</TabsTrigger>
+              <TabsTrigger value="limited">{t('rewardPage.limitedEdition')} ({limitedRewards.length})</TabsTrigger>
+              <TabsTrigger value="epic">{t('rewardPage.highValue')} ({epicRewards.length})</TabsTrigger>
+              <TabsTrigger value="claimed">{t('common.redeemed')} ({claimedRewards.length})</TabsTrigger>
             </TabsList>
 
             <TabsContent value="available" className="space-y-6">
@@ -332,8 +332,8 @@ const RewardPage = () => {
                   <CardContent className="text-center py-12">
                     <div className="text-gray-500 mb-4">
                       <div className="text-6xl mb-4">🎁</div>
-                      <p className="text-lg">暂无可兑换奖励</p>
-                      <p className="text-sm mt-2">完成任务赚取积分来解锁奖励</p>
+                      <p className="text-lg">{t('rewardPage.emptyAvailable')}</p>
+                      <p className="text-sm mt-2">{t('rewardPage.emptyAvailableHint')}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -357,8 +357,8 @@ const RewardPage = () => {
                   <CardContent className="text-center py-12">
                     <div className="text-gray-500 mb-4">
                       <div className="text-6xl mb-4">⏰</div>
-                      <p className="text-lg">暂无限量版奖励</p>
-                      <p className="text-sm mt-2">限时或限额奖励会在库存准备好后出现</p>
+                      <p className="text-lg">{t('rewardPage.emptyLimited')}</p>
+                      <p className="text-sm mt-2">{t('rewardPage.emptyLimitedHint')}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -382,8 +382,8 @@ const RewardPage = () => {
                   <CardContent className="text-center py-12">
                     <div className="text-gray-500 mb-4">
                       <div className="text-6xl mb-4">👑</div>
-                      <p className="text-lg">暂无高价值奖励</p>
-                      <p className="text-sm mt-2">高价值奖励会在库存准备好后开放兑换</p>
+                      <p className="text-lg">{t('rewardPage.emptyHighValue')}</p>
+                      <p className="text-sm mt-2">{t('rewardPage.emptyHighValueHint')}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -406,8 +406,8 @@ const RewardPage = () => {
                   <CardContent className="text-center py-12">
                     <div className="text-gray-500 mb-4">
                       <div className="text-6xl mb-4">📋</div>
-                      <p className="text-lg">暂无已兑换奖励</p>
-                      <p className="text-sm mt-2">兑换记录会显示在这里</p>
+                      <p className="text-lg">{t('rewardPage.emptyClaimed')}</p>
+                      <p className="text-sm mt-2">{t('rewardPage.emptyClaimedHint')}</p>
                     </div>
                   </CardContent>
                 </Card>

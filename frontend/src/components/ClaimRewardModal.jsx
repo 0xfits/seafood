@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 
 const ClaimRewardModal = ({ open, isOpen, onClose, task }) => {
   const { t } = useTranslation()
-  const [loading, setLoading] = useState(false)
-  const [taskProgress, setTaskProgress] = useState(null)
+  const [loading, setLoading] = React.useState(false)
+  const [taskProgress, setTaskProgress] = React.useState(null)
   const visible = typeof open === 'boolean' ? open : Boolean(isOpen)
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (visible && task && (task.tlistID || task.jID)) {
       loadTaskProgressDetail(task.jID || task.tlistID)
     }
@@ -22,7 +22,7 @@ const ClaimRewardModal = ({ open, isOpen, onClose, task }) => {
       if (data && data.success) {
         setTaskProgress(data.data || null)
       } else {
-        toast.error(t('error') + ': ' + ((data && (data.error || data.message)) || '加载任务进度失败'))
+        toast.error(t('error') + ': ' + ((data && (data.error || data.message)) || t('claimRewardModal.loadProgressFailed')))
       }
     } catch (error) {
       toast.error(t('error') + ': ' + error.message)
@@ -48,7 +48,7 @@ const ClaimRewardModal = ({ open, isOpen, onClose, task }) => {
     <div className="modal-overlay modal-overlay--dim fixed inset-0 flex items-center justify-center z-50">
       <div className="modal-container claim-modal aqua-bg rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
         <div className="p-6 border-b border-border flex justify-between items-center">
-          <h3 className="text-xl font-bold">{t('claimReward') || '领取奖励'}</h3>
+          <h3 className="text-xl font-bold">{t('common.claimReward')}</h3>
           <button className="modal-close text-text-muted hover:text-text-primary transition-colors" onClick={onClose}>✕</button>
         </div>
         <div className="p-6">
@@ -74,11 +74,11 @@ const ClaimRewardModal = ({ open, isOpen, onClose, task }) => {
               </div>
             ) : null
           )}
-          <div className="text-sm text-text-secondary mt-4">在水域的奇遇中收集宝石，完成探索后领取奖励。</div>
+          <div className="text-sm text-text-secondary mt-4">{t('claimRewardModal.lore')}</div>
         </div>
         <div className="p-6 border-t border-border flex justify-end gap-3">
           <div className="mr-auto self-center text-sm text-text-secondary">{t('claimRetiredNotice')}</div>
-          <button className="btn btn-inactive" onClick={onClose}>{t('cancel') || '取消'}</button>
+          <button className="btn btn-inactive" onClick={onClose}>{t('cancel')}</button>
         </div>
       </div>
     </div>
