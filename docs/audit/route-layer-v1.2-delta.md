@@ -159,3 +159,17 @@ wc -l docs/versions/route-layer.spec.v1.1.md
 - **未触碰**：`docs/data-layer.spec.md` 本体、`docs/versions/data-layer.spec.v0.7.md`、`docs/versions/*` 其余全部快照、任何 `src/**` / `migrations/**` / `frontend/**` / `backend-ts/**` / `vercel.json` / `docs/seafood.master-plan.md` / 其它任何 spec。
 - **未做**：`git add/commit/push`；`npm`；`vercel`；DDL/DML（**零库连接**）；`pkill -f` / `killall`（**未启停任何进程**）。
 - **★ 安全红线自证**：本单**未读取 / 未打印任何密钥或 `.env*` 值**。
+
+---
+
+## §D14 追加修正（Unit JING-TR-3 · **只追加**）：`limit` 默认值 **20 ⇒ 100**
+
+> **本节为追加**：`§D0–§D13` 既有内容**一字未改**（追加前本件 = **161 行**，追加锚点 = 本件**原末行末字符**）。
+
+| 项 | 内容 |
+|---|---|
+| **漂移项** | 本件 **§D7** 与本册 v1.2 正文 **§10.7** 均记「`limit` 默认 **20** / 上限 100（`:1735`）」 |
+| **现盘真值** | **默认 100 / 上限 100**（`backend-ts/src/index.ts:1747` 现取：`… ? Math.min(100, Math.floor(parsedLimit)) : 100`）—— 由 **P6-TR-1c-FIX-FIN** 改动（`docs/audit/p6-tr1c-fix.md §9.1`）；**上限 `Math.min(100, …)` 逐字未动** |
+| **性质** | **非笔误**，属**版本时点差**（v1.2 记录时 = 改动前的当时真值）⇒ 本件**保留旧写法不删**，修正只在本节 |
+| **本册动作** | v1.3 已在 `docs/route-layer.spec.md §10.7` **就地订正并留痕** + 新增 **§10.11**（三 mode + `limit` 全口径）；本件修正条由 `docs/audit/route-layer-v1.3-delta.md §D6` 与正文 **§8.15.3-71** 双处登记 |
+| **同族残留（登记、不修）** | `docs/audit/p6-tr1b-mapper-and-backfill.md:89` 亦记「20」⇒ 属**该件面**，**本册不动** |
