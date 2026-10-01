@@ -123,6 +123,13 @@
     "publishNote": "A new listing starts as a draft; buyers can purchase it only after it is published.",
     "publishOk": "Item listed",
     "listed": "Listed",
+    "statusLabel": {
+          "draft": "Draft",
+          "listed": "On sale",
+          "delisted": "Removed",
+          "frozen": "Suspended",
+          "unknown": "Unknown"
+    },
     "listedFail": "Created, but the status transition failed",
     "detail": "Item detail",
     "title": "Title",

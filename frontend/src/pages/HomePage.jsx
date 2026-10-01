@@ -13,12 +13,16 @@ import ActiveTaskModal from '../components/ActiveTaskModal'
 import { fetchApiJson, getAuthHeaders } from '../auth'
 import { useAuth } from '../auth-context'
 import { pickLocalized } from '../i18n-content'
+import { PLACEHOLDER_IMAGE } from '../assets/placeholder'
+import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
 
 const HomePage = () => {
   const HOME_TASK_LIMIT = 6
   const HOME_REWARD_LIMIT = 8
   const navigate = useNavigate()
   const location = useLocation()
+  // P6-MISC-FIX ②：站内链接统一走唯一构造器（当前语言前缀），本单补齐 5 处硬编码绝对路径
+  const lang = getLanguageFromUrl(location.pathname)
   const { user, isAuthenticated } = useAuth()
   const { t } = useTranslation()
   const [tasks, setTasks] = useState([])
@@ -66,7 +70,7 @@ const HomePage = () => {
         status: isClaimed ? 'claimed' : storesCount > 0 ? 'available' : 'locked',
         statusText: isClaimed ? t('common.redeemed') : storesCount > 0 ? t('common.redeemable') : t('common.outOfStock'),
         rarity: prize.points > 5000 ? 'epic' : prize.points > 2000 ? 'rare' : 'common',
-        image: prize.image_url || prize.url_image || '/placeholder.jpg',
+        image: prize.image_url || prize.url_image || PLACEHOLDER_IMAGE, // P6-MISC-FIX ⑤：原 '/placeholder.jpg' 仓库内不存在
         claimed: prize.claims_count || 0,
         total: (prize.claims_count || 0) + storesCount,
         limited: Boolean(prize.gift_limit || prize.time_end),
@@ -161,7 +165,7 @@ const HomePage = () => {
   const handleRewardClaim = (reward) => {
     if (!isAuthenticated) {
       toast.error(t('pleaseLogin'))
-      navigate('/login', { state: { from: location } })
+      navigate(buildLocalizedPath(lang, '/login'), { state: { from: location } })
       return
     }
 
@@ -181,7 +185,7 @@ const HomePage = () => {
     }
 
     toast(t('homePage.redeemComingSoon'))
-    navigate('/reward')
+    navigate(buildLocalizedPath(lang, '/reward'))
   }
 
   if (loading) {
@@ -209,7 +213,7 @@ const HomePage = () => {
                   {isAuthenticated ? t('homePage.continueTask') : t('homePage.registerNow')}
                 </Button>
               </Link>
-              <Link to="/reward">
+              <Link to={buildLocalizedPath(lang, '/reward')}>
                 <Button variant="secondary" size="lg">{t('homePage.browseRewards')}</Button>
               </Link>
             </div>
@@ -223,7 +227,7 @@ const HomePage = () => {
                 <h2 className="text-2xl font-bold text-gray-900">{t('homePage.hotTasks')}</h2>
                 <p className="text-gray-600">{t('homePage.hotTasksLead')}<DashJ size="sm" /></p>
               </div>
-              <Link to="/task">
+              <Link to={buildLocalizedPath(lang, '/task')}>
                 <Button variant="proceed">{t('common.viewAll')}</Button>
               </Link>
             </div>
@@ -255,7 +259,7 @@ const HomePage = () => {
                 <h2 className="text-2xl font-bold text-gray-900">{t('homePage.featuredRewards')}</h2>
                 <p className="text-gray-600">{t('homePage.featuredLead')}<DashJ size="sm" />{t('homePage.featuredTail')}</p>
               </div>
-              <Link to="/reward">
+              <Link to={buildLocalizedPath(lang, '/reward')}>
                 <Button variant="proceed">{t('common.viewAll')}</Button>
               </Link>
             </div>

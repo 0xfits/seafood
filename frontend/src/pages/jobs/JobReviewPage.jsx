@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
-import { getLanguageFromUrl } from '../../utils'
+import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import { contentStatus, pickLocalized } from '../../i18n-content'
 import TranslatingBadge from '../../components/i18n/TranslatingBadge'
 import { fetchPendingVerification, reviewSubmission } from './job-api'
@@ -107,8 +107,8 @@ const JobReviewPage = () => {
           <div className="sf-jobs-head" data-sf-m="jobs-hero">
             <h1 className="sf-jobs-title">{t('jobs.review')}</h1>
             <div className="sf-jobs-actions">
-              <Link className="sf-jobs-link" to="/task">{t('jobs.list')}</Link>
-              <Link className="sf-jobs-link" to="/task/new">{t('jobs.publish')}</Link>
+              <Link className="sf-jobs-link" to={buildLocalizedPath(lang, '/task')}>{t('jobs.list')}</Link>
+              <Link className="sf-jobs-link" to={buildLocalizedPath(lang, '/task/new')}>{t('jobs.publish')}</Link>
               <button className="sf-btn sf-jobs-btn" type="button" data-sf-m="jobs-refresh" onClick={load}>{t('jobs.refresh')}</button>
             </div>
           </div>

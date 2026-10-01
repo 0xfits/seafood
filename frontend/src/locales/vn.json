@@ -123,6 +123,13 @@
     "publishNote": "Hàng mới đăng ở trạng thái nháp; người mua chỉ mua được sau khi đăng bán thành công.",
     "publishOk": "Đã đăng bán",
     "listed": "đã lên sàn",
+    "statusLabel": {
+          "draft": "Bản nháp",
+          "listed": "Đang bán",
+          "delisted": "Đã gỡ bán",
+          "frozen": "Đã tạm khóa",
+          "unknown": "Không rõ"
+    },
     "listedFail": "Đã tạo nhưng chuyển trạng thái thất bại",
     "detail": "Chi tiết hàng hoá",
     "title": "Tiêu đề",

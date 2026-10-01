@@ -17,6 +17,7 @@ import {
 import { Button } from '../ui'
 import { fetchAdminAccess, getStoredUser, hasAdminPermission } from '../../admin-utils'
 import { clearAuthSession } from '../../auth'
+import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -115,7 +116,7 @@ const AdminLayout = () => {
 
   const handleLogout = () => {
     clearAuthSession()
-    navigate('/login')
+    navigate(buildLocalizedPath(getLanguageFromUrl(location.pathname), '/login'))
   }
 
   return (

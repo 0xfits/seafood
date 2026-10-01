@@ -11,7 +11,7 @@ import { ResponsiveGrid, ResponsiveContainer } from '../components/ui/Responsive
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/Tabs'
 import { fetchApiJson, getAuthHeaders } from '../auth'
 import { useAuth } from '../auth-context'
-import { getLanguageFromUrl } from '../utils'
+import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
 import { contentStatus, pickLocalized } from '../i18n-content'
 import TranslatingBadge from '../components/i18n/TranslatingBadge'
 
@@ -136,7 +136,7 @@ const RewardPage = () => {
   const handleRewardClaim = (reward) => {
     if (!isAuthenticated) {
       toast.error(t('pleaseLogin'))
-      navigate('/login', { state: { from: location } })
+      navigate(buildLocalizedPath(lang, '/login'), { state: { from: location } })
       return
     }
 

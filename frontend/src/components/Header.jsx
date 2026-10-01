@@ -10,7 +10,7 @@ import HoverMenu from './ui/HoverMenu'
 import DashJ from './ui/DashJ'
 import { fetchAdminAccess } from '../admin-utils'
 import { useAuth } from '../auth-context'
-import { buildLangPath, getLanguageFromUrl } from '../utils'
+import {buildLocalizedPath, buildLangPath, getLanguageFromUrl} from '../utils'
 
 const Header = () => {
   const { t } = useTranslation()
@@ -98,7 +98,7 @@ const Header = () => {
     setIsAdmin(false)
     setAdminPath('/dashboard')
     setUserPoints(0)
-    navigate('/')
+    navigate(buildLocalizedPath(getCurrentLang(), '/'))
   }
 
   // 处理登录
@@ -109,7 +109,7 @@ const Header = () => {
 
   // 处理注册
   const handleRegister = () => {
-    navigate('/register')
+    navigate(buildLocalizedPath(getCurrentLang(), '/register'))
   }
 
   // 菜单项

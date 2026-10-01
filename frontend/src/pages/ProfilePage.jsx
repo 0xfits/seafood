@@ -9,7 +9,7 @@ import { LoadingPage } from '../components/ui/Loading'
 import { FadeIn, SlideUp } from '../components/ui/Motion'
 import { ResponsiveContainer, ResponsiveGrid } from '../components/ui/Responsive'
 import { useTranslation } from 'react-i18next'
-import { formatEvmAddress, getLanguageFromUrl } from '../utils'
+import { buildLocalizedPath, formatEvmAddress, getLanguageFromUrl } from '../utils'
 import { contentStatus, pickLocalized } from '../i18n-content'
 import TranslatingBadge from '../components/i18n/TranslatingBadge'
 // 招工线 / 我的 共用的 token + 栅格层（P4-B4c-ii-a）：与 TaskPage 招工线族同一份样式表
@@ -189,7 +189,7 @@ const ProfilePage = () => {
           <CardContent className="text-center py-12">
             <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <p className="text-lg text-gray-600 mb-4">{t('pleaseLogin')}</p>
-            <Button variant="primary" onClick={() => navigate('/login')}>
+            <Button variant="primary" onClick={() => navigate(buildLocalizedPath(lang, '/login'))}>
               {t('profilePage.goLogin')}
             </Button>
           </CardContent>
@@ -434,7 +434,7 @@ const ProfilePage = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-2xl">{t('profilePage.shardHoldings')}</CardTitle>
-                <Link to="/shard" className="text-sm text-blue-600 hover:text-blue-800 underline">
+                <Link to={buildLocalizedPath(lang, '/shard')} className="text-sm text-blue-600 hover:text-blue-800 underline">
                   {t('common.goTrade')}
                 </Link>
               </div>

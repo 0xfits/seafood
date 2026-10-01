@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
-import { getLanguageFromUrl } from '../../utils'
+import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import { contentStatus, pickLocalized } from '../../i18n-content'
 import TranslatingBadge from '../../components/i18n/TranslatingBadge'
 import { applyToJob, acceptApplication, fetchJobDetail, fetchMyApplications, submitDeliverable } from './job-api'
@@ -106,8 +106,8 @@ const JobDetailPage = () => {
           <div className="sf-jobs-head" data-sf-m="jobs-hero">
             <h1 className="sf-jobs-title">{t('jobs.detail')}</h1>
             <div className="sf-jobs-actions">
-              <Link className="sf-jobs-link" to="/task">{t('jobs.list')}</Link>
-              <Link className="sf-jobs-link" to="/task/new">{t('jobs.publish')}</Link>
+              <Link className="sf-jobs-link" to={buildLocalizedPath(lang, '/task')}>{t('jobs.list')}</Link>
+              <Link className="sf-jobs-link" to={buildLocalizedPath(lang, '/task/new')}>{t('jobs.publish')}</Link>
               <Link className="sf-jobs-link" to={location.pathname.replace(/\/[^/]+$/, '/review')}>{t('jobs.review')}</Link>
             </div>
           </div>

@@ -210,7 +210,7 @@ describe('P6-I18N-LIT-B5 · 必做② `HomePage` 收口 + LEGACY 清零 + AC③�
     const out = execFileSync(process.execPath, ['scripts/p6-tr2-i18n-locales.mjs'], { cwd: ROOT, encoding: 'utf8', timeout: 60000 })
 
     expect(out).toContain('[TR-2] 键集相等：PASS')
-    expect(out).toContain('zh: top=102 flat=678')
+    expect(out).toContain('zh: top=102 flat=683')
     expect(out).toContain('存量登记（只核不改）：仍在旧三目链 + `??` 上的页面数 = 0 页')
     expect(out).toContain('[TR-2] 总判：PASS')
 
@@ -234,7 +234,7 @@ describe('P6-I18N-LIT-B5 · 四语 locale 键集（本批新增 uiCommon 12 / ui
   )).sort()
   const NEW_NS = { uiCommon: 12, uiError: 23 }
 
-  it('四文件拍平键集逐文件相等（top=102 / flat=678）；新键四语齐备、非空、en/vn 零 CJK', () => {
+  it('四文件拍平键集逐文件相等（top=102 / flat=683）；新键四语齐备、非空、en/vn 零 CJK', () => {
     const tables = {}
     const sets = {}
     const counts = {}
@@ -247,7 +247,7 @@ describe('P6-I18N-LIT-B5 · 四语 locale 键集（本批新增 uiCommon 12 / ui
 
     for (const lang of LANGS.slice(1)) expect(sets[lang]).toEqual(sets.zh)
     expect(new Set(LANGS.map((l) => counts[l].flat)).size).toBe(1)
-    expect(counts.zh).toEqual({ top: 102, flat: 678 })
+    expect(counts.zh).toEqual({ top: 102, flat: 683 })
 
     const CJK = /[\u4E00-\u9FFF]/
     for (const [ns, size] of Object.entries(NEW_NS)) {

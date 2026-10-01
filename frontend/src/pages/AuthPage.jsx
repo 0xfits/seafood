@@ -11,9 +11,16 @@ import { updateMyProfile } from '../auth'
 import { useAuth } from '../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
 
+// P6-MISC-FIX ③：回落目标必须**带当前语言前缀**（原实现固定无前缀 ⇒ 登录后落中文档）
+//   键 = 语言白名单（utils.SUPPORTED_LANGS 同口径）；缺失/非法语言 ⇒ 回落 zh（与 buildLocalizedPath 同口径）
 const FALLBACK_PATHS = {
-  login: '/',
-  register: '/profile',
+  login: { zh: '/', en: '/en', hk: '/hk', vn: '/vn' },
+  register: { zh: '/profile', en: '/en/profile', hk: '/hk/profile', vn: '/vn/profile' },
+}
+
+const fallbackPathFor = (mode, lang) => {
+  const table = FALLBACK_PATHS[mode] || FALLBACK_PATHS.login
+  return table[lang] || table.zh
 }
 
 const normalizeRedirectTarget = (target, fallbackPath) => {
@@ -39,8 +46,8 @@ const AuthPage = ({ mode = 'login' }) => {
   const [saving, setSaving] = useState(false)
 
   const redirectTarget = useMemo(
-    () => normalizeRedirectTarget(location.state?.from, FALLBACK_PATHS[mode] || '/'),
-    [location.state, mode],
+    () => normalizeRedirectTarget(location.state?.from, fallbackPathFor(mode, lang)),
+    [location.state, mode, lang],
   )
 
   useEffect(() => {

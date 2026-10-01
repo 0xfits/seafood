@@ -3,6 +3,10 @@ import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
+
+// P6-MISC-FIX ①：`listing.status` 取值域 = `public.listing.status` 的 CHECK 白名单
+//   （现取：`backend-ts/migrations/0015_listing.sql:137` ⇒ `draft|listed|delisted|frozen`，默认 `draft`）
+const LISTING_STATUS_KEYS = ['draft', 'listed', 'delisted', 'frozen']
 import { contentStatus, pickLocalized } from '../../i18n-content'
 import TranslatingBadge from '../../components/i18n/TranslatingBadge'
 import { fetchListingFeed, fetchMyListingOrders, refundListingOrder } from './listing-api'
@@ -111,6 +115,15 @@ const ListingsPage = () => {
                 // TR-2：商品标题 = 读侧 `name`（=listing.title）/`title`，取**当前语言**；
                 //   空串或缺字段 ⇒ 回落原文（`pickLocalized` 内 `||`，不用 `??`）
                 const title = pickLocalized(row, 'name', lang) || pickLocalized(row, 'title', lang) || t('noData')
+                // P6-MISC-FIX ①：状态**不得原样渲染枚举**（原文 `String(row.status ?? …)` 会把 `draft`/`listed` 直接给用户看）
+                //   已知取值 ⇒ 四语标签；**未知取值 ⇒ 本地化兜底**（既不空白、也不原始枚举）；原值留给排查（`title` + `data-sf-status`）
+                //   缺省/空串 ⇒ 维持既有口径（现网 `GET /api/prize/all` 读侧不返回 `status` ⇒ 实测 distinct = {缺失}）
+                const statusRaw = row.status == null || row.status === '' ? '' : String(row.status)
+                const statusText = statusRaw === ''
+                  ? t('listings.statusLabel.listed')
+                  : (LISTING_STATUS_KEYS.includes(statusRaw)
+                    ? t(`listings.statusLabel.${statusRaw}`)
+                    : t('listings.statusLabel.unknown'))
                 return (
                   <Link className="sf-listings-card" key={String(listingId)} to={root(`/listing/${listingId}`)} data-sf-m="listing-card">
                     <div className="sf-listings-thumb" data-sf-m="listing-thumb" />
@@ -124,7 +137,11 @@ const ListingsPage = () => {
                       <span className="sf-listings-price-num">{String(row.points ?? row.price ?? '-')}</span>
                       <span className="sf-listings-price-unit">{t('listings.priceUnit')}</span>
                     </div>
-                    <span className="sf-listings-tag">{String(row.status ?? t('listings.listed'))}</span>
+                    <span
+                      className="sf-listings-tag"
+                      data-sf-status={statusRaw || undefined}
+                      title={statusRaw || undefined}
+                    >{statusText}</span>
                   </Link>
                 )
               })}

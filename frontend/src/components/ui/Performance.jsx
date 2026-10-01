@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '../../utils'
+import { PLACEHOLDER_IMAGE } from '../../assets/placeholder'
 
 // 虚拟滚动列表
 const VirtualList = ({ 
@@ -62,7 +63,7 @@ const VirtualList = ({
 const LazyImage = ({ 
   src, 
   alt, 
-  placeholder = '/placeholder.jpg',
+  placeholder = PLACEHOLDER_IMAGE, // P6-MISC-FIX ⑤：仓库内不存在 '/placeholder.jpg'
   className,
   onLoad,
   onError 

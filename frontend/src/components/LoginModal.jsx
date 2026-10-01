@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from './ui'
 import WalletAuthPanel from './auth/WalletAuthPanel'
 import { fetchAdminAccess } from '../admin-utils'
+import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
 
 const LoginModal = ({ isOpen, onClose, onSuccess }) => {
   const { t } = useTranslation()
@@ -24,7 +25,7 @@ const LoginModal = ({ isOpen, onClose, onSuccess }) => {
     onClose?.()
 
     if (session?.requires_profile_completion) {
-      navigate('/register', { state: { from: redirectTarget } })
+      navigate(buildLocalizedPath(getLanguageFromUrl(location.pathname), '/register'), { state: { from: redirectTarget } })
       return
     }
 
@@ -36,7 +37,7 @@ const LoginModal = ({ isOpen, onClose, onSuccess }) => {
 
   const goToRegister = () => {
     onClose?.()
-    navigate('/register', { state: { from: redirectTarget } })
+    navigate(buildLocalizedPath(getLanguageFromUrl(location.pathname), '/register'), { state: { from: redirectTarget } })
   }
 
   return (

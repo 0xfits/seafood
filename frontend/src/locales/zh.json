@@ -123,6 +123,13 @@
     "publishNote": "上架后商品先是草稿状态，上架成功后买家才能购买。",
     "publishOk": "商品已上架",
     "listed": "已上架",
+    "statusLabel": {
+          "draft": "草稿",
+          "listed": "已上架",
+          "delisted": "已下架",
+          "frozen": "已冻结",
+          "unknown": "其他状态"
+    },
     "listedFail": "已创建但上架状态迁移失败",
     "detail": "商品详情",
     "title": "商品标题",

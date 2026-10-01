@@ -6,7 +6,7 @@
  *      **全部源文件**的用户可见文案面 —— 不是「本单写集」（B4b 只扫写集 ⇒ 652 集语料里的
  *      `GET /api/…`×5 + `POST /api/…`×2 + `403/400` + `base_cid` + `listing.stock` 从未被扫过）。
  *   ② 逐例**打印作用域命中节点数**（命中 0 或明显偏少 ⇒ 用例作废，不得当「零违例」）。
- *   ③ 键名与键集不变（四文件拍平键数单值 = 678）；只改值。
+ *   ③ 键名与键集不变（四文件拍平键数单值；P6-MISC-FIX ① 授权新增 5 键 678⇒683）；只改值。
  *   ④ 保真底线：改写不得丢「已下线 / 需要权限 / 手续费不退」等真信息 —— 逐条正例断言。
  */
 import fs from 'node:fs'
@@ -74,7 +74,7 @@ describe('I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文
     const out = execFileSync(process.execPath, [script], { cwd: ROOT, encoding: 'utf8' })
     // eslint-disable-next-line no-console
     console.log(out.split('\n').filter((l) => /作用域命中节点数|裸命中|子面③|总判/.test(l)).join('\n'))
-    expect(out).toContain('作用域命中节点数 = 2712')
+    expect(out).toContain('作用域命中节点数 = 2732')
     expect(out).toContain('② 全量页面源文件面')
     expect(out).toMatch(/locale 裸命中 0 \+ 源面裸命中 0/)
   })
@@ -115,7 +115,7 @@ describe('I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文
     // eslint-disable-next-line no-console
     console.log(`[I18N-VIOL] 四语拍平键数 = {${[...counts].join(', ')}}；顶层键 = ${Object.keys(readTable('zh')).length}`)
     expect(counts.size).toBe(1)
-    expect([...counts][0]).toBe(678)
+    expect([...counts][0]).toBe(683)
     for (const k of REWRITTEN) for (const l of LANGS) expect(flatTables[l][k]).toBeTruthy()
   })
 })

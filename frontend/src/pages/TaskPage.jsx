@@ -11,7 +11,7 @@ import { ResponsiveGrid, ResponsiveContainer } from '../components/ui/Responsive
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/Tabs'
 import ClaimRewardModal from '../components/ClaimRewardModal'
 import ActiveTaskModal from '../components/ActiveTaskModal'
-import { getLanguageFromUrl } from '../utils'
+import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
 import { pickLocalized } from '../i18n-content'
 
 // P6-I18N-LIT-B2：`t` 由调用点传入（`fetchJson` 在模块作用域，无 hook 上下文）；
@@ -223,8 +223,8 @@ const TaskPage = () => {
                 样式只吃 4c-i 的 token + 栅格层（jobs.css），不按主题改几何。 */}
             <div className="sf-jobs" data-sf-m="jobs-nav">
               <div className="sf-jobs-actions">
-                <Link className="sf-btn sf-jobs-btn" to="/task/new" data-sf-m="jobs-nav-publish">{t('jobs.publish')}</Link>
-                <Link className="sf-btn sf-jobs-btn" to="/task/review" data-sf-m="jobs-nav-review">{t('jobs.review')}</Link>
+                <Link className="sf-btn sf-jobs-btn" to={buildLocalizedPath(lang, '/task/new')} data-sf-m="jobs-nav-publish">{t('jobs.publish')}</Link>
+                <Link className="sf-btn sf-jobs-btn" to={buildLocalizedPath(lang, '/task/review')} data-sf-m="jobs-nav-review">{t('jobs.review')}</Link>
                 <span className="sf-jobs-status" data-sf-m="jobs-nav-note">{t('jobs.list')}</span>
               </div>
             </div>
@@ -260,7 +260,10 @@ const TaskPage = () => {
 
         <SlideUp delay={200}>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-4">
+            {/* P6-MISC-FIX ④：390 档 en 实测 deSW=397 / deCW=390（+7px）。真因 = 固定 `grid-cols-4` 的轨道
+                被**最长的不换行英文标签**（`Pending Verification (0)`，scrollWidth 119 > clientWidth 83）撑破，
+                使 `.space-y-8`(371) 超出内容盒(338) ⇒ 文档级横向溢出。修法：窄屏 2 列 / sm 起 4 列，标签有足够轨道宽。 */}
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
               <TabsTrigger value="available">{t('common.available')} ({taskStats.available})</TabsTrigger>
               <TabsTrigger value="pending">{t('common.pending')} ({taskStats.pending})</TabsTrigger>
               <TabsTrigger value="completed">{t('common.completed')} ({taskStats.completed})</TabsTrigger>

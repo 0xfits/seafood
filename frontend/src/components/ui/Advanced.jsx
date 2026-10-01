@@ -110,15 +110,21 @@ const DatePicker = ({
   disabled = false,
   className 
 }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const dateRef = useRef(null)
   // P6-I18N-LIT-B5：占位文案改走 locale（调用方显式传入优先；未传 ⇒ 取当前语言）
   const resolvedPlaceholder = placeholder ?? t('uiCommon.selectDate')
   
+  // P6-MISC-FIX ⑥：按**当前语言**映射 Intl 区域（zh→zh-CN / hk→zh-HK / en→en-US / vn→vi-VN）
+  //   非法/缺失语言（undefined/null/''/0/'xx'）⇒ 保持默认回退 `zh-CN`，**不抛异常**
+  const DATE_LOCALE_BY_LANG = { zh: 'zh-CN', hk: 'zh-HK', en: 'en-US', vn: 'vi-VN' }
+
   const formatDate = (date) => {
     if (!date) return ''
-    return new Date(date).toLocaleDateString('zh-CN')
+    const tag = String(i18n?.resolvedLanguage || i18n?.language || '').toLowerCase().split('-')[0]
+    const locale = DATE_LOCALE_BY_LANG[tag] || DATE_LOCALE_BY_LANG.zh
+    return new Date(date).toLocaleDateString(locale)
   }
   
   const handleDateChange = (e) => {
