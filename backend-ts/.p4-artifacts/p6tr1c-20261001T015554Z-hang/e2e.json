@@ -1,0 +1,163 @@
+{
+  "unit": "P6-TR-1c-A",
+  "mode": "hang",
+  "run": "20261001T015554Z",
+  "at": "2026-10-01T01:56:30.507Z",
+  "anchors": {
+    "uid": "1",
+    "cid": "1",
+    "listing_id": "21"
+  },
+  "seed_texts": {
+    "listTitle": "海鲜礼盒TR1C测试：虾蟹双拼-tr1c01015554",
+    "listDesc": "冷链发货，含虾蟹各两斤，顺丰包邮-tr1c01015554",
+    "bio": "TR1C 写路径翻译联测自我介绍：专注海产生鲜零售-tr1c01015554"
+  },
+  "timing_ms": {
+    "listing": 1850,
+    "profile": 1261
+  },
+  "before": {
+    "ledger_entry": "267",
+    "ledger_tx": "ERR:relation \"public.ledger_tx\" does not exist",
+    "content_translation": "0",
+    "translation_cache": "0",
+    "sigma_cid1": "2000200",
+    "at": "2026-10-01T01:55:59.402Z"
+  },
+  "after": {
+    "ledger_entry": "267",
+    "ledger_tx": "ERR:relation \"public.ledger_tx\" does not exist",
+    "content_translation": "9",
+    "translation_cache": "3",
+    "sigma_cid1": "2000200",
+    "at": "2026-10-01T01:56:29.699Z"
+  },
+  "cleanup": {
+    "content_translation_deleted": 9,
+    "translation_cache_deleted": 3,
+    "bio_restored": true
+  },
+  "residual": {
+    "listing_ids": [
+      "21"
+    ],
+    "note": "listing 测试行因 DL79 触发器禁 DELETE ⇒ residual；content_translation/translation_cache 测试行已清；bio 已还原"
+  },
+  "passed": 16,
+  "failed": 2,
+  "checks": [
+    {
+      "id": "fixture.token_ok",
+      "pass": true,
+      "expect": "200",
+      "actual": "200"
+    },
+    {
+      "id": "write.listing_200",
+      "pass": true,
+      "expect": "200",
+      "actual": "200",
+      "note": "elapsed_ms=1850"
+    },
+    {
+      "id": "write.listing_has_id",
+      "pass": true,
+      "expect": "listing_id",
+      "actual": "21"
+    },
+    {
+      "id": "write.listing_fast",
+      "pass": true,
+      "expect": "<3000ms",
+      "actual": "1850ms",
+      "note": "响应不得被翻译拖慢"
+    },
+    {
+      "id": "write.profile_200",
+      "pass": true,
+      "expect": "200",
+      "actual": "200",
+      "note": "elapsed_ms=1261"
+    },
+    {
+      "id": "write.profile_fast",
+      "pass": true,
+      "expect": "<3000ms",
+      "actual": "1261ms"
+    },
+    {
+      "id": "pending.registered_rows",
+      "pass": true,
+      "expect": "9",
+      "actual": "9",
+      "note": "listing(title+description)×3 + user(bio)×3"
+    },
+    {
+      "id": "pending.listing_6",
+      "pass": true,
+      "expect": "6",
+      "actual": "6"
+    },
+    {
+      "id": "pending.user_3",
+      "pass": true,
+      "expect": "3",
+      "actual": "3"
+    },
+    {
+      "id": "pending.no_text",
+      "pass": true,
+      "expect": "all text NULL",
+      "actual": "||||||||"
+    },
+    {
+      "id": "hang.pending_now",
+      "pass": true,
+      "expect": "all pending (写响应已回，翻译尚未开始)",
+      "actual": "listing:description:en=pending listing:description:hk=pending listing:description:vn=pending listing:title:en=pending listing:title:hk=pending listing:title:vn=pending user:bio:en=pending user:bio:hk=pending user:bio:vn=pending"
+    },
+    {
+      "id": "hang.failed_timeout",
+      "pass": false,
+      "expect": "6 rows failed/TIMEOUT",
+      "actual": "description:en=failed/TIMEOUT description:hk=ready/null description:vn=failed/TIMEOUT title:en=failed/TIMEOUT title:hk=ready/null title:vn=failed/TIMEOUT"
+    },
+    {
+      "id": "hang.no_dirty_text",
+      "pass": false,
+      "expect": "all text NULL",
+      "actual": "|冷鏈發貨，含蝦蟹各兩斤，順豐包郵-tr1c01015554|||海鮮禮盒TR1C測試：蝦蟹雙拼-tr1c01015554|"
+    },
+    {
+      "id": "ledger.delta_ledger_entry_0",
+      "pass": true,
+      "expect": "267",
+      "actual": "267"
+    },
+    {
+      "id": "ledger.delta_ledger_tx_0",
+      "pass": true,
+      "expect": "ERR:relation \"public.ledger_tx\" does not exist",
+      "actual": "ERR:relation \"public.ledger_tx\" does not exist"
+    },
+    {
+      "id": "ledger.sigma_cid1_unchanged",
+      "pass": true,
+      "expect": "2000200",
+      "actual": "2000200"
+    },
+    {
+      "id": "cleanup.bio_restored",
+      "pass": true,
+      "expect": "",
+      "actual": ""
+    },
+    {
+      "id": "cleanup.translation_rows_cleared",
+      "pass": true,
+      "expect": ">=9",
+      "actual": "9"
+    }
+  ]
+}

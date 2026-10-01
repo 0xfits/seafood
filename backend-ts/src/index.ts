@@ -48,7 +48,7 @@ import {
   resolveAdminOpsKey,
 } from './admin-service';
 // P6-TR-1b：后台翻译回填（cron 兜底 + 手动触发）—— 路由层只做鉴权与机读回执，编排全在服务层
-import { backfillPending } from './translate-service';
+import { backfillPending, registerPendingTranslations, scheduleEntityTranslation } from './translate-service';
 
 const app = express();
 const PORT = Number(process.env.PORT || 5788);
@@ -56,6 +56,43 @@ const PORT = Number(process.env.PORT || 5788);
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+
+/**
+ * P6-TR-1c-A：写路径翻译挂载 —— **前台**确保 pending 行存在（读侧 `i18n_status` 立即有据可依），
+ * **后台**（`waitUntil` / fire-and-forget）调 `translateFields`。
+ * 红线：**任何 pending 登记 / 翻译失败都绝不影响写响应的状态码与语义**（两步各自兜底）。
+ */
+const enqueueTranslation = async (target: {
+  entityType: string;
+  entityId: string;
+  fields: Record<string, string>;
+  reset?: boolean;
+}): Promise<void> => {
+  try {
+    await registerPendingTranslations(target, { reset: target.reset === true });
+  } catch (e) {
+    console.warn('[translate] pending registration skipped:', (e as Error)?.name || 'ERROR');
+  }
+  try {
+    scheduleEntityTranslation(target); // waitUntil / fire-and-forget；同步不可抛
+  } catch (e) {
+    console.warn('[translate] schedule skipped:', (e as Error)?.name || 'ERROR');
+  }
+};
+
+/** 从 listing 写回执（`view`）提取可译字段（field 名 = 源列名，与 createDbSourceResolver 白名单一致）。 */
+const enqueueListingTranslation = async (view: unknown, reset = false): Promise<void> => {
+  const v = (view || {}) as Record<string, unknown>;
+  const entityId = v.listing_id === undefined || v.listing_id === null ? '' : String(v.listing_id);
+  const fields: Record<string, string> = {};
+  const title = typeof v.title === 'string' ? v.title : '';
+  const description = typeof v.description === 'string' ? v.description : '';
+  if (title.trim()) fields.title = title;
+  if (description.trim()) fields.description = description;
+  if (entityId && Object.keys(fields).length) {
+    await enqueueTranslation({ entityType: 'listing', entityId, fields, reset });
+  }
+};
 
 const sendSuccess = (res: Response, data?: unknown, message = 'OK', statusCode = 200, extra?: Record<string, unknown>) => {
   const payload: Record<string, unknown> = {
@@ -494,6 +531,9 @@ app.post('/api/user/profile', async (req, res) => {
     if (!updatedUser) {
       return sendError(res, 404, 'User not found');
     }
+
+    // P6-TR-1c-A：bio 译文登记（前台 pending + 后台 waitUntil 翻译；失败不影响本响应）
+    await enqueueTranslation({ entityType: 'user', entityId: String(actor.user.uID), fields: { bio }, reset: true });
 
     const payload = await buildUserPayload(updatedUser);
     sendSuccess(res, payload, 'Profile updated');
@@ -1307,6 +1347,15 @@ app.post('/api/currency', async (req, res) => {
       headerKey: req.header('idempotency-key'),
     });
     if (!result.ok) return sendVerbError(res, result);
+    // P6-TR-1c-A：币种 name 译文登记（前台 pending + 后台 waitUntil；失败不影响本响应）
+    {
+      const view = result.view as Record<string, unknown>;
+      const cid = view.cid === undefined || view.cid === null ? '' : String(view.cid);
+      const name = typeof view.name === 'string' ? view.name : '';
+      if (cid && name.trim()) {
+        await enqueueTranslation({ entityType: 'currency', entityId: cid, fields: { name }, reset: true });
+      }
+    }
     return sendSuccess(res, result.view, result.replay ? 'Currency created (idempotent replay)' : 'Currency created');
   } catch (error) {
     const normalized = normalizeLedgerError(unwrapInfraCause(error));
@@ -1381,6 +1430,19 @@ app.post('/api/job', async (req, res) => {
     // `create_key` 必传（fail-loud，§4.4-14）；`reward`/`cid` 原样交服务层（§4.8：金额 = A 类客户端值）
     const result = await publishJob({ actorUid: actor.user.uID, body: withCreateKey(req) });
     if (!result.ok) return sendVerbError(res, result);
+    // P6-TR-1c-A：招工 title/description 译文登记（前台 pending + 后台 waitUntil；失败不影响本响应）
+    {
+      const view = result.view as Record<string, unknown>;
+      const jobId = view.job_id === undefined || view.job_id === null ? '' : String(view.job_id);
+      const title = typeof req.body?.title === 'string' ? req.body.title : '';
+      const description = typeof req.body?.description === 'string' ? req.body.description : '';
+      const fields: Record<string, string> = {};
+      if (title.trim()) fields.title = title;
+      if (description.trim()) fields.description = description;
+      if (jobId && Object.keys(fields).length) {
+        await enqueueTranslation({ entityType: 'job', entityId: jobId, fields });
+      }
+    }
     return sendSuccess(res, result.view, result.replay ? 'Job published (idempotent replay)' : 'Job published', 200,
       result.replay ? { idempotent_replay: true } : undefined);
   } catch (error) {
@@ -1523,6 +1585,7 @@ app.post('/api/listing', async (req, res) => {
       createKeyRaw: body.create_key,
     });
     if (!result.ok) return sendVerbError(res, result);
+    await enqueueListingTranslation(result.view); // 上架（新建）⇒ 登记 title/description
     return sendSuccess(res, result.view, result.replay ? 'Listing created (idempotent replay)' : 'Listing created', 200,
       result.replay ? { idempotent_replay: true } : undefined);
   } catch (error) {
@@ -1551,6 +1614,7 @@ app.post('/api/listing/:listingId', async (req, res) => {
       mediaUrls: body.media_urls,
     });
     if (!result.ok) return sendVerbError(res, result);
+    await enqueueListingTranslation(result.view, true); // 编辑 ⇒ 内容可能变更，重置回 pending
     return sendSuccess(res, result.view, 'Listing updated');
   } catch (error) {
     return sendInfraMapped(res, 'listing.update', error);
@@ -1574,6 +1638,7 @@ app.patch('/api/listing/:listingId', async (req, res) => {
       toStatus: req.body?.to_status ?? req.body?.status ?? '',
     });
     if (!result.ok) return sendVerbError(res, result);
+    await enqueueListingTranslation(result.view); // 状态迁移（title/description 未变）⇒ 不重置回 pending
     return sendSuccess(res, result.view, 'Listing status transitioned');
   } catch (error) {
     return sendInfraMapped(res, 'listing.transition', error);

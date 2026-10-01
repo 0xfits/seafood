@@ -1,0 +1,212 @@
+{
+  "unit": "P6-TR-1c-A",
+  "mode": "stub",
+  "run": "20261001T015515Z",
+  "at": "2026-10-01T01:55:39.370Z",
+  "anchors": {
+    "uid": "1",
+    "cid": "1",
+    "listing_id": "20"
+  },
+  "seed_texts": {
+    "listTitle": "海鲜礼盒TR1C测试：虾蟹双拼-tr1c01015515",
+    "listDesc": "冷链发货，含虾蟹各两斤，顺丰包邮-tr1c01015515",
+    "bio": "TR1C 写路径翻译联测自我介绍：专注海产生鲜零售-tr1c01015515"
+  },
+  "timing_ms": {
+    "listing": 1969,
+    "profile": 1276
+  },
+  "before": {
+    "ledger_entry": "267",
+    "ledger_tx": "ERR:relation \"public.ledger_tx\" does not exist",
+    "content_translation": "0",
+    "translation_cache": "0",
+    "sigma_cid1": "2000200",
+    "at": "2026-10-01T01:55:20.830Z"
+  },
+  "after": {
+    "ledger_entry": "267",
+    "ledger_tx": "ERR:relation \"public.ledger_tx\" does not exist",
+    "content_translation": "9",
+    "translation_cache": "9",
+    "sigma_cid1": "2000200",
+    "at": "2026-10-01T01:55:38.633Z"
+  },
+  "cleanup": {
+    "content_translation_deleted": 9,
+    "translation_cache_deleted": 9,
+    "bio_restored": true
+  },
+  "residual": {
+    "listing_ids": [
+      "20"
+    ],
+    "note": "listing 测试行因 DL79 触发器禁 DELETE ⇒ residual；content_translation/translation_cache 测试行已清；bio 已还原"
+  },
+  "passed": 26,
+  "failed": 0,
+  "checks": [
+    {
+      "id": "fixture.token_ok",
+      "pass": true,
+      "expect": "200",
+      "actual": "200"
+    },
+    {
+      "id": "write.listing_200",
+      "pass": true,
+      "expect": "200",
+      "actual": "200",
+      "note": "elapsed_ms=1969"
+    },
+    {
+      "id": "write.listing_has_id",
+      "pass": true,
+      "expect": "listing_id",
+      "actual": "20"
+    },
+    {
+      "id": "write.listing_fast",
+      "pass": true,
+      "expect": "<2500ms",
+      "actual": "1969ms",
+      "note": "响应不得被翻译拖慢"
+    },
+    {
+      "id": "write.profile_200",
+      "pass": true,
+      "expect": "200",
+      "actual": "200",
+      "note": "elapsed_ms=1276"
+    },
+    {
+      "id": "write.profile_fast",
+      "pass": true,
+      "expect": "<2500ms",
+      "actual": "1276ms"
+    },
+    {
+      "id": "pending.registered_rows",
+      "pass": true,
+      "expect": "9",
+      "actual": "9",
+      "note": "listing(title+description)×3 + user(bio)×3"
+    },
+    {
+      "id": "pending.listing_6",
+      "pass": true,
+      "expect": "6",
+      "actual": "6"
+    },
+    {
+      "id": "pending.user_3",
+      "pass": true,
+      "expect": "3",
+      "actual": "3"
+    },
+    {
+      "id": "pending.no_text",
+      "pass": true,
+      "expect": "all text NULL",
+      "actual": "||||||||"
+    },
+    {
+      "id": "bg.listing_ready",
+      "pass": true,
+      "expect": "6 rows ready",
+      "actual": "description:en=ready description:hk=ready description:vn=ready title:en=ready title:hk=ready title:vn=ready"
+    },
+    {
+      "id": "bg.title_en_stub",
+      "pass": true,
+      "expect": "[en] 海鲜礼盒TR1C测试：虾蟹双拼-tr1c01015515",
+      "actual": "[en] 海鲜礼盒TR1C测试：虾蟹双拼-tr1c01015515"
+    },
+    {
+      "id": "bg.title_hk_trad",
+      "pass": true,
+      "expect": "海鮮禮盒TR1C測試：蝦蟹雙拼-tr1c01015515",
+      "actual": "海鮮禮盒TR1C測試：蝦蟹雙拼-tr1c01015515"
+    },
+    {
+      "id": "bg.desc_vn_stub",
+      "pass": true,
+      "expect": "[vn] 冷链发货，含虾蟹各两斤，顺丰包邮-tr1c01015515",
+      "actual": "[vn] 冷链发货，含虾蟹各两斤，顺丰包邮-tr1c01015515"
+    },
+    {
+      "id": "bg.user_bio_ready",
+      "pass": true,
+      "expect": "3 rows ready",
+      "actual": "en=ready hk=ready vn=ready"
+    },
+    {
+      "id": "api.name_en_stub",
+      "pass": true,
+      "expect": "[en] 海鲜礼盒TR1C测试：虾蟹双拼-tr1c01015515",
+      "actual": "[en] 海鲜礼盒TR1C测试：虾蟹双拼-tr1c01015515"
+    },
+    {
+      "id": "api.name_hk_trad",
+      "pass": true,
+      "expect": "海鮮禮盒TR1C測試：蝦蟹雙拼-tr1c01015515",
+      "actual": "海鮮禮盒TR1C測試：蝦蟹雙拼-tr1c01015515"
+    },
+    {
+      "id": "api.description_vn_stub",
+      "pass": true,
+      "expect": "[vn] 冷链发货，含虾蟹各两斤，顺丰包邮-tr1c01015515",
+      "actual": "[vn] 冷链发货，含虾蟹各两斤，顺丰包邮-tr1c01015515"
+    },
+    {
+      "id": "api.i18n_ready",
+      "pass": true,
+      "expect": "ready",
+      "actual": "ready"
+    },
+    {
+      "id": "backfill.http_200",
+      "pass": true,
+      "expect": "200/200",
+      "actual": "200/200"
+    },
+    {
+      "id": "backfill.no_new_cache",
+      "pass": true,
+      "expect": "9=9=9",
+      "actual": "9=9=9",
+      "note": "重复 backfill 缓存命中 ⇒ 不重复付费"
+    },
+    {
+      "id": "ledger.delta_ledger_entry_0",
+      "pass": true,
+      "expect": "267",
+      "actual": "267"
+    },
+    {
+      "id": "ledger.delta_ledger_tx_0",
+      "pass": true,
+      "expect": "ERR:relation \"public.ledger_tx\" does not exist",
+      "actual": "ERR:relation \"public.ledger_tx\" does not exist"
+    },
+    {
+      "id": "ledger.sigma_cid1_unchanged",
+      "pass": true,
+      "expect": "2000200",
+      "actual": "2000200"
+    },
+    {
+      "id": "cleanup.bio_restored",
+      "pass": true,
+      "expect": "",
+      "actual": ""
+    },
+    {
+      "id": "cleanup.translation_rows_cleared",
+      "pass": true,
+      "expect": ">=9",
+      "actual": "9"
+    }
+  ]
+}

@@ -21,8 +21,8 @@
  * 环境变量（**只读变量名，绝不打印值**）：
  *   DEEPSEEK_API_KEY（必填）、DEEPSEEK_BASE_URL（默认 https://api.deepseek.com）、
  *   DEEPSEEK_MODEL（默认 deepseek-flash）、TRANSLATE_ENGINE（deepseek|stub，默认 deepseek；
- *   **无 key 时自动回落 stub 并告警一次**）、TRANSLATE_MAX_CHARS_PER_ITEM（默认 2000）、
- *   TRANSLATE_DAILY_ITEM_CAP（默认 500）
+ *   **stub 仅显式启用**；缺 key ⇒ 不翻译、标 pending + NO_API_KEY、不写译文/缓存、告警一次）、
+ *   TRANSLATE_MAX_CHARS_PER_ITEM（默认 2000）、TRANSLATE_DAILY_ITEM_CAP（默认 500）
  *
  * 安全：**不把任何请求/响应全文写进日志**（可能含用户内容与 key 形态）；
  *   错误只保留「机读 reason + 截断摘要」。`DEEPSEEK_API_KEY` 的**值**既不进
@@ -57,7 +57,7 @@ export interface FetchLike {
 
 /** 生效配置（由 getTranslateConfig 从 env 派生）。 */
 export interface TranslateServiceConfig {
-  /** 实际生效引擎（无 key ⇒ 回落 'stub'）。 */
+  /** 实际生效引擎（= requested_engine；**不再自动回落 stub** —— 缺 key ⇒ translateFields 标 pending+NO_API_KEY）。 */
   engine: TranslateEngine;
   /** 请求的引擎（可被环境变量覆盖；用于暴露「回落」事实）。 */
   requested_engine: TranslateEngine;
@@ -140,6 +140,12 @@ export interface TranslateStore {
   /** 当日 content_translation 行数（日限额派生，**不新建计数表**）。 */
   countToday(): Promise<number>;
   upsertTranslation(row: TranslationRow): Promise<void>;
+  /**
+   * 批量登记 pending 行（P6-TR-1c-A 写路径前台用；单次往返）。
+   * `reset=true` ⇒ 覆盖同键已有行回 pending（内容已变更）；缺省/false ⇒ ON CONFLICT DO NOTHING。
+   * **可选方法**：缺省实现则调用方回退逐行 `upsertTranslation`。
+   */
+  upsertPendingRows?(rows: TranslationRow[], opts?: { reset?: boolean }): Promise<void>;
   /** status ∈ (pending,failed) 且 attempts < maxAttempts，按 updated_at 升序。 */
   listPending(limit: number, maxAttempts: number): Promise<TranslationRow[]>;
   readCurrent(
@@ -292,11 +298,13 @@ export function getTranslateConfig(env: NodeJS.ProcessEnv = process.env): Transl
   const maxCharsPerItem = intOr(env.TRANSLATE_MAX_CHARS_PER_ITEM, 2000);
   const dailyItemCap = intOr(env.TRANSLATE_DAILY_ITEM_CAP, 500);
 
-  let engine: TranslateEngine = requested;
+  // ★ P6-TR-1c-A 引擎回落反转：**stub 只能显式启用**（TRANSLATE_ENGINE=stub）。
+  //   未显式启用且缺 key ⇒ 引擎**不回落**（绝不产出假译文污染真库/缓存）；
+  //   translateFields 将该批标 pending + reason='NO_API_KEY'，等 key 到位由 backfill/cron 补齐。
+  const engine: TranslateEngine = requested;
   let fallbackReason: string | null = null;
   if (requested === 'deepseek' && !apiKeyPresent) {
-    engine = 'stub';
-    fallbackReason = `${REASON.NO_API_KEY}: DEEPSEEK_API_KEY 缺失 ⇒ 回落 stub（翻译留空+后台重试）`;
+    fallbackReason = `${REASON.NO_API_KEY}: DEEPSEEK_API_KEY 缺失 ⇒ 不翻译（stub 仅显式 TRANSLATE_ENGINE=stub）`;
   }
   return {
     engine,
@@ -549,7 +557,8 @@ export async function translateFields(
   const fetchImpl = opts.fetchImpl;
   const warn = opts.onWarn || ((m: string) => { if (!fallbackWarned) { fallbackWarned = true; console.warn(`[translate-service] ${m}`); } });
 
-  if (engine === 'stub' && cfg.fallback_reason) warn(cfg.fallback_reason);
+  // 一次性告警（缺 key / 显式回落）：**只告警一次，且绝不打印任何 key 值**
+  if (cfg.fallback_reason) warn(cfg.fallback_reason);
 
   const fields = Object.keys(payload).filter((f) => typeof payload[f] === 'string' && payload[f].trim() !== '');
   const out: TranslateFieldsOutput = {
@@ -574,6 +583,18 @@ export async function translateFields(
       }
     }
   };
+
+  // ---- 闸 ⓪（P6-TR-1c-A）：未显式启用 stub 且无 key ⇒ **一律不翻译**
+  //   · 该批标 pending + reason='NO_API_KEY'（pending 不烧 attempts ⇒ 等 key 到位可被 backfill 补齐）；
+  //   · **不写任何译文**（text 保持 NULL）、**不写 translation_cache**；
+  //   · 绝不用 stub 假译文污染真库/缓存（旧行为「缺 key 自动回落 stub」已废止）。
+  const apiKeyAvailable = opts.apiKey !== undefined
+    ? (typeof opts.apiKey === 'string' && opts.apiKey.trim().length > 0)
+    : cfg.api_key_present;
+  if (engine !== 'stub' && !apiKeyAvailable) {
+    await markAll('pending', REASON.NO_API_KEY);
+    return out;
+  }
 
   // ---- 闸 ①：单条字符上限
   const totalChars = fields.reduce((n, f) => n + Array.from(payload[f]).length, 0);
@@ -767,6 +788,28 @@ export function createDbStore(): TranslateStore {
         );
       });
     },
+    upsertPendingRows: async (rows, opts) => {
+      const list = (rows || []).filter((r) => r && typeof r.field === 'string' && r.field && r.lang);
+      if (!list.length) return;
+      const entityType = list[0].entity_type;
+      const entityId = list[0].entity_id;
+      const fields = Array.from(new Set(list.map((r) => r.field)));
+      const langs = Array.from(new Set(list.map((r) => r.lang)));
+      const db = loadDb();
+      const suffix = opts && opts.reset === true
+        ? `UPDATE SET status = 'pending', text = NULL, last_error = NULL, updated_at = now()`
+        : 'NOTHING';
+      await db.withTransaction(async (tx) => {
+        await tx.query(
+          `INSERT INTO public.content_translation
+             (entity_type, entity_id, field, lang, text, status, attempts, last_error, updated_at)
+           SELECT $1, $2, f, l, NULL, 'pending', 0, NULL, now()
+           FROM unnest($3::text[]) AS f, unnest($4::text[]) AS l
+           ON CONFLICT (entity_type, entity_id, field, lang) DO ${suffix}`,
+          [entityType, entityId, fields, langs],
+        );
+      });
+    },
     countToday: async () => {
       const db = loadDb();
       const rows = await db.readQuery<{ n: number }>(
@@ -828,6 +871,116 @@ export function createDbSourceResolver(): SourceResolver {
     );
     return rows[0] && typeof rows[0].v === 'string' ? rows[0].v : null;
   };
+}
+
+// ============================================================ 写路径挂载 =====
+/** P6-TR-1c-A：写路径要翻译的实体（entity_type/entity_id + field→当前中文源文本）。 */
+export interface EntityTranslationTarget {
+  entityType: string;
+  entityId: string;
+  /** field → 当前中文源文本；空串/空白值会被忽略。 */
+  fields: Record<string, string>;
+}
+
+/**
+ * 写路径**前台**：确保每个 (field, lang) 都有一行 `pending`
+ * （读侧 `i18n_status` 立即从 `pending` 有据可依；**不含任何译文/缓存写入**）。
+ * 只登记、不翻译；批量一次往返（`upsertPendingRows`），缺省回退逐行 upsert。
+ */
+export async function registerPendingTranslations(
+  target: EntityTranslationTarget,
+  opts: { store?: TranslateStore | null; reset?: boolean } = {},
+): Promise<void> {
+  const fields = Object.keys(target.fields || {}).filter(
+    (f) => typeof target.fields[f] === 'string' && target.fields[f].trim() !== '',
+  );
+  if (!fields.length || !target.entityId) return;
+  const store: TranslateStore | null = opts.store === null ? null : (opts.store || createDbStore());
+  if (!store) return;
+  const rows: TranslationRow[] = [];
+  for (const f of fields) {
+    for (const t of TARGET_LANGS) {
+      rows.push({
+        entity_type: target.entityType, entity_id: target.entityId, field: f, lang: t,
+        text: null, status: 'pending', attempts: 0, last_error: null,
+      });
+    }
+  }
+  if (typeof store.upsertPendingRows === 'function') {
+    await store.upsertPendingRows(rows, { reset: opts.reset === true });
+    return;
+  }
+  for (const r of rows) await store.upsertTranslation(r);
+}
+
+type WaitUntilFn = (p: Promise<unknown>) => void;
+
+/** `@vercel/functions` 的 `waitUntil`（懒加载；离线/非 Vercel 环境 ⇒ null ⇒ 退化 fire-and-forget）。 */
+function getWaitUntil(): WaitUntilFn | null {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const mod = require('@vercel/functions') as { waitUntil?: WaitUntilFn };
+    return typeof mod.waitUntil === 'function' ? mod.waitUntil : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 后台执行一个 Promise：**优先**挂 `waitUntil`（Vercel runtime 保证响应后仍执行）；
+ * 无运行时上下文 / 非 Vercel ⇒ 退化 fire-and-forget；**异常已被捕获，绝不冒泡到写响应**。
+ */
+export function runInBackground(promise: Promise<unknown>): void {
+  const safe = Promise.resolve(promise).catch(() => undefined);
+  const waitUntil = getWaitUntil();
+  if (waitUntil) {
+    try {
+      waitUntil(safe); // 仅在 Vercel Functions 有请求上下文时可用
+      return;
+    } catch {
+      // 无上下文 ⇒ 落到下面的 fire-and-forget
+    }
+  }
+  void safe;
+}
+
+/**
+ * 写路径**后台**：在 `waitUntil` 里调 `translateFields`（外部调用/付费一律在后台，
+ * **绝不让 HTTP 写响应等待翻译**）。任何失败只记机读 reason，不影响已发出的写响应。
+ */
+export function scheduleEntityTranslation(
+  target: EntityTranslationTarget,
+  opts: {
+    store?: TranslateStore;
+    engine?: TranslateEngine;
+    config?: TranslateServiceConfig;
+    fetchImpl?: FetchLike;
+    apiKey?: string | null;
+  } = {},
+): void {
+  const fields = Object.keys(target.fields || {}).filter(
+    (f) => typeof target.fields[f] === 'string' && target.fields[f].trim() !== '',
+  );
+  if (!fields.length || !target.entityId) return;
+  const payload: Record<string, string> = {};
+  for (const f of fields) payload[f] = target.fields[f];
+  runInBackground((async (): Promise<void> => {
+    try {
+      await translateFields(payload, {
+        entityType: target.entityType,
+        entityId: target.entityId,
+        store: opts.store, // undefined ⇒ createDbStore()
+        engine: opts.engine,
+        config: opts.config,
+        fetchImpl: opts.fetchImpl,
+        apiKey: opts.apiKey,
+      });
+    } catch (e) {
+      const reason = e instanceof TranslationError ? e.reason : ((e as Error)?.name || 'ERROR');
+      // 只记机读 reason；**不打印任何接口内容/密钥**
+      console.warn(`[translate-service] background translation skipped: ${reason}`);
+    }
+  })());
 }
 
 // ============================================================ 后台回填 =====

@@ -16,7 +16,8 @@
  *   G stub 模式端到端（+ 证明 stub 输出本身过不了真校验 = 刻意豁免）
  *   H deepseek 路径（正常 / 键缺 → 不写脏数据 / MODEL_NOT_AVAILABLE / 5xx 重试 / 429 重试成功 / 429×2）
  *   I backfillPending（重试成功 / 达上限不扫 / 源解析失败跳过 / 二次幂等）
- *   J 配置派生（无 key 回落 stub / 有 key / 显式 stub / 自定义 / **key 值零泄漏**）
+ *   J 配置派生（无 key **不回落 stub** / 有 key / 显式 stub / 自定义 / **key 值零泄漏**）
+ *   K 泄漏自检 + L 写路径 pending 登记（前台只登记不翻译）+ 缺 key 不写脏数据（J11-J14）
  * ============================================================================
  */
 import * as fs from 'fs';
@@ -35,6 +36,7 @@ import {
   asciiRatio,
   hasVietnameseDiacritics,
   stubTranslate,
+  registerPendingTranslations,
   REASON,
   MAX_ATTEMPTS,
   TRANSLATE_TARGETS,
@@ -92,6 +94,15 @@ class MemStore implements TranslateStore {
     const prev = this.rows.get(k);
     const inc = row.status === 'ready' || row.status === 'failed' ? 1 : 0;
     this.rows.set(k, { ...row, attempts: prev ? prev.attempts + inc : 0 });
+  }
+  /** P6-TR-1c-A：批量 pending 登记（镜像生产语义：缺省 DO NOTHING / reset 覆盖回 pending）。 */
+  async upsertPendingRows(rows: TranslationRow[], opts?: { reset?: boolean }) {
+    for (const row of rows) {
+      const k = this.rk(row);
+      const prev = this.rows.get(k);
+      if (prev && opts?.reset !== true) continue;
+      this.rows.set(k, { ...row, attempts: prev ? prev.attempts : 0 });
+    }
   }
   async listPending(limit: number, maxAttempts: number) {
     return Array.from(this.rows.values())
@@ -384,7 +395,7 @@ async function main(): Promise<void> {
   // ===== J 配置 =====
   {
     const c = getTranslateConfig({} as NodeJS.ProcessEnv);
-    t('J1', 'config', c.engine === 'stub' && c.requested_engine === 'deepseek' && c.api_key_present === false, 'stub/fallback', `${c.engine}/${c.requested_engine}/${c.api_key_present}`);
+    t('J1', 'config', c.engine === 'deepseek' && c.requested_engine === 'deepseek' && c.api_key_present === false, 'deepseek/无回落(不落 stub)', `${c.engine}/${c.requested_engine}/${c.api_key_present}`);
     t('J2', 'config', /NO_API_KEY/.test(c.fallback_reason || ''), 'fallback_reason 含 NO_API_KEY', c.fallback_reason);
     t('J3', 'config', c.base_url === 'https://api.deepseek.com' && c.model === 'deepseek-flash', '默认 base/model', `${c.base_url}/${c.model}`);
     t('J4', 'config', c.max_chars_per_item === 2000 && c.daily_item_cap === 500, '默认闸 2000/500', `${c.max_chars_per_item}/${c.daily_item_cap}`);
@@ -401,6 +412,47 @@ async function main(): Promise<void> {
     t('J8', 'config', c.base_url === 'https://x.example/v1' && c.model === 'm-custom' && c.max_chars_per_item === 7 && c.daily_item_cap === 9, '自定义生效+尾斜杠剥离', `${c.base_url}/${c.model}/${c.max_chars_per_item}/${c.daily_item_cap}`);
   }
   t('J9', 'config', !Object.prototype.hasOwnProperty.call(getTranslateConfig({ DEEPSEEK_API_KEY: SENTINEL } as NodeJS.ProcessEnv), 'api_key'), 'config 无 api_key 字段', Object.keys(getTranslateConfig({ DEEPSEEK_API_KEY: SENTINEL } as NodeJS.ProcessEnv)).join(','));
+
+  // ===== J10-J14 引擎回落反转（P6-TR-1c-A：缺 key ⇒ 不翻译、不写脏数据）=====
+  {
+    const c = getTranslateConfig({ TRANSLATE_ENGINE: 'stub' } as NodeJS.ProcessEnv);
+    t('J10', 'config', c.engine === 'stub' && c.requested_engine === 'stub' && c.api_key_present === false, 'stub 显式启用(无 key 亦可)', `${c.engine}/${c.requested_engine}/${c.api_key_present}`);
+  }
+  {
+    // 缺 key（config.api_key_present=false，未显式 stub）⇒ 一律不翻译：不调用引擎、不写缓存、不写正文
+    const s = new MemStore();
+    const f = new SeqFetch([envelope(OK_RESP)]);
+    const r = await translateFields({ title: SRC }, {
+      entityType: 'job', entityId: 'nokey', store: s, fetchImpl: f.fn, onWarn: () => undefined,
+      config: mkCfg({ api_key_present: false, fallback_reason: 'NO_API_KEY: test' }),
+    });
+    t('J11', 'noKey', f.calls === 0, '不调用引擎(calls=0)', f.calls);
+    t('J12', 'noKey', s.cache.size === 0, '不写 translation_cache(0)', s.cache.size);
+    const st = r.statuses.title as Record<string, string | undefined>;
+    const er = r.errors.title as Record<string, string | undefined>;
+    t('J13', 'noKey', ['en', 'vn', 'hk'].every((l) => st[l] === 'pending' && er[l] === REASON.NO_API_KEY), 'pending+NO_API_KEY ×3', `${JSON.stringify(st)}/${JSON.stringify(er)}`);
+    t('J14', 'noKey', ['en', 'vn', 'hk'].every((l) => { const row = s.rows.get(`job|nokey|title|${l}`); return !!row && row.text === null; }), 'content_translation 正文 NULL ×3', JSON.stringify(Array.from(s.rows.values()).map((x) => `${x.lang}:${x.text}`)));
+  }
+
+  // ===== L 写路径 pending 登记（P6-TR-1c-A 前台：只登记不翻译）=====
+  {
+    const s = new MemStore();
+    await registerPendingTranslations(
+      { entityType: 'listing', entityId: 'L1', fields: { title: SRC, description: '描述文本' } },
+      { store: s },
+    );
+    const pend = Array.from(s.rows.values()).filter((r) => r.status === 'pending');
+    t('L1', 'pending', pend.length === 6 && s.cache.size === 0, '6 行 pending(2 字段×3 语言)/零缓存', `${pend.length}/${s.cache.size}`);
+    t('L2', 'pending', pend.every((r) => r.text === null && r.attempts === 0), '正文 NULL / attempts 0', JSON.stringify(pend.map((r) => `${r.field}:${r.lang}=${r.status}/${r.attempts}`)));
+  }
+  {
+    const s = new MemStore();
+    s.seedRow({ entity_type: 'listing', entity_id: 'L2', field: 'title', lang: 'en', text: 'ready-text', status: 'ready', attempts: 1, last_error: null });
+    await registerPendingTranslations({ entityType: 'listing', entityId: 'L2', fields: { title: SRC } }, { store: s });
+    t('L3', 'pending', s.rows.get('listing|L2|title|en')!.status === 'ready', '缺省不降级(ready 保持)', s.rows.get('listing|L2|title|en')!.status);
+    await registerPendingTranslations({ entityType: 'listing', entityId: 'L2', fields: { title: SRC } }, { store: s, reset: true });
+    t('L4', 'pending', s.rows.get('listing|L2|title|en')!.status === 'pending' && s.rows.get('listing|L2|title|en')!.text === null, 'reset=true 覆盖回 pending/NULL', JSON.stringify(s.rows.get('listing|L2|title|en')));
+  }
 
   // ===== K 泄漏自检（产物不得含任何 key 值 / Bearer 令牌） =====
   {
