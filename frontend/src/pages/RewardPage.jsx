@@ -22,7 +22,6 @@ const RewardPage = () => {
   const [loading, setLoading] = useState(true)
   const [taskProgress, setTaskProgress] = useState(null)
   const [taskDetail, setTaskDetail] = useState(null)
-  const [claiming, setClaiming] = useState(false)
   const [userPoints, setUserPoints] = useState(0)
   const [activeTab, setActiveTab] = useState('available')
 
@@ -141,32 +140,10 @@ const RewardPage = () => {
     load()
   }, [isAuthenticated, isTaskProgressMode, location.pathname, q_jID, t, user?.uID])
 
-  const handleTaskProgressClaim = async () => {
-    if (!taskProgress?.jID) return
-    if (!isAuthenticated) {
-      toast.error('请先登录')
-      navigate('/login', { state: { from: location } })
-      return
-    }
-
-    setClaiming(true)
-    try {
-      const result = await fetchApiJson(`/api/task-progress/claim/${taskProgress.jID}`, {
-        method: 'POST',
-        headers: getAuthHeaders(user),
-      })
-      setTaskProgress((prev) => ({ ...prev, ...result }))
-      if (typeof result?.user_points_total === 'number') {
-        setUserPoints(result.user_points_total)
-      }
-      toast.success(`奖励领取成功，获得 ${result?.reward_points || result?.points_claimed || 0} 积分`)
-    } catch (error) {
-      console.error('Error claiming task progress reward:', error)
-      toast.error(`领取失败: ${error.message}`)
-    } finally {
-      setClaiming(false)
-    }
-  }
+  // P6-B5-CLAIM（批 5 = sunset）：`POST /api/task-progress/claim/:jID` 已退役（后端恒 `410` + `details.reason='CLAIM_RETIRED'`）。
+  // ⇒ 前端**零调用**该端点（判据 = §9.B「弃用面前端零调用」；与 `shard/redeem` / `chest` 同先例）。
+  // 处置 = **删调用 + 删 UI 分支**（就地显示「已下线」，四语键 `claimRetiredNotice`；不整页删）；
+  // 奖励/积分发放唯一路径 = A1 管理员调分（已接账本 `mint`/`burn`）⇒ 无功能缺口。
 
   const handleRewardClaim = (reward) => {
     if (!isAuthenticated) {
@@ -211,7 +188,6 @@ const RewardPage = () => {
 
   if (isTaskProgressMode && taskProgress) {
     const rewardPoints = taskProgress.points_claimed || taskDetail?.points || 0
-    const canClaim = Boolean(taskProgress.time_checked) && !taskProgress.time_claimed
 
     return (
       <ResponsiveContainer>
@@ -262,15 +238,7 @@ const RewardPage = () => {
                     <Badge variant="success" size="lg">已领取</Badge>
                   </div>
                 ) : (
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    className="w-full"
-                    disabled={!canClaim || claiming}
-                    onClick={handleTaskProgressClaim}
-                  >
-                    {claiming ? '领取中...' : canClaim ? '领取奖励' : '待管理员审核'}
-                  </Button>
+                  <div className="text-center py-4 text-sm text-gray-500">{t('claimRetiredNotice')}</div>
                 )}
               </CardContent>
             </Card>

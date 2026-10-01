@@ -20,6 +20,7 @@
   "tasksToComplete": "待完成的任务",
   "tasksClaimed": "已领取奖励的任务",
   "claimReward": "领奖励",
+  "claimRetiredNotice": "该领取入口已下线，奖励与积分由管理员统一发放。",
   "goComplete": "去完成",
   "chooseReward": "选择奖励",
   "submitInfo": "提交信息",

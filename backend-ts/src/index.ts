@@ -689,56 +689,30 @@ app.post('/api/task-progress/:identifier/submit', async (req, res) => {
   }
 });
 
-app.post('/api/task-progress/claim/:jID', async (req, res) => {
-  const actor = await requireActor(req, res);
-  if (!actor) return;
+// P6-B5-CLAIM（批 5 = sunset）：旧模型（管理员后台发 task/reward）已废弃 ⇒ `POST /api/task-progress/claim/:jID` **退役**。
+//   奖励/积分发放的唯一路径 = A1 管理员调分（已接账本 `mint`/`burn`）⇒ 无功能缺口。
+//   硬边界：**在访问任何表之前**直接 `410` —— 旧实现体经 `DatabaseService` 读 `asset`/`task_progress`（迁移面从未建过该两表）
+//   ⇒ 恒 `42P01` ⇒ 被吞成 `500`（本仓今日唯一可达的「撞缺表」面）⇒ handler 路径**零表访问**。
+//   形状 = **照抄既有 410 面**（同一共享产出器 `./job-service` `ledgerErrorBody` ⇒ R107 `{error:{code,message,i18n_key,details}}`，
+//   code=`LEDGER_REF_NOT_FOUND`，`i18n_key=ledger.err.LEDGER_REF_NOT_FOUND`，details={`ref_type`,`ref_id`,`http_status`,`sunset`}）；
+//   **机读 reason** 落 `details.reason`（本仓 S6 惯例，见 `frontend/src/test/unit/auth.test.js:107`）。
+//   撤 `requireActor` 前置（同 B2a/B2b 先例：弃用面不得把「已下线」伪装成「未授权」；本面零副作用 ⇒ 无令牌下亦可观测 410）。
+const CLAIM_RETIRED_REASON = 'CLAIM_RETIRED';
+const CLAIM_RETIRED_REF_ID = '/api/task-progress/claim/:jID';
+const CLAIM_RETIRED_SUNSET = '批 5 sunset（未决 §7-1：过期日待 Kevin 定）';
 
-  const jID = parseInteger(req.params.jID);
-  if (!jID) {
-    return sendError(res, 400, 'Invalid jID');
-  }
-
-  try {
-    const taskProgress = await DatabaseService.getTaskProgress(jID);
-    if (!taskProgress) {
-      return sendError(res, 404, 'Task progress not found');
-    }
-
-    if (taskProgress.uID !== actor.user.uID) {
-      return sendError(res, 403, 'Forbidden');
-    }
-
-    if (!taskProgress.time_checked) {
-      return sendError(res, 400, 'Task progress is not verified yet');
-    }
-
-    if (taskProgress.time_claimed) {
-      const currentAsset = (await DatabaseService.getUserAsset(actor.user.uID)) || (await DatabaseService.upsertAsset(actor.user.uID, 0));
-      return sendSuccess(res, {
-        ...taskProgress,
-        reward_points: taskProgress.points_claimed,
-        user_points_total: currentAsset.points,
-      });
-    }
-
-    const task = await DatabaseService.getTask(taskProgress.tID);
-    const rewardPoints = taskProgress.points_claimed || task?.points || 0;
-    const updatedTaskProgress = await DatabaseService.claimTaskProgress(jID, rewardPoints);
-    const updatedAsset = await DatabaseService.upsertAsset(actor.user.uID, rewardPoints);
-
-    if (!updatedTaskProgress) {
-      return sendError(res, 404, 'Task progress not found');
-    }
-
-    sendSuccess(res, {
-      ...updatedTaskProgress,
-      reward_points: rewardPoints,
-      user_points_total: updatedAsset.points,
-    }, 'Task progress reward claimed');
-  } catch (error) {
-    console.error('Error claiming task progress reward:', error);
-    sendError(res, 500, 'Failed to claim reward');
-  }
+app.post('/api/task-progress/claim/:jID', (_req, res) => {
+  return res.status(410).json(ledgerErrorBody(
+    'LEDGER_REF_NOT_FOUND',
+    `endpoint deprecated: ${CLAIM_RETIRED_REF_ID}`,
+    {
+      ref_type: 'endpoint',
+      ref_id: CLAIM_RETIRED_REF_ID,
+      http_status: 410,
+      sunset: CLAIM_RETIRED_SUNSET,
+      reason: CLAIM_RETIRED_REASON,
+    },
+  ));
 });
 
 app.get('/api/shard', async (req, res) => {

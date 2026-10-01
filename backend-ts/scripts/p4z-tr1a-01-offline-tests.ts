@@ -546,6 +546,43 @@ async function main(): Promise<void> {
     t('K2', 'secure', /Bearer\s+[A-Za-z0-9._-]{8,}/.test(pre) === false, '产物不含 Bearer 令牌', /Bearer\s+[A-Za-z0-9._-]{8,}/.test(pre));
   }
 
+  // ===== N claim 领取口退役（P6-B5-CLAIM：410 + **零表访问** + 形状同既有 410 面）=====
+  // 本组为**源码级**断言（纯静态、不连库 ⇒ 保持本套件 `db_connections: 0`）；响应体实测在
+  // `scripts/p4z-b5claim-01-http.ts`（真实 HTTP + 与既有 410 面逐键比对）。
+  {
+    const srcDir = path.join(__dirname, '..', 'src');
+    const idx = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf8');
+    const lines = idx.split('\n');
+
+    // N1 路由保持注册（且唯一）
+    const regs = lines.filter((l) => l.startsWith("app.post('/api/task-progress/claim/:jID'"));
+    t('N1', 'claimRetire', regs.length === 1, 'claim 路由保持注册且唯一', regs.length);
+
+    // N2 handler 路径**零表访问**（截取：路由注册行 → 下一个顶层 app.<verb>( 之前）
+    const s = lines.findIndex((l) => l.startsWith("app.post('/api/task-progress/claim/:jID'"));
+    const e = lines.findIndex((l, i) => i > s && /^app\.(get|post|put|patch|delete|all)\(/.test(l));
+    const body = s >= 0 && e > s ? lines.slice(s, e).join('\n') : '';
+    const forbidden = ['DatabaseService', 'task_progress', 'asset', 'getTaskProgress', 'claimTaskProgress', 'upsertAsset', 'getUserAsset', 'getTask('];
+    const hits = forbidden.filter((k) => body.includes(k));
+    t('N2', 'claimRetire', body.length > 0 && hits.length === 0, 'handler 路径零表访问（命中 0）', hits.join(',') || '0 命中');
+
+    // N3 410 + 机读 reason
+    const has410 = /res\.status\(410\)/.test(body) || /sendGone\(/.test(body);
+    const hasReason = body.includes('CLAIM_RETIRED_REASON') && idx.includes("const CLAIM_RETIRED_REASON = 'CLAIM_RETIRED'");
+    t('N3', 'claimRetire', has410 && hasReason, '410 + 机读 reason=CLAIM_RETIRED', `${has410}/${hasReason}`);
+
+    // N4 形状与既有 410 面**同源**：同一个共享 R107 产出器（`ledgerErrorBody` 信封 error{code,message,i18n_key,details}）
+    const js = fs.readFileSync(path.join(srcDir, 'job-service.ts'), 'utf8');
+    const blk = js.slice(js.indexOf('export const ledgerErrorBody'), js.indexOf('export const sendGone'));
+    const shared = /ledgerErrorBody\(|sendGone\(/.test(body);
+    const innerKeys = ['code', 'message', 'i18n_key', 'details'].every((k) => blk.includes(k));
+    t('N4', 'claimRetire', shared && innerKeys, 'claim 走共享产出器 且 信封含 code/message/i18n_key/details', `shared=${shared}/keys=${innerKeys}`);
+
+    // N5 既有 410 面仍在位（「形状一致」不得落成孤例）：index.ts 内 sendGone/ledgerErrorBody 调用 ≥10 处
+    const goneFaces = lines.filter((l) => l.includes('sendGone(res,') || l.includes('ledgerErrorBody('));
+    t('N5', 'claimRetire', goneFaces.length >= 10, '≥10 面共用 R107 产出器', goneFaces.length);
+  }
+
   // ---------------------------------------------------------------- 结论 --
   const failed = checks.filter((c) => !c.pass);
   const report = {

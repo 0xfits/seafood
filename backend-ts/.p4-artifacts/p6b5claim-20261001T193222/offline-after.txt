@@ -1,0 +1,896 @@
+{
+ "unit": "P6-TR-1a",
+ "generated_at": "2026-10-01T11:35:15.506Z",
+ "run": "20261001T113515Z",
+ "offline": true,
+ "db_connections": 0,
+ "api_calls": 0,
+ "total": 126,
+ "passed": 126,
+ "failed": 0,
+ "checks": [
+  {
+   "id": "A1",
+   "group": "opencc",
+   "pass": true,
+   "expect": "人民幣",
+   "actual": "人民幣"
+  },
+  {
+   "id": "A2",
+   "group": "opencc",
+   "pass": true,
+   "expect": "繁體化測試",
+   "actual": "繁體化測試"
+  },
+  {
+   "id": "A3",
+   "group": "opencc",
+   "pass": true,
+   "expect": "确定性(两次相同)",
+   "actual": "人民幣"
+  },
+  {
+   "id": "A4",
+   "group": "opencc",
+   "pass": true,
+   "expect": "abc 123 $",
+   "actual": "abc 123 $"
+  },
+  {
+   "id": "A5",
+   "group": "opencc",
+   "pass": true,
+   "expect": "簡體中文內容示例，含標點。",
+   "actual": "簡體中文內容示例，含標點。"
+  },
+  {
+   "id": "B1",
+   "group": "prompt",
+   "pass": true,
+   "expect": "system 要求只输出单个 JSON 对象",
+   "actual": "true"
+  },
+  {
+   "id": "B2",
+   "group": "prompt",
+   "pass": true,
+   "expect": "system 禁 markdown 围栏",
+   "actual": "true"
+  },
+  {
+   "id": "B3",
+   "group": "prompt",
+   "pass": true,
+   "expect": "system 不含围栏字样",
+   "actual": "false"
+  },
+  {
+   "id": "B4",
+   "group": "prompt",
+   "pass": true,
+   "expect": "system 要求保留数字/价格/币符号",
+   "actual": "true"
+  },
+  {
+   "id": "B5",
+   "group": "prompt",
+   "pass": true,
+   "expect": "system 要求保留 URL",
+   "actual": "true"
+  },
+  {
+   "id": "B6",
+   "group": "prompt",
+   "pass": true,
+   "expect": "[\"title\"]",
+   "actual": "[\"title\"]"
+  },
+  {
+   "id": "B7",
+   "group": "prompt",
+   "pass": true,
+   "expect": "[\"en\",\"vn\"]",
+   "actual": "[\"en\",\"vn\"]"
+  },
+  {
+   "id": "C1-neg",
+   "group": "validate",
+   "pass": true,
+   "expect": "JSON_PARSE",
+   "actual": "JSON_PARSE"
+  },
+  {
+   "id": "C2-neg",
+   "group": "validate",
+   "pass": true,
+   "expect": "KEY_SET_MISMATCH",
+   "actual": "KEY_SET_MISMATCH"
+  },
+  {
+   "id": "C3-neg",
+   "group": "validate",
+   "pass": true,
+   "expect": "EMPTY_VALUE",
+   "actual": "EMPTY_VALUE"
+  },
+  {
+   "id": "C4-neg",
+   "group": "validate",
+   "pass": true,
+   "expect": "LENGTH_RATIO(过短)",
+   "actual": "LENGTH_RATIO"
+  },
+  {
+   "id": "C5-neg",
+   "group": "validate",
+   "pass": true,
+   "expect": "LENGTH_RATIO(过长)",
+   "actual": "LENGTH_RATIO"
+  },
+  {
+   "id": "C6-neg",
+   "group": "validate",
+   "pass": true,
+   "expect": "CHARSET(en 非 ASCII 污染)",
+   "actual": "CHARSET"
+  },
+  {
+   "id": "C7-neg",
+   "group": "validate",
+   "pass": true,
+   "expect": "CHARSET(vn 缺声调)",
+   "actual": "CHARSET"
+  },
+  {
+   "id": "C8-exempt",
+   "group": "validate",
+   "pass": true,
+   "expect": "ok(源无 CJK ⇒ 豁免)",
+   "actual": "true/null"
+  },
+  {
+   "id": "C9-exempt",
+   "group": "validate",
+   "pass": true,
+   "expect": "ok(单字源 ⇒ 豁免)",
+   "actual": "true/null/null"
+  },
+  {
+   "id": "C10-neg",
+   "group": "validate",
+   "pass": true,
+   "expect": "CHARSET(2 字源不豁免)",
+   "actual": "CHARSET"
+  },
+  {
+   "id": "C11-pos",
+   "group": "validate",
+   "pass": true,
+   "expect": "ok(vn 带声调)",
+   "actual": "true/null"
+  },
+  {
+   "id": "C12-pos",
+   "group": "validate",
+   "pass": true,
+   "expect": "ok(en 纯 ASCII)",
+   "actual": "true/null"
+  },
+  {
+   "id": "C13-fence",
+   "group": "validate",
+   "pass": true,
+   "expect": "ok(围栏被剥离)",
+   "actual": "true/undefined"
+  },
+  {
+   "id": "C14",
+   "group": "validate",
+   "pass": true,
+   "expect": "JSON_PARSE",
+   "actual": "JSON_PARSE"
+  },
+  {
+   "id": "C15",
+   "group": "validate",
+   "pass": true,
+   "expect": "工具函数读数",
+   "actual": "true/false/1/true"
+  },
+  {
+   "id": "D1",
+   "group": "cache",
+   "pass": true,
+   "expect": "fetch.calls=0(全命中不付费)",
+   "actual": "0"
+  },
+  {
+   "id": "D2",
+   "group": "cache",
+   "pass": true,
+   "expect": "cacheHits=2",
+   "actual": "2"
+  },
+  {
+   "id": "D3",
+   "group": "cache",
+   "pass": true,
+   "expect": "缓存译文回填",
+   "actual": "{\"en\":\"Hiring staff\",\"vn\":\"Tuyển dụng\",\"hk\":\"招聘服務員\"}"
+  },
+  {
+   "id": "D4",
+   "group": "cache",
+   "pass": true,
+   "expect": "status ready",
+   "actual": "{\"en\":\"ready\",\"vn\":\"ready\",\"hk\":\"ready\"}"
+  },
+  {
+   "id": "D5",
+   "group": "cache",
+   "pass": true,
+   "expect": "fetch.calls=1(仅缺 vn)",
+   "actual": "1"
+  },
+  {
+   "id": "D6",
+   "group": "cache",
+   "pass": true,
+   "expect": "请求体只含 vn / 只含 title",
+   "actual": "{\"title\":[\"vn\"]}"
+  },
+  {
+   "id": "D7",
+   "group": "cache",
+   "pass": true,
+   "expect": "混合来源合流",
+   "actual": "{\"en\":\"Hiring staff\",\"vn\":\"Tuyển dụng\",\"hk\":\"招聘服務員\"}"
+  },
+  {
+   "id": "D8",
+   "group": "cache",
+   "pass": true,
+   "expect": "新译文写回缓存",
+   "actual": "true"
+  },
+  {
+   "id": "E1",
+   "group": "cap",
+   "pass": true,
+   "expect": "DAILY_CAP_REACHED",
+   "actual": "DAILY_CAP_REACHED: used=500 + projected=3 > cap=500"
+  },
+  {
+   "id": "E2",
+   "group": "cap",
+   "pass": true,
+   "expect": "fetch.calls=0(超限不调用)",
+   "actual": "0"
+  },
+  {
+   "id": "E3",
+   "group": "cap",
+   "pass": true,
+   "expect": "status=deferred",
+   "actual": "{\"en\":\"deferred\",\"vn\":\"deferred\",\"hk\":\"deferred\"}"
+  },
+  {
+   "id": "E4",
+   "group": "cap",
+   "pass": true,
+   "expect": "attempts 不烧(0)",
+   "actual": "0"
+  },
+  {
+   "id": "E5",
+   "group": "cap",
+   "pass": true,
+   "expect": "边界放行(deferred=false, calls=1)",
+   "actual": "false/1"
+  },
+  {
+   "id": "F1",
+   "group": "cap",
+   "pass": true,
+   "expect": "ITEM_TOO_LONG",
+   "actual": "ITEM_TOO_LONG: chars=5 > max=4"
+  },
+  {
+   "id": "F2",
+   "group": "cap",
+   "pass": true,
+   "expect": "fetch.calls=0",
+   "actual": "0"
+  },
+  {
+   "id": "G1",
+   "group": "stub",
+   "pass": true,
+   "expect": "[en] 招聘服务员",
+   "actual": "[en] 招聘服务员"
+  },
+  {
+   "id": "G2",
+   "group": "stub",
+   "pass": true,
+   "expect": "vn ready",
+   "actual": "ready/[vn] 招聘服务员"
+  },
+  {
+   "id": "G3",
+   "group": "stub",
+   "pass": true,
+   "expect": "缓存写入 3 条(en/vn/hk)",
+   "actual": "3"
+  },
+  {
+   "id": "G3-hk",
+   "group": "stub",
+   "pass": true,
+   "expect": "stub 路径 hk 缓存行 engine='opencc'/繁体",
+   "actual": "opencc/招聘服務員"
+  },
+  {
+   "id": "G4",
+   "group": "stub",
+   "pass": true,
+   "expect": "content_translation 行 = ready/有正文/attempts 0",
+   "actual": "{\"entity_type\":\"job\",\"entity_id\":\"1\",\"field\":\"title\",\"lang\":\"en\",\"text\":\"[en] 招聘服务员\",\"status\":\"ready\",\"attempts\":0,\"last_error\":null}"
+  },
+  {
+   "id": "G5",
+   "group": "stub",
+   "pass": true,
+   "expect": "stub 确定性",
+   "actual": "[en] 招聘服务员"
+  },
+  {
+   "id": "G6",
+   "group": "stub",
+   "pass": true,
+   "expect": "stub 输出判负(证明校验非恒真)",
+   "actual": "false/CHARSET"
+  },
+  {
+   "id": "G7",
+   "group": "stub",
+   "pass": true,
+   "expect": "二次运行幂等(缓存不变, 仍 3 条)",
+   "actual": "3"
+  },
+  {
+   "id": "G8",
+   "group": "stub-guard",
+   "pass": true,
+   "expect": "默认拒绝写库(0 行/0 缓存)",
+   "actual": "0/0"
+  },
+  {
+   "id": "G9",
+   "group": "stub-guard",
+   "pass": true,
+   "expect": "仍内存返回 stub 译文(不落库)",
+   "actual": "ready/[en] 招聘服务员"
+  },
+  {
+   "id": "G10",
+   "group": "stub-guard",
+   "pass": true,
+   "expect": "机读 reason=STUB_WRITE_BLOCKED",
+   "actual": "true/STUB_WRITE_BLOCKED"
+  },
+  {
+   "id": "G11",
+   "group": "stub-guard",
+   "pass": true,
+   "expect": "仅 =1 放行",
+   "actual": "false/true"
+  },
+  {
+   "id": "P1",
+   "group": "def01",
+   "pass": true,
+   "expect": "无 KEY_SET_MISMATCH",
+   "actual": "{\"title\":{},\"description\":{}}"
+  },
+  {
+   "id": "P2",
+   "group": "def01",
+   "pass": true,
+   "expect": "title 缓存(en)+LLM(vn) 合流",
+   "actual": "Hiring staff/Tuyển dụng"
+  },
+  {
+   "id": "P3",
+   "group": "def01",
+   "pass": true,
+   "expect": "description 缓存(vn)+LLM(en) 合流",
+   "actual": "Description text/Đây là nội dung mô tả"
+  },
+  {
+   "id": "P4",
+   "group": "def01",
+   "pass": true,
+   "expect": "四格全 ready",
+   "actual": "{\"title\":{\"en\":\"ready\",\"vn\":\"ready\",\"hk\":\"ready\"},\"description\":{\"en\":\"ready\",\"vn\":\"ready\",\"hk\":\"ready\"}}"
+  },
+  {
+   "id": "P5",
+   "group": "def01",
+   "pass": true,
+   "expect": "一次调用覆盖全部缺字段(calls=1)",
+   "actual": "1"
+  },
+  {
+   "id": "Q1",
+   "group": "def02",
+   "pass": true,
+   "expect": "en [0.3,6.0]",
+   "actual": "{\"min\":0.3,\"max\":6}"
+  },
+  {
+   "id": "Q2",
+   "group": "def02",
+   "pass": true,
+   "expect": "vn [0.3,6.0]",
+   "actual": "{\"min\":0.3,\"max\":6}"
+  },
+  {
+   "id": "Q3",
+   "group": "def02",
+   "pass": true,
+   "expect": "hk [0.5,2.5]",
+   "actual": "{\"min\":0.5,\"max\":2.5}"
+  },
+  {
+   "id": "Q4-pos",
+   "group": "def02",
+   "pass": true,
+   "expect": "ok(zh→en 比 4.5 通过)",
+   "actual": "true/null"
+  },
+  {
+   "id": "Q5-pos",
+   "group": "def02",
+   "pass": true,
+   "expect": "ok(zh→vn 比 5.0 通过)",
+   "actual": "true/null"
+  },
+  {
+   "id": "Q6-pos",
+   "group": "def02",
+   "pass": true,
+   "expect": "ok(hk 比 1.0 通过)",
+   "actual": "true/null"
+  },
+  {
+   "id": "Q7-neg",
+   "group": "def02",
+   "pass": true,
+   "expect": "LENGTH_RATIO(en 比 20× 幻觉)",
+   "actual": "false/LENGTH_RATIO"
+  },
+  {
+   "id": "Q8-neg",
+   "group": "def02",
+   "pass": true,
+   "expect": "LENGTH_RATIO(en 比 0.1× 截断)",
+   "actual": "false/LENGTH_RATIO"
+  },
+  {
+   "id": "Q9-neg",
+   "group": "def02",
+   "pass": true,
+   "expect": "LENGTH_RATIO(vn 比 20× 幻觉)",
+   "actual": "false/LENGTH_RATIO"
+  },
+  {
+   "id": "Q10-neg",
+   "group": "def02",
+   "pass": true,
+   "expect": "LENGTH_RATIO(hk 比 0.167× 截断)",
+   "actual": "false/LENGTH_RATIO"
+  },
+  {
+   "id": "Q11-neg",
+   "group": "def02",
+   "pass": true,
+   "expect": "LENGTH_RATIO(hk 比 11× 幻觉)",
+   "actual": "false/LENGTH_RATIO"
+  },
+  {
+   "id": "H1",
+   "group": "deepseek",
+   "pass": true,
+   "expect": "ready/ready, calls=1",
+   "actual": "1/ready/ready"
+  },
+  {
+   "id": "H2",
+   "group": "deepseek",
+   "pass": true,
+   "expect": "response_format=json_object + 低温度",
+   "actual": "{\"model\":\"deepseek-flash\",\"messages\":[{\"role\":\"system\",\"content\":\"You are a professional translator for a Chinese-language marketplace app (jobs, goods, profiles, points).\\nTranslate each Chinese source string into the requested target languages.\\n\\nSTRICT OUTPUT RULES:\\n1. Output ONLY one single JS"
+  },
+  {
+   "id": "H3",
+   "group": "deepseek",
+   "pass": true,
+   "expect": "缓存写入 3 条(en/vn/hk)",
+   "actual": "3"
+  },
+  {
+   "id": "H3-hk",
+   "group": "deepseek",
+   "pass": true,
+   "expect": "hk 缓存行 engine='opencc'/繁体",
+   "actual": "opencc/招聘服務員"
+  },
+  {
+   "id": "H4",
+   "group": "deepseek",
+   "pass": true,
+   "expect": "failed/KEY_SET_MISMATCH",
+   "actual": "failed/KEY_SET_MISMATCH"
+  },
+  {
+   "id": "H5",
+   "group": "deepseek",
+   "pass": true,
+   "expect": "行正文为 NULL(不写脏数据)",
+   "actual": "null"
+  },
+  {
+   "id": "H6",
+   "group": "deepseek",
+   "pass": true,
+   "expect": "失败不写 LLM 缓存；hk 确定性转换仍写 1 条(opencc)",
+   "actual": "1/opencc"
+  },
+  {
+   "id": "H7",
+   "group": "deepseek",
+   "pass": true,
+   "expect": "MODEL_NOT_AVAILABLE 两侧齐",
+   "actual": "MODEL_NOT_AVAILABLE/MODEL_NOT_AVAILABLE"
+  },
+  {
+   "id": "H8",
+   "group": "deepseek",
+   "pass": true,
+   "expect": "400 不重试(calls=1)",
+   "actual": "1"
+  },
+  {
+   "id": "H9",
+   "group": "deepseek",
+   "pass": true,
+   "expect": "5xx 重试一次(calls=2)",
+   "actual": "2"
+  },
+  {
+   "id": "H10",
+   "group": "deepseek",
+   "pass": true,
+   "expect": "HTTP_ERROR",
+   "actual": "HTTP_ERROR"
+  },
+  {
+   "id": "H11",
+   "group": "deepseek",
+   "pass": true,
+   "expect": "429 后重试成功",
+   "actual": "2/ready"
+  },
+  {
+   "id": "H12",
+   "group": "deepseek",
+   "pass": true,
+   "expect": "RATE_LIMITED",
+   "actual": "2/RATE_LIMITED"
+  },
+  {
+   "id": "H13",
+   "group": "deepseek",
+   "pass": true,
+   "expect": "行正文 NULL",
+   "actual": "null"
+  },
+  {
+   "id": "H14",
+   "group": "deepseek",
+   "pass": true,
+   "expect": "apiKey 注入生效",
+   "actual": "1/ready"
+  },
+  {
+   "id": "H15",
+   "group": "deepseek",
+   "pass": true,
+   "expect": "NO_API_KEY + 不调用",
+   "actual": "0/NO_API_KEY"
+  },
+  {
+   "id": "HK1",
+   "group": "hk",
+   "pass": true,
+   "expect": "hk 行落库 ready 且为繁体",
+   "actual": "ready/招聘服務員"
+  },
+  {
+   "id": "HK2",
+   "group": "hk",
+   "pass": true,
+   "expect": "繁体「招聘服務員」",
+   "actual": "招聘服務員"
+  },
+  {
+   "id": "HK3",
+   "group": "hk",
+   "pass": true,
+   "expect": "hk texts/status ready",
+   "actual": "ready/招聘服務員"
+  },
+  {
+   "id": "HK4",
+   "group": "hk",
+   "pass": true,
+   "expect": "hk 缓存行 engine='opencc'",
+   "actual": "opencc"
+  },
+  {
+   "id": "HK5",
+   "group": "hk",
+   "pass": true,
+   "expect": "hk 不产生 LLM 调用(calls=1; LLM 目标集无 hk)",
+   "actual": "1/[en,vn]"
+  },
+  {
+   "id": "I1",
+   "group": "backfill",
+   "pass": true,
+   "expect": "scanned=2/ready=2/failed=0",
+   "actual": "{\"scanned\":2,\"retried\":1,\"ready\":2,\"failed\":0,\"skipped\":0,\"deferred\":0,\"engine\":\"deepseek\",\"reason\":null}"
+  },
+  {
+   "id": "I2",
+   "group": "backfill",
+   "pass": true,
+   "expect": "attempts→1 / ready",
+   "actual": "{\"entity_type\":\"job\",\"entity_id\":\"5\",\"field\":\"title\",\"lang\":\"en\",\"text\":\"Hiring staff\",\"status\":\"ready\",\"attempts\":1,\"last_error\":null}"
+  },
+  {
+   "id": "I3",
+   "group": "backfill",
+   "pass": true,
+   "expect": "二次幂等(scanned=0)",
+   "actual": "{\"scanned\":0,\"retried\":0,\"ready\":0,\"failed\":0,\"skipped\":0,\"deferred\":0,\"engine\":\"deepseek\",\"reason\":null}"
+  },
+  {
+   "id": "I4",
+   "group": "backfill",
+   "pass": true,
+   "expect": "达上限不扫(calls=0)",
+   "actual": "0/0"
+  },
+  {
+   "id": "I5",
+   "group": "backfill",
+   "pass": true,
+   "expect": "源解析失败⇒跳过且不动行",
+   "actual": "{\"scanned\":1,\"retried\":0,\"ready\":0,\"failed\":0,\"skipped\":1,\"deferred\":0,\"engine\":\"deepseek\",\"reason\":null}"
+  },
+  {
+   "id": "J1",
+   "group": "config",
+   "pass": true,
+   "expect": "deepseek/无回落(不落 stub)",
+   "actual": "deepseek/deepseek/false"
+  },
+  {
+   "id": "J2",
+   "group": "config",
+   "pass": true,
+   "expect": "fallback_reason 含 NO_API_KEY",
+   "actual": "NO_API_KEY: DEEPSEEK_API_KEY 缺失 ⇒ 不翻译（stub 仅显式 TRANSLATE_ENGINE=stub）"
+  },
+  {
+   "id": "J3",
+   "group": "config",
+   "pass": true,
+   "expect": "默认 base/model",
+   "actual": "https://api.deepseek.com/deepseek-flash"
+  },
+  {
+   "id": "J4",
+   "group": "config",
+   "pass": true,
+   "expect": "默认闸 2000/500",
+   "actual": "2000/500"
+  },
+  {
+   "id": "J5",
+   "group": "config",
+   "pass": true,
+   "expect": "deepseek/就位/无回落",
+   "actual": "deepseek/true/null"
+  },
+  {
+   "id": "J6",
+   "group": "config",
+   "pass": true,
+   "expect": "config 对象不含 key 值",
+   "actual": "false"
+  },
+  {
+   "id": "J7",
+   "group": "config",
+   "pass": true,
+   "expect": "显式 stub 生效",
+   "actual": "stub/stub"
+  },
+  {
+   "id": "J8",
+   "group": "config",
+   "pass": true,
+   "expect": "自定义生效+尾斜杠剥离",
+   "actual": "https://x.example/v1/m-custom/7/9"
+  },
+  {
+   "id": "J9",
+   "group": "config",
+   "pass": true,
+   "expect": "config 无 api_key 字段",
+   "actual": "engine,requested_engine,api_key_present,base_url,model,max_chars_per_item,daily_item_cap,fallback_reason"
+  },
+  {
+   "id": "J10",
+   "group": "config",
+   "pass": true,
+   "expect": "stub 显式启用(无 key 亦可)",
+   "actual": "stub/stub/false"
+  },
+  {
+   "id": "J11",
+   "group": "noKey",
+   "pass": true,
+   "expect": "不调用引擎(calls=0)",
+   "actual": "0"
+  },
+  {
+   "id": "J12",
+   "group": "noKey",
+   "pass": true,
+   "expect": "不写 translation_cache(0)",
+   "actual": "0"
+  },
+  {
+   "id": "J13",
+   "group": "noKey",
+   "pass": true,
+   "expect": "pending+NO_API_KEY ×3",
+   "actual": "{\"en\":\"pending\",\"vn\":\"pending\",\"hk\":\"pending\"}/{\"en\":\"NO_API_KEY\",\"vn\":\"NO_API_KEY\",\"hk\":\"NO_API_KEY\"}"
+  },
+  {
+   "id": "J14",
+   "group": "noKey",
+   "pass": true,
+   "expect": "content_translation 正文 NULL ×3",
+   "actual": "[\"en:null\",\"vn:null\",\"hk:null\"]"
+  },
+  {
+   "id": "L1",
+   "group": "pending",
+   "pass": true,
+   "expect": "6 行 pending(2 字段×3 语言)/零缓存",
+   "actual": "6/0"
+  },
+  {
+   "id": "L2",
+   "group": "pending",
+   "pass": true,
+   "expect": "正文 NULL / attempts 0",
+   "actual": "[\"title:en=pending/0\",\"title:vn=pending/0\",\"title:hk=pending/0\",\"description:en=pending/0\",\"description:vn=pending/0\",\"description:hk=pending/0\"]"
+  },
+  {
+   "id": "L3",
+   "group": "pending",
+   "pass": true,
+   "expect": "缺省不降级(ready 保持)",
+   "actual": "ready"
+  },
+  {
+   "id": "L4",
+   "group": "pending",
+   "pass": true,
+   "expect": "reset=true 覆盖回 pending/NULL",
+   "actual": "{\"entity_type\":\"listing\",\"entity_id\":\"L2\",\"field\":\"title\",\"lang\":\"en\",\"text\":null,\"status\":\"pending\",\"attempts\":1,\"last_error\":null}"
+  },
+  {
+   "id": "M1",
+   "group": "scan",
+   "pass": true,
+   "expect": "job/listing/user/currency 四类 + 表/主键/字段齐备",
+   "actual": "job:job.job_id[title|description] ; listing:listing.listing_id[title|description] ; user:users.uid[bio] ; currency:currency.cid[name]"
+  },
+  {
+   "id": "M2",
+   "group": "scan",
+   "pass": true,
+   "expect": "每表 SQL：ON CONFLICT DO NOTHING + RETURNING 1 + 3 语言 + 无 DELETE/UPDATE",
+   "actual": "true"
+  },
+  {
+   "id": "M2b",
+   "group": "scan",
+   "pass": true,
+   "expect": "job SQL 含真库主键 job_id 与 title/description 候选",
+   "actual": "true"
+  },
+  {
+   "id": "M3",
+   "group": "scan",
+   "pass": true,
+   "expect": "端口注入回执原样",
+   "actual": "{\"scanned\":7,\"registered\":3,\"existing\":4,\"by_entity\":{\"job\":{\"scanned\":7,\"registered\":3}}}"
+  },
+  {
+   "id": "M4",
+   "group": "scan",
+   "pass": true,
+   "expect": "en,vn,hk",
+   "actual": "en,vn,hk"
+  },
+  {
+   "id": "K1",
+   "group": "secure",
+   "pass": true,
+   "expect": "产物不含任何 key 值",
+   "actual": "false"
+  },
+  {
+   "id": "K2",
+   "group": "secure",
+   "pass": true,
+   "expect": "产物不含 Bearer 令牌",
+   "actual": "false"
+  },
+  {
+   "id": "N1",
+   "group": "claimRetire",
+   "pass": true,
+   "expect": "claim 路由保持注册且唯一",
+   "actual": "1"
+  },
+  {
+   "id": "N2",
+   "group": "claimRetire",
+   "pass": true,
+   "expect": "handler 路径零表访问（命中 0）",
+   "actual": "0 命中"
+  },
+  {
+   "id": "N3",
+   "group": "claimRetire",
+   "pass": true,
+   "expect": "410 + 机读 reason=CLAIM_RETIRED",
+   "actual": "true/true"
+  },
+  {
+   "id": "N4",
+   "group": "claimRetire",
+   "pass": true,
+   "expect": "claim 走共享产出器 且 信封含 code/message/i18n_key/details",
+   "actual": "shared=true/keys=true"
+  },
+  {
+   "id": "N5",
+   "group": "claimRetire",
+   "pass": true,
+   "expect": "≥10 面共用 R107 产出器",
+   "actual": "17"
+  }
+ ]
+}
+SUMMARY total=126 passed=126 failed=0 artifact=/Users/kevin/bistro/seafood/backend-ts/.p4-artifacts/p6tr1a-20261001T113515Z/offline-tests.json

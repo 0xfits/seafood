@@ -20,6 +20,7 @@
   "tasksToComplete": "Tasks to complete",
   "tasksClaimed": "Claimed tasks",
   "claimReward": "Claim Reward",
+  "claimRetiredNotice": "This claim endpoint is retired; rewards and points are issued by the administrator.",
   "goComplete": "Complete",
   "chooseReward": "Choose Reward",
   "submitInfo": "Submit Info",

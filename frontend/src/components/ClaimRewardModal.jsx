@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useLocation } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
 const ClaimRewardModal = ({ open, isOpen, onClose, task }) => {
   const { t } = useTranslation()
-  const navigate = useNavigate()
-  const location = useLocation()
   const [loading, setLoading] = useState(false)
   const [taskProgress, setTaskProgress] = useState(null)
-  const [celebrate, setCelebrate] = useState(false)
   const visible = typeof open === 'boolean' ? open : Boolean(isOpen)
 
   useEffect(() => {
@@ -35,42 +31,9 @@ const ClaimRewardModal = ({ open, isOpen, onClose, task }) => {
     }
   }
 
-  const handleClaim = async () => {
-      const jID = (task && (task.jID || task.tlistID)) || (taskProgress && taskProgress.jID)
-    if (!jID) return
-    try {
-      const user = JSON.parse(localStorage.getItem('user'))
-      const token = user?.token || user?.access_token || localStorage.getItem('token')
-      if (!token) {
-        toast.error(t('pleaseLogin') || '请先登录')
-        navigate('/login', { state: { from: location } })
-        return
-      }
-      const resp = await fetch(`/api/task-progress/claim/${jID}`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-      const data = await resp.json()
-      if (data && data.success) {
-        const pts = (data.data && (data.data.reward_points ?? data.data.points_claimed)) || (task && task.points) || 0
-        setCelebrate(true)
-        toast.success(`${t('success')}: 成功领取 ${pts} points`)
-        setTimeout(() => {
-          onClose()
-          window.location.reload()
-        }, 800)
-      } else {
-        if (resp.status === 401) {
-          toast.error(t('pleaseLogin') || '请先登录')
-          navigate('/login', { state: { from: location } })
-        } else {
-          toast.error(t('error') + ': ' + ((data && (data.error || data.message)) || '领取失败'))
-        }
-      }
-    } catch (error) {
-      toast.error(t('error') + ': ' + error.message)
-    }
-  }
+  // P6-B5-CLAIM（批 5 = sunset）：`POST /api/task-progress/claim/:jID` 已退役（后端恒 `410` + `details.reason='CLAIM_RETIRED'`）。
+  // ⇒ 前端**零调用**该端点（判据 = §9.B「弃用面前端零调用」；与 `shard/redeem` / `chest` 同先例）。
+  // 处置 = **删调用 + 就地显示「已下线」**（不整页删）；奖励/积分发放唯一路径 = A1 管理员调分（已接账本 `mint`/`burn`）。
 
   if (!visible || !task) return null
 
@@ -114,14 +77,9 @@ const ClaimRewardModal = ({ open, isOpen, onClose, task }) => {
           <div className="text-sm text-text-secondary mt-4">在水域的奇遇中收集宝石，完成探索后领取奖励。</div>
         </div>
         <div className="p-6 border-t border-border flex justify-end gap-3">
-          <button className="btn btn-primary gem-pulse" onClick={handleClaim}>{t('claimReward') || '领取'}</button>
+          <div className="mr-auto self-center text-sm text-text-secondary">{t('claimRetiredNotice')}</div>
           <button className="btn btn-inactive" onClick={onClose}>{t('cancel') || '取消'}</button>
         </div>
-        {celebrate && (
-          <div className="celebrate-burst">
-            <div className="burst-circle"></div>
-          </div>
-        )}
       </div>
     </div>
   )

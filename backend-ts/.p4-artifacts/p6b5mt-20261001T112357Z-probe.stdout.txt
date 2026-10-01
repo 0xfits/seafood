@@ -1,0 +1,8 @@
+[A] information_schema public 对象数 = 24
+[B] 词法 22 名中库内缺 = 0 []
+[C] 候选 7 名：存在 = {"asset":{"quoted":null,"bare":null},"task":{"quoted":null,"bare":null},"task_progress":{"quoted":null,"bare":null},"prize":{"quoted":null,"bare":null},"prize_item":{"quoted":null,"bare":null},"shard":{"quoted":null,"bare":null},"shard_transfer":{"quoted":null,"bare":null}}
+[D] users=35 account=25 cid1=16 无cid1户=23 (uidCol: account=uid users=uid)
+[E] schema_migration 行数=20 末版=0021
+[F] migrations/*.sql = 20
+[G] 逐表行数已取 23 张
+WROTE /Users/kevin/bistro/seafood/backend-ts/.p4-artifacts/p6b5mt-20261001T112357Z HIT_BRANCH=sql(text,params)

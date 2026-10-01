@@ -1,0 +1,97 @@
+{
+ "unit": "P6-B5-CLAIM",
+ "kind": "http",
+ "generated_at": "2026-10-01T11:35:29.881Z",
+ "host": "127.0.0.1:5788",
+ "total": 6,
+ "passed": 6,
+ "failed": 0,
+ "claim_statuses": [
+  410,
+  410
+ ],
+ "ref_face": {
+  "path": "/api/admin/task/create",
+  "body": {
+   "error": {
+    "code": "LEDGER_REF_NOT_FOUND",
+    "message": "endpoint deprecated: /api/admin/task/create",
+    "i18n_key": "ledger.err.LEDGER_REF_NOT_FOUND",
+    "details": {
+     "ref_type": "endpoint",
+     "ref_id": "/api/admin/task/create",
+     "http_status": 410,
+     "sunset": "批 4 删路径（未决 §7-1：过期日待 Kevin 定）"
+    }
+   }
+  }
+ },
+ "claim_no_auth": {
+  "error": {
+   "code": "LEDGER_REF_NOT_FOUND",
+   "message": "endpoint deprecated: /api/task-progress/claim/:jID",
+   "i18n_key": "ledger.err.LEDGER_REF_NOT_FOUND",
+   "details": {
+    "ref_type": "endpoint",
+    "ref_id": "/api/task-progress/claim/:jID",
+    "http_status": 410,
+    "sunset": "批 5 sunset（未决 §7-1：过期日待 Kevin 定）",
+    "reason": "CLAIM_RETIRED"
+   }
+  }
+ },
+ "claim_with_auth": {
+  "error": {
+   "code": "LEDGER_REF_NOT_FOUND",
+   "message": "endpoint deprecated: /api/task-progress/claim/:jID",
+   "i18n_key": "ledger.err.LEDGER_REF_NOT_FOUND",
+   "details": {
+    "ref_type": "endpoint",
+    "ref_id": "/api/task-progress/claim/:jID",
+    "http_status": 410,
+    "sunset": "批 5 sunset（未决 §7-1：过期日待 Kevin 定）",
+    "reason": "CLAIM_RETIRED"
+   }
+  }
+ },
+ "routes": 67,
+ "checks": [
+  {
+   "id": "H1",
+   "pass": true,
+   "expect": "两请求均 410",
+   "actual": "410/410"
+  },
+  {
+   "id": "H2",
+   "pass": true,
+   "expect": "带/不带上文响应体逐字节相同",
+   "actual": "same"
+  },
+  {
+   "id": "H3",
+   "pass": true,
+   "expect": "信封键集+code 同既有 410 面",
+   "actual": "code,message,i18n_key,details vs code,message,i18n_key,details / LEDGER_REF_NOT_FOUND"
+  },
+  {
+   "id": "H4",
+   "pass": true,
+   "expect": "details.reason=CLAIM_RETIRED",
+   "actual": "CLAIM_RETIRED"
+  },
+  {
+   "id": "H5",
+   "pass": true,
+   "expect": "details.http_status=410 + i18n_key 同参照面",
+   "actual": "410/ledger.err.LEDGER_REF_NOT_FOUND"
+  },
+  {
+   "id": "H6",
+   "pass": true,
+   "expect": "注册点=67",
+   "actual": "67"
+  }
+ ]
+}
+SUMMARY total=6 passed=6 failed=0 artifact=/Users/kevin/bistro/seafood/backend-ts/.p4-artifacts/p6b5claim-http-20261001T113529Z/http.json
