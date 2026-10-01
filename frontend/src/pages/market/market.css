@@ -170,7 +170,8 @@
 }
 
 .sf-mkt-btn {
-  padding: 8px 12px;
+  /* P6-BTN-IMPL-2：视觉由 .sf-btn 基类按 A 系注入；此处只留位置/尺寸约束 */
+  padding: 8px var(--sf-st-padx-btna);
   font-size: 13px;
   min-height: var(--sf-k-ctl-h);
   cursor: pointer;

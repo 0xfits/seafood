@@ -96,7 +96,9 @@
 }
 
 .sf-jobs-btn {
-  padding: 8px 12px;
+  /* P6-BTN-IMPL-2：视觉（色/描边/圆角/扁平）由 .sf-btn 基类按 A 系注入；
+     本 micro 类只保留位置/尺寸约束。水平内边距 = STRUCT.padx-btna（12px，与 A 口径 高34×0.359 同值） */
+  padding: 8px var(--sf-st-padx-btna);
   font-size: 13px;
   min-height: var(--sf-j-ctl-h);
   cursor: pointer;

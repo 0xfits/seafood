@@ -187,12 +187,22 @@
   color: var(--sf-cat-on-fg);
 }
 
+/* P6-BTN-IMPL-2 · `.sf-btn` 家族纳入 A 体系（与 `.btn.btn-a` 同口径、同批 token）
+   真源 = docs/design/style-preview.html 938–982 行 [BTN-SRC-REF]（本单现取）
+   取值链路：颜色/描边色 = --sf-btna-*（主题 token，日/夜有差）
+             几何（圆角 / 描边宽度）= --sf-st-*（结构常量，两档同值）⇒ 切档 rect 逐值相等
+   两档扁平：无阴影、无背景图、无 clip-path 切角；`--sf-btn-*` 旧黑底黄字 token 不再被引用（见 audit §登记） */
 .sf-btn {
-  background: var(--sf-btn-bg);
-  color: var(--sf-btn-fg);
-  border: 0;
-  border-radius: var(--sf-btn-radius);
-  box-shadow: var(--sf-btn-shadow);
+  box-sizing: border-box;
+  background: var(--sf-btna-bg);
+  color: var(--sf-btna-fg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-btna-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  background-image: none;
+  -webkit-clip-path: none;
+  clip-path: none;
+  font-weight: 600;
 }
 
 .sf-box {
