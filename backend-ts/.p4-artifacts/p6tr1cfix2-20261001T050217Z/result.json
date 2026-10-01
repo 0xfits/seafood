@@ -1,0 +1,96 @@
+{
+  "run": "20261001T050217Z",
+  "total": 10,
+  "passed": 9,
+  "failed": 1,
+  "groups": [
+    "empty-source-excluded",
+    "all-empty-source-no-key",
+    "partial-preserved",
+    "never-empty-string",
+    "listing-empty-source",
+    "listing-partial"
+  ],
+  "checks": [
+    {
+      "id": "M1",
+      "group": "empty-source-excluded",
+      "pass": true,
+      "expect": "ready",
+      "actual": "ready",
+      "note": "空描述源不计入分母（原样 ⇒ partial）"
+    },
+    {
+      "id": "M1b",
+      "group": "empty-source-excluded",
+      "pass": true,
+      "expect": "T-title-en / \"\"",
+      "actual": "T-title-en / \"\"",
+      "note": "非空源用译文；空源回落空串"
+    },
+    {
+      "id": "M2",
+      "group": "all-empty-source-no-key",
+      "pass": true,
+      "expect": "键缺省",
+      "actual": "键缺省",
+      "note": "total===0 ⇒ 不输出 i18n_status（前端不显示小标）"
+    },
+    {
+      "id": "M2b",
+      "group": "all-empty-source-no-key",
+      "pass": false,
+      "expect": "title_en 键在、值为空串",
+      "actual": "hasKey=true value=\"T-title-en\"",
+      "note": "空源回落空串 = 契约唯一例外（键形态不变）"
+    },
+    {
+      "id": "M3",
+      "group": "partial-preserved",
+      "pass": true,
+      "expect": "partial",
+      "actual": "partial",
+      "note": "有源未翻的字段仍计入分母 ⇒ 原语义保住"
+    },
+    {
+      "id": "M3b",
+      "group": "partial-preserved",
+      "pass": true,
+      "expect": "需要经验",
+      "actual": "需要经验",
+      "note": "有源未翻 ⇒ 回落源文"
+    },
+    {
+      "id": "M4",
+      "group": "never-empty-string",
+      "pass": true,
+      "expect": "6/6 非空串",
+      "actual": "[\"招聘服务员\",\"需要经验\",\"招聘服务员\",\"需要经验\",\"招聘服务员\",\"需要经验\"]",
+      "note": "索引缺省 ⇒ 全部回落源文、永不空串"
+    },
+    {
+      "id": "M4b",
+      "group": "never-empty-string",
+      "pass": true,
+      "expect": "pending",
+      "actual": "pending",
+      "note": "一个译文也没有 ⇒ pending（未变）"
+    },
+    {
+      "id": "M5",
+      "group": "listing-empty-source",
+      "pass": true,
+      "expect": "ready",
+      "actual": "ready",
+      "note": "listing 空 description 同理剔除"
+    },
+    {
+      "id": "M6",
+      "group": "listing-partial",
+      "pass": true,
+      "expect": "partial",
+      "actual": "partial",
+      "note": "listing 真 partial 保住"
+    }
+  ]
+}
