@@ -1,0 +1,221 @@
+{
+ "unit": "P6-TR-1c-FIX",
+ "run": "20261001T044825Z",
+ "generated_at": "2026-10-01T04:48:25.245Z",
+ "pathA_backfill_endpoint": {
+  "http_status": 200,
+  "batch_selected": [
+   {
+    "entity_type": "job",
+    "entity_id": "11",
+    "field": "title",
+    "lang": "en"
+   },
+   {
+    "entity_type": "job",
+    "entity_id": "11",
+    "field": "title",
+    "lang": "vn"
+   },
+   {
+    "entity_type": "job",
+    "entity_id": "11",
+    "field": "title",
+    "lang": "hk"
+   },
+   {
+    "entity_type": "job",
+    "entity_id": "12",
+    "field": "title",
+    "lang": "en"
+   },
+   {
+    "entity_type": "job",
+    "entity_id": "12",
+    "field": "title",
+    "lang": "vn"
+   },
+   {
+    "entity_type": "job",
+    "entity_id": "12",
+    "field": "title",
+    "lang": "hk"
+   }
+  ],
+  "batch_entities": [
+   "job:11",
+   "job:12"
+  ],
+  "response": {
+   "ok": true,
+   "mode": "translate",
+   "scan_scanned": null,
+   "scan_registered": null,
+   "scan_existing": null,
+   "scan_by_entity": null,
+   "processed": 6,
+   "ready": 6,
+   "failed": 0,
+   "skipped": 0,
+   "deferred": 0,
+   "reason": null,
+   "scanned": 6,
+   "retried": 2,
+   "engine": "deepseek"
+  },
+  "rows_after": {
+   "job:11": [
+    {
+     "field": "title",
+     "lang": "en",
+     "status": "ready",
+     "text": "b3c chain job",
+     "last_error": null
+    },
+    {
+     "field": "title",
+     "lang": "hk",
+     "status": "ready",
+     "text": "b3c chain job",
+     "last_error": null
+    },
+    {
+     "field": "title",
+     "lang": "vn",
+     "status": "ready",
+     "text": "Công việc chuỗi b3c",
+     "last_error": null
+    }
+   ],
+   "job:12": [
+    {
+     "field": "description",
+     "lang": "en",
+     "status": "pending",
+     "text": null,
+     "last_error": null
+    },
+    {
+     "field": "description",
+     "lang": "hk",
+     "status": "pending",
+     "text": null,
+     "last_error": null
+    },
+    {
+     "field": "description",
+     "lang": "vn",
+     "status": "pending",
+     "text": null,
+     "last_error": null
+    },
+    {
+     "field": "title",
+     "lang": "en",
+     "status": "ready",
+     "text": "aud-jk:identical-title",
+     "last_error": null
+    },
+    {
+     "field": "title",
+     "lang": "hk",
+     "status": "ready",
+     "text": "aud-jk:identical-title",
+     "last_error": null
+    },
+    {
+     "field": "title",
+     "lang": "vn",
+     "status": "ready",
+     "text": "aud-jk:identical-title",
+     "last_error": null
+    }
+   ]
+  },
+  "llm_calls": 2,
+  "tokens": "NOT_MEASURED（端点跑在独立服务进程，本进程无法观测 usage）"
+ },
+ "pathB_targeted_real": {
+  "source": {
+   "title": "海鲜礼盒测试丙：虾蟹双拼",
+   "description": "顺丰包邮，含虾蟹各两斤，冷链发货"
+  },
+  "engine": "deepseek",
+  "model": "deepseek-flash",
+  "api_key_present": true,
+  "llm_calls": 1,
+  "prompt_tokens": 327,
+  "completion_tokens": 581,
+  "elapsed_ms": 14588,
+  "result_statuses": {
+   "title": {
+    "en": "ready",
+    "vn": "ready",
+    "hk": "ready"
+   },
+   "description": {
+    "en": "ready",
+    "vn": "ready",
+    "hk": "ready"
+   }
+  },
+  "result_errors": {
+   "title": {},
+   "description": {}
+  },
+  "rows_after": [
+   {
+    "field": "description",
+    "lang": "en",
+    "status": "ready",
+    "text": "SF Express free shipping, contains 2 jin each of shrimp and crab, shipped via cold chain",
+    "last_error": null
+   },
+   {
+    "field": "description",
+    "lang": "hk",
+    "status": "ready",
+    "text": "順豐包郵，含蝦蟹各兩斤，冷鏈發貨",
+    "last_error": null
+   },
+   {
+    "field": "description",
+    "lang": "vn",
+    "status": "ready",
+    "text": "Miễn phí vận chuyển SF Express, gồm 2 jin tôm và 2 jin cua, giao hàng bằng chuỗi lạnh",
+    "last_error": null
+   },
+   {
+    "field": "title",
+    "lang": "en",
+    "status": "ready",
+    "text": "Seafood Gift Box Test C: Shrimp and Crab Duo",
+    "last_error": null
+   },
+   {
+    "field": "title",
+    "lang": "hk",
+    "status": "ready",
+    "text": "海鮮禮盒測試丙：蝦蟹雙拼",
+    "last_error": null
+   },
+   {
+    "field": "title",
+    "lang": "vn",
+    "status": "ready",
+    "text": "Hộp quà hải sản thử nghiệm C: Combo tôm và cua",
+    "last_error": null
+   }
+  ],
+  "assertions": {
+   "vn_title_status_ready": true,
+   "vn_desc_status_ready": true,
+   "en_majority_non_cjk": true,
+   "vn_has_diacritics": true,
+   "hk_is_traditional": true,
+   "hk_no_latin_only": true,
+   "no_stub_prefix": true
+  }
+ },
+ "stub_rows_in_listing_ct": 0
+}

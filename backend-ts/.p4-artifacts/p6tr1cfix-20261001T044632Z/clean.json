@@ -1,0 +1,36 @@
+{
+ "unit": "P6-TR-1c-FIX",
+ "run": "20261001T044632Z",
+ "generated_at": "2026-10-01T04:46:35.261Z",
+ "stub_pattern": "^\\[(en|vn)\\] ",
+ "before": {
+  "ct_total": 270,
+  "ct_stub_text": 14,
+  "ct_ready": 39,
+  "ct_pending": 231,
+  "ct_failed": 0,
+  "ct_deferred": 0,
+  "cache_total": 39,
+  "cache_stub_text": 14,
+  "cache_engine_stub": 14,
+  "cache_engine_opencc": 14,
+  "cache_engine_deepseek": 11
+ },
+ "dml": {
+  "reset": 14,
+  "deleted": 14
+ },
+ "after": {
+  "ct_total": 270,
+  "ct_stub_text": 0,
+  "ct_ready": 25,
+  "ct_pending": 245,
+  "ct_failed": 0,
+  "ct_deferred": 0,
+  "cache_total": 25,
+  "cache_stub_text": 0,
+  "cache_engine_stub": 0,
+  "cache_engine_opencc": 14,
+  "cache_engine_deepseek": 11
+ }
+}

@@ -44,6 +44,8 @@ import {
   REASON,
   MAX_ATTEMPTS,
   TRANSLATE_TARGETS,
+  LENGTH_RATIO_BOUNDS,
+  stubWritesAllowed,
 } from '../src/translate-service';
 import type {
   TranslateStore,
@@ -264,10 +266,10 @@ async function main(): Promise<void> {
     t('F2', 'cap', f.calls === 0, 'fetch.calls=0', f.calls);
   }
 
-  // ===== G stub 端到端 =====
+  // ===== G stub 端到端（P6-TR-1c-FIX：stub 写库需显式 allowStubWrites ⇒ 本块显式允许） =====
   {
     const s = new MemStore();
-    const r = await translateFields({ title: SRC }, { entityType: 'job', entityId: '1', store: s, engine: 'stub', config: mkCfg({ engine: 'stub' }), onWarn: () => undefined });
+    const r = await translateFields({ title: SRC }, { entityType: 'job', entityId: '1', store: s, engine: 'stub', config: mkCfg({ engine: 'stub' }), allowStubWrites: true, onWarn: () => undefined });
     t('G1', 'stub', r.texts.title.en === '[en] ' + SRC, `[en] ${SRC}`, r.texts.title.en);
     t('G2', 'stub', r.statuses.title.vn === 'ready' && r.texts.title.vn === '[vn] ' + SRC, 'vn ready', `${r.statuses.title.vn}/${r.texts.title.vn}`);
     t('G3', 'stub', s.cache.size === 3, '缓存写入 3 条(en/vn/hk)', s.cache.size);
@@ -279,8 +281,58 @@ async function main(): Promise<void> {
     // stub 输出本身过不了真校验 ⇒ 证明三重校验是真闸，stub 是**刻意豁免**
     const gv = validateValue(SRC, 'en', '[en] ' + SRC);
     t('G6', 'stub', gv.ok === false && gv.reason === 'CHARSET', 'stub 输出判负(证明校验非恒真)', `${gv.ok}/${gv.reason}`);
-    const r2 = await translateFields({ title: SRC }, { entityType: 'job', entityId: '1', store: s, engine: 'stub', config: mkCfg({ engine: 'stub' }), onWarn: () => undefined });
+    const r2 = await translateFields({ title: SRC }, { entityType: 'job', entityId: '1', store: s, engine: 'stub', config: mkCfg({ engine: 'stub' }), allowStubWrites: true, onWarn: () => undefined });
     t('G7', 'stub', s.cache.size === 3 && r2.texts.title.en === '[en] ' + SRC, '二次运行幂等(缓存不变, 仍 3 条)', s.cache.size);
+  }
+  // ===== G8-G10 stub 结构性守卫（P6-TR-1c-FIX）：默认**拒绝写库**、只在内存返回、给机读 reason =====
+  {
+    const s = new MemStore();
+    const r = await translateFields({ title: SRC }, { entityType: 'job', entityId: 'guard', store: s, engine: 'stub', config: mkCfg({ engine: 'stub' }), allowStubWrites: false, onWarn: () => undefined });
+    t('G8', 'stub-guard', s.rows.size === 0 && s.cache.size === 0, '默认拒绝写库(0 行/0 缓存)', `${s.rows.size}/${s.cache.size}`);
+    t('G9', 'stub-guard', r.texts.title.en === '[en] ' + SRC && r.statuses.title.en === 'ready', '仍内存返回 stub 译文(不落库)', `${r.statuses.title.en}/${r.texts.title.en}`);
+    t('G10', 'stub-guard', r.store_write_blocked === true && r.store_block_reason === REASON.STUB_WRITE_BLOCKED, '机读 reason=STUB_WRITE_BLOCKED', `${r.store_write_blocked}/${r.store_block_reason}`);
+    t('G11', 'stub-guard', stubWritesAllowed({} as NodeJS.ProcessEnv) === false && stubWritesAllowed({ TRANSLATE_ALLOW_STUB_WRITES: '0' } as NodeJS.ProcessEnv) === false && stubWritesAllowed({ TRANSLATE_ALLOW_STUB_WRITES: '1' } as NodeJS.ProcessEnv) === true, '仅 =1 放行', `${stubWritesAllowed({} as NodeJS.ProcessEnv)}/${stubWritesAllowed({ TRANSLATE_ALLOW_STUB_WRITES: '1' } as NodeJS.ProcessEnv)}`);
+  }
+  // ===== P DEF-01 回归：部分缓存命中 ⇒ per-language 子集 ≠ 响应键集，**不得**误判 KEY_SET_MISMATCH =====
+  {
+    const s = new MemStore();
+    const DESC = '这里是描述文本内容';        // 9 码点
+    // title：en 缓存命中、vn 未命中；description：vn 缓存命中、en 未命中
+    s.seedCache(SRC, 'en', 'Hiring staff');
+    s.seedCache(DESC, 'vn', 'Đây là nội dung mô tả');
+    // 响应 = 本次请求的**全部字段**（每字段仅含其被请求的语言）
+    const resp = JSON.stringify({ title: { vn: 'Tuyển dụng' }, description: { en: 'Description text' } });
+    const f = new SeqFetch([envelope(resp)]);
+    const r = await translateFields({ title: SRC, description: DESC }, { entityType: 'job', entityId: 'p1', store: s, config: mkCfg(), fetchImpl: f.fn });
+    t('P1', 'def01', JSON.stringify(r.errors).includes('KEY_SET_MISMATCH') === false, '无 KEY_SET_MISMATCH', JSON.stringify(r.errors));
+    t('P2', 'def01', r.texts.title.en === 'Hiring staff' && r.texts.title.vn === 'Tuyển dụng', 'title 缓存(en)+LLM(vn) 合流', `${r.texts.title.en}/${r.texts.title.vn}`);
+    t('P3', 'def01', r.texts.description.vn === 'Đây là nội dung mô tả' && r.texts.description.en === 'Description text', 'description 缓存(vn)+LLM(en) 合流', `${r.texts.description.en}/${r.texts.description.vn}`);
+    const stTitle = r.statuses.title as Record<string, string | undefined>;
+    const stDesc = r.statuses.description as Record<string, string | undefined>;
+    t('P4', 'def01', ['en', 'vn'].every((l) => stTitle[l] === 'ready' && stDesc[l] === 'ready'), '四格全 ready', JSON.stringify(r.statuses));
+    t('P5', 'def01', f.calls === 1, '一次调用覆盖全部缺字段(calls=1)', f.calls);
+  }
+  // ===== Q DEF-02 分语言长度阈值：en/vn=[0.3,6.0]、hk=[0.5,2.5]；判负仍判负 =====
+  {
+    t('Q1', 'def02', LENGTH_RATIO_BOUNDS.en.min === 0.3 && LENGTH_RATIO_BOUNDS.en.max === 6.0, 'en [0.3,6.0]', JSON.stringify(LENGTH_RATIO_BOUNDS.en));
+    t('Q2', 'def02', LENGTH_RATIO_BOUNDS.vn.min === 0.3 && LENGTH_RATIO_BOUNDS.vn.max === 6.0, 'vn [0.3,6.0]', JSON.stringify(LENGTH_RATIO_BOUNDS.vn));
+    t('Q3', 'def02', LENGTH_RATIO_BOUNDS.hk.min === 0.5 && LENGTH_RATIO_BOUNDS.hk.max === 2.5, 'hk [0.5,2.5]', JSON.stringify(LENGTH_RATIO_BOUNDS.hk));
+    const q4 = validateValue('招聘', 'en', 'A'.repeat(9));            // 比 4.5（旧 3.0 误杀）
+    t('Q4-pos', 'def02', q4.ok === true, 'ok(zh→en 比 4.5 通过)', `${q4.ok}/${q4.reason}`);
+    const q5 = validateValue('招聘', 'vn', 'Tuyển dụng');            // 比 5.0（旧 3.0 误杀，vn 永不能 ready 的根因）
+    t('Q5-pos', 'def02', q5.ok === true, 'ok(zh→vn 比 5.0 通过)', `${q5.ok}/${q5.reason}`);
+    const q6 = validateValue('招聘服务员职位说明文', 'hk', '招聘服務員職位說明文'); // 比 1.0
+    t('Q6-pos', 'def02', q6.ok === true, 'ok(hk 比 1.0 通过)', `${q6.ok}/${q6.reason}`);
+    const q7 = validateValue('招聘', 'en', 'x'.repeat(40));           // 比 20（幻觉）⇒ 判负
+    t('Q7-neg', 'def02', q7.reason === 'LENGTH_RATIO', 'LENGTH_RATIO(en 比 20× 幻觉)', `${q7.ok}/${q7.reason}`);
+    const q8 = validateValue('这是一个很长的中文描述句子内容', 'en', 'A'); // 比 0.0625（截断）⇒ 判负
+    t('Q8-neg', 'def02', q8.reason === 'LENGTH_RATIO', 'LENGTH_RATIO(en 比 0.1× 截断)', `${q8.ok}/${q8.reason}`);
+    const q9 = validateValue('招聘', 'vn', 'x'.repeat(40));           // 比 20 ⇒ 判负
+    t('Q9-neg', 'def02', q9.reason === 'LENGTH_RATIO', 'LENGTH_RATIO(vn 比 20× 幻觉)', `${q9.ok}/${q9.reason}`);
+    const q10 = validateValue('招聘服务员职位', 'hk', '招');           // 比 0.167 < 0.5 ⇒ 判负
+    t('Q10-neg', 'def02', q10.reason === 'LENGTH_RATIO', 'LENGTH_RATIO(hk 比 0.167× 截断)', `${q10.ok}/${q10.reason}`);
+    const q11 = validateValue('招聘服务员', 'hk', '招聘服務員'.repeat(5).slice(0, 55)); // 比 11 > 2.5 ⇒ 判负
+    t('Q11-neg', 'def02', q11.reason === 'LENGTH_RATIO', 'LENGTH_RATIO(hk 比 11× 幻觉)', `${q11.ok}/${q11.reason}`);
   }
 
   // ===== H deepseek 路径 =====

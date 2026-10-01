@@ -1,0 +1,129 @@
+{
+ "unit": "P6-TR-1c-FIX",
+ "run": "20261001T044930Z",
+ "generated_at": "2026-10-01T04:49:31.653Z",
+ "endpoint": "http://127.0.0.1:5788/api/task/all?limit=500",
+ "http_status": 200,
+ "objects": 20,
+ "stub_prefix_hits": 0,
+ "stub_samples": [],
+ "i18n_status_dist": {
+  "ready": 3,
+  "partial": 7,
+  "pending": 10
+ },
+ "per_job": [
+  {
+   "tID": "2",
+   "i18n_status": "ready"
+  },
+  {
+   "tID": "3",
+   "i18n_status": "ready"
+  },
+  {
+   "tID": "4",
+   "i18n_status": "ready"
+  },
+  {
+   "tID": "5",
+   "i18n_status": "partial"
+  },
+  {
+   "tID": "8",
+   "i18n_status": "partial"
+  },
+  {
+   "tID": "9",
+   "i18n_status": "partial"
+  },
+  {
+   "tID": "10",
+   "i18n_status": "partial"
+  },
+  {
+   "tID": "11",
+   "i18n_status": "partial"
+  },
+  {
+   "tID": "12",
+   "i18n_status": "partial"
+  },
+  {
+   "tID": "13",
+   "i18n_status": "pending"
+  },
+  {
+   "tID": "14",
+   "i18n_status": "pending"
+  },
+  {
+   "tID": "15",
+   "i18n_status": "pending"
+  },
+  {
+   "tID": "16",
+   "i18n_status": "pending"
+  },
+  {
+   "tID": "17",
+   "i18n_status": "pending"
+  },
+  {
+   "tID": "18",
+   "i18n_status": "pending"
+  },
+  {
+   "tID": "19",
+   "i18n_status": "pending"
+  },
+  {
+   "tID": "20",
+   "i18n_status": "pending"
+  },
+  {
+   "tID": "22",
+   "i18n_status": "partial"
+  },
+  {
+   "tID": "23",
+   "i18n_status": "pending"
+  },
+  {
+   "tID": "24",
+   "i18n_status": "pending"
+  }
+ ],
+ "checks": [
+  {
+   "id": "RB1",
+   "pass": true,
+   "expect": "HTTP 200",
+   "actual": "200"
+  },
+  {
+   "id": "RB2",
+   "pass": true,
+   "expect": "任务数 > 0",
+   "actual": "20"
+  },
+  {
+   "id": "RB3",
+   "pass": true,
+   "expect": "stub 前缀命中数 = 0",
+   "actual": "0"
+  },
+  {
+   "id": "RB4",
+   "pass": true,
+   "expect": "清洗前 stub 污染的 job 不再 ready",
+   "actual": "[]"
+  },
+  {
+   "id": "RB5",
+   "pass": true,
+   "expect": "job 5/8/9/10/22 = pending|partial",
+   "actual": "[\"5:partial\",\"8:partial\",\"9:partial\",\"10:partial\",\"22:partial\"]"
+  }
+ ]
+}

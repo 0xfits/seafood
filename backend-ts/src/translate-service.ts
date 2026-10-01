@@ -85,6 +85,8 @@ export const REASON = {
   EMPTY_SOURCE: 'EMPTY_SOURCE',
   MAX_ATTEMPTS: 'MAX_ATTEMPTS',
   SOURCE_UNRESOLVED: 'SOURCE_UNRESOLVED',
+  /** P6-TR-1c-FIX 结构性守卫：stub 引擎在未显式 TRANSLATE_ALLOW_STUB_WRITES=1 时**拒绝写库**。 */
+  STUB_WRITE_BLOCKED: 'STUB_WRITE_BLOCKED',
 } as const;
 
 /** 带机读 reason 的翻译错误。 */
@@ -172,6 +174,8 @@ export interface TranslateFieldsOptions {
   apiKey?: string | null;
   /** 一次性告警回调（默认 console.warn 一次）。 */
   onWarn?: (message: string) => void;
+  /** P6-TR-1c-FIX：stub 引擎是否允许写库（缺省 ⇒ 读 TRANSLATE_ALLOW_STUB_WRITES=1）。 */
+  allowStubWrites?: boolean;
 }
 
 /** translateFields 的出参：译文 + 逐字段逐语言状态 + 引擎 + 日限额闸。 */
@@ -184,6 +188,11 @@ export interface TranslateFieldsOutput {
   /** 是否命中日限额（整批 deferred）。 */
   deferred: boolean;
   deferred_reason: string | null;
+  /** P6-TR-1c-FIX 结构性守卫：stub 引擎默认**拒绝写库** ⇒ true = 本次未写
+   *  content_translation / translation_cache（仅在内存返回译文）。 */
+  store_write_blocked?: boolean;
+  /** blocked 时的机读原因（= REASON.STUB_WRITE_BLOCKED）。 */
+  store_block_reason?: string | null;
 }
 
 /** 源文本解析器（backfillPending 用：entity_type/entity_id/field → 当前中文原文）。 */
@@ -204,9 +213,18 @@ export interface BackfillReport {
 
 // ============================================================ 常量 =========
 
-/** 长度比例闸（分母 = 源文本长度）。 */
-export const LENGTH_RATIO_MIN = 0.3;
-export const LENGTH_RATIO_MAX = 3.0;
+/** 长度比例闸（**按目标语言分表**；分母 = 源文本码点数）。
+ *  · en/vn：zh→拉丁短文本自然比实测 3.7–5.2 ⇒ 上限放宽到 6.0（否则合法译文被系统性误杀）；
+ *  · hk：OpenCC 确定性简繁转换（1:1 级，实测比 ≈1.05）⇒ **收紧**到 [0.5, 2.5]（防转换丢失/幻觉）。
+ *  兼容旧导出名（LENGTH_RATIO_MIN/MAX = en 口径）。 */
+export const LENGTH_RATIO_BOUNDS: Record<TargetLang, { min: number; max: number }> = {
+  en: { min: 0.3, max: 6.0 },
+  vn: { min: 0.3, max: 6.0 },
+  hk: { min: 0.5, max: 2.5 },
+};
+/** 兼容旧导出名（en 口径；新代码请用 LENGTH_RATIO_BOUNDS[lang]）。 */
+export const LENGTH_RATIO_MIN = LENGTH_RATIO_BOUNDS.en.min;
+export const LENGTH_RATIO_MAX = LENGTH_RATIO_BOUNDS.en.max;
 /** en 判负阈值：非 ASCII 占比 > 此值 ⇒ 判负（值中无 CJK 时豁免）。 */
 export const EN_NON_ASCII_MAX = 0.3;
 /** backfillPending 单条最大尝试次数（attempts < 此值才再试）。 */
@@ -318,6 +336,13 @@ export function getTranslateConfig(env: NodeJS.ProcessEnv = process.env): Transl
   };
 }
 
+/** P6-TR-1c-FIX 结构性守卫：stub 引擎是否**被显式允许写库**。
+ *  仅 `TRANSLATE_ALLOW_STUB_WRITES=1` ⇒ true；其余（含未设/0）⇒ false（默认拒绝）。
+ *  「把纪律变成拒绝」：从结构上杜绝 stub 假译文写入 content_translation / translation_cache。 */
+export function stubWritesAllowed(env: NodeJS.ProcessEnv = process.env): boolean {
+  return String(env.TRANSLATE_ALLOW_STUB_WRITES || '').trim() === '1';
+}
+
 /** 拼装 DeepSeek 提示词（只输出 JSON、键与输入同、保留数字/价格/币符号/品牌名/URL）。 */
 export function buildTranslationPrompt(
   fields: Record<string, string>,
@@ -360,8 +385,15 @@ export function parseTranslationPayload(raw: string): { ok: boolean; value: unkn
 }
 
 /** 字符集特征校验（三重校验第 ③ 条）。 */
-function validateCharset(source: string, target: TranslateLang, value: string): ValidateOutcome {
+function validateCharset(source: string, target: TargetLang, value: string): ValidateOutcome {
   const srcLen = Array.from(source).length;
+  if (target === 'hk') {
+    // hk = OpenCC 确定性简繁转换（非翻译）：源含 CJK ⇒ 值也须含 CJK（防转换丢失/空转）
+    if (hasCJK(source) && srcLen > 1 && !hasCJK(value)) {
+      return { ok: false, reason: 'CHARSET', detail: 'hk 目标缺少 CJK（简繁转换丢失）' };
+    }
+    return { ok: true, reason: null, detail: null };
+  }
   if (target === 'vn') {
     // 豁免：源无 CJK（本就拉丁/数字/符号，无「中文未译」问题）或 单字源（品牌/量词等）
     if (!hasCJK(source) || srcLen <= 1) return { ok: true, reason: null, detail: null };
@@ -379,8 +411,9 @@ function validateCharset(source: string, target: TranslateLang, value: string): 
   return { ok: true, reason: null, detail: null };
 }
 
-/** 三重校验 · 单条（① 非空 ② 长度比例 ③ 字符集）。JSON 结构校验见 validateFieldSet。 */
-export function validateValue(source: string, target: TranslateLang, value: string): ValidateOutcome {
+/** 三重校验 · 单条（① 非空 ② 长度比例 ③ 字符集）。JSON 结构校验见 validateFieldSet。
+ *  P6-TR-1c-FIX：长度比例按**目标语言分表**（LENGTH_RATIO_BOUNDS）；target 放宽到 TargetLang（含 hk）。 */
+export function validateValue(source: string, target: TargetLang, value: string): ValidateOutcome {
   if (typeof value !== 'string' || value.trim() === '') {
     return { ok: false, reason: 'EMPTY_VALUE', detail: `${target}: 译文为空` };
   }
@@ -388,11 +421,12 @@ export function validateValue(source: string, target: TranslateLang, value: stri
   const srcLen = Array.from(src).length;
   if (srcLen > 0) {
     const ratio = Array.from(value).length / srcLen;
-    if (ratio < LENGTH_RATIO_MIN || ratio > LENGTH_RATIO_MAX) {
+    const bounds = LENGTH_RATIO_BOUNDS[target] || LENGTH_RATIO_BOUNDS.en;
+    if (ratio < bounds.min || ratio > bounds.max) {
       return {
         ok: false,
         reason: 'LENGTH_RATIO',
-        detail: `ratio=${ratio.toFixed(3)} 越界 [${LENGTH_RATIO_MIN}, ${LENGTH_RATIO_MAX}] (src=${srcLen} 码点)`,
+        detail: `ratio=${ratio.toFixed(3)} 越界 [${bounds.min}, ${bounds.max}] (${target}; src=${srcLen} 码点)`,
       };
     }
   }
@@ -402,7 +436,7 @@ export function validateValue(source: string, target: TranslateLang, value: stri
 /** 三重校验 · 一批（① JSON 可解析 + 顶层键集 == 输入字段集 + 每值非空，②③ 逐条）。 */
 export function validateFieldSet(
   sourcePayload: Record<string, string>,
-  target: TranslateLang,
+  target: TargetLang,
   raw: string,
 ): { ok: boolean; values: Record<string, string>; errors: Record<string, string> } {
   const fields = Object.keys(sourcePayload);
@@ -553,18 +587,31 @@ export async function translateFields(
 ): Promise<TranslateFieldsOutput> {
   const cfg = opts.config || getTranslateConfig();
   const engine: TranslateEngine = opts.engine || cfg.engine;
-  const store: TranslateStore | null = opts.store === null ? null : (opts.store || createDbStore());
+  const store0: TranslateStore | null = opts.store === null ? null : (opts.store || createDbStore());
+  let store: TranslateStore | null = store0;
   const fetchImpl = opts.fetchImpl;
   const warn = opts.onWarn || ((m: string) => { if (!fallbackWarned) { fallbackWarned = true; console.warn(`[translate-service] ${m}`); } });
-
   // 一次性告警（缺 key / 显式回落）：**只告警一次，且绝不打印任何 key 值**
   if (cfg.fallback_reason) warn(cfg.fallback_reason);
-
   const fields = Object.keys(payload).filter((f) => typeof payload[f] === 'string' && payload[f].trim() !== '');
   const out: TranslateFieldsOutput = {
     texts: {}, statuses: {}, errors: {}, engine, deferred: false, deferred_reason: null,
   };
   if (!fields.length) return out;
+
+  // ★ P6-TR-1c-FIX（结构性守卫 · 关键）：stub 引擎**默认拒绝写库** ——
+  //   仅显式 TRANSLATE_ALLOW_STUB_WRITES=1（或 opts.allowStubWrites=true）才允许
+  //   content_translation / translation_cache 写入；否则 stub **只在内存返回**、
+  //   绝不碰库（store=null ⇒ 不读缓存/不写 pending/不落译文），并给出机读 reason。
+  //   目的：把「调用方记得清理」变成「结构上拒绝」，杜绝 stub 假译文/假缓存污染真库。
+  const allowStubWrites = opts.allowStubWrites !== undefined
+    ? opts.allowStubWrites === true
+    : stubWritesAllowed();
+  if (engine === 'stub' && !allowStubWrites) {
+    store = null;
+    out.store_write_blocked = true;
+    out.store_block_reason = REASON.STUB_WRITE_BLOCKED;
+  }
 
   const markAll = async (status: TranslationStatus, reason: string): Promise<void> => {
     for (const f of fields) {
@@ -654,12 +701,21 @@ export async function translateFields(
       const { system, user } = buildTranslationPrompt(subset, targetsPerField);
       try {
         const raw = await callDeepSeek(system, user, cfg, fetchImpl, opts.apiKey);
+        // ★ P6-TR-1c-FIX（DEF-01）：DeepSeek 回的是**本次请求的全部字段**（= subset 的键集），
+        //   故必须以**完整字段集**调 validateFieldSet（用 per-language 子集会与响应键集不符 ⇒
+        //   部分缓存命中时误判 KEY_SET_MISMATCH）；再**只取该语言需要的字段**合流。
         for (const t of TRANSLATE_TARGETS) {
-          const targetSubset: Record<string, string> = {};
-          for (const f of missFields) if (misses[f].includes(t)) targetSubset[f] = payload[f];
-          if (Object.keys(targetSubset).length) {
-            perTarget[t] = validateFieldSet(targetSubset, t, raw);
+          const needs = missFields.filter((f) => misses[f].includes(t));
+          if (!needs.length) continue;
+          const validated = validateFieldSet(subset, t, raw);
+          const values: Record<string, string> = {};
+          const errors: Record<string, string> = {};
+          for (const f of needs) {
+            const v = validated.values[f];
+            if (typeof v === 'string' && v) values[f] = v;
+            else errors[f] = validated.errors[f] || 'CHARSET';
           }
+          perTarget[t] = { values, errors };
         }
       } catch (e) {
         // ★ 绝不阻塞提交：引擎/网络/模型错误 ⇒ 该批字段记 failed + 机读 reason，留空待重试
