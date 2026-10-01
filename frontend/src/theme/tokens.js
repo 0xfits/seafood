@@ -134,6 +134,15 @@ const DAY = {
   'thumb-8': 'linear-gradient(140deg,#FFE9C4,#FFB85C)',
   'thumb-9': 'linear-gradient(140deg,#CDE7FF,#7FA8FF)',
   'thumb-10': 'linear-gradient(140deg,#F0E3C8,#D9BC86)',
+  // ── 变体 A″（日档）/ A′（夜档）· 按钮（P6-BTN-IMPL；真源 = style-preview.html 938–982 行 [BTN-SRC-REF]）
+  // 【实测】= 参考图 PIL 取样值；【推断】= 参考图未展示 / 站点内一致性裁定（Kevin 拍板 + Zang 补足裁定）
+  // 命名避歧义：本文件 3–5 行既有的「变体 A」已被占用 ⇒ 按钮专用前缀 btna-*（主）/ btnalt-*（次）
+  'btna-bg': '#FFE60F',       // 【实测】主按钮填充（日/夜同值）
+  'btna-fg': '#202020',       // 【实测】主按钮文字（日/夜同值）
+  'btna-border': '#030402',   // 【推断】日档主按钮 1px 描边色：取**站点既有 ink**（Zang 裁定①，参考图为 #202020）
+  'btnalt-bg': '#FFFFFF',     // 【实测】日档次按钮填充
+  'btnalt-fg': '#202020',     // 【实测】日档次按钮文字
+  'btnalt-border': '#E0E0E0', // 【实测】次按钮 1px 描边色（日/夜同值）
 }
 
 const NIGHT = {
@@ -244,6 +253,15 @@ const NIGHT = {
   'thumb-8': 'linear-gradient(150deg,#42341B,#6E4F1D)',
   'thumb-9': 'linear-gradient(150deg,#1B2A3E,#284A73)',
   'thumb-10': 'linear-gradient(150deg,#382F22,#5A4A33)',
+  // ── 变体 A′（夜档）按钮（键序与顺序必须与 DAY 完全一致 ⇒ 两档 CSS 块同构）
+  'btna-bg': '#FFE60F',        // 【实测】主按钮填充
+  'btna-fg': '#202020',        // 【实测】主按钮文字（深字）
+  'btna-border': 'transparent',// 【实测·换算】夜档主按钮口径为「无描边」（源：border:0）；为守「切档 rect 逐值相等」
+                               // 1px 边框**槽位两档常驻**，夜档以 transparent 隐去 ⇒ 视觉等效 border:0
+  'btnalt-bg': '#141619',      // 【推断】夜档次按钮底色：取站点既有夜档面（--sf-card-bg / --sf-panel-bg，
+                               // 真源 style-preview.html:292/314）；参考图未展示深色次按钮（Zang 裁定②）
+  'btnalt-fg': '#FFFFFF',      // 【实测】夜档次按钮文字
+  'btnalt-border': '#E0E0E0',  // 【实测】浅描边（真源 960 行）
 }
 
 export const TOKEN_KEYS = Object.keys(DAY)
@@ -358,6 +376,13 @@ export const PROV = {
   'thumb-8': { d: [265, 'background:linear-gradient(140deg,#FFE9C4,#FFB85C)'], n: [349, 'background:linear-gradient(150deg,#42341B,#6E4F1D)'] },
   'thumb-9': { d: [266, 'background:linear-gradient(140deg,#CDE7FF,#7FA8FF)'], n: [350, 'background:linear-gradient(150deg,#1B2A3E,#284A73)'] },
   'thumb-10': { d: [267, 'background:linear-gradient(140deg,#F0E3C8,#D9BC86)'], n: [351, 'background:linear-gradient(150deg,#382F22,#5A4A33)'] },
+  // ── 按钮（变体 A″/A′，真源 = 938–982 行追加块）。needle 一律为多字符原文片段（单字符不算证据）。
+  'btna-bg': { d: [954, 'background:#FFE60F;color:#202020'], n: [958, 'background:#FFE60F;color:#202020'] },
+  'btna-fg': { d: [954, 'color:#202020;border:1px solid'], n: [958, 'color:#202020;border-color:transparent'] },
+  'btna-border': { d: [954, 'border:1px solid #202020'], n: [958, 'border-color:transparent', 'border:1px solid'] },
+  'btnalt-bg': { d: [956, 'background:#FFFFFF;color:#202020'], n: [292, 'background:#141619'] },
+  'btnalt-fg': { d: [956, 'color:#202020'], n: [960, 'color:#FFFFFF'] },
+  'btnalt-border': { d: [956, 'border:1px solid #E0E0E0'], n: [960, 'border:1px solid #E0E0E0'] },
 }
 
 // 结构常量：参与几何，因此**两档同值**，不进主题差集。值同样从 style-preview 提取。
@@ -395,6 +420,15 @@ export const STRUCT = {
   'grid-pad-m': '8px 10px 16px',
   'layout-gap': '18px',
   'side-w': '320px',
+  // 按钮（变体 A″/A′）几何：两档同值 ⇒ 进 STRUCT。
+  // 值 = **现取**真源最终值（JING-BTN-SRC-FIX 复采后）：比例 @962 行 0.222 / 0.359；
+  // px 落值 @976/977/981 行「高 34 ⇒ 圆角 8px · 内边距 12px」。
+  // 注：拍板表原记 0.17 / 0.45（落地 6px / 15px）已被真源复采判定为**转录误差**（真源 981 行留痕），本单按现取值落地。
+  'h-btna': '34px',
+  'radius-btna': '8px',
+  'padx-btna': '12px',
+  'ratio-radius-btna': '0.222',
+  'ratio-padx-btna': '0.359',
 }
 
 export const STRUCT_PROV = {
@@ -430,6 +464,11 @@ export const STRUCT_PROV = {
   'grid-pad-m': { d: [116, 'padding:8px 10px 16px'], n: [116, 'padding:8px 10px 16px'] },
   'layout-gap': { d: [112, 'gap:18px'], n: [112, 'gap:18px'] },
   'side-w': { d: [114, 'flex:0 0 320px'], n: [114, 'flex:0 0 320px'] },
+  'h-btna': { d: [976, '34 ⇒ 8px'], n: [976, '34 ⇒ 8px'] },
+  'radius-btna': { d: [954, 'border-radius:8px'], n: [958, 'border-radius:8px'] },
+  'padx-btna': { d: [954, 'padding:0 12px'], n: [958, 'padding:0 12px'] },
+  'ratio-radius-btna': { d: [962, '--btn-ref-radius-ratio:0.222'], n: [962, '--btn-ref-radius-ratio:0.222'] },
+  'ratio-padx-btna': { d: [962, '--btn-ref-padx-ratio:0.359'], n: [962, '--btn-ref-padx-ratio:0.359'] },
 }
 
 // 提取到、但**刻意不进主题差集**的档间差异（全部为几何相关），逐条给 文件:行号 与理由。

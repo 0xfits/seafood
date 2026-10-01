@@ -2,16 +2,22 @@ import React from 'react'
 import { cn } from '../../utils'
 
 // variant → CSS class（来自 styles.css 的 .btn-* 系列，含切角与宝石光泽）
+// P6-BTN-IMPL：本表只留「类名」，Tailwind 的 bg-*/text-* 盖色类一律删除
+// （原来它们与 styles.css 里的 background-color/color 声明构成双源；层叠顺序一变就改色）。
+//   primary / secondary ⇒ 变体 A″（日档）/ A′（夜档）：.btn-a（主）/ .btn-a-alt（次），
+//   由 --sf-btna-* / --sf-btnalt-* 主题 token + --sf-st-* 结构常量驱动
+//   （真源 docs/design/style-preview.html 938–982 行）。
+//   其余 7 个变体沿用既有 .btn-* 类（本体已在 styles.css 单点定义背景色）。
 const variantClass = {
-  primary:   'btn-primary bg-yellow-500 text-white',
-  secondary: 'btn-proceed bg-blue-500 text-white',  // secondary 语义等同 proceed（蓝色）
-  proceed:   'btn-proceed bg-blue-500 text-white',
-  success:   'btn-success bg-green-500 text-white',
-  warning:   'btn-warning bg-red-500 text-white',
-  inactive:  'btn-inactive bg-gray-400 text-white',
-  outline:   'btn-outline bg-white border border-blue-600 text-blue-600',
-  ghost:     'btn-ghost text-gray-600',
-  info:      'btn-info bg-blue-600 text-white',
+  primary:   'btn-a',
+  secondary: 'btn-a-alt',
+  proceed:   'btn-proceed',
+  success:   'btn-success',
+  warning:   'btn-warning',
+  inactive:  'btn-inactive',
+  outline:   'btn-outline',
+  ghost:     'btn-ghost',
+  info:      'btn-info',
 }
 
 const sizeClass = {
@@ -33,7 +39,7 @@ const Button = React.forwardRef(({
     <Component
       className={cn(
         'btn',
-        variantClass[variant] ?? 'btn-primary',
+        variantClass[variant] ?? variantClass.primary,
         sizeClass[size] ?? sizeClass.md,
         disabled && 'opacity-50 cursor-not-allowed',
         className

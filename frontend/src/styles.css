@@ -107,40 +107,16 @@ h1, h2, h3, h4, h5, h6, .swedish-title {
   );
   font-weight: 500;
   transition: background-color .2s ease, filter .2s ease, box-shadow .2s ease, opacity .2s ease, transform .15s ease;
-  background-image:
-    radial-gradient(120% 80% at 20% 20%, var(--gem-light, rgba(255,255,255,0.28)) 0%, var(--gem-base, currentColor) 40%, var(--gem-dark, rgba(0,0,0,0.12)) 100%),
-    linear-gradient(135deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 35%, rgba(255,255,255,0) 60%),
-    linear-gradient(45deg, rgba(0,0,0,0.10) 0%, rgba(255,255,255,0) 50%);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.65),
-    inset 0 -2px 12px rgba(0,0,0,0.12),
-    0 6px 18px rgba(0,0,0,0.14);
+  /* P6-BTN-IMPL 扁平化：删除三重 background-image 渐变（宝石底）与晶莹 box-shadow。
+     原本「真填充」来自 background-image 而非 background-color；现已收敂为
+     每个变体各自的 background-color 单点声明（Button.jsx 侧同步删除 Tailwind 盖色类）。 */
+  background-image: none;
+  box-shadow: none;
 }
 
-.btn::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(160deg, rgba(255,255,255,0.22), rgba(255,255,255,0));
-  mix-blend-mode: screen;
-  opacity: .7;
-}
-
-.btn::after {
-  content: "";
-  position: absolute;
-  top: -120%;
-  left: -30%;
-  width: 60%;
-  height: 300%;
-  transform: rotate(35deg);
-  pointer-events: none;
-  background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 60%, transparent 100%);
-  opacity: 0;
-}
-
-.btn:hover::after { animation: glintSweep .8s ease forwards; }
+/* P6-BTN-IMPL 扁平化：删除 .btn::before（白雾渐层 overlay）与 .btn::after（悬停扫光）。
+   两者都是纯渐变光泽层：底层 background-image 既已删除，::before 会在变体实色上再叠一层白雾，
+   与「扁平无光泽」口径直接冲突；::after 的 glintSweep 扫光同属光泽，一并删除。 */
 
 .btn-sm {
   padding: 0.375rem 0.75rem;
@@ -205,12 +181,11 @@ h1, h2, h3, h4, h5, h6, .swedish-title {
 
 /* outline：边框强调，适合次级确认 */
 .btn-outline {
-  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.96));
+  /* P6-BTN-IMPL 扁平化：原 background:linear-gradient(...) 仍是渐变填充 ⇒ 改实色；双层 box-shadow 删除。 */
+  background-color: var(--bg-primary);
   color: var(--primary-color);
   border: 1px solid rgba(0, 82, 155, 0.22);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.75),
-    0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: none;
 }
 .btn-outline:hover { filter: brightness(0.98); }
 .btn-outline:focus { outline: none; box-shadow: 0 0 0 2px rgba(0, 82, 155, 0.25); }
@@ -248,7 +223,73 @@ h1, h2, h3, h4, h5, h6, .swedish-title {
 
 .btn:hover { transform: translateY(-1px); }
 .btn:disabled:hover { transform: none; }
-.btn:active { transform: translateY(0); box-shadow: inset 0 2px 10px rgba(0,0,0,0.18), 0 4px 12px rgba(0,0,0,0.12); }
+.btn:active { transform: translateY(0); box-shadow: none; } /* P6-BTN-IMPL 扁平化：原 :active 内凹+投影阴影删除 */
+
+/* ============================================================================
+   变体 A″（日档）/ A′（夜档）· 扁平按钮 —— Unit P6-BTN-IMPL
+   真源：docs/design/style-preview.html 938–982 行 [BTN-SRC-REF]（Jing 追加块；本单现取，不转抄）
+   取值链路：颜色/描边色 = --sf-btna-* / --sf-btnalt-*（主题 token，日/夜有差）
+             几何 = --sf-st-*（结构常量，两档同值）⇒ 切档 rect 逐值相等
+   用法：.btn.btn-a（主按钮）/ .btn.btn-a-alt（次按钮）；Button.jsx 的 primary/secondary 走这两个类。
+   ============================================================================ */
+.btn.btn-a,
+.btn.btn-a-alt {
+  box-sizing: border-box;
+  /* 定尺：高 34px = 真源唯一 px 落点（style-preview.html:976/977/981「高 34 ⇒ 圆角 8px · 内边距 12px」；
+     比例 0.222 / 0.359 = 真源复采最终值 @962 行；拍板表原记 0.17/0.45 已被真源判为转录误差） */
+  height: var(--sf-st-h-btna);
+  padding: 0 var(--sf-st-padx-btna);
+  border-radius: var(--sf-st-radius-btna);
+  /* 1px 边框**槽位两档常驻**（宽度不随主题变 ⇒ rect 同构），只有描边色随档走 */
+  border: var(--sf-st-stroke-w-thin) solid transparent;
+  background-image: none;
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none; /* 圆角与切角不可共存：A 系显式取消 clip-path；旧 .btn 变体的切角保留不动 */
+  font-weight: 600;
+  transform: none;
+}
+
+/* size 档位只改字号：盒高恒为 STRUCT.h-btna，保证「圆角 = 高×0.17、内边距 ≈ 高×0.45」恒成立 */
+.btn.btn-a.btn-sm,
+.btn.btn-a-alt.btn-sm { font-size: 13px; }
+.btn.btn-a.btn-md,
+.btn.btn-a-alt.btn-md { font-size: 14px; }
+.btn.btn-a.btn-lg,
+.btn.btn-a-alt.btn-lg { font-size: 15px; }
+
+.btn.btn-a {
+  background-color: var(--sf-btna-bg);
+  color: var(--sf-btna-fg);
+  border-color: var(--sf-btna-border);
+}
+
+.btn.btn-a-alt {
+  background-color: var(--sf-btnalt-bg);
+  color: var(--sf-btnalt-fg);
+  border-color: var(--sf-btnalt-border);
+}
+
+/* 光泽伪元素在 A 系一律关闭 ⇒ 真扁平 */
+.btn.btn-a::before,
+.btn.btn-a::after,
+.btn.btn-a-alt::before,
+.btn.btn-a-alt::after { display: none; content: none; }
+
+.btn.btn-a:hover,
+.btn.btn-a-alt:hover { transform: none; filter: none; box-shadow: none; }
+.btn.btn-a:active,
+.btn.btn-a-alt:active { transform: none; box-shadow: none; }
+.btn.btn-a:disabled,
+.btn.btn-a-alt:disabled { filter: none; }
+/* 无障碍：键盘焦点环（outline 不参与布局 ⇒ 不影响 rect 同构） */
+.btn.btn-a:focus-visible,
+.btn.btn-a-alt:focus-visible {
+  outline-color: var(--sf-btna-fg); /* 颜色槽位：主题 token 只允许落在颜色属性上 */
+  outline-style: solid;
+  outline-width: var(--sf-st-stroke-w-strong);
+  outline-offset: 1px;
+}
 
 /* 主应用容器 */
 .app-container {

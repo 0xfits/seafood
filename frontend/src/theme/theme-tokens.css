@@ -37,6 +37,11 @@
   --sf-st-grid-pad-m: 8px 10px 16px;
   --sf-st-layout-gap: 18px;
   --sf-st-side-w: 320px;
+  --sf-st-h-btna: 34px;
+  --sf-st-radius-btna: 8px;
+  --sf-st-padx-btna: 12px;
+  --sf-st-ratio-radius-btna: 0.222;
+  --sf-st-ratio-padx-btna: 0.359;
 }
 
 /* 日档「码头大牌」= style-preview.html 变体 A（200–267 行） */
@@ -149,6 +154,12 @@
   --sf-thumb-8: linear-gradient(140deg,#FFE9C4,#FFB85C);
   --sf-thumb-9: linear-gradient(140deg,#CDE7FF,#7FA8FF);
   --sf-thumb-10: linear-gradient(140deg,#F0E3C8,#D9BC86);
+  --sf-btna-bg: #FFE60F;
+  --sf-btna-fg: #202020;
+  --sf-btna-border: #030402;
+  --sf-btnalt-bg: #FFFFFF;
+  --sf-btnalt-fg: #202020;
+  --sf-btnalt-border: #E0E0E0;
 }
 
 /* 夜档「夜市行情板」= style-preview.html 变体 B（273–351 行） */
@@ -260,4 +271,10 @@
   --sf-thumb-8: linear-gradient(150deg,#42341B,#6E4F1D);
   --sf-thumb-9: linear-gradient(150deg,#1B2A3E,#284A73);
   --sf-thumb-10: linear-gradient(150deg,#382F22,#5A4A33);
+  --sf-btna-bg: #FFE60F;
+  --sf-btna-fg: #202020;
+  --sf-btna-border: transparent;
+  --sf-btnalt-bg: #141619;
+  --sf-btnalt-fg: #FFFFFF;
+  --sf-btnalt-border: #E0E0E0;
 }
