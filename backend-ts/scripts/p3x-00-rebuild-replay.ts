@@ -57,6 +57,7 @@ const KEY_FUNCTIONS = [
 const VERSION_ORDER = [
   '0001', '0002', '0003', '0004', '0005', '0006', '0007', '0008', '0009',
   '0010', '0011', '0012', '0013', '0014', '0015', '0016', '0017', '0019', '0020',
+  '0021',
 ];
 
 const TABLES_ZERO_EXPECTED = [
@@ -622,7 +623,7 @@ function expectedTerminalChecks(exp: any, cmp: any) {
   for (const t of TABLES_ZERO_EXPECTED) add(`${t}.row_count`, '0', s(c.table_zero[t]));
   for (const t of M0017_TABLES) add(`0017.${t}.row_count`, '0', s(c.m0017_six[t]));
 
-  add('schema_migration.row_count', '19', s(c.schema_migration_rows));
+  add('schema_migration.row_count', '20', s(c.schema_migration_rows));
   add('triggers.non_internal', '43', s(c.non_internal_triggers));
   add('triggers.enabled_not_o', '0', s(c.triggers_enabled_not_o));
   const nv = exp.seed_expectations || {};
