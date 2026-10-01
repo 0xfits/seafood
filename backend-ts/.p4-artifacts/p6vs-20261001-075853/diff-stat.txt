@@ -1,0 +1,15 @@
+ backend-ts/src/env.ts   | 32 ++++++++++++++++++++++++++++++++
+ backend-ts/src/index.ts | 13 +++++++++++--
+ vercel.json             |  1 +
+ 3 files changed, 44 insertions(+), 2 deletions(-)
+--- git status --porcelain ---
+ M backend-ts/src/env.ts
+ M backend-ts/src/index.ts
+ M vercel.json
+?? .vercelignore
+?? backend-ts/.p4-artifacts/.a1ld-run
+?? backend-ts/.p4-artifacts/.lastrun
+?? backend-ts/.p4-artifacts/p6vs-20261001-075853/
+?? backend-ts/scripts/p4z-p6vs-env-head-baseline.ts
+?? backend-ts/scripts/p4z-p6vs-env-probe.ts
+?? backend-ts/scripts/p4z-p6vs-ledger-count.ts

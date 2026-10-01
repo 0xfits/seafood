@@ -310,7 +310,12 @@ app.get('/', (req, res) => {
   );
 });
 
-app.get('/health', async (req, res) => {
+// P6-VERCEL-SHAPE：`/health` 与 `/api/health` **共用同一 handler**（同一函数引用）。
+// 现场：`vercel.json` 的 `routes` 把 `/api/(.*)` 转发给 `backend-ts/src/index.ts` 时**保留原路径**
+//   ⇒ 函数收到的是 `/api/health`（外部实测 `GET https://seafood-opal.vercel.app/api/health` = **404**），
+//   而应用只注册了 `/health`。本片**只新增一个注册点**（另一条 `app.get`，指向同一 handler）——
+//   **handler 体与响应体形状逐字不变**（同一 `healthCheck()` 报告对象、同 `Cache-Control: no-store`）。
+const sendHealthReport = async (req: Request, res: Response) => {
   // 健康检查不得被 CDN / 中间缓存（否则会长期报陈旧状态）
   res.setHeader('Cache-Control', 'no-store');
   try {
@@ -325,7 +330,11 @@ app.get('/health', async (req, res) => {
       time: new Date().toISOString(),
     });
   }
-});
+};
+
+// 两个注册点共用**同一 handler**（`/health` 既有面 + `/api/health` Vercel 转发面）
+app.get('/health', sendHealthReport);
+app.get('/api/health', sendHealthReport);
 
 app.get('/api/test/data', (req, res) => {
   sendSuccess(

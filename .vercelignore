@@ -1,0 +1,12 @@
+# Zang 2026-09-30：Vercel 部署上传面收窄（部署验证前置动作）
+# 目的：凭据与"本地/内部"产物绝不上传到托管平台。
+# 注：这些条目是**追加**在 Vercel 默认忽略表（node_modules/.git 等）之上；
+#     若某天需要把 docs 一起发布，删掉下面这行即可（一句话可改）。
+.env
+.env.*
+**/.env
+**/.env.local
+**/.env.*.local
+docs/
+backend-ts/.p4-artifacts/
+backend-ts/.env.local

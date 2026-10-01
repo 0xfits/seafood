@@ -29,4 +29,36 @@ dotenv.config({ path: path.join(repoRoot, '.env.local') });
 dotenv.config({ path: path.join(repoRoot, '.env') });
 dotenv.config();
 
+/**
+ * P6-VERCEL-SHAPE：Vercel 环境变量 **前缀回退映射**（单点小表）。
+ * ============================================================================
+ * 引证来源（均为**现取**，非推断）：
+ *   · Vercel 项目 `alwaysfit/seafood` 的**环境变量名单**（`vercel env` 面，Kong/Zang 现取）：
+ *     库连接串**全部带 `SF_` 前缀** —— `SF_DATABASE_URL` / `SF_DATABASE_URL_UNPOOLED`
+ *     / `SF_POSTGRES_URL` / `SF_POSTGRES_URL_NON_POOLING`；
+ *   · 而本仓业务面读的是**不带前缀**的规范名（现取 grep：`src/database.ts:60-66`、
+ *     `src/db.ts:34-48`、`src/ledger.ts:988`、`src/ledger.ts:1014`）；
+ *   · serverless 运行时**没有 dotenv 文件**可兜底（`.env.local` 属本地凭据，不入仓）⇒
+ *     规范名 undefined ⇒ 读库/事务直接抛（外部实测：`GET /api/home` = 500）。
+ *   · `SECRET_KEY` **不需要**映射：它已由 Zang 以**不带前缀**的名字写入 Vercel
+ *     （Production + Preview/main），故**不在**本表内。
+ *
+ * 规则（"先到先得"，本地零变化）：
+ *   ① 仅当**规范名缺失**（`!process.env[canonical]`）**且**带前缀名存在时才赋值；
+ *   ② 已存在的值**永不覆盖** ⇒ 本地 `.env.local` / 显式注入的 `process.env` 一律优先；
+ *   ③ 本模块是 `src/index.ts` 的**首 import** ⇒ 映射早于任何业务模块（auth/db/database/ledger）求值。
+ */
+const VERCEL_PREFIX_FALLBACKS: ReadonlyArray<readonly [string, string]> = [
+  ['DATABASE_URL', 'SF_DATABASE_URL'],
+  ['DATABASE_URL_UNPOOLED', 'SF_DATABASE_URL_UNPOOLED'],
+  ['POSTGRES_URL', 'SF_POSTGRES_URL'],
+  ['POSTGRES_URL_NON_POOLING', 'SF_POSTGRES_URL_NON_POOLING'],
+];
+
+for (const [canonical, vercelName] of VERCEL_PREFIX_FALLBACKS) {
+  if (!process.env[canonical] && process.env[vercelName]) {
+    process.env[canonical] = process.env[vercelName];
+  }
+}
+
 export const ENV_REPO_ROOT = repoRoot;
