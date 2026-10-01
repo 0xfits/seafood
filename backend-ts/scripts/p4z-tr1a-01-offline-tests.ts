@@ -37,6 +37,10 @@ import {
   hasVietnameseDiacritics,
   stubTranslate,
   registerPendingTranslations,
+  scanRegisterPending,
+  buildScanInsertSql,
+  TRANSLATABLE_SPECS,
+  TARGET_LANGS,
   REASON,
   MAX_ATTEMPTS,
   TRANSLATE_TARGETS,
@@ -49,6 +53,7 @@ import type {
   TranslateServiceConfig,
   FetchLike,
   SourceResolver,
+  ContentScanner,
 } from '../src/translate-service';
 
 // ---------------------------------------------------------------- harness --
@@ -452,6 +457,34 @@ async function main(): Promise<void> {
     t('L3', 'pending', s.rows.get('listing|L2|title|en')!.status === 'ready', '缺省不降级(ready 保持)', s.rows.get('listing|L2|title|en')!.status);
     await registerPendingTranslations({ entityType: 'listing', entityId: 'L2', fields: { title: SRC } }, { store: s, reset: true });
     t('L4', 'pending', s.rows.get('listing|L2|title|en')!.status === 'pending' && s.rows.get('listing|L2|title|en')!.text === null, 'reset=true 覆盖回 pending/NULL', JSON.stringify(s.rows.get('listing|L2|title|en')));
+  }
+
+  // ===== M 存量扫描登记（P6-TR-1c-B：真库枚举白名单 + 幂等 SQL 结构 + 端口注入）=====
+  {
+    const byType = TRANSLATABLE_SPECS.map((s) => `${s.entity_type}:${s.table}.${s.id_col}[${s.fields.join('|')}]`).join(' ; ');
+    t('M1', 'scan', JSON.stringify(TRANSLATABLE_SPECS.map((s) => s.entity_type)) === JSON.stringify(['job', 'listing', 'user', 'currency'])
+      && TRANSLATABLE_SPECS.every((s) => s.table && s.id_col && s.fields.length > 0),
+      'job/listing/user/currency 四类 + 表/主键/字段齐备', byType);
+
+    const sqls = TRANSLATABLE_SPECS.map((s) => buildScanInsertSql(s));
+    const okStruct = sqls.every((q) => /ON CONFLICT \(entity_type, entity_id, field, lang\) DO NOTHING/.test(q)
+      && /RETURNING 1/.test(q)
+      && !/\b(DELETE|UPDATE|TRUNCATE|DROP)\b/i.test(q)
+      && ['en', 'vn', 'hk'].every((l) => q.includes(`('${l}')`))
+      && q.includes('count(*) FROM candidates'));
+    t('M2', 'scan', okStruct, '每表 SQL：ON CONFLICT DO NOTHING + RETURNING 1 + 3 语言 + 无 DELETE/UPDATE', okStruct);
+    const jobSql = sqls[0];
+    t('M2b', 'scan', jobSql.includes('t.job_id::text') && jobSql.includes("('title')") && jobSql.includes("('description')"),
+      'job SQL 含真库主键 job_id 与 title/description 候选', jobSql.includes('t.job_id::text'));
+
+    // 端口注入：scanRegisterPending 原样回传 scanner 结论（离线不连库）
+    const fake: ContentScanner = {
+      scanAndRegister: async () => ({ scanned: 7, registered: 3, existing: 4, by_entity: { job: { scanned: 7, registered: 3 } } }),
+    };
+    const sr = await scanRegisterPending({ scanner: fake });
+    t('M3', 'scan', sr.scanned === 7 && sr.registered === 3 && sr.existing === 4 && sr.by_entity.job.registered === 3,
+      '端口注入回执原样', JSON.stringify(sr));
+    t('M4', 'scan', (TARGET_LANGS as ReadonlyArray<string>).join(',') === 'en,vn,hk', 'en,vn,hk', (TARGET_LANGS as ReadonlyArray<string>).join(','));
   }
 
   // ===== K 泄漏自检（产物不得含任何 key 值 / Bearer 令牌） =====

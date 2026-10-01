@@ -1,0 +1,149 @@
+{
+ "unit": "P6-TR-1c-B",
+ "run": "20261001T042904Z",
+ "generated_at": "2026-10-01T04:29:04.228Z",
+ "tables": {
+  "job": [
+   "job_id",
+   "employer_uid",
+   "worker_uid",
+   "cid",
+   "reward",
+   "title",
+   "description",
+   "status",
+   "create_key",
+   "escrow_txid",
+   "settle_txid",
+   "ledger_event_keys",
+   "time_created",
+   "time_updated"
+  ],
+  "listing": [
+   "listing_id",
+   "seller_uid",
+   "cid",
+   "price",
+   "stock",
+   "title",
+   "description",
+   "media_urls",
+   "status",
+   "create_key",
+   "ledger_event_keys",
+   "time_created",
+   "time_updated"
+  ],
+  "users": [
+   "uid",
+   "evm",
+   "bio",
+   "is_admin",
+   "time_reg",
+   "time_login_last"
+  ],
+  "currency": [
+   "cid",
+   "symbol",
+   "name",
+   "icon_url",
+   "owner_uid",
+   "decimals",
+   "total_supply",
+   "supply_cap",
+   "status",
+   "deposit_amount",
+   "deposit_cid",
+   "listed_at",
+   "time_created",
+   "time_updated"
+  ]
+ },
+ "readings": {
+  "job_rows": 20,
+  "job_title_nonempty": 20,
+  "job_desc_nonempty": 13,
+  "listing_rows": 22,
+  "listing_title_nonempty": 22,
+  "listing_desc_nonempty": 17,
+  "users_bio_nonempty": 7,
+  "currency_name_nonempty": 13,
+  "content_translation_rows": 0,
+  "content_translation_by_type": [],
+  "content_translation_today_rows": 0,
+  "translation_cache_rows": 6
+ },
+ "candidate_combos": {
+  "definition": "每张表的非空可译字段数 × 3 语言（en/vn/hk）之和",
+  "job": 99,
+  "listing": 117,
+  "user": 21,
+  "currency": 39,
+  "total": 276
+ },
+ "translation_cache_dump": [
+  {
+   "src_hash": "3b7ff02abbacccce74c7ef22330d51c9c960335ccd17ddab17467b376469eaa9",
+   "src_lang": "zh",
+   "tgt_lang": "hk",
+   "engine": "opencc",
+   "text_out_head": "海鮮招工測試甲：整理貨架與盤點"
+  },
+  {
+   "src_hash": "69d6d041500e1fd4b6c5eef6868befd5576b5b3a42771c59dd0cef18abed7bd8",
+   "src_lang": "zh",
+   "tgt_lang": "hk",
+   "engine": "opencc",
+   "text_out_head": "負責每日盤點與貨架整理，包午餐"
+  },
+  {
+   "src_hash": "3b7ff02abbacccce74c7ef22330d51c9c960335ccd17ddab17467b376469eaa9",
+   "src_lang": "zh",
+   "tgt_lang": "en",
+   "engine": "stub",
+   "text_out_head": "[en] 海鲜招工测试甲：整理货架与盘点"
+  },
+  {
+   "src_hash": "3b7ff02abbacccce74c7ef22330d51c9c960335ccd17ddab17467b376469eaa9",
+   "src_lang": "zh",
+   "tgt_lang": "vn",
+   "engine": "stub",
+   "text_out_head": "[vn] 海鲜招工测试甲：整理货架与盘点"
+  },
+  {
+   "src_hash": "69d6d041500e1fd4b6c5eef6868befd5576b5b3a42771c59dd0cef18abed7bd8",
+   "src_lang": "zh",
+   "tgt_lang": "en",
+   "engine": "stub",
+   "text_out_head": "[en] 负责每日盘点与货架整理，包午餐"
+  },
+  {
+   "src_hash": "69d6d041500e1fd4b6c5eef6868befd5576b5b3a42771c59dd0cef18abed7bd8",
+   "src_lang": "zh",
+   "tgt_lang": "vn",
+   "engine": "stub",
+   "text_out_head": "[vn] 负责每日盘点与货架整理，包午餐"
+  }
+ ],
+ "cjk_job_samples": [
+  {
+   "id": "24",
+   "title": "海鲜招工测试甲：整理货架与盘点",
+   "description": "负责每日盘点与货架整理，包午餐"
+  }
+ ],
+ "cjk_listing_samples": [
+  {
+   "id": "19",
+   "title": "海鲜礼盒测试丙：虾蟹双拼"
+  },
+  {
+   "id": "20",
+   "title": "海鲜礼盒TR1C测试：虾蟹双拼-tr1c01015515"
+  },
+  {
+   "id": "21",
+   "title": "海鲜礼盒TR1C测试：虾蟹双拼-tr1c01015554"
+  }
+ ]
+}

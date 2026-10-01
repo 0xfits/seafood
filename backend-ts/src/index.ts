@@ -48,7 +48,7 @@ import {
   resolveAdminOpsKey,
 } from './admin-service';
 // P6-TR-1b：后台翻译回填（cron 兜底 + 手动触发）—— 路由层只做鉴权与机读回执，编排全在服务层
-import { backfillPending, registerPendingTranslations, scheduleEntityTranslation } from './translate-service';
+import { backfillPending, registerPendingTranslations, scanRegisterPending, scheduleEntityTranslation } from './translate-service';
 
 const app = express();
 const PORT = Number(process.env.PORT || 5788);
@@ -1718,7 +1718,15 @@ app.post('/api/admin/commission_policy', async (req, res) => {
 //   · **未配 CRON_SECRET ⇒ 503 fail-loud，绝不默认放行**（安全红线）；
 //   · 密钥只做相等比较，**绝不回显/日志**其值。
 // 幂等：服务层 ON CONFLICT upsert + 缓存命中不重复付费 ⇒ 重复调用不产生重复行。
-// 回执（机读）：{ ok, processed, ready, failed, skipped, deferred, reason, engine }。
+// 回执（机读，**TR-1c-B 扩展键、不删旧键**）：
+//   翻译面 { processed(=scanned), ready, failed, skipped, deferred, retried, reason, engine }
+//   扫描面 { mode, scan_scanned, scan_registered, scan_existing, scan_by_entity }
+// ---------------------------------------------------------------------------
+// **P6-TR-1c-B · 存量登记（根因修复）**：`mode` 三态
+//   · 缺省 / `scan_translate`（含 `scan=1`）⇒ **先扫存量补 pending 行，再翻译**（cron 自愈）；
+//   · `mode=scan`  ⇒ **只扫存量登记**（零翻译、零 API 调用）；
+//   · `mode=translate` ⇒ 只翻译（**旧行为**，不扫）。
+//   扫描**幂等**：`ON CONFLICT DO NOTHING` ⇒ 连跑两次 `scan_registered=0`、行数不增、不重复付费。
 app.post('/api/translate/backfill', async (req, res) => {
   const secret = String(process.env.CRON_SECRET || '').trim();
   if (!secret) {
@@ -1731,23 +1739,40 @@ app.post('/api/translate/backfill', async (req, res) => {
     return sendError(res, 401, 'Unauthorized');
   }
 
-  const rawLimit = (req.body as Record<string, unknown> | undefined)?.limit ?? req.query?.limit;
+  const body = (req.body as Record<string, unknown> | undefined) || {};
+  const rawLimit = body.limit ?? req.query?.limit;
   const parsedLimit = Number(rawLimit);
   const limit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? Math.min(100, Math.floor(parsedLimit)) : 20;
 
+  const rawMode = String(body.mode ?? req.query?.mode ?? '').trim().toLowerCase();
+  const rawScan = body.scan ?? req.query?.scan;
+  // `scan=1` 显式请求扫描 ⇒ 与 `mode=translate` 合并为 `scan_translate`
+  const mode = rawMode === 'translate' && parseBoolean(rawScan, false) ? 'scan_translate' : (rawMode || 'scan_translate');
+  const validMode = mode === 'scan' || mode === 'translate' || mode === 'scan_translate' ? mode : 'scan_translate';
+  const wantScan = validMode === 'scan' || validMode === 'scan_translate';
+  const wantTranslate = validMode !== 'scan';
+
   try {
-    const report = await backfillPending(limit);
+    const scan = wantScan ? await scanRegisterPending() : null;
+    const report = wantTranslate ? await backfillPending(limit) : null;
     return sendSuccess(res, {
       ok: true,
-      processed: report.scanned,
-      ready: report.ready,
-      failed: report.failed,
-      skipped: report.skipped,
-      deferred: report.deferred,
-      reason: report.reason,
-      scanned: report.scanned,
-      retried: report.retried,
-      engine: report.engine,
+      mode: validMode,
+      // 存量扫描面（新增键；未扫 ⇒ null）
+      scan_scanned: scan ? scan.scanned : null,
+      scan_registered: scan ? scan.registered : null,
+      scan_existing: scan ? scan.existing : null,
+      scan_by_entity: scan ? scan.by_entity : null,
+      // 翻译面（既有键，语义不变）
+      processed: report ? report.scanned : 0,
+      ready: report ? report.ready : 0,
+      failed: report ? report.failed : 0,
+      skipped: report ? report.skipped : 0,
+      deferred: report ? report.deferred : 0,
+      reason: report ? report.reason : null,
+      scanned: report ? report.scanned : 0,
+      retried: report ? report.retried : 0,
+      engine: report ? report.engine : null,
     }, 'Translate backfill completed');
   } catch (error) {
     console.error('Error running translate backfill:', error);

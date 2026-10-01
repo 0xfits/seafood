@@ -1,0 +1,455 @@
+{
+ "unit": "P6-TR-1c-B",
+ "run": "20261001T043220Z",
+ "generated_at": "2026-10-01T04:32:20.683Z",
+ "api_base": "http://127.0.0.1:5788",
+ "target_job": "24",
+ "checks": [
+  {
+   "id": "P0.1",
+   "pass": true,
+   "expect": "DEEPSEEK_API_KEY 就位",
+   "actual": "true"
+  },
+  {
+   "id": "P0.2",
+   "pass": true,
+   "expect": "CRON_SECRET 就位",
+   "actual": "true"
+  },
+  {
+   "id": "P0.3",
+   "pass": true,
+   "expect": "service /api/health = 200",
+   "actual": "200"
+  },
+  {
+   "id": "P0.4",
+   "pass": true,
+   "expect": "job 24 有 CJK 标题",
+   "actual": "海鲜招工测试甲：整理货架与盘点"
+  },
+  {
+   "id": "P1.1",
+   "pass": true,
+   "expect": "scan#1 HTTP 200/ok",
+   "actual": "200/true"
+  },
+  {
+   "id": "P1.2",
+   "pass": true,
+   "expect": "scan#1 registered>0 且 scanned=registered+existing",
+   "actual": "{\"s\":276,\"r\":276,\"e\":0}"
+  },
+  {
+   "id": "P1.3",
+   "pass": true,
+   "expect": "DB 行数 = 基线 + 新登记数",
+   "actual": "276 vs 276"
+  },
+  {
+   "id": "P1.4",
+   "pass": true,
+   "expect": "scan#2 registered=0（幂等）",
+   "actual": "0"
+  },
+  {
+   "id": "P1.5",
+   "pass": true,
+   "expect": "scan#2 行数不增",
+   "actual": "276 vs 276"
+  },
+  {
+   "id": "P1.6",
+   "pass": true,
+   "expect": "scan#2 existing=scan#1 scanned",
+   "actual": "276/276"
+  },
+  {
+   "id": "P1.7",
+   "pass": true,
+   "expect": "逐实体分解非空",
+   "actual": "{\"job\":{\"scanned\":99,\"registered\":99},\"listing\":{\"scanned\":117,\"registered\":117},\"user\":{\"scanned\":21,\"registered\":21},\"currency\":{\"scanned\":39,\"registered\":39}}"
+  },
+  {
+   "id": "P2.1",
+   "pass": true,
+   "expect": "读回 job 24",
+   "actual": "true"
+  },
+  {
+   "id": "P2.2",
+   "pass": true,
+   "expect": "改前 i18n_status='pending'",
+   "actual": "pending"
+  },
+  {
+   "id": "P3.1",
+   "pass": false,
+   "expect": "ready=6/failed=0/deferred=0",
+   "actual": "{\"scanned\":6,\"retried\":1,\"ready\":3,\"failed\":3,\"skipped\":0,\"deferred\":0,\"engine\":\"deepseek\",\"reason\":null}"
+  },
+  {
+   "id": "P3.2",
+   "pass": true,
+   "expect": "引擎 = deepseek（非 stub）",
+   "actual": "deepseek"
+  },
+  {
+   "id": "P3.3",
+   "pass": true,
+   "expect": "真调用次数 ∈ [1,2]（429/5xx 才重试一次）",
+   "actual": "1"
+  },
+  {
+   "id": "P3.4",
+   "pass": false,
+   "expect": "6 行全 ready",
+   "actual": "[\"description:en=failed\",\"description:hk=ready\",\"description:vn=failed\",\"title:en=ready\",\"title:hk=ready\",\"title:vn=failed\"]"
+  },
+  {
+   "id": "P3.5",
+   "pass": false,
+   "expect": "en 标题=非 CJK 真英文",
+   "actual": "Seafood hiring test A: Shelving and inventory"
+  },
+  {
+   "id": "P3.6",
+   "pass": true,
+   "expect": "en 标题过三重校验",
+   "actual": "{\"ok\":true,\"reason\":null,\"detail\":null}"
+  },
+  {
+   "id": "P3.7",
+   "pass": false,
+   "expect": "vn 标题含声调且过校验",
+   "actual": ""
+  },
+  {
+   "id": "P3.8",
+   "pass": true,
+   "expect": "hk 标题 = OpenCC 繁体",
+   "actual": "海鮮招工測試甲：整理貨架與盤點 vs 海鮮招工測試甲：整理貨架與盤點"
+  },
+  {
+   "id": "P3.9",
+   "pass": true,
+   "expect": "OpenCC 例：「招聘服务员」⇒「招聘服務員」",
+   "actual": "招聘服務員"
+  },
+  {
+   "id": "P3.10",
+   "pass": false,
+   "expect": "desc 三语齐（en 非 CJK / vn 声调 / hk 繁体）",
+   "actual": "{\"enDesc\":\"\",\"vnDesc\":\"\",\"hkDesc\":\"負責每日盤點與貨架整理，包午餐\"}"
+  },
+  {
+   "id": "P4.1",
+   "pass": true,
+   "expect": "i18n_status ∈ {ready,partial}",
+   "actual": "partial"
+  },
+  {
+   "id": "P4.2",
+   "pass": true,
+   "expect": "title_en = 真英文（非 CJK）",
+   "actual": "Seafood hiring test A: Shelving and inventory"
+  },
+  {
+   "id": "P4.3",
+   "pass": true,
+   "expect": "title_hk = 繁体",
+   "actual": "海鮮招工測試甲：整理貨架與盤點"
+  },
+  {
+   "id": "P5.1",
+   "pass": false,
+   "expect": "HTTP 二次回填 ready=6/engine=deepseek",
+   "actual": "{\"s\":200,\"ready\":3,\"engine\":\"deepseek\"}"
+  },
+  {
+   "id": "P5.2",
+   "pass": true,
+   "expect": "缓存命中 ⇒ 无新增 translation_cache（零新付费）",
+   "actual": "3 -> 3"
+  },
+  {
+   "id": "P5.3",
+   "pass": false,
+   "expect": "最终 6 行 ready",
+   "actual": "3"
+  },
+  {
+   "id": "P5.4",
+   "pass": true,
+   "expect": "二次后 i18n_status 仍 ready/partial",
+   "actual": "partial"
+  },
+  {
+   "id": "P6.1",
+   "pass": true,
+   "expect": "Σ(account.balance, cid=1) = 1989693 不变",
+   "actual": "1989693 -> 1989693"
+  },
+  {
+   "id": "P6.2",
+   "pass": true,
+   "expect": "Δledger_entry = 0",
+   "actual": "267 -> 267"
+  },
+  {
+   "id": "P6.3",
+   "pass": true,
+   "expect": "零新建 job/listing 行",
+   "actual": "{\"j\":[20,20],\"l\":[22,22]}"
+  }
+ ],
+ "preflight": {
+  "deepseek_api_key_present": true,
+  "cron_secret_present": true,
+  "engine_cfg": "deepseek",
+  "model": "deepseek-flash",
+  "base_url": "https://api.deepseek.com"
+ },
+ "before": {
+  "sigma_cid1": "1989693",
+  "ledger_entry": "267",
+  "ledger_entry_n": 267,
+  "ct_rows": 0,
+  "cache_rows": 6,
+  "job_rows": 20,
+  "listing_rows": 22,
+  "ct_today": 0
+ },
+ "source": {
+  "title": "海鲜招工测试甲：整理货架与盘点",
+  "description": "负责每日盘点与货架整理，包午餐"
+ },
+ "stub_cache_cleanup": {
+  "rationale": "TR-1b 探针写入的 engine='stub' 假缓存（非真译文）；不清则该对象永远命中假缓存",
+  "removed": 4,
+  "ct_rows_untouched": 0
+ },
+ "scan_1": {
+  "status": 200,
+  "data": {
+   "ok": true,
+   "mode": "scan",
+   "scan_scanned": 276,
+   "scan_registered": 276,
+   "scan_existing": 0,
+   "scan_by_entity": {
+    "job": {
+     "scanned": 99,
+     "registered": 99
+    },
+    "listing": {
+     "scanned": 117,
+     "registered": 117
+    },
+    "user": {
+     "scanned": 21,
+     "registered": 21
+    },
+    "currency": {
+     "scanned": 39,
+     "registered": 39
+    }
+   },
+   "processed": 0,
+   "ready": 0,
+   "failed": 0,
+   "skipped": 0,
+   "deferred": 0,
+   "reason": null,
+   "scanned": 0,
+   "retried": 0,
+   "engine": null
+  }
+ },
+ "scan_2": {
+  "status": 200,
+  "data": {
+   "ok": true,
+   "mode": "scan",
+   "scan_scanned": 276,
+   "scan_registered": 0,
+   "scan_existing": 276,
+   "scan_by_entity": {
+    "job": {
+     "scanned": 99,
+     "registered": 0
+    },
+    "listing": {
+     "scanned": 117,
+     "registered": 0
+    },
+    "user": {
+     "scanned": 21,
+     "registered": 0
+    },
+    "currency": {
+     "scanned": 39,
+     "registered": 0
+    }
+   },
+   "processed": 0,
+   "ready": 0,
+   "failed": 0,
+   "skipped": 0,
+   "deferred": 0,
+   "reason": null,
+   "scanned": 0,
+   "retried": 0,
+   "engine": null
+  }
+ },
+ "job_read_before": {
+  "tID": 24,
+  "i18n_status": "pending",
+  "title": "海鲜招工测试甲：整理货架与盘点",
+  "title_en": "海鲜招工测试甲：整理货架与盘点",
+  "title_hk": "海鲜招工测试甲：整理货架与盘点",
+  "title_vn": "海鲜招工测试甲：整理货架与盘点"
+ },
+ "real_backfill": {
+  "report": {
+   "scanned": 6,
+   "retried": 1,
+   "ready": 3,
+   "failed": 3,
+   "skipped": 0,
+   "deferred": 0,
+   "engine": "deepseek",
+   "reason": null
+  },
+  "engine": "deepseek",
+  "usage": {
+   "llm_calls": 1,
+   "http_statuses": [
+    200,
+    200,
+    200
+   ],
+   "prompt_tokens": 324,
+   "completion_tokens": 310,
+   "total_tokens": 634,
+   "batching": "2 字段(title/description) × en+vn 合并在 1 次 chat/completions；hk 走 OpenCC（0 付费）"
+  }
+ },
+ "ct_rows_job": [
+  {
+   "field": "description",
+   "lang": "en",
+   "text": null,
+   "status": "failed",
+   "attempts": 1
+  },
+  {
+   "field": "description",
+   "lang": "hk",
+   "text": "負責每日盤點與貨架整理，包午餐",
+   "status": "ready",
+   "attempts": 1
+  },
+  {
+   "field": "description",
+   "lang": "vn",
+   "text": null,
+   "status": "failed",
+   "attempts": 1
+  },
+  {
+   "field": "title",
+   "lang": "en",
+   "text": "Seafood hiring test A: Shelving and inventory",
+   "status": "ready",
+   "attempts": 1
+  },
+  {
+   "field": "title",
+   "lang": "hk",
+   "text": "海鮮招工測試甲：整理貨架與盤點",
+   "status": "ready",
+   "attempts": 1
+  },
+  {
+   "field": "title",
+   "lang": "vn",
+   "text": null,
+   "status": "failed",
+   "attempts": 1
+  }
+ ],
+ "translations": {
+  "enTitle": "Seafood hiring test A: Shelving and inventory",
+  "vnTitle": "",
+  "hkTitle": "海鮮招工測試甲：整理貨架與盤點",
+  "enDesc": "",
+  "vnDesc": "",
+  "hkDesc": "負責每日盤點與貨架整理，包午餐",
+  "hk_title_expected": "海鮮招工測試甲：整理貨架與盤點"
+ },
+ "job_read_after": {
+  "tID": 24,
+  "i18n_status": "partial",
+  "title_en": "Seafood hiring test A: Shelving and inventory",
+  "title_hk": "海鮮招工測試甲：整理貨架與盤點",
+  "title_vn": "海鲜招工测试甲：整理货架与盘点"
+ },
+ "http_backfill_cache_hit": {
+  "status": 200,
+  "data": {
+   "ok": true,
+   "mode": "translate",
+   "scan_scanned": null,
+   "scan_registered": null,
+   "scan_existing": null,
+   "scan_by_entity": null,
+   "processed": 6,
+   "ready": 3,
+   "failed": 3,
+   "skipped": 0,
+   "deferred": 0,
+   "reason": null,
+   "scanned": 6,
+   "retried": 1,
+   "engine": "deepseek"
+  },
+  "cache_rows_before": 3,
+  "cache_rows_after": 3,
+  "llm_calls_so_far": 1
+ },
+ "repair": {
+  "needed": true,
+  "ready_final": 3
+ },
+ "after": {
+  "sigma_cid1": "1989693",
+  "ledger_entry": "267",
+  "ledger_entry_n": 267,
+  "ct_rows": 276,
+  "cache_rows": 9,
+  "job_rows": 20,
+  "listing_rows": 22,
+  "ct_today": 276
+ },
+ "summary": {
+  "total": 33,
+  "passed": 26,
+  "failed": 7,
+  "llm_calls": 3,
+  "total_tokens": 634,
+  "items_translated_this_run": 3,
+  "scan_registered": 276,
+  "scan_idempotent_second_run": 0
+ },
+ "residual": {
+  "content_translation_rows_kept": 276,
+  "job_listing_rows_created": 0,
+  "deleted": {
+   "translation_cache_stub_rows": 4,
+   "content_translation_rows": 0
+  }
+ }
+}

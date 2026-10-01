@@ -1053,3 +1053,114 @@ export async function backfillPending(
   }
   return report;
 }
+
+// ================================================== 存量扫描登记（TR-1c-B）====
+/**
+ * 缺口（本单根因）：`content_translation` 的行**只在写入时登记**（TR-1c-A 写路径），
+ * 因此**存量** job/listing/users.bio/currency.name **没有任何行** ⇒ `backfillPending`
+ * 扫不到 ⇒ 存量内容**永远不会被翻译**。
+ *
+ * 补齐：本节约在**真库**上枚举**现有**可译内容，对每个缺失的
+ * `(entity_type, entity_id, field, lang∈{en,vn,hk})` 组合补一行
+ * `status='pending'/text=NULL`（`ON CONFLICT DO NOTHING`）——
+ * **只登记、绝不翻译、零 API 调用**（幂等：连跑两次第二次数 `registered=0`）。
+ */
+
+/** 可译内容规格（**真库枚举白名单**：表名/主键列/可译列均本文件常量，非外部输入）。 */
+export interface TranslatableSpec {
+  entity_type: string;
+  table: string;
+  id_col: string;
+  fields: ReadonlyArray<string>;
+}
+
+/** 四类存量内容（↔ `createDbSourceResolver` 白名单同域）。 */
+export const TRANSLATABLE_SPECS: ReadonlyArray<TranslatableSpec> = [
+  { entity_type: 'job', table: 'job', id_col: 'job_id', fields: ['title', 'description'] },
+  { entity_type: 'listing', table: 'listing', id_col: 'listing_id', fields: ['title', 'description'] },
+  { entity_type: 'user', table: 'users', id_col: 'uid', fields: ['bio'] },
+  { entity_type: 'currency', table: 'currency', id_col: 'cid', fields: ['name'] },
+];
+
+/**
+ * 生成「扫存量 ⇒ 补 pending 行」的**单语句** SQL（每表一条）：
+ *   · `candidates` = **真库现取**（非空可译列 × 3 目标语言）——无固定列表、无硬编码 id；
+ *   · `ON CONFLICT (entity_type,entity_id,field,lang) DO NOTHING` ⇒ **只补缺失组合**（幂等）；
+ *   · `RETURNING 1` 只回**实际插入**的行 ⇒ `registered` 可观测；
+ *   · 同语句一并回 `scanned`（候选计）⇒ 「扫到几条 / 新登记几条」同一往返。
+ * 安全：表/列名仅来自本文件常量；`entity_type` 走参数 `$1`。**语句内无 DELETE/UPDATE**。
+ */
+export function buildScanInsertSql(spec: TranslatableSpec): string {
+  const cases = spec.fields.map((f) => `WHEN '${f}' THEN t.${f}`).join(' ');
+  const fieldValues = spec.fields.map((f) => `('${f}')`).join(', ');
+  const langValues = TARGET_LANGS.map((l) => `('${l}')`).join(', ');
+  return `
+    WITH candidates AS (
+      SELECT $1::text AS entity_type,
+             t.${spec.id_col}::text AS entity_id,
+             f.field AS field,
+             l.lang  AS lang
+        FROM public.${spec.table} t
+        CROSS JOIN (VALUES ${fieldValues}) AS f(field)
+        CROSS JOIN (VALUES ${langValues}) AS l(lang)
+       WHERE COALESCE(btrim(CASE f.field ${cases} END), '') <> ''
+    ), ins AS (
+      INSERT INTO public.content_translation
+        (entity_type, entity_id, field, lang, text, status, attempts, last_error, updated_at)
+      SELECT entity_type, entity_id, field, lang, NULL, 'pending', 0, NULL, now()
+        FROM candidates
+      ON CONFLICT (entity_type, entity_id, field, lang) DO NOTHING
+      RETURNING 1
+    )
+    SELECT (SELECT count(*) FROM candidates)::int AS scanned,
+           (SELECT count(*) FROM ins)::int        AS registered`;
+}
+
+/** 扫描登记回执（机读：扫到几条 / 新登记几条 / 已存在几条 + 逐实体分解）。 */
+export interface ScanRegisterReport {
+  /** 真库推导出的候选 (entity, field, lang) 组合数（与是否已登记无关）。 */
+  scanned: number;
+  /** 本次**实际插入**的 pending 行数（`ON CONFLICT DO NOTHING` 命中 ⇒ 不计）。 */
+  registered: number;
+  /** `scanned - registered`（已存在的组合，本次未动）。 */
+  existing: number;
+  by_entity: Record<string, { scanned: number; registered: number }>;
+}
+
+/** 扫描登记端口（可注入 ⇒ 离线单测不连库）。 */
+export interface ContentScanner {
+  scanAndRegister(): Promise<ScanRegisterReport>;
+}
+
+/** 生产实现（真库）：逐表跑 `buildScanInsertSql`；**只登记不翻译、零 API 调用**。 */
+export function createDbContentScanner(): ContentScanner {
+  return {
+    scanAndRegister: async () => {
+      const db = loadDb();
+      const byEntity: Record<string, { scanned: number; registered: number }> = {};
+      let scanned = 0;
+      let registered = 0;
+      for (const spec of TRANSLATABLE_SPECS) {
+        const rows = await db.withTransaction(async (tx) => {
+          const res = await tx.query<{ scanned: number; registered: number }>(
+            buildScanInsertSql(spec),
+            [spec.entity_type],
+          );
+          return res.rows;
+        });
+        const s = Number(rows[0]?.scanned || 0);
+        const r = Number(rows[0]?.registered || 0);
+        byEntity[spec.entity_type] = { scanned: s, registered: r };
+        scanned += s;
+        registered += r;
+      }
+      return { scanned, registered, existing: scanned - registered, by_entity: byEntity };
+    },
+  };
+}
+
+/** 入口：扫存量 ⇒ 补 pending 行（**幂等**；`scanner` 可注入）。 */
+export async function scanRegisterPending(opts: { scanner?: ContentScanner } = {}): Promise<ScanRegisterReport> {
+  const scanner = opts.scanner || createDbContentScanner();
+  return scanner.scanAndRegister();
+}

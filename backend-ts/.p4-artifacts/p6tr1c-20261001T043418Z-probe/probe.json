@@ -1,0 +1,76 @@
+{
+ "unit": "P6-TR-1c-B-probe",
+ "run": "20261001T043418Z",
+ "engine": "deepseek",
+ "model": "deepseek-flash",
+ "single_field": {
+  "statuses": {
+   "title": {
+    "en": "failed",
+    "vn": "failed",
+    "hk": "ready"
+   }
+  },
+  "errors": {
+   "title": {
+    "en": "LENGTH_RATIO",
+    "vn": "LENGTH_RATIO"
+   }
+  },
+  "texts": {
+   "title": {
+    "hk": "海鮮招工測試甲：整理貨架與盤點"
+   }
+  },
+  "calls_so_far": 1,
+  "raw_head": "{\"title\":{\"en\":\"Seafood Recruitment Test A: Shelf Organizing and Inventory Counting\",\"vn\":\"Bài kiểm tra tuyển dụng hải sản A: Sắp xếp kệ hàng và kiểm kê\"}}"
+ },
+ "two_fields": {
+  "statuses": {
+   "title": {
+    "en": "failed",
+    "vn": "failed",
+    "hk": "ready"
+   },
+   "description": {
+    "en": "failed",
+    "vn": "failed",
+    "hk": "ready"
+   }
+  },
+  "errors": {
+   "title": {
+    "en": "LENGTH_RATIO",
+    "vn": "LENGTH_RATIO"
+   },
+   "description": {
+    "en": "LENGTH_RATIO",
+    "vn": "LENGTH_RATIO"
+   }
+  },
+  "texts": {
+   "title": {
+    "hk": "海鮮招工測試甲：整理貨架與盤點"
+   },
+   "description": {
+    "hk": "負責每日盤點與貨架整理，包午餐"
+   }
+  },
+  "calls_so_far": 2,
+  "raw_head": "{\"title\":{\"en\":\"Seafood Recruitment Test A: Shelf Organizing and Inventory Count\",\"vn\":\"Bài kiểm tra tuyển dụng hải sản A: Sắp xếp kệ hàng và kiểm kê\"},\"description\":{\"en\":\"Responsible for daily inventory counting and shelf organizing; lunch provided\",\"vn\":\"Chịu trách nhiệm kiểm kê và sắp xếp kệ hàng hằng ngày, bao ăn trưa\"}}"
+ },
+ "checks": {
+  "single_title_en_ok": true,
+  "single_title_vn_has_diacritics": false,
+  "two_title_en_ok": true,
+  "two_title_vn_has_diacritics": false,
+  "two_valid_en_subset": {
+   "title": "LENGTH_RATIO",
+   "description": "LENGTH_RATIO"
+  },
+  "two_valid_vn_subset": {
+   "title": "LENGTH_RATIO",
+   "description": "LENGTH_RATIO"
+  }
+ }
+}
