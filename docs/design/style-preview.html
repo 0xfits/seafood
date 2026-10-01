@@ -934,3 +934,49 @@ body.view-mobile .frame.pc{display:none}
 </script>
 </body>
 </html>
+
+<!-- ============================================================================
+     [BTN-SRC-REF] 变体 A″（日档）/ A′（夜档）· 按钮参考值 · 追加区块（仅追加）
+     ─ 追加式扩展：本区块位于文件末尾，上方既有 1–936 行未改动任何字节
+     ─ 单号：Unit JING-BTN-SRC（Jing · 真源/规范）｜追加日期：2026-10-01（CST）
+     ─ 来源：用户提供的参考截图（本机路径：NOT_MEASURED，核查记录见 docs/audit/p6-btn-src-and-prov.md §2）
+     ─ 采样方法：PIL 像素取样（非目测）
+     ─ 标注：【实测】= 参考图取样实测值；【推断】= 参考图未展示、经 Kevin 确认的补足
+     ─ 引用形式：PROV[key] = { d:[行号, '本区块某行原文片段'], n:[...] }（见 frontend/src/test/unit/theme-tokens.test.js:68-94）
+     ============================================================================ -->
+<section id="btn-ref-a-src" data-ref="variant-A-flat" data-src="user-screenshot" data-src-path="NOT_MEASURED" data-sampling="PIL" data-sampled-at="2026-10-01" style="box-sizing:border-box;max-width:100%;margin:0;padding:14px 16px 18px;font:12px/1.7 -apple-system,'PingFang SC','Microsoft YaHei',sans-serif;color:#202020;background:#FFFFFF;border-top:2px solid #202020">
+  <h3 style="margin:0 0 8px;font-size:14px">变体 A″ / A′ · 按钮参考值（追加区块 · 仅追加，不改既有区块与色值）</h3>
+  <p style="margin:0 0 4px">来源：用户提供的参考截图（本机路径 <code>NOT_MEASURED</code>）｜采样方法：<b>PIL 像素取样（非目测）</b>｜日期：<b>2026-10-01</b>（CST）｜单号：Unit JING-BTN-SRC</p>
+  <p style="margin:0 0 4px">口径：<b>【实测】</b>= 参考图取样实测值；<b>【推断】</b>= 参考图未展示、为可辨性补足并已经 Kevin 确认。本区块唯一推断项 = <b>日档主按钮 1px 深描边</b>（参考图无描边，为在黄色页底上可辨而加）。</p>
+  <p style="margin:0 0 10px">两档均扁平、无阴影；圆角 = 高×0.17、水平内边距 ≈ 高×0.45（两档同值 ⇒ 属几何，应进 STRUCT，见 docs/audit/p6-btn-src-and-prov.md §1.9）。</p>
+  <style>
+/* [BTN-SRC-REF] 日档 A″ 主按钮：黄底 + 深字 + 1px 深描边  【填充/文字 = 实测；1px 深描边 = 推断（Kevin 已确认）】 */
+.btn-ref-a-primary{background:#FFE60F;color:#202020;border:1px solid #202020;border-radius:6px;padding:0 15px}
+/* [BTN-SRC-REF] 日档 A″ 次按钮：白底 + 1px 浅灰描边 + 深字  【实测】 */
+.btn-ref-a-secondary{background:#FFFFFF;color:#202020;border:1px solid #E0E0E0;border-radius:6px;padding:0 15px}
+/* [BTN-SRC-REF] 夜档 A′ 主按钮：黄底 + 深字、无描边  【实测】 */
+.btn-ref-a-night-primary{background:#FFE60F;color:#202020;border:0;border-radius:6px;padding:0 15px}
+/* [BTN-SRC-REF] 夜档 A′ 次按钮：深底 + 浅描边  【色取实测 4 色；夜档形态参考图未展示 = 应用推断，Kevin 已确认】 */
+.btn-ref-a-night-secondary{background:#202020;color:#FFFFFF;border:1px solid #E0E0E0;border-radius:6px;padding:0 15px}
+/* [BTN-SRC-REF] 形状比例（圆角比 0.17 = 实测 16px ÷ 高 96px；水平内边距比 0.45 = 实测）；两档同值、无阴影 */
+.btn-ref-ratio{--btn-ref-radius-ratio:0.17;--btn-ref-padx-ratio:0.45;box-shadow:none}
+/* [BTN-SRC-REF] 参考图页面底色：白  【实测】 */
+.btn-ref-page{background:#FFFFFF;color:#202020}
+  </style>
+  <table style="border-collapse:collapse;width:100%;max-width:100%;font:12px/1.7 -apple-system,'PingFang SC',sans-serif">
+    <thead>
+      <tr><th style="text-align:left;border-bottom:1px solid #E0E0E0;padding:4px 6px">项</th><th style="text-align:left;border-bottom:1px solid #E0E0E0;padding:4px 6px">值</th><th style="text-align:left;border-bottom:1px solid #E0E0E0;padding:4px 6px">口径</th><th style="text-align:left;border-bottom:1px solid #E0E0E0;padding:4px 6px">备注</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="padding:4px 6px">主按钮填充</td><td style="padding:4px 6px"><code>#FFE60F</code></td><td style="padding:4px 6px">【实测】</td><td style="padding:4px 6px">日档 A″ / 夜档 A′ 同值</td></tr>
+      <tr><td style="padding:4px 6px">主按钮文字</td><td style="padding:4px 6px"><code>#202020</code></td><td style="padding:4px 6px">【实测】</td><td style="padding:4px 6px">日档 A″ / 夜档 A′ 同值</td></tr>
+      <tr><td style="padding:4px 6px">次按钮填充</td><td style="padding:4px 6px"><code>#FFFFFF</code></td><td style="padding:4px 6px">【实测】</td><td style="padding:4px 6px">日档 A″</td></tr>
+      <tr><td style="padding:4px 6px">次按钮描边色</td><td style="padding:4px 6px"><code>#E0E0E0</code></td><td style="padding:4px 6px">【实测】</td><td style="padding:4px 6px">日档 A″，宽度 1px = 结构常量</td></tr>
+      <tr><td style="padding:4px 6px">参考图页面底色</td><td style="padding:4px 6px"><code>#FFFFFF</code></td><td style="padding:4px 6px">【实测】</td><td style="padding:4px 6px">取样底噪基准</td></tr>
+      <tr><td style="padding:4px 6px">圆角比</td><td style="padding:4px 6px"><code>0.17</code></td><td style="padding:4px 6px">【实测】</td><td style="padding:4px 6px">16px ÷ 高 96px；落地换算成 px（高 34 ⇒ 6px）</td></tr>
+      <tr><td style="padding:4px 6px">水平内边距比</td><td style="padding:4px 6px"><code>0.45</code></td><td style="padding:4px 6px">【实测】</td><td style="padding:4px 6px">落地换算成 px（高 34 ⇒ 15px）</td></tr>
+      <tr><td style="padding:4px 6px">日档主按钮 1px 深描边</td><td style="padding:4px 6px"><code>1px solid #202020</code></td><td style="padding:4px 6px">【推断】</td><td style="padding:4px 6px">参考图无描边；为在黄色页底上可辨而加，Kevin 已确认</td></tr>
+    </tbody>
+  </table>
+  <p style="margin:8px 0 0;font-size:11px;line-height:1.6">比例换算（h×0.17 / h×0.45，四舍五入到整像素）：高 34px ⇒ 圆角 6px · 内边距 15px；高 40px ⇒ 7px · 18px；高 51px ⇒ 9px · 23px；高 96px（参考图档）⇒ 16px · 43px。</p>
+</section>
