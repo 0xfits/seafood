@@ -1,0 +1,68 @@
+{
+ "listing_zh": {
+  "cjkLeaf": [
+   "🐴 Seafood 海鲜市场｜加密人自己的「闲鱼」",
+   "// 简单的字体加载监测与回退逻辑：若在限定时间内未检测到 LXGW WenKai 可用，则注入 jsDelivr 的 WebFont 样式\n      // 说明：\n      // 1) 使用 Font Loading API 的 document.fonts.check 检测字体是否可用；\n      // 2) 若不可用，则追加一个 link 指向 jsDelivr 的 WebFont CSS 包；\n      // 3) 该包会声明 @font-face 并提供多种格式，提升加载成功率。\n      (function(){\n        function ensureLXGW(){\n          var isSupported = false;\n          try {\n            // 检测字体是否可用（若系统或 GoogleFonts 已加载，会返回 true）\n            isSupported = document.fonts && document.fonts.check && document.fonts.check('16px \"LXGW WenKai\"');\n          } catch(e) {\n            isSupported = false;\n          }\n\n          if (!isSupported) {\n            // 注入 jsDelivr 的 WebFont 样式（npm 包方式），作为回退\n            var fallback = document.createElement('link');\n            fallback.rel = 'stylesheet';\n            fallback.href = 'https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@latest/style.css';\n            document.head.appendChild(fallback);\n          }\n        }\n\n        function ensureSmiley(){\n          var ok = false;\n          try {\n            ok = document.fonts && document.fonts.check && document.fonts.check('16px \"Smiley Sans\"');\n          } catch(e) {\n            ok = false;\n          }\n          if (!ok) {\n            var link = document.createElement('link');\n            link.rel = 'stylesheet';\n            link.href = 'https://cdn.jsdelivr.net/npm/font-smiley-sans@1.0.0/style.min.css';\n            document.head.appendChild(link);\n          }\n        }\n\n        // 等待一段时间让 Google Fonts 先尝试加载，再进行检测\n        window.addEventListener('load', function(){\n          setTimeout(function(){ ensureLXGW(); ensureSmiley(); }, 1800);\n        });\n      })();",
+   "// 如果CDN加载失败，使用备选方案，并且为CSS引入追加时间戳以避免缓存\n      window.addEventListener('DOMContentLoaded', function() {\n        // 为 Font Awesome 样式追加时间戳参数，避免缓存\n        try {\n          var linkEl = document.getElementById('fa-css');\n          if (linkEl && linkEl.href) {\n            var url = new URL(linkEl.href);\n            url.searchParams.set('ts', Date.now().toString());\n            linkEl.href = url.toString();\n          }\n        } catch (e) {\n          console.warn('追加时间戳到字体样式失败：', e);\n        }\n\n        if (typeof window.FontAwesome === 'undefined') {\n          console.warn('Font Awesome CDN加载失败，尝试使用本地版本');\n          // TODO: 可添加本地回退方案，例如 /public/font-awesome.min.css\n        }\n      });",
+   "读面 = GET /api/prize/all（已注册；读侧已换源 listing 表：bID=listing_id、name=title、points=price）。",
+   "海鲜礼盒TR1C测试：虾蟹双拼-tr1c01015515",
+   "海鲜礼盒TR1C测试：虾蟹双拼-tr1c01015554",
+   "海鲜礼盒TR1C测试：虾蟹双拼-tr1c01015659",
+   "读面 = GET /api/prize-item（listing_order，买家轴，status=paid）。",
+   "退款发起人仅卖方（非卖方 403）；按卖家列订单的读口未注册 ⇒ 请手填订单号。",
+   "退款只退钱、不回滚 listing.stock。",
+   "© 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。",
+   "本网站支持简体中文、英文、粤语和越南语。",
+   "联系我们：contact@jinli.club"
+  ],
+  "dates": [],
+  "apiLeak": [
+   "GET /api/prize/all（已注册；读侧已换源",
+   "GET /api/prize-item（listing_order"
+  ]
+ },
+ "listing_en": {
+  "cjkLeaf": [
+   "// 简单的字体加载监测与回退逻辑：若在限定时间内未检测到 LXGW WenKai 可用，则注入 jsDelivr 的 WebFont 样式\n      // 说明：\n      // 1) 使用 Font Loading API 的 document.fonts.check 检测字体是否可用；\n      // 2) 若不可用，则追加一个 link 指向 jsDelivr 的 WebFont CSS 包；\n      // 3) 该包会声明 @font-face 并提供多种格式，提升加载成功率。\n      (function(){\n        function ensureLXGW(){\n          var isSupported = false;\n          try {\n            // 检测字体是否可用（若系统或 GoogleFonts 已加载，会返回 true）\n            isSupported = document.fonts && document.fonts.check && document.fonts.check('16px \"LXGW WenKai\"');\n          } catch(e) {\n            isSupported = false;\n          }\n\n          if (!isSupported) {\n            // 注入 jsDelivr 的 WebFont 样式（npm 包方式），作为回退\n            var fallback = document.createElement('link');\n            fallback.rel = 'stylesheet';\n            fallback.href = 'https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@latest/style.css';\n            document.head.appendChild(fallback);\n          }\n        }\n\n        function ensureSmiley(){\n          var ok = false;\n          try {\n            ok = document.fonts && document.fonts.check && document.fonts.check('16px \"Smiley Sans\"');\n          } catch(e) {\n            ok = false;\n          }\n          if (!ok) {\n            var link = document.createElement('link');\n            link.rel = 'stylesheet';\n            link.href = 'https://cdn.jsdelivr.net/npm/font-smiley-sans@1.0.0/style.min.css';\n            document.head.appendChild(link);\n          }\n        }\n\n        // 等待一段时间让 Google Fonts 先尝试加载，再进行检测\n        window.addEventListener('load', function(){\n          setTimeout(function(){ ensureLXGW(); ensureSmiley(); }, 1800);\n        });\n      })();",
+   "// 如果CDN加载失败，使用备选方案，并且为CSS引入追加时间戳以避免缓存\n      window.addEventListener('DOMContentLoaded', function() {\n        // 为 Font Awesome 样式追加时间戳参数，避免缓存\n        try {\n          var linkEl = document.getElementById('fa-css');\n          if (linkEl && linkEl.href) {\n            var url = new URL(linkEl.href);\n            url.searchParams.set('ts', Date.now().toString());\n            linkEl.href = url.toString();\n          }\n        } catch (e) {\n          console.warn('追加时间戳到字体样式失败：', e);\n        }\n\n        if (typeof window.FontAwesome === 'undefined') {\n          console.warn('Font Awesome CDN加载失败，尝试使用本地版本');\n          // TODO: 可添加本地回退方案，例如 /public/font-awesome.min.css\n        }\n      });"
+  ],
+  "dates": [],
+  "apiLeak": [
+   "GET /api/prize/all",
+   "GET /api/prize-item"
+  ]
+ },
+ "listing_vn": {
+  "cjkLeaf": [
+   "// 简单的字体加载监测与回退逻辑：若在限定时间内未检测到 LXGW WenKai 可用，则注入 jsDelivr 的 WebFont 样式\n      // 说明：\n      // 1) 使用 Font Loading API 的 document.fonts.check 检测字体是否可用；\n      // 2) 若不可用，则追加一个 link 指向 jsDelivr 的 WebFont CSS 包；\n      // 3) 该包会声明 @font-face 并提供多种格式，提升加载成功率。\n      (function(){\n        function ensureLXGW(){\n          var isSupported = false;\n          try {\n            // 检测字体是否可用（若系统或 GoogleFonts 已加载，会返回 true）\n            isSupported = document.fonts && document.fonts.check && document.fonts.check('16px \"LXGW WenKai\"');\n          } catch(e) {\n            isSupported = false;\n          }\n\n          if (!isSupported) {\n            // 注入 jsDelivr 的 WebFont 样式（npm 包方式），作为回退\n            var fallback = document.createElement('link');\n            fallback.rel = 'stylesheet';\n            fallback.href = 'https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@latest/style.css';\n            document.head.appendChild(fallback);\n          }\n        }\n\n        function ensureSmiley(){\n          var ok = false;\n          try {\n            ok = document.fonts && document.fonts.check && document.fonts.check('16px \"Smiley Sans\"');\n          } catch(e) {\n            ok = false;\n          }\n          if (!ok) {\n            var link = document.createElement('link');\n            link.rel = 'stylesheet';\n            link.href = 'https://cdn.jsdelivr.net/npm/font-smiley-sans@1.0.0/style.min.css';\n            document.head.appendChild(link);\n          }\n        }\n\n        // 等待一段时间让 Google Fonts 先尝试加载，再进行检测\n        window.addEventListener('load', function(){\n          setTimeout(function(){ ensureLXGW(); ensureSmiley(); }, 1800);\n        });\n      })();",
+   "// 如果CDN加载失败，使用备选方案，并且为CSS引入追加时间戳以避免缓存\n      window.addEventListener('DOMContentLoaded', function() {\n        // 为 Font Awesome 样式追加时间戳参数，避免缓存\n        try {\n          var linkEl = document.getElementById('fa-css');\n          if (linkEl && linkEl.href) {\n            var url = new URL(linkEl.href);\n            url.searchParams.set('ts', Date.now().toString());\n            linkEl.href = url.toString();\n          }\n        } catch (e) {\n          console.warn('追加时间戳到字体样式失败：', e);\n        }\n\n        if (typeof window.FontAwesome === 'undefined') {\n          console.warn('Font Awesome CDN加载失败，尝试使用本地版本');\n          // TODO: 可添加本地回退方案，例如 /public/font-awesome.min.css\n        }\n      });"
+  ],
+  "dates": [],
+  "apiLeak": [
+   "GET /api/prize/all",
+   "GET /api/prize-item"
+  ]
+ },
+ "listing_hk": {
+  "cjkLeaf": [
+   "🐴 Seafood 海鮮市場｜幣圈人的跳蚤市場",
+   "// 简单的字体加载监测与回退逻辑：若在限定时间内未检测到 LXGW WenKai 可用，则注入 jsDelivr 的 WebFont 样式\n      // 说明：\n      // 1) 使用 Font Loading API 的 document.fonts.check 检测字体是否可用；\n      // 2) 若不可用，则追加一个 link 指向 jsDelivr 的 WebFont CSS 包；\n      // 3) 该包会声明 @font-face 并提供多种格式，提升加载成功率。\n      (function(){\n        function ensureLXGW(){\n          var isSupported = false;\n          try {\n            // 检测字体是否可用（若系统或 GoogleFonts 已加载，会返回 true）\n            isSupported = document.fonts && document.fonts.check && document.fonts.check('16px \"LXGW WenKai\"');\n          } catch(e) {\n            isSupported = false;\n          }\n\n          if (!isSupported) {\n            // 注入 jsDelivr 的 WebFont 样式（npm 包方式），作为回退\n            var fallback = document.createElement('link');\n            fallback.rel = 'stylesheet';\n            fallback.href = 'https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@latest/style.css';\n            document.head.appendChild(fallback);\n          }\n        }\n\n        function ensureSmiley(){\n          var ok = false;\n          try {\n            ok = document.fonts && document.fonts.check && document.fonts.check('16px \"Smiley Sans\"');\n          } catch(e) {\n            ok = false;\n          }\n          if (!ok) {\n            var link = document.createElement('link');\n            link.rel = 'stylesheet';\n            link.href = 'https://cdn.jsdelivr.net/npm/font-smiley-sans@1.0.0/style.min.css';\n            document.head.appendChild(link);\n          }\n        }\n\n        // 等待一段时间让 Google Fonts 先尝试加载，再进行检测\n        window.addEventListener('load', function(){\n          setTimeout(function(){ ensureLXGW(); ensureSmiley(); }, 1800);\n        });\n      })();",
+   "// 如果CDN加载失败，使用备选方案，并且为CSS引入追加时间戳以避免缓存\n      window.addEventListener('DOMContentLoaded', function() {\n        // 为 Font Awesome 样式追加时间戳参数，避免缓存\n        try {\n          var linkEl = document.getElementById('fa-css');\n          if (linkEl && linkEl.href) {\n            var url = new URL(linkEl.href);\n            url.searchParams.set('ts', Date.now().toString());\n            linkEl.href = url.toString();\n          }\n        } catch (e) {\n          console.warn('追加时间戳到字体样式失败：', e);\n        }\n\n        if (typeof window.FontAwesome === 'undefined') {\n          console.warn('Font Awesome CDN加载失败，尝试使用本地版本');\n          // TODO: 可添加本地回退方案，例如 /public/font-awesome.min.css\n        }\n      });",
+   "讀面 = GET /api/prize/all（已註冊；讀側已換源 listing 表：bID=listing_id、name=title、points=price）。",
+   "海鮮禮盒TR1C測試：蝦蟹雙拼-tr1c01015515",
+   "海鮮禮盒TR1C測試：蝦蟹雙拼-tr1c01015554",
+   "海鮮禮盒TR1C測試：蝦蟹雙拼-tr1c01015659",
+   "讀面 = GET /api/prize-item（listing_order，買家軸，status=paid）。",
+   "退款發起人僅賣方（非賣方 403）；按賣方列訂單的讀口未註冊 ⇒ 請手填訂單號。",
+   "退款只退錢、不回滾 listing.stock。",
+   "© 2024-2026 Abbey Quant & Jinli Club. 保留所有權利。",
+   "本網站支持簡體中文、英文、粵語和越南語。",
+   "聯繫我們：contact@jinli.club"
+  ],
+  "dates": [],
+  "apiLeak": [
+   "GET /api/prize/all（已註冊；讀側已換源",
+   "GET /api/prize-item（listing_order"
+  ]
+ }
+}
