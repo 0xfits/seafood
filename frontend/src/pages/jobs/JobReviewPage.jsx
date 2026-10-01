@@ -1,7 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
+import { getLanguageFromUrl } from '../../utils'
+import { contentStatus, pickLocalized } from '../../i18n-content'
+import TranslatingBadge from '../../components/i18n/TranslatingBadge'
 import { fetchPendingVerification, reviewSubmission } from './job-api'
 import { fetchAdminAccess, hasAdminPermission } from '../../admin-utils'
 import './jobs.css'
@@ -16,7 +19,10 @@ import './jobs.css'
 //   · 队列项的 `jID` = `application_id`、`tID` = `job_id`（§4.4-16 路由入口语义）
 const JobReviewPage = () => {
   const { t } = useTranslation()
+  const location = useLocation()
   const { isAuthenticated, user } = useAuth()
+  // TR-2：当前语言（`utils.SUPPORTED_LANGS` 同一白名单）
+  const lang = getLanguageFromUrl(location.pathname)
   const [items, setItems] = useState([])
   const [state, setState] = useState({ phase: 'loading', message: '' })
   const [action, setAction] = useState({ phase: 'idle', message: '', id: null })
@@ -118,10 +124,16 @@ const JobReviewPage = () => {
           {items.map((item) => {
             const key = String(item.tID ?? '')
             const busy = action.phase === 'loading' && action.id === key
+            // TR-2：`info_input` = **申请者提交的交付物文本**（用户录入内容）⇒ 取当前语言；空串/缺字段 ⇒ 回落原文
+            const infoInput = pickLocalized(item, 'info_input', lang) || '—'
             return (
               <div className="sf-jobs-item" key={`${key}-${item.jID}`} data-sf-m="jobs-queue-item">
                 <h2 className="sf-jobs-item-title">{t('jobs.itemTitle', { job: key, app: item.jID })}</h2>
-                <p className="sf-jobs-meta">{item.info_input || '—'}</p>
+                <p className="sf-jobs-meta">
+                  {infoInput}
+                  {/* 「翻译中」小标（ready/缺省 ⇒ null） */}
+                  <TranslatingBadge status={contentStatus(item)} />
+                </p>
                 <div className="sf-jobs-row">
                   <button className="sf-btn sf-jobs-btn" type="button" data-sf-m="jobs-approve" disabled={busy} onClick={() => decide(item, true)}>
                     {t('jobs.approve')}

@@ -187,4 +187,7 @@
     "flow": "Sao kê",
     "flowEmpty": "Endpoint sao kê sổ cái chưa đăng ký nên chưa hiển thị (đã ghi nhận)."
   }
+  ,"i18n": {
+    "translating": "Đang dịch"
+  }
 }

@@ -297,6 +297,8 @@ export interface BrandRecord {
   description_en: string;
   description_hk: string;
   description_vn: string;
+  /** P6-TR-1b 读侧翻译覆盖度：所有可译字段 × en/vn/hk 全 ready ⇒ 'ready'；一个都没有 ⇒ 'pending'；否则 'partial'。 */
+  i18n_status: I18nStatus;
 }
 
 export type PrizeRecord = BrandRecord;
@@ -332,6 +334,8 @@ export interface TaskRecord {
   note_en: string;
   note_hk: string;
   note_vn: string;
+  /** P6-TR-1b 读侧翻译覆盖度（同 BrandRecord.i18n_status）。 */
+  i18n_status: I18nStatus;
 }
 
 export interface TaskProgressRecord {
@@ -482,6 +486,7 @@ const normalizeBrand = (
     current_shard_supply?: number;
     free_shards_distributed?: number;
   },
+  i18nIndex?: I18nIndex | null,
 ): BrandRecord => {
   const imageUrl = toStringValue(getValue(row, 'image_url', 'url_image'));
   const timeStart = toTimestamp(getValue(row, 'time_start'));
@@ -523,7 +528,7 @@ const normalizeBrand = (
     Math.min(freeShardQuota - freeShardsDistributed, remainingMarketShards),
     0,
   );
-  return {
+  const record: Record<string, unknown> = {
     // P4-B1-c: listing 读侧回退键（旧列名在前 ⇒ 旧行为不变；listing 列名在后）：
     // bID←listing_id、name←title、points←price。symbol/image_url/时间窗等 listing 无对应列 ⇒ 沿用空态默认（不编值）。
     bID: toNumberValue(getValue(row, 'bID', 'listing_id')),
@@ -563,13 +568,10 @@ const normalizeBrand = (
     stores_count: availableQuantity,
     claims_count: issuedQuantity,
     activated_count: redeemedQuantity,
-    name_en: toStringValue(getValue(row, 'name_en')),
-    name_hk: toStringValue(getValue(row, 'name_hk')),
-    name_vn: toStringValue(getValue(row, 'name_vn')),
-    description_en: toStringValue(getValue(row, 'description_en')),
-    description_hk: toStringValue(getValue(row, 'description_hk')),
-    description_vn: toStringValue(getValue(row, 'description_vn')),
   };
+  // P6-TR-1b：`name_*`/`description_*` 由 applyI18n 生成（有 ready 译文用译文，否则回落源文；含 i18n_status）
+  applyI18n('listing', String(record.bID), record, i18nIndex);
+  return record as unknown as BrandRecord;
 };
 
 const normalizePrizeItem = (row: RawRow): PrizeItemRecord => ({
@@ -581,10 +583,10 @@ const normalizePrizeItem = (row: RawRow): PrizeItemRecord => ({
   time_actived: toTimestamp(getValue(row, 'time_actived')),
 });
 
-const normalizeTask = (row: RawRow, participantsCount = 0): TaskRecord => {
+const normalizeTask = (row: RawRow, participantsCount = 0, i18nIndex?: I18nIndex | null): TaskRecord => {
   const linkA = toStringValue(getValue(row, 'linkA', 'link0'));
   const isOpenValue = getValue(row, 'is_open');
-  return {
+  const record: Record<string, unknown> = {
     // P4-B1-b: task→job 读侧换表 —— 旧列名在前、新列名在后（旧行为不变；job 无对应列走既有空态默认）
     tID: toNumberValue(getValue(row, 'tID', 'job_id')),
     title: toStringValue(getValue(row, 'title')),
@@ -601,13 +603,10 @@ const normalizeTask = (row: RawRow, participantsCount = 0): TaskRecord => {
     time_updated: toTimestamp(getValue(row, 'time_updated', 'updated_at')),
     is_open: isOpenValue === undefined ? true : toBooleanValue(isOpenValue),
     participants_count: participantsCount,
-    title_en: toStringValue(getValue(row, 'title_en')),
-    title_hk: toStringValue(getValue(row, 'title_hk')),
-    title_vn: toStringValue(getValue(row, 'title_vn')),
-    note_en: toStringValue(getValue(row, 'note_en')),
-    note_hk: toStringValue(getValue(row, 'note_hk')),
-    note_vn: toStringValue(getValue(row, 'note_vn')),
   };
+  // P6-TR-1b：`title_*`/`note_*` 由 applyI18n 生成（有 ready 译文用译文，否则回落源文；含 i18n_status）
+  applyI18n('job', String(record.tID), record, i18nIndex);
+  return record as unknown as TaskRecord;
 };
 
 const normalizeTaskProgress = (row: RawRow): TaskProgressRecord => ({
@@ -729,6 +728,99 @@ const normalizeShardTransfer = (
   time_created: toTimestamp(getValue(row, 'time_created')),
   brand_symbol: brand?.symbol || toStringValue(getValue(row, 'brand_symbol', 'symbol')),
 });
+
+// ======================================================= P6-TR-1b 读侧译文合并 ====
+/**
+ * 读侧回落（跨片交接面，逐字实现）：
+ *   · `*_<lang>`（en/hk/vn）**恒有值** —— 有 status='ready' 译文用译文，否则**回落源文（中文）**，永不空串
+ *     （除非原文本身为空）；
+ *   · `i18n_status`：'ready' = 该对象**所有可译字段** × en/vn/hk 全部有 ready 译文；'pending' = 一个都没有；
+ *     否则 'partial'；字段缺省 ⇒ 前端不显示小标（本文件的 job/listing 记录**恒带**此键）；
+ *   · 语言后缀仅 en/hk/vn；zh 是源语言，**永不入表**。
+ * 读失败 / 读不到 ⇒ 全部回落源文（**绝不**让内容面 500）。
+ */
+type I18nStatus = 'ready' | 'partial' | 'pending';
+type I18nIndex = Map<string, Map<string, string>>;
+
+/** 可译字段规格：`out` = API 键前缀，`src` = content_translation.field 候选（兼容字段命名两口径）。 */
+const I18N_SPECS: Record<string, ReadonlyArray<{ out: string; src: readonly string[] }>> = {
+  // job：API `title` ← field 'title'；API `note` ← field 'note' | 'description'（源列名 description）
+  job: [
+    { out: 'title', src: ['title'] },
+    { out: 'note', src: ['note', 'description'] },
+  ],
+  // listing：API `name` ← field 'name' | 'title'（源列名 title）；API `description` ← field 'description'
+  listing: [
+    { out: 'name', src: ['name', 'title'] },
+    { out: 'description', src: ['description'] },
+  ],
+};
+const I18N_LANGS = ['en', 'hk', 'vn'] as const;
+
+/** 就地合并译文（写 `*_<lang>` + `i18n_status`）；index 缺省 ⇒ 全部回落源文、status='pending'。 */
+const applyI18n = (
+  entityType: string,
+  entityId: string,
+  record: Record<string, unknown>,
+  index?: I18nIndex | null,
+): void => {
+  const specs = I18N_SPECS[entityType];
+  if (!specs) return;
+  const got = entityId ? index?.get(entityId) : undefined;
+  let total = 0;
+  let ready = 0;
+  for (const spec of specs) {
+    const source = typeof record[spec.out] === 'string' ? record[spec.out] as string : '';
+    for (const lang of I18N_LANGS) {
+      total += 1;
+      let text = '';
+      if (got) {
+        for (const field of spec.src) {
+          const candidate = got.get(`${field}\u0000${lang}`);
+          if (typeof candidate === 'string' && candidate) { text = candidate; break; }
+        }
+      }
+      if (text) ready += 1;
+      record[`${spec.out}_${lang}`] = text || source; // 恒有值：取不到 ⇒ 回落源文
+    }
+  }
+  const status: I18nStatus = total === 0 || ready === 0
+    ? 'pending'
+    : (ready === total ? 'ready' : 'partial');
+  record.i18n_status = status;
+};
+
+/** 批量读 `status='ready'` 译文，建 `entity_id → (field\0lang) → text` 索引（entity_type 白名单）。 */
+const loadI18nIndex = async (entityType: string, entityIds: string[]): Promise<I18nIndex> => {
+  const index: I18nIndex = new Map();
+  if (!I18N_SPECS[entityType]) return index;
+  const ids = Array.from(new Set(entityIds.filter((id) => id && id !== '0')));
+  if (!ids.length) return index;
+  try {
+    const sql = getSql();
+    const rows = extractRows(await sql`
+      SELECT entity_id, field, lang, text
+      FROM public.content_translation
+      WHERE entity_type = ${entityType}
+        AND entity_id = ANY(${ids}::text[])
+        AND status = 'ready'
+        AND text IS NOT NULL
+    `);
+    for (const row of rows) {
+      const id = String(row.entity_id ?? '');
+      const field = String(row.field ?? '');
+      const lang = String(row.lang ?? '');
+      const text = typeof row.text === 'string' ? row.text : '';
+      if (!id || !field || !lang || !text) continue;
+      let bucket = index.get(id);
+      if (!bucket) { bucket = new Map(); index.set(id, bucket); }
+      bucket.set(`${field}\u0000${lang}`, text);
+    }
+  } catch (error) {
+    console.warn('i18n merge skipped (content_translation read failed):', error);
+  }
+  return index;
+};
 
 export class DatabaseService {
   static async getNextUserId(): Promise<number> {
@@ -1024,6 +1116,7 @@ export class DatabaseService {
       LIMIT ${limit} OFFSET ${skip}
     `);
 
+    const index = await loadI18nIndex('listing', rows.map((row) => String(toNumberValue(getValue(row, 'bID', 'listing_id')))));
     return rows.map((row) => {
       return normalizeBrand(row, {
         stores_count: toNumberValue(getValue(row, 'stores_count')),
@@ -1031,7 +1124,7 @@ export class DatabaseService {
         activated_count: toNumberValue(getValue(row, 'activated_count')),
         current_shard_supply: toNumberValue(getValue(row, 'current_shard_supply')),
         free_shards_distributed: toNumberValue(getValue(row, 'free_shards_distributed')),
-      });
+      }, index);
     });
   }
 
@@ -1127,7 +1220,8 @@ export class DatabaseService {
       ORDER BY t.job_id
     `);
 
-    return rows.map((row) => normalizeTask(row, toNumberValue(getValue(row, 'participants_count'))));
+    const index = await loadI18nIndex('job', rows.map((row) => String(toNumberValue(getValue(row, 'tID', 'job_id')))));
+    return rows.map((row) => normalizeTask(row, toNumberValue(getValue(row, 'participants_count')), index));
   }
 
   static async getTask(tID: number): Promise<TaskRecord | null> {
@@ -1157,7 +1251,7 @@ export class DatabaseService {
     `);
 
     if (!row) return null;
-    return normalizeTask(row, toNumberValue(getValue(row, 'participants_count')));
+    return normalizeTask(row, toNumberValue(getValue(row, 'participants_count')), await loadI18nIndex('job', [String(tID)]));
   }
 
   // P4-B1-b: 空态任务（完整 TaskRecord 键集），GET miss 回退用（类比 B1-a emptyAsset）；纯内存、零写库
@@ -2366,7 +2460,7 @@ export class DatabaseService {
       activated_count: toNumberValue(getValue(row, 'activated_count')),
       current_shard_supply: toNumberValue(getValue(row, 'current_shard_supply')),
       free_shards_distributed: toNumberValue(getValue(row, 'free_shards_distributed')),
-    });
+    }, await loadI18nIndex('listing', [String(bID)]));
   }
 
   static async listPrizes(skip = 0, limit = 100): Promise<PrizeRecord[]> {

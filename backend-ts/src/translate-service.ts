@@ -171,9 +171,9 @@ export interface TranslateFieldsOptions {
 /** translateFields 的出参：译文 + 逐字段逐语言状态 + 引擎 + 日限额闸。 */
 export interface TranslateFieldsOutput {
   /** 仅含**校验通过**的译文（稀疏：failed/deferred 的键不出现）。 */
-  texts: Record<string, Partial<Record<TranslateLang, string>>>;
-  statuses: Record<string, Partial<Record<TranslateLang, TranslationStatus>>>;
-  errors: Record<string, Partial<Record<TranslateLang, string>>>;
+  texts: Record<string, Partial<Record<TargetLang, string>>>;
+  statuses: Record<string, Partial<Record<TargetLang, TranslationStatus>>>;
+  errors: Record<string, Partial<Record<TargetLang, string>>>;
   engine: TranslateEngine;
   /** 是否命中日限额（整批 deferred）。 */
   deferred: boolean;
@@ -190,6 +190,8 @@ export interface BackfillReport {
   ready: number;
   failed: number;
   skipped: number;
+  /** P6-TR-1b：被日限额/超长闸判 deferred 的行数（与 failed 分列，供 /api/translate/backfill 机读）。 */
+  deferred: number;
   engine: TranslateEngine;
   reason: string | null;
 }
@@ -207,6 +209,8 @@ export const MAX_ATTEMPTS = 5;
 export const REQUEST_TIMEOUT_MS = 15000;
 /** 走 LLM 的目标语言（hk 走 OpenCC，不在其中）。 */
 export const TRANSLATE_TARGETS: ReadonlyArray<TranslateLang> = ['en', 'vn'];
+/** P6-TR-1b：**全部**目标语言（含 hk = OpenCC 确定性简繁转换，不走 LLM/不付费）。 */
+export const TARGET_LANGS: ReadonlyArray<TargetLang> = ['en', 'vn', 'hk'];
 /** 默认模型（官方文档枚举；第三方站写的 deepseek-v4-flash 存疑 ⇒ 环境变量可覆盖）。 */
 export const DEFAULT_MODEL = 'deepseek-flash';
 export const DEFAULT_BASE_URL = 'https://api.deepseek.com';
@@ -558,7 +562,7 @@ export async function translateFields(
       out.texts[f] = {};
       out.statuses[f] = {};
       out.errors[f] = {};
-      for (const t of TRANSLATE_TARGETS) {
+      for (const t of TARGET_LANGS) {
         out.statuses[f][t] = status;
         out.errors[f][t] = reason;
         if (store) {
@@ -584,7 +588,7 @@ export async function translateFields(
   // ---- 闸 ②：日条数上限（派生自 content_translation 当日 updated_at 行数）
   if (store) {
     const used = await store.countToday().catch(() => 0);
-    const projected = fields.length * TRANSLATE_TARGETS.length;
+    const projected = fields.length * TARGET_LANGS.length;
     if (used + projected > cfg.daily_item_cap) {
       const reason = `${REASON.DAILY_CAP_REACHED}: used=${used} + projected=${projected} > cap=${cfg.daily_item_cap}`;
       await markAll('deferred', reason);
@@ -652,19 +656,37 @@ export async function translateFields(
     }
   }
 
-  // ---- 落库（每 (field, lang) 恰好一次 upsert）
+  // ---- hk：OpenCC 确定性简繁转换（**不走 LLM、不付费**；缓存按 engine='opencc' 记）
+  const hkTexts: Record<string, string> = {};
+  for (const f of fields) {
+    const srcHash = sha256Hex(payload[f]);
+    const cachedHk = store ? await store.getCache(srcHash, 'zh', 'hk').catch(() => null) : null;
+    if (typeof cachedHk === 'string' && cachedHk.trim()) {
+      hkTexts[f] = cachedHk;
+    } else {
+      const converted = toTraditional(payload[f]);
+      hkTexts[f] = converted;
+      if (store && converted) {
+        await store.putCache({
+          src_hash: srcHash, src_lang: 'zh', tgt_lang: 'hk', text_out: converted, engine: 'opencc',
+        });
+      }
+    }
+  }
+
+  // ---- 落库（每 (field, lang) 恰好一次 upsert；lang 含 hk）
   for (const f of fields) {
     out.texts[f] = {};
     out.statuses[f] = {};
     out.errors[f] = {};
     const srcHash = sha256Hex(payload[f]);
-    for (const t of TRANSLATE_TARGETS) {
-      const hit = cached[f][t];
+    for (const t of TARGET_LANGS) {
+      const hit = t === 'hk' ? hkTexts[f] : cached[f][t];
       if (typeof hit === 'string' && hit) {
         out.texts[f][t] = hit;
         out.statuses[f][t] = 'ready';
       } else {
-        const result = perTarget[t];
+        const result = t === 'en' || t === 'vn' ? perTarget[t] : undefined;
         const value = result ? result.values[f] : undefined;
         if (typeof value === 'string' && value) {
           out.texts[f][t] = value;
@@ -827,7 +849,7 @@ export async function backfillPending(
 
   const rows = await store.listPending(limit, MAX_ATTEMPTS);
   const report: BackfillReport = {
-    scanned: rows.length, retried: 0, ready: 0, failed: 0, skipped: 0,
+    scanned: rows.length, retried: 0, ready: 0, failed: 0, skipped: 0, deferred: 0,
     engine: cfg.engine, reason: null,
   };
 
@@ -870,7 +892,8 @@ export async function backfillPending(
     for (const r of kept) {
       const st = result.statuses[r.field] ? result.statuses[r.field][r.lang as TranslateLang] : undefined;
       if (st === 'ready') report.ready += 1;
-      else if (st === 'failed' || st === 'deferred') report.failed += 1;
+      else if (st === 'deferred') report.deferred += 1;
+      else if (st === 'failed') report.failed += 1;
       else report.skipped += 1;
     }
     if (result.deferred_reason) report.reason = result.deferred_reason;

@@ -187,4 +187,7 @@
     "flow": "Statement",
     "flowEmpty": "The ledger statement endpoint is not registered yet, so nothing is shown (logged)."
   }
+  ,"i18n": {
+    "translating": "Translating"
+  }
 }

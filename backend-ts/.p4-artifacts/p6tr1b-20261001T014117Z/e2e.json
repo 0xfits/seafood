@@ -1,0 +1,278 @@
+{
+  "run": "20261001T014117Z",
+  "engine": "stub",
+  "at": "2026-10-01T01:42:03.683Z",
+  "seed_texts": {
+    "jobTitle": "海鲜招工测试甲：整理货架与盘点",
+    "jobDesc": "负责每日盘点与货架整理，包午餐",
+    "listTitle": "海鲜礼盒测试丙：虾蟹双拼",
+    "listDesc": "顺丰包邮，含虾蟹各两斤，冷链发货"
+  },
+  "ids": {
+    "jobA": "24",
+    "listing_id": "19",
+    "jobB": "23",
+    "jobB_reused": true
+  },
+  "before": {
+    "ledger_entry": "267",
+    "ledger_tx": "ERR:relation \"public.ledger_tx\" does not exist",
+    "content_translation": "0",
+    "translation_cache": "0",
+    "sigma_cid1": "NOT_MEASURED:column \"total\" does not exist",
+    "at": "2026-10-01T01:41:19.647Z"
+  },
+  "after": {
+    "ledger_entry": "267",
+    "ledger_tx": "ERR:relation \"public.ledger_tx\" does not exist",
+    "content_translation": "12",
+    "translation_cache": "12",
+    "sigma_cid1": "NOT_MEASURED:column \"total\" does not exist",
+    "at": "2026-10-01T01:42:02.801Z"
+  },
+  "cleanup": {
+    "content_translation_deleted": 12,
+    "translation_cache_deleted": 12
+  },
+  "residual": {
+    "job_ids": [
+      "24"
+    ],
+    "listing_ids": [
+      "19"
+    ],
+    "jobB": "reused existing job_id=23",
+    "job_delete_blocked": true,
+    "listing_delete_blocked": true,
+    "note": "job/listing 测试行因迁移 0013/0015 DL79 触发器禁 DELETE 无法清除 ⇒ 标 residual；content_translation/translation_cache 已清"
+  },
+  "passed": 37,
+  "failed": 0,
+  "checks": [
+    {
+      "id": "seed.pending_rows",
+      "pass": true,
+      "expect": "12",
+      "actual": "12"
+    },
+    {
+      "id": "auth.no_cron_secret_503",
+      "pass": true,
+      "expect": "503",
+      "actual": "503",
+      "note": "未配 CRON_SECRET 必须拒绝，绝不默认放行"
+    },
+    {
+      "id": "auth.missing_header_401",
+      "pass": true,
+      "expect": "401",
+      "actual": "401"
+    },
+    {
+      "id": "auth.wrong_bearer_401",
+      "pass": true,
+      "expect": "401",
+      "actual": "401"
+    },
+    {
+      "id": "backfill.http_200",
+      "pass": true,
+      "expect": "200",
+      "actual": "200"
+    },
+    {
+      "id": "backfill.ok_true",
+      "pass": true,
+      "expect": "true",
+      "actual": "true"
+    },
+    {
+      "id": "backfill.ready_gt0",
+      "pass": true,
+      "expect": ">0",
+      "actual": "12"
+    },
+    {
+      "id": "backfill.engine_stub",
+      "pass": true,
+      "expect": "stub",
+      "actual": "stub"
+    },
+    {
+      "id": "backfill.machine_keys",
+      "pass": true,
+      "expect": "ok,processed,ready,failed,skipped,deferred,reason",
+      "actual": "ok,processed,ready,failed,skipped,deferred,reason,scanned,retried,engine"
+    },
+    {
+      "id": "ct.job_rows",
+      "pass": true,
+      "expect": "6",
+      "actual": "6"
+    },
+    {
+      "id": "ct.job_all_ready",
+      "pass": true,
+      "expect": "all ready",
+      "actual": "description:en=ready description:hk=ready description:vn=ready title:en=ready title:hk=ready title:vn=ready"
+    },
+    {
+      "id": "ct.hk_title_traditional",
+      "pass": true,
+      "expect": "海鮮招工測試甲：整理貨架與盤點",
+      "actual": "海鮮招工測試甲：整理貨架與盤點"
+    },
+    {
+      "id": "ct.hk_desc_traditional",
+      "pass": true,
+      "expect": "負責每日盤點與貨架整理，包午餐",
+      "actual": "負責每日盤點與貨架整理，包午餐"
+    },
+    {
+      "id": "ct.no_zh_rows",
+      "pass": true,
+      "expect": "0",
+      "actual": "0",
+      "note": "zh 是源语言，永不入表"
+    },
+    {
+      "id": "api.job.title_en_stub",
+      "pass": true,
+      "expect": "[en] 海鲜招工测试甲：整理货架与盘点",
+      "actual": "[en] 海鲜招工测试甲：整理货架与盘点"
+    },
+    {
+      "id": "api.job.title_vn_stub",
+      "pass": true,
+      "expect": "[vn] 海鲜招工测试甲：整理货架与盘点",
+      "actual": "[vn] 海鲜招工测试甲：整理货架与盘点"
+    },
+    {
+      "id": "api.job.title_hk_trad",
+      "pass": true,
+      "expect": "海鮮招工測試甲：整理貨架與盤點",
+      "actual": "海鮮招工測試甲：整理貨架與盤點"
+    },
+    {
+      "id": "api.job.note_en_stub",
+      "pass": true,
+      "expect": "[en] 负责每日盘点与货架整理，包午餐",
+      "actual": "[en] 负责每日盘点与货架整理，包午餐"
+    },
+    {
+      "id": "api.job.i18n_ready",
+      "pass": true,
+      "expect": "ready",
+      "actual": "ready"
+    },
+    {
+      "id": "api.listing.name_en_stub",
+      "pass": true,
+      "expect": "[en] 海鲜礼盒测试丙：虾蟹双拼",
+      "actual": "[en] 海鲜礼盒测试丙：虾蟹双拼"
+    },
+    {
+      "id": "api.listing.name_hk_trad",
+      "pass": true,
+      "expect": "海鮮禮盒測試丙：蝦蟹雙拼",
+      "actual": "海鮮禮盒測試丙：蝦蟹雙拼"
+    },
+    {
+      "id": "api.listing.desc_vn_stub",
+      "pass": true,
+      "expect": "[vn] 顺丰包邮，含虾蟹各两斤，冷链发货",
+      "actual": "[vn] 顺丰包邮，含虾蟹各两斤，冷链发货"
+    },
+    {
+      "id": "api.listing.i18n_ready",
+      "pass": true,
+      "expect": "ready",
+      "actual": "ready"
+    },
+    {
+      "id": "api.prize_list_has_i18n",
+      "pass": true,
+      "expect": "first prize carries i18n_status",
+      "actual": "pending"
+    },
+    {
+      "id": "api.untranslated.i18n_pending",
+      "pass": true,
+      "expect": "pending",
+      "actual": "pending"
+    },
+    {
+      "id": "api.untranslated.title_en_fallback_exact",
+      "pass": true,
+      "expect": "b4cii job b4cii30134304",
+      "actual": "b4cii job b4cii30134304"
+    },
+    {
+      "id": "api.untranslated.title_hk_fallback_exact",
+      "pass": true,
+      "expect": "b4cii job b4cii30134304",
+      "actual": "b4cii job b4cii30134304"
+    },
+    {
+      "id": "api.untranslated.note_en_fallback_exact",
+      "pass": true,
+      "expect": "note_en === note",
+      "actual": "b4cii probe job === b4cii probe job"
+    },
+    {
+      "id": "idem.http_200",
+      "pass": true,
+      "expect": "200",
+      "actual": "200"
+    },
+    {
+      "id": "idem.no_new_content_translation_rows",
+      "pass": true,
+      "expect": "12",
+      "actual": "12"
+    },
+    {
+      "id": "idem.no_new_cache_rows",
+      "pass": true,
+      "expect": "12",
+      "actual": "12"
+    },
+    {
+      "id": "idem.second_pass_scanned_0",
+      "pass": true,
+      "expect": "scanned=0（无待译行）",
+      "actual": "0"
+    },
+    {
+      "id": "idem.second_pass_failed_0",
+      "pass": true,
+      "expect": "failed=0",
+      "actual": "0"
+    },
+    {
+      "id": "idem.scoped_ready_rows_stable",
+      "pass": true,
+      "expect": "12",
+      "actual": "12"
+    },
+    {
+      "id": "ledger.delta_ledger_entry_0",
+      "pass": true,
+      "expect": "267",
+      "actual": "267"
+    },
+    {
+      "id": "ledger.delta_ledger_tx_0",
+      "pass": true,
+      "expect": "ERR:relation \"public.ledger_tx\" does not exist",
+      "actual": "ERR:relation \"public.ledger_tx\" does not exist"
+    },
+    {
+      "id": "ledger.sigma_cid1_unchanged",
+      "pass": true,
+      "expect": "NOT_MEASURED:column \"total\" does not exist",
+      "actual": "NOT_MEASURED:column \"total\" does not exist",
+      "note": "NOT_MEASURED"
+    }
+  ]
+}

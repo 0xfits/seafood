@@ -2,7 +2,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
-import { buildLangPath } from '../../utils'
+import { buildLangPath, getLanguageFromUrl } from '../../utils'
+import { contentStatus, localizeFields } from '../../i18n-content'
+import TranslatingBadge from '../../components/i18n/TranslatingBadge'
 import {
   QUOTE_CID,
   cancelAllOrders,
@@ -158,6 +160,13 @@ const MarketPage = () => {
 
   const entry = buildLangPath(location.pathname, undefined)
   const lastTrade = trades.rows[0] || null
+  // TR-2：当前语言（`utils.SUPPORTED_LANGS` 同一白名单）。
+  //   · 「我的挂单」行 = `market_order` 行（`/api/order`）⇒ 面板渲染的文本键只有 `side`/`status`（枚举文本）。
+  //     本页对这两个键（+ 预留 `name`/`title`）走**本地化读口**：载荷带 `*_<lang>` 即生效；
+  //     载荷没有该后缀列（现取：TR-1b 未合并）⇒ **零行为变化**；`zh` 档 ⇒ 行原样（`localizeFields` 直返）。
+  //   · 盘口（`listOrderBook`）/成交流水（`listTradesByBrand`）行**无用户录入文本**（逐键取证见报告 §3）。
+  const lang = getLanguageFromUrl(location.pathname)
+  const mineRows = mine.rows.map((row) => localizeFields(row, ['name', 'title', 'side', 'status'], lang))
 
   return (
     <div className="sf-layout" data-sf-m="mkt-layout">
@@ -301,9 +310,13 @@ const MarketPage = () => {
           </div>
           {mine.rows.length === 0
             ? <div className="sf-mkt-empty" data-sf-m="mkt-mine-empty">{mine.message || t('market.mineEmpty')}</div>
-            : mine.rows.map((row) => (
+            : mineRows.map((row) => (
               <div className="sf-mkt-item" key={String(row.order_id ?? row.oID)} data-sf-m="mkt-order">
-                <div className="sf-mkt-item-title">{`#${String(row.order_id ?? row.oID ?? '-')} · ${String(row.side ?? '')}`}</div>
+                <div className="sf-mkt-item-title">
+                  {`#${String(row.order_id ?? row.oID ?? '-')} · ${String(row.side ?? '')}`}
+                  {/* 「翻译中」小标（`i18n_status ∈ {pending, partial}`；ready/缺省 ⇒ null） */}
+                  <TranslatingBadge status={contentStatus(row)} />
+                </div>
                 <div className="sf-mkt-price">{String(row.price ?? '-')}</div>
                 <div className="sf-mkt-meta">{`${String(row.amount ?? '-')}/${String(row.amount_filled ?? '-')} · ${String(row.status ?? '')}`}</div>
                 <button

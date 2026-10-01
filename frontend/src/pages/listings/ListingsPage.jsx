@@ -2,7 +2,9 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
-import { buildLangPath } from '../../utils'
+import { buildLangPath, getLanguageFromUrl } from '../../utils'
+import { contentStatus, pickLocalized } from '../../i18n-content'
+import TranslatingBadge from '../../components/i18n/TranslatingBadge'
 import { fetchListingFeed, fetchMyListingOrders, refundListingOrder } from './listing-api'
 import './listings.css'
 
@@ -31,6 +33,9 @@ const ListingsPage = () => {
   const [orders, setOrders] = useState({ phase: 'idle', rows: [], message: '' })
   const [refund, setRefund] = useState({ phase: 'idle', message: '' })
   const [orderId, setOrderId] = useState('')
+
+  // TR-2：当前语言（与 i18n 初始化/路由同一白名单 `utils.SUPPORTED_LANGS`）
+  const lang = getLanguageFromUrl(location.pathname)
 
   const loadFeed = useCallback(async () => {
     setFeed({ phase: 'loading', rows: [], message: t('loading') })
@@ -102,10 +107,17 @@ const ListingsPage = () => {
             <div className="sf-listings-grid" data-sf-m="listing-grid">
               {feed.rows.map((row) => {
                 const listingId = row.bID ?? row.listing_id ?? row.id
+                // TR-2：商品标题 = 读侧 `name`（=listing.title）/`title`，取**当前语言**；
+                //   空串或缺字段 ⇒ 回落原文（`pickLocalized` 内 `||`，不用 `??`）
+                const title = pickLocalized(row, 'name', lang) || pickLocalized(row, 'title', lang) || t('noData')
                 return (
                   <Link className="sf-listings-card" key={String(listingId)} to={root(`/listing/${listingId}`)} data-sf-m="listing-card">
                     <div className="sf-listings-thumb" data-sf-m="listing-thumb" />
-                    <div className="sf-listings-card-title">{String(row.name ?? row.title ?? t('noData'))}</div>
+                    <div className="sf-listings-card-title">
+                      {String(title)}
+                      {/* 「翻译中」小标：`i18n_status ∈ {pending, partial}` 才渲染（ready/缺省 ⇒ null） */}
+                      <TranslatingBadge status={contentStatus(row)} />
+                    </div>
                     <div className="sf-listings-price">
                       <span className="sf-listings-price-cur">$</span>
                       <span className="sf-listings-price-num">{String(row.points ?? row.price ?? '-')}</span>

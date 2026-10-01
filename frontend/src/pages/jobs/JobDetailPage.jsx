@@ -2,6 +2,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
+import { getLanguageFromUrl } from '../../utils'
+import { contentStatus, pickLocalized } from '../../i18n-content'
+import TranslatingBadge from '../../components/i18n/TranslatingBadge'
 import { applyToJob, acceptApplication, fetchJobDetail, fetchMyApplications, submitDeliverable } from './job-api'
 import './jobs.css'
 
@@ -91,6 +94,11 @@ const JobDetailPage = () => {
 
   const pay = useMemo(() => (job?.points == null ? '—' : String(job.points)), [job])
 
+  // TR-2：招工帖的**用户录入内容**（`title`/`note`）取当前语言；空串/缺字段 ⇒ 回落原文。
+  const lang = getLanguageFromUrl(location.pathname)
+  const jobTitle = pickLocalized(job, 'title', lang) || (job ? `#${job.tID}` : '')
+  const jobNote = pickLocalized(job, 'note', lang) || '—'
+
   return (
     <div className="sf-layout" data-sf-m="jobs-layout">
       <div className="sf-layout-main">
@@ -111,13 +119,17 @@ const JobDetailPage = () => {
 
           {job && (
             <div className="sf-jobs-item" data-sf-m="jobs-item">
-              <h2 className="sf-jobs-item-title" data-sf-m="jobs-item-title">{job.title || `#${job.tID}`}</h2>
+              <h2 className="sf-jobs-item-title" data-sf-m="jobs-item-title">
+                {jobTitle}
+                {/* 「翻译中」小标（`i18n_status ∈ {pending, partial}`；ready/缺省 ⇒ null） */}
+                <TranslatingBadge status={contentStatus(job)} />
+              </h2>
               <div className="sf-jobs-row">
                 <span className="sf-jobs-pay" data-sf-m="jobs-pay">{pay}</span>
                 <span className="sf-jobs-pay-unit">$</span>
                 <span className="sf-jobs-tag">{t('jobs.reward')}</span>
               </div>
-              <p className="sf-jobs-meta">{job.note || '—'}</p>
+              <p className="sf-jobs-meta">{jobNote}</p>
               <p className="sf-jobs-meta" data-sf-m="jobs-meta">
                 #{job.tID} · {t('jobs.participants', { count: job.participants_count || 0 })}
               </p>

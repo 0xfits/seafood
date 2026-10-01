@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { User, Mail, Calendar, Trophy, Star, Edit3, Save, X } from 'lucide-react'
 
@@ -9,7 +9,9 @@ import { LoadingPage } from '../components/ui/Loading'
 import { FadeIn, SlideUp } from '../components/ui/Motion'
 import { ResponsiveContainer, ResponsiveGrid } from '../components/ui/Responsive'
 import { useTranslation } from 'react-i18next'
-import { formatEvmAddress } from '../utils'
+import { formatEvmAddress, getLanguageFromUrl } from '../utils'
+import { contentStatus, pickLocalized } from '../i18n-content'
+import TranslatingBadge from '../components/i18n/TranslatingBadge'
 // 招工线 / 我的 共用的 token + 栅格层（P4-B4c-ii-a）：与 TaskPage 招工线族同一份样式表
 import './jobs/jobs.css'
 import { fetchApiJson, fetchCurrentUser, getAuthHeaders, updateMyProfile } from '../auth'
@@ -20,7 +22,12 @@ const toDate = (value) => new Date(typeof value === 'number' ? value * 1000 : va
 const ProfilePage = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const location = useLocation()
   const { isAuthenticated, updateSession, user: sessionUser } = useAuth()
+  // TR-2：当前语言（`utils.SUPPORTED_LANGS` 同一白名单）+ 用户录入内容 `bio` 的当前语言值。
+  //   ★ 编辑态口径：`bio`/`tempBio` 一律持**原文**（`user.bio`），只有**展示**走 `displayBio`
+  //     —— 否则保存时会把译文当原文写回（`updateMyProfile({bio: tempBio})`）。
+  const lang = getLanguageFromUrl(location.pathname)
   const [user, setUser] = useState(null)
   const [userAssets, setUserAssets] = useState(null)
   const [taskStats, setTaskStats] = useState({
@@ -273,7 +280,11 @@ const ProfilePage = () => {
 
               {/* 用户简介 */}
               <div>
-                <h3 className="font-semibold text-lg mb-2">个人简介</h3>
+                <h3 className="font-semibold text-lg mb-2">
+                  个人简介
+                  {/* 「翻译中」小标（`i18n_status ∈ {pending, partial}`；ready/缺省 ⇒ null） */}
+                  <TranslatingBadge status={contentStatus(user)} />
+                </h3>
                 {isEditing ? (
                   <textarea
                     value={tempBio}
@@ -284,7 +295,8 @@ const ProfilePage = () => {
                   />
                 ) : (
                   <div className="p-3 bg-gray-50 rounded-lg min-h-[100px]">
-                    {bio || '这个人很懒，什么都没有留下...'}
+                    {/* TR-2：展示走当前语言（`bio_<lang>`；空串/缺字段 ⇒ 回落原文 `bio`） */}
+                    {pickLocalized(user, 'bio', lang) || bio || '这个人很懒，什么都没有留下...'}
                   </div>
                 )}
               </div>

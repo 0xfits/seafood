@@ -2,7 +2,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
-import { buildLangPath } from '../../utils'
+import { buildLangPath, getLanguageFromUrl } from '../../utils'
+import { contentStatus, pickLocalized } from '../../i18n-content'
+import TranslatingBadge from '../../components/i18n/TranslatingBadge'
 import { buyListing, createListingBuyTracker, fetchListingDetail, listingBuyFingerprint } from './listing-api'
 import './listings.css'
 
@@ -58,13 +60,21 @@ const ListingDetailPage = () => {
   const entry = buildLangPath(location.pathname, undefined)
   const root = (p) => (entry === '/' ? p : `${entry}${p}`)
   const row = detail.row || {}
+  // TR-2：当前语言（`utils.SUPPORTED_LANGS` 同一白名单）；用户内容字段取当前语言，空串/缺字段 ⇒ 回落原文
+  const lang = getLanguageFromUrl(location.pathname)
+  const title = pickLocalized(row, 'title', lang) || pickLocalized(row, 'name', lang) || t('listings.detail')
+  const description = pickLocalized(row, 'description', lang) || ''
 
   return (
     <div className="sf-layout" data-sf-m="listing-detail-layout">
       <div className="sf-layout-main">
         <div className="sf-listings">
           <div className="sf-listings-head" data-sf-m="listing-detail-hero">
-            <h1 className="sf-listings-title">{String(row.title ?? row.name ?? t('listings.detail'))}</h1>
+            <h1 className="sf-listings-title">
+              {String(title)}
+              {/* 「翻译中」小标（ready/缺省 ⇒ null） */}
+              <TranslatingBadge status={contentStatus(row)} />
+            </h1>
             <p className="sf-listings-note">{`${t('listings.listingId')} #${String(row.listing_id ?? row.bID ?? listingId ?? '-')} · ${String(row.status ?? '-')}`}</p>
             <div className="sf-listings-actions">
               <Link className="sf-listings-link" to={root('/listing')} data-sf-m="listing-back-link">{t('listings.list')}</Link>
@@ -85,7 +95,7 @@ const ListingDetailPage = () => {
                 <span className="sf-listings-price-unit">{t('listings.priceUnit')}</span>
               </div>
               <p className="sf-listings-meta">{t('listings.stock')}{` ${String(row.stock ?? '-')}`}</p>
-              <p className="sf-listings-meta">{String(row.description ?? '')}</p>
+              <p className="sf-listings-meta">{String(description)}</p>
             </div>
           )}
 

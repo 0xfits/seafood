@@ -47,6 +47,8 @@ import {
   findFeeRateKey,
   resolveAdminOpsKey,
 } from './admin-service';
+// P6-TR-1b：后台翻译回填（cron 兜底 + 手动触发）—— 路由层只做鉴权与机读回执，编排全在服务层
+import { backfillPending } from './translate-service';
 
 const app = express();
 const PORT = Number(process.env.PORT || 5788);
@@ -1643,6 +1645,48 @@ app.post('/api/admin/commission_policy', async (req, res) => {
     return sendSuccess(res, policy, 'Commission policy inserted');
   } catch (error) {
     return sendInfraMapped(res, 'admin.commission_policy', error);
+  }
+});
+
+// ---- P6-TR-1b · 后台翻译回填（`vercel.json` cron：每日 UTC 18:00 = 北京 02:00 = DeepSeek 低峰）------
+// 鉴权：`Authorization: Bearer <CRON_SECRET>` **或** `x-cron-secret: <CRON_SECRET>`（二者取一即可）。
+//   · **未配 CRON_SECRET ⇒ 503 fail-loud，绝不默认放行**（安全红线）；
+//   · 密钥只做相等比较，**绝不回显/日志**其值。
+// 幂等：服务层 ON CONFLICT upsert + 缓存命中不重复付费 ⇒ 重复调用不产生重复行。
+// 回执（机读）：{ ok, processed, ready, failed, skipped, deferred, reason, engine }。
+app.post('/api/translate/backfill', async (req, res) => {
+  const secret = String(process.env.CRON_SECRET || '').trim();
+  if (!secret) {
+    return sendError(res, 503, 'CRON_SECRET not configured');
+  }
+  const authHeader = String(req.headers.authorization || '');
+  const bearer = authHeader.toLowerCase().startsWith('bearer ') ? authHeader.slice(7).trim() : '';
+  const headerSecret = String(req.headers['x-cron-secret'] || '').trim();
+  if (bearer !== secret && headerSecret !== secret) {
+    return sendError(res, 401, 'Unauthorized');
+  }
+
+  const rawLimit = (req.body as Record<string, unknown> | undefined)?.limit ?? req.query?.limit;
+  const parsedLimit = Number(rawLimit);
+  const limit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? Math.min(100, Math.floor(parsedLimit)) : 20;
+
+  try {
+    const report = await backfillPending(limit);
+    return sendSuccess(res, {
+      ok: true,
+      processed: report.scanned,
+      ready: report.ready,
+      failed: report.failed,
+      skipped: report.skipped,
+      deferred: report.deferred,
+      reason: report.reason,
+      scanned: report.scanned,
+      retried: report.retried,
+      engine: report.engine,
+    }, 'Translate backfill completed');
+  } catch (error) {
+    console.error('Error running translate backfill:', error);
+    return sendError(res, 500, 'Translate backfill failed');
   }
 });
 

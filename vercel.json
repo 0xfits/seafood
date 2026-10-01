@@ -30,5 +30,11 @@
       "src": "/(.*)",
       "dest": "/frontend/index.html"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/translate/backfill",
+      "schedule": "0 18 * * *"
+    }
   ]
 }
