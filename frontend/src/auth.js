@@ -176,7 +176,17 @@ const extractApiErrorMessage = (payload) => {
     // ★ 批 7-C（F-1）：服务端 `message` 本身**含「全大写下划线机读码」token** ⇒ 它不是文案
     //   ⇒ 视为**不可用原文** ⇒ 下沉到 ③ 四语通用兜底；`details.reason` 仍留在机读面（`details` 内），
     //   不随文案外泄。服务端 `message` 本体不改（登记为「错误文案面收口」工作项）。
-    if (base && !containsMachineCode(base)) return reason ? `${base} (${reason})` : base
+    if (base && !containsMachineCode(base)) {
+      // ★ 批 7-D（R1′ · reason 口径订正）：`details.reason` 施**同一判据**（复用 `containsMachineCode`，
+      //   禁另写一套正则）—— 命中「全大写下划线机读码」⇒ **不附加 `(reason)` 后缀**。
+      //   为什么：`stateConflict()`（`listing-service.ts:55` / `job-service.ts:122` /
+      //   `job-funds-service.ts:61` / `currency-service.ts:59`）的 `message='Business state transition
+      //   rejected'` + `reason='LISTING_STATE_INVALID'` 会把**机读码外显**成
+      //   `Business state transition rejected (LISTING_STATE_INVALID)`。
+      //   未命中（真人串如 `too_many_connections`）⇒ **仍保留后缀**（O-1 边界不回归）。
+      const suffix = reason && !containsMachineCode(reason) ? ` (${reason})` : ''
+      return `${base}${suffix}`
+    }
     return undefined
   }
   if (typeof error === 'string' && error && !containsMachineCode(error)) return error

@@ -25,6 +25,11 @@
  *     普通英文句 / 含小写词 / 空串 / 非字符串）⇒ false。
  *   F **反例面（O-1 边界回归）**：**真人可读**服务端 message（zh 句子 + 小写 reason / 英文句 / 裸 message）
  *     ⇒ 仍走 ② **服务端原文**（不得因本单把 zh 句子也当机读码）。
+ *   G **★ 批 7-D ②（R1′）类级判据**：**用户可见串中「全大写下划线机读码」出现次数 = 0**
+ *     —— 向量集含 409 机读码 message / 409 服务端自拼 / `stateConflict()` 四种 reason /
+ *     503 `STATEMENT_TIMEOUT` / `LEDGER_LOCK_TIMEOUT` / O-1 小写 reason（后缀必须保留）。
+ *     `details.reason` 与 `message` 施**同一判据**（复用 `containsMachineCode`）⇒ 命中 ⇒ 不附加 `(reason)` 后缀。
+ *     ⇒ 把 reason 判据改回旧口径 ⇒ G 判负。
  *
  * ── 口径说明（诚实标注）──────────────────────────────────────────────────────
  *   · 本脚本是**纯 node 门**（无 vite 解析器，故 `src/i18n.js` 的 `./utils` 无扩展名导入在 node 下不可解析）
@@ -58,11 +63,12 @@ const fail = (msg) => fails.push(msg)
 let containsMachineCode = null
 let looksLikeMachineCode = null
 let containsBareI18nKey = null
+let MACHINE_CODE_TOKEN_RE = null
 let authSrc = ''
 let guardImportError = null
 try {
   authSrc = fs.readFileSync(AUTH_JS, 'utf8')
-  ;({ containsMachineCode, looksLikeMachineCode, containsBareI18nKey } = await import(pathToFileURL(AUTH_JS).href))
+  ;({ containsMachineCode, looksLikeMachineCode, containsBareI18nKey, MACHINE_CODE_TOKEN_RE } = await import(pathToFileURL(AUTH_JS).href))
 } catch (err) {
   guardImportError = err?.message || String(err)
 }
@@ -165,6 +171,8 @@ const usable = (value, key) => (
 /**
  * 链式决策**镜像**（与 `extractApiErrorMessage` + `resolveI18nMessage` 逐条同序）：
  *   原文 `direct` = 服务端 `message`（**含机读码 ⇒ 视为不可用**）拼 `details.reason`；
+ *   ★ 批 7-D（R1′）：`details.reason` 施**同一机读码判据** —— 命中 ⇒ **不附加后缀**
+ *     （`stateConflict()` 的 `LISTING_STATE_INVALID` 一类）；未命中（`too_many_connections`）⇒ 后缀保留。
  *   ① `t(i18nKey)` 可用 ⇒ 用它（⇒ 逐码本地化后**自动让位**）
  *   ② `direct` 可用 ⇒ 服务端原文
  *   ③ 四语通用兜底 `auth.err.REQUEST_FAILED` ④ ASCII 兜底
@@ -175,7 +183,8 @@ const chainOutcome = (lang, v) => {
   if (v.payloadMessageOnly !== undefined) {
     direct = containsMachineCode?.(v.payloadMessageOnly) ? undefined : v.payloadMessageOnly
   } else if (v.message && !containsMachineCode?.(v.message)) {
-    direct = v.reason ? `${v.message} (${v.reason})` : v.message
+    const suffix = v.reason && !containsMachineCode?.(v.reason) ? ` (${v.reason})` : ''
+    direct = `${v.message}${suffix}`
   }
   const hit = v.i18nKey ? t(lang, v.i18nKey, { status: v.status }) : undefined
   if (usable(hit, v.i18nKey)) return hit
@@ -187,6 +196,12 @@ const chainOutcome = (lang, v) => {
 }
 
 const genericOf = (lang, status) => t(lang, GENERIC_KEY, { status })
+
+/** 该 (语, 向量) 的**期望可见串**：键命中 ⇒ 真文案（让位）；未命中 ⇒ 该语通用兜底。 */
+const expectedFor = (lang, i18nKey, status) => {
+  const hit = i18nKey ? t(lang, i18nKey, { status }) : undefined
+  return usable(hit, i18nKey) ? hit : genericOf(lang, status)
+}
 
 /** ★ 类级向量：服务端 `message` **含机读码**（F-1 家族）。 */
 const MACHINE_VECTORS = [
@@ -225,21 +240,34 @@ const MACHINE_VECTORS = [
   },
 ]
 
-/** 反例向量：**真人可读**服务端 message ⇒ 仍走 ②（O-1 边界保留）。 */
+/**
+ * 反例向量：**真人可读**服务端 message ⇒ 仍走 ②（O-1 边界保留）。
+ * ★ 批 7-D：`ledger.err.*` 四语键补齐后，**带已本地化 `i18n_key`** 的真体会走 ① 让位
+ *   （⇒ 不再走 ②）—— 故 O-1 边界改用**无 `i18n_key` / 未登记键**的向量继续钉住 ② 通路；
+ *   同时补一条「已本地化键 ⇒ ① 让位」的正向锚。
+ */
 const HUMAN_VECTORS = [
   {
-    name: 'O-1 · 503 真体（zh 句子 + 小写 reason = too_many_connections）',
+    name: 'O-1 · ② 边界（无 i18n_key：zh 句子 + 小写 reason = too_many_connections）⇒ 原文 + 后缀保留',
     status: 503,
     message: '系统繁忙，请稍后重试',
-    i18nKey: 'ledger.err.LEDGER_TX_TIMEOUT',
+    i18nKey: undefined,
     reason: 'too_many_connections',
     expectContains: ['系统繁忙，请稍后重试', '(too_many_connections)'],
   },
   {
-    name: 'S6 · 410 弃用面（英文句）',
+    name: 'O-1′ · 503 真体（i18n_key 已本地化 ledger.err.LEDGER_TX_TIMEOUT）⇒ ① 让位（真文案）',
+    status: 503,
+    message: '系统繁忙，请稍后重试',
+    i18nKey: 'ledger.err.LEDGER_TX_TIMEOUT',
+    reason: 'too_many_connections',
+    expectLocalized: 'ledger.err.LEDGER_TX_TIMEOUT',
+  },
+  {
+    name: 'S6 · 410 弃用面（**未登记** i18n_key）⇒ ② 服务端原文保留（既有面回归锚）',
     status: 410,
     message: 'endpoint deprecated: /api/auth/register',
-    i18nKey: 'ledger.err.LEDGER_REF_NOT_FOUND',
+    i18nKey: 'ledger.err.LEDGER_LEGACY_UNREGISTERED_ANCHOR',
     reason: undefined,
     expectEquals: 'endpoint deprecated: /api/auth/register',
   },
@@ -265,14 +293,15 @@ if (!t) {
     for (const lang of LANGS) {
       machineNodes += 1
       const shown = chainOutcome(lang, v)
-      const generic = genericOf(lang, v.status)
+      const expected = expectedFor(lang, v.i18nKey, v.status)
       const problems = []
       if (typeof shown !== 'string' || shown.length === 0) problems.push(`空/非串 ${JSON.stringify(shown)}`)
       if (containsMachineCode?.(shown)) problems.push('产出含机读码 token')
       if (shown.includes(v.code)) problems.push(`产出含码原文 ${v.code}`)
       if (v.reason && shown.includes(v.reason)) problems.push(`产出含 reason 后缀 ${v.reason}`)
       if (v.forbidden && shown.includes(v.forbidden)) problems.push(`产出含 reason 后缀 ${v.forbidden}`)
-      if (shown !== generic) problems.push(`产出 ≠ 该语兜底（实际 ${JSON.stringify(shown)}）`)
+      // ★ 批 7-D：期望值 = 「键命中 ⇒ 该语真文案（① 让位）/ 键未命中 ⇒ 该语通用兜底（③）」
+      if (shown !== expected) problems.push(`产出 ≠ 期望（期望 ${JSON.stringify(expected)}，实际 ${JSON.stringify(shown)}）`)
       if (problems.length) {
         classViolations += 1
         fail(`D 机读码被当作文案输出：${v.name} · ${lang} ⇒ ${JSON.stringify(shown)}（${problems.join('；')}）`)
@@ -297,6 +326,10 @@ if (!t) {
       const shown = chainOutcome(lang, v)
       const problems = []
       if (v.expectEquals !== undefined && shown !== v.expectEquals) problems.push(`应 = 服务端原文 ${JSON.stringify(v.expectEquals)}，实际 ${JSON.stringify(shown)}`)
+      if (v.expectLocalized !== undefined) {
+        const truth = t(lang, v.expectLocalized, { status: v.status })
+        if (shown !== truth) problems.push(`应 = 该语真文案 ${JSON.stringify(truth)}（① 让位），实际 ${JSON.stringify(shown)}`)
+      }
       for (const frag of v.expectContains || []) if (!String(shown).includes(frag)) problems.push(`应含 ${JSON.stringify(frag)}，实际 ${JSON.stringify(shown)}`)
       if (problems.length) {
         humanViolations += 1
@@ -306,6 +339,128 @@ if (!t) {
     }
   }
   console.log(`  ★ 反例面违例 = ${humanViolations} / 节点 ${humanNodes}（必须 = 0）`)
+}
+
+// ── G ★ 类级判据（批 7-D ② · R1′）：用户可见串中「全大写下划线机读码」出现次数 = 0 ────────
+//   向量集（必含，Zang 裁定逐字）：① 409 机读码 message（F-1 真体）；② 409 服务端自拼；
+//     ③ `stateConflict()` 四种 reason（`LISTING_STATE_INVALID` / `JOB_STATE_INVALID` /
+//        `JOB_APPLICATION_STATE_INVALID` / `CURRENCY_STATE_INVALID` —— 出处逐字：
+//        `listing-service.ts:55` / `job-service.ts:122` / `job-funds-service.ts:61` / `currency-service.ts:59`）；
+//     ④ 503 `STATEMENT_TIMEOUT`；⑤ `LEDGER_LOCK_TIMEOUT`；⑥ O-1 小写 reason（后缀必须保留）。
+//   判据：逐 (向量, 语) 求链产出 ⇒ 机读码 token **出现次数**累加必须 = 0；
+//        且带大写 reason 的向量**不得**出现 `(REASON)` 后缀；O-1 向量**必须**保留后缀。
+//   ★ 本段是 R1′ 的**可判负落点**：把 `chainOutcome` 的 reason 判据改回旧口径 ⇒ 本段必红。
+const R1P_VECTORS = [
+  {
+    name: '① 409 机读码 message（F-1 真体；键已本地化 ⇒ ① 让位）',
+    status: 409,
+    message: 'LEDGER_CURRENCY_INVALID_TRANSITION',
+    code: 'LEDGER_CURRENCY_INVALID_TRANSITION',
+    i18nKey: 'ledger.err.LEDGER_CURRENCY_INVALID_TRANSITION',
+    reason: 'order_not_refundable',
+    forbidden: 'order_not_refundable',
+  },
+  {
+    name: '② 409 服务端自拼 `机读码 (reason)`（无键 ⇒ ③ 兜底）',
+    status: 409,
+    message: 'LEDGER_CURRENCY_INVALID_TRANSITION (order_not_refundable)',
+    i18nKey: undefined,
+    forbidden: 'order_not_refundable',
+  },
+  {
+    name: '③ stateConflict() · reason=LISTING_STATE_INVALID（`listing-service.ts:55`）⇒ 不得附加后缀',
+    status: 409,
+    message: 'Business state transition rejected',
+    i18nKey: undefined,
+    reason: 'LISTING_STATE_INVALID',
+    forbidden: 'LISTING_STATE_INVALID',
+    expectEquals: 'Business state transition rejected',
+  },
+  {
+    name: '③ stateConflict() · reason=JOB_STATE_INVALID（`job-service.ts:122`）⇒ 不得附加后缀',
+    status: 409,
+    message: 'Business state transition rejected',
+    i18nKey: undefined,
+    reason: 'JOB_STATE_INVALID',
+    forbidden: 'JOB_STATE_INVALID',
+    expectEquals: 'Business state transition rejected',
+  },
+  {
+    name: '③ stateConflict() · reason=JOB_APPLICATION_STATE_INVALID（`job-service.ts:122`）⇒ 不得附加后缀',
+    status: 409,
+    message: 'Business state transition rejected',
+    i18nKey: undefined,
+    reason: 'JOB_APPLICATION_STATE_INVALID',
+    forbidden: 'JOB_APPLICATION_STATE_INVALID',
+    expectEquals: 'Business state transition rejected',
+  },
+  {
+    name: '③ stateConflict() · reason=CURRENCY_STATE_INVALID（`currency-service.ts:59`）⇒ 不得附加后缀',
+    status: 409,
+    message: 'Business state transition rejected',
+    i18nKey: undefined,
+    reason: 'CURRENCY_STATE_INVALID',
+    forbidden: 'CURRENCY_STATE_INVALID',
+    expectEquals: 'Business state transition rejected',
+  },
+  {
+    name: '④ 503 STATEMENT_TIMEOUT（大写机读 reason）⇒ 不得附加后缀',
+    status: 503,
+    message: 'Ledger statement timed out',
+    i18nKey: undefined,
+    reason: 'STATEMENT_TIMEOUT',
+    forbidden: 'STATEMENT_TIMEOUT',
+    expectEquals: 'Ledger statement timed out',
+  },
+  {
+    name: '⑤ LEDGER_LOCK_TIMEOUT（已本地化键 + 大写机读 reason）⇒ ① 让位，无后缀',
+    status: 503,
+    message: 'Ledger statement timed out',
+    i18nKey: 'ledger.err.LEDGER_LOCK_TIMEOUT',
+    reason: 'STATEMENT_TIMEOUT',
+    forbidden: 'STATEMENT_TIMEOUT',
+  },
+  {
+    name: '⑥ O-1（无键 + 小写 reason）⇒ 后缀**必须保留**（边界不回归）',
+    status: 503,
+    message: '系统繁忙，请稍后重试',
+    i18nKey: undefined,
+    reason: 'too_many_connections',
+    expectContains: ['(too_many_connections)'],
+  },
+]
+
+console.log('[P7C-MACHINE-CODE] G ★ 类级判据（批 7-D ② · R1′）：用户可见串中机读码出现次数 = 0'
+  + `（${R1P_VECTORS.length} 向量 × ${LANGS.length} 语 = ${R1P_VECTORS.length * LANGS.length} 节点）`)
+const TOKEN_RE_G = new RegExp(MACHINE_CODE_TOKEN_RE?.source || '$^', 'g')
+let r1pNodes = 0
+let r1pOccurrences = 0
+let r1pViolations = 0
+if (!t) {
+  fail('G 无法求值：i18next 未就绪')
+  console.log('  !! i18next 未就绪，G 段无读数（不得读作「零违例」）')
+} else {
+  for (const v of R1P_VECTORS) {
+    console.log(`  · ${v.name}`)
+    for (const lang of LANGS) {
+      r1pNodes += 1
+      const shown = chainOutcome(lang, v)
+      const occ = typeof shown === 'string' ? (shown.match(TOKEN_RE_G) || []).length : 1
+      r1pOccurrences += occ
+      const problems = []
+      if (occ > 0) problems.push(`机读码出现 ${occ} 次`)
+      if (containsMachineCode?.(shown)) problems.push('谓词判定含机读码')
+      if (v.forbidden && String(shown).includes(v.forbidden)) problems.push(`产出含后缀/码 ${v.forbidden}`)
+      if (v.expectEquals !== undefined && shown !== v.expectEquals) problems.push(`应 = ${JSON.stringify(v.expectEquals)}，实际 ${JSON.stringify(shown)}`)
+      for (const frag of v.expectContains || []) if (!String(shown).includes(frag)) problems.push(`应含 ${JSON.stringify(frag)}，实际 ${JSON.stringify(shown)}`)
+      if (problems.length) {
+        r1pViolations += 1
+        fail(`G 用户可见串含机读码：${v.name} · ${lang} ⇒ ${JSON.stringify(shown)}（${problems.join('；')}）`)
+      }
+      console.log(`      [${lang}] ⇒ ${JSON.stringify(shown)}${problems.length ? '  ! ' + problems.join('；') : ''}`)
+    }
+  }
+  console.log(`  ★ 机读码出现次数合计 = ${r1pOccurrences}（必须 = 0）/ 节点 ${r1pNodes}；违例向量-语 = ${r1pViolations}（必须 = 0）`)
 }
 
 // ── E 边界样本表自证（非空转）────────────────────────────────────────────────
@@ -353,6 +508,7 @@ if (fails.length) {
 console.log(`[P7C-MACHINE-CODE] 总判：${fails.length ? 'FAIL' : 'PASS'}（判负 ${fails.length} 必须 = 0；`
   + `A=${guardWired ? 'PASS' : 'FAIL'} / B 含机读码值=${codeValueHits.length} / C 兜底键=${LANGS.length} / `
   + `D 类级违例=${classViolations}/${machineNodes} / F 反例违例=${humanViolations}/${humanNodes} / `
+  + `G 机读码出现次数=${r1pOccurrences}/${r1pNodes} 违例=${r1pViolations} / `
   + `E 样本=${TRUE_CASES.length + FALSE_CASES.length + 5}）`)
 // 与同族门同口径：`process.exit()` 会丢弃未 flush 的管道 stdout ⇒ 只设 exitCode。
 process.exitCode = fails.length ? 1 : 0

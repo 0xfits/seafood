@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { clearAuthSession } from '../auth'
+import { apiErrorMessage, clearAuthSession } from '../auth'
 import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
 
 const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
@@ -67,14 +67,16 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
         return
       }
 
-      const data = await response.json()
-      if (data.success) {
+      const data = await response.json().catch(() => null)
+      if (data && data.success) {
         toast.success(t('successSubmitTask'))
         onClose()
         // 重定向到任务页面并滚动到待验证部分
         navigate(buildLocalizedPath(getLanguageFromUrl(window.location.pathname), '/task') + '#pending-verification')
       } else {
-        toast.error(t('error') + ': ' + (data.message || t('activeTaskModal.submitFailed')))
+        // ★ 批 7-D（③）：页面级错误串归护栏 —— 与全站唯一出口 `apiErrorMessage` 同源
+        //   （旧写法 `data.message || t(…)` 直拼原始包里的 message，绕过 R107 四语链）。
+        toast.error(t('error') + ': ' + (await apiErrorMessage(data, response.status)))
       }
     } catch (error) {
       console.error('Error submitting task:', error)

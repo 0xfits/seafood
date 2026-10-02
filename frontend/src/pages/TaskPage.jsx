@@ -13,16 +13,18 @@ import ClaimRewardModal from '../components/ClaimRewardModal'
 import ActiveTaskModal from '../components/ActiveTaskModal'
 import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
 import { pickLocalized } from '../i18n-content'
+import { apiErrorMessage } from '../auth'
 
-// P6-I18N-LIT-B2：`t` 由调用点传入（`fetchJson` 在模块作用域，无 hook 上下文）；
-//   缺 `t` 时兜底为非 CJK 的 `HTTP <status>`。
-const fetchJson = async (url, options = {}, t) => {
+// P6-I18N-LIT-B2：`fetchJson` 在模块作用域，无 hook 上下文。
+// ★ 批 7-D（③ 页面级直拼 toast 归护栏）：错误串**不再**自造（旧写法 `data?.message || fallback`
+//   把原始包里的 message 直抛，绕过全站唯一出口）⇒ 一律走 `apiErrorMessage`（R107 链：
+//   `i18n_key` → 四语文案 → 服务端原文 → 通用兜底），并保留「非裸键」闸。
+const fetchJson = async (url, options = {}) => {
   const response = await fetch(url, options)
   const data = await response.json().catch(() => null)
 
   if (!response.ok || !data?.success) {
-    const fallback = t ? t('taskPage.requestFailed', { status: response.status }) : `HTTP ${response.status}`
-    throw new Error(data?.message || fallback)
+    throw new Error(await apiErrorMessage(data, response.status))
   }
 
   return data.data
@@ -75,7 +77,7 @@ const TaskPage = () => {
         const parsedUser = storedUser ? JSON.parse(storedUser) : null
         setCurrentUser(parsedUser)
 
-        const taskRows = await fetchJson('/api/task/all', {}, t)
+        const taskRows = await fetchJson('/api/task/all', {})
         const enrichedTasks = (taskRows || []).map((task) => enrichTask(task))
         const taskMap = new Map(enrichedTasks.map((task) => [task.tID, task]))
         setTasks(enrichedTasks)

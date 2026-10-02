@@ -1,6 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
+import { apiErrorMessage } from '../auth'
 
 const ClaimRewardModal = ({ open, isOpen, onClose, task }) => {
   const { t } = useTranslation()
@@ -18,11 +19,13 @@ const ClaimRewardModal = ({ open, isOpen, onClose, task }) => {
     setLoading(true)
     try {
       const resp = await fetch(`/api/task-progress/${jID}`)
-      const data = await resp.json()
+      const data = await resp.json().catch(() => null)
       if (data && data.success) {
         setTaskProgress(data.data || null)
       } else {
-        toast.error(t('error') + ': ' + ((data && (data.error || data.message)) || t('claimRewardModal.loadProgressFailed')))
+        // ★ 批 7-D（③）：页面级错误串归护栏 —— 与全站唯一出口 `apiErrorMessage` 同源
+        //   （旧写法 `data.error || data.message` 直拼原始包，`data.error` 还可能是对象）。
+        toast.error(t('error') + ': ' + (await apiErrorMessage(data, resp.status)))
       }
     } catch (error) {
       toast.error(t('error') + ': ' + error.message)

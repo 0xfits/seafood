@@ -48,15 +48,15 @@ const CHAIN_IMPL = [
  * 存量基线 · 逐条登记（键 = `相对路径::命中行的去空白原样`）+ 理由。
  * 口径：**不要求一次清完**；但任何**未登记**命中一律判负。基线项若已消失 ⇒ 打印提示（不影响判负，
  * 防白名单变垃圾场，须由改动者同步清理）。
+ *
+ * ★ 批 7-D（③ 页面级直拼 toast 归护栏）：**基线已清零（3 → 0）**。三条存量全部改走
+ * `auth.js` `apiErrorMessage`（全站唯一出口）：
+ *   · `components/ActiveTaskModal.jsx`：`data.message` ⇒ `await apiErrorMessage(data, response.status)`；
+ *   · `components/ClaimRewardModal.jsx`：`data.error || data.message` ⇒ `await apiErrorMessage(data, resp.status)`；
+ *   · `pages/TaskPage.jsx`：模块级 `fetchJson` 的 `data?.message || fallback` ⇒ `await apiErrorMessage(data, response.status)`。
+ * ⇒ 本门判负口径随之收紧：**命中数必须 = 0**（不再有「存量登记」缓冲）。逐条见 `docs/audit/p7-d-errmsg-i18n.md`。
  */
-const BASELINE = [
-  ['components/ActiveTaskModal.jsx::toast.error(t(\'error\') + \': \' + (data.message || t(\'activeTaskModal.submitFailed\')))',
-    '存量（非本单）：`response.json()` 直取原文拼 toast 文案，未过 `apiErrorMessage` —— 登记，待 P6/P7 统一取数入口时合并'],
-  ['components/ClaimRewardModal.jsx::toast.error(t(\'error\') + \': \' + ((data && (data.error || data.message)) || t(\'claimRewardModal.loadProgressFailed\')))',
-    '存量（非本单）：`data.error` 可能是**对象**（`[object Object]` 面）+ 原文直拼 toast —— 登记'],
-  ['pages/TaskPage.jsx::throw new Error(data?.message || fallback)',
-    '存量（非本单）：页面模块级 `fetchJson` 自造错误串（4 处调用点共用），未过 `apiErrorMessage` —— 登记'],
-]
+const BASELINE = []
 
 const isExempt = (rel) => CHAIN_IMPL.find(([f]) => rel === f)
 

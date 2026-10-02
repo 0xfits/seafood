@@ -123,6 +123,27 @@ describe('auth helpers', () => {
       }),
     })
 
+    // ★ 批 7-D **期望订正**（原断言 = `.rejects.toThrow('endpoint deprecated: /api/auth/register')`）：
+    //   `ledger.err.LEDGER_REF_NOT_FOUND` 四语键补齐后 ⇒ 链上 ① `t(i18n_key)` **命中** ⇒
+    //   用户看到的是**本地化文案**（`resolveI18nMessage` 的「护栏让位」语义），不再是服务端英文原文。
+    await expect(fetchApiJson('/api/auth/register'))
+      .rejects.toThrow('关联单据不存在。')
+  })
+
+  it('S6 回归锚（订正后）：**未登记** `i18n_key` + 真人可读 message ⇒ 保留服务端原文（② 通路不回归）', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: false,
+      status: 410,
+      json: async () => ({
+        error: {
+          code: 'LEDGER_REF_NOT_FOUND',
+          message: 'endpoint deprecated: /api/auth/register',
+          i18n_key: 'ledger.err.LEDGER_LEGACY_UNREGISTERED_ANCHOR',
+          details: { ref_type: 'endpoint', ref_id: '/api/auth/register', http_status: 410 },
+        },
+      }),
+    })
+
     await expect(fetchApiJson('/api/auth/register'))
       .rejects.toThrow('endpoint deprecated: /api/auth/register')
   })

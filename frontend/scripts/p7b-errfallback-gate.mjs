@@ -24,6 +24,9 @@
  *       真 locale 数据 + 真 i18next）算出**用户实际会看到的串**，断言其**非裸键、非空**。
  *   E **判据自证（非空转）**：谓词对 `ledger.err.X` / `auth.err.X` = true，对「正常文案」样本
  *     （中文兜底 / `v1.2` / `Ledger timed out (STATEMENT_TIMEOUT)` / 空串 / 非字符串）= false。
+ *   G **★ 批 7-D ① 类级判据**：33 码（关闭集）× 4 语 = 132 节点的 `ledger.err.<CODE>` **齐备 + 可用**
+ *     （存在 / 非空 / ≠键名 / ≠码本身 / 不含裸键 token / 不含机读码 token）⇒ 删任一语的任一键 ⇒ G 判负。
+ *     批 7-D 之前该面只在 D 段**登记**（「需护栏 = 132」），本批把「键齐备」升为判据。
  *
  * ── 口径说明（诚实标注）──────────────────────────────────────────────────────
  *   · 本脚本是**纯 node 门**（无 vite 解析器，故 `src/i18n.js` 的 `./utils` 无扩展名导入在 node 下不可解析）
@@ -75,11 +78,12 @@ const fail = (msg) => fails.push(msg)
 // ── 载入真谓词（从 `src/auth.js` 导入，**不重写**）───────────────────────────────
 let looksLikeBareI18nKey = null
 let containsBareI18nKey = null
+let containsMachineCode = null
 let authSrc = ''
 let guardImportError = null
 try {
   authSrc = fs.readFileSync(AUTH_JS, 'utf8')
-  ;({ looksLikeBareI18nKey, containsBareI18nKey } = await import(pathToFileURL(AUTH_JS).href))
+  ;({ looksLikeBareI18nKey, containsBareI18nKey, containsMachineCode } = await import(pathToFileURL(AUTH_JS).href))
 } catch (err) {
   guardImportError = err?.message || String(err)
 }
@@ -250,6 +254,39 @@ if (!t) {
   }
 }
 
+// ── G 类级判据（★ 批 7-D ①）：`ledger.err.<CODE>` 四语键**齐备 + 可用** ──────────
+//   口径：33 码（关闭集）× 4 语 = 132 节点，逐节点必须①存在②非空③≠键名④≠码本身
+//   ⑤不含裸键 token⑥不含「全大写下划线机读码」token。
+//   ★ 这是「逐码四语本地化」的**可判负落点**：删任一语的任一键 ⇒ G 判负（门 EXIT=1）。
+//     （批 7-D 前本门只登记「需护栏」，不要求键存在；本单把「键齐备」升为判据。）
+console.log('[P7B-ERRFB] G 类级判据（批 7-D ①）：33 码 × 4 语 `ledger.err.*` 键齐备 + 可用')
+let ledgerNodes = 0
+let ledgerBad = 0
+for (const code of LEDGER_CODES) {
+  const key = `ledger.err.${code}`
+  for (const lang of LANGS) {
+    ledgerNodes += 1
+    const value = locales[lang] ? getPath(locales[lang], key) : undefined
+    const problems = []
+    if (typeof value !== 'string' || value.length === 0) problems.push(`缺/空 ${JSON.stringify(value)}`)
+    else {
+      if (!usable(value, key)) problems.push('命中裸键闸（=键名 / 含裸键 token）')
+      if (value === code) problems.push('值即码本身')
+      if (containsMachineCode?.(value)) problems.push('值含机读码 token')
+    }
+    if (problems.length) {
+      ledgerBad += 1
+      fail(`G \`${key}\` 在 ${lang} 不可用：${problems.join('；')}`)
+      console.log(`  ! ${lang}:${key} ⇒ ${JSON.stringify(value)}（${problems.join('；')}）`)
+    }
+  }
+}
+console.log(`  节点 = ${ledgerNodes}（33 码 × 4 语）；不可用 = ${ledgerBad}（必须 = 0）`)
+const ledgerSampleKeys = ['LEDGER_AMOUNT_INVALID', 'LEDGER_CURRENCY_INVALID_TRANSITION', 'LEDGER_LOCK_TIMEOUT']
+for (const code of ledgerSampleKeys) {
+  console.log(`  例：zh · ledger.err.${code} ⇒ ${JSON.stringify(getPath(locales.zh, `ledger.err.${code}`))}`)
+}
+
 // ── E 判据自证（非空转）──────────────────────────────────────────────────────
 console.log('[P7B-ERRFB] E 判据自证（谓词非空转）')
 const TRUE_CASES = ['ledger.err.LEDGER_AMOUNT_INVALID', 'auth.err.AUTH_UNAUTHORIZED', 'a.b.c', 'ledger.err.X']
@@ -288,6 +325,7 @@ if (fails.length) {
 console.log(`[P7B-ERRFB] 总判：${fails.length ? 'FAIL' : 'PASS'}（判负 ${fails.length} 必须 = 0；`
   + `A=${guardWired ? 'PASS' : 'FAIL'} / `
   + `B 含裸键值=${bareValueHits.length} / C 兜底键=${GENERIC_FALLBACK_KEYS.length}×${LANGS.length} / `
-  + `D 节点=${nodes} 需护栏=${requiresGuard} 已本地化=${localizedHits.length} / E 样本=${TRUE_CASES.length + FALSE_CASES.length + 5}）`)
+  + `D 节点=${nodes} 需护栏=${requiresGuard} 已本地化=${localizedHits.length} / `
+  + `G 键不可用=${ledgerBad}/${ledgerNodes} / E 样本=${TRUE_CASES.length + FALSE_CASES.length + 5}）`)
 // 与同族门同口径：`process.exit()` 会丢弃未 flush 的管道 stdout ⇒ 只设 exitCode。
 process.exitCode = fails.length ? 1 : 0

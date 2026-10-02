@@ -52,6 +52,13 @@ const ledgerErrPayload = (over = {}) => ({
   },
 })
 
+/**
+ * ★ 批 7-D：`ledger.err.*`（33 码 × 4 语）已**逐码本地化** ⇒ 本文件的**回退面**向量改用
+ *   **未登记**键（本地表里不存在）—— 护栏职责从「覆盖全部账本码」收窄为「覆盖未登记 / 将来的键」，
+ *   口径不变（未命中 ⇒ 绝不外泄裸键）。已登记键的「① 命中 ⇒ 真文案（让位）」面见 ⑨。
+ */
+const UNKNOWN_KEY = 'ledger.err.LEDGER_UNREGISTERED_TEST_KEY'
+
 describe('批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通用兜底，绝不外泄裸键）', () => {
   afterEach(async () => {
     vi.unstubAllGlobals()
@@ -111,7 +118,7 @@ describe('批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通�
       // 该语兜底键确实是**真文案**（真表查表自证，不是 key => key）
       expect(LOCALES[lang].auth.err.REQUEST_FAILED).toContain('{{status}}')
 
-      const payload = ledgerErrPayload({ message: 'ledger.err.LEDGER_AMOUNT_INVALID' })
+      const payload = ledgerErrPayload({ i18n_key: UNKNOWN_KEY, message: UNKNOWN_KEY })
       const message = await apiErrorMessage(payload, status)
 
       expect(message, `[${lang}] 必须落该语通用兜底`).toBe(genericOf(lang, status))
@@ -131,7 +138,7 @@ describe('批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通�
     for (const lang of LANGS) {
       await i18n.changeLanguage(lang)
       const message = await apiErrorMessage(
-        { error: { i18n_key: 'ledger.err.LEDGER_AMOUNT_INVALID' } },
+        { error: { i18n_key: UNKNOWN_KEY } },
         status,
       )
 
@@ -149,7 +156,7 @@ describe('批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通�
       await i18n.changeLanguage(lang)
       // 键未命中 + 无 `message` ⇒ 旧行为会把 `error.code` 当文案（p7-A R-1 已裁定的缺陷类）
       const message = await apiErrorMessage(
-        { error: { code: 'LEDGER_AMOUNT_INVALID', i18n_key: 'ledger.err.LEDGER_AMOUNT_INVALID' } },
+        { error: { code: 'LEDGER_AMOUNT_INVALID', i18n_key: UNKNOWN_KEY } },
         status,
       )
 
@@ -198,15 +205,15 @@ describe('批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通�
       error: {
         code: 'LEDGER_REF_NOT_FOUND',
         message: 'endpoint deprecated: /api/auth/register',
-        i18n_key: 'ledger.err.LEDGER_REF_NOT_FOUND',
+        i18n_key: UNKNOWN_KEY,
         details: { ref_type: 'endpoint', ref_id: '/api/auth/register', http_status: 410 },
       },
     }
     for (const lang of LANGS) {
       await i18n.changeLanguage(lang)
       const message = await apiErrorMessage(payload, 410)
-      // 键未命中（`ledger.err.*` 四语均无）⇒ 服务端**真人可读**文案必须胜出（不得降级为通用兜底）
-      expect(i18n.exists('ledger.err.LEDGER_REF_NOT_FOUND')).toBe(false)
+      // 键未登记（本向量刻意用**未登记键**）⇒ 服务端**真人可读**文案必须胜出（不得降级为通用兜底）
+      expect(i18n.exists(UNKNOWN_KEY)).toBe(false)
       expect(message).toBe('endpoint deprecated: /api/auth/register')
       expect(message).not.toMatch(BARE_I18N_KEY_RE)
     }
@@ -214,7 +221,7 @@ describe('批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通�
 
   it('⑧ `ledger-api` 端到端：`ledger.err.*` 401 面 ⇒ 用户可见串非裸键，且逐字等于 `apiErrorMessage` 产出', async () => {
     const status = 401
-    const payload = { error: { code: 'LEDGER_AMOUNT_INVALID', i18n_key: 'ledger.err.LEDGER_AMOUNT_INVALID' } }
+    const payload = { error: { code: 'LEDGER_AMOUNT_INVALID', i18n_key: UNKNOWN_KEY } }
     vi.stubGlobal('fetch', vi.fn(async () => ({
       ok: false,
       status,
@@ -230,6 +237,27 @@ describe('批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通�
       expect(err.message).not.toMatch(BARE_I18N_KEY_RE)
       expect(err.message).not.toContain('ledger.err.')
       expect(err.message).toBe(await apiErrorMessage(payload, status))
+    }
+  })
+
+  it('⑨ ★ 批 7-D 让位面（新增判据）：`ledger.err.<CODE>` 已本地化 ⇒ ① 命中 ⇒ **四语逐语真文案**（护栏自动让位）', async () => {
+    const status = 400
+    const payload = { error: { code: 'LEDGER_AMOUNT_INVALID', i18n_key: 'ledger.err.LEDGER_AMOUNT_INVALID' } }
+    for (const lang of LANGS) {
+      await i18n.changeLanguage(lang)
+      // 真表查表自证：该语 `ledger.err.LEDGER_AMOUNT_INVALID` 是真文案（不是键名 / 不是码本身）
+      const truth = LOCALES[lang].ledger.err.LEDGER_AMOUNT_INVALID
+      expect(typeof truth).toBe('string')
+      expect(truth.length).toBeGreaterThan(0)
+      expect(truth).not.toBe('ledger.err.LEDGER_AMOUNT_INVALID')
+      expect(truth).not.toBe('LEDGER_AMOUNT_INVALID')
+
+      const message = await apiErrorMessage(payload, status)
+      expect(message, `[${lang}] ① 命中即用真文案`).toBe(truth)
+      expect(message).toBe(i18n.t('ledger.err.LEDGER_AMOUNT_INVALID'))
+      expect(looksLikeBareI18nKey(message)).toBe(false)
+      expect(containsBareI18nKey(message)).toBe(false)
+      expect(message).not.toContain('ledger.err.')
     }
   })
 })

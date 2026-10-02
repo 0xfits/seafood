@@ -78,7 +78,7 @@ describe('批 7-A 收口四 · `ledger-api` 错误文案必须过 `apiErrorMessa
     expect(err.message).toBe(await apiErrorMessage(payload, 401))
   })
 
-  it('③ 503 + R107（带 `details.reason`）⇒ 同链产出（机读 reason 面保留），非服务端 code 原文', async () => {
+  it('③ 503 + R107（带**大写机读** `details.reason`）⇒ 走 ② 服务端原文 + **不含机读 reason 后缀**（R1′ 订正）', async () => {
     const payload = {
       error: {
         code: 'LEDGER_TX_TIMEOUT',
@@ -91,7 +91,14 @@ describe('批 7-A 收口四 · `ledger-api` 错误文案必须过 `apiErrorMessa
     const err = await fetchMyLedger({ user: USER }).catch((e) => e)
 
     expect(err.message).not.toBe('LEDGER_TX_TIMEOUT')
-    expect(err.message).toContain('(STATEMENT_TIMEOUT)') // 旧写法丢 reason ⇒ 本条必红
+    // ★ 批 7-D（R1′ · reason 口径订正）**期望订正**：
+    //   原断言 = `expect(err.message).toContain('(STATEMENT_TIMEOUT)')`（旧口径：② 路径把 reason 拼进括号）；
+    //   新断言 = **不含** —— `details.reason = 'STATEMENT_TIMEOUT'` 是「全大写下划线机读码」⇒
+    //   与 `message` 同判据（复用 `containsMachineCode`）⇒ **不附加后缀**。
+    //   真人可读 reason（如 `too_many_connections`）仍保留后缀（见 `p7c` 单测 ⑤/⑧）。
+    expect(err.message).toContain('Ledger statement timed out')
+    expect(err.message).not.toContain('(STATEMENT_TIMEOUT)')
+    expect(err.message).not.toContain('STATEMENT_TIMEOUT')
     expect(err.message).toBe(await apiErrorMessage(payload, 503))
     expect(err.message).not.toContain('[object Object]')
   })

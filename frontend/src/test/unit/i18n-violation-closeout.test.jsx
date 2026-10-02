@@ -75,7 +75,7 @@ describe('I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文
     const out = execFileSync(process.execPath, [script], { cwd: ROOT, encoding: 'utf8' })
     // eslint-disable-next-line no-console
     console.log(out.split('\n').filter((l) => /作用域命中节点数|裸命中|子面③|总判/.test(l)).join('\n'))
-    expect(out).toContain('作用域命中节点数 = 2816')
+    expect(out).toContain('作用域命中节点数 = 2948')
     expect(out).toContain('② 全量页面源文件面')
     expect(out).toMatch(/locale 裸命中 0 \+ 源面裸命中 0/)
   })
@@ -118,7 +118,7 @@ describe('I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文
     // eslint-disable-next-line no-console
     console.log(`[I18N-VIOL] 四语拍平键数 = {${[...counts].join(', ')}}；顶层键 = ${Object.keys(readTable('zh')).length}`)
     expect(counts.size).toBe(1)
-    expect([...counts][0]).toBe(704)
+    expect([...counts][0]).toBe(737)
     for (const k of REWRITTEN) for (const l of LANGS) expect(flatTables[l][k]).toBeTruthy()
   })
 })
