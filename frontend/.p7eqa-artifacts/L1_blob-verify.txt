@@ -1,0 +1,2 @@
+frontend/src/auth.js  local=cd1a72c171e81389e92ca32e6e26dd85761d0e12  e5d7bb7=cd1a72c171e81389e92ca32e6e26dd85761d0e12  MATCH
+frontend/src/shell/AppShell.jsx  local=1a35acebbe7b2292c33fe15231544a5f1c6de4bc  e5d7bb7=1a35acebbe7b2292c33fe15231544a5f1c6de4bc  MATCH

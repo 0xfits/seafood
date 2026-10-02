@@ -1,0 +1,56 @@
+
+ RUN  v0.34.6 /Users/kevin/.hermes/profiles/zang/cache/scratch/qa7e/frontend
+
+stdout | src/test/unit/qa7e-jobdetail.probe.test.jsx > QA7E·L5 JobDetailPage 死分支删除后可见行为 > 真实回包行（无 status/job_status 字段）⇒ .sf-jobs-meta 恒 "—"（与删前一致）
+  [L5] row(no status) ⇒ .sf-jobs-meta textContent="—"  title="#42"
+
+stderr | src/test/unit/qa7e-jobdetail.probe.test.jsx > QA7E·L5 JobDetailPage 死分支删除后可见行为 > 真实回包行（无 status/job_status 字段）⇒ .sf-jobs-meta 恒 "—"（与删前一致）
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+stdout | src/test/unit/qa7e-jobdetail.probe.test.jsx > QA7E·L5 JobDetailPage 死分支删除后可见行为 > （对照，非真实回包）若行带 status ⇒ 现码仍恒 "—"（证明不再引用不存在字段）
+  [L5] row(带 status='applied') ⇒ .sf-jobs-meta textContent="—"
+
+ ✓ src/test/unit/qa7e-jobdetail.probe.test.jsx  (2 tests) 55ms
+stdout | src/test/unit/qa7e-render.probe.test.jsx > QA7E·L4 未知枚举兜底 · 四语逐语真渲染 > ListingDetail 未知 sunset-value · zh ⇒ 该语 unknown 文案、不裸渲
+  [L4·ListingDetail·zh] visible="商品编号 #5 · 其他状态"  expect_unknown="其他状态"  raw_shown=false
+
+stderr | src/test/unit/qa7e-render.probe.test.jsx > QA7E·L4 未知枚举兜底 · 四语逐语真渲染 > ListingDetail 未知 sunset-value · zh ⇒ 该语 unknown 文案、不裸渲
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+stdout | src/test/unit/qa7e-render.probe.test.jsx > QA7E·L4 未知枚举兜底 · 四语逐语真渲染 > ListingDetail 未知 sunset-value · hk ⇒ 该语 unknown 文案、不裸渲
+  [L4·ListingDetail·hk] visible="商品編號 #5 · 其他狀態"  expect_unknown="其他狀態"  raw_shown=false
+
+stdout | src/test/unit/qa7e-render.probe.test.jsx > QA7E·L4 未知枚举兜底 · 四语逐语真渲染 > ListingDetail 未知 sunset-value · en ⇒ 该语 unknown 文案、不裸渲
+  [L4·ListingDetail·en] visible="Listing #5 · Unknown"  expect_unknown="Unknown"  raw_shown=false
+
+stdout | src/test/unit/qa7e-render.probe.test.jsx > QA7E·L4 未知枚举兜底 · 四语逐语真渲染 > ListingDetail 未知 sunset-value · vn ⇒ 该语 unknown 文案、不裸渲
+  [L4·ListingDetail·vn] visible="Mã hàng hoá #5 · Không rõ"  expect_unknown="Không rõ"  raw_shown=false
+
+stdout | src/test/unit/qa7e-render.probe.test.jsx > QA7E·L4 未知枚举兜底 · 四语逐语真渲染 > MarketPage 未知 status=sunset-value/side=moon · zh ⇒ 该语 unknown 文案、不裸渲
+  [L4·Market·zh] meta="5/0 · 其他状态" title="#9 · 其他方向"  expect_status_unknown="其他状态" expect_side_unknown="其他方向"
+
+stdout | src/test/unit/qa7e-render.probe.test.jsx > QA7E·L4 未知枚举兜底 · 四语逐语真渲染 > MarketPage 未知 status=sunset-value/side=moon · hk ⇒ 该语 unknown 文案、不裸渲
+  [L4·Market·hk] meta="5/0 · 其他狀態" title="#9 · 其他方向"  expect_status_unknown="其他狀態" expect_side_unknown="其他方向"
+
+stdout | src/test/unit/qa7e-render.probe.test.jsx > QA7E·L4 未知枚举兜底 · 四语逐语真渲染 > MarketPage 未知 status=sunset-value/side=moon · en ⇒ 该语 unknown 文案、不裸渲
+  [L4·Market·en] meta="5/0 · Unknown" title="#9 · Unknown side"  expect_status_unknown="Unknown" expect_side_unknown="Unknown side"
+
+stdout | src/test/unit/qa7e-render.probe.test.jsx > QA7E·L4 未知枚举兜底 · 四语逐语真渲染 > MarketPage 未知 status=sunset-value/side=moon · vn ⇒ 该语 unknown 文案、不裸渲
+  [L4·Market·vn] meta="5/0 · Không rõ" title="#9 · Không rõ chiều"  expect_status_unknown="Không rõ" expect_side_unknown="Không rõ chiều"
+
+stdout | src/test/unit/qa7e-render.probe.test.jsx > QA7E·L4 未知枚举兜底 · 四语逐语真渲染 > 缺省/空串口径未变：ListingDetail ⇒ "-"；Market ⇒ 空串
+  [L4·缺省·ListingDetail·zh] visible="商品编号 #5 · -"
+
+stdout | src/test/unit/qa7e-render.probe.test.jsx > QA7E·L4 未知枚举兜底 · 四语逐语真渲染 > 缺省/空串口径未变：ListingDetail ⇒ "-"；Market ⇒ 空串
+  [L4·缺省·Market·zh] meta="5/0 · " title="#9 · "
+
+ ✓ src/test/unit/qa7e-render.probe.test.jsx  (9 tests) 90ms
+
+ Test Files  2 passed (2)
+      Tests  11 passed (11)
+   Start at  21:25:45
+   Duration  770ms (transform 255ms, setup 197ms, collect 341ms, tests 145ms, environment 440ms, prepare 88ms)
