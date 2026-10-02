@@ -497,7 +497,11 @@
     "points": "積分管理",
     "pointsDesc": "調整用戶積分",
     "settings": "系統設定",
-    "settingsDesc": "系統配置"
+    "settingsDesc": "系統配置",
+    "feeRate": "費率設定",
+    "feeRateDesc": "費率與生效版本",
+    "weightMatrix": "權重矩陣",
+    "weightMatrixDesc": "返佣各層權重"
   },
   "adminLayout": {
     "panelTitle": "管理面板",
@@ -821,5 +825,48 @@
     "details": "詳細資料",
     "notFoundTitle": "搵唔到頁面",
     "notFoundBody": "你訪問嘅頁面唔存在或者已經搬咗。"
+  },
+  "adminFeeRate": {
+    "intro": "本頁顯示現行生效嘅手續費費率；修改後儲存即會產生新嘅生效版本，下方為該版本嘅稽核資料。",
+    "cardCurrent": "費率",
+    "labelFeeRate": "手續費費率（基點）",
+    "rangeHint": "可填範圍 {{min}}%–{{max}}%（以基點儲存，此處按百分比顯示）",
+    "percentPreview": "按現時輸入折算：{{value}}%",
+    "cardAudit": "生效版本資料",
+    "labelPolicyId": "版本編號",
+    "labelEffectiveFrom": "生效時間",
+    "labelCreatedBy": "建立人",
+    "labelTimeCreated": "記錄時間",
+    "labelWeightsSum": "權重合計（基點）",
+    "saveButton": "儲存費率",
+    "saved": "費率已儲存",
+    "saveFailed": "儲存失敗：{{message}}",
+    "loadFailed": "載入費率失敗：{{message}}",
+    "invalidFeeRate": "費率須為 {{min}}%–{{max}} 之間嘅百分比（以基點填寫）",
+    "unsavedChanges": "有未儲存嘅修改。",
+    "noChanges": "現時內容同已儲存值一致。"
+  },
+  "adminWeightMatrix": {
+    "intro": "本頁按層級維護返佣權重矩陣：層級數即行數，逐層權重即每行數值；儲存後即時成為新嘅生效版本。",
+    "cardMatrix": "權重矩陣",
+    "labelLevels": "層級數",
+    "colLevel": "層級",
+    "colWeight": "權重",
+    "colShare": "佔比",
+    "sumLabel": "權重合計 {{value}}（上限 {{max}}）",
+    "invalidShape": "層級數須介乎 {{min}} 至 {{max}}，而且每層權重都要係唔小於零嘅整數。",
+    "invalidFirst": "第一層權重唔可以係零。",
+    "invalidSum": "權重合計要大於零，並且唔可以超過 {{max}}。",
+    "invalidMatrix": "現時矩陣唔合法，請檢查層級數同各層權重。",
+    "cardStored": "已儲存版本",
+    "labelStoredSum": "已儲存權重合計",
+    "labelStoredFeeRate": "已儲存費率（基點）",
+    "labelEffectiveFrom": "生效時間",
+    "saveButton": "儲存矩陣",
+    "saved": "權重矩陣已儲存",
+    "saveFailed": "儲存失敗：{{message}}",
+    "loadFailed": "載入權重矩陣失敗：{{message}}",
+    "unsavedChanges": "有未儲存嘅修改。",
+    "noChanges": "現時內容同已儲存值一致。"
   }
 }

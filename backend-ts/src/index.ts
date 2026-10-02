@@ -36,7 +36,8 @@ import { createListing, transitionListingStatus, updateListing } from './listing
 // P4-B4a：商品**资金**面（P2 购买 / P4 退款）—— §1.8 #9/#10；同样**本片首次导入**（`listing-funds-service` 调用点改前 = 0）
 import { buyListing, refundListingOrder } from './listing-funds-service';
 // P4-B4a：R3 佣金政策插行（§1.8 附注 / §9 A11）；**只读引用**该模块，不改其行为、不改金额来源（§4.8）
-import { insertCommissionPolicy } from './commission';
+// 8②：同模块的读口 `getCommissionPolicy` 供新增 admin 读口复用（**不得自写第二套取数**，§19.2(c)）
+import { getCommissionPolicy, insertCommissionPolicy } from './commission';
 // P4-B3e（§4.2 M1/M2/M3 · §4.3 资金四栏 · DL85/DL87/DL90 + DL68 币对串行化）：交易所资金编排
 import { placeMarketOrder, cancelMarketOrder, cancelAllMarketOrders } from './market-service';
 // P4-B3a：币种面**真资金**编排（§1.1:147-148 · §4.2 C1/C2 · §7-3 已裁）
@@ -2017,6 +2018,30 @@ app.post('/api/admin/commission_policy', async (req, res) => {
     return sendSuccess(res, policy, 'Commission policy inserted');
   } catch (error) {
     return sendInfraMapped(res, 'admin.commission_policy', error);
+  }
+});
+
+// ---- 8② · A12 佣金政策**读口**（运营后台展示现行费率 + 返佣权重矩阵）--------------------------
+// 契约真源 = `docs/route-layer.spec.md` v2.4 **§19.2(b)**（本片冻结新增；`§7-70`）：
+//   · 路径 / 方法 = `GET /api/admin/commission_policy`（**同路径同族先例** = `GET|POST /api/admin/settings`，
+//     即只换 verb，不得另造路径）⇒ **注册点 68 → 69**（§1.14 增量登记；表体未动）；
+//   · 闸 = `manage_settings`（与写口**同键**；11 键内，`R-8-1` ⇒ **零新增权限键**）；
+//   · 响应形状 = **R107 口径**（成功 `{success,message,data}` / 失败 `{error:{code,message,i18n_key,details}}`）；
+//     `data` = **形态 A** = `CommissionPolicy` **恰 8 键本体**（与写口成功响应同形）——「合片」的数据面依据；
+//   · 取数口径 = **复用** `src/commission.ts:201` `getCommissionPolicy`（**不得自写第二套取数**，§19.2(c)）；
+//     **CR4**：`at` **不得**暴露为对外查询参数 ⇒ 只取「当前生效政策」（`T = DB now()`）；
+//   · 只读纪律：**只 `SELECT`**；不得引入任何写路径 / 回填 / 修正（政策表 append-only，`0007:102-112`）；
+//   · `ops:` 幂等键 = **无**（读口无副作用；先例 = `GET /api/admin/settings`，§19.2(b)）；
+//   · **R-8-6 双向判负**：本读口 = **运营后台功能需求**，**不得**承载 §19.4 的**验收**读数（两条线不混同）。
+app.get('/api/admin/commission_policy', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'manage_settings');
+  if (!actor) return;
+
+  try {
+    const policy = await getCommissionPolicy();
+    return sendSuccess(res, policy, 'Commission policy (current effective)');
+  } catch (error) {
+    return sendInfraMapped(res, 'admin.commission_policy.get', error);
   }
 });
 

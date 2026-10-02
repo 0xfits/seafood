@@ -1,0 +1,207 @@
+{
+ "unit": "P8-S2-HTTP-READONLY",
+ "run": "20261002T144915Z",
+ "base": "http://127.0.0.1:5796",
+ "generated_at": "2026-10-02T14:49:21.633Z",
+ "total": 8,
+ "passed": 8,
+ "failed": 0,
+ "out": {
+  "script": "scripts/p8-s2-02-http-readonly.ts",
+  "base": "http://127.0.0.1:5796",
+  "run": "20261002T144915Z",
+  "http_post_face": {
+   "verdict": "NOT_MEASURED",
+   "reason": "R-8-15：`commission_policy` 表 append-only（`0007:102-112`，UPDATE/DELETE 直接 RAISE）+ 新政策行以新 `effective_from` 直接成为现行政策 ⇒ 真 POST 即永久改变线上费率/佣金。写段改由 `scripts/p8-s2-01-effective.ts` 在事务内 ROLLBACK 完成（服务层同路径 `withTransaction` + `insertCommissionPolicy`）。"
+  },
+  "health": {
+   "status": 200
+  },
+  "actors": {
+   "admin_uid": "1",
+   "non_admin_uid": "2"
+  },
+  "get_admin": {
+   "status": 200,
+   "top_keys": [
+    "data",
+    "message",
+    "success"
+   ],
+   "success": true,
+   "data_keys": [
+    "created_by",
+    "effective_from",
+    "fee_rate_bp",
+    "levels",
+    "policy_id",
+    "time_created",
+    "weights_bp",
+    "weights_sum_bp"
+   ],
+   "data": {
+    "policy_id": "3",
+    "fee_rate_bp": 100,
+    "levels": 10,
+    "weights_bp": [
+     3000,
+     2000,
+     1500,
+     1000,
+     800,
+     600,
+     500,
+     300,
+     200,
+     100
+    ],
+    "effective_from": "2026-10-01 19:21:28.285+00",
+    "created_by": "1",
+    "time_created": "2026-09-29 19:21:33.778726+00",
+    "weights_sum_bp": 10000
+   }
+  },
+  "get_admin_vs_db": {
+   "http": {
+    "policy_id": "3",
+    "fee_rate_bp": 100,
+    "levels": 10
+   },
+   "db": {
+    "policy_id": "3",
+    "fee_rate_bp": 100,
+    "levels": 10
+   }
+  },
+  "get_no_token": {
+   "status": 401,
+   "body": {
+    "error": {
+     "code": "AUTH_UNAUTHORIZED",
+     "message": "AUTH_UNAUTHORIZED",
+     "i18n_key": "auth.err.AUTH_UNAUTHORIZED",
+     "details": {}
+    }
+   }
+  },
+  "get_non_admin": {
+   "status": 403,
+   "body": {
+    "error": {
+     "code": "AUTH_FORBIDDEN",
+     "message": "AUTH_FORBIDDEN",
+     "i18n_key": "auth.err.AUTH_FORBIDDEN",
+     "details": {
+      "reason": "NOT_ADMIN"
+     }
+    }
+   }
+  },
+  "get_bad_token": {
+   "status": 401,
+   "body": {
+    "error": {
+     "code": "AUTH_UNAUTHORIZED",
+     "message": "AUTH_UNAUTHORIZED",
+     "i18n_key": "auth.err.AUTH_UNAUTHORIZED",
+     "details": {}
+    }
+   }
+  },
+  "policy_count_after_probe": 3
+ },
+ "results": [
+  {
+   "id": "GET-200-admin",
+   "pass": true,
+   "detail": {
+    "status": 200
+   }
+  },
+  {
+   "id": "GET-data-8keys",
+   "pass": true,
+   "detail": {
+    "data_keys": [
+     "created_by",
+     "effective_from",
+     "fee_rate_bp",
+     "levels",
+     "policy_id",
+     "time_created",
+     "weights_bp",
+     "weights_sum_bp"
+    ]
+   }
+  },
+  {
+   "id": "GET-matches-db-current",
+   "pass": true,
+   "detail": {
+    "http": {
+     "policy_id": "3",
+     "fee_rate_bp": 100,
+     "levels": 10
+    },
+    "db": {
+     "policy_id": "3",
+     "fee_rate_bp": 100,
+     "levels": 10
+    }
+   }
+  },
+  {
+   "id": "AUTH-401-no-token",
+   "pass": true,
+   "detail": {
+    "status": 401
+   }
+  },
+  {
+   "id": "R107-error-shape",
+   "pass": true,
+   "detail": {
+    "error_keys": [
+     "code",
+     "details",
+     "i18n_key",
+     "message"
+    ],
+    "top_keys": [
+     "error"
+    ]
+   }
+  },
+  {
+   "id": "AUTH-403-non-admin",
+   "pass": true,
+   "detail": {
+    "status": 403,
+    "body": {
+     "error": {
+      "code": "AUTH_FORBIDDEN",
+      "message": "AUTH_FORBIDDEN",
+      "i18n_key": "auth.err.AUTH_FORBIDDEN",
+      "details": {
+       "reason": "NOT_ADMIN"
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "AUTH-401-bad-token",
+   "pass": true,
+   "detail": {
+    "status": 401
+   }
+  },
+  {
+   "id": "POLICY-append-only-untouched",
+   "pass": true,
+   "detail": {
+    "count": 3
+   }
+  }
+ ]
+}

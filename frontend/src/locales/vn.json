@@ -497,7 +497,11 @@
     "points": "Quản lý điểm",
     "pointsDesc": "Điều chỉnh điểm người dùng",
     "settings": "Cài đặt hệ thống",
-    "settingsDesc": "Cấu hình hệ thống"
+    "settingsDesc": "Cấu hình hệ thống",
+    "feeRate": "Cấu hình phí",
+    "feeRateDesc": "Tỷ lệ phí và phiên bản hiệu lực",
+    "weightMatrix": "Ma trận trọng số",
+    "weightMatrixDesc": "Trọng số hoa hồng theo cấp"
   },
   "adminLayout": {
     "panelTitle": "Bảng quản trị",
@@ -821,5 +825,48 @@
     "details": "Chi tiết",
     "notFoundTitle": "Không tìm thấy trang",
     "notFoundBody": "Trang bạn truy cập không tồn tại hoặc đã được di chuyển."
+  },
+  "adminFeeRate": {
+    "intro": "Trang này hiển thị tỷ lệ phí hoa hồng đang có hiệu lực. Sau khi lưu thay đổi, một phiên bản hiệu lực mới sẽ được tạo; thông tin kiểm toán của phiên bản đó ở bên dưới.",
+    "cardCurrent": "Tỷ lệ phí",
+    "labelFeeRate": "Tỷ lệ phí hoa hồng (điểm cơ bản)",
+    "rangeHint": "Phạm vi cho phép {{min}}%–{{max}}% (lưu theo điểm cơ bản, hiển thị tại đây dưới dạng phần trăm)",
+    "percentPreview": "Quy đổi theo giá trị đã nhập: {{value}}%",
+    "cardAudit": "Phiên bản hiệu lực",
+    "labelPolicyId": "Mã phiên bản",
+    "labelEffectiveFrom": "Hiệu lực từ",
+    "labelCreatedBy": "Người tạo",
+    "labelTimeCreated": "Thời điểm ghi nhận",
+    "labelWeightsSum": "Tổng trọng số (điểm cơ bản)",
+    "saveButton": "Lưu tỷ lệ phí",
+    "saved": "Đã lưu tỷ lệ phí",
+    "saveFailed": "Lưu thất bại: {{message}}",
+    "loadFailed": "Không tải được tỷ lệ phí: {{message}}",
+    "invalidFeeRate": "Tỷ lệ phí phải là phần trăm trong khoảng {{min}}% đến {{max}} (nhập theo điểm cơ bản)",
+    "unsavedChanges": "Bạn có thay đổi chưa lưu.",
+    "noChanges": "Nội dung hiện tại khớp với giá trị đã lưu."
+  },
+  "adminWeightMatrix": {
+    "intro": "Trang này quản lý ma trận trọng số hoa hồng theo từng cấp: số cấp là số hàng, mỗi cấp mang một trọng số. Sau khi lưu, phiên bản hiệu lực mới được áp dụng ngay.",
+    "cardMatrix": "Ma trận trọng số",
+    "labelLevels": "Số cấp",
+    "colLevel": "Cấp",
+    "colWeight": "Trọng số",
+    "colShare": "Tỷ lệ chia",
+    "sumLabel": "Tổng trọng số {{value}} (giới hạn {{max}})",
+    "invalidShape": "Số cấp phải trong khoảng {{min}} đến {{max}} và mỗi trọng số phải là số nguyên không âm.",
+    "invalidFirst": "Trọng số của cấp đầu tiên không được bằng không.",
+    "invalidSum": "Tổng trọng số phải lớn hơn không và không vượt quá {{max}}.",
+    "invalidMatrix": "Ma trận hiện tại chưa hợp lệ, vui lòng kiểm tra số cấp và trọng số từng cấp.",
+    "cardStored": "Phiên bản đã lưu",
+    "labelStoredSum": "Tổng trọng số đã lưu",
+    "labelStoredFeeRate": "Tỷ lệ phí đã lưu (điểm cơ bản)",
+    "labelEffectiveFrom": "Hiệu lực từ",
+    "saveButton": "Lưu ma trận",
+    "saved": "Đã lưu ma trận trọng số",
+    "saveFailed": "Lưu thất bại: {{message}}",
+    "loadFailed": "Không tải được ma trận trọng số: {{message}}",
+    "unsavedChanges": "Bạn có thay đổi chưa lưu.",
+    "noChanges": "Nội dung hiện tại khớp với giá trị đã lưu."
   }
 }

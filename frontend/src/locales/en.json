@@ -497,7 +497,11 @@
     "points": "Points Management",
     "pointsDesc": "Adjust user points",
     "settings": "System Settings",
-    "settingsDesc": "System configuration"
+    "settingsDesc": "System configuration",
+    "feeRate": "Fee Rates",
+    "feeRateDesc": "Fee rate and effective versions",
+    "weightMatrix": "Weight Matrix",
+    "weightMatrixDesc": "Referral weights per level"
   },
   "adminLayout": {
     "panelTitle": "Admin Panel",
@@ -821,5 +825,48 @@
     "details": "Details",
     "notFoundTitle": "Page not found",
     "notFoundBody": "The page you are looking for does not exist or has been moved."
+  },
+  "adminFeeRate": {
+    "intro": "This page shows the commission fee rate currently in effect. Saving a change creates a new effective version; that version’s audit details appear below.",
+    "cardCurrent": "Fee rate",
+    "labelFeeRate": "Commission fee rate (basis points)",
+    "rangeHint": "Allowed range {{min}}%–{{max}}% (stored in basis points, shown here as a percentage)",
+    "percentPreview": "Converted from your input: {{value}}%",
+    "cardAudit": "Effective version",
+    "labelPolicyId": "Version ID",
+    "labelEffectiveFrom": "Effective from",
+    "labelCreatedBy": "Created by",
+    "labelTimeCreated": "Recorded at",
+    "labelWeightsSum": "Total weight (basis points)",
+    "saveButton": "Save fee rate",
+    "saved": "Fee rate saved",
+    "saveFailed": "Save failed: {{message}}",
+    "loadFailed": "Failed to load the fee rate: {{message}}",
+    "invalidFeeRate": "The fee rate must be a percentage between {{min}}% and {{max}} (entered in basis points)",
+    "unsavedChanges": "You have unsaved changes.",
+    "noChanges": "Everything matches the saved values."
+  },
+  "adminWeightMatrix": {
+    "intro": "Maintain the referral weight matrix by level: the number of levels sets the row count and each level carries its own weight. Saving applies a new effective version immediately.",
+    "cardMatrix": "Weight matrix",
+    "labelLevels": "Number of levels",
+    "colLevel": "Level",
+    "colWeight": "Weight",
+    "colShare": "Share",
+    "sumLabel": "Total weight {{value}} (limit {{max}})",
+    "invalidShape": "The number of levels must be between {{min}} and {{max}}, and every level weight must be a non-negative whole number.",
+    "invalidFirst": "The first level weight must not be zero.",
+    "invalidSum": "The total weight must be greater than zero and no more than {{max}}.",
+    "invalidMatrix": "This matrix is not valid; please check the number of levels and each level weight.",
+    "cardStored": "Saved version",
+    "labelStoredSum": "Saved total weight",
+    "labelStoredFeeRate": "Saved fee rate (basis points)",
+    "labelEffectiveFrom": "Effective from",
+    "saveButton": "Save matrix",
+    "saved": "Weight matrix saved",
+    "saveFailed": "Save failed: {{message}}",
+    "loadFailed": "Failed to load the weight matrix: {{message}}",
+    "unsavedChanges": "You have unsaved changes.",
+    "noChanges": "Everything matches the saved values."
   }
 }

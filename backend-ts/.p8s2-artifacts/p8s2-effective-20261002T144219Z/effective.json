@@ -1,0 +1,610 @@
+{
+ "unit": "P8-S2-EFFECTIVE",
+ "run": "20261002T144219Z",
+ "generated_at": "2026-10-02T14:42:28.830Z",
+ "total": 24,
+ "passed": 21,
+ "failed": 3,
+ "rollback_discipline": "R-8-15：两段各在自己的 withTransaction 内完成并 ROLLBACK（无 HTTP POST）",
+ "out": {
+  "script": "scripts/p8-s2-01-effective.ts",
+  "run": "20261002T144219Z",
+  "r8_15": "后台写段 = 服务层写（withTransaction + insertCommissionPolicy 同路径）+ 事务内 + 末尾 ROLLBACK；未跑任何 HTTP POST",
+  "fixture": {
+   "worker": "6",
+   "employer": "5",
+   "cid": "1",
+   "gross": "100000",
+   "job_id": "9000001",
+   "chain": "6→5→4（depth=2）"
+  },
+  "baseline": {
+   "rows": [
+    {
+     "policy_id": "3",
+     "fee_rate_bp": 100,
+     "levels": 10,
+     "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+     "effective_from": "2026-10-01 19:21:28.285+00",
+     "created_by": "1",
+     "time_created": "2026-09-29 19:21:33.778726+00"
+    },
+    {
+     "policy_id": "2",
+     "fee_rate_bp": 100,
+     "levels": 10,
+     "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+     "effective_from": "2026-09-30 19:15:36.192+00",
+     "created_by": "1",
+     "time_created": "2026-09-29 19:15:42.435667+00"
+    },
+    {
+     "policy_id": "1",
+     "fee_rate_bp": 100,
+     "levels": 10,
+     "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+     "effective_from": "1970-01-01 00:00:00+00",
+     "created_by": "0",
+     "time_created": "2026-09-29 01:15:27.684706+00"
+    }
+   ],
+   "count": 3
+  },
+  "segment_A_fee_rate_bp": {
+   "before": {
+    "read_endpoint": {
+     "policy_id": "3",
+     "fee_rate_bp": 100,
+     "levels": 10,
+     "weights_bp": [
+      3000,
+      2000,
+      1500,
+      1000,
+      800,
+      600,
+      500,
+      300,
+      200,
+      100
+     ]
+    },
+    "db_fn": {
+     "fee": "1000",
+     "fee_rate_bp": 100,
+     "layers": [
+      {
+       "level": 1,
+       "x": "600"
+      },
+      {
+       "level": 2,
+       "x": "400"
+      }
+     ]
+    },
+    "service_fn": {
+     "fee": "1000",
+     "net": "99000",
+     "layer_x": [
+      {
+       "level": 1,
+       "x": "600"
+      },
+      {
+       "level": 2,
+       "x": "400"
+      }
+     ]
+    }
+   },
+   "1_write": {
+    "same_path": "POST /api/admin/commission_policy（src/index.ts:1999）⇒ src/commission.ts:240 insertCommissionPolicy",
+    "returned_keys": [
+     "created_by",
+     "effective_from",
+     "fee_rate_bp",
+     "levels",
+     "policy_id",
+     "time_created",
+     "weights_bp",
+     "weights_sum_bp"
+    ],
+    "fee_rate_bp_returned": 250,
+    "policy_id": "4"
+   },
+   "2_db_landed": {
+    "table": "public.commission_policy",
+    "columns": [
+     "fee_rate_bp",
+     "effective_from"
+    ],
+    "row": {
+     "policy_id": "4",
+     "fee_rate_bp": 250,
+     "levels": 10,
+     "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+     "effective_from": "2026-10-02 14:42:22.169515+00"
+    }
+   },
+   "3_business_read": {
+    "anchor_1": "src/commission.ts:201 getCommissionPolicy → src/commission.ts:207 SELECT … WHERE effective_from <= COALESCE($1::timestamptz, now())",
+    "anchor_2": "migrations/0013_job.sql:250 public.job_settle_plan → :292 SELECT cp.fee_rate_bp, cp.levels, cp.weights_bp",
+    "read_endpoint_policy_id": "4",
+    "read_endpoint_fee_rate_bp": 250,
+    "db_fn_fee": "2500",
+    "db_fn_fee_rate_bp": 250
+   },
+   "4_behavior": {
+    "business_quantity": "job_fee 金额（同一 gross=100000）",
+    "before_fee": "1000",
+    "after_fee": "2500",
+    "before_net": "99000",
+    "after_net": "97500",
+    "db_fn_before_fee": "1000",
+    "db_fn_after_fee": "2500",
+    "expect_formula": "fee = (gross × fee_rate_bp + 5000) / 10000（CR38 · 唯一取整点）",
+    "compute": {
+     "gross": "100000",
+     "bp_before": 100,
+     "bp_after": 250,
+     "formula_before": "1000",
+     "formula_after": "2500"
+    }
+   },
+   "rollback": {
+    "sentinel": "SEG_A",
+    "committed": false
+   }
+  },
+  "segment_B_weights_bp": {
+   "before": {
+    "policy": {
+     "fee_rate_bp": 100,
+     "levels": 10,
+     "weights_bp": [
+      3000,
+      2000,
+      1500,
+      1000,
+      800,
+      600,
+      500,
+      300,
+      200,
+      100
+     ],
+     "weights_sum_bp": 10000
+    },
+    "M": 2,
+    "W": "5000",
+    "db_fn": {
+     "fee": "1000",
+     "W": "5000",
+     "weights_bp": [
+      3000,
+      2000
+     ],
+     "layers": [
+      {
+       "level": 1,
+       "x": "600"
+      },
+      {
+       "level": 2,
+       "x": "400"
+      }
+     ]
+    },
+    "service_fn": {
+     "fee": "1000",
+     "layer_x": [
+      {
+       "level": 1,
+       "weight_bp": "3000",
+       "x": "600"
+      },
+      {
+       "level": 2,
+       "weight_bp": "2000",
+       "x": "400"
+      }
+     ]
+    }
+   },
+   "1_write": {
+    "same_path": "POST /api/admin/commission_policy ⇒ src/commission.ts:240 insertCommissionPolicy",
+    "returned_levels": 3,
+    "returned_weights_bp": [
+     5000,
+     3000,
+     2000
+    ],
+    "returned_weights_sum_bp": 10000
+   },
+   "2_db_landed": {
+    "table": "public.commission_policy",
+    "columns": [
+     "weights_bp",
+     "levels"
+    ],
+    "row": {
+     "policy_id": "5",
+     "fee_rate_bp": 100,
+     "levels": 3,
+     "weights_bp": "{5000,3000,2000}",
+     "effective_from": "2026-10-02 14:42:26.192506+00"
+    }
+   },
+   "3_business_read": {
+    "anchor_1": "src/commission.ts:432 splitPool（最大余数法）← src/commission.ts:645 planJobSettlement 调它",
+    "anchor_2": "migrations/0013_job.sql:336-360（同核最大余数法 + `Σx_L <> pool` ⇒ ledger_raise）",
+    "read_endpoint_weights_bp": [
+     5000,
+     3000,
+     2000
+    ],
+    "read_endpoint_levels": 3,
+    "read_endpoint_weights_sum_bp": 10000,
+    "db_fn_W": "8000",
+    "db_fn_weights_bp": [
+     5000,
+     3000
+    ]
+   },
+   "4_behavior": {
+    "business_quantity": "`commission` 各层分配额 `x_L`（同一 `fee`）",
+    "before": {
+     "fee": "1000",
+     "layer_x": [
+      "600",
+      "400"
+     ],
+     "weights_used": [
+      "3000",
+      "2000"
+     ],
+     "W": "5000",
+     "sum_x": "1000"
+    },
+    "after": {
+     "fee": "1000",
+     "layer_x": [
+      "625",
+      "375"
+     ],
+     "weights_used": [
+      "5000",
+      "3000"
+     ],
+     "W": "8000",
+     "sum_x": "1000"
+    },
+    "db_fn_after": {
+     "fee": "1000",
+     "layers": [
+      {
+       "level": 1,
+       "x": "625"
+      },
+      {
+       "level": 2,
+       "x": "375"
+      }
+     ],
+     "sum_x": "1000"
+    },
+    "pool_flow_before": {
+     "inflow": "1000",
+     "outflow": "-1000",
+     "net": "0"
+    },
+    "pool_flow_after": {
+     "inflow": "1000",
+     "outflow": "-1000",
+     "net": "0"
+    },
+    "fee_credit_uid": "-2"
+   },
+   "rollback": {
+    "sentinel": "SEG_B",
+    "committed": false
+   }
+  },
+  "post_rollback": {
+   "count": 3,
+   "max_effective_from": "2026-10-01 19:21:28.285+00",
+   "rows_identical": true
+  }
+ },
+ "checks": [
+  {
+   "id": "A1-write-shape-8keys",
+   "pass": true,
+   "detail": {
+    "actual": [
+     "created_by",
+     "effective_from",
+     "fee_rate_bp",
+     "levels",
+     "policy_id",
+     "time_created",
+     "weights_bp",
+     "weights_sum_bp"
+    ],
+    "expected": [
+     "created_by",
+     "effective_from",
+     "fee_rate_bp",
+     "levels",
+     "policy_id",
+     "time_created",
+     "weights_bp",
+     "weights_sum_bp"
+    ]
+   },
+   "neg_rule": "写口返回 `data` 键集 ≠ `CommissionPolicy` 8 键 ⇒ 判负"
+  },
+  {
+   "id": "A2-db-fee_rate_bp-landed",
+   "pass": true,
+   "detail": {
+    "actual": 250,
+    "expected": 250
+   },
+   "neg_rule": "写成功（insert 返回行）但 `public.commission_policy.fee_rate_bp` 未随之变 ⇒ 判负"
+  },
+  {
+   "id": "A2-db-fee_rate_bp-landed__selftest",
+   "pass": true,
+   "detail": {
+    "wrong": 251,
+    "expected": 250,
+    "fired": true
+   },
+   "neg_rule": "写成功但库列未变 ⇒ 判负"
+  },
+  {
+   "id": "A3-read-fn-sees-new",
+   "pass": true,
+   "detail": {
+    "actual": 250,
+    "expected": 250
+   },
+   "neg_rule": "业务读口（`getCommissionPolicy`）取到的仍是旧值 ⇒ 判负"
+  },
+  {
+   "id": "A3-db-fn-sees-new",
+   "pass": true,
+   "detail": {
+    "actual": 250,
+    "expected": 250
+   },
+   "neg_rule": "DB 侧同核（`job_settle_plan`）取到的仍是旧值 ⇒ 判负"
+  },
+  {
+   "id": "A4-job_fee-amount-differs",
+   "pass": true,
+   "detail": {
+    "before": "1000",
+    "after": "2500"
+   },
+   "neg_rule": "同一 `gross`、改 `fee_rate_bp` 前后两次结算的 `job_fee` 金额相等 ⇒ 判负"
+  },
+  {
+   "id": "A4-job_fee-amount-differs__selftest",
+   "pass": false,
+   "detail": {
+    "wrong": "1000",
+    "expected": "1000",
+    "fired": false
+   },
+   "neg_rule": "改 `fee_rate_bp` 前后 `job_fee` 相等 ⇒ 判负"
+  },
+  {
+   "id": "A4-fee-matches-formula",
+   "pass": true,
+   "detail": {
+    "service_fee": "2500",
+    "db_fee": "2500",
+    "formula": "2500"
+   },
+   "neg_rule": "改后 `job_fee` ≠ CR38 公式值 ⇒ 判负"
+  },
+  {
+   "id": "A4-db-write-parity",
+   "pass": true,
+   "detail": {
+    "dbChanged": true
+   },
+   "neg_rule": "② 段库列未落地 ⇒ 本段 ④ 读数不可采信（判负）"
+  },
+  {
+   "id": "B1-write-shape-8keys",
+   "pass": true,
+   "detail": {
+    "actual": [
+     "created_by",
+     "effective_from",
+     "fee_rate_bp",
+     "levels",
+     "policy_id",
+     "time_created",
+     "weights_bp",
+     "weights_sum_bp"
+    ],
+    "expected": [
+     "created_by",
+     "effective_from",
+     "fee_rate_bp",
+     "levels",
+     "policy_id",
+     "time_created",
+     "weights_bp",
+     "weights_sum_bp"
+    ]
+   },
+   "neg_rule": "写口返回 `data` 键集 ≠ `CommissionPolicy` 8 键 ⇒ 判负"
+  },
+  {
+   "id": "B2-db-weights_bp-landed",
+   "pass": true,
+   "detail": {
+    "actual": "{5000,3000,2000}",
+    "expected": "{5000,3000,2000}"
+   },
+   "neg_rule": "写成功（insert 返回行）但 `public.commission_policy.weights_bp` 未随之变 ⇒ 判负"
+  },
+  {
+   "id": "B2-db-levels-landed",
+   "pass": true,
+   "detail": {
+    "actual": 3,
+    "expected": 3
+   },
+   "neg_rule": "写成功（insert 返回行）但 `public.commission_policy.levels` 未随之变 ⇒ 判负"
+  },
+  {
+   "id": "B2-db-weights_bp-landed__selftest",
+   "pass": true,
+   "detail": {
+    "wrong": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+    "expected": "{5000,3000,2000}",
+    "fired": true
+   },
+   "neg_rule": "写成功但库列未变 ⇒ 判负"
+  },
+  {
+   "id": "B3-read-fn-sees-new",
+   "pass": true,
+   "detail": {
+    "actual": [
+     5000,
+     3000,
+     2000
+    ],
+    "expected": [
+     5000,
+     3000,
+     2000
+    ]
+   },
+   "neg_rule": "业务读口（`getCommissionPolicy`）取到的 `weights_bp` 仍是旧值 ⇒ 判负"
+  },
+  {
+   "id": "B3-db-fn-sees-new",
+   "pass": false,
+   "detail": {
+    "actual": [
+     5000,
+     3000
+    ],
+    "expected": [
+     "5000",
+     "3000",
+     "2000"
+    ]
+   },
+   "neg_rule": "DB 侧同核（`job_settle_plan`）取到的 `weights_bp` 仍是旧值 ⇒ 判负"
+  },
+  {
+   "id": "B4-xL-differs",
+   "pass": true,
+   "detail": {
+    "before": [
+     "600",
+     "400"
+    ],
+    "after": [
+     "625",
+     "375"
+    ]
+   },
+   "neg_rule": "同一 `fee`、改 `weights_bp` 前后两次结算的 `commission` 各层 `x_L` 逐层相等 ⇒ 判负"
+  },
+  {
+   "id": "B4-xL-differs__selftest",
+   "pass": false,
+   "detail": {
+    "wrong": [
+     "600",
+     "400"
+    ],
+    "expected": [
+     "600",
+     "400"
+    ],
+    "fired": false
+   },
+   "neg_rule": "改 `weights_bp` 前后 `x_L` 逐层相等 ⇒ 判负"
+  },
+  {
+   "id": "B4-sum_x-equals-fee",
+   "pass": true,
+   "detail": {
+    "sum_x": "1000",
+    "fee": "1000",
+    "db_sum_x": "1000",
+    "db_fee": "1000"
+   },
+   "neg_rule": "改 `weights_bp` 后 `Σx_L != fee` ⇒ 判负"
+  },
+  {
+   "id": "B4-pool-minus2-conserved",
+   "pass": true,
+   "detail": {
+    "fee_credit_uid": "-2",
+    "pool_inflow": "1000",
+    "pool_outflow": "-1000",
+    "pool_net": "0",
+    "fee": "1000"
+   },
+   "neg_rule": "改 `weights_bp` 后 `-2` 池进出不守恒（`inflow + outflow ≠ 0`）⇒ 判负"
+  },
+  {
+   "id": "B4-pool-minus2-conserved__selftest",
+   "pass": true,
+   "detail": {
+    "wrong": "-1",
+    "expected": "0",
+    "fired": true
+   },
+   "neg_rule": "`-2` 池进出不守恒 ⇒ 判负"
+  },
+  {
+   "id": "B4-db-write-parity",
+   "pass": true,
+   "detail": {
+    "dbChanged": true
+   },
+   "neg_rule": "② 段库列未落地 ⇒ 本段 ④ 读数不可采信（判负）"
+  },
+  {
+   "id": "ROLLBACK-count-unchanged",
+   "pass": true,
+   "detail": {
+    "actual": 3,
+    "expected": 3
+   },
+   "neg_rule": "事务回滚后 `commission_policy` 行数变了 ⇒ 判负（**写已外泄**）"
+  },
+  {
+   "id": "ROLLBACK-rows-identical",
+   "pass": true,
+   "detail": {
+    "actual": true,
+    "expected": true
+   },
+   "neg_rule": "事务回滚后政策行与开工基线不逐字节相同 ⇒ 判负"
+  },
+  {
+   "id": "ROLLBACK-effective_from-unchanged",
+   "pass": true,
+   "detail": {
+    "actual": "2026-10-01 19:21:28.285+00",
+    "expected": "2026-10-01 19:21:28.285+00"
+   },
+   "neg_rule": "事务回滚后 `max(effective_from)` 前移 ⇒ 判负（**新政策行已落库**）"
+  }
+ ]
+}

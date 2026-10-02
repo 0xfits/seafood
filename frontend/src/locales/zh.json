@@ -497,7 +497,11 @@
     "points": "积分管理",
     "pointsDesc": "调整用户积分",
     "settings": "系统设置",
-    "settingsDesc": "系统配置"
+    "settingsDesc": "系统配置",
+    "feeRate": "费率配置",
+    "feeRateDesc": "费率与生效版本",
+    "weightMatrix": "权重矩阵",
+    "weightMatrixDesc": "返佣各层权重"
   },
   "adminLayout": {
     "panelTitle": "管理面板",
@@ -821,5 +825,48 @@
     "details": "详细信息",
     "notFoundTitle": "页面未找到",
     "notFoundBody": "您访问的页面不存在或已被移动。"
+  },
+  "adminFeeRate": {
+    "intro": "本页展示当前生效的手续费费率；修改后保存即生成新的生效版本，下方为该版本的审计信息。",
+    "cardCurrent": "费率",
+    "labelFeeRate": "手续费费率（基点）",
+    "rangeHint": "可填范围 {{min}}%–{{max}}%（以基点存储，此处按百分比显示）",
+    "percentPreview": "按当前输入折算：{{value}}%",
+    "cardAudit": "生效版本信息",
+    "labelPolicyId": "版本编号",
+    "labelEffectiveFrom": "生效时间",
+    "labelCreatedBy": "创建人",
+    "labelTimeCreated": "记录时间",
+    "labelWeightsSum": "权重合计（基点）",
+    "saveButton": "保存费率",
+    "saved": "费率已保存",
+    "saveFailed": "保存失败：{{message}}",
+    "loadFailed": "加载费率失败：{{message}}",
+    "invalidFeeRate": "费率须为 {{min}}%–{{max}} 之间的百分比（以基点填写）",
+    "unsavedChanges": "存在未保存修改。",
+    "noChanges": "当前内容与已保存值一致。"
+  },
+  "adminWeightMatrix": {
+    "intro": "本页按层级维护返佣权重矩阵：层级数即行数，逐层权重即每行数值；保存后即时成为新的生效版本。",
+    "cardMatrix": "权重矩阵",
+    "labelLevels": "层级数",
+    "colLevel": "层级",
+    "colWeight": "权重",
+    "colShare": "占比",
+    "sumLabel": "权重合计 {{value}}（上限 {{max}}）",
+    "invalidShape": "层级数须在 {{min}}–{{max}} 之间，且每层权重均为不小于零的整数。",
+    "invalidFirst": "第一层权重不得为零。",
+    "invalidSum": "权重合计须大于零且不超过 {{max}}。",
+    "invalidMatrix": "当前矩阵不合法，请检查层级数与各层权重。",
+    "cardStored": "已保存版本",
+    "labelStoredSum": "已保存权重合计",
+    "labelStoredFeeRate": "已保存费率（基点）",
+    "labelEffectiveFrom": "生效时间",
+    "saveButton": "保存矩阵",
+    "saved": "权重矩阵已保存",
+    "saveFailed": "保存失败：{{message}}",
+    "loadFailed": "加载权重矩阵失败：{{message}}",
+    "unsavedChanges": "存在未保存修改。",
+    "noChanges": "当前内容与已保存值一致。"
   }
 }

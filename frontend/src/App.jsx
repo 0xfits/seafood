@@ -29,6 +29,8 @@ import UsersManagement from './pages/admin/UsersManagement'
 import PermissionsManagement from './pages/admin/PermissionsManagement'
 import PointsManagement from './pages/admin/PointsManagement'
 import SystemSettings from './pages/admin/SystemSettings'
+import FeeRatePage from './pages/admin/FeeRatePage'
+import ReferralWeightMatrixPage from './pages/admin/ReferralWeightMatrixPage'
 
 // 布局组件
 import AppShell from './shell/AppShell'
@@ -241,6 +243,9 @@ function App() {
           <Route path="permissions" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_permissions"><PermissionsManagement /></ProtectedRoute>} />
           <Route path="points" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_points"><PointsManagement /></ProtectedRoute>} />
           <Route path="settings" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><SystemSettings /></ProtectedRoute>} />
+          {/* 8②（spec §19.5(d)）：费率页 / 权重矩阵页，闸 = manage_settings（与读写两口同键） */}
+          <Route path="fee-rate" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><FeeRatePage /></ProtectedRoute>} />
+          <Route path="weight-matrix" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><ReferralWeightMatrixPage /></ProtectedRoute>} />
         </Route>
       
       {/* 显式语言壳路由：/en/*、/hk/*、/vn/*、/zh/*（顺序即 SUPPORTED_LANGS；zh 也保留显式壳，配合自愈层把 /zh → /） */}

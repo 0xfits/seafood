@@ -10,6 +10,8 @@ import {
   BarChart3,
   Settings,
   Layers,
+  Percent,
+  Network,
   Menu,
   X,
   LogOut
@@ -84,6 +86,20 @@ const AdminLayout = () => {
       icon: Settings,
       path: '/dashboard/settings',
       description: t('adminNav.settingsDesc'),
+      requiredPermission: 'manage_settings',
+    },
+    {
+      title: t('adminNav.feeRate'),
+      icon: Percent,
+      path: '/dashboard/fee-rate',
+      description: t('adminNav.feeRateDesc'),
+      requiredPermission: 'manage_settings',
+    },
+    {
+      title: t('adminNav.weightMatrix'),
+      icon: Network,
+      path: '/dashboard/weight-matrix',
+      description: t('adminNav.weightMatrixDesc'),
       requiredPermission: 'manage_settings',
     }
   ]
