@@ -1,0 +1,85 @@
+RUN=20261002T220054Z COMMIT=7f62c98
+## L2b  门禁 AG1–AG4 ↔ normalizeSystemSettings 真实缺口（真源现取，blob = 7f62c98）
+
+[normalizeSystemSettings 定义] database.ts:664-678
+664|const normalizeSystemSettings = (value: unknown): SystemSettingsRecord => {
+665|  const payload = value && typeof value === 'object' ? value as RawRow : {};
+666|
+667|  return {
+668|    siteName: toStringValue(getValue(payload, 'siteName'), DEFAULT_SYSTEM_SETTINGS.siteName),
+669|    siteDescription: toStringValue(getValue(payload, 'siteDescription'), DEFAULT_SYSTEM_SETTINGS.siteDescription),
+670|    maintenance: toBooleanValue(getValue(payload, 'maintenance'), DEFAULT_SYSTEM_SETTINGS.maintenance),
+671|    allowRegistration: toBooleanValue(getValue(payload, 'allowRegistration'), DEFAULT_SYSTEM_SETTINGS.allowRegistration),
+672|    emailNotifications: toBooleanValue(getValue(payload, 'emailNotifications'), DEFAULT_SYSTEM_SETTINGS.emailNotifications),
+673|    defaultLanguage: toStringValue(getValue(payload, 'defaultLanguage'), DEFAULT_SYSTEM_SETTINGS.defaultLanguage),
+674|    pointsPerTask: toNumberValue(getValue(payload, 'pointsPerTask'), DEFAULT_SYSTEM_SETTINGS.pointsPerTask),
+675|    maxDailyTasks: toNumberValue(getValue(payload, 'maxDailyTasks'), DEFAULT_SYSTEM_SETTINGS.maxDailyTasks),
+676|    rewardCooldown: toNumberValue(getValue(payload, 'rewardCooldown'), DEFAULT_SYSTEM_SETTINGS.rewardCooldown),
+677|  };
+678|};
+
+[写路径] database.ts:2878-2890
+2878|  static async saveSystemSettings(input: Partial<SystemSettingsRecord>, updatedBy = 0): Promise<SystemSettingsRecord> {
+2879|    const current = await this.getSystemSettings();
+2880|    const next = normalizeSystemSettings({
+2881|      ...current,
+2882|      ...(input || {}),
+2883|    });
+2884|    const sql = getSql();
+2885|
+2886|    const rows = asItems<{ value: unknown }>(await sql`
+2887|      INSERT INTO public.app_config (key, value, updated_by, time_updated)
+2888|      VALUES ('system_settings', ${JSON.stringify(next)}::jsonb, ${Number(updatedBy) || 0}::bigint, NOW())
+2889|      ON CONFLICT (key) DO UPDATE SET
+2890|        value = EXCLUDED.value,
+
+[类型归一 helpers] database.ts:96-140
+96|const getValue = (row: RawRow, ...keys: string[]) => {
+97|  for (const key of keys) {
+98|    if (Object.prototype.hasOwnProperty.call(row, key) && row[key] !== null && row[key] !== undefined) {
+99|      return row[key];
+100|    }
+101|  }
+102|
+103|  return undefined;
+104|};
+105|
+106|const toStringValue = (...values: unknown[]) => {
+107|  for (const value of values) {
+108|    if (value === null || value === undefined) continue;
+109|    return String(value);
+110|  }
+111|  return '';
+112|};
+113|
+114|const toOptionalNumber = (value: unknown): number | null => {
+115|  if (value === null || value === undefined || value === '') return null;
+116|  const next = Number(value);
+117|  return Number.isFinite(next) ? next : null;
+118|};
+119|
+120|const toNumberValue = (...values: unknown[]) => {
+121|  for (const value of values) {
+122|    const next = toOptionalNumber(value);
+123|    if (next !== null) {
+124|      return next;
+125|    }
+126|  }
+127|  return 0;
+128|};
+129|
+130|const toBooleanValue = (...values: unknown[]) => {
+131|  for (const value of values) {
+132|    if (value === null || value === undefined || value === '') continue;
+133|    if (typeof value === 'boolean') return value;
+134|    if (typeof value === 'number') return value !== 0;
+135|
+136|    const normalized = String(value).trim().toLowerCase();
+137|    if (['1', 'true', 't', 'yes', 'y', 'on'].includes(normalized)) return true;
+138|    if (['0', 'false', 'f', 'no', 'n', 'off'].includes(normalized)) return false;
+139|  }
+140|
+
+[AG2 类级判据现取]  grep -rn "INSERT INTO public.app_config|UPDATE public.app_config" backend-ts/src/
+7f62c98:backend-ts/src/database.ts:2887:      INSERT INTO public.app_config (key, value, updated_by, time_updated)
+

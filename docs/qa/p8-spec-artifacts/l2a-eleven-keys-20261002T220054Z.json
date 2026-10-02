@@ -1,0 +1,70 @@
+{
+  "run": "20261002T220054Z",
+  "commit": "7f62c98",
+  "source_A": {
+    "path": "backend-ts/src/database.ts:11-23",
+    "keys": [
+      "dashboard_access",
+      "manage_tasks",
+      "publish_tasks",
+      "manage_rewards",
+      "publish_prizes",
+      "read_users",
+      "manage_users",
+      "manage_points",
+      "manage_permissions",
+      "manage_settings",
+      "review_tasks"
+    ]
+  },
+  "source_B": {
+    "path": "backend-ts/migrations/0022_admin_permission_seed.sql:50-61",
+    "keys": [
+      "dashboard_access",
+      "manage_tasks",
+      "publish_tasks",
+      "manage_rewards",
+      "publish_prizes",
+      "read_users",
+      "manage_users",
+      "manage_points",
+      "manage_permissions",
+      "manage_settings",
+      "review_tasks"
+    ]
+  },
+  "source_C": {
+    "path": "frontend/src/admin-utils.js:40-52",
+    "keys": [
+      "dashboard_access",
+      "manage_tasks",
+      "publish_tasks",
+      "manage_rewards",
+      "publish_prizes",
+      "read_users",
+      "manage_users",
+      "manage_points",
+      "manage_permissions",
+      "manage_settings",
+      "review_tasks"
+    ]
+  },
+  "spec_order": [
+    "dashboard_access",
+    "manage_tasks",
+    "publish_tasks",
+    "manage_rewards",
+    "publish_prizes",
+    "read_users",
+    "manage_users",
+    "manage_points",
+    "manage_permissions",
+    "manage_settings",
+    "review_tasks"
+  ],
+  "A==B": true,
+  "A==C": true,
+  "B==C": true,
+  "all_equal_spec_order": true,
+  "count": 11
+}

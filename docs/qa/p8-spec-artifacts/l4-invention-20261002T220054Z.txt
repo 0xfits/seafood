@@ -1,0 +1,30 @@
+RUN=20261002T220054Z COMMIT=7f62c98
+## L4  零发明扫描（对两册新增行）
+
+[file:line 引用] total=53 unresolved=0
+
+[repo scope] git show --stat 7f62c98:
+7f62c98 docs(spec): 批 8 首轮契约冻结 —— route-layer v2.2（权限映射/写口准入/载体键约定/审计台并联对账）+ data-layer v0.10（app_config 合法键清单 + AG1-AG4 门禁）+ 两册快照与 delta（零删除）
+ docs/audit/data-layer-v0.10-delta.md   |   65 +
+ docs/audit/route-layer-v2.2-delta.md   |   58 +
+ docs/data-layer.spec.md                |  104 +
+ docs/route-layer.spec.md               |  190 ++
+ docs/versions/data-layer.spec.v0.10.md | 1174 ++++++++++
+ docs/versions/data-layer.spec.v0.9.md  | 1070 +++++++++
+ docs/versions/route-layer.spec.v2.2.md | 4030 ++++++++++++++++++++++++++++++++
+ 7 files changed, 6691 insertions(+)
+
+
+[working tree at QA time] git status --porcelain:
+ M backend-ts/src/database.ts
+ M backend-ts/src/index.ts
+ M frontend/src/pages/market/MarketPage.jsx
+?? backend-ts/.p4-artifacts/p6tr1a-20261002T135927Z/
+?? docs/audit/p8-s1-app-config.md
+?? docs/qa/p8-spec-artifacts/
+
+
+[dates in added lines]
+   1 2026-09-30
+   3 2026-10-02
+

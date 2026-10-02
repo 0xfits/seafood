@@ -1,0 +1,47 @@
+RUN=20261002T220054Z  COMMIT=7f62c98  HEAD=664401a06ef29983a9ca1a4cbddca523a9739526
+
+## 1. git diff --numstat  (added<TAB>deleted<TAB>path)
+65	0	docs/audit/data-layer-v0.10-delta.md
+58	0	docs/audit/route-layer-v2.2-delta.md
+104	0	docs/data-layer.spec.md
+190	0	docs/route-layer.spec.md
+1174	0	docs/versions/data-layer.spec.v0.10.md
+1070	0	docs/versions/data-layer.spec.v0.9.md
+4030	0	docs/versions/route-layer.spec.v2.2.md
+
+## 2. difflib.SequenceMatcher opcode census per spec
+docs/route-layer.spec.md: old=3840 new=4030 opcodes=['equal', 'insert', 'equal', 'insert', 'equal', 'insert', 'equal', 'insert', 'equal', 'insert']
+   replace=0 delete=0 deleted_lines=0 inserted_lines=190  APPEND_ONLY=PASS
+   sha256(old_blob)=4638eb3115b5214b8eeca6f1007d43447139102e0c0aaab4dde21381e88a6cd8
+   sha256(new_blob)=1250f59dc965c6244f418a3b42557a65f3d9bc2b7df216b333a79c2dad7ecc8d
+docs/data-layer.spec.md: old=1070 new=1174 opcodes=['equal', 'insert', 'equal', 'insert']
+   replace=0 delete=0 deleted_lines=0 inserted_lines=104  APPEND_ONLY=PASS
+   sha256(old_blob)=a6d2a1f6f12ab35c1a2f79a7919accebf987d43d901f73b10c21fd6b1ea53e1c
+   sha256(new_blob)=07c441466c909c1f4cf1af22742216497f43b5a8489554123b5d4d16fd6433b2
+
+## 3. snapshot cmp (new snapshots vs body)
+route v2.2 == body : cmp=0
+data v0.10 == body : cmp=0
+
+
+## 4. pre-change snapshot identity
+route v2.1 snapshot: 3f261af960e3dd4a15ba1b08c3a0eed0 /     3840 /   828530 / 
+git 7f62c98^ blob md5 (route): 3f261af960e3dd4a15ba1b08c3a0eed0
+
+git 7f62c98^ blob md5 (data) : f63fffad343e0591934d00ba129c8683
+
+data v0.9 snapshot md5: f63fffad343e0591934d00ba129c8683
+
+sh: -c: line 0: syntax error near unexpected token `('
+sh: -c: line 0: `cmp <(git show 7f62c98^:docs/route-layer.spec.md) docs/versions/route-layer.spec.v2.1.md && echo 'pre-route-body == v2.1.md'; cmp <(git show 7f62c98^:docs/data-layer.spec.md) docs/versions/data-layer.spec.v0.9.md && echo 'pre-data-body == v0.9.md''
+
+
+## 5. old-snapshot census (untouched)
+route snapshots tracked at 7f62c98^ excluding v2.2: 21
+
+data  snapshots tracked at 7f62c98^ excluding v0.9/v0.10: 8
+
+name-status under docs/versions/ (M/D would be a violation):
+A	docs/versions/data-layer.spec.v0.10.md
+A	docs/versions/data-layer.spec.v0.9.md
+A	docs/versions/route-layer.spec.v2.2.md

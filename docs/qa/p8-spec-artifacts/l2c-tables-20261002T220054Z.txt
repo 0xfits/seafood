@@ -1,0 +1,88 @@
+RUN=20261002T220054Z COMMIT=7f62c98
+## L2c  §17.5 判据 ↔ 真实列形状（0023 / 0024）
+
+### 0023 admin_ops_audit_log  DDL 行号现取
+64:CREATE TABLE IF NOT EXISTS public.admin_ops_audit_log (
+78:  result              text        NOT NULL,                                   -- 依据「结果」列要求 + Zang 裁定①（拒绝亦须留痕）
+79:  txid                bigint,                                                 -- 依据账本回执 `txid`（成功时；拒绝行 = NULL）
+89:  CONSTRAINT admin_ops_audit_log_result_ck CHECK (result IN ('applied', 'rejected_daily_cap')),
+
+
+### 0024 admin_refund_audit_log  DDL 行号现取
+48:CREATE TABLE IF NOT EXISTS public.admin_refund_audit_log (
+50:  actor_uid           bigint      NOT NULL,                                   -- 照抄 0023:66（发起人 uid；token 侧；不得由客户端声明）
+51:  order_id            bigint      NOT NULL,                                   -- 退款目标订单（listing_order.order_id；无业务表 FK，照抄 0023「无业务表 FK」先例）
+52:  seller_uid          bigint      NOT NULL,                                   -- 照抄 0023:70 手法（被扣款方，−amount）
+53:  buyer_uid           bigint      NOT NULL,                                   -- 照抄 0023:70 手法（收款方，+amount）
+54:  cid                 bigint      NOT NULL,                                   -- 照抄 0023:71
+55:  amount              bigint      NOT NULL,                                   -- 照抄 0023:73（= price × quantity，服务端取数）
+56:  result              text        NOT NULL,                                   -- 照抄 0023:78（闭集换值 = Z3：{'applied','rejected_state'}）
+57:  txid                bigint,                                                 -- 照抄 0023:79（账本回执 txid；拒绝行 = NULL）
+58:  idempotency_key     text        NOT NULL,                                   -- 照抄 0023:77（= biz:listing:refund:<order_id>，逐字同资金事件根键）
+59:  request_fingerprint text        NOT NULL,                                   -- 照抄 0023:76（= sha256('listing.refund'|<order_id>)，服务端派生）
+60:  memo                text,                                                   -- 照抄 0023:80（拒绝 = reason）
+61:  time_created        timestamptz NOT NULL DEFAULT now(),                     -- 照抄 0023:81（DB 生成，不得客户端传）
+68:  CONSTRAINT admin_refund_audit_log_result_ck CHECK (result IN ('applied', 'rejected_state')),
+281:        WHERE conrelid='public.admin_refund_audit_log'::regclass AND conname='admin_refund_audit_log_result_ck'), '<none>'), ' ', ''), '::text', '')
+285:        WHERE conrelid='public.admin_refund_audit_log'::regclass AND conname='admin_refund_audit_log_result_ck');
+
+
+### 列清单（self-check 断言逐字）
+301:  IF v_names <> 'log_id,actor_uid,action,target_uid,cid,op,amount,balance_before,balance_after,request_fingerprint,idempotency_key,result,txid,memo,time_created' THEN
+
+268:  IF v_names <> 'log_id,actor_uid,order_id,seller_uid,buyer_uid,cid,amount,result,txid,idempotency_key,request_fingerprint,memo,time_created' THEN
+
+
+### 拒绝行 txid = NULL 代码级证据
+21:--        `result='rejected_daily_cap'`，**与「无资金分录」一起提交**。
+22:--     ② **★ 拒绝行不得计入日累计**（否则反复发超限请求即可把当日额度刷爆、让管理员当天再也调不出
+28:--       ① 同键被拒两次 ⇒ 冲突 ⇒ `DO NOTHING`（**拒绝行不放大**）；
+29:--       ② 同键先拒后成 ⇒ `result` 不同 ⇒ **允许成功**（且既有拒绝行保留）；
+63:--   result= result（'applied' | 'rejected_daily_cap'）+ txid（账本回执）
+79:  txid                bigint,                                                 -- 依据账本回执 `txid`（成功时；拒绝行 = NULL）
+89:  CONSTRAINT admin_ops_audit_log_result_ck CHECK (result IN ('applied', 'rejected_daily_cap')),
+91:  -- 旧写法 `UNIQUE (idempotency_key)` 对成功行与拒绝行**一视同仁** ⇒ **被拒的键即被消费**：
+92:  --   额度释放后客户端拿**同一个键**重投 ⇒ 末尾 `'applied'` 插入撞上既有拒绝行 ⇒ `23505` ⇒
+95:  --   ① 同键被拒两次 ⇒ `(key,'rejected_daily_cap')` 冲突 ⇒ `DO NOTHING`（**拒绝行不放大**）；
+96:  --   ② 同键先拒后成 ⇒ `result` 不同 ⇒ **允许成功**（且既有拒绝行保留）；
+103:  'P6-B6-AUDIT（Kong；依据 route-layer.spec §4.8⑨② + §4.10③，Zang 2026-10-02 新定 + 三条裁定）：管理面「授权主体意图额」类动作（本仓 A1 = 后台调分）的**审计留痕**。列风格参照 0017.currency_status_log（身份证 PK + 具名约束 + append-only）。**只增不删**：BEFORE UPDATE OR DELETE 无条件 RAISE。actor_uid/target_uid FK users(uid)、cid FK currency(cid)。**成功行与拒绝行同表**（`result` 区分）。诚实边界：append-only 触发器不拦 TRUNCATE / DISABLE TRIGGER USER（与 0017 同边界）。';
+106:  '值前值（余额）。账本回执只给事后余额 ⇒ 本列 = balance_after − amount（同一函数内推导，非外部传入）。**拒绝行 = NULL**（无资金事件）。';
+108:  '结论位。''applied'' = 资金事件已落且本审计行与它同语句（**计入**当日累计）；''rejected_daily_cap'' = 日累计闸拒绝的**留痕**行（Zang 裁定①：被拒尝试必须留痕）——**零资金分录**、balance_before/balance_after/txid 皆 NULL、memo=OVER_MAX_DAILY_AMOUNT，且**不计入**日累计求和（裁定②：只对 result=''applied'' 求和，防「反复发超限请求把当日额度刷爆」）。';
+153:--     （`result='rejected_daily_cap'`，与「无资金分录」一起提交）。**函数不得 `RAISE`**：异常会把同一
+195:  -- 拒绝行也须携带**合法 op**（CHECK `op IN ('mint','burn')` 对两类结果行一视同仁）⇒ 在日累计闸
+202:  -- ★ 为何必须排除拒绝行：被拒行同样携带 `amount`（= 请求值，非零）；若把它计入求和，则**反复发
+215:    -- 拒绝留痕（Zang 裁定①）：写审计行 `result='rejected_daily_cap'`，**与「零资金分录」一起提交**。
+224:       v_fp, v_key, 'rejected_daily_cap', NULL, 'OVER_MAX_DAILY_AMOUNT')
+249:  v_txid   := v_ledger->>'txid';
+
+57:  txid                bigint,                                                 -- 照抄 0023:79（账本回执 txid；拒绝行 = NULL）
+70:  --   同键被拒两次 ⇒ `(key,'rejected_state')` 冲突 ⇒ DO NOTHING（拒绝行不放大）；
+76:  'P7-B（Kong；依据 route-layer.spec §12.11.1 Z2 = 变体 B / §12.11.2）：§7-32「管理员退款发起」的**审计留痕**（actor_uid = 发起人；order_id/seller_uid/buyer_uid 逐列表达两方，**不压缩**）。列风格 / 约束命名 / 索引形态照抄 0023 的 admin_ops_audit_log。**只增不删**：BEFORE UPDATE OR DELETE 无条件 RAISE。**成功行与拒绝行同表**（`result` 闭集 = {applied, rejected_state}）。**与 A1 的 admin_ops_audit_log 零耦合**（后者日累计求和无 action 过滤 ⇒ 退款行若落入会静默污染 1,000,000 点/日额度）。纪律：任何求和 / 额度判据只计 result=''applied''。诚实边界：append-only 触发器不拦 TRUNCATE / DISABLE TRIGGER USER（同 DL65 / 0023:103）。';
+172:      -- 审计行取值 = **订单行服务端取数**（§12.11.3；拒绝行无资金回执）。
+185:           'rejected_state', NULL, v_key, v_fp, v_reason)
+205:  v_txid   := v_ledger->>'txid';
+232:       'applied', v_txid::bigint, v_key, v_fp, v_memo);
+
+
+### ledger_entry.txid 真身
+56:  txid                bigint      GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+68:  reversal_of_txid    bigint      REFERENCES ledger_entry(txid),
+75:  CONSTRAINT ledger_reversal_guard CHECK ((kind = 'reversal') = (reversal_of_txid IS NOT NULL)),
+76:  CONSTRAINT ledger_kind_enum     CHECK (kind IN (
+90:  ON ledger_entry (reversal_of_txid) WHERE reversal_of_txid IS NOT NULL;
+114:CREATE INDEX idx_ledger_uid_cid_txid ON ledger_entry (uid, cid, txid DESC);
+121:  RAISE EXCEPTION 'ledger_entry is append-only: % forbidden (txid=%)',
+122:        TG_OP, COALESCE(OLD.txid, 0);
+
+ALTER TABLE ledger_entry ADD CONSTRAINT ledger_kind_enum CHECK (kind IN (
+    'mint','burn','transfer','hold','hold_release','hold_forfeit',
+    'job_escrow','job_escrow_refund','job_payout','job_fee','commission',
+    'purchase','sale','purchase_refund',
+    'trade','trade_fee',
+    'listing_fee','listing_deposit',
+    'currency_create_fee','reversal'
+));
+
+-- ---------------------------------------------------------------- 收尾断言
+-- 新约束必须存在且覆盖恰好 20 个值（用 pg_get_constraintdef 计数 '::text' 出现次数）
+

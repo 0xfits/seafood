@@ -1,0 +1,30 @@
+{
+  "docs/route-layer.spec.md": {
+    "old_lines": 3840,
+    "new_lines": 4030,
+    "opcode_counts": {
+      "equal": 5,
+      "insert": 5
+    },
+    "deleted_lines": 0,
+    "inserted_lines": 190,
+    "append_only_ok": true,
+    "old_sha256": "4638eb3115b5214b8eeca6f1007d43447139102e0c0aaab4dde21381e88a6cd8",
+    "new_sha256": "1250f59dc965c6244f418a3b42557a65f3d9bc2b7df216b333a79c2dad7ecc8d"
+  },
+  "docs/data-layer.spec.md": {
+    "old_lines": 1070,
+    "new_lines": 1174,
+    "opcode_counts": {
+      "equal": 2,
+      "insert": 2
+    },
+    "deleted_lines": 0,
+    "inserted_lines": 104,
+    "append_only_ok": true,
+    "old_sha256": "a6d2a1f6f12ab35c1a2f79a7919accebf987d43d901f73b10c21fd6b1ea53e1c",
+    "new_sha256": "07c441466c909c1f4cf1af22742216497f43b5a8489554123b5d4d16fd6433b2"
+  }
+}
+[PASS] docs/route-layer.spec.md: opcodes={'equal': 5, 'insert': 5} deleted=0 inserted=190
+[PASS] docs/data-layer.spec.md: opcodes={'equal': 2, 'insert': 2} deleted=0 inserted=104
