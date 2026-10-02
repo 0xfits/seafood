@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { cn } from '../../utils'
 
 // 悬浮卡片效果
-const HoverCard = ({ children, className, scale = 1.05, shadow = true }) => {
+const HoverCard = ({ children, className, shadow = true }) => {
   const [isHovered, setIsHovered] = useState(false)
   
   return (
@@ -11,7 +11,7 @@ const HoverCard = ({ children, className, scale = 1.05, shadow = true }) => {
         'transition-all duration-300 ease-out',
         'transform cursor-pointer',
         shadow && 'hover:shadow-xl',
-        isHovered && `scale-${scale}`,
+        isHovered && 'scale-[1.05]',
         className
       )}
       onMouseEnter={() => setIsHovered(true)}

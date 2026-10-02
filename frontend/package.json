@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -29,6 +32,7 @@
     "@fullcalendar/interaction": "^6.1.10",
     "@fullcalendar/react": "^6.1.10",
     "@headlessui/react": "^1.7.17",
+    "clsx": "^2.0.0",
     "i18next": "^23.8.0",
     "lucide-react": "^0.544.0",
     "react": "^18.2.0",
@@ -38,11 +42,11 @@
     "react-router-dom": "^6.22.0",
     "react-window": "^1.8.9",
     "tailwindcss": "^4.1.13",
-    "web3": "^4.4.0",
-    "clsx": "^2.0.0"
+    "web3": "^4.4.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0",
+    "@tailwindcss/vite": "^4.3.3",
     "@testing-library/jest-dom": "^6.1.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.5.0",

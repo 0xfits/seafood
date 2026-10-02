@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- 回退标题：仅用于 i18n 启动前 / 无 JS / 爬虫抓取；真源是 src/locales/*.json 的 siteTitle，运行时由 App.jsx 的 DocumentTitle 按语言覆盖 -->
     <title>Seafood 海鲜市场｜加密人自己的「闲鱼」</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 样式：Tailwind v4 改为**构建期**编译（见 src/styles.css 的 `@import "tailwindcss"`；
+         运行期 CDN `cdn.tailwindcss.com` 已移除，原因见 docs/audit/p6-fe-perf.md） -->
     <!-- Font Awesome CDN -->
     <link id="fa-css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <!-- Google Fonts：Crimson Text / EB Garamond / Noto Sans / LXGW WenKai（霞鹜文楷） -->
@@ -89,23 +89,8 @@
         }
       });
     </script>
-    <!-- 配置Tailwind CSS自定义颜色 - 瑞典国旗配色系统 -->
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              primary: '#00529B',
-              secondary: '#FFCE00',
-              accent: '#f97316',
-              success: '#10b981',
-              warning: '#f59e0b',
-              error: '#ef4444',
-            },
-          },
-        }
-      }
-    </script>
+    <!-- Tailwind 自定义色（原运行期 `tailwind.config` 六项）已于 P6-FE-PERF 逐项迁到
+         src/styles.css 的 `@theme` 块（构建期生效，v4 CSS-first） -->
   </head>
   <body>
     <div id="root"></div>
