@@ -1431,7 +1431,16 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 **D. 我亲核盘面**：两份报告盘面在位（28,391 B / 311 行与 30,205 B / 320 行）、**占位 0**；QA 读数已从副本**归档进仓库** `backend-ts/.p7aqa-artifacts/`（11 项）；`index.ts` sha 恒 `c4db3627…`（**零污染**）。
 
-**E. 上线（push，5 个提交）** + **生产终验**：见下（生产读数）
+**E. 上线（push，5 个提交）+ 生产终验（我亲跑，`--resolve ssseafood.vercel.app:443:76.76.21.21`）**：
+- `/api/health` ⇒ **200 + `schema_version: "0023"`** ✓（本批无新迁移，符合预期）；
+- **★ `/api/user/ledger` ⇒ `401` + R107 形状**（`{error:{code:"AUTH_UNAUTHORIZED",message,i18n_key,details:{}}}`）—— **改前是 `404 Not found`** ⇒ **新端点确已在生产上线** ✓✓；`?cid=abc` 亦 **401** ⇒ **鉴权闸先于参数闸**、顺序正确；
+- 前端产物已换：`index-I8o1KbdK.js`（改前 `index-Ds3qLQFP.js`）；CSS `index-mRq3HT-x.css` **未变**（本批未改 CSS，符合预期）。
+⇒ **批 7-A 全链闭合：实现（4 轮）→ 独立质检（3 轮）→ 我验收 → 上线 → 生产终验。**
+
+**G. ★ 已开下一批（两单并行，文件面不相交）**：
+- **Kong · 退款实现单**（`sa-0-ae7827dd`，`deleg_91cd8bfa`）= 实现 `§7-32 管理员退款发起`：迁移 **`0024`**（新表 `admin_refund_audit_log` + 编排函数 `listing_refund_post_event(jsonb)`，**同一语句内复用既有 `listing_post_event(op='refund')`、严禁复制资金腿**）+ 路由 **actor 分流**（`manage_points`；注册点 **68 不变**）+ **AC-11…15 每条带判负自证**（并发恰一次 / 函数体不含 `purchase_refund` / 六正向 / 注入 `53300` 不得落 `rejected_state` / 幂等）。**我加两条必测**：① **`GET STACKED DIAGNOSTICS … PG_EXCEPTION_DETAIL` 能否取到 `reason`**（T-2 白名单的**机械前提**；先例是转引、非实测 ⇒ **取不到就停下报回**，不得退化 `WHEN OTHERS`、不得第二真源）；② **`0024` 的 apply-time 自检真能拦错**（scratch 改坏一处 ⇒ 整体回滚）。**★ 我不 apply 真库**（沿用 `0021`/`0022`/`0023` 路径：写完由我 apply）。
+- **Kong · `ledger.err.*` 回退护栏小单**（`sa-1-1e2a5e9b`）= 落实 C-1：`t(key)` 未命中（返回裸键）⇒ **落四语通用兜底、绝不输出裸键**；**立可判负门**（「用户可见文案不得出现 `x.y.z` 裸键形态」）；两处判负自证；**132 键逐码本地化登记 P6/P7 待定**；**只改 `frontend/**`**。
+- **Jing** 下一轮（待两单落地后）：落 C-1/C-2/C-3 + **同族 `sendError` 26 处**登记 + 「回退护栏」纪律。
 
 **F. 下一步**：**退款实现单（`0024` + 路由闸 + `:62` 单点升级）在这批之后即开**（后端文件面已释放）；并行 **`ledger.err.*` 护栏小单**；**Jing** 落 C-1/C-2/C-3（spec 下一轮）。
 
