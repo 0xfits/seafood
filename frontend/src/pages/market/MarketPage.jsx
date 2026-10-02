@@ -40,6 +40,16 @@ import './market.css'
 // ============================================================================
 const MARKET_LIMIT = 50
 
+// P7-E 小尾巴批-β ②：`market_order` 枚举字段取值域 = CHECK 白名单（现取真源，**不猜**）
+//   · `status`：`backend-ts/migrations/0016_market.sql:144` ⇒ `open|partial|filled|cancelled`，默认 `open`
+//   · `side`  ：`backend-ts/migrations/0016_market.sql:130` ⇒ `buy|sell`（CHECK 在 :130；`:135` 是 price 注释 —— 本单订正）
+//   ★ 父单提示的「真源 = `0015_listing.sql` 的 `listing_order.status`」**不适用于本行**：
+//     本页「我的挂单」= `GET /api/order` ⇒ `database.ts:3538 listOrdersByUser`（`SELECT o.* FROM market_order`）
+//     ⇒ 回包 `side`/`status` 来自 **`market_order`**（`normalizeMarketOrder` 均实返，非空）。以现取为准。
+//   标签键 = 本单新增 `orders.statusLabel.*` / `orders.sideLabel.*`（四语齐备，含 `unknown` 兜底）。
+const MARKET_ORDER_STATUS_KEYS = ['open', 'partial', 'filled', 'cancelled']
+const MARKET_ORDER_SIDE_KEYS = ['buy', 'sell']
+
 const MarketPage = () => {
   const { t } = useTranslation()
   const location = useLocation()
@@ -342,25 +352,43 @@ const MarketPage = () => {
           </div>
           {mine.rows.length === 0
             ? <div className="sf-mkt-empty" data-sf-m="mkt-mine-empty">{mine.message || t('market.mineEmpty')}</div>
-            : mineRows.map((row) => (
-              <div className="sf-mkt-item" key={String(row.order_id ?? row.oID)} data-sf-m="mkt-order">
-                <div className="sf-mkt-item-title">
-                  {`#${String(row.order_id ?? row.oID ?? '-')} · ${String(row.side ?? '')}`}
-                  {/* 「翻译中」小标（`i18n_status ∈ {pending, partial}`；ready/缺省 ⇒ null） */}
-                  <TranslatingBadge status={contentStatus(row)} />
+            : mineRows.map((row) => {
+              // P7-E 小尾巴批-β ②：枚举字段（`status`/`side`）**不得原样渲染**（原文把 `market_order`
+              //   的 DB 枚举 `open`/`buy` 等直接给用户看）。已知取值 ⇒ 四语标签（`orders.statusLabel.*`
+              //   / `orders.sideLabel.*`）；**未知取值 ⇒ 本地化兜底**；原值留 `title`/`data-sf-*`（仅排查用）；
+              //   缺省/空串 ⇒ 空串（维持既有口径）。
+              const statusRaw = row.status == null || row.status === '' ? '' : String(row.status)
+              const statusText = statusRaw === ''
+                ? ''
+                : (MARKET_ORDER_STATUS_KEYS.includes(statusRaw)
+                  ? t(`orders.statusLabel.${statusRaw}`)
+                  : t('orders.statusLabel.unknown'))
+              const sideRaw = row.side == null || row.side === '' ? '' : String(row.side)
+              const sideText = sideRaw === ''
+                ? ''
+                : (MARKET_ORDER_SIDE_KEYS.includes(sideRaw)
+                  ? t(`orders.sideLabel.${sideRaw}`)
+                  : t('orders.sideLabel.unknown'))
+              return (
+                <div className="sf-mkt-item" key={String(row.order_id ?? row.oID)} data-sf-m="mkt-order">
+                  <div className="sf-mkt-item-title" data-sf-side={sideRaw || undefined} title={sideRaw || undefined}>
+                    {`#${String(row.order_id ?? row.oID ?? '-')} · ${sideText}`}
+                    {/* 「翻译中」小标（`i18n_status ∈ {pending, partial}`；ready/缺省 ⇒ null） */}
+                    <TranslatingBadge status={contentStatus(row)} />
+                  </div>
+                  <div className="sf-mkt-price">{String(row.price ?? '-')}</div>
+                  <div className="sf-mkt-meta" data-sf-status={statusRaw || undefined} title={statusRaw || undefined}>{`${String(row.amount ?? '-')}/${String(row.amount_filled ?? '-')} · ${statusText}`}</div>
+                  <button
+                    className="sf-btn sf-mkt-btn"
+                    type="button"
+                    onClick={() => onCancel(String(row.order_id ?? row.oID ?? ''))}
+                    data-sf-m="mkt-cancel-one"
+                  >
+                    {t('market.cancel')}
+                  </button>
                 </div>
-                <div className="sf-mkt-price">{String(row.price ?? '-')}</div>
-                <div className="sf-mkt-meta">{`${String(row.amount ?? '-')}/${String(row.amount_filled ?? '-')} · ${String(row.status ?? '')}`}</div>
-                <button
-                  className="sf-btn sf-mkt-btn"
-                  type="button"
-                  onClick={() => onCancel(String(row.order_id ?? row.oID ?? ''))}
-                  data-sf-m="mkt-cancel-one"
-                >
-                  {t('market.cancel')}
-                </button>
-              </div>
-            ))}
+              )
+            })}
           <p className="sf-mkt-note">{t('market.mineNote')}</p>
         </div>
 

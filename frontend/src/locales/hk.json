@@ -191,6 +191,20 @@
     "refresh": "重新整理",
     "quoteNote": "計價單位：$"
   },
+  "orders": {
+    "statusLabel": {
+      "open": "掛單中",
+      "partial": "部分成交",
+      "filled": "已成交",
+      "cancelled": "已撤銷",
+      "unknown": "其他狀態"
+    },
+    "sideLabel": {
+      "buy": "買入",
+      "sell": "賣出",
+      "unknown": "其他方向"
+    }
+  },
   "ledger": {
     "balance": "餘額",
     "balanceNote": "餘額以平台帳戶資產為準。",

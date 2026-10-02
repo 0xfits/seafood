@@ -191,6 +191,20 @@
     "refresh": "Refresh",
     "quoteNote": "Pricing unit: $"
   },
+  "orders": {
+    "statusLabel": {
+      "open": "Open",
+      "partial": "Partially filled",
+      "filled": "Filled",
+      "cancelled": "Cancelled",
+      "unknown": "Unknown"
+    },
+    "sideLabel": {
+      "buy": "Buy",
+      "sell": "Sell",
+      "unknown": "Unknown side"
+    }
+  },
   "ledger": {
     "balance": "Balance",
     "balanceNote": "The balance shown reflects the assets in your platform account.",

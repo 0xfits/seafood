@@ -8,6 +8,11 @@ import TranslatingBadge from '../../components/i18n/TranslatingBadge'
 import { buyListing, createListingBuyTracker, fetchListingDetail, listingBuyFingerprint } from './listing-api'
 import './listings.css'
 
+// P7-E 小尾巴批-β ①：`listing.status` 取值域 = `public.listing.status` 的 CHECK 白名单
+//   （现取：`backend-ts/migrations/0015_listing.sql:137` ⇒ `draft|listed|delisted|frozen`，默认 `draft`）
+//   与列表页（`ListingsPage.jsx`）同一键族 `listings.statusLabel.*`（四语齐备）。
+const LISTING_STATUS_KEYS = ['draft', 'listed', 'delisted', 'frozen']
+
 // ============================================================================
 // 商品线 · 详情 + 购买（P4-B4c-ii-b / Kong）
 // 详情：`GET /api/prize/:bID`（**已注册** :433）= `listing` 行（`bID` = `listing_id`）；miss ⇒ 404（R107）。
@@ -65,6 +70,18 @@ const ListingDetailPage = () => {
   const title = pickLocalized(row, 'title', lang) || pickLocalized(row, 'name', lang) || t('listings.detail')
   const description = pickLocalized(row, 'description', lang) || ''
 
+  // P7-E 小尾巴批-β ①：listing 状态**不得原样渲染枚举**（原 `String(row.status ?? '-')` 会把
+  //   `draft`/`listed` 等 DB 枚举直接给用户看）。已知取值 ⇒ 四语标签；**未知取值 ⇒ 本地化兜底**
+  //   （`listings.statusLabel.unknown`）；原值留 `title`/`data-sf-status`（仅排查用）。
+  //   缺省/空串 ⇒ 维持既有口径（现网 `GET /api/prize/:bID` 读侧不返回 `status` ⇒ 实测 distinct = {缺失}）
+  //   ⇒ 本页原口径 = `-`（与列表页「缺失 ⇒ 已上架」**不同**，不擅自改动）。
+  const statusRaw = row.status == null || row.status === '' ? '' : String(row.status)
+  const statusText = statusRaw === ''
+    ? '-'
+    : (LISTING_STATUS_KEYS.includes(statusRaw)
+      ? t(`listings.statusLabel.${statusRaw}`)
+      : t('listings.statusLabel.unknown'))
+
   return (
     <div className="sf-layout" data-sf-m="listing-detail-layout">
       <div className="sf-layout-main">
@@ -75,7 +92,11 @@ const ListingDetailPage = () => {
               {/* 「翻译中」小标（ready/缺省 ⇒ null） */}
               <TranslatingBadge status={contentStatus(row)} />
             </h1>
-            <p className="sf-listings-note">{`${t('listings.listingId')} #${String(row.listing_id ?? row.bID ?? listingId ?? '-')} · ${String(row.status ?? '-')}`}</p>
+            <p
+              className="sf-listings-note"
+              data-sf-status={statusRaw || undefined}
+              title={statusRaw || undefined}
+            >{`${t('listings.listingId')} #${String(row.listing_id ?? row.bID ?? listingId ?? '-')} · ${statusText}`}</p>
             <div className="sf-listings-actions">
               <Link className="sf-listings-link" to={root('/listing')} data-sf-m="listing-back-link">{t('listings.list')}</Link>
               <button className="sf-btn sf-listings-btn" type="button" onClick={load} data-sf-m="listing-detail-refresh">{t('listings.refresh')}</button>

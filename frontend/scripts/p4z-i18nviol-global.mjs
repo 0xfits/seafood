@@ -201,33 +201,81 @@ console.log(`    ${codeReg.slice(0, 6).join(' | ') || '(empty)'}${codeReg.length
 console.log(`  子面③ 硬编码中文文案字面量（非注释行内的引号字面量）= ${cjkLiterals} 个；其中命中工程口径 = ${hardcodedCjkHits.length} 个 ${JSON.stringify(hardcodedCjkHits)} —— 理由：硬编码文案面，命中即违例`)
 if (cjkHits.length) fail = true
 
-// ── ③ 残余发现（**现取** —— 不计命中，但必须打印，不静默放水）─────────────────
-//   原登记（批 6）：`ListingsPage.jsx` 状态标签 `String(row.status ?? t('listings.listed'))` 把
-//     **数据里的**枚举（`draft`/`listed`）原样渲染给用户，当时「键集内无 draft 等标签键」⇒ 另单收口。
-//   本单（小尾巴批 ①）核验收口：该页已实装 `listings.statusLabel.<value>` 查表
-//     （取值域现取真源 = `backend-ts/migrations/0015_listing.sql:137`
-//      `CHECK (status IN ('draft','listed','delisted','frozen'))`，DEFAULT `draft`；
-//      `backend-ts/src/listing-service.ts:135-139` 同集）+ **未知取值本地化兜底**（`statusLabel.unknown`，
-//      原值留 `title`/`data-sf-status`）⇒ 原登记项**作废**。
-//   此处改为**现取**源码（不静默）：若「tag 内原样渲染 `row.status`」形态**重新出现**、
-//     或查表 / 未知兜底被移除 ⇒ 重新登记为残余（读数即刻 > 0）。
-const LISTINGS_PAGE_REL = 'pages/listings/ListingsPage.jsx'
+// ── ③ 残余发现（**类级现取** —— 不计命中，但必须打印，不静默放水）─────────────────
+//   原登记（批 6，**单点**）：`ListingsPage.jsx` 的 `String(row.status ?? …)` 把**数据里的枚举**
+//     原样渲染给用户 ⇒ 原单点已由小尾巴批 ① 收口（`listings.statusLabel.*` 查表 + 未知兜底）。
+//   本单（小尾巴批-β）把该观测面从「只扫 ListingsPage 一行」**升为类级全站现取**：
+//     类 = 「数据枚举原样渲染」—— 数据行里的**枚举字段**未经查表/映射就渲染进用户可见输出。
+//   ① 字段集（现取 = 各表 CHECK 白名单列）：`status` / `job_status` / `review_status` / `side`；
+//   ② 形态（去注释后逐文件扫 `pages/**`、`components/**`、`shell/**`，共 `files` 个源文件）：
+//        F1 `String(<obj>.<field> ?? …)`  —— 原登记形态，泛化到任意对象
+//        F2 `${<obj>.<field>}`            —— 模板字面量里裸插值
+//        F3 `{<obj>.<field> || …}`        —— JSX 子表达式回退链裸输出
+//      **排除已查表/已映射面**：F2 落在 `key=` 属性位的不计（非用户可见文案位，逐条计数打印）。
+//   ③ 收口点必须在场：三处查表（`listings.statusLabel.*` ×2 / `orders.statusLabel.*`）+ `unknown`
+//      兜底；任一被静默回退 ⇒ **重新登记**（读数即刻 > 0）。
+//   ④ 命中 ⇒ 逐条登记并打印；**本单收口完成后该类残留（活体）必须 = 0**（否则 `fail`）。
+const ENUM_FIELDS = ['status', 'job_status', 'review_status', 'side']
+const FIELD_ALT = ENUM_FIELDS.join('|')
+const OBJ = String.raw`[A-Za-z_$][\w$]*`
+/** 数据枚举原样渲染的三类形态（原登记形态 = F1） */
+const RAW_ENUM_FORMS = [
+  ['F1 `String(<obj>.<field> ?? …)`', new RegExp(String.raw`String\(\s*${OBJ}\.(?:${FIELD_ALT})\s*\?\?`, 'g')],
+  ['F2 `${<obj>.<field>}`', new RegExp(String.raw`\$\{\s*${OBJ}\.(?:${FIELD_ALT})\s*\}`, 'g')],
+  ['F3 `{<obj>.<field> || …}`', new RegExp(String.raw`(?<![$\w])\{\s*${OBJ}\.(?:${FIELD_ALT})\s*\|\|`, 'g')],
+]
+/** 显式豁免（逐条：`文件:行` + 理由；不得通配；**当前零条目**）——
+ *  原 `pages/jobs/JobDetailPage.jsx:236` 死分支（`item.job_status || item.status`，字段域现取恒缺、恒渲染 `—`）
+ *  已由本单 **R-7E-4** 处置（删除死分支 ⇒ 无枚举的常量占位）⇒ 该豁免条目作废并**清除**（不留陈旧登记）。 */
+const EXEMPT_ENUM_SITES = new Map()
 const RESIDUAL = []
+const enumHits = []
+const enumScope = { files: 0, keyAttrSkipped: 0, exemptHit: 0 }
 {
-  const abs = path.join(SRC, LISTINGS_PAGE_REL)
-  const raw = fs.existsSync(abs) ? fs.readFileSync(abs, 'utf8') : ''
-  const code = raw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '')
-  const RAW_RENDER = /sf-listings-tag[\s\S]{0,240}?String\(row\.status/   // 旧形态：tag 内直出枚举
-  const LOOKUP = /listings\.statusLabel\./                               // 收口形态：查表在场
-  const FALLBACK = /listings\.statusLabel\.unknown/                      // 未知值本地化兜底在场
-  if (!raw) RESIDUAL.push([`src/${LISTINGS_PAGE_REL}`, '文件缺失 —— 无法核验状态枚举收口'])
-  else if (RAW_RENDER.test(code) || !LOOKUP.test(code) || !FALLBACK.test(code)) {
-    RESIDUAL.push([`src/${LISTINGS_PAGE_REL}`, '状态枚举又出现原样渲染 / 查表或未知兜底缺失（P6-MISC-FIX ① 收口被回退）'])
+  const codeOf = (raw) => raw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '')
+  for (const f of files) {
+    const rel = path.relative(SRC, f)
+    enumScope.files++
+    const lines = codeOf(fs.readFileSync(f, 'utf8')).split('\n')
+    lines.forEach((line, i) => {
+      const keyAttrLine = /\bkey=\{/.test(line)
+      for (const [form, re] of RAW_ENUM_FORMS) {
+        re.lastIndex = 0
+        let m
+        while ((m = re.exec(line))) {
+          if (form.startsWith('F2') && keyAttrLine) { enumScope.keyAttrSkipped++; continue }  // 非文案位
+          enumHits.push({ where: `${rel}:${i + 1}`, form, hit: m[0].trim() })
+        }
+      }
+    })
   }
 }
-console.log('[I18N-VIOL] ③ 残余发现（**现取**；不计命中，另单收口）')
-console.log(`  现取核验：${LISTINGS_PAGE_REL} 状态标签收口 ⇒ 残留登记 = ${RESIDUAL.length} 条（原 1 条已由小尾巴批 ① 收口）`)
+for (const h of enumHits) {
+  if (EXEMPT_ENUM_SITES.has(h.where)) { enumScope.exemptHit++; continue }
+  RESIDUAL.push([`src/${h.where}`, `[${h.form}] ${JSON.stringify(h.hit)}`])
+}
+// 收口点在场（查表 + 未知兜底）：被静默回退 ⇒ 重新登记
+const CLOSED_SITES = [
+  ['pages/listings/ListingsPage.jsx', /listings\.statusLabel\./, /listings\.statusLabel\.unknown/],
+  ['pages/listings/ListingDetailPage.jsx', /listings\.statusLabel\./, /listings\.statusLabel\.unknown/],
+  ['pages/market/MarketPage.jsx', /orders\.statusLabel\./, /orders\.statusLabel\.unknown/],
+]
+for (const [rel, lookup, fallback] of CLOSED_SITES) {
+  const abs = path.join(SRC, rel)
+  const raw = fs.existsSync(abs) ? fs.readFileSync(abs, 'utf8') : ''
+  const code = raw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '')
+  if (!raw) RESIDUAL.push([`src/${rel}`, '文件缺失 —— 无法核验状态枚举收口'])
+  else if (!lookup.test(code) || !fallback.test(code)) {
+    RESIDUAL.push([`src/${rel}`, '枚举查表或未知兜底缺失（收口被回退）'])
+  }
+}
+console.log('[I18N-VIOL] ③ 残余发现（**类级现取**；不计命中，另单收口）')
+console.log(`  类级作用域 = ${enumScope.files} 个源文件（pages/components/shell 全部）；字段集 = {${ENUM_FIELDS.join(', ')}}；形态 = F1/F2/F3`)
+console.log(`  形态命中 = ${enumHits.length} 处；属性位排除（key= 属性，非文案位）= ${enumScope.keyAttrSkipped} 处；显式豁免（死分支，登记）= ${enumScope.exemptHit}/${EXEMPT_ENUM_SITES.size} 处`)
+for (const [where, why] of EXEMPT_ENUM_SITES) console.log(`  ~ ${where} :: ${why}`)
+console.log(`  类级残余（活体）= ${RESIDUAL.length} 条（必须 = 0）`)
 for (const [where, why] of RESIDUAL) console.log(`  ? ${where} :: ${why}`)
+if (RESIDUAL.length) fail = true
 
 console.log(`[I18N-VIOL] 总判：${fail ? 'FAIL' : 'PASS'}（locale 裸命中 ${localeHits.length} + 源面裸命中 ${sourceHits.length} 必须 = 0；作用域节点数 locale=${LOCALE_NODES} / source=${textNodes}）`)
 // 批 7-A 修：`process.exit()` 会**丢弃尚未 flush 的管道 stdout**（vitest worker 并发时实测截断 ⇒

@@ -233,7 +233,13 @@ const JobDetailPage = () => {
           {myApps.map((item) => (
             <div className="sf-jobs-item" key={String(item.jID)} data-sf-m="jobs-app">
               <div className="sf-jobs-item-title">#{item.jID}</div>
-              <div className="sf-jobs-meta">{item.job_status || item.status || '—'}</div>
+              {/* P7-E 小尾巴批-β · R-7E-4（裁定：本仓禁死代码）：原 `{item.job_status || item.status || '—'}`
+                  为**死分支** —— `item` 来自 `fetchMyApplications`（`GET /api/task-progress`）⇒ 后端
+                  `listTaskProgressByUser`（`backend-ts/src/database.ts:1432`）SELECT 列集**不含** `status`/`job_status`，
+                  行映射 `normalizeTaskProgress`（`:652`）输出键集亦无此二者 ⇒ **两字段恒 `undefined`**
+                  （`job_application.status` 虽在库（`0014_job_flow.sql:93`）但**不随本读口回包**；要展示须改后端读口，本单禁改）。
+                  处置：删除死分支，保留**产品口径的空态占位** `—`（常量，不再引用任何不存在的字段）。 */}
+              <div className="sf-jobs-meta">{'—'}</div>
               <button className="sf-btn sf-jobs-btn" type="button" onClick={() => setSubmitTarget(String(item.jID ?? ''))}>
                 {t('jobs.pick')}
               </button>

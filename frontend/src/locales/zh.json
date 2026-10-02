@@ -191,6 +191,20 @@
     "refresh": "刷新",
     "quoteNote": "计价单位：$"
   },
+  "orders": {
+    "statusLabel": {
+      "open": "挂单中",
+      "partial": "部分成交",
+      "filled": "已成交",
+      "cancelled": "已撤销",
+      "unknown": "其他状态"
+    },
+    "sideLabel": {
+      "buy": "买入",
+      "sell": "卖出",
+      "unknown": "其他方向"
+    }
+  },
   "ledger": {
     "balance": "余额",
     "balanceNote": "余额以平台账户资产为准。",

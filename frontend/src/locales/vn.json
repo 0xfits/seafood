@@ -191,6 +191,20 @@
     "refresh": "Tải lại",
     "quoteNote": "Đơn vị định giá: $"
   },
+  "orders": {
+    "statusLabel": {
+      "open": "Đang mở",
+      "partial": "Khớp một phần",
+      "filled": "Đã khớp",
+      "cancelled": "Đã huỷ",
+      "unknown": "Không rõ"
+    },
+    "sideLabel": {
+      "buy": "Mua",
+      "sell": "Bán",
+      "unknown": "Không rõ chiều"
+    }
+  },
   "ledger": {
     "balance": "Số dư",
     "balanceNote": "Số dư hiển thị theo tài sản trong tài khoản nền tảng của bạn.",
