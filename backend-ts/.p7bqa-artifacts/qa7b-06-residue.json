@@ -1,0 +1,402 @@
+{
+  "run": "20261002T111607Z05b2",
+  "name": "qa7b-06-residue",
+  "at": "2026-10-02T11:16:07.826Z",
+  "probe": "qa7b-06-residue",
+  "has_url": true,
+  "users": [
+    {
+      "j": {
+        "bio": "qa7b fixture uid=910001",
+        "evm": "0x114ea6e15e42e53d65c3d2e550de32f5ca05365a",
+        "uid": 910001,
+        "is_admin": false,
+        "time_reg": "2026-10-02T11:05:09.971866+00:00",
+        "time_login_last": "2026-10-02T11:05:09.971866+00:00"
+      }
+    },
+    {
+      "j": {
+        "bio": "qa7b fixture uid=910002",
+        "evm": "0x729c8365d4e6529de6189a2d6c298661b800e7c6",
+        "uid": 910002,
+        "is_admin": false,
+        "time_reg": "2026-10-02T11:05:10.541477+00:00",
+        "time_login_last": "2026-10-02T11:05:10.541477+00:00"
+      }
+    },
+    {
+      "j": {
+        "bio": "qa7b fixture uid=910003",
+        "evm": "0x29d4e165db02623bbcedc3b5894e1e9f1080ed24",
+        "uid": 910003,
+        "is_admin": false,
+        "time_reg": "2026-10-02T11:05:10.701114+00:00",
+        "time_login_last": "2026-10-02T11:05:10.701114+00:00"
+      }
+    },
+    {
+      "j": {
+        "bio": "qa7b fixture uid=910004",
+        "evm": "0xd6f4f1470e8fd1d3a85ae5add6aff6853540f375",
+        "uid": 910004,
+        "is_admin": false,
+        "time_reg": "2026-10-02T11:05:10.870466+00:00",
+        "time_login_last": "2026-10-02T11:05:10.870466+00:00"
+      }
+    },
+    {
+      "j": {
+        "bio": "qa7b fixture uid=910005",
+        "evm": "0x15566414f2daf3fbf623683f030176febbf254dd",
+        "uid": 910005,
+        "is_admin": false,
+        "time_reg": "2026-10-02T11:05:11.052817+00:00",
+        "time_login_last": "2026-10-02T11:05:11.052817+00:00"
+      }
+    },
+    {
+      "j": {
+        "bio": "qa7b fixture uid=910006",
+        "evm": "0x6abc88752b52dd3d8ee9171021567270e8bffa39",
+        "uid": 910006,
+        "is_admin": false,
+        "time_reg": "2026-10-02T11:05:11.235216+00:00",
+        "time_login_last": "2026-10-02T11:05:11.235216+00:00"
+      }
+    },
+    {
+      "j": {
+        "bio": "qa7b fixture uid=910007",
+        "evm": "0xd8de75b6f72fb5a0f9efa03b4e75847314019e23",
+        "uid": 910007,
+        "is_admin": false,
+        "time_reg": "2026-10-02T11:05:11.411214+00:00",
+        "time_login_last": "2026-10-02T11:05:11.411214+00:00"
+      }
+    },
+    {
+      "j": {
+        "bio": "qa7b fixture uid=910008",
+        "evm": "0x48ff7d8fe6af1e32bf389109676c3f5bfa5e3095",
+        "uid": 910008,
+        "is_admin": false,
+        "time_reg": "2026-10-02T11:05:11.577696+00:00",
+        "time_login_last": "2026-10-02T11:05:11.577696+00:00"
+      }
+    },
+    {
+      "j": {
+        "bio": "qa7b fixture uid=910009",
+        "evm": "0xa4b7728b072a5822bf775a0c45e99611bf79f651",
+        "uid": 910009,
+        "is_admin": false,
+        "time_reg": "2026-10-02T11:05:11.747065+00:00",
+        "time_login_last": "2026-10-02T11:05:11.747065+00:00"
+      }
+    },
+    {
+      "j": {
+        "bio": "qa7b fixture uid=910010",
+        "evm": "0x92b74687133fe97866cc5da88289be2e2e27faa8",
+        "uid": 910010,
+        "is_admin": false,
+        "time_reg": "2026-10-02T11:05:11.926473+00:00",
+        "time_login_last": "2026-10-02T11:05:11.926473+00:00"
+      }
+    }
+  ],
+  "roles": [
+    {
+      "role_key": "qa7b_admin",
+      "name": "QA7B fixture admin (manage_points)"
+    },
+    {
+      "role_key": "qa7b_nopts",
+      "name": "QA7B fixture admin without manage_points"
+    }
+  ],
+  "role_perms": [
+    {
+      "role_key": "qa7b_admin",
+      "permission_key": "manage_points"
+    },
+    {
+      "role_key": "qa7b_nopts",
+      "permission_key": "read_users"
+    }
+  ],
+  "user_roles": [
+    {
+      "uid": "910004",
+      "role_key": "qa7b_admin"
+    },
+    {
+      "uid": "910005",
+      "role_key": "qa7b_admin"
+    },
+    {
+      "uid": "910006",
+      "role_key": "qa7b_nopts"
+    }
+  ],
+  "listing": [
+    {
+      "listing_id": "24",
+      "seller_uid": "910001",
+      "cid": "1",
+      "price": "1",
+      "stock": 100,
+      "status": "listed",
+      "create_key": "cli:qa7b-fixture-listing-01"
+    }
+  ],
+  "orders": [
+    {
+      "order_id": "14",
+      "listing_id": "24",
+      "seller_uid": "910001",
+      "buyer_uid": "910002",
+      "cid": "1",
+      "price": "1",
+      "quantity": 1,
+      "status": "refunded",
+      "refund_txid": "355",
+      "create_key": "cli:qa7b-fixture-order-q1"
+    },
+    {
+      "order_id": "15",
+      "listing_id": "24",
+      "seller_uid": "910003",
+      "buyer_uid": "910002",
+      "cid": "1",
+      "price": "1",
+      "quantity": 1,
+      "status": "refunded",
+      "refund_txid": "357",
+      "create_key": "cli:qa7b-fixture-order-q2"
+    },
+    {
+      "order_id": "16",
+      "listing_id": "24",
+      "seller_uid": "910001",
+      "buyer_uid": "910004",
+      "cid": "1",
+      "price": "1",
+      "quantity": 1,
+      "status": "paid",
+      "refund_txid": null,
+      "create_key": "cli:qa7b-fixture-order-q3"
+    },
+    {
+      "order_id": "17",
+      "listing_id": "24",
+      "seller_uid": "910008",
+      "buyer_uid": "910002",
+      "cid": "1",
+      "price": "1",
+      "quantity": 1,
+      "status": "refunded",
+      "refund_txid": "353",
+      "create_key": "cli:qa7b-fixture-order-q4"
+    },
+    {
+      "order_id": "18",
+      "listing_id": "24",
+      "seller_uid": "910003",
+      "buyer_uid": "910002",
+      "cid": "1",
+      "price": "1",
+      "quantity": 1,
+      "status": "paid",
+      "refund_txid": null,
+      "create_key": "cli:qa7b-fixture-order-q5"
+    },
+    {
+      "order_id": "19",
+      "listing_id": "24",
+      "seller_uid": "910001",
+      "buyer_uid": "910002",
+      "cid": "1",
+      "price": "1",
+      "quantity": 1,
+      "status": "paid",
+      "refund_txid": null,
+      "create_key": "cli:qa7b-fixture-order-q6"
+    },
+    {
+      "order_id": "20",
+      "listing_id": "24",
+      "seller_uid": "910001",
+      "buyer_uid": "910002",
+      "cid": "1",
+      "price": "1",
+      "quantity": 1,
+      "status": "created",
+      "refund_txid": null,
+      "create_key": "cli:qa7b-fixture-order-q7"
+    }
+  ],
+  "audit": [
+    {
+      "log_id": "1",
+      "actor_uid": "900008",
+      "order_id": "11",
+      "seller_uid": "900008",
+      "buyer_uid": "900002",
+      "cid": "1",
+      "amount": "1",
+      "result": "applied",
+      "txid": "341",
+      "idempotency_key": "biz:listing:refund:11",
+      "memo": "p7b ac11 refund:11"
+    },
+    {
+      "log_id": "2",
+      "actor_uid": "900001",
+      "order_id": "8",
+      "seller_uid": "900001",
+      "buyer_uid": "900002",
+      "cid": "1",
+      "amount": "1",
+      "result": "applied",
+      "txid": "343",
+      "idempotency_key": "biz:listing:refund:8",
+      "memo": "listing refund:8"
+    },
+    {
+      "log_id": "3",
+      "actor_uid": "900005",
+      "order_id": "9",
+      "seller_uid": "900003",
+      "buyer_uid": "900002",
+      "cid": "1",
+      "amount": "1",
+      "result": "applied",
+      "txid": "345",
+      "idempotency_key": "biz:listing:refund:9",
+      "memo": "listing refund:9"
+    },
+    {
+      "log_id": "4",
+      "actor_uid": "910008",
+      "order_id": "17",
+      "seller_uid": "910008",
+      "buyer_uid": "910002",
+      "cid": "1",
+      "amount": "1",
+      "result": "applied",
+      "txid": "353",
+      "idempotency_key": "biz:listing:refund:17",
+      "memo": "qa7b ac11 refund:17"
+    },
+    {
+      "log_id": "5",
+      "actor_uid": "910001",
+      "order_id": "14",
+      "seller_uid": "910001",
+      "buyer_uid": "910002",
+      "cid": "1",
+      "amount": "1",
+      "result": "applied",
+      "txid": "355",
+      "idempotency_key": "biz:listing:refund:14",
+      "memo": "listing refund:14"
+    },
+    {
+      "log_id": "6",
+      "actor_uid": "910005",
+      "order_id": "15",
+      "seller_uid": "910003",
+      "buyer_uid": "910002",
+      "cid": "1",
+      "amount": "1",
+      "result": "applied",
+      "txid": "357",
+      "idempotency_key": "biz:listing:refund:15",
+      "memo": "listing refund:15"
+    },
+    {
+      "log_id": "7",
+      "actor_uid": "910001",
+      "order_id": "20",
+      "seller_uid": "910001",
+      "buyer_uid": "910002",
+      "cid": "1",
+      "amount": "1",
+      "result": "rejected_state",
+      "txid": null,
+      "idempotency_key": "biz:listing:refund:20",
+      "memo": "order_not_refundable"
+    }
+  ],
+  "ledger": [
+    {
+      "ledger_entry_total": "347",
+      "purchase_refund_total": "18"
+    }
+  ],
+  "sigma": [
+    {
+      "sum_cid1_balance": "1989693",
+      "sum_cid1_frozen": "10507"
+    }
+  ],
+  "refund_rootkeys": [
+    {
+      "event_root_key": "biz:listing:refund:11",
+      "n": "2"
+    },
+    {
+      "event_root_key": "biz:listing:refund:14",
+      "n": "2"
+    },
+    {
+      "event_root_key": "biz:listing:refund:15",
+      "n": "2"
+    },
+    {
+      "event_root_key": "biz:listing:refund:17",
+      "n": "2"
+    },
+    {
+      "event_root_key": "biz:listing:refund:2",
+      "n": "2"
+    },
+    {
+      "event_root_key": "biz:listing:refund:6",
+      "n": "2"
+    },
+    {
+      "event_root_key": "biz:listing:refund:7",
+      "n": "2"
+    },
+    {
+      "event_root_key": "biz:listing:refund:8",
+      "n": "2"
+    },
+    {
+      "event_root_key": "biz:listing:refund:9",
+      "n": "2"
+    }
+  ],
+  "funding_rootkeys": [
+    {
+      "event_root_key": "ops:qa7b:fund:fix1:910001",
+      "n": "2"
+    },
+    {
+      "event_root_key": "ops:qa7b:fund:fix1:910003",
+      "n": "2"
+    },
+    {
+      "event_root_key": "ops:qa7b:fund:fix1:910008",
+      "n": "2"
+    }
+  ],
+  "schema_version": [
+    {
+      "v": "0024"
+    }
+  ]
+}

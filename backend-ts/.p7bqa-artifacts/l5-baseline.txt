@@ -1,0 +1,91 @@
+{
+ "saved": "/Users/kevin/.hermes/profiles/zang/cache/scratch/qa7b-neg/backend-ts/.p7b-artifacts/p7b-03-offline-gates-20261002T110923Zzgmd.json",
+ "summary": {
+  "total": 37,
+  "passed": 37,
+  "failed": 0,
+  "red": []
+ },
+ "cases": [
+  {
+   "id": "AC13-1",
+   "got": "seller",
+   "status": 200,
+   "code": null,
+   "authDomain": null,
+   "expect": "seller",
+   "pass": true
+  },
+  {
+   "id": "AC13-2",
+   "got": "admin",
+   "status": 200,
+   "code": null,
+   "authDomain": null,
+   "expect": "admin",
+   "pass": true
+  },
+  {
+   "id": "AC13-2b",
+   "got": "admin",
+   "status": 200,
+   "code": null,
+   "authDomain": null,
+   "expect": "admin",
+   "pass": true
+  },
+  {
+   "id": "AC13-3",
+   "got": "ACTOR_NOT_ALLOWED",
+   "status": 403,
+   "code": "AUTH_FORBIDDEN",
+   "authDomain": true,
+   "expect": "ACTOR_NOT_ALLOWED",
+   "pass": true
+  },
+  {
+   "id": "AC13-4",
+   "got": "ACTOR_NOT_ALLOWED",
+   "status": 403,
+   "code": "AUTH_FORBIDDEN",
+   "authDomain": true,
+   "expect": "ACTOR_NOT_ALLOWED",
+   "pass": true
+  },
+  {
+   "id": "AC13-5",
+   "got": "PERMISSION_NOT_GRANTED",
+   "status": 403,
+   "code": "AUTH_FORBIDDEN",
+   "authDomain": true,
+   "expect": "PERMISSION_NOT_GRANTED",
+   "pass": true
+  },
+  {
+   "id": "AC13-6",
+   "got": "ACTOR_NOT_ALLOWED",
+   "status": 403,
+   "code": "AUTH_FORBIDDEN",
+   "authDomain": true,
+   "expect": "ACTOR_NOT_ALLOWED",
+   "pass": true
+  }
+ ],
+ "ac14": [
+  {
+   "injected": "53300",
+   "code": "LEDGER_TX_TIMEOUT",
+   "http": 503
+  },
+  {
+   "injected": "XX000",
+   "code": "LEDGER_TX_TIMEOUT",
+   "http": 503
+  },
+  {
+   "injected": "58030",
+   "code": "LEDGER_TX_TIMEOUT",
+   "http": 503
+  }
+ ]
+}

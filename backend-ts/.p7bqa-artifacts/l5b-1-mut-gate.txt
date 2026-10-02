@@ -1,0 +1,2 @@
+GATE_EXIT(written above)
+summary={"total": 37, "passed": 36, "failed": 1, "red": ["AC15-s3"]}

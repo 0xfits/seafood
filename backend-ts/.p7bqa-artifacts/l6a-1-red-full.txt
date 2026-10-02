@@ -1,0 +1,159 @@
+
+ RUN  v0.34.6 /Users/kevin/.hermes/profiles/zang/cache/scratch/qa-p7b/frontend
+
+ ❯ src/test/unit/p7b-errfallback.test.js  (8 tests | 8 failed) 20ms
+   ❯ src/test/unit/p7b-errfallback.test.js > 批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通用兜底，绝不外泄裸键） > ① 谓词 `looksLikeBareI18nKey`：只认「整串即点分标识符」，正常文案一律不误伤
+     → expected undefined to be an instance of RegExp
+   ❯ src/test/unit/p7b-errfallback.test.js > 批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通用兜底，绝不外泄裸键） > ② 裸键面：链上文案即键名（含 `message` 与 `details.reason` 拼出的 `键 (REASON)`）⇒ **四语逐语**落该语通用兜底
+     → [zh] 必须落该语通用兜底: expected 'ledger.err.LEDGER_AMOUNT_INVALID (NOT…' to be '请求失败 (422)' // Object.is equality
+   ❯ src/test/unit/p7b-errfallback.test.js > 批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通用兜底，绝不外泄裸键） > ③ 无服务端文案面（只给 `i18n_key`，连 `code` 都没有）⇒ **四语逐语**落该语通用兜底（不落英文 ASCII）
+     → [zh] 必须落该语通用兜底: expected 'Request failed (400)' to be '请求失败 (400)' // Object.is equality
+   ❯ src/test/unit/p7b-errfallback.test.js > 批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通用兜底，绝不外泄裸键） > ④ 服务端码面：只给机读 `code`（无 `message`，无裸键）⇒ **四语逐语**落该语通用兜底，不把码原文丢给用户
+     → [zh] 必须落该语通用兜底: expected 'LEDGER_AMOUNT_INVALID' to be '请求失败 (409)' // Object.is equality
+   ❯ src/test/unit/p7b-errfallback.test.js > 批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通用兜底，绝不外泄裸键） > ⑤ 原文直通面：`message` 即裸键（无 code / 无 i18n_key）⇒ 不得外泄裸键 ⇒ 该语通用兜底
+     → [zh]: expected 'ledger.err.LEDGER_AMOUNT_INVALID' to be '请求失败 (500)' // Object.is equality
+   ❯ src/test/unit/p7b-errfallback.test.js > 批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通用兜底，绝不外泄裸键） > ⑥ 让位面：真键命中 ⇒ 用**真文案**（四语逐语；护栏不得把真命中打掉）
+     → Cannot read properties of undefined (reading 'exec')
+   ❯ src/test/unit/p7b-errfallback.test.js > 批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通用兜底，绝不外泄裸键） > ⑦ 既有面回归锚（`auth.test.js` S6 语义）：未本地化键 + 真人可读服务端 message ⇒ **保留原文**
+     → Cannot read properties of undefined (reading 'exec')
+   ❯ src/test/unit/p7b-errfallback.test.js > 批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通用兜底，绝不外泄裸键） > ⑧ `ledger-api` 端到端：`ledger.err.*` 401 面 ⇒ 用户可见串非裸键，且逐字等于 `apiErrorMessage` 产出
+     → [zh]: expected 'LEDGER_AMOUNT_INVALID' to be '请求失败 (401)' // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/test/unit/p7b-errfallback.test.js > 批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通用兜底，绝不外泄裸键） > ① 谓词 `looksLikeBareI18nKey`：只认「整串即点分标识符」，正常文案一律不误伤
+AssertionError: expected undefined to be an instance of RegExp
+ ❯ src/test/unit/p7b-errfallback.test.js:62:30
+     60| 
+     61|   it('① 谓词 `looksLikeBareI18nKey`：只认「整串即点分标识符」，正常文…
+     62|     expect(BARE_I18N_KEY_RE).toBeInstanceOf(RegExp)
+       |                              ^
+     63|     for (const v of [
+     64|       'ledger.err.LEDGER_AMOUNT_INVALID',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  src/test/unit/p7b-errfallback.test.js > 批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通用兜底，绝不外泄裸键） > ② 裸键面：链上文案即键名（含 `message` 与 `details.reason` 拼出的 `键 (REASON)`）⇒ **四语逐语**落该语通用兜底
+AssertionError: [zh] 必须落该语通用兜底: expected 'ledger.err.LEDGER_AMOUNT_INVALID (NOT…' to be '请求失败 (422)' // Object.is equality
+
+- Expected
++ Received
+
+- 请求失败 (422)
++ ledger.err.LEDGER_AMOUNT_INVALID (NOT_DECIMAL_STRING)
+
+ ❯ src/test/unit/p7b-errfallback.test.js:117:46
+    115|       const message = await apiErrorMessage(payload, status)
+    116| 
+    117|       expect(message, `[${lang}] 必须落该语通用兜底`).toBe(genericOf(l…
+       |                                              ^
+    118|       expect(looksLikeBareI18nKey(message), `[${lang}] 产出不得是裸键`…
+    119|       expect(containsBareI18nKey(message), `[${lang}] 产出不得**出现**…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  src/test/unit/p7b-errfallback.test.js > 批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通用兜底，绝不外泄裸键） > ③ 无服务端文案面（只给 `i18n_key`，连 `code` 都没有）⇒ **四语逐语**落该语通用兜底（不落英文 ASCII）
+AssertionError: [zh] 必须落该语通用兜底: expected 'Request failed (400)' to be '请求失败 (400)' // Object.is equality
+
+- Expected
++ Received
+
+- 请求失败 (400)
++ Request failed (400)
+
+ ❯ src/test/unit/p7b-errfallback.test.js:138:46
+    136|       )
+    137| 
+    138|       expect(message, `[${lang}] 必须落该语通用兜底`).toBe(genericOf(l…
+       |                                              ^
+    139|       // 与**应用内**同一查表逐字一致（真 `i18n` 实例，非替身）
+    140|       expect(message).toBe(i18n.t('auth.err.REQUEST_FAILED', { status …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  src/test/unit/p7b-errfallback.test.js > 批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通用兜底，绝不外泄裸键） > ④ 服务端码面：只给机读 `code`（无 `message`，无裸键）⇒ **四语逐语**落该语通用兜底，不把码原文丢给用户
+AssertionError: [zh] 必须落该语通用兜底: expected 'LEDGER_AMOUNT_INVALID' to be '请求失败 (409)' // Object.is equality
+
+- Expected
++ Received
+
+- 请求失败 (409)
++ LEDGER_AMOUNT_INVALID
+
+ ❯ src/test/unit/p7b-errfallback.test.js:156:46
+    154|       )
+    155| 
+    156|       expect(message, `[${lang}] 必须落该语通用兜底`).toBe(genericOf(l…
+       |                                              ^
+    157|       expect(message).not.toContain('LEDGER_AMOUNT_INVALID')
+    158|       expect(containsBareI18nKey(message)).toBe(false)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  src/test/unit/p7b-errfallback.test.js > 批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通用兜底，绝不外泄裸键） > ⑤ 原文直通面：`message` 即裸键（无 code / 无 i18n_key）⇒ 不得外泄裸键 ⇒ 该语通用兜底
+AssertionError: [zh]: expected 'ledger.err.LEDGER_AMOUNT_INVALID' to be '请求失败 (500)' // Object.is equality
+
+- Expected
++ Received
+
+- 请求失败 (500)
++ ledger.err.LEDGER_AMOUNT_INVALID
+
+ ❯ src/test/unit/p7b-errfallback.test.js:171:36
+    169|       )
+    170| 
+    171|       expect(message, `[${lang}]`).toBe(genericOf(lang, status))
+       |                                    ^
+    172|       expect(looksLikeBareI18nKey(message)).toBe(false)
+    173|       expect(message).not.toContain('ledger.err.')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  src/test/unit/p7b-errfallback.test.js > 批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通用兜底，绝不外泄裸键） > ⑥ 让位面：真键命中 ⇒ 用**真文案**（四语逐语；护栏不得把真命中打掉）
+TypeError: Cannot read properties of undefined (reading 'exec')
+ ❯ src/test/unit/p7b-errfallback.test.js:192:27
+    190|       expect(message, `[${lang}] 命中即用真文案`).toBe(truth)
+    191|       expect(message).not.toContain('AUTH_UNAUTHORIZED')
+    192|       expect(message).not.toMatch(BARE_I18N_KEY_RE)
+       |                           ^
+    193|     }
+    194|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  src/test/unit/p7b-errfallback.test.js > 批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通用兜底，绝不外泄裸键） > ⑦ 既有面回归锚（`auth.test.js` S6 语义）：未本地化键 + 真人可读服务端 message ⇒ **保留原文**
+TypeError: Cannot read properties of undefined (reading 'exec')
+ ❯ src/test/unit/p7b-errfallback.test.js:211:27
+    209|       expect(i18n.exists('ledger.err.LEDGER_REF_NOT_FOUND')).toBe(fals…
+    210|       expect(message).toBe('endpoint deprecated: /api/auth/register')
+    211|       expect(message).not.toMatch(BARE_I18N_KEY_RE)
+       |                           ^
+    212|     }
+    213|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  src/test/unit/p7b-errfallback.test.js > 批 7-B · C-1 `ledger.err.*` 回退护栏（未命中 ⇒ 四语通用兜底，绝不外泄裸键） > ⑧ `ledger-api` 端到端：`ledger.err.*` 401 面 ⇒ 用户可见串非裸键，且逐字等于 `apiErrorMessage` 产出
+AssertionError: [zh]: expected 'LEDGER_AMOUNT_INVALID' to be '请求失败 (401)' // Object.is equality
+
+- Expected
++ Received
+
+- 请求失败 (401)
++ LEDGER_AMOUNT_INVALID
+
+ ❯ src/test/unit/p7b-errfallback.test.js:229:40
+    227| 
+    228|       expect(err).toBeInstanceOf(Error)
+    229|       expect(err.message, `[${lang}]`).toBe(genericOf(lang, status))
+       |                                        ^
+    230|       expect(err.message).not.toMatch(BARE_I18N_KEY_RE)
+    231|       expect(err.message).not.toContain('ledger.err.')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+ Test Files  1 failed (1)
+      Tests  8 failed (8)
+   Start at  19:13:04
+   Duration  841ms (transform 81ms, setup 163ms, collect 92ms, tests 20ms, environment 342ms, prepare 64ms)
+

@@ -1,0 +1,4 @@
+BASE_SHA256=b2495845c26f0cc79b386714b63359db74e76f0cd6eadf5c95f1dd9e0aa31b1d
+MUT_SHA256=eb5008a591beaa646a10ad893ba4ff485971e86a59496fbe5cc5eae8af23e1ef
+BODY: idx_EXCEPTION=2324 idx_rejected_insert=1861  (期望 rejected < EXCEPTION)
+token 计数: EXCEPTION=2  WHEN OTHERS=0  RAISE=0  purchase_refund=0

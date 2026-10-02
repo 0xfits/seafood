@@ -1,0 +1,7 @@
+ M frontend/scripts/p7b-errfallback-gate.mjs
+ M frontend/src/auth.js
+?? backend-ts/.p7bqa-artifacts/
+?? docs/audit/p7-c-errmsg-scope.md
+?? docs/qa/p7-b-admin-refund-review.md
+?? frontend/scripts/p7c-errmsg-machinecode-gate.mjs
+?? frontend/src/test/unit/p7c-errmsg-machinecode.test.js

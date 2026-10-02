@@ -1,0 +1,27 @@
+{
+  "run": "http409",
+  "name": "qa7b-04-http409",
+  "at": "2026-10-02T11:07:49.055Z",
+  "script": "scripts/qa7b-04-http409.ts",
+  "base": "http://127.0.0.1:5796",
+  "order_q7": "20",
+  "http_status": 409,
+  "body_raw": "{\"error\":{\"code\":\"LEDGER_CURRENCY_INVALID_TRANSITION\",\"message\":\"LEDGER_CURRENCY_INVALID_TRANSITION\",\"i18n_key\":\"ledger.err.LEDGER_CURRENCY_INVALID_TRANSITION\",\"details\":{\"field\":\"listing_order.status\",\"reason\":\"order_not_refundable\",\"ref_type\":\"listing_order\",\"ref_id\":\"20\",\"status_code\":409}}}",
+  "body_json": {
+    "error": {
+      "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+      "message": "LEDGER_CURRENCY_INVALID_TRANSITION",
+      "i18n_key": "ledger.err.LEDGER_CURRENCY_INVALID_TRANSITION",
+      "details": {
+        "field": "listing_order.status",
+        "reason": "order_not_refundable",
+        "ref_type": "listing_order",
+        "ref_id": "20",
+        "status_code": 409
+      }
+    }
+  },
+  "audit_rows_q7": {
+    "n": "1"
+  }
+}

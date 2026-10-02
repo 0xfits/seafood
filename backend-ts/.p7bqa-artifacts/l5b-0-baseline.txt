@@ -1,0 +1,6 @@
+[L5(b)-0] 变异前基线（副本 / 主工作区 / git blob）
+copy file  sha256 : b2495845c26f0cc79b386714b63359db74e76f0cd6eadf5c95f1dd9e0aa31b1d
+main file  sha256 : b2495845c26f0cc79b386714b63359db74e76f0cd6eadf5c95f1dd9e0aa31b1d
+git blob 39d89b3:0024 : a419d71f21e6d5124ae628cb58a0fcd7fe5dae71
+git hash-object (copy worktree) : a419d71f21e6d5124ae628cb58a0fcd7fe5dae71
+copy worktree status (tracked) : []

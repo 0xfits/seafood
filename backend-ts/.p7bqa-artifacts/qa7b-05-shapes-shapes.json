@@ -1,0 +1,65 @@
+{
+  "run": "shapes",
+  "name": "qa7b-05-shapes",
+  "at": "2026-10-02T11:08:06.828Z",
+  "shapes": {
+    "infra_53300": {
+      "normalized": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "httpStatus": 503,
+        "i18nKey": "ledger.err.LEDGER_TX_TIMEOUT",
+        "message": "系统繁忙，请稍后重试"
+      },
+      "body": {
+        "error": {
+          "code": "LEDGER_TX_TIMEOUT",
+          "message": "系统繁忙，请稍后重试",
+          "i18n_key": "ledger.err.LEDGER_TX_TIMEOUT",
+          "details": {
+            "reason": "too_many_connections",
+            "pg_code": "53300",
+            "retryable": true,
+            "source": "pg_infra_class"
+          }
+        }
+      }
+    },
+    "infra_XX000": {
+      "normalized": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "httpStatus": 503,
+        "i18nKey": "ledger.err.LEDGER_TX_TIMEOUT",
+        "message": "系统繁忙，请稍后重试"
+      },
+      "body": {
+        "error": {
+          "code": "LEDGER_TX_TIMEOUT",
+          "message": "系统繁忙，请稍后重试",
+          "i18n_key": "ledger.err.LEDGER_TX_TIMEOUT",
+          "details": {
+            "reason": "internal_error",
+            "pg_code": "XX000",
+            "retryable": true,
+            "source": "pg_infra_class"
+          }
+        }
+      }
+    },
+    "tx_timeout_named": {
+      "normalized": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "httpStatus": 503,
+        "i18nKey": "ledger.err.LEDGER_TX_TIMEOUT",
+        "message": "系统繁忙，请稍后重试"
+      },
+      "body": {
+        "error": {
+          "code": "LEDGER_TX_TIMEOUT",
+          "message": "系统繁忙，请稍后重试",
+          "i18n_key": "ledger.err.LEDGER_TX_TIMEOUT",
+          "details": {}
+        }
+      }
+    }
+  }
+}

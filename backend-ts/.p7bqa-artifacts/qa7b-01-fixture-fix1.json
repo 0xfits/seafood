@@ -1,0 +1,152 @@
+{
+  "run": "fix1",
+  "name": "qa7b-01-fixture",
+  "at": "2026-10-02T11:05:15.251Z",
+  "script": "scripts/qa7b-01-fixture.ts",
+  "listing_id": "24",
+  "funding": [
+    {
+      "uid": 910001,
+      "from": "6",
+      "amount": "10",
+      "txid": "347",
+      "replay": false
+    },
+    {
+      "uid": 910003,
+      "from": "6",
+      "amount": "10",
+      "txid": "349",
+      "replay": false
+    },
+    {
+      "uid": 910008,
+      "from": "6",
+      "amount": "10",
+      "txid": "351",
+      "replay": false
+    }
+  ],
+  "orders": {
+    "q1": "14",
+    "q2": "15",
+    "q3": "16",
+    "q4": "17",
+    "q5": "18",
+    "q6": "19"
+  },
+  "order_rows": [
+    {
+      "order_id": "14",
+      "seller_uid": "910001",
+      "buyer_uid": "910002",
+      "price": "1",
+      "quantity": 1,
+      "status": "paid"
+    },
+    {
+      "order_id": "15",
+      "seller_uid": "910003",
+      "buyer_uid": "910002",
+      "price": "1",
+      "quantity": 1,
+      "status": "paid"
+    },
+    {
+      "order_id": "16",
+      "seller_uid": "910001",
+      "buyer_uid": "910004",
+      "price": "1",
+      "quantity": 1,
+      "status": "paid"
+    },
+    {
+      "order_id": "17",
+      "seller_uid": "910008",
+      "buyer_uid": "910002",
+      "price": "1",
+      "quantity": 1,
+      "status": "paid"
+    },
+    {
+      "order_id": "18",
+      "seller_uid": "910003",
+      "buyer_uid": "910002",
+      "price": "1",
+      "quantity": 1,
+      "status": "paid"
+    },
+    {
+      "order_id": "19",
+      "seller_uid": "910001",
+      "buyer_uid": "910002",
+      "price": "1",
+      "quantity": 1,
+      "status": "paid"
+    }
+  ],
+  "residue_manifest": {
+    "users": [
+      910001,
+      910002,
+      910003,
+      910004,
+      910005,
+      910006,
+      910007,
+      910008,
+      910009,
+      910010
+    ],
+    "roles": [
+      "qa7b_admin",
+      "qa7b_nopts"
+    ],
+    "role_assignments": [
+      [
+        910005,
+        "qa7b_admin"
+      ],
+      [
+        910004,
+        "qa7b_admin"
+      ],
+      [
+        910006,
+        "qa7b_nopts"
+      ]
+    ],
+    "listing_id": "24",
+    "orders": {
+      "q1": "14",
+      "q2": "15",
+      "q3": "16",
+      "q4": "17",
+      "q5": "18",
+      "q6": "19"
+    },
+    "funding_transfers": [
+      {
+        "uid": 910001,
+        "from": "6",
+        "amount": "10",
+        "txid": "347",
+        "replay": false
+      },
+      {
+        "uid": 910003,
+        "from": "6",
+        "amount": "10",
+        "txid": "349",
+        "replay": false
+      },
+      {
+        "uid": 910008,
+        "from": "6",
+        "amount": "10",
+        "txid": "351",
+        "replay": false
+      }
+    ]
+  }
+}

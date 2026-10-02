@@ -1,0 +1,437 @@
+{
+  "run": "e2e",
+  "name": "qa7b-03-e2e",
+  "at": "2026-10-02T11:06:12.576Z",
+  "script": "scripts/qa7b-03-e2e.ts",
+  "base": "http://127.0.0.1:5796",
+  "orders": {
+    "q1": 14,
+    "q2": 15,
+    "q3": 16
+  },
+  "before": {
+    "ledger_rows": "343",
+    "purchase_refund": "14",
+    "sum_cid1_balance": "1989693",
+    "sum_cid1_frozen": "10507",
+    "audit_rows_q": [],
+    "refund_rootkey": []
+  },
+  "item1_no_token": {
+    "status": 401,
+    "json": {
+      "error": {
+        "code": "AUTH_UNAUTHORIZED",
+        "message": "AUTH_UNAUTHORIZED",
+        "i18n_key": "auth.err.AUTH_UNAUTHORIZED",
+        "details": {}
+      }
+    },
+    "top_keys": [
+      "error"
+    ],
+    "text_head": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"AUTH_UNAUTHORIZED\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}"
+  },
+  "item2_trespasser": {
+    "status": 403,
+    "json": {
+      "error": {
+        "code": "AUTH_FORBIDDEN",
+        "message": "ACTOR_NOT_ALLOWED",
+        "i18n_key": "auth.err.AUTH_FORBIDDEN",
+        "details": {
+          "reason": "ACTOR_NOT_ALLOWED",
+          "field": "actor.uid",
+          "required_uid": "910001",
+          "seller_uid": "910001",
+          "actor_uid": "910007",
+          "ref_type": "listing_order",
+          "ref_id": "14"
+        }
+      }
+    },
+    "top_keys": [
+      "error"
+    ],
+    "text_head": "{\"error\":{\"code\":\"AUTH_FORBIDDEN\",\"message\":\"ACTOR_NOT_ALLOWED\",\"i18n_key\":\"auth.err.AUTH_FORBIDDEN\",\"details\":{\"reason\":\"ACTOR_NOT_ALLOWED\",\"field\":\"actor.uid\",\"required_uid\":\"910001\",\"seller_uid\":\"910001\",\"actor_uid\":\"910007\",\"ref_type\":\"listing_order\",\"ref_id\":\"14\"}}}"
+  },
+  "item5_admin_buyer": {
+    "status": 403,
+    "json": {
+      "error": {
+        "code": "AUTH_FORBIDDEN",
+        "message": "ACTOR_NOT_ALLOWED",
+        "i18n_key": "auth.err.AUTH_FORBIDDEN",
+        "details": {
+          "reason": "ACTOR_NOT_ALLOWED",
+          "field": "actor.uid",
+          "required_uid": "910001",
+          "seller_uid": "910001",
+          "actor_uid": "910004",
+          "ref_type": "listing_order",
+          "ref_id": "16"
+        }
+      }
+    },
+    "top_keys": [
+      "error"
+    ],
+    "text_head": "{\"error\":{\"code\":\"AUTH_FORBIDDEN\",\"message\":\"ACTOR_NOT_ALLOWED\",\"i18n_key\":\"auth.err.AUTH_FORBIDDEN\",\"details\":{\"reason\":\"ACTOR_NOT_ALLOWED\",\"field\":\"actor.uid\",\"required_uid\":\"910001\",\"seller_uid\":\"910001\",\"actor_uid\":\"910004\",\"ref_type\":\"listing_order\",\"ref_id\":\"16\"}}}"
+  },
+  "item6_admin_nopoints": {
+    "status": 403,
+    "json": {
+      "error": {
+        "code": "AUTH_FORBIDDEN",
+        "message": "PERMISSION_NOT_GRANTED",
+        "i18n_key": "auth.err.AUTH_FORBIDDEN",
+        "details": {
+          "reason": "PERMISSION_NOT_GRANTED",
+          "field": "actor.uid",
+          "required_uid": "910001",
+          "actor_uid": "910006",
+          "ref_type": "listing_order",
+          "ref_id": "16"
+        }
+      }
+    },
+    "top_keys": [
+      "error"
+    ],
+    "text_head": "{\"error\":{\"code\":\"AUTH_FORBIDDEN\",\"message\":\"PERMISSION_NOT_GRANTED\",\"i18n_key\":\"auth.err.AUTH_FORBIDDEN\",\"details\":{\"reason\":\"PERMISSION_NOT_GRANTED\",\"field\":\"actor.uid\",\"required_uid\":\"910001\",\"actor_uid\":\"910006\",\"ref_type\":\"listing_order\",\"ref_id\":\"16\"}}}"
+  },
+  "item3_seller": {
+    "status": 200,
+    "json": {
+      "success": true,
+      "message": "Listing order refunded",
+      "data": {
+        "op": "refund",
+        "listing_id": "24",
+        "order_id": "14",
+        "listing_status": "listed",
+        "order_status": "refunded",
+        "stock": "100",
+        "stock_rolled_back": false,
+        "created": false,
+        "idempotent_replay": false,
+        "txid": "355",
+        "ledger_idempotency_key": "biz:listing:refund:14",
+        "pay_txid": "352",
+        "refund_txid": "355",
+        "ledger_event_keys": [
+          "biz:listing:refund:14"
+        ],
+        "amount": "1",
+        "currency_status": "listed",
+        "event_kinds": "purchase_refund",
+        "entry_count": 2,
+        "kinds": [
+          "purchase_refund",
+          "purchase_refund"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "910001",
+            "kind": "purchase_refund",
+            "memo": "listing refund:14（卖家退回 purchase_refund listing_order=14）",
+            "txid": "355",
+            "delta": "-1",
+            "ref_id": "14",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-10-02T11:06:10.719Z",
+            "balance_after": "9",
+            "idempotency_key": "biz:listing:refund:14",
+            "reversal_of_txid": null,
+            "request_fingerprint": "5be261196241e454e65671080845bc46434795baa6b9f02b23d8d1c6c5344fb3"
+          },
+          {
+            "cid": "1",
+            "uid": "910002",
+            "kind": "purchase_refund",
+            "memo": "listing refund:14（买家收款 purchase_refund listing_order=14）",
+            "txid": "356",
+            "delta": "1",
+            "ref_id": "14",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-10-02T11:06:10.719Z",
+            "balance_after": "2",
+            "idempotency_key": "biz:listing:refund:14#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "910001",
+            "frozen": "0",
+            "balance": "9"
+          },
+          {
+            "cid": "1",
+            "uid": "910002",
+            "frozen": "0",
+            "balance": "2"
+          }
+        ],
+        "actor_uid": "910001",
+        "seller_uid": "910001"
+      }
+    },
+    "top_keys": [
+      "success",
+      "message",
+      "data"
+    ],
+    "text_head": "{\"success\":true,\"message\":\"Listing order refunded\",\"data\":{\"op\":\"refund\",\"listing_id\":\"24\",\"order_id\":\"14\",\"listing_status\":\"listed\",\"order_status\":\"refunded\",\"stock\":\"100\",\"stock_rolled_back\":false,\"created\":false,\"idempotent_replay\":false,\"txid\":\"355\",\"ledger_idempotency_key\":\"biz:listing:refund:1"
+  },
+  "item7_replay": {
+    "status": 200,
+    "json": {
+      "success": true,
+      "message": "Listing order refunded (idempotent replay)",
+      "data": {
+        "op": "refund",
+        "listing_id": "24",
+        "order_id": "14",
+        "listing_status": "listed",
+        "order_status": "refunded",
+        "stock": "100",
+        "stock_rolled_back": false,
+        "created": false,
+        "idempotent_replay": true,
+        "txid": "355",
+        "ledger_idempotency_key": "biz:listing:refund:14",
+        "pay_txid": "352",
+        "refund_txid": "355",
+        "ledger_event_keys": [
+          "biz:listing:refund:14"
+        ],
+        "amount": "1",
+        "currency_status": "listed",
+        "event_kinds": "purchase_refund",
+        "entry_count": 2,
+        "kinds": [
+          "purchase_refund",
+          "purchase_refund"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "910001",
+            "kind": "purchase_refund",
+            "memo": "listing refund:14（卖家退回 purchase_refund listing_order=14）",
+            "txid": "355",
+            "delta": "-1",
+            "ref_id": "14",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-10-02T11:06:10.719Z",
+            "balance_after": "9",
+            "idempotency_key": "biz:listing:refund:14",
+            "reversal_of_txid": null,
+            "request_fingerprint": "5be261196241e454e65671080845bc46434795baa6b9f02b23d8d1c6c5344fb3"
+          },
+          {
+            "cid": "1",
+            "uid": "910002",
+            "kind": "purchase_refund",
+            "memo": "listing refund:14（买家收款 purchase_refund listing_order=14）",
+            "txid": "356",
+            "delta": "1",
+            "ref_id": "14",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-10-02T11:06:10.719Z",
+            "balance_after": "2",
+            "idempotency_key": "biz:listing:refund:14#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "910001",
+            "frozen": "0",
+            "balance": "9"
+          },
+          {
+            "cid": "1",
+            "uid": "910002",
+            "frozen": "0",
+            "balance": "2"
+          }
+        ],
+        "actor_uid": "910001",
+        "seller_uid": "910001"
+      },
+      "idempotent_replay": true
+    },
+    "top_keys": [
+      "success",
+      "message",
+      "data",
+      "idempotent_replay"
+    ],
+    "text_head": "{\"success\":true,\"message\":\"Listing order refunded (idempotent replay)\",\"data\":{\"op\":\"refund\",\"listing_id\":\"24\",\"order_id\":\"14\",\"listing_status\":\"listed\",\"order_status\":\"refunded\",\"stock\":\"100\",\"stock_rolled_back\":false,\"created\":false,\"idempotent_replay\":true,\"txid\":\"355\",\"ledger_idempotency_key\":\"b"
+  },
+  "item4_admin": {
+    "status": 200,
+    "json": {
+      "success": true,
+      "message": "Listing order refunded",
+      "data": {
+        "op": "refund",
+        "listing_id": "24",
+        "order_id": "15",
+        "listing_status": "listed",
+        "order_status": "refunded",
+        "stock": "100",
+        "stock_rolled_back": false,
+        "created": false,
+        "idempotent_replay": false,
+        "txid": "357",
+        "ledger_idempotency_key": "biz:listing:refund:15",
+        "pay_txid": "352",
+        "refund_txid": "357",
+        "ledger_event_keys": [
+          "biz:listing:refund:15"
+        ],
+        "amount": "1",
+        "currency_status": "listed",
+        "event_kinds": "purchase_refund",
+        "entry_count": 2,
+        "kinds": [
+          "purchase_refund",
+          "purchase_refund"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "910003",
+            "kind": "purchase_refund",
+            "memo": "listing refund:15（卖家退回 purchase_refund listing_order=15）",
+            "txid": "357",
+            "delta": "-1",
+            "ref_id": "15",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-10-02T11:06:12.135Z",
+            "balance_after": "9",
+            "idempotency_key": "biz:listing:refund:15",
+            "reversal_of_txid": null,
+            "request_fingerprint": "044aa62b1f3a543c25f5098d93e8eacb690ffd0df15f3201edbfacb29a687926"
+          },
+          {
+            "cid": "1",
+            "uid": "910002",
+            "kind": "purchase_refund",
+            "memo": "listing refund:15（买家收款 purchase_refund listing_order=15）",
+            "txid": "358",
+            "delta": "1",
+            "ref_id": "15",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-10-02T11:06:12.135Z",
+            "balance_after": "3",
+            "idempotency_key": "biz:listing:refund:15#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "910003",
+            "frozen": "0",
+            "balance": "9"
+          },
+          {
+            "cid": "1",
+            "uid": "910002",
+            "frozen": "0",
+            "balance": "3"
+          }
+        ],
+        "actor_uid": "910005",
+        "seller_uid": "910003"
+      }
+    },
+    "top_keys": [
+      "success",
+      "message",
+      "data"
+    ],
+    "text_head": "{\"success\":true,\"message\":\"Listing order refunded\",\"data\":{\"op\":\"refund\",\"listing_id\":\"24\",\"order_id\":\"15\",\"listing_status\":\"listed\",\"order_status\":\"refunded\",\"stock\":\"100\",\"stock_rolled_back\":false,\"created\":false,\"idempotent_replay\":false,\"txid\":\"357\",\"ledger_idempotency_key\":\"biz:listing:refund:1"
+  },
+  "item8_same_key_diff_content_db": {
+    "error": {
+      "sqlstate": "LD003",
+      "message": "LEDGER_IDEMPOTENCY_CONFLICT",
+      "detail": "{\"actual\": \"qa7b:DIFFERENT-FP\", \"expected\": \"5be261196241e454e65671080845bc46434795baa6b9f02b23d8d1c6c5344fb3\", \"idempotency_key\": \"biz:listing:refund:14\"}",
+      "reason": null,
+      "raw_detail": {
+        "actual": "qa7b:DIFFERENT-FP",
+        "expected": "5be261196241e454e65671080845bc46434795baa6b9f02b23d8d1c6c5344fb3",
+        "idempotency_key": "biz:listing:refund:14"
+      }
+    }
+  },
+  "after": {
+    "ledger_rows": "347",
+    "purchase_refund": "18",
+    "sum_cid1_balance": "1989693",
+    "sum_cid1_frozen": "10507",
+    "audit_rows_q": [
+      {
+        "log_id": "5",
+        "actor": "910001",
+        "order_id": "14",
+        "result": "applied",
+        "txid": "355",
+        "idempotency_key": "biz:listing:refund:14"
+      },
+      {
+        "log_id": "6",
+        "actor": "910005",
+        "order_id": "15",
+        "result": "applied",
+        "txid": "357",
+        "idempotency_key": "biz:listing:refund:15"
+      }
+    ],
+    "refund_rootkey": [
+      {
+        "event_root_key": "biz:listing:refund:14",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:15",
+        "n": "2"
+      }
+    ]
+  },
+  "item9_txid_match": {
+    "f1_response_txid": "355",
+    "f1_audit_txid": "355",
+    "f2_response_txid": "357",
+    "f2_audit_txid": "357"
+  },
+  "item10_drift": {
+    "ledger_rows_delta": 4,
+    "purchase_refund_delta": 4,
+    "sum_cid1_balance_shift": "0",
+    "sum_cid1_frozen_shift": "0"
+  }
+}
