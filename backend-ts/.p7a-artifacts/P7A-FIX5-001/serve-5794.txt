@@ -1,0 +1,2 @@
+TypeScript backend running on port 5794
+Using Neon PostgreSQL for Seafood API routes

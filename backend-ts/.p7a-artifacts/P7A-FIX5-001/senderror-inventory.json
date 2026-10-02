@@ -1,0 +1,266 @@
+{
+ "generated": "2026-10-02T07:37:33.751Z",
+ "count": 26,
+ "hits": [
+  {
+   "ln": 391,
+   "status": "410",
+   "route": {
+    "ln": 390,
+    "sig": "app.post('/api/auth/register', (req, res) => {",
+    "method": "post"
+   },
+   "code": "sendError(res, 410, 'Registration has moved to wallet sign-in plus profile completion');"
+  },
+  {
+   "ln": 399,
+   "status": "400",
+   "route": {
+    "ln": 394,
+    "sig": "app.post('/api/auth/challenge', async (req, res) => {",
+    "method": "post"
+   },
+   "code": "sendError(res, 400, error instanceof Error ? error.message : 'Failed to create auth challenge')"
+  },
+  {
+   "ln": 421,
+   "status": "401",
+   "route": {
+    "ln": 403,
+    "sig": "app.post('/api/auth/verify', async (req, res) => {",
+    "method": "post"
+   },
+   "code": "sendError(res, 401, error instanceof Error ? error.message : 'Failed to verify auth challenge')"
+  },
+  {
+   "ln": 504,
+   "status": "400",
+   "route": {
+    "ln": 500,
+    "sig": "app.get('/api/task/:tID', async (req, res) => {",
+    "method": "get"
+   },
+   "code": "return sendError(res, 400, 'Invalid tID');"
+  },
+  {
+   "ln": 533,
+   "status": "400",
+   "route": {
+    "ln": 529,
+    "sig": "app.get('/api/prize/:bID', async (req, res) => {",
+    "method": "get"
+   },
+   "code": "return sendError(res, 400, 'Invalid bID');"
+  },
+  {
+   "ln": 538,
+   "status": "404",
+   "route": {
+    "ln": 529,
+    "sig": "app.get('/api/prize/:bID', async (req, res) => {",
+    "method": "get"
+   },
+   "code": "return sendError(res, 404, 'Prize not found');"
+  },
+  {
+   "ln": 572,
+   "status": "400",
+   "route": {
+    "ln": 566,
+    "sig": "app.post('/api/user/profile', async (req, res) => {",
+    "method": "post"
+   },
+   "code": "return sendError(res, 400, 'bio is required');"
+  },
+  {
+   "ln": 578,
+   "status": "404",
+   "route": {
+    "ln": 566,
+    "sig": "app.post('/api/user/profile', async (req, res) => {",
+    "method": "post"
+   },
+   "code": "return sendError(res, 404, 'User not found');"
+  },
+  {
+   "ln": 598,
+   "status": "400",
+   "route": {
+    "ln": 594,
+    "sig": "app.get('/api/user/asset/:uID', async (req, res) => {",
+    "method": "get"
+   },
+   "code": "return sendError(res, 400, 'Invalid user ID');"
+  },
+  {
+   "ln": 848,
+   "status": "400",
+   "route": {
+    "ln": 844,
+    "sig": "app.get('/api/task-progress/:jID', async (req, res) => {",
+    "method": "get"
+   },
+   "code": "return sendError(res, 400, 'Invalid jID');"
+  },
+  {
+   "ln": 853,
+   "status": "404",
+   "route": {
+    "ln": 844,
+    "sig": "app.get('/api/task-progress/:jID', async (req, res) => {",
+    "method": "get"
+   },
+   "code": "return sendError(res, 404, 'Task progress not found');"
+  },
+  {
+   "ln": 874,
+   "status": "400",
+   "route": {
+    "ln": 865,
+    "sig": "app.post('/api/task-progress/:identifier/submit', async (req, res) => ",
+    "method": "post"
+   },
+   "code": "return sendError(res, 400, 'Invalid task or task progress id');"
+  },
+  {
+   "ln": 878,
+   "status": "400",
+   "route": {
+    "ln": 865,
+    "sig": "app.post('/api/task-progress/:identifier/submit', async (req, res) => ",
+    "method": "post"
+   },
+   "code": "return sendError(res, 400, 'info_input is required');"
+  },
+  {
+   "ln": 946,
+   "status": "500",
+   "route": {
+    "ln": 935,
+    "sig": "app.get('/api/shard', async (req, res) => {",
+    "method": "get"
+   },
+   "code": "sendError(res, 500, 'Failed to load shard holdings');"
+  },
+  {
+   "ln": 961,
+   "status": "500",
+   "route": {
+    "ln": 950,
+    "sig": "app.get('/api/shard/transfer', async (req, res) => {",
+    "method": "get"
+   },
+   "code": "sendError(res, 500, 'Failed to load shard transfers');"
+  },
+  {
+   "ln": 1082,
+   "status": "400",
+   "route": {
+    "ln": 1079,
+    "sig": "app.get('/api/market/:bID/orderbook', async (req, res) => {",
+    "method": "get"
+   },
+   "code": "return sendError(res, 400, 'Invalid bID');"
+  },
+  {
+   "ln": 1099,
+   "status": "400",
+   "route": {
+    "ln": 1096,
+    "sig": "app.get('/api/market/:bID/trades', async (req, res) => {",
+    "method": "get"
+   },
+   "code": "return sendError(res, 400, 'Invalid bID');"
+  },
+  {
+   "ln": 1163,
+   "status": "400",
+   "route": {
+    "ln": 1137,
+    "sig": "app.post('/api/admin/settings', async (req, res) => {",
+    "method": "post"
+   },
+   "code": "sendError(res, 400, error instanceof Error ? error.message : 'Failed to save system settings');"
+  },
+  {
+   "ln": 1220,
+   "status": "400",
+   "route": {
+    "ln": 1194,
+    "sig": "app.post('/api/admin/permissions/save', async (req, res) => {",
+    "method": "post"
+   },
+   "code": "sendError(res, 400, error instanceof Error ? error.message : 'Failed to save permission group')"
+  },
+  {
+   "ln": 1242,
+   "status": "400",
+   "route": {
+    "ln": 1224,
+    "sig": "app.post('/api/admin/permissions/delete', async (req, res) => {",
+    "method": "post"
+   },
+   "code": "sendError(res, 400, error instanceof Error ? error.message : 'Failed to delete permission group"
+  },
+  {
+   "ln": 1264,
+   "status": "400",
+   "route": {
+    "ln": 1246,
+    "sig": "app.post('/api/admin/user/update', async (req, res) => {",
+    "method": "post"
+   },
+   "code": "sendError(res, 400, error instanceof Error ? error.message : 'Failed to update user');"
+  },
+  {
+   "ln": 1477,
+   "status": "400",
+   "route": {
+    "ln": 1467,
+    "sig": "app.post('/api/admin/points/adjust', async (req, res) => {",
+    "method": "post"
+   },
+   "code": "return sendError(res, 400, '参数不完整');"
+  },
+  {
+   "ln": 1758,
+   "status": "400",
+   "route": {
+    "ln": 1750,
+    "sig": "app.post('/api/job/:jobId/submit', async (req, res) => {",
+    "method": "post"
+   },
+   "code": "if (!deliverable) return sendError(res, 400, 'info_input is required'); // 与既有 `:595` 逐字一致（别名面）"
+  },
+  {
+   "ln": 1982,
+   "status": "503",
+   "route": {
+    "ln": 1979,
+    "sig": "app.post('/api/translate/backfill', async (req, res) => {",
+    "method": "post"
+   },
+   "code": "return sendError(res, 503, 'CRON_SECRET not configured');"
+  },
+  {
+   "ln": 1988,
+   "status": "401",
+   "route": {
+    "ln": 1979,
+    "sig": "app.post('/api/translate/backfill', async (req, res) => {",
+    "method": "post"
+   },
+   "code": "return sendError(res, 401, 'Unauthorized');"
+  },
+  {
+   "ln": 2037,
+   "status": "404",
+   "route": {
+    "ln": 1979,
+    "sig": "app.post('/api/translate/backfill', async (req, res) => {",
+    "method": "post"
+   },
+   "code": "sendError(res, 404, 'Not found');"
+  }
+ ]
+}

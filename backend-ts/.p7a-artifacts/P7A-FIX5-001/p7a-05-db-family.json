@@ -1,0 +1,177 @@
+{
+ "probe": "p7a-05-db-family · DB 侧同族判据现取",
+ "run": "P7A-FIX5-001",
+ "started_at": "2026-10-02T07:32:53.586Z",
+ "note": "只读：ledger_int_amount / ledger_cid_arg 直调；不写账本、不建表",
+ "env": {
+  "schema_version": [
+   {
+    "v": null
+   }
+  ]
+ },
+ "ledger_int_amount": {
+  "before_txid_xyz": {
+   "label": "before_txid_xyz",
+   "ok": false,
+   "sqlstate": "LD016",
+   "message": "LEDGER_AMOUNT_INVALID",
+   "detail": null
+  },
+  "before_txid_neg9": {
+   "label": "before_txid_neg9",
+   "ok": true,
+   "rows": [
+    {
+     "v": "-9"
+    }
+   ]
+  },
+  "before_txid_zero": {
+   "label": "before_txid_zero",
+   "ok": true,
+   "rows": [
+    {
+     "v": "0"
+    }
+   ]
+  },
+  "before_txid_over19": {
+   "label": "before_txid_over19",
+   "ok": false,
+   "sqlstate": "LD016",
+   "message": "LEDGER_AMOUNT_INVALID",
+   "detail": null
+  },
+  "before_txid_bigint_max_plus1": {
+   "label": "before_txid_bigint_max_plus1",
+   "ok": false,
+   "sqlstate": "LD016",
+   "message": "LEDGER_AMOUNT_INVALID",
+   "detail": null
+  },
+  "before_txid_bigint_min_minus1": {
+   "label": "before_txid_bigint_min_minus1",
+   "ok": false,
+   "sqlstate": "LD016",
+   "message": "LEDGER_AMOUNT_INVALID",
+   "detail": null
+  },
+  "before_txid_valid_312": {
+   "label": "before_txid_valid_312",
+   "ok": true,
+   "rows": [
+    {
+     "v": "312"
+    }
+   ]
+  },
+  "cid_xyz": {
+   "label": "cid_xyz",
+   "ok": false,
+   "sqlstate": "LD016",
+   "message": "LEDGER_AMOUNT_INVALID",
+   "detail": null
+  },
+  "cid_over19": {
+   "label": "cid_over19",
+   "ok": false,
+   "sqlstate": "LD016",
+   "message": "LEDGER_AMOUNT_INVALID",
+   "detail": null
+  },
+  "cid_neg5": {
+   "label": "cid_neg5",
+   "ok": true,
+   "rows": [
+    {
+     "v": "-5"
+    }
+   ]
+  },
+  "cid_zero": {
+   "label": "cid_zero",
+   "ok": true,
+   "rows": [
+    {
+     "v": "0"
+    }
+   ]
+  },
+  "uid_zero": {
+   "label": "uid_zero",
+   "ok": true,
+   "rows": [
+    {
+     "v": "0"
+    }
+   ]
+  },
+  "uid_neg5": {
+   "label": "uid_neg5",
+   "ok": true,
+   "rows": [
+    {
+     "v": "-5"
+    }
+   ]
+  },
+  "before_txid_null": {
+   "label": "before_txid_null",
+   "ok": false,
+   "sqlstate": "LD016",
+   "message": "LEDGER_AMOUNT_INVALID",
+   "detail": null
+  }
+ },
+ "ledger_cid_arg": {
+  "cid_arg_abc": {
+   "label": "cid_arg_abc",
+   "ok": false,
+   "sqlstate": "LD016",
+   "message": "LEDGER_AMOUNT_INVALID",
+   "detail": null
+  },
+  "cid_arg_empty": {
+   "label": "cid_arg_empty",
+   "ok": false,
+   "sqlstate": "LD016",
+   "message": "LEDGER_AMOUNT_INVALID",
+   "detail": null
+  },
+  "cid_arg_zero": {
+   "label": "cid_arg_zero",
+   "ok": false,
+   "sqlstate": "LD007",
+   "message": "LEDGER_CURRENCY_NOT_FOUND",
+   "detail": null
+  },
+  "cid_arg_neg5": {
+   "label": "cid_arg_neg5",
+   "ok": false,
+   "sqlstate": "LD007",
+   "message": "LEDGER_CURRENCY_NOT_FOUND",
+   "detail": null
+  },
+  "cid_arg_absent": {
+   "label": "cid_arg_absent",
+   "ok": true,
+   "rows": [
+    {
+     "v": "999999999999"
+    }
+   ]
+  },
+  "cid_arg_over19": {
+   "label": "cid_arg_over19",
+   "ok": false,
+   "sqlstate": "LD016",
+   "message": "LEDGER_AMOUNT_INVALID",
+   "detail": null
+  }
+ },
+ "rows_touched": {
+  "ledger_entry": "323"
+ },
+ "finished_at": "2026-10-02T07:32:58.525Z"
+}

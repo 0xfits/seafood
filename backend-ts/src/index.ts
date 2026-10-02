@@ -634,25 +634,68 @@ app.get('/api/user/ledger', async (req, res) => {
   const actor = await requireActor(req, res);
   if (!actor) return;
 
-  // ---- 入参解析（非法值 ⇒ 显式 400，绝不 500）--------------------------------
+  // ---- 入参解析（非法值 ⇒ **R107 形状** `{error:{code,message,i18n_key,details}}`，绝不 500）------
+  // P7-A 收口五（L7④）：`cid` / `before_txid` 非法面此前走 `sendError`（旧形状 `{success,message,error}`）
+  //   ⇒ 与 `kind` 面（`sendVerbError` ⇒ R107）**同端点两种形状**。本单统一为 R107，口径 = 冻结裁定 §5.16：
+  //     · **形状非法** ⇒ 400 `LEDGER_AMOUNT_INVALID`（既有码 `LD016`，**不新增码**）
+  //       + `details.field` / `details.reason ∈ {NOT_DECIMAL_INTEGER, NOT_STRING, OUT_OF_BIGINT_RANGE}`；
+  //     · `cid` 形状合法但 `<= 0` ⇒ 「该行不存在」⇒ 404 `LEDGER_CURRENCY_NOT_FOUND` + `{cid}`
+  //       （与 `toCid` / DB 侧 `ledger_cid_arg` **逐字一致**；§5.16 明列 `cid<=0` 属此列）；
+  //     · `before_txid` 是 keyset 游标（**无实体** ⇒ 不适用 §5.16 的「不存在 ⇒ 404」）⇒ 非正 ⇒ 400 同码
+  //       + `reason='NOT_POSITIVE'`（既有 reason 词，见 `src/commission.ts:387`）。
+  //   注：`''`（空串）沿用既有语义 = **未给**（可选过滤项 ⇒ 回落「不过滤」，与 `limit` 空串回落默认同族）。
   const rawCid = req.query.cid;
   let cid: number | null = null;
   if (rawCid !== undefined && rawCid !== '') {
-    const next = Number(rawCid);
-    if (!Number.isInteger(next) || next <= 0) {
-      return sendError(res, 400, 'Invalid cid');
+    const parsed = typeof rawCid === 'string'
+      ? parseLedgerReadInt(rawCid)
+      : { ok: false as const, reason: 'NOT_STRING' };
+    if (!parsed.ok) {
+      return sendVerbError(res, {
+        ok: false,
+        status: 400,
+        code: 'LEDGER_AMOUNT_INVALID',
+        message: 'cid shape is invalid',
+        details: { field: 'cid', reason: parsed.reason },
+      });
     }
-    cid = next;
+    if (parsed.value <= 0n) {
+      return sendVerbError(res, {
+        ok: false,
+        status: 404,
+        code: 'LEDGER_CURRENCY_NOT_FOUND',
+        message: 'currency not found',
+        details: { cid: parsed.value.toString() },
+      });
+    }
+    cid = Number(parsed.value);
   }
 
   const rawBefore = req.query.before_txid;
   let beforeTxid: number | null = null;
   if (rawBefore !== undefined && rawBefore !== '') {
-    const next = Number(rawBefore);
-    if (!Number.isInteger(next) || next <= 0) {
-      return sendError(res, 400, 'Invalid before_txid');
+    const parsed = typeof rawBefore === 'string'
+      ? parseLedgerReadInt(rawBefore)
+      : { ok: false as const, reason: 'NOT_STRING' };
+    if (!parsed.ok) {
+      return sendVerbError(res, {
+        ok: false,
+        status: 400,
+        code: 'LEDGER_AMOUNT_INVALID',
+        message: 'before_txid shape is invalid',
+        details: { field: 'before_txid', reason: parsed.reason },
+      });
     }
-    beforeTxid = next;
+    if (parsed.value <= 0n) {
+      return sendVerbError(res, {
+        ok: false,
+        status: 400,
+        code: 'LEDGER_AMOUNT_INVALID',
+        message: 'before_txid must be a positive txid',
+        details: { field: 'before_txid', reason: 'NOT_POSITIVE', value: parsed.value.toString() },
+      });
+    }
+    beforeTxid = Number(parsed.value);
   }
 
   const rawKind = req.query.kind;
@@ -699,6 +742,34 @@ app.get('/api/user/ledger', async (req, res) => {
     return sendInfraMapped(res, 'user.ledger', error);
   }
 });
+
+// ---- P7-A 收口五（L7④）：本端点的**同源形状闸**（模块级；**置于端点之后** ⇒ 注册行不位移）--------
+/** `bigint` 真界（与 `src/ledger.ts:307-308` 的 `BIGINT_MAX/MIN` **同值**；= PG `bigint` 上下界）。 */
+const LEDGER_READ_BIGINT_MAX = 9223372036854775807n;
+const LEDGER_READ_BIGINT_MIN = -9223372036854775808n;
+
+/**
+ * `cid` / `before_txid` 的**同源形状闸**（**只判定、不发射响应** —— 发射点仍在端点内，
+ * 与 `kind` 面**逐字同构**的 `sendVerbError`）。
+ * 判据 = 本仓**唯一共用形状闸** `src/ledger.ts:337 toAmount` 同源（`^-?\d+$` 十进制整数 + 真 `bigint` 界）：
+ *   · 非字符串（重复 query 键 ⇒ 数组）⇒ `reason='NOT_STRING'`；
+ *   · 非十进制整数串 ⇒ `reason='NOT_DECIMAL_INTEGER'`；
+ *   · 超 `bigint` 范围 ⇒ `reason='OUT_OF_BIGINT_RANGE'`。
+ * 与 DB 侧 `ledger_int_amount` **同码**（`LD016` / `400`，`field=before_txid` 与 `field=cid` 逐格同判）；
+ *   DB 侧对 **> 19 位**另有 `OVER_MAX_SINGLE_AMOUNT` 预算，TS `toAmount` **不复制** ⇒ 登记（报告 §6）。
+ * 置位说明：本块**置于端点之后**（端点之前零新增行）⇒ 注册行 `app.get('/api/user/ledger'` 仍为 **`:633`**
+ *   （spec v1.8 与既有报告引用的行号**不漂移**）；本 `const` 只在端点的闭包内被引用、调用发生在模块
+ *   初始化完成之后 ⇒ 无 TDZ / 无「先使用后声明」运行期问题。
+ */
+const parseLedgerReadInt = (raw: string): { ok: true; value: bigint } | { ok: false; reason: string } => {
+  const s = raw.trim();
+  if (!/^-?\d+$/.test(s)) return { ok: false, reason: 'NOT_DECIMAL_INTEGER' };
+  const n = BigInt(s);
+  if (n > LEDGER_READ_BIGINT_MAX || n < LEDGER_READ_BIGINT_MIN) {
+    return { ok: false, reason: 'OUT_OF_BIGINT_RANGE' };
+  }
+  return { ok: true, value: n };
+};
 
 app.get('/api/home', async (req, res) => {
   const taskLimit = Math.min(12, Math.max(1, parseInteger(req.query.task_limit, 6)));

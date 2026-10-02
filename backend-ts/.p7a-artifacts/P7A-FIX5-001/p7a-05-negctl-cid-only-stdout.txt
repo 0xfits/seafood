@@ -1,0 +1,16 @@
+{
+ "run": "P7A-FIX5-001",
+ "verdict": "FAIL",
+ "failures": 8,
+ "fails": [
+  "AC1 cid_abc ⇒ R107 键集 code,details,i18n_key,message :: []",
+  "AC1 cid_abc ⇒ 顶层键恰 [\"error\"] :: [\"success\",\"message\",\"error\"]",
+  "AC1 cid_zero ⇒ status=404 :: 400",
+  "AC1 cid_zero ⇒ R107 键集 code,details,i18n_key,message :: []",
+  "AC1 cid_zero ⇒ 顶层键恰 [\"error\"] :: [\"success\",\"message\",\"error\"]",
+  "AC1 cid_neg5 ⇒ status=404 :: 400",
+  "AC1 cid_neg5 ⇒ R107 键集 code,details,i18n_key,message :: []",
+  "AC1 cid_neg5 ⇒ 顶层键恰 [\"error\"] :: [\"success\",\"message\",\"error\"]"
+ ]
+}
+WROTE /Users/kevin/bistro/seafood/backend-ts/.p7a-artifacts/P7A-FIX5-001/p7a-05-ledger-shape-P7A-FIX5-001.json

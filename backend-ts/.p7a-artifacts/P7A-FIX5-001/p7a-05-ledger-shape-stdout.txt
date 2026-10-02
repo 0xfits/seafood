@@ -1,0 +1,7 @@
+{
+ "run": "P7A-FIX5-001",
+ "verdict": "PASS",
+ "failures": 0,
+ "fails": []
+}
+WROTE /Users/kevin/bistro/seafood/backend-ts/.p7a-artifacts/P7A-FIX5-001/p7a-05-ledger-shape-P7A-FIX5-001.json

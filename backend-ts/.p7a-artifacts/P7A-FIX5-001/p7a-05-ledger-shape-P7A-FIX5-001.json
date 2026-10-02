@@ -1,0 +1,286 @@
+{
+  "run": "P7A-FIX5-001",
+  "base": "http://127.0.0.1:5793",
+  "probe": "p7a-05-ledger-shape",
+  "secret_fp": "b1ec01afb2eb",
+  "fixture": {
+    "uid": 970001,
+    "rows": 120
+  },
+  "legal_params": {
+    "real_txid": "99",
+    "real_cid": "16"
+  },
+  "illegal": {
+    "cid_abc": {
+      "path": "/api/user/ledger?cid=abc",
+      "status": 400,
+      "top_keys": [
+        "error"
+      ],
+      "error_keys": [
+        "code",
+        "message",
+        "i18n_key",
+        "details"
+      ],
+      "code": "LEDGER_AMOUNT_INVALID",
+      "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+      "message": "cid shape is invalid",
+      "details": {
+        "field": "cid",
+        "reason": "NOT_DECIMAL_INTEGER"
+      },
+      "body": {
+        "error": {
+          "code": "LEDGER_AMOUNT_INVALID",
+          "message": "cid shape is invalid",
+          "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+          "details": {
+            "field": "cid",
+            "reason": "NOT_DECIMAL_INTEGER"
+          }
+        }
+      },
+      "r107_shape": true,
+      "top_only_error": true
+    },
+    "cid_zero": {
+      "path": "/api/user/ledger?cid=0",
+      "status": 404,
+      "top_keys": [
+        "error"
+      ],
+      "error_keys": [
+        "code",
+        "message",
+        "i18n_key",
+        "details"
+      ],
+      "code": "LEDGER_CURRENCY_NOT_FOUND",
+      "i18n_key": "ledger.err.LEDGER_CURRENCY_NOT_FOUND",
+      "message": "currency not found",
+      "details": {
+        "cid": "0"
+      },
+      "body": {
+        "error": {
+          "code": "LEDGER_CURRENCY_NOT_FOUND",
+          "message": "currency not found",
+          "i18n_key": "ledger.err.LEDGER_CURRENCY_NOT_FOUND",
+          "details": {
+            "cid": "0"
+          }
+        }
+      },
+      "r107_shape": true,
+      "top_only_error": true
+    },
+    "cid_neg5": {
+      "path": "/api/user/ledger?cid=-5",
+      "status": 404,
+      "top_keys": [
+        "error"
+      ],
+      "error_keys": [
+        "code",
+        "message",
+        "i18n_key",
+        "details"
+      ],
+      "code": "LEDGER_CURRENCY_NOT_FOUND",
+      "i18n_key": "ledger.err.LEDGER_CURRENCY_NOT_FOUND",
+      "message": "currency not found",
+      "details": {
+        "cid": "-5"
+      },
+      "body": {
+        "error": {
+          "code": "LEDGER_CURRENCY_NOT_FOUND",
+          "message": "currency not found",
+          "i18n_key": "ledger.err.LEDGER_CURRENCY_NOT_FOUND",
+          "details": {
+            "cid": "-5"
+          }
+        }
+      },
+      "r107_shape": true,
+      "top_only_error": true
+    },
+    "before_txid_xyz": {
+      "path": "/api/user/ledger?before_txid=xyz",
+      "status": 400,
+      "top_keys": [
+        "error"
+      ],
+      "error_keys": [
+        "code",
+        "message",
+        "i18n_key",
+        "details"
+      ],
+      "code": "LEDGER_AMOUNT_INVALID",
+      "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+      "message": "before_txid shape is invalid",
+      "details": {
+        "field": "before_txid",
+        "reason": "NOT_DECIMAL_INTEGER"
+      },
+      "body": {
+        "error": {
+          "code": "LEDGER_AMOUNT_INVALID",
+          "message": "before_txid shape is invalid",
+          "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+          "details": {
+            "field": "before_txid",
+            "reason": "NOT_DECIMAL_INTEGER"
+          }
+        }
+      },
+      "r107_shape": true,
+      "top_only_error": true
+    },
+    "before_txid_neg9": {
+      "path": "/api/user/ledger?before_txid=-9",
+      "status": 400,
+      "top_keys": [
+        "error"
+      ],
+      "error_keys": [
+        "code",
+        "message",
+        "i18n_key",
+        "details"
+      ],
+      "code": "LEDGER_AMOUNT_INVALID",
+      "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+      "message": "before_txid must be a positive txid",
+      "details": {
+        "field": "before_txid",
+        "reason": "NOT_POSITIVE",
+        "value": "-9"
+      },
+      "body": {
+        "error": {
+          "code": "LEDGER_AMOUNT_INVALID",
+          "message": "before_txid must be a positive txid",
+          "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+          "details": {
+            "field": "before_txid",
+            "reason": "NOT_POSITIVE",
+            "value": "-9"
+          }
+        }
+      },
+      "r107_shape": true,
+      "top_only_error": true
+    },
+    "kind_nope": {
+      "path": "/api/user/ledger?kind=__nope__",
+      "status": 400,
+      "top_keys": [
+        "error"
+      ],
+      "error_keys": [
+        "code",
+        "message",
+        "i18n_key",
+        "details"
+      ],
+      "code": "LEDGER_UNKNOWN_KIND",
+      "i18n_key": "ledger.err.LEDGER_UNKNOWN_KIND",
+      "message": "unsupported ledger kind",
+      "details": {
+        "kind": "__nope__"
+      },
+      "body": {
+        "error": {
+          "code": "LEDGER_UNKNOWN_KIND",
+          "message": "unsupported ledger kind",
+          "i18n_key": "ledger.err.LEDGER_UNKNOWN_KIND",
+          "details": {
+            "kind": "__nope__"
+          }
+        }
+      },
+      "r107_shape": true,
+      "top_only_error": true
+    }
+  },
+  "legal": {
+    "plain": {
+      "path": "/api/user/ledger",
+      "status": 200,
+      "top_keys": [
+        "success",
+        "message",
+        "data",
+        "next_before_txid"
+      ],
+      "count": 100,
+      "next_before_txid": 36
+    },
+    "cid_real": {
+      "path": "/api/user/ledger?cid=16",
+      "status": 200,
+      "top_keys": [
+        "success",
+        "message",
+        "data",
+        "next_before_txid"
+      ],
+      "count": 7,
+      "next_before_txid": null
+    },
+    "before_real": {
+      "path": "/api/user/ledger?before_txid=99",
+      "status": 200,
+      "top_keys": [
+        "success",
+        "message",
+        "data",
+        "next_before_txid"
+      ],
+      "count": 34,
+      "next_before_txid": null
+    },
+    "kind_transfer": {
+      "path": "/api/user/ledger?kind=transfer",
+      "status": 200,
+      "top_keys": [
+        "success",
+        "message",
+        "data",
+        "next_before_txid"
+      ],
+      "count": 6,
+      "next_before_txid": null
+    },
+    "limit_abc": {
+      "path": "/api/user/ledger?limit=abc",
+      "status": 200,
+      "top_keys": [
+        "success",
+        "message",
+        "data",
+        "next_before_txid"
+      ],
+      "count": 100,
+      "next_before_txid": 36
+    },
+    "empty_vals": {
+      "path": "/api/user/ledger?cid=&before_txid=&kind=",
+      "status": 200,
+      "top_keys": [
+        "success",
+        "message",
+        "data",
+        "next_before_txid"
+      ],
+      "count": 100,
+      "next_before_txid": 36
+    }
+  },
+  "failures": [],
+  "verdict": "PASS"
+}

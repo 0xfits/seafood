@@ -1,0 +1,125 @@
+{
+ "probe": "p7a-05b-db-detail",
+ "run": "P7A-FIX5-001",
+ "started_at": "2026-10-02T07:33:35.600Z",
+ "cases": {
+  "ia_xyz_before_txid": {
+   "label": "ia_xyz_before_txid",
+   "outcome": "raised",
+   "sqlstate": "LD016",
+   "detail": {
+    "field": "before_txid",
+    "value": "xyz",
+    "reason": "NOT_DECIMAL_INTEGER"
+   }
+  },
+  "ia_neg9_before_txid": {
+   "label": "ia_neg9_before_txid",
+   "outcome": "raised",
+   "sqlstate": "P0001",
+   "detail": ""
+  },
+  "ia_zero_before_txid": {
+   "label": "ia_zero_before_txid",
+   "outcome": "raised",
+   "sqlstate": "P0001",
+   "detail": ""
+  },
+  "ia_23digits_before_txid": {
+   "label": "ia_23digits_before_txid",
+   "outcome": "raised",
+   "sqlstate": "LD016",
+   "detail": {
+    "field": "before_txid",
+    "value": "99999999999999999999999",
+    "reason": "OVER_MAX_SINGLE_AMOUNT"
+   }
+  },
+  "ia_maxplus1_before_txid": {
+   "label": "ia_maxplus1_before_txid",
+   "outcome": "raised",
+   "sqlstate": "LD016",
+   "detail": {
+    "field": "before_txid",
+    "value": "9223372036854775808",
+    "reason": "OUT_OF_BIGINT_RANGE"
+   }
+  },
+  "ia_maxplus1_cid": {
+   "label": "ia_maxplus1_cid",
+   "outcome": "raised",
+   "sqlstate": "LD016",
+   "detail": {
+    "field": "cid",
+    "value": "9223372036854775808",
+    "reason": "OUT_OF_BIGINT_RANGE"
+   }
+  },
+  "ia_23digits_cid": {
+   "label": "ia_23digits_cid",
+   "outcome": "raised",
+   "sqlstate": "LD016",
+   "detail": {
+    "field": "cid",
+    "value": "99999999999999999999999",
+    "reason": "OVER_MAX_SINGLE_AMOUNT"
+   }
+  },
+  "ia_null_before_txid": {
+   "label": "ia_null_before_txid",
+   "outcome": "raised",
+   "sqlstate": "LD016",
+   "detail": {
+    "field": "before_txid",
+    "reason": "MISSING"
+   }
+  },
+  "ca_abc": {
+   "label": "ca_abc",
+   "outcome": "raised",
+   "sqlstate": "LD016",
+   "detail": {
+    "field": "cid",
+    "value": "abc",
+    "reason": "NOT_DECIMAL_INTEGER"
+   }
+  },
+  "ca_empty": {
+   "label": "ca_empty",
+   "outcome": "raised",
+   "sqlstate": "LD016",
+   "detail": {
+    "field": "cid",
+    "value": "",
+    "reason": "NOT_DECIMAL_INTEGER"
+   }
+  },
+  "ca_zero": {
+   "label": "ca_zero",
+   "outcome": "raised",
+   "sqlstate": "LD007",
+   "detail": {
+    "cid": "0"
+   }
+  },
+  "ca_neg5": {
+   "label": "ca_neg5",
+   "outcome": "raised",
+   "sqlstate": "LD007",
+   "detail": {
+    "cid": "-5"
+   }
+  },
+  "ca_over19": {
+   "label": "ca_over19",
+   "outcome": "raised",
+   "sqlstate": "LD016",
+   "detail": {
+    "field": "cid",
+    "value": "99999999999999999999999",
+    "reason": "OVER_MAX_SINGLE_AMOUNT"
+   }
+  }
+ },
+ "finished_at": "2026-10-02T07:33:39.274Z"
+}
