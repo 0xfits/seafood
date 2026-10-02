@@ -22,6 +22,34 @@
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-error: #ef4444;
+
+  /* ===== P6-FE-PERF-5 · v4 默认调色板重定义 → 恢复等价（只覆盖「实测在用且实测有差」的 5 个色） =====
+     取值链路：生产站 https://seafood-opal.vercel.app（v3 CDN 构建）逐元素 getComputedStyle 现取，
+     canvas fillRect+getImageData 校核成 sRGB 字节（**非**凭记忆写 v3 色板）。
+     未在 5 条 AC 路由（/ /login /task /listing /shard）上渲染到、或实测字节与本项目 v3 值相等的
+     palette 色**一律不改**（在用色清单与判据见 docs/audit/p6-fe-perf.md §15.2）。 */
+  --color-green-400: #4ade80;  /* 生产 rgb(74,222,128)；v4 默认 oklch(0.792 0.209 151.711) 渲染 (5,223,114) Δ(69,1,14) */
+  --color-amber-800: #92400e;  /* 生产 rgb(146,64,14)；v4 默认 oklch(0.473 0.137 46.201) 渲染 (151,60,0) Δ(5,4,14) */
+  --color-yellow-200: #fef08a; /* 生产 rgb(254,240,138)；v4 默认 oklch(0.945 0.129 101.54) 渲染 (255,240,133) Δ(1,0,5) */
+  --color-amber-200: #fde68a;  /* 生产 rgb(253,230,138)；v4 默认 oklch(0.924 0.12 95.746) 渲染 (254,230,133) Δ(1,0,5) */
+  --color-gray-800: #1f2937;   /* 生产 rgb(31,41,55)；v4 默认 oklch(0.278 0.033 256.848) 渲染 (30,41,57) Δ(1,0,2) */
+
+  /* ===== P6-FE-PERF-5 · 字号工具类的 line-height 恢复为 v3 的**绝对值** =====
+     v4 默认把 `--text-*--line-height` 写成「字号比值」`calc(x/y)`，工具类渲染时按**元素自身的
+     font-size** 折算；一旦该元素的 font-size 被别的规则改写（本项目里 `.btn.btn-a/btn-a-alt` 的
+     13/14/15px 三条无层规则），结果就不再是 v3 的绝对值。实测 `.btn.btn-a.btn-lg.text-lg`：
+     生产（v3 CDN）28px ↔ 只做「搬层」后 23.3333px（15px × 1.5556）。这里把 9 个用到的字号档
+     的 line-height 钉回 v3 绝对值（值取自同文件 `styles/tailwind-compat.css` 内的兜底块），
+     于是两边逐值相等；`.leading-*` 仍通过 `--tw-leading` 优先生效（与改前 v3 语义一致）。 */
+  --text-xs--line-height: 1rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base--line-height: 1.5rem;
+  --text-lg--line-height: 1.75rem;
+  --text-xl--line-height: 1.75rem;
+  --text-2xl--line-height: 2rem;
+  --text-3xl--line-height: 2.25rem;
+  --text-4xl--line-height: 2.5rem;
+  --text-6xl--line-height: 1;
 }
 
 /* safelist：**运行期拼接**出来的类名（构建期静态扫描看不到），逐个内联。
