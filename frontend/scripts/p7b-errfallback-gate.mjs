@@ -103,17 +103,26 @@ const hasContainsPredicate = /export\s+const\s+containsBareI18nKey\s*=/.test(aut
 const hasUsableGate = /const\s+isUsableText\s*=/.test(authSrc)
   && /isUsableText[\s\S]{0,300}containsBareI18nKey\(/.test(authSrc)
 const usableCallsInResolver = (resolveBody.match(/isUsableText\(/g) || []).length
+// ★ 批 7-C（F-1）扩口径：`src/auth.js` 必须①具名导出 `containsMachineCode`；②服务端 message 面
+//   （`extractApiErrorMessage` 体内）以该谓词收口 ⇒ 拆掉扩口径 ⇒ 本单 A 判负（与 `p7c` 门同源判据）。
+const hasMachineExport = /export\s+const\s+containsMachineCode\s*=/.test(authSrc)
+const hasMachineWiring = /const\s+extractApiErrorMessage[\s\S]{0,1400}containsMachineCode\(/.test(authSrc)
 
 console.log('[P7B-ERRFB] A 护栏在场（源码）：src/auth.js')
-console.log(`  ① 具名导出 \`looksLikeBareI18nKey\`（整串判据）   = ${hasExportPredicate}`)
-console.log(`  ①' 具名导出 \`containsBareI18nKey\`（token 判据）   = ${hasContainsPredicate}`)
-console.log(`  ② \`isUsableText\` 定义且用到 token 判据          = ${hasUsableGate}`)
-console.log(`  ③ \`resolveI18nMessage\` 内 \`isUsableText(\` 调用数 = ${usableCallsInResolver}（要求 ≥ 2）`)
+console.log("  ① 具名导出 `looksLikeBareI18nKey`（整串判据）   = " + hasExportPredicate)
+console.log("  ①' 具名导出 `containsBareI18nKey`（token 判据）   = " + hasContainsPredicate)
+console.log("  ② `isUsableText` 定义且用到 token 判据          = " + hasUsableGate)
+console.log("  ③ `resolveI18nMessage` 内 `isUsableText(` 调用数 = " + usableCallsInResolver + "（要求 ≥ 2）")
+console.log("  ④ 具名导出 `containsMachineCode`（机读码判据 · 批 7-C） = " + hasMachineExport)
+console.log("  ⑤ `extractApiErrorMessage` 内以机读码判据收口（批 7-C） = " + hasMachineWiring)
 if (!hasExportPredicate) fail('A① 缺具名导出 `looksLikeBareI18nKey`')
 if (!hasContainsPredicate) fail("A①' 缺具名导出 `containsBareI18nKey`")
 if (!hasUsableGate) fail('A② `isUsableText` 未定义 / 未用 token 判据')
 if (usableCallsInResolver < 2) fail(`A③ \`resolveI18nMessage\` 未以闸收口（isUsableText 调用 ${usableCallsInResolver} < 2）`)
-const guardWired = hasExportPredicate && hasContainsPredicate && hasUsableGate && usableCallsInResolver >= 2
+if (!hasMachineExport) fail('A④ 缺具名导出 `containsMachineCode`（批 7-C F-1 扩口径）')
+if (!hasMachineWiring) fail('A⑤ 服务端 message 面未以机读码判据收口（批 7-C F-1 扩口径）')
+const guardWired = hasExportPredicate && hasContainsPredicate && hasUsableGate
+  && usableCallsInResolver >= 2 && hasMachineExport && hasMachineWiring
 
 // ── 载入四语 locale ────────────────────────────────────────────────────────────
 const locales = {}

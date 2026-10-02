@@ -138,6 +138,33 @@ export const FALLBACK_I18N_KEYS = Object.freeze({
   NO_CREDENTIAL: 'auth.err.NO_CREDENTIAL',
 })
 
+/**
+ * ★ 批 7-C · F-1「错误文案面收口」· **全大写下划线机读码**判据（可单测的纯函数）。
+ * 形态（一个**独立 token**；边界集与裸键 token 判据 `BARE_I18N_KEY_TOKEN_RE` **逐字同一集**）：
+ *   ① 整 token 均为 `[A-Z0-9_]` —— 天然排除小写字母与非 ASCII；
+ *   ② 至少 1 个下划线；
+ *   ③ 长度 ≥ 4。
+ * 正例 = `LEDGER_CURRENCY_INVALID_TRANSITION` / `AUTH_UNAUTHORIZED` / `STATEMENT_TIMEOUT`；
+ * 反例（**必须仍被接受为服务端原文**）= `系统繁忙，请稍后重试 (too_many_connections)`（zh 句子；token 含小写）、
+ *   `Request failed (400)`（`400` 无下划线且长度 < 4）、普通英文句子（`database is unreachable`）、含小写字母的词。
+ * 为什么需要它（F-1 实测）：退款拒收回执真体 `error.message = 'LEDGER_CURRENCY_INVALID_TRANSITION'`
+ *   —— **不是文案、是机读码**；旧护栏只认「点分裸键 token」（`x.y.z`）⇒ 该形态漏网，
+ *   四语用户可见串退化成英文机读码 `LEDGER_CURRENCY_INVALID_TRANSITION (order_not_refundable)`。
+ * 残余风险（登记于报告 §6）：纯数字下划线串（如 `2024_01_02`）同样命中；本仓服务端 `message` 面无此形态。
+ */
+export const MACHINE_CODE_RE = /^(?=[A-Z0-9_]*_)[A-Z0-9_]{4,}$/
+export const MACHINE_CODE_TOKEN_RE = /(?:^|[\s()[\]{}"'`,;:/\\|])(?=[A-Z0-9_]*_)[A-Z0-9_]{4,}(?=$|[\s()[\]{}"'`,;:/\\|])/
+
+/** 整串即「全大写下划线机读码」；非字符串 / 空串 ⇒ `false`。 */
+export const looksLikeMachineCode = (value) => (
+  typeof value === 'string' && MACHINE_CODE_RE.test(value)
+)
+
+/** 用户可见串中是否**出现**「全大写下划线机读码」token（整串即码亦为 true）。 */
+export const containsMachineCode = (value) => (
+  typeof value === 'string' && MACHINE_CODE_TOKEN_RE.test(value)
+)
+
 const extractApiErrorMessage = (payload) => {
   const error = payload?.error
   if (error && typeof error === 'object') {
@@ -146,12 +173,15 @@ const extractApiErrorMessage = (payload) => {
     //   这类**机读码**）不是文案；把它直丢给用户正是 p7-A R-1 已裁定的「服务端码原文」缺陷类。
     //   只有真 `message` 才算原文 ⇒ 无 `message` 时交 ③/④ 四语通用兜底（键面命中则用真文案）。
     const base = error.message || ''
-    if (base) return reason ? `${base} (${reason})` : base
+    // ★ 批 7-C（F-1）：服务端 `message` 本身**含「全大写下划线机读码」token** ⇒ 它不是文案
+    //   ⇒ 视为**不可用原文** ⇒ 下沉到 ③ 四语通用兜底；`details.reason` 仍留在机读面（`details` 内），
+    //   不随文案外泄。服务端 `message` 本体不改（登记为「错误文案面收口」工作项）。
+    if (base && !containsMachineCode(base)) return reason ? `${base} (${reason})` : base
     return undefined
   }
-  if (typeof error === 'string' && error) return error
-  if (payload?.message) return payload.message
-  // 无任何服务端文案 ⇒ `undefined` 交由 `apiErrorMessage` 走 `auth.err.REQUEST_FAILED` 四语兜底
+  if (typeof error === 'string' && error && !containsMachineCode(error)) return error
+  if (payload?.message && !containsMachineCode(payload.message)) return payload.message
+  // 无任何服务端文案（或原文为机读码）⇒ `undefined` 交由 `apiErrorMessage` 走 `auth.err.REQUEST_FAILED` 四语兜底
   return undefined
 }
 
@@ -208,7 +238,7 @@ const isUsableText = (value, key) => (
  *      本仓既有用例 `auth.test.js` S6（410 弃用面）**逐字依赖**此面 ⇒ 次序上必须先于 ③，
  *      否则 S6 会从「保留服务端文案」退化成通用兜底 = 既有验收面回归）；
  *   ③ **四语通用兜底** `auth.err.REQUEST_FAILED` —— ①② 都不可用时（键未命中且无原文 /
- *      原文本身即裸键，**这正是 `ledger.err.*` 今天会走的路径**）；
+ *      原文本身即裸键 **或即「全大写下划线机读码」**，**这正是 `ledger.err.*` 今天会走的路径**）；
  *   ④ ASCII 兜底 `Request failed` —— 连 i18n 都不可用时（绝不空白、绝不 `[object Object]`）。
  * 动态导入：只在错误路径求值，不把 `i18n.js` 拖进 `auth.js` 的静态依赖图（既有单测对
  * `react-i18next` 做 mock，静态导入会连带崩）。
