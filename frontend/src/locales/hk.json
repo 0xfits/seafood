@@ -501,7 +501,9 @@
     "feeRate": "費率設定",
     "feeRateDesc": "費率與生效版本",
     "weightMatrix": "權重矩陣",
-    "weightMatrixDesc": "返佣各層權重"
+    "weightMatrixDesc": "返佣各層權重",
+    "currencyReview": "單位審核",
+    "currencyReviewDesc": "審核用戶自建積分單位"
   },
   "adminLayout": {
     "panelTitle": "管理面板",
@@ -868,5 +870,35 @@
     "loadFailed": "載入權重矩陣失敗：{{message}}",
     "unsavedChanges": "有未儲存嘅修改。",
     "noChanges": "現時內容同已儲存值一致。"
+  },
+  "adminCurrencyReview": {
+    "title": "自建單位審核",
+    "intro": "本頁列出用戶自建嘅積分單位；填寫說明後可以通過或駁回，通過嘅單位即可上市。",
+    "filterLabel": "狀態篩選",
+    "filterAll": "全部",
+    "filterDraft": "待審",
+    "filterListed": "已上市",
+    "filterFrozen": "已凍結",
+    "filterDelisted": "已下架",
+    "colId": "編號",
+    "colSymbol": "符號",
+    "colName": "名稱",
+    "colStatus": "狀態",
+    "colOwner": "建立人",
+    "colCreated": "建立時間",
+    "colActions": "審核",
+    "approve": "通過",
+    "reject": "駁回",
+    "reasonPlaceholder": "填寫審核說明（通過或駁回都要填）",
+    "reasonRequired": "請先填寫審核說明",
+    "statusDraft": "待審",
+    "statusListed": "已上市",
+    "statusFrozen": "已凍結",
+    "statusDelisted": "已下架",
+    "empty": "暫無需要審核嘅單位",
+    "loadFailed": "載入審核清單失敗：{{message}}",
+    "approved": "已通過審核",
+    "rejected": "已駁回",
+    "actionFailed": "提交審核失敗：{{message}}"
   }
 }

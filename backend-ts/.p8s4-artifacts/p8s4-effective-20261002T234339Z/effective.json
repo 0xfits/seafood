@@ -1,0 +1,560 @@
+{
+ "unit": "P8-S4-EFFECTIVE-CURRENCY-REVIEW",
+ "generated_at": "2026-10-02T23:43:46.697Z",
+ "run": "20261002T234339Z",
+ "mode": "single-transaction + ROLLBACK (R-8-15 / R-8-18)",
+ "http_calls": 0,
+ "total": 31,
+ "passed": 31,
+ "failed": 0,
+ "summary": {
+  "fixture": {
+   "owner_uid": 970001,
+   "admin_uid": 1,
+   "owner_balance_cid1": 1636071,
+   "cids": {
+    "a": 900094081,
+    "b": 900094082,
+    "c": 900094083
+   },
+   "symbols": {
+    "a": "p8s41eq95n",
+    "b": "p8s42bl6pw",
+    "c": "p8s437j32p"
+   }
+  },
+  "unreviewed_c2": {
+   "applied": 0,
+   "cur_status": "draft",
+   "ledger_legs": 0,
+   "status_log_rows": 0
+  },
+  "approve_receipt": {
+   "cur_found": 1,
+   "prior_count": 0,
+   "applied": 1,
+   "slogged": 1,
+   "reviewed": 1
+  },
+  "approve_db": {
+   "review_rows": [
+    {
+     "result": "approved",
+     "actor_uid": "1",
+     "cid": "900094081",
+     "memo": "probe approved",
+     "has_time": true
+    }
+   ],
+   "review_count": 1,
+   "currency_status": "listed",
+   "listed_at_present": true,
+   "status_log_rows": [
+    {
+     "from_status": "draft",
+     "to_status": "listed",
+     "actor_uid": "1",
+     "memo": "currency_review:approved"
+    }
+   ],
+   "status_log_count": 1
+  },
+  "read_port": {
+   "cid": "900094081",
+   "status": "listed",
+   "anchor": "backend-ts/src/database.ts:2338 listCurrenciesForAdmin（读口同一 SELECT）；ledger.ts:644 assertCurrencyOperable（R28）"
+  },
+  "r28": {
+   "unreviewed_draft_hold": {
+    "ok": false,
+    "code": "LEDGER_CURRENCY_NOT_LISTED"
+   },
+   "approved_listed_hold": {
+    "ok": true,
+    "code": null
+   },
+   "approved_listed_price": {
+    "ok": true,
+    "code": null
+   }
+  },
+  "c2_on_approved": {
+   "applied": 0,
+   "cur_status": "listed"
+  },
+  "reject_receipt": {
+   "cur_found": 1,
+   "applied": 0,
+   "slogged": 0,
+   "reviewed": 1
+  },
+  "reject_db": {
+   "review_rows": [
+    {
+     "result": "rejected",
+     "actor_uid": "1",
+     "memo": "probe reason"
+    }
+   ],
+   "review_count": 1,
+   "currency_status": "draft",
+   "status_log_count": 0
+  },
+  "rejected_c2": {
+   "applied": 0,
+   "cur_status": "draft"
+  },
+  "idem_same": {
+   "prior_count": 1,
+   "applied": 0,
+   "reviewed": 0,
+   "review_rows_cidA": 1
+  },
+  "idem_diff": {
+   "after_reject_rows": 1,
+   "second_receipt": {
+    "prior_count": 0,
+    "applied": 1,
+    "reviewed": 1
+   },
+   "final_rows": 2,
+   "currency_status": "listed"
+  }
+ },
+ "checks": [
+  {
+   "id": "A1",
+   "group": "listGate",
+   "pass": true,
+   "detail": {
+    "actual": 0,
+    "expected": 0
+   },
+   "neg_rule": "未审（无 approved 台账行）C2 必须不产行（applied=0）⇒ 未审可上市 ⇒ 判负"
+  },
+  {
+   "id": "A2",
+   "group": "listGate",
+   "pass": true,
+   "detail": {
+    "actual": "draft",
+    "expected": "draft"
+   },
+   "neg_rule": "未审 C2 后 currency.status 仍 draft ⇒ 变了 ⇒ 判负"
+  },
+  {
+   "id": "A3",
+   "group": "listGate",
+   "pass": true,
+   "detail": {
+    "actual": 0,
+    "expected": 0
+   },
+   "neg_rule": "未审 C2 零账本分录 ⇒ 有分录 ⇒ 判负"
+  },
+  {
+   "id": "A4",
+   "group": "listGate",
+   "pass": true,
+   "detail": {
+    "actual": 0,
+    "expected": 0
+   },
+   "neg_rule": "未审 C2 不写 currency_status_log ⇒ 有行 ⇒ 判负"
+  },
+  {
+   "id": "A5",
+   "group": "listGate",
+   "pass": true,
+   "detail": {
+    "maps_to": "stateConflict('currency.status','CURRENCY_STATE_INVALID',{required_from:'draft'}) @ currency-service.ts:454 → 409 LD011",
+    "applied": 0
+   },
+   "neg_rule": "服务层须落既有 409 LD011 / reason=CURRENCY_STATE_INVALID（零新增码 / 零新增 reason 常量）"
+  },
+  {
+   "id": "A6",
+   "group": "approvePath",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "f": 1,
+     "a": 1,
+     "s": 1,
+     "r": 1
+    },
+    "expected": {
+     "f": 1,
+     "a": 1,
+     "s": 1,
+     "r": 1
+    }
+   },
+   "neg_rule": "通过路径须 cur_found=1 / applied=1 / slogged=1 / reviewed=1 ⇒ 任一不等 ⇒ 判负"
+  },
+  {
+   "id": "A7",
+   "group": "approvePath",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "n": 1,
+     "result": "approved",
+     "actor": "1"
+    },
+    "expected": {
+     "n": 1,
+     "result": "approved",
+     "actor": "1"
+    }
+   },
+   "neg_rule": "通过 ⇒ 台账恰 1 行 result=approved / actor_uid=admin ⇒ 无行 / 记成 owner ⇒ 判负"
+  },
+  {
+   "id": "A8",
+   "group": "approvePath",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "status": "listed",
+     "listed": true
+    },
+    "expected": {
+     "status": "listed",
+     "listed": true
+    }
+   },
+   "neg_rule": "通过 ⇒ currency.status draft→listed + listed_at 非空 ⇒ 未变 ⇒ 判负"
+  },
+  {
+   "id": "A9",
+   "group": "approvePath",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "n": 1,
+     "from": "draft",
+     "to": "listed",
+     "actor": "1"
+    },
+    "expected": {
+     "n": 1,
+     "from": "draft",
+     "to": "listed",
+     "actor": "1"
+    }
+   },
+   "neg_rule": "通过 ⇒ currency_status_log 恰 1 行 draft→listed / actor=admin ⇒ 少行 / 多行 / 非此边 ⇒ 判负"
+  },
+  {
+   "id": "A10",
+   "group": "readPort",
+   "pass": true,
+   "detail": {
+    "actual": "listed",
+    "expected": "listed"
+   },
+   "neg_rule": "业务读口须读新值 listed ⇒ 仍 draft ⇒ 判负"
+  },
+  {
+   "id": "A11",
+   "group": "behaviorFollows",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "draft_hold": false,
+     "listed_hold": true,
+     "listed_price": true
+    },
+    "expected": {
+     "draft_hold": false,
+     "listed_hold": true,
+     "listed_price": true
+    }
+   },
+   "neg_rule": "④ 行为随之：未审 draft 挂单/标价 ⇒ LD008 拒；通过后 listed ⇒ 放行 ⇒ 与预期不符 ⇒ 判负"
+  },
+  {
+   "id": "A12",
+   "group": "behaviorFollows",
+   "pass": true,
+   "detail": {
+    "actual": "LEDGER_CURRENCY_NOT_LISTED",
+    "expected": "LEDGER_CURRENCY_NOT_LISTED"
+   },
+   "neg_rule": "未审 draft 的 R28 拒码须 = LD008 LEDGER_CURRENCY_NOT_LISTED ⇒ 其它码 ⇒ 判负"
+  },
+  {
+   "id": "A13",
+   "group": "behaviorFollows",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "a": 0,
+     "st": "listed"
+    },
+    "expected": {
+     "a": 0,
+     "st": "listed"
+    }
+   },
+   "neg_rule": "approve 已把 status 迁 listed ⇒ 再调 C2 自然拒（applied=0 / required_from=draft）⇒ 意外产行 ⇒ 判负"
+  },
+  {
+   "id": "B1",
+   "group": "rejectPath",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "n": 1,
+     "result": "rejected",
+     "actor": "1",
+     "memo": "probe reason"
+    },
+    "expected": {
+     "n": 1,
+     "result": "rejected",
+     "actor": "1",
+     "memo": "probe reason"
+    }
+   },
+   "neg_rule": "★ 驳回必须落台账恰 1 行（result=rejected / actor=admin / memo=reason）⇒ 驳回后台账无行 ⇒ 判负"
+  },
+  {
+   "id": "B2",
+   "group": "rejectPath",
+   "pass": true,
+   "detail": {
+    "actual": "draft",
+    "expected": "draft"
+   },
+   "neg_rule": "驳回 ⇒ currency.status 仍 draft ⇒ 变了 ⇒ 判负"
+  },
+  {
+   "id": "B3",
+   "group": "rejectPath",
+   "pass": true,
+   "detail": {
+    "actual": 0,
+    "expected": 0
+   },
+   "neg_rule": "驳回 ⇒ 不写 currency_status_log ⇒ 有行 ⇒ 判负"
+  },
+  {
+   "id": "B4",
+   "group": "rejectPath",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "a": 0,
+     "st": "draft"
+    },
+    "expected": {
+     "a": 0,
+     "st": "draft"
+    }
+   },
+   "neg_rule": "驳回后 C2 仍拒（不可上市）⇒ 驳回后仍可上市 ⇒ 判负"
+  },
+  {
+   "id": "C1",
+   "group": "idempotency",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "prior": 1,
+     "reviewed": 0,
+     "rows": 1
+    },
+    "expected": {
+     "prior": 1,
+     "reviewed": 0,
+     "rows": 1
+    }
+   },
+   "neg_rule": "同键同 result 重投 ⇒ prior 命中 / 不增行（rows 仍 1）⇒ 增行 ⇒ 判负"
+  },
+  {
+   "id": "C2a",
+   "group": "idempotency",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "second_applied": 1,
+     "second_reviewed": 1
+    },
+    "expected": {
+     "second_applied": 1,
+     "second_reviewed": 1
+    }
+   },
+   "neg_rule": "同键异 result（先驳后成）⇒ 第二次可成功（applied=1 / reviewed=1）⇒ 被幂等挡 ⇒ 判负"
+  },
+  {
+   "id": "C2b",
+   "group": "idempotency",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "rows": 2,
+     "status": "listed"
+    },
+    "expected": {
+     "rows": 2,
+     "status": "listed"
+    }
+   },
+   "neg_rule": "同键异 result ⇒ 各留一行（rows=2）+ 通过 ⇒ status=listed ⇒ 不符 ⇒ 判负"
+  },
+  {
+   "id": "D1",
+   "group": "illegalInput",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "code": "LEDGER_CURRENCY_NOT_FOUND",
+     "status": 404
+    },
+    "expected": {
+     "code": "LEDGER_CURRENCY_NOT_FOUND",
+     "status": 404
+    }
+   },
+   "neg_rule": "cid 非数字 ⇒ 404 LEDGER_CURRENCY_NOT_FOUND（不得静默放行）⇒ 不符 ⇒ 判负"
+  },
+  {
+   "id": "D2",
+   "group": "illegalInput",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "code": "LEDGER_CURRENCY_NOT_FOUND",
+     "status": 404
+    },
+    "expected": {
+     "code": "LEDGER_CURRENCY_NOT_FOUND",
+     "status": 404
+    }
+   },
+   "neg_rule": "cid = 0 ⇒ 404 LEDGER_CURRENCY_NOT_FOUND（不得静默放行）⇒ 不符 ⇒ 判负"
+  },
+  {
+   "id": "D3",
+   "group": "illegalInput",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "code": "LEDGER_AMOUNT_INVALID",
+     "status": 400
+    },
+    "expected": {
+     "code": "LEDGER_AMOUNT_INVALID",
+     "status": 400
+    }
+   },
+   "neg_rule": "action 缺失 ⇒ 400 LEDGER_AMOUNT_INVALID（不得静默放行）⇒ 不符 ⇒ 判负"
+  },
+  {
+   "id": "D4",
+   "group": "illegalInput",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "code": "LEDGER_AMOUNT_INVALID",
+     "status": 400
+    },
+    "expected": {
+     "code": "LEDGER_AMOUNT_INVALID",
+     "status": 400
+    }
+   },
+   "neg_rule": "action 非枚举 ⇒ 400 LEDGER_AMOUNT_INVALID（不得静默放行）⇒ 不符 ⇒ 判负"
+  },
+  {
+   "id": "D5",
+   "group": "illegalInput",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "code": "LEDGER_AMOUNT_INVALID",
+     "status": 400
+    },
+    "expected": {
+     "code": "LEDGER_AMOUNT_INVALID",
+     "status": 400
+    }
+   },
+   "neg_rule": "reason 缺失（驳回） ⇒ 400 LEDGER_AMOUNT_INVALID（不得静默放行）⇒ 不符 ⇒ 判负"
+  },
+  {
+   "id": "D6",
+   "group": "illegalInput",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "code": "LEDGER_AMOUNT_INVALID",
+     "status": 400
+    },
+    "expected": {
+     "code": "LEDGER_AMOUNT_INVALID",
+     "status": 400
+    }
+   },
+   "neg_rule": "reason 空白（驳回） ⇒ 400 LEDGER_AMOUNT_INVALID（不得静默放行）⇒ 不符 ⇒ 判负"
+  },
+  {
+   "id": "D7",
+   "group": "illegalInput",
+   "pass": true,
+   "detail": {
+    "used": [
+     "LEDGER_CURRENCY_NOT_FOUND",
+     "LEDGER_CURRENCY_NOT_FOUND",
+     "LEDGER_AMOUNT_INVALID",
+     "LEDGER_AMOUNT_INVALID",
+     "LEDGER_AMOUNT_INVALID",
+     "LEDGER_AMOUNT_INVALID"
+    ]
+   },
+   "neg_rule": "非法入参只用既有码 LD007/LD011/LD016（零新增码）⇒ 出现新码 ⇒ 判负"
+  },
+  {
+   "id": "E1",
+   "group": "negRules",
+   "pass": true,
+   "detail": {
+    "reject_rows": 1
+   },
+   "neg_rule": "「驳回后台账无行 ⇒ 判负」（B1 已断言恰 1 行）"
+  },
+  {
+   "id": "E2",
+   "group": "negRules",
+   "pass": true,
+   "detail": {
+    "reject_status_log": 0
+   },
+   "neg_rule": "「驳回分支也改 status / 写状态日志 ⇒ 判负」（B2/B3 已断言）"
+  },
+  {
+   "id": "E3",
+   "group": "negRules",
+   "pass": true,
+   "detail": {
+    "approve_reviewed": 1,
+    "approve_rows": 1
+   },
+   "neg_rule": "「通过但台账无行 ⇒ 判负」（A7 已断言恰 1 行）"
+  },
+  {
+   "id": "Z",
+   "group": "rollback",
+   "pass": true,
+   "detail": {
+    "rolled_back": true,
+    "tag": "p8s4-effective"
+   },
+   "neg_rule": "末尾哨兵 ⇒ withTransaction catch ⇒ ROLLBACK（绝不 COMMIT）"
+  }
+ ]
+}

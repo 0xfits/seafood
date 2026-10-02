@@ -234,7 +234,8 @@ describe('P6-I18N-LIT-B4b · 四语 locale 键集 + 类级断言脚本读数', (
   const ADMIN_COMMON_B4B = 19
   const COMMON_B4B = 1
 
-  it('新增 137 键四语齐备、非空串；四文件拍平键集逐文件相等（B5 末批 + 批 7-A + 批 7-D + P7-E 后 top=105 / flat=788）', () => {
+    // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
+  it('新增 137 键四语齐备、非空串；四文件拍平键集逐文件相等（B5 末批 + 批 7-A + 批 7-D + P7-E 后 top=106 / flat=818）', () => {
     const tables = {}
     const sets = {}
     const counts = {}
@@ -249,7 +250,8 @@ describe('P6-I18N-LIT-B4b · 四语 locale 键集 + 类级断言脚本读数', (
 
     for (const lang of LANGS.slice(1)) expect(sets[lang]).toEqual(sets.zh)
     expect(new Set(LANGS.map((l) => counts[l].flat)).size).toBe(1)
-    expect(counts.zh).toEqual({ top: 105, flat: 788 }) // **期望订正（批 8② 费率+权重矩阵）**：+adminFeeRate 18 / +adminWeightMatrix 21 / +adminNav 4 ⇒ 拍平 +43 / 顶层 +2（745⇒788 / 103⇒105）。原口径（P7-E 小尾巴批-β）：新增 orders 块（statusLabel 5 + sideLabel 3）= 拍平 +8 / 顶层 +1（737⇒745 / 102⇒103）。原口径：B5 组件库+预览页末批；批 7-A +21；批 7-D +33
+    // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
+    expect(counts.zh).toEqual({ top: 106, flat: 818 }) // **期望订正（批 8② 费率+权重矩阵）**：+adminFeeRate 18 / +adminWeightMatrix 21 / +adminNav 4 ⇒ 拍平 +43 / 顶层 +2（745⇒788 / 103⇒105）。原口径（P7-E 小尾巴批-β）：新增 orders 块（statusLabel 5 + sideLabel 3）= 拍平 +8 / 顶层 +1（737⇒745 / 102⇒103）。原口径：B5 组件库+预览页末批；批 7-A +21；批 7-D +33
     // 本批新增的 5 个顶层命名空间（命名空间铁律：不得与既有顶层字符串键冲突）
     for (const [ns, size] of Object.entries(NEW_NS)) {
       expect(Object.keys(tables.zh)).toContain(ns)
@@ -312,6 +314,7 @@ describe('P6-I18N-LIT-B4b · 四语 locale 键集 + 类级断言脚本读数', (
   it('AC③ 四语键集相等（scripts/p6-tr2-i18n-locales.mjs）退出码 = 0', () => {
     const out = execFileSync(process.execPath, ['scripts/p6-tr2-i18n-locales.mjs'], { cwd: ROOT, encoding: 'utf8', timeout: 60000 })
     expect(out).toContain('[TR-2] 键集相等：PASS')
-    expect(out).toContain('zh: top=105 flat=788') // **期望订正（批 8② 费率+权重矩阵）**：+43 拍平 / +2 顶层（745⇒788 / 103⇒105）：新增 orders 块 8 键（737⇒745 / 102⇒103）
+    // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
+    expect(out).toContain('zh: top=106 flat=818') // **期望订正（批 8② 费率+权重矩阵）**：+43 拍平 / +2 顶层（745⇒788 / 103⇒105）：新增 orders 块 8 键（737⇒745 / 102⇒103）
   })
 })

@@ -56,6 +56,15 @@ import {
   findFeeRateKey,
   resolveAdminOpsKey,
 } from './admin-service';
+// 批 8④（`route-layer.spec` v2.8 §23 / `data-layer.spec` v0.15 §26）：自建单位审核（变体 Ⅱ 旁路台账）
+//   · 读口 `GET /api/admin/currency`（闸 `review_tasks`；注册点 69 → 70）
+//   · 动作口 `POST /api/admin/currency/:cid/review`（闸 `review_tasks`；注册点 → 71）
+import {
+  CURRENCY_REVIEW_OPS_ACTION,
+  parseStatusFilter,
+  reviewCurrency404,
+  reviewCurrencyVerb,
+} from './currency-review-service';
 // P6-TR-1b：后台翻译回填（cron 兜底 + 手动触发）—— 路由层只做鉴权与机读回执，编排全在服务层
 import { backfillPending, registerPendingTranslations, scanRegisterPending, scheduleEntityTranslation } from './translate-service';
 
@@ -2088,6 +2097,64 @@ app.get('/api/admin/commission_policy', async (req, res) => {
     return sendSuccess(res, policy, 'Commission policy (current effective)');
   } catch (error) {
     return sendInfraMapped(res, 'admin.commission_policy.get', error);
+  }
+});
+
+// ============================================================================
+// 批 8④（`route-layer.spec` v2.8 §23 · `data-layer.spec` v0.15 §26）：自建单位审核（变体 Ⅱ 旁路台账）
+//   · 读口 `GET /api/admin/currency`（§23.2；闸 = `review_tasks`；注册点 **69 → 70**）
+//   · 动作口 `POST /api/admin/currency/:cid/review`（§23.3；闸 = `review_tasks`；注册点 **→ 71**）
+// 权限键 = `review_tasks`（§23.6：11 键零增删 · `R-8-1`/`R-8-8`）；**零新增错误码**（33 码闭集不动）。
+// ============================================================================
+
+// ---- 读口 · `GET /api/admin/currency`（`data` 键集自本片起冻结：§23.2）----------------------------
+//   · `?status=<draft|listed|frozen|delisted>` 允许过滤；**非法值 ⇒ 400**（**不得静默回落**）；
+//   · 只读（只 `SELECT`）；**不得**借读口补写（`DL23` 同向）；无 `ops:` 键（读口无副作用）。
+app.get('/api/admin/currency', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'review_tasks');
+  if (!actor) return;
+
+  try {
+    const filter = parseStatusFilter(req.query?.status);
+    if (!filter.ok) return sendVerbError(res, filter.err);
+    const rows = await DatabaseService.listCurrenciesForAdmin(filter.status);
+    return sendSuccess(res, rows, 'Currency list (admin)');
+  } catch (error) {
+    return sendInfraMapped(res, 'admin.currency.list', error);
+  }
+});
+
+// ---- 动作口 · `POST /api/admin/currency/:cid/review`（通过 / 驳回 双路径；§23.3）------------------
+//   · 请求体逐字 = `{ action: "approve" | "reject", reason: <string> }`（`action` 闭集恰 2 值；
+//     `reason` 必填 / 非空 —— **驳回必须给 reason**）；
+//   · `ops:` 幂等键 = `ops:<admin_uid>:currency_review:<cid>`（既有助手 `resolveAdminOpsKey`；缺键 ⇒ 400）；
+//   · 通过 ⇒ 台账行 + 同事务 `draft → listed` + `currency_status_log` 恰 1 行；驳回 ⇒ 台账行（必须落）；
+//   · `:cid` 非数字 / `cid<=0` / 不存在 ⇒ 404（既有 `LD007`）；非 `draft` ⇒ 409（既有 `LD011`）。
+app.post('/api/admin/currency/:cid/review', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'review_tasks');
+  if (!actor) return;
+
+  try {
+    // `:cid` 形状闸**先于**幂等键解析（§23.3(c)#1#2：非数字 / `cid<=0` ⇒ 404，**不得静默按 0 处理**）。
+    const cidText = String(req.params.cid ?? '').trim();
+    if (!/^[1-9]\d*$/.test(cidText)) return sendVerbError(res, reviewCurrency404(cidText));
+
+    // DL36 / DL146②：后台写必带 `ops:` 前缀幂等键（既有助手 ⇒ 零新码、零新校验代码）。
+    const opsKey = resolveAdminOpsKey(req, actor.session.uID, CURRENCY_REVIEW_OPS_ACTION, cidText);
+    if (!opsKey.ok) return sendVerbError(res, opsKey.error);
+
+    const result = await reviewCurrencyVerb({
+      cidRaw: req.params.cid,
+      actorUid: actor.session.uID,
+      body: (req.body || {}) as Record<string, unknown>,
+      opsKey: opsKey.key,
+    });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view,
+      result.replay ? 'Currency review recorded (idempotent replay)' : 'Currency review recorded',
+      200, result.replay ? { idempotent_replay: true } : undefined);
+  } catch (error) {
+    return sendInfraMapped(res, 'admin.currency.review', error);
   }
 });
 

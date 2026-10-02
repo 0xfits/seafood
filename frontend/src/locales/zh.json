@@ -501,7 +501,9 @@
     "feeRate": "费率配置",
     "feeRateDesc": "费率与生效版本",
     "weightMatrix": "权重矩阵",
-    "weightMatrixDesc": "返佣各层权重"
+    "weightMatrixDesc": "返佣各层权重",
+    "currencyReview": "单位审核",
+    "currencyReviewDesc": "审核用户自建积分单位"
   },
   "adminLayout": {
     "panelTitle": "管理面板",
@@ -868,5 +870,35 @@
     "loadFailed": "加载权重矩阵失败：{{message}}",
     "unsavedChanges": "存在未保存修改。",
     "noChanges": "当前内容与已保存值一致。"
+  },
+  "adminCurrencyReview": {
+    "title": "自建单位审核",
+    "intro": "本页列出用户自建的积分单位；填写说明后可通过或驳回，通过的单位即可上市。",
+    "filterLabel": "状态筛选",
+    "filterAll": "全部",
+    "filterDraft": "待审",
+    "filterListed": "已上市",
+    "filterFrozen": "已冻结",
+    "filterDelisted": "已下架",
+    "colId": "编号",
+    "colSymbol": "符号",
+    "colName": "名称",
+    "colStatus": "状态",
+    "colOwner": "创建人",
+    "colCreated": "创建时间",
+    "colActions": "审核",
+    "approve": "通过",
+    "reject": "驳回",
+    "reasonPlaceholder": "填写审核说明（通过或驳回都需填写）",
+    "reasonRequired": "请先填写审核说明",
+    "statusDraft": "待审",
+    "statusListed": "已上市",
+    "statusFrozen": "已冻结",
+    "statusDelisted": "已下架",
+    "empty": "暂无需要审核的单位",
+    "loadFailed": "加载审核列表失败：{{message}}",
+    "approved": "已通过审核",
+    "rejected": "已驳回",
+    "actionFailed": "提交审核失败：{{message}}"
   }
 }

@@ -12,6 +12,7 @@ import {
   Layers,
   Percent,
   Network,
+  ClipboardCheck,
   Menu,
   X,
   LogOut
@@ -101,6 +102,13 @@ const AdminLayout = () => {
       path: '/dashboard/weight-matrix',
       description: t('adminNav.weightMatrixDesc'),
       requiredPermission: 'manage_settings',
+    },
+    {
+      title: t('adminNav.currencyReview'),
+      icon: ClipboardCheck,
+      path: '/dashboard/currency-review',
+      description: t('adminNav.currencyReviewDesc'),
+      requiredPermission: 'review_tasks',
     }
   ]
 

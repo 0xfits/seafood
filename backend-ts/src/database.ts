@@ -216,6 +216,17 @@ const LIST_CURRENCY_WITH_DEPOSIT_SQL = `
         WHERE c.cid = $1::bigint
           AND c.status = 'draft'
           AND (SELECT cur.owner_uid FROM cur) = $4::bigint
+          -- ★★ 批 8④ C2 审核闸（fail-closed · route-layer.spec v2.8 §23.5 ④）：
+          --    无「已通过审核的台账行」（currency_review_log.result='approved'）⇒ 本 CTE 不产行
+          --    ⇒ 整条语句零副作用（不改 status / 不写 currency_status_log / 零账本分录）
+          --    ⇒ 服务层落既有 stateConflict('currency.status','CURRENCY_STATE_INVALID',
+          --      required_from='draft') @ currency-service.ts:454（未审 draft 不得上市）。
+          --    闸在唯一写路径的 SQL 内（R-8-18 单一真源）⇒ 服务层 / 探针两路共用、不可绕过。
+          --    台账表为 append-only（0025）⇒「已通过」单调不可撤销 ⇒ 无 TOCTOU 逃逸。
+          AND EXISTS (
+            SELECT 1 FROM public.currency_review_log AS r
+             WHERE r.cid = $1::bigint AND r.result = 'approved'
+          )
         RETURNING c.cid, c.symbol, c.owner_uid, c.status, c.decimals,
                   c.deposit_amount, c.deposit_cid, c.listed_at
       ),
@@ -261,6 +272,88 @@ const LIST_CURRENCY_WITH_DEPOSIT_SQL = `
         (SELECT ev.r FROM ev) AS ledger_result,
         (SELECT keyhit.fp FROM keyhit) AS key_fingerprint
     `;
+
+// ============================================================================
+// 批 8④（`route-layer.spec` v2.8 §23 · `data-layer.spec` v0.15 §26）：自建单位审核（变体 Ⅱ 旁路台账）
+// DB 侧**单一真源**语句 + 「既有事务内（`ex`）」执行口（与 `LIST_CURRENCY_WITH_DEPOSIT_SQL` 同族）。
+// ----------------------------------------------------------------------------
+// ★ 一条语句（CTE = **一个隐式事务**）= 三件事同生同灭（§26.4 / §23.3(a) 事务纪律）：
+//   ① `apply` ：**仅通过路径**（result='approved'）走**既有** `draft → listed` 边
+//               （`SET status='listed', listed_at=now()` —— 满足 `0001:37` 的 `currency_listed_at` CHECK）；
+//   ② `slog`  ：**仅通过路径**同事务写 `public.currency_status_log` **恰 1 行**
+//               （from_status='draft' / to_status='listed' / actor_uid=admin；DL157②③）；
+//   ③ `review`：台账行 `public.currency_review_log` **恰 1 行**（通过/驳回**都写** —— 驳回必须落台账，
+//               §26.4 / §23.3(b)：**驳回不得静默**）。
+// ★ 幂等（`0023` 裁定四）：同键同 `result` 重投 ⇒ `prior` 命中 ⇒ **不写第二行**（`DO NOTHING` 兜底）；
+//   同键异 `result`（先驳后成 / 先成后驳）⇒ 允许，各留一行。
+// ★ 状态闸（§26.5）：单位非 `draft` ⇒ `review`/`apply` 均不落 ⇒ 服务层映射既有码 `LD011`（409）；
+//   单位不存在 ⇒ `cur_found=0` ⇒ 服务层映射既有码 `LD007`（404）。**零新增错误码**（33 码闭集不动）。
+// ★ 无退还 / 罚没面（`R-8-17` / `DL67` / `DL88`）：本语句**零账本分录**（不调 `ledger_post_event`）。
+// ============================================================================
+/** 审核动作（`POST /api/admin/currency/:cid/review`）的 DB 侧唯一显式语句（单语句 CTE = 一个隐式事务）。 */
+const CURRENCY_REVIEW_POST_EVENT_SQL = `
+      WITH cur AS (
+        SELECT c.cid, c.status
+        FROM public.currency AS c
+        WHERE c.cid = $1::bigint
+        FOR UPDATE
+      ),
+      prior AS (
+        SELECT r.log_id
+        FROM public.currency_review_log AS r
+        WHERE r.idempotency_key = $5::text
+          AND r.result = $3::text
+        LIMIT 1
+      ),
+      apply AS (
+        UPDATE public.currency AS c
+        SET status = 'listed',
+            listed_at = now(),
+            time_updated = now()
+        WHERE c.cid = $1::bigint
+          AND $3::text = 'approved'
+          AND c.status = 'draft'
+          AND NOT EXISTS (SELECT 1 FROM prior)
+        RETURNING c.cid, c.status
+      ),
+      slog AS (
+        INSERT INTO public.currency_status_log (cid, from_status, to_status, actor_uid, memo)
+        SELECT $1::bigint, 'draft', 'listed', $2::bigint, 'currency_review:approved'
+        FROM apply
+        RETURNING log_id
+      ),
+      review AS (
+        INSERT INTO public.currency_review_log
+          (cid, actor_uid, result, request_fingerprint, idempotency_key, memo)
+        SELECT $1::bigint, $2::bigint, $3::text, $4::text, $5::text, $6::text
+        FROM cur
+        WHERE cur.status = 'draft'
+          AND NOT EXISTS (SELECT 1 FROM prior)
+          AND ($3::text <> 'approved' OR EXISTS (SELECT 1 FROM apply))
+        ON CONFLICT (idempotency_key, result) DO NOTHING
+        RETURNING log_id, result
+      )
+      SELECT
+        (SELECT count(*)::int FROM cur)   AS cur_found,
+        (SELECT cur.status FROM cur)      AS cur_status,
+        (SELECT count(*)::int FROM prior) AS prior_count,
+        (SELECT count(*)::int FROM apply) AS applied,
+        (SELECT count(*)::int FROM slog)  AS slogged,
+        (SELECT count(*)::int FROM review) AS reviewed
+    `;
+
+/** `CURRENCY_REVIEW_POST_EVENT_SQL` 的 `$1..$6` 绑定（顺序写死）。 */
+const currencyReviewPostEventParams = (input: {
+  cid: number; actorUid: number; result: 'approved' | 'rejected';
+  requestFingerprint: string; idempotencyKey: string; memo: string;
+}): unknown[] => [
+  input.cid,                       // $1  cid（bigint；cur / apply / slog / review 复用）
+  input.actorUid,                  // $2  actor_uid（bigint；= admin）
+  input.result,                    // $3  result（text；'approved' | 'rejected'）
+  input.requestFingerprint,        // $4  request_fingerprint（text）
+  input.idempotencyKey,            // $5  idempotency_key（text；ops:<admin_uid>:currency_review:<cid>）
+  input.memo,                      // $6  memo（text；= reason）
+];
 
 /** `listCurrencyWithDeposit` 入参 → `LIST_CURRENCY_WITH_DEPOSIT_SQL` 的 `$1..$11` 绑定（顺序写死）。 */
 const listCurrencyWithDepositParams = (input: {
@@ -2217,6 +2310,59 @@ export class DatabaseService {
     const row = rows[0] || null;
     if (!row) throw new Error('listCurrencyWithDeposit: no row returned');
     return row;
+  }
+
+  // ==========================================================================================
+  // 批 8④（`route-layer.spec` v2.8 §23.3 · `data-layer.spec` v0.15 §26.4）· 审核动作：
+  //   通过 ⇒ 台账行 + 同事务 `draft → listed` + `currency_status_log` 恰 1 行；
+  //   驳回 ⇒ 台账行（**必须落**）；`currency.status` 不动、不写状态日志。
+  // ==========================================================================================
+  /**
+   * 单语句 CTE = 一个隐式事务（模块常量 `CURRENCY_REVIEW_POST_EVENT_SQL` 单一真源）；
+   * 传 `ex`（既有事务）⇒ 在**事务内**执行（供「真生效四段」探针 · `R-8-18`）。
+   * 回执键（路由层用 `->>` / `getValue` 取值）：`cur_found` / `cur_status` / `prior_count` /
+   * `applied` / `slogged` / `reviewed` —— 由服务层据此映射既有码（不新增码）。
+   */
+  static async currencyReviewPostEvent(input: {
+    cid: number;
+    actorUid: number;
+    result: 'approved' | 'rejected';
+    requestFingerprint: string;
+    idempotencyKey: string;
+    memo: string;
+  }, ex?: SqlRunner): Promise<RawRow> {
+    const rows = await runSql(CURRENCY_REVIEW_POST_EVENT_SQL, currencyReviewPostEventParams(input), ex);
+    const row = rows[0] || null;
+    if (!row) throw new Error('currencyReviewPostEvent: no row returned');
+    return row;
+  }
+
+  // ==========================================================================================
+  // 批 8④（`route-layer.spec` v2.8 §23.2）· 读口 `GET /api/admin/currency` 的 DB 侧取数
+  //   data 键集自 §23.2 起冻结：cid / symbol / name / status / owner_uid / time_created /
+  //   listed_at（+ 可选 deposit_amount / deposit_cid）。
+  // ==========================================================================================
+  /**
+   * 只读（`SELECT`）；`statusFilter=null` ⇒ 全量。非法 `status` 由**服务层**（路由层）判 `400`，
+   * **不得静默回落**（§23.2 / §23.3(c) 同口径）。**不得**借读口补写（`DL23` 同向）。
+   */
+  static async listCurrenciesForAdmin(statusFilter: string | null): Promise<RawRow[]> {
+    const rows = await runSql(
+      `SELECT c.cid AS cid,
+              c.symbol AS symbol,
+              c.name AS name,
+              c.status AS status,
+              c.owner_uid AS owner_uid,
+              c.time_created AS time_created,
+              c.listed_at AS listed_at,
+              c.deposit_amount AS deposit_amount,
+              c.deposit_cid AS deposit_cid
+         FROM public.currency AS c
+        WHERE ($1::text IS NULL OR c.status = $1::text)
+        ORDER BY c.cid`,
+      [statusFilter],
+    );
+    return rows;
   }
 
   /**

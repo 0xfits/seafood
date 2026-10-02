@@ -501,7 +501,9 @@
     "feeRate": "Cấu hình phí",
     "feeRateDesc": "Tỷ lệ phí và phiên bản hiệu lực",
     "weightMatrix": "Ma trận trọng số",
-    "weightMatrixDesc": "Trọng số hoa hồng theo cấp"
+    "weightMatrixDesc": "Trọng số hoa hồng theo cấp",
+    "currencyReview": "Duyệt đơn vị",
+    "currencyReviewDesc": "Duyệt đơn vị điểm do người dùng tạo"
   },
   "adminLayout": {
     "panelTitle": "Bảng quản trị",
@@ -868,5 +870,35 @@
     "loadFailed": "Không tải được ma trận trọng số: {{message}}",
     "unsavedChanges": "Bạn có thay đổi chưa lưu.",
     "noChanges": "Nội dung hiện tại khớp với giá trị đã lưu."
+  },
+  "adminCurrencyReview": {
+    "title": "Duyệt đơn vị tự tạo",
+    "intro": "Trang này liệt kê các đơn vị do người dùng tạo. Nhập ghi chú rồi duyệt hoặc từ chối; đơn vị được duyệt sẽ có thể niêm yết.",
+    "filterLabel": "Trạng thái",
+    "filterAll": "Tất cả",
+    "filterDraft": "Chờ duyệt",
+    "filterListed": "Đã niêm yết",
+    "filterFrozen": "Đã đóng băng",
+    "filterDelisted": "Đã gỡ niêm yết",
+    "colId": "Mã",
+    "colSymbol": "Ký hiệu",
+    "colName": "Tên",
+    "colStatus": "Trạng thái",
+    "colOwner": "Người tạo",
+    "colCreated": "Thời gian tạo",
+    "colActions": "Duyệt",
+    "approve": "Duyệt",
+    "reject": "Từ chối",
+    "reasonPlaceholder": "Nhập ghi chú duyệt (bắt buộc cho cả hai thao tác)",
+    "reasonRequired": "Vui lòng nhập ghi chú duyệt trước",
+    "statusDraft": "Chờ duyệt",
+    "statusListed": "Đã niêm yết",
+    "statusFrozen": "Đã đóng băng",
+    "statusDelisted": "Đã gỡ niêm yết",
+    "empty": "Chưa có đơn vị cần duyệt",
+    "loadFailed": "Không tải được danh sách duyệt: {{message}}",
+    "approved": "Đã duyệt",
+    "rejected": "Đã từ chối",
+    "actionFailed": "Không gửi được kết quả duyệt: {{message}}"
   }
 }

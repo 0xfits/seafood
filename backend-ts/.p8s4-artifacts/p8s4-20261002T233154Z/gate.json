@@ -1,0 +1,551 @@
+{
+ "unit": "P8-S4-CURRENCY-REVIEW-GATE",
+ "generated_at": "2026-10-02T23:31:54.537Z",
+ "run": "20261002T233154Z",
+ "offline": true,
+ "db_connections": 0,
+ "http_calls": 0,
+ "note": "本门**零 DB / 零 HTTP**，不依赖新表存在；四段真链路 + 库面判负 = 待 Zang apply `0025` 后补跑（NOT_MEASURED）。",
+ "total": 73,
+ "passed": 70,
+ "failed": 3,
+ "readings": {
+  "registration_points": 71,
+  "actions": [
+   "approve",
+   "reject"
+  ],
+  "action_to_result": {
+   "approve": "approved",
+   "reject": "rejected"
+  },
+  "ops_action": "currency_review",
+  "currency_status_values": [
+   "draft",
+   "listed",
+   "frozen",
+   "delisted"
+  ],
+  "error_codes_closed_set_size": 33,
+  "error_codes_used": [
+   "LEDGER_CURRENCY_NOT_FOUND",
+   "LEDGER_CURRENCY_INVALID_TRANSITION",
+   "LEDGER_AMOUNT_INVALID"
+  ],
+  "review_ns_keys": 28,
+  "migrations_count": 24
+ },
+ "checks": [
+  {
+   "id": "A1",
+   "group": "registration",
+   "pass": true,
+   "expect": "注册点 = 71（读口 +1 · 动作口 +1；R-8-20 计数容忍前置空白）",
+   "actual": "71"
+  },
+  {
+   "id": "A2",
+   "group": "registration",
+   "pass": true,
+   "expect": "读口 `GET /api/admin/currency` 在场",
+   "actual": "true"
+  },
+  {
+   "id": "A3",
+   "group": "registration",
+   "pass": true,
+   "expect": "动作口 `POST /api/admin/currency/:cid/review` 在场",
+   "actual": "true"
+  },
+  {
+   "id": "A4",
+   "group": "registration",
+   "pass": true,
+   "expect": "读口闸 = `requireAdmin(req,res,'review_tasks')`（缺闸 / 降级 ⇒ 判负）",
+   "actual": "review_tasks"
+  },
+  {
+   "id": "A5",
+   "group": "registration",
+   "pass": true,
+   "expect": "动作口闸 = `requireAdmin(req,res,'review_tasks')`",
+   "actual": "review_tasks"
+  },
+  {
+   "id": "A6",
+   "group": "registration",
+   "pass": true,
+   "expect": "读口取数 = `DatabaseService.listCurrenciesForAdmin(`（单一真源，不自写第二套）",
+   "actual": "true"
+  },
+  {
+   "id": "A7",
+   "group": "registration",
+   "pass": true,
+   "expect": "动作口幂等键 = `resolveAdminOpsKey(req, actor.session.uID, CURRENCY_REVIEW_OPS_ACTION, …)`",
+   "actual": "true"
+  },
+  {
+   "id": "A8",
+   "group": "registration",
+   "pass": true,
+   "expect": "★ 负对照：缩进注入一条路由 ⇒ 计数 71→72",
+   "actual": "{\"injected\":72}"
+  },
+  {
+   "id": "B1",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "读口 data 键集冻结 = [\"cid\",\"symbol\",\"name\",\"status\",\"owner_uid\",\"time_created\",\"listed_at\",\"deposit_amount\",\"deposit_cid\"]",
+   "actual": "[]"
+  },
+  {
+   "id": "B2",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "读口只读（SELECT 体无 INSERT/UPDATE/DELETE）",
+   "actual": "false"
+  },
+  {
+   "id": "B3",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "缺省 `?status` ⇒ 全量（null）",
+   "actual": "{\"ok\":true,\"status\":null}"
+  },
+  {
+   "id": "B4",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "`?status=draft` ⇒ 过滤",
+   "actual": "{\"ok\":true,\"status\":\"draft\"}"
+  },
+  {
+   "id": "B5",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "非法 `?status` ⇒ 400（不得静默回落）",
+   "actual": "{\"code\":\"LEDGER_AMOUNT_INVALID\",\"status\":400}"
+  },
+  {
+   "id": "B6",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "读口无 `ops:` 键（读口无副作用）",
+   "actual": "false"
+  },
+  {
+   "id": "B5__selftest",
+   "group": "readSurfaceSelfTest",
+   "pass": true,
+   "expect": "把非法滤镜当合法 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":{\"ok\":true,\"status\":\"draft\"},\"judge_fired\":true}"
+  },
+  {
+   "id": "C1",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "action 闭集恰 2 值 = [\"approve\",\"reject\"]",
+   "actual": "[\"approve\",\"reject\"]"
+  },
+  {
+   "id": "C2",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "动作 → 台账 result：approve→approved / reject→rejected",
+   "actual": "{\"approve\":\"approved\",\"reject\":\"rejected\"}"
+  },
+  {
+   "id": "C3",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "ops: 键 action 词 = `currency_review`",
+   "actual": "currency_review"
+  },
+  {
+   "id": "C4",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "规范键形 = `ops:<admin_uid>:currency_review:<cid>`（既有助手）",
+   "actual": "ops:7:currency_review:12"
+  },
+  {
+   "id": "C5",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "currency.status 四态闭集一字不动（变体 Ⅱ 不扩枚举）",
+   "actual": "[\"draft\",\"listed\",\"frozen\",\"delisted\"]"
+  },
+  {
+   "id": "C6",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "动作口读 `body.action` / `body.reason`（字段名 = 派单给定）",
+   "actual": "{\"action\":true,\"reason\":true}"
+  },
+  {
+   "id": "D1",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": ":cid 非数字 ⇒ 404 `LD007`（不得静默按 0 处理）",
+   "actual": "LEDGER_CURRENCY_NOT_FOUND/404"
+  },
+  {
+   "id": "D2",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": ":cid = 0（cid<=0）⇒ 404 `LD007`",
+   "actual": "LEDGER_CURRENCY_NOT_FOUND/404"
+  },
+  {
+   "id": "D3",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "action 缺失 ⇒ 400（不得静默取默认决定）",
+   "actual": "LEDGER_AMOUNT_INVALID/400"
+  },
+  {
+   "id": "D4",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "action 非枚举 ⇒ 400（details.reason = NOT_IN_CLOSED_SET）",
+   "actual": "{\"code\":\"LEDGER_AMOUNT_INVALID\",\"reason\":\"NOT_IN_CLOSED_SET\"}"
+  },
+  {
+   "id": "D5",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "reason 缺失（尤其驳回）⇒ 400（不得被静默放行）",
+   "actual": "{\"code\":\"LEDGER_AMOUNT_INVALID\",\"field\":\"reason\"}"
+  },
+  {
+   "id": "D6",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "reason 空白串 ⇒ 400",
+   "actual": "LEDGER_AMOUNT_INVALID"
+  },
+  {
+   "id": "D7",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "status 滤镜非法 ⇒ 400",
+   "actual": "LEDGER_AMOUNT_INVALID/400"
+  },
+  {
+   "id": "D8",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "动作口错误码 ⊆ 既有 §14 闭集（零新增码）",
+   "actual": "[\"LEDGER_CURRENCY_NOT_FOUND\",\"LEDGER_CURRENCY_NOT_FOUND\",\"LEDGER_AMOUNT_INVALID\",\"LEDGER_AMOUNT_INVALID\",\"LEDGER_AMOUNT_INVALID\",\"LEDGER_AMOUNT_INVALID\"]"
+  },
+  {
+   "id": "D9",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "错误码闭集仍恰 33 条（不动）",
+   "actual": "33"
+  },
+  {
+   "id": "D10",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "动作口只用 [\"LEDGER_CURRENCY_NOT_FOUND\",\"LEDGER_CURRENCY_INVALID_TRANSITION\",\"LEDGER_AMOUNT_INVALID\"]（LD007/LD011/LD016）",
+   "actual": "[\"LEDGER_CURRENCY_NOT_FOUND\",\"LEDGER_AMOUNT_INVALID\"]"
+  },
+  {
+   "id": "D8__selftest",
+   "group": "illegalInputSelfTest",
+   "pass": true,
+   "expect": "自造码喂入 ⇒ 闭集谓词必须转红",
+   "actual": "{\"wrong_input\":[\"LEDGER_NEW_MADEUP_CODE\"],\"judge_fired\":true}"
+  },
+  {
+   "id": "E1",
+   "group": "rejectLedger",
+   "pass": true,
+   "expect": "审核语句含 `INSERT INTO public.currency_review_log`（台账落行）",
+   "actual": "true"
+  },
+  {
+   "id": "E2",
+   "group": "rejectLedger",
+   "pass": true,
+   "expect": "台账 insert 覆盖 rejected（`$3 <> 'approved' OR EXISTS(apply)` ⇒ 驳回也落行）",
+   "actual": "$3::text <> 'approved' OR EXISTS (SELECT 1 FROM apply))"
+  },
+  {
+   "id": "E3",
+   "group": "rejectLedger",
+   "pass": true,
+   "expect": "台账幂等 = `ON CONFLICT (idempotency_key, result) DO NOTHING`（同键同 result 不放大）",
+   "actual": "true"
+  },
+  {
+   "id": "E4",
+   "group": "rejectLedger",
+   "pass": false,
+   "expect": "approve 才走 `draft→listed`（`= 'approved'` 门控；驳回不改 status）",
+   "actual": "true"
+  },
+  {
+   "id": "E5",
+   "group": "rejectLedger",
+   "pass": true,
+   "expect": "`currency_status_log` 落行 = `FROM apply` 门控（驳回时 apply 不产行 ⇒ 不写状态日志）",
+   "actual": "INSERT INTO public.currency_status_log (cid, from_status, to_status, actor_uid, memo) SELECT $1::bigint, 'draft', 'listed', $4::bigint, $5::text FROM apply "
+  },
+  {
+   "id": "E6",
+   "group": "rejectLedger",
+   "pass": true,
+   "expect": "台账 `actor_uid` = `$2`（= admin uid；不得记成 owner）",
+   "actual": "true"
+  },
+  {
+   "id": "E7",
+   "group": "rejectLedger",
+   "pass": true,
+   "expect": "驳回成功面回 `result = rejected`（服务层不静默成功）",
+   "actual": "true"
+  },
+  {
+   "id": "E8",
+   "group": "rejectLedger",
+   "pass": true,
+   "expect": "驳回也调 DB 台账写口（`poster({… result: parsed.result …})`）",
+   "actual": "true"
+  },
+  {
+   "id": "E1__selftest",
+   "group": "rejectLedgerSelfTest",
+   "pass": true,
+   "expect": "台账 insert 谓词喂无 insert 文本 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":\"SELECT 1\",\"judge_fired\":true}"
+  },
+  {
+   "id": "F1",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "注册点仍 = 71（零退还/罚没/delist 路由）",
+   "actual": "71"
+  },
+  {
+   "id": "F2",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "无 delist 一族路由",
+   "actual": "true"
+  },
+  {
+   "id": "F3",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "审核服务（去注释）零 `hold_forfeit`/`hold_release`/`unfreeze(`/`listing_deposit_refund`",
+   "actual": "[]"
+  },
+  {
+   "id": "F4",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "审核语句零账本分录（不调 `ledger_post_event`）",
+   "actual": "false"
+  },
+  {
+   "id": "F5",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "全 src 面 `listing_deposit_refund` 零命中",
+   "actual": "false"
+  },
+  {
+   "id": "G1",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminCurrencyReview 键数 = 28",
+   "actual": "28"
+  },
+  {
+   "id": "G2.zh",
+   "group": "i18n",
+   "pass": true,
+   "expect": "四语键集齐 + 非空（zh）",
+   "actual": "{\"keys\":28}"
+  },
+  {
+   "id": "G2.en",
+   "group": "i18n",
+   "pass": true,
+   "expect": "四语键集齐 + 非空（en）",
+   "actual": "{\"keys\":28}"
+  },
+  {
+   "id": "G2.hk",
+   "group": "i18n",
+   "pass": true,
+   "expect": "四语键集齐 + 非空（hk）",
+   "actual": "{\"keys\":28}"
+  },
+  {
+   "id": "G2.vn",
+   "group": "i18n",
+   "pass": true,
+   "expect": "四语键集齐 + 非空（vn）",
+   "actual": "{\"keys\":28}"
+  },
+  {
+   "id": "G3.en",
+   "group": "i18n",
+   "pass": true,
+   "expect": "en 无 CJK",
+   "actual": "[]"
+  },
+  {
+   "id": "G3.vn",
+   "group": "i18n",
+   "pass": true,
+   "expect": "vn 无 CJK",
+   "actual": "[]"
+  },
+  {
+   "id": "G4",
+   "group": "i18n",
+   "pass": true,
+   "expect": "hk 为繁體（抽查 審核/單位 异形）",
+   "actual": "自建單位審核"
+  },
+  {
+   "id": "G5",
+   "group": "i18n",
+   "pass": true,
+   "expect": "六类工程口径泄漏 = 0（四语 × adminCurrencyReview）",
+   "actual": "[]"
+  },
+  {
+   "id": "G6",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminNav 2 键四语齐 + en/vn 无 CJK",
+   "actual": "[]"
+  },
+  {
+   "id": "G5__selftest",
+   "group": "i18nSelfTest",
+   "pass": true,
+   "expect": "把带章节号的文案喂入 ⇒ 泄漏谓词必须转红",
+   "actual": "{\"wrong_input\":{\"title\":\"审核（§23.3）\"},\"judge_fired\":true}"
+  },
+  {
+   "id": "H1",
+   "group": "migration",
+   "pass": true,
+   "expect": "迁移文件 = 0025_currency_review_log.sql；总数 = 24",
+   "actual": "{\"count\":24,\"has\":true}"
+  },
+  {
+   "id": "H2",
+   "group": "migration",
+   "pass": true,
+   "expect": "表名逐字 = `public.currency_review_log`",
+   "actual": "currency_review_log"
+  },
+  {
+   "id": "H3",
+   "group": "migration",
+   "pass": true,
+   "expect": "8 列逐字在场",
+   "actual": "[]"
+  },
+  {
+   "id": "H4",
+   "group": "migration",
+   "pass": true,
+   "expect": "5 具名约束逐字在场",
+   "actual": "[]"
+  },
+  {
+   "id": "H5",
+   "group": "migration",
+   "pass": true,
+   "expect": "result 闭集 = {pending, approved, rejected}（R-8-21 值域）",
+   "actual": "CHECK (result IN ('pending', 'approved', 'rejected'))"
+  },
+  {
+   "id": "H6",
+   "group": "migration",
+   "pass": true,
+   "expect": "幂等唯一键 = 复合 `(idempotency_key, result)`",
+   "actual": "UNIQUE (idempotency_key, result)"
+  },
+  {
+   "id": "H7",
+   "group": "migration",
+   "pass": true,
+   "expect": "4 索引（PK + idem_uniq 自带 + 2 具名）",
+   "actual": "[]"
+  },
+  {
+   "id": "H8",
+   "group": "migration",
+   "pass": true,
+   "expect": "append-only：`BEFORE UPDATE OR DELETE` 触发器 + 守门函数",
+   "actual": "BEFORE UPDATE OR DELETE` **无条件 `RAISE`**（原生 `P0001`，"
+  },
+  {
+   "id": "H9",
+   "group": "migration",
+   "pass": false,
+   "expect": "恰一列 `time_created`（DEFAULT now()）；**无** `time_updated`",
+   "actual": "{\"time_created\":true,\"time_updated\":true}"
+  },
+  {
+   "id": "H10",
+   "group": "migration",
+   "pass": false,
+   "expect": "无 `create_key` / 无 `ledger_event_keys`",
+   "actual": "{\"create_key\":true,\"lek\":true}"
+  },
+  {
+   "id": "H11",
+   "group": "migration",
+   "pass": true,
+   "expect": "零 `ALTER TABLE`（不改既有表 · DL7 同向）",
+   "actual": "false"
+  },
+  {
+   "id": "H12",
+   "group": "migration",
+   "pass": true,
+   "expect": "零数据 DML / 零账本调用（纯 DDL + append-only + 自检）",
+   "actual": "{\"dml\":false,\"ledger\":false}"
+  },
+  {
+   "id": "H13",
+   "group": "migration",
+   "pass": true,
+   "expect": "自带 apply-time 自检（失败整迁移回滚 · DL48）",
+   "actual": "true"
+  },
+  {
+   "id": "A1__selftest",
+   "group": "registrationSelfTest",
+   "pass": true,
+   "expect": "注册点写成 70（= 偷偷少注册一条）⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":70,\"judge_fired\":true}"
+  },
+  {
+   "id": "C1__selftest",
+   "group": "actionShapeSelfTest",
+   "pass": true,
+   "expect": "闭集被偷偷加第三值 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":[\"approve\",\"reject\",\"hold\"],\"judge_fired\":true}"
+  },
+  {
+   "id": "H9__selftest",
+   "group": "migrationSelfTest",
+   "pass": true,
+   "expect": "把 time_updated 喂入 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":\"CREATE TABLE ( x int, time_updated timestamptz )\",\"judge_fired\":true}"
+  }
+ ]
+}

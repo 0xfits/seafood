@@ -1,0 +1,118 @@
+{
+ "unit": "P8-S4-HTTP-READONLY",
+ "run": "20261002T234659Z",
+ "total": 6,
+ "passed": 6,
+ "failed": 0,
+ "summary": {
+  "base": "http://127.0.0.1:5796",
+  "health": {
+   "status": null,
+   "schema_version": "0025"
+  },
+  "readings": {
+   "no_token_read": {
+    "status": 401,
+    "code": "AUTH_UNAUTHORIZED",
+    "reason": null
+   },
+   "no_token_action": {
+    "status": 401,
+    "code": "AUTH_UNAUTHORIZED",
+    "reason": null
+   },
+   "plain_read": {
+    "status": 403,
+    "code": "AUTH_FORBIDDEN",
+    "reason": "NOT_ADMIN"
+   },
+   "plain_action": {
+    "status": 403,
+    "code": "AUTH_FORBIDDEN",
+    "reason": "NOT_ADMIN"
+   },
+   "admin_read": {
+    "status": 200,
+    "code": null,
+    "reason": null
+   },
+   "bad_cid_action": {
+    "status": 404,
+    "code": "LEDGER_CURRENCY_NOT_FOUND",
+    "reason": null
+   }
+  },
+  "notes": {
+   "not_measured_reason": "非 admin 有效凭据已实测 403 NOT_ADMIN；「缺 review_tasks（PERMISSION_NOT_GRANTED）」子面需库内「有 admin 角色但不含 review_tasks」的账号，本轮现取无合适样本 ⇒ 见报告 NOT_MEASURED",
+   "write_surface": "真 admin 凭据的 approve/reject 真 HTTP 写面 = NOT_MEASURED（按 §23.5(b) 禁在生产库落不可复原写）"
+  }
+ },
+ "checks": [
+  {
+   "id": "H1",
+   "group": "auth401",
+   "pass": true,
+   "detail": {
+    "status": 401,
+    "code": "AUTH_UNAUTHORIZED",
+    "reason": null
+   },
+   "neg_rule": "读口无 token 须 401 AUTH_UNAUTHORIZED ⇒ 落业务 200/500 ⇒ 判负"
+  },
+  {
+   "id": "H2",
+   "group": "auth401",
+   "pass": true,
+   "detail": {
+    "status": 401,
+    "code": "AUTH_UNAUTHORIZED",
+    "reason": null
+   },
+   "neg_rule": "动作口无 token 须 401 AUTH_UNAUTHORIZED（**先于**任何 DB / 写）⇒ 否则 ⇒ 判负"
+  },
+  {
+   "id": "H3",
+   "group": "auth403",
+   "pass": true,
+   "detail": {
+    "status": 403,
+    "code": "AUTH_FORBIDDEN",
+    "reason": "NOT_ADMIN"
+   },
+   "neg_rule": "读口：非 admin 须 403 reason=NOT_ADMIN ⇒ 落 200 / 其它 reason ⇒ 判负"
+  },
+  {
+   "id": "H4",
+   "group": "auth403",
+   "pass": true,
+   "detail": {
+    "status": 403,
+    "code": "AUTH_FORBIDDEN",
+    "reason": "NOT_ADMIN"
+   },
+   "neg_rule": "动作口：非 admin 须 403 reason=NOT_ADMIN（**先于**写）⇒ 否则 ⇒ 判负"
+  },
+  {
+   "id": "H5",
+   "group": "positive",
+   "pass": true,
+   "detail": {
+    "status": 200,
+    "code": null,
+    "reason": null
+   },
+   "neg_rule": "admin token 读口须 200（正控；证明凭据真有效）⇒ 非 200 ⇒ 判负"
+  },
+  {
+   "id": "H6",
+   "group": "illegalInput",
+   "pass": true,
+   "detail": {
+    "status": 404,
+    "code": "LEDGER_CURRENCY_NOT_FOUND",
+    "reason": null
+   },
+   "neg_rule": "非数字 :cid ⇒ 404 LD007（路由在写逻辑前早退）⇒ 静默按 0 / 200 ⇒ 判负"
+  }
+ ]
+}

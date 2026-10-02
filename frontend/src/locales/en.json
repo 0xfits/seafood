@@ -501,7 +501,9 @@
     "feeRate": "Fee Rates",
     "feeRateDesc": "Fee rate and effective versions",
     "weightMatrix": "Weight Matrix",
-    "weightMatrixDesc": "Referral weights per level"
+    "weightMatrixDesc": "Referral weights per level",
+    "currencyReview": "Unit review",
+    "currencyReviewDesc": "Review user-created point units"
   },
   "adminLayout": {
     "panelTitle": "Admin Panel",
@@ -868,5 +870,35 @@
     "loadFailed": "Failed to load the weight matrix: {{message}}",
     "unsavedChanges": "You have unsaved changes.",
     "noChanges": "Everything matches the saved values."
+  },
+  "adminCurrencyReview": {
+    "title": "Self-built Unit Review",
+    "intro": "This page lists units created by users. Add a note, then approve or reject; approved units become available for listing.",
+    "filterLabel": "Status",
+    "filterAll": "All",
+    "filterDraft": "Pending",
+    "filterListed": "Listed",
+    "filterFrozen": "Frozen",
+    "filterDelisted": "Delisted",
+    "colId": "ID",
+    "colSymbol": "Symbol",
+    "colName": "Name",
+    "colStatus": "Status",
+    "colOwner": "Creator",
+    "colCreated": "Created",
+    "colActions": "Review",
+    "approve": "Approve",
+    "reject": "Reject",
+    "reasonPlaceholder": "Add a review note (required for both actions)",
+    "reasonRequired": "Please add a review note first",
+    "statusDraft": "Pending",
+    "statusListed": "Listed",
+    "statusFrozen": "Frozen",
+    "statusDelisted": "Delisted",
+    "empty": "No units awaiting review",
+    "loadFailed": "Failed to load the review list: {{message}}",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "actionFailed": "Failed to submit the review: {{message}}"
   }
 }
