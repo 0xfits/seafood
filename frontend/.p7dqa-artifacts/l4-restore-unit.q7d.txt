@@ -1,0 +1,11 @@
+
+ RUN  v0.34.6 /Users/kevin/.hermes/profiles/zang/cache/scratch/qa7d/frontend
+
+ ✓ src/test/unit/p7a-ledger-error-i18n.test.js  (6 tests) 8ms
+ ✓ src/test/unit/p7c-errmsg-machinecode.test.js  (8 tests) 13ms
+
+ Test Files  2 passed (2)
+      Tests  14 passed (14)
+   Start at  19:51:42
+   Duration  576ms (transform 75ms, setup 194ms, collect 167ms, tests 21ms, environment 448ms, prepare 95ms)
+

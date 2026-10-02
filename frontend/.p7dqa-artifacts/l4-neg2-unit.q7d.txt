@@ -1,0 +1,48 @@
+
+ RUN  v0.34.6 /Users/kevin/.hermes/profiles/zang/cache/scratch/qa7d/frontend
+
+ ❯ src/test/unit/p7a-ledger-error-i18n.test.js  (6 tests | 1 failed) 13ms
+   ❯ src/test/unit/p7a-ledger-error-i18n.test.js > 批 7-A 收口四 · `ledger-api` 错误文案必须过 `apiErrorMessage`（四语文案，非服务端原文） > ③ 503 + R107（带**大写机读** `details.reason`）⇒ 走 ② 服务端原文 + **不含机读 reason 后缀**（R1′ 订正）
+     → expected 'Ledger statement timed out (STATEMENT…' to not include '(STATEMENT_TIMEOUT)'
+ ❯ src/test/unit/p7c-errmsg-machinecode.test.js  (8 tests | 1 failed) 22ms
+   ❯ src/test/unit/p7c-errmsg-machinecode.test.js > 批 7-C · F-1 全大写下划线机读码 ⇒ 四语通用兜底（错误文案护栏扩口径） > ⑧ ★ 批 7-D（R1′）类级：`stateConflict()` 四种 reason / `STATEMENT_TIMEOUT` 等机读 reason ⇒ 用户可见串零机读码；O-1 小写 reason 后缀保留
+     → [zh] LISTING_STATE_INVALID 不得外泄机读码: expected true to be false // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/test/unit/p7a-ledger-error-i18n.test.js > 批 7-A 收口四 · `ledger-api` 错误文案必须过 `apiErrorMessage`（四语文案，非服务端原文） > ③ 503 + R107（带**大写机读** `details.reason`）⇒ 走 ② 服务端原文 + **不含机读 reason 后缀**（R1′ 订正）
+AssertionError: expected 'Ledger statement timed out (STATEMENT…' to not include '(STATEMENT_TIMEOUT)'
+ ❯ src/test/unit/p7a-ledger-error-i18n.test.js:100:29
+     98|     //   真人可读 reason（如 `too_many_connections`）仍保留后缀（见 `p…
+     99|     expect(err.message).toContain('Ledger statement timed out')
+    100|     expect(err.message).not.toContain('(STATEMENT_TIMEOUT)')
+       |                             ^
+    101|     expect(err.message).not.toContain('STATEMENT_TIMEOUT')
+    102|     expect(err.message).toBe(await apiErrorMessage(payload, 503))
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/test/unit/p7c-errmsg-machinecode.test.js > 批 7-C · F-1 全大写下划线机读码 ⇒ 四语通用兜底（错误文案护栏扩口径） > ⑧ ★ 批 7-D（R1′）类级：`stateConflict()` 四种 reason / `STATEMENT_TIMEOUT` 等机读 reason ⇒ 用户可见串零机读码；O-1 小写 reason 后缀保留
+AssertionError: [zh] LISTING_STATE_INVALID 不得外泄机读码: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/test/unit/p7c-errmsg-machinecode.test.js:276:79
+    274|         occurrences += (message.match(TOKEN_G) || []).length
+    275|         // 判据：① 无机读码 token ② 不含 `(REASON)` 后缀 ③ 逐字 = 服务…
+    276|         expect(containsMachineCode(message), `[${lang}] ${v.reason} 不…
+       |                                                                               ^
+    277|         expect(message, `[${lang}] ${v.reason} 不得附加后缀`).not.toCo…
+    278|         expect(message, `[${lang}] ${v.reason}`).toBe('Business state …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 12 passed (14)
+   Start at  19:51:32
+   Duration  607ms (transform 77ms, setup 196ms, collect 175ms, tests 35ms, environment 459ms, prepare 90ms)
+

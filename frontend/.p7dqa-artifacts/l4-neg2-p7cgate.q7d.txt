@@ -1,0 +1,125 @@
+[P7C-MACHINE-CODE] A 护栏在场（源码）：src/auth.js
+  ① 具名导出 `MACHINE_CODE_TOKEN_RE`（token 判据） = true
+  ①' 具名导出 `containsMachineCode`（谓词）        = true
+  ② `extractApiErrorMessage` 内 `containsMachineCode(` 调用数 = 3（要求 ≥ 1）
+[P7C-MACHINE-CODE] B locale 文案面（四语叶子值机读码扫描）
+  [zh] 叶子值 = 737；含机读码 token = 0
+  [hk] 叶子值 = 737；含机读码 token = 0
+  [en] 叶子值 = 737；含机读码 token = 0
+  [vn] 叶子值 = 737；含机读码 token = 0
+  存量登记 = 0 条（本单新增面零命中；口径 =「不要求一次清完，但不得静默」）
+[P7C-MACHINE-CODE] C 四语通用兜底键齐备（扩口径后的落点 ③）
+  auth.err.REQUEST_FAILED ⇒ zh:OK（"请求失败 ({{status}})"）
+  auth.err.REQUEST_FAILED ⇒ hk:OK（"請求失敗（{{status}}）"）
+  auth.err.REQUEST_FAILED ⇒ en:OK（"Request failed ({{status}})"）
+  auth.err.REQUEST_FAILED ⇒ vn:OK（"Yêu cầu thất bại ({{status}})"）
+[P7C-MACHINE-CODE] D 行为节点（★ 类级）：机读码 message 向量 × 4 语 = 4 × 4 = 16
+  · F-1 · 409 真体（message = 机读码 + reason = order_not_refundable）（status=409）
+      [zh] ⇒ "当前状态不允许此变更。"
+      [hk] ⇒ "目前狀態唔允許呢個變更。"
+      [en] ⇒ "The current state does not allow this change."
+      [vn] ⇒ "Trạng thái hiện tại không cho phép thay đổi này."
+  · 服务端自拼（message 已含 `机读码 (reason)`）（status=409）
+      [zh] ⇒ "当前状态不允许此变更。"
+      [hk] ⇒ "目前狀態唔允許呢個變更。"
+      [en] ⇒ "The current state does not allow this change."
+      [vn] ⇒ "Trạng thái hiện tại không cho phép thay đổi này."
+  · 无 i18n_key 的机读码 message（旧字符串面）（status=401）
+      [zh] ⇒ "请求失败 (401)"
+      [hk] ⇒ "請求失敗（401）"
+      [en] ⇒ "Request failed (401)"
+      [vn] ⇒ "Yêu cầu thất bại (401)"
+  · 机读码 message + 大写 reason（`STATEMENT_TIMEOUT`）（status=503）
+      [zh] ⇒ "系统繁忙，请稍后重试。"
+      [hk] ⇒ "系統繁忙，請遲啲再試。"
+      [en] ⇒ "The system is busy. Please try again later."
+      [vn] ⇒ "Hệ thống đang bận, vui lòng thử lại sau."
+  ★ 类级违例计数（「全大写下划线机读码被当作文案输出」形态）= 0 / 节点 16（必须 = 0）
+[P7C-MACHINE-CODE] F 反例面（O-1 边界回归）：真人可读服务端 message ⇒ 仍走 ② 服务端原文
+  · O-1 · ② 边界（无 i18n_key：zh 句子 + 小写 reason = too_many_connections）⇒ 原文 + 后缀保留（status=503）
+      [zh] ⇒ "系统繁忙，请稍后重试 (too_many_connections)"
+      [hk] ⇒ "系统繁忙，请稍后重试 (too_many_connections)"
+      [en] ⇒ "系统繁忙，请稍后重试 (too_many_connections)"
+      [vn] ⇒ "系统繁忙，请稍后重试 (too_many_connections)"
+  · O-1′ · 503 真体（i18n_key 已本地化 ledger.err.LEDGER_TX_TIMEOUT）⇒ ① 让位（真文案）（status=503）
+      [zh] ⇒ "系统繁忙，请稍后重试。"
+      [hk] ⇒ "系統繁忙，請遲啲再試。"
+      [en] ⇒ "The system is busy. Please try again later."
+      [vn] ⇒ "Hệ thống đang bận, vui lòng thử lại sau."
+  · S6 · 410 弃用面（**未登记** i18n_key）⇒ ② 服务端原文保留（既有面回归锚）（status=410）
+      [zh] ⇒ "endpoint deprecated: /api/auth/register"
+      [hk] ⇒ "endpoint deprecated: /api/auth/register"
+      [en] ⇒ "endpoint deprecated: /api/auth/register"
+      [vn] ⇒ "endpoint deprecated: /api/auth/register"
+  · B14③ · 未登记裸 message（无 `error` 对象）（status=503）
+      [zh] ⇒ "database is unreachable"
+      [hk] ⇒ "database is unreachable"
+      [en] ⇒ "database is unreachable"
+      [vn] ⇒ "database is unreachable"
+  ★ 反例面违例 = 0 / 节点 16（必须 = 0）
+[P7C-MACHINE-CODE] G ★ 类级判据（批 7-D ② · R1′）：用户可见串中机读码出现次数 = 0（9 向量 × 4 语 = 36 节点）
+  · ① 409 机读码 message（F-1 真体；键已本地化 ⇒ ① 让位）
+      [zh] ⇒ "当前状态不允许此变更。"
+      [hk] ⇒ "目前狀態唔允許呢個變更。"
+      [en] ⇒ "The current state does not allow this change."
+      [vn] ⇒ "Trạng thái hiện tại không cho phép thay đổi này."
+  · ② 409 服务端自拼 `机读码 (reason)`（无键 ⇒ ③ 兜底）
+      [zh] ⇒ "请求失败 (409)"
+      [hk] ⇒ "請求失敗（409）"
+      [en] ⇒ "Request failed (409)"
+      [vn] ⇒ "Yêu cầu thất bại (409)"
+  · ③ stateConflict() · reason=LISTING_STATE_INVALID（`listing-service.ts:55`）⇒ 不得附加后缀
+      [zh] ⇒ "Business state transition rejected"
+      [hk] ⇒ "Business state transition rejected"
+      [en] ⇒ "Business state transition rejected"
+      [vn] ⇒ "Business state transition rejected"
+  · ③ stateConflict() · reason=JOB_STATE_INVALID（`job-service.ts:122`）⇒ 不得附加后缀
+      [zh] ⇒ "Business state transition rejected"
+      [hk] ⇒ "Business state transition rejected"
+      [en] ⇒ "Business state transition rejected"
+      [vn] ⇒ "Business state transition rejected"
+  · ③ stateConflict() · reason=JOB_APPLICATION_STATE_INVALID（`job-service.ts:122`）⇒ 不得附加后缀
+      [zh] ⇒ "Business state transition rejected"
+      [hk] ⇒ "Business state transition rejected"
+      [en] ⇒ "Business state transition rejected"
+      [vn] ⇒ "Business state transition rejected"
+  · ③ stateConflict() · reason=CURRENCY_STATE_INVALID（`currency-service.ts:59`）⇒ 不得附加后缀
+      [zh] ⇒ "Business state transition rejected"
+      [hk] ⇒ "Business state transition rejected"
+      [en] ⇒ "Business state transition rejected"
+      [vn] ⇒ "Business state transition rejected"
+  · ④ 503 STATEMENT_TIMEOUT（大写机读 reason）⇒ 不得附加后缀
+      [zh] ⇒ "Ledger statement timed out"
+      [hk] ⇒ "Ledger statement timed out"
+      [en] ⇒ "Ledger statement timed out"
+      [vn] ⇒ "Ledger statement timed out"
+  · ⑤ LEDGER_LOCK_TIMEOUT（已本地化键 + 大写机读 reason）⇒ ① 让位，无后缀
+      [zh] ⇒ "系统繁忙，请稍后重试。"
+      [hk] ⇒ "系統繁忙，請遲啲再試。"
+      [en] ⇒ "The system is busy. Please try again later."
+      [vn] ⇒ "Hệ thống đang bận, vui lòng thử lại sau."
+  · ⑥ O-1（无键 + 小写 reason）⇒ 后缀**必须保留**（边界不回归）
+      [zh] ⇒ "系统繁忙，请稍后重试 (too_many_connections)"
+      [hk] ⇒ "系统繁忙，请稍后重试 (too_many_connections)"
+      [en] ⇒ "系统繁忙，请稍后重试 (too_many_connections)"
+      [vn] ⇒ "系统繁忙，请稍后重试 (too_many_connections)"
+  ★ 机读码出现次数合计 = 0（必须 = 0）/ 节点 36；违例向量-语 = 0（必须 = 0）
+[P7C-MACHINE-CODE] E 边界样本表自证（谓词非空转）
+  样本                                    | containsMachineCode | looksLikeMachineCode
+  [正例] "LEDGER_CURRENCY_INVALID_TRANSITION"                 | true                | true
+  [正例] "AUTH_UNAUTHORIZED"                                  | true                | true
+  [正例] "STATEMENT_TIMEOUT"                                  | true                | true
+  [正例] "LEDGER_CURRENCY_INVALID_TRANSITION (order_not_refundable)" | true                | false
+  [反例] "系统繁忙，请稍后重试 (too_many_connections)"                  | false               | false
+  [反例] "Request failed (400)"                               | false               | false
+  [反例] "database is unreachable"                            | false               | false
+  [反例] "v1.2"                                               | false               | false
+  [反例] "endpoint deprecated: /api/auth/register"            | false               | false
+  [反例] "Invalid wallet signature"                           | false               | false
+  [反例] "too_many_connections"                               | false               | false
+  [反例] "请求失败 (500)"                                         | false               | false
+  [反例] "no-dots-here"                                       | false               | false
+  [反例] ""                                                   | false               | false
+  正例 4 条 ⇒ containsMachineCode=true；反例 10 条 + 非字符串 5 条 ⇒ false；拼接面 "LEDGER_CURRENCY_INVALID_TRANSITION (order_not_refundable)" ⇒ 整串=false / token=true
+[P7C-MACHINE-CODE] 作用域读数：root = /Users/kevin/.hermes/profiles/zang/cache/scratch/qa7d/frontend；locale 叶子值 = 2948；机读码向量节点 = 16；反例向量节点 = 16；扫描文件 = 1（src/auth.js）+ 4（locale）
+[P7C-MACHINE-CODE] 总判：PASS（判负 0 必须 = 0；A=PASS / B 含机读码值=0 / C 兜底键=4 / D 类级违例=0/16 / F 反例违例=0/16 / G 机读码出现次数=0/36 违例=0 / E 样本=19）

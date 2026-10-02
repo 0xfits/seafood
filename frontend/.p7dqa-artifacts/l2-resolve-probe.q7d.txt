@@ -1,0 +1,10 @@
+
+ RUN  v0.34.6 /Users/kevin/.hermes/profiles/zang/cache/scratch/qa7d/frontend
+
+ ✓ src/test/unit/q7d-neng-probe.test.js  (1 test) 10ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  19:49:41
+   Duration  592ms (transform 68ms, setup 94ms, collect 80ms, tests 10ms, environment 245ms, prepare 44ms)
+

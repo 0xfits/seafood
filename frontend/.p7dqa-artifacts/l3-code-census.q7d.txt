@@ -1,0 +1,79 @@
+{
+  "tableKeyCount": 33,
+  "tableKeys": [
+    "LEDGER_INSUFFICIENT_BALANCE",
+    "LEDGER_INSUFFICIENT_FROZEN",
+    "LEDGER_IDEMPOTENCY_REPLAY",
+    "LEDGER_IDEMPOTENCY_CONFLICT",
+    "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+    "LEDGER_IDEMPOTENCY_KEY_INVALID",
+    "LEDGER_CURRENCY_NOT_FOUND",
+    "LEDGER_CURRENCY_NOT_LISTED",
+    "LEDGER_CURRENCY_FROZEN",
+    "LEDGER_CURRENCY_DELISTED",
+    "LEDGER_CURRENCY_INVALID_TRANSITION",
+    "LEDGER_CURRENCY_SYMBOL_TAKEN",
+    "LEDGER_CURRENCY_MISMATCH",
+    "LEDGER_SUPPLY_CAP_EXCEEDED",
+    "LEDGER_UNAUTHORIZED_MINT",
+    "LEDGER_HOLD_NOT_ALLOWED",
+    "LEDGER_AMOUNT_INVALID",
+    "LEDGER_AMOUNT_NOT_POSITIVE",
+    "LEDGER_DECIMALS_OVERFLOW",
+    "LEDGER_SELF_TRANSFER",
+    "LEDGER_ACCOUNT_NOT_FOUND",
+    "LEDGER_RESERVED_UID",
+    "LEDGER_REF_NOT_FOUND",
+    "LEDGER_UNKNOWN_KIND",
+    "LEDGER_TRANSACTION_REQUIRED",
+    "LEDGER_LOCK_TIMEOUT",
+    "LEDGER_TX_TIMEOUT",
+    "LEDGER_DEADLOCK_RETRY_EXHAUSTED",
+    "LEDGER_NEGATIVE_BALANCE_GUARD",
+    "LEDGER_APPEND_ONLY_VIOLATION",
+    "LEDGER_ACCOUNT_GUARD_VIOLATION",
+    "LEDGER_FEE_RATE_INVALID",
+    "LEDGER_RECONCILE_MISMATCH"
+  ],
+  "ledgerLiteralCount": 34,
+  "authLits": [
+    "AUTH_FORBIDDEN",
+    "AUTH_UNAUTHORIZED"
+  ],
+  "ledgerLiteralsNotInTable": [
+    "LEDGER_FUNCTION_BAD_RESULT"
+  ],
+  "tableKeysNeverUsedAsLiteral": [],
+  "cov": {
+    "zh": {
+      "tableKeysWithoutLedgerErrKey": [],
+      "ledgerErrKeysNotInTable": []
+    },
+    "en": {
+      "tableKeysWithoutLedgerErrKey": [],
+      "ledgerErrKeysNotInTable": []
+    },
+    "hk": {
+      "tableKeysWithoutLedgerErrKey": [],
+      "ledgerErrKeysNotInTable": []
+    },
+    "vn": {
+      "tableKeysWithoutLedgerErrKey": [],
+      "ledgerErrKeysNotInTable": []
+    }
+  },
+  "authCov": {
+    "zh": {
+      "authWireCodesWithoutKey": []
+    },
+    "en": {
+      "authWireCodesWithoutKey": []
+    },
+    "hk": {
+      "authWireCodesWithoutKey": []
+    },
+    "vn": {
+      "authWireCodesWithoutKey": []
+    }
+  }
+}
