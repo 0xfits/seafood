@@ -6,7 +6,7 @@ import { Plus, Edit, Trash2, RefreshCw, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdminPermission } from '../../admin-utils'
 import { adminOpsKey } from '../../idempotency'
-import { formatEvmAddress } from '../../utils'
+import { buildLocalizedPath, formatEvmAddress, getLanguageFromUrl } from '../../utils'
 
 const EMPTY_FORM = {
   id: '',
@@ -112,7 +112,7 @@ const PermissionsManagement = () => {
 
     if (!headers.Authorization) {
       toast.error(t('adminCommon.sessionExpired'))
-      navigate('/login')
+      navigate(buildLocalizedPath(getLanguageFromUrl(window.location.pathname), '/login'))
       return
     }
 
@@ -171,7 +171,7 @@ const PermissionsManagement = () => {
 
     if (!headers.Authorization) {
       toast.error(t('adminCommon.sessionExpired'))
-      navigate('/login')
+      navigate(buildLocalizedPath(getLanguageFromUrl(window.location.pathname), '/login'))
       return
     }
 

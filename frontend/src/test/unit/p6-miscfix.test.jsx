@@ -145,8 +145,11 @@ describe('② 链接构造器回归：源码残留必须逐条已登记', () => 
         }
       }
     }
-    expect(hits.length).toBeGreaterThan(0)      // 断言有效：作用域不得命中 0 条
-    expect(hits.filter((h) => !REGISTERED.has(h))).toEqual([])
+    expect(hits).toEqual([])                    // 上批 10 处已全部改走唯一构造器 ⇒ 硬编码残留 = 0
+    // 有效性闸下移到构造器侧：构造器使用点不得为 0（取代旧的「残留非 0」闸，非放宽）
+    const ctor = walk(path.join(src, 'pages')).concat(walk(path.join(src, 'components')))
+      .reduce((n, f) => n + (fs.readFileSync(f, 'utf8').match(/buildLocalizedPath\(/g) || []).length, 0)
+    expect(ctor).toBeGreaterThanOrEqual(10)
   })
   it('判负：构造器对四语/非法语言输出符合契约', () => {
     expect(buildLocalizedPath('en', '/task')).toBe('/en/task')

@@ -21,7 +21,7 @@ import { Button, Card, CardHeader, CardTitle, CardContent, Badge } from '../comp
 import { LoadingPage } from '../components/ui/Loading'
 import { FadeIn, SlideUp, StaggerContainer } from '../components/ui/Motion'
 import { ResponsiveContainer, ResponsiveGrid } from '../components/ui/Responsive'
-import { formatEvmAddress } from '../utils'
+import { buildLocalizedPath, formatEvmAddress, getLanguageFromUrl } from '../utils'
 import { fetchAdminAccess, fetchApiJson, getAuthToken, hasAdminPermission, isAdminUser } from '../admin-utils'
 import { useAuth } from '../auth-context'
 
@@ -208,7 +208,7 @@ const DashboardPage = () => {
     const token = getAuthToken(currentUser)
     if (!token) {
       toast.error(t('adminCommon.sessionExpired'))
-      navigate('/login')
+      navigate(buildLocalizedPath(getLanguageFromUrl(window.location.pathname), '/login'))
       return
     }
 
@@ -293,7 +293,7 @@ const DashboardPage = () => {
             <Shield className="w-16 h-16 text-orange-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('dashPage.noPermission')}</h2>
             <p className="text-gray-600 mb-6">{t('dashPage.noPermissionBody')}</p>
-            <Button as={Link} to="/" variant="primary">
+            <Button as={Link} to={buildLocalizedPath(getLanguageFromUrl(window.location.pathname), '/')} variant="primary">
               {t('dashPage.backHome')}
             </Button>
           </CardContent>

@@ -5,6 +5,7 @@ import { Button, Card, CardHeader, CardTitle, CardContent } from '../../componen
 import { Settings, Save, RefreshCw, Database, Globe } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdminPermission } from '../../admin-utils'
+import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import { adminOpsKey } from '../../idempotency'
 
 const DEFAULT_SETTINGS = {
@@ -81,7 +82,7 @@ const SystemSettings = () => {
       }
       if (!headers.Authorization) {
         toast.error(t('adminCommon.sessionExpired'))
-        navigate('/login')
+        navigate(buildLocalizedPath(getLanguageFromUrl(window.location.pathname), '/login'))
         return
       }
 

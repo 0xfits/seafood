@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { clearAuthSession } from '../auth'
+import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
 
 const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
   const { t } = useTranslation()
@@ -31,7 +32,7 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
       // 验证 token 格式
       if (!token) {
         toast.error(t('activeTaskModal.noCredential'))
-        navigate('/login')
+        navigate(buildLocalizedPath(getLanguageFromUrl(window.location.pathname), '/login'))
         return
       }
 
@@ -41,7 +42,7 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
         console.error('Invalid token format:', token)
         toast.error(t('activeTaskModal.badCredential'))
         clearAuthSession()
-        navigate('/login')
+        navigate(buildLocalizedPath(getLanguageFromUrl(window.location.pathname), '/login'))
         return
       }
 
@@ -62,7 +63,7 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
         // Token 过期或无效，需要重新登录
         toast.error(t('sessionExpired'))
         clearAuthSession()
-        navigate('/login')
+        navigate(buildLocalizedPath(getLanguageFromUrl(window.location.pathname), '/login'))
         return
       }
 
@@ -71,7 +72,7 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
         toast.success(t('successSubmitTask'))
         onClose()
         // 重定向到任务页面并滚动到待验证部分
-        navigate(`/task#pending-verification`)
+        navigate(buildLocalizedPath(getLanguageFromUrl(window.location.pathname), '/task') + '#pending-verification')
       } else {
         toast.error(t('error') + ': ' + (data.message || t('activeTaskModal.submitFailed')))
       }

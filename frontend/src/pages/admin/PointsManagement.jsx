@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Button, Card, CardContent, Badge, Modal, ModalHeader, ModalTitle } from '../../components/ui'
 import { Search, Plus, Minus, Users, TrendingUp, AlertCircle, RefreshCw } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { formatEvmAddress } from '../../utils'
+import { buildLocalizedPath, formatEvmAddress, getLanguageFromUrl } from '../../utils'
 import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdminPermission, loadAdminUsersWithAssets } from '../../admin-utils'
 
 const formatDateTime = (value, t) => {
@@ -107,7 +107,7 @@ const PointsManagement = () => {
 
     if (!headers.Authorization) {
       toast.error(t('adminCommon.sessionExpired'))
-      navigate('/login')
+      navigate(buildLocalizedPath(getLanguageFromUrl(window.location.pathname), '/login'))
       return
     }
 

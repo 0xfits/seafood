@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Button, Card, CardContent, Badge } from '../../components/ui'
 import { Users, Shield, Search, AlertCircle, RefreshCw, Coins } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { formatEvmAddress } from '../../utils'
+import { buildLocalizedPath, formatEvmAddress, getLanguageFromUrl } from '../../utils'
 import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdminPermission, loadAdminUsersWithAssets } from '../../admin-utils'
 import { adminOpsKey } from '../../idempotency'
 
@@ -88,7 +88,7 @@ const UsersManagement = () => {
 
     if (!headers.Authorization) {
       toast.error(t('adminCommon.sessionExpired'))
-      navigate('/login')
+      navigate(buildLocalizedPath(getLanguageFromUrl(window.location.pathname), '/login'))
       return
     }
 

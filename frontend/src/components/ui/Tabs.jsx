@@ -20,7 +20,7 @@ const TabsList = ({ children, className }) => {
   return (
     <div
       className={cn(
-        'inline-flex h-10 items-center justify-center rounded-lg bg-gray-100 p-1 text-gray-500',
+        'inline-flex h-10 max-w-full items-center justify-center overflow-x-auto rounded-lg bg-gray-100 p-1 text-gray-500',
         className
       )}
     >
@@ -38,7 +38,7 @@ const TabsTrigger = ({ value, children, className }) => {
       type="button"
       onClick={() => onValueChange(value)}
       className={cn(
-        'inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-white transition-all',
+        'inline-flex min-w-0 items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-white transition-all',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2',
         'disabled:pointer-events-none disabled:opacity-50',
         isActive
