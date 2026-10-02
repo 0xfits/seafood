@@ -1,0 +1,256 @@
+/* 交易所线（P4-B4c-ii-b）· 只吃 4c-i 的 token 层与 shell 骨架（单断点 767px）
+ * 铁律同 listings.css：颜色/radius/shadow 取主题 token；一切改几何的量取结构常量或断点层；
+ * 本文件**无** [data-theme] 分支、无颜色字面量。
+ *
+ * P6-UI-CONSIST-B（成套形状收敛，变体 B）：卡片 / 输入框 / 行情条 由旧风格
+ *   （--sf-st-stroke-w 1.5px + 硬位移阴影 + 异形圆角 13px/11px）
+ *   收敛到按钮口径：圆角 = --sf-st-radius-btna（8px）· 描边 = --sf-st-stroke-w-thin（1px）· 阴影 = none · 切角 = none。
+ *   颜色槽位与一切几何量（padding/gap/列数/顺序/固定盒高）不动。
+ */
+
+.sf-mkt {
+  --sf-k-ctl-h: 34px;
+  --sf-k-row-h: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sf-st-feed-gap-m);
+}
+
+.sf-mkt-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sf-mkt-title {
+  color: var(--sf-title-fg);
+}
+
+.sf-mkt-note,
+.sf-mkt-meta {
+  font-size: 12px;
+  color: var(--sf-meta-fg);
+}
+
+.sf-mkt-actions,
+.sf-mkt-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.sf-mkt-link {
+  color: var(--sf-panel-link-fg);
+  font-size: 13px;
+  text-decoration: underline;
+}
+
+/* 行情条（ticker）：窄屏一列、宽屏两列 */
+.sf-mkt-ticker {
+  /* 结构常量（本规则内定义并消费）：行情条**盒高固定** —— 日/夜文本度量不得改盒子高度。
+     探针实测（`p4z-b4ciib-geometry.mjs`）：无此约束时本元素 day h≠night h（→ 级联出 14 处 rect 差）；
+     固定盒高 + 子元素显式 font-size/line-height（两档同值）后复测 = 0。 */
+  --sf-k-ticker-h: 66px;
+  --sf-k-ticker-line: 1.2;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sf-st-feed-gap-m);
+  background: var(--sf-ticker-bg);
+  /* ★ 描边**不得**用 `--sf-ticker-border`：该主题 token 在日档值 = `none`（`tokens.js` DAY），
+     `border: 1.5px solid none` 无效 ⇒ 日档 border-width=0 / 夜档=1px ⇒ 盒高差 2px（探针实测 86 vs 88）。
+     故描边宽度取结构常量、颜色取**两档都是颜色**的 token（`--sf-card-border`）⇒ 主题只差颜色、不差几何。
+     另加 `box-sizing: border-box` 把盒高钉死在结构常量上（本元素在四语/两档下 rect 恒等）。 */
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-card-border);
+  box-sizing: border-box;
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
+  padding: 10px 12px;
+  height: var(--sf-k-ticker-h);
+  align-items: center;
+}
+
+/* 文本度量取结构常量（font-size/line-height，两档同值）—— 主题只允许差颜色 */
+.sf-mkt-ticker .sf-mkt-pair,
+.sf-mkt-ticker .sf-mkt-meta {
+  font-size: 12px;
+  line-height: var(--sf-k-ticker-line);
+}
+
+.sf-mkt-ticker .sf-mkt-last {
+  font-size: var(--sf-st-price-num-size);
+  line-height: var(--sf-k-ticker-line);
+}
+
+@media (min-width: 1024px) {
+  .sf-mkt-ticker {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.sf-mkt-pair {
+  color: var(--sf-tk-pair-fg);
+  font-size: 12px;
+}
+
+.sf-mkt-last {
+  color: var(--sf-tk-price-fg);
+  font-size: var(--sf-st-price-num-size);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--sf-st-num-font);
+}
+
+/* 盘口/流水：窄屏单列、宽屏两列（DOM 顺序恒定） */
+.sf-mkt-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sf-st-feed-gap-m);
+}
+
+@media (min-width: 1024px) {
+  .sf-mkt-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sf-st-feed-gap);
+  }
+}
+
+.sf-mkt-book-row,
+.sf-mkt-trade-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: var(--sf-k-row-h);
+  font-size: 12px;
+  color: var(--sf-jrow-fg);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--sf-st-num-font);
+}
+
+.sf-mkt-side-buy {
+  color: var(--sf-up-fg);
+}
+
+.sf-mkt-side-sell {
+  color: var(--sf-down-fg);
+}
+
+.sf-mkt-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sf-st-feed-gap-m);
+}
+
+@media (min-width: 1024px) {
+  .sf-mkt-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sf-mkt-field-wide {
+    grid-column: span 2;
+  }
+}
+
+.sf-mkt-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sf-mkt-label {
+  font-size: 12px;
+  color: var(--sf-meta-fg);
+}
+
+.sf-mkt-input,
+.sf-mkt-select {
+  background: var(--sf-search-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-search-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
+  color: var(--sf-search-fg);
+  font-size: 13px;
+  padding: 8px 10px;
+  min-height: var(--sf-k-ctl-h);
+  width: 100%;
+}
+
+.sf-mkt-btn {
+  /* P6-BTN-IMPL-2：视觉由 .sf-btn 基类按 A 系注入；此处只留位置/尺寸约束 */
+  padding: 8px var(--sf-st-padx-btna);
+  font-size: 13px;
+  min-height: var(--sf-k-ctl-h);
+  cursor: pointer;
+}
+
+.sf-mkt-btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sf-mkt-status {
+  display: flex;
+  align-items: center;
+  min-height: var(--sf-k-ctl-h);
+  font-size: 12px;
+  color: var(--sf-meta-fg);
+}
+
+.sf-mkt-ok {
+  color: var(--sf-up-fg);
+}
+
+.sf-mkt-err {
+  color: var(--sf-down-fg);
+}
+
+.sf-mkt-empty {
+  color: var(--sf-empty-fg);
+  border: var(--sf-st-stroke-w-thin) dashed var(--sf-card-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  padding: 14px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.sf-mkt-item,
+.sf-mkt-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+}
+
+.sf-mkt-item {
+  background: var(--sf-jobcard-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-jobcard-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
+}
+
+.sf-mkt-panel {
+  background: var(--sf-panel-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
+}
+
+.sf-mkt-item-title {
+  color: var(--sf-jobtitle-fg);
+}
+
+.sf-mkt-price {
+  color: var(--sf-jobpay-fg);
+  font-size: var(--sf-st-jobpay-num-size);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--sf-st-num-font);
+}

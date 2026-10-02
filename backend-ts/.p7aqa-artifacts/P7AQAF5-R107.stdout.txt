@@ -1,0 +1,103 @@
+{
+ "run": "P7AQAF5-R107",
+ "summary": {
+  "all_r107": true,
+  "none_500": true,
+  "no_legacy_shape": true,
+  "statuses": {
+   "cid=abc": 400,
+   "cid=0": 404,
+   "before_txid=xyz": 400,
+   "before_txid=-9": 400,
+   "kind=__nope__": 400
+  },
+  "codes": {
+   "cid=abc": "LEDGER_AMOUNT_INVALID",
+   "cid=0": "LEDGER_CURRENCY_NOT_FOUND",
+   "before_txid=xyz": "LEDGER_AMOUNT_INVALID",
+   "before_txid=-9": "LEDGER_AMOUNT_INVALID",
+   "kind=__nope__": "LEDGER_UNKNOWN_KIND"
+  }
+ },
+ "cases": [
+  {
+   "q": "cid=abc",
+   "status": 400,
+   "keys": [
+    "code",
+    "details",
+    "i18n_key",
+    "message"
+   ],
+   "code": "LEDGER_AMOUNT_INVALID",
+   "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+   "details": {
+    "field": "cid",
+    "reason": "NOT_DECIMAL_INTEGER"
+   }
+  },
+  {
+   "q": "cid=0",
+   "status": 404,
+   "keys": [
+    "code",
+    "details",
+    "i18n_key",
+    "message"
+   ],
+   "code": "LEDGER_CURRENCY_NOT_FOUND",
+   "i18n_key": "ledger.err.LEDGER_CURRENCY_NOT_FOUND",
+   "details": {
+    "cid": "0"
+   }
+  },
+  {
+   "q": "before_txid=xyz",
+   "status": 400,
+   "keys": [
+    "code",
+    "details",
+    "i18n_key",
+    "message"
+   ],
+   "code": "LEDGER_AMOUNT_INVALID",
+   "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+   "details": {
+    "field": "before_txid",
+    "reason": "NOT_DECIMAL_INTEGER"
+   }
+  },
+  {
+   "q": "before_txid=-9",
+   "status": 400,
+   "keys": [
+    "code",
+    "details",
+    "i18n_key",
+    "message"
+   ],
+   "code": "LEDGER_AMOUNT_INVALID",
+   "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+   "details": {
+    "field": "before_txid",
+    "reason": "NOT_POSITIVE",
+    "value": "-9"
+   }
+  },
+  {
+   "q": "kind=__nope__",
+   "status": 400,
+   "keys": [
+    "code",
+    "details",
+    "i18n_key",
+    "message"
+   ],
+   "code": "LEDGER_UNKNOWN_KIND",
+   "i18n_key": "ledger.err.LEDGER_UNKNOWN_KIND",
+   "details": {
+    "kind": "__nope__"
+   }
+  }
+ ]
+}

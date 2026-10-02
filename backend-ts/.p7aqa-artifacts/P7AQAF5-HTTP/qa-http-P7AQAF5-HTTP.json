@@ -1,0 +1,950 @@
+{
+ "run": "P7AQAF5-HTTP",
+ "base": "http://127.0.0.1:5796",
+ "probe": "qa-p7a-http",
+ "fixture": {
+  "A": 910311,
+  "B": 910312,
+  "cidX": 35,
+  "cidY": 36,
+  "evmA_present": true
+ },
+ "token_fp": {
+  "A": "87832bc4acb7"
+ },
+ "secret_fp": "b1ec01afb2eb",
+ "readings": {
+  "db_desc_txids_A": [
+   330,
+   329,
+   328,
+   326,
+   324,
+   322,
+   320,
+   318,
+   316,
+   314,
+   312,
+   310,
+   308,
+   306,
+   304,
+   302,
+   300,
+   298,
+   296,
+   294,
+   292,
+   290,
+   288,
+   286,
+   284,
+   282,
+   280,
+   279
+  ],
+  "db_desc_txids_B": [
+   327,
+   325,
+   323,
+   321,
+   319,
+   317,
+   315,
+   313,
+   311,
+   309,
+   307,
+   305,
+   303,
+   301,
+   299,
+   297,
+   295,
+   293,
+   291,
+   289,
+   287,
+   285,
+   283,
+   281
+  ],
+  "auth_no_token": {
+   "status": 401,
+   "error_keys": "code,details,i18n_key,message",
+   "code": "AUTH_UNAUTHORIZED",
+   "raw": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"AUTH_UNAUTHORIZED\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}"
+  },
+  "auth_bad_token": {
+   "status": 401,
+   "code": "AUTH_UNAUTHORIZED"
+  },
+  "auth_token_of_nonexistent_user": {
+   "status": 401,
+   "code": "AUTH_UNAUTHORIZED"
+  },
+  "auth_real_token": {
+   "status": 200,
+   "top_keys": "data,message,next_before_txid,success",
+   "has_next_key": true,
+   "rows": 10
+  },
+  "row_keys": [
+   "balance_after",
+   "cid",
+   "delta",
+   "frozen_after",
+   "frozen_delta",
+   "kind",
+   "memo",
+   "ref_id",
+   "ref_type",
+   "reversal_of_txid",
+   "time_created",
+   "txid",
+   "uid"
+  ],
+  "keyset_pages": [
+   {
+    "page": 1,
+    "n": 10,
+    "has_next_key": true,
+    "next": 314,
+    "txids": [
+     330,
+     329,
+     328,
+     326,
+     324,
+     322,
+     320,
+     318,
+     316,
+     314
+    ]
+   },
+   {
+    "page": 2,
+    "n": 10,
+    "has_next_key": true,
+    "next": 294,
+    "txids": [
+     312,
+     310,
+     308,
+     306,
+     304,
+     302,
+     300,
+     298,
+     296,
+     294
+    ]
+   },
+   {
+    "page": 3,
+    "n": 8,
+    "has_next_key": true,
+    "next": null,
+    "txids": [
+     292,
+     290,
+     288,
+     286,
+     284,
+     282,
+     280,
+     279
+    ]
+   }
+  ],
+  "keyset_flat": [
+   330,
+   329,
+   328,
+   326,
+   324,
+   322,
+   320,
+   318,
+   316,
+   314,
+   312,
+   310,
+   308,
+   306,
+   304,
+   302,
+   300,
+   298,
+   296,
+   294,
+   292,
+   290,
+   288,
+   286,
+   284,
+   282,
+   280,
+   279
+  ],
+  "verbatim_row_diffs": [],
+  "boundary_full_page": {
+   "page1_n": 28,
+   "page1_next": 279,
+   "page2_n": 0,
+   "page2_next": null,
+   "page2_has_key": true
+  },
+  "before_filter": {
+   "big_n": 28,
+   "below_n": 0,
+   "mid_n": 18,
+   "mid_first": 312
+  },
+  "filters": {
+   "kind_transfer": {
+    "http_n": 24,
+    "db_n": 24,
+    "same": true
+   },
+   "kind_mint": {
+    "http_n": 4,
+    "db_n": 4,
+    "same": true
+   },
+   "kind_absent": {
+    "kind": "burn",
+    "http_n": 0,
+    "status": 200
+   },
+   "cid_x": {
+    "http_n": 25,
+    "db_n": 25,
+    "same": true
+   },
+   "cid_y": {
+    "http_n": 3,
+    "db_n": 3,
+    "same": true
+   },
+   "combo_mint_cidY": {
+    "http_n": 3,
+    "db_n": 3
+   }
+  },
+  "illegal": {
+   "bad_kind": {
+    "status": 400,
+    "code": "LEDGER_UNKNOWN_KIND",
+    "keys": [
+     "code",
+     "message",
+     "i18n_key",
+     "details"
+    ],
+    "raw": "{\"error\":{\"code\":\"LEDGER_UNKNOWN_KIND\",\"message\":\"unsupported ledger kind\",\"i18n_key\":\"ledger.err.LEDGER_UNKNOWN_KIND\",\"details\":{\"kind\":\"__nope__\"}}}"
+   },
+   "cid_abc": {
+    "status": 400
+   },
+   "cid_0": {
+    "status": 404
+   },
+   "cid_neg": {
+    "status": 404
+   },
+   "cid_absent_valid": {
+    "status": 200,
+    "n": 0
+   },
+   "before_xyz": {
+    "status": 400
+   },
+   "before_0": {
+    "status": 400
+   },
+   "before_neg": {
+    "status": 400
+   }
+  },
+  "limit": {
+   "absent": {
+    "status": 200,
+    "n": 28,
+    "next": null
+   },
+   "limit_500": {
+    "status": 200,
+    "n": 28,
+    "next": null
+   },
+   "limit_1000": {
+    "status": 200,
+    "n": 28,
+    "next": null
+   },
+   "limit_abc": {
+    "status": 200,
+    "n": 28,
+    "next": null
+   },
+   "limit_empty": {
+    "status": 200,
+    "n": 28,
+    "next": null
+   },
+   "limit_0": {
+    "status": 200,
+    "n": 1,
+    "next": 330
+   },
+   "limit_neg": {
+    "status": 200,
+    "n": 1,
+    "next": 330
+   },
+   "limit_float": {
+    "status": 200,
+    "n": 2,
+    "next": 329
+   },
+   "limit_1": {
+    "status": 200,
+    "n": 1,
+    "next": 330
+   }
+  },
+  "isolation": {
+   "A_token_rows_all_belong_to_A": true,
+   "A_token_txids_vs_dbA": true,
+   "b_txid_hits_in_A_response": 0,
+   "b_rows_in_db": 24
+  },
+  "zero_write": {
+   "calls": 48,
+   "before": {
+    "ledger_rows": 323,
+    "ledger_sum_delta": "2019822",
+    "ledger_sum_frozen": "10508",
+    "account_rows": 30,
+    "account_sum_balance": "2019822",
+    "account_sum_frozen": "10508",
+    "users_rows": 38,
+    "currency_rows": 15,
+    "public_tables": 25,
+    "public_indexes": 65,
+    "table_names": "account,admin_ops_audit_log,admin_permission,admin_role,admin_role_permission,admin_user_role,app_config,candle_view,commission_policy,content_translation,currency,currency_status_log,job,job_application,job_submission,ledger_entry,ledger_owner,listing,listing_order,market_order,market_trade,referral,schema_migration,translation_cache,users",
+    "index_names": "account_pk,admin_ops_audit_log_actor_day_idx,admin_ops_audit_log_idem_uniq,admin_ops_audit_log_pk,admin_ops_audit_log_target_idx,admin_permission_pk,admin_role_permission_pk,admin_role_pk,admin_user_role_pk,app_config_pk,commission_policy_effective_uniq,commission_policy_pkey,content_translation_pending_idx,content_translation_pk,content_translation_updated_at_idx,currency_pkey,currency_status_log_pk,currency_symbol_uniq,idx_account_cid_balance,idx_account_frozen,idx_currency_owner,idx_currency_status,idx_job_application_worker,idx_job_employer,idx_job_status_time,idx_job_submission_job,idx_job_submission_review,idx_job_submission_worker,idx_job_worker,idx_ledger_event_root_key,idx_ledger_kind_time,idx_ledger_ref,idx_ledger_uid_cid_txid,idx_listing_order_buyer,idx_listing_order_listing,idx_listing_seller,idx_listing_status_time,idx_referral_parent,idx_users_evm_lower,job_application_create_key_uniq,job_application_job_worker_uniq,job_application_pk,job_create_key_uniq,job_pk,job_submission_create_key_uniq,job_submission_pk,ledger_entry_pkey,ledger_idem_uniq,ledger_owner_pkey,ledger_reversal_of_uniq,listing_create_key_uniq,listing_order_create_key_uniq,listing_order_pk,listing_pk,market_order_create_key_uniq,market_order_pk,market_trade_pk,referral_pk,schema_migration_pkey,schema_migration_version_key,translation_cache_pk,translation_cache_tgt_lang_idx,uniq_job_application_accepted,users_evm_uniq,users_pk",
+    "sum_cid1": "1989693"
+   },
+   "after": {
+    "ledger_rows": 323,
+    "ledger_sum_delta": "2019822",
+    "ledger_sum_frozen": "10508",
+    "account_rows": 30,
+    "account_sum_balance": "2019822",
+    "account_sum_frozen": "10508",
+    "users_rows": 38,
+    "currency_rows": 15,
+    "public_tables": 25,
+    "public_indexes": 65,
+    "table_names": "account,admin_ops_audit_log,admin_permission,admin_role,admin_role_permission,admin_user_role,app_config,candle_view,commission_policy,content_translation,currency,currency_status_log,job,job_application,job_submission,ledger_entry,ledger_owner,listing,listing_order,market_order,market_trade,referral,schema_migration,translation_cache,users",
+    "index_names": "account_pk,admin_ops_audit_log_actor_day_idx,admin_ops_audit_log_idem_uniq,admin_ops_audit_log_pk,admin_ops_audit_log_target_idx,admin_permission_pk,admin_role_permission_pk,admin_role_pk,admin_user_role_pk,app_config_pk,commission_policy_effective_uniq,commission_policy_pkey,content_translation_pending_idx,content_translation_pk,content_translation_updated_at_idx,currency_pkey,currency_status_log_pk,currency_symbol_uniq,idx_account_cid_balance,idx_account_frozen,idx_currency_owner,idx_currency_status,idx_job_application_worker,idx_job_employer,idx_job_status_time,idx_job_submission_job,idx_job_submission_review,idx_job_submission_worker,idx_job_worker,idx_ledger_event_root_key,idx_ledger_kind_time,idx_ledger_ref,idx_ledger_uid_cid_txid,idx_listing_order_buyer,idx_listing_order_listing,idx_listing_seller,idx_listing_status_time,idx_referral_parent,idx_users_evm_lower,job_application_create_key_uniq,job_application_job_worker_uniq,job_application_pk,job_create_key_uniq,job_pk,job_submission_create_key_uniq,job_submission_pk,ledger_entry_pkey,ledger_idem_uniq,ledger_owner_pkey,ledger_reversal_of_uniq,listing_create_key_uniq,listing_order_create_key_uniq,listing_order_pk,listing_pk,market_order_create_key_uniq,market_order_pk,market_trade_pk,referral_pk,schema_migration_pkey,schema_migration_version_key,translation_cache_pk,translation_cache_tgt_lang_idx,uniq_job_application_accepted,users_evm_uniq,users_pk",
+    "sum_cid1": "1989693"
+   },
+   "diff_keys": []
+  }
+ },
+ "summary": {
+  "passed": 41,
+  "failed": 1,
+  "total": 42
+ },
+ "checks": [
+  {
+   "name": "夹具前提：DB 里 A 的降序流水 ≥ 25 行（供 3 页 limit=10 实测）",
+   "ok": true,
+   "detail": {
+    "n": 28
+   }
+  },
+  {
+   "name": "① 无 token ⇒ 401",
+   "ok": true,
+   "detail": 401
+  },
+  {
+   "name": "① 无 token ⇒ R107 形状 {code,message,i18n_key,details}",
+   "ok": true,
+   "detail": [
+    "code",
+    "message",
+    "i18n_key",
+    "details"
+   ]
+  },
+  {
+   "name": "① 无 token ⇒ code = AUTH_UNAUTHORIZED（非账本域）",
+   "ok": true,
+   "detail": "AUTH_UNAUTHORIZED"
+  },
+  {
+   "name": "① 坏 token ⇒ 401",
+   "ok": true,
+   "detail": {
+    "status": 401,
+    "code": "AUTH_UNAUTHORIZED"
+   }
+  },
+  {
+   "name": "① 签名正确但 users 无此行 ⇒ 401（鉴权语义：无对应主体）",
+   "ok": true,
+   "detail": {
+    "status": 401,
+    "code": "AUTH_UNAUTHORIZED"
+   }
+  },
+  {
+   "name": "① 真 token ⇒ 200",
+   "ok": true,
+   "detail": 200
+  },
+  {
+   "name": "① 顶层含 next_before_txid 键（DL25 回传位）",
+   "ok": true,
+   "detail": [
+    "success",
+    "message",
+    "data",
+    "next_before_txid"
+   ]
+  },
+  {
+   "name": "① data 为数组",
+   "ok": true,
+   "detail": "object"
+  },
+  {
+   "name": "① 行键集 = 冻结业务键集（13 键，无 idempotency_key/request_fingerprint/event_root_key）",
+   "ok": true,
+   "detail": {
+    "rowKeys": [
+     "balance_after",
+     "cid",
+     "delta",
+     "frozen_after",
+     "frozen_delta",
+     "kind",
+     "memo",
+     "ref_id",
+     "ref_type",
+     "reversal_of_txid",
+     "time_created",
+     "txid",
+     "uid"
+    ],
+    "expectKeys": [
+     "balance_after",
+     "cid",
+     "delta",
+     "frozen_after",
+     "frozen_delta",
+     "kind",
+     "memo",
+     "ref_id",
+     "ref_type",
+     "reversal_of_txid",
+     "time_created",
+     "txid",
+     "uid"
+    ]
+   }
+  },
+  {
+   "name": "② 3 页取尽（28 行 / limit 10 ⇒ 10+10+8）",
+   "ok": true,
+   "detail": [
+    10,
+    10,
+    8
+   ]
+  },
+  {
+   "name": "② 无重复",
+   "ok": true,
+   "detail": {
+    "flat_len": 28,
+    "uniq": 28
+   }
+  },
+  {
+   "name": "② 严格递减",
+   "ok": true,
+   "detail": [
+    330,
+    329,
+    328,
+    326,
+    324,
+    322,
+    320,
+    318,
+    316,
+    314,
+    312,
+    310,
+    308,
+    306,
+    304,
+    302,
+    300,
+    298,
+    296,
+    294,
+    292,
+    290,
+    288,
+    286,
+    284,
+    282,
+    280,
+    279
+   ]
+  },
+  {
+   "name": "② 与 DB 降序逐字一致（无跳无漏）",
+   "ok": true,
+   "detail": {
+    "http": [
+     330,
+     329,
+     328,
+     326,
+     324,
+     322,
+     320,
+     318,
+     316,
+     314,
+     312,
+     310,
+     308,
+     306,
+     304,
+     302,
+     300,
+     298,
+     296,
+     294,
+     292,
+     290,
+     288,
+     286,
+     284,
+     282,
+     280,
+     279
+    ],
+    "db": [
+     330,
+     329,
+     328,
+     326,
+     324,
+     322,
+     320,
+     318,
+     316,
+     314,
+     312,
+     310,
+     308,
+     306,
+     304,
+     302,
+     300,
+     298,
+     296,
+     294,
+     292,
+     290,
+     288,
+     286,
+     284,
+     282,
+     280,
+     279
+    ]
+   }
+  },
+  {
+   "name": "② 末页 next_before_txid = null 且键存在",
+   "ok": true,
+   "detail": {
+    "page": 3,
+    "n": 8,
+    "has_next_key": true,
+    "next": null,
+    "txids": [
+     292,
+     290,
+     288,
+     286,
+     284,
+     282,
+     280,
+     279
+    ]
+   }
+  },
+  {
+   "name": "② 首页不回 NULL 游标（满页 ⇒ 回传末条 txid）",
+   "ok": true,
+   "detail": {
+    "next": 314,
+    "expect": 314
+   }
+  },
+  {
+   "name": "② 全字段（13 项）逐字 = DB",
+   "ok": true,
+   "detail": {
+    "diffs": 0,
+    "http_n": 28,
+    "db_n": 28
+   }
+  },
+  {
+   "name": "② 满页边界：n == limit ⇒ 回末条 txid（非 null）",
+   "ok": true,
+   "detail": {
+    "page1_n": 28,
+    "page1_next": 279,
+    "page2_n": 0,
+    "page2_next": null,
+    "page2_has_key": true
+   }
+  },
+  {
+   "name": "② 满页后的下一页 ⇒ 0 行 + next_before_txid=null（键在）",
+   "ok": true,
+   "detail": {
+    "page1_n": 28,
+    "page1_next": 279,
+    "page2_n": 0,
+    "page2_next": null,
+    "page2_has_key": true
+   }
+  },
+  {
+   "name": "③ before_txid 过滤：> 最大 ⇒ 全集",
+   "ok": true,
+   "detail": {
+    "big_n": 28,
+    "below_n": 0,
+    "mid_n": 18,
+    "mid_first": 312
+   }
+  },
+  {
+   "name": "③ before_txid 过滤：= 最小 ⇒ 0 行",
+   "ok": true,
+   "detail": {
+    "big_n": 28,
+    "below_n": 0,
+    "mid_n": 18,
+    "mid_first": 312
+   }
+  },
+  {
+   "name": "③ before_txid 过滤：严格小于（不含边界）",
+   "ok": true,
+   "detail": {
+    "big_n": 28,
+    "below_n": 0,
+    "mid_n": 18,
+    "mid_first": 312
+   }
+  },
+  {
+   "name": "④ kind=transfer 逐字 = DB",
+   "ok": true
+  },
+  {
+   "name": "④ kind=mint 逐字 = DB",
+   "ok": true
+  },
+  {
+   "name": "④ kind=burn（闭集内但本 uid 无该流水）⇒ 200 + 0 行",
+   "ok": true
+  },
+  {
+   "name": "④ cid=X 逐字 = DB",
+   "ok": true
+  },
+  {
+   "name": "④ cid=Y 逐字 = DB",
+   "ok": true
+  },
+  {
+   "name": "④ kind+cid 组合 = 期望（mint on Y = 3）",
+   "ok": true,
+   "detail": {
+    "http_n": 3,
+    "db_n": 3
+   }
+  },
+  {
+   "name": "④ 非法 kind ⇒ 400 + LEDGER_UNKNOWN_KIND + R107 形状",
+   "ok": true,
+   "detail": {
+    "bad_kind": {
+     "status": 400,
+     "code": "LEDGER_UNKNOWN_KIND",
+     "keys": [
+      "code",
+      "message",
+      "i18n_key",
+      "details"
+     ],
+     "raw": "{\"error\":{\"code\":\"LEDGER_UNKNOWN_KIND\",\"message\":\"unsupported ledger kind\",\"i18n_key\":\"ledger.err.LEDGER_UNKNOWN_KIND\",\"details\":{\"kind\":\"__nope__\"}}}"
+    },
+    "cid_abc": {
+     "status": 400
+    },
+    "cid_0": {
+     "status": 404
+    },
+    "cid_neg": {
+     "status": 404
+    },
+    "cid_absent_valid": {
+     "status": 200,
+     "n": 0
+    },
+    "before_xyz": {
+     "status": 400
+    },
+    "before_0": {
+     "status": 400
+    },
+    "before_neg": {
+     "status": 400
+    }
+   }
+  },
+  {
+   "name": "④ 非法 cid（abc/0/-1）⇒ 400",
+   "ok": false,
+   "detail": {
+    "bad_kind": {
+     "status": 400,
+     "code": "LEDGER_UNKNOWN_KIND",
+     "keys": [
+      "code",
+      "message",
+      "i18n_key",
+      "details"
+     ],
+     "raw": "{\"error\":{\"code\":\"LEDGER_UNKNOWN_KIND\",\"message\":\"unsupported ledger kind\",\"i18n_key\":\"ledger.err.LEDGER_UNKNOWN_KIND\",\"details\":{\"kind\":\"__nope__\"}}}"
+    },
+    "cid_abc": {
+     "status": 400
+    },
+    "cid_0": {
+     "status": 404
+    },
+    "cid_neg": {
+     "status": 404
+    },
+    "cid_absent_valid": {
+     "status": 200,
+     "n": 0
+    },
+    "before_xyz": {
+     "status": 400
+    },
+    "before_0": {
+     "status": 400
+    },
+    "before_neg": {
+     "status": 400
+    }
+   }
+  },
+  {
+   "name": "④ cid 合法但不存在 ⇒ 200 + 0 行（不 500）",
+   "ok": true,
+   "detail": {
+    "bad_kind": {
+     "status": 400,
+     "code": "LEDGER_UNKNOWN_KIND",
+     "keys": [
+      "code",
+      "message",
+      "i18n_key",
+      "details"
+     ],
+     "raw": "{\"error\":{\"code\":\"LEDGER_UNKNOWN_KIND\",\"message\":\"unsupported ledger kind\",\"i18n_key\":\"ledger.err.LEDGER_UNKNOWN_KIND\",\"details\":{\"kind\":\"__nope__\"}}}"
+    },
+    "cid_abc": {
+     "status": 400
+    },
+    "cid_0": {
+     "status": 404
+    },
+    "cid_neg": {
+     "status": 404
+    },
+    "cid_absent_valid": {
+     "status": 200,
+     "n": 0
+    },
+    "before_xyz": {
+     "status": 400
+    },
+    "before_0": {
+     "status": 400
+    },
+    "before_neg": {
+     "status": 400
+    }
+   }
+  },
+  {
+   "name": "④ 非法 before_txid（xyz/0/-9）⇒ 400",
+   "ok": true,
+   "detail": {
+    "bad_kind": {
+     "status": 400,
+     "code": "LEDGER_UNKNOWN_KIND",
+     "keys": [
+      "code",
+      "message",
+      "i18n_key",
+      "details"
+     ],
+     "raw": "{\"error\":{\"code\":\"LEDGER_UNKNOWN_KIND\",\"message\":\"unsupported ledger kind\",\"i18n_key\":\"ledger.err.LEDGER_UNKNOWN_KIND\",\"details\":{\"kind\":\"__nope__\"}}}"
+    },
+    "cid_abc": {
+     "status": 400
+    },
+    "cid_0": {
+     "status": 404
+    },
+    "cid_neg": {
+     "status": 404
+    },
+    "cid_absent_valid": {
+     "status": 200,
+     "n": 0
+    },
+    "before_xyz": {
+     "status": 400
+    },
+    "before_0": {
+     "status": 400
+    },
+    "before_neg": {
+     "status": 400
+    }
+   }
+  },
+  {
+   "name": "⑤ limit 缺省 ⇒ 全取（28 < 默认上限）+ next=null",
+   "ok": true,
+   "detail": {
+    "status": 200,
+    "n": 28,
+    "next": null
+   }
+  },
+  {
+   "name": "⑤ limit=500/1000 ⇒ 200 且不截断夹具（夹取不报错）",
+   "ok": true,
+   "detail": {
+    "status": 200,
+    "n": 28,
+    "next": null
+   }
+  },
+  {
+   "name": "⑤ limit 非法（abc / 空串）⇒ 200 回落默认（全取）",
+   "ok": true,
+   "detail": {
+    "status": 200,
+    "n": 28,
+    "next": null
+   }
+  },
+  {
+   "name": "⑤ limit=0 / 负值 ⇒ 夹到 1（不 500、不 0 行）",
+   "ok": true,
+   "detail": {
+    "z": {
+     "status": 200,
+     "n": 1,
+     "next": 330
+    },
+    "n": {
+     "status": 200,
+     "n": 1,
+     "next": 330
+    }
+   }
+  },
+  {
+   "name": "⑤ limit=2.7 ⇒ 截断为 2",
+   "ok": true,
+   "detail": {
+    "status": 200,
+    "n": 2,
+    "next": 329
+   }
+  },
+  {
+   "name": "⑤ limit=1 ⇒ 1 行 + 非空游标（= 首条 txid）",
+   "ok": true,
+   "detail": {
+    "status": 200,
+    "n": 1,
+    "next": 330
+   }
+  },
+  {
+   "name": "⑥ 只看自己：全部行 uid = token actor",
+   "ok": true,
+   "detail": {
+    "A_token_rows_all_belong_to_A": true,
+    "A_token_txids_vs_dbA": true,
+    "b_txid_hits_in_A_response": 0,
+    "b_rows_in_db": 24
+   }
+  },
+  {
+   "name": "⑥ 只看自己：B 的流水 0 条混入 A 的响应",
+   "ok": true,
+   "detail": {
+    "A_token_rows_all_belong_to_A": true,
+    "A_token_txids_vs_dbA": true,
+    "b_txid_hits_in_A_response": 0,
+    "b_rows_in_db": 24
+   }
+  },
+  {
+   "name": "⑥ 零写副作用：48 次调用前后 13 项读数逐字不变（含 ledger_entry/account/users/currency 行数与 Σ、public 表数/索引数、表名/索引名集合）",
+   "ok": true,
+   "detail": []
+  },
+  {
+   "name": "⑥ public 表数/索引数 = 25 / 65（与基线一致，无新表/新索引）",
+   "ok": true,
+   "detail": {
+    "tables": 25,
+    "indexes": 65
+   }
+  }
+ ]
+}

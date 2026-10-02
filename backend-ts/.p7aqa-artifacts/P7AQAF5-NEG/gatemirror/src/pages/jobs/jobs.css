@@ -1,0 +1,208 @@
+/* 招工线 + 我的（P4-B4c-ii-a）· 只吃 4c-i 的 token 层与 shell 骨架
+ *
+ * 铁律（4c-i 已机器验证）：**主题切换不得改变几何**。
+ *   · 颜色 / border-radius / box-shadow 一律取主题 token（--sf-*，日/夜只差值）；
+ *   · 一切会改几何的量（栅格列数、间距、内边距、字号、控件高度）取**结构常量**
+ *     （--sf-st-* 或本文件内的 `--sf-j-*`，两档同值）。
+ *   · 断点沿用 shell 的**单断点 767px**（shell.css：≤767px = 手机竖屏一列 + 底部 tab；
+ *     ≥1024px = web 横屏多栅格；两者之间栅格降列、不新增骨架）。
+ *   · 本文件**不写**任何按主题分支的规则（无 [data-theme] 选择器、无 matchMedia）。
+ *
+ * P6-UI-CONSIST-B（成套形状收敛，变体 B）：卡片 / 输入框 / 芯片 由旧风格
+ *   （--sf-st-stroke-w 1.5px 粗描边 + --sf-jobcard-shadow/--sf-panel-shadow/--sf-search-shadow 硬位移阴影
+ *    + --sf-jobcard-radius/--sf-panel-radius/--sf-search-radius 异形圆角）
+ *   收敛到按钮口径：圆角 = --sf-st-radius-btna（8px）· 描边 = --sf-st-stroke-w-thin（1px）· 阴影 = none · 切角 = none。
+ *   颜色槽位与一切几何量（padding/gap/列数/顺序）不动。两档同构：圆角/描边宽度取结构常量。
+ */
+
+.sf-jobs {
+  /* 结构常量（两档同值；主题层不参与）：控件高度 / 文本域高度。
+     定义在 `.sf-jobs` 页族作用域内 —— 本单所有输入类控件都在该 scope 内。 */
+  --sf-j-ctl-h: 34px;
+  --sf-j-textarea-h: 72px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sf-st-feed-gap-m);
+}
+
+.sf-jobs-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sf-jobs-title {
+  color: var(--sf-title-fg);
+}
+
+.sf-jobs-note {
+  color: var(--sf-meta-fg);
+}
+
+/* 行动条（发布招工 / 审核入口 / 我的报名）——宽屏一行、窄屏换行，DOM 顺序恒定 */
+.sf-jobs-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.sf-jobs-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 表单：窄屏单列；宽屏双列（栅格层，不按主题变） */
+.sf-jobs-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sf-st-feed-gap-m);
+}
+
+@media (min-width: 1024px) {
+  .sf-jobs-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sf-jobs-field-wide {
+    grid-column: span 2;
+  }
+}
+
+.sf-jobs-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sf-jobs-label {
+  font-size: 12px;
+  color: var(--sf-meta-fg);
+}
+
+/* 输入类控件：形状（圆角/描边/扁平）取按钮口径的结构常量，颜色取 token，尺寸取结构常量 */
+.sf-jobs-input,
+.sf-jobs-textarea {
+  background: var(--sf-search-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-search-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
+  color: var(--sf-search-fg);
+  font-size: 13px;
+  padding: 8px 10px;
+  min-height: var(--sf-j-ctl-h);
+  width: 100%;
+}
+
+.sf-jobs-textarea {
+  min-height: var(--sf-j-textarea-h);
+  resize: vertical;
+}
+
+.sf-jobs-btn {
+  /* P6-BTN-IMPL-2：视觉（色/描边/圆角/扁平）由 .sf-btn 基类按 A 系注入；
+     本 micro 类只保留位置/尺寸约束。水平内边距 = STRUCT.padx-btna（12px，与 A 口径 高34×0.359 同值） */
+  padding: 8px var(--sf-st-padx-btna);
+  font-size: 13px;
+  min-height: var(--sf-j-ctl-h);
+  cursor: pointer;
+}
+
+.sf-jobs-btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 反馈四态：加载 / 成功 / 失败 / 空（失败一律走 R107 链后的字符串文案） */
+.sf-jobs-status {
+  font-size: 12px;
+  color: var(--sf-meta-fg);
+  min-height: var(--sf-j-ctl-h);
+  display: flex;
+  align-items: center;
+}
+
+.sf-jobs-ok {
+  color: var(--sf-up-fg);
+}
+
+.sf-jobs-err {
+  color: var(--sf-down-fg);
+}
+
+.sf-jobs-empty {
+  color: var(--sf-empty-fg);
+  border: var(--sf-st-stroke-w-thin) dashed var(--sf-jobcard-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  padding: 14px;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* 列表项 / 面板：颜色与形状（圆角/描边/扁平）取按钮口径；间距取结构常量 */
+.sf-jobs-item,
+.sf-jobs-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+}
+
+.sf-jobs-item {
+  background: var(--sf-jobcard-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-jobcard-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
+}
+
+.sf-jobs-panel {
+  background: var(--sf-panel-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
+}
+
+.sf-jobs-item-title {
+  color: var(--sf-jobtitle-fg);
+}
+
+.sf-jobs-meta {
+  font-size: 12px;
+  color: var(--sf-meta-fg);
+}
+
+.sf-jobs-pay {
+  color: var(--sf-jobpay-fg);
+  font-size: var(--sf-st-jobpay-num-size);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--sf-st-num-font);
+}
+
+.sf-jobs-pay-unit {
+  color: var(--sf-jobpay-unit-fg);
+  font-size: 12px;
+}
+
+.sf-jobs-tag {
+  background: var(--sf-jobtag-bg);
+  color: var(--sf-jobtag-fg);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  padding: 2px 6px;
+  font-size: 11px;
+}
+
+.sf-jobs-link {
+  color: var(--sf-panel-link-fg);
+  font-size: 13px;
+  text-decoration: underline;
+}

@@ -1,0 +1,49 @@
+{
+ "run": "P7AQAF5-HTTP",
+ "summary": {
+  "passed": 41,
+  "failed": 1,
+  "total": 42
+ },
+ "failed_checks": [
+  {
+   "name": "④ 非法 cid（abc/0/-1）⇒ 400",
+   "ok": false,
+   "detail": {
+    "bad_kind": {
+     "status": 400,
+     "code": "LEDGER_UNKNOWN_KIND",
+     "keys": [
+      "code",
+      "message",
+      "i18n_key",
+      "details"
+     ],
+     "raw": "{\"error\":{\"code\":\"LEDGER_UNKNOWN_KIND\",\"message\":\"unsupported ledger kind\",\"i18n_key\":\"ledger.err.LEDGER_UNKNOWN_KIND\",\"details\":{\"kind\":\"__nope__\"}}}"
+    },
+    "cid_abc": {
+     "status": 400
+    },
+    "cid_0": {
+     "status": 404
+    },
+    "cid_neg": {
+     "status": 404
+    },
+    "cid_absent_valid": {
+     "status": 200,
+     "n": 0
+    },
+    "before_xyz": {
+     "status": 400
+    },
+    "before_0": {
+     "status": 400
+    },
+    "before_neg": {
+     "status": 400
+    }
+   }
+  }
+ ]
+}

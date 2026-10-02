@@ -1,0 +1,31 @@
+
+ RUN  v0.34.6 /Users/kevin/.hermes/profiles/zang/cache/scratch/qa-p7a-final/frontend
+
+ ✓ src/test/unit/p7a-ledger-error-i18n.test.js  (6 tests) 8ms
+stdout | src/test/unit/i18n-violation-closeout.test.jsx > I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文案） > ① 全量 locale 面：四文件**全部值**逐条扫 → 工程口径命中 = 0（打印作用域节点数）
+[I18N-VIOL] 全量 locale 作用域命中节点数 = 2816（键 704 × 语 4）；命中 = 0
+
+stdout | src/test/unit/i18n-violation-closeout.test.jsx > I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文案） > ② 全量源文件面 + 硬编码文案面：类级断言脚本退出码 = 0（含注释行/代码位单列登记）
+  作用域命中节点数 = 2816（键 704 × 语 4）
+  裸命中 = 0
+  裸命中 = 0
+  子面③ 硬编码中文文案字面量（非注释行内的引号字面量）= 32 个；其中命中工程口径 = 0 个 [] —— 理由：硬编码文案面，命中即违例
+[I18N-VIOL] 总判：PASS（locale 裸命中 0 + 源面裸命中 0 必须 = 0；作用域节点数 locale=2816 / source=37）
+
+stdout | src/test/unit/i18n-violation-closeout.test.jsx > I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文案） > ③ 改写集四语齐备且不再含工程口径（逐键逐语；en/hk/vn 不得残留中文）
+[I18N-VIOL] 改写集 = 34 键 × 4 语 = 136 个节点；问题 = 0
+
+stdout | src/test/unit/i18n-violation-closeout.test.jsx > I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文案） > ⑤ 键名与键集不变：四文件拍平键数单值，且改写集键全部仍在
+[I18N-VIOL] 四语拍平键数 = {704}；顶层键 = 102
+
+ ✓ src/test/unit/i18n-violation-closeout.test.jsx  (5 tests) 98ms
+stderr | src/test/unit/ledger-flow-behavior.test.jsx > 批 7-A · 账本流水前端行为（真 zh locale + 可注入取数替身） > ① ProfilePage：真 token 下渲染真流水行，标签走 zh 真文案（不得是 `ledger.kind.*` 键名）
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+ ✓ src/test/unit/ledger-flow-behavior.test.jsx  (6 tests) 106ms
+
+ Test Files  3 passed (3)
+      Tests  17 passed (17)
+   Start at  15:43:25
+   Duration  1.24s (transform 427ms, setup 470ms, collect 667ms, tests 212ms, environment 1.09s, prepare 199ms)
+

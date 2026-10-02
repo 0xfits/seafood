@@ -1,0 +1,14 @@
+{
+ "run": "P7AQAF5-ZW",
+ "verdict": "GREEN",
+ "calls": 24,
+ "violations": [],
+ "before_tables": 25,
+ "after_tables": 25,
+ "cleanup_ok": true,
+ "after_cleanup": {
+  "public_tables": 25,
+  "public_indexes": 65,
+  "zw_probe_exists": 0
+ }
+}

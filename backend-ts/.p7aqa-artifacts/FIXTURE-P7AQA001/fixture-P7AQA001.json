@@ -1,0 +1,597 @@
+{
+ "run": "P7AQA001",
+ "probe": "qa-p7a-fixture",
+ "started_at": "2026-10-02T07:10:10.061Z",
+ "window": {
+  "uid_a": 910311,
+  "uid_b": 910312,
+  "source": "resume:evm-lookup",
+  "partition": [
+   910001,
+   910999
+  ],
+  "occupied_recheck": []
+ },
+ "fixture": {
+  "uids": {
+   "A": 910311,
+   "B": 910312
+  },
+  "evm_a": "0xf09f74bdefecf55d8642c71bd6a0ad0c109e11da",
+  "symbols": {
+   "X": "qap7a31l3k6",
+   "Y": "qap7b1wtoqc"
+  },
+  "cids": {
+   "X": 35,
+   "Y": 36
+  },
+  "keys": {
+   "mintX": "ops:qap7a:P7AQA001:mintX",
+   "entriesX1": "ops:qap7a:P7AQA001:xferX1",
+   "entriesX2": "ops:qap7a:P7AQA001:xferX2",
+   "mintY1": "ops:qap7a:P7AQA001:mintY1"
+  }
+ },
+ "posts": [
+  {
+   "call": "mintX",
+   "txid": "279",
+   "entries": 1,
+   "replay": false
+  },
+  {
+   "call": "entriesX1",
+   "txid": "280",
+   "entries": 24,
+   "replay": false
+  },
+  {
+   "call": "entriesX2",
+   "txid": "304",
+   "entries": 24,
+   "replay": false
+  },
+  {
+   "call": "mintY1",
+   "txid": "328",
+   "entries": 1,
+   "replay": false
+  },
+  {
+   "call": "mintY2",
+   "txid": "329",
+   "entries": 1,
+   "replay": false
+  },
+  {
+   "call": "mintY3",
+   "txid": "330",
+   "entries": 1,
+   "replay": false
+  }
+ ],
+ "counts": {
+  "a_rows": 28,
+  "a_by_cid": [
+   {
+    "cid": "35",
+    "n": 25,
+    "min_tx": "279",
+    "max_tx": "326"
+   },
+   {
+    "cid": "36",
+    "n": 3,
+    "min_tx": "328",
+    "max_tx": "330"
+   }
+  ],
+  "a_by_kind": [
+   {
+    "kind": "mint",
+    "n": 4
+   },
+   {
+    "kind": "transfer",
+    "n": 24
+   }
+  ],
+  "b_rows": 24
+ },
+ "a_txids_desc": [
+  330,
+  329,
+  328,
+  326,
+  324,
+  322,
+  320,
+  318,
+  316,
+  314,
+  312,
+  310,
+  308,
+  306,
+  304,
+  302,
+  300,
+  298,
+  296,
+  294,
+  292,
+  290,
+  288,
+  286,
+  284,
+  282,
+  280,
+  279
+ ],
+ "a_rows_full": [
+  {
+   "txid": "330",
+   "uid": "910311",
+   "cid": "36",
+   "delta": "10",
+   "frozen_delta": "0",
+   "balance_after": "30",
+   "frozen_after": "0",
+   "kind": "mint",
+   "ref_type": "currency",
+   "ref_id": "36",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture mint Y 3",
+   "time_created": "2026-10-02T07:10:13.163Z"
+  },
+  {
+   "txid": "329",
+   "uid": "910311",
+   "cid": "36",
+   "delta": "10",
+   "frozen_delta": "0",
+   "balance_after": "20",
+   "frozen_after": "0",
+   "kind": "mint",
+   "ref_type": "currency",
+   "ref_id": "36",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture mint Y 2",
+   "time_created": "2026-10-02T07:10:13.001Z"
+  },
+  {
+   "txid": "328",
+   "uid": "910311",
+   "cid": "36",
+   "delta": "10",
+   "frozen_delta": "0",
+   "balance_after": "10",
+   "frozen_after": "0",
+   "kind": "mint",
+   "ref_type": "currency",
+   "ref_id": "36",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture mint Y 1",
+   "time_created": "2026-10-02T07:10:12.839Z"
+  },
+  {
+   "txid": "326",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9976",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 2",
+   "time_created": "2026-10-02T07:10:12.637Z"
+  },
+  {
+   "txid": "324",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9977",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 2",
+   "time_created": "2026-10-02T07:10:12.637Z"
+  },
+  {
+   "txid": "322",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9978",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 2",
+   "time_created": "2026-10-02T07:10:12.637Z"
+  },
+  {
+   "txid": "320",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9979",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 2",
+   "time_created": "2026-10-02T07:10:12.637Z"
+  },
+  {
+   "txid": "318",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9980",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 2",
+   "time_created": "2026-10-02T07:10:12.637Z"
+  },
+  {
+   "txid": "316",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9981",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 2",
+   "time_created": "2026-10-02T07:10:12.637Z"
+  },
+  {
+   "txid": "314",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9982",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 2",
+   "time_created": "2026-10-02T07:10:12.637Z"
+  },
+  {
+   "txid": "312",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9983",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 2",
+   "time_created": "2026-10-02T07:10:12.637Z"
+  },
+  {
+   "txid": "310",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9984",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 2",
+   "time_created": "2026-10-02T07:10:12.637Z"
+  },
+  {
+   "txid": "308",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9985",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 2",
+   "time_created": "2026-10-02T07:10:12.637Z"
+  },
+  {
+   "txid": "306",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9986",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 2",
+   "time_created": "2026-10-02T07:10:12.637Z"
+  },
+  {
+   "txid": "304",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9987",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 2",
+   "time_created": "2026-10-02T07:10:12.637Z"
+  },
+  {
+   "txid": "302",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9988",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 1",
+   "time_created": "2026-10-02T07:10:12.422Z"
+  },
+  {
+   "txid": "300",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9989",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 1",
+   "time_created": "2026-10-02T07:10:12.422Z"
+  },
+  {
+   "txid": "298",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9990",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 1",
+   "time_created": "2026-10-02T07:10:12.422Z"
+  },
+  {
+   "txid": "296",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9991",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 1",
+   "time_created": "2026-10-02T07:10:12.422Z"
+  },
+  {
+   "txid": "294",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9992",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 1",
+   "time_created": "2026-10-02T07:10:12.422Z"
+  },
+  {
+   "txid": "292",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9993",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 1",
+   "time_created": "2026-10-02T07:10:12.422Z"
+  },
+  {
+   "txid": "290",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9994",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 1",
+   "time_created": "2026-10-02T07:10:12.422Z"
+  },
+  {
+   "txid": "288",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9995",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 1",
+   "time_created": "2026-10-02T07:10:12.422Z"
+  },
+  {
+   "txid": "286",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9996",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 1",
+   "time_created": "2026-10-02T07:10:12.422Z"
+  },
+  {
+   "txid": "284",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9997",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 1",
+   "time_created": "2026-10-02T07:10:12.422Z"
+  },
+  {
+   "txid": "282",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9998",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 1",
+   "time_created": "2026-10-02T07:10:12.422Z"
+  },
+  {
+   "txid": "280",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "-1",
+   "frozen_delta": "0",
+   "balance_after": "9999",
+   "frozen_after": "0",
+   "kind": "transfer",
+   "ref_type": "system",
+   "ref_id": "1",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture transfer batch 1",
+   "time_created": "2026-10-02T07:10:12.422Z"
+  },
+  {
+   "txid": "279",
+   "uid": "910311",
+   "cid": "35",
+   "delta": "10000",
+   "frozen_delta": "0",
+   "balance_after": "10000",
+   "frozen_after": "0",
+   "kind": "mint",
+   "ref_type": "currency",
+   "ref_id": "35",
+   "reversal_of_txid": null,
+   "memo": "qa p7a fixture mint X",
+   "time_created": "2026-10-02T07:10:12.206Z"
+  }
+ ],
+ "residual_registry": {
+  "note": "本 run 自建、不可删（ledger_entry append-only / account 与 currency 无删除路径）",
+  "users_rows": [
+   910311
+  ],
+  "currency_rows": [
+   {
+    "cid": 35,
+    "symbol": "qap7a31l3k6"
+   },
+   {
+    "cid": 36,
+    "symbol": "qap7b1wtoqc"
+   }
+  ],
+  "account_rows": [
+   {
+    "uid": 910311,
+    "cid": 35
+   },
+   {
+    "uid": 910311,
+    "cid": 36
+   },
+   {
+    "uid": 910312,
+    "cid": 35
+   }
+  ],
+  "ledger_rows": {
+   "uid_a": 28,
+   "uid_b": 24,
+   "keys": [
+    "ops:qap7a:P7AQA001:mintX",
+    "ops:qap7a:P7AQA001:xferX1",
+    "ops:qap7a:P7AQA001:xferX2",
+    "ops:qap7a:P7AQA001:mintY1",
+    "ops:qap7a:P7AQA001:mintY2",
+    "ops:qap7a:P7AQA001:mintY3"
+   ]
+  }
+ },
+ "finished_at": "2026-10-02T07:10:13.752Z"
+}

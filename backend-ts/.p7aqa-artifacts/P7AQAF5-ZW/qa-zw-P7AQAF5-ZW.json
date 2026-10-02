@@ -1,0 +1,42 @@
+{
+ "run": "P7AQAF5-ZW",
+ "probe": "qa-p7a-zw",
+ "base": "http://127.0.0.1:5796",
+ "planned_calls": 24,
+ "before": {
+  "ledger_rows": 323,
+  "ledger_sum_delta": "2019822",
+  "account_rows": 30,
+  "account_sum_balance": "2019822",
+  "users_rows": 38,
+  "currency_rows": 15,
+  "public_tables": 25,
+  "public_indexes": 65,
+  "table_names": "account,admin_ops_audit_log,admin_permission,admin_role,admin_role_permission,admin_user_role,app_config,candle_view,commission_policy,content_translation,currency,currency_status_log,job,job_application,job_submission,ledger_entry,ledger_owner,listing,listing_order,market_order,market_trade,referral,schema_migration,translation_cache,users",
+  "index_names": "account_pk,admin_ops_audit_log_actor_day_idx,admin_ops_audit_log_idem_uniq,admin_ops_audit_log_pk,admin_ops_audit_log_target_idx,admin_permission_pk,admin_role_permission_pk,admin_role_pk,admin_user_role_pk,app_config_pk,commission_policy_effective_uniq,commission_policy_pkey,content_translation_pending_idx,content_translation_pk,content_translation_updated_at_idx,currency_pkey,currency_status_log_pk,currency_symbol_uniq,idx_account_cid_balance,idx_account_frozen,idx_currency_owner,idx_currency_status,idx_job_application_worker,idx_job_employer,idx_job_status_time,idx_job_submission_job,idx_job_submission_review,idx_job_submission_worker,idx_job_worker,idx_ledger_event_root_key,idx_ledger_kind_time,idx_ledger_ref,idx_ledger_uid_cid_txid,idx_listing_order_buyer,idx_listing_order_listing,idx_listing_seller,idx_listing_status_time,idx_referral_parent,idx_users_evm_lower,job_application_create_key_uniq,job_application_job_worker_uniq,job_application_pk,job_create_key_uniq,job_pk,job_submission_create_key_uniq,job_submission_pk,ledger_entry_pkey,ledger_idem_uniq,ledger_owner_pkey,ledger_reversal_of_uniq,listing_create_key_uniq,listing_order_create_key_uniq,listing_order_pk,listing_pk,market_order_create_key_uniq,market_order_pk,market_trade_pk,referral_pk,schema_migration_pkey,schema_migration_version_key,translation_cache_pk,translation_cache_tgt_lang_idx,uniq_job_application_accepted,users_evm_uniq,users_pk",
+  "zw_probe_exists": 0
+ },
+ "calls": 24,
+ "after": {
+  "ledger_rows": 323,
+  "ledger_sum_delta": "2019822",
+  "account_rows": 30,
+  "account_sum_balance": "2019822",
+  "users_rows": 38,
+  "currency_rows": 15,
+  "public_tables": 25,
+  "public_indexes": 65,
+  "table_names": "account,admin_ops_audit_log,admin_permission,admin_role,admin_role_permission,admin_user_role,app_config,candle_view,commission_policy,content_translation,currency,currency_status_log,job,job_application,job_submission,ledger_entry,ledger_owner,listing,listing_order,market_order,market_trade,referral,schema_migration,translation_cache,users",
+  "index_names": "account_pk,admin_ops_audit_log_actor_day_idx,admin_ops_audit_log_idem_uniq,admin_ops_audit_log_pk,admin_ops_audit_log_target_idx,admin_permission_pk,admin_role_permission_pk,admin_role_pk,admin_user_role_pk,app_config_pk,commission_policy_effective_uniq,commission_policy_pkey,content_translation_pending_idx,content_translation_pk,content_translation_updated_at_idx,currency_pkey,currency_status_log_pk,currency_symbol_uniq,idx_account_cid_balance,idx_account_frozen,idx_currency_owner,idx_currency_status,idx_job_application_worker,idx_job_employer,idx_job_status_time,idx_job_submission_job,idx_job_submission_review,idx_job_submission_worker,idx_job_worker,idx_ledger_event_root_key,idx_ledger_kind_time,idx_ledger_ref,idx_ledger_uid_cid_txid,idx_listing_order_buyer,idx_listing_order_listing,idx_listing_seller,idx_listing_status_time,idx_referral_parent,idx_users_evm_lower,job_application_create_key_uniq,job_application_job_worker_uniq,job_application_pk,job_create_key_uniq,job_pk,job_submission_create_key_uniq,job_submission_pk,ledger_entry_pkey,ledger_idem_uniq,ledger_owner_pkey,ledger_reversal_of_uniq,listing_create_key_uniq,listing_order_create_key_uniq,listing_order_pk,listing_pk,market_order_create_key_uniq,market_order_pk,market_trade_pk,referral_pk,schema_migration_pkey,schema_migration_version_key,translation_cache_pk,translation_cache_tgt_lang_idx,uniq_job_application_accepted,users_evm_uniq,users_pk",
+  "zw_probe_exists": 0
+ },
+ "diff_keys": [],
+ "violations": [],
+ "verdict": "GREEN",
+ "after_cleanup": {
+  "public_tables": 25,
+  "public_indexes": 65,
+  "zw_probe_exists": 0
+ },
+ "cleanup_ok": true
+}

@@ -1,0 +1,141 @@
+{
+ "run": "P7AQAF5-NEG-R107",
+ "base": "http://127.0.0.1:5797",
+ "probe": "qa-p7a-r107",
+ "fixture_uid": 910311,
+ "cases": [
+  {
+   "query": "cid=abc",
+   "status": 400,
+   "content_type": "application/json; charset=utf-8",
+   "raw_body": "{\"success\":false,\"message\":\"Invalid cid\",\"error\":\"Invalid cid\"}",
+   "top_level_keys": [
+    "success",
+    "message",
+    "error"
+   ],
+   "uses_r107_envelope": true,
+   "error_object_keys": null,
+   "code": null,
+   "i18n_key": null,
+   "message": null,
+   "details": null,
+   "legacy_shape_keys": [
+    "success",
+    "message"
+   ]
+  },
+  {
+   "query": "cid=0",
+   "status": 400,
+   "content_type": "application/json; charset=utf-8",
+   "raw_body": "{\"success\":false,\"message\":\"Invalid cid\",\"error\":\"Invalid cid\"}",
+   "top_level_keys": [
+    "success",
+    "message",
+    "error"
+   ],
+   "uses_r107_envelope": true,
+   "error_object_keys": null,
+   "code": null,
+   "i18n_key": null,
+   "message": null,
+   "details": null,
+   "legacy_shape_keys": [
+    "success",
+    "message"
+   ]
+  },
+  {
+   "query": "before_txid=xyz",
+   "status": 400,
+   "content_type": "application/json; charset=utf-8",
+   "raw_body": "{\"error\":{\"code\":\"LEDGER_AMOUNT_INVALID\",\"message\":\"before_txid shape is invalid\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"before_txid\",\"reason\":\"NOT_DECIMAL_INTEGER\"}}}",
+   "top_level_keys": [
+    "error"
+   ],
+   "uses_r107_envelope": true,
+   "error_object_keys": [
+    "code",
+    "details",
+    "i18n_key",
+    "message"
+   ],
+   "code": "LEDGER_AMOUNT_INVALID",
+   "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+   "message": "before_txid shape is invalid",
+   "details": {
+    "field": "before_txid",
+    "reason": "NOT_DECIMAL_INTEGER"
+   },
+   "legacy_shape_keys": []
+  },
+  {
+   "query": "before_txid=-9",
+   "status": 400,
+   "content_type": "application/json; charset=utf-8",
+   "raw_body": "{\"error\":{\"code\":\"LEDGER_AMOUNT_INVALID\",\"message\":\"before_txid must be a positive txid\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"before_txid\",\"reason\":\"NOT_POSITIVE\",\"value\":\"-9\"}}}",
+   "top_level_keys": [
+    "error"
+   ],
+   "uses_r107_envelope": true,
+   "error_object_keys": [
+    "code",
+    "details",
+    "i18n_key",
+    "message"
+   ],
+   "code": "LEDGER_AMOUNT_INVALID",
+   "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+   "message": "before_txid must be a positive txid",
+   "details": {
+    "field": "before_txid",
+    "reason": "NOT_POSITIVE",
+    "value": "-9"
+   },
+   "legacy_shape_keys": []
+  },
+  {
+   "query": "kind=__nope__",
+   "status": 400,
+   "content_type": "application/json; charset=utf-8",
+   "raw_body": "{\"error\":{\"code\":\"LEDGER_UNKNOWN_KIND\",\"message\":\"unsupported ledger kind\",\"i18n_key\":\"ledger.err.LEDGER_UNKNOWN_KIND\",\"details\":{\"kind\":\"__nope__\"}}}",
+   "top_level_keys": [
+    "error"
+   ],
+   "uses_r107_envelope": true,
+   "error_object_keys": [
+    "code",
+    "details",
+    "i18n_key",
+    "message"
+   ],
+   "code": "LEDGER_UNKNOWN_KIND",
+   "i18n_key": "ledger.err.LEDGER_UNKNOWN_KIND",
+   "message": "unsupported ledger kind",
+   "details": {
+    "kind": "__nope__"
+   },
+   "legacy_shape_keys": []
+  }
+ ],
+ "summary": {
+  "all_r107": false,
+  "none_500": true,
+  "no_legacy_shape": false,
+  "statuses": {
+   "cid=abc": 400,
+   "cid=0": 400,
+   "before_txid=xyz": 400,
+   "before_txid=-9": 400,
+   "kind=__nope__": 400
+  },
+  "codes": {
+   "cid=abc": null,
+   "cid=0": null,
+   "before_txid=xyz": "LEDGER_AMOUNT_INVALID",
+   "before_txid=-9": "LEDGER_AMOUNT_INVALID",
+   "kind=__nope__": "LEDGER_UNKNOWN_KIND"
+  }
+ }
+}

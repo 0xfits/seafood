@@ -1,0 +1,369 @@
+import React, { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { Button, Card, CardContent, Badge, Modal, ModalHeader, ModalTitle } from '../../components/ui'
+import { Plus, Edit, Trash2, RefreshCw, Lock } from 'lucide-react'
+import toast from 'react-hot-toast'
+import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdminPermission } from '../../admin-utils'
+import { adminOpsKey } from '../../idempotency'
+import { buildLocalizedPath, formatEvmAddress, getLanguageFromUrl } from '../../utils'
+
+const EMPTY_FORM = {
+  id: '',
+  name: '',
+  description: '',
+  permissions: '',
+  user_ids: [],
+}
+
+const PermissionsManagement = () => {
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const [groups, setGroups] = useState([])
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [deletingId, setDeletingId] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingGroupId, setEditingGroupId] = useState(null)
+  const [formState, setFormState] = useState(EMPTY_FORM)
+  const [access, setAccess] = useState({ is_admin: false, permissions: [], can_access_admin: false })
+
+  const groupedUserMap = useMemo(() => {
+    const map = new Map()
+    users.forEach((user) => map.set(user.uID, user))
+    return map
+  }, [users])
+
+  const loadPermissions = async ({ silent = false } = {}) => {
+    try {
+      if (silent) {
+        setRefreshing(true)
+      } else {
+        setLoading(true)
+      }
+
+      const currentUser = getStoredUser()
+      if (!currentUser) {
+        throw new Error(t('adminCommon.notLoggedIn'))
+      }
+
+      const accessInfo = await fetchAdminAccess(currentUser)
+      if (!accessInfo.can_access_admin) {
+        throw new Error(t('adminCommon.noAdminAccess'))
+      }
+
+      setAccess(accessInfo)
+      const data = await fetchApiJson('/api/admin/permissions', {
+        headers: getAuthHeaders(currentUser),
+      })
+
+      setGroups(data.groups || [])
+      setUsers(data.users || [])
+    } catch (error) {
+      console.error('Error loading permission groups:', error)
+      toast.error(t('adminPermissions.loadFailed', { message: error.message }))
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
+  }
+
+  useEffect(() => {
+    loadPermissions()
+  }, [])
+
+  const canManagePermissions = hasAdminPermission(access, 'manage_permissions')
+
+  const openCreateModal = () => {
+    setEditingGroupId(null)
+    setFormState(EMPTY_FORM)
+    setIsModalOpen(true)
+  }
+
+  const openEditModal = (group) => {
+    setEditingGroupId(group.id)
+    setFormState({
+      id: group.id,
+      name: group.name || '',
+      description: group.description || '',
+      permissions: (group.permissions || []).join(', '),
+      user_ids: group.user_ids || [],
+    })
+    setIsModalOpen(true)
+  }
+
+  const toggleUserSelection = (uID) => {
+    setFormState((prev) => ({
+      ...prev,
+      user_ids: prev.user_ids.includes(uID)
+        ? prev.user_ids.filter((id) => id !== uID)
+        : [...prev.user_ids, uID],
+    }))
+  }
+
+  const saveGroup = async () => {
+    const currentUser = getStoredUser()
+    const headers = {
+      ...getAuthHeaders(currentUser),
+      'Content-Type': 'application/json',
+    }
+
+    if (!headers.Authorization) {
+      toast.error(t('adminCommon.sessionExpired'))
+      navigate(buildLocalizedPath(getLanguageFromUrl(window.location.pathname), '/login'))
+      return
+    }
+
+    const permissions = formState.permissions
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean)
+
+    if (!formState.name.trim()) {
+      toast.error(t('adminPermissions.nameRequired'))
+      return
+    }
+
+    if (permissions.length === 0) {
+      toast.error(t('adminPermissions.permissionsRequired'))
+      return
+    }
+
+    setSaving(true)
+    try {
+      // §2.4 **S1** / §9.B **B1**（DL36）：`/api/admin/permissions/save` 现为请求侧强校验
+      //   ⇒ 键形态 `ops:<admin_uid>:permission_save:<role_key>`（服务端仅校验 `ops:` 前缀：
+      //   真源 = `backend-ts/src/index.ts:939` + `admin-service.ts:63-78`）。
+      await fetchApiJson('/api/admin/permissions/save', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          id: editingGroupId || undefined,
+          name: formState.name.trim(),
+          description: formState.description.trim(),
+          permissions,
+          user_ids: formState.user_ids,
+          create_key: adminOpsKey(currentUser?.uID, 'permission_save', editingGroupId || 'new'),
+        }),
+      })
+
+      toast.success(editingGroupId ? t('adminPermissions.updated') : t('adminPermissions.created'))
+      setIsModalOpen(false)
+      setFormState(EMPTY_FORM)
+      setEditingGroupId(null)
+      await loadPermissions({ silent: true })
+    } catch (error) {
+      console.error('Error saving permission group:', error)
+      toast.error(t('adminPermissions.saveFailed', { message: error.message }))
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const deleteGroup = async (group) => {
+    const currentUser = getStoredUser()
+    const headers = {
+      ...getAuthHeaders(currentUser),
+      'Content-Type': 'application/json',
+    }
+
+    if (!headers.Authorization) {
+      toast.error(t('adminCommon.sessionExpired'))
+      navigate(buildLocalizedPath(getLanguageFromUrl(window.location.pathname), '/login'))
+      return
+    }
+
+    const confirmed = window.confirm(t('adminPermissions.confirmDelete', { name: group.name }))
+    if (!confirmed) return
+
+    setDeletingId(group.id)
+    try {
+      // §2.4 **S1** / §9.B **B1**：键形态 `ops:<admin_uid>:permission_delete:<role_key>`
+      //   （真源 = `backend-ts/src/index.ts:969`）。
+      await fetchApiJson('/api/admin/permissions/delete', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          id: group.id,
+          create_key: adminOpsKey(currentUser?.uID, 'permission_delete', group.id),
+        }),
+      })
+      toast.success(t('adminPermissions.deleted'))
+      await loadPermissions({ silent: true })
+    } catch (error) {
+      console.error('Error deleting permission group:', error)
+      toast.error(t('adminPermissions.deleteFailed', { message: error.message }))
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold">{t('adminNav.permissions')}</h2>
+          <p className="text-sm text-gray-600 mt-1">
+            {t('adminPermissions.intro')}
+            {!canManagePermissions && ` ${t('adminCommon.readOnlyNotice')}`}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => loadPermissions({ silent: true })} disabled={refreshing}>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            {refreshing ? t('adminCommon.refreshing') : t('adminCommon.refresh')}
+          </Button>
+          <Button variant="primary" onClick={openCreateModal} disabled={!canManagePermissions}>
+            <Plus className="w-4 h-4 mr-2" />
+            {t('adminPermissions.addGroup')}
+          </Button>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <p className="mt-2 text-gray-600">{t('adminCommon.loading')}</p>
+        </div>
+      ) : (
+        <div className="grid gap-4">
+          {groups.map((group) => (
+            <Card key={group.id}>
+              <CardContent className="p-4">
+                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="font-semibold">{group.name}</h3>
+                      {group.readonly ? (
+                        <Badge variant="warning" size="sm" className="flex items-center gap-1">
+                          <Lock className="w-3 h-3" />
+                          {t('adminPermissions.readOnly')}
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" size="sm">{t('adminPermissions.editable')}</Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-600 mt-1">{group.description || t('adminCommon.noDescription')}</p>
+                    <div className="flex gap-2 mt-3 flex-wrap">
+                      {(group.permissions || []).map((permission) => (
+                        <Badge key={permission} variant="secondary">{permission}</Badge>
+                      ))}
+                    </div>
+                    <div className="mt-3">
+                      <p className="text-xs text-gray-500 mb-2">
+                        {t('adminPermissions.userCount', { count: group.user_ids?.length || 0 })}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {(group.user_ids || []).length > 0 ? (
+                          group.user_ids.map((uID) => {
+                            const user = groupedUserMap.get(uID)
+                            return (
+                              <Badge key={`${group.id}-${uID}`} variant="primary">
+                                {user ? `#${uID} ${formatEvmAddress(user.EVM)}` : `#${uID}`}
+                              </Badge>
+                            )
+                          })
+                        ) : (
+                          <span className="text-xs text-gray-400">{t('adminPermissions.noMembers')}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => openEditModal(group)}
+                      disabled={group.readonly || !canManagePermissions}
+                      title={!canManagePermissions ? t('adminPermissions.tipNoManagePermission') : group.readonly ? t('adminPermissions.tipReadonlyEdit') : t('adminPermissions.tipEdit')}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteGroup(group)}
+                      disabled={group.readonly || deletingId === group.id || !canManagePermissions}
+                      title={!canManagePermissions ? t('adminPermissions.tipNoManagePermission') : group.readonly ? t('adminPermissions.tipReadonlyDelete') : t('adminPermissions.tipDelete')}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      <Modal isOpen={isModalOpen} onClose={() => !saving && setIsModalOpen(false)} size="lg">
+        <ModalHeader>
+          <ModalTitle>{editingGroupId ? t('adminPermissions.editGroup') : t('adminPermissions.addGroup')}</ModalTitle>
+        </ModalHeader>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">{t('adminPermissions.labelName')}</label>
+            <input
+              type="text"
+              value={formState.name}
+              onChange={(e) => setFormState((prev) => ({ ...prev, name: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
+              placeholder={t('adminPermissions.namePlaceholder')}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">{t('adminPermissions.labelDescription')}</label>
+            <textarea
+              value={formState.description}
+              onChange={(e) => setFormState((prev) => ({ ...prev, description: e.target.value }))}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
+              placeholder={t('adminPermissions.descPlaceholder')}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">{t('adminPermissions.labelPermissions')}</label>
+            <input
+              type="text"
+              value={formState.permissions}
+              onChange={(e) => setFormState((prev) => ({ ...prev, permissions: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500"
+              placeholder={t('adminPermissions.permissionsPlaceholder')}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">{t('adminPermissions.labelMembers')}</label>
+            <div className="max-h-[260px] overflow-auto border border-gray-200 rounded-lg p-3 space-y-2">
+              {users.map((user) => (
+                <label key={user.uID} className="flex items-center gap-2 text-sm text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={formState.user_ids.includes(user.uID)}
+                    onChange={() => toggleUserSelection(user.uID)}
+                    className="w-4 h-4"
+                  />
+                  <span>#{user.uID}</span>
+                  <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
+                    {formatEvmAddress(user.EVM)}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+          <div className="flex justify-end gap-3">
+            <Button variant="secondary" onClick={() => setIsModalOpen(false)} disabled={saving}>
+              {t('cancel')}
+            </Button>
+            <Button variant="primary" onClick={saveGroup} disabled={saving || !canManagePermissions}>
+              {saving ? t('adminCommon.saving') : t('adminPermissions.saveGroup')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  )
+}
+
+export default PermissionsManagement

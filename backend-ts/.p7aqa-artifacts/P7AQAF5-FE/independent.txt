@@ -1,0 +1,10 @@
+
+ RUN  v0.34.6 /Users/kevin/.hermes/profiles/zang/cache/scratch/qa-p7a-final/frontend
+
+ ✓ qa-p7a-tmp/qa-p7a-fe-independent.test.js  (4 tests) 11ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  15:43:45
+   Duration  827ms (transform 74ms, setup 167ms, collect 84ms, tests 11ms, environment 361ms, prepare 64ms)
+

@@ -1,0 +1,88 @@
+{
+ "run": "P7AQAF5-NEG-R107",
+ "summary": {
+  "all_r107": false,
+  "none_500": true,
+  "no_legacy_shape": false,
+  "statuses": {
+   "cid=abc": 400,
+   "cid=0": 400,
+   "before_txid=xyz": 400,
+   "before_txid=-9": 400,
+   "kind=__nope__": 400
+  },
+  "codes": {
+   "cid=abc": null,
+   "cid=0": null,
+   "before_txid=xyz": "LEDGER_AMOUNT_INVALID",
+   "before_txid=-9": "LEDGER_AMOUNT_INVALID",
+   "kind=__nope__": "LEDGER_UNKNOWN_KIND"
+  }
+ },
+ "cases": [
+  {
+   "q": "cid=abc",
+   "status": 400,
+   "keys": null,
+   "code": null,
+   "i18n_key": null,
+   "details": null
+  },
+  {
+   "q": "cid=0",
+   "status": 400,
+   "keys": null,
+   "code": null,
+   "i18n_key": null,
+   "details": null
+  },
+  {
+   "q": "before_txid=xyz",
+   "status": 400,
+   "keys": [
+    "code",
+    "details",
+    "i18n_key",
+    "message"
+   ],
+   "code": "LEDGER_AMOUNT_INVALID",
+   "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+   "details": {
+    "field": "before_txid",
+    "reason": "NOT_DECIMAL_INTEGER"
+   }
+  },
+  {
+   "q": "before_txid=-9",
+   "status": 400,
+   "keys": [
+    "code",
+    "details",
+    "i18n_key",
+    "message"
+   ],
+   "code": "LEDGER_AMOUNT_INVALID",
+   "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+   "details": {
+    "field": "before_txid",
+    "reason": "NOT_POSITIVE",
+    "value": "-9"
+   }
+  },
+  {
+   "q": "kind=__nope__",
+   "status": 400,
+   "keys": [
+    "code",
+    "details",
+    "i18n_key",
+    "message"
+   ],
+   "code": "LEDGER_UNKNOWN_KIND",
+   "i18n_key": "ledger.err.LEDGER_UNKNOWN_KIND",
+   "details": {
+    "kind": "__nope__"
+   }
+  }
+ ]
+}

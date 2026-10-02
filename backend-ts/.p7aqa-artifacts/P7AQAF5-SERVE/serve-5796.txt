@@ -1,0 +1,1 @@
+[FATAL] SECRET_KEY is not set. Refusing to start: the API would either sign/verify sessions with an unknown key or fall back to the public placeholder, letting anyone forge a session token for any uID. Set SECRET_KEY in <backend-ts>/.env.local (or the process environment).

@@ -1,0 +1,25 @@
+[P7A-ERRMSG] 作用域：「frontend/src/**/*.{js,jsx}」（不含 test/）
+  srcRoot = /Users/kevin/.hermes/profiles/zang/cache/scratch/qa-p7a-final/backend-ts/.p7aqa-artifacts/P7AQAF5-NEG/gatemirror/src
+  扫描文件数 = 77；识别「原始响应包受体」 = 6 个
+    · auth.js:191  payload = await ….json()
+    · components/ActiveTaskModal.jsx:70  data = await ….json()
+    · components/ClaimRewardModal.jsx:21  data = await ….json()
+    · components/Header.jsx:73  data = await ….json()
+    · ledger-api.js:46  payload = await ….json()
+    · pages/TaskPage.jsx:21  data = await ….json()
+[P7A-ERRMSG] 命中（原始包 .message 直用）= 6（其中出口本体豁免 2）
+  ~ auth.js:149 [CHAIN_IMPL] "auth.js::if (payload?.message) return payload.message"
+  ~ auth.js:181 [CHAIN_IMPL] "auth.js::: (error && typeof error === 'object' ? (error.message || error.code) : payload?.message)"
+  ! components/ActiveTaskModal.jsx:77 [BASELINE] "components/ActiveTaskModal.jsx::toast.error(t('error') + ': ' + (data.message || t('activeTaskModal.submitFailed')))"
+  ! components/ClaimRewardModal.jsx:25 [BASELINE] "components/ClaimRewardModal.jsx::toast.error(t('error') + ': ' + ((data && (data.error || data.message)) || t('claimRewardModal.loadProgressFailed')))"
+  ! ledger-api.js:49 [未登记] "ledger-api.js::throw new Error(String(payload?.error?.message || payload?.message || `HTTP ${response.status}`))"
+  ! pages/TaskPage.jsx:25 [BASELINE] "pages/TaskPage.jsx::throw new Error(data?.message || fallback)"
+[P7A-ERRMSG] 豁免登记 = 1 条（逐条列名 + 理由）
+  ~ src/auth.js :: 错误文案链**实现本体**：`extractApiErrorMessage`/`apiErrorMessage` 按定义必须读原始包；本文件即全站唯一出口
+[P7A-ERRMSG] 存量基线登记 = 3 条
+  # components/ActiveTaskModal.jsx::toast.error(t('error') + ': ' + (data.message || t('activeTaskModal.submitFailed'))) :: 存量（非本单）：`response.json()` 直取原文拼 toast 文案，未过 `apiErrorMessage` —— 登记，待 P6/P7 统一取数入口时合并
+  # components/ClaimRewardModal.jsx::toast.error(t('error') + ': ' + ((data && (data.error || data.message)) || t('claimRewardModal.loadProgressFailed'))) :: 存量（非本单）：`data.error` 可能是**对象**（`[object Object]` 面）+ 原文直拼 toast —— 登记
+  # pages/TaskPage.jsx::throw new Error(data?.message || fallback) :: 存量（非本单）：页面模块级 `fetchJson` 自造错误串（4 处调用点共用），未过 `apiErrorMessage` —— 登记
+[P7A-ERRMSG] 残余发现（原始包 X.error 裸读；打印不计命中，另单收口）= 0
+  ! 未登记命中（必须登记或修掉）: ledger-api.js::throw new Error(String(payload?.error?.message || payload?.message || `HTTP ${response.status}`))
+[P7A-ERRMSG] 总判：FAIL（未登记命中 1 必须 = 0；扫描文件 77 / 受体 6 / 命中 4 / 基线 3）

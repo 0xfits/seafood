@@ -1,0 +1,271 @@
+/* 海鲜市场 · 应用外壳骨架（同构优先）
+ *
+ * 硬约束：横屏 / 竖屏 **共用同一套 DOM 与同一元素顺序**；主题日/夜 **共用同一套 DOM**。
+ * 本文件里所有会改几何的量（列数、间距、内边距、图标/标签尺寸）都是**结构常量**
+ * （--sf-st-*，取自 docs/design/style-preview.html，两档同值），
+ * 主题层只提供颜色 / border-radius / box-shadow（--sf-*）。
+ * token 层由 styles.css 全局 @import（前端全站可用，不限于本外壳）。
+ */
+
+/* ---------- 外壳三件套：顶栏 / 路由容器 / 页脚 + 底部 tab ---------- */
+
+.sf-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--sf-page-bg);
+  color: var(--sf-page-fg);
+}
+
+.sf-region-top {
+  position: relative;
+  z-index: 3;
+  background: var(--sf-topbar-bg);
+}
+
+.sf-route-container {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: var(--sf-st-shell-max-w);
+  margin: 0 auto;
+  padding: 0 var(--sf-st-topbar-pad-x);
+}
+
+/* 宽屏多栏骨架：#main 自适应 + #side 固定 320px（style-preview.html:112-114） */
+.sf-layout {
+  display: flex;
+  gap: var(--sf-st-layout-gap);
+  align-items: flex-start;
+  padding: 8px 0 26px;
+}
+
+.sf-layout-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sf-layout-side {
+  flex: 0 0 var(--sf-st-side-w);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sf-st-feed-gap-m);
+}
+
+/* 信息流栅格：宽屏 4 列 / 16px（:115 + :218），竖屏 2 列 / 9px（:116） */
+.sf-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--sf-st-feed-cols), minmax(0, 1fr));
+  gap: var(--sf-st-feed-gap);
+}
+
+/* ---------- 底部 tab：竖屏骨架的导航形态 ---------- */
+
+.sf-tabbar {
+  /* 宽屏隐藏（DOM 始终保留 ⇒ 横竖屏同构）。 */
+  display: none;
+  background: var(--sf-tabbar-bg);
+  border-top: var(--sf-st-stroke-w-thin) solid var(--sf-tabbar-border);
+  box-shadow: none;
+}
+
+.sf-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sf-st-tab-gap);
+  padding: var(--sf-st-tab-pad);
+  font-size: var(--sf-st-tab-font-size);
+  color: var(--sf-tab-fg);
+  text-decoration: none;
+  /* P6-UI-CONSIST-B：Tab 栏纳入按钮形状语言（圆角 = --sf-st-radius-btna；扁平无阴影无切角） */
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
+}
+
+.sf-tab.is-active {
+  color: var(--sf-tab-active-fg);
+  font-weight: 700;
+}
+
+.sf-tab-ic {
+  width: var(--sf-st-tab-ic-size);
+  height: var(--sf-st-tab-ic-size);
+}
+
+/* ---------- 竖屏骨架（≤767px）：栅格 2 列、侧栏下移、底部 tab 出现 ---------- */
+
+@media (max-width: 767px) {
+  .sf-route-container {
+    padding: var(--sf-st-grid-pad-m);
+  }
+
+  .sf-layout {
+    flex-direction: column;
+  }
+
+  .sf-layout-side {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  .sf-grid {
+    grid-template-columns: repeat(var(--sf-st-feed-cols-m), minmax(0, 1fr));
+    gap: var(--sf-st-feed-gap-m);
+  }
+
+  .sf-tabbar {
+    display: grid;
+    grid-template-columns: repeat(var(--sf-st-tabbar-cols), 1fr);
+    align-items: end;
+    position: sticky;
+    bottom: 0;
+    z-index: 4;
+  }
+}
+
+/* ---------- 主题切换只换值、不换几何：以下规则一律只声明颜色/圆角/阴影 ---------- */
+
+/* ============================================================================
+   P6-UI-CONSIST-B · 成套形状收敛（变体 B，Kevin 拍板）
+   ─ 目标：卡片 / 输入框 / 分类芯片 / Tab 栏 从「旧风格」收敛到按钮那套形状语言。
+   ─ 旧风格载体（本文件，逐项 文件:行号 见 docs/audit/p6-ui-consist-b.md §1）：
+       · 硬位移阴影  --sf-card-shadow / --sf-panel-shadow（`3px 3px 0`）、--sf-search-shadow（`2px 2px 0`）
+       · 粗描边      --sf-st-stroke-w（1.5px）
+       · 异形圆角    --sf-card-radius / --sf-panel-radius（13px·2px）、--sf-search-radius（11px·2px）、--sf-cat-radius（999px·2px）
+   ─ 新口径（一律复用真源既有值，**不新造**）：
+       · 圆角 = --sf-st-radius-btna（8px；真源 style-preview.html:976「高 34 ⇒ 圆角 8px」）
+       · 描边 = --sf-st-stroke-w-thin（1px；真源 :954 `border:1px solid`）
+       · 阴影 = none（扁平；删硬位移阴影）
+       · 切角 = clip-path:none（圆角与切角不可共存；本族原本无切角，此处显式锁死契约）
+   ─ 未动：颜色槽位（--sf-*-bg/fg/border）⇒ 色板不动；padding/margin/gap/列数/元素顺序 ⇒ 布局不动。
+   ─ 同构：圆角与描边宽度取**结构常量**（两档同值）⇒ 切档仅颜色变、rect 逐值相等。
+   ============================================================================ */
+
+.sf-card {
+  background: var(--sf-card-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-card-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.sf-card-title {
+  color: var(--sf-title-fg);
+}
+
+.sf-price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  background: var(--sf-price-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-price-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
+}
+
+.sf-price-cur {
+  color: var(--sf-price-cur-fg);
+}
+
+.sf-price-num {
+  color: var(--sf-price-num-fg);
+  font-size: var(--sf-st-price-num-size);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--sf-st-num-font);
+}
+
+.sf-price-unit {
+  color: var(--sf-price-unit-fg);
+}
+
+.sf-panel {
+  background: var(--sf-panel-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
+  padding: 13px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sf-st-feed-gap-m);
+}
+
+.sf-panel-title {
+  color: var(--sf-panel-h4-fg);
+}
+
+.sf-chip {
+  background: var(--sf-cat-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-cat-border);
+  border-radius: var(--sf-st-radius-btna);
+  color: var(--sf-cat-fg);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
+}
+
+.sf-chip.is-on {
+  background: var(--sf-cat-on-bg);
+  color: var(--sf-cat-on-fg);
+}
+
+/* P6-BTN-IMPL-2 · `.sf-btn` 家族纳入 A 体系（与 `.btn.btn-a` 同口径、同批 token）
+   真源 = docs/design/style-preview.html 938–982 行 [BTN-SRC-REF]（本单现取）
+   取值链路：颜色/描边色 = --sf-btna-*（主题 token，日/夜有差）
+             几何（圆角 / 描边宽度）= --sf-st-*（结构常量，两档同值）⇒ 切档 rect 逐值相等
+   两档扁平：无阴影、无背景图、无 clip-path 切角；`--sf-btn-*` 旧黑底黄字 token 不再被引用（见 audit §登记） */
+.sf-btn {
+  box-sizing: border-box;
+  background: var(--sf-btna-bg);
+  color: var(--sf-btna-fg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-btna-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  background-image: none;
+  -webkit-clip-path: none;
+  clip-path: none;
+  font-weight: 600;
+}
+
+.sf-box {
+  background: var(--sf-search-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-search-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
+  color: var(--sf-search-fg);
+}
+
+.sf-tag {
+  background: var(--sf-tag-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-tag-border);
+  border-radius: var(--sf-st-radius-btna);
+  color: var(--sf-tag-fg);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
+}
+
+.sf-foot-note {
+  color: var(--sf-foot-fg);
+}
+
+.sf-statusbar {
+  color: var(--sf-statusbar-fg);
+}
+
+.sf-divider {
+  height: var(--sf-st-stroke-w-thin);
+  background: var(--sf-hr-bg);
+}
