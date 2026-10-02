@@ -56,10 +56,13 @@ const KEY_FUNCTIONS = [
 
 // P6-B6-PERM（批 6）：`0022_admin_permission_seed.sql` 追加到链尾（权限/角色种子；纯 DML，
 // 不建对象 ⇒ 基表/触发器期望不变，但 `0017` 六表的**行数期望**由「全 0」改为「种子后真值」）。
+// P6-B6-AUDIT（批 6）：`0023_admin_points_audit_daily_cap.sql` 追加到链尾（**建对象**：审计表 1 +
+// 索引 4 + 触发器 1 + 函数 2）⇒ 期望 **基表 +1 / 触发器 +1 / 函数 +2**（对象集由文件派生，无需手改），
+// 且**硬编码期望** `schema_migration.row_count`(21→22) 与 `triggers.non_internal`(43→44) 已同步。
 const VERSION_ORDER = [
   '0001', '0002', '0003', '0004', '0005', '0006', '0007', '0008', '0009',
   '0010', '0011', '0012', '0013', '0014', '0015', '0016', '0017', '0019', '0020',
-  '0021', '0022',
+  '0021', '0022', '0023',
 ];
 
 const TABLES_ZERO_EXPECTED = [
@@ -630,8 +633,8 @@ function expectedTerminalChecks(exp: any, cmp: any) {
   };
   for (const t of M0017_TABLES) add(`0017.${t}.row_count`, M0017_SEED_ROWS[t] ?? '0', s(c.m0017_six[t]));
 
-  add('schema_migration.row_count', '21', s(c.schema_migration_rows));
-  add('triggers.non_internal', '43', s(c.non_internal_triggers));
+  add('schema_migration.row_count', '22', s(c.schema_migration_rows));
+  add('triggers.non_internal', '44', s(c.non_internal_triggers));
   add('triggers.enabled_not_o', '0', s(c.triggers_enabled_not_o));
   const nv = exp.seed_expectations || {};
   add(

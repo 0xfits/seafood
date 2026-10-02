@@ -1211,6 +1211,16 @@ app.post('/api/admin/assets/init', async (_req, res) => {
 //   · **日累计上限留后续（批 6）**；本常量**不得**改成从 `app_config` 读（那属批 6）。
 const ADMIN_POINTS_ADJUST_MAX_PER_CALL = 100000;
 
+// P6-B6-AUDIT（**Zang 2026-10-02 新定，进规格待 Jing 收口**）：后台调分的**日累计上限** =
+//   1,000,000 点/日，**按操作人 + 自然日（UTC）**；**超限 ⇒ 明确拒绝 + 机读 reason + 审计留痕**。
+//   · 阈值 = **服务端常量**，**客户端永不参与**；
+//   · **唯一真值在 DB 编排函数** `public.admin_points_adjust_post_event`（`migrations/0023`）——
+//     它**在同一函数/同一语句内**对当日审计行求和（⇒ 防并发两笔同时卡在阈值下），本常量**仅供参考/响应
+//     回填**（`details.max` 的兜底），**不参与**判定 ⇒ 两侧漂移不会造成放行/误拒；
+//   · 阈值 = 服务端常量，客户端永不参与。
+// TODO: Kevin 定值
+const ADMIN_POINTS_ADJUST_MAX_PER_DAY = 1000000;
+
 // P4-A1-LEDGER-IMPL（Zang §5.99 裁定）：本路由由「写缺失 `asset` 表」**改接账本** `ledger_post_event`。
 //   · 有符号 `amount`：`> 0` ⇒ `mint`（铸币到目标用户）；`< 0` ⇒ `burn`（从目标用户销毁）；
 //     上限按**绝对值** `ADMIN_POINTS_ADJUST_MAX_PER_CALL`；`0` ⇒ 拒（既有码 + 既有 reason）。
@@ -1271,7 +1281,14 @@ app.post('/api/admin/points/adjust', async (req, res) => {
       .update(['points_adjust', String(uID), '1', String(amount), reason].join('|'))
       .digest('hex');
 
-    const result = await DatabaseService.adjustPoints(uID, amount, reason, opsKey.key, fingerprint);
+    const result = await DatabaseService.adjustPoints({
+      actorUid: actor.session.uID,
+      uID,
+      amount,
+      reason,
+      idempotencyKey: opsKey.key,
+      requestFingerprint: fingerprint,
+    });
 
     if (result.user_found !== 1) {
       // `uid > 0` 但库内无该用户 ⇒ **不调账本、不造幽灵账户**（既有码：`LEDGER_RESERVED_UID`
@@ -1283,7 +1300,30 @@ app.post('/api/admin/points/adjust', async (req, res) => {
       ));
     }
 
-    const op = amount > 0 ? 'mint' : 'burn';
+    // P6-B6-AUDIT（Zang 2026-10-02 新定；裁定①/②）：**日累计闸**（阈值 1000000 点/日，按操作人 + 自然日 UTC）。
+    // 闸在 **DB 编排函数内、与资金事件同一条语句**（对当日 **成功行** 求和 ⇒ 防并发两笔同时卡阈值下，
+    // 且**拒绝行不计入** ⇒ 防「反复发超限请求把当日额度刷爆」）。
+    // 超限 ⇒ 函数**正常返回** `ok=false` + 机读 `reason='OVER_MAX_DAILY_AMOUNT'`，
+    // **零资金分录、但留一行审计**（`result='rejected_daily_cap'`，Zang 裁定①：被拒尝试必须留痕）；
+    // 此处**复用既有码**（`LD016` = `LEDGER_AMOUNT_INVALID`，与既有 `OVER_MAX_SINGLE_AMOUNT` 同族），
+    // **不新造码 / 不新造 reason / 不新造通道**（裁定③）。
+    if (result.ok !== true) {
+      return res.status(400).json(ledgerErrorBody(
+        'LEDGER_AMOUNT_INVALID',
+        'Request shape is invalid',
+        {
+          field: 'amount',
+          reason: result.reason || 'OVER_MAX_DAILY_AMOUNT',
+          max: Number(result.daily_cap ?? ADMIN_POINTS_ADJUST_MAX_PER_DAY),
+          used: result.daily_used === null ? null : Number(result.daily_used),
+          provided: amount,
+          requested: result.requested === null ? amount : Number(result.requested),
+        },
+      ));
+    }
+
+    // `op` 由 DB 编排函数按 `§4.10③` 逐字派生并回执（`>0 ⇒ mint`；`<0 ⇒ entries + 单腿 kind='burn'`）
+    const op = result.op === 'burn' ? 'burn' : 'mint';
     return sendSuccess(res, {
       uID,
       cid: 1,

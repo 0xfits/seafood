@@ -1048,57 +1048,72 @@ export class DatabaseService {
    *   · `uid <= 0`（平台 / 保留 uid）**故意放行到账本** ⇒ 由 `ledger_uid_arg` 抛 `LD021`（既有码）。
    *   · 幂等键 / 请求指纹由**路由层**传入（DL36/DL96/DL97/DL146②）：同键同指纹 ⇒ 200 重放（零新增分录）。
    */
-  static async adjustPoints(
-    uID: number,
-    amount: number,
-    reason: string,
-    idempotencyKey: string,
-    requestFingerprint: string,
-  ): Promise<{ user_found: number; txid: string | null; idempotent_replay: boolean; new_balance: string | null }> {
+  static async adjustPoints(input: {
+    actorUid: number;
+    uID: number;
+    amount: number;
+    reason: string;
+    idempotencyKey: string;
+    requestFingerprint: string;
+  }): Promise<{
+    ok: boolean;
+    user_found: number;
+    reason: string | null;
+    daily_cap: string | null;
+    daily_used: string | null;
+    requested: string | null;
+    op: string | null;
+    txid: string | null;
+    idempotent_replay: boolean;
+    new_balance: string | null;
+    audit_logged: boolean;
+  }> {
     const sql = getSql();
-    const envelope: Record<string, unknown> = {
-      op: amount > 0 ? 'mint' : 'entries',
-      idempotency_key: idempotencyKey,
-      request_fingerprint: requestFingerprint,
-      memo: reason,
-      // `data-layer.spec:513`（§4.0 逐事件形态表 A1 行）现取：ref = `currency` / `cid`
-      ref_type: 'currency',
-      ref_id: '1',
+    // P6-B6-AUDIT（Kong）：**唯一资金写路径**改为一条语句调用新增编排函数
+    // `public.admin_points_adjust_post_event($1::jsonb)`（`migrations/0023_admin_points_audit_daily_cap.sql`）
+    // —— 函数内「并发闸（`pg_advisory_xact_lock`，按操作人）→ 目标存在性闸 → **日累计闸（同语句内对
+    // 当日审计行求和）** → 派生分录 → `ledger_post_event` → **写审计行**」**同函数、同语句**
+    // （= 一个隐式事务）⇒ **审计行与资金事件同生同灭**（与 `job_post_event` 同构；R1/R2/DL20）。
+    // 本方法只转发 payload：不派生分录、不写 `account`/`ledger_entry`/审计表、不自造幂等键。
+    const payload = {
+      actor_uid: String(input.actorUid),
+      target_uid: String(input.uID),
+      cid: '1',
+      amount: String(input.amount),
+      reason: input.reason,
+      idempotency_key: input.idempotencyKey,
+      request_fingerprint: input.requestFingerprint,
     };
-    if (amount > 0) {
-      envelope.uid = String(uID);
-      envelope.cid = '1';
-      envelope.amount_units = String(amount);
-      envelope.platform = true;
-    } else {
-      envelope.entries = [{ uid: String(uID), cid: '1', delta: String(amount), kind: 'burn' }];
-    }
 
-    // 一条语句 = 一个隐式事务（R1/R2）：入参解析 → 目标用户存在性闸 → 账本事件 → 事后余额快照。
     const row = firstRow(await sql`
-      WITH usr AS (
-        SELECT 1 AS ok FROM public."users" AS u WHERE u.uid = ${uID}::bigint
-      ),
-      gate AS (
-        SELECT 1 AS ok WHERE EXISTS (SELECT 1 FROM usr)
-      ),
-      ev AS (
-        SELECT ledger_post_event(${JSON.stringify(envelope)}::jsonb) AS r
-        FROM gate
-      )
       SELECT
-        (SELECT count(*)::int FROM usr) AS user_found,
-        (SELECT ev.r->>'txid' FROM ev) AS txid,
-        (SELECT (ev.r->>'idempotent_replay')::boolean FROM ev) AS idempotent_replay,
-        (SELECT (a->>'balance') FROM ev, jsonb_array_elements(ev.r->'accounts') AS a
-          WHERE (a->>'uid')::bigint = ${uID}::bigint AND (a->>'cid')::bigint = 1) AS new_balance
+        (t.r->>'ok')::boolean                AS ok,
+        (t.r->>'user_found')::int            AS user_found,
+        (t.r->>'reason')                     AS reason,
+        (t.r->>'daily_cap')                  AS daily_cap,
+        (t.r->>'daily_used')                 AS daily_used,
+        (t.r->>'requested')                  AS requested,
+        (t.r->>'op')                         AS op,
+        (t.r->>'txid')                       AS txid,
+        (t.r->>'idempotent_replay')::boolean AS idempotent_replay,
+        (t.r->>'new_balance')                AS new_balance,
+        (t.r->>'audit_logged')::boolean      AS audit_logged
+      FROM (SELECT public.admin_points_adjust_post_event(${JSON.stringify(payload)}::jsonb) AS r) AS t
     `) as Record<string, unknown> | null;
 
+    const nullableText = (v: unknown): string | null => (v === null || v === undefined ? null : String(v));
     return {
+      ok: row?.ok === true,
       user_found: Number(row?.user_found ?? 0),
-      txid: row?.txid === null || row?.txid === undefined ? null : String(row.txid),
+      reason: nullableText(row?.reason),
+      daily_cap: nullableText(row?.daily_cap),
+      daily_used: nullableText(row?.daily_used),
+      requested: nullableText(row?.requested),
+      op: nullableText(row?.op),
+      txid: nullableText(row?.txid),
       idempotent_replay: row?.idempotent_replay === true,
-      new_balance: row?.new_balance === null || row?.new_balance === undefined ? null : String(row.new_balance),
+      new_balance: nullableText(row?.new_balance),
+      audit_logged: row?.audit_logged === true,
     };
   }
 
