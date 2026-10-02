@@ -1,0 +1,106 @@
+{
+ "script": "qa8s2-l6-http.ts (Neng 自写)",
+ "base": "http://127.0.0.1:5796",
+ "actors": {
+  "admin_uid": "1",
+  "non_admin_uid": "2"
+ },
+ "health": {
+  "status": 200
+ },
+ "get_admin_200": {
+  "status": 200,
+  "top_keys": [
+   "data",
+   "message",
+   "success"
+  ],
+  "success": true,
+  "data_keys": [
+   "created_by",
+   "effective_from",
+   "fee_rate_bp",
+   "levels",
+   "policy_id",
+   "time_created",
+   "weights_bp",
+   "weights_sum_bp"
+  ],
+  "data": {
+   "policy_id": "3",
+   "fee_rate_bp": 100,
+   "levels": 10,
+   "weights_bp": [
+    3000,
+    2000,
+    1500,
+    1000,
+    800,
+    600,
+    500,
+    300,
+    200,
+    100
+   ],
+   "effective_from": "2026-10-01 19:21:28.285+00",
+   "created_by": "1",
+   "time_created": "2026-09-29 19:21:33.778726+00",
+   "weights_sum_bp": 10000
+  }
+ },
+ "get_no_token_401": {
+  "status": 401,
+  "top_keys": [
+   "error"
+  ],
+  "error_keys": [
+   "code",
+   "details",
+   "i18n_key",
+   "message"
+  ],
+  "body": {
+   "error": {
+    "code": "AUTH_UNAUTHORIZED",
+    "message": "AUTH_UNAUTHORIZED",
+    "i18n_key": "auth.err.AUTH_UNAUTHORIZED",
+    "details": {}
+   }
+  }
+ },
+ "get_non_admin_403": {
+  "status": 403,
+  "body": {
+   "error": {
+    "code": "AUTH_FORBIDDEN",
+    "message": "AUTH_FORBIDDEN",
+    "i18n_key": "auth.err.AUTH_FORBIDDEN",
+    "details": {
+     "reason": "NOT_ADMIN"
+    }
+   }
+  },
+  "reason": "NOT_ADMIN"
+ },
+ "get_bad_token_401": {
+  "status": 401
+ },
+ "http_post_face": {
+  "verdict": "NOT_MEASURED",
+  "reason": "R-8-15：commission_policy 表 append-only（UPDATE/DELETE 直接 RAISE）+ 新政策行以新 effective_from 直接成为现行政策 ⇒ 真 POST 即永久改变线上费率/佣金。故不跑 POST；写路径证据由 L2 事务内 ROLLBACK 承载。"
+ },
+ "db_now": {
+  "policy_id": "3",
+  "fee_rate_bp": 100,
+  "levels": 10,
+  "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}"
+ },
+ "http_vs_db_same_source": {
+  "http_policy_id": "3",
+  "db_policy_id": "3",
+  "http_bp": 100,
+  "db_bp": 100,
+  "equal": true
+ },
+ "policy_count_after_probe": 3
+}

@@ -1,0 +1,350 @@
+{
+ "unit": "P8-S2-FEE-REBATE-GATE",
+ "generated_at": "2026-10-02T14:56:50.335Z",
+ "run": "20261002T145650Z",
+ "offline": true,
+ "db_connections": 0,
+ "http_calls": 0,
+ "total": 41,
+ "passed": 40,
+ "failed": 1,
+ "readings": {
+  "registration_points": 69,
+  "registration_by_verb": {
+   "get": 28,
+   "post": 38,
+   "put": 0,
+   "patch": 1,
+   "delete": 2
+  },
+  "frozen_policy_keys": [
+   "created_by",
+   "effective_from",
+   "fee_rate_bp",
+   "levels",
+   "policy_id",
+   "time_created",
+   "weights_bp",
+   "weights_sum_bp"
+  ],
+  "locale_ns_key_counts": {
+   "zh": {
+    "adminFeeRate": 18,
+    "adminWeightMatrix": 21,
+    "adminNav": 20
+   },
+   "en": {
+    "adminFeeRate": 18,
+    "adminWeightMatrix": 21,
+    "adminNav": 20
+   },
+   "hk": {
+    "adminFeeRate": 18,
+    "adminWeightMatrix": 21,
+    "adminNav": 20
+   },
+   "vn": {
+    "adminFeeRate": 18,
+    "adminWeightMatrix": 21,
+    "adminNav": 20
+   }
+  },
+  "leak_scan_values": 156,
+  "leak_hits": [
+   {
+    "id": "E1",
+    "hit": "§1",
+    "value": "本页按层级维护返佣权重矩阵：层级数即行数，逐层权重即每行数值；保存后即时成为新的生效版本。 §19"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "id": "A1",
+   "group": "readRouteRegistered",
+   "pass": true,
+   "expect": "注册点 = 69（`grep -cE '^app\\.(get|post|put|delete|patch)\\('`，v1.8 的 68 ⇒ 本读口 +1）",
+   "actual": "69"
+  },
+  {
+   "id": "A2",
+   "group": "readRouteRegistered",
+   "pass": true,
+   "expect": "`GET /api/admin/commission_policy` 注册**恰 1 处**",
+   "actual": "1"
+  },
+  {
+   "id": "A3",
+   "group": "readRouteRegistered",
+   "pass": true,
+   "expect": "写口 `POST /api/admin/commission_policy` 仍在**同路径**（同族先例 = `GET|POST /api/admin/settings`）",
+   "actual": "1"
+  },
+  {
+   "id": "A4",
+   "group": "readRouteRegistered",
+   "pass": true,
+   "expect": "读口闸 = `requireAdmin(req, res, 'manage_settings')`（与写口同键 · 11 键内 · `R-8-1` 零新增键）",
+   "actual": "\"requireAdmin(req, res, 'manage_settings')\""
+  },
+  {
+   "id": "A5",
+   "group": "readRouteRegistered",
+   "pass": true,
+   "expect": "写口闸 = `manage_settings`（现取锚不动）",
+   "actual": "\"requireAdmin(req, res, 'manage_settings')\""
+  },
+  {
+   "id": "A6",
+   "group": "readRouteRegistered",
+   "pass": true,
+   "expect": "读口取数 = **复用** `getCommissionPolicy`（`src/commission.ts:201`）；**不得自写第二套取数**（§19.2(c)）",
+   "actual": "\"getCommissionPolicy(\""
+  },
+  {
+   "id": "A7",
+   "group": "readRouteRegistered",
+   "pass": true,
+   "expect": "读口 handler **内零 SQL**（取数只在 `commission.ts` 一处）",
+   "actual": "false"
+  },
+  {
+   "id": "A8",
+   "group": "readRouteRegistered",
+   "pass": true,
+   "expect": "读口**只读纪律**：handler 内零写路径（政策表 append-only，`0007:102-112`）",
+   "actual": "[]"
+  },
+  {
+   "id": "A9",
+   "group": "readRouteRegistered",
+   "pass": true,
+   "expect": "读口响应 = 形态 A（`data` = 政策**本体**，`sendSuccess(res, policy, …)`）",
+   "actual": "\"sendSuccess(res, policy, 'Commission policy (current effective)')\""
+  },
+  {
+   "id": "B1",
+   "group": "readShape8Keys",
+   "pass": true,
+   "expect": "`CommissionPolicy` 接口键集 = 逐字冻结 8 键（src/commission.ts:126）",
+   "actual": "[\"created_by\",\"effective_from\",\"fee_rate_bp\",\"levels\",\"policy_id\",\"time_created\",\"weights_bp\",\"weights_sum_bp\"]"
+  },
+  {
+   "id": "B2",
+   "group": "readShape8Keys",
+   "pass": true,
+   "expect": "`mapPolicy` 返回键集 = 冻结 8 键（读口 `data` 的实际构造点）",
+   "actual": "[\"created_by\",\"effective_from\",\"fee_rate_bp\",\"levels\",\"policy_id\",\"time_created\",\"weights_bp\",\"weights_sum_bp\"]"
+  },
+  {
+   "id": "B3",
+   "group": "readShape8Keys",
+   "pass": true,
+   "expect": "`getCommissionPolicy` 的 `SELECT` 列 = 7 列（第 8 键 `weights_sum_bp` = 读时算一次，非存储列）",
+   "actual": "[\"created_by\",\"effective_from\",\"fee_rate_bp\",\"levels\",\"policy_id\",\"time_created\",\"weights_bp\"]"
+  },
+  {
+   "id": "B4",
+   "group": "readShape8Keys",
+   "pass": true,
+   "expect": "`weights_sum_bp` = `weights.reduce(...)`（读时算一次 · **非存储列**）",
+   "actual": "true"
+  },
+  {
+   "id": "B5",
+   "group": "readShape8Keys",
+   "pass": true,
+   "expect": "§19.5(a)/(b) 页面用字段全部落在冻结 8 键内",
+   "actual": "{\"missingFee\":[],\"missingMatrix\":[]}"
+  },
+  {
+   "id": "C1",
+   "group": "adminPages",
+   "pass": true,
+   "expect": "`FeeRatePage.jsx` 引用**全部 8 键**（页面字段面齐）",
+   "actual": "[]"
+  },
+  {
+   "id": "C2",
+   "group": "adminPages",
+   "pass": true,
+   "expect": "`ReferralWeightMatrixPage.jsx` 引用矩阵面 4 键（`levels` / `weights_bp` / `weights_sum_bp` / `fee_rate_bp`）",
+   "actual": "[]"
+  },
+  {
+   "id": "C3",
+   "group": "adminPages",
+   "pass": true,
+   "expect": "`App.jsx` 两条路由（`fee-rate` / `weight-matrix`）且闸 = `manage_settings`（§19.5(d)）",
+   "actual": "{\"feeRoute\":true,\"matrixRoute\":true}"
+  },
+  {
+   "id": "C4",
+   "group": "adminPages",
+   "pass": true,
+   "expect": "`AdminLayout.jsx` 两条菜单（`adminNav.feeRate` / `adminNav.weightMatrix`）且闸 = `manage_settings`",
+   "actual": "{\"feeMenu\":true,\"matrixMenu\":true}"
+  },
+  {
+   "id": "C5",
+   "group": "adminPages",
+   "pass": true,
+   "expect": "两页源码（**注释剥离后**）**零 CJK** ⇒ 用户可见文案必须走 i18n（不得硬编码中文）",
+   "actual": "{\"FeeRatePage_CJK_lines\":0,\"ReferralWeightMatrixPage_CJK_lines\":0}"
+  },
+  {
+   "id": "C6",
+   "group": "adminPages",
+   "pass": true,
+   "expect": "前端守卫常量 = `src/commission.ts:175-191` 守卫**逐值相等**（前端不得自造范围）",
+   "actual": "{\"guard\":{\"FEE_RATE_MIN\":100,\"FEE_RATE_MAX\":500,\"LEVELS_MIN\":1,\"LEVELS_MAX\":10,\"WEIGHTS_SUM_MAX\":10000},\"FeeRatePage\":{\"FEE_RATE_MIN\":100,\"FEE_RATE_MAX\":500},\"MatrixPage\":{\"LEVELS_MIN\":1,\"LEVELS_MAX\":10,\"WEIGHTS_SUM_MAX\":10000}}"
+  },
+  {
+   "id": "C7",
+   "group": "adminPages",
+   "pass": true,
+   "expect": "两页无占位符 / TODO / 空壳（页面本体已实现）",
+   "actual": "{\"fee_bytes\":9686,\"matrix_bytes\":11754}"
+  },
+  {
+   "id": "D1-adminFeeRate",
+   "group": "fourLangKeys",
+   "pass": true,
+   "expect": "`adminFeeRate` 四语齐备且键集相等、键数 = 18（现值）",
+   "actual": "{\"per_lang\":[18,18,18,18],\"equal\":true,\"zh_keys\":18}"
+  },
+  {
+   "id": "D1-adminWeightMatrix",
+   "group": "fourLangKeys",
+   "pass": true,
+   "expect": "`adminWeightMatrix` 四语齐备且键集相等、键数 = 21（现值）",
+   "actual": "{\"per_lang\":[21,21,21,21],\"equal\":true,\"zh_keys\":21}"
+  },
+  {
+   "id": "D1-adminNav",
+   "group": "fourLangKeys",
+   "pass": true,
+   "expect": "`adminNav` 四语齐备且键集相等、键数 = 20（现值）",
+   "actual": "{\"per_lang\":[20,20,20,20],\"equal\":true,\"zh_keys\":20}"
+  },
+  {
+   "id": "D2-adminNav-add4",
+   "group": "fourLangKeys",
+   "pass": true,
+   "expect": "`adminNav` 四语均含本片 +4 键（`feeRate` / `feeRateDesc` / `weightMatrix` / `weightMatrixDesc`）",
+   "actual": "[[],[],[],[]]"
+  },
+  {
+   "id": "D3",
+   "group": "fourLangKeys",
+   "pass": true,
+   "expect": "四语两命名空间**逐键非空串**",
+   "actual": "[]"
+  },
+  {
+   "id": "D4",
+   "group": "fourLangKeys",
+   "pass": true,
+   "expect": "`en` / `vn` 两命名空间**零 CJK**",
+   "actual": "[]"
+  },
+  {
+   "id": "D5",
+   "group": "fourLangKeys",
+   "pass": true,
+   "expect": "`hk` 为**繁体**（与 `zh` 简体逐字不同 · 抽查 2 条）",
+   "actual": "{\"hk\":\"手續費費率（基點）\",\"zh\":\"手续费费率（基点）\"}"
+  },
+  {
+   "id": "E1",
+   "group": "noEngLeak",
+   "pass": false,
+   "expect": "禁泄漏 ① 本册章节号 / 条号 ⇒ 命中 = 0",
+   "actual": "[{\"id\":\"E1\",\"hit\":\"§1\",\"value\":\"本页按层级维护返佣权重矩阵：层级数即行数，逐层权重即每行数值；保存后即时成为新的生效版本。 §19\"}]"
+  },
+  {
+   "id": "E2",
+   "group": "noEngLeak",
+   "pass": true,
+   "expect": "禁泄漏 ② HTTP 状态码 ⇒ 命中 = 0",
+   "actual": "[]"
+  },
+  {
+   "id": "E3",
+   "group": "noEngLeak",
+   "pass": true,
+   "expect": "禁泄漏 ③ 接口路径 / 方法 ⇒ 命中 = 0",
+   "actual": "[]"
+  },
+  {
+   "id": "E4",
+   "group": "noEngLeak",
+   "pass": true,
+   "expect": "禁泄漏 ④ 内部批次名 / 单号 ⇒ 命中 = 0",
+   "actual": "[]"
+  },
+  {
+   "id": "E5",
+   "group": "noEngLeak",
+   "pass": true,
+   "expect": "禁泄漏 ⑤ 机读码 / 裸 i18n 键 ⇒ 命中 = 0",
+   "actual": "[]"
+  },
+  {
+   "id": "E6",
+   "group": "noEngLeak",
+   "pass": true,
+   "expect": "禁泄漏 ⑥ 表名 / 列名 / 函数名 ⇒ 命中 = 0",
+   "actual": "[]"
+  },
+  {
+   "id": "E1__selftest",
+   "group": "noEngLeakSelfTest",
+   "pass": true,
+   "expect": "负对照：注入 `费率（§19.2）` ⇒ ① 本册章节号 / 条号 判据**必须转红**",
+   "actual": "{\"sample\":\"费率（§19.2）\",\"fired\":true}"
+  },
+  {
+   "id": "E2__selftest",
+   "group": "noEngLeakSelfTest",
+   "pass": true,
+   "expect": "负对照：注入 `保存失败 400` ⇒ ② HTTP 状态码 判据**必须转红**",
+   "actual": "{\"sample\":\"保存失败 400\",\"fired\":true}"
+  },
+  {
+   "id": "E3__selftest",
+   "group": "noEngLeakSelfTest",
+   "pass": true,
+   "expect": "负对照：注入 `POST /api/admin/commission_policy` ⇒ ③ 接口路径 / 方法 判据**必须转红**",
+   "actual": "{\"sample\":\"POST /api/admin/commission_policy\",\"fired\":true}"
+  },
+  {
+   "id": "E4__selftest",
+   "group": "noEngLeakSelfTest",
+   "pass": true,
+   "expect": "负对照：注入 `批 8② 变更` ⇒ ④ 内部批次名 / 单号 判据**必须转红**",
+   "actual": "{\"sample\":\"批 8② 变更\",\"fired\":true}"
+  },
+  {
+   "id": "E5__selftest",
+   "group": "noEngLeakSelfTest",
+   "pass": true,
+   "expect": "负对照：注入 `POLICY_SHAPE_INVALID / adminFeeRate.title` ⇒ ⑤ 机读码 / 裸 i18n 键 判据**必须转红**",
+   "actual": "{\"sample\":\"POLICY_SHAPE_INVALID / adminFeeRate.title\",\"fired\":true}"
+  },
+  {
+   "id": "E6__selftest",
+   "group": "noEngLeakSelfTest",
+   "pass": true,
+   "expect": "负对照：注入 `commission_policy.weights_bp` ⇒ ⑥ 表名 / 列名 / 函数名 判据**必须转红**",
+   "actual": "{\"sample\":\"commission_policy.weights_bp\",\"fired\":true}"
+  },
+  {
+   "id": "F-clean-control",
+   "group": "noEngLeakSelfTest",
+   "pass": true,
+   "expect": "反向负对照：干净文案（`adminFeeRate.saved` / `adminWeightMatrix.colShare`）**零命中**",
+   "actual": "[]"
+  }
+ ]
+}
