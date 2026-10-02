@@ -1,0 +1,18 @@
+{
+  "expect_corrupt": false,
+  "replay_ok": true,
+  "injected": false,
+  "checksums_all_byte_equal": false,
+  "snapshot_taken": true,
+  "comparison_inside_tx": true,
+  "object_diffs_empty": true,
+  "terminal_failed_empty": true,
+  "object_diffs": [],
+  "terminal_failed": [],
+  "terminal_total": 32,
+  "terminal_ok": 31,
+  "ok": false,
+  "reason": "checksums_not_all_byte_equal（file_steps=22/22）",
+  "commit_allowed": false,
+  "tx_final": "ROLLBACK"
+}

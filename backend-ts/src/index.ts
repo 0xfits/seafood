@@ -399,8 +399,28 @@ app.post('/api/auth/challenge', async (req, res) => {
 });
 
 app.post('/api/auth/verify', async (req, res) => {
+  // P6-D1'（批 6 · D1'）：**鉴权层不得把驱动/传输错吞成 401**。
+  // ============================================================================
+  // 修前（现盘 `:425-426`）：整段共用一个 `catch` ⇒ 无条件 `sendError(res, 401, ...)` ⇒
+  //   无 SQLSTATE 的驱动/传输错（实测 `NeonDbError{code:null, message:'Error connecting to
+  //   database: fetch failed'}`）被伪装成「凭据无效（401，重试无用）」，而真语义是
+  //   「服务暂时不可用（503，可重试）」⇒ 方向性误导（调用方/前端会去让用户重登）。
+  // 修后（两段式，**语义边界**）：
+  //   ① 凭据面（`consumeWalletAuthChallenge`：格式 / HMAC / nonce 过期 / EIP-191 签名恢复不符）
+  //      ⇒ **401**（**401 只用于真鉴权失败**；本段纯计算、无 IO）；
+  //   ② 落库面（`findOrCreateUserByEvm` / `getUserAsset`）异常 ⇒ 交**既有** §14 分类器
+  //      （`normalizeLedgerError(unwrapInfraCause(e))` ⇒ 无码驱动/传输错 = `LEDGER_TX_TIMEOUT` **503** +
+  //      机读 `reason`），**不再**吞成 401；原始信息只进服务端日志（R108 诊断面 / R107 不外泄）。
+  // 400 分支与端点注册点均不变（本片只改 catch 分流）。
+  let challenge: { evm: string };
   try {
-    const challenge = consumeWalletAuthChallenge(req.body || {});
+    challenge = consumeWalletAuthChallenge(req.body || {});
+  } catch (error) {
+    sendError(res, 401, error instanceof Error ? error.message : 'Failed to verify auth challenge');
+    return;
+  }
+
+  try {
     const user = await DatabaseService.findOrCreateUserByEvm(challenge.evm);
     // P5-B5-FIX-LOGIN（Zang §5.104①）：登录端点与读端点**同族收口**（对照 `:496` 的
     // `GET /api/user/asset/:uID`，P4-B1-a 已修面）。原 `|| upsertAsset(uID, 0)` 回退会写 `asset` 表 ——
@@ -423,7 +443,12 @@ app.post('/api/auth/verify', async (req, res) => {
       token_type: 'bearer',
     });
   } catch (error) {
-    sendError(res, 401, error instanceof Error ? error.message : 'Failed to verify auth challenge');
+    // P6-D1'（②）：**落库面异常 ⇒ 既有 §14 分类器**（无 SQLSTATE 的驱动/传输错 = `LEDGER_TX_TIMEOUT`
+    // **503** + 机读 `reason`）；401 已在上面的凭据面分流，**不再**把基础设施故障伪装成鉴权失败。
+    // 原始信息只进服务端日志（R108 诊断面）；对外只给 §14 码 + 非敏感 details（R107）。
+    const normalized = normalizeLedgerError(unwrapInfraCause(error));
+    console.error('[auth.verify] infra failure:', JSON.stringify(ledgerErrorDiagnostics(error)));
+    return res.status(normalized.httpStatus).json(toErrorResponse(normalized));
   }
 });
 

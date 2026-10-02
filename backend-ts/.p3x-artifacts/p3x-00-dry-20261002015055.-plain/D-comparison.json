@@ -1,0 +1,588 @@
+{
+  "comparison": {
+    "objects": {
+      "TABLE": {
+        "expected_from_files": [
+          "account",
+          "admin_ops_audit_log",
+          "admin_permission",
+          "admin_role",
+          "admin_role_permission",
+          "admin_user_role",
+          "app_config",
+          "commission_policy",
+          "content_translation",
+          "currency",
+          "currency_status_log",
+          "job",
+          "job_application",
+          "job_submission",
+          "ledger_entry",
+          "ledger_owner",
+          "listing",
+          "listing_order",
+          "market_order",
+          "market_trade",
+          "referral",
+          "translation_cache",
+          "users"
+        ],
+        "expected_count": 23,
+        "actual_business_count": 23,
+        "missing": [],
+        "extra": []
+      },
+      "VIEW": {
+        "expected_from_files": [
+          "candle_view"
+        ],
+        "expected_count": 1,
+        "actual_count": 1,
+        "missing": [],
+        "extra": []
+      },
+      "FUNCTION": {
+        "expected_from_files": [
+          "account_guard",
+          "admin_ops_audit_log_append_only",
+          "admin_points_adjust_post_event",
+          "commission_policy_append_only",
+          "commission_policy_weights_guard",
+          "currency_status_log_append_only",
+          "job_application_create_key_guard",
+          "job_application_no_delete",
+          "job_application_status_guard",
+          "job_application_status_transition_ok",
+          "job_application_touch_time_updated",
+          "job_core_immutable_guard",
+          "job_ledger_ref_guard",
+          "job_no_delete",
+          "job_post_event",
+          "job_settle_plan",
+          "job_status_guard",
+          "job_status_transition_ok",
+          "job_submission_immutable_guard",
+          "job_submission_no_delete",
+          "job_touch_time_updated",
+          "ledger_accounts_from_entries",
+          "ledger_arm_lock_timeout",
+          "ledger_assert_commission_conservation",
+          "ledger_assert_currency_op",
+          "ledger_assert_platform_mutation",
+          "ledger_budget_remaining_ms",
+          "ledger_check_budget",
+          "ledger_cid_arg",
+          "ledger_entry_append_only",
+          "ledger_entry_json",
+          "ledger_error_for_sqlstate",
+          "ledger_int_amount",
+          "ledger_kind_ok",
+          "ledger_lock_timeout_ms",
+          "ledger_max_single_amount",
+          "ledger_norm_entry",
+          "ledger_optional_bool",
+          "ledger_optional_text",
+          "ledger_parse_user_amount",
+          "ledger_payload_amount",
+          "ledger_payload_cap",
+          "ledger_post_event",
+          "ledger_raise",
+          "ledger_sqlstate_of",
+          "ledger_stmt_budget_ms",
+          "ledger_strict_text",
+          "ledger_uid_arg",
+          "listing_create_key_guard",
+          "listing_no_delete",
+          "listing_order_core_immutable_guard",
+          "listing_order_create_key_guard",
+          "listing_order_ledger_ref_guard",
+          "listing_order_no_delete",
+          "listing_order_status_guard",
+          "listing_order_status_transition_ok",
+          "listing_order_touch_time_updated",
+          "listing_post_event",
+          "listing_status_guard",
+          "listing_status_transition_ok",
+          "listing_stock_guard",
+          "listing_touch_time_updated",
+          "market_order_amount_filled_guard",
+          "market_order_core_immutable_guard",
+          "market_order_create_key_guard",
+          "market_order_no_delete",
+          "market_order_status_guard",
+          "market_order_status_transition_ok",
+          "market_order_touch_time_updated",
+          "market_post_event",
+          "market_trade_append_only",
+          "platform_config_key_immutable",
+          "platform_config_touch_updated",
+          "referral_append_only",
+          "referral_bind",
+          "referral_cycle_guard"
+        ],
+        "expected_count": 76,
+        "actual_count": 76,
+        "missing": [],
+        "extra": []
+      },
+      "PROCEDURE": {
+        "expected_count": 0,
+        "actual_count": 0
+      },
+      "TRIGGER": {
+        "expected_from_files": [
+          "trg_account_guard",
+          "trg_admin_ops_audit_log_append_only",
+          "trg_admin_permission_key_immutable",
+          "trg_admin_role_key_immutable",
+          "trg_admin_role_permission_key_immutable",
+          "trg_admin_user_role_key_immutable",
+          "trg_app_config_key_immutable",
+          "trg_app_config_touch_updated",
+          "trg_commission_policy_append_only",
+          "trg_commission_policy_weights_guard",
+          "trg_currency_status_log_append_only",
+          "trg_job_application_create_key_guard",
+          "trg_job_application_no_delete",
+          "trg_job_application_status_guard",
+          "trg_job_application_touch_time_updated",
+          "trg_job_core_immutable_guard",
+          "trg_job_ledger_ref_guard",
+          "trg_job_no_delete",
+          "trg_job_status_guard",
+          "trg_job_submission_immutable_guard",
+          "trg_job_submission_no_delete",
+          "trg_job_touch_time_updated",
+          "trg_ledger_entry_append_only",
+          "trg_ledger_entry_commission_conservation",
+          "trg_listing_create_key_guard",
+          "trg_listing_no_delete",
+          "trg_listing_order_core_immutable_guard",
+          "trg_listing_order_create_key_guard",
+          "trg_listing_order_ledger_ref_guard",
+          "trg_listing_order_no_delete",
+          "trg_listing_order_status_guard",
+          "trg_listing_order_touch_time_updated",
+          "trg_listing_status_guard",
+          "trg_listing_stock_guard",
+          "trg_listing_touch_time_updated",
+          "trg_market_order_amount_filled_guard",
+          "trg_market_order_core_immutable_guard",
+          "trg_market_order_create_key_guard",
+          "trg_market_order_no_delete",
+          "trg_market_order_status_guard",
+          "trg_market_order_touch_time_updated",
+          "trg_market_trade_append_only",
+          "trg_referral_append_only",
+          "trg_referral_cycle_guard"
+        ],
+        "expected_count": 44,
+        "actual_count": 44,
+        "missing": [],
+        "extra": []
+      },
+      "SEQUENCE": {
+        "expected_by_name_from_files": [],
+        "actual_by_name": [
+          "admin_ops_audit_log_log_id_seq",
+          "commission_policy_policy_id_seq",
+          "currency_cid_seq",
+          "currency_status_log_log_id_seq",
+          "job_application_application_id_seq",
+          "job_job_id_seq",
+          "job_submission_submission_id_seq",
+          "ledger_entry_txid_seq",
+          "listing_listing_id_seq",
+          "listing_order_order_id_seq",
+          "market_order_order_id_seq",
+          "market_trade_trade_id_seq",
+          "schema_migration_id_seq",
+          "users_uid_seq"
+        ],
+        "expected_count_identity_serial_bootstrap": 14,
+        "identity_decls": 13,
+        "serial_decls": 0,
+        "actual_count": 14
+      }
+    },
+    "catalog": {
+      "base_tables": 24,
+      "views": 1,
+      "sequences": 14,
+      "functions": 76,
+      "procedures": 0,
+      "indexes": 65
+    },
+    "terminal": {
+      "currency_rows": [
+        {
+          "cid": "1",
+          "symbol": "$",
+          "name": "平台积分",
+          "owner_uid": "0",
+          "decimals": "0",
+          "total_supply": "0",
+          "supply_cap": null,
+          "status": "listed"
+        }
+      ],
+      "currency_cid1": {
+        "cid": "1",
+        "symbol": "$",
+        "name": "平台积分",
+        "owner_uid": "0",
+        "decimals": "0",
+        "total_supply": "0",
+        "supply_cap": null,
+        "status": "listed"
+      },
+      "ledger_owner_rows": [
+        {
+          "uid": "-1",
+          "name": "手续费归集账户"
+        },
+        {
+          "uid": "-2",
+          "name": "佣金池"
+        },
+        {
+          "uid": "-3",
+          "name": "罚没账户"
+        },
+        {
+          "uid": "0",
+          "name": "平台主体"
+        }
+      ],
+      "account_rows": "4",
+      "account_sum": {
+        "rows_all": 4,
+        "all_zero": 4,
+        "cid1_uid_le0_allzero": 4,
+        "sigma_balance_frozen": "0"
+      },
+      "commission_policy_ids": [
+        "1"
+      ],
+      "table_zero": {
+        "users": "0",
+        "referral": "0",
+        "ledger_entry": "0",
+        "job": "0",
+        "job_application": "0",
+        "job_submission": "0",
+        "listing": "0",
+        "listing_order": "0",
+        "market_order": "0",
+        "market_trade": "0"
+      },
+      "m0017_six": {
+        "app_config": "0",
+        "admin_role": "1",
+        "admin_permission": "11",
+        "admin_role_permission": "11",
+        "admin_user_role": "0",
+        "currency_status_log": "0"
+      },
+      "schema_migration_rows": "22",
+      "non_internal_triggers": "44",
+      "triggers_enabled_not_o": "0",
+      "currency_cid_seq": {
+        "seq_name": "public.currency_cid_seq",
+        "last_value": "3",
+        "is_called": true,
+        "next_value_calc": "4",
+        "probe": "read-only SELECT on sequence relation (no nextval)"
+      },
+      "seed_expectations": {
+        "currency_from_0001": {
+          "cid": "1",
+          "symbol": "'$'",
+          "name": "平台积分",
+          "owner_uid": "0",
+          "decimals": "0",
+          "total_supply": "0",
+          "status": "listed"
+        },
+        "ledger_owner_from_0001": [
+          {
+            "uid": "0",
+            "name": "平台主体"
+          },
+          {
+            "uid": "-1",
+            "name": "手续费归集账户"
+          },
+          {
+            "uid": "-2",
+            "name": "佣金池"
+          },
+          {
+            "uid": "-3",
+            "name": "罚没账户"
+          }
+        ],
+        "account_seed_rule_from_0001": "INSERT INTO account (uid,cid,balance,frozen) SELECT o.uid,1,0,0 FROM ledger_owner o WHERE o.uid<=0 ⇒ 4 行 / 全 0",
+        "currency_cid_nextval_theory_from_0001_only": "2",
+        "currency_cid_nextval_derived": "4",
+        "currency_cid_nextval_sources": [
+          "0001 §13 setval(pg_get_serial_sequence('currency','cid'), 1, true) ⇒ 下限 2",
+          "0011_commission_assert_closure_and_referral_depth_guard.sql(cols=symbol,name,owner_uid,decimals,total_supply,status,listed_at) ⇒ +1（无 cid ⇒ 走 IDENTITY 序列；子事务回滚不撤序列推进）",
+          "0012_replay_pre_gate_before_balance_gate.sql(cols=symbol,name,owner_uid,decimals,total_supply,status,listed_at) ⇒ +1（无 cid ⇒ 走 IDENTITY 序列；子事务回滚不撤序列推进）"
+        ],
+        "note_for_brief": "brief 预置「currency.cid 下一值 = 2」仅据 0001 setval；实测重放后为 4，差额已定位到 0011/0012 的自检 INSERT。"
+      }
+    },
+    "diffs": []
+  },
+  "terminal_checks": [
+    {
+      "name": "currency.row_count",
+      "expected": "1",
+      "actual": "1",
+      "ok": true
+    },
+    {
+      "name": "currency.cid1(逐值)",
+      "expected": {
+        "cid": "1",
+        "symbol": "$",
+        "name": "平台积分",
+        "owner_uid": "0",
+        "decimals": "0",
+        "total_supply": "0",
+        "status": "listed"
+      },
+      "actual": {
+        "cid": "1",
+        "symbol": "$",
+        "name": "平台积分",
+        "owner_uid": "0",
+        "decimals": "0",
+        "total_supply": "0",
+        "status": "listed"
+      },
+      "ok": true
+    },
+    {
+      "name": "currency.total_supply=0",
+      "expected": "0",
+      "actual": "0",
+      "ok": true
+    },
+    {
+      "name": "currency.status=listed",
+      "expected": "listed",
+      "actual": "listed",
+      "ok": true
+    },
+    {
+      "name": "currency.supply_cap=NULL",
+      "expected": null,
+      "actual": null,
+      "ok": null,
+      "note": "NOT_MEASURED：supply_cap 为 NULL 无法与「未取到」区分，故不计入判负"
+    },
+    {
+      "name": "ledger_owner.row_count",
+      "expected": "4",
+      "actual": "4",
+      "ok": true
+    },
+    {
+      "name": "ledger_owner.rows(uid+name 逐值｜顺序无关)",
+      "expected": [
+        {
+          "uid": "-3",
+          "name": "罚没账户"
+        },
+        {
+          "uid": "-2",
+          "name": "佣金池"
+        },
+        {
+          "uid": "-1",
+          "name": "手续费归集账户"
+        },
+        {
+          "uid": "0",
+          "name": "平台主体"
+        }
+      ],
+      "actual": [
+        {
+          "uid": "-3",
+          "name": "罚没账户"
+        },
+        {
+          "uid": "-2",
+          "name": "佣金池"
+        },
+        {
+          "uid": "-1",
+          "name": "手续费归集账户"
+        },
+        {
+          "uid": "0",
+          "name": "平台主体"
+        }
+      ],
+      "ok": true
+    },
+    {
+      "name": "account.row_count",
+      "expected": "4",
+      "actual": "4",
+      "ok": true
+    },
+    {
+      "name": "account.cid1_uid<=0_allzero",
+      "expected": "4",
+      "actual": "4",
+      "ok": true
+    },
+    {
+      "name": "account.all_rows_zero(balance=0&frozen=0)",
+      "expected": "4",
+      "actual": "4",
+      "ok": true
+    },
+    {
+      "name": "account.Σ(balance+frozen)",
+      "expected": "0",
+      "actual": "0",
+      "ok": true
+    },
+    {
+      "name": "commission_policy.ids",
+      "expected": [
+        "1"
+      ],
+      "actual": [
+        "1"
+      ],
+      "ok": true
+    },
+    {
+      "name": "users.row_count",
+      "expected": "0",
+      "actual": "0",
+      "ok": true
+    },
+    {
+      "name": "referral.row_count",
+      "expected": "0",
+      "actual": "0",
+      "ok": true
+    },
+    {
+      "name": "ledger_entry.row_count",
+      "expected": "0",
+      "actual": "0",
+      "ok": true
+    },
+    {
+      "name": "job.row_count",
+      "expected": "0",
+      "actual": "0",
+      "ok": true
+    },
+    {
+      "name": "job_application.row_count",
+      "expected": "0",
+      "actual": "0",
+      "ok": true
+    },
+    {
+      "name": "job_submission.row_count",
+      "expected": "0",
+      "actual": "0",
+      "ok": true
+    },
+    {
+      "name": "listing.row_count",
+      "expected": "0",
+      "actual": "0",
+      "ok": true
+    },
+    {
+      "name": "listing_order.row_count",
+      "expected": "0",
+      "actual": "0",
+      "ok": true
+    },
+    {
+      "name": "market_order.row_count",
+      "expected": "0",
+      "actual": "0",
+      "ok": true
+    },
+    {
+      "name": "market_trade.row_count",
+      "expected": "0",
+      "actual": "0",
+      "ok": true
+    },
+    {
+      "name": "0017.app_config.row_count",
+      "expected": "0",
+      "actual": "0",
+      "ok": true
+    },
+    {
+      "name": "0017.admin_role.row_count",
+      "expected": "1",
+      "actual": "1",
+      "ok": true
+    },
+    {
+      "name": "0017.admin_permission.row_count",
+      "expected": "11",
+      "actual": "11",
+      "ok": true
+    },
+    {
+      "name": "0017.admin_role_permission.row_count",
+      "expected": "11",
+      "actual": "11",
+      "ok": true
+    },
+    {
+      "name": "0017.admin_user_role.row_count",
+      "expected": "0",
+      "actual": "0",
+      "ok": true
+    },
+    {
+      "name": "0017.currency_status_log.row_count",
+      "expected": "0",
+      "actual": "0",
+      "ok": true
+    },
+    {
+      "name": "schema_migration.row_count",
+      "expected": "22",
+      "actual": "22",
+      "ok": true
+    },
+    {
+      "name": "triggers.non_internal",
+      "expected": "44",
+      "actual": "44",
+      "ok": true
+    },
+    {
+      "name": "triggers.enabled_not_o",
+      "expected": "0",
+      "actual": "0",
+      "ok": true
+    },
+    {
+      "name": "currency.cid.nextval(文件派生＝setval 下限 + 无 cid 的 INSERT 次数)",
+      "expected": "4",
+      "actual": "4",
+      "ok": true,
+      "note": "★预置口径（brief）=2（仅据 0001 setval）；来源=0001 §13 setval(pg_get_serial_sequence('currency','cid'), 1, true) ⇒ 下限 2 + 0011_commission_assert_closure_and_referral_depth_guard.sql(cols=symbol,name,owner_uid,decimals,total_supply,status,listed_at) ⇒ +1（无 cid ⇒ 走 IDENTITY 序列；子事务回滚不撤序列推进） + 0012_replay_pre_gate_before_balance_gate.sql(cols=symbol,name,owner_uid,decimals,total_supply,status,listed_at) ⇒ +1（无 cid ⇒ 走 IDENTITY 序列；子事务回滚不撤序列推进）"
+    }
+  ]
+}

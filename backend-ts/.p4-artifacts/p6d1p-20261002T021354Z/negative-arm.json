@@ -1,0 +1,183 @@
+{
+  "run": "p6d1p-20261002T021354Z",
+  "engine": "p4z-d1p-02-negative-arm",
+  "temp_port": 5799,
+  "db_target": "unreachable (127.0.0.1:1) — 子进程 env 里所有 *DATABASE_URL*/*POSTGRES* 键被摘除后替换为该值（不回显任何真值）",
+  "secret_fingerprint": "b1ec01afb2eb",
+  "tests": {
+    "R1_get_user_read": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "503（requireActor ⇒ infra 面；**不得** 401/500）"
+    },
+    "R2_get_prize_item_read": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "503"
+    },
+    "R3_get_pending_verification_read": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "503（requireAdmin ⇒ requireActor 同族）"
+    },
+    "A0_get_user_no_token_401": {
+      "status": 401,
+      "code": "AUTH_UNAUTHORIZED",
+      "reason": null,
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"AUTH_UNAUTHORIZED\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}",
+      "expect": "401（真鉴权失败：无 token —— **401 面仍在**）"
+    },
+    "A1_post_auth_challenge": {
+      "status": 200,
+      "code": null,
+      "reason": null,
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "body": "{\"success\":true,\"message\":\"OK\",\"data\":{\"evm_address\":\"0xd64f9bc36833dfe8578cba1581c973b65fdef1d1\",\"message\":\"Seafood Wallet Sign-In\\n\\n请签名确认你持有该钱包地址，用于登录 Seafood。\\n本次签名不会发起链上交易，也不会消耗 gas。\\n\\n钱包地址: 0xd64f9bc36833dfe8578cba1581c973b65fdef1d1\\nNonce: 0070879a94275313851c8304e218bd0c\\nIssued At: 2026-10-02 02:13:55 UTC\\nExpires At: 2026-10-02 02:18:55 UTC\",\"challenge_token\":\"eyJhbGciOiJIUzI1NiIsInR5cC",
+      "expect": "200（不碰库 ⇒ 不受 DB 不可达影响）"
+    },
+    "A2_verify_bad_signature_401": {
+      "status": 401,
+      "code": null,
+      "reason": null,
+      "top_keys": [
+        "success",
+        "message",
+        "error"
+      ],
+      "body": "{\"success\":false,\"message\":\"Invalid wallet signature\",\"error\":\"Invalid wallet signature\"}",
+      "expect": "401（真鉴权失败：EIP-191 恢复不符 —— **401 面仍在**）"
+    },
+    "A3_verify_valid_signature_db_unreachable": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "503 + 机读 reason（★ 核心断言：**不得 401**）",
+      "challenge_ok": true,
+      "signature_recovered": true
+    },
+    "A4_verify_login_alias_same_handler": {
+      "status": 401,
+      "code": null,
+      "reason": null,
+      "top_keys": [
+        "success",
+        "message",
+        "error"
+      ],
+      "body": "{\"success\":false,\"message\":\"Challenge has been consumed or expired\",\"error\":\"Challenge has been consumed or expired\"}",
+      "expect": "同 handler（401/503 同 A3 口径；nonce 已消费 ⇒ 401 属预期）"
+    },
+    "H1_health": {
+      "status": 503,
+      "code": null,
+      "reason": null,
+      "top_keys": [
+        "ok",
+        "db_version",
+        "schema_version",
+        "time"
+      ],
+      "body": "{\"ok\":false,\"db_version\":\"unknown\",\"schema_version\":null,\"time\":\"2026-10-02T02:13:56.023Z\"}",
+      "expect": "503（健康探针：库不可达）"
+    },
+    "H2_health_alias": {
+      "status": 503,
+      "code": null,
+      "reason": null,
+      "top_keys": [
+        "ok",
+        "db_version",
+        "schema_version",
+        "time"
+      ],
+      "body": "{\"ok\":false,\"db_version\":\"unknown\",\"schema_version\":null,\"time\":\"2026-10-02T02:13:56.026Z\"}",
+      "expect": "503（同一 handler）"
+    },
+    "X1_get_task_all_public_read": {
+      "status": 500,
+      "code": null,
+      "reason": null,
+      "top_keys": [
+        "success",
+        "message",
+        "error"
+      ],
+      "body": "{\"success\":false,\"message\":\"Failed to load tasks\",\"error\":\"Failed to load tasks\"}",
+      "expect": "本单**范围外**：该 catch 硬编码 `sendError(500)`、不接分类器",
+      "out_of_scope": true
+    },
+    "X2_get_user_asset_public_read": {
+      "status": 200,
+      "code": null,
+      "reason": null,
+      "top_keys": [
+        "success",
+        "message",
+        "data"
+      ],
+      "body": "{\"success\":true,\"message\":\"OK\",\"data\":{\"index_id\":0,\"uID\":1,\"points\":0,\"lucks\":0,\"time_update\":0}}",
+      "expect": "本单**范围外**：同上（硬编码 500）",
+      "out_of_scope": true
+    },
+    "X3_get_home_mixed": {
+      "status": 500,
+      "code": null,
+      "reason": null,
+      "top_keys": [
+        "success",
+        "message",
+        "error"
+      ],
+      "body": "{\"success\":false,\"message\":\"Failed to load home payload\",\"error\":\"Failed to load home payload\"}",
+      "expect": "本单**范围外**：同上（硬编码 500）",
+      "out_of_scope": true
+    },
+    "X4_post_claim_deprecated": {
+      "status": 410,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "reason": "CLAIM_RETIRED",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/task-progress/claim/:jID\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/task-progress/claim/:jID\",\"http_status\":410,\"sunset\":\"批 5 sunset（未决 §7-1：过期日待 Kevin 定）\",\"reason\":\"CLAIM_RETIRED\"}}}",
+      "expect": "410 弃用面（不碰库 ⇒ 不受影响）",
+      "out_of_scope": true
+    }
+  },
+  "temp_pid": 79548,
+  "temp_up": true,
+  "shutdown": {
+    "pid": 79548,
+    "sigterm_ok": true,
+    "sigkill_used": false,
+    "port_closed": true,
+    "probe_after": "NETERR"
+  },
+  "finished": "2026-10-02T02:13:56.846Z"
+}

@@ -1,0 +1,107 @@
+{
+  "started": "2026-10-02T02:07:47.706Z",
+  "engine": "p4z-d1p-00-probe-shape",
+  "cases": [
+    {
+      "path": "pool_ws",
+      "url_host": "127.0.0.1:1",
+      "url_name": "REFUSED_127_0_0_1:1",
+      "outcome": "THREW",
+      "error": {
+        "typeof_code": "function",
+        "message": "() => o?.message",
+        "is_global_event": false,
+        "own_keys": [
+          "stack"
+        ],
+        "chain": [
+          {
+            "message": "() => c.message",
+            "has_own_message": true
+          }
+        ]
+      },
+      "elapsed_ms": 24
+    },
+    {
+      "path": "pool_ws",
+      "url_host": "d1p-unresolvable.invalid",
+      "url_name": "UNRESOLVABLE_HOST",
+      "outcome": "THREW",
+      "error": {
+        "typeof_code": "function",
+        "message": "() => o?.message",
+        "is_global_event": false,
+        "own_keys": [
+          "stack"
+        ],
+        "chain": [
+          {
+            "message": "() => c.message",
+            "has_own_message": true
+          }
+        ]
+      },
+      "elapsed_ms": 568
+    },
+    {
+      "path": "neon_http",
+      "url_host": "127.0.0.1:1",
+      "url_name": "REFUSED_127_0_0_1:1",
+      "outcome": "THREW",
+      "error": {
+        "typeof_code": "function",
+        "message": "() => o?.message",
+        "is_global_event": false,
+        "own_keys": [
+          "stack",
+          "message",
+          "name",
+          "code",
+          "sourceError"
+        ],
+        "chain": [
+          {
+            "message": "() => c.message",
+            "has_own_message": true
+          },
+          {
+            "message": "() => c.message",
+            "has_own_message": true
+          }
+        ]
+      },
+      "elapsed_ms": 19
+    },
+    {
+      "path": "neon_http",
+      "url_host": "d1p-unresolvable.invalid",
+      "url_name": "UNRESOLVABLE_HOST",
+      "outcome": "THREW",
+      "error": {
+        "typeof_code": "function",
+        "message": "() => o?.message",
+        "is_global_event": false,
+        "own_keys": [
+          "stack",
+          "message",
+          "name",
+          "code",
+          "sourceError"
+        ],
+        "chain": [
+          {
+            "message": "() => c.message",
+            "has_own_message": true
+          },
+          {
+            "message": "() => c.message",
+            "has_own_message": true
+          }
+        ]
+      },
+      "elapsed_ms": 393
+    }
+  ],
+  "finished": "2026-10-02T02:07:48.710Z"
+}

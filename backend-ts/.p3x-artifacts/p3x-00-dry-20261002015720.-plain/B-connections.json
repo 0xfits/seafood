@@ -1,0 +1,33 @@
+{
+  "self": {
+    "pid": 2895,
+    "db": "neondb",
+    "usr": "neondb_owner"
+  },
+  "others_count": 2,
+  "others": [
+    {
+      "pid": 2476,
+      "usename": "neondb_owner",
+      "application_name": "pgbouncer",
+      "state": "idle",
+      "state_change": "2026-10-02 01:54:51.083702+00",
+      "backend_start": "2026-10-02 01:54:50.994837+00",
+      "xact_start": null,
+      "addr": "::1/128"
+    },
+    {
+      "pid": 2477,
+      "usename": "neondb_owner",
+      "application_name": "pgbouncer",
+      "state": "idle",
+      "state_change": "2026-10-02 01:54:51.146189+00",
+      "backend_start": "2026-10-02 01:54:51.032049+00",
+      "xact_start": null,
+      "addr": "127.0.0.1/32"
+    }
+  ],
+  "idle_in_transaction_count": 0,
+  "idle_in_transaction": [],
+  "ungranted_locks_by_other_pids": []
+}

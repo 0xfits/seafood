@@ -1,0 +1,504 @@
+{
+  "unit": "BE-AUDIT-LIVE",
+  "role": "Kong",
+  "at": "2026-10-02T02:02:20.373Z",
+  "api": "http://127.0.0.1:5788",
+  "recon": {
+    "table_present": true,
+    "admin_candidates": [
+      {
+        "uid": "1",
+        "is_admin": true,
+        "evm_head": "0x99a7…"
+      },
+      {
+        "uid": "10",
+        "is_admin": true,
+        "evm_head": "0xd1e5…"
+      },
+      {
+        "uid": "970201",
+        "is_admin": true,
+        "evm_head": "0x0000…"
+      }
+    ],
+    "fixture_uid_window_used": [
+      "970001",
+      "970002",
+      "970101",
+      "970102",
+      "970201",
+      "970202",
+      "970203",
+      "970204",
+      "970205",
+      "970206",
+      "970207",
+      "970208",
+      "970209",
+      "970210",
+      "970211",
+      "970212",
+      "970213",
+      "971100"
+    ],
+    "schema_version_row": [
+      {
+        "version": "0023"
+      }
+    ],
+    "migration_rows": "22",
+    "rejected_rows_existing": "0",
+    "code_path_adjustPoints": [
+      "// `public.admin_points_adjust_post_event($1::jsonb)`（`migrations/0023_admin_points_audit_daily_cap.sql`）",
+      "FROM (SELECT public.admin_points_adjust_post_event(${JSON.stringify(payload)}::jsonb) AS r) AS t"
+    ],
+    "ld016_map": [
+      "LD016: 'LEDGER_AMOUNT_INVALID',"
+    ]
+  },
+  "pre_state": {
+    "ledger_entry_rows": "269",
+    "audit_rows": "2",
+    "sigma_balance_cid1": "1989693",
+    "account_rows": "26"
+  },
+  "restart": {
+    "response_status": 200,
+    "response_body": "{\"sid\":\"seafood-api\",\"ok\":true,\"state\":\"running\",\"pid\":65078,\"msg\":\"已启动\"}",
+    "pid_before": "63152"
+  },
+  "health_after_restart": {
+    "ready": true,
+    "pid_after": "65096",
+    "health": {
+      "ok": true,
+      "db_version": "PostgreSQL 18.6 (4e955f5) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit",
+      "schema_version": "0023",
+      "time": "2026-10-02T02:02:29.483Z"
+    }
+  },
+  "subjects": {
+    "admin_uid": "1",
+    "admin_is_admin": true,
+    "nonadmin_uid": "2",
+    "nonadmin_has_role_row": false,
+    "fixture_target_uid": 971213,
+    "fixture_uid_is_new_window": true,
+    "keys_used": [
+      "ops:1:points_adjust:971213:1:live-mint-a",
+      "ops:1:points_adjust:971213:1:live-burn-a",
+      "ops:1:points_adjust:971213:1:live-caprepro"
+    ],
+    "token_present": {
+      "admin": true,
+      "nonadmin": true
+    }
+  },
+  "item1_success_http": {
+    "request": {
+      "uID": 971213,
+      "amount": 1,
+      "reason": "b6audit-live mint",
+      "idempotency_key": "ops:1:points_adjust:971213:1:live-mint-a"
+    },
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "积分调整成功（铸币）",
+      "data": {
+        "uID": 971213,
+        "cid": 1,
+        "op": "mint",
+        "amount": 1,
+        "new_points": 1,
+        "timestamp": 1790906552,
+        "reason": "b6audit-live mint",
+        "txid": "277"
+      }
+    }
+  },
+  "item1_rows": {
+    "ledger_entry": [
+      {
+        "txid": 277,
+        "uid": 971213,
+        "cid": 1,
+        "delta": 1,
+        "frozen_delta": 0,
+        "balance_after": 1,
+        "frozen_after": 0,
+        "kind": "mint",
+        "ref_type": "currency",
+        "ref_id": 1,
+        "idempotency_key": "ops:1:points_adjust:971213:1:live-mint-a",
+        "request_fingerprint": "533f5b83a2a86da5f954de112287b60b09b027c75b3fbade4826e437397b7223",
+        "reversal_of_txid": null,
+        "memo": "b6audit-live mint",
+        "time_created": "2026-10-02T02:02:32.13164+00:00",
+        "event_root_key": "ops:1:points_adjust:971213:1:live-mint-a"
+      }
+    ],
+    "audit": [
+      {
+        "log_id": 5,
+        "actor_uid": 1,
+        "action": "points_adjust",
+        "target_uid": 971213,
+        "cid": 1,
+        "op": "mint",
+        "amount": 1,
+        "balance_before": 0,
+        "balance_after": 1,
+        "request_fingerprint": "533f5b83a2a86da5f954de112287b60b09b027c75b3fbade4826e437397b7223",
+        "idempotency_key": "ops:1:points_adjust:971213:1:live-mint-a",
+        "result": "applied",
+        "txid": 277,
+        "memo": "b6audit-live mint",
+        "time_created": "2026-10-02T02:02:32.13164+00:00"
+      }
+    ],
+    "delta_vs_pre": {
+      "ledger": 1,
+      "audit": 1
+    }
+  },
+  "item2_replay": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "积分调整成功（铸币）",
+      "data": {
+        "uID": 971213,
+        "cid": 1,
+        "op": "mint",
+        "amount": 1,
+        "new_points": 1,
+        "timestamp": 1790906553,
+        "reason": "b6audit-live mint",
+        "txid": "277"
+      },
+      "idempotent_replay": true
+    },
+    "txid_first": "277",
+    "txid_replay": "277",
+    "idempotent_replay_flag": true,
+    "ledger_delta": 0,
+    "audit_delta": 0
+  },
+  "item3_over_single": {
+    "status": 400,
+    "body": {
+      "error": {
+        "code": "LEDGER_AMOUNT_INVALID",
+        "message": "Request shape is invalid",
+        "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+        "details": {
+          "field": "amount",
+          "reason": "OVER_MAX_SINGLE_AMOUNT",
+          "max": 100000,
+          "provided": 100001
+        }
+      }
+    },
+    "code": "LEDGER_AMOUNT_INVALID",
+    "details": {
+      "field": "amount",
+      "reason": "OVER_MAX_SINGLE_AMOUNT",
+      "max": 100000,
+      "provided": 100001
+    },
+    "zero_residue": {
+      "ledger_delta": 0,
+      "audit_delta": 0
+    }
+  },
+  "item3_burn": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "积分调整成功（销毁）",
+      "data": {
+        "uID": 971213,
+        "cid": 1,
+        "op": "burn",
+        "amount": -1,
+        "new_points": 0,
+        "timestamp": 1790906555,
+        "reason": "b6audit-live burn (回补)",
+        "txid": "278"
+      }
+    },
+    "ledger_entry": [
+      {
+        "txid": 278,
+        "uid": 971213,
+        "cid": 1,
+        "delta": -1,
+        "frozen_delta": 0,
+        "balance_after": 0,
+        "frozen_after": 0,
+        "kind": "burn",
+        "ref_type": "currency",
+        "ref_id": 1,
+        "idempotency_key": "ops:1:points_adjust:971213:1:live-burn-a",
+        "request_fingerprint": "f83b179a3c01f645fba7611b73fdd518e861a9d3998ab54ae4da55f60822aca3",
+        "reversal_of_txid": null,
+        "memo": "b6audit-live burn (回补)",
+        "time_created": "2026-10-02T02:02:35.80531+00:00",
+        "event_root_key": "ops:1:points_adjust:971213:1:live-burn-a"
+      }
+    ],
+    "audit": [
+      {
+        "log_id": 6,
+        "actor_uid": 1,
+        "action": "points_adjust",
+        "target_uid": 971213,
+        "cid": 1,
+        "op": "burn",
+        "amount": -1,
+        "balance_before": 1,
+        "balance_after": 0,
+        "request_fingerprint": "f83b179a3c01f645fba7611b73fdd518e861a9d3998ab54ae4da55f60822aca3",
+        "idempotency_key": "ops:1:points_adjust:971213:1:live-burn-a",
+        "result": "applied",
+        "txid": 278,
+        "memo": "b6audit-live burn (回补)",
+        "time_created": "2026-10-02T02:02:35.80531+00:00"
+      }
+    ],
+    "balance_after_target": "0"
+  },
+  "item4_auth": {
+    "nonadmin": {
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "reason": "NOT_ADMIN"
+    },
+    "no_token": {
+      "status": 401,
+      "code": "AUTH_UNAUTHORIZED"
+    },
+    "zero_residue": {
+      "ledger_delta": 0,
+      "audit_delta": 0,
+      "audit_rows_with_those_keys": "0"
+    }
+  },
+  "item5_static": {
+    "threshold_constant_line": [
+      "v_daily_cap   CONSTANT bigint := 1000000;"
+    ],
+    "sum_predicate_lines": [
+      "-- ★ 求和口径（逐字，Zang 裁定②）：`actor_uid = v_actor` 且 **`result = 'applied'`（只计成功行）**",
+      "--   = 拒绝留痕引入的新攻击面。故**只计成功行**（`result = 'applied'`）。",
+      "AND a.result     = 'applied'"
+    ],
+    "gate_condition_line": [
+      "IF v_used + abs(v_amount) > v_daily_cap THEN"
+    ],
+    "sum_block_verbatim": "SELECT COALESCE(sum(abs(a.amount)), 0)::bigint INTO v_used\n    FROM public.admin_ops_audit_log AS a\n   WHERE a.actor_uid  = v_actor\n     AND a.result     = 'applied'\n     AND a.time_created >= v_day_start\n     AND a.idempotency_key <> v_key;",
+    "no_raise_in_body": true,
+    "reject_branch_marker": true
+  },
+  "item5_live_readings": {
+    "actor_daily_used_applied_only": "4",
+    "actor_daily_used_all_rows": "4",
+    "daily_cap_constant": "1000000",
+    "rejected_daily_cap_rows_in_real_db": "0"
+  },
+  "item5_intx_repro": {
+    "synthetic_used_row": {
+      "amount": "1000000",
+      "result": "applied",
+      "note": "仅事务内合成，ROLLBACK 后消失"
+    },
+    "reject_receipt": {
+      "ok": false,
+      "op": "mint",
+      "reason": "OVER_MAX_DAILY_AMOUNT",
+      "daily_cap": 1000000,
+      "requested": "1",
+      "daily_used": 1000004,
+      "user_found": 1
+    },
+    "rejected_audit_row": {
+      "log_id": 8,
+      "actor_uid": 1,
+      "action": "points_adjust",
+      "target_uid": 971213,
+      "cid": 1,
+      "op": "mint",
+      "amount": 1,
+      "balance_before": null,
+      "balance_after": null,
+      "request_fingerprint": "fp-live-cap",
+      "idempotency_key": "ops:1:points_adjust:971213:1:live-caprepro",
+      "result": "rejected_daily_cap",
+      "txid": null,
+      "memo": "OVER_MAX_DAILY_AMOUNT",
+      "time_created": "2026-10-02T02:02:39.975107+00:00"
+    },
+    "ledger_delta_in_tx": 0,
+    "audit_delta_in_tx": 2,
+    "after_rollback": {
+      "pre": {
+        "ledger_entry_rows": "271",
+        "audit_rows": "4",
+        "sigma_balance_cid1": "1989693",
+        "account_rows": "27"
+      },
+      "post": {
+        "ledger_entry_rows": "271",
+        "audit_rows": "4",
+        "sigma_balance_cid1": "1989693",
+        "account_rows": "27"
+      },
+      "zero_residue": true
+    }
+  },
+  "post_state": {
+    "ledger_entry_rows": "271",
+    "audit_rows": "4",
+    "sigma_balance_cid1": "1989693",
+    "account_rows": "27"
+  },
+  "net_displacement": {
+    "ledger_entry_rows": {
+      "pre": "269",
+      "post": "271"
+    },
+    "sigma_balance_cid1": {
+      "pre": "1989693",
+      "post": "1989693"
+    },
+    "sigma_equal": true,
+    "fixture_target_balance": "0",
+    "own_audit_rows": [
+      {
+        "log_id": "5",
+        "result": "applied",
+        "op": "mint",
+        "amount": "1",
+        "txid": "277"
+      },
+      {
+        "log_id": "6",
+        "result": "applied",
+        "op": "burn",
+        "amount": "-1",
+        "txid": "278"
+      }
+    ],
+    "rejected_daily_cap_rows_in_real_db_final": "0"
+  },
+  "item5_live_not_triggered": {
+    "statement": "真库 live 未触发日累计拒绝（业务路径未产生 result=rejected_daily_cap 行）",
+    "reason": "触发需操作人当日 applied 额度 ≥1,000,000 点；为测试真造百万点会污染真账本（红线②）⇒ 只在事务内复现（见 item5_intx_repro）",
+    "evidence_rejected_rows_zero": "0",
+    "live_daily_used_by_this_admin_today": "4"
+  },
+  "unit_run_history": [
+    {
+      "at": "2026-10-02T02:01:18.771Z",
+      "target_uid": 971100,
+      "txid_mint": "275",
+      "txid_burn": "276",
+      "exit_ok": false
+    }
+  ],
+  "unit_baseline_before_all_runs": {
+    "ledger_entry_rows": "267",
+    "audit_rows": "0",
+    "sigma_balance_cid1": "1989693",
+    "account_rows": "25"
+  },
+  "unit_net_displacement": {
+    "ledger_entry_rows": {
+      "pre": "267",
+      "post": "271"
+    },
+    "sigma_balance_cid1": {
+      "pre": "1989693",
+      "post": "1989693"
+    },
+    "sigma_equal": true
+  },
+  "checks": [
+    {
+      "id": "S1",
+      "ok": true,
+      "expect": "重启后 /health 200 且 schema_version=0023，PID 变化（新代码已 load）",
+      "actual": "{\"ready\":true,\"pid_before\":\"63152\",\"pid_after\":\"65096\"}"
+    },
+    {
+      "id": "S2",
+      "ok": true,
+      "expect": "夹具 uid 为**新窗口**（不得复用历史夹具）",
+      "actual": "target=971213 > 历史最大 971100"
+    },
+    {
+      "id": "①",
+      "ok": true,
+      "expect": "200 + 回执齐 + ledger_entry×1(kind=mint,txid 同) + audit×1(applied,op=mint,金额/操作人/目标 uid/指纹齐)",
+      "actual": "{\"status\":200,\"ret_txid\":\"277\",\"ledger\":{\"txid\":277,\"uid\":971213,\"cid\":1,\"delta\":1,\"frozen_delta\":0,\"balance_after\":1,\"frozen_after\":0,\"kind\":\"mint\",\"ref_type\":\"currency\",\"ref_id\":1,\"idempotency_key\":\"ops:1:points_adjust:971213:1:live-mint-a\",\"request_fingerprint\":\"533f5b83a2a86da5f954de112287b60b09b027c75b3fbade4826e437397b7223\",\"reversal_of_txid\":null,\"memo\":\"b6audit-live mint\",\"time_created\":\"2026-10-02T02:02:32.13164+00:00\",\"event_root_key\":\"ops:1:points_adjust:971213:1:live-mint-a\"},\"audit\":{\"log_id\":5,\"actor_uid\":1,\"action\":\"points_adjust\",\"target_uid\":971213,\"cid\":1,\"op\":\"mint\",\"amount\":1,\"balance_before\":0,\"balance_after\":1,\"request_fingerprint\":\"533f5b83a2a86da5f954de112287b60b09b027c75b3fbade4826e437397b7223\",\"idempotency_key\":\"ops:1:points_adjust:971213:1:live-mint-a\",\"result\":\"applied\",\"txid\":277,\"memo\":\"b6audit-live mint\",\"time_created\":\"2026-10-02T02:02:32.13164+00:00\"}}"
+    },
+    {
+      "id": "②",
+      "ok": true,
+      "expect": "200 replay + txid 逐字相同 + ledger/audit 均不新增",
+      "actual": "{\"status\":200,\"body\":{\"success\":true,\"message\":\"积分调整成功（铸币）\",\"data\":{\"uID\":971213,\"cid\":1,\"op\":\"mint\",\"amount\":1,\"new_points\":1,\"timestamp\":1790906553,\"reason\":\"b6audit-live mint\",\"txid\":\"277\"},\"idempotent_replay\":true},\"txid_first\":\"277\",\"txid_replay\":\"277\",\"idempotent_replay_flag\":true,\"ledger_delta\":0,\"audit_delta\":0}"
+    },
+    {
+      "id": "③a",
+      "ok": true,
+      "expect": "400 + LD016(LEDGER_AMOUNT_INVALID) + reason=OVER_MAX_SINGLE_AMOUNT，且零残留",
+      "actual": "{\"status\":400,\"body\":{\"error\":{\"code\":\"LEDGER_AMOUNT_INVALID\",\"message\":\"Request shape is invalid\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"amount\",\"reason\":\"OVER_MAX_SINGLE_AMOUNT\",\"max\":100000,\"provided\":100001}}},\"code\":\"LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"amount\",\"reason\":\"OVER_MAX_SINGLE_AMOUNT\",\"max\":100000,\"provided\":100001},\"zero_residue\":{\"ledger_delta\":0,\"audit_delta\":0}}"
+    },
+    {
+      "id": "③b",
+      "ok": true,
+      "expect": "burn 支路可用（op=burn、单腿 kind=burn、余额回 0 ⇒ Σ 零净位移）",
+      "actual": "{\"status\":200,\"body\":{\"success\":true,\"message\":\"积分调整成功（销毁）\",\"data\":{\"uID\":971213,\"cid\":1,\"op\":\"burn\",\"amount\":-1,\"new_points\":0,\"timestamp\":1790906555,\"reason\":\"b6audit-live burn (回补)\",\"txid\":\"278\"}},\"burn\":{\"txid\":278,\"uid\":971213,\"cid\":1,\"delta\":-1,\"frozen_delta\":0,\"balance_after\":0,\"frozen_after\":0,\"kind\":\"burn\",\"ref_type\":\"currency\",\"ref_id\":1,\"idempotency_key\":\"ops:1:points_adjust:971213:1:live-burn-a\",\"request_fingerprint\":\"f83b179a3c01f645fba7611b73fdd518e861a9d3998ab54ae4da55f60822aca3\",\"reversal_of_txid\":null,\"memo\":\"b6audit-live burn (回补)\",\"time_created\":\"2026-10-02T02:02:35.80531+00:00\",\"event_root_key\":\"ops:1:points_adjust:971213:1:live-burn-a\"},\"audit\":{\"log_id\":6,\"actor_uid\":1,\"action\":\"points_adjust\",\"target_uid\":971213,\"cid\":1,\"op\":\"burn\",\"amount\":-1,\"balance_before\":1,\"balance_after\":0,\"request_fingerprint\":\"f83b179a3c01f645fba7611b73fdd518e861a9d3998ab54ae4da55f60822aca3\",\"idempotency_key\":\"ops:1:points_adjust:971213:1:live-burn-a\",\"result\":\"applied\",\"txid\":278,\"memo\":\"b6audit-live burn (回补)\",\"time_created\":\"2026-10-02T02:02:35.80531+00:00\"},\"bal\":\"0\"}"
+    },
+    {
+      "id": "④",
+      "ok": true,
+      "expect": "非 admin=403(NOT_ADMIN) / 无 token=401(AUTH_UNAUTHORIZED) ⇒ 零残留（无审计行、无资金分录）",
+      "actual": "{\"nonadmin\":{\"status\":403,\"code\":\"AUTH_FORBIDDEN\",\"reason\":\"NOT_ADMIN\"},\"no_token\":{\"status\":401,\"code\":\"AUTH_UNAUTHORIZED\"},\"zero_residue\":{\"ledger_delta\":0,\"audit_delta\":0,\"audit_rows_with_those_keys\":\"0\"}}"
+    },
+    {
+      "id": "⑤①",
+      "ok": true,
+      "expect": "只读取证：阈值常量 1000000 + 求和判据 result='applied' 逐字在场 + 函数体无 RAISE",
+      "actual": "{\"threshold_constant_line\":[\"v_daily_cap   CONSTANT bigint := 1000000;\"],\"sum_predicate_lines\":[\"-- ★ 求和口径（逐字，Zang 裁定②）：`actor_uid = v_actor` 且 **`result = 'applied'`（只计成功行）**\",\"--   = 拒绝留痕引入的新攻击面。故**只计成功行**（`result = 'applied'`）。\",\"AND a.result     = 'applied'\"],\"gate_condition_line\":[\"IF v_used + abs(v_amount) > v_daily_cap THEN\"],\"sum_block_verbatim\":\"SELECT COALESCE(sum(abs(a.amount)), 0)::bigint INTO v_used\\n    FROM public.admin_ops_audit_log AS a\\n   WHERE a.actor_uid  = v_actor\\n     AND a.result     = 'applied'\\n     AND a.time_created >= v_day_start\\n     AND a.idempotency_key <> v_key;\",\"no_raise_in_body\":true,\"reject_branch_marker\":true}"
+    },
+    {
+      "id": "⑤②",
+      "ok": true,
+      "expect": "事务内复现：ok=false/reason=OVER_MAX_DAILY_AMOUNT/used=1000000 + 留痕行(result=rejected_daily_cap, txid/余额 NULL) + 零资金分录 + ROLLBACK 零残留",
+      "actual": "{\"synthetic_used_row\":{\"amount\":\"1000000\",\"result\":\"applied\",\"note\":\"仅事务内合成，ROLLBACK 后消失\"},\"reject_receipt\":{\"ok\":false,\"op\":\"mint\",\"reason\":\"OVER_MAX_DAILY_AMOUNT\",\"daily_cap\":1000000,\"requested\":\"1\",\"daily_used\":1000004,\"user_found\":1},\"rejected_audit_row\":{\"log_id\":8,\"actor_uid\":1,\"action\":\"points_adjust\",\"target_uid\":971213,\"cid\":1,\"op\":\"mint\",\"amount\":1,\"balance_before\":null,\"balance_after\":null,\"request_fingerprint\":\"fp-live-cap\",\"idempotency_key\":\"ops:1:points_adjust:971213:1:live-caprepro\",\"result\":\"rejected_daily_cap\",\"txid\":null,\"memo\":\"OVER_MAX_DAILY_AMOUNT\",\"time_created\":\"2026-10-02T02:02:39.975107+00:00\"},\"ledger_delta_in_tx\":0,\"audit_delta_in_tx\":2,\"after_rollback\":{\"pre\":{\"ledger_entry_rows\":\"271\",\"audit_rows\":\"4\",\"sigma_balance_cid1\":\"1989693\",\"account_rows\":\"27\"},\"post\":{\"ledger_entry_rows\":\"271\",\"audit_rows\":\"4\",\"sigma_balance_cid1\":\"1989693\",\"account_rows\":\"27\"},\"zero_residue\":true}}"
+    },
+    {
+      "id": "Σ",
+      "ok": true,
+      "expect": "资金净位移 0：Σ(account.balance,cid=1) 改前=改后；夹具余额 0（ledger_entry +2 = mint/burn 成对，append-only 账本不可删）",
+      "actual": "{\"ledger_entry_rows\":{\"pre\":\"269\",\"post\":\"271\"},\"sigma_balance_cid1\":{\"pre\":\"1989693\",\"post\":\"1989693\"},\"sigma_equal\":true,\"fixture_target_balance\":\"0\",\"own_audit_rows\":[{\"log_id\":\"5\",\"result\":\"applied\",\"op\":\"mint\",\"amount\":\"1\",\"txid\":\"277\"},{\"log_id\":\"6\",\"result\":\"applied\",\"op\":\"burn\",\"amount\":\"-1\",\"txid\":\"278\"}],\"rejected_daily_cap_rows_in_real_db_final\":\"0\"}"
+    },
+    {
+      "id": "Σ_unit",
+      "ok": true,
+      "expect": "本单全部真 HTTP 跑之前的 Σ(account.balance,cid=1) == 最终值（资金净位移 0）",
+      "actual": "{\"ledger_entry_rows\":{\"pre\":\"267\",\"post\":\"271\"},\"sigma_balance_cid1\":{\"pre\":\"1989693\",\"post\":\"1989693\"},\"sigma_equal\":true}"
+    }
+  ],
+  "total": 11,
+  "passed": 11,
+  "failed": 0,
+  "not_measured": [
+    "日累计拒绝的 HTTPS 面（route 回 400 + reason=OVER_MAX_DAILY_AMOUNT）：未在真库触发（不得造百万点）；DB 编排函数层已在事务内复现（item5_intx_repro），route 映射线为静态取证（index.ts:1310-1322 读源码）+ 单元/离线层（p4z-b6audit-01-e2e.ts）",
+    "两笔真并发同时卡阈值下的端到端竞态：真库不可造百万点；DB 层并发闸已有跨会话 advisory 锁实测（p4z-b6audit-01-e2e.ts H1）"
+  ],
+  "ok": true
+}

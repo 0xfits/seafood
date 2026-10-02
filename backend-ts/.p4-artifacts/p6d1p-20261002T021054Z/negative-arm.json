@@ -1,0 +1,10 @@
+{
+  "run": "p6d1p-20261002T021054Z",
+  "engine": "p4z-d1p-02-negative-arm",
+  "temp_port": 5799,
+  "db_target": "unreachable (127.0.0.1:1) — 子进程 env 里所有 *DATABASE_URL*/*POSTGRES* 键被摘除后替换为该值（不回显任何真值）",
+  "secret_fingerprint": "b1ec01afb2eb",
+  "tests": {},
+  "temp_pid": 76423,
+  "temp_up": false
+}

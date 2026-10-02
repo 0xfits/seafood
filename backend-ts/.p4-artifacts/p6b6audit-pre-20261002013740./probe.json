@@ -1,0 +1,206 @@
+{
+  "tag": "pre",
+  "at": "2026-10-02T01:37:38.477Z",
+  "url": "[REDACTED]",
+  "catalog": {
+    "base_tables": 23,
+    "functions": 74,
+    "non_internal_triggers": 43,
+    "sequences": 13,
+    "indexes": 61
+  },
+  "base_tables": [
+    "account",
+    "admin_permission",
+    "admin_role",
+    "admin_role_permission",
+    "admin_user_role",
+    "app_config",
+    "commission_policy",
+    "content_translation",
+    "currency",
+    "currency_status_log",
+    "job",
+    "job_application",
+    "job_submission",
+    "ledger_entry",
+    "ledger_owner",
+    "listing",
+    "listing_order",
+    "market_order",
+    "market_trade",
+    "referral",
+    "schema_migration",
+    "translation_cache",
+    "users"
+  ],
+  "currency_status_log_cols": [
+    {
+      "column_name": "log_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "cid",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "from_status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "to_status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "actor_uid",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "memo",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    }
+  ],
+  "currency_status_log_constraints": [
+    {
+      "conname": "currency_status_log_actor_fk",
+      "contype": "f"
+    },
+    {
+      "conname": "currency_status_log_actor_uid_not_null",
+      "contype": "n"
+    },
+    {
+      "conname": "currency_status_log_cid_fk",
+      "contype": "f"
+    },
+    {
+      "conname": "currency_status_log_cid_not_null",
+      "contype": "n"
+    },
+    {
+      "conname": "currency_status_log_from_status_not_null",
+      "contype": "n"
+    },
+    {
+      "conname": "currency_status_log_log_id_not_null",
+      "contype": "n"
+    },
+    {
+      "conname": "currency_status_log_pk",
+      "contype": "p"
+    },
+    {
+      "conname": "currency_status_log_time_created_not_null",
+      "contype": "n"
+    },
+    {
+      "conname": "currency_status_log_to_status_not_null",
+      "contype": "n"
+    }
+  ],
+  "schema_migration": [
+    {
+      "version": "0001",
+      "name": "0001_ledger_core.sql"
+    },
+    {
+      "version": "0002",
+      "name": "0002_user_identity.sql"
+    },
+    {
+      "version": "0003",
+      "name": "0003_kind_close_set_20.sql"
+    },
+    {
+      "version": "0004",
+      "name": "0004_ledger_post_event.sql"
+    },
+    {
+      "version": "0005",
+      "name": "0005_ledger_event_root_key.sql"
+    },
+    {
+      "version": "0006",
+      "name": "0006_user_to_users.sql"
+    },
+    {
+      "version": "0007",
+      "name": "0007_referral_and_commission_policy.sql"
+    },
+    {
+      "version": "0008",
+      "name": "0008_platform_revenue_job_fee.sql"
+    },
+    {
+      "version": "0009",
+      "name": "0009_ledger_error_reverse_map_complete.sql"
+    },
+    {
+      "version": "0010",
+      "name": "0010_referral_bind_protocol_guard.sql"
+    },
+    {
+      "version": "0011",
+      "name": "0011_commission_assert_closure_and_referral_depth_guard.sql"
+    },
+    {
+      "version": "0012",
+      "name": "0012_replay_pre_gate_before_balance_gate.sql"
+    },
+    {
+      "version": "0013",
+      "name": "0013_job.sql"
+    },
+    {
+      "version": "0014",
+      "name": "0014_job_flow.sql"
+    },
+    {
+      "version": "0015",
+      "name": "0015_listing.sql"
+    },
+    {
+      "version": "0016",
+      "name": "0016_market.sql"
+    },
+    {
+      "version": "0017",
+      "name": "0017_platform_config.sql"
+    },
+    {
+      "version": "0019",
+      "name": "0019_listing_deposit_platform_credit.sql"
+    },
+    {
+      "version": "0020",
+      "name": "0020_ledger_post_event_hold_family_drop_listing_deposit.sql"
+    },
+    {
+      "version": "0021",
+      "name": "0021_content_translation.sql"
+    },
+    {
+      "version": "0022",
+      "name": "0022_admin_permission_seed.sql"
+    }
+  ],
+  "error": "Cannot read properties of undefined (reading '0')"
+}

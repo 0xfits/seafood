@@ -1,0 +1,666 @@
+{
+  "unit": "BE-AUDIT-FIX2",
+  "at": "2026-10-02T01:55:05.802Z",
+  "pre_real_state": {
+    "ledger_entry_rows": "267",
+    "sigma_cid1": "1989693",
+    "account_rows": "25"
+  },
+  "replay_log": [
+    {
+      "file": "0001_ledger_core.sql",
+      "ok": true
+    },
+    {
+      "file": "0002_user_identity.sql",
+      "ok": true
+    },
+    {
+      "file": "0003_kind_close_set_20.sql",
+      "ok": true
+    },
+    {
+      "file": "0004_ledger_post_event.sql",
+      "ok": true
+    },
+    {
+      "file": "0005_ledger_event_root_key.sql",
+      "ok": true
+    },
+    {
+      "file": "0006_user_to_users.sql",
+      "ok": true
+    },
+    {
+      "file": "0007_referral_and_commission_policy.sql",
+      "ok": true
+    },
+    {
+      "file": "0008_platform_revenue_job_fee.sql",
+      "ok": true
+    },
+    {
+      "file": "0009_ledger_error_reverse_map_complete.sql",
+      "ok": true
+    },
+    {
+      "file": "0010_referral_bind_protocol_guard.sql",
+      "ok": true
+    },
+    {
+      "file": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "ok": true
+    },
+    {
+      "file": "0012_replay_pre_gate_before_balance_gate.sql",
+      "ok": true
+    },
+    {
+      "file": "0013_job.sql",
+      "ok": true
+    },
+    {
+      "file": "0014_job_flow.sql",
+      "ok": true
+    },
+    {
+      "file": "0015_listing.sql",
+      "ok": true
+    },
+    {
+      "file": "0016_market.sql",
+      "ok": true
+    },
+    {
+      "file": "0017_platform_config.sql",
+      "ok": true
+    },
+    {
+      "file": "0019_listing_deposit_platform_credit.sql",
+      "ok": true
+    },
+    {
+      "file": "0020_ledger_post_event_hold_family_drop_listing_deposit.sql",
+      "ok": true
+    },
+    {
+      "file": "0021_content_translation.sql",
+      "ok": true
+    },
+    {
+      "file": "0022_admin_permission_seed.sql",
+      "ok": true
+    },
+    {
+      "file": "0023_admin_points_audit_daily_cap.sql",
+      "ok": true
+    }
+  ],
+  "replay_ok": true,
+  "constraint_def_new": "UNIQUE (idempotency_key, result)",
+  "idem_index": {
+    "nkeys": 2,
+    "not_partial": true,
+    "def": "CREATE UNIQUE INDEX admin_ops_audit_log_idem_uniq ON public.admin_ops_audit_log USING btree (idempotency_key, result)"
+  },
+  "dir1_new": {
+    "label": "new",
+    "key": "ops:910001:points_adjust:920001:1:r1",
+    "first_resp": {
+      "ok": false,
+      "op": "mint",
+      "reason": "OVER_MAX_DAILY_AMOUNT",
+      "daily_cap": 1000000,
+      "requested": "2000000",
+      "daily_used": 0,
+      "user_found": 1
+    },
+    "second_resp": {
+      "ok": false,
+      "op": "mint",
+      "reason": "OVER_MAX_DAILY_AMOUNT",
+      "daily_cap": 1000000,
+      "requested": "2000000",
+      "daily_used": 0,
+      "user_found": 1
+    },
+    "ledger": "0->0->0",
+    "audit": "0->1->1",
+    "rows_for_key": [
+      {
+        "result": "rejected_daily_cap",
+        "op": "mint",
+        "amount": "2000000",
+        "bb": null,
+        "ba": null,
+        "txid": null,
+        "memo": "OVER_MAX_DAILY_AMOUNT"
+      }
+    ],
+    "pass": true
+  },
+  "dir2_new": {
+    "label": "new",
+    "key": "ops:910002:points_adjust:920001:1:r2",
+    "fill_resp": {
+      "ok": true,
+      "op": "mint",
+      "txid": "8",
+      "amount": "500000",
+      "reason": null,
+      "entries": [
+        {
+          "cid": "1",
+          "uid": "920001",
+          "kind": "mint",
+          "memo": "idem-fill",
+          "txid": "8",
+          "delta": "500000",
+          "ref_id": "1",
+          "ref_type": "currency",
+          "frozen_after": "0",
+          "frozen_delta": "0",
+          "time_created": "2026-10-02T01:55:07.136Z",
+          "balance_after": "500000",
+          "idempotency_key": "ops:910002:points_adjust:920001:1:f0",
+          "reversal_of_txid": null,
+          "request_fingerprint": "fp-fill"
+        }
+      ],
+      "accounts": [
+        {
+          "cid": "1",
+          "uid": "920001",
+          "frozen": "0",
+          "balance": "500000"
+        }
+      ],
+      "daily_cap": 1000000,
+      "daily_used": 0,
+      "user_found": 1,
+      "new_balance": "500000",
+      "audit_logged": true,
+      "idempotent_replay": false
+    },
+    "first_resp": {
+      "ok": false,
+      "op": "mint",
+      "reason": "OVER_MAX_DAILY_AMOUNT",
+      "daily_cap": 1000000,
+      "requested": "900000",
+      "daily_used": 500000,
+      "user_found": 1
+    },
+    "second_resp": {
+      "ok": true,
+      "op": "mint",
+      "txid": "9",
+      "amount": "400000",
+      "reason": null,
+      "entries": [
+        {
+          "cid": "1",
+          "uid": "920001",
+          "kind": "mint",
+          "memo": "idem-r2",
+          "txid": "9",
+          "delta": "400000",
+          "ref_id": "1",
+          "ref_type": "currency",
+          "frozen_after": "0",
+          "frozen_delta": "0",
+          "time_created": "2026-10-02T01:55:07.136Z",
+          "balance_after": "900000",
+          "idempotency_key": "ops:910002:points_adjust:920001:1:r2",
+          "reversal_of_txid": null,
+          "request_fingerprint": "fp-r2b"
+        }
+      ],
+      "accounts": [
+        {
+          "cid": "1",
+          "uid": "920001",
+          "frozen": "0",
+          "balance": "900000"
+        }
+      ],
+      "daily_cap": 1000000,
+      "daily_used": 500000,
+      "user_found": 1,
+      "new_balance": "900000",
+      "audit_logged": true,
+      "idempotent_replay": false
+    },
+    "second_error": null,
+    "ledger": "1->1->1",
+    "audit": "2->3->3",
+    "rows_for_key": [
+      {
+        "result": "rejected_daily_cap",
+        "op": "mint",
+        "amount": "900000",
+        "bb": null,
+        "ba": null,
+        "txid": null,
+        "memo": "OVER_MAX_DAILY_AMOUNT"
+      }
+    ],
+    "pass": false
+  },
+  "dir3_new": {
+    "label": "new",
+    "key": "ops:910003:points_adjust:920001:1:r3",
+    "first_resp": {
+      "ok": true,
+      "op": "mint",
+      "txid": "10",
+      "amount": "1000",
+      "reason": null,
+      "entries": [
+        {
+          "cid": "1",
+          "uid": "920001",
+          "kind": "mint",
+          "memo": "idem-r3",
+          "txid": "10",
+          "delta": "1000",
+          "ref_id": "1",
+          "ref_type": "currency",
+          "frozen_after": "0",
+          "frozen_delta": "0",
+          "time_created": "2026-10-02T01:55:07.136Z",
+          "balance_after": "501000",
+          "idempotency_key": "ops:910003:points_adjust:920001:1:r3",
+          "reversal_of_txid": null,
+          "request_fingerprint": "fp-r3"
+        }
+      ],
+      "accounts": [
+        {
+          "cid": "1",
+          "uid": "920001",
+          "frozen": "0",
+          "balance": "501000"
+        }
+      ],
+      "daily_cap": 1000000,
+      "daily_used": 0,
+      "user_found": 1,
+      "new_balance": "501000",
+      "audit_logged": true,
+      "idempotent_replay": false
+    },
+    "replay_resp": {
+      "ok": true,
+      "op": "mint",
+      "txid": "10",
+      "amount": "1000",
+      "reason": null,
+      "entries": [
+        {
+          "cid": "1",
+          "uid": "920001",
+          "kind": "mint",
+          "memo": "idem-r3",
+          "txid": "10",
+          "delta": "1000",
+          "ref_id": "1",
+          "ref_type": "currency",
+          "frozen_after": "0",
+          "frozen_delta": "0",
+          "time_created": "2026-10-02T01:55:07.136Z",
+          "balance_after": "501000",
+          "idempotency_key": "ops:910003:points_adjust:920001:1:r3",
+          "reversal_of_txid": null,
+          "request_fingerprint": "fp-r3"
+        }
+      ],
+      "accounts": [
+        {
+          "cid": "1",
+          "uid": "920001",
+          "frozen": "0",
+          "balance": "501000"
+        }
+      ],
+      "daily_cap": 1000000,
+      "daily_used": 0,
+      "user_found": 1,
+      "new_balance": "501000",
+      "audit_logged": false,
+      "idempotent_replay": true
+    },
+    "ledger": "1->2->2",
+    "audit": "3->4->4",
+    "dup_applied_probe": {
+      "code": "23505",
+      "message": "duplicate key value violates unique constraint \"admin_ops_audit_log_idem_uniq\""
+    },
+    "coexist_rejected_probe": {
+      "ok": true,
+      "err": null
+    },
+    "rows_for_key": [
+      {
+        "result": "applied",
+        "op": "mint",
+        "amount": "1000",
+        "bb": "500000",
+        "ba": "501000",
+        "txid": "10",
+        "memo": "idem-r3"
+      }
+    ],
+    "pass": true
+  },
+  "fn_oldform_rewritten": true,
+  "constraint_def_old": "UNIQUE (idempotency_key)",
+  "dir1_old": {
+    "label": "old",
+    "key": "ops:910011:points_adjust:920002:1:r1",
+    "first_resp": {
+      "ok": false,
+      "op": "mint",
+      "reason": "OVER_MAX_DAILY_AMOUNT",
+      "daily_cap": 1000000,
+      "requested": "2000000",
+      "daily_used": 0,
+      "user_found": 1
+    },
+    "second_resp": {
+      "ok": false,
+      "op": "mint",
+      "reason": "OVER_MAX_DAILY_AMOUNT",
+      "daily_cap": 1000000,
+      "requested": "2000000",
+      "daily_used": 0,
+      "user_found": 1
+    },
+    "ledger": "2->2->2",
+    "audit": "4->5->5",
+    "rows_for_key": [
+      {
+        "result": "rejected_daily_cap",
+        "op": "mint",
+        "amount": "2000000",
+        "bb": null,
+        "ba": null,
+        "txid": null,
+        "memo": "OVER_MAX_DAILY_AMOUNT"
+      }
+    ],
+    "pass": true
+  },
+  "dir2_old": {
+    "label": "old",
+    "key": "ops:910012:points_adjust:920002:1:r2",
+    "fill_resp": {
+      "ok": true,
+      "op": "mint",
+      "txid": "11",
+      "amount": "500000",
+      "reason": null,
+      "entries": [
+        {
+          "cid": "1",
+          "uid": "920002",
+          "kind": "mint",
+          "memo": "idem-fill",
+          "txid": "11",
+          "delta": "500000",
+          "ref_id": "1",
+          "ref_type": "currency",
+          "frozen_after": "0",
+          "frozen_delta": "0",
+          "time_created": "2026-10-02T01:55:07.136Z",
+          "balance_after": "500000",
+          "idempotency_key": "ops:910012:points_adjust:920002:1:f0",
+          "reversal_of_txid": null,
+          "request_fingerprint": "fp-fill"
+        }
+      ],
+      "accounts": [
+        {
+          "cid": "1",
+          "uid": "920002",
+          "frozen": "0",
+          "balance": "500000"
+        }
+      ],
+      "daily_cap": 1000000,
+      "daily_used": 0,
+      "user_found": 1,
+      "new_balance": "500000",
+      "audit_logged": true,
+      "idempotent_replay": false
+    },
+    "first_resp": {
+      "ok": false,
+      "op": "mint",
+      "reason": "OVER_MAX_DAILY_AMOUNT",
+      "daily_cap": 1000000,
+      "requested": "900000",
+      "daily_used": 500000,
+      "user_found": 1
+    },
+    "second_resp": null,
+    "second_error": {
+      "code": "23505",
+      "message": "duplicate key value violates unique constraint \"admin_ops_audit_log_idem_uniq\""
+    },
+    "ledger": "3->3->3",
+    "audit": "6->7->7",
+    "rows_for_key": [
+      {
+        "result": "rejected_daily_cap",
+        "op": "mint",
+        "amount": "900000",
+        "bb": null,
+        "ba": null,
+        "txid": null,
+        "memo": "OVER_MAX_DAILY_AMOUNT"
+      }
+    ],
+    "pass": false
+  },
+  "dir3_old": {
+    "label": "old",
+    "key": "ops:910013:points_adjust:920002:1:r3",
+    "first_resp": {
+      "ok": true,
+      "op": "mint",
+      "txid": "13",
+      "amount": "1000",
+      "reason": null,
+      "entries": [
+        {
+          "cid": "1",
+          "uid": "920002",
+          "kind": "mint",
+          "memo": "idem-r3",
+          "txid": "13",
+          "delta": "1000",
+          "ref_id": "1",
+          "ref_type": "currency",
+          "frozen_after": "0",
+          "frozen_delta": "0",
+          "time_created": "2026-10-02T01:55:07.136Z",
+          "balance_after": "501000",
+          "idempotency_key": "ops:910013:points_adjust:920002:1:r3",
+          "reversal_of_txid": null,
+          "request_fingerprint": "fp-r3"
+        }
+      ],
+      "accounts": [
+        {
+          "cid": "1",
+          "uid": "920002",
+          "frozen": "0",
+          "balance": "501000"
+        }
+      ],
+      "daily_cap": 1000000,
+      "daily_used": 0,
+      "user_found": 1,
+      "new_balance": "501000",
+      "audit_logged": true,
+      "idempotent_replay": false
+    },
+    "replay_resp": {
+      "ok": true,
+      "op": "mint",
+      "txid": "13",
+      "amount": "1000",
+      "reason": null,
+      "entries": [
+        {
+          "cid": "1",
+          "uid": "920002",
+          "kind": "mint",
+          "memo": "idem-r3",
+          "txid": "13",
+          "delta": "1000",
+          "ref_id": "1",
+          "ref_type": "currency",
+          "frozen_after": "0",
+          "frozen_delta": "0",
+          "time_created": "2026-10-02T01:55:07.136Z",
+          "balance_after": "501000",
+          "idempotency_key": "ops:910013:points_adjust:920002:1:r3",
+          "reversal_of_txid": null,
+          "request_fingerprint": "fp-r3"
+        }
+      ],
+      "accounts": [
+        {
+          "cid": "1",
+          "uid": "920002",
+          "frozen": "0",
+          "balance": "501000"
+        }
+      ],
+      "daily_cap": 1000000,
+      "daily_used": 0,
+      "user_found": 1,
+      "new_balance": "501000",
+      "audit_logged": false,
+      "idempotent_replay": true
+    },
+    "ledger": "3->4->4",
+    "audit": "7->8->8",
+    "dup_applied_probe": {
+      "code": "23505",
+      "message": "duplicate key value violates unique constraint \"admin_ops_audit_log_idem_uniq\""
+    },
+    "coexist_rejected_probe": {
+      "code": "23505",
+      "message": "duplicate key value violates unique constraint \"admin_ops_audit_log_idem_uniq\""
+    },
+    "rows_for_key": [
+      {
+        "result": "applied",
+        "op": "mint",
+        "amount": "1000",
+        "bb": "500000",
+        "ba": "501000",
+        "txid": "13",
+        "memo": "idem-r3"
+      }
+    ],
+    "pass": false
+  },
+  "constraint_def_restored": "UNIQUE (idempotency_key, result)",
+  "route_registrations": 67,
+  "post_real_state": {
+    "ledger_entry_rows": "267",
+    "sigma_cid1": "1989693",
+    "account_rows": "25"
+  },
+  "net_zero": true,
+  "checks": [
+    {
+      "id": "S1",
+      "ok": true,
+      "expect": "约束定义 = UNIQUE (idempotency_key, result)（复合）",
+      "actual": "UNIQUE (idempotency_key, result)"
+    },
+    {
+      "id": "S2",
+      "ok": true,
+      "expect": "复合唯一索引在场且非部分索引（键位=2）",
+      "actual": "{\"nkeys\":2,\"not_partial\":true,\"def\":\"CREATE UNIQUE INDEX admin_ops_audit_log_idem_uniq ON public.admin_ops_audit_log USING btree (idempotency_key, result)\"}"
+    },
+    {
+      "id": "D1-1",
+      "ok": true,
+      "expect": "同键被拒两次 ⇒ 只 1 行拒绝留痕 / 零资金 / 两次均拒",
+      "actual": "{\"ledger\":\"0->0->0\",\"audit\":\"0->1->1\",\"rows\":1,\"r1\":{\"ok\":false,\"op\":\"mint\",\"reason\":\"OVER_MAX_DAILY_AMOUNT\",\"daily_cap\":1000000,\"requested\":\"2000000\",\"daily_used\":0,\"user_found\":1},\"r2\":{\"ok\":false,\"op\":\"mint\",\"reason\":\"OVER_MAX_DAILY_AMOUNT\",\"daily_cap\":1000000,\"requested\":\"2000000\",\"daily_used\":0,\"user_found\":1}}"
+    },
+    {
+      "id": "D2-1",
+      "ok": false,
+      "expect": "同键先拒后成 ⇒ 允许成功；拒绝行保留（2 行：rejected_daily_cap + applied）；资金 +1",
+      "actual": "{\"ledger\":\"1->1->1\",\"audit\":\"2->3->3\",\"rows\":[{\"result\":\"rejected_daily_cap\",\"op\":\"mint\",\"amount\":\"900000\",\"bb\":null,\"ba\":null,\"txid\":null,\"memo\":\"OVER_MAX_DAILY_AMOUNT\"}],\"second\":{\"ok\":true,\"op\":\"mint\",\"txid\":\"9\",\"amount\":\"400000\",\"reason\":null,\"entries\":[{\"cid\":\"1\",\"uid\":\"920001\",\"kind\":\"mint\",\"memo\":\"idem-r2\",\"txid\":\"9\",\"delta\":\"400000\",\"ref_id\":\"1\",\"ref_type\":\"currency\",\"frozen_after\":\"0\",\"frozen_delta\":\"0\",\"time_created\":\"2026-10-02T01:55:07.136Z\",\"balance_after\":\"900000\",\"idempotency_key\":\"ops:910002:points_adjust:920001:1:r2\",\"reversal_of_txid\":null,\"request_fingerprint\":\"fp-r2b\"}],\"accounts\":[{\"cid\":\"1\",\"uid\":\"920001\",\"frozen\":\"0\",\"balance\":\"900000\"}],\"daily_cap\":1000000,\"daily_used\":500000,\"user_found\":1,\"new_balance\":\"900000\",\"audit_logged\":true,\"idempotent_replay\":false}}"
+    },
+    {
+      "id": "D3-1",
+      "ok": true,
+      "expect": "同键成功两次 ⇒ replay 不重复写 + 裸插同键同结果被 23505 拦住",
+      "actual": "{\"ledger\":\"1->2->2\",\"audit\":\"3->4->4\",\"dup\":{\"code\":\"23505\",\"message\":\"duplicate key value violates unique constraint \\\"admin_ops_audit_log_idem_uniq\\\"\"}}"
+    },
+    {
+      "id": "S3",
+      "ok": true,
+      "expect": "旧写法改写成功（函数体 ON CONFLICT 目标可从复合替换回单列）",
+      "actual": "true"
+    },
+    {
+      "id": "S4",
+      "ok": true,
+      "expect": "已临时改回旧写法：约束 UNIQUE(idempotency_key) + 函数 ON CONFLICT(idempotency_key)",
+      "actual": "UNIQUE (idempotency_key)"
+    },
+    {
+      "id": "O1",
+      "ok": true,
+      "expect": "旧写法下 ① 同键被拒两次 ⇒ 仍只 1 行（DO NOTHING 命中单列唯一）",
+      "actual": "{\"ledger\":\"2->2->2\",\"audit\":\"4->5->5\",\"rows\":1}"
+    },
+    {
+      "id": "O2",
+      "ok": true,
+      "expect": "★ 旧写法下 ② 同键先拒后成 ⇒ **必然失败 23505**（既有拒绝行占用单列唯一键 ⇒ 整条语句回滚）",
+      "actual": "{\"ledger\":\"3->3->3\",\"audit\":\"6->7->7\",\"second_error\":{\"code\":\"23505\",\"message\":\"duplicate key value violates unique constraint \\\"admin_ops_audit_log_idem_uniq\\\"\"},\"second_resp\":null,\"rows\":[\"rejected_daily_cap\"]}",
+      "note": "证明复合索引确实**承重**：只有 (key,result) 才允许「先拒后成」"
+    },
+    {
+      "id": "O3",
+      "ok": false,
+      "expect": "旧写法下 ③ 同键成功两次 ⇒ 仍被拦住（replay + 裸插 23505；真幂等保护在两种写法下皆在）",
+      "actual": "{\"ledger\":\"3->4->4\",\"audit\":\"7->8->8\",\"dup\":{\"code\":\"23505\",\"message\":\"duplicate key value violates unique constraint \\\"admin_ops_audit_log_idem_uniq\\\"\"}}"
+    },
+    {
+      "id": "S5",
+      "ok": true,
+      "expect": "自证后约束改回复合写法（未留在旧写法）",
+      "actual": "UNIQUE (idempotency_key, result)"
+    },
+    {
+      "id": "J1",
+      "ok": true,
+      "expect": "注册点 67（本单不增/不删端点）",
+      "actual": "67"
+    },
+    {
+      "id": "I1",
+      "ok": true,
+      "expect": "真库 ledger_entry / Σ(account.balance,cid=1) / account 行数 逐字不变",
+      "actual": "{\"pre\":{\"ledger_entry_rows\":\"267\",\"sigma_cid1\":\"1989693\",\"account_rows\":\"25\"},\"post\":{\"ledger_entry_rows\":\"267\",\"sigma_cid1\":\"1989693\",\"account_rows\":\"25\"}}",
+      "note": "AC⑦ 账本零位移（两个数）"
+    }
+  ],
+  "total": 13,
+  "passed": 11,
+  "failed": 2,
+  "ok": false
+}

@@ -1,0 +1,204 @@
+{
+  "tag": "pre",
+  "at": "2026-10-02T01:37:52.317Z",
+  "url": "[REDACTED]",
+  "catalog": [
+    {
+      "base_tables": 23,
+      "functions": 74,
+      "non_internal_triggers": 43,
+      "sequences": 13,
+      "indexes": 61
+    }
+  ],
+  "base_tables": [
+    {
+      "table_name": "account"
+    },
+    {
+      "table_name": "admin_permission"
+    },
+    {
+      "table_name": "admin_role"
+    },
+    {
+      "table_name": "admin_role_permission"
+    },
+    {
+      "table_name": "admin_user_role"
+    },
+    {
+      "table_name": "app_config"
+    },
+    {
+      "table_name": "commission_policy"
+    },
+    {
+      "table_name": "content_translation"
+    },
+    {
+      "table_name": "currency"
+    },
+    {
+      "table_name": "currency_status_log"
+    },
+    {
+      "table_name": "job"
+    },
+    {
+      "table_name": "job_application"
+    },
+    {
+      "table_name": "job_submission"
+    },
+    {
+      "table_name": "ledger_entry"
+    },
+    {
+      "table_name": "ledger_owner"
+    },
+    {
+      "table_name": "listing"
+    },
+    {
+      "table_name": "listing_order"
+    },
+    {
+      "table_name": "market_order"
+    },
+    {
+      "table_name": "market_trade"
+    },
+    {
+      "table_name": "referral"
+    },
+    {
+      "table_name": "schema_migration"
+    },
+    {
+      "table_name": "translation_cache"
+    },
+    {
+      "table_name": "users"
+    }
+  ],
+  "csl_cols": [
+    {
+      "column_name": "log_id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "cid",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "from_status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "to_status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "actor_uid",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "memo",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    }
+  ],
+  "csl_constraints": [
+    {
+      "conname": "currency_status_log_actor_fk",
+      "contype": "f"
+    },
+    {
+      "conname": "currency_status_log_actor_uid_not_null",
+      "contype": "n"
+    },
+    {
+      "conname": "currency_status_log_cid_fk",
+      "contype": "f"
+    },
+    {
+      "conname": "currency_status_log_cid_not_null",
+      "contype": "n"
+    },
+    {
+      "conname": "currency_status_log_from_status_not_null",
+      "contype": "n"
+    },
+    {
+      "conname": "currency_status_log_log_id_not_null",
+      "contype": "n"
+    },
+    {
+      "conname": "currency_status_log_pk",
+      "contype": "p"
+    },
+    {
+      "conname": "currency_status_log_time_created_not_null",
+      "contype": "n"
+    },
+    {
+      "conname": "currency_status_log_to_status_not_null",
+      "contype": "n"
+    }
+  ],
+  "csl_indexes": [
+    {
+      "indexname": "currency_status_log_pk"
+    }
+  ],
+  "schema_migration_count": [
+    {
+      "n": 21
+    }
+  ],
+  "ledger_entry_count": [
+    {
+      "n": "267"
+    }
+  ],
+  "ledger_event_count": {
+    "error": "relation \"public.ledger_event\" does not exist"
+  },
+  "sigma_cid1": [
+    {
+      "bal": "1989693",
+      "frozen": "10507"
+    }
+  ],
+  "account_count": [
+    {
+      "n": 25
+    }
+  ],
+  "audit_like_tables": [],
+  "new_obj_exists": [
+    {
+      "fn": null,
+      "tbl": null
+    }
+  ],
+  "route_registrations": 67
+}

@@ -1,0 +1,141 @@
+{
+  "started": "2026-10-02T02:08:16.524Z",
+  "engine": "p4z-d1p-00-probe-shape",
+  "cases": [
+    {
+      "path": "pool_ws",
+      "url_host": "127.0.0.1:1",
+      "url_name": "REFUSED_127_0_0_1:1",
+      "outcome": "THREW",
+      "error": {
+        "ctor": "ErrorEvent",
+        "name": null,
+        "code": null,
+        "typeof_code": "undefined",
+        "status": null,
+        "message": "connect ECONNREFUSED 127.0.0.1:443",
+        "is_global_event": false,
+        "own_keys": [
+          "stack"
+        ],
+        "chain": [
+          {
+            "ctor": "Error",
+            "name": "Error",
+            "code": "ECONNREFUSED",
+            "message": "connect ECONNREFUSED 127.0.0.1:443",
+            "has_own_message": true
+          }
+        ]
+      },
+      "elapsed_ms": 23
+    },
+    {
+      "path": "pool_ws",
+      "url_host": "d1p-unresolvable.invalid",
+      "url_name": "UNRESOLVABLE_HOST",
+      "outcome": "THREW",
+      "error": {
+        "ctor": "ErrorEvent",
+        "name": null,
+        "code": null,
+        "typeof_code": "undefined",
+        "status": null,
+        "message": "Client network socket disconnected before secure TLS connection was established",
+        "is_global_event": false,
+        "own_keys": [
+          "stack"
+        ],
+        "chain": [
+          {
+            "ctor": "Error",
+            "name": "Error",
+            "code": "ECONNRESET",
+            "message": "Client network socket disconnected before secure TLS connection was established",
+            "has_own_message": true
+          }
+        ]
+      },
+      "elapsed_ms": 321
+    },
+    {
+      "path": "neon_http",
+      "url_host": "127.0.0.1:1",
+      "url_name": "REFUSED_127_0_0_1:1",
+      "outcome": "THREW",
+      "error": {
+        "ctor": "NeonDbError",
+        "name": "NeonDbError",
+        "code": null,
+        "typeof_code": "object",
+        "status": null,
+        "message": "Error connecting to database: fetch failed",
+        "is_global_event": false,
+        "own_keys": [
+          "stack",
+          "message",
+          "name",
+          "code",
+          "sourceError"
+        ],
+        "chain": [
+          {
+            "ctor": "TypeError",
+            "name": "TypeError",
+            "code": null,
+            "message": "fetch failed",
+            "has_own_message": true
+          },
+          {
+            "ctor": "Error",
+            "name": "Error",
+            "code": "ECONNREFUSED",
+            "message": "connect ECONNREFUSED 127.0.0.1:443",
+            "has_own_message": true
+          }
+        ]
+      },
+      "elapsed_ms": 18
+    },
+    {
+      "path": "neon_http",
+      "url_host": "d1p-unresolvable.invalid",
+      "url_name": "UNRESOLVABLE_HOST",
+      "outcome": "THREW",
+      "error": {
+        "ctor": "NeonDbError",
+        "name": "NeonDbError",
+        "code": null,
+        "typeof_code": "object",
+        "status": null,
+        "message": "Error connecting to database: fetch failed",
+        "is_global_event": false,
+        "own_keys": [
+          "stack",
+          "message",
+          "name",
+          "code",
+          "sourceError"
+        ],
+        "chain": [
+          {
+            "ctor": "TypeError",
+            "name": "TypeError",
+            "code": null,
+            "message": "fetch failed",
+            "has_own_message": true
+          },
+          {
+            "ctor": "Error",
+            "name": "Error",
+            "code": "ECONNRESET",
+            "message": "Client network socket disconnected before secure TLS connection was established",
+            "has_own_message": true
+          }
+        ]
+      },
+      "elapsed_ms": 376
+    }
+  ],
+  "finished": "2026-10-02T02:08:17.262Z"
+}

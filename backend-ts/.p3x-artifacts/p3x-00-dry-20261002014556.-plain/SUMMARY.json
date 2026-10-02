@@ -1,0 +1,655 @@
+{
+  "run_tag": "p3x-00-dry-20261002014556.-plain",
+  "mode": "dry-run",
+  "inject_fail_after": null,
+  "driver": "backend-ts/scripts/p3x-00-rebuild-replay.ts",
+  "connection": {
+    "driver": "@neondatabase/serverless Client（单连接，非 Pool）",
+    "url_source": "DATABASE_URL_UNPOOLED",
+    "pooler_used": false,
+    "url": "[REDACTED]"
+  },
+  "node": "v18.19.0",
+  "started_at": "2026-10-02T01:45:56.808Z",
+  "migration_files": [
+    {
+      "version": "0001",
+      "name": "0001_ledger_core.sql",
+      "bytes": 8703,
+      "sha256": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4"
+    },
+    {
+      "version": "0002",
+      "name": "0002_user_identity.sql",
+      "bytes": 1671,
+      "sha256": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990"
+    },
+    {
+      "version": "0003",
+      "name": "0003_kind_close_set_20.sql",
+      "bytes": 4050,
+      "sha256": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23"
+    },
+    {
+      "version": "0004",
+      "name": "0004_ledger_post_event.sql",
+      "bytes": 58938,
+      "sha256": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932"
+    },
+    {
+      "version": "0005",
+      "name": "0005_ledger_event_root_key.sql",
+      "bytes": 79031,
+      "sha256": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231"
+    },
+    {
+      "version": "0006",
+      "name": "0006_user_to_users.sql",
+      "bytes": 7977,
+      "sha256": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47"
+    },
+    {
+      "version": "0007",
+      "name": "0007_referral_and_commission_policy.sql",
+      "bytes": 23271,
+      "sha256": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a"
+    },
+    {
+      "version": "0008",
+      "name": "0008_platform_revenue_job_fee.sql",
+      "bytes": 7326,
+      "sha256": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210"
+    },
+    {
+      "version": "0009",
+      "name": "0009_ledger_error_reverse_map_complete.sql",
+      "bytes": 23808,
+      "sha256": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870"
+    },
+    {
+      "version": "0010",
+      "name": "0010_referral_bind_protocol_guard.sql",
+      "bytes": 19713,
+      "sha256": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc"
+    },
+    {
+      "version": "0011",
+      "name": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "bytes": 39211,
+      "sha256": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe"
+    },
+    {
+      "version": "0012",
+      "name": "0012_replay_pre_gate_before_balance_gate.sql",
+      "bytes": 71238,
+      "sha256": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe"
+    },
+    {
+      "version": "0013",
+      "name": "0013_job.sql",
+      "bytes": 44130,
+      "sha256": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230"
+    },
+    {
+      "version": "0014",
+      "name": "0014_job_flow.sql",
+      "bytes": 24484,
+      "sha256": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d"
+    },
+    {
+      "version": "0015",
+      "name": "0015_listing.sql",
+      "bytes": 55410,
+      "sha256": "f856a1316e9d3bc79c3b54b89c63273102ce87733ef1c9a835c81f1b9a56624e"
+    },
+    {
+      "version": "0016",
+      "name": "0016_market.sql",
+      "bytes": 70570,
+      "sha256": "f5ce7c79c584805f1d97bb2468475b2ce10b770ef4dabd16e2ea79d5531b76df"
+    },
+    {
+      "version": "0017",
+      "name": "0017_platform_config.sql",
+      "bytes": 31026,
+      "sha256": "0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd"
+    },
+    {
+      "version": "0019",
+      "name": "0019_listing_deposit_platform_credit.sql",
+      "bytes": 10410,
+      "sha256": "48a9a4e2d506eb1fceb35ec7de1b9e28f983477f6e1dc9f550bff794e9d9902f"
+    },
+    {
+      "version": "0020",
+      "name": "0020_ledger_post_event_hold_family_drop_listing_deposit.sql",
+      "bytes": 60667,
+      "sha256": "228127d89de90a0d187aff8c2cd12b18aad94130faca7e804f5dd23c1d9cfc4d"
+    },
+    {
+      "version": "0021",
+      "name": "0021_content_translation.sql",
+      "bytes": 10039,
+      "sha256": "223125d15b3b96416c1a4ea1bc6314c785499cd8184cde70b7e92c93c5382f20"
+    },
+    {
+      "version": "0022",
+      "name": "0022_admin_permission_seed.sql",
+      "bytes": 10552,
+      "sha256": "069a00905c2821b846f0efc24673abe7dfb89acd3e73e260e0108f0c0bd24112"
+    },
+    {
+      "version": "0023",
+      "name": "0023_admin_points_audit_daily_cap.sql",
+      "bytes": 23903,
+      "sha256": "b98c74328235757ff3b80ef9fa10c15b1cc6f7604a3caa9175662de43ae372f7"
+    }
+  ],
+  "version_order_ok": true,
+  "connected": true,
+  "A_pre_state": {
+    "public_base_table_count": 23,
+    "business_table_count": 22,
+    "business_tables": [
+      "account",
+      "admin_permission",
+      "admin_role",
+      "admin_role_permission",
+      "admin_user_role",
+      "app_config",
+      "commission_policy",
+      "content_translation",
+      "currency",
+      "currency_status_log",
+      "job",
+      "job_application",
+      "job_submission",
+      "ledger_entry",
+      "ledger_owner",
+      "listing",
+      "listing_order",
+      "market_order",
+      "market_trade",
+      "referral",
+      "translation_cache",
+      "users"
+    ],
+    "table_row_counts": {
+      "account": "25",
+      "admin_permission": "11",
+      "admin_role": "1",
+      "admin_role_permission": "11",
+      "admin_user_role": "1",
+      "app_config": "1",
+      "commission_policy": "3",
+      "content_translation": "276",
+      "currency": "13",
+      "currency_status_log": "7",
+      "job": "20",
+      "job_application": "17",
+      "job_submission": "13",
+      "ledger_entry": "267",
+      "ledger_owner": "4",
+      "listing": "22",
+      "listing_order": "5",
+      "market_order": "25",
+      "market_trade": "8",
+      "referral": "2",
+      "schema_migration": "21",
+      "translation_cache": "183",
+      "users": "35"
+    },
+    "schema_migration_row_count": "21",
+    "non_internal_triggers": "43",
+    "enabled_not_o": "0",
+    "catalog": {
+      "base_tables": "23",
+      "views": "1",
+      "matviews": "0",
+      "sequences": "13",
+      "indexes": "61",
+      "functions_all": "74",
+      "functions": "74",
+      "procedures": "0"
+    },
+    "key_functions_md5": [
+      {
+        "proname": "job_post_event",
+        "args": "payload jsonb",
+        "md5": "0cedbb9ea60dcbda28e3ef3dafdd119b"
+      },
+      {
+        "proname": "ledger_assert_commission_conservation",
+        "args": "",
+        "md5": "27ddc76b842594cb6ee8673c171e6526"
+      },
+      {
+        "proname": "ledger_post_event",
+        "args": "payload jsonb",
+        "md5": "0ed7eb9131e67205bbc90ecef5dd2108"
+      },
+      {
+        "proname": "listing_post_event",
+        "args": "payload jsonb",
+        "md5": "0e187c20b56d45202d83978c8a02b31d"
+      },
+      {
+        "proname": "market_post_event",
+        "args": "payload jsonb",
+        "md5": "74841611252726e1cc0f57cb46ea6c6d"
+      }
+    ],
+    "currency_cid1": {
+      "cid": "1",
+      "symbol": "$",
+      "name": "平台积分",
+      "owner_uid": "0",
+      "decimals": "0",
+      "total_supply": "2200274",
+      "supply_cap": null,
+      "status": "listed"
+    },
+    "account_sum": {
+      "rows_all": 25,
+      "all_zero": 3,
+      "cid1_uid_le0_allzero": 3,
+      "sigma_balance_frozen": "2020300"
+    },
+    "ledger_owner_rows": [
+      {
+        "uid": "-1",
+        "name": "手续费归集账户"
+      },
+      {
+        "uid": "-2",
+        "name": "佣金池"
+      },
+      {
+        "uid": "-3",
+        "name": "罚没账户"
+      },
+      {
+        "uid": "0",
+        "name": "平台主体"
+      }
+    ],
+    "commission_policy_ids": [
+      "1",
+      "2",
+      "3"
+    ],
+    "currency_cid_seq": {
+      "seq_name": "public.currency_cid_seq",
+      "last_value": "34",
+      "is_called": true,
+      "next_value_calc": "35",
+      "probe": "read-only SELECT on sequence relation (no nextval)"
+    }
+  },
+  "B_connections": {
+    "self_pid": 974,
+    "others_count": 0,
+    "idle_in_transaction_count": 0,
+    "ungranted_locks_by_others": 0,
+    "others": [],
+    "idle_in_transaction": []
+  },
+  "C_replay": {
+    "tx_final": "ROLLBACK",
+    "bootstrap_row_count": "0",
+    "steps": [
+      {
+        "file": null,
+        "step": "BEGIN",
+        "ok": true,
+        "before": null,
+        "after": null,
+        "checksum_byte_equal": null,
+        "ms": null,
+        "error": null
+      },
+      {
+        "file": null,
+        "step": "SET LOCAL lock_timeout='20s', statement_timeout='300s'",
+        "ok": true,
+        "before": null,
+        "after": null,
+        "checksum_byte_equal": null,
+        "ms": null,
+        "error": null
+      },
+      {
+        "file": null,
+        "step": "DROP SCHEMA public CASCADE",
+        "ok": true,
+        "before": null,
+        "after": null,
+        "checksum_byte_equal": null,
+        "ms": 181,
+        "error": null
+      },
+      {
+        "file": null,
+        "step": "CREATE SCHEMA public",
+        "ok": true,
+        "before": null,
+        "after": null,
+        "checksum_byte_equal": null,
+        "ms": null,
+        "error": null
+      },
+      {
+        "file": null,
+        "step": "bootstrap schema_migration（镜像 migrate.ts BOOTSTRAP）",
+        "ok": true,
+        "before": null,
+        "after": null,
+        "checksum_byte_equal": null,
+        "ms": null,
+        "error": null
+      },
+      {
+        "file": "0001_ledger_core.sql",
+        "step": null,
+        "ok": true,
+        "before": "0",
+        "after": "1",
+        "checksum_byte_equal": true,
+        "ms": 508,
+        "error": null
+      },
+      {
+        "file": "0002_user_identity.sql",
+        "step": null,
+        "ok": true,
+        "before": "1",
+        "after": "2",
+        "checksum_byte_equal": true,
+        "ms": 462,
+        "error": null
+      },
+      {
+        "file": "0003_kind_close_set_20.sql",
+        "step": null,
+        "ok": true,
+        "before": "2",
+        "after": "3",
+        "checksum_byte_equal": true,
+        "ms": 456,
+        "error": null
+      },
+      {
+        "file": "0004_ledger_post_event.sql",
+        "step": null,
+        "ok": true,
+        "before": "3",
+        "after": "4",
+        "checksum_byte_equal": true,
+        "ms": 580,
+        "error": null
+      },
+      {
+        "file": "0005_ledger_event_root_key.sql",
+        "step": null,
+        "ok": true,
+        "before": "4",
+        "after": "5",
+        "checksum_byte_equal": true,
+        "ms": 501,
+        "error": null
+      },
+      {
+        "file": "0006_user_to_users.sql",
+        "step": null,
+        "ok": true,
+        "before": "5",
+        "after": "6",
+        "checksum_byte_equal": true,
+        "ms": 473,
+        "error": null
+      },
+      {
+        "file": "0007_referral_and_commission_policy.sql",
+        "step": null,
+        "ok": true,
+        "before": "6",
+        "after": "7",
+        "checksum_byte_equal": true,
+        "ms": 491,
+        "error": null
+      },
+      {
+        "file": "0008_platform_revenue_job_fee.sql",
+        "step": null,
+        "ok": true,
+        "before": "7",
+        "after": "8",
+        "checksum_byte_equal": true,
+        "ms": 452,
+        "error": null
+      },
+      {
+        "file": "0009_ledger_error_reverse_map_complete.sql",
+        "step": null,
+        "ok": true,
+        "before": "8",
+        "after": "9",
+        "checksum_byte_equal": true,
+        "ms": 467,
+        "error": null
+      },
+      {
+        "file": "0010_referral_bind_protocol_guard.sql",
+        "step": null,
+        "ok": true,
+        "before": "9",
+        "after": "10",
+        "checksum_byte_equal": true,
+        "ms": 476,
+        "error": null
+      },
+      {
+        "file": "0011_commission_assert_closure_and_referral_depth_guard.sql",
+        "step": null,
+        "ok": true,
+        "before": "10",
+        "after": "11",
+        "checksum_byte_equal": true,
+        "ms": 483,
+        "error": null
+      },
+      {
+        "file": "0012_replay_pre_gate_before_balance_gate.sql",
+        "step": null,
+        "ok": true,
+        "before": "11",
+        "after": "12",
+        "checksum_byte_equal": true,
+        "ms": 506,
+        "error": null
+      },
+      {
+        "file": "0013_job.sql",
+        "step": null,
+        "ok": true,
+        "before": "12",
+        "after": "13",
+        "checksum_byte_equal": true,
+        "ms": 491,
+        "error": null
+      },
+      {
+        "file": "0014_job_flow.sql",
+        "step": null,
+        "ok": true,
+        "before": "13",
+        "after": "14",
+        "checksum_byte_equal": true,
+        "ms": 731,
+        "error": null
+      },
+      {
+        "file": "0015_listing.sql",
+        "step": null,
+        "ok": true,
+        "before": "14",
+        "after": "15",
+        "checksum_byte_equal": true,
+        "ms": 522,
+        "error": null
+      },
+      {
+        "file": "0016_market.sql",
+        "step": null,
+        "ok": true,
+        "before": "15",
+        "after": "16",
+        "checksum_byte_equal": true,
+        "ms": 529,
+        "error": null
+      },
+      {
+        "file": "0017_platform_config.sql",
+        "step": null,
+        "ok": true,
+        "before": "16",
+        "after": "17",
+        "checksum_byte_equal": true,
+        "ms": 535,
+        "error": null
+      },
+      {
+        "file": "0019_listing_deposit_platform_credit.sql",
+        "step": null,
+        "ok": true,
+        "before": "17",
+        "after": "18",
+        "checksum_byte_equal": true,
+        "ms": 454,
+        "error": null
+      },
+      {
+        "file": "0020_ledger_post_event_hold_family_drop_listing_deposit.sql",
+        "step": null,
+        "ok": true,
+        "before": "18",
+        "after": "19",
+        "checksum_byte_equal": true,
+        "ms": 474,
+        "error": null
+      },
+      {
+        "file": "0021_content_translation.sql",
+        "step": null,
+        "ok": true,
+        "before": "19",
+        "after": "20",
+        "checksum_byte_equal": true,
+        "ms": 471,
+        "error": null
+      },
+      {
+        "file": "0022_admin_permission_seed.sql",
+        "step": null,
+        "ok": true,
+        "before": "20",
+        "after": "21",
+        "checksum_byte_equal": true,
+        "ms": 465,
+        "error": null
+      },
+      {
+        "file": "0023_admin_points_audit_daily_cap.sql",
+        "step": null,
+        "ok": true,
+        "before": "21",
+        "after": "22",
+        "checksum_byte_equal": null,
+        "ms": 477,
+        "error": null
+      }
+    ],
+    "replay_ok": true,
+    "replay_error": null,
+    "checksum_all_byte_equal": false,
+    "in_tx_snapshot_error": null
+  },
+  "D_comparison": {
+    "expected_from_files": {
+      "TABLE": 23,
+      "VIEW": 1,
+      "FUNCTION": 76,
+      "PROCEDURE": 0,
+      "TRIGGER": 44,
+      "SEQUENCE": 14
+    },
+    "actual_in_tx": {
+      "base_tables": 24,
+      "views": 1,
+      "sequences": 14,
+      "functions": 76,
+      "procedures": 0,
+      "indexes": 65
+    },
+    "object_diffs": [],
+    "terminal_total": 32,
+    "terminal_ok": 31,
+    "terminal_failed": [],
+    "terminal_not_measured": [
+      "currency.supply_cap=NULL"
+    ],
+    "key_functions_md5_equal_to_prestate": true,
+    "in_tx_table_row_counts": {
+      "account": "4",
+      "admin_ops_audit_log": "0",
+      "admin_permission": "11",
+      "admin_role": "1",
+      "admin_role_permission": "11",
+      "admin_user_role": "0",
+      "app_config": "0",
+      "commission_policy": "1",
+      "content_translation": "0",
+      "currency": "1",
+      "currency_status_log": "0",
+      "job": "0",
+      "job_application": "0",
+      "job_submission": "0",
+      "ledger_entry": "0",
+      "ledger_owner": "4",
+      "listing": "0",
+      "listing_order": "0",
+      "market_order": "0",
+      "market_trade": "0",
+      "referral": "0",
+      "schema_migration": "22",
+      "translation_cache": "0",
+      "users": "0"
+    }
+  },
+  "D_pass": true,
+  "F_net_zero": {
+    "identical": true,
+    "diff_count": 0,
+    "diffs": [],
+    "A_hash": "676716ba55b677294c13842bb3bbff547e87a87ee881e05fe00ce5e2fc099d51",
+    "F_hash": "676716ba55b677294c13842bb3bbff547e87a87ee881e05fe00ce5e2fc099d51"
+  },
+  "G_not_verified": [
+    "--apply（真实 COMMIT / Phase 2）未执行 —— 未获授权，脚本内需 --apply + --confirm-irreversible 双闸，本单未调用。",
+    "重建期间与在线服务（seafood-api 等）的真实并发锁竞争未在负载下压测（仅登记 B 段连接快照）。",
+    "回滚后备库可回灌性 NOT_MEASURED —— 本机无 pg_dump，A/F 是观测快照，不是可回灌备份（忠实回灌需绕过 append-only 守卫）。",
+    "重建后应用层（backend-ts/src/**）端到端可用性 NOT_MEASURED（本单只做数据层 dry-run）。",
+    "Neon 平台侧分支/PITR 能力 NOT_MEASURED（超出本机工具面）。",
+    "statement_timeout=300s / lock_timeout=20s 下本次未超时 ≠ 无长事务风险（仅本次观测）。"
+  ],
+  "G_probe_caveats": [
+    "期望对象集由 stripSql() 词法剥离注释/字符串/$$体后按 token 抽取；若某文件在 DO/EXECUTE 里动态建对象会被漏（本次 grep 未见动态 CREATE，且与实测计数相符）。",
+    "序列期望只能按「IDENTITY 声明数 + SERIAL 声明数 + 1 bootstrap」计数，无法从声明推序列名（文件内 CREATE SEQUENCE 语句 = 0）。",
+    "函数按 proname 去重；重载会被折叠为 1 个名字（另报 pg_proc 原始行数）。",
+    "currency.cid 下一值由只读 `SELECT last_value,is_called` 推断（不 nextval，以免事务外写库）；若 is_called=false 则不 +1。",
+    "supply_cap 期望 NULL 与「未取到」不可区分 ⇒ 记为 NOT_MEASURED，不计入判负。"
+  ],
+  "ok": true,
+  "exit_code": 0,
+  "finished_at": "2026-10-02T01:46:32.219Z"
+}

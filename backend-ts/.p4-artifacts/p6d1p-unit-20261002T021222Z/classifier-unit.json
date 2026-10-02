@@ -1,0 +1,557 @@
+{
+  "run": "p6d1p-unit-20261002T021222Z",
+  "engine": "p4z-d1p-01-classifier-unit",
+  "offline": true,
+  "db_connections": 0,
+  "api_calls": 0,
+  "total": 41,
+  "passed": 41,
+  "failed": 0,
+  "checks": [
+    {
+      "id": "U0a_codes_33",
+      "ok": true,
+      "detail": "codes=33"
+    },
+    {
+      "id": "U0b_benign_1",
+      "ok": true,
+      "detail": "benign=LEDGER_IDEMPOTENCY_REPLAY"
+    },
+    {
+      "id": "U0c_status_unchanged",
+      "ok": true,
+      "detail": "diff=[]"
+    },
+    {
+      "id": "U0d_bucket_unchanged",
+      "ok": true,
+      "detail": "diff=[]"
+    },
+    {
+      "id": "U0e_snapshot_covers_all",
+      "ok": true,
+      "detail": "missing_in_snapshot=[]"
+    },
+    {
+      "id": "U0f_reconcile_null_to_500",
+      "ok": true,
+      "detail": "httpStatusOf(LD032)=500"
+    },
+    {
+      "id": "U0g_replay_benign_200",
+      "ok": true,
+      "detail": "httpStatusOf(LD006)=200"
+    },
+    {
+      "id": "U1_23514/account_bal_guard",
+      "ok": true,
+      "detail": "got LEDGER_NEGATIVE_BALANCE_GUARD/500/reason=null expect LEDGER_NEGATIVE_BALANCE_GUARD/500/-"
+    },
+    {
+      "id": "U1_23514/currency_supply_guard",
+      "ok": true,
+      "detail": "got LEDGER_SUPPLY_CAP_EXCEEDED/409/reason=null expect LEDGER_SUPPLY_CAP_EXCEEDED/409/-"
+    },
+    {
+      "id": "U1_23514/ledger_kind_enum",
+      "ok": true,
+      "detail": "got LEDGER_UNKNOWN_KIND/400/reason=null expect LEDGER_UNKNOWN_KIND/400/-"
+    },
+    {
+      "id": "U1_23514/other",
+      "ok": true,
+      "detail": "got LEDGER_AMOUNT_INVALID/400/reason=null expect LEDGER_AMOUNT_INVALID/400/-"
+    },
+    {
+      "id": "U1_23505/ledger_idem_uniq",
+      "ok": true,
+      "detail": "got LEDGER_IDEMPOTENCY_CONFLICT/409/reason=null expect LEDGER_IDEMPOTENCY_CONFLICT/409/-"
+    },
+    {
+      "id": "U1_23503/fk",
+      "ok": true,
+      "detail": "got LEDGER_CURRENCY_NOT_FOUND/404/reason=null expect LEDGER_CURRENCY_NOT_FOUND/404/-"
+    },
+    {
+      "id": "U1_55P03",
+      "ok": true,
+      "detail": "got LEDGER_LOCK_TIMEOUT/503/reason=null expect LEDGER_LOCK_TIMEOUT/503/-"
+    },
+    {
+      "id": "U1_57014",
+      "ok": true,
+      "detail": "got LEDGER_TX_TIMEOUT/503/reason=null expect LEDGER_TX_TIMEOUT/503/-"
+    },
+    {
+      "id": "U1_40001",
+      "ok": true,
+      "detail": "got LEDGER_DEADLOCK_RETRY_EXHAUSTED/503/reason=null expect LEDGER_DEADLOCK_RETRY_EXHAUSTED/503/-"
+    },
+    {
+      "id": "U1_40P01",
+      "ok": true,
+      "detail": "got LEDGER_DEADLOCK_RETRY_EXHAUSTED/503/reason=null expect LEDGER_DEADLOCK_RETRY_EXHAUSTED/503/-"
+    },
+    {
+      "id": "U1_08P01_must_stay_500",
+      "ok": true,
+      "detail": "got LEDGER_TRANSACTION_REQUIRED/500/reason=protocol_violation expect LEDGER_TRANSACTION_REQUIRED/500/protocol_violation"
+    },
+    {
+      "id": "U1_08006_infra_class",
+      "ok": true,
+      "detail": "got LEDGER_TX_TIMEOUT/503/reason=connection_error expect LEDGER_TX_TIMEOUT/503/-"
+    },
+    {
+      "id": "U1_53300_infra_class",
+      "ok": true,
+      "detail": "got LEDGER_TX_TIMEOUT/503/reason=too_many_connections expect LEDGER_TX_TIMEOUT/503/-"
+    },
+    {
+      "id": "U1_3D000_infra_class",
+      "ok": true,
+      "detail": "got LEDGER_TX_TIMEOUT/503/reason=database_unavailable expect LEDGER_TX_TIMEOUT/503/-"
+    },
+    {
+      "id": "U1_42P01_unchanged_500",
+      "ok": true,
+      "detail": "got LEDGER_TRANSACTION_REQUIRED/500/reason=unclassified_pg_error expect LEDGER_TRANSACTION_REQUIRED/500/unclassified_pg_error"
+    },
+    {
+      "id": "U1_P0001_append_only",
+      "ok": true,
+      "detail": "got LEDGER_APPEND_ONLY_VIOLATION/500/reason=null expect LEDGER_APPEND_ONLY_VIOLATION/500/-"
+    },
+    {
+      "id": "U1_named_LEDGER_TX_TIMEOUT",
+      "ok": true,
+      "detail": "got LEDGER_TX_TIMEOUT/503/reason=null expect LEDGER_TX_TIMEOUT/503/-"
+    },
+    {
+      "id": "U2_neon_db_error_fetch_failed",
+      "ok": true,
+      "detail": "got LEDGER_TX_TIMEOUT/503/reason=driver_connection_error (classifier=driver_connection_error) expect 503/driver_connection_error"
+    },
+    {
+      "id": "U2_server_error_http_502",
+      "ok": true,
+      "detail": "got LEDGER_TX_TIMEOUT/503/reason=driver_connection_error (classifier=driver_connection_error) expect 503/driver_connection_error"
+    },
+    {
+      "id": "U2_bare_fetch_failed",
+      "ok": true,
+      "detail": "got LEDGER_TX_TIMEOUT/503/reason=driver_connection_error (classifier=driver_connection_error) expect 503/driver_connection_error"
+    },
+    {
+      "id": "U2_wrapped_no_message_cause_code",
+      "ok": true,
+      "detail": "got LEDGER_TX_TIMEOUT/503/reason=driver_connection_error (classifier=driver_connection_error) expect 503/driver_connection_error"
+    },
+    {
+      "id": "U2_pool_connection_timeout_unchanged",
+      "ok": true,
+      "detail": "got LEDGER_TX_TIMEOUT/503/reason=pool_connection_timeout (classifier=pool_connection_timeout) expect 503/pool_connection_timeout"
+    },
+    {
+      "id": "U2_ws_error_event_family",
+      "ok": true,
+      "detail": "got LEDGER_TX_TIMEOUT/503/reason=driver_connection_error (classifier=driver_connection_error) expect 503/driver_connection_error"
+    },
+    {
+      "id": "U3_bare_TypeError_defect_stays_500",
+      "ok": true,
+      "detail": "got LEDGER_TRANSACTION_REQUIRED/500 reason=unclassified_non_pg_error expect LEDGER_TRANSACTION_REQUIRED/500"
+    },
+    {
+      "id": "U3_bare_Error_defect_stays_500",
+      "ok": true,
+      "detail": "got LEDGER_TRANSACTION_REQUIRED/500 reason=unclassified_non_pg_error expect LEDGER_TRANSACTION_REQUIRED/500"
+    },
+    {
+      "id": "U3_plain_object_no_code_stays_500",
+      "ok": true,
+      "detail": "got LEDGER_TRANSACTION_REQUIRED/500 reason=unclassified_non_pg_error expect LEDGER_TRANSACTION_REQUIRED/500"
+    },
+    {
+      "id": "U3_unknown_pg_sqlstate_stays_500",
+      "ok": true,
+      "detail": "got LEDGER_TRANSACTION_REQUIRED/500 reason=unclassified_pg_error expect LEDGER_TRANSACTION_REQUIRED/500"
+    },
+    {
+      "id": "U4a_auth_infra_503_not_401",
+      "ok": true,
+      "detail": "verify 面（unwrap 真因）⇒ LEDGER_TX_TIMEOUT/503"
+    },
+    {
+      "id": "U4b_auth_infra_503_no_unwrap",
+      "ok": true,
+      "detail": "verify 面（顶层 code=null 形态）⇒ LEDGER_TX_TIMEOUT/503"
+    },
+    {
+      "id": "U4c_verify_has_classifier",
+      "ok": true,
+      "detail": "verify handler 落库面走 §14 分类器"
+    },
+    {
+      "id": "U4d_verify_no_trailing_catchall_401",
+      "ok": true,
+      "detail": "sendError(res,401) 计数=1（须=1，且仅凭据面）"
+    },
+    {
+      "id": "U4e_401_precedes_db_call",
+      "ok": true,
+      "detail": "401 段位置=177 < DB 调用=612"
+    },
+    {
+      "id": "U4f_other_auth_entry_challenge_400",
+      "ok": true,
+      "detail": "challenge 面仍 400（不碰库 ⇒ 不变）"
+    },
+    {
+      "id": "U5_registrations_67",
+      "ok": true,
+      "detail": "注册点=67"
+    }
+  ],
+  "coded_cases": [
+    {
+      "name": "23514/account_bal_guard",
+      "code": "LEDGER_NEGATIVE_BALANCE_GUARD",
+      "http_status": 500,
+      "reason": null,
+      "expect": {
+        "code": "LEDGER_NEGATIVE_BALANCE_GUARD",
+        "status": 500,
+        "reason": null
+      },
+      "pass": true
+    },
+    {
+      "name": "23514/currency_supply_guard",
+      "code": "LEDGER_SUPPLY_CAP_EXCEEDED",
+      "http_status": 409,
+      "reason": null,
+      "expect": {
+        "code": "LEDGER_SUPPLY_CAP_EXCEEDED",
+        "status": 409,
+        "reason": null
+      },
+      "pass": true
+    },
+    {
+      "name": "23514/ledger_kind_enum",
+      "code": "LEDGER_UNKNOWN_KIND",
+      "http_status": 400,
+      "reason": null,
+      "expect": {
+        "code": "LEDGER_UNKNOWN_KIND",
+        "status": 400,
+        "reason": null
+      },
+      "pass": true
+    },
+    {
+      "name": "23514/other",
+      "code": "LEDGER_AMOUNT_INVALID",
+      "http_status": 400,
+      "reason": null,
+      "expect": {
+        "code": "LEDGER_AMOUNT_INVALID",
+        "status": 400,
+        "reason": null
+      },
+      "pass": true
+    },
+    {
+      "name": "23505/ledger_idem_uniq",
+      "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+      "http_status": 409,
+      "reason": null,
+      "expect": {
+        "code": "LEDGER_IDEMPOTENCY_CONFLICT",
+        "status": 409,
+        "reason": null
+      },
+      "pass": true
+    },
+    {
+      "name": "23503/fk",
+      "code": "LEDGER_CURRENCY_NOT_FOUND",
+      "http_status": 404,
+      "reason": null,
+      "expect": {
+        "code": "LEDGER_CURRENCY_NOT_FOUND",
+        "status": 404,
+        "reason": null
+      },
+      "pass": true
+    },
+    {
+      "name": "55P03",
+      "code": "LEDGER_LOCK_TIMEOUT",
+      "http_status": 503,
+      "reason": null,
+      "expect": {
+        "code": "LEDGER_LOCK_TIMEOUT",
+        "status": 503,
+        "reason": null
+      },
+      "pass": true
+    },
+    {
+      "name": "57014",
+      "code": "LEDGER_TX_TIMEOUT",
+      "http_status": 503,
+      "reason": null,
+      "expect": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "status": 503,
+        "reason": null
+      },
+      "pass": true
+    },
+    {
+      "name": "40001",
+      "code": "LEDGER_DEADLOCK_RETRY_EXHAUSTED",
+      "http_status": 503,
+      "reason": null,
+      "expect": {
+        "code": "LEDGER_DEADLOCK_RETRY_EXHAUSTED",
+        "status": 503,
+        "reason": null
+      },
+      "pass": true
+    },
+    {
+      "name": "40P01",
+      "code": "LEDGER_DEADLOCK_RETRY_EXHAUSTED",
+      "http_status": 503,
+      "reason": null,
+      "expect": {
+        "code": "LEDGER_DEADLOCK_RETRY_EXHAUSTED",
+        "status": 503,
+        "reason": null
+      },
+      "pass": true
+    },
+    {
+      "name": "08P01_must_stay_500",
+      "code": "LEDGER_TRANSACTION_REQUIRED",
+      "http_status": 500,
+      "reason": "protocol_violation",
+      "expect": {
+        "code": "LEDGER_TRANSACTION_REQUIRED",
+        "status": 500,
+        "reason": "protocol_violation"
+      },
+      "pass": true
+    },
+    {
+      "name": "08006_infra_class",
+      "code": "LEDGER_TX_TIMEOUT",
+      "http_status": 503,
+      "reason": "connection_error",
+      "expect": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "status": 503,
+        "reason": null
+      },
+      "pass": true
+    },
+    {
+      "name": "53300_infra_class",
+      "code": "LEDGER_TX_TIMEOUT",
+      "http_status": 503,
+      "reason": "too_many_connections",
+      "expect": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "status": 503,
+        "reason": null
+      },
+      "pass": true
+    },
+    {
+      "name": "3D000_infra_class",
+      "code": "LEDGER_TX_TIMEOUT",
+      "http_status": 503,
+      "reason": "database_unavailable",
+      "expect": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "status": 503,
+        "reason": null
+      },
+      "pass": true
+    },
+    {
+      "name": "42P01_unchanged_500",
+      "code": "LEDGER_TRANSACTION_REQUIRED",
+      "http_status": 500,
+      "reason": "unclassified_pg_error",
+      "expect": {
+        "code": "LEDGER_TRANSACTION_REQUIRED",
+        "status": 500,
+        "reason": "unclassified_pg_error"
+      },
+      "pass": true
+    },
+    {
+      "name": "P0001_append_only",
+      "code": "LEDGER_APPEND_ONLY_VIOLATION",
+      "http_status": 500,
+      "reason": null,
+      "expect": {
+        "code": "LEDGER_APPEND_ONLY_VIOLATION",
+        "status": 500,
+        "reason": null
+      },
+      "pass": true
+    },
+    {
+      "name": "named_LEDGER_TX_TIMEOUT",
+      "code": "LEDGER_TX_TIMEOUT",
+      "http_status": 503,
+      "reason": null,
+      "expect": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "status": 503,
+        "reason": null
+      },
+      "pass": true
+    }
+  ],
+  "null_code_cases": [
+    {
+      "name": "neon_db_error_fetch_failed",
+      "code": "LEDGER_TX_TIMEOUT",
+      "http_status": 503,
+      "reason": "driver_connection_error",
+      "classifier": "driver_connection_error",
+      "is_null_code_transport": true,
+      "expect": {
+        "status": 503,
+        "reason": "driver_connection_error"
+      },
+      "pass": true,
+      "response_error": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "message": "系统繁忙，请稍后重试",
+        "i18n_key": "ledger.err.LEDGER_TX_TIMEOUT",
+        "details": {
+          "reason": "driver_connection_error",
+          "error_code": "none"
+        }
+      }
+    },
+    {
+      "name": "server_error_http_502",
+      "code": "LEDGER_TX_TIMEOUT",
+      "http_status": 503,
+      "reason": "driver_connection_error",
+      "classifier": "driver_connection_error",
+      "is_null_code_transport": true,
+      "expect": {
+        "status": 503,
+        "reason": "driver_connection_error"
+      },
+      "pass": true,
+      "response_error": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "message": "系统繁忙，请稍后重试",
+        "i18n_key": "ledger.err.LEDGER_TX_TIMEOUT",
+        "details": {
+          "reason": "driver_connection_error",
+          "error_code": "none"
+        }
+      }
+    },
+    {
+      "name": "bare_fetch_failed",
+      "code": "LEDGER_TX_TIMEOUT",
+      "http_status": 503,
+      "reason": "driver_connection_error",
+      "classifier": "driver_connection_error",
+      "is_null_code_transport": true,
+      "expect": {
+        "status": 503,
+        "reason": "driver_connection_error"
+      },
+      "pass": true,
+      "response_error": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "message": "系统繁忙，请稍后重试",
+        "i18n_key": "ledger.err.LEDGER_TX_TIMEOUT",
+        "details": {
+          "reason": "driver_connection_error",
+          "error_code": "none"
+        }
+      }
+    },
+    {
+      "name": "wrapped_no_message_cause_code",
+      "code": "LEDGER_TX_TIMEOUT",
+      "http_status": 503,
+      "reason": "driver_connection_error",
+      "classifier": "driver_connection_error",
+      "is_null_code_transport": true,
+      "expect": {
+        "status": 503,
+        "reason": "driver_connection_error"
+      },
+      "pass": true,
+      "response_error": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "message": "系统繁忙，请稍后重试",
+        "i18n_key": "ledger.err.LEDGER_TX_TIMEOUT",
+        "details": {
+          "reason": "driver_connection_error",
+          "error_code": "none"
+        }
+      }
+    },
+    {
+      "name": "pool_connection_timeout_unchanged",
+      "code": "LEDGER_TX_TIMEOUT",
+      "http_status": 503,
+      "reason": "pool_connection_timeout",
+      "classifier": "pool_connection_timeout",
+      "is_null_code_transport": false,
+      "expect": {
+        "status": 503,
+        "reason": "pool_connection_timeout"
+      },
+      "pass": true,
+      "response_error": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "message": "系统繁忙，请稍后重试",
+        "i18n_key": "ledger.err.LEDGER_TX_TIMEOUT",
+        "details": {
+          "reason": "pool_connection_timeout",
+          "source": "connection_pool"
+        }
+      }
+    },
+    {
+      "name": "ws_error_event_family",
+      "code": "LEDGER_TX_TIMEOUT",
+      "http_status": 503,
+      "reason": "driver_connection_error",
+      "classifier": "driver_connection_error",
+      "is_null_code_transport": true,
+      "expect": {
+        "status": 503,
+        "reason": "driver_connection_error"
+      },
+      "pass": true,
+      "response_error": {
+        "code": "LEDGER_TX_TIMEOUT",
+        "message": "系统繁忙，请稍后重试",
+        "i18n_key": "ledger.err.LEDGER_TX_TIMEOUT",
+        "details": {
+          "reason": "driver_connection_error",
+          "error_code": "none"
+        }
+      }
+    }
+  ]
+}

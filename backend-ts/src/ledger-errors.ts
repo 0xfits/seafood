@@ -437,8 +437,65 @@ const isEventObjectFamily = (e: unknown): boolean => {
 };
 
 /**
+ * P6-D1'（批 6 · 最后一项 D1'）：**无 SQLSTATE（`code == null`）的驱动/传输错 ⇒ 503**
+ * ============================================================================
+ * 冻结事实（**现取实测**，产物 `backend-ts/.p4-artifacts/p6d1p-STAMP/shape-probe.json`，
+ *   脚本 `scripts/p4z-d1p-00-probe-shape.ts`；目标 = 127.0.0.1:1 与本机不可达主机）：
+ *   ① `Pool` over WebSocket（`src/db.ts` 两条池的实际路径）抛 `ws` 的 `ErrorEvent`
+ *      （`ctor=ErrorEvent`、`code` **无** 、`message='connect ECONNREFUSED 127.0.0.1:443'`，
+ *      内层 `.error` = `Error{code:'ECONNREFUSED'|'ECONNRESET'}`）——
+ *      **该形态已由 `isEventObjectFamily`（P3T）覆盖 ⇒ 既有 503**，本条不改它；
+ *   ② `neon()` HTTP 路径抛 `NeonDbError{code: null, message:'Error connecting to database: fetch failed'}`
+ *      （`type` 非事件对象、`code` 为 `null`；真因在 `sourceError` → `cause` = `Error{code:'ECONNREFUSED'}`）——
+ *      **非 400 分支**下驱动把 HTTP 状态包成 `Server error (HTTP status N)`、`code` 恒为 `null`；
+ *   ③ 旧判据（`code ∈ DRIVER_TRANSIENT_CODES` 或 message 正则）两样都不命中 ②（顶层 `code` 为空、
+ *      `message` 不含 `ECONNREFUSED` 等词）⇒ 落 `unclassified_non_pg_error`（**500** 类）
+ *      ⇒ 与「后端暂时不可用、可重试（503）」语义相反；`/api/auth/verify` 的 catch-all 更会把它吞成 **401**。
+ * 裁定（逐字执行）：
+ *   · 判据 = **无码**（`code` 为空：`null`/`undefined`/`''`）**且**（`message` 命中驱动/传输形态
+ *     **或** `cause`/`sourceError`/`error` 链内存在瞬时驱动码）；
+ *   · 归类 = **复用既有 503 通路与既有 reason** `driver_connection_error`（已在
+ *     `TRANSIENT_NON_PG_REASONS`）⇒ **不新增错误码**（§14.1 的 33 码闭集不动）、**不新增 reason 值**；
+ *   · **不得**放宽成「凡 `code == null` 即 503」：无任何传输信号的裸错误（`new TypeError('bug')` 等）
+ *     仍归 500 类（`unclassified_non_pg_error`）—— `DL126`（500 类只允许由不变式被破坏触发且必须告警）
+ *     要求代码缺陷**不得**被静默降级成 503。判负用例见 `scripts/p4z-d1p-01-classifier-unit.ts`；
+ *   · **400 分支逐条不变**：带 `code` 的错误在本条**之前**已被 `isSqlstate` / `DRIVER_TRANSIENT_CODES`
+ *     / `switch` 处理，本条只在 `code` 为空时生效。
+ *   · 只读、无副作用：全部读取走 `safeRead`（getter 抛 ⇒ 该层视为无码，绝不向上抛）。
+ */
+const DRIVER_TRANSPORT_MESSAGE_RE =
+  /Error connecting to database|fetch failed|Server error [(]HTTP status [0-9]+[)]|socket hang up|Client network socket disconnected|getaddrinfo|^connect ECONN|connection (refused|reset|closed|terminated)|network (is )?unreachable/i;
+
+/** 沿 `cause` / `sourceError` / `error` 链找瞬时驱动码（`DRIVER_TRANSIENT_CODES`）；无 ⇒ `null` */
+const nestedDriverTransientCode = (e: unknown, depth = 0): string | null => {
+  if (depth >= 3) return null;
+  for (const key of ['cause', 'sourceError', 'error'] as const) {
+    const child = safeRead(e, key);
+    if (child === null || typeof child !== 'object') continue;
+    const c = String(safeRead(child, 'code') ?? '');
+    if (DRIVER_TRANSIENT_CODES.has(c)) return c;
+    const deeper = nestedDriverTransientCode(child, depth + 1);
+    if (deeper !== null) return deeper;
+  }
+  return null;
+};
+
+/**
+ * 无 SQLSTATE（`code` 为空）的驱动/传输错判据（见上方 P6-D1' 裁定块）。
+ * 导出以便质检脚本直接取证（纯函数、无副作用）。**有码 ⇒ 恒返 `false`**（400 分支不在本判据内）。
+ */
+export const isNullCodeDriverTransportError = (e: unknown, code = pgCode(e), message = pgMessage(e)): boolean => {
+  if (code !== '') return false;
+  if (DRIVER_TRANSPORT_MESSAGE_RE.test(message)) return true;
+  return nestedDriverTransientCode(e) !== null;
+};
+
+/**
  * 分类「非 PG 错误」。返回 `null` ⇒ 是 PG SQLSTATE 或账本命名码，交给下面的 switch / 命名分支。
  * 导出以便质检脚本直接取证分类逻辑（不引入副作用）。
+ *
+ * P6-D1'：末尾新增「无码驱动/传输错」判据（见下面 `isNullCodeDriverTransportError` 的裁定块）——
+ *   **只在 `code` 为空时**生效，故带码错误（含全部 400 分支映射）走**原样**的老分支。
  */
 export const classifyNonPgError = (e: unknown): NonPgErrorReason | null => {
   const code = pgCode(e);
@@ -452,6 +509,9 @@ export const classifyNonPgError = (e: unknown): NonPgErrorReason | null => {
       || /ECONNREFUSED|ECONNRESET|ENOTFOUND|ETIMEDOUT|socket hang up|connection refused|connection closed|connection terminated/i.test(message)) {
     return 'driver_connection_error';
   }
+  // --- P6-D1'（批 6 · D1'）：**无 SQLSTATE（`code == null`）的驱动/传输错 ⇒ 503**。
+  //     复用既有 503 通路与既有 reason `driver_connection_error`；不新增码、不新增 reason。
+  if (isNullCodeDriverTransportError(e, code, message)) return 'driver_connection_error';
   return code ? 'unclassified_driver_error' : 'unclassified_non_pg_error';
 };
 

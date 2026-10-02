@@ -1,0 +1,10 @@
+{
+  "label": "post",
+  "generated_at": "2026-10-02T02:12:25.427Z",
+  "read_only": true,
+  "url_present": true,
+  "db_host_masked": "***.c-4.ap-southeast-1.aws.neon.tech",
+  "ledger_entry_rows": 271,
+  "account_rows": 27,
+  "account_balance_sum": "2009792"
+}
