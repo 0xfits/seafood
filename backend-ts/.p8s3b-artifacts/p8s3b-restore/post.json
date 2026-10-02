@@ -1,0 +1,30 @@
+{
+ "unit": "P8-S3B-RESTORE",
+ "generated_at": "2026-10-02T16:01:10.270Z",
+ "pre": [
+  {
+   "key": "system_settings",
+   "value_text": "{\"siteName\": \"p4b2c:siteA\", \"maintenance\": false, \"maxDailyTasks\": 10, \"pointsPerTask\": 100, \"rewardCooldown\": 24, \"defaultLanguage\": \"zh\", \"siteDescription\": \"去中心化社区奖励平台\", \"allowRegistration\": true, \"emailNotifications\": true}",
+   "updated_by": "1",
+   "time_updated": "2026-10-02 15:57:54.741187+00"
+  }
+ ],
+ "baseline": {
+  "key": "system_settings",
+  "value_text": "{\"siteName\": \"p4b2c:siteA\", \"maintenance\": false, \"maxDailyTasks\": 10, \"pointsPerTask\": 100, \"rewardCooldown\": 24, \"defaultLanguage\": \"zh\", \"siteDescription\": \"去中心化社区奖励平台\", \"allowRegistration\": true, \"emailNotifications\": true}",
+  "updated_by": "1",
+  "time_updated": "2026-10-02 14:14:07.502017+00"
+ },
+ "drifted_time_updated": "2026-10-02 15:57:54.741187+00",
+ "pre_row_count": 1,
+ "classification": "DRIFTED_KNOWN",
+ "action": "DELETE+INSERT (single tx, committed)",
+ "post": [
+  {
+   "key": "system_settings",
+   "value_text": "{\"siteName\": \"p4b2c:siteA\", \"maintenance\": false, \"maxDailyTasks\": 10, \"pointsPerTask\": 100, \"rewardCooldown\": 24, \"defaultLanguage\": \"zh\", \"siteDescription\": \"去中心化社区奖励平台\", \"allowRegistration\": true, \"emailNotifications\": true}",
+   "updated_by": "1",
+   "time_updated": "2026-10-02 14:14:07.502017+00"
+  }
+ ]
+}

@@ -1,0 +1,947 @@
+{
+ "unit": "P8-S3B-EFFECTIVE",
+ "run": "20261002T160302Z",
+ "generated_at": "2026-10-02T16:03:23.323Z",
+ "total": 41,
+ "passed": 41,
+ "failed": 0,
+ "discipline": "① = 真 HTTP POST（形态 B）+ finally 内恢复原值（HTTP 回写 + DB 逐字节封存）；④ = 事务内同路径 DB 函数 + 末尾 ROLLBACK（R-8-18）；严禁生产真 HTTP list",
+ "http_surfaces": {
+  "admin_settings_write": "真 HTTP POST /api/admin/settings（形态 A + 形态 B + 负向）—— 已跑 · 末尾恢复原值",
+  "currency_list": "NOT_MEASURED（跑真 POST /api/currency/:cid/list 会永久把 draft 推成 listed ⇒ 只走事务内同路径 DB 函数）"
+ },
+ "anchors": {
+  "read_port_call": "src/currency-service.ts:387 listCurrencyVerb 取保证金下限（③ 业务读口径）",
+  "list_db_call": "src/currency-service.ts:406 listCurrencyVerb → DatabaseService.listCurrencyWithDeposit（④ 同路径 DB 函数）",
+  "ak2_read_db": "src/database.ts:2233 getListingDepositPolicyValue（AK2 只读读口）",
+  "route_post": "src/index.ts:1162 POST /api/admin/settings（① 写口）"
+ },
+ "out": {
+  "script": "scripts/p8-s3b-01-effective.ts",
+  "run": "20261002T160302Z",
+  "base": "http://127.0.0.1:5796",
+  "segment_mechanisms": {
+   "seg1": "真 HTTP POST /api/admin/settings（形态 B `{key,value}`）+ 末尾恢复原值（HTTP 回写 + DB 逐字节封存 · finally 保证）",
+   "seg4": "R-8-18：与 POST /api/currency/:cid/list 同路径的 DB 函数 `DatabaseService.listCurrencyWithDeposit(input, tx)` + 末尾 ROLLBACK；严禁生产真 HTTP list"
+  },
+  "anchors": {
+   "read_port_call": "src/currency-service.ts:387 listCurrencyVerb 取保证金下限（③ 业务读口径）",
+   "list_db_call": "src/currency-service.ts:406 listCurrencyVerb → DatabaseService.listCurrencyWithDeposit（④ 同路径 DB 函数）",
+   "ak2_read_db": "src/database.ts:2233 getListingDepositPolicyValue（AK2 只读读口）",
+   "route_post": "src/index.ts:1162 POST /api/admin/settings（① 写口）"
+  },
+  "constants": {
+   "deposit_floor_constant": 50000,
+   "list_fee_constant": 10000,
+   "probe_new_amount": 234567,
+   "illegal_raw": {
+    "amount": "77777"
+   }
+  },
+  "baseline": {
+   "app_config": {
+    "rows": [
+     {
+      "key": "system_settings",
+      "value_text": "{\"siteName\": \"p4b2c:siteA\", \"maintenance\": false, \"maxDailyTasks\": 10, \"pointsPerTask\": 100, \"rewardCooldown\": 24, \"defaultLanguage\": \"zh\", \"siteDescription\": \"去中心化社区奖励平台\", \"allowRegistration\": true, \"emailNotifications\": true}",
+      "updated_by": "1",
+      "time_updated": "2026-10-02 14:14:07.502017+00"
+     }
+    ],
+    "agg": {
+     "n": "1",
+     "max_updated": "2026-10-02 14:14:07.502017+00"
+    }
+   },
+   "currency": {
+    "n": "15",
+    "max_cid": "36",
+    "max_created": "2026-10-02 07:09:41.046757+00",
+    "max_listed_at": "2026-10-02 07:09:41.046757+00",
+    "digest": "692b67e77b7200cabb3bae49132bcea2"
+   },
+   "ledger_entry": {
+    "n": "355",
+    "max_txid": "366",
+    "max_created": "2026-10-02 13:48:12.68365+00",
+    "digest": "f92c5406c8424ff50994d2ba6de81545"
+   },
+   "account": {
+    "n": "39",
+    "digest": "98bcfeea69807ba05961c474caef17a9"
+   },
+   "status_log": {
+    "n": "7",
+    "max_log_id": "7"
+   },
+   "txid_seq_last": "450"
+  },
+  "ak2_original": null,
+  "ak1_original": {
+   "present": true,
+   "updated_by": "1",
+   "time_updated": "2026-10-02 14:14:07.502017+00"
+  },
+  "admin": {
+   "uid": "1"
+  },
+  "segment": {
+   "1a_formA_regression": {
+    "ops_key": "ops:1:setting:system_settings",
+    "request_body_shape": {
+     "maintenance": "<current>",
+     "create_key": "<ops>"
+    },
+    "get_before": {
+     "status": 200,
+     "data_keys": [
+      "siteName",
+      "siteDescription",
+      "maintenance",
+      "allowRegistration",
+      "emailNotifications",
+      "defaultLanguage",
+      "pointsPerTask",
+      "maxDailyTasks",
+      "rewardCooldown"
+     ]
+    },
+    "post": {
+     "status": 200,
+     "message": "System settings saved",
+     "data_keys": [
+      "siteName",
+      "siteDescription",
+      "maintenance",
+      "allowRegistration",
+      "emailNotifications",
+      "defaultLanguage",
+      "pointsPerTask",
+      "maxDailyTasks",
+      "rewardCooldown"
+     ],
+     "data": {
+      "siteName": "p4b2c:siteA",
+      "siteDescription": "去中心化社区奖励平台",
+      "maintenance": false,
+      "allowRegistration": true,
+      "emailNotifications": true,
+      "defaultLanguage": "zh",
+      "pointsPerTask": 100,
+      "maxDailyTasks": 10,
+      "rewardCooldown": 24
+     }
+    }
+   },
+   "1b_formB_write": {
+    "method": "POST",
+    "path": "/api/admin/settings",
+    "ops_key": "ops:1:setting:listing_deposit_policy",
+    "request_body": {
+     "key": "listing_deposit_policy",
+     "value": {
+      "amount": 234567
+     },
+     "create_key": "<ops>"
+    },
+    "response": {
+     "status": 200,
+     "message": "App config key saved",
+     "data": {
+      "key": "listing_deposit_policy",
+      "value": {
+       "amount": 234567
+      }
+     },
+     "data_keys": [
+      "key",
+      "value"
+     ]
+    }
+   },
+   "2_db_landed": {
+    "table": "public.app_config",
+    "columns": [
+     "key",
+     "value",
+     "updated_by",
+     "time_updated"
+    ],
+    "row": {
+     "value_text": "{\"amount\": 234567}",
+     "updated_by": "1",
+     "time_updated": "2026-10-02 16:03:10.514102+00"
+    },
+    "parsed": {
+     "amount": 234567
+    }
+   },
+   "3_business_read": {
+    "anchor_call": "src/currency-service.ts:387 listCurrencyVerb 取保证金下限（③ 业务读口径）",
+    "anchor_read": "src/database.ts:2233 getListingDepositPolicyValue（AK2 只读读口）",
+    "raw_ak2": {
+     "amount": 234567
+    },
+    "floor": {
+     "floor": 234567,
+     "source": "config"
+    }
+   },
+   "4_segment": {
+    "fixture": {
+     "owner_uid": "970001",
+     "owner_balance_baseline": "1636071"
+    },
+    "4_before": {
+     "floor": {
+      "floor": 50000,
+      "source": "constant"
+     },
+     "draft_cid": "2200001",
+     "applied": 1,
+     "owner_decrease": "60000",
+     "pool_increase": "60000",
+     "deposit_legs": [
+      "-1:50000",
+      "970001:-50000"
+     ]
+    },
+    "4_after": {
+     "floor": {
+      "floor": 234567,
+      "source": "config"
+     },
+     "draft_cid": "2200002",
+     "applied": 1,
+     "owner_decrease": "244567",
+     "pool_increase": "244567",
+     "deposit_legs": [
+      "-1:234567",
+      "970001:-234567"
+     ]
+    },
+    "4_fail_closed_behavior": {
+     "floor": {
+      "floor": 50000,
+      "source": "constant"
+     },
+     "draft_cid": "2200003",
+     "applied": 1,
+     "owner_decrease": "60000",
+     "pool_increase": "60000",
+     "deposit_legs": [
+      "-1:50000",
+      "970001:-50000"
+     ]
+    },
+    "4_two_readings": {
+     "before": {
+      "floor": 50000,
+      "owner_decrease": "60000"
+     },
+     "after": {
+      "floor": 234567,
+      "owner_decrease": "244567"
+     },
+     "delta": "184567",
+     "delta_expected": "184567"
+    },
+    "rollback": {
+     "sentinel": "SEG4_LIST",
+     "committed": false,
+     "sql": "withTransaction 回调抛哨兵 ⇒ catch ⇒ ROLLBACK（无 COMMIT）"
+    }
+   }
+  },
+  "restore": {
+   "http_rewrite": {
+    "sent": false,
+    "reason": "原 AK2 行不存在（或值非法）⇒ HTTP 写面无法删行 ⇒ 交由 DB 封存 DELETE"
+   },
+   "disk_seal": {
+    "ak2": "DELETE（原无行）",
+    "ak1": "DELETE + INSERT（含原 value+updated_by+time_updated）逐字节恢复",
+    "observed_ak2_before_seal": {
+     "value_text": "{\"amount\": 234567}",
+     "updated_by": "1",
+     "time_updated": "2026-10-02 16:03:10.514102+00"
+    }
+   }
+  },
+  "post_restore": {
+   "app_config": {
+    "rows": [
+     {
+      "key": "system_settings",
+      "value_text": "{\"siteName\": \"p4b2c:siteA\", \"maintenance\": false, \"maxDailyTasks\": 10, \"pointsPerTask\": 100, \"rewardCooldown\": 24, \"defaultLanguage\": \"zh\", \"siteDescription\": \"去中心化社区奖励平台\", \"allowRegistration\": true, \"emailNotifications\": true}",
+      "updated_by": "1",
+      "time_updated": "2026-10-02 14:14:07.502017+00"
+     }
+    ],
+    "agg": {
+     "n": "1",
+     "max_updated": "2026-10-02 14:14:07.502017+00"
+    }
+   },
+   "currency": {
+    "n": "15",
+    "max_cid": "36",
+    "max_created": "2026-10-02 07:09:41.046757+00",
+    "max_listed_at": "2026-10-02 07:09:41.046757+00",
+    "digest": "692b67e77b7200cabb3bae49132bcea2"
+   },
+   "ledger_entry": {
+    "n": "355",
+    "max_txid": "366",
+    "max_created": "2026-10-02 13:48:12.68365+00",
+    "digest": "f92c5406c8424ff50994d2ba6de81545"
+   },
+   "account": {
+    "n": "39",
+    "digest": "98bcfeea69807ba05961c474caef17a9"
+   },
+   "status_log": {
+    "n": "7",
+    "max_log_id": "7"
+   },
+   "txid_seq_last": "462"
+  },
+  "seq_watermark": {
+   "txid_seq_last": "462",
+   "baseline_txid_seq_last": "450"
+  }
+ },
+ "checks": [
+  {
+   "id": "S0-baseline-captured",
+   "group": "baseline",
+   "pass": true,
+   "detail": {
+    "app_config": {
+     "rows": [
+      {
+       "key": "system_settings",
+       "value_text": "{\"siteName\": \"p4b2c:siteA\", \"maintenance\": false, \"maxDailyTasks\": 10, \"pointsPerTask\": 100, \"rewardCooldown\": 24, \"defaultLanguage\": \"zh\", \"siteDescription\": \"去中心化社区奖励平台\", \"allowRegistration\": true, \"emailNotifications\": true}",
+       "updated_by": "1",
+       "time_updated": "2026-10-02 14:14:07.502017+00"
+      }
+     ],
+     "agg": {
+      "n": "1",
+      "max_updated": "2026-10-02 14:14:07.502017+00"
+     }
+    },
+    "currency": {
+     "n": "15",
+     "max_cid": "36",
+     "max_created": "2026-10-02 07:09:41.046757+00",
+     "max_listed_at": "2026-10-02 07:09:41.046757+00",
+     "digest": "692b67e77b7200cabb3bae49132bcea2"
+    },
+    "ledger_entry": {
+     "n": "355",
+     "max_txid": "366",
+     "max_created": "2026-10-02 13:48:12.68365+00",
+     "digest": "f92c5406c8424ff50994d2ba6de81545"
+    },
+    "account": {
+     "n": "39",
+     "digest": "98bcfeea69807ba05961c474caef17a9"
+    }
+   },
+   "neg_rule": "基线快照取不到（或 `system_settings` 行缺失）⇒ 后续「恢复自证」不可信 ⇒ 判负"
+  },
+  {
+   "id": "S1a-formA-status-200",
+   "group": "write",
+   "pass": true,
+   "detail": {
+    "actual": 200,
+    "expected": 200
+   },
+   "neg_rule": "形态 A（真 HTTP）非 200 ⇒ 判负（向后兼容破）"
+  },
+  {
+   "id": "S1a-formA-message",
+   "group": "write",
+   "pass": true,
+   "detail": {
+    "actual": "System settings saved",
+    "expected": "System settings saved"
+   },
+   "neg_rule": "形态 A 响应 `message` 漂移（`AW9` 冻结值 = 'System settings saved'）⇒ 判负"
+  },
+  {
+   "id": "S1a-formA-data-keys",
+   "group": "write",
+   "pass": true,
+   "detail": {
+    "actual": [
+     "allowRegistration",
+     "defaultLanguage",
+     "emailNotifications",
+     "maintenance",
+     "maxDailyTasks",
+     "pointsPerTask",
+     "rewardCooldown",
+     "siteDescription",
+     "siteName"
+    ],
+    "expected": [
+     "allowRegistration",
+     "defaultLanguage",
+     "emailNotifications",
+     "maintenance",
+     "maxDailyTasks",
+     "pointsPerTask",
+     "rewardCooldown",
+     "siteDescription",
+     "siteName"
+    ]
+   },
+   "neg_rule": "形态 A 响应 `data` 键集 ≠ 9 字段（`AW9` 逐字不变）⇒ 判负"
+  },
+  {
+   "id": "S1a-formA-unknown-field",
+   "group": "write",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "status": 400,
+     "reason": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+     "code": "LEDGER_AMOUNT_INVALID"
+    },
+    "expected": {
+     "status": 400,
+     "reason": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+     "code": "LEDGER_AMOUNT_INVALID"
+    }
+   },
+   "neg_rule": "形态 A 未知字段未 400 + 稳定常量 reason ⇒ 判负"
+  },
+  {
+   "id": "S1a-formA-canonical-key",
+   "group": "ops",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "status": 400,
+     "code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+     "canonical_key": "ops:1:setting:system_settings"
+    },
+    "expected": {
+     "status": 400,
+     "code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+     "canonical_key": "ops:1:setting:system_settings"
+    }
+   },
+   "neg_rule": "形态 A 缺 `ops:` 键 ⇒ `canonical_key` 必须逐字 = `ops:<uid>:setting:system_settings`（§24.3(c)④）⇒ 判负"
+  },
+  {
+   "id": "S1b-av1-unknown-key",
+   "group": "av",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "status": 400,
+     "reason": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+     "field": "nope",
+     "legal_keys": [
+      "system_settings",
+      "listing_deposit_policy"
+     ]
+    },
+    "expected": {
+     "status": 400,
+     "reason": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+     "field": "nope",
+     "legal_keys": [
+      "system_settings",
+      "listing_deposit_policy"
+     ]
+    }
+   },
+   "neg_rule": "形态 B 顶层键非法未 400 + `legal_keys` = 恰 2 键 ⇒ 判负（`AV1`）"
+  },
+  {
+   "id": "S1b-av3-string-amount",
+   "group": "av",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "status": 400,
+     "reason": "SETTING_TYPE_INVALID",
+     "expected": "number",
+     "got": "string"
+    },
+    "expected": {
+     "status": 400,
+     "reason": "SETTING_TYPE_INVALID",
+     "expected": "number",
+     "got": "string"
+    }
+   },
+   "neg_rule": "形态 B `amount` 字符串未 400（隐式转换 / 回落）⇒ 判负（`AV3`）"
+  },
+  {
+   "id": "S1b-av4-zero-amount",
+   "group": "av",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "status": 400,
+     "expected": "positive_integer",
+     "field": "amount"
+    },
+    "expected": {
+     "status": 400,
+     "expected": "positive_integer",
+     "field": "amount"
+    }
+   },
+   "neg_rule": "形态 B `amount=0` 未落 `AV4`（`expected=positive_integer`）⇒ 判负"
+  },
+  {
+   "id": "S1b-av2-extra-field",
+   "group": "av",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "status": 400,
+     "reason": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+     "legal_keys": [
+      "amount"
+     ]
+    },
+    "expected": {
+     "status": 400,
+     "reason": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+     "legal_keys": [
+      "amount"
+     ]
+    }
+   },
+   "neg_rule": "形态 B AK2 夹带字段未 400 + `legal_keys=[amount]`（字段层证据 · 键 ≠ 字段）⇒ 判负（`AV2`）"
+  },
+  {
+   "id": "S1b-canonical-key",
+   "group": "ops",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "status": 400,
+     "code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+     "canonical_key": "ops:1:setting:listing_deposit_policy"
+    },
+    "expected": {
+     "status": 400,
+     "code": "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+     "canonical_key": "ops:1:setting:listing_deposit_policy"
+    }
+   },
+   "neg_rule": "形态 B 缺 `ops:` 键 ⇒ `canonical_key` 必须逐字 = `ops:<uid>:setting:listing_deposit_policy`（§24.3(c)③/④）⇒ 判负"
+  },
+  {
+   "id": "S1b-av1-before-ops",
+   "group": "ops",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "status": 400,
+     "code": "LEDGER_AMOUNT_INVALID",
+     "reason": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST"
+    },
+    "expected": {
+     "status": 400,
+     "code": "LEDGER_AMOUNT_INVALID",
+     "reason": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST"
+    }
+   },
+   "neg_rule": "形态 B 非法键 + 缺 `ops:` 键 ⇒ **必须先报 `AV1`**（不得伪装成缺幂等键 · §24.3(c)⑤）⇒ 判负"
+  },
+  {
+   "id": "S1b-negatives-db-untouched",
+   "group": "av",
+   "pass": true,
+   "detail": {
+    "actual": null,
+    "expected": null
+   },
+   "neg_rule": "①-b 负向全部被拒后（形态 B 正向**尚未**发）库内 AK2 值已变 ⇒ 判负（拒写却落库）"
+  },
+  {
+   "id": "S1b-write-status-200",
+   "group": "write",
+   "pass": true,
+   "detail": {
+    "actual": 200,
+    "expected": 200
+   },
+   "neg_rule": "形态 B 真 HTTP 写未 200 ⇒ 判负"
+  },
+  {
+   "id": "S1b-write-data-keys",
+   "group": "write",
+   "pass": true,
+   "detail": {
+    "actual": [
+     "key",
+     "value"
+    ],
+    "expected": [
+     "key",
+     "value"
+    ]
+   },
+   "neg_rule": "形态 B 响应 `data` 键集 ≠ `{key, value}`（`AW8`）⇒ 判负"
+  },
+  {
+   "id": "S1b-write-message",
+   "group": "write",
+   "pass": true,
+   "detail": {
+    "actual": "App config key saved",
+    "expected": "App config key saved"
+   },
+   "neg_rule": "形态 B 响应 `message` ≠ 冻结值 'App config key saved'（`AW8`）⇒ 判负"
+  },
+  {
+   "id": "S1b-write-echo",
+   "group": "write",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "key": "listing_deposit_policy",
+     "value": {
+      "amount": 234567
+     }
+    },
+    "expected": {
+     "key": "listing_deposit_policy",
+     "value": {
+      "amount": 234567
+     }
+    }
+   },
+   "neg_rule": "形态 B 响应 `data` ≠ `{key:listing_deposit_policy, value:{amount:NEW_AMOUNT}}` ⇒ 判负"
+  },
+  {
+   "id": "S2-value-landed",
+   "group": "landed",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "amount": 234567
+    },
+    "expected": {
+     "amount": 234567
+    }
+   },
+   "neg_rule": "**写成功但库值未变 ⇒ 判负**（真 HTTP 返回 200、库内 `listing_deposit_policy.value` 却不等于新值）"
+  },
+  {
+   "id": "S2-value-landed__selftest",
+   "group": "landed",
+   "pass": true,
+   "detail": {
+    "wrong_input": {
+     "amount": 234568
+    },
+    "judge_fired": true
+   },
+   "neg_rule": "写成功但库列未变 ⇒ 判负"
+  },
+  {
+   "id": "S2-key-set-unchanged",
+   "group": "landed",
+   "pass": true,
+   "detail": {
+    "actual": [
+     "listing_deposit_policy",
+     "system_settings"
+    ],
+    "expected": [
+     "listing_deposit_policy",
+     "system_settings"
+    ]
+   },
+   "neg_rule": "写 `AK2` 改变了 `app_config` 顶层键集（新增/丢行）⇒ 判负（期望键集 = 基线键集 ∪ {`listing_deposit_policy`}（原库无该行 ⇒ 写后恰多此一键））"
+  },
+  {
+   "id": "S2-ak1-value-untouched",
+   "group": "landed",
+   "pass": true,
+   "detail": {
+    "actual": "{\"siteName\": \"p4b2c:siteA\", \"maintenance\": false, \"maxDailyTasks\": 10, \"pointsPerTask\": 100, \"rewardCooldown\": 24, \"defaultLanguage\": \"zh\", \"siteDescription\": \"去中心化社区奖励平台\", \"allowRegistration\": true, \"emailNotifications\": true}",
+    "expected": "{\"siteName\": \"p4b2c:siteA\", \"maintenance\": false, \"maxDailyTasks\": 10, \"pointsPerTask\": 100, \"rewardCooldown\": 24, \"defaultLanguage\": \"zh\", \"siteDescription\": \"去中心化社区奖励平台\", \"allowRegistration\": true, \"emailNotifications\": true}"
+   },
+   "neg_rule": "写 `AK2` 顺带改了 `AK1`（`system_settings` 值漂移）⇒ 判负"
+  },
+  {
+   "id": "S3-uses-config",
+   "group": "read",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "floor": 234567,
+     "source": "config"
+    },
+    "expected": {
+     "floor": 234567,
+     "source": "config"
+    }
+   },
+   "neg_rule": "业务读口**取不到**新键值（仍回落常量 / 取到别值）⇒ 判负（库内有新值但业务不读）"
+  },
+  {
+   "id": "S3-parse-no-invention",
+   "group": "read",
+   "pass": true,
+   "detail": {
+    "actual": 234567,
+    "expected": 234567
+   },
+   "neg_rule": "读侧解析与落值不等（隐式转换 / 发明数值）⇒ 判负"
+  },
+  {
+   "id": "S3-uses-config__selftest",
+   "group": "read",
+   "pass": true,
+   "detail": {
+    "wrong_input": {
+     "floor": 234567,
+     "source": "constant"
+    },
+    "judge_fired": true
+   },
+   "neg_rule": "读口仍走常量 ⇒ 谓词必须转红"
+  },
+  {
+   "id": "S0-owner-funded",
+   "group": "baseline",
+   "pass": true,
+   "detail": {
+    "owner_uid": "970001",
+    "balance": "1636071"
+   },
+   "neg_rule": "出资账户余额不足以覆盖两轮消耗 ⇒ ④ 不可测 ⇒ 判负"
+  },
+  {
+   "id": "S4-before-applied",
+   "group": "behavior",
+   "pass": true,
+   "detail": {
+    "actual": 1,
+    "expected": 1
+   },
+   "neg_rule": "改键前同路径 DB 函数未把 draft 推成 listed（applied≠1）⇒ 判负"
+  },
+  {
+   "id": "S4-before-owner-decrease",
+   "group": "behavior",
+   "pass": true,
+   "detail": {
+    "actual": 60000,
+    "expected": 60000
+   },
+   "neg_rule": "改键**前** owner `balance` 减少额 ≠ 上市费 + 原下限（常量或原键值）⇒ 判负"
+  },
+  {
+   "id": "S4-after-owner-decrease",
+   "group": "behavior",
+   "pass": true,
+   "detail": {
+    "actual": 244567,
+    "expected": 244567
+   },
+   "neg_rule": "改键**后** owner `balance` 减少额 ≠ 上市费 + 新键值 ⇒ 判负（键未生效）"
+  },
+  {
+   "id": "S4-after-deposit-legs",
+   "group": "behavior",
+   "pass": true,
+   "detail": {
+    "actual": [
+     "-1:234567",
+     "970001:-234567"
+    ],
+    "expected": [
+     "-1:234567",
+     "970001:-234567"
+    ]
+   },
+   "neg_rule": "改键**后** `listing_deposit` 分录 ≠ {owner −新值, −1 +新值} ⇒ 判负"
+  },
+  {
+   "id": "S4-two-readings-differ",
+   "group": "behavior",
+   "pass": true,
+   "detail": {
+    "actual": true,
+    "expected": true
+   },
+   "neg_rule": "同一夹具下改键前后 `listing_deposit` 消耗额**相等** ⇒ 键不生效 ⇒ 判负"
+  },
+  {
+   "id": "S4-two-readings-differ__selftest",
+   "group": "behavior",
+   "pass": true,
+   "detail": {
+    "wrong_input": 60000,
+    "judge_fired": true
+   },
+   "neg_rule": "改键前后消耗额相等 ⇒ 谓词必须转红"
+  },
+  {
+   "id": "S4-two-readings-computable",
+   "group": "behavior",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "before": true,
+     "after": true
+    },
+    "expected": {
+     "before": true,
+     "after": true
+    }
+   },
+   "neg_rule": "两读数非「上市费 + 各自下限」逐值可算 ⇒ 判负"
+  },
+  {
+   "id": "S4-fail-closed-behavior",
+   "group": "behavior",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "floor_used": 50000,
+     "decrease": 60000
+    },
+    "expected": {
+     "floor_used": 50000,
+     "decrease": 60000
+    }
+   },
+   "neg_rule": "非法键值下行为面**未**用兜底常量（fail-open 到库里的坏值）⇒ 判负"
+  },
+  {
+   "id": "S4-rollback-no-commit",
+   "group": "rollback",
+   "pass": true,
+   "detail": {
+    "actual": "false",
+    "expected": "false"
+   },
+   "neg_rule": "`rollback.committed !== false`（疑似走了 COMMIT 路径）⇒ 判负"
+  },
+  {
+   "id": "RESTORE-app_config-identical",
+   "group": "restore",
+   "pass": true,
+   "detail": {
+    "actual": "[{\"key\":\"system_settings\",\"value_text\":\"{\\\"siteName\\\": \\\"p4b2c:siteA\\\", \\\"maintenance\\\": false, \\\"maxDailyTasks\\\": 10, \\\"pointsPerTask\\\": 100, \\\"rewardCooldown\\\": 24, \\\"defaultLanguage\\\": \\\"zh\\\", \\\"siteDescription\\\": \\\"去中心化社区奖励平台\\\", \\\"allowRegistration\\\": true, \\\"emailNotifications\\\": true}\",\"updated_by\":\"1\",\"time_updated\":\"2026-10-02 14:14:07.502017+00\"}]",
+    "expected": "[{\"key\":\"system_settings\",\"value_text\":\"{\\\"siteName\\\": \\\"p4b2c:siteA\\\", \\\"maintenance\\\": false, \\\"maxDailyTasks\\\": 10, \\\"pointsPerTask\\\": 100, \\\"rewardCooldown\\\": 24, \\\"defaultLanguage\\\": \\\"zh\\\", \\\"siteDescription\\\": \\\"去中心化社区奖励平台\\\", \\\"allowRegistration\\\": true, \\\"emailNotifications\\\": true}\",\"updated_by\":\"1\",\"time_updated\":\"2026-10-02 14:14:07.502017+00\"}]"
+   },
+   "neg_rule": "恢复后 `app_config` 行集（key/value/updated_by/time_updated）与开工基线不逐字节相同 ⇒ 判负（**写已外泄**）"
+  },
+  {
+   "id": "RESTORE-no-extra-row",
+   "group": "restore",
+   "pass": true,
+   "detail": {
+    "actual": 1,
+    "expected": 1
+   },
+   "neg_rule": "恢复后 `app_config` 行数与基线不同（多出 / 少了行）⇒ 判负"
+  },
+  {
+   "id": "RESTORE-currency-digest-identical",
+   "group": "restore",
+   "pass": true,
+   "detail": {
+    "actual": [
+     "15",
+     "36",
+     "692b67e77b7200cabb3bae49132bcea2"
+    ],
+    "expected": [
+     "15",
+     "36",
+     "692b67e77b7200cabb3bae49132bcea2"
+    ]
+   },
+   "neg_rule": "恢复后 `currency` 行数/最大 cid/逐行摘要与基线不同 ⇒ 判负（draft 币行已落库）"
+  },
+  {
+   "id": "RESTORE-ledger-digest-identical",
+   "group": "restore",
+   "pass": true,
+   "detail": {
+    "actual": [
+     "355",
+     "366",
+     "f92c5406c8424ff50994d2ba6de81545"
+    ],
+    "expected": [
+     "355",
+     "366",
+     "f92c5406c8424ff50994d2ba6de81545"
+    ]
+   },
+   "neg_rule": "恢复后 `ledger_entry` 行数/最大 txid/逐行摘要与基线不同 ⇒ 判负（分录已落库）"
+  },
+  {
+   "id": "RESTORE-account-digest-identical",
+   "group": "restore",
+   "pass": true,
+   "detail": {
+    "actual": [
+     "39",
+     "98bcfeea69807ba05961c474caef17a9"
+    ],
+    "expected": [
+     "39",
+     "98bcfeea69807ba05961c474caef17a9"
+    ]
+   },
+   "neg_rule": "恢复后 `account` 余额/冻结/version 与基线不同 ⇒ 判负（余额已变动）"
+  },
+  {
+   "id": "RESTORE-status-log-identical",
+   "group": "restore",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "n": "7",
+     "max_log_id": "7"
+    },
+    "expected": {
+     "n": "7",
+     "max_log_id": "7"
+    }
+   },
+   "neg_rule": "恢复后 `currency_status_log` 行数/最大 log_id 与基线不同 ⇒ 判负"
+  },
+  {
+   "id": "RESTORE-timestamps-not-advanced",
+   "group": "restore",
+   "pass": true,
+   "detail": {
+    "actual": {
+     "app_config_max_updated": true,
+     "currency_max_created": true,
+     "currency_max_listed_at": true,
+     "ledger_max_created": true
+    },
+    "expected": {
+     "app_config_max_updated": true,
+     "currency_max_created": true,
+     "currency_max_listed_at": true,
+     "ledger_max_created": true
+    }
+   },
+   "neg_rule": "恢复后 `max(time_updated)` / `max(time_created)` / `max(listed_at)` 类时间戳**前移** ⇒ 判负"
+  }
+ ]
+}
+SUMMARY total=41 passed=41 failed=0 artifact=/Users/kevin/bistro/seafood/backend-ts/.p8s3b-artifacts/p8s3b-effective-20261002T160302Z/effective.json

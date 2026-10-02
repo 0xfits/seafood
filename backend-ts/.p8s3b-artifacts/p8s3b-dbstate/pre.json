@@ -1,0 +1,105 @@
+{
+ "unit": "P8-S3B-DBSTATE",
+ "generated_at": "2026-10-02T16:00:20.940Z",
+ "triggers": [
+  {
+   "tgname": "trg_app_config_key_immutable",
+   "timing": "BEFORE",
+   "ev_insert": null,
+   "ev_update": "UPDATE",
+   "ev_delete": null,
+   "ev_truncate": null,
+   "for_each_row": true,
+   "proname": "platform_config_key_immutable",
+   "tgenabled": "O"
+  },
+  {
+   "tgname": "trg_app_config_touch_updated",
+   "timing": "BEFORE",
+   "ev_insert": null,
+   "ev_update": "UPDATE",
+   "ev_delete": null,
+   "ev_truncate": null,
+   "for_each_row": true,
+   "proname": "platform_config_touch_updated",
+   "tgenabled": "O"
+  }
+ ],
+ "triggers_bootstrap": [],
+ "columns": [
+  {
+   "column_name": "key",
+   "data_type": "text",
+   "is_nullable": "NO",
+   "column_default": null
+  },
+  {
+   "column_name": "value",
+   "data_type": "jsonb",
+   "is_nullable": "NO",
+   "column_default": null
+  },
+  {
+   "column_name": "updated_by",
+   "data_type": "bigint",
+   "is_nullable": "NO",
+   "column_default": null
+  },
+  {
+   "column_name": "time_updated",
+   "data_type": "timestamp with time zone",
+   "is_nullable": "NO",
+   "column_default": "now()"
+  }
+ ],
+ "constraints": [
+  {
+   "conname": "app_config_key_not_null",
+   "contype": "n",
+   "def": "NOT NULL key"
+  },
+  {
+   "conname": "app_config_pk",
+   "contype": "p",
+   "def": "PRIMARY KEY (key)"
+  },
+  {
+   "conname": "app_config_time_updated_not_null",
+   "contype": "n",
+   "def": "NOT NULL time_updated"
+  },
+  {
+   "conname": "app_config_updated_by_not_null",
+   "contype": "n",
+   "def": "NOT NULL updated_by"
+  },
+  {
+   "conname": "app_config_value_is_container",
+   "contype": "c",
+   "def": "CHECK ((jsonb_typeof(value) = ANY (ARRAY['object'::text, 'array'::text])))"
+  },
+  {
+   "conname": "app_config_value_not_null",
+   "contype": "n",
+   "def": "NOT NULL value"
+  }
+ ],
+ "app_config_rows": [
+  {
+   "key": "system_settings",
+   "value_text": "{\"siteName\": \"p4b2c:siteA\", \"maintenance\": false, \"maxDailyTasks\": 10, \"pointsPerTask\": 100, \"rewardCooldown\": 24, \"defaultLanguage\": \"zh\", \"siteDescription\": \"去中心化社区奖励平台\", \"allowRegistration\": true, \"emailNotifications\": true}",
+   "updated_by": "1",
+   "time_updated": "2026-10-02 15:57:54.741187+00"
+  }
+ ],
+ "app_config_agg": [
+  {
+   "n": "1",
+   "max_updated": "2026-10-02 15:57:54.741187+00"
+  }
+ ],
+ "keys_present": {
+  "system_settings": true,
+  "listing_deposit_policy": false
+ }
+}

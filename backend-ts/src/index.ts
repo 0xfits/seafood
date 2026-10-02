@@ -19,7 +19,12 @@ import {
   SystemSettingsWriteError,
   TaskProgressRecord,
   UserRecord,
+  isAppConfigEnvelope,
+  screenAppConfigEnvelope,
   screenSystemSettingsWrite,
+  validateAppConfigKey,
+  validateAppConfigValue,
+  SYSTEM_SETTINGS_KEY,
 } from './database';
 import { healthCheck } from './db';
 // P4-SEC（缺陷 B）：基础设施异常走**既有** §14 分类器与 R107 错误体（不新增错误码）
@@ -1158,16 +1163,56 @@ app.post('/api/admin/settings', async (req, res) => {
   const actor = await requireAdmin(req, res, 'manage_settings');
   if (!actor) return;
 
-  // DL36 / §11.2:581：`ops:<admin_uid>:setting:<key>`；无键 ⇒ 400 LEDGER_IDEMPOTENCY_KEY_REQUIRED
-  const opsKey = resolveAdminOpsKey(req, actor.session.uID, 'setting', 'system_settings');
-  if (!opsKey.ok) {
-    return sendVerbError(res, opsKey.error);
-  }
-
   try {
     const body: unknown = req.body;
-    const plainBody: Record<string, unknown> =
-      body !== null && typeof body === 'object' && !Array.isArray(body) ? body as Record<string, unknown> : {};
+    const envelope: Record<string, unknown> | null =
+      body !== null && typeof body === 'object' && !Array.isArray(body) ? body as Record<string, unknown> : null;
+
+    // ★ 批 8③b（`data-layer.spec` v0.13 §24.1(b)/(c) · `route-layer.spec` v2.6 §21 · `R-8-19`）：
+    //   **键级寻址线格式**（单键 · 显式信封）—— 判别式 = 请求体为 jsonb object **且含自有属性 `key`**。
+    //   · **形态 A**（裸值对象 · 无自有属性 `key`）⇒ 目标键 = 常量 `'system_settings'`（键形 / 响应 / 错误形状**逐字不变**）；
+    //   · **形态 B**（显式信封 `{key, value}`）⇒ 目标键 = 请求体 `key` 的取值（**必先过 `AV1`**）。
+    let targetKey: string = SYSTEM_SETTINGS_KEY;
+    let formBValue: unknown = null;
+    const isFormB = isAppConfigEnvelope(body);
+    if (isFormB) {
+      // ② 信封形状（§24.1(c) ②③④）：信封多余属性 / `key` 非串 / `value` 非 object ⇒ R107 400（**不静默忽略**）
+      const envVerdict = screenAppConfigEnvelope(envelope as Record<string, unknown>);
+      if (!envVerdict.ok) {
+        return sendVerbError(res, adminVerbError(400, envVerdict.code, envVerdict.details, envVerdict.message));
+      }
+      // ③ `AV1` 顶层键判定（**必在 `ops:` 派生之前** ⇒ §24.3(c)⑤：非法键不得被伪装成「缺幂等键」）
+      const keyVerdict = validateAppConfigKey(envVerdict.rawKey);
+      if (!keyVerdict.ok) {
+        return sendVerbError(res, adminVerbError(400, keyVerdict.code, keyVerdict.details, keyVerdict.message));
+      }
+      targetKey = keyVerdict.key;
+      formBValue = envVerdict.value;
+    }
+
+    // ④ `ops:` 幂等键**按解出的目标键**派生（`DL36` / §11.2:581 / §24.3 · **闭合 `O-3`**）——
+    //   · 形态 A ⇒ `targetKey = 'system_settings'`（`AW3` 常量）⇒ 键形 `ops:<uid>:setting:system_settings` **逐字不变**；
+    //   · 形态 B ⇒ `ops:<uid>:setting:<目标键名>`（如 `…:listing_deposit_policy`）⇒ **命名空间与 `system_settings` 不相交**。
+    const opsKey = resolveAdminOpsKey(req, actor.session.uID, 'setting', targetKey);
+    if (!opsKey.ok) {
+      return sendVerbError(res, opsKey.error);
+    }
+
+    // ---- 形态 B 支（新）：`AV2`–`AV4`（逐键字段闭集 / 类型 / `amount` 语义域）→ 写落点 → `AW8` 响应 ----
+    if (isFormB) {
+      const valVerdict = validateAppConfigValue(targetKey, formBValue);
+      if (!valVerdict.ok) {
+        return sendVerbError(res, adminVerbError(400, valVerdict.code, valVerdict.details, valVerdict.message));
+      }
+      // 写落点的 `key` = **解出的目标键**（现取写死的 `'system_settings'` 字面已参数化 · §24.7 `AS1`）
+      const writtenValue = await DatabaseService.saveSystemSettings(valVerdict.value, actor.session.uID, targetKey);
+      // `AW8`：`data` = `{ key, value }`；`message` = spec 冻结值 `'App config key saved'`。
+      sendSuccess(res, { key: targetKey, value: writtenValue }, 'App config key saved');
+      return;
+    }
+
+    // ---- 形态 A 支（既有 · §24.1(f) 逐字兼容）----
+    const plainBody: Record<string, unknown> = envelope ?? {};
 
     // §1 #33 / §4.1 #36：**禁写费率键**（费率真源 = commission_policy.fee_rate_bp，CR23/CR25）
     //   ⚠️ 批 8① 登记：该黑名单（`§7-16` 裁定 = 删除）**本单保留**（删除属接该面的实现单，`§21.5 AT1`）；
@@ -1189,6 +1234,7 @@ app.post('/api/admin/settings', async (req, res) => {
     //   · `AG3`② 已知字段类型不符 ⇒ 400 + `reason='SETTING_TYPE_INVALID'` + `details.{field,expected,got}`；
     //   · `AG4`③ **整请求拒**（合法键 + 未知键混合体 ⇒ 整请求 400，合法字段**不落库**）。
     //   信封控制字段（`create_key` 等，`DL36` 幂等键载体）在判定前剥离 —— 它不是 settings 字段、不是 app_config 键。
+    //   ★ 形态 A 的**目标键恒为常量** ⇒ 本支错误优先级仍 = 现取次序（闸 → `ops:` → 费率键 → 门禁），**逐字不变**。
     const verdict = screenSystemSettingsWrite(body);
     if (!verdict.ok) {
       return sendVerbError(res, adminVerbError(400, verdict.code, verdict.details, verdict.message));

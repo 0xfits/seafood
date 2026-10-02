@@ -1,0 +1,23 @@
+
+> jinli-frontend@0.0.0 build
+> vite build
+
+vite v5.4.20 building for production...
+transforming...
+✓ 1785 modules transformed.
+rendering chunks...
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) /Users/kevin/bistro/seafood/frontend/src/i18n.js is dynamically imported by /Users/kevin/bistro/seafood/frontend/src/auth.js but also statically imported by /Users/kevin/bistro/seafood/frontend/src/main.jsx, dynamic import will not move module into another chunk.
+
+computing gzip size...
+dist/assets/hk-DJjlsSdH.svg              4.61 kB │ gzip:  2.01 kB
+dist/index.html                          4.84 kB │ gzip:  2.42 kB
+dist/assets/us-BUggRluv.svg              7.87 kB │ gzip:  1.24 kB
+dist/assets/index-BTXSvY-M.css         125.08 kB │ gzip: 23.24 kB
+dist/assets/vendor-AmHF8z37.js           9.11 kB │ gzip:  4.01 kB
+dist/assets/vendor-router-B3Ogmnj1.js   12.64 kB │ gzip:  4.64 kB
+dist/assets/vendor-ui-BUqCj0g5.js       34.66 kB │ gzip:  9.92 kB
+dist/assets/vendor-i18n-BHw4PwU-.js     53.54 kB │ gzip: 16.61 kB
+dist/assets/vendor-react-DQGfVle9.js   142.17 kB │ gzip: 45.58 kB
+dist/assets/index-B-JvDbIk.js          338.43 kB │ gzip: 98.24 kB
+✓ built in 1.58s

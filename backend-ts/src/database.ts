@@ -42,8 +42,10 @@ const DEFAULT_SYSTEM_SETTINGS = {
 // · 顶层合法键（`app_config.key` 取值）**恰好 2 个** = `system_settings`（`AK1`，§21.1）
 //   + `listing_deposit_policy`（`AK2`，§23.1 入册；真源 = `R-8-9` 批准键名）；
 //   **任何其它键名一律非法**（含 `foo` / `deposit_amount` / `fee_rate` / `rate_bp`）。
-// · ★ **「在册」≠「可写」**（§23.2 / §23.3 / `route-layer.spec` §20.6）：`AK2` 入册只改**本清单**；
-//   `POST /api/admin/settings` 的**写入面仍 = 单键 `system_settings`**（§20.6 键寻址缺口 · 线格式待冻结）
+// · ★ **「在册」=「可写」**（`data-layer.spec` v0.13 §24 · `route-layer.spec` v2.6 §21 · `R-8-19`）：
+//   `AK2` 已可经 `POST /api/admin/settings` 的**形态 B**（显式信封 `{key, value}`）**键级寻址**写入
+//   （校验叠加 `AV1` 顶层键 → `AV2` 逐键字段闭集 → `AV3` 逐键类型 → `AV4` `amount` 语义域）；
+//   形态 A（裸值对象）的**目标键仍 = 单键 `system_settings`**（线格式逐字兼容 · §24.1(f)）。
 //   ⇒ 把 `listing_deposit_policy` 当 `AK1` 值对象的**字段**塞进请求体 ⇒ **仍必被 `AG1` 拒**（**键 ≠ 字段**）。
 // · `system_settings` 的 `value` = **jsonb object**（容器硬约束 `0017:77`），对象内字段 = 下 9 个（类型规格见 `SYSTEM_SETTINGS_FIELD_TYPES`）。
 // · `listing_deposit_policy` 的 `value` = **jsonb object**（同容器约束），对象内字段 = `amount`（正整数 · 最小单位；
@@ -52,6 +54,12 @@ const DEFAULT_SYSTEM_SETTINGS = {
 // ⚠️ 纪律（§21.3 规则①）：**本清单是键名的唯一真源** —— 实现 / 测试 / 探针**不得自拟键名**。
 /** §21.1 `AK1` ∪ §23.1 `AK2`：`app_config` 顶层合法键（关闭集 · 恰 2 键）。 */
 export const APP_CONFIG_LEGAL_KEYS = ['system_settings', 'listing_deposit_policy'] as const;
+
+/**
+ * ★ 批 8③b（`data-layer.spec` v0.13 §24.1(b) · `AW3`）：**形态 A** 的目标键常量（唯一）。
+ * 形态 A = 既有裸值对象（无自有属性 `key`）⇒ 目标键 = 本常量 ⇒ **`ops:` 键形逐字不变**。
+ */
+export const SYSTEM_SETTINGS_KEY = 'system_settings' as const;
 
 /** §21.1 `AK1`：`system_settings` 值对象的**逐字段类型规格**（`AG3` 的判据真源；严格比对、不做隐式转换）。 */
 const SYSTEM_SETTINGS_FIELD_TYPES = {
@@ -1019,6 +1027,191 @@ export const screenSystemSettingsWrite = (body: unknown): SystemSettingsPatchVer
     patch[key] = value;
   }
   return validateSystemSettingsPatch(patch);
+};
+
+// ============================================================================
+// ★★ 批 8③b（`data-layer.spec` v0.13 §24 · `route-layer.spec` v2.6 §21）：
+//   键级寻址线格式（**形态 B** = 显式信封 `{ key, value }`）+ `AK1`/`AK2` **校验叠加**
+//   （`AV1` 顶层键 → `AV2` 逐键字段闭集 → `AV3` 逐键类型 → `AV4` `amount` 语义域）。
+// ============================================================================
+// · **零新增错误码 / 零新增 `reason` 常量**（沿用 `SETTINGS_WRITE_REASONS` 三常量；层级靠
+//   `details.legal_keys` 的内容区分：**顶层 ⇒ 恰 2 键**；**字段层 ⇒ 该键的字段清单**）。
+// · 全部为**纯函数**（离线可判负 · 零 DB / 零副作用）；写落点仍**唯一** = `saveSystemSettings`。
+// · **键 ≠ 字段**（§24.1(b)）：`key` / `value` 是信封地址字段，不是 `system_settings` 的字段、
+//   也不是 `app_config` 键名；`AV1` 判**顶层键**，`AV2` 判**该键值对象的字段**。
+
+/** §24.1(c)① 判别式：请求体为 jsonb object **且含自有属性 `key`** ⇒ **形态 B**（不得回落形态 A）。 */
+export const isAppConfigEnvelope = (body: unknown): body is Record<string, unknown> =>
+  isJsonbObject(body) && Object.prototype.hasOwnProperty.call(body, 'key');
+
+/** 形态 B 的**信封形状**判定结果（`ok:true` ⇒ 目标键为字符串，但**尚未过 `AV1`**）。 */
+export type AppConfigEnvelopeVerdict =
+  | { ok: true; rawKey: string; value: Record<string, unknown> }
+  | SystemSettingsWriteReject;
+
+/**
+ * §24.1(b)/(c) **信封形状**（`AV1` 之外的形状层 · 层序写死）：
+ *   ① 信封**多余属性**（除 `key` / `value` / `SETTINGS_CONTROL_FIELDS`）⇒ `unknownKey`
+ *      （`details.field` = 首个、`unknown_keys` = 全部 · **不得静默忽略**）；
+ *   ② `key` **非字符串** ⇒ `typeInvalid`（`details.{field:'key', expected:'string', got}`）；
+ *   ③ `value` **缺失 / `null` / 非 object** ⇒ `valueNotObject`（**不做隐式补默认**，`AG4`）。
+ */
+export const screenAppConfigEnvelope = (body: Record<string, unknown>): AppConfigEnvelopeVerdict => {
+  const extra = Object.keys(body).filter(
+    (k) => k !== 'key' && k !== 'value' && !(SETTINGS_CONTROL_FIELDS as readonly string[]).includes(k),
+  );
+  if (extra.length) {
+    return {
+      ok: false,
+      code: 'LEDGER_AMOUNT_INVALID',
+      message: 'Unknown key(s) are not writable via /api/admin/settings',
+      details: {
+        field: extra[0],
+        reason: SETTINGS_WRITE_REASONS.unknownKey,
+        unknown_keys: extra,
+        legal_keys: [...APP_CONFIG_LEGAL_KEYS],
+      },
+    };
+  }
+  const rawKey = body.key;
+  if (typeof rawKey !== 'string') {
+    return {
+      ok: false,
+      code: 'LEDGER_AMOUNT_INVALID',
+      message: 'Setting key must be a string',
+      details: { field: 'key', reason: SETTINGS_WRITE_REASONS.typeInvalid, expected: 'string', got: shapeOf(rawKey) },
+    };
+  }
+  if (!isJsonbObject(body.value)) {
+    return {
+      ok: false,
+      code: 'LEDGER_AMOUNT_INVALID',
+      message: 'Setting value must be a JSON object',
+      details: { field: 'value', reason: SETTINGS_WRITE_REASONS.valueNotObject, expected: 'object', got: shapeOf(body.value) },
+    };
+  }
+  return { ok: true, rawKey, value: body.value as Record<string, unknown> };
+};
+
+/** `AV1` 顶层键判定结果。 */
+export type AppConfigKeyVerdict =
+  | { ok: true; key: (typeof APP_CONFIG_LEGAL_KEYS)[number] }
+  | SystemSettingsWriteReject;
+
+/**
+ * `AV1`（§24.2）：目标键 **∈ `APP_CONFIG_LEGAL_KEYS`**（恰 2 键）。
+ * 非法 ⇒ `400` + `reason='SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST'`（**稳定常量、不插值**）
+ *   + `details.field` = 首个非法键 + `details.unknown_keys` = [该键] + `details.legal_keys` = **恰 2 键**。
+ */
+export const validateAppConfigKey = (rawKey: string): AppConfigKeyVerdict => {
+  if (!(APP_CONFIG_LEGAL_KEYS as readonly string[]).includes(rawKey)) {
+    return {
+      ok: false,
+      code: 'LEDGER_AMOUNT_INVALID',
+      message: 'Unknown key(s) are not writable via /api/admin/settings',
+      details: {
+        field: rawKey,
+        reason: SETTINGS_WRITE_REASONS.unknownKey,
+        unknown_keys: [rawKey],
+        legal_keys: [...APP_CONFIG_LEGAL_KEYS],
+      },
+    };
+  }
+  return { ok: true, key: rawKey as (typeof APP_CONFIG_LEGAL_KEYS)[number] };
+};
+
+/** `AV2`/`AV3`/`AV4` 的通用值判定结果（键级寻址下，`value` 的形态见目标键）。 */
+export type AppConfigValueVerdict =
+  | { ok: true; value: Record<string, unknown> }
+  | SystemSettingsWriteReject;
+
+/**
+ * `AV2`/`AV3`/`AV4`（§24.2）—— `listing_deposit_policy` 值对象的**逐键字段闭集 + 类型 + 语义域**。
+ *   · `AV2`：字段闭集恰 `{amount}`（`LISTING_DEPOSIT_POLICY_FIELDS`）⇒ 清单外字段 ⇒ `unknownKey`
+ *     （`details.legal_keys` = `['amount']` ⇒ **层级靠它区分**于 `AV1` 的 2 键面）；
+ *   · `AV3`：`amount` = `'number'`（严格比对、**不隐式转换**）；
+ *   · `AV4`：正整数 · 最小单位（逐字 = `parseListingDepositPolicyAmount` 的语义域：
+ *     `Number.isSafeInteger(amount) && amount > 0`）⇒ `details.expected='positive_integer'`
+ *     （**`expected` 的新取值、不是新 `reason` 常量**）。
+ * ★ 缺 `amount` 字段合法（部分补丁语义 · 与 `AK1` 同口径）：**不发明**「必填」约束（无先例）。
+ */
+export const validateListingDepositPolicyValue = (input: unknown): AppConfigValueVerdict => {
+  if (!isJsonbObject(input)) {
+    return {
+      ok: false,
+      code: 'LEDGER_AMOUNT_INVALID',
+      message: 'Setting value must be a JSON object',
+      details: { field: 'value', reason: SETTINGS_WRITE_REASONS.valueNotObject, expected: 'object', got: shapeOf(input) },
+    };
+  }
+  const unknownFields = Object.keys(input).filter(
+    (k) => !Object.prototype.hasOwnProperty.call(LISTING_DEPOSIT_POLICY_FIELD_TYPES, k),
+  );
+  if (unknownFields.length) {
+    return {
+      ok: false,
+      code: 'LEDGER_AMOUNT_INVALID',
+      message: 'Unknown field(s) are not writable for listing_deposit_policy',
+      details: {
+        field: unknownFields[0],
+        reason: SETTINGS_WRITE_REASONS.unknownKey,
+        unknown_keys: unknownFields,
+        legal_keys: [...LISTING_DEPOSIT_POLICY_FIELDS],
+      },
+    };
+  }
+  if (Object.prototype.hasOwnProperty.call(input, 'amount')) {
+    const amount = (input as Record<string, unknown>).amount;
+    if (!fieldTypeMatches('number', amount)) {
+      return {
+        ok: false,
+        code: 'LEDGER_AMOUNT_INVALID',
+        message: 'Setting field type is invalid',
+        details: { field: 'amount', reason: SETTINGS_WRITE_REASONS.typeInvalid, expected: 'number', got: shapeOf(amount) },
+      };
+    }
+    if (!(typeof amount === 'number' && Number.isSafeInteger(amount) && amount > 0)) {
+      return {
+        ok: false,
+        code: 'LEDGER_AMOUNT_INVALID',
+        message: 'Setting field value is out of domain',
+        details: { field: 'amount', reason: SETTINGS_WRITE_REASONS.typeInvalid, expected: 'positive_integer', got: shapeOf(amount) },
+      };
+    }
+  }
+  return { ok: true, value: input as Record<string, unknown> };
+};
+
+/**
+ * `AV2`–`AV4` 的**按目标键分发**（唯一入口）：
+ *   · `system_settings` ⇒ 既有 `validateSystemSettingsPatch`（`AV2` = 9 字段闭集 + `AV3` 类型）；
+ *   · `listing_deposit_policy` ⇒ `validateListingDepositPolicyValue`（`AV2` = `{amount}` + `AV3` + `AV4`）；
+ *   · 其它键 ⇒ **不可达**（`AV1` 已拦），仍 fail-closed 拒绝（不静默放行）。
+ */
+export const validateAppConfigValue = (targetKey: string, value: unknown): AppConfigValueVerdict => {
+  if (targetKey === SYSTEM_SETTINGS_KEY) {
+    const verdict = validateSystemSettingsPatch(value);
+    return verdict.ok ? { ok: true, value: verdict.value as Record<string, unknown> } : verdict;
+  }
+  if (targetKey === LISTING_DEPOSIT_POLICY_KEY) {
+    return validateListingDepositPolicyValue(value);
+  }
+  return {
+    ok: false,
+    code: 'LEDGER_AMOUNT_INVALID',
+    message: 'Unknown key(s) are not writable via /api/admin/settings',
+    details: { field: targetKey, reason: SETTINGS_WRITE_REASONS.unknownKey, unknown_keys: [targetKey], legal_keys: [...APP_CONFIG_LEGAL_KEYS] },
+  };
+};
+
+/**
+ * 写侧 `AK2` 值对象的**严格断言**（双保险 · `saveSystemSettings` 内用）：不合法 ⇒ **抛** `SystemSettingsWriteError`。
+ * 返回**只含合法字段**的 `{amount}` 值对象（原样透传 · **不补默认值 / 不隐式转换**）。
+ */
+export const assertListingDepositPolicyValue = (input: unknown): Record<string, unknown> => {
+  const verdict = validateListingDepositPolicyValue(input);
+  if (!verdict.ok) throw new SystemSettingsWriteError(verdict.message, verdict.details);
+  return verdict.value;
 };
 
 const normalizePermissionGroup = (row: RawRow): PermissionGroupRecord => ({
@@ -3175,19 +3368,41 @@ export class DatabaseService {
   // 批 8①（`data-layer.spec` §21.2 `AG1`/`AG3`/`AG4`）：**写侧先过「逐键白名单 + 类型闸」** ——
   //   未知键 / 类型不符 / 非 object ⇒ `assertSystemSettingsPatch` **抛** `SystemSettingsWriteError`
   //   ⇒ **删除**了原实现「把 `input` 直接喂给 `normalizeSystemSettings` ⇒ 未知键被静默吸收」的形态（那是 `AG4` 要治的缺口）。
-  //   ⚠️ 本方法是 `app_config` 的**唯一写入落点**（`AG2`：类级扫描 INSERT/UPDATE public.app_config 只允许出现在此处）。
-  static async saveSystemSettings(input: Partial<SystemSettingsRecord>, updatedBy = 0): Promise<SystemSettingsRecord> {
-    const patch = assertSystemSettingsPatch(input);
-    const current = await this.getSystemSettings();
-    const next = normalizeSystemSettingsRead({
-      ...current,
-      ...patch,
-    });
+  // ★ 批 8③b（`data-layer.spec` v0.13 §24 · `route-layer.spec` v2.6 §21 · `R-8-19`）：
+  //   本方法**仍是 `app_config` 的唯一写入落点**（`AG2`：类级扫描 INSERT/UPDATE public.app_config 只允许出现在此处），
+  //   但 `key` 由第 3 参 `targetKey`（**解出的目标键**）给 —— 现取写死的 `'system_settings'` 字面**已参数化**（§24.7 `AS1`）。
+  //   · `targetKey = 'system_settings'`（形态 A / `AW3`）：`input` = 9 字段部分补丁 ⇒ 与现态合流 ⇒ 返回 `SystemSettingsRecord`（`AW9` 逐字不变）。
+  //   · `targetKey = 'listing_deposit_policy'`（形态 B）：`input` = 该键**值对象**（已过 `AV2`–`AV4`）⇒ 直写（即全量）；
+  //     此处再过 `assertListingDepositPolicyValue`（双保险 ⇒ 任何绕过前置层的调用也 fail-closed 抛错）。
+  //   · 其它键 ⇒ `SystemSettingsWriteError`（fail-closed；`AV1` 已在前置层拦截，此为兜底）。
+  static async saveSystemSettings(
+    input: Partial<SystemSettingsRecord> | Record<string, unknown>,
+    updatedBy = 0,
+    targetKey: string = SYSTEM_SETTINGS_KEY,
+  ): Promise<SystemSettingsRecord | Record<string, unknown>> {
+    let nextValue: Record<string, unknown>;
+    if (targetKey === SYSTEM_SETTINGS_KEY) {
+      const patch = assertSystemSettingsPatch(input);
+      const current = await this.getSystemSettings();
+      nextValue = normalizeSystemSettingsRead({
+        ...current,
+        ...patch,
+      }) as unknown as Record<string, unknown>;
+    } else if (targetKey === LISTING_DEPOSIT_POLICY_KEY) {
+      nextValue = assertListingDepositPolicyValue(input);
+    } else {
+      throw new SystemSettingsWriteError('Unknown app_config key', {
+        field: targetKey,
+        reason: SETTINGS_WRITE_REASONS.unknownKey,
+        unknown_keys: [targetKey],
+        legal_keys: [...APP_CONFIG_LEGAL_KEYS],
+      });
+    }
     const sql = getSql();
 
     const rows = asItems<{ value: unknown }>(await sql`
       INSERT INTO public.app_config (key, value, updated_by, time_updated)
-      VALUES ('system_settings', ${JSON.stringify(next)}::jsonb, ${Number(updatedBy) || 0}::bigint, NOW())
+      VALUES (${targetKey}::text, ${JSON.stringify(nextValue)}::jsonb, ${Number(updatedBy) || 0}::bigint, NOW())
       ON CONFLICT (key) DO UPDATE SET
         value = EXCLUDED.value,
         updated_by = EXCLUDED.updated_by,
@@ -3195,12 +3410,18 @@ export class DatabaseService {
       RETURNING value
     `);
 
-    return normalizeSystemSettingsRead(rows[0]?.value || next);
+    if (targetKey === SYSTEM_SETTINGS_KEY) {
+      return normalizeSystemSettingsRead(rows[0]?.value || nextValue);
+    }
+    const written = rows[0]?.value;
+    return (written !== null && typeof written === 'object' ? written : nextValue) as Record<string, unknown>;
   }
 
   // P4-B2c：**不再有路由**（§1 #34 ⇒ 410；C3 ② 删除）。保留方法体仅作回退点（DL42 可切换点）。
   static async resetSystemSettings(): Promise<SystemSettingsRecord> {
-    return this.saveSystemSettings({ ...DEFAULT_SYSTEM_SETTINGS });
+    // ★ 批 8③b：`saveSystemSettings` 现返回联合（形态 A / 形态 B）；本调用恒为形态 A（默认 `targetKey`）
+    //   ⇒ 返回类型必为 `SystemSettingsRecord`（断言收窄，行为不变）。
+    return this.saveSystemSettings({ ...DEFAULT_SYSTEM_SETTINGS }) as Promise<SystemSettingsRecord>;
   }
 
   static async updateUserAdminStatus(uID: number, isAdmin: boolean): Promise<UserRecord | null> {
