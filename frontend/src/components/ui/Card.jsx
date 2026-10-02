@@ -1,14 +1,17 @@
 import React from 'react'
 import { cn } from '../../utils'
 
+// P6-UI-CONSIST-B（成套形状收敛，变体 B）：卡片基础件形状收敛到按钮口径 —— 去静置阴影（扁平）、
+// 描边 2px→1px（.border = --sf-st-stroke-w-thin）、圆角 12px→8px（.rounded-lg = 0.5rem = --sf-st-radius-btna）。
+// 色板类（bg-*/border-*-200）与既有交互反馈类（hover:shadow-lg / transition-shadow）一字未动。
 const cardVariants = {
   variant: {
-    default: 'bg-white border-gray-200 shadow-sm',
-    primary: 'bg-yellow-50 border-yellow-200 shadow-yellow-100',
-    secondary: 'bg-blue-50 border-blue-200 shadow-blue-100',
-    success: 'bg-green-50 border-green-200 shadow-green-100',
-    warning: 'bg-red-50 border-red-200 shadow-red-100',
-    inactive: 'bg-gray-50 border-gray-200 shadow-gray-100'
+    default: 'bg-white border-gray-200',
+    primary: 'bg-yellow-50 border-yellow-200',
+    secondary: 'bg-blue-50 border-blue-200',
+    success: 'bg-green-50 border-green-200',
+    warning: 'bg-red-50 border-red-200',
+    inactive: 'bg-gray-50 border-gray-200'
   },
   hover: {
     none: '',
@@ -25,8 +28,8 @@ const Card = React.forwardRef(({
   ...props 
 }, ref) => {
   const baseClasses = [
-    'rounded-xl',
-    'border-2',
+    'rounded-lg',
+    'border',
     'p-6',
     'transition-all',
     'duration-300'

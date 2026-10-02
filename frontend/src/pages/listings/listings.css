@@ -6,6 +6,12 @@
  *     （--sf-st-* 或本文件内的 `--sf-l-*`，两档同值）；
  *   · 本文件**不写**任何按主题分支的规则（无 [data-theme] 选择器、无 matchMedia 主题依赖、
  *     无 per-theme 颜色字面量）。断点只有 768/1024 两处，属**断点层**（与主题无关）。
+ *
+ * P6-UI-CONSIST-B（成套形状收敛，变体 B）：卡片 / 输入框 / 芯片 由旧风格
+ *   （--sf-st-stroke-w 1.5px + --sf-card-shadow/--sf-jobcard-shadow/--sf-panel-shadow/--sf-search-shadow 硬位移阴影
+ *    + --sf-card-radius/--sf-jobcard-radius/--sf-panel-radius/--sf-search-radius/--sf-tag-radius/--sf-price-radius 异形圆角）
+ *   收敛到按钮口径：圆角 = --sf-st-radius-btna（8px）· 描边 = --sf-st-stroke-w-thin（1px）· 阴影 = none · 切角 = none。
+ *   颜色槽位与一切几何量（padding/gap/列数/顺序）不动。
  */
 
 .sf-listings {
@@ -73,9 +79,11 @@
   gap: 6px;
   padding: 10px;
   background: var(--sf-card-bg);
-  border: var(--sf-st-stroke-w) solid var(--sf-card-border);
-  border-radius: var(--sf-card-radius);
-  box-shadow: var(--sf-card-shadow);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-card-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
   color: var(--sf-title-fg);
   text-decoration: none;
 }
@@ -84,7 +92,7 @@
 .sf-listings-thumb {
   height: var(--sf-st-card-thumb-h);
   border: var(--sf-st-stroke-w-thin) solid var(--sf-thumb-border);
-  border-radius: var(--sf-card-radius);
+  border-radius: var(--sf-st-radius-btna);
   background: var(--sf-thumb-1);
 }
 
@@ -98,8 +106,9 @@
   align-items: baseline;
   gap: 4px;
   background: var(--sf-price-bg);
-  border: var(--sf-st-stroke-w) solid var(--sf-price-border);
-  border-radius: var(--sf-price-radius);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-price-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
   padding: 2px 6px;
   align-self: flex-start;
 }
@@ -125,7 +134,8 @@
   background: var(--sf-tag-bg);
   border: var(--sf-st-stroke-w-thin) solid var(--sf-tag-border);
   color: var(--sf-tag-fg);
-  border-radius: var(--sf-tag-radius);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
   padding: 2px 6px;
   font-size: 11px;
 }
@@ -162,9 +172,11 @@
 .sf-listings-textarea,
 .sf-listings-select {
   background: var(--sf-search-bg);
-  border: var(--sf-st-stroke-w) solid var(--sf-search-border);
-  border-radius: var(--sf-search-radius);
-  box-shadow: var(--sf-search-shadow);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-search-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
   color: var(--sf-search-fg);
   font-size: 13px;
   padding: 8px 10px;
@@ -209,8 +221,9 @@
 
 .sf-listings-empty {
   color: var(--sf-empty-fg);
-  border: var(--sf-st-stroke-w) dashed var(--sf-card-border);
-  border-radius: var(--sf-card-radius);
+  border: var(--sf-st-stroke-w-thin) dashed var(--sf-card-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
   padding: 14px;
   font-size: 13px;
   text-align: center;
@@ -226,16 +239,20 @@
 
 .sf-listings-item {
   background: var(--sf-jobcard-bg);
-  border: var(--sf-st-stroke-w) solid var(--sf-jobcard-border);
-  border-radius: var(--sf-jobcard-radius);
-  box-shadow: var(--sf-jobcard-shadow);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-jobcard-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
 }
 
 .sf-listings-panel {
   background: var(--sf-panel-bg);
-  border: var(--sf-st-stroke-w) solid var(--sf-panel-border);
-  border-radius: var(--sf-panel-radius);
-  box-shadow: var(--sf-panel-shadow);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
 }
 
 .sf-listings-item-title {

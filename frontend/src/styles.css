@@ -141,30 +141,14 @@ h1, h2, h3, h4, h5, h6, .swedish-title {
   align-items: center;
   justify-content: center;
   padding: 0.5rem 1rem; /* px-4 py-2 */
-  /* 切角矩形：使用 clip-path 形成斜切角 */
-  border-radius: 0; /* 移除圆角 */
+  /* P6-UI-CONSIST-B：旧语义钮（.btn-proceed / .btn-inactive / .btn-primary …）去切角、圆角按按钮口径。
+     圆角 9px = 高 40px × 0.222（真源 docs/design/style-preview.html:976「高 40px ⇒ 9px · 14px」；
+     .btn 默认档实测高 = 40px（首页 96×40 / 登录页 330×40，见 docs/audit/p6-ui-consist-b.md §2））
+     ⇒ 9px 为真源既有落点，非发明值。 */
+  border-radius: 9px;
   position: relative;
-  --btn-cut-size: 10px; /* 切角尺寸，可根据需要调整 */
-  -webkit-clip-path: polygon(
-    var(--btn-cut-size) 0,
-    calc(100% - var(--btn-cut-size)) 0,
-    100% var(--btn-cut-size),
-    100% calc(100% - var(--btn-cut-size)),
-    calc(100% - var(--btn-cut-size)) 100%,
-    var(--btn-cut-size) 100%,
-    0 calc(100% - var(--btn-cut-size)),
-    0 var(--btn-cut-size)
-  );
-  clip-path: polygon(
-    var(--btn-cut-size) 0,
-    calc(100% - var(--btn-cut-size)) 0,
-    100% var(--btn-cut-size),
-    100% calc(100% - var(--btn-cut-size)),
-    calc(100% - var(--btn-cut-size)) 100%,
-    var(--btn-cut-size) 100%,
-    0 calc(100% - var(--btn-cut-size)),
-    0 var(--btn-cut-size)
-  );
+  -webkit-clip-path: none;
+  clip-path: none;
   font-weight: 500;
   transition: background-color .2s ease, filter .2s ease, box-shadow .2s ease, opacity .2s ease, transform .15s ease;
   /* P6-BTN-IMPL 扁平化：删除三重 background-image 渐变（宝石底）与晶莹 box-shadow。
@@ -192,6 +176,14 @@ h1, h2, h3, h4, h5, h6, .swedish-title {
   padding: 0.75rem 2rem;
   font-size: 1.125rem;
 }
+
+/* P6-UI-CONSIST-B · 旧语义钮各 size 档圆角 = 高 × 0.222，落点全部取自真源 style-preview.html:976
+   （高 34 ⇒ 8px · 高 40 ⇒ 9px · 高 51 ⇒ 11px）—— 真源既有落点，非发明值。
+   A 系（.btn.btn-a / .btn.btn-a-alt，高 34）走 --sf-st-radius-btna = 8px，由下方 .btn.btn-a 规则覆盖
+   （同特异性 (0,2,0)、定义在后 ⇒ 后者胜）。 */
+.btn.btn-sm { border-radius: 8px; }
+.btn.btn-md { border-radius: 9px; }
+.btn.btn-lg { border-radius: 11px; }
 
 /* inactive：灰色，非活跃/非推荐或禁用状态 */
 .btn-inactive {

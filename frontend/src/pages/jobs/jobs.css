@@ -7,6 +7,12 @@
  *   · 断点沿用 shell 的**单断点 767px**（shell.css：≤767px = 手机竖屏一列 + 底部 tab；
  *     ≥1024px = web 横屏多栅格；两者之间栅格降列、不新增骨架）。
  *   · 本文件**不写**任何按主题分支的规则（无 [data-theme] 选择器、无 matchMedia）。
+ *
+ * P6-UI-CONSIST-B（成套形状收敛，变体 B）：卡片 / 输入框 / 芯片 由旧风格
+ *   （--sf-st-stroke-w 1.5px 粗描边 + --sf-jobcard-shadow/--sf-panel-shadow/--sf-search-shadow 硬位移阴影
+ *    + --sf-jobcard-radius/--sf-panel-radius/--sf-search-radius 异形圆角）
+ *   收敛到按钮口径：圆角 = --sf-st-radius-btna（8px）· 描边 = --sf-st-stroke-w-thin（1px）· 阴影 = none · 切角 = none。
+ *   颜色槽位与一切几何量（padding/gap/列数/顺序）不动。两档同构：圆角/描边宽度取结构常量。
  */
 
 .sf-jobs {
@@ -76,13 +82,15 @@
   color: var(--sf-meta-fg);
 }
 
-/* 输入类控件：形状/底色取 token，尺寸取结构常量 */
+/* 输入类控件：形状（圆角/描边/扁平）取按钮口径的结构常量，颜色取 token，尺寸取结构常量 */
 .sf-jobs-input,
 .sf-jobs-textarea {
   background: var(--sf-search-bg);
-  border: var(--sf-st-stroke-w) solid var(--sf-search-border);
-  border-radius: var(--sf-search-radius);
-  box-shadow: var(--sf-search-shadow);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-search-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
   color: var(--sf-search-fg);
   font-size: 13px;
   padding: 8px 10px;
@@ -128,14 +136,15 @@
 
 .sf-jobs-empty {
   color: var(--sf-empty-fg);
-  border: var(--sf-st-stroke-w) dashed var(--sf-jobcard-border);
-  border-radius: var(--sf-jobcard-radius);
+  border: var(--sf-st-stroke-w-thin) dashed var(--sf-jobcard-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
   padding: 14px;
   font-size: 13px;
   text-align: center;
 }
 
-/* 列表项 / 面板：颜色与圆角阴影取 token，间距取结构常量 */
+/* 列表项 / 面板：颜色与形状（圆角/描边/扁平）取按钮口径；间距取结构常量 */
 .sf-jobs-item,
 .sf-jobs-panel {
   display: flex;
@@ -146,16 +155,20 @@
 
 .sf-jobs-item {
   background: var(--sf-jobcard-bg);
-  border: var(--sf-st-stroke-w) solid var(--sf-jobcard-border);
-  border-radius: var(--sf-jobcard-radius);
-  box-shadow: var(--sf-jobcard-shadow);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-jobcard-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
 }
 
 .sf-jobs-panel {
   background: var(--sf-panel-bg);
-  border: var(--sf-st-stroke-w) solid var(--sf-panel-border);
-  border-radius: var(--sf-panel-radius);
-  box-shadow: var(--sf-panel-shadow);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
 }
 
 .sf-jobs-item-title {
@@ -182,7 +195,8 @@
 .sf-jobs-tag {
   background: var(--sf-jobtag-bg);
   color: var(--sf-jobtag-fg);
-  border-radius: var(--sf-jobtag-radius);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
   padding: 2px 6px;
   font-size: 11px;
 }

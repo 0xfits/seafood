@@ -1,6 +1,11 @@
 /* 交易所线（P4-B4c-ii-b）· 只吃 4c-i 的 token 层与 shell 骨架（单断点 767px）
  * 铁律同 listings.css：颜色/radius/shadow 取主题 token；一切改几何的量取结构常量或断点层；
  * 本文件**无** [data-theme] 分支、无颜色字面量。
+ *
+ * P6-UI-CONSIST-B（成套形状收敛，变体 B）：卡片 / 输入框 / 行情条 由旧风格
+ *   （--sf-st-stroke-w 1.5px + 硬位移阴影 + 异形圆角 13px/11px）
+ *   收敛到按钮口径：圆角 = --sf-st-radius-btna（8px）· 描边 = --sf-st-stroke-w-thin（1px）· 阴影 = none · 切角 = none。
+ *   颜色槽位与一切几何量（padding/gap/列数/顺序/固定盒高）不动。
  */
 
 .sf-mkt {
@@ -56,9 +61,12 @@
      `border: 1.5px solid none` 无效 ⇒ 日档 border-width=0 / 夜档=1px ⇒ 盒高差 2px（探针实测 86 vs 88）。
      故描边宽度取结构常量、颜色取**两档都是颜色**的 token（`--sf-card-border`）⇒ 主题只差颜色、不差几何。
      另加 `box-sizing: border-box` 把盒高钉死在结构常量上（本元素在四语/两档下 rect 恒等）。 */
-  border: var(--sf-st-stroke-w) solid var(--sf-card-border);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-card-border);
   box-sizing: border-box;
-  border-radius: var(--sf-card-radius);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
   padding: 10px 12px;
   height: var(--sf-k-ticker-h);
   align-items: center;
@@ -159,9 +167,11 @@
 .sf-mkt-input,
 .sf-mkt-select {
   background: var(--sf-search-bg);
-  border: var(--sf-st-stroke-w) solid var(--sf-search-border);
-  border-radius: var(--sf-search-radius);
-  box-shadow: var(--sf-search-shadow);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-search-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
   color: var(--sf-search-fg);
   font-size: 13px;
   padding: 8px 10px;
@@ -200,8 +210,9 @@
 
 .sf-mkt-empty {
   color: var(--sf-empty-fg);
-  border: var(--sf-st-stroke-w) dashed var(--sf-card-border);
-  border-radius: var(--sf-card-radius);
+  border: var(--sf-st-stroke-w-thin) dashed var(--sf-card-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
   padding: 14px;
   font-size: 13px;
   text-align: center;
@@ -217,16 +228,20 @@
 
 .sf-mkt-item {
   background: var(--sf-jobcard-bg);
-  border: var(--sf-st-stroke-w) solid var(--sf-jobcard-border);
-  border-radius: var(--sf-jobcard-radius);
-  box-shadow: var(--sf-jobcard-shadow);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-jobcard-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
 }
 
 .sf-mkt-panel {
   background: var(--sf-panel-bg);
-  border: var(--sf-st-stroke-w) solid var(--sf-panel-border);
-  border-radius: var(--sf-panel-radius);
-  box-shadow: var(--sf-panel-shadow);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-btna);
+  box-shadow: none;
+  -webkit-clip-path: none;
+  clip-path: none;
 }
 
 .sf-mkt-item-title {
