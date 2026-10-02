@@ -1,0 +1,301 @@
+{
+  "run": "20261002T080100Z9e26",
+  "name": "p7b-03-offline-gates",
+  "at": "2026-10-02T08:01:00.631Z",
+  "script": "scripts/p7b-03-offline-gates.ts",
+  "fn_body_bytes": 4438,
+  "ac13_cases": [
+    {
+      "id": "AC13-1",
+      "got": "seller",
+      "status": 200,
+      "code": null,
+      "authDomain": null,
+      "expect": "seller",
+      "pass": true
+    },
+    {
+      "id": "AC13-2",
+      "got": "admin",
+      "status": 200,
+      "code": null,
+      "authDomain": null,
+      "expect": "admin",
+      "pass": true
+    },
+    {
+      "id": "AC13-2b",
+      "got": "admin",
+      "status": 200,
+      "code": null,
+      "authDomain": null,
+      "expect": "admin",
+      "pass": true
+    },
+    {
+      "id": "AC13-3",
+      "got": "ACTOR_NOT_ALLOWED",
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "authDomain": true,
+      "expect": "ACTOR_NOT_ALLOWED",
+      "pass": true
+    },
+    {
+      "id": "AC13-4",
+      "got": "ACTOR_NOT_ALLOWED",
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "authDomain": true,
+      "expect": "ACTOR_NOT_ALLOWED",
+      "pass": true
+    },
+    {
+      "id": "AC13-5",
+      "got": "PERMISSION_NOT_GRANTED",
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "authDomain": true,
+      "expect": "PERMISSION_NOT_GRANTED",
+      "pass": true
+    },
+    {
+      "id": "AC13-6",
+      "got": "NOT_ADMIN",
+      "status": 403,
+      "code": "AUTH_FORBIDDEN",
+      "authDomain": true,
+      "expect": "NOT_ADMIN",
+      "pass": true
+    }
+  ],
+  "ac14_classifier": [
+    {
+      "injected": "53300",
+      "code": "LEDGER_TX_TIMEOUT",
+      "http": 503
+    },
+    {
+      "injected": "XX000",
+      "code": "LEDGER_TX_TIMEOUT",
+      "http": 503
+    },
+    {
+      "injected": "58030",
+      "code": "LEDGER_TX_TIMEOUT",
+      "http": 503
+    }
+  ],
+  "checks": [
+    {
+      "id": "AC13-1",
+      "what": "① 卖方（非 admin）⇒ 卖方路（**不经** admin 闸）",
+      "pass": true,
+      "reading": "got=seller status=200 code=null"
+    },
+    {
+      "id": "AC13-2",
+      "what": "② 管理员（非卖方、非买方，is_admin=true）⇒ 管理员路",
+      "pass": true,
+      "reading": "got=admin status=200 code=null"
+    },
+    {
+      "id": "AC13-2b",
+      "what": "②′ 管理员（非卖方非买方，经**角色行**持 manage_points，is_admin=false）⇒ 管理员路",
+      "pass": true,
+      "reading": "got=admin status=200 code=null"
+    },
+    {
+      "id": "AC13-3",
+      "what": "③ 管理员**兼买方** ⇒ 403 ACTOR_NOT_ALLOWED",
+      "pass": true,
+      "reading": "got=ACTOR_NOT_ALLOWED status=403 code=AUTH_FORBIDDEN"
+    },
+    {
+      "id": "AC13-3-shape",
+      "what": "AC13-3 403 形状 = R107 AUTH_FORBIDDEN + auth 域 + reason 闭集",
+      "pass": true,
+      "reading": "{\"status\":403,\"code\":\"AUTH_FORBIDDEN\",\"reason\":\"ACTOR_NOT_ALLOWED\",\"authDomain\":true}"
+    },
+    {
+      "id": "AC13-4",
+      "what": "④ 非卖方非 admin（第三方）⇒ 403 ACTOR_NOT_ALLOWED",
+      "pass": true,
+      "reading": "got=ACTOR_NOT_ALLOWED status=403 code=AUTH_FORBIDDEN"
+    },
+    {
+      "id": "AC13-4-shape",
+      "what": "AC13-4 403 形状 = R107 AUTH_FORBIDDEN + auth 域 + reason 闭集",
+      "pass": true,
+      "reading": "{\"status\":403,\"code\":\"AUTH_FORBIDDEN\",\"reason\":\"ACTOR_NOT_ALLOWED\",\"authDomain\":true}"
+    },
+    {
+      "id": "AC13-5",
+      "what": "⑤ admin 但**缺** manage_points ⇒ 403 PERMISSION_NOT_GRANTED",
+      "pass": true,
+      "reading": "got=PERMISSION_NOT_GRANTED status=403 code=AUTH_FORBIDDEN"
+    },
+    {
+      "id": "AC13-5-shape",
+      "what": "AC13-5 403 形状 = R107 AUTH_FORBIDDEN + auth 域 + reason 闭集",
+      "pass": true,
+      "reading": "{\"status\":403,\"code\":\"AUTH_FORBIDDEN\",\"reason\":\"PERMISSION_NOT_GRANTED\",\"authDomain\":true}"
+    },
+    {
+      "id": "AC13-6",
+      "what": "⑥ 非 admin（can_access_admin=false）⇒ 403 NOT_ADMIN（构造上不可达分支，仅映射保留）",
+      "pass": true,
+      "reading": "got=NOT_ADMIN status=403 code=AUTH_FORBIDDEN"
+    },
+    {
+      "id": "AC13-6-shape",
+      "what": "AC13-6 403 形状 = R107 AUTH_FORBIDDEN + auth 域 + reason 闭集",
+      "pass": true,
+      "reading": "{\"status\":403,\"code\":\"AUTH_FORBIDDEN\",\"reason\":\"NOT_ADMIN\",\"authDomain\":true}"
+    },
+    {
+      "id": "AC13-NEG-1",
+      "what": "★ 判负①：若卖方路也要求 admin 闸 ⇒ 卖方（非 admin）被拦 ⇒ 变体必红",
+      "pass": true,
+      "reading": "mutant got=DENIED_NOT_ADMIN"
+    },
+    {
+      "id": "AC13-NEG-2",
+      "what": "★ 判负②：若删兼买方禁令 ⇒「管理员兼买方」被放行 ⇒ 变体必红",
+      "pass": true,
+      "reading": "mutant got=admin"
+    },
+    {
+      "id": "AC13-NEG-3",
+      "what": "★ 判负③：源码 `AUTH_REASONS` 闭集仍恰 3 值（未新增第 4 个 reason）",
+      "pass": true,
+      "reading": "const AUTH_REASONS = ['ACTOR_NOT_ALLOWED', 'NOT_ADMIN', 'PERMISSION_NOT_GRANTED']"
+    },
+    {
+      "id": "AC13-NEG-4",
+      "what": "★ 判负④：本面所有 403 reason 均在闭集 {ACTOR_NOT_ALLOWED, NOT_ADMIN, PERMISSION_NOT_GRANTED} 内",
+      "pass": true,
+      "reading": "reasons=[\"ACTOR_NOT_ALLOWED\",\"ACTOR_NOT_ALLOWED\",\"PERMISSION_NOT_GRANTED\",\"NOT_ADMIN\"]"
+    },
+    {
+      "id": "AC14-cls-53300",
+      "what": "注入 53300 ⇒ 既有分类器归 503 LEDGER_TX_TIMEOUT（**绝不得** 409/rejected_state）",
+      "pass": true,
+      "reading": "{\"code\":\"LEDGER_TX_TIMEOUT\",\"http\":503}"
+    },
+    {
+      "id": "AC14-cls-XX000",
+      "what": "注入 XX000 ⇒ 既有分类器归 503 LEDGER_TX_TIMEOUT（**绝不得** 409/rejected_state）",
+      "pass": true,
+      "reading": "{\"code\":\"LEDGER_TX_TIMEOUT\",\"http\":503}"
+    },
+    {
+      "id": "AC14-cls-58030",
+      "what": "注入 58030 ⇒ 既有分类器归 503 LEDGER_TX_TIMEOUT（**绝不得** 409/rejected_state）",
+      "pass": true,
+      "reading": "{\"code\":\"LEDGER_TX_TIMEOUT\",\"http\":503}"
+    },
+    {
+      "id": "AC12-s1",
+      "what": "position(purchase_refund) = 0（不得复制退款资金腿）",
+      "pass": true,
+      "reading": "pos=-1"
+    },
+    {
+      "id": "AC12-s2",
+      "what": "position(public.listing_post_event() <> 0（必须复用资金路径）",
+      "pass": true,
+      "reading": "pos=1112"
+    },
+    {
+      "id": "AC12-s3",
+      "what": "position(admin_refund_audit_log) <> 0（同语句审计）",
+      "pass": true,
+      "reading": "pos=1937"
+    },
+    {
+      "id": "AC14-s1",
+      "what": "position(WHEN OTHERS) = 0（禁兜底子句）",
+      "pass": true,
+      "reading": "pos=-1"
+    },
+    {
+      "id": "AC14-s2",
+      "what": "position(EXCEPTION) <> 0 且 position(LD011) <> 0（白名单捕获块）",
+      "pass": true,
+      "reading": "exc=1153 ld011=1178"
+    },
+    {
+      "id": "Z3-s1",
+      "what": "position(RAISE) = 0（函数不得主动抛）",
+      "pass": true,
+      "reading": "pos=-1"
+    },
+    {
+      "id": "Z4b-s1",
+      "what": "position(pg_advisory) = 0（不取 advisory lock）",
+      "pass": true,
+      "reading": "pos=-1"
+    },
+    {
+      "id": "H4-s1",
+      "what": "键格式串 biz:listing:refund: 在场",
+      "pass": true,
+      "reading": "pos=328"
+    },
+    {
+      "id": "Z3-s2",
+      "what": "可空 txid / 拒绝令牌 rejected_state 在场",
+      "pass": true,
+      "reading": "ok"
+    },
+    {
+      "id": "AC10-1",
+      "what": "错误码闭集 33 不动",
+      "pass": true,
+      "reading": "codes=33"
+    },
+    {
+      "id": "AC10-2",
+      "what": "注册点 = 68 不变（本单零新注册点）",
+      "pass": true,
+      "reading": "registration_points=68"
+    },
+    {
+      "id": "AC10-3",
+      "what": "退款路由仍**复用同路径**（无 `/api/admin/listing-orders`）",
+      "pass": true,
+      "reading": "ok"
+    },
+    {
+      "id": "AC10-4",
+      "what": "对外出口 = 既有 `sendSuccess` + `sendVerbError`（R107；无新增顶层响应键）",
+      "pass": true,
+      "reading": "ok"
+    },
+    {
+      "id": "AC10-5",
+      "what": "不许选：`REFUND_ACTOR_IS_SELLER_ONLY` 已**从代码面消失**（只在注释里留痕；单点常量不作并行真源）",
+      "pass": true,
+      "reading": "code_refs service=-1 index=-1 (comment_refs service=2)"
+    },
+    {
+      "id": "AC10-6",
+      "what": "准入真源唯一（`resolveRefundActorRoute` 是唯一 403 判定点）",
+      "pass": true,
+      "reading": "ok"
+    },
+    {
+      "id": "AC10-7",
+      "what": "初始化常量：REFUND_ACTOR_SCOPE / REFUND_ROLLS_BACK_STOCK 取值冻结",
+      "pass": true,
+      "reading": "seller_or_admin/false"
+    }
+  ],
+  "summary": {
+    "total": 34,
+    "passed": 34,
+    "failed": 0,
+    "red": []
+  }
+}

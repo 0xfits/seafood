@@ -1,0 +1,206 @@
+{
+  "run": "20261002T075857Zt1zo",
+  "name": "p7b-02-t2-capture",
+  "at": "2026-10-02T07:59:08.448Z",
+  "script": "scripts/p7b-02-t2-capture.ts",
+  "fp_before": {
+    "ledger_entry": "323",
+    "purchase_refund": "6",
+    "listing_order_1": "[{\"status\":\"created\",\"pay_txid\":null}]",
+    "listing_order_3": "[{\"status\":\"paid\",\"refund_txid\":null}]",
+    "probe_fns": "0"
+  },
+  "t2": {
+    "A_state_machine": [
+      {
+        "k": "detail",
+        "v": "{\"field\": \"listing_order.status\", \"reason\": \"order_not_refundable\", \"status\": \"created\", \"order_id\": \"1\"}"
+      },
+      {
+        "k": "msg",
+        "v": "LEDGER_CURRENCY_INVALID_TRANSITION"
+      },
+      {
+        "k": "reason",
+        "v": "order_not_refundable"
+      },
+      {
+        "k": "state",
+        "v": "LD011"
+      }
+    ],
+    "B_pay_missing": [
+      {
+        "k": "detail",
+        "v": "{\"field\": \"listing_order.pay_txid\", \"reason\": \"order_pay_missing\", \"status\": \"paid\", \"order_id\": \"1\"}"
+      },
+      {
+        "k": "reason",
+        "v": "order_pay_missing"
+      }
+    ],
+    "C_404": {
+      "error": {
+        "sqlstate": "LD022",
+        "message": "LEDGER_REF_NOT_FOUND",
+        "detail": "{\"field\": \"order_id\", \"value\": \"999999999\", \"reason\": \"order_not_found\"}",
+        "reason": "order_not_found",
+        "pg_code": null,
+        "raw_detail": {
+          "field": "order_id",
+          "value": "999999999",
+          "reason": "order_not_found"
+        }
+      },
+      "table": []
+    }
+  },
+  "t2_error": null,
+  "ac14_mechanism": {
+    "whitelist_LD011": {
+      "value": "caught:{\"reason\":\"order_not_refundable\"}",
+      "error": null
+    },
+    "whitelist_53300": {
+      "value": null,
+      "error": {
+        "sqlstate": "53300",
+        "message": "p7b probe",
+        "detail": "{\"reason\":\"too_many_connections\"}",
+        "reason": "too_many_connections",
+        "pg_code": null,
+        "raw_detail": {
+          "reason": "too_many_connections"
+        }
+      }
+    },
+    "whitelist_XX000": {
+      "value": null,
+      "error": {
+        "sqlstate": "XX000",
+        "message": "p7b probe",
+        "detail": "{\"reason\":\"internal_error\"}",
+        "reason": "internal_error",
+        "pg_code": null,
+        "raw_detail": {
+          "reason": "internal_error"
+        }
+      }
+    },
+    "whitelist_LD022": {
+      "value": null,
+      "error": {
+        "sqlstate": "LD022",
+        "message": "p7b probe",
+        "detail": "{\"reason\":\"order_not_found\"}",
+        "reason": "order_not_found",
+        "pg_code": null,
+        "raw_detail": {
+          "reason": "order_not_found"
+        }
+      }
+    },
+    "mutant_53300": {
+      "value": "caught:{\"reason\":\"too_many_connections\"}",
+      "error": null
+    },
+    "mutant_XX000": {
+      "value": "caught:{\"reason\":\"internal_error\"}",
+      "error": null
+    }
+  },
+  "ac14_error": null,
+  "lock_contention": {
+    "b_before_release": "BLOCKED",
+    "b_wait_ms": 852
+  },
+  "fp_after": {
+    "ledger_entry": "323",
+    "purchase_refund": "6",
+    "listing_order_1": "[{\"status\":\"created\",\"pay_txid\":null}]",
+    "listing_order_3": "[{\"status\":\"paid\",\"refund_txid\":null}]",
+    "probe_fns": "0"
+  },
+  "checks": [
+    {
+      "id": "T2-A-state",
+      "what": "★ 必测项：真实 refund 的 LD011 可被 SQLSTATE 捕获",
+      "pass": true,
+      "reading": "state=LD011"
+    },
+    {
+      "id": "T2-A-detail",
+      "what": "★ 必测项：PG_EXCEPTION_DETAIL 真能取到 DETAIL（非空）",
+      "pass": true,
+      "reading": "detail={\"field\": \"listing_order.status\", \"reason\": \"order_not_refundable\", \"status\": \"created\", \"order_id\": \"1\"}"
+    },
+    {
+      "id": "T2-A-reason",
+      "what": "★ 必测项：reason 解析 = order_not_refundable",
+      "pass": true,
+      "reading": "reason=order_not_refundable"
+    },
+    {
+      "id": "T2-B-reason",
+      "what": "同码异 reason：order_pay_missing（白名单第二项）",
+      "pass": true,
+      "reading": "reason=order_pay_missing"
+    },
+    {
+      "id": "T2-C-404",
+      "what": "LD022（404）**不**被 LD011 白名单捕获（保持传播）",
+      "pass": false,
+      "reading": "{\"error\":{\"sqlstate\":\"LD022\",\"message\":\"LEDGER_REF_NOT_FOUND\",\"detail\":\"{\\\"field\\\": \\\"order_id\\\", \\\"value\\\": \\\"999999999\\\", \\\"reason\\\": \\\"order_not_found\\\"}\",\"reason\":\"order_not_found\",\"pg_code\":null,\"raw_detail\":{\"field\":\"order_id\",\"value\":\"999999999\",\"reason\":\"order_not_found\"}},\"table\":[]}"
+    },
+    {
+      "id": "AC14-mech-1",
+      "what": "白名单版：LD011 被捕获",
+      "pass": true,
+      "reading": "{\"value\":\"caught:{\\\"reason\\\":\\\"order_not_refundable\\\"}\",\"error\":null}"
+    },
+    {
+      "id": "AC14-mech-2",
+      "what": "★ 白名单版：53300 **向上抛**（不得被吞）",
+      "pass": true,
+      "reading": "{\"value\":null,\"error\":{\"sqlstate\":\"53300\",\"message\":\"p7b probe\",\"detail\":\"{\\\"reason\\\":\\\"too_many_connections\\\"}\",\"reason\":\"too_many_connections\",\"pg_code\":null,\"raw_detail\":{\"reason\":\"too_many_connections\"}}}"
+    },
+    {
+      "id": "AC14-mech-3",
+      "what": "★ 白名单版：XX000 **向上抛**（不得被吞）",
+      "pass": true,
+      "reading": "{\"value\":null,\"error\":{\"sqlstate\":\"XX000\",\"message\":\"p7b probe\",\"detail\":\"{\\\"reason\\\":\\\"internal_error\\\"}\",\"reason\":\"internal_error\",\"pg_code\":null,\"raw_detail\":{\"reason\":\"internal_error\"}}}"
+    },
+    {
+      "id": "AC14-mech-4",
+      "what": "白名单版：LD022（404 面）亦向上抛（射程 = 只 LD011）",
+      "pass": true,
+      "reading": "{\"value\":null,\"error\":{\"sqlstate\":\"LD022\",\"message\":\"p7b probe\",\"detail\":\"{\\\"reason\\\":\\\"order_not_found\\\"}\",\"reason\":\"order_not_found\",\"pg_code\":null,\"raw_detail\":{\"reason\":\"order_not_found\"}}}"
+    },
+    {
+      "id": "AC14-mech-5",
+      "what": "★ 判负自证：兜底子句变体会把 53300/XX000 吞成「被捕获」",
+      "pass": true,
+      "reading": "{\"m53300\":{\"value\":\"caught:{\\\"reason\\\":\\\"too_many_connections\\\"}\",\"error\":null},\"mXX000\":{\"value\":\"caught:{\\\"reason\\\":\\\"internal_error\\\"}\",\"error\":null}}"
+    },
+    {
+      "id": "AC11-lock",
+      "what": "★ 同订单并发 `FOR UPDATE` 被串行化（B 阻塞至 A 释放）",
+      "pass": true,
+      "reading": "{\"b_before_release\":\"BLOCKED\",\"b_wait_ms\":852}"
+    },
+    {
+      "id": "Z-1",
+      "what": "★ 零位移：前后指纹逐字相等（含 ledger_entry / listing_order / 探针函数）",
+      "pass": true,
+      "reading": "{\"before\":{\"ledger_entry\":\"323\",\"purchase_refund\":\"6\",\"listing_order_1\":\"[{\\\"status\\\":\\\"created\\\",\\\"pay_txid\\\":null}]\",\"listing_order_3\":\"[{\\\"status\\\":\\\"paid\\\",\\\"refund_txid\\\":null}]\",\"probe_fns\":\"0\"},\"after\":{\"ledger_entry\":\"323\",\"purchase_refund\":\"6\",\"listing_order_1\":\"[{\\\"status\\\":\\\"created\\\",\\\"pay_txid\\\":null}]\",\"listing_order_3\":\"[{\\\"status\\\":\\\"paid\\\",\\\"refund_txid\\\":null}]\",\"probe_fns\":\"0\"}}"
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "passed": 11,
+    "failed": 1,
+    "red": [
+      "T2-C-404"
+    ]
+  }
+}

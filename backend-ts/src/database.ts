@@ -2043,6 +2043,32 @@ export class DatabaseService {
   }
 
   /**
+   * ★★ P7-B（§7-32 / §12.11.3 · I-11）：商品退款（**卖方 ∨ 管理员**）的**唯一资金写路径**。
+   *
+   * 调用 **一条语句** `SELECT public.listing_refund_post_event($1::jsonb)`
+   * （`migrations/0024_admin_refund_audit.sql`）—— 该函数在**同一函数体、同一条语句**内完成
+   * 「（无 advisory lock · Z4b）→ 调**既有** `public.listing_post_event(op='refund')`
+   * （**复用资金腿**：`purchase_refund` ×2 / 金额服务端取数 / 不回滚库存全在 `0015`）
+   * → 写 `public.admin_refund_audit_log`」⇒ **审计行与资金事件同生同灭**。
+   *
+   * 本方法**只转发 payload**：不派生分录、不写 `account`/`ledger_entry`/审计表、不自造幂等键
+   * （DL95：键由函数按 §4.5 确定性派生）。
+   *
+   * 回执 = **编排函数回执**（`{ ok, order_id, txid, idempotent_replay, audit_logged, result,
+   * refund_receipt }`；成功面 `refund_receipt` = 既有 `listing_post_event` 的回执）。
+   * **★ §12.12.5③**：编排回执与对外路由回执是**两层** ⇒ 服务层**不得**把编排回执原样透传
+   * （对外视图取自 `refund_receipt`）。
+   */
+  static async listingRefundPostEvent(payload: Record<string, unknown>): Promise<RawRow> {
+    const sql = getSql();
+    const row = firstRow(await sql`
+      SELECT public.listing_refund_post_event(${JSON.stringify(payload)}::jsonb) AS r
+    `);
+    if (!row) throw new Error('listingRefundPostEvent: no row returned');
+    return row;
+  }
+
+  /**
    * ★★ P4-B3e（§4.2 M1/M2/M3 · **DL68 币对级串行化**）：交易所（market）唯一资金写路径。
    *
    * `public.market_post_event($1::jsonb)`（`migrations/0016_market.sql:393`）在**单条语句**内完成

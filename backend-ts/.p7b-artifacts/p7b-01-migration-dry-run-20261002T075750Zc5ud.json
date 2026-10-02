@@ -1,0 +1,698 @@
+{
+  "run": "20261002T075750Zc5ud",
+  "name": "p7b-01-migration-dry-run",
+  "at": "2026-10-02T07:58:10.337Z",
+  "script": "scripts/p7b-01-migration-dry-run.ts",
+  "migration": "migrations/0024_admin_refund_audit.sql",
+  "sql_sha256": "b2495845c26f0cc79b386714b63359db74e76f0cd6eadf5c95f1dd9e0aa31b1d",
+  "sql_bytes": 24094,
+  "fingerprint_before": {
+    "base_tables": "24",
+    "triggers": "44",
+    "functions": "76",
+    "indexes": "65",
+    "schema_migration_rows": "22",
+    "ledger_entry": "323",
+    "purchase_refund": "6",
+    "account_cid1_sum_balance": "1989693",
+    "account_cid1_sum_frozen": "10507",
+    "admin_refund_audit_log": null,
+    "listing_refund_fn": null
+  },
+  "ledger_before": {
+    "rows": "323",
+    "purchase_refund": "6",
+    "rootkey3": "0"
+  },
+  "dry_run": {
+    "error": null,
+    "ms": 7595,
+    "rolled_back": true
+  },
+  "in_tx": {
+    "A_dry_run_executed": true,
+    "A_columns": "log_id,actor_uid,order_id,seller_uid,buyer_uid,cid,amount,result,txid,idempotency_key,request_fingerprint,memo,time_created",
+    "A_fn_def_len": 4570,
+    "AC12_purchase_refund_pos": -1,
+    "AC12_listing_post_event_pos": 955,
+    "AC12_admin_refund_audit_log_pos": 2058,
+    "AC14_when_others_pos": -1,
+    "AC14_exception_pos": 1274,
+    "AC14_ld011_pos": 1299,
+    "Z4b_pg_advisory_pos": -1,
+    "Z3_raise_pos": -1,
+    "state_field_pos": 2313,
+    "B1_receipt": {
+      "ok": true,
+      "txid": "333",
+      "result": "applied",
+      "order_id": "3",
+      "audit_logged": true,
+      "refund_receipt": {
+        "ok": true,
+        "op": "refund",
+        "txid": "333",
+        "extra": {
+          "amount": "100",
+          "event_kinds": "purchase_refund",
+          "currency_status": "listed"
+        },
+        "stock": 0,
+        "created": false,
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "7",
+            "kind": "purchase_refund",
+            "memo": "p7b dryrun refund:3（卖家退回 purchase_refund listing_order=3）",
+            "txid": "333",
+            "delta": "-100",
+            "ref_id": "3",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-10-02T07:57:53.757Z",
+            "balance_after": "5000",
+            "idempotency_key": "biz:listing:refund:3",
+            "reversal_of_txid": null,
+            "request_fingerprint": "p7b:dryrun:fp:3"
+          },
+          {
+            "cid": "1",
+            "uid": "8",
+            "kind": "purchase_refund",
+            "memo": "p7b dryrun refund:3（买家收款 purchase_refund listing_order=3）",
+            "txid": "334",
+            "delta": "100",
+            "ref_id": "3",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-10-02T07:57:53.757Z",
+            "balance_after": "5000",
+            "idempotency_key": "biz:listing:refund:3#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "7",
+            "frozen": "0",
+            "balance": "5000"
+          },
+          {
+            "cid": "1",
+            "uid": "8",
+            "frozen": "0",
+            "balance": "5000"
+          }
+        ],
+        "order_id": "3",
+        "pay_txid": "90",
+        "listing_id": "13",
+        "refund_txid": "333",
+        "order_status": "refunded",
+        "listing_status": "listed",
+        "idempotent_replay": false,
+        "ledger_event_keys": [
+          "biz:listing:buy:3",
+          "biz:listing:refund:3"
+        ],
+        "ledger_idempotency_key": "biz:listing:refund:3"
+      },
+      "idempotent_replay": false
+    },
+    "B1_audit_rows": [
+      {
+        "result": "applied",
+        "txid": "333",
+        "idempotency_key": "biz:listing:refund:3",
+        "request_fingerprint": "p7b:dryrun:fp:3",
+        "actor_uid": "7",
+        "seller_uid": "7",
+        "buyer_uid": "8",
+        "cid": "1",
+        "amount": "100",
+        "memo": "p7b dryrun refund:3"
+      }
+    ],
+    "B1_ledger_delta": {
+      "purchase_refund": 2,
+      "rows": 2
+    },
+    "B1_listing_order_3": [
+      {
+        "status": "refunded",
+        "refund_txid": "333",
+        "pay_txid": "90",
+        "ledger_event_keys": [
+          "biz:listing:buy:3",
+          "biz:listing:refund:3"
+        ]
+      }
+    ],
+    "B1_listing_stock": {
+      "stock": 0
+    },
+    "B2_receipt": {
+      "ok": true,
+      "txid": "333",
+      "result": "applied",
+      "order_id": "3",
+      "audit_logged": false,
+      "refund_receipt": {
+        "ok": true,
+        "op": "refund",
+        "txid": "333",
+        "extra": {
+          "amount": "100",
+          "event_kinds": "purchase_refund",
+          "currency_status": "listed"
+        },
+        "stock": 0,
+        "created": false,
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "7",
+            "kind": "purchase_refund",
+            "memo": "p7b dryrun refund:3（卖家退回 purchase_refund listing_order=3）",
+            "txid": "333",
+            "delta": "-100",
+            "ref_id": "3",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-10-02T07:57:53.757Z",
+            "balance_after": "5000",
+            "idempotency_key": "biz:listing:refund:3",
+            "reversal_of_txid": null,
+            "request_fingerprint": "p7b:dryrun:fp:3"
+          },
+          {
+            "cid": "1",
+            "uid": "8",
+            "kind": "purchase_refund",
+            "memo": "p7b dryrun refund:3（买家收款 purchase_refund listing_order=3）",
+            "txid": "334",
+            "delta": "100",
+            "ref_id": "3",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-10-02T07:57:53.757Z",
+            "balance_after": "5000",
+            "idempotency_key": "biz:listing:refund:3#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "7",
+            "frozen": "0",
+            "balance": "5000"
+          },
+          {
+            "cid": "1",
+            "uid": "8",
+            "frozen": "0",
+            "balance": "5000"
+          }
+        ],
+        "order_id": "3",
+        "pay_txid": "90",
+        "listing_id": "13",
+        "refund_txid": "333",
+        "order_status": "refunded",
+        "listing_status": "listed",
+        "idempotent_replay": true,
+        "ledger_event_keys": [
+          "biz:listing:buy:3",
+          "biz:listing:refund:3"
+        ],
+        "ledger_idempotency_key": "biz:listing:refund:3"
+      },
+      "idempotent_replay": true
+    },
+    "B2_ledger_delta": {
+      "rows": 0,
+      "purchase_refund": 0
+    },
+    "C1_receipt": {
+      "ok": false,
+      "txid": null,
+      "reason": "order_not_refundable",
+      "result": "rejected_state",
+      "order_id": "1",
+      "audit_logged": true,
+      "status_field": "listing_order.status",
+      "idempotent_replay": false
+    },
+    "C1_audit_rows": [
+      {
+        "result": "rejected_state",
+        "txid": null,
+        "idempotency_key": "biz:listing:refund:1",
+        "request_fingerprint": "p7b:dryrun:fp:1",
+        "actor_uid": "7",
+        "seller_uid": "7",
+        "buyer_uid": "8",
+        "cid": "1",
+        "amount": "100",
+        "memo": "order_not_refundable"
+      }
+    ],
+    "C1_ledger_delta": {
+      "rows": 0,
+      "purchase_refund": 0,
+      "rootkey1": "0"
+    },
+    "C1_listing_order_1": [
+      {
+        "status": "created",
+        "refund_txid": null
+      }
+    ],
+    "C2_receipt": {
+      "ok": false,
+      "txid": null,
+      "reason": "order_not_refundable",
+      "result": "rejected_state",
+      "order_id": "1",
+      "audit_logged": true,
+      "status_field": "listing_order.status",
+      "idempotent_replay": false
+    },
+    "D1_err404": {
+      "sqlstate": "LD022",
+      "message": "LEDGER_REF_NOT_FOUND",
+      "detail": "{\"field\": \"order_id\", \"value\": \"999999999\", \"reason\": \"order_not_found\"}",
+      "reason": "order_not_found",
+      "pg_code": null,
+      "raw_detail": {
+        "field": "order_id",
+        "value": "999999999",
+        "reason": "order_not_found"
+      }
+    },
+    "E1_append_only": {
+      "update": {
+        "sqlstate": "P0001",
+        "message": "admin_refund_audit_log is append-only: UPDATE forbidden (log_id=1)",
+        "detail": null,
+        "reason": null,
+        "pg_code": null,
+        "raw_detail": null
+      },
+      "delete": {
+        "sqlstate": "P0001",
+        "message": "admin_refund_audit_log is append-only: DELETE forbidden (log_id=1)",
+        "detail": null,
+        "reason": null,
+        "pg_code": null,
+        "raw_detail": null
+      }
+    }
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "what": "★ Z4 硬约束变异：把编排函数内的 `public.listing_post_event(v_envelope)` 换成不回退到既有资金路径 ⇒ 自检「必须复用」断言须拦住",
+      "mutation_changed_text": true,
+      "error": {
+        "sqlstate": "P0001",
+        "message": "0024 self-check FAILED: 编排函数体内无对既有资金路径的**调用**（public.listing_post_event(）",
+        "detail": null,
+        "reason": null,
+        "pg_code": null,
+        "raw_detail": null
+      },
+      "rolled_back": true,
+      "residue_after_rollback": null
+    },
+    {
+      "id": "M2",
+      "what": "★ AC-12 反断言变异：往函数体内塞 `purchase_refund` 字面量（复制退款资金腿 = 第二真源）",
+      "mutation_changed_text": true,
+      "error": {
+        "sqlstate": "P0001",
+        "message": "0024 self-check FAILED: 编排函数体内出现 purchase_refund 字面量（复制退款资金腿 = 第二真源；AC-12）",
+        "detail": null,
+        "reason": null,
+        "pg_code": null,
+        "raw_detail": null
+      },
+      "rolled_back": true,
+      "residue_after_rollback": null
+    },
+    {
+      "id": "M3",
+      "what": "★ AC-14 反断言变异：把白名单捕获换成兜底类子句（基础设施错会被吞成「被拒」）",
+      "mutation_changed_text": true,
+      "error": {
+        "sqlstate": "P0001",
+        "message": "0024 self-check FAILED: 编排函数体内出现兜底类捕获子句（AC-14：会把基础设施错吞成「被拒」）",
+        "detail": null,
+        "reason": null,
+        "pg_code": null,
+        "raw_detail": null
+      },
+      "rolled_back": true,
+      "residue_after_rollback": null
+    },
+    {
+      "id": "M4",
+      "what": "索引面变异：把 `admin_refund_audit_log_actor_day_idx` 改名 ⇒ 自检「索引在场」断言须拦住",
+      "mutation_changed_text": true,
+      "error": {
+        "sqlstate": "P0001",
+        "message": "0024 self-check FAILED: admin_refund_audit_log_actor_day_idx_DISABLED missing",
+        "detail": null,
+        "reason": null,
+        "pg_code": null,
+        "raw_detail": null
+      },
+      "rolled_back": true,
+      "residue_after_rollback": null
+    },
+    {
+      "id": "M5",
+      "what": "键集变异：把 `UNIQUE (idempotency_key, result)` 降为单列 `UNIQUE (idempotency_key)`",
+      "mutation_changed_text": true,
+      "error": {
+        "sqlstate": "P0001",
+        "message": "0024 self-check FAILED: audit idem UNIQUE 非复合 (idempotency_key, result)，实际=UNIQUE (idempotency_key)",
+        "detail": null,
+        "reason": null,
+        "pg_code": null,
+        "raw_detail": null
+      },
+      "rolled_back": true,
+      "residue_after_rollback": null
+    },
+    {
+      "id": "M6",
+      "what": "result 闭集变异：把 `rejected_state` 改成 `rejected_x`（闭集断言须拦住）",
+      "mutation_changed_text": true,
+      "error": {
+        "sqlstate": "P0001",
+        "message": "0024 self-check FAILED: result 闭集不是 {applied, rejected_state}，实际=CHECK ((result = ANY (ARRAY['applied'::text, 'rejected_x'::text])))",
+        "detail": null,
+        "reason": null,
+        "pg_code": null,
+        "raw_detail": null
+      },
+      "rolled_back": true,
+      "residue_after_rollback": null
+    }
+  ],
+  "mutant_m7_subtransaction": {
+    "mutation_changed_text": true,
+    "error": null,
+    "result": {
+      "receipt": {
+        "ok": false,
+        "txid": null,
+        "reason": "order_not_refundable",
+        "result": "rejected_state",
+        "order_id": "1",
+        "audit_logged": true,
+        "status_field": "listing_order.status",
+        "idempotent_replay": false
+      },
+      "total_rows_order1": 0,
+      "rejected_rows_order1": 0
+    }
+  },
+  "fingerprint_after": {
+    "base_tables": "24",
+    "triggers": "44",
+    "functions": "76",
+    "indexes": "65",
+    "schema_migration_rows": "22",
+    "ledger_entry": "323",
+    "purchase_refund": "6",
+    "account_cid1_sum_balance": "1989693",
+    "account_cid1_sum_frozen": "10507",
+    "admin_refund_audit_log": null,
+    "listing_refund_fn": null
+  },
+  "checks": [
+    {
+      "id": "AC12-1",
+      "what": "函数体 position(purchase_refund)=0",
+      "pass": true,
+      "reading": "pos=-1"
+    },
+    {
+      "id": "AC12-2",
+      "what": "函数体 position(listing_post_event)<>0",
+      "pass": true,
+      "reading": "pos=955"
+    },
+    {
+      "id": "AC14-1",
+      "what": "函数体 position(WHEN OTHERS)=0",
+      "pass": true,
+      "reading": "pos=-1"
+    },
+    {
+      "id": "AC14-2",
+      "what": "函数体含 EXCEPTION + LD011 白名单",
+      "pass": true,
+      "reading": "exc=1274 ld011=1299"
+    },
+    {
+      "id": "Z3-1",
+      "what": "函数体 position(RAISE)=0",
+      "pass": true,
+      "reading": "pos=-1"
+    },
+    {
+      "id": "Z4b-1",
+      "what": "函数体 position(pg_advisory)=0",
+      "pass": true,
+      "reading": "pos=-1"
+    },
+    {
+      "id": "Z3-2",
+      "what": "函数体含 rejected_state 留痕分支",
+      "pass": true,
+      "reading": "pos=2313"
+    },
+    {
+      "id": "B1-ok",
+      "what": "成功腿回执 ok=true / result=applied / audit_logged=true",
+      "pass": true,
+      "reading": "{\"ok\":true,\"result\":\"applied\",\"audit_logged\":true}"
+    },
+    {
+      "id": "B1-legs",
+      "what": "Δpurchase_refund=+2",
+      "pass": true,
+      "reading": "Δ=2"
+    },
+    {
+      "id": "B1-audit1",
+      "what": "审计行恰 1 行 result=applied",
+      "pass": true,
+      "reading": "[{\"result\":\"applied\",\"txid\":\"333\",\"idempotency_key\":\"biz:listing:refund:3\",\"request_fingerprint\":\"p7b:dryrun:fp:3\",\"actor_uid\":\"7\",\"seller_uid\":\"7\",\"buyer_uid\":\"8\",\"cid\":\"1\",\"amount\":\"100\",\"memo\":\"p7b dryrun refund:3\"}]"
+    },
+    {
+      "id": "B1-txid",
+      "what": "审计行 txid 与大写回执 txid 逐字相同",
+      "pass": true,
+      "reading": "audit=333 fn=333"
+    },
+    {
+      "id": "B1-key",
+      "what": "审计行 idempotency_key = biz:listing:refund:3",
+      "pass": true,
+      "reading": "biz:listing:refund:3"
+    },
+    {
+      "id": "B1-fields",
+      "what": "审计行 seller/buyer/cid/amount = 7/8/1/100",
+      "pass": true,
+      "reading": "{\"result\":\"applied\",\"txid\":\"333\",\"idempotency_key\":\"biz:listing:refund:3\",\"request_fingerprint\":\"p7b:dryrun:fp:3\",\"actor_uid\":\"7\",\"seller_uid\":\"7\",\"buyer_uid\":\"8\",\"cid\":\"1\",\"amount\":\"100\",\"memo\":\"p7b dryrun refund:3\"}"
+    },
+    {
+      "id": "B1-actor",
+      "what": "审计行 actor_uid = 发起人（token 侧）",
+      "pass": true,
+      "reading": "7"
+    },
+    {
+      "id": "B1-no-stock",
+      "what": "★ 不回滚库存：stock 前后逐字相等（AC-2）",
+      "pass": true,
+      "reading": "before=0 after=0"
+    },
+    {
+      "id": "B1-status",
+      "what": "listing_order.status = refunded",
+      "pass": true,
+      "reading": "[{\"status\":\"refunded\",\"refund_txid\":\"333\",\"pay_txid\":\"90\",\"ledger_event_keys\":[\"biz:listing:buy:3\",\"biz:listing:refund:3\"]}]"
+    },
+    {
+      "id": "B1-sidekeys",
+      "what": "★ 两 actor 面差异仅在准入：回执 ledger_idempotency_key 仍为资金根键",
+      "pass": true,
+      "reading": "biz:listing:refund:3"
+    },
+    {
+      "id": "B2-replay",
+      "what": "同键重投 ⇒ ok / idempotent_replay=true",
+      "pass": true,
+      "reading": "{\"ok\":true,\"replay\":true}"
+    },
+    {
+      "id": "B2-zero",
+      "what": "同键重投 ⇒ 资金 delta 0（rows / purchase_refund）",
+      "pass": true,
+      "reading": "{\"rows\":0,\"purchase_refund\":0}"
+    },
+    {
+      "id": "B2-audit",
+      "what": "同键重投 ⇒ 审计行不新增（仍 1 行 applied）",
+      "pass": true,
+      "reading": "[{\"result\":\"applied\",\"txid\":\"333\",\"idempotency_key\":\"biz:listing:refund:3\",\"request_fingerprint\":\"p7b:dryrun:fp:3\",\"actor_uid\":\"7\",\"seller_uid\":\"7\",\"buyer_uid\":\"8\",\"cid\":\"1\",\"amount\":\"100\",\"memo\":\"p7b dryrun refund:3\"}]"
+    },
+    {
+      "id": "B2-txid",
+      "what": "同键重投 ⇒ txid 与首投逐字相同",
+      "pass": true,
+      "reading": "a1=333 a2=333"
+    },
+    {
+      "id": "C1-reject",
+      "what": "被拒 ⇒ ok=false / result=rejected_state / audit_logged=true",
+      "pass": true,
+      "reading": "{\"ok\":false,\"result\":\"rejected_state\",\"audit_logged\":true}"
+    },
+    {
+      "id": "C1-reason",
+      "what": "被拒 ⇒ reason=order_not_refundable（白名单）",
+      "pass": true,
+      "reading": "order_not_refundable"
+    },
+    {
+      "id": "C1-zerofunds",
+      "what": "被拒 ⇒ 零资金残留（Δledger_entry=0 / Δpurchase_refund=0 / 根键 0 行）",
+      "pass": true,
+      "reading": "{\"rows\":0,\"purchase_refund\":0,\"rootkey1\":\"0\"}"
+    },
+    {
+      "id": "C1-audit+1",
+      "what": "被拒 ⇒ 审计行恰 1 行 rejected_state（与拒收回执一起提交）",
+      "pass": true,
+      "reading": "[{\"result\":\"rejected_state\",\"txid\":null,\"idempotency_key\":\"biz:listing:refund:1\",\"request_fingerprint\":\"p7b:dryrun:fp:1\",\"actor_uid\":\"7\",\"seller_uid\":\"7\",\"buyer_uid\":\"8\",\"cid\":\"1\",\"amount\":\"100\",\"memo\":\"order_not_refundable\"}]"
+    },
+    {
+      "id": "C1-txidnull",
+      "what": "被拒审计行 txid = NULL",
+      "pass": true,
+      "reading": "null"
+    },
+    {
+      "id": "C1-order-unchanged",
+      "what": "被拒 ⇒ listing_order.status 不变（仍 created）",
+      "pass": true,
+      "reading": "[{\"status\":\"created\",\"refund_txid\":null}]"
+    },
+    {
+      "id": "C2-conflict",
+      "what": "★ 同键重投被拒 ⇒ ON CONFLICT DO NOTHING ⇒ 审计行仍 1 行（不放大）",
+      "pass": true,
+      "reading": "rows=1"
+    },
+    {
+      "id": "D1-404-propagates",
+      "what": "订单不存在 ⇒ LD022 向上传播（不吞）",
+      "pass": true,
+      "reading": "{\"sqlstate\":\"LD022\",\"message\":\"LEDGER_REF_NOT_FOUND\",\"detail\":\"{\\\"field\\\": \\\"order_id\\\", \\\"value\\\": \\\"999999999\\\", \\\"reason\\\": \\\"order_not_found\\\"}\",\"reason\":\"order_not_found\",\"pg_code\":null,\"raw_detail\":{\"field\":\"order_id\",\"value\":\"999999999\",\"reason\":\"order_not_found\"}}"
+    },
+    {
+      "id": "D1-404-nomark",
+      "what": "★ 404 不留痕 ⇒ 审计表 Δ=0",
+      "pass": true,
+      "reading": "2->2"
+    },
+    {
+      "id": "E1-ao-update",
+      "what": "append-only：UPDATE 被拒（P0001）",
+      "pass": true,
+      "reading": "{\"sqlstate\":\"P0001\",\"message\":\"admin_refund_audit_log is append-only: UPDATE forbidden (log_id=1)\",\"detail\":null,\"reason\":null,\"pg_code\":null,\"raw_detail\":null}"
+    },
+    {
+      "id": "E1-ao-delete",
+      "what": "append-only：DELETE 被拒（P0001）",
+      "pass": true,
+      "reading": "{\"sqlstate\":\"P0001\",\"message\":\"admin_refund_audit_log is append-only: DELETE forbidden (log_id=1)\",\"detail\":null,\"reason\":null,\"pg_code\":null,\"raw_detail\":null}"
+    },
+    {
+      "id": "A-1",
+      "what": "整份 0024 干跑通过（含 §D 自检）",
+      "pass": true,
+      "reading": "ok"
+    },
+    {
+      "id": "MUT-M1",
+      "what": "变异 M1 必红（自检拦住）且残留在回滚后 = null",
+      "pass": true,
+      "reading": "{\"id\":\"M1\",\"what\":\"★ Z4 硬约束变异：把编排函数内的 `public.listing_post_event(v_envelope)` 换成不回退到既有资金路径 ⇒ 自检「必须复用」断言须拦住\",\"mutation_changed_text\":true,\"error\":{\"sqlstate\":\"P0001\",\"message\":\"0024 self-check FAILED: 编排函数体内无对既有资金路径的**调用**（public.listing_post_event(）\",\"detail\":null,\"reason\":null,\"pg_code\":null,\"raw_detail\":null},\"rolled_back\":true,\"residue_after_rollback\":null}"
+    },
+    {
+      "id": "MUT-M2",
+      "what": "变异 M2 必红（自检拦住）且残留在回滚后 = null",
+      "pass": true,
+      "reading": "{\"id\":\"M2\",\"what\":\"★ AC-12 反断言变异：往函数体内塞 `purchase_refund` 字面量（复制退款资金腿 = 第二真源）\",\"mutation_changed_text\":true,\"error\":{\"sqlstate\":\"P0001\",\"message\":\"0024 self-check FAILED: 编排函数体内出现 purchase_refund 字面量（复制退款资金腿 = 第二真源；AC-12）\",\"detail\":null,\"reason\":null,\"pg_code\":null,\"raw_detail\":null},\"rolled_back\":true,\"residue_after_rollback\":null}"
+    },
+    {
+      "id": "MUT-M3",
+      "what": "变异 M3 必红（自检拦住）且残留在回滚后 = null",
+      "pass": true,
+      "reading": "{\"id\":\"M3\",\"what\":\"★ AC-14 反断言变异：把白名单捕获换成兜底类子句（基础设施错会被吞成「被拒」）\",\"mutation_changed_text\":true,\"error\":{\"sqlstate\":\"P0001\",\"message\":\"0024 self-check FAILED: 编排函数体内出现兜底类捕获子句（AC-14：会把基础设施错吞成「被拒」）\",\"detail\":null,\"reason\":null,\"pg_code\":null,\"raw_detail\":null},\"rolled_back\":true,\"residue_after_rollback\":null}"
+    },
+    {
+      "id": "MUT-M4",
+      "what": "变异 M4 必红（自检拦住）且残留在回滚后 = null",
+      "pass": true,
+      "reading": "{\"id\":\"M4\",\"what\":\"索引面变异：把 `admin_refund_audit_log_actor_day_idx` 改名 ⇒ 自检「索引在场」断言须拦住\",\"mutation_changed_text\":true,\"error\":{\"sqlstate\":\"P0001\",\"message\":\"0024 self-check FAILED: admin_refund_audit_log_actor_day_idx_DISABLED missing\",\"detail\":null,\"reason\":null,\"pg_code\":null,\"raw_detail\":null},\"rolled_back\":true,\"residue_after_rollback\":null}"
+    },
+    {
+      "id": "MUT-M5",
+      "what": "变异 M5 必红（自检拦住）且残留在回滚后 = null",
+      "pass": true,
+      "reading": "{\"id\":\"M5\",\"what\":\"键集变异：把 `UNIQUE (idempotency_key, result)` 降为单列 `UNIQUE (idempotency_key)`\",\"mutation_changed_text\":true,\"error\":{\"sqlstate\":\"P0001\",\"message\":\"0024 self-check FAILED: audit idem UNIQUE 非复合 (idempotency_key, result)，实际=UNIQUE (idempotency_key)\",\"detail\":null,\"reason\":null,\"pg_code\":null,\"raw_detail\":null},\"rolled_back\":true,\"residue_after_rollback\":null}"
+    },
+    {
+      "id": "MUT-M6",
+      "what": "变异 M6 必红（自检拦住）且残留在回滚后 = null",
+      "pass": true,
+      "reading": "{\"id\":\"M6\",\"what\":\"result 闭集变异：把 `rejected_state` 改成 `rejected_x`（闭集断言须拦住）\",\"mutation_changed_text\":true,\"error\":{\"sqlstate\":\"P0001\",\"message\":\"0024 self-check FAILED: result 闭集不是 {applied, rejected_state}，实际=CHECK ((result = ANY (ARRAY['applied'::text, 'rejected_x'::text])))\",\"detail\":null,\"reason\":null,\"pg_code\":null,\"raw_detail\":null},\"rolled_back\":true,\"residue_after_rollback\":null}"
+    },
+    {
+      "id": "MUT-M7",
+      "what": "★ AC-15③ 判负：审计行 INSERT 落进子事务块 ⇒ 被拒留痕必红（rejected_state 行 = 0）",
+      "pass": true,
+      "reading": "{\"mutation_changed_text\":true,\"error\":null,\"result\":{\"receipt\":{\"ok\":false,\"txid\":null,\"reason\":\"order_not_refundable\",\"result\":\"rejected_state\",\"order_id\":\"1\",\"audit_logged\":true,\"status_field\":\"listing_order.status\",\"idempotent_replay\":false},\"total_rows_order1\":0,\"rejected_rows_order1\":0}}"
+    },
+    {
+      "id": "Z-1",
+      "what": "★ 零位移：干跑前后真库指纹逐字相等（含 ledger/account/schema_migration）",
+      "pass": true,
+      "reading": "{\"before\":{\"base_tables\":\"24\",\"triggers\":\"44\",\"functions\":\"76\",\"indexes\":\"65\",\"schema_migration_rows\":\"22\",\"ledger_entry\":\"323\",\"purchase_refund\":\"6\",\"account_cid1_sum_balance\":\"1989693\",\"account_cid1_sum_frozen\":\"10507\",\"admin_refund_audit_log\":null,\"listing_refund_fn\":null},\"after\":{\"base_tables\":\"24\",\"triggers\":\"44\",\"functions\":\"76\",\"indexes\":\"65\",\"schema_migration_rows\":\"22\",\"ledger_entry\":\"323\",\"purchase_refund\":\"6\",\"account_cid1_sum_balance\":\"1989693\",\"account_cid1_sum_frozen\":\"10507\",\"admin_refund_audit_log\":null,\"listing_refund_fn\":null}}"
+    }
+  ],
+  "summary": {
+    "total": 41,
+    "passed": 41,
+    "failed": 0,
+    "red": []
+  }
+}

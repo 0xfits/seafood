@@ -1,0 +1,222 @@
+{
+  "run": "20261002T080201Zmk5d",
+  "name": "p7b-00-recon",
+  "at": "2026-10-02T08:02:04.557Z",
+  "script": "scripts/p7b-00-recon.ts",
+  "schema_migration_ops": [
+    {
+      "version": "0024",
+      "name": "0024_admin_refund_audit.sql",
+      "checksum": "b2495845c26f0cc79b386714b63359db74e76f0cd6eadf5c95f1dd9e0aa31b1d",
+      "applied_at": "2026-10-02T08:01:41.542Z"
+    },
+    {
+      "version": "0023",
+      "name": "0023_admin_points_audit_daily_cap.sql",
+      "checksum": "fe7bb504fd91a6c611345f950e742dd708264f64fd76dc48acabdd8d2f68f467",
+      "applied_at": "2026-10-02T01:58:54.688Z"
+    },
+    {
+      "version": "0022",
+      "name": "0022_admin_permission_seed.sql",
+      "checksum": "069a00905c2821b846f0efc24673abe7dfb89acd3e73e260e0108f0c0bd24112",
+      "applied_at": "2026-10-02T00:41:05.838Z"
+    },
+    {
+      "version": "0021",
+      "name": "0021_content_translation.sql",
+      "checksum": "223125d15b3b96416c1a4ea1bc6314c785499cd8184cde70b7e92c93c5382f20",
+      "applied_at": "2026-10-01T01:35:47.511Z"
+    }
+  ],
+  "admin_permission_keys": [
+    "dashboard_access",
+    "manage_permissions",
+    "manage_points",
+    "manage_rewards",
+    "manage_settings",
+    "manage_tasks",
+    "manage_users",
+    "publish_prizes",
+    "publish_tasks",
+    "read_users",
+    "review_tasks"
+  ],
+  "admin_ops_audit_log": {
+    "rows": "4",
+    "applied": "4",
+    "rejected": "0",
+    "indexes": "4"
+  },
+  "audit_tables_present": "admin_refund_audit_log",
+  "post_event_functions": [
+    "admin_points_adjust_post_event",
+    "job_post_event",
+    "ledger_post_event",
+    "listing_post_event",
+    "listing_refund_post_event",
+    "market_post_event"
+  ],
+  "listing_order": [
+    {
+      "order_id": "1",
+      "listing_id": "13",
+      "seller_uid": "7",
+      "buyer_uid": "8",
+      "cid": "1",
+      "price": "100",
+      "quantity": 1,
+      "status": "created",
+      "has_pay_txid": false,
+      "has_refund_txid": false
+    },
+    {
+      "order_id": "2",
+      "listing_id": "13",
+      "seller_uid": "7",
+      "buyer_uid": "8",
+      "cid": "1",
+      "price": "100",
+      "quantity": 2,
+      "status": "refunded",
+      "has_pay_txid": true,
+      "has_refund_txid": true
+    },
+    {
+      "order_id": "3",
+      "listing_id": "13",
+      "seller_uid": "7",
+      "buyer_uid": "8",
+      "cid": "1",
+      "price": "100",
+      "quantity": 1,
+      "status": "paid",
+      "has_pay_txid": true,
+      "has_refund_txid": false
+    },
+    {
+      "order_id": "6",
+      "listing_id": "16",
+      "seller_uid": "970001",
+      "buyer_uid": "12",
+      "cid": "1",
+      "price": "2",
+      "quantity": 1,
+      "status": "refunded",
+      "has_pay_txid": true,
+      "has_refund_txid": true
+    },
+    {
+      "order_id": "7",
+      "listing_id": "18",
+      "seller_uid": "970001",
+      "buyer_uid": "12",
+      "cid": "1",
+      "price": "7",
+      "quantity": 1,
+      "status": "refunded",
+      "has_pay_txid": true,
+      "has_refund_txid": true
+    }
+  ],
+  "ledger_entry": {
+    "rows": "323",
+    "purchase_refund": "6",
+    "refund_rootkey_rows": "6"
+  },
+  "ledger_kind_census": [
+    {
+      "kind": "burn",
+      "n": "6"
+    },
+    {
+      "kind": "commission",
+      "n": "4"
+    },
+    {
+      "kind": "currency_create_fee",
+      "n": "38"
+    },
+    {
+      "kind": "hold",
+      "n": "54"
+    },
+    {
+      "kind": "hold_release",
+      "n": "12"
+    },
+    {
+      "kind": "job_escrow",
+      "n": "24"
+    },
+    {
+      "kind": "job_escrow_refund",
+      "n": "8"
+    },
+    {
+      "kind": "job_fee",
+      "n": "8"
+    },
+    {
+      "kind": "job_payout",
+      "n": "10"
+    },
+    {
+      "kind": "listing_deposit",
+      "n": "22"
+    },
+    {
+      "kind": "mint",
+      "n": "15"
+    },
+    {
+      "kind": "purchase",
+      "n": "4"
+    },
+    {
+      "kind": "purchase_refund",
+      "n": "6"
+    },
+    {
+      "kind": "sale",
+      "n": "4"
+    },
+    {
+      "kind": "trade",
+      "n": "32"
+    },
+    {
+      "kind": "trade_fee",
+      "n": "16"
+    },
+    {
+      "kind": "transfer",
+      "n": "60"
+    }
+  ],
+  "account_cid1": {
+    "rows": "18",
+    "sum_balance": "1989693",
+    "sum_frozen": "10507"
+  },
+  "structure": {
+    "base_tables": "25",
+    "triggers": "45"
+  },
+  "users": {
+    "rows": "38",
+    "is_admin_true": "3"
+  },
+  "listing_post_event_ld011_reasons": [
+    {
+      "has_order_not_refundable": true,
+      "has_order_pay_missing": true,
+      "has_ld011_literal": false,
+      "has_ld011_name": true
+    }
+  ],
+  "ledger_raise_detail_source": {
+    "lpe_reads_pg_exception_detail": true,
+    "ledger_raise_sets_detail": true
+  }
+}

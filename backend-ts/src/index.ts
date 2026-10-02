@@ -1921,14 +1921,22 @@ app.post('/api/listing/:listingId/buy', async (req, res) => {
 });
 
 // ---- A10 · P4 商品退款（**路径正典** `/api/listing-orders/:orderId/refund`，§7-37）--------
-// `listing-funds-service.ts:261` `refundListingOrder`；`actor` = **仅卖方**（`:62` `REFUND_ACTOR_IS_SELLER_ONLY`）
-//   ⇒ 非卖方由服务层判 `403 AUTH_FORBIDDEN` + `ACTOR_NOT_ALLOWED`（本层不前置、不复制该闸）。
+// ★ P7-B（§7-32「管理员退款发起」· §12.11.4 / Z1 / Z6）：**注册点 68 不变**、**前端零改动**。
+//   actor 分流顺序（写死）：`requireActor`（token 侧取 actor，客户端不得声明）⇒ ① 卖方 ⇒ 卖方路；
+//   ② 否则 `can_access_admin ∧ manage_points` ⇒ 管理员路（含**兼买方禁令**）；③ 否则 403。
+//   **准入真源 = 服务层 `resolveRefundActorRoute`（纯函数单点）** —— 本层**不复制**该闸，
+//   只把 token 侧 `adminAccess` 注入（§6.1 单一真源；客户端不得声明 actor / 权限）。
+//   ⇒ 闸**必早于任何资金调用**（§12.3 G6）：401/403 时服务层在 `listingRefundPostEvent` 之前返回。
 app.post('/api/listing-orders/:orderId/refund', async (req, res) => {
   const actor = await requireActor(req, res);
   if (!actor) return;
 
   try {
-    const result = await refundListingOrder({ actorUid: actor.user.uID, orderIdRaw: req.params.orderId });
+    const result = await refundListingOrder({
+      actorUid: actor.user.uID,
+      orderIdRaw: req.params.orderId,
+      adminAccess: actor.adminAccess,
+    });
     if (!result.ok) return sendVerbError(res, result);
     return sendSuccess(res, result.view, result.replay ? 'Listing order refunded (idempotent replay)' : 'Listing order refunded', 200,
       result.replay ? { idempotent_replay: true } : undefined);

@@ -55,11 +55,91 @@ export type { VerbErr, VerbResult };
 export const REFUND_ROLLS_BACK_STOCK = false;
 
 /**
- * **退款发起人授权口径**（spec §4.2 P4 的**必需字段只有 `order_id`**，**未定义 actor** ⇒ 服务层自定）。
- * **取值 = 只有「卖方」（`listing_order.seller_uid`）可发起退款**（资金从卖方余额出 ⇒ 由出资方发起，最严口径）。
- * **待 Zang/Kevin 一句话可改** —— 若改为「买方也可发起」/「管理员可发起」，只需改本函数的判据一处。
+ * ★★ **退款发起人授权口径**（P7-B · §7-32「管理员退款发起」· 硬约束③「单点升级」）。
+ *
+ * **取值 = `'seller_or_admin'`（卖方 ∨ 管理员）** —— 口径从**单点常量**升级为
+ * **权限闸驱动的 actor 分流**（真源 = `resolveRefundActorRoute`，本文件唯一准入判定）。
+ * **`REFUND_ACTOR_IS_SELLER_ONLY` 已由本常量 + 闸**取代**（不作并行真源保留**）。
+ *
+ * 真源：`docs/route-layer.spec.md` §12.1 / §12.11.4（Z1 = 权限键 `manage_points`；Z6 = 复用同路径 +
+ * actor 分流顺序写死）+ §12.3 G2–G5 + §12.11.6 AC-13。
+ *
+ * **★ 口径冲突（登记，不改 spec）**：§12.3 的 **G2**（`can_access_admin=false` ⇒ `reason='NOT_ADMIN'`）
+ * 与 **G5 / AC-13④**（非卖方且非 admin ⇒ `reason='ACTOR_NOT_ALLOWED'`）对**同一输入**给了**两个**
+ * reason；AC-13⑥（非 admin 但有 `manage_points` ⇒ `'NOT_ADMIN'`）本身**不可达**
+ * （`can_access_admin = is_admin ∨ 有角色行 ∨ 有权限位` ⇒ 有 `manage_points` 必 `can_access_admin`）。
+ * 本单**取 AC-13（§12.11.6，v1.7+ 的可证伪验收表）为准**：非卖方非 admin ⇒ `ACTOR_NOT_ALLOWED`；
+ * `'NOT_ADMIN'` 仅在 AC-13⑥ 那条**构造上不可达**的分支保留（见 `resolveRefundActorRoute` 实现）。
+ * ⇒ 若派单方要 G2 口径，只改本函数一处（**一句话可改**）。
  */
-export const REFUND_ACTOR_IS_SELLER_ONLY = true;
+export const REFUND_ACTOR_SCOPE = 'seller_or_admin' as const;
+
+/** token 侧身份 + 订单两侧（**全部服务端取数**）—— 仅供 `resolveRefundActorRoute` 判准入 */
+export interface RefundActorInput {
+  /** 发起人（token 侧；客户端**不得**声明） */
+  actorUid: number;
+  /** `listing_order.seller_uid`（服务端取数） */
+  sellerUid: number;
+  /** `listing_order.buyer_uid`（服务端取数） */
+  buyerUid: number;
+  /** `actor.adminAccess.can_access_admin`（§6.1 单一真源） */
+  canAccessAdmin: boolean;
+  /** `actor.adminAccess.is_admin` */
+  isAdmin: boolean;
+  /** `actor.adminAccess.permissions` */
+  permissions: readonly string[];
+}
+
+export type RefundActorRoute = 'seller' | 'admin';
+export type RefundActorDecision = { ok: true; route: RefundActorRoute } | { ok: false; err: VerbErr };
+
+/**
+ * **本面唯一的准入真源**（纯函数、零 IO ⇒ 可离线判负）。分流顺序（§12.11.4 写死）：
+ *   ① `actor = seller` ⇒ **卖方路**（**不要求** admin 闸）；
+ *   ② 否则 actor = buyer ⇒ `403 AUTH_FORBIDDEN` + `'ACTOR_NOT_ALLOWED'`（§12.1 禁令：管理员兼买方
+ *      也落在同一禁令内 —— 买方单方退款 = 对卖方的单向掠夺向量）；
+ *   ③ 否则 `can_access_admin ∧ manage_points` ⇒ **管理员路**；
+ *   ④ 否则 admin 但缺 `manage_points` ⇒ `'PERMISSION_NOT_GRANTED'`；
+ *   ⑤ 否则（非 admin）⇒ `'ACTOR_NOT_ALLOWED'`（AC-13④ / G5；AC-13⑥ 的 `'NOT_ADMIN'` 分支不可达但保留）。
+ * **闸必早于任何资金调用**（§12.3 G6）。
+ */
+export const resolveRefundActorRoute = (input: RefundActorInput): RefundActorDecision => {
+  const { actorUid, sellerUid, buyerUid, canAccessAdmin, isAdmin, permissions } = input;
+  const hasPointsKey = permissions.includes('manage_points');
+
+  // ① 卖方路（与 §4.7.2 卖方面重合 ⇒ 无额外闸）
+  if (actorUid === sellerUid) {
+    return { ok: true, route: 'seller' };
+  }
+  // ② 买方禁令（含「管理员兼买方」；§12.1 / G4 / AC-13③）
+  if (actorUid === buyerUid) {
+    return { ok: false, err: actorDenied('ACTOR_NOT_ALLOWED', actorUid, sellerUid) };
+  }
+  // ③ 管理员路
+  if (canAccessAdmin && (isAdmin || hasPointsKey)) {
+    return { ok: true, route: 'admin' };
+  }
+  // ④ admin 但缺 manage_points
+  if (canAccessAdmin && !(isAdmin || hasPointsKey)) {
+    return { ok: false, err: actorDenied('PERMISSION_NOT_GRANTED', actorUid, sellerUid) };
+  }
+  // ⑤ AC-13⑥（构造上不可达：有 manage_points ⇒ can_access_admin=true）—— 保留映射
+  if (hasPointsKey) {
+    return { ok: false, err: actorDenied('NOT_ADMIN', actorUid, sellerUid) };
+  }
+  // ⑥ 非卖方、非买方、非 admin（AC-13④ / G5）
+  return { ok: false, err: actorDenied('ACTOR_NOT_ALLOWED', actorUid, sellerUid) };
+};
+
+/** §3.3-6 / DL147③：`reason` 值域是**闭集**（3 值）⇒ 本面不得新增 */
+const actorDenied = (reason: 'ACTOR_NOT_ALLOWED' | 'NOT_ADMIN' | 'PERMISSION_NOT_GRANTED', actorUid: number, sellerUid: number): VerbErr =>
+  fail(403, 'AUTH_FORBIDDEN', {
+    reason,
+    field: 'actor.uid',
+    required_uid: String(sellerUid),
+    ...(reason === 'ACTOR_NOT_ALLOWED' ? { seller_uid: String(sellerUid) } : {}),
+    actor_uid: String(actorUid),
+  }, reason);
 
 // ---- 错误构造（§3.2 逐码 + §3.3-1 R107 形状；与 job-funds-service 同族）-------
 const fail = (
@@ -259,10 +339,12 @@ export const buyListing = async (params: {
 // 库存：**不回滚**（★7-7 单点判定，见文件头 `REFUND_ROLLS_BACK_STOCK`）。
 // ============================================================================
 export const refundListingOrder = async (params: {
-  /** token 侧身份（发起人；须 = 卖方，见 `REFUND_ACTOR_IS_SELLER_ONLY`） */
+  /** token 侧身份（发起人；**卖方 ∨ 管理员** —— 准入真源 = `resolveRefundActorRoute`） */
   actorUid: number;
   /** URL 参数 `:orderId` */
   orderIdRaw: unknown;
+  /** `actor.adminAccess`（§6.1 单一真源；路由层从 token 侧注入，客户端不得声明） */
+  adminAccess?: { can_access_admin?: boolean; is_admin?: boolean; permissions?: readonly string[] };
 }): Promise<VerbResult> => {
   const actor = actorGate(params.actorUid);
   if (!actor.ok) return actor.err;
@@ -273,7 +355,7 @@ export const refundListingOrder = async (params: {
     return ref404('listing_order', orderIdText || 'null', { field: 'order_id', reason: 'order_not_found' });
   }
 
-  // ① 只读解析订单（拿 seller_uid 做发起人闸；**这不是**授权真源 —— 真源仍是服务端取的订单行）
+  // ① 只读解析订单（拿 seller/buyer 做发起人闸；**这不是**授权真源 —— 真源仍是服务端取的订单行）
   let order: Awaited<ReturnType<typeof DatabaseService.resolveListingOrder>>;
   try {
     order = await DatabaseService.resolveListingOrder(Number(orderIdText));
@@ -282,19 +364,24 @@ export const refundListingOrder = async (params: {
   }
   if (!order) return ref404('listing_order', orderIdText, { field: 'order_id', reason: 'order_not_found' });
 
-  // ② 发起人闸（**仅**卖方）——§6.2 附表口径：已参与但无该动作权限 ⇒ 403 `AUTH_FORBIDDEN` + `ACTOR_NOT_ALLOWED`
-  if (REFUND_ACTOR_IS_SELLER_ONLY && actor.uid !== order.sellerUid) {
-    return fail(403, 'AUTH_FORBIDDEN', {
-      reason: 'ACTOR_NOT_ALLOWED',
-      field: 'actor.uid',
-      ref_type: 'listing_order',
-      ref_id: orderIdText,
-      required_uid: String(order.sellerUid),
-    }, 'ACTOR_NOT_ALLOWED');
+  // ② 准入闸（**唯一真源** = `resolveRefundActorRoute`；§12.11.4 actor 分流顺序）
+  //    卖方路 / 管理员路（`can_access_admin ∧ manage_points`）/ 兼买方禁令 / 403 逐场景 reason。
+  const decision = resolveRefundActorRoute({
+    actorUid: actor.uid,
+    sellerUid: order.sellerUid,
+    buyerUid: order.buyerUid,
+    canAccessAdmin: params.adminAccess?.can_access_admin === true,
+    isAdmin: params.adminAccess?.is_admin === true,
+    permissions: params.adminAccess?.permissions ?? [],
+  });
+  if (!decision.ok) {
+    // 保持既有 `details` 面上的 ref_type / ref_id（最小 delta；R107 顶层键集不变）
+    return { ...decision.err, details: { ...decision.err.details, ref_type: 'listing_order', ref_id: orderIdText } };
   }
 
-  // ③ payload **只有 order_id**（§4.2 P4 必需字段逐字）；金额/对手方全部由 DB 从订单行派生
+  // ③ payload（§4.2 P4 必需字段逐字 + actor 侧；金额/对手方仍全部由 DB 从订单行派生）+ 走新编排函数
   const payload = {
+    actor_uid: String(actor.uid),
     op: 'refund',
     order_id: orderIdText,
     request_fingerprint: fingerprintOf(['listing.refund', orderIdText]),
@@ -303,15 +390,30 @@ export const refundListingOrder = async (params: {
 
   let row: Record<string, unknown>;
   try {
-    row = await DatabaseService.listingPostEvent(payload);
+    row = await DatabaseService.listingRefundPostEvent(payload);
   } catch (e) {
     return fromLedgerError(e);
   }
   const r = (row.r || {}) as Record<string, unknown>;
-  const view = listingEventView(r);
+
+  // ④ 拒收回执（状态机拒绝，`LD011`；§12.12.5 内部回执口径）⇒ 由路由映射既有 `409`（**零新码**）
+  if (r.ok !== true) {
+    return fail(409, 'LEDGER_CURRENCY_INVALID_TRANSITION', {
+      field: 'listing_order.status',
+      reason: r.reason === null || r.reason === undefined ? 'order_not_refundable' : String(r.reason),
+      ref_type: 'listing_order',
+      ref_id: orderIdText,
+      status_code: 409,
+    }, 'LEDGER_CURRENCY_INVALID_TRANSITION');
+  }
+
+  // ⑤ 成功面：对外视图取自**嵌套的资金回执**（F10 的 23 键 + `actor_uid`/`seller_uid`；§12.12.5③
+  //    「内部编排回执 vs 对外路由回执 = 两层，禁止把编排回执原样透传」）
+  const funds = (r.refund_receipt || {}) as Record<string, unknown>;
+  const view = listingEventView(funds);
   return {
     ok: true,
-    replay: r.idempotent_replay === true,
+    replay: funds.idempotent_replay === true,
     view: { ...view, actor_uid: String(actor.uid), seller_uid: String(order.sellerUid) },
   };
 };

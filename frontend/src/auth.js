@@ -142,8 +142,12 @@ const extractApiErrorMessage = (payload) => {
   const error = payload?.error
   if (error && typeof error === 'object') {
     const reason = error.details && typeof error.details === 'object' ? error.details.reason : undefined
-    const base = error.message || error.code || ''
+    // ★ 批 7-B（C-1）：**不再**把 `error.code` 当「服务端文案」—— `code`（`LEDGER_AMOUNT_INVALID`
+    //   这类**机读码**）不是文案；把它直丢给用户正是 p7-A R-1 已裁定的「服务端码原文」缺陷类。
+    //   只有真 `message` 才算原文 ⇒ 无 `message` 时交 ③/④ 四语通用兜底（键面命中则用真文案）。
+    const base = error.message || ''
     if (base) return reason ? `${base} (${reason})` : base
+    return undefined
   }
   if (typeof error === 'string' && error) return error
   if (payload?.message) return payload.message
@@ -151,28 +155,98 @@ const extractApiErrorMessage = (payload) => {
   return undefined
 }
 
-// `i18n_key`（`R107` 契约键）或**原文映射键**（B14 两键）→ 四语文案。**动态导入**：只在错误路径求值，
-// 不把 `i18n.js` 拖进 `auth.js` 的静态依赖图（既有单测对 `react-i18next` 做 mock，静态导入会连带崩）。
+/**
+ * ★ 批 7-B · C-1「回退护栏」· **裸 i18n 键形态**判据（可单测的纯函数）。
+ * 形态 = `a.b` / `a.b.c`（每段都是标识符；**必须至少一个点**）。
+ * 为什么需要它：`R107` 契约里后端账本错误对外回 `i18n_key = ledger.err.<CODE>`
+ * （命名法见 `backend-ts/src/ledger-errors.ts` 的 `` `ledger.err.${code}` ``），
+ * 而四语 locale **没有** `ledger.err.*` 族键（`docs/data-layer.spec.md` §11.3.1 早已登记「需新增键」）
+ * ⇒ i18next 对**未命中**键**原样回键名本身**（本仓实测：`i18n.t('ledger.err.LEDGER_AMOUNT_INVALID')`
+ * === `'ledger.err.LEDGER_AMOUNT_INVALID'`）⇒ 任何路径把它当文案输出，用户看到的就是**裸键**。
+ * 判据只认「整串即点分标识符」⇒ 正常文案（`请求失败 (500)` / `v1.2` / `Ledger timed out (STATEMENT_TIMEOUT)`）
+ * **不匹配**（`v1.2` 的段首是数字、`…(…)` 与中文均不在字母表内）。
+ */
+export const BARE_I18N_KEY_RE = /^[A-Za-z_$][A-Za-z0-9_$]*(?:\.[A-Za-z_$][A-Za-z0-9_$]*)+$/
+
+/** 裸 i18n 键形态判定（**整串**即点分标识符）；非字符串 / 空串 ⇒ `false`。 */
+export const looksLikeBareI18nKey = (value) => (
+  typeof value === 'string' && BARE_I18N_KEY_RE.test(value)
+)
+
+/**
+ * ★「**文案里出现**裸键 token」判据（比整串判据更强 —— 本单自测发现：服务端把键放进 `message`
+ * 且带 `details.reason` 时，`direct` 会被拼成 `'ledger.err.X (NOT_DECIMAL_STRING)'`，
+ * **整串判据判不出，裸键却照样出现在用户文案里**）。
+ * 边界 = 串首/串尾/空白/括号/引号/逗号/分号/冒号/斜杠 —— 即「一个独立的点分标识符 token」；
+ * 正常文案（`请求失败 (500)` / `Ledger statement timed out (STATEMENT_TIMEOUT)` / `v1.2`）**不匹配**。
+ * 残余风险（已知，登记于报告 §6）：形如 `See docs.v2` 的英文文案会被误判 —— 本仓服务端文案面无此形态。
+ */
+export const BARE_I18N_KEY_TOKEN_RE = /(?:^|[\s()[\]{}"'`,;:/\\|])[A-Za-z_$][A-Za-z0-9_$]*(?:\.[A-Za-z_$][A-Za-z0-9_$]*)+(?=$|[\s()[\]{}"'`,;:/\\|])/
+
+/** 用户可见文案中是否**出现**裸键 token（整串即键亦为 true）。 */
+export const containsBareI18nKey = (value) => (
+  typeof value === 'string' && BARE_I18N_KEY_TOKEN_RE.test(value)
+)
+
+/**
+ * 「可用文案」判据：非空字符串 ∧ 不等于所查的键名 ∧ **不含裸键 token**。
+ * ⇒ 它是护栏的**唯一准入闸**：`i18n.t()` 的产出与 `fallback` 都要先过它。
+ */
+const isUsableText = (value, key) => (
+  typeof value === 'string'
+  && value.length > 0
+  && value !== key
+  && !containsBareI18nKey(value)
+)
+
+/**
+ * ★ 批 7-B · C-1「回退护栏」（真源 = 本函数）：错误文案链的**最后一道闸**，**绝不输出裸键**。
+ * 候选次序（每条都过 `isUsableText`）：
+ *   ① `t(i18nKey)` —— `R107` 的 `i18n_key` / 原文映射键**命中即用真文案**
+ *      （⇒ 将来四语补上 `ledger.err.*` 后，本护栏**自动让位**，无需改这里）；
+ *   ② `fallback` —— 服务端原文（`R107` 的 `message` 是**中文文案**、属真人可读文本；
+ *      本仓既有用例 `auth.test.js` S6（410 弃用面）**逐字依赖**此面 ⇒ 次序上必须先于 ③，
+ *      否则 S6 会从「保留服务端文案」退化成通用兜底 = 既有验收面回归）；
+ *   ③ **四语通用兜底** `auth.err.REQUEST_FAILED` —— ①② 都不可用时（键未命中且无原文 /
+ *      原文本身即裸键，**这正是 `ledger.err.*` 今天会走的路径**）；
+ *   ④ ASCII 兜底 `Request failed` —— 连 i18n 都不可用时（绝不空白、绝不 `[object Object]`）。
+ * 动态导入：只在错误路径求值，不把 `i18n.js` 拖进 `auth.js` 的静态依赖图（既有单测对
+ * `react-i18next` 做 mock，静态导入会连带崩）。
+ */
 const resolveI18nMessage = async (i18nKey, fallback, vars = undefined) => {
-  if (!i18nKey) return fallback
+  let i18n = null
   try {
-    const { default: i18n } = await import('./i18n')
-    if (i18n?.exists?.(i18nKey)) {
-      const translated = i18n.t(i18nKey, vars)
-      if (translated && translated !== i18nKey) return translated
-    }
-    return fallback
+    i18n = (await import('./i18n')).default
   } catch {
-    // i18n 不可用 ⇒ 保底回落到服务端 `message`（绝不回落到 `[object Object]`、绝不空白）
-    return fallback
+    i18n = null
   }
+
+  const fromI18n = (key) => {
+    if (!key || typeof i18n?.t !== 'function') return undefined
+    const value = i18n.t(key, vars)
+    return isUsableText(value, key) ? value : undefined
+  }
+
+  // ① 真键命中
+  const hit = i18nKey ? fromI18n(i18nKey) : undefined
+  if (hit) return hit
+
+  // ② 服务端原文（nullish 合并，非 ||：空串等非法值继续下沉到 ③/④）
+  if (isUsableText(fallback, i18nKey)) return fallback
+
+  // ③ 四语通用兜底（未命中 ⇒ i18next 已回键名本身，绝不外泄）⇒ ④ ASCII 兜底
+  return fromI18n(FALLBACK_I18N_KEYS.REQUEST_FAILED)
+    ?? (vars?.status != null ? `Request failed (${vars.status})` : 'Request failed')
 }
 
 /**
  * 错误文案总入口（可单测）：`R107` 对象面 / 旧字符串面 / 裸状态码三态均能给出**字符串**。
- * 优先级 = ① `error.i18n_key`（`R107` 契约键）② **服务端原文映射表**（B14）③ `extractApiErrorMessage` 兜底
- * （未登记错误 ⇒ 原样服务端文案；连文案都没有 ⇒ `auth.err.REQUEST_FAILED` 四语兜底，
+ * 优先级 = ① `error.i18n_key`（`R107` 契约键）② **服务端原文映射表**（B14）③ `extractApiErrorMessage`
+ * 兜底（未登记错误 ⇒ 原样服务端文案；连文案都没有 ⇒ `auth.err.REQUEST_FAILED` 四语兜底，
  * i18n 不可用时为 ASCII 的 `Request failed (status)`）。
+ * ★ 批 7-B（C-1）：**不再**把 ASCII `Request failed (status)` 塞进 `fallback` —— 那会让「键未命中且无
+ * 服务端原文」落到英文 ASCII 而非四语通用兜底；现在终局兜底统一由 `resolveI18nMessage` 的 ③/④ 承担，
+ * 且 ③/④ 之前每一跳都过「非裸键」闸（⇒ `ledger.err.*` 这类**未本地化**键**绝不外泄键名本身**）。
  */
 export const apiErrorMessage = async (payload, status) => {
   const error = payload?.error
@@ -183,7 +257,7 @@ export const apiErrorMessage = async (payload, status) => {
   const mappedKey = (error && typeof error === 'object' ? error.i18n_key : undefined)
     || i18nKeyForServerMessage(rawMessage)
     || (direct ? undefined : FALLBACK_I18N_KEYS.REQUEST_FAILED)
-  return resolveI18nMessage(mappedKey, direct || `Request failed (${status})`, { status })
+  return resolveI18nMessage(mappedKey, direct, { status })
 }
 
 export const fetchApiJson = async (url, options = {}) => {
