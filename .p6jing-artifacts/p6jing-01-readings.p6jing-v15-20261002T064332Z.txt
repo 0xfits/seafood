@@ -1,0 +1,63 @@
+p6jing-01-readings — route-layer.spec v1.5 只读取证与交付读数（Jing）
+run tag: p6jing-v15-20261002T064332Z
+date: 2026-10-02 CST (UTC+08:00)
+mode: READ-ONLY (仅 SELECT / pg_catalog / information_schema；零 DDL / 零 DML / 零事务写)
+
+[0] 开工对锚（本册现取）
+git log --oneline -5 (head): dda5ff6 docs: P6-UI-CONSIST-B 交付登记 ... + 批 7-A「账本读口」派单 + 首次独立质检派单 + §5.154/v0.154
+git status --porcelain (开工): M backend-ts/src/database.ts / M backend-ts/src/index.ts /
+  ?? backend-ts/.p6bqa-artifacts/ / ?? backend-ts/.p7a-artifacts/ / ?? backend-ts/scripts/p7a-00-recon.ts /
+  ?? backend-ts/scripts/p7a-00b-users.ts / ?? backend-ts/scripts/p7a-01-http.ts   (另一单元在途，本单未触碰)
+spec 改前: docs/route-layer.spec.md = 2459 行 / 530839 B / md5 4ba6b8a1554accc2808086606a1bf37d
+快照惯例校验（开工前）: cmp docs/route-layer.spec.md docs/versions/route-layer.spec.v1.4.md => 0 (IDENTICAL)
+  => 仓内惯例 = 快照取「新版本号 + 改后正文」；本单照做。
+
+[1] 交付读数（改后）
+docs/route-layer.spec.md = 2794 行 / 596171 B / md5 167a657971c3726fd8f18462bae0e4e1
+git diff --numstat docs/route-layer.spec.md = 335	0     (added 335 / deleted 0 => 只追加判据 ✓ 非追加改动 = 0 处)
+docs/versions/route-layer.spec.v1.5.md = 596171 B / cmp 本体 = 0 (IDENTICAL)
+docs/audit/route-layer-v1.5-delta.md = 新建
+旧快照（v0.1–v1.4 十四个）：未触碰；抽查 md5 v1.4 = 4ba6b8a1554accc2808086606a1bf37d（= 改前本体 md5，未变）、v0.1 = be823001f3a99e12da0ee02056c80e90
+
+[2] 新节行号（改后；以现取为准）
+顶部 v1.5 状态块            :112–123
+§7 v1.5 追加表（7-49/50/51）:1604–1610
+§7 追加补注块 ⑳–㉒          :1612–1615
+§8.1 表 v1.5 行 + 口径注    :1629 / :1631
+§8.17 v1.5 变更记录与自曝   :2139–2185
+§12 §7-32 可实现契约        :2541–2794
+  §12.0 只读取证 :2545 / §12.1 actor 面 :2590 / §12.1.1 权限键候选 :2604 / §12.2 资金腿冻结 :2622
+  §12.3 鉴权失败面 :2640 / §12.4 审计留痕 :2657（12.4.1 :2659 / 12.4.2 变体A :2673 / 12.4.3 变体B :2686）
+  §12.5 幂等 :2702 / §12.6 同语句可达性 :2716 / §12.7 注册面 :2731 / §12.8 AC :2740 / §12.9 日累计 :2759 / §12.10 待审+实现登记 :2767
+
+[3] 库读数（本册现取；全文见 p6jing-00-probe.p6jing-v15-20261002T064332Z.json）
+R1 schema_migration: id=22 version=0023 checksum=fe7bb504fd91a6c611345f950e742dd708264f64fd76dc48acabdd8d2f68f467 applied_at=2026-10-02T01:58:54.688Z
+                     id=21 version=0022 checksum=069a00905c2821b846f0efc24673abe7dfb89acd3e73e260e0108f0c0bd24112 applied_at=2026-10-02T00:41:05.838Z   => 均已 apply
+R2 admin_permission=11 / admin_role=1(super_admin) / admin_role_permission(super_admin)=11 / admin_user_role=1(uid 970213, super_admin, users.is_admin=false)
+R3 users: 37 行; is_admin=true = 3
+R4 admin_ops_audit_log: 15 列; CHECK×4 (action='points_adjust' / op IN('mint','burn') / amount<>0 / result IN('applied','rejected_daily_cap'));
+   UNIQUE(idempotency_key,result); FK×3; 索引×4; 触发器×1(tgenabled=O, BEFORE DELETE OR UPDATE); 行=4(全 applied)
+R5 fn admin_points_adjust_post_event(jsonb) 在场 def_len=6058, position('RAISE')=0; *_post_event 全集 = 5（无 refund 编排）
+R6 listing_order: 5 行 (created 1 / paid 1 / refunded 3); 可退门面 order_id=3 (listing_id=13 seller_uid=7 buyer_uid=8 price=100 quantity=1 status=paid pay_txid 非空 refund_txid NULL)
+R7 ledger_entry=271; purchase_refund=6; biz:listing:refund:{2,6,7} 各 2 行; account(cid=1) 18 行 Σbalance=1989693 Σfrozen=10507;
+   逐 kind: hold 54 / currency_create_fee 38 / trade 32 / job_escrow 24 / listing_deposit 22 / trade_fee 16 / hold_release 12 / transfer 12 /
+            mint 11 / job_payout 10 / job_fee 8 / job_escrow_refund 8 / burn 6 / purchase_refund 6 / commission 4 / sale 4 / purchase 4   (Σ=271 ✓)
+R8 public 基表=24; 非内部触发器=44  (v1.4 转引 23/43 +1/+1，与 0023 建表+触发器自洽)
+
+[4] 源码/迁移锚（只读现取）
+migrations/0022=177 行; 0023=391 行; src/listing-funds-service.ts=317 行; src/index.ts=1981 行（在途修改中）
+listing-funds-service.ts: :55 REFUND_ROLLS_BACK_STOCK=false / :62 REFUND_ACTOR_IS_SELLER_ONLY=true / :84 ref404 / :135 actorGate /
+  :261 refundListingOrder / :286-294 actor 闸(403 AUTH_FORBIDDEN + ACTOR_NOT_ALLOWED) / :297-302 payload(只 op/order_id/fingerprint/memo) / :300 指纹
+index.ts: :254 AUTH_REASONS = ['ACTOR_NOT_ALLOWED','NOT_ADMIN','PERMISSION_NOT_GRANTED'] / :256-262 sendAuthError /
+  :299-317 requireAdmin + hasRequiredPermission(undefined)===true / :1402 A1 调分(无键闸) / :1855/:1860 退款路由(现取时点) / :1876 A11 manage_settings
+0015_listing.sql: :661-726 退款分支 / :667 v_key='biz:listing:refund:'||order_id / :683-686 状态机拒(409 LEDGER_CURRENCY_INVALID_TRANSITION) /
+  :711 amount=price*quantity / :718-724 两腿 purchase_refund(frozen_delta=0) / :747-756 kind 白名单 / :775-781 只 UPDATE listing_order
+0004: :160 ledger_max_single_amount() = 1e15
+0023: :99 UNIQUE(idempotency_key,result) / :125 append-only 触发器 / :157 编排函数 / :162 v_daily_cap=1000000(TODO: Kevin 定值) /
+  :207-211 日累计求和（**无 action 过滤**）/ :224 拒绝行(result='rejected_daily_cap', txid NULL)
+
+[5] 复算命令（可重跑）
+cd backend-ts && node ../.p6jing-artifacts/p6jing-00-probe.cjs "$(cd .. && pwd)/.p6jing-artifacts" p6jing-v15-20261002T064332Z
+grep -o "requireAdmin(req, res, '[a-z_]*')" backend-ts/src/index.ts | sort | uniq -c | sort -rn
+  => 5 review_tasks / 3 manage_settings / 3 manage_permissions / 1 manage_users  （manage_points = 0 处 ⇒ 首次启用）；无键 = 3 处
+cd /Users/kevin/bistro/seafood && git diff --numstat -- docs/route-layer.spec.md && cmp docs/route-layer.spec.md docs/versions/route-layer.spec.v1.5.md

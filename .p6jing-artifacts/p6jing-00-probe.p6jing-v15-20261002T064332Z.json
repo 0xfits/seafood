@@ -1,0 +1,831 @@
+{
+  "run": "p6jing-v15-20261002T064332Z",
+  "probe": "p6jing-00-probe",
+  "mode": "read-only",
+  "schema_migration": [
+    {
+      "table_name": "schema_migration"
+    }
+  ],
+  "schema_migration_rows": [
+    {
+      "id": "22",
+      "version": "0023",
+      "name": "0023_admin_points_audit_daily_cap.sql",
+      "checksum": "fe7bb504fd91a6c611345f950e742dd708264f64fd76dc48acabdd8d2f68f467",
+      "applied_at": "2026-10-02T01:58:54.688Z"
+    },
+    {
+      "id": "21",
+      "version": "0022",
+      "name": "0022_admin_permission_seed.sql",
+      "checksum": "069a00905c2821b846f0efc24673abe7dfb89acd3e73e260e0108f0c0bd24112",
+      "applied_at": "2026-10-02T00:41:05.838Z"
+    },
+    {
+      "id": "20",
+      "version": "0021",
+      "name": "0021_content_translation.sql",
+      "checksum": "223125d15b3b96416c1a4ea1bc6314c785499cd8184cde70b7e92c93c5382f20",
+      "applied_at": "2026-10-01T01:35:47.511Z"
+    },
+    {
+      "id": "19",
+      "version": "0020",
+      "name": "0020_ledger_post_event_hold_family_drop_listing_deposit.sql",
+      "checksum": "228127d89de90a0d187aff8c2cd12b18aad94130faca7e804f5dd23c1d9cfc4d",
+      "applied_at": "2026-09-29T17:53:03.540Z"
+    }
+  ],
+  "regclass_admin_permission": [
+    {
+      "r": "admin_permission"
+    }
+  ],
+  "regclass_admin_role": [
+    {
+      "r": "admin_role"
+    }
+  ],
+  "regclass_admin_role_permission": [
+    {
+      "r": "admin_role_permission"
+    }
+  ],
+  "regclass_admin_user_role": [
+    {
+      "r": "admin_user_role"
+    }
+  ],
+  "regclass_admin_ops_audit_log": [
+    {
+      "r": "admin_ops_audit_log"
+    }
+  ],
+  "admin_permission_keys": [
+    {
+      "permission_key": "dashboard_access"
+    },
+    {
+      "permission_key": "manage_permissions"
+    },
+    {
+      "permission_key": "manage_points"
+    },
+    {
+      "permission_key": "manage_rewards"
+    },
+    {
+      "permission_key": "manage_settings"
+    },
+    {
+      "permission_key": "manage_tasks"
+    },
+    {
+      "permission_key": "manage_users"
+    },
+    {
+      "permission_key": "publish_prizes"
+    },
+    {
+      "permission_key": "publish_tasks"
+    },
+    {
+      "permission_key": "read_users"
+    },
+    {
+      "permission_key": "review_tasks"
+    }
+  ],
+  "admin_permission_count": [
+    {
+      "n": 11
+    }
+  ],
+  "admin_role_rows": [
+    {
+      "role_key": "super_admin"
+    }
+  ],
+  "admin_role_permission_count": [
+    {
+      "role_key": "super_admin",
+      "n": 11
+    }
+  ],
+  "admin_user_role_rows": [
+    {
+      "uid": "970213",
+      "role_key": "super_admin",
+      "is_admin": false
+    }
+  ],
+  "audit_cols": [
+    {
+      "column_name": "log_id",
+      "data_type": "bigint",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "actor_uid",
+      "data_type": "bigint",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "action",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "target_uid",
+      "data_type": "bigint",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "cid",
+      "data_type": "bigint",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "op",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "amount",
+      "data_type": "bigint",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "balance_before",
+      "data_type": "numeric",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "balance_after",
+      "data_type": "numeric",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "request_fingerprint",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "idempotency_key",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "result",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "txid",
+      "data_type": "bigint",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "memo",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO"
+    }
+  ],
+  "audit_constraints": [
+    {
+      "conname": "admin_ops_audit_log_action_ck",
+      "contype": "c",
+      "def": "CHECK ((action = 'points_adjust'::text))"
+    },
+    {
+      "conname": "admin_ops_audit_log_action_not_null",
+      "contype": "n",
+      "def": "NOT NULL action"
+    },
+    {
+      "conname": "admin_ops_audit_log_actor_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (actor_uid) REFERENCES users(uid)"
+    },
+    {
+      "conname": "admin_ops_audit_log_actor_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL actor_uid"
+    },
+    {
+      "conname": "admin_ops_audit_log_amount_ck",
+      "contype": "c",
+      "def": "CHECK ((amount <> 0))"
+    },
+    {
+      "conname": "admin_ops_audit_log_amount_not_null",
+      "contype": "n",
+      "def": "NOT NULL amount"
+    },
+    {
+      "conname": "admin_ops_audit_log_cid_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (cid) REFERENCES currency(cid)"
+    },
+    {
+      "conname": "admin_ops_audit_log_cid_not_null",
+      "contype": "n",
+      "def": "NOT NULL cid"
+    },
+    {
+      "conname": "admin_ops_audit_log_idem_uniq",
+      "contype": "u",
+      "def": "UNIQUE (idempotency_key, result)"
+    },
+    {
+      "conname": "admin_ops_audit_log_idempotency_key_not_null",
+      "contype": "n",
+      "def": "NOT NULL idempotency_key"
+    },
+    {
+      "conname": "admin_ops_audit_log_log_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL log_id"
+    },
+    {
+      "conname": "admin_ops_audit_log_op_ck",
+      "contype": "c",
+      "def": "CHECK ((op = ANY (ARRAY['mint'::text, 'burn'::text])))"
+    },
+    {
+      "conname": "admin_ops_audit_log_op_not_null",
+      "contype": "n",
+      "def": "NOT NULL op"
+    },
+    {
+      "conname": "admin_ops_audit_log_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (log_id)"
+    },
+    {
+      "conname": "admin_ops_audit_log_request_fingerprint_not_null",
+      "contype": "n",
+      "def": "NOT NULL request_fingerprint"
+    },
+    {
+      "conname": "admin_ops_audit_log_result_ck",
+      "contype": "c",
+      "def": "CHECK ((result = ANY (ARRAY['applied'::text, 'rejected_daily_cap'::text])))"
+    },
+    {
+      "conname": "admin_ops_audit_log_result_not_null",
+      "contype": "n",
+      "def": "NOT NULL result"
+    },
+    {
+      "conname": "admin_ops_audit_log_target_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (target_uid) REFERENCES users(uid)"
+    },
+    {
+      "conname": "admin_ops_audit_log_target_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL target_uid"
+    },
+    {
+      "conname": "admin_ops_audit_log_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    }
+  ],
+  "audit_indexes": [
+    {
+      "indexname": "admin_ops_audit_log_actor_day_idx",
+      "indexdef": "CREATE INDEX admin_ops_audit_log_actor_day_idx ON public.admin_ops_audit_log USING btree (actor_uid, time_created)"
+    },
+    {
+      "indexname": "admin_ops_audit_log_idem_uniq",
+      "indexdef": "CREATE UNIQUE INDEX admin_ops_audit_log_idem_uniq ON public.admin_ops_audit_log USING btree (idempotency_key, result)"
+    },
+    {
+      "indexname": "admin_ops_audit_log_pk",
+      "indexdef": "CREATE UNIQUE INDEX admin_ops_audit_log_pk ON public.admin_ops_audit_log USING btree (log_id)"
+    },
+    {
+      "indexname": "admin_ops_audit_log_target_idx",
+      "indexdef": "CREATE INDEX admin_ops_audit_log_target_idx ON public.admin_ops_audit_log USING btree (target_uid, time_created)"
+    }
+  ],
+  "audit_triggers": [
+    {
+      "tgname": "trg_admin_ops_audit_log_append_only",
+      "tgenabled": "O",
+      "def": "CREATE TRIGGER trg_admin_ops_audit_log_append_only BEFORE DELETE OR UPDATE ON public.admin_ops_audit_log FOR EACH ROW EXECUTE FUNCTION admin_ops_audit_log_append_only()"
+    }
+  ],
+  "audit_rows": [
+    {
+      "result": "applied",
+      "n": 4
+    }
+  ],
+  "fn_admin_points": [
+    {
+      "oid": 246122,
+      "args": "payload jsonb",
+      "ret": "jsonb",
+      "provolatile": "v",
+      "def_len": 6058
+    }
+  ],
+  "fn_has_raise_admin": [
+    {
+      "has_raise_pos": 0
+    }
+  ],
+  "fn_listing": [
+    {
+      "proname": "job_post_event",
+      "args": "payload jsonb",
+      "ret": "jsonb",
+      "def_len": 12688
+    },
+    {
+      "proname": "ledger_post_event",
+      "args": "payload jsonb",
+      "ret": "jsonb",
+      "def_len": 45704
+    },
+    {
+      "proname": "listing_post_event",
+      "args": "payload jsonb",
+      "ret": "jsonb",
+      "def_len": 16666
+    },
+    {
+      "proname": "market_post_event",
+      "args": "payload jsonb",
+      "ret": "jsonb",
+      "def_len": 28972
+    }
+  ],
+  "fn_ops_events": [
+    {
+      "proname": "admin_points_adjust_post_event",
+      "args": "payload jsonb"
+    },
+    {
+      "proname": "job_post_event",
+      "args": "payload jsonb"
+    },
+    {
+      "proname": "ledger_post_event",
+      "args": "payload jsonb"
+    },
+    {
+      "proname": "listing_post_event",
+      "args": "payload jsonb"
+    },
+    {
+      "proname": "market_post_event",
+      "args": "payload jsonb"
+    }
+  ],
+  "listing_order_status": [
+    {
+      "status": "created",
+      "n": 1
+    },
+    {
+      "status": "paid",
+      "n": 1
+    },
+    {
+      "status": "refunded",
+      "n": 3
+    }
+  ],
+  "listing_order_cols": [
+    {
+      "column_name": "order_id"
+    },
+    {
+      "column_name": "listing_id"
+    },
+    {
+      "column_name": "buyer_uid"
+    },
+    {
+      "column_name": "seller_uid"
+    },
+    {
+      "column_name": "cid"
+    },
+    {
+      "column_name": "price"
+    },
+    {
+      "column_name": "quantity"
+    },
+    {
+      "column_name": "status"
+    },
+    {
+      "column_name": "create_key"
+    },
+    {
+      "column_name": "pay_txid"
+    },
+    {
+      "column_name": "refund_txid"
+    },
+    {
+      "column_name": "ledger_event_keys"
+    },
+    {
+      "column_name": "time_created"
+    },
+    {
+      "column_name": "time_updated"
+    }
+  ],
+  "listing_order_rows": [
+    {
+      "order_id": "7",
+      "listing_id": "18",
+      "seller_uid": "970001",
+      "buyer_uid": "12",
+      "status": "refunded",
+      "pay_txid_null": false,
+      "refund_txid_null": false,
+      "price": "7",
+      "quantity": "1",
+      "create_key": "cli:b4ciib:b4ciib08420800:buy1"
+    },
+    {
+      "order_id": "6",
+      "listing_id": "16",
+      "seller_uid": "970001",
+      "buyer_uid": "12",
+      "status": "refunded",
+      "pay_txid_null": false,
+      "refund_txid_null": false,
+      "price": "2",
+      "quantity": "1",
+      "create_key": "cli:b4a:b4a30030859:buy1"
+    },
+    {
+      "order_id": "3",
+      "listing_id": "13",
+      "seller_uid": "7",
+      "buyer_uid": "8",
+      "status": "paid",
+      "pay_txid_null": false,
+      "refund_txid_null": true,
+      "price": "100",
+      "quantity": "1",
+      "create_key": "cli:b3d:b3d-20260930T023156:buy-spoof"
+    },
+    {
+      "order_id": "2",
+      "listing_id": "13",
+      "seller_uid": "7",
+      "buyer_uid": "8",
+      "status": "refunded",
+      "pay_txid_null": false,
+      "refund_txid_null": false,
+      "price": "100",
+      "quantity": "2",
+      "create_key": "cli:b3d:b3d-20260930T023156:buy1"
+    },
+    {
+      "order_id": "1",
+      "listing_id": "13",
+      "seller_uid": "7",
+      "buyer_uid": "8",
+      "status": "created",
+      "pay_txid_null": true,
+      "refund_txid_null": true,
+      "price": "100",
+      "quantity": "1",
+      "create_key": "cli:b3d:b3d-20260930T023156:order-created"
+    }
+  ],
+  "kind_counts": [
+    {
+      "kind": "hold",
+      "n": 54
+    },
+    {
+      "kind": "currency_create_fee",
+      "n": 38
+    },
+    {
+      "kind": "trade",
+      "n": 32
+    },
+    {
+      "kind": "job_escrow",
+      "n": 24
+    },
+    {
+      "kind": "listing_deposit",
+      "n": 22
+    },
+    {
+      "kind": "trade_fee",
+      "n": 16
+    },
+    {
+      "kind": "hold_release",
+      "n": 12
+    },
+    {
+      "kind": "transfer",
+      "n": 12
+    },
+    {
+      "kind": "mint",
+      "n": 11
+    },
+    {
+      "kind": "job_payout",
+      "n": 10
+    },
+    {
+      "kind": "job_fee",
+      "n": 8
+    },
+    {
+      "kind": "job_escrow_refund",
+      "n": 8
+    },
+    {
+      "kind": "burn",
+      "n": 6
+    },
+    {
+      "kind": "purchase_refund",
+      "n": 6
+    },
+    {
+      "kind": "commission",
+      "n": 4
+    },
+    {
+      "kind": "sale",
+      "n": 4
+    },
+    {
+      "kind": "purchase",
+      "n": 4
+    }
+  ],
+  "ledger_entry_cols": [
+    {
+      "column_name": "txid",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "uid",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "cid",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "delta",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "frozen_delta",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "balance_after",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "frozen_after",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "kind",
+      "data_type": "text"
+    },
+    {
+      "column_name": "ref_type",
+      "data_type": "text"
+    },
+    {
+      "column_name": "ref_id",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "idempotency_key",
+      "data_type": "text"
+    },
+    {
+      "column_name": "request_fingerprint",
+      "data_type": "text"
+    },
+    {
+      "column_name": "reversal_of_txid",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "memo",
+      "data_type": "text"
+    },
+    {
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "column_name": "event_root_key",
+      "data_type": "text"
+    }
+  ],
+  "refund_rows": [
+    {
+      "txid": "92",
+      "uid": "7",
+      "cid": "1",
+      "delta": "-200",
+      "frozen_delta": "0",
+      "balance_after": "5100",
+      "frozen_after": "0",
+      "kind": "purchase_refund",
+      "ref_type": "listing_order",
+      "ref_id": "2",
+      "idempotency_key": "biz:listing:refund:2",
+      "request_fingerprint": "cac668e3d97a784f7e0aa1fa705b572d2feaef44f6dfad157807d43075858b94",
+      "reversal_of_txid": null,
+      "memo": "listing refund:2（卖家退回 purchase_refund listing_order=2）",
+      "time_created": "2026-09-29T18:35:15.146Z",
+      "event_root_key": "biz:listing:refund:2"
+    },
+    {
+      "txid": "93",
+      "uid": "8",
+      "cid": "1",
+      "delta": "200",
+      "frozen_delta": "0",
+      "balance_after": "4900",
+      "frozen_after": "0",
+      "kind": "purchase_refund",
+      "ref_type": "listing_order",
+      "ref_id": "2",
+      "idempotency_key": "biz:listing:refund:2#2",
+      "request_fingerprint": null,
+      "reversal_of_txid": null,
+      "memo": "listing refund:2（买家收款 purchase_refund listing_order=2）",
+      "time_created": "2026-09-29T18:35:15.146Z",
+      "event_root_key": "biz:listing:refund:2"
+    },
+    {
+      "txid": "219",
+      "uid": "970001",
+      "cid": "1",
+      "delta": "-2",
+      "frozen_delta": "0",
+      "balance_after": "1890070",
+      "frozen_after": "4112",
+      "kind": "purchase_refund",
+      "ref_type": "listing_order",
+      "ref_id": "6",
+      "idempotency_key": "biz:listing:refund:6",
+      "request_fingerprint": "19c8aa2a09d631c590ff3ca1ff8bc924e9affbc8def1486809709d62fdf2949c",
+      "reversal_of_txid": null,
+      "memo": "listing refund:6（卖家退回 purchase_refund listing_order=6）",
+      "time_created": "2026-09-29T19:15:37.560Z",
+      "event_root_key": "biz:listing:refund:6"
+    },
+    {
+      "txid": "220",
+      "uid": "12",
+      "cid": "1",
+      "delta": "2",
+      "frozen_delta": "0",
+      "balance_after": "37783",
+      "frozen_after": "0",
+      "kind": "purchase_refund",
+      "ref_type": "listing_order",
+      "ref_id": "6",
+      "idempotency_key": "biz:listing:refund:6#2",
+      "request_fingerprint": null,
+      "reversal_of_txid": null,
+      "memo": "listing refund:6（买家收款 purchase_refund listing_order=6）",
+      "time_created": "2026-09-29T19:15:37.560Z",
+      "event_root_key": "biz:listing:refund:6"
+    },
+    {
+      "txid": "265",
+      "uid": "970001",
+      "cid": "1",
+      "delta": "-7",
+      "frozen_delta": "0",
+      "balance_after": "1636071",
+      "frozen_after": "4112",
+      "kind": "purchase_refund",
+      "ref_type": "listing_order",
+      "ref_id": "7",
+      "idempotency_key": "biz:listing:refund:7",
+      "request_fingerprint": "c6adeb729965b84ab4734d49571e5f747deda4e169b4c13d17eed8134d0e58e7",
+      "reversal_of_txid": null,
+      "memo": "listing refund:7（卖家退回 purchase_refund listing_order=7）",
+      "time_created": "2026-09-30T14:14:42.000Z",
+      "event_root_key": "biz:listing:refund:7"
+    },
+    {
+      "txid": "266",
+      "uid": "12",
+      "cid": "1",
+      "delta": "7",
+      "frozen_delta": "0",
+      "balance_after": "136783",
+      "frozen_after": "0",
+      "kind": "purchase_refund",
+      "ref_type": "listing_order",
+      "ref_id": "7",
+      "idempotency_key": "biz:listing:refund:7#2",
+      "request_fingerprint": null,
+      "reversal_of_txid": null,
+      "memo": "listing refund:7（买家收款 purchase_refund listing_order=7）",
+      "time_created": "2026-09-30T14:14:42.000Z",
+      "event_root_key": "biz:listing:refund:7"
+    }
+  ],
+  "biz_refund_keys": [
+    {
+      "event_root_key": "biz:listing:refund:2",
+      "n": 2
+    },
+    {
+      "event_root_key": "biz:listing:refund:6",
+      "n": 2
+    },
+    {
+      "event_root_key": "biz:listing:refund:7",
+      "n": 2
+    }
+  ],
+  "account_cid1": [
+    {
+      "n": 18,
+      "sb": "1989693",
+      "sf": "10507"
+    }
+  ],
+  "ledger_totals": [
+    {
+      "n": 271
+    }
+  ],
+  "users_admin": [
+    {
+      "n_total": 37,
+      "n_is_admin": 3
+    }
+  ],
+  "users_cols": [
+    {
+      "column_name": "uid"
+    },
+    {
+      "column_name": "evm"
+    },
+    {
+      "column_name": "bio"
+    },
+    {
+      "column_name": "is_admin"
+    },
+    {
+      "column_name": "time_reg"
+    },
+    {
+      "column_name": "time_login_last"
+    }
+  ],
+  "base_tables": [
+    {
+      "n": 24
+    }
+  ],
+  "triggers": [
+    {
+      "n": 44
+    }
+  ],
+  "ledger_tables": [
+    {
+      "table_name": "ledger_entry"
+    },
+    {
+      "table_name": "ledger_owner"
+    }
+  ]
+}
