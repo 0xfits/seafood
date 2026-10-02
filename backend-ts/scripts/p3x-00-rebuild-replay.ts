@@ -54,10 +54,12 @@ const KEY_FUNCTIONS = [
   'ledger_assert_commission_conservation',
 ];
 
+// P6-B6-PERM（批 6）：`0022_admin_permission_seed.sql` 追加到链尾（权限/角色种子；纯 DML，
+// 不建对象 ⇒ 基表/触发器期望不变，但 `0017` 六表的**行数期望**由「全 0」改为「种子后真值」）。
 const VERSION_ORDER = [
   '0001', '0002', '0003', '0004', '0005', '0006', '0007', '0008', '0009',
   '0010', '0011', '0012', '0013', '0014', '0015', '0016', '0017', '0019', '0020',
-  '0021',
+  '0021', '0022',
 ];
 
 const TABLES_ZERO_EXPECTED = [
@@ -621,9 +623,14 @@ function expectedTerminalChecks(exp: any, cmp: any) {
   add('commission_policy.ids', ['1'], c.commission_policy_ids);
 
   for (const t of TABLES_ZERO_EXPECTED) add(`${t}.row_count`, '0', s(c.table_zero[t]));
-  for (const t of M0017_TABLES) add(`0017.${t}.row_count`, '0', s(c.m0017_six[t]));
+  // P6-B6-PERM：0017 六表行数期望 —— 0022 种子后真值（重建库 users 为空 ⇒ admin_user_role 0 行）
+  const M0017_SEED_ROWS: Record<string, string> = {
+    app_config: '0', admin_role: '1', admin_permission: '11',
+    admin_role_permission: '11', admin_user_role: '0', currency_status_log: '0',
+  };
+  for (const t of M0017_TABLES) add(`0017.${t}.row_count`, M0017_SEED_ROWS[t] ?? '0', s(c.m0017_six[t]));
 
-  add('schema_migration.row_count', '20', s(c.schema_migration_rows));
+  add('schema_migration.row_count', '21', s(c.schema_migration_rows));
   add('triggers.non_internal', '43', s(c.non_internal_triggers));
   add('triggers.enabled_not_o', '0', s(c.triggers_enabled_not_o));
   const nv = exp.seed_expectations || {};

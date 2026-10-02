@@ -10,7 +10,6 @@ import { createHash } from 'crypto';
 import {
   consumeWalletAuthChallenge,
   createSessionToken,
-  isAdminAddress,
   startWalletAuthChallenge,
   verifySessionToken,
 } from './auth';
@@ -236,7 +235,7 @@ const resolveActor = async (req: Request): Promise<ActorContext | ActorFailure> 
       return { kind: 'unauthorized' };
     }
 
-    const adminAccess = await DatabaseService.resolveAdminAccess(user, isAdminAddress(user.EVM));
+    const adminAccess = await DatabaseService.resolveAdminAccess(user);
     return {
       session,
       user,

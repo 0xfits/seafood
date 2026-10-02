@@ -2585,15 +2585,17 @@ export class DatabaseService {
     return this.listUserRoles(uID);
   }
 
-  static async resolveAdminAccess(user: UserRecord, isAdminAddress: boolean): Promise<AdminAccessRecord> {
-    // P4-B2c（§6.1 / DL72 单一真源）：can_access_admin = users.is_admin OR EXISTS(admin_user_role.uid = :uid)。
-    // 非 admin 时并行取「角色行存在」与「权限位集合」（后者不是前者的子集 ⇒ 两者都要）。
-    const bypass = user.is_admin || isAdminAddress;
+  static async resolveAdminAccess(user: UserRecord): Promise<AdminAccessRecord> {
+    // P6-B6-PERM（批 6 · `isAdminAddress` 收敛）：**唯一**真源 = `users.is_admin` OR
+    // EXISTS(admin_user_role.uid)（DL72）。第三真源 `isAdminAddress`（硬编码地址 / `ADMIN_EVM_ADDRESSES`）
+    // 已**移除**，不再参与判定。运营管理员的角色行由 `0022_admin_permission_seed.sql` 种子承担
+    // （§6.5 顺序依赖：**先种子、后收敛**）。
+    const bypass = user.is_admin;
     const [hasRoleRow, extraPermissions] = bypass
       ? [false, [] as string[]]
       : await Promise.all([this.hasAdminRoleRow(user.uID), this.getPermissionsForUser(user.uID)]);
 
-    return this.buildAdminAccess(user, isAdminAddress, extraPermissions, hasRoleRow);
+    return this.buildAdminAccess(user, extraPermissions, hasRoleRow);
   }
 
   // P4-B2c（§1 #35 / §5.1「撤销 deprecated」）：唯一数据源 = **admin_role* 三表**（DL72）。
@@ -3707,11 +3709,11 @@ export class DatabaseService {
 
   static buildAdminAccess(
     user: UserRecord,
-    isAdminAddress: boolean,
     extraPermissions: string[] = [],
     hasRoleRow = false,
   ): AdminAccessRecord {
-    const isAdmin = user.is_admin || isAdminAddress;
+    // P6-B6-PERM（批 6 · `isAdminAddress` 收敛）：`is_admin` 只看 `users.is_admin`（第二支 = `hasRoleRow`）。
+    const isAdmin = user.is_admin;
     const permissions = isAdmin
       ? [...ALL_ADMIN_PERMISSIONS]
       : uniqueStrings(extraPermissions);

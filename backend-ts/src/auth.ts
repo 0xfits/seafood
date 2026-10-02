@@ -32,16 +32,12 @@ const resolveSecretKey = (): string => {
 const SECRET_KEY = resolveSecretKey();
 const ACCESS_TOKEN_EXPIRE_MINUTES = Number(process.env.ACCESS_TOKEN_EXPIRE_MINUTES || 30);
 const AUTH_CHALLENGE_EXPIRE_SECONDS = Number(process.env.AUTH_CHALLENGE_EXPIRE_SECONDS || 300);
-const DEFAULT_ADMIN_ADDRESS = '0x59f9f640d15ebb053c94a816232cf8ce91b209b0';
-const ADMIN_EVM_ADDRESSES = new Set(
-  [
-    DEFAULT_ADMIN_ADDRESS,
-    ...(process.env.ADMIN_EVM_ADDRESSES || '')
-      .split(',')
-      .map((item) => item.trim().toLowerCase())
-      .filter(Boolean),
-  ],
-);
+// P6-B6-PERM（批 6 · `isAdminAddress` 收敛）：本模块**不再持有任何管理员地址真源**。
+// 旧第三真源（`DEFAULT_ADMIN_ADDRESS = '0x59f9f640d15ebb053c94a816232cf8ce91b209b0'`
+// + env `ADMIN_EVM_ADDRESSES` + 导出的 `isAdminAddress()`）已**移除** —— 权限判定唯一真源
+// = 数据层 `users.is_admin` OR EXISTS(`admin_user_role`)（DL72）。
+// 该地址已下沉为**迁移种子**：见 `migrations/0022_admin_permission_seed.sql` §④
+// （把该地址在库内的持有人绑到 `super_admin` 角色，故收敛后运营管理员**不丢**权限）。
 
 type TokenPayload = Record<string, unknown> & { exp?: number };
 
@@ -133,10 +129,8 @@ const pruneAuthChallenges = () => {
   }
 };
 
-export const isAdminAddress = (evmAddress: string | null | undefined) => {
-  const normalized = String(evmAddress || '').trim().toLowerCase();
-  return normalized ? ADMIN_EVM_ADDRESSES.has(normalized) : false;
-};
+// P6-B6-PERM（批 6）：`isAdminAddress()` 已**删除**（第三真源收敛）。权限判定唯一真源 =
+// `users.is_admin` OR EXISTS(`admin_user_role`)；地址→角色的绑定见 `migrations/0022_admin_permission_seed.sql`。
 
 export const startWalletAuthChallenge = (evmAddress: string) => {
   const normalizedAddress = String(evmAddress || '').trim().toLowerCase();
