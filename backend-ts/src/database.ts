@@ -34,6 +34,55 @@ const DEFAULT_SYSTEM_SETTINGS = {
   rewardCooldown: 24,
 } as const;
 
+// ============================================================================
+// 批 8①（`data-layer.spec` v0.10 §21.1 / §21.2 · `AK1` / `AG1`–`AG4`）：
+// `app_config` **合法键清单（关闭集）** + **写入门禁的判据真源**。
+// ============================================================================
+// · 顶层合法键（`app_config.key` 取值）**恰好 1 个** = `system_settings`（现取真源 = 本文件 `:2865`/`:2870`/`:2878`/`:2887-2888`）；
+//   **任何其它键名一律非法**（含 `foo` / `deposit_amount` / `fee_rate` / `rate_bp` / §21.4 候选载体键在入册前）。
+// · `system_settings` 的 `value` = **jsonb object**（容器硬约束 `0017:77`），对象内字段 = 下 9 个（类型规格见 `SYSTEM_SETTINGS_FIELD_TYPES`）。
+// · `value` 内**字段名**亦为**关闭集**：请求体出现清单外的键即按其为「未知键」判负（`AG1`）。
+// ⚠️ 纪律（§21.3 规则①）：**本清单是键名的唯一真源** —— 实现 / 测试 / 探针**不得自拟键名**。
+/** §21.1 `AK1`：`app_config` 顶层合法键（关闭集）。 */
+export const APP_CONFIG_LEGAL_KEYS = ['system_settings'] as const;
+
+/** §21.1 `AK1`：`system_settings` 值对象的**逐字段类型规格**（`AG3` 的判据真源；严格比对、不做隐式转换）。 */
+const SYSTEM_SETTINGS_FIELD_TYPES = {
+  siteName: 'string',
+  siteDescription: 'string',
+  maintenance: 'boolean',
+  allowRegistration: 'boolean',
+  emailNotifications: 'boolean',
+  defaultLanguage: 'string',
+  pointsPerTask: 'number',
+  maxDailyTasks: 'number',
+  rewardCooldown: 'number',
+} as const;
+
+/** `system_settings` 的合法字段名（关闭集，9 个）。 */
+export const SYSTEM_SETTINGS_FIELDS = Object.keys(SYSTEM_SETTINGS_FIELD_TYPES) as Array<keyof SystemSettingsRecord>;
+
+/**
+ * 请求信封的**控制字段**（`DL36` 幂等键载体）—— **不是** settings 字段、**不是** `app_config` 键。
+ * 由 `resolveAdminOpsKey`（`admin-service.ts:59`）消费；写入门禁判定前**剥离**（否则会被误判为未知键）。
+ */
+export const SETTINGS_CONTROL_FIELDS = ['create_key', 'idempotency_key', 'idempotencyKey'] as const;
+
+/**
+ * 写入口禁的**稳定原因串**（`details.reason` 取值；**机读判据 —— 恒为常量、不随输入插值**）。
+ * ★ `R-8-10` 裁定：`reason` 是**稳定机读面**（要**能枚举** + **能映射 i18n**）⇒ 未知键**不得**用
+ * `<KEY>_NOT_IN_APP_CONFIG_WHITELIST` 插值形（逐键不同 ⇒ 判据不可枚举）；改用**单一常量**，
+ * 「哪些键未知」由 `details.unknown_keys`（数组，逐键）承载。
+ */
+export const SETTINGS_WRITE_REASONS = {
+  /** `AG1`：未知键 —— **常量**（与键名无关，`R-8-10`）。 */
+  unknownKey: 'SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST',
+  /** `AG3`②：字段类型不符。 */
+  typeInvalid: 'SETTING_TYPE_INVALID',
+  /** `AG3`①：`value` 不是 jsonb object（裸标量 / 数组 / null）。 */
+  valueNotObject: 'SETTING_VALUE_NOT_OBJECT',
+} as const;
+
 const PRIZE_MARKET_THRESHOLD_SECONDS = 30 * 24 * 60 * 60;
 const PRIZE_PRICE_FLOOR_MIN_DURATION_SECONDS = 30 * 24 * 60 * 60;
 
@@ -661,7 +710,12 @@ const normalizeTaskProgress = (row: RawRow): TaskProgressRecord => ({
   points_claimed: toNumberValue(getValue(row, 'points_claimed')),
 });
 
-const normalizeSystemSettings = (value: unknown): SystemSettingsRecord => {
+/**
+ * **读侧**归一（读 DB 行 → 记录；宽容：非 object / 缺字段 ⇒ 回落默认值）。
+ * ⚠️ 批 8① 起：本函数**只用于读路径**与**已校验写侧的终态回填**；**写侧输入**一律先过
+ * `assertSystemSettingsPatch`（`AG1`/`AG3`）⇒ 未知键**不再**由本函数静默吸收（`AG4`）。
+ */
+const normalizeSystemSettingsRead = (value: unknown): SystemSettingsRecord => {
   const payload = value && typeof value === 'object' ? value as RawRow : {};
 
   return {
@@ -675,6 +729,145 @@ const normalizeSystemSettings = (value: unknown): SystemSettingsRecord => {
     maxDailyTasks: toNumberValue(getValue(payload, 'maxDailyTasks'), DEFAULT_SYSTEM_SETTINGS.maxDailyTasks),
     rewardCooldown: toNumberValue(getValue(payload, 'rewardCooldown'), DEFAULT_SYSTEM_SETTINGS.rewardCooldown),
   };
+};
+
+/**
+ * 写侧门禁**拒绝**结果（`AG1`/`AG3`）—— 路由层据此构造 R107 错误体。
+ * `code` ∈ §14.1 **既有 33 码**（**不新造码**）：一律借「参数形状非法」历史码 `LEDGER_AMOUNT_INVALID`（`400`），
+ * 具体形态靠 `details.reason` / `details.field` 区分（`ledger.spec` §14.3 借用方案；见报告 §5）。
+ */
+export interface SystemSettingsWriteReject {
+  ok: false;
+  code: 'LEDGER_AMOUNT_INVALID';
+  message: string;
+  details: Record<string, unknown>;
+}
+
+export type SystemSettingsPatchVerdict =
+  | { ok: true; value: Partial<SystemSettingsRecord> }
+  | SystemSettingsWriteReject;
+
+/** jsonb 容器判定（`AG3`①）：**须为普通对象**（数组 / 裸标量 / null 一律判负）。 */
+const isJsonbObject = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === 'object' && !Array.isArray(value);
+
+/** 值的**形态名**（`details.got` 用；不泄漏原值 —— R107 只放非敏感上下文）。 */
+const shapeOf = (value: unknown): string => {
+  if (value === null) return 'null';
+  if (Array.isArray(value)) return 'array';
+  return typeof value;
+};
+
+const fieldTypeMatches = (expected: string, value: unknown): boolean => {
+  if (expected === 'string') return typeof value === 'string';
+  if (expected === 'boolean') return typeof value === 'boolean';
+  if (expected === 'number') return typeof value === 'number' && Number.isFinite(value);
+  return false;
+};
+
+/**
+ * ★★ 批 8① 写入门禁判据（`AG1` / `AG3` / `AG4` 的**唯一纯函数真源** · 可离线判负）：
+ *   ① 非 jsonb object（裸标量 / 数组 / null） ⇒ 拒（`AG3`①）；
+ *   ② 出现**合法字段清单外**的键名（未知键） ⇒ 拒（`AG1`；**整请求拒**，`AG4` ③ 选「整请求拒」支）；
+ *   ③ 已知字段**类型不符** ⇒ 拒（`AG3`②）。
+ * **不做任何隐式转换 / 不静默吸收 / 不回落默认值**（`AG4` 元规则）。缺省字段合法（部分补丁语义）。
+ */
+export const validateSystemSettingsPatch = (input: unknown): SystemSettingsPatchVerdict => {
+  // ① 容器形状（AG3①）：`value` 必须是 jsonb object
+  if (!isJsonbObject(input)) {
+    return {
+      ok: false,
+      code: 'LEDGER_AMOUNT_INVALID',
+      message: 'Setting value must be a JSON object',
+      details: {
+        field: 'value',
+        reason: SETTINGS_WRITE_REASONS.valueNotObject,
+        expected: 'object',
+        got: shapeOf(input),
+      },
+    };
+  }
+
+  // ② 未知键（AG1）：逐键列出，整请求拒（AG4③）
+  const unknownKeys = Object.keys(input).filter(
+    (key) => !Object.prototype.hasOwnProperty.call(SYSTEM_SETTINGS_FIELD_TYPES, key),
+  );
+  if (unknownKeys.length) {
+    const first = unknownKeys[0];
+    return {
+      ok: false,
+      code: 'LEDGER_AMOUNT_INVALID',
+      message: 'Unknown key(s) are not writable via /api/admin/settings',
+      details: {
+        // ★ `R-8-10`：`reason` = **稳定常量**（**不随键名插值**，保证可枚举 / 可映射 i18n）；
+        //   未知键**逐个**进 `details.unknown_keys`（数组）；`field` = 首个未知键（便于定位、非机读键）。
+        field: first,
+        reason: SETTINGS_WRITE_REASONS.unknownKey,
+        unknown_keys: unknownKeys,
+        legal_keys: [...SYSTEM_SETTINGS_FIELDS],
+      },
+    };
+  }
+
+  // ③ 类型不符（AG3②）：严格比对，不做隐式转换
+  for (const [field, expected] of Object.entries(SYSTEM_SETTINGS_FIELD_TYPES)) {
+    if (!Object.prototype.hasOwnProperty.call(input, field)) continue;
+    const value = (input as Record<string, unknown>)[field];
+    if (!fieldTypeMatches(expected, value)) {
+      return {
+        ok: false,
+        code: 'LEDGER_AMOUNT_INVALID',
+        message: 'Setting field type is invalid',
+        details: {
+          field,
+          reason: SETTINGS_WRITE_REASONS.typeInvalid,
+          expected,
+          got: shapeOf(value),
+        },
+      };
+    }
+  }
+
+  return { ok: true, value: input as Partial<SystemSettingsRecord> };
+};
+
+/**
+ * 写侧门禁抛出的**结构化**异常（供 `saveSystemSettings` 在**任何**调用方下都不静默吸收）。
+ * 路由层 catch 转 `400` + R107；**不是**实现缺陷 ⇒ **不得**落 500（`DL126`）。
+ */
+export class SystemSettingsWriteError extends Error {
+  readonly code = 'LEDGER_AMOUNT_INVALID' as const;
+  readonly details: Record<string, unknown>;
+  constructor(message: string, details: Record<string, unknown>) {
+    super(message);
+    this.name = 'SystemSettingsWriteError';
+    this.details = details;
+  }
+}
+
+/**
+ * 严格断言写侧补丁（`AG1`/`AG3`）：不合法 ⇒ **抛** `SystemSettingsWriteError`（**不再静默吞未知键**，`AG4`）。
+ * 返回**只含合法字段**的补丁（原样透传，**不补默认值** —— 未给字段在 `saveSystemSettings` 里与现态合流）。
+ */
+export const assertSystemSettingsPatch = (input: unknown): Partial<SystemSettingsRecord> => {
+  const verdict = validateSystemSettingsPatch(input);
+  if (!verdict.ok) throw new SystemSettingsWriteError(verdict.message, verdict.details);
+  return verdict.value;
+};
+
+/**
+ * 写入口禁的**路由层 helper**（`AG1`/`AG3`/`AG4`）：
+ * 剥离请求信封的控制字段（`create_key` 等）后做白名单/类型判定；返回 verdict 供路由构造 R107 响应。
+ * 非 object 请求体（裸标量 / 数组 / null）**原样**交判定 ⇒ 落 `SETTING_VALUE_NOT_OBJECT`（`AG3`①）。
+ */
+export const screenSystemSettingsWrite = (body: unknown): SystemSettingsPatchVerdict => {
+  if (!isJsonbObject(body)) return validateSystemSettingsPatch(body);
+  const patch: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(body)) {
+    if ((SETTINGS_CONTROL_FIELDS as readonly string[]).includes(key)) continue;
+    patch[key] = value;
+  }
+  return validateSystemSettingsPatch(patch);
 };
 
 const normalizePermissionGroup = (row: RawRow): PermissionGroupRecord => ({
@@ -2871,15 +3064,20 @@ export class DatabaseService {
       LIMIT 1
     `);
 
-    return normalizeSystemSettings(rows[0]?.value || DEFAULT_SYSTEM_SETTINGS);
+    return normalizeSystemSettingsRead(rows[0]?.value || DEFAULT_SYSTEM_SETTINGS);
   }
 
   // P4-B2c（§1 #33 / DL36 / DL71）：补 `updated_by`（**NOT NULL 无默认** ⇒ 旧实现必违约）+ 显式 public.。
+  // 批 8①（`data-layer.spec` §21.2 `AG1`/`AG3`/`AG4`）：**写侧先过「逐键白名单 + 类型闸」** ——
+  //   未知键 / 类型不符 / 非 object ⇒ `assertSystemSettingsPatch` **抛** `SystemSettingsWriteError`
+  //   ⇒ **删除**了原实现「把 `input` 直接喂给 `normalizeSystemSettings` ⇒ 未知键被静默吸收」的形态（那是 `AG4` 要治的缺口）。
+  //   ⚠️ 本方法是 `app_config` 的**唯一写入落点**（`AG2`：类级扫描 INSERT/UPDATE public.app_config 只允许出现在此处）。
   static async saveSystemSettings(input: Partial<SystemSettingsRecord>, updatedBy = 0): Promise<SystemSettingsRecord> {
+    const patch = assertSystemSettingsPatch(input);
     const current = await this.getSystemSettings();
-    const next = normalizeSystemSettings({
+    const next = normalizeSystemSettingsRead({
       ...current,
-      ...(input || {}),
+      ...patch,
     });
     const sql = getSql();
 
@@ -2893,7 +3091,7 @@ export class DatabaseService {
       RETURNING value
     `);
 
-    return normalizeSystemSettings(rows[0]?.value || next);
+    return normalizeSystemSettingsRead(rows[0]?.value || next);
   }
 
   // P4-B2c：**不再有路由**（§1 #34 ⇒ 410；C3 ② 删除）。保留方法体仅作回退点（DL42 可切换点）。

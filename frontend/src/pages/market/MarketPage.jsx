@@ -203,12 +203,12 @@ const MarketPage = () => {
 
   const lastTrade = trades.rows[0] || null
   // TR-2：当前语言（`utils.SUPPORTED_LANGS` 同一白名单）。
-  //   · 「我的挂单」行 = `market_order` 行（`/api/order`）⇒ 面板渲染的文本键只有 `side`/`status`（枚举文本）。
-  //     本页对这两个键（+ 预留 `name`/`title`）走**本地化读口**：载荷带 `*_<lang>` 即生效；
-  //     载荷没有该后缀列（现取：TR-1b 未合并）⇒ **零行为变化**；`zh` 档 ⇒ 行原样（`localizeFields` 直返）。
-  //   · 盘口（`listOrderBook`）/成交流水（`listTradesByBrand`）行**无用户录入文本**（逐键取证见报告 §3）。
+  //   · 「我的挂单」行 = `market_order` 行（`/api/order`）⇒ 面板渲染的文本键只有 `name`/`title`（用户录入文本）。
+  //   · R-7E-6（批 8 A 小项）：`side`/`status` 是 **DB 枚举**（`open`/`filled`/`buy`…），**不得入翻译面** ——
+  //     它们由 `orders.statusLabel.*` / `orders.sideLabel.*` 查表渲染（下方渲染处），不走 `*_<lang>` 后缀列。
+  //     故本行 keys 收敛为 `['name','title']`（去 `side`/`status`）。
   const lang = getLanguageFromUrl(location.pathname)
-  const mineRows = mine.rows.map((row) => localizeFields(row, ['name', 'title', 'side', 'status'], lang))
+  const mineRows = mine.rows.map((row) => localizeFields(row, ['name', 'title'], lang))
 
   return (
     <div className="sf-layout" data-sf-m="mkt-layout">

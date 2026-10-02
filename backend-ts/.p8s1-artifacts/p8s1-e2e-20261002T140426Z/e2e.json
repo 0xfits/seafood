@@ -1,0 +1,294 @@
+{
+ "unit": "P8-S1-E2E",
+ "run": "20261002T140426Z",
+ "base": "http://127.0.0.1:5796",
+ "generated_at": "2026-10-02T14:04:34.298Z",
+ "total": 16,
+ "passed": 16,
+ "failed": 0,
+ "out": {
+  "script": "scripts/p8-s1-01-e2e.ts",
+  "base": "http://127.0.0.1:5796",
+  "run": "20261002T140426Z",
+  "health": {
+   "status": 200
+  },
+  "admin_uid": "1",
+  "me": {
+   "status": 200,
+   "can_access_admin": true
+  },
+  "baseline": {
+   "get_status": 200,
+   "data_keys": [
+    "allowRegistration",
+    "defaultLanguage",
+    "emailNotifications",
+    "maintenance",
+    "maxDailyTasks",
+    "pointsPerTask",
+    "rewardCooldown",
+    "siteDescription",
+    "siteName"
+   ],
+   "db_row_keys": [
+    "system_settings"
+   ],
+   "db_rows": 1,
+   "siteDescription": "去中心化社区奖励平台",
+   "time_updated": "2026-09-29 17:14:33.434419+00"
+  },
+  "unknown_key_body": {
+   "error": {
+    "code": "LEDGER_AMOUNT_INVALID",
+    "message": "Unknown key(s) are not writable via /api/admin/settings",
+    "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+    "details": {
+     "field": "foo",
+     "reason": "foo_NOT_IN_APP_CONFIG_WHITELIST",
+     "unknown_keys": [
+      "foo"
+     ],
+     "legal_keys": [
+      "siteName",
+      "siteDescription",
+      "maintenance",
+      "allowRegistration",
+      "emailNotifications",
+      "defaultLanguage",
+      "pointsPerTask",
+      "maxDailyTasks",
+      "rewardCooldown"
+     ]
+    }
+   }
+  },
+  "type_error_body": {
+   "error": {
+    "code": "LEDGER_AMOUNT_INVALID",
+    "message": "Setting field type is invalid",
+    "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+    "details": {
+     "field": "pointsPerTask",
+     "reason": "SETTING_TYPE_INVALID",
+     "expected": "number",
+     "got": "string"
+    }
+   }
+  },
+  "array_body_body": {
+   "error": {
+    "code": "LEDGER_AMOUNT_INVALID",
+    "message": "Setting value must be a JSON object",
+    "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+    "details": {
+     "field": "value",
+     "reason": "SETTING_VALUE_NOT_OBJECT",
+     "expected": "object",
+     "got": "array"
+    }
+   }
+  },
+  "fee_body": {
+   "error": {
+    "code": "LEDGER_AMOUNT_INVALID",
+    "message": "Fee-rate keys are not writable via /api/admin/settings",
+    "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+    "details": {
+     "field": "fee_rate",
+     "reason": "FEE_RATE_KEY_NOT_IN_APP_CONFIG",
+     "authoritative_table": "commission_policy",
+     "authoritative_column": "fee_rate_bp"
+    }
+   }
+  }
+ },
+ "results": [
+  {
+   "id": "S0-admin-access",
+   "pass": true,
+   "detail": {
+    "status": 200,
+    "can_access_admin": true
+   }
+  },
+  {
+   "id": "①-write-legal",
+   "pass": true,
+   "detail": {
+    "status": 200,
+    "siteDescription": "p8s1-probe-20261002T140426Z"
+   }
+  },
+  {
+   "id": "②-db-landed",
+   "pass": true,
+   "detail": {
+    "siteDescription": "p8s1-probe-20261002T140426Z",
+    "updated_by": "1",
+    "time_updated": "2026-10-02 14:04:31.685863+00"
+   }
+  },
+  {
+   "id": "③-read-endpoint",
+   "pass": true,
+   "detail": {
+    "status": 200,
+    "siteDescription": "p8s1-probe-20261002T140426Z",
+    "keys": 9
+   }
+  },
+  {
+   "id": "④-behavior-same-value",
+   "pass": true,
+   "detail": {
+    "read_back": "p8s1-probe-20261002T140426Z",
+    "db": "p8s1-probe-20261002T140426Z"
+   }
+  },
+  {
+   "id": "④-time-advanced",
+   "pass": true,
+   "detail": {
+    "before": "2026-09-29 17:14:33.434419+00",
+    "after": "2026-10-02 14:04:31.685863+00"
+   }
+  },
+  {
+   "id": "NEG-AG1-unknown-key",
+   "pass": true,
+   "detail": {
+    "error": {
+     "code": "LEDGER_AMOUNT_INVALID",
+     "message": "Unknown key(s) are not writable via /api/admin/settings",
+     "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+     "details": {
+      "field": "foo",
+      "reason": "foo_NOT_IN_APP_CONFIG_WHITELIST",
+      "unknown_keys": [
+       "foo"
+      ],
+      "legal_keys": [
+       "siteName",
+       "siteDescription",
+       "maintenance",
+       "allowRegistration",
+       "emailNotifications",
+       "defaultLanguage",
+       "pointsPerTask",
+       "maxDailyTasks",
+       "rewardCooldown"
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "NEG-AG1-zero-pollution",
+   "pass": true,
+   "detail": {
+    "changed": false
+   }
+  },
+  {
+   "id": "NEG-AG4-mixed-whole-reject",
+   "pass": true,
+   "detail": {
+    "status": 400
+   }
+  },
+  {
+   "id": "NEG-AG3-type",
+   "pass": true,
+   "detail": {
+    "error": {
+     "code": "LEDGER_AMOUNT_INVALID",
+     "message": "Setting field type is invalid",
+     "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+     "details": {
+      "field": "pointsPerTask",
+      "reason": "SETTING_TYPE_INVALID",
+      "expected": "number",
+      "got": "string"
+     }
+    }
+   }
+  },
+  {
+   "id": "NEG-AG3-not-object",
+   "pass": true,
+   "detail": {
+    "error": {
+     "code": "LEDGER_AMOUNT_INVALID",
+     "message": "Setting value must be a JSON object",
+     "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+     "details": {
+      "field": "value",
+      "reason": "SETTING_VALUE_NOT_OBJECT",
+      "expected": "object",
+      "got": "array"
+     }
+    }
+   }
+  },
+  {
+   "id": "NEG-fee-rate-key",
+   "pass": true,
+   "detail": {
+    "error": {
+     "code": "LEDGER_AMOUNT_INVALID",
+     "message": "Fee-rate keys are not writable via /api/admin/settings",
+     "i18n_key": "ledger.err.LEDGER_AMOUNT_INVALID",
+     "details": {
+      "field": "fee_rate",
+      "reason": "FEE_RATE_KEY_NOT_IN_APP_CONFIG",
+      "authoritative_table": "commission_policy",
+      "authoritative_column": "fee_rate_bp"
+     }
+    }
+   }
+  },
+  {
+   "id": "R107-shape",
+   "pass": true,
+   "detail": {
+    "error_keys": [
+     "code",
+     "details",
+     "i18n_key",
+     "message"
+    ],
+    "top_keys": [
+     "error"
+    ]
+   }
+  },
+  {
+   "id": "NEG-service-layer-strict",
+   "pass": true,
+   "detail": {
+    "threw": true,
+    "name": "SystemSettingsWriteError",
+    "zero_pollution": true
+   }
+  },
+  {
+   "id": "AG2-key-closure",
+   "pass": true,
+   "detail": {
+    "keys": [
+     "system_settings"
+    ]
+   }
+  },
+  {
+   "id": "RESTORE",
+   "pass": true,
+   "detail": {
+    "status": 200,
+    "siteDescription": "去中心化社区奖励平台",
+    "original": "去中心化社区奖励平台"
+   }
+  }
+ ]
+}

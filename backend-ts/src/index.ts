@@ -16,8 +16,10 @@ import {
 import {
   AdminAccessRecord,
   DatabaseService,
+  SystemSettingsWriteError,
   TaskProgressRecord,
   UserRecord,
+  screenSystemSettingsWrite,
 } from './database';
 import { healthCheck } from './db';
 // P4-SEC（缺陷 B）：基础设施异常走**既有** §14 分类器与 R107 错误体（不新增错误码）
@@ -1139,6 +1141,18 @@ app.get('/api/admin/settings', async (req, res) => {
   }
 });
 
+// 批 8①（`data-layer.spec` v0.10 §21.2 `AG3`①）：沿 `cause` 链读 PG 约束名（不打印原始 message —— R107/R108 纪律）。
+const pgConstraintOf = (error: unknown, depth = 0): string => {
+  if (depth >= 4 || error === null || typeof error !== 'object') return '';
+  const constraint = (error as { constraint?: unknown }).constraint;
+  if (typeof constraint === 'string' && constraint) return constraint;
+  for (const key of ['cause', 'sourceError', 'error'] as const) {
+    const found = pgConstraintOf((error as Record<string, unknown>)[key], depth + 1);
+    if (found) return found;
+  }
+  return '';
+};
+
 app.post('/api/admin/settings', async (req, res) => {
   const actor = await requireAdmin(req, res, 'manage_settings');
   if (!actor) return;
@@ -1150,9 +1164,14 @@ app.post('/api/admin/settings', async (req, res) => {
   }
 
   try {
-    const body = (req.body || {}) as Record<string, unknown>;
+    const body: unknown = req.body;
+    const plainBody: Record<string, unknown> =
+      body !== null && typeof body === 'object' && !Array.isArray(body) ? body as Record<string, unknown> : {};
+
     // §1 #33 / §4.1 #36：**禁写费率键**（费率真源 = commission_policy.fee_rate_bp，CR23/CR25）
-    const feeKey = findFeeRateKey(body);
+    //   ⚠️ 批 8① 登记：该黑名单（`§7-16` 裁定 = 删除）**本单保留**（删除属接该面的实现单，`§21.5 AT1`）；
+    //   它命中的键**同时**也是白名单外键 ⇒ 无论先后，**一律 400 拒**（不静默放行）。本单排它在前 = 保持既有行为。
+    const feeKey = findFeeRateKey(plainBody);
     if (feeKey) {
       return sendVerbError(res, adminVerbError(400, 'LEDGER_AMOUNT_INVALID', {
         field: feeKey,
@@ -1161,11 +1180,37 @@ app.post('/api/admin/settings', async (req, res) => {
         authoritative_column: 'fee_rate_bp',
       }, 'Fee-rate keys are not writable via /api/admin/settings'));
     }
-    const settings = await DatabaseService.saveSystemSettings(body, actor.session.uID);
+
+    // 批 8①（§21.2 `AG1`/`AG3`/`AG4`）：**逐键白名单 + 类型闸**（元规则：**不得静默放行**）。
+    //   · `AG1` 未知键（含 §21.1 清单外的一切键名） ⇒ 400 + `details.reason='SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST'`
+    //     （★ `R-8-10` **稳定常量**，**不随键名插值** ⇒ 可枚举 / 可映射 i18n）+ `details.unknown_keys=[...]`（逐键列出）；
+    //   · `AG3`① 非 jsonb object（裸标量 / 数组 / null） ⇒ 400 + `reason='SETTING_VALUE_NOT_OBJECT'`；
+    //   · `AG3`② 已知字段类型不符 ⇒ 400 + `reason='SETTING_TYPE_INVALID'` + `details.{field,expected,got}`；
+    //   · `AG4`③ **整请求拒**（合法键 + 未知键混合体 ⇒ 整请求 400，合法字段**不落库**）。
+    //   信封控制字段（`create_key` 等，`DL36` 幂等键载体）在判定前剥离 —— 它不是 settings 字段、不是 app_config 键。
+    const verdict = screenSystemSettingsWrite(body);
+    if (!verdict.ok) {
+      return sendVerbError(res, adminVerbError(400, verdict.code, verdict.details, verdict.message));
+    }
+
+    const settings = await DatabaseService.saveSystemSettings(verdict.value, actor.session.uID);
     sendSuccess(res, settings, 'System settings saved');
   } catch (error) {
-    console.error('Error saving system settings:', error);
-    sendError(res, 400, error instanceof Error ? error.message : 'Failed to save system settings');
+    // 批 8①（`AG3`① / §21.2）：DB 容器 CHECK（`app_config_value_is_container`，SQLSTATE `23514`）⇒
+    //   **必须转译为项目级 `400` + 机读 reason**（**禁裸 500**）—— 正常情况下已被应用层闸拦下，本支是**兜底**。
+    if (error instanceof SystemSettingsWriteError) {
+      return sendVerbError(res, adminVerbError(400, error.code, error.details, error.message));
+    }
+    if (pgConstraintOf(error) === 'app_config_value_is_container') {
+      return sendVerbError(res, adminVerbError(400, 'LEDGER_AMOUNT_INVALID', {
+        field: 'value',
+        reason: 'SETTING_VALUE_NOT_OBJECT',
+        expected: 'object',
+        source: 'db_container_check',
+      }, 'Setting value must be a JSON object'));
+    }
+    // 基础设施异常 ⇒ **既有** §14 分类器（R107；修前本 catch 硬编码 `sendError(res, 400, …)` 旧形状）。
+    return sendInfraMapped(res, 'admin.settings.post', error);
   }
 });
 
