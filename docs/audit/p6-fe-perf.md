@@ -286,3 +286,130 @@ npx vite preview --port 5791 --strictPort       # 本地改后实例（勿用 57
 | `docs/audit/p6-fe-perf.md` | 本 §13（追加，未改已有内容） |
 
 > 全程未执行 `git add/commit/push`、未改 `index.html`/`vite.config.js`/`vercel.json`/locales/theme/backend/migrations/spec/`.env*`；未 `npm install`；未停/杀/占 5787；未用 `pkill -f`/`killall`（只按精确 PID 结束自起的 5791）。
+
+---
+
+## 14. P6-FE-PERF-4 · 收口「无层规则压过工具类」同族残余（Kong，追加单）
+
+**口径**：同 §13 —— `body *` 中 `rect.w≥4 && rect.h≥4` 的**前 250 个 DOM 序**元素，逐元素比 `getComputedStyle` **26 个属性** + `getBoundingClientRect`(0.5px 舍入)，另取 `documentElement.scrollHeight`。基线 = 生产 `https://seafood-opal.vercel.app`（改前，v3 CDN），受测 = 自起 `vite preview` @ `http://localhost:5791`（改后；5787 未碰）。渲染稳定判据沿用 §13（`body *` 计数 + `scrollHeight` 连续两次相同、`document.fonts.status==='loaded'` 后再读）。
+
+**★ 本单新增的取数纪律（上一单 390 档假差异的真因）**：`Emulation.setDeviceMetricsOverride` 在 `new_tab` 后**可能不生效**，回读 `window.innerWidth` 可确证——实测 `prod /@390` 该次 `innerWidth=1280`（覆盖未应用），于是生产侧按 1280 渲染而本地按 390 渲染，产出 `onlyProd/onlyLocal` 与页高的**假差异**。本单每次 set 之后断言 `innerWidth === 目标宽度`，否则重设并重载（≤3 次）。修正后 **5 路由 × 3 宽度 DOM 同构：`sig` 链不匹配数全 = 0**。
+
+### 14.1 逐条定性表（先复现、后定性；判据一律取**可见量**）
+
+| # | 上单残留 | 改前(生产) 实测 | 改后·未修 实测 | 根因（实测证据） | 修法 | 改后·已修 实测 | 用户可见 |
+|---|---|---|---|---|---|---|---|
+| A | `py-4` 压过 `sm:py-8` ⇒ 页高差 32px | `pt/pb = 32px/32px`；`/@1280` 页高 **2092** | `pt/pb = 16px/16px`；页高 **2060** | 元素 `w-full mx-auto px-4 sm:px-6 lg:px-8 **py-4 sm:py-6 lg:py-8**`（非 `sm:py-8`，上单记名有误）。compat **无层** `.py-4{padding-top:1rem;padding-bottom:1rem}`（产物落位 68752，在 `@layer utilities` 之后）压过 utilities 层的 `.lg\:py-8{padding-block:2rem}` | 整段间距块并入 `@layer components` | `pt/pb = 32px/32px`；页高 **2092**（=改前） | **是**（页高 32px） |
+| B | 同上族的 `p-*` / `pt-*`（上单未列） | 元素 `pt-0 p-6 md:p-8`：`pt/pb = 32/32`；`/login@1280` 页高 **1356** | `pt/pb = 0/24`；页高 **1268**（−88） | 同 A：无层 `.pt-0`（padding-top:0）+ `.p-6` 压过 `.md\:p-8`；内容宽 446.5−2×32 ↔ 446.5−2×24 派生换行差 | 同 A | `pt/pb = 32/32`（回读 `getComputedStyle` = `["32px","32px","32px","32px"]`，两侧一致）；页高 **1360** | **是**（页高 + 派生换行） |
+| C | `space-x-*` 约定反转 ⇒ `marginRight 0↔4px` | nav 三链间距 **4 / 4**，`nav` 宽 248 | 间距 **8 / 8**，宽 256 | 两条规则叠加：compat 无层 `.space-x-1 > :not([hidden]) ~ :not([hidden]){margin-left:.25rem}`（v3 语义：非首子 margin-left）+ v4 的 `.space-x-* > :not(:last-child){margin-inline-start:0;margin-inline-end:.25rem}`（非末子右外边距）⇒ 间隙 = 4+4 | 同 A **且**把兜底选择器改成与 v4 同构（`:not(:last-child)` + `margin-inline-end`） | 间距 **4 / 4**，宽 **248**（=改前） | **是**（4px 间距） |
+| D | 上单称「boxShadow 槽」 | header(`shadow-md`)：`0 4px 6px **-1px** rgba(0,0,0,.1), 0 2px 4px **-2px** rgba(0,0,0,.1)` | `0 4px 6px **0** rgba(0,0,0,.1), 0 2px 4px **0** rgba(0,0,0,.06)` | compat 无层 `.shadow-md`（手写近似值，非 v3 真值）压过 Tailwind 的 `.shadow-md`（v4 取值 == v3 真值） | 同 A（`.shadow`/`-md`/`-lg`/`-xl` 并入 components） | = 改前（仅多 2 个**全透明**槽，不绘制） | **是**（扩散 −1/−2px 被改成 0） |
+| E | （上单未列的同类）`.shadow-sm` | 8 张卡片：`rgba(0,0,0,**.05**) 0 1px **2px** 0` | 同上（compat 手写值恰 = v3 真值） | **非层归属**：v4 破坏性默认值变更（v4 的 `shadow-sm` = v3 的 `shadow`：blur 2→3px、alpha .05→.1、多一层 −1px 扩散）。仅分层后本地实测变成 `rgba(0,0,0,.1) 0 1px 3px 0, rgba(0,0,0,.1) 0 1px 2px -1px` | `.shadow-sm` **保持无层胜出**（复刻改前真值；等效 §13.2 的边框默认色回补） | `rgba(0,0,0,.05) 0px 1px 2px 0px` = 改前 ✓ | **是**（若分层则为是；已消除） |
+| F | （上单 `NOT_MEASURED` 的 ΔRGB(1,10,0)） | `border-yellow-200` ⇒ `rgb(254,240,138)` (#fef08a) | `rgb(253,230,138)` | compat 无层 `.border-yellow-200{border-color:#fde68a}` —— 手写 hex 是 **amber-200** 而非 yellow-200，压过 Tailwind 的 `var(--color-yellow-200)` | 同 A | `oklch(0.945 0.129 101.54)`，**canvas 逐像素 = (255,240,133)** vs 改前 (254,240,138) | ΔRGB(1,0,5) 极轻微 |
+| G | 「oklch 序列化」 | 见 14.2 像素表 | — | **上单该标签对 6 组颜色不成立** | 见 14.2（非本族、超硬边界） | — | 6 组**不等**，其中 green-400 ΔRGB(69,1,14) |
+| H | 「webfont 度量 96↔104px」 | 语言按钮 96px / `hidden md:flex` 566px / `nav` 248px | 104 / 614 / 256 | **上单该标签不成立**：96→104 = 2 个 space-x-1 间隙（2×4），566→614 = 3 个 space-x-4 间隙（3×16），248→256 = 2×4 —— **全部由 C 造成**。三链 `nav-link` 宽度两侧**逐值 80px 相等** ⇒ 无 webfont 度量差异证据 | 同 C | 96 / 566 / 248 | **是**（且已归零） |
+| I | 「动画采样」 | `space-y-8` 非首子 `margin-top:32px`；`paddingTop/Bottom` 见 A | 非末子 `margin-bottom:32px` | **上单该标签不成立**：v4 的 `space-y-*` 用「非末子 `margin-block-end`」，v3 用「非首子 `margin-top`」⇒ 属性面镜像；块级相邻外边距**折叠**后可见间距相同（各 `animate-*` 子元素 rect 逐值相等，`space-y-8` 容器高 1658=1658） | 不改（属 v4 语义，改 compat 无法消除属性面差异且无可见收益） | 属性面仍 `marginBottom 0↔32px`；**rect 逐值相等** | **否**（已用 rect 证） |
+| J | （本单新发现）`.text-*` 压过 `leading-*` | `/login@390` 页高 **1798** | **1268** | compat 无层 `.text-xs{font-size:.75rem;**line-height:1rem**}`（`tailwind-compat.css:401-404`，同族！）压过 Tailwind 的 `.leading-5{line-height:1.25rem}` ⇒ 元素 `mt-2 text-xs leading-5 text-gray-500` 的 `lineHeight 20px→16px`、`height 40px→32px`，派生 48 处 height/lineHeight | **同族修法 = 把 `.text-xs/sm/base/lg/xl/2xl` 整块并入 `@layer components`** | **本单未修**（预算耗尽；已定位到规则行号）⇒ `/login` 残 `−20px@390 / +4px@1280,1600` | **是** |
+
+### 14.2 oklch/oklab ↔ rgb：逐像素实测（推翻「同色序列化」标签）
+
+判据 = 同一页面内用 canvas `fillRect` + `getImageData` 取**渲染后的 sRGB 字节**（而非比字符串）：
+
+| 颜色对（生产 rgb ↔ 本地 oklch/oklab） | 生产像素 | 本地像素 | 相等 |
+|---|---|---|---|
+| green-400 `rgb(74,222,128)` ↔ `oklch(0.792 0.209 151.711)` | (74,222,128) | **(5,223,114)** | ✗ Δ(69,1,14) |
+| amber-800 `rgb(146,64,14)` ↔ `oklch(0.473 0.137 46.201)` | (146,64,14) | (151,60,0) | ✗ Δ(5,4,14) |
+| yellow-200 `rgb(254,240,138)` ↔ `oklch(0.945 0.129 101.54)` | (254,240,138) | (255,240,133) | ✗ Δ(1,0,5)（14.1-F） |
+| amber-200 `rgb(253,230,138)` ↔ `oklch(0.924 0.12 95.746)` | (253,230,138) | (254,230,133) | ✗ Δ(1,0,5) |
+| gray-800 `rgb(31,41,55)` ↔ `oklch(0.278 0.033 256.848)` | (31,41,55) | (30,41,57) | ✗ Δ(1,0,2) |
+| gray-600 `rgb(75,85,99)` ↔ `oklch(0.446 0.03 256.802)` | (75,85,99) | (74,85,101) | ✗ Δ(1,0,2) |
+| blue-100 `rgb(219,234,254)` ↔ `oklch(0.932 0.032 255.585)` | (219,234,254) | (219,234,254) | ✓ |
+| blue-50/70 `rgba(239,246,255,.7)` ↔ `oklab(0.97 -0.0037 -0.0135 / .7)` | (168,173,179) | (168,173,179) | ✓ |
+| amber-50 `rgb(255,251,235)` ↔ `oklch(0.987 0.022 95.277)` | (255,251,235) | (255,251,235) | ✓ |
+| 默认边框 gray-200 `rgb(229,231,235)` ↔ `oklch(0.928 0.006 264.531)` | (229,231,235) | (229,231,235) | ✓ |
+
+⇒ 10 组里 **4 组真同色（序列化差异，非可见）**、**6 组真不同色**。根因 = **Tailwind v4 默认调色板重定义**（如 green-400 由 v3 `#4ade80` 改成 v4 `oklch(0.792 0.209 151.711)` → sRGB 渲染 `#05df72`）。**非层归属、非本族**；修法须改调色板值（`frontend/src/theme/**` 为**禁写**，`styles.css` 仅允许注释）⇒ 本单**不可修**。可见性：green-400 用在 `h-1`（4px 高）卡片装饰条（6–7 处/路由），ΔRGB(69,1,14) **可见**；amber-800 为正文色 Δ(5,4,14) 轻微可见；其余 Δ≤5 属**不可分辨**级。
+
+### 14.3 全量视觉等价复跑（5 路由 × 3 宽度；同口径 26 属性 + rect + 页高）
+
+页高 `documentElement.scrollHeight`（改前 / 改后·未修 / 改后·已修）：
+
+| 路由@宽度 | 改前 | 改后·未修 | 改后·已修 | 差 |
+|---|---|---|---|---|
+| `/@390` | 5688 | 2060 | **5688** | +0 |
+| `/@1280` | 2092 | 2060 | **2092** | +0 |
+| `/@1600` | 2092 | 2060 | **2092** | +0 |
+| `/login@390` | 1798 | 1268 | **1778** | +20 |
+| `/login@1280` | 1356 | 1268 | **1360** | -4 |
+| `/login@1600` | 1356 | 1268 | **1360** | -4 |
+| `/task@390` | 5221 | 802 | **5221** | +0 |
+| `/task@1280` | 1878 | 1846 | **1878** | +0 |
+| `/task@1600` | 1868 | 1836 | **1868** | +0 |
+| `/listing@390` | 7123 | 6803 | **7123** | +0 |
+| `/listing@1280` | 6803 | 6803 | **6803** | +0 |
+| `/listing@1600` | 6803 | 6803 | **6803** | +0 |
+| `/shard@390` | 1717 | 967 | **1717** | +0 |
+| `/shard@1280` | 967 | 967 | **967** | +0 |
+| `/shard@1600` | 948 | 948 | **948** | +0 |
+
+`rect`（做 0.5px 舍入后）逐元素不等数：
+
+| 路由@宽度 | rect 差异元素数 |
+|---|---|
+| `/@390` | 0 |
+| `/@1280` | 5 |
+| `/@1600` | 5 |
+| `/login@390` | 56 |
+| `/login@1280` | 60 |
+| `/login@1600` | 60 |
+| `/task@390` | 0 |
+| `/task@1280` | 5 |
+| `/task@1600` | 5 |
+| `/listing@390` | 0 |
+| `/listing@1280` | 5 |
+| `/listing@1600` | 5 |
+| `/shard@390` | 0 |
+| `/shard@1280` | 5 |
+| `/shard@1600` | 5 |
+
+- **改后·未修**：`/`、`/task` 桌面档页高 −32px；`/login` −88px；DOM 序前 250 元素 rect 差异 14（`/@1280`）。`/`、`/task`、`/listing`、`/shard` 的 390 档在**未修**时也是 0/0 —— 上单报的 390 档大差异是 14.1 开头的**覆盖失效假差异**，不是真差异（本单已用 `innerWidth` 断言钉死）。
+- **改后·已修**：页高 **`/`、`/task`、`/listing`、`/shard` 全 5×3 = 0 差**（含 390/1280/1600）；`rect` 差异：390 档 **全 0**，1280/1600 档每个路由 **5**（= header 同一处，见下），`/login` 60/56。
+- **桌面档那 5 处 = header 一个 16px 间距**（**v3↔v4 `space-x-*` 实现语义差异，非层归属**）：容器 `hidden md:flex items-center space-x-4` 的首个子元素**自带 `mr-4`**。v3：`mr-4`(16) 与「下一子 `margin-left:16`」是两个属性 ⇒ 间隙 32px；v4：同一元素上 `margin-inline-end` 与 `mr-4` **是同一属性** ⇒ 只有 16px。实测子元素外边距：生产 `[0/16, 16/0, 16/0, 16/0]`（宽 566）↔ 本地 `[0/16, 0/16, 0/16, 0/0]`（宽 550）；相邻子元素 rect 间距：生产 `32,16,16` ↔ 本地 `16,16,16`。已穷举 3 种 compat 侧改法（无层 v3 语义 / components v4 语义 / 无层+置零），**任一改法都会在「`mr-4` 首子」与「裸 space-x 链」两种情形之一上产生新的 4–16px 偏差** ⇒ 判定 **NOT_FIXABLE_IN_SCOPE**（须改 JSX 或主题，均在硬边界外；遇此情形不擅改 JSX）。
+- **间距判据（两档各测）**：`space-x-1` 链（3 个子链）在 390 与 1280 两档的相邻 rect 间距 = **4,4（生产）/ 4,4（改后）**；`space-y-8` 子元素 `mt/mb` 属性面镜像但 rect 逐值相等（折叠）。
+
+**⇒ 结论**：「**无层规则压过工具类**」这一**族**的残余 = **0**（页高、内边距、space-x 间距、`shadow-md`、`border-yellow-200` 全部改后 == 改前；`gridTemplateColumns`/默认边框色沿用 §13 结论）。**用户可见差异 ≠ 0**，残留 3 类且**全部非本族或超硬边界**：
+1. **同族但本单未修（预算耗尽，已定位规则）**：`tailwind-compat.css:401-424` 的 `.text-xs…2xl`（无层 `line-height`）压过 Tailwind 的 `leading-*` ⇒ `/login` 页高 −20px@390 / +4px@1280,1600。**修法已明确：整块并入 `@layer components`**（须改后复跑，见 14.6）。
+2. **非本族**：v4 默认调色板（14.2，6 组真不同色）——须改 `src/theme/**`（禁写）。
+3. **非本族**：header `space-x-4` 首子 `mr-4` 冲突（32px→16px，1 处/路由）——compat 侧不可同时兼容两种情形。
+
+### 14.4 AC 自跑读数
+
+| 项 | 读数 |
+|---|---|
+| `npm run build` | **exit 0**；产物 `dist/assets/index-_WNWwHzi.js`(306.01 kB) + `dist/assets/index-*.css`(125.45 kB) |
+| `npm run test:unit` | **exit 0；25 files / 231 passed**（≥231 ✓；本单末次运行亦 exit 0） |
+| `node scripts/p6-tr2-i18n-locales.mjs` | **exit 0 / PASS** |
+| `node scripts/p4z-i18nviol-global.mjs` | **exit 0 / PASS**（locale 裸命中 0 + 源面裸命中 0） |
+| `node scripts/p4z-feperf-safelist.mjs` | **exit 0 / VERDICT=PASS** |
+| 层归属机器读数 | `@layer components{` @24387 **先于** `@layer utilities{` @27485；`.py-4{padding-top:1rem}`(components) 与 `.py-4{padding-block}`(utilities) 并存，utilities 胜 |
+| 全量视觉等价 | 见 14.3（页高 5×3 中 4 路由全 0，间距两档相等，DOM 同构） |
+| 本地实例 | 自起 `npx vite preview --port 5791 --strictPort`（5787 未碰；结束按精确 PID 停） |
+
+### 14.5 本单改动文件（未做任何 git 写操作）
+
+| 文件 | 动作 |
+|---|---|
+| `frontend/src/styles/tailwind-compat.css` | ① `.mx-4…gap-6`（margin/padding/space-x/space-y/gap 整段）由无层 → 包进 `@layer components`；② `.shadow`/`.shadow-md`/`.shadow-lg`/`.shadow-xl` → 同上；`.shadow-sm` **保持无层**（14.1-E）；③ `.border-yellow-200` → 同上；④ `.space-x-1…4` 兜底选择器改为与 v4 同构（`:not(:last-child)` + `margin-inline-end`）。**未删除任何兜底类**，未重排其余规则 |
+| `docs/audit/p6-fe-perf.md` | 本 §14（追加，未改已有内容） |
+
+### 14.6 NOT_MEASURED / 未完项（禁填 0）
+
+| 项 | 说明 |
+|---|---|
+| `.text-*` → `@layer components` 的修复与复跑 | **未做**（本单预算 40 calls 用尽）。已定位 `tailwind-compat.css:401-424`（`.text-xs/sm/base/lg/xl/2xl` 含无层 `line-height`，压过 Tailwind `leading-*`）。预期把 `/login@390` 的 −20px 与 `/login@1280/1600` 的 +4px 收口；**必须改后复跑 5×3 与三脚本后方可写入结论** |
+| 640–1023px 断点 | 未测（AC 只要求 390/1280/1600）。注：compat 自带无层 `.lg\:px-8/.sm\:px-6`（`lg:px-8` 侧）在 1280 恰好与生产同值，属**同族但本档不可见**；已随本单并入 components |
+| `hover:shadow-*` / `group-hover:shadow-md` | 未测（无 hover 态采样）；同为无层手写值，**未并入 components**（本单只改实测证明有差异的规则） |
+| green-400 等 6 组调色板差异的像素占比 | 只做了 1×1 canvas 逐像素等价判定，未做整屏像素 diff/SSIM |
+| 生产站是否已部署改后构建 | 未测（`seafood-opal.vercel.app` 仍为改前基线本身） |
+| LCP/TBT/CLS | 未测（本单只做样式等价） |
+
+> 全程未执行 `git add/commit/push`；未改 `backend-ts/**`/`migrations/**`/`vercel.json`/`index.html`/`vite.config.js`/`locales/*.json`/`src/theme/**`/`src/**/*.jsx`/spec/`docs/seafood.master-plan.md`/`.env*`；未 `npm install`；未停/杀/占 5787；未用 `pkill -f`/`killall`（只按精确 PID 结束自起的 5791）。

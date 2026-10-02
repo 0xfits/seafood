@@ -115,7 +115,14 @@
 .overflow-auto { overflow: auto; }
 .overflow-hidden { overflow: hidden; }
 .overflow-x-auto { overflow-x: auto; }
-.overflow-y-auto { overflow-y: auto; }
+/* ===== P6-FE-PERF-4 · 间距/阴影/边框色：无层规则 → @layer components =====
+   下面自 `.mx-4` 至 `.gap-6` 的一整段（margin / padding / space-x / space-y / gap），以及后面的
+   `.shadow-*` 与 `.border-yellow-200`，原先都是**无层规则**；构建期 Tailwind 的工具类全部位于
+   `@layer utilities`，而 CSS 级联层中「无层 > 任何 @layer」⇒ 这些兜底规则会全量压过 Tailwind 的
+   工具类（含 sm:/md:/lg: 变体，以及 v4 的正确取值）。改前由运行期 CDN 后注入的 <style> 掩盖，
+   改为构建期后才暴露。修法同 §13.1：整块并入 `@layer components`（位于 utilities 之前）——
+   兜底规则保留，Tailwind 工具类按源码顺序正常胜出。 */
+@layer components {
 
 .mx-4 {
   margin-left: 1rem;
@@ -237,10 +244,14 @@
 .pr-3 { padding-right: 0.75rem; }
 .pr-10 { padding-right: 2.5rem; }
 
-.space-x-1 > :not([hidden]) ~ :not([hidden]) { margin-left: 0.25rem; }
-.space-x-2 > :not([hidden]) ~ :not([hidden]) { margin-left: 0.5rem; }
-.space-x-3 > :not([hidden]) ~ :not([hidden]) { margin-left: 0.75rem; }
-.space-x-4 > :not([hidden]) ~ :not([hidden]) { margin-left: 1rem; }
+/* P6-FE-PERF-4：`.space-x-*` 兜底与 v4 语义对齐（搬入 components 后仍差 4px 的真因）。
+   v3 的 space-x = 「非首个子元素 margin-left」；v4 = 「非末个子元素 margin-inline-end」。
+   兜底若沿用 v3 选择器，末个子元素仍会拿到 4px margin-left（Tailwind 只重置非末个的
+   margin-inline-start）⇒ 实测 nav 三链间距 prod 4/4、本地 4/8。改为与 v4 同构的选择器。 */
+.space-x-1 > :not(:last-child) { margin-inline-end: 0.25rem; }
+.space-x-2 > :not(:last-child) { margin-inline-end: 0.5rem; }
+.space-x-3 > :not(:last-child) { margin-inline-end: 0.75rem; }
+.space-x-4 > :not(:last-child) { margin-inline-end: 1rem; }
 
 .space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.25rem; }
 .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
@@ -255,6 +266,8 @@
 .gap-3 { gap: 0.75rem; }
 .gap-4 { gap: 1rem; }
 .gap-6 { gap: 1.5rem; }
+
+} /* ===== /P6-FE-PERF-4 间距块 ===== */
 
 /* 基础网格列数兼容规则已移入文件末尾的 @layer components（P6-FE-PERF-3）。 */
 
@@ -312,7 +325,9 @@
 .border-blue-600 { border-color: #2563eb; }
 .border-green-200 { border-color: #bbf7d0; }
 .border-red-200 { border-color: #fecaca; }
-.border-yellow-200 { border-color: #fde68a; }
+/* P6-FE-PERF-4：无层 `.border-yellow-200` 写的是 #fde68a（≈amber-200），压过 Tailwind 正确的
+   `var(--color-yellow-200)`（改前 CDN 真值 #fef08a）⇒ 实测 ΔRGB(1,10,0)。并入 @layer components。 */
+@layer components { .border-yellow-200 { border-color: #fde68a; } }
 .border-yellow-500 { border-color: #eab308; }
 .border-border { border-color: var(--border-color); }
 .border-border-color { border-color: var(--border-color); }
@@ -493,11 +508,23 @@
 
 .placeholder-gray-500::placeholder { color: #6b7280; }
 
+/* P6-FE-PERF-4：`.shadow-*` 手写值（无层）压过 Tailwind 的 .shadow-* 工具类——实测 prod 的
+   `.shadow-md` 为「0 4px 6px -1px / 0 2px 4px -2px」，本地被改成 0 扩散且次层 alpha 0.06。
+   ⇒ `.shadow` / `.shadow-md` / `.shadow-lg` / `.shadow-xl` 并入 @layer components（v4 取值 == v3 取值，
+   修后逐值相等），让 Tailwind 的工具类胜出。
+   **例外（必须保持无层胜出）**：`.shadow-sm` —— 根因不是层归属，而是 v4 的破坏性默认值变更
+   （v4 的 shadow-sm = v3 的 shadow：首层 blur 2→3px、alpha 0.05→0.1 且多一层 -2px 扩散）。
+   实测（canvas 逐像素）：v4 取值渲染出 `rgba(0,0,0,0.1) 0 1px 3px 0, rgba(0,0,0,0.1) 0 1px 2px -1px`
+   ≠ 改前（v3 CDN）真值 `rgba(0,0,0,0.05) 0 1px 2px 0`。要复刻改前只能让 compat 的 v3 取值胜出
+   （等效于 §13.2 的边框默认色回补）。 */
 .shadow-sm { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); }
+
+@layer components {
 .shadow { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06); }
 .shadow-md { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06); }
 .shadow-lg { box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05); }
 .shadow-xl { box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1), 0 8px 10px rgba(0, 0, 0, 0.04); }
+} /* ===== /P6-FE-PERF-4 shadow ===== */
 
 .cursor-pointer { cursor: pointer; }
 .cursor-not-allowed { cursor: not-allowed; }
