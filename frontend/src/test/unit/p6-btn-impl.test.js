@@ -82,7 +82,7 @@ describe('P6-BTN-IMPL · 日/夜两档 主/次按钮值符合口径', () => {
   it('六个按钮 token 存在，且日/夜键集合与顺序完全同构', () => {
     for (const key of BTN_KEYS) expect(TOKEN_KEYS).toContain(key)
     expect(Object.keys(THEME_TOKENS.night)).toEqual(Object.keys(THEME_TOKENS.day))
-    expect(TOKEN_KEYS.length).toBeGreaterThanOrEqual(113)
+    expect(TOKEN_KEYS.length).toBeGreaterThanOrEqual(106) // P6-TAIL-2：授权删 7 键（113→106），闸门等量下移（其余键一个不许少）
   })
 
   it('主按钮（日档 A″ / 夜档 A′）：#FFE60F 底 + #202020 深字', () => {
@@ -216,8 +216,8 @@ describe('P6-BTN-IMPL · 切档几何同构（rect 逐值相等的机制保证�
     expect(buttonJsx).not.toMatch(/btn-primary/)
   })
 
-  it('差异键数读数（口径 = 日/夜值不等的 token 键数）> 90，且本单未删任何键', () => {
+  it('差异键数读数（口径 = 日/夜值不等的 token 键数）> 90；P6-TAIL-2 授权删 7 键后重定基（106→100）', () => {
     expect(changedKeys.length).toBeGreaterThan(90)
-    expect(changedKeys.length).toBeGreaterThanOrEqual(103)
+    expect(changedKeys.length).toBeGreaterThanOrEqual(100) // 删 7 键里 6 键参与差集 ⇒ 106→100
   })
 })

@@ -7,6 +7,8 @@
  *     `/api/…`（取数）与 `//`（协议相对）**不计**，另列计数。注释行里的旧写法引用不计。
  *   · 每行给 `文件:行` 与代码；语言前缀已由 `buildLocalizedPath` 构造的行不计命中。
  *   · 残留清单必须**逐条落在已登记待办集合**（本文件 REGISTERED_TODO，逐条列名 + 理由）⇒ 否则 FAIL。
+ *   · 口径扩（P6-TAIL-2）：**模板字面量**（反引号）里的站内路径（kind=tmpl）也计入命中与残留；
+ *     只扩不改松 —— 引号形态判据未动，`/api/` 与 `//` 仍在同一处排除。
  *   · 无法测得 ⇒ NOT_MEASURED，不填 0/空。
  * 用法：node scripts/p4z-miscfix-links.mjs [srcRoot]     退出码 = 残留是否全部已登记
  */
@@ -27,6 +29,8 @@ const REGISTERED_TODO = [
   ['src/pages/admin/PermissionsManagement.jsx', 'navigate', '/login', '同上 ×2'],
   ['src/pages/admin/UsersManagement.jsx', 'navigate', '/login', '同上 ×1'],
   ['src/pages/admin/SystemSettings.jsx', 'navigate', '/login', '同上 ×1'],
+  // ── P6-TAIL-2 扩口径（模板字面量导航形态）后全树重扫的新命中：逐条登记（只录不改）──
+  ['src/pages/admin/UsersManagement.jsx', 'navigate', '/dashboard/points?q=${encodeURIComponent(user.EVM || String(user.uID))}', 'P6-TAIL-2 扩口径新命中：admin 守卫链为 zh 单语、站内路径刻意不带语言前缀（同一理由见既有 §1.2 登记）⇒ 另单，不改本单导航面'],
 ]
 
 const stripComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/[^\n]*/gm, '').replace(/(\s)\/\/[^\n]*/g, '$1')
@@ -42,6 +46,11 @@ const walk = (dir, out = []) => {
 const PATTERNS = [
   ['to=', /\bto=("|\')(\/[^"\']*)\1/g],
   ['navigate', /\bnavigate\(\s*("|\')(\/[^"\']*)\1/g],
+  // ── 扩口径（P6-TAIL-2）：**模板字面量**里的站内路径（只扩不改松；沿用同一 residual / 登记机制）──
+  //   覆盖 `to={`/x/${id}`}` 与 `navigate(`/x`)` —— 上单漏检形态（旧正则只认引号字面量）。
+  //   只认「导航调用 / 路由属性」两个位置：**不**把构造器内部的 `/${var}` 前缀拼接当链接（避免噪声）。
+  ['to=', /\bto=\{\s*`(\/[^`]*)`/g],
+  ['navigate', /\bnavigate\(\s*`(\/[^`]*)`/g],
 ]
 const HREF = /\bhref=("|\')(\/[^"\']*)\1/g
 
@@ -57,7 +66,7 @@ for (const abs of walk(SRC)) {
       re.lastIndex = 0
       let m
       while ((m = re.exec(line))) {
-        const p = m[2]
+        const p = m[m.length - 1] // 末位捕获组 = 路径（兼容 tmpl 单组形态；既有两形态末位组同为路径）
         if (p.startsWith('/api/')) { counts.api++; continue }
         if (p.startsWith('//')) { counts.proto++; continue }
         hits.push({ kind, rel, line: i + 1, path: p, code: line.trim().slice(0, 100), ctor: CTOR.test(line) })

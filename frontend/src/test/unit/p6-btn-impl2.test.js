@@ -169,7 +169,7 @@ describe('P6-BTN-IMPL-2 · `.sf-btn` 家族纳入 A 体系', () => {
     expect(COLOR_LITERAL.test(on.body)).toBe(false)
   })
 
-  it('旧黑底黄字 token（--sf-btn-* / --sf-btnsm-*）已无消费者（登记为死 token，待 Jing 裁决）', () => {
+  it('旧黑底黄字 token（--sf-btn-* / --sf-btnsm-*）已删除且无消费者（P6-TAIL-2 授权清退；全 src CSS var() 引用 = 0）', () => {
     const cssFiles = []
     const walkCss = (dir) => {
       for (const e of fs.readdirSync(dir, { withFileTypes: true })) {

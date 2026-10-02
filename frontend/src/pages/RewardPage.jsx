@@ -308,7 +308,7 @@ const RewardPage = () => {
 
         <SlideUp delay={400}>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
               <TabsTrigger value="available">{t('common.redeemable')} ({availableRewards.length})</TabsTrigger>
               <TabsTrigger value="limited">{t('rewardPage.limitedEdition')} ({limitedRewards.length})</TabsTrigger>
               <TabsTrigger value="epic">{t('rewardPage.highValue')} ({epicRewards.length})</TabsTrigger>
