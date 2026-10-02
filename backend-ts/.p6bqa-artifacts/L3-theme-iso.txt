@@ -1,0 +1,2 @@
+[before] 切档 rect 对照键数 keys=92  diffs=0
+[after] 切档 rect 对照键数 keys=92  diffs=0

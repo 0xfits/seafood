@@ -1,0 +1,580 @@
+{
+ "label": "after-feedmock",
+ "dist": "/Users/kevin/.hermes/profiles/zang/cache/scratch/qa-uiconsistb/frontend/dist",
+ "runs": {
+  "light": {
+   "url": "/listing",
+   "theme": "light",
+   "innerWidth": 1280,
+   "els": {
+    ".sf-listings-card": [
+     {
+      "tag": "a",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(3, 4, 2)",
+      "rect": [
+       20,
+       173.5,
+       902,
+       271
+      ]
+     },
+     {
+      "tag": "a",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(3, 4, 2)",
+      "rect": [
+       20,
+       460.5,
+       902,
+       271
+      ]
+     },
+     {
+      "tag": "a",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(3, 4, 2)",
+      "rect": [
+       20,
+       747.5,
+       902,
+       271
+      ]
+     },
+     {
+      "tag": "a",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(3, 4, 2)",
+      "rect": [
+       20,
+       1034.5,
+       902,
+       271
+      ]
+     },
+     {
+      "tag": "a",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(3, 4, 2)",
+      "rect": [
+       20,
+       1321.5,
+       902,
+       271
+      ]
+     }
+    ],
+    ".sf-listings-price": [
+     {
+      "tag": "div",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(3, 4, 2)",
+      "rect": [
+       31,
+       367.5,
+       89.02,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(3, 4, 2)",
+      "rect": [
+       31,
+       654.5,
+       89.02,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(3, 4, 2)",
+      "rect": [
+       31,
+       941.5,
+       89.02,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(3, 4, 2)",
+      "rect": [
+       31,
+       1228.5,
+       89.02,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(3, 4, 2)",
+      "rect": [
+       31,
+       1515.5,
+       89.02,
+       37.5
+      ]
+     }
+    ],
+    ".sf-listings-tag": [
+     {
+      "tag": "span",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(3, 4, 2)",
+      "rect": [
+       31,
+       411,
+       880,
+       22.5
+      ]
+     },
+     {
+      "tag": "span",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(3, 4, 2)",
+      "rect": [
+       31,
+       698,
+       880,
+       22.5
+      ]
+     },
+     {
+      "tag": "span",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(3, 4, 2)",
+      "rect": [
+       31,
+       985,
+       880,
+       22.5
+      ]
+     },
+     {
+      "tag": "span",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(3, 4, 2)",
+      "rect": [
+       31,
+       1272,
+       880,
+       22.5
+      ]
+     },
+     {
+      "tag": "span",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(3, 4, 2)",
+      "rect": [
+       31,
+       1559,
+       880,
+       22.5
+      ]
+     }
+    ],
+    ".sf-listings-item": [],
+    ".sf-listings-panel": [
+     {
+      "tag": "div",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(3, 4, 2)",
+      "rect": [
+       940,
+       73,
+       320,
+       133.5
+      ]
+     },
+     {
+      "tag": "div",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(3, 4, 2)",
+      "rect": [
+       940,
+       215.5,
+       320,
+       201
+      ]
+     }
+    ],
+    ".sf-listings-empty": [
+     {
+      "tag": "div",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(3, 4, 2)",
+      "rect": [
+       955,
+       118,
+       290,
+       49.5
+      ]
+     }
+    ],
+    ".sf-listings-grid": [
+     {
+      "tag": "div",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bc": "rgb(229, 231, 235)",
+      "rect": [
+       20,
+       173.5,
+       902,
+       1419
+      ]
+     }
+    ]
+   },
+   "feedErr": []
+  },
+  "dark": {
+   "url": "/listing",
+   "theme": "dark",
+   "innerWidth": 1280,
+   "els": {
+    ".sf-listings-card": [
+     {
+      "tag": "a",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(38, 42, 48)",
+      "rect": [
+       20,
+       173.5,
+       902,
+       271
+      ]
+     },
+     {
+      "tag": "a",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(38, 42, 48)",
+      "rect": [
+       20,
+       460.5,
+       902,
+       271
+      ]
+     },
+     {
+      "tag": "a",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(38, 42, 48)",
+      "rect": [
+       20,
+       747.5,
+       902,
+       271
+      ]
+     },
+     {
+      "tag": "a",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(38, 42, 48)",
+      "rect": [
+       20,
+       1034.5,
+       902,
+       271
+      ]
+     },
+     {
+      "tag": "a",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(38, 42, 48)",
+      "rect": [
+       20,
+       1321.5,
+       902,
+       271
+      ]
+     }
+    ],
+    ".sf-listings-price": [
+     {
+      "tag": "div",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(34, 38, 43)",
+      "rect": [
+       31,
+       367.5,
+       89.02,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(34, 38, 43)",
+      "rect": [
+       31,
+       654.5,
+       89.02,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(34, 38, 43)",
+      "rect": [
+       31,
+       941.5,
+       89.02,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(34, 38, 43)",
+      "rect": [
+       31,
+       1228.5,
+       89.02,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(34, 38, 43)",
+      "rect": [
+       31,
+       1515.5,
+       89.02,
+       37.5
+      ]
+     }
+    ],
+    ".sf-listings-tag": [
+     {
+      "tag": "span",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(42, 45, 51)",
+      "rect": [
+       31,
+       411,
+       880,
+       22.5
+      ]
+     },
+     {
+      "tag": "span",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(42, 45, 51)",
+      "rect": [
+       31,
+       698,
+       880,
+       22.5
+      ]
+     },
+     {
+      "tag": "span",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(42, 45, 51)",
+      "rect": [
+       31,
+       985,
+       880,
+       22.5
+      ]
+     },
+     {
+      "tag": "span",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(42, 45, 51)",
+      "rect": [
+       31,
+       1272,
+       880,
+       22.5
+      ]
+     },
+     {
+      "tag": "span",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(42, 45, 51)",
+      "rect": [
+       31,
+       1559,
+       880,
+       22.5
+      ]
+     }
+    ],
+    ".sf-listings-item": [],
+    ".sf-listings-panel": [
+     {
+      "tag": "div",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(38, 42, 48)",
+      "rect": [
+       940,
+       73,
+       320,
+       133.5
+      ]
+     },
+     {
+      "tag": "div",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(38, 42, 48)",
+      "rect": [
+       940,
+       215.5,
+       320,
+       201
+      ]
+     }
+    ],
+    ".sf-listings-empty": [
+     {
+      "tag": "div",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bc": "rgb(38, 42, 48)",
+      "rect": [
+       955,
+       118,
+       290,
+       49.5
+      ]
+     }
+    ],
+    ".sf-listings-grid": [
+     {
+      "tag": "div",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bc": "rgb(229, 231, 235)",
+      "rect": [
+       20,
+       173.5,
+       902,
+       1419
+      ]
+     }
+    ]
+   },
+   "feedErr": []
+  }
+ }
+}

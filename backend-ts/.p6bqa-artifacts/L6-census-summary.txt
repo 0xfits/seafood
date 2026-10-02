@@ -1,0 +1,257 @@
+# L6 全 DOM 形状普查（after=9284fc1，离线 dist，动画/过渡已停用）
+
+## dark|/listing/new|1280  url=/listing/new theme=dark iw=1280 ok=True domTotal=120 0size=55 clipped=0 shadowed=2
+   sig命中: {'[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## dark|/listing/new|1440  url=/listing/new theme=dark iw=1440 ok=True domTotal=120 0size=55 clipped=0 shadowed=2
+   sig命中: {'[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## dark|/listing|1280  url=/listing theme=dark iw=1280 ok=True domTotal=141 0size=55 clipped=0 shadowed=2
+   sig命中: {'[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## dark|/listing|1440  url=/listing theme=dark iw=1440 ok=True domTotal=141 0size=55 clipped=0 shadowed=2
+   sig命中: {'[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## dark|/login|1280  url=/login theme=dark iw=1280 ok=True domTotal=170 0size=55 clipped=0 shadowed=6
+   sig命中: {'div[class~="rounded-lg"][class~="border"][class~="p-6"]': 2, '[class~="shadow-sm"]': 2, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+   SHADOW: {'tag': 'section', 'cls': 'rounded-3xl bg-gradient-to-r from-yellow-50 via-white to-blue-50 p-8 shadow-sm ring-1 ring', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+   SHADOW: {'tag': 'div', 'cls': 'rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 hover:shadow-lg', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'div', 'cls': 'mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-white shad', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'div', 'cls': 'rounded-2xl bg-white/80 p-4 text-sm leading-6 text-gray-600 ring-1 ring-gray-100', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.967 0.003 '}
+
+## dark|/login|1440  url=/login theme=dark iw=1440 ok=True domTotal=170 0size=55 clipped=0 shadowed=6
+   sig命中: {'div[class~="rounded-lg"][class~="border"][class~="p-6"]': 2, '[class~="shadow-sm"]': 2, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+   SHADOW: {'tag': 'section', 'cls': 'rounded-3xl bg-gradient-to-r from-yellow-50 via-white to-blue-50 p-8 shadow-sm ring-1 ring', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+   SHADOW: {'tag': 'div', 'cls': 'rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 hover:shadow-lg', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'div', 'cls': 'mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-white shad', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'div', 'cls': 'rounded-2xl bg-white/80 p-4 text-sm leading-6 text-gray-600 ring-1 ring-gray-100', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.967 0.003 '}
+
+## dark|/register|1280  url=/register theme=dark iw=1280 ok=True domTotal=170 0size=55 clipped=0 shadowed=6
+   sig命中: {'div[class~="rounded-lg"][class~="border"][class~="p-6"]': 2, '[class~="shadow-sm"]': 2, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+   SHADOW: {'tag': 'section', 'cls': 'rounded-3xl bg-gradient-to-r from-yellow-50 via-white to-blue-50 p-8 shadow-sm ring-1 ring', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+   SHADOW: {'tag': 'div', 'cls': 'rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 hover:shadow-lg', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'div', 'cls': 'mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-white shad', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'div', 'cls': 'rounded-2xl bg-white/80 p-4 text-sm leading-6 text-gray-600 ring-1 ring-gray-100', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.967 0.003 '}
+
+## dark|/register|1440  url=/register theme=dark iw=1440 ok=True domTotal=170 0size=55 clipped=0 shadowed=6
+   sig命中: {'div[class~="rounded-lg"][class~="border"][class~="p-6"]': 2, '[class~="shadow-sm"]': 2, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+   SHADOW: {'tag': 'section', 'cls': 'rounded-3xl bg-gradient-to-r from-yellow-50 via-white to-blue-50 p-8 shadow-sm ring-1 ring', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+   SHADOW: {'tag': 'div', 'cls': 'rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 hover:shadow-lg', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'div', 'cls': 'mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-white shad', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'div', 'cls': 'rounded-2xl bg-white/80 p-4 text-sm leading-6 text-gray-600 ring-1 ring-gray-100', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.967 0.003 '}
+
+## dark|/reward|1280  url=/reward theme=dark iw=1280 ok=True domTotal=170 0size=55 clipped=0 shadowed=4
+   sig命中: {'button[class~="px-3"][class~="py-1.5"]': 4, 'div[class~="rounded-lg"][class~="border"][class~="p-6"]': 5, '[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'div', 'cls': 'go2072408551', 'shadow': 'rgba(0, 0, 0, 0.1) 0px 3px 10px 0px, rgba(0, 0, 0, 0.05) 0px 3px 3px 0px'}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## dark|/reward|1440  url=/reward theme=dark iw=1440 ok=True domTotal=170 0size=55 clipped=0 shadowed=4
+   sig命中: {'button[class~="px-3"][class~="py-1.5"]': 4, 'div[class~="rounded-lg"][class~="border"][class~="p-6"]': 5, '[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'div', 'cls': 'go2072408551', 'shadow': 'rgba(0, 0, 0, 0.1) 0px 3px 10px 0px, rgba(0, 0, 0, 0.05) 0px 3px 3px 0px'}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## dark|/shard|1280  url=/shard theme=dark iw=1280 ok=True domTotal=174 0size=57 clipped=0 shadowed=2
+   sig命中: {'[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## dark|/shard|1440  url=/shard theme=dark iw=1440 ok=True domTotal=174 0size=57 clipped=0 shadowed=2
+   sig命中: {'[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## dark|/task/new|1280  url=/task/new theme=dark iw=1280 ok=True domTotal=120 0size=55 clipped=0 shadowed=2
+   sig命中: {'[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## dark|/task/new|1440  url=/task/new theme=dark iw=1440 ok=True domTotal=120 0size=55 clipped=0 shadowed=2
+   sig命中: {'[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## dark|/task|1280  url=/task theme=dark iw=1280 ok=True domTotal=174 0size=55 clipped=0 shadowed=4
+   sig命中: {'button[class~="px-3"][class~="py-1.5"]': 4, 'div[class~="rounded-lg"][class~="border"][class~="p-6"]': 5, '[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'div', 'cls': 'go2072408551', 'shadow': 'rgba(0, 0, 0, 0.1) 0px 3px 10px 0px, rgba(0, 0, 0, 0.05) 0px 3px 3px 0px'}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## dark|/task|1440  url=/task theme=dark iw=1440 ok=True domTotal=174 0size=55 clipped=0 shadowed=4
+   sig命中: {'button[class~="px-3"][class~="py-1.5"]': 4, 'div[class~="rounded-lg"][class~="border"][class~="p-6"]': 5, '[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'div', 'cls': 'go2072408551', 'shadow': 'rgba(0, 0, 0, 0.1) 0px 3px 10px 0px, rgba(0, 0, 0, 0.05) 0px 3px 3px 0px'}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## dark|/theme-preview|1280  url=/theme-preview theme=dark iw=1280 ok=True domTotal=764 0size=55 clipped=0 shadowed=2
+   sig命中: {'[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## dark|/theme-preview|1440  url=/theme-preview theme=dark iw=1440 ok=True domTotal=764 0size=55 clipped=0 shadowed=2
+   sig命中: {'[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## dark|/|1280  url=/ theme=dark iw=1280 ok=True domTotal=170 0size=55 clipped=0 shadowed=3
+   sig命中: {'div[class~="rounded-lg"][class~="border"][class~="p-6"]': 2, '[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'div', 'cls': 'go2072408551', 'shadow': 'rgba(0, 0, 0, 0.1) 0px 3px 10px 0px, rgba(0, 0, 0, 0.05) 0px 3px 3px 0px'}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## dark|/|1440  url=/ theme=dark iw=1440 ok=True domTotal=170 0size=55 clipped=0 shadowed=3
+   sig命中: {'div[class~="rounded-lg"][class~="border"][class~="p-6"]': 2, '[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'div', 'cls': 'go2072408551', 'shadow': 'rgba(0, 0, 0, 0.1) 0px 3px 10px 0px, rgba(0, 0, 0, 0.05) 0px 3px 3px 0px'}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## light|/listing/new|1280  url=/listing/new theme=light iw=1280 ok=True domTotal=128 0size=55 clipped=0 shadowed=2
+   sig命中: {'[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## light|/listing/new|1440  url=/listing/new theme=light iw=1440 ok=True domTotal=128 0size=55 clipped=0 shadowed=2
+   sig命中: {'[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## light|/listing|1280  url=/listing theme=light iw=1280 ok=True domTotal=149 0size=55 clipped=0 shadowed=2
+   sig命中: {'[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## light|/listing|1440  url=/listing theme=light iw=1440 ok=True domTotal=149 0size=55 clipped=0 shadowed=2
+   sig命中: {'[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## light|/login|1280  url=/login theme=light iw=1280 ok=True domTotal=178 0size=55 clipped=0 shadowed=6
+   sig命中: {'div[class~="rounded-lg"][class~="border"][class~="p-6"]': 2, '[class~="shadow-sm"]': 2, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+   SHADOW: {'tag': 'section', 'cls': 'rounded-3xl bg-gradient-to-r from-yellow-50 via-white to-blue-50 p-8 shadow-sm ring-1 ring', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+   SHADOW: {'tag': 'div', 'cls': 'rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 hover:shadow-lg', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'div', 'cls': 'mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-white shad', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'div', 'cls': 'rounded-2xl bg-white/80 p-4 text-sm leading-6 text-gray-600 ring-1 ring-gray-100', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.967 0.003 '}
+
+## light|/login|1440  url=/login theme=light iw=1440 ok=True domTotal=178 0size=55 clipped=0 shadowed=6
+   sig命中: {'div[class~="rounded-lg"][class~="border"][class~="p-6"]': 2, '[class~="shadow-sm"]': 2, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+   SHADOW: {'tag': 'section', 'cls': 'rounded-3xl bg-gradient-to-r from-yellow-50 via-white to-blue-50 p-8 shadow-sm ring-1 ring', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+   SHADOW: {'tag': 'div', 'cls': 'rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 hover:shadow-lg', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'div', 'cls': 'mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-white shad', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'div', 'cls': 'rounded-2xl bg-white/80 p-4 text-sm leading-6 text-gray-600 ring-1 ring-gray-100', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.967 0.003 '}
+
+## light|/register|1280  url=/register theme=light iw=1280 ok=True domTotal=178 0size=55 clipped=0 shadowed=6
+   sig命中: {'div[class~="rounded-lg"][class~="border"][class~="p-6"]': 2, '[class~="shadow-sm"]': 2, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+   SHADOW: {'tag': 'section', 'cls': 'rounded-3xl bg-gradient-to-r from-yellow-50 via-white to-blue-50 p-8 shadow-sm ring-1 ring', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+   SHADOW: {'tag': 'div', 'cls': 'rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 hover:shadow-lg', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'div', 'cls': 'mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-white shad', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'div', 'cls': 'rounded-2xl bg-white/80 p-4 text-sm leading-6 text-gray-600 ring-1 ring-gray-100', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.967 0.003 '}
+
+## light|/register|1440  url=/register theme=light iw=1440 ok=True domTotal=178 0size=55 clipped=0 shadowed=6
+   sig命中: {'div[class~="rounded-lg"][class~="border"][class~="p-6"]': 2, '[class~="shadow-sm"]': 2, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+   SHADOW: {'tag': 'section', 'cls': 'rounded-3xl bg-gradient-to-r from-yellow-50 via-white to-blue-50 p-8 shadow-sm ring-1 ring', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+   SHADOW: {'tag': 'div', 'cls': 'rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 hover:shadow-lg', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'div', 'cls': 'mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-white shad', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'div', 'cls': 'rounded-2xl bg-white/80 p-4 text-sm leading-6 text-gray-600 ring-1 ring-gray-100', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.967 0.003 '}
+
+## light|/reward|1280  url=/reward theme=light iw=1280 ok=True domTotal=178 0size=55 clipped=0 shadowed=4
+   sig命中: {'button[class~="px-3"][class~="py-1.5"]': 4, 'div[class~="rounded-lg"][class~="border"][class~="p-6"]': 5, '[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'div', 'cls': 'go2072408551', 'shadow': 'rgba(0, 0, 0, 0.1) 0px 3px 10px 0px, rgba(0, 0, 0, 0.05) 0px 3px 3px 0px'}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## light|/reward|1440  url=/reward theme=light iw=1440 ok=True domTotal=178 0size=55 clipped=0 shadowed=4
+   sig命中: {'button[class~="px-3"][class~="py-1.5"]': 4, 'div[class~="rounded-lg"][class~="border"][class~="p-6"]': 5, '[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'div', 'cls': 'go2072408551', 'shadow': 'rgba(0, 0, 0, 0.1) 0px 3px 10px 0px, rgba(0, 0, 0, 0.05) 0px 3px 3px 0px'}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## light|/shard|1280  url=/shard theme=light iw=1280 ok=True domTotal=182 0size=57 clipped=0 shadowed=2
+   sig命中: {'[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## light|/shard|1440  url=/shard theme=light iw=1440 ok=True domTotal=182 0size=57 clipped=0 shadowed=2
+   sig命中: {'[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## light|/task/new|1280  url=/task/new theme=light iw=1280 ok=True domTotal=128 0size=55 clipped=0 shadowed=2
+   sig命中: {'[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## light|/task/new|1440  url=/task/new theme=light iw=1440 ok=True domTotal=128 0size=55 clipped=0 shadowed=2
+   sig命中: {'[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## light|/task|1280  url=/task theme=light iw=1280 ok=True domTotal=182 0size=55 clipped=0 shadowed=4
+   sig命中: {'button[class~="px-3"][class~="py-1.5"]': 4, 'div[class~="rounded-lg"][class~="border"][class~="p-6"]': 5, '[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'div', 'cls': 'go2072408551', 'shadow': 'rgba(0, 0, 0, 0.1) 0px 3px 10px 0px, rgba(0, 0, 0, 0.05) 0px 3px 3px 0px'}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## light|/task|1440  url=/task theme=light iw=1440 ok=True domTotal=182 0size=55 clipped=0 shadowed=4
+   sig命中: {'button[class~="px-3"][class~="py-1.5"]': 4, 'div[class~="rounded-lg"][class~="border"][class~="p-6"]': 5, '[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'div', 'cls': 'go2072408551', 'shadow': 'rgba(0, 0, 0, 0.1) 0px 3px 10px 0px, rgba(0, 0, 0, 0.05) 0px 3px 3px 0px'}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## light|/theme-preview|1280  url=/theme-preview theme=light iw=1280 ok=True domTotal=772 0size=55 clipped=0 shadowed=2
+   sig命中: {'[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## light|/theme-preview|1440  url=/theme-preview theme=light iw=1440 ok=True domTotal=772 0size=55 clipped=0 shadowed=2
+   sig命中: {'[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## light|/|1280  url=/ theme=light iw=1280 ok=True domTotal=178 0size=55 clipped=0 shadowed=3
+   sig命中: {'div[class~="rounded-lg"][class~="border"][class~="p-6"]': 2, '[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'div', 'cls': 'go2072408551', 'shadow': 'rgba(0, 0, 0, 0.1) 0px 3px 10px 0px, rgba(0, 0, 0, 0.05) 0px 3px 3px 0px'}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+## light|/|1440  url=/ theme=light iw=1440 ok=True domTotal=178 0size=55 clipped=0 shadowed=3
+   sig命中: {'div[class~="rounded-lg"][class~="border"][class~="p-6"]': 2, '[class~="shadow-sm"]': 1, '[class~="rounded-md"]': 1}
+   SHADOW: {'tag': 'div', 'cls': 'go2072408551', 'shadow': 'rgba(0, 0, 0, 0.1) 0px 3px 10px 0px, rgba(0, 0, 0, 0.05) 0px 3px 3px 0px'}
+   SHADOW: {'tag': 'header', 'cls': 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ', 'shadow': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0'}
+   SHADOW: {'tag': 'img', 'cls': 'inline-block w-5 h-3 rounded-sm shadow-sm', 'shadow': 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px'}
+
+# ==== sig 全站去重（签名 → 出现次数）====
+  x 40  ('[class~="rounded-md"]', 'button', 'p-2 rounded-md text-gray-600 dark:text-gray-300 hover:text-g', '6px', '0px solid rgb(229, 231, 235)', 'none', 'none')
+  x 40  ('[class~="shadow-sm"]', 'img', 'inline-block w-5 h-3 rounded-sm shadow-sm', '2px', '0px solid rgb(229, 231, 235)', 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px', 'none')
+  x  8  ('[class~="shadow-sm"]', 'section', 'rounded-3xl bg-gradient-to-r from-yellow-50 via-white to-blu', '24px', '0px solid rgb(229, 231, 235)', 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px', 'none')
+  x 32  ('button[class~="px-3"][class~="py-1.5"]', 'button', 'inline-flex min-w-0 items-center justify-center whitespace-n', '8px', '0px solid rgb(229, 231, 235)', 'none', 'none')
+  x 16  ('div[class~="rounded-lg"][class~="border"][class~="p-6"]', 'div', 'rounded-lg border p-6 transition-all duration-300 bg-blue-50', '8px', '1px solid rgb(191, 219, 254)', 'none', 'none')
+  x 16  ('div[class~="rounded-lg"][class~="border"][class~="p-6"]', 'div', 'rounded-lg border p-6 transition-all duration-300 bg-gray-50', '8px', '1px solid rgb(229, 231, 235)', 'none', 'none')
+  x  8  ('div[class~="rounded-lg"][class~="border"][class~="p-6"]', 'div', 'rounded-lg border p-6 transition-all duration-300 bg-green-5', '8px', '1px solid rgb(187, 247, 208)', 'none', 'none')
+  x  8  ('div[class~="rounded-lg"][class~="border"][class~="p-6"]', 'div', 'rounded-lg border p-6 transition-all duration-300 bg-red-50 ', '8px', '1px solid rgb(254, 202, 202)', 'none', 'none')
+  x  8  ('div[class~="rounded-lg"][class~="border"][class~="p-6"]', 'div', 'rounded-lg border p-6 transition-all duration-300 bg-white b', '8px', '1px solid rgb(229, 231, 235)', 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0', 'none')
+  x  8  ('div[class~="rounded-lg"][class~="border"][class~="p-6"]', 'div', 'rounded-lg border p-6 transition-all duration-300 bg-yellow-', '8px', '1px solid rgb(254, 240, 138)', 'none', 'none')

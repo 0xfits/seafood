@@ -1,0 +1,3729 @@
+{
+ "label": "before-style",
+ "dist": "/Users/kevin/.hermes/profiles/zang/cache/scratch/qa-uiconsistb-pre/frontend/dist",
+ "port": 5794,
+ "mode": "style",
+ "executable": "/Users/kevin/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell",
+ "runs": {
+  "light|/|1280x900": {
+   "theme": "light",
+   "lsTheme": "light",
+   "url": "/",
+   "innerWidth": 1280,
+   "innerHeight": 900,
+   "docScrollW": 1280,
+   "bodyScrollW": 1280,
+   "els": {
+    ".sf-card": [],
+    ".sf-panel": [],
+    ".sf-listings-card": [],
+    ".sf-listings-item": [],
+    ".sf-mkt-panel": [],
+    ".sf-listings-input": [],
+    ".sf-mkt-input": [],
+    ".sf-mkt-select": [],
+    ".sf-box": [],
+    ".sf-chip": [],
+    ".sf-tag": [],
+    ".sf-price": [],
+    ".sf-tabbar": [
+     {
+      "tag": "nav",
+      "cls": "sf-tabbar",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".sf-tab": [
+     {
+      "tag": "a",
+      "cls": "sf-tab is-active",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".btn-proceed": [
+     {
+      "tag": "button",
+      "cls": "btn btn-proceed btn-md px-4 py-2 text-base",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "polygon(10px 0px, calc(100% - 10px) 0px, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0px calc(100% - 10px), 0px 10px)",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       1132,
+       343,
+       96,
+       40
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "btn btn-proceed btn-md px-4 py-2 text-base",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "polygon(10px 0px, calc(100% - 10px) 0px, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0px calc(100% - 10px), 0px 10px)",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       1132,
+       563,
+       96,
+       40
+      ]
+     }
+    ],
+    ".btn-md": [
+     {
+      "tag": "button",
+      "cls": "btn btn-proceed btn-md px-4 py-2 text-base",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "polygon(10px 0px, calc(100% - 10px) 0px, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0px calc(100% - 10px), 0px 10px)",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       1132,
+       343,
+       96,
+       40
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "btn btn-proceed btn-md px-4 py-2 text-base",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "polygon(10px 0px, calc(100% - 10px) 0px, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0px calc(100% - 10px), 0px 10px)",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       1132,
+       563,
+       96,
+       40
+      ]
+     }
+    ],
+    ".sf-listings-panel": [],
+    ".sf-listings-empty": [],
+    ".sf-listings-tag": [],
+    ".sf-listings-price": [],
+    ".sf-mkt-item": [],
+    ".sf-mkt-empty": [],
+    ".sf-jobs-item": [],
+    ".sf-jobs-tag": [],
+    ".btn": [
+     {
+      "tag": "button",
+      "cls": "btn btn-a btn-lg px-8 py-3 text-lg",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       546,
+       237,
+       86,
+       34
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "btn btn-a-alt btn-lg px-8 py-3 text-lg",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(224, 224, 224)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       648,
+       237,
+       86,
+       34
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "btn btn-proceed btn-md px-4 py-2 text-base",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "polygon(10px 0px, calc(100% - 10px) 0px, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0px calc(100% - 10px), 0px 10px)",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       1132,
+       343,
+       96,
+       40
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "btn btn-proceed btn-md px-4 py-2 text-base",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "polygon(10px 0px, calc(100% - 10px) 0px, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0px calc(100% - 10px), 0px 10px)",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       1132,
+       563,
+       96,
+       40
+      ]
+     }
+    ],
+    ".btn-sm": [],
+    ".btn-lg": [
+     {
+      "tag": "button",
+      "cls": "btn btn-a btn-lg px-8 py-3 text-lg",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       546,
+       237,
+       86,
+       34
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "btn btn-a-alt btn-lg px-8 py-3 text-lg",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(224, 224, 224)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       648,
+       237,
+       86,
+       34
+      ]
+     }
+    ],
+    ".btn-inactive": [],
+    ".btn-primary": [],
+    ".btn-outline": [],
+    ".btn-ghost": [],
+    ".btn-success": [],
+    ".btn-warning": []
+   }
+  },
+  "light|/login|1280x900": {
+   "theme": "light",
+   "lsTheme": "light",
+   "url": "/login",
+   "innerWidth": 1280,
+   "innerHeight": 900,
+   "docScrollW": 1280,
+   "bodyScrollW": 1280,
+   "els": {
+    ".sf-card": [],
+    ".sf-panel": [],
+    ".sf-listings-card": [],
+    ".sf-listings-item": [],
+    ".sf-mkt-panel": [],
+    ".sf-listings-input": [],
+    ".sf-mkt-input": [],
+    ".sf-mkt-select": [],
+    ".sf-box": [],
+    ".sf-chip": [],
+    ".sf-tag": [],
+    ".sf-price": [],
+    ".sf-tabbar": [
+     {
+      "tag": "nav",
+      "cls": "sf-tabbar",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".sf-tab": [
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".btn-proceed": [
+     {
+      "tag": "button",
+      "cls": "btn btn-proceed btn-md px-4 py-2 text-base opacity-50 cursor-not-allowed w-full",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "polygon(10px 0px, calc(100% - 10px) 0px, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0px calc(100% - 10px), 0px 10px)",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       314,
+       881,
+       330.39,
+       40
+      ]
+     }
+    ],
+    ".btn-md": [
+     {
+      "tag": "button",
+      "cls": "btn btn-a btn-md px-4 py-2 text-base w-full",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       314,
+       835,
+       330.39,
+       34
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "btn btn-proceed btn-md px-4 py-2 text-base opacity-50 cursor-not-allowed w-full",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "polygon(10px 0px, calc(100% - 10px) 0px, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0px calc(100% - 10px), 0px 10px)",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       314,
+       881,
+       330.39,
+       40
+      ]
+     }
+    ],
+    ".sf-listings-panel": [],
+    ".sf-listings-empty": [],
+    ".sf-listings-tag": [],
+    ".sf-listings-price": [],
+    ".sf-mkt-item": [],
+    ".sf-mkt-empty": [],
+    ".sf-jobs-item": [],
+    ".sf-jobs-tag": [],
+    ".btn": [
+     {
+      "tag": "button",
+      "cls": "btn btn-a btn-md px-4 py-2 text-base w-full",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       314,
+       835,
+       330.39,
+       34
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "btn btn-proceed btn-md px-4 py-2 text-base opacity-50 cursor-not-allowed w-full",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "polygon(10px 0px, calc(100% - 10px) 0px, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0px calc(100% - 10px), 0px 10px)",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       314,
+       881,
+       330.39,
+       40
+      ]
+     }
+    ],
+    ".btn-sm": [],
+    ".btn-lg": [],
+    ".btn-inactive": [],
+    ".btn-primary": [],
+    ".btn-outline": [],
+    ".btn-ghost": [],
+    ".btn-success": [],
+    ".btn-warning": []
+   }
+  },
+  "light|/listing|1280x900": {
+   "theme": "light",
+   "lsTheme": "light",
+   "url": "/listing",
+   "innerWidth": 1280,
+   "innerHeight": 900,
+   "docScrollW": 1280,
+   "bodyScrollW": 1280,
+   "els": {
+    ".sf-card": [],
+    ".sf-panel": [],
+    ".sf-listings-card": [],
+    ".sf-listings-item": [],
+    ".sf-mkt-panel": [],
+    ".sf-listings-input": [
+     {
+      "tag": "input",
+      "cls": "sf-listings-input",
+      "radius": "11px",
+      "shadow": "rgb(3, 4, 2) 2px 2px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       955,
+       260.5,
+       290,
+       37.5
+      ]
+     }
+    ],
+    ".sf-mkt-input": [],
+    ".sf-mkt-select": [],
+    ".sf-box": [],
+    ".sf-chip": [],
+    ".sf-tag": [],
+    ".sf-price": [],
+    ".sf-tabbar": [
+     {
+      "tag": "nav",
+      "cls": "sf-tabbar",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".sf-tab": [
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".btn-proceed": [],
+    ".btn-md": [],
+    ".sf-listings-panel": [
+     {
+      "tag": "div",
+      "cls": "sf-listings-panel",
+      "radius": "13px",
+      "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       940,
+       73,
+       320,
+       133.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-listings-panel",
+      "radius": "13px",
+      "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       940,
+       215.5,
+       320,
+       201
+      ]
+     }
+    ],
+    ".sf-listings-empty": [
+     {
+      "tag": "div",
+      "cls": "sf-listings-empty",
+      "radius": "13px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "dashed",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       20,
+       173.5,
+       902,
+       49.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-listings-empty",
+      "radius": "13px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "dashed",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       955,
+       118,
+       290,
+       49.5
+      ]
+     }
+    ],
+    ".sf-listings-tag": [],
+    ".sf-listings-price": [],
+    ".sf-mkt-item": [],
+    ".sf-mkt-empty": [],
+    ".sf-jobs-item": [],
+    ".sf-jobs-tag": [],
+    ".btn": [],
+    ".btn-sm": [],
+    ".btn-lg": [],
+    ".btn-inactive": [],
+    ".btn-primary": [],
+    ".btn-outline": [],
+    ".btn-ghost": [],
+    ".btn-success": [],
+    ".btn-warning": []
+   }
+  },
+  "light|/theme-preview|1280x900": {
+   "theme": "light",
+   "lsTheme": "light",
+   "url": "/theme-preview",
+   "innerWidth": 1280,
+   "innerHeight": 900,
+   "docScrollW": 1280,
+   "bodyScrollW": 1280,
+   "els": {
+    ".sf-card": [
+     {
+      "tag": "div",
+      "cls": "sf-card",
+      "radius": "13px",
+      "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       20,
+       333.75,
+       213.5,
+       114.14
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-card",
+      "radius": "13px",
+      "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       249.5,
+       333.75,
+       213.5,
+       114.14
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-card",
+      "radius": "13px",
+      "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       479,
+       333.75,
+       213.5,
+       114.14
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-card",
+      "radius": "13px",
+      "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       708.5,
+       333.75,
+       213.5,
+       114.14
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-card",
+      "radius": "13px",
+      "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       20,
+       463.89,
+       213.5,
+       114.14
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-card",
+      "radius": "13px",
+      "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       249.5,
+       463.89,
+       213.5,
+       114.14
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-card",
+      "radius": "13px",
+      "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       479,
+       463.89,
+       213.5,
+       114.14
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-card",
+      "radius": "13px",
+      "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       708.5,
+       463.89,
+       213.5,
+       114.14
+      ]
+     }
+    ],
+    ".sf-panel": [
+     {
+      "tag": "div",
+      "cls": "sf-panel",
+      "radius": "13px",
+      "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       940,
+       333.75,
+       320,
+       154.17
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-panel",
+      "radius": "13px",
+      "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       940,
+       496.92,
+       320,
+       141.78
+      ]
+     }
+    ],
+    ".sf-listings-card": [],
+    ".sf-listings-item": [],
+    ".sf-mkt-panel": [],
+    ".sf-listings-input": [],
+    ".sf-mkt-input": [],
+    ".sf-mkt-select": [],
+    ".sf-box": [
+     {
+      "tag": "div",
+      "cls": "sf-box",
+      "radius": "11px",
+      "shadow": "rgb(3, 4, 2) 2px 2px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       20,
+       239,
+       1240,
+       26
+      ]
+     }
+    ],
+    ".sf-chip": [
+     {
+      "tag": "button",
+      "cls": "sf-chip is-on",
+      "radius": "999px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       311.88,
+       191.88,
+       66,
+       26
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "sf-chip",
+      "radius": "999px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       385.88,
+       191.88,
+       56.89,
+       26
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "sf-chip",
+      "radius": "999px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       450.77,
+       191.88,
+       34,
+       26
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "sf-chip",
+      "radius": "999px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       492.77,
+       191.88,
+       77,
+       26
+      ]
+     },
+     {
+      "tag": "span",
+      "cls": "sf-chip is-on",
+      "radius": "999px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       20,
+       279,
+       53,
+       32.75
+      ]
+     },
+     {
+      "tag": "span",
+      "cls": "sf-chip",
+      "radius": "999px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       81,
+       279,
+       53,
+       32.75
+      ]
+     },
+     {
+      "tag": "span",
+      "cls": "sf-chip",
+      "radius": "999px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       142,
+       279,
+       90.5,
+       32.75
+      ]
+     },
+     {
+      "tag": "span",
+      "cls": "sf-chip",
+      "radius": "999px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       240.5,
+       279,
+       78,
+       32.75
+      ]
+     },
+     {
+      "tag": "span",
+      "cls": "sf-chip",
+      "radius": "999px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       326.5,
+       279,
+       53,
+       32.75
+      ]
+     }
+    ],
+    ".sf-tag": [
+     {
+      "tag": "div",
+      "cls": "sf-tag",
+      "radius": "5px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       955,
+       598.7,
+       290,
+       26
+      ]
+     }
+    ],
+    ".sf-price": [
+     {
+      "tag": "div",
+      "cls": "sf-price",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       32,
+       372,
+       91.14,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-price",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       261.5,
+       372,
+       91.14,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-price",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       491,
+       372,
+       91.14,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-price",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       720.5,
+       372,
+       91.14,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-price",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       32,
+       502.14,
+       91.14,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-price",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       261.5,
+       502.14,
+       91.14,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-price",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       491,
+       502.14,
+       91.14,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-price",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       720.5,
+       502.14,
+       91.14,
+       37.5
+      ]
+     }
+    ],
+    ".sf-tabbar": [
+     {
+      "tag": "nav",
+      "cls": "sf-tabbar",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".sf-tab": [
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".btn-proceed": [],
+    ".btn-md": [],
+    ".sf-listings-panel": [],
+    ".sf-listings-empty": [],
+    ".sf-listings-tag": [],
+    ".sf-listings-price": [],
+    ".sf-mkt-item": [],
+    ".sf-mkt-empty": [],
+    ".sf-jobs-item": [],
+    ".sf-jobs-tag": [],
+    ".btn": [],
+    ".btn-sm": [],
+    ".btn-lg": [],
+    ".btn-inactive": [],
+    ".btn-primary": [],
+    ".btn-outline": [],
+    ".btn-ghost": [],
+    ".btn-success": [],
+    ".btn-warning": []
+   }
+  },
+  "light|/shard|1280x900": {
+   "theme": "light",
+   "lsTheme": "light",
+   "url": "/shard",
+   "innerWidth": 1280,
+   "innerHeight": 900,
+   "docScrollW": 1280,
+   "bodyScrollW": 1280,
+   "els": {
+    ".sf-card": [],
+    ".sf-panel": [],
+    ".sf-listings-card": [],
+    ".sf-listings-item": [],
+    ".sf-mkt-panel": [
+     {
+      "tag": "form",
+      "cls": "sf-mkt-panel",
+      "radius": "13px",
+      "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       20,
+       248.5,
+       902,
+       225.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-mkt-panel",
+      "radius": "13px",
+      "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       20,
+       483,
+       443,
+       153
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-mkt-panel",
+      "radius": "13px",
+      "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       479,
+       483,
+       443,
+       153
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-mkt-panel",
+      "radius": "13px",
+      "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       940,
+       73,
+       320,
+       197
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-mkt-panel",
+      "radius": "13px",
+      "shadow": "rgb(3, 4, 2) 3px 3px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       940,
+       279,
+       320,
+       107.5
+      ]
+     }
+    ],
+    ".sf-listings-input": [],
+    ".sf-mkt-input": [
+     {
+      "tag": "input",
+      "cls": "sf-mkt-input",
+      "radius": "11px",
+      "shadow": "rgb(3, 4, 2) 2px 2px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       475.5,
+       283.5,
+       431.5,
+       37.5
+      ]
+     },
+     {
+      "tag": "input",
+      "cls": "sf-mkt-input",
+      "radius": "11px",
+      "shadow": "rgb(3, 4, 2) 2px 2px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       35,
+       352,
+       431.5,
+       37.5
+      ]
+     },
+     {
+      "tag": "input",
+      "cls": "sf-mkt-input",
+      "radius": "11px",
+      "shadow": "rgb(3, 4, 2) 2px 2px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       475.5,
+       352,
+       431.5,
+       37.5
+      ]
+     }
+    ],
+    ".sf-mkt-select": [
+     {
+      "tag": "select",
+      "cls": "sf-mkt-select",
+      "radius": "11px",
+      "shadow": "rgb(3, 4, 2) 2px 2px 0px 0px",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       35,
+       283.5,
+       431.5,
+       35
+      ]
+     }
+    ],
+    ".sf-box": [],
+    ".sf-chip": [],
+    ".sf-tag": [],
+    ".sf-price": [],
+    ".sf-tabbar": [
+     {
+      "tag": "nav",
+      "cls": "sf-tabbar",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".sf-tab": [
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab is-active",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".btn-proceed": [],
+    ".btn-md": [],
+    ".sf-listings-panel": [],
+    ".sf-listings-empty": [],
+    ".sf-listings-tag": [],
+    ".sf-listings-price": [],
+    ".sf-mkt-item": [],
+    ".sf-mkt-empty": [
+     {
+      "tag": "div",
+      "cls": "sf-mkt-empty",
+      "radius": "13px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "dashed",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       35,
+       528,
+       413,
+       69
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-mkt-empty",
+      "radius": "13px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "dashed",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       494,
+       528,
+       413,
+       49.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-mkt-empty",
+      "radius": "13px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "dashed",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       955,
+       163.5,
+       290,
+       49.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-mkt-empty",
+      "radius": "13px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "dashed",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       955,
+       324,
+       290,
+       49.5
+      ]
+     }
+    ],
+    ".sf-jobs-item": [],
+    ".sf-jobs-tag": [],
+    ".btn": [],
+    ".btn-sm": [],
+    ".btn-lg": [],
+    ".btn-inactive": [],
+    ".btn-primary": [],
+    ".btn-outline": [],
+    ".btn-ghost": [],
+    ".btn-success": [],
+    ".btn-warning": []
+   }
+  },
+  "light|/task|1280x900": {
+   "theme": "light",
+   "lsTheme": "light",
+   "url": "/task",
+   "innerWidth": 1280,
+   "innerHeight": 900,
+   "docScrollW": 1280,
+   "bodyScrollW": 1280,
+   "els": {
+    ".sf-card": [],
+    ".sf-panel": [],
+    ".sf-listings-card": [],
+    ".sf-listings-item": [],
+    ".sf-mkt-panel": [],
+    ".sf-listings-input": [],
+    ".sf-mkt-input": [],
+    ".sf-mkt-select": [],
+    ".sf-box": [],
+    ".sf-chip": [],
+    ".sf-tag": [],
+    ".sf-price": [],
+    ".sf-tabbar": [
+     {
+      "tag": "nav",
+      "cls": "sf-tabbar",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(3, 4, 2)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".sf-tab": [
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab is-active",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".btn-proceed": [],
+    ".btn-md": [],
+    ".sf-listings-panel": [],
+    ".sf-listings-empty": [],
+    ".sf-listings-tag": [],
+    ".sf-listings-price": [],
+    ".sf-mkt-item": [],
+    ".sf-mkt-empty": [],
+    ".sf-jobs-item": [],
+    ".sf-jobs-tag": [],
+    ".btn": [],
+    ".btn-sm": [],
+    ".btn-lg": [],
+    ".btn-inactive": [],
+    ".btn-primary": [],
+    ".btn-outline": [],
+    ".btn-ghost": [],
+    ".btn-success": [],
+    ".btn-warning": []
+   }
+  },
+  "dark|/|1280x900": {
+   "theme": "dark",
+   "lsTheme": "dark",
+   "url": "/",
+   "innerWidth": 1280,
+   "innerHeight": 900,
+   "docScrollW": 1280,
+   "bodyScrollW": 1280,
+   "els": {
+    ".sf-card": [],
+    ".sf-panel": [],
+    ".sf-listings-card": [],
+    ".sf-listings-item": [],
+    ".sf-mkt-panel": [],
+    ".sf-listings-input": [],
+    ".sf-mkt-input": [],
+    ".sf-mkt-select": [],
+    ".sf-box": [],
+    ".sf-chip": [],
+    ".sf-tag": [],
+    ".sf-price": [],
+    ".sf-tabbar": [
+     {
+      "tag": "nav",
+      "cls": "sf-tabbar",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".sf-tab": [
+     {
+      "tag": "a",
+      "cls": "sf-tab is-active",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".btn-proceed": [
+     {
+      "tag": "button",
+      "cls": "btn btn-proceed btn-md px-4 py-2 text-base",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "polygon(10px 0px, calc(100% - 10px) 0px, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0px calc(100% - 10px), 0px 10px)",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       1132,
+       343,
+       96,
+       40
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "btn btn-proceed btn-md px-4 py-2 text-base",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "polygon(10px 0px, calc(100% - 10px) 0px, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0px calc(100% - 10px), 0px 10px)",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       1132,
+       563,
+       96,
+       40
+      ]
+     }
+    ],
+    ".btn-md": [
+     {
+      "tag": "button",
+      "cls": "btn btn-proceed btn-md px-4 py-2 text-base",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "polygon(10px 0px, calc(100% - 10px) 0px, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0px calc(100% - 10px), 0px 10px)",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       1132,
+       343,
+       96,
+       40
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "btn btn-proceed btn-md px-4 py-2 text-base",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "polygon(10px 0px, calc(100% - 10px) 0px, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0px calc(100% - 10px), 0px 10px)",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       1132,
+       563,
+       96,
+       40
+      ]
+     }
+    ],
+    ".sf-listings-panel": [],
+    ".sf-listings-empty": [],
+    ".sf-listings-tag": [],
+    ".sf-listings-price": [],
+    ".sf-mkt-item": [],
+    ".sf-mkt-empty": [],
+    ".sf-jobs-item": [],
+    ".sf-jobs-tag": [],
+    ".btn": [
+     {
+      "tag": "button",
+      "cls": "btn btn-a btn-lg px-8 py-3 text-lg",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgba(0, 0, 0, 0)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       546,
+       237,
+       86,
+       34
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "btn btn-a-alt btn-lg px-8 py-3 text-lg",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(224, 224, 224)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       648,
+       237,
+       86,
+       34
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "btn btn-proceed btn-md px-4 py-2 text-base",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "polygon(10px 0px, calc(100% - 10px) 0px, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0px calc(100% - 10px), 0px 10px)",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       1132,
+       343,
+       96,
+       40
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "btn btn-proceed btn-md px-4 py-2 text-base",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "polygon(10px 0px, calc(100% - 10px) 0px, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0px calc(100% - 10px), 0px 10px)",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       1132,
+       563,
+       96,
+       40
+      ]
+     }
+    ],
+    ".btn-sm": [],
+    ".btn-lg": [
+     {
+      "tag": "button",
+      "cls": "btn btn-a btn-lg px-8 py-3 text-lg",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgba(0, 0, 0, 0)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       546,
+       237,
+       86,
+       34
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "btn btn-a-alt btn-lg px-8 py-3 text-lg",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(224, 224, 224)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       648,
+       237,
+       86,
+       34
+      ]
+     }
+    ],
+    ".btn-inactive": [],
+    ".btn-primary": [],
+    ".btn-outline": [],
+    ".btn-ghost": [],
+    ".btn-success": [],
+    ".btn-warning": []
+   }
+  },
+  "dark|/login|1280x900": {
+   "theme": "dark",
+   "lsTheme": "dark",
+   "url": "/login",
+   "innerWidth": 1280,
+   "innerHeight": 900,
+   "docScrollW": 1280,
+   "bodyScrollW": 1280,
+   "els": {
+    ".sf-card": [],
+    ".sf-panel": [],
+    ".sf-listings-card": [],
+    ".sf-listings-item": [],
+    ".sf-mkt-panel": [],
+    ".sf-listings-input": [],
+    ".sf-mkt-input": [],
+    ".sf-mkt-select": [],
+    ".sf-box": [],
+    ".sf-chip": [],
+    ".sf-tag": [],
+    ".sf-price": [],
+    ".sf-tabbar": [
+     {
+      "tag": "nav",
+      "cls": "sf-tabbar",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".sf-tab": [
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".btn-proceed": [
+     {
+      "tag": "button",
+      "cls": "btn btn-proceed btn-md px-4 py-2 text-base opacity-50 cursor-not-allowed w-full",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "polygon(10px 0px, calc(100% - 10px) 0px, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0px calc(100% - 10px), 0px 10px)",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       314,
+       881,
+       330.39,
+       40
+      ]
+     }
+    ],
+    ".btn-md": [
+     {
+      "tag": "button",
+      "cls": "btn btn-a btn-md px-4 py-2 text-base w-full",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgba(0, 0, 0, 0)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       314,
+       835,
+       330.39,
+       34
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "btn btn-proceed btn-md px-4 py-2 text-base opacity-50 cursor-not-allowed w-full",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "polygon(10px 0px, calc(100% - 10px) 0px, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0px calc(100% - 10px), 0px 10px)",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       314,
+       881,
+       330.39,
+       40
+      ]
+     }
+    ],
+    ".sf-listings-panel": [],
+    ".sf-listings-empty": [],
+    ".sf-listings-tag": [],
+    ".sf-listings-price": [],
+    ".sf-mkt-item": [],
+    ".sf-mkt-empty": [],
+    ".sf-jobs-item": [],
+    ".sf-jobs-tag": [],
+    ".btn": [
+     {
+      "tag": "button",
+      "cls": "btn btn-a btn-md px-4 py-2 text-base w-full",
+      "radius": "8px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgba(0, 0, 0, 0)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       314,
+       835,
+       330.39,
+       34
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "btn btn-proceed btn-md px-4 py-2 text-base opacity-50 cursor-not-allowed w-full",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "polygon(10px 0px, calc(100% - 10px) 0px, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0px calc(100% - 10px), 0px 10px)",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       314,
+       881,
+       330.39,
+       40
+      ]
+     }
+    ],
+    ".btn-sm": [],
+    ".btn-lg": [],
+    ".btn-inactive": [],
+    ".btn-primary": [],
+    ".btn-outline": [],
+    ".btn-ghost": [],
+    ".btn-success": [],
+    ".btn-warning": []
+   }
+  },
+  "dark|/listing|1280x900": {
+   "theme": "dark",
+   "lsTheme": "dark",
+   "url": "/listing",
+   "innerWidth": 1280,
+   "innerHeight": 900,
+   "docScrollW": 1280,
+   "bodyScrollW": 1280,
+   "els": {
+    ".sf-card": [],
+    ".sf-panel": [],
+    ".sf-listings-card": [],
+    ".sf-listings-item": [],
+    ".sf-mkt-panel": [],
+    ".sf-listings-input": [
+     {
+      "tag": "input",
+      "cls": "sf-listings-input",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(51, 55, 61)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       955,
+       260.5,
+       290,
+       37.5
+      ]
+     }
+    ],
+    ".sf-mkt-input": [],
+    ".sf-mkt-select": [],
+    ".sf-box": [],
+    ".sf-chip": [],
+    ".sf-tag": [],
+    ".sf-price": [],
+    ".sf-tabbar": [
+     {
+      "tag": "nav",
+      "cls": "sf-tabbar",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".sf-tab": [
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".btn-proceed": [],
+    ".btn-md": [],
+    ".sf-listings-panel": [
+     {
+      "tag": "div",
+      "cls": "sf-listings-panel",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       940,
+       73,
+       320,
+       133.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-listings-panel",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       940,
+       215.5,
+       320,
+       201
+      ]
+     }
+    ],
+    ".sf-listings-empty": [
+     {
+      "tag": "div",
+      "cls": "sf-listings-empty",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "dashed",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       20,
+       173.5,
+       902,
+       49.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-listings-empty",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "dashed",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       955,
+       118,
+       290,
+       49.5
+      ]
+     }
+    ],
+    ".sf-listings-tag": [],
+    ".sf-listings-price": [],
+    ".sf-mkt-item": [],
+    ".sf-mkt-empty": [],
+    ".sf-jobs-item": [],
+    ".sf-jobs-tag": [],
+    ".btn": [],
+    ".btn-sm": [],
+    ".btn-lg": [],
+    ".btn-inactive": [],
+    ".btn-primary": [],
+    ".btn-outline": [],
+    ".btn-ghost": [],
+    ".btn-success": [],
+    ".btn-warning": []
+   }
+  },
+  "dark|/theme-preview|1280x900": {
+   "theme": "dark",
+   "lsTheme": "dark",
+   "url": "/theme-preview",
+   "innerWidth": 1280,
+   "innerHeight": 900,
+   "docScrollW": 1280,
+   "bodyScrollW": 1280,
+   "els": {
+    ".sf-card": [
+     {
+      "tag": "div",
+      "cls": "sf-card",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       20,
+       333.75,
+       213.5,
+       114.14
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-card",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       249.5,
+       333.75,
+       213.5,
+       114.14
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-card",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       479,
+       333.75,
+       213.5,
+       114.14
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-card",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       708.5,
+       333.75,
+       213.5,
+       114.14
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-card",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       20,
+       463.89,
+       213.5,
+       114.14
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-card",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       249.5,
+       463.89,
+       213.5,
+       114.14
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-card",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       479,
+       463.89,
+       213.5,
+       114.14
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-card",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       708.5,
+       463.89,
+       213.5,
+       114.14
+      ]
+     }
+    ],
+    ".sf-panel": [
+     {
+      "tag": "div",
+      "cls": "sf-panel",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       940,
+       333.75,
+       320,
+       154.17
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-panel",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       940,
+       496.92,
+       320,
+       141.78
+      ]
+     }
+    ],
+    ".sf-listings-card": [],
+    ".sf-listings-item": [],
+    ".sf-mkt-panel": [],
+    ".sf-listings-input": [],
+    ".sf-mkt-input": [],
+    ".sf-mkt-select": [],
+    ".sf-box": [
+     {
+      "tag": "div",
+      "cls": "sf-box",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(51, 55, 61)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       20,
+       239,
+       1240,
+       26
+      ]
+     }
+    ],
+    ".sf-chip": [
+     {
+      "tag": "button",
+      "cls": "sf-chip is-on",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(42, 45, 51)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       311.88,
+       191.88,
+       66,
+       26
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "sf-chip",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(42, 45, 51)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       385.88,
+       191.88,
+       56.89,
+       26
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "sf-chip",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(42, 45, 51)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       450.77,
+       191.88,
+       34,
+       26
+      ]
+     },
+     {
+      "tag": "button",
+      "cls": "sf-chip",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(42, 45, 51)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       492.77,
+       191.88,
+       77,
+       26
+      ]
+     },
+     {
+      "tag": "span",
+      "cls": "sf-chip is-on",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(42, 45, 51)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       20,
+       279,
+       53,
+       32.75
+      ]
+     },
+     {
+      "tag": "span",
+      "cls": "sf-chip",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(42, 45, 51)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       81,
+       279,
+       53,
+       32.75
+      ]
+     },
+     {
+      "tag": "span",
+      "cls": "sf-chip",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(42, 45, 51)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       142,
+       279,
+       90.5,
+       32.75
+      ]
+     },
+     {
+      "tag": "span",
+      "cls": "sf-chip",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(42, 45, 51)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       240.5,
+       279,
+       78,
+       32.75
+      ]
+     },
+     {
+      "tag": "span",
+      "cls": "sf-chip",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(42, 45, 51)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       326.5,
+       279,
+       53,
+       32.75
+      ]
+     }
+    ],
+    ".sf-tag": [
+     {
+      "tag": "div",
+      "cls": "sf-tag",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(42, 45, 51)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       955,
+       598.7,
+       290,
+       26
+      ]
+     }
+    ],
+    ".sf-price": [
+     {
+      "tag": "div",
+      "cls": "sf-price",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(34, 38, 43)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       32,
+       372,
+       91.14,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-price",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(34, 38, 43)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       261.5,
+       372,
+       91.14,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-price",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(34, 38, 43)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       491,
+       372,
+       91.14,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-price",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(34, 38, 43)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       720.5,
+       372,
+       91.14,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-price",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(34, 38, 43)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       32,
+       502.14,
+       91.14,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-price",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(34, 38, 43)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       261.5,
+       502.14,
+       91.14,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-price",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(34, 38, 43)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       491,
+       502.14,
+       91.14,
+       37.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-price",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(34, 38, 43)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       720.5,
+       502.14,
+       91.14,
+       37.5
+      ]
+     }
+    ],
+    ".sf-tabbar": [
+     {
+      "tag": "nav",
+      "cls": "sf-tabbar",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".sf-tab": [
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".btn-proceed": [],
+    ".btn-md": [],
+    ".sf-listings-panel": [],
+    ".sf-listings-empty": [],
+    ".sf-listings-tag": [],
+    ".sf-listings-price": [],
+    ".sf-mkt-item": [],
+    ".sf-mkt-empty": [],
+    ".sf-jobs-item": [],
+    ".sf-jobs-tag": [],
+    ".btn": [],
+    ".btn-sm": [],
+    ".btn-lg": [],
+    ".btn-inactive": [],
+    ".btn-primary": [],
+    ".btn-outline": [],
+    ".btn-ghost": [],
+    ".btn-success": [],
+    ".btn-warning": []
+   }
+  },
+  "dark|/shard|1280x900": {
+   "theme": "dark",
+   "lsTheme": "dark",
+   "url": "/shard",
+   "innerWidth": 1280,
+   "innerHeight": 900,
+   "docScrollW": 1280,
+   "bodyScrollW": 1280,
+   "els": {
+    ".sf-card": [],
+    ".sf-panel": [],
+    ".sf-listings-card": [],
+    ".sf-listings-item": [],
+    ".sf-mkt-panel": [
+     {
+      "tag": "form",
+      "cls": "sf-mkt-panel",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       20,
+       248.5,
+       902,
+       225.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-mkt-panel",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       20,
+       483,
+       443,
+       153
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-mkt-panel",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       479,
+       483,
+       443,
+       153
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-mkt-panel",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       940,
+       73,
+       320,
+       197
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-mkt-panel",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       940,
+       279,
+       320,
+       107.5
+      ]
+     }
+    ],
+    ".sf-listings-input": [],
+    ".sf-mkt-input": [
+     {
+      "tag": "input",
+      "cls": "sf-mkt-input",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(51, 55, 61)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       475.5,
+       283.5,
+       431.5,
+       37.5
+      ]
+     },
+     {
+      "tag": "input",
+      "cls": "sf-mkt-input",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(51, 55, 61)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       35,
+       352,
+       431.5,
+       37.5
+      ]
+     },
+     {
+      "tag": "input",
+      "cls": "sf-mkt-input",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(51, 55, 61)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       475.5,
+       352,
+       431.5,
+       37.5
+      ]
+     }
+    ],
+    ".sf-mkt-select": [
+     {
+      "tag": "select",
+      "cls": "sf-mkt-select",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(51, 55, 61)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       35,
+       283.5,
+       431.5,
+       35
+      ]
+     }
+    ],
+    ".sf-box": [],
+    ".sf-chip": [],
+    ".sf-tag": [],
+    ".sf-price": [],
+    ".sf-tabbar": [
+     {
+      "tag": "nav",
+      "cls": "sf-tabbar",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".sf-tab": [
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab is-active",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".btn-proceed": [],
+    ".btn-md": [],
+    ".sf-listings-panel": [],
+    ".sf-listings-empty": [],
+    ".sf-listings-tag": [],
+    ".sf-listings-price": [],
+    ".sf-mkt-item": [],
+    ".sf-mkt-empty": [
+     {
+      "tag": "div",
+      "cls": "sf-mkt-empty",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "dashed",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       35,
+       528,
+       413,
+       69
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-mkt-empty",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "dashed",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       494,
+       528,
+       413,
+       49.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-mkt-empty",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "dashed",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       955,
+       163.5,
+       290,
+       49.5
+      ]
+     },
+     {
+      "tag": "div",
+      "cls": "sf-mkt-empty",
+      "radius": "2px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "dashed",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "1px/1px/1px",
+      "rect": [
+       955,
+       324,
+       290,
+       49.5
+      ]
+     }
+    ],
+    ".sf-jobs-item": [],
+    ".sf-jobs-tag": [],
+    ".btn": [],
+    ".btn-sm": [],
+    ".btn-lg": [],
+    ".btn-inactive": [],
+    ".btn-primary": [],
+    ".btn-outline": [],
+    ".btn-ghost": [],
+    ".btn-success": [],
+    ".btn-warning": []
+   }
+  },
+  "dark|/task|1280x900": {
+   "theme": "dark",
+   "lsTheme": "dark",
+   "url": "/task",
+   "innerWidth": 1280,
+   "innerHeight": 900,
+   "docScrollW": 1280,
+   "bodyScrollW": 1280,
+   "els": {
+    ".sf-card": [],
+    ".sf-panel": [],
+    ".sf-listings-card": [],
+    ".sf-listings-item": [],
+    ".sf-mkt-panel": [],
+    ".sf-listings-input": [],
+    ".sf-mkt-input": [],
+    ".sf-mkt-select": [],
+    ".sf-box": [],
+    ".sf-chip": [],
+    ".sf-tag": [],
+    ".sf-price": [],
+    ".sf-tabbar": [
+     {
+      "tag": "nav",
+      "cls": "sf-tabbar",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "1px",
+      "bs": "solid",
+      "bc": "rgb(38, 42, 48)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".sf-tab": [
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab is-active",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "tag": "a",
+      "cls": "sf-tab",
+      "radius": "0px",
+      "shadow": "none",
+      "clip": "none",
+      "bw": "0px",
+      "bs": "solid",
+      "bc": "rgb(229, 231, 235)",
+      "bxw": "0px/0px/0px",
+      "rect": [
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ],
+    ".btn-proceed": [],
+    ".btn-md": [],
+    ".sf-listings-panel": [],
+    ".sf-listings-empty": [],
+    ".sf-listings-tag": [],
+    ".sf-listings-price": [],
+    ".sf-mkt-item": [],
+    ".sf-mkt-empty": [],
+    ".sf-jobs-item": [],
+    ".sf-jobs-tag": [],
+    ".btn": [],
+    ".btn-sm": [],
+    ".btn-lg": [],
+    ".btn-inactive": [],
+    ".btn-primary": [],
+    ".btn-outline": [],
+    ".btn-ghost": [],
+    ".btn-success": [],
+    ".btn-warning": []
+   }
+  }
+ }
+}

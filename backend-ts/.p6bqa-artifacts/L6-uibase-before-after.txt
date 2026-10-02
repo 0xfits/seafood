@@ -1,0 +1,97 @@
+# L6① ui 基础件 改前(B) vs 改后(A) 逐签名 computed 读数（离线 dist，1280/1440×日/夜）
+
+## input[class~="px-3"]   总命中 B=0 A=0
+   两版均 0 命中
+
+## button[class~="px-3"][class~="py-1.5"]   总命中 B=32 A=32
+   [dark|/reward|1280] #0
+      B: ('6px', '0px solid rgb(229, 231, 235)', 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px', 'none')
+      A: ('8px', '0px solid rgb(229, 231, 235)', 'none', 'none')
+   [dark|/reward|1280] #1
+      B: ('6px', '0px solid rgb(229, 231, 235)', 'none', 'none')
+      A: ('8px', '0px solid rgb(229, 231, 235)', 'none', 'none')
+
+## div[class~="rounded-lg"][class~="border"][class~="p-6"]   总命中 B=0 A=64
+   [dark|/login|1280] #0
+      B: None
+      A: ('8px', '1px solid rgb(229, 231, 235)', 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0,', 'none')
+   [dark|/login|1280] #1
+      B: None
+      A: ('8px', '1px solid rgb(191, 219, 254)', 'none', 'none')
+   [dark|/reward|1280] #0
+      B: None
+      A: ('8px', '1px solid rgb(254, 240, 138)', 'none', 'none')
+   [dark|/reward|1280] #1
+      B: None
+      A: ('8px', '1px solid rgb(187, 247, 208)', 'none', 'none')
+   [dark|/reward|1280] #2
+      B: None
+      A: ('8px', '1px solid rgb(254, 202, 202)', 'none', 'none')
+   [dark|/reward|1280] #4
+      B: None
+      A: ('8px', '1px solid rgb(229, 231, 235)', 'none', 'none')
+
+## [class~="rounded-xl"]   总命中 B=64 A=0
+   [dark|/login|1280] #0
+      B: ('12px', '2px solid rgb(229, 231, 235)', 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px', 'none')
+      A: None
+   [dark|/login|1280] #1
+      B: ('12px', '2px solid rgb(191, 219, 254)', 'none', 'none')
+      A: None
+   [dark|/reward|1280] #0
+      B: ('12px', '2px solid rgb(254, 240, 138)', 'none', 'none')
+      A: None
+   [dark|/reward|1280] #1
+      B: ('12px', '2px solid rgb(187, 247, 208)', 'none', 'none')
+      A: None
+   [dark|/reward|1280] #2
+      B: ('12px', '2px solid rgb(254, 202, 202)', 'none', 'none')
+      A: None
+   [dark|/reward|1280] #4
+      B: ('12px', '2px solid rgb(229, 231, 235)', 'none', 'none')
+      A: None
+
+## [class~="border-2"]   总命中 B=64 A=0
+   [dark|/login|1280] #0
+      B: ('12px', '2px solid rgb(229, 231, 235)', 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px', 'none')
+      A: None
+   [dark|/login|1280] #1
+      B: ('12px', '2px solid rgb(191, 219, 254)', 'none', 'none')
+      A: None
+   [dark|/reward|1280] #0
+      B: ('12px', '2px solid rgb(254, 240, 138)', 'none', 'none')
+      A: None
+   [dark|/reward|1280] #1
+      B: ('12px', '2px solid rgb(187, 247, 208)', 'none', 'none')
+      A: None
+   [dark|/reward|1280] #2
+      B: ('12px', '2px solid rgb(254, 202, 202)', 'none', 'none')
+      A: None
+   [dark|/reward|1280] #4
+      B: ('12px', '2px solid rgb(229, 231, 235)', 'none', 'none')
+      A: None
+
+## [class~="shadow-sm"]   总命中 B=64 A=48
+   [dark|/listing/new|1280] #0
+      B: ('2px', '0px solid rgb(229, 231, 235)', 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px', 'none')
+      A: ('2px', '0px solid rgb(229, 231, 235)', 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px', 'none')
+   [dark|/login|1280] #1
+      B: ('24px', '0px solid rgb(229, 231, 235)', 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px', 'none')
+      A: ('24px', '0px solid rgb(229, 231, 235)', 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px', 'none')
+   [dark|/login|1280] #2
+      B: ('12px', '2px solid rgb(229, 231, 235)', 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px', 'none')
+      A: None
+   [dark|/reward|1280] #1
+      B: ('6px', '0px solid rgb(229, 231, 235)', 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px', 'none')
+      A: None
+
+## [class~="rounded-md"]   总命中 B=72 A=40
+   [dark|/listing/new|1280] #0
+      B: ('6px', '0px solid rgb(229, 231, 235)', 'none', 'none')
+      A: ('6px', '0px solid rgb(229, 231, 235)', 'none', 'none')
+   [dark|/reward|1280] #1
+      B: ('6px', '0px solid rgb(229, 231, 235)', 'rgba(0, 0, 0, 0.05) 0px 1px 2px 0px', 'none')
+      A: None
+   [dark|/reward|1280] #2
+      B: ('6px', '0px solid rgb(229, 231, 235)', 'none', 'none')
+      A: None
