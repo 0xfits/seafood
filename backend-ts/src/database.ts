@@ -873,8 +873,10 @@ export class DatabaseService {
       `);
       return rows.map(normalizeUser);
     } catch (error) {
+      // P6-D1'-SWEEP：同上 —— 原 `return []` 使库不可达时读面伪造「空列表 200」。
+      // 现原样上抛 ⇒ 既有 §14 分类器（`/api/user/all`、`/api/admin/permissions` 的 catch 已同族收口）。
       console.error('Error getting users:', error);
-      return [];
+      throw error;
     }
   }
 
@@ -967,8 +969,11 @@ export class DatabaseService {
       `);
       return row ? normalizeAsset(row) : null;
     } catch (error) {
+      // P6-D1'-SWEEP：基础设施异常**不得**静默降级成「空态资产（HTTP 200）」——
+      // 原 `return null` 使库不可达时 `GET /api/user/asset/:uID` 实测 **200 `points:0`**（把 infra 错伪装成成功）。
+      // 现原样上抛 ⇒ 路由层 catch 交既有 §14 分类器（DB/传输类 ⇒ 503）。正常路径（无行 ⇒ `null`）逐字不变。
       console.error('Error getting user asset:', error);
-      return null;
+      throw error;
     }
   }
 

@@ -457,6 +457,16 @@ app.post('/api/auth/login', async (req, res) => {
   return app._router.handle(req, res, () => undefined);
 });
 
+// ============================================================================
+// P6-D1'-SWEEP（Kong · 单 BE-ERR503-SWEEP）：**「infra 错未进分类器」同族出口一次收完**。
+//   · 判据：本文件内凡「会碰库（IO）」的 catch 却**硬编码** `sendError(res, 500, …)` ⇒ 与 D1' 同族
+//     （库不可达/驱动传输错被伪装成 500「实现缺陷」，调用方无法区分「可重试」与「别重试」）；
+//   · 收口 = 复用**既有** helper `sendInfraMapped`（`:(定义见文件下部) normalizeLedgerError(unwrapInfraCause(e))`，
+//     R107 形状）：DB/传输类 ⇒ **503 `LEDGER_TX_TIMEOUT` + 机读 `reason`**；真缺陷仍 500
+//     （`LEDGER_TRANSACTION_REQUIRED`，DL126「500 只由不变式被破坏触发」不破）。
+//   · **不动**：400 分支、33 码/bucket、真凭据 401 的位置、410 弃用面、任何成功路径响应形状；
+//     零 IO 面（`/api/shard`、`/api/shard/transfer` 恒空态，catch 只可能见代码缺陷）⇒ 保留 500。
+// ============================================================================
 app.get('/api/prize/all', async (req, res) => {
   try {
     const { skip, limit } = getPagination(req);
@@ -464,8 +474,10 @@ app.get('/api/prize/all', async (req, res) => {
     setPublicCache(res);
     sendSuccess(res, prizes);
   } catch (error) {
-    console.error('Error loading prizes:', error);
-    sendError(res, 500, 'Failed to load prizes');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'prize.all', error);
   }
 });
 
@@ -476,8 +488,10 @@ app.get('/api/task/all', async (req, res) => {
     setPublicCache(res);
     sendSuccess(res, tasks);
   } catch (error) {
-    console.error('Error loading tasks:', error);
-    sendError(res, 500, 'Failed to load tasks');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'task.all', error);
   }
 });
 
@@ -503,8 +517,10 @@ app.get('/api/task/:tID', async (req, res) => {
     setPublicCache(res);
     sendSuccess(res, task);
   } catch (error) {
-    console.error('Error loading task detail:', error);
-    sendError(res, 500, 'Failed to load task');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'task.detail', error);
   }
 });
 
@@ -523,8 +539,10 @@ app.get('/api/prize/:bID', async (req, res) => {
     setPublicCache(res);
     sendSuccess(res, prize);
   } catch (error) {
-    console.error('Error loading prize detail:', error);
-    sendError(res, 500, 'Failed to load prize');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'prize.detail', error);
   }
 });
 
@@ -536,8 +554,10 @@ app.get('/api/user', async (req, res) => {
     const payload = await buildUserPayload(actor.user);
     sendSuccess(res, payload);
   } catch (error) {
-    console.error('Error loading current user:', error);
-    sendError(res, 500, 'Failed to load user');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'user.me', error);
   }
 });
 
@@ -562,8 +582,10 @@ app.post('/api/user/profile', async (req, res) => {
     const payload = await buildUserPayload(updatedUser);
     sendSuccess(res, payload, 'Profile updated');
   } catch (error) {
-    console.error('Error updating user profile:', error);
-    sendError(res, 500, 'Failed to update profile');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'user.profile', error);
   }
 });
 
@@ -578,8 +600,10 @@ app.get('/api/user/asset/:uID', async (req, res) => {
     const asset = await DatabaseService.getUserAsset(uID);
     sendSuccess(res, asset || DatabaseService.emptyAsset(uID));
   } catch (error) {
-    console.error('Get user asset error:', error);
-    sendError(res, 500, 'Internal server error');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'user.asset', error);
   }
 });
 
@@ -619,8 +643,10 @@ app.get('/api/home', async (req, res) => {
       is_authenticated: Boolean(actor),
     });
   } catch (error) {
-    console.error('Error loading home payload:', error);
-    sendError(res, 500, 'Failed to load home payload');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'home', error);
   }
 });
 
@@ -633,8 +659,10 @@ app.get('/api/prize-item', async (req, res) => {
     const prizeItems = await DatabaseService.listPrizeItemsByUser(actor.user.uID, skip, limit);
     sendSuccess(res, prizeItems);
   } catch (error) {
-    console.error('Error loading prize items:', error);
-    sendError(res, 500, 'Failed to load prize items');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'prize-item.list', error);
   }
 });
 
@@ -647,8 +675,10 @@ app.get('/api/task-progress', async (req, res) => {
     const taskProgressItems = await DatabaseService.listTaskProgressByUser(actor.user.uID, skip, limit);
     sendSuccess(res, taskProgressItems);
   } catch (error) {
-    console.error('Error loading task progress:', error);
-    sendError(res, 500, 'Failed to load task progress');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'task-progress.list', error);
   }
 });
 
@@ -666,8 +696,10 @@ app.get('/api/task-progress/:jID', async (req, res) => {
 
     sendSuccess(res, taskProgress);
   } catch (error) {
-    console.error('Error loading task progress:', error);
-    sendError(res, 500, 'Failed to load task progress');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'task-progress.detail', error);
   }
 });
 
@@ -708,8 +740,10 @@ app.post('/api/task-progress/:identifier/submit', async (req, res) => {
     // 同键重放顶层标记 `idempotent_replay:true`（§3.2「200（良性）」/ R106），不改 data 形状
     return sendSuccess(res, result.view, 'Task progress submitted', 200, result.replay ? { idempotent_replay: true } : undefined);
   } catch (error) {
-    console.error('Error submitting job work:', error);
-    sendError(res, 500, 'Failed to submit task info');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'task-progress.submit', error);
   }
 });
 
@@ -790,8 +824,10 @@ app.get('/api/order', async (req, res) => {
     const orders = await DatabaseService.listOrdersByUser(actor.user.uID, skip, limit);
     sendSuccess(res, orders);
   } catch (error) {
-    console.error('Error loading user orders:', error);
-    sendError(res, 500, 'Failed to load user orders');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'order.list', error);
   }
 });
 
@@ -891,8 +927,10 @@ app.get('/api/market/:bID/orderbook', async (req, res) => {
     const rows = await DatabaseService.listOrderBook(bID);
     sendSuccess(res, rows);
   } catch (error) {
-    console.error('Error loading order book:', error);
-    sendError(res, 500, 'Failed to load order book');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'market.orderbook', error);
   }
 });
 
@@ -907,8 +945,10 @@ app.get('/api/market/:bID/trades', async (req, res) => {
     const rows = await DatabaseService.listTradesByBrand(bID, skip, limit);
     sendSuccess(res, rows);
   } catch (error) {
-    console.error('Error loading market trades:', error);
-    sendError(res, 500, 'Failed to load market trades');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'market.trades', error);
   }
 });
 
@@ -928,8 +968,10 @@ app.get('/api/admin/settings', async (req, res) => {
     // 用 message 承载（**不改 data 键集** —— §2 母约束 F1 优先）。
     sendSuccess(res, settings, 'OK（费率不在 app_config；真源 = commission_policy.fee_rate_bp）');
   } catch (error) {
-    console.error('Error loading system settings:', error);
-    sendError(res, 500, 'Failed to load system settings');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'admin.settings.get', error);
   }
 });
 
@@ -983,8 +1025,10 @@ app.get('/api/admin/permissions', async (req, res) => {
     // P4-B2c（§5.1「权限面板弃用标」/§5.3）：批 2 换数据源到 admin_role* 后即正式口 ⇒ **撤销 deprecated**。
     sendSuccess(res, { groups, users });
   } catch (error) {
-    console.error('Error loading permission groups:', error);
-    sendError(res, 500, 'Failed to load permission groups');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'admin.permissions.get', error);
   }
 });
 
@@ -1115,8 +1159,10 @@ app.get('/api/user/all', async (req, res) => {
     const users = await DatabaseService.getAllUsers(skip, limit);
     sendSuccess(res, users);
   } catch (error) {
-    console.error('Error loading user list:', error);
-    sendError(res, 500, 'Failed to load users');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'user.all', error);
   }
 });
 
@@ -1129,8 +1175,10 @@ app.get('/api/user/stats', async (req, res) => {
     // §1 #46 / §4.1 #49 / DL1 / DL24：统计口径必须标注「账本派生」（余额真源 = account）。
     sendSuccess(res, stats, 'OK（统计口径 = 账本派生：余额取自 account，DL1/DL24）');
   } catch (error) {
-    console.error('Error loading user stats:', error);
-    sendError(res, 500, 'Failed to load user stats');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'user.stats', error);
   }
 });
 
@@ -1142,8 +1190,10 @@ app.get('/api/tasklist/pending-verification/count', async (req, res) => {
     const count = await DatabaseService.countPendingVerification();
     sendSuccess(res, { count });
   } catch (error) {
-    console.error('Error counting pending verification items:', error);
-    sendError(res, 500, 'Failed to load pending verification count');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'tasklist.pending.count', error);
   }
 });
 
@@ -1156,8 +1206,10 @@ app.get('/api/tasklist/pending-verification', async (req, res) => {
     const items = await DatabaseService.listPendingVerification(skip, limit);
     sendSuccess(res, items);
   } catch (error) {
-    console.error('Error loading pending verification items:', error);
-    sendError(res, 500, 'Failed to load pending verification items');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'tasklist.pending.list', error);
   }
 });
 
@@ -1815,8 +1867,10 @@ app.post('/api/translate/backfill', async (req, res) => {
       engine: report ? report.engine : null,
     }, 'Translate backfill completed');
   } catch (error) {
-    console.error('Error running translate backfill:', error);
-    return sendError(res, 500, 'Translate backfill failed');
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
+    //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
+    // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
+    return sendInfraMapped(res, 'translate.backfill', error);
   }
 });
 

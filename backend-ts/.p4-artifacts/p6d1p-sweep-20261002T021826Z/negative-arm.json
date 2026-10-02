@@ -1,0 +1,383 @@
+{
+  "run": "p6d1p-sweep-20261002T021826Z",
+  "engine": "p4z-d1p-04-sweep-negative-arm",
+  "temp_port": 5799,
+  "db_target": "unreachable (127.0.0.1:1) — 子进程 env 里所有 *DATABASE_URL*/*POSTGRES* 键被摘除后替换为该值（不回显任何真值）",
+  "secret_fingerprint": "b1ec01afb2eb",
+  "cron_secret_present": true,
+  "tests": {
+    "S01_get_task_all": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "修前 X1 = 500 ⇒ 期望 503（DB 读）"
+    },
+    "S02_get_prize_all": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "修前 500 ⇒ 期望 503（DB 读）"
+    },
+    "S03_get_home": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "修前 X3 = 500 ⇒ 期望 503（DB 读）"
+    },
+    "S04_get_user_asset": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "修前 X2 = 200（`database.ts` 吞成假空态）⇒ 期望 503"
+    },
+    "S05_get_task_detail": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "修前 500 ⇒ 期望 503"
+    },
+    "S06_get_prize_detail": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "修前 500 ⇒ 期望 503"
+    },
+    "S07_get_task_progress_detail": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "修前 500 ⇒ 期望 503"
+    },
+    "S08_get_orderbook": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "修前 500 ⇒ 期望 503"
+    },
+    "S09_get_trades": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "修前 500 ⇒ 期望 503"
+    },
+    "T01_get_user": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "既有 503（requireActor；**不得 401/500**）"
+    },
+    "T02_get_prize_item": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "既有 503"
+    },
+    "T03_get_task_progress_list": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "修前 500 ⇒ 期望 503"
+    },
+    "T04_get_order_list": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "修前 500 ⇒ 期望 503"
+    },
+    "T05_get_admin_settings": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "修前 500 ⇒ 期望 503"
+    },
+    "T06_get_admin_permissions": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "修前 500（且 `getAllUsers` 吞成空列表）⇒ 期望 503"
+    },
+    "T07_get_user_all": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "修前 500 ⇒ 期望 503"
+    },
+    "T08_get_user_stats": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "修前 500 ⇒ 期望 503"
+    },
+    "T09_get_pending_count": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "修前 500 ⇒ 期望 503"
+    },
+    "T10_get_pending_list": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "既有 503（修前 R3 实测）"
+    },
+    "T11_post_user_profile": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "修前 500 ⇒ 期望 503（requireActor 前置）"
+    },
+    "T12_post_task_progress_submit": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "修前 500 ⇒ 期望 503（requireActor 前置）"
+    },
+    "A1_post_auth_challenge": {
+      "status": 200,
+      "code": null,
+      "reason": null,
+      "top_keys": [],
+      "body": "status=200",
+      "expect": "200（不碰库 ⇒ 不受 DB 不可达影响）",
+      "has_message": true,
+      "has_challenge_token": true
+    },
+    "A2_post_auth_verify_bad_signature": {
+      "status": 401,
+      "code": null,
+      "reason": null,
+      "top_keys": [
+        "success",
+        "message",
+        "error"
+      ],
+      "body": "{\"success\":false,\"message\":\"Invalid wallet signature\",\"error\":\"Invalid wallet signature\"}",
+      "expect": "**401**（真凭据失败对照组必须仍在）"
+    },
+    "A3_post_auth_verify_valid_sig": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "503 + 机读 reason（★ 核心断言：**不得 401**）",
+      "challenge_ok": true,
+      "signature_recovered": true
+    },
+    "A4_post_auth_login_alias": {
+      "status": 401,
+      "code": null,
+      "reason": null,
+      "top_keys": [
+        "success",
+        "message",
+        "error"
+      ],
+      "body": "{\"success\":false,\"message\":\"Challenge has been consumed or expired\",\"error\":\"Challenge has been consumed or expired\"}",
+      "expect": "**401**（同一 handler 复用；nonce 已由 A3 消费 ⇒ 真凭据失败）"
+    },
+    "H1_health": {
+      "status": 503,
+      "code": null,
+      "reason": null,
+      "top_keys": [
+        "ok",
+        "db_version",
+        "schema_version",
+        "time"
+      ],
+      "body": "{\"ok\":false,\"db_version\":\"unknown\",\"schema_version\":null,\"time\":\"2026-10-02T02:18:27.722Z\"}",
+      "expect": "503（健康探针：库不可达）"
+    },
+    "H2_health_alias": {
+      "status": 503,
+      "code": null,
+      "reason": null,
+      "top_keys": [
+        "ok",
+        "db_version",
+        "schema_version",
+        "time"
+      ],
+      "body": "{\"ok\":false,\"db_version\":\"unknown\",\"schema_version\":null,\"time\":\"2026-10-02T02:18:27.724Z\"}",
+      "expect": "503（同一 handler）"
+    },
+    "C01_get_user_no_token": {
+      "status": 401,
+      "code": "AUTH_UNAUTHORIZED",
+      "reason": null,
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"AUTH_UNAUTHORIZED\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}",
+      "expect": "**401**（无 token）"
+    },
+    "C02_get_prize_item_no_token": {
+      "status": 401,
+      "code": "AUTH_UNAUTHORIZED",
+      "reason": null,
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"AUTH_UNAUTHORIZED\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}",
+      "expect": "**401**（无 token）"
+    },
+    "C03_get_admin_settings_no_token": {
+      "status": 401,
+      "code": "AUTH_UNAUTHORIZED",
+      "reason": null,
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"AUTH_UNAUTHORIZED\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}",
+      "expect": "**401**（无 token）"
+    },
+    "K01_get_shard_zero_io": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "503（requireActor 前置的 infra 分流；其 catch 零 IO ⇒ 未被本单改动）"
+    },
+    "K02_get_shard_transfer_zero_io": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "503（同上；其 catch 零 IO ⇒ 未被本单改动）"
+    },
+    "G01_post_claim_deprecated": {
+      "status": 410,
+      "code": "LEDGER_REF_NOT_FOUND",
+      "reason": "CLAIM_RETIRED",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"endpoint deprecated: /api/task-progress/claim/:jID\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/task-progress/claim/:jID\",\"http_status\":410,\"sunset\":\"批 5 sunset（未决 §7-1：过期日待 Kevin 定）\",\"reason\":\"CLAIM_",
+      "expect": "410（弃用面不碰库 ⇒ 不受影响）"
+    },
+    "B01_post_translate_backfill": {
+      "status": 503,
+      "code": "LEDGER_TX_TIMEOUT",
+      "reason": "driver_connection_error",
+      "top_keys": [
+        "error"
+      ],
+      "body": "{\"error\":{\"code\":\"LEDGER_TX_TIMEOUT\",\"message\":\"系统繁忙，请稍后重试\",\"i18n_key\":\"ledger.err.LEDGER_TX_TIMEOUT\",\"details\":{\"reason\":\"driver_connection_error\",\"error_code\":\"ECONNREFUSED\"}}}",
+      "expect": "503（本单改的 catch ⇒ 分类器）；secret 值只作 header，不回显"
+    }
+  },
+  "temp_pid": 84941,
+  "temp_up": true,
+  "shutdown": {
+    "pid": 84941,
+    "sigterm_ok": true,
+    "sigkill_used": false,
+    "port_closed": true,
+    "probe_after": "NETERR"
+  },
+  "summary": {
+    "must503": "26/26",
+    "must401": "5/5",
+    "must410": "1/1",
+    "a3_401_violation": false,
+    "failed": {
+      "must503": [],
+      "must401": [],
+      "must410": []
+    }
+  },
+  "finished": "2026-10-02T02:18:28.546Z"
+}
