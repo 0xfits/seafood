@@ -1,0 +1,26 @@
+{
+ "ledger_entry_txid_seq": {
+  "last_value": "378",
+  "is_called": "true"
+ },
+ "currency_status_log_log_id_seq": {
+  "last_value": "10",
+  "is_called": "true"
+ },
+ "currency_cid_seq": {
+  "last_value": "36",
+  "is_called": "true"
+ },
+ "ledger_entry_max_txid": {
+  "mx": "366",
+  "n": "355"
+ },
+ "currency_status_log_max_logid": {
+  "mx": "7",
+  "n": "7"
+ },
+ "currency_max_cid": {
+  "mx": "36",
+  "n": "15"
+ }
+}

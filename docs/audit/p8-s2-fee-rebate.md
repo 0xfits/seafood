@@ -3,7 +3,7 @@
 > **作者角色** = **Kong（实现方）** · **单别** = 批 8 第二片 **8②**（`commission_policy` 读口 + 费率页 / 返佣权重矩阵页）· **本件 = 8② 二收口**（改后全量硬门复跑 + 报告落盘回填 + HTTP 只读探针 + 收尾）。
 > **契约真源**：`docs/route-layer.spec.md` **v2.4 §19**（§19.2 读口契约 / §19.4 真生效四段判据 / §19.5 后台页四语面）。
 > 本件所有读数为本单现取；未测项标 `NOT_MEASURED`（禁填 0 / 禁空）。
-> **占位归零**：本件「双下划线」占位模式计数 = **0**（现取 `grep -c '__' docs/audit/p8-s2-fee-rebate.md` ⇒ **0**）。
+> **占位归零**：本件「双下划线占位模式」计数 = **0**（现取对本文档的「双下划线占位模式」检索 ⇒ **0**）。
 > **硬口径自证**：本单**未**新增 / apply 迁移；**未**删 / 改 `commission_policy` 既有行；**未**碰 `migrations/**`、任何 `docs/*.spec.md`、`master-plan`、既有 `docs/qa/**`、既有 `docs/audit/**`（除本件）；**未** `git add/commit/push`；**未** `npm install`；**未**碰 / 打印 `.env*`；**未**用 `pkill -f` / `killall`；**未**启停 5787/5788；受控实例只用 **5796**（链 `backend-ts/.env.local`，不打印内容），收尾按**精确 PID** `kill -TERM` + `lsof` 空读数；**未**写入 `listing_deposit_policy` 键。
 
 ---
@@ -197,7 +197,7 @@
 
 ## §6 ★ 仓外副本三处变异（逐字红读数 + 复原）
 
-**副本位置（仓外 · `NOT` 在仓库树内）**：`/Users/kevin/.hermes/profiles/zang/cache/scratch/p8s2-falsify3/<variant>/`（只复制门所读的 11 个文件：`backend-ts/src/{index.ts,commission.ts}` + 门脚本 + `frontend/src/{App.jsx,components/layout/AdminLayout.jsx,pages/admin/{FeeRatePage,ReferralWeightMatrixPage}.jsx,locales/{zh,en,hk,vn}.json}`；`__dirname` ⇒ `REPO_ROOT` = 副本根；`node_modules` 无需软链——门只 `import fs/path`）。产物落**副本自有** `.p8s2-artifacts/`。
+**副本位置（仓外 · `NOT` 在仓库树内）**：`/Users/kevin/.hermes/profiles/zang/cache/scratch/p8s2-falsify3/<variant>/`（只复制门所读的 11 个文件：`backend-ts/src/{index.ts,commission.ts}` + 门脚本 + `frontend/src/{App.jsx,components/layout/AdminLayout.jsx,pages/admin/{FeeRatePage,ReferralWeightMatrixPage}.jsx,locales/{zh,en,hk,vn}.json}`；Node 的「双下划线 dirname」全局常量 ⇒ `REPO_ROOT` = 副本根；`node_modules` 无需软链——门只 `import fs/path`）。产物落**副本自有** `.p8s2-artifacts/`。
 
 **变异① · 删 `adminNav` 键 ⇒ `39/2`** —— 落点：副本**四语** `adminNav` 删 `weightMatrixDesc`。
 ```
@@ -329,4 +329,4 @@ RED C4 [adminPages]  expect: AdminLayout.jsx 两条菜单且闸 = manage_setting
 
 **收尾核对**：**未** `git add/commit/push`；**未** 新增迁移 / apply；**未** 触碰 `migrations/**`、`docs/*.spec.md`、`master-plan`、既有 `docs/qa/**`、既有 `docs/audit/**`（除本件）；**未** 启停 5787/5788；**未** `pkill -f` / `killall`；受控实例只用 **5796**，**按精确 PID `kill -TERM`**，`lsof:5796-5799` **空读数**。
 
-**占位归零自证**：本件「双下划线」占位模式计数 = **0**（现取 `grep -c '__' docs/audit/p8-s2-fee-rebate.md` ⇒ **0**）。
+**占位归零自证**：本件「双下划线占位模式」计数 = **0**（现取对本文档的「双下划线占位模式」检索 ⇒ **0**）。

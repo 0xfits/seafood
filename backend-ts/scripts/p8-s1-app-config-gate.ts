@@ -9,7 +9,8 @@
  *
  * 覆盖（每条判据都**可判负**：把判据真源改回「静默吸收」⇒ 本门必红）：
  *   A  **`AG2` 类级**：写 `app_config` 的语句**只允许**出现在 `database.ts` 的 `saveSystemSettings`（越权面 ⇒ 拒）
- *   B  **`AK1` 合法键清单 = 关闭集**：顶层键恰好 `system_settings`；值对象字段恰好 9 个（逐字冻结）
+ *   B  **`AK1` ∪ `AK2` 合法键清单 = 关闭集**：顶层键恰好 `system_settings` + `listing_deposit_policy`（批 8③ 入册）；
+ *      值对象字段恰好 9 个（逐字冻结；**`AK2` 是顶层键、不作 `AK1` 第 10 个字段**）
  *   C  **`AG1`**：未知键 ⇒ 拒（`reason='SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST'`（**稳定常量** · `R-8-10`，不随键名插值）+ `unknown_keys` 逐键）
  *   D  **`AG3`**：非 object（裸标量/数组/null）⇒ 拒；已知字段类型不符 ⇒ 拒（`reason='SETTING_TYPE_INVALID'` + `{field,expected,got}`）
  *   E  **`AG4`**：合法键 + 未知键**混合体** ⇒ 整请求拒（未知键非空、`ok=false`；不得「一半落库一半吞掉」）
@@ -42,7 +43,9 @@ const FROZEN_FIELDS = [
   'siteName', 'siteDescription', 'maintenance', 'allowRegistration', 'emailNotifications',
   'defaultLanguage', 'pointsPerTask', 'maxDailyTasks', 'rewardCooldown',
 ];
-const FROZEN_TOP_KEYS = ['system_settings'];
+// ★ 批 8③（`data-layer.spec` v0.12 §23.1）：合法键清单 **1 键 → 恰 2 键**（+ `AK2` = `listing_deposit_policy`）。
+//   期望订正（逐字登记 · 不删断言）：`['system_settings']` ⇒ `['system_settings','listing_deposit_policy']`（顺序 = 代码面）。
+const FROZEN_TOP_KEYS = ['system_settings', 'listing_deposit_policy'];
 
 const readSrc = (rel: string): string => fs.readFileSync(path.resolve(REPO_ROOT, rel), 'utf8');
 const walkTs = (dir: string, out: string[] = []): string[] => {
@@ -101,7 +104,7 @@ const INDEX_TS = readSrc('backend-ts/src/index.ts');
   t('B2', 'AK1', JSON.stringify([...SYSTEM_SETTINGS_FIELDS]) === JSON.stringify(FROZEN_FIELDS),
     JSON.stringify(FROZEN_FIELDS), JSON.stringify([...SYSTEM_SETTINGS_FIELDS]));
 
-  // 代码面 `app_config` 关联的键名字面量只能有 `system_settings`（不得自拟键名 · §21.3 规则①）
+  // 代码面 `app_config` 关联的键名字面量只能落在**合法键清单**内（不得自拟键名 · §21.3 规则①）
   //   取法：定位 `public.app_config`，在其附近窗口内抽 SQL 键字面量（`key = '<k>'` / `VALUES ('<k>'`）。
   const keyLiterals = new Set<string>();
   for (const f of SRC_FILES) {
@@ -112,8 +115,11 @@ const INDEX_TS = readSrc('backend-ts/src/index.ts');
     }
   }
   const literalsArr = [...keyLiterals].sort();
-  t('B3', 'AK1', literalsArr.length > 0 && literalsArr.every((k) => k === 'system_settings'),
-    "app_config 的 SQL 键字面量 ⊆ {'system_settings'}", JSON.stringify(literalsArr));
+  // ★ 批 8③：清单 = 恰 2 键 ⇒ 健字面量 ⊆ 合法键清单（现取 = 两键：`system_settings` + `listing_deposit_policy`）。
+  t('B3', 'AK1', literalsArr.length > 0
+    && literalsArr.every((k) => (APP_CONFIG_LEGAL_KEYS as readonly string[]).includes(k)),
+    `app_config 的 SQL 键字面量 ⊆ 合法键清单（${JSON.stringify([...FROZEN_TOP_KEYS].sort())}）`,
+    JSON.stringify(literalsArr));
 }
 
 // ==================================================================== C · AG1 未知键

@@ -1,0 +1,133 @@
+{
+ "app_config_rows": [
+  {
+   "key": "system_settings",
+   "vtype": "object",
+   "value": {
+    "siteName": "p4b2c:siteA",
+    "maintenance": false,
+    "maxDailyTasks": 10,
+    "pointsPerTask": 100,
+    "rewardCooldown": 24,
+    "defaultLanguage": "zh",
+    "siteDescription": "去中心化社区奖励平台",
+    "allowRegistration": true,
+    "emailNotifications": true
+   }
+  }
+ ],
+ "account_cid1_top": [
+  {
+   "uid": "6",
+   "balance": "930",
+   "frozen": "0"
+  },
+  {
+   "uid": "900008",
+   "balance": "9",
+   "frozen": "0"
+  },
+  {
+   "uid": "900003",
+   "balance": "9",
+   "frozen": "0"
+  },
+  {
+   "uid": "910001",
+   "balance": "9",
+   "frozen": "0"
+  },
+  {
+   "uid": "910008",
+   "balance": "9",
+   "frozen": "0"
+  },
+  {
+   "uid": "900001",
+   "balance": "9",
+   "frozen": "0"
+  },
+  {
+   "uid": "910003",
+   "balance": "9",
+   "frozen": "0"
+  },
+  {
+   "uid": "2",
+   "balance": "7600",
+   "frozen": "0"
+  }
+ ],
+ "currency_n": [
+  {
+   "n": 15,
+   "max_cid": "36"
+  }
+ ],
+ "currency_sample": [
+  {
+   "cid": "1",
+   "symbol": "$",
+   "owner_uid": "0",
+   "status": "listed",
+   "deposit_cid": "1"
+  },
+  {
+   "cid": "10",
+   "symbol": "P4B3A013647",
+   "owner_uid": "970001",
+   "status": "listed",
+   "deposit_cid": "1"
+  },
+  {
+   "cid": "15",
+   "symbol": "P4B3A013647X",
+   "owner_uid": "970001",
+   "status": "draft",
+   "deposit_cid": "1"
+  },
+  {
+   "cid": "16",
+   "symbol": "P4B3B590800",
+   "owner_uid": "970001",
+   "status": "listed",
+   "deposit_cid": "1"
+  },
+  {
+   "cid": "21",
+   "symbol": "P4B3B590800X",
+   "owner_uid": "970001",
+   "status": "listed",
+   "deposit_cid": "1"
+  }
+ ],
+ "ledger_entry_n": [
+  {
+   "n": 355
+  }
+ ],
+ "currency_status_log_n": [
+  {
+   "n": 7
+  }
+ ],
+ "sys_currency": [
+  {
+   "cid": "1",
+   "symbol": "$",
+   "owner_uid": "0",
+   "status": "listed"
+  }
+ ],
+ "accounts_cid1_n": [
+  {
+   "n": 27
+  }
+ ],
+ "switch": [
+  {
+   "db": "neondb",
+   "usr": "neondb_owner"
+  }
+ ]
+}

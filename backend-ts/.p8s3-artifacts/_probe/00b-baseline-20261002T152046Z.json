@@ -1,0 +1,139 @@
+{
+ "app_config_keys": [
+  {
+   "key": "system_settings",
+   "vtype": "object"
+  }
+ ],
+ "acct_by_cid": [
+  {
+   "cid": "1",
+   "n": 27,
+   "max_bal": "1636071"
+  },
+  {
+   "cid": "16",
+   "n": 3,
+   "max_bal": "9998"
+  },
+  {
+   "cid": "21",
+   "n": 3,
+   "max_bal": "97"
+  },
+  {
+   "cid": "35",
+   "n": 2,
+   "max_bal": "9976"
+  },
+  {
+   "cid": "36",
+   "n": 1,
+   "max_bal": "30"
+  },
+  {
+   "cid": "4",
+   "n": 3,
+   "max_bal": "9994"
+  }
+ ],
+ "top_any_uid_pos": [
+  {
+   "uid": "970001",
+   "cid": "16",
+   "balance": "9998",
+   "frozen": "0"
+  },
+  {
+   "uid": "970001",
+   "cid": "4",
+   "balance": "9994",
+   "frozen": "0"
+  },
+  {
+   "uid": "910311",
+   "cid": "35",
+   "balance": "9976",
+   "frozen": "0"
+  },
+  {
+   "uid": "970001",
+   "cid": "21",
+   "balance": "97",
+   "frozen": "1"
+  },
+  {
+   "uid": "6",
+   "cid": "1",
+   "balance": "930",
+   "frozen": "0"
+  },
+  {
+   "uid": "900003",
+   "cid": "1",
+   "balance": "9",
+   "frozen": "0"
+  },
+  {
+   "uid": "910001",
+   "cid": "1",
+   "balance": "9",
+   "frozen": "0"
+  },
+  {
+   "uid": "900008",
+   "cid": "1",
+   "balance": "9",
+   "frozen": "0"
+  },
+  {
+   "uid": "910003",
+   "cid": "1",
+   "balance": "9",
+   "frozen": "0"
+  },
+  {
+   "uid": "900001",
+   "cid": "1",
+   "balance": "9",
+   "frozen": "0"
+  }
+ ],
+ "platform_accounts": [
+  {
+   "uid": "-1",
+   "cid": "1",
+   "balance": "167283",
+   "frozen": "0"
+  },
+  {
+   "uid": "-2",
+   "cid": "1",
+   "balance": "0",
+   "frozen": "0"
+  },
+  {
+   "uid": "-3",
+   "cid": "1",
+   "balance": "0",
+   "frozen": "0"
+  },
+  {
+   "uid": "0",
+   "cid": "1",
+   "balance": "0",
+   "frozen": "0"
+  }
+ ],
+ "counts": [
+  {
+   "currency_n": 15,
+   "max_cid": "36",
+   "ledger_entry_n": 355,
+   "account_n": 39,
+   "app_config_n": 1,
+   "max_txid": "366",
+   "status_log_n": 7
+  }
+ ]
+}

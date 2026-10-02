@@ -26,7 +26,7 @@
 //   · 对外路径注册点在 `src/index.ts`（本片新增 2 个：`POST /api/currency`、`POST /api/currency/:cid/list`）。
 // ============================================================================
 import { createHash } from 'crypto';
-import { DatabaseService } from './database';
+import { DatabaseService, parseListingDepositPolicyAmount } from './database';
 import { ledgerErrorFromDbError, normalizeIdempotencyKey, normalizeLedgerError } from './ledger';
 import { ledgerErrorBody, sendVerbError, type JobVerbErr as VerbErr, type JobVerbResult as VerbResult } from './job-service';
 
@@ -135,13 +135,46 @@ const toPosInt = (raw: unknown, field: string): { ok: true; value: number } | { 
  * **Kevin 2026-09-30 定值**：建币费 `currency_create_fee` = **10000** / 上市费 `listing_fee` = **10000**
  *   / 上市保证金 `listing_deposit` = **50000**；依据 = **阶梯锥定**（以「1% 佣金下 10 万酬金 ⇒
  *   1000 手续费」为锚的阶梯）；`$` 目前**无 faucet** ⇒ 属**有量级感的起始值**，待**首次铸币后重估**。
- * **保持单点常量形态**（值只在此处出现一次，不得散落多处；**不得**改成从 `app_config` 读 —— 那属批 6）。
- * **批 6（配置面）登记**：改为**从平台配置取数**（真源键待 Kevin 给；**不得**从 `app_config`
- *   硬造键名 —— Zang 裁定 7-16），届时本常量降为兜底。
+ * **保持单点常量形态**（值只在此处出现一次，不得散落多处 —— 建币费 / 上市费两常量仍**只走常量**）。
+ * ★★ **批 8③（配置面）落地**（`data-layer.spec` v0.12 §23.4 · `route-layer.spec` v2.5 §20.7）：
+ *   **上市保证金**的下限/服务端值**改读 `AK2` 键**（`app_config.listing_deposit_policy`）——
+ *   「**先读 `AK2` · 读不到 / 非法 ⇒ fail-closed 到常量**」（**绝不是** fail-open 到客户端值）；
+ *   ⇒ `CURRENCY_LIST_DEPOSIT_FLOOR` **降为兜底**（`TODO: Kevin 定值`；现取读数 = `50000`，
+ *   真源 = 本文件改前注文 + Kevin 2026-09-30 定值）。**客户端永不决定金额**（`R-8-5` / §21.4）。
  */
 const CURRENCY_CREATE_FEE_FLOOR = 10000; // Kevin 2026-09-30 定值（起始值：阶梯锥定；$ 无 faucet ⇒ 待首次铸币后重估）
 const CURRENCY_LIST_FEE_FLOOR = 10000; // Kevin 2026-09-30 定值（同上）
-const CURRENCY_LIST_DEPOSIT_FLOOR = 50000; // Kevin 2026-09-30 定值（同上）
+/** ★ 批 8③：`AK2` 的**兜底**常量（读不到 / 非法时回落此值）—— **`TODO: Kevin 定值`**（现取读数 = 50000）。 */
+export const CURRENCY_LIST_DEPOSIT_FLOOR = 50000; // TODO: Kevin 定值（批 8③ 起 AK2 为主导真源；本常量 = fail-closed 兜底）
+
+/**
+ * ★ 批 8③（`route-layer.spec` v2.5 §20.7）：`AK2`（`listing_deposit_policy`）值的**业务侧解析**。
+ * 入参 = 键的**原始 `value`**（读不到 / 行不存在 ⇒ 传 `null`）。
+ * · 合法（jsonb object 且 `amount` 为正整数）⇒ 用键值（`source='config'`）；
+ * · **其余一律 fail-closed 到常量** `CURRENCY_LIST_DEPOSIT_FLOOR`（`source='constant'`）。
+ * **纯函数**（离线可判负 · 零 DB）：字符串型金额 / 非正整数 / 缺字段 / 非 object ⇒ 全部落常量。
+ * ★ **不发明数值**、**客户端永不决定金额**。
+ */
+export const resolveListingDepositFloor = (
+  rawPolicyValue: unknown,
+): { floor: number; source: 'config' | 'constant' } => {
+  const amount = parseListingDepositPolicyAmount(rawPolicyValue);
+  if (amount !== null) return { floor: amount, source: 'config' };
+  return { floor: CURRENCY_LIST_DEPOSIT_FLOOR, source: 'constant' };
+};
+
+/**
+ * ★ 批 8③：**先读 `AK2`**（DB 读口）⇒ 解析 ⇒ 读不到 / 抛错一律 fail-closed 到常量。
+ * （`R-8-5` / §20.7：**客户端永不决定金额** —— 客户端传入值只能 `>= 服务端下限`，且**永不抬低下限**。）
+ */
+const resolveListingDepositFloorFromDb = async (): Promise<{ floor: number; source: 'config' | 'constant' }> => {
+  try {
+    return resolveListingDepositFloor(await DatabaseService.getListingDepositPolicyValue());
+  } catch {
+    // 读失败（连不上 / 键缺失 / 值畸形）⇒ 常量兜底（fail-closed）
+    return resolveListingDepositFloor(null);
+  }
+};
 
 /**
  * 金额解析 = **服务端取数 + 下限校验**（§4.4-11；Zang §5.82 7-23）。语义写死，不自行发挥：
@@ -156,9 +189,10 @@ const resolveServerAmount = (
   raw: unknown,
   field: string,
   floor: number,
-): { ok: true; value: number; source: 'server_default' | 'client_ge_floor' } | { ok: false; err: VerbErr } => {
+  floorSource: 'config' | 'constant' = 'constant',
+): { ok: true; value: number; source: 'server_default' | 'client_ge_floor'; floor_source: 'config' | 'constant' } | { ok: false; err: VerbErr } => {
   if (raw === undefined || raw === null || raw === '') {
-    return { ok: true, value: floor, source: 'server_default' };
+    return { ok: true, value: floor, source: 'server_default', floor_source: floorSource };
   }
   const parsed = toPosInt(raw, field);
   if (!parsed.ok) return parsed;
@@ -168,12 +202,12 @@ const resolveServerAmount = (
       err: fail(
         400,
         'LEDGER_AMOUNT_NOT_POSITIVE',
-        { field, value: String(parsed.value), min: String(floor), reason: 'BELOW_SERVER_FLOOR' },
+        { field, value: String(parsed.value), min: String(floor), reason: 'BELOW_SERVER_FLOOR', floor_source: floorSource },
         'Amount is below the server-side floor',
       ),
     };
   }
-  return { ok: true, value: parsed.value, source: 'client_ge_floor' };
+  return { ok: true, value: parsed.value, source: 'client_ge_floor', floor_source: floorSource };
 };
 
 const ledgerView = (ledgerResult: unknown): Record<string, unknown> | null => {
@@ -347,7 +381,11 @@ export const listCurrencyVerb = async (params: {
   // §4.4-11（FIX-B）：金额 = **服务端取数 + 下限校验**（调用方可传，但只允许 `>= 下限`）
   const fee = resolveServerAmount(body.fee ?? body.listing_fee, 'listing_fee', CURRENCY_LIST_FEE_FLOOR);
   if (!fee.ok) return fee.err;
-  const deposit = resolveServerAmount(body.deposit_amount ?? body.deposit, 'deposit_amount', CURRENCY_LIST_DEPOSIT_FLOOR);
+  // ★ 批 8③（`route-layer.spec` v2.5 §20.7 / `data-layer.spec` v0.12 §23.4）：保证金下限的**来源**
+  //   改为「**先读 `AK2`**（`listing_deposit_policy`）· 读不到 / 非法 ⇒ **fail-closed 到常量**」。
+  //   **客户端永不决定金额**（客户端传入值只允许 `>= 服务端下限`，且**永不抬低下限**）。
+  const depositFloor = await resolveListingDepositFloorFromDb();
+  const deposit = resolveServerAmount(body.deposit_amount ?? body.deposit, 'deposit_amount', depositFloor.floor, depositFloor.source);
   if (!deposit.ok) return deposit.err;
 
   const resolved = resolveCurrencyKey(

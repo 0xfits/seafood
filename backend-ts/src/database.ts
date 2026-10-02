@@ -35,16 +35,23 @@ const DEFAULT_SYSTEM_SETTINGS = {
 } as const;
 
 // ============================================================================
-// 批 8①（`data-layer.spec` v0.10 §21.1 / §21.2 · `AK1` / `AG1`–`AG4`）：
+// 批 8①（`data-layer.spec` v0.10 §21.1 / §21.2 · `AK1` / `AG1`–`AG4`）
+//   + 批 8③（`data-layer.spec` v0.12 §23.1 · `AK2` 入册）· `route-layer.spec` v2.5 §20：
 // `app_config` **合法键清单（关闭集）** + **写入门禁的判据真源**。
 // ============================================================================
-// · 顶层合法键（`app_config.key` 取值）**恰好 1 个** = `system_settings`（现取真源 = 本文件 `:2865`/`:2870`/`:2878`/`:2887-2888`）；
-//   **任何其它键名一律非法**（含 `foo` / `deposit_amount` / `fee_rate` / `rate_bp` / §21.4 候选载体键在入册前）。
+// · 顶层合法键（`app_config.key` 取值）**恰好 2 个** = `system_settings`（`AK1`，§21.1）
+//   + `listing_deposit_policy`（`AK2`，§23.1 入册；真源 = `R-8-9` 批准键名）；
+//   **任何其它键名一律非法**（含 `foo` / `deposit_amount` / `fee_rate` / `rate_bp`）。
+// · ★ **「在册」≠「可写」**（§23.2 / §23.3 / `route-layer.spec` §20.6）：`AK2` 入册只改**本清单**；
+//   `POST /api/admin/settings` 的**写入面仍 = 单键 `system_settings`**（§20.6 键寻址缺口 · 线格式待冻结）
+//   ⇒ 把 `listing_deposit_policy` 当 `AK1` 值对象的**字段**塞进请求体 ⇒ **仍必被 `AG1` 拒**（**键 ≠ 字段**）。
 // · `system_settings` 的 `value` = **jsonb object**（容器硬约束 `0017:77`），对象内字段 = 下 9 个（类型规格见 `SYSTEM_SETTINGS_FIELD_TYPES`）。
+// · `listing_deposit_policy` 的 `value` = **jsonb object**（同容器约束），对象内字段 = `amount`（正整数 · 最小单位；
+//   逐字段规格见 `LISTING_DEPOSIT_POLICY_FIELD_TYPES`；**数值真值 = `TODO: Kevin 定值`**）。
 // · `value` 内**字段名**亦为**关闭集**：请求体出现清单外的键即按其为「未知键」判负（`AG1`）。
 // ⚠️ 纪律（§21.3 规则①）：**本清单是键名的唯一真源** —— 实现 / 测试 / 探针**不得自拟键名**。
-/** §21.1 `AK1`：`app_config` 顶层合法键（关闭集）。 */
-export const APP_CONFIG_LEGAL_KEYS = ['system_settings'] as const;
+/** §21.1 `AK1` ∪ §23.1 `AK2`：`app_config` 顶层合法键（关闭集 · 恰 2 键）。 */
+export const APP_CONFIG_LEGAL_KEYS = ['system_settings', 'listing_deposit_policy'] as const;
 
 /** §21.1 `AK1`：`system_settings` 值对象的**逐字段类型规格**（`AG3` 的判据真源；严格比对、不做隐式转换）。 */
 const SYSTEM_SETTINGS_FIELD_TYPES = {
@@ -82,6 +89,44 @@ export const SETTINGS_WRITE_REASONS = {
   /** `AG3`①：`value` 不是 jsonb object（裸标量 / 数组 / null）。 */
   valueNotObject: 'SETTING_VALUE_NOT_OBJECT',
 } as const;
+
+// ============================================================================
+// 批 8③（`data-layer.spec` v0.12 §23.3 `AG3`(ii) · §23.4 · `route-layer.spec` v2.5 §20.7）：
+// `AK2` = `listing_deposit_policy` 的 **值对象逐字段类型规格** + **读侧解析**（fail-closed）。
+// ============================================================================
+// · 容器层：`value` **必须** jsonb object（`0017:77` 硬约束）。
+// · 字段层：对象内**只允许** `amount`（**正整数 · 最小单位**；`AG3`(ii)）—— 数值真值 = `TODO: Kevin 定值`。
+// · ★ **键 ≠ 字段**（§23.3 末段两禁令）：本表描述的是**某个顶层键的 `value` 内部**，
+//   **不得**并入 `SYSTEM_SETTINGS_FIELD_TYPES`（那会同时破 `AK1` 的 9 字段关闭集与 `AG1` 的键维语义）。
+/** §23.3 `AK2`：`listing_deposit_policy` 值对象的**逐字段类型规格**（`AG3`(ii) 的判据真源）。 */
+export const LISTING_DEPOSIT_POLICY_FIELD_TYPES = {
+  /** 上市保证金金额（**整数 · 最小单位**；数值真值 `TODO: Kevin 定值`）。 */
+  amount: 'number',
+} as const;
+
+/** `listing_deposit_policy` 的合法字段名（关闭集，1 个）。 */
+export const LISTING_DEPOSIT_POLICY_FIELDS = Object.keys(LISTING_DEPOSIT_POLICY_FIELD_TYPES);
+
+/**
+ * `AK2` 读侧解析（`route-layer.spec` §20.7「先读 `AK2` · 读不到 / 非法 ⇒ **fail-closed 到常量**」）：
+ * 入参 = `app_config.value` 的**原始值**（读不到 / 行不存在 ⇒ 传 `null` / `undefined`）。
+ * 合法（jsonb object 且**字段 ⊆ 关闭集** `{amount}` 且 `amount` 为**正整数**）⇒ 返 `amount`；**其余一律返 `null`**
+ * （⇒ 调用方回落兜底常量）。★ **不发明数值**、**不隐式转换**（字符串型金额 `"50000"` ⇒ `null` ⇒ 回落常量）。
+ * 纯函数（离线可判负），**零 DB / 零副作用**。
+ */
+export const parseListingDepositPolicyAmount = (value: unknown): number | null => {
+  if (!isJsonbObject(value)) return null;
+  const obj = value as Record<string, unknown>;
+  // 字段层（`AG3`(ii)）：容器内**只允许** `LISTING_DEPOSIT_POLICY_FIELDS`（关闭集）——
+  //   出现清单外字段（如 `{"balance":…}`，§23.8 禁形）⇒ 判为非法 ⇒ 回落常量（fail-closed）。
+  if (Object.keys(obj).some((k) => !LISTING_DEPOSIT_POLICY_FIELDS.includes(k))) return null;
+  const amount = obj.amount;
+  if (typeof amount !== 'number' || !Number.isSafeInteger(amount) || amount <= 0) return null;
+  return amount;
+};
+
+/** `AK2` 键名的**唯一常量**（读 / 判据共用；不得散落字面量 —— §21.3 规则① 同族纪律）。 */
+export const LISTING_DEPOSIT_POLICY_KEY = 'listing_deposit_policy' as const;
 
 const PRIZE_MARKET_THRESHOLD_SECONDS = 30 * 24 * 60 * 60;
 const PRIZE_PRICE_FLOOR_MIN_DURATION_SECONDS = 30 * 24 * 60 * 60;
@@ -131,6 +176,112 @@ const getSql = () => {
 };
 
 const asItems = <T>(result: unknown): T[] => result as T[];
+
+// ============================================================================
+// 批 8③（`route-layer.spec` v2.5 §20.4(d) · `R-8-18`）：上市路径 DB 侧语句**单一真源** +
+// 「既有事务内（`ex`）」执行口 —— 让「服务层（neon）路径」与「真生效四段探针的事务内路径」
+// **共用同一份 SQL**（防「自写第二套取数」）。语义与改前 tagged-template 版**逐字等价**（仅占位符化）。
+// ============================================================================
+/** 语句执行器最小接口（`db.ts` 的 `TxClient` 与 neon `Sql` 都满足其可执行形态）。 */
+type SqlRunner = { query: (text: string, params?: unknown[]) => Promise<{ rows: RawRow[] }> };
+
+/** 上市（`POST /api/currency/:cid/list`）的 DB 侧唯一显式语句（单语句 CTE = 一个隐式事务）。 */
+const LIST_CURRENCY_WITH_DEPOSIT_SQL = `
+      WITH cur AS (
+        SELECT c.cid, c.owner_uid, c.status, c.deposit_cid
+        FROM public.currency AS c
+        WHERE c.cid = $1::bigint
+        FOR UPDATE
+      ),
+      keyhit AS (
+        SELECT e.request_fingerprint::text AS fp
+        FROM public.ledger_entry AS e
+        WHERE e.idempotency_key = $2::text
+        LIMIT 1
+      ),
+      apply AS (
+        UPDATE public.currency AS c
+        SET status = 'listed',
+            listed_at = now(),
+            deposit_amount = $3::bigint,
+            time_updated = now()
+        WHERE c.cid = $1::bigint
+          AND c.status = 'draft'
+          AND (SELECT cur.owner_uid FROM cur) = $4::bigint
+        RETURNING c.cid, c.symbol, c.owner_uid, c.status, c.decimals,
+                  c.deposit_amount, c.deposit_cid, c.listed_at
+      ),
+      slog AS (
+        INSERT INTO public.currency_status_log (cid, from_status, to_status, actor_uid, memo)
+        SELECT $1::bigint, 'draft', 'listed', $4::bigint, $5::text
+        FROM apply
+        RETURNING log_id
+      ),
+      ev AS (
+        SELECT ledger_post_event(jsonb_build_object(
+          'op', 'entries',
+          'idempotency_key', $2::text,
+          'request_fingerprint', $6::text,
+          'ref_type', 'currency',
+          'ref_id', $7::text,
+          'memo', $5::text,
+          'entries', jsonb_build_array(
+            jsonb_build_object('uid', (SELECT cur.owner_uid::text FROM cur), 'cid', '1',
+              'delta', $8::text, 'kind', 'currency_create_fee',
+              'ref_type', 'currency', 'ref_id', $7::text),
+            jsonb_build_object('uid', '-1', 'cid', '1',
+              'delta', $9::text, 'kind', 'currency_create_fee',
+              'ref_type', 'currency', 'ref_id', $7::text),
+            jsonb_build_object('uid', (SELECT cur.owner_uid::text FROM cur),
+              'cid', (SELECT cur.deposit_cid::text FROM cur),
+              'delta', $10::text, 'kind', 'listing_deposit',
+              'ref_type', 'currency', 'ref_id', $7::text),
+            jsonb_build_object('uid', '-1',
+              'cid', (SELECT cur.deposit_cid::text FROM cur),
+              'delta', $11::text, 'kind', 'listing_deposit',
+              'ref_type', 'currency', 'ref_id', $7::text)
+          )
+        )) AS r
+        FROM apply
+      )
+      SELECT
+        (SELECT count(*)::int FROM cur) AS cur_found,
+        (SELECT cur.status FROM cur) AS cur_status,
+        (SELECT cur.owner_uid::text FROM cur) AS cur_owner,
+        (SELECT count(*)::int FROM apply) AS applied,
+        (SELECT to_jsonb(a) FROM (SELECT * FROM apply) AS a) AS applied_row,
+        (SELECT ev.r FROM ev) AS ledger_result,
+        (SELECT keyhit.fp FROM keyhit) AS key_fingerprint
+    `;
+
+/** `listCurrencyWithDeposit` 入参 → `LIST_CURRENCY_WITH_DEPOSIT_SQL` 的 `$1..$11` 绑定（顺序写死）。 */
+const listCurrencyWithDepositParams = (input: {
+  cid: number; actorUid: number; fee: number; depositAmount: number;
+  idempotencyKey: string; requestFingerprint: string; memo: string;
+}): unknown[] => [
+  input.cid,                     // $1  cid（bigint；cur / apply / slog / ref_id 复用）
+  input.idempotencyKey,          // $2  idempotency_key（text）
+  input.depositAmount,           // $3  deposit_amount（bigint）
+  input.actorUid,                // $4  actor_uid（bigint）
+  input.memo,                    // $5  memo（text）
+  input.requestFingerprint,      // $6  request_fingerprint（text）
+  String(input.cid),             // $7  ref_id（text）
+  String(-input.fee),            // $8  fee 腿 delta（text）
+  String(input.fee),             // $9  fee 腿 delta（text）
+  String(-input.depositAmount),  // $10 保证金腿 delta（text）
+  String(input.depositAmount),   // $11 保证金腿 delta（text）
+];
+
+/**
+ * 执行 `text + params`：给了 `ex`（**既有事务**）⇒ 走它；否则走 neon 单语句（隐式事务）。
+ * ★ 抽出来是为「真生效四段」探针能在**同一事务内**调 `list` 同路径语句（`R-8-18`），
+ *   从而**零生产落盘**（末尾 `ROLLBACK`）。两路径**同一 SQL**，无第二套取数。
+ */
+const runSql = async (text: string, params: unknown[], ex?: SqlRunner): Promise<RawRow[]> => (
+  ex
+    ? (await ex.query(text, params)).rows
+    : extractRows(await (getSql() as unknown as (t: string, p: unknown[]) => Promise<unknown>)(text, params))
+);
 
 const extractRows = (result: unknown): RawRow[] => {
   const items = asItems<Record<string, unknown>>(result);
@@ -1866,78 +2017,31 @@ export class DatabaseService {
     idempotencyKey: string;
     requestFingerprint: string;
     memo: string;
-  }): Promise<RawRow> {
-    const sql = getSql();
-    const rows = extractRows(await sql`
-      WITH cur AS (
-        SELECT c.cid, c.owner_uid, c.status, c.deposit_cid
-        FROM public.currency AS c
-        WHERE c.cid = ${input.cid}::bigint
-        FOR UPDATE
-      ),
-      keyhit AS (
-        SELECT e.request_fingerprint::text AS fp
-        FROM public.ledger_entry AS e
-        WHERE e.idempotency_key = ${input.idempotencyKey}::text
-        LIMIT 1
-      ),
-      apply AS (
-        UPDATE public.currency AS c
-        SET status = 'listed',
-            listed_at = now(),
-            deposit_amount = ${input.depositAmount}::bigint,
-            time_updated = now()
-        WHERE c.cid = ${input.cid}::bigint
-          AND c.status = 'draft'
-          AND (SELECT cur.owner_uid FROM cur) = ${input.actorUid}::bigint
-        RETURNING c.cid, c.symbol, c.owner_uid, c.status, c.decimals,
-                  c.deposit_amount, c.deposit_cid, c.listed_at
-      ),
-      slog AS (
-        INSERT INTO public.currency_status_log (cid, from_status, to_status, actor_uid, memo)
-        SELECT ${input.cid}::bigint, 'draft', 'listed', ${input.actorUid}::bigint, ${input.memo}::text
-        FROM apply
-        RETURNING log_id
-      ),
-      ev AS (
-        SELECT ledger_post_event(jsonb_build_object(
-          'op', 'entries',
-          'idempotency_key', ${input.idempotencyKey}::text,
-          'request_fingerprint', ${input.requestFingerprint}::text,
-          'ref_type', 'currency',
-          'ref_id', ${String(input.cid)}::text,
-          'memo', ${input.memo}::text,
-          'entries', jsonb_build_array(
-            jsonb_build_object('uid', (SELECT cur.owner_uid::text FROM cur), 'cid', '1',
-              'delta', ${String(-input.fee)}::text, 'kind', 'currency_create_fee',
-              'ref_type', 'currency', 'ref_id', ${String(input.cid)}::text),
-            jsonb_build_object('uid', '-1', 'cid', '1',
-              'delta', ${String(input.fee)}::text, 'kind', 'currency_create_fee',
-              'ref_type', 'currency', 'ref_id', ${String(input.cid)}::text),
-            jsonb_build_object('uid', (SELECT cur.owner_uid::text FROM cur),
-              'cid', (SELECT cur.deposit_cid::text FROM cur),
-              'delta', ${String(-input.depositAmount)}::text, 'kind', 'listing_deposit',
-              'ref_type', 'currency', 'ref_id', ${String(input.cid)}::text),
-            jsonb_build_object('uid', '-1',
-              'cid', (SELECT cur.deposit_cid::text FROM cur),
-              'delta', ${String(input.depositAmount)}::text, 'kind', 'listing_deposit',
-              'ref_type', 'currency', 'ref_id', ${String(input.cid)}::text)
-          )
-        )) AS r
-        FROM apply
-      )
-      SELECT
-        (SELECT count(*)::int FROM cur) AS cur_found,
-        (SELECT cur.status FROM cur) AS cur_status,
-        (SELECT cur.owner_uid::text FROM cur) AS cur_owner,
-        (SELECT count(*)::int FROM apply) AS applied,
-        (SELECT to_jsonb(a) FROM (SELECT * FROM apply) AS a) AS applied_row,
-        (SELECT ev.r FROM ev) AS ledger_result,
-        (SELECT keyhit.fp FROM keyhit) AS key_fingerprint
-    `);
+  }, ex?: SqlRunner): Promise<RawRow> {
+    // ★ 批 8③：语句 = 模块常量 `LIST_CURRENCY_WITH_DEPOSIT_SQL`（**单一真源**）；
+    //   传 `ex`（既有事务）⇒ 在**事务内**执行（供「真生效四段」探针 · `R-8-18`）；否则走 neon 单语句。
+    const rows = await runSql(LIST_CURRENCY_WITH_DEPOSIT_SQL, listCurrencyWithDepositParams(input), ex);
     const row = rows[0] || null;
     if (!row) throw new Error('listCurrencyWithDeposit: no row returned');
     return row;
+  }
+
+  /**
+   * ★ 批 8③（`data-layer.spec` v0.12 §23.4）· `AK2` 读口：读 `app_config` 的
+   * `listing_deposit_policy` 键**原始 `value`**（只读；**行不存在 / 读不到 ⇒ `null`**）。
+   *
+   * 落地口径（`route-layer.spec` v2.5 §20.7）：**先读 `AK2` · 读不到 / 非法 ⇒ fail-closed 到常量**；
+   * 本方法只负责「读」，**判定与回落**在业务侧（`currency-service.ts` 的 `parseListingDepositPolicyAmount`
+   * + 兜底常量）。★ 传 `ex`（既有事务）⇒ 在**同一事务内**取数（供「真生效四段」探针 · `R-8-18`）。
+   * ★ 只读；**不得**借此写 `app_config`（`AG2`：唯一写落点 = `saveSystemSettings`）。
+   */
+  static async getListingDepositPolicyValue(ex?: SqlRunner): Promise<unknown> {
+    const rows = await runSql(
+      `SELECT value FROM public.app_config WHERE key = 'listing_deposit_policy' LIMIT 1`,
+      [],
+      ex,
+    );
+    return (rows[0] as { value?: unknown } | undefined)?.value ?? null;
   }
 
   /** P1-a 上架：幂等 = `listing.create_key` UNIQUE（同键 ⇒ `existing`，由 service 判重放 / 冲突） */
