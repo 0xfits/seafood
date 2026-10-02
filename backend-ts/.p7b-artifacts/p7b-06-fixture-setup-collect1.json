@@ -1,0 +1,299 @@
+{
+  "run": "collect1",
+  "name": "p7b-06-fixture-setup",
+  "at": "2026-10-02T08:10:47.973Z",
+  "script": "scripts/p7b-06-fixture-setup.ts",
+  "users": [
+    {
+      "uid": "900001",
+      "evm": "0x6483e2397f24242ecc2201f063a3e94e126aad72",
+      "is_admin": false
+    },
+    {
+      "uid": "900002",
+      "evm": "0xbbc472d48b7db790800d5534863782cfd65c7dcc",
+      "is_admin": false
+    },
+    {
+      "uid": "900003",
+      "evm": "0x9ffe815c1a50306df5bf989596b978e06638e5be",
+      "is_admin": false
+    },
+    {
+      "uid": "900004",
+      "evm": "0x32777d543c62dbf88b7b540420c6fd2a55bd491f",
+      "is_admin": false
+    },
+    {
+      "uid": "900005",
+      "evm": "0x0dd67907f2e02157c34c01a73c20dce8052eaecc",
+      "is_admin": false
+    },
+    {
+      "uid": "900006",
+      "evm": "0x7d85f72c5ead72f36bf8e9de89e0a8d3b5a28797",
+      "is_admin": false
+    },
+    {
+      "uid": "900007",
+      "evm": "0x23697db461635c17b29538dc32fa20caacfa8e21",
+      "is_admin": false
+    },
+    {
+      "uid": "900008",
+      "evm": "0x044ddf7ec0b4bc149f4b727d11e73f254c8972cb",
+      "is_admin": false
+    },
+    {
+      "uid": "910311",
+      "evm": "0xf09f74bdefecf55d8642c71bd6a0ad0c109e11da",
+      "is_admin": false
+    },
+    {
+      "uid": "970001",
+      "evm": "0x9700010000000000000000000000000000000000",
+      "is_admin": false
+    },
+    {
+      "uid": "970002",
+      "evm": "0x9700020000000000000000000000000000000000",
+      "is_admin": false
+    },
+    {
+      "uid": "970101",
+      "evm": "0x9701010000000000000000000000000000000000",
+      "is_admin": false
+    },
+    {
+      "uid": "970102",
+      "evm": "0x9701020000000000000000000000000000000000",
+      "is_admin": false
+    },
+    {
+      "uid": "970201",
+      "evm": "0x0000000000000000000000000000000000970201",
+      "is_admin": true
+    },
+    {
+      "uid": "970202",
+      "evm": "0x0000000000000000000000000000000000970202",
+      "is_admin": false
+    },
+    {
+      "uid": "970203",
+      "evm": "0x7fc8107e56eb5eeb9e059e5abc6cf960b2947c64",
+      "is_admin": false
+    },
+    {
+      "uid": "970204",
+      "evm": "0x058ed5b571a93e228231c082d63aa9a574b79ef8",
+      "is_admin": false
+    },
+    {
+      "uid": "970205",
+      "evm": "0x5392a11a1a8691d0c545c90e6483a14b099e4405",
+      "is_admin": false
+    },
+    {
+      "uid": "970206",
+      "evm": "0xee218836518a96874ff446f504af292680be09ac",
+      "is_admin": false
+    },
+    {
+      "uid": "970207",
+      "evm": "0x1234567890abcdef1234567890abcdef12345678",
+      "is_admin": false
+    },
+    {
+      "uid": "970208",
+      "evm": "0x1cbaf854b7e211861a7cc3d1f58cdc0865ab86e0",
+      "is_admin": false
+    },
+    {
+      "uid": "970209",
+      "evm": "0x720c66011b1fa2fa5189fc2cf806aa76ca26b94b",
+      "is_admin": false
+    },
+    {
+      "uid": "970210",
+      "evm": "0x6b1f4db99bca13797117f4f28c247841b8f43d7f",
+      "is_admin": false
+    },
+    {
+      "uid": "970211",
+      "evm": "0x94a177980a4410f571340d34f24bf5e4c553fcf4",
+      "is_admin": false
+    },
+    {
+      "uid": "970212",
+      "evm": "0x7389d8fc17c3192a190ee650e6f7f8ede13101ab",
+      "is_admin": false
+    },
+    {
+      "uid": "970213",
+      "evm": "0x59f9f640d15ebb053c94a816232cf8ce91b209b0",
+      "is_admin": false
+    },
+    {
+      "uid": "971100",
+      "evm": "0xf3b5e957b8980e761aca0f0311f6310c83297588",
+      "is_admin": false
+    },
+    {
+      "uid": "971213",
+      "evm": "0xeebab03aa3f8345e757861048368319c49c58a25",
+      "is_admin": false
+    }
+  ],
+  "users_created": 28,
+  "role_assignments": [
+    {
+      "uid": "900004",
+      "role_key": "p7b_fixture_admin"
+    },
+    {
+      "uid": "900005",
+      "role_key": "p7b_fixture_admin"
+    },
+    {
+      "uid": "900006",
+      "role_key": "p7b_fixture_nopts"
+    },
+    {
+      "uid": "970213",
+      "role_key": "super_admin"
+    }
+  ],
+  "listing_id": "23",
+  "funding": [
+    {
+      "uid": 900001,
+      "skipped": true,
+      "balance": "9"
+    },
+    {
+      "uid": 900003,
+      "skipped": true,
+      "balance": "9"
+    },
+    {
+      "uid": 900008,
+      "skipped": true,
+      "balance": "9"
+    }
+  ],
+  "orders": {
+    "f1": "8",
+    "f2": "9",
+    "f3": "10",
+    "f4": "11",
+    "f5": "12",
+    "f6": "13"
+  },
+  "order_rows": [
+    {
+      "order_id": "10",
+      "seller_uid": "900001",
+      "buyer_uid": "900004",
+      "price": "1",
+      "quantity": 1,
+      "status": "paid"
+    },
+    {
+      "order_id": "11",
+      "seller_uid": "900008",
+      "buyer_uid": "900002",
+      "price": "1",
+      "quantity": 1,
+      "status": "refunded"
+    },
+    {
+      "order_id": "12",
+      "seller_uid": "900001",
+      "buyer_uid": "900002",
+      "price": "1",
+      "quantity": 1,
+      "status": "paid"
+    },
+    {
+      "order_id": "13",
+      "seller_uid": "900003",
+      "buyer_uid": "900002",
+      "price": "1",
+      "quantity": 1,
+      "status": "paid"
+    },
+    {
+      "order_id": "8",
+      "seller_uid": "900001",
+      "buyer_uid": "900002",
+      "price": "1",
+      "quantity": 1,
+      "status": "refunded"
+    },
+    {
+      "order_id": "9",
+      "seller_uid": "900003",
+      "buyer_uid": "900002",
+      "price": "1",
+      "quantity": 1,
+      "status": "refunded"
+    }
+  ],
+  "residue_manifest": {
+    "users": [
+      900001,
+      900002,
+      900003,
+      900004,
+      900005,
+      900006,
+      900007,
+      900008
+    ],
+    "roles": [
+      "p7b_fixture_admin",
+      "p7b_fixture_nopts"
+    ],
+    "role_assignments": [
+      [
+        900005,
+        "p7b_fixture_admin"
+      ],
+      [
+        900004,
+        "p7b_fixture_admin"
+      ],
+      [
+        900006,
+        "p7b_fixture_nopts"
+      ]
+    ],
+    "listing_id": "23",
+    "orders": {
+      "f1": "8",
+      "f2": "9",
+      "f3": "10",
+      "f4": "11",
+      "f5": "12",
+      "f6": "13"
+    },
+    "funding_transfers": [
+      {
+        "uid": 900001,
+        "skipped": true,
+        "balance": "9"
+      },
+      {
+        "uid": 900003,
+        "skipped": true,
+        "balance": "9"
+      },
+      {
+        "uid": 900008,
+        "skipped": true,
+        "balance": "9"
+      }
+    ]
+  }
+}

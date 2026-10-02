@@ -43,7 +43,7 @@ const base: RefundActorInput = { actorUid: 500, sellerUid: 7, buyerUid: 8, canAc
     { id: 'AC13-3', what: '③ 管理员**兼买方** ⇒ 403 ACTOR_NOT_ALLOWED', input: { ...base, actorUid: 8, canAccessAdmin: true, isAdmin: true, permissions: ['manage_points'] }, expect: 'ACTOR_NOT_ALLOWED' },
     { id: 'AC13-4', what: '④ 非卖方非 admin（第三方）⇒ 403 ACTOR_NOT_ALLOWED', input: { ...base, actorUid: 900003 }, expect: 'ACTOR_NOT_ALLOWED' },
     { id: 'AC13-5', what: '⑤ admin 但**缺** manage_points ⇒ 403 PERMISSION_NOT_GRANTED', input: { ...base, actorUid: 900004, canAccessAdmin: true, isAdmin: false, permissions: ['review_tasks'] }, expect: 'PERMISSION_NOT_GRANTED' },
-    { id: 'AC13-6', what: '⑥ 非 admin（can_access_admin=false）⇒ 403 NOT_ADMIN（构造上不可达分支，仅映射保留）', input: { ...base, actorUid: 900005, canAccessAdmin: false, isAdmin: false, permissions: ['manage_points'] }, expect: 'NOT_ADMIN' },
+    { id: 'AC13-6', what: '⑥ 非 admin（can_access_admin=false）但**带 manage_points**（构造上不可达）⇒ R-A：该分支已删 ⇒ 归 ACTOR_NOT_ALLOWED', input: { ...base, actorUid: 900005, canAccessAdmin: false, isAdmin: false, permissions: ['manage_points'] }, expect: 'ACTOR_NOT_ALLOWED' },
   ];
   const caseRead: Array<Record<string, unknown>> = [];
   for (const c of cases) {
@@ -64,7 +64,7 @@ const base: RefundActorInput = { actorUid: 500, sellerUid: 7, buyerUid: 8, canAc
 
   // ======================================================================== AC-13 判负（变异 ⇒ 必红）
   // 变异①：把卖方路也要求 admin 权限（= 未做 actor 分流，直接 requireAdmin('manage_points') 全覆盖）
-  const flatAdminMutant = (i: RefundActorInput) =>
+  const flatAdminMutant = (i: RefundActorInput): string =>
     i.canAccessAdmin && (i.isAdmin || i.permissions.includes('manage_points')) ? 'admin' : 'DENIED_NOT_ADMIN';
   const m1 = flatAdminMutant({ ...base, actorUid: 7 });
   ck.t('AC13-NEG-1', '★ 判负①：若卖方路也要求 admin 闸 ⇒ 卖方（非 admin）被拦 ⇒ 变体必红', m1 !== 'seller', `mutant got=${m1}`);
@@ -82,6 +82,16 @@ const base: RefundActorInput = { actorUid: 500, sellerUid: 7, buyerUid: 8, canAc
   ck.t('AC13-NEG-4', '★ 判负④：本面所有 403 reason 均在闭集 {ACTOR_NOT_ALLOWED, NOT_ADMIN, PERMISSION_NOT_GRANTED} 内',
     outOfSet.every((r) => ['ACTOR_NOT_ALLOWED', 'NOT_ADMIN', 'PERMISSION_NOT_GRANTED'].includes(r)),
     `reasons=${JSON.stringify(outOfSet)}`);
+  // 变异⑤：R-A ⇒ `resolveRefundActorRoute` 体内**不得**再产出 `NOT_ADMIN`（禁死代码）；且不可达输入归 ACTOR_NOT_ALLOWED
+  {
+    const fnSrc = LF_SERVICE.slice(LF_SERVICE.indexOf('export const resolveRefundActorRoute'), LF_SERVICE.indexOf('const actorDenied'));
+    ck.t('AC13-NEG-5', "★ 判负⑤（R-A）：`resolveRefundActorRoute` 体内 position('actorDenied(''NOT_ADMIN''')=0（不可达分支已删）；该不可达输入 ⇒ ACTOR_NOT_ALLOWED",
+      fnSrc.indexOf("'NOT_ADMIN'") === -1 && String(caseRead.find((c) => c.id === 'AC13-6')?.got) === 'ACTOR_NOT_ALLOWED',
+      `notadmin_in_fn=${fnSrc.indexOf("'NOT_ADMIN'")} ac13_6=${caseRead.find((c) => c.id === 'AC13-6')?.got}`);
+    ck.t('AC13-NEG-6', "★ 判负⑥：`actorDenied` 形参 reason 类型闭集 = 2 值（NOT_ADMIN 已移出本面值域）",
+      /const actorDenied = \(reason: 'ACTOR_NOT_ALLOWED' \| 'PERMISSION_NOT_GRANTED'/.test(LF_SERVICE),
+      (LF_SERVICE.match(/const actorDenied = \(reason:[^\n]*/) ?? ['<none>'])[0].slice(0, 120));
+  }
 
   // ======================================================================== AC-14（离线：分类器）
   const cls = [
@@ -109,6 +119,12 @@ const base: RefundActorInput = { actorUid: 500, sellerUid: 7, buyerUid: 8, canAc
     ['Z4b-s1', 'position(pg_advisory) = 0（不取 advisory lock）', FN_BODY.indexOf('pg_advisory') === -1, `pos=${FN_BODY.indexOf('pg_advisory')}`],
     ['H4-s1', "键格式串 biz:listing:refund: 在场", FN_BODY.indexOf('biz:listing:refund:') !== -1, `pos=${FN_BODY.indexOf('biz:listing:refund:')}`],
     ['Z3-s2', "可空 txid / 拒绝令牌 rejected_state 在场", FN_BODY.indexOf('rejected_state') !== -1 && /txid\s+bigint/.test(SQL_0024), 'ok'],
+    // ★ AC-15③（离线可复算）：拒绝留痕 INSERT 必须落在 EXCEPTION 处理器**内**（子事务之外）。
+    //   若把它移入 `BEGIN … END` 块（子事务里）⇒ LD011 抛出时子事务回滚会一并撤销 ⇒ rejected_state 行 = 0。
+    //   判据 = 拒绝 INSERT 的 `'rejected_state', NULL` 出现在 `EXCEPTION` 关键字**之后**。
+    ['AC15-s3', '★ AC-15③：拒绝留痕 INSERT 落在 EXCEPTION 处理器内（子事务之外 ⇒ 不被回滚）',
+      FN_BODY.indexOf('EXCEPTION') !== -1 && FN_BODY.indexOf("'rejected_state', NULL") > FN_BODY.indexOf('EXCEPTION'),
+      `exc=${FN_BODY.indexOf('EXCEPTION')} rejected_insert=${FN_BODY.indexOf("'rejected_state', NULL")}`],
   ];
   for (const [id, what, pass, reading] of stat) ck.t(id, what, pass, reading);
 

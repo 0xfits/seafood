@@ -1,0 +1,428 @@
+{
+  "run": "collect1",
+  "name": "p7b-04-recon2",
+  "at": "2026-10-02T08:05:13.016Z",
+  "script": "scripts/p7b-04-recon2.ts",
+  "schema_migration_tail": [
+    {
+      "version": "0024",
+      "name": "0024_admin_refund_audit.sql",
+      "checksum": "b2495845c26f0cc79b386714b63359db74e76f0cd6eadf5c95f1dd9e0aa31b1d",
+      "applied_at": "2026-10-02T08:01:41.542Z"
+    },
+    {
+      "version": "0023",
+      "name": "0023_admin_points_audit_daily_cap.sql",
+      "checksum": "fe7bb504fd91a6c611345f950e742dd708264f64fd76dc48acabdd8d2f68f467",
+      "applied_at": "2026-10-02T01:58:54.688Z"
+    },
+    {
+      "version": "0022",
+      "name": "0022_admin_permission_seed.sql",
+      "checksum": "069a00905c2821b846f0efc24673abe7dfb89acd3e73e260e0108f0c0bd24112",
+      "applied_at": "2026-10-02T00:41:05.838Z"
+    }
+  ],
+  "audit_table_present": "admin_refund_audit_log",
+  "refund_fn_present": "listing_refund_post_event(jsonb)",
+  "post_event_functions": [
+    {
+      "proname": "admin_points_adjust_post_event"
+    },
+    {
+      "proname": "job_post_event"
+    },
+    {
+      "proname": "ledger_post_event"
+    },
+    {
+      "proname": "listing_post_event"
+    },
+    {
+      "proname": "listing_refund_post_event"
+    },
+    {
+      "proname": "market_post_event"
+    }
+  ],
+  "triggers": "45",
+  "audit_rows": [],
+  "for_update": {
+    "has_for_update": true,
+    "pos": 4183,
+    "has_for_update_regproc": true,
+    "pos_regproc": 4183
+  },
+  "listing_order": [
+    {
+      "order_id": "1",
+      "listing_id": "13",
+      "seller_uid": "7",
+      "buyer_uid": "8",
+      "cid": "1",
+      "price": "100",
+      "quantity": 1,
+      "status": "created",
+      "has_pay_txid": false,
+      "has_refund_txid": false
+    },
+    {
+      "order_id": "2",
+      "listing_id": "13",
+      "seller_uid": "7",
+      "buyer_uid": "8",
+      "cid": "1",
+      "price": "100",
+      "quantity": 2,
+      "status": "refunded",
+      "has_pay_txid": true,
+      "has_refund_txid": true
+    },
+    {
+      "order_id": "3",
+      "listing_id": "13",
+      "seller_uid": "7",
+      "buyer_uid": "8",
+      "cid": "1",
+      "price": "100",
+      "quantity": 1,
+      "status": "paid",
+      "has_pay_txid": true,
+      "has_refund_txid": false
+    },
+    {
+      "order_id": "6",
+      "listing_id": "16",
+      "seller_uid": "970001",
+      "buyer_uid": "12",
+      "cid": "1",
+      "price": "2",
+      "quantity": 1,
+      "status": "refunded",
+      "has_pay_txid": true,
+      "has_refund_txid": true
+    },
+    {
+      "order_id": "7",
+      "listing_id": "18",
+      "seller_uid": "970001",
+      "buyer_uid": "12",
+      "cid": "1",
+      "price": "7",
+      "quantity": 1,
+      "status": "refunded",
+      "has_pay_txid": true,
+      "has_refund_txid": true
+    }
+  ],
+  "listing": [
+    {
+      "listing_id": "1",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "137",
+      "stock": 5,
+      "status": "draft"
+    },
+    {
+      "listing_id": "2",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "137",
+      "stock": 5,
+      "status": "draft"
+    },
+    {
+      "listing_id": "3",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "200",
+      "stock": 5,
+      "status": "draft"
+    },
+    {
+      "listing_id": "4",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "137",
+      "stock": 0,
+      "status": "draft"
+    },
+    {
+      "listing_id": "5",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "137",
+      "stock": 5,
+      "status": "draft"
+    },
+    {
+      "listing_id": "6",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "137",
+      "stock": 5,
+      "status": "draft"
+    },
+    {
+      "listing_id": "7",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "199",
+      "stock": 7,
+      "status": "delisted"
+    },
+    {
+      "listing_id": "8",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "137",
+      "stock": 5,
+      "status": "draft"
+    },
+    {
+      "listing_id": "9",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "200",
+      "stock": 5,
+      "status": "draft"
+    },
+    {
+      "listing_id": "10",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "137",
+      "stock": 0,
+      "status": "draft"
+    },
+    {
+      "listing_id": "11",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "137",
+      "stock": 5,
+      "status": "draft"
+    },
+    {
+      "listing_id": "12",
+      "seller_uid": "970101",
+      "cid": "1",
+      "price": "155",
+      "stock": 5,
+      "status": "draft"
+    },
+    {
+      "listing_id": "13",
+      "seller_uid": "7",
+      "cid": "1",
+      "price": "100",
+      "stock": 0,
+      "status": "listed"
+    },
+    {
+      "listing_id": "14",
+      "seller_uid": "7",
+      "cid": "1",
+      "price": "50",
+      "stock": 0,
+      "status": "listed"
+    },
+    {
+      "listing_id": "15",
+      "seller_uid": "7",
+      "cid": "1",
+      "price": "100000000",
+      "stock": 5,
+      "status": "listed"
+    },
+    {
+      "listing_id": "16",
+      "seller_uid": "970001",
+      "cid": "1",
+      "price": "2",
+      "stock": 2,
+      "status": "delisted"
+    },
+    {
+      "listing_id": "17",
+      "seller_uid": "970001",
+      "cid": "1",
+      "price": "11",
+      "stock": 1,
+      "status": "draft"
+    },
+    {
+      "listing_id": "18",
+      "seller_uid": "970001",
+      "cid": "1",
+      "price": "7",
+      "stock": 2,
+      "status": "listed"
+    },
+    {
+      "listing_id": "19",
+      "seller_uid": "1",
+      "cid": "1",
+      "price": "120",
+      "stock": 5,
+      "status": "listed"
+    },
+    {
+      "listing_id": "20",
+      "seller_uid": "1",
+      "cid": "1",
+      "price": "120",
+      "stock": 3,
+      "status": "draft"
+    },
+    {
+      "listing_id": "21",
+      "seller_uid": "1",
+      "cid": "1",
+      "price": "120",
+      "stock": 3,
+      "status": "draft"
+    },
+    {
+      "listing_id": "22",
+      "seller_uid": "1",
+      "cid": "1",
+      "price": "120",
+      "stock": 3,
+      "status": "draft"
+    }
+  ],
+  "ledger_entry": {
+    "rows": "323",
+    "purchase_refund": "6",
+    "refund_rootkey_rows": "6"
+  },
+  "account_cid1": {
+    "rows": "18",
+    "sum_balance": "1989693",
+    "sum_frozen": "10507"
+  },
+  "users": {
+    "rows": "38",
+    "is_admin_true": "3"
+  },
+  "users_admin": [
+    {
+      "uid": "1",
+      "is_admin": true,
+      "bio": ""
+    },
+    {
+      "uid": "10",
+      "is_admin": true,
+      "bio": ""
+    },
+    {
+      "uid": "970201",
+      "is_admin": true,
+      "bio": "p4b2c:fixture uid=970201"
+    }
+  ],
+  "admin_role_tables": {
+    "user_role": "admin_user_role",
+    "role": "admin_role",
+    "role_perm": "admin_role_permission"
+  },
+  "admin_role_cols": [
+    {
+      "table_name": "admin_role",
+      "column_name": "role_key",
+      "data_type": "text"
+    },
+    {
+      "table_name": "admin_role",
+      "column_name": "name",
+      "data_type": "text"
+    },
+    {
+      "table_name": "admin_role",
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "admin_role_permission",
+      "column_name": "role_key",
+      "data_type": "text"
+    },
+    {
+      "table_name": "admin_role_permission",
+      "column_name": "permission_key",
+      "data_type": "text"
+    },
+    {
+      "table_name": "admin_user_role",
+      "column_name": "uid",
+      "data_type": "bigint"
+    },
+    {
+      "table_name": "admin_user_role",
+      "column_name": "role_key",
+      "data_type": "text"
+    }
+  ],
+  "role_rows": [
+    {
+      "uid": "970213",
+      "role_key": "super_admin"
+    }
+  ],
+  "admin_role_rows": [
+    {
+      "role_key": "super_admin",
+      "name": "超级管理员",
+      "time_created": "2026-10-02T00:41:05.838Z"
+    }
+  ],
+  "admin_role_perm_rows": [
+    {
+      "role_key": "super_admin",
+      "permission_key": "dashboard_access"
+    },
+    {
+      "role_key": "super_admin",
+      "permission_key": "manage_permissions"
+    },
+    {
+      "role_key": "super_admin",
+      "permission_key": "manage_points"
+    },
+    {
+      "role_key": "super_admin",
+      "permission_key": "manage_rewards"
+    },
+    {
+      "role_key": "super_admin",
+      "permission_key": "manage_settings"
+    },
+    {
+      "role_key": "super_admin",
+      "permission_key": "manage_tasks"
+    },
+    {
+      "role_key": "super_admin",
+      "permission_key": "manage_users"
+    },
+    {
+      "role_key": "super_admin",
+      "permission_key": "publish_prizes"
+    },
+    {
+      "role_key": "super_admin",
+      "permission_key": "publish_tasks"
+    },
+    {
+      "role_key": "super_admin",
+      "permission_key": "read_users"
+    },
+    {
+      "role_key": "super_admin",
+      "permission_key": "review_tasks"
+    }
+  ]
+}

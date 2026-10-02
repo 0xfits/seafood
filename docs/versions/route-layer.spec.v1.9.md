@@ -170,14 +170,6 @@
 > ⑤ **★ 迁移 `0024` 已 apply 事实（正文 = §12.13〔新〕）**：**`schema_version=0024` / checksum `b2495845…` / 表 `admin_refund_audit_log` 在场 / 函数 `listing_refund_post_event` 在场〔`post_event_functions` 5→6〕/ 触发器 44→45 / `Σbalance(cid=1)` 零位移 / 注册点 68 / 前端零改动**；**实现面其余项落地与否 = `NOT_MEASURED`**。
 > ⑥ **只追加、未重写**：**非追加改动 = 0 处**（**§12.3 / §12.11.6 / §15.2 的正文与表格 / 单元格一字未动** —— 订正与更新**全部**由**新增加注行 + 新小节**承载）；`git diff --numstat docs/route-layer.spec.md` 删除列 = **0**（见 §8.21.5）；**v0.1–v1.8 十八个快照一字未动**；**纪律自检见 §8.21.5**。
 
-> **状态：v2.0（已完成 · **两条小订正 + 一条确认 —— Zang 自我更正 + 载体定层 + 措辞确认（**只追加 · 零代码 · 零迁移 · 库面只读 · 零 HTTP**）**：★★ **AC-11 期望订正**（**Zang 自我更正 · 派单 ①**）—— 并发两笔同订单退款的「**另一笔**」**原写 `409 LEDGER_CURRENCY_INVALID_TRANSITION` 作废**；**正确期望 = `200` + `idempotent_replay:true`（且 `txid` 与首笔逐字相同）**（真因 = **退款幂等键由 `order_id` 派生** ⇒ 两笔同订单**必同键** ⇒ 第二笔是**幂等重放**；**比 `409` 更好**：不报错、不双扣）；**保留**「**资金腿恰一次**」+「**审计行恰 1 行**」两条判据；**实测佐证（本册现取 · 转引）** = `backend-ts/.p7b-artifacts/p7b-07-ac11-collect1.json`：`criterion_iii_concurrent = { a:{result:"applied", idempotent_replay:false, txid:"341"}, b:{result:"applied", idempotent_replay:true, txid:"341"} }` + `deltas = { purchase_refund:2, audit_applied:1, audit_rejected:0, sum_cid1_shift:"0" }`；**旧写法逐字留痕** ＋ ★★ **「同键异内容 ⇒ 409」的载体定层**（**派单 ②**）—— **正式载体 = DB 层**（实测 `backend-ts/.p7b-artifacts/p7b-08-e2e-http-collect1.json` 的 `item8_same_key_diff_content_db` ⇒ `LD003` / `LEDGER_IDEMPOTENCY_CONFLICT`）；**HTTP 面 = `NOT_APPLICABLE`**（键与指纹**同由 `order_id` 派生** ⇒ 同键异内容**构造不出**）；**旧写法留痕** ＋ ★ **AC-13⑥ 措辞确认**（**派单 ③**）—— **确认正确**：**路由分支已删除**（本仓禁死代码）**且** **`NOT_ADMIN` 常量仍保留**（属**既有 admin 面**的 `reason`、**不在本路由使用**）。**本单只追加**：**非追加改动 = 0 处**（判据 = `git diff --numstat docs/route-layer.spec.md` 删除列 = 0）；**§12.5 / §12.11.6 两处就地加注**（**原地正文一字未动**）+ **§8.1 表 v2.0 行** + **§8.22（新）**） · 作者角色 = **Jing（Specifier · 制度员）**
-> **v2.0 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.0-delta.md`。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 **Zang 自我更正 + 载体定层 + 措辞确认的逐字落位**，**未改写任何裁定、未发明任何规格值**；**确实无先例者**列 **§8.22.2 / §8.22.3**）。
-> **★★ v2.0 本单要点（先说结论，不含糊）**：
-> ① **★★ AC-11 期望订正（Zang 自我更正 · 就地点 §12.11.6 v2.0 加注）**：**「另一笔 `409` `LEDGER_CURRENCY_INVALID_TRANSITION`」作废** ⇒ **正确期望 = 另一笔 `200` + `idempotent_replay:true`（`txid` 与首笔逐字相同）**；**保留**「资金腿恰一次（`Δpurchase_refund` 恰 `+2`，**不是 +4**）」+「审计行恰 1 行」两条；**旧写法逐字引在加注内 ⇒ 留痕成立、AC-11 表体一字未动**。
-> ② **★★ 「同键异内容 ⇒ `409`」载体定层（就地点 §12.5 v2.0 加注）**：**正式载体 = DB 层**（实测 `LD003` `LEDGER_IDEMPOTENCY_CONFLICT`；构造入参 `request_fingerprint = 'p7b:DIFFERENT-FP'`，同键）；**HTTP 面 = `NOT_APPLICABLE`**（**结构性不可达**，原因 = 键与指纹**同源派生**）；**旧写法留痕**。
-> ③ **★ AC-13⑥ 措辞确认（承 §12.3 / §12.11.6 v1.9 加注）**：**确认正确** —— 「**路由分支已删除**（本仓禁死代码）」与「**`NOT_ADMIN` 常量保留供既有 admin 面**」**= 两句并列、不矛盾**（前者删的是**本退款路由内**的不可达死分支；后者保的是 `src/index.ts:254` 的 **`AUTH_REASONS` 常量**本身）。
-> ④ **只追加、未重写**：**非追加改动 = 0 处**（**§12.5 / §12.11.6 的正文与表格 / 单元格一字未动** —— 订正与定层**全部**由**新增加注行 + 新小节**承载）；`git diff --numstat docs/route-layer.spec.md` 删除列 = **0**（见 §8.22.5）；**v0.1–v1.9 十九个快照一字未动**；**纪律自检见 §8.22.5**。
-
 > **v1.1 一页纸（历史，仍在册）**：见下（`状态：v1.1` 块）。
 
 ## §0 元信息与口径
@@ -1781,7 +1773,6 @@ can_access_admin(uid) := users.is_admin OR EXISTS (SELECT 1 FROM public.admin_us
 
 
 | **v1.9** | **2026-10-02** | **Jing** | **两批落地事实与 Zang 终审回写（**只追加 · 零代码 · 零迁移 · 库面只读**）**，**共 6 组 delta**（逐条见 `docs/audit/route-layer-v1.9-delta.md`）：① **§12.3 G2 就地订正**（**本仓自身发现的真矛盾**：非卖方非 admin 的 G2 旧写 `reason='NOT_ADMIN'` vs AC-13④ `ACTOR_NOT_ALLOWED`；**Zang 终审以 AC-13 为准** —— 非卖方非 admin ⇒ `ACTOR_NOT_ALLOWED`、admin 缺 `manage_points` ⇒ `PERMISSION_NOT_GRANTED`、**`NOT_ADMIN` 不在本路由使用**、**AC-13⑥ 不可达分支已删除**；**旧写法逐字留痕**）；② **AC-11 判负改可复现三条**（原「移除 `0015:670` 的 `FOR UPDATE` ⇒ `+4`」需第二个库 / 需改已应用迁移 ⇒ 结构性不可行 ⇒ **源码级 `position('FOR UPDATE' …)` + 竞争实测〔阻塞 > 0〕+ 正向〔恰一次生效〕**；`+4` 判负登记归 **P8 前可选**）；③ **回退护栏（`ledger.err.*`）纪律 + 132 键登记**（正文 = **§14.3（新）**：`t()` 未命中 ⇒ 四语通用兜底 / 用户可见文案不得出现裸键 / 真源 `frontend/src/auth.js` / 可判负门 `frontend/scripts/p7b-errfallback-gate.mjs` / **132 键〔33 码 × 4 语〕逐码本地化 = 产品文案决策 ⇒ 登记 P6/P7 待定** / 护栏让位语义写死）；④ **同族 `sendError` 26 处登记 + `:1482` 勘误**（正文 = **§15.4（新）** + **§15.2 加注**：**转引** `docs/audit/p7-a-ledger-read-fix2.md §5` / 只登记不修 / 点名 `/api/admin/points/adjust` message 硬编码中文「参数不完整」非 R107、行号 `:1482`（注册行 `:1472`）· `:1477` 作废）；⑤ **迁移 `0024` 已 apply 事实**（正文 = **§12.13（新）**：`schema_version=0024` / checksum `b2495845…` / 表 `admin_refund_audit_log` / 函数 `listing_refund_post_event`（`post_event_functions` 5→6）/ 触发器 44→45 / `Σbalance(cid=1)` 零位移 / 注册点 68 / 前端零改动）；⑥ **新增顶部 v1.9 状态块 + §8.21**（声明 / `NOT_MEASURED` 六项 / 自曝 5 条 / delta 对照 / 纪律自检）。**本单只追加**：**非追加改动 = 0 处**（**§12.3 / §12.11.6 / §15.2 的正文与表格 / 单元格一字未动** —— 订正与更新**全部**由**新增加注行 + 新小节**承载）、`git diff --numstat` 删除列 = **0**；**v0.1–v1.8 十八个快照一字未动** |
-| **v2.0** | **2026-10-02** | **Jing** | **两条小订正 + 一条确认 —— Zang 自我更正 + 载体定层 + 措辞确认（**只追加 · 零代码 · 零迁移 · 库面只读 · 零 HTTP**）**，**共 4 组 delta**（逐条见 `docs/audit/route-layer-v2.0-delta.md`）：① **AC-11 期望订正（Zang 自我更正 · 派单 ①）** —— 「并发两笔同订单 ⇒ 另一笔 `409 LEDGER_CURRENCY_INVALID_TRANSITION`」**作废**（真因 = **退款幂等键由 `order_id` 派生** ⇒ 第二笔是**幂等重放**）⇒ **正确期望 = 另一笔 `200` + `idempotent_replay:true`（`txid` 与首笔逐字相同）**；**保留**「资金腿恰一次（`Δpurchase_refund` 恰 `+2`）」+「审计行恰 1 行」；**旧写法逐字留痕**（就地点 = **§12.11.6 v2.0 加注**；实测佐证 = `p7b-07-ac11-collect1.json`）；② **「同键异内容 ⇒ `409`」载体定层 = DB 层（派单 ②）** —— **正式载体 = DB 层**（实测 `LD003` `LEDGER_IDEMPOTENCY_CONFLICT`，`p7b-08-e2e-http-collect1.json` · `item8_same_key_diff_content_db`）；**HTTP 面 = `NOT_APPLICABLE`**（键与指纹同由 `order_id` 派生 ⇒ 构造不出）；**旧写法留痕**（就地点 = **§12.5 v2.0 加注**）；③ **AC-13⑥ 措辞确认（派单 ③）** —— **确认正确**：**路由分支已删除〔本仓禁死代码〕** 与 **`NOT_ADMIN` 常量保留供既有 admin 面** **= 两句并列、不矛盾**（就地点 = **§12.11.6 v2.0 加注**）；④ **新增顶部 v2.0 状态块 + §8.22**（声明 / `NOT_MEASURED` / 自曝 / delta 对照 / 纪律自检）。**本单只追加**：**非追加改动 = 0 处**（**§12.5 / §12.11.6 正文与表格 / 单元格一字未动** —— 订正与定层**全部**由**新增加注行 + 新小节**承载）、`git diff --numstat` 删除列 = **0**；**v0.1–v1.9 十九个快照一字未动** |
 
 > **★ 上表口径注（v1.5 追加）**：**v0.6–v1.4 的变更记录不在上表**（各自成节：§8.7 / §8.8 / §8.9 / §8.10 / §8.11 / §8.12 / §8.13 / §8.14 / §8.15 / §8.16）；**本节（§8.1）表体除本追加行外一字未动**（**不追溯补齐** —— 补行会改动历史节的表体，违反只追加纪律）。
 
@@ -2508,41 +2499,6 @@ can_access_admin(uid) := users.is_admin OR EXISTS (SELECT 1 FROM public.admin_us
 
 **8.21.5 纪律自检（逐条对照硬口径与派单纪律）**：① **身份表写 `users`** ✅（**本单零 SQL、零库连接**）｜② **SQL 显式 `public.`** ✅（**本单无 SQL**）｜③ **只追加 / 删除列 = 0** ✅（**非追加改动 = 0 处**；`git diff --numstat docs/route-layer.spec.md` 删除列 = **0**，读数见 delta 件 §D0）｜④ **快照惯例已先校验** ✅（开工前 `cmp docs/route-layer.spec.md docs/versions/route-layer.spec.v1.8.md` = **0**（identical）⇒ 惯例 = 「新版本号 + 改后正文」⇒ 本单照做；改后 `cmp docs/route-layer.spec.md docs/versions/route-layer.spec.v1.9.md` = **0**）｜⑤ **v0.1–v1.8 十八个快照未触碰** ✅｜⑥ **变更记录** ✅（§8.1 追加 v1.9 行 + §8.21）｜⑦ **不得改**：任何代码（`backend-ts/**` 正被 Kong 并发改写 / `frontend/**`）/ `migrations/**` / `docs/data-layer.spec.md` / `ledger.spec.md` / `commission.spec.md` / `docs/design/**` / `docs/seafood.master-plan.md` / `docs/audit/**` 既有件 / `docs/qa/**` ✅（**全部零改动**；本单只新建 `docs/audit/route-layer-v1.9-delta.md`）｜⑧ **无 `git add/commit/push` / 无 `npm install` / 未碰 `.env*` / 未用 `pkill -f`·`killall` / 未启停 5787·5788** ✅｜⑨ **原始输出不用 `.log`** ✅｜⑩ **未测项 = `NOT_MEASURED` + 原因** ✅（8.21.2 六项 ①–⑥；**无 0 / 无空 / 无占位**）｜⑪ **不确定处不二选一** ✅（**派单 ①②③④⑤ 的裁定 / 事实已给全** ⇒ **无「二选一」型未决**；**确实无先例处见 §8.21.2**）｜⑫ **报数带口径** ✅（行数 / 字节 / md5 / `numstat` 见 delta 件 §D0）｜⑬ **未发明任何规格值** ✅（`0024` 读数 = **本册现取**（recon 两件 + `shasum`）；26 处 = **转引** fix2 §5；护栏门读数 = **转引** p7-b；**无一处来自推断**）。
 
-### 8.22 v2.0 变更记录与自曝（**本节对 v2.0 生效；上文 §8.1–§8.21 为历史留痕**）
-
-**8.22.1 声明（写盘范围 · 逐条）**：本单**只写四个文件**：`docs/route-layer.spec.md`（**就地升 v2.0**：顶部 v2.0 状态块 + **§12.5 / §12.11.6 两处 v2.0 就地加注** + **§8.1 表 v2.0 行** + **§8.22（本节）**）、`docs/versions/route-layer.spec.v2.0.md`（**快照 = 新版本号 + 改后正文**；惯例已先校验，见 8.22.5-④）、`docs/audit/route-layer-v2.0-delta.md`（本单 delta 件）、本单**原始输出**（若有 ⇒ 用 `.json` / `.txt`，**不用 `.log`**）。
-
-**8.22.2 `NOT_MEASURED`（未测项，禁止当 0 / 空使用）**：
-
-| # | 未测项 | 原因 |
-|--:|---|---|
-| ① | **AC-11 期望订正的 HTTP 行为面** | 本册**零 HTTP**（只读既有批 7-B 产物）⇒ 行为面 `NOT_MEASURED`（实测证据为**函数调用层**，非 HTTP） |
-| ② | **`p7b-07-ac11-collect1.json` 派生布尔 `verdict_iii.exactly_one_effective = false` 的成因** | 该布尔与同一件的 `deltas` **不自洽**；脚本 `p7b-07-ac11.ts` 正被并发改写 ⇒ **不解释**，归因 `待 Zang 确认` |
-| ③ | **「同键异内容」在 HTTP 面的正向探测（是否真在路由层不可达）** | 本册**零 HTTP**；结论「`NOT_APPLICABLE`」由**派生同源（键 ∧ 指纹皆由 `order_id` 派生）** 静态得出 ⇒ 运行时探测 `NOT_MEASURED` |
-| ④ | **服务层 `listing-funds-service.ts:62` / 路由闸的当前落点** | `backend-ts/**` **正被 Kong 并发改写**（行号是移动靶）⇒ **不现取行号** |
-| ⑤ | **`docs/data-layer.spec.md` 是否登记 `LD003` 载体口径** | 本册**禁改**该件、**未读改** ⇒ `NOT_MEASURED` |
-
-**8.22.3 自曝（本册的口径缺陷与更正）**：
-
-| # | 自曝项 | 处置 |
-|--:|---|---|
-| ① | **「就地加注」与「删除列 = 0」不可兼得（承 v1.8 §8.20.3-① / v1.9 §8.21.3-①）** | 派单说「就地订正」；硬口径 ② 判据 = **删除列 = 0** ⇒ **取机器判据优先**：**§12.5 / §12.11.6 表体与正文一字未动**，订正由就地加注行承载 + **旧写法逐字引在加注内 ⇒ 留痕成立**。 |
-| ② | **AC-11 的 `409` 是「派单写错」而非「实现走偏」（Zang 自我更正）** | **原期望行（含 `409`）保留不删**（`:3314`）；**订正由 §12.11.6 v2.0 加注承载**；**不改判据列、不改判负自证行**。 |
-| ③ | **同源旧写法散落 4 处未逐处改**（§12.6 `:3082` / §12.9 `:3128` / 顶部 v1.6 块 ⑨ `:136` / §12.11.7 · Z8 行 `:3175`） | **一律以 §12.11.6 v2.0 加注为准**（**4 处原文逐字未动**，各在原位加注其行号；**避免多处重写破坏只追加**）。 |
-| ④ | **`verdict_iii.exactly_one_effective = false` 与自件 `deltas` 不自洽** | **不解释、不发明原因**（脚本被并发改写）⇒ 登记为本册 §8.22.2-②；**AC-11 口径只取 `criterion_iii_concurrent` + `deltas`**。 |
-| ⑤ | **并发写者 ⇒ 行号锚点是移动靶（承 v1.8 §8.20.3-⑥ / v1.9 §8.21.3-⑤）** | 本册**不把任一 `backend-ts/**` 静态行号冒充现盘**；引用的行号（`src/index.ts:254` / `listing-funds-service.ts:300` / `p7b-07`·`p7b-08` 脚本行）**均标「转引 / 现取于产物」**。 |
-
-**8.22.4 delta 对照（逐条 → 依据 → 落点）**：
-
-| delta | 依据（Zang 自我更正 / 裁定 · 派单） | 落点（本册） |
-|---|---|---|
-| ① AC-11 期望订正（`409` 作废 ⇒ `200` + `idempotent_replay:true`；保留两条判据；旧写法留痕） | Zang 自我更正（本单派单 ①） | **§12.11.6 v2.0 加注** |
-| ② 「同键异内容 ⇒ `409`」载体定层 = DB 层（`LD003`）+ HTTP 面 `NOT_APPLICABLE` + 旧写法留痕 | Zang 裁定（本单派单 ②） | **§12.5 v2.0 加注** |
-| ③ AC-13⑥ 措辞确认（「路由分支删除」与「`NOT_ADMIN` 常量保留」两句并列） | Zang 确认（本单派单 ③） | **§12.11.6 v2.0 加注** |
-| ④ 变更记录 / 快照 / delta 件 | 派单硬口径 ③④ | **§8.1 v2.0 行** + §8.22 + 快照 `docs/versions/route-layer.spec.v2.0.md` + `docs/audit/route-layer-v2.0-delta.md` |
-
-**8.22.5 纪律自检（逐条对照硬口径与派单纪律）**：① **身份表写 `users`** ✅（**本单零 SQL、零库连接**）｜② **SQL 显式 `public.`** ✅（**本单无 SQL**；引用的实测键 `SELECT public.listing_refund_post_event($1::jsonb)` 逐条 `public.`）｜③ **只追加 / 删除列 = 0** ✅（**非追加改动 = 0 处**；`git diff --numstat docs/route-layer.spec.md` 删除列 = **0**，读数见 delta 件 §D0）｜④ **快照惯例已先校验** ✅（开工前 `cmp docs/route-layer.spec.md docs/versions/route-layer.spec.v1.9.md` = **0**（identical）⇒ 惯例 = 「新版本号 + 改后正文」⇒ 本单照做；改后 `cmp docs/route-layer.spec.md docs/versions/route-layer.spec.v2.0.md` = **0**）｜⑤ **v0.1–v1.9 十九个快照未触碰** ✅｜⑥ **变更记录** ✅（§8.1 追加 v2.0 行 + §8.22）｜⑦ **不得改**：任何代码（`backend-ts/**` 正被 Kong 并发改写 / `frontend/**`）/ `migrations/**` / 其它 spec（`data-layer` / `ledger` / `commission`）/ `docs/design/**` / `docs/seafood.master-plan.md` / `docs/audit/**` 既有件 / `docs/qa/**` ✅（**全部零改动**；本单只新建 `docs/audit/route-layer-v2.0-delta.md`）｜⑧ **无 `git add/commit/push` / 无 `npm install` / 未碰 `.env*` / 未用 `pkill -f`·`killall` / 未启停 5787·5788** ✅｜⑨ **原始输出不用 `.log`** ✅（本单**无新原始输出**，只转引既有 `.json` 产物）｜⑩ **未测项 = `NOT_MEASURED` + 原因** ✅（8.22.2 五项 ①–⑤；**无 0 / 无空 / 无占位**）｜⑪ **不确定处不二选一** ✅（**派单 ①②③ 的更正 / 裁定 / 确认已给全**；**确实无先例者见 §8.22.2-②③ / §8.22.3-④**）｜⑫ **报数带口径** ✅（行数 / 字节 / md5 / `numstat` 见 delta 件 §D0）｜⑬ **未发明任何规格值** ✅（`LD003` / `idempotent_replay` / `txid` 逐字 = **转引 `backend-ts/.p7b-artifacts/*.json` 现取**；**无一处来自推断**）。
-
 ## §9 ★★ 批 4 施工清单（**v0.8 新增 · 本轮重要交付物**；元信息 = **项目 / 真源锚点 / 行动 / 前置依赖 / 验收判据**）
 
 > **本节的性质**：把**散落在 §1.8 / §2.4 / §3.1 / §5.1 / §5.4 / §7 / §8.3 的「批 4 要做的事」汇总成一张可执行清单**，**每条带真源锚点**。**依据** = Zang §5.86 裁定②（三方分工）+ §5.89 裁定②/B① + §5.90；**判据** = §5.4 逐字「**不得只挑其中几条**（`assets/init` 先例：互推 ⇒ 无人执行）」+ 「**必须先解决 §7-25 的 `create_key` 口径**」。
@@ -3105,15 +3061,6 @@ can_access_admin(uid) := users.is_admin OR EXISTS (SELECT 1 FROM public.admin_us
 | **判负用例 2（客户端自造键）** | 若实现要求/接受客户端传 `idempotency_key`/`create_key` ⇒ **判负**（违反 §4.5 硬规则；且「自造键 = 新标识 = 第二次退款」，`p4-b4c-ii-b` 同款判据 **转引**） | §4.5 硬规则 + §7-43 |
 | 键校验序（若将来出现客户端键参数） | `TOO_LONG → PREFIX_REQUIRED → RESERVED_SEPARATOR → CONTROL_CHARACTER`（`cli:`/`biz:`/`ops:`/`cm:` 前缀；禁 `#` 与控制字符） | §4.5 规则段 + `listing-funds-service.ts:104-131` |
 
-**★★ §12.5 v2.0 就地加注（**「同键异内容 ⇒ `409`」载体定层 = DB 层 · HTTP 面 = `NOT_APPLICABLE` · 本节表一字未动**）**：
-
-> **（v2.0：Zang —— 「同键异内容 ⇒ `409`」的正式载体 = DB 层）** **★ 旧写法（保留不删 · 逐字）**：本节表「**同键异内容** ⇒ **`409` `LEDGER_IDEMPOTENCY_CONFLICT`**（`details.reason = 'REPLAY_FINGERPRINT_MISMATCH'`；`i18n_key = ledger.err.LEDGER_IDEMPOTENCY_CONFLICT`）」行（v1.9 现取 `:3058`）+「**★ 同键异内容在本面的可达性（诚实边界）**」行（v1.9 现取 `:3059`：**「结构性不可达」：指纹只由 `order_id` 派生，而键也由 `order_id` 派生 ⇒ 同一订单 ⇒ 同键必同指纹**）。
-> **★ 定层（Zang · 逐字）**：**该 `409` 的正式载体 = DB 层**（编排函数 `public.listing_refund_post_event(jsonb)` 入口的幂等指纹闸 —— 同键异指纹 ⇒ `LD003`）⇒ **可实测、且已实测**。
-> **★ 实测（本册现取 · 转引）**：`backend-ts/.p7b-artifacts/p7b-08-e2e-http-collect1.json` 的 `item8_same_key_diff_content_db` ⇒ `{ error: { sqlstate: "LD003", message: "LEDGER_IDEMPOTENCY_CONFLICT", detail: "{\"actual\": \"p7b:DIFFERENT-FP\", \"expected\": \"77b48b2e62c4c75ae34ee50d268294aec1a43ec3b864587ec8ed8f10ec2934a4\", \"idempotency_key\": \"biz:listing:refund:8\"}" } }` ⇒ **`LD003` = `LEDGER_IDEMPOTENCY_CONFLICT`（§3.2 映射 `409`）**；**构造载体 = 直呼函数并显式传异指纹**（`SELECT public.listing_refund_post_event($1::jsonb)`，入参 `request_fingerprint = 'p7b:DIFFERENT-FP'`、同键 `biz:listing:refund:8`；转引 `backend-ts/scripts/p7b-08-e2e-http.ts:82-92` 其行内注「⑧ 同键异内容 ⇒ 409：HTTP 面 fp 由服务端派生 ⇒ DB 层等价构造」）。
-> **★ HTTP 面 = `NOT_APPLICABLE`（写死 · 带原因）**：**本路由的幂等键与请求指纹同由 `order_id` 派生**（键 `biz:listing:refund:<order_id>` `0015:667`；指纹 `sha256('listing.refund' | <order_id>)` `src/listing-funds-service.ts:300`）⇒ **同订单 ⇒ 必同键且必同指纹 ⇒ 同键异内容在 HTTP 面构造不出** ⇒ **该面在 HTTP 层判为 `NOT_APPLICABLE`**（≠「未测」、≠「契约不成立」）。
-> **★ 契约仍成立且可判负（不变）**：**判负对象 = 实现方改了键 / 指纹的派生输入**（**这正是 AC-10 的判负对象**；`src/listing-funds-service.ts:300` + `0015:667`）。
-> **★ 与本节既有「可达性」行的关系**：该行结论「**结构性不可达**」**方向正确、予以保留**；本加注只**补定层**（DB 层可实测 / HTTP 面 `NOT_APPLICABLE`）与**实测读数**，**判据不变**。
-
 ### 12.6 ③′「资金与审计**同一次 DB 调用**」——**可达性**与两变体
 
 > **问题**：`0023` 的取向① 要求「审计行与资金事件压成**一次 DB 调用**」（= 同一函数 / 同一语句 ⇒ 天然同事务）⇒ 本能力做到这点需要什么？
@@ -3390,18 +3337,6 @@ CONSTRAINT admin_refund_audit_log_idem_uniq   UNIQUE (idempotency_key, result)  
 > **★ 判据 ① 的现取确认（本册现取 · 追加）**：`backend-ts/.p7b-artifacts/p7b-04-recon2-collect1.json` ⇒ `for_update = { has_for_update: true, pos: 4183, has_for_update_regproc: true, pos_regproc: 4183 }` ⇒ **`position('FOR UPDATE' IN pg_get_functiondef('public.listing_post_event'::regproc)) = 4183 > 0`**（**判据 ① 已证**；该件为批 7-B 现取产物，非本册计算）。
 > **★ 判据 ②③ 的现状 = `NOT_MEASURED`**（**竞争实测需两个会话 + 测试环境**；本册**零库写 / 零 HTTP** ⇒ 归实现批 / 质检批，见 §8.21.2-⑥）。
 
-**★★ §12.11.6 v2.0 就地加注（**AC-11 期望订正〔Zang 自我更正〕+ AC-13⑥ 措辞确认 · 本节 AC-11…AC-13 表与正文一字未动**）**：
-
-> **（v2.0：Zang 自我更正 —— 原写 `409` 作废 ⇒ 正确期望 = `200` + `idempotent_replay:true`）** **★ 旧写法（保留不删 · 逐字）**：**AC-11 行期望列原文**（v1.9 现取 `:3314`）= 「**恰一次生效**：恰一笔 `200`（`purchase_refund ×2`）+ 另一笔 **`409` `LEDGER_CURRENCY_INVALID_TRANSITION`**（`details.field='listing_order.status'`；`reason='order_not_refundable'` ⇒ 驱动相关、`NOT_MEASURED`）**或** `200` + `idempotent_replay:true`（若第二笔落在首笔提交后 ⇒ 只读根键探测命中，`0015:677-678`）」。**同源旧写法（不删、不逐处改）** 亦见 **§12.6 v1.6 加注 `:3082`** / **§12.9 v1.6 加注 `:3128`** / **顶部 v1.6 块 ⑨ `:136`** / **§12.11.7 · Z8 登记行 `:3175`**（均写「另一笔 `409` / `LEDGER_CURRENCY_INVALID_TRANSITION`」）⇒ **一律以本加注为准**。
-> **★ 作废（Zang · 逐字）**：**「另一笔 `409 LEDGER_CURRENCY_INVALID_TRANSITION`」这一预期作废**。
-> **★ 真因（逐字）**：**退款幂等键由 `order_id` 派生**（`biz:listing:refund:<order_id>`，`0015:667`）⇒ **并发两笔同订单 ⇒ 必同键 ⇒ 第二笔是幂等重放**（`0015:673-676` 只读根键探测命中 ⇒ `v_replay`），**不是状态机拒绝**。
-> **★ 正确期望（写死 · 逐字）**：**「另一笔 = `200` + `idempotent_replay:true`（且 `txid` 与首笔逐字相同）」** —— **比 `409` 更好**：不报错、不双扣。
-> **★ 实测佐证（本册现取 · 转引）**：`backend-ts/.p7b-artifacts/p7b-07-ac11-collect1.json` ⇒ `criterion_iii_concurrent = { a: { outcome:"ok", result:"applied", idempotent_replay:false, txid:"341" }, b: { outcome:"ok", result:"applied", idempotent_replay:true, txid:"341" } }` + `deltas = { purchase_refund:2, rootkey_rows:2, audit_applied:1, audit_rejected:0, sum_cid1_shift:"0", order_status_after:{status:"refunded", refund_txid:"341"} }` ⇒ **首笔 `applied`（txid `341`）/ 第二笔 `replay`（`txid` **逐字相同** = `341`）**；**资金腿恰一次**（`Δpurchase_refund = +2`，**不是 +4**）+ **审计表 `result='applied'` 恰 1 行** + **`Σ(cid=1)` 零位移** + **订单恰转 `refunded` 一次**（`refund_txid` 恰 1 个）⇒ **AC-11 判据 ①②③④ 与本订正一致**（实测载体 = **DB 函数调用层**：`SELECT public.listing_refund_post_event($1::jsonb)`，两会话并发，转引 `backend-ts/scripts/p7b-07-ac11.ts:27-28,78-79`）。
-> **★ 保留（逐字）**：AC-11 判据两条**原样保留** —— **「资金腿恰一次」**（判据 ① `Δpurchase_refund` 恰 `+2`）+ **「审计行恰 1 行」**（判据 ③ `result='applied'` 恰 1 行）。
-> **★ 不涉本订正（不变）**：**`AC-11 判负自证` 行（`:3315`）与其 v1.9 可复现三条加注（`:3327–3338`）一字不变** —— 本订正**只改「另一笔」的期望**，**不改判据列、不改判负自证**。
-> **★ 产物内部自洽登记（诚实 · 不发明原因）**：`p7b-07-ac11-collect1.json` 自带布尔 `verdict_iii.exactly_one_effective = false`，**与其实测 `deltas`（`rootkey_rows:2` / `audit_applied:1` / `audit_rejected:0` / `sum_cid1_shift:"0"` / `status:"refunded"`）不自洽**（该布尔取自 `backend-ts/scripts/p7b-07-ac11.ts` 的**已改动脚本**；`backend-ts/**` **正被 Kong 并发改写**）⇒ **本册不解释、`NOT_MEASURED` 归因 = `待 Zang 确认`**；**本订正口径只取 `criterion_iii_concurrent` + `deltas` 两组原始读数**（**不采信该派生布尔**）。
-> **（v2.0：AC-13⑥ 措辞确认 —— 「路由分支删除」与「`NOT_ADMIN` 常量保留」两句并列）** **★ 确认（Zang · 逐字）**：v1.9 里 **AC-13⑥** 的落法措辞**正确** —— ① **路由分支已删除（本仓禁死代码）**；**且** ② **`NOT_ADMIN` 常量仍保留**（它属**既有 admin 面**的 `reason`、**不在本路由使用**）。
-> **★ 两句不矛盾、须并列读（就地补此一句 · 不改小节）**：**删的是「本退款路由内」的不可达死分支**（AC-13⑥ 这一条构造上不可达 ⇒ 禁死代码）；**保的是 `AUTH_REASONS` 闭集常量本身**（`src/index.ts:254`，**3 值**，`NOT_ADMIN` 供**既有 admin 面**使用）。**⇒ 本路由实际只返两 `reason`**：`ACTOR_NOT_ALLOWED`（非卖方非 admin · **AC-13④**）/ `PERMISSION_NOT_GRANTED`（admin 缺 `manage_points` · **AC-13⑤**）。**AC-13 表体一字未动**（**⑥ 行留痕**）。
 
 #### 12.11.7 实现面登记（**归新批 · 本册零代码 · 承 §12.10.2 的 I-1…I-8**）
 

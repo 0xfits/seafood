@@ -68,8 +68,9 @@ export const REFUND_ROLLS_BACK_STOCK = false;
  * 与 **G5 / AC-13④**（非卖方且非 admin ⇒ `reason='ACTOR_NOT_ALLOWED'`）对**同一输入**给了**两个**
  * reason；AC-13⑥（非 admin 但有 `manage_points` ⇒ `'NOT_ADMIN'`）本身**不可达**
  * （`can_access_admin = is_admin ∨ 有角色行 ∨ 有权限位` ⇒ 有 `manage_points` 必 `can_access_admin`）。
- * 本单**取 AC-13（§12.11.6，v1.7+ 的可证伪验收表）为准**：非卖方非 admin ⇒ `ACTOR_NOT_ALLOWED`；
- * `'NOT_ADMIN'` 仅在 AC-13⑥ 那条**构造上不可达**的分支保留（见 `resolveRefundActorRoute` 实现）。
+ * 本单**取 AC-13（§12.11.6，v1.7+ 的可证伪验收表）为准**：非卖方非 admin ⇒ `ACTOR_NOT_ALLOWED`。
+ * **★ R-A（终审）**：`'NOT_ADMIN'` **不在本路由使用** ⇒ AC-13⑥ 那条**构造上不可达**的映射**已删除**
+ * （本仓禁死代码）；该不可达输入现归 `'ACTOR_NOT_ALLOWED'`（见 `resolveRefundActorRoute` 实现）。
  * ⇒ 若派单方要 G2 口径，只改本函数一处（**一句话可改**）。
  */
 export const REFUND_ACTOR_SCOPE = 'seller_or_admin' as const;
@@ -99,9 +100,13 @@ export type RefundActorDecision = { ok: true; route: RefundActorRoute } | { ok: 
  *   ② 否则 actor = buyer ⇒ `403 AUTH_FORBIDDEN` + `'ACTOR_NOT_ALLOWED'`（§12.1 禁令：管理员兼买方
  *      也落在同一禁令内 —— 买方单方退款 = 对卖方的单向掠夺向量）；
  *   ③ 否则 `can_access_admin ∧ manage_points` ⇒ **管理员路**；
- *   ④ 否则 admin 但缺 `manage_points` ⇒ `'PERMISSION_NOT_GRANTED'`；
- *   ⑤ 否则（非 admin）⇒ `'ACTOR_NOT_ALLOWED'`（AC-13④ / G5；AC-13⑥ 的 `'NOT_ADMIN'` 分支不可达但保留）。
+ *   ④ 否则 `can_access_admin` 但缺 `manage_points` ⇒ `'PERMISSION_NOT_GRANTED'`；
+ *   ⑤ 否则（非 admin）⇒ `'ACTOR_NOT_ALLOWED'`（AC-13④ / G5）。
  * **闸必早于任何资金调用**（§12.3 G6）。
+ *
+ * **★ R-A（终审口径）**：`'NOT_ADMIN'` **不在本路由使用**（它属既有 admin 面）⇒ AC-13⑥
+ * 「非 admin 但有 `manage_points` ⇒ `'NOT_ADMIN'`」那条**构造上不可达**的映射**已删除**
+ * （本仓禁死代码）。该不可达输入现按 ⑤ 归 `'ACTOR_NOT_ALLOWED'`。
  */
 export const resolveRefundActorRoute = (input: RefundActorInput): RefundActorDecision => {
   const { actorUid, sellerUid, buyerUid, canAccessAdmin, isAdmin, permissions } = input;
@@ -119,20 +124,16 @@ export const resolveRefundActorRoute = (input: RefundActorInput): RefundActorDec
   if (canAccessAdmin && (isAdmin || hasPointsKey)) {
     return { ok: true, route: 'admin' };
   }
-  // ④ admin 但缺 manage_points
-  if (canAccessAdmin && !(isAdmin || hasPointsKey)) {
+  // ④ can_access_admin 但缺 manage_points（且非 is_admin）
+  if (canAccessAdmin) {
     return { ok: false, err: actorDenied('PERMISSION_NOT_GRANTED', actorUid, sellerUid) };
   }
-  // ⑤ AC-13⑥（构造上不可达：有 manage_points ⇒ can_access_admin=true）—— 保留映射
-  if (hasPointsKey) {
-    return { ok: false, err: actorDenied('NOT_ADMIN', actorUid, sellerUid) };
-  }
-  // ⑥ 非卖方、非买方、非 admin（AC-13④ / G5）
+  // ⑤ 非卖方、非买方、非 admin（AC-13④ / G5）
   return { ok: false, err: actorDenied('ACTOR_NOT_ALLOWED', actorUid, sellerUid) };
 };
 
-/** §3.3-6 / DL147③：`reason` 值域是**闭集**（3 值）⇒ 本面不得新增 */
-const actorDenied = (reason: 'ACTOR_NOT_ALLOWED' | 'NOT_ADMIN' | 'PERMISSION_NOT_GRANTED', actorUid: number, sellerUid: number): VerbErr =>
+/** §3.3-6 / DL147③：本面 `reason` 值域（R-A：`NOT_ADMIN` 不在本路由使用 ⇒ 闭集 = 2 值） */
+const actorDenied = (reason: 'ACTOR_NOT_ALLOWED' | 'PERMISSION_NOT_GRANTED', actorUid: number, sellerUid: number): VerbErr =>
   fail(403, 'AUTH_FORBIDDEN', {
     reason,
     field: 'actor.uid',
@@ -335,7 +336,7 @@ export const buyListing = async (params: {
 // 触发端点（spec §4.2 P4）= `POST /api/listing/order/:orderId/refund`；**前端零调用**
 //   ⇒ 本片**只交付服务层**（路由随批 4；报告 §1.2 已登记待入 spec §1.8）。
 // 资金四栏（§4.3:532）：**谁出钱** = **卖家**（可用余额 `−amount`）；**谁收钱** = **买家**（`+amount`）。
-// 发起人闸：见文件头 `REFUND_ACTOR_IS_SELLER_ONLY`（spec 未定义 actor ⇒ 服务层最严口径 + 单点可改）。
+// 发起人闸：**卖方 ∨ 管理员** —— 唯一准入真源 = `resolveRefundActorRoute`（P7-B · §12.11.4 actor 分流）。
 // 库存：**不回滚**（★7-7 单点判定，见文件头 `REFUND_ROLLS_BACK_STOCK`）。
 // ============================================================================
 export const refundListingOrder = async (params: {

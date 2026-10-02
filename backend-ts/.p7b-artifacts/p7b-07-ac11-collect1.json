@@ -1,0 +1,73 @@
+{
+  "run": "collect1",
+  "name": "p7b-07-ac11",
+  "at": "2026-10-02T08:08:13.547Z",
+  "script": "scripts/p7b-07-ac11.ts",
+  "order": 11,
+  "root_key": "biz:listing:refund:11",
+  "criterion_i_source": {
+    "has_for_update_regproc": true,
+    "pos_regproc": 4183,
+    "has_for_update_regprocedure": true,
+    "pos_regprocedure": 4183,
+    "for_update_count": 5
+  },
+  "before": {
+    "purchase_refund": "6",
+    "rootkey_rows": "0",
+    "audit_applied": "0",
+    "audit_rejected": "0",
+    "order_status": {
+      "status": "paid",
+      "refund_txid": null
+    },
+    "sum_cid1": "1989693"
+  },
+  "criterion_ii_contention": {
+    "victim_blocked_ms": 871,
+    "victim_error": null
+  },
+  "criterion_iii_concurrent": {
+    "a": {
+      "outcome": "ok",
+      "ok": true,
+      "result": "applied",
+      "idempotent_replay": false,
+      "txid": "341",
+      "reason": null
+    },
+    "b": {
+      "outcome": "ok",
+      "ok": true,
+      "result": "applied",
+      "idempotent_replay": true,
+      "txid": "341",
+      "reason": null
+    }
+  },
+  "after": {
+    "purchase_refund": "8",
+    "rootkey_rows": "2",
+    "audit_applied": "1",
+    "audit_rejected": "0",
+    "order_status": {
+      "status": "refunded",
+      "refund_txid": "341"
+    },
+    "sum_cid1": "1989693"
+  },
+  "deltas": {
+    "purchase_refund": 2,
+    "rootkey_rows": 2,
+    "audit_applied": 1,
+    "audit_rejected": 0,
+    "sum_cid1_shift": "0",
+    "order_status_after": {
+      "status": "refunded",
+      "refund_txid": "341"
+    }
+  },
+  "verdict_iii": {
+    "exactly_one_effective": false
+  }
+}

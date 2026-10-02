@@ -1,0 +1,256 @@
+{
+  "run": "collect1",
+  "name": "p7b-05-fixture-recon",
+  "at": "2026-10-02T08:06:22.628Z",
+  "script": "scripts/p7b-05-fixture-recon.ts",
+  "users_cols": [
+    {
+      "column_name": "uid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "data_type": "bigint",
+      "is_identity": "YES",
+      "identity_generation": "BY DEFAULT"
+    },
+    {
+      "column_name": "evm",
+      "is_nullable": "NO",
+      "column_default": null,
+      "data_type": "text",
+      "is_identity": "NO",
+      "identity_generation": null
+    },
+    {
+      "column_name": "bio",
+      "is_nullable": "NO",
+      "column_default": "''::text",
+      "data_type": "text",
+      "is_identity": "NO",
+      "identity_generation": null
+    },
+    {
+      "column_name": "is_admin",
+      "is_nullable": "NO",
+      "column_default": "false",
+      "data_type": "boolean",
+      "is_identity": "NO",
+      "identity_generation": null
+    },
+    {
+      "column_name": "time_reg",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "data_type": "timestamp with time zone",
+      "is_identity": "NO",
+      "identity_generation": null
+    },
+    {
+      "column_name": "time_login_last",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "data_type": "timestamp with time zone",
+      "is_identity": "NO",
+      "identity_generation": null
+    }
+  ],
+  "users_uid_max": {
+    "max_uid": "971213"
+  },
+  "users_identity_seq": [
+    {
+      "seq": "public.users_uid_seq"
+    }
+  ],
+  "admin_permission_keys": [
+    {
+      "permission_key": "dashboard_access"
+    },
+    {
+      "permission_key": "manage_permissions"
+    },
+    {
+      "permission_key": "manage_points"
+    },
+    {
+      "permission_key": "manage_rewards"
+    },
+    {
+      "permission_key": "manage_settings"
+    },
+    {
+      "permission_key": "manage_tasks"
+    },
+    {
+      "permission_key": "manage_users"
+    },
+    {
+      "permission_key": "publish_prizes"
+    },
+    {
+      "permission_key": "publish_tasks"
+    },
+    {
+      "permission_key": "read_users"
+    },
+    {
+      "permission_key": "review_tasks"
+    }
+  ],
+  "balances": [
+    {
+      "uid": "7",
+      "cid": "1",
+      "balance": "5100",
+      "frozen": "0"
+    },
+    {
+      "uid": "8",
+      "cid": "1",
+      "balance": "4900",
+      "frozen": "0"
+    },
+    {
+      "uid": "970001",
+      "cid": "1",
+      "balance": "1636071",
+      "frozen": "4112"
+    },
+    {
+      "uid": "970001",
+      "cid": "4",
+      "balance": "9994",
+      "frozen": "0"
+    },
+    {
+      "uid": "970001",
+      "cid": "16",
+      "balance": "9998",
+      "frozen": "0"
+    },
+    {
+      "uid": "970001",
+      "cid": "21",
+      "balance": "97",
+      "frozen": "1"
+    }
+  ],
+  "accounts_cid1_top": [
+    {
+      "uid": "6",
+      "balance": "990"
+    },
+    {
+      "uid": "2",
+      "balance": "7600"
+    },
+    {
+      "uid": "5",
+      "balance": "6"
+    },
+    {
+      "uid": "7",
+      "balance": "5100"
+    },
+    {
+      "uid": "8",
+      "balance": "4900"
+    },
+    {
+      "uid": "4",
+      "balance": "4"
+    },
+    {
+      "uid": "11",
+      "balance": "29374"
+    },
+    {
+      "uid": "-1",
+      "balance": "167280"
+    },
+    {
+      "uid": "970001",
+      "balance": "1636071"
+    },
+    {
+      "uid": "3",
+      "balance": "1385"
+    },
+    {
+      "uid": "12",
+      "balance": "136783"
+    },
+    {
+      "uid": "21",
+      "balance": "100"
+    }
+  ],
+  "currency_cid1": [
+    {
+      "cid": "1",
+      "status": "listed",
+      "total_supply": "2200276"
+    }
+  ],
+  "biz_users": [
+    {
+      "uid": "1",
+      "is_admin": true
+    },
+    {
+      "uid": "10",
+      "is_admin": true
+    },
+    {
+      "uid": "11",
+      "is_admin": false
+    },
+    {
+      "uid": "12",
+      "is_admin": false
+    },
+    {
+      "uid": "17",
+      "is_admin": false
+    },
+    {
+      "uid": "18",
+      "is_admin": false
+    },
+    {
+      "uid": "19",
+      "is_admin": false
+    },
+    {
+      "uid": "2",
+      "is_admin": false
+    },
+    {
+      "uid": "3",
+      "is_admin": false
+    },
+    {
+      "uid": "4",
+      "is_admin": false
+    },
+    {
+      "uid": "5",
+      "is_admin": false
+    },
+    {
+      "uid": "6",
+      "is_admin": false
+    },
+    {
+      "uid": "7",
+      "is_admin": false
+    },
+    {
+      "uid": "8",
+      "is_admin": false
+    },
+    {
+      "uid": "9",
+      "is_admin": false
+    }
+  ]
+}

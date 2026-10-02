@@ -1,0 +1,485 @@
+{
+  "run": "collect2",
+  "name": "p7b-08-e2e-http",
+  "at": "2026-10-02T08:11:17.513Z",
+  "script": "scripts/p7b-08-e2e-http.ts",
+  "base": "http://127.0.0.1:5793",
+  "before": {
+    "ledger_rows": "335",
+    "purchase_refund": "12",
+    "ledger_by_rootkey": [
+      {
+        "event_root_key": "biz:listing:refund:11",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:2",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:6",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:7",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:8",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:9",
+        "n": "2"
+      }
+    ],
+    "refund_audit": [
+      {
+        "log_id": "1",
+        "actor_uid": "900008",
+        "order_id": "11",
+        "result": "applied",
+        "txid": "341",
+        "idempotency_key": "biz:listing:refund:11",
+        "memo": "p7b ac11 refund:11"
+      },
+      {
+        "log_id": "2",
+        "actor_uid": "900001",
+        "order_id": "8",
+        "result": "applied",
+        "txid": "343",
+        "idempotency_key": "biz:listing:refund:8",
+        "memo": "listing refund:8"
+      },
+      {
+        "log_id": "3",
+        "actor_uid": "900005",
+        "order_id": "9",
+        "result": "applied",
+        "txid": "345",
+        "idempotency_key": "biz:listing:refund:9",
+        "memo": "listing refund:9"
+      }
+    ],
+    "orders": [
+      {
+        "order_id": "10",
+        "status": "paid",
+        "refund_txid": null
+      },
+      {
+        "order_id": "11",
+        "status": "refunded",
+        "refund_txid": "341"
+      },
+      {
+        "order_id": "12",
+        "status": "paid",
+        "refund_txid": null
+      },
+      {
+        "order_id": "13",
+        "status": "paid",
+        "refund_txid": null
+      },
+      {
+        "order_id": "8",
+        "status": "refunded",
+        "refund_txid": "343"
+      },
+      {
+        "order_id": "9",
+        "status": "refunded",
+        "refund_txid": "345"
+      }
+    ],
+    "sum_cid1_balance": "1989693",
+    "sum_cid1_frozen": "10507"
+  },
+  "item1_no_token": {
+    "status": 401,
+    "json": {
+      "error": {
+        "code": "AUTH_UNAUTHORIZED",
+        "message": "AUTH_UNAUTHORIZED",
+        "i18n_key": "auth.err.AUTH_UNAUTHORIZED",
+        "details": {}
+      }
+    },
+    "top_keys": [
+      "error"
+    ],
+    "text_head": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"AUTH_UNAUTHORIZED\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}"
+  },
+  "item2_trespasser": {
+    "status": 404,
+    "json": {
+      "error": {
+        "code": "LEDGER_REF_NOT_FOUND",
+        "message": "Referenced object not found",
+        "i18n_key": "ledger.err.LEDGER_REF_NOT_FOUND",
+        "details": {
+          "ref_type": "listing_order",
+          "ref_id": "5",
+          "field": "order_id",
+          "reason": "order_not_found"
+        }
+      }
+    },
+    "top_keys": [
+      "error"
+    ],
+    "text_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"Referenced object not found\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"listing_order\",\"ref_id\":\"5\",\"field\":\"order_id\",\"reason\":\"order_not_found\"}}}"
+  },
+  "item5_admin_buyer": {
+    "status": 403,
+    "json": {
+      "error": {
+        "code": "AUTH_FORBIDDEN",
+        "message": "ACTOR_NOT_ALLOWED",
+        "i18n_key": "auth.err.AUTH_FORBIDDEN",
+        "details": {
+          "reason": "ACTOR_NOT_ALLOWED",
+          "field": "actor.uid",
+          "required_uid": "900001",
+          "seller_uid": "900001",
+          "actor_uid": "900004",
+          "ref_type": "listing_order",
+          "ref_id": "10"
+        }
+      }
+    },
+    "top_keys": [
+      "error"
+    ],
+    "text_head": "{\"error\":{\"code\":\"AUTH_FORBIDDEN\",\"message\":\"ACTOR_NOT_ALLOWED\",\"i18n_key\":\"auth.err.AUTH_FORBIDDEN\",\"details\":{\"reason\":\"ACTOR_NOT_ALLOWED\",\"field\":\"actor.uid\",\"required_uid\":\"900001\",\"seller_uid\":\"900001\",\"actor_uid\":\"900004\",\"ref_type\":\"listing_order\",\"ref_id\":\"10\"}}}"
+  },
+  "item6_admin_nopoints": {
+    "status": 403,
+    "json": {
+      "error": {
+        "code": "AUTH_FORBIDDEN",
+        "message": "PERMISSION_NOT_GRANTED",
+        "i18n_key": "auth.err.AUTH_FORBIDDEN",
+        "details": {
+          "reason": "PERMISSION_NOT_GRANTED",
+          "field": "actor.uid",
+          "required_uid": "900001",
+          "actor_uid": "900006",
+          "ref_type": "listing_order",
+          "ref_id": "10"
+        }
+      }
+    },
+    "top_keys": [
+      "error"
+    ],
+    "text_head": "{\"error\":{\"code\":\"AUTH_FORBIDDEN\",\"message\":\"PERMISSION_NOT_GRANTED\",\"i18n_key\":\"auth.err.AUTH_FORBIDDEN\",\"details\":{\"reason\":\"PERMISSION_NOT_GRANTED\",\"field\":\"actor.uid\",\"required_uid\":\"900001\",\"actor_uid\":\"900006\",\"ref_type\":\"listing_order\",\"ref_id\":\"10\"}}}"
+  },
+  "item3_seller": {
+    "status": 404,
+    "json": {
+      "error": {
+        "code": "LEDGER_REF_NOT_FOUND",
+        "message": "Referenced object not found",
+        "i18n_key": "ledger.err.LEDGER_REF_NOT_FOUND",
+        "details": {
+          "ref_type": "listing_order",
+          "ref_id": "5",
+          "field": "order_id",
+          "reason": "order_not_found"
+        }
+      }
+    },
+    "top_keys": [
+      "error"
+    ],
+    "text_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"Referenced object not found\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"listing_order\",\"ref_id\":\"5\",\"field\":\"order_id\",\"reason\":\"order_not_found\"}}}"
+  },
+  "item7_replay": {
+    "status": 404,
+    "json": {
+      "error": {
+        "code": "LEDGER_REF_NOT_FOUND",
+        "message": "Referenced object not found",
+        "i18n_key": "ledger.err.LEDGER_REF_NOT_FOUND",
+        "details": {
+          "ref_type": "listing_order",
+          "ref_id": "5",
+          "field": "order_id",
+          "reason": "order_not_found"
+        }
+      }
+    },
+    "top_keys": [
+      "error"
+    ],
+    "text_head": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"Referenced object not found\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"listing_order\",\"ref_id\":\"5\",\"field\":\"order_id\",\"reason\":\"order_not_found\"}}}"
+  },
+  "item4_admin": {
+    "status": 200,
+    "json": {
+      "success": true,
+      "message": "Listing order refunded (idempotent replay)",
+      "data": {
+        "op": "refund",
+        "listing_id": "16",
+        "order_id": "6",
+        "listing_status": "delisted",
+        "order_status": "refunded",
+        "stock": "2",
+        "stock_rolled_back": false,
+        "created": false,
+        "idempotent_replay": true,
+        "txid": "219",
+        "ledger_idempotency_key": "biz:listing:refund:6",
+        "pay_txid": "217",
+        "refund_txid": "219",
+        "ledger_event_keys": [
+          "biz:listing:buy:6",
+          "biz:listing:refund:6"
+        ],
+        "amount": "2",
+        "currency_status": "listed",
+        "event_kinds": "purchase_refund",
+        "entry_count": 2,
+        "kinds": [
+          "purchase_refund",
+          "purchase_refund"
+        ],
+        "entries": [
+          {
+            "cid": "1",
+            "uid": "970001",
+            "kind": "purchase_refund",
+            "memo": "listing refund:6（卖家退回 purchase_refund listing_order=6）",
+            "txid": "219",
+            "delta": "-2",
+            "ref_id": "6",
+            "ref_type": "listing_order",
+            "frozen_after": "4112",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T19:15:37.560Z",
+            "balance_after": "1890070",
+            "idempotency_key": "biz:listing:refund:6",
+            "reversal_of_txid": null,
+            "request_fingerprint": "19c8aa2a09d631c590ff3ca1ff8bc924e9affbc8def1486809709d62fdf2949c"
+          },
+          {
+            "cid": "1",
+            "uid": "12",
+            "kind": "purchase_refund",
+            "memo": "listing refund:6（买家收款 purchase_refund listing_order=6）",
+            "txid": "220",
+            "delta": "2",
+            "ref_id": "6",
+            "ref_type": "listing_order",
+            "frozen_after": "0",
+            "frozen_delta": "0",
+            "time_created": "2026-09-29T19:15:37.560Z",
+            "balance_after": "37783",
+            "idempotency_key": "biz:listing:refund:6#2",
+            "reversal_of_txid": null,
+            "request_fingerprint": null
+          }
+        ],
+        "accounts": [
+          {
+            "cid": "1",
+            "uid": "970001",
+            "frozen": "4112",
+            "balance": "1890070"
+          },
+          {
+            "cid": "1",
+            "uid": "12",
+            "frozen": "0",
+            "balance": "37783"
+          }
+        ],
+        "actor_uid": "900005",
+        "seller_uid": "970001"
+      },
+      "idempotent_replay": true
+    },
+    "top_keys": [
+      "success",
+      "message",
+      "data",
+      "idempotent_replay"
+    ],
+    "text_head": "{\"success\":true,\"message\":\"Listing order refunded (idempotent replay)\",\"data\":{\"op\":\"refund\",\"listing_id\":\"16\",\"order_id\":\"6\",\"listing_status\":\"delisted\",\"order_status\":\"refunded\",\"stock\":\"2\",\"stock_rolled_back\":false,\"created\":false,\"idempotent_replay\":true,\"txid\":\"219\",\"ledger_idempotency_key\":\"bi"
+  },
+  "item8_same_key_diff_content_db": {
+    "error": {
+      "sqlstate": "LD022",
+      "message": "LEDGER_REF_NOT_FOUND",
+      "detail": "{\"field\": \"order_id\", \"value\": \"5\", \"reason\": \"order_not_found\"}",
+      "reason": "order_not_found",
+      "pg_code": null,
+      "raw_detail": {
+        "field": "order_id",
+        "value": "5",
+        "reason": "order_not_found"
+      }
+    }
+  },
+  "after": {
+    "ledger_rows": "335",
+    "purchase_refund": "12",
+    "ledger_by_rootkey": [
+      {
+        "event_root_key": "biz:listing:refund:11",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:2",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:6",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:7",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:8",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:9",
+        "n": "2"
+      }
+    ],
+    "refund_audit": [
+      {
+        "log_id": "1",
+        "actor_uid": "900008",
+        "order_id": "11",
+        "result": "applied",
+        "txid": "341",
+        "idempotency_key": "biz:listing:refund:11",
+        "memo": "p7b ac11 refund:11"
+      },
+      {
+        "log_id": "2",
+        "actor_uid": "900001",
+        "order_id": "8",
+        "result": "applied",
+        "txid": "343",
+        "idempotency_key": "biz:listing:refund:8",
+        "memo": "listing refund:8"
+      },
+      {
+        "log_id": "3",
+        "actor_uid": "900005",
+        "order_id": "9",
+        "result": "applied",
+        "txid": "345",
+        "idempotency_key": "biz:listing:refund:9",
+        "memo": "listing refund:9"
+      }
+    ],
+    "orders": [
+      {
+        "order_id": "10",
+        "status": "paid",
+        "refund_txid": null
+      },
+      {
+        "order_id": "11",
+        "status": "refunded",
+        "refund_txid": "341"
+      },
+      {
+        "order_id": "12",
+        "status": "paid",
+        "refund_txid": null
+      },
+      {
+        "order_id": "13",
+        "status": "paid",
+        "refund_txid": null
+      },
+      {
+        "order_id": "8",
+        "status": "refunded",
+        "refund_txid": "343"
+      },
+      {
+        "order_id": "9",
+        "status": "refunded",
+        "refund_txid": "345"
+      }
+    ],
+    "sum_cid1_balance": "1989693",
+    "sum_cid1_frozen": "10507"
+  },
+  "item9_txid_match": {
+    "f1_response_txid": null,
+    "f1_audit_txid": "343",
+    "f2_response_txid": "219",
+    "f2_audit_txid": "345"
+  },
+  "item10_drift": {
+    "ledger_rows_delta": 0,
+    "purchase_refund_delta": 0,
+    "sum_cid1_balance_shift": "0",
+    "sum_cid1_frozen_shift": "0",
+    "refund_rootkey_before": [
+      {
+        "event_root_key": "biz:listing:refund:11",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:2",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:6",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:7",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:8",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:9",
+        "n": "2"
+      }
+    ],
+    "refund_rootkey_after": [
+      {
+        "event_root_key": "biz:listing:refund:11",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:2",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:6",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:7",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:8",
+        "n": "2"
+      },
+      {
+        "event_root_key": "biz:listing:refund:9",
+        "n": "2"
+      }
+    ]
+  }
+}
