@@ -41,12 +41,19 @@ vi.mock('react-i18next', async () => {
   return { useTranslation: () => ({ t, i18n: { changeLanguage: vi.fn(), resolvedLanguage: 'zh', language: 'zh' } }) }
 })
 
-vi.mock('../../auth', () => ({
-  fetchApiJson: vi.fn(async () => []),
-  fetchCurrentUser: vi.fn(async () => ({ uID: 970001, bio: 'hello', EVM: '0xabc' })),
-  getAuthHeaders: vi.fn(() => ({ Authorization: 'Bearer test' })),
-  updateMyProfile: vi.fn(),
-}))
+// 批 7-A 收口四：`ledger-api` 新增 `getAuthToken` 前置 + `apiErrorMessage` 链（错误面与全站对齐）⇒
+//   本替身改为「**真 auth 模块**（`importOriginal`）+ 只桩网络面」，否则替身漏键会把真前置打成
+//   `TypeError: getAuthToken is not a function`（假红：页面把 TypeError 当取数失败吞掉）。
+vi.mock('../../auth', async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    fetchApiJson: vi.fn(async () => []),
+    fetchCurrentUser: vi.fn(async () => ({ uID: 970001, bio: 'hello', EVM: '0xabc' })),
+    getAuthHeaders: vi.fn(() => ({ Authorization: 'Bearer test' })),
+    updateMyProfile: vi.fn(),
+  }
+})
 
 vi.mock('../../auth-context', () => ({ useAuth: vi.fn() }))
 
@@ -208,5 +215,21 @@ describe('批 7-A · 账本流水前端行为（真 zh locale + 可注入取数�
     expect(empty.textContent).not.toBe(ZH.market.mineEmpty)
     expect(container.textContent).not.toContain('[object Object]')
     expect(mktItems(container).length).toBe(0)
+  })
+
+  // 收口四 R-2（统一未登录口径）：`ProfilePage` 的账本面按 `isAuthenticated` 设闸（与 `MarketPage` 对齐）
+  //   ⇒ 未登录**不发请求**（旧行为 = 发出去吃 401，再把服务端错误串当文案显示）。
+  it('⑦ 未登录（`isAuthenticated=false`）⇒ 账本读口**零请求** + 本地登录提示（登录闸）', async () => {
+    useAuth.mockReturnValue({ isAuthenticated: false, updateSession: (p) => p, user: null })
+    const fetchSpy = vi.fn(async () => { throw new Error('SHOULD_NOT_FETCH') })
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const { container } = renderPage(<ProfilePage />, '/profile')
+
+    await waitFor(() => expect(container.textContent).toContain(ZH.pleaseLogin))
+    expect(fetchSpy).not.toHaveBeenCalled() // 一个请求都没发（含账本读口）
+    expect(ledgerCalls(fetchSpy).length).toBe(0)
+    expect(container.textContent).not.toContain('AUTH_UNAUTHORIZED') // 本地提示，非服务端错误串
+    expect(container.querySelector('[data-sf-m="jobs-flow"]')).toBeNull() // 未登录 ⇒ 账本面板整体不渲染
   })
 })

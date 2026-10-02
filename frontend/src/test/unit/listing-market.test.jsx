@@ -29,10 +29,17 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: stableT, i18n: stableI18n }),
 }))
 
-vi.mock('../../auth', () => ({
-  fetchApiJson: vi.fn(async () => []),
-  getAuthHeaders: vi.fn(() => ({ Authorization: 'Bearer test' })),
-}))
+// 批 7-A 收口四：`ledger-api` 新增 `getAuthToken` 前置 + `apiErrorMessage` 链（错误面与全站对齐）⇒
+//   本替身改为「**真 auth 模块**（`importOriginal`）+ 只桩网络面」，否则替身漏键会把真前置打成
+//   `TypeError: getAuthToken is not a function`（页面 catch 掉 TypeError ⇒ 「账本读口零请求」的假红）。
+vi.mock('../../auth', async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    fetchApiJson: vi.fn(async () => []),
+    getAuthHeaders: vi.fn(() => ({ Authorization: 'Bearer test' })),
+  }
+})
 
 vi.mock('../../auth-context', () => ({ useAuth: vi.fn() }))
 

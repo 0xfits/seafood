@@ -111,6 +111,12 @@ const ProfilePage = () => {
   // 批 7-A：「流水」读口接线（`GET /api/user/ledger`，**已注册**；DL25 keyset 分页）。
   //   `beforeTxid=null` ⇒ 首页；「加载更多」传上一页 `next_before_txid`。真·零流水时才显示空态。
   const loadLedger = async (beforeTxid) => {
+    // 收口四 R-2（统一未登录口径）：与 `market/MarketPage.loadLedger` 对齐 ——
+    //   未登录 ⇒ **不发请求**、直接本地登录提示（旧行为 = 发出去吃 401 再把服务端错误串当文案）。
+    if (!isAuthenticated) {
+      setLedger({ rows: [], next: null, message: t('pleaseLogin') })
+      return
+    }
     try {
       const { rows, nextBeforeTxid } = await fetchMyLedger({
         user: sessionUser,

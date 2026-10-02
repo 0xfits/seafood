@@ -1,0 +1,196 @@
+scripts/p1f-02-f2-malformed.ts(171,23): error TS2352: Conversion of type '{ readonly LEDGER_INSUFFICIENT_BALANCE: { readonly status: 409; readonly message: "可用余额不足"; }; readonly LEDGER_INSUFFICIENT_FROZEN: { readonly status: 409; readonly message: "冻结余额不足"; }; ... 30 more ...; readonly LEDGER_RECONCILE_MISMATCH: { ...; }; }' to type 'Record<string, { status: number; }>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Property 'LEDGER_RECONCILE_MISMATCH' is incompatible with index signature.
+    Type '{ readonly status: null; readonly message: ""; }' is not comparable to type '{ status: number; }'.
+      Types of property 'status' are incompatible.
+        Type 'null' is not comparable to type 'number'.
+scripts/p2x-00-idempotency-replay-order.ts(106,70): error TS2339: Property 'uid_source' does not exist on type '{ ok: true; } & UidWindow'.
+scripts/p3l-00-post.ts(62,81): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+scripts/p3s1-00-db-state.ts(30,21): error TS18046: 'out.tables' is of type 'unknown'.
+scripts/p3w-00-fold-narrow-verify.ts(115,95): error TS2559: Type '"THREW"' has no properties in common with type 'PropertyDescriptor'.
+scripts/p4z-03-keys.ts(39,42): error TS2551: Property 'normalizeUser' does not exist on type '{ normalizeAsset: any; normalizeTask: any; normalizeBrand: any; }'. Did you mean 'normalizeAsset'?
+scripts/p4z-05-keys-b1c.ts(122,22): error TS2352: Conversion of type 'BrandRecord' to type 'Record<string, unknown>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Index signature for type 'string' is missing in type 'BrandRecord'.
+scripts/p4z-05-keys-b1c.ts(123,23): error TS2352: Conversion of type 'BrandRecord' to type 'Record<string, unknown>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Index signature for type 'string' is missing in type 'BrandRecord'.
+scripts/p4z-05-keys-b1c.ts(130,22): error TS2352: Conversion of type 'PrizeItemRecord' to type 'Record<string, unknown>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Index signature for type 'string' is missing in type 'PrizeItemRecord'.
+scripts/p4z-05-keys-b1c.ts(131,23): error TS2352: Conversion of type 'PrizeItemRecord' to type 'Record<string, unknown>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Index signature for type 'string' is missing in type 'PrizeItemRecord'.
+scripts/p4z-08-keys-b1d.ts(69,32): error TS2352: Conversion of type '(row: RawRow, brand?: BrandRecord | null) => MarketOrderRecord' to type 'Mapper' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'MarketOrderRecord' is not comparable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'MarketOrderRecord'.
+scripts/p4z-08-keys-b1d.ts(69,69): error TS2352: Conversion of type '(row: RawRow, brand?: BrandRecord | null) => MarketOrderRecord' to type 'Mapper' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'MarketOrderRecord' is not comparable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'MarketOrderRecord'.
+scripts/p4z-08-keys-b1d.ts(72,32): error TS2352: Conversion of type '(row: RawRow, brand?: BrandRecord | null) => MarketTradeRecord' to type 'Mapper' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'MarketTradeRecord' is not comparable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'MarketTradeRecord'.
+scripts/p4z-08-keys-b1d.ts(72,69): error TS2352: Conversion of type '(row: RawRow, brand?: BrandRecord | null) => MarketTradeRecord' to type 'Mapper' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'MarketTradeRecord' is not comparable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'MarketTradeRecord'.
+scripts/p4z-08-keys-b1d.ts(75,30): error TS2352: Conversion of type '(row: RawRow) => MarketOrderBookRow' to type 'Mapper' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'MarketOrderBookRow' is not comparable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'MarketOrderBookRow'.
+scripts/p4z-08-keys-b1d.ts(75,68): error TS2352: Conversion of type '(row: RawRow) => MarketOrderBookRow' to type 'Mapper' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'MarketOrderBookRow' is not comparable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'MarketOrderBookRow'.
+scripts/p4z-a1cap-01-e2e.ts(220,84): error TS18046: 'out.regression' is of type 'unknown'.
+scripts/p4z-a1cap-01-e2e.ts(220,147): error TS18046: 'out.regression' is of type 'unknown'.
+scripts/p4z-a1cap-01-e2e.ts(220,182): error TS18046: 'out.regression' is of type 'unknown'.
+scripts/p4z-a1li-01-e2e.ts(246,100): error TS18046: 'out.regression' is of type 'unknown'.
+scripts/p4z-a1li-01-e2e.ts(246,163): error TS18046: 'out.regression' is of type 'unknown'.
+scripts/p4z-a1li-01-e2e.ts(246,198): error TS18046: 'out.regression' is of type 'unknown'.
+scripts/p4z-audjk-01-probe.ts(192,16): error TS2339: Property 'job_total' does not exist on type '{ account_rows: {} | null; account_sum_balance: string; account_sum_frozen: string; }'.
+scripts/p4z-audjk-01-probe.ts(192,30): error TS2339: Property 'job_total' does not exist on type '{ account_rows: {} | null; account_sum_balance: string; account_sum_frozen: string; }'.
+scripts/p4z-audjk-01-probe.ts(193,16): error TS2339: Property 'app_total' does not exist on type '{ account_rows: {} | null; account_sum_balance: string; account_sum_frozen: string; }'.
+scripts/p4z-audjk-01-probe.ts(193,30): error TS2339: Property 'app_total' does not exist on type '{ account_rows: {} | null; account_sum_balance: string; account_sum_frozen: string; }'.
+scripts/p4z-audjk-01-probe.ts(194,16): error TS2339: Property 'sub_total' does not exist on type '{ account_rows: {} | null; account_sum_balance: string; account_sum_frozen: string; }'.
+scripts/p4z-audjk-01-probe.ts(194,30): error TS2339: Property 'sub_total' does not exist on type '{ account_rows: {} | null; account_sum_balance: string; account_sum_frozen: string; }'.
+scripts/p4z-audjk-01-probe.ts(195,30): error TS2339: Property 'sub_derived_p4b2a' does not exist on type '{ account_rows: {} | null; account_sum_balance: string; account_sum_frozen: string; }'.
+scripts/p4z-audjk-01-probe.ts(195,52): error TS2339: Property 'sub_derived_p4b2a' does not exist on type '{ account_rows: {} | null; account_sum_balance: string; account_sum_frozen: string; }'.
+scripts/p4z-audjk-01-probe.ts(196,25): error TS2339: Property 'ledger_entry_total' does not exist on type '{ account_rows: {} | null; account_sum_balance: string; account_sum_frozen: string; }'.
+scripts/p4z-audjk-01-probe.ts(196,48): error TS2339: Property 'ledger_entry_total' does not exist on type '{ account_rows: {} | null; account_sum_balance: string; account_sum_frozen: string; }'.
+scripts/p4z-audjk-01-probe.ts(197,23): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+scripts/p4z-audjk-01-probe.ts(197,23): error TS18047: 'a.account_rows' is possibly 'null'.
+scripts/p4z-audjk-01-probe.ts(197,40): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+scripts/p4z-audjk-01-probe.ts(197,40): error TS18047: 'b.account_rows' is possibly 'null'.
+scripts/p4z-audjk-01-probe.ts(199,30): error TS2339: Property 'job_total' does not exist on type '{ account_rows: {} | null; account_sum_balance: string; account_sum_frozen: string; }'.
+scripts/p4z-audjk-01-probe.ts(199,48): error TS2339: Property 'app_total' does not exist on type '{ account_rows: {} | null; account_sum_balance: string; account_sum_frozen: string; }'.
+scripts/p4z-audjk-01-probe.ts(199,66): error TS2339: Property 'sub_total' does not exist on type '{ account_rows: {} | null; account_sum_balance: string; account_sum_frozen: string; }'.
+scripts/p4z-audjk-01-probe.ts(199,98): error TS2339: Property 'sub_derived_p4b2a' does not exist on type '{ account_rows: {} | null; account_sum_balance: string; account_sum_frozen: string; }'.
+scripts/p4z-audjk-01-probe.ts(232,20): error TS2339: Property 'app_total' does not exist on type '{ account_rows: {} | null; account_sum_balance: string; account_sum_frozen: string; }'.
+scripts/p4z-audjk-01-probe.ts(232,34): error TS2339: Property 'app_total' does not exist on type '{ account_rows: {} | null; account_sum_balance: string; account_sum_frozen: string; }'.
+scripts/p4z-audjk-01-probe.ts(232,66): error TS2339: Property 'app_fixture' does not exist on type '{ account_rows: {} | null; account_sum_balance: string; account_sum_frozen: string; }'.
+scripts/p4z-audjk-01-probe.ts(232,82): error TS2339: Property 'app_fixture' does not exist on type '{ account_rows: {} | null; account_sum_balance: string; account_sum_frozen: string; }'.
+scripts/p4z-audjk-01-probe.ts(234,107): error TS2339: Property 'app_total' does not exist on type '{ account_rows: {} | null; account_sum_balance: string; account_sum_frozen: string; }'.
+scripts/p4z-audjk-01-probe.ts(234,121): error TS2339: Property 'app_total' does not exist on type '{ account_rows: {} | null; account_sum_balance: string; account_sum_frozen: string; }'.
+scripts/p4z-b2a-01-fixture.ts(125,9): error TS18046: 'ledger.created' is of type 'unknown'.
+scripts/p4z-b2a-01-fixture.ts(144,5): error TS18046: 'ledger.created' is of type 'unknown'.
+scripts/p4z-b2ahttp-03-e2e.ts(29,16): error TS2322: Type 'NeonQueryPromise<false, false, Record<string, any>[]>' is not assignable to type 'Promise<{ c: number; }[]>'.
+  Types of property 'then' are incompatible.
+    Type '<TResult1 = Record<string, any>[], TResult2 = never>(onfulfilled?: ((value: Record<string, any>[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | ... 1 more ... | undefined) => Promise<...>' is not assignable to type '<TResult1 = { c: number; }[], TResult2 = never>(onfulfilled?: ((value: { c: number; }[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | null | undefined) => Promise<...>'.
+      Types of parameters 'onfulfilled' and 'onfulfilled' are incompatible.
+        Types of parameters 'value' and 'value' are incompatible.
+          Type 'Record<string, any>[]' is not assignable to type '{ c: number; }[]'.
+            Property 'c' is missing in type 'Record<string, any>' but required in type '{ c: number; }'.
+scripts/p4z-b2ahttp-03-e2e.ts(30,14): error TS2322: Type 'NeonQueryPromise<false, false, Record<string, any>[]>' is not assignable to type 'Promise<{ c: number; }[]>'.
+  Types of property 'then' are incompatible.
+    Type '<TResult1 = Record<string, any>[], TResult2 = never>(onfulfilled?: ((value: Record<string, any>[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | ... 1 more ... | undefined) => Promise<...>' is not assignable to type '<TResult1 = { c: number; }[], TResult2 = never>(onfulfilled?: ((value: { c: number; }[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | null | undefined) => Promise<...>'.
+      Types of parameters 'onfulfilled' and 'onfulfilled' are incompatible.
+        Types of parameters 'value' and 'value' are incompatible.
+          Type 'Record<string, any>[]' is not assignable to type '{ c: number; }[]'.
+            Property 'c' is missing in type 'Record<string, any>' but required in type '{ c: number; }'.
+scripts/p4z-b2ahttp-03-e2e.ts(31,26): error TS2322: Type 'NeonQueryPromise<false, false, Record<string, any>[]>' is not assignable to type 'Promise<{ c: number; }[]>'.
+  Types of property 'then' are incompatible.
+    Type '<TResult1 = Record<string, any>[], TResult2 = never>(onfulfilled?: ((value: Record<string, any>[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | ... 1 more ... | undefined) => Promise<...>' is not assignable to type '<TResult1 = { c: number; }[], TResult2 = never>(onfulfilled?: ((value: { c: number; }[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | null | undefined) => Promise<...>'.
+      Types of parameters 'onfulfilled' and 'onfulfilled' are incompatible.
+        Types of parameters 'value' and 'value' are incompatible.
+          Type 'Record<string, any>[]' is not assignable to type '{ c: number; }[]'.
+            Property 'c' is missing in type 'Record<string, any>' but required in type '{ c: number; }'.
+scripts/p4z-b2ahttp-03-e2e.ts(32,25): error TS2322: Type 'NeonQueryPromise<false, false, Record<string, any>[]>' is not assignable to type 'Promise<{ c: number; }[]>'.
+  Types of property 'then' are incompatible.
+    Type '<TResult1 = Record<string, any>[], TResult2 = never>(onfulfilled?: ((value: Record<string, any>[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | ... 1 more ... | undefined) => Promise<...>' is not assignable to type '<TResult1 = { c: number; }[], TResult2 = never>(onfulfilled?: ((value: { c: number; }[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | null | undefined) => Promise<...>'.
+      Types of parameters 'onfulfilled' and 'onfulfilled' are incompatible.
+        Types of parameters 'value' and 'value' are incompatible.
+          Type 'Record<string, any>[]' is not assignable to type '{ c: number; }[]'.
+            Property 'c' is missing in type 'Record<string, any>' but required in type '{ c: number; }'.
+scripts/p4z-b2ahttp-03-e2e.ts(33,18): error TS2322: Type 'NeonQueryPromise<false, false, Record<string, any>[]>' is not assignable to type 'Promise<{ c: number; }[]>'.
+  Types of property 'then' are incompatible.
+    Type '<TResult1 = Record<string, any>[], TResult2 = never>(onfulfilled?: ((value: Record<string, any>[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | ... 1 more ... | undefined) => Promise<...>' is not assignable to type '<TResult1 = { c: number; }[], TResult2 = never>(onfulfilled?: ((value: { c: number; }[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | null | undefined) => Promise<...>'.
+      Types of parameters 'onfulfilled' and 'onfulfilled' are incompatible.
+        Types of parameters 'value' and 'value' are incompatible.
+          Type 'Record<string, any>[]' is not assignable to type '{ c: number; }[]'.
+            Property 'c' is missing in type 'Record<string, any>' but required in type '{ c: number; }'.
+scripts/p4z-b2ahttp-03-e2e.ts(34,23): error TS2322: Type 'NeonQueryPromise<false, false, Record<string, any>[]>' is not assignable to type 'Promise<{ c: number; }[]>'.
+  Types of property 'then' are incompatible.
+    Type '<TResult1 = Record<string, any>[], TResult2 = never>(onfulfilled?: ((value: Record<string, any>[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | ... 1 more ... | undefined) => Promise<...>' is not assignable to type '<TResult1 = { c: number; }[], TResult2 = never>(onfulfilled?: ((value: { c: number; }[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | null | undefined) => Promise<...>'.
+      Types of parameters 'onfulfilled' and 'onfulfilled' are incompatible.
+        Types of parameters 'value' and 'value' are incompatible.
+          Type 'Record<string, any>[]' is not assignable to type '{ c: number; }[]'.
+            Property 'c' is missing in type 'Record<string, any>' but required in type '{ c: number; }'.
+scripts/p4z-b2ahttp-03-e2e.ts(35,19): error TS2322: Type 'NeonQueryPromise<false, false, Record<string, any>[]>' is not assignable to type 'Promise<{ c: number; }[]>'.
+  Types of property 'then' are incompatible.
+    Type '<TResult1 = Record<string, any>[], TResult2 = never>(onfulfilled?: ((value: Record<string, any>[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | ... 1 more ... | undefined) => Promise<...>' is not assignable to type '<TResult1 = { c: number; }[], TResult2 = never>(onfulfilled?: ((value: { c: number; }[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | null | undefined) => Promise<...>'.
+      Types of parameters 'onfulfilled' and 'onfulfilled' are incompatible.
+        Types of parameters 'value' and 'value' are incompatible.
+          Type 'Record<string, any>[]' is not assignable to type '{ c: number; }[]'.
+            Property 'c' is missing in type 'Record<string, any>' but required in type '{ c: number; }'.
+scripts/p4z-b2ahttp-03-e2e.ts(36,18): error TS2322: Type 'NeonQueryPromise<false, false, Record<string, any>[]>' is not assignable to type 'Promise<{ c: number; }[]>'.
+  Types of property 'then' are incompatible.
+    Type '<TResult1 = Record<string, any>[], TResult2 = never>(onfulfilled?: ((value: Record<string, any>[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | ... 1 more ... | undefined) => Promise<...>' is not assignable to type '<TResult1 = { c: number; }[], TResult2 = never>(onfulfilled?: ((value: { c: number; }[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | null | undefined) => Promise<...>'.
+      Types of parameters 'onfulfilled' and 'onfulfilled' are incompatible.
+        Types of parameters 'value' and 'value' are incompatible.
+          Type 'Record<string, any>[]' is not assignable to type '{ c: number; }[]'.
+            Property 'c' is missing in type 'Record<string, any>' but required in type '{ c: number; }'.
+scripts/p4z-b2ahttp-03-e2e.ts(37,24): error TS2322: Type 'NeonQueryPromise<false, false, Record<string, any>[]>' is not assignable to type 'Promise<{ c: number; }[]>'.
+  Types of property 'then' are incompatible.
+    Type '<TResult1 = Record<string, any>[], TResult2 = never>(onfulfilled?: ((value: Record<string, any>[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | ... 1 more ... | undefined) => Promise<...>' is not assignable to type '<TResult1 = { c: number; }[], TResult2 = never>(onfulfilled?: ((value: { c: number; }[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | null | undefined) => Promise<...>'.
+      Types of parameters 'onfulfilled' and 'onfulfilled' are incompatible.
+        Types of parameters 'value' and 'value' are incompatible.
+          Type 'Record<string, any>[]' is not assignable to type '{ c: number; }[]'.
+            Property 'c' is missing in type 'Record<string, any>' but required in type '{ c: number; }'.
+scripts/p4z-b2ahttp-03-e2e.ts(38,23): error TS2322: Type 'NeonQueryPromise<false, false, Record<string, any>[]>' is not assignable to type 'Promise<{ c: number; }[]>'.
+  Types of property 'then' are incompatible.
+    Type '<TResult1 = Record<string, any>[], TResult2 = never>(onfulfilled?: ((value: Record<string, any>[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | ... 1 more ... | undefined) => Promise<...>' is not assignable to type '<TResult1 = { c: number; }[], TResult2 = never>(onfulfilled?: ((value: { c: number; }[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | null | undefined) => Promise<...>'.
+      Types of parameters 'onfulfilled' and 'onfulfilled' are incompatible.
+        Types of parameters 'value' and 'value' are incompatible.
+          Type 'Record<string, any>[]' is not assignable to type '{ c: number; }[]'.
+            Property 'c' is missing in type 'Record<string, any>' but required in type '{ c: number; }'.
+scripts/p4z-b2ahttp-03-e2e.ts(39,23): error TS2322: Type 'NeonQueryPromise<false, false, Record<string, any>[]>' is not assignable to type 'Promise<{ c: number; }[]>'.
+  Types of property 'then' are incompatible.
+    Type '<TResult1 = Record<string, any>[], TResult2 = never>(onfulfilled?: ((value: Record<string, any>[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | ... 1 more ... | undefined) => Promise<...>' is not assignable to type '<TResult1 = { c: number; }[], TResult2 = never>(onfulfilled?: ((value: { c: number; }[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | null | undefined) => Promise<...>'.
+      Types of parameters 'onfulfilled' and 'onfulfilled' are incompatible.
+        Types of parameters 'value' and 'value' are incompatible.
+          Type 'Record<string, any>[]' is not assignable to type '{ c: number; }[]'.
+            Property 'c' is missing in type 'Record<string, any>' but required in type '{ c: number; }'.
+scripts/p4z-b2b-01-patch.ts(48,1): error TS18046: 'log.steps' is of type 'unknown'.
+scripts/p4z-b2b-01-patch.ts(65,1): error TS18046: 'log.steps' is of type 'unknown'.
+scripts/p4z-b2b-01-patch.ts(108,1): error TS18046: 'log.steps' is of type 'unknown'.
+scripts/p4z-b2b-02-listing.ts(123,38): error TS18046: 'out.schema_assertions' is of type 'unknown'.
+scripts/p4z-b2b-02-listing.ts(134,7): error TS18046: 'ledger.created' is of type 'unknown'.
+scripts/p4z-b2c-02-probe.ts(221,33): error TS2345: Argument of type 'NeonQueryFunction<false, false>' is not assignable to parameter of type 'NeonQueryFunction<boolean, boolean>'.
+  Types of property 'transaction' are incompatible.
+    Type '<ArrayModeOverride extends boolean = false, FullResultsOverride extends boolean = false>(queriesOrFn: NeonQueryPromise<false, false, any>[] | ((sql: NeonQueryFunctionInTransaction<ArrayModeOverride, FullResultsOverride>) => NeonQueryInTransaction[]), opts?: HTTPTransactionOptions<...> | undefined) => Promise<...>' is not assignable to type '<ArrayModeOverride extends boolean = boolean, FullResultsOverride extends boolean = boolean>(queriesOrFn: NeonQueryPromise<boolean, boolean, any>[] | ((sql: NeonQueryFunctionInTransaction<ArrayModeOverride, FullResultsOverride>) => NeonQueryInTransaction[]), opts?: HTTPTransactionOptions<...> | undefined) => Promise...'.
+      Types of parameters 'queriesOrFn' and 'queriesOrFn' are incompatible.
+        Type '((sql: NeonQueryFunctionInTransaction<any, any>) => NeonQueryInTransaction[]) | NeonQueryPromise<boolean, boolean, any>[]' is not assignable to type '((sql: NeonQueryFunctionInTransaction<any, any>) => NeonQueryInTransaction[]) | NeonQueryPromise<false, false, any>[]'.
+          Type 'NeonQueryPromise<boolean, boolean, any>[]' is not assignable to type '((sql: NeonQueryFunctionInTransaction<any, any>) => NeonQueryInTransaction[]) | NeonQueryPromise<false, false, any>[]'.
+            Type 'NeonQueryPromise<boolean, boolean, any>[]' is not assignable to type 'NeonQueryPromise<false, false, any>[]'.
+              Type 'NeonQueryPromise<boolean, boolean, any>' is not assignable to type 'NeonQueryPromise<false, false, any>'.
+                Type 'boolean' is not assignable to type 'false'.
+scripts/p4z-b2c-02-probe.ts(224,41): error TS2345: Argument of type 'NeonQueryFunction<false, false>' is not assignable to parameter of type 'NeonQueryFunction<boolean, boolean>'.
+  Types of property 'transaction' are incompatible.
+    Type '<ArrayModeOverride extends boolean = false, FullResultsOverride extends boolean = false>(queriesOrFn: NeonQueryPromise<false, false, any>[] | ((sql: NeonQueryFunctionInTransaction<ArrayModeOverride, FullResultsOverride>) => NeonQueryInTransaction[]), opts?: HTTPTransactionOptions<...> | undefined) => Promise<...>' is not assignable to type '<ArrayModeOverride extends boolean = boolean, FullResultsOverride extends boolean = boolean>(queriesOrFn: NeonQueryPromise<boolean, boolean, any>[] | ((sql: NeonQueryFunctionInTransaction<ArrayModeOverride, FullResultsOverride>) => NeonQueryInTransaction[]), opts?: HTTPTransactionOptions<...> | undefined) => Promise...'.
+      Types of parameters 'queriesOrFn' and 'queriesOrFn' are incompatible.
+        Type '((sql: NeonQueryFunctionInTransaction<any, any>) => NeonQueryInTransaction[]) | NeonQueryPromise<boolean, boolean, any>[]' is not assignable to type '((sql: NeonQueryFunctionInTransaction<any, any>) => NeonQueryInTransaction[]) | NeonQueryPromise<false, false, any>[]'.
+          Type 'NeonQueryPromise<boolean, boolean, any>[]' is not assignable to type '((sql: NeonQueryFunctionInTransaction<any, any>) => NeonQueryInTransaction[]) | NeonQueryPromise<false, false, any>[]'.
+            Type 'NeonQueryPromise<boolean, boolean, any>[]' is not assignable to type 'NeonQueryPromise<false, false, any>[]'.
+              Type 'NeonQueryPromise<boolean, boolean, any>' is not assignable to type 'NeonQueryPromise<false, false, any>'.
+                Type 'boolean' is not assignable to type 'false'.
+scripts/p4z-b2c-02-probe.ts(230,33): error TS2345: Argument of type 'NeonQueryFunction<false, false>' is not assignable to parameter of type 'NeonQueryFunction<boolean, boolean>'.
+  Types of property 'transaction' are incompatible.
+    Type '<ArrayModeOverride extends boolean = false, FullResultsOverride extends boolean = false>(queriesOrFn: NeonQueryPromise<false, false, any>[] | ((sql: NeonQueryFunctionInTransaction<ArrayModeOverride, FullResultsOverride>) => NeonQueryInTransaction[]), opts?: HTTPTransactionOptions<...> | undefined) => Promise<...>' is not assignable to type '<ArrayModeOverride extends boolean = boolean, FullResultsOverride extends boolean = boolean>(queriesOrFn: NeonQueryPromise<boolean, boolean, any>[] | ((sql: NeonQueryFunctionInTransaction<ArrayModeOverride, FullResultsOverride>) => NeonQueryInTransaction[]), opts?: HTTPTransactionOptions<...> | undefined) => Promise...'.
+      Types of parameters 'queriesOrFn' and 'queriesOrFn' are incompatible.
+        Type '((sql: NeonQueryFunctionInTransaction<any, any>) => NeonQueryInTransaction[]) | NeonQueryPromise<boolean, boolean, any>[]' is not assignable to type '((sql: NeonQueryFunctionInTransaction<any, any>) => NeonQueryInTransaction[]) | NeonQueryPromise<false, false, any>[]'.
+          Type 'NeonQueryPromise<boolean, boolean, any>[]' is not assignable to type '((sql: NeonQueryFunctionInTransaction<any, any>) => NeonQueryInTransaction[]) | NeonQueryPromise<false, false, any>[]'.
+            Type 'NeonQueryPromise<boolean, boolean, any>[]' is not assignable to type 'NeonQueryPromise<false, false, any>[]'.
+              Type 'NeonQueryPromise<boolean, boolean, any>' is not assignable to type 'NeonQueryPromise<false, false, any>'.
+                Type 'boolean' is not assignable to type 'false'.
+scripts/p4z-b3c-02-e2e.ts(277,52): error TS18046: 'results.J1_A' is of type 'unknown'.
+scripts/p4z-d1p-01-classifier-unit.ts(171,64): error TS2367: This comparison appears to be unintentional because the types '503' and '401' have no overlap.
+scripts/p4z-d1p-01-classifier-unit.ts(172,70): error TS2367: This comparison appears to be unintentional because the types '503' and '401' have no overlap.
+scripts/p4z-d1p-04-sweep-negative-arm.ts(75,35): error TS2353: Object literal may only specify known properties, and 'code' does not exist in type '{ status: string | number; expect: string; }'.
+scripts/p7a-01-http.ts(113,36): error TS18046: 'R.ac2_no_token' is of type 'unknown'.
+scripts/p7a-01-http.ts(124,21): error TS18046: 'R.ac2_real_token' is of type 'unknown'.
+scripts/p7a-01-http.ts(179,41): error TS18046: 'R.ac4_kind_transfer' is of type 'unknown'.
+scripts/p7a-01-http.ts(192,33): error TS18046: 'R.ac4_cid' is of type 'unknown'.
+scripts/p7a-01-http.ts(198,29): error TS18046: 'R.ac4_limit_default' is of type 'unknown'.
+scripts/p7a-01-http.ts(201,29): error TS18046: 'R.ac4_limit_cap' is of type 'unknown'.
+scripts/p7a-01-http.ts(219,26): error TS18046: 'R.ac4_isolation' is of type 'unknown'.
+scripts/p7a-01-http.ts(246,50): error TS18046: 'R.ac5_zero_write' is of type 'unknown'.
+scripts/p7a-01-http.ts(251,22): error TS18046: 'R.ac9_ledger_zero_displacement' is of type 'unknown'.
+scripts/qa-p1b-01-setup.ts(80,5): error TS18046: 'lat.tx_begin_commit_ms' is of type 'unknown'.
+scripts/qa-p1e-01-concurrency.ts(97,47): error TS2322: Type 'bigint' is not assignable to type 'string | number'.
+scripts/qa-p1e-01-concurrency.ts(160,44): error TS2322: Type 'bigint' is not assignable to type 'string | number'.
+scripts/qa-p1e-01-concurrency.ts(160,56): error TS2322: Type 'bigint' is not assignable to type 'string | number'.
+scripts/qa-p1e-01-concurrency.ts(160,68): error TS2322: Type 'bigint' is not assignable to type 'string | number'.
+scripts/qa-p1e-05-neon-ab.ts(15,10): error TS2724: '"./qa-p1e-lib"' has no exported member named 'accountOf'. Did you mean 'accountsOf'?

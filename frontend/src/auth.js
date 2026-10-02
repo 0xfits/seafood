@@ -221,8 +221,13 @@ export const verifyAuthChallenge = async ({ evmAddress, challengeToken, signatur
   })
 )
 
-/** `未找到登录凭证`（四语键 `auth.err.NO_CREDENTIAL`）；i18n 不可用时回落到 ASCII 串（绝不空白）。 */
-const noCredentialError = async () => new Error(
+/**
+ * `未找到登录凭证`（四语键 `auth.err.NO_CREDENTIAL`）；i18n 不可用时回落到 ASCII 串（绝不空白）。
+ * 批 7-A 收口四（R-1）：本 helper 由模块私有**提升为具名导出**（零行为改动、零新增分支），
+ *   供 `ledger-api.fetchMyLedger` 的「无 token 前置」与 `fetchCurrentUser` / `updateMyProfile` **逐字同源**
+ *   —— 否则 `ledger-api` 只能自造一份四语解析（= 第二套兜底文案，正是本单要消灭的不一致）。
+ */
+export const noCredentialError = async () => new Error(
   await resolveI18nMessage(FALLBACK_I18N_KEYS.NO_CREDENTIAL, 'No login credential found'),
 )
 

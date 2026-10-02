@@ -86,7 +86,12 @@ const call = async (p: string, opts: { token?: string } = {}) => {
 };
 
 const out: Record<string, unknown> = { run: RUN, base: BASE, probe: 'p7a-01-http', secret_fp: fp(SECRET) };
-const R: Record<string, unknown> = {};
+// 批 7-A 收口四（R-3①）：读数袋 `R` 是**探针内的动态读数登记**（键随 AC 逐条写入、无下游类型面）。
+//   此前写作 `Record<string, unknown>` ⇒ 9 处 `R.ac2_no_token.error_shape_ok` 一类读写报
+//   **TS18046（'R.x' is of type 'unknown'）**（见报告 §3 前后错数对照：86 → 77，本文件 9 → 0）。
+//   修法按「等量下移 + 原因注释 + 留痕」取**单点**放宽：逐处 `as` 会散落 9 个断言点、且对读数面零收益。
+type Reading = Record<string, any>;
+const R: Reading = {};
 out.readings = R;
 const fails: string[] = [];
 const check = (name: string, ok: boolean, detail?: unknown) => {
