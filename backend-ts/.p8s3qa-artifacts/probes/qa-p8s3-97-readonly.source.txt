@@ -1,0 +1,25 @@
+/** QA 只读守恒核（不写任何东西）：现取 app_config / currency / ledger_entry / account / status_log 行数 + 摘要。 */
+import '../src/env';
+import { readQuery, closePools } from '../src/db';
+
+(async () => {
+  const [cfg, cur, led, acc, slog, seq] = await Promise.all([
+    readQuery<Record<string, string>>(`SELECT key, value::text vt FROM public.app_config ORDER BY key`),
+    readQuery<Record<string, string>>(`SELECT count(*)::int::text n, max(cid)::text mx,
+        md5(string_agg(cid::text||'|'||symbol||'|'||owner_uid::text||'|'||status||'|'||deposit_amount::text||'|'||
+          deposit_cid::text||'|'||coalesce(listed_at::text,'~')||'|'||time_created::text, E'\n' ORDER BY cid)) dg
+        FROM public.currency`),
+    readQuery<Record<string, string>>(`SELECT count(*)::int::text n, max(txid)::text mx,
+        md5(string_agg(txid::text||'|'||uid::text||'|'||cid::text||'|'||delta::text||'|'||balance_after::text||'|'||
+          kind||'|'||idempotency_key, E'\n' ORDER BY txid)) dg FROM public.ledger_entry`),
+    readQuery<Record<string, string>>(`SELECT count(*)::int::text n,
+        md5(string_agg(uid::text||'|'||cid::text||'|'||balance::text||'|'||frozen::text||'|'||version::text,
+          E'\n' ORDER BY uid, cid)) dg FROM public.account`),
+    readQuery<Record<string, string>>(`SELECT count(*)::int::text n, max(log_id)::text ml FROM public.currency_status_log`),
+    readQuery<Record<string, string>>(`SELECT 'ledger_entry_txid_seq' s, last_value::text lv FROM public.ledger_entry_txid_seq
+      UNION ALL SELECT 'currency_status_log_log_id_seq', last_value::text FROM public.currency_status_log_log_id_seq
+      UNION ALL SELECT 'currency_cid_seq', last_value::text FROM public.currency_cid_seq`),
+  ]);
+  console.log(JSON.stringify({ app_config_rows: cfg, currency: cur[0], ledger_entry: led[0], account: acc[0], status_log: slog[0], seq }, null, 1));
+  await closePools();
+})().catch(async (e) => { console.error('CRASH', String(e).slice(0, 800)); await closePools().catch(() => undefined); process.exit(2); });

@@ -1,0 +1,40 @@
+[P7B-ERRFB] A 护栏在场（源码）：src/auth.js
+  ① 具名导出 `looksLikeBareI18nKey`（整串判据）   = true
+  ①' 具名导出 `containsBareI18nKey`（token 判据）   = true
+  ② `isUsableText` 定义且用到 token 判据          = true
+  ③ `resolveI18nMessage` 内 `isUsableText(` 调用数 = 2（要求 ≥ 2）
+  ④ 具名导出 `containsMachineCode`（机读码判据 · 批 7-C） = true
+  ⑤ `extractApiErrorMessage` 内以机读码判据收口（批 7-C） = true
+[P7B-ERRFB] B locale 文案面（四语叶子值裸键扫描）
+  [zh] 叶子值 = 788；含裸键 token = 0
+  [hk] 叶子值 = 788；含裸键 token = 0
+  [en] 叶子值 = 788；含裸键 token = 0
+  [vn] 叶子值 = 788；含裸键 token = 0
+  存量登记 = 0 条（本单新增面零命中；口径 = 「不要求一次清完，但不得静默」）
+[P7B-ERRFB] C 四语通用兜底键齐备（回退护栏的落点）
+  auth.err.REQUEST_FAILED ⇒ zh:OK  hk:OK  en:OK  vn:OK
+  auth.err.NO_CREDENTIAL ⇒ zh:OK  hk:OK  en:OK  vn:OK
+[P7B-ERRFB] D 行为节点：33 码 × 4 语 = 132（“后端只给 i18n_key、无 message”的最坏面）
+  节点 = 132；「未命中 ⇒ 依赖护栏」= 0；「已本地化 ⇒ 护栏让位」= 132
+  例：zh · ledger.err.LEDGER_AMOUNT_INVALID ⇒ "金额格式不正确。"（真链同类产出见单测 ②）
+  ^ 已本地化登记（132 条 ⇒ 护栏自动让位，门不红）：
+    # zh:ledger.err.LEDGER_INSUFFICIENT_BALANCE
+    # zh:ledger.err.LEDGER_INSUFFICIENT_FROZEN
+    # zh:ledger.err.LEDGER_IDEMPOTENCY_REPLAY
+    # zh:ledger.err.LEDGER_IDEMPOTENCY_CONFLICT
+    # zh:ledger.err.LEDGER_IDEMPOTENCY_KEY_REQUIRED
+    # zh:ledger.err.LEDGER_IDEMPOTENCY_KEY_INVALID
+    # zh:ledger.err.LEDGER_CURRENCY_NOT_FOUND
+    # zh:ledger.err.LEDGER_CURRENCY_NOT_LISTED
+    # zh:ledger.err.LEDGER_CURRENCY_FROZEN
+    # zh:ledger.err.LEDGER_CURRENCY_DELISTED
+[P7B-ERRFB] G 类级判据（批 7-D ①）：33 码 × 4 语 `ledger.err.*` 键齐备 + 可用
+  节点 = 132（33 码 × 4 语）；不可用 = 0（必须 = 0）
+  例：zh · ledger.err.LEDGER_AMOUNT_INVALID ⇒ "金额格式不正确。"
+  例：zh · ledger.err.LEDGER_CURRENCY_INVALID_TRANSITION ⇒ "当前状态不允许此变更。"
+  例：zh · ledger.err.LEDGER_LOCK_TIMEOUT ⇒ "系统繁忙，请稍后重试。"
+[P7B-ERRFB] E 判据自证（谓词非空转）
+  整串判据 / token 判据：裸键样本 4 条 ⇒ true；正常文案样本 8 条 + 非字符串 5 条 ⇒ false
+  拼接面差异："ledger.err.LEDGER_AMOUNT_INVALID (NOT_DECIMAL_STRING)" ⇒ 整串=false / token=true（token 判据更强，本单采到的真缺陷）
+[P7B-ERRFB] 作用域读数：root = /Users/kevin/.hermes/profiles/zang/cache/scratch/qa8s3/frontend；locale 叶子值 = 3152；行为节点 = 132；扫描文件 = 1（src/auth.js）+ 4（locale）
+[P7B-ERRFB] 总判：PASS（判负 0 必须 = 0；A=PASS / B 含裸键值=0 / C 兜底键=2×4 / D 节点=132 需护栏=0 已本地化=132 / G 键不可用=0/132 / E 样本=17）
