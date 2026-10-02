@@ -201,3 +201,88 @@ npx vite preview --port 5791 --strictPort       # 本地改后实例（勿用 57
 ```
 视觉/拦截取数：CDP（`Emulation.setDeviceMetricsOverride` + `Network.setBlockedURLs` + `Network` 事件），
 两侧分别是 `http://localhost:5791`（改后）与 `https://seafood-opal.vercel.app`（改前）。
+
+---
+
+## 13. P6-FE-PERF-3 · 把构建期化暴露的 2 处真视觉差异减到 0（Kong，追加单）
+
+**口径**：`Emulation.setDeviceMetricsOverride(1280×900 / 1600×900, dsf=1)`；每路由取 `body *` 中 `rect.w≥4 && rect.h≥4` 的 **前 250 个 DOM 序**元素；签名 = `tag:nth-child 链`；逐元素比 `getComputedStyle` **30 个属性** + `getBoundingClientRect`（0.5px 舍入）。基线 = 生产 `https://seafood-opal.vercel.app`（改前，v3 CDN），受测 = 自起 `vite preview` @ `http://localhost:5791`（改后；5787 未碰）。
+**本单新增的渲染稳定判据（必须）**：取数前轮询 `document.querySelectorAll('body *').length` 至**连续两次相同**（≤6s）再读；否则 1280 下会取到未渲染完的页面（实测：只等 1.2s 时 `/` `/task` `/listing` 出现 onlyProd≈176–210 / onlyLocal≈4–22 的**假 DOM 差异**，稳定后 5 路由 × 2 宽度 onlyProd/onlyLocal **全为 0/0**）。
+
+### 13.1 修复①：响应式网格列数（真因 = 无层规则压过 `@layer utilities`）
+
+复现读数（合成探针元素 `class="grid grid-cols-1 <探针>"`，1280 视口；"真实容器"= `/` 上两个网格容器的实测列数）：
+
+| 探针 class | 改前(生产) | 改后未修 | 改后已修 |
+|---|---|---|---|
+| `md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`（=`/` 真实容器串） | **4** | **3** | **4** |
+| `lg:grid-cols-4 xl:grid-cols-4`（=`/` 真实容器串） | **4** | **2** | **4** |
+| `lg:grid-cols-3` | 3 | 3 | 3 |
+| `lg:grid-cols-4` | 4 | 1 | **4** |
+| `xl:grid-cols-2` | NOT_MEASURED（v3 play CDN 不产出源码未出现的类 ⇒ 回退 1 列） | 1 | **2** |
+| `xl:grid-cols-4` | 4 | 1 | **4** |
+| `xl:grid-cols-6` | NOT_MEASURED（同上） | 1 | **6** |
+| `md:grid-cols-2` | 2 | 2 | 2 |
+| 窄宽度 @900（仅 md 档生效） | 未测（生产侧无 900 读数） | — | 2 / 2 / 1 / 1 / 1 / 1 / 1 / 2（按档位回退正确，未"修好一个撞坏另一个"） |
+| 真实容器 @1280 / @1600 | 4 + 4 / 4 + 4 | 3 + 2 / 3 + 2 | **4 + 4 / 4 + 4** |
+
+修法（`src/styles/tailwind-compat.css`）：把 `.grid-cols-1/2/4`、`.md\:grid-cols-2/3/4`、`.lg\:grid-cols-3` 从**无层规则**搬进 Tailwind 已声明、位于 `utilities` **之前**的 `@layer components`（文件末尾统一成块）。语义 = 改前 CDN 时代（后注入的 CDN 规则胜），兜底规则保留、变体工具类可正常胜出；**未删除任何类**（避免 Tailwind 未产出该条时兜底丢失）。
+产物落位实测（minified）：`…@layer base{…}@layer components{.grid-cols-1{…}.grid-cols-2{…}.grid-cols-4{…}@media (min-width:768px){.md\:grid-cols-2…}}@layer utilities{…` ⇒ components 在 utilities 之前 ✓。
+
+### 13.2 修复②：v4 边框默认色破坏性变更
+
+- **改前真值（现取）**：生产站所有元素的 `borderTopColor` = `rgb(229, 231, 235)` = `#e5e7eb`（v3 preflight `*,::before,::after{border-color:gray-200}`）；改后未修 = `currentColor`（如 `rgb(10,10,10)`）。
+- 修法：`@layer base { *, ::before, ::after, ::backdrop { border-color: #e5e7eb } }`（**必须分层**：写成无层会连 `border-*` 工具类一起盖掉）。产物落位实测：该规则落在 base 层 preflight **之后**（`…[hidden]:where(:not([hidden=until-found])){display:none!important}*,:before,:after,::backdrop{border-color:#e5e7eb}}`）。
+- **§5-A 那 5 个"宽>0"元素逐条对照**（改前 / 改后未修 / 改后已修；这三者都是**显式 `border-*` 色类**，不受默认值影响）：
+
+| 路由:元素 | class | 边框宽 | 改前 | 改后未修 | 改后已修 | 判定 |
+|---|---|---|---|---|---|---|
+| `/`:…`section:1>div:1` | `rounded-xl border-2 p-6 transition-all …`（黄色档） | 2px | `rgb(254,240,138)` | `rgb(253,230,138)` | `rgb(253,230,138)` | 旧·**未判定**（= §5-F 的 ΔRGB(1,10,0)，非本单引入） |
+| `/task`:…`div:4>div:1` | 同上 | 2px | `rgb(254,240,138)` | `rgb(253,230,138)` | `rgb(253,230,138)` | 同上 |
+| `/login`:…`div:2` | `rounded-2xl border border-blue-100 …` | 1px | `rgb(219,234,254)` | `oklch(0.932 0.032 255.585)` | `oklch(…)` | 旧·**同色序列化**（§5-E/F） |
+| `/login`:…`div:3` | `rounded-2xl border border-amber-200 …` | 1px | `rgb(253,230,138)` | `oklch(0.924 0.12 95.746)` | `oklch(…)` | 旧·**同色序列化** |
+| `/login`:`main:2>…div:2` | `rounded-xl border-2 p-6 …`（显式灰/蓝冲突类） | 2px | `rgb(243,244,246)` | `rgb(191,219,254)` | `rgb(191,219,254)` | 旧·**冲突工具类次序**（§5-F） |
+
+- **"减到 0"量化**：宽>0 的边框元素对**改前基线 354 组**；改后已修与改前仅剩 **10 处**记录（= 上表 5 个元素 × 2 宽度，全部为显式色类）；其余 **344 组逐值相等**（含 23/9/27/98/21 组/路由）。**默认色**类差异（§5-A 的 791 例，含 786 个宽=0）→ 终测 `borderTopColor` 差异集里**再无一例默认色** ⇒ 默认色差异 **791 → 0**。
+
+### 13.3 本单顺带发现并修复的同源第 3 处：`.container`（只在 1600 暴露）
+
+改前生产站 header 内容宽 **1536px**（v3/v4 的 `.container` 在 ≥1536 视口都是 1536px）↔ 改后 **1280px**（compat 无层 `.container{max-width:1280px}` 压过 Tailwind 的 `.container`）。同 §13.1 手法并入 `@layer components`。
+修后实测：`@1600 div:1>div:2>div:1>div:1>header:1>div:1` rect 改前 `[32,0,1536,64]` = 改后 `[32,0,1536,64]` ✓；`@1280` 两侧本来就都是 `[0,0,1280,64]`（故上一单 1280 口径看不到）。
+
+### 13.4 全量视觉等价复跑（5 路由 × 2 宽度；逐条归因）
+
+| 路由@宽度 | 匹配 / 仅改前 / 仅改后 | `gridTemplateColumns` | `borderTopColor` | `rect` | `boxShadow` | 其他属性 |
+|---|---|---|---|---|---|---|
+| `/` @1280 / @1600 | 239 / 0 / 0（两宽度同） | **0 / 0** | 1 / 1 | 222 / 222 | 8 / 8 | height 5、width 4、marginRight 6、paddingTop/Bottom 1/1、marginBottom 2、backgroundColor 6 |
+| `/login` @1280 / @1600 | 105 / 0 / 0 | **0 / 0** | 3 / 3 | 88 / 88 | 6 / 6 | height 26、width 18、lineHeight 6、marginRight 7、backgroundColor 3、color 2… |
+| `/task` @1280 / @1600 | 250 / 0 / 0 | **0 / 0** | 1 / 1 | 231 / 231 | 10 / 10 | height 11、width 4、marginRight 6、backgroundColor 7… |
+| `/listing` @1280 / @1600 | 250 / 0 / 0 | **0 / 0** | 0 / 0 | 14 / 14 | 2 / 2 | width 4、marginRight 6 |
+| `/shard` @1280 / @1600 | 109 / 0 / 0 | **0 / 0** | 0 / 0 | 14 / 14 | 2 / 2 | width 4、marginRight 6 |
+
+⇒ **本单负责的 3 处（2 必修 + 1 发现）真视觉差异 = 0**：`gridTemplateColumns` 全 5×2 = 0（改前未修：`/` 上 2 列/3 列错档 + 派生宽度）；默认色 = 0；`.container` = 0。**DOM 同构**：5 路由 × 2 宽度 onlyProd/onlyLocal **全 0/0**（差异全部来自 CSS 解析，不是内容）。
+**残余差异逐条归因（全部为改前既存、本单未引入）**：
+1. **已归因（旧）**：`boxShadow` 槽位（v3 三槽 ↔ v4 单槽，空槽不渲染；56 处）｜`backgroundColor`/`color` 的 oklch/oklab **同色序列化**（32 + 4 处）｜入场动画采样（`animate-fade-in/slide-up` 派生 rect，噪声基线 18/5 内）｜webfont/度量类（语言按钮 `96↔104px`、`nav` `248↔256px`、`hidden md:flex` `566↔614px`、`marginRight 0↔4px`）——改前 FontAwesome/jsdelivr 字体保留，v3/v4 宽度计算与字体回退不同。
+2. **未归因（旧，另单收口；本单未动这些规则）**：① `paddingTop/Bottom` `16↔32px`（元素 `w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:…`：compat **无层** `.py-4` 压过 `sm:py-8`，与 §13.1 **同根因家族**，实测该元素高度差 32px 并派生全页 y 位移）；② `marginRight 0↔4px`（compat 手写 `space-x-*` 用 margin-right，v3 用 `--tw-space-x-reverse` 归 0）；③ 上表 ΔRGB=(1,10,0) 那一例（上一单即 `NOT_MEASURED`）。三条都可按 §13.1 同一手法（无层 → `@layer components`）收口，但**本单未做**（预算/未验证不写结论）。
+
+### 13.5 AC 自跑读数
+
+| 项 | 读数 |
+|---|---|
+| `npm run build` | **exit 0**；产物 `dist/assets/index-BGBdnGHZ.js`(306.01 kB) + `dist/assets/index-bA7RGj51.css`(125,507 B) |
+| `npm run test:unit` | **exit 0；25 files / 231 passed**（≥231 ✓） |
+| `node scripts/p6-tr2-i18n-locales.mjs` | **PASS**（新接文件守卫 PASS；旧三目链/`??` 页面数 = 0） |
+| `node scripts/p4z-i18nviol-global.mjs` | **PASS**（locale 裸命中 0 + 源面裸命中 0） |
+| `node scripts/p4z-feperf-safelist.mjs` | **VERDICT=PASS** |
+| 本地实例 | 自起 `npx vite preview --port 5791 --strictPort`（结束自停；**5787 未碰**） |
+| 全量视觉等价 | 5 路由 × 2 宽度：`gridTemplateColumns` 差异 **0**、默认边框色差异 **0**、DOM 同构 **0/0** |
+
+### 13.6 本单改动文件（未做任何 git 写操作）
+
+| 文件 | 动作 |
+|---|---|
+| `frontend/src/styles/tailwind-compat.css` | ① `.grid-cols-*`/`.md\:grid-cols-*`/`.lg\:grid-cols-3` 由无层 → `@layer components`（末尾成块）② 新增 `@layer base{*,::before,::after,::backdrop{border-color:#e5e7eb}}` ③ `.container` 由无层 → `@layer components` |
+| `frontend/src/styles.css` | **仅** `:31` 过期注释（`scale-1.05` → 说明实际已是字面量 `scale-[1.05]`）；§10 那行"注释过期"待办**本单关闭** |
+| `docs/audit/p6-fe-perf.md` | 本 §13（追加，未改已有内容） |
+
+> 全程未执行 `git add/commit/push`、未改 `index.html`/`vite.config.js`/`vercel.json`/locales/theme/backend/migrations/spec/`.env*`；未 `npm install`；未停/杀/占 5787；未用 `pkill -f`/`killall`（只按精确 PID 结束自起的 5791）。

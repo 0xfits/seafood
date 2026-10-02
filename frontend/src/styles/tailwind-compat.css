@@ -1,13 +1,17 @@
 /* Tailwind-like compatibility utilities for the existing JSX class usage.
    This keeps the current UI functional without adding new build-time plugins. */
 
-.container {
-  width: 100%;
-  max-width: 1280px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
+/* P6-FE-PERF-3：`.container` 同样并入 `@layer components`（原因同文件末尾 (1)）——无层时它压过
+   构建期 Tailwind 的 `.container`，在 ≥1536px 视口下 max-width 停在 1280px（改前生产站实测 1536px）。 */
+@layer components {
+  .container {
+    width: 100%;
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }
 
 .block { display: block; }
@@ -252,9 +256,7 @@
 .gap-4 { gap: 1rem; }
 .gap-6 { gap: 1.5rem; }
 
-.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+/* 基础网格列数兼容规则已移入文件末尾的 @layer components（P6-FE-PERF-3）。 */
 
 .rounded { border-radius: 0.25rem; }
 .rounded-sm { border-radius: 0.125rem; }
@@ -696,9 +698,8 @@
   .md\:items-center { align-items: center; }
   .md\:items-start { align-items: flex-start; }
   .md\:justify-between { justify-content: space-between; }
-  .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  /* P6-FE-PERF-3：本段的响应式网格兼容规则已统一移入文件末尾的 @layer components
+     （无层规则会压过构建期 Tailwind 的 @layer utilities，见末尾说明）。 */
   .md\:col-span-2 { grid-column: span 2 / span 2; }
   .md\:w-1\/2 { width: 50%; }
   .md\:ml-6 { margin-left: 1.5rem; }
@@ -713,7 +714,39 @@
     padding-right: 2rem;
   }
 
-  .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .lg\:col-span-1 { grid-column: span 1 / span 1; }
   .lg\:col-span-2 { grid-column: span 2 / span 2; }
+}
+
+/* ===== P6-FE-PERF-3 · 两处视觉差异修复 =====
+   (1) 响应式网格列数错：下面这几个网格兼容规则原先写成**无层规则**，而构建期 Tailwind 的工具类
+       全部在 `@layer utilities`；CSS 级联层中「无层 > 任何 @layer」，所以这几个无层规则全量压过了
+       Tailwind 的 md/lg/xl 变体（改前被 CDN 运行时后注入的 <style> 掩盖，改为构建期后才暴露）。
+       修法：把它们并入 Tailwind 已声明、且位于 utilities 之前的 `@layer components`——兜底规则仍在，
+       但任何 Tailwind 变体工具类都能按源码顺序正常胜出（与改前 CDN 时代语义一致）。 */
+@layer components {
+  .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+  .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  @media (min-width: 768px) {
+    .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+  @media (min-width: 1024px) {
+    .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+}
+
+/* (2) 边框默认色：Tailwind v4 破坏性变更 —— `border-color` 默认值由 v3 的 gray-200 改成 currentColor。
+   改前生产站现取真值（v3 CDN，宽>0 的边框元素全部一致）：`*` 的 border-color = rgb(229, 231, 235)。
+   这里按 v4 官方升级路径补回该默认值；必须落在 `@layer base` —— 若写成无层规则，会连 `border-*`
+   系列工具类（utilities 层）一起盖掉。 */
+@layer base {
+  *,
+  ::before,
+  ::after,
+  ::backdrop {
+    border-color: #e5e7eb;
+  }
 }

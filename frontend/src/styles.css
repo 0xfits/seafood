@@ -28,7 +28,8 @@
    取数脚本：scripts/p4z-feperf-dynclasses.mjs（现取，含 file:line）
    · src/components/ui/Responsive.jsx:54-56  → `${md|lg|xl}:${gridClasses[·]}`（gridClasses 取值 1/2/3/4/6）
    · src/components/ui/Responsive.jsx:105-106 → `${md|lg}:${sizeClasses[·]}`（xs…3xl）
-   · src/components/ui/MicroInteractions.jsx:14 → `scale-${scale}`（默认 1.05，实测 Tailwind v3/v4 均不产出该条） */
+   · src/components/ui/MicroInteractions.jsx:14 → `scale-${scale}`（默认 1.05；P6-FE-PERF-3 已把源文件改为
+     字面量 `scale-[1.05]`，故 safelist 也按字面量收，v3/v4 均不产出 `scale-1.05` 这条） */
 @source inline("md:grid-cols-2 md:grid-cols-3 md:grid-cols-4 md:grid-cols-6 lg:grid-cols-1 lg:grid-cols-2 lg:grid-cols-3 lg:grid-cols-4 lg:grid-cols-6 xl:grid-cols-1 xl:grid-cols-2 xl:grid-cols-3 xl:grid-cols-4 xl:grid-cols-6 md:text-xs md:text-sm md:text-base md:text-lg md:text-xl md:text-2xl md:text-3xl lg:text-xs lg:text-sm lg:text-base lg:text-lg lg:text-xl lg:text-2xl lg:text-3xl scale-[1.05]");
 
 /* 扫描范围收敛（P6-FE-PERF）：Tailwind v4 的自动内容探测会扫到仓内**非应用**目录，
