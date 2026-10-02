@@ -1434,7 +1434,12 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 **C. 「小尾巴批」清单（成形待派，3 项）**：① **`ListingsPage.jsx:127` 数据状态枚举未译**（`draft`/`listed` 原样渲染，门已登记）；② **en/vn 存量 8 处 CJK**（含 `footer.catSlogan*`/`cloudSlogan` 未译口号）；③ **`p7c` 门 G 段升真链**（或显式标「镜像级」）—— 落实 R-7D-3 纪律。
 
-**D. 上线 + 生产终验**：见下（生产读数）
+**D. 上线 + 生产终验（我亲跑）+ ★ 字节级与文案级双取证的端到端确认**：
+- push（`origin/main` 同步，未推 = **0**）；
+- `/api/health` ⇒ **200 + `0024`** ✓；
+- 前端产物 ⇒ **`index-BG5Tk6zW.js`**（CSS 仍 `index-mRq3HT-x.css`）；
+- **★ 字节级证据**：`shasum -a 256` 本地 `frontend/dist/assets/index-BG5Tk6zW.js` = **`e86377c6ed271ea879b47eaee253ea04`** **==** 线上同名文件 **逐字相同** ⇒ **线上产物 = 本地构建产物（非仅同名）**；
+- **★ 文案级证据（批 7-D 用户可见面确已上线）**：在**线上 bundle**（347,026 B）内逐个 grep 命中 **1 次**：`金额必须大于零`（zh）/ `金額一定要大過零`（hk）/ `The amount must be greater than zero`（en）/ `Số tiền phải lớn hơn không`（vn）/ `系统繁忙，请稍后重试` / `Something went wrong on our side` ⇒ **四语新文案均已随包上线**。
 
 **E. 状态**：**批 7-A / 7-B / 7-C / 7-D 全批上线**；下一步候选 = **小尾巴批**（3 项，小） / **P7 视觉双形态** / **P6 运营后台**（路线图后段）—— **待 Kevin 一句话定优先级**。
 
