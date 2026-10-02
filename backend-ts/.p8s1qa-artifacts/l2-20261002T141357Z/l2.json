@@ -1,0 +1,375 @@
+{
+ "unit": "P8-S1QA-L2",
+ "run": "20261002T141357Z",
+ "base": "http://127.0.0.1:5796",
+ "generated_at": "2026-10-02T14:14:07.509Z",
+ "total": 33,
+ "passed": 33,
+ "failed": 0,
+ "out": {
+  "script": "scripts/p8s1qa-l2-probe.ts",
+  "base": "http://127.0.0.1:5796",
+  "run": "20261002T141357Z",
+  "pid_port": 5796,
+  "health": {
+   "status": 200
+  },
+  "admin_uid": "1",
+  "baseline": {
+   "rows": 1,
+   "keys": [
+    "system_settings"
+   ],
+   "value_keys": [
+    "allowRegistration",
+    "defaultLanguage",
+    "emailNotifications",
+    "maintenance",
+    "maxDailyTasks",
+    "pointsPerTask",
+    "rewardCooldown",
+    "siteDescription",
+    "siteName"
+   ],
+   "time_updated": "2026-10-02 14:08:34.829285+00",
+   "get_status": 200,
+   "get_siteDescription": "去中心化社区奖励平台"
+  },
+  "a_write": {
+   "status": 200,
+   "text": "{\"success\":true,\"message\":\"System settings saved\",\"data\":{\"siteName\":\"p4b2c:siteA\",\"siteDescription\":\"p8s1qa-20261002T141357Z\",\"maintenance\":false,\"allowRegistration\":true,\"emailNotifications\":true,\"defaultLanguage\":\"zh\",\"pointsPerTask\":100,\"maxDailyTasks\":10,\"rewardCooldown\":24}}"
+  },
+  "b_unknown": {
+   "unknown_key_1": "qa8s1UnknownAlpha",
+   "body_1": "{\"error\":{\"code\":\"LEDGER_AMOUNT_INVALID\",\"message\":\"Unknown key(s) are not writable via /api/admin/settings\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"qa8s1UnknownAlpha\",\"reason\":\"SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST\",\"unknown_keys\":[\"qa8s1UnknownAlpha\"],\"legal_keys\":[\"siteName\",\"siteDescription\",\"maintenance\",\"allowRegistration\",\"emailNotifications\",\"defaultLanguage\",\"pointsPerTask\",\"maxDailyTasks\",\"rewardCooldown\"]}}}",
+   "unknown_key_2": "qa8s1UnknownBeta",
+   "body_2": "{\"error\":{\"code\":\"LEDGER_AMOUNT_INVALID\",\"message\":\"Unknown key(s) are not writable via /api/admin/settings\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"qa8s1UnknownBeta\",\"reason\":\"SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST\",\"unknown_keys\":[\"qa8s1UnknownBeta\"],\"legal_keys\":[\"siteName\",\"siteDescription\",\"maintenance\",\"allowRegistration\",\"emailNotifications\",\"defaultLanguage\",\"pointsPerTask\",\"maxDailyTasks\",\"rewardCooldown\"]}}}"
+  },
+  "c_type": {
+   "body": "{\"error\":{\"code\":\"LEDGER_AMOUNT_INVALID\",\"message\":\"Setting field type is invalid\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"pointsPerTask\",\"reason\":\"SETTING_TYPE_INVALID\",\"expected\":\"number\",\"got\":\"string\"}}}"
+  },
+  "d_array": {
+   "body": "{\"error\":{\"code\":\"LEDGER_AMOUNT_INVALID\",\"message\":\"Setting value must be a JSON object\",\"i18n_key\":\"ledger.err.LEDGER_AMOUNT_INVALID\",\"details\":{\"field\":\"value\",\"reason\":\"SETTING_VALUE_NOT_OBJECT\",\"expected\":\"object\",\"got\":\"array\"}}}"
+  },
+  "e_snapshots": {
+   "b0_vs_b1": true,
+   "b1_vs_b2": true,
+   "b0_vs_b2": true,
+   "b0_vs_c": true,
+   "c_vs_d": true
+  },
+  "f_service": {
+   "threw": true,
+   "name": "SystemSettingsWriteError",
+   "details": {
+    "field": "qa8s1UnknownAlpha",
+    "reason": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+    "unknown_keys": [
+     "qa8s1UnknownAlpha"
+    ],
+    "legal_keys": [
+     "siteName",
+     "siteDescription",
+     "maintenance",
+     "allowRegistration",
+     "emailNotifications",
+     "defaultLanguage",
+     "pointsPerTask",
+     "maxDailyTasks",
+     "rewardCooldown"
+    ]
+   },
+   "zero_pollution": true
+  },
+  "restore": {
+   "status": 200,
+   "value_equal": true,
+   "now": "去中心化社区奖励平台",
+   "original": "去中心化社区奖励平台"
+  }
+ },
+ "results": [
+  {
+   "id": "S0-instance-up",
+   "pass": true,
+   "detail": {
+    "status": 200
+   }
+  },
+  {
+   "id": "a1-write-legal-200",
+   "pass": true,
+   "detail": {
+    "status": 200,
+    "siteDescription": "p8s1qa-20261002T141357Z"
+   }
+  },
+  {
+   "id": "a2-db-value",
+   "pass": true,
+   "detail": {
+    "siteDescription": "p8s1qa-20261002T141357Z"
+   }
+  },
+  {
+   "id": "a3-db-updated_by",
+   "pass": true,
+   "detail": {
+    "updated_by": "1",
+    "admin_uid": "1"
+   }
+  },
+  {
+   "id": "a4-db-time-advanced",
+   "pass": true,
+   "detail": {
+    "before": "2026-10-02 14:08:34.829285+00",
+    "after": "2026-10-02 14:14:02.710448+00"
+   }
+  },
+  {
+   "id": "a5-read-endpoint-same",
+   "pass": true,
+   "detail": {
+    "status": 200,
+    "read_back": "p8s1qa-20261002T141357Z",
+    "db": "p8s1qa-20261002T141357Z",
+    "keys": 9
+   }
+  },
+  {
+   "id": "a6-restore-original",
+   "pass": true,
+   "detail": {
+    "status": 200,
+    "now": "去中心化社区奖励平台",
+    "original": "去中心化社区奖励平台"
+   }
+  },
+  {
+   "id": "b1-status-400",
+   "pass": true,
+   "detail": {
+    "status": 400
+   }
+  },
+  {
+   "id": "b2-code-verbatim",
+   "pass": true,
+   "detail": {
+    "code": "LEDGER_AMOUNT_INVALID"
+   }
+  },
+  {
+   "id": "b3-reason-constant",
+   "pass": true,
+   "detail": {
+    "reason": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST"
+   }
+  },
+  {
+   "id": "b4-unknown_keys-lists",
+   "pass": true,
+   "detail": {
+    "unknown_keys": [
+     "qa8s1UnknownAlpha"
+    ]
+   }
+  },
+  {
+   "id": "b5-second-key-400",
+   "pass": true,
+   "detail": {
+    "status": 400
+   }
+  },
+  {
+   "id": "b6-second-reason-lists",
+   "pass": true,
+   "detail": {
+    "unknown_keys": [
+     "qa8s1UnknownBeta"
+    ]
+   }
+  },
+  {
+   "id": "b7-R8-10-reason-identical",
+   "pass": true,
+   "detail": {
+    "reason_1": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+    "reason_2": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+    "byte_identical": true
+   }
+  },
+  {
+   "id": "b8-unknown_keys-differ",
+   "pass": true,
+   "detail": {
+    "u1": [
+     "qa8s1UnknownAlpha"
+    ],
+    "u2": [
+     "qa8s1UnknownBeta"
+    ]
+   }
+  },
+  {
+   "id": "b9-R107-shape",
+   "pass": true,
+   "detail": {
+    "error_keys": [
+     "code",
+     "details",
+     "i18n_key",
+     "message"
+    ],
+    "top_keys": [
+     "error"
+    ]
+   }
+  },
+  {
+   "id": "c1-status-400",
+   "pass": true,
+   "detail": {
+    "status": 400
+   }
+  },
+  {
+   "id": "c2-reason-constant",
+   "pass": true,
+   "detail": {
+    "reason": "SETTING_TYPE_INVALID"
+   }
+  },
+  {
+   "id": "c3-field-expected-got",
+   "pass": true,
+   "detail": {
+    "field": "pointsPerTask",
+    "expected": "number",
+    "got": "string"
+   }
+  },
+  {
+   "id": "c4-code-verbatim",
+   "pass": true,
+   "detail": {
+    "code": "LEDGER_AMOUNT_INVALID"
+   }
+  },
+  {
+   "id": "d1-status-400",
+   "pass": true,
+   "detail": {
+    "status": 400
+   }
+  },
+  {
+   "id": "d2-reason-verbatim",
+   "pass": true,
+   "detail": {
+    "reason": "SETTING_VALUE_NOT_OBJECT"
+   }
+  },
+  {
+   "id": "d3-got-array",
+   "pass": true,
+   "detail": {
+    "got": "array"
+   }
+  },
+  {
+   "id": "d4-code-verbatim",
+   "pass": true,
+   "detail": {
+    "code": "LEDGER_AMOUNT_INVALID"
+   }
+  },
+  {
+   "id": "e1-zero-pollution-unknown-1",
+   "pass": true,
+   "detail": {
+    "changed": false
+   }
+  },
+  {
+   "id": "e2-zero-pollution-unknown-2",
+   "pass": true,
+   "detail": {
+    "changed": false
+   }
+  },
+  {
+   "id": "e3-zero-pollution-type",
+   "pass": true,
+   "detail": {
+    "changed": false
+   }
+  },
+  {
+   "id": "e4-zero-pollution-array",
+   "pass": true,
+   "detail": {
+    "changed": false
+   }
+  },
+  {
+   "id": "f1-service-throws",
+   "pass": true,
+   "detail": {
+    "threw": true,
+    "name": "SystemSettingsWriteError"
+   }
+  },
+  {
+   "id": "f2-service-reason",
+   "pass": true,
+   "detail": {
+    "details": {
+     "field": "qa8s1UnknownAlpha",
+     "reason": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+     "unknown_keys": [
+      "qa8s1UnknownAlpha"
+     ],
+     "legal_keys": [
+      "siteName",
+      "siteDescription",
+      "maintenance",
+      "allowRegistration",
+      "emailNotifications",
+      "defaultLanguage",
+      "pointsPerTask",
+      "maxDailyTasks",
+      "rewardCooldown"
+     ]
+    }
+   }
+  },
+  {
+   "id": "f3-service-zero-pollution",
+   "pass": true,
+   "detail": {
+    "changed": false
+   }
+  },
+  {
+   "id": "Z1-final-restore-equal",
+   "pass": true,
+   "detail": {
+    "status": 200,
+    "now": "去中心化社区奖励平台",
+    "original": "去中心化社区奖励平台"
+   }
+  },
+  {
+   "id": "Z2-key-closure",
+   "pass": true,
+   "detail": {
+    "keys": [
+     "system_settings"
+    ]
+   }
+  }
+ ]
+}
