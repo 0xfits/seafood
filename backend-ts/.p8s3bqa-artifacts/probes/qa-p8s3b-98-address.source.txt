@@ -1,0 +1,131 @@
+/**
+ * 批 8③b 终审质检（Neng · 独立）· **L4 键级寻址面** 自写探针（离线 · 零 DB / 零 HTTP）。
+ * ============================================================================
+ * 用法（副本内）：cd backend-ts && npx ts-node --transpile-only scripts/qa-p8s3b-98-address.ts
+ * 出口：全绿 exit 0；任一 FAIL exit 1。产物：backend-ts/.p8s3bqa-artifacts/qa-p8s3b-98-address.json
+ * ★ 判据由本单自写（不 import 交付方门脚本）；含每条判据的负对照（喂错值须转红）。
+ */
+import * as fs from 'fs';
+import * as path from 'path';
+import {
+  APP_CONFIG_LEGAL_KEYS, SETTINGS_WRITE_REASONS, SYSTEM_SETTINGS_FIELDS, SYSTEM_SETTINGS_KEY,
+  LISTING_DEPOSIT_POLICY_KEY, LISTING_DEPOSIT_POLICY_FIELD_TYPES,
+  isAppConfigEnvelope, screenAppConfigEnvelope, screenSystemSettingsWrite,
+  validateAppConfigKey, validateAppConfigValue,
+} from '../src/database';
+import { canonicalAdminOpsKey } from '../src/admin-service';
+import { CURRENCY_LIST_DEPOSIT_FLOOR, resolveListingDepositFloor } from '../src/currency-service';
+
+const REPO_ROOT = path.resolve(__dirname, '..', '..');
+const OUT_DIR = path.join(__dirname, '..', '.p8s3bqa-artifacts');
+fs.mkdirSync(OUT_DIR, { recursive: true });
+const ILLEGAL_AMOUNT = { amount: '64200' }; // 本单自选：字符串型金额（fail-closed 负向）
+
+interface C { id: string; pass: boolean; actual: unknown; expected: unknown; }
+const checks: C[] = [];
+const t = (id: string, pass: boolean, actual: unknown, expected: unknown): void =>
+  { checks.push({ id, pass: Boolean(pass), actual, expected }); };
+const selfTest = (id: string, predicate: (v: unknown) => boolean, wrong: unknown): void =>
+  { checks.push({ id: `${id}__selftest`, pass: predicate(wrong) === false, actual: { wrong, fired: predicate(wrong) === false }, expected: true }); };
+
+const INDEX_TS = fs.readFileSync(path.resolve(REPO_ROOT, 'backend-ts/src/index.ts'), 'utf8');
+const DATABASE_TS = fs.readFileSync(path.resolve(REPO_ROOT, 'backend-ts/src/database.ts'), 'utf8');
+const AK1_FIELDS = [...SYSTEM_SETTINGS_FIELDS];
+
+// ---- 形态 A（无自有 key）行为逐字不变 ----
+{
+  const okA = validateAppConfigValue(SYSTEM_SETTINGS_KEY, { maintenance: true });
+  t('L4-A-formA-ok', okA.ok && JSON.stringify(okA.ok ? okA.value : null) === JSON.stringify({ maintenance: true }), okA.ok ? okA.value : 'not ok', { maintenance: true });
+  const badA = validateAppConfigValue(SYSTEM_SETTINGS_KEY, { siteName: 'x', foo: 1 });
+  t('L4-A-formA-unknown-field',
+    !badA.ok && badA.details.reason === SETTINGS_WRITE_REASONS.unknownKey
+    && JSON.stringify(badA.details.legal_keys) === JSON.stringify(AK1_FIELDS)
+    && JSON.stringify(badA.details.unknown_keys) === JSON.stringify(['foo']),
+    badA.ok ? 'ok' : { reason: badA.details.reason, legal_keys_len: (badA.details.legal_keys as string[]).length, unknown_keys: badA.details.unknown_keys },
+    { reason: 'SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST', legal_keys_len: 9, unknown_keys: ['foo'] });
+  t('L4-A-discriminant-false', isAppConfigEnvelope({ maintenance: true }) === false, isAppConfigEnvelope({ maintenance: true }), false);
+  const aBody = screenSystemSettingsWrite({ maintenance: true, create_key: 'ops:7:setting:system_settings' });
+  t('L4-A-control-field-stripped', aBody.ok === true, aBody.ok, true);
+}
+
+// ---- 多键 body ⇒ 拒 ----
+{
+  const extra = screenAppConfigEnvelope({ key: LISTING_DEPOSIT_POLICY_KEY, value: { amount: 1 }, key2: 'x' } as Record<string, unknown>);
+  t('L4-multikey-envelope-extra',
+    !extra.ok && extra.details.reason === SETTINGS_WRITE_REASONS.unknownKey && JSON.stringify(extra.details.unknown_keys) === JSON.stringify(['key2']),
+    extra.ok ? 'ok' : { reason: extra.details.reason, unknown_keys: extra.details.unknown_keys }, { reason: 'unknownKey', unknown_keys: ['key2'] });
+  const twoTop = screenSystemSettingsWrite({ [SYSTEM_SETTINGS_KEY]: { siteName: 'x' }, [LISTING_DEPOSIT_POLICY_KEY]: { amount: 1 } });
+  t('L4-multikey-top-double',
+    !twoTop.ok && (twoTop.details.unknown_keys as string[]).slice().sort().join(',') === ['listing_deposit_policy', 'system_settings'].sort().join(','),
+    twoTop.ok ? 'ok' : (twoTop.details.unknown_keys as string[]).slice().sort(), ['listing_deposit_policy', 'system_settings'].sort());
+  const arr = screenSystemSettingsWrite([{ key: 'a', value: {} }] as unknown);
+  t('L4-multikey-array', !arr.ok && arr.details.reason === SETTINGS_WRITE_REASONS.valueNotObject, arr.ok ? 'ok' : arr.details.reason, 'SETTING_VALUE_NOT_OBJECT');
+}
+
+// ---- AV1–AV5 逐层（含 details.legal_keys 分层证据） ----
+{
+  const av1 = validateAppConfigKey('nope');
+  t('L4-AV1-key',
+    !av1.ok && av1.details.reason === SETTINGS_WRITE_REASONS.unknownKey && av1.details.field === 'nope'
+    && JSON.stringify(av1.details.legal_keys) === JSON.stringify([...APP_CONFIG_LEGAL_KEYS]),
+    av1.ok ? 'ok' : { reason: av1.details.reason, field: av1.details.field, legal_keys: av1.details.legal_keys }, { reason: 'unknownKey', field: 'nope', legal_keys: ['system_settings', 'listing_deposit_policy'] });
+  const av1ok = validateAppConfigKey(LISTING_DEPOSIT_POLICY_KEY);
+  t('L4-AV1-legal', av1ok.ok && av1ok.ok === true && av1ok.key === LISTING_DEPOSIT_POLICY_KEY, av1ok.ok ? av1ok.key : 'not ok', LISTING_DEPOSIT_POLICY_KEY);
+  const av2 = validateAppConfigValue(LISTING_DEPOSIT_POLICY_KEY, { amount: 1, balance: 2 });
+  t('L4-AV2-field-closed',
+    !av2.ok && av2.details.reason === SETTINGS_WRITE_REASONS.unknownKey && JSON.stringify(av2.details.legal_keys) === JSON.stringify(['amount']) && JSON.stringify(av2.details.unknown_keys) === JSON.stringify(['balance']),
+    av2.ok ? 'ok' : { legal_keys: av2.details.legal_keys, unknown_keys: av2.details.unknown_keys }, { legal_keys: ['amount'], unknown_keys: ['balance'] });
+  const av3 = validateAppConfigValue(LISTING_DEPOSIT_POLICY_KEY, ILLEGAL_AMOUNT);
+  t('L4-AV3-type',
+    !av3.ok && av3.details.reason === SETTINGS_WRITE_REASONS.typeInvalid && av3.details.field === 'amount' && av3.details.expected === 'number' && av3.details.got === 'string',
+    av3.ok ? 'ok' : { reason: av3.details.reason, expected: av3.details.expected, got: av3.details.got }, { reason: 'typeInvalid', expected: 'number', got: 'string' });
+  const dom = [0, -5, 1.5].map((a) => validateAppConfigValue(LISTING_DEPOSIT_POLICY_KEY, { amount: a }));
+  t('L4-AV4-domain',
+    dom.every((v) => !v.ok && v.details.reason === SETTINGS_WRITE_REASONS.typeInvalid && v.details.field === 'amount' && v.details.expected === 'positive_integer'),
+    dom.map((v) => (v.ok ? 'ok' : { expected: v.details.expected, got: v.details.got })), ['0/-5/1.5 皆 expected=positive_integer']);
+  const av4ok = validateAppConfigValue(LISTING_DEPOSIT_POLICY_KEY, { amount: 64200 });
+  t('L4-AV4-legal', av4ok.ok && JSON.stringify(av4ok.ok ? av4ok.value : null) === JSON.stringify({ amount: 64200 }), av4ok.ok ? av4ok.value : 'not ok', { amount: 64200 });
+  t('L4-AV5-container-check', /app_config_value_is_container/.test(INDEX_TS) && /SETTING_VALUE_NOT_OBJECT/.test(INDEX_TS),
+    { constraint: /app_config_value_is_container/.test(INDEX_TS), reason: /SETTING_VALUE_NOT_OBJECT/.test(INDEX_TS) }, { constraint: true, reason: true });
+}
+
+// ---- `ops:` 派生键形 + 形态 A 逐字不变 + 零新增 reason ----
+{
+  const kA = canonicalAdminOpsKey(7, 'setting', SYSTEM_SETTINGS_KEY);
+  const kB = canonicalAdminOpsKey(7, 'setting', LISTING_DEPOSIT_POLICY_KEY);
+  t('L4-ops-formA-literal', kA === 'ops:7:setting:system_settings', kA, 'ops:7:setting:system_settings');
+  t('L4-ops-formB-derived', kB === 'ops:7:setting:listing_deposit_policy', kB, 'ops:7:setting:listing_deposit_policy');
+  t('L4-ops-namespaces-disjoint', kA !== kB, { a: kA, b: kB }, 'A≠B');
+  const line = (INDEX_TS.match(/.*resolveAdminOpsKey\(req, actor\.session\.uID, 'setting'.*/) || [''])[0].trim();
+  const m = /resolveAdminOpsKey\(req,\s*actor\.session\.uID,\s*'setting',\s*([^)]*)\)/.exec(line);
+  t('L4-ops-fourth-arg', m ? m[1].trim() === 'targetKey' : false, m ? m[1].trim() : '(none)', 'targetKey');
+  const iAv1 = INDEX_TS.indexOf('validateAppConfigKey(');
+  const iOps = INDEX_TS.indexOf("resolveAdminOpsKey(req, actor.session.uID, 'setting'");
+  t('L4-ops-order-AV1-before-ops', iAv1 > 0 && iOps > 0 && iAv1 < iOps, { av1: iAv1, ops: iOps }, 'av1 < ops');
+  t('L4-reason-zero-new', Object.keys(SETTINGS_WRITE_REASONS).length === 3, Object.keys(SETTINGS_WRITE_REASONS), 3);
+}
+
+// ---- amount 类型 + 下限 fail-closed ----
+{
+  t('L4-amount-type-number', LISTING_DEPOSIT_POLICY_FIELD_TYPES.amount === 'number', LISTING_DEPOSIT_POLICY_FIELD_TYPES.amount, 'number');
+  const f0 = resolveListingDepositFloor(null);
+  const f1 = resolveListingDepositFloor(ILLEGAL_AMOUNT);
+  const f2 = resolveListingDepositFloor({ amount: 64200 });
+  t('L4-floor-null-constant', f0.floor === CURRENCY_LIST_DEPOSIT_FLOOR && f0.source === 'constant', f0, { floor: CURRENCY_LIST_DEPOSIT_FLOOR, source: 'constant' });
+  t('L4-floor-illegal-fail-closed', f1.floor === CURRENCY_LIST_DEPOSIT_FLOOR && f1.source === 'constant', f1, { floor: CURRENCY_LIST_DEPOSIT_FLOOR, source: 'constant' });
+  t('L4-floor-legal-config', f2.floor === 64200 && f2.source === 'config', f2, { floor: 64200, source: 'config' });
+  t('L4-floor-todo-present', /TODO: Kevin 定值/.test(fs.readFileSync(path.resolve(REPO_ROOT, 'backend-ts/src/currency-service.ts'), 'utf8')), 'scanned', true);
+}
+
+// ---- 负对照 ----
+selfTest('L4-AV1-key', (v: unknown) => JSON.stringify(v) === JSON.stringify([...APP_CONFIG_LEGAL_KEYS]), ['system_settings']);
+selfTest('L4-ops-fourth-arg', (v) => v === 'targetKey', 'system_settings');
+selfTest('L4-floor-null-constant', (v: unknown) => JSON.stringify(v) === JSON.stringify({ floor: CURRENCY_LIST_DEPOSIT_FLOOR, source: 'constant' }), { floor: CURRENCY_LIST_DEPOSIT_FLOOR, source: 'config' });
+selfTest('L4-reason-zero-new', (v) => v === 3, 4);
+
+const failed = checks.filter((c) => !c.pass);
+const out = { unit: 'QA-P8S3B-98-ADDRESS', generated_at: new Date().toISOString(), total: checks.length, passed: checks.length - failed.length, failed: failed.length, probe_amount: 64200, checks };
+fs.writeFileSync(path.join(OUT_DIR, 'qa-p8s3b-98-address.json'), JSON.stringify(out, null, 1) + '\n', 'utf8');
+console.log(JSON.stringify({ summary: { total: out.total, passed: out.passed, failed: out.failed }, failed_ids: failed.map((c) => c.id) }, null, 1));
+console.log(`SUMMARY total=${out.total} passed=${out.passed} failed=${out.failed}`);
+process.exit(failed.length ? 1 : 0);

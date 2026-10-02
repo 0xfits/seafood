@@ -1,0 +1,322 @@
+{
+ "unit": "QA-P8S3B-98-ADDRESS",
+ "generated_at": "2026-10-02T23:15:02.396Z",
+ "total": 29,
+ "passed": 29,
+ "failed": 0,
+ "probe_amount": 64200,
+ "checks": [
+  {
+   "id": "L4-A-formA-ok",
+   "pass": true,
+   "actual": {
+    "maintenance": true
+   },
+   "expected": {
+    "maintenance": true
+   }
+  },
+  {
+   "id": "L4-A-formA-unknown-field",
+   "pass": true,
+   "actual": {
+    "reason": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+    "legal_keys_len": 9,
+    "unknown_keys": [
+     "foo"
+    ]
+   },
+   "expected": {
+    "reason": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+    "legal_keys_len": 9,
+    "unknown_keys": [
+     "foo"
+    ]
+   }
+  },
+  {
+   "id": "L4-A-discriminant-false",
+   "pass": true,
+   "actual": false,
+   "expected": false
+  },
+  {
+   "id": "L4-A-control-field-stripped",
+   "pass": true,
+   "actual": true,
+   "expected": true
+  },
+  {
+   "id": "L4-multikey-envelope-extra",
+   "pass": true,
+   "actual": {
+    "reason": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+    "unknown_keys": [
+     "key2"
+    ]
+   },
+   "expected": {
+    "reason": "unknownKey",
+    "unknown_keys": [
+     "key2"
+    ]
+   }
+  },
+  {
+   "id": "L4-multikey-top-double",
+   "pass": true,
+   "actual": [
+    "listing_deposit_policy",
+    "system_settings"
+   ],
+   "expected": [
+    "listing_deposit_policy",
+    "system_settings"
+   ]
+  },
+  {
+   "id": "L4-multikey-array",
+   "pass": true,
+   "actual": "SETTING_VALUE_NOT_OBJECT",
+   "expected": "SETTING_VALUE_NOT_OBJECT"
+  },
+  {
+   "id": "L4-AV1-key",
+   "pass": true,
+   "actual": {
+    "reason": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+    "field": "nope",
+    "legal_keys": [
+     "system_settings",
+     "listing_deposit_policy"
+    ]
+   },
+   "expected": {
+    "reason": "unknownKey",
+    "field": "nope",
+    "legal_keys": [
+     "system_settings",
+     "listing_deposit_policy"
+    ]
+   }
+  },
+  {
+   "id": "L4-AV1-legal",
+   "pass": true,
+   "actual": "listing_deposit_policy",
+   "expected": "listing_deposit_policy"
+  },
+  {
+   "id": "L4-AV2-field-closed",
+   "pass": true,
+   "actual": {
+    "legal_keys": [
+     "amount"
+    ],
+    "unknown_keys": [
+     "balance"
+    ]
+   },
+   "expected": {
+    "legal_keys": [
+     "amount"
+    ],
+    "unknown_keys": [
+     "balance"
+    ]
+   }
+  },
+  {
+   "id": "L4-AV3-type",
+   "pass": true,
+   "actual": {
+    "reason": "SETTING_TYPE_INVALID",
+    "expected": "number",
+    "got": "string"
+   },
+   "expected": {
+    "reason": "typeInvalid",
+    "expected": "number",
+    "got": "string"
+   }
+  },
+  {
+   "id": "L4-AV4-domain",
+   "pass": true,
+   "actual": [
+    {
+     "expected": "positive_integer",
+     "got": "number"
+    },
+    {
+     "expected": "positive_integer",
+     "got": "number"
+    },
+    {
+     "expected": "positive_integer",
+     "got": "number"
+    }
+   ],
+   "expected": [
+    "0/-5/1.5 皆 expected=positive_integer"
+   ]
+  },
+  {
+   "id": "L4-AV4-legal",
+   "pass": true,
+   "actual": {
+    "amount": 64200
+   },
+   "expected": {
+    "amount": 64200
+   }
+  },
+  {
+   "id": "L4-AV5-container-check",
+   "pass": true,
+   "actual": {
+    "constraint": true,
+    "reason": true
+   },
+   "expected": {
+    "constraint": true,
+    "reason": true
+   }
+  },
+  {
+   "id": "L4-ops-formA-literal",
+   "pass": true,
+   "actual": "ops:7:setting:system_settings",
+   "expected": "ops:7:setting:system_settings"
+  },
+  {
+   "id": "L4-ops-formB-derived",
+   "pass": true,
+   "actual": "ops:7:setting:listing_deposit_policy",
+   "expected": "ops:7:setting:listing_deposit_policy"
+  },
+  {
+   "id": "L4-ops-namespaces-disjoint",
+   "pass": true,
+   "actual": {
+    "a": "ops:7:setting:system_settings",
+    "b": "ops:7:setting:listing_deposit_policy"
+   },
+   "expected": "A≠B"
+  },
+  {
+   "id": "L4-ops-fourth-arg",
+   "pass": true,
+   "actual": "targetKey",
+   "expected": "targetKey"
+  },
+  {
+   "id": "L4-ops-order-AV1-before-ops",
+   "pass": true,
+   "actual": {
+    "av1": 45709,
+    "ops": 46293
+   },
+   "expected": "av1 < ops"
+  },
+  {
+   "id": "L4-reason-zero-new",
+   "pass": true,
+   "actual": [
+    "unknownKey",
+    "typeInvalid",
+    "valueNotObject"
+   ],
+   "expected": 3
+  },
+  {
+   "id": "L4-amount-type-number",
+   "pass": true,
+   "actual": "number",
+   "expected": "number"
+  },
+  {
+   "id": "L4-floor-null-constant",
+   "pass": true,
+   "actual": {
+    "floor": 50000,
+    "source": "constant"
+   },
+   "expected": {
+    "floor": 50000,
+    "source": "constant"
+   }
+  },
+  {
+   "id": "L4-floor-illegal-fail-closed",
+   "pass": true,
+   "actual": {
+    "floor": 50000,
+    "source": "constant"
+   },
+   "expected": {
+    "floor": 50000,
+    "source": "constant"
+   }
+  },
+  {
+   "id": "L4-floor-legal-config",
+   "pass": true,
+   "actual": {
+    "floor": 64200,
+    "source": "config"
+   },
+   "expected": {
+    "floor": 64200,
+    "source": "config"
+   }
+  },
+  {
+   "id": "L4-floor-todo-present",
+   "pass": true,
+   "actual": "scanned",
+   "expected": true
+  },
+  {
+   "id": "L4-AV1-key__selftest",
+   "pass": true,
+   "actual": {
+    "wrong": [
+     "system_settings"
+    ],
+    "fired": true
+   },
+   "expected": true
+  },
+  {
+   "id": "L4-ops-fourth-arg__selftest",
+   "pass": true,
+   "actual": {
+    "wrong": "system_settings",
+    "fired": true
+   },
+   "expected": true
+  },
+  {
+   "id": "L4-floor-null-constant__selftest",
+   "pass": true,
+   "actual": {
+    "wrong": {
+     "floor": 50000,
+     "source": "config"
+    },
+    "fired": true
+   },
+   "expected": true
+  },
+  {
+   "id": "L4-reason-zero-new__selftest",
+   "pass": true,
+   "actual": {
+    "wrong": 4,
+    "fired": true
+   },
+   "expected": true
+  }
+ ]
+}

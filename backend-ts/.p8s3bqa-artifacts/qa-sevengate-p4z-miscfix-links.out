@@ -1,0 +1,7 @@
+[MISC-FIX-LINKS] 作用域 = /Users/kevin/.hermes/profiles/zang/cache/scratch/qa8s3b/frontend/src
+  扫描源文件数 = 79；命中行数 = 1（/api 字面量 0、协议相对 0、`href="/…"` 行 0 另一类）
+  已由唯一构造器 buildLocalizedPath 构造 = 0；**残留 = 1**
+  · src/pages/admin/UsersManagement.jsx ×1
+      303: onClick={() => canManagePoints && navigate(`/dashboard/points?q=${encodeURIComponent(user.EVM || Str
+  已登记待办 = 8 条；**未登记残留 = 0**
+[MISC-FIX-LINKS] 总判：PASS（残留全部已登记）

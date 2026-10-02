@@ -1,0 +1,328 @@
+{
+ "unit": "QA-P8S3B-97-READONLY",
+ "generated_at": "2026-10-02T23:18:37.237Z",
+ "baseline": {
+  "app_config_key_set": [
+   "system_settings"
+  ],
+  "system_settings_value_text": "{\"siteName\": \"p4b2c:siteA\", \"maintenance\": false, \"maxDailyTasks\": 10, \"pointsPerTask\": 100, \"rewardCooldown\": 24, \"defaultLanguage\": \"zh\", \"siteDescription\": \"去中心化社区奖励平台\", \"allowRegistration\": true, \"emailNotifications\": true}",
+  "system_settings_updated_by": "1",
+  "system_settings_time_updated": "2026-10-02 14:14:07.502017+00",
+  "currency": {
+   "n": "15",
+   "max_cid": "36",
+   "digest": "692b67e77b7200cabb3bae49132bcea2"
+  },
+  "ledger_entry": {
+   "n": "355",
+   "max_txid": "366",
+   "digest": "f92c5406c8424ff50994d2ba6de81545"
+  },
+  "account": {
+   "n": "39",
+   "digest": "98bcfeea69807ba05961c474caef17a9"
+  },
+  "currency_status_log": {
+   "n": "7",
+   "max_log_id": "7"
+  },
+  "triggers": [
+   {
+    "tgname": "trg_app_config_key_immutable",
+    "timing": "BEFORE",
+    "ev_update": "UPDATE"
+   },
+   {
+    "tgname": "trg_app_config_touch_updated",
+    "timing": "BEFORE",
+    "ev_update": "UPDATE"
+   }
+  ]
+ },
+ "app_config_rows": [
+  {
+   "key": "system_settings",
+   "value_text": "{\"siteName\": \"p4b2c:siteA\", \"maintenance\": false, \"maxDailyTasks\": 10, \"pointsPerTask\": 100, \"rewardCooldown\": 24, \"defaultLanguage\": \"zh\", \"siteDescription\": \"去中心化社区奖励平台\", \"allowRegistration\": true, \"emailNotifications\": true}",
+   "updated_by": "1",
+   "time_updated": "2026-10-02 14:14:07.502017+00"
+  }
+ ],
+ "app_config_columns": [
+  {
+   "column_name": "key",
+   "data_type": "text",
+   "is_nullable": "NO",
+   "column_default": null
+  },
+  {
+   "column_name": "value",
+   "data_type": "jsonb",
+   "is_nullable": "NO",
+   "column_default": null
+  },
+  {
+   "column_name": "updated_by",
+   "data_type": "bigint",
+   "is_nullable": "NO",
+   "column_default": null
+  },
+  {
+   "column_name": "time_updated",
+   "data_type": "timestamp with time zone",
+   "is_nullable": "NO",
+   "column_default": "now()"
+  }
+ ],
+ "triggers": [
+  {
+   "tgname": "trg_app_config_key_immutable",
+   "timing": "BEFORE",
+   "ev_insert": null,
+   "ev_update": "UPDATE",
+   "ev_delete": null,
+   "ev_truncate": null,
+   "for_each_row": true,
+   "proname": "platform_config_key_immutable",
+   "tgenabled": "O"
+  },
+  {
+   "tgname": "trg_app_config_touch_updated",
+   "timing": "BEFORE",
+   "ev_insert": null,
+   "ev_update": "UPDATE",
+   "ev_delete": null,
+   "ev_truncate": null,
+   "for_each_row": true,
+   "proname": "platform_config_touch_updated",
+   "tgenabled": "O"
+  }
+ ],
+ "currency": {
+  "n": "15",
+  "max_cid": "36",
+  "digest": "692b67e77b7200cabb3bae49132bcea2"
+ },
+ "ledger_entry": {
+  "n": "355",
+  "max_txid": "366",
+  "digest": "f92c5406c8424ff50994d2ba6de81545"
+ },
+ "account": {
+  "n": "39",
+  "digest": "98bcfeea69807ba05961c474caef17a9"
+ },
+ "currency_status_log": {
+  "n": "7",
+  "max_log_id": "7"
+ },
+ "sequences": [
+  {
+   "sequencename": "admin_ops_audit_log_log_id_seq",
+   "last_value": "8"
+  },
+  {
+   "sequencename": "admin_refund_audit_log_log_id_seq",
+   "last_value": "7"
+  },
+  {
+   "sequencename": "commission_policy_policy_id_seq",
+   "last_value": "11"
+  },
+  {
+   "sequencename": "currency_cid_seq",
+   "last_value": "36"
+  },
+  {
+   "sequencename": "currency_status_log_log_id_seq",
+   "last_value": "34"
+  },
+  {
+   "sequencename": "job_application_application_id_seq",
+   "last_value": "24"
+  },
+  {
+   "sequencename": "job_job_id_seq",
+   "last_value": "24"
+  },
+  {
+   "sequencename": "job_submission_submission_id_seq",
+   "last_value": "20"
+  },
+  {
+   "sequencename": "ledger_entry_txid_seq",
+   "last_value": "474"
+  },
+  {
+   "sequencename": "listing_listing_id_seq",
+   "last_value": "24"
+  },
+  {
+   "sequencename": "listing_order_order_id_seq",
+   "last_value": "20"
+  },
+  {
+   "sequencename": "market_order_order_id_seq",
+   "last_value": "26"
+  },
+  {
+   "sequencename": "market_trade_trade_id_seq",
+   "last_value": "8"
+  },
+  {
+   "sequencename": "schema_migration_id_seq",
+   "last_value": "23"
+  },
+  {
+   "sequencename": "users_uid_seq",
+   "last_value": "24"
+  }
+ ],
+ "schema_version": "0024",
+ "checks": [
+  {
+   "id": "L2-key-set-exactly-system_settings",
+   "pass": true,
+   "actual": [
+    "system_settings"
+   ],
+   "expected": [
+    "system_settings"
+   ],
+   "neg_rule": "键集 ≠ 恰 {system_settings} ⇒ 判负"
+  },
+  {
+   "id": "L2-listing_deposit_policy-absent",
+   "pass": true,
+   "actual": false,
+   "expected": false,
+   "neg_rule": "listing_deposit_policy 存在 ⇒ 判负（复原未竟）"
+  },
+  {
+   "id": "L2-ss-value-byte-identical",
+   "pass": true,
+   "actual": "{\"siteName\": \"p4b2c:siteA\", \"maintenance\": false, \"maxDailyTasks\": 10, \"pointsPerTask\": 100, \"rewardCooldown\": 24, \"defaultLanguage\": \"zh\", \"siteDescription\": \"去中心化社区奖励平台\", \"allowRegistration\": true, \"emailNotifications\": true}",
+   "expected": "{\"siteName\": \"p4b2c:siteA\", \"maintenance\": false, \"maxDailyTasks\": 10, \"pointsPerTask\": 100, \"rewardCooldown\": 24, \"defaultLanguage\": \"zh\", \"siteDescription\": \"去中心化社区奖励平台\", \"allowRegistration\": true, \"emailNotifications\": true}",
+   "neg_rule": "system_settings.value 非逐字同基线 ⇒ 判负"
+  },
+  {
+   "id": "L2-ss-updated_by-byte-identical",
+   "pass": true,
+   "actual": "1",
+   "expected": "1",
+   "neg_rule": "updated_by 非逐字同基线 ⇒ 判负"
+  },
+  {
+   "id": "L2-ss-time_updated-eq-baseline",
+   "pass": true,
+   "actual": "2026-10-02 14:14:07.502017+00",
+   "expected": "2026-10-02 14:14:07.502017+00",
+   "neg_rule": "time_updated ≠ 基线 ⇒ 判负（漂移未复原）"
+  },
+  {
+   "id": "L2-triggers-exactly-2",
+   "pass": true,
+   "actual": 2,
+   "expected": 2,
+   "neg_rule": "app_config 触发器数 ≠ 2 ⇒ 判负"
+  },
+  {
+   "id": "L2-triggers-all-before-update",
+   "pass": true,
+   "actual": [
+    {
+     "n": "trg_app_config_key_immutable",
+     "t": "BEFORE",
+     "u": "UPDATE",
+     "i": null,
+     "d": null
+    },
+    {
+     "n": "trg_app_config_touch_updated",
+     "t": "BEFORE",
+     "u": "UPDATE",
+     "i": null,
+     "d": null
+    }
+   ],
+   "expected": [
+    "trg_app_config_key_immutable",
+    "trg_app_config_touch_updated"
+   ],
+   "neg_rule": "触发器非「均 BEFORE UPDATE、无 INSERT/DELETE」 ⇒ 判负（DELETE 未被禁的前提不成立）"
+  },
+  {
+   "id": "L2-trigger-names",
+   "pass": true,
+   "actual": [
+    "trg_app_config_key_immutable",
+    "trg_app_config_touch_updated"
+   ],
+   "expected": [
+    "trg_app_config_key_immutable",
+    "trg_app_config_touch_updated"
+   ],
+   "neg_rule": "触发器名集合与基线不同 ⇒ 判负"
+  },
+  {
+   "id": "L2-currency-same-as-baseline",
+   "pass": true,
+   "actual": {
+    "n": "15",
+    "max_cid": "36",
+    "digest": "692b67e77b7200cabb3bae49132bcea2"
+   },
+   "expected": {
+    "n": "15",
+    "max_cid": "36",
+    "digest": "692b67e77b7200cabb3bae49132bcea2"
+   },
+   "neg_rule": "currency 行数/摘要与基线不同 ⇒ 判负"
+  },
+  {
+   "id": "L2-ledger_entry-same-as-baseline",
+   "pass": true,
+   "actual": {
+    "n": "355",
+    "max_txid": "366",
+    "digest": "f92c5406c8424ff50994d2ba6de81545"
+   },
+   "expected": {
+    "n": "355",
+    "max_txid": "366",
+    "digest": "f92c5406c8424ff50994d2ba6de81545"
+   },
+   "neg_rule": "ledger_entry 行数/摘要与基线不同 ⇒ 判负"
+  },
+  {
+   "id": "L2-account-same-as-baseline",
+   "pass": true,
+   "actual": {
+    "n": "39",
+    "digest": "98bcfeea69807ba05961c474caef17a9"
+   },
+   "expected": {
+    "n": "39",
+    "digest": "98bcfeea69807ba05961c474caef17a9"
+   },
+   "neg_rule": "account 行数/摘要与基线不同 ⇒ 判负"
+  },
+  {
+   "id": "L2-currency_status_log-same-as-baseline",
+   "pass": true,
+   "actual": {
+    "n": "7",
+    "max_log_id": "7"
+   },
+   "expected": {
+    "n": "7",
+    "max_log_id": "7"
+   },
+   "neg_rule": "currency_status_log 行数/max_log_id 与基线不同 ⇒ 判负"
+  }
+ ],
+ "summary": {
+  "total": 12,
+  "passed": 12,
+  "failed": 0
+ }
+}

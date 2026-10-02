@@ -1,0 +1,44 @@
+{
+ "summary": {
+  "total": 27,
+  "passed": 27,
+  "failed": 0
+ },
+ "segment4": {
+  "fixture": {
+   "owner_uid": "970001",
+   "owner_balance_baseline": "1636071"
+  },
+  "before": {
+   "floor": 50000,
+   "owner_decrease": "60000",
+   "pool_increase": "60000",
+   "deposit_legs": [
+    "-1:50000",
+    "970001:-50000"
+   ]
+  },
+  "after": {
+   "floor": 64200,
+   "owner_decrease": "74200",
+   "pool_increase": "74200",
+   "deposit_legs": [
+    "-1:64200",
+    "970001:-64200"
+   ]
+  },
+  "fail_closed": {
+   "floor": 50000,
+   "owner_decrease": "60000"
+  },
+  "delta": "14200",
+  "delta_expected": "14200",
+  "rollback": {
+   "tag": "SEG4",
+   "committed": false,
+   "note": "回调抛哨兵 ⇒ catch → ROLLBACK（无 COMMIT）"
+  }
+ },
+ "failed_ids": []
+}
+SUMMARY total=27 passed=27 failed=0

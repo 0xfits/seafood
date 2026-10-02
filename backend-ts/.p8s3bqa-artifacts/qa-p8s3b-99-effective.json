@@ -1,0 +1,414 @@
+{
+ "unit": "QA-P8S3B-99-EFFECTIVE",
+ "run": "20261002T231634Z",
+ "generated_at": "2026-10-02T23:16:34.294Z",
+ "my_amount": 64200,
+ "illegal": {
+  "amount": "64200"
+ },
+ "list_fee": 10000,
+ "floor_constant": 50000,
+ "baseline": {
+  "app_config": {
+   "rows": [
+    {
+     "key": "system_settings",
+     "value_text": "{\"siteName\": \"p4b2c:siteA\", \"maintenance\": false, \"maxDailyTasks\": 10, \"pointsPerTask\": 100, \"rewardCooldown\": 24, \"defaultLanguage\": \"zh\", \"siteDescription\": \"去中心化社区奖励平台\", \"allowRegistration\": true, \"emailNotifications\": true}",
+     "updated_by": "1",
+     "time_updated": "2026-10-02 14:14:07.502017+00"
+    }
+   ],
+   "agg": {
+    "max_updated": "2026-10-02 14:14:07.502017+00"
+   }
+  },
+  "currency": {
+   "n": "15",
+   "max_cid": "36",
+   "max_created": "2026-10-02 07:09:41.046757+00",
+   "max_listed_at": "2026-10-02 07:09:41.046757+00",
+   "digest": "692b67e77b7200cabb3bae49132bcea2"
+  },
+  "ledger_entry": {
+   "n": "355",
+   "max_txid": "366",
+   "max_created": "2026-10-02 13:48:12.68365+00",
+   "digest": "f92c5406c8424ff50994d2ba6de81545"
+  },
+  "account": {
+   "n": "39",
+   "digest": "98bcfeea69807ba05961c474caef17a9"
+  },
+  "status_log": {
+   "n": "7",
+   "max_log_id": "7"
+  }
+ },
+ "segment4": {
+  "fixture": {
+   "owner_uid": "970001",
+   "owner_balance_baseline": "1636071"
+  },
+  "before": {
+   "floor": 50000,
+   "owner_decrease": "60000",
+   "pool_increase": "60000",
+   "deposit_legs": [
+    "-1:50000",
+    "970001:-50000"
+   ]
+  },
+  "after": {
+   "floor": 64200,
+   "owner_decrease": "74200",
+   "pool_increase": "74200",
+   "deposit_legs": [
+    "-1:64200",
+    "970001:-64200"
+   ]
+  },
+  "fail_closed": {
+   "floor": 50000,
+   "owner_decrease": "60000"
+  },
+  "delta": "14200",
+  "delta_expected": "14200",
+  "rollback": {
+   "tag": "SEG4",
+   "committed": false,
+   "note": "回调抛哨兵 ⇒ catch → ROLLBACK（无 COMMIT）"
+  }
+ },
+ "post": {
+  "app_config": {
+   "rows": [
+    {
+     "key": "system_settings",
+     "value_text": "{\"siteName\": \"p4b2c:siteA\", \"maintenance\": false, \"maxDailyTasks\": 10, \"pointsPerTask\": 100, \"rewardCooldown\": 24, \"defaultLanguage\": \"zh\", \"siteDescription\": \"去中心化社区奖励平台\", \"allowRegistration\": true, \"emailNotifications\": true}",
+     "updated_by": "1",
+     "time_updated": "2026-10-02 14:14:07.502017+00"
+    }
+   ],
+   "agg": {
+    "max_updated": "2026-10-02 14:14:07.502017+00"
+   }
+  },
+  "currency": {
+   "n": "15",
+   "max_cid": "36",
+   "max_created": "2026-10-02 07:09:41.046757+00",
+   "max_listed_at": "2026-10-02 07:09:41.046757+00",
+   "digest": "692b67e77b7200cabb3bae49132bcea2"
+  },
+  "ledger_entry": {
+   "n": "355",
+   "max_txid": "366",
+   "max_created": "2026-10-02 13:48:12.68365+00",
+   "digest": "f92c5406c8424ff50994d2ba6de81545"
+  },
+  "account": {
+   "n": "39",
+   "digest": "98bcfeea69807ba05961c474caef17a9"
+  },
+  "status_log": {
+   "n": "7",
+   "max_log_id": "7"
+  }
+ },
+ "total": 27,
+ "passed": 27,
+ "failed": 0,
+ "checks": [
+  {
+   "id": "L3-baseline-ak2-absent",
+   "pass": true,
+   "actual": [
+    "system_settings"
+   ],
+   "expected": "no listing_deposit_policy"
+  },
+  {
+   "id": "L3-③-read-before-constant",
+   "pass": true,
+   "actual": {
+    "floor": 50000,
+    "source": "constant"
+   },
+   "expected": {
+    "floor": 50000,
+    "source": "constant"
+   }
+  },
+  {
+   "id": "L3-①-write-returned",
+   "pass": true,
+   "actual": "INSERT/UPDATE issued",
+   "expected": "no exception"
+  },
+  {
+   "id": "L3-②-landed-eq-new",
+   "pass": true,
+   "actual": {
+    "amount": 64200
+   },
+   "expected": {
+    "amount": 64200
+   }
+  },
+  {
+   "id": "L3-②-landed-eq-new__selftest",
+   "pass": true,
+   "actual": {
+    "wrong": {
+     "amount": 64201
+    },
+    "fired": true
+   },
+   "expected": true
+  },
+  {
+   "id": "L3-②-keys-2",
+   "pass": true,
+   "actual": [
+    "listing_deposit_policy",
+    "system_settings"
+   ],
+   "expected": [
+    "system_settings",
+    "listing_deposit_policy"
+   ]
+  },
+  {
+   "id": "L4-DB-formA-target-untouched",
+   "pass": true,
+   "actual": "2026-10-02 14:14:07.502017+00",
+   "expected": "2026-10-02 14:14:07.502017+00"
+  },
+  {
+   "id": "L3-③-uses-config",
+   "pass": true,
+   "actual": {
+    "floor": 64200,
+    "source": "config"
+   },
+   "expected": {
+    "floor": 64200,
+    "source": "config"
+   }
+  },
+  {
+   "id": "L3-③-parse-no-invention",
+   "pass": true,
+   "actual": 64200,
+   "expected": 64200
+  },
+  {
+   "id": "L3-③-uses-config__selftest",
+   "pass": true,
+   "actual": {
+    "wrong": {
+     "floor": 64200,
+     "source": "constant"
+    },
+    "fired": true
+   },
+   "expected": true
+  },
+  {
+   "id": "L3-④-owner-funded",
+   "pass": true,
+   "actual": {
+    "owner_uid": "970001",
+    "balance": "1636071"
+   },
+   "expected": "> 3x consumption"
+  },
+  {
+   "id": "L3-④-before-consumes-constant",
+   "pass": true,
+   "actual": {
+    "floor": 50000,
+    "owner_decrease": 60000
+   },
+   "expected": {
+    "floor": 50000,
+    "owner_decrease": 60000
+   }
+  },
+  {
+   "id": "L3-④-after-consumes-new",
+   "pass": true,
+   "actual": {
+    "floor": 64200,
+    "owner_decrease": 74200
+   },
+   "expected": {
+    "floor": 64200,
+    "owner_decrease": 74200
+   }
+  },
+  {
+   "id": "L3-④-owner-increase-eq-pool",
+   "pass": true,
+   "actual": {
+    "before_pool": "60000",
+    "after_pool": "74200"
+   },
+   "expected": "pool_increase == owner_decrease"
+  },
+  {
+   "id": "L3-④-after-deposit-legs",
+   "pass": true,
+   "actual": [
+    "-1:64200",
+    "970001:-64200"
+   ],
+   "expected": [
+    "-1:64200",
+    "970001:-64200"
+   ]
+  },
+  {
+   "id": "L3-④-two-readings-differ",
+   "pass": true,
+   "actual": {
+    "before": 60000,
+    "after": 74200
+   },
+   "expected": "differ"
+  },
+  {
+   "id": "L3-④-delta-computable",
+   "pass": true,
+   "actual": 14200,
+   "expected": 14200
+  },
+  {
+   "id": "L3-④-fail-closed-behavior",
+   "pass": true,
+   "actual": {
+    "floor": 50000,
+    "decrease": 60000
+   },
+   "expected": {
+    "floor": 50000,
+    "decrease": 60000
+   }
+  },
+  {
+   "id": "L3-④-two-readings-differ__selftest",
+   "pass": true,
+   "actual": {
+    "wrong": 60000,
+    "fired": true
+   },
+   "expected": true
+  },
+  {
+   "id": "L3-④-owner-decrease-uid-minus1-increase",
+   "pass": true,
+   "actual": 14200,
+   "expected": 14200
+  },
+  {
+   "id": "L3-rollback-no-commit",
+   "pass": true,
+   "actual": false,
+   "expected": false
+  },
+  {
+   "id": "L3-post-app_config-byte-identical",
+   "pass": true,
+   "actual": [
+    {
+     "key": "system_settings",
+     "value_text": "{\"siteName\": \"p4b2c:siteA\", \"maintenance\": false, \"maxDailyTasks\": 10, \"pointsPerTask\": 100, \"rewardCooldown\": 24, \"defaultLanguage\": \"zh\", \"siteDescription\": \"去中心化社区奖励平台\", \"allowRegistration\": true, \"emailNotifications\": true}",
+     "updated_by": "1",
+     "time_updated": "2026-10-02 14:14:07.502017+00"
+    }
+   ],
+   "expected": [
+    {
+     "key": "system_settings",
+     "value_text": "{\"siteName\": \"p4b2c:siteA\", \"maintenance\": false, \"maxDailyTasks\": 10, \"pointsPerTask\": 100, \"rewardCooldown\": 24, \"defaultLanguage\": \"zh\", \"siteDescription\": \"去中心化社区奖励平台\", \"allowRegistration\": true, \"emailNotifications\": true}",
+     "updated_by": "1",
+     "time_updated": "2026-10-02 14:14:07.502017+00"
+    }
+   ]
+  },
+  {
+   "id": "L3-post-currency-identical",
+   "pass": true,
+   "actual": {
+    "n": "15",
+    "max_cid": "36",
+    "max_created": "2026-10-02 07:09:41.046757+00",
+    "max_listed_at": "2026-10-02 07:09:41.046757+00",
+    "digest": "692b67e77b7200cabb3bae49132bcea2"
+   },
+   "expected": {
+    "n": "15",
+    "max_cid": "36",
+    "max_created": "2026-10-02 07:09:41.046757+00",
+    "max_listed_at": "2026-10-02 07:09:41.046757+00",
+    "digest": "692b67e77b7200cabb3bae49132bcea2"
+   }
+  },
+  {
+   "id": "L3-post-ledger-identical",
+   "pass": true,
+   "actual": {
+    "n": "355",
+    "max_txid": "366",
+    "max_created": "2026-10-02 13:48:12.68365+00",
+    "digest": "f92c5406c8424ff50994d2ba6de81545"
+   },
+   "expected": {
+    "n": "355",
+    "max_txid": "366",
+    "max_created": "2026-10-02 13:48:12.68365+00",
+    "digest": "f92c5406c8424ff50994d2ba6de81545"
+   }
+  },
+  {
+   "id": "L3-post-account-identical",
+   "pass": true,
+   "actual": {
+    "n": "39",
+    "digest": "98bcfeea69807ba05961c474caef17a9"
+   },
+   "expected": {
+    "n": "39",
+    "digest": "98bcfeea69807ba05961c474caef17a9"
+   }
+  },
+  {
+   "id": "L3-post-statuslog-identical",
+   "pass": true,
+   "actual": {
+    "n": "7",
+    "max_log_id": "7"
+   },
+   "expected": {
+    "n": "7",
+    "max_log_id": "7"
+   }
+  },
+  {
+   "id": "L3-post-timestamps-not-advanced",
+   "pass": true,
+   "actual": {
+    "cfg": "2026-10-02 14:14:07.502017+00",
+    "cur": "2026-10-02 07:09:41.046757+00",
+    "listed": "2026-10-02 07:09:41.046757+00",
+    "led": "2026-10-02 13:48:12.68365+00"
+   },
+   "expected": {
+    "cfg": "2026-10-02 14:14:07.502017+00",
+    "cur": "2026-10-02 07:09:41.046757+00",
+    "listed": "2026-10-02 07:09:41.046757+00",
+    "led": "2026-10-02 13:48:12.68365+00"
+   }
+  }
+ ]
+}

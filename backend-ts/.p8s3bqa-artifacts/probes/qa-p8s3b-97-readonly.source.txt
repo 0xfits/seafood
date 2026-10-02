@@ -1,0 +1,168 @@
+/**
+ * 批 8③b 终审质检（Neng · 独立）· **纯只读**生产库复核探针（本单 L2 第一优先）。
+ * ============================================================================
+ * 用法（副本内）：cd backend-ts && npx ts-node --transpile-only scripts/qa-p8s3b-97-readonly.ts
+ * 出口：全判据通过 exit 0；任一不符 exit 1；探针崩溃 exit 2。
+ * 产物：backend-ts/.p8s3bqa-artifacts/qa-p8s3b-97-readonly.json
+ *
+ * ★ 本探针**只执行 SELECT / 目录查询**（pg_trigger / information_schema / 聚合），
+ *   **无任何 INSERT / UPDATE / DELETE / DDL / HTTP**。只读池 = `readQuery`（DATABASE_URL pooler）。
+ * ★ 判据真源：本单**自写**（不 import 交付方探针）。摘要 SQL 与既有基线口径**逐字相同**
+ *   （md5(string_agg(...))）以便与基线值对拍 —— 基线值来自历史已验收读数，非本单交付方自述。
+ * ⚠️ 只打印计数 / 摘要 / 键名 / 时间戳；**不打印任何密钥 / 连接串**。
+ */
+import '../src/env';
+import * as fs from 'fs';
+import * as path from 'path';
+import { readQuery, closePools } from '../src/db';
+
+const HERE = __dirname;
+const OUT_DIR = path.join(HERE, '..', '.p8s3bqa-artifacts');
+fs.mkdirSync(OUT_DIR, { recursive: true });
+const OUT_FILE = path.join(OUT_DIR, 'qa-p8s3b-97-readonly.json');
+
+/** 基线（历史已验收读数）—— 用于「与基线同」判据。 */
+const BASELINE = {
+  app_config_key_set: ['system_settings'],
+  system_settings_value_text:
+    '{"siteName": "p4b2c:siteA", "maintenance": false, "maxDailyTasks": 10, "pointsPerTask": 100, "rewardCooldown": 24, "defaultLanguage": "zh", "siteDescription": "去中心化社区奖励平台", "allowRegistration": true, "emailNotifications": true}',
+  system_settings_updated_by: '1',
+  system_settings_time_updated: '2026-10-02 14:14:07.502017+00',
+  currency: { n: '15', max_cid: '36', digest: '692b67e77b7200cabb3bae49132bcea2' },
+  ledger_entry: { n: '355', max_txid: '366', digest: 'f92c5406c8424ff50994d2ba6de81545' },
+  account: { n: '39', digest: '98bcfeea69807ba05961c474caef17a9' },
+  currency_status_log: { n: '7', max_log_id: '7' },
+  triggers: [
+    { tgname: 'trg_app_config_key_immutable', timing: 'BEFORE', ev_update: 'UPDATE' },
+    { tgname: 'trg_app_config_touch_updated', timing: 'BEFORE', ev_update: 'UPDATE' },
+  ],
+} as const;
+
+const checks: Array<{ id: string; pass: boolean; actual: unknown; expected: unknown; neg_rule: string }> = [];
+const rec = (id: string, pass: boolean, actual: unknown, expected: unknown, negRule: string): void => {
+  checks.push({ id, pass: Boolean(pass), actual, expected, neg_rule: negRule });
+};
+
+(async () => {
+  const out: Record<string, unknown> = {
+    unit: 'QA-P8S3B-97-READONLY',
+    generated_at: new Date().toISOString(),
+    baseline: BASELINE,
+  };
+
+  // ---- app_config 全列逐字 + 键集 ----
+  const rows = await readQuery<{ key: string; value_text: string; updated_by: string; time_updated: string }>(
+    `SELECT key, value::text AS value_text, updated_by::text AS updated_by, time_updated::text AS time_updated
+       FROM public.app_config ORDER BY key`,
+  );
+  out.app_config_rows = rows;
+  const keySet = rows.map((r) => r.key);
+  const ss = rows.find((r) => r.key === 'system_settings') || null;
+
+  rec('L2-key-set-exactly-system_settings',
+    keySet.length === 1 && keySet[0] === 'system_settings',
+    keySet, BASELINE.app_config_key_set, '键集 ≠ 恰 {system_settings} ⇒ 判负');
+  rec('L2-listing_deposit_policy-absent',
+    !keySet.includes('listing_deposit_policy'),
+    keySet.includes('listing_deposit_policy'), false, 'listing_deposit_policy 存在 ⇒ 判负（复原未竟）');
+  rec('L2-ss-value-byte-identical',
+    ss?.value_text === BASELINE.system_settings_value_text,
+    ss?.value_text ?? null, BASELINE.system_settings_value_text, 'system_settings.value 非逐字同基线 ⇒ 判负');
+  rec('L2-ss-updated_by-byte-identical',
+    ss?.updated_by === BASELINE.system_settings_updated_by,
+    ss?.updated_by ?? null, BASELINE.system_settings_updated_by, 'updated_by 非逐字同基线 ⇒ 判负');
+  rec('L2-ss-time_updated-eq-baseline',
+    ss?.time_updated === BASELINE.system_settings_time_updated,
+    ss?.time_updated ?? null, BASELINE.system_settings_time_updated, 'time_updated ≠ 基线 ⇒ 判负（漂移未复原）');
+
+  // ---- app_config 列清单（核「无 time_created 列」之说 + 有无隐藏列） ----
+  out.app_config_columns = await readQuery<Record<string, string>>(
+    `SELECT column_name, data_type, is_nullable, column_default
+       FROM information_schema.columns
+      WHERE table_schema='public' AND table_name='app_config' ORDER BY ordinal_position`,
+  );
+
+  // ---- 触发器清单（现取 · 时机 + 事件） ----
+  const trig = await readQuery<Record<string, string>>(
+    `SELECT t.tgname,
+            CASE WHEN (t.tgtype & 2) <> 0 THEN 'BEFORE'
+                 WHEN (t.tgtype & 64) <> 0 THEN 'INSTEAD OF'
+                 ELSE 'AFTER' END AS timing,
+            CASE WHEN (t.tgtype & 4) <> 0 THEN 'INSERT' END AS ev_insert,
+            CASE WHEN (t.tgtype & 16) <> 0 THEN 'UPDATE' END AS ev_update,
+            CASE WHEN (t.tgtype & 8) <> 0 THEN 'DELETE' END AS ev_delete,
+            CASE WHEN (t.tgtype & 32) <> 0 THEN 'TRUNCATE' END AS ev_truncate,
+            (t.tgtype & 1) <> 0 AS for_each_row, p.proname, t.tgenabled
+       FROM pg_trigger t
+       JOIN pg_class c ON c.oid = t.tgrelid
+       JOIN pg_namespace n ON n.oid = c.relnamespace
+       JOIN pg_proc p ON p.oid = t.tgfoid
+      WHERE n.nspname='public' AND c.relname='app_config' AND NOT t.tgisinternal
+      ORDER BY t.tgname`,
+  );
+  out.triggers = trig;
+  const trigNames = trig.map((x) => x.tgname).sort();
+  rec('L2-triggers-exactly-2', trig.length === 2, trig.length, 2, 'app_config 触发器数 ≠ 2 ⇒ 判负');
+  rec('L2-triggers-all-before-update',
+    trig.every((x) => x.timing === 'BEFORE' && x.ev_update === 'UPDATE' && !x.ev_insert && !x.ev_delete && !x.ev_truncate),
+    trig.map((x) => ({ n: x.tgname, t: x.timing, u: x.ev_update, i: x.ev_insert, d: x.ev_delete })),
+    BASELINE.triggers.map((x) => x.tgname), '触发器非「均 BEFORE UPDATE、无 INSERT/DELETE」 ⇒ 判负（DELETE 未被禁的前提不成立）');
+  rec('L2-trigger-names',
+    JSON.stringify(trigNames) === JSON.stringify(BASELINE.triggers.map((x) => x.tgname).sort()),
+    trigNames, BASELINE.triggers.map((x) => x.tgname).sort(), '触发器名集合与基线不同 ⇒ 判负');
+
+  // ---- 四表行数 + 摘要（与基线同） ----
+  const currency = (await readQuery<Record<string, string>>(
+    `SELECT count(*)::int::text AS n, max(cid)::text AS max_cid,
+       md5(string_agg(cid::text||'|'||symbol||'|'||owner_uid::text||'|'||status||'|'||deposit_amount::text||'|'||deposit_cid::text||'|'||coalesce(listed_at::text,'~')||'|'||time_created::text, E'\\n' ORDER BY cid)) AS digest
+       FROM public.currency`,
+  ))[0];
+  const ledger = (await readQuery<Record<string, string>>(
+    `SELECT count(*)::int::text AS n, max(txid)::text AS max_txid,
+       md5(string_agg(txid::text||'|'||uid::text||'|'||cid::text||'|'||delta::text||'|'||balance_after::text||'|'||kind||'|'||idempotency_key, E'\\n' ORDER BY txid)) AS digest
+       FROM public.ledger_entry`,
+  ))[0];
+  const account = (await readQuery<Record<string, string>>(
+    `SELECT count(*)::int::text AS n,
+       md5(string_agg(uid::text||'|'||cid::text||'|'||balance::text||'|'||frozen::text||'|'||version::text, E'\\n' ORDER BY uid, cid)) AS digest
+       FROM public.account`,
+  ))[0];
+  const statusLog = (await readQuery<Record<string, string>>(
+    `SELECT count(*)::int::text AS n, max(log_id)::text AS max_log_id FROM public.currency_status_log`,
+  ))[0];
+  out.currency = currency; out.ledger_entry = ledger; out.account = account; out.currency_status_log = statusLog;
+
+  rec('L2-currency-same-as-baseline',
+    currency.n === BASELINE.currency.n && currency.max_cid === BASELINE.currency.max_cid && currency.digest === BASELINE.currency.digest,
+    currency, BASELINE.currency, 'currency 行数/摘要与基线不同 ⇒ 判负');
+  rec('L2-ledger_entry-same-as-baseline',
+    ledger.n === BASELINE.ledger_entry.n && ledger.max_txid === BASELINE.ledger_entry.max_txid && ledger.digest === BASELINE.ledger_entry.digest,
+    ledger, BASELINE.ledger_entry, 'ledger_entry 行数/摘要与基线不同 ⇒ 判负');
+  rec('L2-account-same-as-baseline',
+    account.n === BASELINE.account.n && account.digest === BASELINE.account.digest,
+    account, BASELINE.account, 'account 行数/摘要与基线不同 ⇒ 判负');
+  rec('L2-currency_status_log-same-as-baseline',
+    statusLog.n === BASELINE.currency_status_log.n && statusLog.max_log_id === BASELINE.currency_status_log.max_log_id,
+    statusLog, BASELINE.currency_status_log, 'currency_status_log 行数/max_log_id 与基线不同 ⇒ 判负');
+
+  // ---- 序列水位（登记用 · 非判据；序列非事务性，不回收） ----
+  out.sequences = await readQuery<Record<string, string>>(
+    `SELECT sequencename, last_value::text FROM pg_sequences WHERE schemaname='public' ORDER BY sequencename`,
+  );
+  out.schema_version = (await readQuery<{ version: string }>(
+    `SELECT version FROM public.schema_migration ORDER BY version DESC LIMIT 1`))[0]?.version ?? null;
+
+  const failed = checks.filter((c) => !c.pass);
+  out.checks = checks;
+  out.summary = { total: checks.length, passed: checks.length - failed.length, failed: failed.length };
+  fs.writeFileSync(OUT_FILE, JSON.stringify(out, null, 1) + '\n', 'utf8');
+  console.log(JSON.stringify({ summary: out.summary, app_config_rows: rows, triggers: trig, currency, ledger_entry: ledger, account, currency_status_log: statusLog, schema_version: out.schema_version }, null, 1));
+  console.log(`SUMMARY total=${checks.length} passed=${checks.length - failed.length} failed=${failed.length} artifact=${OUT_FILE}`);
+  if (failed.length) console.log('FAILED_CHECKS ' + JSON.stringify(failed.map((c) => c.id)));
+  await closePools();
+  process.exit(failed.length ? 1 : 0);
+})().catch(async (e) => {
+  console.error('PROBE_CRASHED', String((e as Error)?.stack || e).slice(0, 2000));
+  await closePools().catch(() => undefined);
+  process.exit(2);
+});

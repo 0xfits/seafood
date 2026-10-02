@@ -1,0 +1,59 @@
+{
+ "summary": {
+  "total": 12,
+  "passed": 12,
+  "failed": 0
+ },
+ "app_config_rows": [
+  {
+   "key": "system_settings",
+   "value_text": "{\"siteName\": \"p4b2c:siteA\", \"maintenance\": false, \"maxDailyTasks\": 10, \"pointsPerTask\": 100, \"rewardCooldown\": 24, \"defaultLanguage\": \"zh\", \"siteDescription\": \"去中心化社区奖励平台\", \"allowRegistration\": true, \"emailNotifications\": true}",
+   "updated_by": "1",
+   "time_updated": "2026-10-02 14:14:07.502017+00"
+  }
+ ],
+ "triggers": [
+  {
+   "tgname": "trg_app_config_key_immutable",
+   "timing": "BEFORE",
+   "ev_insert": null,
+   "ev_update": "UPDATE",
+   "ev_delete": null,
+   "ev_truncate": null,
+   "for_each_row": true,
+   "proname": "platform_config_key_immutable",
+   "tgenabled": "O"
+  },
+  {
+   "tgname": "trg_app_config_touch_updated",
+   "timing": "BEFORE",
+   "ev_insert": null,
+   "ev_update": "UPDATE",
+   "ev_delete": null,
+   "ev_truncate": null,
+   "for_each_row": true,
+   "proname": "platform_config_touch_updated",
+   "tgenabled": "O"
+  }
+ ],
+ "currency": {
+  "n": "15",
+  "max_cid": "36",
+  "digest": "692b67e77b7200cabb3bae49132bcea2"
+ },
+ "ledger_entry": {
+  "n": "355",
+  "max_txid": "366",
+  "digest": "f92c5406c8424ff50994d2ba6de81545"
+ },
+ "account": {
+  "n": "39",
+  "digest": "98bcfeea69807ba05961c474caef17a9"
+ },
+ "currency_status_log": {
+  "n": "7",
+  "max_log_id": "7"
+ },
+ "schema_version": "0024"
+}
+SUMMARY total=12 passed=12 failed=0 artifact=/Users/kevin/.hermes/profiles/zang/cache/scratch/qa8s3b/backend-ts/.p8s3bqa-artifacts/qa-p8s3b-97-readonly.json

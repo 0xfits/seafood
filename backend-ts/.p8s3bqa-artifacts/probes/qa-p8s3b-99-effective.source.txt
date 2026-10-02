@@ -1,0 +1,192 @@
+/**
+ * 批 8③b 终审质检（Neng · 独立）· **L3 四段真生效**自写探针（自选金额 · 事务内 + 哨兵 ⇒ ROLLBACK）。
+ * ============================================================================
+ * 用法（副本内）：cd backend-ts && npx ts-node --transpile-only scripts/qa-p8s3b-99-effective.ts
+ * 出口：四段全绿 exit 0；任一 FAIL exit 1；探针崩溃 exit 2。
+ * 产物：backend-ts/.p8s3bqa-artifacts/qa-p8s3b-99-effective.json
+ *
+ * 四段（全部在同一 `withTransaction` 内 · 末尾抛哨兵 ⇒ ROLLBACK · **绝无 COMMIT**）：
+ *   ① 写（事务内 DB 直写 `app_config` 的 `listing_deposit_policy`，自选金额 64200）
+ *   ② 库内落值（事务内 SELECT `app_config.value`）
+ *   ③ 业务读口（`currency-service.ts:387` → `resolveListingDepositFloor(await DatabaseService.getListingDepositPolicyValue(tx))`）
+ *   ④ 行为随之 = 消耗额（事务内 `DatabaseService.listCurrencyWithDeposit(input, tx)` 同路径 · 读数 = owner balance ↓ + uid=−1 balance ↑）
+ * 事务外复取：`app_config` 行集（含 time_updated）逐字节同基线。
+ * ★ 不 import / 不抄交付方 `p8-s3b-01-effective.ts`；一律**无 HTTP**。
+ * ⚠️ 只打印 uid / cid / 计数 / 金额；不打印密钥。
+ */
+import '../src/env';
+import * as fs from 'fs';
+import * as path from 'path';
+import { createHash } from 'crypto';
+import { readQuery, withTransaction, closePools, txQuery, TxClient } from '../src/db';
+import { DatabaseService, LISTING_DEPOSIT_POLICY_KEY, SYSTEM_SETTINGS_KEY, parseListingDepositPolicyAmount } from '../src/database';
+import { CURRENCY_LIST_DEPOSIT_FLOOR, resolveListingDepositFloor } from '../src/currency-service';
+
+const OUT_DIR = path.join(__dirname, '..', '.p8s3bqa-artifacts');
+fs.mkdirSync(OUT_DIR, { recursive: true });
+const RUN = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
+const MY_AMOUNT = 64200;
+const ILLEGAL = { amount: '64200' };
+const CURRENCY_SRC = fs.readFileSync(path.resolve(__dirname, '..', 'src', 'currency-service.ts'), 'utf8');
+const LIST_FEE = Number((CURRENCY_SRC.match(/CURRENCY_LIST_FEE_FLOOR\s*=\s*(\d+)/) || [])[1]);
+
+class Sentinel extends Error { constructor(readonly tag: string) { super('RB:' + tag); } }
+const fp = (p: unknown[]): string => createHash('sha256').update(JSON.stringify(p)).digest('hex');
+
+interface C { id: string; pass: boolean; actual: unknown; expected: unknown; }
+const checks: C[] = [];
+const t = (id: string, pass: boolean, actual: unknown, expected: unknown): void => { checks.push({ id, pass: Boolean(pass), actual, expected }); };
+const selfTest = (id: string, pred: (v: unknown) => boolean, wrong: unknown): void =>
+  { checks.push({ id: `${id}__selftest`, pass: pred(wrong) === false, actual: { wrong, fired: pred(wrong) === false }, expected: true }); };
+
+const bal = async (tx: TxClient, uid: number, cid: number): Promise<number> => {
+  const r = await txQuery<{ balance: string }>(tx, 'SELECT balance::text AS balance FROM public.account WHERE uid=$1::bigint AND cid=$2::bigint', [String(uid), String(cid)]);
+  return r.length ? Number(r[0].balance) : -1;
+};
+const pickOwner = async (tx: TxClient): Promise<{ uid: number; balance: number }> => {
+  const r = await txQuery<{ uid: string; balance: string }>(tx,
+    `SELECT a.uid::text AS uid, a.balance::text AS balance FROM public.account AS a WHERE a.cid=1 AND a.uid>0 ORDER BY a.balance DESC, a.uid ASC LIMIT 1`);
+  return { uid: Number(r[0].uid), balance: Number(r[0].balance) };
+};
+const insertDraft = async (tx: TxClient, cid: number, symbol: string, ownerUid: number): Promise<void> => {
+  await txQuery(tx, `INSERT INTO public.currency (cid, symbol, name, owner_uid, decimals, status, deposit_cid)
+    VALUES ($1::bigint, $2::text, $3::text, $4::bigint, 0, 'draft', 1)`, [String(cid), symbol, 'qa8s3b probe ' + symbol, String(ownerUid)]);
+};
+const readAk2InTx = async (tx: TxClient): Promise<unknown> => {
+  const r = await txQuery<{ value: string }>(tx, `SELECT value::text AS value FROM public.app_config WHERE key='listing_deposit_policy' LIMIT 1`);
+  return r.length ? JSON.parse(r[0].value) : null;
+};
+const setAk2 = async (tx: TxClient, raw: string | null): Promise<void> => {
+  if (raw === null) { await txQuery(tx, `DELETE FROM public.app_config WHERE key='listing_deposit_policy'`); return; }
+  await txQuery(tx, `INSERT INTO public.app_config (key, value, updated_by, time_updated) VALUES ($1::text, $2::jsonb, 0::bigint, now())
+    ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_by=EXCLUDED.updated_by, time_updated=now()`, [LISTING_DEPOSIT_POLICY_KEY, raw]);
+};
+const snap = async (): Promise<Record<string, any>> => {
+  const [cfg, cfgAgg, cur, led, acc, sl] = await Promise.all([
+    readQuery<Record<string, unknown>>(`SELECT key, value::text AS value_text, updated_by::text AS updated_by, time_updated::text AS time_updated FROM public.app_config ORDER BY key`),
+    readQuery<Record<string, string>>(`SELECT max(time_updated)::text AS max_updated FROM public.app_config`),
+    readQuery<Record<string, string>>(`SELECT count(*)::int::text AS n, max(cid)::text AS max_cid, max(time_created)::text AS max_created, max(listed_at)::text AS max_listed_at, md5(string_agg(cid::text||'|'||symbol||'|'||owner_uid::text||'|'||status||'|'||deposit_amount::text||'|'||deposit_cid::text||'|'||coalesce(listed_at::text,'~')||'|'||time_created::text, E'\\n' ORDER BY cid)) AS digest FROM public.currency`),
+    readQuery<Record<string, string>>(`SELECT count(*)::int::text AS n, max(txid)::text AS max_txid, max(time_created)::text AS max_created, md5(string_agg(txid::text||'|'||uid::text||'|'||cid::text||'|'||delta::text||'|'||balance_after::text||'|'||kind||'|'||idempotency_key, E'\\n' ORDER BY txid)) AS digest FROM public.ledger_entry`),
+    readQuery<Record<string, string>>(`SELECT count(*)::int::text AS n, md5(string_agg(uid::text||'|'||cid::text||'|'||balance::text||'|'||frozen::text||'|'||version::text, E'\\n' ORDER BY uid, cid)) AS digest FROM public.account`),
+    readQuery<Record<string, string>>(`SELECT count(*)::int::text AS n, max(log_id)::text AS max_log_id FROM public.currency_status_log`),
+  ]);
+  return { app_config: { rows: cfg, agg: cfgAgg[0] }, currency: cur[0], ledger_entry: led[0], account: acc[0], status_log: sl[0] };
+};
+
+(async () => {
+  const out: Record<string, any> = { unit: 'QA-P8S3B-99-EFFECTIVE', run: RUN, generated_at: new Date().toISOString(), my_amount: MY_AMOUNT, illegal: ILLEGAL, list_fee: LIST_FEE, floor_constant: CURRENCY_LIST_DEPOSIT_FLOOR };
+
+  const base = await snap();
+  out.baseline = base;
+  t('L3-baseline-ak2-absent', !base.app_config.rows.some((r: any) => r.key === 'listing_deposit_policy'), base.app_config.rows.map((r: any) => r.key), 'no listing_deposit_policy');
+
+  // ③ 改前读口（事务外 · 只读）：AK2 不在库 ⇒ fail-closed 到常量
+  const floorBeforeOut = resolveListingDepositFloor(await DatabaseService.getListingDepositPolicyValue());
+  t('L3-③-read-before-constant', floorBeforeOut.floor === CURRENCY_LIST_DEPOSIT_FLOOR && floorBeforeOut.source === 'constant', floorBeforeOut, { floor: CURRENCY_LIST_DEPOSIT_FLOOR, source: 'constant' });
+
+  let seg4: Record<string, any> = {};
+  try {
+    await withTransaction(async (tx) => {
+      // ① 写（事务内 DB 直写 AK2）
+      await setAk2(tx, JSON.stringify({ amount: MY_AMOUNT }));
+      // ② 库内落值（事务内 SELECT）
+      const landedVal = await readAk2InTx(tx);
+      t('L3-①-write-returned', true, 'INSERT/UPDATE issued', 'no exception');
+      t('L3-②-landed-eq-new', JSON.stringify(landedVal) === JSON.stringify({ amount: MY_AMOUNT }), landedVal, { amount: MY_AMOUNT });
+      selfTest('L3-②-landed-eq-new', (v) => JSON.stringify(v) === JSON.stringify({ amount: MY_AMOUNT }), { amount: MY_AMOUNT + 1 });
+      const keySetInTx = (await txQuery<{ key: string }>(tx, `SELECT key FROM public.app_config ORDER BY key`)).map((r) => r.key);
+      t('L3-②-keys-2', JSON.stringify(keySetInTx.sort()) === JSON.stringify([SYSTEM_SETTINGS_KEY, LISTING_DEPOSIT_POLICY_KEY].sort()), keySetInTx, [SYSTEM_SETTINGS_KEY, LISTING_DEPOSIT_POLICY_KEY]);
+      // 形态 A（无自有 key）目标行未被连累（L4 回归 · DB 层）
+      const ssInTx = await txQuery<{ value_text: string; updated_by: string; time_updated: string }>(tx, `SELECT value::text AS value_text, updated_by::text AS updated_by, time_updated::text AS time_updated FROM public.app_config WHERE key=$1::text`, [SYSTEM_SETTINGS_KEY]);
+      t('L4-DB-formA-target-untouched', ssInTx[0]?.time_updated === base.app_config.rows.find((r: any) => r.key === SYSTEM_SETTINGS_KEY)?.time_updated, ssInTx[0]?.time_updated, base.app_config.rows.find((r: any) => r.key === SYSTEM_SETTINGS_KEY)?.time_updated);
+
+      // ③ 业务读口（同锚 currency-service.ts:387 → database.ts:2038）
+      const rawAfter = await DatabaseService.getListingDepositPolicyValue(tx);
+      const floorAfterInTx = resolveListingDepositFloor(rawAfter);
+      t('L3-③-uses-config', floorAfterInTx.floor === MY_AMOUNT && floorAfterInTx.source === 'config', floorAfterInTx, { floor: MY_AMOUNT, source: 'config' });
+      t('L3-③-parse-no-invention', parseListingDepositPolicyAmount(rawAfter) === MY_AMOUNT, parseListingDepositPolicyAmount(rawAfter), MY_AMOUNT);
+      selfTest('L3-③-uses-config', (v) => JSON.stringify(v) === JSON.stringify({ floor: MY_AMOUNT, source: 'config' }), { floor: MY_AMOUNT, source: 'constant' });
+
+      // ④ 行为随之（同路径 DB 函数 · 事务内）
+      const owner = await pickOwner(tx);
+      const OWNER = owner.uid;
+      const measure = async (cid: number, symbol: string): Promise<any> => {
+        await insertDraft(tx, cid, symbol, OWNER);
+        const o0 = await bal(tx, OWNER, 1); const p0 = await bal(tx, -1, 1);
+        const floorNow = resolveListingDepositFloor(await DatabaseService.getListingDepositPolicyValue(tx));
+        await DatabaseService.listCurrencyWithDeposit({
+          cid, actorUid: OWNER, fee: LIST_FEE, depositAmount: floorNow.floor,
+          idempotencyKey: `biz:currency:list:${cid}`,
+          requestFingerprint: fp(['list', cid, OWNER, LIST_FEE, floorNow.floor]),
+          memo: `currency_list_deposit:${cid}`,
+        }, tx);
+        const o1 = await bal(tx, OWNER, 1); const p1 = await bal(tx, -1, 1);
+        const legs = (await txQuery<Record<string, string>>(tx,
+          `SELECT uid::text AS uid, delta::text AS delta, kind FROM public.ledger_entry WHERE idempotency_key=$1::text OR idempotency_key LIKE $1::text||'#%' ORDER BY txid`, [`biz:currency:list:${cid}`]))
+          .filter((l) => l.kind === 'listing_deposit');
+        return { floor: floorNow, draft_cid: String(cid), owner_decrease: String(o0 - o1), pool_increase: String(p1 - p0), deposit_legs: legs.map((l) => `${l.uid}:${l.delta}`).sort() };
+      };
+      t('L3-④-owner-funded', OWNER > 0 && owner.balance > (LIST_FEE + MY_AMOUNT) * 3, { owner_uid: String(OWNER), balance: String(owner.balance) }, '> 3x consumption');
+      const withStage = async (stage: string, fn: () => Promise<any>): Promise<any> => {
+        try { return await fn(); } catch (e) { console.error('STAGE_FAILED', stage, 'owner=' + OWNER, String((e as Error)?.message || e).slice(0, 300)); throw e; }
+      };
+      await setAk2(tx, null);                       // ④-改前：AK2 复原为原态（无行）
+      const before = await withStage('before-constant', () => measure(2_310_001, 'QA8S3BFB1'));
+      await setAk2(tx, JSON.stringify({ amount: MY_AMOUNT })); // ④-改后：AK2 = 新值
+      const after = await withStage('after-config', () => measure(2_310_002, 'QA8S3BFA1'));
+      await setAk2(tx, JSON.stringify(ILLEGAL));    // ④-负向：非法值 ⇒ fail-closed
+      const neg = await withStage('neg-illegal', () => measure(2_310_003, 'QA8S3BFN1'));
+      const bFloor = (before.floor as any).floor, bDec = Number(before.owner_decrease), aDec = Number(after.owner_decrease);
+      t('L3-④-before-consumes-constant', bDec === LIST_FEE + bFloor && bFloor === CURRENCY_LIST_DEPOSIT_FLOOR, { floor: bFloor, owner_decrease: bDec }, { floor: CURRENCY_LIST_DEPOSIT_FLOOR, owner_decrease: LIST_FEE + CURRENCY_LIST_DEPOSIT_FLOOR });
+      t('L3-④-after-consumes-new', aDec === LIST_FEE + MY_AMOUNT, { floor: MY_AMOUNT, owner_decrease: aDec }, { floor: MY_AMOUNT, owner_decrease: LIST_FEE + MY_AMOUNT });
+      t('L3-④-owner-increase-eq-pool', Number(before.pool_increase) === bDec && Number(after.pool_increase) === aDec, { before_pool: before.pool_increase, after_pool: after.pool_increase }, 'pool_increase == owner_decrease');
+      t('L3-④-after-deposit-legs', JSON.stringify(after.deposit_legs) === JSON.stringify([`${OWNER}:${-MY_AMOUNT}`, `-1:${MY_AMOUNT}`].sort()), after.deposit_legs, [`${OWNER}:${-MY_AMOUNT}`, `-1:${MY_AMOUNT}`].sort());
+      t('L3-④-two-readings-differ', bDec !== aDec, { before: bDec, after: aDec }, 'differ');
+      t('L3-④-delta-computable', aDec - bDec === MY_AMOUNT - bFloor, aDec - bDec, MY_AMOUNT - bFloor);
+      t('L3-④-fail-closed-behavior', (neg.floor as any).floor === CURRENCY_LIST_DEPOSIT_FLOOR && Number(neg.owner_decrease) === LIST_FEE + CURRENCY_LIST_DEPOSIT_FLOOR, { floor: (neg.floor as any).floor, decrease: Number(neg.owner_decrease) }, { floor: CURRENCY_LIST_DEPOSIT_FLOOR, decrease: LIST_FEE + CURRENCY_LIST_DEPOSIT_FLOOR });
+      selfTest('L3-④-two-readings-differ', (v) => v !== bDec, bDec);
+      t('L3-④-owner-decrease-uid-minus1-increase', Number(after.pool_increase) - Number(before.pool_increase) === MY_AMOUNT - CURRENCY_LIST_DEPOSIT_FLOOR, Number(after.pool_increase) - Number(before.pool_increase), MY_AMOUNT - CURRENCY_LIST_DEPOSIT_FLOOR);
+      seg4 = {
+        fixture: { owner_uid: String(OWNER), owner_balance_baseline: String(owner.balance) },
+        before: { floor: bFloor, owner_decrease: String(bDec), pool_increase: before.pool_increase, deposit_legs: before.deposit_legs },
+        after: { floor: MY_AMOUNT, owner_decrease: String(aDec), pool_increase: after.pool_increase, deposit_legs: after.deposit_legs },
+        fail_closed: { floor: (neg.floor as any).floor, owner_decrease: String(Number(neg.owner_decrease)) },
+        delta: String(aDec - bDec), delta_expected: String(MY_AMOUNT - bFloor),
+      };
+      throw new Sentinel('SEG4');
+    });
+    throw new Error('UNREACHABLE: withTransaction returned without sentinel (COMMIT path!)');
+  } catch (e) {
+    if (!(e instanceof Sentinel)) throw e;
+    seg4.rollback = { tag: e.tag, committed: false, note: '回调抛哨兵 ⇒ catch → ROLLBACK（无 COMMIT）' };
+  }
+  out.segment4 = seg4;
+  t('L3-rollback-no-commit', seg4.rollback?.committed === false, seg4.rollback?.committed, false);
+
+  // ---- 事务外复取（含时间戳逐字节反证） ----
+  await new Promise((r) => setTimeout(r, 400));
+  const post = await snap();
+  out.post = post;
+  t('L3-post-app_config-byte-identical', JSON.stringify(post.app_config.rows) === JSON.stringify(base.app_config.rows),
+    post.app_config.rows, base.app_config.rows);
+  t('L3-post-currency-identical', JSON.stringify([post.currency.n, post.currency.max_cid, post.currency.digest]) === JSON.stringify([base.currency.n, base.currency.max_cid, base.currency.digest]), post.currency, base.currency);
+  t('L3-post-ledger-identical', JSON.stringify([post.ledger_entry.n, post.ledger_entry.max_txid, post.ledger_entry.digest]) === JSON.stringify([base.ledger_entry.n, base.ledger_entry.max_txid, base.ledger_entry.digest]), post.ledger_entry, base.ledger_entry);
+  t('L3-post-account-identical', JSON.stringify([post.account.n, post.account.digest]) === JSON.stringify([base.account.n, base.account.digest]), post.account, base.account);
+  t('L3-post-statuslog-identical', JSON.stringify(post.status_log) === JSON.stringify(base.status_log), post.status_log, base.status_log);
+  t('L3-post-timestamps-not-advanced',
+    post.app_config.agg.max_updated === base.app_config.agg.max_updated && post.currency.max_created === base.currency.max_created && post.currency.max_listed_at === base.currency.max_listed_at && post.ledger_entry.max_created === base.ledger_entry.max_created,
+    { cfg: post.app_config.agg.max_updated, cur: post.currency.max_created, listed: post.currency.max_listed_at, led: post.ledger_entry.max_created },
+    { cfg: base.app_config.agg.max_updated, cur: base.currency.max_created, listed: base.currency.max_listed_at, led: base.ledger_entry.max_created });
+
+  const failed = checks.filter((c) => !c.pass);
+  out.total = checks.length; out.passed = checks.length - failed.length; out.failed = failed.length; out.checks = checks;
+  fs.writeFileSync(path.join(OUT_DIR, 'qa-p8s3b-99-effective.json'), JSON.stringify(out, null, 1) + '\n', 'utf8');
+  console.log(JSON.stringify({ summary: { total: out.total, passed: out.passed, failed: out.failed }, segment4: out.segment4, failed_ids: failed.map((c) => c.id) }, null, 1));
+  console.log(`SUMMARY total=${out.total} passed=${out.passed} failed=${out.failed}`);
+  await closePools();
+  process.exit(failed.length ? 1 : 0);
+})().catch(async (e) => {
+  console.error('PROBE_CRASHED', String((e as Error)?.stack || e).slice(0, 3000));
+  await closePools().catch(() => undefined);
+  process.exit(2);
+});
