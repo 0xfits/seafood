@@ -20,7 +20,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const stableT = (key) => key
 const stableI18n = { changeLanguage: vi.fn(), resolvedLanguage: 'zh', language: 'zh' }
@@ -174,6 +174,12 @@ describe('交易所线 · 接线契约', () => {
     useAuth.mockReturnValue({ isAuthenticated: true, user: { uID: 7, token: 'test' } })
   })
 
+  // 批 7-A：「账本流水」面板走**全局 `fetch`**（`ledger-api.fetchMyLedger`；非 `fetchApiJson`）
+  //   ⇒ 用例内 `vi.stubGlobal('fetch', …)` 之后必须还原，避免污染同文件其余用例。
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
   it('挂单 body = side/base_cid/quote_cid(=1)/price/amount/create_key；**不含 owner_uid**（服务端取 token actor）', async () => {
     expect(QUOTE_CID).toBe(1)
     await placeOrder({ side: 'buy', baseCid: 2, price: '2', amount: '3', createKey: 'cli:o1', owner_uid: '999', user: null })
@@ -206,12 +212,41 @@ describe('交易所线 · 接线契约', () => {
     expect(tracker.keyFor(fp).startsWith('cli:')).toBe(true)
   })
 
-  it('交易所页：盘口/成交/我的挂单空态齐备；「账本流水」= 未注册读口 ⇒ 只空态、不请求', async () => {
+  it('交易所页：盘口/成交/我的挂单空态齐备；「账本流水」= **已注册读口** ⇒ 走 `GET /api/user/ledger?kind=transfer`，取数失败仍兜底、无 [object Object]', async () => {
+    // 批 7-A 契约变更（旧断言 = 读口未注册 ⇒ 只空态、不请求；旧断言已陈旧，逐条改写见 §2）：
+    //   「账本流水」面板**已接线**（`fetchMyLedger` 直读原始响应以便取顶层 `next_before_txid`，
+    //   绕开只回 `payload.data` 的 `fetchApiJson`）⇒ 判据从「不请求」改为
+    //   「**确实按转让口径请求** + jsdom 取数失败时仍渲染兜底文案（字符串）、不出 [object Object]」。
+    const ledgerFetch = vi.fn(async () => { throw new Error('LEDGER_NET_DOWN') })
+    vi.stubGlobal('fetch', ledgerFetch)
+
     const { container } = renderPage(<MarketPage />, '/shard')
-    await waitFor(() => expect(screen.getByText('ledger.flowEmpty')).toBeTruthy())
     await waitFor(() => expect(screen.getByText('market.mineEmpty')).toBeTruthy())
+    await waitFor(() => expect(ledgerFetch.mock.calls.length).toBeGreaterThan(0))
+
+    // ① 请求形态：走转让口径 + 带 limit；首页不传游标（`before_txid` 由「加载更多」传入）
+    const ledgerUrl = String(ledgerFetch.mock.calls[0][0])
+    expect(ledgerUrl.startsWith('/api/user/ledger?')).toBe(true)
+    expect(ledgerUrl).toContain('kind=transfer')
+    expect(ledgerUrl).toContain('limit=')
+    expect(ledgerUrl).not.toContain('before_txid')
+
+    // ② 取数失败 ⇒ 仍是**字符串兜底**，且与「我的挂单」空态**可区分**（不同节点 + 不同文案）
+    const flowEmpty = container.querySelector('[data-sf-m="mkt-ledger-empty"]')
+    const mineEmpty = container.querySelector('[data-sf-m="mkt-mine-empty"]')
+    expect(flowEmpty).toBeTruthy()
+    expect(mineEmpty).toBeTruthy()
+    expect(flowEmpty).not.toBe(mineEmpty)
+    expect(typeof flowEmpty.textContent).toBe('string')
+    expect(flowEmpty.textContent.length).toBeGreaterThan(0)
+    expect(flowEmpty.textContent).not.toBe(mineEmpty.textContent)
+    // 失败 ⇒ 不得伪造流水行
+    expect(container.querySelectorAll('[data-sf-m="mkt-ledger-item"]').length).toBe(0)
+
+    // ③ 无 [object Object]（R107 链：`error.message` 已是字符串）—— 原判据保留
     expect(container.textContent).not.toContain('[object Object]')
-    expect(callsTo('/api/user/ledger').length).toBe(0)
+
+    // ④ 本单不注册 `/api/user/points` ⇒ 仍不得请求（原判据保留，锚未削弱）
     expect(callsTo('/api/user/points').length).toBe(0)
   })
 

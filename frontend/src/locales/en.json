@@ -195,7 +195,30 @@
     "balance": "Balance",
     "balanceNote": "The balance shown reflects the assets in your platform account.",
     "flow": "Statement",
-    "flowEmpty": "The statement is not available yet - coming soon."
+    "flowEmpty": "No statement entries yet. Your transactions will appear here.",
+    "flowMore": "Load more",
+    "kind": {
+      "mint": "Mint",
+      "burn": "Burn",
+      "transfer": "Transfer",
+      "hold": "Hold",
+      "hold_release": "Hold released",
+      "hold_forfeit": "Hold forfeited",
+      "job_escrow": "Job escrow",
+      "job_escrow_refund": "Job escrow refund",
+      "job_payout": "Job payout",
+      "job_fee": "Job service fee",
+      "commission": "Commission",
+      "purchase": "Purchase",
+      "sale": "Sale",
+      "purchase_refund": "Purchase refund",
+      "trade": "Trade",
+      "trade_fee": "Trading fee",
+      "listing_fee": "Listing fee",
+      "listing_deposit": "Listing deposit",
+      "currency_create_fee": "Currency creation fee",
+      "reversal": "Reversal"
+    }
   },
   "i18n": {
     "translating": "Translating"

@@ -244,6 +244,29 @@ export interface AssetRecord {
   time_update: number;
 }
 
+/**
+ * P7-A：`ledger_entry` 的**对外读形状**（账本流水行）。
+ * 键名 = 真列名（`data-layer.spec` DL25 只冻结分页口径，未冻结列集 ⇒ 对齐本仓既有读面惯例：
+ * 读面**归一为固定业务键集**，不裸露内部机械列）。**刻意排除**三个内部列：
+ * `idempotency_key` / `request_fingerprint` / `event_root_key`（幂等机械，R48/R51/R53 的实现细节，
+ * 非账单语义；见报告 §5 说明）。其余列逐字保留真列名。
+ */
+export interface LedgerEntryRecord {
+  txid: number;
+  uid: number;
+  cid: number;
+  delta: number;
+  frozen_delta: number;
+  balance_after: number;
+  frozen_after: number;
+  kind: string;
+  ref_type: string | null;
+  ref_id: number | null;
+  reversal_of_txid: number | null;
+  memo: string;
+  time_created: number;
+}
+
 export interface UserRecord {
   uID: number;
   EVM: string;
@@ -464,6 +487,23 @@ const normalizeAsset = (row: RawRow): AssetRecord => ({
   points: toNumberValue(getValue(row, 'points', 'balance')),
   lucks: toNumberValue(getValue(row, 'lucks')),
   time_update: toTimestamp(getValue(row, 'time_updated')),
+});
+
+// P7-A：账本流水行归一（键集见 `LedgerEntryRecord` 注释；可空列保留 `null`，不塌成 0）。
+const normalizeLedgerEntry = (row: RawRow): LedgerEntryRecord => ({
+  txid: toNumberValue(getValue(row, 'txid')),
+  uid: toNumberValue(getValue(row, 'uid')),
+  cid: toNumberValue(getValue(row, 'cid')),
+  delta: toNumberValue(getValue(row, 'delta')),
+  frozen_delta: toNumberValue(getValue(row, 'frozen_delta')),
+  balance_after: toNumberValue(getValue(row, 'balance_after')),
+  frozen_after: toNumberValue(getValue(row, 'frozen_after')),
+  kind: toStringValue(getValue(row, 'kind')),
+  ref_type: getValue(row, 'ref_type') === undefined ? null : String(getValue(row, 'ref_type')),
+  ref_id: toOptionalNumber(getValue(row, 'ref_id')),
+  reversal_of_txid: toOptionalNumber(getValue(row, 'reversal_of_txid')),
+  memo: toStringValue(getValue(row, 'memo')),
+  time_created: toTimestamp(getValue(row, 'time_created')),
 });
 
 // P4-B2a-HTTP: users 真列名 = uid/evm（bio/is_admin/time_reg/time_login_last 同名）。
@@ -986,6 +1026,72 @@ export class DatabaseService {
       lucks: 0,
       time_update: 0,
     };
+  }
+
+  /**
+   * P7-A（批 7-A · Kong）：**账本流水纯读**（`GET /api/user/ledger` 的落点）。
+   * 依据（逐字）：
+   *   · `data-layer.spec` **DL25**（【已冻结】）/ `ledger.spec` **R95**：流水分页**必须 keyset**
+   *     （`WHERE uid=$1 [AND cid=$2] [AND kind=$3] AND txid < $before ORDER BY txid DESC LIMIT n`），
+   *     **禁 `OFFSET`**（大偏移退化 + 翻页期间新流水会重复/漏项）。
+   *   · **DL23**：读路径**绝不产生写副作用** ⇒ 本方法**纯 SELECT**，无 DDL / 无懒开户 / 无 `upsert*`
+   *     （函数名无写动词；不像旧 `GET /api/user/asset/:uID` 那样内部建行）。
+   *   · §1.1 硬口径：表引用显式限定 schema（`public.`）；`uid` 取 token actor（**不 join 身份表**，
+   *     故天然绕开 `user` 保留字陷阱，也不碰 `neon_auth`）。
+   *   · 走 `idx_ledger_uid_cid_txid (uid, cid, txid DESC)`（`ledger.spec` §12.1「最重要读索引」）。
+   * 游标：`beforeTxid`（可空）⇒ 首页不传；后续页传上一页末条 `txid`。响应回传 `next_before_txid`
+   *   由**路由层**计算（满页 = 末条 `txid`；不足页 = `null` 表示到底）。
+   */
+  static async listLedgerEntriesByUser(input: {
+    uid: number;
+    cid?: number | null;
+    kind?: string | null;
+    beforeTxid?: number | null;
+    limit: number;
+  }): Promise<LedgerEntryRecord[]> {
+    const uid = Math.trunc(Number(input.uid) || 0);
+    const cid = input.cid === null || input.cid === undefined ? null : Math.trunc(Number(input.cid));
+    const kind = input.kind === null || input.kind === undefined || input.kind === ''
+      ? null
+      : String(input.kind);
+    const beforeTxid = input.beforeTxid === null || input.beforeTxid === undefined
+      ? null
+      : Math.trunc(Number(input.beforeTxid));
+    const limit = Math.max(1, Math.trunc(Number(input.limit) || 0));
+
+    try {
+      const sql = getSql();
+      // 条件过滤用「`$n::type IS NULL OR col = $n::type`」写死，**不拼接 SQL**（值一律走参数位）。
+      // `LIMIT $n` 由驱动参数化（PG 接受）；`ORDER BY txid DESC` + `txid < $before` = 纯 keyset。
+      const rows = extractRows(await sql`
+        SELECT le.txid,
+               le.uid,
+               le.cid,
+               le.delta,
+               le.frozen_delta,
+               le.balance_after,
+               le.frozen_after,
+               le.kind,
+               le.ref_type,
+               le.ref_id,
+               le.reversal_of_txid,
+               le.memo,
+               le.time_created
+          FROM public.ledger_entry AS le
+         WHERE le.uid = ${uid}
+           AND (${cid}::bigint IS NULL OR le.cid = ${cid}::bigint)
+           AND (${kind}::text IS NULL OR le.kind = ${kind}::text)
+           AND (${beforeTxid}::bigint IS NULL OR le.txid < ${beforeTxid}::bigint)
+         ORDER BY le.txid DESC
+         LIMIT ${limit}
+      `);
+      return rows.map(normalizeLedgerEntry);
+    } catch (error) {
+      // P6-D1'-SWEEP 同族口径：基础设施异常**不得**静默降级成「空流水（HTTP 200）」。
+      // 原样上抛 ⇒ 路由层 catch 交既有 §14 分类器（DB/传输类 ⇒ 503）。正常路径（无行 ⇒ `[]`）不变。
+      console.error('Error listing ledger entries:', error);
+      throw error;
+    }
   }
 
   static async upsertAsset(uID: number, pointsDelta: number): Promise<AssetRecord> {

@@ -93,4 +93,5 @@ const unregistered = residual.filter((h) => !todoSet.has(key(h)))
 console.log(`  已登记待办 = ${REGISTERED_TODO.length} 条；**未登记残留 = ${unregistered.length}**`)
 for (const h of unregistered) console.log(`  ! ${key(h)} :: ${h.code}`)
 console.log(`[MISC-FIX-LINKS] 总判：${unregistered.length === 0 ? 'PASS（残留全部已登记）' : 'FAIL（存在未登记残留）'}`)
-process.exit(unregistered.length === 0 ? 0 : 1)
+// 批 7-A 修：`process.exit()` 会丢弃未 flush 的管道 stdout（同 `p4z-i18nviol-global.mjs`）⇒ 改设 `exitCode`。
+process.exitCode = unregistered.length === 0 ? 0 : 1

@@ -1,0 +1,63 @@
+{
+  "run": "P7A-NEGB-001",
+  "base": "http://127.0.0.1:5794",
+  "probe": "p7a-02-negctl",
+  "secret_fp": "b1ec01afb2eb",
+  "baseline": {
+    "public_tables": 25,
+    "public_indexes": 65,
+    "probe_exists": false,
+    "probe_rows": null
+  },
+  "fixtures": {
+    "primary_uid": 970001,
+    "secondary_uid": 12
+  },
+  "calls": 24,
+  "statuses": [
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200
+  ],
+  "after_calls": {
+    "public_tables": 26,
+    "public_indexes": 65,
+    "probe_exists": true,
+    "probe_rows": 24
+  },
+  "zero_write_violations": [
+    "public.p7a_neg_probe 出现（只读面建表）",
+    "public 表数 25 → 26"
+  ],
+  "verdict": "RED",
+  "after_cleanup": {
+    "public_tables": 25,
+    "public_indexes": 65,
+    "probe_exists": false,
+    "probe_rows": null
+  },
+  "cleanup_ok": true
+}
+WROTE /Users/kevin/bistro/seafood/backend-ts/.p7a-artifacts/P7A-NEGB-001/p7a-02-negctl-P7A-NEGB-001.json
+VERDICT RED violations=2 cleanup_ok=true

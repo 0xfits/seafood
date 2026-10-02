@@ -1,0 +1,367 @@
+{
+  "run": "P7A-RECON-001",
+  "probe": "p7a-00-recon",
+  "ledger_total": [
+    {
+      "n": 271
+    }
+  ],
+  "by_kind": [
+    {
+      "kind": "hold",
+      "n": 54
+    },
+    {
+      "kind": "currency_create_fee",
+      "n": 38
+    },
+    {
+      "kind": "trade",
+      "n": 32
+    },
+    {
+      "kind": "job_escrow",
+      "n": 24
+    },
+    {
+      "kind": "listing_deposit",
+      "n": 22
+    },
+    {
+      "kind": "trade_fee",
+      "n": 16
+    },
+    {
+      "kind": "hold_release",
+      "n": 12
+    },
+    {
+      "kind": "transfer",
+      "n": 12
+    },
+    {
+      "kind": "mint",
+      "n": 11
+    },
+    {
+      "kind": "job_payout",
+      "n": 10
+    },
+    {
+      "kind": "job_fee",
+      "n": 8
+    },
+    {
+      "kind": "job_escrow_refund",
+      "n": 8
+    },
+    {
+      "kind": "burn",
+      "n": 6
+    },
+    {
+      "kind": "purchase_refund",
+      "n": 6
+    },
+    {
+      "kind": "commission",
+      "n": 4
+    },
+    {
+      "kind": "sale",
+      "n": 4
+    },
+    {
+      "kind": "purchase",
+      "n": 4
+    }
+  ],
+  "top_uids": [
+    {
+      "uid": "970001",
+      "n": 120
+    },
+    {
+      "uid": "-1",
+      "n": 38
+    },
+    {
+      "uid": "12",
+      "n": 31
+    },
+    {
+      "uid": "11",
+      "n": 30
+    },
+    {
+      "uid": "2",
+      "n": 22
+    },
+    {
+      "uid": "3",
+      "n": 4
+    },
+    {
+      "uid": "21",
+      "n": 4
+    },
+    {
+      "uid": "19",
+      "n": 4
+    },
+    {
+      "uid": "7",
+      "n": 4
+    },
+    {
+      "uid": "8",
+      "n": 4
+    },
+    {
+      "uid": "-2",
+      "n": 3
+    }
+  ],
+  "transfer_uids": [
+    {
+      "uid": "970001",
+      "n": 6
+    },
+    {
+      "uid": "2",
+      "n": 2
+    },
+    {
+      "uid": "11",
+      "n": 1
+    },
+    {
+      "uid": "8",
+      "n": 1
+    },
+    {
+      "uid": "7",
+      "n": 1
+    },
+    {
+      "uid": "12",
+      "n": 1
+    }
+  ],
+  "account_all": [
+    {
+      "n": 27,
+      "sb": "2009792",
+      "sf": "10508"
+    }
+  ],
+  "account_cid1": [
+    {
+      "n": 18,
+      "sb": "1989693"
+    }
+  ],
+  "currency": [
+    {
+      "cid": "1",
+      "symbol": "$",
+      "status": "listed"
+    },
+    {
+      "cid": "10",
+      "symbol": "P4B3A013647",
+      "status": "listed"
+    },
+    {
+      "cid": "15",
+      "symbol": "P4B3A013647X",
+      "status": "draft"
+    },
+    {
+      "cid": "16",
+      "symbol": "P4B3B590800",
+      "status": "listed"
+    },
+    {
+      "cid": "21",
+      "symbol": "P4B3B590800X",
+      "status": "listed"
+    },
+    {
+      "cid": "22",
+      "symbol": "QAB30929T185356Z",
+      "status": "draft"
+    },
+    {
+      "cid": "27",
+      "symbol": "QAB4",
+      "status": "draft"
+    },
+    {
+      "cid": "28",
+      "symbol": "N1A0T203917",
+      "status": "draft"
+    },
+    {
+      "cid": "29",
+      "symbol": "N1B0T203917",
+      "status": "listed"
+    },
+    {
+      "cid": "31",
+      "symbol": "N1A0T204732",
+      "status": "listed"
+    },
+    {
+      "cid": "32",
+      "symbol": "N1B0T204732",
+      "status": "listed"
+    },
+    {
+      "cid": "4",
+      "symbol": "P4B3A013122",
+      "status": "listed"
+    },
+    {
+      "cid": "9",
+      "symbol": "P4B3A013122X",
+      "status": "draft"
+    }
+  ],
+  "ledger_cols": [
+    {
+      "column_name": "txid",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "uid",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "cid",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "delta",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "frozen_delta",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "balance_after",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "frozen_after",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "kind",
+      "data_type": "text"
+    },
+    {
+      "column_name": "ref_type",
+      "data_type": "text"
+    },
+    {
+      "column_name": "ref_id",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "idempotency_key",
+      "data_type": "text"
+    },
+    {
+      "column_name": "request_fingerprint",
+      "data_type": "text"
+    },
+    {
+      "column_name": "reversal_of_txid",
+      "data_type": "bigint"
+    },
+    {
+      "column_name": "memo",
+      "data_type": "text"
+    },
+    {
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "column_name": "event_root_key",
+      "data_type": "text"
+    }
+  ],
+  "public_tables": [
+    {
+      "n": 25
+    }
+  ],
+  "pick_uid": [
+    {
+      "uid": "970001",
+      "total": 120,
+      "transfers": 6,
+      "min_txid": "8",
+      "max_txid": "270"
+    },
+    {
+      "uid": "12",
+      "total": 31,
+      "transfers": 1,
+      "min_txid": "97",
+      "max_txid": "274"
+    },
+    {
+      "uid": "11",
+      "total": 30,
+      "transfers": 1,
+      "min_txid": "95",
+      "max_txid": "258"
+    },
+    {
+      "uid": "2",
+      "total": 22,
+      "transfers": 2,
+      "min_txid": "51",
+      "max_txid": "78"
+    },
+    {
+      "uid": "21",
+      "total": 4,
+      "transfers": 0,
+      "min_txid": "259",
+      "max_txid": "262"
+    },
+    {
+      "uid": "3",
+      "total": 4,
+      "transfers": 0,
+      "min_txid": "55",
+      "max_txid": "252"
+    },
+    {
+      "uid": "19",
+      "total": 4,
+      "transfers": 0,
+      "min_txid": "253",
+      "max_txid": "256"
+    },
+    {
+      "uid": "7",
+      "total": 4,
+      "transfers": 1,
+      "min_txid": "85",
+      "max_txid": "92"
+    },
+    {
+      "uid": "8",
+      "total": 4,
+      "transfers": 1,
+      "min_txid": "87",
+      "max_txid": "93"
+    }
+  ]
+}

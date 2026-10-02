@@ -1,0 +1,239 @@
+{
+  "run": "P7A-E2E-002",
+  "base": "http://127.0.0.1:5792",
+  "probe": "p7a-01-http",
+  "secret_fp": "b1ec01afb2eb",
+  "readings": {
+    "ac2_no_token": {
+      "status": 401,
+      "error_keys": [
+        "code",
+        "message",
+        "i18n_key",
+        "details"
+      ],
+      "code": "AUTH_UNAUTHORIZED",
+      "error_shape_ok": true
+    },
+    "ac2_bad_token": {
+      "status": 401,
+      "code": "AUTH_UNAUTHORIZED"
+    },
+    "ac2_real_token": {
+      "status": 200,
+      "top_keys": [
+        "success",
+        "message",
+        "data",
+        "next_before_txid"
+      ],
+      "has_data": true,
+      "has_next": true,
+      "row0_keys": [
+        "balance_after",
+        "cid",
+        "delta",
+        "frozen_after",
+        "frozen_delta",
+        "kind",
+        "memo",
+        "ref_id",
+        "ref_type",
+        "reversal_of_txid",
+        "time_created",
+        "txid",
+        "uid"
+      ]
+    },
+    "ac3_page0": {
+      "status": 200,
+      "count": 7,
+      "next_before_txid": 247,
+      "txids": [
+        270,
+        269,
+        268,
+        267,
+        265,
+        264,
+        247
+      ]
+    },
+    "ac3_keyset": {
+      "page_sizes": [
+        7,
+        7,
+        7
+      ],
+      "flat": [
+        270,
+        269,
+        268,
+        267,
+        265,
+        264,
+        247,
+        245,
+        243,
+        241,
+        239,
+        237,
+        235,
+        233,
+        231,
+        229,
+        227,
+        225,
+        224,
+        223,
+        221
+      ],
+      "db_head": [
+        270,
+        269,
+        268,
+        267,
+        265,
+        264,
+        247,
+        245,
+        243,
+        241,
+        239,
+        237,
+        235,
+        233,
+        231,
+        229,
+        227,
+        225,
+        224,
+        223,
+        221
+      ],
+      "strictly_decreasing": true,
+      "no_duplicate": true,
+      "matches_db_head_prefix": true,
+      "last_next_before_txid": 221
+    },
+    "ac3_tail": {
+      "status": 200,
+      "count": 120,
+      "has_next_key": true,
+      "next_before_txid": null
+    },
+    "ac4_kind_transfer": {
+      "status": 200,
+      "count": 6,
+      "db_count": 6,
+      "only_transfer": true,
+      "txids_match_db": true
+    },
+    "ac4_cid": {
+      "cid": 1,
+      "status": 200,
+      "count": 89,
+      "db_count": 89,
+      "txids_match_db": true,
+      "all_same_cid": true
+    },
+    "ac4_limit_default": {
+      "count": 100,
+      "db_total": 120,
+      "default_is_100": true
+    },
+    "ac4_limit_cap": {
+      "count": 120,
+      "cap_is_500": true
+    },
+    "ac4_limit_invalid": {
+      "status": 200,
+      "count": 100,
+      "fell_back_to_default": true
+    },
+    "ac4_cid_invalid": {
+      "status": 400
+    },
+    "ac4_before_invalid": {
+      "status": 400
+    },
+    "ac4_kind_invalid": {
+      "status": 400,
+      "code": "LEDGER_UNKNOWN_KIND"
+    },
+    "ac4_isolation": {
+      "status": 200,
+      "only_self": true
+    },
+    "ac5_zero_write": {
+      "calls": 24,
+      "before": {
+        "ledger_entry": 271,
+        "account_rows": 27,
+        "account_sumbal": "2009792",
+        "account_sumfrz": "10508",
+        "account_cid1_rows": 18,
+        "account_cid1_sumbal": "1989693",
+        "users": 37,
+        "currency": 13,
+        "public_tables": 25,
+        "public_indexes": 65
+      },
+      "after": {
+        "ledger_entry": 271,
+        "account_rows": 27,
+        "account_sumbal": "2009792",
+        "account_sumfrz": "10508",
+        "account_cid1_rows": 18,
+        "account_cid1_sumbal": "1989693",
+        "users": 37,
+        "currency": 13,
+        "public_tables": 25,
+        "public_indexes": 65
+      },
+      "identical": true
+    },
+    "ac9_ledger_zero_displacement": {
+      "before_ledger": 271,
+      "after_ledger": 271,
+      "before_account_cid1_sumbal": "1989693",
+      "after_account_cid1_sumbal": "1989693",
+      "unchanged": true
+    },
+    "ac1_registered": {
+      "status": 200,
+      "not_404": true
+    }
+  },
+  "fixtures": {
+    "primary_uid": 970001,
+    "secondary_uid": 12,
+    "candidates": [
+      {
+        "uid": "970001",
+        "n": 120
+      },
+      {
+        "uid": "12",
+        "n": 31
+      }
+    ]
+  },
+  "row_key_set": [
+    "balance_after",
+    "cid",
+    "delta",
+    "frozen_after",
+    "frozen_delta",
+    "kind",
+    "memo",
+    "ref_id",
+    "ref_type",
+    "reversal_of_txid",
+    "time_created",
+    "txid",
+    "uid"
+  ],
+  "failures": [],
+  "verdict": "PASS"
+}

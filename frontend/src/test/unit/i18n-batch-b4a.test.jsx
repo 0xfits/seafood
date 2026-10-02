@@ -127,7 +127,7 @@ describe('P6-I18N-LIT-B4a · 四语 locale 键集（6 命名空间 144 键 + 逐
     // ③ 键集相等：四文件拍平键数取值集合 = {643}（B4b 后），且与 zh 逐项对拍
     for (const lang of LANGS.slice(1)) expect(sets[lang]).toEqual(sets.zh)
     expect(new Set(LANGS.map((l) => counts[l].flat)).size).toBe(1)
-    expect(counts.zh).toEqual({ top: 102, flat: 683 }) // P6-MISC-FIX ① 新增 listings.statusLabel 5 键（678⇒683）
+    expect(counts.zh).toEqual({ top: 102, flat: 704 }) // P6-MISC-FIX ① 新增 listings.statusLabel 5 键（678⇒683）；批 7-A 新增 ledger.flowMore + ledger.kind.*（20 kind 全覆盖）共 21 键（683⇒704）
     expect(NEW_KEY_TOTAL).toBe(B4A_ADDED + B4B_ADDED_TO_ADMINCOMMON)
 
     // 本批 6 命名空间：键数逐一对齐 + 四语取值齐备非空

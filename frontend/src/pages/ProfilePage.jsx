@@ -16,6 +16,7 @@ import TranslatingBadge from '../components/i18n/TranslatingBadge'
 import './jobs/jobs.css'
 import { fetchApiJson, fetchCurrentUser, getAuthHeaders, updateMyProfile } from '../auth'
 import { useAuth } from '../auth-context'
+import { fetchMyLedger, LEDGER_PAGE_SIZE } from '../ledger-api'
 
 const toDate = (value) => new Date(typeof value === 'number' ? value * 1000 : value)
 
@@ -39,6 +40,9 @@ const ProfilePage = () => {
     claimedRewards: 0,
   })
   const [shardHoldings, setShardHoldings] = useState([])
+  // 批 7-A：「流水」= 已注册读口 `GET /api/user/ledger`（DL25/R95 keyset 分页）的真数据。
+  //   `next` = `next_before_txid` 游标（`null` = 到底，不渲染「加载更多」）；真·零流水 ⇒ 空态。
+  const [ledger, setLedger] = useState({ rows: [], next: null, message: '' })
   const [loading, setLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [bio, setBio] = useState('')
@@ -70,6 +74,7 @@ const ProfilePage = () => {
           loadUserAssets(nextProfile.uID),
           loadTaskStats(nextProfile.uID),
           loadShardHoldings(),
+          loadLedger(null),
         ])
       } catch (error) {
         console.error('Error loading user info:', error)
@@ -101,6 +106,26 @@ const ProfilePage = () => {
   //   （同页 `/api/prize-item` 的调用**保留**：实测该路径 = `listing_order` **买家轴**读面、**未 sunset**，报告 §2-④ 已登记。）
   const loadShardHoldings = async () => {
     setShardHoldings([])
+  }
+
+  // 批 7-A：「流水」读口接线（`GET /api/user/ledger`，**已注册**；DL25 keyset 分页）。
+  //   `beforeTxid=null` ⇒ 首页；「加载更多」传上一页 `next_before_txid`。真·零流水时才显示空态。
+  const loadLedger = async (beforeTxid) => {
+    try {
+      const { rows, nextBeforeTxid } = await fetchMyLedger({
+        user: sessionUser,
+        beforeTxid: beforeTxid || null,
+        limit: LEDGER_PAGE_SIZE,
+      })
+      setLedger((prev) => ({
+        rows: beforeTxid ? [...prev.rows, ...rows] : rows,
+        next: nextBeforeTxid,
+        message: '',
+      }))
+    } catch (error) {
+      console.warn('Failed to load ledger:', error)
+      setLedger((prev) => ({ ...prev, message: String(error?.message || t('error')) }))
+    }
   }
 
   // 加载任务统计
@@ -342,7 +367,8 @@ const ProfilePage = () => {
         </SlideUp>
 
         {/* 账本读数（P4-B4c-ii-a · 「我的」）：余额 = 已注册读口 /api/user/asset/:uID；
-            流水 = **读口尚未注册**（已注册表内无 /api/user/ledger）⇒ 保留空态并登记，不自造接口。 */}
+            流水 = **已注册读口** `GET /api/user/ledger`（批 7-A 登记；DL25 keyset 分页 / 响应回传 next_before_txid）
+            ⇒ 渲染真数据；**仅当真·零流水**时才显示空态。*/}
         <SlideUp delay={500}>
           <div className="sf-jobs" data-sf-m="jobs-profile">
             <div className="sf-jobs-panel" data-sf-m="jobs-balance">
@@ -355,7 +381,32 @@ const ProfilePage = () => {
             </div>
             <div className="sf-jobs-panel" data-sf-m="jobs-flow">
               <h2 className="sf-jobs-title">{t('ledger.flow')}</h2>
-              <div className="sf-jobs-empty" data-sf-m="jobs-flow-empty">{t('ledger.flowEmpty')}</div>
+              {ledger.rows.length === 0
+                ? <div className="sf-jobs-empty" data-sf-m="jobs-flow-empty">{ledger.message || t('ledger.flowEmpty')}</div>
+                : (
+                  <div data-sf-m="jobs-flow-list">
+                    {ledger.rows.map((entry) => (
+                      <div className="sf-jobs-item" key={String(entry.txid)} data-sf-m="jobs-flow-item">
+                        <div className="sf-jobs-item-title">{t(`ledger.kind.${entry.kind}`)}</div>
+                        <div className="sf-jobs-meta">
+                          {`${Number(entry.delta) > 0 ? '+' : ''}${entry.delta}`}
+                          {' · '}
+                          {entry.time_created ? toDate(entry.time_created).toLocaleDateString() : '—'}
+                        </div>
+                      </div>
+                    ))}
+                    {ledger.next != null && (
+                      <button
+                        type="button"
+                        className="sf-jobs-btn"
+                        data-sf-m="jobs-flow-more"
+                        onClick={() => loadLedger(ledger.next)}
+                      >
+                        {t('ledger.flowMore')}
+                      </button>
+                    )}
+                  </div>
+                )}
             </div>
           </div>
         </SlideUp>

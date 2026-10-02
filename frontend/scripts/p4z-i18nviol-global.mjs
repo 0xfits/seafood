@@ -209,4 +209,6 @@ console.log('[I18N-VIOL] ③ 残余发现（不计命中；须另单收口）')
 for (const [where, why] of RESIDUAL) console.log(`  ? ${where} :: ${why}`)
 
 console.log(`[I18N-VIOL] 总判：${fail ? 'FAIL' : 'PASS'}（locale 裸命中 ${localeHits.length} + 源面裸命中 ${sourceHits.length} 必须 = 0；作用域节点数 locale=${LOCALE_NODES} / source=${textNodes}）`)
-process.exit(fail ? 1 : 0)
+// 批 7-A 修：`process.exit()` 会**丢弃尚未 flush 的管道 stdout**（vitest worker 并发时实测截断 ⇒
+//   包装用例读到「无 总判 行」的残缺输出而误报）。改设 `exitCode` 让 Node 自然退出（退出码不变，判据不变）。
+process.exitCode = fail ? 1 : 0

@@ -195,7 +195,30 @@
     "balance": "餘額",
     "balanceNote": "餘額以平台帳戶資產為準。",
     "flow": "流水",
-    "flowEmpty": "賬本流水暫未開放，敬請期待。"
+    "flowEmpty": "暫無賬本流水。完成交易後，記錄會顯示在這裡。",
+    "flowMore": "載入更多",
+    "kind": {
+      "mint": "鑄幣",
+      "burn": "銷毀",
+      "transfer": "轉讓",
+      "hold": "凍結",
+      "hold_release": "解凍",
+      "hold_forfeit": "凍結扣罰",
+      "job_escrow": "任務託管",
+      "job_escrow_refund": "託管退回",
+      "job_payout": "任務報酬",
+      "job_fee": "任務服務費",
+      "commission": "佣金",
+      "purchase": "購買支出",
+      "sale": "銷售收入",
+      "purchase_refund": "購買退款",
+      "trade": "成交",
+      "trade_fee": "交易手續費",
+      "listing_fee": "上架費",
+      "listing_deposit": "上市保證金",
+      "currency_create_fee": "發幣費",
+      "reversal": "沖正"
+    }
   },
   "i18n": {
     "translating": "翻譯中"

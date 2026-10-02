@@ -16,6 +16,9 @@ import {
   orderPlaceFingerprint,
   placeOrder,
 } from './market-api'
+// 批 7-A：「账本流水」面板 = 已注册读口 `GET /api/user/ledger?kind=transfer`
+//   （§5.1「碎片读口 ②」：旧 `GET /api/shard/transfer` 的语义由本读口取代）
+import { fetchMyLedger, LEDGER_PAGE_SIZE } from '../../ledger-api'
 import './market.css'
 
 // ============================================================================
@@ -27,8 +30,9 @@ import './market.css'
 // 幂等键：挂单 = **前端供键**（`cli:`，tracker 保证同一次操作重试同键）；撤单/全撤 = 服务端派生（`biz:market:cancel:<id>`）。
 // 金额口径：挂单的 `price`/`amount` 是交易**要约**（供给侧自主出价，§4.8.1）；`owner_uid` 一律服务端取 token actor，
 //   本页**结构性不传**（传了也会被服务端丢弃，回包 `client_owner_uid_ignored`）。成交价 = 买单限价（M3），本页不做撮合。
-// 空态口径（四项确认 ②）：「账本流水」读口（`GET /api/user/ledger`）**未注册** ⇒ 只渲染**空态**、**不得自造**；
-//   本页的「成交流水」是**另一个已注册面**（`market_trade`，只读），两者不可混为一谈。
+// 空态口径（批 7-A 更新）：「账本流水」读口（`GET /api/user/ledger`）**已注册** ⇒ 本页渲染**真数据**
+//   （本页面板走**转让口径** `?kind=transfer`，看下方 `loadLedger`）；**仅当真·零流水**时才显示空态。
+//   本页的「成交流水」是**另一个面**（`market_trade`，只读），两者不可混为一谈。
 // 退化币对（§5.103 裁定 · P4-B4c-ii-c ②）：`baseCid === QUOTE_CID`（`$` 对自身）⇒ **不发** `orderbook`/`trades` 请求，
 //   空态文案 = `market.pairDegenerate`（四语），与「真无挂单」（`market.bookEmpty`，请求发出去、回包为空）**区分**。
 // 失败态：一律走 R107 链（`error.message` 已是字符串）⇒ 页面不会出现 `[object Object]`。
@@ -46,6 +50,9 @@ const MarketPage = () => {
   const [book, setBook] = useState({ phase: 'idle', rows: [], message: '' })
   const [trades, setTrades] = useState({ phase: 'idle', rows: [], message: '' })
   const [mine, setMine] = useState({ phase: 'idle', rows: [], message: '' })
+  // 批 7-A：账本流水（转让口径）= `GET /api/user/ledger?kind=transfer` 真数据；
+  //   `next` = `next_before_txid` 游标（`null` = 到底）；真·零流水 ⇒ 空态。
+  const [ledger, setLedger] = useState({ rows: [], next: null, message: '' })
   const [act, setAct] = useState({ phase: 'idle', message: '' })
   const tracker = useMemo(() => createOrderPlaceTracker(), [])
 
@@ -105,8 +112,34 @@ const MarketPage = () => {
   useEffect(() => { loadMarket() }, [loadMarket])
   useEffect(() => { loadMine() }, [loadMine])
 
+  // 批 7-A：账本流水（**转让口径** `kind=transfer`；§5.1「碎片读口 ②」语义替代面）。
+  //   未登录 ⇒ 空态；已登录 ⇒ 读 `GET /api/user/ledger?kind=transfer`（DL25 keyset 分页）。
+  const loadLedger = useCallback(async (beforeTxid = null) => {
+    if (!isAuthenticated) {
+      setLedger({ rows: [], next: null, message: t('pleaseLogin') })
+      return
+    }
+    try {
+      const { rows, nextBeforeTxid } = await fetchMyLedger({
+        user,
+        kind: 'transfer',
+        beforeTxid,
+        limit: LEDGER_PAGE_SIZE,
+      })
+      setLedger((prev) => ({
+        rows: beforeTxid ? [...prev.rows, ...rows] : rows,
+        next: nextBeforeTxid,
+        message: '',
+      }))
+    } catch (error) {
+      setLedger((prev) => ({ ...prev, message: String(error?.message || t('error')) }))
+    }
+  }, [isAuthenticated, user, t])
+
+  useEffect(() => { loadLedger(null) }, [loadLedger])
+
   const refresh = async () => {
-    await Promise.all([loadMarket(), loadMine()])
+    await Promise.all([loadMarket(), loadMine(), loadLedger(null)])
   }
 
   const onPlace = async (event) => {
@@ -331,10 +364,36 @@ const MarketPage = () => {
           <p className="sf-mkt-note">{t('market.mineNote')}</p>
         </div>
 
-        {/* 账本流水：读口未注册 ⇒ **只有空态**（不造数据；四项确认 ②） */}
+        {/* 账本流水（**转让口径**）：读口 = 已注册 `GET /api/user/ledger?kind=transfer`
+            （§5.1「碎片读口 ②」；批 7-A 接线）⇒ 渲染真数据；**仅当真·零流水**时才显示空态。 */}
         <div className="sf-mkt-panel" data-sf-m="mkt-ledger">
           <h2 className="sf-mkt-title">{t('ledger.flow')}</h2>
-          <div className="sf-mkt-empty" data-sf-m="mkt-ledger-empty">{t('ledger.flowEmpty')}</div>
+          {ledger.rows.length === 0
+            ? <div className="sf-mkt-empty" data-sf-m="mkt-ledger-empty">{ledger.message || t('ledger.flowEmpty')}</div>
+            : (
+              <div data-sf-m="mkt-ledger-list">
+                {ledger.rows.map((entry) => (
+                  <div className="sf-mkt-item" key={String(entry.txid)} data-sf-m="mkt-ledger-item">
+                    <div className="sf-mkt-item-title">{t(`ledger.kind.${entry.kind}`)}</div>
+                    <div className="sf-mkt-meta">
+                      {`${Number(entry.delta) > 0 ? '+' : ''}${entry.delta}`}
+                      {' · '}
+                      {entry.time_created ? new Date(entry.time_created * 1000).toLocaleDateString() : '—'}
+                    </div>
+                  </div>
+                ))}
+                {ledger.next != null && (
+                  <button
+                    type="button"
+                    className="sf-mkt-btn"
+                    data-sf-m="mkt-ledger-more"
+                    onClick={() => loadLedger(ledger.next)}
+                  >
+                    {t('ledger.flowMore')}
+                  </button>
+                )}
+              </div>
+            )}
         </div>
       </div>
     </div>

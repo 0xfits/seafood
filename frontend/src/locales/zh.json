@@ -195,7 +195,30 @@
     "balance": "余额",
     "balanceNote": "余额以平台账户资产为准。",
     "flow": "流水",
-    "flowEmpty": "账本流水暂未开放，敬请期待。"
+    "flowEmpty": "暂无账本流水。交易完成后，记录会显示在这里。",
+    "flowMore": "加载更多",
+    "kind": {
+      "mint": "铸币",
+      "burn": "销毁",
+      "transfer": "转让",
+      "hold": "冻结",
+      "hold_release": "解冻",
+      "hold_forfeit": "冻结扣罚",
+      "job_escrow": "任务托管",
+      "job_escrow_refund": "托管退回",
+      "job_payout": "任务报酬",
+      "job_fee": "任务服务费",
+      "commission": "佣金",
+      "purchase": "购买支出",
+      "sale": "销售收入",
+      "purchase_refund": "购买退款",
+      "trade": "成交",
+      "trade_fee": "交易手续费",
+      "listing_fee": "上架费",
+      "listing_deposit": "上市保证金",
+      "currency_create_fee": "发币费",
+      "reversal": "冲正"
+    }
   },
   "i18n": {
     "translating": "翻译中"

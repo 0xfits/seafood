@@ -95,4 +95,5 @@ const legacyOk = LEGACY.length === 0
 
 const overall = badgeOk && flatTop.size === 1 && setDiff.length === 0 && guardOk && legacyOk
 console.log(`[TR-2] 总判：${overall ? 'PASS' : 'FAIL'}`)
-process.exit(overall ? 0 : 1)
+// 批 7-A 修：`process.exit()` 会丢弃未 flush 的管道 stdout（同 `p4z-i18nviol-global.mjs`）⇒ 改设 `exitCode`。
+process.exitCode = overall ? 0 : 1

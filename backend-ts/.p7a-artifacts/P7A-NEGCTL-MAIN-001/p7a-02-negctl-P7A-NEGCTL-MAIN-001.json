@@ -1,0 +1,58 @@
+{
+  "run": "P7A-NEGCTL-MAIN-001",
+  "base": "http://127.0.0.1:5795",
+  "probe": "p7a-02-negctl",
+  "secret_fp": "b1ec01afb2eb",
+  "baseline": {
+    "public_tables": 25,
+    "public_indexes": 65,
+    "probe_exists": false,
+    "probe_rows": null
+  },
+  "fixtures": {
+    "primary_uid": 970001,
+    "secondary_uid": 12
+  },
+  "calls": 24,
+  "statuses": [
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200
+  ],
+  "after_calls": {
+    "public_tables": 25,
+    "public_indexes": 65,
+    "probe_exists": false,
+    "probe_rows": null
+  },
+  "zero_write_violations": [],
+  "verdict": "GREEN",
+  "after_cleanup": {
+    "public_tables": 25,
+    "public_indexes": 65,
+    "probe_exists": false,
+    "probe_rows": null
+  },
+  "cleanup_ok": true
+}

@@ -22,6 +22,8 @@ import {
 import { healthCheck } from './db';
 // P4-SEC（缺陷 B）：基础设施异常走**既有** §14 分类器与 R107 错误体（不新增错误码）
 import { ledgerErrorDiagnostics, normalizeLedgerError, toErrorResponse } from './ledger-errors';
+// P7-A：账本流水读口的 `kind` 过滤取值 = **冻结关闭集**（`ledger.spec` §5.1/R40，20 个；不复制/不自造）
+import { LEDGER_KINDS } from './ledger';
 // P4-B4a：J2/J3（报名 / 选定）与既有 `submitWork`（J4）同族 ⇒ 一并从路由层接线
 import { acceptApplication, applyToJob, ledgerErrorBody, sendGone, sendVerbError, submitWork } from './job-service';
 // P4-B3c：招工**资金**编排（J1 托管 / J5 发放 / J6 退款 ⇒ `job_post_event`）
@@ -604,6 +606,97 @@ app.get('/api/user/asset/:uID', async (req, res) => {
     //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
     // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
     return sendInfraMapped(res, 'user.asset', error);
+  }
+});
+
+/**
+ * ============================================================================
+ * P7-A（批 7-A · Kong）：注册 `GET /api/user/ledger` —— 「我的账单 / 账本流水」读口。
+ * 依据（逐字）：
+ *   · `route-layer.spec:265`：`GET /api/user/ledger`（`account`/`ledger_entry` 只读派生）
+ *     ⇒ **「路由层随批 4 注册」** ⇒ **本单就是那次注册**（此前从未实现 ⇒ 实测 404）。
+ *   · `data-layer.spec` **DL25**（【已冻结】）/ `ledger.spec` **R95**：分页**必须 keyset**
+ *     —— 入参 `before_txid` 游标、响应回传 `next_before_txid`（`null` = 到底）；**禁 `OFFSET`**。
+ *   · `data-layer.spec` **DL23**：读路径**零写副作用**（无 DDL / 无懒开户 / 无 `upsert*`）
+ *     ⇒ 本面 = 纯 SELECT（服务层 `listLedgerEntriesByUser`），身份**只读 token actor**。
+ *   · `route-layer.spec:1343`（§5.1「碎片读口 ②」）：`GET /api/shard/transfer` 的语义
+ *     **由 `GET /api/user/ledger?kind=transfer` 取代**（旧路径 `:791` 保留 + 空态 + `deprecated:true`，**不删**）。
+ * 过滤：`cid`（可空）、`kind`（可空，取值 = 冻结关闭集 `LEDGER_KINDS` 20 个）、
+ *       `before_txid`（可空游标）、`limit`（默认 100 / 上限 500；非法值回落默认，不 500）。
+ * 鉴权：`requireActor`（无 token / 坏 token / 查无此人 ⇒ **401 + R107 形状** `{error:{code,message,i18n_key,details}}`）。
+ * ============================================================================
+ */
+const LEDGER_READ_DEFAULT_LIMIT = 100;
+const LEDGER_READ_MAX_LIMIT = 500;
+const LEDGER_KIND_SET: ReadonlySet<string> = new Set(LEDGER_KINDS);
+
+app.get('/api/user/ledger', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  // ---- 入参解析（非法值 ⇒ 显式 400，绝不 500）--------------------------------
+  const rawCid = req.query.cid;
+  let cid: number | null = null;
+  if (rawCid !== undefined && rawCid !== '') {
+    const next = Number(rawCid);
+    if (!Number.isInteger(next) || next <= 0) {
+      return sendError(res, 400, 'Invalid cid');
+    }
+    cid = next;
+  }
+
+  const rawBefore = req.query.before_txid;
+  let beforeTxid: number | null = null;
+  if (rawBefore !== undefined && rawBefore !== '') {
+    const next = Number(rawBefore);
+    if (!Number.isInteger(next) || next <= 0) {
+      return sendError(res, 400, 'Invalid before_txid');
+    }
+    beforeTxid = next;
+  }
+
+  const rawKind = req.query.kind;
+  let kind: string | null = null;
+  if (rawKind !== undefined && rawKind !== '') {
+    // 取值必须落在**冻结关闭集**内（`ledger.spec` §5.1 / R40；`LEDGER_KINDS` = 20）。不给自造 kind 留口。
+    if (typeof rawKind !== 'string' || !LEDGER_KIND_SET.has(rawKind)) {
+      return sendVerbError(res, {
+        ok: false,
+        status: 400,
+        code: 'LEDGER_UNKNOWN_KIND',
+        message: 'unsupported ledger kind',
+        details: { kind: String(rawKind) },
+      });
+    }
+    kind = rawKind;
+  }
+
+  // `limit`：默认 100、上限 500；**非数字 / 非法 ⇒ 回落默认**（与既有 `getPagination` 口径一致，报告 §3 明写）。
+  const rawLimit = req.query.limit;
+  const parsedLimit = Number(rawLimit);
+  const limit = rawLimit === undefined || rawLimit === ''
+    ? LEDGER_READ_DEFAULT_LIMIT
+    : (Number.isFinite(parsedLimit)
+      ? Math.min(LEDGER_READ_MAX_LIMIT, Math.max(1, Math.trunc(parsedLimit)))
+      : LEDGER_READ_DEFAULT_LIMIT);
+
+  try {
+    const entries = await DatabaseService.listLedgerEntriesByUser({
+      uid: actor.user.uID,
+      cid,
+      kind,
+      beforeTxid,
+      limit,
+    });
+    // DL25 硬项：响应**必须**回传 `next_before_txid`（满页 ⇒ 末条 `txid`；不足页 ⇒ `null` 表示到底）。
+    // 该键随 `sendSuccess` 的 `extra` 走**顶层**（与既有 `deprecated:true` 同位置，不改 `data` 形状）。
+    const nextBeforeTxid = entries.length === limit && entries.length > 0
+      ? entries[entries.length - 1].txid
+      : null;
+    sendSuccess(res, entries, 'OK', 200, { next_before_txid: nextBeforeTxid });
+  } catch (error) {
+    // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器（DB/传输类 ⇒ 503）。
+    return sendInfraMapped(res, 'user.ledger', error);
   }
 });
 

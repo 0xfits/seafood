@@ -109,5 +109,6 @@ if (process.argv[1] && import.meta.url === new URL('file://' + path.resolve(proc
     (negArg ? neg.dist_missing_after_drop.length > 0 : true);
   console.log(JSON.stringify(out, null, 1));
   console.error('VERDICT=' + (ok ? 'PASS' : 'FAIL'));
-  process.exit(ok ? 0 : 1);
+  // 批 7-A 修：`process.exit()` 会丢弃未 flush 的管道 stdout（同 `p4z-i18nviol-global.mjs`）⇒ 改设 `exitCode`。
+  process.exitCode = ok ? 0 : 1;
 }

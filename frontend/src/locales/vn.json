@@ -195,7 +195,30 @@
     "balance": "Số dư",
     "balanceNote": "Số dư hiển thị theo tài sản trong tài khoản nền tảng của bạn.",
     "flow": "Sao kê",
-    "flowEmpty": "Sổ cái giao dịch chưa mở, vui lòng chờ."
+    "flowEmpty": "Chưa có giao dịch nào. Giao dịch của bạn sẽ hiển thị ở đây sau khi hoàn tất.",
+    "flowMore": "Tải thêm",
+    "kind": {
+      "mint": "Đúc",
+      "burn": "Đốt",
+      "transfer": "Chuyển khoản",
+      "hold": "Phong tỏa",
+      "hold_release": "Gỡ phong tỏa",
+      "hold_forfeit": "Phong tỏa bị tịch thu",
+      "job_escrow": "Ký quỹ nhiệm vụ",
+      "job_escrow_refund": "Hoàn ký quỹ nhiệm vụ",
+      "job_payout": "Thù lao nhiệm vụ",
+      "job_fee": "Phí dịch vụ nhiệm vụ",
+      "commission": "Hoa hồng",
+      "purchase": "Mua hàng",
+      "sale": "Bán hàng",
+      "purchase_refund": "Hoàn tiền mua hàng",
+      "trade": "Khớp lệnh",
+      "trade_fee": "Phí giao dịch",
+      "listing_fee": "Phí đăng bán",
+      "listing_deposit": "Tiền đặt cọc đăng bán",
+      "currency_create_fee": "Phí tạo tiền tệ",
+      "reversal": "Bút toán đảo"
+    }
   },
   "i18n": {
     "translating": "Đang dịch"
