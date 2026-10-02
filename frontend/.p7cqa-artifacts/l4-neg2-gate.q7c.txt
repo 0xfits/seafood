@@ -1,0 +1,79 @@
+[P7C-MACHINE-CODE] A 护栏在场（源码）：src/auth.js
+  ① 具名导出 `MACHINE_CODE_TOKEN_RE`（token 判据） = true
+  ①' 具名导出 `containsMachineCode`（谓词）        = true
+  ② `extractApiErrorMessage` 内 `containsMachineCode(` 调用数 = 3（要求 ≥ 1）
+[P7C-MACHINE-CODE] B locale 文案面（四语叶子值机读码扫描）
+  [zh] 叶子值 = 704；含机读码 token = 0
+  [hk] 叶子值 = 704；含机读码 token = 0
+  [en] 叶子值 = 703；含机读码 token = 0
+  [vn] 叶子值 = 704；含机读码 token = 0
+  存量登记 = 0 条（本单新增面零命中；口径 =「不要求一次清完，但不得静默」）
+[P7C-MACHINE-CODE] C 四语通用兜底键齐备（扩口径后的落点 ③）
+  auth.err.REQUEST_FAILED ⇒ zh:OK（"请求失败 ({{status}})"）
+  auth.err.REQUEST_FAILED ⇒ hk:OK（"請求失敗（{{status}}）"）
+  auth.err.REQUEST_FAILED ⇒ en:**缺/非法**（undefined）
+  auth.err.REQUEST_FAILED ⇒ vn:OK（"Yêu cầu thất bại ({{status}})"）
+[P7C-MACHINE-CODE] D 行为节点（★ 类级）：机读码 message 向量 × 4 语 = 4 × 4 = 16
+  · F-1 · 409 真体（message = 机读码 + reason = order_not_refundable）（status=409）
+      [zh] ⇒ "请求失败 (409)"
+      [hk] ⇒ "請求失敗（409）"
+      [en] ⇒ "Request failed (409)"  ! 产出 ≠ 该语兜底（实际 "Request failed (409)"）
+      [vn] ⇒ "Yêu cầu thất bại (409)"
+  · 服务端自拼（message 已含 `机读码 (reason)`）（status=409）
+      [zh] ⇒ "请求失败 (409)"
+      [hk] ⇒ "請求失敗（409）"
+      [en] ⇒ "Request failed (409)"  ! 产出 ≠ 该语兜底（实际 "Request failed (409)"）
+      [vn] ⇒ "Yêu cầu thất bại (409)"
+  · 无 i18n_key 的机读码 message（旧字符串面）（status=401）
+      [zh] ⇒ "请求失败 (401)"
+      [hk] ⇒ "請求失敗（401）"
+      [en] ⇒ "Request failed (401)"  ! 产出 ≠ 该语兜底（实际 "Request failed (401)"）
+      [vn] ⇒ "Yêu cầu thất bại (401)"
+  · 机读码 message + 大写 reason（`STATEMENT_TIMEOUT`）（status=503）
+      [zh] ⇒ "请求失败 (503)"
+      [hk] ⇒ "請求失敗（503）"
+      [en] ⇒ "Request failed (503)"  ! 产出 ≠ 该语兜底（实际 "Request failed (503)"）
+      [vn] ⇒ "Yêu cầu thất bại (503)"
+  ★ 类级违例计数（「全大写下划线机读码被当作文案输出」形态）= 4 / 节点 16（必须 = 0）
+[P7C-MACHINE-CODE] F 反例面（O-1 边界回归）：真人可读服务端 message ⇒ 仍走 ② 服务端原文
+  · O-1 · 503 真体（zh 句子 + 小写 reason = too_many_connections）（status=503）
+      [zh] ⇒ "系统繁忙，请稍后重试 (too_many_connections)"
+      [hk] ⇒ "系统繁忙，请稍后重试 (too_many_connections)"
+      [en] ⇒ "系统繁忙，请稍后重试 (too_many_connections)"
+      [vn] ⇒ "系统繁忙，请稍后重试 (too_many_connections)"
+  · S6 · 410 弃用面（英文句）（status=410）
+      [zh] ⇒ "endpoint deprecated: /api/auth/register"
+      [hk] ⇒ "endpoint deprecated: /api/auth/register"
+      [en] ⇒ "endpoint deprecated: /api/auth/register"
+      [vn] ⇒ "endpoint deprecated: /api/auth/register"
+  · B14③ · 未登记裸 message（无 `error` 对象）（status=503）
+      [zh] ⇒ "database is unreachable"
+      [hk] ⇒ "database is unreachable"
+      [en] ⇒ "database is unreachable"
+      [vn] ⇒ "database is unreachable"
+  ★ 反例面违例 = 0 / 节点 12（必须 = 0）
+[P7C-MACHINE-CODE] E 边界样本表自证（谓词非空转）
+  样本                                    | containsMachineCode | looksLikeMachineCode
+  [正例] "LEDGER_CURRENCY_INVALID_TRANSITION"                 | true                | true
+  [正例] "AUTH_UNAUTHORIZED"                                  | true                | true
+  [正例] "STATEMENT_TIMEOUT"                                  | true                | true
+  [正例] "LEDGER_CURRENCY_INVALID_TRANSITION (order_not_refundable)" | true                | false
+  [反例] "系统繁忙，请稍后重试 (too_many_connections)"                  | false               | false
+  [反例] "Request failed (400)"                               | false               | false
+  [反例] "database is unreachable"                            | false               | false
+  [反例] "v1.2"                                               | false               | false
+  [反例] "endpoint deprecated: /api/auth/register"            | false               | false
+  [反例] "Invalid wallet signature"                           | false               | false
+  [反例] "too_many_connections"                               | false               | false
+  [反例] "请求失败 (500)"                                         | false               | false
+  [反例] "no-dots-here"                                       | false               | false
+  [反例] ""                                                   | false               | false
+  正例 4 条 ⇒ containsMachineCode=true；反例 10 条 + 非字符串 5 条 ⇒ false；拼接面 "LEDGER_CURRENCY_INVALID_TRANSITION (order_not_refundable)" ⇒ 整串=false / token=true
+[P7C-MACHINE-CODE] 作用域读数：root = /Users/kevin/.hermes/profiles/zang/cache/scratch/qa7c/frontend；locale 叶子值 = 2815；机读码向量节点 = 16；反例向量节点 = 12；扫描文件 = 1（src/auth.js）+ 4（locale）
+[P7C-MACHINE-CODE] 判负 5 条（必须 = 0）：
+  ! C 通用兜底键 `auth.err.REQUEST_FAILED` 在 en 缺失 / 为空 / 为裸键 / 为机读码（值 = undefined）
+  ! D 机读码被当作文案输出：F-1 · 409 真体（message = 机读码 + reason = order_not_refundable） · en ⇒ "Request failed (409)"（产出 ≠ 该语兜底（实际 "Request failed (409)"））
+  ! D 机读码被当作文案输出：服务端自拼（message 已含 `机读码 (reason)`） · en ⇒ "Request failed (409)"（产出 ≠ 该语兜底（实际 "Request failed (409)"））
+  ! D 机读码被当作文案输出：无 i18n_key 的机读码 message（旧字符串面） · en ⇒ "Request failed (401)"（产出 ≠ 该语兜底（实际 "Request failed (401)"））
+  ! D 机读码被当作文案输出：机读码 message + 大写 reason（`STATEMENT_TIMEOUT`） · en ⇒ "Request failed (503)"（产出 ≠ 该语兜底（实际 "Request failed (503)"））
+[P7C-MACHINE-CODE] 总判：FAIL（判负 5 必须 = 0；A=PASS / B 含机读码值=0 / C 兜底键=4 / D 类级违例=4/16 / F 反例违例=0/12 / E 样本=19）

@@ -1,0 +1,10 @@
+
+ RUN  v0.34.6 /Users/kevin/.hermes/profiles/zang/cache/scratch/qa7c/frontend
+
+ ✓ src/test/unit/p7c-errmsg-machinecode.test.js  (7 tests) 12ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  19:23:52
+   Duration  570ms (transform 76ms, setup 95ms, collect 87ms, tests 12ms, environment 212ms, prepare 48ms)
+

@@ -1,0 +1,53 @@
+=== 扫到的 message 字面量（去重）===
+  "Currency not found"
+  "Business state transition rejected"
+  "Request shape is invalid"
+  "Amount is below the server-side floor"
+  "Reserved uid is not allowed"
+  "ACTOR_NOT_ALLOWED"
+  "Idempotency conflict"
+  "Currency symbol is taken"
+  "Registration has moved to wallet sign-in plus profile completion"
+  "Invalid tID"
+  "Invalid bID"
+  "Prize not found"
+  "bio is required"
+  "User not found"
+  "Invalid user ID"
+  "Invalid jID"
+  "Task progress not found"
+  "Invalid task or task progress id"
+  "info_input is required"
+  "Failed to load shard holdings"
+  "Failed to load shard transfers"
+  "参数不完整"
+  "CRON_SECRET not configured"
+  "Unauthorized"
+  "Not found"
+  "endpoint deprecated: ${CLAIM_RETIRED_REF_ID}"
+  "Target account is invalid"
+  "Referenced object not found"
+  "Idempotency key is required"
+  "Idempotency key is invalid"
+  "endpoint deprecated: ${refId}"
+  "application_already_exists"
+  "Amount must be positive"
+  "LEDGER_CURRENCY_INVALID_TRANSITION"
+  "Currency not listed"
+  "Currency frozen"
+  "Currency delisted"
+  "Unknown currency status"
+=== 谓词命中（containsMachineCode=true）===
+  HIT currency-service.ts "ACTOR_NOT_ALLOWED" whole= true
+  HIT currency-service.ts "ACTOR_NOT_ALLOWED" whole= true
+  HIT index.ts "CRON_SECRET not configured" whole= false
+  HIT index.ts "endpoint deprecated: ${CLAIM_RETIRED_REF_ID}" whole= false
+  HIT job-funds-service.ts "ACTOR_NOT_ALLOWED" whole= true
+  HIT job-service.ts "ACTOR_NOT_ALLOWED" whole= true
+  HIT job-service.ts "ACTOR_NOT_ALLOWED" whole= true
+  HIT listing-funds-service.ts "LEDGER_CURRENCY_INVALID_TRANSITION" whole= true
+  HIT listing-service.ts "ACTOR_NOT_ALLOWED" whole= true
+  HIT listing-service.ts "ACTOR_NOT_ALLOWED" whole= true
+  HIT market-service.ts "ACTOR_NOT_ALLOWED" whole= true
+  HIT market-service.ts "ACTOR_NOT_ALLOWED" whole= true
+总计 message 字面量样本 = 38；命中 = 12

@@ -1,0 +1,27 @@
+
+ RUN  v0.34.6 /Users/kevin/.hermes/profiles/zang/cache/scratch/qa7c/frontend
+
+ ❯ src/test/unit/p7a-ledger-error-i18n.test.js  (6 tests | 1 failed) 14ms
+   ❯ src/test/unit/p7a-ledger-error-i18n.test.js > 批 7-A 收口四 · `ledger-api` 错误文案必须过 `apiErrorMessage`（四语文案，非服务端原文） > ③ 503 + R107（带 `details.reason`）⇒ 同链产出（机读 reason 面保留），非服务端 code 原文
+     → expected '请求失败 (503)' to include '(STATEMENT_TIMEOUT)'
+ ✓ src/test/unit/p7c-errmsg-machinecode.test.js  (7 tests) 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/test/unit/p7a-ledger-error-i18n.test.js > 批 7-A 收口四 · `ledger-api` 错误文案必须过 `apiErrorMessage`（四语文案，非服务端原文） > ③ 503 + R107（带 `details.reason`）⇒ 同链产出（机读 reason 面保留），非服务端 code 原文
+AssertionError: expected '请求失败 (503)' to include '(STATEMENT_TIMEOUT)'
+ ❯ src/test/unit/p7a-ledger-error-i18n.test.js:94:25
+     92| 
+     93|     expect(err.message).not.toBe('LEDGER_TX_TIMEOUT')
+     94|     expect(err.message).toContain('(STATEMENT_TIMEOUT)') // 旧写法丢 r…
+       |                         ^
+     95|     expect(err.message).toBe(await apiErrorMessage(payload, 503))
+     96|     expect(err.message).not.toContain('[object Object]')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 12 passed (13)
+   Start at  19:23:38
+   Duration  775ms (transform 95ms, setup 311ms, collect 193ms, tests 27ms, environment 661ms, prepare 120ms)
+

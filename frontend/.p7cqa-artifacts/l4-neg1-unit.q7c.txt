@@ -1,0 +1,75 @@
+
+ RUN  v0.34.6 /Users/kevin/.hermes/profiles/zang/cache/scratch/qa7c/frontend
+
+ ❯ src/test/unit/p7c-errmsg-machinecode.test.js  (7 tests | 3 failed) 20ms
+   ❯ src/test/unit/p7c-errmsg-machinecode.test.js > 批 7-C · F-1 全大写下划线机读码 ⇒ 四语通用兜底（错误文案护栏扩口径） > ② **F-1 真 409 体** ⇒ 四语逐语 = 该语 `auth.err.REQUEST_FAILED` 真兜底，不含机读码、不含 reason 后缀
+     → [zh] 必须落该语通用兜底: expected 'LEDGER_CURRENCY_INVALID_TRANSITION (o…' to be '请求失败 (409)' // Object.is equality
+   ❯ src/test/unit/p7c-errmsg-machinecode.test.js > 批 7-C · F-1 全大写下划线机读码 ⇒ 四语通用兜底（错误文案护栏扩口径） > ③ 服务端**自拼** `机读码 (reason)`（message 已含拼接）⇒ 同样落四语兜底，不因 reason 已拼而漏网
+     → [zh]: expected 'LEDGER_CURRENCY_INVALID_TRANSITION (o…' to be '请求失败 (409)' // Object.is equality
+   ❯ src/test/unit/p7c-errmsg-machinecode.test.js > 批 7-C · F-1 全大写下划线机读码 ⇒ 四语通用兜底（错误文案护栏扩口径） > ⑥ `ledger-api` 端到端：真 409 体 ⇒ 用户可见串 = 该语通用兜底，非机读码
+     → [zh]: expected 'LEDGER_CURRENCY_INVALID_TRANSITION (o…' to be '请求失败 (409)' // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/test/unit/p7c-errmsg-machinecode.test.js > 批 7-C · F-1 全大写下划线机读码 ⇒ 四语通用兜底（错误文案护栏扩口径） > ② **F-1 真 409 体** ⇒ 四语逐语 = 该语 `auth.err.REQUEST_FAILED` 真兜底，不含机读码、不含 reason 后缀
+AssertionError: [zh] 必须落该语通用兜底: expected 'LEDGER_CURRENCY_INVALID_TRANSITION (o…' to be '请求失败 (409)' // Object.is equality
+
+- Expected
++ Received
+
+- 请求失败 (409)
++ LEDGER_CURRENCY_INVALID_TRANSITION (order_not_refundable)
+
+ ❯ src/test/unit/p7c-errmsg-machinecode.test.js:120:46
+    118|       const message = await apiErrorMessage(F1_409, status)
+    119| 
+    120|       expect(message, `[${lang}] 必须落该语通用兜底`).toBe(genericOf(l…
+       |                                              ^
+    121|       // 与**应用内**同一查表逐字一致（真 `i18n` 实例，非替身）
+    122|       expect(message).toBe(i18n.t('auth.err.REQUEST_FAILED', { status …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/test/unit/p7c-errmsg-machinecode.test.js > 批 7-C · F-1 全大写下划线机读码 ⇒ 四语通用兜底（错误文案护栏扩口径） > ③ 服务端**自拼** `机读码 (reason)`（message 已含拼接）⇒ 同样落四语兜底，不因 reason 已拼而漏网
+AssertionError: [zh]: expected 'LEDGER_CURRENCY_INVALID_TRANSITION (o…' to be '请求失败 (409)' // Object.is equality
+
+- Expected
++ Received
+
+- 请求失败 (409)
++ LEDGER_CURRENCY_INVALID_TRANSITION (order_not_refundable) (order_not_refundable)
+
+ ❯ src/test/unit/p7c-errmsg-machinecode.test.js:147:36
+    145|       await i18n.changeLanguage(lang)
+    146|       const message = await apiErrorMessage(payload, status)
+    147|       expect(message, `[${lang}]`).toBe(genericOf(lang, status))
+       |                                    ^
+    148|       expect(containsMachineCode(message)).toBe(false)
+    149|       expect(message).not.toContain('order_not_refundable')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/test/unit/p7c-errmsg-machinecode.test.js > 批 7-C · F-1 全大写下划线机读码 ⇒ 四语通用兜底（错误文案护栏扩口径） > ⑥ `ledger-api` 端到端：真 409 体 ⇒ 用户可见串 = 该语通用兜底，非机读码
+AssertionError: [zh]: expected 'LEDGER_CURRENCY_INVALID_TRANSITION (o…' to be '请求失败 (409)' // Object.is equality
+
+- Expected
++ Received
+
+- 请求失败 (409)
++ LEDGER_CURRENCY_INVALID_TRANSITION (order_not_refundable)
+
+ ❯ src/test/unit/p7c-errmsg-machinecode.test.js:211:40
+    209| 
+    210|       expect(err).toBeInstanceOf(Error)
+    211|       expect(err.message, `[${lang}]`).toBe(genericOf(lang, status))
+       |                                        ^
+    212|       expect(containsMachineCode(err.message)).toBe(false)
+    213|       expect(err.message).not.toContain('LEDGER_CURRENCY_INVALID_TRANS…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 4 passed (7)
+   Start at  19:23:28
+   Duration  763ms (transform 78ms, setup 158ms, collect 91ms, tests 20ms, environment 318ms, prepare 58ms)
+

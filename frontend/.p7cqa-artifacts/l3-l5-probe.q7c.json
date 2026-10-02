@@ -1,0 +1,50 @@
+{"leg":"L3a","lang":"zh","out":"请求失败 (409)","expected":"请求失败 (409)","eq":true,"nonAscii":true,"hasCode":false,"hasReason":false,"hasBareKey":false,"hasObjObj":false,"hitMachine":false}
+{"leg":"L3a","lang":"hk","out":"請求失敗（409）","expected":"請求失敗（409）","eq":true,"nonAscii":true,"hasCode":false,"hasReason":false,"hasBareKey":false,"hasObjObj":false,"hitMachine":false}
+{"leg":"L3a","lang":"en","out":"Request failed (409)","expected":"Request failed (409)","eq":true,"nonAscii":false,"hasCode":false,"hasReason":false,"hasBareKey":false,"hasObjObj":false,"hitMachine":false}
+{"leg":"L3a","lang":"vn","out":"Yêu cầu thất bại (409)","expected":"Yêu cầu thất bại (409)","eq":true,"nonAscii":true,"hasCode":false,"hasReason":false,"hasBareKey":false,"hasObjObj":false,"hitMachine":false}
+{"leg":"L3b","lang":"zh","out":"请求失败 (409)","expected":"请求失败 (409)","eq":true}
+{"leg":"L3b","lang":"hk","out":"請求失敗（409）","expected":"請求失敗（409）","eq":true}
+{"leg":"L3b","lang":"en","out":"Request failed (409)","expected":"Request failed (409)","eq":true}
+{"leg":"L3b","lang":"vn","out":"Yêu cầu thất bại (409)","expected":"Yêu cầu thất bại (409)","eq":true}
+{"leg":"L3c","lang":"zh","out":"系统繁忙，请稍后重试 (too_many_connections)","expected":"系统繁忙，请稍后重试 (too_many_connections)","eq":true,"isGeneric":false}
+{"leg":"L3c","lang":"hk","out":"系统繁忙，请稍后重试 (too_many_connections)","expected":"系统繁忙，请稍后重试 (too_many_connections)","eq":true,"isGeneric":false}
+{"leg":"L3c","lang":"en","out":"系统繁忙，请稍后重试 (too_many_connections)","expected":"系统繁忙，请稍后重试 (too_many_connections)","eq":true,"isGeneric":false}
+{"leg":"L3c","lang":"vn","out":"系统繁忙，请稍后重试 (too_many_connections)","expected":"系统繁忙，请稍后重试 (too_many_connections)","eq":true,"isGeneric":false}
+{"leg":"L3d","name":"小写英文句","sample":"database is unreachable","containsMachineCode":false,"looksLikeMachineCode":false,"out_zh":"database is unreachable","sink_zh":"②服务端原文","out_en":"database is unreachable","sink_en":"②服务端原文"}
+{"leg":"L3d","name":"含小写英文句","sample":"Invalid wallet signature","containsMachineCode":false,"looksLikeMachineCode":false,"out_zh":"钱包签名无效，请重新签名后再登录。","sink_zh":"②服务端原文","out_en":"The wallet signature is invalid. Please sign again to log in.","sink_en":"②服务端原文"}
+{"leg":"L3d","name":"中文句","sample":"系统繁忙，请稍后重试","containsMachineCode":false,"looksLikeMachineCode":false,"out_zh":"系统繁忙，请稍后重试","sink_zh":"②服务端原文","out_en":"系统繁忙，请稍后重试","sink_en":"②服务端原文"}
+{"leg":"L3d","name":"纯数字下划线串","sample":"2024_01_02","containsMachineCode":true,"looksLikeMachineCode":true,"out_zh":"请求失败 (503)","sink_zh":"③通用兜底","out_en":"Request failed (503)","sink_en":"③通用兜底"}
+{"leg":"L3d","name":"中文+空格包围大写带数字下划线 token","sample":"订单 A123_456 不存在","containsMachineCode":true,"looksLikeMachineCode":false,"out_zh":"请求失败 (503)","sink_zh":"③通用兜底","out_en":"Request failed (503)","sink_en":"③通用兜底"}
+{"leg":"L3d","name":"中文紧邻大写带数字下划线 token（无分隔）","sample":"订单A123_456不存在","containsMachineCode":false,"looksLikeMachineCode":false,"out_zh":"订单A123_456不存在","sink_zh":"②服务端原文","out_en":"订单A123_456不存在","sink_en":"②服务端原文"}
+{"leg":"L3d","name":"单词大写无下划线","sample":"TIMEOUT","containsMachineCode":false,"looksLikeMachineCode":false,"out_zh":"TIMEOUT","sink_zh":"②服务端原文","out_en":"TIMEOUT","sink_en":"②服务端原文"}
+{"leg":"L3d","name":"纯大写无下划线 4 字符","sample":"ABCD","containsMachineCode":false,"looksLikeMachineCode":false,"out_zh":"ABCD","sink_zh":"②服务端原文","out_en":"ABCD","sink_en":"②服务端原文"}
+{"leg":"L3d","name":"短带下划线 <4","sample":"A_B","containsMachineCode":false,"looksLikeMachineCode":false,"out_zh":"A_B","sink_zh":"②服务端原文","out_en":"A_B","sink_en":"②服务端原文"}
+{"leg":"L3d","name":"英文句带路径","sample":"endpoint deprecated: /api/auth/register","containsMachineCode":false,"looksLikeMachineCode":false,"out_zh":"endpoint deprecated: /api/auth/register","sink_zh":"②服务端原文","out_en":"endpoint deprecated: /api/auth/register","sink_en":"②服务端原文"}
+{"leg":"L3d","name":"英文句带合法短码","sample":"Request failed (400)","containsMachineCode":false,"looksLikeMachineCode":false,"out_zh":"Request failed (400)","sink_zh":"②服务端原文","out_en":"Request failed (400)","sink_en":"②服务端原文"}
+{"leg":"L3d","name":"英文句内嵌大写机读码 token","sample":"see LEDGER_CODE_XYZ in logs","containsMachineCode":true,"looksLikeMachineCode":false,"out_zh":"请求失败 (503)","sink_zh":"③通用兜底","out_en":"Request failed (503)","sink_en":"③通用兜底"}
+{"leg":"L3d","name":"版本号","sample":"v1.2","containsMachineCode":false,"looksLikeMachineCode":false,"out_zh":"v1.2","sink_zh":"②服务端原文","out_en":"v1.2","sink_en":"②服务端原文"}
+{"leg":"L3d","name":"大写 reason（无点）","sample":"STATEMENT_TIMEOUT","containsMachineCode":true,"looksLikeMachineCode":true,"out_zh":"请求失败 (503)","sink_zh":"③通用兜底","out_en":"Request failed (503)","sink_en":"③通用兜底"}
+{"leg":"L3d","name":"大写+数字下划线","sample":"HTTP_500","containsMachineCode":true,"looksLikeMachineCode":true,"out_zh":"请求失败 (503)","sink_zh":"③通用兜底","out_en":"Request failed (503)","sink_en":"③通用兜底"}
+{"leg":"L3d","name":"大小写混合 token","sample":"abc_DEF","containsMachineCode":false,"looksLikeMachineCode":false,"out_zh":"abc_DEF","sink_zh":"②服务端原文","out_en":"abc_DEF","sink_en":"②服务端原文"}
+{"leg":"L3d","name":"大写字母+数字下划线（短）","sample":"A123_456","containsMachineCode":true,"looksLikeMachineCode":true,"out_zh":"请求失败 (503)","sink_zh":"③通用兜底","out_en":"Request failed (503)","sink_en":"③通用兜底"}
+{"leg":"L3d","name":"英文句内嵌大写 reason 后缀面","sample":"Ledger statement timed out (STATEMENT_TIMEOUT)","containsMachineCode":true,"looksLikeMachineCode":false,"out_zh":"请求失败 (503)","sink_zh":"③通用兜底","out_en":"Request failed (503)","sink_en":"③通用兜底"}
+{"leg":"L5","name":"401 AUTH_UNAUTHORIZED 真体（message=码, i18n_key=auth.err.AUTH_UNAUTHORIZED）","lang":"zh","status":401,"before":"登录凭证无效或已过期，请重新登录。","after":"登录凭证无效或已过期，请重新登录。","changed":false}
+{"leg":"L5","name":"401 AUTH_UNAUTHORIZED 真体（message=码, i18n_key=auth.err.AUTH_UNAUTHORIZED）","lang":"en","status":401,"before":"Your sign-in credential is invalid or has expired. Please sign in again.","after":"Your sign-in credential is invalid or has expired. Please sign in again.","changed":false}
+{"leg":"L5","name":"403 AUTH_FORBIDDEN + reason=ACTOR_NOT_ALLOWED（message=reason 码）","lang":"zh","status":403,"before":"当前账号无权执行该操作。","after":"当前账号无权执行该操作。","changed":false}
+{"leg":"L5","name":"403 AUTH_FORBIDDEN + reason=ACTOR_NOT_ALLOWED（message=reason 码）","lang":"en","status":403,"before":"This account is not allowed to perform this action.","after":"This account is not allowed to perform this action.","changed":false}
+{"leg":"L5","name":"403 AUTH_FORBIDDEN + reason=PERMISSION_NOT_GRANTED（message=reason 码）","lang":"zh","status":403,"before":"当前账号无权执行该操作。","after":"当前账号无权执行该操作。","changed":false}
+{"leg":"L5","name":"403 AUTH_FORBIDDEN + reason=PERMISSION_NOT_GRANTED（message=reason 码）","lang":"en","status":403,"before":"This account is not allowed to perform this action.","after":"This account is not allowed to perform this action.","changed":false}
+{"leg":"L5","name":"404 ledger.err.LEDGER_REF_NOT_FOUND + 英文原文 message","lang":"zh","status":404,"before":"Referenced object not found","after":"Referenced object not found","changed":false}
+{"leg":"L5","name":"404 ledger.err.LEDGER_REF_NOT_FOUND + 英文原文 message","lang":"en","status":404,"before":"Referenced object not found","after":"Referenced object not found","changed":false}
+{"leg":"L5","name":"404 job not found（小写英文句）","lang":"zh","status":404,"before":"job not found","after":"job not found","changed":false}
+{"leg":"L5","name":"404 job not found（小写英文句）","lang":"en","status":404,"before":"job not found","after":"job not found","changed":false}
+{"leg":"L5","name":"ledger fromLedgerError 面（message=机读码）","lang":"zh","status":503,"before":"LEDGER_LOCK_TIMEOUT (STATEMENT_TIMEOUT)","after":"请求失败 (503)","changed":true}
+{"leg":"L5","name":"ledger fromLedgerError 面（message=机读码）","lang":"en","status":503,"before":"LEDGER_LOCK_TIMEOUT (STATEMENT_TIMEOUT)","after":"Request failed (503)","changed":true}
+{"leg":"L5","name":"旧字符串面 B14（英文原文，无 error 对象）","lang":"zh","status":401,"before":"钱包签名无效，请重新签名后再登录。","after":"钱包签名无效，请重新签名后再登录。","changed":false}
+{"leg":"L5","name":"旧字符串面 B14（英文原文，无 error 对象）","lang":"en","status":401,"before":"The wallet signature is invalid. Please sign again to log in.","after":"The wallet signature is invalid. Please sign again to log in.","changed":false}
+{"leg":"L5","name":"410 弃用面（英文句）","lang":"zh","status":410,"before":"endpoint deprecated: /api/auth/register","after":"endpoint deprecated: /api/auth/register","changed":false}
+{"leg":"L5","name":"410 弃用面（英文句）","lang":"en","status":410,"before":"endpoint deprecated: /api/auth/register","after":"endpoint deprecated: /api/auth/register","changed":false}
+{"leg":"L5","name":"p7a③ 向量（英文句 + 大写 reason）","lang":"zh","status":503,"before":"Ledger statement timed out (STATEMENT_TIMEOUT)","after":"Ledger statement timed out (STATEMENT_TIMEOUT)","changed":false}
+{"leg":"L5","name":"p7a③ 向量（英文句 + 大写 reason）","lang":"en","status":503,"before":"Ledger statement timed out (STATEMENT_TIMEOUT)","after":"Ledger statement timed out (STATEMENT_TIMEOUT)","changed":false}
+{"leg":"L5","name":"未登记裸 payload.message（无 error 对象）","lang":"zh","status":503,"before":"database is unreachable","after":"database is unreachable","changed":false}
+{"leg":"L5","name":"未登记裸 payload.message（无 error 对象）","lang":"en","status":503,"before":"database is unreachable","after":"database is unreachable","changed":false}
