@@ -1410,6 +1410,8 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 - **Neng · 独立质检（只读）** ⇒ `sa-1-5e8f265f`：对 `9284fc1` 做**首次独立质检**（该批从未过质检）。要求**固定副本**（`git worktree --detach 9284fc1`，并以 `9284fc1^` 作**真改前**跑 A/B）+ **判负自证**（把 `13px` / `polygon(...)` 改回 ⇒ 探针必须红）+ **线上 vs 本地 CSS 对照** + 逐条补它自报的 6 项 `NOT_MEASURED`。交付 `docs/qa/p6-ui-consist-b-review.md`。
 - **Kong · 批 7-A 实现** ⇒ `sa-0-bb29db5c`：注册 **`GET /api/user/ledger`**（规格**早已冻结契约、从未实现** → `data-layer.spec` **DL25** keyset 分页〔`before_txid` + `next_before_txid`，**禁 `OFFSET`**〕/ **DL23** 读路径零写副作用 / `route-layer.spec:265`「路由层随批 4 注册」/ `:723` 前端 `ProfilePage` 现为空态 / `:1343` 碎片读口语义由 `?kind=transfer` 取代）+ 前端接线（`ProfilePage:341-350`、`ShardPage:303`）+ 注册点 **67 → 68** + 判负自证 + 硬门（`tsc` 0 / 离线 126 不降 / build 0 / 单测 ≥238 / 四脚本 PASS）。交付 `docs/audit/p7-a-ledger-read.md`。
 
+- **Jing · 规范先行** ⇒ `sa-0-e9e45e7e`（随后派）：`§7-32 管理员退款发起` 现仅登记「后续能力」、**无任何实现口径**；其前置（权限单一真源 `0022` + 审计面 `0023`）**均已 apply** ⇒ 派 Jing 出 **`route-layer.spec` v1.5（只追加）**：actor 面 / 权限键（优先复用、不新造）/ 审计留痕（复用 vs 新表**两变体交我终审**）/ 幂等 / 「资金与审计同一次 DB 调用」形态 / 可证伪 AC，并附只读取证与**待 Zang 终审条目**（禁自行二选一）。**文件面 = 仅 spec + 快照 + delta**，与 Kong（代码）/ Neng（`docs/qa`）不相交。
+
 **D. 我裁的口径（一句话可改）**：① **批 7 =「用户可见读口」线**，首单只做 `/api/user/ledger`；② **`/api/user/points` 暂不注册** —— 前端现无消费方（现走 `/api/user/asset/:uID`），不造**无人消费的空路径**（本册 §1.2 补强的同一理由）；③ **装饰性切角与 legacy 硬阴影不并入本批**（审美面，需 Kevin 口径）；④ **本批不 `commit`/`push`**，由我验收后入库 —— **注意本仓推送即上线**。
 
 ---
