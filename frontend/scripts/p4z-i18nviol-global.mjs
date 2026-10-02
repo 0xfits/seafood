@@ -201,11 +201,32 @@ console.log(`    ${codeReg.slice(0, 6).join(' | ') || '(empty)'}${codeReg.length
 console.log(`  子面③ 硬编码中文文案字面量（非注释行内的引号字面量）= ${cjkLiterals} 个；其中命中工程口径 = ${hardcodedCjkHits.length} 个 ${JSON.stringify(hardcodedCjkHits)} —— 理由：硬编码文案面，命中即违例`)
 if (cjkHits.length) fail = true
 
-// ── ③ 残余发现（不计命中，但打印，不静默放水）─────────────────────────────
-const RESIDUAL = [
-  ['src/pages/listings/ListingsPage.jsx:127', '`String(row.status ?? t(\'listings.listed\'))` 把**数据里的**状态枚举原样渲染（`draft`/`listed`）—— 非文案字面，且现有键集内无 draft 等标签键可用 ⇒ 不得在本单新增键，另单收口'],
-]
-console.log('[I18N-VIOL] ③ 残余发现（不计命中；须另单收口）')
+// ── ③ 残余发现（**现取** —— 不计命中，但必须打印，不静默放水）─────────────────
+//   原登记（批 6）：`ListingsPage.jsx` 状态标签 `String(row.status ?? t('listings.listed'))` 把
+//     **数据里的**枚举（`draft`/`listed`）原样渲染给用户，当时「键集内无 draft 等标签键」⇒ 另单收口。
+//   本单（小尾巴批 ①）核验收口：该页已实装 `listings.statusLabel.<value>` 查表
+//     （取值域现取真源 = `backend-ts/migrations/0015_listing.sql:137`
+//      `CHECK (status IN ('draft','listed','delisted','frozen'))`，DEFAULT `draft`；
+//      `backend-ts/src/listing-service.ts:135-139` 同集）+ **未知取值本地化兜底**（`statusLabel.unknown`，
+//      原值留 `title`/`data-sf-status`）⇒ 原登记项**作废**。
+//   此处改为**现取**源码（不静默）：若「tag 内原样渲染 `row.status`」形态**重新出现**、
+//     或查表 / 未知兜底被移除 ⇒ 重新登记为残余（读数即刻 > 0）。
+const LISTINGS_PAGE_REL = 'pages/listings/ListingsPage.jsx'
+const RESIDUAL = []
+{
+  const abs = path.join(SRC, LISTINGS_PAGE_REL)
+  const raw = fs.existsSync(abs) ? fs.readFileSync(abs, 'utf8') : ''
+  const code = raw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '')
+  const RAW_RENDER = /sf-listings-tag[\s\S]{0,240}?String\(row\.status/   // 旧形态：tag 内直出枚举
+  const LOOKUP = /listings\.statusLabel\./                               // 收口形态：查表在场
+  const FALLBACK = /listings\.statusLabel\.unknown/                      // 未知值本地化兜底在场
+  if (!raw) RESIDUAL.push([`src/${LISTINGS_PAGE_REL}`, '文件缺失 —— 无法核验状态枚举收口'])
+  else if (RAW_RENDER.test(code) || !LOOKUP.test(code) || !FALLBACK.test(code)) {
+    RESIDUAL.push([`src/${LISTINGS_PAGE_REL}`, '状态枚举又出现原样渲染 / 查表或未知兜底缺失（P6-MISC-FIX ① 收口被回退）'])
+  }
+}
+console.log('[I18N-VIOL] ③ 残余发现（**现取**；不计命中，另单收口）')
+console.log(`  现取核验：${LISTINGS_PAGE_REL} 状态标签收口 ⇒ 残留登记 = ${RESIDUAL.length} 条（原 1 条已由小尾巴批 ① 收口）`)
 for (const [where, why] of RESIDUAL) console.log(`  ? ${where} :: ${why}`)
 
 console.log(`[I18N-VIOL] 总判：${fail ? 'FAIL' : 'PASS'}（locale 裸命中 ${localeHits.length} + 源面裸命中 ${sourceHits.length} 必须 = 0；作用域节点数 locale=${LOCALE_NODES} / source=${textNodes}）`)

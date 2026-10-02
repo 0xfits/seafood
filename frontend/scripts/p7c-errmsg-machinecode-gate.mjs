@@ -18,7 +18,7 @@
  *   C **四语通用兜底齐备**：`auth.err.REQUEST_FAILED` 四语都存在、非空、非裸键、非机读码
  *     ⇒ 删任一语的兜底键 ⇒ C 判负（这就是扩口径后的落点 ③）。
  *   D **行为节点（★ 类级）**：**机读码 message 向量 × 4 语** —— 断言链产出**不含机读码 token**、
- *     不含 `details.reason` 后缀、且**逐字等于该语 `auth.err.REQUEST_FAILED` 真兜底**（F-1 409 真体）。
+ *     不含 `details.reason` 后缀、且**逐字等于该语真兜底 / 真文案**（F-1 409 真体）。
  *     类级违例计数（「全大写下划线机读码被当作文案输出」形态）必须 = 0。
  *   E **边界样本表自证（非空转）**：谓词正例（`LEDGER_CURRENCY_INVALID_TRANSITION` / `AUTH_UNAUTHORIZED` /
  *     `STATEMENT_TIMEOUT`）⇒ true；反例（`系统繁忙，请稍后重试 (too_many_connections)` / `Request failed (400)` /
@@ -31,19 +31,30 @@
  *     `details.reason` 与 `message` 施**同一判据**（复用 `containsMachineCode`）⇒ 命中 ⇒ 不附加 `(reason)` 后缀。
  *     ⇒ 把 reason 判据改回旧口径 ⇒ G 判负。
  *
+ * ── ★ 批 7-E ③ · D/F/G 已升**真链**（落实 R-7D-3 纪律）────────────────────────
+ *   本脚本此前是**纯 node 门**（`src/i18n.js` 的 `./utils` 无扩展名导入 + `./locales/*.json` 在 node 下
+ *   不可解析）⇒ D/F/G 走「链式决策**镜像**」，故把 `auth.js` 的 reason 判据改回旧口径时**门不红、只有真链
+ *   单测红**（终审质检已独立坐实）。本单把 D/F/G 改为**真链**：
+ *     · 用 `esbuild`（仓内现成，vite 依赖）把 `src/auth.js`（连带其**动态导入**的 `src/i18n.js` + 真 locale
+ *       JSON）打成**临时 ESM**（`os.tmpdir()` 下，用后即删），`import()` 后**直接调用真 `apiErrorMessage`**；
+ *     · 语言切换 = 真实例 `changeLanguage(lang)`；断言 oracle 用同一实例的 `getFixedT(lang)`
+ *       —— **不再重写链逻辑**（镜像已删除）。
+ *   · 真链不可用（如 esbuild 缺失）时**不再静默**：打印 `【镜像级】` 横幅 + 逐字原因，D/F/G 记「无读数」并判负。
+ *   · **必带判负自证**：在**仓外副本**内把 `auth.js` 的 reason 判据改回旧口径（`const suffix = reason ? ' ('+reason+')' : ''`）
+ *     ⇒ 升级后的门必红（G 命中机读码）；复原 ⇒ 回绿。用法即下面的 `[root]` 形。
+ *
  * ── 口径说明（诚实标注）──────────────────────────────────────────────────────
- *   · 本脚本是**纯 node 门**（无 vite 解析器，故 `src/i18n.js` 的 `./utils` 无扩展名导入在 node 下不可解析）
- *     ⇒ D/F 采用**链式决策镜像**（与 `resolveI18nMessage` / `extractApiErrorMessage` 逐条同序）而非真跑
- *     `apiErrorMessage`；镜像的**准入闸 = 从 `src/auth.js` 导入的真谓词**（A 已断言真链接线到它），
- *     真 locale 数据 + 真 i18next。**真跑证据**（真 `i18n` 实例 + 真 `apiErrorMessage` + 真 `ledger-api`）
- *     = `src/test/unit/p7c-errmsg-machinecode.test.js`。
- *   · 只读：不写任何文件。
+ *   · A 段仍读**源码文本**（具名导出 / 调用点在场），它与真链**互补**：A 证「接线在场」，D/F/G 证「行为正确」。
+ *   · B/C/E 不依赖链（locale 表 + 真谓词），保持原判据。
+ *   · 只读（真链临时产物写在 `os.tmpdir()` 下并即时删除；不改仓内任何文件）。
  *
  * 用法：node scripts/p7c-errmsg-machinecode-gate.mjs [root]
- *       缺省 root = 本脚本上级目录（仓内 = `frontend/`）；给参可对**仓外镜像**判负
- *       （报告 §5 的判负自证②即用此形，零仓内污染）。
+ *       缺省 root = 本脚本上级目录（仓内 = `frontend/`）；给参可对**仓外副本**判负
+ *       （报告 §5 的判负自证②即用此形，零仓内污染）。仓外副本需能解析 `i18next` 等依赖
+ *       （nodePaths 兜底 = `<root>/node_modules` 与 `<本脚本>/../node_modules`）。
  */
 import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
@@ -73,11 +84,74 @@ try {
   guardImportError = err?.message || String(err)
 }
 
-let i18next = null
+// ══ ★ 批 7-E ③ · **真链**载入（真 `apiErrorMessage` + 真 `i18n` 实例）══════════════
+//   手法：esbuild 把 `src/auth.js`（连带动态导入的 `src/i18n.js` + 四语 JSON）打成一个临时 ESM，
+//   设好 `window` 垫片后 `import()`，取真 `apiErrorMessage` 与真 `i18n` 实例。
+const REAL_CHAIN_ENTRY = "export * from './auth.js'\nexport { default as i18n } from './i18n.js'\n"
+let realChain = null
+let realChainError = null
+let tempDir = null
 try {
-  i18next = (await import('i18next')).default
+  const esbuildMod = await import('esbuild')
+  const esbuild = esbuildMod.build ? esbuildMod : esbuildMod.default
+  tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'p7c-realchain-'))
+  const outfile = path.join(tempDir, 'auth-chain.mjs')
+  await esbuild.build({
+    stdin: {
+      contents: REAL_CHAIN_ENTRY,
+      resolveDir: path.join(ROOT, 'src'),
+      loader: 'js',
+      sourcefile: 'p7c-realchain-entry.js',
+    },
+    bundle: true,
+    format: 'esm',
+    platform: 'node',
+    outfile,
+    logLevel: 'silent',
+    // 仓外副本兜底：依赖（i18next / react-i18next / react）从这两处解析
+    nodePaths: [path.join(ROOT, 'node_modules'), path.join(HERE, '..', 'node_modules')],
+  })
+  // `src/i18n.js` 在**导入期**读 `window.location.pathname` ⇒ 先设垫片（默认语 zh）
+  globalThis.window = globalThis.window ?? { location: { pathname: '/zh/' }, addEventListener() {} }
+  const mod = await import(pathToFileURL(outfile).href)
+  if (typeof mod.apiErrorMessage !== 'function' || typeof mod.i18n?.t !== 'function') {
+    throw new Error('真链导出面缺失：apiErrorMessage / i18n.t')
+  }
+  realChain = { apiErrorMessage: mod.apiErrorMessage, i18n: mod.i18n }
 } catch (err) {
-  guardImportError = guardImportError || `i18next 导入失败：${err?.message || err}`
+  realChainError = err?.message || String(err)
+} finally {
+  if (tempDir) { try { fs.rmSync(tempDir, { recursive: true, force: true }) } catch { /* 忽略清理失败 */ } }
+}
+
+const chainReady = Boolean(realChain)
+console.log('[P7C-MACHINE-CODE] ★ 批 7-E ③ 链路体制（D/F/G）')
+if (chainReady) {
+  console.log('  【真链】真 `import` `src/auth.js#apiErrorMessage` + 真 `i18n` 实例（esbuild 临时 ESM 载入；不再镜像重写链逻辑）')
+} else {
+  console.log(`  【镜像级】真链不可用 ⇒ D/F/G 无读数（不得读作「零违例」）。原因：${realChainError}`)
+  fail(`D/F/G 真链不可用（升级后的门**不得**在镜像级下静默判绿）：${realChainError}`)
+}
+
+/** 真链入口（**唯一**求值路径；语言 = 真实例 `changeLanguage`）：
+ *  ① `t(i18nKey)` 命中 ⇒ 真文案；② 服务端原文（机读码 reason 不附后缀）；③ 四语通用兜底；④ ASCII 兜底。 */
+const chainOutcome = async (lang, v) => {
+  await realChain.i18n.changeLanguage(lang)
+  return realChain.apiErrorMessage(payloadOf(v), v.status)
+}
+
+/** 断言 oracle：同实例 `getFixedT(lang)` —— 键命中 ⇒ 真文案；未命中 ⇒ 该语通用兜底。 */
+const t = (lang, key, vars) => realChain.i18n.getFixedT(lang)(key, vars)
+
+/** 把向量还原成 `R107` **真体形状**（`{ error: { code, message, i18n_key, details.reason } }`）。 */
+const payloadOf = (v) => {
+  if (v.payloadMessageOnly !== undefined) return { success: false, message: v.payloadMessageOnly }
+  const error = {}
+  if (v.code !== undefined) error.code = v.code
+  error.message = v.message
+  if (v.i18nKey !== undefined) error.i18n_key = v.i18nKey
+  if (v.reason !== undefined) error.details = { reason: v.reason }
+  return { success: false, error }
 }
 
 // ── A 护栏在场（源码）──────────────────────────────────────────────────────────
@@ -151,56 +225,14 @@ for (const lang of LANGS) {
   if (!ok) fail(`C 通用兜底键 \`${GENERIC_KEY}\` 在 ${lang} 缺失 / 为空 / 为裸键 / 为机读码（值 = ${JSON.stringify(value)}）`)
 }
 
-// ── 载入 i18next（真实例）──────────────────────────────────────────────────────
-let t = null
-if (i18next) {
-  await i18next.init({
-    lng: 'zh',
-    fallbackLng: false,
-    resources: Object.fromEntries(langsLoaded.map((l) => [l, { translation: locales[l] }])),
-    interpolation: { escapeValue: false },
-    keySeparator: '.',
-  })
-  t = (lang, key, vars) => i18next.getFixedT(lang)(key, vars)
-}
-
 const usable = (value, key) => (
   typeof value === 'string' && value.length > 0 && value !== key && !containsBareI18nKey?.(value)
 )
 
-/**
- * 链式决策**镜像**（与 `extractApiErrorMessage` + `resolveI18nMessage` 逐条同序）：
- *   原文 `direct` = 服务端 `message`（**含机读码 ⇒ 视为不可用**）拼 `details.reason`；
- *   ★ 批 7-D（R1′）：`details.reason` 施**同一机读码判据** —— 命中 ⇒ **不附加后缀**
- *     （`stateConflict()` 的 `LISTING_STATE_INVALID` 一类）；未命中（`too_many_connections`）⇒ 后缀保留。
- *   ① `t(i18nKey)` 可用 ⇒ 用它（⇒ 逐码本地化后**自动让位**）
- *   ② `direct` 可用 ⇒ 服务端原文
- *   ③ 四语通用兜底 `auth.err.REQUEST_FAILED` ④ ASCII 兜底
- * 准入闸 = 从 `src/auth.js` 导入的**真谓词**。
- */
-const chainOutcome = (lang, v) => {
-  let direct
-  if (v.payloadMessageOnly !== undefined) {
-    direct = containsMachineCode?.(v.payloadMessageOnly) ? undefined : v.payloadMessageOnly
-  } else if (v.message && !containsMachineCode?.(v.message)) {
-    const suffix = v.reason && !containsMachineCode?.(v.reason) ? ` (${v.reason})` : ''
-    direct = `${v.message}${suffix}`
-  }
-  const hit = v.i18nKey ? t(lang, v.i18nKey, { status: v.status }) : undefined
-  if (usable(hit, v.i18nKey)) return hit
-  if (usable(direct, v.i18nKey)) return direct
-  const generic = t(lang, GENERIC_KEY, { status: v.status })
-  return usable(generic, GENERIC_KEY)
-    ? generic
-    : (v.status != null ? `Request failed (${v.status})` : 'Request failed')
-}
-
-const genericOf = (lang, status) => t(lang, GENERIC_KEY, { status })
-
 /** 该 (语, 向量) 的**期望可见串**：键命中 ⇒ 真文案（让位）；未命中 ⇒ 该语通用兜底。 */
 const expectedFor = (lang, i18nKey, status) => {
   const hit = i18nKey ? t(lang, i18nKey, { status }) : undefined
-  return usable(hit, i18nKey) ? hit : genericOf(lang, status)
+  return usable(hit, i18nKey) ? hit : t(lang, GENERIC_KEY, { status })
 }
 
 /** ★ 类级向量：服务端 `message` **含机读码**（F-1 家族）。 */
@@ -280,24 +312,23 @@ const HUMAN_VECTORS = [
 ]
 
 // ── D 行为节点（★ 类级）：机读码 message 向量 × 4 语 ──────────────────────────
-console.log('[P7C-MACHINE-CODE] D 行为节点（★ 类级）：机读码 message 向量 × 4 语 = '
+console.log('[P7C-MACHINE-CODE] D 行为节点（★ 类级 · 真链）：机读码 message 向量 × 4 语 = '
   + `${MACHINE_VECTORS.length} × ${LANGS.length} = ${MACHINE_VECTORS.length * LANGS.length}`)
 let machineNodes = 0
 let classViolations = 0
-if (!t) {
-  fail('D 无法求值：i18next 未就绪')
-  console.log('  !! i18next 未就绪，D 段无读数（不得读作「零违例」）')
+if (!chainReady) {
+  console.log('  !! 真链未就绪，D 段无读数（不得读作「零违例」）')
 } else {
   for (const v of MACHINE_VECTORS) {
     console.log(`  · ${v.name}（status=${v.status}）`)
     for (const lang of LANGS) {
       machineNodes += 1
-      const shown = chainOutcome(lang, v)
+      const shown = await chainOutcome(lang, v)
       const expected = expectedFor(lang, v.i18nKey, v.status)
       const problems = []
       if (typeof shown !== 'string' || shown.length === 0) problems.push(`空/非串 ${JSON.stringify(shown)}`)
       if (containsMachineCode?.(shown)) problems.push('产出含机读码 token')
-      if (shown.includes(v.code)) problems.push(`产出含码原文 ${v.code}`)
+      if (v.code && shown.includes(v.code)) problems.push(`产出含码原文 ${v.code}`)
       if (v.reason && shown.includes(v.reason)) problems.push(`产出含 reason 后缀 ${v.reason}`)
       if (v.forbidden && shown.includes(v.forbidden)) problems.push(`产出含 reason 后缀 ${v.forbidden}`)
       // ★ 批 7-D：期望值 = 「键命中 ⇒ 该语真文案（① 让位）/ 键未命中 ⇒ 该语通用兜底（③）」
@@ -313,17 +344,17 @@ if (!t) {
 }
 
 // ── F 反例面（O-1 边界回归）：真人可读 message ⇒ 仍走 ② ──────────────────────
-console.log('[P7C-MACHINE-CODE] F 反例面（O-1 边界回归）：真人可读服务端 message ⇒ 仍走 ② 服务端原文')
+console.log('[P7C-MACHINE-CODE] F 反例面（O-1 边界回归 · 真链）：真人可读服务端 message ⇒ 仍走 ② 服务端原文')
 let humanNodes = 0
 let humanViolations = 0
-if (!t) {
-  fail('F 无法求值：i18next 未就绪')
+if (!chainReady) {
+  console.log('  !! 真链未就绪，F 段无读数（不得读作「零违例」）')
 } else {
   for (const v of HUMAN_VECTORS) {
     console.log(`  · ${v.name}（status=${v.status}）`)
     for (const lang of LANGS) {
       humanNodes += 1
-      const shown = chainOutcome(lang, v)
+      const shown = await chainOutcome(lang, v)
       const problems = []
       if (v.expectEquals !== undefined && shown !== v.expectEquals) problems.push(`应 = 服务端原文 ${JSON.stringify(v.expectEquals)}，实际 ${JSON.stringify(shown)}`)
       if (v.expectLocalized !== undefined) {
@@ -349,7 +380,7 @@ if (!t) {
 //     ④ 503 `STATEMENT_TIMEOUT`；⑤ `LEDGER_LOCK_TIMEOUT`；⑥ O-1 小写 reason（后缀必须保留）。
 //   判据：逐 (向量, 语) 求链产出 ⇒ 机读码 token **出现次数**累加必须 = 0；
 //        且带大写 reason 的向量**不得**出现 `(REASON)` 后缀；O-1 向量**必须**保留后缀。
-//   ★ 本段是 R1′ 的**可判负落点**：把 `chainOutcome` 的 reason 判据改回旧口径 ⇒ 本段必红。
+//   ★ 本段是 R1′ 的**可判负落点**：把 `auth.js` 的 reason 判据改回旧口径（真链）⇒ 本段必红。
 const R1P_VECTORS = [
   {
     name: '① 409 机读码 message（F-1 真体；键已本地化 ⇒ ① 让位）',
@@ -430,21 +461,20 @@ const R1P_VECTORS = [
   },
 ]
 
-console.log('[P7C-MACHINE-CODE] G ★ 类级判据（批 7-D ② · R1′）：用户可见串中机读码出现次数 = 0'
+console.log('[P7C-MACHINE-CODE] G ★ 类级判据（批 7-D ② · R1′ · 真链）：用户可见串中机读码出现次数 = 0'
   + `（${R1P_VECTORS.length} 向量 × ${LANGS.length} 语 = ${R1P_VECTORS.length * LANGS.length} 节点）`)
 const TOKEN_RE_G = new RegExp(MACHINE_CODE_TOKEN_RE?.source || '$^', 'g')
 let r1pNodes = 0
 let r1pOccurrences = 0
 let r1pViolations = 0
-if (!t) {
-  fail('G 无法求值：i18next 未就绪')
-  console.log('  !! i18next 未就绪，G 段无读数（不得读作「零违例」）')
+if (!chainReady) {
+  console.log('  !! 真链未就绪，G 段无读数（不得读作「零违例」）')
 } else {
   for (const v of R1P_VECTORS) {
     console.log(`  · ${v.name}`)
     for (const lang of LANGS) {
       r1pNodes += 1
-      const shown = chainOutcome(lang, v)
+      const shown = await chainOutcome(lang, v)
       const occ = typeof shown === 'string' ? (shown.match(TOKEN_RE_G) || []).length : 1
       r1pOccurrences += occ
       const problems = []
@@ -499,14 +529,14 @@ console.log(`  正例 ${TRUE_CASES.length} 条 ⇒ containsMachineCode=true；�
 if (guardImportError) fail(`护栏模块导入失败：${guardImportError}`)
 for (const e of localeErrors) fail(`locale 载入失败：${e}`)
 
-console.log(`[P7C-MACHINE-CODE] 作用域读数：root = ${ROOT}；locale 叶子值 = ${localeNodes}；`
+console.log(`[P7C-MACHINE-CODE] 作用域读数：root = ${ROOT}；链路体制 = ${chainReady ? '真链' : '镜像级'}；locale 叶子值 = ${localeNodes}；`
   + `机读码向量节点 = ${machineNodes}；反例向量节点 = ${humanNodes}；扫描文件 = 1（src/auth.js）+ ${langsLoaded.length}（locale）`)
 if (fails.length) {
   console.log(`[P7C-MACHINE-CODE] 判负 ${fails.length} 条（必须 = 0）：`)
   for (const f of fails) console.log(`  ! ${f}`)
 }
 console.log(`[P7C-MACHINE-CODE] 总判：${fails.length ? 'FAIL' : 'PASS'}（判负 ${fails.length} 必须 = 0；`
-  + `A=${guardWired ? 'PASS' : 'FAIL'} / B 含机读码值=${codeValueHits.length} / C 兜底键=${LANGS.length} / `
+  + `链=${chainReady ? '真链' : '镜像级'} / A=${guardWired ? 'PASS' : 'FAIL'} / B 含机读码值=${codeValueHits.length} / C 兜底键=${LANGS.length} / `
   + `D 类级违例=${classViolations}/${machineNodes} / F 反例违例=${humanViolations}/${humanNodes} / `
   + `G 机读码出现次数=${r1pOccurrences}/${r1pNodes} 违例=${r1pViolations} / `
   + `E 样本=${TRUE_CASES.length + FALSE_CASES.length + 5}）`)
