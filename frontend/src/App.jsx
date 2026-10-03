@@ -32,6 +32,8 @@ import SystemSettings from './pages/admin/SystemSettings'
 import FeeRatePage from './pages/admin/FeeRatePage'
 import ReferralWeightMatrixPage from './pages/admin/ReferralWeightMatrixPage'
 import CurrencyReviewPage from './pages/admin/CurrencyReviewPage'
+import ListingReviewPage from './pages/admin/ListingReviewPage'
+import ArbitrationReviewPage from './pages/admin/ArbitrationReviewPage'
 
 // 布局组件
 import AppShell from './shell/AppShell'
@@ -249,6 +251,9 @@ function App() {
           <Route path="weight-matrix" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><ReferralWeightMatrixPage /></ProtectedRoute>} />
           {/* 8④（spec §23.6/§23.7）：自建单位审核页，闸 = review_tasks */}
           <Route path="currency-review" element={<ProtectedRoute adminOnly={true} requiredPermission="review_tasks"><CurrencyReviewPage /></ProtectedRoute>} />
+          {/* 8⑤（spec §25.2/§25.7）：商品合规审核页 / 招工仲裁页，闸 = review_tasks */}
+          <Route path="listing-review" element={<ProtectedRoute adminOnly={true} requiredPermission="review_tasks"><ListingReviewPage /></ProtectedRoute>} />
+          <Route path="arbitration-review" element={<ProtectedRoute adminOnly={true} requiredPermission="review_tasks"><ArbitrationReviewPage /></ProtectedRoute>} />
         </Route>
       
       {/* 显式语言壳路由：/en/*、/hk/*、/vn/*、/zh/*（顺序即 SUPPORTED_LANGS；zh 也保留显式壳，配合自愈层把 /zh → /） */}

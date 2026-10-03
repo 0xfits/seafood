@@ -1,0 +1,153 @@
+{
+ "unit": "P8-S5-HTTP-OWNERSHIP",
+ "run": "20261003T005552Z",
+ "mode": "after",
+ "total": 6,
+ "passed": 6,
+ "failed": 0,
+ "summary": {
+  "mode": "after",
+  "base": "http://127.0.0.1:5796",
+  "job_used": {
+   "job_id": "20",
+   "employer_uid": "11",
+   "status": "settled"
+  },
+  "health": {
+   "status": null,
+   "schema_version": "0027"
+  },
+  "readings": [
+   {
+    "actor": "admin",
+    "uid": 1,
+    "cancel": {
+     "status": 409,
+     "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+     "reason": null
+    },
+    "review_reject": {
+     "status": 409,
+     "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+     "reason": null
+    },
+    "review_approve": {
+     "status": 200,
+     "code": null,
+     "reason": null
+    }
+   },
+   {
+    "actor": "employer",
+    "uid": 11,
+    "cancel": {
+     "status": 409,
+     "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+     "reason": null
+    },
+    "review_reject": {
+     "status": 409,
+     "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+     "reason": null
+    },
+    "review_approve": {
+     "status": 200,
+     "code": null,
+     "reason": null
+    }
+   },
+   {
+    "actor": "non_admin",
+    "uid": 3,
+    "cancel": {
+     "status": 403,
+     "code": "AUTH_FORBIDDEN",
+     "reason": "NOT_ADMIN"
+    },
+    "review_reject": {
+     "status": 403,
+     "code": "AUTH_FORBIDDEN",
+     "reason": "NOT_ADMIN"
+    },
+    "review_approve": {
+     "status": 403,
+     "code": "AUTH_FORBIDDEN",
+     "reason": "NOT_ADMIN"
+    }
+   },
+   {
+    "actor": "perm_limited",
+    "uid": 910004,
+    "cancel": {
+     "status": 403,
+     "code": "AUTH_FORBIDDEN",
+     "reason": "PERMISSION_NOT_GRANTED"
+    },
+    "review_reject": {
+     "status": 403,
+     "code": "AUTH_FORBIDDEN",
+     "reason": "PERMISSION_NOT_GRANTED"
+    },
+    "review_approve": {
+     "status": 403,
+     "code": "AUTH_FORBIDDEN",
+     "reason": "PERMISSION_NOT_GRANTED"
+    }
+   }
+  ],
+  "no_token": {
+   "status": 401,
+   "code": "AUTH_UNAUTHORIZED",
+   "reason": null
+  },
+  "ledger_entry": {
+   "before": 355,
+   "after": 355
+  },
+  "note": "只打鉴权面 / 早退面：动作口**放行**只到服务层早退（终态 job ⇒ 白名单边拒 409 或幂等重放 200），不产生真写；拦住 = 403 先于写。"
+ },
+ "checks": [
+  {
+   "id": "G1.admin",
+   "group": "ownership",
+   "pass": true,
+   "expect": "admin(uid 1) ⇒ **通**（非 401/403；落业务层）",
+   "actual": "{\"cancel\":{\"status\":409,\"code\":\"LEDGER_CURRENCY_INVALID_TRANSITION\",\"reason\":null},\"review_reject\":{\"status\":409,\"code\":\"LEDGER_CURRENCY_INVALID_TRANSITION\",\"reason\":null}}"
+  },
+  {
+   "id": "G2.employer",
+   "group": "ownership",
+   "pass": true,
+   "expect": "雇主本人(uid 11) ⇒ **通**（改动后归属闸放行）",
+   "actual": "{\"cancel\":{\"status\":409,\"code\":\"LEDGER_CURRENCY_INVALID_TRANSITION\",\"reason\":null},\"review_reject\":{\"status\":409,\"code\":\"LEDGER_CURRENCY_INVALID_TRANSITION\",\"reason\":null}}"
+  },
+  {
+   "id": "G3.non_admin",
+   "group": "ownership",
+   "pass": true,
+   "expect": "非雇主非 admin(uid 3) ⇒ **403 AUTH_FORBIDDEN / NOT_ADMIN**",
+   "actual": "{\"cancel\":{\"status\":403,\"code\":\"AUTH_FORBIDDEN\",\"reason\":\"NOT_ADMIN\"},\"review_reject\":{\"status\":403,\"code\":\"AUTH_FORBIDDEN\",\"reason\":\"NOT_ADMIN\"}}"
+  },
+  {
+   "id": "G4.perm_limited",
+   "group": "ownership",
+   "pass": true,
+   "expect": "非雇主 admin 缺 review_tasks(uid 910004 仅 manage_points) ⇒ **403 PERMISSION_NOT_GRANTED**",
+   "actual": "{\"cancel\":{\"status\":403,\"code\":\"AUTH_FORBIDDEN\",\"reason\":\"PERMISSION_NOT_GRANTED\"},\"review_reject\":{\"status\":403,\"code\":\"AUTH_FORBIDDEN\",\"reason\":\"PERMISSION_NOT_GRANTED\"}}"
+  },
+  {
+   "id": "G5.no_token_401",
+   "group": "ownership",
+   "pass": true,
+   "expect": "无 token ⇒ 401 AUTH_UNAUTHORIZED（先于任何写）",
+   "actual": "{\"status\":401,\"code\":\"AUTH_UNAUTHORIZED\",\"reason\":null}"
+  },
+  {
+   "id": "G6.zero_net_write",
+   "group": "ownership",
+   "pass": true,
+   "expect": "★ 只读/鉴权面：跑前后 `ledger_entry` 行数**相等**（零净写）",
+   "actual": "{\"before\":355,\"after\":355}"
+  }
+ ]
+}

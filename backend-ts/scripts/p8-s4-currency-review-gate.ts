@@ -57,8 +57,8 @@ const selfTest = (id: string, group: string, predicate: (v: unknown) => boolean,
 };
 
 // ---------------------------------------------------------------- 冻结常量
-const REG_POINTS_FROZEN = 71;
-const MIGRATIONS_FROZEN = 24;
+const REG_POINTS_FROZEN = 75;
+const MIGRATIONS_FROZEN = 26;
 const REVIEW_NS_KEYS_FROZEN = 28;
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;
@@ -340,7 +340,7 @@ const leakHits = (ns: Record<string, string>): string[] => {
 // ============================================================================
 // I · 门自证（负对照）
 // ============================================================================
-selfTest('A1', 'registration', (v) => v === REG_POINTS_FROZEN, 70, '注册点写成 70（= 偷偷少注册一条）⇒ 谓词必须转红');
+selfTest('A1', 'registration', (v) => v === REG_POINTS_FROZEN, 74, '注册点写成 74（= 偷偷少注册一条）⇒ 谓词必须转红');
 selfTest('C1', 'actionShape', (v) => JSON.stringify(v) === JSON.stringify(['approve', 'reject']), ['approve', 'reject', 'hold'],
   '闭集被偷偷加第三值 ⇒ 谓词必须转红');
 selfTest('H9', 'migration', (v) => /time_created\s+timestamptz NOT NULL DEFAULT now\(\)/.test(String(v)) && !/\btime_updated\b/.test(sqlStructure(String(v))),

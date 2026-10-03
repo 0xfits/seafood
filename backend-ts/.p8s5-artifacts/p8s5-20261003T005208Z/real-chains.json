@@ -1,0 +1,994 @@
+{
+ "unit": "P8-S5-REAL-CHAINS",
+ "run": "20261003T005208Z",
+ "generated_at": "2026-10-03T00:52:28.227Z",
+ "total": 69,
+ "passed": 69,
+ "failed": 0,
+ "section1_triggers": {
+  "note": "现取四表用户触发器（NOT tgisinternal）；tgtype 位：1=ROW 2=BEFORE 4=INSERT 8=DELETE 16=UPDATE。",
+  "rows": [
+   {
+    "table_name": "job",
+    "tgname": "trg_job_core_immutable_guard",
+    "tgenabled": "O",
+    "tgtype": 19,
+    "fn": "job_core_immutable_guard"
+   },
+   {
+    "table_name": "job",
+    "tgname": "trg_job_ledger_ref_guard",
+    "tgenabled": "O",
+    "tgtype": 19,
+    "fn": "job_ledger_ref_guard"
+   },
+   {
+    "table_name": "job",
+    "tgname": "trg_job_no_delete",
+    "tgenabled": "O",
+    "tgtype": 11,
+    "fn": "job_no_delete"
+   },
+   {
+    "table_name": "job",
+    "tgname": "trg_job_status_guard",
+    "tgenabled": "O",
+    "tgtype": 19,
+    "fn": "job_status_guard"
+   },
+   {
+    "table_name": "job",
+    "tgname": "trg_job_touch_time_updated",
+    "tgenabled": "O",
+    "tgtype": 19,
+    "fn": "job_touch_time_updated"
+   },
+   {
+    "table_name": "job_arbitration_log",
+    "tgname": "trg_job_arbitration_log_append_only",
+    "tgenabled": "O",
+    "tgtype": 27,
+    "fn": "job_arbitration_log_append_only"
+   },
+   {
+    "table_name": "listing",
+    "tgname": "trg_listing_create_key_guard",
+    "tgenabled": "O",
+    "tgtype": 19,
+    "fn": "listing_create_key_guard"
+   },
+   {
+    "table_name": "listing",
+    "tgname": "trg_listing_no_delete",
+    "tgenabled": "O",
+    "tgtype": 11,
+    "fn": "listing_no_delete"
+   },
+   {
+    "table_name": "listing",
+    "tgname": "trg_listing_status_guard",
+    "tgenabled": "O",
+    "tgtype": 19,
+    "fn": "listing_status_guard"
+   },
+   {
+    "table_name": "listing",
+    "tgname": "trg_listing_stock_guard",
+    "tgenabled": "O",
+    "tgtype": 19,
+    "fn": "listing_stock_guard"
+   },
+   {
+    "table_name": "listing",
+    "tgname": "trg_listing_touch_time_updated",
+    "tgenabled": "O",
+    "tgtype": 19,
+    "fn": "listing_touch_time_updated"
+   },
+   {
+    "table_name": "listing_review_log",
+    "tgname": "trg_listing_review_log_append_only",
+    "tgenabled": "O",
+    "tgtype": 27,
+    "fn": "listing_review_log_append_only"
+   }
+  ]
+ },
+ "schema_version": "0027",
+ "base_tables": 28,
+ "migration_assert": {
+  "db_0026": "3140366eabfdcc8375e71e1c8e0144323767245cf2e4fc4114687ba695f84e7b",
+  "file_0026": "3140366eabfdcc8375e71e1c8e0144323767245cf2e4fc4114687ba695f84e7b",
+  "db_0027": "8209df5a86879188f5a25583b69bd4e0002474f850767a7b411641bda17fd481",
+  "file_0027": "8209df5a86879188f5a25583b69bd4e0002474f850767a7b411641bda17fd481"
+ },
+ "baseline": {
+  "listing_review_log": {
+   "n": "0",
+   "max_id": "0"
+  },
+  "job_arbitration_log": {
+   "n": "0",
+   "max_id": "0"
+  },
+  "listing": {
+   "n": "24",
+   "max_id": "24"
+  },
+  "job": {
+   "n": "20",
+   "max_id": "24"
+  },
+  "ledger_entry": {
+   "n": "355",
+   "max_txid": "366"
+  },
+  "account": {
+   "n": "39"
+  }
+ },
+ "post_restore": {
+  "listing_review_log": {
+   "n": "0",
+   "max_id": "0"
+  },
+  "job_arbitration_log": {
+   "n": "0",
+   "max_id": "0"
+  },
+  "listing": {
+   "n": "24",
+   "max_id": "24"
+  },
+  "job": {
+   "n": "20",
+   "max_id": "24"
+  },
+  "ledger_entry": {
+   "n": "355",
+   "max_txid": "366"
+  },
+  "account": {
+   "n": "39"
+  }
+ },
+ "segment_goods": {
+  "fixture": {
+   "listing_id": 35,
+   "seller_uid": 6,
+   "cid": 1,
+   "price": 10,
+   "stock": 5,
+   "status": "listed"
+  },
+  "4_behavior_before": {
+   "outcome": "accepted",
+   "purchasable": true,
+   "txid": "581"
+  },
+  "1_action": {
+   "route": "POST /api/admin/listing/:listingId/takedown",
+   "gate": "requireAdmin(req,res,'review_tasks')",
+   "ops_key": "<ops:admin_uid>:listing_takedown:35",
+   "request": {
+    "action": "approve",
+    "reason": "<reason>",
+    "target_status": "delisted"
+   },
+   "reply": {
+    "ok": true,
+    "replay": false,
+    "view": {
+     "listing_id": "35",
+     "status": "delisted",
+     "result": "approved"
+    },
+    "code": null,
+    "status": null
+   }
+  },
+  "2_db_landed": {
+   "table": "public.listing_review_log",
+   "row_count": 1,
+   "rows": [
+    {
+     "log_id": "10",
+     "listing_id": "35",
+     "actor_uid": "1",
+     "result": "approved",
+     "txid": null,
+     "memo": "p8s5 takedown approve 20261003T005208Z",
+     "idempotency_key": "ops:1:listing_takedown:35"
+    }
+   ],
+   "status_col": {
+    "table": "public.listing",
+    "column": "status",
+    "value": "delisted"
+   }
+  },
+  "3_business_read": {
+   "anchor": "backend-ts/src/database.ts:2445 listListingsForAdmin（同 SELECT 体）",
+   "row": {
+    "listing_id": "35",
+    "seller_uid": "6",
+    "cid": "1",
+    "price": "10",
+    "stock": 4,
+    "title": "p8s5 listing fixture 20261003T005208Z",
+    "status": "delisted",
+    "time_created": "2026-10-03T00:52:11.536Z"
+   }
+  },
+  "4_behavior_after": {
+   "outcome": "rejected",
+   "purchasable": false,
+   "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+   "reason": "listing_not_listed",
+   "status": "delisted",
+   "httpStatus": 409,
+   "raw_sqlstate": "LD011"
+  },
+  "5_neg_reject": {
+   "reply": {
+    "ok": true,
+    "view": {
+     "listing_id": "36",
+     "status": "listed",
+     "result": "rejected"
+    }
+   },
+   "log_rows": [
+    {
+     "log_id": "11",
+     "result": "rejected",
+     "txid": null
+    }
+   ],
+   "status_after_reject": "listed",
+   "buy_after_reject": {
+    "outcome": "accepted",
+    "purchasable": true,
+    "txid": "583"
+   }
+  },
+  "rollback": {
+   "sentinel": "SEG-GOODS",
+   "committed": false,
+   "sql": "withTransaction 回调抛哨兵 ⇒ catch ⇒ ROLLBACK（无 COMMIT）"
+  }
+ },
+ "segment_job": {
+  "4_behavior_before": {
+   "accept_gate": {
+    "job_status": "submitted",
+    "employer_uid": "6",
+    "acceptable": false
+   },
+   "escrow_refund_legs": 0,
+   "ctrl_accept_gate": {
+    "job_status": "open",
+    "employer_uid": "6",
+    "acceptable": true
+   }
+  },
+  "1_action": {
+   "route": "POST /api/admin/arbitration/:jobId",
+   "gate": "requireAdmin(req,res,'review_tasks')",
+   "ops_key": "<ops:admin_uid>:job_arbitrate:38",
+   "request": {
+    "action": "reject",
+    "reason": "<reason>"
+   },
+   "reply": {
+    "ok": true,
+    "replay": false,
+    "view": {
+     "job_id": "38",
+     "status": "cancelled",
+     "result": "rejected",
+     "txid": "589"
+    },
+    "code": null,
+    "status": null,
+    "details": null
+   }
+  },
+  "2_db_landed": {
+   "log_table": "public.job_arbitration_log",
+   "log_rows": [
+    {
+     "log_id": "9",
+     "job_id": "38",
+     "actor_uid": "1",
+     "result": "rejected",
+     "txid": "589",
+     "memo": "p8s5 arbitrate reject 20261003T005208Z",
+     "idempotency_key": "ops:1:job_arbitrate:38"
+    }
+   ],
+   "log_count": 1,
+   "status_col": {
+    "table": "public.job",
+    "column": "status",
+    "value": "cancelled"
+   },
+   "escrow_refund_legs": [
+    {
+     "txid": "589",
+     "uid": "6",
+     "cid": "1",
+     "delta": "100",
+     "frozen_delta": "0",
+     "kind": "job_escrow_refund",
+     "idempotency_key": "biz:job:refund:38",
+     "event_root_key": "biz:job:refund:38"
+    },
+    {
+     "txid": "590",
+     "uid": "6",
+     "cid": "1",
+     "delta": "0",
+     "frozen_delta": "-100",
+     "kind": "job_escrow_refund",
+     "idempotency_key": "biz:job:refund:38#2",
+     "event_root_key": "biz:job:refund:38"
+    }
+   ],
+   "escrow_refund_leg_count": 2,
+   "txid_anchor": {
+    "log_txid": "589",
+    "ledger_leg_txids": [
+     "589",
+     "590"
+    ],
+    "ledger_rows_at_txid": [
+     {
+      "txid": "589",
+      "uid": "6",
+      "cid": "1",
+      "delta": "100",
+      "frozen_delta": "0",
+      "kind": "job_escrow_refund"
+     }
+    ]
+   }
+  },
+  "3_business_read": {
+   "anchor": "backend-ts/src/database.ts:2489 listJobsForArbitration（同 SELECT 体）",
+   "row": {
+    "job_id": "38",
+    "employer_uid": "6",
+    "worker_uid": "7",
+    "cid": "1",
+    "reward": "100",
+    "title": "p8s5 arb fixture rej:20261003T005208Z",
+    "status": "cancelled",
+    "time_created": "2026-10-03T00:52:15.888Z"
+   }
+  },
+  "4_behavior_after": {
+   "accept_gate": {
+    "job_status": "cancelled",
+    "employer_uid": "6",
+    "acceptable": false
+   },
+   "escrow_refund_legs": 2,
+   "ctrl_accept_gate": {
+    "job_status": "open",
+    "employer_uid": "6",
+    "acceptable": true
+   }
+  },
+  "6_approve_path": {
+   "reply": {
+    "ok": true,
+    "view": {
+     "job_id": "39",
+     "status": "settled",
+     "result": "approved",
+     "txid": "593"
+    }
+   },
+   "log_rows": [
+    {
+     "log_id": "10",
+     "result": "approved",
+     "txid": "593"
+    }
+   ],
+   "status": "settled",
+   "settle_legs": [
+    {
+     "txid": "596",
+     "kind": "job_fee",
+     "uid": "-1",
+     "delta": "1"
+    },
+    {
+     "txid": "595",
+     "kind": "job_fee",
+     "uid": "6",
+     "delta": "0"
+    },
+    {
+     "txid": "593",
+     "kind": "job_payout",
+     "uid": "6",
+     "delta": "0"
+    },
+    {
+     "txid": "594",
+     "kind": "job_payout",
+     "uid": "7",
+     "delta": "99"
+    }
+   ],
+   "accept_gate_after": {
+    "job_status": "settled",
+    "employer_uid": "6",
+    "acceptable": false
+   }
+  },
+  "rollback": {
+   "sentinel": "SEG-JOB",
+   "committed": false,
+   "sql": "withTransaction 回调抛哨兵 ⇒ catch ⇒ ROLLBACK（无 COMMIT）"
+  }
+ },
+ "defects": [],
+ "checks": [
+  {
+   "id": "S1.listing_review_log.debug",
+   "group": "section1",
+   "pass": true,
+   "expect": "listing_review_log 有用户触发器",
+   "actual": "[\"trg_listing_review_log_append_only\"]",
+   "neg_rule": "append-only 触发器缺失 ⇒ 台账可被改 ⇒ 判负"
+  },
+  {
+   "id": "S1.job_arbitration_log.debug",
+   "group": "section1",
+   "pass": true,
+   "expect": "job_arbitration_log 有用户触发器",
+   "actual": "[\"trg_job_arbitration_log_append_only\"]",
+   "neg_rule": "append-only 触发器缺失 ⇒ 台账可被改 ⇒ 判负"
+  },
+  {
+   "id": "S1.listing_review_log.append_only",
+   "group": "section1",
+   "pass": true,
+   "expect": "[\"trg_listing_review_log_append_only:27\"]",
+   "actual": "[\"trg_listing_review_log_append_only:27\"]",
+   "neg_rule": "append-only 触发器必须 = BEFORE|ROW|UPDATE|DELETE（tgtype 27）"
+  },
+  {
+   "id": "S1.job_arbitration_log.append_only",
+   "group": "section1",
+   "pass": true,
+   "expect": "[\"trg_job_arbitration_log_append_only:27\"]",
+   "actual": "[\"trg_job_arbitration_log_append_only:27\"]",
+   "neg_rule": "append-only 触发器必须 = tgtype 27"
+  },
+  {
+   "id": "S1.listing.has_status_guard",
+   "group": "section1",
+   "pass": true,
+   "expect": "true",
+   "actual": "true",
+   "neg_rule": "listing 状态白名单触发器在场"
+  },
+  {
+   "id": "S1.job.has_status_guard",
+   "group": "section1",
+   "pass": true,
+   "expect": "true",
+   "actual": "true",
+   "neg_rule": "job 状态白名单触发器在场"
+  },
+  {
+   "id": "S1.mig0026.checksum",
+   "group": "section1",
+   "pass": true,
+   "expect": "\"3140366eabfdcc8375e71e1c8e0144323767245cf2e4fc4114687ba695f84e7b\"",
+   "actual": "\"3140366eabfdcc8375e71e1c8e0144323767245cf2e4fc4114687ba695f84e7b\"",
+   "neg_rule": "schema_migration.0026 checksum ≠ 迁移文件 sha256 ⇒ 判负"
+  },
+  {
+   "id": "S1.mig0027.checksum",
+   "group": "section1",
+   "pass": true,
+   "expect": "\"8209df5a86879188f5a25583b69bd4e0002474f850767a7b411641bda17fd481\"",
+   "actual": "\"8209df5a86879188f5a25583b69bd4e0002474f850767a7b411641bda17fd481\"",
+   "neg_rule": "schema_migration.0027 checksum ≠ 迁移文件 sha256 ⇒ 判负"
+  },
+  {
+   "id": "A0.fixture",
+   "group": "goods",
+   "pass": true,
+   "expect": "listing 夹具自造成功",
+   "actual": "{\"listing_id\":35,\"seller_uid\":6,\"cid\":1,\"price\":10,\"stock\":5,\"status\":\"listed\"}",
+   "neg_rule": "夹具未造出 ⇒ 后续不可测 ⇒ 判负"
+  },
+  {
+   "id": "A1.action_ok",
+   "group": "goods",
+   "pass": true,
+   "expect": "动作口 verb 返 ok",
+   "actual": "{\"ok\":true}",
+   "neg_rule": "动作口未成功 ⇒ 判负"
+  },
+  {
+   "id": "A2.log_one_row",
+   "group": "goods",
+   "pass": true,
+   "expect": "1",
+   "actual": "1",
+   "neg_rule": "审核通过 ⇒ listing_review_log **恰 1 行**"
+  },
+  {
+   "id": "A2.log_result",
+   "group": "goods",
+   "pass": true,
+   "expect": "\"approved\"",
+   "actual": "\"approved\"",
+   "neg_rule": "台账 result 必须 = approved（REVIEW_ACTION_TO_RESULT）"
+  },
+  {
+   "id": "A2.log_actor_is_admin",
+   "group": "goods",
+   "pass": true,
+   "expect": "\"1\"",
+   "actual": "\"1\"",
+   "neg_rule": "actor_uid 必须 = 动作人 admin（**不得记成 seller**）"
+  },
+  {
+   "id": "A2.log_txid_null",
+   "group": "goods",
+   "pass": true,
+   "expect": "null",
+   "actual": "null",
+   "neg_rule": "商品轴 txid **恒 NULL**（DL59 无分录 ⇒ 对账显式豁免）"
+  },
+  {
+   "id": "A2.status_migrated",
+   "group": "goods",
+   "pass": true,
+   "expect": "\"delisted\"",
+   "actual": "\"delisted\"",
+   "neg_rule": "通过 ⇒ 同事务走既有边 listed→delisted（状态未随之变 ⇒ 判负）"
+  },
+  {
+   "id": "A3.read_new_value",
+   "group": "goods",
+   "pass": true,
+   "expect": "\"delisted\"",
+   "actual": "\"delisted\"",
+   "neg_rule": "业务读口取到新值（仍取旧值 ⇒ 判负：库内有新值但业务不读）"
+  },
+  {
+   "id": "A4.before_purchasable",
+   "group": "goods",
+   "pass": true,
+   "expect": "true",
+   "actual": "true",
+   "neg_rule": "改动前（listed）商品可购买"
+  },
+  {
+   "id": "A4.after_not_purchasable",
+   "group": "goods",
+   "pass": true,
+   "expect": "false",
+   "actual": "false",
+   "neg_rule": "改动后（delisted）商品**不可购买**"
+  },
+  {
+   "id": "A4.after_reason",
+   "group": "goods",
+   "pass": true,
+   "expect": "\"LEDGER_CURRENCY_INVALID_TRANSITION/listing_not_listed\"",
+   "actual": "\"LEDGER_CURRENCY_INVALID_TRANSITION/listing_not_listed\"",
+   "neg_rule": "不可购买必须给逐字机读码 + reason = listing_not_listed"
+  },
+  {
+   "id": "A4.two_readings_differ",
+   "group": "goods",
+   "pass": true,
+   "expect": "改动前/后两读数必须不同（同一业务量 = 可否购买）",
+   "actual": "{\"before\":true,\"after\":false}",
+   "neg_rule": "改动后该业务量不变 ⇒ 判负"
+  },
+  {
+   "id": "A4.after_not_purchasable__selftest",
+   "group": "goodsSelfTest",
+   "pass": true,
+   "expect": "谓词转红",
+   "actual": "{\"wrong_input\":true,\"judge_fired\":true}",
+   "neg_rule": "把「改动后仍可购买」喂入 ⇒ 谓词必须转红"
+  },
+  {
+   "id": "A2.log_txid_null__selftest",
+   "group": "goodsSelfTest",
+   "pass": true,
+   "expect": "谓词转红",
+   "actual": "{\"wrong_input\":\"12345\",\"judge_fired\":true}",
+   "neg_rule": "把非 NULL txid 喂入 ⇒ 商品轴谓词必须转红"
+  },
+  {
+   "id": "A5.reject_log_one_row",
+   "group": "goods",
+   "pass": true,
+   "expect": "1",
+   "actual": "1",
+   "neg_rule": "驳回 ⇒ 台账 **恰 1 行**（驳回必须留痕 · 不得静默）"
+  },
+  {
+   "id": "A5.reject_result",
+   "group": "goods",
+   "pass": true,
+   "expect": "\"rejected\"",
+   "actual": "\"rejected\"",
+   "neg_rule": "驳回台账 result = rejected"
+  },
+  {
+   "id": "A5.reject_status_unchanged",
+   "group": "goods",
+   "pass": true,
+   "expect": "\"listed\"",
+   "actual": "\"listed\"",
+   "neg_rule": "★ 驳回分支**不得改状态**（status 变 ⇒ 判负）"
+  },
+  {
+   "id": "A5.reject_still_purchasable",
+   "group": "goods",
+   "pass": true,
+   "expect": "true",
+   "actual": "true",
+   "neg_rule": "驳回语义（§28.2(d)）= 状态不动 ⇒ 仍 listed ⇒ 仍可购买（此为该路径**正确**结果；反例：驳回却改状态 ⇒ 判负）"
+  },
+  {
+   "id": "A5.reject_status_unchanged__selftest",
+   "group": "goodsSelfTest",
+   "pass": true,
+   "expect": "谓词转红",
+   "actual": "{\"wrong_input\":\"delisted\",\"judge_fired\":true}",
+   "neg_rule": "把「驳回后 status=delisted」喂入 ⇒ 谓词必须转红"
+  },
+  {
+   "id": "B1.action_ok",
+   "group": "job",
+   "pass": true,
+   "expect": "仲裁动作口 verb 返 ok",
+   "actual": "{\"ok\":true}",
+   "neg_rule": "动作口未成功 ⇒ 判负"
+  },
+  {
+   "id": "B2.log_one_row",
+   "group": "job",
+   "pass": true,
+   "expect": "1",
+   "actual": "1",
+   "neg_rule": "仲裁动作 ⇒ job_arbitration_log **恰 1 行**"
+  },
+  {
+   "id": "B2.log_result",
+   "group": "job",
+   "pass": true,
+   "expect": "\"rejected\"",
+   "actual": "\"rejected\"",
+   "neg_rule": "驳回台账 result = rejected"
+  },
+  {
+   "id": "B2.log_actor_is_admin",
+   "group": "job",
+   "pass": true,
+   "expect": "\"1\"",
+   "actual": "\"1\"",
+   "neg_rule": "actor_uid = 动作人 admin（不得记成 employer）"
+  },
+  {
+   "id": "B2.status_cancelled",
+   "group": "job",
+   "pass": true,
+   "expect": "\"cancelled\"",
+   "actual": "\"cancelled\"",
+   "neg_rule": "驳回 ⇒ 走既有边 submitted→disputed→cancelled（退单）"
+  },
+  {
+   "id": "B2.escrow_refund_two_legs",
+   "group": "job",
+   "pass": true,
+   "expect": "2",
+   "actual": "2",
+   "neg_rule": "退单必须有 **job_escrow_refund ×2** 资金腿"
+  },
+  {
+   "id": "B2.escrow_refund_kinds",
+   "group": "job",
+   "pass": true,
+   "expect": "[\"job_escrow_refund\"]",
+   "actual": "[\"job_escrow_refund\"]",
+   "neg_rule": "资金腿 kind 全 = job_escrow_refund"
+  },
+  {
+   "id": "B2.txid_non_null",
+   "group": "job",
+   "pass": true,
+   "expect": "招工仲裁 **txid 非恒 NULL**（成功行 = 回执 txid）",
+   "actual": "{\"log_txid\":\"589\"}",
+   "neg_rule": "台账 txid 恒 NULL ⇒ 判负（未锚账）"
+  },
+  {
+   "id": "B2.txid_anchors_ledger",
+   "group": "job",
+   "pass": true,
+   "expect": "台账回执 txid ∈ 资金腿 txid 集（能锚账）",
+   "actual": "{\"log_txid\":\"589\",\"leg_txids\":[\"589\",\"590\"]}",
+   "neg_rule": "台账 txid 不在腿 txid 集 ⇒ 对不上 ⇒ 判负"
+  },
+  {
+   "id": "B2.txid_ledger_rows_exist",
+   "group": "job",
+   "pass": true,
+   "expect": "txid=589 在 ledger_entry 有行且 kind = job_escrow_refund",
+   "actual": "[\"job_escrow_refund:6:100/0\"]",
+   "neg_rule": "txid 无法在 ledger_entry 对上 ⇒ 判负"
+  },
+  {
+   "id": "B2.legs_balance",
+   "group": "job",
+   "pass": true,
+   "expect": "[\"6:0:-100\",\"6:100:0\"]",
+   "actual": "[\"6:0:-100\",\"6:100:0\"]",
+   "neg_rule": "退回腿 = 雇主 balance +reward / frozen −reward（经济恒等）"
+  },
+  {
+   "id": "B3.read_new_value",
+   "group": "job",
+   "pass": true,
+   "expect": "\"cancelled\"",
+   "actual": "\"cancelled\"",
+   "neg_rule": "业务读口取到新值（仍取旧值 ⇒ 判负）"
+  },
+  {
+   "id": "B4.ctrl_job_acceptable",
+   "group": "job",
+   "pass": true,
+   "expect": "true",
+   "actual": "true",
+   "neg_rule": "控制 open 招工 = **可承接**（同一业务量参照）"
+  },
+  {
+   "id": "B4.treated_job_not_acceptable",
+   "group": "job",
+   "pass": true,
+   "expect": "false",
+   "actual": "false",
+   "neg_rule": "仲裁后招工 = **不可承接**"
+  },
+  {
+   "id": "B4.two_readings_differ",
+   "group": "job",
+   "pass": true,
+   "expect": "改动前/后两读数必须不同（同一业务量 = 可否承接）",
+   "actual": "{\"ctrl\":true,\"treated_after\":false}",
+   "neg_rule": "改动后该业务量不变 ⇒ 判负"
+  },
+  {
+   "id": "B4.escrow_two_readings_differ",
+   "group": "job",
+   "pass": true,
+   "expect": "改动前/后资金腿读数必须不同（0 → 2）",
+   "actual": "{\"before\":0,\"after\":2}",
+   "neg_rule": "退单无 job_escrow_refund 腿（托管未退）⇒ 判负"
+  },
+  {
+   "id": "B4.treated_job_not_acceptable__selftest",
+   "group": "jobSelfTest",
+   "pass": true,
+   "expect": "谓词转红",
+   "actual": "{\"wrong_input\":true,\"judge_fired\":true}",
+   "neg_rule": "把「仲裁后仍可承接」喂入 ⇒ 谓词必须转红"
+  },
+  {
+   "id": "B2.escrow_refund_two_legs__selftest",
+   "group": "jobSelfTest",
+   "pass": true,
+   "expect": "谓词转红",
+   "actual": "{\"wrong_input\":0,\"judge_fired\":true}",
+   "neg_rule": "把「0 条退单腿」喂入 ⇒ 谓词必须转红"
+  },
+  {
+   "id": "B5.success_implies_log",
+   "group": "job",
+   "pass": true,
+   "expect": "★「仲裁成功而台账无行 ⇒ 判负」（双向：treated job 状态变而台账必在）",
+   "actual": "{\"ok\":true,\"log_count\":1}",
+   "neg_rule": "动作成功而台账无行 ⇒ 判负"
+  },
+  {
+   "id": "B5.success_implies_log__selftest",
+   "group": "jobSelfTest",
+   "pass": true,
+   "expect": "谓词转红",
+   "actual": "{\"wrong_input\":0,\"judge_fired\":true}",
+   "neg_rule": "把「台账 0 行」喂入 ⇒ 谓词必须转红"
+  },
+  {
+   "id": "B6.approve_status_settled",
+   "group": "job",
+   "pass": true,
+   "expect": "\"settled\"",
+   "actual": "\"settled\"",
+   "neg_rule": "approve ⇒ 走既有边 submitted→disputed→settled（支持雇主）"
+  },
+  {
+   "id": "B6.approve_log_one_row",
+   "group": "job",
+   "pass": true,
+   "expect": "1",
+   "actual": "1",
+   "neg_rule": "approve ⇒ 台账恰 1 行 result=approved"
+  },
+  {
+   "id": "B6.approve_log_result",
+   "group": "job",
+   "pass": true,
+   "expect": "[\"approved\"]",
+   "actual": "[\"approved\"]",
+   "neg_rule": "approve 台账 result = approved"
+  },
+  {
+   "id": "B6.approve_txid_non_null",
+   "group": "job",
+   "pass": true,
+   "expect": "approve（结算资金腿） txid 非 NULL",
+   "actual": "{\"txid\":\"593\"}",
+   "neg_rule": "结算台账 txid 为 NULL ⇒ 判负"
+  },
+  {
+   "id": "B6.approve_txid_anchors",
+   "group": "job",
+   "pass": true,
+   "expect": "approve 台账 txid ∈ 结算腿 txid 集（能锚账）",
+   "actual": "{\"log\":\"593\",\"legs\":[\"596\",\"595\",\"593\",\"594\"]}",
+   "neg_rule": "结算台账 txid 不在腿集 ⇒ 判负"
+  },
+  {
+   "id": "B6.approve_not_acceptable",
+   "group": "job",
+   "pass": true,
+   "expect": "false",
+   "actual": "false",
+   "neg_rule": "approve 后招工不可承接"
+  },
+  {
+   "id": "C1.first_call_200",
+   "group": "firstCall",
+   "pass": true,
+   "expect": "★ 动作口首调 = 200（ok=true；修前必 409）",
+   "actual": "{\"ok\":true,\"status\":null}",
+   "neg_rule": "首调非 200 ⇒ 判负（R-9-9 修法未生效）"
+  },
+  {
+   "id": "C2.receipt_has_prior_status",
+   "group": "firstCall",
+   "pass": true,
+   "expect": "DB 回执含 `prior_status`（前置态）= submitted",
+   "actual": "{\"prior_status\":\"submitted\"}",
+   "neg_rule": "回执缺 prior_status / 值非前置态 ⇒ 判负"
+  },
+  {
+   "id": "C3.terminal_differs_from_prior",
+   "group": "firstCall",
+   "pass": true,
+   "expect": "回执 `job_status`（终态）= cancelled 且 **≠** prior_status",
+   "actual": "{\"prior\":\"submitted\",\"job_status\":\"cancelled\"}",
+   "neg_rule": "终态 == 前置态（未迁移）⇒ 判负"
+  },
+  {
+   "id": "C4.db_three_landed",
+   "group": "firstCall",
+   "pass": true,
+   "expect": "库内三处落值：台账 1 行 + 状态 submitted→cancelled + 资金腿 ×2",
+   "actual": "{\"log_rows\":1,\"status\":\"cancelled\",\"refund_legs\":2}",
+   "neg_rule": "三处任一未落 ⇒ 判负"
+  },
+  {
+   "id": "C5.receipt_applied_reviewed_txid",
+   "group": "firstCall",
+   "pass": true,
+   "expect": "回执 applied=1 ∧ reviewed=1 ∧ txid 非 NULL",
+   "actual": "{\"applied\":1,\"reviewed\":1,\"txid\":\"599\"}",
+   "neg_rule": "applied/reviewed/txid 任一不对 ⇒ 判负"
+  },
+  {
+   "id": "C6.illegal_prestate_409",
+   "group": "firstCall",
+   "pass": true,
+   "expect": "非法前置态（已 cancelled）⇒ 409 LD011 + reason JOB_STATE_INVALID + from=cancelled",
+   "actual": "{\"reply\":{\"ok\":false,\"code\":\"LEDGER_CURRENCY_INVALID_TRANSITION\",\"status\":409,\"details\":{\"field\":\"job.status\",\"reason\":\"JOB_STATE_INVALID\",\"required_from\":\"submitted|disputed\",\"job_id\":\"40\",\"from\":\"cancelled\",\"action\":\"approve\"}},\"db_after\":{\"log_rows\":1,\"status\":\"cancelled\",\"refund_legs\":2}}",
+   "neg_rule": "非法前置态未落 409 ⇒ 判负"
+  },
+  {
+   "id": "C7.illegal_prestate_no_write",
+   "group": "firstCall",
+   "pass": true,
+   "expect": "★ 非法前置态 ⇒ 库内三处**零增**（台账不落 / 状态不变 / 无资金腿）——防「未生效却记账」",
+   "actual": "{\"before\":{\"log_rows\":1,\"status\":\"cancelled\",\"refund_legs\":2},\"after\":{\"log_rows\":1,\"status\":\"cancelled\",\"refund_legs\":2}}",
+   "neg_rule": "非法前置态却落值（假台账）⇒ 判负"
+  },
+  {
+   "id": "C8.negctl_terminal_field_red",
+   "group": "firstCall",
+   "pass": true,
+   "expect": "★ 负对照：同一回执下 `prior_status` 判据 = 成功；换用终态 `job_status` 判据 ⇒ **必红**",
+   "actual": "{\"prior_path\":true,\"legacy_terminal_path\":false}",
+   "neg_rule": "换回终态字段仍判成功 ⇒ 负对照失效（假门）⇒ 判负"
+  },
+  {
+   "id": "C8.negctl_terminal_field_red__selftest",
+   "group": "firstCallSelfTest",
+   "pass": true,
+   "expect": "谓词转红",
+   "actual": "{\"wrong_input\":{\"job_found\":1,\"prior_status\":\"cancelled\",\"job_status\":\"cancelled\",\"applied\":0,\"reviewed\":0},\"judge_fired\":true}",
+   "neg_rule": "把「终态当前置态」的回执喂入 ⇒ 判据必须转红"
+  },
+  {
+   "id": "RESTORE-listing_review_log",
+   "group": "restore",
+   "pass": true,
+   "expect": "{\"n\":\"0\",\"max_id\":\"0\"}",
+   "actual": "{\"n\":\"0\",\"max_id\":\"0\"}",
+   "neg_rule": "恢复后 listing_review_log 行数/最大 id 与基线不同 ⇒ 判负（台账写已外泄）"
+  },
+  {
+   "id": "RESTORE-job_arbitration_log",
+   "group": "restore",
+   "pass": true,
+   "expect": "{\"n\":\"0\",\"max_id\":\"0\"}",
+   "actual": "{\"n\":\"0\",\"max_id\":\"0\"}",
+   "neg_rule": "恢复后 job_arbitration_log 与基线不同 ⇒ 判负"
+  },
+  {
+   "id": "RESTORE-listing",
+   "group": "restore",
+   "pass": true,
+   "expect": "{\"n\":\"24\",\"max_id\":\"24\"}",
+   "actual": "{\"n\":\"24\",\"max_id\":\"24\"}",
+   "neg_rule": "恢复后 listing 行数/最大 id 与基线不同 ⇒ 判负（夹具已落库）"
+  },
+  {
+   "id": "RESTORE-job",
+   "group": "restore",
+   "pass": true,
+   "expect": "{\"n\":\"20\",\"max_id\":\"24\"}",
+   "actual": "{\"n\":\"20\",\"max_id\":\"24\"}",
+   "neg_rule": "恢复后 job 行数/最大 id 与基线不同 ⇒ 判负（夹具已落库）"
+  },
+  {
+   "id": "RESTORE-ledger_entry",
+   "group": "restore",
+   "pass": true,
+   "expect": "{\"n\":\"355\",\"max_txid\":\"366\"}",
+   "actual": "{\"n\":\"355\",\"max_txid\":\"366\"}",
+   "neg_rule": "恢复后 ledger_entry 行数/最大 txid 与基线不同 ⇒ 判负（分录已落库）"
+  },
+  {
+   "id": "RESTORE-account",
+   "group": "restore",
+   "pass": true,
+   "expect": "{\"n\":\"39\"}",
+   "actual": "{\"n\":\"39\"}",
+   "neg_rule": "恢复后 account 行数与基线不同 ⇒ 判负"
+  },
+  {
+   "id": "RESTORE-no-commit-sentinel",
+   "group": "restore",
+   "pass": true,
+   "expect": "两段皆走 ROLLBACK（committed=false）",
+   "actual": "{\"goods\":false,\"job\":false}",
+   "neg_rule": "committed !== false（疑似走 COMMIT 路径）⇒ 判负"
+  }
+ ]
+}

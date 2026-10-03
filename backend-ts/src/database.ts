@@ -1,6 +1,10 @@
 import { neon } from '@neondatabase/serverless';
 import dotenv from 'dotenv';
 import { SYSTEM_CURRENCY_CID } from './ledger';
+// 批 8⑤（`route-layer.spec` v2.10 §25 / `data-layer.spec` v0.17 §28）：招工仲裁写路径需
+// **同事务**内「迁 `submitted→disputed`（既有白名单边）→ 调既有 `job_post_event`（资金腿 + 终态）
+// → 写 `job_arbitration_log`」⇒ 复用 `db.ts` 的交互式事务（R55/R56）；商品下架无账务 ⇒ 仍单语句。
+import { txQuery, withTransaction, type TxClient } from './db';
 
 // 本地凭据在 .env.local，先加载它、再补 .env（dotenv 默认不覆盖已存在的变量，故 .env.local 优先）
 dotenv.config({ path: '.env.local' });
@@ -353,6 +357,73 @@ const currencyReviewPostEventParams = (input: {
   input.requestFingerprint,        // $4  request_fingerprint（text）
   input.idempotencyKey,            // $5  idempotency_key（text；ops:<admin_uid>:currency_review:<cid>）
   input.memo,                      // $6  memo（text；= reason）
+];
+
+// ============================================================================
+// 批 8⑤（`route-layer.spec` v2.10 §25.2 / `data-layer.spec` v0.17 §28.6）：商品合规下架（takedown）
+//   的 DB 侧唯一显式语句（单语句 CTE = 一个隐式事务；**商品无账务分录** DL59 ⇒ 零 `ledger_post_event`）。
+//   · 台账 `public.listing_review_log`（`0026`）：通过（approved）与驳回（rejected）**都必须落行**
+//     （`$3 <> 'approved' OR EXISTS(apply)`）；同键同 `result` 重投 ⇒ `ON CONFLICT (idempotency_key, result) DO NOTHING`。
+//   · 状态迁移走**既有已白名单边** `public.listing_status_transition_ok`（0015:83-93）：`listed→{delisted,frozen}`。
+//   · `txid` 恒 `NULL`（商品无分录 ⇒ 对账**显式豁免**，姊妹册 §25.8(c)）。
+//   · 非法状态（非 `listed`）⇒ `reviewed=0` ⇒ 服务层映射既有码 `LD011`（409）；商品不存在 ⇒ `listing_found=0` ⇒ `LD007` 系 404。
+// ============================================================================
+const LISTING_TAKEDOWN_POST_EVENT_SQL = `
+      WITH cur AS (
+        SELECT l.listing_id, l.status
+        FROM public.listing AS l
+        WHERE l.listing_id = $1::bigint
+        FOR UPDATE
+      ),
+      prior AS (
+        SELECT r.log_id
+        FROM public.listing_review_log AS r
+        WHERE r.idempotency_key = $5::text
+          AND r.result = $3::text
+        LIMIT 1
+      ),
+      apply AS (
+        UPDATE public.listing AS l
+        SET status = $7::text,
+            time_updated = now()
+        WHERE l.listing_id = $1::bigint
+          AND $3::text = 'approved'
+          AND (SELECT cur.status FROM cur) = 'listed'
+          AND public.listing_status_transition_ok((SELECT cur.status FROM cur), $7::text)
+          AND NOT EXISTS (SELECT 1 FROM prior)
+        RETURNING l.listing_id, l.status
+      ),
+      review AS (
+        INSERT INTO public.listing_review_log
+          (listing_id, actor_uid, result, request_fingerprint, idempotency_key, txid, memo)
+        SELECT $1::bigint, $2::bigint, $3::text, $4::text, $5::text, NULL, $6::text
+        FROM cur
+        WHERE cur.status = 'listed'
+          AND NOT EXISTS (SELECT 1 FROM prior)
+          AND ($3::text <> 'approved' OR EXISTS (SELECT 1 FROM apply))
+        ON CONFLICT (idempotency_key, result) DO NOTHING
+        RETURNING log_id, result
+      )
+      SELECT
+        (SELECT count(*)::int FROM cur)   AS listing_found,
+        (SELECT cur.status FROM cur)      AS listing_status,
+        (SELECT count(*)::int FROM prior) AS prior_count,
+        (SELECT count(*)::int FROM apply) AS applied,
+        (SELECT count(*)::int FROM review) AS reviewed
+    `;
+
+/** `LISTING_TAKEDOWN_POST_EVENT_SQL` 的 `$1..$7` 绑定（顺序写死）。 */
+const listingTakedownPostEventParams = (input: {
+  listingId: number; actorUid: number; result: 'approved' | 'rejected';
+  targetStatus: string; requestFingerprint: string; idempotencyKey: string; memo: string;
+}): unknown[] => [
+  input.listingId,                 // $1  listing_id（bigint；cur / apply / review 复用）
+  input.actorUid,                  // $2  actor_uid（bigint；= admin）
+  input.result,                    // $3  result（text；'approved' | 'rejected'）
+  input.requestFingerprint,        // $4  request_fingerprint（text）
+  input.idempotencyKey,            // $5  idempotency_key（text；ops:<admin_uid>:listing_takedown:<listingId>）
+  input.memo,                      // $6  memo（text；= reason）
+  input.targetStatus,              // $7  target_status（text；'delisted' | 'frozen'）
 ];
 
 /** `listCurrencyWithDeposit` 入参 → `LIST_CURRENCY_WITH_DEPOSIT_SQL` 的 `$1..$11` 绑定（顺序写死）。 */
@@ -2363,6 +2434,196 @@ export class DatabaseService {
       [statusFilter],
     );
     return rows;
+  }
+
+  // ==========================================================================================
+  // 批 8⑤（`route-layer.spec` v2.10 §25.2）· 读口 `GET /api/admin/listing` 的 DB 侧取数
+  //   data 键集自 §25.2 起冻结（承 `§24.8(b)`）：listing_id / seller_uid / cid / price / stock /
+  //   title / status / time_created。只读（只 `SELECT`）；非法 `status` 由**服务层**判 `400`，
+  //   **不得静默回落**；**不得**借读口补写（`DL23` 同向）。
+  // ==========================================================================================
+  static async listListingsForAdmin(statusFilter: string | null): Promise<RawRow[]> {
+    const rows = await runSql(
+      `SELECT l.listing_id  AS listing_id,
+              l.seller_uid  AS seller_uid,
+              l.cid         AS cid,
+              l.price       AS price,
+              l.stock       AS stock,
+              l.title       AS title,
+              l.status      AS status,
+              l.time_created AS time_created
+         FROM public.listing AS l
+        WHERE ($1::text IS NULL OR l.status = $1::text)
+        ORDER BY l.listing_id`,
+      [statusFilter],
+    );
+    return rows;
+  }
+
+  /**
+   * 商品合规下架（`POST /api/admin/listing/:listingId/takedown`）· 单语句 CTE（隐式事务）。
+   * 传 `ex`（既有事务）⇒ 在**事务内**执行（供「真生效四段」探针 · `R-8-18`）。
+   * 回执键：`listing_found` / `listing_status` / `prior_count` / `applied` / `reviewed`。
+   * **商品轴零账本分录**（`DL59`）⇒ `txid` 恒 `NULL`。
+   */
+  static async listingTakedownPostEvent(input: {
+    listingId: number;
+    actorUid: number;
+    result: 'approved' | 'rejected';
+    targetStatus: string;
+    requestFingerprint: string;
+    idempotencyKey: string;
+    memo: string;
+  }, ex?: SqlRunner): Promise<RawRow> {
+    const rows = await runSql(LISTING_TAKEDOWN_POST_EVENT_SQL, listingTakedownPostEventParams(input), ex);
+    const row = rows[0] || null;
+    if (!row) throw new Error('listingTakedownPostEvent: no row returned');
+    return row;
+  }
+
+  // ==========================================================================================
+  // 批 8⑤（`route-layer.spec` v2.10 §25.2）· 读口 `GET /api/admin/arbitration` 的 DB 侧取数
+  //   data 键集自 §25.2 起冻结（承 `§24.8(b)`）：job_id / employer_uid / worker_uid / cid /
+  //   reward / title / status / time_created。只读（只 `SELECT`）。
+  // ==========================================================================================
+  static async listJobsForArbitration(statusFilter: string | null): Promise<RawRow[]> {
+    const rows = await runSql(
+      `SELECT j.job_id       AS job_id,
+              j.employer_uid AS employer_uid,
+              j.worker_uid   AS worker_uid,
+              j.cid          AS cid,
+              j.reward       AS reward,
+              j.title        AS title,
+              j.status       AS status,
+              j.time_created AS time_created
+         FROM public.job AS j
+        WHERE ($1::text IS NULL OR j.status = $1::text)
+        ORDER BY j.job_id`,
+      [statusFilter],
+    );
+    return rows;
+  }
+
+  /**
+   * ★ 批 8⑤ 归属闸（`R-8-25①` / `R-8-26` · `route-layer.spec` v2.10 §25.6）：只读取该 job 的
+   * **雇主 uid**（真列 = `public.job.employer_uid`，`0013:81`）供路由层判定「雇主本人 ∨ admin」。
+   * **只读**（只 `SELECT`）；job 不存在 ⇒ `null`（路由层据此落既有 `404`）。**无任何写副作用**
+   * （状态 / 资金闸真源仍是 `job_post_event` 的单语句）。
+   */
+  static async getJobEmployerUid(jobId: number): Promise<number | null> {
+    const rows = await runSql(
+      `SELECT j.employer_uid AS employer_uid
+         FROM public.job AS j
+        WHERE j.job_id = $1::bigint`,
+      [jobId],
+    );
+    const row = rows[0] || null;
+    if (!row) return null;
+    return toNumberValue(getValue(row, 'employer_uid'));
+  }
+
+  /**
+   * 招工仲裁（`POST /api/admin/arbitration/:jobId`）· **唯一写路径**（R1/R2 · 同事务多语句）。
+   *
+   * 同事务内三段（`withTransaction` · R55/R56）：
+   *   ① 锁 `public.job` 行（`FOR UPDATE`）→ 迁入 `disputed`（**既有白名单边** `submitted→disputed`
+   *      via `public.job_status_transition_ok`；已 `disputed` ⇒ 不变）—— 兑现 §25.6(d)「平台仲裁 =
+   *      唯一把 job 迁入 / 迁出 `disputed` 的动作面」；
+   *   ② 调**既有** `public.job_post_event($1::jsonb)`（`op='settle'`（支持雇主 ⇒ `…→settled`）/
+   *      `op='refund'` + `to_status='cancelled'`（退单 / 支持打工人 ⇒ `…→cancelled`））—— **资金腿由
+   *      DB 侧派生**（`job_payout`/`job_fee`/`commission` 或 `job_escrow_refund` ×2；DL84 白名单）
+   *      ⇒ 本方法**不派生任何分录、不自造任何幂等键**（DL95）；
+   *   ③ 写 `public.job_arbitration_log`（**通过 / 驳回都必落** ⇒ 驳回不得静默；同键同 `result`
+   *      重投 ⇒ `ON CONFLICT (idempotency_key, result) DO NOTHING`）。
+   *
+   * 回执键：`job_found` / `job_status`（**终态**）/ `prior_status`（**前置态** · `R-9-9①`）/ `prior_count` /
+   * `applied` / `reviewed` / `txid`。★ `prior_status` = 同一事务内 `FOR UPDATE` 读得的**前置态**（`curStatus`，
+   * 未加第二个往返）；服务层**只许**用它做「可仲裁态」判定，`job_status`（终态）**仅**用于回执输出。
+   * 传 `ex`（既有 `TxClient`）⇒ 在**事务内**执行（供「真生效四段」探针 · `R-8-18`）。
+   */
+  static async jobArbitrationPostEvent(input: {
+    jobId: number;
+    actorUid: number;
+    result: 'approved' | 'rejected';
+    targetStatus: 'settled' | 'cancelled';
+    requestFingerprint: string;
+    idempotencyKey: string;
+    memo: string;
+  }, ex?: TxClient): Promise<RawRow> {
+    const run = async (tx: TxClient): Promise<RawRow> => {
+      const curRows = await txQuery<RawRow>(tx,
+        `SELECT job_id, employer_uid, worker_uid, status
+           FROM public.job
+          WHERE job_id = $1::bigint
+          FOR UPDATE`,
+        [input.jobId]);
+      const cur = curRows[0];
+      if (!cur) {
+        return { job_id: String(input.jobId), job_found: 0, job_status: null, prior_status: null, prior_count: 0, applied: 0, reviewed: 0, txid: null };
+      }
+      const curStatus = String(cur.status ?? '');
+
+      // 幂等探测（只读）：同键同 result 已落 ⇒ 重放（不再迁状态 / 不再派生资金腿）
+      const priorRows = await txQuery<{ n: number }>(tx,
+        `SELECT count(*)::int AS n
+           FROM public.job_arbitration_log
+          WHERE idempotency_key = $1::text
+            AND result = $2::text`,
+        [input.idempotencyKey, input.result]);
+      const prior = Number(priorRows[0]?.n ?? 0);
+      if (prior >= 1) {
+        return { job_id: String(input.jobId), job_found: 1, job_status: curStatus, prior_status: curStatus, prior_count: prior, applied: 0, reviewed: 0, txid: null };
+      }
+
+      // 非可仲裁态（非 submitted / 非 disputed）⇒ 不落任何值（服务层 → 409 JOB_STATE_INVALID）
+      if (curStatus !== 'submitted' && curStatus !== 'disputed') {
+        return { job_id: String(input.jobId), job_found: 1, job_status: curStatus, prior_status: curStatus, prior_count: 0, applied: 0, reviewed: 0, txid: null };
+      }
+
+      // ① 迁入 disputed（既有白名单边；已 disputed ⇒ 白名单不满足 ⇒ 不变）
+      if (curStatus === 'submitted') {
+        await txQuery(tx,
+          `UPDATE public.job AS j
+              SET status = 'disputed',
+                  time_updated = now()
+            WHERE j.job_id = $1::bigint
+              AND public.job_status_transition_ok(j.status, 'disputed')`,
+          [input.jobId]);
+      }
+
+      // ② 资金腿 + 终态（既有编排函数；不派生分录、不自造键）
+      const payload = input.targetStatus === 'settled'
+        ? { op: 'settle', job_id: String(input.jobId), request_fingerprint: input.requestFingerprint, memo: input.memo }
+        : { op: 'refund', job_id: String(input.jobId), to_status: 'cancelled', request_fingerprint: input.requestFingerprint, memo: input.memo };
+      const evRows = await txQuery<{ r: Record<string, unknown> }>(tx,
+        `SELECT public.job_post_event($1::jsonb) AS r`,
+        [JSON.stringify(payload)]);
+      const r = (evRows[0]?.r || {}) as Record<string, unknown>;
+      const replay = r.idempotent_replay === true;
+      const finalStatus = r.status === undefined || r.status === null ? null : String(r.status);
+      const txid = r.txid === undefined || r.txid === null ? null : String(r.txid);
+
+      // ③ 台账行（通过 / 驳回都必落；同键同 result 重投不放大）
+      let reviewed = 0;
+      if (!replay) {
+        const insRows = await txQuery<{ log_id: number }>(tx,
+          `INSERT INTO public.job_arbitration_log
+             (job_id, actor_uid, result, request_fingerprint, idempotency_key, txid, memo)
+           VALUES ($1::bigint, $2::bigint, $3::text, $4::text, $5::text, $6::bigint, $7::text)
+           ON CONFLICT (idempotency_key, result) DO NOTHING
+           RETURNING log_id`,
+          [input.jobId, input.actorUid, input.result, input.requestFingerprint, input.idempotencyKey, txid, input.memo]);
+        reviewed = insRows.length;
+      }
+
+      const applied = finalStatus === input.targetStatus ? 1 : 0;
+      // ★ R-9-9①：回执**同时**给「前置态」（`prior_status` = 事务内 `FOR UPDATE` 读得的 `curStatus`）与
+      //   「终态」（`job_status` = `job_post_event` 回执的 `finalStatus`）。零新增往返（同事务同读）。
+      return { job_id: String(input.jobId), job_found: 1, job_status: finalStatus, prior_status: curStatus, prior_count: 0, applied, reviewed, txid };
+    };
+
+    if (ex) return run(ex);
+    return withTransaction((tx) => run(tx as TxClient));
   }
 
   /**

@@ -76,7 +76,8 @@ describe('I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文
     // eslint-disable-next-line no-console
     console.log(out.split('\n').filter((l) => /作用域命中节点数|裸命中|子面③|总判/.test(l)).join('\n'))
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
-    expect(out).toContain('作用域命中节点数 = 3272') // **期望订正（批 8② 费率+权重矩阵）**：locale 拍平键 +43（745⇒788）⇒ 节点 = 788 × 4 = 3152（原 745 × 4 = 2980）：locale 拍平键 +8（737⇒745）⇒ 节点 = 745 × 4 = 2980（原 737 × 4 = 2948）
+    // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
+    expect(out).toContain('作用域命中节点数 = 3544') // **期望订正（批 8② 费率+权重矩阵）**：locale 拍平键 +43（745⇒788）⇒ 节点 = 788 × 4 = 3152（原 745 × 4 = 2980）：locale 拍平键 +8（737⇒745）⇒ 节点 = 745 × 4 = 2980（原 737 × 4 = 2948）
     expect(out).toContain('② 全量页面源文件面')
     expect(out).toMatch(/locale 裸命中 0 \+ 源面裸命中 0/)
   })
@@ -120,7 +121,8 @@ describe('I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文
     console.log(`[I18N-VIOL] 四语拍平键数 = {${[...counts].join(', ')}}；顶层键 = ${Object.keys(readTable('zh')).length}`)
     expect(counts.size).toBe(1)
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
-    expect([...counts][0]).toBe(818) // **期望订正（批 8② 费率+权重矩阵）**：+43 拍平键（745⇒788）：新增 orders 块 8 键（737⇒745）
+    // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
+    expect([...counts][0]).toBe(886) // **期望订正（批 8② 费率+权重矩阵）**：+43 拍平键（745⇒788）：新增 orders 块 8 键（737⇒745）
     for (const k of REWRITTEN) for (const l of LANGS) expect(flatTables[l][k]).toBeTruthy()
   })
 })

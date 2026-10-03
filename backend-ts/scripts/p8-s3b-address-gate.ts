@@ -59,8 +59,8 @@ const DATABASE_TS = read('backend-ts/src/database.ts');
 const CURRENCY_TS = read('backend-ts/src/currency-service.ts');
 const SPEC_DATA = read('docs/data-layer.spec.md');
 const SPEC_ROUTE = read('docs/route-layer.spec.md');
-const REG_POINTS_FROZEN = 71;
-const MIGRATIONS_FROZEN = 24;
+const REG_POINTS_FROZEN = 75;
+const MIGRATIONS_FROZEN = 26;
 void SPEC_DATA; void SPEC_ROUTE;
 
 const FROZEN_AK1_FIELDS = [
@@ -276,7 +276,7 @@ selfTest('A1', 'formACompat', (v) => v === true, false, '形态 A 三点任一�
 selfTest('D1', 'opsDerivation', (v) => v === 'targetKey', 'system_settings', '`ops:` 第 4 实参写死 `\'system_settings\'` ⇒ 判据须转红（`O-3` 未闭合）');
 selfTest('E1', 'avLayers', (v: unknown) => JSON.stringify(v) === JSON.stringify([...APP_CONFIG_LEGAL_KEYS]), ['system_settings'], '`legal_keys` 只 1 键 ⇒ 判据须转红');
 selfTest('F1', 'failClosed', (v: unknown) => JSON.stringify(v) === JSON.stringify({ floor: CURRENCY_LIST_DEPOSIT_FLOOR, source: 'constant' }), { floor: CURRENCY_LIST_DEPOSIT_FLOOR, source: 'config' }, '「常量兜底」误记 config ⇒ 判据须转红');
-selfTest('G1', 'noRefundSurface', (v) => v === REG_POINTS_FROZEN, 72, '注册点写成 72（偷偷加路由）⇒ 判据须转红');
+selfTest('G1', 'noRefundSurface', (v) => v === REG_POINTS_FROZEN, 76, '注册点写成 76（偷偷加路由）⇒ 判据须转红');
 
 // ==================================================================== 结论
 const failed = checks.filter((c) => !c.pass);

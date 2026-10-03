@@ -105,7 +105,7 @@ describe('P6-I18N-LIT-B4a · 四语 locale 键集（6 命名空间 144 键 + 逐
     v && typeof v === 'object' && !Array.isArray(v) ? keyPaths(v, `${prefix}${k}.`) : [`${prefix}${k}`]
   )).sort()
   // 本批新增命名空间 → 键数（逐命名空间硬断言，防「键名写错但四语同步错」）
-  const NEW_NS = { adminNav: 22, adminLayout: 5, adminCommon: 28, dashPage: 58, adminTasks: 14, adminRewards: 42 } // **期望订正（批 8② 费率+权重矩阵）**：`adminNav` 16⇒20（+4 键：`feeRate` / `weightMatrix` 两条菜单项 + 两条路由面文案）；**批 8④ 再订正**：`adminNav` 20⇒22（+2 键：`currencyReview` / `currencyReviewDesc`）
+  const NEW_NS = { adminNav: 26, adminLayout: 5, adminCommon: 28, dashPage: 58, adminTasks: 14, adminRewards: 42 } // **期望订正（批 8② 费率+权重矩阵）**：`adminNav` 16⇒20（+4 键：`feeRate` / `weightMatrix` 两条菜单项 + 两条路由面文案）；**批 8④ 再订正**：`adminNav` 20⇒22（+2 键：`currencyReview` / `currencyReviewDesc`）
   const NEW_KEY_TOTAL = Object.values(NEW_NS).reduce((a, b) => a + b, 0)
   // B4a 交付时合计 = 144；B4b（后台剩余面）给既有 `adminCommon` 追加 19 键 ⇒ 现值 163。
   // 保留 144 作为 B4a 历史口径锚点（防「顺手改大期望值」掩盖键名事故）。
@@ -116,6 +116,9 @@ describe('P6-I18N-LIT-B4a · 四语 locale 键集（6 命名空间 144 键 + 逐
   // **期望订正（批 8④ 自建单位审核）**：给既有 `adminNav` 追加 2 键（`currencyReview` / `currencyReviewDesc`）
   //   ⇒ 单列 delta，不改 B4a 历史锚点（新命名空间 `adminCurrencyReview` 另计为顶层，不属本清单）。
   const B8S4_ADDED_TO_ADMINNAV = 2
+  // **期望订正（批 8⑤ 商品合规审核 + 招工仲裁）**：给既有 `adminNav` 追加 4 键（`listingReview` / `listingReviewDesc` / `arbitrationReview` / `arbitrationReviewDesc`）
+  //   ⇒ 单列 delta，不改 B4a 历史锚点（新命名空间 `adminListingReview` / `adminArbitrationReview` 另计为顶层，不属本清单）。
+  const B8S5_ADDED_TO_ADMINNAV = 4
 
   it('新增键四语齐备、非空串；四文件拍平键集逐文件相等', () => {
     const tables = {}
@@ -133,8 +136,9 @@ describe('P6-I18N-LIT-B4a · 四语 locale 键集（6 命名空间 144 键 + 逐
     for (const lang of LANGS.slice(1)) expect(sets[lang]).toEqual(sets.zh)
     expect(new Set(LANGS.map((l) => counts[l].flat)).size).toBe(1)
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
-    expect(counts.zh).toEqual({ top: 106, flat: 818 }) // **期望订正（批 8② 费率+权重矩阵）**：新增顶层 `adminFeeRate`（18）+ `adminWeightMatrix`（21）+ `adminNav` 4 键 ⇒ 拍平 +43 / 顶层 +2（745⇒788 / 103⇒105）。原口径（P7-E 小尾巴批-β）：新增顶层 `orders` 1 块（`orders.statusLabel.*` 5 + `orders.sideLabel.*` 3）⇒ 拍平 +8 键、顶层 +1（737⇒745 / 102⇒103）。原口径：P6-MISC-FIX ① +5（678⇒683）；批 7-A +21（683⇒704）；批 7-D +33（704⇒737）
-    expect(NEW_KEY_TOTAL).toBe(B4A_ADDED + B4B_ADDED_TO_ADMINCOMMON + B8S2_ADDED_TO_ADMINNAV + B8S4_ADDED_TO_ADMINNAV)
+    // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
+    expect(counts.zh).toEqual({ top: 108, flat: 886 }) // **期望订正（批 8② 费率+权重矩阵）**：新增顶层 `adminFeeRate`（18）+ `adminWeightMatrix`（21）+ `adminNav` 4 键 ⇒ 拍平 +43 / 顶层 +2（745⇒788 / 103⇒105）。原口径（P7-E 小尾巴批-β）：新增顶层 `orders` 1 块（`orders.statusLabel.*` 5 + `orders.sideLabel.*` 3）⇒ 拍平 +8 键、顶层 +1（737⇒745 / 102⇒103）。原口径：P6-MISC-FIX ① +5（678⇒683）；批 7-A +21（683⇒704）；批 7-D +33（704⇒737）
+    expect(NEW_KEY_TOTAL).toBe(B4A_ADDED + B4B_ADDED_TO_ADMINCOMMON + B8S2_ADDED_TO_ADMINNAV + B8S4_ADDED_TO_ADMINNAV + B8S5_ADDED_TO_ADMINNAV)
 
     // 本批 6 命名空间：键数逐一对齐 + 四语取值齐备非空
     for (const [ns, size] of Object.entries(NEW_NS)) {

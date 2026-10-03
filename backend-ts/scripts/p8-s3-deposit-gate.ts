@@ -62,7 +62,7 @@ const FROZEN_AK1_FIELDS = [
   'defaultLanguage', 'pointsPerTask', 'maxDailyTasks', 'rewardCooldown',
 ];
 const AK2_KEY = 'listing_deposit_policy';
-const REG_POINTS_FROZEN = 71;
+const REG_POINTS_FROZEN = 75;
 /**
  * ★ `R-8-20`（本片新裁）注册点计数判据 —— **容忍前置空白**。
  * 改前判据 `^app\.` 写死**列 0** ⇒ **带缩进插入的路由不被计入**（缩进路由**仍是已注册路由**！）
@@ -71,7 +71,7 @@ const REG_POINTS_FROZEN = 71;
  */
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;
-const MIGRATIONS_FROZEN = 24;
+const MIGRATIONS_FROZEN = 26;
 const ENVELOPE_FIELDS = ['create_key', 'idempotency_key', 'idempotencyKey'];
 
 const readSrc = (rel: string): string => fs.readFileSync(path.resolve(REPO_ROOT, rel), 'utf8');
@@ -281,7 +281,7 @@ selfTest('A1', 'ak2Registered', (v) => JSON.stringify(v) === JSON.stringify(FROZ
   ['system_settings'], '把清单写成「恰 1 键」⇒ 谓词必须转红（旧值 = 假绿陷阱）');
 selfTest('C1', 'ak2Spec', (v) => JSON.stringify(v) === JSON.stringify({ amount: 'number' }),
   { amount: 'string' }, '把字段类型写成 string ⇒ 谓词必须转红');
-selfTest('E1', 'noRefundSurface', (v) => v === REG_POINTS_FROZEN, 72, '注册点写成 72（= 偷偷加路由）⇒ 谓词必须转红');
+selfTest('E1', 'noRefundSurface', (v) => v === REG_POINTS_FROZEN, 76, '注册点写成 76（= 偷偷加路由）⇒ 谓词必须转红');
 
 // ==================================================================== 结论
 const failed = checks.filter((c) => !c.pass);

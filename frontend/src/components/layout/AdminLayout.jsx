@@ -13,6 +13,8 @@ import {
   Percent,
   Network,
   ClipboardCheck,
+  ClipboardList,
+  Gavel,
   Menu,
   X,
   LogOut
@@ -108,6 +110,20 @@ const AdminLayout = () => {
       icon: ClipboardCheck,
       path: '/dashboard/currency-review',
       description: t('adminNav.currencyReviewDesc'),
+      requiredPermission: 'review_tasks',
+    },
+    {
+      title: t('adminNav.listingReview'),
+      icon: ClipboardList,
+      path: '/dashboard/listing-review',
+      description: t('adminNav.listingReviewDesc'),
+      requiredPermission: 'review_tasks',
+    },
+    {
+      title: t('adminNav.arbitrationReview'),
+      icon: Gavel,
+      path: '/dashboard/arbitration-review',
+      description: t('adminNav.arbitrationReviewDesc'),
       requiredPermission: 'review_tasks',
     }
   ]

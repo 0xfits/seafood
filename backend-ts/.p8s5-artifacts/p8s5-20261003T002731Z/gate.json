@@ -1,0 +1,785 @@
+{
+ "unit": "P8-S5-COMPLIANCE-GATE",
+ "generated_at": "2026-10-03T00:27:31.024Z",
+ "run": "20261003T002731Z",
+ "offline": true,
+ "db_connections": 0,
+ "http_calls": 0,
+ "note": "本门**零 DB / 零 HTTP**，不依赖新表存在；四段真链路 + 库面判负 = 待 Zang apply `0026`/`0027` 后补跑（NOT_MEASURED）。",
+ "total": 103,
+ "passed": 102,
+ "failed": 1,
+ "readings": {
+  "registration_points_total": 75,
+  "registration_points_per_verb": {
+   "get": 31,
+   "post": 41,
+   "put": 0,
+   "patch": 1,
+   "delete": 2
+  },
+  "actions": [
+   "approve",
+   "reject"
+  ],
+  "action_to_result": {
+   "approve": "approved",
+   "reject": "rejected"
+  },
+  "listing_takedown_targets": [
+   "delisted",
+   "frozen"
+  ],
+  "job_arbitrate_action_to_target": {
+   "approve": "settled",
+   "reject": "cancelled"
+  },
+  "ops_actions": {
+   "listing": "listing_takedown",
+   "job": "job_arbitrate"
+  },
+  "error_codes_closed_set_size": 33,
+  "error_codes_used": [
+   "LEDGER_REF_NOT_FOUND",
+   "LEDGER_CURRENCY_INVALID_TRANSITION",
+   "LEDGER_AMOUNT_INVALID"
+  ],
+  "listing_ns_keys": 30,
+  "arbitration_ns_keys": 34,
+  "nav_keys": 26,
+  "migrations_count": 26,
+  "migrations_fingerprint": [
+   {
+    "file": "0026_listing_review_log.sql",
+    "table": "public.listing_review_log"
+   },
+   {
+    "file": "0027_job_arbitration_log.sql",
+    "table": "public.job_arbitration_log"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "id": "A1",
+   "group": "registration",
+   "pass": true,
+   "expect": "注册点 = 75（逐 verb：{\"get\":31,\"post\":41,\"put\":0,\"patch\":1,\"delete\":2}；8⑤ 读口/动作口 +4）",
+   "actual": "75"
+  },
+  {
+   "id": "A1b",
+   "group": "registration",
+   "pass": true,
+   "expect": "逐 verb 计数之和 = 注册点总数",
+   "actual": "{\"get\":31,\"post\":41,\"put\":0,\"patch\":1,\"delete\":2}"
+  },
+  {
+   "id": "A2",
+   "group": "registration",
+   "pass": true,
+   "expect": "读口 `GET /api/admin/listing` 在场",
+   "actual": "true"
+  },
+  {
+   "id": "A3",
+   "group": "registration",
+   "pass": true,
+   "expect": "动作口 `POST /api/admin/listing/:listingId/takedown` 在场",
+   "actual": "true"
+  },
+  {
+   "id": "A4",
+   "group": "registration",
+   "pass": true,
+   "expect": "读口 `GET /api/admin/arbitration` 在场",
+   "actual": "true"
+  },
+  {
+   "id": "A5",
+   "group": "registration",
+   "pass": true,
+   "expect": "动作口 `POST /api/admin/arbitration/:jobId` 在场",
+   "actual": "true"
+  },
+  {
+   "id": "A6",
+   "group": "registration",
+   "pass": true,
+   "expect": "listing 读口闸 = `requireAdmin(req,res,'review_tasks')`（缺闸 / 降级 ⇒ 判负）",
+   "actual": "review_tasks"
+  },
+  {
+   "id": "A7",
+   "group": "registration",
+   "pass": true,
+   "expect": "listing 动作口闸 = `requireAdmin(req,res,'review_tasks')`（缺闸 / 降级 ⇒ 判负）",
+   "actual": "review_tasks"
+  },
+  {
+   "id": "A8",
+   "group": "registration",
+   "pass": true,
+   "expect": "arbitration 读口闸 = `requireAdmin(req,res,'review_tasks')`（缺闸 / 降级 ⇒ 判负）",
+   "actual": "review_tasks"
+  },
+  {
+   "id": "A9",
+   "group": "registration",
+   "pass": true,
+   "expect": "arbitration 动作口闸 = `requireAdmin(req,res,'review_tasks')`（缺闸 / 降级 ⇒ 判负）",
+   "actual": "review_tasks"
+  },
+  {
+   "id": "A10",
+   "group": "registration",
+   "pass": true,
+   "expect": "listing 读口取数 = `DatabaseService.listListingsForAdmin(`（单一真源）",
+   "actual": "true"
+  },
+  {
+   "id": "A11",
+   "group": "registration",
+   "pass": true,
+   "expect": "arbitration 读口取数 = `DatabaseService.listJobsForArbitration(`（单一真源）",
+   "actual": "true"
+  },
+  {
+   "id": "A12",
+   "group": "registration",
+   "pass": true,
+   "expect": "listing 动作口幂等键 = `resolveAdminOpsKey(req, actor.session.uID, LISTING_TAKEDOWN_OPS_ACTION, …)`",
+   "actual": "true"
+  },
+  {
+   "id": "A13",
+   "group": "registration",
+   "pass": true,
+   "expect": "arbitration 动作口幂等键 = `resolveAdminOpsKey(req, actor.session.uID, JOB_ARBITRATE_OPS_ACTION, …)`",
+   "actual": "true"
+  },
+  {
+   "id": "A14",
+   "group": "registration",
+   "pass": true,
+   "expect": "★ 负对照：缩进注入一条路由 ⇒ 计数 75→76",
+   "actual": "{\"injected\":76}"
+  },
+  {
+   "id": "B1",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "listing 读口 data 键集冻结 = [\"listing_id\",\"seller_uid\",\"cid\",\"price\",\"stock\",\"title\",\"status\",\"time_created\"]",
+   "actual": "[]"
+  },
+  {
+   "id": "B2",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "job 读口 data 键集冻结 = [\"job_id\",\"employer_uid\",\"worker_uid\",\"cid\",\"reward\",\"title\",\"status\",\"time_created\"]",
+   "actual": "[]"
+  },
+  {
+   "id": "B3",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "两读口只读（SELECT 体无 INSERT/UPDATE/DELETE）",
+   "actual": "{\"listing\":false,\"job\":false}"
+  },
+  {
+   "id": "B4",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "缺省 `?status`（listing）⇒ 全量（null）",
+   "actual": "{\"ok\":true,\"status\":null}"
+  },
+  {
+   "id": "B5",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "`?status=listed` ⇒ 过滤",
+   "actual": "{\"ok\":true,\"status\":\"listed\"}"
+  },
+  {
+   "id": "B6",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "非法 `?status`（listing）⇒ 400（不得静默回落）",
+   "actual": "{\"code\":\"LEDGER_AMOUNT_INVALID\",\"status\":400}"
+  },
+  {
+   "id": "B7",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "非法 `?status`（arbitration）⇒ 400",
+   "actual": "LEDGER_AMOUNT_INVALID/400"
+  },
+  {
+   "id": "B8",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "两读口无 `ops:` 键（读口无副作用）",
+   "actual": "{\"listing\":false,\"arb\":false}"
+  },
+  {
+   "id": "B6__selftest",
+   "group": "readSurfaceSelfTest",
+   "pass": true,
+   "expect": "把非法滤镜当合法 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":{\"ok\":true,\"status\":\"listed\"},\"judge_fired\":true}"
+  },
+  {
+   "id": "C1",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "action 闭集恰 2 值 = [\"approve\",\"reject\"]",
+   "actual": "[\"approve\",\"reject\"]"
+  },
+  {
+   "id": "C2",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "动作 → 台账 result：approve→approved / reject→rejected",
+   "actual": "{\"approve\":\"approved\",\"reject\":\"rejected\"}"
+  },
+  {
+   "id": "C3",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "商品 takedown 目标状态闭集 = [\"delisted\",\"frozen\"]",
+   "actual": "[\"delisted\",\"frozen\"]"
+  },
+  {
+   "id": "C4",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "仲裁动作 → 目标状态：approve→settled / reject→cancelled",
+   "actual": "{\"approve\":\"settled\",\"reject\":\"cancelled\"}"
+  },
+  {
+   "id": "C5",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "ops: 键 action 词 = `listing_takedown` / `job_arbitrate`",
+   "actual": "{\"l\":\"listing_takedown\",\"j\":\"job_arbitrate\"}"
+  },
+  {
+   "id": "C6",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "规范键形 = `ops:<admin_uid>:listing_takedown:<listingId>` / `ops:<admin_uid>:job_arbitrate:<jobId>`（既有助手）",
+   "actual": "{\"l\":\"ops:7:listing_takedown:12\",\"j\":\"ops:7:job_arbitrate:12\"}"
+  },
+  {
+   "id": "C7",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "listing.status 四态闭集一字不动（变体 Ⅱ 不扩枚举）",
+   "actual": "[\"draft\",\"listed\",\"delisted\",\"frozen\"]"
+  },
+  {
+   "id": "C8",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "job.status 七态闭集一字不动",
+   "actual": "[\"open\",\"accepted\",\"submitted\",\"settled\",\"disputed\",\"rejected\",\"cancelled\"]"
+  },
+  {
+   "id": "D1",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": ":listingId 非数字 ⇒ 404（不得静默按 0 处理）",
+   "actual": "LEDGER_REF_NOT_FOUND/404"
+  },
+  {
+   "id": "D2",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": ":listingId = 0（<=0）⇒ 404",
+   "actual": "LEDGER_REF_NOT_FOUND/404"
+  },
+  {
+   "id": "D3",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "action 缺失 ⇒ 400（不得静默取默认决定）",
+   "actual": "LEDGER_AMOUNT_INVALID/400"
+  },
+  {
+   "id": "D4",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "action 非枚举 ⇒ 400（details.reason = NOT_IN_CLOSED_SET）",
+   "actual": "{\"code\":\"LEDGER_AMOUNT_INVALID\",\"reason\":\"NOT_IN_CLOSED_SET\"}"
+  },
+  {
+   "id": "D5",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "reason 缺失（尤其驳回）⇒ 400",
+   "actual": "{\"code\":\"LEDGER_AMOUNT_INVALID\",\"field\":\"reason\"}"
+  },
+  {
+   "id": "D6",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "reason 空白串 ⇒ 400",
+   "actual": "LEDGER_AMOUNT_INVALID"
+  },
+  {
+   "id": "D7",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "target_status 非闭集 ⇒ 400",
+   "actual": "{\"code\":\"LEDGER_AMOUNT_INVALID\",\"field\":\"target_status\"}"
+  },
+  {
+   "id": "D8",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": ":jobId 非数字 ⇒ 404",
+   "actual": "LEDGER_REF_NOT_FOUND/404"
+  },
+  {
+   "id": "D9",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "仲裁 reason 缺失 ⇒ 400",
+   "actual": "{\"code\":\"LEDGER_AMOUNT_INVALID\",\"field\":\"reason\"}"
+  },
+  {
+   "id": "D10",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "动作口错误码 ⊆ 既有 §14 闭集（零新增码）",
+   "actual": "[\"LEDGER_REF_NOT_FOUND\",\"LEDGER_AMOUNT_INVALID\"]"
+  },
+  {
+   "id": "D11",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "错误码闭集仍恰 33 条（不动）",
+   "actual": "33"
+  },
+  {
+   "id": "D12",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "动作口只用 [\"LEDGER_REF_NOT_FOUND\",\"LEDGER_CURRENCY_INVALID_TRANSITION\",\"LEDGER_AMOUNT_INVALID\"]（LD007/LD011/LD016）",
+   "actual": "[\"LEDGER_REF_NOT_FOUND\",\"LEDGER_AMOUNT_INVALID\"]"
+  },
+  {
+   "id": "D10__selftest",
+   "group": "illegalInputSelfTest",
+   "pass": true,
+   "expect": "自造码喂入 ⇒ 闭集谓词必须转红",
+   "actual": "{\"wrong_input\":[\"LEDGER_NEW_MADEUP_CODE\"],\"judge_fired\":true}"
+  },
+  {
+   "id": "E1",
+   "group": "ownershipGate",
+   "pass": true,
+   "expect": "归属闸 = 取 actor ∧ 读雇主 uid ∧ 雇主本人放行 ∧ **admin 通道保留**（`requireAdmin(req,res,'review_tasks')`）",
+   "actual": "{\"requireActor\":true,\"employerLookup\":true,\"ownerAdmit\":true,\"adminChannel\":true}"
+  },
+  {
+   "id": "E2",
+   "group": "ownershipGate",
+   "pass": true,
+   "expect": "helper `requireJobOwnerOrAdmin` 在场",
+   "actual": "true"
+  },
+  {
+   "id": "E3",
+   "group": "ownershipGate",
+   "pass": true,
+   "expect": "`job/:jobId/review` 挂 `requireJobOwnerOrAdmin(req,res,jobIdRaw)`（雇主自审 ∨ admin）",
+   "actual": "true"
+  },
+  {
+   "id": "E4",
+   "group": "ownershipGate",
+   "pass": true,
+   "expect": "`job/:jobId/cancel` 挂 `requireJobOwnerOrAdmin(req,res,jobIdRaw)`",
+   "actual": "true"
+  },
+  {
+   "id": "E5",
+   "group": "ownershipGate",
+   "pass": true,
+   "expect": "★ 负对照：**删除 admin 通道**（`return requireAdmin(...)` ⇒ `return null`）⇒ 判定式转红",
+   "actual": "{\"original\":true,\"admin_removed\":false}"
+  },
+  {
+   "id": "E1__selftest",
+   "group": "ownershipGateSelfTest",
+   "pass": true,
+   "expect": "把「无 admin 通道」的 helper 喂入 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":\"const requireJobOwnerOrAdmin = async (req, res, jobIdRaw) => {\\n  const actor = await requireActor(req, res);\\n  if (!actor) return null;\\n  const employerUid = await DatabaseService.getJobEmployerUid(1);\\n  return null;\\n};\",\"judge_fired\":true}"
+  },
+  {
+   "id": "F1",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "注册点仍 = 75（零退还/罚没/delist 路由）",
+   "actual": "75"
+  },
+  {
+   "id": "F2",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "无 delist 一族路由",
+   "actual": "true"
+  },
+  {
+   "id": "F3",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "合规审核服务（去注释）零 `hold_forfeit`/`hold_release`/`unfreeze(`/`listing_deposit_refund`",
+   "actual": "[]"
+  },
+  {
+   "id": "F4",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "商品审核语句零账本分录（不调 `ledger_post_event`）",
+   "actual": "false"
+  },
+  {
+   "id": "F5",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "全 src 面 `listing_deposit_refund` 零命中",
+   "actual": "false"
+  },
+  {
+   "id": "F6",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "仲裁服务（去注释）零直调资金表 / 账本（资金腿由 DB 侧既有 `job_post_event` 派生）",
+   "actual": "[]"
+  },
+  {
+   "id": "G1",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminListingReview 键数 = 30",
+   "actual": "30"
+  },
+  {
+   "id": "G2",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminArbitrationReview 键数 = 34",
+   "actual": "34"
+  },
+  {
+   "id": "G3.zh",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminListingReview 四语键集齐 + 非空（zh）",
+   "actual": "{\"keys\":30}"
+  },
+  {
+   "id": "G4.zh",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminArbitrationReview 四语键集齐 + 非空（zh）",
+   "actual": "{\"keys\":34}"
+  },
+  {
+   "id": "G3.en",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminListingReview 四语键集齐 + 非空（en）",
+   "actual": "{\"keys\":30}"
+  },
+  {
+   "id": "G4.en",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminArbitrationReview 四语键集齐 + 非空（en）",
+   "actual": "{\"keys\":34}"
+  },
+  {
+   "id": "G3.hk",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminListingReview 四语键集齐 + 非空（hk）",
+   "actual": "{\"keys\":30}"
+  },
+  {
+   "id": "G4.hk",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminArbitrationReview 四语键集齐 + 非空（hk）",
+   "actual": "{\"keys\":34}"
+  },
+  {
+   "id": "G3.vn",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminListingReview 四语键集齐 + 非空（vn）",
+   "actual": "{\"keys\":30}"
+  },
+  {
+   "id": "G4.vn",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminArbitrationReview 四语键集齐 + 非空（vn）",
+   "actual": "{\"keys\":34}"
+  },
+  {
+   "id": "G5.en",
+   "group": "i18n",
+   "pass": true,
+   "expect": "en 两新命名空间无 CJK",
+   "actual": "[]"
+  },
+  {
+   "id": "G5.vn",
+   "group": "i18n",
+   "pass": true,
+   "expect": "vn 两新命名空间无 CJK",
+   "actual": "[]"
+  },
+  {
+   "id": "G6",
+   "group": "i18n",
+   "pass": false,
+   "expect": "hk 为繁體（与 zh 简体逐字不同 · 两命名空间各抽查 title）",
+   "actual": "{\"hk_listing\":\"商品合規審核\",\"zh_listing\":\"商品合规审核\"}"
+  },
+  {
+   "id": "G7",
+   "group": "i18n",
+   "pass": true,
+   "expect": "六类工程口径泄漏 = 0（四语 × 两新命名空间）",
+   "actual": "[]"
+  },
+  {
+   "id": "G8",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminNav 键数 = 26 + 本批 4 键四语齐",
+   "actual": "[26,26,26,26]"
+  },
+  {
+   "id": "G9",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminNav 新 4 键 en/vn 无 CJK 且六类泄漏 = 0",
+   "actual": "[]"
+  },
+  {
+   "id": "G7__selftest",
+   "group": "i18nSelfTest",
+   "pass": true,
+   "expect": "把带章节号的文案喂入 ⇒ 泄漏谓词必须转红",
+   "actual": "{\"wrong_input\":{\"title\":\"审核（§25.3）\"},\"judge_fired\":true}"
+  },
+  {
+   "id": "H1",
+   "group": "migration",
+   "pass": true,
+   "expect": "迁移文件 = 0026 + 0027；总数 = 26",
+   "actual": "{\"count\":26,\"has\":[\"0026_listing_review_log.sql\",\"0027_job_arbitration_log.sql\"]}"
+  },
+  {
+   "id": "H2.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql 表名逐字 = `public.listing_review_log`",
+   "actual": "listing_review_log"
+  },
+  {
+   "id": "H3.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql 9 列逐字在场",
+   "actual": "[]"
+  },
+  {
+   "id": "H4.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql 5 具名约束逐字在场",
+   "actual": "[]"
+  },
+  {
+   "id": "H5.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql result 闭集 = {approved, rejected}",
+   "actual": "CHECK (result IN ('approved', 'rejected'))"
+  },
+  {
+   "id": "H6.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql 幂等唯一键 = 复合 (idempotency_key, result)",
+   "actual": "UNIQUE (idempotency_key, result)"
+  },
+  {
+   "id": "H7.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql 4 索引（PK + idem_uniq + listing_review_log_listing_idx + listing_review_log_actor_day_idx）",
+   "actual": "[]"
+  },
+  {
+   "id": "H8.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql append-only：BEFORE UPDATE OR DELETE 触发器 + 守门函数",
+   "actual": "BEFORE UPDATE OR DELETE` **无条件 `RAISE`**（原生 `P0001`，"
+  },
+  {
+   "id": "H9.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql 恰一列 time_created（DEFAULT now()）；**无** time_updated（结构面：注释 / 自检串不计）",
+   "actual": "{\"time_created\":true,\"time_updated\":false}"
+  },
+  {
+   "id": "H10.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql 无 create_key / 无 ledger_event_keys（结构面）",
+   "actual": "{\"create_key\":false,\"lek\":false}"
+  },
+  {
+   "id": "H11.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql 零 ALTER TABLE",
+   "actual": "false"
+  },
+  {
+   "id": "H12.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql 零数据 DML / 零账本调用",
+   "actual": "{\"dml\":false,\"ledger\":false}"
+  },
+  {
+   "id": "H13.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql 自带 apply-time 自检",
+   "actual": "true"
+  },
+  {
+   "id": "H2.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql 表名逐字 = `public.job_arbitration_log`",
+   "actual": "job_arbitration_log"
+  },
+  {
+   "id": "H3.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql 9 列逐字在场",
+   "actual": "[]"
+  },
+  {
+   "id": "H4.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql 5 具名约束逐字在场",
+   "actual": "[]"
+  },
+  {
+   "id": "H5.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql result 闭集 = {approved, rejected}",
+   "actual": "CHECK (result IN ('approved', 'rejected'))"
+  },
+  {
+   "id": "H6.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql 幂等唯一键 = 复合 (idempotency_key, result)",
+   "actual": "UNIQUE (idempotency_key, result)"
+  },
+  {
+   "id": "H7.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql 4 索引（PK + idem_uniq + job_arbitration_log_job_idx + job_arbitration_log_actor_day_idx）",
+   "actual": "[]"
+  },
+  {
+   "id": "H8.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql append-only：BEFORE UPDATE OR DELETE 触发器 + 守门函数",
+   "actual": "BEFORE UPDATE OR DELETE` **无条件 `RAISE`**（原生 `P0001`，"
+  },
+  {
+   "id": "H9.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql 恰一列 time_created（DEFAULT now()）；**无** time_updated（结构面：注释 / 自检串不计）",
+   "actual": "{\"time_created\":true,\"time_updated\":false}"
+  },
+  {
+   "id": "H10.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql 无 create_key / 无 ledger_event_keys（结构面）",
+   "actual": "{\"create_key\":false,\"lek\":false}"
+  },
+  {
+   "id": "H11.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql 零 ALTER TABLE",
+   "actual": "false"
+  },
+  {
+   "id": "H12.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql 零数据 DML / 零账本调用",
+   "actual": "{\"dml\":false,\"ledger\":false}"
+  },
+  {
+   "id": "H13.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql 自带 apply-time 自检",
+   "actual": "true"
+  },
+  {
+   "id": "A1__selftest",
+   "group": "registrationSelfTest",
+   "pass": true,
+   "expect": "注册点写成 74（= 偷偷少注册一条）⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":74,\"judge_fired\":true}"
+  },
+  {
+   "id": "C1__selftest",
+   "group": "actionShapeSelfTest",
+   "pass": true,
+   "expect": "闭集被偷偷加第三值 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":[\"approve\",\"reject\",\"hold\"],\"judge_fired\":true}"
+  },
+  {
+   "id": "H9__selftest",
+   "group": "migrationSelfTest",
+   "pass": true,
+   "expect": "把 time_updated 列定义喂入 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":\"CREATE TABLE (\\n  time_created timestamptz NOT NULL DEFAULT now(),\\n  time_updated timestamptz\\n)\",\"judge_fired\":true}"
+  },
+  {
+   "id": "H10__selftest",
+   "group": "migrationSelfTest",
+   "pass": true,
+   "expect": "把 create_key 列定义喂入 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":\"CREATE TABLE (\\n  create_key text,\\n)\",\"judge_fired\":true}"
+  }
+ ]
+}

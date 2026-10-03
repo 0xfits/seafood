@@ -65,6 +65,19 @@ import {
   reviewCurrency404,
   reviewCurrencyVerb,
 } from './currency-review-service';
+// 批 8⑤（`route-layer.spec` v2.10 §25 / `data-layer.spec` v0.17 §28）：合规审核（商品 / 招工仲裁）
+//   · 读口 `GET /api/admin/listing` + 动作口 `POST /api/admin/listing/:listingId/takedown`（§25.2 · 闸 `review_tasks`）
+//   · 读口 `GET /api/admin/arbitration` + 动作口 `POST /api/admin/arbitration/:jobId`（§25.2 · 闸 `review_tasks`）
+import {
+  JOB_ARBITRATE_OPS_ACTION,
+  LISTING_TAKEDOWN_OPS_ACTION,
+  arbitrateJobVerb,
+  job404,
+  listing404,
+  parseJobStatusFilter,
+  parseListingStatusFilter,
+  reviewListingTakedownVerb,
+} from './compliance-review-service';
 // P6-TR-1b：后台翻译回填（cron 兜底 + 手动触发）—— 路由层只做鉴权与机读回执，编排全在服务层
 import { backfillPending, registerPendingTranslations, scanRegisterPending, scheduleEntityTranslation } from './translate-service';
 
@@ -1759,6 +1772,45 @@ const sendRefNotFound = (res: Response, refType: string, refId: string, reason: 
     ref_type: refType, ref_id: refId || 'null', reason,
   }));
 
+/**
+ * ★ 批 8⑤ 归属闸（`R-8-25①` / `R-8-26` · `route-layer.spec` v2.10 §25.6）：`POST /api/job/:jobId/review`
+ * （`:1884`）与 `POST /api/job/:jobId/cancel`（`:1908`）准入 = 「**该 job 的雇主本人** ∨ 持 `review_tasks`
+ * 的管理员」（按已冻结 D5「雇主自审 + 平台仲裁兜底」）。
+ *   · **★ 既有 admin 通道保留（`R-8-25①` 逐字：不得删除 ⇒ 零回归）** —— 非雇主支**照旧**走既有
+ *     `requireAdmin(req, res, 'review_tasks')`（**不是替换**）；
+ *   · 拒绝形态 = **既有** `403 AUTH_FORBIDDEN` + `details.reason ∈ {NOT_ADMIN, PERMISSION_NOT_GRANTED}`
+ *     （**零新增错误码、零新增 reason 常量**：`AUTH_REASONS` 三值不动）。
+ * 判定顺序（§25.6(a) 写死）：① 无 token ⇒ `401`（`requireActor`）；② `:jobId` 非数字 / job 不存在 ⇒ `404`
+ * （既有 detail-miss）；③ `actor.uid == job.employer_uid` ⇒ 放行（雇主支 · 无键）；④ 否则走既有 admin 通道；
+ * ⑤ 皆不满足 ⇒ 拒绝。
+ * 返回放行 actor；已按既有形状落响应 ⇒ `null`。
+ */
+const requireJobOwnerOrAdmin = async (
+  req: Request,
+  res: Response,
+  jobIdRaw: string,
+): Promise<ActorContext | null> => {
+  const actor = await requireActor(req, res);
+  if (!actor) return null;
+
+  if (!/^[1-9]\d*$/.test(jobIdRaw)) {
+    sendRefNotFound(res, 'job', jobIdRaw, 'job_not_found');
+    return null;
+  }
+
+  const employerUid = await DatabaseService.getJobEmployerUid(Number(jobIdRaw));
+  if (employerUid === null) {
+    sendRefNotFound(res, 'job', jobIdRaw, 'job_not_found');
+    return null;
+  }
+  if (Number(actor.user.uID) === Number(employerUid)) {
+    return actor; // ③ 雇主自审支（归属支 · 无键）
+  }
+
+  // ④ 既有 admin 通道（★ 保留，不得删除）；⑤ 皆不满足 ⇒ requireAdmin 落既有 403 + reason
+  return requireAdmin(req, res, 'review_tasks');
+};
+
 /** 服务层/DB 抛出的基础设施异常 ⇒ 既有 §14 分类器（R107 形状；原始 message/stack 只进服务端日志，R108） */
 const sendInfraMapped = (res: Response, scope: string, error: unknown) => {
   const normalized = normalizeLedgerError(unwrapInfraCause(error));
@@ -1879,14 +1931,15 @@ app.post('/api/job/:jobId/submit', async (req, res) => {
 });
 
 // ---- A5 · J5/J6 审核（approve ⇒ settle / reject ⇒ refund `to_status='rejected'`）----------
-// 权限 = `review_tasks`（**与既有 `POST /api/tasklist/:jID/verify`（`:1100`）同权限**，该路径即 J5/J6 的既有承载）；
+// 权限（**批 8⑤ 归属闸** · `R-8-25①` · `route-layer.spec` v2.10 §25.6）：准入 = 「该 job 的**雇主本人**
+//   ∨ 持 `review_tasks` 的管理员」（按已冻结 D5「雇主自审 + 平台仲裁兜底」）；**★ 既有 admin 通道保留**
+//   （`requireJobOwnerOrAdmin` 的 OR 一支 ⇒ **零回归**）。
 // `req.body.approved !== false` ⇒ settle（`settleJob`），`=== false` ⇒ refund（`refundJob`）—— 前端契约同 `:1103`。
 app.post('/api/job/:jobId/review', async (req, res) => {
-  const actor = await requireAdmin(req, res, 'review_tasks');
+  const jobIdRaw = String(req.params.jobId ?? '').trim();
+  const actor = await requireJobOwnerOrAdmin(req, res, jobIdRaw);
   if (!actor) return;
 
-  const jobIdRaw = String(req.params.jobId ?? '').trim();
-  if (!/^[1-9]\d*$/.test(jobIdRaw)) return sendRefNotFound(res, 'job', jobIdRaw, 'job_not_found');
   const approved = req.body?.approved !== false;
 
   try {
@@ -1902,15 +1955,14 @@ app.post('/api/job/:jobId/review', async (req, res) => {
 });
 
 // ---- A6 · J6 取消 → 退托管（§1.8 #6；`job-funds-service.ts:237` `refundJob`，`to_status='cancelled'`）----
-// 权限：spec 未定义 R/J6 cancel 的 actor ⇒ 本片取**与 J6 唯一既有触发面同权限**（`review_tasks`）；
+// 权限（**批 8⑤ 归属闸** · `R-8-26` · `route-layer.spec` v2.10 §25.6）：准入 = 「**雇主本人** ∨ 持
+//   `review_tasks`」；**★ 既有 admin 通道保留**（`requireJobOwnerOrAdmin` 的 OR 一支 ⇒ **零回归**）。
+//   （原注释「雇主可取消自己的招工…登记待 Zang 裁定」由 `R-8-26` 收口 ⇒ 本片兑现。）
 //   并**不传 `reviewerUid`**（服务层注释口径：「无审核人 ⇒ 只做资金 + 业务行状态」⇒ 不写结论位）。
-//   「雇主可取消自己的招工」= 需服务层加归属闸 ⇒ **不在本片自选**，登记 §7 待 Zang 裁定。
 app.post('/api/job/:jobId/cancel', async (req, res) => {
-  const actor = await requireAdmin(req, res, 'review_tasks');
-  if (!actor) return;
-
   const jobIdRaw = String(req.params.jobId ?? '').trim();
-  if (!/^[1-9]\d*$/.test(jobIdRaw)) return sendRefNotFound(res, 'job', jobIdRaw, 'job_not_found');
+  const actor = await requireJobOwnerOrAdmin(req, res, jobIdRaw);
+  if (!actor) return;
 
   try {
     const result = await refundJob({ jobIdRaw, toStatusRaw: 'cancelled' });
@@ -2155,6 +2207,115 @@ app.post('/api/admin/currency/:cid/review', async (req, res) => {
       200, result.replay ? { idempotent_replay: true } : undefined);
   } catch (error) {
     return sendInfraMapped(res, 'admin.currency.review', error);
+  }
+});
+
+// ============================================================================
+// 批 8⑤（`route-layer.spec` v2.10 §25 · `data-layer.spec` v0.17 §28）：合规审核（商品 / 招工仲裁 · 变体 Ⅱ 旁路台账）
+//   · 读口 `GET /api/admin/listing`（§25.2；闸 = `review_tasks`；注册点 **71 → 72**）
+//   · 动作口 `POST /api/admin/listing/:listingId/takedown`（§25.2；闸 = `review_tasks`；注册点 **→ 73**）
+//   · 读口 `GET /api/admin/arbitration`（§25.2；闸 = `review_tasks`；注册点 **→ 74**）
+//   · 动作口 `POST /api/admin/arbitration/:jobId`（§25.2；闸 = `review_tasks`；注册点 **→ 75**）
+// 权限键 = `review_tasks`（§25.5：11 键零增删 · `R-8-1`/`R-8-8`）；**零新增错误码**（33 码闭集不动）。
+// ============================================================================
+
+// ---- 读口 · `GET /api/admin/listing`（`data` 键集自本片起冻结：§25.2 / §24.8(b)）------------------
+//   · `?status=<draft|listed|delisted|frozen>` 允许过滤；**非法值 ⇒ 400**（**不得静默回落**）；
+//   · 只读（只 `SELECT`）；**不得**借读口补写（`DL23` 同向）；无 `ops:` 键（读口无副作用）。
+app.get('/api/admin/listing', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'review_tasks');
+  if (!actor) return;
+
+  try {
+    const filter = parseListingStatusFilter(req.query?.status);
+    if (!filter.ok) return sendVerbError(res, filter.err);
+    const rows = await DatabaseService.listListingsForAdmin(filter.status);
+    return sendSuccess(res, rows, 'Listing list (admin)');
+  } catch (error) {
+    return sendInfraMapped(res, 'admin.listing.list', error);
+  }
+});
+
+// ---- 动作口 · `POST /api/admin/listing/:listingId/takedown`（通过 / 驳回 双路径；§25.2 / §28.2(d)）----
+//   · 请求体逐字 = `{ action: "approve" | "reject", reason: <string>, target_status?: "delisted" | "frozen" }`
+//     （`action` 闭集恰 2 值；`reason` 必填 / 非空 —— **驳回必须给 reason**；`target_status` 缺省 = `delisted`）；
+//   · `ops:` 幂等键 = `ops:<admin_uid>:listing_takedown:<listingId>`（既有助手 `resolveAdminOpsKey`；缺键 ⇒ 400）；
+//   · 通过 ⇒ 台账行 + 同事务 `listed → delisted|frozen`（**既有已白名单边**）；驳回 ⇒ 台账行（**必须落**）、`listing.status` 不动；
+//   · `:listingId` 非数字 / `listingId<=0` / 不存在 ⇒ 404；非 `listed` ⇒ 409（既有 `LD011`）。
+app.post('/api/admin/listing/:listingId/takedown', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'review_tasks');
+  if (!actor) return;
+
+  try {
+    // `:listingId` 形状闸**先于**幂等键解析（§25.3(b)#1#2：非数字 / `<=0` ⇒ 404，**不得静默按 0 处理**）。
+    const listingIdText = String(req.params.listingId ?? '').trim();
+    if (!/^[1-9]\d*$/.test(listingIdText)) return sendVerbError(res, listing404(listingIdText));
+
+    // DL36 / DL146②：后台写必带 `ops:` 前缀幂等键（既有助手 ⇒ 零新码、零新校验代码）。
+    const opsKey = resolveAdminOpsKey(req, actor.session.uID, LISTING_TAKEDOWN_OPS_ACTION, listingIdText);
+    if (!opsKey.ok) return sendVerbError(res, opsKey.error);
+
+    const result = await reviewListingTakedownVerb({
+      listingIdRaw: req.params.listingId,
+      actorUid: actor.session.uID,
+      body: (req.body || {}) as Record<string, unknown>,
+      opsKey: opsKey.key,
+    });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view,
+      result.replay ? 'Listing takedown recorded (idempotent replay)' : 'Listing takedown recorded',
+      200, result.replay ? { idempotent_replay: true } : undefined);
+  } catch (error) {
+    return sendInfraMapped(res, 'admin.listing.takedown', error);
+  }
+});
+
+// ---- 读口 · `GET /api/admin/arbitration`（`data` 键集自本片起冻结：§25.2 / §24.8(b)）-------------
+//   · `?status=<七值之一>` 允许过滤；**非法值 ⇒ 400**（不得静默回落）；只读；无 `ops:` 键。
+app.get('/api/admin/arbitration', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'review_tasks');
+  if (!actor) return;
+
+  try {
+    const filter = parseJobStatusFilter(req.query?.status);
+    if (!filter.ok) return sendVerbError(res, filter.err);
+    const rows = await DatabaseService.listJobsForArbitration(filter.status);
+    return sendSuccess(res, rows, 'Arbitration list (admin)');
+  } catch (error) {
+    return sendInfraMapped(res, 'admin.arbitration.list', error);
+  }
+});
+
+// ---- 动作口 · `POST /api/admin/arbitration/:jobId`（平台仲裁兜底；§25.2 / §25.6(d) / §28.2(d)）----
+//   · 请求体逐字 = `{ action: "approve" | "reject", reason: <string> }`（`action` 闭集恰 2 值；`reason` 必填 / 非空）；
+//     候选人 / 标的物走 body 显式字段（`R-8-27` I-4：路径不再加层级）；
+//   · `ops:` 幂等键 = `ops:<admin_uid>:job_arbitrate:<job_id>`（**★ 既有逐字** = `data-layer.spec.md:509`）；
+//   · 通过 ⇒ 台账行 + 同事务 `submitted→disputed→settled`（支持雇主）；驳回 ⇒ 台账行（**必须落**）+
+//     同事务 `submitted→disputed→cancelled`（退单 / 支持打工人）+ **资金腿** `job_escrow_refund` ×2；
+//   · `:jobId` 非数字 / `<=0` / 不存在 ⇒ 404；非 `submitted`·非 `disputed` ⇒ 409（既有 `LD011`）。
+app.post('/api/admin/arbitration/:jobId', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'review_tasks');
+  if (!actor) return;
+
+  try {
+    const jobIdText = String(req.params.jobId ?? '').trim();
+    if (!/^[1-9]\d*$/.test(jobIdText)) return sendVerbError(res, job404(jobIdText));
+
+    const opsKey = resolveAdminOpsKey(req, actor.session.uID, JOB_ARBITRATE_OPS_ACTION, jobIdText);
+    if (!opsKey.ok) return sendVerbError(res, opsKey.error);
+
+    const result = await arbitrateJobVerb({
+      jobIdRaw: req.params.jobId,
+      actorUid: actor.session.uID,
+      body: (req.body || {}) as Record<string, unknown>,
+      opsKey: opsKey.key,
+    });
+    if (!result.ok) return sendVerbError(res, result);
+    return sendSuccess(res, result.view,
+      result.replay ? 'Job arbitration recorded (idempotent replay)' : 'Job arbitration recorded',
+      200, result.replay ? { idempotent_replay: true } : undefined);
+  } catch (error) {
+    return sendInfraMapped(res, 'admin.arbitration.record', error);
   }
 });
 
