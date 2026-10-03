@@ -1416,6 +1416,43 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.275 **P9⑤ 质检续跑（截断 60c/869s）：L3 19/19 · L5 4/4 · ★我用语义字段独立重算坐实 L4 判负 5/5 真红（其 `RED_MISS` 系匹配 bug）· ★它拦下我第 8 次口径失准 · 派极小 L6 单**（2026-10-03）
+
+**A. 质检续跑（Neng · 60 calls / 869s）= 截断；L3/L5 全绿、L4 首轮取得、L6 未落**：
+- **L3 四段真链路 19/19 全绿**（`.p9s5q/l3-probe.ts`，事务内 + `ROLLBACK`）：
+  - ① 注册腿 `+30`（1 行 `batt_entry` / `reason=invite_signup`）· **重放 uid 同、零新增** · 预置 90 ⇒ **`capped` +10 封顶 100** · 预置 100 ⇒ **`capped` +0 零行** ✓
+  - ② 首任务腿 `N=2` ⇒ `−1:−20 / 本人:10 / 上级:10` · **重放 `replayed` 3→3** · `N=1` ⇒ `−1:−10 / 本人:10` ✓
+  - ③ **经真实结算路径**：`settleJob(submitted→settled)` ⇒ 结论位 `approved`、`settle_txid=1142`，下游发 `invite_first_task_reward −1:−20/本人:10/上级:10` ✓
+  - ④ 6 层：`M=6` · 序 `[U1,U2,U3,D1,D2,D3]` · 权重 `[2600,1700,700,2600,1700,700]` · **`Σ entries = fee = 10000`** · `fee_credit_uid=-2` · **D1 层 2 人 `1300/1300`**（层内均分实证）· 层内 tie-break `100:34,200:33,300:33` · 层间最大余数法 `[33,33,34]` `Σ=100` ✓
+  - ⑤ Worker 结构性剔除 ⇒ **500 `LEDGER_RECONCILE_MISMATCH` / `COMMISSION_CHAIN_ASSERTION_VIOLATED` / `failed=worker_in_roster`** ✓
+  - ⑥ **截断留痕**：层内 70⇒64 丢 6（`dropped_by_layer{4:6}`）· 总 403⇒384 丢 19（`{2:1,3:1,4:17}`）✓
+  - ⑦ **`M=0 ⇒ fee_credit_uid=-1`** ✓ ⑧ 白名单外 `−1` debit ⇒ `LD021/LEDGER_RESERVED_UID/PLATFORM_DEBIT_FORBIDDEN`；白名单内放行；`−2`credit invite、`−1`credit invite **皆拒** ✓ ⑨ 策略键事务内 INSERT ⇒ `+7`（`source=config`）✓
+  - **零残渣：9 表 `before == after`**（currency 15 / ledger_entry 359 / batt_account 2 / batt_entry 2 / account 39 / users 56 / job 20 / job_submission 13 / referral 2）✓
+- **L5 全绿 4/4**：前端 `FEE_RATE_MIN/MAX`、后端 `guardCommissionPolicy`、`0035` CHECK **三处同 `[100,10000]`** · `adminFeeRate` **18 键 ×4 齐平** · **六类泄漏逐类 0** · `en`/`vn` **零 CJK** · 本片前端仅改 `FeeRatePage.jsx`（无新增 locale 键）✓
+- **L4 首轮**（仓外副本 `scratch/p9s5q-l4/`，env 由 Python 解析主仓 `.env.local` **注入、未复制未回显**）：**5 处文件变异全部命中目标红** + **每处复原回绿** + 主仓 `src` 快照 `SAME` + `copy/src == pristine/src` `SAME`；它自己确认 harness `verdict` 列 `RED_MISS` = **匹配 bug（严格全词匹配）**，已改为「清单包含」但**重跑未及取数即中断**（`post.py` 亦因 JSON 结构不符 `d["checks"]` 而无法直接用）
+- **❌ 未完成**：**M6 库面变异未跑通**（`.p9s5q/l3-mut-db.ts` 首版两处探针 bug 已重写未验证）· **L6 报告未落盘**（我现取：仍 **41 行 / 1,247 B 骨架**）· 收尾（它未启动任何 5796–5799 服务 ⇒ 无需 kill；但需 `lsof` 复核 + 清理）
+
+**B. ★★ 我用语义字段独立重算 —— L4 判负 5/5 **真红**（坐实其 `RED_MISS` 为假阴性）**：
+| 变异 | 基线 ⇄ 变异（决定性字段） | 判定 |
+|---|---|---|
+| **M1** 去层内均分 | `L3_4_tie.tieEntries` `"100:34,200:33,300:33"` ⇄ **`"100:100,200:0,300:0"`**（一人独吞层额） | **真红** ✓ |
+| **M2** 去 Worker 结构性剔除 | `L3_5.worker_in_roster` `false` ⇄ **`true`**（防御断言仍 500 兜住 ⇒ 双重防护成立） | **真红** ✓ |
+| **M3** 去上限截断 | `layer_trunc` `{cap 64/384, dropped 6, truncated:true}` ⇄ **`{cap 1e9, dropped 0, truncated:false}`**（`total_trunc` 19→0 同） | **真红** ✓ |
+| **M4** 去 `M=0 ⇒ −1` | `L3_7.fee_credit_uid` `"-1"` ⇄ **`"-2"`** | **真红** ✓ |
+| **M5** 去幂等键 | `L3_2_N2.key` `"biz:invite:firsttask:9800021"` ⇄ **`"…:1791018880489-0.0369582578861265"`**（加时间戳/随机后缀 ⇒ 换键双发） | **真红** ✓ |
+- **复原回绿**：`M*_restore` 与 baseline 的决定性字段 **`L3_4_tie`/`L3_5`/`L3_6`/`L3_7` 全 `SAME`**；`residual_after_restore` 与 `residual_before` **逐表一致** ⇒ **零残渣** ✓（`L3_1_reg`/`L3_2_N2` 的 `DIFF` 仅因每轮新建夹具的新 uid/txid，**非语义差异**）
+- ⇒ **我裁：L4 = PASS（判负 5/5 真红 + 复原回绿 + 主仓零写入）**；其 harness `verdict` 列的 `RED_MISS` **判定为假阴性、不作结论**
+
+**C. ★ 它拦下我第 8 次口径失准**：我派单写「名单含 worker ⇒ **`code = LEDGER_RESERVED_UID`**」，但 **`commission.spec` v0.5 §19.5④ / `R-9-56` 与实现均为 `500 LEDGER_RECONCILE_MISMATCH` + `reason = COMMISSION_CHAIN_ASSERTION_VIOLATED`** ⇒ 它**按冻结 spec 断言**（未据此判 FAIL）⇒ **它对、我错**（`LEDGER_RESERVED_UID` 实属项⑧/`R-9-66` 的码）；本会话累计 **第 8 次**由实现/规范/质检方替我拦下。
+
+**D. 我处置**：`LISTEN_PIDS=[]`（5796–5799 **全空**）· `PID 88092` 已终止 · 5787/5788 未碰 ✓
+
+**E. 已派 Neng · P9⑤ 质检【极小 L6 单】**（只三件）：① **M6 库面变异跑通**（去 `0038` 白名单 ⇒ 必红；探针已重写待执行）② **L6 报告回填 + verdict**（`docs/qa/p9-s5-invite-reward-qa.md`，先骨架已落；★ **L4 结论直接采信我 §5.275.B 的独立重算**，不必重跑）③ 收尾（`lsof` 复核 + 清理仓外副本/后台进程）。
+
+**F. 状态**：批 8 五片 + P9① ~ P9④ **全上线**；**P9⑤ 已入库 `d3ae10d`（30 件，未推）**；质检 **L0/L1/L2/L3/L4/L5 全绿（L4 由我独立坐实 5/5）** ⇒ 只差 **M6 + L6 报告** ⇒ 待 verdict ⇒ 推 ⇒ 生产终验。**⚠️ 生产代码仍 0034 时代、DB 已 0038**。
+
+---
+
 ### 5.274 **P9⑤ 终审质检（截断 60c/439s）：L0/L1/L2 全绿且与实现方逐值相符 · L3–L6 未完成 ⇒ 无 verdict · 我处置实例（随子代理终止、端口本已空）· 派质检续跑单**（2026-10-03）
 
 **A. 质检（Neng · 60 calls / 439s）= 截断；L0–L2 全绿、L3–L6 未做**：
@@ -5697,6 +5734,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.275 | 2026-10-03 | **P9⑤ 质检续跑（截断 60c/869s）：L3 19/19 · L5 4/4 · ★我用语义字段独立重算坐实 L4 判负 5/5 真红（其 RED_MISS 系匹配 bug）· ★它拦下我第 8 次口径失准 · 派极小 L6 单**。**A.** L3 19/19（①注册 +30/重放零新增/预置90⇒capped+10封顶100/预置100⇒+0零行 ②N=2 ⇒ −1:−20/本人:10/上级:10、重放 3→3、N=1 ⇒ −1:−10 ③经真实结算路径 settleJob(submitted→settled) 结论 approved + settle_txid + 下游发奖 ④M=6 · 序[[U1,U2,U3,D1,D2,D3]] · 权重 2600/1700/700 对称 · Σentries=fee=10000 · fee_credit_uid −2 · D1 层 2 人 1300/1300 · 层内 tie 100:34,200:33,300:33 · 层间 [33,33,34] ⑤Worker 剔除 ⇒ 500 LEDGER_RECONCILE_MISMATCH + reason COMMISSION_CHAIN_ASSERTION_VIOLATED ⑥截断留痕 层内 70⇒64 丢6（{4:6}）· 总 403⇒384 丢19（{2:1,3:1,4:17}）⑦M=0 ⇒ −1 ⑧白名单外 −1 debit ⇒ LD021/LEDGER_RESERVED_UID/PLATFORM_DEBIT_FORBIDDEN、白名单内放行、−2credit 与 −1credit invite 皆拒 ⑨策略键事务内 ⇒ +7 source=config；**零残渣 9 表**）；L5 4/4（三处域同 [100,10000] · adminFeeRate 18 键×4 · 六类泄漏 0 · en/vn 零 CJK）；**L4 首轮 5 处变异全红 + 复原回绿 + 主仓 SAME**（harness verdict 列 RED_MISS = 匹配 bug）。**B. ★我独立重算（语义字段）**：M1 tie 100:34,200:33,300:33 ⇄ 100:100,200:0,300:0 · M2 worker_in_roster false ⇄ true · M3 cap 64/384 dropped6 truncated:true ⇄ 1e9/0/false（总 19→0）· M4 −1 ⇄ −2 · M5 key 稳定键 ⇄ 加时间戳随机后缀 ⇒ **5/5 真红**；restore 决定性字段全 SAME + 残渣逐表一致 ⇒ **我裁 L4 = PASS**。**C. 它拦下我第 8 次**：我写 worker ⇒ LEDGER_RESERVED_UID，冻结 spec/实现均为 500 LEDGER_RECONCILE_MISMATCH + reason COMMISSION_CHAIN_ASSERTION_VIOLATED ⇒ 它对、我错。**D.** 端口全空 · 88092 已终止。**E.** 已派极小 L6 单（M6 库面变异 + L6 报告回填 verdict（L4 采信我独立重算）+ 收尾）。**F.** P9⑤ 已入库 d3ae10d 待推；质检 L0–L5 全绿（L4 我坐实 5/5）⇒ 只差 M6 + L6 报告；⚠️ 生产代码 0034 时代、DB 已 0038。 |
 | v0.274 | 2026-10-03 | **P9⑤ 终审质检（截断 60c/439s）：L0/L1/L2 全绿且与实现方逐值相符 · L3–L6 未完成 ⇒ 无 verdict · 我处置实例（随子代理终止、端口本已空）· 派质检续跑单**。**A.** L0 对锚（`d3ae10d` 30 件 · 为 HEAD 祖先 · 区间字节恒等）；L1 硬门全绿（tsc 0 · 后端+前端 build 0 · 276 · 离线 126/126 · s1..s6 全 rc0 · s7 59/59 · s8 92/92 · s9 100/100 · s10 49/49 带实例 · 离线双读数全 HTTP 类 · 注册点 87）；**L2 库面活体逐值相符**（0038/37/34 · kind 恰 24 · kind_ok `fbf01eb4…`/479 · assert `4b43b44c…`/1718 · **★ 白名单行为：`−1` credit 八值 ALLOW ⇄ `−1` debit 仅新 kind ALLOW 而 `job_fee`/`bttc_mint_fee` REJECT LD021**（独立验证我 `R-9-66` 的严格限定）· policy 4 行（1/2/3 逐字未动 ⇄ 34）· 域 100..10000 · **ledger_post_event md5 `3737e0f8…`/47968 与基线一致** · checksum 四对拍 · 守恒触发器 O/deferrable/initdeferred/constraint 且 `p9s5_m0_exemption`+`v_closed` 俱在）；**L3/L4/L5/L6 未完成**（L3 侦察已完成：`referral_bind(child,parent)` 由根向外 · `settleJob(ex)` 可注入 · settle 需 `status∈{submitted,disputed}`+worker+escrow · 活体雇主 uid 970001 余额 1,636,071；L6 报告仅骨架 41 行/1,247 B）⇒ **无 verdict** ✓；它自报遗留 2 实例 ⇒ 我现取：**随子代理终止、5796–5799 全空**、5787/5788 未碰、主仓被检面零写入。**B.** 已派质检续跑单（只 L3–L6，回喂其侦察结果）。**C.** P9⑤ 已入库（`d3ae10d` 未推 + `1d2391a` 本地）；待 verdict ⇒ 推 ⇒ 生产终验；⚠️ 生产代码 0034 时代、DB 已 0038。 |
 | v0.273 | 2026-10-03 | **P9⑤ 最后收尾完成（`p8-s10` 49/49 · 四门带实例全绿 · 硬门全量 · 报告 §11）· 我核盘 + 入库 `d3ae10d`（30 件）· 派 Neng 终审质检**。**A.（42c/473s）** ② `p8-s10` **49/49**（★它纠正我：仅对调参数序不足 —— DB 强制 `BIND_PARENT_BEFORE_DESCENDANTS`，须**由根向外**绑定，`K6` 判据未动；`K8` token uid 事务夹具→活体 11；`K6 M=6/fee=10000/Σ=10000/−2` · `K7 M=0⇒−1` · `K5` 白名单外必红）③ `s7` 59/59 ⇄ 59/56/3 · `s8` 92/92 ⇄ 92/89/3 · `s9` 100/100 ⇄ 100/100/0 · `s10` 49/49 ⇄ 49/48/1（离线红全 HTTP 类）④ tsc 0 · build 0（`index-Dhi94bbn.js`）· 276 · 离线 126/126 · s1..s6 全 rc0 · 注册点 87（`index.ts:790` JSDoc 已排除）· NC1/NC2 绿 · c14 `rollback_clean=true exec_err=null` ① 报告追加 §11（前缀 34,273 B md5 逐字相等 ⇒ §0–§10 未改写；现 455 行/47,105 B）⑤ 端口空 · 5787/5788 未碰 · 17 M 与开工逐字相同；遗留：生产 HTTP 端到端 / `−1` 余额不足 fail-soft / `invite_reward_policy` 未落活体行。**B. 我现取坐实自洽**：`p8-s2` 门守卫常量是**派生 + 动态读前端源**（`gFeeMax` + `constOf(FEE_PAGE,…)`）⇒ 前端改 10000 自动跟随、门文件无需改 ⇒ **`C6` 确已消红** ✓。**C. 入库 `d3ae10d`**（30 件 · add 18352/del 135；排除 `.p4-artifacts` churn 与 3 个残留探针 `p8-s5-00-recon*.ts`）。**D.** 已派 Neng 终审质检（L0–L6；L3 自写四段真链路含经结算路径 + `M=0` + 层内均分 + Worker 剔除 + 上限截断 + 白名单外必红；L4 判负 ≥3 含换键双发；并提示 `referral_bind` 须由根向外绑）。**E.** P9⑤ 已入库待质检 ⇒ 上线 ⇒ 生产终验；⚠️ 生产代码 0034 时代、DB 已 0038。 |
 | v0.272 | 2026-10-03 | **P9⑤ 收口＋前推（截断 60c/540s）：`p8-s2` 消红 41/41 · 四门 `MIGRATIONS_FROZEN 33→37` 验绿 · `p8-s7`/`p8-s9` 改写未执行 · ★新门 `p8-s10` 首跑 43/44（唯一红定位 = `referral_bind` 参数序）· 派最后收尾单**。**A.** ③ `FeeRatePage.jsx` `FEE_RATE_MAX 500→10000` + 陈旧注释修 ⇒ **p8-s2 41/41 绿（s2 C6 消红）**；② `MIGRATIONS_FROZEN 33→37` 落 s3/s3b/s4/s5（验绿 45/38/79/117）+ `p8-s7` kind 23→24（含 0038 解析 · D6/D8 全集 5 文件 · G1 活体 24）+ `p8-s9` kind 23→24 与迁移 33·0034→37·0038 ⇒ ★ **s7/s9 改写未执行**；④ 新门 `p8-s10` 已写，首跑 **43/44**，唯一红 `K-FATAL LD016` 定位 = **`referral_bind` 签名 `(child_uid,parent_uid)` 而门传反**（诊断 `referral_bind(9600002,9600001)` ⇒ child=..002）⇒ 给出 6 处对调精确修法；诊断另坐实事务内动件可用（`grantSignupInviteBatt` 30 · `settleInviteFirstTaskReward(…,tx)` **posted** · `M=0 ⇒ fee_credit_uid '-1'`）；`K8` HTTP 腿未测；⑤ 判负 NC1/NC2 复跑绿（仓外副本 + 复原 + cmp 三断言）；门内自检已写入。**未完成**：报告追加节 · 硬门全量 · 收尾。**B.** 已派最后收尾单（报告先做 / 修 referral_bind 6 处 / s7·s9·s10 带实例 + 离线双读数 / 硬门全量 / 收尾）。**C.** P9⑤ 待最后收尾 ⇒ 我核盘 + 入库 ⇒ 质检 ⇒ 上线；**⚠️ 生产代码 0034 时代、DB 已 0038**。 |
