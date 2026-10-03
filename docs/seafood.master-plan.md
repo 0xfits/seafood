@@ -1416,6 +1416,36 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.306 **Kevin 两件事：① 平台积分单位 `dashJ` → `$` + 文案「社区积分」→「积分」· ② 提交又被拒（★真因 = 雇主未选定你 ⇒ `applied` ⇒ 409 通用文案 · **非缺陷**）· 我立 `R-9-93`/`R-9-94` · 派一单**（2026-10-03）
+
+**A. ② 提交被拒 · ★我先现取了他的真实数据（结论 = 非缺陷、流程卡住）**：
+| 项 | 现取读数 |
+|---|---|
+| 他的积分 | **`account 970213 / cid 1 = 9889`**（= 10000 − **111**）⇒ ★ **他已成功发布任务 `#136`（`reward 111` · `open` · 13:05:36）** ⇒ **积分生效、发任务已通** ✓ |
+| 他的申请 | `app 65 → job 24`（`applied`）· `app 64 → job 2`（`applied`）⇒ ★★ **两条都是 `applied`（未被选定）** |
+| 他的提交 | **0 条** |
+| 全库 | 21 jobs / 19 apps / 13 subs / 56 users |
+⇒ ★ **根因**：提交闸要求 `job_application.status = 'accepted'`，而他的仍是 **`applied`** ⇒ `submitWork`（`job-service.ts:163-165`）走 `stateConflict('job_application.status', **'JOB_APPLICATION_STATE_INVALID'**, {from:'applied', to:'accepted'})` ⇒ **`409` + 前端通用文案「当前状态不允许此变更。」**（= `ledger.err.LEDGER_CURRENCY_INVALID_TRANSITION`）。
+⇒ **定性 = 业务语义正确、非缺陷**；**缺陷在文案面**：真实原因（**你还没被雇主选定**）对用户不可见 ⇒ 与 `R-9-92` 同族（提交面只覆盖了 `ACTOR_NOT_ALLOWED`，**未覆盖** `JOB_APPLICATION_STATE_INVALID` / `JOB_STATE_INVALID`）。
+⇒ ★ **另须告知 Kevin 的流程要点**：**自己发的任务不能自己接**（`job-service.ts:190` `self_application` 拦）⇒ 走通「完成任务」必须 **第二个账号参与 → 雇主账号在任务详情页「选定」该申请人（`acceptApplication` ⇒ 申请转 `accepted`）→ 该账号再提交**。
+
+**B. ① 平台积分单位（现取）**：
+- **`frontend/src/components/ui/DashJ.jsx`** = 「**dashJ 符号**」= `J` 字母 + 横划线（组件头注释逐字：「dashJ 符号组件 - 类似美元符号和字母 S 的关系」「J 字母加上横划线，**表示社区积分**」）⇒ **正是 Kevin 看到的那个符号**
+- **使用点 8 处**：`Header.jsx:268`（头部积分）· `task/TaskCard.jsx:102` · `reward/RewardCard.jsx:93` · `HomePage.jsx:208`（hero 文案内嵌）· `:228`（热任务）· `:260`（精选）
+- **文案键 `common.communityPoints` 四语** = zh「社区积分」/ en「Community points」/ hk「社群積分」/ vn「Điểm cộng đồng」；使用点 = `Header.jsx:262`（+ 测试）
+- ★ **后端真源**：`currency.cid = 1` 的 `symbol` **本来就是 `$`**（`name` = 「平台积分」）⇒ 前端画的 `dashJ` 与后端符号**不一致** ⇒ 这是**前端符号错**，非后端口径问题
+- Kevin 定档：**`dashJ` 后期只作为「上市的积分」的其中一种，非平台积分** ⇒ 平台积分一律用 **`$`**
+
+**C. 我裁**：
+- **`R-9-93`（积分单位与文案）**：① **平台积分的符号一律改 `$`** ⇒ 上列 **8 处使用点全部**由 `<DashJ/>` 改为 **`$`**（与后端 `cid=1.symbol` 同源）；② **`DashJ` 组件文件保留**（供未来「上市的积分」使用）但**更新其头注释**说明用途变更、**当前无产品引用**；③ **文案键 `common.communityPoints` 四语值**改为 zh「**积分**」· hk「**積分**」· en「**Points**」· vn「**Điểm**」（★ **四语齐平，不得只改 zh**）；④ **零新增键**（只改值）⇒ **flat/top/节点数不变**，但**四语值变更须逐键列出**；⑤ 六类泄漏 0。
+- **`R-9-94`（提交面 reason 精确文案 · 同族补齐）**：提交面（`ActiveTaskModal` + `JobDetailPage`）按 `details.reason` 扩展：**`JOB_APPLICATION_STATE_INVALID`** ⇒「**你还没有被雇主选定为该任务的打工人，暂不能提交**」· **`JOB_STATE_INVALID`** ⇒「**该任务当前状态不能提交交付物**」· 保留 `ACTOR_NOT_ALLOWED` 既有精确文案 · **其它/无 `details` ⇒ 通用文案逐字不变**；★ **同族扫面必做**：把 `submitWork` 与 `acceptApplication` 的**全部** reason（`job-service.ts` 两处 `stateConflict`/`fail` 分支）逐条列出并给文案归属（有文案 / 通用 / 不适用 + 理由），**不得只补被点名的那一条**。
+- **`R-9-95`（单写者）**：两件**都要改 `locales/*.json`** ⇒ **必须同一单**（一个写者），不得拆两单并行。
+
+**D. 已派一单（前端两件合并）**：面 = `components/ui/DashJ.jsx`（仅注释）· `components/Header.jsx` · `components/task/TaskCard.jsx` · `components/reward/RewardCard.jsx` · `pages/HomePage.jsx` · `components/ActiveTaskModal.jsx` · `pages/jobs/JobDetailPage.jsx` · `locales/{zh,en,hk,vn}.json` · `test/unit/`（新增/扩）；自证 = 8 处使用点逐处断言「渲染 `$` 且**不再含 DashJ**」· 四语文案值逐键 · 提交面 5 条 reason 双向文案（精确 ⇄ 通用逐字）· `vitest` 全绿零新增 · `build` 0 · 六类泄漏 0。
+**E. 状态**：DB **0040** · 生产代码 `342e40c` · **积分 9889（已用掉 111 发任务）+ 电量 30**。
+
+---
+
 ### 5.305 **Jing 路由层规范回写回执（27c/214s）= 纯追加 `97/0` · ★它纠正我一处转引误差 · 我核盘通过 → 入库 + push（本批终稿）**（2026-10-03）
 
 **A. 回写（`docs/route-layer.spec.md` v2.21 → **v2.22**）**：
@@ -6546,6 +6576,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.306 | 2026-10-03 | **Kevin 两件事：① 平台积分单位 dashJ → $ + 文案「社区积分」→「积分」· ② 提交又被拒（★真因 = 雇主未选定你 ⇒ applied ⇒ 409 通用文案 · 非缺陷）· 我立 R-9-93/R-9-94 · 派一单**。**A. ② 我现取他真实数据**：`account 970213/cid1 = **9889**`（= 10000 − **111**）⇒ ★**他已成功发布任务 #136（reward 111 · open）** ⇒ 积分生效、发任务已通；他的申请 `app 65→job 24` 与 `app 64→job 2` **都是 applied（未被选定）**；提交 0 条；全库 21 jobs/19 apps/13 subs/56 users ⇒ ★根因 = 提交闸要求 `accepted` 而他是 `applied` ⇒ `stateConflict('job_application.status','JOB_APPLICATION_STATE_INVALID')` ⇒ 409 + 通用文案（= `ledger.err.LEDGER_CURRENCY_INVALID_TRANSITION`）⇒ **非缺陷、是文案面缺口**（同族：提交面只覆盖 ACTOR_NOT_ALLOWED）；★并告知流程要点：**自己发的任务不能自己接（self_application）⇒ 须第二账号参与 + 雇主账号「选定」后该账号再提交**。**B. ① 现取**：`ui/DashJ.jsx` = 「dashJ 符号」= J + 横划线（头注释逐字「表示社区积分」）· **8 处使用点**（Header:268 · TaskCard:102 · RewardCard:93 · HomePage:208/228/260）· `common.communityPoints` 四语 = 社区积分/Community points/社群積分/Điểm cộng đồng · ★**后端 `currency.cid=1.symbol` 本来就是 `$`** ⇒ 前端符号错。**C. 我裁**：`R-9-93` 平台积分符号一律 `$`（8 处全改）+ `DashJ` 组件保留但更新注释 + 文案键四语齐改 zh「积分」/hk「積分」/en「Points」/vn「Điểm」+ 零新增键（值变更须逐键列出）；`R-9-94` 提交面按 reason 精确文案（补 `JOB_APPLICATION_STATE_INVALID`/`JOB_STATE_INVALID`，其余逐字不变）+ **同族扫面**（submitWork/acceptApplication 全部 reason 逐条列归属）；`R-9-95` 两件同改 locales ⇒ **必须同一单**。**D.** 派一单（前端两件合并）。 |
 | v0.305 | 2026-10-03 | **Jing 路由层规范回写回执（27c/214s）= 纯追加 97/0 · ★它纠正我一处转引误差 · 我核盘通过 → 入库 + push（本批终稿）**。**A.** route-layer v2.21→**v2.22**：spec 内 `shard` **40 命中逐处判定**（页面路径 7 行 ⇒ 回写 · `/api/shard*` 29 处 ⇒ 不动 · 表名/其它 4 行 ⇒ 不动 · 历史快照 41 件 ⇒ 不动）；4 个 insert 块共 97 行（v2.22 状态块 3 行 + §2③ 两处就地标注 + **新 §33（33.1–33.8）92 行**）；★**三面不动**逐字入册（组件名 `ShardPage` · 文案键 `shard` · API `/api/shard*`）+ **旧写法逐字留痕**；三件套 = 主册（md5 `4ee506ec…`→`ae65077a…`）· 新快照 **cmp=0** · 新 delta（75 行）；★ 只追加自证 = **`numstat 97/0`** + **`difflib {'equal':5,'insert':4}`（replace 0 / delete 0）**。**B.** ★**它纠正我转引误差**：我写「`App.jsx:283` 注释同步」，现取 `:283` = 8② fee-rate 路由行（非交易所注释）⇒ 以现取为准（教训：brief 行号必须现取）。**C.** 登记 7 类（`ProfilePage.jsx:501` 旧链接〔重定向零破损〕· `frontend/src/styles.css:29`〔它纠正我路径〕· p4z 脚本 · 单测夹具旧路径登记不修 · 回归契约有意保留 · docs 历史件 · 历史快照）。**D.** 我核盘：numstat 97/0 ✓ · 快照 cmp=0 ✓ · §33 子节 8 ✓ · 状态块在位 ✓ · 就地标注旧行未动 ✓ · 工作树仅 docs 三件 ✓；（我 `grep -c /api/shard` 得 38 ⇄ 它报 29 = 计数口径差异，不影响结论 —— numstat+difflib 已机械证明原有行逐字保留）。**E.** push `43d1cdd` = **本批终稿**。**F.** 总收官：8⑥ · D1/D2 · batt 点阵条 · 签到闭环 · 合并菜单 · D8 提交面 · 隐私面封堵 · 路由改名+规范回写 · 积分 10000 ⇒ 全部上线 + 生产终验 + 规范同代；生产 `schema_version` **0040** · HEAD **`43d1cdd`**。 |
 | v0.304 | 2026-10-03 | **测试强度修补单回执（18c/136s）= 收紧为原生结构断言 · ★它给出「假绿实证」+「必红 4 红点」· 我核盘通过 → 入库 + push**。**A.** `r9-90-participate-surface.test.jsx`（+53/−12）：新增 `NATIVE_SUBMIT_SELECTORS = ['form','textarea','input:not([type=hidden])','button[type=submit]']` + `expectNoNativeSubmitControls`；**钩子仅作辅助定位**；无 jID ⇒ **双容器**（弹窗 + 参与面）断言四原生选择器均 null；有 jID ⇒ 反件断言 form（与钩子同一节点）/textarea/button[type=submit] 存在；★诚实标注口径例外（产品交付物控件是 textarea、源码本就无 input ⇒ jID 侧不断言 input）。**B. 自证**：套件 **11/11** · **负对照 A（假绿实证）**：注入不带钩子的真表单 ⇒ 真 `<form>` 存在而**旧断言仍 null（漏判）** ⇒ 复现假绿 · **负对照 B（必红）**：4 红点全命中（form/input/textarea/button[type=submit] 各一条 `to be null`）· 全量 `7 failed \| 361 passed` 零新增 · build 0 · 变异体仅在仓外。**C.** 我核盘：tracked 改动仅此文件 · 四选择器齐 · `expectNoNativeSubmitControls` 用 3 处 · 钩子非唯一判据 · **我亲跑 11/11 绿**。**D.** 入库 + push（测试不入 build ⇒ 产物 sha 应不变）。**E.** 本批全部收官；在跑 Jing 规范回写单。 |
 | v0.303 | 2026-10-03 | **质检回执（纯前端两件）= PASS_WITH_ISSUES（产品面全 PASS）· ★同一「判据锚机读钩子 ⇒ 假绿」形态第二次发作 · push 上线 + 派极小修补单 + 技能回写**。**A.** ①D8 独立复现（不 mock 接线层，桩 fetchApiJson 以真 URL 证入参）：探针 7/7 —— 无 jID ⇒ **POST /api/job/9/apply（=tID）** · 有 jID=24 ⇒ **POST /api/task-progress/24/submit** · 精确 ⇄ 通用文案逐字；原生选择器结构面：无 jID ⇒ form/textarea/button[type=submit] 全 null + 出现 applyPrompt ✓ ②路由：四语 /exchange 直达 + 旧路径四语重定向（含 /zh 自愈）· /api/shard* 与 locales 未动 ✓ ③判负 A/B/C 全红（A 回退加回 ⇒ 2 failed/16 · B hasApplication 回退 tID ⇒ 6/12 · C 删旧路由 ⇒ 16/39）· **主仓 5 文件 sha256 逐字不变** ✓ ④★**假绿（同一形态第二次）**：注入**无钩子** `<form><textarea/></form>` ⇒ 实现方 r9-90「无提交表单」**11/11 仍绿**，而它原生断言红 1/7 ⇒ 实现方判据非真结构断言（**产品无缺陷**）；源码不变量剔注释后真能撞红 ✓ ⑤四语 2 键逐键（en/vn 零 CJK）· 计数 top119/flat1039/节点4156 · **vitest 7 failed \| 361 passed 零新增**（目标四文件 71/71）· build 0 ✓ 未测：HTTP/BrowserRouter 真浏览器层（禁起服务）；★它诚实指出仓外副本全量读数无效（缺 style-preview.html ⇒ theme-shell 假红 ENOENT）。**B.** 产品全 PASS ⇒ 不阻塞上线；测试强度 issue 必修（R-9-88 与 R-9-90 同形态）⇒ 派极小修补单收紧为原生结构断言 + 负对照；★**升级为派单硬口径并回写技能**（「无 X ⇒ 不得渲染 Y」一律锚原生结构，不得只锚 data-sf-m 钩子）。**C.** push。**D.** 生产终验：/exchange 四语可达 + 旧 /shard 重定向 + health 0040 + bundle 对拍。 |
