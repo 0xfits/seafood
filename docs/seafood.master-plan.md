@@ -1416,6 +1416,31 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.323 **S6b（逐笔 reject 腿）✅ 修掉严重错误 · S7（悬赏家评判列表）✅ 接线完成 · ★S7 现取到一类型级缺口（locale 缺键 ⇒ 渲染裸键）· 入库 + 派 S8**（2026-10-04）
+
+**A. S6b ✅（40c/320s）** —— `POST /api/job/:jobId/review` 分支化，**修前严重错误已除**：
+- **带提交号 + `approved:false`** ⇒ `DatabaseService.rejectJobSubmission`（S4a 已入库，**未另写**）⇒ **逐笔 · 零资金 · 该提交 `rejected` · 任务保持 `open`** ✓
+- 带提交号 + `approved:true` ⇒ `settleJob`（S6 口径不变）✓ · **不带提交号 ⇒ 现行为逐字保留**（`approved:false` 仍整单 `refundJob`）⇒ **零回归** ✓ · 准入未改 ✓
+- 自证：**`tsc` = 0** · 臂(a) `{approved:false, submission_id:210}` ⇒ **200**；`ledger_entry 364→364`（**零资金**）、Σbal `2029986`/Σfrozen `10344` **不变**、210 `pending→rejected`、**job22 仍 `open`**、`pending_count 2→1` ✓ · 臂(b) 不带提交号 ⇒ **409**（仍走整单腿）✓ · 臂(c) 非发布者 uid6 ⇒ **403 `NOT_ADMIN`** ✓
+- **判负 5 项**（含去分支 ⇒ 塌回 409 且 210 停留 `pending` ⇒ **200 vs 409 必红**）✓
+- **净写**：资金面 **0**；业务面仅新增 2 条提交（210/211，均 `rejected`，**禁删触发器使其不可回删** —— 诚实登记）· ★ **S6 夹具 submission 97 未触碰** ✓ · **收尾干净**（5796 空）✓
+- 同族扫面：`refundJob(` 全仓 **6 处** ⇒ 生产 **2 处**（`/review` 无提交号腿 = 本单改点；`/cancel` = 取消语义，非「判不合格」）+ 脚本 4 处（越出面）⇒ ★ **无其它「判不合格当整单退」漏点** ✓
+- 文件：`index.ts` **`+43/−4`**（唯一）· 报告 `docs/audit/s6b-per-submission-reject.md`
+
+**B. S7 ✅（59c/476s）** —— 悬赏家评判列表接线：
+- `jobs/JobDetailPage.jsx`：主列新增**发布者视角「提交列表」**（逐条 **提交人 `#<worker_uid>`** + 交付物 + 状态（`pending/approved/rejected` **三态查表**四语文案，不渲染枚举）；`pending` 条给「**合格**」/「**不合格**」按钮 ⇒ **零新增 CSS/主题分支** ✓
+- `jobs/job-api.js`：`listJobSubmissions(jobId,user)` = `GET /api/job/:jobId/submissions` · `reviewSubmission(jobId, approved, user, submissionId)` = `POST /api/job/:jobId/review` body `{approved, submission_id}` —— **URL/body 与 S6 逐字一致**，未发明接口 ✓；★ `submissionId` 作**第 4 参追加** ⇒ `JobReviewPage` 既有 3 参调用**逐字不变**（缺省 ⇒ body 仅 `{approved}` ⇒ 遗留分支，**零回归**）✓
+- **10 新键 × 4 语齐备**（en/vn 零 CJK）· 计数：`top 119`（不变）· **`flat 1044 → 1054`** · **节点 `4176 → 4216`**（7 测试文件计数断言逐条**登记订正**，非删断言）✓
+- 自证：vitest 前 `7 failed/408 passed` ⇒ 后 **`7 failed/422 passed`** ⇒ **零新增** ✓ · `build` **0**（`index-DYLJmdLN.js` 419.60 kB）✓ · 泄漏 **PASS** ✓ · 新测试 `s7-submissions-panel.test.jsx` **14/14** ✓
+- 文件：`frontend/**` 13 文件 + 测试 + 报告 `docs/audit/s7-frontend-submissions-panel.md`
+
+**C. ★ 我裁 S6b 的 3 条交裁**：① **新增归属校核**（`resolveReviewTarget(submissionId).jobId === :jobId`，防跨 job 越权；实测送别 job 提交号 ⇒ 404）⇒ ★ **认可保留**（**正确加固**，非越界；已登记）② `/review` 逐笔 reject 成功面键集取 `TaskProgressRecord`（9 键，与 admin 驳回面同形）⇒ 登记，**待 Jing 回写** ③ 脚本 4 处 `refundJob(` ⇒ 登记（越出面）
+**D. ★ 我裁 S7 的 2 条交裁**：① **「admin 也能看到提交列表」** ⇒ **裁：接受**（admin 持 `review_tasks` ⇒ 看提交列表并判定是合理设计）；★ 标「一句话可改」（若要「仅发布者、admin 不可见」，需**后端暴露发布者 uid** ⇒ 另单，属后端面）② ★★ **`jobs.deliverable` 在四语 locale **均缺失** ⇒ 提交表单标签渲染**裸键名**（`JobDetailPage.jsx:242`）= **用户可见缺陷** ⇒ **必修**（我核盘确认四语全缺）⇒ ★ **且必须做类级扫面**（见 E），**不得只补这一个键**。
+**E. ★★ 我裁：派 S8（locale 缺键类级扫面 + 补齐 + 守卫测试）** —— 「locale 缺键 ⇒ 渲染裸键」是**类级缺口**（本会话第 N 次「点位清单必然漏」的同一形态）。S8 必须：① 全仓扫**所有** `t('x.y')` 用到的键 ⇒ 与**四语 locale 键集**求差 ⇒ **逐处列出**；② 逐个补齐四语（en/vn 零 CJK）；③ **新增守卫测试**（把「用到的键 ⊆ locale 键集」变成可判负断言，防再犯）；④ 计数前推。
+**F. 入库 2 commit（S6b / S7）**。**G. 状态**：DB **`0041`**（`0042` 未 apply）· 全在本地**未 push** · 端口全空 ✓ · **积分 9889 + 电量 30**。
+
+---
+
 ### 5.322 **S6 后端补口完成 · ★它报出关键阻断（逐笔发放在 `0041` 上无法观测 ⇒ 必须 apply `0042`）· ★我裁必须补「逐笔 reject 腿」（否则判不合格会整单退款）· 入库 + 派 S6b**（2026-10-04）
 
 **A. S6 交付（52c/451s）**：

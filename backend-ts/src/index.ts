@@ -2446,18 +2446,57 @@ app.post('/api/job/:jobId/submit', async (req, res) => {
 //   ★ spec 现取（未冻结该 body 形态）：已冻结面 = **路径 `POST /api/job/:jobId/review` + body `{approved}`
 //   + 成功键集 15 键**（`route-layer.spec.md:33/91` · §1.11 Q7），**未冻结「提交号字段名」** ⇒ 本片取
 //   **最小变体** `{approved, submission_id}`（别名 `submissionId`）⇒ **待 Jing 回写 spec**（登记见报告）。
-//   ★ 逐笔 reject（带提交号判不合格）**本片不接线**（越出本单面）：`approved:false` 恒走 `refundJob`
-//   整单退（旧语义不变）⇒ 登记交 Zang。
+//   ★ S6b（`R-9-99`/`R-9-101`）· **逐笔 reject 接线**：带提交号 + `approved:false` ⇒ **按提交判不合格**
+//   （零资金 · 只落该提交 `review_status='rejected'` · **job 保持 `open`** ⇒ 同人可再提），
+//   走 S4a 已入库服务层 `DatabaseService.rejectJobSubmission`（**不另写**）。
+//   修前事实（严重错误）：`approved:false` **恒走** `refundJob` 整单退（退**整单** + job→`rejected`）⇒ 带提交号时
+//   会误退整单并取消任务。现按「**带提交号** vs **不带提交号**」分支化：
+//     · 带提交号 + `approved:true`  ⇒ `settleJob({submissionIdRaw})`（S6 已接 · 逐笔发放，R4 原子）；
+//     · 带提交号 + `approved:false` ⇒ `rejectJobSubmission`（逐笔 · 零资金 · 该提交 `rejected` · job 保持 `open`）；
+//     · **不带提交号** ⇒ **保持现行为（零回归）**：`approved:true` 走遗留单笔 `settleJob`；`approved:false` 整单 `refundJob`。
 app.post('/api/job/:jobId/review', async (req, res) => {
   const jobIdRaw = String(req.params.jobId ?? '').trim();
   const actor = await requireJobOwnerOrAdmin(req, res, jobIdRaw);
   if (!actor) return;
 
   const approved = req.body?.approved !== false;
-  // ★ S6：逐笔提交号（缺省 ⇒ 服务层落遗留单笔分支）
+  // ★ S6/S6b：逐笔提交号（canonical `submission_id`，兼容别名 `submissionId`；三者全缺 ⇒ 遗留分支）
   const submissionIdRaw = req.body?.submission_id ?? req.body?.submissionId;
+  const hasSubmission = submissionIdRaw !== undefined && submissionIdRaw !== null
+    && String(submissionIdRaw).trim() !== '';
 
   try {
+    // ★★ S6b：带提交号 + 判不合格 ⇒ **逐笔驳回**（零资金 · 该提交 `rejected` · job 保持 `open`）。
+    if (hasSubmission && !approved) {
+      const subIdText = String(submissionIdRaw).trim();
+      const subRefMissing = {
+        ok: false as const, status: 404, code: 'LEDGER_REF_NOT_FOUND', message: 'Referenced object not found',
+        details: { ref_type: 'job_submission', ref_id: subIdText || 'null', field: 'submission_id',
+          reason: 'submission_not_found', job_id: jobIdRaw },
+      };
+      if (!/^\d+$/.test(subIdText) || Number(subIdText) <= 0) return sendVerbError(res, subRefMissing);
+      // 归属校核：该提交必须属于本 job（防「以 job A 的归属权驳回 job B 的提交」跨 job 越权）。
+      const target = await DatabaseService.resolveReviewTarget(Number(subIdText));
+      if (!target || String(target.jobId) !== jobIdRaw) return sendVerbError(res, subRefMissing);
+      const rejected = await DatabaseService.rejectJobSubmission({
+        submissionId: Number(subIdText),
+        reviewedBy: actor.user.uID,
+        reviewMemo: `job reject:${jobIdRaw}:${subIdText}`,
+      });
+      if (rejected <= 0) {
+        return sendVerbError(res, {
+          ok: false as const, status: 409, code: 'LEDGER_CURRENCY_INVALID_TRANSITION',
+          message: 'Business state transition rejected',
+          details: { field: 'job_submission.review_status', reason: 'job_review_status_invalid',
+            from: target.submissionStatus, to: 'rejected', submission_id: subIdText },
+        });
+      }
+      const record = await DatabaseService.getTaskProgress(Number(subIdText));
+      return sendSuccess(res, record ?? {
+        submission_id: subIdText, job_id: jobIdRaw, worker_uid: String(target.workerUid), review_status: 'rejected',
+      }, 'Job submission rejected');
+    }
+
     const result = approved
       ? await settleJob({ jobIdRaw, submissionIdRaw, reviewerUid: actor.user.uID }) // 审核人 ⇒ 结论位与资金**同一语句**（R4 原子）
       : await refundJob({ jobIdRaw, toStatusRaw: 'rejected', reviewerUid: actor.user.uID });
