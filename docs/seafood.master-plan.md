@@ -1416,6 +1416,36 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.312 **本批两单质检 = ✅ `PASS`（40c/208s）· ★它纠正我一处判负口径表述 · push 上线 + 生产复扫**（2026-10-03）
+
+**A. 单① `R-9-96`（`ba11035`）**：三处值**四语逐键自读正确**（`rewardCard.insufficient` = 积分不足/積分不足/Not enough points/Không đủ điểm · `uiCommon.dashJPoints` = 积分/積分/Points/Điểm，**消费点 `RewardCard.jsx:157` 核对**）✓ · `SEARCH_DEMO` 含「兑换 积分」且不含 `dashJ` ✓ · **计数自算** 四语 `top 119`/`flat 1041`（键集差集 = 0）/节点 `4164` ⇒ **零新增零删键** ✓ · **旧串清零自扫 8 条全 0** ✓ · **保留项登记**：`ThemePreviewPage.jsx:175` = **`DASHJ / $ 0.3312`**（全大写、与 `SEAFOOD / $ 1.0240` 成对）⇒ 只登记**未改** ✓
+
+**B. 双口径扫面（它自建）**：scope A `grep -i dashj` = **76 行** / scope B `grep dashJ` = **40 行** ⇒ 分类：测试 63/31 · 注释 4 · 键名 `dashJPoints` 4 · 键引用 1 · 组件名 3 · 保留 ticker 1 · ★★ **用户可见文案 = 0 / 0** ✓（非测试命中仅 13 行，无一处用户可见）· **bundle 终验**（它自己 build 后扫 `index-DbgRc-K2.js`）：`dashj` 仅 **5 处**（键名 ×4 + `DASHJ/$` ×1）· 7 条旧串 = 0 ✓
+
+**C. 单② `r9-88`（`46644f2`）**：**4 处/5 条** `toContain → toBe` 逐条核对到位 ✓ · **原版 `toContain` 计 6（1 列表成员 + 5 文案）⇒ 现文件内命中 2，其中仅 1 处为真断言**（L105 列表成员否判），另 1 处（L102）是注释文本 ✓
+
+**D. 判负（仓外副本 + 复原 + 主仓 sha256）—— 4 红 + 1 反证绿**：
+| # | 变异 | 期望 | 实测 |
+|---|---|---|---|
+| (a) | `zh.rewardCard.insufficient → dashJ不足` | 红 | **红 2 failed** |
+| (b) | **仅 zh** `uiCommon.dashJPoints → dashJ 社区积分`（hk/en/vn 新） | 红 | **红 2 failed** |
+| (c) | `SEARCH_DEMO → 兑换 dashJ` | 红 | **红 2 failed** |
+| (d1) | 产品通用文案加前缀 × **收紧后 `toBe`** | 红 | **红 2 failed** |
+| (d2) | 同前缀 × **旧 `toContain` 形态** | 反证 | **绿 8/8** ⇒ 复现漏判面 |
+★ **它纠正我一处判负口径表述**：我 brief 写的 (d)「改回 `toContain` **且**加前缀 ⇒ 必红」—— 实测该组合为**绿**（`'▲generic failure'.includes('generic failure')` 真 = **漏判面本身**）；正解 = **收紧 `toBe` + 加前缀 ⇒ 红**（= d1）。**它的口径纠正正确**（我的组合逻辑自相矛盾）⇒ **我认账**。
+★ **复原与主仓**：副本 4 文件 `cmp` 对主仓 = **SAME** · 主仓 `frontend/src` 全量 sha256 聚合 **前 = 后 = `80504ad7…0bafd40`** ✓
+
+**E. 假绿排查**：单① 逐值 `toBe`（非仅断键名）+ 四语**分开**断言 + `set.size === 4`（互异）+ en/vn CJK 检查 ⇒ **非假绿** ✓ · 单② d1/d2 双读数证明**非换皮** ✓ · **登记（非缺陷）**：单① ④「产品源面」用**大小写敏感** `.includes('dashJ')`，若以小写 `dashj` 回灌源面则不命中 ⇒ 登记为覆盖口径备注（现状源面无小写-only 命中）
+
+**F. 回归**：全量 `7 failed / 382 passed`（**基线 7 零新增**；失败集 = 既有 `Card`×6 + `VirtualList`×1，与本批面无 import 交集）✓ · 定向全绿（`r9-96` 7/7 · `r9-88` 8/8 · `closeout` 5/5 · `b5`+`r9-93`+`ui-barrel` 28/28）✓ · `build` **0**（`index-DbgRc-K2.js` 416.49 kB）✓ · **泄漏门** `p4z-i18nviol-global.mjs` **EXIT=0 / 总判 PASS**（locale 裸命中 0 + 源面裸命中 0 + 类级残余 0）✓
+- **两处登记（既有、不阻塞）**：① closeout 子面③ 硬编码中文启发式命中 1 = `jobs/JobDetailPage.jsx:289`「）SELECT 列集不含」—— 位于 **JSX 注释块内**（288-292）⇒ 启发式**误报**；**两单均未触碰该文件**（该文件顶 commit = `37d0b03`，早于本批）② 上列 D 的口径备注
+- **未测项 3 条**：全量失败集「前后同机对比」（不 checkout 主仓/不 `npm install` ⇒ 改用「失败面交集 + 基线一致」判定）· 真浏览器视觉/e2e（不得起服务）· 线上 bundle（不触部署，仅本地产物扫描）
+
+**G. verdict = ✅ `PASS`** ⇒ **push 上线**（本批 4 commit）。**H. 生产复扫**：push 后复扫线上 bundle 的 `dashj` 命中 ⇒ **用户可见类必须 = 0**（键名 ×4 + `DASHJ/$` ×1 为限）。
+**I. 状态**：DB **0040** · 生产代码 `1375205`（待本批 push 前推）· **积分 9889 + 电量 30**。
+
+---
+
 ### 5.311 **`R-9-96` 补齐单回执（24c/220s）· ★它纠正我键路径（`rewardCard.insufficient` 非 `reward.insufficient`）· ★严格报出一处残留交我裁决 · 我裁「保留」· 核盘全通过 → 入库 + 派合并质检**（2026-10-03）
 
 **A. 改值（只改值 / 零新增 / 零删键 ⇒ 计数不变）**：
@@ -6713,6 +6743,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.312 | 2026-10-03 | **本批两单质检 = ✅PASS（40c/208s）· ★它纠正我一处判负口径表述 · push 上线 + 生产复扫**。**A.** 单①R-9-96：三处值四语逐键正确（消费点 RewardCard.jsx:157 核对）· SEARCH_DEMO 正确 · 计数自算 119/1041/4164 零新增零删键 · 旧串 8 条全 0 · 保留项 `DASHJ / $ 0.3312` 只登记未改。**B.** 双口径自扫：-i 76 行 / 敏感 40 行 ⇒ **用户可见文案 = 0/0**；非测试命中仅 13 行无一处用户可见；bundle 内 dashj 仅 5 处（键名×4+DASHJ/$×1）。**C.** 单②r9-88：4 处/5 条 toBe 到位；原版 toContain 6（1 列表+5 文案）⇒ 现命中 2 其中仅 1 真断言。**D. 判负 4 红 + 1 反证绿**：a 改回 dashJ不足 2red · b 只改 zh 2red · c SEARCH_DEMO 改回 2red · d1 收紧 toBe+加前缀 2red · **d2 旧 toContain+加前缀 8/8 绿 = 复现漏判面**；★**它纠正我 (d) 口径**（我写「改回 toContain 且加前缀必红」实测为绿 = 漏判面本身；正解 = 收紧后加前缀必红）⇒ 我认账；副本 cmp SAME · 主仓 sha256 聚合前=后。**E.** 假绿排查非假绿；登记源面大小写敏感口径备注。**F.** 全量 7 failed/382 passed 零新增 · 定向全绿 · build 0 · 泄漏门 EXIT=0 PASS；两处登记（closeout 子面③ 1 处 JSX 注释误报·既有·未触碰）。**G.** verdict PASS ⇒ push。**H.** 生产复扫 dashj 用户可见类必须 0。 |
 | v0.311 | 2026-10-03 | **R-9-96 补齐单回执（24c/220s）· ★它纠正我键路径（rewardCard.insufficient 非 reward.insufficient）· ★严格报出一处残留交我裁决 · 我裁「保留」· 核盘全通过 → 入库 + 派合并质检**。**A.** 改值（零新增/零删键 ⇒ 计数不变）：`rewardCard.insufficient` ⇒ 积分不足/積分不足/Not enough points/Không đủ điểm · `uiCommon.dashJPoints` ⇒ 积分/積分/Points/Điểm（**键名不改**）· `SEARCH_DEMO`「兑换 dashJ」⇒「兑换 积分」；★我 brief 键路径粗了一层（实为 rewardCard 块下，由 RewardCard.jsx:157 消费）⇒ 我认账。**B. ★★双口径扫面**：-i = 76 行 / 敏感 = 40 行 ⇒ **用户可见文案 = 0**（前 = 9）· 键名 19 · 组件名 23 · 注释 21 · 测试 12 · API 0；★它**严格报出残留 1 处**：`ThemePreviewPage.jsx:175` 的 **`DASHJ / $`**（全大写 ticker，bundle 内确凿存在），属禁碰面 ⇒ 未改、交我裁决、并承认「严格口径下用户可见类 = 1」。**C.** 我现取：该处 = **行情板** `SEAFOOD / $ 1.0240` ⇄ **`DASHJ / $ 0.3312`**（成对对 $ 报价）· 路由 `App.jsx:105` = 产品路由 ⇒ 用户可见 ⇒ ★**裁定「保留」**（语义 = 「DASHJ 作为可交易标的对 $ 报价」= 正是 Kevin 定档的「dashJ 仅作上市的积分之一种」⇒ 与口径一致；标「一句话可改」）；核盘：产品源面敏感口径剩 9 行 = 键名×4 + DashJ.jsx 注释×3 + title 引用×1 + barrel 注释×1 ⇒ **用户可见 = 0**；两处 1 命中全在测试文件。**D.** 四语值逐键 · 定向 51 passed · 全量 7 failed/382 passed 零新增 · build 0（index-DbgRc-K2.js）· 泄漏 0 · **它做的 bundle 终验**：7 条旧串全 0、bundle 内 dashj 仅 5 处（键名×4 + DASHJ/$×1）；我亲跑 r9-96+r9-88 = **15/15 绿**。**E.** 入库 + 派合并质检 ⇒ 一次 push ⇒ push 后复扫线上 bundle。 |
 | v0.310 | 2026-10-03 | **r9-88 断言收紧单回执（20c/151s）· ★它扫全文件收紧 4 处/5 条（非只改名两条）· ★双读数对照证明漏判面已关掉**。**A.** 逐个扫过全文件 `toContain` ⇒ 收紧 4 处/5 条为 `toBe`：① 只读目标 ⇒ `toBe(`${zh.jobs.applicationId} #24`)` ② 先参与提示 ⇒ `toBe(`${zh.jobs.submit}${zh.jobs.submitNeedApply}`)` ③ 其它 reason ⇒ `toBe(String(err.message \|\| zh.error))` ④ 无 details ⇒ 同上；收紧后文件内 `toContain` 仅剩 1 处（列表成员否判，正确保留）。**B. ★负对照双读数**：**A** 变异体（加 `'PREFIX '`）× 收紧后 ⇒ **必红 2 failed/6 passed**（红点给文本）；**B** 同变异体 × 旧版 `toContain` 测试 ⇒ **8/8 全绿 ⇒ 复现漏判面**。**C.** 该套件 **8/8** · 全量 `7 failed/375 passed` 零新增 · build 0 · 主仓 `PREFIX` 计数 **0**（变异体未回灌）· 只改一个文件 · 未测项无。**D.** 入库（与 R-9-96 合并后一次 push）。**E.** 在跑 R-9-96 补齐单。 |
 | v0.309 | 2026-10-03 | **★★生产终验抓到我 brief 的漏面：线上 bundle 仍有 3 处用户可见 dashJ 文案（reward.insufficient / uiCommon.dashJPoints / SEARCH_DEMO）· 我立 R-9-96 + 派补齐单**。**A.** 生产终验：health 0040 · bundle `index-CamqpxtI.js` **sha256 `438be751…` == 本地逐字** · 新 reason 键在线上各 6 · 四语 积分59/積分57/Points189/Điểm15 · 四语 /exchange 200 ·（★我判据选择不当：`grep '>\$</span>'`=0 因 minify 形态变，登记不据此判失败）。**B. ★★** `dashJ` 命中 13 处 ⇒ 逐处现取：**3 处用户可见** —— `reward.insufficient`（zh「dashJ不足」/en「Not enough dashJ」/hk/vn）· **`uiCommon.dashJPoints`（「dashJ 社区积分」—— 正是 Kevin 说的「社区积分」那处，R-9-93 只改了 common.communityPoints、漏了此键）** · `theme-preview-demo.js:29 SEARCH_DEMO`（「兑换 dashJ」）；其余 10 处 = 组件注释/barrel/键名（非用户可见）。**C.** ★**我认账（第 15 次）**：brief 只给两个抓手、**未要求全仓 grep 小写 dashJ 并逐处分类** ⇒ 实现/质检都按我给的范围查 ⇒ 全链条漏面，**是生产终验 bundle 扫描抓出来的**；★教训须回写技能：改单位/换符号/改名类单必须写死「全仓双口径扫旧符号 + 逐处分类，用户可见处清零」。**D.** 裁 `R-9-96`：`reward.insufficient` ⇒ 积分不足/積分不足/Not enough points/Không đủ điểm；`uiCommon.dashJPoints` ⇒ 积分/積分/Points/Điểm（**键名不改，仅值改**）；`SEARCH_DEMO` ⇒「兑换 积分」；零新增/零删键 ⇒ 计数不变；自证 = 全仓双口径分类表 + 用户可见处 0 命中。**E.** 派补齐单（与在跑的 r9-88 断言修补单面不相交）。 |
