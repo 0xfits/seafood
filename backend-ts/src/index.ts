@@ -1297,6 +1297,203 @@ app.post('/api/checkin/makeup', async (req, res) => {
   }
 });
 
+// ============================================================================
+// 批 9 第 3 片（P9③ · `route-layer.spec` v2.16 §29.12 · `data-layer.spec` v0.23 §32）：
+//   评分 / 时效（四角色指标）+ `R-9-7` 发货 / 收货 —— **5 新口**
+//   （注册点 `80 → 85`：`get 34→36` / `post 43→46`；`put 0` / `patch 1` / `delete 2` 不变）。
+// ----------------------------------------------------------------------------
+// · 用户面 5 口全闸 `requireActor`（用户本人 · `uid` 取自 token，**不得**客户端声明）；**零 admin 键新增**（11 键不动）。
+// · A2/A3 归属闸：ship = 卖方本人 / receive = 买方本人（取数真源 = `listing_order.seller_uid/buyer_uid`）；
+//   ship/receive 的**状态回写 + 事件行**在 `transitionListingOrder` 的**单语句 CTE** 内同生同灭（变体 C-Ⅰ）。
+// · 错误面 = **既有 33 闭集借码 + 稳定 `reason`**（零新增码）+ R107 单形状。
+// · 「无数据」兜底：星级 = `defaultStars`（默认 3.0）；时长 = `null`（前端「暂无数据」· **不填 0**）；比率 = 100%。
+// ============================================================================
+const RATING_DIRECTIONS = ['poster_to_worker', 'worker_to_poster', 'vendor_to_customer', 'customer_to_vendor'] as const;
+const RATING_PERIODS = [30, 90, 360, 1000] as const;
+
+/** ship/receive 动作口回执映射（**既有 33 闭集借码 + 稳定 `reason`** · 零新增码 · R107）。 */
+const sendOrderTransition = (
+  res: Response,
+  r: Awaited<ReturnType<typeof DatabaseService.transitionListingOrder>>,
+  action: 'ship' | 'receive',
+) => {
+  if (!r) return sendInfraMapped(res, `listing.${action}`, new Error(`${action}: no row`));
+  if (r.outcome === 'shipped' || r.outcome === 'received') {
+    return sendSuccess(res, { orderId: String(r.orderId), status: r.toStatus, fromStatus: r.currentStatus },
+      action === 'ship' ? 'Order shipped' : 'Order received');
+  }
+  if (r.outcome === 'replay') {
+    return sendSuccess(res, { orderId: String(r.orderId), status: r.toStatus },
+      `Order ${r.toStatus} (idempotent replay)`, 200, { idempotent_replay: true });
+  }
+  if (r.outcome === 'order_not_found') {
+    return sendVerbError(res, adminVerbError(404, 'LEDGER_REF_NOT_FOUND',
+      { ref_type: 'listing_order', ref_id: String(r.orderId), reason: 'order_not_found' }, 'Referenced object not found'));
+  }
+  if (r.outcome === 'not_party') {
+    return sendVerbError(res, adminVerbError(403, 'AUTH_FORBIDDEN',
+      { reason: 'NOT_ORDER_PARTY', ref_type: 'listing_order', ref_id: String(r.orderId) }, 'Forbidden'));
+  }
+  return sendVerbError(res, adminVerbError(409, 'LEDGER_CURRENCY_INVALID_TRANSITION',
+    { field: 'listing_order.status', reason: action === 'ship' ? 'ORDER_NOT_SHIPPABLE' : 'ORDER_NOT_RECEIVABLE',
+      status: r.currentStatus, ref_type: 'listing_order', ref_id: String(r.orderId) }, 'Invalid order state'));
+};
+
+// R1 · `GET /api/rating/summary` —— 评分汇总读口（四角色星级 · 4 周期 · **无数据默认 3.0**）。
+app.get('/api/rating/summary', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  const periodRaw = req.query.period;
+  let period = 90;
+  if (periodRaw !== undefined && periodRaw !== '') {
+    const p = Number(periodRaw);
+    if (!RATING_PERIODS.includes(p as never)) {
+      return sendVerbError(res, adminVerbError(400, 'LEDGER_AMOUNT_INVALID',
+        { field: 'period', reason: 'RATING_PERIOD_INVALID', allowed: RATING_PERIODS }, 'Period is invalid'));
+    }
+    period = p;
+  }
+  try {
+    const summary = await DatabaseService.getRatingSummary(actor.user.uID);
+    const sel = summary.periods[String(period)] || summary.periods['90'];
+    return sendSuccess(res, {
+      period,
+      stars: { poster: sel.poster, worker: sel.worker, vendor: sel.vendor, customer: sel.customer },
+      periods: summary.periods,
+      defaultStars: summary.defaultStars,
+      source: summary.source,
+    });
+  } catch (error) {
+    return sendInfraMapped(res, 'rating.summary', error);
+  }
+});
+
+// R2 · `GET /api/timeliness` —— 时效读口（四时长 + 比率四类 · **无数据「暂无数据」/ 默认 100%**）。
+app.get('/api/timeliness', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  const jobRaw = req.query.job_id ?? req.query.jobId;
+  const listingRaw = req.query.listing_id ?? req.query.listingId;
+  const jobN = jobRaw === undefined || jobRaw === '' ? 0 : parseInteger(jobRaw, 0);
+  const listingN = listingRaw === undefined || listingRaw === '' ? 0 : parseInteger(listingRaw, 0);
+  try {
+    const t = await DatabaseService.getTimeliness(actor.user.uID, {
+      jobId: jobN > 0 ? jobN : undefined,
+      listingId: listingN > 0 ? listingN : undefined,
+    });
+    return sendSuccess(res, {
+      posterAvgDays: t.posterAvgDays,
+      workerAvgDays: t.workerAvgDays,
+      vendorAvgShipDays: t.vendorAvgShipDays,
+      customerAvgReceiveDays: t.customerAvgReceiveDays,
+      workerPassRate: t.workerPassRate,
+      customerDealRate: t.customerDealRate,
+      jobPassRate: t.jobPassRate,
+      listingDealRate: t.listingDealRate,
+    });
+  } catch (error) {
+    return sendInfraMapped(res, 'timeliness.get', error);
+  }
+});
+
+// A1 · `POST /api/rating` —— 提交评分（**四要素由服务端取数**；幂等键 `biz:rating:<uid>:<target_type>:<target_id>`）。
+app.post('/api/rating', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  const body = (req.body || {}) as Record<string, unknown>;
+  const targetType = String(body.targetType ?? body.target_type ?? '').trim();
+  const direction = String(body.direction ?? '').trim();
+  const targetIdRaw = body.targetId ?? body.target_id;
+  const targetId = parseInteger(targetIdRaw, 0);
+  const starsNum = Number(body.stars);
+  if (!(targetType === 'job' || targetType === 'listing')) {
+    return sendVerbError(res, adminVerbError(400, 'LEDGER_AMOUNT_INVALID',
+      { field: 'target_type', reason: 'RATING_TARGET_TYPE_INVALID' }, 'Target type is invalid'));
+  }
+  if (!RATING_DIRECTIONS.includes(direction as never)) {
+    return sendVerbError(res, adminVerbError(400, 'LEDGER_AMOUNT_INVALID',
+      { field: 'direction', reason: 'RATING_DIRECTION_INVALID' }, 'Direction is invalid'));
+  }
+  if (!(targetId > 0)) {
+    return sendVerbError(res, adminVerbError(404, 'LEDGER_REF_NOT_FOUND',
+      { ref_type: targetType, ref_id: String(targetIdRaw ?? ''), reason: 'rating_target_not_found' }, 'Referenced object not found'));
+  }
+  if (!Number.isFinite(starsNum) || starsNum < 0 || starsNum > 5) {
+    return sendVerbError(res, adminVerbError(400, 'LEDGER_AMOUNT_INVALID',
+      { field: 'stars', reason: 'RATING_STARS_OUT_OF_RANGE' }, 'Stars out of range'));
+  }
+  try {
+    const uid = actor.user.uID;
+    const idemKey = bizKeyOf('rating', uid, targetType, targetId);
+    const fingerprint = createHash('sha256').update(`${uid}|${targetType}|${targetId}|${direction}|${starsNum}`).digest('hex').slice(0, 32);
+    const r = await DatabaseService.submitRating({
+      raterUid: uid, targetType, targetId, direction, stars: starsNum,
+      idempotencyKey: idemKey, requestFingerprint: fingerprint, memo: '',
+    });
+    if (!r) return sendInfraMapped(res, 'rating.post', new Error('rating: no row'));
+    if (r.outcome === 'inserted' || r.outcome === 'replay') {
+      return sendSuccess(res, {
+        ratingId: r.ratingId, rateeUid: r.rateeUid, stars: r.stars, targetType, targetId, direction,
+      }, r.outcome === 'replay' ? 'Rating submitted (idempotent replay)' : 'Rating submitted', 200,
+      r.outcome === 'replay' ? { idempotent_replay: true } : undefined);
+    }
+    if (r.outcome === 'already_rated') {
+      return sendVerbError(res, adminVerbError(409, 'LEDGER_CURRENCY_INVALID_TRANSITION',
+        { field: 'rating', reason: 'RATING_ALREADY_DONE', target_type: targetType, target_id: String(targetId) }, 'Rating already done'));
+    }
+    return sendVerbError(res, adminVerbError(404, 'LEDGER_REF_NOT_FOUND',
+      { ref_type: targetType, ref_id: String(targetId), reason: 'rating_target_not_found' }, 'Referenced object not found'));
+  } catch (error) {
+    return sendInfraMapped(res, 'rating.post', error);
+  }
+});
+
+// A2 · `POST /api/listing-orders/:orderId/ship` —— 发货（卖方本人 · `paid→shipped` · 幂等键 `biz:listing:ship:<order_id>`）。
+app.post('/api/listing-orders/:orderId/ship', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  const orderIdText = String(req.params.orderId ?? '').trim();
+  if (!/^\d+$/.test(orderIdText) || orderIdText === '0') {
+    return sendVerbError(res, adminVerbError(404, 'LEDGER_REF_NOT_FOUND',
+      { ref_type: 'listing_order', ref_id: orderIdText || 'null', reason: 'order_not_found' }, 'Referenced object not found'));
+  }
+  try {
+    const orderId = Number(orderIdText);
+    const idemKey = bizKeyOf('listing', 'ship', orderId);
+    const fingerprint = createHash('sha256').update(`listing.ship|${orderId}`).digest('hex').slice(0, 32);
+    const r = await DatabaseService.transitionListingOrder({
+      action: 'ship', orderId, actorUid: actor.user.uID,
+      idempotencyKey: idemKey, requestFingerprint: fingerprint, memo: `listing ship:${orderId}`,
+    });
+    return sendOrderTransition(res, r, 'ship');
+  } catch (error) {
+    return sendInfraMapped(res, 'listing.ship', error);
+  }
+});
+
+// A3 · `POST /api/listing-orders/:orderId/receive` —— 收货（买方本人 · `shipped→received` · 幂等键 `biz:listing:receive:<order_id>`）。
+app.post('/api/listing-orders/:orderId/receive', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  const orderIdText = String(req.params.orderId ?? '').trim();
+  if (!/^\d+$/.test(orderIdText) || orderIdText === '0') {
+    return sendVerbError(res, adminVerbError(404, 'LEDGER_REF_NOT_FOUND',
+      { ref_type: 'listing_order', ref_id: orderIdText || 'null', reason: 'order_not_found' }, 'Referenced object not found'));
+  }
+  try {
+    const orderId = Number(orderIdText);
+    const idemKey = bizKeyOf('listing', 'receive', orderId);
+    const fingerprint = createHash('sha256').update(`listing.receive|${orderId}`).digest('hex').slice(0, 32);
+    const r = await DatabaseService.transitionListingOrder({
+      action: 'receive', orderId, actorUid: actor.user.uID,
+      idempotencyKey: idemKey, requestFingerprint: fingerprint, memo: `listing receive:${orderId}`,
+    });
+    return sendOrderTransition(res, r, 'receive');
+  } catch (error) {
+    return sendInfraMapped(res, 'listing.receive', error);
+  }
+});
+
 app.get('/api/admin/settings', async (req, res) => {
   const actor = await requireAdmin(req, res, 'manage_settings');
   if (!actor) return;

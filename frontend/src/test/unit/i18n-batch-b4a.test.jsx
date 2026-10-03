@@ -140,7 +140,7 @@ describe('P6-I18N-LIT-B4a · 四语 locale 键集（6 命名空间 144 键 + 逐
     expect(new Set(LANGS.map((l) => counts[l].flat)).size).toBe(1)
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
-    expect(counts.zh).toEqual({ top: 114, flat: 953 }) // **期望订正（P9② batt 电量 + 签到）**：新增顶层 `battCard`(4) + `checkinPanel`(5) ⇒ 拍平 +9 / 顶层 +2（944⇒953 / 112⇒114）
+    expect(counts.zh).toEqual({ top: 117, flat: 988 }) // **期望订正（P9③ 评分/时效/订单状态）**：新增顶层 `ratingPanel`(12) + `timelinessPanel`(11) + `listingOrders`(12) ⇒ 拍平 +35 / 顶层 +3（953⇒988 / 114⇒117）
     expect(NEW_KEY_TOTAL).toBe(B4A_ADDED + B4B_ADDED_TO_ADMINCOMMON + B8S2_ADDED_TO_ADMINNAV + B8S4_ADDED_TO_ADMINNAV + B8S5_ADDED_TO_ADMINNAV + B9S1_ADDED_TO_ADMINNAV)
 
     // 本批 6 命名空间：键数逐一对齐 + 四语取值齐备非空

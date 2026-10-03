@@ -13,7 +13,7 @@
  *   DB 段 = 只读 + **事务内行为探针（末尾 ROLLBACK）**；HTTP 段打受控实例 `P8S7_BASE`（默认 `127.0.0.1:5797`）。
  *
  * 判据（每条**可判负**）：
- *   A  **注册点 80 逐 verb + 4 新口在场**：`get 34 / post 43 / put 0 / patch 1 / delete 2`（和 = 80）；
+ *   A  **注册点 85 逐 verb + 4 新口在场**：`get 36 / post 46 / put 0 / patch 1 / delete 2`（和 = 85）；
  *      4 路径逐条注册**恰 1 处**；负对照（缩进注入 ⇒ +1）
  *   B  **4 新口形态**：四口全闸 `requireActor`（零 admin 键）；取数 / 响应冻结键集逐条；幂等键 `biz:` 派生形；
  *      `target_day` 服务端校验；异常面 `sendInfraMapped` 四标签；负对照（注入 admin 闸 ⇒ 谓词转红）
@@ -72,8 +72,8 @@ const FE_BATT_JS = readSrc('frontend/src/batt-checkin.js');
 const FE_PANEL_JSX = readSrc('frontend/src/components/BattCheckinPanel.jsx');
 
 // ---------------------------------------------------------------- 冻结常量
-const REG_POINTS_FROZEN = 80;
-const PER_VERB_FROZEN: Record<string, number> = { get: 34, post: 43, put: 0, patch: 1, delete: 2 };
+const REG_POINTS_FROZEN = 85;
+const PER_VERB_FROZEN: Record<string, number> = { get: 36, post: 46, put: 0, patch: 1, delete: 2 };
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;
 const countVerb = (text: string, verb: string): number =>
@@ -87,6 +87,9 @@ const handlerBlock = (src: string, routeLiteral: string): string => {
   if (start < 0) return '';
   let end = lines.length;
   for (let i = start + 1; i < lines.length; i += 1) {
+    // 先收本路由自身的顶层收口 `});`：P9③ 在两路由之间插入了顶层 helper `sendOrderTransition`
+    // ⇒ 旧「切到下一注册点」会把 helper 里的码（`AUTH_FORBIDDEN` / `LEDGER_REF_NOT_FOUND`）误并进本 handler，令 F2 假红。
+    if (/^\}\);/.test(lines[i])) { end = i + 1; break; }
     if (/^\s*app\.(get|post|put|delete|patch)\(/.test(lines[i])) { end = i; break; }
   }
   return lines.slice(start, end).join('\n');
@@ -116,7 +119,7 @@ const eqJson = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.s
 {
   const perVerb = { get: countVerb(INDEX_TS, 'get'), post: countVerb(INDEX_TS, 'post'), put: countVerb(INDEX_TS, 'put'), patch: countVerb(INDEX_TS, 'patch'), delete: countVerb(INDEX_TS, 'delete') };
   t('A1', 'registration', countRoutes(INDEX_TS) === REG_POINTS_FROZEN,
-    `注册点 = ${REG_POINTS_FROZEN}（P9② batt/签到 4 新口 +4〔76→80〕）`, countRoutes(INDEX_TS));
+    `注册点 = ${REG_POINTS_FROZEN}（P9② batt/签到 4 新口 +4〔76→80〕⇒ P9③ 评分/时效/订单 5 新口 +5〔80→85〕）`, countRoutes(INDEX_TS));
   t('A2', 'registration', eqJson(perVerb, PER_VERB_FROZEN),
     `逐 verb 逐字 = ${JSON.stringify(PER_VERB_FROZEN)}`, JSON.stringify(perVerb));
   t('A3', 'registration', Object.values(perVerb).reduce((a, b) => a + b, 0) === REG_POINTS_FROZEN,
@@ -129,7 +132,7 @@ const eqJson = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.s
   const injCount = countRoutes(INDEX_TS + INJ);
   t('A5', 'registration', injCount === REG_POINTS_FROZEN + 1,
     `★ 负对照：缩进注入一条路由 ⇒ 计数 ${REG_POINTS_FROZEN}→${REG_POINTS_FROZEN + 1}`, JSON.stringify({ injected: injCount }));
-  selfTest('A1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 80 条路由的文本喂入「注册点 = 80」谓词 ⇒ 必须转红');
+  selfTest('A1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 85 条路由的文本喂入「注册点 = 85」谓词 ⇒ 必须转红');
 }
 
 // ============================================================================

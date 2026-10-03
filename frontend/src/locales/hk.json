@@ -1049,5 +1049,48 @@
     "brokenHint": "連續簽到已中斷，重新累計",
     "makeupButton": "補簽",
     "makeupCost": "補簽將消耗積分"
+  },
+  "ratingPanel": {
+    "title": "評分",
+    "starsUnit": "星",
+    "periodLabel": "統計週期",
+    "period30": "30天",
+    "period90": "90天",
+    "period360": "360天",
+    "period1000": "1000天",
+    "rolePoster": "懸賞家",
+    "roleWorker": "工人",
+    "roleVendor": "店家",
+    "roleCustomer": "顧客",
+    "noData": "暫無數據"
+  },
+  "timelinessPanel": {
+    "title": "時效",
+    "posterAvgDays": "懸賞家平均通過天數",
+    "workerAvgDays": "工人平均通過天數",
+    "vendorAvgShipDays": "店家平均發貨天數",
+    "customerAvgReceiveDays": "顧客平均收貨天數",
+    "workerPassRate": "工人平均通過率",
+    "customerDealRate": "顧客平均成交率",
+    "jobPassRate": "任務平均通過率",
+    "listingDealRate": "商品平均成交率",
+    "daysUnit": "天",
+    "noData": "暫無數據"
+  },
+  "listingOrders": {
+    "statusLabel": {
+      "created": "已創建",
+      "paid": "已付款",
+      "shipped": "已發貨",
+      "received": "已收貨",
+      "refunded": "已退款",
+      "cancelled": "已取消",
+      "unknown": "其他狀態"
+    },
+    "shipButton": "發貨",
+    "receiveButton": "收貨",
+    "shipOk": "已發貨",
+    "receiveOk": "已收貨",
+    "actionFail": "操作失敗，請稍後重試"
   }
 }

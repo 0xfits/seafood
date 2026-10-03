@@ -7,9 +7,11 @@ import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 // P6-MISC-FIX ①：`listing.status` 取值域 = `public.listing.status` 的 CHECK 白名单
 //   （现取：`backend-ts/migrations/0015_listing.sql:137` ⇒ `draft|listed|delisted|frozen`，默认 `draft`）
 const LISTING_STATUS_KEYS = ['draft', 'listed', 'delisted', 'frozen']
+// P9③：`listing_order.status` 取值域 = `listing_order_status_enum` 白名单（6 值 · 承 §32.4(b)）∪ 兜底 `unknown`
+const ORDER_STATUS_KEYS = ['created', 'paid', 'shipped', 'received', 'refunded', 'cancelled']
 import { contentStatus, pickLocalized } from '../../i18n-content'
 import TranslatingBadge from '../../components/i18n/TranslatingBadge'
-import { fetchListingFeed, fetchMyListingOrders, refundListingOrder } from './listing-api'
+import { fetchListingFeed, fetchMyListingOrders, refundListingOrder, shipListingOrder, receiveListingOrder } from './listing-api'
 import './listings.css'
 
 // ============================================================================
@@ -37,6 +39,9 @@ const ListingsPage = () => {
   const [orders, setOrders] = useState({ phase: 'idle', rows: [], message: '' })
   const [refund, setRefund] = useState({ phase: 'idle', message: '' })
   const [orderId, setOrderId] = useState('')
+  // P9③ 订单发货 / 收货（actor = 卖方 / 买方本人；键服务端派生 ⇒ 不传）
+  const [orderActionId, setOrderActionId] = useState('')
+  const [orderAction, setOrderAction] = useState({ phase: 'idle', message: '' })
 
   // TR-2：当前语言（与 i18n 初始化/路由同一白名单 `utils.SUPPORTED_LANGS`）
   const lang = getLanguageFromUrl(location.pathname)
@@ -84,6 +89,25 @@ const ListingsPage = () => {
       await loadOrders()
     } catch (error) {
       setRefund({ phase: 'error', message: String(error?.message || t('error')) })
+    }
+  }
+
+  // P9③：发货 / 收货动作口（回执 `status` ⇒ 经 `listingOrders.statusLabel.*` 本地化展示；**不渲染原始枚举**）
+  const onOrderAction = async (action) => {
+    const id = String(orderActionId).trim()
+    if (!id) {
+      setOrderAction({ phase: 'error', message: t('listings.refundNeedId') })
+      return
+    }
+    setOrderAction({ phase: 'loading', message: t('jobs.submitting') })
+    try {
+      const data = action === 'ship' ? await shipListingOrder(id, user) : await receiveListingOrder(id, user)
+      const statusRaw = String(data?.status ?? '')
+      const statusKey = ORDER_STATUS_KEYS.includes(statusRaw) ? statusRaw : 'unknown'
+      const base = action === 'ship' ? t('listingOrders.shipOk') : t('listingOrders.receiveOk')
+      setOrderAction({ phase: 'ok', message: `${base} · ${t(`listingOrders.statusLabel.${statusKey}`)}` })
+    } catch (error) {
+      setOrderAction({ phase: 'error', message: String(error?.message || t('listingOrders.actionFail')) })
     }
   }
 
@@ -188,6 +212,46 @@ const ListingsPage = () => {
           </span>
           <p className="sf-listings-meta">{t('listings.refundNote')}</p>
           <p className="sf-listings-meta">{t('listings.refundStockNote')}</p>
+        </div>
+
+        {/* P9③：订单发货 / 收货（actor = 卖方 / 买方本人）。「按卖家列订单」读口未注册 ⇒ 沿用退款面板「手填订单号」形态。 */}
+        <div className="sf-listings-panel" data-sf-m="listing-order-actions">
+          <h2 className="sf-listings-title">{t('listings.myOrders')}</h2>
+          <div className="sf-listings-row">
+            <input
+              className="sf-listings-input"
+              data-sf-m="listing-input-order-action"
+              value={orderActionId}
+              onChange={(event) => setOrderActionId(event.target.value)}
+              placeholder={t('listings.orderId')}
+            />
+            <button
+              className="sf-btn sf-listings-btn"
+              type="button"
+              data-sf-m="listing-ship-btn"
+              onClick={() => onOrderAction('ship')}
+              disabled={orderAction.phase === 'loading'}
+            >
+              {t('listingOrders.shipButton')}
+            </button>
+            <button
+              className="sf-btn sf-listings-btn"
+              type="button"
+              data-sf-m="listing-receive-btn"
+              onClick={() => onOrderAction('receive')}
+              disabled={orderAction.phase === 'loading'}
+            >
+              {t('listingOrders.receiveButton')}
+            </button>
+          </div>
+          <span
+            className={`sf-listings-status${orderAction.phase === 'error' ? ' sf-listings-err' : ''}${orderAction.phase === 'ok' ? ' sf-listings-ok' : ''}`}
+            data-sf-m="listing-order-action-status"
+            data-sf-phase={orderAction.phase}
+            role="status"
+          >
+            {orderAction.message}
+          </span>
         </div>
       </div>
     </div>

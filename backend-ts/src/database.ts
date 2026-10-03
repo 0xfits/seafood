@@ -233,6 +233,33 @@ export const CHECKIN_POLICY_DEFAULTS = {
   baseRewardBatt: 30, streakCapDays: 7, streakDay7RewardBatt: 60, makeupCostUsd: 100, makeupDailyLimit: 1,
 } as const;
 
+/**
+ * ★ P9③（§29.2 B5 + `R-9-13`-3）`rating_policy` 服务端常量兜底（`app_config` 无行 / 字段非法 ⇒ 回落本表）。
+ * 逐字 = `storageDecimals 4`（存储标度）/ `displayDecimals 0`（展示无小数）/ `defaultStars 3.0`（中性初始值）。
+ * `defaultStars` 生效值**钳制 ∈ [0,5]**（`STAR_RANGE`）；这是评分「无数据默认 3.0」的代码面唯一真源。
+ */
+export const RATING_POLICY_DEFAULTS = {
+  storageDecimals: 4, displayDecimals: 0, defaultStars: 3.0,
+} as const;
+
+export type RatingPolicy = { storageDecimals: number; displayDecimals: number; defaultStars: number };
+
+/** `rating_policy` 解析（**逐字段** fail-closed 到 `RATING_POLICY_DEFAULTS`；`defaultStars` 钳 ∈ [0,5]）。 */
+export const resolveRatingPolicy = (raw: unknown): { policy: RatingPolicy; source: PolicySource } => {
+  const isObj = raw !== null && typeof raw === 'object' && !Array.isArray(raw);
+  const v = isObj ? raw as Record<string, unknown> : {};
+  const storageDecimals = policyNonNegInt(v.storageDecimals) ?? RATING_POLICY_DEFAULTS.storageDecimals;
+  const displayDecimals = policyNonNegInt(v.displayDecimals) ?? RATING_POLICY_DEFAULTS.displayDecimals;
+  const rawDefault = policyFiniteNumber(v.defaultStars);
+  const defaultStars = rawDefault === null
+    ? RATING_POLICY_DEFAULTS.defaultStars
+    : Math.min(Math.max(rawDefault, 0), 5);
+  return {
+    policy: { storageDecimals, displayDecimals, defaultStars },
+    source: isObj && Object.keys(v).length > 0 ? 'config' : 'constant',
+  };
+};
+
 export type BattPolicy = { taskCostBatt: number; capBatt: number; floorBatt: number; acceptThresholdBatt: number };
 export type CheckinPolicy = { baseRewardBatt: number; streakCapDays: number; streakDay7RewardBatt: number; makeupCostUsd: number; makeupDailyLimit: number };
 export type PolicySource = 'config' | 'constant';
@@ -258,6 +285,11 @@ const policyPositiveInt = (raw: unknown): number | null => {
 const policyNonNegInt = (raw: unknown): number | null => {
   const n = typeof raw === 'number' ? raw : (typeof raw === 'string' && raw.trim() !== '' ? Number(raw) : NaN);
   return Number.isSafeInteger(n) && n >= 0 ? n : null;
+};
+/** 有限数域（fail-closed：非法 / 非有限 ⇒ `null` ⇒ 调用方回落常量）。 */
+const policyFiniteNumber = (raw: unknown): number | null => {
+  const n = typeof raw === 'number' ? raw : (typeof raw === 'string' && raw.trim() !== '' ? Number(raw) : NaN);
+  return Number.isFinite(n) ? n : null;
 };
 
 /** `batt_policy` 解析（**逐字段** fail-closed 到 `BATT_POLICY_DEFAULTS`）。 */
@@ -4488,6 +4520,311 @@ export class DatabaseService {
       txid,
       ledger: row.ledger_result ?? null,
     };
+  }
+
+  // ==========================================================================
+  // 批 9 第 3 片（P9③ · `data-layer.spec` v0.23 §32 · `route-layer.spec` v2.16 §29）：
+  //   评分（双向互评 · 四要素必锚 · 周期**查询期聚合**）+ 时效（四时长 · 事件行 `time_created`）
+  //   + 比率（四类 · `R-9-34` 分母 = `accepted`）+ 订单动作口（`shipped` / `received`）。
+  // --------------------------------------------------------------------------
+  // · 载体：`public.rating` / `public.listing_order_event`（迁移 `0031`；**未 apply** ⇒ 库面 leg `PENDING_APPLY`）。
+  // · 时点真源 = 事件行 `time_created`（`R-9-28`）；评分聚合 = 保留原始行 + 查询期聚合（`R-9-1` 禁预聚合分桶）。
+  // · 兜底：星级 = `rating_policy.defaultStars`（默认 3.0）；时长无数据 = `null`（前端文案「暂无数据」· **不填 0**）；
+  //   比率无数据 = 100%。★ 凡「无行 ⇒ 兜底值」断言须带独立负对照（`C-15`）。
+  // ==========================================================================
+
+  /**
+   * R1 · `GET /api/rating/summary` 取数（**查询期聚合** · 禁预聚合分桶）。
+   * 四角色星级 = 该 uid 作为 `ratee_uid` 收到的**有效评分行**平均星级（0–5）；周期恰 4 档（30/90/360/1000 天）。
+   * 角色 ↔ `direction` 映射：poster ⇐ `worker_to_poster`；worker ⇐ `poster_to_worker`；
+   * vendor ⇐ `customer_to_vendor`；customer ⇐ `vendor_to_customer`。
+   * **无数据（分母 = 0）⇒ `defaultStars`（默认 3.0）**（**不填 0 / 不隐藏**）。
+   */
+  static async getRatingSummary(uid: number, ex?: SqlRunner): Promise<{
+    defaultStars: number;
+    source: PolicySource;
+    periods: Record<string, {
+      poster: number; worker: number; vendor: number; customer: number;
+      counts: { poster: number; worker: number; vendor: number; customer: number };
+    }>;
+  }> {
+    const { policy, source } = resolveRatingPolicy(await this.getAppConfigValueByKey('rating_policy', ex));
+    const sql = sqlFor(ex);
+    const rows = asItems<Record<string, unknown>>(await sql`
+      SELECT p.days::int AS days, r.direction AS direction,
+             COALESCE(sum(r.stars), 0)::text AS s, count(r.rating_id)::int AS n
+        FROM (VALUES (30),(90),(360),(1000)) AS p(days)
+        LEFT JOIN public.rating AS r
+          ON r.ratee_uid = ${uid}
+         AND r.time_created >= now() - make_interval(days => p.days)
+       GROUP BY p.days, r.direction
+    `);
+    const dirRole: Record<string, 'poster' | 'worker' | 'vendor' | 'customer'> = {
+      worker_to_poster: 'poster', poster_to_worker: 'worker',
+      customer_to_vendor: 'vendor', vendor_to_customer: 'customer',
+    };
+    const roles = ['poster', 'worker', 'vendor', 'customer'] as const;
+    const round4 = (n: number): number => Math.round(n * 10000) / 10000; // storageDecimals = 4
+    const acc: Record<string, Record<string, { s: number; n: number }>> = {};
+    const periods: Record<string, {
+      poster: number; worker: number; vendor: number; customer: number;
+      counts: { poster: number; worker: number; vendor: number; customer: number };
+    }> = {};
+    for (const d of [30, 90, 360, 1000]) {
+      acc[String(d)] = { poster: { s: 0, n: 0 }, worker: { s: 0, n: 0 }, vendor: { s: 0, n: 0 }, customer: { s: 0, n: 0 } };
+      periods[String(d)] = {
+        poster: policy.defaultStars, worker: policy.defaultStars, vendor: policy.defaultStars, customer: policy.defaultStars,
+        counts: { poster: 0, worker: 0, vendor: 0, customer: 0 },
+      };
+    }
+    for (const row of rows) {
+      const role = dirRole[toStringValue(row.direction)];
+      const key = row.days === null || row.days === undefined ? '' : String(Number(row.days));
+      if (!role || !acc[key]) continue;
+      acc[key][role].s += Number(row.s) || 0;
+      acc[key][role].n += Number(row.n) || 0;
+    }
+    for (const days of Object.keys(acc)) {
+      for (const role of roles) {
+        const { s, n } = acc[days][role];
+        periods[days][role] = n > 0 ? round4(s / n) : policy.defaultStars;
+        periods[days].counts[role] = n;
+      }
+    }
+    return { defaultStars: policy.defaultStars, source, periods };
+  }
+
+  /**
+   * A1 · `POST /api/rating` 写口（**四要素由服务端取数**：`rater_uid` = token；`ratee_uid` / `direction`
+   * 由标的 + 发起人推导 —— 客户端**不得**声明 `ratee_uid`）。
+   * 幂等 = `UNIQUE (idempotency_key)`；「一侧恰一次」= `UNIQUE (rater_uid, target_type, target_id)`。
+   * outcome 闭集 = `inserted` | `replay` | `already_rated` | `target_not_found`。
+   */
+  static async submitRating(input: {
+    raterUid: number; targetType: string; targetId: number; direction: string;
+    stars: number; idempotencyKey: string; requestFingerprint: string; memo: string;
+  }, ex?: SqlRunner): Promise<{
+    outcome: 'inserted' | 'replay' | 'already_rated' | 'target_not_found';
+    rateeUid: number | null; ratingId: number | null; stars: number | null;
+  } | null> {
+    const { raterUid, targetType, targetId, direction, stars, idempotencyKey, requestFingerprint, memo } = input;
+    const sql = sqlFor(ex);
+    const rows = asItems<Record<string, unknown>>(await sql`
+      WITH cand AS (
+        SELECT CASE
+          WHEN ${targetType}::text = 'job' THEN (
+            SELECT CASE
+              WHEN ${direction}::text = 'poster_to_worker' AND j.employer_uid = ${raterUid} THEN j.worker_uid
+              WHEN ${direction}::text = 'worker_to_poster' AND j.worker_uid = ${raterUid} THEN j.employer_uid
+              ELSE NULL END
+              FROM public.job AS j WHERE j.job_id = ${targetId}::bigint)
+          WHEN ${targetType}::text = 'listing' THEN (
+            SELECT CASE
+              WHEN ${direction}::text = 'vendor_to_customer' AND o.seller_uid = ${raterUid} THEN o.buyer_uid
+              WHEN ${direction}::text = 'customer_to_vendor' AND o.buyer_uid = ${raterUid} THEN o.seller_uid
+              ELSE NULL END
+              FROM public.listing_order AS o
+             WHERE o.listing_id = ${targetId}::bigint
+               AND (o.buyer_uid = ${raterUid} OR o.seller_uid = ${raterUid})
+             ORDER BY o.order_id DESC LIMIT 1)
+          ELSE NULL
+        END AS ratee_uid
+      ),
+      res AS (SELECT ratee_uid FROM cand),
+      dup AS (SELECT rating_id FROM public.rating
+               WHERE rater_uid = ${raterUid} AND target_type = ${targetType}::text AND target_id = ${targetId}::bigint
+               LIMIT 1),
+      ins AS (
+        INSERT INTO public.rating
+          (rater_uid, ratee_uid, target_type, target_id, direction, stars, idempotency_key, request_fingerprint, memo)
+        SELECT ${raterUid}, (SELECT ratee_uid FROM res), ${targetType}::text, ${targetId}::bigint, ${direction}::text,
+               ${stars}::numeric, ${idempotencyKey}::text, ${requestFingerprint}::text, ${memo}::text
+         WHERE (SELECT ratee_uid FROM res) IS NOT NULL
+           AND NOT EXISTS (SELECT 1 FROM dup)
+        ON CONFLICT (idempotency_key) DO NOTHING
+        RETURNING rating_id, ratee_uid, stars
+      )
+      SELECT
+        (SELECT count(*)::int FROM ins) AS inserted,
+        (SELECT ratee_uid::text FROM res) AS ratee_uid,
+        (SELECT rating_id::text FROM ins) AS rating_id,
+        (SELECT stars::text FROM ins) AS stars,
+        (SELECT rating_id::text FROM dup) AS dup_id,
+        (SELECT stars::text FROM public.rating WHERE idempotency_key = ${idempotencyKey}::text LIMIT 1) AS existing_stars
+    `);
+    const row = rows[0];
+    if (!row) return null;
+    const inserted = Number(row.inserted ?? 0) || 0;
+    const rateeRaw = row.ratee_uid === null || row.ratee_uid === undefined ? null : String(row.ratee_uid);
+    const rateeUid = rateeRaw === null ? null : Number(rateeRaw);
+    const existingStars = row.existing_stars === null || row.existing_stars === undefined ? null : Number(row.existing_stars);
+    const dupId = row.dup_id === null || row.dup_id === undefined ? null : Number(row.dup_id);
+    let outcome: 'inserted' | 'replay' | 'already_rated' | 'target_not_found';
+    let ratingId: number | null = null;
+    let starsOut: number | null = null;
+    if (inserted > 0) {
+      outcome = 'inserted';
+      ratingId = row.rating_id === null || row.rating_id === undefined ? null : Number(row.rating_id);
+      starsOut = row.stars === null || row.stars === undefined ? null : Number(row.stars);
+    } else if (rateeUid === null) {
+      outcome = 'target_not_found';
+    } else if (existingStars !== null) {
+      outcome = 'replay';
+      starsOut = existingStars;
+    } else if (dupId !== null) {
+      outcome = 'already_rated';
+      ratingId = dupId;
+    } else {
+      outcome = 'target_not_found';
+    }
+    return { outcome, rateeUid, ratingId, stars: starsOut };
+  }
+
+  /**
+   * R2 · `GET /api/timeliness` 取数（四时长 + 比率四类）。
+   * 时长时点一律取**事件行 `time_created`**（`R-9-28`）；**无数据 ⇒ `null`**（路由映射「暂无数据」，**不填 0**）。
+   *   T3 店家平均发货天数 = avg(发货事件 − 下单事件)（`seller_uid = uid` 的已发货订单）；
+   *   T4 顾客平均收货天数 = avg(收货事件 − 付款事件)（`buyer_uid = uid` 的已收货订单）；
+   *   T1 / T2（任务平均通过天数）载体 = **现取 `job_submission` 既有时间列**（`R-9-35` · `R-9-28` 载体优先级 ①）：
+   *     起点 = `job_submission.time_created`（工人提交）· 终点 = `job_submission.reviewed_at`（悬赏家审核时点，
+   *     `reviewJobSubmission` 落 `now()`）· 过滤 `review_status='approved' AND j.status='settled'`（✓ 零迁移）。
+   *     T1 挂 `job.employer_uid`（悬赏家）/ T2 挂 `job_submission.worker_uid`（工人）⇒ 同一批任务两读数一致。
+   *     无匹配行 ⇒ 分母 0 ⇒ **`null`**（前端「暂无数据」· **不填 0**）。
+   * 比率（默认 100%）：M1 工人通过率 = `settled / accepted`（`R-9-34` 分母 = 承接成功）；M2 顾客成交率
+   *   = `received / 全部订单`；可选 `jobId` / `listingId` ⇒ M3 / M4（单标的；未给 ⇒ `null`）。
+   */
+  static async getTimeliness(uid: number, opts: { jobId?: number; listingId?: number } = {}, ex?: SqlRunner): Promise<{
+    posterAvgDays: number | null; workerAvgDays: number | null;
+    vendorAvgShipDays: number | null; customerAvgReceiveDays: number | null;
+    workerPassRate: number | null; customerDealRate: number | null;
+    jobPassRate: number | null; listingDealRate: number | null;
+  }> {
+    const sql = sqlFor(ex);
+    const rows = asItems<Record<string, unknown>>(await sql`
+      WITH ship AS (
+        SELECT avg(EXTRACT(EPOCH FROM (e_ship.time_created - e_created.time_created)) / 86400.0) AS d
+          FROM public.listing_order AS o
+          JOIN public.listing_order_event AS e_created ON e_created.order_id = o.order_id AND e_created.to_status = 'created'
+          JOIN public.listing_order_event AS e_ship    ON e_ship.order_id    = o.order_id AND e_ship.to_status    = 'shipped'
+         WHERE o.seller_uid = ${uid}
+      ),
+      recv AS (
+        SELECT avg(EXTRACT(EPOCH FROM (e_recv.time_created - e_paid.time_created)) / 86400.0) AS d
+          FROM public.listing_order AS o
+          JOIN public.listing_order_event AS e_paid ON e_paid.order_id = o.order_id AND e_paid.to_status = 'paid'
+          JOIN public.listing_order_event AS e_recv ON e_recv.order_id = o.order_id AND e_recv.to_status = 'received'
+         WHERE o.buyer_uid = ${uid}
+      ),
+      m1 AS (SELECT count(*) FILTER (WHERE j.status = 'settled')::int AS num, count(*)::int AS den
+               FROM public.job AS j WHERE j.worker_uid = ${uid}),
+      m2 AS (SELECT count(*) FILTER (WHERE o.status = 'received')::int AS num, count(*)::int AS den
+               FROM public.listing_order AS o WHERE o.buyer_uid = ${uid}),
+      m3 AS (SELECT count(*) FILTER (WHERE j.status = 'settled')::int AS num, count(*)::int AS den
+               FROM public.job AS j WHERE j.job_id = ${opts.jobId ?? null}::bigint),
+      m4 AS (SELECT count(*) FILTER (WHERE o.status = 'received')::int AS num, count(*)::int AS den
+               FROM public.listing_order AS o WHERE o.listing_id = ${opts.listingId ?? null}::bigint),
+      t1 AS (SELECT avg(EXTRACT(EPOCH FROM (s.reviewed_at - s.time_created)) / 86400.0) AS d
+               FROM public.job_submission AS s
+               JOIN public.job AS j ON j.job_id = s.job_id
+              WHERE j.employer_uid = ${uid} AND j.status = 'settled'
+                AND s.review_status = 'approved' AND s.reviewed_at IS NOT NULL),
+      t2 AS (SELECT avg(EXTRACT(EPOCH FROM (s.reviewed_at - s.time_created)) / 86400.0) AS d
+               FROM public.job_submission AS s
+               JOIN public.job AS j ON j.job_id = s.job_id
+              WHERE s.worker_uid = ${uid} AND j.status = 'settled'
+                AND s.review_status = 'approved' AND s.reviewed_at IS NOT NULL)
+      SELECT
+        (SELECT d FROM t1)::text AS poster_avg_days,
+        (SELECT d FROM t2)::text AS worker_avg_days,
+        (SELECT d FROM ship)::text AS vendor_avg_ship_days,
+        (SELECT d FROM recv)::text AS customer_avg_receive_days,
+        (SELECT num FROM m1)::int AS m1_num, (SELECT den FROM m1)::int AS m1_den,
+        (SELECT num FROM m2)::int AS m2_num, (SELECT den FROM m2)::int AS m2_den,
+        (SELECT num FROM m3)::int AS m3_num, (SELECT den FROM m3)::int AS m3_den,
+        (SELECT num FROM m4)::int AS m4_num, (SELECT den FROM m4)::int AS m4_den
+    `);
+    const row = rows[0] || {};
+    const numOf = (v: unknown): number | null => (v === null || v === undefined ? null : Number(v));
+    const round4 = (n: number): number => Math.round(n * 10000) / 10000;
+    // 比率：分母 = 0 ⇒ **默认 100%**（需求 §2.1.4）；否则 = num/den。
+    const rate = (num: unknown, den: unknown): number => {
+      const d = Number(den ?? 0) || 0;
+      const n = Number(num ?? 0) || 0;
+      return d > 0 ? round4(n / d) : 1;
+    };
+    return {
+      posterAvgDays: numOf(row.poster_avg_days),
+      workerAvgDays: numOf(row.worker_avg_days),
+      vendorAvgShipDays: numOf(row.vendor_avg_ship_days),
+      customerAvgReceiveDays: numOf(row.customer_avg_receive_days),
+      workerPassRate: rate(row.m1_num, row.m1_den),
+      customerDealRate: rate(row.m2_num, row.m2_den),
+      jobPassRate: opts.jobId === undefined ? null : rate(row.m3_num, row.m3_den),
+      listingDealRate: opts.listingId === undefined ? null : rate(row.m4_num, row.m4_den),
+    };
+  }
+
+  /**
+   * 订单动作口（`A2` 发货 / `A3` 收货）· **单语句 CTE**（状态回写 + 事件行**同语句** ⇒ 同生同灭 · 变体 C-Ⅰ）。
+   * 归属闸（ship ⇒ 卖方本人 / receive ⇒ 买方本人）+ 状态闸（ship: `paid→shipped`；receive: `shipped→received`）
+   * 在 SQL 内取数比对；状态机白名单真源 = `public.listing_order_status_transition_ok`（`0030` 已改写；
+   * **未 apply 前本口 409** · 库面 leg `PENDING_APPLY`）。outcome 闭集 =
+   * `shipped` | `received` | `replay` | `order_not_found` | `not_party` | `state_conflict`。
+   */
+  static async transitionListingOrder(input: {
+    action: 'ship' | 'receive'; orderId: number; actorUid: number;
+    idempotencyKey: string; requestFingerprint: string; memo: string;
+  }, ex?: SqlRunner): Promise<{
+    outcome: 'shipped' | 'received' | 'replay' | 'order_not_found' | 'not_party' | 'state_conflict';
+    orderId: number; currentStatus: string | null; toStatus: string;
+  } | null> {
+    const { action, orderId, actorUid, idempotencyKey, requestFingerprint, memo } = input;
+    const toStatus = action === 'ship' ? 'shipped' : 'received';
+    const fromStatus = action === 'ship' ? 'paid' : 'shipped';
+    const sql = sqlFor(ex);
+    const rows = asItems<Record<string, unknown>>(await sql`
+      WITH ord AS (
+        SELECT o.order_id, o.seller_uid, o.buyer_uid, o.status
+          FROM public.listing_order AS o WHERE o.order_id = ${orderId}::bigint
+      ),
+      upd AS (
+        UPDATE public.listing_order AS o SET status = ${toStatus}::text
+         WHERE o.order_id = ${orderId}::bigint
+           AND o.status = ${fromStatus}::text
+           AND (CASE WHEN ${action}::text = 'ship' THEN o.seller_uid ELSE o.buyer_uid END) = ${actorUid}
+        RETURNING o.order_id, o.status
+      ),
+      ev AS (
+        INSERT INTO public.listing_order_event
+          (order_id, event_type, from_status, to_status, actor_uid, idempotency_key, request_fingerprint, ref_type, ref_id, memo)
+        SELECT u.order_id, ${toStatus}::text, ${fromStatus}::text, ${toStatus}::text, ${actorUid},
+               ${idempotencyKey}::text, ${requestFingerprint}::text, 'listing_order', u.order_id, ${memo}::text
+          FROM upd AS u
+        ON CONFLICT (idempotency_key) DO NOTHING
+        RETURNING event_id
+      )
+      SELECT
+        (SELECT count(*)::int FROM upd) AS updated,
+        (SELECT count(*)::int FROM ev) AS event_inserted,
+        (SELECT status FROM ord) AS current_status,
+        (SELECT seller_uid::text FROM ord) AS seller_uid,
+        (SELECT buyer_uid::text FROM ord) AS buyer_uid,
+        (SELECT count(*)::int FROM public.listing_order_event WHERE idempotency_key = ${idempotencyKey}::text) AS existing_event
+    `);
+    const row = rows[0];
+    if (!row) return null;
+    const updated = Number(row.updated ?? 0) || 0;
+    const current = row.current_status === null || row.current_status === undefined ? null : String(row.current_status);
+    const sellerUid = row.seller_uid === null || row.seller_uid === undefined ? null : Number(row.seller_uid);
+    const buyerUid = row.buyer_uid === null || row.buyer_uid === undefined ? null : Number(row.buyer_uid);
+    const existing = Number(row.existing_event ?? 0) || 0;
+    let outcome: 'shipped' | 'received' | 'replay' | 'order_not_found' | 'not_party' | 'state_conflict';
+    if (current === null) outcome = 'order_not_found';
+    else if (updated > 0) outcome = action === 'ship' ? 'shipped' : 'received';
+    else if (existing > 0) outcome = 'replay';
+    else if ((action === 'ship' ? sellerUid : buyerUid) !== actorUid) outcome = 'not_party';
+    else outcome = 'state_conflict';
+    return { outcome, orderId, currentStatus: current, toStatus };
   }
 
 

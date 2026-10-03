@@ -65,8 +65,9 @@ const inventory = walk(SRC)
 const totalUses = inventory.reduce((n, e) => n + e.hits.length, 0)
 
 describe('P6-BTN-IMPL-2 · `.sf-btn` 家族纳入 A 体系', () => {
-  it('家族清单现取：9 个 JSX 文件、≥22 处用法，且每处都挂基类 .sf-btn', () => {
+  it('家族清单现取：10 个 JSX 文件、≥22 处用法，且每处都挂基类 .sf-btn', () => {
     expect(inventory.map((e) => e.file).sort()).toEqual([
+      'components/RatingTimelinessPanel.jsx',
       'pages/TaskPage.jsx',
       'pages/ThemePreviewPage.jsx',
       'pages/jobs/JobDetailPage.jsx',

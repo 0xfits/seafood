@@ -58,9 +58,9 @@ const selfTest = (id: string, group: string, predicate: (v: unknown) => boolean,
 
 // ---------------------------------------------------------------- 冻结常量
 // ★ P9② 冻结计数前推（沿 R-8-22）：注册点 76 → 80（batt/签到 4 新口 +4）。
-const REG_POINTS_FROZEN = 80;
+const REG_POINTS_FROZEN = 85;
 // ★ P9② 冻结计数前推（沿 R-8-22）：迁移文件数 26 → 28（+0028 / +0029）。
-const MIGRATIONS_FROZEN = 28;
+const MIGRATIONS_FROZEN = 30;
 const REVIEW_NS_KEYS_FROZEN = 28;
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;

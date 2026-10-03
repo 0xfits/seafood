@@ -14,6 +14,7 @@ import { contentStatus, pickLocalized } from '../i18n-content'
 import TranslatingBadge from '../components/i18n/TranslatingBadge'
 // P9②：电量卡 + 签到区（用户面 · §28.7「既有渲染点接新取数 · 不新增独立页面」）
 import BattCheckinPanel from '../components/BattCheckinPanel'
+import RatingTimelinessPanel from '../components/RatingTimelinessPanel'
 // 招工线 / 我的 共用的 token + 栅格层（P4-B4c-ii-a）：与 TaskPage 招工线族同一份样式表
 import './jobs/jobs.css'
 import { fetchApiJson, fetchCurrentUser, getAuthHeaders, updateMyProfile } from '../auth'
@@ -248,6 +249,7 @@ const ProfilePage = () => {
 
         {/* P9②：电量卡 + 签到区（用户面） */}
         <BattCheckinPanel />
+        <RatingTimelinessPanel />
 
         {/* 用户基本信息 */}
         <SlideUp delay={200}>

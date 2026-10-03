@@ -1049,5 +1049,48 @@
     "brokenHint": "Your streak was broken and has been reset",
     "makeupButton": "Make up",
     "makeupCost": "Making up will cost points"
+  },
+  "ratingPanel": {
+    "title": "Rating",
+    "starsUnit": "stars",
+    "periodLabel": "Period",
+    "period30": "30 days",
+    "period90": "90 days",
+    "period360": "360 days",
+    "period1000": "1000 days",
+    "rolePoster": "Poster",
+    "roleWorker": "Worker",
+    "roleVendor": "Vendor",
+    "roleCustomer": "Customer",
+    "noData": "No data yet"
+  },
+  "timelinessPanel": {
+    "title": "Timeliness",
+    "posterAvgDays": "Poster avg approval days",
+    "workerAvgDays": "Worker avg approval days",
+    "vendorAvgShipDays": "Vendor avg shipping days",
+    "customerAvgReceiveDays": "Customer avg delivery days",
+    "workerPassRate": "Worker avg pass rate",
+    "customerDealRate": "Customer avg deal rate",
+    "jobPassRate": "Task avg pass rate",
+    "listingDealRate": "Listing avg deal rate",
+    "daysUnit": "days",
+    "noData": "No data yet"
+  },
+  "listingOrders": {
+    "statusLabel": {
+      "created": "Created",
+      "paid": "Paid",
+      "shipped": "Shipped",
+      "received": "Received",
+      "refunded": "Refunded",
+      "cancelled": "Cancelled",
+      "unknown": "Unknown status"
+    },
+    "shipButton": "Ship",
+    "receiveButton": "Receive",
+    "shipOk": "Shipped",
+    "receiveOk": "Received",
+    "actionFail": "Action failed, please try again later"
   }
 }

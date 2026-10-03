@@ -88,6 +88,14 @@ export const buyListing = (listingId, { quantity = 1, createKey, user }) =>
 export const refundListingOrder = (orderId, user) =>
   postJson(`/api/listing-orders/${orderId}/refund`, {}, user)
 
+/** P9③ A2 发货（**actor = 卖方本人**）。键 = 服务端派生 `biz:listing:ship:<order_id>` ⇒ 不传 `create_key`。 */
+export const shipListingOrder = (orderId, user) =>
+  postJson(`/api/listing-orders/${orderId}/ship`, {}, user)
+
+/** P9③ A3 收货（**actor = 买方本人**）。键 = 服务端派生 `biz:listing:receive:<order_id>` ⇒ 不传 `create_key`。 */
+export const receiveListingOrder = (orderId, user) =>
+  postJson(`/api/listing-orders/${orderId}/receive`, {}, user)
+
 // ---- 幂等键 tracker（两个需要前端供键的面） ----------------------------------
 export const createListingPublishTracker = () => createIdempotencyKeyTracker('cli')
 export const createListingBuyTracker = () => createIdempotencyKeyTracker('cli')

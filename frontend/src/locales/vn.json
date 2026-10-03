@@ -1049,5 +1049,48 @@
     "brokenHint": "Chuỗi điểm danh đã bị ngắt, bắt đầu lại",
     "makeupButton": "Điểm danh bù",
     "makeupCost": "Điểm danh bù sẽ tiêu tốn điểm"
+  },
+  "ratingPanel": {
+    "title": "Đánh giá",
+    "starsUnit": "sao",
+    "periodLabel": "Khoảng thời gian",
+    "period30": "30 ngày",
+    "period90": "90 ngày",
+    "period360": "360 ngày",
+    "period1000": "1000 ngày",
+    "rolePoster": "Người đăng",
+    "roleWorker": "Người làm",
+    "roleVendor": "Người bán",
+    "roleCustomer": "Khách hàng",
+    "noData": "Chưa có dữ liệu"
+  },
+  "timelinessPanel": {
+    "title": "Thời hạn",
+    "posterAvgDays": "Số ngày duyệt TB của người đăng",
+    "workerAvgDays": "Số ngày duyệt TB của người làm",
+    "vendorAvgShipDays": "Số ngày giao hàng TB của người bán",
+    "customerAvgReceiveDays": "Số ngày nhận hàng TB của khách hàng",
+    "workerPassRate": "Tỷ lệ đạt TB của người làm",
+    "customerDealRate": "Tỷ lệ giao dịch TB của khách hàng",
+    "jobPassRate": "Tỷ lệ đạt TB của nhiệm vụ",
+    "listingDealRate": "Tỷ lệ giao dịch TB của sản phẩm",
+    "daysUnit": "ngày",
+    "noData": "Chưa có dữ liệu"
+  },
+  "listingOrders": {
+    "statusLabel": {
+      "created": "Đã tạo",
+      "paid": "Đã thanh toán",
+      "shipped": "Đã gửi hàng",
+      "received": "Đã nhận hàng",
+      "refunded": "Đã hoàn tiền",
+      "cancelled": "Đã hủy",
+      "unknown": "Trạng thái khác"
+    },
+    "shipButton": "Gửi hàng",
+    "receiveButton": "Nhận hàng",
+    "shipOk": "Đã gửi hàng",
+    "receiveOk": "Đã nhận hàng",
+    "actionFail": "Thao tác thất bại, vui lòng thử lại sau"
   }
 }

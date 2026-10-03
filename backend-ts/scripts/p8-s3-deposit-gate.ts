@@ -63,7 +63,7 @@ const FROZEN_AK1_FIELDS = [
 ];
 const AK2_KEY = 'listing_deposit_policy';
 // ★ P9② 冻结计数前推（沿 R-8-22）：注册点 76 → 80（batt/签到 4 新口 +4）。
-const REG_POINTS_FROZEN = 80;
+const REG_POINTS_FROZEN = 85;
 /**
  * ★ `R-8-20`（本片新裁）注册点计数判据 —— **容忍前置空白**。
  * 改前判据 `^app\.` 写死**列 0** ⇒ **带缩进插入的路由不被计入**（缩进路由**仍是已注册路由**！）
@@ -73,7 +73,7 @@ const REG_POINTS_FROZEN = 80;
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;
 // ★ P9② 冻结计数前推（沿 R-8-22）：迁移文件数 26 → 28（+0028 kind 扩容 / +0029 batt 签到）。
-const MIGRATIONS_FROZEN = 28;
+const MIGRATIONS_FROZEN = 30;
 const ENVELOPE_FIELDS = ['create_key', 'idempotency_key', 'idempotencyKey'];
 
 const readSrc = (rel: string): string => fs.readFileSync(path.resolve(REPO_ROOT, rel), 'utf8');
