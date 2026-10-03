@@ -448,13 +448,13 @@ BEGIN
           END IF;
           UPDATE public.job j
              SET status = 'settled',
-                 settle_txid = v_txid::bigint,
+                 settle_txid = COALESCE(j.settle_txid, v_txid::bigint), -- ★ 0042 修复：settle_txid set-once（0013 job_ledger_ref_guard 禁二次写）
                  ledger_event_keys = j.ledger_event_keys || v_key
            WHERE j.job_id = v_job_id
           RETURNING * INTO v_job;
         ELSE
           UPDATE public.job j
-             SET settle_txid = v_txid::bigint,
+             SET settle_txid = COALESCE(j.settle_txid, v_txid::bigint),
                  ledger_event_keys = j.ledger_event_keys || v_key
            WHERE j.job_id = v_job_id
           RETURNING * INTO v_job;
@@ -463,7 +463,7 @@ BEGIN
         -- 遗留单笔 settle（仲裁 / 旧脚本）
         UPDATE public.job j
            SET status = 'settled',
-               settle_txid = v_txid::bigint,
+               settle_txid = COALESCE(j.settle_txid, v_txid::bigint),
                ledger_event_keys = j.ledger_event_keys || v_key
          WHERE j.job_id = v_job_id
         RETURNING * INTO v_job;
