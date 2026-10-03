@@ -1416,6 +1416,39 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.316 **S0/S1 回执 + 我裁两条 + `0041` 已 apply 真库验收全绿 + 派 S2（服务层）∥ S2b（门前推）**（2026-10-03）
+
+**A. S0 · 规范冻结（Jing · 18c/176s）= 4 册纯追加 + 4 快照 + 冲突清单**：
+| 册 | 版本 | 新节 | `numstat` | `difflib` | 快照 `cmp` |
+|---|---|---|---|---|---|
+| `route-layer.spec` | v2.22 → **v2.23** | **§34**（`:7653`） | `59 0` | 0 replace/delete | **0** |
+| `data-layer.spec` | v0.28 → **v0.29** | **§36**（`:4566`） | `35 0` | 0 | **0** |
+| `ledger.spec` | v0.15 → **v0.16** | **§19.19**（`:2086`） | `22 0` | 0 | **0** |
+| `commission.spec` | v0.5 → **v0.6** | **§20**（`:1795`） | `31 0` | 0 | **0** |
+- ★ **我核盘通过**：4 册 `147/0` **删除列全 0** ✓ · 4 快照 `cmp=0` ✓ · 4 新节标题现取到位且**互相标了姊妹册** ✓
+- ★ **它逐条列冲突、未自行调和**（对）：`route-layer` 8 条 · `data-layer` 8 条 · `ledger` 5 条 · `commission` 4 条（含 §4.2 J2/J3 期望 200 ↔ 410 · J5 单次 settle ↔ 逐笔 · `DL54`/`DL55` `job_application` 契约 ↔ 停写 · **§5 kind 金额域** · §5+CR32 一次原子 ↔ 多事件 等）
+- 报告：`docs/audit/s0-task-model-freeze-report.md`
+
+**B. S1 · 迁移（Kong · 17c/186s）**：新建 `backend-ts/migrations/0041_job_headcount.sql`（`sha256 b6e506c307a16a7ec71b6fd6ce247379d4e5d43dc820e810102230c7d002b177` / 5736 B）· **`R-9-24` 真跑 21/21 全绿**（事务内有列+CHECK · 回滚后列不存在 · `schema_migration` 未动 · 表定义 md5 before=after）· **判负 3 处**（`headcount=0` ⇒ `23514`/`job_headcount_min` · DROP CONSTRAINT 副本不拒 · 文件副本改坏不拒）· 连续性 `0040`→`0041` 无跳号（旁注：历史缺 `0018`，既有状态，非本单）
+
+**C. ★★ 我裁 S0 提出的两个待裁点（都不发明新东西）**：
+1. **结算幂等键唯一性** ⇒ **裁定：键改为 `biz:job:settle:<job_id>:<submission_id>`**。依据（现取）：`job-funds-service.ts:209` 注释逐字「幂等键由 DB 函数**派生**（DL95；调用方不得自造）：`biz:job:settle:<job_id>` / `biz:job:refund:<job_id>`」；TS 侧 `request_fingerprint: fingerprintOf(['job.settle', jobId])`（`:231`）⇒ 同 job 多份必判「重放」⇒ **键与指纹都必须含提交标识** ⇒ ★ 需改 **DB 函数 `job_post_event` 的键派生** + TS 侧指纹 ⇒ **归 S3**（brief 要求先现取该函数全部调用点 + 触发器，确认可 REPLACE，且不得碰 `ledger_post_event`）。**`biz:job:refund:<job_id>` 保持不变**（退款是一次性整体动作）。
+2. **`R-9-98` 余额不足的机读常量** ⇒ ★ **裁定：用既有 `LEDGER_INSUFFICIENT_BALANCE`（`ledger.ts:36`，另有 `LEDGER_INSUFFICIENT_FROZEN:37`）⇒ 零新增码**（现取依据：该常量已在码表内）。
+3. **`job.status` 枚举不动**（发满 = `settled` · 提前结束 = `cancelled`）⇒ 零迁移。
+
+**D. ★ `0041` 已 apply 真库 + 我的独立验收（全绿）**：
+- `schema_migration` = **40 行 / max `0041`**（末两行 `0041` / `0040`）✓
+- `job.headcount` = **`bigint` / `NOT NULL` / `column_default = 1`** ✓
+- CHECK `job_headcount_min` = **`CHECK ((headcount >= 1))`** ✓ · ★ **既有两条 CHECK 原样未动**（`job_reward_positive` / `job_status_enum` ⇒ 零副作用）✓
+- **存量 `job` 21 行全部 `headcount = 1`** ✓（backfill 到位）
+- ★ 过程失误（我认账）：首次 apply 我误以 `package.json` 无 `migrate` 脚本为由判「未执行」，实为 **`scripts/migrate.ts` 默认即 apply 模式**（输出被我 `tail` 截断成表清单）⇒ 复核靠**现取真库**纠正。**教训：apply 类动作的「是否生效」只认现取读数，不认命令输出摘录。**
+
+**E. ★ 前推面（apply 后必须同步 · 现取 7 处）**：`p8-s10-invite-reward-gate.ts:328` `K2`（`39 && '0040'`）· `p8-s11-audit-console-gate.ts:468` `K1`（同）· `p8-s9-bttc-gate.ts:515` `K5`（同）· `p8-s3-deposit-gate.ts:80` · `p8-s3b-address-gate.ts:69` · `p8-s4-currency-review-gate.ts:67` · `p8-s5-compliance-gate.ts:76`（后四处 `MIGRATIONS_FROZEN = 39`）⇒ **`39 → 40` / `'0040' → '0041'`**，且**各门注释里的 apply 清单同步**。
+**F. ★ 我裁：切片加细（写者唯一 + 防截断）**：S2 拆为 **S2（服务层：`job-service.ts` + `database.ts`）** 与 **S2b（门前推：`scripts/*.ts`）** ⇒ 两者**面不相交 ⇒ 本轮并行派**；S3（`index.ts` 路由层 410 + identifier）· S4（`job-funds-service.ts` + DB 函数 `job_post_event`）· S5（前端）· S6（质检）· S7（规范回写）随后串行。
+**G. 状态**：DB **`0041`**（40 行）· 生产代码 `befcd4e` · 未推（S0 的 4 册 + S1 的迁移均在本地待验收）· **积分 9889 + 电量 30**。
+
+---
+
 ### 5.315 **★ 任务模型改造：口径全冻结（`R-9-97`~`R-9-103`）· 6 条 Kevin 裁决齐 · 派 S0 规范冻结 ∥ S1 迁移**（2026-10-03）
 
 **A. Kevin 6 条裁决（全部定档，无待定项）**：
@@ -6835,6 +6868,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.316 | 2026-10-03 | **S0/S1 回执 + 我裁两条 + 0041 已 apply 真库验收全绿 + 派 S2（服务层）∥ S2b（门前推）**。**A. S0**：4 册纯追加 route-layer v2.23 §34（59/0）· data-layer v0.29 §36（35/0）· ledger v0.16 §19.19（22/0）· commission v0.6 §20（31/0），4 快照 cmp=0，我核盘 147/0 删除列全 0 + 新节标题现取到位；它逐条列冲突未自行调和（route 8 / data 8 / ledger 5 / commission 4）。**B. S1**：`0041_job_headcount.sql` sha256 `b6e506c3…b177`/5736 B；R-9-24 真跑 21/21；判负 3 处；连续无跳号。**C. 我裁**：①结算幂等键 ⇒ **`biz:job:settle:<job_id>:<submission_id>`**（现取 job-funds-service.ts:209 注释确认键由 DB 函数派生、调用方不得自造 ⇒ 需改 `job_post_event` + TS 指纹，归 S4；refund 键不变）②余额不足 ⇒ **用既有 `LEDGER_INSUFFICIENT_BALANCE`（ledger.ts:36）零新增码** ③job.status 枚举不动。**D. 0041 已 apply + 我独立验收全绿**：schema_migration **40 行/max 0041** · headcount `bigint NOT NULL default 1` · CHECK `job_headcount_min CHECK ((headcount >= 1))` · 既有两条 CHECK 原样未动 · **存量 21 行全 = 1**；★我认账：首跑误判「未执行」（实为 scripts/migrate.ts 默认即 apply，输出被 tail 截断）⇒ 教训「apply 是否生效只认现取读数」。**E. 前推 7 处**（p8-s10 K2 · p8-s11 K1 · p8-s9 K5 · p8-s3/s3b/s4/s5 MIGRATIONS_FROZEN）⇒ 39→40 / '0040'→'0041'。**F.** S2 拆为服务层（S2）∥ 门前推（S2b），本轮并行派；S3 路由层 · S4 资金面+DB 函数 · S5 前端 · S6 质检 · S7 回写。**G.** DB 0041 · 生产 befcd4e。 |
 | v0.315 | 2026-10-03 | **★任务模型改造：口径全冻结（R-9-97~R-9-103）· 6 条 Kevin 裁决齐 · 派 S0 规范冻结 ∥ S1 迁移**。**A. Kevin 6 裁决**：①载体 ⇒ 彻底去申请、identifier 改 submission_id ②**每个合格都发奖** + 发布时说明总人数 ③batt 门槛移到提交 ④判不合格可再提 ⑤名额未满 ⇒ 悬赏家可随时「结束任务」并把未用份额退回 ⑥**发布时押全款 = reward × 人数**（余额不足则发布失败）。**B. 冻结口径**：R-9-97 job 加 `headcount bigint NOT NULL DEFAULT 1` + CHECK ≥1（存量 backfill=1）· R-9-98 托管总额 = reward × headcount、不足则发布失败 · R-9-99 取消报名与选定、**移除 self_application（雇主本人可提交）**、同一人可多次提交、batt 闸移到提交 · R-9-100 identifier 由 application_id 改 **submission_id**、job_application 停写保留历史 · R-9-101 review 改**按提交逐笔判定**、approved 发一份 reward + 分佣、发满 headcount 自动结束（job.status 枚举不动，发满=settled）· R-9-102 悬赏家随时结束 ⇒ 退 reward×(headcount−已发份数)（cancelled）· R-9-103 /apply 与 /accept 下架 ⇒ **410 Gone** + reason APPLY_RETIRED/ACCEPT_RETIRED。**C.** 切片排期 S0 规范冻结∥S1 迁移 → S2 提交面 → S3 资金面（与 S2 同动 database.ts ⇒ 串行）→ S4 前端 → S5 质检 → S6 回写。**D.** 本轮派 S0∥S1。**E.** DB 0040 · 未动代码。 |
 | v0.314 | 2026-10-03 | **★★Kevin 定档：task 无「申请报名」逻辑 —— 提交文本 ⇒ 悬赏家判合格即发奖（4 条答复 + 1 条新需求 + 我裁 1 条）· 现取真源与改动面**。**A.** Kevin 原话：自己发布的 task 自己可完成；没有【申请报名】逻辑，用户在表单提交一段文本，悬赏家据文本判是否合格，合格即发奖、反之不发。**B. 现取真源**：报名 `apply`⇒`applyToJob`（拒 self_application 等 5 分支）· 选定 `accept`⇒`acceptApplication` · 提交 `task-progress/:identifier/submit`⇒`submitWork`（闸 = 申请须 accepted）· ★★**悬赏家评判 `POST /api/job/:jobId/review` 已存在**（approved ? settleJob 发奖 : refundJob 不发；权限 = 雇主本人）· `settleJob` ⇒ `reviewJobSubmission` **单次结算语义** · 托管 `job_escrow` 只 **1 份** · `job` 表 **无名额字段**（ALTER 零命中）· ★`job_submission` **无 application_id**（提交物不依赖报名行）· 引用面 database 82/job-service 48/index 15/funds 9/ActiveTaskModal 6。**C. Kevin 4 答复**：①载体 ⇒ **B 彻底去申请、identifier 改 submission_id** ②**每个合格都发奖** + ★新需求「发布 task 时说明总人数」③batt 门槛移到**提交**步 ④判不合格**可再提**。**D. 我裁**：托管总额 = reward × 总人数；每合格发一份 + 分佣；发满即关闭 ⇒ **settleJob 须改「按提交逐笔发放 + 名额计数」= 账本语义变更**。**E. 我裁**：存量 job headcount backfill=1；存量 job_application 保留停写；读口兼容存量。**F. 待定 1 条**：名额未满时剩余托管如何处置（取消退/手动关闭退/留托管）。**G.** 改动面跨 4 层须切片（规范 4 册 → 迁移 → 后端提交面 → **后端资金面** → 前端 → 质检 → 规范回写）。**H.** 仅定档 + 计划，未动代码。 |
 | v0.313 | 2026-10-03 | **本批生产终验 = 全绿 · ★线上 bundle 内 dashj（小写口径）仅剩 4 处且全为键名 ⇒ 用户可见类 = 0 · 7 条旧串线上全 0**。**A.** health 0040 · 线上 bundle `index-DbgRc-K2.js` · **逐字对拍 sha256 `0ad3c2e9…` == 本地** · ★★`dash[Jj]` 命中 = **4** ⇒ 逐处现取 4/4 全为**键名 dashJPoints**（值已 积分/Points/積分/Điểm）⇒ **用户可见类 = 0**（口径说明：小写口径，大写 DASHJ 体检 ticker 有意排除）· 7 条旧串线上**全 0** · 新值线上 各 3/3/3/3/1 · 四语 /exchange 全 200。**B. ★完整教训链**：Kevin 提需求 ⇒ 我 brief 只给两个抓手 ⇒ 实现+质检**在同一错误范围内两轮报 PASS** ⇒ ★**生产终验扫 bundle 抓到 3 处用户可见残留**（否则带假文案上线）⇒ 补齐单双口径扫面 9→0。教训：改单位/换符号/改名类单必须写死「全仓双口径扫旧符号 + 逐处分类 + 用户可见处清零」；且**「两次 PASS」≠ 用户看不到问题**（brief 漏面时实现与质检会共同在错误范围内 PASS）⇒ **生产终验是唯一能穿透 brief 漏面的关卡**。**C.** 本批 4 commit 已推 `d2d604f`。**D.** DB 0040 · 生产 d2d604f（bundle sha256 0ad3c2e9…）· 积分 9889 + 电量 30 · 待推 0。 |
