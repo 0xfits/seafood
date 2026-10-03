@@ -141,8 +141,10 @@ const jobEventView = (r: Record<string, unknown>): Record<string, unknown> => {
 };
 
 // ============================================================================
-// J1 · 发布 + 托管（`job_escrow` ×2：雇主 `balance −reward` → 雇主 `frozen +reward`）
+// J1 · 发布 + 托管（`job_escrow` ×2：雇主 `balance −(reward×headcount)` → 雇主 `frozen +(reward×headcount)`）
 // ----------------------------------------------------------------------------
+// ★ R-9-98（S4a）：托管总额 = `reward × headcount`；余额不足 ⇒ 既有 `LEDGER_INSUFFICIENT_BALANCE`
+//   （R80 余额闸在 `ledger_post_event` 内自然触发，**零新增码**）。
 // 触发端点（spec）= `POST /api/job`；**前端零调用**（§1.2:165 ⇒ 现取 `frontend/src` 0 命中）
 //   ⇒ 本片**只交付服务层**（路由随批 4；Zang §5.74/§5.76）。
 // 资金四栏（§4.3:438）：**谁出钱** = 雇主可用余额；**谁收钱** = 无人（转为雇主自己的冻结）。
@@ -172,10 +174,15 @@ export const publishJob = async (params: {
   const keyed = resolveJobCreateKeyRequired(body.create_key ?? body.idempotency_key ?? body.idempotencyKey);
   if (!keyed.ok) return keyed.err;
 
-  // ③ 最小形状：cid / reward 一律**原样透传字符串**，语义闸（正整数 / ≤1e15 / 币种 must listed）
-  //    全交 `job_post_event`（`0013:507-522,557-565`）⇒ 期望码与 §4.2 J1 同源。
+  // ③ 最小形状：cid / reward / headcount 一律**原样透传字符串**，语义闸（正整数 / ≤1e15 /
+  //    headcount ≥ 1 / 币种 must listed）全交 `job_post_event` ⇒ 期望码与 §4.2 J1 同源。
   const cid = typeof body.cid === 'string' ? body.cid.trim() : String(body.cid ?? '');
   const reward = typeof body.reward === 'string' ? body.reward.trim() : String(body.reward ?? '');
+  // ★ R-9-97/R-9-98：名额入参（缺省 '1'）；托管总额 = reward × headcount（金额由 DB 侧派生）。
+  const headcountRaw = body.headcount ?? body.head_count ?? body.headCount;
+  const headcount = headcountRaw === undefined || headcountRaw === null || String(headcountRaw).trim() === ''
+    ? '1'
+    : String(headcountRaw).trim();
   const title = typeof body.title === 'string' ? body.title : '';
   const description = typeof body.description === 'string' ? body.description : '';
 
@@ -185,9 +192,10 @@ export const publishJob = async (params: {
     employer_uid: String(employerUid),
     cid,
     reward,
+    headcount,
     title,
     description,
-    request_fingerprint: fingerprintOf(['job.publish', keyed.key, employerUid, cid, reward, title, description]),
+    request_fingerprint: fingerprintOf(['job.publish', keyed.key, employerUid, cid, reward, headcount, title, description]),
     memo: `job publish escrow:${keyed.key}`,
   };
 
@@ -200,24 +208,36 @@ export const publishJob = async (params: {
 
   const r = (row.r || {}) as Record<string, unknown>;
   const view = jobEventView(r);
-  return { ok: true, replay: r.idempotent_replay === true, view: { ...view, employer_uid: String(employerUid), cid, reward } };
+  return { ok: true, replay: r.idempotent_replay === true, view: { ...view, employer_uid: String(employerUid), cid, reward, headcount } };
 };
 
 // ============================================================================
 // J5 / J6 · 结算（settle）与退托管（refund）—— `job_post_event(op='settle'|'refund')`
 // ----------------------------------------------------------------------------
-// 幂等键由 DB 函数**派生**（DL95；调用方不得自造）：`biz:job:settle:<job_id>` / `biz:job:refund:<job_id>`。
-// 状态机：settle ⇒ `submitted|disputed → settled`；refund ⇒ `open → cancelled` / `accepted|submitted → rejected`
-//   （唯一真源 = `public.job_status_transition_ok`，`0013:60-70`）。
-// 审核结论位与资金写入**同一语句**（见 `DatabaseService.reviewJobSubmission`）⇒ R4 原子。
+// 幂等键由 DB 函数**派生**（DL95；调用方不得自造）：settle = `biz:job:settle:<job_id>:<submission_id>`
+//   （★ S4a 逐笔 · Zang 裁：**键与指纹都必须含提交标识**）/ refund = `biz:job:refund:<job_id>`（**不变**）。
+// 状态机：settle ⇒ `open|submitted|disputed → settled`（`open→settled` = S4a 为「发满即收口」新开）；
+//   refund ⇒ `open → cancelled` / `accepted|submitted → rejected`（真源 `public.job_status_transition_ok`）。
+// 审核结论位与资金写入**同一 DB 函数同一语句**（见 `DatabaseService.reviewJobSubmission`）⇒ R4 原子。
 // ============================================================================
 const toStatusOf = (raw: unknown): string => {
   const text = raw === undefined || raw === null || String(raw).trim() === '' ? 'cancelled' : String(raw).trim();
   return text;
 };
 
+/**
+ * J5 · **逐笔发放**（`R-9-101` · S4a）：审核人判一份合格 ⇒ 向**该提交者**发放**一份 `reward`**
+ *   （`job_payout` + `job_fee` + `commission` 按既有费分佣口径 · 金额由 DB 侧 `job_settle_plan` 派生）；
+ *   发满 `headcount` ⇒ `job.status='settled'`。
+ * ★ 幂等键含提交标识（Zang 裁）：`biz:job:settle:<job_id>:<submission_id>`；`request_fingerprint`
+ *   与之同源（`['job.settle', jobId, submissionId]`）⇒ 同 job 多份**不再互相判重放**。
+ * ★ `submissionIdRaw` 缺省 ⇒ **遗留单笔**（键退化为 `biz:job:settle:<job_id>`，发 `job.worker_uid`；
+ *   供既有仲裁 / 旧脚本）；新模型（review 路由）**必须**给提交号。
+ */
 export const settleJob = async (params: {
   jobIdRaw: unknown;
+  /** 目标提交号（`R-9-100` 换轴：review 按提交逐笔）；缺省 ⇒ 遗留单笔。 */
+  submissionIdRaw?: unknown;
   /** 审核人（= 结论位 `job_submission.reviewed_by`）；`undefined` ⇒ 只做资金、不写结论位 */
   reviewerUid?: number;
 }, ex?: TxClient): Promise<VerbResult> => {
@@ -225,14 +245,23 @@ export const settleJob = async (params: {
   if (!/^\d+$/.test(jobId)) {
     return ref404('job', jobId || 'null', { field: 'job_id', reason: 'job_not_found' });
   }
-  const payload = {
+  const submissionId = params.submissionIdRaw === undefined || params.submissionIdRaw === null
+    ? ''
+    : String(params.submissionIdRaw).trim();
+  if (submissionId !== '' && !/^\d+$/.test(submissionId)) {
+    return ref404('job_submission', submissionId, { field: 'submission_id', reason: 'submission_not_found', job_id: jobId });
+  }
+  const payload: Record<string, unknown> = {
     op: 'settle',
     job_id: jobId,
-    request_fingerprint: fingerprintOf(['job.settle', jobId]),
-    memo: `job settle:${jobId}`,
+    request_fingerprint: submissionId === ''
+      ? fingerprintOf(['job.settle', jobId])
+      : fingerprintOf(['job.settle', jobId, submissionId]),
+    memo: submissionId === '' ? `job settle:${jobId}` : `job settle:${jobId}:${submissionId}`,
   };
-  // `review_status = 'approved'`（`job_submission_review_status_enum`：pending→{approved,rejected}）
-  return dispatchJobEvent(payload, 'approved', params.reviewerUid, ex);
+  if (submissionId !== '') payload.submission_id = submissionId;
+  // 结论位 `review_status='approved'` 与资金在 DB `job_post_event` 的**同一函数同一语句**内落定（R4）。
+  return dispatchJobEvent(payload, params.reviewerUid, ex);
 };
 
 export const refundJob = async (params: {
@@ -256,8 +285,10 @@ export const refundJob = async (params: {
     request_fingerprint: fingerprintOf(['job.refund', jobId, toStatus]),
     memo: `job refund:${jobId}:${toStatus}`,
   };
-  // 退回 ⇒ 结论位 `rejected`（拒收）；取消（`to_status='cancelled'`）⇒ 同样落 `rejected`（结论位只有两值）
-  return dispatchJobEvent(payload, 'rejected', params.reviewerUid, ex);
+  // ★ S4a（`R-9-102`）：退款为**一次性整体动作**（键 `biz:job:refund:<job_id>` 不变）⇒ DB 侧只关 job
+  //   （`status = to_status` + 退**未用完份额** `reward × (headcount − 已发放份数)`）；不逐笔落提交结论位
+  //   （「判不合格」按提交归 `verifyJobSubmission` 的 reject 腿）。
+  return dispatchJobEvent(payload, params.reviewerUid, ex);
 };
 
 /**
@@ -265,14 +296,22 @@ export const refundJob = async (params: {
  * 接线点 = `reviewJobSubmission` / `dispatchJobEvent` 的**结算后**（`op = 'settle'` 才发）。
  *   · 「首个平台任务」判定依据 + 幂等键形态（`biz:invite:firsttask:<worker_uid>`）**全部**在
  *     `DatabaseService.settleInviteFirstTaskReward` 内（只由不可变 `worker_uid` 派生）；
+ * ★ S4a-c 裁（`R-9-103` · **重放零写**）：**幂等重放分支必须跳过本钩子** —— 重放不是新业务事实，
+ *   其唯一合法回执是账本既有读数；若在重放上仍派生「首任务奖励」，重放就不再是零副作用。
+ *   现取事实（全库该 `kind` 仅此 2 行）：`txid 1460` `−10 @uid=−1` / `txid 1461` `+10 @uid=12`
+ *   （`2026-10-03T14:22:38Z`）—— 一次 `settle` **重放**意外触发了本钩子（`biz:invite:firsttask:12`
+ *   彼时账上尚无 ⇒ 重放路径**新落**了 20 分净额 0 的分录）。`ledger_entry` append-only ⇒ **历史行不改**；
+ *   本闸只拦未来重放（判负：造一次重放 ⇒ `invite_first_task_reward` **零新增行**）。
  *   · **失败不阻断结算**（沿注册腿「失败不阻断注册」纪律 ⇒ 奖励为**尽力而为**的后续事件）；
  *   · `ex` 透传（生产默认 `undefined` ⇒ 各走自有连接；探针注入 ⇒ 同一事务内可触发）。
  */
 const settleFirstTaskRewardBestEffort = async (
   payload: Record<string, unknown>,
+  /** ★ S4a-c：`true` = 本次 settle 是幂等重放 ⇒ 直接返回（零新分录） */
+  replay: boolean,
   ex?: TxClient,
 ): Promise<void> => {
-  if (payload.op !== 'settle') return;
+  if (payload.op !== 'settle' || replay) return;
   await DatabaseService.settleInviteFirstTaskReward({ jobIdRaw: payload.job_id }, ex)
     .catch((e) => {
       console.warn('[P9⑤] invite first-task reward skipped:', String((e as Error)?.message ?? e));
@@ -285,7 +324,6 @@ const settleFirstTaskRewardBestEffort = async (
  */
 const dispatchJobEvent = async (
   payload: Record<string, unknown>,
-  reviewStatus: 'approved' | 'rejected',
   reviewerUid?: number,
   ex?: TxClient,
 ): Promise<VerbResult> => {
@@ -293,23 +331,27 @@ const dispatchJobEvent = async (
   try {
     if (reviewerUid === undefined) {
       row = await DatabaseService.jobPostEvent(payload, ex);
-      // ★ P9⑤ 首任务奖励接线（结算后 · 尽力而为 · 失败不阻断）
-      await settleFirstTaskRewardBestEffort(payload, ex);
+      // ★ P9⑤ 首任务奖励接线（结算后 · 尽力而为 · 失败不阻断）—— ★ S4a-c：重放分支跳过（零写）
+      await settleFirstTaskRewardBestEffort(
+        payload, ((row.r || {}) as Record<string, unknown>).idempotent_replay === true, ex);
       return { ok: true, replay: ((row.r || {}) as Record<string, unknown>).idempotent_replay === true, view: jobEventView((row.r || {}) as Record<string, unknown>) };
     }
     const gate = actorGate(reviewerUid);
     if (!gate.ok) return gate.err;
+    const subId = payload.submission_id === undefined || payload.submission_id === null ? '' : String(payload.submission_id);
     row = await DatabaseService.reviewJobSubmission({
       payload,
-      reviewStatus,
       reviewedBy: gate.uid,
-      reviewMemo: `job ${String(payload.op)}:${String(payload.job_id)}`,
+      reviewMemo: subId === ''
+        ? `job ${String(payload.op)}:${String(payload.job_id)}`
+        : `job ${String(payload.op)}:${String(payload.job_id)}:${subId}`,
     }, ex);
   } catch (e) {
     return fromLedgerError(e);
   }
-  // ★ P9⑤ 首任务奖励接线（结算后 · 尽力而为 · 失败不阻断）
-  await settleFirstTaskRewardBestEffort(payload, ex);
+  // ★ P9⑤ 首任务奖励接线（结算后 · 尽力而为 · 失败不阻断）—— ★ S4a-c：重放分支跳过（零写）
+  await settleFirstTaskRewardBestEffort(
+    payload, ((row.r || {}) as Record<string, unknown>).idempotent_replay === true, ex);
   const r = (row.r || {}) as Record<string, unknown>;
   const view = jobEventView(r);
   return {
@@ -322,21 +364,20 @@ const dispatchJobEvent = async (
 // ============================================================================
 // 路由入口 · `POST /api/tasklist/:jID/verify`（**既有路径 · 前端真实消费点**）
 // ----------------------------------------------------------------------------
-// spec §1 #49【保留·改接】：`job_submission.review_status` + `job_post_event(op='settle'|'refund')`；
-//   `approve` = 结算（资金）⇒ 整条归批 3（§4 J5/J6、§4.0 R4）。
+// spec §1 #49【保留·改接】：★ S4a（`R-9-100`/`R-9-101`）· **换轴**：`:jID` 语义 =
+//   `job_submission.submission_id`（改前 = `job_application.application_id`）。
 // 前端契约（`frontend/src/pages/DashboardPage.jsx:223`）：`POST {approved: boolean}`。
-//   `approved !== false` ⇒ **J5 settle**；`approved === false` ⇒ **J6 refund（`to_status='rejected'`）**。
-// `:jID` 语义：前端读口 `getTaskProgress`/`listPendingVerification` 的 `jID` 键 = `job_application.application_id`
-//   ⇒ 本入口按 `application_id` 精确解析（未命中再容错按 `job_id`），解析结果 → `job.job_id`。
-// 返回：调用方（路由层）用 `view.application_id` 重读 9 键读口以**保持响应键集不变**（§2 母约束 F1）。
+//   · `approved !== false` ⇒ **逐笔发放**（`settleJob` 向该提交者发一份 `reward`；发满 `headcount` ⇒ `settled`）；
+//   · `approved === false` ⇒ **按提交判不合格**（只落该提交结论位 `rejected`，**零资金**，job 状态不变 · 可再提）。
+// 返回：调用方（路由层）用 `submissionId`（兼容别名 `applicationId`）重读 9 键读口以**保持响应键集不变**（§2 F1）。
 // ============================================================================
 export const verifyJobSubmission = async (params: {
   identifierRaw: unknown;
   approved: boolean;
   actorUid: number;
-}, ex?: TxClient): Promise<VerbResult & { applicationId?: number; jobId?: number }> => {
+}, ex?: TxClient): Promise<VerbResult & { submissionId?: number; jobId?: number; applicationId?: number }> => {
   const identText = typeof params.identifierRaw === 'string' ? params.identifierRaw.trim() : String(params.identifierRaw ?? '');
-  if (!/^\d+$/.test(identText) || Number(identText) <= 0) return ref404('job_application', identText || 'null', { reason: 'jID_not_found' });
+  if (!/^\d+$/.test(identText) || Number(identText) <= 0) return ref404('job_submission', identText || 'null', { reason: 'jID_not_found' });
 
   let target: Awaited<ReturnType<typeof DatabaseService.resolveReviewTarget>>;
   try {
@@ -344,12 +385,42 @@ export const verifyJobSubmission = async (params: {
   } catch (e) {
     return fromLedgerError(e);
   }
-  if (!target) return ref404('job_application', identText, { reason: 'jID_not_found' });
+  if (!target) return ref404('job_submission', identText, { reason: 'jID_not_found' });
 
-  const result = params.approved
-    ? await settleJob({ jobIdRaw: target.jobId, reviewerUid: params.actorUid }, ex)
-    : await refundJob({ jobIdRaw: target.jobId, toStatusRaw: 'rejected', reviewerUid: params.actorUid }, ex);
+  if (!params.approved) {
+    // ★ 按提交判不合格（`R-9-99`）：只落结论位，**零资金**；job 状态不变（同人可再提）。
+    let rejected = 0;
+    try {
+      rejected = await DatabaseService.rejectJobSubmission({
+        submissionId: target.submissionId,
+        reviewedBy: params.actorUid,
+        reviewMemo: `job reject:${target.jobId}:${target.submissionId}`,
+      }, ex);
+    } catch (e) {
+      return fromLedgerError(e);
+    }
+    if (rejected <= 0) {
+      return stateConflict('job_submission.review_status', 'job_review_status_invalid', {
+        from: target.submissionStatus, to: 'rejected', submission_id: String(target.submissionId),
+      });
+    }
+    return {
+      ok: true,
+      replay: false,
+      view: {
+        submission_id: String(target.submissionId),
+        job_id: String(target.jobId),
+        worker_uid: String(target.workerUid),
+        status: 'rejected',
+      },
+      submissionId: target.submissionId,
+      jobId: target.jobId,
+      // 兼容别名：既有路由层 `index.ts:1995` 读 `result.applicationId` 重读 9 键读口（S2 换轴后该值 = submission_id）
+      applicationId: target.submissionId,
+    };
+  }
 
+  const result = await settleJob({ jobIdRaw: target.jobId, submissionIdRaw: target.submissionId, reviewerUid: params.actorUid }, ex);
   if (!result.ok) return result;
-  return { ...result, applicationId: target.applicationId, jobId: target.jobId };
+  return { ...result, submissionId: target.submissionId, jobId: target.jobId, applicationId: target.submissionId };
 };

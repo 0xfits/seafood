@@ -115,10 +115,18 @@ export type CommissionReason = (typeof COMMISSION_REASON)[keyof typeof COMMISSIO
 export const COMMISSION_POOL_UID = '-2';
 export const PLATFORM_REVENUE_UID = '-1';
 
-/** 事件根键模板（CR57：`biz:job:settle:<job_id>`；**只**由 job_id 派生，禁入金额/政策/时间戳） */
+/** 事件根键模板（CR57：`biz:job:settle:<job_id>`；**只**由不可变业务标识派生，禁入金额/政策/时间戳）。
+ *  ★ S4a（`R-9-101` · §20.4 #2）：逐笔发放 ⇒ 同一 `job` 多份 ⇒ **键须含提交标识** =
+ *     `biz:job:settle:<job_id>:<submission_id>`。`submissionId` 缺省 ⇒ 退化为旧 `biz:job:settle:<job_id>`
+ *     （遗留单笔 / 旧脚本兼容；DB 侧 `job_post_event` 同口径）。 */
 export const JOB_SETTLE_KEY_PREFIX = 'biz:job:settle:';
-export const jobSettleKey = (jobId: Amount): string =>
-  normalizeIdempotencyKey(`${JOB_SETTLE_KEY_PREFIX}${toAmount(jobId, 'job_id').toString()}`);
+export const jobSettleKey = (jobId: Amount, submissionId?: Amount | null): string => {
+  const base = `${JOB_SETTLE_KEY_PREFIX}${toAmount(jobId, 'job_id').toString()}`;
+  if (submissionId === undefined || submissionId === null || String(submissionId).trim() === '') {
+    return normalizeIdempotencyKey(base);
+  }
+  return normalizeIdempotencyKey(`${base}:${toAmount(submissionId, 'submission_id').toString()}`);
+};
 
 // ============================================================================
 // §2 版本化佣金政策（§4；CR23 / CR25 / CR27 / CR82）
@@ -807,6 +815,8 @@ export const LEDGER_REPLAY_POLICY: CommissionPolicy = {
 
 export interface SettleJobInput {
   jobId: Amount;
+  /** ★ S4a（`R-9-101`）：目标提交号（逐笔发放）；缺省 ⇒ 遗留单笔（键退化为 `biz:job:settle:<job_id>`）。 */
+  submissionId?: Amount;
   employerUid: Amount;
   workerUid: Amount;
   cid: Amount;
@@ -827,6 +837,9 @@ export interface SettleJobInput {
 export const settleJobFingerprint = (i: SettleJobInput): string =>
   createHash('sha256').update(JSON.stringify({
     job_id: toAmount(i.jobId, 'job_id').toString(),
+    submission_id: i.submissionId === undefined || i.submissionId === null || String(i.submissionId).trim() === ''
+      ? null
+      : toAmount(i.submissionId, 'submission_id').toString(),
     employer_uid: toAmount(i.employerUid, 'employer_uid').toString(),
     worker_uid: toAmount(i.workerUid, 'worker_uid').toString(),
     cid: toAmount(i.cid, 'cid').toString(),
@@ -1032,7 +1045,7 @@ export const planJobSettlement = async (input: SettleJobInput): Promise<Settleme
   const N = layers.filter((l) => l.x !== '0').length;
   return {
     job_id: jobId.toString(),
-    idempotency_key: jobSettleKey(jobId),
+    idempotency_key: jobSettleKey(jobId, input.submissionId),
     employer_uid: employer.toString(),
     worker_uid: worker.toString(),
     cid: cid.toString(),

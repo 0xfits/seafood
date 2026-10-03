@@ -3302,7 +3302,8 @@ export class DatabaseService {
    * 函数内完成「锁业务行（`FOR UPDATE`）→ 派生分录 → 调 `ledger_post_event` → 回写
    * `escrow_txid`/`settle_txid`/`ledger_event_keys`/`status`」⇒ **业务行 + 分录同生同灭**（R2/DL20）。
    * 本方法**只转发 payload**：不派生分录、不自造幂等键（DL95：键由函数按 §8 确定性派生
-   * `biz:job:{escrow,settle,refund}:<job_id>`）、不写 `account`/`ledger_entry`。
+   * `biz:job:escrow:<job_id>` / `biz:job:settle:<job_id>:<submission_id>`（★ S4a 逐笔，含提交标识）
+   * / `biz:job:refund:<job_id>`）、不写 `account`/`ledger_entry`。
    * 返回值 = 函数回执 `{ok, idempotent_replay, op, job_id, status, escrow_txid, settle_txid,
    * ledger_event_keys, txid, ledger_idempotency_key, entries, accounts, extra}`。
    */
@@ -3317,90 +3318,93 @@ export class DatabaseService {
   }
 
   /**
-   * §4.2 J5/J6 路由前置（**只读**）：解析 `POST /api/tasklist/:jID/verify` 的 `:jID` → 目标 job。
-   * 口径与 `resolveJobApplication`（DL111）同族：**先按 `application_id` 精确匹配**，未命中再容错按
-   * `job_id` 匹配（前端读口 `getTaskProgress`/`listPendingVerification` 的 `jID` 键 = `application_id`）。
-   * 资金/状态写入**一律不在此处**（仍由 `job_post_event` 的单语句完成）⇒ 本方法无任何写副作用。
+   * §4.2 J5/J6 路由前置（**只读**）：解析 `POST /api/tasklist/:jID/verify` 的 `:jID` → 目标提交。
+   * ★ S4a（`R-9-100`/`R-9-101`）· **换轴**：identifier 语义 = `job_submission.submission_id`
+   *   （改前 = `job_application.application_id`）。`job_application` 停写（历史行保留、不删）
+   *   ⇒ 本方法**只**按提交轴解析（不再回退申请轴）。资金/状态写入**一律不在此处**
+   *   （仍由 `job_post_event` 的单函数完成）⇒ 本方法无任何写副作用。
    */
   static async resolveReviewTarget(identifier: number): Promise<{
-    applicationId: number;
+    submissionId: number;
     jobId: number;
-    applicantUid: number;
-    jobWorkerUid: number | null;
+    workerUid: number;
     employerUid: number;
     jobStatus: string;
-    applicationStatus: string;
+    jobHeadcount: number;
+    submissionStatus: string;
   } | null> {
     const sql = getSql();
     const row = firstRow(await sql`
-      SELECT a.application_id, a.job_id, a.worker_uid AS applicant_uid, a.status AS application_status,
-             j.worker_uid AS job_worker_uid, j.employer_uid, j.status AS job_status
-        FROM public.job_application AS a
-        JOIN public.job AS j ON j.job_id = a.job_id
-       WHERE a.application_id = ${identifier} OR a.job_id = ${identifier}
-       ORDER BY (a.application_id = ${identifier}) DESC, a.application_id DESC
+      SELECT s.submission_id, s.job_id, s.worker_uid, s.review_status AS submission_status,
+             j.employer_uid, j.status AS job_status, j.headcount
+        FROM public.job_submission AS s
+        JOIN public.job AS j ON j.job_id = s.job_id
+       WHERE s.submission_id = ${identifier}
        LIMIT 1
     `);
     if (!row) return null;
-    const jw = getValue(row, 'job_worker_uid');
     return {
-      applicationId: toNumberValue(getValue(row, 'application_id')),
+      submissionId: toNumberValue(getValue(row, 'submission_id')),
       jobId: toNumberValue(getValue(row, 'job_id')),
-      applicantUid: toNumberValue(getValue(row, 'applicant_uid')),
-      jobWorkerUid: jw === null || jw === undefined ? null : toNumberValue(jw),
+      workerUid: toNumberValue(getValue(row, 'worker_uid')),
       employerUid: toNumberValue(getValue(row, 'employer_uid')),
       jobStatus: toStringValue(getValue(row, 'job_status')),
-      applicationStatus: toStringValue(getValue(row, 'application_status')),
+      jobHeadcount: toNumberValue(getValue(row, 'headcount')),
+      submissionStatus: toStringValue(getValue(row, 'submission_status')),
     };
   }
 
   /**
-   * §4.0 R4 / 派单硬口径 #3「**审核通过 → 发放必须原子**」的本仓等价实现：
-   * `job_post_event(...)`（业务行状态 + 全部资金分录）与 `job_submission.review_status` 的**结论位**
-   * 压在**同一条 SQL 语句**（= 一个隐式事务）内 ⇒ 任一失败 ⇒ **整条回滚**，
-   * **不存在**「状态 `settled` 但没发放」「已审核但没发放」「已发放但未审核」三种半成品。
-   *   · `ev`  ：先跑编排函数（它内部对 `public.job` 行 `FOR UPDATE` —— DL141 全序第一段，
-   *             且它在**自己的语句内**调用 `ledger_post_event`；失败 ⇒ 本语句整体报错、`sub` 一并回滚）
-   *   · `sub` ：只改**该 job × 该 worker 的最新一条 `pending` 提交**的结论位
-   *             （`pending → approved|rejected`；`reviewed_by/reviewed_at/review_memo` 一次写定，
-   *              符合 `0014:209-248` 的 `job_submission_immutable_guard`）
-   * 返回值 = `{ r: <job_post_event 回执>, submissions_reviewed: <int> }`。
-   * 注：重放（同键同指纹）时编排函数返回 `idempotent_replay=true`，此时 `submissions_reviewed` 通常 = 0
-   * （结论位已非 `pending`，`WHERE` 不命中）—— 这是**正确**读数，不是缺陷。
+   * §4.0 R4 / 派单硬口径 #3「**审核通过 → 发放必须原子**」的本仓等价实现（★ S4a：DB 单点收口）。
+   * 自 0042 起 `job_post_event(op='settle')` 在**同一函数体（= 同一条 SQL 语句）** 内一气完成
+   * 「结算分录（一份 `reward`，键含提交号 `submission_id`）→ 落该提交 `review_status='approved'`
+   * → 计数 → 发满 `headcount` 即 `job.status='settled'`」⇒ 本方法退化为**单语句转发 + 读回执**，
+   * **不存在**「已审核但没发放」「状态 settled 但没发放」半成品（仍由 DB 编排函数保证原子）。
+   *   · `input.payload` **必须**含 `submission_id`（逐笔；S4a 换轴）与可选 `reviewed_by`/`review_memo`。
+   *   · `reviewedBy`/`reviewMemo` 由本方法**服务端**写入 payload（审核人可给；金额恒由 DB 派生）。
+   * 返回值 = `{ r: <job_post_event 回执>, submissions_reviewed: <int> }`；重放 ⇒ `submissions_reviewed=0`。
    */
   static async reviewJobSubmission(input: {
     payload: Record<string, unknown>;
-    reviewStatus: 'approved' | 'rejected';
-    reviewedBy: number;
-    reviewMemo: string;
+    reviewedBy?: number;
+    reviewMemo?: string;
   }, ex?: SqlRunner): Promise<RawRow> {
     // ★ P9⑤（`R-9-68`）：`ex` 注入（供「接线后经结算路径」探针在同一事务内触发）；省略 ⇒ 自有连接。
     const sql = sqlFor(ex);
-    const jobIdText = String(input.payload.job_id ?? '');
-    const rows = extractRows(await sql`
-      WITH ev AS (
-        SELECT public.job_post_event(${JSON.stringify(input.payload)}::jsonb) AS r
-      ), sub AS (
-        UPDATE public.job_submission AS s
-           SET review_status = ${input.reviewStatus}::text,
-               reviewed_by   = ${input.reviewedBy}::bigint,
-               reviewed_at   = now(),
-               review_memo   = ${input.reviewMemo}::text
-         WHERE s.job_id = ${jobIdText}::bigint
-           AND s.review_status = 'pending'
-           AND s.worker_uid = (SELECT j.worker_uid FROM public.job AS j WHERE j.job_id = ${jobIdText}::bigint)
-           AND s.submission_id = (
-                 SELECT max(s0.submission_id) FROM public.job_submission AS s0
-                  WHERE s0.job_id = ${jobIdText}::bigint
-                    AND s0.worker_uid = (SELECT j.worker_uid FROM public.job AS j WHERE j.job_id = ${jobIdText}::bigint))
-        RETURNING s.submission_id
-      )
-      SELECT (SELECT ev.r FROM ev) AS r,
-             (SELECT count(*)::int FROM sub) AS submissions_reviewed
+    const payload: Record<string, unknown> = { ...input.payload };
+    if (input.reviewedBy !== undefined) payload.reviewed_by = String(input.reviewedBy);
+    if (input.reviewMemo !== undefined) payload.review_memo = input.reviewMemo;
+    const row = firstRow(await sql`
+      SELECT public.job_post_event(${JSON.stringify(payload)}::jsonb) AS r
     `);
-    const row = rows[0] || null;
     if (!row) throw new Error('reviewJobSubmission: no row returned');
-    return row;
+    const r = (row.r || {}) as Record<string, unknown>;
+    return { r, submissions_reviewed: Number(r.submissions_reviewed ?? 0) };
+  }
+
+  /**
+   * ★ S4a（`R-9-99`/`R-9-101`）· **判不合格（按提交）**：只落该提交结论位 `rejected`，**零资金**。
+   *   `pending → rejected`（`job_submission_immutable_guard` 允许「一次写定」）；`job.status` **不变**
+   *   （逐笔参与 ⇒ 判不合格后同人可再提，`R-9-99`；满额收口在 `job_post_event` 的发放腿）。
+   *   返回落定的 `submission_id`（未命中 / 非 pending ⇒ 0）。
+   */
+  static async rejectJobSubmission(input: {
+    submissionId: number;
+    reviewedBy: number;
+    reviewMemo: string;
+  }, ex?: SqlRunner): Promise<number> {
+    const sql = sqlFor(ex);
+    const row = firstRow(await sql`
+      UPDATE public.job_submission AS s
+         SET review_status = 'rejected',
+             reviewed_by   = ${input.reviewedBy}::bigint,
+             reviewed_at   = now(),
+             review_memo   = ${input.reviewMemo}::text
+       WHERE s.submission_id = ${input.submissionId}::bigint
+         AND s.review_status = 'pending'
+      RETURNING s.submission_id
+    `);
+    return row ? toNumberValue(getValue(row, 'submission_id')) : 0;
   }
 
   // ==========================================================================================
@@ -3937,34 +3941,33 @@ export class DatabaseService {
     };
   }
 
+  /**
+   * 后台待审队列（雇主视角 `review_status='pending'`）。
+   * ★ S4a（`R-9-100`）· **换轴**：改前按 `job_application`（申请轴 = 每 (job,worker) 取最新一条提交）；
+   *   现**直接按 `job_submission` 提交轴**（新模型无申请行 ⇒ 旧写法会让新提交在待审面不可见）。
+   *   `jID` = `submission_id`（与读口换轴一致）；`info_input` = `deliverable`。
+   */
   static async listPendingVerification(skip = 0, limit = 50): Promise<PendingVerificationRecord[]> {
     const sql = getSql();
     const rows = extractRows(await sql`
       SELECT
-        a.application_id AS "jID",
-        a.job_id AS "tID",
-        a.worker_uid AS "uID",
+        s.submission_id AS "jID",
+        s.job_id AS "tID",
+        s.worker_uid AS "uID",
         s.deliverable AS info_input,
-        a.time_created,
+        s.time_created,
         s.time_created AS time_submitted,
         s.reviewed_at AS time_checked,
         NULL::timestamptz AS time_claimed,
         0::int AS points_claimed
-      FROM job_application AS a
+      FROM public.job_submission AS s
       JOIN "users" AS u
-        ON u.uid = a.worker_uid
-      LEFT JOIN LATERAL (
-        SELECT *
-        FROM job_submission AS s0
-        WHERE s0.job_id = a.job_id AND s0.worker_uid = a.worker_uid
-        ORDER BY s0.submission_id DESC
-        LIMIT 1
-      ) AS s ON TRUE
+        ON u.uid = s.worker_uid
       WHERE COALESCE(NULLIF(BTRIM(COALESCE(s.deliverable, '')), ''), '') <> ''
         AND s.review_status = 'pending'
         AND COALESCE(u.is_admin, false) = false
-      ORDER BY COALESCE(s.time_created, a.time_created) DESC NULLS LAST,
-               a.application_id DESC
+      ORDER BY s.time_created DESC NULLS LAST,
+               s.submission_id DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
@@ -3991,20 +3994,14 @@ export class DatabaseService {
     return items;
   }
 
+  /** ★ S4a（`R-9-100`）· 待审计数（换轴：`job_submission` 提交轴，与 `listPendingVerification` 同源）。 */
   static async countPendingVerification(): Promise<number> {
     const sql = getSql();
     const rows = asItems<{ count: number }>(await sql`
       SELECT COUNT(1)::int AS count
-      FROM job_application AS a
+      FROM public.job_submission AS s
       JOIN "users" AS u
-        ON u.uid = a.worker_uid
-      LEFT JOIN LATERAL (
-        SELECT *
-        FROM job_submission AS s0
-        WHERE s0.job_id = a.job_id AND s0.worker_uid = a.worker_uid
-        ORDER BY s0.submission_id DESC
-        LIMIT 1
-      ) AS s ON TRUE
+        ON u.uid = s.worker_uid
       WHERE COALESCE(NULLIF(BTRIM(COALESCE(s.deliverable, '')), ''), '') <> ''
         AND s.review_status = 'pending'
         AND COALESCE(u.is_admin, false) = false
