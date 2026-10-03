@@ -23,7 +23,7 @@
  *      ⑤皆不满足⇒拒；并断言 `job/:jobId/review` 与 `job/:jobId/cancel` 两路由确实挂此闸
  *   F  **无退还 / 罚没 / delist 面**（`R-8-17`/`DL67`/`DL88`）：零 `hold_forfeit`/`hold_release`/`unfreeze(`/
  *      `listing_deposit_refund`；商品轴审核语句**零账本分录**；招工轴仅走既有 `job_post_event(op='settle'|'refund')`
- *   G  **四语键齐 + 六类泄漏 = 0**：`adminListingReview`(30) / `adminArbitrationReview`(34) / `adminNav`(28)
+ *   G  **四语键齐 + 六类泄漏 = 0**：`adminListingReview`(30) / `adminArbitrationReview`(34) / `adminNav`(30)
  *      四语齐、键集相等、值非空、en/vn 无 CJK、hk 繁體；六类工程口径泄漏 = 0
  *   H  **两迁移 `0026`/`0027` 结构面判据（去注释、去字面量）**：表名 / 9 列 / 5 约束 / 4 索引 / append-only 触发器 /
  *      恰一列 `time_created` / **不含** `time_updated`·`create_key`·`ledger_event_keys` / 零 `ALTER` / 零数据 DML
@@ -72,13 +72,16 @@ const REG_POINTS_FROZEN = 88;
 // ★ P9④ 冻结计数前推（沿 R-8-22）：迁移文件数 30 → 33（+0032 / +0033 / +0034）。
 // ★ P9⑤ 冻结计数前推（沿 R-8-22）：迁移文件数 33 → 37（+0035 / +0036 / +0037 / +0038）。
 // ★ 8⑥ 续跑前推：迁移文件数 37 → 38（+0039 审计台权限键 manage_audit）。
-const MIGRATIONS_FROZEN = 38;
+// ★ 8⑥ 续跑前推：迁移文件数 38 → 39（+0040 存量用户补发 batt）。
+const MIGRATIONS_FROZEN = 39;
 const LISTING_NS_KEYS_FROZEN = 30;
 const ARBITRATION_NS_KEYS_FROZEN = 34;
 // ★ P9①（`route-layer.spec` v2.12 §27 · `R-9-13`）：`adminNav` **26 → 28**（+2 键 = `siteText` / `siteTextDesc`，
 //   ⇔ 后台「站点文案」菜单项的标题 + 描述；沿 `R-8-22`）。8⑤ 的 4 键（`listingReview` / `listingReviewDesc` /
 //   `arbitrationReview` / `arbitrationReviewDesc`）仍在，本门 G8/G9 判据未改，仅冻结计数前推。
-const NAV_KEYS_FROZEN = 28;
+// ★ 8⑥ 续跑前推（沿 `R-8-22`）：`adminNav` **28 → 30**（+2 键 = `auditConsole` / `auditConsoleDesc`，⇔ 后台「审计台」菜单项）。
+//   依据 `route-layer.spec` v2.21 §32.8(a)「+2 键 / 语言」+ §32.8(d)「`adminNav 28 → 30`」。G8/G9 判据逻辑一字未动。
+const NAV_KEYS_FROZEN = 30;
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;
 const countVerb = (text: string, verb: string): number =>

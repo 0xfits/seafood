@@ -13,7 +13,7 @@
  *   B  **读口 `data` 8 键齐备**：`CommissionPolicy` 接口 / `mapPolicy` / 读口 SELECT 三处键集 = 逐字冻结 8 键
  *   C  **后台页 8 字段齐备**：两页字段 ⊆ 8 键；两条路由 + 两条菜单（闸 `manage_settings`）；
  *      两页**零 CJK**（文案必须走 i18n）；前端守卫常量与 `src/commission.ts` 守卫**逐值相等**
- *   D  **四语键齐**：`adminFeeRate`(18) / `adminWeightMatrix`(21) / `adminNav`(20) 四语键集相等、值非空、
+ *   D  **四语键齐**：`adminFeeRate`(18) / `adminWeightMatrix`(21) / `adminNav`(30) 四语键集相等、值非空、
  *      `en`/`vn` 零 CJK、`hk` 为繁体
  *   E  **六类工程口径泄漏 = 0**（§19.5(c) 写死六类）：四语 × 两命名空间全部键值正则扫描，命中 = 0
  *   F  **门自证（负对照）**：六类各注入一例 ⇒ 扫描器**必须转红**（不转红 = 假门，§19.4(d)-⑥）
@@ -201,10 +201,13 @@ t('C7', 'adminPages', /Page not found|TODO|FIXME|PLACEHOLDER/.test(FEE_PAGE + MA
   JSON.stringify({ fee_bytes: FEE_PAGE.length, matrix_bytes: MATRIX_PAGE.length }));
 
 // ============================================================================
-// D · 四语键齐（`adminFeeRate` 18 / `adminWeightMatrix` 21 / `adminNav` 28）
+// D · 四语键齐（`adminFeeRate` 18 / `adminWeightMatrix` 21 / `adminNav` 30）
 // ============================================================================
 // ★ P9①：`adminNav` **26 → 28**（+2 键 `siteText` / `siteTextDesc`，⇔ 后台「站点文案」菜单项；沿 `R-8-22`）。
-const NS_KEYS: Record<string, number> = { adminFeeRate: 18, adminWeightMatrix: 21, adminNav: 28 };
+// ★ 8⑥ 续跑前推：`adminNav` **28 → 30**（+2 键 `auditConsole` / `auditConsoleDesc`，⇔ 后台「审计台」菜单项）。
+//   依据 `route-layer.spec` v2.21 §32.8(a)「`adminNav.auditConsole` + `adminNav.auditConsoleDesc`（**+2 键 / 语言**）」
+//   + §32.8(d)「`adminNav 28 → 30`」；沿 `R-8-22`。★ 只前推冻结计数，D1–D5 判据逻辑一字未动。
+const NS_KEYS: Record<string, number> = { adminFeeRate: 18, adminWeightMatrix: 21, adminNav: 30 };
 for (const [ns, size] of Object.entries(NS_KEYS)) {
   const present = LANGS.every((l) => LOCALES[l][ns] && typeof LOCALES[l][ns] === 'object');
   const base = Object.keys(LOCALES.zh[ns] || {}).sort();

@@ -8,7 +8,7 @@
  *
  * ★ A–H 静态面 **零 DB / 零网络**（只 import 纯函数 + 读源码 / 迁移 / locale 文本）。
  * ★ I/K 库面 leg：**只连库**（结构面**活体**只读 + ★★ 四段真链路 + `R-9-23` 反事実直插 = 事务内 + 子步 `SAVEPOINT` + 末尾 `ROLLBACK`）；**零 HTTP**。
- * ★ `0032`/`0033`/`0034`/`0035`…`0039` **已 apply**（`schema_version = 0039` · `schema_migration` 38 行）⇒ 其 DB 级效果**转为活体 `checks`**；
+ * ★ `0032`/`0033`/`0034`/`0035`…`0040` **已 apply**（`schema_version = 0040` · `schema_migration` 39 行）⇒ 其 DB 级效果**转为活体 `checks`**；
  *   `pending_apply[]` **归零**（原 10 条库面 leg 全部落实，**不伪装绿**）。
  *   ★ 库面写一律**事务内 + 末尾 `ROLLBACK`**（append-only ⇒ 无 DELETE 复原路径）；**严禁** `UPDATE app_config`。
  *
@@ -26,7 +26,7 @@
  *   H  **`C-15`「无行 ⇒ 兜底值」独立负对照**（空表 / 无行 / `null` / `[]` ⇒ `source=constant` 且五键 = 常量默认）+ SQL `COALESCE` 包在标量子查询**外层**
  *   I  **`R-9-23` 钳制 + 反事実直插必红 `23514`**：纯函数钳 `mintBattCost ≤ capBatt` / `burnBattGain ≤ 100`；SQL `LEAST(…, capBatt)`；活体直插 `batt = 101` ⇒ `23514`（边界 `100` ⇒ 通过）
  *   J  零新增错误码（仍恰 **33**）+ 借既有码 + 稳定 `reason` 常量 + `pending_apply[]` **归零**（三迁移已 apply）
- *   K  库面**活体**：`0032`/`0033`/`0034`/`0038` 结构指纹（kind 24 / kind_ok / −1 credit 8 / 列 / op 白名单含 burn + 双写 / `schema_migration` 38·0039）
+ *   K  库面**活体**：`0032`/`0033`/`0034`/`0038` 结构指纹（kind 24 / kind_ok / −1 credit 8 / 列 / op 白名单含 burn + 双写 / `schema_migration` 39·0040）
  *      + ★★ 四段真链路（创建含豁免闸两读数 / 铸造含幂等重放与闸负读数 / 分解含封顶丢弃 / 配对不变式）+ 零残渣（`ROLLBACK`）
  *   L  四语 `bttcPanel` 键集逐语相等 + 六类工程口径泄漏 = 0 + `en`/`vn` 零 CJK
  */
@@ -352,7 +352,7 @@ const WL_0032_M1_CREDIT = (mWhitelist ? (mWhitelist[1].match(/'([a-z_]+)'/g) || 
 // J · 零新增错误码（仍恰 33）+ 借既有码 + 稳定 reason
 // ============================================================================
 const pendingApply: Array<{ leg: string; reason: string }> = [];
-// ★ 库面收口（本单）：`0032`/`0033`/`0034`…`0038` **已 apply**（`schema_version = 0039` · `schema_migration` 38 行）⇒ 原 10 条
+// ★ 库面收口（本单）：`0032`/`0033`/`0034`…`0038` **已 apply**（`schema_version = 0040` · `schema_migration` 39 行）⇒ 原 10 条
 //   「等 apply 再测」的库面 leg **全部转为 K 段活体 `checks`** ⇒ `pending_apply[]` **归零**（**不得伪装绿**）。
 {
   t('J1', 'closedSets', LEDGER_ERROR_CODES.length === 33, '错误码闭集仍恰 33 条（**不动**）', LEDGER_ERROR_CODES.length);
@@ -401,7 +401,7 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
 // ============================================================================
 // K · 库面 leg（只连库 · 零 HTTP）：结构面**活体**断言 + ★★ 四段真链路（事务内 + 子步 SAVEPOINT + 末尾 ROLLBACK）
 // ----------------------------------------------------------------------------
-// ★ `0032`/`0033`/`0034`/`0038` **已 apply**（`schema_version = 0039` · `schema_migration` 38 行）⇒ 原 `pending_apply[]` 10 条
+// ★ `0032`/`0033`/`0034`/`0038` **已 apply**（`schema_version = 0040` · `schema_migration` 39 行）⇒ 原 `pending_apply[]` 10 条
 //   **全部转本段活体 checks**（`ledger_kind_enum`/`ledger_kind_ok`/`−1` credit 白名单/`is_platform_coin` 列与默认/
 //   `op` 白名单与双写/三迁移结构指纹 + 四段真链路 + 配对不变式 + 零残渣）。
 // ★ 库面写一律**事务内 + 末尾 ROLLBACK**（`ledger_entry`/`batt_entry`/`batt_account` append-only ⇒ 无 DELETE 复原路径）；
@@ -417,7 +417,8 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
   const SENT = 'P8S9_LIVE_ROLLBACK';
   const TEST_UID = 4;          // $ 余额 > 0 的真实用户（`users` 在册）
   const TEST_UID_ZERO = 971100; // $ 余额 = 0 的真实用户（前置闸负读数）
-  const TEST_UID_EMPTY = 900004; // 无 `account` / 无 `batt_account` 行（`C-15` 无行活体对照）
+  const TEST_UID_EMPTY = 999999999; // 全库不存在的 uid（负对照：天然无 `users` / `account` / `batt_account` 行）。
+                                    // ★ 原用 900004 —— `0040`（存量补发 batt）已给该 uid 留 `batt_account` 行 ⇒ 「无行」状态消失，改用不存在 uid 构造（`C-15` 无行活体对照）
   const KEY_MINT = 'cli:aaaaaaaa-1111-4111-8111-111111111111';
   const KEY_BURN = 'cli:bbbbbbbb-2222-4222-8222-222222222222';
   const KEY_BURN_NEG = 'cli:cccccccc-3333-4333-8333-333333333333';
@@ -511,8 +512,8 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
       `SELECT count(*)::int AS n, max(version) AS mx FROM public.schema_migration`);
     dbConnections += 1;
     live.schema_migration = sm[0];
-    t('K5', 'dbStructureLive', Number(sm[0].n) === 38 && String(sm[0].mx) === '0039',
-      '★ 迁移结构指纹：`schema_migration` = **38 行** · `max(version)` = **0039**（`0032`→…→`0039` 已 apply · 8⑥ 审计台权限键）', JSON.stringify(sm[0]));
+    t('K5', 'dbStructureLive', Number(sm[0].n) === 39 && String(sm[0].mx) === '0040',
+      '★ 迁移结构指纹：`schema_migration` = **39 行** · `max(version)` = **0040**（`0032`→…→`0040` 已 apply · 8⑥ 审计台权限键）', JSON.stringify(sm[0]));
     selfTest('K5', 'dbStructureLive', (v) => String(v) === '0038', '0034', '把「未 apply（0034）」喂入「0038」谓词 ⇒ 必须转红');
 
     // ---------------------------------------------------------------- 四段真链路（单事务 + 子步 SAVEPOINT + 末尾 ROLLBACK）
@@ -614,28 +615,34 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
 
       // 前置闸不满足（batt=99）
       await setBatt(TEST_UID, 99);
+      // ★ 基线对拍（前）：`batt_entry` 计数基线（对既有行免疫 —— `0040` 已给存量 uid 留 `reason='invite_signup'` 行，绝对 0 不再成立）
+      const battEntryPre1 = Number((await oneOf(`SELECT count(*)::int AS n FROM public.batt_entry WHERE uid=$1`, [TEST_UID])).n);
       const mr1 = await DatabaseService.bttcMint({ uid: TEST_UID, idempotencyKey: KEY_MINT, requestFingerprint: 'P8S9:mint', memo: '' }, tx);
+      const battEntryPost1 = Number((await oneOf(`SELECT count(*)::int AS n FROM public.batt_entry WHERE uid=$1`, [TEST_UID])).n);
       const mr1R = {
         outcome: mr1?.outcome, battAfter: await battOf(TEST_UID), usd: await balOf(TEST_UID, 1), bttc: await balOf(TEST_UID, bcid), supply: await supplyOf(bcid),
         mintLegs: (await legs(bcid, 'mint')).length, feeLegs: (await legs(1, 'bttc_mint_fee')).length,
-        battEntry: Number((await oneOf(`SELECT count(*)::int AS n FROM public.batt_entry WHERE uid=$1`, [TEST_UID])).n),
+        battEntryPre: battEntryPre1, battEntryPost: battEntryPost1, battEntryDelta: battEntryPost1 - battEntryPre1,
       };
       chains.mintRejectBatt = mr1R;
       t('KM1', 'mintChain',
-        mr1?.outcome === 'rejected' && mr1R.battAfter === 99 && mr1R.usd === '4' && mr1R.mintLegs === 0 && mr1R.feeLegs === 0 && mr1R.battEntry === 0 && mr1R.supply === '0',
-        '★ ③ 铸造前置闸不满足（`batt=99 < mintBattCost=100`）⇒ `rejected` + **零副作用**（batt 不变 / `$` 不变 / BTTC 0 / 供应量 0 / 零 `batt_entry` / 零账本分录）', JSON.stringify(mr1R));
+        mr1?.outcome === 'rejected' && mr1R.battAfter === 99 && mr1R.usd === '4' && mr1R.mintLegs === 0 && mr1R.feeLegs === 0 && mr1R.battEntryDelta === 0 && mr1R.supply === '0',
+        '★ ③ 铸造前置闸不满足（`batt=99 < mintBattCost=100`）⇒ `rejected` + **零副作用**（batt 不变 / `$` 不变 / BTTC 0 / 供应量 0 / **该 uid `batt_entry` 计数前后差 = 0**〔基线对拍 · 非绝对 0〕 / 零账本分录）', JSON.stringify(mr1R));
 
       // 前置闸不满足（$=0）
       await setBatt(TEST_UID_ZERO, 100);
+      // ★ 基线对拍（前）：同 KM1（`0040` 已给存量 uid 留 `batt_entry` 行 ⇒ 绝对 0 不再成立）
+      const battEntryPre2 = Number((await oneOf(`SELECT count(*)::int AS n FROM public.batt_entry WHERE uid=$1`, [TEST_UID_ZERO])).n);
       const mr2 = await DatabaseService.bttcMint({ uid: TEST_UID_ZERO, idempotencyKey: KEY_MINT, requestFingerprint: 'P8S9:mint', memo: '' }, tx);
+      const battEntryPost2 = Number((await oneOf(`SELECT count(*)::int AS n FROM public.batt_entry WHERE uid=$1`, [TEST_UID_ZERO])).n);
       const mr2R = {
         outcome: mr2?.outcome, battAfter: await battOf(TEST_UID_ZERO), usd: await balOf(TEST_UID_ZERO, 1),
-        mintLegs: (await legs(bcid, 'mint')).length, battEntry: Number((await oneOf(`SELECT count(*)::int AS n FROM public.batt_entry WHERE uid=$1`, [TEST_UID_ZERO])).n),
+        mintLegs: (await legs(bcid, 'mint')).length, battEntryPre: battEntryPre2, battEntryPost: battEntryPost2, battEntryDelta: battEntryPost2 - battEntryPre2,
       };
       chains.mintRejectUsd = mr2R;
       t('KM2', 'mintChain',
-        mr2?.outcome === 'rejected' && mr2R.battAfter === 100 && mr2R.usd === '0' && mr2R.mintLegs === 0 && mr2R.battEntry === 0,
-        '★ ③ 铸造前置闸不满足（`$=0 < mintFeeUsd=1`）⇒ `rejected` + **零副作用**（batt 不变 / BTTC 0 / 零账本分录 / 零 `batt_entry`）', JSON.stringify(mr2R));
+        mr2?.outcome === 'rejected' && mr2R.battAfter === 100 && mr2R.usd === '0' && mr2R.mintLegs === 0 && mr2R.battEntryDelta === 0,
+        '★ ③ 铸造前置闸不满足（`$=0 < mintFeeUsd=1`）⇒ `rejected` + **零副作用**（batt 不变 / BTTC 0 / 零账本分录 / **该 uid `batt_entry` 计数前后差 = 0**〔基线对拍 · 非绝对 0〕）', JSON.stringify(mr2R));
 
       // 铸造成功（batt=100 · $>=1）
       await setBatt(TEST_UID, 100);
@@ -750,7 +757,7 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
     offline: false,
     db_connections: dbConnections,
     http_calls: httpCalls,
-    note: 'A–H/L 静态面零 DB / 零 HTTP；I/K 库面 leg **只连库**（结构面**活体**只读 + `R-9-23` 反事実直插 + 四段真链路 = 事务内 + 末尾 ROLLBACK）。★ `0032`/`0033`/`0034`…`0038` **已 apply**（`schema_version` 0039 · `schema_migration` 38 行）⇒ 其 DB 级效果全部转为 K 段**活体 checks**，`pending_apply[]` **归零**（不伪装绿）。',
+    note: 'A–H/L 静态面零 DB / 零 HTTP；I/K 库面 leg **只连库**（结构面**活体**只读 + `R-9-23` 反事実直插 + 四段真链路 = 事务内 + 末尾 ROLLBACK）。★ `0032`/`0033`/`0034`…`0038` **已 apply**（`schema_version` 0040 · `schema_migration` 39 行）⇒ 其 DB 级效果全部转为 K 段**活体 checks**，`pending_apply[]` **归零**（不伪装绿）。',
     total: checks.length,
     passed: checks.length - failed.length,
     failed: failed.length,

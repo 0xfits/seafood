@@ -76,7 +76,8 @@ const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).l
 // ★ P9④ 冻结计数前推（沿 R-8-22）：迁移文件数 30 → 33（+0032 kind 扩容 23 / +0033 平台币标记列 / +0034 op burn+双写）。
 // ★ P9⑤ 冻结计数前推（沿 R-8-22）：迁移文件数 33 → 37（+0035 费率域扩 100..10000 / +0036 新政策行 1000·6 / +0037 M=0 免豁免断言 / +0038 kind 闭集 24）。
 // ★ 8⑥ 续跑前推：迁移文件数 37 → 38（+0039 审计台权限键 manage_audit）。
-const MIGRATIONS_FROZEN = 38;
+// ★ 8⑥ 续跑前推：迁移文件数 38 → 39（+0040 存量用户补发 batt）。
+const MIGRATIONS_FROZEN = 39;
 const ENVELOPE_FIELDS = ['create_key', 'idempotency_key', 'idempotencyKey'];
 
 const readSrc = (rel: string): string => fs.readFileSync(path.resolve(REPO_ROOT, rel), 'utf8');

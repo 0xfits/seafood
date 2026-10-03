@@ -25,8 +25,8 @@
  *   G  **数值策略键（`B1`–`B5`）`AV2`–`AV4`**:`rating_policy` / `batt_policy` 合法 ⇒ 过；域外 / 清单外键 ⇒ 拒（零新增码）
  *   H  **四语键齐 + 六类泄漏 = 0**：`roleNames` / `siteSlogan` / `adminRoleNames` / `adminSiteText` + `adminNav` 新 2 键；
  *      en/vn 无 CJK、hk 繁體
- *   I  **`adminNav` 冻结计数 = 28 三处同步现取**：`p8-s5` `NAV_KEYS_FROZEN` / `p8-s2` `NS_KEYS.adminNav` /
- *      `b4a` `NEW_NS.adminNav`（沿 `R-8-22`；未删任何断言）
+ *   I  **`adminNav` 冻结计数 = 30 三处同步现取**：`p8-s5` `NAV_KEYS_FROZEN` / `p8-s2` `NS_KEYS.adminNav` /
+ *      `b4a` `NEW_NS.adminNav`（沿 `R-8-22`；未删任何断言。★ 8⑥ 续跑前推 28 → 30 = `auditConsole` / `auditConsoleDesc`）
  *   J  **零新增错误码**：闭集仍恰 33；覆盖层/数值面只用既有 `SETTINGS_WRITE_REASONS` 三常量
  *   K  **门自证（负对照）**：若干判据谓词喂错值 ⇒ **必须转红**（不转红 = 假门）
  */
@@ -332,21 +332,23 @@ const nsOf = (l: string, name: string): Record<string, string> => {
 }
 
 // ============================================================================
-// I · adminNav 冻结计数 = 28 三处同步现取（沿 R-8-22；未删断言）
+// I · adminNav 冻结计数 = 30 三处同步现取（沿 R-8-22；未删断言）
+//   ★ 8⑥ 续跑前推：28 → 30（+2 键 = auditConsole / auditConsoleDesc ⇔ 后台「审计台」菜单，
+//     依据 route-layer.spec v2.21 §32.8(a)「+2 键 / 语言」+ §32.8(d)「adminNav 28 → 30」）。
 // ============================================================================
 {
   const navCounts = LANGS.map((l) => Object.keys(nsOf(l, 'adminNav')).length);
-  t('I1', 'navSync', navCounts.every((n) => n === 28), '四语 `adminNav` 键数 = 28（+2 = `siteText` / `siteTextDesc`）', JSON.stringify(navCounts));
-  t('I2', 'navSync', /const NAV_KEYS_FROZEN = 28;/.test(S5_GATE),
-    '① `p8-s5-compliance-gate.ts`：`NAV_KEYS_FROZEN = 28`', /NAV_KEYS_FROZEN = \d+/.exec(S5_GATE)?.[0] ?? '(none)');
-  t('I3', 'navSync', /adminNav:\s*28\s*}/.test(S2_GATE),
-    '② `p8-s2-fee-rebate-gate.ts`：`NS_KEYS.adminNav = 28`', /adminNav:\s*\d+/.exec(S2_GATE)?.[0] ?? '(none)');
-  t('I4', 'navSync', /adminNav:\s*28\s*,/.test(B4A_TEST),
-    '③ `i18n-batch-b4a.test.jsx`：`NEW_NS.adminNav = 28`', /adminNav:\s*\d+/.exec(B4A_TEST)?.[0] ?? '(none)');
+  t('I1', 'navSync', navCounts.every((n) => n === 30), '四语 `adminNav` 键数 = 30（+2 = `siteText` / `siteTextDesc`；8⑥ 再 +2 = `auditConsole` / `auditConsoleDesc`）', JSON.stringify(navCounts));
+  t('I2', 'navSync', /const NAV_KEYS_FROZEN = 30;/.test(S5_GATE),
+    '① `p8-s5-compliance-gate.ts`：`NAV_KEYS_FROZEN = 30`', /NAV_KEYS_FROZEN = \d+/.exec(S5_GATE)?.[0] ?? '(none)');
+  t('I3', 'navSync', /adminNav:\s*30\s*}/.test(S2_GATE),
+    '② `p8-s2-fee-rebate-gate.ts`：`NS_KEYS.adminNav = 30`', /adminNav:\s*\d+/.exec(S2_GATE)?.[0] ?? '(none)');
+  t('I4', 'navSync', /adminNav:\s*30\s*,/.test(B4A_TEST),
+    '③ `i18n-batch-b4a.test.jsx`：`NEW_NS.adminNav = 30`', /adminNav:\s*\d+/.exec(B4A_TEST)?.[0] ?? '(none)');
   // ★ 反证：三处旧值 26 已零残留（只此三处曾冻结；防「改一处漏两处」）
   const stale = [S5_GATE, S2_GATE, B4A_TEST].filter((s) => /NAV_KEYS_FROZEN = 26|adminNav:\s*26\b/.test(s));
   t('I5', 'navSync', stale.length === 0, '三处冻结旧值 `26` 零残留（同步彻底）', JSON.stringify(stale.map((_, i) => i)));
-  selfTest('I2', 'navSync', (v) => /const NAV_KEYS_FROZEN = 28;/.test(String(v)), 'const NAV_KEYS_FROZEN = 26;',
+  selfTest('I2', 'navSync', (v) => /const NAV_KEYS_FROZEN = 30;/.test(String(v)), 'const NAV_KEYS_FROZEN = 26;',
     '把旧冻结值喂入 ⇒ 同步谓词必须转红');
 }
 

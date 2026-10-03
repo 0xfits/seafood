@@ -65,7 +65,8 @@ const REG_POINTS_FROZEN = 88;
 // ★ P9④ 冻结计数前推（沿 R-8-22）：迁移文件数 30 → 33（+0032 / +0033 / +0034）。
 // ★ P9⑤ 冻结计数前推（沿 R-8-22）：迁移文件数 33 → 37（+0035 / +0036 / +0037 / +0038）。
 // ★ 8⑥ 续跑前推：迁移文件数 37 → 38（+0039 审计台权限键 manage_audit）。
-const MIGRATIONS_FROZEN = 38;
+// ★ 8⑥ 续跑前推：迁移文件数 38 → 39（+0040 存量用户补发 batt）。
+const MIGRATIONS_FROZEN = 39;
 void SPEC_DATA; void SPEC_ROUTE;
 
 const FROZEN_AK1_FIELDS = [
