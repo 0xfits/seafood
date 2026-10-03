@@ -1416,6 +1416,34 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.297 **`R-9-85` 回执（28c/187s）= 右上角合并为单一菜单按钮 · ★单测实测「控件计数 = 1」· 零 locale 变更 · vitest 零新增失败**（2026-10-03）
+
+**A. 交付（Kong · 28c/187s）**：
+| 文件 | 改动 |
+|---|---|
+| `frontend/src/components/Header.jsx` | **`+46 / −36`** |
+| `frontend/src/test/unit/r9-84-profile-entry.test.jsx` | 断言同步重写（**7 → 9 用例**） |
+- ① **删除** `R-9-84` 桌面独立 `Link`（`header-profile-entry`）
+- ② 用户菜单触发器 = **唯一按钮**：`User` 图标 + **既有地址缩写派生**（未新造）+ `ChevronDown`，仍 `HoverMenu`（保留 `data-sf-m="header-user-menu"`；补 `aria-label`/`title` = `walletShort`）
+- ③ 下拉**恢复「个人资料」**（`data-sf-m="header-profile"`）+ 保留 积分块 · **电量与签到**（`→ …/profile#batt-checkin`）· 退出登录（补 `data-sf-m="header-logout"`）；**不含管理后台** ✓
+- ④ **移动端合并为唯一入口 = 汉堡**（补 `data-sf-m="header-mobile-menu"`；删 `R-9-84` 的移动端同款 Link）⇒ 面板内（`header-user-menu-mobile`）补「个人资料 / 电量与签到 / 退出登录」= **与桌面同款**
+- ⑤ 未登录不渲染 · 路由与左侧 nav **一字未动** · `buildPath` 口径未动 · **无新 import**（`User`/`ChevronDown`/`LogOut`/`Link` 本就已引）
+
+**B. 自证读数**：
+- ★ **单测实测「右上角恰一个控件」**：`header-user-menu` = **1** · 两个旧钩子均 = **0** · 计数汇总 = **1** ✓
+- 按钮文案 `0xABCD...EF12` 匹配 `/^0x[0-9A-Fa-f]{4}\.\.\.[0-9A-Fa-f]{4}$/` ✓ · 含 `svg.lucide-user` + `svg.lucide-chevron-down` · `tagName = BUTTON` ✓
+- 下拉「个人资料」四语 `href` = `/profile` · `/en/profile` · `/hk/profile` · `/vn/profile` ✓；「电量与签到」四语 `href` 带 `#batt-checkin` ✓；**不含 `admin_panel`（四语 + 管理员态）** ✓
+- **未登录 ⇒ 桌面与移动两处均不渲染** ✓ · 左侧 nav 标签 == `[reward, task, shard]`（**不含 profile**）✓
+- **vitest 前后**：前 `4 failed files / 7 failed tests / 320 passed` ⇒ 后 **`4 failed files / 7 failed tests / 322 passed`** ⇒ **失败集逐条一致 ⇒ 0 新增失败**（+2 绿 = 本单 7→9 用例）✓ · Header 相关 4 件单跑 **40/40 绿**（`r9-84` 9 · `r9-batt-meter` 15 · `app-routes` 2 · `theme-shell-isomorphism` 14）
+- `npm run build` = **0**（`index-CQO7hT3T.js` **451,234 B** / 413.52 kB gzip 119.40）✓ · **`locales` 零变更**（`git diff --stat` 空）✓ · **六类泄漏 0** ✓
+- `tsc`：前端**无 `tsconfig.json`** ⇒ 如实标注「本仓前端无 TS 门」，**未以外仓 tsc 冒充** ✓
+- 未测项（如实）：真浏览器视觉/交互实渲（hover/点击展开、`md` 断点、移动端面板外观）· playwright e2e（基线即 collect 失败）· 后端单测套件（非本批范围）
+- ★ **旁注（它诚实登记）**：会话期间 `git status` 新出现的 `backend-ts/.p8s6-ro/{cols2.ts,diag-jobs.*,diag-submit.*}`（mtime 19:29）= **我自己的诊断探针** ⇒ 它判定「非本单写入、未处理」✓ 正确
+
+**C. 状态**：DB **0040** · 生产代码 `8e21d9d` · 本地未推：`3810f5f`（+ 本单待入库）· 在跑：**后端修复单**（`R-9-86`/`R-9-87`）· **前端提交面修复单**（`R-9-88`）⇒ 两单回执后我亲跑全量 → 入库 → 统一质检 → **一次 push**（合并菜单 + 提交面修复 + 隐私面修复一起上线）。
+
+---
+
 ### 5.296 **★ 生产报障二：Kevin 提交表单 ⇒ 403「当前账号无权执行该操作」· 我定位 = **两处真缺陷 + 一处 HIGH 隐私面**（提交面要手输 `application_id` 且**编号空间撞车** ⇒ 撞到他人的申请）· 我立 `R-9-86/87/88` · 派两单**（2026-10-03）
 
 **A. 报障**：Kevin「重新登录账号，发现在完成任务的时候依旧无法提交表单，提示：**错误: 当前账号无权执行该操作。**」
@@ -6300,6 +6328,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.297 | 2026-10-03 | **R-9-85 回执（28c/187s）= 右上角合并为单一菜单按钮 · ★单测实测「控件计数 = 1」· 零 locale 变更 · vitest 零新增失败**。**A.** `Header.jsx` +46/−36；`r9-84-profile-entry.test.jsx` 7→9 用例。① 删 R-9-84 桌面独立 Link ② 触发器 = 唯一按钮（User + 既有地址缩写 + ChevronDown，仍 HoverMenu）③ 下拉恢复「个人资料」+ 保留 积分/电量与签到(#batt-checkin)/退出登录，**不含管理后台** ④ **移动端合并为唯一入口=汉堡**，面板内同款 ⑤ 未登录不渲染 / 路由与左侧 nav 未动 / 无新 import / buildPath 口径未动。**B.** ★单测实测 `header-user-menu` = **1**、两旧钩子 = **0**（控件计数=1）· 按钮文案匹配地址缩写正则 + 含 lucide-user/chevron-down · 四语 href（个人资料 / 电量与签到带锚点）· 不含 admin_panel · 未登录两处不渲染 · 左侧 nav = [reward,task,shard] · **vitest 前 4 failed/7 failed/320 passed ⇒ 后 4 failed/7 failed/322 passed（失败集逐条一致 ⇒ 0 新增）** · Header 相关 4 件 40/40 · build 0（451,234 B）· **locales 零变更** · 六类泄漏 0 · tsc 前端无 tsconfig（如实标注）· 未测项：真浏览器视觉/e2e。**C.** 在跑：后端修复单（R-9-86/87）+ 前端提交面修复单（R-9-88）⇒ 回执后亲跑全量 → 入库 → 质检 → 一次 push。 |
 | v0.296 | 2026-10-03 | **★生产报障二：Kevin 提交表单 ⇒ 403「当前账号无权执行该操作」· 我定位 = 两处真缺陷 + 一处 HIGH 隐私面（提交面要手输 application_id 且编号空间撞车 ⇒ 撞到他人的申请）· 我立 R-9-86/87/88 · 派两单**。**B.** 文案 = `auth.err.AUTH_FORBIDDEN`（zh.json:75）；抛点 = `job-service.ts:141-144`（`ownership !== 'self'`）。**C. 数据**：uid 970213 的**申请 0 条 / 提交 0 条 / 近 1 天新增 0**；全库 20 jobs/17 apps/13 subs；**无 accepted 的 job**；★**`application_id=24`(job 23, uid 12) 与 `job_id=24` 同时存在 ⇒ 编号空间撞车**；该 evm 无重复用户行。**D. 链条**：`listTaskProgressByUser` `WHERE worker_uid=uid` ✓ 正确（未泄漏）；`submitDeliverable` 注释 = application_id ✓；★★`JobDetailPage.jsx:187-190` **自由手输框**（placeholder=jobs.applicationId）而页面显著显示 **`#{job.tID}`（任务编号）** ⇒ 用户必然填错 ⇒ 填 24 撞到 app 24(uid 12) ⇒ 403；★★`resolveJobApplication`（`database.ts:3268-3290`）`WHERE application_id=X OR job_id=X` + **`ORDER BY (application_id=X) DESC, (worker_uid=uid) DESC`** ⇒ **他人撞号申请排在本人的前面 ⇒ 即使传 job_id 也假拒 403**；`getTaskProgress` `WHERE application_id=jID` ✓；提交路由 `applicationHint = ownedProgress.jID`（=application_id，**我此前「语义错配」怀疑已排除**）。**E. ★★HIGH 隐私面**：`GET /api/task-progress/:jID`（index.ts:884-900）**无 requireActor、无归属校验** ⇒ 任何人（含未登录）可读任意 application_id 的进度详情，其中 `info_input` = **交付物正文** ⇒ 他人交付物可被未授权读取。**F. 裁定**：`R-9-86` 该口必须加 requireActor + 归属校验，**非本人 ⇒ 404**（不泄漏存在性；未登录 401 / 非本人 404 / 本人 200）· `R-9-87` `resolveJobApplication` 排序**必须**把本人提为**第 1 键**（判据 = 构造「app_id=X 属他人 ∧ job_id=X 属本人」⇒ 必须解到本人；去该键 ⇒ 必红）· `R-9-88` 前端**不得再手输 application_id**（移除输入框；只由「我的报名」按钮带出；无本人申请 ⇒ 不渲染表单，给「先参与该任务」提示；错误面不得再用通用「无权执行该操作」）· `R-9-89` 不加新路由；新增文案键须四语齐平 + 计数前推；★改 index.ts/database.ts ⇒ **必须复跑全量门**（含带实例）。**G.** 派两单（后端 / 前端，面不相交；与在跑的 R-9-85 不撞）。 |
 | v0.295 | 2026-10-03 | **Kevin 定档：右上角「左右两个菜单」合并为一个（R-9-85）· 菜单按钮文案 = 钱包地址缩写（既有）· 我裁下拉保留既有各项 + 恢复「个人资料」· 派单**。**B.** 我 vision 现读 `image_e1210c.png`：左 = 我 R-9-84 新增的 `User`(橙) + `0x59f9...09b0`(橙) 药丸；右 = `User`(深灰) + `∨`（既有用户菜单）⇒ 视觉上就是两个菜单；★**我 R-9-84 的取舍需修正**（当时为避免「相邻两处同文案」把地址从触发器移走，反而多出一个入口；正解 = 合并为一个控件）。**C. 我裁**：① 删右上角独立 Link ② 触发器改为唯一按钮 = `User` + 地址缩写 + `ChevronDown`（仍 HoverMenu）③ 下拉**恢复「个人资料」**（按钮不再直达）+ 保留 积分 / 电量与签到 / 退出登录；**不含管理后台**（R-9-84 反向断言不动）；★标「一句话可改」（可去掉与个人资料重复的「电量与签到」条）④ 移动端同步为单一入口 ⑤ 未登录不渲染 / 零 locale 变更 / 六类泄漏 0 / `buildPath` 口径不动 ⑥ 路由与 ProtectedRoute 一字不动。**D.** 派合并菜单单（面 = `Header.jsx` + 同步 r9-84 测试；自证含「右上角恰一个控件」兜点计数 = 1 + 地址缩写形态 + 下拉各项 + 不含管理后台 + 未登录不渲染 + 四语 href + build 0 + locales 零变更）。 |
 | v0.294 | 2026-10-03 | **双线质检回执（线2 PASS / 线1 PASS_WITH_ISSUES）⇒ 十一门带实例全绿 ⇒ push 上线（16 commit · HEAD e79da9a）⇒ 生产终验全绿**。线2：库面逐项吻合（39/0040 · checksum 逐字 · 56/56 · checkin 2 行逐字未动 ⇄ invite_signup 54 行 · 全 delta 30 无人触顶 · dup 0 · 剩余目标 0 · Kevin batt=30 仅 1 条痕迹）· 门槛判定 acceptThresholdBatt=9 且真 HTTP /api/batt ⇒ 200 batt=30 canAccept=true · **8 处 HTTP 腿红全转真（s7 59/59 · s8 92/92 · s10 49/49 · s11 87/87）** · 判负 2 条成立（删幂等闸 ⇒ 撞红 + 实害 30→60×56；KM1/KM2 退回绝对口径 ⇒ 真红）· 它上报判据方向性（放水突变漏检 ⇒ 只能取 Delta 等式）。线1：四件前端全过 · 判负 9 处全转红可复原 · 假绿陷阱 = 真链非自检串 · 它上报两线共用端口未分配 ⇒ 我派单疏漏（第 12 次认账）。生产终验：health 0040 · 新面三项 401 · 既有面零回归 · favicon 三件齐（SVG sha256 4dc72e77… 逐字）· bundle 逐字对拍 4203677d…（450,781 B）· 新件计数齐 · 我探错 /favicon.svg 路径 + 两次瞬时 000（重试成功）。 |
