@@ -3270,13 +3270,18 @@ export class DatabaseService {
     workerUid: number,
   ): Promise<{ applicationId: number; workerUid: number; ownership: 'self' | 'other' } | null> {
     const sql = getSql();
+    // R-9-87（§5.296 撞号假拒）：`WHERE application_id = X OR job_id = X` 的**容错语义不变**；
+    // 但排序**必须**把「本人」置于**最高优先键** —— 修前 `(application_id = identifier)` 居首 ⇒
+    // 当 X 同时命中「他人申请的 application_id」与「本人申请的 job_id」时，他人那条排在前 ⇒
+    // `job-service.ts submitWork` 判 `ownership='other'` ⇒ 假拒 403 ACTOR_NOT_ALLOWED。
+    // 返回形状不变（仍 `{applicationId, workerUid, ownership}`）。
     const row = firstRow(await sql`
       SELECT a.application_id, a.worker_uid,
              CASE WHEN a.worker_uid = ${workerUid} THEN 'self' ELSE 'other' END AS ownership
         FROM public.job_application AS a
        WHERE a.application_id = ${identifier} OR a.job_id = ${identifier}
-       ORDER BY (a.application_id = ${identifier}) DESC,
-                (a.worker_uid = ${workerUid}) DESC,
+       ORDER BY (a.worker_uid = ${workerUid}) DESC,
+                (a.application_id = ${identifier}) DESC,
                 a.application_id DESC
        LIMIT 1
     `);
