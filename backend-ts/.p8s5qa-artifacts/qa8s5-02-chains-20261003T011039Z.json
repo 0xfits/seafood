@@ -1,0 +1,152 @@
+{
+ "unit": "QA8S5-L4-CHAINS",
+ "tag": "20261003T011039Z",
+ "baseline": {
+  "listing_review_log": 0,
+  "job_arbitration_log": 0,
+  "ledger_entry": 355,
+  "listing_max": "24",
+  "job_max": "24"
+ },
+ "goods": {
+  "fixture": {
+   "listing_id": 43,
+   "status": "listed"
+  },
+  "behavior_before": {
+   "outcome": "accepted",
+   "purchasable": true,
+   "txid": "689"
+  },
+  "action": {
+   "ok": true,
+   "view": {
+    "listing_id": "43",
+    "status": "delisted",
+    "result": "approved"
+   },
+   "status": null
+  },
+  "db_landed": {
+   "log_rows": 1,
+   "log": [
+    {
+     "log_id": "18",
+     "result": "approved",
+     "txid": null,
+     "actor_uid": "1",
+     "idempotency_key": "ops:1:listing_takedown:43"
+    }
+   ],
+   "status": "delisted"
+  },
+  "business_read": {
+   "listing_id": "43",
+   "status": "delisted",
+   "title": "qa8s5 goods 20261003T011039Z",
+   "time_created": "2026-10-03T01:10:41.376Z"
+  },
+  "behavior_after": {
+   "outcome": "rejected",
+   "purchasable": false,
+   "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+   "reason": "listing_not_listed",
+   "httpStatus": 409,
+   "raw_sqlstate": "LD011"
+  }
+ },
+ "job": {
+  "ctrl_open": {
+   "job_status": "open",
+   "acceptable": true
+  },
+  "behavior_before": {
+   "accept_gate": {
+    "job_status": "submitted",
+    "acceptable": false
+   },
+   "legs": 0
+  },
+  "action": {
+   "ok": true,
+   "view": {
+    "job_id": "61",
+    "status": "cancelled",
+    "result": "rejected",
+    "txid": "697"
+   }
+  },
+  "db_landed": {
+   "log_rows": 1,
+   "log": [
+    {
+     "log_id": "27",
+     "result": "rejected",
+     "txid": "697",
+     "actor_uid": "1",
+     "idempotency_key": "ops:1:job_arbitrate:61"
+    }
+   ],
+   "status": "cancelled",
+   "legs": [
+    {
+     "txid": "697",
+     "kind": "job_escrow_refund",
+     "uid": "6",
+     "cid": "1",
+     "delta": "100",
+     "frozen_delta": "0",
+     "idempotency_key": "biz:job:refund:61"
+    },
+    {
+     "txid": "698",
+     "kind": "job_escrow_refund",
+     "uid": "6",
+     "cid": "1",
+     "delta": "0",
+     "frozen_delta": "-100",
+     "idempotency_key": "biz:job:refund:61#2"
+    }
+   ],
+   "txid_recon": {
+    "log_txid": "697",
+    "leg_txids": [
+     "697",
+     "698"
+    ],
+    "ledger_rows_at_txid": [
+     {
+      "txid": "697",
+      "kind": "job_escrow_refund",
+      "uid": "6",
+      "delta": "100",
+      "frozen_delta": "0"
+     }
+    ]
+   }
+  },
+  "business_read": {
+   "job_id": "61",
+   "employer_uid": "6",
+   "worker_uid": "7",
+   "status": "cancelled",
+   "title": "qa8s5 chain main:20261003T011039Z",
+   "time_created": "2026-10-03T01:10:43.943Z"
+  },
+  "behavior_after": {
+   "accept_gate": {
+    "job_status": "cancelled",
+    "acceptable": false
+   },
+   "legs": 2
+  }
+ },
+ "after": {
+  "listing_review_log": 0,
+  "job_arbitration_log": 0,
+  "ledger_entry": 355,
+  "listing_max": "24",
+  "job_max": "24"
+ },
+ "residue_zero": true
+}

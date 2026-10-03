@@ -1,0 +1,132 @@
+{
+ "unit": "QA8S5-L2-FIRSTCALL",
+ "tag": "20261003T010852Z",
+ "discipline": "tx + sentinel ROLLBACK; 自造 fixture",
+ "baseline": {
+  "listing_review_log": 0,
+  "job_arbitration_log": 0,
+  "ledger_entry": 355,
+  "job_max": "24",
+  "ledger_max_txid": "366"
+ },
+ "s1_raw_receipt": {
+  "job_id": "49",
+  "job_found": 1,
+  "job_status": "cancelled",
+  "prior_status": "submitted",
+  "prior_count": 0,
+  "applied": 1,
+  "reviewed": 1,
+  "txid": "643"
+ },
+ "s1_db": {
+  "log_rows": 1,
+  "job_status": "cancelled",
+  "legs": 2,
+  "log": [
+   {
+    "log_id": "18",
+    "result": "rejected",
+    "txid": "643",
+    "actor_uid": "1",
+    "idempotency_key": "ops:1:job_arbitrate:49"
+   }
+  ],
+  "leg_rows": [
+   {
+    "txid": "643",
+    "kind": "job_escrow_refund",
+    "uid": "6",
+    "cid": "1",
+    "delta": "90",
+    "frozen_delta": "0",
+    "idempotency_key": "biz:job:refund:49"
+   },
+   {
+    "txid": "644",
+    "kind": "job_escrow_refund",
+    "uid": "6",
+    "cid": "1",
+    "delta": "0",
+    "frozen_delta": "-90",
+    "idempotency_key": "biz:job:refund:49#2"
+   }
+  ]
+ },
+ "s2_verb_reply": {
+  "ok": true,
+  "replay": false,
+  "view": {
+   "job_id": "50",
+   "status": "cancelled",
+   "result": "rejected",
+   "txid": "647"
+  },
+  "code": null,
+  "status": null
+ },
+ "s2_raw_receipt": {
+  "job_id": "50",
+  "job_found": 1,
+  "job_status": "cancelled",
+  "prior_status": "submitted",
+  "prior_count": 0,
+  "applied": 1,
+  "reviewed": 1,
+  "txid": "647"
+ },
+ "s2_db": {
+  "log_rows": 1,
+  "job_status": "cancelled",
+  "legs": 2,
+  "log": [
+   {
+    "log_id": "19",
+    "result": "rejected",
+    "txid": "647",
+    "actor_uid": "1",
+    "idempotency_key": "ops:1:job_arbitrate:50"
+   }
+  ]
+ },
+ "s3_first_reply": {
+  "ok": true,
+  "view": {
+   "job_id": "51",
+   "status": "settled",
+   "result": "approved",
+   "txid": "651"
+  }
+ },
+ "s3_illegal_reply": {
+  "ok": false,
+  "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+  "status": 409,
+  "details": {
+   "field": "job.status",
+   "reason": "JOB_STATE_INVALID",
+   "required_from": "submitted|disputed",
+   "job_id": "51",
+   "from": "settled",
+   "action": "approve"
+  }
+ },
+ "s3_db": {
+  "after_first": {
+   "log_rows": 1,
+   "status": "settled"
+  },
+  "after_illegal": {
+   "log_rows": 1,
+   "status": "settled"
+  }
+ },
+ "after": {
+  "listing_review_log": 0,
+  "job_arbitration_log": 0,
+  "ledger_entry": 355,
+  "job_max": "24",
+  "ledger_max_txid": "366"
+ },
+ "residue_zero": true
+}

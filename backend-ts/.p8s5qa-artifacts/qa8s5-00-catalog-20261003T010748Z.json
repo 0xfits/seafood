@@ -1,0 +1,454 @@
+{
+ "schema_version_rows": [
+  {
+   "version": "0001",
+   "checksum": "4f902d3c47508d91826925a46765ad728b1a5a9c2773d0fc1c0f2c1e8e2451a4",
+   "applied_at": "2026-09-29T01:15:27.684Z"
+  },
+  {
+   "version": "0002",
+   "checksum": "688b1935f6bc3006b545ca158ca97324256a117e4f86e69c09bda8bbb01c5990",
+   "applied_at": "2026-09-29T01:15:27.684Z"
+  },
+  {
+   "version": "0003",
+   "checksum": "f268e03075eb4bf46d58766412fc5b53d8f8841d4cac175a3f96c440e8730a23",
+   "applied_at": "2026-09-29T01:15:27.684Z"
+  },
+  {
+   "version": "0004",
+   "checksum": "55fd1ce8085bd3b3ef77f86c35f07d3b9f9c9157ee9ce0cf05f2733033e9c932",
+   "applied_at": "2026-09-29T01:15:27.684Z"
+  },
+  {
+   "version": "0005",
+   "checksum": "4de12361cf7df2038438d79200fbca68de4f57821e324a2ce0681bae439f0231",
+   "applied_at": "2026-09-29T01:15:27.684Z"
+  },
+  {
+   "version": "0006",
+   "checksum": "4aa19b1487000d44b6a2961f2ea6ac2f598745af5d9186dbc881c4ea997c0c47",
+   "applied_at": "2026-09-29T01:15:27.684Z"
+  },
+  {
+   "version": "0007",
+   "checksum": "7044c6be33f7421a9659c4f7e684c887e1f90709e6a179c7f55aac253bd7b34a",
+   "applied_at": "2026-09-29T01:15:27.684Z"
+  },
+  {
+   "version": "0008",
+   "checksum": "e98ac1a0470e90446c4be710921fc048f80a0067bcaf28d92c3ee4c7446b2210",
+   "applied_at": "2026-09-29T01:15:27.684Z"
+  },
+  {
+   "version": "0009",
+   "checksum": "6688e2ce35c67d5bd74b1e573625d17e1ef62789ef3d29e92437f22cb33c3870",
+   "applied_at": "2026-09-29T01:15:27.684Z"
+  },
+  {
+   "version": "0010",
+   "checksum": "73e7ac8b6fd426558faf2802876ab7b9be83db8cb73295944e66000c614551dc",
+   "applied_at": "2026-09-29T01:15:27.684Z"
+  },
+  {
+   "version": "0011",
+   "checksum": "238f96ae42298f85c03ffe08973eccb01bc560b9751ac752af769154f2583dfe",
+   "applied_at": "2026-09-29T01:15:27.684Z"
+  },
+  {
+   "version": "0012",
+   "checksum": "2a64483f944f16e3364be822e5ff61e0b95afa0168f937ce5aac6671b561dcbe",
+   "applied_at": "2026-09-29T01:15:27.684Z"
+  },
+  {
+   "version": "0013",
+   "checksum": "720c89e4a9367d562fa1085f1fb8b139d5a4374be095fec4893a0e9db818c230",
+   "applied_at": "2026-09-29T01:15:27.684Z"
+  },
+  {
+   "version": "0014",
+   "checksum": "a33798336adc7053e4bcbf06cb652b1fb57dcbf49edea324c5977830f47a162d",
+   "applied_at": "2026-09-29T01:15:27.684Z"
+  },
+  {
+   "version": "0015",
+   "checksum": "f856a1316e9d3bc79c3b54b89c63273102ce87733ef1c9a835c81f1b9a56624e",
+   "applied_at": "2026-09-29T01:15:27.684Z"
+  },
+  {
+   "version": "0016",
+   "checksum": "f5ce7c79c584805f1d97bb2468475b2ce10b770ef4dabd16e2ea79d5531b76df",
+   "applied_at": "2026-09-29T01:15:27.684Z"
+  },
+  {
+   "version": "0017",
+   "checksum": "0aaba855b1d5eb4c69b6b2c880b225df2053af7353f7c7b290f233006cbb1fcd",
+   "applied_at": "2026-09-29T01:15:27.684Z"
+  },
+  {
+   "version": "0019",
+   "checksum": "48a9a4e2d506eb1fceb35ec7de1b9e28f983477f6e1dc9f550bff794e9d9902f",
+   "applied_at": "2026-09-29T17:43:01.760Z"
+  },
+  {
+   "version": "0020",
+   "checksum": "228127d89de90a0d187aff8c2cd12b18aad94130faca7e804f5dd23c1d9cfc4d",
+   "applied_at": "2026-09-29T17:53:03.540Z"
+  },
+  {
+   "version": "0021",
+   "checksum": "223125d15b3b96416c1a4ea1bc6314c785499cd8184cde70b7e92c93c5382f20",
+   "applied_at": "2026-10-01T01:35:47.511Z"
+  },
+  {
+   "version": "0022",
+   "checksum": "069a00905c2821b846f0efc24673abe7dfb89acd3e73e260e0108f0c0bd24112",
+   "applied_at": "2026-10-02T00:41:05.838Z"
+  },
+  {
+   "version": "0023",
+   "checksum": "fe7bb504fd91a6c611345f950e742dd708264f64fd76dc48acabdd8d2f68f467",
+   "applied_at": "2026-10-02T01:58:54.688Z"
+  },
+  {
+   "version": "0024",
+   "checksum": "b2495845c26f0cc79b386714b63359db74e76f0cd6eadf5c95f1dd9e0aa31b1d",
+   "applied_at": "2026-10-02T08:01:41.542Z"
+  },
+  {
+   "version": "0025",
+   "checksum": "2e4c62c0ccbaeb858763d7a73cef5149a840526bf6792fab3f0a628ae6ea0814",
+   "applied_at": "2026-10-02T23:38:23.551Z"
+  },
+  {
+   "version": "0026",
+   "checksum": "3140366eabfdcc8375e71e1c8e0144323767245cf2e4fc4114687ba695f84e7b",
+   "applied_at": "2026-10-03T00:29:15.853Z"
+  },
+  {
+   "version": "0027",
+   "checksum": "8209df5a86879188f5a25583b69bd4e0002474f850767a7b411641bda17fd481",
+   "applied_at": "2026-10-03T00:29:16.856Z"
+  }
+ ],
+ "schema_version_max": "0027",
+ "triggers": [
+  {
+   "table_name": "job",
+   "tgname": "trg_job_core_immutable_guard",
+   "tgenabled": "O",
+   "fn": "job_core_immutable_guard"
+  },
+  {
+   "table_name": "job",
+   "tgname": "trg_job_ledger_ref_guard",
+   "tgenabled": "O",
+   "fn": "job_ledger_ref_guard"
+  },
+  {
+   "table_name": "job",
+   "tgname": "trg_job_no_delete",
+   "tgenabled": "O",
+   "fn": "job_no_delete"
+  },
+  {
+   "table_name": "job",
+   "tgname": "trg_job_status_guard",
+   "tgenabled": "O",
+   "fn": "job_status_guard"
+  },
+  {
+   "table_name": "job",
+   "tgname": "trg_job_touch_time_updated",
+   "tgenabled": "O",
+   "fn": "job_touch_time_updated"
+  },
+  {
+   "table_name": "job_arbitration_log",
+   "tgname": "trg_job_arbitration_log_append_only",
+   "tgenabled": "O",
+   "fn": "job_arbitration_log_append_only"
+  },
+  {
+   "table_name": "listing",
+   "tgname": "trg_listing_create_key_guard",
+   "tgenabled": "O",
+   "fn": "listing_create_key_guard"
+  },
+  {
+   "table_name": "listing",
+   "tgname": "trg_listing_no_delete",
+   "tgenabled": "O",
+   "fn": "listing_no_delete"
+  },
+  {
+   "table_name": "listing",
+   "tgname": "trg_listing_status_guard",
+   "tgenabled": "O",
+   "fn": "listing_status_guard"
+  },
+  {
+   "table_name": "listing",
+   "tgname": "trg_listing_stock_guard",
+   "tgenabled": "O",
+   "fn": "listing_stock_guard"
+  },
+  {
+   "table_name": "listing",
+   "tgname": "trg_listing_touch_time_updated",
+   "tgenabled": "O",
+   "fn": "listing_touch_time_updated"
+  },
+  {
+   "table_name": "listing_review_log",
+   "tgname": "trg_listing_review_log_append_only",
+   "tgenabled": "O",
+   "fn": "listing_review_log_append_only"
+  }
+ ],
+ "tables_cols": [
+  {
+   "table_name": "job_arbitration_log",
+   "cols": "log_id,job_id,actor_uid,result,request_fingerprint,idempotency_key,txid,memo,time_created"
+  },
+  {
+   "table_name": "listing_review_log",
+   "cols": "log_id,listing_id,actor_uid,result,request_fingerprint,idempotency_key,txid,memo,time_created"
+  }
+ ],
+ "constraints": [
+  {
+   "tbl": "job_arbitration_log",
+   "conname": "job_arbitration_log_actor_fk",
+   "contype": "f",
+   "def": "FOREIGN KEY (actor_uid) REFERENCES users(uid)"
+  },
+  {
+   "tbl": "job_arbitration_log",
+   "conname": "job_arbitration_log_actor_uid_not_null",
+   "contype": "n",
+   "def": "NOT NULL actor_uid"
+  },
+  {
+   "tbl": "job_arbitration_log",
+   "conname": "job_arbitration_log_idem_uniq",
+   "contype": "u",
+   "def": "UNIQUE (idempotency_key, result)"
+  },
+  {
+   "tbl": "job_arbitration_log",
+   "conname": "job_arbitration_log_idempotency_key_not_null",
+   "contype": "n",
+   "def": "NOT NULL idempotency_key"
+  },
+  {
+   "tbl": "job_arbitration_log",
+   "conname": "job_arbitration_log_job_fk",
+   "contype": "f",
+   "def": "FOREIGN KEY (job_id) REFERENCES job(job_id)"
+  },
+  {
+   "tbl": "job_arbitration_log",
+   "conname": "job_arbitration_log_job_id_not_null",
+   "contype": "n",
+   "def": "NOT NULL job_id"
+  },
+  {
+   "tbl": "job_arbitration_log",
+   "conname": "job_arbitration_log_log_id_not_null",
+   "contype": "n",
+   "def": "NOT NULL log_id"
+  },
+  {
+   "tbl": "job_arbitration_log",
+   "conname": "job_arbitration_log_pk",
+   "contype": "p",
+   "def": "PRIMARY KEY (log_id)"
+  },
+  {
+   "tbl": "job_arbitration_log",
+   "conname": "job_arbitration_log_request_fingerprint_not_null",
+   "contype": "n",
+   "def": "NOT NULL request_fingerprint"
+  },
+  {
+   "tbl": "job_arbitration_log",
+   "conname": "job_arbitration_log_result_ck",
+   "contype": "c",
+   "def": "CHECK ((result = ANY (ARRAY['approved'::text, 'rejected'::text])))"
+  },
+  {
+   "tbl": "job_arbitration_log",
+   "conname": "job_arbitration_log_result_not_null",
+   "contype": "n",
+   "def": "NOT NULL result"
+  },
+  {
+   "tbl": "job_arbitration_log",
+   "conname": "job_arbitration_log_time_created_not_null",
+   "contype": "n",
+   "def": "NOT NULL time_created"
+  },
+  {
+   "tbl": "listing_review_log",
+   "conname": "listing_review_log_actor_fk",
+   "contype": "f",
+   "def": "FOREIGN KEY (actor_uid) REFERENCES users(uid)"
+  },
+  {
+   "tbl": "listing_review_log",
+   "conname": "listing_review_log_actor_uid_not_null",
+   "contype": "n",
+   "def": "NOT NULL actor_uid"
+  },
+  {
+   "tbl": "listing_review_log",
+   "conname": "listing_review_log_idem_uniq",
+   "contype": "u",
+   "def": "UNIQUE (idempotency_key, result)"
+  },
+  {
+   "tbl": "listing_review_log",
+   "conname": "listing_review_log_idempotency_key_not_null",
+   "contype": "n",
+   "def": "NOT NULL idempotency_key"
+  },
+  {
+   "tbl": "listing_review_log",
+   "conname": "listing_review_log_listing_fk",
+   "contype": "f",
+   "def": "FOREIGN KEY (listing_id) REFERENCES listing(listing_id)"
+  },
+  {
+   "tbl": "listing_review_log",
+   "conname": "listing_review_log_listing_id_not_null",
+   "contype": "n",
+   "def": "NOT NULL listing_id"
+  },
+  {
+   "tbl": "listing_review_log",
+   "conname": "listing_review_log_log_id_not_null",
+   "contype": "n",
+   "def": "NOT NULL log_id"
+  },
+  {
+   "tbl": "listing_review_log",
+   "conname": "listing_review_log_pk",
+   "contype": "p",
+   "def": "PRIMARY KEY (log_id)"
+  },
+  {
+   "tbl": "listing_review_log",
+   "conname": "listing_review_log_request_fingerprint_not_null",
+   "contype": "n",
+   "def": "NOT NULL request_fingerprint"
+  },
+  {
+   "tbl": "listing_review_log",
+   "conname": "listing_review_log_result_ck",
+   "contype": "c",
+   "def": "CHECK ((result = ANY (ARRAY['approved'::text, 'rejected'::text])))"
+  },
+  {
+   "tbl": "listing_review_log",
+   "conname": "listing_review_log_result_not_null",
+   "contype": "n",
+   "def": "NOT NULL result"
+  },
+  {
+   "tbl": "listing_review_log",
+   "conname": "listing_review_log_time_created_not_null",
+   "contype": "n",
+   "def": "NOT NULL time_created"
+  }
+ ],
+ "indexes": [
+  {
+   "tablename": "job_arbitration_log",
+   "indexname": "job_arbitration_log_actor_day_idx",
+   "indexdef": "CREATE INDEX job_arbitration_log_actor_day_idx ON public.job_arbitration_log USING btree (actor_uid, time_created)"
+  },
+  {
+   "tablename": "job_arbitration_log",
+   "indexname": "job_arbitration_log_idem_uniq",
+   "indexdef": "CREATE UNIQUE INDEX job_arbitration_log_idem_uniq ON public.job_arbitration_log USING btree (idempotency_key, result)"
+  },
+  {
+   "tablename": "job_arbitration_log",
+   "indexname": "job_arbitration_log_job_idx",
+   "indexdef": "CREATE INDEX job_arbitration_log_job_idx ON public.job_arbitration_log USING btree (job_id, time_created)"
+  },
+  {
+   "tablename": "job_arbitration_log",
+   "indexname": "job_arbitration_log_pk",
+   "indexdef": "CREATE UNIQUE INDEX job_arbitration_log_pk ON public.job_arbitration_log USING btree (log_id)"
+  },
+  {
+   "tablename": "listing_review_log",
+   "indexname": "listing_review_log_actor_day_idx",
+   "indexdef": "CREATE INDEX listing_review_log_actor_day_idx ON public.listing_review_log USING btree (actor_uid, time_created)"
+  },
+  {
+   "tablename": "listing_review_log",
+   "indexname": "listing_review_log_idem_uniq",
+   "indexdef": "CREATE UNIQUE INDEX listing_review_log_idem_uniq ON public.listing_review_log USING btree (idempotency_key, result)"
+  },
+  {
+   "tablename": "listing_review_log",
+   "indexname": "listing_review_log_listing_idx",
+   "indexdef": "CREATE INDEX listing_review_log_listing_idx ON public.listing_review_log USING btree (listing_id, time_created)"
+  },
+  {
+   "tablename": "listing_review_log",
+   "indexname": "listing_review_log_pk",
+   "indexdef": "CREATE UNIQUE INDEX listing_review_log_pk ON public.listing_review_log USING btree (log_id)"
+  }
+ ],
+ "counts": {
+  "listing_review_log": 0,
+  "job_arbitration_log": 0,
+  "ledger_entry": 355,
+  "listing_max": "24",
+  "job_max": "24"
+ },
+ "max_log_ids": {
+  "listing_review_log": null,
+  "job_arbitration_log": null
+ },
+ "job_status_dist": [
+  {
+   "status": "cancelled",
+   "n": 2
+  },
+  {
+   "status": "open",
+   "n": 5
+  },
+  {
+   "status": "rejected",
+   "n": 2
+  },
+  {
+   "status": "settled",
+   "n": 8
+  },
+  {
+   "status": "submitted",
+   "n": 3
+  }
+ ],
+ "listing_status_dist": [
+  {
+   "status": "delisted",
+   "n": 2
+  },
+  {
+   "status": "draft",
+   "n": 15
+  },
+  {
+   "status": "listed",
+   "n": 7
+  }
+ ]
+}

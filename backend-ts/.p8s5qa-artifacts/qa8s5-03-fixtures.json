@@ -1,0 +1,209 @@
+{
+ "jobs_employer_11": [
+  {
+   "job_id": "20",
+   "employer_uid": "11",
+   "worker_uid": "12",
+   "status": "settled",
+   "reward": "12"
+  },
+  {
+   "job_id": "23",
+   "employer_uid": "11",
+   "worker_uid": "12",
+   "status": "settled",
+   "reward": "12"
+  }
+ ],
+ "jobs_by_status": [
+  {
+   "status": "cancelled",
+   "n": 2,
+   "mn": "10",
+   "mx": "18"
+  },
+  {
+   "status": "open",
+   "n": 5,
+   "mn": "2",
+   "mx": "24"
+  },
+  {
+   "status": "rejected",
+   "n": 2,
+   "mn": "9",
+   "mx": "17"
+  },
+  {
+   "status": "settled",
+   "n": 8,
+   "mn": "3",
+   "mx": "23"
+  },
+  {
+   "status": "submitted",
+   "n": 3,
+   "mn": "4",
+   "mx": "15"
+  }
+ ],
+ "users_of_interest": [
+  {
+   "uid": "1",
+   "is_admin": true
+  },
+  {
+   "uid": "11",
+   "is_admin": false
+  },
+  {
+   "uid": "2",
+   "is_admin": false
+  },
+  {
+   "uid": "3",
+   "is_admin": false
+  },
+  {
+   "uid": "6",
+   "is_admin": false
+  },
+  {
+   "uid": "7",
+   "is_admin": false
+  },
+  {
+   "uid": "900001",
+   "is_admin": false
+  },
+  {
+   "uid": "900002",
+   "is_admin": false
+  },
+  {
+   "uid": "900004",
+   "is_admin": false
+  },
+  {
+   "uid": "910004",
+   "is_admin": false
+  }
+ ],
+ "roles_tables": [
+  {
+   "table_name": "admin_role"
+  },
+  {
+   "table_name": "admin_role_permission"
+  },
+  {
+   "table_name": "admin_user_role"
+  }
+ ],
+ "admin_user_role": [
+  {
+   "uid": "900004",
+   "role_key": "p7b_fixture_admin"
+  },
+  {
+   "uid": "900005",
+   "role_key": "p7b_fixture_admin"
+  },
+  {
+   "uid": "900006",
+   "role_key": "p7b_fixture_nopts"
+  },
+  {
+   "uid": "910004",
+   "role_key": "qa7b_admin"
+  },
+  {
+   "uid": "910005",
+   "role_key": "qa7b_admin"
+  },
+  {
+   "uid": "910006",
+   "role_key": "qa7b_nopts"
+  },
+  {
+   "uid": "970213",
+   "role_key": "super_admin"
+  }
+ ],
+ "admin_permission_cols": [
+  {
+   "table_name": "admin_permission",
+   "cols": "permission_key,name"
+  },
+  {
+   "table_name": "admin_role_permission",
+   "cols": "role_key,permission_key"
+  },
+  {
+   "table_name": "admin_user_role",
+   "cols": "uid,role_key"
+  }
+ ],
+ "admin_perms": [
+  {
+   "role_key": "p7b_fixture_admin",
+   "permission_key": "manage_points"
+  },
+  {
+   "role_key": "p7b_fixture_nopts",
+   "permission_key": "read_users"
+  },
+  {
+   "role_key": "qa7b_admin",
+   "permission_key": "manage_points"
+  },
+  {
+   "role_key": "qa7b_nopts",
+   "permission_key": "read_users"
+  },
+  {
+   "role_key": "super_admin",
+   "permission_key": "dashboard_access"
+  },
+  {
+   "role_key": "super_admin",
+   "permission_key": "manage_permissions"
+  },
+  {
+   "role_key": "super_admin",
+   "permission_key": "manage_points"
+  },
+  {
+   "role_key": "super_admin",
+   "permission_key": "manage_rewards"
+  },
+  {
+   "role_key": "super_admin",
+   "permission_key": "manage_settings"
+  },
+  {
+   "role_key": "super_admin",
+   "permission_key": "manage_tasks"
+  },
+  {
+   "role_key": "super_admin",
+   "permission_key": "manage_users"
+  },
+  {
+   "role_key": "super_admin",
+   "permission_key": "publish_prizes"
+  },
+  {
+   "role_key": "super_admin",
+   "permission_key": "publish_tasks"
+  },
+  {
+   "role_key": "super_admin",
+   "permission_key": "read_users"
+  },
+  {
+   "role_key": "super_admin",
+   "permission_key": "review_tasks"
+  }
+ ]
+}

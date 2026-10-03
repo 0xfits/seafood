@@ -1,0 +1,89 @@
+{
+ "ok": true,
+ "file": "/Users/kevin/.hermes/profiles/zang/cache/scratch/qa8s5-neg/backend-ts/.p8s5qa-artifacts-local/qa8s5-01-l2-20261003T010950Z.json",
+ "residue_zero": true,
+ "s1": {
+  "prior": "submitted",
+  "terminal": "cancelled",
+  "applied": 1,
+  "reviewed": 1,
+  "txid": "677",
+  "db": {
+   "log_rows": 1,
+   "job_status": "cancelled",
+   "legs": 2,
+   "log": [
+    {
+     "log_id": "24",
+     "result": "rejected",
+     "txid": "677",
+     "actor_uid": "1",
+     "idempotency_key": "ops:1:job_arbitrate:56"
+    }
+   ],
+   "leg_rows": [
+    {
+     "txid": "677",
+     "kind": "job_escrow_refund",
+     "uid": "6",
+     "cid": "1",
+     "delta": "90",
+     "frozen_delta": "0",
+     "idempotency_key": "biz:job:refund:56"
+    },
+    {
+     "txid": "678",
+     "kind": "job_escrow_refund",
+     "uid": "6",
+     "cid": "1",
+     "delta": "0",
+     "frozen_delta": "-90",
+     "idempotency_key": "biz:job:refund:56#2"
+    }
+   ]
+  }
+ },
+ "s2": {
+  "ok": false,
+  "view": null,
+  "db": {
+   "log_rows": 1,
+   "job_status": "cancelled",
+   "legs": 2,
+   "log": [
+    {
+     "log_id": "25",
+     "result": "rejected",
+     "txid": "681",
+     "actor_uid": "1",
+     "idempotency_key": "ops:1:job_arbitrate:57"
+    }
+   ]
+  }
+ },
+ "s3": {
+  "illegal": {
+   "ok": false,
+   "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+   "status": 409,
+   "details": {
+    "field": "job.status",
+    "reason": "JOB_STATE_INVALID",
+    "required_from": "submitted|disputed",
+    "job_id": "58",
+    "from": "settled",
+    "action": "approve"
+   }
+  },
+  "db": {
+   "after_first": {
+    "log_rows": 1,
+    "status": "settled"
+   },
+   "after_illegal": {
+    "log_rows": 1,
+    "status": "settled"
+   }
+  }
+ }
+}

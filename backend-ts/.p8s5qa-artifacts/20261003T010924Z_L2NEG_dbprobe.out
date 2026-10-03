@@ -1,0 +1,11 @@
+{
+ "total": 69,
+ "passed": 66,
+ "failed": 3,
+ "failed_ids": [
+  "B1.action_ok",
+  "B5.success_implies_log",
+  "C1.first_call_200"
+ ]
+}
+SUMMARY total=69 passed=66 failed=3 artifact=/Users/kevin/.hermes/profiles/zang/cache/scratch/qa8s5-neg/backend-ts/.p8s5-artifacts/p8s5-20261003T010931Z/real-chains.json

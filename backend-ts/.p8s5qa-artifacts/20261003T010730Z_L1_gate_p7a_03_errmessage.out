@@ -1,0 +1,18 @@
+[P7A-ERRMSG] 作用域：「frontend/src/**/*.{js,jsx}」（不含 test/）
+  srcRoot = /Users/kevin/.hermes/profiles/zang/cache/scratch/qa8s5/frontend/src
+  扫描文件数 = 82；识别「原始响应包受体」 = 6 个
+    · auth.js:305  payload = await ….json()
+    · components/ActiveTaskModal.jsx:70  data = await ….json()
+    · components/ClaimRewardModal.jsx:22  data = await ….json()
+    · components/Header.jsx:73  data = await ….json()
+    · ledger-api.js:46  payload = await ….json()
+    · pages/TaskPage.jsx:24  data = await ….json()
+[P7A-ERRMSG] 命中（原始包 .message 直用）= 2（其中出口本体豁免 2）
+  ~ auth.js:193 [CHAIN_IMPL] "auth.js::if (payload?.message && !containsMachineCode(payload.message)) return payload.message"
+  ~ auth.js:295 [CHAIN_IMPL] "auth.js::: (error && typeof error === 'object' ? (error.message || error.code) : payload?.message)"
+  （0 命中 —— 作用域读数已给：受体数 > 0 且扫描文件数 > 0 ⇒ 断言非空转）
+[P7A-ERRMSG] 豁免登记 = 1 条（逐条列名 + 理由）
+  ~ src/auth.js :: 错误文案链**实现本体**：`extractApiErrorMessage`/`apiErrorMessage` 按定义必须读原始包；本文件即全站唯一出口
+[P7A-ERRMSG] 存量基线登记 = 0 条
+[P7A-ERRMSG] 残余发现（原始包 X.error 裸读；打印不计命中，另单收口）= 0
+[P7A-ERRMSG] 总判：PASS（未登记命中 0 必须 = 0；扫描文件 82 / 受体 6 / 命中 0 / 基线 0）

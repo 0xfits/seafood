@@ -1,0 +1,19 @@
+RUN_TAG=20261003T010730Z
+tsc EXIT=0 :: 
+offline126 EXIT=0 ::  ]|}|SUMMARY total=126 passed=126 failed=0 artifact=/Users/kevin/.hermes/profiles/zang/cache/scratch/qa8s5/backend-ts/.p4-artifacts/p6tr1a-20261003T010732Z/offline-tests.json|
+p8s1 EXIT=0 ::  ]|}|SUMMARY total=24 passed=24 failed=0 artifact=/Users/kevin/.hermes/profiles/zang/cache/scratch/qa8s5/backend-ts/.p8s1-artifacts/p8s1-20261003T010733Z/gate.json|
+p8s2 EXIT=0 ::  ]|}|SUMMARY total=41 passed=41 failed=0 artifact=/Users/kevin/.hermes/profiles/zang/cache/scratch/qa8s5/backend-ts/.p8s2-artifacts/p8s2-gate-20261003T010733Z/gate.json|
+p8s3 EXIT=0 ::  ]|}|SUMMARY total=45 passed=45 failed=0 artifact=/Users/kevin/.hermes/profiles/zang/cache/scratch/qa8s5/backend-ts/.p8s3-artifacts/p8s3-20261003T010734Z/gate.json|
+p8s3b EXIT=0 ::  ]|}|SUMMARY total=38 passed=38 failed=0 artifact=/Users/kevin/.hermes/profiles/zang/cache/scratch/qa8s5/backend-ts/.p8s3b-artifacts/p8s3b-20261003T010734Z/gate.json|
+p8s4 EXIT=0 ::  ]|}|SUMMARY total=79 passed=79 failed=0 artifact=/Users/kevin/.hermes/profiles/zang/cache/scratch/qa8s5/backend-ts/.p8s4-artifacts/p8s4-20261003T010735Z/gate.json|
+p8s5 EXIT=0 ::  ]|}|SUMMARY total=117 passed=117 failed=0 artifact=/Users/kevin/.hermes/profiles/zang/cache/scratch/qa8s5/backend-ts/.p8s5-artifacts/p8s5-20261003T010736Z/gate.json|
+build EXIT=0 :: dist/assets/vendor-react-DQGfVle9.js   142.17 kB │ gzip:  45.58 kB|dist/assets/index-BHGnZPGW.js          368.42 kB │ gzip: 105.66 kB|✓ built in 1.67s|
+testunit EXIT=0 ::    Start at  09:07:38|   Duration  5.43s (transform 1.89s, setup 6.67s, collect 11.89s, tests 5.88s, environment 14.71s, prepare 2.45s)||
+gate_p4z_i18nviol_global EXIT=0 ::   形态命中 = 0 处；属性位排除（key= 属性，非文案位）= 1 处；显式豁免（死分支，登记）= 0/0 处|  类级残余（活体）= 0 条（必须 = 0）|[I18N-VIOL] 总判：PASS（locale 裸命中 0 + 源面裸命中 0 必须 = 0；作用域节点数 locale=3544 / source=40）|
+gate_p6_tr2_locales EXIT=0 :: [TR-2] 新接文件守卫=PASS|[TR-2] 存量登记（只核不改）：仍在旧三目链 + `??` 上的页面数 = 0 页（D7 收口后应为 0 页）|[TR-2] 总判：PASS|
+gate_p4z_miscfix_links EXIT=0 ::       303: onClick={() => canManagePoints && navigate(`/dashboard/points?q=${encodeURIComponent(user.EVM || Str|  已登记待办 = 8 条；**未登记残留 = 0**|[MISC-FIX-LINKS] 总判：PASS（残留全部已登记）|
+gate_p4z_feperf_safelist EXIT=0 ::  "negative_control": null|}|VERDICT=PASS|
+gate_p7a_03_errmessage EXIT=0 :: [P7A-ERRMSG] 存量基线登记 = 0 条|[P7A-ERRMSG] 残余发现（原始包 X.error 裸读；打印不计命中，另单收口）= 0|[P7A-ERRMSG] 总判：PASS（未登记命中 0 必须 = 0；扫描文件 82 / 受体 6 / 命中 0 / 基线 0）|
+gate_p7b_errfallback EXIT=0 ::   拼接面差异："ledger.err.LEDGER_AMOUNT_INVALID (NOT_DECIMAL_STRING)" ⇒ 整串=false / token=true（token 判据更强，本单采到的真缺陷）|[P7B-ERRFB] 作用域读数：root = /Users/kevin/.hermes/profiles/zang/cache/scratch/qa8s5/frontend；locale 叶子值 = 3544；行为节点 = 132；扫描文件 = 1（src/auth.js）+ 4（locale）|[P7B-ERRFB] 总判：PASS（判负 0 必须 = 0；A=PASS / B 含裸键值=0 / C 兜底键=2×4 / D 节点=132 需护栏=0 已本地化=132 / G 键不可用=0/132 / E 样本=17）|
+gate_p7c_machinecode EXIT=0 ::   正例 4 条 ⇒ containsMachineCode=true；反例 10 条 + 非字符串 5 条 ⇒ false；拼接面 "LEDGER_CURRENCY_INVALID_TRANSITION (order_not_refundable)" ⇒ 整串=false / token=true|[P7C-MACHINE-CODE] 作用域读数：root = /Users/kevin/.hermes/profiles/zang/cache/scratch/qa8s5/frontend；链路体制 = 真链；locale 叶子值 = 3544；机读码向量节点 = 16；反例向量节点 = 16；扫描文件 = 1（src/auth.js）+ 4（locale）|[P7C-MACHINE-CODE] 总判：PASS（判负 0 必须 = 0；链=真链 / A=PASS / B 含机读码值=0 / C 兜底键=4 / D 类级违例=0/16 / F 反例违例=0/16 / G 机读码出现次数=0/36 违例=0 / E 样本=19）|
+=== DONE TAG=20261003T010730Z ===
