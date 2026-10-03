@@ -1416,6 +1416,37 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.314 **★★ Kevin 定档：task 无「申请报名」逻辑 —— 提交文本 ⇒ 悬赏家判合格即发奖（4 条答复 + 1 条新需求 + 我裁 1 条）· 现取真源与改动面**（2026-10-03）
+
+**A. Kevin 原话（口径真源）**：「**自己发布的 task，自己可以去完成**」＋「**关于 task，没有【申请报名】这个逻辑**：用户在表单中提交一段文本，悬赏家通过这段文本来判断是否合格，如果合格即予以发放奖励，反之则不然。」
+
+**B. 现取真源（本批改动的事实基础）**：
+| 面 | 现取读数 |
+|---|---|
+| 报名 | `POST /api/job/:jobId/apply`（`index.ts:2352`）⇒ `applyToJob`（`job-service.ts:175`）：拒 `not_open` / **`self_application`**（`:190`）/ `already_applied` / `batt_below_threshold`（`:197`）/ `conflict` |
+| 选定 | `POST /api/job/:jobId/accept`（`:2374`）⇒ `acceptApplication`（`:211-247`） |
+| 提交 | `POST /api/task-progress/:identifier/submit`（`:919`）⇒ `submitWork`（`:125-172`）；★ 闸 = `job_application.status === 'accepted'`（`:164` 引 `submitJobWork` 的 `blocked` 分支） |
+| **悬赏家评判** | **`POST /api/job/:jobId/review`（`:2429`）⇒ `approved !== false` ? `settleJob`（发奖）: `refundJob(to_status='rejected')`（不发奖）**；权限 = `requireJobOwnerOrAdmin` ⇒ ★★ **Kevin 描述的机制已存在** |
+| `settleJob` | `job-funds-service.ts:219` ⇒ `dispatchJobEvent(payload,'approved',reviewerUid)` ⇒ `reviewJobSubmission`（`review_status` pending→approved）⇒ ★ **单次结算语义** |
+| 托管 | `job_escrow`：雇主 `balance −reward` → `frozen +reward`（`job-funds-service.ts:144`）⇒ ★ **只托管 1 份 = 单名额** |
+| `job` 表 | `0013_job.sql:79`：`job_id / employer_uid / worker_uid`（**单值**）/ `cid / reward / title / description / status / create_key / escrow_txid / settle_txid / ledger_event_keys` ⇒ ★ **无名额字段**；后续迁移 `ALTER TABLE public.job` **零命中** |
+| `job_submission` | `0014:115`：`submission_id / job_id / worker_uid / deliverable / review_status(pending\|approved\|rejected) / reviewed_by / reviewed_at / review_memo / create_key` ⇒ ★★ **无 `application_id`** ⇒ 提交物不依赖报名行 |
+| 引用面 | `applicationId\|application_id\|applyToJob\|acceptApplication\|resolveJobApplication`：`database.ts` **82** · `job-service.ts` **48** · `index.ts` **15** · `job-funds-service.ts` **9** · `ActiveTaskModal.jsx` **6**（另有 `job-api.js` / `JobDetailPage.jsx` / `ClaimRewardModal.jsx` / `RewardPage.jsx` 用 `jID`） |
+
+**C. ★ Kevin 4 条答复（本次 clarify）**：
+1. **载体** ⇒ **B：彻底去掉申请概念，读口 identifier 改为 `submission_id`**（前后端 + 规范都要动）
+2. **多人提交谁得奖** ⇒ **「每个合格都发奖」** ＋ ★ **新需求：「悬赏家在发布 task 的时候要清晰说明总的 task 人数」**
+3. **batt 门槛** ⇒ **保留，但移到【提交】这一步**（提交要求电量 ≥ 阈值）
+4. **判不合格后可否再提** ⇒ **可以**（同一人可多次提交，悬赏家再判）
+
+**D. ★ 我裁（必然推论 · 标「一句话可改」）**：既然「每个合格都发奖」，钱必须**发布时先托管到位** ⇒ **托管总额 = `reward` × 总人数**；每判一个合格 ⇒ 发一份 `reward`（+ 按 `commission_policy` 分佣）；**发满名额 ⇒ 任务关闭** ⇒ ★ `settleJob` 必须从「一次性结算」改为「**按提交逐笔发放 + 名额计数**」= **账本语义变更**。
+**E. ★ 我裁（存量兼容）**：存量 job（21 个）`headcount` **backfill = 1**（语义等价）；存量 `job_application`（19 行）**保留不删、停止写入**（只读历史）；读口对存量 job 做兼容（标注「一句话可改」）。
+**F. ★ 待 Kevin 定（1 条）**：**名额未满时**（例：名额 3、只合格 1 个）⇒ 剩余托管怎么办？(a) 悬赏家可**取消任务**、按剩余额退（复用 `refundJob`）· (b) 可**手动关闭**、退剩余 · (c) 不自动退、留托管。
+**G. 改动面（跨 4 层，须切片）**：规范冻结（4 册：route-layer / data-layer / ledger / commission）· 迁移（`job` 加 `headcount` + CHECK ≥1 + backfill）· 后端提交面（去申请前置 + batt 闸迁移 + identifier→`submission_id` + `/apply` `/accept` 下架）· **后端资金面（托管按总额 + 逐笔发放 + 名额计数 + 剩余退）** · 前端（发布表单加人数 + 去报名/选定 UI + 提交直出 + 评判列表）· 质检 · 规范回写。
+**H. 状态**：DB **0040** · 生产 `87d3709` · 本件**仅现取 + 定档 + 计划，未动代码**（等 F 定案后按「规范先行」切片派单）。
+
+---
+
 ### 5.313 **本批生产终验 = 全绿 · ★线上 bundle 内 `dashj`（小写口径）仅剩 4 处且全为键名 ⇒ 用户可见类 = 0 · 7 条旧串线上全 0**（2026-10-03）
 
 **A. 生产读数（`HEAD d2d604f` 已推）**：
@@ -6767,6 +6798,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.314 | 2026-10-03 | **★★Kevin 定档：task 无「申请报名」逻辑 —— 提交文本 ⇒ 悬赏家判合格即发奖（4 条答复 + 1 条新需求 + 我裁 1 条）· 现取真源与改动面**。**A.** Kevin 原话：自己发布的 task 自己可完成；没有【申请报名】逻辑，用户在表单提交一段文本，悬赏家据文本判是否合格，合格即发奖、反之不发。**B. 现取真源**：报名 `apply`⇒`applyToJob`（拒 self_application 等 5 分支）· 选定 `accept`⇒`acceptApplication` · 提交 `task-progress/:identifier/submit`⇒`submitWork`（闸 = 申请须 accepted）· ★★**悬赏家评判 `POST /api/job/:jobId/review` 已存在**（approved ? settleJob 发奖 : refundJob 不发；权限 = 雇主本人）· `settleJob` ⇒ `reviewJobSubmission` **单次结算语义** · 托管 `job_escrow` 只 **1 份** · `job` 表 **无名额字段**（ALTER 零命中）· ★`job_submission` **无 application_id**（提交物不依赖报名行）· 引用面 database 82/job-service 48/index 15/funds 9/ActiveTaskModal 6。**C. Kevin 4 答复**：①载体 ⇒ **B 彻底去申请、identifier 改 submission_id** ②**每个合格都发奖** + ★新需求「发布 task 时说明总人数」③batt 门槛移到**提交**步 ④判不合格**可再提**。**D. 我裁**：托管总额 = reward × 总人数；每合格发一份 + 分佣；发满即关闭 ⇒ **settleJob 须改「按提交逐笔发放 + 名额计数」= 账本语义变更**。**E. 我裁**：存量 job headcount backfill=1；存量 job_application 保留停写；读口兼容存量。**F. 待定 1 条**：名额未满时剩余托管如何处置（取消退/手动关闭退/留托管）。**G.** 改动面跨 4 层须切片（规范 4 册 → 迁移 → 后端提交面 → **后端资金面** → 前端 → 质检 → 规范回写）。**H.** 仅定档 + 计划，未动代码。 |
 | v0.313 | 2026-10-03 | **本批生产终验 = 全绿 · ★线上 bundle 内 dashj（小写口径）仅剩 4 处且全为键名 ⇒ 用户可见类 = 0 · 7 条旧串线上全 0**。**A.** health 0040 · 线上 bundle `index-DbgRc-K2.js` · **逐字对拍 sha256 `0ad3c2e9…` == 本地** · ★★`dash[Jj]` 命中 = **4** ⇒ 逐处现取 4/4 全为**键名 dashJPoints**（值已 积分/Points/積分/Điểm）⇒ **用户可见类 = 0**（口径说明：小写口径，大写 DASHJ 体检 ticker 有意排除）· 7 条旧串线上**全 0** · 新值线上 各 3/3/3/3/1 · 四语 /exchange 全 200。**B. ★完整教训链**：Kevin 提需求 ⇒ 我 brief 只给两个抓手 ⇒ 实现+质检**在同一错误范围内两轮报 PASS** ⇒ ★**生产终验扫 bundle 抓到 3 处用户可见残留**（否则带假文案上线）⇒ 补齐单双口径扫面 9→0。教训：改单位/换符号/改名类单必须写死「全仓双口径扫旧符号 + 逐处分类 + 用户可见处清零」；且**「两次 PASS」≠ 用户看不到问题**（brief 漏面时实现与质检会共同在错误范围内 PASS）⇒ **生产终验是唯一能穿透 brief 漏面的关卡**。**C.** 本批 4 commit 已推 `d2d604f`。**D.** DB 0040 · 生产 d2d604f（bundle sha256 0ad3c2e9…）· 积分 9889 + 电量 30 · 待推 0。 |
 | v0.312 | 2026-10-03 | **本批两单质检 = ✅PASS（40c/208s）· ★它纠正我一处判负口径表述 · push 上线 + 生产复扫**。**A.** 单①R-9-96：三处值四语逐键正确（消费点 RewardCard.jsx:157 核对）· SEARCH_DEMO 正确 · 计数自算 119/1041/4164 零新增零删键 · 旧串 8 条全 0 · 保留项 `DASHJ / $ 0.3312` 只登记未改。**B.** 双口径自扫：-i 76 行 / 敏感 40 行 ⇒ **用户可见文案 = 0/0**；非测试命中仅 13 行无一处用户可见；bundle 内 dashj 仅 5 处（键名×4+DASHJ/$×1）。**C.** 单②r9-88：4 处/5 条 toBe 到位；原版 toContain 6（1 列表+5 文案）⇒ 现命中 2 其中仅 1 真断言。**D. 判负 4 红 + 1 反证绿**：a 改回 dashJ不足 2red · b 只改 zh 2red · c SEARCH_DEMO 改回 2red · d1 收紧 toBe+加前缀 2red · **d2 旧 toContain+加前缀 8/8 绿 = 复现漏判面**；★**它纠正我 (d) 口径**（我写「改回 toContain 且加前缀必红」实测为绿 = 漏判面本身；正解 = 收紧后加前缀必红）⇒ 我认账；副本 cmp SAME · 主仓 sha256 聚合前=后。**E.** 假绿排查非假绿；登记源面大小写敏感口径备注。**F.** 全量 7 failed/382 passed 零新增 · 定向全绿 · build 0 · 泄漏门 EXIT=0 PASS；两处登记（closeout 子面③ 1 处 JSX 注释误报·既有·未触碰）。**G.** verdict PASS ⇒ push。**H.** 生产复扫 dashj 用户可见类必须 0。 |
 | v0.311 | 2026-10-03 | **R-9-96 补齐单回执（24c/220s）· ★它纠正我键路径（rewardCard.insufficient 非 reward.insufficient）· ★严格报出一处残留交我裁决 · 我裁「保留」· 核盘全通过 → 入库 + 派合并质检**。**A.** 改值（零新增/零删键 ⇒ 计数不变）：`rewardCard.insufficient` ⇒ 积分不足/積分不足/Not enough points/Không đủ điểm · `uiCommon.dashJPoints` ⇒ 积分/積分/Points/Điểm（**键名不改**）· `SEARCH_DEMO`「兑换 dashJ」⇒「兑换 积分」；★我 brief 键路径粗了一层（实为 rewardCard 块下，由 RewardCard.jsx:157 消费）⇒ 我认账。**B. ★★双口径扫面**：-i = 76 行 / 敏感 = 40 行 ⇒ **用户可见文案 = 0**（前 = 9）· 键名 19 · 组件名 23 · 注释 21 · 测试 12 · API 0；★它**严格报出残留 1 处**：`ThemePreviewPage.jsx:175` 的 **`DASHJ / $`**（全大写 ticker，bundle 内确凿存在），属禁碰面 ⇒ 未改、交我裁决、并承认「严格口径下用户可见类 = 1」。**C.** 我现取：该处 = **行情板** `SEAFOOD / $ 1.0240` ⇄ **`DASHJ / $ 0.3312`**（成对对 $ 报价）· 路由 `App.jsx:105` = 产品路由 ⇒ 用户可见 ⇒ ★**裁定「保留」**（语义 = 「DASHJ 作为可交易标的对 $ 报价」= 正是 Kevin 定档的「dashJ 仅作上市的积分之一种」⇒ 与口径一致；标「一句话可改」）；核盘：产品源面敏感口径剩 9 行 = 键名×4 + DashJ.jsx 注释×3 + title 引用×1 + barrel 注释×1 ⇒ **用户可见 = 0**；两处 1 命中全在测试文件。**D.** 四语值逐键 · 定向 51 passed · 全量 7 failed/382 passed 零新增 · build 0（index-DbgRc-K2.js）· 泄漏 0 · **它做的 bundle 终验**：7 条旧串全 0、bundle 内 dashj 仅 5 处（键名×4 + DASHJ/$×1）；我亲跑 r9-96+r9-88 = **15/15 绿**。**E.** 入库 + 派合并质检 ⇒ 一次 push ⇒ push 后复扫线上 bundle。 |
