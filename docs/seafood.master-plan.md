@@ -1416,6 +1416,35 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.300 **极小修补单回执（14c/86s）= 收紧 `r9-88` 结构断言 · ★它给出假绿直接对照（同变异体：旧断言 5/5 绿 ⇄ 新断言必红）· 我复核通过 → 入库 + push**（2026-10-03）
+
+**A. 修补（只改一个测试文件 · 产品源码 0 改动）**：`frontend/src/test/unit/r9-88-submit-surface.test.jsx`
+- **删除**旧「双限定」断言（`jobs-input-identifier` 钩子名 + `input[inputmode="numeric"]` 属性）
+- **改为通用结构面**：模块级 `editableControls(root) = Array.from(root.querySelectorAll('input, textarea, select')).filter(el => !(el.tagName==='INPUT' && el.type==='hidden') && !el.disabled && !el.readOnly)`（**与钩子名/属性无关**）⇒ 断言提交表单内**恰 1 个**且 `controls[0] === jobs-input-deliverable`；`jobs-submit-target.tagName ∉ ['INPUT','TEXTAREA','SELECT']`
+- **新增第 6 例**（作用域守卫）：accept 面板的 `jobs-input-accept` 在提交表单**之外**（`form.contains(acceptInput) === false`）⇒ 不计入提交区计数
+- 用例数 **5 → 6**
+
+**B. ★ 假绿直接对照（本单最有价值的读数）**：同一变异体（注入**新钩子名 + 不带 `inputmode`** 的真实手输框，位于 `<form data-sf-m="jobs-submit-form">` 内）：
+| 判据版本 | 读数 |
+|---|---|
+| **旧**（双限定） | **`5 passed`（全绿 = 假绿）** |
+| **新**（结构面计数） | **`2 failed \| 4 passed`** ⇒ 红点：`expected [ <input …>, …(1) ] to have a length of 1 but got 2`（`:93` 与 `:120` 两处） |
+⇒ **收紧有效**（旧判据对该真实手输框漏判，新判据必红）✓
+
+**C. 自证**：该套件 **6/6 绿** · `npm run build` **exit 0** · 全量 `npx vitest run` = **`Tests 7 failed | 328 passed (335)`** / `Test Files 4 failed | 37 passed (41)` ⇒ 与既有基线 `7 failed` **一致、零新增**（`r9-88` 不在失败清单）✓ · 变异体**仅在仓外副本**（主仓 `grep` 零命中）✓
+
+**D. ★ 我复核（`自报 ≠ 盘面`）**：
+- `git status` tracked 改动**仅此一个测试文件** ✓
+- `editableControls` 现取 = `querySelectorAll('input, textarea, select')` 减 `hidden`/`disabled`/`readOnly` ⇒ **确为结构面** ✓
+- 文件内 `inputmode` **3 处命中全在注释里**（`:58`/`:78`/`:79`，说明收紧原因）⇒ **无 live 双限定断言** ✓（★ 我一开始只看到 `grep -c` = 3 便不放过，现取上下文后排除）
+- `:135` 的 `expect(q('jobs-input-identifier')).toBeNull()` 属**另一用例**（「无本人申请 ⇒ 无表单」的连带断言），**非**被删的那条 ✓
+- 用例标题现取 = **6 个** ✓ · 我亲跑该套件 **6/6 绿** ✓
+
+**E. 入库 + push**：`HEAD f4f5f8d` → 本单（**测试文件不影响 build 产物** ⇒ bundle sha 应保持不变，可作对照）。
+**F. 状态**：DB **0040** · 生产代码（产品面）与本地一致 ⇒ 本批**全部收官**（8⑥ + D1/D2 + batt UI + 签到闭环 + 合并菜单 + 提交面/隐私面修复）。
+
+---
+
 ### 5.299 **双线质检回执（线 A = PASS_WITH_ISSUES · 线 B = PASS_WITH_ISSUES）⇒ 产品行为全部正确 · ★线 B 抓到实现方测试严格度缺口（假绿）· ★线 A 留一条 `NOT_MEASURED` · push 上线 + 派极小修补单**（2026-10-03）
 
 **A. 线 A（后端 + 隐私面 + 十一门 · 60c/522s 截断）= `PASS_WITH_ISSUES`**：
@@ -6389,6 +6418,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.300 | 2026-10-03 | **极小修补单回执（14c/86s）= 收紧 r9-88 结构断言 · ★它给出假绿直接对照（同变异体：旧断言 5/5 绿 ⇄ 新断言必红）· 我复核通过 → 入库 + push**。**A.** `r9-88-submit-surface.test.jsx`：删旧双限定（钩子名 + `inputmode`）⇒ 改**通用结构面** `editableControls`（`input/textarea/select` 减 `hidden/disabled/readOnly`，**与钩子名/属性无关**）⇒ 提交表单内**恰 1 个**且 == `jobs-input-deliverable`；`jobs-submit-target.tagName ∉ [INPUT,TEXTAREA,SELECT]`；**新增第 6 例**作用域守卫（accept 面板输入在提交表单外不计入）；用例 5→6。**B.** ★**假绿对照**：同变异体（新钩子名 + 不带 inputmode 的真手输框）⇒ **旧判据 `5 passed`（假绿）⇄ 新判据 `2 failed/4 passed`**（红点 `to have a length of 1 but got 2`）⇒ 收紧有效。**C.** 套件 **6/6 绿** · build **0** · 全量 **`7 failed \| 328 passed (335)`** 零新增 · 变异体仅在仓外副本。**D.** 我复核：tracked 改动仅此文件 · `editableControls` 确为结构面 · `inputmode` 3 处命中**全在注释**（无 live 双限定断言）· `:135` 那条属另一用例 · 用例标题 6 个 · 我亲跑 6/6 绿。**E.** 入库 + push（测试文件不影响 build ⇒ bundle sha 应不变，作对照）。**F.** 本批全部收官。 |
 | v0.299 | 2026-10-03 | **双线质检回执（线 A = PASS_WITH_ISSUES · 线 B = PASS_WITH_ISSUES）⇒ 产品行为全部正确 · ★线 B 抓到实现方测试严格度缺口（假绿）· ★线 A 留一条 NOT_MEASURED · push 上线 + 派极小修补单**。**A. 线 A**：路由 88 · R-9-86 三件在位 · 排序本人优先已居首 · **四臂真 HTTP（自起 5797）：未登录 401 · 坏 token 401 · 非本人 404 · 非本人 404 与 miss 404 bytes_equal=true · 本人 200 且 data 恰 9 键（info_input=交付物正文）** · **对照臂（仓外去归属校验）⇒ 非本人 200+正文**、**完全修前态 ⇒ 未登录 200+正文** ⇒ 新闸是真承重件 · **R-9-87 真数据三组撞号点**：(4,970102) self=5⇄other=4 · (9,3) self=8⇄other=9 · (15,1) self=11⇄other=15 + 夹具 in-tx 新序 self(25)⇄旧序 other(2)、residue 0 · 判负 (a) 去归属校验⇒非本人 200+正文（复原回绿闭环）(b) 去全修前态⇒未登录 200+正文 (c) **去键副本端到端 = NOT_MEASURED（迭代上限，有等价证据）** · **十一门带实例逐门与在役完全一致**（无红腿、未放宽）· 收尾精确 PID ⇒ 5797 空、5787/5788 未碰 · 主仓零写入坐实（sha 首末同值）。**B. 线 B**：R-9-85 控件计数=1（旧钩子 0）/ 地址缩写正则 / 四语 href / 未登录不渲染 / 左侧 nav 不含 profile / locales 零变更；R-9-88 **结构面**（无 jobs-input-identifier · 表单内可编辑控件恰 1=交付物 · 目标只读 <p> · 无申请不给表单 · **双向文案**：ACTOR_NOT_ALLOWED⇒精确 ⇄ 其它/无 details⇒通用逐字等于 error.message）；四语逐键 +2/0 删、en/vn 无 CJK、计数 top119/flat1037/jobs36/节点4148；判负 3 处全红；★**假绿：R-9-88「无手输框」非通用结构断言**（注入新钩子名+不带 inputmode ⇒ 实现方套件 5/5 假绿；它的结构断言能撞红）⇒ **测试严格度缺口，产品源码无缺陷**；**unit 前 35 pass/0 fail ⇒ 后 36 pass/0 fail**（delta 恰 +1 文件/+5 用例）；build 0。**C.** 两 issue 均不构成本批产品缺陷 ⇒ 不阻塞上线；仍派极小修补单收紧该断言（只改测试）。**D.** push（区间内每 commit 均已过质检）。**E.** 生产终验：health 0040 · ★`GET /api/task-progress/24` 未登录应由修前 200 变 **401** · 非本人 404 · bundle 逐字对拍。 |
 | v0.298 | 2026-10-03 | **R-9-86/R-9-87/R-9-88 三修交付 · ★我独立复核通过（真数据撞号点解到本人 + 路由已加鉴权 + tsc 0）· 十一门带实例 774 项全过 · 入库 4 commit · 派质检**。**A. 后端（60c/515s 截断）**：`R-9-86`（HIGH 隐私面）`index.ts:884-903` 加 `requireActor` + `ensureOwnedTaskProgress`，miss 与非本人**合流同一 404**（不泄漏存在性）⇒ 三臂真 HTTP **8/8**（无 token 401 · 非本人 404 · 本人 200 data 9 键 · miss 404 · **非本人 404 body 与 miss 逐字相同**）；`R-9-87` `database.ts:3268-3291` ORDER BY 本人优先（WHERE 容错与返回形状未动）⇒ 真链路 4/4（仓外去键副本作修复前对照 ⇒ 解到他人）· ★**真数据交叉臂：`X=11` ⇒ 主仓 self(app 9) ⇄ nopri other(app 11)**；判负 2 条（去归属校验 ⇒ 非本人 200 且含交付物正文 = 旧态泄漏复现；oldstate 无 token 200；去优先键 ⇒ 撞红）；**全量硬门带实例逐门 0 红（s2 44 · s3 45 · s3b 38 · s4 79 · s5 117 · s6 64 · s7 59(http9) · s8 92(http11) · s9 100 · s10 49(http3) · s11 87(http6)）= 合计 774 项全过**；路由 88 未变；收尾 PID 76746 ⇒ 5797 空；5787/5788 PID 未变。**B. 前端（30c/184s）**：删手输框（改只读 `jobs-submit-target`）+ 无申请不给表单（`jobs-submit-need-apply` + 新键 `jobs.submitNeedApply`）+ 捕错按 reason 分流精确文案 `jobs.submitNotApplicant`（其余保持通用逐字不变）；四语 2 键齐平（flat 1035→1037 · 节点 4140→4148 · jobs 34→36 · top 119 不变）；`p6-tr2`/`p4z-i18nviol-global` PASS；新测 5/5；vitest 零新增失败；build 0。**C. 我独立复核**：只读探针 `id=11,uid=6` ⇒ **self/app 9**（撞号点解到本人）· `id=23`/`id=24` ⇒ self/app 24 · `999999` ⇒ null；ORDER BY 现取本人优先已居首；R-9-86 路由三件在位；tsc 0；★**我自己 `id=4,uid=3` 期望值猜错（实为 other，因该 uid 对 job 4 本无主张）= 第 13 次口径失准**，盘面对、我猜错。**D.** 入库 4 commit（85/86/87/88 各一）。**E.** 派统一独立质检（后端核心 + HIGH 隐私面 ⇒ 必检）。 |
 | v0.297 | 2026-10-03 | **R-9-85 回执（28c/187s）= 右上角合并为单一菜单按钮 · ★单测实测「控件计数 = 1」· 零 locale 变更 · vitest 零新增失败**。**A.** `Header.jsx` +46/−36；`r9-84-profile-entry.test.jsx` 7→9 用例。① 删 R-9-84 桌面独立 Link ② 触发器 = 唯一按钮（User + 既有地址缩写 + ChevronDown，仍 HoverMenu）③ 下拉恢复「个人资料」+ 保留 积分/电量与签到(#batt-checkin)/退出登录，**不含管理后台** ④ **移动端合并为唯一入口=汉堡**，面板内同款 ⑤ 未登录不渲染 / 路由与左侧 nav 未动 / 无新 import / buildPath 口径未动。**B.** ★单测实测 `header-user-menu` = **1**、两旧钩子 = **0**（控件计数=1）· 按钮文案匹配地址缩写正则 + 含 lucide-user/chevron-down · 四语 href（个人资料 / 电量与签到带锚点）· 不含 admin_panel · 未登录两处不渲染 · 左侧 nav = [reward,task,shard] · **vitest 前 4 failed/7 failed/320 passed ⇒ 后 4 failed/7 failed/322 passed（失败集逐条一致 ⇒ 0 新增）** · Header 相关 4 件 40/40 · build 0（451,234 B）· **locales 零变更** · 六类泄漏 0 · tsc 前端无 tsconfig（如实标注）· 未测项：真浏览器视觉/e2e。**C.** 在跑：后端修复单（R-9-86/87）+ 前端提交面修复单（R-9-88）⇒ 回执后亲跑全量 → 入库 → 质检 → 一次 push。 |

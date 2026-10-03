@@ -54,6 +54,15 @@ const renderPage = () => render(
 
 const q = (m) => document.querySelector(`[data-sf-m="${m}"]`)
 
+// 通用结构面「可编辑控件」判定：input/textarea/select 中，排除 hidden / disabled / readonly。
+// 与**钩子名**、**inputmode** 等属性无关 —— 任何真实的可编辑手输框（无论叫什么名字、带不带属性）都会被计入。
+const editableControls = (root) => Array.from(root.querySelectorAll('input, textarea, select')).filter((el) => {
+  if (el.tagName === 'INPUT' && el.type === 'hidden') return false
+  if (el.disabled) return false
+  if (el.readOnly) return false
+  return true
+})
+
 beforeEach(() => {
   H.table = zh
   H.lang = 'zh'
@@ -64,31 +73,51 @@ beforeEach(() => {
 afterEach(() => cleanup())
 
 // ============================================================================
-// ① 提交目标 = 只读（无 application_id 手输框）
+// ① 提交目标 = 只读（通用结构面：提交区内可编辑控件**恰 1 个** = 交付物）
+//
+// ★ 收紧：不再用「钩子名 jobs-input-identifier」+「inputmode 属性」双限定（那会假绿 ——
+//   一个**真实**的手输框只要改用**新钩子名**且不带 inputmode 就能蒙混过关）。
+//   改为**通用结构面**口径：提交表单内**可编辑控件计数**（input/textarea/select 减
+//   hidden/disabled/readonly）恰 1 个，且提交目标是**只读文本**（非 INPUT/TEXTAREA/SELECT）。
 // ============================================================================
-describe('① 提交面：application_id 只能由「我的报名」带出（无手输框）', () => {
-  it('有本人申请 ⇒ 渲染提交表单，但**不存在**可编辑的 application_id 输入框；目标只读展示 #24', async () => {
+describe('① 提交面：application_id 只能由「我的报名」带出（通用结构面断言）', () => {
+  it('有本人申请 ⇒ 提交表单内**可编辑控件恰 1 个**（= 交付物），且提交目标**非** INPUT/TEXTAREA/SELECT #24', async () => {
     fetchMyApplications.mockResolvedValue([{ jID: 24, tID: 9 }])
     renderPage()
     await waitFor(() => expect(q('jobs-submit-form')).not.toBeNull())
 
-    // 旧手输框（机读位 jobs-input-identifier）已删
-    expect(q('jobs-input-identifier')).toBeNull()
-    // 提交表单内**无**任何 `inputMode=numeric`（旧 application_id 手输框属性）
     const form = q('jobs-submit-form')
-    expect(form.querySelector('input[inputmode="numeric"]')).toBeNull()
 
-    // 当前目标 = 只读文本（非 INPUT），逐字含 `#24` 与「申请编号」标签
-    const target = q('jobs-submit-target')
-    expect(target).not.toBeNull()
-    expect(target.tagName).not.toBe('INPUT')
-    expect(target.textContent).toContain('#24')
-    expect(target.textContent).toContain(zh.jobs.applicationId)
+    // 通用结构面：提交区内**可编辑控件恰 1 个**（通用计数，不依赖钩子名 / 属性）
+    const controls = editableControls(form)
+    expect(controls).toHaveLength(1)
 
-    // 交付物输入框仍在（这是提交面唯一可编辑项）
+    // 且该唯一可编辑控件 = 交付物输入框（提交面交付物）
     const deliverable = q('jobs-input-deliverable')
     expect(deliverable).not.toBeNull()
     expect(deliverable.tagName).toBe('INPUT')
+    expect(controls[0]).toBe(deliverable)
+
+    // 当前目标 = 只读文本（**非** INPUT/TEXTAREA/SELECT），逐字含 `#24` 与「申请编号」标签
+    const target = q('jobs-submit-target')
+    expect(target).not.toBeNull()
+    expect(['INPUT', 'TEXTAREA', 'SELECT']).not.toContain(target.tagName)
+    expect(target.textContent).toContain('#24')
+    expect(target.textContent).toContain(zh.jobs.applicationId)
+  })
+
+  it('作用域正确：accept 面板的 application_id 手输框在**提交表单之外**，不计入提交区计数', async () => {
+    fetchMyApplications.mockResolvedValue([{ jID: 24, tID: 9 }])
+    renderPage()
+    await waitFor(() => expect(q('jobs-submit-form')).not.toBeNull())
+
+    const form = q('jobs-submit-form')
+    const acceptInput = q('jobs-input-accept')
+    expect(acceptInput).not.toBeNull()
+    // accept 栏手输框**不在**提交表单内 ⇒ 不影响提交区可编辑控件计数
+    expect(form.contains(acceptInput)).toBe(false)
+    // 提交区仍**恰 1 个**可编辑控件（= 交付物）
+    expect(editableControls(form)).toHaveLength(1)
   })
 })
 
