@@ -66,10 +66,10 @@ const selfTest = (id: string, group: string, predicate: (v: unknown) => boolean,
 };
 
 // ---------------------------------------------------------------- 冻结常量
-// ★ P9② 冻结计数前推（沿 R-8-22）：注册点 76 → 80（batt/签到 4 新口 +4）。
-const REG_POINTS_FROZEN = 85;
-// ★ P9② 冻结计数前推（沿 R-8-22）：迁移文件数 26 → 28（+0028 / +0029）。
-const MIGRATIONS_FROZEN = 30;
+// ★ P9④ 冻结计数前推（沿 R-8-22）：注册点 85 → 87（BTTC 铸造/分解 2 新口 +2）。
+const REG_POINTS_FROZEN = 87;
+// ★ P9④ 冻结计数前推（沿 R-8-22）：迁移文件数 30 → 33（+0032 / +0033 / +0034）。
+const MIGRATIONS_FROZEN = 33;
 const LISTING_NS_KEYS_FROZEN = 30;
 const ARBITRATION_NS_KEYS_FROZEN = 34;
 // ★ P9①（`route-layer.spec` v2.12 §27 · `R-9-13`）：`adminNav` **26 → 28**（+2 键 = `siteText` / `siteTextDesc`，

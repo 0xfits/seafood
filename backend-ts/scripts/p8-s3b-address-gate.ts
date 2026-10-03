@@ -59,10 +59,10 @@ const DATABASE_TS = read('backend-ts/src/database.ts');
 const CURRENCY_TS = read('backend-ts/src/currency-service.ts');
 const SPEC_DATA = read('docs/data-layer.spec.md');
 const SPEC_ROUTE = read('docs/route-layer.spec.md');
-// ★ P9② 冻结计数前推（沿 R-8-22）：注册点 76 → 80（batt/签到 4 新口 +4）。
-const REG_POINTS_FROZEN = 85;
-// ★ P9② 冻结计数前推（沿 R-8-22）：迁移文件数 26 → 28（+0028 / +0029）。
-const MIGRATIONS_FROZEN = 30;
+// ★ P9④ 冻结计数前推（沿 R-8-22）：注册点 85 → 87（BTTC 铸造/分解 2 新口 +2）。
+const REG_POINTS_FROZEN = 87;
+// ★ P9④ 冻结计数前推（沿 R-8-22）：迁移文件数 30 → 33（+0032 / +0033 / +0034）。
+const MIGRATIONS_FROZEN = 33;
 void SPEC_DATA; void SPEC_ROUTE;
 
 const FROZEN_AK1_FIELDS = [

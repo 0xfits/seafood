@@ -1092,5 +1092,19 @@
     "shipOk": "Đã gửi hàng",
     "receiveOk": "Đã nhận hàng",
     "actionFail": "Thao tác thất bại, vui lòng thử lại sau"
+  },
+  "bttcPanel": {
+    "title": "Token BTTC",
+    "symbol": "₿ BTTC",
+    "balanceLabel": "Số dư",
+    "mintButton": "Đúc",
+    "burnButton": "Phân rã",
+    "mintHint": "Tiêu hao pin và phí để đúc BTTC",
+    "burnHint": "Hủy BTTC để nhận lại pin (có phí)",
+    "mintOk": "Đúc thành công",
+    "burnOk": "Phân rã thành công",
+    "actionFail": "Thao tác thất bại, vui lòng thử lại sau",
+    "unavailable": "Dịch vụ token tạm thời không khả dụng",
+    "noData": "Không có dữ liệu"
   }
 }

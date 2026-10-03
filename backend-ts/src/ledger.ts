@@ -153,6 +153,11 @@ export const MAX_SINGLE_AMOUNT = 1_000_000_000_000_000n; // 1e15
  *   ⇒ **20 → 21**，新增第 21 值 **`checkin_makeup_fee`**（补签 100 `$` 腿，**只追加于末位**、
  *   **不改既有 20 值次序**）。DB 侧同款扩容见 `migrations/0028_kind_close_set_21.sql`（CHECK 重建、非 enum）；
  *   `−1` 归属白名单同步见 `PLATFORM_KIND_WHITELIST['-1'].credit`。**不真 burn**（`R-9-3`）。
+ * ★ P9④（`data-layer.spec` v0.25 §33.10 `R-9-36` / `R-9-42`，2026-10-03）：**21 → 23**，
+ *   新增第 22/23 值 **`bttc_mint_fee`** + **`bttc_burn_fee`**（BTTC 铸造 / 分解的 `$` 费腿，
+ *   **只追加于末位**、**不改既有 21 值次序**；`$` 费腿 → `uid = −1` **不真 burn** · `R-9-3`）。
+ *   DB 侧同款扩容见 `migrations/0032_kind_close_set_23.sql`（CHECK 重建 · `ledger_kind_ok` 同步）；
+ *   `−1` 归属白名单同步见 `PLATFORM_KIND_WHITELIST['-1'].credit`（追加两值）。
  */
 export const LEDGER_KINDS = [
   'mint', 'burn', 'transfer', 'hold', 'hold_release', 'hold_forfeit',
@@ -162,6 +167,7 @@ export const LEDGER_KINDS = [
   'listing_fee', 'listing_deposit',
   'currency_create_fee', 'reversal',
   'checkin_makeup_fee',
+  'bttc_mint_fee', 'bttc_burn_fee',
 ] as const;
 export type LedgerKind = (typeof LEDGER_KINDS)[number];
 
@@ -557,7 +563,12 @@ const PLATFORM_KIND_WHITELIST: Record<string, { credit: LedgerKind[]; debit: Led
   //    `R-9-3`）。**必须与 DB 侧同改**：`migrations/0028_kind_close_set_21.sql` 扩容 kind 关闭集；
   //    `ledger_assert_platform_mutation` 的 `-1` credit 白名单须同轮加入本 kind（沿 `0019` 对
   //    `listing_deposit` 的加法式扩展手法）。`debit` 仍恒为空。
-  '-1': { credit: ['trade_fee', 'listing_fee', 'currency_create_fee', 'job_fee', 'listing_deposit', 'checkin_makeup_fee'], debit: [] },
+  // 🆕 P9④（`data-layer.spec` v0.25 §33.10 `R-9-36`「−1 credit 白名单追加两值」+ `ledger.spec` R101）：
+  //    `-1` 的 credit 再接纳 `bttc_mint_fee` + `bttc_burn_fee`（BTTC 铸造 / 分解的 `$` 费腿 → 平台收入、
+  //    **不真 burn** · `R-9-3`）。**必须与 DB 侧同改**：`migrations/0032_kind_close_set_23.sql` 扩容 kind
+  //    关闭集（21 → 23）；`ledger_assert_platform_mutation` 的 `-1` credit 白名单须同轮追加两值。
+  //    `debit` 仍恒为空（不许被顺带松掉）。
+  '-1': { credit: ['trade_fee', 'listing_fee', 'currency_create_fee', 'job_fee', 'listing_deposit', 'checkin_makeup_fee', 'bttc_mint_fee', 'bttc_burn_fee'], debit: [] },
   '-2': { credit: ['job_fee'], debit: ['commission'] },
   // R38 说明「退还 = 反向 hold_forfeit 或从 −3 transfer」；R101 却禁止平台账户用 transfer
   // ⇒ spec 内部张力，本实现取宽松侧（允许退还路径），已登记为歧义点。

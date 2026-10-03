@@ -276,6 +276,49 @@ export type PolicySource = 'config' | 'constant';
 export const BATT_CAP_HARD_MAX = 100;
 export const CHECKIN_STREAK_CAP_HARD_MAX = 7;
 
+/**
+ * ★ P9④（`data-layer.spec` v0.25 §33.2(a) `R-9-40`）：`mint_burn_policy` 五键**服务端常量兜底**。
+ * 逐字 = 需求 §5.2.2「100 batt + 1$ ⇒ 铸 1 BTTC」/ §5.3.2「1 BTTC + 1$ ⇒ 分解」/ §5.3.3「+100 batt」。
+ * `app_config` 无行 / 字段非法 ⇒ 该字段回落本表；`source = 'config'`（有行）| `'constant'`（无行）。
+ */
+export const MINT_BURN_POLICY_DEFAULTS = {
+  mintBattCost: 100, mintFeeUsd: 1, burnBttcCost: 1, burnFeeUsd: 1, burnBattGain: 100,
+} as const;
+
+export type MintBurnPolicy = {
+  mintBattCost: number; mintFeeUsd: number; burnBttcCost: number; burnFeeUsd: number; burnBattGain: number;
+};
+
+/**
+ * ★ `R-9-23`（生效值钳制到下游 DB CHECK 同构）· P9④ 附加两键：
+ *   · `mintBattCost` 生效值 ≤ `capBatt` 生效值（`capBatt` 自身已钳 ≤ 100）—— 否则当 `capBatt < 100`
+ *     时铸造恒不可达（耗 100 batt 永不能满足）；
+ *   · `burnBattGain` 生效值 ≤ `BATT_CAP_HARD_MAX`（100）—— DB 兜底 `CHECK (batt BETWEEN 0 AND 100)`
+ *     （`0029:53`）⇒ 否则分解写入被 **23514** 拒。
+ *  `capBatt` 由调用方（已解析的 `batt_policy`）传入；缺省 = 硬上限 100。
+ */
+export const resolveMintBurnPolicy = (
+  raw: unknown,
+  capBatt: number = BATT_CAP_HARD_MAX,
+): { policy: MintBurnPolicy; source: PolicySource } => {
+  const isObj = raw !== null && typeof raw === 'object' && !Array.isArray(raw);
+  const v = isObj ? raw as Record<string, unknown> : {};
+  const capBound = Number.isSafeInteger(capBatt) && capBatt > 0 ? capBatt : BATT_CAP_HARD_MAX;
+  // ★ `R-9-23` 钳制：`mintBattCost` ≤ capBatt；`burnBattGain` ≤ 100（DB CHECK 兜底同构）。
+  const mintBattCost = Math.min(policyPositiveInt(v.mintBattCost) ?? MINT_BURN_POLICY_DEFAULTS.mintBattCost, capBound);
+  const burnBattGain = Math.min(policyPositiveInt(v.burnBattGain) ?? MINT_BURN_POLICY_DEFAULTS.burnBattGain, BATT_CAP_HARD_MAX);
+  return {
+    policy: {
+      mintBattCost,
+      mintFeeUsd: policyPositiveInt(v.mintFeeUsd) ?? MINT_BURN_POLICY_DEFAULTS.mintFeeUsd,
+      burnBttcCost: policyPositiveInt(v.burnBttcCost) ?? MINT_BURN_POLICY_DEFAULTS.burnBttcCost,
+      burnFeeUsd: policyPositiveInt(v.burnFeeUsd) ?? MINT_BURN_POLICY_DEFAULTS.burnFeeUsd,
+      burnBattGain,
+    },
+    source: isObj ? 'config' : 'constant',
+  };
+};
+
 /** 正整数域（fail-closed：非安全整数 / ≤0 ⇒ `null` ⇒ 调用方回落常量）。 */
 const policyPositiveInt = (raw: unknown): number | null => {
   const n = typeof raw === 'number' ? raw : (typeof raw === 'string' && raw.trim() !== '' ? Number(raw) : NaN);
@@ -529,7 +572,7 @@ type SqlRunner = { query: (text: string, params?: unknown[]) => Promise<{ rows: 
 /** 上市（`POST /api/currency/:cid/list`）的 DB 侧唯一显式语句（单语句 CTE = 一个隐式事务）。 */
 const LIST_CURRENCY_WITH_DEPOSIT_SQL = `
       WITH cur AS (
-        SELECT c.cid, c.owner_uid, c.status, c.deposit_cid
+        SELECT c.cid, c.owner_uid, c.status, c.deposit_cid, c.is_platform_coin
         FROM public.currency AS c
         WHERE c.cid = $1::bigint
         FOR UPDATE
@@ -549,17 +592,27 @@ const LIST_CURRENCY_WITH_DEPOSIT_SQL = `
         WHERE c.cid = $1::bigint
           AND c.status = 'draft'
           AND (SELECT cur.owner_uid FROM cur) = $4::bigint
-          -- ★★ 批 8④ C2 审核闸（fail-closed · route-layer.spec v2.8 §23.5 ④）：
+          --    ★★ 批 8④ C2 审核闸（fail-closed · route-layer.spec v2.8 §23.5 ④）：
           --    无「已通过审核的台账行」（currency_review_log.result='approved'）⇒ 本 CTE 不产行
           --    ⇒ 整条语句零副作用（不改 status / 不写 currency_status_log / 零账本分录）
           --    ⇒ 服务层落既有 stateConflict('currency.status','CURRENCY_STATE_INVALID',
           --      required_from='draft') @ currency-service.ts:454（未审 draft 不得上市）。
           --    闸在唯一写路径的 SQL 内（R-8-18 单一真源）⇒ 服务层 / 探针两路共用、不可绕过。
           --    台账表为 append-only（0025）⇒「已通过」单调不可撤销 ⇒ 无 TOCTOU 逃逸。
-          AND EXISTS (
-            SELECT 1 FROM public.currency_review_log AS r
-             WHERE r.cid = $1::bigint AND r.result = 'approved'
+          --    ★★ P9④（R-9-39 · data-layer.spec v0.25 §33.10-B）：**平台币豁免 = 追加一个谓词**
+          --      （c.is_platform_coin = true；变体 Ⅱ 标记列 · 迁移 0033）。豁免**只对带平台标记的行生效**
+          --      （C-1）；**既有 6 条条件一字未动**（仅把 AND EXISTS(…) 从单谓词包为 AND (EXISTS(…) OR 平台)），
+          --      **不造第二写路径**。存量行 is_platform_coin = false ⇒ 非平台行仍必须走审核闸。
+          AND (
+            EXISTS (
+              SELECT 1 FROM public.currency_review_log AS r
+               WHERE r.cid = $1::bigint AND r.result = 'approved'
+            )
+            OR c.is_platform_coin = true
           )
+          -- ★ P9④（R-9-39）：保证金腿对**平台行跳过** —— 平台币豁免保证金（R-9-2）。
+          --   非平台行（is_platform_coin = false）仍全额缴保证金（C-1 判据）。
+          AND NOT (c.is_platform_coin = true AND $3::bigint <> 0)
         RETURNING c.cid, c.symbol, c.owner_uid, c.status, c.decimals,
                   c.deposit_amount, c.deposit_cid, c.listed_at
       ),
@@ -4519,6 +4572,369 @@ export class DatabaseService {
       restoredStreakDay: restored,
       txid,
       ledger: row.ledger_result ?? null,
+    };
+  }
+
+  // ==========================================================================
+  // 批 9 第 4 片（P9④ · `data-layer.spec` v0.25 §33 · `route-layer.spec` v2.18 §30）：
+  //   BTTC 代币（`battcoin`）铸造 / 分解 —— 载体 = `currency` 表一行（`R-9-2` / `R-9-40`）
+  //   + `batt_account` / `batt_entry`（P9② 复用）+ `ledger_entry`（既有 `mint` / `burn` 本体腿
+  //   + 新 kind `bttc_mint_fee` / `bttc_burn_fee` 的 `$` 费腿 → `uid = −1`，**不真 burn** · `R-9-3`）。
+  // --------------------------------------------------------------------------
+  // · 事务形态 = **单语句 CTE**（`R-9-41`）：batt 扣 / 加 + `$` 费腿 + BTTC 本体腿（`op='mint'` /
+  //   `op='burn'` ⇒ 账本**自动双写** `currency.total_supply` · `R-9-37`）+ `batt_entry` 台账行——
+  //   全部**同一条语句**（不可绕过的唯一写路径，沿 8④ `C2` 教训）。
+  // · 幂等键 = **`cli:<UUID>`**（调用方供键 · `R-9-41`）；`$` 费腿事件键 = **`<key>:fee`**（同族派生）。
+  // · ★ `C-15`：「无行 ⇒ 兜底值」一律 `COALESCE((SELECT …), 0)`（**外层 `COALESCE`**）；
+  //   无行 / 闸不过 ⇒ 整条语句**零副作用**（不改 batt / 不写 `batt_entry` / 不调 `ledger_post_event`）。
+  // · 库面 leg = **活体可验**（`0032` / `0033` / `0034` **已 apply** ⇒ `schema_version = 0034`）。
+  // ==========================================================================
+
+  /** BTTC 铸造 / 分解策略取数（`mint_burn_policy` 五键 · fail-closed 到常量 · `R-9-23` 钳制）。 */
+  private static async resolveMintBurn(ex?: SqlRunner): Promise<MintBurnPolicy> {
+    const rawBatt = await this.getAppConfigValueByKey('batt_policy', ex);
+    const { policy: battPolicy } = resolveBattPolicy(rawBatt);
+    const rawMb = await this.getAppConfigValueByKey('mint_burn_policy', ex);
+    const { policy } = resolveMintBurnPolicy(rawMb, battPolicy.capBatt);
+    return policy;
+  }
+
+  /**
+   * ★ BTTC 载体行创建（`R-9-40` · 走既有 `currency` 写路径 · idempotent）。
+   *   逐列：`symbol='BTTC'` / `name='battcoin'` / `owner_uid=0` / `decimals=0` / `status='listed'`
+   *   （`listed_at=now()` 满足 `currency_listed_at` CHECK）/ `deposit_amount=0` / `deposit_cid=1` /
+   *   `supply_cap=NULL` / **`is_platform_coin=true`**（`0033`）。`ON CONFLICT (symbol) DO NOTHING` 幂等。
+   *   ★ 平台受信任路径（非普通用户 `POST /api/currency`）；`0033` 已 apply ⇒ 活体可验。
+   *   ★ `R-9-45`：**返回确定值** —— 插入那一次经 `ins RETURNING` **同名取回**（PG 数据修改型 CTE
+   *   与主查询同快照互不可见 ⇒ 主查询直接读 `public.currency` 会得到 `cid=NULL`），故对每列
+   *   `COALESCE((SELECT … FROM ins), (SELECT … FROM public.currency …))` 兜底；调用方不得据 `null` 判「未创建」。
+   */
+  static async ensureBttcCurrency(ex?: SqlRunner): Promise<{
+    cid: string; symbol: string; name: string; decimals: number; status: string;
+    total_supply: string; is_platform_coin: boolean; inserted: boolean;
+  } | null> {
+    const sql = sqlFor(ex);
+    const rows = asItems<Record<string, unknown>>(await sql`
+      WITH ins AS (
+        INSERT INTO public.currency
+          (symbol, name, owner_uid, decimals, status, listed_at, deposit_amount, deposit_cid, supply_cap, is_platform_coin)
+        SELECT 'BTTC'::text, 'battcoin'::text, 0::bigint, 0::smallint, 'listed', now(),
+               0::bigint, 1::bigint, NULL::bigint, true
+        WHERE NOT EXISTS (SELECT 1 FROM public.currency AS c WHERE c.symbol = 'BTTC')
+        ON CONFLICT (symbol) DO NOTHING
+        RETURNING cid, symbol, name, decimals, status, total_supply, is_platform_coin
+      )
+      SELECT
+        (SELECT count(*)::int FROM ins) AS inserted,
+        COALESCE((SELECT i.cid::text FROM ins AS i), (SELECT c.cid::text FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1)) AS cid,
+        COALESCE((SELECT i.symbol FROM ins AS i), (SELECT c.symbol FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1)) AS symbol,
+        COALESCE((SELECT i.name FROM ins AS i), (SELECT c.name FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1)) AS name,
+        COALESCE((SELECT i.decimals::int FROM ins AS i), (SELECT c.decimals::int FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1)) AS decimals,
+        COALESCE((SELECT i.status FROM ins AS i), (SELECT c.status FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1)) AS status,
+        COALESCE((SELECT i.total_supply::text FROM ins AS i), (SELECT c.total_supply::text FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1)) AS total_supply,
+        COALESCE((SELECT i.is_platform_coin FROM ins AS i), (SELECT c.is_platform_coin FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1)) AS is_platform_coin
+    `);
+    const row = rows[0];
+    if (!row) return null;
+    const cid = row.cid === null || row.cid === undefined ? null : String(row.cid);
+    if (cid === null) return null;
+    return {
+      cid,
+      symbol: String(row.symbol ?? ''),
+      name: String(row.name ?? ''),
+      decimals: Number(row.decimals ?? 0) || 0,
+      status: String(row.status ?? ''),
+      total_supply: String(row.total_supply ?? '0'),
+      is_platform_coin: row.is_platform_coin === true,
+      inserted: Number(row.inserted ?? 0) > 0,
+    };
+  }
+
+  /**
+   * R1 · 用户 BTTC 资产读口（并入既有 `GET /api/batt` 用户资产面 · 变体 Ⅱ）。
+   *   取数：BTTC 行（`symbol='BTTC'`）+ 用户 `account(cid=BTTC).balance` + `$` 余额 + `batt`
+   *   + `mint_burn_policy` 五键生效值 ⇒ 派生布尔 `canMint` / `canBurn`（即时重算 · 不落列）。
+   *   ★ `C-15`：无 `account` / 无 `batt_account` 行 ⇒ `COALESCE(…, 0)`（**外层**）。
+   */
+  static async getBttcState(uid: number, ex?: SqlRunner): Promise<{
+    symbol: string; name: string; decimals: number; status: string | null; totalSupply: string;
+    balance: string; usdBalance: string; batt: number;
+    canMint: boolean; canBurn: boolean;
+    policy: MintBurnPolicy; source: PolicySource;
+  }> {
+    const rawBatt = await this.getAppConfigValueByKey('batt_policy', ex);
+    const { policy: battPolicy } = resolveBattPolicy(rawBatt);
+    const sql = sqlFor(ex);
+    const rows = asItems<Record<string, unknown>>(await sql`
+      WITH bttc AS (
+        SELECT c.cid, c.symbol, c.name, c.decimals, c.status, c.total_supply
+        FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1
+      )
+      SELECT
+        (SELECT bttc.symbol FROM bttc) AS symbol,
+        (SELECT bttc.name FROM bttc) AS name,
+        (SELECT bttc.decimals::int FROM bttc) AS decimals,
+        (SELECT bttc.status FROM bttc) AS status,
+        (SELECT bttc.total_supply::text FROM bttc) AS total_supply,
+        COALESCE((SELECT a.balance::text FROM public.account AS a
+                   WHERE a.uid = ${uid} AND a.cid = (SELECT bttc.cid FROM bttc)), '0') AS bttc_balance,
+        COALESCE((SELECT a.balance::text FROM public.account AS a
+                   WHERE a.uid = ${uid} AND a.cid = 1), '0') AS usd_balance,
+        COALESCE((SELECT b.batt::int FROM public.batt_account AS b WHERE b.uid = ${uid}), 0) AS batt,
+        (SELECT p.value FROM public.app_config AS p WHERE p.key = 'mint_burn_policy' LIMIT 1) AS mb_policy
+    `);
+    const row = (rows[0] || {}) as Record<string, unknown>;
+    const { policy, source } = resolveMintBurnPolicy(row.mb_policy, battPolicy.capBatt);
+    const balance = String(row.bttc_balance ?? '0');
+    const usdBalance = String(row.usd_balance ?? '0');
+    const batt = Number(row.batt ?? 0) || 0;
+    const status = row.status === null || row.status === undefined ? null : String(row.status);
+    const mintable = status === 'draft' || status === 'listed';
+    return {
+      symbol: String(row.symbol ?? 'BTTC'),
+      name: String(row.name ?? 'battcoin'),
+      decimals: Number(row.decimals ?? 0) || 0,
+      status,
+      totalSupply: String(row.total_supply ?? '0'),
+      balance,
+      usdBalance,
+      batt,
+      canMint: mintable && batt >= policy.mintBattCost && BigInt(usdBalance) >= BigInt(policy.mintFeeUsd),
+      canBurn: BigInt(balance) >= BigInt(policy.burnBttcCost) && BigInt(usdBalance) >= BigInt(policy.burnFeeUsd),
+      policy,
+      source,
+    };
+  }
+
+  /**
+   * A1 · `POST /api/bttc/mint` 写口（**单语句 CTE** · `R-9-41`）。
+   *   batt `−mintBattCost`（→ 0 清零）+ `$` 费腿 `−mintFeeUsd` → `uid = −1`（kind `bttc_mint_fee`）
+   *   + BTTC 本体 `+1`（`op='mint'` ⇒ 双写 `total_supply`）。三面**同一条语句**（原子）。
+   *   闸（写路径内 · `C-15` 外层 `COALESCE`）：`batt ≥ mintBattCost` ∧ `$ ≥ mintFeeUsd` ∧ BTTC 可铸（`listed`/`draft`）。
+   */
+  static async bttcMint(input: { uid: number; idempotencyKey: string; requestFingerprint: string; memo: string }, ex?: SqlRunner): Promise<{
+    outcome: 'applied' | 'replayed' | 'rejected';
+    batt: number; balance: string; usdBalance: string; held: string; bstatus: string | null;
+    txid: string | null; supplyBefore: string | null; supplyAfter: string | null;
+  } | null> {
+    const { uid, idempotencyKey, requestFingerprint, memo } = input;
+    const p = await this.resolveMintBurn(ex);
+    const feeKey = `${idempotencyKey}:fee`;
+    const sql = sqlFor(ex);
+    const rows = asItems<Record<string, unknown>>(await sql`
+      WITH
+      bttc AS (SELECT c.cid, c.status FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1),
+      cur AS (SELECT b.batt FROM public.batt_account AS b WHERE b.uid = ${uid} FOR UPDATE),
+      usd AS (SELECT COALESCE((SELECT a.balance FROM public.account AS a WHERE a.uid = ${uid} AND a.cid = 1), 0) AS bal),
+      held AS (SELECT COALESCE((SELECT a.balance FROM public.account AS a
+                WHERE a.uid = ${uid} AND a.cid = (SELECT bttc.cid FROM bttc)), 0) AS bal),
+      gate AS (
+        SELECT
+          COALESCE((SELECT cur.batt FROM cur), 0)::int AS batt,
+          (SELECT usd.bal FROM usd)::bigint AS usd,
+          (SELECT held.bal FROM held)::bigint AS held,
+          (SELECT bttc.cid FROM bttc) AS bcid,
+          (SELECT bttc.status FROM bttc) AS bstatus
+      ),
+      ok AS (
+        SELECT
+          (SELECT batt FROM gate) >= ${String(p.mintBattCost)}::int
+          AND (SELECT usd FROM gate) >= ${String(p.mintFeeUsd)}::bigint
+          AND (SELECT bcid FROM gate) IS NOT NULL
+          AND (SELECT bstatus FROM gate) IN ('draft', 'listed') AS pass
+      ),
+      prior AS (SELECT 1 FROM public.batt_entry AS e WHERE e.idempotency_key = ${idempotencyKey}::text),
+      fee_ev AS (
+        SELECT ledger_post_event(jsonb_build_object(
+          'op', 'entries',
+          'idempotency_key', ${feeKey}::text,
+          'request_fingerprint', ${requestFingerprint}::text,
+          'ref_type', 'currency',
+          'ref_id', (SELECT gate.bcid::text FROM gate),
+          'memo', ${memo}::text,
+          'entries', jsonb_build_array(
+            jsonb_build_object('uid', ${String(uid)}::text, 'cid', '1', 'delta', ${String(-p.mintFeeUsd)}::text,
+              'kind', 'bttc_mint_fee', 'ref_type', 'currency', 'ref_id', (SELECT gate.bcid::text FROM gate)),
+            jsonb_build_object('uid', '-1', 'cid', '1', 'delta', ${String(p.mintFeeUsd)}::text,
+              'kind', 'bttc_mint_fee', 'ref_type', 'currency', 'ref_id', (SELECT gate.bcid::text FROM gate))
+          )
+        )) AS r
+        FROM ok WHERE (SELECT pass FROM ok)
+      ),
+      body_ev AS (
+        SELECT ledger_post_event(jsonb_build_object(
+          'op', 'mint',
+          'idempotency_key', ${idempotencyKey}::text,
+          'request_fingerprint', ${requestFingerprint}::text,
+          'ref_type', 'currency',
+          'ref_id', (SELECT gate.bcid::text FROM gate),
+          'uid', ${String(uid)}::text,
+          'cid', (SELECT gate.bcid::text FROM gate),
+          'amount', '1',
+          'platform', true
+        )) AS r
+        FROM fee_ev
+      ),
+      upd_batt AS (
+        INSERT INTO public.batt_account (uid, batt)
+        SELECT ${uid}, (COALESCE((SELECT cur.batt FROM cur), 0) - ${String(p.mintBattCost)}::int)
+        WHERE (SELECT pass FROM ok) AND NOT EXISTS (SELECT 1 FROM prior)
+        ON CONFLICT (uid) DO UPDATE SET batt = (COALESCE((SELECT cur.batt FROM cur), 0) - ${String(p.mintBattCost)}::int)
+        RETURNING batt
+      ),
+      ins_batt AS (
+        INSERT INTO public.batt_entry (uid, delta, batt_after, reason, idempotency_key, ref_type, ref_id, memo)
+        SELECT ${uid}, ${String(-p.mintBattCost)}::int, (SELECT batt FROM upd_batt), 'bttc_mint',
+               ${idempotencyKey}::text, 'currency', (SELECT gate.bcid FROM gate), ''
+        FROM upd_batt
+        RETURNING txid
+      )
+      SELECT
+        (SELECT pass FROM ok) AS gated,
+        EXISTS (SELECT 1 FROM prior) AS was_prior,
+        (SELECT count(*)::int FROM ins_batt) AS inserted_batt,
+        COALESCE((SELECT batt FROM upd_batt), (SELECT cur.batt FROM cur), 0)::int AS batt,
+        (SELECT gate.usd::text FROM gate) AS gate_usd,
+        (SELECT gate.held::text FROM gate) AS gate_held,
+        (SELECT gate.bstatus FROM gate) AS gate_bstatus,
+        (SELECT (body_ev.r->>'txid') FROM body_ev) AS body_txid,
+        (SELECT (body_ev.r->'extra'->>'supply_before') FROM body_ev) AS supply_before,
+        (SELECT (body_ev.r->'extra'->>'supply_after') FROM body_ev) AS supply_after
+    `);
+    const row = rows[0];
+    if (!row) return null;
+    const gated = row.gated === true;
+    const wasPrior = row.was_prior === true;
+    return {
+      outcome: !gated ? 'rejected' : (wasPrior ? 'replayed' : 'applied'),
+      batt: Number(row.batt ?? 0) || 0,
+      balance: '',
+      usdBalance: String(row.gate_usd ?? '0'),
+      held: String(row.gate_held ?? '0'),
+      bstatus: row.gate_bstatus === null || row.gate_bstatus === undefined ? null : String(row.gate_bstatus),
+      txid: row.body_txid === null || row.body_txid === undefined ? null : String(row.body_txid),
+      supplyBefore: row.supply_before === null || row.supply_before === undefined ? null : String(row.supply_before),
+      supplyAfter: row.supply_after === null || row.supply_after === undefined ? null : String(row.supply_after),
+    };
+  }
+
+  /**
+   * A2 · `POST /api/bttc/burn` 写口（**单语句 CTE** · `R-9-41`）。
+   *   BTTC 本体 `−burnBttcCost`（`op='burn'` ⇒ 真销毁 + 双写 `total_supply` · `R-9-37`）
+   *   + `$` 费腿 `−burnFeeUsd` → `uid = −1`（kind `bttc_burn_fee`）+ batt `+burnBattGain`
+   *   （**封顶丢弃** · `R-9-17`）。三面**同一条语句**。
+   *   闸：`BTTC ≥ burnBttcCost` ∧ `$ ≥ burnFeeUsd`（`R-9-38` 持有人本人 = token uid）。
+   */
+  static async bttcBurn(input: { uid: number; idempotencyKey: string; requestFingerprint: string; memo: string }, ex?: SqlRunner): Promise<{
+    outcome: 'applied' | 'replayed' | 'rejected';
+    batt: number; balance: string; usdBalance: string; held: string; bstatus: string | null;
+    txid: string | null; supplyBefore: string | null; supplyAfter: string | null;
+  } | null> {
+    const { uid, idempotencyKey, requestFingerprint, memo } = input;
+    const rawBatt = await this.getAppConfigValueByKey('batt_policy', ex);
+    const { policy: battPolicy } = resolveBattPolicy(rawBatt);
+    const p = await this.resolveMintBurn(ex);
+    const capBatt = Math.min(Math.max(1, battPolicy.capBatt), BATT_CAP_HARD_MAX);
+    const feeKey = `${idempotencyKey}:fee`;
+    const sql = sqlFor(ex);
+    const rows = asItems<Record<string, unknown>>(await sql`
+      WITH
+      bttc AS (SELECT c.cid, c.status FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1),
+      cur AS (SELECT b.batt FROM public.batt_account AS b WHERE b.uid = ${uid} FOR UPDATE),
+      usd AS (SELECT COALESCE((SELECT a.balance FROM public.account AS a WHERE a.uid = ${uid} AND a.cid = 1), 0) AS bal),
+      held AS (SELECT COALESCE((SELECT a.balance FROM public.account AS a
+                WHERE a.uid = ${uid} AND a.cid = (SELECT bttc.cid FROM bttc)), 0) AS bal),
+      gate AS (
+        SELECT
+          COALESCE((SELECT cur.batt FROM cur), 0)::int AS batt,
+          (SELECT usd.bal FROM usd)::bigint AS usd,
+          (SELECT held.bal FROM held)::bigint AS held,
+          (SELECT bttc.cid FROM bttc) AS bcid,
+          (SELECT bttc.status FROM bttc) AS bstatus
+      ),
+      ok AS (
+        SELECT
+          (SELECT held FROM gate) >= ${String(p.burnBttcCost)}::bigint
+          AND (SELECT usd FROM gate) >= ${String(p.burnFeeUsd)}::bigint
+          AND (SELECT bcid FROM gate) IS NOT NULL
+          AND (SELECT bstatus FROM gate) IN ('draft', 'listed') AS pass
+      ),
+      prior AS (SELECT 1 FROM public.batt_entry AS e WHERE e.idempotency_key = ${idempotencyKey}::text),
+      fee_ev AS (
+        SELECT ledger_post_event(jsonb_build_object(
+          'op', 'entries',
+          'idempotency_key', ${feeKey}::text,
+          'request_fingerprint', ${requestFingerprint}::text,
+          'ref_type', 'currency',
+          'ref_id', (SELECT gate.bcid::text FROM gate),
+          'memo', ${memo}::text,
+          'entries', jsonb_build_array(
+            jsonb_build_object('uid', ${String(uid)}::text, 'cid', '1', 'delta', ${String(-p.burnFeeUsd)}::text,
+              'kind', 'bttc_burn_fee', 'ref_type', 'currency', 'ref_id', (SELECT gate.bcid::text FROM gate)),
+            jsonb_build_object('uid', '-1', 'cid', '1', 'delta', ${String(p.burnFeeUsd)}::text,
+              'kind', 'bttc_burn_fee', 'ref_type', 'currency', 'ref_id', (SELECT gate.bcid::text FROM gate))
+          )
+        )) AS r
+        FROM ok WHERE (SELECT pass FROM ok)
+      ),
+      body_ev AS (
+        SELECT ledger_post_event(jsonb_build_object(
+          'op', 'burn',
+          'idempotency_key', ${idempotencyKey}::text,
+          'request_fingerprint', ${requestFingerprint}::text,
+          'ref_type', 'currency',
+          'ref_id', (SELECT gate.bcid::text FROM gate),
+          'uid', ${String(uid)}::text,
+          'cid', (SELECT gate.bcid::text FROM gate),
+          'amount', ${String(p.burnBttcCost)}::text
+        )) AS r
+        FROM fee_ev
+      ),
+      after AS (
+        SELECT LEAST(COALESCE((SELECT cur.batt FROM cur), 0) + ${String(p.burnBattGain)}::int, ${String(capBatt)}::int)::int AS batt
+      ),
+      delta AS (SELECT ((SELECT batt FROM after) - COALESCE((SELECT cur.batt FROM cur), 0))::int AS d),
+      upd_batt AS (
+        INSERT INTO public.batt_account (uid, batt)
+        SELECT ${uid}, (SELECT batt FROM after)
+        WHERE (SELECT pass FROM ok) AND NOT EXISTS (SELECT 1 FROM prior)
+        ON CONFLICT (uid) DO UPDATE SET batt = (SELECT batt FROM after)
+        RETURNING batt
+      ),
+      ins_batt AS (
+        INSERT INTO public.batt_entry (uid, delta, batt_after, reason, idempotency_key, ref_type, ref_id, memo)
+        SELECT ${uid}, (SELECT d FROM delta), (SELECT batt FROM after), 'bttc_burn',
+               ${idempotencyKey}::text, 'currency', (SELECT gate.bcid FROM gate), ''
+        FROM upd_batt
+        WHERE (SELECT d FROM delta) <> 0
+        RETURNING txid
+      )
+      SELECT
+        (SELECT pass FROM ok) AS gated,
+        EXISTS (SELECT 1 FROM prior) AS was_prior,
+        (SELECT count(*)::int FROM ins_batt) AS inserted_batt,
+        COALESCE((SELECT batt FROM upd_batt), (SELECT cur.batt FROM cur), 0)::int AS batt,
+        (SELECT gate.usd::text FROM gate) AS gate_usd,
+        (SELECT gate.held::text FROM gate) AS gate_held,
+        (SELECT gate.bstatus FROM gate) AS gate_bstatus,
+        (SELECT (body_ev.r->>'txid') FROM body_ev) AS body_txid,
+        (SELECT (body_ev.r->'extra'->>'supply_before') FROM body_ev) AS supply_before,
+        (SELECT (body_ev.r->'extra'->>'supply_after') FROM body_ev) AS supply_after
+    `);
+    const row = rows[0];
+    if (!row) return null;
+    const gated = row.gated === true;
+    const wasPrior = row.was_prior === true;
+    return {
+      outcome: !gated ? 'rejected' : (wasPrior ? 'replayed' : 'applied'),
+      batt: Number(row.batt ?? 0) || 0,
+      balance: '',
+      usdBalance: String(row.gate_usd ?? '0'),
+      held: String(row.gate_held ?? '0'),
+      bstatus: row.gate_bstatus === null || row.gate_bstatus === undefined ? null : String(row.gate_bstatus),
+      txid: row.body_txid === null || row.body_txid === undefined ? null : String(row.body_txid),
+      supplyBefore: row.supply_before === null || row.supply_before === undefined ? null : String(row.supply_before),
+      supplyAfter: row.supply_after === null || row.supply_after === undefined ? null : String(row.supply_after),
     };
   }
 

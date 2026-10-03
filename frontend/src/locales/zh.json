@@ -1092,5 +1092,19 @@
     "shipOk": "已发货",
     "receiveOk": "已收货",
     "actionFail": "操作失败，请稍后重试"
+  },
+  "bttcPanel": {
+    "title": "BTTC 代币",
+    "symbol": "₿ BTTC",
+    "balanceLabel": "余额",
+    "mintButton": "铸造",
+    "burnButton": "分解",
+    "mintHint": "消耗电量与手续费后铸造 BTTC",
+    "burnHint": "销毁 BTTC 并返还电量（扣除手续费）",
+    "mintOk": "铸造成功",
+    "burnOk": "分解成功",
+    "actionFail": "操作失败，请稍后重试",
+    "unavailable": "代币服务暂不可用",
+    "noData": "暂无数据"
   }
 }

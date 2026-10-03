@@ -57,10 +57,10 @@ const selfTest = (id: string, group: string, predicate: (v: unknown) => boolean,
 };
 
 // ---------------------------------------------------------------- 冻结常量
-// ★ P9② 冻结计数前推（沿 R-8-22）：注册点 76 → 80（batt/签到 4 新口 +4）。
-const REG_POINTS_FROZEN = 85;
-// ★ P9② 冻结计数前推（沿 R-8-22）：迁移文件数 26 → 28（+0028 / +0029）。
-const MIGRATIONS_FROZEN = 30;
+// ★ P9④ 冻结计数前推（沿 R-8-22）：注册点 85 → 87（BTTC 铸造/分解 2 新口 +2）。
+const REG_POINTS_FROZEN = 87;
+// ★ P9④ 冻结计数前推（沿 R-8-22）：迁移文件数 30 → 33（+0032 / +0033 / +0034）。
+const MIGRATIONS_FROZEN = 33;
 const REVIEW_NS_KEYS_FROZEN = 28;
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;
@@ -102,11 +102,12 @@ const LIST_SQL = ((): string => {
 
 /**
  * 上市语句的 `apply` CTE 是否被 **8④ C2 审核闸** fail-closed 门控
- * （`AND EXISTS (SELECT 1 FROM public.currency_review_log … r.result = 'approved')`）。
+ * （P9④ `R-9-39` 变体 Ⅱ：`AND ( EXISTS (SELECT 1 FROM public.currency_review_log … r.result = 'approved')
+ *   OR c.is_platform_coin = true )` —— 既有审核闸**逐字仍在**，仅被包为 `AND ( EXISTS(…) OR 平台标记 )`）。
  * 谓词锚定「`apply` CTE 内」⇒ 只判 `draft→listed` 转移处的闸，不咬同期它处文本。
  */
 const listApplyGated = (sql: string): boolean =>
-  /apply AS \(\s*UPDATE public\.currency AS c[\s\S]*?AND EXISTS \(\s*SELECT 1 FROM public\.currency_review_log[\s\S]*?r\.result = 'approved'\s*\)/.test(sql);
+  /apply AS \(\s*UPDATE public\.currency AS c[\s\S]*?AND \(\s*EXISTS \(\s*SELECT 1 FROM public\.currency_review_log[\s\S]*?r\.result = 'approved'[\s\S]*?\)\s*OR\s+c\.is_platform_coin = true\s*\)/.test(sql);
 
 const LANGS = ['zh', 'en', 'hk', 'vn'];
 const LOCALES: Record<string, Record<string, unknown>> = Object.fromEntries(LANGS.map((l) => [
@@ -353,14 +354,14 @@ selfTest('H9', 'migration', (v) => /time_created\s+timestamptz NOT NULL DEFAULT 
 // ============================================================================
 {
   t('J1', 'listGate', listApplyGated(LIST_SQL),
-    '上市语句 `apply` CTE 被 8④ 审核闸门控（`AND EXISTS (SELECT 1 FROM public.currency_review_log … result = \'approved\')`；缺闸 ⇒ 未审 draft 可自助上市 ⇒ 判负）',
+    "上市语句 `apply` CTE 被 8④ 审核闸门控（`AND ( EXISTS (SELECT 1 FROM public.currency_review_log … result = 'approved') OR c.is_platform_coin = true )` · P9④ 变体 Ⅱ 仅把既有闸包进 OR；缺闸 ⇒ 未审 draft 可自助上市 ⇒ 判负）",
     listApplyGated(LIST_SQL));
   t('J2', 'listGate', /r\.result = 'approved'/.test(LIST_SQL),
     '闸谓词为稳定常量 `result = \'approved\'`（非插值；台账 `result` 闭集值域给定）',
     /r\.result = 'approved'/.test(LIST_SQL));
-  t('J3', 'listGate', /AND EXISTS \(\s*SELECT 1 FROM public\.currency_review_log/.test(LIST_SQL) && !/NOT EXISTS \(\s*SELECT 1 FROM public\.currency_review_log/.test(LIST_SQL),
-    'fail-closed 形（**存在**已通过行才放行；`NOT EXISTS` 反形 ⇒ 判负）',
-    JSON.stringify({ exists: /AND EXISTS \(\s*SELECT 1 FROM public\.currency_review_log/.test(LIST_SQL), notExists: /NOT EXISTS \(\s*SELECT 1 FROM public\.currency_review_log/.test(LIST_SQL) }));
+  t('J3', 'listGate', /AND \(\s*EXISTS \(\s*SELECT 1 FROM public\.currency_review_log/.test(LIST_SQL) && /OR c\.is_platform_coin = true\s*\)/.test(LIST_SQL) && !/NOT EXISTS \(\s*SELECT 1 FROM public\.currency_review_log/.test(LIST_SQL),
+    'fail-closed 形（**存在**已通过行才放行 · `AND ( EXISTS (…) OR c.is_platform_coin = true )` 变体 Ⅱ 豁免谓词；`NOT EXISTS` 反形 ⇒ 判负）',
+    JSON.stringify({ exists: /AND \(\s*EXISTS \(\s*SELECT 1 FROM public\.currency_review_log/.test(LIST_SQL), platformOr: /OR c\.is_platform_coin = true\s*\)/.test(LIST_SQL), notExists: /NOT EXISTS \(\s*SELECT 1 FROM public\.currency_review_log/.test(LIST_SQL) }));
   t('J4', 'listGate', /r\.cid = \$1::bigint/.test(LIST_SQL),
     '闸按 `cid = $1`（同一单位）关联台账行（不跨单位、不自造实体 id）',
     /r\.cid = \$1::bigint/.test(LIST_SQL));

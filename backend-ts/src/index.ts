@@ -1191,11 +1191,15 @@ const isBusinessDay = (v: unknown): boolean => {
 const bizKeyOf = (...parts: Array<string | number>): string => `biz:${parts.map((p) => String(p)).join(':')}`;
 
 // R1 · `GET /api/batt` —— 用户电量读口（`data` 键集 = §28.2 冻结 6 键；派生布尔 `canAccept` 即时重算）。
+//   ★ P9④（`route-layer.spec` v2.18 §30.2/§30.7 变体 Ⅱ）：**BTTC 读口并入本口**（零新 GET ⇒ `get 36→36`）
+//     —— 追加 `bttc` 子对象（`symbol`/`name`/`decimals`/`status`/`totalSupply`/`balance`/`canMint`/`canBurn`/`policy`）。
+//     既有 6 键**逐字不动**；派生布尔 `canMint`/`canBurn` 即时重算（`R-9-23` 钳制后生效值）。
 app.get('/api/batt', async (req, res) => {
   const actor = await requireActor(req, res);
   if (!actor) return;
   try {
     const d = await DatabaseService.getBatt(actor.user.uID);
+    const b = await DatabaseService.getBttcState(actor.user.uID);
     sendSuccess(res, {
       batt: d.batt,
       capBatt: d.capBatt,
@@ -1203,6 +1207,18 @@ app.get('/api/batt', async (req, res) => {
       acceptThresholdBatt: d.acceptThresholdBatt,
       canAccept: d.canAccept,
       updated_at: d.updated_at,
+      bttc: {
+        symbol: b.symbol,
+        name: b.name,
+        decimals: b.decimals,
+        status: b.status,
+        totalSupply: b.totalSupply,
+        balance: b.balance,
+        canMint: b.canMint,
+        canBurn: b.canBurn,
+        policy: b.policy,
+        source: b.source,
+      },
     });
   } catch (error) {
     return sendInfraMapped(res, 'batt.get', error);
@@ -1491,6 +1507,108 @@ app.post('/api/listing-orders/:orderId/receive', async (req, res) => {
     return sendOrderTransition(res, r, 'receive');
   } catch (error) {
     return sendInfraMapped(res, 'listing.receive', error);
+  }
+});
+
+// ============================================================================
+// 批 9 第 4 片（P9④ · `route-layer.spec` v2.18 §30 · `data-layer.spec` v0.25 §33）：
+//   BTTC 铸造 / 分解 —— **2 新动作口**（注册点 `85 → 87`：`get 36→36` / `post 46→48`）。
+// ----------------------------------------------------------------------------
+// · 读口 = **并入既有用户资产读口 `GET /api/batt`**（变体 Ⅱ · §30.7）⇒ **零新 GET**（`get 36→36`）。
+// · 2 动作口全闸 `requireActor`（用户本人 · `uid` 取自 token，**不得**客户端声明）；**零 admin 键新增**（11 键不动）。
+// · 幂等键 = **`cli:<UUID>`**（调用方供键 · `R-9-41`；★ **禁** `biz:bttc:mint:<uid>` 形态 —— 无天然判别子）。
+// · 错误面 = **既有 33 闭集借码 + 稳定 `reason`**（零新增码）+ R107 单形状。
+// · 库面 leg = **`PENDING_APPLY`**（`0032`/`0033` 未 apply ⇒ 新 kind / 豁免列不可验）。
+// ============================================================================
+const BTTC_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** BTTC 动作口幂等键解析（`cli:<UUID>` · `R-9-41`）。 */
+const resolveBttcKey = (req: Request): { ok: true; key: string } | { ok: false; reason: 'MISSING' | 'PREFIX_REQUIRED' | 'NOT_UUID' } => {
+  const body = (req.body || {}) as Record<string, unknown>;
+  const headerValue = req.headers['idempotency-key'];
+  const raw = body.create_key ?? body.idempotency_key ?? body.idempotencyKey ?? headerValue ?? undefined;
+  const s = raw === undefined || raw === null ? '' : String(raw).trim();
+  if (!s) return { ok: false, reason: 'MISSING' };
+  if (!s.startsWith('cli:')) return { ok: false, reason: 'PREFIX_REQUIRED' };
+  return BTTC_UUID_RE.test(s.slice(4)) ? { ok: true, key: s } : { ok: false, reason: 'NOT_UUID' };
+};
+
+/** 2 动作口写入前置：解析键 ⇒ 非法即 R107 400（**借既有幂等键码** · 零新增码）。 */
+const bttcKeyGuard = (req: Request, res: Response): string | null => {
+  const k = resolveBttcKey(req);
+  if (k.ok) return k.key;
+  const code = k.reason === 'MISSING' ? 'LEDGER_IDEMPOTENCY_KEY_REQUIRED' : 'LEDGER_IDEMPOTENCY_KEY_INVALID';
+  sendVerbError(res, adminVerbError(400, code, { field: 'create_key', reason: k.reason }, 'Idempotency key invalid'));
+  return null;
+};
+
+/** BTTC 动作口拒绝映射（同一 uid 状态复核 ⇒ 稳定 `reason` 常量 · 零新增码 · R107）。 */
+const sendBttcRejection = async (
+  res: Response, uid: number, action: 'mint' | 'burn',
+  r: { bstatus: string | null; batt: number; held: string },
+) => {
+  const st = await DatabaseService.getBttcState(uid);
+  if (r.bstatus === null || st.status === null || !(st.status === 'draft' || st.status === 'listed')) {
+    return sendVerbError(res, adminVerbError(409, 'LEDGER_CURRENCY_INVALID_TRANSITION',
+      { field: 'currency.status', reason: 'BTTC_UNAVAILABLE', status: st.status }, 'BTTC not available'));
+  }
+  if (action === 'mint' && r.batt < st.policy.mintBattCost) {
+    return sendVerbError(res, adminVerbError(409, 'LEDGER_INSUFFICIENT_BALANCE',
+      { field: 'batt', reason: 'INSUFFICIENT_BATT', required: String(st.policy.mintBattCost), available: String(r.batt) }, 'Insufficient batt'));
+  }
+  if (action === 'burn' && BigInt(r.held) < BigInt(st.policy.burnBttcCost)) {
+    return sendVerbError(res, adminVerbError(409, 'LEDGER_INSUFFICIENT_BALANCE',
+      { field: 'balance', reason: 'INSUFFICIENT_BTTC', required: String(st.policy.burnBttcCost), available: r.held }, 'Insufficient BTTC'));
+  }
+  return sendVerbError(res, adminVerbError(409, 'LEDGER_INSUFFICIENT_BALANCE',
+    { field: 'balance', reason: 'INSUFFICIENT_FEE' }, 'Insufficient balance'));
+};
+
+// A1 · `POST /api/bttc/mint` —— 铸造动作口（batt `−mintBattCost` → `$ −mintFeeUsd` 入 `uid=−1` → BTTC `+1`）。
+app.post('/api/bttc/mint', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  const idemKey = bttcKeyGuard(req, res);
+  if (idemKey === null) return;
+  try {
+    const uid = actor.user.uID;
+    const fingerprint = createHash('sha256').update(`bttc:mint|${uid}`).digest('hex').slice(0, 32);
+    const r = await DatabaseService.bttcMint({ uid, idempotencyKey: idemKey, requestFingerprint: fingerprint, memo: '' });
+    if (!r) return sendInfraMapped(res, 'bttc.mint', new Error('bttc.mint: no row'));
+    if (r.outcome === 'rejected') return sendBttcRejection(res, uid, 'mint', r);
+    return sendSuccess(
+      res,
+      { batt: r.batt, txid: r.txid, supplyBefore: r.supplyBefore, supplyAfter: r.supplyAfter },
+      r.outcome === 'replayed' ? 'BTTC mint done (idempotent replay)' : 'BTTC mint done',
+      200,
+      r.outcome === 'replayed' ? { idempotent_replay: true } : undefined,
+    );
+  } catch (error) {
+    return sendInfraMapped(res, 'bttc.mint', error);
+  }
+});
+
+// A2 · `POST /api/bttc/burn` —— 分解动作口（BTTC `−burnBttcCost` 真 burn → `$ −burnFeeUsd` 入 `uid=−1` → batt `+burnBattGain` 封顶丢弃）。
+app.post('/api/bttc/burn', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  const idemKey = bttcKeyGuard(req, res);
+  if (idemKey === null) return;
+  try {
+    const uid = actor.user.uID;
+    const fingerprint = createHash('sha256').update(`bttc:burn|${uid}`).digest('hex').slice(0, 32);
+    const r = await DatabaseService.bttcBurn({ uid, idempotencyKey: idemKey, requestFingerprint: fingerprint, memo: '' });
+    if (!r) return sendInfraMapped(res, 'bttc.burn', new Error('bttc.burn: no row'));
+    if (r.outcome === 'rejected') return sendBttcRejection(res, uid, 'burn', r);
+    return sendSuccess(
+      res,
+      { batt: r.batt, txid: r.txid, supplyBefore: r.supplyBefore, supplyAfter: r.supplyAfter },
+      r.outcome === 'replayed' ? 'BTTC burn done (idempotent replay)' : 'BTTC burn done',
+      200,
+      r.outcome === 'replayed' ? { idempotent_replay: true } : undefined,
+    );
+  } catch (error) {
+    return sendInfraMapped(res, 'bttc.burn', error);
   }
 });
 

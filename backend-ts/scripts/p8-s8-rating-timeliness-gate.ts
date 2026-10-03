@@ -14,8 +14,8 @@
  *   扫面根 = `backend-ts/src` · `backend-ts/migrations` · `frontend/src`；**本门探针落 `.p8s8-artifacts/` 之外**（本门本身在 `scripts/`，不含自造路径字面量）。
  *
  * 判据（每条可判负 + 自证负对照）：
- *   A  注册点 **85** 逐 verb（`get 36 / post 46 / put 0 / patch 1 / delete 2`）+ 5 新口逐条注册恰 1 处；
- *      负对照（缩进注入 ⇒ 86）
+ *   A  注册点 **87** 逐 verb（`get 36 / post 48 / put 0 / patch 1 / delete 2`）+ 5 新口逐条注册恰 1 处；
+ *      负对照（缩进注入 ⇒ 88）
  *   B  5 新口形态：全闸 `requireActor`（零 `requireAdmin`）；幂等键服务端派生形（`biz:rating:` / `biz:listing:ship:` / `biz:listing:receive:`）；
  *      `POST /api/rating` 请求体字段（`targetType`/`targetId`/`direction`/`stars`）；异常标签 `sendInfraMapped`
  *   C  `0030`：`listing_order_status_enum` **恰 6 值**；transition **允许/禁止逐条**（`shipped→refunded` 允许 · `received→refunded` 禁 · `received` 终态无出边 · 自环/越级/自造状态必禁）；
@@ -60,8 +60,8 @@ const LOCALES: Record<string, Record<string, unknown>> = Object.fromEntries(
 );
 
 // ---------------------------------------------------------------- 冻结常量
-const REG_POINTS_FROZEN = 85;
-const PER_VERB_FROZEN: Record<string, number> = { get: 36, post: 46, put: 0, patch: 1, delete: 2 };
+const REG_POINTS_FROZEN = 87;
+const PER_VERB_FROZEN: Record<string, number> = { get: 36, post: 48, put: 0, patch: 1, delete: 2 };
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;
 const countVerb = (text: string, verb: string): number =>
@@ -106,12 +106,12 @@ const BLOCK_RECV = handlerBlock(INDEX_TS, R_RECV);
 const BLOCKS5 = [BLOCK_RSUM, BLOCK_TIME, BLOCK_RATING, BLOCK_SHIP, BLOCK_RECV];
 
 // ============================================================================
-// A · 注册点 85 逐 verb + 5 新口在场
+// A · 注册点 87 逐 verb + 5 新口在场
 // ============================================================================
 {
   const perVerb = { get: countVerb(INDEX_TS, 'get'), post: countVerb(INDEX_TS, 'post'), put: countVerb(INDEX_TS, 'put'), patch: countVerb(INDEX_TS, 'patch'), delete: countVerb(INDEX_TS, 'delete') };
   t('A1', 'registration', countRoutes(INDEX_TS) === REG_POINTS_FROZEN,
-    `注册点 = ${REG_POINTS_FROZEN}（P9③ 评分/时效/订单 5 新口 +5〔80→85〕）`, countRoutes(INDEX_TS));
+    `注册点 = ${REG_POINTS_FROZEN}（P9③ 评分/时效/订单 5 新口 +5〔80→85〕⇒ P9④ BTTC 铸造/分解 2 新口 +2〔85→87〕）`, countRoutes(INDEX_TS));
   t('A2', 'registration', eqJson(perVerb, PER_VERB_FROZEN),
     `逐 verb 逐字 = ${JSON.stringify(PER_VERB_FROZEN)}`, JSON.stringify(perVerb));
   t('A3', 'registration', Object.values(perVerb).reduce((a, b) => a + b, 0) === REG_POINTS_FROZEN,
@@ -124,7 +124,7 @@ const BLOCKS5 = [BLOCK_RSUM, BLOCK_TIME, BLOCK_RATING, BLOCK_SHIP, BLOCK_RECV];
   const injCount = countRoutes(INDEX_TS + INJ);
   t('A5', 'registration', injCount === REG_POINTS_FROZEN + 1,
     `★ 负对照：缩进注入一条路由 ⇒ 计数 ${REG_POINTS_FROZEN}→${REG_POINTS_FROZEN + 1}`, JSON.stringify({ injected: injCount }));
-  selfTest('A1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 85 条路由的文本喂入「注册点 = 85」谓词 ⇒ 必须转红');
+  selfTest('A1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 87 条路由的文本喂入「注册点 = 87」谓词 ⇒ 必须转红');
 }
 
 // ============================================================================

@@ -8,27 +8,28 @@
  *
  * ★ **静态段（A–F）零 DB / 零网络**（只 import 纯函数 + 读源码 / 迁移 / locale 文本）。
  * ★ **库面 leg 转真 checks（G 段 · 连库 + HTTP）**：`0028`/`0029` **已 apply** ⇒ 其 DB 级效果
- *   （约束活体 21 / 4 表 + 4 触发器 + 具名索引 / `ledger_kind_ok` 活体 = 21 / 范围 CHECK / append-only 真行为 /
- *   4 新口真 HTTP 401⇄200）**在本门内逐条真读数入 `checks`** ⇒ `pending_apply[]` = **0**（不再有未验 leg）。
+ *   （约束活体 21〔`0032` 未 apply〕/ 4 表 + 4 触发器 + 具名索引 / `ledger_kind_ok` 活体 / 范围 CHECK /
+ *   append-only 真行为 / 4 新口真 HTTP 401⇄200）**在本门内逐条真读数入 `checks`** ⇒ `pending_apply[]` = **0**。
  *   DB 段 = 只读 + **事务内行为探针（末尾 ROLLBACK）**；HTTP 段打受控实例 `P8S7_BASE`（默认 `127.0.0.1:5797`）。
  *
  * 判据（每条**可判负**）：
- *   A  **注册点 85 逐 verb + 4 新口在场**：`get 36 / post 46 / put 0 / patch 1 / delete 2`（和 = 85）；
+ *   A  **注册点 87 逐 verb + 4 新口在场**：`get 36 / post 48 / put 0 / patch 1 / delete 2`（和 = 87）；
  *      4 路径逐条注册**恰 1 处**；负对照（缩进注入 ⇒ +1）
  *   B  **4 新口形态**：四口全闸 `requireActor`（零 admin 键）；取数 / 响应冻结键集逐条；幂等键 `biz:` 派生形；
  *      `target_day` 服务端校验；异常面 `sendInfraMapped` 四标签；负对照（注入 admin 闸 ⇒ 谓词转红）
  *   C  **双闸两处**：① `applyToJob` **前置拦**（`batt_account` ≥ 阈值，落 INSERT CTE `WHERE` 内 · fail-fast）；
  *      ② `acceptJobApplication` **权威扣费点**（同事务 `deduct` 扣 `taskCostBatt` + 二次判 `b.batt >= cost`）；
  *      两处各映射 `batt_below_threshold` ⇒ `stateConflict('batt', 'BATT_BELOW_ACCEPT_THRESHOLD')`（借既有码）；负对照
- *   D  **`R-9-21` kind 闭集三处编码均含 21**：① `0028` `ledger_kind_enum` CHECK ② `0029` `ledger_kind_ok`
- *      ③ TS `LEDGER_KINDS`（三处同集）；**穷举扫面结论「无第四处」**（正则 + 命中分类逐桶）
+ *   D  **kind 闭集编码（P9④ 后 = 23）**：现役三处（① `0032` `ledger_kind_enum` CHECK ② `0032` `ledger_kind_ok`
+ *      ③ TS `LEDGER_KINDS`；= 23 同集）+ P9② 历史两处（`0028` CHECK / `0029` 函数 = 21，已被 `0032` 取代）；
+ *      **穷举扫面结论「无未登记全闭集编码」**（正则 + 命中分类逐桶）
  *   E  **幂等 / 日界 / 溢出 / 配置 fail-closed**：`biz:checkin:<uid>:<day>` / `biz:checkin:makeup:<uid>:<day>`；
  *      日界 = UTC（`now() AT TIME ZONE 'UTC'` / `utcDay`）；溢出 = 封顶丢弃（`LEAST` + `delta <> 0` 守卫）；
  *      配置 fail-closed（`resolveBattPolicy` / `resolveCheckinPolicy` 逐字段回落常量）；负对照
  *   F  **零新增错误码（仍恰 33）**：补签拒绝面只用既有闭集码（`LEDGER_AMOUNT_INVALID` /
  *      `LEDGER_INSUFFICIENT_BALANCE` / `LEDGER_CURRENCY_INVALID_TRANSITION`）；负对照
- *   G  **库面 leg 转真 checks（连库 + HTTP）**：活体 `ledger_kind_enum` = 21 / 4 表 + 约束 + 具名索引 /
- *      4 触发器 / `ledger_kind_ok` 活体 = 21 / `batt_account` 范围 CHECK / append-only 真行为（事务内 ROLLBACK）/
+ *   G  **库面 leg 转真 checks（连库 + HTTP）**：活体 `ledger_kind_enum`（`0032` 未 apply ⇒ 21；apply 后 23）/
+ *      4 表 + 约束 + 具名索引 / 4 触发器 / `ledger_kind_ok` 活体 / `batt_account` 范围 CHECK / append-only 真行为 /
  *      4 新口真 HTTP（无 token 401 ⇄ 有 token 200）+ 公开面零回归；`pending_apply[]` = 0
  */
 import * as fs from 'fs';
@@ -68,12 +69,13 @@ const JOB_SERVICE_TS = readSrc('backend-ts/src/job-service.ts');
 const LEDGER_TS = readSrc('backend-ts/src/ledger.ts');
 const SQL_0028 = readSrc('backend-ts/migrations/0028_kind_close_set_21.sql');
 const SQL_0029 = readSrc('backend-ts/migrations/0029_batt_checkin.sql');
+const SQL_0032 = readSrc('backend-ts/migrations/0032_kind_close_set_23.sql');
 const FE_BATT_JS = readSrc('frontend/src/batt-checkin.js');
 const FE_PANEL_JSX = readSrc('frontend/src/components/BattCheckinPanel.jsx');
 
 // ---------------------------------------------------------------- 冻结常量
-const REG_POINTS_FROZEN = 85;
-const PER_VERB_FROZEN: Record<string, number> = { get: 36, post: 46, put: 0, patch: 1, delete: 2 };
+const REG_POINTS_FROZEN = 87;
+const PER_VERB_FROZEN: Record<string, number> = { get: 36, post: 48, put: 0, patch: 1, delete: 2 };
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;
 const countVerb = (text: string, verb: string): number =>
@@ -112,14 +114,37 @@ const successKeys = (block: string): string[] => {
     .map((s) => s.replace(/^[\s,{]*/, '').replace(/\s*:$/, '')).sort();
 };
 const eqJson = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.stringify(b);
+/**
+ * 取 `sendSuccess(res, { … })` 对象体的**顶层**键集（排序）。
+ * 既有 `successKeys` 是扁平正则 ⇒ 会把嵌套子对象（P9④ `bttc: { … }`）的内层键也误并进键集。
+ * 本函数用**括号深度**切顶层逗号：嵌套子对象只贡献 1 个键（其名），内层键不计入。
+ */
+const topLevelSuccessKeys = (block: string): string[] => {
+  const m = block.match(/sendSuccess\(\s*res,\s*\{([\s\S]*?)\}\s*[,)]/);
+  if (!m) return [];
+  const body = m[1]; // 非贪婪 ⇒ 到首个 `}` 前（嵌套子对象的收 `}`，故外层 `{` 未补齐）
+  const parts: string[] = [];
+  let depth = 0; let cur = ''; let inStr: string | null = null;
+  for (let i = 0; i < body.length; i += 1) {
+    const ch = body[i];
+    if (inStr) { cur += ch; if (ch === '\\') { cur += body[i + 1] ?? ''; i += 1; } else if (ch === inStr) inStr = null; continue; }
+    if (ch === '"' || ch === "'" || ch === '`') { inStr = ch; cur += ch; continue; }
+    if (ch === '{' || ch === '[' || ch === '(') depth += 1;
+    else if (ch === '}' || ch === ']' || ch === ')') depth -= 1;
+    if (ch === ',' && depth === 0) { parts.push(cur); cur = ''; continue; }
+    cur += ch;
+  }
+  if (cur.trim()) parts.push(cur);
+  return parts.map((p) => (p.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:/) || [])[1]).filter(Boolean).sort();
+};
 
 // ============================================================================
-// A · 注册点 80 逐 verb + 4 新口在场
+// A · 注册点 87 逐 verb + 4 新口在场
 // ============================================================================
 {
   const perVerb = { get: countVerb(INDEX_TS, 'get'), post: countVerb(INDEX_TS, 'post'), put: countVerb(INDEX_TS, 'put'), patch: countVerb(INDEX_TS, 'patch'), delete: countVerb(INDEX_TS, 'delete') };
   t('A1', 'registration', countRoutes(INDEX_TS) === REG_POINTS_FROZEN,
-    `注册点 = ${REG_POINTS_FROZEN}（P9② batt/签到 4 新口 +4〔76→80〕⇒ P9③ 评分/时效/订单 5 新口 +5〔80→85〕）`, countRoutes(INDEX_TS));
+    `注册点 = ${REG_POINTS_FROZEN}（P9② batt/签到 4 新口 +4〔76→80〕⇒ P9③ 评分/时效/订单 5 新口 +5〔80→85〕⇒ P9④ BTTC 铸造/分解 2 新口 +2〔85→87〕）`, countRoutes(INDEX_TS));
   t('A2', 'registration', eqJson(perVerb, PER_VERB_FROZEN),
     `逐 verb 逐字 = ${JSON.stringify(PER_VERB_FROZEN)}`, JSON.stringify(perVerb));
   t('A3', 'registration', Object.values(perVerb).reduce((a, b) => a + b, 0) === REG_POINTS_FROZEN,
@@ -132,7 +157,7 @@ const eqJson = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.s
   const injCount = countRoutes(INDEX_TS + INJ);
   t('A5', 'registration', injCount === REG_POINTS_FROZEN + 1,
     `★ 负对照：缩进注入一条路由 ⇒ 计数 ${REG_POINTS_FROZEN}→${REG_POINTS_FROZEN + 1}`, JSON.stringify({ injected: injCount }));
-  selfTest('A1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 85 条路由的文本喂入「注册点 = 85」谓词 ⇒ 必须转红');
+  selfTest('A1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 87 条路由的文本喂入「注册点 = 87」谓词 ⇒ 必须转红');
 }
 
 // ============================================================================
@@ -149,12 +174,13 @@ const eqJson = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.s
     "app.get('/api/batt', async (req, res) => { const actor = await requireAdmin(req, res, 'manage_settings'); if (!actor) return; });",
     '把「带 admin 闸」的 handler 喂入 ⇒ 谓词必须转红');
 
-  // ② R1 GET /api/batt：6 键 + getBatt
+  // ② R1 GET /api/batt：顶层 7 键（P9④ 追加 `bttc` 子对象）+ getBatt + getBttcState
   t('B2', 'routeShape',
-    eqJson(successKeys(BLOCK_BATT), ['acceptThresholdBatt', 'batt', 'canAccept', 'capBatt', 'floorBatt', 'updated_at'])
-    && /DatabaseService\.getBatt\(/.test(BLOCK_BATT),
-    'R1 `GET /api/batt`：`data` 冻结 6 键（batt/capBatt/floorBatt/acceptThresholdBatt/canAccept/updated_at）+ 取数 `DatabaseService.getBatt(`',
-    JSON.stringify({ keys: successKeys(BLOCK_BATT), getBatt: /DatabaseService\.getBatt\(/.test(BLOCK_BATT) }));
+    eqJson(topLevelSuccessKeys(BLOCK_BATT), ['acceptThresholdBatt', 'batt', 'bttc', 'canAccept', 'capBatt', 'floorBatt', 'updated_at'])
+    && /DatabaseService\.getBatt\(/.test(BLOCK_BATT)
+    && /DatabaseService\.getBttcState\(/.test(BLOCK_BATT),
+    'R1 `GET /api/batt`：`data` 顶层冻结 **7 键**（既有 6 键 batt/capBatt/floorBatt/acceptThresholdBatt/canAccept/updated_at **逐字不动** + P9④ 追加 `bttc` 子对象）+ 取数 `DatabaseService.getBatt(` + `DatabaseService.getBttcState(`',
+    JSON.stringify({ keys: topLevelSuccessKeys(BLOCK_BATT), getBatt: /DatabaseService\.getBatt\(/.test(BLOCK_BATT), getBttcState: /DatabaseService\.getBttcState\(/.test(BLOCK_BATT) }));
 
   // ③ R2 GET /api/checkin：6 键 + getCheckinStatus
   t('B3', 'routeShape',
@@ -245,18 +271,29 @@ const ACCEPT_REGION = ACCEPT_START >= 0 && AFTER_ACCEPT > ACCEPT_START ? DATABAS
 }
 
 // ============================================================================
-// D · R-9-21 kind 闭集三处编码均含 21 + 穷举扫面「无第四处」
+// D · kind 闭集编码（P9④ 后 = 23）：现役三处（0032 CHECK / 0032 函数 / TS）
+//     + 历史两处（0028 CHECK / 0029 函数 = 21，P9② 冻结 · 被 0032 取代 · 不可改）
 // ============================================================================
 const KINDS_FROM_TS: string[] = [...LEDGER_KINDS];
 const NEW_KIND = 'checkin_makeup_fee';
+const P94_KINDS = ['bttc_mint_fee', 'bttc_burn_fee'];
 const sortedEq = (a: string[], b: string[]): boolean => eqJson([...a].sort(), [...b].sort());
-// ① 0028 CHECK 值集
-const m28 = SQL_0028.match(/ADD CONSTRAINT ledger_kind_enum CHECK \(kind IN \(([\s\S]*?)\)\)/);
-const KINDS_0028 = (m28 ? (m28[1].match(/'([a-z_]+)'/g) || []) : []).map((s) => s.slice(1, -1));
-// ② 0029 ledger_kind_ok 值集（第一支）+ 冻结族第二支
-const m29 = SQL_0029.match(/SELECT p_kind IN \(([^)]*)\)\s*AND \(NOT p_frozen_settle OR p_kind IN \(([^)]*)\)\)/);
+const kindListFrom = (re: RegExp, src: string): string[] => {
+  const m = src.match(re);
+  return (m ? (m[1].match(/'([a-z_]+)'/g) || []) : []).map((s) => s.slice(1, -1));
+};
+const CHECK_LIST_RE = /ADD CONSTRAINT ledger_kind_enum CHECK \(kind IN \(([\s\S]*?)\)\)/;
+const FN_LIST_RE = /SELECT p_kind IN \(([^)]*)\)\s*AND \(NOT p_frozen_settle OR p_kind IN \(([^)]*)\)\)/;
+// 历史两处（P9② · 0028 / 0029）
+const KINDS_0028 = kindListFrom(CHECK_LIST_RE, SQL_0028);
+const m29 = SQL_0029.match(FN_LIST_RE);
 const KINDS_0029 = (m29 ? (m29[1].match(/'([a-z_]+)'/g) || []) : []).map((s) => s.slice(1, -1));
 const KINDS_0029_FROZEN = (m29 ? (m29[2].match(/'([a-z_]+)'/g) || []) : []).map((s) => s.slice(1, -1));
+// 现役两处（P9④ · 0032）
+const KINDS_0032_CHECK = kindListFrom(CHECK_LIST_RE, SQL_0032);
+const m32 = SQL_0032.match(FN_LIST_RE);
+const KINDS_0032_FN = (m32 ? (m32[1].match(/'([a-z_]+)'/g) || []) : []).map((s) => s.slice(1, -1));
+const KINDS_0032_FROZEN = (m32 ? (m32[2].match(/'([a-z_]+)'/g) || []) : []).map((s) => s.slice(1, -1));
 
 /** 穷举扫面（沿 `R-9-21` 正则）：全仓根，排除 artifacts / node_modules / dist / .git。 */
 const SCAN_RE = /ledger_kind_ok|ledger_kind_enum|LEDGER_KINDS|PLATFORM_KIND_WHITELIST|checkin_makeup_fee/;
@@ -302,45 +339,64 @@ const FULL_SET_CODE = scanHits.filter((h) => h.bucket === 'full_set_21').map((h)
 const FULL_SET_EXPECTED = [
   'backend-ts/migrations/0028_kind_close_set_21.sql',
   'backend-ts/migrations/0029_batt_checkin.sql',
+  'backend-ts/migrations/0032_kind_close_set_23.sql',
   'backend-ts/src/ledger.ts',
 ].sort();
 const BUCKETS = ['full_set_21', 'spec_text', 'historical_or_superseded', 'single_kind_usage', 'probe_or_artifact', 'readonly_call_or_subset'];
 const bucketCounts: Record<string, number> = Object.fromEntries(BUCKETS.map((b) => [b, scanHits.filter((h) => h.bucket === b).length]));
 {
-  // D1 TS LEDGER_KINDS
-  t('D1', 'kindCloseSet', KINDS_FROM_TS.length === 21 && KINDS_FROM_TS[KINDS_FROM_TS.length - 1] === NEW_KIND && KINDS_FROM_TS.includes(NEW_KIND),
-    `③ TS \`LEDGER_KINDS\` = 21 值（末位追加 \`${NEW_KIND}\`，不改既有 20 次序）`, JSON.stringify({ n: KINDS_FROM_TS.length, last: KINDS_FROM_TS[KINDS_FROM_TS.length - 1] }));
-  // D2 0028 CHECK
-  t('D2', 'kindCloseSet', KINDS_0028.length === 21 && KINDS_0028.includes(NEW_KIND) && sortedEq(KINDS_0028, KINDS_FROM_TS),
-    `① \`0028\` \`ledger_kind_enum\` CHECK = 21 值且含 \`${NEW_KIND}\`（与 TS 同集）`, JSON.stringify({ n: KINDS_0028.length, has_new: KINDS_0028.includes(NEW_KIND), same_set: sortedEq(KINDS_0028, KINDS_FROM_TS) }));
-  // D3 0029 ledger_kind_ok 第一支
-  t('D3', 'kindCloseSet', KINDS_0029.length === 21 && KINDS_0029.includes(NEW_KIND) && sortedEq(KINDS_0029, KINDS_FROM_TS),
-    `② \`0029\` \`ledger_kind_ok\` 第一支 = 21 值且含 \`${NEW_KIND}\`（与 TS 同集）`, JSON.stringify({ n: KINDS_0029.length, has_new: KINDS_0029.includes(NEW_KIND), same_set: sortedEq(KINDS_0029, KINDS_FROM_TS) }));
-  // D4 三处同集
-  t('D4', 'kindCloseSet', sortedEq(KINDS_0028, KINDS_0029) && sortedEq(KINDS_0028, KINDS_FROM_TS),
-    '三处编码**同集**（① CHECK ② 函数 ③ TS）', JSON.stringify({ check_eq_fn: sortedEq(KINDS_0028, KINDS_0029), check_eq_ts: sortedEq(KINDS_0028, KINDS_FROM_TS) }));
-  // D5 冻结族第二支一字不动
-  t('D5', 'kindCloseSet', eqJson([...KINDS_0029_FROZEN].sort(), ['hold_forfeit', 'job_payout', 'purchase', 'trade']) && !KINDS_0029_FROZEN.includes(NEW_KIND),
-    "`ledger_kind_ok` 的第二支（`p_frozen_settle`）**一字不动** = 4 值且**不含** `checkin_makeup_fee`（该 kind 不属冻结结算族）",
-    JSON.stringify({ frozen: [...KINDS_0029_FROZEN].sort(), has_new: KINDS_0029_FROZEN.includes(NEW_KIND) }));
-  // D6 穷举扫面：全闭集编码（≥21 值）在代码面**恰三处**
+  // D1 TS LEDGER_KINDS = 23，末位两值 = P9④ 新增
+  t('D1', 'kindCloseSet',
+    KINDS_FROM_TS.length === 23 && eqJson(KINDS_FROM_TS.slice(21), P94_KINDS) && KINDS_FROM_TS.includes(NEW_KIND),
+    `③ TS \`LEDGER_KINDS\` = 23 值（末位追加 \`${P94_KINDS.join('\`/\`')}\`，不改既有 21 次序；含 \`${NEW_KIND}\`）`,
+    JSON.stringify({ n: KINDS_FROM_TS.length, tail: KINDS_FROM_TS.slice(21), has_new: KINDS_FROM_TS.includes(NEW_KIND) }));
+  // D2 0032 CHECK = 23 且与 TS 同集（现役）
+  t('D2', 'kindCloseSet',
+    KINDS_0032_CHECK.length === 23 && P94_KINDS.every((k) => KINDS_0032_CHECK.includes(k)) && sortedEq(KINDS_0032_CHECK, KINDS_FROM_TS),
+    `① \`0032\` \`ledger_kind_enum\` CHECK = 23 值且与 TS 同集（含 \`${P94_KINDS.join('\`/\`')}\`）`,
+    JSON.stringify({ n: KINDS_0032_CHECK.length, same_set: sortedEq(KINDS_0032_CHECK, KINDS_FROM_TS) }));
+  // D3 0032 ledger_kind_ok 第一支 = 23 且与 TS 同集（现役）
+  t('D3', 'kindCloseSet',
+    KINDS_0032_FN.length === 23 && P94_KINDS.every((k) => KINDS_0032_FN.includes(k)) && sortedEq(KINDS_0032_FN, KINDS_FROM_TS),
+    `② \`0032\` \`ledger_kind_ok\` 第一支 = 23 值且与 TS 同集`,
+    JSON.stringify({ n: KINDS_0032_FN.length, same_set: sortedEq(KINDS_0032_FN, KINDS_FROM_TS) }));
+  // D4 现役三处同集（0032 CHECK == 0032 函数 == TS）
+  t('D4', 'kindCloseSet', sortedEq(KINDS_0032_CHECK, KINDS_0032_FN) && sortedEq(KINDS_0032_CHECK, KINDS_FROM_TS),
+    '现役三处编码**同集**（① `0032` CHECK ② `0032` 函数 ③ TS）',
+    JSON.stringify({ check_eq_fn: sortedEq(KINDS_0032_CHECK, KINDS_0032_FN), check_eq_ts: sortedEq(KINDS_0032_CHECK, KINDS_FROM_TS) }));
+  // D4b 历史两处仍 = 21 且 = TS 前 21（P9② 冻结快照，逐字未改）
+  t('D4b', 'kindCloseSet',
+    KINDS_0028.length === 21 && KINDS_0029.length === 21 && sortedEq(KINDS_0028, KINDS_0029)
+      && sortedEq(KINDS_0028, KINDS_FROM_TS.slice(0, 21)),
+    '历史两处（`0028` CHECK / `0029` 函数）= 21 且逐字 = TS 前 21（P9② 冻结快照，被 `0032` 取代、文件不可改）',
+    JSON.stringify({ n28: KINDS_0028.length, n29: KINDS_0029.length, eq: sortedEq(KINDS_0028, KINDS_0029), eq_ts21: sortedEq(KINDS_0028, KINDS_FROM_TS.slice(0, 21)) }));
+  // D5 冻结族第二支一字不动（0032 与 0029 同 = 4 值，不含任何新增值）
+  t('D5', 'kindCloseSet',
+    eqJson([...KINDS_0032_FROZEN].sort(), ['hold_forfeit', 'job_payout', 'purchase', 'trade'])
+      && eqJson([...KINDS_0029_FROZEN].sort(), [...KINDS_0032_FROZEN].sort())
+      && !KINDS_0032_FROZEN.includes(NEW_KIND) && P94_KINDS.every((k) => !KINDS_0032_FROZEN.includes(k)),
+    '`ledger_kind_ok` 的第二支（`p_frozen_settle`）**一字不动** = 4 值且不含任何新增值（新 kind 不属冻结结算族）',
+    JSON.stringify({ frozen: [...KINDS_0032_FROZEN].sort(), has_new: KINDS_0032_FROZEN.includes(NEW_KIND), has_p94: P94_KINDS.filter((k) => KINDS_0032_FROZEN.includes(k)) }));
+  // D6 穷举扫面：全闭集编码（≥21 值）在代码面**恰四处**（现役 0032 + TS；历史 0028 / 0029）
   t('D6', 'kindCloseSet', eqJson(FULL_SET_CODE, FULL_SET_EXPECTED),
-    '★ **穷举扫面结论「无第四处」**：代码面（非 docs）全闭集编码（≥21 值）**恰三处** = 0028 CHECK / 0029 函数 / `src/ledger.ts`',
+    '★ **穷举扫面结论「无未登记全闭集编码」**：代码面全闭集编码（≥21 值）**恰四处** = `0028` CHECK / `0029` 函数 / `0032` / `src/ledger.ts`（前两者 P9② 历史，后两者 P9④ 现役）',
     JSON.stringify({ found: FULL_SET_CODE, expected: FULL_SET_EXPECTED }));
   // D7 命中分类（正则 + 逐桶计数）
-  const classified = FULL_SET_CODE.length === 3 && bucketCounts.full_set_21 === 3;
+  const classified = FULL_SET_CODE.length === 4 && bucketCounts.full_set_21 === 4;
   t('D7', 'kindCloseSet', classified,
-    `扫面正则 = ${SCAN_RE.source}；命中分类逐桶 = ${JSON.stringify(bucketCounts)}（full_set_21 恰 3 ⇒ 其余 = 派生子集 / 只读调用 / 历史被取代 / 规范文本 / 弃件）`,
+    `扫面正则 = ${SCAN_RE.source}；命中分类逐桶 = ${JSON.stringify(bucketCounts)}（full_set_21 恰 4 ⇒ 其余 = 派生子集 / 只读调用 / 历史被取代 / 规范文本 / 弃件）`,
     JSON.stringify({ regex: SCAN_RE.source, roots: SCAN_ROOTS, buckets: bucketCounts, hits: scanHits.length }));
-  // D8 无第四处（等价判别）：代码面「含新 kind 且 kind 数 ≥ 20」的文件 == 恰三处
+  // D8 无未登记全闭集（等价判别）：代码面「含新 kind 且 kind 数 ≥ 20」的文件 == 恰四处
   const fourth = scanHits.filter((h) => !h.file.startsWith('docs/') && h.has_new_kind && h.kinds >= 20).map((h) => h.file).sort();
   t('D8', 'kindCloseSet', eqJson(fourth, FULL_SET_EXPECTED),
-    '★ 「无第四处」等价判别：代码面**含 `checkin_makeup_fee` 且 kind 数 ≥ 20** 的文件 = 恰三处（其余含新 kind 者皆为单值使用，如 `src/database.ts`）',
+    '★ 「无未登记全闭集编码」等价判别：代码面**含 `checkin_makeup_fee` 且 kind 数 ≥ 20** 的文件 = 恰四处',
     JSON.stringify({ files_with_new_kind_and_full_list: fourth }));
   selfTest('D6', 'kindCloseSet',
     (hits) => (Array.isArray(hits) ? hits.filter((h: { bucket: string }) => h.bucket === 'full_set_21').map((h: { file: string }) => h.file).sort() : []).length === 0,
     [{ file: 'backend-ts/src/fourth-place.ts', bucket: 'full_set_21' }],
     '把「凭空多出一个全闭集编码文件」喂入 ⇒ 谓词必须转红');
+  selfTest('D4', 'kindCloseSet', (v) => sortedEq(v as string[], KINDS_0032_CHECK), [...KINDS_0032_CHECK, 'made_up_kind'],
+    '把「多一值」的集喂入现役同集谓词 ⇒ 必须转红');
 }
 
 // ============================================================================
@@ -440,9 +496,12 @@ const prevBusinessDay = (): string => {
     `SELECT pg_get_constraintdef(oid) AS def FROM pg_constraint WHERE conname='ledger_kind_enum'`))[0];
   dbConnections += 1;
   const KINDS_DB = ((kindDef?.def ?? '').match(/'([a-z_]+)'/g) || []).map((s) => s.slice(1, -1));
-  tg('G1', KINDS_DB.length === 21 && KINDS_DB.includes(NEW_KIND) && sortedEq(KINDS_DB, KINDS_FROM_TS),
-    '★ 活体 `0028 ledger_kind_enum` = 21 值（含 `checkin_makeup_fee` · 与 TS 同集）',
-    JSON.stringify({ n: KINDS_DB.length, has_new: KINDS_DB.includes(NEW_KIND) }));
+  const LIVE_21 = KINDS_FROM_TS.filter((k) => !P94_KINDS.includes(k));   // P9④ 前冻结快照（21）
+  const liveIs21 = sortedEq(KINDS_DB, LIVE_21);                          // `0032` 未 apply
+  const liveIs23 = sortedEq(KINDS_DB, KINDS_FROM_TS);                    // `0032` 已 apply
+  tg('G1', KINDS_DB.includes(NEW_KIND) && (liveIs21 || liveIs23),
+    '★ 活体 `ledger_kind_enum` = P9④ 冻结快照（`0032` 未 apply ⇒ 21；apply 后 23）· 含 `checkin_makeup_fee`',
+    JSON.stringify({ n: KINDS_DB.length, has_new: KINDS_DB.includes(NEW_KIND), mode: liveIs23 ? 'applied_23' : (liveIs21 ? 'pending_21' : 'UNEXPECTED') }));
 
   // ---------------- G2 · 4 表 + 约束 + 3 具名索引（活体） ----------------
   const tabs = (await readQuery<{ t: string }>(
@@ -582,6 +641,9 @@ const prevBusinessDay = (): string => {
         sql_0028_check: KINDS_0028.length,
         sql_0029_ledger_kind_ok: KINDS_0029.length,
         sql_0029_frozen_settle_branch: KINDS_0029_FROZEN.length,
+        sql_0032_check: KINDS_0032_CHECK.length,
+        sql_0032_ledger_kind_ok: KINDS_0032_FN.length,
+        sql_0032_frozen_settle_branch: KINDS_0032_FROZEN.length,
         ts_ledger_kinds: KINDS_FROM_TS.length,
       },
       live_db_kind_enum: KINDS_DB.length,

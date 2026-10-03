@@ -3,7 +3,8 @@
 // 依据：docs/route-layer.spec.md v2.14 §28.7（后台复用 `adminSettings`；**用户面 = 电量卡 + 签到区**，
 //   「既有渲染点接覆盖值 / 新取数 · 不新增独立页面」）。
 //   · 文案命名空间 = `battCard`（名称 / 单位 % / 区间提示 / 不足不可承接提示）
-//     + `checkinPanel`（签到按钮 / 连续天数 / 断签提示 / 补签按钮 / 补签费用提示）。
+//     + `checkinPanel`（签到按钮 / 连续天数 / 断签提示 / 补签按钮 / 补签费用提示）
+//     + `bttcPanel`（P9④：BTTC 代币余额 / 铸造 / 分解 · 并入既有资产面）。
 //   · 派生布尔（`canAccept` / `checkedInToday` / `canMakeup`）**不落库** ⇒ 每次由读口即时取（§28.7(d)）。
 //   · 六类工程口径泄漏 = 0：本组件只消费 `t(...)` 的四语文案值，**不拼**章节号 / 码 / 路径 / 表名。
 // ============================================================================
@@ -14,6 +15,7 @@ import { Button, Card, CardHeader, CardTitle, CardContent, Badge } from './ui'
 import { FadeIn } from './ui/Motion'
 import { useAuth } from '../auth-context'
 import { fetchBatt, fetchCheckinStatus, postCheckin, postMakeup, utcDay } from '../batt-checkin'
+import { postBttcMint, postBttcBurn } from '../bttc-api'
 
 const BattCheckinPanel = () => {
   const { t } = useTranslation()
@@ -59,6 +61,9 @@ const BattCheckinPanel = () => {
   if (!isAuthenticated) return null
 
   const battValue = batt ? `${batt.batt}${t('battCard.unit')}` : '—'
+  const bttc = batt?.bttc || null
+  const bttcBalance = bttc ? bttc.balance : '—'
+  const bttcAvailable = bttc && bttc.status !== null
 
   return (
     <FadeIn>
@@ -73,6 +78,35 @@ const BattCheckinPanel = () => {
           <div className="flex items-baseline gap-3">
             <span className="text-3xl font-bold">{battValue}</span>
             <span className="text-sm text-gray-500">{t('battCard.rangeHint')}</span>
+          </div>
+
+          <div className="border-t pt-4 space-y-3" data-sf-m="bttc-asset">
+            <div className="flex items-baseline gap-3">
+              <span className="text-sm text-gray-700">{t('bttcPanel.symbol')}</span>
+              <span className="text-2xl font-semibold">{bttcBalance}</span>
+              <span className="text-sm text-gray-500">{t('bttcPanel.balanceLabel')}</span>
+            </div>
+            {bttc && !bttcAvailable && (
+              <p className="text-sm text-gray-500">{t('bttcPanel.unavailable')}</p>
+            )}
+            {bttcAvailable && (
+              <div className="flex flex-wrap items-center gap-3">
+                <Button
+                  onClick={() => runAction(() => postBttcMint({ user }))}
+                  disabled={busy || !bttc.canMint}
+                >
+                  {t('bttcPanel.mintButton')}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => runAction(() => postBttcBurn({ user }))}
+                  disabled={busy || !bttc.canBurn}
+                >
+                  {t('bttcPanel.burnButton')}
+                </Button>
+                <span className="text-sm text-gray-500">{t('bttcPanel.mintHint')}</span>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-4">

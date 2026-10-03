@@ -1092,5 +1092,19 @@
     "shipOk": "Shipped",
     "receiveOk": "Received",
     "actionFail": "Action failed, please try again later"
+  },
+  "bttcPanel": {
+    "title": "BTTC Token",
+    "symbol": "₿ BTTC",
+    "balanceLabel": "Balance",
+    "mintButton": "Mint",
+    "burnButton": "Burn",
+    "mintHint": "Spend battery and a fee to mint BTTC",
+    "burnHint": "Destroy BTTC and gain battery back (a fee applies)",
+    "mintOk": "Minted successfully",
+    "burnOk": "Burned successfully",
+    "actionFail": "Action failed, please try again later",
+    "unavailable": "The token service is temporarily unavailable",
+    "noData": "No data"
   }
 }
