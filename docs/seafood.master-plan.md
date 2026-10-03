@@ -1416,6 +1416,38 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.301 **Kevin 三件事：① 提交 403 **依旧**（★真因终收敛 = `ActiveTaskModal` 回退任务号；我上轮漏了同族面，认账）· ② 已给他发放 10000 积分（真跑取证）· ③ `/shard` → `/exchange`**（2026-10-03）
+
+**A. ① 提交 403 依旧 ⇒ ★真链条（逐环现取）**：
+| 环 | 读数 |
+|---|---|
+| 列表 | `HomePage.jsx:92` / `TaskPage.jsx:80` 拉 **`/api/task/all`（公开任务列表）** ⇒ 这些 task 只有 **`tID`（任务号）**、**无 `jID`**（因非本人申请） |
+| 卡片按钮 | `components/task/TaskCard.jsx:140` 文案 = `task.actionText \|\| (status==='active' ? t('common.joinNow') : …)` ⇒ ★ **默认「立即参与」** |
+| 点击 | `:137` `onClick={() => onAction?.(task)}` ⇒ `HomePage.jsx:160` / `TaskPage.jsx:195` `handleTaskAction` ⇒ ★ **打开 `ActiveTaskModal`（提交交付物弹窗）** |
+| 弹窗提交 | `ActiveTaskModal.jsx:51` `fetch(\`/api/task-progress/${task.jID \|\| task.tID}/submit\`)` ⇒ ★★ **`jID` 缺失 ⇒ 回退「任务号」** |
+| 后端 | `resolveJobApplication(24, 970213)` ⇒ `application_id=24` 命中**他人**申请（属 uid 12）⇒ `ownership='other'` ⇒ **`403 AUTH_FORBIDDEN` + `reason=ACTOR_NOT_ALLOWED`** ⇒ 与 Kevin 报障**逐字一致** ✓ |
+⇒ **定性 = `D8`（语义/流程错配 + id 回退 · 用户可见）**：按钮写「立即参与」，弹出「提交交付物」；且回退用任务号 ⇒ 必然 403。
+⇒ ★★ **我 `R-9-88` 只修了 `JobDetailPage`，漏了 `ActiveTaskModal`（挂在首页 + 任务页）⇒ 同族扫面未做全，认账（第 14 次口径/执行失准）**。
+
+**B. 我裁（同族修复）**：
+- **`R-9-90`**：`ActiveTaskModal` **不得** `task.jID || task.tID` 回退 ⇒ **只用 `jID`**；无 `jID` ⇒ **不渲染提交表单**，改提示「请先参与该任务」+ 给**参与**入口（调 `applyToJob`）。
+- **`R-9-91`**：`TaskCard` / `HomePage` / `TaskPage` 的**公开列表**上，「立即参与」按钮 ⇒ **语义 = 参与（apply）**，**不得**打开提交弹窗；**提交入口只出现在「我参与的任务」**（`/api/task-progress` 轴）。
+- **`R-9-92`**：错误面按 `details.reason` 给**精确文案**（同 `R-9-88`：`ACTOR_NOT_ALLOWED` ⇒「不是该任务的打工人」）。★ 同族扫面必须**先 grep 全部 `submit` 入口**再动手（本轮教训）。
+
+**C. ② 积分发放（Kevin 要 10000）· 已完成并取证**：
+- 前置现取：**日限闸 `v_daily_cap = 1000000`**（`admin_points_adjust_post_event` 函数体）⇒ 10000 在限内 ✓ · 管理员 uid = **1 / 10 / 970201** · `cid 1` = 「**平台积分**」`$` decimals 0 · ★ **Kevin `account` 无行（余额 0）** ✓ 与他说法一致
+- **执行（走唯一写路径 `DatabaseService.adjustPoints` → `admin_points_adjust_post_event` → `ledger_post_event`）**：`{actorUid:1, uID:970213, amount:10000, reason:'PROMOTION_BONUS', key:'ops:1:points_adjust:970213:1:kevin-grant-10000-a'}`
+- **取证**：`ok:true` · `user_found:1` · **`op:'mint'`** · **`txid 1439`** · **`new_balance:"10000"`** · `audit_logged:true` · `daily_used:0` · `account` ⇒ **`uid 970213 / cid 1 = 10000`** ✓ · 审计行 `log_id 9`（`actor 1` · `op mint` · `amount 10000` · **`before 0 → after 10000`** · `result applied` · `txid 1439` · `memo PROMOTION_BONUS`）✓ · `ledger_entry txid 1439`（`delta 10000` · `kind mint` · `ref_type currency/ref_id 1` · 幂等键同）✓
+- ★ **前端可见性已核实**：`getUserAsset` **读 `account`**（`WHERE cid = SYSTEM_CURRENCY_CID`=1）⇒ `Header.jsx:75` `points = data.data.points` ⇒ **页面会显示 10000** ✓
+- ★ 我两处列名猜错（`ledger_entry.amount` / `amount_e5` ⇒ 真名 **`delta`**）⇒ **仅我的验证语句**，发放本身成功（`txid 1439` 已落）· 登记
+
+**D. ③ `/shard` → `/exchange`（现取改动面）**：`App.jsx:97` `path="shard"` · **`shell/nav.js:16`** `{key:'shard', path:'shard', route:'shard', labelKey:'shard', icon:Store}`（导航真源）· `Header.jsx:122` `{path:'shard', label:t('shard')}` · `App.jsx:283` 注释（`/shard…`）· `ShardPage` 内部注释引用的 **`/api/shard*` 是 API 路径 ⇒ 不动**；`t('shard')` 文案键**保留不变**（只改 URL）。★ 同时须核 `canonicalLangPath`/四语前缀与无前缀兜底壳对该路径的处理。
+
+**E. 已派两单**：**#1 前端同族修复单**（`ActiveTaskModal` + `TaskCard` + `HomePage`/`TaskPage` + 四语必要键）· **#3 路由改名单**（`App.jsx` + `shell/nav.js` + `Header.jsx` + 测试）。两单面不相交 ⇒ 可并行。
+**F. 状态**：DB **0040** · 生产代码 `be21c7c` · **积分 10000 已到账（真实写，已取证）**。
+
+---
+
 ### 5.300 **极小修补单回执（14c/86s）= 收紧 `r9-88` 结构断言 · ★它给出假绿直接对照（同变异体：旧断言 5/5 绿 ⇄ 新断言必红）· 我复核通过 → 入库 + push**（2026-10-03）
 
 **A. 修补（只改一个测试文件 · 产品源码 0 改动）**：`frontend/src/test/unit/r9-88-submit-surface.test.jsx`
@@ -6418,6 +6450,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.301 | 2026-10-03 | **Kevin 三件事：① 提交 403 依旧（★真因终收敛 = ActiveTaskModal 回退任务号；我上轮漏了同族面，认账）· ② 已给他发放 10000 积分（真跑取证）· ③ /shard → /exchange**。**A. ①真链条**：`HomePage.jsx:92`/`TaskPage.jsx:80` 拉 `/api/task/all`（公开列表 ⇒ 只有 `tID` 无 `jID`）→ `TaskCard.jsx:140` 按钮默认文案 =「立即参与」（`common.joinNow`）→ `:137` `onAction` → `handleTaskAction` → **打开 `ActiveTaskModal`（提交弹窗）** → `:51` **`task.jID \|\| task.tID` 回退任务号** → `resolveJobApplication(24, 970213)` 命中他人申请 ⇒ **403 AUTH_FORBIDDEN/ACTOR_NOT_ALLOWED**（与报障逐字一致）⇒ 定性 **D8**；★**我 R-9-88 只修了 JobDetailPage，漏了 ActiveTaskModal（挂首页+任务页）⇒ 同族扫面未做全，认账（第 14 次）**。**B. 裁定**：`R-9-90` ActiveTaskModal 不得回退 tID（无 jID ⇒ 不给表单 + 给参与入口）· `R-9-91` 公开列表按钮语义=参与，提交入口只出现在 task-progress 轴 · `R-9-92` 错误面精确文案 + 同族必须先 grep 全部 submit 入口。**C. ②积分**：日限闸现取 = **1000000**（10000 在限内）· 管理员 uid 1/10/970201 · `cid 1`=「平台积分」`$` · Kevin `account` 无行 ✓ ⇒ **执行 `adjustPoints({actorUid:1,uID:970213,amount:10000,reason:'PROMOTION_BONUS'})`** ⇒ **`ok:true` · `op:mint` · `txid 1439` · `new_balance 10000` · `audit_logged:true`** · `account`=`970213/cid1/10000` · 审计 `log_id 9`（before 0→after 10000）· `ledger_entry txid 1439`（delta 10000 · kind mint）· ★前端读的就是 `account.balance`（`getUserAsset` where cid=SYSTEM_CURRENCY_CID）⇒ 会显示 10000；★我两处列名猜错（真名 `delta`）仅验证语句。**D. ③**：改动面 = `App.jsx:97` + `shell/nav.js:16` + `Header.jsx:122` + 注释；`/api/shard*` 是 API 路径不动；`t('shard')` 文案键保留。**E.** 派两单（#1 前端同族修复 + #3 路由改名，面不相交）。 |
 | v0.300 | 2026-10-03 | **极小修补单回执（14c/86s）= 收紧 r9-88 结构断言 · ★它给出假绿直接对照（同变异体：旧断言 5/5 绿 ⇄ 新断言必红）· 我复核通过 → 入库 + push**。**A.** `r9-88-submit-surface.test.jsx`：删旧双限定（钩子名 + `inputmode`）⇒ 改**通用结构面** `editableControls`（`input/textarea/select` 减 `hidden/disabled/readOnly`，**与钩子名/属性无关**）⇒ 提交表单内**恰 1 个**且 == `jobs-input-deliverable`；`jobs-submit-target.tagName ∉ [INPUT,TEXTAREA,SELECT]`；**新增第 6 例**作用域守卫（accept 面板输入在提交表单外不计入）；用例 5→6。**B.** ★**假绿对照**：同变异体（新钩子名 + 不带 inputmode 的真手输框）⇒ **旧判据 `5 passed`（假绿）⇄ 新判据 `2 failed/4 passed`**（红点 `to have a length of 1 but got 2`）⇒ 收紧有效。**C.** 套件 **6/6 绿** · build **0** · 全量 **`7 failed \| 328 passed (335)`** 零新增 · 变异体仅在仓外副本。**D.** 我复核：tracked 改动仅此文件 · `editableControls` 确为结构面 · `inputmode` 3 处命中**全在注释**（无 live 双限定断言）· `:135` 那条属另一用例 · 用例标题 6 个 · 我亲跑 6/6 绿。**E.** 入库 + push（测试文件不影响 build ⇒ bundle sha 应不变，作对照）。**F.** 本批全部收官。 |
 | v0.299 | 2026-10-03 | **双线质检回执（线 A = PASS_WITH_ISSUES · 线 B = PASS_WITH_ISSUES）⇒ 产品行为全部正确 · ★线 B 抓到实现方测试严格度缺口（假绿）· ★线 A 留一条 NOT_MEASURED · push 上线 + 派极小修补单**。**A. 线 A**：路由 88 · R-9-86 三件在位 · 排序本人优先已居首 · **四臂真 HTTP（自起 5797）：未登录 401 · 坏 token 401 · 非本人 404 · 非本人 404 与 miss 404 bytes_equal=true · 本人 200 且 data 恰 9 键（info_input=交付物正文）** · **对照臂（仓外去归属校验）⇒ 非本人 200+正文**、**完全修前态 ⇒ 未登录 200+正文** ⇒ 新闸是真承重件 · **R-9-87 真数据三组撞号点**：(4,970102) self=5⇄other=4 · (9,3) self=8⇄other=9 · (15,1) self=11⇄other=15 + 夹具 in-tx 新序 self(25)⇄旧序 other(2)、residue 0 · 判负 (a) 去归属校验⇒非本人 200+正文（复原回绿闭环）(b) 去全修前态⇒未登录 200+正文 (c) **去键副本端到端 = NOT_MEASURED（迭代上限，有等价证据）** · **十一门带实例逐门与在役完全一致**（无红腿、未放宽）· 收尾精确 PID ⇒ 5797 空、5787/5788 未碰 · 主仓零写入坐实（sha 首末同值）。**B. 线 B**：R-9-85 控件计数=1（旧钩子 0）/ 地址缩写正则 / 四语 href / 未登录不渲染 / 左侧 nav 不含 profile / locales 零变更；R-9-88 **结构面**（无 jobs-input-identifier · 表单内可编辑控件恰 1=交付物 · 目标只读 <p> · 无申请不给表单 · **双向文案**：ACTOR_NOT_ALLOWED⇒精确 ⇄ 其它/无 details⇒通用逐字等于 error.message）；四语逐键 +2/0 删、en/vn 无 CJK、计数 top119/flat1037/jobs36/节点4148；判负 3 处全红；★**假绿：R-9-88「无手输框」非通用结构断言**（注入新钩子名+不带 inputmode ⇒ 实现方套件 5/5 假绿；它的结构断言能撞红）⇒ **测试严格度缺口，产品源码无缺陷**；**unit 前 35 pass/0 fail ⇒ 后 36 pass/0 fail**（delta 恰 +1 文件/+5 用例）；build 0。**C.** 两 issue 均不构成本批产品缺陷 ⇒ 不阻塞上线；仍派极小修补单收紧该断言（只改测试）。**D.** push（区间内每 commit 均已过质检）。**E.** 生产终验：health 0040 · ★`GET /api/task-progress/24` 未登录应由修前 200 变 **401** · 非本人 404 · bundle 逐字对拍。 |
 | v0.298 | 2026-10-03 | **R-9-86/R-9-87/R-9-88 三修交付 · ★我独立复核通过（真数据撞号点解到本人 + 路由已加鉴权 + tsc 0）· 十一门带实例 774 项全过 · 入库 4 commit · 派质检**。**A. 后端（60c/515s 截断）**：`R-9-86`（HIGH 隐私面）`index.ts:884-903` 加 `requireActor` + `ensureOwnedTaskProgress`，miss 与非本人**合流同一 404**（不泄漏存在性）⇒ 三臂真 HTTP **8/8**（无 token 401 · 非本人 404 · 本人 200 data 9 键 · miss 404 · **非本人 404 body 与 miss 逐字相同**）；`R-9-87` `database.ts:3268-3291` ORDER BY 本人优先（WHERE 容错与返回形状未动）⇒ 真链路 4/4（仓外去键副本作修复前对照 ⇒ 解到他人）· ★**真数据交叉臂：`X=11` ⇒ 主仓 self(app 9) ⇄ nopri other(app 11)**；判负 2 条（去归属校验 ⇒ 非本人 200 且含交付物正文 = 旧态泄漏复现；oldstate 无 token 200；去优先键 ⇒ 撞红）；**全量硬门带实例逐门 0 红（s2 44 · s3 45 · s3b 38 · s4 79 · s5 117 · s6 64 · s7 59(http9) · s8 92(http11) · s9 100 · s10 49(http3) · s11 87(http6)）= 合计 774 项全过**；路由 88 未变；收尾 PID 76746 ⇒ 5797 空；5787/5788 PID 未变。**B. 前端（30c/184s）**：删手输框（改只读 `jobs-submit-target`）+ 无申请不给表单（`jobs-submit-need-apply` + 新键 `jobs.submitNeedApply`）+ 捕错按 reason 分流精确文案 `jobs.submitNotApplicant`（其余保持通用逐字不变）；四语 2 键齐平（flat 1035→1037 · 节点 4140→4148 · jobs 34→36 · top 119 不变）；`p6-tr2`/`p4z-i18nviol-global` PASS；新测 5/5；vitest 零新增失败；build 0。**C. 我独立复核**：只读探针 `id=11,uid=6` ⇒ **self/app 9**（撞号点解到本人）· `id=23`/`id=24` ⇒ self/app 24 · `999999` ⇒ null；ORDER BY 现取本人优先已居首；R-9-86 路由三件在位；tsc 0；★**我自己 `id=4,uid=3` 期望值猜错（实为 other，因该 uid 对 job 4 本无主张）= 第 13 次口径失准**，盘面对、我猜错。**D.** 入库 4 commit（85/86/87/88 各一）。**E.** 派统一独立质检（后端核心 + HIGH 隐私面 ⇒ 必检）。 |
