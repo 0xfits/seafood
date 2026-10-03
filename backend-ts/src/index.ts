@@ -882,13 +882,27 @@ app.get('/api/task-progress', async (req, res) => {
 });
 
 app.get('/api/task-progress/:jID', async (req, res) => {
+  // R-9-86（§5.296 · HIGH 隐私面）：本读口回包含 `info_input` = **交付物正文**
+  // （`database.ts getTaskProgress` 的 `s.deliverable AS info_input`）⇒ **必须**鉴权 + 归属校验。
+  // 修前：本口**零** `requireActor`、零归属校验 ⇒ 任何人（含未登录）给一个 application_id
+  // 即可读他人交付物正文。语义（R-9-86 逐字）：
+  //   · 未登录 / 凭据无效 ⇒ **401**（`requireActor` 既有：R107 `AUTH_UNAUTHORIZED`）
+  //   · 已登录但**非本人** ⇒ **404**（与 miss 分支**同形**，不泄漏存在性；★ 不用 403，免与提交面的 403 混淆）
+  //   · 本人 ⇒ **200**（成功分支 `data` 形状逐字不变）
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
   try {
     const jID = parseInteger(req.params.jID);
     if (!jID) {
       return sendError(res, 400, 'Invalid jID');
     }
 
-    const taskProgress = await DatabaseService.getTaskProgress(jID);
+    // 归属校验复用既有 `ensureOwnedTaskProgress`（与 submit 路由同源）；miss 与「非本人」合流 ⇒ 同形 404。
+    const taskProgress = ensureOwnedTaskProgress(
+      await DatabaseService.getTaskProgress(jID),
+      actor.user.uID,
+    );
     if (!taskProgress) {
       return sendError(res, 404, 'Task progress not found');
     }
