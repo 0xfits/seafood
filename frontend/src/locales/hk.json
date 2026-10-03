@@ -1036,5 +1036,18 @@
     "defaultStars": "預設星級",
     "siteLangHint": "留空則使用預設文案",
     "numbersHint": "數值為最小單位整數"
+  },
+  "battCard": {
+    "title": "電量",
+    "unit": "%",
+    "rangeHint": "電量上限為滿值，超出部分不累計",
+    "insufficient": "電量低於承接門檻，暫時無法承接任務"
+  },
+  "checkinPanel": {
+    "checkinButton": "簽到",
+    "streakDays": "連續簽到日數",
+    "brokenHint": "連續簽到已中斷，重新累計",
+    "makeupButton": "補簽",
+    "makeupCost": "補簽將消耗積分"
   }
 }

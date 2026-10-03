@@ -191,6 +191,10 @@ export const applyToJob = async (params: {
     case 'already_applied':
       // §3.3-4：业务级唯一键必须在应用层先判 ⇒ 409（不得让裸 23505 落 400）
       return fail(409, 'LEDGER_IDEMPOTENCY_CONFLICT', { reason: 'application_already_exists', ref_type: 'job_application', ref_id: String(write.applicationId ?? ''), job_id: String(params.jobId) }, 'application_already_exists');
+    case 'batt_below_threshold':
+      // ★ P9② 双闸落点 A（`R-9-18`）：电量 < 阈值 ⇒ 409（**借既有「非法状态转移」族码** · 零新增码；
+      //   `reason` 稳定常量；`details` 不含表名 / SQL / 约束名 —— R107）。
+      return stateConflict('batt', 'BATT_BELOW_ACCEPT_THRESHOLD', { job_id: String(params.jobId) });
     case 'conflict':
       return fail(409, 'LEDGER_IDEMPOTENCY_CONFLICT', { reason: 'create_key_taken', ref_id: resolvedKey.key, job_id: String(params.jobId) }, 'Idempotency conflict');
     default:
@@ -222,6 +226,9 @@ export const acceptApplication = async (params: {
       return stateConflict('job_application.status', 'JOB_APPLICATION_STATE_INVALID', { from: write.applicationStatus, to: 'accepted', application_id: String(params.applicationId) });
     case 'job_state_invalid':
       return stateConflict('job.status', 'JOB_STATE_INVALID', { from: write.jobStatus, to: 'accepted', job_id: String(params.jobId) });
+    case 'batt_below_threshold':
+      // ★ P9② 双闸落点 B（`R-9-18`）· **权威扣费点**：Worker 电量 < 阈值 ⇒ 整体回滚 ⇒ 409（batt 不变）。
+      return stateConflict('batt', 'BATT_BELOW_ACCEPT_THRESHOLD', { application_id: String(params.applicationId) });
     default:
       break;
   }
@@ -234,6 +241,7 @@ export const acceptApplication = async (params: {
       job_id: write.jobId,
       worker_uid: write.workerUid,
       status: 'accepted',
+      worker_batt_after: write.workerBattAfter,
     },
   };
 };

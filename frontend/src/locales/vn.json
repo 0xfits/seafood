@@ -1036,5 +1036,18 @@
     "defaultStars": "Số sao mặc định",
     "siteLangHint": "Để trống sẽ dùng mặc định",
     "numbersHint": "Giá trị là số nguyên theo đơn vị nhỏ nhất"
+  },
+  "battCard": {
+    "title": "Năng lượng",
+    "unit": "%",
+    "rangeHint": "Năng lượng đạt mức tối đa sẽ không tích lũy thêm",
+    "insufficient": "Năng lượng dưới ngưỡng nhận việc, tạm thời không thể nhận việc"
+  },
+  "checkinPanel": {
+    "checkinButton": "Điểm danh",
+    "streakDays": "Số ngày điểm danh liên tiếp",
+    "brokenHint": "Chuỗi điểm danh đã bị ngắt, bắt đầu lại",
+    "makeupButton": "Điểm danh bù",
+    "makeupCost": "Điểm danh bù sẽ tiêu tốn điểm"
   }
 }

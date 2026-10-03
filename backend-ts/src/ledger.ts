@@ -149,6 +149,10 @@ export const MAX_SINGLE_AMOUNT = 1_000_000_000_000_000n; // 1e15
  *   - `listing_deposit_forfeit`：P1c 新裁定删（保证金在上市时即消耗、进平台收入 `uid=-1`，
  *     强制下架时**不存在可罚没的标的物**；将来若做「强制下架罚款」属**新语义、新 kind**，需单独定）
  *   DB 侧同款删除见 `migrations/0003_kind_close_set_20.sql`（CHECK 约束重建，非 enum 类型）。
+ * ★ P9②（`data-layer.spec` v0.21 §31.1 Zang 裁定 **R-9-14**，2026-10-03）：**C-3 = 方案 ② 扩容 +1**
+ *   ⇒ **20 → 21**，新增第 21 值 **`checkin_makeup_fee`**（补签 100 `$` 腿，**只追加于末位**、
+ *   **不改既有 20 值次序**）。DB 侧同款扩容见 `migrations/0028_kind_close_set_21.sql`（CHECK 重建、非 enum）；
+ *   `−1` 归属白名单同步见 `PLATFORM_KIND_WHITELIST['-1'].credit`。**不真 burn**（`R-9-3`）。
  */
 export const LEDGER_KINDS = [
   'mint', 'burn', 'transfer', 'hold', 'hold_release', 'hold_forfeit',
@@ -157,6 +161,7 @@ export const LEDGER_KINDS = [
   'trade', 'trade_fee',
   'listing_fee', 'listing_deposit',
   'currency_create_fee', 'reversal',
+  'checkin_makeup_fee',
 ] as const;
 export type LedgerKind = (typeof LEDGER_KINDS)[number];
 
@@ -547,7 +552,12 @@ const PLATFORM_KIND_WHITELIST: Record<string, { credit: LedgerKind[]; debit: Led
   //    **必须与 DB 侧同改**：`migrations/0019_listing_deposit_platform_credit.sql` 的
   //    `ledger_assert_platform_mutation` 已把 `listing_deposit` 加入 `-1` 的 `credit` 白名单。
   //    `debit` 仍恒为空（不许被顺带松掉；`0019` 自检负例②已取证）。
-  '-1': { credit: ['trade_fee', 'listing_fee', 'currency_create_fee', 'job_fee', 'listing_deposit'], debit: [] },
+  // 🆕 P9②（`data-layer.spec` v0.21 §31.1 R-9-14「−1 归属白名单追加」+ §31.5 + `ledger.spec` R101）：
+  //    `-1` 的 credit 再接纳 `checkin_makeup_fee`（补签 100 `$` 手续费入平台收入、**不真 burn** ·
+  //    `R-9-3`）。**必须与 DB 侧同改**：`migrations/0028_kind_close_set_21.sql` 扩容 kind 关闭集；
+  //    `ledger_assert_platform_mutation` 的 `-1` credit 白名单须同轮加入本 kind（沿 `0019` 对
+  //    `listing_deposit` 的加法式扩展手法）。`debit` 仍恒为空。
+  '-1': { credit: ['trade_fee', 'listing_fee', 'currency_create_fee', 'job_fee', 'listing_deposit', 'checkin_makeup_fee'], debit: [] },
   '-2': { credit: ['job_fee'], debit: ['commission'] },
   // R38 说明「退还 = 反向 hold_forfeit 或从 −3 transfer」；R101 却禁止平台账户用 transfer
   // ⇒ spec 内部张力，本实现取宽松侧（允许退还路径），已登记为歧义点。

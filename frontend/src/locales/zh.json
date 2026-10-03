@@ -1036,5 +1036,18 @@
     "defaultStars": "默认星级",
     "siteLangHint": "留空则使用默认文案",
     "numbersHint": "数值为最小单位整数"
+  },
+  "battCard": {
+    "title": "电量",
+    "unit": "%",
+    "rangeHint": "电量上限为满值，超出部分不累计",
+    "insufficient": "电量低于承接门槛，暂时无法承接任务"
+  },
+  "checkinPanel": {
+    "checkinButton": "签到",
+    "streakDays": "连续签到天数",
+    "brokenHint": "连续签到已中断，重新累计",
+    "makeupButton": "补签",
+    "makeupCost": "补签将消耗积分"
   }
 }

@@ -214,6 +214,95 @@ const NUMERIC_POLICY_SPECS: Record<string, {
   },
 };
 
+// ============================================================================
+// 批 9 第 2 片（P9② · `data-layer.spec` v0.21 §31.3(b) / §31.4(a) / §31.3(c-3)）：
+//   batt / 签到 策略的 **TS 侧 fail-closed 解析器** + **服务端常量兜底**
+// ----------------------------------------------------------------------------
+// · 口径（写死 · 承 §24.4 下限 fail-closed + §31.3(a) `B-5` + §31.3(c-3)）：
+//   `app_config` 无行 / 值非 object / 某字段非法 ⇒ **该字段回落服务端常量**
+//   （**绝不放行客户端值**）；`source` = `'config'`（有行）| `'constant'`（无行）。
+// · ★ 交叉一致性（§31.3(b) 尾注）：`taskCostBatt`（消耗 9）与 `acceptThresholdBatt`（阈值 9）
+//   **语义耦合 ⇒ 默认均 9**（本常量表据此取 9）。
+// · ★ 这些常量是**代码面兜底唯一真源**；`app_config` 权威值只经既有唯一写口
+//   `POST /api/admin/settings` 落地（`AG2`）⇒ 本模块**不写** `app_config`。
+// ============================================================================
+export const BATT_POLICY_DEFAULTS = {
+  taskCostBatt: 9, capBatt: 100, floorBatt: 0, acceptThresholdBatt: 9,
+} as const;
+export const CHECKIN_POLICY_DEFAULTS = {
+  baseRewardBatt: 30, streakCapDays: 7, streakDay7RewardBatt: 60, makeupCostUsd: 100, makeupDailyLimit: 1,
+} as const;
+
+export type BattPolicy = { taskCostBatt: number; capBatt: number; floorBatt: number; acceptThresholdBatt: number };
+export type CheckinPolicy = { baseRewardBatt: number; streakCapDays: number; streakDay7RewardBatt: number; makeupCostUsd: number; makeupDailyLimit: number };
+export type PolicySource = 'config' | 'constant';
+
+/**
+ * ★ `R-9-23`：**配置键与 DB CHECK 的耦合硬上限**（钳制落在 resolver 内 ⇒ 全部读/写路径同一生效值）。
+ *   · `capBatt` 生效值上限 = 100（DB 兜底 `CHECK (batt BETWEEN 0 AND 100)`，`0029`）；
+ *   · `streakCapDays` 生效值上限 = 7（需求 §4.2.2「最大连续签到 7 天」= 硬上限；DB 兜底
+ *     `CHECK (streak_day BETWEEN 1 AND 7)`，`0029`）。
+ * 否则后台把 `capBatt`/`streakCapDays` 调大 ⇒ 写路径被 **23514** 拒 ⇒ 配置面不可用（真实耦合风险）。
+ * ★ 不破 P9① 冻结的 `AV4` 域（`positive_integer`）—— 域校验仍在**入口**放行任意正整数，
+ *   本节只在**读生效值**时钳制（DB CHECK 保持为兜底，非判据）。
+ */
+export const BATT_CAP_HARD_MAX = 100;
+export const CHECKIN_STREAK_CAP_HARD_MAX = 7;
+
+/** 正整数域（fail-closed：非安全整数 / ≤0 ⇒ `null` ⇒ 调用方回落常量）。 */
+const policyPositiveInt = (raw: unknown): number | null => {
+  const n = typeof raw === 'number' ? raw : (typeof raw === 'string' && raw.trim() !== '' ? Number(raw) : NaN);
+  return Number.isSafeInteger(n) && n > 0 ? n : null;
+};
+/** 非负整数域（fail-closed）。 */
+const policyNonNegInt = (raw: unknown): number | null => {
+  const n = typeof raw === 'number' ? raw : (typeof raw === 'string' && raw.trim() !== '' ? Number(raw) : NaN);
+  return Number.isSafeInteger(n) && n >= 0 ? n : null;
+};
+
+/** `batt_policy` 解析（**逐字段** fail-closed 到 `BATT_POLICY_DEFAULTS`）。 */
+export const resolveBattPolicy = (raw: unknown): { policy: BattPolicy; source: PolicySource } => {
+  const isObj = raw !== null && typeof raw === 'object' && !Array.isArray(raw);
+  const v = isObj ? raw as Record<string, unknown> : {};
+  // ★ `R-9-23` 钳制：`capBatt` 生效值 ≤ 100；`floorBatt` 生效值 ∈ [0, capBatt]（capBatt 先钳）。
+  const capBatt = Math.min(policyPositiveInt(v.capBatt) ?? BATT_POLICY_DEFAULTS.capBatt, BATT_CAP_HARD_MAX);
+  const floorBatt = Math.min(policyNonNegInt(v.floorBatt) ?? BATT_POLICY_DEFAULTS.floorBatt, capBatt);
+  return {
+    policy: {
+      taskCostBatt: policyPositiveInt(v.taskCostBatt) ?? BATT_POLICY_DEFAULTS.taskCostBatt,
+      capBatt,
+      floorBatt,
+      acceptThresholdBatt: policyNonNegInt(v.acceptThresholdBatt) ?? BATT_POLICY_DEFAULTS.acceptThresholdBatt,
+    },
+    source: isObj ? 'config' : 'constant',
+  };
+};
+
+/** `checkin_policy` 解析（**逐字段** fail-closed 到 `CHECKIN_POLICY_DEFAULTS`）。 */
+export const resolveCheckinPolicy = (raw: unknown): { policy: CheckinPolicy; source: PolicySource } => {
+  const isObj = raw !== null && typeof raw === 'object' && !Array.isArray(raw);
+  const v = isObj ? raw as Record<string, unknown> : {};
+  return {
+    policy: {
+      baseRewardBatt: policyPositiveInt(v.baseRewardBatt) ?? CHECKIN_POLICY_DEFAULTS.baseRewardBatt,
+      // ★ `R-9-23` 钳制：`streakCapDays` 生效值 ≤ 7（硬上限；DB 兜底 CHECK streak_day ∈ [1,7]）。
+      streakCapDays: Math.min(policyPositiveInt(v.streakCapDays) ?? CHECKIN_POLICY_DEFAULTS.streakCapDays, CHECKIN_STREAK_CAP_HARD_MAX),
+      streakDay7RewardBatt: policyPositiveInt(v.streakDay7RewardBatt) ?? CHECKIN_POLICY_DEFAULTS.streakDay7RewardBatt,
+      makeupCostUsd: policyPositiveInt(v.makeupCostUsd) ?? CHECKIN_POLICY_DEFAULTS.makeupCostUsd,
+      makeupDailyLimit: policyPositiveInt(v.makeupDailyLimit) ?? CHECKIN_POLICY_DEFAULTS.makeupDailyLimit,
+    },
+    source: isObj ? 'config' : 'constant',
+  };
+};
+
+/** ISO 串或 `null`（读口 `updated_at`）。 */
+export const isoOrNull = (value: unknown): string | null => {
+  if (value === null || value === undefined || value === '') return null;
+  const date = value instanceof Date ? value : new Date(typeof value === 'number' ? value : String(value));
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
+};
+
+
 const hasOwn = (obj: Record<string, unknown>, key: string): boolean =>
   Object.prototype.hasOwnProperty.call(obj, key);
 
@@ -681,6 +770,31 @@ const getValue = (row: RawRow, ...keys: string[]) => {
   }
 
   return undefined;
+};
+
+/**
+ * ★ P9② 库面收口（`R-8-18` 同向 · 单一真源）：batt / 签到 / 补签 / 双闸 六方法的 **tagged-template
+ *   执行口的事务内注入**。给了 `ex`（`db.ts` 的 `TxClient`，既有事务）⇒ 用它充当 tagged-template：
+ *   把模板串的洞按 neon 同语义占位符化为 `$1..$n`（值作参数绑定），返回 `rows` 数组；否则走 `getSql()`
+ *   （neon 单语句隐式事务）。⇒ 服务层路径与「真链路探针的事务内路径」**共用同一份 SQL**，无第二套取数。
+ */
+type SqlTag = (strings: TemplateStringsArray, ...values: unknown[]) => Promise<RawRow[]>;
+const sqlFor = (ex?: SqlRunner): SqlTag => {
+  if (!ex) return getSql() as unknown as SqlTag;
+  const runner: SqlTag = async (strings, ...values) => {
+    let text = '';
+    const params: unknown[] = [];
+    for (let i = 0; i < strings.length; i += 1) {
+      text += strings[i];
+      if (i < values.length) {
+        params.push(values[i]);
+        text += `$${params.length}`;
+      }
+    }
+    const out = (await ex.query(text, params)).rows;
+    return out;
+  };
+  return runner;
 };
 
 const toStringValue = (...values: unknown[]) => {
@@ -3469,12 +3583,17 @@ export class DatabaseService {
     jobId: number,
     workerUid: number,
     createKey: string,
+    ex?: SqlRunner,
   ): Promise<{
-    outcome: 'applied' | 'replay' | 'already_applied' | 'not_open' | 'self_application' | 'conflict';
+    outcome: 'applied' | 'replay' | 'already_applied' | 'not_open' | 'self_application' | 'batt_below_threshold' | 'conflict';
     applicationId: number | null;
     jobStatus: string;
   } | null> {
-    const sql = getSql();
+    // ★ P9② 双闸（`R-9-18`）落点 A · **前置闸（fail-fast）**：阈值取 `batt_policy.acceptThresholdBatt`
+    //   （TS fail-closed 到常量 9）；闸在 **SQL 单写路径 CTE `ins` 的 `WHERE`** 内（沿 8④ `C2` 教训）。
+    const { policy: battPolicy } = resolveBattPolicy(await this.getAppConfigValueByKey('batt_policy', ex));
+    const acceptThresholdBatt = battPolicy.acceptThresholdBatt;
+    const sql = sqlFor(ex);
     const row = firstRow(await sql`
       WITH j AS (
         SELECT job.job_id, job.employer_uid, job.status AS job_status
@@ -3486,6 +3605,11 @@ export class DatabaseService {
           FROM j
          WHERE j.job_status = 'open'
            AND j.employer_uid <> ${workerUid}
+           AND COALESCE((SELECT b.batt FROM public.batt_account AS b WHERE b.uid = ${workerUid}), 0)
+               >= COALESCE((SELECT CASE WHEN (p.value->>'acceptThresholdBatt') ~ '^[0-9]+$'
+                                        THEN (p.value->>'acceptThresholdBatt')::int ELSE NULL END
+                               FROM public.app_config AS p WHERE p.key = 'batt_policy' LIMIT 1),
+                           ${acceptThresholdBatt})
         ON CONFLICT DO NOTHING
         RETURNING application_id
       ), cur AS (
@@ -3510,6 +3634,12 @@ export class DatabaseService {
              COALESCE(c.outcome,
                       CASE WHEN j.job_status <> 'open' THEN 'not_open'
                            WHEN j.employer_uid = ${workerUid} THEN 'self_application'
+                           WHEN COALESCE((SELECT b.batt FROM public.batt_account AS b WHERE b.uid = ${workerUid}), 0)
+                                < COALESCE((SELECT CASE WHEN (p.value->>'acceptThresholdBatt') ~ '^[0-9]+$'
+                                                       THEN (p.value->>'acceptThresholdBatt')::int ELSE NULL END
+                                              FROM public.app_config AS p WHERE p.key = 'batt_policy' LIMIT 1),
+                                          ${acceptThresholdBatt})
+                                THEN 'batt_below_threshold'
                            ELSE 'conflict' END) AS outcome,
              c.application_id AS application_id
         FROM j
@@ -3520,7 +3650,7 @@ export class DatabaseService {
 
     return {
       outcome: (toStringValue(getValue(row, 'outcome')) || 'conflict') as
-        'applied' | 'replay' | 'already_applied' | 'not_open' | 'self_application' | 'conflict',
+        'applied' | 'replay' | 'already_applied' | 'not_open' | 'self_application' | 'batt_below_threshold' | 'conflict',
       applicationId: getValue(row, 'application_id') === null || getValue(row, 'application_id') === undefined
         ? null
         : toNumberValue(getValue(row, 'application_id')),
@@ -3533,15 +3663,24 @@ export class DatabaseService {
     jobId: number,
     applicationId: number,
     actorUid: number,
+    ex?: SqlRunner,
   ): Promise<{
-    outcome: 'accepted' | 'not_employer' | 'already_accepted' | 'app_state_invalid' | 'job_state_invalid';
+    outcome: 'accepted' | 'not_employer' | 'already_accepted' | 'app_state_invalid' | 'job_state_invalid' | 'batt_below_threshold';
     applicationId: number;
     jobId: number;
     workerUid: number;
     applicationStatus: string;
     jobStatus: string;
+    workerBattAfter: number | null;
   } | null> {
-    const sql = getSql();
+    // ★ P9② 双闸（`R-9-18`）落点 B · **权威扣费点**：`upd` CTE 同事务追加电量闸（标的 = `t.worker_uid`）；
+    //   `deduct` CTE **同事务扣 `taskCostBatt`（fallback 9）** + **二次判 ≥ cost**（不满足 ⇒ 无行 ⇒
+    //   整体回滚 ⇒ 409）；`ins_entry` 为该扣减落 `batt_entry` 逐笔凭证（reason `task_cost`）。
+    //   两处均 **SQL 单写路径 CTE**（不可绕过 · 沿 8④ `C2` 教训）；`batt_account` 无行 ⇒ `COALESCE 0`（fail-closed）。
+    const { policy: battPolicy } = resolveBattPolicy(await this.getAppConfigValueByKey('batt_policy', ex));
+    const acceptThresholdBatt = battPolicy.acceptThresholdBatt;
+    const taskCostBatt = battPolicy.taskCostBatt;
+    const sql = sqlFor(ex);
     const row = firstRow(await sql`
       WITH target AS (
         SELECT a.application_id, a.job_id, a.worker_uid, a.status AS app_status,
@@ -3550,14 +3689,25 @@ export class DatabaseService {
           JOIN public.job AS j ON j.job_id = a.job_id
          WHERE a.application_id = ${applicationId}
            AND a.job_id = ${jobId}
+      ), thr AS (
+        SELECT COALESCE((SELECT CASE WHEN (p.value->>'acceptThresholdBatt') ~ '^[0-9]+$'
+                                      THEN (p.value->>'acceptThresholdBatt')::int ELSE NULL END
+                             FROM public.app_config AS p WHERE p.key = 'batt_policy' LIMIT 1), ${acceptThresholdBatt}) AS accept,
+               COALESCE((SELECT CASE WHEN (p.value->>'taskCostBatt') ~ '^[0-9]+$'
+                                      THEN (p.value->>'taskCostBatt')::int ELSE NULL END
+                             FROM public.app_config AS p WHERE p.key = 'batt_policy' LIMIT 1), ${taskCostBatt}) AS cost
+      ), gate AS (
+        SELECT t.*, COALESCE((SELECT b.batt FROM public.batt_account AS b WHERE b.uid = t.worker_uid), 0)::int AS worker_batt
+          FROM target AS t
       ), upd AS (
         UPDATE public.job_application AS a
            SET status = 'accepted'
-          FROM target AS t
-         WHERE a.application_id = t.application_id
-           AND t.app_status = 'applied'
-           AND t.employer_uid = ${actorUid}
-           AND t.job_status = 'open'
+          FROM gate AS g, thr
+         WHERE a.application_id = g.application_id
+           AND g.app_status = 'applied'
+           AND g.employer_uid = ${actorUid}
+           AND g.job_status = 'open'
+           AND g.worker_batt >= thr.accept
         RETURNING a.application_id
       ), upd_job AS (
         UPDATE public.job AS j
@@ -3567,6 +3717,23 @@ export class DatabaseService {
            AND t.job_status = 'open'
            AND EXISTS (SELECT 1 FROM upd)
         RETURNING j.job_id
+      ), deduct AS (
+        UPDATE public.batt_account AS b
+           SET batt = b.batt - (SELECT cost FROM thr)
+          FROM gate AS g, thr
+         WHERE b.uid = g.worker_uid
+           AND EXISTS (SELECT 1 FROM upd)
+           AND b.batt >= (SELECT cost FROM thr)
+        RETURNING b.batt, b.uid
+      ), ins_entry AS (
+        INSERT INTO public.batt_entry (uid, delta, batt_after, reason, idempotency_key, ref_type, ref_id, memo)
+        SELECT d.uid, -1 * (SELECT cost FROM thr), d.batt, 'task_cost',
+               'biz:job:accept:cost:' || d.uid::text || ':' || ${applicationId}::text,
+               'job_application', ${applicationId}::bigint, ''
+          FROM deduct AS d
+         WHERE (SELECT cost FROM thr) <> 0
+        ON CONFLICT (idempotency_key) DO NOTHING
+        RETURNING txid
       )
       SELECT t.application_id AS application_id, t.job_id AS job_id, t.worker_uid AS worker_uid,
              t.app_status AS application_status, t.job_status AS job_status,
@@ -3574,20 +3741,26 @@ export class DatabaseService {
                       CASE WHEN t.employer_uid <> ${actorUid} THEN 'not_employer'
                            WHEN t.app_status = 'accepted' THEN 'already_accepted'
                            WHEN t.app_status <> 'applied' THEN 'app_state_invalid'
-                           ELSE 'job_state_invalid' END) AS outcome
-        FROM target AS t
+                           WHEN t.job_status <> 'open' THEN 'job_state_invalid'
+                           WHEN g.worker_batt < thr.accept THEN 'batt_below_threshold'
+                           ELSE 'job_state_invalid' END) AS outcome,
+             (SELECT d.batt FROM deduct AS d LIMIT 1) AS worker_batt_after
+        FROM target AS t, gate AS g, thr
     `);
 
     if (!row) return null;
 
     return {
       outcome: (toStringValue(getValue(row, 'outcome')) || 'app_state_invalid') as
-        'accepted' | 'not_employer' | 'already_accepted' | 'app_state_invalid' | 'job_state_invalid',
+        'accepted' | 'not_employer' | 'already_accepted' | 'app_state_invalid' | 'job_state_invalid' | 'batt_below_threshold',
       applicationId: toNumberValue(getValue(row, 'application_id')),
       jobId: toNumberValue(getValue(row, 'job_id')),
       workerUid: toNumberValue(getValue(row, 'worker_uid')),
       applicationStatus: toStringValue(getValue(row, 'application_status')),
       jobStatus: toStringValue(getValue(row, 'job_status')),
+      workerBattAfter: getValue(row, 'worker_batt_after') === null || getValue(row, 'worker_batt_after') === undefined
+        ? null
+        : toNumberValue(getValue(row, 'worker_batt_after')),
     };
   }
 
@@ -4028,6 +4201,295 @@ export class DatabaseService {
       updated_at: updatedAt,
     };
   }
+
+  // ==========================================================================
+  // 批 9 第 2 片（P9② · `data-layer.spec` v0.21 §31.2–§31.5 · `route-layer.spec` v2.14 §28）：
+  //   **batt / 签到 / 补签** 读口 + 写口（**单语句 CTE** = 一个隐式事务，沿 `createCurrencyWithFee` 先例）。
+  // --------------------------------------------------------------------------
+  // · 载体（变体 Ⅰ · `R-9-19`）：`batt_account` / `batt_entry` / `checkin_log` / `checkin_makeup_log`。
+  // · 日界 = **UTC 自然日**（`R-9-15`）；签到溢出 = **封顶丢弃**（`R-9-17`）；补签**不补发** batt（`R-9-20`）。
+  // · 补签腿 kind = `checkin_makeup_fee` → `uid = −1`（**不真 burn** · `R-9-14` / `R-9-3`）。
+  // · 策略取数一律 **TS fail-closed 到常量**（`resolveBattPolicy` / `resolveCheckinPolicy`）。
+  // ==========================================================================
+
+  /** 读 `app_config` 某键的原始 `value`（只读；无行 ⇒ `null`）。传 `ex` ⇒ 同事务取数。 */
+  static async getAppConfigValueByKey(key: string, ex?: SqlRunner): Promise<unknown> {
+    const rows = await runSql(`SELECT value FROM public.app_config WHERE key = $1 LIMIT 1`, [key], ex);
+    return (rows[0] as { value?: unknown } | undefined)?.value ?? null;
+  }
+
+  /** R1 · `GET /api/batt` 取数（`batt_account` + `batt_policy`；策略 fail-closed 到常量）。 */
+  static async getBatt(uid: number, ex?: SqlRunner): Promise<{
+    batt: number; capBatt: number; floorBatt: number; acceptThresholdBatt: number;
+    canAccept: boolean; source: PolicySource; updated_at: string | null;
+  }> {
+    const sql = sqlFor(ex);
+    const rows = asItems<{ batt: unknown; time_updated: unknown; policy: unknown }>(await sql`
+      SELECT
+        COALESCE((SELECT b.batt FROM public.batt_account AS b WHERE b.uid = ${uid}), 0) AS batt,
+        (SELECT b.time_updated FROM public.batt_account AS b WHERE b.uid = ${uid} LIMIT 1) AS time_updated,
+        (SELECT p.value FROM public.app_config AS p WHERE p.key = 'batt_policy' LIMIT 1) AS policy
+    `);
+    const row = rows[0] || {};
+    const { policy, source } = resolveBattPolicy((row as { policy?: unknown }).policy);
+    const batt = Number((row as { batt?: unknown }).batt ?? 0) || 0;
+    return {
+      batt,
+      capBatt: policy.capBatt,
+      floorBatt: policy.floorBatt,
+      acceptThresholdBatt: policy.acceptThresholdBatt,
+      canAccept: batt >= policy.acceptThresholdBatt,
+      source,
+      updated_at: isoOrNull((row as { time_updated?: unknown }).time_updated),
+    };
+  }
+
+  /** R2 · `GET /api/checkin` 取数（`checkin_log` + `checkin_makeup_log` + `checkin_policy`）。 */
+  static async getCheckinStatus(uid: number, ex?: SqlRunner): Promise<{
+    streakDay: number; streakCapDays: number; checkedInToday: boolean; canMakeup: boolean;
+    makeupCostUsd: number; makeupDailyLimit: number; source: PolicySource; updated_at: string | null;
+  }> {
+    const sql = sqlFor(ex);
+    const rows = asItems<Record<string, unknown>>(await sql`
+      SELECT
+        (SELECT c.streak_day FROM public.checkin_log AS c WHERE c.uid = ${uid} ORDER BY c.checkin_day DESC LIMIT 1) AS last_streak,
+        EXISTS (SELECT 1 FROM public.checkin_log AS c WHERE c.uid = ${uid} AND c.checkin_day = (now() AT TIME ZONE 'UTC')::date) AS checked_in_today,
+        EXISTS (SELECT 1 FROM public.checkin_log AS c WHERE c.uid = ${uid} AND c.checkin_day = ((now() AT TIME ZONE 'UTC')::date - 1)) AS prev_checkin,
+        EXISTS (SELECT 1 FROM public.checkin_makeup_log AS m WHERE m.uid = ${uid} AND m.result = 'applied' AND m.target_day = ((now() AT TIME ZONE 'UTC')::date - 1)) AS prev_makeup,
+        (SELECT m.restored_streak_day FROM public.checkin_makeup_log AS m WHERE m.uid = ${uid} AND m.result = 'applied'
+           AND m.target_day = ((now() AT TIME ZONE 'UTC')::date - 1) ORDER BY m.log_id DESC LIMIT 1) AS prev_makeup_streak,
+        (SELECT count(*)::int FROM public.checkin_makeup_log AS m WHERE m.uid = ${uid} AND m.makeup_day = (now() AT TIME ZONE 'UTC')::date) AS makeup_today,
+        (SELECT max(x.t) FROM (
+           SELECT max(c.time_created) AS t FROM public.checkin_log AS c WHERE c.uid = ${uid}
+           UNION ALL
+           SELECT max(m.time_created) AS t FROM public.checkin_makeup_log AS m WHERE m.uid = ${uid}
+         ) AS x) AS updated_at,
+        (SELECT p.value FROM public.app_config AS p WHERE p.key = 'checkin_policy' LIMIT 1) AS policy
+    `);
+    const row = (rows[0] || {}) as Record<string, unknown>;
+    const { policy, source } = resolveCheckinPolicy(row.policy);
+    const checkedInToday = row.checked_in_today === true;
+    const prevCheckin = row.prev_checkin === true;
+    const prevMakeup = row.prev_makeup === true;
+    const lastStreak = Number(row.last_streak ?? 0) || 0;
+    const prevMakeupStreak = Number(row.prev_makeup_streak ?? 0) || 0;
+    // 连续天数即时重算：今日已签 ⇒ last_streak；否则「昨日已签」⇒ last_streak（链未断）；
+    // 否则「昨日已成功补签」⇒ 该补签恢复的连续天数；否则 0（断签清零 · §31.4(b)-4）。
+    const streakDay = checkedInToday ? lastStreak : (prevCheckin ? lastStreak : (prevMakeup ? prevMakeupStreak : 0));
+    const makeupToday = Number(row.makeup_today ?? 0) || 0;
+    return {
+      streakDay,
+      streakCapDays: policy.streakCapDays,
+      checkedInToday,
+      canMakeup: makeupToday < policy.makeupDailyLimit,
+      makeupCostUsd: policy.makeupCostUsd,
+      makeupDailyLimit: policy.makeupDailyLimit,
+      source,
+      updated_at: isoOrNull(row.updated_at),
+    };
+  }
+
+  /**
+   * A1 · `POST /api/checkin` 写口（**单语句 CTE**）：
+   *   判连续天数 → INSERT `checkin_log`（`UNIQUE (uid, checkin_day)` 兜底）→ 加发 batt
+   *   （**封顶丢弃** `R-9-17`）→ INSERT `batt_entry`（`delta=0` 不落行 · 移动守卫）。
+   *   ★ 零账本腿（batt = 独立数据面 · `R-9-6`）；幂等 = 同日 `UNIQUE` + 复用读侧（重放返 `replayed`）。
+   */
+  static async checkin(uid: number, idempotencyKey: string, ex?: SqlRunner): Promise<{
+    outcome: 'inserted' | 'replayed';
+    checkinDay: string; streakDay: number; rewardBatt: number; creditedBatt: number; batt: number;
+  } | null> {
+    const rawPolicy = await this.getAppConfigValueByKey('checkin_policy', ex);
+    const { policy } = resolveCheckinPolicy(rawPolicy);
+    const rawBatt = await this.getAppConfigValueByKey('batt_policy', ex);
+    const { policy: battPolicy } = resolveBattPolicy(rawBatt);
+    const base = policy.baseRewardBatt;
+    const day7 = policy.streakDay7RewardBatt;
+    const cap = Math.max(1, policy.streakCapDays);
+    // DB 不变式 `batt BETWEEN 0 AND 100` ⇒ 写入侧 fail-closed 再夹一次（策略域无上界）。
+    const capBatt = Math.min(Math.max(1, battPolicy.capBatt), 100);
+
+    const sql = sqlFor(ex);
+    const rows = asItems<Record<string, unknown>>(await sql`
+      WITH today AS (SELECT (now() AT TIME ZONE 'UTC')::date AS d),
+      prev AS (
+        SELECT COALESCE(
+          (SELECT c.streak_day FROM public.checkin_log AS c
+            WHERE c.uid = ${uid} AND c.checkin_day = (SELECT d FROM today) - 1 LIMIT 1),
+          (SELECT m.restored_streak_day FROM public.checkin_makeup_log AS m
+            WHERE m.uid = ${uid} AND m.result = 'applied' AND m.target_day = (SELECT d FROM today) - 1
+            ORDER BY m.log_id DESC LIMIT 1)
+        )::int AS s
+      ),
+      calc AS (SELECT LEAST(COALESCE((SELECT s FROM prev), 0) + 1, ${cap})::smallint AS streak),
+      dup AS (SELECT 1 FROM public.checkin_log AS c WHERE c.uid = ${uid} AND c.checkin_day = (SELECT d FROM today)),
+      ins_log AS (
+        INSERT INTO public.checkin_log (uid, checkin_day, streak_day, reward_batt)
+        SELECT ${uid}, (SELECT d FROM today), calc.streak,
+               CASE WHEN calc.streak >= ${cap} THEN ${day7}::int ELSE ${base}::int END
+        FROM calc
+        WHERE NOT EXISTS (SELECT 1 FROM dup)
+        ON CONFLICT (uid, checkin_day) DO NOTHING
+        RETURNING log_id, streak_day, reward_batt
+      ),
+      cur AS (SELECT COALESCE((SELECT b.batt FROM public.batt_account AS b WHERE b.uid = ${uid}), 0) AS batt),
+      reward AS (SELECT COALESCE((SELECT reward_batt FROM ins_log), 0)::int AS r),
+      newbatt AS (SELECT LEAST((SELECT batt FROM cur) + (SELECT r FROM reward), ${capBatt})::int AS after),
+      delta AS (SELECT CASE WHEN EXISTS (SELECT 1 FROM ins_log) THEN (SELECT after FROM newbatt) - (SELECT batt FROM cur) ELSE 0 END AS d),
+      upd_acct AS (
+        INSERT INTO public.batt_account (uid, batt)
+        SELECT ${uid}, (SELECT after FROM newbatt)
+        WHERE EXISTS (SELECT 1 FROM ins_log)
+        ON CONFLICT (uid) DO UPDATE SET batt = EXCLUDED.batt
+        RETURNING batt
+      ),
+      ins_entry AS (
+        INSERT INTO public.batt_entry (uid, delta, batt_after, reason, idempotency_key, ref_type, ref_id, memo)
+        SELECT ${uid}, (SELECT d FROM delta), (SELECT after FROM newbatt),
+               CASE WHEN (SELECT streak_day FROM ins_log) >= ${cap} THEN 'checkin_day7' ELSE 'checkin' END,
+               ${idempotencyKey}::text, 'checkin', (SELECT log_id FROM ins_log), ''
+        FROM ins_log
+        WHERE (SELECT d FROM delta) <> 0
+        ON CONFLICT (idempotency_key) DO NOTHING
+        RETURNING txid
+      )
+      SELECT
+        (SELECT count(*)::int FROM ins_log) AS inserted,
+        COALESCE((SELECT streak_day FROM ins_log),
+                 (SELECT c.streak_day FROM public.checkin_log AS c WHERE c.uid = ${uid} AND c.checkin_day = (SELECT d FROM today) LIMIT 1)) AS streak_day,
+        COALESCE((SELECT reward_batt FROM ins_log),
+                 (SELECT c.reward_batt FROM public.checkin_log AS c WHERE c.uid = ${uid} AND c.checkin_day = (SELECT d FROM today) LIMIT 1)) AS reward_batt,
+        (SELECT d FROM delta) AS credited_batt,
+        COALESCE((SELECT batt FROM upd_acct), (SELECT batt FROM cur))::int AS batt,
+        (SELECT d FROM today)::text AS checkin_day
+    `);
+    const row = rows[0];
+    if (!row) return null;
+    const inserted = Number(row.inserted ?? 0) || 0;
+    return {
+      outcome: inserted > 0 ? 'inserted' : 'replayed',
+      checkinDay: String(row.checkin_day ?? ''),
+      streakDay: Number(row.streak_day ?? 0) || 0,
+      rewardBatt: Number(row.reward_batt ?? 0) || 0,
+      creditedBatt: Number(row.credited_batt ?? 0) || 0,
+      batt: Number(row.batt ?? 0) || 0,
+    };
+  }
+
+  /**
+   * A2 · `POST /api/checkin/makeup` 写口（**单语句 CTE** · **含账本腿**）：
+   *   判 result（`applied` / 三类 `rejected_*`）→ `applied` 时**同语句**调 `ledger_post_event`
+   *   （`−cost $` → `uid = −1`，kind `checkin_makeup_fee`，**不真 burn**）→ INSERT `checkin_makeup_log`
+   *   （`UNIQUE (uid, makeup_day)` 兜底 `≤1/日`；`UNIQUE (idempotency_key, result)` 幂等）。
+   *   ★ **不补发该日 batt**（`R-9-20`：不写 `batt_entry`、不动 `batt_account`）。
+   *   `result` 闭集 = `applied` / `rejected_daily_limit` / `rejected_insufficient_balance` / `rejected_target_invalid`。
+   */
+  static async checkinMakeup(input: {
+    uid: number; targetDay: string; idempotencyKey: string; requestFingerprint: string; memo: string;
+  }, ex?: SqlRunner): Promise<{
+    outcome: 'applied' | 'replayed' | 'rejected_daily_limit' | 'rejected_insufficient_balance' | 'rejected_target_invalid';
+    targetDay: string; costUsd: number; restoredStreakDay: number | null; txid: string | null; ledger: unknown;
+  } | null> {
+    const rawPolicy = await this.getAppConfigValueByKey('checkin_policy', ex);
+    const { policy } = resolveCheckinPolicy(rawPolicy);
+    const cost = Math.max(1, policy.makeupCostUsd);
+    const cap = Math.max(1, policy.streakCapDays);
+    const { uid, targetDay, idempotencyKey, requestFingerprint, memo } = input;
+
+    const sql = sqlFor(ex);
+    const rows = asItems<Record<string, unknown>>(await sql`
+      WITH today AS (SELECT (now() AT TIME ZONE 'UTC')::date AS d),
+      target AS (SELECT ${targetDay}::date AS d),
+      dup AS (SELECT 1 FROM public.checkin_makeup_log AS m WHERE m.uid = ${uid} AND m.makeup_day = (SELECT d FROM today)),
+      res AS (
+        SELECT CASE
+          WHEN EXISTS (SELECT 1 FROM dup) THEN 'rejected_daily_limit'
+          WHEN (SELECT d FROM target) >= (SELECT d FROM today) THEN 'rejected_target_invalid'
+          WHEN EXISTS (SELECT 1 FROM public.checkin_log AS c WHERE c.uid = ${uid} AND c.checkin_day = (SELECT d FROM target)) THEN 'rejected_target_invalid'
+          WHEN EXISTS (SELECT 1 FROM public.checkin_makeup_log AS m WHERE m.uid = ${uid} AND m.result = 'applied' AND m.target_day = (SELECT d FROM target)) THEN 'rejected_target_invalid'
+          WHEN COALESCE((SELECT a.balance FROM public.account AS a WHERE a.uid = ${uid} AND a.cid = 1), 0) < ${cost}::bigint THEN 'rejected_insufficient_balance'
+          ELSE 'applied'
+        END AS result
+      ),
+      restored AS (
+        SELECT LEAST(COALESCE(
+          (SELECT c.streak_day FROM public.checkin_log AS c WHERE c.uid = ${uid} AND c.checkin_day = (SELECT d FROM target) - 1 LIMIT 1),
+          (SELECT m.restored_streak_day FROM public.checkin_makeup_log AS m WHERE m.uid = ${uid} AND m.result = 'applied'
+             AND m.target_day = (SELECT d FROM target) - 1 ORDER BY m.log_id DESC LIMIT 1),
+          0) + 1, ${cap})::smallint AS s
+      ),
+      ev AS (
+        SELECT ledger_post_event(jsonb_build_object(
+          'op', 'entries',
+          'idempotency_key', ${idempotencyKey}::text,
+          'request_fingerprint', ${requestFingerprint}::text,
+          'memo', ${memo}::text,
+          'entries', jsonb_build_array(
+            jsonb_build_object('uid', ${String(uid)}::text, 'cid', '1', 'delta', ${String(-cost)}::text,
+              'kind', 'checkin_makeup_fee'),
+            jsonb_build_object('uid', '-1', 'cid', '1', 'delta', ${String(cost)}::text,
+              'kind', 'checkin_makeup_fee')
+          )
+        )) AS r
+        FROM res WHERE res.result = 'applied'
+      ),
+      ins_log AS (
+        INSERT INTO public.checkin_makeup_log
+          (uid, makeup_day, target_day, cost_usd, restored_streak_day, cid, result, txid, idempotency_key, request_fingerprint, memo)
+        SELECT ${uid}, (SELECT d FROM today), (SELECT d FROM target), ${cost}::bigint,
+               (SELECT s FROM restored), 1, (SELECT result FROM res),
+               CASE WHEN (SELECT result FROM res) = 'applied'
+                    THEN (SELECT (ev.r->>'txid')::bigint FROM ev) ELSE NULL END,
+               ${idempotencyKey}::text, ${requestFingerprint}::text, ${memo}::text
+        ON CONFLICT (uid, makeup_day) DO NOTHING
+        RETURNING log_id, result, txid, restored_streak_day
+      )
+      SELECT
+        (SELECT count(*)::int FROM ins_log) AS inserted,
+        (SELECT result FROM ins_log) AS inserted_result,
+        (SELECT txid FROM ins_log) AS txid,
+        (SELECT restored_streak_day FROM ins_log) AS restored_streak_day,
+        (SELECT result FROM res) AS intended_result,
+        (SELECT m.result FROM public.checkin_makeup_log AS m WHERE m.uid = ${uid} AND m.idempotency_key = ${idempotencyKey}::text LIMIT 1) AS existing_result,
+        (SELECT m.txid FROM public.checkin_makeup_log AS m WHERE m.uid = ${uid} AND m.idempotency_key = ${idempotencyKey}::text LIMIT 1) AS existing_txid,
+        (SELECT m.restored_streak_day FROM public.checkin_makeup_log AS m WHERE m.uid = ${uid} AND m.idempotency_key = ${idempotencyKey}::text LIMIT 1) AS existing_restored,
+        (SELECT ev.r FROM ev) AS ledger_result,
+        (SELECT d FROM target)::text AS target_day
+    `);
+    const row = rows[0];
+    if (!row) return null;
+    const intended = String(row.intended_result ?? '');
+    const inserted = Number(row.inserted ?? 0) || 0;
+    const existing = row.existing_result === null || row.existing_result === undefined ? null : String(row.existing_result);
+    const restoredFrom = (v: unknown): number | null => (v === null || v === undefined ? null : (Number(v) || 0));
+    let outcome: 'applied' | 'replayed' | 'rejected_daily_limit' | 'rejected_insufficient_balance' | 'rejected_target_invalid';
+    let restored: number | null;
+    let txid: string | null;
+    if (inserted > 0) {
+      outcome = (intended || 'rejected_target_invalid') as typeof outcome;
+      restored = restoredFrom(row.restored_streak_day ?? (row as { s?: unknown }).s);
+      txid = row.txid === null || row.txid === undefined ? null : String(row.txid);
+    } else if (existing !== null) {
+      // 同键同日重放（幂等）
+      outcome = 'replayed';
+      restored = restoredFrom(row.existing_restored);
+      txid = row.existing_txid === null || row.existing_txid === undefined ? null : String(row.existing_txid);
+    } else {
+      // 同 uid 当日已有**异键**行 ⇒ 每日上限（含首次被拒的留痕行占位 · `UNIQUE (uid, makeup_day)`）
+      outcome = 'rejected_daily_limit';
+      restored = null;
+      txid = null;
+    }
+    return {
+      outcome,
+      targetDay: String(row.target_day ?? targetDay),
+      costUsd: cost,
+      restoredStreakDay: restored,
+      txid,
+      ledger: row.ledger_result ?? null,
+    };
+  }
+
 
   // P4-B2c（§1 #33 / DL36 / DL71）：补 `updated_by`（**NOT NULL 无默认** ⇒ 旧实现必违约）+ 显式 public.。
   // 批 8①（`data-layer.spec` §21.2 `AG1`/`AG3`/`AG4`）：**写侧先过「逐键白名单 + 类型闸」** ——

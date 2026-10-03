@@ -77,8 +77,8 @@ describe('I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文
     console.log(out.split('\n').filter((l) => /作用域命中节点数|裸命中|子面③|总判/.test(l)).join('\n'))
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
-    // P9① 计数期望订正（逐字登记）：新增顶层 `roleNames`(4) + `siteSlogan`(1) + `adminRoleNames`(11) + `adminSiteText`(40) + `adminNav` 2 键 ⇒ 拍平 886⇒944 ⇒ locale 节点 = 944 × 4 = **3776**（原 886 × 4 = 3544）⇒ 本断言前推 3544 ⇒ 3776（**未删断言**）
-    expect(out).toContain('作用域命中节点数 = 3776') // **期望订正（P9① 站点文案覆盖层）**：拍平键 886⇒944 ⇒ 节点 3544⇒3776
+    // P9② 计数期望订正（逐字登记）：新增顶层 `battCard`(4) + `checkinPanel`(5) ⇒ 拍平 944⇒953 ⇒ locale 节点 = 953 × 4 = **3812**（原 944 × 4 = 3776）⇒ 本断言前推 3776 ⇒ 3812（**未删断言**）
+    expect(out).toContain('作用域命中节点数 = 3812') // **期望订正（P9② batt 电量 + 签到）**：拍平键 944⇒953 ⇒ 节点 3776⇒3812
     expect(out).toContain('② 全量页面源文件面')
     expect(out).toMatch(/locale 裸命中 0 \+ 源面裸命中 0/)
   })
@@ -123,7 +123,7 @@ describe('I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文
     expect(counts.size).toBe(1)
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
-    expect([...counts][0]).toBe(944) // **期望订正（P9① 站点文案覆盖层）**：+58 拍平键（886⇒944）
+    expect([...counts][0]).toBe(953) // **期望订正（P9② batt 电量 + 签到）**：+9 拍平键（944⇒953）
     for (const k of REWRITTEN) for (const l of LANGS) expect(flatTables[l][k]).toBeTruthy()
   })
 })

@@ -1036,5 +1036,18 @@
     "defaultStars": "Default stars",
     "siteLangHint": "Empty falls back to the default",
     "numbersHint": "Values are integers in minor units"
+  },
+  "battCard": {
+    "title": "Energy",
+    "unit": "%",
+    "rangeHint": "Energy is capped at full; any excess is not accumulated",
+    "insufficient": "Energy is below the threshold to accept tasks"
+  },
+  "checkinPanel": {
+    "checkinButton": "Check in",
+    "streakDays": "Consecutive check-in days",
+    "brokenHint": "Your streak was broken and has been reset",
+    "makeupButton": "Make up",
+    "makeupCost": "Making up will cost points"
   }
 }

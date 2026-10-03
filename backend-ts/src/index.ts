@@ -651,7 +651,7 @@ app.get('/api/user/asset/:uID', async (req, res) => {
  *     ⇒ 本面 = 纯 SELECT（服务层 `listLedgerEntriesByUser`），身份**只读 token actor**。
  *   · `route-layer.spec:1343`（§5.1「碎片读口 ②」）：`GET /api/shard/transfer` 的语义
  *     **由 `GET /api/user/ledger?kind=transfer` 取代**（旧路径 `:791` 保留 + 空态 + `deprecated:true`，**不删**）。
- * 过滤：`cid`（可空）、`kind`（可空，取值 = 冻结关闭集 `LEDGER_KINDS` 20 个）、
+ * 过滤：`cid`（可空）、`kind`（可空，取值 = 冻结关闭集 `LEDGER_KINDS` **21** 个〔P9② `R-9-14` 扩容：+`checkin_makeup_fee`〕）、
  *       `before_txid`（可空游标）、`limit`（默认 100 / 上限 500；非法值回落默认，不 500）。
  * 鉴权：`requireActor`（无 token / 坏 token / 查无此人 ⇒ **401 + R107 形状** `{error:{code,message,i18n_key,details}}`）。
  * ============================================================================
@@ -1165,6 +1165,135 @@ app.get('/api/role-names', async (_req, res) => {
   } catch (error) {
     // 基础设施异常 ⇒ 既有 §14 分类器（503 + 机读 reason）；前端据此回落 locale 基值（绝不空串）。
     return sendInfraMapped(res, 'roleNames.get', error);
+  }
+});
+
+// ============================================================================
+// 批 9 第 2 片（P9② · `route-layer.spec` v2.14 §28.2 `R-9-19` · `data-layer.spec` v0.21 §31）：
+//   batt 电量 + 签到 / 补签 —— **4 新口**（注册点 `76 → 80`：`get 32→34` / `post 41→43`）。
+// ----------------------------------------------------------------------------
+// · 用户面四口全闸 `requireActor`（用户本人 · `uid` 取自 token，**不得**客户端声明）；**零 admin 键新增**（11 键不动）。
+// · 动作口幂等键 = **服务端派生定案形**（`R-9-16`/`R-9-19`）：
+//     `biz:checkin:<uid>:<checkin_day>` / `biz:checkin:makeup:<uid>:<target_day>`
+//   （`<...>` = **业务标的日**（不可变标识）；**禁**金额 / 时间戳入键 · `R50`/`DL95`；前缀 `biz:` · `R49`）。
+// · 响应键集 = 每口**冻结键集**（§28.2 R1/R2/A1/A2）逐字；错误面 = **既有 33 闭集借码 + 稳定 `reason`**（零新增码）+ R107 单形状。
+// ============================================================================
+/** UTC 自然日（`R-9-15`）`YYYY-MM-DD`（`offsetDays` 允许取昨日等）。 */
+const utcDay = (offsetDays = 0): string => new Date(Date.now() + offsetDays * 86400000).toISOString().slice(0, 10);
+/** 业务日形（`YYYY-MM-DD` 且为真日期）校验 —— 防非法 `target_day` 入幂等键 / 入 SQL。 */
+const isBusinessDay = (v: unknown): boolean => {
+  const s = String(v ?? '').trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const d = new Date(`${s}T00:00:00.000Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === s;
+};
+/** 用户面业务幂等键派生（`biz:` 前缀 · 逐段冒号连接 · `R49` 前缀 / 禁 `#`/控制字符由常量段保证）。 */
+const bizKeyOf = (...parts: Array<string | number>): string => `biz:${parts.map((p) => String(p)).join(':')}`;
+
+// R1 · `GET /api/batt` —— 用户电量读口（`data` 键集 = §28.2 冻结 6 键；派生布尔 `canAccept` 即时重算）。
+app.get('/api/batt', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  try {
+    const d = await DatabaseService.getBatt(actor.user.uID);
+    sendSuccess(res, {
+      batt: d.batt,
+      capBatt: d.capBatt,
+      floorBatt: d.floorBatt,
+      acceptThresholdBatt: d.acceptThresholdBatt,
+      canAccept: d.canAccept,
+      updated_at: d.updated_at,
+    });
+  } catch (error) {
+    return sendInfraMapped(res, 'batt.get', error);
+  }
+});
+
+// R2 · `GET /api/checkin` —— 用户签到读口（`data` 键集 = §28.2 冻结 6 键）。
+app.get('/api/checkin', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  try {
+    const d = await DatabaseService.getCheckinStatus(actor.user.uID);
+    sendSuccess(res, {
+      streakDay: d.streakDay,
+      streakCapDays: d.streakCapDays,
+      checkedInToday: d.checkedInToday,
+      canMakeup: d.canMakeup,
+      makeupCostUsd: d.makeupCostUsd,
+      updated_at: d.updated_at,
+    });
+  } catch (error) {
+    return sendInfraMapped(res, 'checkin.get', error);
+  }
+});
+
+// A1 · `POST /api/checkin` —— 签到动作口（幂等键 = `biz:checkin:<uid>:<checkin_day>`；零账本腿）。
+app.post('/api/checkin', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  try {
+    const uid = actor.user.uID;
+    const idemKey = bizKeyOf('checkin', uid, utcDay());
+    const r = await DatabaseService.checkin(uid, idemKey);
+    if (!r) return sendInfraMapped(res, 'checkin.post', new Error('checkin: no row'));
+    return sendSuccess(
+      res,
+      { checkedIn: true, streakDay: r.streakDay, rewardBatt: r.rewardBatt, batt: r.batt },
+      r.outcome === 'replayed' ? 'Checkin done (idempotent replay)' : 'Checkin done',
+      200,
+      r.outcome === 'replayed' ? { idempotent_replay: true } : undefined,
+    );
+  } catch (error) {
+    return sendInfraMapped(res, 'checkin.post', error);
+  }
+});
+
+// A2 · `POST /api/checkin/makeup` —— 补签动作口（**有资金腿**：`checkin_makeup_fee` → `uid = −1`，不真 burn）。
+//   幂等键 = `biz:checkin:makeup:<uid>:<target_day>`；`data` 键集 = §28.2 冻结 3 键。
+app.post('/api/checkin/makeup', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  const targetRaw = String(req.body?.target_day ?? req.body?.targetDay ?? '').trim();
+  if (!isBusinessDay(targetRaw)) {
+    return sendVerbError(res, adminVerbError(400, 'LEDGER_AMOUNT_INVALID', {
+      field: 'target_day', reason: 'CHECKIN_MAKEUP_TARGET_INVALID',
+    }, 'Target day is invalid'));
+  }
+
+  try {
+    const uid = actor.user.uID;
+    const idemKey = bizKeyOf('checkin', 'makeup', uid, targetRaw);
+    const fingerprint = createHash('sha256').update(`${uid}|${targetRaw}`).digest('hex').slice(0, 32);
+    const r = await DatabaseService.checkinMakeup({
+      uid, targetDay: targetRaw, idempotencyKey: idemKey, requestFingerprint: fingerprint, memo: '',
+    });
+    if (!r) return sendInfraMapped(res, 'checkin.makeup', new Error('makeup: no row'));
+
+    if (r.outcome === 'applied' || r.outcome === 'replayed') {
+      return sendSuccess(
+        res,
+        { restoredStreakDay: r.restoredStreakDay, costUsd: r.costUsd, txid: r.txid },
+        r.outcome === 'replayed' ? 'Makeup done (idempotent replay)' : 'Makeup done',
+        200,
+        r.outcome === 'replayed' ? { idempotent_replay: true } : undefined,
+      );
+    }
+    // 三类拒绝 ⇒ **既有闭集借码 + 稳定 reason**（零新增码 · R107 单形状）。
+    if (r.outcome === 'rejected_insufficient_balance') {
+      return sendVerbError(res, adminVerbError(409, 'LEDGER_INSUFFICIENT_BALANCE', {
+        field: 'checkin_makeup', target_day: r.targetDay,
+      }, 'Insufficient balance'));
+    }
+    const reason = r.outcome === 'rejected_daily_limit'
+      ? 'CHECKIN_MAKEUP_DAILY_LIMIT'
+      : 'CHECKIN_MAKEUP_TARGET_INVALID';
+    return sendVerbError(res, adminVerbError(409, 'LEDGER_CURRENCY_INVALID_TRANSITION', {
+      field: 'checkin_makeup', reason, target_day: r.targetDay,
+    }, 'Makeup rejected'));
+  } catch (error) {
+    return sendInfraMapped(res, 'checkin.makeup', error);
   }
 });
 
