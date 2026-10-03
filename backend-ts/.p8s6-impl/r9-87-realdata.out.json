@@ -1,0 +1,81 @@
+R987_REALDATA={
+  "cases": [
+    {
+      "id": "collision-11",
+      "X": 11,
+      "uid": 6,
+      "note": "app 11(uid1) ∧ app 9(job 11,uid6) 同时存在（真库撞车）",
+      "fixed": {
+        "applicationId": 9,
+        "workerUid": 6,
+        "ownership": "self"
+      },
+      "broken": {
+        "applicationId": 11,
+        "workerUid": 1,
+        "ownership": "other"
+      },
+      "diverge": true
+    },
+    {
+      "id": "collision-4",
+      "X": 4,
+      "uid": 970102,
+      "note": "app 4(uid970002) ∧ app 5(job 4,uid970102)（真库撞车）",
+      "fixed": {
+        "applicationId": 5,
+        "workerUid": 970102,
+        "ownership": "self"
+      },
+      "broken": {
+        "applicationId": 4,
+        "workerUid": 970002,
+        "ownership": "other"
+      },
+      "diverge": true
+    },
+    {
+      "id": "control-24",
+      "X": 24,
+      "uid": 12,
+      "note": "无撞车：application_id=24 属 uid12（对照，臂应同值 self）",
+      "fixed": {
+        "applicationId": 24,
+        "workerUid": 12,
+        "ownership": "self"
+      },
+      "broken": {
+        "applicationId": 24,
+        "workerUid": 12,
+        "ownership": "self"
+      },
+      "diverge": false
+    },
+    {
+      "id": "tolerance-job23",
+      "X": 23,
+      "uid": 12,
+      "note": "仅 job_id 面命中（app 24 on job 23）⇒ 容错语义",
+      "fixed": {
+        "applicationId": 24,
+        "workerUid": 12,
+        "ownership": "self"
+      },
+      "broken": {
+        "applicationId": 24,
+        "workerUid": 12,
+        "ownership": "self"
+      },
+      "diverge": false
+    }
+  ],
+  "assertions": {
+    "collision11_fixed_self": true,
+    "collision11_broken_other": true,
+    "collision4_fixed_self": true,
+    "collision4_broken_other": true,
+    "control_same_value": true,
+    "tolerance_kept": true
+  },
+  "failures": []
+}

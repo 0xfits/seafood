@@ -1,0 +1,44 @@
+R987_CHAIN={
+  "query_fixed_source": "/Users/kevin/bistro/seafood/backend-ts/src/database.ts",
+  "query_broken_source": "/Users/kevin/.hermes/profiles/zang/cache/scratch/r9-8687-neg/nopri/src/database.ts",
+  "query_fixed_text": "\n      SELECT a.application_id, a.worker_uid,\n             CASE WHEN a.worker_uid = 9900013 THEN 'self' ELSE 'other' END AS ownership\n        FROM public.job_application AS a\n       WHERE a.application_id = 991001 OR a.job_id = 991001\n       ORDER BY (a.worker_uid = 9900013) DESC,\n                (a.application_id = 991001) DESC,\n                a.application_id DESC\n       LIMIT 1\n    ",
+  "query_broken_text": "\n      SELECT a.application_id, a.worker_uid,\n             CASE WHEN a.worker_uid = 9900013 THEN 'self' ELSE 'other' END AS ownership\n        FROM public.job_application AS a\n       WHERE a.application_id = 991001 OR a.job_id = 991001\n       ORDER BY (a.application_id = 991001) DESC,\n                (a.worker_uid = 9900013) DESC,\n                a.application_id DESC\n       LIMIT 1\n    ",
+  "readings": [
+    {
+      "arm": "fixed@collision",
+      "identifier": 991001,
+      "workerUid": 9900013,
+      "applicationId": 991004,
+      "ownerUid": 9900013,
+      "ownership": "self"
+    },
+    {
+      "arm": "broken@collision",
+      "identifier": 991001,
+      "workerUid": 9900013,
+      "applicationId": 991001,
+      "ownerUid": 9900012,
+      "ownership": "other"
+    },
+    {
+      "arm": "fixed@jobid_only",
+      "identifier": 991002,
+      "workerUid": 9900012,
+      "applicationId": 991001,
+      "ownerUid": 9900012,
+      "ownership": "self"
+    }
+  ],
+  "assertions": {
+    "fixed_resolves_self": true,
+    "broken_resolves_other": true,
+    "broken_red_judge": true,
+    "where_tolerance_kept": true
+  },
+  "rollback_verified": {
+    "users_after": 0,
+    "jobs_after": 0,
+    "apps_after": 0
+  },
+  "failures": []
+}

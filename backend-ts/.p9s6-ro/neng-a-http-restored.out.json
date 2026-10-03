@@ -1,0 +1,79 @@
+{
+ "base": "http://127.0.0.1:5797",
+ "neg_mode": false,
+ "owner": 970002,
+ "nonowner": 11,
+ "jid": 4,
+ "arm1_no_token": {
+  "status": 401,
+  "body": {
+   "error": {
+    "code": "AUTH_UNAUTHORIZED",
+    "message": "AUTH_UNAUTHORIZED",
+    "i18n_key": "auth.err.AUTH_UNAUTHORIZED",
+    "details": {}
+   }
+  }
+ },
+ "arm1_bad_token": {
+  "status": 401,
+  "body": {
+   "error": {
+    "code": "AUTH_UNAUTHORIZED",
+    "message": "AUTH_UNAUTHORIZED",
+    "i18n_key": "auth.err.AUTH_UNAUTHORIZED",
+    "details": {}
+   }
+  }
+ },
+ "arm2_nonowner_hit": {
+  "status": 404,
+  "raw": "{\"success\":false,\"message\":\"Task progress not found\",\"error\":\"Task progress not found\"}",
+  "body": {
+   "success": false,
+   "message": "Task progress not found",
+   "error": "Task progress not found"
+  }
+ },
+ "arm2_nonowner_miss": {
+  "status": 404,
+  "raw": "{\"success\":false,\"message\":\"Task progress not found\",\"error\":\"Task progress not found\"}",
+  "body": {
+   "success": false,
+   "message": "Task progress not found",
+   "error": "Task progress not found"
+  }
+ },
+ "arm2_bytes_equal": true,
+ "arm3_owner": {
+  "status": 200,
+  "data_keys": [
+   "info_input",
+   "jID",
+   "points_claimed",
+   "tID",
+   "time_checked",
+   "time_claimed",
+   "time_created",
+   "time_submitted",
+   "uID"
+  ],
+  "keys_count": 9,
+  "info_input": "cli:p4b2:deliverable:J3A",
+  "data": {
+   "jID": 4,
+   "tID": 3,
+   "uID": 970002,
+   "info_input": "cli:p4b2:deliverable:J3A",
+   "time_created": 1790683971,
+   "time_submitted": 1790689357,
+   "time_checked": 1790948887,
+   "time_claimed": 0,
+   "points_claimed": 0
+  },
+  "top": {
+   "success": true,
+   "message": "OK"
+  }
+ }
+}

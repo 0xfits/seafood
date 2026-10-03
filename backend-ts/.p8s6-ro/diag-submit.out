@@ -1,0 +1,193 @@
+{
+ "users_09b0": [
+  {
+   "uid": "970213",
+   "evm": "0x59f9f640d15ebb053c94a816232cf8ce91b209b0",
+   "is_admin": false,
+   "time_reg": "2026-10-01 00:34:03.736335+00",
+   "time_login_last": "2026-10-03 11:26:54.332591+00"
+  }
+ ],
+ "user_rows_same_evm": [],
+ "target_uids": [
+  "970213"
+ ],
+ "my_applications": [],
+ "same_job_applications": [],
+ "my_employer_jobs": [],
+ "my_submissions": [],
+ "accepted_jobs": [],
+ "accepted_apps": [
+  {
+   "application_id": "24",
+   "job_id": "23",
+   "worker_uid": "12",
+   "status": "accepted"
+  },
+  {
+   "application_id": "20",
+   "job_id": "20",
+   "worker_uid": "12",
+   "status": "accepted"
+  },
+  {
+   "application_id": "19",
+   "job_id": "19",
+   "worker_uid": "12",
+   "status": "accepted"
+  },
+  {
+   "application_id": "18",
+   "job_id": "17",
+   "worker_uid": "12",
+   "status": "accepted"
+  },
+  {
+   "application_id": "15",
+   "job_id": "16",
+   "worker_uid": "12",
+   "status": "accepted"
+  },
+  {
+   "application_id": "11",
+   "job_id": "15",
+   "worker_uid": "1",
+   "status": "accepted"
+  },
+  {
+   "application_id": "10",
+   "job_id": "14",
+   "worker_uid": "1",
+   "status": "accepted"
+  },
+  {
+   "application_id": "9",
+   "job_id": "11",
+   "worker_uid": "6",
+   "status": "accepted"
+  },
+  {
+   "application_id": "8",
+   "job_id": "9",
+   "worker_uid": "3",
+   "status": "accepted"
+  },
+  {
+   "application_id": "7",
+   "job_id": "8",
+   "worker_uid": "3",
+   "status": "accepted"
+  },
+  {
+   "application_id": "6",
+   "job_id": "5",
+   "worker_uid": "3",
+   "status": "accepted"
+  },
+  {
+   "application_id": "5",
+   "job_id": "4",
+   "worker_uid": "970102",
+   "status": "accepted"
+  },
+  {
+   "application_id": "4",
+   "job_id": "3",
+   "worker_uid": "970002",
+   "status": "accepted"
+  }
+ ],
+ "stale_apps": [
+  {
+   "application_id": "24",
+   "job_id": "23",
+   "worker_uid": "12",
+   "app_status": "accepted",
+   "job_status": "settled"
+  },
+  {
+   "application_id": "20",
+   "job_id": "20",
+   "worker_uid": "12",
+   "app_status": "accepted",
+   "job_status": "settled"
+  },
+  {
+   "application_id": "19",
+   "job_id": "19",
+   "worker_uid": "12",
+   "app_status": "accepted",
+   "job_status": "settled"
+  },
+  {
+   "application_id": "18",
+   "job_id": "17",
+   "worker_uid": "12",
+   "app_status": "accepted",
+   "job_status": "rejected"
+  },
+  {
+   "application_id": "15",
+   "job_id": "16",
+   "worker_uid": "12",
+   "app_status": "accepted",
+   "job_status": "settled"
+  },
+  {
+   "application_id": "11",
+   "job_id": "15",
+   "worker_uid": "1",
+   "app_status": "accepted",
+   "job_status": "submitted"
+  },
+  {
+   "application_id": "10",
+   "job_id": "14",
+   "worker_uid": "1",
+   "app_status": "accepted",
+   "job_status": "submitted"
+  },
+  {
+   "application_id": "9",
+   "job_id": "11",
+   "worker_uid": "6",
+   "app_status": "accepted",
+   "job_status": "settled"
+  },
+  {
+   "application_id": "8",
+   "job_id": "9",
+   "worker_uid": "3",
+   "app_status": "accepted",
+   "job_status": "rejected"
+  },
+  {
+   "application_id": "7",
+   "job_id": "8",
+   "worker_uid": "3",
+   "app_status": "accepted",
+   "job_status": "settled"
+  },
+  {
+   "application_id": "6",
+   "job_id": "5",
+   "worker_uid": "3",
+   "app_status": "accepted",
+   "job_status": "settled"
+  },
+  {
+   "application_id": "5",
+   "job_id": "4",
+   "worker_uid": "970102",
+   "app_status": "accepted",
+   "job_status": "submitted"
+  },
+  {
+   "application_id": "4",
+   "job_id": "3",
+   "worker_uid": "970002",
+   "app_status": "accepted",
+   "job_status": "settled"
+  }
+ ]
+}

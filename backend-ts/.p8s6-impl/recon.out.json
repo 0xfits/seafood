@@ -1,0 +1,615 @@
+{
+  "counts": {
+    "apps": 17,
+    "jobs": 20,
+    "users": 56
+  },
+  "apps": [
+    {
+      "app": 1,
+      "job": 2,
+      "worker": 970002,
+      "status": "applied"
+    },
+    {
+      "app": 10,
+      "job": 14,
+      "worker": 1,
+      "status": "accepted"
+    },
+    {
+      "app": 11,
+      "job": 15,
+      "worker": 1,
+      "status": "accepted"
+    },
+    {
+      "app": 12,
+      "job": 12,
+      "worker": 1,
+      "status": "applied"
+    },
+    {
+      "app": 13,
+      "job": 13,
+      "worker": 1,
+      "status": "applied"
+    },
+    {
+      "app": 15,
+      "job": 16,
+      "worker": 12,
+      "status": "accepted"
+    },
+    {
+      "app": 18,
+      "job": 17,
+      "worker": 12,
+      "status": "accepted"
+    },
+    {
+      "app": 19,
+      "job": 19,
+      "worker": 12,
+      "status": "accepted"
+    },
+    {
+      "app": 20,
+      "job": 20,
+      "worker": 12,
+      "status": "accepted"
+    },
+    {
+      "app": 22,
+      "job": 22,
+      "worker": 1,
+      "status": "applied"
+    },
+    {
+      "app": 24,
+      "job": 23,
+      "worker": 12,
+      "status": "accepted"
+    },
+    {
+      "app": 4,
+      "job": 3,
+      "worker": 970002,
+      "status": "accepted"
+    },
+    {
+      "app": 5,
+      "job": 4,
+      "worker": 970102,
+      "status": "accepted"
+    },
+    {
+      "app": 6,
+      "job": 5,
+      "worker": 3,
+      "status": "accepted"
+    },
+    {
+      "app": 7,
+      "job": 8,
+      "worker": 3,
+      "status": "accepted"
+    },
+    {
+      "app": 8,
+      "job": 9,
+      "worker": 3,
+      "status": "accepted"
+    },
+    {
+      "app": 9,
+      "job": 11,
+      "worker": 6,
+      "status": "accepted"
+    }
+  ],
+  "jobs": [
+    {
+      "job": 10,
+      "employer": 2,
+      "worker": null,
+      "status": "cancelled"
+    },
+    {
+      "job": 11,
+      "employer": 2,
+      "worker": 6,
+      "status": "settled"
+    },
+    {
+      "job": 12,
+      "employer": 2,
+      "worker": null,
+      "status": "open"
+    },
+    {
+      "job": 13,
+      "employer": 3,
+      "worker": null,
+      "status": "open"
+    },
+    {
+      "job": 14,
+      "employer": 2,
+      "worker": null,
+      "status": "submitted"
+    },
+    {
+      "job": 15,
+      "employer": 3,
+      "worker": null,
+      "status": "submitted"
+    },
+    {
+      "job": 16,
+      "employer": 970001,
+      "worker": 12,
+      "status": "settled"
+    },
+    {
+      "job": 17,
+      "employer": 970001,
+      "worker": 12,
+      "status": "rejected"
+    },
+    {
+      "job": 18,
+      "employer": 970001,
+      "worker": null,
+      "status": "cancelled"
+    },
+    {
+      "job": 19,
+      "employer": 970001,
+      "worker": 12,
+      "status": "settled"
+    },
+    {
+      "job": 2,
+      "employer": 970001,
+      "worker": null,
+      "status": "open"
+    },
+    {
+      "job": 20,
+      "employer": 11,
+      "worker": 12,
+      "status": "settled"
+    },
+    {
+      "job": 22,
+      "employer": 3,
+      "worker": null,
+      "status": "open"
+    },
+    {
+      "job": 23,
+      "employer": 11,
+      "worker": 12,
+      "status": "settled"
+    },
+    {
+      "job": 24,
+      "employer": 1,
+      "worker": null,
+      "status": "open"
+    },
+    {
+      "job": 3,
+      "employer": 970001,
+      "worker": 970002,
+      "status": "settled"
+    },
+    {
+      "job": 4,
+      "employer": 970101,
+      "worker": 970102,
+      "status": "submitted"
+    },
+    {
+      "job": 5,
+      "employer": 2,
+      "worker": 3,
+      "status": "settled"
+    },
+    {
+      "job": 8,
+      "employer": 2,
+      "worker": 3,
+      "status": "settled"
+    },
+    {
+      "job": 9,
+      "employer": 2,
+      "worker": 3,
+      "status": "rejected"
+    }
+  ],
+  "users": [
+    {
+      "uid": 1,
+      "is_admin": true
+    },
+    {
+      "uid": 10,
+      "is_admin": true
+    },
+    {
+      "uid": 11,
+      "is_admin": false
+    },
+    {
+      "uid": 12,
+      "is_admin": false
+    },
+    {
+      "uid": 17,
+      "is_admin": false
+    },
+    {
+      "uid": 18,
+      "is_admin": false
+    },
+    {
+      "uid": 19,
+      "is_admin": false
+    },
+    {
+      "uid": 2,
+      "is_admin": false
+    },
+    {
+      "uid": 20,
+      "is_admin": false
+    },
+    {
+      "uid": 21,
+      "is_admin": false
+    },
+    {
+      "uid": 22,
+      "is_admin": false
+    },
+    {
+      "uid": 3,
+      "is_admin": false
+    },
+    {
+      "uid": 4,
+      "is_admin": false
+    },
+    {
+      "uid": 5,
+      "is_admin": false
+    },
+    {
+      "uid": 6,
+      "is_admin": false
+    },
+    {
+      "uid": 7,
+      "is_admin": false
+    },
+    {
+      "uid": 8,
+      "is_admin": false
+    },
+    {
+      "uid": 9,
+      "is_admin": false
+    },
+    {
+      "uid": 900001,
+      "is_admin": false
+    },
+    {
+      "uid": 900002,
+      "is_admin": false
+    },
+    {
+      "uid": 900003,
+      "is_admin": false
+    },
+    {
+      "uid": 900004,
+      "is_admin": false
+    },
+    {
+      "uid": 900005,
+      "is_admin": false
+    },
+    {
+      "uid": 900006,
+      "is_admin": false
+    },
+    {
+      "uid": 900007,
+      "is_admin": false
+    },
+    {
+      "uid": 900008,
+      "is_admin": false
+    },
+    {
+      "uid": 910001,
+      "is_admin": false
+    },
+    {
+      "uid": 910002,
+      "is_admin": false
+    },
+    {
+      "uid": 910003,
+      "is_admin": false
+    },
+    {
+      "uid": 910004,
+      "is_admin": false
+    },
+    {
+      "uid": 910005,
+      "is_admin": false
+    },
+    {
+      "uid": 910006,
+      "is_admin": false
+    },
+    {
+      "uid": 910007,
+      "is_admin": false
+    },
+    {
+      "uid": 910008,
+      "is_admin": false
+    },
+    {
+      "uid": 910009,
+      "is_admin": false
+    },
+    {
+      "uid": 910010,
+      "is_admin": false
+    },
+    {
+      "uid": 910311,
+      "is_admin": false
+    },
+    {
+      "uid": 970001,
+      "is_admin": false
+    },
+    {
+      "uid": 970002,
+      "is_admin": false
+    },
+    {
+      "uid": 970101,
+      "is_admin": false
+    },
+    {
+      "uid": 970102,
+      "is_admin": false
+    },
+    {
+      "uid": 970201,
+      "is_admin": true
+    },
+    {
+      "uid": 970202,
+      "is_admin": false
+    },
+    {
+      "uid": 970203,
+      "is_admin": false
+    },
+    {
+      "uid": 970204,
+      "is_admin": false
+    },
+    {
+      "uid": 970205,
+      "is_admin": false
+    },
+    {
+      "uid": 970206,
+      "is_admin": false
+    },
+    {
+      "uid": 970207,
+      "is_admin": false
+    },
+    {
+      "uid": 970208,
+      "is_admin": false
+    },
+    {
+      "uid": 970209,
+      "is_admin": false
+    },
+    {
+      "uid": 970210,
+      "is_admin": false
+    },
+    {
+      "uid": 970211,
+      "is_admin": false
+    },
+    {
+      "uid": 970212,
+      "is_admin": false
+    },
+    {
+      "uid": 970213,
+      "is_admin": false
+    },
+    {
+      "uid": 971100,
+      "is_admin": false
+    },
+    {
+      "uid": 971213,
+      "is_admin": false
+    }
+  ]
+}
+COLLISIONS=[
+  {
+    "X": 15,
+    "app_with_application_id_X": {
+      "app": 15,
+      "job": 16,
+      "worker": 12
+    },
+    "app_with_job_id_X": {
+      "app": 11,
+      "job": 15,
+      "worker": 1
+    },
+    "distinct_workers": true
+  },
+  {
+    "X": 12,
+    "app_with_application_id_X": {
+      "app": 12,
+      "job": 12,
+      "worker": 1
+    },
+    "app_with_job_id_X": {
+      "app": 12,
+      "job": 12,
+      "worker": 1
+    },
+    "distinct_workers": false
+  },
+  {
+    "X": 13,
+    "app_with_application_id_X": {
+      "app": 13,
+      "job": 13,
+      "worker": 1
+    },
+    "app_with_job_id_X": {
+      "app": 13,
+      "job": 13,
+      "worker": 1
+    },
+    "distinct_workers": false
+  },
+  {
+    "X": 19,
+    "app_with_application_id_X": {
+      "app": 19,
+      "job": 19,
+      "worker": 12
+    },
+    "app_with_job_id_X": {
+      "app": 19,
+      "job": 19,
+      "worker": 12
+    },
+    "distinct_workers": false
+  },
+  {
+    "X": 20,
+    "app_with_application_id_X": {
+      "app": 20,
+      "job": 20,
+      "worker": 12
+    },
+    "app_with_job_id_X": {
+      "app": 20,
+      "job": 20,
+      "worker": 12
+    },
+    "distinct_workers": false
+  },
+  {
+    "X": 22,
+    "app_with_application_id_X": {
+      "app": 22,
+      "job": 22,
+      "worker": 1
+    },
+    "app_with_job_id_X": {
+      "app": 22,
+      "job": 22,
+      "worker": 1
+    },
+    "distinct_workers": false
+  },
+  {
+    "X": 4,
+    "app_with_application_id_X": {
+      "app": 4,
+      "job": 3,
+      "worker": 970002
+    },
+    "app_with_job_id_X": {
+      "app": 5,
+      "job": 4,
+      "worker": 970102
+    },
+    "distinct_workers": true
+  },
+  {
+    "X": 5,
+    "app_with_application_id_X": {
+      "app": 5,
+      "job": 4,
+      "worker": 970102
+    },
+    "app_with_job_id_X": {
+      "app": 6,
+      "job": 5,
+      "worker": 3
+    },
+    "distinct_workers": true
+  },
+  {
+    "X": 8,
+    "app_with_application_id_X": {
+      "app": 8,
+      "job": 9,
+      "worker": 3
+    },
+    "app_with_job_id_X": {
+      "app": 7,
+      "job": 8,
+      "worker": 3
+    },
+    "distinct_workers": false
+  },
+  {
+    "X": 9,
+    "app_with_application_id_X": {
+      "app": 9,
+      "job": 11,
+      "worker": 6
+    },
+    "app_with_job_id_X": {
+      "app": 8,
+      "job": 9,
+      "worker": 3
+    },
+    "distinct_workers": true
+  },
+  {
+    "X": 11,
+    "app_with_application_id_X": {
+      "app": 11,
+      "job": 15,
+      "worker": 1
+    },
+    "app_with_job_id_X": {
+      "app": 9,
+      "job": 11,
+      "worker": 6
+    },
+    "distinct_workers": true
+  }
+]

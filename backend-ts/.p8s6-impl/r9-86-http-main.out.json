@@ -1,0 +1,195 @@
+R986_HTTP={
+  "base": "http://127.0.0.1:5797",
+  "arms_summary": {
+    "A_no_token": {
+      "path": "/api/task-progress/24",
+      "status": 401,
+      "success": null,
+      "error_code": "AUTH_UNAUTHORIZED",
+      "data_keys": null
+    },
+    "B_non_owner_uid1": {
+      "path": "/api/task-progress/24",
+      "status": 404,
+      "success": false,
+      "error_code": null,
+      "data_keys": null
+    },
+    "C_owner_uid12": {
+      "path": "/api/task-progress/24",
+      "status": 200,
+      "success": true,
+      "error_code": null,
+      "data_keys": [
+        "info_input",
+        "jID",
+        "points_claimed",
+        "tID",
+        "time_checked",
+        "time_claimed",
+        "time_created",
+        "time_submitted",
+        "uID"
+      ]
+    },
+    "D_owner2_uid6_app9": {
+      "path": "/api/task-progress/9",
+      "status": 200,
+      "success": true,
+      "error_code": null,
+      "data_keys": [
+        "info_input",
+        "jID",
+        "points_claimed",
+        "tID",
+        "time_checked",
+        "time_claimed",
+        "time_created",
+        "time_submitted",
+        "uID"
+      ]
+    },
+    "E_non_owner_uid6_app24": {
+      "path": "/api/task-progress/24",
+      "status": 404,
+      "success": false,
+      "error_code": null,
+      "data_keys": null
+    },
+    "F_miss_999999_owner": {
+      "path": "/api/task-progress/999999",
+      "status": 404,
+      "success": false,
+      "error_code": null,
+      "data_keys": null
+    }
+  },
+  "checks": {
+    "A_401": true,
+    "B_404": true,
+    "C_200": true,
+    "C_data_keys_9": true,
+    "D_200_second_owner": true,
+    "E_404_non_owner": true,
+    "F_404_miss": true,
+    "no_leak_same_shape": true
+  },
+  "failures": [],
+  "raw_bodies": {
+    "A_no_token": {
+      "path": "/api/task-progress/24",
+      "status": 401,
+      "success": null,
+      "error_code": "AUTH_UNAUTHORIZED",
+      "data_keys": null,
+      "body": {
+        "error": {
+          "code": "AUTH_UNAUTHORIZED",
+          "message": "AUTH_UNAUTHORIZED",
+          "i18n_key": "auth.err.AUTH_UNAUTHORIZED",
+          "details": {}
+        }
+      }
+    },
+    "B_non_owner_uid1": {
+      "path": "/api/task-progress/24",
+      "status": 404,
+      "success": false,
+      "error_code": null,
+      "data_keys": null,
+      "body": {
+        "success": false,
+        "message": "Task progress not found",
+        "error": "Task progress not found"
+      }
+    },
+    "C_owner_uid12": {
+      "path": "/api/task-progress/24",
+      "status": 200,
+      "success": true,
+      "error_code": null,
+      "data_keys": [
+        "info_input",
+        "jID",
+        "points_claimed",
+        "tID",
+        "time_checked",
+        "time_claimed",
+        "time_created",
+        "time_submitted",
+        "uID"
+      ],
+      "body": {
+        "success": true,
+        "message": "OK",
+        "data": {
+          "jID": 24,
+          "tID": 23,
+          "uID": 12,
+          "info_input": "b4cii deliverable CHANGED b4cii30134304",
+          "time_created": 1790776635,
+          "time_submitted": 1790776688,
+          "time_checked": 1790948892,
+          "time_claimed": 0,
+          "points_claimed": 0
+        }
+      }
+    },
+    "D_owner2_uid6_app9": {
+      "path": "/api/task-progress/9",
+      "status": 200,
+      "success": true,
+      "error_code": null,
+      "data_keys": [
+        "info_input",
+        "jID",
+        "points_claimed",
+        "tID",
+        "time_checked",
+        "time_claimed",
+        "time_created",
+        "time_submitted",
+        "uID"
+      ],
+      "body": {
+        "success": true,
+        "message": "OK",
+        "data": {
+          "jID": 9,
+          "tID": 11,
+          "uID": 6,
+          "info_input": "b3c chain deliverable b3c-20260930T021741",
+          "time_created": 1790706124,
+          "time_submitted": 1790706125,
+          "time_checked": 1790706128,
+          "time_claimed": 0,
+          "points_claimed": 0
+        }
+      }
+    },
+    "E_non_owner_uid6_app24": {
+      "path": "/api/task-progress/24",
+      "status": 404,
+      "success": false,
+      "error_code": null,
+      "data_keys": null,
+      "body": {
+        "success": false,
+        "message": "Task progress not found",
+        "error": "Task progress not found"
+      }
+    },
+    "F_miss_999999_owner": {
+      "path": "/api/task-progress/999999",
+      "status": 404,
+      "success": false,
+      "error_code": null,
+      "data_keys": null,
+      "body": {
+        "success": false,
+        "message": "Task progress not found",
+        "error": "Task progress not found"
+      }
+    }
+  }
+}

@@ -1,0 +1,508 @@
+{
+ "unit": "P8-S6-SITE-TEXT-GATE",
+ "generated_at": "2026-10-03T11:37:45.713Z",
+ "run": "20261003T113745Z",
+ "offline": true,
+ "db_connections": 0,
+ "http_calls": 0,
+ "note": "本门**零 DB / 零 HTTP**：注册点 / 公开读口（静态无鉴权判据）/ 白名单 / 覆盖层 AV2–AV4 与读侧 fail-closed / 数值策略 / 四语与泄漏 / 三处冻结同步 / 零新增码。公开读口真 HTTP 200 与 `GET /api/admin/settings` 读面结论另册（受控实例探针 · 报告 §4/§9）。",
+ "total": 64,
+ "passed": 64,
+ "failed": 0,
+ "readings": {
+  "registration_points_total": 88,
+  "registration_points_per_verb": {
+   "get": 37,
+   "post": 48,
+   "put": 0,
+   "patch": 1,
+   "delete": 2
+  },
+  "public_read_path": "/api/role-names",
+  "whitelist_keys": [
+   "system_settings",
+   "listing_deposit_policy",
+   "batt_policy",
+   "checkin_policy",
+   "invite_reward_policy",
+   "mint_burn_policy",
+   "rating_policy",
+   "site_text_overrides",
+   "role_names"
+  ],
+  "role_name_fields": [
+   "poster",
+   "worker",
+   "seller",
+   "buyer"
+  ],
+  "site_text_fields": [
+   "siteTitle",
+   "siteSlogan",
+   "slogan"
+  ],
+  "overlay_langs": [
+   "zh",
+   "en",
+   "hk",
+   "vn"
+  ],
+  "admin_nav_keys": [
+   30,
+   30,
+   30,
+   30
+  ],
+  "error_codes_closed_set_size": 33
+ },
+ "checks": [
+  {
+   "id": "A1",
+   "group": "registration",
+   "pass": true,
+   "expect": "注册点 = 88（P9① 公开读口 +1〔75→76〕⇒ P9② batt/签到 4 新口 +4〔76→80〕⇒ P9③ 评分/时效/订单 5 新口 +5〔80→85〕⇒ P9④ BTTC 铸造/分解 2 新口 +2〔85→87〕⇒ 8⑥ 审计台统一读口 +1〔87→88〕）",
+   "actual": "88"
+  },
+  {
+   "id": "A2",
+   "group": "registration",
+   "pass": true,
+   "expect": "逐 verb 逐字 = {\"get\":37,\"post\":48,\"put\":0,\"patch\":1,\"delete\":2}",
+   "actual": "{\"get\":37,\"post\":48,\"put\":0,\"patch\":1,\"delete\":2}"
+  },
+  {
+   "id": "A3",
+   "group": "registration",
+   "pass": true,
+   "expect": "逐 verb 计数之和 = 注册点总数",
+   "actual": "{\"get\":37,\"post\":48,\"put\":0,\"patch\":1,\"delete\":2}"
+  },
+  {
+   "id": "A4",
+   "group": "registration",
+   "pass": true,
+   "expect": "公开读口 `GET /api/role-names` 在场",
+   "actual": "true"
+  },
+  {
+   "id": "A5",
+   "group": "registration",
+   "pass": true,
+   "expect": "读口取数 = `DatabaseService.getSiteTextOverlay(`（单一真源 · 无副作用）",
+   "actual": "true"
+  },
+  {
+   "id": "A6",
+   "group": "registration",
+   "pass": true,
+   "expect": "读口成功面 = `sendSuccess(res, …)`",
+   "actual": "true"
+  },
+  {
+   "id": "A7",
+   "group": "registration",
+   "pass": true,
+   "expect": "读口基础设施异常 ⇒ 既有 §14 分类器（`roleNames.get`）",
+   "actual": "sendInfraMapped(res, 'roleNames.get'"
+  },
+  {
+   "id": "A8",
+   "group": "registration",
+   "pass": true,
+   "expect": "★ 负对照：缩进注入一条路由 ⇒ 计数 88→89",
+   "actual": "{\"injected\":89}"
+  },
+  {
+   "id": "B1",
+   "group": "publicRead",
+   "pass": true,
+   "expect": "★ handler 体内**零鉴权闸**（无 `requireAdmin(` / `requireActor(` / `Authorization` / `token`）⇒ 无 token 请求必达 handler ⇒ 应 200",
+   "actual": "{\"block_bytes\":305,\"requireGuard\":false,\"tokenRead\":false,\"sideEffect\":false,\"unauthenticated_read\":true}"
+  },
+  {
+   "id": "B2",
+   "group": "publicRead",
+   "pass": true,
+   "expect": "read口 = GET（无 POST 孪生读口）",
+   "actual": "{\"get\":true,\"post\":false}"
+  },
+  {
+   "id": "B3",
+   "group": "publicRead",
+   "pass": true,
+   "expect": "★ 负对照：给公开读口**注入鉴权闸** ⇒ 「无鉴权」谓词转红",
+   "actual": "{\"original\":true,\"with_guard\":false}"
+  },
+  {
+   "id": "B1__selftest",
+   "group": "publicReadSelfTest",
+   "pass": true,
+   "expect": "把「带鉴权闸」的 handler 喂入 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":\"app.get('/api/role-names', async (req, res) => {\\n  const actor = await requireAdmin(req, res, 'manage_settings');\\n  if (!actor) return;\\n  const overlay = await DatabaseService.getSiteTextOverlay();\\n  sendSuccess(res, overlay);\\n});\",\"judge_fired\":true}"
+  },
+  {
+   "id": "C1",
+   "group": "whitelist",
+   "pass": true,
+   "expect": "`app_config` 顶层合法键恰 9 键",
+   "actual": "9"
+  },
+  {
+   "id": "C2",
+   "group": "whitelist",
+   "pass": true,
+   "expect": "白名单逐字 = [\"system_settings\",\"listing_deposit_policy\",\"batt_policy\",\"checkin_policy\",\"invite_reward_policy\",\"mint_burn_policy\",\"rating_policy\",\"site_text_overrides\",\"role_names\"]",
+   "actual": "[\"system_settings\",\"listing_deposit_policy\",\"batt_policy\",\"checkin_policy\",\"invite_reward_policy\",\"mint_burn_policy\",\"rating_policy\",\"site_text_overrides\",\"role_names\"]"
+  },
+  {
+   "id": "C3",
+   "group": "whitelist",
+   "pass": true,
+   "expect": "9 键**逐键**皆过 `AV1`（validateAppConfigKey ⇒ ok）",
+   "actual": "[true,true,true,true,true,true,true,true,true]"
+  },
+  {
+   "id": "C4",
+   "group": "whitelist",
+   "pass": true,
+   "expect": "清单外键 ⇒ 拒（reason = 稳定常量 `SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST` + `legal_keys` = 9 键）",
+   "actual": "{\"reason\":\"SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST\",\"legal_keys\":[\"system_settings\",\"listing_deposit_policy\",\"batt_policy\",\"checkin_policy\",\"invite_reward_policy\",\"mint_burn_policy\",\"rating_policy\",\"site_text_overrides\",\"role_names\"]}"
+  },
+  {
+   "id": "C5",
+   "group": "whitelist",
+   "pass": true,
+   "expect": "★ 「在册 ≠ 可写」：`role_names` 过 `AV1`（在册）但仍须过 `AV2`–`AV4`（缺语值 ⇒ 拒）",
+   "actual": "{\"av1_ok\":true,\"av_value_ok\":false}"
+  },
+  {
+   "id": "C2__selftest",
+   "group": "whitelistSelfTest",
+   "pass": true,
+   "expect": "把「白名单退回 2 键」喂入 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":[\"system_settings\",\"listing_deposit_policy\"],\"judge_fired\":true}"
+  },
+  {
+   "id": "D1",
+   "group": "overlayShape",
+   "pass": true,
+   "expect": "两覆盖层键名常量逐字 = `role_names` / `site_text_overrides`",
+   "actual": "{\"role\":\"role_names\",\"site\":\"site_text_overrides\"}"
+  },
+  {
+   "id": "D2",
+   "group": "overlayShape",
+   "pass": true,
+   "expect": "`role_names` 字段闭集 = 显式四角色（禁任意 i18n 键）",
+   "actual": "[\"poster\",\"worker\",\"seller\",\"buyer\"]"
+  },
+  {
+   "id": "D3",
+   "group": "overlayShape",
+   "pass": true,
+   "expect": "`site_text_overrides` 字段闭集 = 显式三键（禁任意 i18n 键）",
+   "actual": "[\"siteTitle\",\"siteSlogan\",\"slogan\"]"
+  },
+  {
+   "id": "D4",
+   "group": "overlayShape",
+   "pass": true,
+   "expect": "覆盖层语言闭集 = 四语 `zh/en/hk/vn`（四语键集必须相等）",
+   "actual": "[\"zh\",\"en\",\"hk\",\"vn\"]"
+  },
+  {
+   "id": "E1",
+   "group": "overlayAV",
+   "pass": true,
+   "expect": "合法覆盖层（四角色 × 四语齐）= 过",
+   "actual": "ok=true"
+  },
+  {
+   "id": "E2",
+   "group": "overlayAV",
+   "pass": true,
+   "expect": "★ **缺语 ⇒ fail-closed 拒**（`poster` 缺 `vn` ⇒ ok=false · reason = typeInvalid）",
+   "actual": "{\"field\":\"poster.vn\",\"reason\":\"SETTING_TYPE_INVALID\"}"
+  },
+  {
+   "id": "E3",
+   "group": "overlayAV",
+   "pass": true,
+   "expect": "★ 多语（`jp`）⇒ 拒（reason = unknownKey · legal_keys = 四语闭集）",
+   "actual": "{\"reason\":\"SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST\",\"legal_keys\":[\"zh\",\"en\",\"hk\",\"vn\"]}"
+  },
+  {
+   "id": "E4",
+   "group": "overlayAV",
+   "pass": true,
+   "expect": "★ 未知字段（`ghost`）⇒ 拒（reason = unknownKey）",
+   "actual": "{\"reason\":\"SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST\"}"
+  },
+  {
+   "id": "E5",
+   "group": "overlayAV",
+   "pass": true,
+   "expect": "★ 非 object（裸标量）⇒ 拒（reason = valueNotObject）",
+   "actual": "{\"reason\":\"SETTING_VALUE_NOT_OBJECT\"}"
+  },
+  {
+   "id": "E6",
+   "group": "overlayAV",
+   "pass": true,
+   "expect": "★ 空白串语值 ⇒ 拒（不得空串覆盖）",
+   "actual": "{\"reason\":\"SETTING_TYPE_INVALID\"}"
+  },
+  {
+   "id": "E7",
+   "group": "overlayAV",
+   "pass": true,
+   "expect": "部分补丁（仅 `poster` · 缺其余字段）合法（不发明「必填」）",
+   "actual": "ok=true"
+  },
+  {
+   "id": "E2__selftest",
+   "group": "overlayAVSelfTest",
+   "pass": true,
+   "expect": "把「四语齐」的合法值喂入「缺语」谓词 ⇒ 判据必须转红",
+   "actual": "{\"wrong_input\":{\"poster\":{\"zh\":\"pzh\",\"en\":\"pen\",\"hk\":\"phk\",\"vn\":\"pvn\"}},\"judge_fired\":true}"
+  },
+  {
+   "id": "F1",
+   "group": "readFailClosed",
+   "pass": true,
+   "expect": "合法 `role_names` ⇒ 原样解析（四语齐）",
+   "actual": "{\"poster\":{\"zh\":\"pzh\",\"en\":\"pen\",\"hk\":\"phk\",\"vn\":\"pvn\"},\"worker\":{\"zh\":\"wzh\",\"en\":\"wen\",\"hk\":\"whk\",\"vn\":\"wvn\"}}"
+  },
+  {
+   "id": "F2",
+   "group": "readFailClosed",
+   "pass": true,
+   "expect": "★ 缺语 ⇒ `null`（前端回落 locale 基值 · 绝不空串）",
+   "actual": "null"
+  },
+  {
+   "id": "F3",
+   "group": "readFailClosed",
+   "pass": true,
+   "expect": "★ 多语 ⇒ `null`",
+   "actual": "null"
+  },
+  {
+   "id": "F4",
+   "group": "readFailClosed",
+   "pass": true,
+   "expect": "★ 未知字段 ⇒ `null`",
+   "actual": "null"
+  },
+  {
+   "id": "F5",
+   "group": "readFailClosed",
+   "pass": true,
+   "expect": "★ 非 object ⇒ `null`",
+   "actual": "{\"n\":null,\"nil\":null}"
+  },
+  {
+   "id": "F6",
+   "group": "readFailClosed",
+   "pass": true,
+   "expect": "合法 `site_text_overrides` ⇒ 原样解析",
+   "actual": "{\"siteTitle\":{\"zh\":\"tzh\",\"en\":\"ten\",\"hk\":\"thk\",\"vn\":\"tvn\"},\"siteSlogan\":{\"zh\":\"szh\",\"en\":\"sen\",\"hk\":\"shk\",\"vn\":\"svn\"}}"
+  },
+  {
+   "id": "F7",
+   "group": "readFailClosed",
+   "pass": true,
+   "expect": "★ 缺语（`site_text_overrides`）⇒ `null`",
+   "actual": "null"
+  },
+  {
+   "id": "F2__selftest",
+   "group": "readFailClosedSelfTest",
+   "pass": true,
+   "expect": "把「四语齐」合法值喂入「缺语 ⇒ null」谓词 ⇒ 判据必须转红",
+   "actual": "{\"wrong_input\":{\"poster\":{\"zh\":\"pzh\",\"en\":\"pen\",\"hk\":\"phk\",\"vn\":\"pvn\"}},\"judge_fired\":true}"
+  },
+  {
+   "id": "G1",
+   "group": "numericPolicy",
+   "pass": true,
+   "expect": "`rating_policy.storageDecimals = 4` 合法（非负整数）",
+   "actual": "ok=true"
+  },
+  {
+   "id": "G2",
+   "group": "numericPolicy",
+   "pass": true,
+   "expect": "★ 域外（`displayDecimals` 只允许 0）⇒ 拒",
+   "actual": "{\"reason\":\"SETTING_TYPE_INVALID\",\"expected\":\"0\"}"
+  },
+  {
+   "id": "G3",
+   "group": "numericPolicy",
+   "pass": true,
+   "expect": "★ 域外（`capBatt < 0`）⇒ 拒",
+   "actual": "{\"reason\":\"SETTING_TYPE_INVALID\"}"
+  },
+  {
+   "id": "G4",
+   "group": "numericPolicy",
+   "pass": true,
+   "expect": "★ 清单外字段 ⇒ 拒（reason = unknownKey）",
+   "actual": "{\"reason\":\"SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST\"}"
+  },
+  {
+   "id": "G5",
+   "group": "numericPolicy",
+   "pass": true,
+   "expect": "★ 非策略键 ⇒ 拒（reason = unknownKey · legal_keys = 9 键）",
+   "actual": "{\"reason\":\"SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST\",\"legal\":9}"
+  },
+  {
+   "id": "H1",
+   "group": "i18n",
+   "pass": true,
+   "expect": "`roleNames` 键集 = 四角色 = [\"poster\",\"worker\",\"seller\",\"buyer\"]",
+   "actual": "[\"buyer\",\"poster\",\"seller\",\"worker\"]"
+  },
+  {
+   "id": "H2.zh",
+   "group": "i18n",
+   "pass": true,
+   "expect": "`roleNames` 四语键集齐 + 非空 · `siteSlogan` 在场非空（zh）",
+   "actual": "{\"roleKeys\":4,\"slogan\":\"加密人自己的「闲鱼」\"}"
+  },
+  {
+   "id": "H2.en",
+   "group": "i18n",
+   "pass": true,
+   "expect": "`roleNames` 四语键集齐 + 非空 · `siteSlogan` 在场非空（en）",
+   "actual": "{\"roleKeys\":4,\"slogan\":\"The crypto crowd's own flea market\"}"
+  },
+  {
+   "id": "H2.hk",
+   "group": "i18n",
+   "pass": true,
+   "expect": "`roleNames` 四语键集齐 + 非空 · `siteSlogan` 在场非空（hk）",
+   "actual": "{\"roleKeys\":4,\"slogan\":\"幣圈人的跳蚤市場\"}"
+  },
+  {
+   "id": "H2.vn",
+   "group": "i18n",
+   "pass": true,
+   "expect": "`roleNames` 四语键集齐 + 非空 · `siteSlogan` 在场非空（vn）",
+   "actual": "{\"roleKeys\":4,\"slogan\":\"Chợ đồ cũ của dân crypto\"}"
+  },
+  {
+   "id": "H3.en",
+   "group": "i18n",
+   "pass": true,
+   "expect": "en 五处新文案面零 CJK",
+   "actual": "[]"
+  },
+  {
+   "id": "H3.vn",
+   "group": "i18n",
+   "pass": true,
+   "expect": "vn 五处新文案面零 CJK",
+   "actual": "[]"
+  },
+  {
+   "id": "H4",
+   "group": "i18n",
+   "pass": true,
+   "expect": "hk 为繁體（`roleNames.buyer` 与 zh 逐字不同 · `siteSlogan` 与 zh 不同且含 CJK）",
+   "actual": "{\"hk_buyer\":\"顧客\",\"zh_buyer\":\"顾客\",\"hk_slogan\":\"幣圈人的跳蚤市場\",\"zh_slogan\":\"加密人自己的「闲鱼」\"}"
+  },
+  {
+   "id": "H5",
+   "group": "i18n",
+   "pass": true,
+   "expect": "六类工程口径泄漏 = 0（四语 × 五处新文案面）",
+   "actual": "[]"
+  },
+  {
+   "id": "H6",
+   "group": "i18n",
+   "pass": true,
+   "expect": "`adminNav` 新 2 键（`siteText` / `siteTextDesc`）四语齐",
+   "actual": "[30,30,30,30]"
+  },
+  {
+   "id": "H5__selftest",
+   "group": "i18nSelfTest",
+   "pass": true,
+   "expect": "把带章节号的文案喂入 ⇒ 泄漏谓词必须转红",
+   "actual": "{\"wrong_input\":{\"title\":\"站点文案（§29.12）\"},\"judge_fired\":true}"
+  },
+  {
+   "id": "I1",
+   "group": "navSync",
+   "pass": true,
+   "expect": "四语 `adminNav` 键数 = 30（+2 = `siteText` / `siteTextDesc`；8⑥ 再 +2 = `auditConsole` / `auditConsoleDesc`）",
+   "actual": "[30,30,30,30]"
+  },
+  {
+   "id": "I2",
+   "group": "navSync",
+   "pass": true,
+   "expect": "① `p8-s5-compliance-gate.ts`：`NAV_KEYS_FROZEN = 30`",
+   "actual": "NAV_KEYS_FROZEN = 30"
+  },
+  {
+   "id": "I3",
+   "group": "navSync",
+   "pass": true,
+   "expect": "② `p8-s2-fee-rebate-gate.ts`：`NS_KEYS.adminNav = 30`",
+   "actual": "adminNav: 30"
+  },
+  {
+   "id": "I4",
+   "group": "navSync",
+   "pass": true,
+   "expect": "③ `i18n-batch-b4a.test.jsx`：`NEW_NS.adminNav = 30`",
+   "actual": "adminNav: 30"
+  },
+  {
+   "id": "I5",
+   "group": "navSync",
+   "pass": true,
+   "expect": "三处冻结旧值 `26` 零残留（同步彻底）",
+   "actual": "[]"
+  },
+  {
+   "id": "I2__selftest",
+   "group": "navSyncSelfTest",
+   "pass": true,
+   "expect": "把旧冻结值喂入 ⇒ 同步谓词必须转红",
+   "actual": "{\"wrong_input\":\"const NAV_KEYS_FROZEN = 26;\",\"judge_fired\":true}"
+  },
+  {
+   "id": "J1",
+   "group": "closedSets",
+   "pass": true,
+   "expect": "错误码闭集仍恰 33 条（不动）",
+   "actual": "33"
+  },
+  {
+   "id": "J2",
+   "group": "closedSets",
+   "pass": true,
+   "expect": "覆盖层失败只用既有 `SETTINGS_WRITE_REASONS` 三常量（零新增 reason 常量）",
+   "actual": "[\"SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST\",\"SETTING_VALUE_NOT_OBJECT\",\"SETTING_TYPE_INVALID\"]"
+  },
+  {
+   "id": "J3",
+   "group": "closedSets",
+   "pass": true,
+   "expect": "覆盖层失败码 ⊆ 既有 §14 闭集（零新增码）",
+   "actual": "[\"LEDGER_AMOUNT_INVALID\"]"
+  },
+  {
+   "id": "J1__selftest",
+   "group": "closedSetsSelfTest",
+   "pass": true,
+   "expect": "自造码喂入 ⇒ 闭集谓词必须转红",
+   "actual": "{\"wrong_input\":[\"LEDGER_NEW_MADEUP_CODE\"],\"judge_fired\":true}"
+  }
+ ]
+}

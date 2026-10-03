@@ -1,0 +1,441 @@
+{
+ "jobs": [
+  {
+   "job_id": "24",
+   "employer_uid": "1",
+   "worker_uid": null,
+   "status": "open",
+   "reward": "100",
+   "time_created": "2026-10-01 01:41:20.473132+00",
+   "time_updated": "2026-10-01 01:41:20.473132+00"
+  },
+  {
+   "job_id": "23",
+   "employer_uid": "11",
+   "worker_uid": "12",
+   "status": "settled",
+   "reward": "12",
+   "time_created": "2026-09-30 13:57:07.380147+00",
+   "time_updated": "2026-10-02 13:48:12.68365+00"
+  },
+  {
+   "job_id": "22",
+   "employer_uid": "3",
+   "worker_uid": null,
+   "status": "open",
+   "reward": "1",
+   "time_created": "2026-09-30 13:53:58.041644+00",
+   "time_updated": "2026-09-30 13:53:58.041644+00"
+  },
+  {
+   "job_id": "20",
+   "employer_uid": "11",
+   "worker_uid": "12",
+   "status": "settled",
+   "reward": "12",
+   "time_created": "2026-09-30 13:41:21.004394+00",
+   "time_updated": "2026-10-02 13:48:11.229227+00"
+  },
+  {
+   "job_id": "19",
+   "employer_uid": "970001",
+   "worker_uid": "12",
+   "status": "settled",
+   "reward": "100000",
+   "time_created": "2026-09-29 19:21:28.640094+00",
+   "time_updated": "2026-09-29 19:21:31.662452+00"
+  },
+  {
+   "job_id": "18",
+   "employer_uid": "970001",
+   "worker_uid": null,
+   "status": "cancelled",
+   "reward": "5",
+   "time_created": "2026-09-29 19:15:21.425349+00",
+   "time_updated": "2026-09-29 19:15:23.960049+00"
+  },
+  {
+   "job_id": "17",
+   "employer_uid": "970001",
+   "worker_uid": "12",
+   "status": "rejected",
+   "reward": "5",
+   "time_created": "2026-09-29 19:15:13.536191+00",
+   "time_updated": "2026-09-29 19:15:20.200937+00"
+  },
+  {
+   "job_id": "16",
+   "employer_uid": "970001",
+   "worker_uid": "12",
+   "status": "settled",
+   "reward": "5",
+   "time_created": "2026-09-29 19:14:00.022992+00",
+   "time_updated": "2026-09-29 19:15:18.974919+00"
+  },
+  {
+   "job_id": "15",
+   "employer_uid": "3",
+   "worker_uid": null,
+   "status": "submitted",
+   "reward": "137",
+   "time_created": "2026-09-29 18:27:05.490086+00",
+   "time_updated": "2026-09-29 18:27:12.711643+00"
+  },
+  {
+   "job_id": "14",
+   "employer_uid": "2",
+   "worker_uid": null,
+   "status": "submitted",
+   "reward": "137",
+   "time_created": "2026-09-29 18:27:04.178546+00",
+   "time_updated": "2026-09-29 18:27:10.913156+00"
+  },
+  {
+   "job_id": "13",
+   "employer_uid": "3",
+   "worker_uid": null,
+   "status": "open",
+   "reward": "137",
+   "time_created": "2026-09-29 18:27:03.748802+00",
+   "time_updated": "2026-09-29 18:27:03.748802+00"
+  },
+  {
+   "job_id": "12",
+   "employer_uid": "2",
+   "worker_uid": null,
+   "status": "open",
+   "reward": "137",
+   "time_created": "2026-09-29 18:27:03.338163+00",
+   "time_updated": "2026-09-29 18:27:03.338163+00"
+  },
+  {
+   "job_id": "11",
+   "employer_uid": "2",
+   "worker_uid": "6",
+   "status": "settled",
+   "reward": "1000",
+   "time_created": "2026-09-29 18:22:03.678012+00",
+   "time_updated": "2026-09-29 18:22:08.968536+00"
+  },
+  {
+   "job_id": "10",
+   "employer_uid": "2",
+   "worker_uid": null,
+   "status": "cancelled",
+   "reward": "200",
+   "time_created": "2026-09-29 18:21:16.169313+00",
+   "time_updated": "2026-09-29 18:21:16.449538+00"
+  },
+  {
+   "job_id": "9",
+   "employer_uid": "2",
+   "worker_uid": "3",
+   "status": "rejected",
+   "reward": "300",
+   "time_created": "2026-09-29 18:21:11.250754+00",
+   "time_updated": "2026-09-29 18:21:14.684159+00"
+  },
+  {
+   "job_id": "8",
+   "employer_uid": "2",
+   "worker_uid": "3",
+   "status": "settled",
+   "reward": "1000",
+   "time_created": "2026-09-29 18:21:04.128309+00",
+   "time_updated": "2026-09-29 18:21:07.290067+00"
+  },
+  {
+   "job_id": "5",
+   "employer_uid": "2",
+   "worker_uid": "3",
+   "status": "settled",
+   "reward": "400",
+   "time_created": "2026-09-29 18:20:51.814351+00",
+   "time_updated": "2026-09-29 18:20:57.811445+00"
+  },
+  {
+   "job_id": "4",
+   "employer_uid": "970101",
+   "worker_uid": "970102",
+   "status": "submitted",
+   "reward": "11",
+   "time_created": "2026-09-29 14:04:59.948051+00",
+   "time_updated": "2026-09-29 14:07:59.237653+00"
+  },
+  {
+   "job_id": "3",
+   "employer_uid": "970001",
+   "worker_uid": "970002",
+   "status": "settled",
+   "reward": "251",
+   "time_created": "2026-09-29 12:12:48.086048+00",
+   "time_updated": "2026-10-02 13:48:07.924814+00"
+  },
+  {
+   "job_id": "2",
+   "employer_uid": "970001",
+   "worker_uid": null,
+   "status": "open",
+   "reward": "137",
+   "time_created": "2026-09-29 12:12:47.578924+00",
+   "time_updated": "2026-09-29 12:12:47.578924+00"
+  }
+ ],
+ "apps": [
+  {
+   "application_id": "24",
+   "job_id": "23",
+   "worker_uid": "12",
+   "status": "accepted",
+   "time_created": "2026-09-30 13:57:15.696388+00"
+  },
+  {
+   "application_id": "22",
+   "job_id": "22",
+   "worker_uid": "1",
+   "status": "applied",
+   "time_created": "2026-09-30 13:54:14.39759+00"
+  },
+  {
+   "application_id": "20",
+   "job_id": "20",
+   "worker_uid": "12",
+   "status": "accepted",
+   "time_created": "2026-09-30 13:41:25.783895+00"
+  },
+  {
+   "application_id": "19",
+   "job_id": "19",
+   "worker_uid": "12",
+   "status": "accepted",
+   "time_created": "2026-09-29 19:21:29.25361+00"
+  },
+  {
+   "application_id": "18",
+   "job_id": "17",
+   "worker_uid": "12",
+   "status": "accepted",
+   "time_created": "2026-09-29 19:15:14.531139+00"
+  },
+  {
+   "application_id": "15",
+   "job_id": "16",
+   "worker_uid": "12",
+   "status": "accepted",
+   "time_created": "2026-09-29 19:15:06.981795+00"
+  },
+  {
+   "application_id": "13",
+   "job_id": "13",
+   "worker_uid": "1",
+   "status": "applied",
+   "time_created": "2026-09-29 18:27:20.52819+00"
+  },
+  {
+   "application_id": "12",
+   "job_id": "12",
+   "worker_uid": "1",
+   "status": "applied",
+   "time_created": "2026-09-29 18:27:18.413278+00"
+  },
+  {
+   "application_id": "11",
+   "job_id": "15",
+   "worker_uid": "1",
+   "status": "accepted",
+   "time_created": "2026-09-29 18:27:06.38725+00"
+  },
+  {
+   "application_id": "10",
+   "job_id": "14",
+   "worker_uid": "1",
+   "status": "accepted",
+   "time_created": "2026-09-29 18:27:05.955261+00"
+  },
+  {
+   "application_id": "9",
+   "job_id": "11",
+   "worker_uid": "6",
+   "status": "accepted",
+   "time_created": "2026-09-29 18:22:04.445707+00"
+  },
+  {
+   "application_id": "8",
+   "job_id": "9",
+   "worker_uid": "3",
+   "status": "accepted",
+   "time_created": "2026-09-29 18:21:11.936047+00"
+  },
+  {
+   "application_id": "7",
+   "job_id": "8",
+   "worker_uid": "3",
+   "status": "accepted",
+   "time_created": "2026-09-29 18:21:05.117487+00"
+  },
+  {
+   "application_id": "6",
+   "job_id": "5",
+   "worker_uid": "3",
+   "status": "accepted",
+   "time_created": "2026-09-29 18:20:54.692691+00"
+  },
+  {
+   "application_id": "5",
+   "job_id": "4",
+   "worker_uid": "970102",
+   "status": "accepted",
+   "time_created": "2026-09-29 14:05:00.367637+00"
+  },
+  {
+   "application_id": "4",
+   "job_id": "3",
+   "worker_uid": "970002",
+   "status": "accepted",
+   "time_created": "2026-09-29 12:12:51.22045+00"
+  },
+  {
+   "application_id": "1",
+   "job_id": "2",
+   "worker_uid": "970002",
+   "status": "applied",
+   "time_created": "2026-09-29 12:12:50.065447+00"
+  }
+ ],
+ "subs": [
+  {
+   "submission_id": "19",
+   "job_id": "23",
+   "worker_uid": "12",
+   "review_status": "approved",
+   "time_created": "2026-09-30 13:58:08.993082+00"
+  },
+  {
+   "submission_id": "18",
+   "job_id": "20",
+   "worker_uid": "12",
+   "review_status": "approved",
+   "time_created": "2026-09-30 13:41:33.238924+00"
+  },
+  {
+   "submission_id": "17",
+   "job_id": "19",
+   "worker_uid": "12",
+   "review_status": "approved",
+   "time_created": "2026-09-29 19:21:30.99728+00"
+  },
+  {
+   "submission_id": "16",
+   "job_id": "17",
+   "worker_uid": "12",
+   "review_status": "rejected",
+   "time_created": "2026-09-29 19:15:16.560785+00"
+  },
+  {
+   "submission_id": "15",
+   "job_id": "16",
+   "worker_uid": "12",
+   "review_status": "approved",
+   "time_created": "2026-09-29 19:15:12.662071+00"
+  },
+  {
+   "submission_id": "12",
+   "job_id": "15",
+   "worker_uid": "1",
+   "review_status": "pending",
+   "time_created": "2026-09-29 18:27:12.711643+00"
+  },
+  {
+   "submission_id": "11",
+   "job_id": "14",
+   "worker_uid": "1",
+   "review_status": "pending",
+   "time_created": "2026-09-29 18:27:10.913156+00"
+  },
+  {
+   "submission_id": "10",
+   "job_id": "11",
+   "worker_uid": "6",
+   "review_status": "approved",
+   "time_created": "2026-09-29 18:22:05.133229+00"
+  },
+  {
+   "submission_id": "9",
+   "job_id": "9",
+   "worker_uid": "3",
+   "review_status": "rejected",
+   "time_created": "2026-09-29 18:21:12.690541+00"
+  },
+  {
+   "submission_id": "8",
+   "job_id": "8",
+   "worker_uid": "3",
+   "review_status": "approved",
+   "time_created": "2026-09-29 18:21:05.753259+00"
+  },
+  {
+   "submission_id": "7",
+   "job_id": "5",
+   "worker_uid": "3",
+   "review_status": "approved",
+   "time_created": "2026-09-29 18:20:55.500172+00"
+  },
+  {
+   "submission_id": "5",
+   "job_id": "4",
+   "worker_uid": "970102",
+   "review_status": "pending",
+   "time_created": "2026-09-29 14:07:59.237653+00"
+  },
+  {
+   "submission_id": "1",
+   "job_id": "3",
+   "worker_uid": "970002",
+   "review_status": "approved",
+   "time_created": "2026-09-29 13:42:37.703746+00"
+  }
+ ],
+ "apps_any_970213": [],
+ "subs_any_970213": [],
+ "counts": [
+  {
+   "jobs": 20,
+   "apps": 17,
+   "subs": 13
+  }
+ ],
+ "recent_apps_1d": [],
+ "recent_subs_1d": [],
+ "jobs_openish": [
+  {
+   "job_id": "24",
+   "employer_uid": "1",
+   "status": "open",
+   "reward": "100"
+  },
+  {
+   "job_id": "22",
+   "employer_uid": "3",
+   "status": "open",
+   "reward": "1"
+  },
+  {
+   "job_id": "13",
+   "employer_uid": "3",
+   "status": "open",
+   "reward": "137"
+  },
+  {
+   "job_id": "12",
+   "employer_uid": "2",
+   "status": "open",
+   "reward": "137"
+  },
+  {
+   "job_id": "2",
+   "employer_uid": "970001",
+   "status": "open",
+   "reward": "137"
+  }
+ ]
+}

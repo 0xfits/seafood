@@ -1,0 +1,164 @@
+{
+ "real_data": [
+  {
+   "case": "X=4 本人=970102(job_id=4) 应 self=5",
+   "x": 4,
+   "worker": 970102,
+   "service": {
+    "applicationId": 5,
+    "workerUid": 970102,
+    "ownership": "self"
+   },
+   "raw_new": {
+    "application_id": "5",
+    "worker_uid": "970102",
+    "ownership": "self"
+   },
+   "raw_old": {
+    "application_id": "4",
+    "worker_uid": "970002",
+    "ownership": "other"
+   }
+  },
+  {
+   "case": "X=4 本人=970002(application_id=4) 应 self=4",
+   "x": 4,
+   "worker": 970002,
+   "service": {
+    "applicationId": 4,
+    "workerUid": 970002,
+    "ownership": "self"
+   },
+   "raw_new": {
+    "application_id": "4",
+    "worker_uid": "970002",
+    "ownership": "self"
+   },
+   "raw_old": {
+    "application_id": "4",
+    "worker_uid": "970002",
+    "ownership": "self"
+   }
+  },
+  {
+   "case": "X=9 本人=3(job_id=9) 应 self=8",
+   "x": 9,
+   "worker": 3,
+   "service": {
+    "applicationId": 8,
+    "workerUid": 3,
+    "ownership": "self"
+   },
+   "raw_new": {
+    "application_id": "8",
+    "worker_uid": "3",
+    "ownership": "self"
+   },
+   "raw_old": {
+    "application_id": "9",
+    "worker_uid": "6",
+    "ownership": "other"
+   }
+  },
+  {
+   "case": "X=9 本人=6(application_id=9) 应 self=9",
+   "x": 9,
+   "worker": 6,
+   "service": {
+    "applicationId": 9,
+    "workerUid": 6,
+    "ownership": "self"
+   },
+   "raw_new": {
+    "application_id": "9",
+    "worker_uid": "6",
+    "ownership": "self"
+   },
+   "raw_old": {
+    "application_id": "9",
+    "worker_uid": "6",
+    "ownership": "self"
+   }
+  },
+  {
+   "case": "X=15 本人=1(job_id=15) 应 self=11",
+   "x": 15,
+   "worker": 1,
+   "service": {
+    "applicationId": 11,
+    "workerUid": 1,
+    "ownership": "self"
+   },
+   "raw_new": {
+    "application_id": "11",
+    "worker_uid": "1",
+    "ownership": "self"
+   },
+   "raw_old": {
+    "application_id": "15",
+    "worker_uid": "12",
+    "ownership": "other"
+   }
+  },
+  {
+   "case": "X=15 本人=12(application_id=15) 应 self=15",
+   "x": 15,
+   "worker": 12,
+   "service": {
+    "applicationId": 15,
+    "workerUid": 12,
+    "ownership": "self"
+   },
+   "raw_new": {
+    "application_id": "15",
+    "worker_uid": "12",
+    "ownership": "self"
+   },
+   "raw_old": {
+    "application_id": "15",
+    "worker_uid": "12",
+    "ownership": "self"
+   }
+  }
+ ],
+ "fixture": {
+  "F_identifier": "2",
+  "G_self_appid": 25,
+  "H_jobid": "4",
+  "U_A": 11,
+  "U_B": 970002,
+  "rows_in_tx": [
+   {
+    "aid": "1",
+    "jid": "2",
+    "w": "970002"
+   },
+   {
+    "aid": "2",
+    "jid": "4",
+    "w": "970002"
+   },
+   {
+    "aid": "25",
+    "jid": "2",
+    "w": "11"
+   }
+  ],
+  "in_tx_new_order": {
+   "aid": "25",
+   "w": "11",
+   "ownership": "self"
+  },
+  "in_tx_old_order": {
+   "aid": "2",
+   "w": "970002",
+   "ownership": "other"
+  },
+  "residue": [
+   {
+    "n": 0
+   }
+  ]
+ },
+ "verdict_real_all_self": true
+}
