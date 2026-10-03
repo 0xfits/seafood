@@ -5,6 +5,7 @@
 //   GET  /api/task/all                       招工列表（§1 #9【保留·改接】task→job）
 //   GET  /api/task/:tID                      招工详情（miss ⇒ 404 R107，§3.1）
 //   GET  /api/task-progress                  我的提交（worker 轴；★`jID` = `submission_id`）—— **同一任务可多条**
+//   GET  /api/job/:jobId/submissions         该任务逐条提交（★S6 入库；准入 = 发布者本人 ∨ `review_tasks`）
 //   GET  /api/tasklist/pending-verification  待审核队列（admin · review_tasks）
 //   GET  /api/user/asset/:uID                余额读数（5 键）
 //   POST /api/job                            发布招工 + 托管（J1）
@@ -48,6 +49,15 @@ export const fetchPendingVerification = (user) => getJson('/api/tasklist/pending
 /** 余额读数（§2.1：`/api/user/asset/:uID` = `normalizeAsset` 5 键 `index_id/uID/points/lucks/time_update`） */
 export const fetchUserAsset = (uID, user) => getJson(`/api/user/asset/${uID}`, user)
 
+/**
+ * ★S7 该任务逐条提交读口（`GET /api/job/:jobId/submissions`，**已注册** `backend-ts/src/index.ts:2483`；S6 入库）。
+ * 准入 = **发布者本人 ∨ 持 `review_tasks`**（复用既有 `requireJobOwnerOrAdmin` 归属闸）⇒ 非本人且无权限 **403 AUTH_FORBIDDEN**；
+ * 无 token 401；任务不存在 / 非数字 **404**。`data` = 逐条 **9 键**
+ * （`submission_id/job_id/worker_uid/deliverable/review_status/reviewed_by/reviewed_at/review_memo/time_created`）。
+ * ★ 本口即前端「是否发布者」的唯一判据（任务详情 `/api/task/:tID` 的 `TaskRecord` **不含**发布者 uid ⇒ 本地无从判定）。
+ */
+export const listJobSubmissions = (jobId, user) => getJson(`/api/job/${jobId}/submissions`, user)
+
 // ---- 写面 -------------------------------------------------------------------
 /**
  * J1 发布招工 + 托管。`reward` = **A 类供给侧自主出价**（§4.8.1：客户端可传、原样透传、路由层零计算）。
@@ -67,9 +77,17 @@ export const publishJob = ({ cid, reward, title, description, headcount, createK
 export const submitDeliverable = (identifier, deliverable, user) =>
   postJson(`/api/task-progress/${identifier}/submit`, { info_input: deliverable }, user)
 
-/** J5/J6 审核。`jobId` = **job_id**（A5 面入参；approve ⇒ settle、approved:false ⇒ refund）。键 = 服务端派生（见文件头 ⑤）。 */
-export const reviewSubmission = (jobId, approved, user) =>
-  postJson(`/api/job/${jobId}/review`, { approved }, user)
+/**
+ * J5/J6 审核（§4.2 A5；`POST /api/job/:jobId/review`，**已注册** `backend-ts/src/index.ts:2451`）。`jobId` = **job_id**。
+ * ★S7 逐笔：S6 起该口收可选 **`submission_id`**（现取 `:2458` = `req.body?.submission_id ?? req.body?.submissionId`：
+ *   body 形态 = `{ approved, submission_id }`）⇒ `approved:true` = 发一份赏金；`approved:false` = 零资金、该提交转 `rejected`、任务保持 `open`。
+ *   ★（S6b 并行单正修 `approved:false` 分支，现状会错成「整单退款」⇒ 前端**只接线、不改后端**。）
+ *   `submissionId` 缺省（如管理员队列既有 3 参调用）⇒ 服务层落遗留单笔分支，**零回归**。
+ *   ★ 为保持既有 3 参调用点（`JobReviewPage`）逐字不变，提交号作**第 4 参追加**。
+ * 幂等键 = 服务端派生（见文件头 ⑤）⇒ 不传键。
+ */
+export const reviewSubmission = (jobId, approved, user, submissionId) =>
+  postJson(`/api/job/${jobId}/review`, { approved, submission_id: submissionId }, user)
 
 // ---- 幂等键 tracker（发布招工面唯一需要前端供键的面） -------------------------
 /**

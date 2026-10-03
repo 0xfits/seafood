@@ -116,17 +116,17 @@ describe('④ 双口径扫面：用户可见 `dashJ` 文案 = 0', () => {
   })
 })
 
-describe('⑤ 计数（S5① 后：top 119 / flat 1044 / 四语节点 4176）', () => {
+describe('⑤ 计数（S7 后：top 119 / flat 1054 / 四语节点 4216）', () => {
   it('四语 top / flat / 合计', () => {
     let nodes = 0
     for (const l of LANGS) {
       expect(Object.keys(TABLES[l]).length, `${l} top`).toBe(119)
       const f = flat(TABLES[l]).length
-      // **期望订正（S5① 发布面总人数）**：新增 `jobs.headcount` + `jobs.headcountInvalid` + `jobs.depositHint` 3 键（jobs 既有顶层）⇒ 顶层 119 不变 / 拍平 1041⇒1044
-      expect(f, `${l} flat`).toBe(1044)
+      // **期望订正（S7 悬赏家评判列表）**：+10 jobs 键（jobs 既有顶层）⇒ 顶层 119 不变 / 拍平 1044⇒1054（前订正 S5①：1041⇒1044）
+      expect(f, `${l} flat`).toBe(1054)
       nodes += f
     }
-    // **期望订正（S5①）**：1044 × 4 = 4176（原 1041 × 4 = 4164）
-    expect(nodes, '四语节点合计').toBe(4176)
+    // **期望订正（S7）**：1054 × 4 = 4216（原 1044 × 4 = 4176）
+    expect(nodes, '四语节点合计').toBe(4216)
   })
 })

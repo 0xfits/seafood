@@ -122,7 +122,17 @@
     "reject": "驳回并退托管",
     "approveOk": "已通过并完成发放",
     "rejectOk": "已驳回并退回托管",
-    "queueEmpty": "暂无待审核项"
+    "queueEmpty": "暂无待审核项",
+    "submissions": "提交列表",
+    "submissionsEmpty": "暂无提交",
+    "submissionItemTitle": "提交 #{{submission}} · 提交人 #{{worker}}",
+    "subStatusPending": "待审核",
+    "subStatusApproved": "已通过",
+    "subStatusRejected": "未通过",
+    "markQualified": "合格",
+    "markUnqualified": "不合格",
+    "reviewQualifiedOk": "已判定合格，赏金已发放",
+    "reviewUnqualifiedOk": "已判定不合格"
   },
   "listings": {
     "line": "商品线",

@@ -78,12 +78,12 @@ describe('S5① · 新增文案键四语齐备 + 键计数', () => {
     expect(problems).toEqual([])
   })
 
-  it('键计数：顶层 119 不变 / 拍平 1044 / 四语节点 4176', () => {
+  it('键计数：顶层 119 不变 / 拍平 1054 / 四语节点 4216', () => {
     for (const l of LANGS) {
       expect(Object.keys(readTable(l)).length, `${l} top`).toBe(119)
-      expect(FLAT[l].length, `${l} flat`).toBe(1044)
+      expect(FLAT[l].length, `${l} flat`).toBe(1054)
     }
-    expect(FLAT.zh.length * LANGS.length).toBe(4176)
+    expect(FLAT.zh.length * LANGS.length).toBe(4216)
   })
 
   it('depositHint 四语均含押金/人数算式占位（逐字锚）', () => {

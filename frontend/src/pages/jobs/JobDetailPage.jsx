@@ -2,10 +2,11 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
+import { i18nKeyForErrorReason } from '../../auth'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import { contentStatus, pickLocalized } from '../../i18n-content'
 import TranslatingBadge from '../../components/i18n/TranslatingBadge'
-import { fetchJobDetail, fetchMyApplications, submitDeliverable } from './job-api'
+import { fetchJobDetail, fetchMyApplications, submitDeliverable, listJobSubmissions, reviewSubmission } from './job-api'
 import './jobs.css'
 
 // 招工线 · 详情 + 提交（§4.2 J4 · ★S3b 契约同步）
@@ -76,8 +77,67 @@ const JobDetailPage = () => {
     }
   }, [isAuthenticated, user, jobId, t])
 
+  // ---- ★S7 悬赏家评判列表（发布者视角）------------------------------------------------
+  // 接口（S6 已入库，现取核实；本单**不自造**）：
+  //   · 读口 `GET /api/job/:jobId/submissions`（`backend-ts/src/index.ts:2483`）⇒ `data` = 逐条 9 键
+  //     （submission_id/job_id/worker_uid/deliverable/review_status/reviewed_by/reviewed_at/review_memo/time_created）。
+  //   · 判定口 `POST /api/job/:jobId/review`（`:2451`）body = `{ approved, submission_id }`（S6 增逐笔提交号）。
+  // ★「是否发布者」判定 = **复用既有归属闸**（后端 `requireJobOwnerOrAdmin`，`:2453/:2485`，**不另写**）：
+  //   该闸对「发布者本人 ∨ 持 `review_tasks` 的管理员」放行、其余 ⇒ `403 AUTH_FORBIDDEN`。
+  //   ⇒ 前端**不臆测**身份：读口成功（过闸）⇒ 渲染本区块；403 ⇒ 非发布者 ⇒ **不渲染**。
+  //   （任务详情读口 `/api/task/:tID` 的 `TaskRecord` **不含**发布者 uid ⇒ 结构上无法本地判定，故走本闸。）
+  // ★ 状态 = pending/approved/rejected 三态**查表**四语文案（不得原样渲染 `review_status` 枚举值）。
+  const SUB_STATUS_I18N_KEYS = Object.freeze({
+    pending: 'jobs.subStatusPending',
+    approved: 'jobs.subStatusApproved',
+    rejected: 'jobs.subStatusRejected',
+  })
+
+  const [subs, setSubs] = useState({ phase: 'idle', items: [], message: '', admitted: false })
+  const [review, setReview] = useState({ phase: 'idle', message: '', id: null })
+
+  // 读列表：成功 = 过归属闸（发布者/有权者）⇒ admitted；403 = 非发布者 ⇒ 不渲染。
+  const loadSubmissions = useCallback(async () => {
+    if (!isAuthenticated) {
+      setSubs({ phase: 'idle', items: [], message: '', admitted: false })
+      return
+    }
+    setSubs((prev) => ({ ...prev, phase: 'loading', message: t('loading') }))
+    try {
+      const data = await listJobSubmissions(jobId, user)
+      setSubs({ phase: 'ok', items: Array.isArray(data) ? data : [], message: '', admitted: true })
+    } catch (error) {
+      // 既有归属闸的拒形态 ⇒ 非发布者（且非 review_tasks 管理员）⇒ 不渲染（仅发布者可见）
+      if (error?.code === 'AUTH_FORBIDDEN') {
+        setSubs({ phase: 'denied', items: [], message: '', admitted: false })
+        return
+      }
+      // 其它失败：**不臆测身份**（fail-closed）—— 未过闸过 ⇒ 隐藏；已过闸（发布者）⇒ 走既有错误链文案
+      setSubs((prev) => (prev.admitted
+        ? { ...prev, phase: 'error', message: String(error?.message || t('error')) }
+        : { phase: 'denied', items: [], message: '', admitted: false }))
+    }
+  }, [isAuthenticated, jobId, user, t])
+
+  // 逐条判定：合格 = 发一份赏金；不合格 = 零资金、该提交转 rejected（后端 S6/S6b 口径）。成功后刷新列表。
+  const decideSubmission = async (item, approved) => {
+    const sid = item.submission_id
+    setReview({ phase: 'loading', message: t('jobs.submitting'), id: sid })
+    try {
+      await reviewSubmission(jobId, approved, user, sid)
+      setReview({ phase: 'ok', message: t(approved ? 'jobs.reviewQualifiedOk' : 'jobs.reviewUnqualifiedOk'), id: sid })
+      await loadSubmissions()
+    } catch (error) {
+      // 失败按本仓既有惯例：错误体带 `details.reason` ⇒ 复用既有 reason→文案映射（auth.js `i18nKeyForErrorReason`，**不另建**）；
+      //   未命中 ⇒ 原链路文案（`error.message` 已过 R107 链：reason→i18n_key→原文→通用兜底）。
+      const reasonKey = i18nKeyForErrorReason(error)
+      setReview({ phase: 'error', message: reasonKey ? t(reasonKey) : String(error?.message || t('error')), id: sid })
+    }
+  }
+
   useEffect(() => { loadDetail() }, [loadDetail])
   useEffect(() => { loadMyApps() }, [loadMyApps])
+  useEffect(() => { loadSubmissions() }, [loadSubmissions])
 
   const run = async (setter, fn, okMessage, after, onError) => {
     try {
@@ -202,6 +262,58 @@ const JobDetailPage = () => {
                 </span>
               </div>
             </form>
+          )}
+
+          {/* ★S7 悬赏家评判列表（仅发布者可见）：准入 = 复用后端既有归属闸，读口过闸 200 ⇒ 渲染、403 ⇒ 不渲染。
+              逐条：提交人 + 交付物 + 状态（三态查表四语）；pending 条给「合格」/「不合格」两按钮 ⇒ 调 review 后刷新。 */}
+          {subs.admitted && (
+            <div className="sf-jobs-panel" data-sf-m="jobs-submissions">
+              <h2 className="sf-jobs-title">{t('jobs.submissions')}</h2>
+              {subs.phase === 'loading' && (
+                <div className="sf-jobs-status" data-sf-m="jobs-submissions-load">{subs.message}</div>
+              )}
+              {subs.phase === 'error' && (
+                <div className="sf-jobs-err sf-jobs-status" data-sf-m="jobs-submissions-load" role="alert">{subs.message}</div>
+              )}
+              {subs.phase === 'ok' && subs.items.length === 0 && (
+                <div className="sf-jobs-empty" data-sf-m="jobs-submissions-empty">{t('jobs.submissionsEmpty')}</div>
+              )}
+              {subs.items.map((item) => {
+                const sid = item.submission_id
+                const busy = review.phase === 'loading' && review.id === sid
+                const statusKey = SUB_STATUS_I18N_KEYS[item.review_status]
+                return (
+                  <div className="sf-jobs-item" key={String(sid)} data-sf-m="jobs-submission-item">
+                    <div className="sf-jobs-item-title" data-sf-m="jobs-submission-title">
+                      {t('jobs.submissionItemTitle', { submission: sid, worker: item.worker_uid })}
+                    </div>
+                    <p className="sf-jobs-meta" data-sf-m="jobs-submission-deliverable">{item.deliverable || '—'}</p>
+                    <div className="sf-jobs-row">
+                      <span className="sf-jobs-tag" data-sf-m="jobs-submission-status">{statusKey ? t(statusKey) : '—'}</span>
+                      {item.review_status === 'pending' && (
+                        <>
+                          <button className="sf-btn sf-jobs-btn" type="button" data-sf-m="jobs-submission-qualify" disabled={busy} onClick={() => decideSubmission(item, true)}>
+                            {t('jobs.markQualified')}
+                          </button>
+                          <button className="sf-btn sf-jobs-btn" type="button" data-sf-m="jobs-submission-disqualify" disabled={busy} onClick={() => decideSubmission(item, false)}>
+                            {t('jobs.markUnqualified')}
+                          </button>
+                        </>
+                      )}
+                      {review.id === sid && review.message && (
+                        <span
+                          className={`sf-jobs-status${review.phase === 'error' ? ' sf-jobs-err' : ''}${review.phase === 'ok' ? ' sf-jobs-ok' : ''}`}
+                          data-sf-m="jobs-submission-action-status"
+                          role="status"
+                        >
+                          {review.message}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           )}
 
         </div>

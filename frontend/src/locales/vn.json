@@ -122,7 +122,17 @@
     "reject": "Từ chối và hoàn tiền",
     "approveOk": "Đã duyệt và trả tiền",
     "rejectOk": "Đã từ chối và hoàn ký quỹ",
-    "queueEmpty": "Không có mục chờ duyệt"
+    "queueEmpty": "Không có mục chờ duyệt",
+    "submissions": "Bài nộp",
+    "submissionsEmpty": "Chưa có bài nộp",
+    "submissionItemTitle": "Bài nộp #{{submission}} · bởi #{{worker}}",
+    "subStatusPending": "Chờ duyệt",
+    "subStatusApproved": "Đã duyệt",
+    "subStatusRejected": "Không đạt",
+    "markQualified": "Đạt",
+    "markUnqualified": "Không đạt",
+    "reviewQualifiedOk": "Đã đánh giá đạt; thù lao đã được trả",
+    "reviewUnqualifiedOk": "Đã đánh giá không đạt"
   },
   "listings": {
     "line": "Dòng hàng hoá",
