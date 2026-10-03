@@ -349,7 +349,20 @@ export const fetchApiJson = async (url, options = {}) => {
   const payload = await response.json().catch(() => null)
 
   if (!response.ok || !payload?.success) {
-    throw new Error(await apiErrorMessage(payload, response.status))
+    const failure = new Error(await apiErrorMessage(payload, response.status))
+    // ★ D1 补丁（R-9-83 闭环接通）· **只做加法**：把 `payload.error` 的**机读面**附到抛出的
+    //   Error 实例上。`JobDetailPage` 的闭环判据 `error?.details?.reason === 'BATT_BELOW_ACCEPT_THRESHOLD'`
+    //   （`pages/jobs/JobDetailPage.jsx:92`）此前恒 `undefined` ⇒ 被拒提示**永不渲染**。
+    //   护栏：① `failure.message` 取值与既有链路**逐字不变**（仍 = `apiErrorMessage(...)` 文案）；
+    //         ② 机读码 / `reason` **绝不拼进 `message`**（否则外泄机读码 ⇒ 违既有护栏）；
+    //         ③ 字段缺失 / 非对象 ⇒ **不附**（不制造空面）。
+    const machine = payload?.error
+    if (machine && typeof machine === 'object') {
+      if (machine.details && typeof machine.details === 'object') failure.details = machine.details
+      if (typeof machine.code === 'string' && machine.code) failure.code = machine.code
+      if (typeof machine.i18n_key === 'string' && machine.i18n_key) failure.i18nKey = machine.i18n_key
+    }
+    throw failure
   }
 
   return payload.data
