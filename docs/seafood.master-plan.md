@@ -1416,6 +1416,34 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.222 **★ Kevin 术语更正：角色定义英文改用 `Vendor`/`Customer`（`R-9-12`）+ 我裁定 P9① 三个待裁项（`R-9-13`：取变体 Ⅰ · 读口新增 75→76 · 四项默认值）+ 派 Jing 追补落册**（2026-10-03）
+
+**A. Kevin 更正（逐字）**：「在角色定义中，不再使用 Seller 和 Buyer 这两个单词，而是使用 **Vendor 和 Customer**。」
+
+**B. ★ 我落 `R-9-12`（术语更正）**：
+- **店家 = `Vendor`**（原 `Seller`）· **顾客 = `Customer`**（原 `Buyer`）；**悬赏家 `Poster` / 工人 `Worker` 不变**。
+- **因 `vn` 沿用英文（`R-9-11`）⇒ `vn` 两列同改**。
+- ⇒ **覆盖 §5.221 的 en/vn 两列**（**旧行保留**，本条**加注覆盖**，符合只追加纪律）。**四语初值定稿 v2**：
+| 角色 | zh | en | hk | vn |
+|---|---|---|---|---|
+| 悬赏家 | 悬赏家 | Poster | 懸賞家 | Poster |
+| 工人 | 工人 | Worker | 工人 | Worker |
+| 店家 | 店家 | **Vendor** | 店家 | **Vendor** |
+| 顾客 | 顾客 | **Customer** | 顧客 | **Customer** |
+- **★ 连带登记（不擅自扩面）**：既有英文文案里含 `Seller`/`Buyer` 的键（现取：`adminShards.thSeller`/`thBuyer`（en Seller/Buyer）· `adminListingReview.colOwner='Seller'` · `listings.priceRoleNote='The seller sets the listed price…'` · `listings.ordersNote='…where you are the buyer…'` · `listings.refundNote='Only the seller can issue a refund…'`）⇒ **本次不改**（**不属「角色定义」面**），登记为**术语统一待办（另单，不阻塞）**。
+
+**C. ★ 我裁定 `R-9-13`（P9① 冻结的三个待裁项一并裁）**：
+1. **载体 = 变体 Ⅰ**（`app_config` 键 `role_names` + `site_text_overrides`）。**理由**：① **零迁移**（承 `R-8-4/R-8-5`「可配置一律走 `app_config`」）；② **不破 `AG2` 单一真源**（唯一写口 = `POST /api/admin/settings` 形态 B；`grep` 单点判据仍成立）；③ **白名单显式**（`APP_CONFIG_LEGAL_KEYS` 2 → 9）；④ **免费继承** `AV1–AV5` / `ops:<uid>:setting:<key>` / reason 稳定常量 / `DL76` 触发器。
+   ⇒ **变体 Ⅱ（新表 `role_name_override`）不采纳**（需新迁移 + **引入第二套配置载体**、与单一真源分叉）；**变体 Ⅲ（复用 `content_translation` / 静态 locale 发版）不采纳**（口径不符 / 违「实时生效」）。
+2. **读口 = 新增公开读口**（`GET /api/role-names` **候选路径**，**无鉴权** —— 角色名 = 全站 UI 文案）：**注册点 75 → 76 逐字登记**。⇒ **不采纳第三条子案**（复用 `GET /api/home` 承载）：会把文案面塞进**已冻结的首页键集** ⇒ 耦合更深、回归面更大。**读口须带 `updated_at`**（供增量/失效判据）；前端**不本地持久缓存**；**读取失败 ⇒ fail-closed 回落 locale 基值**（`source='locale'`）。
+3. **四项默认值（我裁，均标「一句话可改」）**：`storageDecimals` = **4**（星级 0–5 保留 4 位；前端无小数展示）；`streakDay7RewardBatt` = **60**（第 1–6 天 30 batt / 第 7 天 60）；**`siteSlogan` 四语初值** = zh「加密人自己的「闲鱼」」/ en「The crypto crowd's own flea market」/ hk「幣圈人的跳蚤市場」/ vn「Chợ đồ cũ của dân crypto」（= 现 `siteTitle` 后半段**逐字**，我已现取）；**`siteTitle` 拆键后** = zh「Seafood 海鲜市场」/ en「Seafood」/ hk「Seafood 海鮮市場」/ vn「Seafood」。
+
+**D. 已派 Jing · 追补落册单**：把 **`R-9-12`（术语更正）+ `R-9-13`（三项裁定 + 四项默认值）** 逐字入册 + **更正块**（覆盖 §26.12/§29.13 里的 en/vn 两列与「待裁」字样；**旧行一字不改**）+ **四语初值定稿 v2 表** + **术语统一待办登记**（含逐键清单）；两册只追加 + 快照 + delta。
+
+**E. 状态**：P9① 冻结 = 已交付且三 steer 全并入（`253 0`/`212 0` · 快照 cmp 0 · 17/30 → **18/31**）；其**三个待裁项已由 `R-9-13` 闭**；8⑤ 修复单仍在跑（`R-9-9`）。
+
+---
+
 ### 5.221 **★ Kevin 定案：`vn` 角色名沿用英文 ⇒ 四语初值全定（撤销「待补」）+ 三次 steer**（2026-10-03）
 
 **A. Kevin 定案（逐字）**：「**沿用英文**」⇒ 四角色名的 **`vn` 文案 = 英文**（`Poster` / `Worker` / `Seller` / `Buyer`），**是正式口径、不是占位** ⇒ **撤销 §5.220 的「vn 待补（英文占位）」标记**。
@@ -4491,6 +4519,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.222 | 2026-10-03 | **★ Kevin 术语更正（`Vendor`/`Customer`）`R-9-12` + 我裁 P9① 三待裁项 `R-9-13` + 派追补落册**。**A. 更正（逐字）**：「在角色定义中，不再使用 Seller 和 Buyer 这两个单词，而是使用 **Vendor 和 Customer**」。**B. `R-9-12`**：店家 = **`Vendor`**、顾客 = **`Customer`**（Poster/Worker 不变）；**`vn` 沿用英文 ⇒ 同改**；⇒ **覆盖 §5.221 的 en/vn 两列**（旧行保留 + 加注）。**四语初值定稿 v2**：悬赏家 悬赏家/Poster/懸賞家/Poster · 工人 工人/Worker/工人/Worker · 店家 店家/**Vendor**/店家/**Vendor** · 顾客 顾客/**Customer**/顧客/**Customer**。★ **连带登记（不擅自扩面）**：既有含 `Seller`/`Buyer` 的英文键（`adminShards.thSeller`/`thBuyer` · `adminListingReview.colOwner` · `listings.priceRoleNote`/`ordersNote`/`refundNote`）**本次不改**（不属角色定义面）⇒ 登记**术语统一待办（另单、不阻塞）**。**C. `R-9-13`（三待裁一并裁）**：**① 载体 = 变体 Ⅰ**（`app_config` 键 `role_names` + `site_text_overrides`）：零迁移 / **不破 `AG2` 单一真源**（唯一写口 = `POST /api/admin/settings` 形态 B）/ 白名单 2→9 / 免费继承 `AV1–AV5`+`ops:`+reason 常量+`DL76`；**Ⅱ（新表）不采纳**（需迁移 + 引入第二套配置载体）；**Ⅲ（`content_translation`/静态 locale）不采纳**（口径不符 / 违实时生效）。**② 读口 = 新增公开读口** `GET /api/role-names`（**无鉴权**，因角色名 = 全站 UI 文案）⇒ **注册点 75 → 76 逐字登记**；**不采纳「复用 `GET /api/home`」子案**（塞进已冻结首页键集 ⇒ 耦合更深）；带 `updated_at`；前端**不本地持久缓存**；读失败 ⇒ **fail-closed 回落 locale**。**③ 四项默认（一句话可改）**：`storageDecimals` = **4**；`streakDay7RewardBatt` = **60**（1–6 天 30 / 第 7 天 60）；**`siteSlogan` 四语初值** = zh「加密人自己的「闲鱼」」/ en「The crypto crowd's own flea market」/ hk「幣圈人的跳蚤市場」/ vn「Chợ đồ cũ của dân crypto」（= 现 `siteTitle` 后半段逐字）；`siteTitle` 拆键后 = zh「Seafood 海鲜市场」/ en「Seafood」/ hk「Seafood 海鮮市場」/ vn「Seafood」。**D.** 已派 Jing 追补落册（`R-9-12`+`R-9-13` + 更正块（旧行不改）+ 初值定稿 v2 表 + 术语统一待办登记）。**E.** P9① 冻结已交付（`253 0`/`212 0` · 快照 cmp 0 · 17/30→**18/31**）；三待裁项已闭；8⑤ 修复单在跑。 |
 | v0.221 | 2026-10-03 | **★ Kevin 定案：`vn` 角色名沿用英文 ⇒ 四语初值全定（撤销「待补」）+ 三次 steer**。**A. 定案（逐字）**：「**沿用英文**」⇒ 四角色名 `vn` = 英文（`Poster`/`Worker`/`Seller`/`Buyer`），**是正式口径非占位** ⇒ **撤销 §5.220「vn 待补（英文占位）」**。**四语初值定稿**：悬赏家 = 悬赏家 / Poster / 懸賞家 / **Poster**；工人 = 工人 / Worker / 工人 / **Worker**；店家 = 店家 / Seller / 店家 / **Seller**；顾客 = 顾客 / Buyer / 顧客 / **Buyer**。**B. 连带（写进 P9① 口径）**：① **`vn` 与 `en` 在同批角色名上逐字相同 = 合法、非缺陷** ⇒ 门/判据**不得**把「vn 含拉丁字母」误判为未翻译（`en/vn 零 CJK` 纪律仍满足）；② **撤销「待补」字样**（spec/实现不得留 `TODO: vn 角色名`）；③ 三语独立性不变（将来单改 `vn` 走覆盖层）；④ 四语键集相等校验保留（四语均有值 ⇒ 不触发 fail-closed）。**C.** 已三次 steer P9①（steer 可能不达 ⇒ 交回后逐项核对 `R-9-8` 四语更正 / `R-9-10` 拆键 / 角色名新键 / vn 定案 / 白名单 / 四语键集相等 / 静态 title 边界 / 测试连带；缺项以追加落册单补齐）。**D.** **P9 内容面已无待决项**（架构 5 问 + 3 答 + 文案 1 项全定）。 |
 | v0.220 | 2026-10-03 | **★ Kevin 更正：角色名也是四语 ⇒ `R-9-8` 范围更正（覆盖层一律「文案键 × 四语」）+ 现取坐实「四角色名当前无键」+ 二次 steer**。**A. 更正（逐字）**：「针对角色名，不止包含简体中文和越南语，还包含其它两种语言文字，也就是说它也是**四种语言的**」⇒ **`R-9-8` 范围更正为四语**（zh/en/hk/vn），与 `R-9-10` slogan 四语一致 ⇒ **覆盖层一律「文案键 × 四语」，无「部分语言」特例**（机制反而更简）。**B. ★ 现取（关键）**：**四角色名在当前 locale 里根本没有键** —— 搜遍四语仅命中零散碎片（`adminShards.thBuyer` 买方/Buyer/買方/Người mua · `thSeller` 卖方/Seller/賣方/Người bán · `jobs.acceptOk`「已选定打工人」· `dashPage.roleReviewer|roleAdmin|roleStaff` 后台角色 · `adminCommon.colRole`）⇒ **四角色名 = 新增键**，**碎片键语义不同不得复用**。**初值策略（一句话可改）**：zh 悬赏家/工人/店家/顾客（需求书给定）· en Poster/Worker/Seller/Buyer（需求书给定）· hk **懸賞家/工人/店家/顧客**（我默认繁體直譯）· **vn 待 Kevin 给**（本次以英文占位，**严禁 CJK 占位/留空**，逐字登记「待补」）。**C. 合并定稿口径**：① 范围 = 四角色名 × 四语（新键）+ 站点标语 × 四语（`siteTitle` 拆键 ⇒ 品牌名留、后半段入 `siteSlogan`、既有 `slogan` 一并纳入）② 入册键**显式白名单**（严禁任意键可改）③ **四语键集必须相等**（缺语 ⇒ **fail-closed 回落 locale 文件** + 机读 reason）④ 实时生效覆盖 `document.title` 与新键 ⑤ 静态 `<title>` = 已知边界（改中性占位 + JS 覆盖）⑥ 测试连带**期望订正、不得删断言**。**D.** 已二次 steer P9①（steer 可能不达 ⇒ 交回后逐项核对，缺项以追加落册单补齐）。**E. 待 Kevin**：四角色名的**越南语文案**（现英文占位）。 |
 | v0.219 | 2026-10-03 | **★ Kevin 追加：站点 slogan 也纳入 i18n 例外（四语分别设定）⇒ 我现取坐实 + 裁定 `R-9-10`（拆键）+ steer P9①**。**A. 追加需求（逐字）**：「不止是角色名，修改【页面的 slogan】也成为 i18n 纪律的例外，即文案【加密人自己的「闲鱼」】可以在后台编辑设定（四种语言分别设定）」。**B. ★ 我的现取（改变落地方式）**：该文案在 **`siteTitle`**（`zh.json:2`）=「**Seafood 海鲜市场｜加密人自己的「闲鱼」**」⇒ ★ **是「品牌名｜标语」复合串**；四语结构一致（en `Seafood｜The crypto crowd's own flea market` / hk `Seafood 海鮮市場｜幣圈人的跳蚤市場` / vn `Seafood｜Chợ đồ cũ của dân crypto`）；**另有一个独立键 `slogan`**（四语齐但为另一句「财富如海…」）；用法 `App.jsx:130 document.title = t('siteTitle')`；★ **`frontend/index.html:8` 是静态硬编码 `<title>`**；★ 测试连带 `theme-shell-isomorphism.test.jsx:261-276` **断言「siteTitle 为硬编码站名」**（`toBe('Seafood 海鲜市场｜…')`）⇒ 一旦可编辑**必红**（须期望订正、不得删断言）。**C. `R-9-10`（扩展 R-9-8 射程）**：① 范围 = 四角色名（zh/vn）+ **站点标语（四语）**；② **★ 拆键**：`siteTitle` 只留品牌名，**新键（建议 `siteSlogan`）承载后半段**（四语初值 = 现 siteTitle 后半段逐字），**另把既有独立键 `slogan` 一并纳入**；③ **入册键显式白名单**（严禁「任意 i18n 键皆可改」）；④ 静态 `<title>` = 已知边界，**我裁准**改中性占位 + JS 立即覆盖（一句话可改）；⑤ 测试连带**期望订正、不得删断言**；⑥ 实时生效须覆盖 `document.title` 与新标语键。**一句可改**：是否连品牌名一起可编辑（不拆键）/ 两个标语键取其一。**D.** 已 steer P9① 冻结单（steer 可能不达 ⇒ 交回后核对，未含则以追加落册单补齐）。**E.** `R-9-1`..`R-9-10` **十条裁定**；两单在跑。 |
