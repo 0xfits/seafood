@@ -1416,6 +1416,43 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.321 **S5 前端（① 交付 · ★② 停线报回，现取发现真缺口）· S4e refund 真链路全绿 · 入库 + 派 S6（后端补口）**（2026-10-03）
+
+**A. S5 ① ✅ 交付（发布表单加「总人数」+ 押金提示）**：
+- `jobs/job-api.js`：`publishJob` body 增 `headcount`，且 `jobPublishFingerprint` **纳入 `headcount`**（人数变 = 新实体）✓
+- `jobs/PublishJobPage.jsx`：`:19` `headcount: '1'`（默认 1）· `:38-48` **押金 = 赏金 × 人数**（与服务端 `:181` 同口径；空值占位 `—`）· `:54` `onSubmit` 代码闸（非 ≥1 整数即拦下、不发请求）· 字段 `type=number min=1 step=1 required` ✓
+- **3 新键四语齐备**（★ 我核盘：四语 `flat` 均 = **1044**；en/vn 零 CJK）：
+  - `jobs.headcount` = 总人数 / Headcount / 總人數 / Headcount
+  - `jobs.headcountInvalid` = 总人数必须是不小于 1 的整数 / … / 總人數必須係不小於 1 嘅整數 / …
+  - `jobs.depositHint` = 押金：{{deposit}} $（酬金 {{reward}} × 人数 {{headcount}}）/ Deposit: … / 押金：… 人數 … / …
+- 计数：`top 119`（不变）· **`flat 1041 → 1044`** · **节点 `4164 → 4176`**（6 个测试文件的计数断言逐条「登记订正」，**非删断言**）✓
+- 自证：vitest 前 `7 failed/399 passed` ⇒ 后 **`7 failed/408 passed`** ⇒ **零新增失败**（失败集逐条不变）✓ · `build` **0**（`index-Hez9Kgrg.js`）✓ · 六类泄漏 **PASS** ✓ · 新增 `s5-publish-headcount.test.jsx` 9 例全绿
+
+**B. ★★ S5 ② 停线报回（未动一行、未自造接口）—— 它现取发现我 brief 的假定与盘面不符，这是本轮最有价值的产出**：
+| # | 现取事实 |
+|---|---|
+| 1 | **`POST /api/job/:jobId/review`（`index.ts:2443-2460`）并非逐笔**：入参 = 仅路径 `:jobId` + body `{approved}`（**无提交号**）⇒ 实现 `settleJob({jobIdRaw, reviewerUid})`（`:2452`，**未传 `submissionIdRaw`**）⇒ **落「遗留单笔」分支** |
+| 2 | **逐笔路由在别处且 admin-only**：`POST /api/tasklist/:jID/verify`（`:1978`，`:jID` = `submission_id`，body `{approved}`），准入 = **`requireAdmin('review_tasks')`**（`:1979`）⇒ **发布者本人用不了** |
+| 3 | **读口缺失**：`GET /api/job/:jobId/submissions` **仅冻结在 spec**（`docs/data-layer.spec.md:281`），`index.ts` **未注册**（grep = 0） |
+⇒ ★ **我核盘确认它说得对**：`data-layer.spec.md:281` 确载「路由 `GET /api/job/:jobId/applications`、`GET /api/job/:jobId/submissions`」（该行来自「拆两条」的修正行）✓
+⇒ **它按「不得自造接口」停下报回 = 正确行为**（若它自造 body 形态/路径，就会把未裁定口径写进代码）。
+
+**C. S4e ✅ `R-9-102` refund 真链路补验完成（22c/288s）—— 探针 35/35 全绿**：
+- **(i) 部分发放后结束**（job 198 · headcount 3 · 已发 1）⇒ 退 **2000 = `reward × (3−1)`**；冻结 `2000→0`、余额 `0→2000`；`status → cancelled`；键 **`biz:job:refund:198`（不含提交号）** ✓ · **幂等重放** `idempotent_replay=true`（service 与 view 双读）**三点快照零位移** ✓
+- **(ii) 未发放就结束**（job 199 · paid=0）⇒ 退**全额 2000** ✓
+- **(iii) 发满后结束**（job 200 · `settled` 终态）⇒ **按规拒** `LEDGER_CURRENCY_INVALID_TRANSITION` + `reason=JOB_STATE_INVALID`（`from:settled,to:cancelled`），零位移 ✓ · ★ 另用**受控夹具**触达「剩余 ≤ 0」分支 ⇒ 实测拒 **`job_nothing_to_refund`**（**现取 `0042` 注释口径，未发明规则**）✓
+- **判负（承重）**：内存变异退款改回**全额退** ⇒ 同场景退 3000 > 冻结 2000 ⇒ 拒 `LEDGER_INSUFFICIENT_FROZEN`（required 3000 / available 2000）⇒ 断言**非空操作** ✓
+- **净写 0**：五表 md5 + 行数与基线全等 · `schema_migration` 40/`0041` · **未 apply `0042`**（sha256 首尾一致）✓ · 未暴露 `0042`/src 真缺陷 ⇒ **未改源码** ✓
+
+**D. ★★ 我裁：新增 S6（后端补两个口）**：
+1. **注册 `GET /api/job/:jobId/submissions`** —— ★ **spec 已冻结该路径**（`data-layer.spec.md:281`）⇒ **按 spec 实现**（读口不应由我另定形态）；准入 = **发布者本人 ∨ 持 `review_tasks`**。
+   ★ 同行还提 `GET /api/job/:jobId/applications` —— **我裁：不实现**（报名环节已取消 ⇒ 该路径无对象；**登记为「随报名一并退役」**，规范回写时由 Jing 处理）。
+2. **`POST /api/job/:jobId/review` 支持逐笔**：body 增提交号并**转发 `submissionIdRaw`**（S4a 已在服务层备好该入参）⇒ 使**发布者本人**能逐笔判定；准入保持「发布者本人 ∨ admin」。★ **先现取 spec 是否已冻结该路由形态**，冲突就停下报回。
+⇒ **S7（前端接线评判列表）依赖 S6 的接口形态 ⇒ 串行**（S6 → S7）。
+**E. 入库（S5 + S4e）**。**F. 状态**：DB **`0041`**（`0042` 未 apply）· 全在本地**未 push**（线上零影响）· 端口空 · **积分 9889 + 电量 30**。
+
+---
+
 ### 5.320 **★ S4a-d 完成并**证伪我的派单前提** —— 真缺陷在 `0042` 自身（`settle_txid` set-once）· 我认账 · 真链路腿 A 7/7 全绿 · 入库 + 派 S5**（2026-10-03）
 
 **A. ★★ 真根因（不是夹具，是 `0042` 缺陷）**：
@@ -6983,6 +7020,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.321 | 2026-10-03 | **S5 前端（① 交付 · ★② 停线报回，现取发现真缺口）· S4e refund 真链路全绿 · 入库 + 派 S6（后端补口）**。**A. S5① ✅**：job-api publishJob body 增 headcount + 指纹纳入；PublishJobPage 新增「总人数」（默认 1、type=number min=1 required）+ 押金提示（= 赏金×人数，与服务端 :181 同口径）+ onSubmit 代码闸；**3 新键四语齐备**（headcount/headcountInvalid/depositHint；四语 flat 均 = **1044**，en/vn 零 CJK）；计数 top 119 不变 · flat 1041→1044 · 节点 4164→4176（6 测试文件计数订正非删断言）；vitest 7 failed/399⇒**7 failed/408 零新增**；build 0（index-Hez9Kgrg.js）；泄漏 PASS；新测试 9 例。**B. ★★S5② 停线报回（未动一行、未自造接口）**：①**`POST /api/job/:jobId/review` 并非逐笔**（入参仅 jobId + {approved}，无提交号 ⇒ settleJob 未传 submissionIdRaw ⇒ 落遗留单笔分支）②**逐笔路由在 `/api/tasklist/:jID/verify` 且 admin-only**（requireAdmin('review_tasks')）⇒ 发布者本人用不了 ③**读口缺失**：`GET /api/job/:jobId/submissions` 仅冻结在 spec（data-layer.spec.md:281）、index.ts 未注册（grep 0）；★我核盘确认它说得对（spec 该行确载）。**C. S4e ✅**（22c/288s）refund 真链路补验（探针 35/35 全绿）：(i) 部分发放后结束 ⇒ 退 2000 = reward×(3−1)、冻结 2000→0、cancelled、键 biz:job:refund:198（不含提交号）、幂等重放零位移 (ii) 未发放 ⇒ 退全额 2000 (iii) 发满 ⇒ 按规拒 JOB_STATE_INVALID(from settled) + 受控夹具触达「剩余≤0」⇒ 拒 job_nothing_to_refund（现取 0042 注释口径未发明）；判负：退款改回全额 ⇒ 拒 LEDGER_INSUFFICIENT_FROZEN(3000/2000) ⇒ 断言承重；净写 0 五表全等、0042 未 apply。**D. 我裁**：新增 S6（①注册 `GET /api/job/:jobId/submissions` 按 spec 冻结路径实现，准入=发布者∨review_tasks；★同行的 `applications` 路径裁**不实现**=随报名一并退役、登记交 Jing ②`/review` 支持逐笔：body 增提交号转发 submissionIdRaw，准入保持发布者∨admin；先现取 spec 是否冻结该形态，冲突停下报回）；**S7 前端接线依赖 S6 ⇒ 串行**。**E.** 入库（S5+S4e）。**F.** DB 0041 · 全在本地未 push · 端口空 · 积分 9889+电量 30。 |
 | v0.320 | 2026-10-03 | **★S4a-d 完成并证伪我的派单前提 —— 真缺陷在 0042 自身（settle_txid set-once）· 我认账 · 真链路腿 A 7/7 全绿 · 入库 + 派 S5**。**A. 真根因**：`0013` 触发器 `job_ledger_ref_guard` 规定 `settle_txid` set-once，而 0042 逐笔结算每次都重写它 ⇒ 第二份撞闸 `LD011 job_ledger_ref_immutable` (old 1664/new 1670) ⇒ 事务 abort ⇒ 后续全 `25P02`（★后者噪声掩盖真错 = 前两轮假红机制）；修复 = 三处 UPDATE 改 `COALESCE(j.settle_txid, v_txid::bigint)`（:451/:457/:466，3 ins/3 del）；佐证 settle_txid 首份=1761/第二份仍=1761。**B. ★★我认账（第 16 次）**：我上轮把根因裁成「它探针夹具的 bug、不是 0042 缺陷」并写进 brief ⇒ **判错**；★机制教训：**看到 25P02 必须先找「真首错」（第一条非 25P02 的错误），不得把它当根因去修夹具**；且派单方对根因的猜测只能作为待排除假设、**结论不得跑到取证之前**。**C.** 它主动披露越界（改 0042 三行，超出 allow-list）⇒ ★**我裁认可**（0042 未 apply、属本单交付物自纠）+ 纪律澄清：未 apply 的新迁移属交付物时为自纠而改=允许，但须披露+登记+给回退路径。**D. 真链路（s4a-chain-final1.json，job 168）连跑 3 次 26/26 全绿**：腿 A 7/7（押金 2000=1000×2 · 两份发放键 …:168:140/:141 · 上级 100→200 · 发满⇒settled paid=2 · 同提交号重放 replay=true 零位移 · 余额不足 LD001 required 1,800,000 · 分佣守恒 pool_in=100=credits · 净写 0）+ 判负①第二份必判重放②托管单份⇒LEDGER_INSUFFICIENT_FROZEN ③发满后第三份⇒JOB_STATE_INVALID ④重放 invite 零新增行且直调钩子落 3 行 ⇒ 承重；探针口径修复 3 处（sp() 事务可用性探测等）；tsc 0；净写 0 五表全等；未验：R-9-102 refund 真链路 · 路由/HTTP/前端端到端 · 并发。**E.** 我核盘：COALESCE 三处 ✓ · 0042 3/3 + 报告 75/30 ✓ · ★**apply 安全性确认**（0042:80「headcount 缺省=1」⇒ 旧后端不传时托管仍 = reward×1）✓ · 探针清理 ✓ · 真库仍 0041 ✓。**F. 我裁**：0042 的 apply 与代码 push 同批（先 apply → 立即 push → 生产终验）；红线不变（资金面真链路全绿前不 push，现全绿但 S5 未完成）。**G.** 入库 + 派 S5（前端 UI：发布表单加人数 + 悬赏家评判列表）+ S4e（refund 真链路）。**H.** DB 0041 · 全在本地未 push · 端口空 · 积分 9889+电量 30。 |
 | v0.319 | 2026-10-03 | **S3-c/S3b-c 完成 + S4a-c 拿到核心判负（又截断）· 我核盘 + 分 2 commit 入库 + 派 S4a-d**。**A. S3-c ✅**：K9 `===4`⇒`===5` + 文案；复跑 **87/85 failed=2 ⇒ 87/86 failed=1**（仅 K10 HTTP 腿，无实例如实标未测）；报告 9,627 B；★**轴错位实证**：getTaskProgress(1)⇒job_id=3 而申请号 1⇒job_id=2（同数字两轴不同落点）。**B. S3b-c ✅**：修 d1 ③④（改经 jobs-submit-form + routedFetch 先判 /submit）⇒ ★**「7→7」零新增**（改前 9 failed ⇒ 改后 7 failed）；build 0（index-Bsq4htRD.js 413.84 kB）；泄漏总判 PASS（locale 0/4164 节点 · 源面 0/73 文件 · 类级 0 · 键集 {1041} · en·vn 残留中文 0）；报告 14,356 B；**交裁登记 6 键未改值**（myApps/myAppsEmpty/participants/joinNow/continueTask/submitNote）；范围外未动（JobReviewPage/DashboardPage）。**C. S4a-c ⚠️**：✅**判负①（核心裁定）PASS**（键改回不含提交号 ⇒ 第二份必判重放、第二人零进账）· ✅**判负④ PASS**（重放 ⇒ invite_first_task_reward 零新增行；直调钩子仍落 2 行 ⇒ 承重改动）· ✅**净写 0 全绿 5/5**（五表 md5+行数全等、0042 未 apply、open→settled 复原为非法、ledger_post_event md5 不变、变异只在内存）· ✅缺陷修复落地（`:311` 新增 replay 形参 · `:314` `if (payload.op !== 'settle' || replay) return;` · 两调用点传 idempotent_replay）；❌**腿 A 真链路 7 项 / 余额不足 / 分佣守恒 / 腿 C 后半 / 腿 D 未取得**，★根因=**它自己探针夹具 bug**（seedUsers 拼址 SQL `42601` ⇒ 事务中止 ⇒ 后续 25P02），**非 0042 缺陷**；未做 tsc 全量 + 报告回填（骨架 2,260 B）+ 调试脚本清理。**D.** 我核盘：K9=5 ✓ · 三报告在场 ✓ · 修复逐字落地 ✓ · 我亲跑 d1 = 4 passed ✓ · tsc 0 ✓。**E. 我裁**：分 2 commit 入库（S3+S3b / S4a）；★**push 必须等 S4a-d 真链路通过**（账本语义改动不得未验上线）。**F.** 派 S4a-d（修夹具 + 腿 A/C/D + tsc + 报告回填 + 清理）。**G.** DB 0041（0042 未 apply）· 端口空 · 积分 9889+电量 30 · 本批全在本地未 push。 |
 | v0.318 | 2026-10-03 | **★S3/S3b/S4a 三单全部撞上限截断 · 我收尾 + 现取分面 + 裁两处 · 派 3 个收尾补单**。**A.** 止损：5796 残留 PID 13364/12503 已随子代理终止 ⇒ `lsof 5793-5799` **空** ✓。**B.** 工作区 16 文件**三单面完全分离零交叉**：S3=index.ts 60/45 + p8-s11 门 3/3；S3b=App/ActiveTaskModal/ClaimRewardModal/ProfilePage/RewardPage/TaskPage/JobDetailPage/job-api + 3 测试；S4a=commission 17/4 + database 79/82 + job-funds-service 93/32；新件 `0042_job_settle_per_submission.sql` 31651 B。**C.** S3 ✅主体完成（apply/accept ⇒ 410 + APPLY_RETIRED/ACCEPT_RETIRED 形状照抄 CLAIM_RETIRED · index.ts:1995 改传 req.params.jID · 真 HTTP 410/410/200 · **轴错位实证** getTaskProgress(1) 读到 job 3 而本意 job 2 · p8-s11 87/85⇒87/86）❌K9 未前推 + 报告未落；S3b ⚠️源码面完成（提交改传 task.tID · open 直出提交表单 · 删 apply 链 · locale 零增删改 · ProfilePage 按 tID 归并）❌全量 vitest 9 failed vs 基线 7 ⇒ **新增 2**（d1-error-machineface ③④ 仍点已删的 jobs-apply）+ build/报告/泄漏未跑；S4a ⚠️代码面完成（0042 迁移：publish 托管=reward×headcount、settle 键加 submission_id、发满⇒settled、refund=reward×(headcount−已发)；三个待审面换提交轴；commission jobSettleKey）+ tsc 0 + R-9-24 14/14 ✅ ❌**真链路+判负≥3 未跑**。**D. 我裁**：①★**`invite_first_task_reward` 在幂等重放路径多发 10 分**（txid 1460 −10@uid−1 / 1461 +10@uid12，全库该 kind 仅此 2 行）= **缺陷：重放未跳过 best-effort 钩子** ⇒ 修钩子、历史不改 ⇒ 并入 S4a-c；②`open→settled` 放宽必要且由 0042 正规化 ⇒ `p3j-02-cases.ts` C5a/C5b 期望值失效 ⇒ 裁前推（第 7 片统一）；③verify 成功面兼容别名 ⇒ 保留 `submissionId` 为准、`applicationId` 标 @deprecated、不得长期双写。**E.** 派 S3-c ∥ S3b-c ∥ S4a-c。**F.** DB 0041（0042 未 apply）· HEAD 337a5fb · 积分 9889+电量 30 · 端口空。 |

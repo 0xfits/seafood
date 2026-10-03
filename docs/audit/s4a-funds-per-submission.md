@@ -5,6 +5,7 @@
 > 探针：`backend-ts/.p9s10-s4a/s4a-chain.ts` · 纯净读数：`.p9s10-s4a/s4a-chain-final1.json` / `s4a-chain-final2.json`
 > 硬口径：一切写入只在事务内 + `ROLLBACK`；连库只从主仓 `.env.local`；**不 apply 0042**；不 commit/push；连跑 2 次均 **26/26 全绿**。
 > ★ **本单结论修正**：S4a-d 前置判断（「根因 = 探针 `seedUsers` 的 SQL 拼址 bug，非 0042 缺陷」）**不成立**。真根因是 **0042 自身的缺陷**（见 §3.1）；`seedUsers` / `referral` 夹具在盘上本已正确（参数化 + sha1 派生址），唯二的 `42601`/自绑记录来自**上一轮一次性调试脚本**，非主探针。
+> ★ **S4e 补验（本单）**：`R-9-102` refund 真链路**三态**（部分发放 / 未发放 / 发满）+ refund 幂等重放 + 判负（全额退）**已补验**，详见 §6。探针新增腿 F/G（**未改已绿的 A/C/D/MUT 断言**）；连跑 **35/35 全绿**（原 26 项 + 新增 9 项），净写 0 自证保持。原「未验」节保留为历史（§4 已标注补验去向）。
 
 ## 0 · 结论摘要（已验 / 未验区分）
 
@@ -22,7 +23,8 @@
 | D | 判负③：发满后第三份必拒 | `JOB_STATE_INVALID` | 两份后 `settled`/`paid=2`；第三份拒 **`LEDGER_CURRENCY_INVALID_TRANSITION` + `reason=JOB_STATE_INVALID`**（`from=settled to=settled`）、第三人 0/`paid3=2` | **PASS** | 已验 |
 | E | 判负④（缺陷修复）：重放 ⇒ 首任务奖励零新增行 | 0 新行（钩子仍在其路径上可控） | 直落 settle 后 invite=0；**一次 settle 重放 ⇒ invite 零新增行（0→0）**；直调同一钩子仍落 **3 行**（平台 −20 + 本人 +10 + 上级 +10） | **PASS** | 已验 |
 | — | `npx tsc --noEmit` 全量 | 0 error | exit 0，零输出 | **PASS** | 已验（**注意覆盖面**见 §4） |
-| R-9-102 | refund = `reward × (headcount − 已发放份数)` 真跑 | 剩余份额退回 | **未跑**（主探针无 refund 真链路腿） | **未验** | **未验** |
+| R-9-102 | refund = `reward × (headcount − 已发放份数)` 真跑 | 剩余份额退回 | **(i) 部分发放（3 发 1）⇒ 退 2000=`reward×(3−1)`、`job=cancelled`、键 `biz:job:refund:198`；(ii) 未发放 ⇒ 退全额 2000；(iii) 发满 ⇒ 按规拒（自然路径 `JOB_STATE_INVALID` / 受控口径 `job_nothing_to_refund`）；同键重放 ⇒ `idempotent_replay=true` 零位移** | **PASS** | 已验（S4e 补验 · §6） |
+| R-9-102 | 判负：refund 改回「全额退」⇒ 必红 | 承重 | 内存变异全额退 ⇒ 读数 ≠2000（拒 `LEDGER_INSUFFICIENT_FROZEN`） | **PASS** | 已验（S4e · §6.5） |
 | — | 路由层 / HTTP / 前端消费面 | 端到端 | **未跑**（0042 未 apply；本单全部读数 = 事务内干跑 + `ROLLBACK`） | **未验** | **未验** |
 
 ---
@@ -72,7 +74,7 @@
 
 | 未测项 | 原因 |
 |---|---|
-| **`R-9-102` 退款腿真链路**（`refund = reward × (headcount − 已发放份数)`） | 主探针未含 refund 真跑场景；本单优先保腿 A（7 项）。**未验**。 |
+| **`R-9-102` 退款腿真链路**（`refund = reward × (headcount − 已发放份数)`） | ~~主探针未含 refund 真跑场景；本单优先保腿 A（7 项）。**未验**。~~ ⇒ **S4e 已补验（→ §6）**：三态（部分/未发放/发满）+ 重放 + 判负全绿。 |
 | **路由层 / HTTP / 前端消费面** | 硬口径「**不 apply 0042**」⇒ 一切读数只能是**事务内干跑 + ROLLBACK**；真实 apply 后的端到端面留待 apply 后收口单。**未验**。 |
 | **`tsc --noEmit` 对 0042 / 探针的覆盖** | `tsconfig.json` 的 `include = ["src/**/*"]` ⇒ 该读数的覆盖面**仅 `src/`**；`.p9s10-s4a/` 探针与 `.sql` 迁移**不在** tsc 范围内（探针为 `--transpile-only`）。故「tsc=0」证明的是 **`src/` 零类型错误**，不构成对 0042/探针的类型证据。 |
 | **并发面 / 锁竞争 / 性能** | 本单未触及。 |
@@ -85,3 +87,50 @@
 - **写集**：`git status` 仅 `M backend-ts/migrations/0042_job_settle_per_submission.sql`（3 行）；探针与读数落在未跟踪的 `.p9s10-s4a/`。**未碰** `index.ts` / `job-service.ts` / `frontend/**` / `scripts/*.ts` / `docs/*.spec.md` / `0001–0041` 字节 / `ledger_post_event` 函数体 / `scripts/p3j-02-cases.ts`。
 - **可重跑**：连跑两次（`final1` / `final2`）均 **26/26 全绿**。
 - **探针目录内容**（清理后）：`s4a-chain.ts`（主探针）· `r9-24-0042-realrun.ts`（前序证据探针）· 读数 `.json` **8 份**（`r9-24-0042-*` 1 + 旧红态 3 + `afterfix` 1 + `final1`/`final2`/`verify` 3）。已删调试脚本：`inspect.ts`/`inspect2.ts`/`inspect3.ts`/`dbg-legA.ts` 及本单一次性的 `diag-legA.ts`/`diag-exact.ts`/`diag-legcd.ts`。
+
+---
+
+## 6 · S4e 补验 · `R-9-102` refund 真链路（腿 F/G · 事务内 + ROLLBACK）
+
+> 探针：`backend-ts/.p9s10-s4a/s4a-chain.ts`（**新增腿 F/G；未改动已绿的腿 A/C/D 及 MUT 断言**）
+> 纯净读数：`.p9s10-s4a/s4a-chain-20261003T145306Zl39k.json`（**35/35 全绿** = 原 26 项 + 新增 9 项）
+> 口径**现取**：`0042` 注释 §`R-9-102` —— 金额 = `reward × (headcount − 已发放份数)`；`v_remaining ≤ 0` ⇒ 拒 `job_nothing_to_refund`（**不自行发明**）。
+> 夹具复用腿 A（同 5 uid / referral / faucet 真账本注资）；每子场景注资 ≤3000，互不超支。
+
+### 6.1 (i) 部分发放后结束 ⇒ 退剩余份额（job=198）
+
+夹具：雇主注资 3000 → 发布 `reward=1000 / headcount=3`（托管 3000：余额 `3000→0`、冻结 `0→3000`）→ 发 1 份（冻结 `3000→2000`、w1 `+900`、`paid=1`、`job.status=open`）。
+
+| 读数 | 值 | 期望 | 判 |
+|---|---|---|---|
+| refund 金额（余额增量） | **2000** | `reward×(headcount−paid)=1000×(3−1)` | **PASS** |
+| 冻结减少 | **2000**（2000→0） | 同上 | **PASS** |
+| refund 后 `job.status` | **cancelled** | cancelled | **PASS** |
+| refund 幂等键 | **`biz:job:refund:198`** | 不含提交号（一次性整体动作） | **PASS** |
+| refund 事件 kinds | `["job_escrow_refund","job_escrow_refund"]` | 白名单内（无越界） | **PASS** |
+
+### 6.2 (i-b) refund 幂等重放（同键再调）
+
+`idempotent_replay`（service `replay` 与 `view.idempotent_replay` **双读**）**均 true**；重放前后 `{雇主余额/冻结, w1, job}` 三点快照**逐字相等**（`rp_zero_move=true`）；键与 txid 与原调**相同** ⇒ **PASS**。
+
+### 6.3 (ii) 未发放就结束 ⇒ 退全额（job=199）
+
+发布 `headcount=2`（托管 2000）；`paid=0` 直接 refund ⇒ 退 **2000（全额 = `reward×headcount`）**、`job.status → cancelled`、键 `biz:job:refund:199` ⇒ **PASS**。
+
+### 6.4 (iii) 发满后结束 ⇒ 按规拒（job=200 / 201）
+
+- **(iii-a) 自然路径**：`headcount=2` 发满 ⇒ `job.status=settled`（终态）⇒ refund 拒 **`LEDGER_CURRENCY_INVALID_TRANSITION` + `reason=JOB_STATE_INVALID`**（`detail={from:"settled",to:"cancelled",field:"job.status"}`）；余额/冻结**零位移**、`job.status` 仍 `settled` ⇒ **按规拒** ✅
+- **(iii-b) 现取 0042 注释口径分支**：受控夹具（`headcount=1`，事务内**直接**将该唯一提交置 `approved` ⇒ `status=open` 且 `paid≥headcount`、剩余 = 0）⇒ refund 拒 **`reason=job_nothing_to_refund`**（`detail={headcount:"1",paid:"1"}`），`job.status` 仍 `open` ⇒ 0042 注释明列的「剩余≤0」分支**确在场且按规拒** ✅
+  - 说明：自然流下「发满」会先令 `job` 收口 `settled`（终态）⇒ **状态闸先于**「剩余≤0」检查触发，故 (iii) 的**首发现**错误为 `JOB_STATE_INVALID`；(iii-b) 以受控夹具绕过编排函数**单独触达** 0042 注释口径分支（不新增任何规则、任何写入被 `ROLLBACK`）。
+
+### 6.5 判负（腿 G）· refund 改回「全额退」⇒ 必红
+
+内存变异：`v_remaining := (v_job.headcount - v_paid) * v_job.reward` → `v_remaining := v_job.headcount * v_job.reward`（标记 `[MUT:refund]`，**只在内存、零落盘**）。同场景（`headcount=3` 发 1 份后结束）：变异退 3000 > 冻结 2000 ⇒ 拒 **`LEDGER_INSUFFICIENT_FROZEN`**（`required=3000 available=2000`），读数 **≠** 腿 F(i) 的 **2000** ⇒ **腿 F(i) 断言承重**（非空操作）✅。
+
+### 6.6 净写 0 自证（S4e 保持）
+
+回滚后 5 张被触及表（`account`/`ledger_entry`/`job`/`job_submission`/`referral`）**逐表内容 md5 + 行数与基线全等**（例：`ledger_entry` 364→364 / md5 `d2302e29…`；`job` 21→21；`job_submission` 14→14）；`schema_migration` 40 行 / `max=0041`（**0042 未 apply**）；`open→settled` 回滚后复原 `false`；三函数定义复原、`ledger_post_event` 源 md5 首尾一致。`0042` sha256 首尾一致（`3334c829…`、31812 bytes）· `job-funds-service.ts` sha256 首尾一致（`ab3586c0…`）⇒ 变异零落盘。
+
+### 6.7 写集（S4e）
+
+仅新增/修改：`backend-ts/.p9s10-s4a/s4a-chain.ts`（探针，未跟踪目录）+ 本报告 + 新读数 `.p9s10-s4a/s4a-chain-20261003T145306Zl39k.json`。**未碰** `0042_*.sql`（`git status` 空）· `src/*.ts`（空）· `index.ts` · `job-service.ts` · `scripts/*.ts` · `0001–0041` 字节 · `ledger_post_event`。`frontend/**` 的改动属 **S5 并行面**，非本单。未 commit/push；未起服务、未占端口；连库只从主仓 `.env.local`。

@@ -51,10 +51,12 @@ export const fetchUserAsset = (uID, user) => getJson(`/api/user/asset/${uID}`, u
 // ---- 写面 -------------------------------------------------------------------
 /**
  * J1 发布招工 + 托管。`reward` = **A 类供给侧自主出价**（§4.8.1：客户端可传、原样透传、路由层零计算）。
+ * `headcount` = **总人数**（R-9-97：≥1 整数；缺省交服务层 `'1'`，`job-funds-service.ts:183`）
+ *   ⇒ 托管总额 = `reward × headcount`（金额**由 DB 侧派生**，前端只展示提示、不做托管计算）。
  * `createKey` = 前端提供的 `cli:` 键（见文件头 ①）。
  */
-export const publishJob = ({ cid, reward, title, description, createKey, user }) =>
-  postJson('/api/job', { cid, reward, title, description, create_key: createKey }, user)
+export const publishJob = ({ cid, reward, title, description, headcount, createKey, user }) =>
+  postJson('/api/job', { cid, reward, title, description, headcount, create_key: createKey }, user)
 
 /**
  * J4 提交交付物（既有已注册面）。★ S3b：`identifier` = 目标 **`job_id`**（S2 起语义换轴；**不再是**申请编号）。
@@ -77,6 +79,7 @@ export const reviewSubmission = (jobId, approved, user) =>
  */
 export const createJobPublishTracker = () => createIdempotencyKeyTracker('cli')
 
-/** 表单内容指纹（决定「是否同一次操作」）：不含随机量，保证重试同指纹。 */
-export const jobPublishFingerprint = ({ cid, reward, title, description }) =>
-  [cid, reward, title, description].map((v) => String(v ?? '').trim()).join('\u0001')
+/** 表单内容指纹（决定「是否同一次操作」）：不含随机量，保证重试同指纹。
+ *  ★ S5①：`headcount` 入指纹 —— 人数变了即「新实体」（服务端托管额随之变，改后就地重试不得复用旧键）。 */
+export const jobPublishFingerprint = ({ cid, reward, title, description, headcount }) =>
+  [cid, reward, title, description, headcount].map((v) => String(v ?? '').trim()).join('\u0001')

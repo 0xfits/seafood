@@ -11,7 +11,7 @@
  *   ② `uiCommon.dashJPoints` 四语值 ⇒ 积分 / 積分 / Points / Điểm（★ **键名 `dashJPoints` 不改**）
  *   ③ `pages/theme-preview-demo.js` 的 `SEARCH_DEMO`：「兑换 dashJ」⇒「兑换 积分」
  *   ④ 双口径扫面：locale 值面 + 产品源面（components/** + pages/** + shell/**）`dashJ` **用户可见类 = 0**
- *   ⑤ 零新增/零删键 ⇒ 计数不变（top 119 / flat 1041 / 四语节点 4164）
+ *   ⑤ 计数（S5① 后：top 119 / flat 1044 / 四语节点 4176）
  *
  * ★ 残留登记（本单**禁改面**内，勿动）：`pages/ThemePreviewPage.jsx:175` 的 `DASHJ / $`
  *   （全大写、与 `SEAFOOD / $` 成对的行情 ticker 演示值）。敏感口径（`dashJ` 小写单位名）不命中；
@@ -116,15 +116,17 @@ describe('④ 双口径扫面：用户可见 `dashJ` 文案 = 0', () => {
   })
 })
 
-describe('⑤ 零新增/零删键 ⇒ 计数不变（top 119 / flat 1041 / 四语节点 4164）', () => {
+describe('⑤ 计数（S5① 后：top 119 / flat 1044 / 四语节点 4176）', () => {
   it('四语 top / flat / 合计', () => {
     let nodes = 0
     for (const l of LANGS) {
       expect(Object.keys(TABLES[l]).length, `${l} top`).toBe(119)
       const f = flat(TABLES[l]).length
-      expect(f, `${l} flat`).toBe(1041)
+      // **期望订正（S5① 发布面总人数）**：新增 `jobs.headcount` + `jobs.headcountInvalid` + `jobs.depositHint` 3 键（jobs 既有顶层）⇒ 顶层 119 不变 / 拍平 1041⇒1044
+      expect(f, `${l} flat`).toBe(1044)
       nodes += f
     }
-    expect(nodes, '四语节点合计').toBe(4164)
+    // **期望订正（S5①）**：1044 × 4 = 4176（原 1041 × 4 = 4164）
+    expect(nodes, '四语节点合计').toBe(4176)
   })
 })

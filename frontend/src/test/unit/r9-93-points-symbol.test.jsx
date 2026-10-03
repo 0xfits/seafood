@@ -8,7 +8,7 @@
  *   ② 产品面零引用：`components/**` + `pages/**` + `shell/**` 内除 `DashJ.jsx` 与 `ui/index.js` 外无 `DashJ`。
  *   ③ 渲染面：TaskCard / RewardCard / HomePage / Header 渲染含 `$`，且**不再含**旧 DashJ 符号
  *      （旧符号 title = `uiCommon.dashJPoints`）。
- *   ④ 文案键 `common.communityPoints` 四语值齐改；键计数（件一值-only 不变 / 件二 +2 jobs 键 ⇒ flat 1041）。
+ *   ④ 文案键 `common.communityPoints` 四语值齐改；键计数（件一值-only 不变 / 件二 +2 jobs 键 ⇒ flat 1041；S5① +3 jobs 键 ⇒ 1044）。
  *
  * 口径：i18n 走真四语表（zh）逐字断言；`auth` / `auth-context` / `admin-utils` / `job-api` 按既有单测口径 mock。
  */
@@ -182,13 +182,14 @@ describe('④ 文案键 `common.communityPoints` 四语新值 + 键计数', () =
     expect(CJK.test(vn.common.communityPoints)).toBe(false)
   })
 
-  it('键计数 = top 119 / flat 1041（件一值-only 不变；件二 +2 jobs 键 ⇒ 1039⇒1041）', () => {
+  it('键计数 = top 119 / flat 1044（件一值-only 不变；件二 +2 jobs 键 ⇒ 1039⇒1041；S5① +3 jobs 键 ⇒ 1041⇒1044）', () => {
     const flat = (o, p = '') => Object.entries(o).flatMap(([k, v]) => (
       v && typeof v === 'object' && !Array.isArray(v) ? flat(v, `${p}${k}.`) : [`${p}${k}`]
     ))
     for (const lang of LANGS) {
       expect(Object.keys(TABLES[lang]).length, `${lang} top`).toBe(119)
-      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1041)
+      // **期望订正（S5① 发布面总人数）**：+3 jobs 键（headcount/headcountInvalid/depositHint）⇒ 拍平 1041⇒1044
+      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1044)
     }
   })
 

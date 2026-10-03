@@ -16,7 +16,7 @@ const PublishJobPage = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const { isAuthenticated, user } = useAuth()
-  const [form, setForm] = useState({ cid: '1', reward: '', title: '', description: '' })
+  const [form, setForm] = useState({ cid: '1', reward: '', headcount: '1', title: '', description: '' })
   const [state, setState] = useState({ phase: 'idle', message: '' })
   const tracker = useMemo(() => createJobPublishTracker(), [])
   // 四项确认 ①：审核面 = 管理员面。权限**唯一真源** = 后端 `requireAdmin(review_tasks)`（非 admin ⇒ 403），
@@ -35,9 +35,27 @@ const PublishJobPage = () => {
 
   const setField = (key) => (event) => setForm((prev) => ({ ...prev, [key]: event.target.value }))
 
+  // S5①：押金提示 = 赏金 × 人数（与服务端托管额同口径：`job-funds-service.ts:181` = `reward × headcount`）。
+  //   两入参任一非「数值 / 整数」⇒ 显示占位 `—`（不臆造数值；提交前另有代码闸拦非法人数）。
+  const deposit = useMemo(() => {
+    // 空串不得当 0（`Number('') === 0`）—— 未填即未知 ⇒ 占位 `—`
+    if (String(form.reward).trim() === '' || String(form.headcount).trim() === '') return '—'
+    const rewardNum = Number(form.reward)
+    const headcountNum = Number(form.headcount)
+    if (!Number.isFinite(rewardNum) || rewardNum < 0) return '—'
+    if (!Number.isInteger(headcountNum) || headcountNum < 1) return '—'
+    return String(rewardNum * headcountNum)
+  }, [form.reward, form.headcount])
+
   const onSubmit = async (event) => {
     event.preventDefault()
     if (state.phase === 'loading') return
+    // S5①：总人数 = 必填、≥1 整数（HTML `min`/`step` 只是浏览器闸，这里再给一道可测的代码闸）
+    const headcountNum = Number(form.headcount)
+    if (!Number.isInteger(headcountNum) || headcountNum < 1) {
+      setState({ phase: 'error', message: t('jobs.headcountInvalid') })
+      return
+    }
     const fingerprint = jobPublishFingerprint(form)
     // 同一次用户操作（指纹不变）⇒ 同一个键；成功后 reset() ⇒ 下一次点击 = 新实体
     const createKey = tracker.keyFor(fingerprint)
@@ -46,6 +64,7 @@ const PublishJobPage = () => {
       const data = await publishJob({
         cid: Number(form.cid),
         reward: String(form.reward).trim(),
+        headcount: String(form.headcount).trim(),
         title: form.title.trim(),
         description: form.description.trim(),
         createKey,
@@ -96,6 +115,10 @@ const PublishJobPage = () => {
                 <input className="sf-jobs-input" data-sf-m="jobs-input-reward" value={form.reward} onChange={setField('reward')} inputMode="numeric" required />
               </label>
               <label className="sf-jobs-field">
+                <span className="sf-jobs-label">{t('jobs.headcount')}</span>
+                <input className="sf-jobs-input" data-sf-m="jobs-input-headcount" value={form.headcount} onChange={setField('headcount')} type="number" inputMode="numeric" min="1" step="1" required />
+              </label>
+              <label className="sf-jobs-field">
                 <span className="sf-jobs-label">{t('jobs.cid')}</span>
                 <input className="sf-jobs-input" data-sf-m="jobs-input-cid" value={form.cid} onChange={setField('cid')} inputMode="numeric" required />
               </label>
@@ -103,6 +126,10 @@ const PublishJobPage = () => {
                 <span className="sf-jobs-label">{t('jobs.description')}</span>
                 <textarea className="sf-jobs-textarea" data-sf-m="jobs-input-note" value={form.description} onChange={setField('description')} rows={3} />
               </label>
+              {/* S5①：押金提示 = 赏金 × 人数（就地展示在金额/人数之后；沿用既有 meta 文案样式，不重设视觉） */}
+              <p className="sf-jobs-meta sf-jobs-field-wide" data-sf-m="jobs-deposit-hint">
+                {t('jobs.depositHint', { deposit, reward: form.reward || '—', headcount: form.headcount || '—' })}
+              </p>
             </div>
             <div className="sf-jobs-row">
               <button className="sf-btn sf-jobs-btn" type="submit" data-sf-m="jobs-primary" disabled={state.phase === 'loading'}>
