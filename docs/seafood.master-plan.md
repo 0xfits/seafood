@@ -1416,6 +1416,36 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.263 **P9④ 收官：质检 PASS（判负 4/4 含 `M2` 假绿纠正证据）· 入库 `987a06f` + push · 生产终验（`mint`/`burn` 401 · `schema_version` 0034 · bundle 逐字对拍）**（2026-10-03）
+
+**A. 质检收尾单（Neng · 56 calls / 716s）= 完成 · verdict PASS**：
+- **① 回滚后表级零残渣重跑 ✅**：`zero_residue = true`；`currency` 回 **15** · `symbol='BTTC'` 行 **0** · `ledger_entry`/`batt_account`/`batt_entry`（及 `account`/`status_log`/`review_log`）**`before == after`**（359/2/2 逐表一致）
+- **② L4 判负 4/4（仓外副本 `eb29831` worktree + 软链 deps/env；逐字原文）**：
+  | 变异 | 触红 | 复原 |
+  |---|---|---|
+  | M1 去 `total_supply` 双写 | **`F1`**（98/99） | 99/99 · `cmp` SAME |
+  | **M2 ★ 去 `ledger_post_event` 真白名单 `burn`** | **旧形态 ⇒ 假绿 99/99** ⇄ **加严后 ⇒ `E1`** `{"old6_selfcheck":true,"new7_selfcheck":true,"real_whitelist":false}`（98/99） | 99/99 · `cmp` SAME |
+  | M3 去豁免谓词 | **`D4`（静态）+ `KE3`（活体）**（97/99） | 99/99 · `cmp` SAME |
+  | M4 `F-α` 回归 | **`KC1b`** `{"first_call":null}`（98/99） | 99/99 · `cmp` SAME |
+  - **★ `M2` = 「假绿已被纠正」的关键证据**：真白名单去掉 `burn` 后，**仅锚自检串的旧形态仍报 99/99**；加严后（新增单引号真白名单 `V_REAL` 锚）**必红** ✓
+  - **另附 M1 活体佐证**（`.p9s4q/m1-live-supply.ts`，事务内 `CREATE OR REPLACE` + `ROLLBACK`）：控制链 `eq_plus: true`；去双写后 DB `supply_after_burn = 1` 而 `Σmint + Σburn = 0` ⇒ **断言破裂**，回滚后 BTTC 行 0 ✓
+- **③ L5 前端 ✅**：`bttcPanel` **12 键 ×4 相等** · **六类泄漏逐类 0** · `en`/`vn` 零 CJK · `p6-tr2` `rc=0`（四语 `top 118`/`flat 1000`）· `p4z-i18nviol-global` `rc=0`（节点 **4000** / 裸命中 **0** / 总判 PASS）· `i18n-violation-closeout` **5/5**
+- **④ 报告 ✅**：`docs/qa/p9-s4-bttc-qa.md` = **168 行 / 16,967 B / `__` = 0 / 占位 0**，含 §L0–§L6 + **§R-9-47** + verdict PASS + **未测项 6 条**；worktree 回收 · 端口空 · 无残留进程
+- **两点登记（非缺陷）**：`F1`/`D4` 的 `actual` **展示项**用较弱子串正则 ⇒ 变异后展示仍读 `true` 而 `pass=false`（**判据正确转红，仅展示诊断偏弱**）· `scripts/p8-s5-00-recon*.ts` 系**既有**遗留未跟踪件（非本单写入）
+
+**B. 入库 + 推送**：入库 QA 报告 **`987a06f`** ⇒ **`git push origin main` 成功**（`origin/main = 987a06f`）；本次连带推 **6 个提交**（`c004ce2` 已于前次单独推、`eb29831` P9④ 代码 + 4 份文档/报告）。
+
+**C. 生产终验（第 4 轮轮询命中）**：
+- **★ BTTC 两动作口**：`POST /api/bttc/mint` ⇒ **401**（**改前 404**）· `POST /api/bttc/burn` ⇒ **401** ✓
+- `/api/health` ⇒ 200 · **`schema_version: "0034"`** ✓
+- **既有面零回归抽样**：`/api/rating/summary` **401** · `/api/timeliness` **401** · `/api/checkin` **401** · `/api/role-names` **200**（公开读口，符合既定口径）· `/api/user/ledger` **401** ✓
+- **favicon 回归**：`/brand/favicon.svg` ⇒ **200 · `image/svg+xml` · 7808** ✓
+- **★ bundle 逐字对拍**：线上 `/assets/index-CLouUL9E.js` sha256 **`a11f3e0d75c180b21f23e373…`** = **本地 `frontend/dist/assets/index-CLouUL9E.js` 逐字相同**；内容计数 `bttcPanel` **10** · `api/bttc/mint` **1** · `api/bttc/burn` **1** · `mintButton` **5** · `burnButton` **5** · `BTTC` **16** ✓
+
+**D. 里程碑**：**批 8 五片 + P9① + P9② + P9③ + P9④ 全部上线**（生产 `schema_version` **0034** · 基础表 **34** · 迁移 **33/33** · `LEDGER_KINDS` **23** · 注册点 **87**）+ **站点 favicon 上线**。余下：**P9⑤ 邀请奖励改版**（含 `commission_policy` 6 层 `weights_bp` 改制 · `R-9-1`）· **8⑥ 审计台**（排最后）。
+
+---
+
 ### 5.262 **P9④ 终审质检（截断）：L0–L3 全绿 + ★独立判定配对不变式符号 + ★抓出 `0034` 头注释表述不一致 · 我裁 `R-9-47` · 派质检收尾单**（2026-10-03）
 
 **A. P9④ 质检（Neng · 60 calls / 560s）= 截断；L0–L3 全绿、L4–L6 未做**：
@@ -5413,6 +5443,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.263 | 2026-10-03 | **P9④ 收官：质检 PASS（判负 4/4 含 M2 假绿纠正证据）· 入库 `987a06f` + push · 生产终验（mint/burn 401 · schema_version 0034 · bundle 逐字对拍）**。**A.（56c/716s）** ① 零残渣重跑 `zero_residue=true`（currency 15 · BTTC 行 0 · 四表 before==after 359/2/2）② **L4 判负 4/4**：M1⇒`F1`(98/99) · **M2 ★去真白名单 burn ⇒ 旧形态假绿 99/99 ⇄ 加严后 `E1` 必红 `real_whitelist:false`**（假绿纠正关键证据）· M3⇒`D4`+`KE3`(97/99) · M4⇒`KC1b` `{"first_call":null}`；全复原 99/99 + cmp SAME；**M1 活体佐证**（去双写后 DB supply=1 而 Σmint+Σburn=0 ⇒ 断言破裂）③ L5 前端全绿（bttcPanel 12 键×4 · 六类泄漏 0 · p6-tr2 rc0 top118/flat1000 · p4z-i18nviol-global rc0 节点 4000）④ 报告 `docs/qa/p9-s4-bttc-qa.md` **168 行/16,967 B/占位 0** 含 §R-9-47 + verdict + 未测项 6；两点登记（探针展示项偏弱非缺陷 · recon 属既有遗留）。**B.** 入库 `987a06f` + `push origin main` 成功（连带 6 提交）。**C. 生产终验**：**`POST /api/bttc/mint` 401 · `burn` 401（改前 404）** · health `schema_version 0034` · 既有面零回归（401 · role-names 200）· favicon 200/7808 · **bundle 线上==本地逐字**（`a11f3e0d75c180b21f23e373…`；`bttcPanel` 10 · `api/bttc/mint` 1 · `BTTC` 16）。**D. 里程碑**：批 8 五片 + P9① + P9② + P9③ + P9④ **全上线**（0034 · 34 表 · 33 迁移 · kind 23 · 注册点 87）+ favicon 上线；余下 P9⑤ 邀请奖励改版 · 8⑥ 审计台。 |
 | v0.262 | 2026-10-03 | **P9④ 终审质检（截断）：L0–L3 全绿 + ★独立判定配对不变式符号 + ★抓出 `0034` 头注释表述不一致 · 我裁 `R-9-47` · 派质检收尾单**。**A.（60c/560s）** L0 对锚 `eb29831` 26 件 + 区间字节恒等 ✓；L1 硬门 tsc 0/build 0/276/离线 126/s1..s6 未掉/s7 58⇄55/s8 92⇄89/s9 99⇄99/注册点 87（排除 JSDoc）✓；L2 库面 0034/33/34/kind 23/kind_ok 23·冻结 4/credit 8 值/列指纹/op 7 项含 burn + 双写两向/checksum 逐字 ✓；L3 四段真链路（事务内 ROLLBACK）：**F-α 独立复验成立**（首调非 null `{cid:140,BTTC,,listed,true,inserted:true}`、二调 `inserted:false` 同 cid）· **豁免闸三读数**（非平台 dep0⇒applied 0/draft 仍审核 · 平台 dep0⇒**LD016 越过审核闸** · 平台 dep2000⇒applied 0 保证金跳过）· 铸造/分解/幂等两形态（★它指出实现方只登记其一）/闸负零副作用/平台 uid burn⇒LD021 · **★配对不变式独立判定**（存库 burn = 单边负额 ⇒ 成立的是 `Σmint + Σburn`；`−` 式分解后 0≠2 ⇒ 实现方订正为 `+` 是对的）+ **★抓出 `0034` 头注释仍写 `Σmint − Σburn`（表述不一致、非缺陷）**；**未完成**：L4 判负 · L5 前端 · L6 报告仅骨架（45 行）+ 零残渣最终对拍待重跑。**B. 我裁 `R-9-47`**：幅度约定 ⇄ 带符号约定**语义等价、不矛盾**；`0034` 已 apply ⇒ **不改文件**、以**带符号形态为准**登记。**C.** 已派质检收尾单（零残渣重跑 / L4 判负 ≥3 含 ★独立验 E1 加严后真会红 / L5 前端 / L6 报告回填 + R-9-47 区分 + 精确 PID 收尾）。**D.** favicon 已上线；P9④ 已 apply + 代码入库待质检 PASS 后推。 |
 | v0.261 | 2026-10-03 | **favicon 上线（`c004ce2` 已推 · 生产终验三点命中）· 入库 QA 报告 `a64b51a`（未推，因区间含 P9④ 代码）**。**A. favicon 质检（Neng · 49c/500s）= PASS**（报告 187 行/18,623 B/占位 0）：L0 对锚 `c004ce2` 恰 5 件 + ★它自己发现兄弟前移 HEAD ⇒ 复核为祖先且被检 5 件区间内**字节恒等** ⇒ verdict 成立；L1 资产 7808 B/sha256 `4dc72e77…`/cmp SAME + 两 PNG 32/180 无 alpha；L2 三条 link 逐字 + `/vite.svg` 零可执行引用 + 旧件零残留；L3 build 0 + 严格静态服务 svg 200·image/svg+xml·7808·sha256 一致 + 两 PNG 200 + `/vite.svg` 404（★明确未用 vite preview）；L4 tsc 0/build 0/test:unit 31/276/离线 126/126/s1..s6 全绿/s7 58/s8 92/s9 99 带实例；L5 判负 3 处（改色值/改回 vite.svg/删资产）必红 + 复原 + 主仓 cmp SAME；遗留如实（L4 取自工作树为旁证 · H6 瞬时 503 = Neon 抖动复跑 92/92 · 过程自纠抢端口 · 未测项 6 条）。**B.** 入库 QA 报告 `a64b51a`（未推）· **`git push origin c004ce2:main`（FF `eb1ae48..c004ce2`）仅推 favicon 不连带代码** · **生产终验**：`/brand/favicon.svg` **200 · image/svg+xml · 7808 · sha256 逐字一致** + 首页 link 命中 · 两 PNG 200 · `/vite.svg` 200 text/html（**SPA 兜底，与推送前预判一致**）· `/api/health` **schema_version 0034** ⇒ **favicon 片上线完成（R-9-46 ①）**。**C.** 已派 P9④ 终审质检（含 ★独立复验 F-α 首调非 null + ★独立验 E1 加严后真会红 + KC1b）。**D.** favicon 已上线；P9④ 已 apply + 代码入库 `eb29831` 待质检 ⇒ 验收 ⇒ push ⇒ 生产终验。 |
 | v0.260 | 2026-10-03 | **P9④ 库面收口续跑完成（F-α 修好 · 门 99/99 · pending_apply=0 · 判负 4 处 · 报告 §8）· 我现取复核 + 入库 `eb29831`（未推）**。**A.（60 calls/894s）** ① **F-α 修复（R-9-45）**：`ensureBttcCurrency` = `WITH ins AS (INSERT … RETURNING 7 列)` + 主查询逐列**外层 `COALESCE(ins, 表读回)`** ⇒ 首调亦确定值；语义未动；tsc 0 ② 门 **99/99** EXIT 0（`pending_apply=0` · db=10 · http=0）；**自纠门两处口径错**（KI2 配对符号 `Σmint+Σburn` · KGS1 canMint 封顶回流）**未放宽** + 另立 KC1b；**★自查处假绿**：`E1` 未锚真白名单 ⇒「去 burn」假绿 ⇒ **加严双面同锚（V_REAL）** ③ note 改「已 apply」+ 顶层 findings（F-α resolved / F-β open_transferred）④ 判负 4 处（M1⇒F1 · M2⇒E1 · M3⇒D4+KE3 · M4⇒KC1b）+ 复原 99/99 + cmp 7 文件 SAME ⑤ 全量：tsc 0 · build 0 · test:unit 31/276 · 离线 126/126 · s1..s6 现值未掉 · s7 58/58⇄55/58 · s8 92/92⇄89/92 · s9 99/99⇄99/99 · 注册点 87；PID 99827 kill ⇒ 5797 空 ⑥ 报告追加 §8（§0–§7 逐字未改 md5 `a7e20301…`；`__`=0）；**它请裁两点**：并发写入者 = 他人占位非本单残留（披露）· **加严 E1 ⇒ 我裁认可**（原判负不可能红即假绿）。**B. 我现取复核**：F-α = RETURNING + 外层 COALESCE（C-15 同族）· E1 = V_REAL 双面同锚 · **我复跑 p8-s9 = 99/99 · pending_apply=0**。**C. 入库 `eb29831`**（26 件 · add 3494/del 100）：三迁移 + 三 src + 九门 + bttc-api + BattCheckinPanel + 四 locale + 四 i18n 测试 + 报告；**排除**：`.p4-artifacts` churn · **`scripts/p8-s5-00-recon{1,2,3}.ts`（08:31 残留探针，违「探针不入 scripts/」，未引用 ⇒ 不提交、登记清理）** · favicon QA 报告 · `frontend/public/**`。**D.** 生产仍 0031；`origin/main..HEAD` 已含代码 ⇒ 依「推送即上线」**须过质检才可推**（favicon 质检在跑，P9④ 质检串行）。 |
