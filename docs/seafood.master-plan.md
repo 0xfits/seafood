@@ -1416,6 +1416,36 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.285 **Kevin 定档：「我的」入口移到顶部菜单右侧（右上角）· 参考图 = 阿里拍卖「订单」位（图标+文字）· 选变体 A + 入口文案 = **钱包地址缩写（既有）** ⇒ 我立 `R-9-84` + 派单**（2026-10-03）
+
+**A. Kevin 原话**：「我的页面的入口，我建议放到**页面顶部菜单的右侧，即右上角**。具体参考图片」+ 附 `image_967dbb.png`；澄清答复：**选 A 版**，且 **文案不叫「我的」，叫「钱包地址（缩写）」，目前既有**。
+
+**B. 参考图（我 `vision_analyze` 现读）**：阿里拍卖「我的」页 → **顶部黄条最右端 = `图标 + 文字`**（圆角方框内「文」页图标 + 黑字「**订单**」）；左侧剪裁处 = 搜索，中间 = 头像 + 用户名（红笔标注「用户名」）。⇒ **要的是「右上角一个图标+文字的入口」这种形态**。
+
+**C. 现取（逐处）**：
+| 项 | 读数 |
+|---|---|
+| **覆盖面（关键）** | **`shell/AppShell.jsx:14` 全站渲染 `<Header />`** ⇒ 改 `Header` 一处 ⇒ **所有页面**右上角都会出现 ✓ |
+| 现状 | `Header.jsx:118-123` `menuItems` = 奖励 / 任务 / 碎片 / **`profile`（`t('profile')`=「个人资料」，登录后才显）** / 管理后台；`:162` 桌面右侧块 = nav + 语言 + 主题 + **用户菜单**（`User` 图标 + **地址缩写** `EVM.slice(0,6)+'...'+slice(-4)` + `ChevronDown`，下拉 = 积分 / 「个人资料」/ 退出登录）；`:295` `md:hidden` 移动端 = 汉堡 |
+| 既有地址缩写派生 | `currentUser?.EVM ? `${slice(0,6)}...${slice(-4)}` : ''` ⇒ **已存在，正是 Kevin 指的「目前既有」** |
+| 图标 | `lucide-react`（`Header.jsx:4` 已 import **`User`**）⇒ **零新增依赖** |
+| 路由 | `App.jsx:110` `path="profile"`（`ProtectedRoute`）⇒ **入口只挪位置，路由/闸不动** |
+
+**D. 我裁 `R-9-84`（A 版 + 地址文案 ⇒ 细化）**：
+1. **左侧 nav 移除 `profile` 项** ⇒ 桌面左侧 = 奖励 / 任务 / 碎片（+ 管理后台 仅管理员）；**路由与 `ProtectedRoute` 一字不动**。
+2. **右上角新增入口**：`Link` → `buildPath('profile')`（**走既有语言前缀口径**）；内容 = **`User` 图标 + 钱包地址缩写**（**沿用既有派生**）；**仅登录后显示**；位置 = **【主题切换】之后**（= 变体 A 指定的「主题与用户菜单之间」）。
+3. **★去重**：用户菜单下拉**触发器不再重复地址文字**（改为 `User` 图标 + `ChevronDown`，或仅 `ChevronDown`）；下拉内**移除重复的「个人资料」项**（入口已在旁边）⇒ **保留下拉内：积分 / 管理后台（仅管理员）/ 退出登录**。★ **标「一句话可改」**（可选：地址留在下拉触发器、右上角入口只显图标）。
+4. **移动端顶栏**（`:295` `md:hidden` 块）：**汉堡左侧**同款入口（`User` 图标 + 地址缩写；窄屏可只显图标 + `aria-label`）。
+5. **零新增 locale 键**（地址缩写 = 数据非文案）；移除「个人资料」项后 **`profile` 键保留不删**（可能另有消费者）。
+6. **★ 保留并行单刚加的「电量与签到」下拉项**（`Header.jsx` 现 `+9` 行含该项）⇒ **不得删**。
+7. **不得破坏**：`buildPath`/四语前缀 · 既有 `nav-link` 与 `active` 态 · 六类泄漏 0（不硬编码路径/码/表名）。
+
+**E. 已派 Kong【右上角入口单】**：面 = `frontend/src/components/Header.jsx`（+ 必要时新增/扩 `frontend/src/test/unit/` 测试）；自证 = `vitest` 全绿 · `build` 0 · **单测断言新入口存在且 `href` 指向四语前缀下 `/…/profile`** + 地址缩写形态 + **未登录 ⇒ 不渲染** · `Header.jsx` diff 统计。★ 与 8⑥ 前推单（`scripts/p8-s*`）**面不相交**。
+
+**F. 状态**：DB **0040** · 生产代码 **0038 时代** · 本地未推 commit：`e187af6`/`7627999`/`614ae53` · 在跑：8⑥ 前推单（已回执待送达）· 前端 batt UI 单（已回执待送达）· 本单新派。**批 8 六片 = 实现完成，待前推 + 质检 + 一次部署**。
+
+---
+
 ### 5.284 **8⑥ 收尾完成（57c/394s）· ★我复跑抓到 `p8-s11 K1` 红（成因 = 我 apply `0040` 前推了 DB）⇒ 定性「前推前基线」非缺陷 · 入库 8⑥ + 派前推单**（2026-10-03）
 
 **A. 8⑥ 收尾（Kong · 57c/394s）= 完成 · 四件全交付**：
@@ -5986,6 +6016,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.285 | 2026-10-03 | **Kevin 定档：「我的」入口移到顶部菜单右侧（右上角）· 参考图 = 阿里拍卖「订单」位（图标+文字）· 选变体 A + 入口文案 = 钱包地址缩写（既有）⇒ 我立 `R-9-84` + 派单**。**A.** Kevin 原话：入口放**顶部菜单右侧即右上角**（附 `image_967dbb.png`）；澄清：选 **A 版**，文案**不叫「我的」**，叫**「钱包地址（缩写）」目前既有**。**B.** 我 vision 现读参考图：顶部条**最右端 = 图标 + 文字**（「文」页图标 + 「订单」）⇒ 要的是该形态。**C. 现取**：★ **`shell/AppShell.jsx:14` 全站渲染 `<Header />`** ⇒ 改一处全站生效 · 现状 `menuItems` = 奖励/任务/碎片/**profile（「个人资料」，登录后显）**/管理后台；桌面右侧 = nav+语言+主题+用户菜单（`User`+地址缩写+`ChevronDown`，下拉 = 积分/个人资料/退出）；既有地址缩写派生 `EVM.slice(0,6)+'...'+slice(-4)` · `lucide-react` 已 import `User`（零新增依赖）· 路由 `App.jsx:110` 不动。**D. 我裁 `R-9-84`**：① 左侧 nav **移除 profile 项**（路由/`ProtectedRoute` 不动）② 右上角新增 `Link`→`buildPath('profile')`，内容 = **`User` 图标 + 钱包地址缩写**，仅登录显示，位置 = 主题切换之后 ③ **去重**：下拉触发器不再重复地址（`User`+`ChevronDown` 或仅 chevron）+ 下拉移除重复的「个人资料」项，保留 积分/管理后台/退出登录（★标「一句话可改」）④ 移动端汉堡左侧同款 ⑤ 零新增 locale 键、`profile` 键保留不删 ⑥ ★**保留并行单刚加的「电量与签到」下拉项不得删** ⑦ 不破坏 `buildPath` 四语前缀 / `nav-link` 态 / 六类泄漏 0。**E.** 派单（面 = `Header.jsx` + 测试；自证 vitest 全绿 + build 0 + 单测断言新入口 href 四语前缀 + 地址缩写形态 + 未登录不渲染）。**F.** DB 0040 · 生产 0038 时代 · 本地未推 `e187af6`/`7627999`/`614ae53`。 |
 | v0.284 | 2026-10-03 | **8⑥ 收尾完成（57c/394s）· ★我复跑抓到 `p8-s11 K1` 红（成因 = 我 apply `0040` 前推了 DB）⇒ 定性「前推前基线」非缺陷 · 入库 8⑥ + 派前推单**。**A.** ① 判负 **4 处**（仓外沙箱 + 注入→红→复原→绿→cmp）：a 去白名单 ⇒ C1/C2/C3/**H2**（82/5）· **b ★去「不适用参数」闸 ⇒ D1/D2/D5（83/4）+ 行为探针实证 `ledger_entry?actor=1` 由 `PARAM_NOT_APPLICABLE` 变 `ok=true·hasWhere=false`（`SELECT * … 无 WHERE` 全表）⇒ 假绿陷阱可判负** · c 去枚举闸 ⇒ K9 · d 去鉴权 ⇒ I5；主仓三文件 md5 全程不变 ② 报告 **333 行/32,025 B · `__`=0**（我复核）；NOT_MEASURED 9 ⇒ **7 已测/2 保留原因** ③ 离线 `p8-s11` = 自报 86/1 ④ `lsof` 空。**B.** 我 `tsc` **0** ✓ 但复跑 `p8-s11` = **85/2** ⇒ 逐项查 artifact：**`K1`**（期望 `schema_migration` 38/`0039` ⇄ 实测 **39/`0040`**，**成因 = 我 apply 0040** ⇒ **「冻结面滞后」非缺陷**）+ **`K10`**（`fetch failed` 离线无实例 ⇒ 环境差异，带实例已 87/87）。**C.** 派前推单（现取约定 → `MIGRATIONS_FROZEN` + `p8-s9 K5` + `p8-s10 K2` + **`p8-s11 K1`** 前推至 39/`0040` → 复跑 s2..s11 逐门读数 → 收尾；★不得放宽/删判据）。**D.** 入库 8⑥ 全件（10 门 + `src/{database,index,audit-console,points-adjust-reasons}.ts` + `AuditConsolePage.jsx`/`App.jsx`/`admin-utils.js`/`AdminLayout.jsx` + 四语 + 4 i18n 测试 + `p8-s11` 新门 + **`0039` 迁移（已 apply 防漂移）** + 报告；**不 push**）。**E.** DB **0040** · 生产 **0038 时代** · 在跑：前端 batt UI 单 + 8⑥ 前推单。 |
 | v0.283 | 2026-10-03 | **★ `D1`/`D2` 双单交付 + ★我 apply `0040`（深核全绿）+ 现取门槛 = 9 ⇒ Kevin `batt = 30` 已可参与任务 · 入库两件（不 push）**。**A. `D1`（`auth.js` +45/−1 · 25c/173s）**：`REASON_I18N_KEYS`（Object.freeze 显式表）+ `i18nKeyForErrorReason` ⇒ `reason` 映射置于最高优先级（`reasonKey \|\| i18n_key \|\| serverMessage \|\| fallback`），未命中逐字不变；两落点 `job-service.ts:197/:231` 同 reason；四语读数：zh「当前状态不允许此变更。」→**「电量低于承接门槛，暂时无法承接任务」**（hk/en/vn 同族）；`test:unit` 32/282 · `p7c` 8/8 · tsc 0 · build 0（`index-BL9A1kbz.js` 409.71 kB）；它诚实登记 4 个**非 unit** 存量失败（stash 验证与本单无关）+ 前端无 tsconfig。**B. `D2`（19c/287s）**：现取 `batt_account`（`CHECK batt 0..100` · `trg_batt_account_touch_updated` BEFORE UPDATE）· `batt_entry`（`UNIQUE(idempotency_key)` · `trg_batt_entry_append_only` BEFORE UPDATE OR DELETE ⇒ INSERT 允许）· `BATT_CAP_HARD_MAX 100` · 注册腿单语句 CTE；**目标集合逐计数：总数 56 / 无 batt 行 54 / 无 invite_signup entry 56 ⇒ 目标 54**；新建 **`0040_backfill_signup_batt.sql`（251 行纯 DML）** `ON CONFLICT DO NOTHING`（更强）+ self-check；`R-9-24` 真跑四读数全 true + 正向 53 位 + 判负（不重复发放 / 既有账户 0 行 / 重跑幂等）；★首轮暴露其自检缺陷（全表计数 ≠ 本次行数）已修为取 CTE RETURNING。**C. 我 apply `0040`**：`schema_migration` 38/0039 → **39/0040**（`efa38fee102d`）· `batt_account`/`batt_entry` 2/2 → **56/56** · `checkin` 2 行/+60 **逐字未动** · **`invite_signup` 54 行/+1620** · 补发 **54 行/54 uid/delta 全 30/落点全 30**（无人触顶）· 重复键 0 · 越界 0 · `remaining_target` 0 · **★ Kevin `uid 970213` batt = 30**（`txid 326` · memo 存量补发）。**D.** 现取门槛 `BATT_POLICY_DEFAULTS.acceptThresholdBatt = 9`（`database.ts:234-236`）· `canAccept: batt >= 9`（`:4392`）· `app_config` 无 `batt_policy` 行 ⇒ 兜底 9 ⇒ **Kevin 30 ≥ 9 可参与**（承接扣 `taskCostBatt=9`）。**E.** 入库（**不 push**，等 8⑥ 一起部署）：`0040`（DB 已 apply 防漂移）+ `D1`。**F.** DB **0040** · 生产代码 **0038 时代**（生产库亦已有 54 人 batt=30 ⇒ 可立即重试）；在跑：8⑥ 收尾 · 前端 batt UI 单。 |
 | v0.282 | 2026-10-03 | **Kevin 交办 batt UI 设计（4 态点 + 10 点条）· ★「看不到签到入口」我现取定为「可发现性缺陷」（入口存在＝`Header` 的「个人资料」）· 我立 `R-9-82`/`R-9-83` · 派前端单**。**A.** Kevin 原话：满电点=黄底+黑闪电 · 半电=黄半填充+黑闪电 · 空电=白空心圆+黑细描边 · 低电量=黄实心+黑闪电+轻微呼吸光；`vision_analyze` 现读 `image_f40fcb.png`：**10 点横排**（每点 10%）+ 右侧 `65` + 「电量」标签；实点黄底黑闪电（≈#FFD400–#FFD700），空点白底+浅灰描边+极淡灰闪电。**B. 现取**：`BattCheckinPanel.jsx`（6,028 B）**只渲染数字**（`{batt.batt}{unit}`）无点阵 · `battCard` 四语 4 键 · 图标库 **`lucide-react`（`Zap` 可用）** + 自定义 `DashJ` · ★**签到入口存在**：`Header.jsx:120`（桌面 nav，`isAuthenticated`）/`:260-265`（头像菜单）/`:315-328`（移动），文案 `t('profile')`=「个人资料」，签到区在 `ProfilePage.jsx:251` 页顶，路由 `App.jsx:110` ✓。**C.** 定性 **`D3` 可发现性缺陷（高）**：入口非缺失而是在「个人资料」里 ⇒ 到不了 ⇒ P9② 签到/电量/BTTC/评分面**实际不可达**；与 `D1`/`D2` 同源（被门槛拒 ⇒ 该去签到 ⇒ 找不到签到，**闭环断裂**）。**D. 我裁**：`R-9-82` 点阵条定死（10 点每点 10%；`full=floor(batt/10)`，`rem>=5` ⇒ 第 `full+1` 点绘半电（65⇒6满+1半）；**「低电量」= 修饰非第 4 几何**：`canAccept===false` ⇒ **全部已点亮点**加轻微呼吸光（标「一句话可改」：变体=仅末端点加光）；空点**以文字描述为准**；保留数字与「电量」标签；呼吸光须遵循既有动画 + `prefers-reduced-motion` 降级；颜色优先主题 token 且须现取日间 A/夜间 B token 名，无则主题层**仅追加**；无障碍 `role=img`+`aria-label`；**六类泄漏 0**）· `R-9-83` `D3` 修法（**不新增顶层导航项**；① 头像菜单加「电量与签到」直达 `/profile#batt-checkin` ② **★闭环**：招工页/任务详情在「电量不足被拒」时给可点击提示 ⇒ 直达签到区，与 `D1` 同一出口一起落地 ③ `BattCheckinPanel` 加 `id="batt-checkin"` 锚点）。**E.** 已派前端单（面 = `components/{BattCheckinPanel,BattMeter}.jsx` + `ProfilePage` + `Header` + `JobDetailPage`（仅提示出口）+ `styles/animations.css`（仅追加）+ 四语必要键）⇒ 与 D1/D2/8⑥收尾三单面不相交 ⇒ 四单并行。 |
