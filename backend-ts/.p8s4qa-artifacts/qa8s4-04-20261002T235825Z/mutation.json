@@ -1,0 +1,104 @@
+{
+ "unit": "QA8S4-04-MUTATION",
+ "run": "20261002T235825Z",
+ "mode": "single-tx + ROLLBACK",
+ "total": 6,
+ "passed": 3,
+ "failed": 3,
+ "summary": {
+  "owner_uid": 970001,
+  "gate_present_in_real_sql": true,
+  "mutant_has_gate_removed": false,
+  "cids": {
+   "real": 921421581,
+   "m1": 921421582,
+   "m2": 921421583,
+   "m3": 921421584
+  },
+  "real_gated": {
+   "applied": 0,
+   "cur_status": "draft"
+  },
+  "M1": {
+   "label": "① 去闸",
+   "applied": 1,
+   "cur_status": "draft"
+  },
+  "M2": {
+   "label": "② 反形 NOT EXISTS",
+   "applied": 1,
+   "cur_status": "draft"
+  },
+  "M3": {
+   "label": "③ 恒真谓词",
+   "applied": 1,
+   "cur_status": "draft"
+  },
+  "residue_after": {
+   "probe_cur": 0,
+   "probe_sym": 0,
+   "probe_slog": 0,
+   "max_cid": "36"
+  }
+ },
+ "checks": [
+  {
+   "id": "M0",
+   "pass": true,
+   "detail": {
+    "applied": 0,
+    "cur_status": "draft"
+   },
+   "neg": "真语句（有闸）未审 draft ⇒ applied=0 / status=draft ⇒ 产行 ⇒ 判负"
+  },
+  {
+   "id": "M1",
+   "pass": false,
+   "detail": {
+    "label": "① 去闸",
+    "applied": 1,
+    "cur_status": "draft"
+   },
+   "neg": "① 去闸 ⇒ 未审 draft 自助上市（applied≥1 / listed）⇒ 仍 applied=0 ⇒ 变异未被捕获 ⇒ 判负"
+  },
+  {
+   "id": "M2",
+   "pass": false,
+   "detail": {
+    "label": "② 反形 NOT EXISTS",
+    "applied": 1,
+    "cur_status": "draft"
+   },
+   "neg": "② 反形 NOT EXISTS ⇒ 未审 draft 自助上市（applied≥1 / listed）⇒ 仍 applied=0 ⇒ 变异未被捕获 ⇒ 判负"
+  },
+  {
+   "id": "M3",
+   "pass": false,
+   "detail": {
+    "label": "③ 恒真谓词",
+    "applied": 1,
+    "cur_status": "draft"
+   },
+   "neg": "③ 恒真谓词 ⇒ 未审 draft 自助上市（applied≥1 / listed）⇒ 仍 applied=0 ⇒ 变异未被捕获 ⇒ 判负"
+  },
+  {
+   "id": "Z",
+   "pass": true,
+   "detail": {
+    "rolled_back": true
+   },
+   "neg": "末尾哨兵 ⇒ ROLLBACK"
+  },
+  {
+   "id": "R1",
+   "pass": true,
+   "detail": {
+    "probe_cur": 0,
+    "probe_sym": 0,
+    "probe_slog": 0,
+    "max_cid": "36"
+   },
+   "neg": "回滚后探针残渣=0 ⇒ 非0 ⇒ 判负"
+  }
+ ]
+}

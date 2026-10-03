@@ -1,0 +1,157 @@
+{
+ "admins": [
+  {
+   "uid": "1",
+   "evm": "0x99a7ae985ec41c5ba94dd640b74307d9d9cd8f74",
+   "is_admin": true
+  },
+  {
+   "uid": "10",
+   "evm": "0xd1e5020dbfb177d1b5ded158fab13112c107055e",
+   "is_admin": true
+  },
+  {
+   "uid": "970201",
+   "evm": "0x0000000000000000000000000000000000970201",
+   "is_admin": true
+  }
+ ],
+ "non_admins": [
+  {
+   "uid": "2",
+   "evm": "0xaf2102ef4ef7e285dbe7558b748f62f16fa67b1e"
+  },
+  {
+   "uid": "3",
+   "evm": "0x8bf07df4b233930f3684d191f3336cfd9d3036a6"
+  },
+  {
+   "uid": "4",
+   "evm": "0xd22e69f35d8a86303bb03830fc6fa8d59ec6a58f"
+  }
+ ],
+ "admin_user_role": [
+  {
+   "uid": "900004",
+   "role_key": "p7b_fixture_admin"
+  },
+  {
+   "uid": "900005",
+   "role_key": "p7b_fixture_admin"
+  },
+  {
+   "uid": "900006",
+   "role_key": "p7b_fixture_nopts"
+  },
+  {
+   "uid": "910004",
+   "role_key": "qa7b_admin"
+  },
+  {
+   "uid": "910005",
+   "role_key": "qa7b_admin"
+  },
+  {
+   "uid": "910006",
+   "role_key": "qa7b_nopts"
+  },
+  {
+   "uid": "970213",
+   "role_key": "super_admin"
+  }
+ ],
+ "roles": [
+  {
+   "role_key": "p7b_fixture_admin"
+  },
+  {
+   "role_key": "p7b_fixture_nopts"
+  },
+  {
+   "role_key": "qa7b_admin"
+  },
+  {
+   "role_key": "qa7b_nopts"
+  },
+  {
+   "role_key": "super_admin"
+  }
+ ],
+ "roles_with_review_tasks": [
+  {
+   "role_key": "super_admin",
+   "permission_key": "review_tasks"
+  }
+ ],
+ "admin_permission_rows": 11,
+ "roles_lacking_review_tasks": [
+  {
+   "role_key": "p7b_fixture_admin"
+  },
+  {
+   "role_key": "p7b_fixture_nopts"
+  },
+  {
+   "role_key": "qa7b_admin"
+  },
+  {
+   "role_key": "qa7b_nopts"
+  }
+ ],
+ "nopts_users": [
+  {
+   "uid": "900004",
+   "evm": "0x32777d543c62dbf88b7b540420c6fd2a55bd491f",
+   "is_admin": false,
+   "role_key": "p7b_fixture_admin"
+  },
+  {
+   "uid": "900005",
+   "evm": "0x0dd67907f2e02157c34c01a73c20dce8052eaecc",
+   "is_admin": false,
+   "role_key": "p7b_fixture_admin"
+  },
+  {
+   "uid": "900006",
+   "evm": "0x7d85f72c5ead72f36bf8e9de89e0a8d3b5a28797",
+   "is_admin": false,
+   "role_key": "p7b_fixture_nopts"
+  },
+  {
+   "uid": "910004",
+   "evm": "0xd6f4f1470e8fd1d3a85ae5add6aff6853540f375",
+   "is_admin": false,
+   "role_key": "qa7b_admin"
+  },
+  {
+   "uid": "910005",
+   "evm": "0x15566414f2daf3fbf623683f030176febbf254dd",
+   "is_admin": false,
+   "role_key": "qa7b_admin"
+  },
+  {
+   "uid": "910006",
+   "evm": "0x6abc88752b52dd3d8ee9171021567270e8bffa39",
+   "is_admin": false,
+   "role_key": "qa7b_nopts"
+  }
+ ],
+ "role_perms_for_nopts": [
+  {
+   "role_key": "p7b_fixture_admin",
+   "permission_key": "manage_points"
+  },
+  {
+   "role_key": "p7b_fixture_nopts",
+   "permission_key": "read_users"
+  },
+  {
+   "role_key": "qa7b_admin",
+   "permission_key": "manage_points"
+  },
+  {
+   "role_key": "qa7b_nopts",
+   "permission_key": "read_users"
+  }
+ ]
+}

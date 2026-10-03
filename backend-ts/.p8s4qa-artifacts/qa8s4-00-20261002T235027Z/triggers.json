@@ -1,0 +1,289 @@
+{
+ "unit": "QA8S4-00-TRIGGERS",
+ "run": "20261002T235027Z",
+ "total": 9,
+ "passed": 6,
+ "failed": 3,
+ "checks": [
+  {
+   "id": "T1",
+   "pass": true,
+   "detail": {
+    "tables_with_triggers": [
+     "currency_review_log",
+     "currency_status_log"
+    ]
+   }
+  },
+  {
+   "id": "T2",
+   "pass": true,
+   "detail": {
+    "currency_triggers": 0
+   }
+  },
+  {
+   "id": "T3",
+   "pass": false,
+   "detail": {
+    "slog": [
+     "CREATE TRIGGER trg_currency_status_log_append_only BEFORE DELETE OR UPDATE ON public.currency_status_log FOR EACH ROW EXECUTE FUNCTION currency_status_log_append_only()"
+    ]
+   }
+  },
+  {
+   "id": "T4",
+   "pass": false,
+   "detail": {
+    "rev": [
+     "CREATE TRIGGER trg_currency_review_log_append_only BEFORE DELETE OR UPDATE ON public.currency_review_log FOR EACH ROW EXECUTE FUNCTION currency_review_log_append_only()"
+    ]
+   }
+  },
+  {
+   "id": "C1",
+   "pass": true,
+   "detail": {
+    "n": 8,
+    "cols": [
+     "log_id",
+     "cid",
+     "actor_uid",
+     "result",
+     "request_fingerprint",
+     "idempotency_key",
+     "memo",
+     "time_created"
+    ]
+   }
+  },
+  {
+   "id": "C2",
+   "pass": false,
+   "detail": {
+    "n": 12,
+    "names": [
+     "currency_review_log_actor_fk",
+     "currency_review_log_actor_uid_not_null",
+     "currency_review_log_cid_fk",
+     "currency_review_log_cid_not_null",
+     "currency_review_log_idem_uniq",
+     "currency_review_log_idempotency_key_not_null",
+     "currency_review_log_log_id_not_null",
+     "currency_review_log_pk",
+     "currency_review_log_request_fingerprint_not_null",
+     "currency_review_log_result_ck",
+     "currency_review_log_result_not_null",
+     "currency_review_log_time_created_not_null"
+    ]
+   }
+  },
+  {
+   "id": "C3",
+   "pass": true,
+   "detail": {
+    "n": 4,
+    "names": [
+     "currency_review_log_actor_day_idx",
+     "currency_review_log_cid_idx",
+     "currency_review_log_idem_uniq",
+     "currency_review_log_pk"
+    ]
+   }
+  },
+  {
+   "id": "C4",
+   "pass": true,
+   "detail": {
+    "row": {
+     "version": "0025",
+     "checksum": "2e4c62c0ccbaeb858763d7a73cef5149a840526bf6792fab3f0a628ae6ea0814",
+     "applied_at": "2026-10-02 23:38:23.551505+00"
+    }
+   }
+  },
+  {
+   "id": "C5",
+   "pass": true,
+   "detail": {
+    "path": "backend-ts/migrations/0025_currency_review_log.sql",
+    "bytes": 16913,
+    "lines": 210,
+    "sha256": "2e4c62c0ccbaeb858763d7a73cef5149a840526bf6792fab3f0a628ae6ea0814"
+   }
+  }
+ ],
+ "out": {
+  "triggers": [
+   {
+    "table": "currency_review_log",
+    "tgname": "trg_currency_review_log_append_only",
+    "enabled": "O",
+    "func": "currency_review_log_append_only",
+    "def": "CREATE TRIGGER trg_currency_review_log_append_only BEFORE DELETE OR UPDATE ON public.currency_review_log FOR EACH ROW EXECUTE FUNCTION currency_review_log_append_only()"
+   },
+   {
+    "table": "currency_status_log",
+    "tgname": "trg_currency_status_log_append_only",
+    "enabled": "O",
+    "func": "currency_status_log_append_only",
+    "def": "CREATE TRIGGER trg_currency_status_log_append_only BEFORE DELETE OR UPDATE ON public.currency_status_log FOR EACH ROW EXECUTE FUNCTION currency_status_log_append_only()"
+   }
+  ],
+  "review_log_columns": [
+   {
+    "column_name": "log_id",
+    "data_type": "bigint",
+    "is_nullable": "NO",
+    "column_default": null
+   },
+   {
+    "column_name": "cid",
+    "data_type": "bigint",
+    "is_nullable": "NO",
+    "column_default": null
+   },
+   {
+    "column_name": "actor_uid",
+    "data_type": "bigint",
+    "is_nullable": "NO",
+    "column_default": null
+   },
+   {
+    "column_name": "result",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null
+   },
+   {
+    "column_name": "request_fingerprint",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null
+   },
+   {
+    "column_name": "idempotency_key",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null
+   },
+   {
+    "column_name": "memo",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null
+   },
+   {
+    "column_name": "time_created",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "NO",
+    "column_default": "now()"
+   }
+  ],
+  "review_log_constraints": [
+   {
+    "conname": "currency_review_log_actor_fk",
+    "contype": "f",
+    "def": "FOREIGN KEY (actor_uid) REFERENCES users(uid)"
+   },
+   {
+    "conname": "currency_review_log_actor_uid_not_null",
+    "contype": "n",
+    "def": "NOT NULL actor_uid"
+   },
+   {
+    "conname": "currency_review_log_cid_fk",
+    "contype": "f",
+    "def": "FOREIGN KEY (cid) REFERENCES currency(cid)"
+   },
+   {
+    "conname": "currency_review_log_cid_not_null",
+    "contype": "n",
+    "def": "NOT NULL cid"
+   },
+   {
+    "conname": "currency_review_log_idem_uniq",
+    "contype": "u",
+    "def": "UNIQUE (idempotency_key, result)"
+   },
+   {
+    "conname": "currency_review_log_idempotency_key_not_null",
+    "contype": "n",
+    "def": "NOT NULL idempotency_key"
+   },
+   {
+    "conname": "currency_review_log_log_id_not_null",
+    "contype": "n",
+    "def": "NOT NULL log_id"
+   },
+   {
+    "conname": "currency_review_log_pk",
+    "contype": "p",
+    "def": "PRIMARY KEY (log_id)"
+   },
+   {
+    "conname": "currency_review_log_request_fingerprint_not_null",
+    "contype": "n",
+    "def": "NOT NULL request_fingerprint"
+   },
+   {
+    "conname": "currency_review_log_result_ck",
+    "contype": "c",
+    "def": "CHECK ((result = ANY (ARRAY['pending'::text, 'approved'::text, 'rejected'::text])))"
+   },
+   {
+    "conname": "currency_review_log_result_not_null",
+    "contype": "n",
+    "def": "NOT NULL result"
+   },
+   {
+    "conname": "currency_review_log_time_created_not_null",
+    "contype": "n",
+    "def": "NOT NULL time_created"
+   }
+  ],
+  "review_log_indexes": [
+   {
+    "indexname": "currency_review_log_actor_day_idx",
+    "indexdef": "CREATE INDEX currency_review_log_actor_day_idx ON public.currency_review_log USING btree (actor_uid, time_created)"
+   },
+   {
+    "indexname": "currency_review_log_cid_idx",
+    "indexdef": "CREATE INDEX currency_review_log_cid_idx ON public.currency_review_log USING btree (cid, time_created)"
+   },
+   {
+    "indexname": "currency_review_log_idem_uniq",
+    "indexdef": "CREATE UNIQUE INDEX currency_review_log_idem_uniq ON public.currency_review_log USING btree (idempotency_key, result)"
+   },
+   {
+    "indexname": "currency_review_log_pk",
+    "indexdef": "CREATE UNIQUE INDEX currency_review_log_pk ON public.currency_review_log USING btree (log_id)"
+   }
+  ],
+  "schema_migration_0025": [
+   {
+    "version": "0025",
+    "checksum": "2e4c62c0ccbaeb858763d7a73cef5149a840526bf6792fab3f0a628ae6ea0814",
+    "applied_at": "2026-10-02 23:38:23.551505+00"
+   }
+  ],
+  "schema_version": "0025",
+  "residue": {
+   "review_rows": 0,
+   "probe_currency": 0,
+   "probe_symbol": 0,
+   "probe_slog": 0,
+   "probe_ledger": 0,
+   "max_cid": "36",
+   "ledger_total": 355,
+   "mig_rows": 24
+  },
+  "migration_file": {
+   "path": "backend-ts/migrations/0025_currency_review_log.sql",
+   "bytes": 16913,
+   "lines": 210,
+   "sha256": "2e4c62c0ccbaeb858763d7a73cef5149a840526bf6792fab3f0a628ae6ea0814"
+  },
+  "rolled_back": true
+ }
+}

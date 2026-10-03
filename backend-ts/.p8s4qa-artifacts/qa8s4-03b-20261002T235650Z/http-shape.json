@@ -1,0 +1,43 @@
+{
+ "unit": "QA8S4-03B-HTTP-SHAPE",
+ "run": "20261002T235650Z",
+ "base": "http://127.0.0.1:5796",
+ "admin_read_200": {
+  "status": 200,
+  "top_keys": [
+   "data",
+   "message",
+   "success"
+  ],
+  "data_is_array": true,
+  "data_len": 15,
+  "row_keys": [
+   "cid",
+   "deposit_amount",
+   "deposit_cid",
+   "listed_at",
+   "name",
+   "owner_uid",
+   "status",
+   "symbol",
+   "time_created"
+  ]
+ },
+ "nopts_read_403_verbatim": {
+  "status": 403,
+  "body": {
+   "error": {
+    "code": "AUTH_FORBIDDEN",
+    "message": "AUTH_FORBIDDEN",
+    "i18n_key": "auth.err.AUTH_FORBIDDEN",
+    "details": {
+     "reason": "PERMISSION_NOT_GRANTED"
+    }
+   }
+  }
+ },
+ "readonly_log_rows": {
+  "currency_review_log": 0,
+  "currency_status_log": 7
+ }
+}

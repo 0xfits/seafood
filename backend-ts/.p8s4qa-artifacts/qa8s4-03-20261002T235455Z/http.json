@@ -1,0 +1,94 @@
+{
+ "unit": "QA8S4-03-HTTP",
+ "run": "20261002T235455Z",
+ "base": "http://127.0.0.1:5796",
+ "tokens_minted_for": {
+  "admin": 1,
+  "nonadmin": 2,
+  "nopts": 900004
+ },
+ "total": 9,
+ "passed": 1,
+ "failed": 8,
+ "checks": [
+  {
+   "id": "H0",
+   "pass": true,
+   "detail": {
+    "status": 200,
+    "schema_version": "0025"
+   },
+   "expect": "GET /health = 200"
+  },
+  {
+   "id": "H1",
+   "pass": false,
+   "detail": {
+    "status": 401
+   },
+   "expect": "无 token 读口 ⇒ 401 AUTH_UNAUTHORIZED"
+  },
+  {
+   "id": "H2",
+   "pass": false,
+   "detail": {
+    "status": 401
+   },
+   "expect": "无 token 动作口 ⇒ 401 AUTH_UNAUTHORIZED"
+  },
+  {
+   "id": "H3",
+   "pass": false,
+   "detail": {
+    "status": 401,
+    "reason": {}
+   },
+   "expect": "非 admin 读口 ⇒ 403 NOT_ADMIN"
+  },
+  {
+   "id": "H4",
+   "pass": false,
+   "detail": {
+    "status": 401,
+    "reason": {}
+   },
+   "expect": "非 admin 动作口 ⇒ 403 NOT_ADMIN"
+  },
+  {
+   "id": "H5",
+   "pass": false,
+   "detail": {
+    "status": 401,
+    "code": null,
+    "data_is_array": false
+   },
+   "expect": "admin 读口 ⇒ 200"
+  },
+  {
+   "id": "H6",
+   "pass": false,
+   "detail": {
+    "status": 401
+   },
+   "expect": "admin + 非数字 :cid ⇒ 404 LD007（写逻辑前早退）"
+  },
+  {
+   "id": "H7",
+   "pass": false,
+   "detail": {
+    "status": 401,
+    "reason": {}
+   },
+   "expect": "缺 review_tasks（有 admin 角色但不含该权限）读口 ⇒ 403 PERMISSION_NOT_GRANTED"
+  },
+  {
+   "id": "H8",
+   "pass": false,
+   "detail": {
+    "status": 401,
+    "reason": {}
+   },
+   "expect": "缺 review_tasks 动作口 ⇒ 403 PERMISSION_NOT_GRANTED（写逻辑前早退）"
+  }
+ ]
+}
