@@ -1416,6 +1416,40 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.287 **8⑥ 前推单回执（11 门离线全量）· ★我逐条定性 10 处红 = 全非缺陷，三类：`adminNav` 冻结滞后 4 处 / 真 HTTP 腿离线 4+2 处 / **★我 apply `0040` 的连带影响 3 处**（我认账）· 派前推+修判据单**（2026-10-03）
+
+**A. 前推成功**：`MIGRATIONS_FROZEN = 39`（`p8-s3`/`s3b`/`s4`/`s5` 全 4 门）✓ · **`p8-s11 K1` 已转绿**（87 = `86/1`，唯一红 = `K10` HTTP 腿）✓ · `p8-s3` **45/45** · `p8-s3b` **38/38** · `p8-s4` **79/79** ✓
+
+**B. ★ 我逐条读 artifact，把 10 处红分三类（全部非缺陷，但两类须前推/改判据）**：
+
+**类 1 · `adminNav = 28` 冻结计数滞后（**4 处**，前推漏项）**：
+| 门 | 断言 | exp | act |
+|---|---|---|---|
+| `p8-s2` | `D1-adminNav`（`fourLangKeys`） | `adminNav` 键数 = **28** | **30**（四语 `[30,30,30,30]` · `equal:true`） |
+| `p8-s5` | `G8`（i18n） | adminNav = **28** + 本批 4 键四语齐 | `[30,30,30,30]` |
+| `p8-s6` | `I1`（navSync） | 四语 adminNav = **28**（+2） | `[30,30,30,30]` |
+| `p8-s6` | `I4`（navSync） | `i18n-batch-b4a` 的 `NEW_NS.adminNav = 28` | **30** |
+⇒ **成因**：8⑥ 续跑把 `adminNav` **28 → 30**（+`auditConsole`/`auditConsoleDesc`）且**只前推了 `top/flat/nodes`，漏推这 4 处 `adminNav` 冻结断言**。★ **权威依据**：`route-layer.spec` v2.21 **§32.8(a) 明写「+2 键/语言」· §32.8(d) 明写 `adminNav 28 → 30`** ⇒ **30 为正确值、28 是滞后** ⇒ **非缺陷**。
+
+**类 2 · 真 HTTP 腿离线红（`fetch failed` · 环境差异 · 6 处）**：`p8-s7 G8/G9/G10` · `p8-s8 H5/H6/H7` · `p8-s10 K8` · `p8-s11 K10`
+⇒ 离线无受控实例 ⇒ 此前带实例已证 **`s7 59/59` · `s8 92/92` · `s10 49/49` · `s11 87/87`** ⇒ **不得改宽松/`SKIPPED`**。
+
+**类 3 · ★★ 我 apply `0040` 的连带影响（**3 处** ⇒ 我认账，非缺陷但判据前提被改）**：
+- **`p8-s9 KM1`**（`mintChain`）：exp「`batt=99 < mintBattCost=100` ⇒ `rejected` + **零副作用含零 `batt_entry`**」act = `outcome:rejected` ✓ · `battAfter:99` ✓ · `usd:4` ✓ · `bttc:0` ✓ · `supply:0` ✓ · `mintLegs:0` ✓ · **`battEntry:1` ✗**
+- **`p8-s9 KM2`**：同上（`$=0 < mintFeeUsd=1`）⇒ `rejected` ✓ · `mintLegs:0` ✓ · **`battEntry:1` ✗**
+  ⇒ **成因**：门用**固定 fixture uid** 构造 `batt=99`，而**我 apply `0040` 给该 uid 留了 1 条 `invite_signup` 的 `batt_entry` 行** ⇒ 该 uid 的 `batt_entry` 基线从 **0 → 1** ⇒ 断言「零 `batt_entry`」失败。
+  ⇒ **实质**：`mintLegs 0`/`feeLegs 0`/供应 0 **全对** ⇒ **真「零账本副作用」成立**；只有**基线计数**被我的补发改写 ⇒ **非缺陷** ⇒ 修法 = 判据改**基线对拍**（更强，非放宽）。
+- **`p8-s9 KGS2`**（`bttcStateLive`）：exp「**无 `account`/无 `batt_account` 行**的 uid ⇒ `COALESCE` 兜底 `balance=0`/`usd=0`/**`batt=0`**」act = `batt: 30`
+  ⇒ **成因**：门挑的「**无 `batt_account` 行**的 uid」**在 `0040` 之后已有行（`batt=30`）** ⇒ 该 uid 不再满足「无行」前提 ⇒ **负对照失效**。
+  ⇒ ★★ **系统性影响**：**`0040` 消灭了「无 `batt_account` 行」这个状态**（全站 56 人**皆有行**）⇒ **凡依赖「无行 ⇒ 兜底」的 `C-15` 型负对照必须改为显式 fixture**（★ 最佳做法 = 用**不存在的 uid**（如 `999999999`）验证兜底 ⇒ 与是否有 `0040` 无关、天然「无行」），**不得删判据**。
+
+**C. → 我派 Kong【`adminNav` 前推 + `p8-s9` 判据前提修正单】**：
+① 类 1 四处 `adminNav 28 → 30`（**以 `route-layer.spec` §32.8 为权威**；`p8-s6 I4` 的 `i18n-batch-b4a` 常量同步）② 类 3 `KM1`/`KM2` 改**基线对拍**（前后读 `batt_entry` 计数差 = 0 ⇒ 更强）③ 类 3 `KGS2` 改用**不存在 uid** 构造「无行」负对照 ④ 复跑 `p8-s2..s11` 逐门读数（HTTP 腿离线红如实登记）⑤ 收尾。★ **不得**放宽/删任何判据；★ `p8-s9` 三处**只能改「判据前提/基线口径」，不得弱化「零副作用」语义**。
+
+**D. 状态**：DB **0040** · 生产代码 0038 时代 · 在跑：右上角入口单 · D1 补丁单 · 本单新派。
+
+---
+
 ### 5.286 **前端 batt UI 单完成（52c/357s）· ★我现取坐实它自报的「闭环断」真缺陷（`fetchApiJson` 抛裸 Error 不带 `details`）⇒ 派 D1 补丁单 · 我的独立复跑 15/15 + 6/6 绿**（2026-10-03）
 
 **A. 前端 batt UI 单（Kong · 52c/357s）= 完成**：
@@ -6037,6 +6071,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.287 | 2026-10-03 | **8⑥ 前推单回执（11 门离线全量）· ★我逐条定性 10 处红 = 全非缺陷，三类：`adminNav` 冻结滞后 4 处 / 真 HTTP 腿离线 6 处 / **★我 apply `0040` 的连带影响 3 处**（我认账）· 派前推+修判据单**。**A.** 前推成功：`MIGRATIONS_FROZEN = 39`（4 门）· **`p8-s11 K1` 转绿（86/1）** · `s3 45/45` · `s3b 38/38` · `s4 79/79`。**B. 三类红**：**类1 `adminNav` 28→30 滞后 4 处**（`p8-s2 D1-adminNav` · `p8-s5 G8` · `p8-s6 I1` · `p8-s6 I4`；act 四语 `[30,30,30,30]`；★权威 = `route-layer.spec` §32.8(a)(d) 明写 +2/28→30 ⇒ **30 正确、28 滞后** ⇒ 8⑥ 续跑只前推了 top/flat/nodes、**漏推这 4 处**）· **类2 真 HTTP 腿离线红 6 处**（`p8-s7 G8/G9/G10` · `p8-s8 H5/H6/H7` · `p8-s10 K8` · `p8-s11 K10`；带实例已证 s7 59/59 · s8 92/92 · s10 49/49 · s11 87/87 ⇒ 不得放宽）· **类3 ★我 apply 0040 连带 3 处**：`p8-s9 KM1/KM2`（exp 零 `batt_entry` ⇄ act `battEntry:1`；成因 = 门用**固定 fixture uid** 而 0040 给其留了 1 条 `invite_signup` entry ⇒ 基线 0→1；★ `mintLegs:0`/`feeLegs:0`/供应 0 **全对** ⇒ 真「零账本副作用」成立 ⇒ 判据改**基线对拍**更强）· `p8-s9 KGS2`（exp 无行 uid ⇒ batt=0 ⇄ act **batt:30**；★★**0040 消灭了「无 `batt_account` 行」状态**（全站 56 人皆有行）⇒ 凡「无行 ⇒ 兜底」型 `C-15` 负对照**必须改显式 fixture**（最佳 = **不存在 uid** `999999999`）⇒ 不得删判据）。**C.** 派单：① 四处 `adminNav 28→30`（权威 §32.8）② KM1/KM2 改基线对拍 ③ KGS2 改不存在 uid ④ 复跑逐门读数 ⑤ 收尾；★不得放宽/删判据。**D.** DB 0040 · 在跑：右上角入口单 + D1 补丁单 + 本单。 |
 | v0.286 | 2026-10-03 | **前端 batt UI 单完成（52c/357s）· ★我现取坐实它自报的「闭环断」真缺陷（`fetchApiJson` 抛裸 Error 不带 `details`）⇒ 派 D1 补丁单 · 我的独立复跑 15/15 + 6/6 绿**。**A.** 新增 `BattMeter.jsx`（5,566 B）+ 15 例测试；改 `BattCheckinPanel`(+24/−7)/`Header`(+9)/`JobDetailPage`(+29/−2)/`animations.css`(+23 纯追加)；`ProfilePage` 未改（锚点组件内自带）。**R-9-82**：10 点×10% · 低电量=`canAccept===false` ⇒ 全部已点亮点加 `sf-batt-dot--glow` · 保留数字+「电量」· `null`⇒10空+0 不崩 · `role=img`+`aria-label` · 泄漏 0 · **颜色现取 A/B token 逐条**（实点半底 `--sf-btna-bg` `#FFE60F` 等；★**无等值浅灰 token ⇒ 取 `--sf-tab-fg`、未新造、登记偏差**）。**R-9-83**：头像菜单直达项 + `JobDetailPage` 按 `error.details.reason` 给可点击提示 + `id="batt-checkin"` 锚点。自证：**15/15**（**`65⇒6满+1半(下标7)+3空`** · `null⇒10空+0`）· **i18n 计数=基线一致 + locales diff 空（零新增）** · build 0 · **reduced-motion 降级** · 遗留：全量 4 文件/7 例 = 基线既有；★**依赖在途 D1（`fetchApiJson` 抛裸 Error 不带 details）**；图文不一致按 Kevin 文字实现。**B. ★我现取核实 = 真缺陷**：`auth.js:352` `throw new Error(await apiErrorMessage(...))` ⇒ **`details`/`code` 全丢** ⇒ `JobDetailPage` 读 `error?.details?.reason` **恒 undefined ⇒ 提示永不显示 ⇒ 闭环断**（`auth.js:209/335` 的 `error.details` 指 `payload.error`，不冲突）⇒ **不得以「拿不到就不显示」结案**。**C.** 派 D1 补丁单（`fetchApiJson` 抛错时**附 `err.details`/`code`/`i18nKey`**，**只做加法**；单测 mock 409+R107 断言 `err.details.reason`/`code`/`message` 逐字 + 无 details ⇒ undefined；联测 JobDetailPage 真渲染提示；★不得把 details 拼进 message）。**E.** DB 0040 · 本地未推 `e187af6`/`7627999`/`614ae53`/`ee58500` · 在跑：右上角入口单 + D1 补丁单。 |
 | v0.285 | 2026-10-03 | **Kevin 定档：「我的」入口移到顶部菜单右侧（右上角）· 参考图 = 阿里拍卖「订单」位（图标+文字）· 选变体 A + 入口文案 = 钱包地址缩写（既有）⇒ 我立 `R-9-84` + 派单**。**A.** Kevin 原话：入口放**顶部菜单右侧即右上角**（附 `image_967dbb.png`）；澄清：选 **A 版**，文案**不叫「我的」**，叫**「钱包地址（缩写）」目前既有**。**B.** 我 vision 现读参考图：顶部条**最右端 = 图标 + 文字**（「文」页图标 + 「订单」）⇒ 要的是该形态。**C. 现取**：★ **`shell/AppShell.jsx:14` 全站渲染 `<Header />`** ⇒ 改一处全站生效 · 现状 `menuItems` = 奖励/任务/碎片/**profile（「个人资料」，登录后显）**/管理后台；桌面右侧 = nav+语言+主题+用户菜单（`User`+地址缩写+`ChevronDown`，下拉 = 积分/个人资料/退出）；既有地址缩写派生 `EVM.slice(0,6)+'...'+slice(-4)` · `lucide-react` 已 import `User`（零新增依赖）· 路由 `App.jsx:110` 不动。**D. 我裁 `R-9-84`**：① 左侧 nav **移除 profile 项**（路由/`ProtectedRoute` 不动）② 右上角新增 `Link`→`buildPath('profile')`，内容 = **`User` 图标 + 钱包地址缩写**，仅登录显示，位置 = 主题切换之后 ③ **去重**：下拉触发器不再重复地址（`User`+`ChevronDown` 或仅 chevron）+ 下拉移除重复的「个人资料」项，保留 积分/管理后台/退出登录（★标「一句话可改」）④ 移动端汉堡左侧同款 ⑤ 零新增 locale 键、`profile` 键保留不删 ⑥ ★**保留并行单刚加的「电量与签到」下拉项不得删** ⑦ 不破坏 `buildPath` 四语前缀 / `nav-link` 态 / 六类泄漏 0。**E.** 派单（面 = `Header.jsx` + 测试；自证 vitest 全绿 + build 0 + 单测断言新入口 href 四语前缀 + 地址缩写形态 + 未登录不渲染）。**F.** DB 0040 · 生产 0038 时代 · 本地未推 `e187af6`/`7627999`/`614ae53`。 |
 | v0.284 | 2026-10-03 | **8⑥ 收尾完成（57c/394s）· ★我复跑抓到 `p8-s11 K1` 红（成因 = 我 apply `0040` 前推了 DB）⇒ 定性「前推前基线」非缺陷 · 入库 8⑥ + 派前推单**。**A.** ① 判负 **4 处**（仓外沙箱 + 注入→红→复原→绿→cmp）：a 去白名单 ⇒ C1/C2/C3/**H2**（82/5）· **b ★去「不适用参数」闸 ⇒ D1/D2/D5（83/4）+ 行为探针实证 `ledger_entry?actor=1` 由 `PARAM_NOT_APPLICABLE` 变 `ok=true·hasWhere=false`（`SELECT * … 无 WHERE` 全表）⇒ 假绿陷阱可判负** · c 去枚举闸 ⇒ K9 · d 去鉴权 ⇒ I5；主仓三文件 md5 全程不变 ② 报告 **333 行/32,025 B · `__`=0**（我复核）；NOT_MEASURED 9 ⇒ **7 已测/2 保留原因** ③ 离线 `p8-s11` = 自报 86/1 ④ `lsof` 空。**B.** 我 `tsc` **0** ✓ 但复跑 `p8-s11` = **85/2** ⇒ 逐项查 artifact：**`K1`**（期望 `schema_migration` 38/`0039` ⇄ 实测 **39/`0040`**，**成因 = 我 apply 0040** ⇒ **「冻结面滞后」非缺陷**）+ **`K10`**（`fetch failed` 离线无实例 ⇒ 环境差异，带实例已 87/87）。**C.** 派前推单（现取约定 → `MIGRATIONS_FROZEN` + `p8-s9 K5` + `p8-s10 K2` + **`p8-s11 K1`** 前推至 39/`0040` → 复跑 s2..s11 逐门读数 → 收尾；★不得放宽/删判据）。**D.** 入库 8⑥ 全件（10 门 + `src/{database,index,audit-console,points-adjust-reasons}.ts` + `AuditConsolePage.jsx`/`App.jsx`/`admin-utils.js`/`AdminLayout.jsx` + 四语 + 4 i18n 测试 + `p8-s11` 新门 + **`0039` 迁移（已 apply 防漂移）** + 报告；**不 push**）。**E.** DB **0040** · 生产 **0038 时代** · 在跑：前端 batt UI 单 + 8⑥ 前推单。 |
