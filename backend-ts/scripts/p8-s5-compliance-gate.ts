@@ -23,7 +23,7 @@
  *      ⑤皆不满足⇒拒；并断言 `job/:jobId/review` 与 `job/:jobId/cancel` 两路由确实挂此闸
  *   F  **无退还 / 罚没 / delist 面**（`R-8-17`/`DL67`/`DL88`）：零 `hold_forfeit`/`hold_release`/`unfreeze(`/
  *      `listing_deposit_refund`；商品轴审核语句**零账本分录**；招工轴仅走既有 `job_post_event(op='settle'|'refund')`
- *   G  **四语键齐 + 六类泄漏 = 0**：`adminListingReview`(30) / `adminArbitrationReview`(34) / `adminNav`(26)
+ *   G  **四语键齐 + 六类泄漏 = 0**：`adminListingReview`(30) / `adminArbitrationReview`(34) / `adminNav`(28)
  *      四语齐、键集相等、值非空、en/vn 无 CJK、hk 繁體；六类工程口径泄漏 = 0
  *   H  **两迁移 `0026`/`0027` 结构面判据（去注释、去字面量）**：表名 / 9 列 / 5 约束 / 4 索引 / append-only 触发器 /
  *      恰一列 `time_created` / **不含** `time_updated`·`create_key`·`ledger_event_keys` / 零 `ALTER` / 零数据 DML
@@ -66,11 +66,14 @@ const selfTest = (id: string, group: string, predicate: (v: unknown) => boolean,
 };
 
 // ---------------------------------------------------------------- 冻结常量
-const REG_POINTS_FROZEN = 75;
+const REG_POINTS_FROZEN = 76;
 const MIGRATIONS_FROZEN = 26;
 const LISTING_NS_KEYS_FROZEN = 30;
 const ARBITRATION_NS_KEYS_FROZEN = 34;
-const NAV_KEYS_FROZEN = 26;
+// ★ P9①（`route-layer.spec` v2.12 §27 · `R-9-13`）：`adminNav` **26 → 28**（+2 键 = `siteText` / `siteTextDesc`，
+//   ⇔ 后台「站点文案」菜单项的标题 + 描述；沿 `R-8-22`）。8⑤ 的 4 键（`listingReview` / `listingReviewDesc` /
+//   `arbitrationReview` / `arbitrationReviewDesc`）仍在，本门 G8/G9 判据未改，仅冻结计数前推。
+const NAV_KEYS_FROZEN = 28;
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;
 const countVerb = (text: string, verb: string): number =>

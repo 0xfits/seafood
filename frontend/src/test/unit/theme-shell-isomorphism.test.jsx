@@ -258,22 +258,27 @@ describe('应用外壳 · 断点只能落在 CSS 里（结构级证据）', () =
     expect(bad).toEqual([])
   })
 
-  it('四语 locale 文件可解析、键集合相同、siteTitle 为硬编码站名', () => {
+  it('四语 locale 文件可解析、键集合相同、siteTitle 为品牌名（P9① 拆键后）', () => {
     const langs = ['zh', 'en', 'hk', 'vn']
     const tables = langs.map((l) => JSON.parse(read(path.join(SRC, `locales/${l}.json`))))
     const keys = tables.map((t) => Object.keys(t).sort())
     for (let i = 1; i < keys.length; i += 1) expect(keys[i]).toEqual(keys[0])
-    // zh 站名逐字等于产品硬编码口径；其余三语为各自语言的硬编码站名（同样不来自后台）
-    expect(tables[0].siteTitle).toBe('Seafood 海鲜市场｜加密人自己的「闲鱼」')
+    // P9①（R-9-13-3）：`siteTitle` 拆键后**仅品牌名**（标语拆到新键 `siteSlogan`）；四语品牌名逐字冻结。
+    expect(tables[0].siteTitle).toBe('Seafood 海鲜市场')
     for (const t of tables) {
       expect(typeof t.siteTitle).toBe('string')
       expect(t.siteTitle.startsWith('Seafood')).toBe(true)
     }
-    // 启动前回退标题（index.html）+ 前台运行时真源（DocumentTitle）都指向同一站名
+    // P9①：标语键 `siteSlogan` 四语齐；`siteTitle`（品牌）与 `siteSlogan` 组合后 = 原复合串观感。
+    expect(tables[0].siteSlogan).toBe('加密人自己的「闲鱼」')
+    for (const t of tables) expect(typeof t.siteSlogan).toBe('string')
+    // 启动前回退标题（index.html）= **中性占位**；前台运行时真源（DocumentTitle）= 品牌名｜标语（覆盖值 > locale）。
     const html = read(path.join(SRC, '../index.html'))
-    expect(html).toContain('<title>Seafood 海鲜市场｜加密人自己的「闲鱼」</title>')
+    expect(html).toContain('<title>Seafood</title>')
     const app = read(path.join(SRC, 'App.jsx'))
-    expect(app).toContain("document.title = t('siteTitle')")
+    expect(app).toContain("t('siteTitle')")
+    expect(app).toContain("t('siteSlogan')")
+    expect(app).toContain('document.title =')
     expect(() => read(path.join(REPO_ROOT, 'docs/design/style-preview.html'))).not.toThrow()
   })
 })

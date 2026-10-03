@@ -17,6 +17,7 @@ import {
   Gavel,
   Menu,
   X,
+  Type,
   LogOut
 } from 'lucide-react'
 import { Button } from '../ui'
@@ -125,6 +126,13 @@ const AdminLayout = () => {
       path: '/dashboard/arbitration-review',
       description: t('adminNav.arbitrationReviewDesc'),
       requiredPermission: 'review_tasks',
+    },
+    {
+      title: t('adminNav.siteText'),
+      icon: Type,
+      path: '/dashboard/site-text',
+      description: t('adminNav.siteTextDesc'),
+      requiredPermission: 'manage_settings',
     }
   ]
 

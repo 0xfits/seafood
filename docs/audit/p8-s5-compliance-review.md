@@ -87,8 +87,11 @@
 ### (B) 根因两侧逐字（改前）
 > 原文溯自 `real-chains.json`（`p8s5-20261003T003702Z` / `p8s5-20261003T004924Z`）的 `defects[0]` 逐字，与派单口径一致。
 
-- **DB 侧（回执给的是「终态」）**：改前 `backend-ts/src/database.ts:2601` / `:2618` —— 回执键 `job_status` 承载 `finalStatus`（**终态**）。
-  - 工件逐字锚：`"backend-ts/src/database.ts:2618（job_status: finalStatus —— 回执给的是**终态**）"`。
+- **DB 侧（回执给的是「终态」）** —— **类级描述**：`jobArbitrationPostEvent` 的回执把 **终态**（`job_post_event` 回执的 `finalStatus`）挂在 `job_status` 键上返回，即「**终态回执被当 前置态判**」的 DB 侧根。
+  - **可现取锚**：改后现取码 `backend-ts/src/database.ts:2622` —— `return { …, job_status: finalStatus, prior_status: curStatus, … }`（`job_status` 键 = `finalStatus`；行号较改前 +4 行漂移）。
+  - **工件逐字锚（自引）**：`real-chains.json.defects[0].anchors` 仅含 `"backend-ts/src/database.ts:2618（job_status: finalStatus —— 回执给的是**终态**）"` —— **不含 `:2601`**（现取 `grep -c '2601'` 于两 `defects[0].anchors` = 0）。
+  - ⚠️ **原逐字文本无 git 态、不可独立核实**：本报告早段曾引「改前 `database.ts:2601` 逐字」；经核 `:2601` 在 `HEAD:backend-ts/src/database.ts` 与现工作树均**非** `job_status` 承载行、且不被自引工件 anchors 支持 ⇒ 该逐字引证**不可独立核实**，故本处不再作逐字引证，仅保留上述类级描述与 `:2618`/`:2622` 可现取锚。
+  - **复现手法（自写变异 · 类级）**：把服务层判定字段由 `row.prior_status` **换回** `row.job_status`（等价改前态）⇒ 离线门 `J` 组必红 **`J2` · `J2b` · `J3` · `J4`**（117 → 113）、DB 探针必红 **`B1.action_ok` · `B5.success_implies_log` · `C1.first_call_200`**（69 → 66）（负对照读数见 §4(E)）。
 - **服务层（误把「终态」当「前置态」判）**：改前 `backend-ts/src/compliance-review-service.ts:307` / `:321`。
   - `:307` —— `curStatus = row.job_status`（拿终态字段当前置态）；
   - `:321` —— `curStatus !== 'submitted' && curStatus !== 'disputed'` ⇒ `jobStateConflict` 409。
@@ -250,9 +253,9 @@
 
 | 状态 | 路径 | 归因 |
 |---|---|---|
-| `??` | `docs/audit/p8-s5-compliance-review.md` | **本单**新建（本报告）。
+| ` M`（现取 · **非** `??`）| `docs/audit/p8-s5-compliance-review.md` | **★ 订正（P9① 收口单 ② · 2026-10-03）**：原记「`??` · **本单**新建（本报告）」**与事实不符** —— 该报告**已在库**：`git log --oneline --follow -- docs/audit/p8-s5-compliance-review.md` 首见 = `3a36ba5`（8⑤ 实现本地入库），且 `git cat-file -e 0bbedd3:docs/audit/p8-s5-compliance-review.md` = 存在（⇒ 该报告在 `0bbedd3` 与当前 HEAD `d7c385e` 内）；现取 `git status --porcelain` = ` M`（工作树微修态）⇒ **「`??`（未入库）」不成立**。 |
 
-> 注：上表行随本报告落盘后即为本单唯一产物。
+> 注（订正后）：本报告**非**本单新建 —— 首见于 `3a36ba5`；本单对其为**工作树微修**（` M`），**非** untracked。
 
 **桶 B · 8⑤ 在途（修复单 未提交源码 / 迁移 / 前端 / 门订正）**：
 
@@ -268,8 +271,8 @@
 | ` M` | `frontend/src/components/layout/AdminLayout.jsx` | 8⑤：两条菜单项（`listingReview` / `arbitrationReview`） |
 | ` M` | `frontend/src/locales/en.json` `hk.json` `vn.json` `zh.json` | 8⑤：`adminNav` +4 键 + `adminListingReview` / `adminArbitrationReview` 命名空间（无 `roleNames`(P9①) 键，已现取确认） |
 | ` M` | `frontend/src/test/unit/i18n-batch-b4a.test.jsx` `b4b` `b5` `i18n-violation-closeout.test.jsx` | 8⑤：单测期望订正（`adminNav 22 → 26` · 新增 `B8S5_ADDED_TO_ADMINNAV = 4`） |
-| `??` | `backend-ts/migrations/0026_listing_review_log.sql` | 8⑤ 新建迁移（**未 apply**） |
-| `??` | `backend-ts/migrations/0027_job_arbitration_log.sql` | 8⑤ 新建迁移（**未 apply**） |
+| `??` | `backend-ts/migrations/0026_listing_review_log.sql` | 8⑤ 新建迁移 —— **文件未入库（untracked）** · **已 apply**（现取 `schema_migration`：`applied_at` = `2026-10-03 00:29:15.853343+00` · `checksum` = `3140366eabfdcc8375e71e1c8e0144323767245cf2e4fc4114687ba695f84e7b`） |
+| `??` | `backend-ts/migrations/0027_job_arbitration_log.sql` | 8⑤ 新建迁移 —— **文件未入库（untracked）** · **已 apply**（现取 `schema_migration`：`applied_at` = `2026-10-03 00:29:16.856174+00` · `checksum` = `8209df5a86879188f5a25583b69bd4e0002474f850767a7b411641bda17fd481`） |
 | `??` | `backend-ts/src/compliance-review-service.ts` | 8⑤ 新建服务层（364 行） |
 | `??` | `backend-ts/scripts/p8-s5-00-recon.ts` / `-recon2.ts` / `-recon3.ts` / `p8-s5-01-real-chains.ts` / `p8-s5-02-ownership-gate.ts` / `p8-s5-compliance-gate.ts` | 8⑤ 新建门 / 探针脚本（6 件） |
 | `??` | `frontend/src/pages/admin/ListingReviewPage.jsx` / `ArbitrationReviewPage.jsx` | 8⑤ 新建两后台页 |
@@ -283,8 +286,12 @@
 | `??` | `backend-ts/.p4-artifacts/p6tr1a-20261002T232549Z/` … `p6tr1a-20261003T005708Z/`（8 件） | 其它单（P6 翻译面）运行产物（`offline-tests.json`） |
 | ` M` | `backend-ts/.p4-artifacts/b4c-20260930T210239/geometry.json` | 它单 / 套件重跑产生的历史件漂移（+459 / −462 行）—— **非 8⑤ 源码面** |
 
-> **归因口径说明**：桶 C 三项**均不属 8⑤ 源码改动**，为运行产物 / 历史件；本单**未触碰**。桶 B 的 18 项均为 8⑤ 修复单在途（含两迁移**未 apply**）。桶 A 仅本报告一项。全部 ` M`/`??` 皆**未 `git add/commit`**。
+> **归因口径说明**：桶 C 三项**均不属 8⑤ 源码改动**，为运行产物 / 历史件；本单**未触碰**。桶 B 的 18 项均为 8⑤ 修复单在途；其中两迁移须**分两态读**：**「未入库（untracked）」**= 在 `git` 索引 / 提交之外（`??`，**未 `git add/commit`**）；**「未 apply」**= 未执行迁移入库 —— 现取实测**后者不成立**：`schema_migration` 已含 `0026`（`applied_at` = `2026-10-03 00:29:15.853343+00`）与 `0027`（`applied_at` = `2026-10-03 00:29:16.856174+00`），**`schema_version` = `0027`**（现取 `max(version)` · 共 26 行）⇒ 两迁移**已 apply（文件仍未入库）**。桶 A 仅本报告一项。全部 ` M`/`??` 皆**未 `git add/commit`**。
 
 ---
 
 *—— 报告完（本单只落盘此件 + 末次 `git status` 归因；零代码 / 零迁移 / 零 spec 改动 / 零门重跑 / 零 apply / 零 commit）。*
+
+> **订正记录（合批微修 · 2 条）**：① **§10** 桶 B 两迁移原写「**未 apply**」（误述）⇒ 改为实测「**已 apply**（`0026`：`applied_at` = `2026-10-03 00:29:15.853343+00` / `0027`：`applied_at` = `2026-10-03 00:29:16.856174+00`；`schema_version` = `0027`）」，并区分「**未入库（untracked）**」与「**未 apply**」。② **§4(B)** DB 侧原引「改前 `database.ts:2601` 逐字」⇒ 改为**类级描述**（「终态回执被当 前置态判」）+ 逐字标注「**原逐字文本无 git 态、不可独立核实**」+ **复现手法**（服务层判定字段换回 `job_status` ⇒ 门必红 `J2`/`J2b`/`J3`/`J4`）。
+
+> **订正记录（P9① 收口单 ② · 1 条 · 2026-10-03）**：③ **§10 桶 A** 原记本报告为「`??` · 本单新建」（**逐字留痕** — 原文行：「`` `??` `` | `` `docs/audit/p8-s5-compliance-review.md` `` | **本单**新建（本报告）。」；原文注：「上表行随本报告落盘后即为本单唯一产物。」）⇒ **就地订正为**：该报告**已在库**（`git log --follow` 首见 `3a36ba5`；在 `0bbedd3` 与当前 HEAD `d7c385e` 内），现取 `git status --porcelain` = ` M` ⇒ **非 untracked（`??` 不成立）**。

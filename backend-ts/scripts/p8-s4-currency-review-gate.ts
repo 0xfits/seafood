@@ -57,7 +57,7 @@ const selfTest = (id: string, group: string, predicate: (v: unknown) => boolean,
 };
 
 // ---------------------------------------------------------------- 冻结常量
-const REG_POINTS_FROZEN = 75;
+const REG_POINTS_FROZEN = 76;
 const MIGRATIONS_FROZEN = 26;
 const REVIEW_NS_KEYS_FROZEN = 28;
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;

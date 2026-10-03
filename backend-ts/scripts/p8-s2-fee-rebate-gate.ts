@@ -69,8 +69,8 @@ const countMatches = (hay: string, re: RegExp): number => (hay.match(re) || []).
 // A · 读口注册（增量登记 68 → 69）+ 闸 + 取数复用 + 只读纪律
 // ============================================================================
 const REG_COUNT = countMatches(INDEX_TS, /^app\.(get|post|put|delete|patch)\(/gm);
-t('A1', 'readRouteRegistered', REG_COUNT === 75,
-  '注册点 = 75（`grep -cE \'^app\\.(get|post|put|delete|patch)\\(\'`；v1.8 的 68 ⇒ 8② 读口 +1〔69〕⇒ 8④ 读口/动作口 +2〔71〕⇒ 8⑤ 读口/动作口 +4 = 75）', REG_COUNT);
+t('A1', 'readRouteRegistered', REG_COUNT === 76,
+  '注册点 = 76（`grep -cE \'^app\\.(get|post|put|delete|patch)\\(\'`；v1.8 的 68 ⇒ 8② 读口 +1〔69〕⇒ 8④ 读口/动作口 +2〔71〕⇒ 8⑤ 读口/动作口 +4〔75〕⇒ P9① 公开读口 +1 = 76）', REG_COUNT);
 t('A2', 'readRouteRegistered', countMatches(INDEX_TS, new RegExp(READ_ROUTE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) === 1,
   '`GET /api/admin/commission_policy` 注册**恰 1 处**',
   countMatches(INDEX_TS, new RegExp(READ_ROUTE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')));
@@ -181,9 +181,10 @@ t('C7', 'adminPages', /Page not found|TODO|FIXME|PLACEHOLDER/.test(FEE_PAGE + MA
   JSON.stringify({ fee_bytes: FEE_PAGE.length, matrix_bytes: MATRIX_PAGE.length }));
 
 // ============================================================================
-// D · 四语键齐（`adminFeeRate` 18 / `adminWeightMatrix` 21 / `adminNav` 26）
+// D · 四语键齐（`adminFeeRate` 18 / `adminWeightMatrix` 21 / `adminNav` 28）
 // ============================================================================
-const NS_KEYS: Record<string, number> = { adminFeeRate: 18, adminWeightMatrix: 21, adminNav: 26 };
+// ★ P9①：`adminNav` **26 → 28**（+2 键 `siteText` / `siteTextDesc`，⇔ 后台「站点文案」菜单项；沿 `R-8-22`）。
+const NS_KEYS: Record<string, number> = { adminFeeRate: 18, adminWeightMatrix: 21, adminNav: 28 };
 for (const [ns, size] of Object.entries(NS_KEYS)) {
   const present = LANGS.every((l) => LOCALES[l][ns] && typeof LOCALES[l][ns] === 'object');
   const base = Object.keys(LOCALES.zh[ns] || {}).sort();

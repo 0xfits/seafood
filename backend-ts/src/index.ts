@@ -1152,6 +1152,22 @@ app.get('/api/admin/me', async (req, res) => {
   sendSuccess(res, actor.adminAccess);
 });
 
+// ============================================================================
+// 批 9 第 1 片（P9① · `route-layer.spec` v2.12 §27.2 · `data-layer.spec` v0.19 §30.2）：
+//   **公开读口** `GET /api/role-names`（**无鉴权** —— 角色名 / 站点标语 = 全站 UI 文案）。
+// ============================================================================
+// · 注册点 `75 → 76` 逐字登记（`get 31 → 32`）；写口仍复用 `POST /api/admin/settings`（+0）。
+// · 响应带 `updated_at`（供增量 / 失效判据）；**读取失败 ⇒ 前端 fail-closed 回落 locale 基值**（`source='locale'`）。
+app.get('/api/role-names', async (_req, res) => {
+  try {
+    const overlay = await DatabaseService.getSiteTextOverlay();
+    sendSuccess(res, overlay);
+  } catch (error) {
+    // 基础设施异常 ⇒ 既有 §14 分类器（503 + 机读 reason）；前端据此回落 locale 基值（绝不空串）。
+    return sendInfraMapped(res, 'roleNames.get', error);
+  }
+});
+
 app.get('/api/admin/settings', async (req, res) => {
   const actor = await requireAdmin(req, res, 'manage_settings');
   if (!actor) return;

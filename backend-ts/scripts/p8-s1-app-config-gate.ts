@@ -44,8 +44,9 @@ const FROZEN_FIELDS = [
   'defaultLanguage', 'pointsPerTask', 'maxDailyTasks', 'rewardCooldown',
 ];
 // ★ 批 8③（`data-layer.spec` v0.12 §23.1）：合法键清单 **1 键 → 恰 2 键**（+ `AK2` = `listing_deposit_policy`）。
-//   期望订正（逐字登记 · 不删断言）：`['system_settings']` ⇒ `['system_settings','listing_deposit_policy']`（顺序 = 代码面）。
-const FROZEN_TOP_KEYS = ['system_settings', 'listing_deposit_policy'];
+//   期望订正（逐字登记 · 不删断言）：`['system_settings']` ⇒ `['system_settings','listing_deposit_policy']`（8③）
+//   ⇒ **P9①（`R-9-13`-1 裁准入册 7 键 · §29.2(B) `B1`–`B7`）= 恰 9 键**（顺序 = 代码面）。
+const FROZEN_TOP_KEYS = ['system_settings', 'listing_deposit_policy', 'batt_policy', 'checkin_policy', 'invite_reward_policy', 'mint_burn_policy', 'rating_policy', 'site_text_overrides', 'role_names'];
 
 const readSrc = (rel: string): string => fs.readFileSync(path.resolve(REPO_ROOT, rel), 'utf8');
 const walkTs = (dir: string, out: string[] = []): string[] => {

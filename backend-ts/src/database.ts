@@ -43,8 +43,9 @@ const DEFAULT_SYSTEM_SETTINGS = {
 //   + 批 8③（`data-layer.spec` v0.12 §23.1 · `AK2` 入册）· `route-layer.spec` v2.5 §20：
 // `app_config` **合法键清单（关闭集）** + **写入门禁的判据真源**。
 // ============================================================================
-// · 顶层合法键（`app_config.key` 取值）**恰好 2 个** = `system_settings`（`AK1`，§21.1）
-//   + `listing_deposit_policy`（`AK2`，§23.1 入册；真源 = `R-8-9` 批准键名）；
+// · 顶层合法键（`app_config.key` 取值）**恰好 9 个** = `system_settings`（`AK1`，§21.1）
+//   + `listing_deposit_policy`（`AK2`，§23.1 入册；真源 = `R-8-9` 批准键名）
+//   + P9 候选 7 键（§29.2(B) `B1`–`B7`；`R-9-13`-1 裁准入册 = 变体 Ⅰ）；
 //   **任何其它键名一律非法**（含 `foo` / `deposit_amount` / `fee_rate` / `rate_bp`）。
 // · ★ **「在册」=「可写」**（`data-layer.spec` v0.13 §24 · `route-layer.spec` v2.6 §21 · `R-8-19`）：
 //   `AK2` 已可经 `POST /api/admin/settings` 的**形态 B**（显式信封 `{key, value}`）**键级寻址**写入
@@ -56,8 +57,25 @@ const DEFAULT_SYSTEM_SETTINGS = {
 //   逐字段规格见 `LISTING_DEPOSIT_POLICY_FIELD_TYPES`；**数值真值 = `TODO: Kevin 定值`**）。
 // · `value` 内**字段名**亦为**关闭集**：请求体出现清单外的键即按其为「未知键」判负（`AG1`）。
 // ⚠️ 纪律（§21.3 规则①）：**本清单是键名的唯一真源** —— 实现 / 测试 / 探针**不得自拟键名**。
-/** §21.1 `AK1` ∪ §23.1 `AK2`：`app_config` 顶层合法键（关闭集 · 恰 2 键）。 */
-export const APP_CONFIG_LEGAL_KEYS = ['system_settings', 'listing_deposit_policy'] as const;
+/**
+ * §21.1 `AK1` ∪ §23.1 `AK2` ∪ §29.2(B)（P9 候选 `B1`–`B7` · `R-9-13`-1 裁准入册）：
+ * `app_config` 顶层合法键（关闭集 · 恰 9 键）。逐字 9 键 =
+ *   `system_settings` · `listing_deposit_policy` ·
+ *   `batt_policy`(B1) · `checkin_policy`(B2) · `invite_reward_policy`(B3) ·
+ *   `mint_burn_policy`(B4) · `rating_policy`(B5) · `site_text_overrides`(B6) · `role_names`(B7)。
+ * ★ 「在册 ≠ 可写」仍成立（§29.2(D) 三重复核）：入册后仍须过 `AV2`–`AV5` + `ops:` 键级寻址 + 闸 `manage_settings`。
+ */
+export const APP_CONFIG_LEGAL_KEYS = [
+  'system_settings',
+  'listing_deposit_policy',
+  'batt_policy',
+  'checkin_policy',
+  'invite_reward_policy',
+  'mint_burn_policy',
+  'rating_policy',
+  'site_text_overrides',
+  'role_names',
+] as const;
 
 /**
  * ★ 批 8③b（`data-layer.spec` v0.13 §24.1(b) · `AW3`）：**形态 A** 的目标键常量（唯一）。
@@ -118,6 +136,196 @@ export const LISTING_DEPOSIT_POLICY_FIELD_TYPES = {
 
 /** `listing_deposit_policy` 的合法字段名（关闭集，1 个）。 */
 export const LISTING_DEPOSIT_POLICY_FIELDS = Object.keys(LISTING_DEPOSIT_POLICY_FIELD_TYPES);
+
+// ============================================================================
+// ★★ 批 9 第 1 片（P9①）（`data-layer.spec` v0.19 §29 / §30 · `route-layer.spec` v2.12 §26 / §27）：
+//   P9 配置键面 —— 数值策略键 `B1`–`B5` + 两类文案覆盖层键 `B6` / `B7` 的**键名唯一真源** +
+//   `AV2`–`AV4` 校验体（**零新增错误码 / 零新增 `reason` 常量**：复用 `SETTINGS_WRITE_REASONS` 三常量）。
+// · `R-9-13`-1 载体 = **变体 Ⅰ**（`app_config` 键）；**零 DDL / 零迁移**（`AS5`）；唯一写口 = 形态 B。
+// ============================================================================
+
+/** `B7`（`R-9-8` 范围更正 · §29.13）：四角色名覆盖层键名常量。 */
+export const ROLE_NAMES_KEY = 'role_names' as const;
+/** `B6`（`R-9-10` · §29.12）：站点标语覆盖层键名常量。 */
+export const SITE_TEXT_OVERRIDES_KEY = 'site_text_overrides' as const;
+
+/** §29.13⑤：`role_names` 字段闭集 = 显式四角色（禁任意 i18n 键）。 */
+export const ROLE_NAME_FIELDS = ['poster', 'worker', 'seller', 'buyer'] as const;
+/** §29.12(d)：`site_text_overrides` 字段闭集 = 显式三键（禁任意 i18n 键）。 */
+export const SITE_TEXT_FIELDS = ['siteTitle', 'siteSlogan', 'slogan'] as const;
+/** §29.13① / §29.12(a)：覆盖层语言闭集（四语键集必须相等；缺语 ⇒ fail-closed）。 */
+export const OVERLAY_LANGS = ['zh', 'en', 'hk', 'vn'] as const;
+
+/** `B1`–`B5`（§29.2(B)）数值策略键的**逐字段类型规格**（`AV2`/`AV3` 判据真源）。 */
+export const BATT_POLICY_FIELD_TYPES = {
+  taskCostBatt: 'number', capBatt: 'number', floorBatt: 'number', acceptThresholdBatt: 'number',
+} as const;
+export const CHECKIN_POLICY_FIELD_TYPES = {
+  baseRewardBatt: 'number', streakCapDays: 'number', streakDay7RewardBatt: 'number',
+  makeupCostUsd: 'number', makeupDailyLimit: 'number',
+} as const;
+export const INVITE_REWARD_POLICY_FIELD_TYPES = {
+  signupBatt: 'number', firstTaskUsd: 'number', rewardLevels: 'number',
+} as const;
+export const MINT_BURN_POLICY_FIELD_TYPES = {
+  mintBattCost: 'number', mintFeeUsd: 'number', burnBttcCost: 'number', burnFeeUsd: 'number', burnBattGain: 'number',
+} as const;
+export const RATING_POLICY_FIELD_TYPES = {
+  storageDecimals: 'number', displayDecimals: 'number', defaultStars: 'number',
+} as const;
+
+/** `AV4` 语义域函数（真 ⇒ 合法）。 */
+type NumericDomain = (value: number) => boolean;
+const POSITIVE_INT: NumericDomain = (v) => Number.isSafeInteger(v) && v > 0;
+const NON_NEG_INT: NumericDomain = (v) => Number.isSafeInteger(v) && v >= 0;
+const STAR_RANGE: NumericDomain = (v) => Number.isFinite(v) && v >= 0 && v <= 5;
+const ZERO_ONLY: NumericDomain = (v) => v === 0;
+
+/** 数值策略键的 `AV2`/`AV3`/`AV4` 规格表（键名 → 字段类型 + 域 + 域标签）。 */
+const NUMERIC_POLICY_SPECS: Record<string, {
+  fields: Record<string, string>;
+  domain: Record<string, NumericDomain>;
+  domainLabel: Record<string, string>;
+}> = {
+  batt_policy: {
+    fields: { ...BATT_POLICY_FIELD_TYPES },
+    domain: { taskCostBatt: POSITIVE_INT, capBatt: POSITIVE_INT, floorBatt: NON_NEG_INT, acceptThresholdBatt: NON_NEG_INT },
+    domainLabel: { taskCostBatt: 'positive_integer', capBatt: 'positive_integer', floorBatt: 'non_negative_integer', acceptThresholdBatt: 'non_negative_integer' },
+  },
+  checkin_policy: {
+    fields: { ...CHECKIN_POLICY_FIELD_TYPES },
+    domain: { baseRewardBatt: POSITIVE_INT, streakCapDays: POSITIVE_INT, streakDay7RewardBatt: POSITIVE_INT, makeupCostUsd: POSITIVE_INT, makeupDailyLimit: POSITIVE_INT },
+    domainLabel: { baseRewardBatt: 'positive_integer', streakCapDays: 'positive_integer', streakDay7RewardBatt: 'positive_integer', makeupCostUsd: 'positive_integer', makeupDailyLimit: 'positive_integer' },
+  },
+  invite_reward_policy: {
+    fields: { ...INVITE_REWARD_POLICY_FIELD_TYPES },
+    domain: { signupBatt: POSITIVE_INT, firstTaskUsd: POSITIVE_INT, rewardLevels: POSITIVE_INT },
+    domainLabel: { signupBatt: 'positive_integer', firstTaskUsd: 'positive_integer', rewardLevels: 'positive_integer' },
+  },
+  mint_burn_policy: {
+    fields: { ...MINT_BURN_POLICY_FIELD_TYPES },
+    domain: { mintBattCost: POSITIVE_INT, mintFeeUsd: POSITIVE_INT, burnBttcCost: POSITIVE_INT, burnFeeUsd: POSITIVE_INT, burnBattGain: POSITIVE_INT },
+    domainLabel: { mintBattCost: 'positive_integer', mintFeeUsd: 'positive_integer', burnBttcCost: 'positive_integer', burnFeeUsd: 'positive_integer', burnBattGain: 'positive_integer' },
+  },
+  rating_policy: {
+    fields: { ...RATING_POLICY_FIELD_TYPES },
+    domain: { storageDecimals: NON_NEG_INT, displayDecimals: ZERO_ONLY, defaultStars: STAR_RANGE },
+    domainLabel: { storageDecimals: 'non_negative_integer', displayDecimals: '0', defaultStars: 'number_in_[0,5]' },
+  },
+};
+
+const hasOwn = (obj: Record<string, unknown>, key: string): boolean =>
+  Object.prototype.hasOwnProperty.call(obj, key);
+
+const rejectUnknownKey = (unknown: string[], legal: readonly string[], message: string): SystemSettingsWriteReject => ({
+  ok: false,
+  code: 'LEDGER_AMOUNT_INVALID',
+  message,
+  details: { field: unknown[0], reason: SETTINGS_WRITE_REASONS.unknownKey, unknown_keys: unknown, legal_keys: [...legal] },
+});
+
+const rejectType = (field: string, expected: string, got: unknown, message = 'Setting field type is invalid'): SystemSettingsWriteReject => ({
+  ok: false,
+  code: 'LEDGER_AMOUNT_INVALID',
+  message,
+  details: { field, reason: SETTINGS_WRITE_REASONS.typeInvalid, expected, got: shapeOf(got) },
+});
+
+/**
+ * `B1`–`B5` 数值策略键的 `AV2`（字段闭集）→ `AV3`（类型）→ `AV4`（语义域）判定（层序写死 · 短路）。
+ * 缺字段合法（部分补丁语义）；未知字段 ⇒ `unknownKey`（`legal_keys` = 该键字段清单）。
+ */
+export const validateNumericPolicyValue = (targetKey: string, input: unknown): AppConfigValueVerdict => {
+  const spec = NUMERIC_POLICY_SPECS[targetKey];
+  if (!spec) return rejectUnknownKey([targetKey], APP_CONFIG_LEGAL_KEYS, 'Unknown key(s) are not writable via /api/admin/settings');
+  if (!isJsonbObject(input)) {
+    return {
+      ok: false, code: 'LEDGER_AMOUNT_INVALID', message: 'Setting value must be a JSON object',
+      details: { field: 'value', reason: SETTINGS_WRITE_REASONS.valueNotObject, expected: 'object', got: shapeOf(input) },
+    };
+  }
+  const unknown = Object.keys(input).filter((k) => !hasOwn(spec.fields, k));
+  if (unknown.length) return rejectUnknownKey(unknown, Object.keys(spec.fields), `Unknown field(s) are not writable for ${targetKey}`);
+  for (const [field, expected] of Object.entries(spec.fields)) {
+    if (!hasOwn(input, field)) continue;
+    const value = input[field];
+    if (!fieldTypeMatches(expected, value)) return rejectType(field, expected, value);
+    const domain = spec.domain[field];
+    if (domain && !domain(value as number)) return rejectType(field, spec.domainLabel[field] || 'domain', value, 'Setting field value is out of domain');
+  }
+  return { ok: true, value: input };
+};
+
+/**
+ * `B6` / `B7` 覆盖层键的 `AV2`（字段闭集）→ `AV3`（逐字段 = `{zh,en,hk,vn}` 非空串对象）判定。
+ * ★ **四语键集必须相等**：某字段的键集 ≠ 恰 4 语 ⇒ 拒（缺语 / 多语皆判负 · 沿 §29.13④）。
+ * 缺字段合法（部分补丁）；未知字段 / 未知语言 ⇒ `unknownKey`（`legal_keys` = 字段清单 / 四语闭集）。
+ */
+export const validateOverlayValue = (targetKey: string, fields: readonly string[], input: unknown): AppConfigValueVerdict => {
+  if (!isJsonbObject(input)) {
+    return {
+      ok: false, code: 'LEDGER_AMOUNT_INVALID', message: 'Setting value must be a JSON object',
+      details: { field: 'value', reason: SETTINGS_WRITE_REASONS.valueNotObject, expected: 'object', got: shapeOf(input) },
+    };
+  }
+  const unknown = Object.keys(input).filter((k) => !fields.includes(k));
+  if (unknown.length) return rejectUnknownKey(unknown, fields, `Unknown field(s) are not writable for ${targetKey}`);
+  for (const field of fields) {
+    if (!hasOwn(input, field)) continue;
+    const perLang = input[field];
+    if (!isJsonbObject(perLang)) return rejectType(field, 'language_object', perLang);
+    const unknownLangs = Object.keys(perLang).filter((l) => !(OVERLAY_LANGS as readonly string[]).includes(l));
+    if (unknownLangs.length) return rejectUnknownKey(unknownLangs, OVERLAY_LANGS, `Unknown language(s) are not writable for ${targetKey}`);
+    for (const lang of OVERLAY_LANGS) {
+      if (!hasOwn(perLang, lang)) return rejectType(`${field}.${lang}`, 'non_empty_string', undefined, 'Overlay language set is incomplete');
+      const text = perLang[lang];
+      if (typeof text !== 'string' || text.trim().length === 0) return rejectType(`${field}.${lang}`, 'non_empty_string', text);
+    }
+  }
+  return { ok: true, value: input };
+};
+
+/** 覆盖层字段的**读侧解析**（fail-closed）：非法 / 缺语 / 多语 ⇒ `null`（调用方回落 locale 基值）。 */
+const parseOverlayField = (value: unknown): Record<string, string> | null => {
+  if (!isJsonbObject(value)) return null;
+  if (Object.keys(value).length !== OVERLAY_LANGS.length) return null;
+  const out: Record<string, string> = {};
+  for (const lang of OVERLAY_LANGS) {
+    if (!hasOwn(value, lang)) return null;
+    const text = value[lang];
+    if (typeof text !== 'string' || text.trim().length === 0) return null;
+    out[lang] = text;
+  }
+  return out;
+};
+
+/** `B7` `role_names` 读侧解析（fail-closed）：非法 ⇒ `null` ⇒ 前端回落 locale（**绝不空串**）。 */
+export const parseRoleNamesOverride = (value: unknown): Record<string, Record<string, string>> | null => {
+  if (!isJsonbObject(value)) return null;
+  if (Object.keys(value).some((k) => !(ROLE_NAME_FIELDS as readonly string[]).includes(k))) return null;
+  const out: Record<string, Record<string, string>> = {};
+  for (const field of ROLE_NAME_FIELDS) {
+    if (!hasOwn(value, field)) continue;
+    const parsed = parseOverlayField(value[field]);
+    if (parsed === null) return null;
+    out[field] = parsed;
+  }
+  return out;
+};
+
+/** `B6` `site_text_overrides` 读侧解析（fail-closed）：非法 ⇒ `null` ⇒ 前端回落 locale（**绝不空串**）。 */
+export const parseSiteTextOverridesOverlay = (value: unknown): Record<string, Record<string, string>> | null => {
+  if (!isJsonbObject(value)) return null;
+  if (Object.keys(value).some((k) => !(SITE_TEXT_FIELDS as readonly string[]).includes(k))) return null;
+  const out: Record<string, Record<string, string>> = {};
+  for (const field of SITE_TEXT_FIELDS) {
+    if (!hasOwn(value, field)) continue;
+    const parsed = parseOverlayField(value[field]);
+    if (parsed === null) return null;
+    out[field] = parsed;
+  }
+  return out;
+};
 
 /**
  * `AK2` 读侧解析（`route-layer.spec` §20.7「先读 `AK2` · 读不到 / 非法 ⇒ **fail-closed 到常量**」）：
@@ -1350,6 +1558,9 @@ export const validateListingDepositPolicyValue = (input: unknown): AppConfigValu
  * `AV2`–`AV4` 的**按目标键分发**（唯一入口）：
  *   · `system_settings` ⇒ 既有 `validateSystemSettingsPatch`（`AV2` = 9 字段闭集 + `AV3` 类型）；
  *   · `listing_deposit_policy` ⇒ `validateListingDepositPolicyValue`（`AV2` = `{amount}` + `AV3` + `AV4`）；
+ *   · `batt_policy` / `checkin_policy` / `invite_reward_policy` / `mint_burn_policy` / `rating_policy`（`B1`–`B5`）
+ *     ⇒ `validateNumericPolicyValue`（`AV2` 字段闭集 + `AV3` 类型 + `AV4` 语义域）；
+ *   · `site_text_overrides`（`B6`）/ `role_names`（`B7`）⇒ `validateOverlayValue`（`AV2` 字段闭集 + 四语键集相等）；
  *   · 其它键 ⇒ **不可达**（`AV1` 已拦），仍 fail-closed 拒绝（不静默放行）。
  */
 export const validateAppConfigValue = (targetKey: string, value: unknown): AppConfigValueVerdict => {
@@ -1359,6 +1570,15 @@ export const validateAppConfigValue = (targetKey: string, value: unknown): AppCo
   }
   if (targetKey === LISTING_DEPOSIT_POLICY_KEY) {
     return validateListingDepositPolicyValue(value);
+  }
+  if (targetKey === SITE_TEXT_OVERRIDES_KEY) {
+    return validateOverlayValue(targetKey, SITE_TEXT_FIELDS, value);
+  }
+  if (targetKey === ROLE_NAMES_KEY) {
+    return validateOverlayValue(targetKey, ROLE_NAME_FIELDS, value);
+  }
+  if (Object.prototype.hasOwnProperty.call(NUMERIC_POLICY_SPECS, targetKey)) {
+    return validateNumericPolicyValue(targetKey, value);
   }
   return {
     ok: false,
@@ -3771,6 +3991,44 @@ export class DatabaseService {
     return normalizeSystemSettingsRead(rows[0]?.value || DEFAULT_SYSTEM_SETTINGS);
   }
 
+  /**
+   * ★ 批 9 第 1 片（P9① · `route-layer.spec` v2.12 §27.2 · `data-layer.spec` v0.19 §30.2）：
+   * 覆盖层**公开读口** `GET /api/role-names` 的取数（**只读** · 无副作用 · 无鉴权）。
+   * 返回 = `{ role_names, site_text_overrides, updated_at }`；两键各自经读侧 fail-closed 解析
+   * （非法 / 缺语 / 无行 ⇒ `null` ⇒ 前端回落 locale 基值，**绝不空串**）；
+   * `updated_at` = 两行 `time_updated` 的最大值（ISO 串；无行 ⇒ `null`）。
+   */
+  static async getSiteTextOverlay(): Promise<{
+    role_names: Record<string, Record<string, string>> | null;
+    site_text_overrides: Record<string, Record<string, string>> | null;
+    updated_at: string | null;
+  }> {
+    const sql = getSql();
+    const rows = asItems<{ key: unknown; value: unknown; time_updated: unknown }>(await sql`
+      SELECT key, value, time_updated
+      FROM public.app_config
+      WHERE key IN (${ROLE_NAMES_KEY}, ${SITE_TEXT_OVERRIDES_KEY})
+    `);
+    const isoOf = (value: unknown): string | null => {
+      if (value === null || value === undefined || value === '') return null;
+      const date = value instanceof Date ? value : new Date(typeof value === 'number' ? value : String(value));
+      return Number.isNaN(date.getTime()) ? null : date.toISOString();
+    };
+    let updatedAt: string | null = null;
+    for (const row of rows) {
+      const iso = isoOf(row.time_updated);
+      if (iso && (updatedAt === null || iso > updatedAt)) updatedAt = iso;
+    }
+    const byKey = new Map(rows.map((row) => [String(row.key), row]));
+    const roleRow = byKey.get(ROLE_NAMES_KEY);
+    const siteRow = byKey.get(SITE_TEXT_OVERRIDES_KEY);
+    return {
+      role_names: roleRow ? parseRoleNamesOverride(roleRow.value) : null,
+      site_text_overrides: siteRow ? parseSiteTextOverridesOverlay(siteRow.value) : null,
+      updated_at: updatedAt,
+    };
+  }
+
   // P4-B2c（§1 #33 / DL36 / DL71）：补 `updated_by`（**NOT NULL 无默认** ⇒ 旧实现必违约）+ 显式 public.。
   // 批 8①（`data-layer.spec` §21.2 `AG1`/`AG3`/`AG4`）：**写侧先过「逐键白名单 + 类型闸」** ——
   //   未知键 / 类型不符 / 非 object ⇒ `assertSystemSettingsPatch` **抛** `SystemSettingsWriteError`
@@ -3797,6 +4055,13 @@ export class DatabaseService {
       }) as unknown as Record<string, unknown>;
     } else if (targetKey === LISTING_DEPOSIT_POLICY_KEY) {
       nextValue = assertListingDepositPolicyValue(input);
+    } else if (Object.prototype.hasOwnProperty.call(NUMERIC_POLICY_SPECS, targetKey)
+      || targetKey === SITE_TEXT_OVERRIDES_KEY || targetKey === ROLE_NAMES_KEY) {
+      // ★ 批 9 第 1 片（P9① · §29/§30）：B1–B5 数值策略键 + B6/B7 覆盖层键 —— 双保险断言
+      //   （任何绕过前置层的调用也 fail-closed 抛错）；值 = 全量（形态 B 直写）。
+      const verdict = validateAppConfigValue(targetKey, input);
+      if (!verdict.ok) throw new SystemSettingsWriteError(verdict.message, verdict.details);
+      nextValue = verdict.value;
     } else {
       throw new SystemSettingsWriteError('Unknown app_config key', {
         field: targetKey,

@@ -54,15 +54,15 @@ const selfTest = (id: string, group: string, predicate: (v: unknown) => boolean,
 };
 
 // ---------------------------------------------------------------- 冻结常量
-/** §21.1 ∪ §23.1（逐字 · spec 侧期望）。 */
-const FROZEN_LEGAL_KEYS = ['system_settings', 'listing_deposit_policy'];
+/** §21.1 ∪ §23.1 ∪ §29.2(B)（逐字 · spec 侧期望 · 恰 9 键）。 */
+const FROZEN_LEGAL_KEYS = ['system_settings', 'listing_deposit_policy', 'batt_policy', 'checkin_policy', 'invite_reward_policy', 'mint_burn_policy', 'rating_policy', 'site_text_overrides', 'role_names'];
 /** §21.1 `AK1` 值对象 9 字段（逐字冻结 · 与 p8-s1 门同源）。 */
 const FROZEN_AK1_FIELDS = [
   'siteName', 'siteDescription', 'maintenance', 'allowRegistration', 'emailNotifications',
   'defaultLanguage', 'pointsPerTask', 'maxDailyTasks', 'rewardCooldown',
 ];
 const AK2_KEY = 'listing_deposit_policy';
-const REG_POINTS_FROZEN = 75;
+const REG_POINTS_FROZEN = 76;
 /**
  * ★ `R-8-20`（本片新裁）注册点计数判据 —— **容忍前置空白**。
  * 改前判据 `^app\.` 写死**列 0** ⇒ **带缩进插入的路由不被计入**（缩进路由**仍是已注册路由**！）
@@ -99,9 +99,12 @@ const SPEC_ROUTE = readSrc('docs/route-layer.spec.md');
 // ============================================================================
 // A · AK2 入册（清单恰 2 键 · 与 spec 一致 · AK1 字段集不动）
 // ============================================================================
-const specKeys = [...SPEC_DATA.matchAll(/^\| \*\*`AK\d+`\*\* \| \*\*`([a-z_]+)`\*\*/gm)].map((m) => m[1]);
+const akSpecKeys = [...SPEC_DATA.matchAll(/^\| \*\*`AK\d+`\*\* \| \*\*`([a-z_]+)`\*\*/gm)].map((m) => m[1]);
+// ★ P9①（§29.2(B)）：`B1`–`B7` 候选键行（表体格式 `| B<d> | **`<key>`** | …`）—— 与 `AK*` 行合并 = 现取 9 键。
+const bSpecKeys = [...SPEC_DATA.matchAll(/^\| B\d+ \| \*\*`([a-z_]+)`\*\*/gm)].map((m) => m[1]);
+const specKeys = [...new Set([...akSpecKeys, ...bSpecKeys])];
 t('A1', 'ak2Registered', JSON.stringify([...APP_CONFIG_LEGAL_KEYS]) === JSON.stringify(FROZEN_LEGAL_KEYS),
-  `代码常量 APP_CONFIG_LEGAL_KEYS = ${JSON.stringify(FROZEN_LEGAL_KEYS)}（恰 2 键）`, JSON.stringify([...APP_CONFIG_LEGAL_KEYS]));
+  `代码常量 APP_CONFIG_LEGAL_KEYS = ${JSON.stringify(FROZEN_LEGAL_KEYS)}（恰 9 键）`, JSON.stringify([...APP_CONFIG_LEGAL_KEYS]));
 t('A2', 'ak2Registered',
   JSON.stringify([...specKeys].sort()) === JSON.stringify([...FROZEN_LEGAL_KEYS].sort()) && specKeys.includes(AK2_KEY),
   `spec §21.1 ∪ §23.1 解析出的键集 = ${JSON.stringify([...FROZEN_LEGAL_KEYS].sort())}（代码常量与 spec 一致）`,
@@ -110,9 +113,9 @@ t('A3', 'ak2Registered',
   JSON.stringify([...APP_CONFIG_LEGAL_KEYS].slice().sort()) === JSON.stringify([...specKeys].slice().sort()),
   '代码常量键集 == spec 键集（逐字一致 · 跨册同步）',
   JSON.stringify({ code: [...APP_CONFIG_LEGAL_KEYS].sort(), spec: [...specKeys].sort() }));
-t('A4', 'ak2Registered', /顶层合法键（`app_config\.key` 取值）\*\*恰好 2 个\*\*/.test(DATABASE_TS) && !DATABASE_TS.includes('恰好 1 个'),
-  '注释块同轮更新：写「恰好 2 个」、**不再写**「恰好 1 个」（注释即证据源 · AR6）',
-  JSON.stringify({ has2: /恰好 2 个/.test(DATABASE_TS), has1: DATABASE_TS.includes('恰好 1 个') }));
+t('A4', 'ak2Registered', /顶层合法键（`app_config\.key` 取值）\*\*恰好 9 个\*\*/.test(DATABASE_TS) && !DATABASE_TS.includes('恰好 1 个') && !DATABASE_TS.includes('恰好 2 个'),
+  '注释块同轮更新：写「恰好 9 个」、**不再写**「恰好 1 个」/「恰好 2 个」（注释即证据源 · AR6）',
+  JSON.stringify({ has9: /恰好 9 个/.test(DATABASE_TS), has1: DATABASE_TS.includes('恰好 1 个'), has2: DATABASE_TS.includes('恰好 2 个') }));
 t('A5', 'ak2Registered', JSON.stringify([...SYSTEM_SETTINGS_FIELDS]) === JSON.stringify(FROZEN_AK1_FIELDS),
   `AK1 值对象字段仍恰 9 个（逐字冻结 · 未被 AK2 污染）`, JSON.stringify([...SYSTEM_SETTINGS_FIELDS]));
 t('A6', 'ak2Registered',
@@ -281,7 +284,7 @@ selfTest('A1', 'ak2Registered', (v) => JSON.stringify(v) === JSON.stringify(FROZ
   ['system_settings'], '把清单写成「恰 1 键」⇒ 谓词必须转红（旧值 = 假绿陷阱）');
 selfTest('C1', 'ak2Spec', (v) => JSON.stringify(v) === JSON.stringify({ amount: 'number' }),
   { amount: 'string' }, '把字段类型写成 string ⇒ 谓词必须转红');
-selfTest('E1', 'noRefundSurface', (v) => v === REG_POINTS_FROZEN, 76, '注册点写成 76（= 偷偷加路由）⇒ 谓词必须转红');
+selfTest('E1', 'noRefundSurface', (v) => v === REG_POINTS_FROZEN, 75, '注册点写成 75（= 偷偷少一条）⇒ 谓词必须转红');
 
 // ==================================================================== 结论
 const failed = checks.filter((c) => !c.pass);

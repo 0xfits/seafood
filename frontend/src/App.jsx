@@ -34,11 +34,13 @@ import ReferralWeightMatrixPage from './pages/admin/ReferralWeightMatrixPage'
 import CurrencyReviewPage from './pages/admin/CurrencyReviewPage'
 import ListingReviewPage from './pages/admin/ListingReviewPage'
 import ArbitrationReviewPage from './pages/admin/ArbitrationReviewPage'
+import SiteTextPage from './pages/admin/SiteTextPage'
 
 // 布局组件
 import AppShell from './shell/AppShell'
 import AdminLayout from './components/layout/AdminLayout'
 import { fetchAdminAccess, hasAdminPermission } from './admin-utils'
+import { applySiteTextOverlay, composeDocumentTitle, fetchSiteTextOverlay } from './site-text-overlay'
 import { useAuth } from './auth-context'
 import { buildLocalizedPath, canonicalLangPath, getLanguageFromUrl, SUPPORTED_LANGS } from './utils'
 
@@ -125,12 +127,25 @@ const HTML_LANG_BY_KEY = { zh: 'zh-CN', hk: 'zh-HK', vn: 'vi', en: 'en' }
 const DocumentTitle = () => {
   const { t, i18n } = useTranslation()
   const lang = i18n.resolvedLanguage || i18n.language
+  // P9①（`route-layer.spec` v2.12 §27.2）：覆盖层合并后触发一次重渲染（覆盖值 > locale）。
+  const [overlayTick, setOverlayTick] = useState(0)
+
+  // 应用初始化 + 语言切换时取覆盖层并合并（覆盖值优先；**不本地持久缓存**）；失败 ⇒ 回落 locale 基值。
+  useEffect(() => {
+    let cancelled = false
+    fetchSiteTextOverlay().then((overlay) => {
+      if (cancelled || !overlay) return
+      if (applySiteTextOverlay(i18n, overlay) > 0) setOverlayTick((n) => n + 1)
+    })
+    return () => { cancelled = true }
+  }, [i18n, lang])
 
   useEffect(() => {
-    document.title = t('siteTitle')
+    // 品牌名｜标语：`siteTitle` 拆键后**仅品牌名**（`R-9-13`-3）；覆盖层改后此处即取新值（§26.11(c)）。
+    document.title = composeDocumentTitle(t('siteTitle'), t('siteSlogan'))
     // 顺带把 <html lang> 同步为当前语言（index.html 里写死的 zh-CN 只是启动前回退值）
     document.documentElement.setAttribute('lang', HTML_LANG_BY_KEY[lang] || 'zh-CN')
-  }, [t, lang])
+  }, [t, lang, overlayTick])
 
   return null
 }
@@ -254,6 +269,8 @@ function App() {
           {/* 8⑤（spec §25.2/§25.7）：商品合规审核页 / 招工仲裁页，闸 = review_tasks */}
           <Route path="listing-review" element={<ProtectedRoute adminOnly={true} requiredPermission="review_tasks"><ListingReviewPage /></ProtectedRoute>} />
           <Route path="arbitration-review" element={<ProtectedRoute adminOnly={true} requiredPermission="review_tasks"><ArbitrationReviewPage /></ProtectedRoute>} />
+          {/* P9①（spec §27.2/§26.6）：站点文案页（角色文案 + 站点标语 + 数值项），闸 = manage_settings */}
+          <Route path="site-text" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><SiteTextPage /></ProtectedRoute>} />
         </Route>
       
       {/* 显式语言壳路由：/en/*、/hk/*、/vn/*、/zh/*（顺序即 SUPPORTED_LANGS；zh 也保留显式壳，配合自愈层把 /zh → /） */}

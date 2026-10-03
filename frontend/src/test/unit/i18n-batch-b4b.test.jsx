@@ -236,7 +236,7 @@ describe('P6-I18N-LIT-B4b · 四语 locale 键集 + 类级断言脚本读数', (
 
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
-  it('新增 137 键四语齐备、非空串；四文件拍平键集逐文件相等（B5 末批 + 批 7-A + 批 7-D + P7-E 后 top=108 / flat=886）', () => {
+  it('新增 137 键四语齐备、非空串；四文件拍平键集逐文件相等（B5 末批 + 批 7-A + 批 7-D + P7-E 后 top=112 / flat=944）', () => {
     const tables = {}
     const sets = {}
     const counts = {}
@@ -253,7 +253,7 @@ describe('P6-I18N-LIT-B4b · 四语 locale 键集 + 类级断言脚本读数', (
     expect(new Set(LANGS.map((l) => counts[l].flat)).size).toBe(1)
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
-    expect(counts.zh).toEqual({ top: 108, flat: 886 }) // **期望订正（批 8② 费率+权重矩阵）**：+adminFeeRate 18 / +adminWeightMatrix 21 / +adminNav 4 ⇒ 拍平 +43 / 顶层 +2（745⇒788 / 103⇒105）。原口径（P7-E 小尾巴批-β）：新增 orders 块（statusLabel 5 + sideLabel 3）= 拍平 +8 / 顶层 +1（737⇒745 / 102⇒103）。原口径：B5 组件库+预览页末批；批 7-A +21；批 7-D +33
+    expect(counts.zh).toEqual({ top: 112, flat: 944 }) // **期望订正（P9① 站点文案覆盖层）**：+roleNames(4) +siteSlogan(1) +adminRoleNames(11) +adminSiteText(40) +adminNav(2) ⇒ 拍平 +58 / 顶层 +4（886⇒944 / 108⇒112）
     // 本批新增的 5 个顶层命名空间（命名空间铁律：不得与既有顶层字符串键冲突）
     for (const [ns, size] of Object.entries(NEW_NS)) {
       expect(Object.keys(tables.zh)).toContain(ns)
@@ -318,6 +318,6 @@ describe('P6-I18N-LIT-B4b · 四语 locale 键集 + 类级断言脚本读数', (
     expect(out).toContain('[TR-2] 键集相等：PASS')
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
-    expect(out).toContain('zh: top=108 flat=886') // **期望订正（批 8② 费率+权重矩阵）**：+43 拍平 / +2 顶层（745⇒788 / 103⇒105）：新增 orders 块 8 键（737⇒745 / 102⇒103）
+    expect(out).toContain('zh: top=112 flat=944') // **期望订正（P9① 站点文案覆盖层）**：+58 拍平 / +4 顶层（886⇒944 / 108⇒112）
   })
 })
