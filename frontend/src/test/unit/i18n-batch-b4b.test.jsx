@@ -253,7 +253,7 @@ describe('P6-I18N-LIT-B4b · 四语 locale 键集 + 类级断言脚本读数', (
     expect(new Set(LANGS.map((l) => counts[l].flat)).size).toBe(1)
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
-    expect(counts.zh).toEqual({ top: 119, flat: 1037 }) // **期望订正（R-9-88 提交面）**：新增 `jobs.submitNeedApply` + `jobs.submitNotApplicant` 2 键（jobs 既有顶层）⇒ 顶层 119 不变 / 拍平 1035⇒1037
+    expect(counts.zh).toEqual({ top: 119, flat: 1039 }) // **期望订正（R-9-90 参与面）**：新增 `jobs.applyPrompt` + `jobs.applyWaiting` 2 键（jobs 既有顶层）⇒ 顶层 119 不变 / 拍平 1037⇒1039
     // 本批新增的 5 个顶层命名空间（命名空间铁律：不得与既有顶层字符串键冲突）
     for (const [ns, size] of Object.entries(NEW_NS)) {
       expect(Object.keys(tables.zh)).toContain(ns)
@@ -318,6 +318,6 @@ describe('P6-I18N-LIT-B4b · 四语 locale 键集 + 类级断言脚本读数', (
     expect(out).toContain('[TR-2] 键集相等：PASS')
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
-    expect(out).toContain('zh: top=119 flat=1037') // **期望订正（R-9-88 提交面）**：+2 jobs 键 ⇒ 拍平 1035⇒1037
+    expect(out).toContain('zh: top=119 flat=1039') // **期望订正（R-9-90 参与面）**：+2 jobs 键 ⇒ 拍平 1037⇒1039
   })
 })

@@ -134,6 +134,7 @@ const TaskCard = ({
           <Button
             variant={task.status === 'active' ? 'primary' : 'inactive'}
             size={compact ? 'sm' : 'md'}
+            data-sf-m="task-action"
             onClick={() => onAction?.(task)}
             disabled={task.status !== 'active'}
           >

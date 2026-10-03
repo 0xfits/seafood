@@ -109,6 +109,8 @@
     "submitOk": "交付物已提交，等待审核",
     "submitNeedApply": "请先报名参与该任务，再提交交付物。",
     "submitNotApplicant": "这份申请不属于你，只有申请人本人才能提交交付物。",
+    "applyPrompt": "请先参与该任务",
+    "applyWaiting": "已报名，等雇主选定后即可提交",
     "submitting": "处理中…",
     "itemTitle": "招工 #{{job}} · 申请 #{{app}}",
     "approve": "通过并发放",

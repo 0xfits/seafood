@@ -109,6 +109,8 @@
     "submitOk": "Deliverable submitted, awaiting review",
     "submitNeedApply": "Apply to this job first; you can submit a deliverable once you have applied.",
     "submitNotApplicant": "This application is not yours; only the applicant can submit a deliverable.",
+    "applyPrompt": "Apply to this job first",
+    "applyWaiting": "Applied; you can submit once the employer selects you",
     "submitting": "Working...",
     "itemTitle": "Job #{{job}} - application #{{app}}",
     "approve": "Approve and pay",
