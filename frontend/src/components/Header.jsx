@@ -119,7 +119,7 @@ const Header = () => {
   const menuItems = [
     { path: 'reward', label: t('reward') },
     { path: 'task', label: t('task') },
-    { path: 'shard', label: t('shard') },
+    { path: 'exchange', label: t('shard') },
     ...(isAuthenticated && isAdmin ? [{ path: adminPath, label: t('admin_panel'), absolute: true }] : [])
   ]
 

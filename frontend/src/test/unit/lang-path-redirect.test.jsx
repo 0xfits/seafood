@@ -184,8 +184,8 @@ describe('语言前缀规范化重定向（防御层）', () => {
   })
 })
 
-// P0 正向判据：中文无前缀子路径必须渲染各自页面。
-// 判负自证：把外层路由改回 `/:lang?/*`（可选语言段）时，除 '/' 外本组用例全部转红（/reward、/task、/shard ⇒ home page content）。
+// P0 正向判据：中文无前缀子路径必须渲染各自页面（含改名单后的 /exchange）。
+// 判负自证：把外层路由改回 `/:lang?/*`（可选语言段）时，除 '/' 外本组用例全部转红（/reward、/task、/exchange ⇒ home page content）。
 describe('中文无前缀子路径渲染（P0）', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -200,10 +200,12 @@ describe('中文无前缀子路径渲染（P0）', () => {
     ['/', '/', 'home page content'],
     ['/reward', '/reward', 'reward page content'],
     ['/task', '/task', 'task page content'],
-    ['/shard', '/shard', 'shard page content'],
+    ['/exchange', '/exchange', 'shard page content'],
     ['/en/reward', '/en/reward', 'reward page content'],
     ['/en/task', '/en/task', 'task page content'],
-    ['/hk/shard', '/hk/shard', 'shard page content'],
+    ['/en/exchange', '/en/exchange', 'shard page content'],
+    ['/hk/exchange', '/hk/exchange', 'shard page content'],
+    ['/vn/exchange', '/vn/exchange', 'shard page content'],
     ['/vn/reward', '/vn/reward', 'reward page content'],
   ])('%s 渲染 %s 对应的页面内容', async (path, expected, content) => {
     renderAt(path)
@@ -216,5 +218,47 @@ describe('中文无前缀子路径渲染（P0）', () => {
       // 页面真的换掉了：不再是首页欢迎语
       expect(screen.queryByText('home page content')).toBeNull()
     }
+  })
+})
+
+// 旧页面路径 /shard 的兼容重定向（本单改名单：/shard → /exchange）。
+// 契约：四语前缀下旧路径均重定向到同语言前缀下的 exchange 页，且主体有内容（旧链接不破损）。
+describe('旧页面路径 /shard → /exchange 兼容重定向（四语前缀）', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+
+    useAuth.mockReturnValue({
+      isAuthenticated: false,
+      user: null,
+    })
+  })
+
+  it.each([
+    ['/shard', '/exchange', 'shard page content'],
+    ['/en/shard', '/en/exchange', 'shard page content'],
+    ['/hk/shard', '/hk/exchange', 'shard page content'],
+    ['/vn/shard', '/vn/exchange', 'shard page content'],
+  ])('把旧路径 %s 重定向为 %s 并渲染交易所页', async (from, to, content) => {
+    renderAt(from)
+
+    await expectPathname(to)
+    expect(screen.getByText(content)).toBeInTheDocument()
+    expect(screen.queryByText('home page content')).toBeNull()
+    await expectMainNotBlank()
+  })
+
+  it('重定向时保留 query 与 hash', async () => {
+    renderAt('/hk/shard?side=bid#book')
+
+    await expectPathname('/hk/exchange')
+    expect(screen.getByTestId('query').textContent).toBe('?side=bid#book')
+    expect(screen.getByText('shard page content')).toBeInTheDocument()
+  })
+
+  it('zh 显式前缀 /zh/shard 经两步自愈最终落到无前缀 /exchange', async () => {
+    renderAt('/zh/shard')
+
+    await expectPathname('/exchange')
+    expect(screen.getByText('shard page content')).toBeInTheDocument()
   })
 })

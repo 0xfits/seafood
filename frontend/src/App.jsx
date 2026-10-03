@@ -93,8 +93,13 @@ const LangShell = () => {
         <Route path="listing/:listingId" element={<ListingDetailPage />} />
         <Route path="task/:jobId" element={<JobDetailPage />} />
 
-        {/* 碎片市场 */}
-        <Route path="shard" element={<ShardPage />} />
+        {/* 积分交易所（原「碎片市场」）：页面路径 2026-10-03 由 /shard 改名单为 /exchange；
+            组件名与文件 ShardPage 不变，/api/shard* 与 t('shard') 文案键均不动 */}
+        <Route path="exchange" element={<ShardPage />} />
+
+        {/* 旧页面路径 /shard 兼容重定向：保留语言前缀，落到同档语言下的 exchange 页
+            （zh 无前缀 ⇒ /exchange；/en|/hk|/vn/shard ⇒ /en|/hk|/vn/exchange）⇒ 旧链接不破损 */}
+        <Route path="shard" element={<LegacyExchangeRedirect />} />
 
         {/* 主题/骨架可交互预览件（地基单 4c-i；四语前缀下同样可达） */}
         <Route path="theme-preview" element={<ThemePreviewPage />} />
@@ -118,6 +123,18 @@ const LangShell = () => {
       </Routes>
     </AppShell>
   )
+}
+
+// 旧页面路径 /shard → /exchange 的兼容重定向（本单新增）。
+// 不走相对路由（`to="../exchange"`）——相对 `..` 的解析受 `v7_relativeSplatPath` 未来旗标影响，
+// 而生产 `<BrowserRouter>` 未开该旗标、测试却开了 ⇒ 相对写法会在两处产生不同结果。
+// 这里直接用当前 pathname 判定语言前缀，行为与旗标无关：zh 无前缀 ⇒ /exchange；/en|/hk|/vn/shard ⇒ /<lang>/exchange。
+// 旧链接的 query/hash 一并保留。
+const LegacyExchangeRedirect = () => {
+  const location = useLocation()
+  const target = buildLocalizedPath(getLanguageFromUrl(location.pathname), '/exchange')
+
+  return <Navigate to={`${target}${location.search}${location.hash}`} replace />
 }
 
 // 浏览器标签标题（document.title）的唯一运行时写入点：
@@ -280,7 +297,7 @@ function App() {
         <Route key={lang} path={`/${lang}/*`} element={<LangShell />} />
       ))}
 
-      {/* 无前缀兜底壳（中文口径：/、/reward、/task、/shard…）：登录/注册/管理页在上方更精确匹配，不会被捕获 */}
+      {/* 无前缀兜底壳（中文口径：/、/reward、/task、/exchange…）：登录/注册/管理页在上方更精确匹配，不会被捕获 */}
       <Route path="/*" element={<LangShell />} />
     </Routes>
 

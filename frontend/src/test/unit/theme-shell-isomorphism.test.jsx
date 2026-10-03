@@ -99,7 +99,7 @@ describe('应用外壳 · 骨架同构（横竖屏同一套 DOM）', () => {
     expect(topHrefs).toEqual(expected.filter((p) => p !== '/'))
     const brandHref = container.querySelector('[data-sf-region="topnav"] a[href="/"]')
     expect(brandHref).not.toBeNull()
-    expect(expected).toEqual(['/', '/reward', '/task', '/shard'])
+    expect(expected).toEqual(['/', '/reward', '/task', '/exchange'])
   })
 
   it('未登录时不含 profile / 登录后含 profile（与 Header 同一条可见性规则）', () => {
