@@ -28,6 +28,7 @@
 import { createHash } from 'crypto';
 import { DatabaseService } from './database';
 import { ledgerErrorFromDbError, normalizeLedgerError } from './ledger';
+import type { TxClient } from './db';
 import { ledgerErrorBody, sendVerbError, type JobVerbErr as VerbErr, type JobVerbResult as VerbResult } from './job-service';
 
 export { ledgerErrorBody, sendVerbError };
@@ -219,7 +220,7 @@ export const settleJob = async (params: {
   jobIdRaw: unknown;
   /** 审核人（= 结论位 `job_submission.reviewed_by`）；`undefined` ⇒ 只做资金、不写结论位 */
   reviewerUid?: number;
-}): Promise<VerbResult> => {
+}, ex?: TxClient): Promise<VerbResult> => {
   const jobId = typeof params.jobIdRaw === 'string' ? params.jobIdRaw.trim() : String(params.jobIdRaw ?? '');
   if (!/^\d+$/.test(jobId)) {
     return ref404('job', jobId || 'null', { field: 'job_id', reason: 'job_not_found' });
@@ -231,14 +232,14 @@ export const settleJob = async (params: {
     memo: `job settle:${jobId}`,
   };
   // `review_status = 'approved'`（`job_submission_review_status_enum`：pending→{approved,rejected}）
-  return dispatchJobEvent(payload, 'approved', params.reviewerUid);
+  return dispatchJobEvent(payload, 'approved', params.reviewerUid, ex);
 };
 
 export const refundJob = async (params: {
   jobIdRaw: unknown;
   toStatusRaw?: unknown;
   reviewerUid?: number;
-}): Promise<VerbResult> => {
+}, ex?: TxClient): Promise<VerbResult> => {
   const jobId = typeof params.jobIdRaw === 'string' ? params.jobIdRaw.trim() : String(params.jobIdRaw ?? '');
   if (!/^\d+$/.test(jobId)) {
     return ref404('job', jobId || 'null', { field: 'job_id', reason: 'job_not_found' });
@@ -256,7 +257,26 @@ export const refundJob = async (params: {
     memo: `job refund:${jobId}:${toStatus}`,
   };
   // 退回 ⇒ 结论位 `rejected`（拒收）；取消（`to_status='cancelled'`）⇒ 同样落 `rejected`（结论位只有两值）
-  return dispatchJobEvent(payload, 'rejected', params.reviewerUid);
+  return dispatchJobEvent(payload, 'rejected', params.reviewerUid, ex);
+};
+
+/**
+ * ★ P9⑤（`commission.spec` v0.4 §19.5⑦ · `R-9-57` · 需求 §6.2②）：**首任务奖励接线**。
+ * 接线点 = `reviewJobSubmission` / `dispatchJobEvent` 的**结算后**（`op = 'settle'` 才发）。
+ *   · 「首个平台任务」判定依据 + 幂等键形态（`biz:invite:firsttask:<worker_uid>`）**全部**在
+ *     `DatabaseService.settleInviteFirstTaskReward` 内（只由不可变 `worker_uid` 派生）；
+ *   · **失败不阻断结算**（沿注册腿「失败不阻断注册」纪律 ⇒ 奖励为**尽力而为**的后续事件）；
+ *   · `ex` 透传（生产默认 `undefined` ⇒ 各走自有连接；探针注入 ⇒ 同一事务内可触发）。
+ */
+const settleFirstTaskRewardBestEffort = async (
+  payload: Record<string, unknown>,
+  ex?: TxClient,
+): Promise<void> => {
+  if (payload.op !== 'settle') return;
+  await DatabaseService.settleInviteFirstTaskReward({ jobIdRaw: payload.job_id }, ex)
+    .catch((e) => {
+      console.warn('[P9⑤] invite first-task reward skipped:', String((e as Error)?.message ?? e));
+    });
 };
 
 /**
@@ -267,11 +287,14 @@ const dispatchJobEvent = async (
   payload: Record<string, unknown>,
   reviewStatus: 'approved' | 'rejected',
   reviewerUid?: number,
+  ex?: TxClient,
 ): Promise<VerbResult> => {
   let row: Record<string, unknown>;
   try {
     if (reviewerUid === undefined) {
-      row = await DatabaseService.jobPostEvent(payload);
+      row = await DatabaseService.jobPostEvent(payload, ex);
+      // ★ P9⑤ 首任务奖励接线（结算后 · 尽力而为 · 失败不阻断）
+      await settleFirstTaskRewardBestEffort(payload, ex);
       return { ok: true, replay: ((row.r || {}) as Record<string, unknown>).idempotent_replay === true, view: jobEventView((row.r || {}) as Record<string, unknown>) };
     }
     const gate = actorGate(reviewerUid);
@@ -281,10 +304,12 @@ const dispatchJobEvent = async (
       reviewStatus,
       reviewedBy: gate.uid,
       reviewMemo: `job ${String(payload.op)}:${String(payload.job_id)}`,
-    });
+    }, ex);
   } catch (e) {
     return fromLedgerError(e);
   }
+  // ★ P9⑤ 首任务奖励接线（结算后 · 尽力而为 · 失败不阻断）
+  await settleFirstTaskRewardBestEffort(payload, ex);
   const r = (row.r || {}) as Record<string, unknown>;
   const view = jobEventView(r);
   return {
@@ -309,7 +334,7 @@ export const verifyJobSubmission = async (params: {
   identifierRaw: unknown;
   approved: boolean;
   actorUid: number;
-}): Promise<VerbResult & { applicationId?: number; jobId?: number }> => {
+}, ex?: TxClient): Promise<VerbResult & { applicationId?: number; jobId?: number }> => {
   const identText = typeof params.identifierRaw === 'string' ? params.identifierRaw.trim() : String(params.identifierRaw ?? '');
   if (!/^\d+$/.test(identText) || Number(identText) <= 0) return ref404('job_application', identText || 'null', { reason: 'jID_not_found' });
 
@@ -322,8 +347,8 @@ export const verifyJobSubmission = async (params: {
   if (!target) return ref404('job_application', identText, { reason: 'jID_not_found' });
 
   const result = params.approved
-    ? await settleJob({ jobIdRaw: target.jobId, reviewerUid: params.actorUid })
-    : await refundJob({ jobIdRaw: target.jobId, toStatusRaw: 'rejected', reviewerUid: params.actorUid });
+    ? await settleJob({ jobIdRaw: target.jobId, reviewerUid: params.actorUid }, ex)
+    : await refundJob({ jobIdRaw: target.jobId, toStatusRaw: 'rejected', reviewerUid: params.actorUid }, ex);
 
   if (!result.ok) return result;
   return { ...result, applicationId: target.applicationId, jobId: target.jobId };

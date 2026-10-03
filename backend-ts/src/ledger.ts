@@ -158,6 +158,12 @@ export const MAX_SINGLE_AMOUNT = 1_000_000_000_000_000n; // 1e15
  *   **只追加于末位**、**不改既有 21 值次序**；`$` 费腿 → `uid = −1` **不真 burn** · `R-9-3`）。
  *   DB 侧同款扩容见 `migrations/0032_kind_close_set_23.sql`（CHECK 重建 · `ledger_kind_ok` 同步）；
  *   `−1` 归属白名单同步见 `PLATFORM_KIND_WHITELIST['-1'].credit`（追加两值）。
+ * ★ P9⑤（`commission.spec` v0.4 §19.5⑦ + `R-9-57`/`R-9-65` + 需求 §6.2②，2026-10-03）：**23 → 24**，
+ *   新增第 24 值 **`invite_first_task_reward`**（**§6.2② 首任务 10$ 两腿**：完成首个平台任务 ⇒
+ *   本人 + 直接上级各 `+firstTaskUsd`，**资金来源 = `uid = −1` 平台收入账户出账** · `R-9-65`；
+ *   **只追加于末位**、**不改既有 23 值次序**）。DB 侧同款扩容见
+ *   `migrations/0038_kind_close_set_24.sql`（CHECK 重建 · `ledger_kind_ok` 同步）；
+ *   `−1` 归属白名单同步见 `PLATFORM_KIND_WHITELIST['-1'].debit`（★ **首次给 `−1` 开 `debit`**）。
  */
 export const LEDGER_KINDS = [
   'mint', 'burn', 'transfer', 'hold', 'hold_release', 'hold_forfeit',
@@ -168,6 +174,7 @@ export const LEDGER_KINDS = [
   'currency_create_fee', 'reversal',
   'checkin_makeup_fee',
   'bttc_mint_fee', 'bttc_burn_fee',
+  'invite_first_task_reward',
 ] as const;
 export type LedgerKind = (typeof LEDGER_KINDS)[number];
 
@@ -568,7 +575,12 @@ const PLATFORM_KIND_WHITELIST: Record<string, { credit: LedgerKind[]; debit: Led
   //    **不真 burn** · `R-9-3`）。**必须与 DB 侧同改**：`migrations/0032_kind_close_set_23.sql` 扩容 kind
   //    关闭集（21 → 23）；`ledger_assert_platform_mutation` 的 `-1` credit 白名单须同轮追加两值。
   //    `debit` 仍恒为空（不许被顺带松掉）。
-  '-1': { credit: ['trade_fee', 'listing_fee', 'currency_create_fee', 'job_fee', 'listing_deposit', 'checkin_makeup_fee', 'bttc_mint_fee', 'bttc_burn_fee'], debit: [] },
+  // 🆕 P9⑤（`commission.spec` v0.4 §19.5⑦ + `R-9-57`/`R-9-65` + 需求 §6.2② · `ledger.spec` R101）：
+  //    ★★ **首次**给 `-1` 开 `debit` —— 接纳 `invite_first_task_reward`（§6.2② 首任务 10$ 两腿的
+  //    资金来源 = 平台收入账户出账 · `R-9-65`）。这是 `R103`「只进不出」的**唯一例外**，须 Zang 确认。
+  //    **必须与 DB 侧同改**：`migrations/0038_kind_close_set_24.sql`（kind 23 → 24）+
+  //    `ledger_assert_platform_mutation` 的 `-1` debit 由 `ELSE false` ⇒ 放行本 kind。
+  '-1': { credit: ['trade_fee', 'listing_fee', 'currency_create_fee', 'job_fee', 'listing_deposit', 'checkin_makeup_fee', 'bttc_mint_fee', 'bttc_burn_fee'], debit: ['invite_first_task_reward'] },
   '-2': { credit: ['job_fee'], debit: ['commission'] },
   // R38 说明「退还 = 反向 hold_forfeit 或从 −3 transfer」；R101 却禁止平台账户用 transfer
   // ⇒ spec 内部张力，本实现取宽松侧（允许退还路径），已登记为歧义点。
@@ -966,6 +978,12 @@ export interface LedgerEventPayload {
   entries?: LedgerEventEntryInput[];
   /** op = 'entries'：可选，对该事件涉及的每个 cid 施加 R28 状态矩阵 */
   currencyOp?: CurrencyOp;
+  /**
+   * ★ P9⑤（`R-9-68`）：**可选** `ledger_post_event` 执行器注入（非 DB 契约字段，**不**入 payload）。
+   * 给了 `ex`（如 `db.ts` 的 `TxClient`）⇒ 该函数在**给定连接 / 事务内**执行（供「真链路」探针在
+   * 同一事务内跑未提交的迁移）；省略 ⇒ 仍走既有**自有连接**（`CR29`，**生产接线默认不注入**）。
+   */
+  ex?: LedgerFnRunner;
 }
 
 /** DB 函数返回的余额快照（与 LedgerOpResult.accounts 同形） */
@@ -1027,8 +1045,21 @@ export const closeLedgerWritePool = async (): Promise<void> => {
 
 const LEDGER_FN_SQL = 'SELECT ledger_post_event($1::jsonb) AS r';
 
-/** 发**一条**语句（三种驱动同形）；返回函数的 jsonb 结果 */
-const callLedgerFnOnce = async (payloadJson: string): Promise<unknown> => {
+/**
+ * ★ P9⑤（`R-9-68`）：`ledger_post_event` 的**可选执行器**接口（`Pool` / `TxClient` 皆满足）。
+ * 省略 ⇒ 走 `ledgerWriteDriver()` 的自有连接（CR29，**既有账本设计不改**）。
+ */
+export interface LedgerFnRunner {
+  query(text: string, params?: unknown[]): Promise<{ rows: Array<Record<string, unknown>> }>;
+}
+
+/** 发**一条**语句（三种驱动同形）；返回函数的 jsonb 结果；★ 注入 `ex` ⇒ 走给定连接 / 事务。 */
+const callLedgerFnOnce = async (payloadJson: string, ex?: LedgerFnRunner): Promise<unknown> => {
+  if (ex) {
+    // ★ P9⑤（R-9-68）：注入执行器 ⇒ **同一份** `LEDGER_FN_SQL` 走给定连接（无第二套写入面）。
+    const rows = ((await ex.query(LEDGER_FN_SQL, [payloadJson])).rows ?? []) as RawRow[];
+    return rows[0]?.r ?? null;
+  }
   const driver = ledgerWriteDriver();
   if (driver === 'neon') {
     const url = resolveReadUrl();
@@ -1160,14 +1191,14 @@ const parseFnResult = (raw: unknown): Record<string, unknown> => {
   return obj as Record<string, unknown>;
 };
 
-/** 发一条语句 + 解析 + 映射（含 R60 重试与「重放行不可见」同键重发） */
-const runLedgerFn = async (payload: Record<string, unknown>): Promise<LedgerOpResult> => {
+/** 发一条语句 + 解析 + 映射（含 R60 重试与「重放行不可见」同键重发）；注入 `ex` ⇒ 走给定连接 / 事务 */
+const runLedgerFn = async (payload: Record<string, unknown>, ex?: LedgerFnRunner): Promise<LedgerOpResult> => {
   const json = JSON.stringify(payload);
   const key = rawStr(payload.idempotency_key);
   let retries = 0;
   for (;;) {
     try {
-      const res = parseFnResult(await callLedgerFnOnce(json));
+      const res = parseFnResult(await callLedgerFnOnce(json, ex));
       const entries = ((res.entries as RawRow[] | undefined) ?? []).map(mapEntry);
       const accountsRaw = (res.accounts as RawRow[] | undefined) ?? [];
       const accounts: AccountSnapshot[] = accountsRaw.length
@@ -1252,7 +1283,7 @@ export const postEvent = async (input: LedgerEventPayloadInput): Promise<LedgerO
     })));
     payload.entries = input.entries.map(entryToPayload);
   }
-  return runLedgerFn(payload);
+  return runLedgerFn(payload, input.ex);
 };
 
 /**

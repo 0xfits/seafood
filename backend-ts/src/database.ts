@@ -1,6 +1,7 @@
 import { neon } from '@neondatabase/serverless';
 import dotenv from 'dotenv';
-import { SYSTEM_CURRENCY_CID } from './ledger';
+import { createHash } from 'crypto';
+import { PLATFORM_UID, SYSTEM_CURRENCY_CID, postEvent, type LedgerEventEntryInput } from './ledger';
 // 批 8⑤（`route-layer.spec` v2.10 §25 / `data-layer.spec` v0.17 §28）：招工仲裁写路径需
 // **同事务**内「迁 `submitted→disputed`（既有白名单边）→ 调既有 `job_post_event`（资金腿 + 终态）
 // → 写 `job_arbitration_log`」⇒ 复用 `db.ts` 的交互式事务（R55/R56）；商品下架无账务 ⇒ 仍单语句。
@@ -369,6 +370,40 @@ export const resolveCheckinPolicy = (raw: unknown): { policy: CheckinPolicy; sou
     source: isObj ? 'config' : 'constant',
   };
 };
+
+// ============================================================================
+// ★★ 批 9 第 5 片（P9⑤ · `commission.spec` v0.4 §19.5⑦ + `R-9-57` + 需求 §6.2 ·
+//    `data-layer.spec` v0.26 §34.3）：`invite_reward_policy`（`B3`）服务端常量兜底 + 解析器。
+// ----------------------------------------------------------------------------
+// · 逐字 = 需求 §6.2：「注册完成即刻到账 30 batt」/「完成首个平台任务后邀请双方各 10$」/
+//   `R-9-57`：`rewardLevels = 6`（总层数单值；域 `POSITIVE_INT` 不变）。
+// · `app_config` 无行 / 字段非法 ⇒ 该字段回落本表；`source = 'config'`（有行）| `'constant'`（无行）。
+// · ★ 本模块**不写** `app_config`（唯一写口 = `POST /api/admin/settings`，`AG2`）。
+// ============================================================================
+export const INVITE_REWARD_POLICY_DEFAULTS = {
+  signupBatt: 30, firstTaskUsd: 10, rewardLevels: 6,
+} as const;
+
+export type InviteRewardPolicy = { signupBatt: number; firstTaskUsd: number; rewardLevels: number };
+
+/** `invite_reward_policy` 解析（**逐字段** fail-closed 到 `INVITE_REWARD_POLICY_DEFAULTS`；域 `POSITIVE_INT`）。 */
+export const resolveInviteRewardPolicy = (raw: unknown): { policy: InviteRewardPolicy; source: PolicySource } => {
+  const isObj = raw !== null && typeof raw === 'object' && !Array.isArray(raw);
+  const v = isObj ? raw as Record<string, unknown> : {};
+  return {
+    policy: {
+      signupBatt: policyPositiveInt(v.signupBatt) ?? INVITE_REWARD_POLICY_DEFAULTS.signupBatt,
+      firstTaskUsd: policyPositiveInt(v.firstTaskUsd) ?? INVITE_REWARD_POLICY_DEFAULTS.firstTaskUsd,
+      rewardLevels: policyPositiveInt(v.rewardLevels) ?? INVITE_REWARD_POLICY_DEFAULTS.rewardLevels,
+    },
+    source: isObj ? 'config' : 'constant',
+  };
+};
+
+/** P9⑤ 首任务腿幂等键前缀（`biz:invite:firsttask:<worker_uid>`；只由 Worker uid 派生，含不可变字段）。 */
+export const INVITE_FIRST_TASK_KEY_PREFIX = 'biz:invite:firsttask:';
+/** P9⑤ 注册腿 batt 幂等键前缀（`biz:invite:signup:<uid>`）。 */
+export const INVITE_SIGNUP_KEY_PREFIX = 'biz:invite:signup:';
 
 /** ISO 串或 `null`（读口 `updated_at`）。 */
 export const isoOrNull = (value: unknown): string | null => {
@@ -881,6 +916,10 @@ const sqlFor = (ex?: SqlRunner): SqlTag => {
   };
   return runner;
 };
+
+/** 幂等 `request_fingerprint`（`R53`）—— 规范化请求体的 sha256（沿 `job-funds-service.ts:108` 手法）。 */
+const fingerprintOf = (parts: Array<string | number>): string =>
+  createHash('sha256').update(parts.join('|')).digest('hex');
 
 const toStringValue = (...values: unknown[]) => {
   for (const value of values) {
@@ -2052,8 +2091,9 @@ export class DatabaseService {
     return row ? normalizeUser(row) : null;
   }
 
-  static async getUserByEvm(evmAddress: string): Promise<UserRecord | null> {
-    const sql = getSql();
+  static async getUserByEvm(evmAddress: string, ex?: SqlRunner): Promise<UserRecord | null> {
+    // ★ P9⑤（`R-9-68`）：可选 `ex` 注入（供「注册真路径」探针在同一事务内走建户分支）；省略 ⇒ 自有连接。
+    const sql = sqlFor(ex);
     const normalizedAddress = String(evmAddress || '').trim().toLowerCase();
     const row = firstRow(await sql`
       SELECT u.*
@@ -2065,8 +2105,9 @@ export class DatabaseService {
     return row ? normalizeUser(row) : null;
   }
 
-  static async createUserByEvm(evmAddress: string): Promise<UserRecord> {
-    const sql = getSql();
+  static async createUserByEvm(evmAddress: string, ex?: SqlRunner): Promise<UserRecord> {
+    // ★ P9⑤（`R-9-68`）：可选 `ex` 注入（同上）。
+    const sql = sqlFor(ex);
     const normalizedAddress = String(evmAddress || '').trim().toLowerCase();
     const nextUserId = await this.getNextUserId();
     const row = firstRow(await sql`
@@ -2087,12 +2128,20 @@ export class DatabaseService {
     `;
   }
 
-  static async findOrCreateUserByEvm(evmAddress: string): Promise<UserRecord> {
+  static async findOrCreateUserByEvm(evmAddress: string, ex?: SqlRunner): Promise<UserRecord> {
     const normalizedAddress = String(evmAddress || '').trim().toLowerCase();
-    let user = await this.getUserByEvm(normalizedAddress);
+    let user = await this.getUserByEvm(normalizedAddress, ex);
 
     if (!user) {
-      user = await this.createUserByEvm(normalizedAddress);
+      user = await this.createUserByEvm(normalizedAddress, ex);
+      // ★ P9⑤（`commission.spec §19.5⑦` + `R-9-57` + 需求 §6.2①）：**注册腿** —— 新用户注册
+      //   即刻 `+signupBatt`（默认 30）batt → `batt_account`（batt 面零 kind · 沿 P9② 表形）。
+      //   **仅首次注册**命中本分支（`getUserByEvm` 未命中才建户）；batt 腿再以幂等键
+      //   `biz:invite:signup:<uid>` 兜底（重放不双发）。失败不阻断注册（沿 `touchUserLogin` 容错风格），
+      //   但记录告警（诚实边界：见报告 §4.3）。
+      await this.grantSignupInviteBatt(user.uID, ex).catch((error) => {
+        console.warn('Failed to grant signup invite batt:', error);
+      });
     }
 
     await this.touchUserLogin(user.uID).catch((error) => {
@@ -3238,8 +3287,9 @@ export class DatabaseService {
    * 返回值 = 函数回执 `{ok, idempotent_replay, op, job_id, status, escrow_txid, settle_txid,
    * ledger_event_keys, txid, ledger_idempotency_key, entries, accounts, extra}`。
    */
-  static async jobPostEvent(payload: Record<string, unknown>): Promise<RawRow> {
-    const sql = getSql();
+  static async jobPostEvent(payload: Record<string, unknown>, ex?: SqlRunner): Promise<RawRow> {
+    // ★ P9⑤（`R-9-68`）：`ex` 注入（可选）；省略 ⇒ 走 neon 单语句（隐式事务）。
+    const sql = sqlFor(ex);
     const row = firstRow(await sql`
       SELECT public.job_post_event(${JSON.stringify(payload)}::jsonb) AS r
     `);
@@ -3304,8 +3354,9 @@ export class DatabaseService {
     reviewStatus: 'approved' | 'rejected';
     reviewedBy: number;
     reviewMemo: string;
-  }): Promise<RawRow> {
-    const sql = getSql();
+  }, ex?: SqlRunner): Promise<RawRow> {
+    // ★ P9⑤（`R-9-68`）：`ex` 注入（供「接线后经结算路径」探针在同一事务内触发）；省略 ⇒ 自有连接。
+    const sql = sqlFor(ex);
     const jobIdText = String(input.payload.job_id ?? '');
     const rows = extractRows(await sql`
       WITH ev AS (
@@ -4572,6 +4623,153 @@ export class DatabaseService {
       restoredStreakDay: restored,
       txid,
       ledger: row.ledger_result ?? null,
+    };
+  }
+
+  // ==========================================================================
+  // ★★ 批 9 第 5 片（P9⑤ · `commission.spec` v0.4 §19.5⑦ + `R-9-57`/`R-9-65` · 需求 §6.2 ·
+  //    `data-layer.spec` v0.26 §34.3 · `route-layer.spec` v2.19 §31）：
+  //   **§6.2 两条一次性奖励** —— ① 注册腿（`signupBatt` → `batt_account`）；
+  //   ② 首任务腿（`firstTaskUsd` → 完成首任务者本人 + 其直接上级 `parent_uid` 各一份 · `$`）。
+  // --------------------------------------------------------------------------
+  // · 配置面：键 `invite_reward_policy`（`B3`，`database.ts:73`）；字段闭集 `{signupBatt, firstTaskUsd,
+  //   rewardLevels}`（`:167-169`）；域 `POSITIVE_INT`（`:200-203`）⇒ 解析器 `resolveInviteRewardPolicy`
+  //   （fail-closed 到 `INVITE_REWARD_POLICY_DEFAULTS`）。
+  // · 注册腿 = **batt 面零 kind**（写 `batt_account` + `batt_entry` · 沿 P9② 表形）；幂等键
+  //   `biz:invite:signup:<uid>`；**仅首次注册**触发（`findOrCreateUserByEvm` 建户分支）。
+  // · 首任务腿 = **唯一写入面 `ledger_post_event`**（`R-9-65`：资金来源 = `uid = −1` 平台收入账户
+  //   出账；kind = `invite_first_task_reward`）；幂等键 `biz:invite:firsttask:<worker_uid>`
+  //   （「首个」= 首个提交本键的结算动作，重放即成功不双发）；**无上级 ⇒ 只发本人、平台不吞**。
+  //   ★ 本方法 = 可调用 / 可质检入口；**接线点**见报告 §4.4（`reviewJobSubmission` settle 成功后）。
+  // ==========================================================================
+
+  /**
+   * **注册腿写入**（`R-9-57` · 需求 §6.2①）：`+signupBatt` batt → `batt_account`（封顶 `BATT_CAP_HARD_MAX`）。
+   * 单语句 CTE（batt 面零 kind）：`batt_account`（`ON CONFLICT (uid) DO UPDATE`）+ `batt_entry`
+   * （`reason = 'invite_signup'`、幂等键 `biz:invite:signup:<uid>`、`batt_after ∈ [0,100]`）。
+   * 幂等：同键重放不双发；`prior` 在场 ⇒ 整条语句零副作用。
+   */
+  static async grantSignupInviteBatt(uid: number, ex?: SqlRunner): Promise<{
+    outcome: 'granted' | 'replayed' | 'capped';
+    batt: number; grantedBatt: number; signupBatt: number; source: PolicySource; idempotencyKey: string;
+  }> {
+    const { policy, source } = resolveInviteRewardPolicy(await this.getAppConfigValueByKey('invite_reward_policy', ex));
+    const signupBatt = policy.signupBatt;
+    const key = `${INVITE_SIGNUP_KEY_PREFIX}${uid}`;
+    const sql = sqlFor(ex);
+    const rows = asItems<Record<string, unknown>>(await sql`
+      WITH prior AS (SELECT 1 FROM public.batt_entry AS e WHERE e.idempotency_key = ${key}::text),
+      cur AS (SELECT COALESCE((SELECT b.batt FROM public.batt_account AS b WHERE b.uid = ${uid}), 0)::int AS batt),
+      target AS (SELECT LEAST((SELECT batt FROM cur) + ${signupBatt}::int, ${BATT_CAP_HARD_MAX}::int)::int AS after),
+      ins AS (
+        INSERT INTO public.batt_account (uid, batt)
+        SELECT ${uid}, (SELECT after FROM target)
+        WHERE NOT EXISTS (SELECT 1 FROM prior)
+        ON CONFLICT (uid) DO UPDATE SET batt = EXCLUDED.batt
+        RETURNING batt
+      ),
+      entry AS (
+        INSERT INTO public.batt_entry (uid, delta, batt_after, reason, idempotency_key, ref_type, ref_id, memo)
+        SELECT ${uid}, (SELECT after FROM target) - (SELECT batt FROM cur), (SELECT after FROM target),
+               'invite_signup', ${key}::text, 'invite', ${uid}, ''
+        FROM ins
+        WHERE (SELECT after FROM target) <> (SELECT batt FROM cur)
+        ON CONFLICT (idempotency_key) DO NOTHING
+        RETURNING txid
+      )
+      SELECT
+        (SELECT count(*)::int FROM entry) AS entry_rows,
+        COALESCE((SELECT batt FROM ins), (SELECT batt FROM cur))::int AS batt,
+        ((SELECT after FROM target) - (SELECT batt FROM cur))::int AS delta,
+        EXISTS (SELECT 1 FROM prior) AS was_prior
+    `);
+    const row = rows[0] || {};
+    const delta = Number(row.delta ?? 0) || 0;
+    const entryRows = Number(row.entry_rows ?? 0) || 0;
+    const wasPrior = row.was_prior === true;
+    const outcome: 'granted' | 'replayed' | 'capped' =
+      entryRows > 0 ? (delta === signupBatt ? 'granted' : 'capped') : (wasPrior ? 'replayed' : 'capped');
+    return {
+      outcome,
+      batt: Number(row.batt ?? 0) || 0,
+      grantedBatt: entryRows > 0 ? delta : 0,
+      signupBatt,
+      source,
+      idempotencyKey: key,
+    };
+  }
+
+  /**
+   * **首任务腿写入**（`R-9-57` + `R-9-65` · 需求 §6.2②）：完成首个平台任务 ⇒ 本人 + 其**直接上级**
+   * （`referral.parent_uid`）各 `+firstTaskUsd`（默认 10）`$`；**无上级 ⇒ 只发本人、平台不吞**。
+   * 资金来源 = `uid = −1`（平台收入账户）出账（`R-9-65`）⇒ 分录 = `−1` 出一条 `−(perLeg × N)` 减方
+   * + 每位受益人一条 `+perLeg` 增方（`kind = invite_first_task_reward` · 净额 0 ⇒ `assertBalanced` 通过）。
+   * 幂等键 `biz:invite:firsttask:<worker_uid>`（只由不可变 `worker_uid` 派生）⇒ **「首个」= 首个提交
+   * 本键的结算动作**；同键重放 = `idempotent_replay`（`R106`：按成功处理、**不双发**）。
+   * ★ 唯一写入面 = `postEvent`（→ `ledger_post_event`）；**不新造第二套写入面**（`commission.spec §19.0`）。
+   */
+  static async settleInviteFirstTaskReward(input: { jobIdRaw: unknown }, ex?: SqlRunner): Promise<{
+    outcome: 'posted' | 'replayed' | 'skipped_no_worker' | 'skipped_no_recipient';
+    jobId: string; workerUid: string | null; parentUid: string | null;
+    perLegUsd: number; recipientUids: string[]; totalUsdFromPlatform: string;
+    idempotencyKey: string; source: PolicySource;
+  }> {
+    const jobId = String(input.jobIdRaw ?? '').trim();
+    const empty = (outcome: 'skipped_no_worker' | 'skipped_no_recipient', source: PolicySource) => ({
+      outcome, jobId, workerUid: null as string | null, parentUid: null as string | null,
+      perLegUsd: 0, recipientUids: [] as string[], totalUsdFromPlatform: '0', idempotencyKey: '', source,
+    });
+    if (!/^\d+$/.test(jobId)) return empty('skipped_no_worker', 'constant');
+
+    // ★ P9⑤（`R-9-68`）：`ex` 注入（沿 `grantSignupInviteBatt` 形态）——省略 ⇒ 走自有连接（CR29）。
+    const sql = sqlFor(ex);
+    const rows = asItems<Record<string, unknown>>(await sql`
+      SELECT (SELECT j.worker_uid FROM public.job AS j WHERE j.job_id = ${jobId}::bigint) AS worker_uid,
+             (SELECT r.parent_uid FROM public.referral AS r
+               WHERE r.child_uid = (SELECT j.worker_uid FROM public.job AS j WHERE j.job_id = ${jobId}::bigint)
+               LIMIT 1) AS parent_uid
+    `);
+    const row = rows[0] || {};
+    const workerRaw = row.worker_uid;
+    if (workerRaw === null || workerRaw === undefined) return empty('skipped_no_worker', 'constant');
+    const workerUid = String(workerRaw);
+    const parentRaw = row.parent_uid;
+    const parentUid = (parentRaw === null || parentRaw === undefined || String(parentRaw) === workerUid)
+      ? null : String(parentRaw);
+
+    const { policy, source } = resolveInviteRewardPolicy(await this.getAppConfigValueByKey('invite_reward_policy', ex));
+    const perLeg = policy.firstTaskUsd;
+    if (!Number.isSafeInteger(perLeg) || perLeg <= 0) {
+      return { ...empty('skipped_no_recipient', source), workerUid, parentUid };
+    }
+    const recipients = parentUid ? [workerUid, parentUid] : [workerUid];
+    const total = perLeg * recipients.length;
+    const key = `${INVITE_FIRST_TASK_KEY_PREFIX}${workerUid}`;
+    const memoBase = `邀请首任务奖励（平台发放）job=${jobId}`;
+    const entries: LedgerEventEntryInput[] = [
+      { uid: PLATFORM_UID.FEE, cid: SYSTEM_CURRENCY_CID, kind: 'invite_first_task_reward',
+        delta: (-total).toString(), frozenDelta: '0', refType: 'job', refId: jobId, memo: `${memoBase}（平台出账）` },
+      ...recipients.map((u, i) => ({
+        uid: u, cid: SYSTEM_CURRENCY_CID, kind: 'invite_first_task_reward' as const,
+        delta: perLeg.toString(), frozenDelta: '0', refType: 'job' as const, refId: jobId,
+        memo: i === 0 ? `${memoBase}（打工人本人）` : `${memoBase}（直接上级）`,
+      })),
+    ];
+    const result = await postEvent({
+      op: 'entries',
+      idempotencyKey: key,
+      requestFingerprint: fingerprintOf(['invite.first_task', jobId, workerUid, parentUid ?? '-', perLeg]),
+      memo: memoBase,
+      refType: 'job',
+      refId: jobId,
+      entries,
+      ex,
+    });
+    return {
+      outcome: result.idempotent_replay ? 'replayed' : 'posted',
+      jobId, workerUid, parentUid,
+      perLegUsd: perLeg, recipientUids: recipients, totalUsdFromPlatform: String(total),
+      idempotencyKey: key, source,
     };
   }
 

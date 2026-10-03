@@ -9,13 +9,13 @@ import {
 } from '../../admin-utils'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 
-// 写口守卫的**逐字镜像**（真源 = `backend-ts/src/commission.ts:175-191`）：
-//   `fee_rate_bp ∈ [100, 500]` / `levels ∈ [1, 10]` / `weights_bp.length === levels` /
+// 写口守卫的**逐字镜像**（真源 = `backend-ts/src/commission.ts:176-191`）：
+//   `fee_rate_bp ∈ [100, 10000]`（P9⑤ 费率域扩：`0035` 载体 + 后端守卫已改）/ `levels ∈ [1, 10]` / `weights_bp.length === levels` /
 //   逐元素非负整数 / `Σ weights_bp <= 10000` / `Σ = 0` ⇒ 拒 / `weights_bp[0] = 0` ⇒ 拒。
 //   前端**不得自造范围**（spec §19.5(a)/(b)）—— 这里只是把**被服务端接受**的取值提前拦一次，
 //   真值是服务端守卫；此处任何数字都不得与守卫分叉。
 const FEE_RATE_MIN = 100
-const FEE_RATE_MAX = 500
+const FEE_RATE_MAX = 10000
 const LEVELS_MIN = 1
 const LEVELS_MAX = 10
 const WEIGHTS_SUM_MAX = 10000

@@ -59,6 +59,7 @@ import {
   readEventFacts, readLedgerSettlement, readLedgerEventRows, readGraphInvariants,
   buildSettleEvent, splitPool, toPayloadEntry, settleJobFingerprint, getCommissionPolicy,
   jobSettleKey, COMMISSION_POOL_UID,
+  COMMISSION_CAP_LAYER_DEFAULT, COMMISSION_CAP_TOTAL_DEFAULT,
   type SettlementPlan, type SettleJobInput,
 } from '../src/commission';
 import {
@@ -306,6 +307,11 @@ const GROSS_STD = '100000';   // levels=10 ⇒ fee=1000 ⇒ 20 条 commission + 
       job_id: JOB(3), idempotency_key: jobSettleKey(JOB(3)), employer_uid: EMP, worker_uid: POISON[0], cid,
       gross: GROSS_STD, fee: fee.toString(), net: net.toString(), pool: fee.toString(),
       policy: pol, chain_depth: chain.chain_depth, chain_truncated: chain.truncated,
+      // ★ P9⑤（`SettlementPlan` 新增 4 必填字段同步 —— 判负对照是手工组装的「修前形态」，
+      //   下行 / 名单 / 截断在旧形态下均不存在 ⇒ 显式占位）：
+      down_depth: 0, down_truncated: false, roster_size: M,
+      truncation: { cap_layer: COMMISSION_CAP_LAYER_DEFAULT, cap_total: COMMISSION_CAP_TOTAL_DEFAULT,
+        dropped_total: 0, dropped_by_layer: {}, truncated: false },
       plan_source: 'computed', policy_reported: true, M, N: M, weights_bp: pol.weights_bp.slice(0, M).map(String),
       W: split.W, split, fee_credit_uid: COMMISSION_POOL_UID, zero_amount: false, no_referrer: false,
       layers: chain.nodes.slice(0, M).map((n, i) => ({ level: n.level, beneficiary_uid: n.beneficiary_uid,

@@ -60,7 +60,8 @@ const selfTest = (id: string, group: string, predicate: (v: unknown) => boolean,
 // ★ P9④ 冻结计数前推（沿 R-8-22）：注册点 85 → 87（BTTC 铸造/分解 2 新口 +2）。
 const REG_POINTS_FROZEN = 87;
 // ★ P9④ 冻结计数前推（沿 R-8-22）：迁移文件数 30 → 33（+0032 / +0033 / +0034）。
-const MIGRATIONS_FROZEN = 33;
+// ★ P9⑤ 冻结计数前推（沿 R-8-22）：迁移文件数 33 → 37（+0035 / +0036 / +0037 / +0038）。
+const MIGRATIONS_FROZEN = 37;
 const REVIEW_NS_KEYS_FROZEN = 28;
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;

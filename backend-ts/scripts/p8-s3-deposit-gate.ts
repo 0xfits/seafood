@@ -73,7 +73,8 @@ const REG_POINTS_FROZEN = 87;
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;
 // ★ P9④ 冻结计数前推（沿 R-8-22）：迁移文件数 30 → 33（+0032 kind 扩容 23 / +0033 平台币标记列 / +0034 op burn+双写）。
-const MIGRATIONS_FROZEN = 33;
+// ★ P9⑤ 冻结计数前推（沿 R-8-22）：迁移文件数 33 → 37（+0035 费率域扩 100..10000 / +0036 新政策行 1000·6 / +0037 M=0 免豁免断言 / +0038 kind 闭集 24）。
+const MIGRATIONS_FROZEN = 37;
 const ENVELOPE_FIELDS = ['create_key', 'idempotency_key', 'idempotencyKey'];
 
 const readSrc = (rel: string): string => fs.readFileSync(path.resolve(REPO_ROOT, rel), 'utf8');

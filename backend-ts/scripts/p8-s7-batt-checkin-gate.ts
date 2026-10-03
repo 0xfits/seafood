@@ -20,15 +20,15 @@
  *   C  **双闸两处**：① `applyToJob` **前置拦**（`batt_account` ≥ 阈值，落 INSERT CTE `WHERE` 内 · fail-fast）；
  *      ② `acceptJobApplication` **权威扣费点**（同事务 `deduct` 扣 `taskCostBatt` + 二次判 `b.batt >= cost`）；
  *      两处各映射 `batt_below_threshold` ⇒ `stateConflict('batt', 'BATT_BELOW_ACCEPT_THRESHOLD')`（借既有码）；负对照
- *   D  **kind 闭集编码（P9④ 后 = 23）**：现役三处（① `0032` `ledger_kind_enum` CHECK ② `0032` `ledger_kind_ok`
- *      ③ TS `LEDGER_KINDS`；= 23 同集）+ P9② 历史两处（`0028` CHECK / `0029` 函数 = 21，已被 `0032` 取代）；
- *      **穷举扫面结论「无未登记全闭集编码」**（正则 + 命中分类逐桶）
+ *   D  **kind 闭集编码（P9⑤ 后 = 24）**：现役三处（① `0038` `ledger_kind_enum` CHECK ② `0038` `ledger_kind_ok`
+ *      ③ TS `LEDGER_KINDS`；= 24 同集）+ P9④ 历史两处（`0032` CHECK / 函数 = 23，已被 `0038` 取代）
+ *      + P9② 历史两处（`0028` CHECK / `0029` 函数 = 21）；**穷举扫面结论「无未登记全闭集编码」**（正则 + 命中分类逐桶）
  *   E  **幂等 / 日界 / 溢出 / 配置 fail-closed**：`biz:checkin:<uid>:<day>` / `biz:checkin:makeup:<uid>:<day>`；
  *      日界 = UTC（`now() AT TIME ZONE 'UTC'` / `utcDay`）；溢出 = 封顶丢弃（`LEAST` + `delta <> 0` 守卫）；
  *      配置 fail-closed（`resolveBattPolicy` / `resolveCheckinPolicy` 逐字段回落常量）；负对照
  *   F  **零新增错误码（仍恰 33）**：补签拒绝面只用既有闭集码（`LEDGER_AMOUNT_INVALID` /
  *      `LEDGER_INSUFFICIENT_BALANCE` / `LEDGER_CURRENCY_INVALID_TRANSITION`）；负对照
- *   G  **库面 leg 转真 checks（连库 + HTTP）**：活体 `ledger_kind_enum`（`0032` 未 apply ⇒ 21；apply 后 23）/
+ *   G  **库面 leg 转真 checks（连库 + HTTP）**：活体 `ledger_kind_enum`（`0038` 已 apply ⇒ 24）/
  *      4 表 + 约束 + 具名索引 / 4 触发器 / `ledger_kind_ok` 活体 / `batt_account` 范围 CHECK / append-only 真行为 /
  *      4 新口真 HTTP（无 token 401 ⇄ 有 token 200）+ 公开面零回归；`pending_apply[]` = 0
  */
@@ -70,6 +70,7 @@ const LEDGER_TS = readSrc('backend-ts/src/ledger.ts');
 const SQL_0028 = readSrc('backend-ts/migrations/0028_kind_close_set_21.sql');
 const SQL_0029 = readSrc('backend-ts/migrations/0029_batt_checkin.sql');
 const SQL_0032 = readSrc('backend-ts/migrations/0032_kind_close_set_23.sql');
+const SQL_0038 = readSrc('backend-ts/migrations/0038_kind_close_set_24.sql');
 const FE_BATT_JS = readSrc('frontend/src/batt-checkin.js');
 const FE_PANEL_JSX = readSrc('frontend/src/components/BattCheckinPanel.jsx');
 
@@ -271,12 +272,14 @@ const ACCEPT_REGION = ACCEPT_START >= 0 && AFTER_ACCEPT > ACCEPT_START ? DATABAS
 }
 
 // ============================================================================
-// D · kind 闭集编码（P9④ 后 = 23）：现役三处（0032 CHECK / 0032 函数 / TS）
-//     + 历史两处（0028 CHECK / 0029 函数 = 21，P9② 冻结 · 被 0032 取代 · 不可改）
+// D · kind 闭集编码（P9⑤ 后 = 24）：现役三处（0038 CHECK / 0038 函数 / TS）
+//     + P9④ 历史两处（0032 CHECK / 0032 函数 = 23，P9④ 冻结 · 被 0038 取代 · 不可改）
+//     + P9② 历史两处（0028 CHECK / 0029 函数 = 21，P9② 冻结 · 被 0032 取代 · 不可改）
 // ============================================================================
 const KINDS_FROM_TS: string[] = [...LEDGER_KINDS];
-const NEW_KIND = 'checkin_makeup_fee';
+const NEW_KIND = 'checkin_makeup_fee';           // P9②（21 值上限锚）
 const P94_KINDS = ['bttc_mint_fee', 'bttc_burn_fee'];
+const P95_KINDS = ['invite_first_task_reward'];  // P9⑤（23 → 24）
 const sortedEq = (a: string[], b: string[]): boolean => eqJson([...a].sort(), [...b].sort());
 const kindListFrom = (re: RegExp, src: string): string[] => {
   const m = src.match(re);
@@ -289,11 +292,16 @@ const KINDS_0028 = kindListFrom(CHECK_LIST_RE, SQL_0028);
 const m29 = SQL_0029.match(FN_LIST_RE);
 const KINDS_0029 = (m29 ? (m29[1].match(/'([a-z_]+)'/g) || []) : []).map((s) => s.slice(1, -1));
 const KINDS_0029_FROZEN = (m29 ? (m29[2].match(/'([a-z_]+)'/g) || []) : []).map((s) => s.slice(1, -1));
-// 现役两处（P9④ · 0032）
+// P9④ 历史两处（0032）
 const KINDS_0032_CHECK = kindListFrom(CHECK_LIST_RE, SQL_0032);
 const m32 = SQL_0032.match(FN_LIST_RE);
 const KINDS_0032_FN = (m32 ? (m32[1].match(/'([a-z_]+)'/g) || []) : []).map((s) => s.slice(1, -1));
 const KINDS_0032_FROZEN = (m32 ? (m32[2].match(/'([a-z_]+)'/g) || []) : []).map((s) => s.slice(1, -1));
+// 现役两处（P9⑤ · 0038）
+const KINDS_0038_CHECK = kindListFrom(CHECK_LIST_RE, SQL_0038);
+const m38 = SQL_0038.match(FN_LIST_RE);
+const KINDS_0038_FN = (m38 ? (m38[1].match(/'([a-z_]+)'/g) || []) : []).map((s) => s.slice(1, -1));
+const KINDS_0038_FROZEN = (m38 ? (m38[2].match(/'([a-z_]+)'/g) || []) : []).map((s) => s.slice(1, -1));
 
 /** 穷举扫面（沿 `R-9-21` 正则）：全仓根，排除 artifacts / node_modules / dist / .git。 */
 const SCAN_RE = /ledger_kind_ok|ledger_kind_enum|LEDGER_KINDS|PLATFORM_KIND_WHITELIST|checkin_makeup_fee/;
@@ -340,62 +348,69 @@ const FULL_SET_EXPECTED = [
   'backend-ts/migrations/0028_kind_close_set_21.sql',
   'backend-ts/migrations/0029_batt_checkin.sql',
   'backend-ts/migrations/0032_kind_close_set_23.sql',
+  'backend-ts/migrations/0038_kind_close_set_24.sql',
   'backend-ts/src/ledger.ts',
 ].sort();
 const BUCKETS = ['full_set_21', 'spec_text', 'historical_or_superseded', 'single_kind_usage', 'probe_or_artifact', 'readonly_call_or_subset'];
 const bucketCounts: Record<string, number> = Object.fromEntries(BUCKETS.map((b) => [b, scanHits.filter((h) => h.bucket === b).length]));
 {
-  // D1 TS LEDGER_KINDS = 23，末位两值 = P9④ 新增
+  // D1 TS LEDGER_KINDS = 24，末位三值 = P9④ 两值 + P9⑤ 一值
   t('D1', 'kindCloseSet',
-    KINDS_FROM_TS.length === 23 && eqJson(KINDS_FROM_TS.slice(21), P94_KINDS) && KINDS_FROM_TS.includes(NEW_KIND),
-    `③ TS \`LEDGER_KINDS\` = 23 值（末位追加 \`${P94_KINDS.join('\`/\`')}\`，不改既有 21 次序；含 \`${NEW_KIND}\`）`,
+    KINDS_FROM_TS.length === 24 && eqJson(KINDS_FROM_TS.slice(21), [...P94_KINDS, ...P95_KINDS]) && KINDS_FROM_TS.includes(NEW_KIND),
+    `③ TS \`LEDGER_KINDS\` = 24 值（末位追加 \`${[...P94_KINDS, ...P95_KINDS].join('\`/\`')}\`，不改既有 21 次序；含 \`${NEW_KIND}\`）`,
     JSON.stringify({ n: KINDS_FROM_TS.length, tail: KINDS_FROM_TS.slice(21), has_new: KINDS_FROM_TS.includes(NEW_KIND) }));
-  // D2 0032 CHECK = 23 且与 TS 同集（现役）
+  // D2 0038 CHECK = 24 且与 TS 同集（现役）
   t('D2', 'kindCloseSet',
-    KINDS_0032_CHECK.length === 23 && P94_KINDS.every((k) => KINDS_0032_CHECK.includes(k)) && sortedEq(KINDS_0032_CHECK, KINDS_FROM_TS),
-    `① \`0032\` \`ledger_kind_enum\` CHECK = 23 值且与 TS 同集（含 \`${P94_KINDS.join('\`/\`')}\`）`,
-    JSON.stringify({ n: KINDS_0032_CHECK.length, same_set: sortedEq(KINDS_0032_CHECK, KINDS_FROM_TS) }));
-  // D3 0032 ledger_kind_ok 第一支 = 23 且与 TS 同集（现役）
+    KINDS_0038_CHECK.length === 24 && [...P94_KINDS, ...P95_KINDS].every((k) => KINDS_0038_CHECK.includes(k)) && sortedEq(KINDS_0038_CHECK, KINDS_FROM_TS),
+    `① \`0038\` \`ledger_kind_enum\` CHECK = 24 值且与 TS 同集（含 \`${[...P94_KINDS, ...P95_KINDS].join('\`/\`')}\`）`,
+    JSON.stringify({ n: KINDS_0038_CHECK.length, same_set: sortedEq(KINDS_0038_CHECK, KINDS_FROM_TS) }));
+  // D3 0038 ledger_kind_ok 第一支 = 24 且与 TS 同集（现役）
   t('D3', 'kindCloseSet',
-    KINDS_0032_FN.length === 23 && P94_KINDS.every((k) => KINDS_0032_FN.includes(k)) && sortedEq(KINDS_0032_FN, KINDS_FROM_TS),
-    `② \`0032\` \`ledger_kind_ok\` 第一支 = 23 值且与 TS 同集`,
-    JSON.stringify({ n: KINDS_0032_FN.length, same_set: sortedEq(KINDS_0032_FN, KINDS_FROM_TS) }));
-  // D4 现役三处同集（0032 CHECK == 0032 函数 == TS）
-  t('D4', 'kindCloseSet', sortedEq(KINDS_0032_CHECK, KINDS_0032_FN) && sortedEq(KINDS_0032_CHECK, KINDS_FROM_TS),
-    '现役三处编码**同集**（① `0032` CHECK ② `0032` 函数 ③ TS）',
-    JSON.stringify({ check_eq_fn: sortedEq(KINDS_0032_CHECK, KINDS_0032_FN), check_eq_ts: sortedEq(KINDS_0032_CHECK, KINDS_FROM_TS) }));
-  // D4b 历史两处仍 = 21 且 = TS 前 21（P9② 冻结快照，逐字未改）
+    KINDS_0038_FN.length === 24 && [...P94_KINDS, ...P95_KINDS].every((k) => KINDS_0038_FN.includes(k)) && sortedEq(KINDS_0038_FN, KINDS_FROM_TS),
+    `② \`0038\` \`ledger_kind_ok\` 第一支 = 24 值且与 TS 同集`,
+    JSON.stringify({ n: KINDS_0038_FN.length, same_set: sortedEq(KINDS_0038_FN, KINDS_FROM_TS) }));
+  // D4 现役三处同集（0038 CHECK == 0038 函数 == TS）
+  t('D4', 'kindCloseSet', sortedEq(KINDS_0038_CHECK, KINDS_0038_FN) && sortedEq(KINDS_0038_CHECK, KINDS_FROM_TS),
+    '现役三处编码**同集**（① `0038` CHECK ② `0038` 函数 ③ TS）',
+    JSON.stringify({ check_eq_fn: sortedEq(KINDS_0038_CHECK, KINDS_0038_FN), check_eq_ts: sortedEq(KINDS_0038_CHECK, KINDS_FROM_TS) }));
+  // D4b P9② 历史两处（0028/0029）仍 = 21 且 = TS 前 21（P9② 冻结快照，逐字未改）
   t('D4b', 'kindCloseSet',
     KINDS_0028.length === 21 && KINDS_0029.length === 21 && sortedEq(KINDS_0028, KINDS_0029)
       && sortedEq(KINDS_0028, KINDS_FROM_TS.slice(0, 21)),
     '历史两处（`0028` CHECK / `0029` 函数）= 21 且逐字 = TS 前 21（P9② 冻结快照，被 `0032` 取代、文件不可改）',
     JSON.stringify({ n28: KINDS_0028.length, n29: KINDS_0029.length, eq: sortedEq(KINDS_0028, KINDS_0029), eq_ts21: sortedEq(KINDS_0028, KINDS_FROM_TS.slice(0, 21)) }));
-  // D5 冻结族第二支一字不动（0032 与 0029 同 = 4 值，不含任何新增值）
+  // D4c P9④ 历史两处（0032）仍 = 23 且 = TS 前 23（P9④ 冻结快照，逐字未改，被 0038 取代）
+  t('D4c', 'kindCloseSet',
+    KINDS_0032_CHECK.length === 23 && KINDS_0032_FN.length === 23 && sortedEq(KINDS_0032_CHECK, KINDS_0032_FN)
+      && sortedEq(KINDS_0032_CHECK, KINDS_FROM_TS.slice(0, 23)),
+    'P9④ 历史两处（`0032` CHECK / 函数）= 23 且逐字 = TS 前 23（P9④ 冻结快照，被 `0038` 取代、文件不可改）',
+    JSON.stringify({ n32c: KINDS_0032_CHECK.length, n32f: KINDS_0032_FN.length, eq: sortedEq(KINDS_0032_CHECK, KINDS_0032_FN), eq_ts23: sortedEq(KINDS_0032_CHECK, KINDS_FROM_TS.slice(0, 23)) }));
+  // D5 冻结族第二支一字不动（0038 与 0032 同 = 4 值，不含任何新增值）
   t('D5', 'kindCloseSet',
-    eqJson([...KINDS_0032_FROZEN].sort(), ['hold_forfeit', 'job_payout', 'purchase', 'trade'])
-      && eqJson([...KINDS_0029_FROZEN].sort(), [...KINDS_0032_FROZEN].sort())
-      && !KINDS_0032_FROZEN.includes(NEW_KIND) && P94_KINDS.every((k) => !KINDS_0032_FROZEN.includes(k)),
+    eqJson([...KINDS_0038_FROZEN].sort(), ['hold_forfeit', 'job_payout', 'purchase', 'trade'])
+      && eqJson([...KINDS_0032_FROZEN].sort(), [...KINDS_0038_FROZEN].sort())
+      && !KINDS_0038_FROZEN.includes(NEW_KIND) && [...P94_KINDS, ...P95_KINDS].every((k) => !KINDS_0038_FROZEN.includes(k)),
     '`ledger_kind_ok` 的第二支（`p_frozen_settle`）**一字不动** = 4 值且不含任何新增值（新 kind 不属冻结结算族）',
-    JSON.stringify({ frozen: [...KINDS_0032_FROZEN].sort(), has_new: KINDS_0032_FROZEN.includes(NEW_KIND), has_p94: P94_KINDS.filter((k) => KINDS_0032_FROZEN.includes(k)) }));
-  // D6 穷举扫面：全闭集编码（≥21 值）在代码面**恰四处**（现役 0032 + TS；历史 0028 / 0029）
+    JSON.stringify({ frozen: [...KINDS_0038_FROZEN].sort(), has_new: KINDS_0038_FROZEN.includes(NEW_KIND), has_newer: [...P94_KINDS, ...P95_KINDS].filter((k) => KINDS_0038_FROZEN.includes(k)) }));
+  // D6 穷举扫面：全闭集编码（≥21 值）在代码面**恰五处**（现役 0038 + TS；历史 0032 / 0028 / 0029）
   t('D6', 'kindCloseSet', eqJson(FULL_SET_CODE, FULL_SET_EXPECTED),
-    '★ **穷举扫面结论「无未登记全闭集编码」**：代码面全闭集编码（≥21 值）**恰四处** = `0028` CHECK / `0029` 函数 / `0032` / `src/ledger.ts`（前两者 P9② 历史，后两者 P9④ 现役）',
+    '★ **穷举扫面结论「无未登记全闭集编码」**：代码面全闭集编码（≥21 值）**恰五处** = `0028` CHECK / `0029` 函数 / `0032` / `0038` / `src/ledger.ts`（前四为历史→现役迁移，末为 TS 现役）',
     JSON.stringify({ found: FULL_SET_CODE, expected: FULL_SET_EXPECTED }));
   // D7 命中分类（正则 + 逐桶计数）
-  const classified = FULL_SET_CODE.length === 4 && bucketCounts.full_set_21 === 4;
+  const classified = FULL_SET_CODE.length === 5 && bucketCounts.full_set_21 === 5;
   t('D7', 'kindCloseSet', classified,
-    `扫面正则 = ${SCAN_RE.source}；命中分类逐桶 = ${JSON.stringify(bucketCounts)}（full_set_21 恰 4 ⇒ 其余 = 派生子集 / 只读调用 / 历史被取代 / 规范文本 / 弃件）`,
+    `扫面正则 = ${SCAN_RE.source}；命中分类逐桶 = ${JSON.stringify(bucketCounts)}（full_set_21 恰 5 ⇒ 其余 = 派生子集 / 只读调用 / 历史被取代 / 规范文本 / 弃件）`,
     JSON.stringify({ regex: SCAN_RE.source, roots: SCAN_ROOTS, buckets: bucketCounts, hits: scanHits.length }));
-  // D8 无未登记全闭集（等价判别）：代码面「含新 kind 且 kind 数 ≥ 20」的文件 == 恰四处
+  // D8 无未登记全闭集（等价判别）：代码面「含新 kind 且 kind 数 ≥ 20」的文件 == 恰五处
   const fourth = scanHits.filter((h) => !h.file.startsWith('docs/') && h.has_new_kind && h.kinds >= 20).map((h) => h.file).sort();
   t('D8', 'kindCloseSet', eqJson(fourth, FULL_SET_EXPECTED),
-    '★ 「无未登记全闭集编码」等价判别：代码面**含 `checkin_makeup_fee` 且 kind 数 ≥ 20** 的文件 = 恰四处',
+    '★ 「无未登记全闭集编码」等价判别：代码面**含 `checkin_makeup_fee` 且 kind 数 ≥ 20** 的文件 = 恰五处',
     JSON.stringify({ files_with_new_kind_and_full_list: fourth }));
   selfTest('D6', 'kindCloseSet',
     (hits) => (Array.isArray(hits) ? hits.filter((h: { bucket: string }) => h.bucket === 'full_set_21').map((h: { file: string }) => h.file).sort() : []).length === 0,
     [{ file: 'backend-ts/src/fourth-place.ts', bucket: 'full_set_21' }],
     '把「凭空多出一个全闭集编码文件」喂入 ⇒ 谓词必须转红');
-  selfTest('D4', 'kindCloseSet', (v) => sortedEq(v as string[], KINDS_0032_CHECK), [...KINDS_0032_CHECK, 'made_up_kind'],
+  selfTest('D4', 'kindCloseSet', (v) => sortedEq(v as string[], KINDS_0038_CHECK), [...KINDS_0038_CHECK, 'made_up_kind'],
     '把「多一值」的集喂入现役同集谓词 ⇒ 必须转红');
 }
 
@@ -491,17 +506,15 @@ const prevBusinessDay = (): string => {
   const tg = (id: string, pass: boolean, expect: unknown, actual: unknown): void =>
     checks.push({ id, group: 'dbLive', pass: Boolean(pass), expect: String(expect), actual: String(actual) });
 
-  // ---------------- G1 · 活体 0028 `ledger_kind_enum` = 21 ----------------
+  // ---------------- G1 · 活体 `ledger_kind_enum` = 24（`0038` 已 apply） ----------------
   const kindDef = (await readQuery<{ def: string }>(
     `SELECT pg_get_constraintdef(oid) AS def FROM pg_constraint WHERE conname='ledger_kind_enum'`))[0];
   dbConnections += 1;
   const KINDS_DB = ((kindDef?.def ?? '').match(/'([a-z_]+)'/g) || []).map((s) => s.slice(1, -1));
-  const LIVE_21 = KINDS_FROM_TS.filter((k) => !P94_KINDS.includes(k));   // P9④ 前冻结快照（21）
-  const liveIs21 = sortedEq(KINDS_DB, LIVE_21);                          // `0032` 未 apply
-  const liveIs23 = sortedEq(KINDS_DB, KINDS_FROM_TS);                    // `0032` 已 apply
-  tg('G1', KINDS_DB.includes(NEW_KIND) && (liveIs21 || liveIs23),
-    '★ 活体 `ledger_kind_enum` = P9④ 冻结快照（`0032` 未 apply ⇒ 21；apply 后 23）· 含 `checkin_makeup_fee`',
-    JSON.stringify({ n: KINDS_DB.length, has_new: KINDS_DB.includes(NEW_KIND), mode: liveIs23 ? 'applied_23' : (liveIs21 ? 'pending_21' : 'UNEXPECTED') }));
+  const liveIs24 = sortedEq(KINDS_DB, KINDS_FROM_TS);                    // `0038` 已 apply
+  tg('G1', KINDS_DB.length === 24 && liveIs24 && KINDS_DB.includes(NEW_KIND) && P95_KINDS.every((k) => KINDS_DB.includes(k)),
+    '★ 活体 `ledger_kind_enum` = 24 值 且与 TS 同集（`0038` 已 apply）· 含 `checkin_makeup_fee` / `invite_first_task_reward`',
+    JSON.stringify({ n: KINDS_DB.length, has_new: KINDS_DB.includes(NEW_KIND), has_p95: P95_KINDS.filter((k) => KINDS_DB.includes(k)), mode: liveIs24 ? 'applied_24' : 'UNEXPECTED' }));
 
   // ---------------- G2 · 4 表 + 约束 + 3 具名索引（活体） ----------------
   const tabs = (await readQuery<{ t: string }>(
@@ -644,6 +657,9 @@ const prevBusinessDay = (): string => {
         sql_0032_check: KINDS_0032_CHECK.length,
         sql_0032_ledger_kind_ok: KINDS_0032_FN.length,
         sql_0032_frozen_settle_branch: KINDS_0032_FROZEN.length,
+        sql_0038_check: KINDS_0038_CHECK.length,
+        sql_0038_ledger_kind_ok: KINDS_0038_FN.length,
+        sql_0038_frozen_settle_branch: KINDS_0038_FROZEN.length,
         ts_ledger_kinds: KINDS_FROM_TS.length,
       },
       live_db_kind_enum: KINDS_DB.length,

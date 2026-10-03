@@ -8,15 +8,15 @@
  *
  * ★ A–H 静态面 **零 DB / 零网络**（只 import 纯函数 + 读源码 / 迁移 / locale 文本）。
  * ★ I/K 库面 leg：**只连库**（结构面**活体**只读 + ★★ 四段真链路 + `R-9-23` 反事実直插 = 事务内 + 子步 `SAVEPOINT` + 末尾 `ROLLBACK`）；**零 HTTP**。
- * ★ `0032`/`0033`/`0034` **已 apply**（`schema_version = 0034` · `schema_migration` 33 行）⇒ 其 DB 级效果**转为活体 `checks`**；
+ * ★ `0032`/`0033`/`0034`/`0035`…`0038` **已 apply**（`schema_version = 0038` · `schema_migration` 37 行）⇒ 其 DB 级效果**转为活体 `checks`**；
  *   `pending_apply[]` **归零**（原 10 条库面 leg 全部落实，**不伪装绿**）。
  *   ★ 库面写一律**事务内 + 末尾 `ROLLBACK`**（append-only ⇒ 无 DELETE 复原路径）；**严禁** `UPDATE app_config`。
  *
  * 判据（每条可判负 + 自证负对照）：
  *   A  注册点 **87** 逐 verb（`get 36 / post 48 / put 0 / patch 1 / delete 2`）+ 2 新动作口在场；负对照（缩进注入 ⇒ 88）
  *   B  2 新口形态：全闸 `requireActor`（零 `requireAdmin`）；`bttcKeyGuard` + 取数 `bttcMint(`/`bttcBurn(`；异常标签 `sendInfraMapped`
- *   C  `0032`：kind 关闭集 **21 → 23**（CHECK + `ledger_kind_ok` 两处同集含 `bttc_mint_fee`/`bttc_burn_fee`）；
- *      冻结族第二支一字不动（4 值）；`−1` credit 白名单追加两值、其余格逐字不变；正/负自检在场
+ *   C  `0038`：kind 关闭集 **23 → 24**（CHECK + `ledger_kind_ok` 两处同集含 `invite_first_task_reward`）；
+ *      冻结族第二支一字不动（4 值）；`−1` credit 白名单逐字不变（8 值）；`0032`（21 → 23）转 P9④ 历史快照；正/负自检在场
  *   D  `0033`：只 `ADD COLUMN IF NOT EXISTS is_platform_coin boolean NOT NULL DEFAULT false`（不改既有 7 约束）；
  *      存量兼容（全部行 `false`）；豁免谓词落 `src/database.ts` 唯一写路径（`AND ( EXISTS(…) OR 平台标记 )`）+ 保证金腿跳过
  *   E  `0034`：`op` 白名单末位加 `burn`（原 6 项逐字不动）；`v_op='burn'` 分支（本体腿单边负额）；`C8` 回执
@@ -26,7 +26,7 @@
  *   H  **`C-15`「无行 ⇒ 兜底值」独立负对照**（空表 / 无行 / `null` / `[]` ⇒ `source=constant` 且五键 = 常量默认）+ SQL `COALESCE` 包在标量子查询**外层**
  *   I  **`R-9-23` 钳制 + 反事実直插必红 `23514`**：纯函数钳 `mintBattCost ≤ capBatt` / `burnBattGain ≤ 100`；SQL `LEAST(…, capBatt)`；活体直插 `batt = 101` ⇒ `23514`（边界 `100` ⇒ 通过）
  *   J  零新增错误码（仍恰 **33**）+ 借既有码 + 稳定 `reason` 常量 + `pending_apply[]` **归零**（三迁移已 apply）
- *   K  库面**活体**：`0032`/`0033`/`0034` 结构指纹（kind 23 / kind_ok / −1 credit 8 / 列 / op 白名单含 burn + 双写 / `schema_migration` 33·0034）
+ *   K  库面**活体**：`0032`/`0033`/`0034`/`0038` 结构指纹（kind 24 / kind_ok / −1 credit 8 / 列 / op 白名单含 burn + 双写 / `schema_migration` 37·0038）
  *      + ★★ 四段真链路（创建含豁免闸两读数 / 铸造含幂等重放与闸负读数 / 分解含封顶丢弃 / 配对不变式）+ 零残渣（`ROLLBACK`）
  *   L  四语 `bttcPanel` 键集逐语相等 + 六类工程口径泄漏 = 0 + `en`/`vn` 零 CJK
  */
@@ -67,6 +67,7 @@ const LEDGER_TS = readSrc('backend-ts/src/ledger.ts');
 const SQL_0032 = readSrc('backend-ts/migrations/0032_kind_close_set_23.sql');
 const SQL_0033 = readSrc('backend-ts/migrations/0033_currency_platform_coin_flag.sql');
 const SQL_0034 = readSrc('backend-ts/migrations/0034_ledger_op_burn_and_supply.sql');
+const SQL_0038 = readSrc('backend-ts/migrations/0038_kind_close_set_24.sql');
 const LOCALES: Record<string, Record<string, unknown>> = Object.fromEntries(
   ['zh', 'en', 'hk', 'vn'].map((l) => [l, JSON.parse(readSrc(`frontend/src/locales/${l}.json`)) as Record<string, unknown>]),
 );
@@ -108,11 +109,16 @@ const kindListFrom = (re: RegExp, src: string): string[] => {
 const CHECK_LIST_RE = /ADD CONSTRAINT ledger_kind_enum CHECK \(kind IN \(([\s\S]*?)\)\)/;
 const FN_LIST_RE = /SELECT p_kind IN \(([^)]*)\)\s*AND \(NOT p_frozen_settle OR p_kind IN \(([^)]*)\)\)/;
 const P94_KINDS = ['bttc_mint_fee', 'bttc_burn_fee'];
+const P95_KINDS = ['invite_first_task_reward'];   // P9⑤（23 → 24）
 const KINDS_TS: string[] = [...LEDGER_KINDS];
 const KINDS_0032_CHECK = kindListFrom(CHECK_LIST_RE, SQL_0032);
 const m32 = SQL_0032.match(FN_LIST_RE);
 const KINDS_0032_FN = (m32 ? (m32[1].match(/'([a-z_]+)'/g) || []) : []).map((s) => s.slice(1, -1));
 const KINDS_0032_FROZEN = (m32 ? (m32[2].match(/'([a-z_]+)'/g) || []) : []).map((s) => s.slice(1, -1));
+const KINDS_0038_CHECK = kindListFrom(CHECK_LIST_RE, SQL_0038);
+const m38 = SQL_0038.match(FN_LIST_RE);
+const KINDS_0038_FN = (m38 ? (m38[1].match(/'([a-z_]+)'/g) || []) : []).map((s) => s.slice(1, -1));
+const KINDS_0038_FROZEN = (m38 ? (m38[2].match(/'([a-z_]+)'/g) || []) : []).map((s) => s.slice(1, -1));
 /** `ledger_assert_platform_mutation` 的 `-1` credit 白名单（从 0032 源抽）。 */
 const mWhitelist = SQL_0032.match(/WHEN '-1' THEN CASE p_dir WHEN 'credit' THEN p_kind IN \(([^)]*)\)/);
 const WL_0032_M1_CREDIT = (mWhitelist ? (mWhitelist[1].match(/'([a-z_]+)'/g) || []) : []).map((s) => s.slice(1, -1));
@@ -167,21 +173,25 @@ const WL_0032_M1_CREDIT = (mWhitelist ? (mWhitelist[1].match(/'([a-z_]+)'/g) || 
 }
 
 // ============================================================================
-// C · `0032`（kind 关闭集 21 → 23 · 三处编码 · −1 credit 白名单）
+// C · `0038`（kind 关闭集 23 → 24 · 三处编码 · −1 debit 白名单首开）；`0032`（21 → 23）转为 P9④ 历史
 // ============================================================================
 {
-  t('C1', 'migration0032', KINDS_0032_CHECK.length === 23 && P94_KINDS.every((k) => KINDS_0032_CHECK.includes(k)) && sortedEq(KINDS_0032_CHECK, KINDS_TS),
-    '★ `0032` `ledger_kind_enum` CHECK = 23 值（既有 21 + `bttc_mint_fee`/`bttc_burn_fee`）且与 TS `LEDGER_KINDS` 同集',
-    JSON.stringify({ n: KINDS_0032_CHECK.length, has89: P94_KINDS.map((k) => KINDS_0032_CHECK.includes(k)), same_ts: sortedEq(KINDS_0032_CHECK, KINDS_TS) }));
-  t('C2', 'migration0032', KINDS_0032_FN.length === 23 && P94_KINDS.every((k) => KINDS_0032_FN.includes(k)) && sortedEq(KINDS_0032_FN, KINDS_TS),
-    '★ `0032` `ledger_kind_ok` 第一支 = 23 值且与 TS 同集（③ 三处编码之二）',
-    JSON.stringify({ n: KINDS_0032_FN.length, same_ts: sortedEq(KINDS_0032_FN, KINDS_TS) }));
-  t('C3', 'migration0032', KINDS_TS.length === 23 && eqJson(KINDS_TS.slice(21), P94_KINDS),
-    '③ TS `LEDGER_KINDS` = 23 值 · 末位追加 `bttc_mint_fee`/`bttc_burn_fee`（不改既有 21 次序）',
+  t('C1', 'migration0032', KINDS_0038_CHECK.length === 24 && [...P94_KINDS, ...P95_KINDS].every((k) => KINDS_0038_CHECK.includes(k)) && sortedEq(KINDS_0038_CHECK, KINDS_TS),
+    '★ `0038` `ledger_kind_enum` CHECK = 24 值（既有 23 + `invite_first_task_reward`）且与 TS `LEDGER_KINDS` 同集',
+    JSON.stringify({ n: KINDS_0038_CHECK.length, has_new: [...P94_KINDS, ...P95_KINDS].map((k) => KINDS_0038_CHECK.includes(k)), same_ts: sortedEq(KINDS_0038_CHECK, KINDS_TS) }));
+  t('C2', 'migration0032', KINDS_0038_FN.length === 24 && [...P94_KINDS, ...P95_KINDS].every((k) => KINDS_0038_FN.includes(k)) && sortedEq(KINDS_0038_FN, KINDS_TS),
+    '★ `0038` `ledger_kind_ok` 第一支 = 24 值且与 TS 同集（③ 三处编码之二）',
+    JSON.stringify({ n: KINDS_0038_FN.length, same_ts: sortedEq(KINDS_0038_FN, KINDS_TS) }));
+  t('C3', 'migration0032', KINDS_TS.length === 24 && eqJson(KINDS_TS.slice(21), [...P94_KINDS, ...P95_KINDS]),
+    '③ TS `LEDGER_KINDS` = 24 值 · 末位追加 `bttc_mint_fee`/`bttc_burn_fee`/`invite_first_task_reward`（不改既有 21 次序）',
     JSON.stringify({ n: KINDS_TS.length, tail: KINDS_TS.slice(21) }));
-  t('C4', 'migration0032', eqJson([...KINDS_0032_FROZEN].sort(), ['hold_forfeit', 'job_payout', 'purchase', 'trade']) && P94_KINDS.every((k) => !KINDS_0032_FROZEN.includes(k)),
-    '★ `ledger_kind_ok` 第二支（`p_frozen_settle`）**一字不动** = 4 值且不含任何新增值（两新 kind 不属冻结结算族）',
-    JSON.stringify({ frozen: [...KINDS_0032_FROZEN].sort(), has89: P94_KINDS.filter((k) => KINDS_0032_FROZEN.includes(k)) }));
+  t('C4', 'migration0032', eqJson([...KINDS_0038_FROZEN].sort(), ['hold_forfeit', 'job_payout', 'purchase', 'trade']) && [...P94_KINDS, ...P95_KINDS].every((k) => !KINDS_0038_FROZEN.includes(k)),
+    '★ `ledger_kind_ok` 第二支（`p_frozen_settle`）**一字不动** = 4 值且不含任何新增值（新 kind 不属冻结结算族）',
+    JSON.stringify({ frozen: [...KINDS_0038_FROZEN].sort(), has_new: [...P94_KINDS, ...P95_KINDS].filter((k) => KINDS_0038_FROZEN.includes(k)) }));
+  t('C4b', 'migration0032',
+    KINDS_0032_CHECK.length === 23 && KINDS_0032_FN.length === 23 && sortedEq(KINDS_0032_CHECK, KINDS_0032_FN) && sortedEq(KINDS_0032_CHECK, KINDS_TS.slice(0, 23)),
+    '★ P9④ 历史两处（`0032` CHECK / 函数）= 23 且逐字 = TS 前 23（P9④ 冻结快照，被 `0038` 取代、文件不可改）',
+    JSON.stringify({ n32c: KINDS_0032_CHECK.length, n32f: KINDS_0032_FN.length, eq_ts23: sortedEq(KINDS_0032_CHECK, KINDS_TS.slice(0, 23)) }));
   t('C5', 'migration0032',
     P94_KINDS.every((k) => WL_0032_M1_CREDIT.includes(k))
       && ['trade_fee', 'listing_fee', 'currency_create_fee', 'job_fee', 'listing_deposit', 'checkin_makeup_fee'].every((k) => WL_0032_M1_CREDIT.includes(k)),
@@ -196,8 +206,8 @@ const WL_0032_M1_CREDIT = (mWhitelist ? (mWhitelist[1].match(/'([a-z_]+)'/g) || 
     /ledger_kind_ok\('bttc_mint_fee', true\)/.test(SQL_0032) && /-1 debit bttc_mint_fee WAS NOT rejected/.test(SQL_0032) && /-1 credit commission WAS NOT rejected/.test(SQL_0032),
     '★ 自检含**正 + 负**：两新 kind 冻结族下必拒（负）/ `−1` debit 必拒（负）/ 非白名单 credit 必拒（负）；正向逐值在场',
     JSON.stringify({ frozen_neg: /bttc_mint_fee', true/.test(SQL_0032), debit_neg: /debit bttc_mint_fee WAS NOT rejected/.test(SQL_0032), credit_neg: /credit commission WAS NOT rejected/.test(SQL_0032) }));
-  selfTest('C1', 'migration0032', (v) => sortedEq(v as string[], KINDS_0032_CHECK), [...KINDS_0032_CHECK.slice(0, 22), 'made_up_kind'],
-    '把「少一值 / 多一值」的集喂入 23 同集谓词 ⇒ 必须转红');
+  selfTest('C1', 'migration0032', (v) => sortedEq(v as string[], KINDS_0038_CHECK), [...KINDS_0038_CHECK.slice(0, 23), 'made_up_kind'],
+    '把「少一值 / 多一值」的集喂入 24 同集谓词 ⇒ 必须转红');
 }
 
 // ============================================================================
@@ -342,7 +352,7 @@ const WL_0032_M1_CREDIT = (mWhitelist ? (mWhitelist[1].match(/'([a-z_]+)'/g) || 
 // J · 零新增错误码（仍恰 33）+ 借既有码 + 稳定 reason
 // ============================================================================
 const pendingApply: Array<{ leg: string; reason: string }> = [];
-// ★ 库面收口（本单）：`0032`/`0033`/`0034` **已 apply**（`schema_version = 0034` · `schema_migration` 33 行）⇒ 原 10 条
+// ★ 库面收口（本单）：`0032`/`0033`/`0034`…`0038` **已 apply**（`schema_version = 0038` · `schema_migration` 37 行）⇒ 原 10 条
 //   「等 apply 再测」的库面 leg **全部转为 K 段活体 `checks`** ⇒ `pending_apply[]` **归零**（**不得伪装绿**）。
 {
   t('J1', 'closedSets', LEDGER_ERROR_CODES.length === 33, '错误码闭集仍恰 33 条（**不动**）', LEDGER_ERROR_CODES.length);
@@ -391,7 +401,7 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
 // ============================================================================
 // K · 库面 leg（只连库 · 零 HTTP）：结构面**活体**断言 + ★★ 四段真链路（事务内 + 子步 SAVEPOINT + 末尾 ROLLBACK）
 // ----------------------------------------------------------------------------
-// ★ `0032`/`0033`/`0034` **已 apply**（`schema_version = 0034` · `schema_migration` 33 行）⇒ 原 `pending_apply[]` 10 条
+// ★ `0032`/`0033`/`0034`/`0038` **已 apply**（`schema_version = 0038` · `schema_migration` 37 行）⇒ 原 `pending_apply[]` 10 条
 //   **全部转本段活体 checks**（`ledger_kind_enum`/`ledger_kind_ok`/`−1` credit 白名单/`is_platform_coin` 列与默认/
 //   `op` 白名单与双写/三迁移结构指纹 + 四段真链路 + 配对不变式 + 零残渣）。
 // ★ 库面写一律**事务内 + 末尾 ROLLBACK**（`ledger_entry`/`batt_entry`/`batt_account` append-only ⇒ 无 DELETE 复原路径）；
@@ -440,9 +450,9 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
     dbConnections += 1;
     const KINDS_DB = (kindDef.match(/'([a-z_]+)'/g) || []).map((s) => s.slice(1, -1));
     live.live_kind_enum = { n: KINDS_DB.length, has_89: P94_KINDS.filter((k) => KINDS_DB.includes(k)) };
-    t('K2', 'dbStructureLive', KINDS_DB.length === 23 && P94_KINDS.every((k) => KINDS_DB.includes(k)) && sortedEq(KINDS_DB, KINDS_TS),
-      '★ `0032` 活体：`ledger_kind_enum` = **23 值**（含 `bttc_mint_fee`/`bttc_burn_fee`）且与 TS `LEDGER_KINDS` 同集', JSON.stringify(live.live_kind_enum));
-    selfTest('K2', 'dbStructureLive', (n) => Number(n) === 23, 21, '把「21 值」（apply 前）喂入「23 值」谓词 ⇒ 必须转红');
+    t('K2', 'dbStructureLive', KINDS_DB.length === 24 && [...P94_KINDS, ...P95_KINDS].every((k) => KINDS_DB.includes(k)) && sortedEq(KINDS_DB, KINDS_TS),
+      '★ `0038` 活体：`ledger_kind_enum` = **24 值**（含 `bttc_mint_fee`/`bttc_burn_fee`/`invite_first_task_reward`）且与 TS `LEDGER_KINDS` 同集', JSON.stringify(live.live_kind_enum));
+    selfTest('K2', 'dbStructureLive', (n) => Number(n) === 24, 23, '把「23 值」（apply 前）喂入「24 值」谓词 ⇒ 必须转红');
 
     const fnk = (await readQuery<{ src: string }>(
       `SELECT prosrc AS src FROM pg_proc WHERE proname='ledger_kind_ok' AND pronamespace='public'::regnamespace`))[0]?.src ?? '';
@@ -452,8 +462,8 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
     const KK_FROZEN = mkk ? (mkk[2].match(/'([a-z_]+)'/g) || []).map((s) => s.slice(1, -1)) : [];
     live.live_kind_ok = { first_n: KK_FIRST.length, frozen: [...KK_FROZEN].sort() };
     t('K2b', 'dbStructureLive',
-      KK_FIRST.length === 23 && P94_KINDS.every((k) => KK_FIRST.includes(k)) && sortedEq(KK_FROZEN, ['hold_forfeit', 'job_payout', 'purchase', 'trade']),
-      '★ `0032` 活体：`ledger_kind_ok` 第一支 = **23 值**（含两新 kind）；冻结族第二支 = **4 值**（一字未动）', JSON.stringify(live.live_kind_ok));
+      KK_FIRST.length === 24 && [...P94_KINDS, ...P95_KINDS].every((k) => KK_FIRST.includes(k)) && sortedEq(KK_FROZEN, ['hold_forfeit', 'job_payout', 'purchase', 'trade']),
+      '★ `0038` 活体：`ledger_kind_ok` 第一支 = **24 值**（含三新 kind）；冻结族第二支 = **4 值**（一字未动）', JSON.stringify(live.live_kind_ok));
 
     const fna = (await readQuery<{ src: string }>(
       `SELECT prosrc AS src FROM pg_proc WHERE proname='ledger_assert_platform_mutation' AND pronamespace='public'::regnamespace`))[0]?.src ?? '';
@@ -501,9 +511,9 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
       `SELECT count(*)::int AS n, max(version) AS mx FROM public.schema_migration`);
     dbConnections += 1;
     live.schema_migration = sm[0];
-    t('K5', 'dbStructureLive', Number(sm[0].n) === 33 && String(sm[0].mx) === '0034',
-      '★ 三迁移结构指纹：`schema_migration` = **33 行** · `max(version)` = **0034**（`0032`→`0033`→`0034` 已 apply）', JSON.stringify(sm[0]));
-    selfTest('K5', 'dbStructureLive', (v) => String(v) === '0034', '0031', '把「未 apply（0031）」喂入「0034」谓词 ⇒ 必须转红');
+    t('K5', 'dbStructureLive', Number(sm[0].n) === 37 && String(sm[0].mx) === '0038',
+      '★ 迁移结构指纹：`schema_migration` = **37 行** · `max(version)` = **0038**（`0032`→…→`0038` 已 apply）', JSON.stringify(sm[0]));
+    selfTest('K5', 'dbStructureLive', (v) => String(v) === '0038', '0034', '把「未 apply（0034）」喂入「0038」谓词 ⇒ 必须转红');
 
     // ---------------------------------------------------------------- 四段真链路（单事务 + 子步 SAVEPOINT + 末尾 ROLLBACK）
     const before = await tableCounts();
@@ -740,7 +750,7 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
     offline: false,
     db_connections: dbConnections,
     http_calls: httpCalls,
-    note: 'A–H/L 静态面零 DB / 零 HTTP；I/K 库面 leg **只连库**（结构面**活体**只读 + `R-9-23` 反事実直插 + 四段真链路 = 事务内 + 末尾 ROLLBACK）。★ `0032`/`0033`/`0034` **已 apply**（`schema_version` 0034 · `schema_migration` 33 行）⇒ 其 DB 级效果全部转为 K 段**活体 checks**，`pending_apply[]` **归零**（不伪装绿）。',
+    note: 'A–H/L 静态面零 DB / 零 HTTP；I/K 库面 leg **只连库**（结构面**活体**只读 + `R-9-23` 反事実直插 + 四段真链路 = 事务内 + 末尾 ROLLBACK）。★ `0032`/`0033`/`0034`…`0038` **已 apply**（`schema_version` 0038 · `schema_migration` 37 行）⇒ 其 DB 级效果全部转为 K 段**活体 checks**，`pending_apply[]` **归零**（不伪装绿）。',
     total: checks.length,
     passed: checks.length - failed.length,
     failed: failed.length,

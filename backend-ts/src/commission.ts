@@ -77,7 +77,8 @@ const runQuery = async <R = Record<string, unknown>>(
 export const COMMISSION_REASON = {
   /** §13.2 #1：无任何政策满足 `effective_from <= T`（口径 A 下正常路径不可达） */
   POLICY_MISSING: 'COMMISSION_POLICY_MISSING',
-  /** §13.2 #2：`fee_rate_bp` 不在 `[100,500]`（政策写入时 ⇒ 400） */
+  /** §13.2 #2：`fee_rate_bp` 不在 `[100,10000]`（政策写入时 ⇒ 400）。
+   *  ★ P9⑤（`R-9-48`）：域由 `[100,500]` 扩至 `[100,10000]`（`fee_rate_bp` 语义改「进池比例」，`1000` = 10%）。 */
   FEE_RATE_OUT_OF_RANGE: 'FEE_RATE_OUT_OF_RANGE',
   /** §13.2 #3：`levels` / `weights_bp` 形态非法 ⇒ 400 */
   POLICY_SHAPE_INVALID: 'POLICY_SHAPE_INVALID',
@@ -172,8 +173,9 @@ export const guardCommissionPolicy = (
     }
     throw new LedgerError('LEDGER_FEE_RATE_INVALID', { field: 'commission_policy', reason, stage, ...extra });
   };
-  if (!Number.isInteger(p.fee_rate_bp) || p.fee_rate_bp < 100 || p.fee_rate_bp > 500) {
-    bad(COMMISSION_REASON.FEE_RATE_OUT_OF_RANGE, { fee_rate_bp: p.fee_rate_bp, min: 100, max: 500 });
+  if (!Number.isInteger(p.fee_rate_bp) || p.fee_rate_bp < 100 || p.fee_rate_bp > 10000) {
+    // ★ P9⑤（R-9-48）：域扩至 [100,10000]（原 500）；fee_rate_bp 语义 = 进池比例（1000 = 10%）。
+    bad(COMMISSION_REASON.FEE_RATE_OUT_OF_RANGE, { fee_rate_bp: p.fee_rate_bp, min: 100, max: 10000 });
   }
   if (!Number.isInteger(p.levels) || p.levels < 1 || p.levels > 10) {
     bad(COMMISSION_REASON.POLICY_SHAPE_INVALID, { levels: p.levels, min: 1, max: 10 });
@@ -330,11 +332,90 @@ export const getReferralChain = async (
   };
 };
 
+// ============================================================================
+// §3.5 下行链（P9⑤ · R-9-50：递归 CTE · 零新表）—— 与上行 `getReferralChain` 对称
+// ============================================================================
+// 「以 Worker 为中心」的新口径（commission.spec v0.4 §19.4 / §19.5①）需要**下行 3 层**：
+//   `WITH RECURSIVE down … WHERE level < cap`，走 `idx_referral_parent`（`WHERE parent_uid = ?`）。
+// 与上行同理：`level < cap` 的硬闸在 CTE 内（遍历上界，防深树拖长事务）；防环在写入侧
+// （`0007` 三件 + `0010`/`0011` 守卫）。`L = 1` = 直接下级。
+
+export interface DownChainNode { descendant_uid: string; level: number; bound_at: string | null; }
+export interface ReferralDownChain {
+  /** 按 `(level ASC, descendant_uid ASC)` 定序（确定性 · 可复现） */
+  nodes: DownChainNode[];
+  /** 已遍历到的最深层号（0 = 无任何下级） */
+  down_depth: number;
+  /** 是否存在比 `cap` 更深的一层（`cap` 层任一节点有子 ⇒ true；与上行 `truncated` 同义） */
+  truncated: boolean;
+  assertions: { contiguous_levels: boolean; within_cap: boolean; all_user_uids: boolean; no_duplicate_uid: boolean };
+}
+
+/**
+ * 沿 `referral` 从 `uid` **下行**取子孙，最多 `maxLevels` 层（`level < cap` 硬闸在 CTE 内）。
+ * 与 `getReferralChain` 严格对称（结构断言 / 定序 / 截断标记同口径）。
+ */
+export const getDownChain = async (
+  uid: Amount, maxLevels: number, ex?: Queryable,
+): Promise<ReferralDownChain> => {
+  const u = assertUserUid(uid, 'worker_uid');
+  const cap = Math.max(1, Math.floor(maxLevels));
+  const rows = await runQuery<{ descendant_uid: string; level: number; bound_at: string | null }>(ex, `
+    WITH RECURSIVE down AS (
+      SELECT r.child_uid AS descendant_uid, 1 AS level, r.bound_at
+        FROM referral r WHERE r.parent_uid = $1
+      UNION ALL
+      SELECT r.child_uid, down.level + 1, r.bound_at
+        FROM referral r JOIN down ON r.parent_uid = down.descendant_uid
+       WHERE down.level < $2
+    )
+    SELECT descendant_uid::text AS descendant_uid, level, bound_at::text AS bound_at
+      FROM down ORDER BY level, descendant_uid`,
+  [u.toString(), cap]);
+  const nodes: DownChainNode[] = rows.map((r) => ({
+    descendant_uid: String(r.descendant_uid), level: Number(r.level),
+    bound_at: r.bound_at === null || r.bound_at === undefined ? null : String(r.bound_at),
+  }));
+  const maxLevel = nodes.reduce((m, n) => Math.max(m, n.level), 0);
+  const levelsPresent = new Set(nodes.map((n) => n.level));
+  // 树形下行 ⇒ 若存在 level k 的节点，其祖先链保证 1..k-1 皆有节点 ⇒ 层级连续；此处显式核验。
+  let contiguous = true;
+  for (let L = 1; L <= maxLevel; L++) if (!levelsPresent.has(L)) contiguous = false;
+  // 截断：`cap` 层任一节点仍有子 ⇒ 真实下行 > cap（与上行 `truncated` 同判据）
+  let truncated = false;
+  if (maxLevel === cap && nodes.some((n) => n.level === cap)) {
+    const deepest = nodes.filter((n) => n.level === cap).map((n) => n.descendant_uid);
+    const more = await runQuery<{ more: boolean }>(ex, `
+      SELECT EXISTS (SELECT 1 FROM referral r WHERE r.parent_uid = ANY($1::bigint[])) AS more`,
+    [`{${deepest.join(',')}}`]);
+    truncated = more[0]?.more === true;
+  }
+  const uids = nodes.map((n) => n.descendant_uid);
+  return {
+    nodes,
+    down_depth: maxLevel,
+    truncated,
+    assertions: {
+      contiguous_levels: contiguous,
+      within_cap: maxLevel <= cap,
+      all_user_uids: nodes.every((n) => toAmount(n.descendant_uid, 'descendant_uid') > 0n),
+      no_duplicate_uid: new Set(uids).size === uids.length,
+    },
+  };
+};
+
 export interface ChainContext {
   /** 打工人（链的起点）；只用于诊断读数 */
   worker_uid?: string;
   /** 供诊断的附加读数（如 job_id） */
   job_id?: string;
+  /**
+   * ★ P9⑤（`R-9-56`）：本次分配**名单**（以 Worker 为中心「上 3 ∪ 下 3」，**已结构性剔除 worker**）。
+   * 名单含 `worker_uid` ⇒ 硬拒（图损坏 / 管理员旁路 ⇒ 归属不可信）。
+   */
+  roster_uids?: ReadonlyArray<string>;
+  /** ★ P9⑤（`R-9-50`）：下行链结构断言（与上行同判；`within_cap` 不硬拒）。 */
+  down_chain?: ReferralDownChain;
 }
 
 /**
@@ -362,6 +443,19 @@ export const assertReferralChainInvariants = (chain: ReferralChain, ctx: ChainCo
   if (!chain.assertions.no_duplicate_uid) failed.push('no_duplicate_uid');
   if (!chain.assertions.contiguous_levels) failed.push('contiguous_levels');
   if (!chain.assertions.all_user_uids) failed.push('all_user_uids');
+  // ★ P9⑤（R-9-56）：Worker **结构性剔除**的防御断言 —— 名单（上 3 ∪ 下 3）含 `worker_uid`
+  //   ⇒ 图损坏 / 管理员旁路 ⇒ 归属不可信 ⇒ 与链断言同判据硬拒（`500` + `COMMISSION_CHAIN_ASSERTION_VIOLATED`）。
+  //   （结构性剔除本身在名单构建处保证：遍历种子不含 Worker 本人。）
+  if (ctx.roster_uids && ctx.worker_uid !== undefined
+      && ctx.roster_uids.some((x) => x === ctx.worker_uid)) {
+    failed.push('worker_in_roster');
+  }
+  // ★ P9⑤（R-9-50）：下行链结构断言（与上行同判；`within_cap` 不硬拒 —— 遍历上界是设计内行为）。
+  if (ctx.down_chain) {
+    if (!ctx.down_chain.assertions.no_duplicate_uid) failed.push('down_no_duplicate_uid');
+    if (!ctx.down_chain.assertions.contiguous_levels) failed.push('down_contiguous_levels');
+    if (!ctx.down_chain.assertions.all_user_uids) failed.push('down_all_user_uids');
+  }
   if (failed.length === 0) return;
   throw new LedgerError('LEDGER_RECONCILE_MISMATCH', {
     reason: COMMISSION_REASON.CHAIN_ASSERTION_VIOLATED,
@@ -372,6 +466,9 @@ export const assertReferralChainInvariants = (chain: ReferralChain, ctx: ChainCo
     within_cap: chain.assertions.within_cap,
     worker_uid: ctx.worker_uid ?? '',
     job_id: ctx.job_id ?? '',
+    // P9⑤：名单规模 + 下行深度（诊断；不下发名单本体）
+    roster_size: ctx.roster_uids ? ctx.roster_uids.length : 0,
+    down_depth: ctx.down_chain ? ctx.down_chain.down_depth : 0,
     // 诊断：链上节点（含重复项）逐层铺开；只放非敏感 uid/层级
     chain_nodes: chain.nodes.map((n) => `${n.level}:${n.beneficiary_uid}`).join(','),
     note: 'referral graph invariants broken (cycle / platform uid / level gap) => attribution untrustworthy, refusing before ledger post',
@@ -429,7 +526,7 @@ export interface SplitResult {
  * 性质（可证）：① `D` 个 `+1` 刚好分完 ⇒ **`Σ x_L == P` 逐分不差**（构造出来，**不做任何二次舍入**，
  * CR45）；② 排序键 `(r_L DESC, L DESC)` 是**全序** ⇒ 结果唯一确定、可复现（CR42）。
  */
-export const splitPool = (pool: Amount, weights: ReadonlyArray<Amount>): SplitResult => {
+export const splitPoolByWeights = (pool: Amount, weights: ReadonlyArray<Amount>): SplitResult => {
   const P = toAmount(pool, 'pool');
   const w = weights.map((v, i) => toAmount(v, `weights_bp[${i + 1}]`));
   const M = w.length;
@@ -487,10 +584,135 @@ export const splitPool = (pool: Amount, weights: ReadonlyArray<Amount>): SplitRe
 };
 
 // ============================================================================
+// §4.5 两级最大余数法（P9⑤ · R-9-54）：层间（承 §6.2）→ 层内均分（第二级最大余数法）
+// ============================================================================
+// 权威口径：commission.spec v0.4 §19.5② / §19.6b（裁定 `R-9-54`）。
+// · 层间：把池 P 按 6 层权重（`weights_bp`，序 `[U1,U2,U3,D1,D2,D3]`）用**一级最大余数法**分为层额
+//   `x_L`（sort `(r_L DESC, L DESC)`，承 CR41/CR42）—— 复用 `splitPoolByWeights`。
+// · 层内：把每层 `x_L` 在该层 `N_L` 名受益人之间**均分**（等权）—— 第二级最大余数法
+//   （sort `(r_i DESC, uid ASC)`；等权 ⇒ `r_i` 恒相同 ⇒ 由 `uid ASC` 定序 ⇒ 取前 `x_L mod N_L` 名各 `+1`）。
+// · 两级一律**整数**（BigInt）、**禁任何二次浮点舍入**；`Σ 全部人 == P` **构造性成立**（CR45 精神不变）。
+
+export interface PoolLayerBeneficiary { uid: string; }
+export interface PoolLayer {
+  /** 层号 L（`1..6`）：`1..3` = 上行 `U1..U3`；`4..6` = 下行 `D1..D3`（= `weights_bp` 下标 +1） */
+  layer: number;
+  direction: 'up' | 'down';
+  /** 距 Worker 的层距（`1..3`；`U_d` 与 `D_d` 同为 `d`） */
+  distance: number;
+  weight_bp: number;
+  /** 该层受益人（**已**按层内规则截断并定序）；`splitPoolTwoLevel` 不再截断 */
+  beneficiaries: ReadonlyArray<PoolLayerBeneficiary>;
+}
+export interface PoolLayerAlloc {
+  layer: number; direction: 'up' | 'down'; distance: number;
+  weight_bp: string; q: string; r: string;
+  /** 该层层额 `x_L`（= Σ 该层每个受益人所得） */
+  x: string;
+}
+export interface PoolEntryAlloc { layer: number; direction: 'up' | 'down'; distance: number; uid: string; x: string; }
+export interface PoolAllocation {
+  pool: string;
+  /** 参与分配的**存在层**数（`M ∈ [0,6]`） */
+  M: number;
+  /** 重归一化分母 `W = Σ 存在层权重`（**不是 10000**，CR47） */
+  W: string;
+  layers: PoolLayerAlloc[];
+  entries: PoolEntryAlloc[];
+  /** 一级残余 `D = P − Σ q_L`（层间） */
+  D: string;
+  /** 一级全序（存在层下标 0-based，按 `(r DESC, L DESC)`） */
+  order: number[];
+  sum_x: string;
+  sum_ok: boolean;
+  plus_one_layers: number[];
+}
+
+/**
+ * §19.5② **两级最大余数法**（P9⑤ 的唯一分配算法，裁定 `R-9-54`）。
+ * `Σ entries == pool` 构造性成立（CR45）；层内等权 ⇒ 层内 tie-break `(r DESC, uid ASC)` 退化为 `uid ASC`。
+ */
+export const splitPoolTwoLevel = (
+  pool: Amount, layers: ReadonlyArray<PoolLayer>,
+): PoolAllocation => {
+  const P = toAmount(pool, 'pool');
+  const present = layers.filter((l) => l.beneficiaries.length > 0);
+  const M = present.length;
+  if (M === 0) {
+    if (P !== 0n) {
+      // M = 0 且 P > 0：调用方的分流错了（无合格受益人时手续费必须入 -1，不得到这里来，R-9-52）
+      throw new LedgerError('LEDGER_ACCOUNT_GUARD_VIOLATION', {
+        reason: COMMISSION_REASON.COMMISSION_SPLIT_SUM_MISMATCH,
+        note: 'M=0 with non-zero pool (caller must route fee to -1 per R-9-52)',
+        pool: P.toString(),
+      });
+    }
+    return { pool: '0', M: 0, W: '0', layers: [], entries: [], D: '0', order: [], sum_x: '0', sum_ok: true, plus_one_layers: [] };
+  }
+  // ---- 一级：层间（一级最大余数法，sort `(r DESC, L DESC)`；L = 向量位序）
+  const lvl1 = splitPoolByWeights(P, present.map((l) => BigInt(l.weight_bp)));
+  const layerAlloc: PoolLayerAlloc[] = present.map((l, i) => ({
+    layer: l.layer, direction: l.direction, distance: l.distance,
+    weight_bp: String(l.weight_bp), q: lvl1.q[i], r: lvl1.r[i], x: lvl1.x[i],
+  }));
+  // ---- 二级：层内均分（第二级最大余数法，sort `(r DESC, uid ASC)`）
+  const entries: PoolEntryAlloc[] = [];
+  for (let i = 0; i < present.length; i++) {
+    const xL = BigInt(lvl1.x[i]);
+    const bens = present[i].beneficiaries;
+    const n = BigInt(bens.length);
+    if (n === 0n) continue;
+    const base = xL / n;
+    const plus = Number(xL % n);   // 取前 plus 名各 +1（等权 ⇒ r 恒相同 ⇒ 由 uid ASC 定序）
+    const order = bens.map((_, idx) => idx)
+      .sort((a, b) => (bens[a].uid < bens[b].uid ? -1 : bens[a].uid > bens[b].uid ? 1 : 0));
+    const amt = bens.map(() => base);
+    for (let k = 0; k < plus; k++) amt[order[k]] += 1n;
+    for (const idx of order) {
+      entries.push({
+        layer: present[i].layer, direction: present[i].direction, distance: present[i].distance,
+        uid: bens[idx].uid, x: amt[idx].toString(),
+      });
+    }
+  }
+  const sumX = entries.reduce((a, e) => a + BigInt(e.x), 0n);
+  if (sumX !== P) {
+    throw new LedgerError('LEDGER_ACCOUNT_GUARD_VIOLATION', {
+      reason: COMMISSION_REASON.COMMISSION_SPLIT_SUM_MISMATCH,
+      pool: P.toString(), sum_x: sumX.toString(), M: String(M),
+    });
+  }
+  return {
+    pool: P.toString(), M, W: lvl1.W, layers: layerAlloc, entries,
+    D: lvl1.D, order: lvl1.order,
+    sum_x: sumX.toString(), sum_ok: true, plus_one_layers: lvl1.plus_one_levels,
+  };
+};
+
+/**
+ * P9⑤：`splitPool` 成**两级**入口（`R-9-54`）。
+ *   · 第二参为 `PoolLayer[]`（对象）⇒ 走**两级**最大余数法（`splitPoolTwoLevel`）；
+ *   · 第二参为 `Amount[]`（数值）⇒ 走**一级**最大余数法（`splitPoolByWeights`，逐字保留为原语；
+ *     供层间步骤 / 既有 QA 脚本复用）。
+ * 语义等价：`splitPool(P, weights)` ≡ 旧行为；`splitPool(P, layers)` = 新两级。
+ */
+export function splitPool(pool: Amount, weights: ReadonlyArray<Amount>): SplitResult;
+export function splitPool(pool: Amount, layers: ReadonlyArray<PoolLayer>): PoolAllocation;
+export function splitPool(
+  pool: Amount, arg: ReadonlyArray<Amount> | ReadonlyArray<PoolLayer>,
+): SplitResult | PoolAllocation {
+  if (arg.length > 0 && typeof arg[0] === 'object' && arg[0] !== null) {
+    return splitPoolTwoLevel(pool, arg as ReadonlyArray<PoolLayer>);
+  }
+  return splitPoolByWeights(pool, arg as ReadonlyArray<Amount>);
+}
+
+// ============================================================================
 // §5 结算计划（§7 重归一化 + §8 边界）与载荷构建（§5 分录顺序铁律）
 // ============================================================================
 
 export interface CommissionLayer {
+  /** 层号 L（`1..6`）：`1..3` = 上行 `U1..U3`；`4..6` = 下行 `D1..D3`（= `weights_bp` 下标 +1） */
   level: number;
   beneficiary_uid: string;
   weight_bp: string;
@@ -498,6 +720,13 @@ export interface CommissionLayer {
   r: string;
   /** 实付；`"0"` ⇒ **不建分录**（CR48） */
   x: string;
+  // ---- ★ P9⑤（纯新增可选字段，旧字段语义未动；重放路径不填 = undefined）
+  /** 方向（`up` = 上行上级；`down` = 下行下级） */
+  direction?: 'up' | 'down';
+  /** 距 Worker 的层距（`1..3`） */
+  distance?: number;
+  /** 该层层额 `x_L`（= Σ 该层每人所得；= `x` 当且仅当该层仅 1 人） */
+  layer_share?: string;
 }
 
 export interface SettlementPlan {
@@ -518,6 +747,15 @@ export interface SettlementPlan {
    * `false` = 恰好 cap；`true` = 真实链 ≥ cap（只分前 `levels` 层是设计内行为）。
    */
   chain_truncated: boolean;
+  // ---- ★ P9⑤（纯新增字段，旧字段语义未动）
+  /** 下行链深度（`0..3`；0 = 无任何下级） */
+  down_depth: number;
+  /** 下行链是否被遍历上界（3）截断（与 `chain_truncated` 同义） */
+  down_truncated: boolean;
+  /** 本次分配名单规模（「上 3 ∪ 下 3」截断后、已结构性剔除 Worker） */
+  roster_size: number;
+  /** 名单规模上限截断留痕（`R-9-55`；常态 `truncated = false`） */
+  truncation: RosterTruncation;
   /**
    * F7②（**纯新增字段**）：本计划的来源。
    *   · `'computed'`             = 由**当前政策 + 本次输入**算出（正常首写路径）；
@@ -533,7 +771,7 @@ export interface SettlementPlan {
    *     `fee`/`net`/`gross`/`layers` 等（那些来自账上事件）。
    */
   policy_reported: boolean;
-  /** `M = min(levels, chain_depth)`（CR46）：本次**参与分配**的层数 */
+  /** ★ P9⑤：参与分配的**存在层**数（`M ∈ [0,6]`；= 有受益人的层数、截断后） */
   M: number;
   /** `N` = 实际产生 `commission` 分录的层数（`x_L = 0` 的层不产生，CR48） */
   N: number;
@@ -595,14 +833,147 @@ export const settleJobFingerprint = (i: SettleJobInput): string =>
     gross: toAmount(i.gross, 'gross').toString(),
   })).digest('hex');
 
+// ============================================================================
+// §4.6 分配名单（P9⑤ · 以 Worker 为中心「上 3 ∪ 下 3」· Worker 结构性剔除 · 上限截断留痕）
+// ============================================================================
+// 权威口径：commission.spec v0.4 §19.4 / §19.5①③④（裁定 `R-9-53` / `R-9-55` / `R-9-56`）。
+//   · 权重向量序位 `[U1,U2,U3,D1,D2,D3]`（对称 `{2600,1700,700,2600,1700,700}`，`Σ=10000`）。
+//   · 层号 L：`1..3` = 上行 `U1..U3`；`4..6` = 下行 `D1..D3`（= `weights_bp` 下标 +1）。
+//   · **Worker 结构性剔除**：遍历种子（上行 `parent_uid` / 下行 `child_uid`）本就不含 Worker 本人
+//     ⇒ 物理上不可能入名单；此处再过滤一次作兜底（`R-9-56`）。
+//   · **双层上限**（后台可配 · 常态不触发）：每层 ≤ `capLayer`（默认 64）∧ 总名单 ≤ `capTotal`（默认 384）。
+//     超限**截断**序 = `(近者优先 → bound_at ASC → uid ASC)`；**必留痕**（`truncation`）。
+
+export const COMMISSION_CAP_LAYER_DEFAULT = 64;
+export const COMMISSION_CAP_TOTAL_DEFAULT = 384;
+
+export interface RosterBeneficiary { uid: string; }
+export interface CommissionRosterLayer {
+  layer: number; direction: 'up' | 'down'; distance: number; weight_bp: number;
+  beneficiaries: RosterBeneficiary[];   // 已截断、按 uid ASC 定序
+}
+export interface RosterTruncation {
+  cap_layer: number;
+  cap_total: number;
+  /** 被截断（丢弃）的候选总数（层内 + 总名单） */
+  dropped_total: number;
+  /** 逐层丢弃数（键 = 层号 L 的字符串） */
+  dropped_by_layer: Record<string, number>;
+  /** 是否发生任何截断（常态 `false`） */
+  truncated: boolean;
+}
+export interface CommissionRoster {
+  worker_uid: string;
+  up_depth: number;
+  down_depth: number;
+  /** 本次考虑的**有效层数上限**（= min(6, levels, weights 长度)；`R-9-60` levels 语义 = 有效层数含下 3） */
+  layer_span: number;
+  /** 参与分配的**存在层**数 M（`0..layer_span`） */
+  M: number;
+  /** 重归一化分母 `W = Σ 存在层权重`（不是 10000，CR47） */
+  W: string;
+  layers: CommissionRosterLayer[];
+  truncation: RosterTruncation;
+  /** 名单内全部 uid（存在层，截断后；已剔除 Worker） */
+  uids: string[];
+}
+
+/** 单层内截断序：`bound_at ASC → uid ASC`（`bound_at` 缺失按空串 = 最先）。 */
+const rosterCmp = (
+  a: { bound_at: string | null; uid: string }, b: { bound_at: string | null; uid: string },
+): number => {
+  const ab = a.bound_at ?? ''; const bb = b.bound_at ?? '';
+  if (ab !== bb) return ab < bb ? -1 : 1;
+  return a.uid < b.uid ? -1 : a.uid > b.uid ? 1 : 0;
+};
+
+/**
+ * 组装「以 Worker 为中心」的分配名单（**只读**；纯函数，便于单测）。
+ * 上行层 `L=1..3` 至多 1 人（祖先链）；下行层 `L=4..6` 为 `D_{L-3}` 层全部下级（树分支）。
+ * `levels`（有效层数）截断为 `min(6, levels, weights_bp.length)` —— 取权重向量前缀。
+ */
+export const buildCommissionRoster = (
+  workerUid: Amount,
+  up: ReferralChain,
+  down: ReferralDownChain,
+  policy: Pick<CommissionPolicy, 'levels' | 'weights_bp'>,
+  caps: { capLayer?: number; capTotal?: number } = {},
+): CommissionRoster => {
+  const worker = assertUserUid(workerUid, 'worker_uid').toString();
+  const capLayer = Math.max(1, Math.floor(caps.capLayer ?? COMMISSION_CAP_LAYER_DEFAULT));
+  const capTotal = Math.max(1, Math.floor(caps.capTotal ?? COMMISSION_CAP_TOTAL_DEFAULT));
+  const span = Math.max(0, Math.min(6, policy.levels, policy.weights_bp.length));
+
+  type Cand = { uid: string; bound_at: string | null };
+  const raw: { L: number; direction: 'up' | 'down'; distance: number; weight_bp: number; cand: Cand[] }[] = [];
+  for (let L = 1; L <= span; L++) {
+    const weight_bp = policy.weights_bp[L - 1];
+    if (L <= 3) {
+      const node = up.nodes.find((n) => n.level === L);
+      raw.push({ L, direction: 'up', distance: L, weight_bp, cand: node ? [{ uid: node.beneficiary_uid, bound_at: null }] : [] });
+    } else {
+      const d = L - 3;
+      const nodes = down.nodes.filter((n) => n.level === d);
+      raw.push({ L, direction: 'down', distance: d, weight_bp, cand: nodes.map((n) => ({ uid: n.descendant_uid, bound_at: n.bound_at })) });
+    }
+  }
+  // Worker 结构性剔除（种子本就不含 ⇒ 兜底过滤；防御断言在 assertReferralChainInvariants）
+  for (const l of raw) l.cand = l.cand.filter((c) => c.uid !== worker);
+
+  const droppedByLayer: Record<string, number> = {};
+  let droppedTotal = 0;
+  // ---- 层内上限
+  for (const l of raw) {
+    l.cand.sort(rosterCmp);
+    if (l.cand.length > capLayer) {
+      const dropped = l.cand.length - capLayer;
+      droppedByLayer[String(l.L)] = (droppedByLayer[String(l.L)] ?? 0) + dropped;
+      droppedTotal += dropped;
+      l.cand = l.cand.slice(0, capLayer);
+    }
+  }
+  // ---- 总名单上限（近者优先 → bound_at ASC → uid ASC）
+  let kept: { L: number; distance: number; bound_at: string | null; uid: string }[] = [];
+  for (const l of raw) for (const c of l.cand) kept.push({ L: l.L, distance: l.distance, bound_at: c.bound_at, uid: c.uid });
+  if (kept.length > capTotal) {
+    kept.sort((a, b) => (a.distance !== b.distance ? a.distance - b.distance : rosterCmp(a, b)));
+    for (const k of kept.slice(capTotal)) {
+      droppedByLayer[String(k.L)] = (droppedByLayer[String(k.L)] ?? 0) + 1;
+      droppedTotal += 1;
+    }
+    kept = kept.slice(0, capTotal);
+  }
+  // ---- 重建层（L ASC；层内 uid ASC）
+  const layers: CommissionRosterLayer[] = raw.map((l) => ({
+    layer: l.L, direction: l.direction, distance: l.distance, weight_bp: l.weight_bp,
+    beneficiaries: kept.filter((k) => k.L === l.L).map((k) => ({ uid: k.uid }))
+      .sort((a, b) => (a.uid < b.uid ? -1 : a.uid > b.uid ? 1 : 0)),
+  }));
+  const present = layers.filter((l) => l.beneficiaries.length > 0);
+  const W = present.reduce((a, l) => a + l.weight_bp, 0);
+  const uids = present.flatMap((l) => l.beneficiaries.map((b) => b.uid));
+  return {
+    worker_uid: worker, up_depth: up.chain_depth, down_depth: down.down_depth, layer_span: span,
+    M: present.length, W: String(W), layers,
+    truncation: { cap_layer: capLayer, cap_total: capTotal, dropped_total: droppedTotal,
+      dropped_by_layer: droppedByLayer, truncated: droppedTotal > 0 },
+    uids,
+  };
+};
+
 /**
  * 组装结算计划（**只读**：读政策 + 读邀请图 + 算金额；不落账、不加锁）。
- * `M = min(levels, chain_depth)`（CR46）⇒ `W = Σ_{L=1..M} w_L`（CR47：重归一化的唯一分母）。
  *
- * F1（本单）：拿到链后**立刻**做 `assertReferralChainInvariants` —— 坏链**不产出计划**（直接抛
- * 500 defect + 机读 reason），而不是「先算出一份看起来正常的计划、等落账时才发现付错人」。
- * 选择「报错」而非「产出带显式标记的计划」的理由：本函数的唯一消费者是要去**落账**的路径，
- * 一个「标记过的坏计划」只要有人漏读标记就会错付；抛错则不可能被漏读（fail-closed）。
+ * ★ P9⑤ 改版（`R-9-1` / `R-9-48` / `R-9-50` / `R-9-52` / `R-9-54` / `R-9-56`）：
+ *   · 名单 = 以 Worker 为中心「上 3 ∪ 下 3」共 6 层（`buildCommissionRoster`）；Worker **结构性剔除**；
+ *   · 层间 → 层内**两级最大余数法**（`splitPoolTwoLevel`）；`M ∈ [0,6]`（存在层数）；
+ *   · `M = 0`（无合格受益人）⇒ `fee_credit_uid = -1`（`R-9-52`，兜底非抽成）；
+ *   · 名单上限截断留痕（`R-9-55`）；坏链（上行 / 下行 / 名单含 Worker）⇒ 落账前硬拒（`R-9-56`）。
+ * `W = Σ 存在层权重`（CR47：重归一化的唯一分母；**不是 10000**）。
+ *
+ * F1 + P9⑤：拿到上行链 / 下行链后**立刻**做 `assertReferralChainInvariants` —— 坏链（环污染 /
+ * 平台 uid / 层级断裂 / 名单含 Worker）**不产出计划**（直接抛 500 defect + 机读 reason），
+ * 而不是「先算出一份看起来正常的计划、等落账时才发现付错人」。抛错则不可能被漏读（fail-closed）。
  */
 export const planJobSettlement = async (input: SettleJobInput): Promise<SettlementPlan> => {
   const jobId = toAmount(input.jobId, 'job_id');
@@ -613,29 +984,50 @@ export const planJobSettlement = async (input: SettleJobInput): Promise<Settleme
   if (gross <= 0n) throw new LedgerError('LEDGER_AMOUNT_INVALID', { field: 'gross', reason: 'NOT_POSITIVE' });
 
   const policy = await getCommissionPolicy(input.at ?? null, input.ex);
-  const chain = await getReferralChain(worker, policy.levels, input.ex);
-  // F1：落账前的**归属**闸（环污染 / 平台 uid / 层级断裂 ⇒ 响亮拒绝；within_cap 不在此列）
-  assertReferralChainInvariants(chain, { worker_uid: worker.toString(), job_id: jobId.toString() });
+  // ★ P9⑤（R-9-50）：以 Worker 为中心「上 3 ∪ 下 3」—— 上行只取 3 层（新口径），下行新增（递归 CTE）。
+  const up = await getReferralChain(worker, 3, input.ex);
+  const down = await getDownChain(worker, 3, input.ex);
+  const roster = buildCommissionRoster(worker, up, down, policy);
+  // F1 + P9⑤：落账前的**归属**闸（上行/下行链结构 + 名单含 Worker ⇒ 响亮拒绝；within_cap 不在此列）
+  assertReferralChainInvariants(up, {
+    worker_uid: worker.toString(), job_id: jobId.toString(),
+    roster_uids: roster.uids, down_chain: down,
+  });
 
   const fee = computeFee(gross, policy.fee_rate_bp);
   const net = computeNet(gross, fee);
-  const M = Math.min(policy.levels, chain.chain_depth);
+  const M = roster.M;                          // ★ P9⑤（R-9-46 勘误）：存在层数（0..6），非 min(levels, chain_depth)
   const zeroAmount = fee === 0n;
   const noReferrer = M === 0;
 
   let split: SplitResult | null = null;
+  let alloc: PoolAllocation | null = null;
   let layers: CommissionLayer[] = [];
   if (!zeroAmount && !noReferrer) {
-    const weights = policy.weights_bp.slice(0, M).map((w) => BigInt(w));
-    split = splitPool(fee, weights);
-    layers = chain.nodes.slice(0, M).map((n, i) => ({
-      level: n.level,
-      beneficiary_uid: n.beneficiary_uid,
-      weight_bp: String(weights[i]),
-      q: split!.q[i],
-      r: split!.r[i],
-      x: split!.x[i],
-    }));
+    // ★ P9⑤（R-9-54）：层间 → 层内**两级最大余数法**
+    const poolLayers: PoolLayer[] = roster.layers
+      .filter((l) => l.beneficiaries.length > 0)
+      .map((l) => ({
+        layer: l.layer, direction: l.direction, distance: l.distance,
+        weight_bp: l.weight_bp, beneficiaries: l.beneficiaries,
+      }));
+    alloc = splitPoolTwoLevel(fee, poolLayers);
+    const byLayer = new Map(alloc.layers.map((a) => [a.layer, a]));
+    // 兼容视图：把「层间一级」结果填进旧 `SplitResult` 形状（层 = 存在层，按 L 升序）
+    split = {
+      pool: alloc.pool, M: alloc.M, weights_bp: alloc.layers.map((a) => a.weight_bp), W: alloc.W,
+      q: alloc.layers.map((a) => a.q), r: alloc.layers.map((a) => a.r), D: alloc.D,
+      x: alloc.layers.map((a) => a.x), sum_x: alloc.sum_x,
+      plus_one_levels: alloc.plus_one_layers, order: alloc.order, sum_ok: true,
+    };
+    layers = alloc.entries.map((e) => {
+      const la = byLayer.get(e.layer);
+      return {
+        level: e.layer, beneficiary_uid: e.uid,
+        weight_bp: la ? la.weight_bp : '0', q: la ? la.q : '0', r: la ? la.r : '0', x: e.x,
+        direction: e.direction, distance: e.distance, layer_share: la ? la.x : '0',
+      };
+    });
   }
   const N = layers.filter((l) => l.x !== '0').length;
   return {
@@ -649,15 +1041,19 @@ export const planJobSettlement = async (input: SettleJobInput): Promise<Settleme
     net: net.toString(),
     pool: fee.toString(),
     policy,
-    chain_depth: chain.chain_depth,
+    chain_depth: up.chain_depth,
     // F7①：链被遍历上界截断 ⇒ 明确标记（恰好 cap = false；≥ cap = true）
-    chain_truncated: chain.truncated,
+    chain_truncated: up.truncated,
+    down_depth: down.down_depth,
+    down_truncated: down.truncated,
+    roster_size: roster.uids.length,
+    truncation: roster.truncation,
     // F7②：首写路径 = 计算值
     plan_source: 'computed',
     policy_reported: true,
     M, N,
-    weights_bp: policy.weights_bp.slice(0, M).map(String),
-    W: split ? split.W : (zeroAmount ? '0' : String(policy.weights_bp.slice(0, M).reduce((a, b) => a + b, 0))),
+    weights_bp: alloc ? alloc.layers.map((a) => a.weight_bp) : [],
+    W: alloc ? alloc.W : (zeroAmount ? '0' : roster.W),
     split,
     layers,
     fee_credit_uid: noReferrer ? PLATFORM_REVENUE_UID : COMMISSION_POOL_UID,
@@ -1132,6 +1528,12 @@ export const planJobSettlementFromLedger = async (
     policy: LEDGER_REPLAY_POLICY,
     chain_depth: layers.length,
     chain_truncated: false,
+    // ★ P9⑤：重放路径不落账政策 / 名单 / 截断 ⇒ 显式占位（金额一律看账，`readLedgerSettlement`）
+    down_depth: 0,
+    down_truncated: false,
+    roster_size: layers.length,
+    truncation: { cap_layer: COMMISSION_CAP_LAYER_DEFAULT, cap_total: COMMISSION_CAP_TOTAL_DEFAULT,
+      dropped_total: 0, dropped_by_layer: {}, truncated: false },
     plan_source: 'replayed_from_ledger',
     policy_reported: false,
     M: layers.length,
