@@ -26,7 +26,7 @@ export const THEME_BTN_DAY = '日档 · 码头大牌'
 export const THEME_BTN_NIGHT = '夜档 · 夜市行情板'
 
 // 骨架演示内容
-export const SEARCH_DEMO = '搜 鲜活皮皮虾 / 大黄鱼 / 码头夜班招工 / 兑换 dashJ —— 四语切换与主题切换都不改这一行的高度'
+export const SEARCH_DEMO = '搜 鲜活皮皮虾 / 大黄鱼 / 码头夜班招工 / 兑换 积分 —— 四语切换与主题切换都不改这一行的高度'
 export const CHIP_DEMO = ['招工', '商品', '积分交易所', '终身返佣', '全部']
 export const PRICE_UNIT = '/ 斤'
 export const cardTitle = (index) => `当日捕 · 鲜活皮皮虾 ${index}`

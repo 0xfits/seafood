@@ -417,7 +417,7 @@
   "rewardCard": {
     "limited": "Limited",
     "timeLimited": "Limited time left",
-    "insufficient": "Not enough dashJ",
+    "insufficient": "Not enough points",
     "claimNow": "Claim now"
   },
   "claimRewardModal": {
@@ -810,7 +810,7 @@
     "clearFilters": "Clear filters",
     "applyFilters": "Apply filters",
     "progress": "Progress",
-    "dashJPoints": "dashJ community points",
+    "dashJPoints": "Points",
     "pleaseWait": "Please wait...",
     "noMoreData": "No more data",
     "loadFailed": "Failed to load",

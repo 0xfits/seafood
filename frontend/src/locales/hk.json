@@ -417,7 +417,7 @@
   "rewardCard": {
     "limited": "限量",
     "timeLimited": "剩餘時間有限",
-    "insufficient": "dashJ不足",
+    "insufficient": "積分不足",
     "claimNow": "即刻領取"
   },
   "claimRewardModal": {
@@ -810,7 +810,7 @@
     "clearFilters": "清除篩選",
     "applyFilters": "套用篩選",
     "progress": "進度",
-    "dashJPoints": "dashJ 社區積分",
+    "dashJPoints": "積分",
     "pleaseWait": "請稍候...",
     "noMoreData": "冇更多資料喇",
     "loadFailed": "載入失敗",

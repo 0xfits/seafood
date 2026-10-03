@@ -1416,6 +1416,38 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.311 **`R-9-96` 补齐单回执（24c/220s）· ★它纠正我键路径（`rewardCard.insufficient` 非 `reward.insufficient`）· ★严格报出一处残留交我裁决 · 我裁「保留」· 核盘全通过 → 入库 + 派合并质检**（2026-10-03）
+
+**A. 改值（只改值 / 零新增 / 零删键 ⇒ 计数不变）**：
+- ★ **它纠正我**：我 brief 写的 `reward.insufficient`，**实测键路径 = `rewardCard.insufficient`**（`locales:420`，由 `reward/RewardCard.jsx:157` 消费）⇒ **我认账**（我报键路径粗了一层）
+| 键 | zh | hk | en | vn |
+|---|---|---|---|---|
+| `rewardCard.insufficient` | **积分不足** | **積分不足** | **Not enough points** | **Không đủ điểm** |
+| `uiCommon.dashJPoints` | **积分** | **積分** | **Points** | **Điểm** |
+| `SEARCH_DEMO`（`theme-preview-demo.js:29`） | colspan=4>「兑换 **dashJ**」⇒「兑换 **积分**」（保留「四语/主题切换不改行高」语义） |
+- **键名 `dashJPoints` 未改** ✓ · `top 119`/`flat 1041`/节点 `4164` **零变更** ✓（我核盘四语 flat 均 = 1041）
+
+**B. ★★ 全仓双口径扫面（逐类计数表）**：`grep -rn -i dashj` = **76 行** · `grep -rn dashJ` = **40 行** ⇒ 分类：**用户可见文案（i18n 值 + 页面正文）= 0**（**本单前 = 9**：8 locale 值 + 1 `SEARCH_DEMO`）· 键名 `dashJPoints` 19 · 组件名 `DashJ` 23 · 注释 21 · 测试字面量 12 · API 路径 0
+- ★ **它严格报出一处残留、不含糊**：`pages/ThemePreviewPage.jsx:175` 的 **`DASHJ / $`**（**全大写**、行情 ticker）⇒ 敏感口径不命中、`-i` 命中；**生产 bundle 内确凿存在**（`"DASHJ / $\u3000"`）；该文件属「严禁碰的 `pages/**`」⇒ **未改、登记交我裁决**，并**明确承认「严格口径下用户可见类 = 1 处」** ✓（诚实度好）
+
+**C. ★ 我现取 + 裁决**：
+- 现取上下文（`ThemePreviewPage.jsx:169-176`）= **行情板**：`{MARKET_TITLE}` 面板下 `SEAFOOD / $　1.0240` ⇄ **`DASHJ / $　0.3312`**（**成对的对 `$` 报价**，另有 `{REBATE_TAG}` 标签）
+- 现取路由：`ThemePreviewPage` 是**产品路由**（`App.jsx:105` `path="theme-preview"`）⇒ 该 ticker **用户可见**
+- **裁定 = 保留**：`DASHJ / $` 的语义是「**`DASHJ` 作为一个可交易标的对 `$` 报价**」⇒ ★★ **正是 Kevin 定档的「`dashJ` 后期只作为『上市的积分』的其中一种」** ⇒ 此处**不是**把平台积分叫 `dashJ`，**与口径一致**。★ **标「一句话可改」**（若 Kevin 认为该 demo 行情也该换名，我一句即改）
+- ★ 我核盘：**产品源面（排除 test）敏感口径 `dashJ` 剩 9 行** = 键名 `dashJPoints` ×4（值已改）+ `DashJ.jsx` 注释 ×3 + `title={t('uiCommon.dashJPoints')}` ×1（组件保留、无产品引用）+ `ui/index.js:39` 注释 ×1 ⇒ **用户可见文案 = 0** ✓；另**两处 1 命中全在测试文件**（`r9-96:12` 注释 · `r9-93:42` 历史旧符号字面量 `OLD_DASHJ_TITLE`）✓
+
+**D. 自证（它）+ 我复核**：
+- 四语值逐键（en/vn 无 CJK、四语互异）✓ · 定向 6 文件 **51 passed** ✓ · 全量 `7 failed \| 382 passed`（**基线 7 零新增**）✓ · `build` **0**（`index-DbgRc-K2.js` 416.49 kB）✓ · 六类泄漏 0 ✓
+- ★ **附加 bundle 终验（它做的）**：7 条旧用户可见串 **全 = 0**（`dashJ不足`/`Not enough dashJ`/`dashJ 社区积分`/`dashJ 社區積分`/`dashJ community points`/`dashJ điểm cộng đồng`/`兑换 dashJ`）· 新值各 ≥1 ✓；bundle 内 `dashj` 仅 **5 处** = 键名 ×4 + `DASHJ / $` ×1 ✓
+- 测试同步：`i18n-batch-b5.test.jsx:103/106/107` 旧断言 `getByTitle('dashJ community points')` ⇒ `'Points'` ✓；新增 `r9-96-dashj-copy.test.jsx`（5 组）✓
+- ★ **我亲跑** `r9-96` + `r9-88` 两文件 = **15/15 绿** ✓
+- 未测项：真浏览器视觉（本单无渲染面改动）✓
+
+**E. 入库 + 派合并质检（覆盖本批两单：`R-9-96` 补齐 + `r9-88` 断言收紧）** ⇒ 过质检后 **一次 push**；push 后我**再扫线上 bundle 的 `dashj` 命中（用户可见类必须 = 0）**。
+**F. 状态**：DB **0040** · 生产代码 `1375205` · **积分 9889 + 电量 30**。
+
+---
+
 ### 5.310 **`r9-88` 断言收紧单回执（20c/151s）· ★它扫全文件收紧 4 处/5 条（非只改名两条）· ★双读数对照证明漏判面已关掉**（2026-10-03）
 
 **A. 修补（只改一个测试文件）**：`frontend/src/test/unit/r9-88-submit-surface.test.jsx` —— **逐个扫过整个文件的全部 `toContain`**，收紧 **4 处 / 5 条**为逐字 `toBe`（与 `r9-90` 对齐）：
@@ -6681,6 +6713,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.311 | 2026-10-03 | **R-9-96 补齐单回执（24c/220s）· ★它纠正我键路径（rewardCard.insufficient 非 reward.insufficient）· ★严格报出一处残留交我裁决 · 我裁「保留」· 核盘全通过 → 入库 + 派合并质检**。**A.** 改值（零新增/零删键 ⇒ 计数不变）：`rewardCard.insufficient` ⇒ 积分不足/積分不足/Not enough points/Không đủ điểm · `uiCommon.dashJPoints` ⇒ 积分/積分/Points/Điểm（**键名不改**）· `SEARCH_DEMO`「兑换 dashJ」⇒「兑换 积分」；★我 brief 键路径粗了一层（实为 rewardCard 块下，由 RewardCard.jsx:157 消费）⇒ 我认账。**B. ★★双口径扫面**：-i = 76 行 / 敏感 = 40 行 ⇒ **用户可见文案 = 0**（前 = 9）· 键名 19 · 组件名 23 · 注释 21 · 测试 12 · API 0；★它**严格报出残留 1 处**：`ThemePreviewPage.jsx:175` 的 **`DASHJ / $`**（全大写 ticker，bundle 内确凿存在），属禁碰面 ⇒ 未改、交我裁决、并承认「严格口径下用户可见类 = 1」。**C.** 我现取：该处 = **行情板** `SEAFOOD / $ 1.0240` ⇄ **`DASHJ / $ 0.3312`**（成对对 $ 报价）· 路由 `App.jsx:105` = 产品路由 ⇒ 用户可见 ⇒ ★**裁定「保留」**（语义 = 「DASHJ 作为可交易标的对 $ 报价」= 正是 Kevin 定档的「dashJ 仅作上市的积分之一种」⇒ 与口径一致；标「一句话可改」）；核盘：产品源面敏感口径剩 9 行 = 键名×4 + DashJ.jsx 注释×3 + title 引用×1 + barrel 注释×1 ⇒ **用户可见 = 0**；两处 1 命中全在测试文件。**D.** 四语值逐键 · 定向 51 passed · 全量 7 failed/382 passed 零新增 · build 0（index-DbgRc-K2.js）· 泄漏 0 · **它做的 bundle 终验**：7 条旧串全 0、bundle 内 dashj 仅 5 处（键名×4 + DASHJ/$×1）；我亲跑 r9-96+r9-88 = **15/15 绿**。**E.** 入库 + 派合并质检 ⇒ 一次 push ⇒ push 后复扫线上 bundle。 |
 | v0.310 | 2026-10-03 | **r9-88 断言收紧单回执（20c/151s）· ★它扫全文件收紧 4 处/5 条（非只改名两条）· ★双读数对照证明漏判面已关掉**。**A.** 逐个扫过全文件 `toContain` ⇒ 收紧 4 处/5 条为 `toBe`：① 只读目标 ⇒ `toBe(`${zh.jobs.applicationId} #24`)` ② 先参与提示 ⇒ `toBe(`${zh.jobs.submit}${zh.jobs.submitNeedApply}`)` ③ 其它 reason ⇒ `toBe(String(err.message \|\| zh.error))` ④ 无 details ⇒ 同上；收紧后文件内 `toContain` 仅剩 1 处（列表成员否判，正确保留）。**B. ★负对照双读数**：**A** 变异体（加 `'PREFIX '`）× 收紧后 ⇒ **必红 2 failed/6 passed**（红点给文本）；**B** 同变异体 × 旧版 `toContain` 测试 ⇒ **8/8 全绿 ⇒ 复现漏判面**。**C.** 该套件 **8/8** · 全量 `7 failed/375 passed` 零新增 · build 0 · 主仓 `PREFIX` 计数 **0**（变异体未回灌）· 只改一个文件 · 未测项无。**D.** 入库（与 R-9-96 合并后一次 push）。**E.** 在跑 R-9-96 补齐单。 |
 | v0.309 | 2026-10-03 | **★★生产终验抓到我 brief 的漏面：线上 bundle 仍有 3 处用户可见 dashJ 文案（reward.insufficient / uiCommon.dashJPoints / SEARCH_DEMO）· 我立 R-9-96 + 派补齐单**。**A.** 生产终验：health 0040 · bundle `index-CamqpxtI.js` **sha256 `438be751…` == 本地逐字** · 新 reason 键在线上各 6 · 四语 积分59/積分57/Points189/Điểm15 · 四语 /exchange 200 ·（★我判据选择不当：`grep '>\$</span>'`=0 因 minify 形态变，登记不据此判失败）。**B. ★★** `dashJ` 命中 13 处 ⇒ 逐处现取：**3 处用户可见** —— `reward.insufficient`（zh「dashJ不足」/en「Not enough dashJ」/hk/vn）· **`uiCommon.dashJPoints`（「dashJ 社区积分」—— 正是 Kevin 说的「社区积分」那处，R-9-93 只改了 common.communityPoints、漏了此键）** · `theme-preview-demo.js:29 SEARCH_DEMO`（「兑换 dashJ」）；其余 10 处 = 组件注释/barrel/键名（非用户可见）。**C.** ★**我认账（第 15 次）**：brief 只给两个抓手、**未要求全仓 grep 小写 dashJ 并逐处分类** ⇒ 实现/质检都按我给的范围查 ⇒ 全链条漏面，**是生产终验 bundle 扫描抓出来的**；★教训须回写技能：改单位/换符号/改名类单必须写死「全仓双口径扫旧符号 + 逐处分类，用户可见处清零」。**D.** 裁 `R-9-96`：`reward.insufficient` ⇒ 积分不足/積分不足/Not enough points/Không đủ điểm；`uiCommon.dashJPoints` ⇒ 积分/積分/Points/Điểm（**键名不改，仅值改**）；`SEARCH_DEMO` ⇒「兑换 积分」；零新增/零删键 ⇒ 计数不变；自证 = 全仓双口径分类表 + 用户可见处 0 命中。**E.** 派补齐单（与在跑的 r9-88 断言修补单面不相交）。 |
 | v0.308 | 2026-10-03 | **质检回执（纯前端两件）= PASS_WITH_ISSUES（产品全 PASS）· ★它查出详情页 r9-88 通用文案断言用 toContain ⇒ 一处漏判面（产品正确、测试不齐）· push 上线 + 派极小修补单**。**A.** ①件一：6 处使用点逐处吻合 · 产品面 DashJ 零引用 · DashJ 保留（注释含「无产品引用/上市的积分」）· 四语 communityPoints = 积分/積分/Points/Điểm · 它自写独立测试（5/5 + 2/2）含**正向** toContain('$')+数值+span 恰 1 · ②件二：两面通用兜底**确实不同且逐字一致** · 自写 10 例（5 reason × 2 面）全绿且后两条用 **toBe 逐字** · ③**判负 6 类全红**（a 改回 DashJ 6 red · **a2 删 points 块 ⇒ 4 red 且正向断言先红、负向反绿 ⇒ 反证正向断言是真拦** · b1/b2 各 2 red · **c 只留 zh ⇒ 2 red** · d 探漏 ⇒ 我方红而仓内 r9-88 仍绿）· restore_mismatch=[] · ④★**假绿结论**：件一 `$` 是真正向断言 ✓；件二**面与面不齐**（r9-90 toBe ✔ ⇄ **r9-88 toContain ✗**，d 实证加前缀仍绿）⇒ **产品正确、测试不齐** · ⑤四语 locales 每语值改 1 键 + 新增 2 键 · top119/flat1041/节点4164 ✓ · 主仓 7 failed/375 passed · 副本 7→7 零新增 · 副本 build 0 · **主仓 12 文件 sha256 pre==post**。**B.** 产品全 PASS ⇒ 不阻塞上线；测试强度必修（toContain→toBe）⇒ 派极小修补单；★同族记录：判据强度问题本会话第三次 ⇒ brief 要写死「通用文案须逐字等值」。**C.** push。**D.** 生产终验：bundle 逐字对拍 + 线上含 $ 与新 reason 键 + 四语 /exchange 200 + health 0040。 |

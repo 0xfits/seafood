@@ -417,7 +417,7 @@
   "rewardCard": {
     "limited": "Số lượng giới hạn",
     "timeLimited": "Thời gian có hạn",
-    "insufficient": "Không đủ dashJ",
+    "insufficient": "Không đủ điểm",
     "claimNow": "Nhận ngay"
   },
   "claimRewardModal": {
@@ -810,7 +810,7 @@
     "clearFilters": "Xoá bộ lọc",
     "applyFilters": "Áp dụng bộ lọc",
     "progress": "Tiến độ",
-    "dashJPoints": "dashJ điểm cộng đồng",
+    "dashJPoints": "Điểm",
     "pleaseWait": "Vui lòng đợi...",
     "noMoreData": "Đã hết dữ liệu",
     "loadFailed": "Tải thất bại",

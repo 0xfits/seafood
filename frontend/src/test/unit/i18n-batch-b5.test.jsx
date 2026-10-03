@@ -100,11 +100,11 @@ describe('P6-I18N-LIT-B5 · en 档渲染英文（组件库 + 开发预览页）'
     expect(screen.queryByText('进度')).toBeNull()
   })
 
-  it('DashJ（en 档）：品牌 token `dashJ` 不译、中文部分（社区积分）走英文', () => {
+  it('DashJ（en 档）：title 走 `uiCommon.dashJPoints` 键（R-9-96 后 en = Points）', () => {
     wrap(<DashJ />)
 
-    expect(screen.getByTitle('dashJ community points')).toBeInTheDocument()
-    expect(screen.queryByTitle('dashJ 社区积分')).toBeNull()
+    expect(screen.getByTitle('Points')).toBeInTheDocument()
+    expect(screen.queryByTitle('积分')).toBeNull()
   })
 
   it('ErrorHandling（en 档）：错误回退页与 404 页全走英文', () => {
