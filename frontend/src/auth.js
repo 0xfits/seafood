@@ -127,6 +127,44 @@ export const i18nKeyForServerMessage = (message) => (
 )
 
 /**
+ * ★ D1（文案错配修复）· 按 `error.details.reason` 的**精确映射表**（**优先级最高**）。
+ *
+ * 立表动机（生产缺陷 · uid 970213 · batt 低于门槛）：招工「参与/报名」（`J2`）与「雇主选定」（`J3`）
+ * 在电量不足时，后端 `stateConflict(...)`（`backend-ts/src/job-service.ts:121`）产出的 `R107` 错误体 =
+ *   `{ error: { code:'LEDGER_CURRENCY_INVALID_TRANSITION',
+ *               message:'Business state transition rejected',
+ *               i18n_key:'ledger.err.LEDGER_CURRENCY_INVALID_TRANSITION',
+ *               details:{ field:'batt', reason:'BATT_BELOW_ACCEPT_THRESHOLD', … } } }`
+ * ⇒ 旧链按通用 `i18n_key` 命中「当前状态不允许此变更。」，把**真实原因（电量低于门槛）对用户不可见**。
+ *
+ * 口径（本单硬约束）：
+ *   · `reason` 命中 ⇒ **优先用本表 i18n 键**（比通用 `i18n_key` 更精确 ⇒ 必须覆盖它）；
+ *   · `reason` 未命中（不在本表 / 非字符串 / 无 `details`）⇒ `undefined` ⇒ **后续链路与既有行为逐字不变**；
+ *   · 键值**必为四语已存在的既有键**（本单**零新增 locale 键**）—— 目前仅 `battCard.insufficient`
+ *     （四语全有：zh「电量低于承接门槛，暂时无法承接任务」/ en / hk / vn）。
+ *
+ * 扩展方式 = **在此表加一行** `REASON: 'i18nKey'`（**不得**改成巨型 `if` 链；`reason` 是服务端
+ * **机读常量**（大写蛇形）⇒ 查表用**精确相等**，不做模式匹配）。
+ */
+export const REASON_I18N_KEYS = Object.freeze({
+  // 电量 < 承接门槛：`job-service.ts:197`（申请报名 / J2）· `:231`（雇主选定 / J3，权威扣费点）
+  // —— 两处 `stateConflict('batt', 'BATT_BELOW_ACCEPT_THRESHOLD', …)` **逐字同 reason** ⇒ 同一文案。
+  BATT_BELOW_ACCEPT_THRESHOLD: 'battCard.insufficient',
+})
+
+/**
+ * `error.details.reason` → i18n 键；未登记 ⇒ `undefined`（调用方**保持原链路**，不因映射不到而改行为）。
+ * 入参 = `R107` 的 `error` 对象面；非对象 / 无 `details.reason` / `reason` 非字符串 ⇒ `undefined`。
+ */
+export const i18nKeyForErrorReason = (error) => {
+  const reason = (error && typeof error === 'object'
+    && error.details && typeof error.details === 'object')
+    ? error.details.reason
+    : undefined
+  return typeof reason === 'string' ? REASON_I18N_KEYS[reason] : undefined
+}
+
+/**
  * P6-I18N-LIT-B3 · `auth.js` 内两条**通用兜底**文案的键（此前是硬编码中文串）。
  * `REQUEST_FAILED` = 错误体连文案都没有时的 `请求失败 ({{status}})`；
  * `NO_CREDENTIAL` = 本地无 token 时抛出的 `未找到登录凭证`。
@@ -294,7 +332,13 @@ export const apiErrorMessage = async (payload, status) => {
     ? error
     : (error && typeof error === 'object' ? (error.message || error.code) : payload?.message)
   const direct = extractApiErrorMessage(payload)
-  const mappedKey = (error && typeof error === 'object' ? error.i18n_key : undefined)
+  // ★ D1：`error.details.reason` 的精确映射**优先级最高** —— reason 命中 ⇒ 用该 reason 对应的 i18n 键
+  //   （必须**覆盖**通用 `error.i18n_key`：电量不足须显示「电量低于承接门槛…」，
+  //    而不是 `ledger.err.LEDGER_CURRENCY_INVALID_TRANSITION` 的「当前状态不允许此变更。」）；
+  //   reason 未命中 ⇒ `undefined` ⇒ 下三跳与既有行为**逐字不变**（零回归）。
+  const reasonKey = i18nKeyForErrorReason(error)
+  const mappedKey = reasonKey
+    || (error && typeof error === 'object' ? error.i18n_key : undefined)
     || i18nKeyForServerMessage(rawMessage)
     || (direct ? undefined : FALLBACK_I18N_KEYS.REQUEST_FAILED)
   return resolveI18nMessage(mappedKey, direct, { status })
