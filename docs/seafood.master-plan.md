@@ -1416,6 +1416,29 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.261 **favicon 上线（`c004ce2` 已推 · 生产终验三点命中）· 入库 QA 报告 `a64b51a`（未推，因区间含 P9④ 代码）**（2026-10-03）
+
+**A. favicon 片终审质检（Neng · 49 calls / 500s）= PASS**（报告 `docs/qa/favicon-install-qa.md` = **187 行 / 18,623 B / 占位 0**）：
+- **L0 对锚**：`c004ce2` = 恰 **5 件**（+173/−1）；★ **它自己发现质检途中兄弟提交前移 HEAD（`eb29831`/`3985437`）** ⇒ 复核 `c004ce2` 为祖先 **且被检 5 件在 `c004ce2↔HEAD` 间 `git diff` 字节恒等** ⇒ **verdict 成立**（严谨处置，我认可）
+- **L1 资产**：`favicon.svg` = **7,808 B · sha256 `4dc72e77…8bffb9` · `cmp` vs 真源 SAME**；两 PNG = 32×32 / 180×180、`color_type=2 · alpha=Undefined`（**无 alpha、黄底不透明**）
+- **L2 接线**：三条 `<link>` 属性逐字正确；**全仓 `/vite.svg` 零可执行引用** · 旧 sha256 `cc10313e` 零资产命中 · 336,432 B 旧件零残留
+- **L3 构建 + 读口**：`build` 0；**严格静态服务**逐条 ⇒ `/brand/favicon.svg` **200 · image/svg+xml · 7808**（下载物 sha256 逐字一致）· 两 PNG 200 · **`/vite.svg` 404**；★ **明确登记「404 断言全程未用 `vite preview`」**（其 SPA 回退会兜成 200 html）
+- **L4 回归**：`tsc` 0 · `build` 0 · `test:unit` **31/276** · 离线 **126/126** · `s1..s6/s3b` 全绿 · **`s7` 58/58 · `s8` 92/92 · `s9` 99/99（带受控实例）** + 离线双读数登记；两条 `index.html` 断言实跑 **26/26**
+- **L5 反向判负 3 处**：N1 改色值（sha256 变 / `cmp` DIFF）· N2 接线改回 `/vite.svg`（命中 1→0）· N3 删资产（严格服务 404）⇒ 全复原回绿 + **主仓 `cmp` SAME 零写入**
+- **遗留（非阻塞、如实）**：L4 门读数取自**工作树**（含兄弟 P9④ 后端改动）非纯净 `c004ce2` 后端树 ⇒ 该段为旁证 · `p8-s8 H6` 首跑瞬时 503 = Neon `driver_connection_error`（环境抖动），复跑 92/92 · 过程自纠（首跑假红根因 = python 静态服务与 node 实例并存抢 5796 ⇒ 精确 `kill -TERM 4776` 后复跑全绿）· 未测项 6 条已写因
+
+**B. 入库 + 推送 + 生产终验**：
+- 入库 QA 报告 **`a64b51a`**（本地；**未推** —— 因 `origin/main..HEAD` 已含 P9④ 代码 `eb29831`，依「推送即上线」不可连带）
+- **`git push origin c004ce2:main`**（**FF**：`eb1ae48..c004ce2`）= **仅推 favicon 片**，**不连带** P9④ 代码 ✓
+- **生产终验（第 3 轮轮询命中）**：`GET /brand/favicon.svg` ⇒ **200 · `image/svg+xml` · 7808** · **sha256 `4dc72e7793a117b6…` 逐字一致**；首页 `<link href="/brand/favicon.svg">` **命中**；`/brand/favicon-32.png` ⇒ 200 · `image/png` · 1191；`/brand/apple-touch-icon.png` ⇒ 200 · `image/png` · 9171；**`/vite.svg` ⇒ 200 `text/html`（SPA 兜底，非真实资产 —— 与我在推送前的预判一致，`vercel.json` 的 `/(.*\..*) → /frontend/$1` + 末位 SPA 规则所致）**；`/api/health` ⇒ **`schema_version: "0034"`**（DB 侧已随我早前 apply 前移）✓
+- **⇒ favicon 片上线完成（`R-9-46` ① 忠实方案生效）**
+
+**C. 已派 Neng · P9④ 终审质检**（favicon 已收工 ⇒ 端口全空、串行安全）：被检 `eb29831`（26 件）· L0 对锚（含区间字节恒等复验）· L1 硬门（带实例 + 离线双读数）· L2 库面活体（0034/33/34/kind 23/8 值/列指纹/op 白名单 + 双写/checksum 对拍）· **L3 四段真链路自写探针（不得复用实现方产物；★ 必独立复验 `F-α` 首调非 `null`）** · **L4 判负（★ 必独立验 `E1` 加严后真会红 + `KC1b`）** · L5 前端四语与计数 · L6 报告 `docs/qa/p9-s4-bttc-qa.md`。
+
+**D. 状态**：**favicon 已上线**；**P9④ = 已 apply（DB 0034）+ 代码入库 `eb29831`（未推）⇒ 待质检 ⇒ 验收 ⇒ push ⇒ 生产终验**（届时 B 端 0034 与 BTTC 两动作口上线）。
+
+---
+
 ### 5.260 **P9④ 库面收口续跑完成（`F-α` 修好 · 门 99/99 · `pending_apply=0` · 判负 4 处 · 报告 §8）· 我现取复核 + 入库 `eb29831`（未推）**（2026-10-03）
 
 **A. 库面收口续跑（Kong · 60 calls / 894s）= 完成**：
@@ -5366,6 +5389,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.261 | 2026-10-03 | **favicon 上线（`c004ce2` 已推 · 生产终验三点命中）· 入库 QA 报告 `a64b51a`（未推，因区间含 P9④ 代码）**。**A. favicon 质检（Neng · 49c/500s）= PASS**（报告 187 行/18,623 B/占位 0）：L0 对锚 `c004ce2` 恰 5 件 + ★它自己发现兄弟前移 HEAD ⇒ 复核为祖先且被检 5 件区间内**字节恒等** ⇒ verdict 成立；L1 资产 7808 B/sha256 `4dc72e77…`/cmp SAME + 两 PNG 32/180 无 alpha；L2 三条 link 逐字 + `/vite.svg` 零可执行引用 + 旧件零残留；L3 build 0 + 严格静态服务 svg 200·image/svg+xml·7808·sha256 一致 + 两 PNG 200 + `/vite.svg` 404（★明确未用 vite preview）；L4 tsc 0/build 0/test:unit 31/276/离线 126/126/s1..s6 全绿/s7 58/s8 92/s9 99 带实例；L5 判负 3 处（改色值/改回 vite.svg/删资产）必红 + 复原 + 主仓 cmp SAME；遗留如实（L4 取自工作树为旁证 · H6 瞬时 503 = Neon 抖动复跑 92/92 · 过程自纠抢端口 · 未测项 6 条）。**B.** 入库 QA 报告 `a64b51a`（未推）· **`git push origin c004ce2:main`（FF `eb1ae48..c004ce2`）仅推 favicon 不连带代码** · **生产终验**：`/brand/favicon.svg` **200 · image/svg+xml · 7808 · sha256 逐字一致** + 首页 link 命中 · 两 PNG 200 · `/vite.svg` 200 text/html（**SPA 兜底，与推送前预判一致**）· `/api/health` **schema_version 0034** ⇒ **favicon 片上线完成（R-9-46 ①）**。**C.** 已派 P9④ 终审质检（含 ★独立复验 F-α 首调非 null + ★独立验 E1 加严后真会红 + KC1b）。**D.** favicon 已上线；P9④ 已 apply + 代码入库 `eb29831` 待质检 ⇒ 验收 ⇒ push ⇒ 生产终验。 |
 | v0.260 | 2026-10-03 | **P9④ 库面收口续跑完成（F-α 修好 · 门 99/99 · pending_apply=0 · 判负 4 处 · 报告 §8）· 我现取复核 + 入库 `eb29831`（未推）**。**A.（60 calls/894s）** ① **F-α 修复（R-9-45）**：`ensureBttcCurrency` = `WITH ins AS (INSERT … RETURNING 7 列)` + 主查询逐列**外层 `COALESCE(ins, 表读回)`** ⇒ 首调亦确定值；语义未动；tsc 0 ② 门 **99/99** EXIT 0（`pending_apply=0` · db=10 · http=0）；**自纠门两处口径错**（KI2 配对符号 `Σmint+Σburn` · KGS1 canMint 封顶回流）**未放宽** + 另立 KC1b；**★自查处假绿**：`E1` 未锚真白名单 ⇒「去 burn」假绿 ⇒ **加严双面同锚（V_REAL）** ③ note 改「已 apply」+ 顶层 findings（F-α resolved / F-β open_transferred）④ 判负 4 处（M1⇒F1 · M2⇒E1 · M3⇒D4+KE3 · M4⇒KC1b）+ 复原 99/99 + cmp 7 文件 SAME ⑤ 全量：tsc 0 · build 0 · test:unit 31/276 · 离线 126/126 · s1..s6 现值未掉 · s7 58/58⇄55/58 · s8 92/92⇄89/92 · s9 99/99⇄99/99 · 注册点 87；PID 99827 kill ⇒ 5797 空 ⑥ 报告追加 §8（§0–§7 逐字未改 md5 `a7e20301…`；`__`=0）；**它请裁两点**：并发写入者 = 他人占位非本单残留（披露）· **加严 E1 ⇒ 我裁认可**（原判负不可能红即假绿）。**B. 我现取复核**：F-α = RETURNING + 外层 COALESCE（C-15 同族）· E1 = V_REAL 双面同锚 · **我复跑 p8-s9 = 99/99 · pending_apply=0**。**C. 入库 `eb29831`**（26 件 · add 3494/del 100）：三迁移 + 三 src + 九门 + bttc-api + BattCheckinPanel + 四 locale + 四 i18n 测试 + 报告；**排除**：`.p4-artifacts` churn · **`scripts/p8-s5-00-recon{1,2,3}.ts`（08:31 残留探针，违「探针不入 scripts/」，未引用 ⇒ 不提交、登记清理）** · favicon QA 报告 · `frontend/public/**`。**D.** 生产仍 0031；`origin/main..HEAD` 已含代码 ⇒ 依「推送即上线」**须过质检才可推**（favicon 质检在跑，P9④ 质检串行）。 |
 | v0.259 | 2026-10-03 | **favicon 换件（336,432 B → 7,808 B · 774 path → 1 path · 无做旧纹理）+ Kevin 明选 A 选项 ① 忠实方案 · 已 steer 实现方**。**A.** 新件 = 唯一真源 `icon_77c2a5.svg`：**7,808 B** · sha256 `4dc72e7793a117b6a28bc92aaf2d9a66373e187eb2cc6109e07c1df3c08bffb9` · viewBox 128 · **1 条 path** + `<rect>` · 两色（底 `#fde815` / 形 `#090401`）· 无 grunge；旧件 `icon_d94d02.svg`（336,432 B / `cc10313e…` / 774 path / 黄 `#fbd016` / grunge）**作废、仓库内不得残留**；我栅格化后目视复核 = **同族**（差异仅底色略亮 + 去纹理）✓；派生件重做要求 density ≥384。**B.** Kevin 明选 **① 忠实方案**（favicon.svg 逐字入库 + `<link>` 指 SVG + apple-touch-icon(180) + favicon-32.png，清失效 `/vite.svg`）；排除 ②PNG 主链 / ③svgo ⇒ **定案、不再挂「一句话可改」**。**C.** 已 steer 实现单（替换 + 全仓无残留 + 断言改 `4dc72e77…`/7,808 + 派生重做 + 读口 size_download 7808 + 报告登记换件）。**D.** 新件 7,808 B ⇒ 已消除 336 KB 逐访拉取顾虑 ⇒ 忠实方案在此体积下无代价。 |
 | v0.258 | 2026-10-03 | **新需求：站点 favicon 安装（Kevin 交件）· 查出一处真空洞（现网 `/vite.svg` 失效引用）· 派 Kong 实现**。**A.** 需求原文 = 「这是 favicon」（澄清表单未填 ⇒ 不阻塞，按 ① 忠实方案推进、标注一句话可改）。**B.** 交件现取：**336,432 B** · sha256 `cc10313ec3bd177aae28cd43e4e6e25480f83e157def4f418724fdae39a93d3b` · `viewBox 0 0 128 128` · **774 条 path** · 三色（`#fbd016`/`#fbce19`/`#090401`）· 无嵌入位图 ⇒ trace 产物；视觉 = 黑 `$` 与三叉戟融合剪影 + 做旧黄底。**C. ★ 真空洞**：`frontend/index.html:5` 指向 `/vite.svg` 而 **`frontend/public/vite.svg` 不存在** ⇒ favicon 一直失效。**D. `R-9-46`** = ① 忠实方案（`public/brand/favicon.svg` 逐字入库 + `<link>` 指 SVG + `apple-touch-icon.png`(180) 与 `favicon-32.png` 栅格化 + 清旧引用）；备选 ② PNG 性能 / ③ svgo（一句话可改）。**E.** 已派 Kong（前端面，不撞 P9④ 库面单）：入库 + 三条 link + 现取核验 s1..s9 对 index.html 的断言 + 构建/受控实例读口（200 · image/svg+xml · 336,432 B · sha256 一致 · `/vite.svg` 404）+ 报告骨架；用户可见面 ⇒ 先本地 commit、过质检、验收后再 push。**F.** 生产仍 0031；P9④ 已 apply 待库面收口。 |
