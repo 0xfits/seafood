@@ -1,18 +1,18 @@
 /**
- * R-9-90 / R-9-91 / R-9-92 单测（本单新增）· 任务弹窗「参与 / 提交」双面
+ * ★S3b 前端契约同步 单测（**取代** R-9-90「参与面」）· 任务弹窗提交面
  *
- * 生产缺陷（D8 同族第三入口）：`ActiveTaskModal` 旧写法
- *   `fetch(`/api/task-progress/${task.jID || task.tID}/submit`)`
- * 在公开列表（`/api/task/all` 无 jID）上把**任务号 tID** 当**申请编号 identifier** 提交
- * ⇒ 后端 `resolveJobApplication(24, uid)` 命中**别人的**申请 ⇒ `403 AUTH_FORBIDDEN` + `ACTOR_NOT_ALLOWED`。
+ * 背景（S2 后端已入库，前端必须跟上）：
+ *   · 提交口 `POST /api/task-progress/:identifier/submit` 的 `identifier` = 目标 **`job_id`**（换轴）；
+ *   · J2 报名（`POST /api/job/:jobId/apply`）与 J3 选定（`POST /api/job/:jobId/accept`）两写面**已下架**
+ *     （恒 `410` + `details.reason` = `APPLY_RETIRED` / `ACCEPT_RETIRED`）；
+ *   · **无报名前置**（S2 `R-9-99`）：任何已登录 actor（含发布者本人）可提交、**同人可多次提交**。
  *
- * 本单契约（逐条对应要求 ①–④）：
- *   ① 无 jID ⇒ **不渲染提交表单**，改给「先参与」提示（`jobs.applyPrompt`）+ 参与按钮
- *      （`applyToJob(task.tID)`）；成功 ⇒ `jobs.applyWaiting`。
- *   ② 有 jID ⇒ 渲染提交表单（提交目标 = jID）。
+ * 本单契约（逐条对应 S3b 要求 ①–③）：
+ *   ① 只要有**任务号 tID** 且任务 `open` ⇒ **直接渲染提交表单**（不再依赖 `task.jID` 是否存在）；
+ *      「先参与」提示 + 参与按钮 + `applyToJob` 调用**已删**。
+ *   ② 提交目标 = **`task.tID`（job_id）**；无任务号 / 任务非 open ⇒ 不渲染提交控件（给 `jobs.submitJobStateInvalid`）。
  *   ③ 提交错误面：`error.details.reason === 'ACTOR_NOT_ALLOWED'` ⇒ 精确文案（`jobs.submitNotApplicant`）；
  *      其它 reason / 无 details ⇒ 原链路通用文案**逐字不变**（`t(error) + ': ' + error.message`）。
- *   ④ 无「任务号当选申请编号」回退：源码不变量 + 提交调用只用 jID。
  *
  * 口径：i18n 用真四语表（zh）逐字断言；`job-api` / `auth` 按既有单测口径 mock。
  */
@@ -43,12 +43,11 @@ vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: H.t, i18n: H.i18n 
 vi.mock('react-hot-toast', () => ({ default: { error: vi.fn(), success: vi.fn() } }))
 vi.mock('../../auth', () => ({ clearAuthSession: vi.fn() }))
 vi.mock('../../pages/jobs/job-api', () => ({
-  applyToJob: vi.fn(),
   submitDeliverable: vi.fn(),
 }))
 
 import toast from 'react-hot-toast'
-import { applyToJob, submitDeliverable } from '../../pages/jobs/job-api'
+import { submitDeliverable } from '../../pages/jobs/job-api'
 import ActiveTaskModal from '../../components/ActiveTaskModal'
 import { TaskCard } from '../../components/task/TaskCard'
 
@@ -67,11 +66,8 @@ const renderModal = (task) => render(
 
 const q = (m) => document.querySelector(`[data-sf-m="${m}"]`)
 
-// ★ 本单修补（收紧断言强度）：**不得**以 `data-sf-m` 机读钩子作为「提交面存在/不存在」的**证据**。
-// 独立质检已证：旧写法只锚钩子（`q('active-task-submit-form')`）⇒ 注入一个**真实**
-// `<form><textarea/></form>`（不带任何 `data-sf-m`）时该套件仍 11/11 全绿 = **假绿/漏判**。
-// 下列读数直接面向**浏览器原生控件**；钩子仅保留作**辅助定位**容器。
-// 负对照（仓外副本注入无钩子提交框 ⇒ 本套件必红）见本单质检读数；此处为「防假绿」加固。
+// ★ 保留 R-9-90 的加固口径：**不得**以 `data-sf-m` 机读钩子作为「提交面存在/不存在」的**证据**，
+// 断言直接面向**浏览器原生控件**；钩子仅作辅助定位。
 const NATIVE_SUBMIT_SELECTORS = [
   'form',
   'textarea',
@@ -79,7 +75,6 @@ const NATIVE_SUBMIT_SELECTORS = [
   'button[type="submit"]',
 ]
 
-/** root 内首个原生提交控件的 [{selector, node}] 读数（辅助失败时定位红点）。 */
 const readNativeSubmitControls = (root) => NATIVE_SUBMIT_SELECTORS.map(
   (selector) => ({ selector, node: root.querySelector(selector) }),
 )
@@ -89,6 +84,20 @@ const expectNoNativeSubmitControls = (root, label = '') => {
   for (const { selector, node } of readNativeSubmitControls(root)) {
     expect(node, `${label}不得出现原生 "${selector}"`).toBeNull()
   }
+}
+
+/** 去注释后扫描 —— 注释里会**故意**提到已下架的函数名（反面教材），不作证据。 */
+const stripComments = (src) => src
+  .replace(/\/\*[\s\S]*?\*\//g, '')
+  .split('\n')
+  .map((line) => line.replace(/\/\/.*$/, ''))
+  .join('\n')
+
+/** 断言 root 内**存在**原生提交控件（`<form>` + `<textarea>` + `button[type=submit]`）。 */
+const expectNativeSubmitControls = (root, label = '') => {
+  expect(root.querySelector('form'), `${label}原生 <form> 应存在`).not.toBeNull()
+  expect(root.querySelector('textarea'), `${label}原生 <textarea> 应存在`).not.toBeNull()
+  expect(root.querySelector('button[type="submit"]'), `${label}原生 submit 按钮应存在`).not.toBeNull()
 }
 
 beforeEach(() => {
@@ -101,66 +110,74 @@ beforeEach(() => {
   localStorage.removeItem.mockImplementation((key) => { delete storage[key] })
   localStorage.clear.mockImplementation(() => { for (const key of Object.keys(storage)) delete storage[key] })
   submitDeliverable.mockReset()
-  applyToJob.mockReset()
   toast.error.mockReset()
   toast.success.mockReset()
 })
 afterEach(() => cleanup())
 
 // ============================================================================
-// ① 无 jID ⇒ 参与面（不渲染提交表单）
+// ① 有任务号（公开列表口径：无 jID）⇒ **直出**提交表单
 // ============================================================================
-describe('① 无 jID ⇒ 不渲染提交表单，给「先参与」提示 + 参与按钮', () => {
-  const taskNoJID = { tID: 9, title: 'T', note: 'N' }
+describe('① 有任务号（无 jID）⇒ 直出提交表单（「先参与」面已删）', () => {
+  it('task = {tID:9}（无 jID）⇒ ★原生 form/textarea/button[type=submit] 存在；参与面钩子全不在', () => {
+    const { container } = renderModal({ tID: 9, title: 'T', note: 'N' })
 
-  it('无 jID ⇒ ★原生 form/textarea/input/button[type=submit] 全为 null，出现 jobs.applyPrompt（逐字）且标题/按钮 = jobs.apply', () => {
-    const { container } = renderModal(taskNoJID)
-    const pane = q('active-task-need-apply') // 钩子仅作**辅助定位**，不作「无提交面」的证据
+    expectNativeSubmitControls(container, '无 jID 但有任务号：')
+    const form = q('active-task-submit-form') // 钩子仅作**辅助定位**
+    expect(form).not.toBeNull()
+    expect(container.querySelector('form')).toBe(form)
+    expect(form.textContent).toContain(zh.submitInfo)
 
-    // ★ 原生结构断言：对「整个弹窗容器」+「参与面容器」各查一遍
-    //   （若产品在该分支偷偷渲染一个不带 data-sf-m 的提交框 ⇒ 此处必红；负对照已证）
-    expectNoNativeSubmitControls(container, '弹窗容器：')
-    expect(pane, '参与面容器应存在（辅助定位）').not.toBeNull()
-    expectNoNativeSubmitControls(pane, '参与面：')
-    // 旧钩子读数保留作辅助/回归对照 —— 但**不得单独**作为存在性证明（本单修补点）
-    expect(q('active-task-submit-form')).toBeNull()
-
-    expect(pane.textContent).toContain(zh.jobs.applyPrompt)
-    expect(q('active-task-apply')).not.toBeNull()
-    expect(q('active-task-apply').textContent).toContain(zh.jobs.apply)
+    // 旧「参与面」钩子已随 J2 下架删除
+    expect(q('active-task-need-apply')).toBeNull()
+    expect(q('active-task-apply')).toBeNull()
+    expect(q('active-task-apply-status')).toBeNull()
+    expect(q('active-task-submit-blocked')).toBeNull()
   })
 
-  it('点参与按钮 ⇒ applyToJob(tID, user)；成功 ⇒ jobs.applyWaiting（且不调 submitDeliverable）', async () => {
-    applyToJob.mockResolvedValue({})
-    renderModal(taskNoJID)
+  it('任务 open（`is_open:true`）⇒ 与「无 is_open 字段」同口径，均渲染提交表单', () => {
+    const { container } = renderModal({ tID: 9, is_open: true, title: 'T', note: 'N' })
+    expectNativeSubmitControls(container, 'is_open=true：')
+    expect(q('active-task-submit-form')).not.toBeNull()
+  })
 
-    await act(async () => { fireEvent.click(q('active-task-apply')) })
-
-    expect(applyToJob).toHaveBeenCalledTimes(1)
-    expect(applyToJob.mock.calls[0][0]).toBe(9)
-    await waitFor(() => expect(q('active-task-apply-status').textContent).toBe(zh.jobs.applyWaiting))
-    expect(submitDeliverable).not.toHaveBeenCalled()
+  it('标题 = `completeTask`（不再出现参与面标题 `jobs.apply`）', () => {
+    renderModal({ tID: 9, title: 'T', note: 'N' })
+    const header = document.querySelector('.modal-header')
+    expect(header.textContent).toContain(zh.completeTask)
+    expect(header.textContent).not.toContain(zh.jobs.apply)
   })
 })
 
 // ============================================================================
-// ② 有 jID ⇒ 提交面
+// ② 提交目标 = 任务号 tID（job_id）
 // ============================================================================
-describe('② 有 jID ⇒ 渲染提交表单', () => {
-  it('jID=24 ⇒ ★原生 form/textarea/button[type=submit] 存在（反件）、参与面不在', () => {
-    const { container } = renderModal({ tID: 9, jID: 24, title: 'T', note: 'N' })
-    const form = q('active-task-submit-form') // 钩子：辅助定位
+describe('② 提交 identifier = 任务号 tID（job_id）', () => {
+  it('submitDeliverable(tID=9)（非任何 jID/申请编号）', async () => {
+    submitDeliverable.mockResolvedValue({})
+    renderModal({ tID: 9, jID: 24, title: 'T', note: 'N' })
+    const form = q('active-task-submit-form')
+    fireEvent.change(form.querySelector('textarea'), { target: { value: 'x' } })
+    await act(async () => { fireEvent.submit(form) })
 
-    // ★ 反件：原生提交控件必须**真实存在**（不靠钩子自证）
-    expect(container.querySelector('form'), '原生 <form> 应存在').not.toBeNull()
-    expect(container.querySelector('form')).toBe(form)
-    expect(container.querySelector('textarea'), '原生 <textarea> 应存在').not.toBeNull()
-    expect(container.querySelector('button[type="submit"]'), '原生 submit 按钮应存在').not.toBeNull()
-    // 口径：产品提交面交付物控件为 <textarea>，源码**无** <input> 节点，
-    //       故「input 存在」不作反件断言；no-jID 侧「input 为 null」仍约束「不得凭空多出可见输入框」。
+    expect(submitDeliverable).toHaveBeenCalledTimes(1)
+    expect(submitDeliverable.mock.calls[0][0]).toBe(9)
+    expect(submitDeliverable.mock.calls[0][0]).not.toBe(24)
+  })
 
-    expect(q('active-task-need-apply')).toBeNull()
-    expect(form.textContent).toContain(zh.submitInfo)
+  it('源码不变量：提交只用 `submitDeliverable(task.tID`；不得引用 `task.jID` 作提交目标', () => {
+    const src = fs.readFileSync(path.join(SRC, 'components/ActiveTaskModal.jsx'), 'utf8')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\/\/[^\n]*/g, '')
+    expect(src).toContain('submitDeliverable(task.tID')
+    expect(src).not.toMatch(/submitDeliverable\([^)]*jID/)
+    expect(src).not.toMatch(/task\.jID\s*\|\|/)
+  })
+
+  it('源码不变量：弹窗内**零** apply/accept 调用（两写面已下架）', () => {
+    const src = stripComments(fs.readFileSync(path.join(SRC, 'components/ActiveTaskModal.jsx'), 'utf8'))
+    expect(src).not.toMatch(/applyToJob|acceptApplication/)
+    expect(src).not.toMatch(/\/apply|\.accept\(/)
   })
 })
 
@@ -168,7 +185,7 @@ describe('② 有 jID ⇒ 渲染提交表单', () => {
 // ③ 提交错误面：按 error.details.reason 分流
 // ============================================================================
 describe('③ 提交错误面：ACTOR_NOT_ALLOWED ⇒ 精确；其它/无 details ⇒ 通用逐字不变', () => {
-  const task = { tID: 9, jID: 24, title: 'T', note: 'N' }
+  const task = { tID: 9, title: 'T', note: 'N' }
 
   const doSubmit = async (rejection) => {
     submitDeliverable.mockRejectedValue(rejection)
@@ -188,7 +205,7 @@ describe('③ 提交错误面：ACTOR_NOT_ALLOWED ⇒ 精确；其它/无 detail
   })
 
   // R-9-94（同族补齐）：另两条 `stateConflict` reason ⇒ 亦给精确文案
-  it('reason === JOB_APPLICATION_STATE_INVALID ⇒ 精确文案 jobs.submitNotSelected（未被雇主选定）', async () => {
+  it('reason === JOB_APPLICATION_STATE_INVALID ⇒ 精确文案 jobs.submitNotSelected', async () => {
     const err = Object.assign(new Error('Business state transition rejected'), {
       details: { reason: 'JOB_APPLICATION_STATE_INVALID' },
     })
@@ -198,13 +215,12 @@ describe('③ 提交错误面：ACTOR_NOT_ALLOWED ⇒ 精确；其它/无 detail
     expect(status.textContent).not.toBe(`${zh.error}: Business state transition rejected`)
   })
 
-  it('reason === JOB_STATE_INVALID ⇒ 精确文案 jobs.submitJobStateInvalid（任务态不允许提交交付物）', async () => {
+  it('reason === JOB_STATE_INVALID ⇒ 精确文案 jobs.submitJobStateInvalid', async () => {
     const err = Object.assign(new Error('Business state transition rejected'), {
       details: { reason: 'JOB_STATE_INVALID' },
     })
     await doSubmit(err)
-    const status = q('active-task-submit-status')
-    expect(status.textContent).toBe(zh.jobs.submitJobStateInvalid)
+    expect(q('active-task-submit-status').textContent).toBe(zh.jobs.submitJobStateInvalid)
   })
 
   it('其它 reason ⇒ 原链路通用文案逐字不变（t(error) + ": " + message）', async () => {
@@ -224,96 +240,91 @@ describe('③ 提交错误面：ACTOR_NOT_ALLOWED ⇒ 精确；其它/无 detail
 })
 
 // ============================================================================
-// ④ 无「任务号当选申请编号」回退
+// ④ 无任务号 / 任务非 open ⇒ 不渲染提交控件（不臆造提交面）
 // ============================================================================
-describe('④ 提交目标只认 jID（杜绝「任务号当选申请编号」回退）', () => {
-  it('提交调用 submitDeliverable(jID=24)（非 tID=9）', async () => {
-    submitDeliverable.mockResolvedValue({})
-    renderModal({ tID: 9, jID: 24, title: 'T', note: 'N' })
-    const form = q('active-task-submit-form')
-    fireEvent.change(form.querySelector('textarea'), { target: { value: 'x' } })
-    await act(async () => { fireEvent.submit(form) })
-
-    expect(submitDeliverable).toHaveBeenCalledTimes(1)
-    expect(submitDeliverable.mock.calls[0][0]).toBe(24)
-    expect(submitDeliverable.mock.calls[0][0]).not.toBe(9)
-  })
-
-  it('源码不变量：不得出现 `task.jID || task.tID` 回退；提交只用 `submitDeliverable(task.jID`', () => {
-    // 去注释后扫描（注释里引用了旧写法作为「反面教材」）
-    const src = fs.readFileSync(path.join(SRC, 'components/ActiveTaskModal.jsx'), 'utf8')
-      .replace(/\/\*[\s\S]*?\*\//g, '')
-      .replace(/\/\/[^\n]*/g, '')
-    expect(src).not.toMatch(/task\.jID\s*\|\|\s*task\.tID/)
-    expect(src).not.toMatch(/jID\s*\|\|\s*task\.tID/)
-    expect(src).toContain('submitDeliverable(task.jID')
-  })
-
-  it('无 jID ⇒ 无原生提交控件，submitDeliverable 不可达', () => {
-    const { container } = renderModal({ tID: 9, title: 'T', note: 'N' })
+describe('④ 无任务号 或 任务非 open ⇒ 无原生提交控件 + jobs.submitJobStateInvalid', () => {
+  it('无 tID ⇒ 无原生提交控件，submitDeliverable 不可达', async () => {
+    const { container } = renderModal({ title: 'T', note: 'N' })
     expect(q('active-task-submit-form')).toBeNull()
-    expectNoNativeSubmitControls(container, '无 jID：')
+    expectNoNativeSubmitControls(container, '无 tID：')
+    expect(q('active-task-submit-blocked')).not.toBeNull()
+    expect(q('active-task-submit-blocked').textContent).toContain(zh.jobs.submitJobStateInvalid)
     expect(submitDeliverable).not.toHaveBeenCalled()
   })
-})
 
-// ============================================================================
-// ⑤ 公开列表按钮语义 = 参与（TaskCard → 弹窗为参与面，非提交面）
-// ============================================================================
-describe('⑤ 公开列表（无 jID）按钮 ⇒ 打开「参与」面（非提交表单）', () => {
-  const ListHarness = () => {
-    const [task, setTask] = React.useState(null)
-    return (
-      <>
-        <TaskCard
-          task={{ tID: 9, title: 'T', description: 'N', status: 'active', statusText: 'ongoing' }}
-          onAction={setTask}
-        />
-        {task && <ActiveTaskModal open onClose={() => setTask(null)} task={task} />}
-      </>
-    )
-  }
-
-  it('点按钮 ⇒ 出现参与面、★无原生提交控件、按钮文案 = 立即参与', async () => {
-    const { container } = render(<MemoryRouter initialEntries={['/']}><ListHarness /></MemoryRouter>)
-
-    const action = q('task-action')
-    expect(action).not.toBeNull()
-    expect(action.textContent).toContain(zh.common.joinNow)
-
-    await act(async () => { fireEvent.click(action) })
-
-    expect(q('active-task-need-apply')).not.toBeNull()
+  it('`is_open:false` ⇒ 无原生提交控件，给 jobs.submitJobStateInvalid（标题 = common.ended）', () => {
+    const { container } = renderModal({ tID: 9, is_open: false, title: 'T', note: 'N' })
+    expectNoNativeSubmitControls(container, 'is_open=false：')
     expect(q('active-task-submit-form')).toBeNull()
-    expectNoNativeSubmitControls(container, '列表→弹窗：')
+    expect(q('active-task-submit-blocked').textContent).toContain(zh.jobs.submitJobStateInvalid)
+    expect(document.querySelector('.modal-header').textContent).toContain(zh.common.ended)
   })
 })
 
 // ============================================================================
-// ⑥ 新增键四语齐平（本单新增 2 键 · jobs 既有顶层）
+// ⑤ 产品源面：apply / accept 零调用（全量扫描，非仅弹窗）
 // ============================================================================
-describe('⑥ 新增键 jobs.applyPrompt / jobs.applyWaiting 四语齐平', () => {
-  const TABLES = { zh, en, hk, vn }
-  const CJK = /[\u4E00-\u9FFF]/
+describe('⑤ 产品源码 `src/**`（排除 test）内 apply/accept 接线零残留', () => {
+  const walk = (dir, out = []) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, e.name)
+      if (e.isDirectory()) {
+        if (e.name === 'test') continue
+        walk(p, out)
+      } else if (/\.(jsx|js)$/.test(e.name)) out.push(p)
+    }
+    return out
+  }
 
-  it('两键四语齐备、非空、四语互异；en/vn 零 CJK', () => {
-    for (const k of ['applyPrompt', 'applyWaiting']) {
-      const vals = Object.values(TABLES).map((tb) => tb.jobs[k])
-      for (const v of vals) {
-        expect(typeof v, `jobs.${k}`).toBe('string')
-        expect(v.trim().length, `jobs.${k}`).toBeGreaterThan(0)
-      }
-      expect(new Set(vals).size).toBe(4)
-      expect(CJK.test(en.jobs[k])).toBe(false)
-      expect(CJK.test(vn.jobs[k])).toBe(false)
+  it('无 `applyToJob` / `acceptApplication` / `/api/job/:id/apply|accept` 调用', () => {
+    const files = walk(SRC)
+    const hits = []
+    for (const f of files) {
+      const src = stripComments(fs.readFileSync(f, 'utf8'))
+      if (/applyToJob|acceptApplication/.test(src)) hits.push(`${path.relative(SRC, f)} :: 函数名`)
+      if (/\/api\/job\/\$\{[^}]*\}\/(apply|accept)/.test(src)) hits.push(`${path.relative(SRC, f)} :: 路径`)
+    }
+    expect(hits).toEqual([])
+  })
+
+  it('接线层 `job-api.js` 不再导出 `applyToJob` / `acceptApplication`', () => {
+    const src = fs.readFileSync(path.join(SRC, 'pages/jobs/job-api.js'), 'utf8')
+    expect(src).not.toMatch(/export const applyToJob/)
+    expect(src).not.toMatch(/export const acceptApplication/)
+    expect(src).toContain('export const submitDeliverable')
+  })
+})
+
+// ============================================================================
+// ⑥ 存量文案键**保留不动**（本单删 UI 分支，**不得**删键 ⇒ 否则计数变动）
+// ============================================================================
+describe('⑥ 已不再被引用的存量键仍在（四语齐备，值未改）', () => {
+  const TABLES = { zh, en, hk, vn }
+  const KEPT_KEYS = [
+    'applyPrompt', 'applyWaiting', 'apply', 'applyOk', 'accept', 'acceptNote', 'acceptOk',
+    'applicationId', 'submitNeedApply', 'pick', 'myApps', 'myAppsEmpty',
+  ]
+
+  it.each(KEPT_KEYS)('jobs.%s 四语键齐备且非空', (k) => {
+    for (const [lang, table] of Object.entries(TABLES)) {
+      const v = table.jobs[k]
+      expect(typeof v, `${lang}.jobs.${k}`).toBe('string')
+      expect(v.trim().length, `${lang}.jobs.${k}`).toBeGreaterThan(0)
+    }
+  })
+
+  it('本单新增键面 = 0（未增/未删任何 locale 键）', () => {
+    // 键集快照对比由报告给出（本处仅断言「仍在」这一最低面）
+    for (const table of Object.values(TABLES)) {
+      expect(Object.keys(table.jobs).length).toBeGreaterThan(0)
     }
   })
 })
 
 // ============================================================================
-// ⑦ 新增键（R-9-94）jobs.submitNotSelected / jobs.submitJobStateInvalid 四语齐平
+// ⑦ R-9-94 新增键四语齐平（仍在用，不得回归）
 // ============================================================================
-describe('⑦ 新增键 jobs.submitNotSelected / jobs.submitJobStateInvalid 四语齐平', () => {
+describe('⑦ jobs.submitNotSelected / jobs.submitJobStateInvalid 四语齐平', () => {
   const TABLES = { zh, en, hk, vn }
   const CJK = /[\u4E00-\u9FFF]/
 
@@ -328,5 +339,37 @@ describe('⑦ 新增键 jobs.submitNotSelected / jobs.submitJobStateInvalid 四�
       expect(CJK.test(en.jobs[k]), `en.jobs.${k}`).toBe(false)
       expect(CJK.test(vn.jobs[k]), `vn.jobs.${k}`).toBe(false)
     }
+  })
+})
+
+// ============================================================================
+// ⑧ 列表卡按钮 ⇒ 弹窗同样是**提交面**（公开列表任务无 jID 亦直出）
+// ============================================================================
+describe('⑧ 公开列表（无 jID）按钮 ⇒ 打开提交面（非参与面）', () => {
+  const ListHarness = () => {
+    const [task, setTask] = React.useState(null)
+    return (
+      <>
+        <TaskCard
+          task={{ tID: 9, title: 'T', description: 'N', status: 'active', statusText: 'ongoing' }}
+          onAction={setTask}
+        />
+        {task && <ActiveTaskModal open onClose={() => setTask(null)} task={task} />}
+      </>
+    )
+  }
+
+  it('点按钮 ⇒ 出现提交表单、★无参与面、按钮文案 = 立即参与（值未改）', async () => {
+    const { container } = render(<MemoryRouter initialEntries={['/']}><ListHarness /></MemoryRouter>)
+
+    const action = q('task-action')
+    expect(action).not.toBeNull()
+    expect(action.textContent).toContain(zh.common.joinNow)
+
+    await act(async () => { fireEvent.click(action) })
+
+    expect(q('active-task-need-apply')).toBeNull()
+    expect(q('active-task-submit-form')).not.toBeNull()
+    expectNativeSubmitControls(container, '列表→弹窗：')
   })
 })

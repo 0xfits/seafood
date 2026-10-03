@@ -84,7 +84,8 @@ const LangShell = () => {
         {/* 招工线（P4-B4c-ii-a · 真源 = docs/route-layer.spec.md v0.9 §4.2 J1–J6）
             task/new    ⇒ POST /api/job（发布招工 + 托管；幂等键**前端提供** cli:）
             task/review ⇒ GET /api/tasklist/pending-verification + POST /api/job/:jobId/review（键服务端派生）
-            task/:jobId ⇒ GET /api/task/:tID + POST /api/job/:jobId/{apply,accept} + /api/task-progress/:id/submit
+            task/:jobId ⇒ GET /api/task/:tID + POST /api/task-progress/:identifier/submit（★S3b：identifier = job_id；
+                          J2/J3 的 /api/job/:jobId/{apply,accept} 两写面**已下架**（410），前端零调用）
             静态段优先于动态段（react-router v6 排名），故 /task/new|/task/review 不会被 :jobId 吃掉 */}
         <Route path="task/new" element={<PublishJobPage />} />
         <Route path="task/review" element={<JobReviewPage />} />

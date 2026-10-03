@@ -146,8 +146,21 @@ const ProfilePage = () => {
         fetchApiJson('/api/prize-item', { headers }).catch(() => []),
       ])
 
+      // ★S3b ②：`GET /api/task-progress` 的 `jID` 语义 = **`submission_id`**（S2 换轴）⇒ 同人**可多次提交**、
+      //   同一任务可能回多条。本组读数按**任务**计（标签为「总任务数 / 已完成 / 进行中」）⇒ 先按 `tID`
+      //   归并、取该任务**最新一条提交**（`jID` 升序覆盖 = 最大 `jID`），再逐「任务」计数，
+      //   否则同一任务多次提交会被重复计入。
+      const latestByTask = new Map()
+      for (const taskProgress of taskProgressItems || []) {
+        const key = String(taskProgress?.tID ?? '')
+        const prev = latestByTask.get(key)
+        if (!prev || Number(taskProgress?.jID || 0) > Number(prev?.jID || 0)) {
+          latestByTask.set(key, taskProgress)
+        }
+      }
+
       const stats = {
-        totalTasks: (taskProgressItems || []).length,
+        totalTasks: latestByTask.size,
         completedTasks: 0,
         pendingTasks: 0,
         pendingRewards: 0,
@@ -155,7 +168,7 @@ const ProfilePage = () => {
         claimedRewards: (prizeItems || []).length,
       }
 
-      for (const taskProgress of taskProgressItems || []) {
+      for (const taskProgress of latestByTask.values()) {
         if (taskProgress.time_claimed) {
           stats.completedTasks++
           stats.totalPoints += taskProgress.points_claimed || 0

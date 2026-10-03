@@ -10,6 +10,9 @@ const ClaimRewardModal = ({ open, isOpen, onClose, task }) => {
   const visible = typeof open === 'boolean' ? open : Boolean(isOpen)
 
   React.useEffect(() => {
+    // ★S3b ②：`GET /api/task-progress/:jID` 的 `:jID` 语义 = **`submission_id`**（S2 换轴：后端按
+    //   `job_submission.submission_id` 取数、归属校验 = 提交者本人；非本人/不存在 ⇒ 同形 404）。
+    //   `task.jID` / `task.tlistID`（TaskPage 归并时二者同值）现即该提交号 ⇒ 取值链不变。
     if (visible && task && (task.tlistID || task.jID)) {
       loadTaskProgressDetail(task.jID || task.tlistID)
     }

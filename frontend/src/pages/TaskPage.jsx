@@ -61,6 +61,10 @@ const TaskPage = () => {
     actionText: t('common.joinNow'),
   })
 
+  // ★S3b ②：`GET /api/task-progress` 的 `jID` 语义 = **`submission_id`**（S2 换轴；后端
+  //   `SELECT s.submission_id AS "jID"`）⇒ 同人**可多次提交**，同一任务可能回多条。
+  //   TaskCard 仍按「一任务一卡」展示 ⇒ 下方按 `tID` 归并、取**最新一条提交**（后端按
+  //   `submission_id DESC` 排序 ⇒ 「最大 jID」= 最新）。
   const normalizeTaskProgressTask = (taskProgress, task) => ({
     ...task,
     ...taskProgress,
@@ -101,6 +105,7 @@ const TaskPage = () => {
         })
 
         const latestTaskProgressByTask = new Map()
+        // ★S3b ②：一人可多条提交 ⇒ 同一 `tID` 取最后一条（升序覆盖 = 最大 `jID` = 最新提交）
         ;(taskProgressItems || [])
           .sort((left, right) => (left.jID || 0) - (right.jID || 0))
           .forEach((taskProgress) => {

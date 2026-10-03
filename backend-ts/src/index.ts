@@ -31,8 +31,9 @@ import { healthCheck } from './db';
 import { ledgerErrorDiagnostics, normalizeLedgerError, toErrorResponse } from './ledger-errors';
 // P7-A：账本流水读口的 `kind` 过滤取值 = **冻结关闭集**（`ledger.spec` §5.1/R40，20 个；不复制/不自造）
 import { LEDGER_KINDS } from './ledger';
-// P4-B4a：J2/J3（报名 / 选定）与既有 `submitWork`（J4）同族 ⇒ 一并从路由层接线
-import { acceptApplication, applyToJob, ledgerErrorBody, sendGone, sendVerbError, submitWork } from './job-service';
+// ★ S3（`R-9-103`）：J2/J3（报名 `/apply`、选定 `/accept`）路由已**下架**（`410 Gone`）⇒ 不再导入
+//   `applyToJob`/`acceptApplication`（服务层 verb 保留不删，仅不再被本层调用）；J4 `submitWork` 仍由本层接线。
+import { ledgerErrorBody, sendGone, sendVerbError, submitWork } from './job-service';
 // P4-B3c：招工**资金**编排（J1 托管 / J5 发放 / J6 退款 ⇒ `job_post_event`）
 // P4-B4a：J1 `publishJob`（§1.8 #1）/ J5 `settleJob` / J6 `refundJob` 由本片注册（`verifyJobSubmission` 沿用）
 import { publishJob, refundJob, settleJob, verifyJobSubmission } from './job-funds-service';
@@ -916,6 +917,11 @@ app.get('/api/task-progress/:jID', async (req, res) => {
   }
 });
 
+// ---- J4 · 提交交付物（写口；`job-service.ts` `submitWork`；★ S2 任务模型改造 `R-9-99`）----
+// ★ S3（路由层语义同步，与 S2 一致 · 现取确认）：
+//   · URL 参数名仍写作 `:identifier`（**保留路径兼容**，前端 URL 不变），但其**语义 = 目标 `job_id`**
+//     （`R-9-99`：提交即参与 ⇒ 不再解析 / 不再要求 `job_application`）；
+//   · 本路由把该值**原样**当 `job_id` 传给 `submitWork({ identifier })`（`job-service.ts:133`，逐字一致）⇒ 无二次解轴。
 app.post('/api/task-progress/:identifier/submit', async (req, res) => {
   const actor = await requireActor(req, res);
   if (!actor) return;
@@ -1992,14 +1998,19 @@ app.post('/api/tasklist/:jID/verify', async (req, res) => {
     if (!result.ok) return sendVerbError(res, result);
 
     // 成功面：仍由 `getTaskProgress`（9 键）产出；approve 分支再补 `task`/`user`（与改接前逐键一致）
-    const record = await DatabaseService.getTaskProgress(Number(result.applicationId));
+    // ★ S3 修（`R-9-100/101`）：`getTaskProgress` 读口**已换轴 = `submission_id`**（`database.ts:2586`
+    //   `s.submission_id AS "jID"`）⇒ 成功面**不得**再用申请号 `result.applicationId`（旧轴 ⇒ 会读到别的行 / miss）。
+    //   改传**提交号**：与解析/结算**同源**的 URL 参数 `:jID`（`R-9-100` 起读口 identifier = `submission_id`；
+    //   后台待审队列 `listPendingVerification` 与前端契约同步换轴随 S4 / S3b）。
+    const submissionId = Number(req.params.jID);
+    const record = await DatabaseService.getTaskProgress(submissionId);
     if (!record) {
       return sendVerbError(res, {
         ok: false,
         status: 404,
         code: 'LEDGER_REF_NOT_FOUND',
         message: 'Referenced object not found',
-        details: { ref_type: 'job_application', ref_id: String(result.applicationId) },
+        details: { ref_type: 'job_submission', ref_id: String(submissionId) },
       });
     }
 
@@ -2347,49 +2358,52 @@ app.post('/api/job', async (req, res) => {
   }
 });
 
-// ---- A2 · J2 报名（§1.8 #2；`job-service.ts:175` `applyToJob`）-------------------------
-app.post('/api/job/:jobId/apply', async (req, res) => {
-  const actor = await requireActor(req, res);
-  if (!actor) return;
+// ---- A2 · J2 报名【★ S3 下架 · `R-9-103`】—— 旧模型（管理员后台发 task/reward）废弃 ---------
+//   `R-9-99` 取消「报名 / 选定」两个环节（提交即参与）⇒ `POST /api/job/:jobId/apply` **退役** ⇒ **`410 Gone`**。
+//   硬边界：**在访问任何表之前**直接 `410` —— handler 路径**零表访问 / 零副作用**（旧实现体经 `applyToJob`
+//   ⇒ `DatabaseService.applyToJob` 写 `job_application`；`job_application` 已**停写**（`R-9-100` 保留历史行））。
+//   形状 = **照抄既有 410 面**（同一共享产出器 `./job-service` `ledgerErrorBody` ⇒ R107 `{error:{code,message,i18n_key,details}}`，
+//   code=`LEDGER_REF_NOT_FOUND`，`i18n_key=ledger.err.LEDGER_REF_NOT_FOUND`，details={`ref_type`,`ref_id`,`http_status`,`sunset`,`reason`}）；
+//   **机读 reason** 落 `details.reason` = 稳定常量 **`APPLY_RETIRED`**（`route-layer.spec` v2.23 §34.7）。
+//   撤 `requireActor` 前置（同 `CLAIM_RETIRED` / B2a/B2b 先例：弃用面不得把「已下线」伪装成「未授权」；零副作用 ⇒ 无令牌下亦可观测 410）。
+const APPLY_RETIRED_REASON = 'APPLY_RETIRED';
+const APPLY_RETIRED_REF_ID = '/api/job/:jobId/apply';
+const APPLY_RETIRED_SUNSET = '任务模型改造（`R-9-103`）sunset（未决 §7-1：过期日待 Kevin 定）';
 
-  const jobIdRaw = String(req.params.jobId ?? '').trim();
-  if (!/^[1-9]\d*$/.test(jobIdRaw)) return sendRefNotFound(res, 'job', jobIdRaw, 'job_not_found');
-
-  try {
-    const result = await applyToJob({
-      jobId: Number(jobIdRaw),
-      workerUid: actor.user.uID, // worker 恒 = token 侧 actor（不得代他人报名）
-      createKeyRaw: createKeyRawOf(req),
-    });
-    if (!result.ok) return sendVerbError(res, result);
-    return sendSuccess(res, result.view, result.replay ? 'Application created (idempotent replay)' : 'Application created', 200,
-      result.replay ? { idempotent_replay: true } : undefined);
-  } catch (error) {
-    return sendInfraMapped(res, 'job.apply', error);
-  }
+app.post('/api/job/:jobId/apply', (_req, res) => {
+  return res.status(410).json(ledgerErrorBody(
+    'LEDGER_REF_NOT_FOUND',
+    `endpoint deprecated: ${APPLY_RETIRED_REF_ID}`,
+    {
+      ref_type: 'endpoint',
+      ref_id: APPLY_RETIRED_REF_ID,
+      http_status: 410,
+      sunset: APPLY_RETIRED_SUNSET,
+      reason: APPLY_RETIRED_REASON,
+    },
+  ));
 });
 
-// ---- A3 · J3 雇主选定打工人（§1.8 #3 · **优先级最高**；`job-service.ts:208` `acceptApplication`）----
-app.post('/api/job/:jobId/accept', async (req, res) => {
-  const actor = await requireActor(req, res);
-  if (!actor) return;
+// ---- A3 · J3 雇主选定打工人【★ S3 下架 · `R-9-103`】—— 「选定」环节已取消 -------------------
+//   `R-9-99` 取消「选定」环节 ⇒ `POST /api/job/:jobId/accept` **退役** ⇒ **`410 Gone`**。
+//   形状 / 硬边界 / 撤 `requireActor` 口径与上条 `apply` 面**逐字同源**（同一 `ledgerErrorBody` R107 产出器）；
+//   `details.reason` 稳定常量 = **`ACCEPT_RETIRED`**（`route-layer.spec` v2.23 §34.7）。
+const ACCEPT_RETIRED_REASON = 'ACCEPT_RETIRED';
+const ACCEPT_RETIRED_REF_ID = '/api/job/:jobId/accept';
+const ACCEPT_RETIRED_SUNSET = '任务模型改造（`R-9-103`）sunset（未决 §7-1：过期日待 Kevin 定）';
 
-  const jobIdRaw = String(req.params.jobId ?? '').trim();
-  if (!/^[1-9]\d*$/.test(jobIdRaw)) return sendRefNotFound(res, 'job', jobIdRaw, 'job_not_found');
-  const applicationRaw = String(req.body?.application_id ?? '').trim();
-  if (!/^[1-9]\d*$/.test(applicationRaw)) return sendRefNotFound(res, 'job_application', applicationRaw, 'application_not_found');
-
-  try {
-    const result = await acceptApplication({
-      jobId: Number(jobIdRaw),
-      applicationId: Number(applicationRaw),
-      actorUid: actor.user.uID, // 非雇主 ⇒ 服务层 403 + ACTOR_NOT_ALLOWED（§6.2 附表）
-    });
-    if (!result.ok) return sendVerbError(res, result);
-    return sendSuccess(res, result.view, 'Application accepted');
-  } catch (error) {
-    return sendInfraMapped(res, 'job.accept', error);
-  }
+app.post('/api/job/:jobId/accept', (_req, res) => {
+  return res.status(410).json(ledgerErrorBody(
+    'LEDGER_REF_NOT_FOUND',
+    `endpoint deprecated: ${ACCEPT_RETIRED_REF_ID}`,
+    {
+      ref_type: 'endpoint',
+      ref_id: ACCEPT_RETIRED_REF_ID,
+      http_status: 410,
+      sunset: ACCEPT_RETIRED_SUNSET,
+      reason: ACCEPT_RETIRED_REASON,
+    },
+  ));
 });
 
 // ---- A4 · J4 提交交付物（**可选别名**；§1.8 #4「服务已接线、仅新路径名未注册」）----------
@@ -2402,7 +2416,8 @@ app.post('/api/job/:jobId/submit', async (req, res) => {
   const identifier = parseInteger(req.params.jobId);
   const deliverable = String(req.body?.deliverable ?? req.body?.info_input ?? '').trim();
 
-  if (!identifier) return sendRefNotFound(res, 'job_application', String(req.params.jobId ?? ''), 'jID_not_found');
+  // ★ S3（同族扫面·申请轴落点收口）：`identifier` = 目标 `job_id`（`R-9-99`）⇒ miss 标签撤 `job_application`，改 `job`。
+  if (!identifier) return sendRefNotFound(res, 'job', String(req.params.jobId ?? ''), 'job_not_found');
   if (!deliverable) return sendError(res, 400, 'info_input is required'); // 与既有 `:595` 逐字一致（别名面）
 
   try {

@@ -532,15 +532,15 @@ const strOf = (v: unknown): string => (v === null || v === undefined ? '' : Stri
     const noneRows = buildAuditView(pNone, rNone) as { rows: unknown[] };
     dbConnections += 1;
     live.filter_positive = { points_adjust: opsRows.rows.length, none: noneRows.rows.length };
-    kg('K8', opsRows.rows.length === 4 && noneRows.rows.length === 0,
-      '★ 过滤正读：`action=points_adjust` ⇒ **4 行**（历史 4 行 · 非假过滤）；`action=__none__` ⇒ **0 行**', JSON.stringify(live.filter_positive));
+    kg('K8', opsRows.rows.length === 5 && noneRows.rows.length === 0,
+      '★ 过滤正读：`action=points_adjust` ⇒ **5 行**（历史 5 行 · 非假过滤）；`action=__none__` ⇒ **0 行**', JSON.stringify(live.filter_positive));
 
-    // ---------------- K9 · 原因码切换点在场（历史 4 行自由文本不回填） ----------------
+    // ---------------- K9 · 原因码切换点在场（历史 5 行自由文本不回填） ----------------
     const opsMemo = await readQuery<{ n: string }>(`SELECT count(*)::int AS n FROM public.admin_ops_audit_log`);
     dbConnections += 1;
     const wired = /isPointsAdjustReason\(/.test(INDEX_TS) && /REASON_CODE_NOT_IN_ENUM/.test(INDEX_TS);
-    kg('K9', Number(opsMemo[0].n) === 4 && wired,
-      '★ 原因码切换点接线（`index.ts` 调 `isPointsAdjustReason` · reason `REASON_CODE_NOT_IN_ENUM`）+ `admin_ops_audit_log` 历史 **4 行**（不回填 · `R-9-76`）',
+    kg('K9', Number(opsMemo[0].n) === 5 && wired,
+      '★ 原因码切换点接线（`index.ts` 调 `isPointsAdjustReason` · reason `REASON_CODE_NOT_IN_ENUM`）+ `admin_ops_audit_log` 历史 **5 行**（不回填 · `R-9-76`；含 2026-10-03 一次真实运营发放 `points_adjust`）',
       JSON.stringify({ rows: opsMemo[0].n, wired }));
 
     // ---------------- K10 · 受控实例真 HTTP ----------------

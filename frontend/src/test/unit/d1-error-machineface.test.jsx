@@ -124,11 +124,14 @@ describe('D1 补丁 · 联测：真 `fetchApiJson` 抛错形态 ⇒ JobDetailPag
     vi.unstubAllGlobals()
   })
 
-  const routedFetch = (applyBody) => vi.fn(async (url) => {
+  // ★S3b：提交口 = `POST /api/task-progress/:identifier/submit`（:identifier = job_id），
+  //   故**先判 `/submit`** 再落到列表读口 `/api/task-progress`（否则提交亦被回成列表 200 ⇒ 闭环不触发）。
+  //   J2 报名面（`/api/job/:id/apply`）已下架、产品零调用 —— 旧 `applyBody` 分支随之删除。
+  const routedFetch = (submitBody) => vi.fn(async (url) => {
     const u = String(url)
+    if (u.includes('/submit')) return jsonResponse(409, submitBody)
     if (u.includes('/api/task-progress')) return jsonResponse(200, { success: true, data: [] })
     if (u.includes('/api/task/')) return jsonResponse(200, { success: true, data: { tID: 9, title: 'x', points: 5, participants_count: 0 } })
-    if (u.includes('/api/job/') && u.includes('/apply')) return jsonResponse(409, applyBody)
     return jsonResponse(404, { success: false, error: { code: 'NOT_FOUND', message: 'not found' } })
   })
 
@@ -142,9 +145,9 @@ describe('D1 补丁 · 联测：真 `fetchApiJson` 抛错形态 ⇒ JobDetailPag
     vi.stubGlobal('fetch', routedFetch(R107_BATT))
     renderPage()
 
-    await waitFor(() => expect(document.querySelector('[data-sf-m="jobs-apply"]')).not.toBeNull())
+    await waitFor(() => expect(document.querySelector('[data-sf-m="jobs-submit-form"]')).not.toBeNull())
     await act(async () => {
-      fireEvent.click(document.querySelector('[data-sf-m="jobs-apply"]'))
+      fireEvent.submit(document.querySelector('[data-sf-m="jobs-submit-form"]'))
     })
 
     await waitFor(() => expect(document.querySelector('[data-sf-m="jobs-batt-hint"]')).not.toBeNull())
@@ -155,7 +158,7 @@ describe('D1 补丁 · 联测：真 `fetchApiJson` 抛错形态 ⇒ JobDetailPag
     expect(hint.textContent).toContain(zh.checkinPanel.checkinButton)
 
     // 同一次被拒：状态文案 = 真电量文案（非机读码）
-    const status = document.querySelector('[data-sf-m="jobs-apply-status"]')
+    const status = document.querySelector('[data-sf-m="jobs-submit-status"]')
     expect(status.textContent).toContain(zh.battCard.insufficient)
     expect(status.textContent).not.toContain('LEDGER_CURRENCY_INVALID_TRANSITION')
     expect(status.textContent).not.toContain('BATT_BELOW_ACCEPT_THRESHOLD')
@@ -169,15 +172,15 @@ describe('D1 补丁 · 联测：真 `fetchApiJson` 抛错形态 ⇒ JobDetailPag
     vi.stubGlobal('fetch', routedFetch(other))
     renderPage()
 
-    await waitFor(() => expect(document.querySelector('[data-sf-m="jobs-apply"]')).not.toBeNull())
+    await waitFor(() => expect(document.querySelector('[data-sf-m="jobs-submit-form"]')).not.toBeNull())
     await act(async () => {
-      fireEvent.click(document.querySelector('[data-sf-m="jobs-apply"]'))
+      fireEvent.submit(document.querySelector('[data-sf-m="jobs-submit-form"]'))
     })
 
-    await waitFor(() => expect(document.querySelector('[data-sf-m="jobs-apply-status"]').textContent)
+    await waitFor(() => expect(document.querySelector('[data-sf-m="jobs-submit-status"]').textContent)
       .toContain(zh.ledger.err.LEDGER_CURRENCY_INVALID_TRANSITION))
     // 非电量门槛：通用 i18n_key 文案（非机读码），且**不**渲染闭环提示
-    expect(document.querySelector('[data-sf-m="jobs-apply-status"]').textContent)
+    expect(document.querySelector('[data-sf-m="jobs-submit-status"]').textContent)
       .not.toContain('LEDGER_CURRENCY_INVALID_TRANSITION')
     expect(document.querySelector('[data-sf-m="jobs-batt-hint"]')).toBeNull()
   })

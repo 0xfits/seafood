@@ -31,6 +31,8 @@ const RewardPage = () => {
   const [activeTab, setActiveTab] = useState('available')
 
   const params = new URLSearchParams(location.search)
+  // ★S3b ②：深链查询参数 `jID` 现承载 **`submission_id`**（S2 读口换轴）；参数名与后端字段名一致，
+  //   **不变**（改动会断既有深链）—— 仅语义随读口换轴。
   const q_jID = params.get('jID')
   const isTaskProgressMode = !!q_jID
 

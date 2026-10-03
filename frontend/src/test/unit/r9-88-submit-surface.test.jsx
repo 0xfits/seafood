@@ -1,10 +1,11 @@
 /**
- * R-9-88 单测（本单新增）· 招工详情「提交交付物」面
+ * R-9-88 单测（本单新增）· 招工详情「提交交付物」面 —— ★S3b 契约同步后更新
  *
  * 四组断言（逐条对应本单要求 ①–③）：
- *   ① 提交目标**只能**由「我的报名」条目带出 ⇒ 提交表单内**不存在** application_id 可编辑手输框
- *      （旧 `data-sf-m="jobs-input-identifier"` 机读位已删）；当前目标仅以**只读**文本呈现。
- *   ② 无本人申请（`fetchMyApplications ⇒ []`）⇒ **不渲染**提交表单/提交按钮，改给「先参与该任务」提示。
+ *   ① 提交目标只读：提交区内可编辑控件**恰 1 个** = 交付物；目标读数 = **任务号（`job_id`）**，非手输框。
+ *      旧 J2/J3 的 `jobs-apply` / `jobs-accept{,-panel}` 面板**已随接口下架删除**（本处断言其不在）。
+ *   ② 无本人提交（`fetchMyApplications ⇒ []`）⇒ ★**仍渲染**提交表单（S2：无报名前置）。
+ *      旧「先参与该任务」提示（`jobs-submit-need-apply`）已删。
  *   ③ 提交捕错分支：`error.details.reason === 'ACTOR_NOT_ALLOWED'` ⇒ 显示**精确文案**
  *      （`jobs.submitNotApplicant`），且**不等于**通用 `auth.err.AUTH_FORBIDDEN`；
  *      非该 reason（拿不到 / 其它值）⇒ 保持原链路（通用文案）**逐字不变**。
@@ -73,15 +74,15 @@ beforeEach(() => {
 afterEach(() => cleanup())
 
 // ============================================================================
-// ① 提交目标 = 只读（通用结构面：提交区内可编辑控件**恰 1 个** = 交付物）
+// ① 提交面：目标 = 目标 job_id（只读，通用结构面断言）
 //
-// ★ 收紧：不再用「钩子名 jobs-input-identifier」+「inputmode 属性」双限定（那会假绿 ——
-//   一个**真实**的手输框只要改用**新钩子名**且不带 inputmode 就能蒙混过关）。
-//   改为**通用结构面**口径：提交表单内**可编辑控件计数**（input/textarea/select 减
-//   hidden/disabled/readonly）恰 1 个，且提交目标是**只读文本**（非 INPUT/TEXTAREA/SELECT）。
+// ★ 收紧（保留 R-9-88 口径）：不用「钩子名 + inputmode」双限定（那会假绿 —— 一个**真实**的
+//   手输框只要改用**新钩子名**且不带 inputmode 就能蒙混过关）。改为**通用结构面**口径：
+//   提交表单内**可编辑控件计数**（input/textarea/select 减 hidden/disabled/readonly）恰 1 个，
+//   且提交目标是**只读文本**（非 INPUT/TEXTAREA/SELECT）。
 // ============================================================================
-describe('① 提交面：application_id 只能由「我的报名」带出（通用结构面断言）', () => {
-  it('有本人申请 ⇒ 提交表单内**可编辑控件恰 1 个**（= 交付物），且提交目标**非** INPUT/TEXTAREA/SELECT #24', async () => {
+describe('① 提交面：目标 = 目标 job_id（只读，通用结构面断言）', () => {
+  it('已登录 + 任务 open ⇒ 提交表单内**可编辑控件恰 1 个**（= 交付物），提交目标 = 只读 `#9` #9', async () => {
     fetchMyApplications.mockResolvedValue([{ jID: 24, tID: 9 }])
     renderPage()
     await waitFor(() => expect(q('jobs-submit-form')).not.toBeNull())
@@ -98,46 +99,57 @@ describe('① 提交面：application_id 只能由「我的报名」带出（通
     expect(deliverable.tagName).toBe('INPUT')
     expect(controls[0]).toBe(deliverable)
 
-    // 当前目标 = 只读文本（**非** INPUT/TEXTAREA/SELECT），**逐字等值** = 「申请编号 #24」
-    // ★ 收紧：原 `toContain('#24')` / `toContain(申请编号)` 非逐字 ⇒ 前缀/后缀可蒙混过关；改 `toBe` 全等。
+    // ★S3b：提交目标 = **任务号（job_id）** —— 只读文本（**非** INPUT/TEXTAREA/SELECT），**逐字全等** `#9`
     const target = q('jobs-submit-target')
     expect(target).not.toBeNull()
     expect(['INPUT', 'TEXTAREA', 'SELECT']).not.toContain(target.tagName)
-    expect(target.textContent).toBe(`${zh.jobs.applicationId} #24`)
+    expect(target.textContent).toBe(`#${JOB.tID}`)
   })
 
-  it('作用域正确：accept 面板的 application_id 手输框在**提交表单之外**，不计入提交区计数', async () => {
+  it('★J2/J3 两面板已删：apply / accept 相关机读钩子全不在（前端零调用）', async () => {
     fetchMyApplications.mockResolvedValue([{ jID: 24, tID: 9 }])
     renderPage()
     await waitFor(() => expect(q('jobs-submit-form')).not.toBeNull())
 
-    const form = q('jobs-submit-form')
-    const acceptInput = q('jobs-input-accept')
-    expect(acceptInput).not.toBeNull()
-    // accept 栏手输框**不在**提交表单内 ⇒ 不影响提交区可编辑控件计数
-    expect(form.contains(acceptInput)).toBe(false)
-    // 提交区仍**恰 1 个**可编辑控件（= 交付物）
-    expect(editableControls(form)).toHaveLength(1)
+    for (const m of [
+      'jobs-apply', 'jobs-apply-status',
+      'jobs-accept-panel', 'jobs-accept', 'jobs-accept-status', 'jobs-input-accept',
+      'jobs-submit-need-apply',
+    ]) {
+      expect(q(m), `${m} 应不存在`).toBeNull()
+    }
   })
 })
 
 // ============================================================================
-// ② 无本人申请 ⇒ 不给提交表单，改给「先参与」提示
+// ② 无本人提交 ⇒ **仍**渲染提交表单（S2：无报名前置）
 // ============================================================================
-describe('② 无本人申请 ⇒ 不渲染提交表单，给「先参与该任务」提示', () => {
-  it('fetchMyApplications ⇒ [] ⇒ 无提交表单/提交按钮，出现 jobs-submit-need-apply（逐字 = jobs.submitNeedApply）', async () => {
+describe('② 无本人提交 ⇒ 仍渲染提交表单（无报名前置）', () => {
+  it('fetchMyApplications ⇒ [] ⇒ 提交表单/按钮仍在；旧「先参与」提示已删', async () => {
     fetchMyApplications.mockResolvedValue([])
     renderPage()
-    await waitFor(() => expect(q('jobs-submit-need-apply')).not.toBeNull())
+    await waitFor(() => expect(q('jobs-submit-form')).not.toBeNull())
 
-    expect(q('jobs-submit-form')).toBeNull()
-    expect(q('jobs-submit')).toBeNull()
-    expect(q('jobs-input-identifier')).toBeNull()
-    expect(q('jobs-input-deliverable')).toBeNull()
+    expect(q('jobs-submit')).not.toBeNull()
+    expect(q('jobs-input-deliverable')).not.toBeNull()
+    expect(q('jobs-submit-need-apply')).toBeNull()
+  })
+})
 
-    const hint = q('jobs-submit-need-apply')
-    // ★ 收紧：提示面板 textContent = `<h2>{jobs.submit}</h2>` + `<p>{jobs.submitNeedApply}</p>` ⇒ **逐字全等**
-    expect(hint.textContent).toBe(`${zh.jobs.submit}${zh.jobs.submitNeedApply}`)
+// ============================================================================
+// ④ ★S3b：提交调用 `submitDeliverable(jobId)`（identifier = 目标 job_id）
+// ============================================================================
+describe('④ 提交 identifier = 路由任务号 jobId（非任何申请编号）', () => {
+  it('提交 ⇒ submitDeliverable("9")（= 路由 /job/:jobId 的 jobId）', async () => {
+    fetchMyApplications.mockResolvedValue([{ jID: 24, tID: 9 }])
+    submitDeliverable.mockResolvedValue({})
+    renderPage()
+    await waitFor(() => expect(q('jobs-submit-form')).not.toBeNull())
+
+    fireEvent.change(q('jobs-input-deliverable'), { target: { value: 'x' } })
+    act(() => { fireEvent.submit(q('jobs-submit-form')) })
+    await waitFor(() => expect(submitDeliverable).toHaveBeenCalledTimes(1))
+    expect(String(submitDeliverable.mock.calls[0][0])).toBe('9')
   })
 })
 

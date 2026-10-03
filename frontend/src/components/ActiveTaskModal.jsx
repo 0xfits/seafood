@@ -4,26 +4,24 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { clearAuthSession } from '../auth'
 import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
-import { applyToJob, submitDeliverable } from '../pages/jobs/job-api'
+import { submitDeliverable } from '../pages/jobs/job-api'
 
 // ============================================================================
-// 任务弹窗（招工线 · R-9-90/R-9-91/R-9-92）
+// 任务弹窗（招工线 · R-9-90/R-9-91/R-9-92 · ★S3b 契约同步）
 //
-// 口径（本单硬约束）：
-//   · 提交目标**只能**是 `task.jID`（= application_id，来自 `/api/task-progress`）——
-//     公开列表 `/api/task/all` 的 task 对象**没有** jID ⇒ **绝不**回退成「任务号 tID」
-//     （旧写法 `task.jID || task.tID` 会把别人的申请编号当提交目标 ⇒ 生产 403
-//     `AUTH_FORBIDDEN` + `details.reason='ACTOR_NOT_ALLOWED'`）。
-//   · 无 `jID` ⇒ **不渲染提交表单**，改给「先参与」提示 + **参与**按钮（`applyToJob(task.tID)`）；
-//     报名成功 ⇒ 提示「已报名，等雇主选定后即可提交」。
-//   · 提交 / 参与一律走既有接线层（`submitDeliverable` / `applyToJob` ⇒ `fetchApiJson`，服务端派生幂等键、
-//     R107 错误面统一），**不再**自拼 `data.message`、**不再**手打 fetch。
-//   · 401 分流 / token 预检保留（行为与旧实现同源）；参与、提交失败文案**逐字**走同一链路。
+// 口径（S3b 硬约束；取代 R-9-90 的「参与面」）：
+//   · 提交目标 = **任务号 `task.tID`（= job_id）**。S2 起 `POST /api/task-progress/:identifier/submit`
+//     的 `identifier` 语义换轴为**目标 job_id**（后端 `job-service.ts:133` / `index.ts:938` 逐字）。
+//     ⇒ 旧写法「只认 `task.jID`（申请编号）」已失效：**不需要**任何申请/报名前置。
+//   · **无报名前置**（S2 `R-9-99`）：只要有任务号且任务 `open` ⇒ **直接渲染提交表单**
+//     （不再依赖 `task.jID` 是否存在；「先参与」分支与 `applyToJob` 调用已随 J2 下架删除）。
+//   · 提交一律走既有接线层（`submitDeliverable` ⇒ `fetchApiJson`，服务端派生幂等键、R107 错误面统一），
+//     **不再**自拼 `data.message`、**不再**手打 fetch。
+//   · 401 分流 / token 预检保留（行为与旧实现同源）；提交失败文案**逐字**走同一链路。
 //   · R-9-92 错误面：提交被拒且 `error.details.reason === 'ACTOR_NOT_ALLOWED'` ⇒ **精确文案**
 //     （`jobs.submitNotApplicant`）。
 //   · R-9-94 错误面（同族补齐）：另两条机读 reason 亦给精确文案 ——
-//     `JOB_APPLICATION_STATE_INVALID` ⇒ `jobs.submitNotSelected`（未被雇主选定）·
-//     `JOB_STATE_INVALID` ⇒ `jobs.submitJobStateInvalid`（任务态不允许提交）。
+//     `JOB_APPLICATION_STATE_INVALID` ⇒ `jobs.submitNotSelected` · `JOB_STATE_INVALID` ⇒ `jobs.submitJobStateInvalid`。
 //     其它 reason / 无 details ⇒ 原链路通用文案**逐字不变**。
 // ============================================================================
 const SUBMIT_REASON_I18N_KEYS = Object.freeze({
@@ -58,22 +56,21 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
   const { t } = useTranslation()
   const [infoInput, setInfoInput] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [applying, setApplying] = useState(false)
-  const [applied, setApplied] = useState(false)
   const [errorText, setErrorText] = useState('')
   const navigate = useNavigate()
   const visible = typeof open === 'boolean' ? open : Boolean(isOpen)
 
-  // 提交目标**只认** jID（application_id）；无 jID ⇒ 走「参与」面（R-9-90）
-  const hasApplication = Boolean(
-    task && task.jID !== undefined && task.jID !== null && task.jID !== '',
+  // S3b：提交目标 = **任务号 tID（job_id）**；无报名前置 ⇒ 有任务号且任务 open 即可提交。
+  const hasTaskNumber = Boolean(
+    task && task.tID !== undefined && task.tID !== null && task.tID !== '',
   )
+  const isTaskOpen = Boolean(task) && task.is_open !== false
+  const canSubmit = hasTaskNumber && isTaskOpen
 
   // 重置表单
   React.useEffect(() => {
     if (visible && task) {
       setInfoInput('')
-      setApplied(false)
       setErrorText('')
     }
   }, [visible, task])
@@ -99,10 +96,10 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
     return true
   }
 
-  // 提交交付物（仅在 hasApplication 时可达；identifier = 服务端已派生的申请号）
+  // 提交交付物（仅 canSubmit 时可达；★identifier = 任务号 tID = job_id）
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!task || !hasApplication || !infoInput.trim()) return
+    if (!task || !canSubmit || !infoInput.trim()) return
 
     const user = readStoredUser()
     if (!ensureCredential(user)) return
@@ -110,7 +107,7 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
     setSubmitting(true)
     setErrorText('')
     try {
-      await submitDeliverable(task.jID, infoInput.trim(), user)
+      await submitDeliverable(task.tID, infoInput.trim(), user)
       toast.success(t('successSubmitTask'))
       onClose()
       // 重定向到任务页面并滚动到待验证部分
@@ -139,32 +136,6 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
     }
   }
 
-  // 参与报名（无 jID 面的按钮动作；task.tID = 招工号）
-  const handleApply = async () => {
-    if (!task || applying || task.tID === undefined || task.tID === null) return
-
-    const user = readStoredUser()
-    if (!ensureCredential(user)) return
-
-    setApplying(true)
-    setErrorText('')
-    try {
-      await applyToJob(task.tID, user)
-      setApplied(true)
-    } catch (error) {
-      if (isUnauthorized(error)) {
-        toast.error(t('sessionExpired'))
-        clearAuthSession()
-        toLogin()
-        return
-      }
-      // 通用兜底：`apiErrorMessage` 已把 reason（如电量门槛）映射为四语文案，此处原样透出
-      toast.error(`${t('error')}: ${error?.message || t('error')}`)
-    } finally {
-      setApplying(false)
-    }
-  }
-
   // 如果模态框关闭或没有任务，不显示
   if (!visible || !task) return null
 
@@ -172,7 +143,7 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
     <div className="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="modal-container bg-white dark:bg-bg-dark rounded-lg shadow-xl w-full max-w-md">
         <div className="modal-header p-6 border-b border-border flex justify-between items-center">
-          <h3 className="text-xl font-bold">{hasApplication ? t('completeTask') : t('jobs.apply')}</h3>
+          <h3 className="text-xl font-bold">{canSubmit ? t('completeTask') : t('common.ended')}</h3>
           <button
             className="modal-close text-text-muted hover:text-text-primary transition-colors"
             onClick={onClose}
@@ -185,7 +156,7 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
           <h4 className="text-lg font-medium mb-4">{task.title}</h4>
           <p className="text-text-secondary mb-6">{task.note}</p>
 
-          {hasApplication ? (
+          {canSubmit ? (
             <form onSubmit={handleSubmit} data-sf-m="active-task-submit-form">
               <div className="mb-6">
                 <label htmlFor="infoInput" className="block text-sm font-medium mb-2">
@@ -251,33 +222,19 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
               </p>
             </form>
           ) : (
-            // R-9-90：无 jID ⇒ **不渲染**提交表单，改给「先参与」提示 + 参与按钮
-            <div data-sf-m="active-task-need-apply">
-              <p className="text-text-secondary mb-6">{t('jobs.applyPrompt')}</p>
+            // S3b：无任务号 / 任务非 open ⇒ 不渲染提交表单（「先参与」面已随 J2 下架删除）
+            <div data-sf-m="active-task-submit-blocked">
+              <p className="text-text-secondary mb-6">{t('jobs.submitJobStateInvalid')}</p>
 
               <div className="flex justify-end space-x-4">
                 <button
                   type="button"
                   className="btn btn-inactive"
                   onClick={onClose}
-                  disabled={applying}
                 >
                   {t('cancel')}
                 </button>
-                <button
-                  type="button"
-                  className="btn btn-proceed"
-                  data-sf-m="active-task-apply"
-                  onClick={handleApply}
-                  disabled={applying || applied}
-                >
-                  {applying ? t('submitting') : t('jobs.apply')}
-                </button>
               </div>
-
-              <p className="mt-3 text-sm text-green-600" data-sf-m="active-task-apply-status" role="status">
-                {applied ? t('jobs.applyWaiting') : ''}
-              </p>
             </div>
           )}
         </div>

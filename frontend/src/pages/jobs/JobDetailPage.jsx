@@ -5,15 +5,17 @@ import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import { contentStatus, pickLocalized } from '../../i18n-content'
 import TranslatingBadge from '../../components/i18n/TranslatingBadge'
-import { applyToJob, acceptApplication, fetchJobDetail, fetchMyApplications, submitDeliverable } from './job-api'
+import { fetchJobDetail, fetchMyApplications, submitDeliverable } from './job-api'
 import './jobs.css'
 
-// 招工线 · 详情 + 申请 / 接受 / 提交（§4.2 J2–J4）
+// 招工线 · 详情 + 提交（§4.2 J4 · ★S3b 契约同步）
 //   · 详情读口 = GET /api/task/:tID（**已注册** backend-ts/src/index.ts:404；miss ⇒ 404 R107，§3.1）
-//   · 申请    = POST /api/job/:jobId/apply（:1330）—— 键**服务端派生**（job-service.ts:180）⇒ 不传键
-//   · 接受    = POST /api/job/:jobId/accept（:1352）—— **无键面**；非雇主 ⇒ 403 AUTH_FORBIDDEN + ACTOR_NOT_ALLOWED
-//   · 提交    = POST /api/task-progress/:identifier/submit（:591，既有面）—— 键**服务端派生**（job-service.ts:133）⇒ 不传键
+//   · 提交    = POST /api/task-progress/:identifier/submit（:919，既有面）—— ★`identifier` = 目标 **`job_id`**
+//               （S2 起语义换轴，**不再是**申请编号）；键**服务端派生**（job-service.ts:133）⇒ 不传键
 //               （§4.2 J4 的另一条已注册面 = POST /api/job/:jobId/submit 别名面，`:jobId` 语义同 identifier）
+//   · ★ J2 报名（`POST /api/job/:jobId/apply`）与 J3 选定（`POST /api/job/:jobId/accept`）两写面**已下架**
+//     （恒 `410` + `details.reason` = `APPLY_RETIRED` / `ACCEPT_RETIRED`）⇒ 本页**零调用**、两面板已删。
+//   · 无报名前置 ⇒ 已登录 + 任务 open 即渲染提交表单（不再依赖「我的报名」条目）。
 // 所有失败文案一律走 R107 链（auth.js:112-156 `apiErrorMessage`）⇒ 必为**字符串**，不会出现 [object Object]。
 const ActionState = { phase: 'idle', message: '' }
 
@@ -26,14 +28,11 @@ const JobDetailPage = () => {
   const [load, setLoad] = useState({ phase: 'loading', message: '' })
   const [myApps, setMyApps] = useState([])
   const [appsState, setAppsState] = useState({ phase: 'idle', message: '' })
-  const [apply, setApply] = useState(ActionState)
-  const [accept, setAccept] = useState(ActionState)
   const [submit, setSubmit] = useState(ActionState)
-  const [applicationId, setApplicationId] = useState('')
-  const [submitTarget, setSubmitTarget] = useState('')
   const [deliverable, setDeliverable] = useState('')
-  // R-9-83 闭环：申请被「电量不足」拒绝（后端 4xx `error.details.reason` 为下述机读值时）⇒ 给出
+  // R-9-83 闭环：提交被「电量不足」拒绝（后端 4xx `error.details.reason` 为下述机读值时）⇒ 给出
   //   直达 `/profile#batt-checkin` 的可点击提示。★ 判据源 = 后端 reason；**拿不到就不显示**（不臆测）。
+  //   ★ S3b：`batt` 闸已由「报名」移到「提交」（S2）⇒ 该闭环挂到提交面（原挂报名面已随 J2 下架删除）。
   const [battBlocked, setBattBlocked] = useState(false)
 
   const BATT_BELOW_ACCEPT_REASON = 'BATT_BELOW_ACCEPT_THRESHOLD'
@@ -66,10 +65,11 @@ const JobDetailPage = () => {
     setAppsState({ phase: 'loading', message: t('loading') })
     try {
       const data = await fetchMyApplications(user)
+      // ★ S3b：`jID` 语义 = **`submission_id`**（S2 换轴）⇒ 同一任务**可多条**（同人可多次提交），
+      //   本侧栏按原样逐条展示本人提交，不再假设「一人一申请一条」。
       const items = (Array.isArray(data) ? data : []).filter((item) => String(item?.tID) === String(jobId))
       setMyApps(items)
       setAppsState({ phase: 'ok', message: items.length ? '' : t('jobs.myAppsEmpty') })
-      if (items.length) setSubmitTarget((prev) => prev || String(items[0].jID ?? ''))
     } catch (error) {
       setMyApps([])
       setAppsState({ phase: 'error', message: String(error?.message || t('error')) })
@@ -90,39 +90,24 @@ const JobDetailPage = () => {
     }
   }
 
-  const onApply = async () => {
-    if (apply.phase === 'loading') return
-    setApply({ phase: 'loading', message: t('jobs.submitting') })
-    setBattBlocked(false)
-    await run(
-      setApply,
-      () => applyToJob(jobId, user),
-      t('jobs.applyOk'),
-      () => loadMyApps(),
-      // 仅当后端回包携带 `error.details.reason` 且命中电量门槛码 ⇒ 显示闭环提示；否则清除。
-      (error) => setBattBlocked(error?.details?.reason === BATT_BELOW_ACCEPT_REASON),
-    )
-  }
-
-  const onAccept = async () => {
-    if (accept.phase === 'loading') return
-    setAccept({ phase: 'loading', message: t('jobs.submitting') })
-    await run(setAccept, () => acceptApplication(jobId, applicationId, user), t('jobs.acceptOk'))
-  }
-
   const onSubmitWork = async (event) => {
     event.preventDefault()
     if (submit.phase === 'loading') return
     setSubmit({ phase: 'loading', message: t('jobs.submitting') })
+    setBattBlocked(false)
     await run(
       setSubmit,
-      () => submitDeliverable(submitTarget, deliverable, user),
+      // ★ S3b：`identifier` = **目标 job_id**（S2 换轴；不再取「我的报名」里的申请编号）
+      () => submitDeliverable(jobId, deliverable, user),
       t('jobs.submitOk'),
       () => loadMyApps(),
       // R-9-88 ③ / R-9-94：仅当后端机读面 `details.reason` 命中下表 ⇒ 精确文案覆盖通用文案；
       //   非该 reason（拿不到 / 其它值）⇒ `run` 已写入的原链路文案**逐字不变**（onError 不改）。
+      //   R-9-83：`batt` 闸（S2 起落点 = 提交）⇒ 命中电量门槛码时给可点击闭环提示。
       (error) => {
-        const reasonKey = SUBMIT_REASON_I18N_KEYS[error?.details?.reason]
+        const reason = error?.details?.reason
+        setBattBlocked(reason === BATT_BELOW_ACCEPT_REASON)
+        const reasonKey = SUBMIT_REASON_I18N_KEYS[reason]
         if (reasonKey) setSubmit({ phase: 'error', message: t(reasonKey) })
       },
     )
@@ -170,22 +155,7 @@ const JobDetailPage = () => {
                 #{job.tID} · {t('jobs.participants', { count: job.participants_count || 0 })}
               </p>
 
-              {isAuthenticated && (
-                <div className="sf-jobs-row">
-                  <button className="sf-btn sf-jobs-btn" type="button" data-sf-m="jobs-apply" onClick={onApply} disabled={apply.phase === 'loading'}>
-                    {apply.phase === 'loading' ? t('jobs.submitting') : t('jobs.apply')}
-                  </button>
-                  <span
-                    className={`sf-jobs-status${apply.phase === 'error' ? ' sf-jobs-err' : ''}${apply.phase === 'ok' ? ' sf-jobs-ok' : ''}`}
-                    data-sf-m="jobs-apply-status"
-                    role="status"
-                  >
-                    {apply.message}
-                  </span>
-                </div>
-              )}
-
-              {/* R-9-83 闭环：被拒原因 = 电量不足 ⇒ 可点击提示直达签到区（标签复用既有文案键）。 */}
+              {/* R-9-83 闭环：提交被拒原因 = 电量不足 ⇒ 可点击提示直达签到区（标签复用既有文案键）。 */}
               {battBlocked && (
                 <Link
                   className="sf-jobs-link"
@@ -198,25 +168,15 @@ const JobDetailPage = () => {
             </div>
           )}
 
-          {/* R-9-88 ②：无本人申请 ⇒ **不渲染**提交表单，只给「先参与该任务」提示
-              （不再要求用户手打申请编号 ⇒ 杜绝「填任务编号撞别人的申请」）。 */}
-          {isAuthenticated && appsState.phase === 'ok' && myApps.length === 0 && (
-            <div className="sf-jobs-panel" data-sf-m="jobs-submit-need-apply">
-              <h2 className="sf-jobs-title">{t('jobs.submit')}</h2>
-              <p className="sf-jobs-meta">{t('jobs.submitNeedApply')}</p>
-            </div>
-          )}
-
-          {/* R-9-88 ①：提交目标**只能**由「我的报名」条目（下方 `setSubmitTarget`）带出 ⇒
-              此处仅**只读**展示当前目标（application_id），**绝无**可编辑的手输框。 */}
-          {isAuthenticated && myApps.length > 0 && (
+          {/* ★S3b ①：**无报名前置**（S2）⇒ 已登录 + 任务 open ⇒ **直出**提交表单
+              （不再依赖「我的报名」条目是否存在；「先参与」面已随 J2 下架删除）。 */}
+          {isAuthenticated && job && job.is_open !== false && (
             <form className="sf-jobs-panel" onSubmit={onSubmitWork} data-sf-m="jobs-submit-form">
               <h2 className="sf-jobs-title">{t('jobs.submit')}</h2>
               <p className="sf-jobs-meta">{t('jobs.submitNote')}</p>
-              <p className="sf-jobs-meta" data-sf-m="jobs-submit-target">
-                {t('jobs.applicationId')}
-                {submitTarget ? ` #${submitTarget}` : ' —'}
-              </p>
+              {/* ★S3b ①：提交目标 = 目标 **`job_id`**（S2 换轴）⇒ 只读展示路由/详情带的任务号，
+                  **绝无**可编辑的手输框。 */}
+              <p className="sf-jobs-meta" data-sf-m="jobs-submit-target">{`#${jobId}`}</p>
               <div className="sf-jobs-form">
                 <label className="sf-jobs-field">
                   <span className="sf-jobs-label">{t('jobs.deliverable')}</span>
@@ -244,32 +204,6 @@ const JobDetailPage = () => {
             </form>
           )}
 
-          {isAuthenticated && (
-            <div className="sf-jobs-panel" data-sf-m="jobs-accept-panel">
-              <h2 className="sf-jobs-title">{t('jobs.accept')}</h2>
-              <p className="sf-jobs-meta">{t('jobs.acceptNote')}</p>
-              <div className="sf-jobs-row">
-                <input
-                  className="sf-jobs-input"
-                  data-sf-m="jobs-input-accept"
-                  value={applicationId}
-                  onChange={(e) => setApplicationId(e.target.value)}
-                  inputMode="numeric"
-                  placeholder={t('jobs.applicationId')}
-                />
-                <button className="sf-btn sf-jobs-btn" type="button" data-sf-m="jobs-accept" onClick={onAccept} disabled={accept.phase === 'loading'}>
-                  {accept.phase === 'loading' ? t('jobs.submitting') : t('jobs.accept')}
-                </button>
-                <span
-                  className={`sf-jobs-status${accept.phase === 'error' ? ' sf-jobs-err' : ''}${accept.phase === 'ok' ? ' sf-jobs-ok' : ''}`}
-                  data-sf-m="jobs-accept-status"
-                  role="status"
-                >
-                  {accept.message}
-                </span>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
@@ -283,17 +217,15 @@ const JobDetailPage = () => {
           )}
           {myApps.map((item) => (
             <div className="sf-jobs-item" key={String(item.jID)} data-sf-m="jobs-app">
+              {/* ★S3b ②：`jID` 语义 = **`submission_id`**（S2 换轴）⇒ 逐条列出本人提交；同任务可多条。 */}
               <div className="sf-jobs-item-title">#{item.jID}</div>
               {/* P7-E 小尾巴批-β · R-7E-4（裁定：本仓禁死代码）：原 `{item.job_status || item.status || '—'}`
                   为**死分支** —— `item` 来自 `fetchMyApplications`（`GET /api/task-progress`）⇒ 后端
-                  `listTaskProgressByUser`（`backend-ts/src/database.ts:1432`）SELECT 列集**不含** `status`/`job_status`，
+                  `listTaskProgressByUser`（`backend-ts/src/database.ts:2604`）SELECT 列集**不含** `status`/`job_status`，
                   行映射 `normalizeTaskProgress`（`:652`）输出键集亦无此二者 ⇒ **两字段恒 `undefined`**
                   （`job_application.status` 虽在库（`0014_job_flow.sql:93`）但**不随本读口回包**；要展示须改后端读口，本单禁改）。
                   处置：删除死分支，保留**产品口径的空态占位** `—`（常量，不再引用任何不存在的字段）。 */}
               <div className="sf-jobs-meta">{'—'}</div>
-              <button className="sf-btn sf-jobs-btn" type="button" onClick={() => setSubmitTarget(String(item.jID ?? ''))}>
-                {t('jobs.pick')}
-              </button>
             </div>
           ))}
         </div>

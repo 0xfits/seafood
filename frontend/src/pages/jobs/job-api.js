@@ -4,22 +4,24 @@
 // 只调用**已注册**路径（真源 = backend-ts/src/index.ts 的 `app.<verb>(` 表，现取 65 行）：
 //   GET  /api/task/all                       招工列表（§1 #9【保留·改接】task→job）
 //   GET  /api/task/:tID                      招工详情（miss ⇒ 404 R107，§3.1）
-//   GET  /api/task-progress                  我的报名（worker 轴；jID = application_id）
+//   GET  /api/task-progress                  我的提交（worker 轴；★`jID` = `submission_id`）—— **同一任务可多条**
 //   GET  /api/tasklist/pending-verification  待审核队列（admin · review_tasks）
 //   GET  /api/user/asset/:uID                余额读数（5 键）
 //   POST /api/job                            发布招工 + 托管（J1）
-//   POST /api/job/:jobId/apply               申请报名（J2）
-//   POST /api/job/:jobId/accept              雇主选定（J3）
-//   POST /api/task-progress/:identifier/submit  提交交付物（J4 · 既有面）
-//   POST /api/job/:jobId/submit              提交交付物（J4 · 别名面，`:jobId` 语义 = identifier）
+//   POST /api/task-progress/:identifier/submit  提交交付物（J4 · 既有面）—— ★`identifier` = 目标 **`job_id`**
+//   POST /api/job/:jobId/submit              提交交付物（J4 · 别名面，`:jobId` 语义 = identifier = **`job_id`**）
 //   POST /api/job/:jobId/review              审核（J5 approve ⇒ settle / approved:false ⇒ refund）
 //
+// ★ S3b（S2 契约同步 · 前端侧）：`POST /api/job/:jobId/apply`（J2 报名）与 `POST /api/job/:jobId/accept`
+//   （J3 选定）两**写面已下架**（后端恒 `410` + `details.reason` = `APPLY_RETIRED` / `ACCEPT_RETIRED`）
+//   ⇒ 本层**删除** `applyToJob` / `acceptApplication` 两接线函数，前端**零调用**（与 `shard/redeem` 同先例）。
+//   连带口径：提交**无报名前置**（任何已登录 actor 可提交，同人可多次）；`batt` 闸由「报名」移到「提交」。
 // ★ 幂等键**逐面声明**（后端零改动；行号 = 现取真源，逐面依据见报告 §幂等键逐面声明）：
 //   ① 发布招工 POST /api/job            ⇒ **前端提供** `cli:` 键 —— 服务端 fail-loud（缺键 ⇒ 400
 //        `LEDGER_IDEMPOTENCY_KEY_REQUIRED`；`backend-ts/src/job-funds-service.ts:84`
 //        `resolveJobCreateKeyRequired`）⇒ 本层用 tracker 保证「同一次用户操作重试 ⇒ 同一个键」
-//   ② 申请 POST /api/job/:jobId/apply   ⇒ **服务端派生**（`backend-ts/src/job-service.ts:180`）⇒ 前端**不传键**
-//   ③ 接受 POST /api/job/:jobId/accept  ⇒ **无键面**（业务状态机 + 部分唯一索引 `uniq_job_application_accepted`）
+//   ② 申请 POST /api/job/:jobId/apply   ⇒ ★**已下架**（恒 `410` + `details.reason='APPLY_RETIRED'`）⇒ 本层**零接线**（无键面）
+//   ③ 接受 POST /api/job/:jobId/accept  ⇒ ★**已下架**（恒 `410` + `details.reason='ACCEPT_RETIRED'`）⇒ 本层**零接线**（无键面）
 //   ④ 提交 POST /api/task-progress/:identifier/submit ⇒ **服务端派生**（`backend-ts/src/job-service.ts:133`）⇒ 不传键
 //   ⑤ 审核 POST /api/job/:jobId/review  ⇒ **服务端派生**事件根键 `biz:job:settle:<job_id>`
 //        （`backend-ts/migrations/0013_job.sql:592`）⇒ 不传键
@@ -54,17 +56,11 @@ export const fetchUserAsset = (uID, user) => getJson(`/api/user/asset/${uID}`, u
 export const publishJob = ({ cid, reward, title, description, createKey, user }) =>
   postJson('/api/job', { cid, reward, title, description, create_key: createKey }, user)
 
-/** J2 申请报名。键 = 服务端派生（见文件头 ②）⇒ 刻意不传 `create_key`。 */
-export const applyToJob = (jobId, user) => postJson(`/api/job/${jobId}/apply`, {}, user)
-
-/** J3 雇主选定打工人。无键面（见文件头 ③）。 */
-export const acceptApplication = (jobId, applicationId, user) =>
-  postJson(`/api/job/${jobId}/accept`, { application_id: applicationId }, user)
-
 /**
- * J4 提交交付物（既有已注册面）。`identifier` = `application_id`（§4.4-16 路由入口语义）。
+ * J4 提交交付物（既有已注册面）。★ S3b：`identifier` = 目标 **`job_id`**（S2 起语义换轴；**不再是**申请编号）。
  * 键 = 服务端派生（见文件头 ④）⇒ 不传；同实体异内容 ⇒ 服务端 `409 LEDGER_IDEMPOTENCY_CONFLICT`
  * （§2.4 S10 的条件触发面：需「同实体 + 改内容」时才要补 `create_key`）。
+ * 口径：**无报名前置**、同人可多次提交（每次落一条 `job_submission`）。
  */
 export const submitDeliverable = (identifier, deliverable, user) =>
   postJson(`/api/task-progress/${identifier}/submit`, { info_input: deliverable }, user)
