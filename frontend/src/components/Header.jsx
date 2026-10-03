@@ -113,11 +113,12 @@ const Header = () => {
   }
 
   // 菜单项
+  // R-9-84：「我的」入口从左侧 nav 移出（改到右上角，见 buildPath('profile') 入口），
+  // 路由与 ProtectedRoute 一字不动；左侧 nav 仅存 奖励/任务/碎片（+ 管理后台 仅管理员）。
   const menuItems = [
     { path: 'reward', label: t('reward') },
     { path: 'task', label: t('task') },
     { path: 'shard', label: t('shard') },
-    ...(isAuthenticated ? [{ path: 'profile', label: t('profile') }] : []),
     ...(isAuthenticated && isAdmin ? [{ path: adminPath, label: t('admin_panel'), absolute: true }] : [])
   ]
 
@@ -130,6 +131,12 @@ const Header = () => {
 
     return buildLangPath(`/${path}`, getCurrentLang())
   }
+
+  // 钱包地址缩写（R-9-84：右上角「我的」入口文案 = 地址缩写，非「个人资料」）
+  // 数据派生沿用既有形态（0x + 6 位 + `...` + 4 位），非文案 ⇒ 零 i18n 新增键。
+  const walletShort = currentUser?.EVM
+    ? `${currentUser.EVM.slice(0, 6)}...${currentUser.EVM.slice(-4)}`
+    : ''
 
   // 语言对应国旗映射
   const flagByLang = {
@@ -228,16 +235,28 @@ const Header = () => {
             >
               {isDark ? <Moon size={18} /> : <Sun size={18} />}
             </button>
-            
+
+            {/* R-9-84：右上角「我的」入口（变体 A：主题切换之后、用户菜单之前）
+                文案 = 钱包地址缩写（既有派生）；仅登录后渲染；href 走 buildPath('profile') 以保留语言前缀 */}
+            {isAuthenticated && (
+              <Link
+                to={buildPath('profile')}
+                className={`flex items-center space-x-1 nav-link ${location.pathname.includes('profile') ? 'active' : ''}`}
+                data-sf-m="header-profile-entry"
+                aria-label={walletShort}
+                title={walletShort}
+              >
+                <User size={18} />
+                <span className="truncate max-w-[120px]">{walletShort}</span>
+              </Link>
+            )}
+
             {/* 用户菜单 */}
             {isAuthenticated ? (
               <HoverMenu
                 trigger={
-                  <button className="flex items-center space-x-1 nav-link">
+                  <button className="flex items-center space-x-1 nav-link" data-sf-m="header-user-menu">
                     <User size={18} />
-                    <span className="truncate max-w-[120px]">
-                      {currentUser?.EVM ? `${currentUser.EVM.slice(0, 6)}...${currentUser.EVM.slice(-4)}` : ''}
-                    </span>
                     <ChevronDown size={16} />
                   </button>
                 }
@@ -257,11 +276,15 @@ const Header = () => {
                   </div>
                 </div>
                 
+                {/* R-9-84：移除重复的「个人资料」下拉项（入口已上移到右上角，文案 = 地址缩写） */}
+                {/* R-9-83：直达电量 + 签到区（锚点 `#batt-checkin`），提升签到入口可发现性。
+                    标签复用既有文案键（签到 + 电量），不新增顶层导航项、不新增 i18n 键。 */}
                 <Link
-                  to={buildPath('profile')}
+                  to={`${buildPath('profile')}#batt-checkin`}
                   className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                  data-sf-m="header-batt-checkin"
                 >
-                  {t('profile')}
+                  {t('checkinPanel.checkinButton')} · {t('battCard.title')}
                 </Link>
                 <button
                   onClick={handleLogout}
@@ -293,6 +316,19 @@ const Header = () => {
           
           {/* 移动端菜单按钮 */}
           <div className="md:hidden flex items-center">
+            {/* R-9-84：汉堡左侧同款「我的」入口（仅登录）——窄屏仅显图标 + aria-label（地址缩写） */}
+            {isAuthenticated && (
+              <Link
+                to={buildPath('profile')}
+                className={`flex items-center space-x-1 nav-link ${location.pathname.includes('profile') ? 'active' : ''}`}
+                data-sf-m="header-profile-entry-mobile"
+                aria-label={walletShort}
+                title={walletShort}
+              >
+                <User size={18} />
+                <span className="hidden sm:inline truncate max-w-[100px]">{walletShort}</span>
+              </Link>
+            )}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
