@@ -1416,6 +1416,45 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.296 **★ 生产报障二：Kevin 提交表单 ⇒ 403「当前账号无权执行该操作」· 我定位 = **两处真缺陷 + 一处 HIGH 隐私面**（提交面要手输 `application_id` 且**编号空间撞车** ⇒ 撞到他人的申请）· 我立 `R-9-86/87/88` · 派两单**（2026-10-03）
+
+**A. 报障**：Kevin「重新登录账号，发现在完成任务的时候依旧无法提交表单，提示：**错误: 当前账号无权执行该操作。**」
+
+**B. 文案与抛点（现取）**：文案 = **`auth.err.AUTH_FORBIDDEN` = 「当前账号无权执行该操作。」**（`frontend/src/locales/zh.json:75`；hk `:75` 同族）；抛点 = **`job-service.ts:141-144`**：`if (resolved.ownership !== 'self') return fail(403, 'AUTH_FORBIDDEN', { reason: 'ACTOR_NOT_ALLOWED', ref_type: 'job_application', ref_id: … })` —— 只在 **`resolveJobApplication` 解到「别人的」申请**时出现。
+
+**C. ★ 数据现取（`uid 970213` / `evm …09b0`）**：
+- **`job_application` 里该 uid 的申请 = 0 条** · `job_submission` = **0 条** · 非任何 job 的雇主 · **近 1 天新增申请/提交 = 0**（⇒ 他的操作在库里**零痕迹**）
+- 全库：**20 jobs / 17 apps / 13 subs** · **全库无 `status='accepted'` 的 job**（accepted 的申请其 job 全为 `settled`/`rejected`/`submitted`）· `open` 的 job = **24 / 22 / 13 / 12 / 2**
+- **★★ 编号空间撞车坐实**：**`application_id = 24`（job 23，worker **12**）** 与 **`job_id = 24`（employer 1，`open`）** **同时存在** ⇒ 传 `24` 时两个空间都有候选
+- 该钱包**无重复用户行**（同一 `evm` 仅 1 行）⇒ 排除「重登造新 uid」
+
+**D. ★ 链条（逐环现取）**：
+| 环 | 读数 |
+|---|---|
+| 前端读口 | `job-api.js:44` `fetchMyApplications` → `GET /api/task-progress` → `database.ts:2605` `listTaskProgressByUser` **`WHERE a.worker_uid = ${uID}`** ⇒ **过滤正确**（对 Kevin = 空列表 ⇒ 未泄漏） |
+| 前端提交点 | `job-api.js:70` `submitDeliverable(identifier, …)` 注释明写「**`identifier` = `application_id`**」✓；`JobDetailPage.jsx:106` 用 `submitTarget`；`:268` 列表按钮 `setSubmitTarget(item.jID)` ✓（正确路径） |
+| ★★ **手输框** | `JobDetailPage.jsx:187-190` **一个自由输入框，`value={submitTarget}`、placeholder = `jobs.applicationId`** ⇒ **要用户手打 `application_id`**；而页面显著位置显示的是 **`#{job.tID}`（任务编号，`:148`）** ⇒ ★ **用户必然把「任务编号」当「申请编号」填** ⇒ 填 `24` ⇒ 撞到 app 24（uid 12）⇒ **403** ✓✓✓ |
+| 后端解析 | `database.ts:3268-3290` `resolveJobApplication`：**`WHERE a.application_id = ${identifier} OR a.job_id = ${identifier}`** + **`ORDER BY (a.application_id = ${identifier}) DESC, (a.worker_uid = ${workerUid}) DESC, a.application_id DESC LIMIT 1`** ⇒ ★★ **「编号撞上的他人申请」排在本人的申请之前** ⇒ 即使传的是 `job_id`（容错路径）也会**假拒 403**（真缺陷） |
+| 详情读口 | `database.ts:2576` `getTaskProgress` **`WHERE a.application_id = ${jID}`** ✓ 严格按 application_id |
+| 提交路由 | `index.ts:905-950`：`workerUid = actor.user.uID` · fast path `ensureOwnedTaskProgress(getTaskProgress(identifier), uid)` ⇒ `applicationHint = ownedProgress.jID`（= **application_id**，与声明一致 ✓，**我此前的「语义错配」怀疑已排除**） |
+
+**E. ★★ 第三处（HIGH · 隐私面，与本次报障同族、独立成立）**：**`GET /api/task-progress/:jID`（`index.ts:884-900`）连 `requireActor` 都没有、也无归属校验** ⇒ **任何人（含未登录）只要给一个 `application_id` 即可读取该申请的任务进度详情**，而该读口的 `info_input` 字段 = **交付物正文**（`getTaskProgress` 的 `s.deliverable AS info_input`）⇒ **他人交付物可被未授权读取** ⇒ **数据泄漏（HIGH）**。
+
+**F. 我的裁定**：
+- **`R-9-86`（隐私面 · 必修）**：`GET /api/task-progress/:jID` **必须**加 `requireActor` + 归属校验；**非本人 ⇒ `404`**（与既有「miss ⇒ 404 R107」同形，**不泄漏存在性**；不用 403，避免与提交面的 403 混淆）；★ 判据：未登录 ⇒ `401`；已登录但非本人 ⇒ `404`；本人 ⇒ `200`。
+- **`R-9-87`（撞号假拒 · 必修）**：`resolveJobApplication` 的排序**必须**把「本人」置于**最高优先键** ⇒ `ORDER BY (a.worker_uid = ${workerUid}) DESC, (a.application_id = ${identifier}) DESC, a.application_id DESC`；★ 判据（可判负）：构造「`application_id = X` 属他人 ∧ `job_id = X` 属本人」⇒ 必须解到**本人**那条；**去该优先键 ⇒ 必红**。
+- **`R-9-88`（提交面可用性 · 必修）**：**不得再让用户手输 `application_id`** ⇒ ① **移除手输框**（改为只读展示 / 或直接删掉）；② 提交**只**由「我的报名」列表条目按钮带出（已存在 `:268`）；③ **无本人申请时不渲染提交表单**，改给「**先参与该任务**」的提示；④ 错误面区分：非本人申请 ⇒ **不得再落通用「当前账号无权执行该操作」**，改用精确文案（复用/新增 `jobs.*` 键，四语齐）；★ 标「一句话可改」。
+- **`R-9-89`（门面）**：本批**不加新路由**（注册点不变）；若新增文案键 ⇒ **四语齐平 + i18n 计数前推**；★ 改 `index.ts`/`database.ts` 的提交/详情面 ⇒ **必须复跑全量门**（含 `p8-s7`/`p8-s8`/`p8-s11` 带实例），**不得只跑同名门**（`R-9-97⑥` 教训）。
+
+**G. 已派两单（文件面不相交 ⇒ 并行）**：
+- **后端单**（`backend-ts/src/index.ts` + `database.ts`）：`R-9-86`（鉴权+归属 ⇒ 401/404/200 三臂真 HTTP）+ `R-9-87`（排序优先本人 + 判负）+ 自证（真链路/受控实例）
+- **前端单**（`frontend/src/pages/jobs/JobDetailPage.jsx` + `job-api.js` + 必要时四语）：`R-9-88`（去手输框 + 无申请不给表单 + 精确文案）
+★ 与在跑的 `R-9-85`（合并菜单，只碰 `Header.jsx`）**面不相交** ✓
+
+**H. 状态**：DB **0040** · 生产代码 `8e21d9d` · 本批为**生产缺陷优先插入**（含一处 HIGH 隐私面）。
+
+---
+
 ### 5.295 **Kevin 定档：右上角「左右两个菜单」合并为一个（R-9-85）· 菜单按钮文案 = 钱包地址缩写（既有）· 我裁下拉保留既有各项 + 恢复「个人资料」· 派单**（2026-10-03）
 
 **A. Kevin 原话**：「左右两个菜单，应该合并为一个，**菜单按钮的文案就用钱包地址（缩写版）**就可以。」+ 附 `image_e1210c.png`。
@@ -6261,6 +6300,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.296 | 2026-10-03 | **★生产报障二：Kevin 提交表单 ⇒ 403「当前账号无权执行该操作」· 我定位 = 两处真缺陷 + 一处 HIGH 隐私面（提交面要手输 application_id 且编号空间撞车 ⇒ 撞到他人的申请）· 我立 R-9-86/87/88 · 派两单**。**B.** 文案 = `auth.err.AUTH_FORBIDDEN`（zh.json:75）；抛点 = `job-service.ts:141-144`（`ownership !== 'self'`）。**C. 数据**：uid 970213 的**申请 0 条 / 提交 0 条 / 近 1 天新增 0**；全库 20 jobs/17 apps/13 subs；**无 accepted 的 job**；★**`application_id=24`(job 23, uid 12) 与 `job_id=24` 同时存在 ⇒ 编号空间撞车**；该 evm 无重复用户行。**D. 链条**：`listTaskProgressByUser` `WHERE worker_uid=uid` ✓ 正确（未泄漏）；`submitDeliverable` 注释 = application_id ✓；★★`JobDetailPage.jsx:187-190` **自由手输框**（placeholder=jobs.applicationId）而页面显著显示 **`#{job.tID}`（任务编号）** ⇒ 用户必然填错 ⇒ 填 24 撞到 app 24(uid 12) ⇒ 403；★★`resolveJobApplication`（`database.ts:3268-3290`）`WHERE application_id=X OR job_id=X` + **`ORDER BY (application_id=X) DESC, (worker_uid=uid) DESC`** ⇒ **他人撞号申请排在本人的前面 ⇒ 即使传 job_id 也假拒 403**；`getTaskProgress` `WHERE application_id=jID` ✓；提交路由 `applicationHint = ownedProgress.jID`（=application_id，**我此前「语义错配」怀疑已排除**）。**E. ★★HIGH 隐私面**：`GET /api/task-progress/:jID`（index.ts:884-900）**无 requireActor、无归属校验** ⇒ 任何人（含未登录）可读任意 application_id 的进度详情，其中 `info_input` = **交付物正文** ⇒ 他人交付物可被未授权读取。**F. 裁定**：`R-9-86` 该口必须加 requireActor + 归属校验，**非本人 ⇒ 404**（不泄漏存在性；未登录 401 / 非本人 404 / 本人 200）· `R-9-87` `resolveJobApplication` 排序**必须**把本人提为**第 1 键**（判据 = 构造「app_id=X 属他人 ∧ job_id=X 属本人」⇒ 必须解到本人；去该键 ⇒ 必红）· `R-9-88` 前端**不得再手输 application_id**（移除输入框；只由「我的报名」按钮带出；无本人申请 ⇒ 不渲染表单，给「先参与该任务」提示；错误面不得再用通用「无权执行该操作」）· `R-9-89` 不加新路由；新增文案键须四语齐平 + 计数前推；★改 index.ts/database.ts ⇒ **必须复跑全量门**（含带实例）。**G.** 派两单（后端 / 前端，面不相交；与在跑的 R-9-85 不撞）。 |
 | v0.295 | 2026-10-03 | **Kevin 定档：右上角「左右两个菜单」合并为一个（R-9-85）· 菜单按钮文案 = 钱包地址缩写（既有）· 我裁下拉保留既有各项 + 恢复「个人资料」· 派单**。**B.** 我 vision 现读 `image_e1210c.png`：左 = 我 R-9-84 新增的 `User`(橙) + `0x59f9...09b0`(橙) 药丸；右 = `User`(深灰) + `∨`（既有用户菜单）⇒ 视觉上就是两个菜单；★**我 R-9-84 的取舍需修正**（当时为避免「相邻两处同文案」把地址从触发器移走，反而多出一个入口；正解 = 合并为一个控件）。**C. 我裁**：① 删右上角独立 Link ② 触发器改为唯一按钮 = `User` + 地址缩写 + `ChevronDown`（仍 HoverMenu）③ 下拉**恢复「个人资料」**（按钮不再直达）+ 保留 积分 / 电量与签到 / 退出登录；**不含管理后台**（R-9-84 反向断言不动）；★标「一句话可改」（可去掉与个人资料重复的「电量与签到」条）④ 移动端同步为单一入口 ⑤ 未登录不渲染 / 零 locale 变更 / 六类泄漏 0 / `buildPath` 口径不动 ⑥ 路由与 ProtectedRoute 一字不动。**D.** 派合并菜单单（面 = `Header.jsx` + 同步 r9-84 测试；自证含「右上角恰一个控件」兜点计数 = 1 + 地址缩写形态 + 下拉各项 + 不含管理后台 + 未登录不渲染 + 四语 href + build 0 + locales 零变更）。 |
 | v0.294 | 2026-10-03 | **双线质检回执（线2 PASS / 线1 PASS_WITH_ISSUES）⇒ 十一门带实例全绿 ⇒ push 上线（16 commit · HEAD e79da9a）⇒ 生产终验全绿**。线2：库面逐项吻合（39/0040 · checksum 逐字 · 56/56 · checkin 2 行逐字未动 ⇄ invite_signup 54 行 · 全 delta 30 无人触顶 · dup 0 · 剩余目标 0 · Kevin batt=30 仅 1 条痕迹）· 门槛判定 acceptThresholdBatt=9 且真 HTTP /api/batt ⇒ 200 batt=30 canAccept=true · **8 处 HTTP 腿红全转真（s7 59/59 · s8 92/92 · s10 49/49 · s11 87/87）** · 判负 2 条成立（删幂等闸 ⇒ 撞红 + 实害 30→60×56；KM1/KM2 退回绝对口径 ⇒ 真红）· 它上报判据方向性（放水突变漏检 ⇒ 只能取 Delta 等式）。线1：四件前端全过 · 判负 9 处全转红可复原 · 假绿陷阱 = 真链非自检串 · 它上报两线共用端口未分配 ⇒ 我派单疏漏（第 12 次认账）。生产终验：health 0040 · 新面三项 401 · 既有面零回归 · favicon 三件齐（SVG sha256 4dc72e77… 逐字）· bundle 逐字对拍 4203677d…（450,781 B）· 新件计数齐 · 我探错 /favicon.svg 路径 + 两次瞬时 000（重试成功）。 |
 | v0.293 | 2026-10-03 | **★我亲跑十一门全量（独立复核）= 7 门全绿 rc0 · 4 门红点 8 处全为 HTTP 腿 · 入库 4 commit · 派统一独立质检双线**。**A.** 我亲跑：`s2 44/44`·`s3 45/45`·`s3b 38/38`·`s4 79/79`·`s5 117/117`·`s6 64/64`·`s9 100/100` 全 **rc0**；`s7 56/59`·`s8 89/92`·`s10 48/49`·`s11 86/87` ⇒ ★我逐项现取核验 **8 处红全为 HTTP 腿**（`fetch failed`/`-1`：s7 G8/G9/G10 · s8 H5/H6/H7 · s10 K8 · s11 K10）⇒ **无冻结面/行为面红 ⇒ §5.288 认账疏漏已补**；与实现方读数逐字一致；前端我另跑 `vitest` 4 failed/36 passed（7/320）**与基线逐字一致 ⇒ 零新增** + build 0。**B.** 入库 4 commit（不 push）：`9346a3c` D1 补丁（机读面 + 闭环）· `b12d894` batt 点阵条 + 签到闭环 · `3d69ccd` 右上角入口 · `c583bad` 门前推 + p8-s9 判据前提；残留空、未用 `git add -A`。**C.** 派统一质检双线（前端四件+门面 / 库面+真 HTTP 带实例；均判负 + 查假绿 + verdict）。**D.** DB 0040 · 本地未推 16 commit · 两线 PASS 后 push 一次部署收官。 |
