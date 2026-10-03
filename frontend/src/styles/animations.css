@@ -136,3 +136,26 @@
     transform: none;
   }
 }
+
+/* ===== R-9-82 · 电量点阵条「轻微呼吸光」（仅追加：不改既有 keyframes / 既有 @media 块） =====
+   低电量 = 读口 `canAccept === false` 时，全部**已点亮**点（实点 + 半电点）叠加。
+   发光色取主题 token `--sf-btna-bg`（与实点填充同源）。 */
+@keyframes sf-batt-breathe {
+  0%, 100% {
+    box-shadow: 0 0 0 0 var(--sf-btna-bg);
+  }
+  50% {
+    box-shadow: 0 0 5px 1px var(--sf-btna-bg);
+  }
+}
+
+.sf-batt-dot--glow {
+  animation: sf-batt-breathe 1.8s ease-in-out infinite;
+}
+
+/* 降级：偏好减弱动效 ⇒ 关闭呼吸光（动画规范同既有 `prefers-reduced-motion` 惯例）。 */
+@media (prefers-reduced-motion: reduce) {
+  .sf-batt-dot--glow {
+    animation: none;
+  }
+}

@@ -32,6 +32,11 @@ const JobDetailPage = () => {
   const [applicationId, setApplicationId] = useState('')
   const [submitTarget, setSubmitTarget] = useState('')
   const [deliverable, setDeliverable] = useState('')
+  // R-9-83 闭环：申请被「电量不足」拒绝（后端 4xx `error.details.reason` 为下述机读值时）⇒ 给出
+  //   直达 `/profile#batt-checkin` 的可点击提示。★ 判据源 = 后端 reason；**拿不到就不显示**（不臆测）。
+  const [battBlocked, setBattBlocked] = useState(false)
+
+  const BATT_BELOW_ACCEPT_REASON = 'BATT_BELOW_ACCEPT_THRESHOLD'
 
   const loadDetail = useCallback(async () => {
     setLoad({ phase: 'loading', message: t('loading') })
@@ -63,20 +68,29 @@ const JobDetailPage = () => {
   useEffect(() => { loadDetail() }, [loadDetail])
   useEffect(() => { loadMyApps() }, [loadMyApps])
 
-  const run = async (setter, fn, okMessage, after) => {
+  const run = async (setter, fn, okMessage, after, onError) => {
     try {
       const data = await fn()
       setter({ phase: 'ok', message: okMessage })
       if (after) after(data)
     } catch (error) {
       setter({ phase: 'error', message: String(error?.message || t('error')) })
+      if (onError) onError(error)
     }
   }
 
   const onApply = async () => {
     if (apply.phase === 'loading') return
     setApply({ phase: 'loading', message: t('jobs.submitting') })
-    await run(setApply, () => applyToJob(jobId, user), t('jobs.applyOk'), () => loadMyApps())
+    setBattBlocked(false)
+    await run(
+      setApply,
+      () => applyToJob(jobId, user),
+      t('jobs.applyOk'),
+      () => loadMyApps(),
+      // 仅当后端回包携带 `error.details.reason` 且命中电量门槛码 ⇒ 显示闭环提示；否则清除。
+      (error) => setBattBlocked(error?.details?.reason === BATT_BELOW_ACCEPT_REASON),
+    )
   }
 
   const onAccept = async () => {
@@ -147,6 +161,17 @@ const JobDetailPage = () => {
                     {apply.message}
                   </span>
                 </div>
+              )}
+
+              {/* R-9-83 闭环：被拒原因 = 电量不足 ⇒ 可点击提示直达签到区（标签复用既有文案键）。 */}
+              {battBlocked && (
+                <Link
+                  className="sf-jobs-link"
+                  data-sf-m="jobs-batt-hint"
+                  to={`${buildLocalizedPath(lang, '/profile')}#batt-checkin`}
+                >
+                  {t('battCard.insufficient')} · {t('checkinPanel.checkinButton')}
+                </Link>
               )}
             </div>
           )}
