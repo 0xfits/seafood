@@ -8,8 +8,8 @@
  * 出口：全绿 exit 0；任一 FAIL ⇒ exit 1。产物：backend-ts/.p8s10-artifacts/p8s10-<RUN>/gate.json
  *
  * ★ A–H 静态面 **零 DB / 零网络**（只 import 纯函数 + 读源码 / 迁移 / locale 文本）。
- * ★ K 库面 leg 转真 checks（连库 + HTTP · `0035`–`0038` 已 apply）：
- *   · 结构面活体只读（kind 24 / `schema_migration` 37·0038）；
+ * ★ K 库面 leg 转真 checks（连库 + HTTP · `0035`–`0039` 已 apply）：
+ *   · 结构面活体只读（kind 24 / `schema_migration` 38·0039）；
  *   · 注册腿 `DatabaseService.grantSignupInviteBatt(uid, tx)` 事务内真跑；
  *   · 首任务腿 `DatabaseService.settleInviteFirstTaskReward({jobIdRaw}, tx)` 事务内真跑（`R-9-68` ex 注入）；
  *   · 结算计划 `planJobSettlement(input, ex)` 只读真跑（`M=6` 全 6 层 / `M=0` ⇒ `fee_credit_uid=-1`）；
@@ -18,7 +18,7 @@
  *   `pending_apply[]` = **0**。
  *
  * 判据（每条可判负 + 自证负对照）：
- *   A  注册点 **87** 逐 verb（`get 36 / post 48 / put 0 / patch 1 / delete 2`）+ 两腿路由在场；负对照（缩进注入 ⇒ 88）
+ *   A  注册点 **88** 逐 verb（`get 37 / post 48 / put 0 / patch 1 / delete 2`）+ 两腿路由在场；负对照（缩进注入 ⇒ 88）
  *   B  6 层权重向量 `[U1,U2,U3,D1,D2,D3]`（`layer_span = 6` · 方向 / 层距 / 权值逐位）
  *   C  距离加权（越近越高）· 层内均分（第二级最大余数法 + 层内 tie-break `(r DESC, uid ASC)`）· `Σ x == pool` 构造性守恒
  *   D  Worker **结构性剔除**（名单不含 Worker）+ 名单含 Worker ⇒ 落账前硬拒（500 `LEDGER_RECONCILE_MISMATCH` / `COMMISSION_CHAIN_ASSERTION_VIOLATED`）
@@ -82,14 +82,14 @@ const countVerb = (text: string, verb: string): number => (text.match(new RegExp
 const countOf = (hay: string, re: RegExp): number => (hay.match(re) || []).length;
 const B = (v: number | string): bigint => BigInt(v);
 
-const REG_POINTS_FROZEN = 87;
-const PER_VERB_FROZEN: Record<string, number> = { get: 36, post: 48, put: 0, patch: 1, delete: 2 };
+const REG_POINTS_FROZEN = 88;
+const PER_VERB_FROZEN: Record<string, number> = { get: 37, post: 48, put: 0, patch: 1, delete: 2 };
 const W6 = [2600, 1700, 700, 2600, 1700, 700];   // 对称 `[U1,U2,U3,D1,D2,D3]`（Σ = 10000）
 const WORKER = '1000';
 const NEW_KIND = 'invite_first_task_reward';
 
 // ============================================================================
-// A · 注册点 87 逐 verb + 两腿路由在场
+// A · 注册点 88 逐 verb + 两腿路由在场
 // ============================================================================
 {
   const perVerb = { get: countVerb(INDEX_TS, 'get'), post: countVerb(INDEX_TS, 'post'), put: countVerb(INDEX_TS, 'put'), patch: countVerb(INDEX_TS, 'patch'), delete: countVerb(INDEX_TS, 'delete') };
@@ -105,7 +105,7 @@ const NEW_KIND = 'invite_first_task_reward';
   const INJ = "  app.get('/api/p8s10-negsurface', (_req, res) => res.status(410).json({ ok: false }));\n";
   t('A5', 'registration', countRoutes(INDEX_TS + INJ) === REG_POINTS_FROZEN + 1,
     `★ 负对照：缩进注入一条路由 ⇒ 计数 ${REG_POINTS_FROZEN}→${REG_POINTS_FROZEN + 1}`, JSON.stringify({ injected: countRoutes(INDEX_TS + INJ) }));
-  selfTest('A1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 87 条路由的文本喂入「注册点 = 87」谓词 ⇒ 必须转红');
+  selfTest('A1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 88 条路由的文本喂入「注册点 = 88」谓词 ⇒ 必须转红');
 }
 
 // ============================================================================
@@ -325,8 +325,8 @@ const strOf = (v: unknown): string => (v === null || v === undefined ? '' : Stri
       JSON.stringify(live.live_kind_enum));
     const sm = (await readQuery<{ n: string; mx: string | null }>(`SELECT count(*)::int AS n, max(version) AS mx FROM public.schema_migration`))[0];
     dbConnections += 1;
-    kg('K2', Number(sm.n) === 37 && String(sm.mx) === '0038',
-      '★ `schema_migration` = **37 行** · `max(version)` = **0038**（`0035`→…→`0038` 已 apply）', JSON.stringify(sm));
+    kg('K2', Number(sm.n) === 38 && String(sm.mx) === '0039',
+      '★ `schema_migration` = **38 行** · `max(version)` = **0039**（`0035`→…→`0039` 已 apply · 8⑥ 审计台权限键）', JSON.stringify(sm));
 
     // ---------------- K3–K7 · 行为真读数（事务内 + 末尾 ROLLBACK） ----------------
     const sp = async <T>(tx: TxClient, name: string, fn: () => Promise<T>): Promise<{ ok: boolean; v?: T; sqlstate?: string; message?: string; reason?: string | null }> => {

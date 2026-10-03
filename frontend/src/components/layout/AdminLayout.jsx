@@ -18,6 +18,7 @@ import {
   Menu,
   X,
   Type,
+  ScrollText,
   LogOut
 } from 'lucide-react'
 import { Button } from '../ui'
@@ -133,6 +134,13 @@ const AdminLayout = () => {
       path: '/dashboard/site-text',
       description: t('adminNav.siteTextDesc'),
       requiredPermission: 'manage_settings',
+    },
+    {
+      title: t('adminNav.auditConsole'),
+      icon: ScrollText,
+      path: '/dashboard/audit-console',
+      description: t('adminNav.auditConsoleDesc'),
+      requiredPermission: 'manage_audit',
     }
   ]
 

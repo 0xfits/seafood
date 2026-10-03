@@ -35,6 +35,7 @@ import CurrencyReviewPage from './pages/admin/CurrencyReviewPage'
 import ListingReviewPage from './pages/admin/ListingReviewPage'
 import ArbitrationReviewPage from './pages/admin/ArbitrationReviewPage'
 import SiteTextPage from './pages/admin/SiteTextPage'
+import AuditConsolePage from './pages/admin/AuditConsolePage'
 
 // 布局组件
 import AppShell from './shell/AppShell'
@@ -271,6 +272,7 @@ function App() {
           <Route path="arbitration-review" element={<ProtectedRoute adminOnly={true} requiredPermission="review_tasks"><ArbitrationReviewPage /></ProtectedRoute>} />
           {/* P9①（spec §27.2/§26.6）：站点文案页（角色文案 + 站点标语 + 数值项），闸 = manage_settings */}
           <Route path="site-text" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_settings"><SiteTextPage /></ProtectedRoute>} />
+          <Route path="audit-console" element={<ProtectedRoute adminOnly={true} requiredPermission="manage_audit"><AuditConsolePage /></ProtectedRoute>} />
         </Route>
       
       {/* 显式语言壳路由：/en/*、/hk/*、/vn/*、/zh/*（顺序即 SUPPORTED_LANGS；zh 也保留显式壳，配合自愈层把 /zh → /） */}

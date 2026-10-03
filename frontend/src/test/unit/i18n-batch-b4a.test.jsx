@@ -105,7 +105,7 @@ describe('P6-I18N-LIT-B4a · 四语 locale 键集（6 命名空间 144 键 + 逐
     v && typeof v === 'object' && !Array.isArray(v) ? keyPaths(v, `${prefix}${k}.`) : [`${prefix}${k}`]
   )).sort()
   // 本批新增命名空间 → 键数（逐命名空间硬断言，防「键名写错但四语同步错」）
-  const NEW_NS = { adminNav: 28, adminLayout: 5, adminCommon: 28, dashPage: 58, adminTasks: 14, adminRewards: 42 } // **期望订正（批 8② 费率+权重矩阵）**：`adminNav` 16⇒20（+4 键：`feeRate` / `weightMatrix` 两条菜单项 + 两条路由面文案）；**批 8④ 再订正**：`adminNav` 20⇒22（+2 键：`currencyReview` / `currencyReviewDesc`）；**P9① 再订正**：`adminNav` 26⇒28（+2 键：`siteText` / `siteTextDesc`，⇔ 后台「站点文案」菜单；沿 `R-8-22`）
+  const NEW_NS = { adminNav: 30, adminLayout: 5, adminCommon: 28, dashPage: 58, adminTasks: 14, adminRewards: 42 } // **期望订正（批 8② 费率+权重矩阵）**：`adminNav` 16⇒20（+4 键：`feeRate` / `weightMatrix` 两条菜单项 + 两条路由面文案）；**批 8④ 再订正**：`adminNav` 20⇒22（+2 键：`currencyReview` / `currencyReviewDesc`）；**P9① 再订正**：`adminNav` 26⇒28（+2 键：`siteText` / `siteTextDesc`，⇔ 后台「站点文案」菜单；沿 `R-8-22`）
   const NEW_KEY_TOTAL = Object.values(NEW_NS).reduce((a, b) => a + b, 0)
   // B4a 交付时合计 = 144；B4b（后台剩余面）给既有 `adminCommon` 追加 19 键 ⇒ 现值 163。
   // 保留 144 作为 B4a 历史口径锚点（防「顺手改大期望值」掩盖键名事故）。
@@ -122,6 +122,8 @@ describe('P6-I18N-LIT-B4a · 四语 locale 键集（6 命名空间 144 键 + 逐
   // **期望订正（P9① 站点文案覆盖层）**：给既有 `adminNav` 追加 2 键（`siteText` / `siteTextDesc`，⇔ 后台「站点文案」菜单）
   //   ⇒ 单列 delta（沿 `R-8-22`），不改 B4a 历史锚点（新命名空间 `roleNames` / `siteSlogan` / `adminRoleNames` / `adminSiteText` 另计为顶层）。
   const B9S1_ADDED_TO_ADMINNAV = 2
+  // **期望订正（8⑥ 审计台）**：给既有 `adminNav` 追加 2 键（`auditConsole` / `auditConsoleDesc`，⇔ 后台「审计台」菜单 · `R-9-75`）；新命名空间 `auditConsole`（33 键）另计为顶层。
+  const B8S6_ADDED_TO_ADMINNAV = 2
 
   it('新增键四语齐备、非空串；四文件拍平键集逐文件相等', () => {
     const tables = {}
@@ -140,8 +142,8 @@ describe('P6-I18N-LIT-B4a · 四语 locale 键集（6 命名空间 144 键 + 逐
     expect(new Set(LANGS.map((l) => counts[l].flat)).size).toBe(1)
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
-    expect(counts.zh).toEqual({ top: 118, flat: 1000 }) // **期望订正（P9④ BTTC 铸造/分解面板）**：新增顶层 `bttcPanel`(12) ⇒ 拍平 +12 / 顶层 +1（988⇒1000 / 117⇒118）；前值 P9③ = 953⇒988 / 114⇒117
-    expect(NEW_KEY_TOTAL).toBe(B4A_ADDED + B4B_ADDED_TO_ADMINCOMMON + B8S2_ADDED_TO_ADMINNAV + B8S4_ADDED_TO_ADMINNAV + B8S5_ADDED_TO_ADMINNAV + B9S1_ADDED_TO_ADMINNAV)
+    expect(counts.zh).toEqual({ top: 119, flat: 1035 }) // **期望订正（8⑥ 审计台）**：新增顶层 `auditConsole`(33) + `adminNav` +2 ⇒ 顶层 118⇒119 / 拍平 1000⇒1035
+    expect(NEW_KEY_TOTAL).toBe(B4A_ADDED + B4B_ADDED_TO_ADMINCOMMON + B8S2_ADDED_TO_ADMINNAV + B8S4_ADDED_TO_ADMINNAV + B8S5_ADDED_TO_ADMINNAV + B9S1_ADDED_TO_ADMINNAV + B8S6_ADDED_TO_ADMINNAV)
 
     // 本批 6 命名空间：键数逐一对齐 + 四语取值齐备非空
     for (const [ns, size] of Object.entries(NEW_NS)) {

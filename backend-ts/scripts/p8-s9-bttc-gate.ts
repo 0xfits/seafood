@@ -8,12 +8,12 @@
  *
  * ★ A–H 静态面 **零 DB / 零网络**（只 import 纯函数 + 读源码 / 迁移 / locale 文本）。
  * ★ I/K 库面 leg：**只连库**（结构面**活体**只读 + ★★ 四段真链路 + `R-9-23` 反事実直插 = 事务内 + 子步 `SAVEPOINT` + 末尾 `ROLLBACK`）；**零 HTTP**。
- * ★ `0032`/`0033`/`0034`/`0035`…`0038` **已 apply**（`schema_version = 0038` · `schema_migration` 37 行）⇒ 其 DB 级效果**转为活体 `checks`**；
+ * ★ `0032`/`0033`/`0034`/`0035`…`0039` **已 apply**（`schema_version = 0039` · `schema_migration` 38 行）⇒ 其 DB 级效果**转为活体 `checks`**；
  *   `pending_apply[]` **归零**（原 10 条库面 leg 全部落实，**不伪装绿**）。
  *   ★ 库面写一律**事务内 + 末尾 `ROLLBACK`**（append-only ⇒ 无 DELETE 复原路径）；**严禁** `UPDATE app_config`。
  *
  * 判据（每条可判负 + 自证负对照）：
- *   A  注册点 **87** 逐 verb（`get 36 / post 48 / put 0 / patch 1 / delete 2`）+ 2 新动作口在场；负对照（缩进注入 ⇒ 88）
+ *   A  注册点 **88** 逐 verb（`get 37 / post 48 / put 0 / patch 1 / delete 2`）+ 2 新动作口在场；负对照（缩进注入 ⇒ 88）
  *   B  2 新口形态：全闸 `requireActor`（零 `requireAdmin`）；`bttcKeyGuard` + 取数 `bttcMint(`/`bttcBurn(`；异常标签 `sendInfraMapped`
  *   C  `0038`：kind 关闭集 **23 → 24**（CHECK + `ledger_kind_ok` 两处同集含 `invite_first_task_reward`）；
  *      冻结族第二支一字不动（4 值）；`−1` credit 白名单逐字不变（8 值）；`0032`（21 → 23）转 P9④ 历史快照；正/负自检在场
@@ -26,7 +26,7 @@
  *   H  **`C-15`「无行 ⇒ 兜底值」独立负对照**（空表 / 无行 / `null` / `[]` ⇒ `source=constant` 且五键 = 常量默认）+ SQL `COALESCE` 包在标量子查询**外层**
  *   I  **`R-9-23` 钳制 + 反事実直插必红 `23514`**：纯函数钳 `mintBattCost ≤ capBatt` / `burnBattGain ≤ 100`；SQL `LEAST(…, capBatt)`；活体直插 `batt = 101` ⇒ `23514`（边界 `100` ⇒ 通过）
  *   J  零新增错误码（仍恰 **33**）+ 借既有码 + 稳定 `reason` 常量 + `pending_apply[]` **归零**（三迁移已 apply）
- *   K  库面**活体**：`0032`/`0033`/`0034`/`0038` 结构指纹（kind 24 / kind_ok / −1 credit 8 / 列 / op 白名单含 burn + 双写 / `schema_migration` 37·0038）
+ *   K  库面**活体**：`0032`/`0033`/`0034`/`0038` 结构指纹（kind 24 / kind_ok / −1 credit 8 / 列 / op 白名单含 burn + 双写 / `schema_migration` 38·0039）
  *      + ★★ 四段真链路（创建含豁免闸两读数 / 铸造含幂等重放与闸负读数 / 分解含封顶丢弃 / 配对不变式）+ 零残渣（`ROLLBACK`）
  *   L  四语 `bttcPanel` 键集逐语相等 + 六类工程口径泄漏 = 0 + `en`/`vn` 零 CJK
  */
@@ -73,8 +73,8 @@ const LOCALES: Record<string, Record<string, unknown>> = Object.fromEntries(
 );
 
 // ---------------------------------------------------------------- 冻结常量 + 工具
-const REG_POINTS_FROZEN = 87;
-const PER_VERB_FROZEN: Record<string, number> = { get: 36, post: 48, put: 0, patch: 1, delete: 2 };
+const REG_POINTS_FROZEN = 88;
+const PER_VERB_FROZEN: Record<string, number> = { get: 37, post: 48, put: 0, patch: 1, delete: 2 };
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;
 const countVerb = (text: string, verb: string): number =>
@@ -124,12 +124,12 @@ const mWhitelist = SQL_0032.match(/WHEN '-1' THEN CASE p_dir WHEN 'credit' THEN 
 const WL_0032_M1_CREDIT = (mWhitelist ? (mWhitelist[1].match(/'([a-z_]+)'/g) || []) : []).map((s) => s.slice(1, -1));
 
 // ============================================================================
-// A · 注册点 87 逐 verb + 2 新动作口在场
+// A · 注册点 88 逐 verb + 2 新动作口在场
 // ============================================================================
 {
   const perVerb = { get: countVerb(INDEX_TS, 'get'), post: countVerb(INDEX_TS, 'post'), put: countVerb(INDEX_TS, 'put'), patch: countVerb(INDEX_TS, 'patch'), delete: countVerb(INDEX_TS, 'delete') };
   t('A1', 'registration', countRoutes(INDEX_TS) === REG_POINTS_FROZEN,
-    `注册点 = ${REG_POINTS_FROZEN}（P9④ BTTC 铸造/分解 2 新动作口 +2〔85→87〕；读口并入既有 GET /api/batt ⇒ 零新 GET）`, countRoutes(INDEX_TS));
+    `注册点 = ${REG_POINTS_FROZEN}（P9④ BTTC 铸造/分解 2 新动作口 +2〔85→87〕⇒ 8⑥ 审计台统一读口 +1〔87→88〕；读口并入既有 GET /api/batt ⇒ 零新 GET）`, countRoutes(INDEX_TS));
   t('A2', 'registration', eqJson(perVerb, PER_VERB_FROZEN),
     `逐 verb 逐字 = ${JSON.stringify(PER_VERB_FROZEN)}（get 不变 / post +2）`, JSON.stringify(perVerb));
   t('A3', 'registration', Object.values(perVerb).reduce((a, b) => a + b, 0) === REG_POINTS_FROZEN,
@@ -140,7 +140,7 @@ const WL_0032_M1_CREDIT = (mWhitelist ? (mWhitelist[1].match(/'([a-z_]+)'/g) || 
   const INJ = "  app.get('/api/p8s9-negsurface', (_req, res) => res.status(410).json({ ok: false }));\n";
   t('A5', 'registration', countRoutes(INDEX_TS + INJ) === REG_POINTS_FROZEN + 1,
     `★ 负对照：缩进注入一条路由 ⇒ 计数 ${REG_POINTS_FROZEN}→${REG_POINTS_FROZEN + 1}`, JSON.stringify({ injected: countRoutes(INDEX_TS + INJ) }));
-  selfTest('A1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 87 条路由的文本喂入「注册点 = 87」谓词 ⇒ 必须转红');
+  selfTest('A1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 88 条路由的文本喂入「注册点 = 88」谓词 ⇒ 必须转红');
 }
 
 // ============================================================================
@@ -352,7 +352,7 @@ const WL_0032_M1_CREDIT = (mWhitelist ? (mWhitelist[1].match(/'([a-z_]+)'/g) || 
 // J · 零新增错误码（仍恰 33）+ 借既有码 + 稳定 reason
 // ============================================================================
 const pendingApply: Array<{ leg: string; reason: string }> = [];
-// ★ 库面收口（本单）：`0032`/`0033`/`0034`…`0038` **已 apply**（`schema_version = 0038` · `schema_migration` 37 行）⇒ 原 10 条
+// ★ 库面收口（本单）：`0032`/`0033`/`0034`…`0038` **已 apply**（`schema_version = 0039` · `schema_migration` 38 行）⇒ 原 10 条
 //   「等 apply 再测」的库面 leg **全部转为 K 段活体 `checks`** ⇒ `pending_apply[]` **归零**（**不得伪装绿**）。
 {
   t('J1', 'closedSets', LEDGER_ERROR_CODES.length === 33, '错误码闭集仍恰 33 条（**不动**）', LEDGER_ERROR_CODES.length);
@@ -401,7 +401,7 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
 // ============================================================================
 // K · 库面 leg（只连库 · 零 HTTP）：结构面**活体**断言 + ★★ 四段真链路（事务内 + 子步 SAVEPOINT + 末尾 ROLLBACK）
 // ----------------------------------------------------------------------------
-// ★ `0032`/`0033`/`0034`/`0038` **已 apply**（`schema_version = 0038` · `schema_migration` 37 行）⇒ 原 `pending_apply[]` 10 条
+// ★ `0032`/`0033`/`0034`/`0038` **已 apply**（`schema_version = 0039` · `schema_migration` 38 行）⇒ 原 `pending_apply[]` 10 条
 //   **全部转本段活体 checks**（`ledger_kind_enum`/`ledger_kind_ok`/`−1` credit 白名单/`is_platform_coin` 列与默认/
 //   `op` 白名单与双写/三迁移结构指纹 + 四段真链路 + 配对不变式 + 零残渣）。
 // ★ 库面写一律**事务内 + 末尾 ROLLBACK**（`ledger_entry`/`batt_entry`/`batt_account` append-only ⇒ 无 DELETE 复原路径）；
@@ -511,8 +511,8 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
       `SELECT count(*)::int AS n, max(version) AS mx FROM public.schema_migration`);
     dbConnections += 1;
     live.schema_migration = sm[0];
-    t('K5', 'dbStructureLive', Number(sm[0].n) === 37 && String(sm[0].mx) === '0038',
-      '★ 迁移结构指纹：`schema_migration` = **37 行** · `max(version)` = **0038**（`0032`→…→`0038` 已 apply）', JSON.stringify(sm[0]));
+    t('K5', 'dbStructureLive', Number(sm[0].n) === 38 && String(sm[0].mx) === '0039',
+      '★ 迁移结构指纹：`schema_migration` = **38 行** · `max(version)` = **0039**（`0032`→…→`0039` 已 apply · 8⑥ 审计台权限键）', JSON.stringify(sm[0]));
     selfTest('K5', 'dbStructureLive', (v) => String(v) === '0038', '0034', '把「未 apply（0034）」喂入「0038」谓词 ⇒ 必须转红');
 
     // ---------------------------------------------------------------- 四段真链路（单事务 + 子步 SAVEPOINT + 末尾 ROLLBACK）
@@ -750,7 +750,7 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
     offline: false,
     db_connections: dbConnections,
     http_calls: httpCalls,
-    note: 'A–H/L 静态面零 DB / 零 HTTP；I/K 库面 leg **只连库**（结构面**活体**只读 + `R-9-23` 反事実直插 + 四段真链路 = 事务内 + 末尾 ROLLBACK）。★ `0032`/`0033`/`0034`…`0038` **已 apply**（`schema_version` 0038 · `schema_migration` 37 行）⇒ 其 DB 级效果全部转为 K 段**活体 checks**，`pending_apply[]` **归零**（不伪装绿）。',
+    note: 'A–H/L 静态面零 DB / 零 HTTP；I/K 库面 leg **只连库**（结构面**活体**只读 + `R-9-23` 反事実直插 + 四段真链路 = 事务内 + 末尾 ROLLBACK）。★ `0032`/`0033`/`0034`…`0038` **已 apply**（`schema_version` 0039 · `schema_migration` 38 行）⇒ 其 DB 级效果全部转为 K 段**活体 checks**，`pending_apply[]` **归零**（不伪装绿）。',
     total: checks.length,
     passed: checks.length - failed.length,
     failed: failed.length,

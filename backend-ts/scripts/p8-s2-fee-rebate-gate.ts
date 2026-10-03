@@ -69,8 +69,8 @@ const countMatches = (hay: string, re: RegExp): number => (hay.match(re) || []).
 // A · 读口注册（增量登记 68 → 69）+ 闸 + 取数复用 + 只读纪律
 // ============================================================================
 const REG_COUNT = countMatches(INDEX_TS, /^app\.(get|post|put|delete|patch)\(/gm);
-t('A1', 'readRouteRegistered', REG_COUNT === 87,
-  '注册点 = 87（`grep -cE \'^app\\.(get|post|put|delete|patch)\\(\'`；v1.8 的 68 ⇒ 8② 读口 +1〔69〕⇒ 8④ 读口/动作口 +2〔71〕⇒ 8⑤ 读口/动作口 +4〔75〕⇒ P9① 公开读口 +1〔76〕⇒ P9② batt/签到 4 新口 +4〔80〕⇒ P9③ 评分/时效/订单 5 新口 +5〔85〕⇒ P9④ BTTC 铸造/分解 2 新口 +2 = 87）', REG_COUNT);
+t('A1', 'readRouteRegistered', REG_COUNT === 88,
+  '注册点 = 88（`grep -cE \'^app\\.(get|post|put|delete|patch)\\(\'`；v1.8 的 68 ⇒ 8② 读口 +1〔69〕⇒ 8④ 读口/动作口 +2〔71〕⇒ 8⑤ 读口/动作口 +4〔75〕⇒ P9① 公开读口 +1〔76〕⇒ P9② batt/签到 4 新口 +4〔80〕⇒ P9③ 评分/时效/订单 5 新口 +5〔85〕⇒ P9④ BTTC 铸造/分解 2 新口 +2〔87〕⇒ 8⑥ 审计台统一读口 +1 = 88）', REG_COUNT);
 t('A2', 'readRouteRegistered', countMatches(INDEX_TS, new RegExp(READ_ROUTE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) === 1,
   '`GET /api/admin/commission_policy` 注册**恰 1 处**',
   countMatches(INDEX_TS, new RegExp(READ_ROUTE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')));
@@ -96,6 +96,26 @@ t('A8', 'readRouteRegistered', !/\b(INSERT|UPDATE|DELETE)\b/i.test(READ_BLOCK) &
 t('A9', 'readRouteRegistered', /sendSuccess\(res,\s*policy\b/.test(READ_BLOCK),
   '读口响应 = 形态 A（`data` = 政策**本体**，`sendSuccess(res, policy, …)`）',
   JSON.stringify((READ_BLOCK.match(/sendSuccess\([^;]*/) || ['(none)'])[0].slice(0, 90)));
+
+// ============================================================================
+// A' · 权限键闭集（8⑥ `route-layer.spec` v2.21 §32.14 `R-9-75`）：**三处编码同集**之
+//      「门闭集 == 前端闭集」**相等断言**（防两处漂移）+ 恰 12 键并含新增键 `manage_audit`。
+// ============================================================================
+const DATABASE_TS = read('backend-ts/src/database.ts');
+const ADMIN_UTILS = read('frontend/src/admin-utils.js');
+const permListOf = (src: string, re: RegExp): string[] =>
+  ((src.match(re) || ['', ''])[1].match(/'([a-z_]+)'/g) || []).map((s) => s.replace(/'/g, ''));
+const backendPerms = permListOf(DATABASE_TS, /const ALL_ADMIN_PERMISSIONS = \[([\s\S]*?)\] as const;/);
+const frontendPerms = permListOf(ADMIN_UTILS, /permissions:\s*\[\s*\n([\s\S]*?)\n\s*\],/);
+t('A10', 'permClosedSet', backendPerms.length === 12 && frontendPerms.length === 12,
+  '权限键闭集 = 恰 12（后端 `ALL_ADMIN_PERMISSIONS` ∧ 前端 `admin-utils.js` 离线兜底）',
+  JSON.stringify({ backend: backendPerms.length, frontend: frontendPerms.length }));
+t('A11', 'permClosedSet', JSON.stringify(backendPerms) === JSON.stringify(frontendPerms),
+  '★ 门闭集 == 前端闭集（逐值逐序相等 · 防两处漂移）',
+  JSON.stringify({ equal: JSON.stringify(backendPerms) === JSON.stringify(frontendPerms), backendPerms, frontendPerms }));
+t('A12', 'permClosedSet', backendPerms.includes('manage_audit') && frontendPerms.includes('manage_audit'),
+  '两处均含新增键 `manage_audit`（8⑥ `R-9-75` · 闭集 11 → 12）',
+  JSON.stringify({ backendHas: backendPerms.includes('manage_audit'), frontendHas: frontendPerms.includes('manage_audit') }));
 
 // ============================================================================
 // B · 读口 `data` 8 键齐备（接口 / mapPolicy / SELECT 三处同键集）

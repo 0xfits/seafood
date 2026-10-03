@@ -509,7 +509,9 @@
     "arbitrationReview": "Trọng tài việc làm",
     "arbitrationReviewDesc": "Xử lý tranh chấp việc làm",
     "siteText": "Nội dung trang",
-    "siteTextDesc": "Tên vai trò và nội dung trang"
+    "siteTextDesc": "Tên vai trò và nội dung trang",
+    "auditConsole": "Bảng kiểm toán",
+    "auditConsoleDesc": "Tra cứu lưu vết các bảng"
   },
   "adminLayout": {
     "panelTitle": "Bảng quản trị",
@@ -1106,5 +1108,40 @@
     "actionFail": "Thao tác thất bại, vui lòng thử lại sau",
     "unavailable": "Dịch vụ token tạm thời không khả dụng",
     "noData": "Không có dữ liệu"
+  },
+  "auditConsole": {
+    "pageTitle": "Bảng kiểm toán",
+    "pageSubtitle": "Tra cứu chỉ đọc trên hồ sơ lưu vết, hỗ trợ đổi bảng và bộ lọc",
+    "tableLabel": "Bảng dữ liệu",
+    "filterActor": "Người thực hiện",
+    "filterTarget": "Đối tượng",
+    "filterAction": "Hành động",
+    "filterFrom": "Từ thời điểm",
+    "filterTo": "Đến thời điểm",
+    "filterRefId": "Mã liên quan",
+    "apply": "Tìm kiếm",
+    "reset": "Đặt lại",
+    "prev": "Trang trước",
+    "next": "Trang sau",
+    "refresh": "Làm mới",
+    "empty": "Chưa có dữ liệu",
+    "loading": "Đang tải",
+    "filtersHint": "Chỉ hiển thị bộ lọc được bảng hiện tại hỗ trợ; bộ lọc không hỗ trợ sẽ không được gửi",
+    "loadFailed": "Tải thất bại: {{message}}",
+    "rowCount": "{{count}} mục trong trang này",
+    "tblAdminOpsAuditLog": "Kiểm toán điều chỉnh điểm",
+    "tblAdminRefundAuditLog": "Kiểm toán hoàn tiền đơn hàng",
+    "tblLedgerEntry": "Bút toán sổ cái",
+    "tblCurrencyReviewLog": "Hồ sơ duyệt đơn vị",
+    "tblCurrencyStatusLog": "Thay đổi trạng thái đơn vị",
+    "tblListingReviewLog": "Hồ sơ duyệt sản phẩm",
+    "tblJobArbitrationLog": "Hồ sơ trọng tài tuyển dụng",
+    "tblBattEntry": "Dòng biến động pin",
+    "tblCheckinLog": "Hồ sơ điểm danh",
+    "tblCheckinMakeupLog": "Hồ sơ điểm danh bù",
+    "tblRating": "Hồ sơ đánh giá",
+    "tblListingOrderEvent": "Sự kiện đơn hàng",
+    "tblReferral": "Liên kết giới thiệu",
+    "tblCommissionPolicy": "Chính sách hoa hồng"
   }
 }

@@ -1416,6 +1416,39 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.284 **8⑥ 收尾完成（57c/394s）· ★我复跑抓到 `p8-s11 K1` 红（成因 = 我 apply `0040` 前推了 DB）⇒ 定性「前推前基线」非缺陷 · 入库 8⑥ + 派前推单**（2026-10-03）
+
+**A. 8⑥ 收尾（Kong · 57c/394s）= 完成 · 四件全交付**：
+- **① 判负 4 处**（仓外沙箱 `/Users/kevin/bistro/.p8s6-jn-sandbox` = 全树副本 + `node_modules` 软链；**主仓从未写**；每处「注入 → 转红 → 复原 → 回绿 → `cmp`」）：
+
+| 注入 | 期望红 | 实际新增红 | 复原 | 主仓 `cmp` |
+|---|---|---|---|---|
+| a 去表名白名单闸 | C1/C2/C3 | C1,C2,C3,**H2**（82/5） | 86/1 | 全等 |
+| **b ★去「不适用参数」闸** | D1/D2/D5 | **D1,D2,D5**（83/4） | 86/1 | 全等 |
+| c 去枚举原因码闸 | K9 | K9（85/2） | 86/1 | 全等 |
+| d 去 `manage_audit` 鉴权 | I5 | I5（85/2） | 86/1 | 全等 |
+
+  - **★ 假绿陷阱被揪住**（`R-9-78` 核心风险）：**行为探针直调被变异模块** —— `ledger_entry?actor=1` 由 `PARAM_NOT_APPLICABLE` 变 **`ok=true · hasWhere=false`**（`SELECT * FROM public.ledger_entry …` **无 WHERE ⇒ 全表**）⇒ **可判负** ✓
+  - 注入 a 另实证 `app_config`（本应裁出）/`made_up_table` 均 `ok=true` **直达 SQL 标识符位**
+  - 主仓三文件 md5 全程不变（`audit-console.ts 686d84…` / `index.ts b195c6…` / `p8-s11 gate d74d0c…`）
+- **② 报告回填** `docs/audit/p8-s6-audit-console.md`：**333 行 / 32,025 B** · `grep -c '__'` = **0** ✓（我复核）· `NOT_MEASURED` 9 项 ⇒ **7 已测 / 2 保留原因**（#8 `txid` 不独立 = 设计选择；#9 迁移链 = **不 apply** 归 Zang）
+- **③ 离线复测（仅 `p8-s11`）**：它报 `87 = 86/1`（唯一红 **K10** = HTTP 腿，离线无实例）
+- **④ 收尾**：`lsof` **空**（未起实例，无需 kill）✓
+- ★ **在途登记（如实，未据此改判据）**：HEAD 中途前推 `a2cdb04 → d212e80`（并行 doc-only）；`D1` `auth.js` 在途；**`D2` `0040` 18:06:02 落盘晚于其复测点 18:04:41** ⇒ 其读数不含 `0040`（8⑥ 判据不读 `0040`）
+
+**B. ★ 我独立复跑（`tsc` = 0 ✓ · 报告 333 行/32,025 B/`__`=0 ✓）⇒ `p8-s11` 离线 = `85/2`（与自报 `86/1` 不符）⇒ 我逐项查 artifact**：失败恰 `K1` + `K10`：
+- **`K1`**：期望 `schema_migration` **38 行 / max `0039`** ⇄ 实测 **39 行 / `0040`** ⇒ **成因 = 我在它复测之后 apply 了 `0040`**（我 18:09 apply）⇒ **★ 定性 = 「冻结面滞后」（前推前基线），非缺陷**（与 `p8-s2 C6`、`p8-s7 D1–D8` 同族）
+- **`K10`**：`fetch failed`（离线无受控实例）⇒ **环境差异**，带实例已 `87/87`（它前次真跑）⇒ 不得改宽松
+- ⇒ **不是实现缺陷**：两红均为**我造成的 DB 前推** + **离线无实例**，**判据不动**
+
+**C. → 我派 Kong【前推单】**（射程极小）：① 现取现行约定（`MIGRATIONS_FROZEN` 的定义与取值来源 · `p8-s9 K5`/`p8-s10 K2`/`p8-s11 K1` 的冻结断言形态）② 按**既有约定**前推至新 DB 态（`schema_migration` **39 行 / max `0040`**）：`MIGRATIONS_FROZEN`（持该常量者：`p8-s3`/`s3b`/`s4`/`s5`）+ `p8-s9 K5` + `p8-s10 K2` + **`p8-s11 K1`** ③ 复跑 `p8-s2..s11` 离线并给**逐门读数**（★ `K10` 类 HTTP 腿离线红**如实登记**，**不得**放宽/`SKIPPED`）④ 收尾。**★ 不得**借前推之机放宽/删任何判据。
+
+**D. 入库（**不 push**）**：8⑥ 全件 = 10 门 + `src/{database,index}.ts` + 新 `src/audit-console.ts` + 新 `src/points-adjust-reasons.ts` + 前端 `AuditConsolePage.jsx`/`App.jsx`/`admin-utils.js`/`AdminLayout.jsx` + 四语 + 4 i18n 测试 + 新门 `scripts/p8-s11-audit-console-gate.ts` + **`migrations/0039_admin_audit_console.sql`（已 apply ⇒ 必须入库防 checksum 漂移）** + 报告。
+
+**E. 状态**：DB **0040** · 生产代码 **0038 时代** · 未推本地 commit：`e187af6`/`7627999`（+ 本单 8⑥ 入库）· 在跑：**前端 batt UI 单**（尚未落文件）· 8⑥ 前推单（本单新派）。**批 8 六片 = 实现全部完成，待前推 + 质检 + 一次部署收官**。
+
+---
+
 ### 5.283 **★ `D1`/`D2` 双单交付 + ★我 apply `0040`（深核全绿）+ **现取门槛 = 9 ⇒ Kevin `batt = 30` 已可参与任务** · 入库两件（不 push）**（2026-10-03）
 
 **A. `D1` 文案修复（单文件 · `auth.js` `+45/−1` · 25c/173s）**：
@@ -5953,6 +5986,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.284 | 2026-10-03 | **8⑥ 收尾完成（57c/394s）· ★我复跑抓到 `p8-s11 K1` 红（成因 = 我 apply `0040` 前推了 DB）⇒ 定性「前推前基线」非缺陷 · 入库 8⑥ + 派前推单**。**A.** ① 判负 **4 处**（仓外沙箱 + 注入→红→复原→绿→cmp）：a 去白名单 ⇒ C1/C2/C3/**H2**（82/5）· **b ★去「不适用参数」闸 ⇒ D1/D2/D5（83/4）+ 行为探针实证 `ledger_entry?actor=1` 由 `PARAM_NOT_APPLICABLE` 变 `ok=true·hasWhere=false`（`SELECT * … 无 WHERE` 全表）⇒ 假绿陷阱可判负** · c 去枚举闸 ⇒ K9 · d 去鉴权 ⇒ I5；主仓三文件 md5 全程不变 ② 报告 **333 行/32,025 B · `__`=0**（我复核）；NOT_MEASURED 9 ⇒ **7 已测/2 保留原因** ③ 离线 `p8-s11` = 自报 86/1 ④ `lsof` 空。**B.** 我 `tsc` **0** ✓ 但复跑 `p8-s11` = **85/2** ⇒ 逐项查 artifact：**`K1`**（期望 `schema_migration` 38/`0039` ⇄ 实测 **39/`0040`**，**成因 = 我 apply 0040** ⇒ **「冻结面滞后」非缺陷**）+ **`K10`**（`fetch failed` 离线无实例 ⇒ 环境差异，带实例已 87/87）。**C.** 派前推单（现取约定 → `MIGRATIONS_FROZEN` + `p8-s9 K5` + `p8-s10 K2` + **`p8-s11 K1`** 前推至 39/`0040` → 复跑 s2..s11 逐门读数 → 收尾；★不得放宽/删判据）。**D.** 入库 8⑥ 全件（10 门 + `src/{database,index,audit-console,points-adjust-reasons}.ts` + `AuditConsolePage.jsx`/`App.jsx`/`admin-utils.js`/`AdminLayout.jsx` + 四语 + 4 i18n 测试 + `p8-s11` 新门 + **`0039` 迁移（已 apply 防漂移）** + 报告；**不 push**）。**E.** DB **0040** · 生产 **0038 时代** · 在跑：前端 batt UI 单 + 8⑥ 前推单。 |
 | v0.283 | 2026-10-03 | **★ `D1`/`D2` 双单交付 + ★我 apply `0040`（深核全绿）+ 现取门槛 = 9 ⇒ Kevin `batt = 30` 已可参与任务 · 入库两件（不 push）**。**A. `D1`（`auth.js` +45/−1 · 25c/173s）**：`REASON_I18N_KEYS`（Object.freeze 显式表）+ `i18nKeyForErrorReason` ⇒ `reason` 映射置于最高优先级（`reasonKey \|\| i18n_key \|\| serverMessage \|\| fallback`），未命中逐字不变；两落点 `job-service.ts:197/:231` 同 reason；四语读数：zh「当前状态不允许此变更。」→**「电量低于承接门槛，暂时无法承接任务」**（hk/en/vn 同族）；`test:unit` 32/282 · `p7c` 8/8 · tsc 0 · build 0（`index-BL9A1kbz.js` 409.71 kB）；它诚实登记 4 个**非 unit** 存量失败（stash 验证与本单无关）+ 前端无 tsconfig。**B. `D2`（19c/287s）**：现取 `batt_account`（`CHECK batt 0..100` · `trg_batt_account_touch_updated` BEFORE UPDATE）· `batt_entry`（`UNIQUE(idempotency_key)` · `trg_batt_entry_append_only` BEFORE UPDATE OR DELETE ⇒ INSERT 允许）· `BATT_CAP_HARD_MAX 100` · 注册腿单语句 CTE；**目标集合逐计数：总数 56 / 无 batt 行 54 / 无 invite_signup entry 56 ⇒ 目标 54**；新建 **`0040_backfill_signup_batt.sql`（251 行纯 DML）** `ON CONFLICT DO NOTHING`（更强）+ self-check；`R-9-24` 真跑四读数全 true + 正向 53 位 + 判负（不重复发放 / 既有账户 0 行 / 重跑幂等）；★首轮暴露其自检缺陷（全表计数 ≠ 本次行数）已修为取 CTE RETURNING。**C. 我 apply `0040`**：`schema_migration` 38/0039 → **39/0040**（`efa38fee102d`）· `batt_account`/`batt_entry` 2/2 → **56/56** · `checkin` 2 行/+60 **逐字未动** · **`invite_signup` 54 行/+1620** · 补发 **54 行/54 uid/delta 全 30/落点全 30**（无人触顶）· 重复键 0 · 越界 0 · `remaining_target` 0 · **★ Kevin `uid 970213` batt = 30**（`txid 326` · memo 存量补发）。**D.** 现取门槛 `BATT_POLICY_DEFAULTS.acceptThresholdBatt = 9`（`database.ts:234-236`）· `canAccept: batt >= 9`（`:4392`）· `app_config` 无 `batt_policy` 行 ⇒ 兜底 9 ⇒ **Kevin 30 ≥ 9 可参与**（承接扣 `taskCostBatt=9`）。**E.** 入库（**不 push**，等 8⑥ 一起部署）：`0040`（DB 已 apply 防漂移）+ `D1`。**F.** DB **0040** · 生产代码 **0038 时代**（生产库亦已有 54 人 batt=30 ⇒ 可立即重试）；在跑：8⑥ 收尾 · 前端 batt UI 单。 |
 | v0.282 | 2026-10-03 | **Kevin 交办 batt UI 设计（4 态点 + 10 点条）· ★「看不到签到入口」我现取定为「可发现性缺陷」（入口存在＝`Header` 的「个人资料」）· 我立 `R-9-82`/`R-9-83` · 派前端单**。**A.** Kevin 原话：满电点=黄底+黑闪电 · 半电=黄半填充+黑闪电 · 空电=白空心圆+黑细描边 · 低电量=黄实心+黑闪电+轻微呼吸光；`vision_analyze` 现读 `image_f40fcb.png`：**10 点横排**（每点 10%）+ 右侧 `65` + 「电量」标签；实点黄底黑闪电（≈#FFD400–#FFD700），空点白底+浅灰描边+极淡灰闪电。**B. 现取**：`BattCheckinPanel.jsx`（6,028 B）**只渲染数字**（`{batt.batt}{unit}`）无点阵 · `battCard` 四语 4 键 · 图标库 **`lucide-react`（`Zap` 可用）** + 自定义 `DashJ` · ★**签到入口存在**：`Header.jsx:120`（桌面 nav，`isAuthenticated`）/`:260-265`（头像菜单）/`:315-328`（移动），文案 `t('profile')`=「个人资料」，签到区在 `ProfilePage.jsx:251` 页顶，路由 `App.jsx:110` ✓。**C.** 定性 **`D3` 可发现性缺陷（高）**：入口非缺失而是在「个人资料」里 ⇒ 到不了 ⇒ P9② 签到/电量/BTTC/评分面**实际不可达**；与 `D1`/`D2` 同源（被门槛拒 ⇒ 该去签到 ⇒ 找不到签到，**闭环断裂**）。**D. 我裁**：`R-9-82` 点阵条定死（10 点每点 10%；`full=floor(batt/10)`，`rem>=5` ⇒ 第 `full+1` 点绘半电（65⇒6满+1半）；**「低电量」= 修饰非第 4 几何**：`canAccept===false` ⇒ **全部已点亮点**加轻微呼吸光（标「一句话可改」：变体=仅末端点加光）；空点**以文字描述为准**；保留数字与「电量」标签；呼吸光须遵循既有动画 + `prefers-reduced-motion` 降级；颜色优先主题 token 且须现取日间 A/夜间 B token 名，无则主题层**仅追加**；无障碍 `role=img`+`aria-label`；**六类泄漏 0**）· `R-9-83` `D3` 修法（**不新增顶层导航项**；① 头像菜单加「电量与签到」直达 `/profile#batt-checkin` ② **★闭环**：招工页/任务详情在「电量不足被拒」时给可点击提示 ⇒ 直达签到区，与 `D1` 同一出口一起落地 ③ `BattCheckinPanel` 加 `id="batt-checkin"` 锚点）。**E.** 已派前端单（面 = `components/{BattCheckinPanel,BattMeter}.jsx` + `ProfilePage` + `Header` + `JobDetailPage`（仅提示出口）+ `styles/animations.css`（仅追加）+ 四语必要键）⇒ 与 D1/D2/8⑥收尾三单面不相交 ⇒ 四单并行。 |
 | v0.281 | 2026-10-03 | **8⑥ 实现续跑（截断 60c/518s）：门 `p8-s11` 87/87 · 前端 + 四语 · 计门前推 · ★它纠正我第 10 次口径失准（`adminNav 28→30`）· 派最后收尾单**。**A.（60c/518s）** ① 新门 `p8-s11`（~490 行）：A 白名单闭集 14（含 15 面负对照）· B 逐表五类过滤映射 14 行（actor 无5/target 无5/action 无10/refId 无3/time_created 13/bound_at 1）· C 非白名单 400+`AUDIT_TABLE_NOT_FOUND` · D 不适用 400+`supportedFilters`（★含「绝不静默返回全表」D5）· E keyset+LIMIT+1 · F limit 50/100 · G 逐表排序键 · H 零新增码 33+原因码 7 · I `manage_audit`/只读/注册点 88 · J 迁移 0039 纯 DML · W 前端接线逐表对拍防漂移 · L 四语+六类泄漏 0（含负对照注入）· K 库面活体（schema 38·0039 · admin_permission 12 · super_admin 12 · 基表 34 · 14 枚 append-only）+ 真 HTTP ⇒ **带实例 `87/87` `pending_apply=0` EXIT 0** ② 计门前推：`MIGRATIONS_FROZEN 37→38`（★**仅 4 门持有**，我写 6 错）· 注册点 `87→88` + `get 36→37`（★**9 门持有**，我写 6 错）· `p8-s10 K2`/`p8-s9 K5` → 38·0039 · 四 i18n 加 `B8S6_ADDED_TO_ADMINNAV=2` ③ 前端新 `AuditConsolePage.jsx` + `App.jsx` 路由（闸 manage_audit）+ `AdminLayout` nav + 四语（auditConsole 33 键 + adminNav +2）⇒ **top 119 / flat 1035 / adminNav 30 / nodes 4140**；`p6-tr2`/`p4z-i18nviol-global`/`p4z-i18nb4b-cjk` 全 PASS ⑤ tsc 0 · build 0（`index-Bndv7_E4.js` 409.49 kB）· 276 · 离线 126/126 · s11 87/87；★**它纠正我第 10 次**（我工单写 adminNav 28→29，权威 §32.8 明写 28→**30**，取 +2）；**未完成**：判负 ≥2 · s1..s10 带实例重跑 · s11 离线复测 · 报告回填（257 行/23,105 B）。**B.** 端口全空（39698 随子代理终止）· 5787/5788 未碰。**C.** 裁：adminNav 计数以 §32.8 为准 = 30（我笔误作废）；累计第 10 次被拦下。**D.** 已派收尾单（判负 ≥2 含★去不适用闸 ⇒ 静默返回全表 / 报告回填 9 项收敛 / s11 离线复测 / 收尾；★已告知工作树含 D1/D2 在途，读数受影响须登记不得改判据）。**E.** 8⑥ 待判负/报告 ⇒ 质检 ⇒ 上线；并行 D1/D2 在跑。 |

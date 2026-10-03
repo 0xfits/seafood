@@ -509,7 +509,9 @@
     "arbitrationReview": "Job Arbitration",
     "arbitrationReviewDesc": "Resolve job disputes",
     "siteText": "Site Copy",
-    "siteTextDesc": "Role names and site copy"
+    "siteTextDesc": "Role names and site copy",
+    "auditConsole": "Audit console",
+    "auditConsoleDesc": "Search audit trails across tables"
   },
   "adminLayout": {
     "panelTitle": "Admin Panel",
@@ -1106,5 +1108,40 @@
     "actionFail": "Action failed, please try again later",
     "unavailable": "The token service is temporarily unavailable",
     "noData": "No data"
+  },
+  "auditConsole": {
+    "pageTitle": "Audit console",
+    "pageSubtitle": "Read-only search over audit trail records, with table switch and filters",
+    "tableLabel": "Data table",
+    "filterActor": "Actor",
+    "filterTarget": "Target",
+    "filterAction": "Action",
+    "filterFrom": "From time",
+    "filterTo": "To time",
+    "filterRefId": "Related ID",
+    "apply": "Search",
+    "reset": "Reset",
+    "prev": "Previous",
+    "next": "Next",
+    "refresh": "Refresh",
+    "empty": "No data",
+    "loading": "Loading",
+    "filtersHint": "Only filters supported by the current table are shown; unsupported filters are not submitted",
+    "loadFailed": "Failed to load: {{message}}",
+    "rowCount": "{{count}} in this page",
+    "tblAdminOpsAuditLog": "Points adjustment audit",
+    "tblAdminRefundAuditLog": "Order refund audit",
+    "tblLedgerEntry": "Ledger entries",
+    "tblCurrencyReviewLog": "Unit review records",
+    "tblCurrencyStatusLog": "Unit status changes",
+    "tblListingReviewLog": "Listing review records",
+    "tblJobArbitrationLog": "Job arbitration records",
+    "tblBattEntry": "Battery ledger",
+    "tblCheckinLog": "Check-in records",
+    "tblCheckinMakeupLog": "Make-up check-in records",
+    "tblRating": "Rating records",
+    "tblListingOrderEvent": "Order events",
+    "tblReferral": "Referral bindings",
+    "tblCommissionPolicy": "Commission policies"
   }
 }

@@ -80,6 +80,11 @@ import {
 } from './compliance-review-service';
 // P6-TR-1b：后台翻译回填（cron 兜底 + 手动触发）—— 路由层只做鉴权与机读回执，编排全在服务层
 import { backfillPending, registerPendingTranslations, scanRegisterPending, scheduleEntityTranslation } from './translate-service';
+// 8⑥（`route-layer.spec` v2.21 §32.14 · `R-9-74`/`R-9-77`/`R-9-78`/`R-9-79`）：审计台统一读口
+//   `GET /api/admin/audit/:table`（注册点 87 → 88）；14 面白名单 + 五类过滤逐表映射 + keyset 分页。
+import { buildAuditSql, buildAuditView, parseAuditRequest } from './audit-console';
+// 8⑥ C3③（`R-9-76`）：`points/adjust` 的原因码关闭集（语义域 · 非错误码 ⇒ 账本闭集 33 不动）。
+import { POINTS_ADJUST_REASONS, isPointsAdjustReason } from './points-adjust-reasons';
 
 const app = express();
 const PORT = Number(process.env.PORT || 5788);
@@ -2056,6 +2061,18 @@ app.post('/api/admin/points/adjust', async (req, res) => {
       return sendError(res, 400, '参数不完整');
     }
 
+    // ★ 8⑥ C3③（`route-layer.spec` v2.21 §32.14 · `R-9-76` = `PZ-1` 终审 (b)）：`reason` 由
+    // **自由文本**收严为**枚举原因码**（关闭集 = `POINTS_ADJUST_REASONS` · 恰 7 值 · 语义域）。
+    //   · **零新增错误码**（账本错误闭集 **33 不动**）⇒ 借既有码 `LEDGER_AMOUNT_INVALID`（`#17`）+ `R107` 形状；
+    //   · **口径切换点 = 本行**；**历史**已落库的 4 行自由文本（`admin_ops_audit_log.memo`）**不回填 / 不改写**。
+    if (!isPointsAdjustReason(reason)) {
+      return res.status(400).json(ledgerErrorBody(
+        'LEDGER_AMOUNT_INVALID',
+        'Request shape is invalid',
+        { field: 'reason', reason: 'REASON_CODE_NOT_IN_ENUM', allowed_reasons: [...POINTS_ADJUST_REASONS] },
+      ));
+    }
+
     // `route-layer.spec:840`：`LD021` = 「目标账户无效（**平台 / 保留 uid 前置闸**）」⇒ 前置拒
     // 平台 / 保留 uid（`0`/`-1`/`-2`/`-3`/`-4…-99`）：既有码 + 与 DB 侧 `ledger_uid_arg` 同 details 形状
     // （`{field, uid}`）⇒ **不得把保留 uid 当目标用户**，也**不得**让账本为其开户。
@@ -2776,6 +2793,31 @@ app.post('/api/admin/arbitration/:jobId', async (req, res) => {
       200, result.replay ? { idempotent_replay: true } : undefined);
   } catch (error) {
     return sendInfraMapped(res, 'admin.arbitration.record', error);
+  }
+});
+
+// ============================================================================
+// 8⑥（`route-layer.spec` v2.21 §32.14 · 终审 `R-9-74`/`R-9-77`/`R-9-78`/`R-9-79`）：审计台统一读口
+//   · 读口 `GET /api/admin/audit/:table`（变体 Ⅰ · **注册点 87 → 88** · `+1` get）；
+//   · 闸 = **`manage_audit`**（`R-9-75` 新增权限键 · 闭集 11 → 12；`requireAdmin` 既有出口）；
+//   · 表名**白名单闭集 14 面**（`R-9-74`/`R-9-77` · 排除 `app_config`）；**非白名单 ⇒ `400`**；
+//   · 五类过滤（`actor`/`target`/`action`/时间窗 `from`·`to`/关联 id `refId`）**逐表映射显式表达**
+//     （`audit-console.ts` 结构化白名单 · **禁拼 SQL 字符串**）；不适用参数 ⇒ `400` + 列该表支持维度（`R-9-78`）；
+//   · keyset 分页（`limit` 默认 50 / 上限 100；`(timeColumn DESC, <pk> DESC)` · `R-9-79`）；
+//   · **只读**（§32.10）：仅 `SELECT`，不动任何 `append-only` 留痕面；**零新增码**（闭集 33）；`R107` 形状。
+// ============================================================================
+app.get('/api/admin/audit/:table', async (req, res) => {
+  const actor = await requireAdmin(req, res, 'manage_audit');
+  if (!actor) return;
+
+  try {
+    const parsed = parseAuditRequest(req.params.table, req.query as Record<string, unknown>);
+    if (!parsed.ok) return sendVerbError(res, parsed.err);
+    const { text, params } = buildAuditSql(parsed.plan);
+    const rows = await DatabaseService.readAuditPage(text, params);
+    return sendSuccess(res, buildAuditView(parsed.plan, rows), 'Audit page (admin · read-only)');
+  } catch (error) {
+    return sendInfraMapped(res, 'admin.audit.read', error);
   }
 });
 

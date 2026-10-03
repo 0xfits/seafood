@@ -49,6 +49,7 @@ export const fetchAdminAccess = async (currentUser = getStoredUser()) => {
           'manage_permissions',
           'manage_settings',
           'review_tasks',
+          'manage_audit',
         ],
         can_access_admin: true,
         preferred_admin_path: '/dashboard',

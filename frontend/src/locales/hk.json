@@ -509,7 +509,9 @@
     "arbitrationReview": "招工仲裁",
     "arbitrationReviewDesc": "處理招工爭議仲裁",
     "siteText": "站點文案",
-    "siteTextDesc": "角色名稱與站點標語設定"
+    "siteTextDesc": "角色名稱與站點標語設定",
+    "auditConsole": "審計台",
+    "auditConsoleDesc": "唯讀檢索各表留痕記錄"
   },
   "adminLayout": {
     "panelTitle": "管理面板",
@@ -1106,5 +1108,40 @@
     "actionFail": "操作失敗，請稍後重試",
     "unavailable": "代幣服務暫不可用",
     "noData": "暫無數據"
+  },
+  "auditConsole": {
+    "pageTitle": "審計台",
+    "pageSubtitle": "唯讀檢索留痕記錄，支援多表切換與條件篩選",
+    "tableLabel": "資料表",
+    "filterActor": "執行者",
+    "filterTarget": "對象",
+    "filterAction": "動作",
+    "filterFrom": "起始時間",
+    "filterTo": "結束時間",
+    "filterRefId": "關聯編號",
+    "apply": "查詢",
+    "reset": "重設",
+    "prev": "上一頁",
+    "next": "下一頁",
+    "refresh": "重新整理",
+    "empty": "暫無資料",
+    "loading": "載入中",
+    "filtersHint": "僅顯示目前資料表支援的篩選條件；不適用的條件不會送出",
+    "loadFailed": "載入失敗：{{message}}",
+    "rowCount": "本頁 {{count}} 筆",
+    "tblAdminOpsAuditLog": "積分調整審計",
+    "tblAdminRefundAuditLog": "訂單退款審計",
+    "tblLedgerEntry": "帳本分錄",
+    "tblCurrencyReviewLog": "單位審核記錄",
+    "tblCurrencyStatusLog": "單位狀態變更",
+    "tblListingReviewLog": "商品審核記錄",
+    "tblJobArbitrationLog": "招工仲裁記錄",
+    "tblBattEntry": "電量流水",
+    "tblCheckinLog": "簽到記錄",
+    "tblCheckinMakeupLog": "補簽記錄",
+    "tblRating": "評分記錄",
+    "tblListingOrderEvent": "訂單事件",
+    "tblReferral": "邀請綁定",
+    "tblCommissionPolicy": "佣金政策"
   }
 }

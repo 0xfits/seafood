@@ -509,7 +509,9 @@
     "arbitrationReview": "招工仲裁",
     "arbitrationReviewDesc": "处理招工争议仲裁",
     "siteText": "站点文案",
-    "siteTextDesc": "角色名称与站点标语配置"
+    "siteTextDesc": "角色名称与站点标语配置",
+    "auditConsole": "审计台",
+    "auditConsoleDesc": "只读检索各表留痕记录"
   },
   "adminLayout": {
     "panelTitle": "管理面板",
@@ -1106,5 +1108,40 @@
     "actionFail": "操作失败，请稍后重试",
     "unavailable": "代币服务暂不可用",
     "noData": "暂无数据"
+  },
+  "auditConsole": {
+    "pageTitle": "审计台",
+    "pageSubtitle": "只读检索留痕记录，支持多表切换与条件筛选",
+    "tableLabel": "数据表",
+    "filterActor": "执行者",
+    "filterTarget": "对象",
+    "filterAction": "动作",
+    "filterFrom": "起始时间",
+    "filterTo": "结束时间",
+    "filterRefId": "关联编号",
+    "apply": "查询",
+    "reset": "重置",
+    "prev": "上一页",
+    "next": "下一页",
+    "refresh": "刷新",
+    "empty": "暂无数据",
+    "loading": "加载中",
+    "filtersHint": "仅显示当前表支持的筛选条件；不适用的条件不会被提交",
+    "loadFailed": "加载失败：{{message}}",
+    "rowCount": "本页 {{count}} 条",
+    "tblAdminOpsAuditLog": "积分调整审计",
+    "tblAdminRefundAuditLog": "订单退款审计",
+    "tblLedgerEntry": "账本分录",
+    "tblCurrencyReviewLog": "单位审核记录",
+    "tblCurrencyStatusLog": "单位状态变更",
+    "tblListingReviewLog": "商品审核记录",
+    "tblJobArbitrationLog": "招工仲裁记录",
+    "tblBattEntry": "电量流水",
+    "tblCheckinLog": "签到记录",
+    "tblCheckinMakeupLog": "补签记录",
+    "tblRating": "评分记录",
+    "tblListingOrderEvent": "订单事件",
+    "tblReferral": "邀请绑定",
+    "tblCommissionPolicy": "佣金政策"
   }
 }

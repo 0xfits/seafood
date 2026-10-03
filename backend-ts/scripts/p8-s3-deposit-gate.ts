@@ -63,7 +63,8 @@ const FROZEN_AK1_FIELDS = [
 ];
 const AK2_KEY = 'listing_deposit_policy';
 // ★ P9④ 冻结计数前推（沿 R-8-22）：注册点 85 → 87（BTTC 铸造/分解 2 新口 +2）。
-const REG_POINTS_FROZEN = 87;
+// ★ 8⑥ 续跑前推：注册点 87 → 88（审计台统一读口 +1 · GET /api/admin/audit/:table）。
+const REG_POINTS_FROZEN = 88;
 /**
  * ★ `R-8-20`（本片新裁）注册点计数判据 —— **容忍前置空白**。
  * 改前判据 `^app\.` 写死**列 0** ⇒ **带缩进插入的路由不被计入**（缩进路由**仍是已注册路由**！）
@@ -74,7 +75,8 @@ const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;
 // ★ P9④ 冻结计数前推（沿 R-8-22）：迁移文件数 30 → 33（+0032 kind 扩容 23 / +0033 平台币标记列 / +0034 op burn+双写）。
 // ★ P9⑤ 冻结计数前推（沿 R-8-22）：迁移文件数 33 → 37（+0035 费率域扩 100..10000 / +0036 新政策行 1000·6 / +0037 M=0 免豁免断言 / +0038 kind 闭集 24）。
-const MIGRATIONS_FROZEN = 37;
+// ★ 8⑥ 续跑前推：迁移文件数 37 → 38（+0039 审计台权限键 manage_audit）。
+const MIGRATIONS_FROZEN = 38;
 const ENVELOPE_FIELDS = ['create_key', 'idempotency_key', 'idempotencyKey'];
 
 const readSrc = (rel: string): string => fs.readFileSync(path.resolve(REPO_ROOT, rel), 'utf8');

@@ -25,6 +25,10 @@ const ALL_ADMIN_PERMISSIONS = [
   'manage_permissions',
   'manage_settings',
   'review_tasks',
+  // 8⑥ 审计台（route-layer.spec v2.21 §32.14 `R-9-75`）：新增 `manage_audit`（闭集 11 → 12）。
+  // 库侧 `admin_permission` 行由 `0039_admin_audit_console.sql` 补（本单不 apply）；前端
+  // `frontend/src/admin-utils.js` 离线兜底列表须同批 +1（三处编码同集）。
+  'manage_audit',
 ] as const;
 
 const DEFAULT_SYSTEM_SETTINGS = {
@@ -2970,6 +2974,17 @@ export class DatabaseService {
       [statusFilter],
     );
     return rows;
+  }
+
+  /**
+   * ★ 8⑥ 审计台统一读口（`GET /api/admin/audit/:table` · `route-layer.spec` v2.21 §32.14
+   * `R-9-74`/`R-9-77`/`R-9-78`/`R-9-79`）：**唯一取数口** = 按 `audit-console.ts` 的白名单映射
+   * 生成的参数化语句执行（`sqlText` 的**表名 / 列名一律取自白名单映射**，请求值只进 `params`）。
+   * **只读**（§32.10）：只执行 `SELECT`；不动任何 `append-only` 留痕面；不新造第二写入面。
+   * `sqlText` 由 `buildAuditSql`（同批次单一真源）产出 ⇒ 本方法**不自拼**任何 SQL。
+   */
+  static async readAuditPage(sqlText: string, params: unknown[]): Promise<RawRow[]> {
+    return runSql(sqlText, params);
   }
 
   /**
