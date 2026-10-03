@@ -113,8 +113,9 @@ const Header = () => {
   }
 
   // 菜单项
-  // R-9-84：「我的」入口从左侧 nav 移出（改到右上角，见 buildPath('profile') 入口），
-  // 路由与 ProtectedRoute 一字不动；左侧 nav 仅存 奖励/任务/碎片（+ 管理后台 仅管理员）。
+  // R-9-84/R-9-85：「我的」入口不在左侧 nav（R-9-84 移出后并入右上角单一菜单按钮，见下方
+  // buildPath('profile') 下拉项）；路由与 ProtectedRoute 一字不动；
+  // 左侧 nav 仅存 奖励/任务/碎片（+ 管理后台 仅管理员）。
   const menuItems = [
     { path: 'reward', label: t('reward') },
     { path: 'task', label: t('task') },
@@ -132,7 +133,7 @@ const Header = () => {
     return buildLangPath(`/${path}`, getCurrentLang())
   }
 
-  // 钱包地址缩写（R-9-84：右上角「我的」入口文案 = 地址缩写，非「个人资料」）
+  // 钱包地址缩写（R-9-85：合并后右上角**唯一**菜单按钮的文案 = 地址缩写，沿用既有派生）
   // 数据派生沿用既有形态（0x + 6 位 + `...` + 4 位），非文案 ⇒ 零 i18n 新增键。
   const walletShort = currentUser?.EVM
     ? `${currentUser.EVM.slice(0, 6)}...${currentUser.EVM.slice(-4)}`
@@ -236,27 +237,20 @@ const Header = () => {
               {isDark ? <Moon size={18} /> : <Sun size={18} />}
             </button>
 
-            {/* R-9-84：右上角「我的」入口（变体 A：主题切换之后、用户菜单之前）
-                文案 = 钱包地址缩写（既有派生）；仅登录后渲染；href 走 buildPath('profile') 以保留语言前缀 */}
-            {isAuthenticated && (
-              <Link
-                to={buildPath('profile')}
-                className={`flex items-center space-x-1 nav-link ${location.pathname.includes('profile') ? 'active' : ''}`}
-                data-sf-m="header-profile-entry"
-                aria-label={walletShort}
-                title={walletShort}
-              >
-                <User size={18} />
-                <span className="truncate max-w-[120px]">{walletShort}</span>
-              </Link>
-            )}
-
-            {/* 用户菜单 */}
+            {/* R-9-85：右上角合并为唯一菜单按钮 —— 原 R-9-84 那个独立直入 /profile 的 Link 已删除
+                （⇒ 右上角仅存此一个控件）。按钮 = User 图标 + 钱包地址缩写（既有派生）+ ChevronDown；
+                仍用既有 HoverMenu（它就是「菜单按钮」：点开 / 悬停展开）。 */}
             {isAuthenticated ? (
               <HoverMenu
                 trigger={
-                  <button className="flex items-center space-x-1 nav-link" data-sf-m="header-user-menu">
+                  <button
+                    className="flex items-center space-x-1 nav-link"
+                    data-sf-m="header-user-menu"
+                    aria-label={walletShort}
+                    title={walletShort}
+                  >
                     <User size={18} />
+                    <span className="truncate max-w-[120px]">{walletShort}</span>
                     <ChevronDown size={16} />
                   </button>
                 }
@@ -276,7 +270,14 @@ const Header = () => {
                   </div>
                 </div>
                 
-                {/* R-9-84：移除重复的「个人资料」下拉项（入口已上移到右上角，文案 = 地址缩写） */}
+                {/* R-9-85：恢复「个人资料」项（触发器已不再是直达链接 ⇒ 需一条菜单项进个人资料页） */}
+                <Link
+                  to={buildPath('profile')}
+                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${location.pathname.includes('profile') ? 'bg-gray-100 dark:bg-gray-700 font-medium' : ''}`}
+                  data-sf-m="header-profile"
+                >
+                  {t('profile')}
+                </Link>
                 {/* R-9-83：直达电量 + 签到区（锚点 `#batt-checkin`），提升签到入口可发现性。
                     标签复用既有文案键（签到 + 电量），不新增顶层导航项、不新增 i18n 键。 */}
                 <Link
@@ -288,6 +289,7 @@ const Header = () => {
                 </Link>
                 <button
                   onClick={handleLogout}
+                  data-sf-m="header-logout"
                   className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   <LogOut size={16} className="mr-2" />
@@ -316,21 +318,11 @@ const Header = () => {
           
           {/* 移动端菜单按钮 */}
           <div className="md:hidden flex items-center">
-            {/* R-9-84：汉堡左侧同款「我的」入口（仅登录）——窄屏仅显图标 + aria-label（地址缩写） */}
-            {isAuthenticated && (
-              <Link
-                to={buildPath('profile')}
-                className={`flex items-center space-x-1 nav-link ${location.pathname.includes('profile') ? 'active' : ''}`}
-                data-sf-m="header-profile-entry-mobile"
-                aria-label={walletShort}
-                title={walletShort}
-              >
-                <User size={18} />
-                <span className="hidden sm:inline truncate max-w-[100px]">{walletShort}</span>
-              </Link>
-            )}
+            {/* R-9-85：移动端合并为单一入口（原 R-9-84 新增的独立「我的」Link 已删除）——
+                唯一入口 = 既有汉堡按钮；点开后于面板内呈现与桌面同款各项（见下方「移动端用户菜单」）。 */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              data-sf-m="header-mobile-menu"
               className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
             >
               {mobileMenuOpen ? (
@@ -450,14 +442,32 @@ const Header = () => {
             </button>
           </div>
 
-          {/* 移动端用户菜单 */}
+          {/* 移动端用户菜单（R-9-85：合并后唯一入口 = 上方汉堡；面板内 = 与桌面同款各项） */}
           {isAuthenticated && (
-            <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+            <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700" data-sf-m="header-user-menu-mobile">
+              <Link
+                to={buildPath('profile')}
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center w-full px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"
+                data-sf-m="header-profile-mobile"
+              >
+                <User size={18} className="mr-2" />
+                {t('profile')}
+              </Link>
+              <Link
+                to={`${buildPath('profile')}#batt-checkin`}
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center w-full px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"
+                data-sf-m="header-batt-checkin-mobile"
+              >
+                {t('checkinPanel.checkinButton')} · {t('battCard.title')}
+              </Link>
               <button
                 onClick={() => {
                   handleLogout()
                   setMobileMenuOpen(false)
                 }}
+                data-sf-m="header-logout-mobile"
                 className="flex items-center w-full px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 <LogOut size={18} className="mr-2" />
