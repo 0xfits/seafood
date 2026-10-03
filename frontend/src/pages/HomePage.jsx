@@ -8,7 +8,6 @@ import { TaskCard } from '../components/task/TaskCard'
 import { RewardCard } from '../components/reward/RewardCard'
 import { FadeIn, SlideUp, StaggerContainer } from '../components/ui/Motion'
 import { ResponsiveGrid, ResponsiveContainer } from '../components/ui/Responsive'
-import DashJ from '../components/ui/DashJ'
 import ActiveTaskModal from '../components/ActiveTaskModal'
 import { fetchApiJson, getAuthHeaders } from '../auth'
 import { useAuth } from '../auth-context'
@@ -205,7 +204,7 @@ const HomePage = () => {
           <section className="bg-gradient-to-r from-yellow-50 to-blue-50 rounded-2xl p-8 text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('homePage.welcome')}</h1>
             <p className="text-xl text-gray-600 mb-6">
-              {t('homePage.heroLead')}<DashJ size="sm" />{t('homePage.heroTail')}
+              {t('homePage.heroLead')}<span className="text-sm font-bold text-yellow-600 dark:text-yellow-400">$</span>{t('homePage.heroTail')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to={isAuthenticated ? '/task' : '/register'}>
@@ -225,7 +224,7 @@ const HomePage = () => {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">{t('homePage.hotTasks')}</h2>
-                <p className="text-gray-600">{t('homePage.hotTasksLead')}<DashJ size="sm" /></p>
+                <p className="text-gray-600">{t('homePage.hotTasksLead')}<span className="text-sm font-bold text-yellow-600 dark:text-yellow-400">$</span></p>
               </div>
               <Link to={buildLocalizedPath(lang, '/task')}>
                 <Button variant="proceed">{t('common.viewAll')}</Button>
@@ -257,7 +256,7 @@ const HomePage = () => {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">{t('homePage.featuredRewards')}</h2>
-                <p className="text-gray-600">{t('homePage.featuredLead')}<DashJ size="sm" />{t('homePage.featuredTail')}</p>
+                <p className="text-gray-600">{t('homePage.featuredLead')}<span className="text-sm font-bold text-yellow-600 dark:text-yellow-400">$</span>{t('homePage.featuredTail')}</p>
               </div>
               <Link to={buildLocalizedPath(lang, '/reward')}>
                 <Button variant="proceed">{t('common.viewAll')}</Button>

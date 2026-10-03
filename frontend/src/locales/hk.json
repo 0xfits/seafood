@@ -109,6 +109,8 @@
     "submitOk": "交付物已提交，等待審核",
     "submitNeedApply": "請先報名參與呢個任務，之後先可以提交交付物。",
     "submitNotApplicant": "呢份申請唔屬於你，只有申請人本人先可以提交交付物。",
+    "submitNotSelected": "你仲未獲僱主選定為呢個任務嘅打工人，暫時未能提交。",
+    "submitJobStateInvalid": "呢個任務目前嘅狀態唔可以提交交付物。",
     "applyPrompt": "請先參與呢個任務",
     "applyWaiting": "已報名，等僱主選定後即可提交",
     "submitting": "處理中…",
@@ -278,7 +280,7 @@
   },
   "common": {
     "viewAll": "查看全部",
-    "communityPoints": "社群積分",
+    "communityPoints": "積分",
     "verifyingPermission": "正在驗證權限...",
     "ongoing": "進行中",
     "ended": "已結束",

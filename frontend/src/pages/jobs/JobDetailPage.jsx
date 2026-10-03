@@ -39,8 +39,15 @@ const JobDetailPage = () => {
   const BATT_BELOW_ACCEPT_REASON = 'BATT_BELOW_ACCEPT_THRESHOLD'
   // R-9-88：提交（J4）被拒时后端回 `AUTH_FORBIDDEN` + `details.reason = 'ACTOR_NOT_ALLOWED'`
   //   （= 该申请不属于当前账号 / 非本人）⇒ 用**精确文案**覆盖通用「无权执行该操作」。
+  // R-9-94（同族补齐）：提交（J4）命中 `stateConflict` 时后端回 `LEDGER_CURRENCY_INVALID_TRANSITION`
+  //   + `details.reason = JOB_APPLICATION_STATE_INVALID`（未被雇主选定）/ `JOB_STATE_INVALID`（任务态不允许）
+  //   ⇒ 亦给精确文案（`jobs.submitNotSelected` / `jobs.submitJobStateInvalid`）。
   //   ★ 判据源 = 后端 reason（`fetchApiJson` 透传，`auth.js:361`）；拿不到 ⇒ 保持原链路不变。
-  const SUBMIT_ACTOR_NOT_ALLOWED_REASON = 'ACTOR_NOT_ALLOWED'
+  const SUBMIT_REASON_I18N_KEYS = Object.freeze({
+    ACTOR_NOT_ALLOWED: 'jobs.submitNotApplicant',
+    JOB_APPLICATION_STATE_INVALID: 'jobs.submitNotSelected',
+    JOB_STATE_INVALID: 'jobs.submitJobStateInvalid',
+  })
 
   const loadDetail = useCallback(async () => {
     setLoad({ phase: 'loading', message: t('loading') })
@@ -112,12 +119,11 @@ const JobDetailPage = () => {
       () => submitDeliverable(submitTarget, deliverable, user),
       t('jobs.submitOk'),
       () => loadMyApps(),
-      // R-9-88 ③：仅当后端机读面 `details.reason === ACTOR_NOT_ALLOWED` ⇒ 精确文案覆盖通用 403 文案；
+      // R-9-88 ③ / R-9-94：仅当后端机读面 `details.reason` 命中下表 ⇒ 精确文案覆盖通用文案；
       //   非该 reason（拿不到 / 其它值）⇒ `run` 已写入的原链路文案**逐字不变**（onError 不改）。
       (error) => {
-        if (error?.details?.reason === SUBMIT_ACTOR_NOT_ALLOWED_REASON) {
-          setSubmit({ phase: 'error', message: t('jobs.submitNotApplicant') })
-        }
+        const reasonKey = SUBMIT_REASON_I18N_KEYS[error?.details?.reason]
+        if (reasonKey) setSubmit({ phase: 'error', message: t(reasonKey) })
       },
     )
   }

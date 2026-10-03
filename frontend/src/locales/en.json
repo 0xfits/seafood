@@ -109,6 +109,8 @@
     "submitOk": "Deliverable submitted, awaiting review",
     "submitNeedApply": "Apply to this job first; you can submit a deliverable once you have applied.",
     "submitNotApplicant": "This application is not yours; only the applicant can submit a deliverable.",
+    "submitNotSelected": "You have not been selected by the employer for this task yet, so you cannot submit for now.",
+    "submitJobStateInvalid": "This task is not in a state that allows submitting a deliverable.",
     "applyPrompt": "Apply to this job first",
     "applyWaiting": "Applied; you can submit once the employer selects you",
     "submitting": "Working...",
@@ -278,7 +280,7 @@
   },
   "common": {
     "viewAll": "View all",
-    "communityPoints": "Community points",
+    "communityPoints": "Points",
     "verifyingPermission": "Verifying permissions...",
     "ongoing": "Ongoing",
     "ended": "Ended",

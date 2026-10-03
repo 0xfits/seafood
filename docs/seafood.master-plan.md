@@ -1416,6 +1416,40 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.307 **前端两件合并单回执（50c/375s）· ★它纠正我的「8 处」口径（实为 6 处产品使用点）· ★同族扫面区分了「同 reason 不同面」· 我核盘通过 → 入库 + 派质检**（2026-10-03）
+
+**A. 件一（`R-9-93`）平台积分 `dashJ` → `$`**：
+- ★ **它纠正我**：**产品面使用点 = 6 处**（非我 brief 写的 8 处）—— 我列的 8 = **6 处产品使用 + 2 处引用**（`DashJ.jsx` 组件自身 + `ui/index.js` barrel 导出，按要求保留）⇒ **我认账**（口径把「引用」当成了「使用点」）
+- 6 处全部由 `<DashJ/>` 改为 **`$`**（styled span，尺寸/颜色沿用）：`Header.jsx:267` · `task/TaskCard.jsx:101` · `reward/RewardCard.jsx:92` · `pages/HomePage.jsx:207/227/259`
+- **产品面 `DashJ` 引用 = 0**（我核盘：仅 `ui/index.js` 的 barrel 导出 + 注释）✓ · `DashJ.jsx` **保留** + 头注释改为「**无产品引用**、今后仅『上市的积分』、不再代表平台积分」✓
+- **文案键 `common.communityPoints` 四语齐改**（**零新增键 ⇒ 件一 value-only、计数不变**）：`zh`「**积分**」· `hk`「**積分**」· `en`「**Points**」· `vn`「**Điểm**」✓
+
+**B. 件二（`R-9-94`）提交面 reason 精确文案**：
+- 新增 2 键（`jobs.submitNotSelected` / `jobs.submitJobStateInvalid`，4 语齐备互异、`en/vn` 零 CJK）；新增 `SUBMIT_REASON_I18N_KEYS` 分流表；**未命中 ⇒ 原链路通用文案逐字不变** ✓
+| reason | 弹窗 `ActiveTaskModal` | 详情页 `JobDetailPage` |
+|---|---|---|
+| `ACTOR_NOT_ALLOWED` | `jobs.submitNotApplicant`（保留） | 同左（保留） |
+| **`JOB_APPLICATION_STATE_INVALID`** | `jobs.submitNotSelected`「你还没有被雇主选定为该任务的打工人，暂不能提交」 | 同左 |
+| **`JOB_STATE_INVALID`** | `jobs.submitJobStateInvalid`「该任务当前状态不能提交交付物」 | 同左 |
+| 其它 / 无 `details` | 通用 `${t('error')}: ${message}` **逐字不变** | 通用 `String(error?.message)` **逐字不变** |
+- 5 条 reason × **2 面**全部断言（`r9-88` 8 例 + `r9-90` 14 例全绿）✓
+- **计数（已按授权前推 5 处断言）**：`top 119`（不变）· **`flat 1039 → 1041`** · **`locale 节点 4156 → 4164`** ✓（我核盘：`flat = 1041`）
+
+**C. ★ 同族扫面（`submitWork` + `acceptApplication` 全部 `stateConflict`/`fail` 分支逐条列归属）**：
+- **`submitWork`**（`job-service.ts:125-172`）：`:134` 键非法族 ⇒ 保持通用（创建键实现面）· `:140/:148/:151/:169`（404 无 reason）⇒ 通用 · `:143` `ACTOR_NOT_ALLOWED` ⇒ **已精确**（`R-9-92`）· `:156`/`:161`（幂等冲突）⇒ 通用 · **`:164` `JOB_APPLICATION_STATE_INVALID` / `:165` `JOB_STATE_INVALID` ⇒ 本单精确** ✓
+- **`acceptApplication`**（`:211-247`）：`:222` `ACTOR_NOT_ALLOWED` ⇒ 通用（**接受面**，前端 `onAccept` 未接线；本单限提交面）· `:224` `application_already_accepted` ⇒ 通用（接受面专属语义）· **`:226`/`:228` 虽与提交面同 reason 但属接受面 ⇒ 本单「提交」语义文案不适用 ⇒ 保持通用** ★★ **这个区分是对的**（**同 reason ≠ 同面**，文案必须按面给）· `:231` `BATT_BELOW_ACCEPT_THRESHOLD` ⇒ **已精确**（`auth.js:152` 全局 `apiErrorMessage` 层）✓
+- ⇒ 结论：除被点名两条外，同族内**仅** `BATT_BELOW_ACCEPT_THRESHOLD` 已被精确化；其余保持通用且**逐条给了理由** ✓
+
+**D. 回归**：`vitest` 前 `4 failed/39 passed` / `7 failed/361 passed` ⇒ 后 `4 failed/40 passed` / **`7 failed/375 passed`** ⇒ **零新增失败**（7 = 既有 `Card`×6 + `VirtualList`×1）✓ · `build` **0**（`index-CamqpxtI.js` 416.55 kB）✓ · 六类泄漏 **0**（4164 节点仅 4 处**既有且被 closeout 显式豁免**的 `adminPermissions.permissionsPlaceholder`，未触碰）✓
+- ★ 它**诚实登记**：`git status` 里的 `backend-ts/.p8s6-ro/diag-submit2.*` 是**我的**只读诊断探针（非它产物）✓
+
+**E. ★ 我核盘（`自报 ≠ 盘面`）**：产品面 `DashJ` 引用 **仅 barrel 导出 + 注释**（零使用）✓ · **6 处 `$`** 计数（Header 1 / TaskCard 1 / RewardCard 1 / HomePage 3）✓ · 四语 `communityPoints` = 积分/Points/積分/Điểm ✓ · 两新键四语齐备 ✓ · `flat = 1041` ✓ · **我亲跑 3 个测试文件 = 31/31 绿** ✓
+
+**F. 入库 + 派质检**（用户可见面 ⇒ **先质检再 push**）。
+**G. 状态**：DB **0040** · 生产代码 `342e40c` · **积分 9889 + 电量 30**。
+
+---
+
 ### 5.306 **Kevin 两件事：① 平台积分单位 `dashJ` → `$` + 文案「社区积分」→「积分」· ② 提交又被拒（★真因 = 雇主未选定你 ⇒ `applied` ⇒ 409 通用文案 · **非缺陷**）· 我立 `R-9-93`/`R-9-94` · 派一单**（2026-10-03）
 
 **A. ② 提交被拒 · ★我先现取了他的真实数据（结论 = 非缺陷、流程卡住）**：
@@ -6576,6 +6610,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.307 | 2026-10-03 | **前端两件合并单回执（50c/375s）· ★它纠正我的「8 处」口径（实为 6 处产品使用点）· ★同族扫面区分了「同 reason 不同面」· 我核盘通过 → 入库 + 派质检**。**A. 件一**：★产品面使用点 **6 处**（非 8；我列的 8 = 6 使用 + 2 引用〔组件自身 + barrel〕）⇒ 我认账；6 处全改 `$`（Header:267 · TaskCard:101 · RewardCard:92 · HomePage:207/227/259）；产品面 DashJ 引用 **0**；`DashJ.jsx` 保留 + 注释改为「无产品引用、今后仅上市积分」；`common.communityPoints` 四语齐改 积分/積分/Points/Điểm（零新增键 ⇒ 件一计数不变）。**B. 件二**：新增 `jobs.submitNotSelected`/`submitJobStateInvalid`（4 语）+ `SUBMIT_REASON_I18N_KEYS` 分流表；5 reason × **2 面**全断言；未命中 ⇒ 通用逐字不变；计数 `top 119` 不变 · **`flat 1039→1041`** · **节点 4156→4164**。**C. ★同族扫面**：submitWork（:134 键非法/404/幂等/`:143` 已精确/`:164`·`:165` 本单精确）+ acceptApplication（`:222` `:224` 通用 · **`:226`/`:228` 同 reason 但属接受面 ⇒ 本单提交语义文案不适用 ⇒ 保持通用** · `:231` 已精确）⇒ **「同 reason ≠ 同面」的区分正确**。**D.** vitest 前 7 failed/361 passed ⇒ 后 **7 failed/375 passed** 零新增 · build 0（416.55 kB）· 六类泄漏 0；它诚实登记我的诊断探针。**E.** 我核盘：DashJ 零产品引用 ✓ · 6 处 `$` ✓ · 四语值齐 ✓ · flat=1041 ✓ · 我亲跑 3 文件 31/31 绿 ✓。**F.** 入库 + 派质检（用户可见面 ⇒ 先质检再 push）。 |
 | v0.306 | 2026-10-03 | **Kevin 两件事：① 平台积分单位 dashJ → $ + 文案「社区积分」→「积分」· ② 提交又被拒（★真因 = 雇主未选定你 ⇒ applied ⇒ 409 通用文案 · 非缺陷）· 我立 R-9-93/R-9-94 · 派一单**。**A. ② 我现取他真实数据**：`account 970213/cid1 = **9889**`（= 10000 − **111**）⇒ ★**他已成功发布任务 #136（reward 111 · open）** ⇒ 积分生效、发任务已通；他的申请 `app 65→job 24` 与 `app 64→job 2` **都是 applied（未被选定）**；提交 0 条；全库 21 jobs/19 apps/13 subs/56 users ⇒ ★根因 = 提交闸要求 `accepted` 而他是 `applied` ⇒ `stateConflict('job_application.status','JOB_APPLICATION_STATE_INVALID')` ⇒ 409 + 通用文案（= `ledger.err.LEDGER_CURRENCY_INVALID_TRANSITION`）⇒ **非缺陷、是文案面缺口**（同族：提交面只覆盖 ACTOR_NOT_ALLOWED）；★并告知流程要点：**自己发的任务不能自己接（self_application）⇒ 须第二账号参与 + 雇主账号「选定」后该账号再提交**。**B. ① 现取**：`ui/DashJ.jsx` = 「dashJ 符号」= J + 横划线（头注释逐字「表示社区积分」）· **8 处使用点**（Header:268 · TaskCard:102 · RewardCard:93 · HomePage:208/228/260）· `common.communityPoints` 四语 = 社区积分/Community points/社群積分/Điểm cộng đồng · ★**后端 `currency.cid=1.symbol` 本来就是 `$`** ⇒ 前端符号错。**C. 我裁**：`R-9-93` 平台积分符号一律 `$`（8 处全改）+ `DashJ` 组件保留但更新注释 + 文案键四语齐改 zh「积分」/hk「積分」/en「Points」/vn「Điểm」+ 零新增键（值变更须逐键列出）；`R-9-94` 提交面按 reason 精确文案（补 `JOB_APPLICATION_STATE_INVALID`/`JOB_STATE_INVALID`，其余逐字不变）+ **同族扫面**（submitWork/acceptApplication 全部 reason 逐条列归属）；`R-9-95` 两件同改 locales ⇒ **必须同一单**。**D.** 派一单（前端两件合并）。 |
 | v0.305 | 2026-10-03 | **Jing 路由层规范回写回执（27c/214s）= 纯追加 97/0 · ★它纠正我一处转引误差 · 我核盘通过 → 入库 + push（本批终稿）**。**A.** route-layer v2.21→**v2.22**：spec 内 `shard` **40 命中逐处判定**（页面路径 7 行 ⇒ 回写 · `/api/shard*` 29 处 ⇒ 不动 · 表名/其它 4 行 ⇒ 不动 · 历史快照 41 件 ⇒ 不动）；4 个 insert 块共 97 行（v2.22 状态块 3 行 + §2③ 两处就地标注 + **新 §33（33.1–33.8）92 行**）；★**三面不动**逐字入册（组件名 `ShardPage` · 文案键 `shard` · API `/api/shard*`）+ **旧写法逐字留痕**；三件套 = 主册（md5 `4ee506ec…`→`ae65077a…`）· 新快照 **cmp=0** · 新 delta（75 行）；★ 只追加自证 = **`numstat 97/0`** + **`difflib {'equal':5,'insert':4}`（replace 0 / delete 0）**。**B.** ★**它纠正我转引误差**：我写「`App.jsx:283` 注释同步」，现取 `:283` = 8② fee-rate 路由行（非交易所注释）⇒ 以现取为准（教训：brief 行号必须现取）。**C.** 登记 7 类（`ProfilePage.jsx:501` 旧链接〔重定向零破损〕· `frontend/src/styles.css:29`〔它纠正我路径〕· p4z 脚本 · 单测夹具旧路径登记不修 · 回归契约有意保留 · docs 历史件 · 历史快照）。**D.** 我核盘：numstat 97/0 ✓ · 快照 cmp=0 ✓ · §33 子节 8 ✓ · 状态块在位 ✓ · 就地标注旧行未动 ✓ · 工作树仅 docs 三件 ✓；（我 `grep -c /api/shard` 得 38 ⇄ 它报 29 = 计数口径差异，不影响结论 —— numstat+difflib 已机械证明原有行逐字保留）。**E.** push `43d1cdd` = **本批终稿**。**F.** 总收官：8⑥ · D1/D2 · batt 点阵条 · 签到闭环 · 合并菜单 · D8 提交面 · 隐私面封堵 · 路由改名+规范回写 · 积分 10000 ⇒ 全部上线 + 生产终验 + 规范同代；生产 `schema_version` **0040** · HEAD **`43d1cdd`**。 |
 | v0.304 | 2026-10-03 | **测试强度修补单回执（18c/136s）= 收紧为原生结构断言 · ★它给出「假绿实证」+「必红 4 红点」· 我核盘通过 → 入库 + push**。**A.** `r9-90-participate-surface.test.jsx`（+53/−12）：新增 `NATIVE_SUBMIT_SELECTORS = ['form','textarea','input:not([type=hidden])','button[type=submit]']` + `expectNoNativeSubmitControls`；**钩子仅作辅助定位**；无 jID ⇒ **双容器**（弹窗 + 参与面）断言四原生选择器均 null；有 jID ⇒ 反件断言 form（与钩子同一节点）/textarea/button[type=submit] 存在；★诚实标注口径例外（产品交付物控件是 textarea、源码本就无 input ⇒ jID 侧不断言 input）。**B. 自证**：套件 **11/11** · **负对照 A（假绿实证）**：注入不带钩子的真表单 ⇒ 真 `<form>` 存在而**旧断言仍 null（漏判）** ⇒ 复现假绿 · **负对照 B（必红）**：4 红点全命中（form/input/textarea/button[type=submit] 各一条 `to be null`）· 全量 `7 failed \| 361 passed` 零新增 · build 0 · 变异体仅在仓外。**C.** 我核盘：tracked 改动仅此文件 · 四选择器齐 · `expectNoNativeSubmitControls` 用 3 处 · 钩子非唯一判据 · **我亲跑 11/11 绿**。**D.** 入库 + push（测试不入 build ⇒ 产物 sha 应不变）。**E.** 本批全部收官；在跑 Jing 规范回写单。 |

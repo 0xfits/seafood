@@ -187,6 +187,26 @@ describe('③ 提交错误面：ACTOR_NOT_ALLOWED ⇒ 精确；其它/无 detail
     expect(status.textContent).not.toContain('无权执行')
   })
 
+  // R-9-94（同族补齐）：另两条 `stateConflict` reason ⇒ 亦给精确文案
+  it('reason === JOB_APPLICATION_STATE_INVALID ⇒ 精确文案 jobs.submitNotSelected（未被雇主选定）', async () => {
+    const err = Object.assign(new Error('Business state transition rejected'), {
+      details: { reason: 'JOB_APPLICATION_STATE_INVALID' },
+    })
+    await doSubmit(err)
+    const status = q('active-task-submit-status')
+    expect(status.textContent).toBe(zh.jobs.submitNotSelected)
+    expect(status.textContent).not.toBe(`${zh.error}: Business state transition rejected`)
+  })
+
+  it('reason === JOB_STATE_INVALID ⇒ 精确文案 jobs.submitJobStateInvalid（任务态不允许提交交付物）', async () => {
+    const err = Object.assign(new Error('Business state transition rejected'), {
+      details: { reason: 'JOB_STATE_INVALID' },
+    })
+    await doSubmit(err)
+    const status = q('active-task-submit-status')
+    expect(status.textContent).toBe(zh.jobs.submitJobStateInvalid)
+  })
+
   it('其它 reason ⇒ 原链路通用文案逐字不变（t(error) + ": " + message）', async () => {
     const err = Object.assign(new Error('generic failure'), { details: { reason: 'SOME_OTHER_REASON' } })
     await doSubmit(err)
@@ -286,6 +306,27 @@ describe('⑥ 新增键 jobs.applyPrompt / jobs.applyWaiting 四语齐平', () =
       expect(new Set(vals).size).toBe(4)
       expect(CJK.test(en.jobs[k])).toBe(false)
       expect(CJK.test(vn.jobs[k])).toBe(false)
+    }
+  })
+})
+
+// ============================================================================
+// ⑦ 新增键（R-9-94）jobs.submitNotSelected / jobs.submitJobStateInvalid 四语齐平
+// ============================================================================
+describe('⑦ 新增键 jobs.submitNotSelected / jobs.submitJobStateInvalid 四语齐平', () => {
+  const TABLES = { zh, en, hk, vn }
+  const CJK = /[\u4E00-\u9FFF]/
+
+  it('两键四语齐备、非空、四语互异；en/vn 零 CJK', () => {
+    for (const k of ['submitNotSelected', 'submitJobStateInvalid']) {
+      const vals = Object.values(TABLES).map((tb) => tb.jobs[k])
+      for (const v of vals) {
+        expect(typeof v, `jobs.${k}`).toBe('string')
+        expect(v.trim().length, `jobs.${k}`).toBeGreaterThan(0)
+      }
+      expect(new Set(vals).size, `jobs.${k} 四语应互异`).toBe(4)
+      expect(CJK.test(en.jobs[k]), `en.jobs.${k}`).toBe(false)
+      expect(CJK.test(vn.jobs[k]), `vn.jobs.${k}`).toBe(false)
     }
   })
 })

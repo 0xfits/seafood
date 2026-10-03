@@ -109,6 +109,8 @@
     "submitOk": "Đã nộp sản phẩm, chờ duyệt",
     "submitNeedApply": "Hãy ứng tuyển việc này trước; sau khi ứng tuyển mới có thể nộp sản phẩm.",
     "submitNotApplicant": "Đơn này không thuộc về bạn; chỉ người ứng tuyển mới có thể nộp sản phẩm.",
+    "submitNotSelected": "Bạn chưa được chủ việc chọn làm người làm cho nhiệm vụ này, nên tạm thời chưa thể nộp.",
+    "submitJobStateInvalid": "Nhiệm vụ này ở trạng thái hiện tại không thể nộp sản phẩm.",
     "applyPrompt": "Hãy ứng tuyển việc này trước",
     "applyWaiting": "Đã ứng tuyển; bạn có thể nộp bài sau khi chủ việc chọn bạn",
     "submitting": "Đang xử lý...",
@@ -278,7 +280,7 @@
   },
   "common": {
     "viewAll": "Xem tất cả",
-    "communityPoints": "Điểm cộng đồng",
+    "communityPoints": "Điểm",
     "verifyingPermission": "Đang xác minh quyền...",
     "ongoing": "Đang diễn ra",
     "ended": "Đã kết thúc",

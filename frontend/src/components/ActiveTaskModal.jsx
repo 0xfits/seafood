@@ -20,9 +20,17 @@ import { applyToJob, submitDeliverable } from '../pages/jobs/job-api'
 //     R107 错误面统一），**不再**自拼 `data.message`、**不再**手打 fetch。
 //   · 401 分流 / token 预检保留（行为与旧实现同源）；参与、提交失败文案**逐字**走同一链路。
 //   · R-9-92 错误面：提交被拒且 `error.details.reason === 'ACTOR_NOT_ALLOWED'` ⇒ **精确文案**
-//     （`jobs.submitNotApplicant`）；其它 reason / 无 details ⇒ 原链路通用文案**逐字不变**。
+//     （`jobs.submitNotApplicant`）。
+//   · R-9-94 错误面（同族补齐）：另两条机读 reason 亦给精确文案 ——
+//     `JOB_APPLICATION_STATE_INVALID` ⇒ `jobs.submitNotSelected`（未被雇主选定）·
+//     `JOB_STATE_INVALID` ⇒ `jobs.submitJobStateInvalid`（任务态不允许提交）。
+//     其它 reason / 无 details ⇒ 原链路通用文案**逐字不变**。
 // ============================================================================
-const SUBMIT_ACTOR_NOT_ALLOWED_REASON = 'ACTOR_NOT_ALLOWED'
+const SUBMIT_REASON_I18N_KEYS = Object.freeze({
+  ACTOR_NOT_ALLOWED: 'jobs.submitNotApplicant',
+  JOB_APPLICATION_STATE_INVALID: 'jobs.submitNotSelected',
+  JOB_STATE_INVALID: 'jobs.submitJobStateInvalid',
+})
 const UNAUTHORIZED_CODE = 'AUTH_UNAUTHORIZED'
 const UNAUTHORIZED_I18N_KEY = 'auth.err.AUTH_UNAUTHORIZED'
 
@@ -115,10 +123,11 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
         toLogin()
         return
       }
-      if (error?.details?.reason === SUBMIT_ACTOR_NOT_ALLOWED_REASON) {
-        // R-9-92：机读面命中 ⇒ 精确文案（非申请人本人）
-        setErrorText(t('jobs.submitNotApplicant'))
-        toast.error(t('jobs.submitNotApplicant'))
+      // R-9-92 / R-9-94：机读面 `details.reason` 命中 ⇒ 精确文案；未命中（其它 reason / 无 details）⇒ 通用文案逐字不变
+      const reasonKey = SUBMIT_REASON_I18N_KEYS[error?.details?.reason]
+      if (reasonKey) {
+        setErrorText(t(reasonKey))
+        toast.error(t(reasonKey))
       } else {
         // 其它 reason / 无 details / 网络错 ⇒ 原链路通用文案（逐字不变）
         const message = `${t('error')}: ${error?.message || t('error')}`

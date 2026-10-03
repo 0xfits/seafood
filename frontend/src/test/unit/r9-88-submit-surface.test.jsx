@@ -162,6 +162,27 @@ describe('③ 提交捕错分支：按 error.details.reason 分流', () => {
     expect(status.textContent).not.toBe(zh.auth.err.AUTH_FORBIDDEN)
   })
 
+  // R-9-94（同族补齐）：提交被拒的另两条 `stateConflict` reason ⇒ 亦给精确文案
+  it('reason === JOB_APPLICATION_STATE_INVALID ⇒ 精确文案 jobs.submitNotSelected（未被雇主选定），非通用「当前状态不允许此变更。」', async () => {
+    const err = Object.assign(new Error('Business state transition rejected'), {
+      details: { reason: 'JOB_APPLICATION_STATE_INVALID' },
+    })
+    await doSubmit(err)
+    const status = q('jobs-submit-status')
+    expect(status.textContent).toBe(zh.jobs.submitNotSelected)
+    expect(status.textContent).not.toBe(zh.ledger.err.LEDGER_CURRENCY_INVALID_TRANSITION)
+  })
+
+  it('reason === JOB_STATE_INVALID ⇒ 精确文案 jobs.submitJobStateInvalid（任务态不允许提交交付物）', async () => {
+    const err = Object.assign(new Error('Business state transition rejected'), {
+      details: { reason: 'JOB_STATE_INVALID' },
+    })
+    await doSubmit(err)
+    const status = q('jobs-submit-status')
+    expect(status.textContent).toBe(zh.jobs.submitJobStateInvalid)
+    expect(status.textContent).not.toBe(zh.ledger.err.LEDGER_CURRENCY_INVALID_TRANSITION)
+  })
+
   it('非该 reason（其它 reason 值）⇒ 保持原链路：通用文案逐字不变', async () => {
     const err = Object.assign(new Error('generic failure'), { details: { reason: 'SOME_OTHER_REASON' } })
     await doSubmit(err)

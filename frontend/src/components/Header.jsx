@@ -7,7 +7,6 @@ import usFlag from '../images/us.svg'
 import hkFlag from '../images/hk.svg'
 import vnFlag from '../images/vn.svg'
 import HoverMenu from './ui/HoverMenu'
-import DashJ from './ui/DashJ'
 import { fetchAdminAccess } from '../admin-utils'
 import { useAuth } from '../auth-context'
 import {buildLocalizedPath, buildLangPath, getLanguageFromUrl} from '../utils'
@@ -265,7 +264,7 @@ const Header = () => {
                       <span className="text-gray-900 dark:text-white font-medium">
                         {userPoints.toLocaleString()}
                       </span>
-                      <DashJ size="lg" />
+                      <span className="text-lg font-bold text-yellow-600 dark:text-yellow-400">$</span>
                     </div>
                   </div>
                 </div>
