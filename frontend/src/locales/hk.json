@@ -107,6 +107,8 @@
     "submit": "提交交付物",
     "submitNote": "提交後會進入待審核狀態；重複提交唔會重複計酬。",
     "submitOk": "交付物已提交，等待審核",
+    "submitNeedApply": "請先報名參與呢個任務，之後先可以提交交付物。",
+    "submitNotApplicant": "呢份申請唔屬於你，只有申請人本人先可以提交交付物。",
     "submitting": "處理中…",
     "itemTitle": "招工 #{{job}} · 申請 #{{app}}",
     "approve": "通過並發放",

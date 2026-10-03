@@ -107,6 +107,8 @@
     "submit": "Submit deliverable",
     "submitNote": "After you submit, the work goes into review; submitting again does not count or pay twice.",
     "submitOk": "Deliverable submitted, awaiting review",
+    "submitNeedApply": "Apply to this job first; you can submit a deliverable once you have applied.",
+    "submitNotApplicant": "This application is not yours; only the applicant can submit a deliverable.",
     "submitting": "Working...",
     "itemTitle": "Job #{{job}} - application #{{app}}",
     "approve": "Approve and pay",

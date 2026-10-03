@@ -37,6 +37,10 @@ const JobDetailPage = () => {
   const [battBlocked, setBattBlocked] = useState(false)
 
   const BATT_BELOW_ACCEPT_REASON = 'BATT_BELOW_ACCEPT_THRESHOLD'
+  // R-9-88：提交（J4）被拒时后端回 `AUTH_FORBIDDEN` + `details.reason = 'ACTOR_NOT_ALLOWED'`
+  //   （= 该申请不属于当前账号 / 非本人）⇒ 用**精确文案**覆盖通用「无权执行该操作」。
+  //   ★ 判据源 = 后端 reason（`fetchApiJson` 透传，`auth.js:361`）；拿不到 ⇒ 保持原链路不变。
+  const SUBMIT_ACTOR_NOT_ALLOWED_REASON = 'ACTOR_NOT_ALLOWED'
 
   const loadDetail = useCallback(async () => {
     setLoad({ phase: 'loading', message: t('loading') })
@@ -103,7 +107,19 @@ const JobDetailPage = () => {
     event.preventDefault()
     if (submit.phase === 'loading') return
     setSubmit({ phase: 'loading', message: t('jobs.submitting') })
-    await run(setSubmit, () => submitDeliverable(submitTarget, deliverable, user), t('jobs.submitOk'), () => loadMyApps())
+    await run(
+      setSubmit,
+      () => submitDeliverable(submitTarget, deliverable, user),
+      t('jobs.submitOk'),
+      () => loadMyApps(),
+      // R-9-88 ③：仅当后端机读面 `details.reason === ACTOR_NOT_ALLOWED` ⇒ 精确文案覆盖通用 403 文案；
+      //   非该 reason（拿不到 / 其它值）⇒ `run` 已写入的原链路文案**逐字不变**（onError 不改）。
+      (error) => {
+        if (error?.details?.reason === SUBMIT_ACTOR_NOT_ALLOWED_REASON) {
+          setSubmit({ phase: 'error', message: t('jobs.submitNotApplicant') })
+        }
+      },
+    )
   }
 
   const pay = useMemo(() => (job?.points == null ? '—' : String(job.points)), [job])
@@ -176,22 +192,26 @@ const JobDetailPage = () => {
             </div>
           )}
 
-          {isAuthenticated && (
+          {/* R-9-88 ②：无本人申请 ⇒ **不渲染**提交表单，只给「先参与该任务」提示
+              （不再要求用户手打申请编号 ⇒ 杜绝「填任务编号撞别人的申请」）。 */}
+          {isAuthenticated && appsState.phase === 'ok' && myApps.length === 0 && (
+            <div className="sf-jobs-panel" data-sf-m="jobs-submit-need-apply">
+              <h2 className="sf-jobs-title">{t('jobs.submit')}</h2>
+              <p className="sf-jobs-meta">{t('jobs.submitNeedApply')}</p>
+            </div>
+          )}
+
+          {/* R-9-88 ①：提交目标**只能**由「我的报名」条目（下方 `setSubmitTarget`）带出 ⇒
+              此处仅**只读**展示当前目标（application_id），**绝无**可编辑的手输框。 */}
+          {isAuthenticated && myApps.length > 0 && (
             <form className="sf-jobs-panel" onSubmit={onSubmitWork} data-sf-m="jobs-submit-form">
               <h2 className="sf-jobs-title">{t('jobs.submit')}</h2>
               <p className="sf-jobs-meta">{t('jobs.submitNote')}</p>
+              <p className="sf-jobs-meta" data-sf-m="jobs-submit-target">
+                {t('jobs.applicationId')}
+                {submitTarget ? ` #${submitTarget}` : ' —'}
+              </p>
               <div className="sf-jobs-form">
-                <label className="sf-jobs-field">
-                  <span className="sf-jobs-label">{t('jobs.applicationId')} · $</span>
-                  <input
-                    className="sf-jobs-input"
-                    data-sf-m="jobs-input-identifier"
-                    value={submitTarget}
-                    onChange={(e) => setSubmitTarget(e.target.value)}
-                    inputMode="numeric"
-                    required
-                  />
-                </label>
                 <label className="sf-jobs-field">
                   <span className="sf-jobs-label">{t('jobs.deliverable')}</span>
                   <input
