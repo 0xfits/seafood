@@ -2440,22 +2440,58 @@ app.post('/api/job/:jobId/submit', async (req, res) => {
 //   ∨ 持 `review_tasks` 的管理员」（按已冻结 D5「雇主自审 + 平台仲裁兜底」）；**★ 既有 admin 通道保留**
 //   （`requireJobOwnerOrAdmin` 的 OR 一支 ⇒ **零回归**）。
 // `req.body.approved !== false` ⇒ settle（`settleJob`），`=== false` ⇒ refund（`refundJob`）—— 前端契约同 `:1103`。
+// ★ S6（`R-9-100`/`R-9-101`）· **逐笔判定**：body 可选 `submission_id`（兼容别名 `submissionId`）
+//   ⇒ 原样转发服务层 `settleJob({submissionIdRaw})`（S4a 已收该入参 ⇒ 结算键/指纹含提交号、
+//   `review_status='approved'` 与资金**同一语句**）；**不带提交号 ⇒ 旧调用逐字走遗留单笔分支（零回归）**。
+//   ★ spec 现取（未冻结该 body 形态）：已冻结面 = **路径 `POST /api/job/:jobId/review` + body `{approved}`
+//   + 成功键集 15 键**（`route-layer.spec.md:33/91` · §1.11 Q7），**未冻结「提交号字段名」** ⇒ 本片取
+//   **最小变体** `{approved, submission_id}`（别名 `submissionId`）⇒ **待 Jing 回写 spec**（登记见报告）。
+//   ★ 逐笔 reject（带提交号判不合格）**本片不接线**（越出本单面）：`approved:false` 恒走 `refundJob`
+//   整单退（旧语义不变）⇒ 登记交 Zang。
 app.post('/api/job/:jobId/review', async (req, res) => {
   const jobIdRaw = String(req.params.jobId ?? '').trim();
   const actor = await requireJobOwnerOrAdmin(req, res, jobIdRaw);
   if (!actor) return;
 
   const approved = req.body?.approved !== false;
+  // ★ S6：逐笔提交号（缺省 ⇒ 服务层落遗留单笔分支）
+  const submissionIdRaw = req.body?.submission_id ?? req.body?.submissionId;
 
   try {
     const result = approved
-      ? await settleJob({ jobIdRaw, reviewerUid: actor.user.uID }) // 审核人 ⇒ 结论位与资金**同一语句**（R4 原子）
+      ? await settleJob({ jobIdRaw, submissionIdRaw, reviewerUid: actor.user.uID }) // 审核人 ⇒ 结论位与资金**同一语句**（R4 原子）
       : await refundJob({ jobIdRaw, toStatusRaw: 'rejected', reviewerUid: actor.user.uID });
     if (!result.ok) return sendVerbError(res, result);
     return sendSuccess(res, result.view, approved ? 'Job settled' : 'Job rejected', 200,
       result.replay ? { idempotent_replay: true } : undefined);
   } catch (error) {
     return sendInfraMapped(res, 'job.review', error);
+  }
+});
+
+// ---- A5b · S6 逐条提交读口（`GET /api/job/:jobId/submissions`）--------------------------
+// ★ 路径 = **spec 已冻结**（`docs/data-layer.spec.md:281`：「路由 `GET /api/job/:jobId/submissions`」）；
+//   **返回形状 / 字段名 spec 未冻结** ⇒ 本片取**最小列集**（提交号 / 任务号 / 提交人 / 交付物 /
+//   审核状态 / 审核人 / 审核时点 / 审核备注 / 提交时点）⇒ **待 Jing 回写 spec**（登记见报告）。
+// 准入（Zang 裁 D · 与 `/review` 同族）= 「该 job 的**雇主本人** ∨ 持 `review_tasks` 的管理员」——
+//   **复用既有 `requireJobOwnerOrAdmin`（不另写）**：① 无 token ⇒ 401；② `:jobId` 非数字 / job 不存在
+//   ⇒ 404（既有 detail-miss）；③ 雇主本人 ⇒ 放行；④ 否则既有 admin 通道；⑤ 皆不满足 ⇒ 既有
+//   `403 AUTH_FORBIDDEN` + `reason ∈ {NOT_ADMIN, PERMISSION_NOT_GRANTED}`（**零新增码 / 零新增 reason**）。
+//   ★ 惯例对照（登记）：同族读口 `/api/task-progress/:jID`（`:885`）对「已登录取非本人」取 **404**
+//   （不泄漏存在性）；本口**取 403** —— 因它复用「雇主 ∨ admin」归属闸（既有冻结形态 = 403），
+//   且 job 本身是公开对象（列表可见）⇒ 存在性非秘密。**待 Zang 复核**（见报告§同族扫面）。
+app.get('/api/job/:jobId/submissions', async (req, res) => {
+  const jobIdRaw = String(req.params.jobId ?? '').trim();
+  const actor = await requireJobOwnerOrAdmin(req, res, jobIdRaw);
+  if (!actor) return;
+
+  try {
+    const { skip, limit } = getPagination(req);
+    const submissions = await DatabaseService.listJobSubmissions(Number(jobIdRaw), skip, limit);
+    setPrivateNoStore(res); // 交付物正文属隐私面（R-9-86 同向）⇒ 私有、禁缓存
+    return sendSuccess(res, submissions);
+  } catch (error) {
+    return sendInfraMapped(res, 'job.submissions', error);
   }
 });
 

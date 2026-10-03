@@ -1204,6 +1204,25 @@ export interface PendingVerificationRecord extends TaskProgressRecord {
   } | null;
 }
 
+/**
+ * ★ S6（`R-9-100`/`R-9-101`）· `GET /api/job/:jobId/submissions` 读口的逐条记录
+ *   （spec 冻结路径见 `data-layer.spec.md:281`；**返回形状 spec 未冻结 ⇒ 待 Jing 回写**）。
+ *   列 = `job_submission` 提交轴（`DL56`）：提交号 / 任务号 / 提交人 / 交付物 / 审核状态 / 审核人 /
+ *   审核时点 / 审核备注 / 提交时点。时间列 = **epoch 秒**（与 `TaskProgressRecord` 同口径）；
+ *   `reviewed_by` 未审 ⇒ `null`（`reviewed_at` 未审 ⇒ `0`，同 `TaskProgressRecord.time_checked` 惯例）。
+ */
+export interface JobSubmissionRecord {
+  submission_id: number;
+  job_id: number;
+  worker_uid: number;
+  deliverable: string;
+  review_status: string;
+  reviewed_by: number | null;
+  reviewed_at: number;
+  review_memo: string;
+  time_created: number;
+}
+
 export interface AdminAccessRecord {
   uID: number;
   EVM: string;
@@ -2621,6 +2640,46 @@ export class DatabaseService {
     `);
 
     return rows.map(normalizeTaskProgress);
+  }
+
+  /**
+   * ★ S6（`R-9-100`/`R-9-101`）· `GET /api/job/:jobId/submissions` **读口**（spec 冻结路径
+   *   `docs/data-layer.spec.md:281`；返回形状未冻结 ⇒ 待 Jing 回写）。
+   *   逐条返回该任务的提交（`job_submission` 提交轴 · `DL56`）：提交号 / 提交人 / 交付物 /
+   *   审核状态 / 审核人 / 审核时点 / 审核备注 / 提交时点。
+   *   **只读**（只 `SELECT`）· `job_id` 不存在 ⇒ 空数组（存在性判定在路由层，经 `getJobEmployerUid`）。
+   *   排序 = `submission_id DESC`（最新在前，与 `listTaskProgressByUser` 同向）。
+   */
+  static async listJobSubmissions(jobId: number, skip = 0, limit = 100, ex?: SqlRunner): Promise<JobSubmissionRecord[]> {
+    const sql = sqlFor(ex);
+    const rows = extractRows(await sql`
+      SELECT
+        s.submission_id,
+        s.job_id,
+        s.worker_uid,
+        s.deliverable,
+        s.review_status,
+        s.reviewed_by,
+        s.reviewed_at,
+        s.review_memo,
+        s.time_created
+      FROM public.job_submission AS s
+      WHERE s.job_id = ${jobId}
+      ORDER BY s.submission_id DESC
+      LIMIT ${limit} OFFSET ${skip}
+    `);
+
+    return rows.map((row): JobSubmissionRecord => ({
+      submission_id: toNumberValue(getValue(row, 'submission_id')),
+      job_id: toNumberValue(getValue(row, 'job_id')),
+      worker_uid: toNumberValue(getValue(row, 'worker_uid')),
+      deliverable: toStringValue(getValue(row, 'deliverable')),
+      review_status: toStringValue(getValue(row, 'review_status')),
+      reviewed_by: toOptionalNumber(getValue(row, 'reviewed_by')),
+      reviewed_at: toTimestamp(getValue(row, 'reviewed_at')),
+      review_memo: toStringValue(getValue(row, 'review_memo')),
+      time_created: toTimestamp(getValue(row, 'time_created')),
+    }));
   }
 
   static async findTaskProgressByUserAndTask(uID: number, tID: number): Promise<TaskProgressRecord | null> {
