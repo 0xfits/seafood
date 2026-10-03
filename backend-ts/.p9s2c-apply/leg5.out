@@ -1,0 +1,148 @@
+{
+ "script": ".p9s2c-apply/leg5-http.ts",
+ "base": "http://127.0.0.1:5797",
+ "run": "20261003T025720Z",
+ "health": {
+  "status": 200
+ },
+ "actor": {
+  "uid": 12,
+  "token_len": 132
+ },
+ "no_token": {
+  "GET /api/batt": 401,
+  "GET /api/checkin": 401,
+  "POST /api/checkin": 401,
+  "POST /api/checkin/makeup": 401
+ },
+ "with_token": {
+  "batt": {
+   "status": 200,
+   "success": true,
+   "data_keys": [
+    "acceptThresholdBatt",
+    "batt",
+    "canAccept",
+    "capBatt",
+    "floorBatt",
+    "updated_at"
+   ],
+   "code": null
+  },
+  "checkin_get": {
+   "status": 200,
+   "success": true,
+   "data_keys": [
+    "canMakeup",
+    "checkedInToday",
+    "makeupCostUsd",
+    "streakCapDays",
+    "streakDay",
+    "updated_at"
+   ],
+   "code": null
+  },
+  "checkin_post": {
+   "status": 200,
+   "success": true,
+   "data_keys": [
+    "batt",
+    "checkedIn",
+    "rewardBatt",
+    "streakDay"
+   ],
+   "code": null
+  },
+  "makeup_post": {
+   "status": 200,
+   "success": true,
+   "data_keys": [
+    "costUsd",
+    "restoredStreakDay",
+    "txid"
+   ],
+   "code": null
+  }
+ },
+ "frozen_keys": {
+  "batt": [
+   "acceptThresholdBatt",
+   "batt",
+   "canAccept",
+   "capBatt",
+   "floorBatt",
+   "updated_at"
+  ],
+  "checkin_get": [
+   "canMakeup",
+   "checkedInToday",
+   "makeupCostUsd",
+   "streakCapDays",
+   "streakDay",
+   "updated_at"
+  ]
+ },
+ "public_surface": {
+  "/api/role-names": 200
+ },
+ "total": 9,
+ "passed": 9,
+ "failed": 0,
+ "checks": [
+  {
+   "id": "401 GET /api/batt",
+   "pass": true,
+   "expect": "401",
+   "actual": "401"
+  },
+  {
+   "id": "401 GET /api/checkin",
+   "pass": true,
+   "expect": "401",
+   "actual": "401"
+  },
+  {
+   "id": "401 POST /api/checkin",
+   "pass": true,
+   "expect": "401",
+   "actual": "401"
+  },
+  {
+   "id": "401 POST /api/checkin/makeup",
+   "pass": true,
+   "expect": "401",
+   "actual": "401"
+  },
+  {
+   "id": "200 GET /api/batt",
+   "pass": true,
+   "expect": "200",
+   "actual": "200"
+  },
+  {
+   "id": "200 GET /api/checkin",
+   "pass": true,
+   "expect": "200",
+   "actual": "200"
+  },
+  {
+   "id": "200 POST /api/checkin",
+   "pass": true,
+   "expect": "200",
+   "actual": "200"
+  },
+  {
+   "id": "200 POST /api/checkin/makeup",
+   "pass": true,
+   "expect": "200",
+   "actual": "200"
+  },
+  {
+   "id": "公开面 /api/role-names 无 token ⇒ 200",
+   "pass": true,
+   "expect": "200",
+   "actual": "200"
+  }
+ ]
+}
+SUMMARY total=9 passed=9 failed=0 artifact=/Users/kevin/bistro/seafood/backend-ts/.p9s2c-apply/leg5-http-20261003T025720Z.json

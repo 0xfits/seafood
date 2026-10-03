@@ -1,0 +1,18 @@
+{
+ "users": "OK \"inserted\"",
+ "bindU1": "OK {\"referral_bind\":{\"ok\":true,\"depth\":\"1\",\"bound_at\":\"2026-10-03T08:48:18.458328+00:00\",\"child_uid\":\"9600001\",\"parent_uid\":\"9600002\",\"idempotent_replay\":false}}",
+ "bindU2": "ERR LD016:LEDGER_AMOUNT_INVALID detail={\"note\": \"child already has descendants => binding a parent would retroactively invalidate their depth\", \"reason\": \"REFERRAL_BIND_WOULD_STALE_DEPTH\", \"protocol\": \"BIND_PARENT_BEFORE_DESCENDANTS\", \"child_uid\": \"9600002\", \"parent_uid\": \"9600003\"} {}",
+ "bindU3": "OK {\"referral_bind\":{\"ok\":true,\"depth\":\"1\",\"bound_at\":\"2026-10-03T08:48:18.458328+00:00\",\"child_uid\":\"9600003\",\"parent_uid\":\"9600004\",\"idempotent_replay\":false}}",
+ "bindD1": "OK {\"referral_bind\":{\"ok\":true,\"depth\":\"2\",\"bound_at\":\"2026-10-03T08:48:18.458328+00:00\",\"child_uid\":\"9600011\",\"parent_uid\":\"9600001\",\"idempotent_replay\":false}}",
+ "bindD2": "OK {\"referral_bind\":{\"ok\":true,\"depth\":\"3\",\"bound_at\":\"2026-10-03T08:48:18.458328+00:00\",\"child_uid\":\"9600012\",\"parent_uid\":\"9600011\",\"idempotent_replay\":false}}",
+ "bindD3": "OK {\"referral_bind\":{\"ok\":true,\"depth\":\"4\",\"bound_at\":\"2026-10-03T08:48:18.458328+00:00\",\"child_uid\":\"9600013\",\"parent_uid\":\"9600012\",\"idempotent_replay\":false}}",
+ "refUp": "OK [{\"child_uid\":\"9600001\",\"parent_uid\":\"9600002\",\"depth\":\"1\"},{\"child_uid\":\"9600003\",\"parent_uid\":\"9600004\",\"depth\":\"1\"},{\"child_uid\":\"9600011\",\"parent_uid\":\"9600001\",\"depth\":\"2\"},{\"child_uid\":\"9600012\",\"parent_uid\":\"96000",
+ "grant": "OK {\"outcome\":\"granted\",\"batt\":30,\"granted\":30}",
+ "job": "OK \"ok\"",
+ "jobid": "OK [{\"j\":\"72\"}]",
+ "settleFt": "OK {\"outcome\":\"posted\",\"recipients\":[\"9600001\",\"9600002\"],\"total\":\"20\"}",
+ "plan6": "OK {\"M\":4,\"fee\":\"10000\",\"fee_credit_uid\":\"-2\",\"layers\":4}",
+ "computeFee": "10000",
+ "plan0": "OK {\"M\":0,\"fee\":\"10000\",\"fee_credit_uid\":\"-1\"}",
+ "k5neg": "ERR LD021:LEDGER_RESERVED_UID detail={\"uid\": \"-1\", \"kind\": \"job_fee\", \"reason\": \"PLATFORM_DEBIT_FORBIDDEN\"} {}"
+}

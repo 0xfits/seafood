@@ -1,0 +1,1182 @@
+{
+  "run": "20261003T030830Z",
+  "ts": "2026-10-03T03:08:30.997Z",
+  "columns": [
+    {
+      "table_name": "batt_account",
+      "ordinal_position": 1,
+      "column_name": "uid",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "batt_account",
+      "ordinal_position": 2,
+      "column_name": "batt",
+      "data_type": "integer",
+      "udt_name": "int4",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "table_name": "batt_account",
+      "ordinal_position": 3,
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "batt_account",
+      "ordinal_position": 4,
+      "column_name": "time_updated",
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "batt_entry",
+      "ordinal_position": 1,
+      "column_name": "txid",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "batt_entry",
+      "ordinal_position": 2,
+      "column_name": "uid",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "batt_entry",
+      "ordinal_position": 3,
+      "column_name": "delta",
+      "data_type": "integer",
+      "udt_name": "int4",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "batt_entry",
+      "ordinal_position": 4,
+      "column_name": "batt_after",
+      "data_type": "integer",
+      "udt_name": "int4",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "batt_entry",
+      "ordinal_position": 5,
+      "column_name": "reason",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "batt_entry",
+      "ordinal_position": 6,
+      "column_name": "idempotency_key",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "batt_entry",
+      "ordinal_position": 7,
+      "column_name": "ref_type",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "batt_entry",
+      "ordinal_position": 8,
+      "column_name": "ref_id",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "batt_entry",
+      "ordinal_position": 9,
+      "column_name": "memo",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "''::text"
+    },
+    {
+      "table_name": "batt_entry",
+      "ordinal_position": 10,
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "checkin_log",
+      "ordinal_position": 1,
+      "column_name": "log_id",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "checkin_log",
+      "ordinal_position": 2,
+      "column_name": "uid",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "checkin_log",
+      "ordinal_position": 3,
+      "column_name": "checkin_day",
+      "data_type": "date",
+      "udt_name": "date",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "checkin_log",
+      "ordinal_position": 4,
+      "column_name": "streak_day",
+      "data_type": "smallint",
+      "udt_name": "int2",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "checkin_log",
+      "ordinal_position": 5,
+      "column_name": "reward_batt",
+      "data_type": "integer",
+      "udt_name": "int4",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "checkin_log",
+      "ordinal_position": 6,
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "ordinal_position": 1,
+      "column_name": "log_id",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "ordinal_position": 2,
+      "column_name": "uid",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "ordinal_position": 3,
+      "column_name": "makeup_day",
+      "data_type": "date",
+      "udt_name": "date",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "ordinal_position": 4,
+      "column_name": "target_day",
+      "data_type": "date",
+      "udt_name": "date",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "ordinal_position": 5,
+      "column_name": "cost_usd",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "ordinal_position": 6,
+      "column_name": "restored_streak_day",
+      "data_type": "smallint",
+      "udt_name": "int2",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "ordinal_position": 7,
+      "column_name": "cid",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "ordinal_position": 8,
+      "column_name": "result",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "ordinal_position": 9,
+      "column_name": "txid",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "ordinal_position": 10,
+      "column_name": "idempotency_key",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "ordinal_position": 11,
+      "column_name": "request_fingerprint",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "ordinal_position": 12,
+      "column_name": "memo",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "ordinal_position": 13,
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    }
+  ],
+  "constraints": [
+    {
+      "table_name": "batt_account",
+      "conname": "batt_account_range",
+      "contype": "c",
+      "def": "CHECK (((batt >= 0) AND (batt <= 100)))"
+    },
+    {
+      "table_name": "batt_account",
+      "conname": "batt_account_uid_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (uid) REFERENCES users(uid)"
+    },
+    {
+      "table_name": "batt_account",
+      "conname": "batt_account_batt_not_null",
+      "contype": "n",
+      "def": "NOT NULL batt"
+    },
+    {
+      "table_name": "batt_account",
+      "conname": "batt_account_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "table_name": "batt_account",
+      "conname": "batt_account_time_updated_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_updated"
+    },
+    {
+      "table_name": "batt_account",
+      "conname": "batt_account_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL uid"
+    },
+    {
+      "table_name": "batt_account",
+      "conname": "batt_account_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (uid)"
+    },
+    {
+      "table_name": "batt_entry",
+      "conname": "batt_entry_after_guard",
+      "contype": "c",
+      "def": "CHECK (((batt_after >= 0) AND (batt_after <= 100)))"
+    },
+    {
+      "table_name": "batt_entry",
+      "conname": "batt_entry_move_guard",
+      "contype": "c",
+      "def": "CHECK ((delta <> 0))"
+    },
+    {
+      "table_name": "batt_entry",
+      "conname": "batt_entry_batt_after_not_null",
+      "contype": "n",
+      "def": "NOT NULL batt_after"
+    },
+    {
+      "table_name": "batt_entry",
+      "conname": "batt_entry_delta_not_null",
+      "contype": "n",
+      "def": "NOT NULL delta"
+    },
+    {
+      "table_name": "batt_entry",
+      "conname": "batt_entry_idempotency_key_not_null",
+      "contype": "n",
+      "def": "NOT NULL idempotency_key"
+    },
+    {
+      "table_name": "batt_entry",
+      "conname": "batt_entry_memo_not_null",
+      "contype": "n",
+      "def": "NOT NULL memo"
+    },
+    {
+      "table_name": "batt_entry",
+      "conname": "batt_entry_reason_not_null",
+      "contype": "n",
+      "def": "NOT NULL reason"
+    },
+    {
+      "table_name": "batt_entry",
+      "conname": "batt_entry_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "table_name": "batt_entry",
+      "conname": "batt_entry_txid_not_null",
+      "contype": "n",
+      "def": "NOT NULL txid"
+    },
+    {
+      "table_name": "batt_entry",
+      "conname": "batt_entry_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL uid"
+    },
+    {
+      "table_name": "batt_entry",
+      "conname": "batt_entry_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (txid)"
+    },
+    {
+      "table_name": "batt_entry",
+      "conname": "batt_entry_idem_uniq",
+      "contype": "u",
+      "def": "UNIQUE (idempotency_key)"
+    },
+    {
+      "table_name": "checkin_log",
+      "conname": "checkin_log_reward_ck",
+      "contype": "c",
+      "def": "CHECK ((reward_batt > 0))"
+    },
+    {
+      "table_name": "checkin_log",
+      "conname": "checkin_log_streak_rng",
+      "contype": "c",
+      "def": "CHECK (((streak_day >= 1) AND (streak_day <= 7)))"
+    },
+    {
+      "table_name": "checkin_log",
+      "conname": "checkin_log_uid_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (uid) REFERENCES users(uid)"
+    },
+    {
+      "table_name": "checkin_log",
+      "conname": "checkin_log_checkin_day_not_null",
+      "contype": "n",
+      "def": "NOT NULL checkin_day"
+    },
+    {
+      "table_name": "checkin_log",
+      "conname": "checkin_log_log_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL log_id"
+    },
+    {
+      "table_name": "checkin_log",
+      "conname": "checkin_log_reward_batt_not_null",
+      "contype": "n",
+      "def": "NOT NULL reward_batt"
+    },
+    {
+      "table_name": "checkin_log",
+      "conname": "checkin_log_streak_day_not_null",
+      "contype": "n",
+      "def": "NOT NULL streak_day"
+    },
+    {
+      "table_name": "checkin_log",
+      "conname": "checkin_log_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "table_name": "checkin_log",
+      "conname": "checkin_log_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL uid"
+    },
+    {
+      "table_name": "checkin_log",
+      "conname": "checkin_log_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (log_id)"
+    },
+    {
+      "table_name": "checkin_log",
+      "conname": "checkin_log_day_uniq",
+      "contype": "u",
+      "def": "UNIQUE (uid, checkin_day)"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "conname": "checkin_makeup_log_result_ck",
+      "contype": "c",
+      "def": "CHECK ((result = ANY (ARRAY['applied'::text, 'rejected_daily_limit'::text, 'rejected_insufficient_balance'::text, 'rejected_target_invalid'::text])))"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "conname": "checkin_makeup_log_cid_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (cid) REFERENCES currency(cid)"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "conname": "checkin_makeup_log_uid_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (uid) REFERENCES users(uid)"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "conname": "checkin_makeup_log_cid_not_null",
+      "contype": "n",
+      "def": "NOT NULL cid"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "conname": "checkin_makeup_log_cost_usd_not_null",
+      "contype": "n",
+      "def": "NOT NULL cost_usd"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "conname": "checkin_makeup_log_idempotency_key_not_null",
+      "contype": "n",
+      "def": "NOT NULL idempotency_key"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "conname": "checkin_makeup_log_log_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL log_id"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "conname": "checkin_makeup_log_makeup_day_not_null",
+      "contype": "n",
+      "def": "NOT NULL makeup_day"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "conname": "checkin_makeup_log_request_fingerprint_not_null",
+      "contype": "n",
+      "def": "NOT NULL request_fingerprint"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "conname": "checkin_makeup_log_restored_streak_day_not_null",
+      "contype": "n",
+      "def": "NOT NULL restored_streak_day"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "conname": "checkin_makeup_log_result_not_null",
+      "contype": "n",
+      "def": "NOT NULL result"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "conname": "checkin_makeup_log_target_day_not_null",
+      "contype": "n",
+      "def": "NOT NULL target_day"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "conname": "checkin_makeup_log_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "conname": "checkin_makeup_log_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL uid"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "conname": "checkin_makeup_log_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (log_id)"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "conname": "checkin_makeup_log_day_uniq",
+      "contype": "u",
+      "def": "UNIQUE (uid, makeup_day)"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "conname": "checkin_makeup_log_idem_uniq",
+      "contype": "u",
+      "def": "UNIQUE (idempotency_key, result)"
+    }
+  ],
+  "indexes": [
+    {
+      "tablename": "batt_account",
+      "indexname": "batt_account_pk",
+      "indexdef": "CREATE UNIQUE INDEX batt_account_pk ON public.batt_account USING btree (uid)"
+    },
+    {
+      "tablename": "batt_entry",
+      "indexname": "batt_entry_idem_uniq",
+      "indexdef": "CREATE UNIQUE INDEX batt_entry_idem_uniq ON public.batt_entry USING btree (idempotency_key)"
+    },
+    {
+      "tablename": "batt_entry",
+      "indexname": "batt_entry_pk",
+      "indexdef": "CREATE UNIQUE INDEX batt_entry_pk ON public.batt_entry USING btree (txid)"
+    },
+    {
+      "tablename": "batt_entry",
+      "indexname": "idx_batt_entry_uid_time",
+      "indexdef": "CREATE INDEX idx_batt_entry_uid_time ON public.batt_entry USING btree (uid, time_created DESC)"
+    },
+    {
+      "tablename": "checkin_log",
+      "indexname": "checkin_log_day_uniq",
+      "indexdef": "CREATE UNIQUE INDEX checkin_log_day_uniq ON public.checkin_log USING btree (uid, checkin_day)"
+    },
+    {
+      "tablename": "checkin_log",
+      "indexname": "checkin_log_pk",
+      "indexdef": "CREATE UNIQUE INDEX checkin_log_pk ON public.checkin_log USING btree (log_id)"
+    },
+    {
+      "tablename": "checkin_log",
+      "indexname": "idx_checkin_log_uid_day",
+      "indexdef": "CREATE INDEX idx_checkin_log_uid_day ON public.checkin_log USING btree (uid, checkin_day)"
+    },
+    {
+      "tablename": "checkin_makeup_log",
+      "indexname": "checkin_makeup_log_day_uniq",
+      "indexdef": "CREATE UNIQUE INDEX checkin_makeup_log_day_uniq ON public.checkin_makeup_log USING btree (uid, makeup_day)"
+    },
+    {
+      "tablename": "checkin_makeup_log",
+      "indexname": "checkin_makeup_log_idem_uniq",
+      "indexdef": "CREATE UNIQUE INDEX checkin_makeup_log_idem_uniq ON public.checkin_makeup_log USING btree (idempotency_key, result)"
+    },
+    {
+      "tablename": "checkin_makeup_log",
+      "indexname": "checkin_makeup_log_pk",
+      "indexdef": "CREATE UNIQUE INDEX checkin_makeup_log_pk ON public.checkin_makeup_log USING btree (log_id)"
+    },
+    {
+      "tablename": "checkin_makeup_log",
+      "indexname": "idx_checkin_makeup_log_uid_day",
+      "indexdef": "CREATE INDEX idx_checkin_makeup_log_uid_day ON public.checkin_makeup_log USING btree (uid, makeup_day)"
+    }
+  ],
+  "triggers": [
+    {
+      "table_name": "batt_account",
+      "tgname": "trg_batt_account_touch_updated",
+      "def": "CREATE TRIGGER trg_batt_account_touch_updated BEFORE UPDATE ON public.batt_account FOR EACH ROW EXECUTE FUNCTION batt_account_touch_updated()",
+      "tgenabled": "O"
+    },
+    {
+      "table_name": "batt_entry",
+      "tgname": "trg_batt_entry_append_only",
+      "def": "CREATE TRIGGER trg_batt_entry_append_only BEFORE DELETE OR UPDATE ON public.batt_entry FOR EACH ROW EXECUTE FUNCTION batt_entry_append_only()",
+      "tgenabled": "O"
+    },
+    {
+      "table_name": "checkin_log",
+      "tgname": "trg_checkin_log_append_only",
+      "def": "CREATE TRIGGER trg_checkin_log_append_only BEFORE DELETE OR UPDATE ON public.checkin_log FOR EACH ROW EXECUTE FUNCTION checkin_log_append_only()",
+      "tgenabled": "O"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "tgname": "trg_checkin_makeup_log_append_only",
+      "def": "CREATE TRIGGER trg_checkin_makeup_log_append_only BEFORE DELETE OR UPDATE ON public.checkin_makeup_log FOR EACH ROW EXECUTE FUNCTION checkin_makeup_log_append_only()",
+      "tgenabled": "O"
+    }
+  ],
+  "constraint_counts": [
+    {
+      "table_name": "batt_account",
+      "contype": "c",
+      "n": "1"
+    },
+    {
+      "table_name": "batt_account",
+      "contype": "f",
+      "n": "1"
+    },
+    {
+      "table_name": "batt_account",
+      "contype": "n",
+      "n": "4"
+    },
+    {
+      "table_name": "batt_account",
+      "contype": "p",
+      "n": "1"
+    },
+    {
+      "table_name": "batt_entry",
+      "contype": "c",
+      "n": "2"
+    },
+    {
+      "table_name": "batt_entry",
+      "contype": "n",
+      "n": "8"
+    },
+    {
+      "table_name": "batt_entry",
+      "contype": "p",
+      "n": "1"
+    },
+    {
+      "table_name": "batt_entry",
+      "contype": "u",
+      "n": "1"
+    },
+    {
+      "table_name": "checkin_log",
+      "contype": "c",
+      "n": "2"
+    },
+    {
+      "table_name": "checkin_log",
+      "contype": "f",
+      "n": "1"
+    },
+    {
+      "table_name": "checkin_log",
+      "contype": "n",
+      "n": "6"
+    },
+    {
+      "table_name": "checkin_log",
+      "contype": "p",
+      "n": "1"
+    },
+    {
+      "table_name": "checkin_log",
+      "contype": "u",
+      "n": "1"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "contype": "c",
+      "n": "1"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "contype": "f",
+      "n": "2"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "contype": "n",
+      "n": "11"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "contype": "p",
+      "n": "1"
+    },
+    {
+      "table_name": "checkin_makeup_log",
+      "contype": "u",
+      "n": "2"
+    }
+  ],
+  "kind_enum_def": [
+    {
+      "def": "CHECK ((kind = ANY (ARRAY['mint'::text, 'burn'::text, 'transfer'::text, 'hold'::text, 'hold_release'::text, 'hold_forfeit'::text, 'job_escrow'::text, 'job_escrow_refund'::text, 'job_payout'::text, 'job_fee'::text, 'commission'::text, 'purchase'::text, 'sale'::text, 'purchase_refund'::text, 'trade'::text, 'trade_fee'::text, 'listing_fee'::text, 'listing_deposit'::text, 'currency_create_fee'::text, 'reversal'::text, 'checkin_makeup_fee'::text])))"
+    }
+  ],
+  "kind_enum_count": [
+    {
+      "n": "1"
+    }
+  ],
+  "kind_ok_src": [
+    {
+      "def": "CREATE OR REPLACE FUNCTION public.ledger_kind_ok(p_kind text, p_frozen_settle boolean DEFAULT false)\n RETURNS boolean\n LANGUAGE sql\n IMMUTABLE\nAS $function$\n  SELECT p_kind IN (\n    'mint','burn','transfer','hold','hold_release','hold_forfeit',\n    'job_escrow','job_escrow_refund','job_payout','job_fee','commission',\n    'purchase','sale','purchase_refund','trade','trade_fee',\n    'listing_fee','listing_deposit','currency_create_fee','reversal',\n    'checkin_makeup_fee')\n  AND (NOT p_frozen_settle OR p_kind IN ('job_payout','purchase','trade','hold_forfeit'))\n$function$\n",
+      "len": 577
+    }
+  ],
+  "kind_ok_probe": [
+    {
+      "k": "mint",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "k": "burn",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "k": "transfer",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "k": "hold",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "k": "hold_release",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "k": "hold_forfeit",
+      "ok": true,
+      "ok_frozen": true
+    },
+    {
+      "k": "job_escrow",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "k": "job_escrow_refund",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "k": "job_payout",
+      "ok": true,
+      "ok_frozen": true
+    },
+    {
+      "k": "job_fee",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "k": "commission",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "k": "purchase",
+      "ok": true,
+      "ok_frozen": true
+    },
+    {
+      "k": "sale",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "k": "purchase_refund",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "k": "trade",
+      "ok": true,
+      "ok_frozen": true
+    },
+    {
+      "k": "trade_fee",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "k": "listing_fee",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "k": "listing_deposit",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "k": "currency_create_fee",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "k": "reversal",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "k": "checkin_makeup_fee",
+      "ok": true,
+      "ok_frozen": false
+    },
+    {
+      "k": "made_up_kind",
+      "ok": false,
+      "ok_frozen": false
+    },
+    {
+      "k": "",
+      "ok": false,
+      "ok_frozen": false
+    }
+  ],
+  "assert_src": [
+    {
+      "def": "CREATE OR REPLACE FUNCTION public.ledger_assert_platform_mutation(p_uid bigint, p_kind text, p_dir text)\n RETURNS void\n LANGUAGE plpgsql\n IMMUTABLE\nAS $function$\nDECLARE v_ok boolean;\nBEGIN\n  v_ok := CASE p_uid::text\n    WHEN '0'  THEN CASE p_dir WHEN 'credit' THEN p_kind IN ('mint', 'transfer', 'reversal')\n                                    ELSE p_kind IN ('transfer', 'burn', 'reversal') END\n    -- 🆕 0008（P2 裁定 #11）：`-1` = 平台收入账户 ⇒ 无邀请人时的手续费入这里\n    -- 🆕 0019（P4-B3a-FIX-A / R31 v0.2 + DL67 + DL88）：`-1` 再接纳 `listing_deposit`（上市即消耗、进平台收入、不可退）\n    -- 🆕 0029（P9② / data-layer v0.21 §31.1 R-9-14 ③(b) + §31.5 + R-9-3）：`-1` 再接纳 `checkin_makeup_fee`\n    --    （补签 100 `$` 手续费入平台收入、**不真 burn**）。其余格与 0019 逐字相同：`-1` 的 debit 仍恒 false。\n    WHEN '-1' THEN CASE p_dir WHEN 'credit' THEN p_kind IN ('trade_fee', 'listing_fee', 'currency_create_fee', 'job_fee', 'listing_deposit', 'checkin_makeup_fee')\n                                    ELSE false END\n    WHEN '-2' THEN CASE p_dir WHEN 'credit' THEN p_kind IN ('job_fee')\n                                    ELSE p_kind IN ('commission') END\n    WHEN '-3' THEN CASE p_dir WHEN 'credit' THEN p_kind IN ('hold_forfeit')\n                                    ELSE p_kind IN ('hold_forfeit', 'transfer') END\n    ELSE NULL\n  END;\n  IF v_ok IS NULL OR v_ok THEN RETURN; END IF;\n  PERFORM ledger_raise('LEDGER_RESERVED_UID', jsonb_build_object(\n    'uid', p_uid::text, 'kind', p_kind,\n    'reason', CASE p_dir WHEN 'debit' THEN 'PLATFORM_DEBIT_FORBIDDEN' ELSE 'PLATFORM_CREDIT_KIND_FORBIDDEN' END));\nEND $function$\n",
+      "len": 1551
+    }
+  ],
+  "assert_matrix": [
+    {
+      "uid": -1,
+      "kind": "checkin_makeup_fee",
+      "dir": "credit",
+      "ok": true
+    },
+    {
+      "uid": -1,
+      "kind": "trade_fee",
+      "dir": "credit",
+      "ok": true
+    },
+    {
+      "uid": -1,
+      "kind": "listing_deposit",
+      "dir": "credit",
+      "ok": true
+    },
+    {
+      "uid": -1,
+      "kind": "commission",
+      "dir": "credit",
+      "ok": false,
+      "code": "LD021"
+    },
+    {
+      "uid": -1,
+      "kind": "checkin_makeup_fee",
+      "dir": "debit",
+      "ok": false,
+      "code": "LD021"
+    },
+    {
+      "uid": 0,
+      "kind": "mint",
+      "dir": "credit",
+      "ok": true
+    },
+    {
+      "uid": -2,
+      "kind": "job_fee",
+      "dir": "credit",
+      "ok": true
+    },
+    {
+      "uid": -3,
+      "kind": "hold_forfeit",
+      "dir": "credit",
+      "ok": true
+    }
+  ],
+  "schema_version": [
+    {
+      "v": "0029",
+      "n": "28"
+    }
+  ],
+  "schema_rows": [
+    {
+      "version": "0001",
+      "applied_at": "2026-09-29T01:15:27.684Z"
+    },
+    {
+      "version": "0002",
+      "applied_at": "2026-09-29T01:15:27.684Z"
+    },
+    {
+      "version": "0003",
+      "applied_at": "2026-09-29T01:15:27.684Z"
+    },
+    {
+      "version": "0004",
+      "applied_at": "2026-09-29T01:15:27.684Z"
+    },
+    {
+      "version": "0005",
+      "applied_at": "2026-09-29T01:15:27.684Z"
+    },
+    {
+      "version": "0006",
+      "applied_at": "2026-09-29T01:15:27.684Z"
+    },
+    {
+      "version": "0007",
+      "applied_at": "2026-09-29T01:15:27.684Z"
+    },
+    {
+      "version": "0008",
+      "applied_at": "2026-09-29T01:15:27.684Z"
+    },
+    {
+      "version": "0009",
+      "applied_at": "2026-09-29T01:15:27.684Z"
+    },
+    {
+      "version": "0010",
+      "applied_at": "2026-09-29T01:15:27.684Z"
+    },
+    {
+      "version": "0011",
+      "applied_at": "2026-09-29T01:15:27.684Z"
+    },
+    {
+      "version": "0012",
+      "applied_at": "2026-09-29T01:15:27.684Z"
+    },
+    {
+      "version": "0013",
+      "applied_at": "2026-09-29T01:15:27.684Z"
+    },
+    {
+      "version": "0014",
+      "applied_at": "2026-09-29T01:15:27.684Z"
+    },
+    {
+      "version": "0015",
+      "applied_at": "2026-09-29T01:15:27.684Z"
+    },
+    {
+      "version": "0016",
+      "applied_at": "2026-09-29T01:15:27.684Z"
+    },
+    {
+      "version": "0017",
+      "applied_at": "2026-09-29T01:15:27.684Z"
+    },
+    {
+      "version": "0019",
+      "applied_at": "2026-09-29T17:43:01.760Z"
+    },
+    {
+      "version": "0020",
+      "applied_at": "2026-09-29T17:53:03.540Z"
+    },
+    {
+      "version": "0021",
+      "applied_at": "2026-10-01T01:35:47.511Z"
+    },
+    {
+      "version": "0022",
+      "applied_at": "2026-10-02T00:41:05.838Z"
+    },
+    {
+      "version": "0023",
+      "applied_at": "2026-10-02T01:58:54.688Z"
+    },
+    {
+      "version": "0024",
+      "applied_at": "2026-10-02T08:01:41.542Z"
+    },
+    {
+      "version": "0025",
+      "applied_at": "2026-10-02T23:38:23.551Z"
+    },
+    {
+      "version": "0026",
+      "applied_at": "2026-10-03T00:29:15.853Z"
+    },
+    {
+      "version": "0027",
+      "applied_at": "2026-10-03T00:29:16.856Z"
+    },
+    {
+      "version": "0028",
+      "applied_at": "2026-10-03T02:36:54.372Z"
+    },
+    {
+      "version": "0029",
+      "applied_at": "2026-10-03T02:36:55.012Z"
+    }
+  ],
+  "base_tables": [
+    {
+      "n": "32"
+    }
+  ],
+  "public_tables": [
+    {
+      "table_name": "account"
+    },
+    {
+      "table_name": "admin_ops_audit_log"
+    },
+    {
+      "table_name": "admin_permission"
+    },
+    {
+      "table_name": "admin_refund_audit_log"
+    },
+    {
+      "table_name": "admin_role"
+    },
+    {
+      "table_name": "admin_role_permission"
+    },
+    {
+      "table_name": "admin_user_role"
+    },
+    {
+      "table_name": "app_config"
+    },
+    {
+      "table_name": "batt_account"
+    },
+    {
+      "table_name": "batt_entry"
+    },
+    {
+      "table_name": "checkin_log"
+    },
+    {
+      "table_name": "checkin_makeup_log"
+    },
+    {
+      "table_name": "commission_policy"
+    },
+    {
+      "table_name": "content_translation"
+    },
+    {
+      "table_name": "currency"
+    },
+    {
+      "table_name": "currency_review_log"
+    },
+    {
+      "table_name": "currency_status_log"
+    },
+    {
+      "table_name": "job"
+    },
+    {
+      "table_name": "job_application"
+    },
+    {
+      "table_name": "job_arbitration_log"
+    },
+    {
+      "table_name": "job_submission"
+    },
+    {
+      "table_name": "ledger_entry"
+    },
+    {
+      "table_name": "ledger_owner"
+    },
+    {
+      "table_name": "listing"
+    },
+    {
+      "table_name": "listing_order"
+    },
+    {
+      "table_name": "listing_review_log"
+    },
+    {
+      "table_name": "market_order"
+    },
+    {
+      "table_name": "market_trade"
+    },
+    {
+      "table_name": "referral"
+    },
+    {
+      "table_name": "schema_migration"
+    },
+    {
+      "table_name": "translation_cache"
+    },
+    {
+      "table_name": "users"
+    }
+  ],
+  "utc_date": [
+    {
+      "sql_utc_date": "2026-10-03",
+      "now_ts": "2026-10-03 03:08:36.503341+00"
+    }
+  ]
+}

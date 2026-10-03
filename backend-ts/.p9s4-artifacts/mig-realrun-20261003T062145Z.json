@@ -1,0 +1,111 @@
+{
+ "unit": "P9S4-MIG-RUN-ROLLBACK",
+ "generated_at": "2026-10-03T06:22:09.014Z",
+ "run": "20261003T062145Z",
+ "results": [
+  {
+   "version": "0032",
+   "file": "migrations/0032_kind_close_set_23.sql",
+   "touched": [
+    "ledger_kind_enum 约束",
+    "ledger_kind_ok 函数",
+    "ledger_assert_platform_mutation 函数"
+   ],
+   "reads": {
+    "1_no_error": true,
+    "exec_err": null,
+    "2_new_object_absent_after_rollback": true,
+    "2_note": "三项迁移均不新建关系 ⇒ to_regclass 对新关系 N/A；判据以结构指纹承担（约束值集/列在场/op 白名单）",
+    "3_schema_migration_no_new_row": true,
+    "schema_migration_rows_before": 30,
+    "schema_migration_rows_after": 30,
+    "schema_migration_max_before": "0031",
+    "schema_migration_max_after": "0031",
+    "4_target_object_restored": true,
+    "new_relations_added": 0
+   },
+   "in_tx_post_state": {
+    "post_kind_enum_n": 23,
+    "post_kind_enum_has_bttc": [
+     "bttc_mint_fee",
+     "bttc_burn_fee"
+    ],
+    "post_kind_ok_n": 27,
+    "post_op_whitelist_has_burn": false,
+    "post_is_platform_coin_cols": 0
+   },
+   "pre_kind_enum_n": 21,
+   "post_rollback_kind_enum_n": 21,
+   "pre_is_platform_coin_cols": 0,
+   "post_rollback_is_platform_coin_cols": 0,
+   "pre_op_whitelist_has_burn": false,
+   "post_rollback_op_whitelist_has_burn": false
+  },
+  {
+   "version": "0033",
+   "file": "migrations/0033_currency_platform_coin_flag.sql",
+   "touched": [
+    "currency.is_platform_coin 列"
+   ],
+   "reads": {
+    "1_no_error": true,
+    "exec_err": null,
+    "2_new_object_absent_after_rollback": true,
+    "2_note": "三项迁移均不新建关系 ⇒ to_regclass 对新关系 N/A；判据以结构指纹承担（约束值集/列在场/op 白名单）",
+    "3_schema_migration_no_new_row": true,
+    "schema_migration_rows_before": 30,
+    "schema_migration_rows_after": 30,
+    "schema_migration_max_before": "0031",
+    "schema_migration_max_after": "0031",
+    "4_target_object_restored": true,
+    "new_relations_added": 0
+   },
+   "in_tx_post_state": {
+    "post_kind_enum_n": 21,
+    "post_kind_enum_has_bttc": [],
+    "post_kind_ok_n": 25,
+    "post_op_whitelist_has_burn": false,
+    "post_is_platform_coin_cols": 1
+   },
+   "pre_kind_enum_n": 21,
+   "post_rollback_kind_enum_n": 21,
+   "pre_is_platform_coin_cols": 0,
+   "post_rollback_is_platform_coin_cols": 0,
+   "pre_op_whitelist_has_burn": false,
+   "post_rollback_op_whitelist_has_burn": false
+  },
+  {
+   "version": "0034",
+   "file": "migrations/0034_ledger_op_burn_and_supply.sql",
+   "touched": [
+    "ledger_post_event 函数"
+   ],
+   "reads": {
+    "1_no_error": true,
+    "exec_err": null,
+    "2_new_object_absent_after_rollback": true,
+    "2_note": "三项迁移均不新建关系 ⇒ to_regclass 对新关系 N/A；判据以结构指纹承担（约束值集/列在场/op 白名单）",
+    "3_schema_migration_no_new_row": true,
+    "schema_migration_rows_before": 30,
+    "schema_migration_rows_after": 30,
+    "schema_migration_max_before": "0031",
+    "schema_migration_max_after": "0031",
+    "4_target_object_restored": true,
+    "new_relations_added": 0
+   },
+   "in_tx_post_state": {
+    "post_kind_enum_n": 21,
+    "post_kind_enum_has_bttc": [],
+    "post_kind_ok_n": 25,
+    "post_op_whitelist_has_burn": true,
+    "post_is_platform_coin_cols": 0
+   },
+   "pre_kind_enum_n": 21,
+   "post_rollback_kind_enum_n": 21,
+   "pre_is_platform_coin_cols": 0,
+   "post_rollback_is_platform_coin_cols": 0,
+   "pre_op_whitelist_has_burn": false,
+   "post_rollback_op_whitelist_has_burn": false
+  }
+ ]
+}

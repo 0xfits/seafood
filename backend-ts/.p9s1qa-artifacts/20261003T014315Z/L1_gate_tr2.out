@@ -1,0 +1,22 @@
+[TR-2] 四语 locale 键数（口径：顶层键 / 拍平键路径）
+  zh: top=112 flat=944
+  en: top=112 flat=944
+  hk: top=112 flat=944
+  vn: top=112 flat=944
+[TR-2] 键集相等：PASS（四文件拍平键数取值集合 = {944}）
+[TR-2] 新键 i18n.translating 四语读数
+  zh: "翻译中"
+  en: "Translating"
+  hk: "翻譯中"
+  vn: "Đang dịch"
+[TR-2] 四语齐备=PASS；四语互异取值数=4/4
+[TR-2] 静态断言：新接文件不得用 `??` 取多语列（`||` 方可防空串穿透）
+  pages/listings/ListingsPage.jsx: ??命中=0 经i18n-content=yes
+  pages/listings/ListingDetailPage.jsx: ??命中=0 经i18n-content=yes
+  pages/jobs/JobDetailPage.jsx: ??命中=0 经i18n-content=yes
+  pages/jobs/JobReviewPage.jsx: ??命中=0 经i18n-content=yes
+  pages/market/MarketPage.jsx: ??命中=0 经i18n-content=yes
+  pages/ProfilePage.jsx: ??命中=0 经i18n-content=yes
+[TR-2] 新接文件守卫=PASS
+[TR-2] 存量登记（只核不改）：仍在旧三目链 + `??` 上的页面数 = 0 页（D7 收口后应为 0 页）
+[TR-2] 总判：PASS

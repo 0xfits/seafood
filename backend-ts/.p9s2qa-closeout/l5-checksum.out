@@ -1,0 +1,255 @@
+{
+ "counts": [
+  {
+   "maxv": "0029",
+   "n": 28
+  }
+ ],
+ "applied": 28,
+ "files": 28,
+ "mismatch": 0,
+ "focus": [
+  {
+   "version": "0027",
+   "db": "8209df5a86879188",
+   "file": "8209df5a86879188",
+   "match": true,
+   "fname": "0027_job_arbitration_log.sql"
+  },
+  {
+   "version": "0028",
+   "db": "80381d0910c77900",
+   "file": "80381d0910c77900",
+   "match": true,
+   "fname": "0028_kind_close_set_21.sql"
+  },
+  {
+   "version": "0029",
+   "db": "4cb0a07bd3c4078c",
+   "file": "4cb0a07bd3c4078c",
+   "match": true,
+   "fname": "0029_batt_checkin.sql"
+  }
+ ],
+ "all_pairs_full": [
+  {
+   "version": "0001",
+   "db": "4f902d3c47508d91",
+   "file": "4f902d3c47508d91",
+   "match": true,
+   "fname": "0001_ledger_core.sql"
+  },
+  {
+   "version": "0002",
+   "db": "688b1935f6bc3006",
+   "file": "688b1935f6bc3006",
+   "match": true,
+   "fname": "0002_user_identity.sql"
+  },
+  {
+   "version": "0003",
+   "db": "f268e03075eb4bf4",
+   "file": "f268e03075eb4bf4",
+   "match": true,
+   "fname": "0003_kind_close_set_20.sql"
+  },
+  {
+   "version": "0004",
+   "db": "55fd1ce8085bd3b3",
+   "file": "55fd1ce8085bd3b3",
+   "match": true,
+   "fname": "0004_ledger_post_event.sql"
+  },
+  {
+   "version": "0005",
+   "db": "4de12361cf7df203",
+   "file": "4de12361cf7df203",
+   "match": true,
+   "fname": "0005_ledger_event_root_key.sql"
+  },
+  {
+   "version": "0006",
+   "db": "4aa19b1487000d44",
+   "file": "4aa19b1487000d44",
+   "match": true,
+   "fname": "0006_user_to_users.sql"
+  },
+  {
+   "version": "0007",
+   "db": "7044c6be33f7421a",
+   "file": "7044c6be33f7421a",
+   "match": true,
+   "fname": "0007_referral_and_commission_policy.sql"
+  },
+  {
+   "version": "0008",
+   "db": "e98ac1a0470e9044",
+   "file": "e98ac1a0470e9044",
+   "match": true,
+   "fname": "0008_platform_revenue_job_fee.sql"
+  },
+  {
+   "version": "0009",
+   "db": "6688e2ce35c67d5b",
+   "file": "6688e2ce35c67d5b",
+   "match": true,
+   "fname": "0009_ledger_error_reverse_map_complete.sql"
+  },
+  {
+   "version": "0010",
+   "db": "73e7ac8b6fd42655",
+   "file": "73e7ac8b6fd42655",
+   "match": true,
+   "fname": "0010_referral_bind_protocol_guard.sql"
+  },
+  {
+   "version": "0011",
+   "db": "238f96ae42298f85",
+   "file": "238f96ae42298f85",
+   "match": true,
+   "fname": "0011_commission_assert_closure_and_referral_depth_guard.sql"
+  },
+  {
+   "version": "0012",
+   "db": "2a64483f944f16e3",
+   "file": "2a64483f944f16e3",
+   "match": true,
+   "fname": "0012_replay_pre_gate_before_balance_gate.sql"
+  },
+  {
+   "version": "0013",
+   "db": "720c89e4a9367d56",
+   "file": "720c89e4a9367d56",
+   "match": true,
+   "fname": "0013_job.sql"
+  },
+  {
+   "version": "0014",
+   "db": "a33798336adc7053",
+   "file": "a33798336adc7053",
+   "match": true,
+   "fname": "0014_job_flow.sql"
+  },
+  {
+   "version": "0015",
+   "db": "f856a1316e9d3bc7",
+   "file": "f856a1316e9d3bc7",
+   "match": true,
+   "fname": "0015_listing.sql"
+  },
+  {
+   "version": "0016",
+   "db": "f5ce7c79c584805f",
+   "file": "f5ce7c79c584805f",
+   "match": true,
+   "fname": "0016_market.sql"
+  },
+  {
+   "version": "0017",
+   "db": "0aaba855b1d5eb4c",
+   "file": "0aaba855b1d5eb4c",
+   "match": true,
+   "fname": "0017_platform_config.sql"
+  },
+  {
+   "version": "0019",
+   "db": "48a9a4e2d506eb1f",
+   "file": "48a9a4e2d506eb1f",
+   "match": true,
+   "fname": "0019_listing_deposit_platform_credit.sql"
+  },
+  {
+   "version": "0020",
+   "db": "228127d89de90a0d",
+   "file": "228127d89de90a0d",
+   "match": true,
+   "fname": "0020_ledger_post_event_hold_family_drop_listing_deposit.sql"
+  },
+  {
+   "version": "0021",
+   "db": "223125d15b3b9641",
+   "file": "223125d15b3b9641",
+   "match": true,
+   "fname": "0021_content_translation.sql"
+  },
+  {
+   "version": "0022",
+   "db": "069a00905c2821b8",
+   "file": "069a00905c2821b8",
+   "match": true,
+   "fname": "0022_admin_permission_seed.sql"
+  },
+  {
+   "version": "0023",
+   "db": "fe7bb504fd91a6c6",
+   "file": "fe7bb504fd91a6c6",
+   "match": true,
+   "fname": "0023_admin_points_audit_daily_cap.sql"
+  },
+  {
+   "version": "0024",
+   "db": "b2495845c26f0cc7",
+   "file": "b2495845c26f0cc7",
+   "match": true,
+   "fname": "0024_admin_refund_audit.sql"
+  },
+  {
+   "version": "0025",
+   "db": "2e4c62c0ccbaeb85",
+   "file": "2e4c62c0ccbaeb85",
+   "match": true,
+   "fname": "0025_currency_review_log.sql"
+  },
+  {
+   "version": "0026",
+   "db": "3140366eabfdcc83",
+   "file": "3140366eabfdcc83",
+   "match": true,
+   "fname": "0026_listing_review_log.sql"
+  },
+  {
+   "version": "0027",
+   "db": "8209df5a86879188",
+   "file": "8209df5a86879188",
+   "match": true,
+   "fname": "0027_job_arbitration_log.sql"
+  },
+  {
+   "version": "0028",
+   "db": "80381d0910c77900",
+   "file": "80381d0910c77900",
+   "match": true,
+   "fname": "0028_kind_close_set_21.sql"
+  },
+  {
+   "version": "0029",
+   "db": "4cb0a07bd3c4078c",
+   "file": "4cb0a07bd3c4078c",
+   "match": true,
+   "fname": "0029_batt_checkin.sql"
+  }
+ ],
+ "netwrite": [
+  {
+   "schema_rows": 28,
+   "appcfg_rows": 1,
+   "batt_rows": 2,
+   "batt_entry_rows": 2,
+   "checkin_rows": 2,
+   "makeup_rows": 2,
+   "probe_jobs": 0
+  }
+ ],
+ "focus_detail": [
+  {
+   "version": "0028",
+   "name": "0028_kind_close_set_21.sql",
+   "checksum": "80381d0910c779006365642df4b8f975316d945dc3d9e6b5f106bd34971abd85"
+  },
+  {
+   "version": "0029",
+   "name": "0029_batt_checkin.sql",
+   "checksum": "4cb0a07bd3c4078c8a739e8a343129fdcd89ba74b44bb3748fe8a9cd985bc49b"
+  }
+ ]
+}

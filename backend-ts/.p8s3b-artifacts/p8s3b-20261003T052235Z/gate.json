@@ -1,0 +1,314 @@
+{
+ "unit": "P8-S3B-ADDRESS-GATE",
+ "generated_at": "2026-10-03T05:22:36.005Z",
+ "run": "20261003T052235Z",
+ "offline": true,
+ "db_connections": 0,
+ "http_calls": 0,
+ "total": 38,
+ "passed": 38,
+ "failed": 0,
+ "readings": {
+  "legal_keys": [
+   "system_settings",
+   "listing_deposit_policy",
+   "batt_policy",
+   "checkin_policy",
+   "invite_reward_policy",
+   "mint_burn_policy",
+   "rating_policy",
+   "site_text_overrides",
+   "role_names"
+  ],
+  "reason_constants": {
+   "unknownKey": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+   "typeInvalid": "SETTING_TYPE_INVALID",
+   "valueNotObject": "SETTING_VALUE_NOT_OBJECT"
+  },
+  "ak1_fields": [
+   "siteName",
+   "siteDescription",
+   "maintenance",
+   "allowRegistration",
+   "emailNotifications",
+   "defaultLanguage",
+   "pointsPerTask",
+   "maxDailyTasks",
+   "rewardCooldown"
+  ],
+  "registration_points": 87,
+  "deposit_floor_constant": 50000,
+  "ops_key_forms": {
+   "formA": "ops:7:setting:system_settings",
+   "formB": "ops:7:setting:listing_deposit_policy"
+  }
+ },
+ "checks": [
+  {
+   "id": "A1",
+   "group": "formACompat",
+   "pass": true,
+   "expect": "形态 A 支完整保留：`screenSystemSettingsWrite(body)` + `saveSystemSettings(verdict.value, uid)` + 响应 `'System settings saved'`（`AW9`）",
+   "actual": "{\"screen\":true,\"save\":true,\"msg\":true}"
+  },
+  {
+   "id": "A2",
+   "group": "formACompat",
+   "pass": true,
+   "expect": "形态 A 目标键 = 常量 `SYSTEM_SETTINGS_KEY`（= `'system_settings'` · `AW3`）",
+   "actual": "{\"init\":true,\"constant\":\"system_settings\"}"
+  },
+  {
+   "id": "A3",
+   "group": "formACompat",
+   "pass": true,
+   "expect": "形态 A 的费率键闸（`findFeeRateKey(plainBody)`）保留（既有行为逐字不变）",
+   "actual": "true"
+  },
+  {
+   "id": "A4",
+   "group": "formACompat",
+   "pass": true,
+   "expect": "形态 A 值对象 `{maintenance:true}` ⇒ 合法（原样透传 · 不补默认值）",
+   "actual": "{\"maintenance\":true}"
+  },
+  {
+   "id": "A5",
+   "group": "formACompat",
+   "pass": true,
+   "expect": "形态 A 未知字段 ⇒ 拒 + `legal_keys` = **9 字段**（`AV2` 字段层闭集 · 整请求拒）",
+   "actual": "{\"reason\":\"SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST\",\"unknown_keys\":[\"foo\"],\"legal_keys_len\":9}"
+  },
+  {
+   "id": "B1",
+   "group": "formBFormat",
+   "pass": true,
+   "expect": "形态 B 判别 = `isAppConfigEnvelope(body)`（自有属性 `key`）+ 信封形状 `screenAppConfigEnvelope(...)`（`AW4`/`AW5`）",
+   "actual": "{\"discriminant\":true,\"envelope\":true}"
+  },
+  {
+   "id": "B2",
+   "group": "formBFormat",
+   "pass": true,
+   "expect": "形态 B 成功响应 = `data { key, value }` + `message = 'App config key saved'`（`AW8`）",
+   "actual": "{\"data\":true,\"msg\":true}"
+  },
+  {
+   "id": "B3",
+   "group": "formBFormat",
+   "pass": true,
+   "expect": "形态 B 写落点把**解出的目标键**作第 3 参传入（`saveSystemSettings(value, uid, targetKey)` · `AS1`）",
+   "actual": "true"
+  },
+  {
+   "id": "B4",
+   "group": "formBFormat",
+   "pass": true,
+   "expect": "写落点的 `key` 字面已参数化（SQL `VALUES (${targetKey}::text, …)`）—— 现取写死 `'system_settings'` 不再是唯一形态",
+   "actual": "true"
+  },
+  {
+   "id": "B5",
+   "group": "formBFormat",
+   "pass": true,
+   "expect": "判别式（纯函数）：含自有 `key` 的对象 ⇒ true；裸值对象 / 数组 ⇒ false",
+   "actual": "{\"withKey\":true,\"formA\":false,\"array\":false}"
+  },
+  {
+   "id": "B6",
+   "group": "formBFormat",
+   "pass": true,
+   "expect": "信封形状：`{key, value}` ⇒ 解出 `rawKey` + `value`（形状层通过 · `AV1` 另层判）",
+   "actual": "{\"rawKey\":\"listing_deposit_policy\",\"value\":{\"amount\":3}}"
+  },
+  {
+   "id": "C1",
+   "group": "multiKeyReject",
+   "pass": true,
+   "expect": "信封**多余属性**（如 `key2`）⇒ 拒（`unknownKey` · `unknown_keys=['key2']` · **不得静默忽略**）",
+   "actual": "{\"reason\":\"SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST\",\"unknown_keys\":[\"key2\"]}"
+  },
+  {
+   "id": "C2",
+   "group": "multiKeyReject",
+   "pass": true,
+   "expect": "**顶层双键**体（不带信封）⇒ 两键皆未知字段 ⇒ 整请求拒（`AG4`③）",
+   "actual": "{\"unknown_keys\":[\"listing_deposit_policy\",\"system_settings\"]}"
+  },
+  {
+   "id": "C3",
+   "group": "multiKeyReject",
+   "pass": true,
+   "expect": "数组体（多键的另一种写法）⇒ 非 object ⇒ 拒（`valueNotObject`）",
+   "actual": "{\"reason\":\"SETTING_VALUE_NOT_OBJECT\"}"
+  },
+  {
+   "id": "D1",
+   "group": "opsDerivation",
+   "pass": true,
+   "expect": "`ops:` 派生第 4 实参 = **解出的目标键变量**（`targetKey`）—— 不得再写死 'system_settings'（§24.3(c)① 正面判据）",
+   "actual": "{\"line\":\"const opsKey = resolveAdminOpsKey(req, actor.session.uID, 'setting', targetKey);\",\"fourth_arg\":\"targetKey\"}"
+  },
+  {
+   "id": "D2",
+   "group": "opsDerivation",
+   "pass": true,
+   "expect": "两键 `ops:` 键**命名空间不相交**：`ops:7:setting:system_settings` ≠ `ops:7:setting:listing_deposit_policy`；形态 A 键形逐字不变",
+   "actual": "{\"a\":\"ops:7:setting:system_settings\",\"b\":\"ops:7:setting:listing_deposit_policy\"}"
+  },
+  {
+   "id": "D3",
+   "group": "opsDerivation",
+   "pass": true,
+   "expect": "次序：`AV1`（`validateAppConfigKey`）**先于** `ops:` 派生 ⇒ 非法键不得被伪装成「缺幂等键」（§24.3(c)⑤）",
+   "actual": "{\"av1_offset\":69415,\"ops_offset\":69999}"
+  },
+  {
+   "id": "D4",
+   "group": "opsDerivation",
+   "pass": true,
+   "expect": "**零新增 `reason` 常量**（`SETTINGS_WRITE_REASONS` 仍恰 3 常量 · 闭集 33 码不动）",
+   "actual": "[\"unknownKey\",\"typeInvalid\",\"valueNotObject\"]"
+  },
+  {
+   "id": "E1",
+   "group": "avLayers",
+   "pass": true,
+   "expect": "`AV1` 顶层键非法 ⇒ 400 + `reason=SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST` + `details.legal_keys` = **恰 2 键**（层级证据）",
+   "actual": "{\"reason\":\"SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST\",\"field\":\"nope\",\"legal_keys\":[\"system_settings\",\"listing_deposit_policy\",\"batt_policy\",\"checkin_policy\",\"invite_reward_policy\",\"mint_burn_policy\",\"rating_policy\",\"site_text_overrides\",\"role_names\"]}"
+  },
+  {
+   "id": "E2",
+   "group": "avLayers",
+   "pass": true,
+   "expect": "`AV1` 合法键（`listing_deposit_policy`）⇒ 通过",
+   "actual": "listing_deposit_policy"
+  },
+  {
+   "id": "E3",
+   "group": "avLayers",
+   "pass": true,
+   "expect": "`AV2` AK2 字段闭集 ⇒ 夹带 `balance` ⇒ 拒 + `details.legal_keys` = **[`amount`]**（层级证据 · 键 ≠ 字段）",
+   "actual": "{\"reason\":\"SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST\",\"unknown_keys\":[\"balance\"],\"legal_keys\":[\"amount\"]}"
+  },
+  {
+   "id": "E4",
+   "group": "avLayers",
+   "pass": true,
+   "expect": "`AV3` `amount` 为**字符串** ⇒ 拒（`SETTING_TYPE_INVALID` · `expected='number'` · **不隐式转换**）",
+   "actual": "{\"reason\":\"SETTING_TYPE_INVALID\",\"expected\":\"number\",\"got\":\"string\"}"
+  },
+  {
+   "id": "E5",
+   "group": "avLayers",
+   "pass": true,
+   "expect": "`AV4` `amount` 语义域（正整数 · 最小单位）：`0` / `-5` / `1.5` ⇒ 拒（`expected='positive_integer'` · **零新增常量**）",
+   "actual": "[{\"expected\":\"positive_integer\",\"got\":\"number\"},{\"expected\":\"positive_integer\",\"got\":\"number\"},{\"expected\":\"positive_integer\",\"got\":\"number\"}]"
+  },
+  {
+   "id": "E6",
+   "group": "avLayers",
+   "pass": true,
+   "expect": "`AV4` 正整数 `amount=3` ⇒ 通过（原样透传）",
+   "actual": "{\"amount\":3}"
+  },
+  {
+   "id": "E7",
+   "group": "avLayers",
+   "pass": true,
+   "expect": "`AV5` 容器硬约束兜底仍在：`app_config_value_is_container` ⇒ 转译 `400` + `SETTING_VALUE_NOT_OBJECT`（**禁裸 500**）",
+   "actual": "{\"constraint\":true,\"reason\":true}"
+  },
+  {
+   "id": "F1",
+   "group": "failClosed",
+   "pass": true,
+   "expect": "读不到 ⇒ **回落常量** 50000（source=constant）",
+   "actual": "{\"floor\":50000,\"source\":\"constant\"}"
+  },
+  {
+   "id": "F2",
+   "group": "failClosed",
+   "pass": true,
+   "expect": "合法键值 ⇒ 用键值（source=config · 不发明数值）",
+   "actual": "{\"floor\":77777,\"source\":\"config\"}"
+  },
+  {
+   "id": "F3",
+   "group": "failClosed",
+   "pass": true,
+   "expect": "非法值（字符串金额）⇒ **fail-closed 到常量**（**不是** fail-open 到该串）",
+   "actual": "{\"floor\":50000,\"source\":\"constant\"}"
+  },
+  {
+   "id": "F4",
+   "group": "failClosed",
+   "pass": true,
+   "expect": "兜底常量标 `TODO: Kevin 定值`（**不得发明保证金数值**）",
+   "actual": "true"
+  },
+  {
+   "id": "G1",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "注册点仍 = 87（本片**零新增对外路径** · 键级寻址复用既有写口）",
+   "actual": "87"
+  },
+  {
+   "id": "G2",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "**无** delist 一族路由（`R-8-17`：退市退还作废 ⇒ 不得新增入口）",
+   "actual": "false"
+  },
+  {
+   "id": "G3",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "退还 / 罚没面**零命中**（代码位 · 注释剥离）：`listing_deposit_refund` 全域；`hold_forfeit` / `hold_release` / `unfreeze(` 于 `currency-service` + **本片两件（`index.ts` / `database.ts`）**",
+   "actual": "{\"deposit_refund_any\":0,\"currency_service\":[],\"new_surface\":[]}"
+  },
+  {
+   "id": "G4",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "迁移文件数仍 = 33（**零新增迁移 / 零 DDL** · `R-8-5`）",
+   "actual": "33"
+  },
+  {
+   "id": "A1__selftest",
+   "group": "formACompatSelfTest",
+   "pass": true,
+   "expect": "形态 A 三点任一丢失 ⇒ 判据须转红",
+   "actual": "{\"wrong_input\":false,\"judge_fired\":true}"
+  },
+  {
+   "id": "D1__selftest",
+   "group": "opsDerivationSelfTest",
+   "pass": true,
+   "expect": "`ops:` 第 4 实参写死 `'system_settings'` ⇒ 判据须转红（`O-3` 未闭合）",
+   "actual": "{\"wrong_input\":\"system_settings\",\"judge_fired\":true}"
+  },
+  {
+   "id": "E1__selftest",
+   "group": "avLayersSelfTest",
+   "pass": true,
+   "expect": "`legal_keys` 只 1 键 ⇒ 判据须转红",
+   "actual": "{\"wrong_input\":[\"system_settings\"],\"judge_fired\":true}"
+  },
+  {
+   "id": "F1__selftest",
+   "group": "failClosedSelfTest",
+   "pass": true,
+   "expect": "「常量兜底」误记 config ⇒ 判据须转红",
+   "actual": "{\"wrong_input\":{\"floor\":50000,\"source\":\"config\"},\"judge_fired\":true}"
+  },
+  {
+   "id": "G1__selftest",
+   "group": "noRefundSurfaceSelfTest",
+   "pass": true,
+   "expect": "注册点写成 75（偷偷少一条）⇒ 判据须转红",
+   "actual": "{\"wrong_input\":75,\"judge_fired\":true}"
+  }
+ ]
+}

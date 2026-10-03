@@ -1,0 +1,485 @@
+{
+ "residual_before": {
+  "currency": 15,
+  "ledger_entry": 359,
+  "batt_account": 2,
+  "batt_entry": 2,
+  "account": 39,
+  "users": 56,
+  "job": 20,
+  "job_submission": 13,
+  "referral": 2
+ },
+ "fixtures_ok": true,
+ "L3_1_reg": {
+  "new": {
+   "uid": "971214",
+   "batt": 30,
+   "rows": 1,
+   "entry": {
+    "txid": "180",
+    "delta": "30",
+    "batt_after": "30",
+    "reason": "invite_signup",
+    "idempotency_key": "biz:invite:signup:971214"
+   }
+  },
+  "replay": {
+   "uid": "971214",
+   "batt": 30,
+   "rows": 1
+  }
+ },
+ "L3_1_cap": {
+  "preset90": {
+   "outcome": "capped",
+   "granted": 10,
+   "batt": 100,
+   "rows": 1,
+   "delta": "10"
+  },
+  "preset100": {
+   "outcome": "capped",
+   "granted": 0,
+   "batt": 100,
+   "rows": 0
+  }
+ },
+ "L3_2_N2": {
+  "outcome": "posted",
+  "recipients": [
+   "9800021",
+   "9800022"
+  ],
+  "perLeg": 10,
+  "total": "20",
+  "key": "biz:invite:firsttask:9800021",
+  "rows": [
+   {
+    "uid": "-1",
+    "delta": "-20",
+    "kind": "invite_first_task_reward",
+    "memo": "邀请首任务奖励（平台发放）job=87（平台出账）"
+   },
+   {
+    "uid": "9800021",
+    "delta": "10",
+    "kind": "invite_first_task_reward",
+    "memo": "邀请首任务奖励（平台发放）job=87（打工人本人）"
+   },
+   {
+    "uid": "9800022",
+    "delta": "10",
+    "kind": "invite_first_task_reward",
+    "memo": "邀请首任务奖励（平台发放）job=87（直接上级）"
+   }
+  ]
+ },
+ "L3_2_N1": {
+  "outcome": "posted",
+  "recipients": [
+   "9800090"
+  ],
+  "perLeg": 10,
+  "total": "10",
+  "rows": [
+   {
+    "uid": "-1",
+    "delta": "-10",
+    "kind": "invite_first_task_reward",
+    "memo": "邀请首任务奖励（平台发放）job=88（平台出账）"
+   },
+   {
+    "uid": "9800090",
+    "delta": "10",
+    "kind": "invite_first_task_reward",
+    "memo": "邀请首任务奖励（平台发放）job=88（打工人本人）"
+   }
+  ]
+ },
+ "L3_3_settle": {
+  "job_id": "89",
+  "ok": true,
+  "replay": false,
+  "status_before": "submitted",
+  "status_after": "settled",
+  "settle_txid": "1142",
+  "escrow_txid": "1140",
+  "submission": {
+   "review_status": "approved",
+   "rb": "9800053"
+  },
+  "reward_rows": [
+   {
+    "uid": "-1",
+    "delta": "-20",
+    "kind": "invite_first_task_reward",
+    "memo": "邀请首任务奖励（平台发放）job=89（平台出账）"
+   },
+   {
+    "uid": "9800051",
+    "delta": "10",
+    "kind": "invite_first_task_reward",
+    "memo": "邀请首任务奖励（平台发放）job=89（打工人本人）"
+   },
+   {
+    "uid": "9800052",
+    "delta": "10",
+    "kind": "invite_first_task_reward",
+    "memo": "邀请首任务奖励（平台发放）job=89（直接上级）"
+   }
+  ],
+  "settle_event_rows": [
+   "970001:0:job_payout",
+   "9800051:90000:job_payout",
+   "970001:0:job_fee",
+   "-2:10000:job_fee",
+   "-2:-10000:commission",
+   "9800052:10000:commission"
+  ]
+ },
+ "L3_4": {
+  "M": 6,
+  "N": 7,
+  "fee": "10000",
+  "W": "10000",
+  "weights_bp": [
+   "2600",
+   "1700",
+   "700",
+   "2600",
+   "1700",
+   "700"
+  ],
+  "labels": [
+   "U1",
+   "U2",
+   "U3",
+   "D1",
+   "D1",
+   "D2",
+   "D3"
+  ],
+  "layer_shares": [
+   {
+    "L": 1,
+    "share": "2600",
+    "n": 1
+   },
+   {
+    "L": 2,
+    "share": "1700",
+    "n": 1
+   },
+   {
+    "L": 3,
+    "share": "700",
+    "n": 1
+   },
+   {
+    "L": 4,
+    "share": "2600",
+    "n": 2
+   },
+   {
+    "L": 5,
+    "share": "1700",
+    "n": 1
+   },
+   {
+    "L": 6,
+    "share": "700",
+    "n": 1
+   }
+  ],
+  "sum_entries": "10000",
+  "fee_credit_uid": "-2",
+  "entries": [
+   {
+    "uid": "9800033",
+    "layer": 1,
+    "dir": "up",
+    "dist": 1,
+    "x": "2600"
+   },
+   {
+    "uid": "9800032",
+    "layer": 2,
+    "dir": "up",
+    "dist": 2,
+    "x": "1700"
+   },
+   {
+    "uid": "9800031",
+    "layer": 3,
+    "dir": "up",
+    "dist": 3,
+    "x": "700"
+   },
+   {
+    "uid": "9800035",
+    "layer": 4,
+    "dir": "down",
+    "dist": 1,
+    "x": "1300"
+   },
+   {
+    "uid": "9800038",
+    "layer": 4,
+    "dir": "down",
+    "dist": 1,
+    "x": "1300"
+   },
+   {
+    "uid": "9800036",
+    "layer": 5,
+    "dir": "down",
+    "dist": 2,
+    "x": "1700"
+   },
+   {
+    "uid": "9800037",
+    "layer": 6,
+    "dir": "down",
+    "dist": 3,
+    "x": "700"
+   }
+  ]
+ },
+ "L3_4_tie": {
+  "tieEntries": "100:34,200:33,300:33",
+  "sumTie": "100",
+  "sw_x": [
+   "33",
+   "33",
+   "34"
+  ],
+  "sw_sum": "100",
+  "sw_plus": [
+   3
+  ]
+ },
+ "L3_5": {
+  "worker_in_roster": false,
+  "roster_uids": [
+   "9800033",
+   "9800032",
+   "9800031",
+   "9800035"
+  ],
+  "rejection": {
+   "code": "LEDGER_RECONCILE_MISMATCH",
+   "reason": "COMMISSION_CHAIN_ASSERTION_VIOLATED",
+   "failed": "worker_in_roster",
+   "httpStatus": 500
+  }
+ },
+ "L3_6": {
+  "capLayer_dflt": 64,
+  "capTotal_dflt": 384,
+  "layer_trunc": {
+   "cap_layer": 64,
+   "cap_total": 384,
+   "dropped_total": 6,
+   "dropped_by_layer": {
+    "4": 6
+   },
+   "truncated": true
+  },
+  "d1_kept": 64,
+  "total_trunc": {
+   "cap_layer": 3000,
+   "cap_total": 384,
+   "dropped_total": 19,
+   "dropped_by_layer": {
+    "2": 1,
+    "3": 1,
+    "4": 17
+   },
+   "truncated": true
+  },
+  "uids": 384
+ },
+ "L3_7": {
+  "M": 0,
+  "no_referrer": true,
+  "fee_credit_uid": "-1",
+  "layers": 0,
+  "fee": "10000"
+ },
+ "L3_8": {
+  "neg_jobfee_debit": {
+   "ok": false,
+   "code": "LD021",
+   "message": "LEDGER_RESERVED_UID",
+   "reason": "PLATFORM_DEBIT_FORBIDDEN"
+  },
+  "pos_invite_debit": {
+   "ok": true,
+   "v": {
+    "ledger_assert_platform_mutation": ""
+   }
+  },
+  "neg2_invite_credit": {
+   "ok": false,
+   "code": "LD021",
+   "message": "LEDGER_RESERVED_UID",
+   "reason": "PLATFORM_CREDIT_KIND_FORBIDDEN"
+  },
+  "neg1_invite_credit": {
+   "ok": false,
+   "code": "LD021",
+   "message": "LEDGER_RESERVED_UID",
+   "reason": "PLATFORM_CREDIT_KIND_FORBIDDEN"
+  }
+ },
+ "config_override": {
+  "granted": 7,
+  "batt": 7,
+  "source": "config"
+ },
+ "residual_after": {
+  "currency": 15,
+  "ledger_entry": 359,
+  "batt_account": 2,
+  "batt_entry": 2,
+  "account": 39,
+  "users": 56,
+  "job": 20,
+  "job_submission": 13,
+  "referral": 2
+ },
+ "residual_diff": {
+  "currency": "15→15",
+  "ledger_entry": "359→359",
+  "batt_account": "2→2",
+  "batt_entry": "2→2",
+  "account": "39→39",
+  "users": "56→56",
+  "job": "20→20",
+  "job_submission": "13→13",
+  "referral": "2→2"
+ },
+ "summary": {
+  "total": 19,
+  "passed": 19,
+  "failed": 0
+ },
+ "checks": [
+  {
+   "id": "L3-1a 注册腿建户 +30",
+   "pass": true,
+   "expect": "findOrCreateUserByEvm 建户分支 ⇒ granted +30 batt（1 行 batt_entry / reason=invite_signup）",
+   "actual": "{\"batt\":30,\"delta\":\"30\",\"reason\":\"invite_signup\"}"
+  },
+  {
+   "id": "L3-1b 注册腿重放零新增",
+   "pass": true,
+   "expect": "同 EVM 二次调用 ⇒ 命中已存在用户（不建户、不双发）⇒ batt 仍 30 / batt_entry 仍 1 行",
+   "actual": "{\"same_uid\":true,\"batt\":30,\"rows\":1}"
+  },
+  {
+   "id": "L3-1c 预置 90 封顶 100",
+   "pass": true,
+   "expect": "batt=90 预置 ⇒ outcome=capped / granted=+10 / batt=100（封顶 BATT_CAP_HARD_MAX=100）",
+   "actual": "{\"outcome\":\"capped\",\"granted\":10,\"batt\":100,\"rows\":1,\"delta\":\"10\"}"
+  },
+  {
+   "id": "L3-1d 预置 100 ⇒ +0",
+   "pass": true,
+   "expect": "batt=100 预置 ⇒ outcome=capped / granted=0 / **零 batt_entry 行**",
+   "actual": "{\"outcome\":\"capped\",\"granted\":0,\"batt\":100,\"rows\":0}"
+  },
+  {
+   "id": "L3-2a 首任务腿 N=2",
+   "pass": true,
+   "expect": "posted：−1 −20 / 本人 9800021 +10 / 直接上级 9800022 +10（kind=invite_first_task_reward）",
+   "actual": "{\"outcome\":\"posted\",\"legs\":\"-1:-20,9800021:10,9800022:10\"}"
+  },
+  {
+   "id": "L3-2b 首任务腿重放零新增",
+   "pass": true,
+   "expect": "同键（biz:invite:firsttask:9800021）重放 ⇒ replayed / 行数不增",
+   "actual": "{\"outcome\":\"replayed\",\"rows\":\"3→3\"}"
+  },
+  {
+   "id": "L3-2c 首任务腿 N=1",
+   "pass": true,
+   "expect": "无上级 ⇒ 只发本人：−1 −10 / 本人 9800090 +10（平台不吞）",
+   "actual": "{\"outcome\":\"posted\",\"legs\":\"-1:-10,9800090:10\"}"
+  },
+  {
+   "id": "L3-3 经结算路径 → 首任务奖励",
+   "pass": true,
+   "expect": "settleJob(submitted→settled) ⇒ 下游 best-effort 发 invite_first_task_reward：−1 −20 / 本人 +10 / 上级 +10；结论位 approved",
+   "actual": "{\"ok\":true,\"status\":\"submitted→settled\",\"reward\":\"-1:-20,9800051:10,9800052:10\",\"sub\":\"approved\"}"
+  },
+  {
+   "id": "L3-4a 6 层序位与权重",
+   "pass": true,
+   "expect": "M=6 · 去重层序 [U1,U2,U3,D1,D2,D3] · 权重 [2600,1700,700,2600,1700,700]",
+   "actual": "{\"M\":6,\"distinctLabels\":[\"U1\",\"U2\",\"U3\",\"D1\",\"D2\",\"D3\"],\"W\":[\"2600\",\"1700\",\"700\",\"2600\",\"1700\",\"700\"]}"
+  },
+  {
+   "id": "L3-4b Σ x == pool 构造性",
+   "pass": true,
+   "expect": "Σ entries 逐分 == fee(池) == 10000 · fee_credit_uid=-2（有合格受益人）",
+   "actual": "{\"sum\":\"10000\",\"fee\":\"10000\",\"credit\":\"-2\"}"
+  },
+  {
+   "id": "L3-4c 距离加权 + 层内均分",
+   "pass": true,
+   "expect": "越近越高（U1>U2>U3 · D1>D2>D3）· 层额=权重 · D1 层均分 2600→1300/1300",
+   "actual": "[{\"L\":1,\"share\":\"2600\",\"n\":1},{\"L\":2,\"share\":\"1700\",\"n\":1},{\"L\":3,\"share\":\"700\",\"n\":1},{\"L\":4,\"share\":\"2600\",\"n\":2},{\"L\":5,\"share\":\"1700\",\"n\":1},{\"L\":6,\"share\":\"700\",\"n\":1}]"
+  },
+  {
+   "id": "L3-4d 层内 tie-break (r DESC, uid ASC) + 余数守恒",
+   "pass": true,
+   "expect": "+1 落 uid ASC 最小者（100→34 / 200→33 / 300→33）· Σ==100",
+   "actual": "{\"tieEntries\":\"100:34,200:33,300:33\",\"sumTie\":\"100\"}"
+  },
+  {
+   "id": "L3-4e 层间最大余数法 Σ==pool（含 D>0）",
+   "pass": true,
+   "expect": "splitPoolByWeights(100,[1,1,1]) ⇒ q=33/33/33·D=1 ⇒ +1 落 L3（r 等 ⇒ L DESC）⇒ [33,33,34]·Σ=100",
+   "actual": "{\"x\":[\"33\",\"33\",\"34\"],\"sum\":\"100\",\"plus\":[3]}"
+  },
+  {
+   "id": "L3-5 Worker 结构性剔除 + 防御断言硬拒(500)",
+   "pass": true,
+   "expect": "名单不含 Worker（遍历种子剔除）；若含 ⇒ 500 LEDGER_RECONCILE_MISMATCH / COMMISSION_CHAIN_ASSERTION_VIOLATED（spec R-9-56 权威口径）",
+   "actual": "{\"worker_in_roster\":false,\"roster_uids\":[\"9800033\",\"9800032\",\"9800031\",\"9800035\"],\"rejection\":{\"code\":\"LEDGER_RECONCILE_MISMATCH\",\"reason\":\"COMMISSION_CHAIN_ASSERTION_VIOLATED\",\"failed\":\"worker_in_roster\",\"httpStatus\":500}}"
+  },
+  {
+   "id": "L3-6 上限截断留痕",
+   "pass": true,
+   "expect": "默认 capLayer64/capTotal384；层内 70⇒截 64 丢 6 留痕；总 403⇒截 384 丢 19 留痕（truncated=true）",
+   "actual": "{\"capLayer_dflt\":64,\"capTotal_dflt\":384,\"layer_trunc\":{\"cap_layer\":64,\"cap_total\":384,\"dropped_total\":6,\"dropped_by_layer\":{\"4\":6},\"truncated\":true},\"d1_kept\":64,\"total_trunc\":{\"cap_layer\":3000,\"cap_total\":384,\"dropped_total\":19,\"dropped_by_layer\":{\"2\":1,\"3\":1,\"4\":17},\"truncated\":true},\"uids\":384}"
+  },
+  {
+   "id": "L3-7 M=0 ⇒ fee_credit_uid=-1",
+   "pass": true,
+   "expect": "无任何合格受益人（无 invite 关系）⇒ M=0 / no_referrer / fee_credit_uid = \"-1\"（R-9-52 兜底非抽成）",
+   "actual": "{\"M\":0,\"no_referrer\":true,\"fee_credit_uid\":\"-1\",\"layers\":0,\"fee\":\"10000\"}"
+  },
+  {
+   "id": "L3-8 白名单外 −1 debit 必红",
+   "pass": true,
+   "expect": "−1 debit job_fee ⇒ LD021 / LEDGER_RESERVED_UID / reason=PLATFORM_DEBIT_FORBIDDEN；−1 debit invite_first_task_reward 放行；−2 credit invite / −1 credit invite 皆拒",
+   "actual": "{\"neg\":{\"ok\":false,\"code\":\"LD021\",\"reason\":\"PLATFORM_DEBIT_FORBIDDEN\"},\"pos_ok\":true,\"neg2_ok\":false,\"neg1c_ok\":false}"
+  },
+  {
+   "id": "L3-9 策略键可配置（事务内 INSERT · 只读默认时=常量）",
+   "pass": true,
+   "expect": "app_config 无 invite_reward_policy 行 ⇒ 常量默认 30；事务内 INSERT {signupBatt:7} ⇒ +7（策略面真读库）",
+   "actual": "{\"granted\":7,\"batt\":7,\"source\":\"config\"}"
+  },
+  {
+   "id": "L3-10 ROLLBACK 后表级零残渣",
+   "pass": true,
+   "expect": "currency/ledger_entry/batt_account/batt_entry/account（+users/job/job_submission/referral）before == after",
+   "actual": "{\"currency\":\"15→15\",\"ledger_entry\":\"359→359\",\"batt_account\":\"2→2\",\"batt_entry\":\"2→2\",\"account\":\"39→39\",\"users\":\"56→56\",\"job\":\"20→20\",\"job_submission\":\"13→13\",\"referral\":\"2→2\"}"
+  }
+ ]
+}
+L3_SUMMARY total=19 passed=19 failed=0

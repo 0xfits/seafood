@@ -1,0 +1,76 @@
+{
+ "note": "p8-s8 改名后（V*/C*）四判负红点实测 · 仓外副本 p9s3-copy",
+ "mutations": [
+  {
+   "M": "M1 去无行守卫",
+   "file": "backend-ts/src/database.ts:4590",
+   "mut": "periods[days][role] = n > 0 ? round4(s / n) : policy.defaultStars;",
+   "to": "periods[days][role] = round4(s / n);",
+   "rc": 1,
+   "total": 92,
+   "passed": 89,
+   "failed": 3,
+   "red": [
+    "G5",
+    "V7",
+    "V8"
+   ]
+  },
+  {
+   "M": "M2 时效 null→0（numOf 定义清零）",
+   "file": "backend-ts/src/database.ts:4747",
+   "mut": "(v===null||v===undefined?null:Number(v))",
+   "to": "Number(v ?? 0)",
+   "rc": 1,
+   "total": 92,
+   "passed": 91,
+   "failed": 1,
+   "red": [
+    "V11"
+   ]
+  },
+  {
+   "M": "M3 状态集回 4 值",
+   "file": "backend-ts/migrations/0030_listing_order_status_extend.sql:66",
+   "mut": "6 值 CHECK",
+   "to": "4 值 CHECK",
+   "rc": 1,
+   "total": 92,
+   "passed": 91,
+   "failed": 1,
+   "red": [
+    "C1"
+   ]
+  },
+  {
+   "M": "M4 放行 received→refunded",
+   "file": "backend-ts/migrations/0030_...sql transition_ok",
+   "mut": "ELSE false",
+   "to": "WHEN 'received' THEN p_to IN ('refunded')",
+   "rc": 1,
+   "total": 92,
+   "passed": 88,
+   "failed": 4,
+   "red": [
+    "C2__selftest",
+    "C3",
+    "C5",
+    "C6"
+   ]
+  }
+ ],
+ "restore": {
+  "rc": 0,
+  "total": 92,
+  "passed": 92,
+  "failed": 0,
+  "pending_apply": 0
+ },
+ "cmp_SAME": [
+  "src/database.ts",
+  "migrations/0030...sql",
+  "migrations/0031...sql",
+  "scripts/p8-s8-...ts",
+  "src/index.ts"
+ ]
+}

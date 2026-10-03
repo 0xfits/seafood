@@ -1,0 +1,483 @@
+{
+ "unit": "P8-S7-BATT-CHECKIN-GATE",
+ "generated_at": "2026-10-03T06:50:02.782Z",
+ "run": "20261003T064957Z",
+ "offline": false,
+ "db_connections": 7,
+ "http_calls": 1,
+ "note": "A–F 静态段零 DB；G 段 = **库面 leg 转真 checks**（连库 + 事务内 ROLLBACK 行为探针 + 受控实例 5797 真 HTTP）。`pending_apply[]` = 0。",
+ "total": 58,
+ "passed": 55,
+ "failed": 3,
+ "pending_apply": [],
+ "readings": {
+  "registration_points_total": 87,
+  "registration_points_per_verb": {
+   "get": 36,
+   "post": 48,
+   "put": 0,
+   "patch": 1,
+   "delete": 2
+  },
+  "new_routes": [
+   "app.get('/api/batt'',",
+   "app.get('/api/checkin'',",
+   "app.post('/api/checkin'',",
+   "app.post('/api/checkin/makeup'',"
+  ],
+  "ledger_kinds_count": 23,
+  "ledger_kinds_last": "bttc_burn_fee",
+  "kind_close_set_encodings": {
+   "sql_0028_check": 21,
+   "sql_0029_ledger_kind_ok": 21,
+   "sql_0029_frozen_settle_branch": 4,
+   "sql_0032_check": 23,
+   "sql_0032_ledger_kind_ok": 23,
+   "sql_0032_frozen_settle_branch": 4,
+   "ts_ledger_kinds": 23
+  },
+  "live_db_kind_enum": 23,
+  "live_db_tables": [
+   "batt_account",
+   "batt_entry",
+   "checkin_log",
+   "checkin_makeup_log"
+  ],
+  "live_db_triggers": [
+   "trg_batt_account_touch_updated",
+   "trg_batt_entry_append_only",
+   "trg_checkin_log_append_only",
+   "trg_checkin_makeup_log_append_only"
+  ],
+  "db_connections": 7,
+  "http_calls": 1,
+  "http_401": {},
+  "http_200": {},
+  "public_surface": {
+   "/api/role-names": -1
+  },
+  "batt_policy_defaults": {
+   "taskCostBatt": 9,
+   "capBatt": 100,
+   "floorBatt": 0,
+   "acceptThresholdBatt": 9
+  },
+  "checkin_policy_defaults": {
+   "baseRewardBatt": 30,
+   "streakCapDays": 7,
+   "streakDay7RewardBatt": 60,
+   "makeupCostUsd": 100,
+   "makeupDailyLimit": 1
+  },
+  "error_codes_closed_set_size": 33
+ },
+ "checks": [
+  {
+   "id": "A1",
+   "group": "registration",
+   "pass": true,
+   "expect": "注册点 = 87（P9② batt/签到 4 新口 +4〔76→80〕⇒ P9③ 评分/时效/订单 5 新口 +5〔80→85〕⇒ P9④ BTTC 铸造/分解 2 新口 +2〔85→87〕）",
+   "actual": "87"
+  },
+  {
+   "id": "A2",
+   "group": "registration",
+   "pass": true,
+   "expect": "逐 verb 逐字 = {\"get\":36,\"post\":48,\"put\":0,\"patch\":1,\"delete\":2}",
+   "actual": "{\"get\":36,\"post\":48,\"put\":0,\"patch\":1,\"delete\":2}"
+  },
+  {
+   "id": "A3",
+   "group": "registration",
+   "pass": true,
+   "expect": "逐 verb 计数之和 = 注册点总数",
+   "actual": "{\"get\":36,\"post\":48,\"put\":0,\"patch\":1,\"delete\":2}"
+  },
+  {
+   "id": "A4",
+   "group": "registration",
+   "pass": true,
+   "expect": "4 新口逐条注册**恰 1 处**（`GET /api/batt` / `GET /api/checkin` / `POST /api/checkin` / `POST /api/checkin/makeup`）",
+   "actual": "[1,1,1,1]"
+  },
+  {
+   "id": "A5",
+   "group": "registration",
+   "pass": true,
+   "expect": "★ 负对照：缩进注入一条路由 ⇒ 计数 87→88",
+   "actual": "{\"injected\":88}"
+  },
+  {
+   "id": "A1__selftest",
+   "group": "registrationSelfTest",
+   "pass": true,
+   "expect": "把非 87 条路由的文本喂入「注册点 = 87」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":\"x\",\"judge_fired\":true}"
+  },
+  {
+   "id": "B1",
+   "group": "routeShape",
+   "pass": true,
+   "expect": "★ 四口全闸 `requireActor(req, res)`（用户本人 · uid 取自 token）且**零** `requireAdmin(` ⇒ 零 admin 权限键新增",
+   "actual": "{\"actor_in_all\":true,\"requireAdmin_in_any\":false}"
+  },
+  {
+   "id": "B1__selftest",
+   "group": "routeShapeSelfTest",
+   "pass": true,
+   "expect": "把「带 admin 闸」的 handler 喂入 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":\"app.get('/api/batt', async (req, res) => { const actor = await requireAdmin(req, res, 'manage_settings'); if (!actor) return; });\",\"judge_fired\":true}"
+  },
+  {
+   "id": "B2",
+   "group": "routeShape",
+   "pass": true,
+   "expect": "R1 `GET /api/batt`：`data` 顶层冻结 **7 键**（既有 6 键 batt/capBatt/floorBatt/acceptThresholdBatt/canAccept/updated_at **逐字不动** + P9④ 追加 `bttc` 子对象）+ 取数 `DatabaseService.getBatt(` + `DatabaseService.getBttcState(`",
+   "actual": "{\"keys\":[\"acceptThresholdBatt\",\"batt\",\"bttc\",\"canAccept\",\"capBatt\",\"floorBatt\",\"updated_at\"],\"getBatt\":true,\"getBttcState\":true}"
+  },
+  {
+   "id": "B3",
+   "group": "routeShape",
+   "pass": true,
+   "expect": "R2 `GET /api/checkin`：`data` 冻结 6 键（streakDay/streakCapDays/checkedInToday/canMakeup/makeupCostUsd/updated_at）+ 取数 `DatabaseService.getCheckinStatus(`",
+   "actual": "{\"keys\":[\"canMakeup\",\"checkedInToday\",\"makeupCostUsd\",\"streakCapDays\",\"streakDay\",\"updated_at\"],\"getCheckinStatus\":true}"
+  },
+  {
+   "id": "B4",
+   "group": "routeShape",
+   "pass": true,
+   "expect": "A1 `POST /api/checkin`：`data` 冻结 4 键（checkedIn/streakDay/rewardBatt/batt）+ `DatabaseService.checkin(` + 幂等键 `bizKeyOf('checkin', uid, utcDay())`",
+   "actual": "{\"keys\":[\"batt\",\"checkedIn\",\"rewardBatt\",\"streakDay\"],\"checkin\":true,\"idem\":true}"
+  },
+  {
+   "id": "B5",
+   "group": "routeShape",
+   "pass": true,
+   "expect": "A2 `POST /api/checkin/makeup`：`data` 冻结 3 键（restoredStreakDay/costUsd/txid）+ `DatabaseService.checkinMakeup(` + 幂等键 `bizKeyOf('checkin', 'makeup', uid, targetRaw)`",
+   "actual": "{\"keys\":[\"costUsd\",\"restoredStreakDay\",\"txid\"],\"checkinMakeup\":true,\"idem\":true}"
+  },
+  {
+   "id": "B6",
+   "group": "routeShape",
+   "pass": true,
+   "expect": "★ `target_day` 入幂等键 / 入 SQL 前经服务端 `isBusinessDay(targetRaw)` 校验（非法 ⇒ 400，不入库）",
+   "actual": "{\"isBusinessDay\":true,\"readsBody\":true}"
+  },
+  {
+   "id": "B7",
+   "group": "routeShape",
+   "pass": true,
+   "expect": "四口基础设施异常 ⇒ 既有 §14 分类器 `sendInfraMapped`（标签 'batt.get'/'checkin.get'/'checkin.post'/'checkin.makeup'）",
+   "actual": "[true,true,true,true]"
+  },
+  {
+   "id": "B7__selftest",
+   "group": "routeShapeSelfTest",
+   "pass": true,
+   "expect": "把错标签喂入给 label 谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":\"sendInfraMapped(res, 'wrong.label'\",\"judge_fired\":true}"
+  },
+  {
+   "id": "C0",
+   "group": "doubleGate",
+   "pass": true,
+   "expect": "双闸两处区域切分成功（`applyToJob` / `acceptJobApplication`）",
+   "actual": "{\"apply_bytes\":3924,\"accept_bytes\":5324}"
+  },
+  {
+   "id": "C1",
+   "group": "doubleGate",
+   "pass": true,
+   "expect": "★ 落点 A（`R-9-18`）`applyToJob` **前置拦**：`batt_account ≥ acceptThresholdBatt` 落 INSERT CTE `WHERE`（fail-fast）+ outcome CASE 产 `'batt_below_threshold'`",
+   "actual": "{\"pre_gate\":true,\"outcome_case\":true,\"union\":true}"
+  },
+  {
+   "id": "C2",
+   "group": "doubleGate",
+   "pass": true,
+   "expect": "★ 落点 B（`R-9-18`）`acceptJobApplication` **同事务权威扣费**：`upd` 门控 `worker_batt ≥ thr.accept`；`deduct` 扣 `cost` 且**二次判** `b.batt ≥ cost`（不满足 ⇒ 无行 ⇒ 整体回滚 ⇒ 409）",
+   "actual": "{\"thr\":true,\"gate_upd\":true,\"deduct\":true,\"deduct_set\":true,\"second_judge\":true,\"outcome\":true}"
+  },
+  {
+   "id": "C3",
+   "group": "doubleGate",
+   "pass": true,
+   "expect": "扣减落 `batt_entry` 逐笔凭证（`reason='task_cost'` · 幂等键 `biz:job:accept:cost:<uid>:<applicationId>`）",
+   "actual": "{\"ins_entry\":true,\"task_cost\":true,\"idem\":true}"
+  },
+  {
+   "id": "C4",
+   "group": "doubleGate",
+   "pass": true,
+   "expect": "落点 B 返回值新增 `workerBattAfter`（`worker_batt_after` = 扣后电量，供上层回读）",
+   "actual": "{\"workerBattAfter\":true,\"sql_col\":true}"
+  },
+  {
+   "id": "C5",
+   "group": "doubleGate",
+   "pass": true,
+   "expect": "两处 outcome ⇒ `stateConflict('batt', 'BATT_BELOW_ACCEPT_THRESHOLD', …)`（**借既有「非法状态转移」族码** · 零新增码 · R107）",
+   "actual": "{\"stateConflict_batt\":2}"
+  },
+  {
+   "id": "C6",
+   "group": "doubleGate",
+   "pass": true,
+   "expect": "`stateConflict` 落码 = `LEDGER_CURRENCY_INVALID_TRANSITION`（∈ 闭集 33）",
+   "actual": "{\"in_closed_set\":true}"
+  },
+  {
+   "id": "C2__selftest",
+   "group": "doubleGateSelfTest",
+   "pass": true,
+   "expect": "把「二次判被写成恒真」的区域喂入 ⇒ 双闸谓词必须转红",
+   "actual": "{\"wrong_input\":\"static async acceptJobApplication(\\n    jobId: number,\\n    applicationId: number,\\n    actorUid: number,\\n    ex?: SqlRunner,\\n  ): Promise<{\\n    outcome: 'accepted' | 'not_employer' | 'already_accepted' | 'app_state_invalid' | 'job_state_invalid' | 'batt_below_threshold';\\n    applicationId: number;\\n    jobId: number;\\n    workerUid: number;\\n    applicationStatus: string;\\n    jobStatus: string;\\n    workerBattAfter: number | null;\\n  } | null> {\\n    // ★ P9② 双闸（`R-9-18`）落点 B · **权威扣费点**：`upd` CTE 同事务追加电量闸（标的 = `t.worker_uid`）；\\n    //   `deduct` CTE **同事务扣 `taskCostBatt`（fallback 9）** + **二次判 ≥ cost**（不满足 ⇒ 无行 ⇒\\n    //   整体回滚 ⇒ 409）；`ins_entry` 为该扣减落 `batt_entry` 逐笔凭证（reason `task_cost`）。\\n    //   两处均 **SQL 单写路径 CTE**（不可绕过 · 沿 8④ `C2` 教训）；`batt_account` 无行 ⇒ `COALESCE 0`（fail-closed）。\\n    const { policy: battPolicy } = resolveBattPolicy(await this.getAppConfigValueByKey('batt_policy', ex));\\n    const acceptThresholdBatt = battPolicy.acceptThresholdBatt;\\n    const taskCostBatt = battPolicy.taskCostBatt;\\n    const sql = sqlFor(ex);\\n    const row = firstRow(await sql`\\n      WITH target AS (\\n        SELECT a.application_id, a.job_id, a.worker_uid, a.status AS app_status,\\n               j.employer_uid, j.status AS job_status\\n          FROM public.job_application AS a\\n          JOIN public.job AS j ON j.job_id = a.job_id\\n         WHERE a.application_id = ${applicationId}\\n           AND a.job_id = ${jobId}\\n      ), thr AS (\\n        SELECT COALESCE((SELECT CASE WHEN (p.value->>'acceptThresholdBatt') ~ '^[0-9]+$'\\n                                      THEN (p.value->>'acceptThresholdBatt')::int ELSE NULL END\\n                             FROM public.app_config AS p WHERE p.key = 'batt_policy' LIMIT 1), ${acceptThresholdBatt}) AS accept,\\n               COALESCE((SELECT CASE WHEN (p.value->>'taskCostBatt') ~ '^[0-9]+$'\\n                                      THEN (p.value->>'taskCostBatt')::int ELSE NULL END\\n                             FROM public.app_config AS p WHERE p.key = 'batt_policy' LIMIT 1), ${taskCostBatt}) AS cost\\n      ), gate AS (\\n        SELECT t.*, COALESCE((SELECT b.batt FROM public.batt_account AS b WHERE b.uid = t.worker_uid), 0)::int AS worker_batt\\n          FROM target AS t\\n      ), upd AS (\\n        UPDATE public.job_application AS a\\n           SET status = 'accepted'\\n          FROM gate AS g, thr\\n         WHERE a.application_id = g.application_id\\n           AND g.app_status = 'applied'\\n           AND g.employer_uid = ${actorUid}\\n           AND g.job_status = 'open'\\n           AND g.worker_batt >= thr.accept\\n        RETURNING a.application_id\\n      ), upd_job AS (\\n        UPDATE public.job AS j\\n           SET status = 'accepted', worker_uid = t.worker_uid\\n          FROM target AS t\\n         WHERE j.job_id = t.job_id\\n           AND t.job_status = 'open'\\n           AND EXISTS (SELECT 1 FROM upd)\\n        RETURNING j.job_id\\n      ), deduct AS (\\n        UPDATE public.batt_account AS b\\n           SET batt = b.batt - (SELECT cost FROM thr)\\n          FROM gate AS g, thr\\n         WHERE b.uid = g.worker_uid\\n           AND EXISTS (SELECT 1 FROM upd)\\n           AND true\\n        RETURNING b.batt, b.uid\\n      ), ins_entry AS (\\n        INSERT INTO public.batt_entry (uid, delta, batt_after, reason, idempotency_key, ref_type, ref_id, memo)\\n        SELECT d.uid, -1 * (SELECT cost FROM thr), d.batt, 'task_cost',\\n               'biz:job:accept:cost:' || d.uid::text || ':' || ${applicationId}::text,\\n               'job_application', ${applicationId}::bigint, ''\\n          FROM deduct AS d\\n         WHERE (SELECT cost FROM thr) <> 0\\n        ON CONFLICT (idempotency_key) DO NOTHING\\n        RETURNING txid\\n      )\\n      SELECT t.application_id AS application_id, t.job_id AS job_id, t.worker_uid AS worker_uid,\\n             t.app_status AS application_status, t.job_status AS job_status,\\n             COALESCE(CASE WHEN EXISTS (SELECT 1 FROM upd) THEN 'accepted' END,\\n                      CASE WHEN t.employer_uid <> ${actorUid} THEN 'not_employer'\\n                           WHEN t.app_status = 'accepted' THEN 'already_accepted'\\n                           WHEN t.app_status <> 'applied' THEN 'app_state_invalid'\\n                           WHEN t.job_status <> 'open' THEN 'job_state_invalid'\\n                           WHEN g.worker_batt < thr.accept THEN 'batt_below_threshold'\\n                           ELSE 'job_state_invalid' END) AS outcome,\\n             (SELECT d.batt FROM deduct AS d LIMIT 1) AS worker_batt_after\\n        FROM target AS t, gate AS g, thr\\n    `);\\n\\n    if (!row) return null;\\n\\n    return {\\n      outcome: (toStringValue(getValue(row, 'outcome')) || 'app_state_invalid') as\\n        'accepted' | 'not_employer' | 'already_accepted' | 'app_state_invalid' | 'job_state_invalid' | 'batt_below_threshold',\\n      applicationId: toNumberValue(getValue(row, 'application_id')),\\n      jobId: toNumberValue(getValue(row, 'job_id')),\\n      workerUid: toNumberValue(getValue(row, 'worker_uid')),\\n      applicationStatus: toStringValue(getValue(row, 'application_status')),\\n      jobStatus: toStringValue(getValue(row, 'job_status')),\\n      workerBattAfter: getValue(row, 'worker_batt_after') === null || getValue(row, 'worker_batt_after') === undefined\\n        ? null\\n        : toNumberValue(getValue(row, 'worker_batt_after')),\\n    };\\n  }\\n\\n  \",\"judge_fired\":true}"
+  },
+  {
+   "id": "D1",
+   "group": "kindCloseSet",
+   "pass": true,
+   "expect": "③ TS `LEDGER_KINDS` = 23 值（末位追加 `bttc_mint_fee`/`bttc_burn_fee`，不改既有 21 次序；含 `checkin_makeup_fee`）",
+   "actual": "{\"n\":23,\"tail\":[\"bttc_mint_fee\",\"bttc_burn_fee\"],\"has_new\":true}"
+  },
+  {
+   "id": "D2",
+   "group": "kindCloseSet",
+   "pass": true,
+   "expect": "① `0032` `ledger_kind_enum` CHECK = 23 值且与 TS 同集（含 `bttc_mint_fee`/`bttc_burn_fee`）",
+   "actual": "{\"n\":23,\"same_set\":true}"
+  },
+  {
+   "id": "D3",
+   "group": "kindCloseSet",
+   "pass": true,
+   "expect": "② `0032` `ledger_kind_ok` 第一支 = 23 值且与 TS 同集",
+   "actual": "{\"n\":23,\"same_set\":true}"
+  },
+  {
+   "id": "D4",
+   "group": "kindCloseSet",
+   "pass": true,
+   "expect": "现役三处编码**同集**（① `0032` CHECK ② `0032` 函数 ③ TS）",
+   "actual": "{\"check_eq_fn\":true,\"check_eq_ts\":true}"
+  },
+  {
+   "id": "D4b",
+   "group": "kindCloseSet",
+   "pass": true,
+   "expect": "历史两处（`0028` CHECK / `0029` 函数）= 21 且逐字 = TS 前 21（P9② 冻结快照，被 `0032` 取代、文件不可改）",
+   "actual": "{\"n28\":21,\"n29\":21,\"eq\":true,\"eq_ts21\":true}"
+  },
+  {
+   "id": "D5",
+   "group": "kindCloseSet",
+   "pass": true,
+   "expect": "`ledger_kind_ok` 的第二支（`p_frozen_settle`）**一字不动** = 4 值且不含任何新增值（新 kind 不属冻结结算族）",
+   "actual": "{\"frozen\":[\"hold_forfeit\",\"job_payout\",\"purchase\",\"trade\"],\"has_new\":false,\"has_p94\":[]}"
+  },
+  {
+   "id": "D6",
+   "group": "kindCloseSet",
+   "pass": true,
+   "expect": "★ **穷举扫面结论「无未登记全闭集编码」**：代码面全闭集编码（≥21 值）**恰四处** = `0028` CHECK / `0029` 函数 / `0032` / `src/ledger.ts`（前两者 P9② 历史，后两者 P9④ 现役）",
+   "actual": "{\"found\":[\"backend-ts/migrations/0028_kind_close_set_21.sql\",\"backend-ts/migrations/0029_batt_checkin.sql\",\"backend-ts/migrations/0032_kind_close_set_23.sql\",\"backend-ts/src/ledger.ts\"],\"expected\":[\"backend-ts/migrations/0028_kind_close_set_21.sql\",\"backend-ts/migrations/0029_batt_checkin.sql\",\"backend-ts/migrations/0032_kind_close_set_23.sql\",\"backend-ts/src/ledger.ts\"]}"
+  },
+  {
+   "id": "D7",
+   "group": "kindCloseSet",
+   "pass": true,
+   "expect": "扫面正则 = ledger_kind_ok|ledger_kind_enum|LEDGER_KINDS|PLATFORM_KIND_WHITELIST|checkin_makeup_fee；命中分类逐桶 = {\"full_set_21\":4,\"spec_text\":101,\"historical_or_superseded\":5,\"single_kind_usage\":3,\"probe_or_artifact\":11,\"readonly_call_or_subset\":13}（full_set_21 恰 4 ⇒ 其余 = 派生子集 / 只读调用 / 历史被取代 / 规范文本 / 弃件）",
+   "actual": "{\"regex\":\"ledger_kind_ok|ledger_kind_enum|LEDGER_KINDS|PLATFORM_KIND_WHITELIST|checkin_makeup_fee\",\"roots\":[\"backend-ts/src\",\"backend-ts/migrations\",\"backend-ts/scripts\",\"frontend/src\",\"docs\"],\"buckets\":{\"full_set_21\":4,\"spec_text\":101,\"historical_or_superseded\":5,\"single_kind_usage\":3,\"probe_or_artifact\":11,\"readonly_call_or_subset\":13},\"hits\":137}"
+  },
+  {
+   "id": "D8",
+   "group": "kindCloseSet",
+   "pass": true,
+   "expect": "★ 「无未登记全闭集编码」等价判别：代码面**含 `checkin_makeup_fee` 且 kind 数 ≥ 20** 的文件 = 恰四处",
+   "actual": "{\"files_with_new_kind_and_full_list\":[\"backend-ts/migrations/0028_kind_close_set_21.sql\",\"backend-ts/migrations/0029_batt_checkin.sql\",\"backend-ts/migrations/0032_kind_close_set_23.sql\",\"backend-ts/src/ledger.ts\"]}"
+  },
+  {
+   "id": "D6__selftest",
+   "group": "kindCloseSetSelfTest",
+   "pass": true,
+   "expect": "把「凭空多出一个全闭集编码文件」喂入 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":[{\"file\":\"backend-ts/src/fourth-place.ts\",\"bucket\":\"full_set_21\"}],\"judge_fired\":true}"
+  },
+  {
+   "id": "D4__selftest",
+   "group": "kindCloseSetSelfTest",
+   "pass": true,
+   "expect": "把「多一值」的集喂入现役同集谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":[\"mint\",\"burn\",\"transfer\",\"hold\",\"hold_release\",\"hold_forfeit\",\"job_escrow\",\"job_escrow_refund\",\"job_payout\",\"job_fee\",\"commission\",\"purchase\",\"sale\",\"purchase_refund\",\"trade\",\"trade_fee\",\"listing_fee\",\"listing_deposit\",\"currency_create_fee\",\"reversal\",\"checkin_makeup_fee\",\"bttc_mint_fee\",\"bttc_burn_fee\",\"made_up_kind\"],\"judge_fired\":true}"
+  },
+  {
+   "id": "E1",
+   "group": "idempotency",
+   "pass": true,
+   "expect": "幂等键 = 服务端派生定案形 `biz:checkin:<uid>:<checkin_day>` / `biz:checkin:makeup:<uid>:<target_day>`（前缀 `biz:` · 逐段冒号 · 禁金额/时间戳入键 · `R49`/`R50`）",
+   "actual": "{\"checkin\":true,\"makeup\":true,\"prefix\":true}"
+  },
+  {
+   "id": "E1b",
+   "group": "idempotency",
+   "pass": true,
+   "expect": "前端接线层同形幂等键 `biz:checkin:makeup:${uID}:${day}`（`batt-checkin.js`）",
+   "actual": "{\"fe_key\":true}"
+  },
+  {
+   "id": "E2",
+   "group": "dayBoundary",
+   "pass": true,
+   "expect": "日界 = **UTC 自然日**（`R-9-15`）：读 / 写 SQL 一律 `now() AT TIME ZONE 'UTC'`；路由层 `utcDay` = `toISOString().slice(0,10)`",
+   "actual": "{\"utc_sql_occurrences\":7,\"utcDay_ts\":true}"
+  },
+  {
+   "id": "E3",
+   "group": "overflow",
+   "pass": true,
+   "expect": "★ 签到溢出 = **封顶丢弃**（`R-9-17`）：`newbatt = LEAST(cur + reward, capBatt)`（超出部分不累计、不结转）",
+   "actual": "{\"least_cap\":false}"
+  },
+  {
+   "id": "E4",
+   "group": "overflow",
+   "pass": true,
+   "expect": "封顶丢弃可证：`batt_entry` 仅在 `delta <> 0` 时落行（净增 0 ⇒ 无流水）；DB 兜底 `CHECK (batt BETWEEN 0 AND 100)` + `batt_entry_move_guard CHECK (delta <> 0)`（`0029`）",
+   "actual": "{\"delta_guard\":true,\"range_ck\":true,\"move_guard\":true}"
+  },
+  {
+   "id": "E5a",
+   "group": "configFailClosed",
+   "pass": true,
+   "expect": "`BATT_POLICY_DEFAULTS` 逐字 = {taskCostBatt 9 / capBatt 100 / floorBatt 0 / acceptThresholdBatt 9}",
+   "actual": "{\"taskCostBatt\":9,\"capBatt\":100,\"floorBatt\":0,\"acceptThresholdBatt\":9}"
+  },
+  {
+   "id": "E5b",
+   "group": "configFailClosed",
+   "pass": true,
+   "expect": "`CHECKIN_POLICY_DEFAULTS` 逐字 = {baseRewardBatt 30 / streakCapDays 7 / streakDay7RewardBatt 60 / makeupCostUsd 100 / makeupDailyLimit 1}",
+   "actual": "{\"baseRewardBatt\":30,\"streakCapDays\":7,\"streakDay7RewardBatt\":60,\"makeupCostUsd\":100,\"makeupDailyLimit\":1}"
+  },
+  {
+   "id": "E5c",
+   "group": "configFailClosed",
+   "pass": true,
+   "expect": "★ 配置 fail-closed：非法字段（`taskCostBatt=-1`）⇒ **逐字段**回落常量；非 object ⇒ 全量常量（`source=constant`）",
+   "actual": "{\"bad_field_fell_back\":9,\"bad_field_source\":\"config\",\"non_object_source\":\"constant\"}"
+  },
+  {
+   "id": "E5__selftest",
+   "group": "configFailClosedSelfTest",
+   "pass": true,
+   "expect": "把合法 object 喂入「非 object ⇒ constant」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":{\"taskCostBatt\":9},\"judge_fired\":true}"
+  },
+  {
+   "id": "E6",
+   "group": "configFailClosed",
+   "pass": true,
+   "expect": "`getAppConfigValueByKey` = **纯 SELECT**（只读取数，零写路径；`app_config` 权威值只经既有唯一写口落地）",
+   "actual": "{\"select\":true,\"writes\":false,\"region_bytes\":353}"
+  },
+  {
+   "id": "F1",
+   "group": "closedSets",
+   "pass": true,
+   "expect": "错误码闭集仍恰 33 条（不动）",
+   "actual": "33"
+  },
+  {
+   "id": "F2",
+   "group": "closedSets",
+   "pass": true,
+   "expect": "★ 补签三类拒绝**借既有闭集码**（`LEDGER_AMOUNT_INVALID` / `LEDGER_INSUFFICIENT_BALANCE` / `LEDGER_CURRENCY_INVALID_TRANSITION`）⇒ 零新增码",
+   "actual": "{\"codes\":[\"LEDGER_AMOUNT_INVALID\",\"LEDGER_INSUFFICIENT_BALANCE\",\"LEDGER_CURRENCY_INVALID_TRANSITION\"]}"
+  },
+  {
+   "id": "F3",
+   "group": "closedSets",
+   "pass": true,
+   "expect": "`−1` 白名单守护仍用既有 `LEDGER_RESERVED_UID`（`0029 §G` 未新增码）",
+   "actual": "true"
+  },
+  {
+   "id": "F1__selftest",
+   "group": "closedSetsSelfTest",
+   "pass": true,
+   "expect": "把 34 条闭集喂入 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":[\"LEDGER_INSUFFICIENT_BALANCE\",\"LEDGER_INSUFFICIENT_FROZEN\",\"LEDGER_IDEMPOTENCY_REPLAY\",\"LEDGER_IDEMPOTENCY_CONFLICT\",\"LEDGER_IDEMPOTENCY_KEY_REQUIRED\",\"LEDGER_IDEMPOTENCY_KEY_INVALID\",\"LEDGER_CURRENCY_NOT_FOUND\",\"LEDGER_CURRENCY_NOT_LISTED\",\"LEDGER_CURRENCY_FROZEN\",\"LEDGER_CURRENCY_DELISTED\",\"LEDGER_CURRENCY_INVALID_TRANSITION\",\"LEDGER_CURRENCY_SYMBOL_TAKEN\",\"LEDGER_CURRENCY_MISMATCH\",\"LEDGER_SUPPLY_CAP_EXCEEDED\",\"LEDGER_UNAUTHORIZED_MINT\",\"LEDGER_HOLD_NOT_ALLOWED\",\"LEDGER_AMOUNT_INVALID\",\"LEDGER_AMOUNT_NOT_POSITIVE\",\"LEDGER_DECIMALS_OVERFLOW\",\"LEDGER_SELF_TRANSFER\",\"LEDGER_ACCOUNT_NOT_FOUND\",\"LEDGER_RESERVED_UID\",\"LEDGER_REF_NOT_FOUND\",\"LEDGER_UNKNOWN_KIND\",\"LEDGER_TRANSACTION_REQUIRED\",\"LEDGER_LOCK_TIMEOUT\",\"LEDGER_TX_TIMEOUT\",\"LEDGER_DEADLOCK_RETRY_EXHAUSTED\",\"LEDGER_NEGATIVE_BALANCE_GUARD\",\"LEDGER_APPEND_ONLY_VIOLATION\",\"LEDGER_ACCOUNT_GUARD_VIOLATION\",\"LEDGER_FEE_RATE_INVALID\",\"LEDGER_RECONCILE_MISMATCH\",\"LEDGER_NEW_MADEUP_CODE\"],\"judge_fired\":true}"
+  },
+  {
+   "id": "G1",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ 活体 `ledger_kind_enum` = P9④ 冻结快照（`0032` 未 apply ⇒ 21；apply 后 23）· 含 `checkin_makeup_fee`",
+   "actual": "{\"n\":23,\"has_new\":true,\"mode\":\"applied_23\"}"
+  },
+  {
+   "id": "G2",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ 活体：4 表 + `CHECK (batt BETWEEN 0 AND 100)` + `delta <> 0` + 三 UNIQUE + 3 具名索引",
+   "actual": "{\"tables\":[\"batt_account\",\"batt_entry\",\"checkin_log\",\"checkin_makeup_log\"],\"range_ck\":true,\"move_guard\":true,\"unique\":true,\"indexes\":[\"idx_checkin_log_uid_day\",\"idx_checkin_makeup_log_uid_day\",\"idx_batt_entry_uid_time\"]}"
+  },
+  {
+   "id": "G3",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ 活体 4 触发器：`batt_account` BEFORE UPDATE 刷时 + 三表 BEFORE UPDATE OR DELETE append-only",
+   "actual": "{\"triggers\":[\"trg_batt_account_touch_updated\",\"trg_batt_entry_append_only\",\"trg_checkin_log_append_only\",\"trg_checkin_makeup_log_append_only\"],\"touch\":true,\"append_only\":true}"
+  },
+  {
+   "id": "G4",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ 活体 `ledger_kind_ok`：`checkin_makeup_fee` ⇒ true / 闭集外 ⇒ false",
+   "actual": "{\"good\":true,\"bad\":false}"
+  },
+  {
+   "id": "G5",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ 活体 `batt_account` 范围 CHECK：写 101 ⇒ 23514",
+   "actual": "{\"code\":\"23514\"}"
+  },
+  {
+   "id": "G6",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ 活体 append-only 触发器：UPDATE `checkin_log` ⇒ P0001（原生 RAISE）",
+   "actual": "{\"code\":\"P0001\"}"
+  },
+  {
+   "id": "G7",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ 活体 `ledger_assert_platform_mutation`：−1 credit 白名单含 `checkin_makeup_fee`（§G）",
+   "actual": "{\"has_new_kind\":true}"
+  },
+  {
+   "id": "G8",
+   "group": "dbLive",
+   "pass": false,
+   "expect": "★ 4 新口无 token ⇒ 逐口 401（真 HTTP）",
+   "actual": "{\"no_token\":{},\"err\":\"fetch failed\"}"
+  },
+  {
+   "id": "G9",
+   "group": "dbLive",
+   "pass": false,
+   "expect": "★ 4 新口有 token ⇒ 逐口 200（真 HTTP）",
+   "actual": "{\"with_token\":{},\"err\":\"fetch failed\"}"
+  },
+  {
+   "id": "G10",
+   "group": "dbLive",
+   "pass": false,
+   "expect": "★ 公开面零回归：`GET /api/role-names` 无 token ⇒ 200",
+   "actual": "{\"status\":-1}"
+  }
+ ]
+}
+SUMMARY total=58 passed=55 failed=3 pending_apply=0 db=7 http=1 artifact=/Users/kevin/bistro/seafood/backend-ts/.p8s7-artifacts/p8s7-20261003T064957Z/gate.json

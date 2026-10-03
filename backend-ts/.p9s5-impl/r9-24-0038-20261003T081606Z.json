@@ -1,0 +1,106 @@
+{
+ "unit": "P9S5-0038-R9-24-REALRUN",
+ "generated_at": "2026-10-03T08:16:06.889Z",
+ "run": "20261003T081606Z",
+ "file": "migrations/0038_kind_close_set_24.sql",
+ "bytes": 15993,
+ "note": "单事务 BEGIN;<0038 全文>;ROLLBACK（禁 COMMIT）；不 apply。",
+ "reads": {
+  "1_no_error": true,
+  "exec_err": null,
+  "2_new_object_absent_after_rollback": true,
+  "3_schema_migration_no_new_row": true,
+  "mig_rows_before": 33,
+  "mig_rows_after": 33,
+  "mig_max_before": "0034",
+  "mig_max_after": "0034",
+  "4_target_object_restored": true,
+  "new_relations_added": 0
+ },
+ "before": {
+  "kind_enum_def": "CHECK ((kind = ANY (ARRAY['mint'::text, 'burn'::text, 'transfer'::text, 'hold'::text, 'hold_release'::text, 'hold_forfeit'::text, 'job_escrow'::text, 'job_escrow_refund'::text, 'job_payout'::text, 'job_fee'::text, 'commission'::text, 'purchase'::text, 'sale'::text, 'purchase_refund'::text, 'trade'::text, 'trade_fee'::text, 'listing_fee'::text, 'listing_deposit'::text, 'currency_create_fee'::text, 'reversal'::text, 'checkin_makeup_fee'::text, 'bttc_mint_fee'::text, 'bttc_burn_fee'::text])))",
+  "kind_enum_n": 23,
+  "kind_ok_md5": "dbed013e538614b141df866e770b9519",
+  "kind_ok_len": 447,
+  "assert_md5": "3df7bb9e794c1c7858b2775d0edad7ed",
+  "assert_len": 1520,
+  "mig_rows": 33,
+  "mig_max": "0034",
+  "ledger_entry": 359,
+  "batt_account": 2,
+  "batt_entry": 2,
+  "users": 56,
+  "base_tables": 34
+ },
+ "after": {
+  "kind_enum_def": "CHECK ((kind = ANY (ARRAY['mint'::text, 'burn'::text, 'transfer'::text, 'hold'::text, 'hold_release'::text, 'hold_forfeit'::text, 'job_escrow'::text, 'job_escrow_refund'::text, 'job_payout'::text, 'job_fee'::text, 'commission'::text, 'purchase'::text, 'sale'::text, 'purchase_refund'::text, 'trade'::text, 'trade_fee'::text, 'listing_fee'::text, 'listing_deposit'::text, 'currency_create_fee'::text, 'reversal'::text, 'checkin_makeup_fee'::text, 'bttc_mint_fee'::text, 'bttc_burn_fee'::text])))",
+  "kind_enum_n": 23,
+  "kind_ok_md5": "dbed013e538614b141df866e770b9519",
+  "kind_ok_len": 447,
+  "assert_md5": "3df7bb9e794c1c7858b2775d0edad7ed",
+  "assert_len": 1520,
+  "mig_rows": 33,
+  "mig_max": "0034",
+  "ledger_entry": 359,
+  "batt_account": 2,
+  "batt_entry": 2,
+  "users": 56,
+  "base_tables": 34
+ },
+ "in_tx": {
+  "post_kind_enum_def": "CHECK ((kind = ANY (ARRAY['mint'::text, 'burn'::text, 'transfer'::text, 'hold'::text, 'hold_release'::text, 'hold_forfeit'::text, 'job_escrow'::text, 'job_escrow_refund'::text, 'job_payout'::text, 'job_fee'::text, 'commission'::text, 'purchase'::text, 'sale'::text, 'purchase_refund'::text, 'trade'::text, 'trade_fee'::text, 'listing_fee'::text, 'listing_deposit'::text, 'currency_create_fee'::text, 'reversal'::text, 'checkin_makeup_fee'::text, 'bttc_mint_fee'::text, 'bttc_burn_fee'::text, 'invite_first_task_reward'::text])))",
+  "post_kind_enum_n": 24,
+  "post_kind_ok_md5": "fbf01eb42a967bdb0f52ae704038dff9",
+  "post_kind_ok_len": 479,
+  "post_assert_md5": "4b43b44c84bb3fce96af8777ac39f0dd",
+  "post_assert_len": 1718,
+  "post_mig_rows": 33,
+  "post_mig_max": "0034",
+  "behavior_kind_ok": {
+   "new_true": true,
+   "old_last_true": true,
+   "bogus_false": false,
+   "empty_false": false,
+   "outside_false": false,
+   "new_under_frozen_false": false,
+   "frozen_member_true": true,
+   "bad_count": 0
+  },
+  "debit_in_whitelist": {
+   "ok": true
+  },
+  "debit_outside_whitelist": {
+   "ok": false,
+   "sqlstate": "LD021",
+   "message": "LEDGER_RESERVED_UID",
+   "detail": "{\"uid\": \"-1\", \"kind\": \"job_fee\", \"reason\": \"PLATFORM_DEBIT_FORBIDDEN\"}"
+  },
+  "debit_outside_whitelist2": {
+   "ok": false,
+   "sqlstate": "LD021",
+   "message": "LEDGER_RESERVED_UID",
+   "detail": "{\"uid\": \"-1\", \"kind\": \"bttc_mint_fee\", \"reason\": \"PLATFORM_DEBIT_FORBIDDEN\"}"
+  },
+  "credit_minus1_newkind": {
+   "ok": false,
+   "sqlstate": "LD021",
+   "message": "LEDGER_RESERVED_UID",
+   "detail": "{\"uid\": \"-1\", \"kind\": \"invite_first_task_reward\", \"reason\": \"PLATFORM_CREDIT_KIND_FORBIDDEN\"}"
+  },
+  "credit_minus2_newkind": {
+   "ok": false,
+   "sqlstate": "LD021",
+   "message": "LEDGER_RESERVED_UID",
+   "detail": "{\"uid\": \"-2\", \"kind\": \"invite_first_task_reward\", \"reason\": \"PLATFORM_CREDIT_KIND_FORBIDDEN\"}"
+  },
+  "credit_minus3_newkind": {
+   "ok": false,
+   "sqlstate": "LD021",
+   "message": "LEDGER_RESERVED_UID",
+   "detail": "{\"uid\": \"-3\", \"kind\": \"invite_first_task_reward\", \"reason\": \"PLATFORM_CREDIT_KIND_FORBIDDEN\"}"
+  },
+  "credit_minus1_kept": {
+   "ok": true
+  }
+ }
+}

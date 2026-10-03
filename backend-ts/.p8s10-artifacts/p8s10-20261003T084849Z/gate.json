@@ -1,0 +1,495 @@
+{
+ "unit": "P8-S10-INVITE-REWARD-GATE",
+ "generated_at": "2026-10-03T08:49:02.774Z",
+ "run": "20261003T084849Z",
+ "offline": false,
+ "db_connections": 3,
+ "http_calls": 3,
+ "note": "A–H 静态面零 DB / 零 HTTP；K 库面 leg **连库 + 受控实例**（事务内 + 末尾 ROLLBACK · `pending_apply[]` = 0）。",
+ "total": 49,
+ "passed": 48,
+ "failed": 1,
+ "pending_apply": [],
+ "readings": {
+  "registration_points_total": 87,
+  "registration_points_per_verb": {
+   "get": 36,
+   "post": 48,
+   "put": 0,
+   "patch": 1,
+   "delete": 2
+  },
+  "weight_vector": [
+   2600,
+   1700,
+   700,
+   2600,
+   1700,
+   700
+  ],
+  "alloc_entries": 6,
+  "alloc_sum_x": "10000",
+  "cap_layer_default": 64,
+  "cap_total_default": 384,
+  "ledger_kinds_count": 24,
+  "has_new_kind": true,
+  "invite_reward_defaults": {
+   "signupBatt": 30,
+   "firstTaskUsd": 10,
+   "rewardLevels": 6
+  },
+  "error_codes_closed_set_size": 33,
+  "live": {
+   "live_kind_enum": {
+    "n": 24,
+    "has_new": true
+   },
+   "db_connections": 3,
+   "in_tx": {
+    "fixtures_ok": true,
+    "reg_new": {
+     "outcome": "granted",
+     "batt": 30,
+     "granted": 30,
+     "source": "constant",
+     "entry_rows": 1,
+     "entry": [
+      {
+       "delta": "30",
+       "batt_after": "30",
+       "reason": "invite_signup",
+       "idempotency_key": "biz:invite:signup:9600014"
+      }
+     ]
+    },
+    "reg_replay": {
+     "outcome": "replayed",
+     "batt": 30,
+     "granted": 0,
+     "source": "constant",
+     "entry_rows": 1,
+     "entry": [
+      {
+       "delta": "30",
+       "batt_after": "30",
+       "reason": "invite_signup",
+       "idempotency_key": "biz:invite:signup:9600014"
+      }
+     ]
+    },
+    "ft_method": {
+     "s1": {
+      "outcome": "posted",
+      "jobId": "73",
+      "workerUid": "9600001",
+      "parentUid": "9600002",
+      "perLegUsd": 10,
+      "recipientUids": [
+       "9600001",
+       "9600002"
+      ],
+      "totalUsdFromPlatform": "20",
+      "idempotencyKey": "biz:invite:firsttask:9600001",
+      "source": "constant"
+     },
+     "rows": [
+      {
+       "uid": "-1",
+       "delta": "-20"
+      },
+      {
+       "uid": "9600001",
+       "delta": "10"
+      },
+      {
+       "uid": "9600002",
+       "delta": "10"
+      }
+     ]
+    },
+    "whitelist": {
+     "neg": {
+      "ok": false,
+      "sqlstate": "LD021",
+      "message": "LEDGER_RESERVED_UID",
+      "reason": "PLATFORM_DEBIT_FORBIDDEN"
+     },
+     "pos": {
+      "ok": true,
+      "v": {
+       "ledger_assert_platform_mutation": ""
+      }
+     }
+    },
+    "plan_m6": {
+     "M": 6,
+     "fee": "10000",
+     "sum": "10000",
+     "fee_credit_uid": "-2",
+     "up": [
+      "2600",
+      "1700",
+      "700"
+     ]
+    },
+    "plan_m0": {
+     "M": 0,
+     "fee_credit_uid": "-1",
+     "no_referrer": true,
+     "layers": 0
+    },
+    "http": {
+     "pub": 200,
+     "no_tok_batt": 401,
+     "tok_batt": 401,
+     "err": null
+    }
+   }
+  }
+ },
+ "checks": [
+  {
+   "id": "A1",
+   "group": "registration",
+   "pass": true,
+   "expect": "注册点 = 87",
+   "actual": "87"
+  },
+  {
+   "id": "A2",
+   "group": "registration",
+   "pass": true,
+   "expect": "逐 verb 逐字 = {\"get\":36,\"post\":48,\"put\":0,\"patch\":1,\"delete\":2}",
+   "actual": "{\"get\":36,\"post\":48,\"put\":0,\"patch\":1,\"delete\":2}"
+  },
+  {
+   "id": "A3",
+   "group": "registration",
+   "pass": true,
+   "expect": "逐 verb 计数之和 = 注册点总数",
+   "actual": "87"
+  },
+  {
+   "id": "A4",
+   "group": "registration",
+   "pass": true,
+   "expect": "两腿路由各**恰 1 处**：注册腿 `POST /api/auth/verify` + 结算/首任务触发口 `POST /api/job/:jobId/review`",
+   "actual": "{\"auth_verify\":1,\"job_review\":1}"
+  },
+  {
+   "id": "A5",
+   "group": "registration",
+   "pass": true,
+   "expect": "★ 负对照：缩进注入一条路由 ⇒ 计数 87→88",
+   "actual": "{\"injected\":88}"
+  },
+  {
+   "id": "A1__selftest",
+   "group": "registrationSelfTest",
+   "pass": true,
+   "expect": "把非 87 条路由的文本喂入「注册点 = 87」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":\"x\",\"judge_fired\":true}"
+  },
+  {
+   "id": "B1",
+   "group": "sixLayerVector",
+   "pass": true,
+   "expect": "`layer_span = 6`（`min(6, levels, weights 长度)`）· `M = 6`（六个存在层）",
+   "actual": "{\"layer_span\":6,\"M\":6}"
+  },
+  {
+   "id": "B2",
+   "group": "sixLayerVector",
+   "pass": true,
+   "expect": "每层方向 / 层距逐位 = `[U1,U2,U3,D1,D2,D3]`（`L=1..3` 上行 / `L=4..6` 下行）",
+   "actual": "[\"U1\",\"U2\",\"U3\",\"D1\",\"D2\",\"D3\"]"
+  },
+  {
+   "id": "B3",
+   "group": "sixLayerVector",
+   "pass": true,
+   "expect": "每层权重向量逐字 = [2600,1700,700,2600,1700,700]",
+   "actual": "[2600,1700,700,2600,1700,700]"
+  },
+  {
+   "id": "B4",
+   "group": "sixLayerVector",
+   "pass": true,
+   "expect": "向量对称：`weight(U_d) == weight(D_d)`（`d = 1..3`）",
+   "actual": "{\"U\":[2600,1700,700],\"D\":[2600,1700,700]}"
+  },
+  {
+   "id": "B1__selftest",
+   "group": "sixLayerVectorSelfTest",
+   "pass": true,
+   "expect": "把 `M=5` 喂入「6 层」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":{\"M\":5,\"layer_span\":5},\"judge_fired\":true}"
+  },
+  {
+   "id": "C1",
+   "group": "distanceWeight",
+   "pass": true,
+   "expect": "距离加权：单受益人层 `x == weight`（`U1 2600 / U2 1700 / U3 700`）",
+   "actual": "{\"U1\":\"2600\",\"U2\":\"1700\",\"U3\":\"700\"}"
+  },
+  {
+   "id": "C2",
+   "group": "distanceWeight",
+   "pass": true,
+   "expect": "★ 越近越高：`x(U1) > x(U2) > x(U3)` ∧ `x(D1) > x(D2) > x(D3)`（近者优先）",
+   "actual": "{\"up\":[\"2600\",\"1700\",\"700\"],\"down\":[\"2600\",\"1700\",\"700\"]}"
+  },
+  {
+   "id": "C3",
+   "group": "distanceWeight",
+   "pass": true,
+   "expect": "对称：`x(U_d) == x(D_d)`（同层距等权）",
+   "actual": "{\"U\":[\"2600\",\"1700\",\"700\"],\"D\":[\"2600\",\"1700\",\"700\"]}"
+  },
+  {
+   "id": "C4",
+   "group": "conservation",
+   "pass": true,
+   "expect": "★ `Σ x == pool` **构造性守恒**（`Σ entries == 10000` ⇒ `sum_ok`）",
+   "actual": "{\"pool\":\"10000\",\"sum_x\":\"10000\",\"sum_entries\":\"10000\",\"sum_ok\":true}"
+  },
+  {
+   "id": "C5",
+   "group": "intraLayer",
+   "pass": true,
+   "expect": "★ 层内均分：`xL=100 / n=3 ⇒ base=33 · plus=1` ⇒ `+1` 落 **uid ASC 最小者**（`r` 等 ⇒ tie-break 退化 `uid ASC`）：`100→34 / 200→33 / 300→33`",
+   "actual": "[{\"uid\":\"100\",\"x\":\"34\"},{\"uid\":\"200\",\"x\":\"33\"},{\"uid\":\"300\",\"x\":\"33\"}]"
+  },
+  {
+   "id": "C6",
+   "group": "intraLayer",
+   "pass": true,
+   "expect": "层内均分后仍 `Σ x == xL`（第二级最大余数法守恒）",
+   "actual": "{\"sum_x\":\"100\"}"
+  },
+  {
+   "id": "C4__selftest",
+   "group": "conservationSelfTest",
+   "pass": true,
+   "expect": "把「少 1 分」的分配喂入守恒谓词 ⇒ 必须转红（去层内均分/丢余数会被抓）",
+   "actual": "{\"wrong_input\":{\"sum_ok\":true,\"sum_x\":\"9999\"},\"judge_fired\":true}"
+  },
+  {
+   "id": "C5__selftest",
+   "group": "intraLayerSelfTest",
+   "pass": true,
+   "expect": "把「最大 uid 拿 +1」的层内结果喂入 tie-break 谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":[{\"uid\":\"300\",\"x\":\"34\"},{\"uid\":\"200\",\"x\":\"33\"},{\"uid\":\"100\",\"x\":\"33\"}],\"judge_fired\":true}"
+  },
+  {
+   "id": "D1",
+   "group": "workerRemoval",
+   "pass": true,
+   "expect": "★ Worker **结构性剔除**：种子注入 `worker=1000` 于下行候选 ⇒ 名单（`uids` / 每层 `beneficiaries`）**不含 Worker**",
+   "actual": "{\"uids\":[\"5001\",\"5002\",\"5003\",\"6001\"],\"has_worker\":false}"
+  },
+  {
+   "id": "D2",
+   "group": "workerRemoval",
+   "pass": true,
+   "expect": "★ 名单含 Worker ⇒ 落账前**硬拒**：`code = LEDGER_RECONCILE_MISMATCH`（500 defect）· `reason = COMMISSION_CHAIN_ASSERTION_VIOLATED` · `failed = worker_in_roster`",
+   "actual": "{\"code\":\"LEDGER_RECONCILE_MISMATCH\",\"reason\":\"COMMISSION_CHAIN_ASSERTION_VIOLATED\"}"
+  },
+  {
+   "id": "D3",
+   "group": "workerRemoval",
+   "pass": true,
+   "expect": "正对照：名单**不含** Worker（仅真实受益人）⇒ 断言放行（不误红）",
+   "actual": "{\"positive_threw\":false}"
+  },
+  {
+   "id": "D1__selftest",
+   "group": "workerRemovalSelfTest",
+   "pass": true,
+   "expect": "把「名单仍含 Worker」（去 Worker 剔除）喂入「不含 Worker」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":{\"uids\":[\"1000\",\"5001\"]},\"judge_fired\":true}"
+  },
+  {
+   "id": "E1",
+   "group": "capTruncation",
+   "pass": true,
+   "expect": "默认上限常量 = `capLayer 64` / `capTotal 384`（`R-9-55`）",
+   "actual": "{\"cap_layer\":64,\"cap_total\":384}"
+  },
+  {
+   "id": "E2",
+   "group": "capTruncation",
+   "pass": true,
+   "expect": "★ 层内上限：下行 `D1` 70 候选 ⇒ 截 64 / **丢弃 6 留痕**（`dropped_by_layer[\"4\"]=6`）",
+   "actual": "{\"truncation\":{\"cap_layer\":64,\"cap_total\":384,\"dropped_total\":6,\"dropped_by_layer\":{\"4\":6},\"truncated\":true},\"d1_kept\":64}"
+  },
+  {
+   "id": "E3",
+   "group": "capTruncation",
+   "pass": true,
+   "expect": "★ 总名单上限：403 候选（3 上行 + 400 下行）⇒ 截 384 / **丢弃 19 留痕**（`cap_total = 384`）",
+   "actual": "{\"truncation\":{\"cap_layer\":3000,\"cap_total\":384,\"dropped_total\":19,\"dropped_by_layer\":{\"2\":1,\"3\":1,\"4\":17},\"truncated\":true},\"uids\":384}"
+  },
+  {
+   "id": "E4",
+   "group": "capTruncation",
+   "pass": true,
+   "expect": "★ 截断**必留痕**：`truncated=true` ∧ `dropped_by_layer` 非空（常态 `truncated=false`）",
+   "actual": "{\"layer_trace\":{\"4\":6},\"total_trace\":{\"2\":1,\"3\":1,\"4\":17}}"
+  },
+  {
+   "id": "E4__selftest",
+   "group": "capTruncationSelfTest",
+   "pass": true,
+   "expect": "把「无截断痕迹」（去上限截断）喂入「必留痕」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":{\"truncated\":false,\"dropped_total\":0},\"judge_fired\":true}"
+  },
+  {
+   "id": "F1",
+   "group": "m0Fallback",
+   "pass": true,
+   "expect": "`M=0`（无合格受益人）且 `P=0` ⇒ 空分配、`sum_ok = true`",
+   "actual": "{\"M\":0,\"sum_x\":\"0\",\"entries\":0}"
+  },
+  {
+   "id": "F2",
+   "group": "m0Fallback",
+   "pass": true,
+   "expect": "`M=0 ∧ P>0` ⇒ **构造非法必抛**（调用方必须把手续费入 `-1`，`R-9-52`）",
+   "actual": "{\"code\":\"LEDGER_ACCOUNT_GUARD_VIOLATION\",\"reason\":\"COMMISSION_SPLIT_SUM_MISMATCH\"}"
+  },
+  {
+   "id": "F3",
+   "group": "m0Fallback",
+   "pass": true,
+   "expect": "★ `M=0`（`noReferrer`）⇒ `fee_credit_uid = PLATFORM_REVENUE_UID = \"-1\"`（兜底非抽成）；否则 `-2`（池）",
+   "actual": "{\"src\":true,\"revenue_uid\":\"-1\",\"pool_uid\":\"-2\"}"
+  },
+  {
+   "id": "F1__selftest",
+   "group": "m0FallbackSelfTest",
+   "pass": true,
+   "expect": "把「M=0 ⇒ 池 `-2`」（去 `M=0` 赋 −1）喂入「`fee_credit_uid=-1`」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":{\"fee_credit_uid\":\"-2\"},\"judge_fired\":true}"
+  },
+  {
+   "id": "G1",
+   "group": "twoLegs",
+   "pass": true,
+   "expect": "`INVITE_REWARD_POLICY_DEFAULTS = { signupBatt 30 / firstTaskUsd 10 / rewardLevels 6 }`（§6.2①②）",
+   "actual": "{\"signupBatt\":30,\"firstTaskUsd\":10,\"rewardLevels\":6}"
+  },
+  {
+   "id": "G2",
+   "group": "twoLegs",
+   "pass": true,
+   "expect": "注册腿 = batt 面（`batt_account` upsert + `batt_entry` · `reason=invite_signup` · **零 kind**）· 键前缀 `biz:invite:signup:`",
+   "actual": "{\"key\":\"biz:invite:signup:\",\"has_reason\":true}"
+  },
+  {
+   "id": "G3",
+   "group": "twoLegs",
+   "pass": true,
+   "expect": "首任务腿 = **唯一写入面 `postEvent`**（`kind = invite_first_task_reward`）· 键前缀 `biz:invite:firsttask:<worker_uid>`",
+   "actual": "{\"key\":\"biz:invite:firsttask:\",\"has_kind\":true}"
+  },
+  {
+   "id": "G4",
+   "group": "twoLegs",
+   "pass": true,
+   "expect": "三处编码同集：TS `LEDGER_KINDS` ⊇ `invite_first_task_reward` · DB（`0038`）· 业务调用面",
+   "actual": "{\"in_ts\":true}"
+  },
+  {
+   "id": "G5",
+   "group": "twoLegs",
+   "pass": true,
+   "expect": "★ 接线点：注册腿 `findOrCreateUserByEvm` → `grantSignupInviteBatt`（失败不阻断）；首任务腿 `job-funds-service` 结算后 `settleFirstTaskRewardBestEffort`（仅 `op === \"settle\"` · `.catch` 不阻断）",
+   "actual": "{\"reg\":true,\"ft\":true}"
+  },
+  {
+   "id": "H1",
+   "group": "closedSets",
+   "pass": true,
+   "expect": "错误码闭集仍恰 33 条（**不动**）",
+   "actual": "33"
+  },
+  {
+   "id": "H2",
+   "group": "idempotency",
+   "pass": true,
+   "expect": "幂等键前缀 = `biz:invite:signup:<uid>` / `biz:invite:firsttask:<worker_uid>`（服务端派生 · 只由不可变 uid 派生）",
+   "actual": "{\"signup\":\"biz:invite:signup:\",\"firsttask\":\"biz:invite:firsttask:\"}"
+  },
+  {
+   "id": "H3",
+   "group": "idempotency",
+   "pass": true,
+   "expect": "首任务腿 `request_fingerprint = sha256('invite.first_task|job|worker|parent|perLeg')`（同业务事实 ⇒ 同指纹 ⇒ 重放不退化 409）",
+   "actual": "{\"has_fp\":true}"
+  },
+  {
+   "id": "H1__selftest",
+   "group": "closedSetsSelfTest",
+   "pass": true,
+   "expect": "把 34 条闭集喂入 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":\"LEDGER_INSUFFICIENT_BALANCE,LEDGER_INSUFFICIENT_FROZEN,LEDGER_IDEMPOTENCY_REPLAY,LEDGER_IDEMPOTENCY_CONFLICT,LEDGER_IDEMPOTENCY_KEY_REQUIRED…\",\"judge_fired\":true}"
+  },
+  {
+   "id": "K1",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ 活体 `ledger_kind_enum` = 24 值（`0038` 已 apply）· 含 `invite_first_task_reward` · 与 TS 同集",
+   "actual": "{\"n\":24,\"has_new\":true}"
+  },
+  {
+   "id": "K2",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ `schema_migration` = **37 行** · `max(version)` = **0038**（`0035`→…→`0038` 已 apply）",
+   "actual": "{\"n\":37,\"mx\":\"0038\"}"
+  },
+  {
+   "id": "K3",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ 注册腿真跑：新户 ⇒ `granted` `+30 batt`（1 行 `batt_entry`）；同键重放 ⇒ `replayed` **零新增**",
+   "actual": "{\"new\":{\"outcome\":\"granted\",\"granted\":30},\"replay\":{\"outcome\":\"replayed\",\"granted\":0,\"rows\":1}}"
+  },
+  {
+   "id": "K4",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ 首任务腿真跑（方法级 · `ex` 注入）：`posted` · `-1 −20` / 本人 `9600001 +10` / 直接上级 `9600002 +10` · 同键重放 `replayed` **零新增**",
+   "actual": "{\"outcome\":\"posted\",\"recipients\":[\"9600001\",\"9600002\"],\"legs\":\"-1:-20,9600001:10,9600002:10\",\"replay\":\"replayed\",\"rows\":\"0→3→3\"}"
+  },
+  {
+   "id": "K5",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ 白名单外 `−1` debit **必红**（`code = LEDGER_RESERVED_UID`〔LD021〕· `reason = PLATFORM_DEBIT_FORBIDDEN` · `R-9-67` 判负口径）；白名单内 `invite_first_task_reward` **放行**",
+   "actual": "{\"neg\":{\"sqlstate\":\"LD021\",\"code\":\"LEDGER_RESERVED_UID\",\"reason\":\"PLATFORM_DEBIT_FORBIDDEN\"},\"pos_ok\":true}"
+  },
+  {
+   "id": "K6",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ 结算计划真跑（只读）：`M=6` · `fee=10000`（policy 34 `fee_rate_bp=1000`）· `Σ layers x == fee` · 距离加权 `U1>U2>U3` · `fee_credit_uid = -2`",
+   "actual": "{\"M\":6,\"fee\":\"10000\",\"sum\":\"10000\",\"fee_credit_uid\":\"-2\",\"up\":[\"2600\",\"1700\",\"700\"]}"
+  },
+  {
+   "id": "K7",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ `M=0` 兜底真跑：无合格受益人 ⇒ `no_referrer=true` · `fee_credit_uid = \"-1\"`（平台收入兜底非抽成 · `R-9-52`）",
+   "actual": "{\"M\":0,\"fee_credit_uid\":\"-1\",\"no_referrer\":true,\"layers\":0}"
+  },
+  {
+   "id": "K8",
+   "group": "dbLive",
+   "pass": false,
+   "expect": "★ 受控实例真 HTTP：公开面 `GET /api/role-names` ⇒ 200；`GET /api/batt` 无 token ⇒ 401 ⇄ 有 token ⇒ 200",
+   "actual": "{\"pub\":200,\"no_tok_batt\":401,\"tok_batt\":401,\"err\":null}"
+  }
+ ]
+}

@@ -1,0 +1,11 @@
+tsc exit=0
+offline exit=0
+p8s1 exit=0
+p8s2 exit=0
+p8s3 exit=0
+p8s3b exit=0
+p8s4 exit=0
+p8s5 exit=0
+p8s6 exit=0
+p8s7-offline exit=1
+p8s7-with-instance exit=0

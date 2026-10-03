@@ -1,0 +1,74 @@
+{
+ "generated_at": "2026-10-03T03:41:08.325Z",
+ "migrations": {
+  "0030": {
+   "file": "0030_listing_order_status_extend.sql",
+   "bytes": 30655,
+   "pre": {
+    "schema_migration_rows": 28,
+    "last_version": "0029",
+    "enum_def": "CHECK ((status = ANY (ARRAY['created'::text, 'paid'::text, 'refunded'::text, 'cancelled'::text])))",
+    "gate_is_paid_only": true,
+    "transition_old": false
+   },
+   "tx": {
+    "enum_def": "CHECK ((status = ANY (ARRAY['created'::text, 'paid'::text, 'shipped'::text, 'received'::text, 'refunded'::text, 'cancelled'::text])))",
+    "gate_widened": true,
+    "transition_new": {
+     "a": true,
+     "b": true,
+     "c": false
+    },
+    "schema_migration_rows": 28
+   },
+   "error": null,
+   "post": {
+    "schema_migration_rows": 28,
+    "last_version": "0029",
+    "enum_def": "CHECK ((status = ANY (ARRAY['created'::text, 'paid'::text, 'refunded'::text, 'cancelled'::text])))",
+    "gate_is_paid_only": true,
+    "transition_old": false,
+    "to_regclass": null
+   }
+  },
+  "0031": {
+   "file": "0031_rating_and_order_event.sql",
+   "bytes": 21594,
+   "pre": {
+    "schema_migration_rows": 28,
+    "last_version": "0029",
+    "rels": {
+     "public.rating": null,
+     "public.listing_order_event": null,
+     "idx_rating_ratee_time": null,
+     "idx_rating_target": null,
+     "idx_listing_order_event_order_time": null
+    }
+   },
+   "tx": {
+    "rels": {
+     "public.rating": "rating",
+     "public.listing_order_event": "listing_order_event",
+     "idx_rating_ratee_time": "idx_rating_ratee_time",
+     "idx_rating_target": "idx_rating_target",
+     "idx_listing_order_event_order_time": "idx_listing_order_event_order_time"
+    },
+    "rating_cols": "rating_id,rater_uid,ratee_uid,target_type,target_id,direction,stars,idempotency_key,request_fingerprint,memo,time_created",
+    "ev_cols": "event_id,order_id,event_type,from_status,to_status,actor_uid,txid,idempotency_key,request_fingerprint,ref_type,ref_id,memo,time_created",
+    "schema_migration_rows": 28
+   },
+   "error": null,
+   "post": {
+    "schema_migration_rows": 28,
+    "last_version": "0029",
+    "rels": {
+     "public.rating": null,
+     "public.listing_order_event": null,
+     "idx_rating_ratee_time": null,
+     "idx_rating_target": null,
+     "idx_listing_order_event_order_time": null
+    }
+   }
+  }
+ }
+}

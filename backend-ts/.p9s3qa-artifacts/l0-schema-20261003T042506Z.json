@@ -1,0 +1,235 @@
+{
+ "run": "20261003T042506Z",
+ "schema_version": "0031",
+ "schema_migration_rows": 30,
+ "base_tables": 34,
+ "rating_cols": [
+  "rating_id",
+  "rater_uid",
+  "ratee_uid",
+  "target_type",
+  "target_id",
+  "direction",
+  "stars",
+  "idempotency_key",
+  "request_fingerprint",
+  "memo",
+  "time_created"
+ ],
+ "event_cols": [
+  "event_id",
+  "order_id",
+  "event_type",
+  "from_status",
+  "to_status",
+  "actor_uid",
+  "txid",
+  "idempotency_key",
+  "request_fingerprint",
+  "ref_type",
+  "ref_id",
+  "memo",
+  "time_created"
+ ],
+ "rating_cons": [
+  {
+   "conname": "rating_direction_not_null",
+   "contype": "n",
+   "def": "NOT NULL direction"
+  },
+  {
+   "conname": "rating_direction_target_ck",
+   "contype": "c",
+   "def": "CHECK ((((target_type = 'job'::text) AND (direction = ANY (ARRAY['poster_to_worker'::text, 'worker_to_poster'::text]))) OR ((target_type = 'listing'::text) AND (direction = ANY (ARRAY['vendor_to_customer'::text, 'customer_to_vendor'::text])))))"
+  },
+  {
+   "conname": "rating_idem_uniq",
+   "contype": "u",
+   "def": "UNIQUE (idempotency_key)"
+  },
+  {
+   "conname": "rating_idempotency_key_not_null",
+   "contype": "n",
+   "def": "NOT NULL idempotency_key"
+  },
+  {
+   "conname": "rating_memo_not_null",
+   "contype": "n",
+   "def": "NOT NULL memo"
+  },
+  {
+   "conname": "rating_once_uniq",
+   "contype": "u",
+   "def": "UNIQUE (rater_uid, target_type, target_id)"
+  },
+  {
+   "conname": "rating_pk",
+   "contype": "p",
+   "def": "PRIMARY KEY (rating_id)"
+  },
+  {
+   "conname": "rating_ratee_fk",
+   "contype": "f",
+   "def": "FOREIGN KEY (ratee_uid) REFERENCES users(uid)"
+  },
+  {
+   "conname": "rating_ratee_uid_not_null",
+   "contype": "n",
+   "def": "NOT NULL ratee_uid"
+  },
+  {
+   "conname": "rating_rater_fk",
+   "contype": "f",
+   "def": "FOREIGN KEY (rater_uid) REFERENCES users(uid)"
+  },
+  {
+   "conname": "rating_rater_uid_not_null",
+   "contype": "n",
+   "def": "NOT NULL rater_uid"
+  },
+  {
+   "conname": "rating_rating_id_not_null",
+   "contype": "n",
+   "def": "NOT NULL rating_id"
+  },
+  {
+   "conname": "rating_request_fingerprint_not_null",
+   "contype": "n",
+   "def": "NOT NULL request_fingerprint"
+  },
+  {
+   "conname": "rating_stars_not_null",
+   "contype": "n",
+   "def": "NOT NULL stars"
+  },
+  {
+   "conname": "rating_stars_rng",
+   "contype": "c",
+   "def": "CHECK (((stars >= (0)::numeric) AND (stars <= (5)::numeric)))"
+  },
+  {
+   "conname": "rating_target_id_not_null",
+   "contype": "n",
+   "def": "NOT NULL target_id"
+  },
+  {
+   "conname": "rating_target_type_not_null",
+   "contype": "n",
+   "def": "NOT NULL target_type"
+  },
+  {
+   "conname": "rating_time_created_not_null",
+   "contype": "n",
+   "def": "NOT NULL time_created"
+  }
+ ],
+ "event_cons": [
+  {
+   "conname": "listing_order_event_actor_fk",
+   "contype": "f",
+   "def": "FOREIGN KEY (actor_uid) REFERENCES users(uid)"
+  },
+  {
+   "conname": "listing_order_event_actor_uid_not_null",
+   "contype": "n",
+   "def": "NOT NULL actor_uid"
+  },
+  {
+   "conname": "listing_order_event_event_id_not_null",
+   "contype": "n",
+   "def": "NOT NULL event_id"
+  },
+  {
+   "conname": "listing_order_event_event_type_not_null",
+   "contype": "n",
+   "def": "NOT NULL event_type"
+  },
+  {
+   "conname": "listing_order_event_idem_uniq",
+   "contype": "u",
+   "def": "UNIQUE (idempotency_key)"
+  },
+  {
+   "conname": "listing_order_event_idempotency_key_not_null",
+   "contype": "n",
+   "def": "NOT NULL idempotency_key"
+  },
+  {
+   "conname": "listing_order_event_order_fk",
+   "contype": "f",
+   "def": "FOREIGN KEY (order_id) REFERENCES listing_order(order_id)"
+  },
+  {
+   "conname": "listing_order_event_order_id_not_null",
+   "contype": "n",
+   "def": "NOT NULL order_id"
+  },
+  {
+   "conname": "listing_order_event_pk",
+   "contype": "p",
+   "def": "PRIMARY KEY (event_id)"
+  },
+  {
+   "conname": "listing_order_event_request_fingerprint_not_null",
+   "contype": "n",
+   "def": "NOT NULL request_fingerprint"
+  },
+  {
+   "conname": "listing_order_event_time_created_not_null",
+   "contype": "n",
+   "def": "NOT NULL time_created"
+  },
+  {
+   "conname": "listing_order_event_type_enum",
+   "contype": "c",
+   "def": "CHECK ((event_type = ANY (ARRAY['created'::text, 'paid'::text, 'shipped'::text, 'received'::text, 'refunded'::text, 'cancelled'::text])))"
+  }
+ ],
+ "rating_idx": [
+  "idx_rating_ratee_time",
+  "idx_rating_target",
+  "rating_idem_uniq",
+  "rating_once_uniq",
+  "rating_pk"
+ ],
+ "event_idx": [
+  "idx_listing_order_event_order_time",
+  "listing_order_event_idem_uniq",
+  "listing_order_event_pk"
+ ],
+ "rating_trg": [
+  {
+   "tgname": "trg_rating_append_only",
+   "def": "CREATE TRIGGER trg_rating_append_only BEFORE DELETE OR UPDATE ON public.rating FOR EACH ROW EXECUTE FUNCTION rating_append_only()"
+  }
+ ],
+ "event_trg": [
+  {
+   "tgname": "trg_listing_order_event_append_only",
+   "def": "CREATE TRIGGER trg_listing_order_event_append_only BEFORE DELETE OR UPDATE ON public.listing_order_event FOR EACH ROW EXECUTE FUNCTION listing_order_event_append_only()"
+  }
+ ],
+ "status_enum_def": "CHECK ((status = ANY (ARRAY['created'::text, 'paid'::text, 'shipped'::text, 'received'::text, 'refunded'::text, 'cancelled'::text])))",
+ "transition_ok": {
+  "created_paid": true,
+  "shipped_received": true,
+  "shipped_refunded": true,
+  "received_refunded": false,
+  "created_received": false,
+  "created_cancelled": true,
+  "paid_shipped": true,
+  "paid_refunded": true
+ },
+ "p8s7_actor": "2",
+ "p8s7_actor_checkedin_today": 1,
+ "p8s7_actor_makeup_today": 1,
+ "p8s7_actor_makeup_applied_target": 1,
+ "today_utc": "2026-10-03",
+ "us_holiday_probe": null,
+ "counts": {
+  "rating": 0,
+  "event": 0,
+  "listing_order": 18,
+  "schema_migration": 30
+ }
+}

@@ -1,0 +1,284 @@
+{
+  "schema_version": [
+    {
+      "v": "0034"
+    }
+  ],
+  "commission_policy_rows": [
+    {
+      "policy_id": "3",
+      "fee_rate_bp": 100,
+      "levels": 10,
+      "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+      "effective_from": "2026-10-01 19:21:28.285+00",
+      "created_by": "1",
+      "time_created": "2026-09-29 19:21:33.778726+00"
+    },
+    {
+      "policy_id": "2",
+      "fee_rate_bp": 100,
+      "levels": 10,
+      "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+      "effective_from": "2026-09-30 19:15:36.192+00",
+      "created_by": "1",
+      "time_created": "2026-09-29 19:15:42.435667+00"
+    },
+    {
+      "policy_id": "1",
+      "fee_rate_bp": 100,
+      "levels": 10,
+      "weights_bp": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+      "effective_from": "1970-01-01 00:00:00+00",
+      "created_by": "0",
+      "time_created": "2026-09-29 01:15:27.684706+00"
+    }
+  ],
+  "commission_policy_cols": [
+    {
+      "column_name": "policy_id",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "fee_rate_bp",
+      "data_type": "integer",
+      "udt_name": "int4",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "levels",
+      "data_type": "smallint",
+      "udt_name": "int2",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "weights_bp",
+      "data_type": "ARRAY",
+      "udt_name": "_int2",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "effective_from",
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "created_by",
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "time_created",
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    }
+  ],
+  "commission_policy_constraints": [
+    {
+      "conname": "commission_policy_created_by_not_null",
+      "contype": "n",
+      "def": "NOT NULL created_by"
+    },
+    {
+      "conname": "commission_policy_created_by_rng",
+      "contype": "c",
+      "def": "CHECK (((created_by >= 0) OR (created_by = ANY (ARRAY[('-1'::integer)::bigint, ('-2'::integer)::bigint, ('-3'::integer)::bigint]))))"
+    },
+    {
+      "conname": "commission_policy_effective_from_not_null",
+      "contype": "n",
+      "def": "NOT NULL effective_from"
+    },
+    {
+      "conname": "commission_policy_effective_uniq",
+      "contype": "u",
+      "def": "UNIQUE (effective_from)"
+    },
+    {
+      "conname": "commission_policy_fee_rate_bp_not_null",
+      "contype": "n",
+      "def": "NOT NULL fee_rate_bp"
+    },
+    {
+      "conname": "commission_policy_fee_rate_rng",
+      "contype": "c",
+      "def": "CHECK (((fee_rate_bp >= 100) AND (fee_rate_bp <= 500)))"
+    },
+    {
+      "conname": "commission_policy_levels_not_null",
+      "contype": "n",
+      "def": "NOT NULL levels"
+    },
+    {
+      "conname": "commission_policy_levels_rng",
+      "contype": "c",
+      "def": "CHECK (((levels >= 1) AND (levels <= 10)))"
+    },
+    {
+      "conname": "commission_policy_pkey",
+      "contype": "p",
+      "def": "PRIMARY KEY (policy_id)"
+    },
+    {
+      "conname": "commission_policy_policy_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL policy_id"
+    },
+    {
+      "conname": "commission_policy_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "conname": "commission_policy_weights_bp_not_null",
+      "contype": "n",
+      "def": "NOT NULL weights_bp"
+    },
+    {
+      "conname": "commission_policy_weights_len",
+      "contype": "c",
+      "def": "CHECK ((array_length(weights_bp, 1) = levels))"
+    },
+    {
+      "conname": "commission_policy_weights_nonneg",
+      "contype": "c",
+      "def": "CHECK ((0 <= ALL (weights_bp)))"
+    }
+  ],
+  "commission_policy_triggers": [
+    {
+      "tgname": "trg_commission_policy_append_only",
+      "def": "CREATE TRIGGER trg_commission_policy_append_only BEFORE DELETE OR UPDATE ON public.commission_policy FOR EACH ROW EXECUTE FUNCTION commission_policy_append_only()"
+    },
+    {
+      "tgname": "trg_commission_policy_weights_guard",
+      "def": "CREATE TRIGGER trg_commission_policy_weights_guard BEFORE INSERT OR UPDATE ON public.commission_policy FOR EACH ROW EXECUTE FUNCTION commission_policy_weights_guard()"
+    }
+  ],
+  "referral_cols": [
+    {
+      "column_name": "child_uid",
+      "data_type": "bigint",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "parent_uid",
+      "data_type": "bigint",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "depth",
+      "data_type": "smallint",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "bound_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO"
+    }
+  ],
+  "referral_constraints": [
+    {
+      "conname": "referral_bound_at_not_null",
+      "contype": "n",
+      "def": "NOT NULL bound_at"
+    },
+    {
+      "conname": "referral_child_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (child_uid) REFERENCES users(uid)"
+    },
+    {
+      "conname": "referral_child_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL child_uid"
+    },
+    {
+      "conname": "referral_depth_not_null",
+      "contype": "n",
+      "def": "NOT NULL depth"
+    },
+    {
+      "conname": "referral_depth_rng",
+      "contype": "c",
+      "def": "CHECK ((depth >= 1))"
+    },
+    {
+      "conname": "referral_no_self",
+      "contype": "c",
+      "def": "CHECK ((child_uid <> parent_uid))"
+    },
+    {
+      "conname": "referral_parent_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (parent_uid) REFERENCES users(uid)"
+    },
+    {
+      "conname": "referral_parent_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL parent_uid"
+    },
+    {
+      "conname": "referral_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (child_uid)"
+    }
+  ],
+  "referral_triggers": [
+    {
+      "tgname": "trg_referral_append_only",
+      "def": "CREATE TRIGGER trg_referral_append_only BEFORE DELETE OR UPDATE ON public.referral FOR EACH ROW EXECUTE FUNCTION referral_append_only()"
+    },
+    {
+      "tgname": "trg_referral_cycle_guard",
+      "def": "CREATE TRIGGER trg_referral_cycle_guard BEFORE INSERT ON public.referral FOR EACH ROW EXECUTE FUNCTION referral_cycle_guard()"
+    }
+  ],
+  "referral_live_rows": [
+    {
+      "n": 2
+    }
+  ],
+  "ledger_entry_commission_triggers": [
+    {
+      "tgname": "trg_ledger_entry_commission_conservation",
+      "def": "CREATE CONSTRAINT TRIGGER trg_ledger_entry_commission_conservation AFTER INSERT ON public.ledger_entry DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION ledger_assert_commission_conservation()"
+    }
+  ],
+  "ledger_kind_enum": [
+    {
+      "def": "CHECK ((kind = ANY (ARRAY['mint'::text, 'burn'::text, 'transfer'::text, 'hold'::text, 'hold_release'::text, 'hold_forfeit'::text, 'job_escrow'::text, 'job_escrow_refund'::text, 'job_payout'::text, 'job_fee'::text, 'commission'::text, 'purchase'::text, 'sale'::text, 'purchase_refund'::text, 'trade'::text, 'trade_fee'::text, 'listing_fee'::text, 'listing_deposit'::text, 'currency_create_fee'::text, 'reversal'::text, 'checkin_makeup_fee'::text, 'bttc_mint_fee'::text, 'bttc_burn_fee'::text])))"
+    }
+  ],
+  "app_config_keys": [
+    {
+      "key": "system_settings"
+    }
+  ],
+  "users_count": [
+    {
+      "n": 56
+    }
+  ],
+  "minus1_minus2": [
+    {
+      "uid": "-1",
+      "n": 1
+    },
+    {
+      "uid": "-2",
+      "n": 1
+    }
+  ]
+}

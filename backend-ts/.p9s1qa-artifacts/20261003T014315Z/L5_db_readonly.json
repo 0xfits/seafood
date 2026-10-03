@@ -1,0 +1,63 @@
+{
+ "app_config_keys": [
+  {
+   "key": "system_settings",
+   "time_updated": "2026-10-02 14:14:07.502017+00"
+  }
+ ],
+ "app_config_count": [
+  {
+   "n": 1
+  }
+ ],
+ "new_keys_absent": [
+  {
+   "key": "role_names",
+   "rows": 0
+  },
+  {
+   "key": "site_text_overrides",
+   "rows": 0
+  }
+ ],
+ "app_config_update_triggers": [
+  {
+   "tgname": "trg_app_config_key_immutable",
+   "tgenabled": "O",
+   "fn": "platform_config_key_immutable",
+   "def": "CREATE TRIGGER trg_app_config_key_immutable BEFORE UPDATE ON public.app_config FOR EACH ROW EXECUTE FUNCTION platform_config_key_immutable('key')"
+  },
+  {
+   "tgname": "trg_app_config_touch_updated",
+   "tgenabled": "O",
+   "fn": "platform_config_touch_updated",
+   "def": "CREATE TRIGGER trg_app_config_touch_updated BEFORE UPDATE ON public.app_config FOR EACH ROW EXECUTE FUNCTION platform_config_touch_updated()"
+  }
+ ],
+ "schema_version": [
+  {
+   "version": "0027"
+  }
+ ],
+ "migrations_n": [
+  {
+   "n": 26
+  }
+ ],
+ "getSystemSettings_keys": [
+  "allowRegistration",
+  "defaultLanguage",
+  "emailNotifications",
+  "maintenance",
+  "maxDailyTasks",
+  "pointsPerTask",
+  "rewardCooldown",
+  "siteDescription",
+  "siteName"
+ ],
+ "getSiteTextOverlay": {
+  "role_names": null,
+  "site_text_overrides": null,
+  "updated_at": null
+ }
+}

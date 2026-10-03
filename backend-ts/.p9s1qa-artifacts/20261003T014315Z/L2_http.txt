@@ -1,0 +1,8 @@
+=== GET /api/role-names (no token) ===
+HTTP_STATUS=200
+BODY:
+{"success":true,"message":"OK","data":{"role_names":null,"site_text_overrides":null,"updated_at":null}}
+=== GET /api/admin/settings (no token) ===
+HTTP_STATUS=401
+BODY:
+{"error":{"code":"AUTH_UNAUTHORIZED","message":"AUTH_UNAUTHORIZED","i18n_key":"auth.err.AUTH_UNAUTHORIZED","details":{}}}

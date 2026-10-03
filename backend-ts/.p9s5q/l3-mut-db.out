@@ -1,0 +1,18 @@
+{
+ "baseline_allow": {
+  "allowed": true
+ },
+ "mutated_debit": {
+  "allowed": false,
+  "sqlstate": "LD021",
+  "code": "LEDGER_RESERVED_UID",
+  "reason": "PLATFORM_DEBIT_FORBIDDEN"
+ },
+ "mutated_credit_still_ok": {
+  "allowed": true
+ },
+ "restored_allow": {
+  "allowed": true
+ },
+ "verdict": "RED_OK"
+}

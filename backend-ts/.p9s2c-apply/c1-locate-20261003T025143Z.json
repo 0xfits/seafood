@@ -1,0 +1,67 @@
+{
+ "args": {
+  "jobId": 990101,
+  "workerUid": 6,
+  "createKey": "p9s2c:c1:990101:6:20261003T025143Z",
+  "jsTypes": {
+   "jobId": "number",
+   "workerUid": "number",
+   "createKey": "string"
+  }
+ },
+ "worker_batt_row_exists_before": 0,
+ "no_batt_row": {
+  "diag": {
+   "job_id": "990101",
+   "job_status": "open",
+   "ins_rows": "0",
+   "cur_rows": "0",
+   "cur_outcome": null,
+   "employer_eq_worker": false,
+   "batt_shapea_code": null,
+   "batt_shapeb_debug": 0,
+   "lt_shapea_code": null,
+   "lt_shapeb_debug": true,
+   "raw_cfg": null,
+   "ptype_job": "bigint",
+   "ptype_worker": "bigint",
+   "ptype_thr": "integer"
+  },
+  "applyToJob_real": {
+   "outcome": "conflict",
+   "applicationId": null,
+   "jobStatus": "open"
+  }
+ },
+ "explicit_batt_row_0": {
+  "diag": {
+   "job_id": "990101",
+   "job_status": "open",
+   "ins_rows": "0",
+   "cur_rows": "0",
+   "cur_outcome": null,
+   "employer_eq_worker": false,
+   "batt_shapea_code": 0,
+   "batt_shapeb_debug": 0,
+   "lt_shapea_code": true,
+   "lt_shapeb_debug": true,
+   "raw_cfg": null,
+   "ptype_job": "bigint",
+   "ptype_worker": "bigint",
+   "ptype_thr": "integer"
+  },
+  "applyToJob_real": {
+   "outcome": "batt_below_threshold",
+   "applicationId": null,
+   "jobStatus": "open"
+  }
+ },
+ "explicit_batt_row_9": {
+  "applyToJob_real": {
+   "outcome": "applied",
+   "applicationId": 40,
+   "jobStatus": "open"
+  }
+ },
+ "conclusion": "见 stdout / 报告"
+}

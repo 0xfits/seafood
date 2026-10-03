@@ -1,0 +1,60 @@
+[
+ {
+  "tag": "BASELINE",
+  "rc": 0,
+  "total": 63,
+  "passed": 63,
+  "failed": []
+ },
+ {
+  "tag": "M1_received_to_refunded_allowed",
+  "rc": 1,
+  "total": 63,
+  "passed": 59,
+  "failed": [
+   "C3",
+   "C5",
+   "C6",
+   "C2__selftest"
+  ]
+ },
+ {
+  "tag": "RESTORE_after_M1",
+  "rc": 0,
+  "total": 63,
+  "passed": 63,
+  "failed": []
+ },
+ {
+  "tag": "M2_drop_defaultStars_guard",
+  "rc": 1,
+  "total": 63,
+  "passed": 62,
+  "failed": [
+   "G5"
+  ]
+ },
+ {
+  "tag": "RESTORE_after_M2",
+  "rc": 0,
+  "total": 63,
+  "passed": 63,
+  "failed": []
+ },
+ {
+  "tag": "M3_status_set_back_to_4",
+  "rc": 1,
+  "total": 63,
+  "passed": 62,
+  "failed": [
+   "C1"
+  ]
+ },
+ {
+  "tag": "RESTORE_after_M3_FINAL",
+  "rc": 0,
+  "total": 63,
+  "passed": 63,
+  "failed": []
+ }
+]

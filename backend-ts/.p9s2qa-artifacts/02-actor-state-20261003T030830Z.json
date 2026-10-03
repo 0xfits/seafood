@@ -1,0 +1,125 @@
+{
+  "run": "20261003T030830Z",
+  "ts": "2026-10-03T03:11:11.638Z",
+  "today_utc": [
+    {
+      "d": "2026-10-03"
+    }
+  ],
+  "checkin_log_today": [
+    {
+      "uid": "2",
+      "checkin_day": "2026-10-03",
+      "streak_day": 1,
+      "reward_batt": 30,
+      "time_created": "2026-10-03 02:59:03.876765+00"
+    },
+    {
+      "uid": "12",
+      "checkin_day": "2026-10-03",
+      "streak_day": 1,
+      "reward_batt": 30,
+      "time_created": "2026-10-03 02:57:24.133372+00"
+    }
+  ],
+  "checkin_log_recent": [
+    {
+      "uid": "2",
+      "checkin_day": "2026-10-03",
+      "streak_day": 1,
+      "reward_batt": 30,
+      "time_created": "2026-10-03 02:59:03.876765+00"
+    },
+    {
+      "uid": "12",
+      "checkin_day": "2026-10-03",
+      "streak_day": 1,
+      "reward_batt": 30,
+      "time_created": "2026-10-03 02:57:24.133372+00"
+    }
+  ],
+  "makeup_log_recent": [
+    {
+      "uid": "2",
+      "makeup_day": "2026-10-03",
+      "target_day": "2026-10-02",
+      "cost_usd": "100",
+      "result": "applied",
+      "txid": "735",
+      "time_created": "2026-10-03 02:59:04.620142+00"
+    },
+    {
+      "uid": "12",
+      "makeup_day": "2026-10-03",
+      "target_day": "2026-10-02",
+      "cost_usd": "100",
+      "result": "applied",
+      "txid": "733",
+      "time_created": "2026-10-03 02:57:24.768872+00"
+    }
+  ],
+  "batt_account_all": [
+    {
+      "uid": "2",
+      "batt": 30,
+      "time_created": "2026-10-03 02:59:03.876765+00",
+      "time_updated": "2026-10-03 02:59:03.876765+00"
+    },
+    {
+      "uid": "12",
+      "batt": 30,
+      "time_created": "2026-10-03 02:57:24.133372+00",
+      "time_updated": "2026-10-03 02:57:24.133372+00"
+    }
+  ],
+  "batt_entry_recent": [
+    {
+      "txid": "48",
+      "uid": "2",
+      "delta": 30,
+      "batt_after": 30,
+      "reason": "checkin",
+      "idempotency_key": "biz:checkin:2:2026-10-03",
+      "time_created": "2026-10-03 02:59:03.876765+00"
+    },
+    {
+      "txid": "47",
+      "uid": "12",
+      "delta": 30,
+      "batt_after": 30,
+      "reason": "checkin",
+      "idempotency_key": "biz:checkin:12:2026-10-03",
+      "time_created": "2026-10-03 02:57:24.133372+00"
+    }
+  ],
+  "actor_candidate": [
+    {
+      "uid": "2",
+      "bal": "7500"
+    },
+    {
+      "uid": "3",
+      "bal": "1385"
+    },
+    {
+      "uid": "6",
+      "bal": "930"
+    },
+    {
+      "uid": "7",
+      "bal": "5100"
+    },
+    {
+      "uid": "8",
+      "bal": "4900"
+    }
+  ],
+  "counts": [
+    {
+      "checkin_log": "2",
+      "makeup_log": "2",
+      "batt_account": "2",
+      "batt_entry": "2"
+    }
+  ]
+}

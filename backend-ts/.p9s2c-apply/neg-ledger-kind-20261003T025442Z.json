@@ -1,0 +1,89 @@
+{
+ "live_before": {
+  "n": 21,
+  "hasNew": true
+ },
+ "fn_def_len": 577,
+ "fn_occurrences_new_kind": 1,
+ "mutated_len": 577,
+ "mutated_occurrences_new_kind": 1,
+ "after_mutation_fn_returns": true,
+ "chain_result": {
+  "outcome": "applied",
+  "targetDay": "2026-10-02",
+  "costUsd": 100,
+  "restoredStreakDay": 1,
+  "txid": "729",
+  "ledger": {
+   "ok": true,
+   "meta": {
+    "op": "entries",
+    "lock_trace": [
+     "account:-1:1",
+     "account:12:1"
+    ]
+   },
+   "txid": "729",
+   "extra": {
+    "symbol": "$",
+    "entries": "2"
+   },
+   "entries": [
+    {
+     "cid": "1",
+     "uid": "12",
+     "kind": "checkin_makeup_fee",
+     "memo": "p9s2c neg N3",
+     "txid": "729",
+     "delta": "-100",
+     "ref_id": null,
+     "ref_type": null,
+     "frozen_after": "0",
+     "frozen_delta": "0",
+     "time_created": "2026-10-03T02:54:43.694Z",
+     "balance_after": "136707",
+     "idempotency_key": "biz:checkin:makeup:12:2026-10-02",
+     "reversal_of_txid": null,
+     "request_fingerprint": "fp:12:2026-10-02"
+    },
+    {
+     "cid": "1",
+     "uid": "-1",
+     "kind": "checkin_makeup_fee",
+     "memo": "p9s2c neg N3",
+     "txid": "730",
+     "delta": "100",
+     "ref_id": null,
+     "ref_type": null,
+     "frozen_after": "0",
+     "frozen_delta": "0",
+     "time_created": "2026-10-03T02:54:43.694Z",
+     "balance_after": "167383",
+     "idempotency_key": "biz:checkin:makeup:12:2026-10-02#2",
+     "reversal_of_txid": null,
+     "request_fingerprint": null
+    }
+   ],
+   "accounts": [
+    {
+     "cid": "1",
+     "uid": "12",
+     "frozen": "0",
+     "balance": "136707"
+    },
+    {
+     "cid": "1",
+     "uid": "-1",
+     "frozen": "0",
+     "balance": "167383"
+    }
+   ],
+   "idempotency_key": "biz:checkin:makeup:12:2026-10-02",
+   "idempotent_replay": false
+  }
+ },
+ "live_after": {
+  "n": 21,
+  "hasNew": true
+ }
+}

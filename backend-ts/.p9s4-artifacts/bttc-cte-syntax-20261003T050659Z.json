@@ -1,0 +1,41 @@
+{
+  "run": "20261003T050659Z",
+  "discipline": "BEGIN; <methods>; ROLLBACK (no COMMIT)",
+  "results": {
+    "getBttcState": {
+      "ok": true,
+      "symbol": "BTTC",
+      "status": null,
+      "canMint": false,
+      "canBurn": false,
+      "policy": {
+        "mintBattCost": 100,
+        "mintFeeUsd": 1,
+        "burnBttcCost": 1,
+        "burnFeeUsd": 1,
+        "burnBattGain": 100
+      },
+      "source": "constant",
+      "balance": "0",
+      "usdBalance": "0",
+      "batt": 0
+    },
+    "bttcMint": {
+      "ok": true,
+      "outcome": "rejected",
+      "batt": 0,
+      "txid": null
+    },
+    "bttcBurn": {
+      "ok": true,
+      "outcome": "rejected",
+      "batt": 0,
+      "txid": null
+    },
+    "ensureBttc": {
+      "ok": false,
+      "err": "column \"is_platform_coin\" of relation \"currency\" does not exist"
+    },
+    "fatal": "current transaction is aborted, commands ignored until end of transaction block"
+  }
+}

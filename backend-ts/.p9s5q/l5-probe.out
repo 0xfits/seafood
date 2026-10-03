@@ -1,0 +1,95 @@
+{
+ "domain": {
+  "fe_min": 100,
+  "fe_max": 10000,
+  "backend_guard_min": 100,
+  "backend_guard_max": 10000,
+  "migration_min": 100,
+  "migration_max": 10000
+ },
+ "i18n": {
+  "key_count": 18,
+  "keys": [
+   "cardAudit",
+   "cardCurrent",
+   "intro",
+   "invalidFeeRate",
+   "labelCreatedBy",
+   "labelEffectiveFrom",
+   "labelFeeRate",
+   "labelPolicyId",
+   "labelTimeCreated",
+   "labelWeightsSum",
+   "loadFailed",
+   "noChanges",
+   "percentPreview",
+   "rangeHint",
+   "saveButton",
+   "saveFailed",
+   "saved",
+   "unsavedChanges"
+  ],
+  "per_locale_keycount": {
+   "zh": 18,
+   "en": 18,
+   "hk": 18,
+   "vn": 18
+  }
+ },
+ "leakage": {
+  "per_category": {
+   "章节号": 0,
+   "HTTP 动词+路径": 0,
+   "接口路径": 0,
+   "HTTP 状态码": 0,
+   "机读码": 0,
+   "表列名": 0
+  },
+  "hits": {
+   "章节号": [],
+   "HTTP 动词+路径": [],
+   "接口路径": [],
+   "HTTP 状态码": [],
+   "机读码": [],
+   "表列名": []
+  },
+  "en_vn_cjk": []
+ },
+ "slice_files": {
+  "changed_frontend": [
+   "frontend/src/pages/admin/FeeRatePage.jsx"
+  ],
+  "new_locale_keys": 0
+ },
+ "summary": {
+  "total": 4,
+  "passed": 4,
+  "failed": 0
+ },
+ "checks": [
+  {
+   "id": "L5-1 前端域 == 后端守卫域（逐字）",
+   "pass": true,
+   "expect": "FEE_RATE_MIN/MAX(前端) == guardCommissionPolicy 域 == 0035 CHECK 域 == [100, 10000]",
+   "actual": "{\"fe_min\":100,\"fe_max\":10000,\"backend_guard_min\":100,\"backend_guard_max\":10000,\"migration_min\":100,\"migration_max\":10000}"
+  },
+  {
+   "id": "L5-2 四语 adminFeeRate 键集齐平",
+   "pass": true,
+   "expect": "zh/en/hk/vn 的 adminFeeRate 键集逐字相等（本片无新增键 ⇒ 点数不变）",
+   "actual": "{\"zh\":18,\"en\":18,\"hk\":18,\"vn\":18}"
+  },
+  {
+   "id": "L5-3 六类工程口径泄漏逐类 0 + en/vn 零 CJK",
+   "pass": true,
+   "expect": "章节号 / HTTP 动词+路径 / 接口路径 / HTTP 状态码 / 机读码 / 表列名 六类逐类命中 0；en/vn 零 CJK",
+   "actual": "{\"章节号\":0,\"HTTP 动词+路径\":0,\"接口路径\":0,\"HTTP 状态码\":0,\"机读码\":0,\"表列名\":0}"
+  },
+  {
+   "id": "L5-4 本片无新增四语键",
+   "pass": true,
+   "expect": "d3ae10d 前端仅改 FeeRatePage.jsx（域扩）；无新增 locale 键 ⇒ 泄漏点数 +0",
+   "actual": "{\"changed_frontend\":[\"frontend/src/pages/admin/FeeRatePage.jsx\"],\"new_locale_keys\":0}"
+  }
+ ]
+}

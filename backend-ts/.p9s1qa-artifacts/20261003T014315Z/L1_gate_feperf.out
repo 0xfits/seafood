@@ -1,0 +1,164 @@
+{
+ "calibre": "safelist = styles.css @source inline(...) 全集；dynamic = 源码运行期拼接可达类名；产物匹配用 CSS 转义形态",
+ "safelist_line": {
+  "file": "src/styles.css",
+  "line": 61,
+  "text": "@source inline(\"md:grid-cols-2 md:grid-cols-3 md:grid-cols-4 md:grid-cols-6 lg:grid-cols-1 lg:grid-cols-2 lg:grid-cols-3 lg:grid-cols-4 lg:grid-cols-6 xl:grid-cols-1 xl:grid-cols-2 xl:grid-cols-3 xl:grid-cols-4 xl:grid-cols-6 md:text-xs md:text-sm md:text-base md:text-lg md:text-xl md:text-2xl md:text-3xl lg:text-xs lg:text-sm lg:text-base lg:text-lg lg:text-xl lg:text-2xl lg:text-3xl scale-[1.05]\");"
+ },
+ "safelist_count": 29,
+ "dynamic_count": 24,
+ "dynamic": [
+  {
+   "token": "md:grid-cols-2",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 34,
+   "expr": "`md:${gridClasses[2]}`"
+  },
+  {
+   "token": "md:grid-cols-3",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 34,
+   "expr": "`md:${gridClasses[3]}`"
+  },
+  {
+   "token": "md:grid-cols-4",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 34,
+   "expr": "`md:${gridClasses[4]}`"
+  },
+  {
+   "token": "md:grid-cols-6",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 34,
+   "expr": "`md:${gridClasses[6]}`"
+  },
+  {
+   "token": "lg:grid-cols-3",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 34,
+   "expr": "`lg:${gridClasses[3]}`"
+  },
+  {
+   "token": "lg:grid-cols-4",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 34,
+   "expr": "`lg:${gridClasses[4]}`"
+  },
+  {
+   "token": "lg:grid-cols-6",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 34,
+   "expr": "`lg:${gridClasses[6]}`"
+  },
+  {
+   "token": "xl:grid-cols-4",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 34,
+   "expr": "`xl:${gridClasses[4]}`"
+  },
+  {
+   "token": "xl:grid-cols-6",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 34,
+   "expr": "`xl:${gridClasses[6]}`"
+  },
+  {
+   "token": "md:text-xs",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 91,
+   "expr": "`md:${sizeClasses[·]}`"
+  },
+  {
+   "token": "md:text-sm",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 91,
+   "expr": "`md:${sizeClasses[·]}`"
+  },
+  {
+   "token": "md:text-base",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 91,
+   "expr": "`md:${sizeClasses[·]}`"
+  },
+  {
+   "token": "md:text-lg",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 91,
+   "expr": "`md:${sizeClasses[·]}`"
+  },
+  {
+   "token": "md:text-xl",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 91,
+   "expr": "`md:${sizeClasses[·]}`"
+  },
+  {
+   "token": "md:text-2xl",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 91,
+   "expr": "`md:${sizeClasses[·]}`"
+  },
+  {
+   "token": "md:text-3xl",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 91,
+   "expr": "`md:${sizeClasses[·]}`"
+  },
+  {
+   "token": "lg:text-xs",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 91,
+   "expr": "`lg:${sizeClasses[·]}`"
+  },
+  {
+   "token": "lg:text-sm",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 91,
+   "expr": "`lg:${sizeClasses[·]}`"
+  },
+  {
+   "token": "lg:text-base",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 91,
+   "expr": "`lg:${sizeClasses[·]}`"
+  },
+  {
+   "token": "lg:text-lg",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 91,
+   "expr": "`lg:${sizeClasses[·]}`"
+  },
+  {
+   "token": "lg:text-xl",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 91,
+   "expr": "`lg:${sizeClasses[·]}`"
+  },
+  {
+   "token": "lg:text-2xl",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 91,
+   "expr": "`lg:${sizeClasses[·]}`"
+  },
+  {
+   "token": "lg:text-3xl",
+   "file": "src/components/ui/Responsive.jsx",
+   "line": 91,
+   "expr": "`lg:${sizeClasses[·]}`"
+  },
+  {
+   "token": "scale-[1.05]",
+   "file": "src/components/ui/MicroInteractions.jsx",
+   "line": 14,
+   "expr": "'scale-[1.05]'（任意值形态）"
+  }
+ ],
+ "dynamic_missing_from_safelist": [],
+ "dist_css": "dist/assets/index-DIMxTg_j.css",
+ "dist_css_bytes": 125288,
+ "safelist_missing_in_dist": [],
+ "dynamic_missing_in_dist": [],
+ "micro_legacy_literal_in_css": false,
+ "negative_control": null
+}
+VERDICT=PASS

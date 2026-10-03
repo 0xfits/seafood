@@ -1,0 +1,290 @@
+{
+ "schema_version": "0034",
+ "schema_migration": {
+  "n": 33,
+  "vmin": "0001",
+  "vmax": "0034"
+ },
+ "ledger_kind_enum": "CHECK ((kind = ANY (ARRAY['mint'::text, 'burn'::text, 'transfer'::text, 'hold'::text, 'hold_release'::text, 'hold_forfeit'::text, 'job_escrow'::text, 'job_escrow_refund'::text, 'job_payout'::text, 'job_fee'::text, 'commission'::text, 'purchase'::text, 'sale'::text, 'purchase_refund'::text, 'trade'::text, 'trade_fee'::text, 'listing_fee'::text, 'listing_deposit'::text, 'currency_create_fee'::text, 'reversal'::text, 'checkin_makeup_fee'::text, 'bttc_mint_fee'::text, 'bttc_burn_fee'::text])))",
+ "fn_ledger_kind_ok": {
+  "md5": "dbed013e538614b141df866e770b9519",
+  "len": 447,
+  "secdef": false
+ },
+ "fn_assert_platform": {
+  "md5": "3df7bb9e794c1c7858b2775d0edad7ed",
+  "len": 1520
+ },
+ "ledger_kind_ok_behaviors": {
+  "new_kind": false,
+  "old_last": true,
+  "bogus": false,
+  "new_under_frozen": false
+ },
+ "counts": {
+  "users": 56,
+  "referral": 2,
+  "job": 20,
+  "batt_account": 2,
+  "batt_entry": 2,
+  "ledger_entry": 359,
+  "acct_minus1": 1,
+  "currency": 15,
+  "app_config": 1
+ },
+ "app_config_keys": [
+  {
+   "key": "system_settings"
+  }
+ ],
+ "currency_rows": [
+  {
+   "cid": "1",
+   "symbol": "$",
+   "decimals": 0,
+   "status": "listed"
+  },
+  {
+   "cid": "10",
+   "symbol": "P4B3A013647",
+   "decimals": 2,
+   "status": "listed"
+  },
+  {
+   "cid": "15",
+   "symbol": "P4B3A013647X",
+   "decimals": 0,
+   "status": "draft"
+  },
+  {
+   "cid": "16",
+   "symbol": "P4B3B590800",
+   "decimals": 2,
+   "status": "listed"
+  },
+  {
+   "cid": "21",
+   "symbol": "P4B3B590800X",
+   "decimals": 0,
+   "status": "listed"
+  },
+  {
+   "cid": "22",
+   "symbol": "QAB30929T185356Z",
+   "decimals": 0,
+   "status": "draft"
+  },
+  {
+   "cid": "27",
+   "symbol": "QAB4",
+   "decimals": 0,
+   "status": "draft"
+  },
+  {
+   "cid": "28",
+   "symbol": "N1A0T203917",
+   "decimals": 2,
+   "status": "draft"
+  },
+  {
+   "cid": "29",
+   "symbol": "N1B0T203917",
+   "decimals": 2,
+   "status": "listed"
+  },
+  {
+   "cid": "31",
+   "symbol": "N1A0T204732",
+   "decimals": 2,
+   "status": "listed"
+  },
+  {
+   "cid": "32",
+   "symbol": "N1B0T204732",
+   "decimals": 2,
+   "status": "listed"
+  },
+  {
+   "cid": "35",
+   "symbol": "qap7a31l3k6",
+   "decimals": 0,
+   "status": "listed"
+  }
+ ],
+ "acct_minus1": [
+  {
+   "uid": "-1",
+   "cid": "1",
+   "balance": "167483",
+   "frozen": "0"
+  }
+ ],
+ "sample_jobs": [
+  {
+   "job_id": "9",
+   "employer_uid": "2",
+   "worker_uid": "3",
+   "cid": "1",
+   "reward": "300",
+   "status": "rejected"
+  },
+  {
+   "job_id": "8",
+   "employer_uid": "2",
+   "worker_uid": "3",
+   "cid": "1",
+   "reward": "1000",
+   "status": "settled"
+  },
+  {
+   "job_id": "5",
+   "employer_uid": "2",
+   "worker_uid": "3",
+   "cid": "1",
+   "reward": "400",
+   "status": "settled"
+  },
+  {
+   "job_id": "4",
+   "employer_uid": "970101",
+   "worker_uid": "970102",
+   "cid": "1",
+   "reward": "11",
+   "status": "submitted"
+  },
+  {
+   "job_id": "3",
+   "employer_uid": "970001",
+   "worker_uid": "970002",
+   "cid": "1",
+   "reward": "251",
+   "status": "settled"
+  }
+ ],
+ "sample_referral": [
+  {
+   "child_uid": "6",
+   "parent_uid": "5",
+   "depth": 2,
+   "bound_at": "2026-09-29 18:22:02.615693+00"
+  },
+  {
+   "child_uid": "5",
+   "parent_uid": "4",
+   "depth": 1,
+   "bound_at": "2026-09-29 18:22:02.302566+00"
+  }
+ ],
+ "max_uid": "971213",
+ "batt_acct_cols": [
+  {
+   "column_name": "uid",
+   "data_type": "bigint",
+   "is_nullable": "NO"
+  },
+  {
+   "column_name": "batt",
+   "data_type": "integer",
+   "is_nullable": "NO"
+  },
+  {
+   "column_name": "time_created",
+   "data_type": "timestamp with time zone",
+   "is_nullable": "NO"
+  },
+  {
+   "column_name": "time_updated",
+   "data_type": "timestamp with time zone",
+   "is_nullable": "NO"
+  }
+ ],
+ "referral_cols": [
+  {
+   "column_name": "child_uid",
+   "data_type": "bigint",
+   "is_nullable": "NO"
+  },
+  {
+   "column_name": "parent_uid",
+   "data_type": "bigint",
+   "is_nullable": "NO"
+  },
+  {
+   "column_name": "depth",
+   "data_type": "smallint",
+   "is_nullable": "NO"
+  },
+  {
+   "column_name": "bound_at",
+   "data_type": "timestamp with time zone",
+   "is_nullable": "NO"
+  }
+ ],
+ "ledger_entry_cols": [
+  {
+   "column_name": "txid",
+   "data_type": "bigint"
+  },
+  {
+   "column_name": "uid",
+   "data_type": "bigint"
+  },
+  {
+   "column_name": "cid",
+   "data_type": "bigint"
+  },
+  {
+   "column_name": "delta",
+   "data_type": "bigint"
+  },
+  {
+   "column_name": "frozen_delta",
+   "data_type": "bigint"
+  },
+  {
+   "column_name": "balance_after",
+   "data_type": "bigint"
+  },
+  {
+   "column_name": "frozen_after",
+   "data_type": "bigint"
+  },
+  {
+   "column_name": "kind",
+   "data_type": "text"
+  },
+  {
+   "column_name": "ref_type",
+   "data_type": "text"
+  },
+  {
+   "column_name": "ref_id",
+   "data_type": "bigint"
+  },
+  {
+   "column_name": "idempotency_key",
+   "data_type": "text"
+  },
+  {
+   "column_name": "request_fingerprint",
+   "data_type": "text"
+  },
+  {
+   "column_name": "reversal_of_txid",
+   "data_type": "bigint"
+  },
+  {
+   "column_name": "memo",
+   "data_type": "text"
+  },
+  {
+   "column_name": "time_created",
+   "data_type": "timestamp with time zone"
+  },
+  {
+   "column_name": "event_root_key",
+   "data_type": "text"
+  }
+ ],
+ "platform_assert_src": "\nDECLARE v_ok boolean;\nBEGIN\n  v_ok := CASE p_uid::text\n    WHEN '0'  THEN CASE p_dir WHEN 'credit' THEN p_kind IN ('mint', 'transfer', 'reversal')\n                                    ELSE p_kind IN ('transfer', 'burn', 'reversal') END\n    -- 🆕 0008（P2 裁定 #11）：`-1` = 平台收入账户 ⇒ 无邀请人时的手续费入这里\n    -- 🆕 0019（P4-B3a-FIX-A / R31 v0.2 + DL67 + DL88）：`-1` 再接纳 `listing_deposit`\n    -- 🆕 0029（P9② / data-layer v0.21 §31.1 R-9-14 ③(b) + §31.5 + R-9-3）：`-1` 再接纳 `checkin_makeup_fee`\n    -- 🆕 0032（P9④ / data-layer v0.25 §33.10 R-9-36 + §33.3(b) + R-9-3）：`-1` 再接纳\n    --    `bttc_mint_fee` + `bttc_burn_fee`（BTTC 铸 / 分解手续费入平台收入、**不真 burn**）。\n    --    其余格与 0029 逐字相同：`-1` 的 debit 仍恒 false。\n    WHEN '-1' THEN CASE p_dir WHEN 'credit' THEN p_kind IN ('trade_fee', 'listing_fee', 'currency_create_fee', 'job_fee', 'listing_deposit', 'checkin_makeup_fee', 'bttc_mint_fee', 'bttc_burn_fee')\n                                    ELSE false END\n    WHEN '-2' THEN CASE p_dir WHEN 'credit' THEN p_kind IN ('job_fee')\n                                    ELSE p_kind IN ('commission') END\n    WHEN '-3' THEN CASE p_dir WHEN 'credit' THEN p_kind IN ('hold_forfeit')\n                                    ELSE p_kind IN ('hold_forfeit', 'transfer') END\n    ELSE NULL\n  END;\n  IF v_ok IS NULL OR v_ok THEN RETURN; END IF;\n  PERFORM ledger_raise('LEDGER_RESERVED_UID', jsonb_build_object(\n    'uid', p_uid::text, 'kind', p_kind,\n    'reason', CASE p_dir WHEN 'debit' THEN 'PLATFORM_DEBIT_FORBIDDEN' ELSE 'PLATFORM_CREDIT_KIND_FORBIDDEN' END));\nEND "
+}

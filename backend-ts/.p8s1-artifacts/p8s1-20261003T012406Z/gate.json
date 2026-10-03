@@ -1,0 +1,181 @@
+{
+ "unit": "P8-S1-APP-CONFIG-GATE",
+ "generated_at": "2026-10-03T01:24:06.189Z",
+ "run": "20261003T012406Z",
+ "offline": true,
+ "db_connections": 0,
+ "http_calls": 0,
+ "total": 24,
+ "passed": 24,
+ "failed": 0,
+ "checks": [
+  {
+   "id": "A1",
+   "group": "AG2",
+   "pass": true,
+   "expect": "写 app_config 的文件 = ['backend-ts/src/database.ts']（唯一）",
+   "actual": "[\"backend-ts/src/database.ts\"]"
+  },
+  {
+   "id": "A2",
+   "group": "AG2",
+   "pass": true,
+   "expect": "写 app_config 的语句 = 1 处（INSERT）",
+   "actual": "[\"INSERT INTO public.app_config\"]"
+  },
+  {
+   "id": "A3",
+   "group": "AG2",
+   "pass": true,
+   "expect": "唯一写入语句落在 saveSystemSettings 方法体内",
+   "actual": "save=[121814,123827) hit_offset=123196"
+  },
+  {
+   "id": "B1",
+   "group": "AK1",
+   "pass": true,
+   "expect": "[\"system_settings\",\"listing_deposit_policy\",\"batt_policy\",\"checkin_policy\",\"invite_reward_policy\",\"mint_burn_policy\",\"rating_policy\",\"site_text_overrides\",\"role_names\"]",
+   "actual": "[\"system_settings\",\"listing_deposit_policy\",\"batt_policy\",\"checkin_policy\",\"invite_reward_policy\",\"mint_burn_policy\",\"rating_policy\",\"site_text_overrides\",\"role_names\"]"
+  },
+  {
+   "id": "B2",
+   "group": "AK1",
+   "pass": true,
+   "expect": "[\"siteName\",\"siteDescription\",\"maintenance\",\"allowRegistration\",\"emailNotifications\",\"defaultLanguage\",\"pointsPerTask\",\"maxDailyTasks\",\"rewardCooldown\"]",
+   "actual": "[\"siteName\",\"siteDescription\",\"maintenance\",\"allowRegistration\",\"emailNotifications\",\"defaultLanguage\",\"pointsPerTask\",\"maxDailyTasks\",\"rewardCooldown\"]"
+  },
+  {
+   "id": "B3",
+   "group": "AK1",
+   "pass": true,
+   "expect": "app_config 的 SQL 键字面量 ⊆ 合法键清单（[\"batt_policy\",\"checkin_policy\",\"invite_reward_policy\",\"listing_deposit_policy\",\"mint_burn_policy\",\"rating_policy\",\"role_names\",\"site_text_overrides\",\"system_settings\"]）",
+   "actual": "[\"listing_deposit_policy\",\"system_settings\"]"
+  },
+  {
+   "id": "C1",
+   "group": "AG1",
+   "pass": true,
+   "expect": "ok=false/reason=SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST/unknown_keys 含 foo",
+   "actual": "{\"code\":\"LEDGER_AMOUNT_INVALID\",\"reason\":\"SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST\",\"unknown_keys\":[\"foo\"]}"
+  },
+  {
+   "id": "C2",
+   "group": "AG1",
+   "pass": true,
+   "expect": "ok=false/reason=SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST/unknown_keys 含 deposit_amount",
+   "actual": "{\"code\":\"LEDGER_AMOUNT_INVALID\",\"reason\":\"SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST\",\"unknown_keys\":[\"deposit_amount\"]}"
+  },
+  {
+   "id": "C3",
+   "group": "AG1",
+   "pass": true,
+   "expect": "ok=false/reason=SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST/unknown_keys 含 listing_deposit_policy",
+   "actual": "{\"code\":\"LEDGER_AMOUNT_INVALID\",\"reason\":\"SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST\",\"unknown_keys\":[\"listing_deposit_policy\"]}"
+  },
+  {
+   "id": "D1",
+   "group": "AG3",
+   "pass": true,
+   "expect": "ok=false/reason=SETTING_VALUE_NOT_OBJECT/got=number",
+   "actual": "{\"reason\":\"SETTING_VALUE_NOT_OBJECT\",\"got\":\"number\"}"
+  },
+  {
+   "id": "D2",
+   "group": "AG3",
+   "pass": true,
+   "expect": "ok=false/reason=SETTING_VALUE_NOT_OBJECT/got=array",
+   "actual": "{\"reason\":\"SETTING_VALUE_NOT_OBJECT\",\"got\":\"array\"}"
+  },
+  {
+   "id": "D3",
+   "group": "AG3",
+   "pass": true,
+   "expect": "ok=false/reason=SETTING_VALUE_NOT_OBJECT/got=null",
+   "actual": "{\"reason\":\"SETTING_VALUE_NOT_OBJECT\",\"got\":\"null\"}"
+  },
+  {
+   "id": "D4",
+   "group": "AG3",
+   "pass": true,
+   "expect": "ok=false/reason=SETTING_TYPE_INVALID/field=pointsPerTask/got=string/expected=<string>",
+   "actual": "{\"reason\":\"SETTING_TYPE_INVALID\",\"field\":\"pointsPerTask\",\"got\":\"string\",\"expected\":\"number\"}"
+  },
+  {
+   "id": "D5",
+   "group": "AG3",
+   "pass": true,
+   "expect": "ok=false/reason=SETTING_TYPE_INVALID/field=maintenance/got=number/expected=<string>",
+   "actual": "{\"reason\":\"SETTING_TYPE_INVALID\",\"field\":\"maintenance\",\"got\":\"number\",\"expected\":\"boolean\"}"
+  },
+  {
+   "id": "D6",
+   "group": "AG3",
+   "pass": true,
+   "expect": "ok=false/reason=SETTING_TYPE_INVALID/field=siteName/got=number/expected=<string>",
+   "actual": "{\"reason\":\"SETTING_TYPE_INVALID\",\"field\":\"siteName\",\"got\":\"number\",\"expected\":\"string\"}"
+  },
+  {
+   "id": "D7",
+   "group": "AG3",
+   "pass": true,
+   "expect": "ok=false/reason=SETTING_TYPE_INVALID/field=maxDailyTasks/got=boolean/expected=<string>",
+   "actual": "{\"reason\":\"SETTING_TYPE_INVALID\",\"field\":\"maxDailyTasks\",\"got\":\"boolean\",\"expected\":\"number\"}"
+  },
+  {
+   "id": "E1",
+   "group": "AG4",
+   "pass": true,
+   "expect": "合法键+未知键混合 ⇒ ok=false 且 unknown_keys=['foo']（整请求拒，合法字段不落库）",
+   "actual": "{\"unknown_keys\":[\"foo\"]}"
+  },
+  {
+   "id": "E2",
+   "group": "AG4",
+   "pass": true,
+   "expect": "3 个未知键**逐键列出**",
+   "actual": "[\"foo\",\"fee_rate\",\"bar\"]"
+  },
+  {
+   "id": "F1",
+   "group": "positive",
+   "pass": true,
+   "expect": "ok=true（全量合法）",
+   "actual": "ok=true keys=9"
+  },
+  {
+   "id": "F2",
+   "group": "positive",
+   "pass": true,
+   "expect": "ok=true 且只含给定字段（不补默认值）",
+   "actual": "{\"maintenance\":true}"
+  },
+  {
+   "id": "F3",
+   "group": "positive",
+   "pass": true,
+   "expect": "ok=true（空补丁合法）",
+   "actual": "ok=true"
+  },
+  {
+   "id": "G1",
+   "group": "noSilentAbsorb",
+   "pass": true,
+   "expect": "路由层调用 screenSystemSettingsWrite（AG1/AG3/AG4 门禁）",
+   "actual": "true"
+  },
+  {
+   "id": "G2",
+   "group": "noSilentAbsorb",
+   "pass": true,
+   "expect": "saveSystemSettings 调 assertSystemSettingsPatch（严格断言）",
+   "actual": "true"
+  },
+  {
+   "id": "G3",
+   "group": "noSilentAbsorb",
+   "pass": true,
+   "expect": "旧静默吸收函数 normalizeSystemSettings( 零命中（已改写为 Read/Strict 二分）",
+   "actual": "[]"
+  }
+ ]
+}

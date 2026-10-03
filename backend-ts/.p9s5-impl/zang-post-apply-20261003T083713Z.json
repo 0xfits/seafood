@@ -1,0 +1,148 @@
+{
+ "schema_migration": [
+  {
+   "max_version": "0038",
+   "applied_rows": 37
+  }
+ ],
+ "public_tables": [
+  {
+   "n": 34
+  }
+ ],
+ "fee_check": [
+  {
+   "def": "CHECK (((fee_rate_bp >= 100) AND (fee_rate_bp <= 10000)))"
+  }
+ ],
+ "policy_rows": [
+  {
+   "policy_id": "1",
+   "fee_rate_bp": 100,
+   "levels": 10,
+   "w_len": 10,
+   "weights_bp": [
+    3000,
+    2000,
+    1500,
+    1000,
+    800,
+    600,
+    500,
+    300,
+    200,
+    100
+   ],
+   "created_by": "0",
+   "effective_from": "1970-01-01T00:00:00.000Z"
+  },
+  {
+   "policy_id": "2",
+   "fee_rate_bp": 100,
+   "levels": 10,
+   "w_len": 10,
+   "weights_bp": [
+    3000,
+    2000,
+    1500,
+    1000,
+    800,
+    600,
+    500,
+    300,
+    200,
+    100
+   ],
+   "created_by": "1",
+   "effective_from": "2026-09-30T19:15:36.192Z"
+  },
+  {
+   "policy_id": "3",
+   "fee_rate_bp": 100,
+   "levels": 10,
+   "w_len": 10,
+   "weights_bp": [
+    3000,
+    2000,
+    1500,
+    1000,
+    800,
+    600,
+    500,
+    300,
+    200,
+    100
+   ],
+   "created_by": "1",
+   "effective_from": "2026-10-01T19:21:28.285Z"
+  },
+  {
+   "policy_id": "34",
+   "fee_rate_bp": 1000,
+   "levels": 6,
+   "w_len": 6,
+   "weights_bp": [
+    2600,
+    1700,
+    700,
+    2600,
+    1700,
+    700
+   ],
+   "created_by": "-1",
+   "effective_from": "2026-10-03T08:23:14.022Z"
+  }
+ ],
+ "kind_check": [
+  {
+   "has_new": true,
+   "n_tokens": 49
+  }
+ ],
+ "kind_ok": [
+  {
+   "has_new": true,
+   "md5": "fbf01eb42a967bdb0f52ae704038dff9",
+   "len": 479
+  }
+ ],
+ "platform_mut": [
+  {
+   "debit_whitelist_new": true,
+   "md5": "4b43b44c84bb3fce96af8777ac39f0dd",
+   "len": 1718,
+   "n_quoted_tokens": 28
+  }
+ ],
+ "post_event_unchanged": [
+  {
+   "md5": "3737e0f8ef4f2bbfffd973f16ce47fb8",
+   "len": 47968
+  }
+ ],
+ "conservation": [
+  {
+   "md5": "3a6dca5e38189a1020dcaade22dd2401",
+   "len": 3279,
+   "has_m0": true
+  }
+ ],
+ "new_applied": [
+  {
+   "version": "0035",
+   "cks": "2d34cbc8719c"
+  },
+  {
+   "version": "0036",
+   "cks": "e28f75b7908f"
+  },
+  {
+   "version": "0037",
+   "cks": "a039a407b778"
+  },
+  {
+   "version": "0038",
+   "cks": "e85d9e49394d"
+  }
+ ]
+}

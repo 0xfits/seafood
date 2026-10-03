@@ -1,0 +1,880 @@
+{
+ "unit": "P8-S8-RATING-TIMELINESS-GATE",
+ "generated_at": "2026-10-03T08:34:21.213Z",
+ "run": "20261003T083357Z",
+ "offline": false,
+ "db_connections": 13,
+ "http_calls": 1,
+ "note": "A–F 静态面零 DB / 零 HTTP；**G 库面 leg 转真 checks**（`0030`/`0031` 已 apply）：结构面活体 + **四段真链路**（评分提交/汇总四周期与兜底 · 时效 T1..T4 · 发货/收货 transition 与事件行同生同灭 · 退款闸放宽）一律**事务内 + 末尾 ROLLBACK** + 受控实例真 HTTP。`pending_apply[]` 归零（主库零写入）。",
+ "total": 92,
+ "passed": 89,
+ "failed": 3,
+ "pending_apply": [],
+ "readings": {
+  "registration_points_total": 87,
+  "registration_points_per_verb": {
+   "get": 36,
+   "post": 48,
+   "put": 0,
+   "patch": 1,
+   "delete": 2
+  },
+  "new_routes": [
+   "app.get('/api/rating/summary'",
+   "app.get('/api/timeliness'",
+   "app.post('/api/rating'",
+   "app.post('/api/listing-orders/:orderId/ship'",
+   "app.post('/api/listing-orders/:orderId/receive'"
+  ],
+  "status_set_6": [
+   "cancelled",
+   "created",
+   "paid",
+   "received",
+   "refunded",
+   "shipped"
+  ],
+  "transition_out_edges": {
+   "created": [
+    "paid",
+    "cancelled"
+   ],
+   "paid": [
+    "shipped",
+    "refunded"
+   ],
+   "shipped": [
+    "received",
+    "refunded"
+   ]
+  },
+  "rating_cols": [
+   "rating_id",
+   "rater_uid",
+   "ratee_uid",
+   "target_type",
+   "target_id",
+   "direction",
+   "stars",
+   "idempotency_key",
+   "request_fingerprint",
+   "memo",
+   "time_created"
+  ],
+  "listing_order_event_cols": [
+   "event_id",
+   "order_id",
+   "event_type",
+   "from_status",
+   "to_status",
+   "actor_uid",
+   "txid",
+   "idempotency_key",
+   "request_fingerprint",
+   "ref_type",
+   "ref_id",
+   "memo",
+   "time_created"
+  ],
+  "rating_policy_defaults": {
+   "storageDecimals": 4,
+   "displayDecimals": 0,
+   "defaultStars": 3
+  },
+  "no_row_default": {
+   "source": "constant",
+   "defaultStars": 3
+  },
+  "has_row_default": {
+   "source": "config",
+   "defaultStars": 4
+  },
+  "error_codes_closed_set_size": 33,
+  "locale_keys": {
+   "ratingPanel": [
+    "noData",
+    "period1000",
+    "period30",
+    "period360",
+    "period90",
+    "periodLabel",
+    "roleCustomer",
+    "rolePoster",
+    "roleVendor",
+    "roleWorker",
+    "starsUnit",
+    "title"
+   ],
+   "timelinessPanel": [
+    "customerAvgReceiveDays",
+    "customerDealRate",
+    "daysUnit",
+    "jobPassRate",
+    "listingDealRate",
+    "noData",
+    "posterAvgDays",
+    "title",
+    "vendorAvgShipDays",
+    "workerAvgDays",
+    "workerPassRate"
+   ],
+   "statusLabel": [
+    "cancelled",
+    "created",
+    "paid",
+    "received",
+    "refunded",
+    "shipped",
+    "unknown"
+   ]
+  },
+  "pending_apply_count": 0,
+  "pending_resolved": [
+   "0030 · 活体 listing_order_status_enum = 6 值 ⇒ L1",
+   "0030 · 活体 transition_ok 允许/禁止逐条 ⇒ L2/L3/L4",
+   "0030 · 活体退款闸放宽（shipped 可退 / received 禁退）⇒ V16/V17",
+   "0031 · 活体 rating + listing_order_event 两表 + 约束 + 索引 ⇒ L5/L6",
+   "0031 · 两 append-only 触发器真行为（UPDATE/DELETE ⇒ P0001）⇒ V0",
+   "getRatingSummary 活体：无行 ⇒ 3.0 · 有行 ⇒ 真均值 · 四周期分档 ⇒ V5/V6/V7/V8",
+   "getTimeliness 活体：T1/T2（job_submission）+ T3/T4（事件行）+ 无行 ⇒ null ⇒ V9/V10/V11",
+   "transitionListingOrder 活体状态机（ship/receive · 越级 · 非归属）⇒ V12/V13/V14/V15",
+   "5 新口真 HTTP（无 token 401 / 读口 200 / 写口非法入参 400·404 零写）⇒ H5/H6/H7"
+  ],
+  "live": {
+   "live_status_set": [
+    "cancelled",
+    "created",
+    "paid",
+    "received",
+    "refunded",
+    "shipped"
+   ],
+   "live_transition_allow": {
+    "created_paid": true,
+    "created_cancelled": true,
+    "paid_shipped": true,
+    "paid_refunded": true,
+    "shipped_received": true,
+    "shipped_refunded": true
+   },
+   "live_transition_deny": {
+    "created_shipped": false,
+    "created_received": false,
+    "paid_received": false,
+    "received_refunded": false,
+    "received_paid": false,
+    "refunded_paid": false,
+    "madeup_paid": false
+   },
+   "live_rating": {
+    "cols": 11,
+    "pk": 1,
+    "fk": 2,
+    "ck": 2,
+    "uniq": 2,
+    "idx": [
+     "rating_pk",
+     "rating_once_uniq",
+     "rating_idem_uniq",
+     "idx_rating_ratee_time",
+     "idx_rating_target"
+    ],
+    "trg": [
+     "trg_rating_append_only"
+    ]
+   },
+   "live_event": {
+    "cols": 13,
+    "pk": 1,
+    "fk": 2,
+    "ck": 1,
+    "uniq": 1,
+    "types": [
+     "cancelled",
+     "created",
+     "paid",
+     "received",
+     "refunded",
+     "shipped"
+    ],
+    "idx": [
+     "listing_order_event_pk",
+     "listing_order_event_idem_uniq",
+     "idx_listing_order_event_order_time"
+    ],
+    "trg": [
+     "trg_listing_order_event_append_only"
+    ]
+   },
+   "baseline": {
+    "rating": 0,
+    "event": 0,
+    "order": 18
+   },
+   "refund_gate": {
+    "shipped": "LD011|LEDGER_CURRENCY_INVALID_TRANSITION|{\"field\": \"listing_order.pay_txid\", \"reason\": \"order_pay_missing\", \"status\": \"shipped\", \"order_id\": \"900205\"}",
+    "received": "LD011|LEDGER_CURRENCY_INVALID_TRANSITION|{\"field\": \"listing_order.status\", \"reason\": \"order_not_refundable\", \"status\": \"received\", \"order_id\": \"900204\"}",
+    "created": "LD011|LEDGER_CURRENCY_INVALID_TRANSITION|{\"field\": \"listing_order.status\", \"reason\": \"order_not_refundable\", \"status\": \"created\", \"order_id\": \"900203\"}"
+   },
+   "in_tx_counts": {
+    "rating": 5,
+    "event": 6
+   },
+   "after_rollback": {
+    "rating": 0,
+    "event": 0,
+    "order": 18
+   },
+   "http_no_token": {},
+   "http_read_200": {},
+   "http_write_bad_input": {},
+   "http_err": "fetch failed"
+  }
+ },
+ "checks": [
+  {
+   "id": "A1",
+   "group": "registration",
+   "pass": true,
+   "expect": "注册点 = 87（P9③ 评分/时效/订单 5 新口 +5〔80→85〕⇒ P9④ BTTC 铸造/分解 2 新口 +2〔85→87〕）",
+   "actual": "87"
+  },
+  {
+   "id": "A2",
+   "group": "registration",
+   "pass": true,
+   "expect": "逐 verb 逐字 = {\"get\":36,\"post\":48,\"put\":0,\"patch\":1,\"delete\":2}",
+   "actual": "{\"get\":36,\"post\":48,\"put\":0,\"patch\":1,\"delete\":2}"
+  },
+  {
+   "id": "A3",
+   "group": "registration",
+   "pass": true,
+   "expect": "逐 verb 计数之和 = 注册点总数",
+   "actual": "{\"get\":36,\"post\":48,\"put\":0,\"patch\":1,\"delete\":2}"
+  },
+  {
+   "id": "A4",
+   "group": "registration",
+   "pass": true,
+   "expect": "5 新口逐条注册**恰 1 处**（`GET /api/rating/summary` / `GET /api/timeliness` / `POST /api/rating` / `POST /api/listing-orders/:orderId/ship` / `POST /api/listing-orders/:orderId/receive`）",
+   "actual": "[1,1,1,1,1]"
+  },
+  {
+   "id": "A5",
+   "group": "registration",
+   "pass": true,
+   "expect": "★ 负对照：缩进注入一条路由 ⇒ 计数 87→88",
+   "actual": "{\"injected\":88}"
+  },
+  {
+   "id": "A1__selftest",
+   "group": "registrationSelfTest",
+   "pass": true,
+   "expect": "把非 87 条路由的文本喂入「注册点 = 87」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":\"x\",\"judge_fired\":true}"
+  },
+  {
+   "id": "B1",
+   "group": "routeShape",
+   "pass": true,
+   "expect": "★ 5 口全闸 `requireActor(req, res)`（用户本人 · uid 取自 token）且**零** `requireAdmin(` ⇒ 零 admin 权限键新增（11 键不动）",
+   "actual": "{\"actor_in_all\":true,\"requireAdmin_in_any\":false}"
+  },
+  {
+   "id": "B1__selftest",
+   "group": "routeShapeSelfTest",
+   "pass": true,
+   "expect": "把「带 admin 闸」的 handler 喂入 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":\"app.get('/api/timeliness', async (req, res) => { const actor = await requireAdmin(req, res, 'manage_settings'); if (!actor) return; });\",\"judge_fired\":true}"
+  },
+  {
+   "id": "B2",
+   "group": "routeShape",
+   "pass": true,
+   "expect": "R1 `GET /api/rating/summary`：取数 `DatabaseService.getRatingSummary(` + 周期入参经 `RATING_PERIODS.includes` 校验（非法 ⇒ 400）",
+   "actual": "{\"get\":true,\"periods\":true}"
+  },
+  {
+   "id": "B3",
+   "group": "routeShape",
+   "pass": true,
+   "expect": "R2 `GET /api/timeliness`：取数 `DatabaseService.getTimeliness(`（四时长 + 四比率，无数据兜底由服务端给）",
+   "actual": "{\"get\":true}"
+  },
+  {
+   "id": "B4",
+   "group": "routeShape",
+   "pass": true,
+   "expect": "A1 `POST /api/rating`：请求体字段 `targetType`/`targetId`/`direction`/`stars` + `DatabaseService.submitRating(` + 幂等键服务端派生 `biz:rating:<rater_uid>:<target_type>:<target_id>`（`bizKeyOf('rating', uid, targetType, targetId)`）",
+   "actual": "{\"submit\":true,\"idem\":true,\"body\":true}"
+  },
+  {
+   "id": "B5",
+   "group": "routeShape",
+   "pass": true,
+   "expect": "A2 `POST .../ship`：幂等键 `biz:listing:ship:<order_id>`（`bizKeyOf('listing', 'ship', orderId)`）+ `transitionListingOrder(` + 回执映射 `sendOrderTransition(res, r, 'ship')`",
+   "actual": "{\"idem\":true,\"call\":true,\"map\":true}"
+  },
+  {
+   "id": "B6",
+   "group": "routeShape",
+   "pass": true,
+   "expect": "A3 `POST .../receive`：幂等键 `biz:listing:receive:<order_id>`（`bizKeyOf('listing', 'receive', orderId)`）+ `transitionListingOrder(` + 回执映射 `sendOrderTransition(res, r, 'receive')`",
+   "actual": "{\"idem\":true,\"call\":true,\"map\":true}"
+  },
+  {
+   "id": "B7",
+   "group": "routeShape",
+   "pass": true,
+   "expect": "五口基础设施异常 ⇒ 既有 §14 分类器 `sendInfraMapped`（标签 'rating.summary'/'timeliness.get'/'rating.post'/'listing.ship'/'listing.receive'）",
+   "actual": "[true,true,true,true,true]"
+  },
+  {
+   "id": "B7__selftest",
+   "group": "routeShapeSelfTest",
+   "pass": true,
+   "expect": "把错标签喂入给 label 谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":\"sendInfraMapped(res, 'wrong.label'\",\"judge_fired\":true}"
+  },
+  {
+   "id": "B8",
+   "group": "routeShape",
+   "pass": true,
+   "expect": "幂等键前缀 = `biz:`（服务端派生 · 逐段冒号；客户端不传键 ⇒ 承 `R49`/`R50`）",
+   "actual": "{\"prefix\":true}"
+  },
+  {
+   "id": "C1",
+   "group": "migration0030",
+   "pass": true,
+   "expect": "★ `0030` `listing_order_status_enum` CHECK = **恰 6 值** = `created/paid/shipped/received/refunded/cancelled`（前 4 值逐字承 `0015` ∪ {shipped,received}）",
+   "actual": "{\"n\":6,\"set\":[\"cancelled\",\"created\",\"paid\",\"received\",\"refunded\",\"shipped\"]}"
+  },
+  {
+   "id": "C2",
+   "group": "migration0030",
+   "pass": true,
+   "expect": "★ transition **允许**逐条（`R-9-29`）：`created→{paid,cancelled}` · `paid→{shipped,refunded}` · `shipped→{received,refunded}`",
+   "actual": "{\"created\":[\"paid\",\"cancelled\"],\"paid\":[\"shipped\",\"refunded\"],\"shipped\":[\"received\",\"refunded\"]}"
+  },
+  {
+   "id": "C3",
+   "group": "migration0030",
+   "pass": true,
+   "expect": "★ transition **禁止**逐条必红：越级（`created→{shipped,received,refunded}` · `paid→received`）· 终态无出边（`received/refunded/cancelled→*`）· 自环 · 自造状态 ⇒ 全不允许",
+   "actual": "{\"violations\":[]}"
+  },
+  {
+   "id": "C4",
+   "group": "migration0030",
+   "pass": true,
+   "expect": "★ `R-9-29` 允许项：`shipped→refunded` = **允许**（发货后仍可退）",
+   "actual": "{\"allowed\":true}"
+  },
+  {
+   "id": "C5",
+   "group": "migration0030",
+   "pass": true,
+   "expect": "★ `R-9-29` 禁令：`received→refunded` = **禁止**（`received` 为终态）",
+   "actual": "{\"allowed\":false}"
+  },
+  {
+   "id": "C6",
+   "group": "migration0030",
+   "pass": true,
+   "expect": "★ `received` **无出边**（终态）：对全部 5 个候选目标逐一断言不允许",
+   "actual": "{\"received_out\":[]}"
+  },
+  {
+   "id": "C2__selftest",
+   "group": "migration0030SelfTest",
+   "pass": true,
+   "expect": "把「received→refunded」（明令禁止）喂入允许谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":[\"received\",\"refunded\"],\"judge_fired\":true}"
+  },
+  {
+   "id": "C7",
+   "group": "migration0030",
+   "pass": true,
+   "expect": "★ 退款闸放宽（承 `R-9-29`）：`listing_post_event` `op='refund'` 分支 `status <> 'paid'` ⇒ `status NOT IN ('paid','shipped')`（`received` 仍不可退）",
+   "actual": "{\"relaxed\":true}"
+  },
+  {
+   "id": "C8",
+   "group": "migration0030",
+   "pass": true,
+   "expect": "退款拒绝 `reason='order_not_refundable'` 仍在（零新增码）；代码位不再出现旧形 `status <> 'paid'`（注释行除外）",
+   "actual": "{\"reason\":2,\"legacy_active\":false}"
+  },
+  {
+   "id": "D1",
+   "group": "migration0031",
+   "pass": true,
+   "expect": "`0031` `public.rating` = **恰 11 列**（逐字列序）",
+   "actual": "{\"n\":11,\"cols\":[\"rating_id\",\"rater_uid\",\"ratee_uid\",\"target_type\",\"target_id\",\"direction\",\"stars\",\"idempotency_key\",\"request_fingerprint\",\"memo\",\"time_created\"]}"
+  },
+  {
+   "id": "D2",
+   "group": "migration0031",
+   "pass": true,
+   "expect": "`rating` 约束：PK×1 · FK×2（`rating_rater_fk`/`rating_ratee_fk`）· CHECK×2（`rating_stars_rng` + `rating_direction_target_ck`）· UNIQUE×2（`rating_once_uniq` + `rating_idem_uniq`）；`stars numeric(5,4)`",
+   "actual": "{\"numeric54\":true,\"stars_rng\":true,\"pk\":1,\"fk\":2,\"ck\":2,\"uniq\":2}"
+  },
+  {
+   "id": "D3",
+   "group": "migration0031",
+   "pass": true,
+   "expect": "`listing_order_event` = **恰 13 列**（逐字列序）",
+   "actual": "{\"n\":13,\"cols\":[\"event_id\",\"order_id\",\"event_type\",\"from_status\",\"to_status\",\"actor_uid\",\"txid\",\"idempotency_key\",\"request_fingerprint\",\"ref_type\",\"ref_id\",\"memo\",\"time_created\"]}"
+  },
+  {
+   "id": "D4",
+   "group": "migration0031",
+   "pass": true,
+   "expect": "`listing_order_event`：UNIQUE×1（`listing_order_event_idem_uniq`）+ `event_type` 闭集 **恰 6 值**（= 状态集）",
+   "actual": "{\"uniq\":1,\"n_types\":6,\"types\":[\"cancelled\",\"created\",\"paid\",\"received\",\"refunded\",\"shipped\"]}"
+  },
+  {
+   "id": "D5",
+   "group": "migration0031",
+   "pass": true,
+   "expect": "`0031` 具名索引 3 枚：`idx_rating_ratee_time` / `idx_rating_target` / `idx_listing_order_event_order_time`",
+   "actual": "{\"r1\":true,\"r2\":true,\"e1\":true}"
+  },
+  {
+   "id": "D6",
+   "group": "migration0031",
+   "pass": true,
+   "expect": "`0031` append-only 触发器 **2 枚**（`trg_rating_append_only` / `trg_listing_order_event_append_only` · `BEFORE UPDATE OR DELETE` 无条件 `RAISE` 原生 `P0001`）",
+   "actual": "{\"triggers\":[\"trg_rating_append_only\",\"trg_listing_order_event_append_only\"],\"before_ud\":true,\"raise\":true}"
+  },
+  {
+   "id": "D1__selftest",
+   "group": "migration0031SelfTest",
+   "pass": true,
+   "expect": "把 10 列喂入「rating = 11 列」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":10,\"judge_fired\":true}"
+  },
+  {
+   "id": "E1",
+   "group": "fourAnchors",
+   "pass": true,
+   "expect": "★ 四要素 E1/E2/E3：`rater_uid`（发件人/发分方 · token 取）· `ratee_uid`（被评人 · 聚合轴）· `(target_type, target_id)`（标的 · 多态 job|listing）**均 `NOT NULL`**",
+   "actual": "{\"rater\":true,\"ratee\":true,\"target\":true}"
+  },
+  {
+   "id": "E2",
+   "group": "fourAnchors",
+   "pass": true,
+   "expect": "★ 四要素 E4：`direction` 4 值闭集（`poster_to_worker`/`worker_to_poster`/`vendor_to_customer`/`customer_to_vendor`），由 `target_type` 决定允许子集（每侧恰 2 值）",
+   "actual": "{\"job\":[\"poster_to_worker\",\"worker_to_poster\"],\"listing\":[\"vendor_to_customer\",\"customer_to_vendor\"],\"all\":[\"customer_to_vendor\",\"poster_to_worker\",\"vendor_to_customer\",\"worker_to_poster\"]}"
+  },
+  {
+   "id": "E3",
+   "group": "fourAnchors",
+   "pass": true,
+   "expect": "「同一人 × 同一标的 × 一侧恰一次」= `UNIQUE (rater_uid, target_type, target_id)`（承 `R-9-4`「各打一次」）",
+   "actual": "{\"once_uniq\":true}"
+  },
+  {
+   "id": "E4",
+   "group": "fourAnchors",
+   "pass": true,
+   "expect": "`submitRating`：`rater_uid` 由路由传（token 取）· `ratee_uid`/`direction` 由标的推导；`getRatingSummary` 聚合轴 = `r.ratee_uid = <uid>`（按被评人聚合）",
+   "actual": "{\"agg_axis\":true,\"dir_role\":true}"
+  },
+  {
+   "id": "E2__selftest",
+   "group": "fourAnchorsSelfTest",
+   "pass": true,
+   "expect": "把「少 2 值的方向集」喂入 4 值谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":[\"poster_to_worker\",\"worker_to_poster\"],\"judge_fired\":true}"
+  },
+  {
+   "id": "F1",
+   "group": "periodAggregation",
+   "pass": true,
+   "expect": "四周期 = **恰 4 档** 30/90/360/1000（`VALUES (30),(90),(360),(1000)`）",
+   "actual": "{\"values\":true}"
+  },
+  {
+   "id": "F2",
+   "group": "periodAggregation",
+   "pass": true,
+   "expect": "★ **查询期聚合**：`r.time_created >= now() - make_interval(days => p.days)`（周期以评分行 `time_created` 为筛选轴 · 聚合 = 原始行派生）",
+   "actual": "{\"query_time\":true}"
+  },
+  {
+   "id": "F3",
+   "group": "periodAggregation",
+   "pass": true,
+   "expect": "★ **禁预聚合分桶**：`rating` 列集**无** 桶 / 日 / 周 / 月 / 汇总 / 快照列（聚合必为原始行的派生）",
+   "actual": "{\"cols\":[\"rating_id\",\"rater_uid\",\"ratee_uid\",\"target_type\",\"target_id\",\"direction\",\"stars\",\"idempotency_key\",\"request_fingerprint\",\"memo\",\"time_created\"]}"
+  },
+  {
+   "id": "F4",
+   "group": "periodAggregation",
+   "pass": true,
+   "expect": "★ **保留原始评分行**：`rating` append-only（不可覆盖 / 不可重写 ⇒ 原始行留存）",
+   "actual": "{\"append_only\":true}"
+  },
+  {
+   "id": "F1__selftest",
+   "group": "periodAggregationSelfTest",
+   "pass": true,
+   "expect": "把「3 档周期」喂入 4 档谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":\"VALUES (30),(90),(360)\",\"judge_fired\":true}"
+  },
+  {
+   "id": "G1",
+   "group": "defaults",
+   "pass": true,
+   "expect": "`RATING_POLICY_DEFAULTS` 逐字 = {storageDecimals 4 / displayDecimals 0 / defaultStars 3.0}（评分「无数据默认 3.0」的服务端常量真源）",
+   "actual": "{\"storageDecimals\":4,\"displayDecimals\":0,\"defaultStars\":3}"
+  },
+  {
+   "id": "G2",
+   "group": "defaultsNoRow",
+   "pass": true,
+   "expect": "★ **「无行 ⇒ 兜底值」独立负对照（无行）**：`rating_policy` 无行（raw = undefined）⇒ `resolveRatingPolicy` source=`constant` 且 `defaultStars` = **3.0**（**不因「无行」变 0 / NaN**）",
+   "actual": "{\"source\":\"constant\",\"defaultStars\":3}"
+  },
+  {
+   "id": "G3",
+   "group": "defaultsNoRow",
+   "pass": true,
+   "expect": "★ 正对照（有行）：显式 `defaultStars=4` ⇒ source=`config` 且 `defaultStars` = 4（取真值，非兜底）",
+   "actual": "{\"source\":\"config\",\"defaultStars\":4}"
+  },
+  {
+   "id": "G4",
+   "group": "defaultsNoRow",
+   "pass": true,
+   "expect": "★ `defaultStars` 生效值**钳 ∈ [0,5]**（越界 99 ⇒ 5），域仍 [0,5]（零规范漂移）",
+   "actual": "{\"clamped\":5}"
+  },
+  {
+   "id": "G5",
+   "group": "defaultsNoRow",
+   "pass": true,
+   "expect": "★ 评分聚合守卫：`n > 0 ? round4(s / n) : policy.defaultStars`（分母 0 ⇒ 兜底 `defaultStars`；**非** COALESCE-标量子查询内形态 · `C-15`）",
+   "actual": "{\"guard\":true}"
+  },
+  {
+   "id": "G5__selftest",
+   "group": "defaultsNoRowSelfTest",
+   "pass": true,
+   "expect": "把「无行守卫被去掉」的代码喂入 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":\"periods[days][role] = round4(s / n);\",\"judge_fired\":true}"
+  },
+  {
+   "id": "G6",
+   "group": "defaults",
+   "pass": true,
+   "expect": "★ 比率默认：`d > 0 ? round4(n / d) : 1` ⇒ 分母 0 ⇒ **100%**（需求 §2.1.4）",
+   "actual": "{\"guard\":true}"
+  },
+  {
+   "id": "G7",
+   "group": "defaults",
+   "pass": true,
+   "expect": "★ 时长无数据 ⇒ `numOf(...)` 得 **`null`**（前端「暂无数据」· **不填 0** · `§32.2(c)`）",
+   "actual": "{\"null_ok\":true}"
+  },
+  {
+   "id": "G8",
+   "group": "defaults",
+   "pass": true,
+   "expect": "★ T1/T2 载体（`R-9-35`）= 现取 `job_submission.time_created → reviewed_at`（`review_status='approved' AND j.status='settled'` · **零迁移**）",
+   "actual": "{\"t12\":true}"
+  },
+  {
+   "id": "G9",
+   "group": "locales",
+   "pass": true,
+   "expect": "★ 四语 `zh/en/hk/vn` 键集**逐语相等**（`ratingPanel` / `timelinessPanel` / `listingOrders.statusLabel`）；两面板各含 `noData`（「暂无数据」四语各一值）",
+   "actual": "{\"rating\":[\"noData\",\"period1000\",\"period30\",\"period360\",\"period90\",\"periodLabel\",\"roleCustomer\",\"rolePoster\",\"roleVendor\",\"roleWorker\",\"starsUnit\",\"title\"],\"timeliness\":[\"customerAvgReceiveDays\",\"customerDealRate\",\"daysUnit\",\"jobPassRate\",\"listingDealRate\",\"noData\",\"posterAvgDays\",\"title\",\"vendorAvgShipDays\",\"workerAvgDays\",\"workerPassRate\"],\"statusLabel\":[\"cancelled\",\"created\",\"paid\",\"received\",\"refunded\",\"shipped\",\"unknown\"],\"four_equal\":true}"
+  },
+  {
+   "id": "G10",
+   "group": "locales",
+   "pass": true,
+   "expect": "★ `listingOrders.statusLabel` 含 6 状态 + 兜底 `unknown`（含 2 新状态 `shipped`/`received`）—— 四语齐",
+   "actual": "{\"statusLabel\":[\"cancelled\",\"created\",\"paid\",\"received\",\"refunded\",\"shipped\",\"unknown\"]}"
+  },
+  {
+   "id": "G11",
+   "group": "locales",
+   "pass": true,
+   "expect": "★ `en`/`vn` 新增键值**零 CJK**",
+   "actual": "{\"en_cjk\":true,\"vn_cjk\":true}"
+  },
+  {
+   "id": "G12",
+   "group": "locales",
+   "pass": true,
+   "expect": "★ 六类工程口径泄漏 = **0**（新增键**值**面不含章节号 / HTTP 码 / 路径 / 批次 / 机读码 / 表列名）",
+   "actual": "{\"leak_langs\":[]}"
+  },
+  {
+   "id": "G12__selftest",
+   "group": "localesSelfTest",
+   "pass": true,
+   "expect": "把「值里带章节号」的文案喂入泄漏谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":\"暂無數據（§32.2）\",\"judge_fired\":true}"
+  },
+  {
+   "id": "G9__selftest",
+   "group": "localesSelfTest",
+   "pass": true,
+   "expect": "把「多一个键」的语言喂入键集相等谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":[\"noData\",\"period1000\",\"period30\",\"period360\",\"period90\",\"periodLabel\",\"roleCustomer\",\"rolePoster\",\"roleVendor\",\"roleWorker\",\"starsUnit\",\"title\",\"extraKey\"],\"judge_fired\":true}"
+  },
+  {
+   "id": "H1",
+   "group": "closedSets",
+   "pass": true,
+   "expect": "错误码闭集仍恰 33 条（**不动**）",
+   "actual": "33"
+  },
+  {
+   "id": "H2",
+   "group": "closedSets",
+   "pass": true,
+   "expect": "★ 5 口借**既有**码：3 个既有 ledger 闭集码（`LEDGER_CURRENCY_INVALID_TRANSITION` / `LEDGER_AMOUNT_INVALID` / `LEDGER_REF_NOT_FOUND`）+ 既有鉴权码 `AUTH_FORBIDDEN`（403 · 非 ledger 闭集成员）⇒ 零新增码",
+   "actual": "{\"missing\":[],\"auth403\":true}"
+  },
+  {
+   "id": "H3",
+   "group": "closedSets",
+   "pass": true,
+   "expect": "★ 稳定 `reason` 常量（挂在既有 code 下 · 非新码）：`ORDER_NOT_SHIPPABLE` / `ORDER_NOT_RECEIVABLE` / `RATING_ALREADY_DONE` / `RATING_STARS_OUT_OF_RANGE`",
+   "actual": "{\"shippable\":true,\"receivable\":true,\"already\":true,\"stars\":true}"
+  },
+  {
+   "id": "H4",
+   "group": "pending",
+   "pass": true,
+   "expect": "★ 原 9 条库面 pending **全部转真 checks**（G 组 dbStructure / dbBehavior / httpLive）⇒ `pending_apply[]` **归零**（0 条）",
+   "actual": "{\"pending_apply\":0,\"resolved\":9}"
+  },
+  {
+   "id": "H1__selftest",
+   "group": "closedSetsSelfTest",
+   "pass": true,
+   "expect": "把 34 条闭集喂入 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":[\"LEDGER_INSUFFICIENT_BALANCE\",\"LEDGER_INSUFFICIENT_FROZEN\",\"LEDGER_IDEMPOTENCY_REPLAY\",\"LEDGER_IDEMPOTENCY_CONFLICT\",\"LEDGER_IDEMPOTENCY_KEY_REQUIRED\",\"LEDGER_IDEMPOTENCY_KEY_INVALID\",\"LEDGER_CURRENCY_NOT_FOUND\",\"LEDGER_CURRENCY_NOT_LISTED\",\"LEDGER_CURRENCY_FROZEN\",\"LEDGER_CURRENCY_DELISTED\",\"LEDGER_CURRENCY_INVALID_TRANSITION\",\"LEDGER_CURRENCY_SYMBOL_TAKEN\",\"LEDGER_CURRENCY_MISMATCH\",\"LEDGER_SUPPLY_CAP_EXCEEDED\",\"LEDGER_UNAUTHORIZED_MINT\",\"LEDGER_HOLD_NOT_ALLOWED\",\"LEDGER_AMOUNT_INVALID\",\"LEDGER_AMOUNT_NOT_POSITIVE\",\"LEDGER_DECIMALS_OVERFLOW\",\"LEDGER_SELF_TRANSFER\",\"LEDGER_ACCOUNT_NOT_FOUND\",\"LEDGER_RESERVED_UID\",\"LEDGER_REF_NOT_FOUND\",\"LEDGER_UNKNOWN_KIND\",\"LEDGER_TRANSACTION_REQUIRED\",\"LEDGER_LOCK_TIMEOUT\",\"LEDGER_TX_TIMEOUT\",\"LEDGER_DEADLOCK_RETRY_EXHAUSTED\",\"LEDGER_NEGATIVE_BALANCE_GUARD\",\"LEDGER_APPEND_ONLY_VIOLATION\",\"LEDGER_ACCOUNT_GUARD_VIOLATION\",\"LEDGER_FEE_RATE_INVALID\",\"LEDGER_RECONCILE_MISMATCH\",\"LEDGER_NEW_MADEUP_CODE\"],\"judge_fired\":true}"
+  },
+  {
+   "id": "H4__selftest",
+   "group": "pendingSelfTest",
+   "pass": true,
+   "expect": "把「pending_apply 非零」值喂入「归零」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":1,\"judge_fired\":true}"
+  },
+  {
+   "id": "L1",
+   "group": "dbStructure",
+   "pass": true,
+   "expect": "★ 活体 `listing_order_status_enum` = **恰 6 值**（与 `0030` 源码面同集）",
+   "actual": "{\"n\":6,\"set\":[\"cancelled\",\"created\",\"paid\",\"received\",\"refunded\",\"shipped\"]}"
+  },
+  {
+   "id": "L2",
+   "group": "dbStructure",
+   "pass": true,
+   "expect": "★ 活体 `listing_order_status_transition_ok` **允许**逐条：`created→{paid,cancelled}` · `paid→{shipped,refunded}` · `shipped→{received,refunded}`",
+   "actual": "{\"created_paid\":true,\"created_cancelled\":true,\"paid_shipped\":true,\"paid_refunded\":true,\"shipped_received\":true,\"shipped_refunded\":true}"
+  },
+  {
+   "id": "L3",
+   "group": "dbStructure",
+   "pass": true,
+   "expect": "★ 活体 transition **禁止**逐条（越级 / 终态无出边 / 自造状态）⇒ 全 false",
+   "actual": "{\"created_shipped\":false,\"created_received\":false,\"paid_received\":false,\"received_refunded\":false,\"received_paid\":false,\"refunded_paid\":false,\"madeup_paid\":false}"
+  },
+  {
+   "id": "L4",
+   "group": "dbStructure",
+   "pass": true,
+   "expect": "★ `R-9-29` 两读数对照（活体）：`shipped→refunded` = **true**（可退）· `received→refunded` = **false**（仍禁）",
+   "actual": "{\"shipped_refunded\":true,\"received_refunded\":false}"
+  },
+  {
+   "id": "L5",
+   "group": "dbStructure",
+   "pass": true,
+   "expect": "★ 活体 `rating`：11 列 / PK×1 FK×2 CHECK×2 UNIQUE×2 / 2 具名索引 / 1 append-only 触发器",
+   "actual": "{\"cols\":11,\"pk\":1,\"fk\":2,\"ck\":2,\"uniq\":2,\"idx\":[\"rating_pk\",\"rating_once_uniq\",\"rating_idem_uniq\",\"idx_rating_ratee_time\",\"idx_rating_target\"],\"trg\":[\"trg_rating_append_only\"]}"
+  },
+  {
+   "id": "L6",
+   "group": "dbStructure",
+   "pass": true,
+   "expect": "★ 活体 `listing_order_event`：13 列 / PK×1 FK×2 CHECK×1 UNIQUE×1 / `event_type` 6 值 / 1 具名索引 / 1 append-only 触发器",
+   "actual": "{\"cols\":13,\"pk\":1,\"fk\":2,\"ck\":1,\"uniq\":1,\"types\":[\"cancelled\",\"created\",\"paid\",\"received\",\"refunded\",\"shipped\"],\"idx\":[\"listing_order_event_pk\",\"listing_order_event_idem_uniq\",\"idx_listing_order_event_order_time\"],\"trg\":[\"trg_listing_order_event_append_only\"]}"
+  },
+  {
+   "id": "V0",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ `0031` 两 append-only 触发器真行为：UPDATE `rating` / DELETE `listing_order_event` ⇒ 原生 `P0001`",
+   "actual": "{\"rating_update\":\"P0001\",\"event_delete\":\"P0001\"}"
+  },
+  {
+   "id": "V1",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ 评分提交：四要素**服务端取数**（`rater_uid`=token · `ratee_uid` 由标的推导 = `job.worker_uid`）⇒ `inserted` · ratee=981009 · stars=4",
+   "actual": "{\"outcome\":\"inserted\",\"rateeUid\":981009,\"ratingId\":245,\"stars\":4}"
+  },
+  {
+   "id": "V2",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ 幂等重放：同键二次 ⇒ `replay`（`UNIQUE (idempotency_key)` + `ON CONFLICT DO NOTHING`），取真值 stars=4",
+   "actual": "{\"outcome\":\"replay\",\"rateeUid\":981009,\"ratingId\":null,\"stars\":4}"
+  },
+  {
+   "id": "V3",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ 同侧二次 ⇒ `already_rated`（`UNIQUE (rater_uid,target_type,target_id)` 两侧各一次 · `R-9-4`）",
+   "actual": "{\"outcome\":\"already_rated\",\"rateeUid\":981009,\"ratingId\":245,\"stars\":null}"
+  },
+  {
+   "id": "V4",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ `stars` 超界（6）⇒ **拒**：值域 CHECK `rating_stars_rng`（0≤stars≤5）⇒ `23514`（DB 兜底）",
+   "actual": "{\"err\":\"23514|new row for relation \\\"rating\\\" violates check constraint \\\"rating_stars_rng\\\"|Failing row contains (246, 981009, 981001, job, 900001, worker_to_pos\"}"
+  },
+  {
+   "id": "V5",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ 评分汇总**四周期分别读数**（查询期聚合 · role worker）：30d=5 · 90d=4 · 360d=3 · 1000d=3.25（四原始行 -5d/-60d/-200d/-400d）",
+   "actual": "{\"30\":5,\"90\":4,\"360\":3,\"1000\":3.25}"
+  },
+  {
+   "id": "V6",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ 有行 ⇒ 真均值：uid 981009（仅 1 条 4 星）⇒ 四周期 worker=4 · counts.worker=1",
+   "actual": "{\"poster\":3,\"worker\":4,\"vendor\":3,\"customer\":3,\"counts\":{\"poster\":0,\"worker\":1,\"vendor\":0,\"customer\":0}}"
+  },
+  {
+   "id": "V7",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ **「无行 ⇒ 兜底值」独立负对照（活体 · 空表无行 uid）**：source=`constant` · `defaultStars=3.0` · 四角色皆 3.0（不因无行变 0/NaN）",
+   "actual": "{\"source\":\"constant\",\"defaultStars\":3,\"p30\":{\"poster\":3,\"worker\":3,\"vendor\":3,\"customer\":3,\"counts\":{\"poster\":0,\"worker\":0,\"vendor\":0,\"customer\":0}}}"
+  },
+  {
+   "id": "V8",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ 正对照（**有行** · 事务内 **INSERT** `app_config.rating_policy`〔**禁 UPDATE**〕）：source=`config` · `defaultStars=4` ⇒ 无行角色回落 4.0（取真值非兜底）",
+   "actual": "{\"source\":\"config\",\"defaultStars\":4,\"p30\":{\"poster\":4,\"worker\":4,\"vendor\":4,\"customer\":4,\"counts\":{\"poster\":0,\"worker\":0,\"vendor\":0,\"customer\":0}}}"
+  },
+  {
+   "id": "V9",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ 时效 T1/T2（载体 = `job_submission.time_created → reviewed_at` · 过滤 `review_status='approved' AND j.status='settled'`）：雇主(981011) posterAvgDays=3 · 工人(981012) workerAvgDays=3",
+   "actual": "{\"t1_poster\":3,\"t2_worker\":3}"
+  },
+  {
+   "id": "V10",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ 时效 T3/T4（载体 = `listing_order_event.time_created`）：卖家(981014) vendorAvgShipDays=3（paid→shipped）· 买家(981015) customerAvgReceiveDays=4（paid→received）",
+   "actual": "{\"t3_vendor_ship\":3,\"t4_customer_recv\":4}"
+  },
+  {
+   "id": "V11",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ 时效**无数据 ⇒ `null`（暂无数据 · 不填 0）**：无 job_submission / 无事件行的 uid ⇒ 四时长皆 null",
+   "actual": "{\"poster\":null,\"worker\":null,\"ship\":null,\"recv\":null}"
+  },
+  {
+   "id": "V12",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ 发货 transition `paid→shipped` ✓：状态回写 = `shipped` **且事件行同生**（order 900202 事件行 = 1）",
+   "actual": "{\"outcome\":\"shipped\",\"from\":\"paid\",\"to\":\"shipped\",\"status\":\"shipped\",\"events\":1}"
+  },
+  {
+   "id": "V13",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ 收货 transition `shipped→received` ✓：状态回写 = `received` **且事件行再现**（order 900202 事件行 = 2）",
+   "actual": "{\"outcome\":\"received\",\"from\":\"shipped\",\"to\":\"received\",\"status\":\"received\",\"events\":2}"
+  },
+  {
+   "id": "V14",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ 非法转移 `created→shipped` ⇒ **拒**（`state_conflict`）+ **零残留**（事件行 = 0 · status 仍 `created`）",
+   "actual": "{\"outcome\":\"state_conflict\",\"events\":0,\"status\":\"created\"}"
+  },
+  {
+   "id": "V15",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ 非归属：买家(981021) 对卖家订单(900205) 发 ship ⇒ `not_party`（归属闸）",
+   "actual": "{\"outcome\":\"not_party\"}"
+  },
+  {
+   "id": "V16",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ 退款闸**放宽**（活体 `listing_post_event` op=refund）：`shipped` 订单 **过状态闸**（未因状态被拒；此处仅因 `pay_txid` 缺而报 `order_pay_missing`）",
+   "actual": "{\"shipped\":\"LD011|LEDGER_CURRENCY_INVALID_TRANSITION|{\\\"field\\\": \\\"listing_order.pay_txid\\\", \\\"reason\\\": \\\"order_pay_missing\\\", \\\"status\\\": \\\"shipped\\\", \\\"order_id\\\": \\\"900205\\\"}\"}"
+  },
+  {
+   "id": "V17",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ 退款闸**仍禁**（两读数对照）：`received` 订单 ⇒ `order_not_refundable`（终态 · 未过状态闸）；`created` 同 `order_not_refundable`",
+   "actual": "{\"received\":\"LD011|LEDGER_CURRENCY_INVALID_TRANSITION|{\\\"field\\\": \\\"listing_order.status\\\", \\\"reason\\\": \\\"order_not_refundable\\\", \\\"\",\"created\":\"LD011|LEDGER_CURRENCY_INVALID_TRANSITION|{\\\"field\\\": \\\"listing_order.status\\\", \\\"reason\\\": \\\"order_not_refundable\\\", \\\"\"}"
+  },
+  {
+   "id": "V18",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ 非法转移 / 退款拒绝**零残留**：order 900203 / 900204 / 900205 事件行 = 0",
+   "actual": "{\"ev_900203\":0,\"ev_900204\":0,\"ev_900205\":0}"
+  },
+  {
+   "id": "V19",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ 末尾 `ROLLBACK` ⇒ 主库**零残留**：评分 / 事件 / 订单行数回到 baseline（且 baseline 评分=0 事件=0）",
+   "actual": "{\"baseline\":{\"rating\":0,\"event\":0,\"order\":18},\"after_rollback\":{\"rating\":0,\"event\":0,\"order\":18}}"
+  },
+  {
+   "id": "H5",
+   "group": "httpLive",
+   "pass": false,
+   "expect": "★ 5 新口**无 token** ⇒ 逐口 `401`（真 HTTP · 受控实例）",
+   "actual": "{\"no_token\":{},\"err\":\"fetch failed\"}"
+  },
+  {
+   "id": "H6",
+   "group": "httpLive",
+   "pass": false,
+   "expect": "★ 两**读口**带 token ⇒ `200`（真 HTTP · 只读零写）",
+   "actual": "{\"read_200\":{}}"
+  },
+  {
+   "id": "H7",
+   "group": "httpLive",
+   "pass": false,
+   "expect": "★ 三**写口**带 token + 非法入参（stars=6 / 非法 targetType / 不存在订单）⇒ `400`·`404`（**零写** 落库）",
+   "actual": "{\"write_bad\":{}}"
+  }
+ ]
+}

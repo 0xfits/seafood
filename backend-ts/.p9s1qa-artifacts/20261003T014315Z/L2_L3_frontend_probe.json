@@ -1,0 +1,81 @@
+{
+ "exports_keys": [
+  "OVERLAY_LANGS",
+  "ROLE_NAME_KEYS",
+  "SITE_TEXT_KEYS",
+  "applySiteTextOverlay",
+  "buildOverlayPatch",
+  "composeDocumentTitle",
+  "fetchSiteTextOverlay"
+ ],
+ "overlay_langs": [
+  "zh",
+  "en",
+  "hk",
+  "vn"
+ ],
+ "role_name_keys": [
+  "poster",
+  "worker",
+  "seller",
+  "buyer"
+ ],
+ "site_text_keys": [
+  "siteTitle",
+  "siteSlogan",
+  "slogan"
+ ],
+ "T1_patch": {
+  "zh": {
+   "roleNames": {
+    "poster": "超级发单",
+    "worker": "接单"
+   },
+   "siteTitle": "海鲜市场·品牌",
+   "siteSlogan": "加密人自己的「闲鱼」"
+  },
+  "en": {
+   "roleNames": {
+    "poster": "SuperPoster",
+    "worker": "Worker"
+   },
+   "siteTitle": "SeafoodBrand",
+   "siteSlogan": "The crypto crowd's own flea market"
+  },
+  "hk": {
+   "roleNames": {
+    "poster": "超級發單",
+    "worker": "接單"
+   },
+   "siteTitle": "海鮮市場·品牌",
+   "siteSlogan": "幣圈人的跳蚤市場"
+  },
+  "vn": {
+   "roleNames": {
+    "poster": "SuperPoster",
+    "worker": "Worker"
+   },
+   "siteTitle": "SeafoodBrand",
+   "siteSlogan": "Chợ đồ cũ của dân crypto"
+  }
+ },
+ "T1_zh_roleNames_poster": "超级发单",
+ "T1_hk_siteTitle": "海鮮市場·品牌",
+ "T1_no_empty": true,
+ "T2_zh_siteSlogan": "加密人自己的「闲鱼」",
+ "T2_no_empty": true,
+ "T3_before_zh_siteTitle": "Seafood 海鲜市场",
+ "T3_applied_langs": 4,
+ "T3_after_zh_siteTitle": "海鲜市场·品牌",
+ "T3_after_zh_roleNames_poster": "超级发单",
+ "T3_after_hk_siteSlogan": "幣圈人的跳蚤市場",
+ "T4_zh_siteSlogan": "加密人自己的「闲鱼」",
+ "T4_hk_siteSlogan": "幣圈人的跳蚤市場",
+ "T4_hk_not_empty": true,
+ "T5_applied_on_null": 0,
+ "T5_zh_siteTitle": "Seafood 海鲜市场",
+ "T6_title_full": "Seafood 海鲜市场｜加密人自己的「闲鱼」",
+ "T6_title_no_slogan": "Seafood",
+ "T6_title_empty_slogan": "Seafood",
+ "T6_title_empty_brand": "｜slogan"
+}

@@ -1,0 +1,173 @@
+{
+ "unit": "P9S5-C14-REALCHAIN",
+ "generated_at": "2026-10-03T08:51:35.152Z",
+ "run": "20261003T085135Z",
+ "note": "单事务内 + 末尾 ROLLBACK（禁 COMMIT）；段①注册真路径 / 段②首任务腿方法 / 段③接线后经结算路径 / 段④负对照。",
+ "before": {
+  "batt_account": 2,
+  "batt_entry": 2,
+  "ledger_entry": 359,
+  "account": 39,
+  "users": 56
+ },
+ "precondition": {
+  "db_kind_ok_new": true,
+  "schema_version": "0038",
+  "commission_policy_rows": 4
+ },
+ "after": {
+  "batt_account": 2,
+  "batt_entry": 2,
+  "ledger_entry": 359,
+  "account": 39,
+  "users": 56
+ },
+ "rollback_clean": true,
+ "exec_err": null,
+ "segments": {
+  "fixtures_employer": {
+   "uid": "970001",
+   "balance": "1636071"
+  },
+  "fixtures_jobs": {
+   "J1": "76",
+   "J2": "77"
+  },
+  "S1_register": {
+   "uid": "971214",
+   "evm": "0xcea1f1d9e5f6d67802c2095984b944eeb06303ca",
+   "first_call": {
+    "batt": 30,
+    "batt_entry_rows": 1,
+    "entry": [
+     {
+      "delta": 30,
+      "batt_after": 30,
+      "reason": "invite_signup",
+      "idempotency_key": "biz:invite:signup:971214"
+     }
+    ]
+   },
+   "second_call_same_uid": true,
+   "after_replay": {
+    "batt": 30,
+    "batt_entry_rows": 1
+   },
+   "reward_leg_replay": {
+    "outcome": "replayed",
+    "batt_entry_rows": 1
+   },
+   "batt_entry_rows_for_new_uid": 1
+  },
+  "S2_first_task": {
+   "N2": {
+    "outcome": "posted",
+    "recipients": [
+     "990001",
+     "990002"
+    ],
+    "total": "20",
+    "key": "biz:invite:firsttask:990001",
+    "rows_before": 0,
+    "rows_after": [
+     {
+      "uid": "-1",
+      "delta": "-20",
+      "ref": "job:76"
+     },
+     {
+      "uid": "990001",
+      "delta": "10",
+      "ref": "job:76"
+     },
+     {
+      "uid": "990002",
+      "delta": "10",
+      "ref": "job:76"
+     }
+    ],
+    "event_root_key": "biz:invite:firsttask:990001"
+   },
+   "N2_replay": {
+    "outcome": "replayed",
+    "rows_before": 3,
+    "rows_after": 3
+   },
+   "N1": {
+    "outcome": "posted",
+    "recipients": [
+     "990003"
+    ],
+    "total": "10",
+    "key": "biz:invite:firsttask:990003",
+    "rows": [
+     {
+      "uid": "-1",
+      "delta": "-10"
+     },
+     {
+      "uid": "990003",
+      "delta": "10"
+     }
+    ]
+   }
+  },
+  "S3_wired_settle": {
+   "job_id": "78",
+   "settle": {
+    "ok": true,
+    "replay": false,
+    "job_status": "settled",
+    "settle_txid": "1076"
+   },
+   "reward_rows_before": 0,
+   "reward_rows_after": [
+    {
+     "uid": "-1",
+     "delta": "-20",
+     "ref": "job:78",
+     "key": "biz:invite:firsttask:990004"
+    },
+    {
+     "uid": "990004",
+     "delta": "10",
+     "ref": "job:78",
+     "key": "biz:invite:firsttask:990004#2"
+    },
+    {
+     "uid": "990005",
+     "delta": "10",
+     "ref": "job:78",
+     "key": "biz:invite:firsttask:990004#3"
+    }
+   ],
+   "reward_event_root_key": "biz:invite:firsttask:990004",
+   "settle_replay": {
+    "ok": true,
+    "replay": true,
+    "reward_rows_before": 3,
+    "reward_rows_after": 3
+   }
+  },
+  "S4_neg": {
+   "minus1_debit_nonwhitelist": {
+    "label": "ops:p9s5:c14:neg:debit",
+    "ok": false,
+    "sqlstate": "LD021",
+    "message": "LEDGER_RESERVED_UID",
+    "reason": "PLATFORM_DEBIT_FORBIDDEN",
+    "detail": "{\"uid\": \"-1\", \"kind\": \"job_fee\", \"reason\": \"PLATFORM_DEBIT_FORBIDDEN\"}",
+    "details": null
+   },
+   "minus1_credit_newkind": {
+    "label": "ops:p9s5:c14:neg:credit",
+    "ok": false,
+    "sqlstate": "LD021",
+    "message": "LEDGER_RESERVED_UID",
+    "reason": "PLATFORM_CREDIT_KIND_FORBIDDEN",
+    "detail": "{\"uid\": \"-1\", \"kind\": \"invite_first_task_reward\", \"reason\": \"PLATFORM_CREDIT_KIND_FORBIDDEN\"}",
+    "details": null
+   }
+  }
+ }
+}

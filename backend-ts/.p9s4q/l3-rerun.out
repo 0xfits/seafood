@@ -1,0 +1,340 @@
+{
+  "L2": {
+    "schema_version": "0034",
+    "schema_rows": 33,
+    "base_tables": 34,
+    "kind_enum_def": "CHECK ((kind = ANY (ARRAY['mint'::text, 'burn'::text, 'transfer'::text, 'hold'::text, 'hold_release'::text, 'hold_forfeit'::text, 'job_escrow'::text, 'job_escrow_refund'::text, 'job_payout'::text, 'job_fee'::text, 'commission'::text, 'purchase'::text, 'sale'::text, 'purchase_refund'::text, 'trade'::text, 'trade_fee'::text, 'listing_fee'::text, 'listing_deposit'::text, 'currency_create_fee'::text, 'reversal'::text, 'checkin_makeup_fee'::text, 'bttc_mint_fee'::text, 'bttc_burn_fee'::text])))",
+    "kind_enum_count": 23,
+    "kind_enum_has_bttc": true,
+    "kind_ok_def_present": true,
+    "kind_ok_first_branch": [
+      "mint",
+      "burn",
+      "transfer",
+      "hold",
+      "hold_release",
+      "hold_forfeit",
+      "job_escrow",
+      "job_escrow_refund",
+      "job_payout",
+      "job_fee",
+      "commission",
+      "purchase",
+      "sale",
+      "purchase_refund",
+      "trade",
+      "trade_fee",
+      "listing_fee",
+      "listing_deposit",
+      "currency_create_fee",
+      "reversal",
+      "checkin_makeup_fee",
+      "bttc_mint_fee",
+      "bttc_burn_fee"
+    ],
+    "kind_ok_first_branch_count": 23,
+    "kind_ok_first_has_bttc": true,
+    "kind_ok_frozen_family": [
+      "job_payout",
+      "purchase",
+      "trade",
+      "hold_forfeit"
+    ],
+    "kind_ok_frozen_count": 4,
+    "kind_ok_frozen_has_bttc": false,
+    "platform_mutation_m1_credit": [
+      "trade_fee",
+      "listing_fee",
+      "currency_create_fee",
+      "job_fee",
+      "listing_deposit",
+      "checkin_makeup_fee",
+      "bttc_mint_fee",
+      "bttc_burn_fee"
+    ],
+    "platform_mutation_m1_credit_count": 8,
+    "platform_mutation_has_bttc": true,
+    "op_whitelist": [
+      "mint",
+      "transfer",
+      "hold",
+      "hold_release",
+      "settle",
+      "entries",
+      "burn"
+    ],
+    "op_has_burn": true,
+    "double_write_mint": true,
+    "double_write_burn": true,
+    "burn_platform_forbidden": true,
+    "burn_body_leg_snippet": null,
+    "is_platform_coin_cols": [
+      {
+        "column_name": "is_platform_coin",
+        "data_type": "boolean",
+        "is_nullable": "NO",
+        "column_default": "false"
+      }
+    ],
+    "currency_rows": 15,
+    "currency_true_flag": 0,
+    "migration_checksums": [
+      {
+        "version": "0032",
+        "file": "0032_kind_close_set_23.sql",
+        "db_checksum": "08744e8366d5e6f453ec5137fbd223780cbdc1828612a5e4242a3e74febff563",
+        "file_sha256": "08744e8366d5e6f453ec5137fbd223780cbdc1828612a5e4242a3e74febff563",
+        "match": true,
+        "noop": "x"
+      },
+      {
+        "version": "0033",
+        "file": "0033_currency_platform_coin_flag.sql",
+        "db_checksum": "a9941c05ed0649723136737b8dc9ae1835cf208b2ee3470c549bdd03ce35bdbd",
+        "file_sha256": "a9941c05ed0649723136737b8dc9ae1835cf208b2ee3470c549bdd03ce35bdbd",
+        "match": true,
+        "noop": "x"
+      },
+      {
+        "version": "0034",
+        "file": "0034_ledger_op_burn_and_supply.sql",
+        "db_checksum": "1413e9f2e88e537a8635be2264ab1486d20e8669f8cdc236c66a76753e92584c",
+        "file_sha256": "1413e9f2e88e537a8635be2264ab1486d20e8669f8cdc236c66a76753e92584c",
+        "match": true,
+        "noop": "x"
+      }
+    ]
+  },
+  "L3": {
+    "residue_before": {
+      "currency": 15,
+      "ledger_entry": 359,
+      "batt_account": 2,
+      "batt_entry": 2,
+      "account": 39,
+      "currency_status_log": 7,
+      "currency_review_log": 0
+    },
+    "bttc_row_before": null,
+    "create": {
+      "first_call": {
+        "cid": "144",
+        "symbol": "BTTC",
+        "name": "battcoin",
+        "decimals": 0,
+        "status": "listed",
+        "total_supply": "0",
+        "is_platform_coin": true,
+        "inserted": true
+      },
+      "second_call": {
+        "cid": "144",
+        "symbol": "BTTC",
+        "name": "battcoin",
+        "decimals": 0,
+        "status": "listed",
+        "total_supply": "0",
+        "is_platform_coin": true,
+        "inserted": false
+      },
+      "direct_row": {
+        "cid": "144",
+        "symbol": "BTTC",
+        "name": "battcoin",
+        "owner_uid": "0",
+        "decimals": 0,
+        "status": "listed",
+        "total_supply": "0",
+        "is_platform_coin": true
+      },
+      "first_non_null": true,
+      "first_symbol_BTTC": true,
+      "first_decimals_0": true,
+      "first_status_listed": true,
+      "first_is_platform_coin_true": true,
+      "first_inserted": true,
+      "second_inserted_false": true,
+      "first_cid_equals_second": true
+    },
+    "exempt_gate": {
+      "non_platform_dep0": {
+        "ok": true,
+        "applied": 0,
+        "cur_status": "draft",
+        "cur_found": 1
+      },
+      "platform_dep0": {
+        "ok": false,
+        "err": "LD016"
+      },
+      "platform_dep2000": {
+        "ok": true,
+        "applied": 0,
+        "cur_status": "draft",
+        "cur_found": 1
+      }
+    },
+    "mint": {
+      "outcome": "applied",
+      "txid": "884",
+      "supplyBefore": "0",
+      "supplyAfter": "1",
+      "before": {
+        "batt": 100,
+        "usd": "4",
+        "held": "0",
+        "supply": "0"
+      },
+      "after": {
+        "batt": 0,
+        "usd": "3",
+        "held": "1",
+        "supply": "1"
+      },
+      "bodyLegs": [
+        {
+          "uid": "4",
+          "delta": "1",
+          "kind": "mint"
+        }
+      ],
+      "feeLegs": [
+        {
+          "uid": "4",
+          "delta": "-1",
+          "kind": "bttc_mint_fee"
+        },
+        {
+          "uid": "-1",
+          "delta": "1",
+          "kind": "bttc_mint_fee"
+        }
+      ]
+    },
+    "mint_replay": {
+      "replay_gate_down": {
+        "outcome": "rejected",
+        "ledger_entry_delta": 0,
+        "batt_entry_delta": 0
+      },
+      "replay_gate_pass": {
+        "outcome": "replayed",
+        "ledger_entry_delta": 0,
+        "batt_entry_delta": 0
+      },
+      "supplyNow": "1"
+    },
+    "mint_neg_batt": {
+      "outcome": "rejected",
+      "batt": 99,
+      "usd": "3",
+      "ledger_delta": 0,
+      "supply": "1"
+    },
+    "mint_neg_usd": {
+      "outcome": "rejected",
+      "batt": 100,
+      "usd": "0",
+      "ledger_delta": 0,
+      "supply": "1"
+    },
+    "invariant_after_mint": {
+      "supply": "1",
+      "sumMint": "1",
+      "sumBurn": "0",
+      "eq_plus": true,
+      "eq_minus": true
+    },
+    "burn": {
+      "outcome": "applied",
+      "txid": "887",
+      "supplyBefore": "1",
+      "supplyAfter": "0",
+      "before": {
+        "batt": 50,
+        "usd": "3",
+        "held": "1",
+        "supply": "1"
+      },
+      "after": {
+        "batt": 100,
+        "usd": "2",
+        "held": "0",
+        "supply": "0"
+      },
+      "bodyLegs": [
+        {
+          "uid": "4",
+          "delta": "-1",
+          "kind": "burn"
+        }
+      ],
+      "feeLegs": [
+        {
+          "uid": "4",
+          "delta": "-1",
+          "kind": "bttc_burn_fee"
+        },
+        {
+          "uid": "-1",
+          "delta": "1",
+          "kind": "bttc_burn_fee"
+        }
+      ],
+      "battEntry": [
+        {
+          "d": "50",
+          "a": "100",
+          "reason": "bttc_burn"
+        }
+      ],
+      "capped": true
+    },
+    "invariant_after_burn": {
+      "supply": "0",
+      "sumMint": "1",
+      "sumBurn": "-1",
+      "eq_plus": true,
+      "eq_minus": false
+    },
+    "platform_burn": {
+      "raised": true,
+      "code": "LD021",
+      "message": "LEDGER_RESERVED_UID",
+      "has_PLATFORM_BURN_FORBIDDEN": true
+    },
+    "residue_in_tx_with_fixtures": {
+      "currency": 19,
+      "ledger_entry": 365,
+      "batt_account": 4,
+      "batt_entry": 4,
+      "account": 40,
+      "currency_status_log": 7,
+      "currency_review_log": 0
+    },
+    "zero_residue_note": "回滚后（见 L3_rollback_verify）现取与 residue_before 对拍"
+  },
+  "L3_rollback_verify": {
+    "live_after_rollback": {
+      "currency": 15,
+      "ledger_entry": 359,
+      "batt_account": 2,
+      "batt_entry": 2,
+      "account": 39,
+      "currency_status_log": 7,
+      "currency_review_log": 0
+    },
+    "residue_before": {
+      "currency": 15,
+      "ledger_entry": 359,
+      "batt_account": 2,
+      "batt_entry": 2,
+      "account": 39,
+      "currency_status_log": 7,
+      "currency_review_log": 0
+    },
+    "zero_residue": true,
+    "bttc_rows_after_rollback": 0,
+    "qa_currency_rows": 0
+  }
+}

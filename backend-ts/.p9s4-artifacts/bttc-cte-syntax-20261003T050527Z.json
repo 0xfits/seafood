@@ -1,0 +1,37 @@
+{
+  "run": "20261003T050527Z",
+  "discipline": "BEGIN; <methods>; ROLLBACK (no COMMIT)",
+  "results": {
+    "getBttcState": {
+      "ok": true,
+      "symbol": "BTTC",
+      "status": null,
+      "canMint": false,
+      "canBurn": false,
+      "policy": {
+        "mintBattCost": 100,
+        "mintFeeUsd": 1,
+        "burnBttcCost": 1,
+        "burnFeeUsd": 1,
+        "burnBattGain": 100
+      },
+      "source": "constant",
+      "balance": "0",
+      "usdBalance": "0",
+      "batt": 0
+    },
+    "bttcMint": {
+      "ok": false,
+      "err": "missing FROM-clause entry for table \"b\""
+    },
+    "bttcBurn": {
+      "ok": false,
+      "err": "current transaction is aborted, commands ignored until end of transaction block"
+    },
+    "ensureBttc": {
+      "ok": false,
+      "err": "current transaction is aborted, commands ignored until end of transaction block"
+    },
+    "fatal": "current transaction is aborted, commands ignored until end of transaction block"
+  }
+}

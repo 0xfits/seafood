@@ -1,0 +1,82 @@
+{
+  "run": "20261003T045941Z",
+  "script": ".p9s4-probe/r9-24-run.ts",
+  "discipline": "BEGIN;<file>;read;ROLLBACK (no COMMIT)",
+  "results": [
+    {
+      "file": "0032_kind_close_set_23.sql",
+      "bytes": 12596,
+      "sha256": "08744e8366d5e6f453ec5137fbd223780cbdc1828612a5e4242a3e74febff563",
+      "r1_no_error": true,
+      "r1_error": null,
+      "r2a_rel_shadow_null": true,
+      "r2b_inside_effect_keys": [
+        "kindEnum",
+        "kindOk",
+        "platformMutation"
+      ],
+      "r3_schema_migration_unchanged": true,
+      "r4_target_objects_restored": true,
+      "r4_detail": [
+        "kindEnum:OK",
+        "kindOk:OK",
+        "platformMutation:OK",
+        "ledgerPostEvent:OK",
+        "platformCol:OK",
+        "currencyConstraints:OK",
+        "schemaMigration:OK",
+        "relShadowNull:OK"
+      ],
+      "inside_moved": true
+    },
+    {
+      "file": "0033_currency_platform_coin_flag.sql",
+      "bytes": 4759,
+      "sha256": "a9941c05ed0649723136737b8dc9ae1835cf208b2ee3470c549bdd03ce35bdbd",
+      "r1_no_error": true,
+      "r1_error": null,
+      "r2a_rel_shadow_null": true,
+      "r2b_inside_effect_keys": [
+        "platformCol",
+        "currencyConstraints"
+      ],
+      "r3_schema_migration_unchanged": true,
+      "r4_target_objects_restored": true,
+      "r4_detail": [
+        "kindEnum:OK",
+        "kindOk:OK",
+        "platformMutation:OK",
+        "ledgerPostEvent:OK",
+        "platformCol:OK",
+        "currencyConstraints:OK",
+        "schemaMigration:OK",
+        "relShadowNull:OK"
+      ],
+      "inside_moved": true
+    },
+    {
+      "file": "0034_ledger_op_burn_and_supply.sql",
+      "bytes": 54549,
+      "sha256": "1413e9f2e88e537a8635be2264ab1486d20e8669f8cdc236c66a76753e92584c",
+      "r1_no_error": true,
+      "r1_error": null,
+      "r2a_rel_shadow_null": true,
+      "r2b_inside_effect_keys": [
+        "ledgerPostEvent"
+      ],
+      "r3_schema_migration_unchanged": true,
+      "r4_target_objects_restored": true,
+      "r4_detail": [
+        "kindEnum:OK",
+        "kindOk:OK",
+        "platformMutation:OK",
+        "ledgerPostEvent:OK",
+        "platformCol:OK",
+        "currencyConstraints:OK",
+        "schemaMigration:OK",
+        "relShadowNull:OK"
+      ],
+      "inside_moved": true
+    }
+  ]
+}

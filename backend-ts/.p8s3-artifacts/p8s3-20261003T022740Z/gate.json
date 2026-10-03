@@ -1,0 +1,374 @@
+{
+ "unit": "P8-S3-DEPOSIT-GATE",
+ "generated_at": "2026-10-03T02:27:40.373Z",
+ "run": "20261003T022740Z",
+ "offline": true,
+ "db_connections": 0,
+ "http_calls": 0,
+ "total": 45,
+ "passed": 45,
+ "failed": 0,
+ "readings": {
+  "legal_keys_code": [
+   "system_settings",
+   "listing_deposit_policy",
+   "batt_policy",
+   "checkin_policy",
+   "invite_reward_policy",
+   "mint_burn_policy",
+   "rating_policy",
+   "site_text_overrides",
+   "role_names"
+  ],
+  "legal_keys_spec": [
+   "system_settings",
+   "listing_deposit_policy",
+   "batt_policy",
+   "checkin_policy",
+   "invite_reward_policy",
+   "mint_burn_policy",
+   "rating_policy",
+   "site_text_overrides",
+   "role_names"
+  ],
+  "ak1_fields": [
+   "siteName",
+   "siteDescription",
+   "maintenance",
+   "allowRegistration",
+   "emailNotifications",
+   "defaultLanguage",
+   "pointsPerTask",
+   "maxDailyTasks",
+   "rewardCooldown"
+  ],
+  "ak2_field_types": {
+   "amount": "number"
+  },
+  "deposit_floor_constant": 50000,
+  "registration_points": 80,
+  "registration_points_legacy_column0": 80,
+  "envelope_fields": [
+   "create_key",
+   "idempotency_key",
+   "idempotencyKey"
+  ]
+ },
+ "checks": [
+  {
+   "id": "A1",
+   "group": "ak2Registered",
+   "pass": true,
+   "expect": "代码常量 APP_CONFIG_LEGAL_KEYS = [\"system_settings\",\"listing_deposit_policy\",\"batt_policy\",\"checkin_policy\",\"invite_reward_policy\",\"mint_burn_policy\",\"rating_policy\",\"site_text_overrides\",\"role_names\"]（恰 9 键）",
+   "actual": "[\"system_settings\",\"listing_deposit_policy\",\"batt_policy\",\"checkin_policy\",\"invite_reward_policy\",\"mint_burn_policy\",\"rating_policy\",\"site_text_overrides\",\"role_names\"]"
+  },
+  {
+   "id": "A2",
+   "group": "ak2Registered",
+   "pass": true,
+   "expect": "spec §21.1 ∪ §23.1 解析出的键集 = [\"batt_policy\",\"checkin_policy\",\"invite_reward_policy\",\"listing_deposit_policy\",\"mint_burn_policy\",\"rating_policy\",\"role_names\",\"site_text_overrides\",\"system_settings\"]（代码常量与 spec 一致）",
+   "actual": "{\"specKeys\":[\"system_settings\",\"listing_deposit_policy\",\"batt_policy\",\"checkin_policy\",\"invite_reward_policy\",\"mint_burn_policy\",\"rating_policy\",\"site_text_overrides\",\"role_names\"],\"sorted\":[\"batt_policy\",\"checkin_policy\",\"invite_reward_policy\",\"listing_deposit_policy\",\"mint_burn_policy\",\"rating_policy\",\"role_names\",\"site_text_overrides\",\"system_settings\"]}"
+  },
+  {
+   "id": "A3",
+   "group": "ak2Registered",
+   "pass": true,
+   "expect": "代码常量键集 == spec 键集（逐字一致 · 跨册同步）",
+   "actual": "{\"code\":[\"batt_policy\",\"checkin_policy\",\"invite_reward_policy\",\"listing_deposit_policy\",\"mint_burn_policy\",\"rating_policy\",\"role_names\",\"site_text_overrides\",\"system_settings\"],\"spec\":[\"batt_policy\",\"checkin_policy\",\"invite_reward_policy\",\"listing_deposit_policy\",\"mint_burn_policy\",\"rating_policy\",\"role_names\",\"site_text_overrides\",\"system_settings\"]}"
+  },
+  {
+   "id": "A4",
+   "group": "ak2Registered",
+   "pass": true,
+   "expect": "注释块同轮更新：写「恰好 9 个」、**不再写**「恰好 1 个」/「恰好 2 个」（注释即证据源 · AR6）",
+   "actual": "{\"has9\":true,\"has1\":false,\"has2\":false}"
+  },
+  {
+   "id": "A5",
+   "group": "ak2Registered",
+   "pass": true,
+   "expect": "AK1 值对象字段仍恰 9 个（逐字冻结 · 未被 AK2 污染）",
+   "actual": "[\"siteName\",\"siteDescription\",\"maintenance\",\"allowRegistration\",\"emailNotifications\",\"defaultLanguage\",\"pointsPerTask\",\"maxDailyTasks\",\"rewardCooldown\"]"
+  },
+  {
+   "id": "A6",
+   "group": "ak2Registered",
+   "pass": true,
+   "expect": "★ 键 ≠ 字段：`AK2` **不在** `SYSTEM_SETTINGS_FIELD_TYPES`（AK1）之内",
+   "actual": "{\"inAk1\":false}"
+  },
+  {
+   "id": "A7",
+   "group": "ak2Registered",
+   "pass": true,
+   "expect": "spec §23.1 有 AK2 行且键名逐字 = `listing_deposit_policy`",
+   "actual": "| **`AK2`** | **`listing_deposit_policy`**（**真源 = 本册 "
+  },
+  {
+   "id": "A8",
+   "group": "ak2Registered",
+   "pass": true,
+   "expect": "姊妹册 route v2.5 §20 与 data-layer v0.12 §23 均在册（两册互指）",
+   "actual": "{\"route_has_key\":true,\"data_has_s23\":true}"
+  },
+  {
+   "id": "B1",
+   "group": "keyNotField",
+   "pass": true,
+   "expect": "把 AK2 当 AK1 第 10 个字段塞进写口 body ⇒ 必拒（ok=false + 稳定常量 reason + unknown_keys 含它）",
+   "actual": "{\"code\":\"LEDGER_AMOUNT_INVALID\",\"reason\":\"SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST\",\"unknown_keys\":[\"listing_deposit_policy\"]}"
+  },
+  {
+   "id": "B2",
+   "group": "keyNotField",
+   "pass": true,
+   "expect": "合法 AK1 字段 + AK2（当字段）混合体 ⇒ **整请求拒**（unknown_keys 恰 [AK2]）",
+   "actual": "{\"unknown_keys\":[\"listing_deposit_policy\"]}"
+  },
+  {
+   "id": "C1",
+   "group": "ak2Spec",
+   "pass": true,
+   "expect": "AK2 值对象逐字段规格 = { amount: \"number\" }（§23.3 AG3(ii) 字段层）",
+   "actual": "{\"amount\":\"number\"}"
+  },
+  {
+   "id": "C2",
+   "group": "ak2Spec",
+   "pass": true,
+   "expect": "AK2 合法字段名（关闭集）= [\"amount\"]",
+   "actual": "[\"amount\"]"
+  },
+  {
+   "id": "C3",
+   "group": "ak2Spec",
+   "pass": true,
+   "expect": "解析：正整数金额 ⇒ 原样返回（不发明数值）",
+   "actual": "123456"
+  },
+  {
+   "id": "C4",
+   "group": "ak2Spec",
+   "pass": true,
+   "expect": "字符串型金额 \"50000\"（无下游转换）⇒ null",
+   "actual": "null"
+  },
+  {
+   "id": "C5",
+   "group": "ak2Spec",
+   "pass": true,
+   "expect": "null ⇒ null",
+   "actual": "null"
+  },
+  {
+   "id": "C6",
+   "group": "ak2Spec",
+   "pass": true,
+   "expect": "数组 ⇒ null",
+   "actual": "null"
+  },
+  {
+   "id": "C7",
+   "group": "ak2Spec",
+   "pass": true,
+   "expect": "裸标量 ⇒ null",
+   "actual": "null"
+  },
+  {
+   "id": "C8",
+   "group": "ak2Spec",
+   "pass": true,
+   "expect": "amount = 0 ⇒ null（须正整数）",
+   "actual": "null"
+  },
+  {
+   "id": "C9",
+   "group": "ak2Spec",
+   "pass": true,
+   "expect": "amount = -5 ⇒ null",
+   "actual": "null"
+  },
+  {
+   "id": "C10",
+   "group": "ak2Spec",
+   "pass": true,
+   "expect": "amount = 1.5（非整数）⇒ null",
+   "actual": "null"
+  },
+  {
+   "id": "C11",
+   "group": "ak2Spec",
+   "pass": true,
+   "expect": "无 `amount` 字段 ⇒ null",
+   "actual": "null"
+  },
+  {
+   "id": "C12",
+   "group": "ak2Spec",
+   "pass": true,
+   "expect": "夹带清单外字段 `balance`（§23.8 禁形）⇒ null（关闭集外 ⇒ fail-closed）",
+   "actual": "null"
+  },
+  {
+   "id": "D1",
+   "group": "failClosed",
+   "pass": true,
+   "expect": "读不到（null）⇒ **回落常量** 50000（source=constant）",
+   "actual": "{\"floor\":50000,\"source\":\"constant\"}"
+  },
+  {
+   "id": "D2",
+   "group": "failClosed",
+   "pass": true,
+   "expect": "合法键值（{amount:77777}）⇒ 用键值（source=config）",
+   "actual": "{\"floor\":77777,\"source\":\"config\"}"
+  },
+  {
+   "id": "D3",
+   "group": "failClosed",
+   "pass": true,
+   "expect": "值非法（字符串金额）⇒ **fail-closed 到常量**（**不是** fail-open 到该串）",
+   "actual": "{\"floor\":50000,\"source\":\"constant\"}"
+  },
+  {
+   "id": "D4",
+   "group": "failClosed",
+   "pass": true,
+   "expect": "值非法（缺 amount）⇒ fail-closed 到常量",
+   "actual": "{\"floor\":50000,\"source\":\"constant\"}"
+  },
+  {
+   "id": "D5",
+   "group": "failClosed",
+   "pass": true,
+   "expect": "兜底常量标 `TODO: Kevin 定值`（**不得发明数值**）",
+   "actual": "true"
+  },
+  {
+   "id": "D6",
+   "group": "failClosed",
+   "pass": true,
+   "expect": "`currency-service` **确实先读 AK2**（`getListingDepositPolicyValue` + `resolveListingDepositFloorFromDb` + try/catch 兜底）",
+   "actual": "{\"reads\":true,\"wrapper\":true}"
+  },
+  {
+   "id": "D7",
+   "group": "failClosed",
+   "pass": true,
+   "expect": "常量形态保持单点（值 = 50000 = **现取读数**，非本单发明）",
+   "actual": "CURRENCY_LIST_DEPOSIT_FLOOR = 50000"
+  },
+  {
+   "id": "D1__selftest",
+   "group": "failClosedSelfTest",
+   "pass": true,
+   "expect": "把「常量兜底」误记为 config ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":{\"floor\":50000,\"source\":\"config\"},\"judge_fired\":true}"
+  },
+  {
+   "id": "E1",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "注册点仍 = 80（本片**零新增对外路径** · 不新增 delist 路由 · `R-8-20` 计数**容忍前置空白**）",
+   "actual": "80"
+  },
+  {
+   "id": "E1b",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "★ R-8-20 负对照：2 空格缩进插入一条路由 ⇒ 升级判据计数 80→81（旧列 0 判据仍 = 80 = v4 盲区复现）",
+   "actual": "{\"upgraded\":81,\"legacy_column0\":80}"
+  },
+  {
+   "id": "E2",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "**无** delist 一族路由（`R-8-17`：退市退还作废 ⇒ 不得新增入口 · `R-8-20` 容忍前置空白）",
+   "actual": "false"
+  },
+  {
+   "id": "E3",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "kind 名 `listing_deposit_refund` **零命中**（不复活已删名 · `R-8-2`）",
+   "actual": "0"
+  },
+  {
+   "id": "E4",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "`currency-service`（含新 AK2 读路径）**不引用** `unfreeze(` / `hold_release`（**不挂退还面**）",
+   "actual": "[]"
+  },
+  {
+   "id": "E5",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "`currency-service` 代码位（去注释）`hold_forfeit` 零命中（禁线）",
+   "actual": "[]"
+  },
+  {
+   "id": "E6",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "迁移文件数仍 = 28（**零新增迁移 / 零 DDL** · R-8-5）",
+   "actual": "28"
+  },
+  {
+   "id": "E7",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "`AK2` 读 SQL 为**只读 SELECT**（无 INSERT/UPDATE/DELETE）",
+   "actual": "[\"WHERE key = 'listing_deposit_policy' LIMIT 1`,\"]"
+  },
+  {
+   "id": "F1",
+   "group": "ag2Invariant",
+   "pass": true,
+   "expect": "写 `app_config` 语句仍**唯一**（database.ts · 1 处 INSERT）",
+   "actual": "[[\"backend-ts/src/database.ts\",\"INSERT INTO public.app_config\"]]"
+  },
+  {
+   "id": "F2",
+   "group": "ag2Invariant",
+   "pass": true,
+   "expect": "唯一写入语句仍落在 `saveSystemSettings` 方法体内",
+   "actual": "save=[142783,144796) hit=144165"
+  },
+  {
+   "id": "F3",
+   "group": "ag2Invariant",
+   "pass": true,
+   "expect": "`AK2` 读口 `getListingDepositPolicyValue` 落在 database.ts（读侧独立方法）",
+   "actual": "true"
+  },
+  {
+   "id": "F4",
+   "group": "ag2Invariant",
+   "pass": true,
+   "expect": "上市语句（`LIST_CURRENCY_WITH_DEPOSIT_SQL`）**不触碰** `app_config`（上市只写 currency / status_log / 账本）",
+   "actual": "false"
+  },
+  {
+   "id": "A1__selftest",
+   "group": "ak2RegisteredSelfTest",
+   "pass": true,
+   "expect": "把清单写成「恰 1 键」⇒ 谓词必须转红（旧值 = 假绿陷阱）",
+   "actual": "{\"wrong_input\":[\"system_settings\"],\"judge_fired\":true}"
+  },
+  {
+   "id": "C1__selftest",
+   "group": "ak2SpecSelfTest",
+   "pass": true,
+   "expect": "把字段类型写成 string ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":{\"amount\":\"string\"},\"judge_fired\":true}"
+  },
+  {
+   "id": "E1__selftest",
+   "group": "noRefundSurfaceSelfTest",
+   "pass": true,
+   "expect": "注册点写成 75（= 偷偷少一条）⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":75,\"judge_fired\":true}"
+  }
+ ]
+}

@@ -1,0 +1,61 @@
+{
+ "unit": "P9S5-NEGCTL-DB",
+ "generated_at": "2026-10-03T08:51:53.799Z",
+ "run": "20261003T085153Z",
+ "note": "仓外副本变异 + 复原回绿 + 主仓只读（cmp）；全部库面写事务内 + ROLLBACK。",
+ "repo_0038_md5": "e85d9e49394d98560dc318e1166d11c26e094330464825499d3db48aa64b36fd",
+ "repo_0038_bytes": 15993,
+ "nc1_mutation": {
+  "occurrences_whitelist": 1,
+  "occurrences_selfcheck_positive": 1,
+  "mut_path": "/Users/kevin/.hermes/profiles/zang/cache/scratch/p9s5-negctl/0038.mut.sql",
+  "mut_md5": "e3811f5ec411d22f192e7e4800fe53f26e8b0e9cd2bf7056c322f2c48b9c8249",
+  "differs_from_repo": true
+ },
+ "nc1_mutated_red": {
+  "label": "nc1-mut",
+  "exec_err": null,
+  "reading": {
+   "label": "assert_minus1_debit_invite",
+   "ok": false,
+   "sqlstate": "LD021",
+   "message": "LEDGER_RESERVED_UID",
+   "reason": "PLATFORM_DEBIT_FORBIDDEN"
+  }
+ },
+ "nc1_restored_green": {
+  "label": "nc1-restore",
+  "exec_err": null,
+  "reading": {
+   "label": "assert_minus1_debit_invite",
+   "ok": true,
+   "value": {
+    "ledger_assert_platform_mutation": ""
+   }
+  }
+ },
+ "nc2_idempotency": {
+  "label": "nc2-idem",
+  "exec_err": null,
+  "reading": {
+   "same_key_first": {
+    "replay": false,
+    "rows": 3
+   },
+   "same_key_replay": {
+    "replay": true,
+    "rows": 3
+   },
+   "different_key": {
+    "replay": false,
+    "rows_total_k_plus_k2": 6
+   },
+   "double_issue_when_key_changes": true
+  }
+ },
+ "cmp": {
+  "repo_unchanged_after_all": true,
+  "restore_copy_equals_repo": true,
+  "mutated_differs_from_repo": true
+ }
+}

@@ -1,0 +1,21 @@
+{
+ "live_before": {
+  "n": 21,
+  "hasNew": true
+ },
+ "fn_def_len": 577,
+ "fn_occurrences_new_kind": 1,
+ "mutated_len": 578,
+ "mutated_occurrences_new_kind": 0,
+ "after_mutation_fn_returns": false,
+ "chain_error": {
+  "code": "LD023",
+  "pgCode": null,
+  "message": "LEDGER_UNKNOWN_KIND"
+ },
+ "live_after": {
+  "n": 21,
+  "hasNew": true
+ }
+}
+ARTIFACT /Users/kevin/bistro/seafood/backend-ts/.p9s2c-apply/neg-ledger-kind-20261003T025513Z.json

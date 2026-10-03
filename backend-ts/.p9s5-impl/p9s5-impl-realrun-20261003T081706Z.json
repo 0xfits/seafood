@@ -1,0 +1,32 @@
+{
+ "unit": "P9S5-IMPL-REALRUN",
+ "generated_at": "2026-10-03T08:17:06.072Z",
+ "run": "20261003T081706Z",
+ "note": "单事务内先跑 0038 全文再调用；末尾 ROLLBACK（禁 COMMIT）；不 apply。",
+ "before": {
+  "batt_account": 2,
+  "batt_entry": 2,
+  "ledger_entry": 359,
+  "account": 39,
+  "users": 56
+ },
+ "precondition": {
+  "db_kind_ok_new": false,
+  "schema_version": "0034"
+ },
+ "native_settle_method": {
+  "ok": false,
+  "sqlstate": "LEDGER_UNKNOWN_KIND",
+  "code_name": "不支持的账务类型"
+ },
+ "after": {
+  "batt_account": 2,
+  "batt_entry": 2,
+  "ledger_entry": 359,
+  "account": 39,
+  "users": 56
+ },
+ "rollback_clean": true,
+ "exec_err": "23514:new row for relation \"users\" violates check constraint \"users_evm_fmt\"",
+ "in_tx": {}
+}

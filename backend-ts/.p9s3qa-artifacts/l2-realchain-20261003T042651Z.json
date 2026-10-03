@@ -1,0 +1,168 @@
+{
+ "unit": "P9S3QA-L2-REALCHAIN",
+ "run": "20261003T042651Z",
+ "total": 21,
+ "passed": 21,
+ "failed": 0,
+ "baseline": {
+  "rating": 0,
+  "event": 0,
+  "order": 18,
+  "users": 56
+ },
+ "after": {
+  "rating": 0,
+  "event": 0,
+  "order": 18,
+  "users": 56
+ },
+ "checks": [
+  {
+   "id": "L2-R1",
+   "grp": "rating",
+   "pass": true,
+   "expect": "提交：四要素服务端取数（rater=token · ratee=job.worker_uid）⇒ inserted",
+   "actual": "{\"outcome\":\"inserted\",\"rateeUid\":7710002,\"ratingId\":119,\"stars\":4}"
+  },
+  {
+   "id": "L2-R2",
+   "grp": "rating",
+   "pass": true,
+   "expect": "幂等重放：同键二次 ⇒ replay（取真值 stars=4）",
+   "actual": "{\"outcome\":\"replay\",\"rateeUid\":7710002,\"ratingId\":null,\"stars\":4}"
+  },
+  {
+   "id": "L2-R3",
+   "grp": "rating",
+   "pass": true,
+   "expect": "同侧二次（异键）⇒ already_rated（UNIQUE(rater,target_type,target_id)）",
+   "actual": "{\"outcome\":\"already_rated\",\"rateeUid\":7710002,\"ratingId\":119,\"stars\":null}"
+  },
+  {
+   "id": "L2-R4",
+   "grp": "rating",
+   "pass": true,
+   "expect": "stars=6 越界 ⇒ 拒 23514（值域 CHECK rating_stars_rng 兜底）",
+   "actual": "{\"err\":\"23514|new row for relation \\\"rating\\\" violates check constraint \\\"rating_stars_rng\\\"|Failing row contains (120, 7710002, 7710001, job, 7710001, \"}"
+  },
+  {
+   "id": "L2-R5",
+   "grp": "rating",
+   "pass": true,
+   "expect": "汇总四周期分别读数：30=5 · 90=4 · 360=3 · 1000=3.25（counts 1/2/3/4）",
+   "actual": "{\"30\":5,\"90\":4,\"360\":3,\"1000\":3.25,\"counts\":{\"30\":1}}"
+  },
+  {
+   "id": "L2-R6",
+   "grp": "rating",
+   "pass": true,
+   "expect": "有行 ⇒ source 为 config/constant 之一（此处无 rating_policy 行 ⇒ constant）",
+   "actual": "{\"source\":\"constant\"}"
+  },
+  {
+   "id": "L2-R7",
+   "grp": "rating",
+   "pass": true,
+   "expect": "有行 ⇒ 真均值：uid 7710002（1 条 4 星）⇒ worker=4 · counts.worker=1",
+   "actual": "{\"poster\":3,\"worker\":4,\"vendor\":3,\"customer\":3,\"counts\":{\"poster\":0,\"worker\":1,\"vendor\":0,\"customer\":0}}"
+  },
+  {
+   "id": "L2-R8",
+   "grp": "norow",
+   "pass": true,
+   "expect": "★ 无行 uid ⇒ 兜底 3.0（source=constant · 不因无行变 0/NaN）",
+   "actual": "{\"source\":\"constant\",\"defaultStars\":3,\"p30\":{\"poster\":3,\"worker\":3,\"vendor\":3,\"customer\":3,\"counts\":{\"poster\":0,\"worker\":0,\"vendor\":0,\"customer\":0}}}"
+  },
+  {
+   "id": "L2-R9",
+   "grp": "norow",
+   "pass": true,
+   "expect": "★ 有行（config）⇒ source=config · defaultStars=4 ⇒ 无行角色回落 4.0",
+   "actual": "{\"source\":\"config\",\"defaultStars\":4,\"p30\":{\"poster\":4,\"worker\":4,\"vendor\":4,\"customer\":4,\"counts\":{\"poster\":0,\"worker\":0,\"vendor\":0,\"customer\":0}}}"
+  },
+  {
+   "id": "L2-T1",
+   "grp": "timeliness",
+   "pass": true,
+   "expect": "T1/T2（job_submission.time_created→reviewed_at · approved+settled）⇒ poster=3 · worker=3",
+   "actual": "{\"poster\":3,\"worker\":3}"
+  },
+  {
+   "id": "L2-T2",
+   "grp": "timeliness",
+   "pass": true,
+   "expect": "T3/T4（listing_order_event.time_created）：卖家 ship=3（created→shipped）· 买家 recv=4（paid→received）",
+   "actual": "{\"ship\":3,\"recv\":4}"
+  },
+  {
+   "id": "L2-T3",
+   "grp": "norow",
+   "pass": true,
+   "expect": "★ 无数据 ⇒ null（不填 0）",
+   "actual": "{\"poster\":null,\"worker\":null,\"ship\":null,\"recv\":null}"
+  },
+  {
+   "id": "L2-C15",
+   "grp": "norow",
+   "pass": true,
+   "expect": "★ C-15：内层 `(SELECT COALESCE(col,0) …)` 对无行 ⇒ null；外层 `COALESCE((SELECT col …),0)` ⇒ 0",
+   "actual": "{\"inner\":null,\"outer\":\"0\"}"
+  },
+  {
+   "id": "L2-S1",
+   "grp": "transition",
+   "pass": true,
+   "expect": "发货 paid→shipped ✓：状态回写 shipped 且事件行同生（=1）",
+   "actual": "{\"outcome\":\"shipped\",\"from\":\"paid\",\"to\":\"shipped\",\"status\":\"shipped\",\"events\":1}"
+  },
+  {
+   "id": "L2-S2",
+   "grp": "transition",
+   "pass": true,
+   "expect": "收货 shipped→received ✓：状态回写 received 且事件行再现（=2）",
+   "actual": "{\"outcome\":\"received\",\"from\":\"shipped\",\"to\":\"received\",\"status\":\"received\",\"events\":2}"
+  },
+  {
+   "id": "L2-S3",
+   "grp": "transition",
+   "pass": true,
+   "expect": "非法转移 created→shipped ⇒ 拒 state_conflict + 零残留（事件行=0 · status 仍 created）",
+   "actual": "{\"outcome\":\"state_conflict\",\"events\":0,\"status\":\"created\"}"
+  },
+  {
+   "id": "L2-S4",
+   "grp": "transition",
+   "pass": true,
+   "expect": "非归属（买方对卖方订单发 ship）⇒ not_party",
+   "actual": "{\"outcome\":\"not_party\"}"
+  },
+  {
+   "id": "L2-F1",
+   "grp": "refundGate",
+   "pass": true,
+   "expect": "退款闸放宽：shipped 订单过状态闸（仅因 pay_txid 缺 ⇒ order_pay_missing）",
+   "actual": "{\"shipped\":\"LD011|LEDGER_CURRENCY_INVALID_TRANSITION|{\\\"field\\\": \\\"listing_order.pay_txid\\\", \\\"reason\\\": \\\"order_pay_missing\\\", \\\"status\\\": \\\"shipped\\\", \\\"order_id\\\": \\\"7710205\\\"\"}"
+  },
+  {
+   "id": "L2-F2",
+   "grp": "refundGate",
+   "pass": true,
+   "expect": "退款闸仍禁（两读数对照）：received ⇒ order_not_refundable · created ⇒ order_not_refundable",
+   "actual": "{\"received\":\"LD011|LEDGER_CURRENCY_INVALID_TRANSITION|{\\\"field\\\": \\\"listing_order.status\\\", \\\"reason\\\": \\\"order_not_refundable\\\", \\\"status\\\": \\\"\",\"created\":\"LD011|LEDGER_CURRENCY_INVALID_TRANSITION|{\\\"field\\\": \\\"listing_order.status\\\", \\\"reason\\\": \\\"order_not_refundable\\\", \\\"status\\\": \\\"\"}"
+  },
+  {
+   "id": "L2-S5",
+   "grp": "transition",
+   "pass": true,
+   "expect": "非法转移 / 退款拒绝 零残留（203/204 事件行 = 0）",
+   "actual": "{\"events\":\"7710201:2,7710205:4\"}"
+  },
+  {
+   "id": "L2-Z0",
+   "grp": "rollback",
+   "pass": true,
+   "expect": "末尾 ROLLBACK ⇒ 生产零净写（rating/event/order/users 回 baseline）",
+   "actual": "{\"baseline\":{\"rating\":0,\"event\":0,\"order\":18,\"users\":56},\"after\":{\"rating\":0,\"event\":0,\"order\":18,\"users\":56}}"
+  }
+ ]
+}

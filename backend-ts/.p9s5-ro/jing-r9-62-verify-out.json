@@ -1,0 +1,109 @@
+{
+ "triggers": [
+  {
+   "tbl": "commission_policy",
+   "tgname": "trg_commission_policy_append_only",
+   "tgenabled": "O",
+   "state": "ENABLED(default)"
+  },
+  {
+   "tbl": "commission_policy",
+   "tgname": "trg_commission_policy_weights_guard",
+   "tgenabled": "O",
+   "state": "ENABLED(default)"
+  },
+  {
+   "tbl": "ledger_entry",
+   "tgname": "trg_ledger_entry_append_only",
+   "tgenabled": "O",
+   "state": "ENABLED(default)"
+  },
+  {
+   "tbl": "ledger_entry",
+   "tgname": "trg_ledger_entry_commission_conservation",
+   "tgenabled": "O",
+   "state": "ENABLED(default)"
+  },
+  {
+   "tbl": "referral",
+   "tgname": "trg_referral_append_only",
+   "tgenabled": "O",
+   "state": "ENABLED(default)"
+  },
+  {
+   "tbl": "referral",
+   "tgname": "trg_referral_cycle_guard",
+   "tgenabled": "O",
+   "state": "ENABLED(default)"
+  }
+ ],
+ "policy": [
+  {
+   "policy_id": "1",
+   "fee_rate_bp": 100,
+   "levels": 10,
+   "weights_bp": [
+    3000,
+    2000,
+    1500,
+    1000,
+    800,
+    600,
+    500,
+    300,
+    200,
+    100
+   ],
+   "effective_from": "1970-01-01T00:00:00.000Z",
+   "created_by": "0"
+  },
+  {
+   "policy_id": "2",
+   "fee_rate_bp": 100,
+   "levels": 10,
+   "weights_bp": [
+    3000,
+    2000,
+    1500,
+    1000,
+    800,
+    600,
+    500,
+    300,
+    200,
+    100
+   ],
+   "effective_from": "2026-09-30T19:15:36.192Z",
+   "created_by": "1"
+  },
+  {
+   "policy_id": "3",
+   "fee_rate_bp": 100,
+   "levels": 10,
+   "weights_bp": [
+    3000,
+    2000,
+    1500,
+    1000,
+    800,
+    600,
+    500,
+    300,
+    200,
+    100
+   ],
+   "effective_from": "2026-10-01T19:21:28.285Z",
+   "created_by": "1"
+  }
+ ],
+ "policy_check": [
+  {
+   "def": "CHECK (((fee_rate_bp >= 100) AND (fee_rate_bp <= 500)))"
+  }
+ ],
+ "referral_rows": [
+  {
+   "n": 2
+  }
+ ]
+}

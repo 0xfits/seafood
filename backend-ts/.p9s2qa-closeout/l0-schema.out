@@ -1,0 +1,234 @@
+{
+ "tables_cols": [
+  {
+   "table_name": "batt_account",
+   "cols": "uid,batt,time_created,time_updated"
+  },
+  {
+   "table_name": "batt_entry",
+   "cols": "txid,uid,delta,batt_after,reason,idempotency_key,ref_type,ref_id,memo,time_created"
+  },
+  {
+   "table_name": "checkin_log",
+   "cols": "log_id,uid,checkin_day,streak_day,reward_batt,time_created"
+  },
+  {
+   "table_name": "checkin_makeup_log",
+   "cols": "log_id,uid,makeup_day,target_day,cost_usd,restored_streak_day,cid,result,txid,idempotency_key,request_fingerprint,memo,time_created"
+  }
+ ],
+ "constraints": [
+  {
+   "tbl": "batt_account",
+   "conname": "batt_account_range",
+   "contype": "c",
+   "def": "CHECK (((batt >= 0) AND (batt <= 100)))"
+  },
+  {
+   "tbl": "batt_account",
+   "conname": "batt_account_uid_fk",
+   "contype": "f",
+   "def": "FOREIGN KEY (uid) REFERENCES users(uid)"
+  },
+  {
+   "tbl": "batt_account",
+   "conname": "batt_account_pk",
+   "contype": "p",
+   "def": "PRIMARY KEY (uid)"
+  },
+  {
+   "tbl": "batt_entry",
+   "conname": "batt_entry_after_guard",
+   "contype": "c",
+   "def": "CHECK (((batt_after >= 0) AND (batt_after <= 100)))"
+  },
+  {
+   "tbl": "batt_entry",
+   "conname": "batt_entry_move_guard",
+   "contype": "c",
+   "def": "CHECK ((delta <> 0))"
+  },
+  {
+   "tbl": "batt_entry",
+   "conname": "batt_entry_pk",
+   "contype": "p",
+   "def": "PRIMARY KEY (txid)"
+  },
+  {
+   "tbl": "batt_entry",
+   "conname": "batt_entry_idem_uniq",
+   "contype": "u",
+   "def": "UNIQUE (idempotency_key)"
+  },
+  {
+   "tbl": "checkin_log",
+   "conname": "checkin_log_reward_ck",
+   "contype": "c",
+   "def": "CHECK ((reward_batt > 0))"
+  },
+  {
+   "tbl": "checkin_log",
+   "conname": "checkin_log_streak_rng",
+   "contype": "c",
+   "def": "CHECK (((streak_day >= 1) AND (streak_day <= 7)))"
+  },
+  {
+   "tbl": "checkin_log",
+   "conname": "checkin_log_uid_fk",
+   "contype": "f",
+   "def": "FOREIGN KEY (uid) REFERENCES users(uid)"
+  },
+  {
+   "tbl": "checkin_log",
+   "conname": "checkin_log_pk",
+   "contype": "p",
+   "def": "PRIMARY KEY (log_id)"
+  },
+  {
+   "tbl": "checkin_log",
+   "conname": "checkin_log_day_uniq",
+   "contype": "u",
+   "def": "UNIQUE (uid, checkin_day)"
+  },
+  {
+   "tbl": "checkin_makeup_log",
+   "conname": "checkin_makeup_log_result_ck",
+   "contype": "c",
+   "def": "CHECK ((result = ANY (ARRAY['applied'::text, 'rejected_daily_limit'::text, 'rejected_insufficient_balance'::text, 'rejected_target_invalid'::text])))"
+  },
+  {
+   "tbl": "checkin_makeup_log",
+   "conname": "checkin_makeup_log_cid_fk",
+   "contype": "f",
+   "def": "FOREIGN KEY (cid) REFERENCES currency(cid)"
+  },
+  {
+   "tbl": "checkin_makeup_log",
+   "conname": "checkin_makeup_log_uid_fk",
+   "contype": "f",
+   "def": "FOREIGN KEY (uid) REFERENCES users(uid)"
+  },
+  {
+   "tbl": "checkin_makeup_log",
+   "conname": "checkin_makeup_log_pk",
+   "contype": "p",
+   "def": "PRIMARY KEY (log_id)"
+  },
+  {
+   "tbl": "checkin_makeup_log",
+   "conname": "checkin_makeup_log_day_uniq",
+   "contype": "u",
+   "def": "UNIQUE (uid, makeup_day)"
+  },
+  {
+   "tbl": "checkin_makeup_log",
+   "conname": "checkin_makeup_log_idem_uniq",
+   "contype": "u",
+   "def": "UNIQUE (idempotency_key, result)"
+  }
+ ],
+ "indexes": [
+  {
+   "tablename": "batt_account",
+   "indexname": "batt_account_pk"
+  },
+  {
+   "tablename": "batt_entry",
+   "indexname": "batt_entry_idem_uniq"
+  },
+  {
+   "tablename": "batt_entry",
+   "indexname": "batt_entry_pk"
+  },
+  {
+   "tablename": "batt_entry",
+   "indexname": "idx_batt_entry_uid_time"
+  },
+  {
+   "tablename": "checkin_log",
+   "indexname": "checkin_log_day_uniq"
+  },
+  {
+   "tablename": "checkin_log",
+   "indexname": "checkin_log_pk"
+  },
+  {
+   "tablename": "checkin_log",
+   "indexname": "idx_checkin_log_uid_day"
+  },
+  {
+   "tablename": "checkin_makeup_log",
+   "indexname": "checkin_makeup_log_day_uniq"
+  },
+  {
+   "tablename": "checkin_makeup_log",
+   "indexname": "checkin_makeup_log_idem_uniq"
+  },
+  {
+   "tablename": "checkin_makeup_log",
+   "indexname": "checkin_makeup_log_pk"
+  },
+  {
+   "tablename": "checkin_makeup_log",
+   "indexname": "idx_checkin_makeup_log_uid_day"
+  }
+ ],
+ "triggers": [
+  {
+   "tbl": "batt_account",
+   "tgname": "trg_batt_account_touch_updated",
+   "def": "CREATE TRIGGER trg_batt_account_touch_updated BEFORE UPDATE ON public.batt_account FOR EACH ROW EXECUTE FUNCTION batt_account_touch_updated()"
+  },
+  {
+   "tbl": "batt_entry",
+   "tgname": "trg_batt_entry_append_only",
+   "def": "CREATE TRIGGER trg_batt_entry_append_only BEFORE DELETE OR UPDATE ON public.batt_entry FOR EACH ROW EXECUTE FUNCTION batt_entry_append_only()"
+  },
+  {
+   "tbl": "checkin_log",
+   "tgname": "trg_checkin_log_append_only",
+   "def": "CREATE TRIGGER trg_checkin_log_append_only BEFORE DELETE OR UPDATE ON public.checkin_log FOR EACH ROW EXECUTE FUNCTION checkin_log_append_only()"
+  },
+  {
+   "tbl": "checkin_makeup_log",
+   "tgname": "trg_checkin_makeup_log_append_only",
+   "def": "CREATE TRIGGER trg_checkin_makeup_log_append_only BEFORE DELETE OR UPDATE ON public.checkin_makeup_log FOR EACH ROW EXECUTE FUNCTION checkin_makeup_log_append_only()"
+  }
+ ],
+ "kind_enum": {
+  "def": "CHECK ((kind = ANY (ARRAY['mint'::text, 'burn'::text, 'transfer'::text, 'hold'::text, 'hold_release'::text, 'hold_forfeit'::text, 'job_escrow'::text, 'job_escrow_refund'::text, 'job_payout'::text, 'job_fee'::text, 'commission'::text, 'purchase'::text, 'sale'::text, 'purchase_refund'::text, 'trade'::text, 'trade_fee'::text, 'listing_fee'::text, 'listing_deposit'::text, 'currency_create_fee'::text, 'reversal'::text, 'checkin_makeup_fee'::text])))",
+  "n": 21,
+  "has_new": true,
+  "last": "checkin_makeup_fee"
+ },
+ "kind_ok": [
+  {
+   "has_new": true,
+   "src_len": 410
+  }
+ ],
+ "plat": [
+  {
+   "has_new": true
+  }
+ ],
+ "regclass": [
+  {
+   "a": "batt_account",
+   "b": "batt_entry",
+   "c": "checkin_log",
+   "d": "checkin_makeup_log"
+  }
+ ],
+ "schema": [
+  {
+   "maxv": "0029",
+   "rows": 28
+  }
+ ],
+ "base_tables": [
+  {
+   "n": 32
+  }
+ ]
+}

@@ -1,0 +1,650 @@
+{
+ "unit": "P8-S9-BTTC-GATE",
+ "generated_at": "2026-10-03T05:20:50.631Z",
+ "run": "20261003T052046Z",
+ "offline": false,
+ "db_connections": 5,
+ "http_calls": 0,
+ "note": "A–H/L 静态面零 DB / 零 HTTP；I/K 库面 leg **只连库**（结构面只读 + `R-9-23` 反事実直插 = 事务内 + 末尾 ROLLBACK）。`0032`/`0033`/`0034` **未 apply** ⇒ 其 DB 级效果单列 `pending_apply[]`（不入 checks）。",
+ "total": 71,
+ "passed": 71,
+ "failed": 0,
+ "pending_apply": [
+  {
+   "leg": "0032 · 活体 `ledger_kind_enum` = 23（含 `bttc_mint_fee`/`bttc_burn_fee`）",
+   "reason": "本单**不 apply** 迁移 ⇒ 活体约束值集不可验；源码面 23 值 + 正/负自检已验（`C1`-`C7`）"
+  },
+  {
+   "leg": "0032 · 活体 `ledger_kind_ok` 接纳两新 kind / 冻结族第二支未放宽",
+   "reason": "`CREATE OR REPLACE FUNCTION` 未执行 ⇒ 活体白名单不可验；源码面函数体已验（`C2`/`C4`）"
+  },
+  {
+   "leg": "0032 · 活体 `ledger_assert_platform_mutation` −1 credit 含两新 kind",
+   "reason": "同上（未 apply）⇒ 活体不可验；源码面白名单 + 负向自检已验（`C5`/`C7`）"
+  },
+  {
+   "leg": "0033 · 活体 `currency.is_platform_coin` 列（boolean NOT NULL DEFAULT false）",
+   "reason": "`ALTER TABLE ADD COLUMN` 未执行 ⇒ `42703`（探针实测，见报告）；结构契约源码面已验（`D1`-`D3`）"
+  },
+  {
+   "leg": "0033 · 活体 BTTC 载体行（symbol=BTTC / owner_uid=0 / `is_platform_coin=true`）",
+   "reason": "`ensureBttcCurrency` 引用 `is_platform_coin` ⇒ 未 apply 时**不可执行**（`42703`）；须 apply `0033` 后取证"
+  },
+  {
+   "leg": "0033 · 活体上市闸豁免（平台行免审核 / 免保证金；非平台行仍全额）",
+   "reason": "需 apply `0033` + 真库 + 真平台行；本门只验 `src/database.ts` 唯一写路径谓词（`D4`/`D5`）"
+  },
+  {
+   "leg": "0034 · 活体 `ledger_post_event` `op=burn` 分支 + 分解 `total_supply` 双写",
+   "reason": "`CREATE OR REPLACE` 未执行 ⇒ 活体 `burn` 不可验；源码面 op 白名单 / 分支 / 双写 / 自检已验（`E`/`F`）"
+  },
+  {
+   "leg": "`getBttcState` 活体：无行 ⇒ 兜底值 · 有行 ⇒ 真 balance/supply",
+   "reason": "需 apply `0033`（BTTC 载体行存在）⇒ 本门纯函数负对照已验（`H1`-`H3`），活体 leg 待 apply"
+  },
+  {
+   "leg": "`bttcMint` / `bttcBurn` 活体链路（铸/分解 + 双写 + 钳制 + 幂等 `cli:<UUID>`）",
+   "reason": "需 apply `0032`+`0033`+`0034` + 真库；本门 SQL 语法自证 + 钳制/反事実已验（报告 §1/§I）"
+  },
+  {
+   "leg": "2 新口真 HTTP（无 token 401 / 有 token 200 / 409 拒绝面）",
+   "reason": "本门**零网络**（`http_calls:0`）；真 HTTP 读数需受控实例 + 已 apply 另册"
+  }
+ ],
+ "readings": {
+  "registration_points_total": 87,
+  "registration_points_per_verb": {
+   "get": 36,
+   "post": 48,
+   "put": 0,
+   "patch": 1,
+   "delete": 2
+  },
+  "new_routes": [
+   "app.post('/api/bttc/mint'",
+   "app.post('/api/bttc/burn'"
+  ],
+  "kind_ts": 23,
+  "kind_0032_check": 23,
+  "kind_0032_fn": 23,
+  "kind_0032_frozen": [
+   "hold_forfeit",
+   "job_payout",
+   "purchase",
+   "trade"
+  ],
+  "whitelist_m1_credit": [
+   "trade_fee",
+   "listing_fee",
+   "currency_create_fee",
+   "job_fee",
+   "listing_deposit",
+   "checkin_makeup_fee",
+   "bttc_mint_fee",
+   "bttc_burn_fee"
+  ],
+  "mint_burn_defaults": {
+   "mintBattCost": 100,
+   "mintFeeUsd": 1,
+   "burnBttcCost": 1,
+   "burnFeeUsd": 1,
+   "burnBattGain": 100
+  },
+  "no_row": {
+   "source": "constant",
+   "policy": {
+    "mintBattCost": 100,
+    "mintFeeUsd": 1,
+    "burnBttcCost": 1,
+    "burnFeeUsd": 1,
+    "burnBattGain": 100
+   }
+  },
+  "has_row": {
+   "source": "config",
+   "policy": {
+    "mintBattCost": 7,
+    "mintFeeUsd": 1,
+    "burnBttcCost": 1,
+    "burnFeeUsd": 1,
+    "burnBattGain": 100
+   }
+  },
+  "clamp": {
+   "mint500_cap50": 50,
+   "gain500": 100
+  },
+  "error_codes_closed_set_size": 33,
+  "locale_bttcPanel_keys": [
+   "actionFail",
+   "balanceLabel",
+   "burnButton",
+   "burnHint",
+   "burnOk",
+   "mintButton",
+   "mintHint",
+   "mintOk",
+   "noData",
+   "symbol",
+   "title",
+   "unavailable"
+  ],
+  "pending_apply_count": 10,
+  "live": {
+   "batt_account_range": "CHECK (((batt >= 0) AND (batt <= 100)))",
+   "live_kind_enum": {
+    "n": 21,
+    "has_cmk": true,
+    "has_89": []
+   },
+   "preapply": {
+    "is_platform_coin_col_present": false,
+    "ledger_post_event_op_whitelist_has_burn": false,
+    "ledger_post_event_op_whitelist": "'mint', 'transfer', 'hold', 'hold_release', 'settle', 'entries'"
+   },
+   "counterfactual": {
+    "over_101": "23514",
+    "boundary_100": "OK"
+   }
+  }
+ },
+ "checks": [
+  {
+   "id": "A1",
+   "group": "registration",
+   "pass": true,
+   "expect": "注册点 = 87（P9④ BTTC 铸造/分解 2 新动作口 +2〔85→87〕；读口并入既有 GET /api/batt ⇒ 零新 GET）",
+   "actual": "87"
+  },
+  {
+   "id": "A2",
+   "group": "registration",
+   "pass": true,
+   "expect": "逐 verb 逐字 = {\"get\":36,\"post\":48,\"put\":0,\"patch\":1,\"delete\":2}（get 不变 / post +2）",
+   "actual": "{\"get\":36,\"post\":48,\"put\":0,\"patch\":1,\"delete\":2}"
+  },
+  {
+   "id": "A3",
+   "group": "registration",
+   "pass": true,
+   "expect": "逐 verb 计数之和 = 注册点总数",
+   "actual": "{\"get\":36,\"post\":48,\"put\":0,\"patch\":1,\"delete\":2}"
+  },
+  {
+   "id": "A4",
+   "group": "registration",
+   "pass": true,
+   "expect": "2 新口逐条注册**恰 1 处**（`POST /api/bttc/mint` / `POST /api/bttc/burn`）",
+   "actual": "[1,1]"
+  },
+  {
+   "id": "A5",
+   "group": "registration",
+   "pass": true,
+   "expect": "★ 负对照：缩进注入一条路由 ⇒ 计数 87→88",
+   "actual": "{\"injected\":88}"
+  },
+  {
+   "id": "A1__selftest",
+   "group": "registrationSelfTest",
+   "pass": true,
+   "expect": "把非 87 条路由的文本喂入「注册点 = 87」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":\"x\",\"judge_fired\":true}"
+  },
+  {
+   "id": "B1",
+   "group": "routeShape",
+   "pass": true,
+   "expect": "★ 2 口全闸 `requireActor(req, res)`（用户本人 · uid 取自 token）且**零** `requireAdmin(` ⇒ 零 admin 权限键新增（11 键不动）",
+   "actual": "{\"actor_in_all\":true,\"requireAdmin_in_any\":false}"
+  },
+  {
+   "id": "B1__selftest",
+   "group": "routeShapeSelfTest",
+   "pass": true,
+   "expect": "把「带 admin 闸」的 handler 喂入 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":\"app.post('/api/bttc/mint', async (req, res) => { const actor = await requireAdmin(req, res, 'manage_settings'); if (!actor) return; });\",\"judge_fired\":true}"
+  },
+  {
+   "id": "B2",
+   "group": "routeShape",
+   "pass": true,
+   "expect": "★ 2 口写入前置 = `bttcKeyGuard(req, res)`（解析并校验 `cli:<UUID>` 幂等键 ⇒ 非法即既有码 400）",
+   "actual": "{\"mint\":true,\"burn\":true}"
+  },
+  {
+   "id": "B3",
+   "group": "routeShape",
+   "pass": true,
+   "expect": "★ 取数：`POST /api/bttc/mint` ⇒ `DatabaseService.bttcMint(` · `POST /api/bttc/burn` ⇒ `DatabaseService.bttcBurn(`",
+   "actual": "{\"mint\":true,\"burn\":true}"
+  },
+  {
+   "id": "B4",
+   "group": "routeShape",
+   "pass": true,
+   "expect": "★ 基础设施异常 ⇒ 既有 §14 分类器 `sendInfraMapped`（标签 'bttc.mint'/'bttc.burn'）",
+   "actual": "[true,true]"
+  },
+  {
+   "id": "B5",
+   "group": "routeShape",
+   "pass": true,
+   "expect": "★ 拒绝面 = `sendBttcRejection(res, uid, action)`（同 uid 状态复核 ⇒ 稳定 `reason` · 零新增码）",
+   "actual": "{\"mint\":true,\"burn\":true}"
+  },
+  {
+   "id": "B3__selftest",
+   "group": "routeShapeSelfTest",
+   "pass": true,
+   "expect": "把「取数错口」的 handler 喂入 ⇒ 取数谓词必须转红",
+   "actual": "{\"wrong_input\":\"DatabaseService.getBatt(\",\"judge_fired\":true}"
+  },
+  {
+   "id": "C1",
+   "group": "migration0032",
+   "pass": true,
+   "expect": "★ `0032` `ledger_kind_enum` CHECK = 23 值（既有 21 + `bttc_mint_fee`/`bttc_burn_fee`）且与 TS `LEDGER_KINDS` 同集",
+   "actual": "{\"n\":23,\"has89\":[true,true],\"same_ts\":true}"
+  },
+  {
+   "id": "C2",
+   "group": "migration0032",
+   "pass": true,
+   "expect": "★ `0032` `ledger_kind_ok` 第一支 = 23 值且与 TS 同集（③ 三处编码之二）",
+   "actual": "{\"n\":23,\"same_ts\":true}"
+  },
+  {
+   "id": "C3",
+   "group": "migration0032",
+   "pass": true,
+   "expect": "③ TS `LEDGER_KINDS` = 23 值 · 末位追加 `bttc_mint_fee`/`bttc_burn_fee`（不改既有 21 次序）",
+   "actual": "{\"n\":23,\"tail\":[\"bttc_mint_fee\",\"bttc_burn_fee\"]}"
+  },
+  {
+   "id": "C4",
+   "group": "migration0032",
+   "pass": true,
+   "expect": "★ `ledger_kind_ok` 第二支（`p_frozen_settle`）**一字不动** = 4 值且不含任何新增值（两新 kind 不属冻结结算族）",
+   "actual": "{\"frozen\":[\"hold_forfeit\",\"job_payout\",\"purchase\",\"trade\"],\"has89\":[]}"
+  },
+  {
+   "id": "C5",
+   "group": "migration0032",
+   "pass": true,
+   "expect": "★ `ledger_assert_platform_mutation` 的 `−1` credit 白名单 = 既有 6 值 + 两新 kind（8 值；既有格逐字未丢）",
+   "actual": "{\"whitelist\":[\"trade_fee\",\"listing_fee\",\"currency_create_fee\",\"job_fee\",\"listing_deposit\",\"checkin_makeup_fee\",\"bttc_mint_fee\",\"bttc_burn_fee\"]}"
+  },
+  {
+   "id": "C6",
+   "group": "migration0032",
+   "pass": true,
+   "expect": "★ 手法 = DROP 旧 CHECK + ADD 新 CHECK（**非 enum**）；`ledger_kind_enum` 恰 1 个 CHECK（自检 ①）",
+   "actual": "{\"drop\":true,\"add\":true}"
+  },
+  {
+   "id": "C7",
+   "group": "migration0032",
+   "pass": true,
+   "expect": "★ 自检含**正 + 负**：两新 kind 冻结族下必拒（负）/ `−1` debit 必拒（负）/ 非白名单 credit 必拒（负）；正向逐值在场",
+   "actual": "{\"frozen_neg\":true,\"debit_neg\":true,\"credit_neg\":true}"
+  },
+  {
+   "id": "C1__selftest",
+   "group": "migration0032SelfTest",
+   "pass": true,
+   "expect": "把「少一值 / 多一值」的集喂入 23 同集谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":[\"mint\",\"burn\",\"transfer\",\"hold\",\"hold_release\",\"hold_forfeit\",\"job_escrow\",\"job_escrow_refund\",\"job_payout\",\"job_fee\",\"commission\",\"purchase\",\"sale\",\"purchase_refund\",\"trade\",\"trade_fee\",\"listing_fee\",\"listing_deposit\",\"currency_create_fee\",\"reversal\",\"checkin_makeup_fee\",\"bttc_mint_fee\",\"made_up_kind\"],\"judge_fired\":true}"
+  },
+  {
+   "id": "D1",
+   "group": "migration0033",
+   "pass": true,
+   "expect": "★ 唯一 DDL = `ALTER TABLE public.currency ADD COLUMN IF NOT EXISTS is_platform_coin boolean NOT NULL DEFAULT false;`（只加列 · 幂等）",
+   "actual": "{\"add_col\":true}"
+  },
+  {
+   "id": "D2",
+   "group": "migration0033",
+   "pass": true,
+   "expect": "★ **不改任何既有约束**（零 `ALTER COLUMN` / 零 `DROP CONSTRAINT`；既有 1 UNIQUE + 6 CHECK 指纹不动 · `DL7`）",
+   "actual": "{\"alter_col\":false,\"drop_constraint\":false}"
+  },
+  {
+   "id": "D3",
+   "group": "migration0033",
+   "pass": true,
+   "expect": "★ 存量兼容自检：`SELECT count(*) … WHERE is_platform_coin` 且 `v_true <> 0 ⇒ ABORT`（既有全部行 `false`）",
+   "actual": "{\"compat\":true}"
+  },
+  {
+   "id": "D4",
+   "group": "migration0033",
+   "pass": true,
+   "expect": "★ 豁免谓词落 `src/database.ts` 上市**唯一写路径**：`AND ( EXISTS(审核通过) OR c.is_platform_coin = true )`（既有审核闸逐字仍在）",
+   "actual": "{\"wrapped_gate\":true}"
+  },
+  {
+   "id": "D5",
+   "group": "migration0033",
+   "pass": true,
+   "expect": "★ 保证金腿对平台行跳过 = `AND NOT (c.is_platform_coin = true AND $3::bigint <> 0)`（非平台行仍全额缴 · C-1）",
+   "actual": "{\"deposit_skip\":true}"
+  },
+  {
+   "id": "D4__selftest",
+   "group": "migration0033SelfTest",
+   "pass": true,
+   "expect": "把「未加平台豁免谓词」的 SQL 喂入 ⇒ 豁免谓词必须转红",
+   "actual": "{\"wrong_input\":\"AND EXISTS (SELECT 1 FROM public.currency_review_log WHERE result='approved')\",\"judge_fired\":true}"
+  },
+  {
+   "id": "E1",
+   "group": "migration0034",
+   "pass": true,
+   "expect": "★ `op` 白名单**仅加一项 `burn`**（原 6 项 `'mint','transfer','hold','hold_release','settle','entries'` 逐字照抄 · 末位追加 `'burn'`）",
+   "actual": "{\"old6\":true,\"new7\":true}"
+  },
+  {
+   "id": "E2",
+   "group": "migration0034",
+   "pass": true,
+   "expect": "★ `v_op = 'burn'` 分支在场：本体腿 = **单边负额** `ledger_norm_entry(v_uid, v_cid, -v_amount, 0, 'burn', …)`（真销毁）",
+   "actual": "{\"branch\":true,\"neg_entry\":true}"
+  },
+  {
+   "id": "F1",
+   "group": "migration0034",
+   "pass": true,
+   "expect": "★ **`R-9-37` 分解 `total_supply` 双写**：`UPDATE currency SET total_supply = total_supply - v_amount, time_updated = now() WHERE cid = v_cid;`（与 `op=mint` 对称）",
+   "actual": "{\"double_write\":true}"
+  },
+  {
+   "id": "F2",
+   "group": "migration0034",
+   "pass": true,
+   "expect": "★ **配对不变式**（`Σ(delta)=0`）对 `kind IN ('mint','burn')` **豁免**（`v_has_mb`）一字未动 ⇒ 单边负额合法",
+   "actual": "{\"exemption\":true}"
+  },
+  {
+   "id": "F3",
+   "group": "migration0034",
+   "pass": true,
+   "expect": "★ `v_op='burn'` 的 `C8` 回执：`supply_before = v_supply_before` / `supply_after = v_supply_before − v_amount`（与 `mint` 镜像）",
+   "actual": "{\"extra\":true}"
+  },
+  {
+   "id": "F4",
+   "group": "migration0034",
+   "pass": true,
+   "expect": "★ `R-9-38` 持有人授权兜底：平台 uid（≤0）不得经 `burn` 支销毁 ⇒ `PLATFORM_BURN_FORBIDDEN`（不因新币种免检）",
+   "actual": "{\"guard\":true}"
+  },
+  {
+   "id": "F5",
+   "group": "migration0034",
+   "pass": true,
+   "expect": "★ 自检含**正 + 负**：白名单含 `burn` 断言（`op whitelist does not contain burn` 自检在场 · **结构面**）/ `burn` 达分支（正 · 期望 `LEDGER_CURRENCY_NOT_FOUND`）/ 白名单外 op 仍拒（负 · 期望 `LEDGER_AMOUNT_INVALID`）",
+   "actual": "{\"whitelist_assert\":true,\"pos\":true,\"neg\":true}"
+  },
+  {
+   "id": "F1__selftest",
+   "group": "migration0034SelfTest",
+   "pass": true,
+   "expect": "把「分解方向写反」的 SQL 喂入 ⇒ 双写方向谓词必须转红",
+   "actual": "{\"wrong_input\":\"total_supply = total_supply + v_amount\",\"judge_fired\":true}"
+  },
+  {
+   "id": "G1",
+   "group": "idempotency",
+   "pass": true,
+   "expect": "★ 幂等键 = `cli:<UUID>`：UUID 形状正则 `BTTC_UUID_RE = /^[0-9a-f]{8}-…-[0-9a-f]{12}$/i`（调用方供键 · 服务端不派生）",
+   "actual": "{\"uuid_re\":true,\"cli_prefix\":true}"
+  },
+  {
+   "id": "G2",
+   "group": "idempotency",
+   "pass": true,
+   "expect": "★ `resolveBttcKey` 三态穷举：无键 ⇒ `MISSING` · 无前缀 ⇒ `PREFIX_REQUIRED` · 前缀后非 UUID ⇒ `NOT_UUID`",
+   "actual": "{\"missing\":true,\"prefix\":true,\"not_uuid\":true}"
+  },
+  {
+   "id": "G3",
+   "group": "idempotency",
+   "pass": true,
+   "expect": "★ **禁** `biz:bttc:mint:<uid>` 形态（**结构面锚到代码构造** `bizKeyOf('bttc', …)` 而非注释文本 ⇒ 无天然判别子故调用方供 `cli:<UUID>`；`R-9-41`）",
+   "actual": "{\"bizKeyOf_bttc\":false}"
+  },
+  {
+   "id": "G3__selftest",
+   "group": "idempotencySelfTest",
+   "pass": true,
+   "expect": "把「以 `bizKeyOf('bttc', …)` 构造幂等键」的代码喂入谓词 ⇒ 必须转红（证明判据锚到代码而非注释）",
+   "actual": "{\"wrong_input\":\"const idemKey = bizKeyOf('bttc', uid);\",\"judge_fired\":true}"
+  },
+  {
+   "id": "G4",
+   "group": "idempotency",
+   "pass": true,
+   "expect": "★ 两 handler：`const idemKey = bttcKeyGuard(req, res)` ⇒ `bttcMint/bttcBurn({ …, idempotencyKey: idemKey })`（键透传库面）",
+   "actual": "{\"guard\":true,\"pass\":true}"
+  },
+  {
+   "id": "G2__selftest",
+   "group": "idempotencySelfTest",
+   "pass": true,
+   "expect": "把「无前缀闸」的解析喂入 ⇒ `cli:` 前缀谓词必须转红",
+   "actual": "{\"wrong_input\":\"if (s) return { ok: true, key: s };\",\"judge_fired\":true}"
+  },
+  {
+   "id": "H1",
+   "group": "noRowDefault",
+   "pass": true,
+   "expect": "★ **负对照（无行 · 空表）**：`resolveMintBurnPolicy(undefined)` ⇒ `source=constant` 且五键 = 常量默认 {\"mintBattCost\":100,\"mintFeeUsd\":1,\"burnBttcCost\":1,\"burnFeeUsd\":1,\"burnBattGain\":100}（不因无行变 0/NaN）",
+   "actual": "{\"policy\":{\"mintBattCost\":100,\"mintFeeUsd\":1,\"burnBttcCost\":1,\"burnFeeUsd\":1,\"burnBattGain\":100},\"source\":\"constant\"}"
+  },
+  {
+   "id": "H2",
+   "group": "noRowDefault",
+   "pass": true,
+   "expect": "★ **独立负对照（`null` / `[]` 两种「无行」形）** ⇒ 均 `source=constant` 且回落常量默认",
+   "actual": "{\"null_src\":\"constant\",\"arr_src\":\"constant\"}"
+  },
+  {
+   "id": "H3",
+   "group": "noRowDefault",
+   "pass": true,
+   "expect": "★ **正对照（有行）**：五键皆合法 ⇒ `source=config` 且取真值（非兜底）",
+   "actual": "{\"policy\":{\"mintBattCost\":7,\"mintFeeUsd\":2,\"burnBttcCost\":3,\"burnFeeUsd\":4,\"burnBattGain\":5},\"source\":\"config\"}"
+  },
+  {
+   "id": "H4",
+   "group": "noRowDefault",
+   "pass": true,
+   "expect": "★ **`COALESCE` 包在标量子查询外层**：`COALESCE((SELECT …), 0)` / `COALESCE((SELECT …), '0')`（禁用 `(SELECT COALESCE(…))` 内层形）",
+   "actual": "{\"batt\":true,\"bal\":true}"
+  },
+  {
+   "id": "H5",
+   "group": "noRowDefault",
+   "pass": true,
+   "expect": "★ 常量兜底逐字 = 需求 §5.2.2/§5.3.2/§5.3.3（100 电量 + 1$ ⇒ 铸 1 BTTC；1 BTTC + 1$ ⇒ 分解 +100 电量）",
+   "actual": "{\"defaults\":{\"mintBattCost\":100,\"mintFeeUsd\":1,\"burnBttcCost\":1,\"burnFeeUsd\":1,\"burnBattGain\":100}}"
+  },
+  {
+   "id": "H1__selftest",
+   "group": "noRowDefaultSelfTest",
+   "pass": true,
+   "expect": "把「有行」结果喂入「无行 ⇒ constant」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":{\"source\":\"config\",\"policy\":{\"mintBattCost\":100,\"mintFeeUsd\":1,\"burnBttcCost\":1,\"burnFeeUsd\":1,\"burnBattGain\":100}},\"judge_fired\":true}"
+  },
+  {
+   "id": "I1",
+   "group": "clamp",
+   "pass": true,
+   "expect": "★ `mintBattCost` 钳到 ≤ `capBatt`：`{mintBattCost:500}, cap 100 ⇒ 100` · `cap 50 ⇒ 50`（否则 capBatt<100 时铸造恒不可达）",
+   "actual": "{\"cap100\":100,\"cap50\":50}"
+  },
+  {
+   "id": "I2",
+   "group": "clamp",
+   "pass": true,
+   "expect": "★ `burnBattGain` 钳到 ≤ `BATT_CAP_HARD_MAX`（100）：`{burnBattGain:500} ⇒ 100`；非正 ⇒ 回落常量 100（fail-closed）",
+   "actual": "{\"gain500\":100,\"gain0\":100,\"hardmax\":100}"
+  },
+  {
+   "id": "I3",
+   "group": "clamp",
+   "pass": true,
+   "expect": "★ 分解写入封顶（`R-9-17`）源码面：`LEAST(COALESCE(cur.batt,0) + burnBattGain, capBatt)::int`（与 DB `CHECK (batt BETWEEN 0 AND 100)` 同构）",
+   "actual": "{\"least\":true}"
+  },
+  {
+   "id": "I4",
+   "group": "clamp",
+   "pass": true,
+   "expect": "★ `capBatt` 生效值再钳 ≤ 硬上限 100（`Math.min(Math.max(1, battPolicy.capBatt), BATT_CAP_HARD_MAX)`）",
+   "actual": "{\"cap_clamp\":true}"
+  },
+  {
+   "id": "I1__selftest",
+   "group": "clampSelfTest",
+   "pass": true,
+   "expect": "把「未钳制（500）」的结果喂入「≤ capBatt」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":{\"policy\":{\"mintBattCost\":500}},\"judge_fired\":true}"
+  },
+  {
+   "id": "J1",
+   "group": "closedSets",
+   "pass": true,
+   "expect": "错误码闭集仍恰 33 条（**不动**）",
+   "actual": "33"
+  },
+  {
+   "id": "J2",
+   "group": "closedSets",
+   "pass": true,
+   "expect": "★ 2 口借**既有**码：`LEDGER_IDEMPOTENCY_KEY_REQUIRED`/`_INVALID`（键面）+ `LEDGER_CURRENCY_INVALID_TRANSITION`/`LEDGER_INSUFFICIENT_BALANCE`（业务拒绝）⇒ 零新增码",
+   "actual": "{\"missing\":[]}"
+  },
+  {
+   "id": "J3",
+   "group": "closedSets",
+   "pass": true,
+   "expect": "★ 稳定 `reason` 常量（挂既有码下 · 非新码）：`BTTC_UNAVAILABLE` / `INSUFFICIENT_BATT` / `INSUFFICIENT_BTTC` / `INSUFFICIENT_FEE`",
+   "actual": "{\"unavailable\":true,\"batt\":true,\"bttc\":true}"
+  },
+  {
+   "id": "J4",
+   "group": "pending",
+   "pass": true,
+   "expect": "★ 未 apply 三迁移（`0032`/`0033`/`0034`）的库面 leg **如实登记** `pending_apply[]`（不入 checks，不伪装绿）",
+   "actual": "{\"pending_apply\":10}"
+  },
+  {
+   "id": "J1__selftest",
+   "group": "closedSetsSelfTest",
+   "pass": true,
+   "expect": "把 34 条闭集喂入 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":[\"LEDGER_INSUFFICIENT_BALANCE\",\"LEDGER_INSUFFICIENT_FROZEN\",\"LEDGER_IDEMPOTENCY_REPLAY\",\"LEDGER_IDEMPOTENCY_CONFLICT\",\"LEDGER_IDEMPOTENCY_KEY_REQUIRED\",\"LEDGER_IDEMPOTENCY_KEY_INVALID\",\"LEDGER_CURRENCY_NOT_FOUND\",\"LEDGER_CURRENCY_NOT_LISTED\",\"LEDGER_CURRENCY_FROZEN\",\"LEDGER_CURRENCY_DELISTED\",\"LEDGER_CURRENCY_INVALID_TRANSITION\",\"LEDGER_CURRENCY_SYMBOL_TAKEN\",\"LEDGER_CURRENCY_MISMATCH\",\"LEDGER_SUPPLY_CAP_EXCEEDED\",\"LEDGER_UNAUTHORIZED_MINT\",\"LEDGER_HOLD_NOT_ALLOWED\",\"LEDGER_AMOUNT_INVALID\",\"LEDGER_AMOUNT_NOT_POSITIVE\",\"LEDGER_DECIMALS_OVERFLOW\",\"LEDGER_SELF_TRANSFER\",\"LEDGER_ACCOUNT_NOT_FOUND\",\"LEDGER_RESERVED_UID\",\"LEDGER_REF_NOT_FOUND\",\"LEDGER_UNKNOWN_KIND\",\"LEDGER_TRANSACTION_REQUIRED\",\"LEDGER_LOCK_TIMEOUT\",\"LEDGER_TX_TIMEOUT\",\"LEDGER_DEADLOCK_RETRY_EXHAUSTED\",\"LEDGER_NEGATIVE_BALANCE_GUARD\",\"LEDGER_APPEND_ONLY_VIOLATION\",\"LEDGER_ACCOUNT_GUARD_VIOLATION\",\"LEDGER_FEE_RATE_INVALID\",\"LEDGER_RECONCILE_MISMATCH\",\"LEDGER_MADEUP_CODE\"],\"judge_fired\":true}"
+  },
+  {
+   "id": "J4__selftest",
+   "group": "pendingSelfTest",
+   "pass": true,
+   "expect": "把「pending 清零」值喂入「10 条如实登记」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":0,\"judge_fired\":true}"
+  },
+  {
+   "id": "L1",
+   "group": "locales",
+   "pass": true,
+   "expect": "★ 四语 `zh/en/hk/vn` 的 `bttcPanel` 键集**逐语相等**且含 `noData`（「暂无数据」四语各一值）",
+   "actual": "{\"keys\":[\"actionFail\",\"balanceLabel\",\"burnButton\",\"burnHint\",\"burnOk\",\"mintButton\",\"mintHint\",\"mintOk\",\"noData\",\"symbol\",\"title\",\"unavailable\"],\"four_equal\":true}"
+  },
+  {
+   "id": "L2",
+   "group": "locales",
+   "pass": true,
+   "expect": "★ `en`/`vn` 的 `bttcPanel` 键值**零 CJK**",
+   "actual": "{\"en_cjk\":true,\"vn_cjk\":true}"
+  },
+  {
+   "id": "L3",
+   "group": "locales",
+   "pass": true,
+   "expect": "★ 六类工程口径泄漏 = **0**（`bttcPanel` 值面不含章节号 / HTTP 码 / 路径 / 批次 / 机读码 / 表列名）",
+   "actual": "{\"leak_langs\":[]}"
+  },
+  {
+   "id": "L3__selftest",
+   "group": "localesSelfTest",
+   "pass": true,
+   "expect": "把「值里带章节号」的文案喂入泄漏谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":\"暫無數據（§33.2）\",\"judge_fired\":true}"
+  },
+  {
+   "id": "L1__selftest",
+   "group": "localesSelfTest",
+   "pass": true,
+   "expect": "把「多一个键」的语言喂入键集相等谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":[\"actionFail\",\"balanceLabel\",\"burnButton\",\"burnHint\",\"burnOk\",\"mintButton\",\"mintHint\",\"mintOk\",\"noData\",\"symbol\",\"title\",\"unavailable\",\"extraKey\"],\"judge_fired\":true}"
+  },
+  {
+   "id": "K1",
+   "group": "dbStructure",
+   "pass": true,
+   "expect": "★ 既有（`0029` 已 apply）`batt_account_range` = `CHECK (batt BETWEEN 0 AND 100)` 在场 ⇒ `R-9-23` 钳制的 DB 兜底依据",
+   "actual": "{\"def\":\"CHECK (((batt >= 0) AND (batt <= 100)))\"}"
+  },
+  {
+   "id": "K1__selftest",
+   "group": "dbStructureSelfTest",
+   "pass": true,
+   "expect": "把「缺上限」的约束 def 喂入范围谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":\"CHECK (batt >= 0)\",\"judge_fired\":true}"
+  },
+  {
+   "id": "K2",
+   "group": "dbStructure",
+   "pass": true,
+   "expect": "★ 活体 `ledger_kind_enum` = 冻结快照（`0032` 未 apply ⇒ 21；apply 后 23）· 含 `checkin_makeup_fee`",
+   "actual": "{\"n\":21,\"has_89\":[]}"
+  },
+  {
+   "id": "K3",
+   "group": "dbStructure",
+   "pass": true,
+   "expect": "★ **结构面判据**（锚到 `v_op NOT IN (…)` op 白名单，而非任意 `'burn'` 子串）：活体 `ledger_post_event` op 白名单**不含** `burn`（`0034` 未 apply · 与 `pending_apply` 相符；若用裸 `/'burn'/` 会误中 kind 配对豁免 `('mint','burn')` ⇒ 假阳）",
+   "actual": "{\"op_whitelist_has_burn\":false,\"op_whitelist\":\"'mint', 'transfer', 'hold', 'hold_release', 'settle', 'entries'\"}"
+  },
+  {
+   "id": "K3__selftest",
+   "group": "dbStructureSelfTest",
+   "pass": true,
+   "expect": "把「op 白名单已含 burn」的源码喂入「未含 burn」谓词 ⇒ 必须转红（证明判据锚到白名单而非任意子串）",
+   "actual": "{\"wrong_input\":\"v_op NOT IN ('mint', 'burn')\",\"judge_fired\":true}"
+  },
+  {
+   "id": "K4",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ **`R-9-23` 反事実直插必红**：绕过应用层钳制直插 `batt = 101` ⇒ DB `batt_account_range` 必拒 `23514`（证钳制必要）",
+   "actual": "{\"over_code\":\"23514\",\"uid\":\"1\"}"
+  },
+  {
+   "id": "K5",
+   "group": "dbBehavior",
+   "pass": true,
+   "expect": "★ 边界对照：直插 `batt = 100` ⇒ **通过**（`23514` 只在越界时触发，非恒拒）",
+   "actual": "{\"boundary_code\":\"OK\"}"
+  },
+  {
+   "id": "K4__selftest",
+   "group": "dbBehaviorSelfTest",
+   "pass": true,
+   "expect": "把「未越界（00000）」的写入结果喂入「必红 23514」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":\"00000\",\"judge_fired\":true}"
+  }
+ ]
+}

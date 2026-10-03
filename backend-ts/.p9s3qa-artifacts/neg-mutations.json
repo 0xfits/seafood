@@ -1,0 +1,123 @@
+{
+ "M1_rating_guard": {
+  "summary": "SUMMARY total=92 passed=86 failed=6 pending_apply=0 db=13 http=1 artifact=/Users/kevin/.hermes/profiles/zang/cache/scratch/p9s3-qa-neg/backend-ts/.p8s8-artifacts/p8s8-20261003T043045Z/gate.json",
+  "failed": [
+   [
+    "G5",
+    "defaultsNoRow"
+   ],
+   [
+    "V7",
+    "dbBehavior"
+   ],
+   [
+    "V8",
+    "dbBehavior"
+   ],
+   [
+    "H5",
+    "httpLive"
+   ],
+   [
+    "H6",
+    "httpLive"
+   ],
+   [
+    "H7",
+    "httpLive"
+   ]
+  ]
+ },
+ "M2_timeliness_null0": {
+  "summary": "SUMMARY total=92 passed=88 failed=4 pending_apply=0 db=13 http=1 artifact=/Users/kevin/.hermes/profiles/zang/cache/scratch/p9s3-qa-neg/backend-ts/.p8s8-artifacts/p8s8-20261003T043108Z/gate.json",
+  "failed": [
+   [
+    "V11",
+    "dbBehavior"
+   ],
+   [
+    "H5",
+    "httpLive"
+   ],
+   [
+    "H6",
+    "httpLive"
+   ],
+   [
+    "H7",
+    "httpLive"
+   ]
+  ]
+ },
+ "M3_status_set_4": {
+  "summary": "SUMMARY total=92 passed=88 failed=4 pending_apply=0 db=13 http=1 artifact=/Users/kevin/.hermes/profiles/zang/cache/scratch/p9s3-qa-neg/backend-ts/.p8s8-artifacts/p8s8-20261003T043131Z/gate.json",
+  "failed": [
+   [
+    "C1",
+    "migration0030"
+   ],
+   [
+    "H5",
+    "httpLive"
+   ],
+   [
+    "H6",
+    "httpLive"
+   ],
+   [
+    "H7",
+    "httpLive"
+   ]
+  ]
+ },
+ "M4_received_refundable": {
+  "summary": "SUMMARY total=92 passed=85 failed=7 pending_apply=0 db=13 http=1 artifact=/Users/kevin/.hermes/profiles/zang/cache/scratch/p9s3-qa-neg/backend-ts/.p8s8-artifacts/p8s8-20261003T043152Z/gate.json",
+  "failed": [
+   [
+    "C3",
+    "migration0030"
+   ],
+   [
+    "C5",
+    "migration0030"
+   ],
+   [
+    "C6",
+    "migration0030"
+   ],
+   [
+    "C2__selftest",
+    "migration0030SelfTest"
+   ],
+   [
+    "H5",
+    "httpLive"
+   ],
+   [
+    "H6",
+    "httpLive"
+   ],
+   [
+    "H7",
+    "httpLive"
+   ]
+  ]
+ },
+ "RESTORE": {
+  "summary": "SUMMARY total=92 passed=89 failed=3 pending_apply=0 db=13 http=1 artifact=/Users/kevin/.hermes/profiles/zang/cache/scratch/p9s3-qa-neg/backend-ts/.p8s8-artifacts/p8s8-20261003T043212Z/gate.json",
+  "failed": [
+   [
+    "H5",
+    "httpLive"
+   ],
+   [
+    "H6",
+    "httpLive"
+   ],
+   [
+    "H7",
+    "httpLive"
+   ]
+  ]
+ }
+}

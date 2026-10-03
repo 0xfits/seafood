@@ -1,0 +1,97 @@
+{
+ "legal_keys": [
+  "system_settings",
+  "listing_deposit_policy",
+  "batt_policy",
+  "checkin_policy",
+  "invite_reward_policy",
+  "mint_burn_policy",
+  "rating_policy",
+  "site_text_overrides",
+  "role_names"
+ ],
+ "legal_keys_len": 9,
+ "reasons": {
+  "unknownKey": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+  "typeInvalid": "SETTING_TYPE_INVALID",
+  "valueNotObject": "SETTING_VALUE_NOT_OBJECT"
+ },
+ "role_name_fields": [
+  "poster",
+  "worker",
+  "seller",
+  "buyer"
+ ],
+ "site_text_fields": [
+  "siteTitle",
+  "siteSlogan",
+  "slogan"
+ ],
+ "overlay_langs": [
+  "zh",
+  "en",
+  "hk",
+  "vn"
+ ],
+ "A1_key_not_in_whitelist__verdict_ok": false,
+ "A1_key_not_in_whitelist__code": "LEDGER_AMOUNT_INVALID",
+ "A1_key_not_in_whitelist__reason": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+ "A1_key_not_in_whitelist__unknown_keys": [
+  "qa9s1_bogus_key"
+ ],
+ "A1_key_not_in_whitelist__legal_len": 9,
+ "A2_bogus_value__ok": false,
+ "A2_bogus_value__reason": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+ "A3_listed_key_unknown_field__ok": false,
+ "A3_listed_key_unknown_field__reason": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+ "A3_listed_key_unknown_field__legal_keys": [
+  "taskCostBatt",
+  "capBatt",
+  "floorBatt",
+  "acceptThresholdBatt"
+ ],
+ "A4_listed_role_names_unknown_field__ok": false,
+ "A4_listed_role_names_unknown_field__reason": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+ "B1_write_legal__ok": true,
+ "B2_write_missing_lang__ok": false,
+ "B2_write_missing_lang__reason": "SETTING_TYPE_INVALID",
+ "B2_write_missing_lang__field": "seller.hk",
+ "B3_write_extra_lang__ok": false,
+ "B3_write_extra_lang__reason": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+ "B4_write_empty_str__ok": false,
+ "B4_write_empty_str__reason": "SETTING_TYPE_INVALID",
+ "C1_read_missing_lang__is_null": true,
+ "C2_read_extra_lang__is_null": true,
+ "C3_read_empty_str__is_null": true,
+ "C4_read_legal__not_null": true,
+ "C4_read_legal_value": {
+  "poster": {
+   "zh": "发单",
+   "en": "Poster",
+   "hk": "發單",
+   "vn": "Poster"
+  },
+  "worker": {
+   "zh": "接单",
+   "en": "Worker",
+   "hk": "接單",
+   "vn": "Worker"
+  },
+  "seller": {
+   "zh": "卖家",
+   "en": "Vendor",
+   "hk": "賣家",
+   "vn": "Vendor"
+  },
+  "buyer": {
+   "zh": "买家",
+   "en": "Customer",
+   "hk": "買家",
+   "vn": "Customer"
+  }
+ },
+ "C5_site_text_legal__not_null": true,
+ "C6_site_text_missing_lang__is_null": true,
+ "D1_numeric_domain_violation__ok": false,
+ "D1_numeric_domain_violation__reason": "SETTING_TYPE_INVALID"
+}

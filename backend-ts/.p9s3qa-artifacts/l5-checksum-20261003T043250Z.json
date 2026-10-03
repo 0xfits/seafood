@@ -1,0 +1,26 @@
+{
+ "run": "20261003T043250Z",
+ "migration_rows": 30,
+ "migration_files": 30,
+ "mismatch_count": 0,
+ "mismatches": [],
+ "named_0030": {
+  "version": "0030",
+  "name": "0030_listing_order_status_extend.sql",
+  "db_checksum": "e49fb99b21a73be417dfb58ebd7052b9745d6d4925f57948e385a45ec747163f",
+  "file_sha256": "e49fb99b21a73be417dfb58ebd7052b9745d6d4925f57948e385a45ec747163f"
+ },
+ "named_0031": {
+  "version": "0031",
+  "name": "0031_rating_and_order_event.sql",
+  "db_checksum": "9ba5c35fc3bd99e7c6d5f198bcad8f527d670eb6363e64f195217d02b36360fd",
+  "file_sha256": "9ba5c35fc3bd99e7c6d5f198bcad8f527d670eb6363e64f195217d02b36360fd"
+ },
+ "counts": {
+  "rating": 0,
+  "event": 0,
+  "listing_order": 18,
+  "users": 56,
+  "app_config": 1
+ }
+}

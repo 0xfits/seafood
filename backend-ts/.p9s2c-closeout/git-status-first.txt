@@ -1,0 +1,147 @@
+ M backend-ts/.p4-artifacts/b4c-20260930T210239/geometry.json
+ M backend-ts/scripts/p8-s2-fee-rebate-gate.ts
+ M backend-ts/scripts/p8-s3-deposit-gate.ts
+ M backend-ts/scripts/p8-s3b-address-gate.ts
+ M backend-ts/scripts/p8-s4-currency-review-gate.ts
+ M backend-ts/scripts/p8-s5-compliance-gate.ts
+ M backend-ts/scripts/p8-s6-site-text-gate.ts
+ M backend-ts/src/database.ts
+ M backend-ts/src/index.ts
+ M backend-ts/src/job-service.ts
+ M backend-ts/src/ledger.ts
+ M frontend/src/locales/en.json
+ M frontend/src/locales/hk.json
+ M frontend/src/locales/vn.json
+ M frontend/src/locales/zh.json
+ M frontend/src/pages/ProfilePage.jsx
+ M frontend/src/test/unit/i18n-batch-b4a.test.jsx
+ M frontend/src/test/unit/i18n-batch-b4b.test.jsx
+ M frontend/src/test/unit/i18n-batch-b5.test.jsx
+ M frontend/src/test/unit/i18n-violation-closeout.test.jsx
+?? backend-ts/.p4-artifacts/p6tr1a-20261002T232549Z/
+?? backend-ts/.p4-artifacts/p6tr1a-20261002T233343Z/
+?? backend-ts/.p4-artifacts/p6tr1a-20261002T233604Z/
+?? backend-ts/.p4-artifacts/p6tr1a-20261002T234548Z/
+?? backend-ts/.p4-artifacts/p6tr1a-20261002T235111Z/
+?? backend-ts/.p4-artifacts/p6tr1a-20261002T235718Z/
+?? backend-ts/.p4-artifacts/p6tr1a-20261003T002629Z/
+?? backend-ts/.p4-artifacts/p6tr1a-20261003T005708Z/
+?? backend-ts/.p4-artifacts/p6tr1a-20261003T011927Z/
+?? backend-ts/.p4-artifacts/p6tr1a-20261003T012154Z/
+?? backend-ts/.p4-artifacts/p6tr1a-20261003T013136Z/
+?? backend-ts/.p4-artifacts/p6tr1a-20261003T021255Z/
+?? backend-ts/.p4-artifacts/p6tr1a-20261003T023012Z/
+?? backend-ts/.p8s1-artifacts/p8s1-20261002T232550Z/
+?? backend-ts/.p8s1-artifacts/p8s1-20261002T233344Z/
+?? backend-ts/.p8s1-artifacts/p8s1-20261002T234549Z/
+?? backend-ts/.p8s1-artifacts/p8s1-20261002T235112Z/
+?? backend-ts/.p8s1-artifacts/p8s1-20261002T235718Z/
+?? backend-ts/.p8s1-artifacts/p8s1-20261003T002629Z/
+?? backend-ts/.p8s1-artifacts/p8s1-20261003T005709Z/
+?? backend-ts/.p8s1-artifacts/p8s1-20261003T011932Z/
+?? backend-ts/.p8s1-artifacts/p8s1-20261003T012155Z/
+?? backend-ts/.p8s1-artifacts/p8s1-20261003T012406Z/
+?? backend-ts/.p8s1-artifacts/p8s1-20261003T012443Z/
+?? backend-ts/.p8s1-artifacts/p8s1-20261003T013137Z/
+?? backend-ts/.p8s1-artifacts/p8s1-20261003T021246Z/
+?? backend-ts/.p8s1-artifacts/p8s1-20261003T022558Z/
+?? backend-ts/.p8s1-artifacts/p8s1-20261003T022739Z/
+?? backend-ts/.p8s1-artifacts/p8s1-20261003T023029Z/
+?? backend-ts/.p8s1-artifacts/p8s1-20261003T030013Z/
+?? backend-ts/.p8s2-artifacts/p8s2-gate-20261002T232550Z/
+?? backend-ts/.p8s2-artifacts/p8s2-gate-20261002T233344Z/
+?? backend-ts/.p8s2-artifacts/p8s2-gate-20261002T233533Z/
+?? backend-ts/.p8s2-artifacts/p8s2-gate-20261002T234549Z/
+?? backend-ts/.p8s2-artifacts/p8s2-gate-20261002T235112Z/
+?? backend-ts/.p8s2-artifacts/p8s2-gate-20261002T235719Z/
+?? backend-ts/.p8s2-artifacts/p8s2-gate-20261003T002630Z/
+?? backend-ts/.p8s2-artifacts/p8s2-gate-20261003T005709Z/
+?? backend-ts/.p8s2-artifacts/p8s2-gate-20261003T011932Z/
+?? backend-ts/.p8s2-artifacts/p8s2-gate-20261003T012155Z/
+?? backend-ts/.p8s2-artifacts/p8s2-gate-20261003T012406Z/
+?? backend-ts/.p8s2-artifacts/p8s2-gate-20261003T012444Z/
+?? backend-ts/.p8s2-artifacts/p8s2-gate-20261003T013017Z/
+?? backend-ts/.p8s2-artifacts/p8s2-gate-20261003T021247Z/
+?? backend-ts/.p8s2-artifacts/p8s2-gate-20261003T022559Z/
+?? backend-ts/.p8s2-artifacts/p8s2-gate-20261003T022739Z/
+?? backend-ts/.p8s2-artifacts/p8s2-gate-20261003T023029Z/
+?? backend-ts/.p8s2-artifacts/p8s2-gate-20261003T030014Z/
+?? backend-ts/.p8s3-artifacts/p8s3-20261002T232551Z/
+?? backend-ts/.p8s3-artifacts/p8s3-20261002T233345Z/
+?? backend-ts/.p8s3-artifacts/p8s3-20261002T233534Z/
+?? backend-ts/.p8s3-artifacts/p8s3-20261002T234550Z/
+?? backend-ts/.p8s3-artifacts/p8s3-20261002T235113Z/
+?? backend-ts/.p8s3-artifacts/p8s3-20261002T235723Z/
+?? backend-ts/.p8s3-artifacts/p8s3-20261003T002630Z/
+?? backend-ts/.p8s3-artifacts/p8s3-20261003T005710Z/
+?? backend-ts/.p8s3-artifacts/p8s3-20261003T011933Z/
+?? backend-ts/.p8s3-artifacts/p8s3-20261003T012156Z/
+?? backend-ts/.p8s3-artifacts/p8s3-20261003T012407Z/
+?? backend-ts/.p8s3-artifacts/p8s3-20261003T012444Z/
+?? backend-ts/.p8s3-artifacts/p8s3-20261003T013138Z/
+?? backend-ts/.p8s3-artifacts/p8s3-20261003T021247Z/
+?? backend-ts/.p8s3-artifacts/p8s3-20261003T022559Z/
+?? backend-ts/.p8s3-artifacts/p8s3-20261003T022740Z/
+?? backend-ts/.p8s3-artifacts/p8s3-20261003T023030Z/
+?? backend-ts/.p8s3-artifacts/p8s3-20261003T030014Z/
+?? backend-ts/.p8s3b-artifacts/p8s3b-20261002T232551Z/
+?? backend-ts/.p8s3b-artifacts/p8s3b-20261002T233346Z/
+?? backend-ts/.p8s3b-artifacts/p8s3b-20261002T233534Z/
+?? backend-ts/.p8s3b-artifacts/p8s3b-20261002T234550Z/
+?? backend-ts/.p8s3b-artifacts/p8s3b-20261002T235113Z/
+?? backend-ts/.p8s3b-artifacts/p8s3b-20261002T235724Z/
+?? backend-ts/.p8s3b-artifacts/p8s3b-20261003T002631Z/
+?? backend-ts/.p8s3b-artifacts/p8s3b-20261003T005711Z/
+?? backend-ts/.p8s3b-artifacts/p8s3b-20261003T011934Z/
+?? backend-ts/.p8s3b-artifacts/p8s3b-20261003T012157Z/
+?? backend-ts/.p8s3b-artifacts/p8s3b-20261003T012407Z/
+?? backend-ts/.p8s3b-artifacts/p8s3b-20261003T012445Z/
+?? backend-ts/.p8s3b-artifacts/p8s3b-20261003T013138Z/
+?? backend-ts/.p8s3b-artifacts/p8s3b-20261003T021248Z/
+?? backend-ts/.p8s3b-artifacts/p8s3b-20261003T022600Z/
+?? backend-ts/.p8s3b-artifacts/p8s3b-20261003T022741Z/
+?? backend-ts/.p8s3b-artifacts/p8s3b-20261003T023031Z/
+?? backend-ts/.p8s3b-artifacts/p8s3b-20261003T030015Z/
+?? backend-ts/.p8s4-artifacts/p8s4-20261002T235114Z/
+?? backend-ts/.p8s4-artifacts/p8s4-20261002T235724Z/
+?? backend-ts/.p8s4-artifacts/p8s4-20261003T002632Z/
+?? backend-ts/.p8s4-artifacts/p8s4-20261003T005712Z/
+?? backend-ts/.p8s4-artifacts/p8s4-20261003T011935Z/
+?? backend-ts/.p8s4-artifacts/p8s4-20261003T012157Z/
+?? backend-ts/.p8s4-artifacts/p8s4-20261003T012408Z/
+?? backend-ts/.p8s4-artifacts/p8s4-20261003T012446Z/
+?? backend-ts/.p8s4-artifacts/p8s4-20261003T013139Z/
+?? backend-ts/.p8s4-artifacts/p8s4-20261003T021249Z/
+?? backend-ts/.p8s4-artifacts/p8s4-20261003T022601Z/
+?? backend-ts/.p8s4-artifacts/p8s4-20261003T022741Z/
+?? backend-ts/.p8s4-artifacts/p8s4-20261003T023031Z/
+?? backend-ts/.p8s4-artifacts/p8s4-20261003T030016Z/
+?? backend-ts/.p8s5-artifacts/p8s5-20261003T011935Z/
+?? backend-ts/.p8s5-artifacts/p8s5-20261003T012158Z/
+?? backend-ts/.p8s5-artifacts/p8s5-20261003T012409Z/
+?? backend-ts/.p8s5-artifacts/p8s5-20261003T012446Z/
+?? backend-ts/.p8s5-artifacts/p8s5-20261003T013017Z/
+?? backend-ts/.p8s5-artifacts/p8s5-20261003T021249Z/
+?? backend-ts/.p8s5-artifacts/p8s5-20261003T022602Z/
+?? backend-ts/.p8s5-artifacts/p8s5-20261003T022742Z/
+?? backend-ts/.p8s5-artifacts/p8s5-20261003T023032Z/
+?? backend-ts/.p8s5-artifacts/p8s5-20261003T030016Z/
+?? backend-ts/.p8s6-artifacts/
+?? backend-ts/.p8s7-artifacts/
+?? backend-ts/.p9s1qa-artifacts/
+?? backend-ts/.p9s2-apply/
+?? backend-ts/.p9s2c-apply/
+?? backend-ts/.p9s2c-closeout/
+?? backend-ts/migrations/0028_kind_close_set_21.sql
+?? backend-ts/migrations/0029_batt_checkin.sql
+?? backend-ts/scripts/p8-s5-00-recon.ts
+?? backend-ts/scripts/p8-s5-00-recon2.ts
+?? backend-ts/scripts/p8-s5-00-recon3.ts
+?? backend-ts/scripts/p8-s7-batt-checkin-gate.ts
+?? docs/audit/data-layer-v0.20-delta.md
+?? docs/audit/p9-s2-batt-checkin.md
+?? docs/audit/route-layer-v2.13-delta.md
+?? docs/versions/data-layer.spec.v0.20.md
+?? docs/versions/route-layer.spec.v2.13.md
+?? frontend/src/batt-checkin.js
+?? frontend/src/components/BattCheckinPanel.jsx

@@ -1,0 +1,22 @@
+{
+ "ledger_error_codes_len": 33,
+ "ledger_error_table_len": 33,
+ "settings_write_reasons": {
+  "unknownKey": "SETTING_KEY_NOT_IN_APP_CONFIG_WHITELIST",
+  "typeInvalid": "SETTING_TYPE_INVALID",
+  "valueNotObject": "SETTING_VALUE_NOT_OBJECT"
+ },
+ "settings_write_reasons_len": 3,
+ "first_10_codes": [
+  "LEDGER_INSUFFICIENT_BALANCE",
+  "LEDGER_INSUFFICIENT_FROZEN",
+  "LEDGER_IDEMPOTENCY_REPLAY",
+  "LEDGER_IDEMPOTENCY_CONFLICT",
+  "LEDGER_IDEMPOTENCY_KEY_REQUIRED",
+  "LEDGER_IDEMPOTENCY_KEY_INVALID",
+  "LEDGER_CURRENCY_NOT_FOUND",
+  "LEDGER_CURRENCY_NOT_LISTED",
+  "LEDGER_CURRENCY_FROZEN",
+  "LEDGER_CURRENCY_DELISTED"
+ ]
+}

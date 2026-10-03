@@ -1,0 +1,142 @@
+{
+ "unit": "P9S5-MIG-RUN-ROLLBACK",
+ "generated_at": "2026-10-03T07:58:54.976Z",
+ "run": "20261003T075833Z",
+ "results": [
+  {
+   "version": "0035",
+   "file": "migrations/0035_fee_rate_range_extend.sql",
+   "touched": [
+    "commission_policy.commission_policy_fee_rate_rng CHECK 域 100..500 -> 100..10000"
+   ],
+   "reads": {
+    "1_no_error": true,
+    "exec_err": null,
+    "2_new_object_absent_after_rollback": true,
+    "3_schema_migration_no_new_row": true,
+    "schema_migration_rows_before": 33,
+    "schema_migration_rows_after": 33,
+    "schema_migration_max_before": "0034",
+    "schema_migration_max_after": "0034",
+    "4_target_object_restored": true,
+    "new_relations_added": 0
+   },
+   "in_tx_post_state": {
+    "post_fee_rng_def": "CHECK (((fee_rate_bp >= 100) AND (fee_rate_bp <= 10000)))",
+    "post_policy_count": 3,
+    "post_conservation_md5": "27ddc76b842594cb6ee8673c171e6526",
+    "post_conservation_has_m0": false,
+    "post_fee_rng_has_10000": true
+   },
+   "pre": {
+    "fee_rng_def": "CHECK (((fee_rate_bp >= 100) AND (fee_rate_bp <= 500)))",
+    "policy_count": 3,
+    "policy_rows": "1|100|10|{3000,2000,1500,1000,800,600,500,300,200,100}|1970-01-01 00:00:00+00|0,2|100|10|{3000,2000,1500,1000,800,600,500,300,200,100}|2026-09-30 19:15:36.192+00|1,3|100|10|{3000,2000,1500,1000,800,600,500,300,200,100}|2026-10-01 19:21:28.285+00|1",
+    "conservation_md5": "27ddc76b842594cb6ee8673c171e6526",
+    "conservation_src_len": 2624,
+    "post_event_md5": "3737e0f8ef4f2bbfffd973f16ce47fb8",
+    "post_event_len": 47968,
+    "conservation_trigger": "O/true/true/true"
+   },
+   "post_rollback": {
+    "fee_rng_def": "CHECK (((fee_rate_bp >= 100) AND (fee_rate_bp <= 500)))",
+    "policy_count": 3,
+    "conservation_md5": "27ddc76b842594cb6ee8673c171e6526",
+    "conservation_src_len": 2624,
+    "post_event_md5": "3737e0f8ef4f2bbfffd973f16ce47fb8",
+    "post_event_len": 47968,
+    "conservation_trigger": "O/true/true/true"
+   }
+  },
+  {
+   "version": "0036",
+   "file": "migrations/0036_commission_policy_p9_5.sql",
+   "touched": [
+    "commission_policy 新政策行（fee_rate_bp=1000/levels=6）"
+   ],
+   "reads": {
+    "1_no_error": true,
+    "exec_err": null,
+    "2_new_object_absent_after_rollback": true,
+    "3_schema_migration_no_new_row": true,
+    "schema_migration_rows_before": 33,
+    "schema_migration_rows_after": 33,
+    "schema_migration_max_before": "0034",
+    "schema_migration_max_after": "0034",
+    "4_target_object_restored": true,
+    "new_relations_added": 0
+   },
+   "in_tx_post_state": {
+    "post_fee_rng_def": "CHECK (((fee_rate_bp >= 100) AND (fee_rate_bp <= 10000)))",
+    "post_policy_count": 4,
+    "post_conservation_md5": "27ddc76b842594cb6ee8673c171e6526",
+    "post_conservation_has_m0": false,
+    "post_fee_rng_has_10000": true
+   },
+   "pre": {
+    "fee_rng_def": "CHECK (((fee_rate_bp >= 100) AND (fee_rate_bp <= 500)))",
+    "policy_count": 3,
+    "policy_rows": "1|100|10|{3000,2000,1500,1000,800,600,500,300,200,100}|1970-01-01 00:00:00+00|0,2|100|10|{3000,2000,1500,1000,800,600,500,300,200,100}|2026-09-30 19:15:36.192+00|1,3|100|10|{3000,2000,1500,1000,800,600,500,300,200,100}|2026-10-01 19:21:28.285+00|1",
+    "conservation_md5": "27ddc76b842594cb6ee8673c171e6526",
+    "conservation_src_len": 2624,
+    "post_event_md5": "3737e0f8ef4f2bbfffd973f16ce47fb8",
+    "post_event_len": 47968,
+    "conservation_trigger": "O/true/true/true"
+   },
+   "post_rollback": {
+    "fee_rng_def": "CHECK (((fee_rate_bp >= 100) AND (fee_rate_bp <= 500)))",
+    "policy_count": 3,
+    "conservation_md5": "27ddc76b842594cb6ee8673c171e6526",
+    "conservation_src_len": 2624,
+    "post_event_md5": "3737e0f8ef4f2bbfffd973f16ce47fb8",
+    "post_event_len": 47968,
+    "conservation_trigger": "O/true/true/true"
+   }
+  },
+  {
+   "version": "0037",
+   "file": "migrations/0037_commission_conservation_m0.sql",
+   "touched": [
+    "public.ledger_assert_commission_conservation() 函数体（加 M=0 豁免分支）"
+   ],
+   "reads": {
+    "1_no_error": true,
+    "exec_err": null,
+    "2_new_object_absent_after_rollback": true,
+    "3_schema_migration_no_new_row": true,
+    "schema_migration_rows_before": 33,
+    "schema_migration_rows_after": 33,
+    "schema_migration_max_before": "0034",
+    "schema_migration_max_after": "0034",
+    "4_target_object_restored": true,
+    "new_relations_added": 0
+   },
+   "in_tx_post_state": {
+    "post_fee_rng_def": "CHECK (((fee_rate_bp >= 100) AND (fee_rate_bp <= 500)))",
+    "post_policy_count": 3,
+    "post_conservation_md5": "3a6dca5e38189a1020dcaade22dd2401",
+    "post_conservation_has_m0": true,
+    "post_fee_rng_has_10000": false
+   },
+   "pre": {
+    "fee_rng_def": "CHECK (((fee_rate_bp >= 100) AND (fee_rate_bp <= 500)))",
+    "policy_count": 3,
+    "policy_rows": "1|100|10|{3000,2000,1500,1000,800,600,500,300,200,100}|1970-01-01 00:00:00+00|0,2|100|10|{3000,2000,1500,1000,800,600,500,300,200,100}|2026-09-30 19:15:36.192+00|1,3|100|10|{3000,2000,1500,1000,800,600,500,300,200,100}|2026-10-01 19:21:28.285+00|1",
+    "conservation_md5": "27ddc76b842594cb6ee8673c171e6526",
+    "conservation_src_len": 2624,
+    "post_event_md5": "3737e0f8ef4f2bbfffd973f16ce47fb8",
+    "post_event_len": 47968,
+    "conservation_trigger": "O/true/true/true"
+   },
+   "post_rollback": {
+    "fee_rng_def": "CHECK (((fee_rate_bp >= 100) AND (fee_rate_bp <= 500)))",
+    "policy_count": 3,
+    "conservation_md5": "27ddc76b842594cb6ee8673c171e6526",
+    "conservation_src_len": 2624,
+    "post_event_md5": "3737e0f8ef4f2bbfffd973f16ce47fb8",
+    "post_event_len": 47968,
+    "conservation_trigger": "O/true/true/true"
+   }
+  }
+ ]
+}

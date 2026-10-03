@@ -1,0 +1,197 @@
+{
+ "unit": "P9S5-IMPL-REALRUN",
+ "generated_at": "2026-10-03T08:20:15.616Z",
+ "run": "20261003T082015Z",
+ "note": "单事务内先跑 0038 全文再调用；末尾 ROLLBACK（禁 COMMIT）；不 apply。",
+ "before": {
+  "batt_account": 2,
+  "batt_entry": 2,
+  "ledger_entry": 359,
+  "account": 39,
+  "users": 56
+ },
+ "precondition": {
+  "db_kind_ok_new": false,
+  "schema_version": "0034"
+ },
+ "native_settle_method": {
+  "ok": false,
+  "sqlstate": "LEDGER_UNKNOWN_KIND",
+  "code_name": "不支持的账务类型"
+ },
+ "after": {
+  "batt_account": 2,
+  "batt_entry": 2,
+  "ledger_entry": 359,
+  "account": 39,
+  "users": 56
+ },
+ "rollback_clean": true,
+ "exec_err": null,
+ "in_tx": {
+  "fixtures_ok": true,
+  "grant_G1_new": {
+   "outcome": "granted",
+   "batt": 30,
+   "grantedBatt": 30,
+   "signupBatt": 30,
+   "source": "constant",
+   "idempotencyKey": "biz:invite:signup:990011",
+   "batt_row": 30,
+   "batt_entry_rows": [
+    {
+     "delta": 30,
+     "batt_after": 30,
+     "reason": "invite_signup",
+     "idempotency_key": "biz:invite:signup:990011"
+    }
+   ]
+  },
+  "grant_G2_replay": {
+   "outcome": "replayed",
+   "batt": 30,
+   "grantedBatt": 0,
+   "signupBatt": 30,
+   "source": "constant",
+   "idempotencyKey": "biz:invite:signup:990011",
+   "batt_row": 30,
+   "batt_entry_rows": [
+    {
+     "delta": 30,
+     "batt_after": 30,
+     "reason": "invite_signup",
+     "idempotency_key": "biz:invite:signup:990011"
+    }
+   ]
+  },
+  "grant_G3_capped": {
+   "outcome": "capped",
+   "batt": 100,
+   "grantedBatt": 10,
+   "signupBatt": 30,
+   "source": "constant",
+   "idempotencyKey": "biz:invite:signup:990012",
+   "batt_row": 100,
+   "batt_entry_rows": [
+    {
+     "delta": 10,
+     "batt_after": 100,
+     "reason": "invite_signup",
+     "idempotency_key": "biz:invite:signup:990012"
+    }
+   ]
+  },
+  "grant_G4_fullcap": {
+   "outcome": "capped",
+   "batt": 100,
+   "grantedBatt": 0,
+   "signupBatt": 30,
+   "source": "constant",
+   "idempotencyKey": "biz:invite:signup:990013",
+   "batt_row": 100,
+   "batt_entry_rows": []
+  },
+  "grant_G5_config_source": {
+   "outcome": "granted",
+   "batt": 40,
+   "grantedBatt": 40,
+   "signupBatt": 40,
+   "source": "config",
+   "idempotencyKey": "biz:invite:signup:990014",
+   "batt_row": 40,
+   "batt_entry_rows": [
+    {
+     "delta": 40,
+     "batt_after": 40,
+     "reason": "invite_signup",
+     "idempotency_key": "biz:invite:signup:990014"
+    }
+   ]
+  },
+  "settle_S1_N2": {
+   "key": "biz:invite:firsttask:990001",
+   "recipients": [
+    "990001",
+    "990002"
+   ],
+   "total": 20,
+   "rows_before": 0,
+   "rows_after": [
+    {
+     "uid": "-1",
+     "delta": "-20",
+     "ref": "job:9900002"
+    },
+    {
+     "uid": "990001",
+     "delta": "10",
+     "ref": "job:9900002"
+    },
+    {
+     "uid": "990002",
+     "delta": "10",
+     "ref": "job:9900002"
+    }
+   ],
+   "event_root_key": "biz:invite:firsttask:990001",
+   "replay": false
+  },
+  "settle_S2_replay": {
+   "replay": true,
+   "rows_before": 3,
+   "rows_after": 3
+  },
+  "settle_S3_N1": {
+   "key": "biz:invite:firsttask:990003",
+   "recipients": [
+    "990003"
+   ],
+   "total": 10,
+   "rows": [
+    {
+     "uid": "-1",
+     "delta": "-10"
+    },
+    {
+     "uid": "990003",
+     "delta": "10"
+    }
+   ],
+   "replay": false
+  },
+  "neg_N1_minus1_debit_jobfee": {
+   "label": "ops:p9s5:neg:n1",
+   "ok": false,
+   "sqlstate": "LD021",
+   "message": "LEDGER_RESERVED_UID",
+   "reason_detail": "{\"uid\": \"-1\", \"kind\": \"job_fee\", \"reason\": \"PLATFORM_DEBIT_FORBIDDEN\"}",
+   "details": null
+  },
+  "neg_N2_minus1_debit_tradefee": {
+   "label": "ops:p9s5:neg:n2",
+   "ok": false,
+   "sqlstate": "LD021",
+   "message": "LEDGER_RESERVED_UID",
+   "reason_detail": "{\"uid\": \"-1\", \"kind\": \"trade_fee\", \"reason\": \"PLATFORM_DEBIT_FORBIDDEN\"}",
+   "details": null
+  },
+  "neg_N3_minus1_credit_commission": {
+   "label": "ops:p9s5:neg:n3",
+   "ok": false,
+   "sqlstate": "LD021",
+   "message": "LEDGER_RESERVED_UID",
+   "reason_detail": "{\"uid\": \"-1\", \"kind\": \"commission\", \"reason\": \"PLATFORM_CREDIT_KIND_FORBIDDEN\"}",
+   "details": null
+  },
+  "method_in_tx_attempt": {
+   "label": "settle-method-in-tx",
+   "ok": false,
+   "sqlstate": "LEDGER_UNKNOWN_KIND",
+   "message": "不支持的账务类型",
+   "reason_detail": "",
+   "details": {
+    "kind": "invite_first_task_reward"
+   }
+  }
+ }
+}

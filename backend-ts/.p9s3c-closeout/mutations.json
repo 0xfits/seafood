@@ -1,0 +1,64 @@
+{
+ "mutations": [
+  {
+   "mutation": "M1_live_rating_no_row_guard",
+   "file": "src/database.ts",
+   "exit": 1,
+   "total": 92,
+   "passed": 89,
+   "failed": 3,
+   "red_ids": [
+    "C7",
+    "C8",
+    "G5"
+   ],
+   "restored_byte_same": true
+  },
+  {
+   "mutation": "M2_live_timeliness_null_to_zero",
+   "file": "src/database.ts",
+   "exit": 1,
+   "total": 92,
+   "passed": 90,
+   "failed": 2,
+   "red_ids": [
+    "C11",
+    "G7"
+   ],
+   "restored_byte_same": true
+  },
+  {
+   "mutation": "M3_source_status_set_4",
+   "file": "migrations/0030_listing_order_status_extend.sql",
+   "exit": 1,
+   "total": 92,
+   "passed": 91,
+   "failed": 1,
+   "red_ids": [
+    "C1"
+   ],
+   "restored_byte_same": true
+  },
+  {
+   "mutation": "M4_source_allow_received_refunded",
+   "file": "migrations/0030_listing_order_status_extend.sql",
+   "exit": 1,
+   "total": 92,
+   "passed": 88,
+   "failed": 4,
+   "red_ids": [
+    "C2__selftest",
+    "C3",
+    "C5",
+    "C6"
+   ],
+   "restored_byte_same": true
+  }
+ ],
+ "final": {
+  "exit": 0,
+  "total": 92,
+  "passed": 92,
+  "failed": 0
+ }
+}

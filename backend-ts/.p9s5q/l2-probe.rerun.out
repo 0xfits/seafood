@@ -1,0 +1,80 @@
+{
+  "schema_version": "0038",
+  "schema_migration_rows": 37,
+  "base_tables": 34,
+  "ledger_kind_enum_def_has_new": true,
+  "ledger_kind_enum_covered": 24,
+  "kind_ok_md5": "fbf01eb42a967bdb0f52ae704038dff9",
+  "kind_ok_len": 479,
+  "kind_ok_new_true": true,
+  "kind_ok_new_frozen_false": true,
+  "assert_md5": "4b43b44c84bb3fce96af8777ac39f0dd",
+  "assert_len": 1718,
+  "whitelist_behavior": {
+    "credit:trade_fee": "ALLOW",
+    "credit:listing_fee": "ALLOW",
+    "credit:currency_create_fee": "ALLOW",
+    "credit:job_fee": "ALLOW",
+    "credit:listing_deposit": "ALLOW",
+    "credit:checkin_makeup_fee": "ALLOW",
+    "credit:bttc_mint_fee": "ALLOW",
+    "credit:bttc_burn_fee": "ALLOW",
+    "debit:invite_first_task_reward": "ALLOW",
+    "debit:job_fee": "REJECT:LD021:",
+    "debit:bttc_mint_fee": "REJECT:LD021:",
+    "credit:invite_first_task_reward": "REJECT:LD021:",
+    "credit(-2):invite_first_task_reward": "REJECT:LD021:",
+    "debit(-2):commission": "ALLOW",
+    "credit(-3):hold_forfeit": "ALLOW"
+  },
+  "commission_policy": [
+    {
+      "policy_id": "1",
+      "fee_rate_bp": 100,
+      "levels": 10,
+      "w": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+      "created_by": "0"
+    },
+    {
+      "policy_id": "2",
+      "fee_rate_bp": 100,
+      "levels": 10,
+      "w": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+      "created_by": "1"
+    },
+    {
+      "policy_id": "3",
+      "fee_rate_bp": 100,
+      "levels": 10,
+      "w": "{3000,2000,1500,1000,800,600,500,300,200,100}",
+      "created_by": "1"
+    },
+    {
+      "policy_id": "34",
+      "fee_rate_bp": 1000,
+      "levels": 6,
+      "w": "{2600,1700,700,2600,1700,700}",
+      "created_by": "-1"
+    }
+  ],
+  "fee_rate_check_def": "CHECK (((fee_rate_bp >= 100) AND (fee_rate_bp <= 10000)))",
+  "post_event_md5": "3737e0f8ef4f2bbfffd973f16ce47fb8",
+  "post_event_len": 47968,
+  "migration_checksums": {
+    "0035": "2d34cbc8719c",
+    "0036": "e28f75b7908f",
+    "0037": "a039a407b778",
+    "0038": "e85d9e49394d"
+  },
+  "conservation_trigger": [
+    {
+      "tgname": "trg_ledger_entry_commission_conservation",
+      "tgenabled": "O",
+      "tgdeferrable": true,
+      "tginitdeferred": true,
+      "is_constraint": true
+    }
+  ],
+  "conservation_has_m0_marker": true,
+  "conservation_has_v_closed": true
+}

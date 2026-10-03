@@ -1,0 +1,294 @@
+{
+ "unit": "P9S2QA-L4-R923",
+ "run": "20261003T031742Z",
+ "at": "2026-10-03T03:17:49.732Z",
+ "total": 12,
+ "passed": 12,
+ "failed": 0,
+ "all_rolled_back": true,
+ "legs": {
+  "L4_1_pure": {
+   "hard_max": {
+    "BATT_CAP_HARD_MAX": 100,
+    "CHECKIN_STREAK_CAP_HARD_MAX": 7
+   },
+   "batt_in": {
+    "taskCostBatt": 9,
+    "capBatt": 200,
+    "floorBatt": 0,
+    "acceptThresholdBatt": 9
+   },
+   "batt_effective": {
+    "taskCostBatt": 9,
+    "capBatt": 100,
+    "floorBatt": 0,
+    "acceptThresholdBatt": 9
+   },
+   "batt_source": "config",
+   "checkin_in": {
+    "baseRewardBatt": 30,
+    "streakCapDays": 10,
+    "streakDay7RewardBatt": 60,
+    "makeupCostUsd": 100,
+    "makeupDailyLimit": 1
+   },
+   "checkin_effective": {
+    "baseRewardBatt": 30,
+    "streakCapDays": 7,
+    "streakDay7RewardBatt": 60,
+    "makeupCostUsd": 100,
+    "makeupDailyLimit": 1
+   },
+   "checkin_source": "config",
+   "floor_over_cap": {
+    "in": {
+     "capBatt": 100,
+     "floorBatt": 150
+    },
+    "out": 100
+   }
+  },
+  "L4_2_db": {
+   "baseline": {
+    "appcfg_rows": 1,
+    "batt_policy_present": false,
+    "checkin_policy_present": false,
+    "batt_rows": 2,
+    "checkin_rows": 2
+   },
+   "uid": 1,
+   "employer": 3,
+   "raw_batt": {
+    "capBatt": 200,
+    "floorBatt": 0,
+    "taskCostBatt": 9,
+    "acceptThresholdBatt": 9
+   },
+   "raw_checkin": {
+    "makeupCostUsd": 100,
+    "streakCapDays": 10,
+    "baseRewardBatt": 30,
+    "makeupDailyLimit": 1,
+    "streakDay7RewardBatt": 60
+   },
+   "eff_batt": {
+    "policy": {
+     "taskCostBatt": 9,
+     "capBatt": 100,
+     "floorBatt": 0,
+     "acceptThresholdBatt": 9
+    },
+    "source": "config"
+   },
+   "eff_checkin": {
+    "policy": {
+     "baseRewardBatt": 30,
+     "streakCapDays": 7,
+     "streakDay7RewardBatt": 60,
+     "makeupCostUsd": 100,
+     "makeupDailyLimit": 1
+    },
+    "source": "config"
+   },
+   "getBatt": {
+    "batt": 0,
+    "capBatt": 100,
+    "floorBatt": 0,
+    "acceptThresholdBatt": 9,
+    "canAccept": false,
+    "source": "config",
+    "updated_at": null
+   },
+   "getCheckinStatus": {
+    "streakDay": 0,
+    "streakCapDays": 7,
+    "checkedInToday": false,
+    "canMakeup": true,
+    "makeupCostUsd": 100,
+    "makeupDailyLimit": 1,
+    "source": "config",
+    "updated_at": null
+   },
+   "checkin_res": {
+    "outcome": "inserted",
+    "checkinDay": "2026-10-03",
+    "streakDay": 7,
+    "rewardBatt": 60,
+    "creditedBatt": 5,
+    "batt": 100
+   },
+   "checkin_err": null,
+   "apply_res": {
+    "outcome": "applied",
+    "applicationId": 58,
+    "jobStatus": "open"
+   },
+   "accept_res": {
+    "outcome": "accepted",
+    "applicationId": 58,
+    "jobId": 991401,
+    "workerUid": 1,
+    "applicationStatus": "applied",
+    "jobStatus": "open",
+    "workerBattAfter": 91
+   },
+   "accept_err": null,
+   "after_writes": {
+    "batt": 91,
+    "max_streak": 7,
+    "batt_entries": 2
+   },
+   "negative_batt_after_125": {
+    "ok": false,
+    "err": "23514"
+   },
+   "negative_streak_8": {
+    "ok": false,
+    "err": "23514"
+   }
+  },
+  "after_rollback": {
+   "appcfg_rows": 1,
+   "policy_rows": 0,
+   "batt_rows": 2,
+   "checkin_rows": 2
+  }
+ },
+ "checks": [
+  {
+   "id": "L4-a",
+   "pass": true,
+   "note": "capBatt 200 ⇒ 生效 100；source=config（AV4 域仍放行任意正整数，钳制在读生效值）",
+   "actual": {
+    "capBatt": 100,
+    "source": "config"
+   }
+  },
+  {
+   "id": "L4-b",
+   "pass": true,
+   "note": "streakCapDays 10 ⇒ 生效 7；source=config（同上）",
+   "actual": {
+    "streakCapDays": 7,
+    "source": "config"
+   }
+  },
+  {
+   "id": "L4-c",
+   "pass": true,
+   "note": "floorBatt 150 > capBatt 100 ⇒ floor 生效 100（floor ∈ [0,capBatt]）",
+   "actual": 100
+  },
+  {
+   "id": "L4-1",
+   "pass": true,
+   "note": "事务内 INSERT capBatt=200 ⇒ 读回原始 200 ⇒ 生效 100",
+   "actual": {
+    "raw": 200,
+    "eff": 100
+   }
+  },
+  {
+   "id": "L4-2",
+   "pass": true,
+   "note": "事务内 INSERT streakCapDays=10 ⇒ 读回原始 10 ⇒ 生效 7",
+   "actual": {
+    "raw": 10,
+    "eff": 7
+   }
+  },
+  {
+   "id": "L4-3",
+   "pass": true,
+   "note": "读口 GET /api/batt 生效 capBatt=100 / floorBatt=0",
+   "actual": {
+    "capBatt": 100,
+    "floorBatt": 0
+   }
+  },
+  {
+   "id": "L4-4",
+   "pass": true,
+   "note": "读口 GET /api/checkin 生效 streakCapDays=7",
+   "actual": {
+    "streakCapDays": 7
+   }
+  },
+  {
+   "id": "L4-5",
+   "pass": true,
+   "note": "★ 签到写路径（capBatt=200 配置在册）不 23514：batt 95→100（封顶丢弃）· streak 钳到 7 · creditedBatt=5",
+   "actual": {
+    "res": {
+     "outcome": "inserted",
+     "checkinDay": "2026-10-03",
+     "streakDay": 7,
+     "rewardBatt": 60,
+     "creditedBatt": 5,
+     "batt": 100
+    },
+    "err": null
+   }
+  },
+  {
+   "id": "L4-6",
+   "pass": true,
+   "note": "★ 消耗写路径（前置闸 + 同事务扣 9）不 23514：applied ⇒ accepted · batt 100→91",
+   "actual": {
+    "applied": {
+     "outcome": "applied",
+     "applicationId": 58,
+     "jobStatus": "open"
+    },
+    "acc": {
+     "outcome": "accepted",
+     "applicationId": 58,
+     "jobId": 991401,
+     "workerUid": 1,
+     "applicationStatus": "applied",
+     "jobStatus": "open",
+     "workerBattAfter": 91
+    },
+    "err": null
+   }
+  },
+  {
+   "id": "L4-7",
+   "pass": true,
+   "note": "反事实判负①：batt_after=125 直插 ⇒ 23514（DB 兜底 CHECK 为荷载）",
+   "actual": {
+    "ok": false,
+    "err": "23514"
+   }
+  },
+  {
+   "id": "L4-8",
+   "pass": true,
+   "note": "反事实判负②：streak_day=8 直插 ⇒ 23514",
+   "actual": {
+    "ok": false,
+    "err": "23514"
+   }
+  },
+  {
+   "id": "L4-9",
+   "pass": true,
+   "note": "零净写终证：ROLLBACK 后 app_config/policy/batt/checkin 计数与基线逐项相同",
+   "actual": {
+    "post": {
+     "appcfg_rows": 1,
+     "policy_rows": 0,
+     "batt_rows": 2,
+     "checkin_rows": 2
+    },
+    "baseline": {
+     "appcfg_rows": 1,
+     "batt_policy_present": false,
+     "checkin_policy_present": false,
+     "batt_rows": 2,
+     "checkin_rows": 2
+    }
+   }
+  }
+ ]
+}

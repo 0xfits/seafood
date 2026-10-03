@@ -1,0 +1,60 @@
+# L3 同族自判（Neng 现取）
+## p8-s7 handlerBlock 边界锚（新形：先收本路由顶层 });）
+/** 从源码切「某注册点起、到下一个注册点止」的 handler 文本（沿 p8-s2 先例）。 */
+const handlerBlock = (src: string, routeLiteral: string): string => {
+  const lines = src.split('\n');
+  const start = lines.findIndex((l) => l.includes(routeLiteral));
+  if (start < 0) return '';
+  let end = lines.length;
+  for (let i = start + 1; i < lines.length; i += 1) {
+    // 先收本路由自身的顶层收口 `});`：P9③ 在两路由之间插入了顶层 helper `sendOrderTransition`
+    // ⇒ 旧「切到下一注册点」会把 helper 里的码（`AUTH_FORBIDDEN` / `LEDGER_REF_NOT_FOUND`）误并进本 handler，令 F2 假红。
+    if (/^\}\);/.test(lines[i])) { end = i + 1; break; }
+    if (/^\s*app\.(get|post|put|delete|patch)\(/.test(lines[i])) { end = i; break; }
+  }
+  return lines.slice(start, end).join('\n');
+};
+
+## p8-s8 handlerBlock 边界锚（仅路由锚）
+/** 从源码切「某注册点起、到下一个注册点止」的 handler 文本（沿 p8-s7 先例）。 */
+const handlerBlock = (src: string, routeLiteral: string): string => {
+  const lines = src.split('\n');
+  const start = lines.findIndex((l) => l.includes(routeLiteral));
+  if (start < 0) return '';
+  let end = lines.length;
+  for (let i = start + 1; i < lines.length; i += 1) {
+    if (/^\s*app\.(get|post|put|delete|patch)\(/.test(lines[i])) { end = i; break; }
+  }
+  return lines.slice(start, end).join('\n');
+};
+
+## p8-s2 handlerBlock 边界锚（旧形：仅 ^app. 列 0）
+const handlerBlock = (src: string, routeLiteral: string): string => {
+  const lines = src.split('\n');
+  const start = lines.findIndex((l) => l.includes(routeLiteral));
+  if (start < 0) return '';
+  let end = lines.length;
+  for (let i = start + 1; i < lines.length; i += 1) {
+    if (/^app\.(get|post|put|delete|patch)\(/.test(lines[i])) { end = i; break; }
+  }
+  return lines.slice(start, end).join('\n');
+
+## 顶层 helper sendOrderTransition 位置 vs 5 新口
+1315:const sendOrderTransition = (
+1343:app.get('/api/rating/summary', async (req, res) => {
+1372:app.get('/api/timeliness', async (req, res) => {
+1400:app.post('/api/rating', async (req, res) => {
+1452:app.post('/api/listing-orders/:orderId/ship', async (req, res) => {
+1475:app.post('/api/listing-orders/:orderId/receive', async (req, res) => {
+2425:app.post('/api/listing-orders/:orderId/refund', async (req, res) => {
+
+## COALESCE 缺陷形（内层裸列）全仓 scan
+/Users/kevin/.hermes/profiles/zang/cache/scratch/qaP9s3/backend-ts/scripts/p2qa-06-levels10-tail.ts:100:(SELECT COALESCE(a.balance,
+/Users/kevin/.hermes/profiles/zang/cache/scratch/qaP9s3/backend-ts/scripts/p2qa-06-levels10-tail.ts:101:(SELECT COALESCE(a.frozen,
+/Users/kevin/.hermes/profiles/zang/cache/scratch/qaP9s3/backend-ts/scripts/p2qa-14-replay-guard.ts:32:(SELECT COALESCE(event_root_key,
+/Users/kevin/.hermes/profiles/zang/cache/scratch/qaP9s3/backend-ts/scripts/p2qa-00-baseline.ts:81:(SELECT COALESCE(event_root_key,
+/Users/kevin/.hermes/profiles/zang/cache/scratch/qaP9s3/backend-ts/scripts/p2qa-04-idempotency-policy.ts:196:(SELECT COALESCE(event_root_key,
+/Users/kevin/.hermes/profiles/zang/cache/scratch/qaP9s3/backend-ts/scripts/p2b-03-summary.ts:20:(SELECT COALESCE(event_root_key,
+
+## 外层正解形 COALESCE((SELECT 计数 (database.ts)
+/Users/kevin/.hermes/profiles/zang/cache/scratch/qaP9s3/backend-ts/src/database.ts:15

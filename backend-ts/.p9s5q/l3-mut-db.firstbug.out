@@ -1,0 +1,23 @@
+{
+ "baseline_allow": {
+  "ok": true,
+  "allowed": false
+ },
+ "mutated_debit": {
+  "ok": false,
+  "sqlstate": "LD021",
+  "code": "LEDGER_RESERVED_UID",
+  "reason": "PLATFORM_DEBIT_FORBIDDEN"
+ },
+ "mutated_credit_still_ok": {
+  "ok": false,
+  "sqlstate": "25P02",
+  "code": "current transaction is aborted, commands ignored until end of transaction block",
+  "reason": null
+ },
+ "restored_allow": {
+  "ok": true,
+  "allowed": false
+ },
+ "verdict": "RED_MISS"
+}

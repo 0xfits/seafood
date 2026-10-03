@@ -1,0 +1,549 @@
+{
+ "unit": "P9S2QA-L2-REALCHAIN",
+ "run": "20261003T032205Z",
+ "at": "2026-10-03T03:22:19.175Z",
+ "total": 13,
+ "passed": 13,
+ "failed": 0,
+ "all_rolled_back": true,
+ "legs": {
+  "A": {
+   "u1": 1,
+   "u7": 3,
+   "ucap": 4,
+   "preA": {
+    "batt": 0,
+    "streak": 0,
+    "entries": 0,
+    "checkins": 0,
+    "makeups": 0
+   },
+   "r1": {
+    "outcome": "inserted",
+    "checkinDay": "2026-10-03",
+    "streakDay": 1,
+    "rewardBatt": 30,
+    "creditedBatt": 30,
+    "batt": 30
+   },
+   "r2": {
+    "outcome": "replayed",
+    "checkinDay": "2026-10-03",
+    "streakDay": 1,
+    "rewardBatt": 30,
+    "creditedBatt": 0,
+    "batt": 30
+   },
+   "r3": {
+    "outcome": "replayed",
+    "checkinDay": "2026-10-03",
+    "streakDay": 1,
+    "rewardBatt": 30,
+    "creditedBatt": 0,
+    "batt": 30
+   },
+   "r7": {
+    "outcome": "inserted",
+    "checkinDay": "2026-10-03",
+    "streakDay": 7,
+    "rewardBatt": 60,
+    "creditedBatt": 60,
+    "batt": 60
+   },
+   "rc": {
+    "outcome": "inserted",
+    "checkinDay": "2026-10-03",
+    "streakDay": 1,
+    "rewardBatt": 30,
+    "creditedBatt": 10,
+    "batt": 100
+   },
+   "postCap": {
+    "batt": 100,
+    "streak": 1,
+    "entries": 1,
+    "checkins": 1,
+    "makeups": 0
+   }
+  },
+  "B": {
+   "ub": 3,
+   "targetDay": "2026-10-02",
+   "pre": {
+    "batt": 0,
+    "streak": 0,
+    "entries": 0,
+    "checkins": 0,
+    "makeups": 0
+   },
+   "r": {
+    "outcome": "applied",
+    "targetDay": "2026-10-02",
+    "costUsd": 100,
+    "restoredStreakDay": 1,
+    "txid": "751",
+    "ledger": {
+     "ok": true,
+     "meta": {
+      "op": "entries",
+      "lock_trace": [
+       "account:-1:1",
+       "account:3:1"
+      ]
+     },
+     "txid": "751",
+     "extra": {
+      "symbol": "$",
+      "entries": "2"
+     },
+     "entries": [
+      {
+       "cid": "1",
+       "uid": "3",
+       "kind": "checkin_makeup_fee",
+       "memo": "qa",
+       "txid": "751",
+       "delta": "-100",
+       "ref_id": null,
+       "ref_type": null,
+       "frozen_after": "1",
+       "frozen_delta": "0",
+       "time_created": "2026-10-03T03:22:10.932Z",
+       "balance_after": "1285",
+       "idempotency_key": "biz:qa:mk:3:2026-10-02",
+       "reversal_of_txid": null,
+       "request_fingerprint": "fp:3"
+      },
+      {
+       "cid": "1",
+       "uid": "-1",
+       "kind": "checkin_makeup_fee",
+       "memo": "qa",
+       "txid": "752",
+       "delta": "100",
+       "ref_id": null,
+       "ref_type": null,
+       "frozen_after": "0",
+       "frozen_delta": "0",
+       "time_created": "2026-10-03T03:22:10.932Z",
+       "balance_after": "167583",
+       "idempotency_key": "biz:qa:mk:3:2026-10-02#2",
+       "reversal_of_txid": null,
+       "request_fingerprint": null
+      }
+     ],
+     "accounts": [
+      {
+       "cid": "1",
+       "uid": "3",
+       "frozen": "1",
+       "balance": "1285"
+      },
+      {
+       "cid": "1",
+       "uid": "-1",
+       "frozen": "0",
+       "balance": "167583"
+      }
+     ],
+     "idempotency_key": "biz:qa:mk:3:2026-10-02",
+     "idempotent_replay": false
+    }
+   },
+   "post": {
+    "batt": 0,
+    "streak": 0,
+    "entries": 0,
+    "checkins": 0,
+    "makeups": 1
+   },
+   "supplyPre": "2200276",
+   "supplyPost": "2200276",
+   "legsRows": [
+    {
+     "uid": "-1",
+     "delta": "100",
+     "kind": "checkin_makeup_fee",
+     "cid": "1"
+    },
+    {
+     "uid": "3",
+     "delta": "-100",
+     "kind": "checkin_makeup_fee",
+     "cid": "1"
+    }
+   ],
+   "replay": {
+    "outcome": "replayed",
+    "targetDay": "2026-10-02",
+    "costUsd": 100,
+    "restoredStreakDay": 1,
+    "txid": "751",
+    "ledger": null
+   },
+   "other": {
+    "outcome": "rejected_daily_limit",
+    "targetDay": "2026-10-02",
+    "costUsd": 100,
+    "restoredStreakDay": null,
+    "txid": null,
+    "ledger": null
+   }
+  },
+  "C": {
+   "EMP": 2,
+   "w1": 1,
+   "w2": 3,
+   "w3": 4,
+   "below": {
+    "outcome": "batt_below_threshold",
+    "applicationId": null,
+    "jobStatus": "open"
+   },
+   "okA": {
+    "outcome": "applied",
+    "applicationId": 61,
+    "jobStatus": "open"
+   },
+   "acc2": {
+    "outcome": "batt_below_threshold",
+    "applicationId": 62,
+    "jobId": 991502,
+    "workerUid": 3,
+    "applicationStatus": "applied",
+    "jobStatus": "open",
+    "workerBattAfter": null
+   },
+   "w2post": {
+    "batt": 5,
+    "streak": 0,
+    "entries": 0,
+    "checkins": 0,
+    "makeups": 0
+   },
+   "j2status": "open",
+   "acc3": {
+    "outcome": "accepted",
+    "applicationId": 63,
+    "jobId": 991503,
+    "workerUid": 4,
+    "applicationStatus": "applied",
+    "jobStatus": "open",
+    "workerBattAfter": 0
+   },
+   "e3": {
+    "delta": -9,
+    "reason": "task_cost"
+   }
+  },
+  "D": {
+   "sql": {
+    "utc_day": "2026-10-03",
+    "tz": "GMT"
+   },
+   "node_utc": "2026-10-03"
+  }
+ },
+ "checks": [
+  {
+   "id": "L2-A1",
+   "pass": true,
+   "note": "首签 +30 · streak=1 · batt=30",
+   "actual": {
+    "outcome": "inserted",
+    "checkinDay": "2026-10-03",
+    "streakDay": 1,
+    "rewardBatt": 30,
+    "creditedBatt": 30,
+    "batt": 30
+   }
+  },
+  {
+   "id": "L2-A2",
+   "pass": true,
+   "note": "同键重放 / 同日异键 ⇒ replayed（服务层幂等）",
+   "actual": {
+    "r2": {
+     "outcome": "replayed",
+     "checkinDay": "2026-10-03",
+     "streakDay": 1,
+     "rewardBatt": 30,
+     "creditedBatt": 0,
+     "batt": 30
+    },
+    "r3": {
+     "outcome": "replayed",
+     "checkinDay": "2026-10-03",
+     "streakDay": 1,
+     "rewardBatt": 30,
+     "creditedBatt": 0,
+     "batt": 30
+    }
+   }
+  },
+  {
+   "id": "L2-A3",
+   "pass": true,
+   "note": "第7天 ⇒ streak=7 · reward=60",
+   "actual": {
+    "outcome": "inserted",
+    "checkinDay": "2026-10-03",
+    "streakDay": 7,
+    "rewardBatt": 60,
+    "creditedBatt": 60,
+    "batt": 60
+   }
+  },
+  {
+   "id": "L2-A4",
+   "pass": true,
+   "note": "封顶丢弃：batt=90 签到 ⇒ credited=10 · batt=100",
+   "actual": {
+    "outcome": "inserted",
+    "checkinDay": "2026-10-03",
+    "streakDay": 1,
+    "rewardBatt": 30,
+    "creditedBatt": 10,
+    "batt": 100
+   }
+  },
+  {
+   "id": "L2-B1",
+   "pass": true,
+   "note": "补签 applied · cost=100 · 回执 txid",
+   "actual": {
+    "outcome": "applied",
+    "targetDay": "2026-10-02",
+    "costUsd": 100,
+    "restoredStreakDay": 1,
+    "txid": "751",
+    "ledger": {
+     "ok": true,
+     "meta": {
+      "op": "entries",
+      "lock_trace": [
+       "account:-1:1",
+       "account:3:1"
+      ]
+     },
+     "txid": "751",
+     "extra": {
+      "symbol": "$",
+      "entries": "2"
+     },
+     "entries": [
+      {
+       "cid": "1",
+       "uid": "3",
+       "kind": "checkin_makeup_fee",
+       "memo": "qa",
+       "txid": "751",
+       "delta": "-100",
+       "ref_id": null,
+       "ref_type": null,
+       "frozen_after": "1",
+       "frozen_delta": "0",
+       "time_created": "2026-10-03T03:22:10.932Z",
+       "balance_after": "1285",
+       "idempotency_key": "biz:qa:mk:3:2026-10-02",
+       "reversal_of_txid": null,
+       "request_fingerprint": "fp:3"
+      },
+      {
+       "cid": "1",
+       "uid": "-1",
+       "kind": "checkin_makeup_fee",
+       "memo": "qa",
+       "txid": "752",
+       "delta": "100",
+       "ref_id": null,
+       "ref_type": null,
+       "frozen_after": "0",
+       "frozen_delta": "0",
+       "time_created": "2026-10-03T03:22:10.932Z",
+       "balance_after": "167583",
+       "idempotency_key": "biz:qa:mk:3:2026-10-02#2",
+       "reversal_of_txid": null,
+       "request_fingerprint": null
+      }
+     ],
+     "accounts": [
+      {
+       "cid": "1",
+       "uid": "3",
+       "frozen": "1",
+       "balance": "1285"
+      },
+      {
+       "cid": "1",
+       "uid": "-1",
+       "frozen": "0",
+       "balance": "167583"
+      }
+     ],
+     "idempotency_key": "biz:qa:mk:3:2026-10-02",
+     "idempotent_replay": false
+    }
+   }
+  },
+  {
+   "id": "L2-B2",
+   "pass": true,
+   "note": "-1 credit 100 kind=checkin_makeup_fee（不真 burn）",
+   "actual": [
+    {
+     "uid": "-1",
+     "delta": "100",
+     "kind": "checkin_makeup_fee",
+     "cid": "1"
+    },
+    {
+     "uid": "3",
+     "delta": "-100",
+     "kind": "checkin_makeup_fee",
+     "cid": "1"
+    }
+   ]
+  },
+  {
+   "id": "L2-B3",
+   "pass": true,
+   "note": "3 debit -100；currency(1).total_supply 不变",
+   "actual": {
+    "legsRows": [
+     {
+      "uid": "-1",
+      "delta": "100",
+      "kind": "checkin_makeup_fee",
+      "cid": "1"
+     },
+     {
+      "uid": "3",
+      "delta": "-100",
+      "kind": "checkin_makeup_fee",
+      "cid": "1"
+     }
+    ],
+    "supplyPre": "2200276",
+    "supplyPost": "2200276"
+   }
+  },
+  {
+   "id": "L2-B4",
+   "pass": true,
+   "note": "不补发 batt：batt_entry 行数 / batt 不变",
+   "actual": {
+    "pre": {
+     "batt": 0,
+     "streak": 0,
+     "entries": 0,
+     "checkins": 0,
+     "makeups": 0
+    },
+    "post": {
+     "batt": 0,
+     "streak": 0,
+     "entries": 0,
+     "checkins": 0,
+     "makeups": 1
+    }
+   }
+  },
+  {
+   "id": "L2-B5",
+   "pass": true,
+   "note": "幂等重放；同日异键 ⇒ rejected_daily_limit",
+   "actual": {
+    "replay": {
+     "outcome": "replayed",
+     "targetDay": "2026-10-02",
+     "costUsd": 100,
+     "restoredStreakDay": 1,
+     "txid": "751",
+     "ledger": null
+    },
+    "other": {
+     "outcome": "rejected_daily_limit",
+     "targetDay": "2026-10-02",
+     "costUsd": 100,
+     "restoredStreakDay": null,
+     "txid": null,
+     "ledger": null
+    }
+   }
+  },
+  {
+   "id": "L2-C1",
+   "pass": true,
+   "note": "前置拦：batt=0 ⇒ batt_below_threshold；batt=9 ⇒ applied",
+   "actual": {
+    "below": {
+     "outcome": "batt_below_threshold",
+     "applicationId": null,
+     "jobStatus": "open"
+    },
+    "okA": {
+     "outcome": "applied",
+     "applicationId": 61,
+     "jobStatus": "open"
+    }
+   }
+  },
+  {
+   "id": "L2-C2",
+   "pass": true,
+   "note": "二次判：报名后 batt=5<9 ⇒ accept 拒 + 整体回滚（job 仍 open · batt 仍 5）",
+   "actual": {
+    "acc2": {
+     "outcome": "batt_below_threshold",
+     "applicationId": 62,
+     "jobId": 991502,
+     "workerUid": 3,
+     "applicationStatus": "applied",
+     "jobStatus": "open",
+     "workerBattAfter": null
+    },
+    "w2post": {
+     "batt": 5,
+     "streak": 0,
+     "entries": 0,
+     "checkins": 0,
+     "makeups": 0
+    },
+    "j2": {
+     "status": "open"
+    }
+   }
+  },
+  {
+   "id": "L2-C3",
+   "pass": true,
+   "note": "正常：batt 9→0 扣 9 · batt_entry delta=-9 reason=task_cost",
+   "actual": {
+    "acc3": {
+     "outcome": "accepted",
+     "applicationId": 63,
+     "jobId": 991503,
+     "workerUid": 4,
+     "applicationStatus": "applied",
+     "jobStatus": "open",
+     "workerBattAfter": 0
+    },
+    "e3": {
+     "delta": -9,
+     "reason": "task_cost"
+    }
+   }
+  },
+  {
+   "id": "L2-D1",
+   "pass": true,
+   "note": "日界 = UTC：SQL(now() AT TIME ZONE UTC)::date == node toISOString",
+   "actual": {
+    "sql": "2026-10-03",
+    "node": "2026-10-03"
+   }
+  }
+ ]
+}
+SUMMARY total=13 passed=13 failed=0 artifact=/Users/kevin/bistro/seafood/backend-ts/.p9s2qa-closeout/l2-realchain-20261003T032205Z.json

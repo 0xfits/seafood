@@ -1,0 +1,939 @@
+{
+  "run": "20261003T030830Z",
+  "ts": "2026-10-03T03:12:02.699Z",
+  "cols_job": [
+    {
+      "column_name": "job_id",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "employer_uid",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "worker_uid",
+      "udt_name": "int8",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "cid",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "reward",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "title",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "''::text"
+    },
+    {
+      "column_name": "description",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "''::text"
+    },
+    {
+      "column_name": "status",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'open'::text"
+    },
+    {
+      "column_name": "create_key",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "escrow_txid",
+      "udt_name": "int8",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "settle_txid",
+      "udt_name": "int8",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "ledger_event_keys",
+      "udt_name": "_text",
+      "is_nullable": "NO",
+      "column_default": "'{}'::text[]"
+    },
+    {
+      "column_name": "time_created",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "column_name": "time_updated",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    }
+  ],
+  "cons_job": [
+    {
+      "conname": "job_reward_positive",
+      "contype": "c",
+      "def": "CHECK ((reward > 0))"
+    },
+    {
+      "conname": "job_status_enum",
+      "contype": "c",
+      "def": "CHECK ((status = ANY (ARRAY['open'::text, 'accepted'::text, 'submitted'::text, 'settled'::text, 'disputed'::text, 'rejected'::text, 'cancelled'::text])))"
+    },
+    {
+      "conname": "job_cid_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (cid) REFERENCES currency(cid)"
+    },
+    {
+      "conname": "job_employer_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (employer_uid) REFERENCES users(uid)"
+    },
+    {
+      "conname": "job_worker_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (worker_uid) REFERENCES users(uid)"
+    },
+    {
+      "conname": "job_cid_not_null",
+      "contype": "n",
+      "def": "NOT NULL cid"
+    },
+    {
+      "conname": "job_create_key_not_null",
+      "contype": "n",
+      "def": "NOT NULL create_key"
+    },
+    {
+      "conname": "job_description_not_null",
+      "contype": "n",
+      "def": "NOT NULL description"
+    },
+    {
+      "conname": "job_employer_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL employer_uid"
+    },
+    {
+      "conname": "job_job_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL job_id"
+    },
+    {
+      "conname": "job_ledger_event_keys_not_null",
+      "contype": "n",
+      "def": "NOT NULL ledger_event_keys"
+    },
+    {
+      "conname": "job_reward_not_null",
+      "contype": "n",
+      "def": "NOT NULL reward"
+    },
+    {
+      "conname": "job_status_not_null",
+      "contype": "n",
+      "def": "NOT NULL status"
+    },
+    {
+      "conname": "job_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "conname": "job_time_updated_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_updated"
+    },
+    {
+      "conname": "job_title_not_null",
+      "contype": "n",
+      "def": "NOT NULL title"
+    },
+    {
+      "conname": "job_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (job_id)"
+    },
+    {
+      "conname": "job_create_key_uniq",
+      "contype": "u",
+      "def": "UNIQUE (create_key)"
+    }
+  ],
+  "cols_job_application": [
+    {
+      "column_name": "application_id",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "job_id",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "worker_uid",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "status",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'applied'::text"
+    },
+    {
+      "column_name": "create_key",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "time_created",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "column_name": "time_updated",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    }
+  ],
+  "cons_job_application": [
+    {
+      "conname": "job_application_status_enum",
+      "contype": "c",
+      "def": "CHECK ((status = ANY (ARRAY['applied'::text, 'withdrawn'::text, 'rejected'::text, 'accepted'::text])))"
+    },
+    {
+      "conname": "job_application_job_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (job_id) REFERENCES job(job_id)"
+    },
+    {
+      "conname": "job_application_worker_fk",
+      "contype": "f",
+      "def": "FOREIGN KEY (worker_uid) REFERENCES users(uid)"
+    },
+    {
+      "conname": "job_application_application_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL application_id"
+    },
+    {
+      "conname": "job_application_create_key_not_null",
+      "contype": "n",
+      "def": "NOT NULL create_key"
+    },
+    {
+      "conname": "job_application_job_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL job_id"
+    },
+    {
+      "conname": "job_application_status_not_null",
+      "contype": "n",
+      "def": "NOT NULL status"
+    },
+    {
+      "conname": "job_application_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "conname": "job_application_time_updated_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_updated"
+    },
+    {
+      "conname": "job_application_worker_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL worker_uid"
+    },
+    {
+      "conname": "job_application_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (application_id)"
+    },
+    {
+      "conname": "job_application_create_key_uniq",
+      "contype": "u",
+      "def": "UNIQUE (create_key)"
+    },
+    {
+      "conname": "job_application_job_worker_uniq",
+      "contype": "u",
+      "def": "UNIQUE (job_id, worker_uid)"
+    }
+  ],
+  "cols_account": [
+    {
+      "column_name": "uid",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "cid",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "balance",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "column_name": "frozen",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "column_name": "version",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "column_name": "time_created",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "column_name": "time_updated",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    }
+  ],
+  "cons_account": [
+    {
+      "conname": "account_bal_guard",
+      "contype": "c",
+      "def": "CHECK ((balance >= 0))"
+    },
+    {
+      "conname": "account_frz_guard",
+      "contype": "c",
+      "def": "CHECK ((frozen >= 0))"
+    },
+    {
+      "conname": "account_cid_fkey",
+      "contype": "f",
+      "def": "FOREIGN KEY (cid) REFERENCES currency(cid)"
+    },
+    {
+      "conname": "account_userId_fkey",
+      "contype": "f",
+      "def": "FOREIGN KEY (\"userId\") REFERENCES neon_auth.\"user\"(id) ON DELETE CASCADE"
+    },
+    {
+      "conname": "account_accountId_not_null",
+      "contype": "n",
+      "def": "NOT NULL \"accountId\""
+    },
+    {
+      "conname": "account_balance_not_null",
+      "contype": "n",
+      "def": "NOT NULL balance"
+    },
+    {
+      "conname": "account_cid_not_null",
+      "contype": "n",
+      "def": "NOT NULL cid"
+    },
+    {
+      "conname": "account_createdAt_not_null",
+      "contype": "n",
+      "def": "NOT NULL \"createdAt\""
+    },
+    {
+      "conname": "account_frozen_not_null",
+      "contype": "n",
+      "def": "NOT NULL frozen"
+    },
+    {
+      "conname": "account_id_not_null",
+      "contype": "n",
+      "def": "NOT NULL id"
+    },
+    {
+      "conname": "account_providerId_not_null",
+      "contype": "n",
+      "def": "NOT NULL \"providerId\""
+    },
+    {
+      "conname": "account_time_created_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_created"
+    },
+    {
+      "conname": "account_time_updated_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_updated"
+    },
+    {
+      "conname": "account_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL uid"
+    },
+    {
+      "conname": "account_updatedAt_not_null",
+      "contype": "n",
+      "def": "NOT NULL \"updatedAt\""
+    },
+    {
+      "conname": "account_userId_not_null",
+      "contype": "n",
+      "def": "NOT NULL \"userId\""
+    },
+    {
+      "conname": "account_version_not_null",
+      "contype": "n",
+      "def": "NOT NULL version"
+    },
+    {
+      "conname": "account_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (uid, cid)"
+    },
+    {
+      "conname": "account_pkey",
+      "contype": "p",
+      "def": "PRIMARY KEY (id)"
+    }
+  ],
+  "cols_users": [
+    {
+      "column_name": "uid",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "evm",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "column_name": "bio",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "''::text"
+    },
+    {
+      "column_name": "is_admin",
+      "udt_name": "bool",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "column_name": "time_reg",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "column_name": "time_login_last",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    }
+  ],
+  "cons_users": [
+    {
+      "conname": "users_evm_fmt",
+      "contype": "c",
+      "def": "CHECK ((evm ~ '^0x[0-9a-f]{40}$'::text))"
+    },
+    {
+      "conname": "users_uid_positive",
+      "contype": "c",
+      "def": "CHECK ((uid > 0))"
+    },
+    {
+      "conname": "users_bio_not_null",
+      "contype": "n",
+      "def": "NOT NULL bio"
+    },
+    {
+      "conname": "users_evm_not_null",
+      "contype": "n",
+      "def": "NOT NULL evm"
+    },
+    {
+      "conname": "users_is_admin_not_null",
+      "contype": "n",
+      "def": "NOT NULL is_admin"
+    },
+    {
+      "conname": "users_time_login_last_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_login_last"
+    },
+    {
+      "conname": "users_time_reg_not_null",
+      "contype": "n",
+      "def": "NOT NULL time_reg"
+    },
+    {
+      "conname": "users_uid_not_null",
+      "contype": "n",
+      "def": "NOT NULL uid"
+    },
+    {
+      "conname": "users_pk",
+      "contype": "p",
+      "def": "PRIMARY KEY (uid)"
+    },
+    {
+      "conname": "users_evm_uniq",
+      "contype": "u",
+      "def": "UNIQUE (evm)"
+    }
+  ],
+  "users": [
+    {
+      "uid": "1",
+      "is_admin": true,
+      "bal": "0",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "2",
+      "is_admin": false,
+      "bal": "7500",
+      "batt_rows": "1"
+    },
+    {
+      "uid": "3",
+      "is_admin": false,
+      "bal": "1385",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "4",
+      "is_admin": false,
+      "bal": "4",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "5",
+      "is_admin": false,
+      "bal": "6",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "6",
+      "is_admin": false,
+      "bal": "930",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "7",
+      "is_admin": false,
+      "bal": "5100",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "8",
+      "is_admin": false,
+      "bal": "4900",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "9",
+      "is_admin": false,
+      "bal": "0",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "10",
+      "is_admin": true,
+      "bal": "0",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "11",
+      "is_admin": false,
+      "bal": "29374",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "12",
+      "is_admin": false,
+      "bal": "136707",
+      "batt_rows": "1"
+    },
+    {
+      "uid": "17",
+      "is_admin": false,
+      "bal": "0",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "18",
+      "is_admin": false,
+      "bal": "0",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "19",
+      "is_admin": false,
+      "bal": "100",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "20",
+      "is_admin": false,
+      "bal": "0",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "21",
+      "is_admin": false,
+      "bal": "100",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "22",
+      "is_admin": false,
+      "bal": "0",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "900001",
+      "is_admin": false,
+      "bal": "9",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "900002",
+      "is_admin": false,
+      "bal": "3",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "900003",
+      "is_admin": false,
+      "bal": "9",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "900004",
+      "is_admin": false,
+      "bal": "0",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "900005",
+      "is_admin": false,
+      "bal": "0",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "900006",
+      "is_admin": false,
+      "bal": "0",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "900007",
+      "is_admin": false,
+      "bal": "0",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "900008",
+      "is_admin": false,
+      "bal": "9",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "910001",
+      "is_admin": false,
+      "bal": "9",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "910002",
+      "is_admin": false,
+      "bal": "3",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "910003",
+      "is_admin": false,
+      "bal": "9",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "910004",
+      "is_admin": false,
+      "bal": "0",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "910005",
+      "is_admin": false,
+      "bal": "0",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "910006",
+      "is_admin": false,
+      "bal": "0",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "910007",
+      "is_admin": false,
+      "bal": "0",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "910008",
+      "is_admin": false,
+      "bal": "9",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "910009",
+      "is_admin": false,
+      "bal": "0",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "910010",
+      "is_admin": false,
+      "bal": "0",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "910311",
+      "is_admin": false,
+      "bal": "0",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "970001",
+      "is_admin": false,
+      "bal": "1636071",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "970002",
+      "is_admin": false,
+      "bal": "248",
+      "batt_rows": "0"
+    },
+    {
+      "uid": "970101",
+      "is_admin": false,
+      "bal": "0",
+      "batt_rows": "0"
+    }
+  ],
+  "open_jobs": [
+    {
+      "job_id": "12",
+      "employer_uid": "2",
+      "status": "open",
+      "worker_uid": null
+    },
+    {
+      "job_id": "13",
+      "employer_uid": "3",
+      "status": "open",
+      "worker_uid": null
+    },
+    {
+      "job_id": "2",
+      "employer_uid": "970001",
+      "status": "open",
+      "worker_uid": null
+    },
+    {
+      "job_id": "22",
+      "employer_uid": "3",
+      "status": "open",
+      "worker_uid": null
+    },
+    {
+      "job_id": "24",
+      "employer_uid": "1",
+      "status": "open",
+      "worker_uid": null
+    }
+  ],
+  "job_status_counts": [
+    {
+      "status": "cancelled",
+      "n": "2"
+    },
+    {
+      "status": "open",
+      "n": "5"
+    },
+    {
+      "status": "rejected",
+      "n": "2"
+    },
+    {
+      "status": "settled",
+      "n": "8"
+    },
+    {
+      "status": "submitted",
+      "n": "3"
+    }
+  ],
+  "currency": [
+    {
+      "cid": "1"
+    },
+    {
+      "cid": "10"
+    },
+    {
+      "cid": "15"
+    },
+    {
+      "cid": "16"
+    },
+    {
+      "cid": "21"
+    }
+  ],
+  "account_sample": [
+    {
+      "uid": "-1",
+      "cid": "1",
+      "balance": "167483"
+    },
+    {
+      "uid": "-2",
+      "cid": "1",
+      "balance": "0"
+    },
+    {
+      "uid": "-3",
+      "cid": "1",
+      "balance": "0"
+    },
+    {
+      "uid": "0",
+      "cid": "1",
+      "balance": "0"
+    },
+    {
+      "uid": "11",
+      "cid": "21",
+      "balance": "1"
+    },
+    {
+      "uid": "11",
+      "cid": "16",
+      "balance": "1"
+    },
+    {
+      "uid": "11",
+      "cid": "4",
+      "balance": "4"
+    },
+    {
+      "uid": "11",
+      "cid": "1",
+      "balance": "29374"
+    },
+    {
+      "uid": "12",
+      "cid": "1",
+      "balance": "136707"
+    },
+    {
+      "uid": "12",
+      "cid": "4",
+      "balance": "2"
+    },
+    {
+      "uid": "12",
+      "cid": "21",
+      "balance": "1"
+    },
+    {
+      "uid": "12",
+      "cid": "16",
+      "balance": "1"
+    },
+    {
+      "uid": "19",
+      "cid": "1",
+      "balance": "100"
+    },
+    {
+      "uid": "2",
+      "cid": "1",
+      "balance": "7500"
+    },
+    {
+      "uid": "21",
+      "cid": "1",
+      "balance": "100"
+    },
+    {
+      "uid": "3",
+      "cid": "1",
+      "balance": "1385"
+    },
+    {
+      "uid": "4",
+      "cid": "1",
+      "balance": "4"
+    },
+    {
+      "uid": "5",
+      "cid": "1",
+      "balance": "6"
+    },
+    {
+      "uid": "6",
+      "cid": "1",
+      "balance": "930"
+    },
+    {
+      "uid": "7",
+      "cid": "1",
+      "balance": "5100"
+    }
+  ]
+}

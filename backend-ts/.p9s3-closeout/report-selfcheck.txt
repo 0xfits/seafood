@@ -1,0 +1,5 @@
+report=docs/audit/p9-s3-rating-timeliness.md
+lines=     222
+bytes=   27684
+double_underscore_hits=0
+skeleton_placeholder_hits=0
