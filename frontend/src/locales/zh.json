@@ -109,6 +109,7 @@
     "applicationId": "申请编号",
     "submit": "提交交付物",
     "submitNote": "提交后进入待审核状态；重复提交不会重复计酬。",
+    "deliverable": "交付物",
     "submitOk": "交付物已提交，等待审核",
     "submitNeedApply": "请先报名参与该任务，再提交交付物。",
     "submitNotApplicant": "这份申请不属于你，只有申请人本人才能提交交付物。",

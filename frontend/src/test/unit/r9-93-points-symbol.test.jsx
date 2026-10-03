@@ -182,14 +182,14 @@ describe('④ 文案键 `common.communityPoints` 四语新值 + 键计数', () =
     expect(CJK.test(vn.common.communityPoints)).toBe(false)
   })
 
-  it('键计数 = top 119 / flat 1054（件一值-only 不变；件二 +2 jobs 键 ⇒ 1039⇒1041；S5① +3 jobs 键 ⇒ 1044；S7 +10 jobs 键 ⇒ 1054）', () => {
+  it('键计数 = top 119 / flat 1055（件一值-only 不变；件二 +2 jobs 键 ⇒ 1039⇒1041；S5① +3 jobs 键 ⇒ 1044；S7 +10 jobs 键 ⇒ 1054；S8 +1 jobs 键（jobs.deliverable）⇒ 1055）', () => {
     const flat = (o, p = '') => Object.entries(o).flatMap(([k, v]) => (
       v && typeof v === 'object' && !Array.isArray(v) ? flat(v, `${p}${k}.`) : [`${p}${k}`]
     ))
     for (const lang of LANGS) {
       expect(Object.keys(TABLES[lang]).length, `${lang} top`).toBe(119)
-      // **期望订正（S7 悬赏家评判列表）**：+10 jobs 键 ⇒ 拍平 1044⇒1054（前订正 S5①：1041⇒1044）
-      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1054)
+      // **期望订正（S8 locale 缺键补齐）**：+1 jobs 键（jobs.deliverable）⇒ 拍平 1054⇒1055（前订正 S7：1044⇒1054）
+      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1055)
     }
   })
 

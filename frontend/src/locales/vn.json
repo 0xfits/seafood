@@ -109,6 +109,7 @@
     "applicationId": "Mã đơn",
     "submit": "Nộp sản phẩm",
     "submitNote": "Sau khi nộp, bài sẽ vào trạng thái chờ duyệt; nộp lại không bị tính hay trả thù lao hai lần.",
+    "deliverable": "Sản phẩm bàn giao",
     "submitOk": "Đã nộp sản phẩm, chờ duyệt",
     "submitNeedApply": "Hãy ứng tuyển việc này trước; sau khi ứng tuyển mới có thể nộp sản phẩm.",
     "submitNotApplicant": "Đơn này không thuộc về bạn; chỉ người ứng tuyển mới có thể nộp sản phẩm.",

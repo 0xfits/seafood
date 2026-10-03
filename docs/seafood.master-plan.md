@@ -1416,6 +1416,28 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.324 **S8 locale 缺键类级扫面 ✅（类级缺口已封）· 我核盘 · 入库 · ★apply `0042`**（2026-10-04）
+
+**A. S8（60c/346s）扫面读数**：`frontend/src/**`（排除 `test/`）**91 个源文件** · 取键调用 **1162 处** ⇒ 字面键 **798** + 点号字面量候选 **814** + 动态/模板 **44**；四语 locale 拍平各 **1054**（顶层 119）。
+**B. ★ 静态可判定缺键 = 2 处（逐处）**：
+| 键 | 使用点 | 缺语 | 处置 |
+|---|---|---|---|
+| **`jobs.deliverable`** | `pages/jobs/JobDetailPage.jsx:242` | **四语全缺** | **补四语**：zh/hk「交付物」· en「Deliverable」· vn「Sản phẩm bàn giao」（en/vn 零 CJK、非占位） |
+| **`unknown`** | `pages/admin/UsersManagement.jsx:12,14` | 四语全缺 | ★ **改使用点** ⇒ 用仓内**已有等义键** `common.unknown`（`ProfilePage.jsx:322` 同用途即用它）⇒ **判断正确**（新增顶层 `unknown` 会污染根命名空间） |
+**C. 44 处动态/模板键逐处核** ⇒ 三元/映射字面量（`jobs.reviewQualifiedOk` 等、各 `*_LABEL_KEY` 值、`COPY` 值）与**枚举白名单守卫**的模板（`statusLabel.${x}` / `sideLabel` / `period`·`role` / `timelinessPanel.${k}` / `roleNames.${role}` / `adminSiteText.${field}` / `auditConsole.filter|tbl` / `nav` labelKey / `SITE_LABEL_KEY` / `LOCALE_LABEL_KEYS`）**全部命中既有键** ✓
+- ★ **单列「未判定」（未计入通过、未填 0）**：`ProfilePage.jsx:416` / `MarketPage.jsx:405` 的 **`ledger.kind.${entry.kind}`**（服务端 DB 枚举驱动、无前端白名单兜底）· `auth.js` 的 `key/i18nKey`（R107 链运行时值）
+- **扫面后缺键差集 = 0**（两路复跑：字面 `missing=0` · 点号字面量 `missing=0`）✓
+**D. 守卫测试（防再犯）**：新增 `test/unit/s8-locale-key-coverage.test.js`（7 例）—— 断言「字面取键 + 点号字面量键 ⊆ 四语键集」`toEqual([])` + 模板前缀族非空 + 计数前推 + **内置检测器探针**。★ **注入自证**：向 `JobDetailPage.jsx` 注入 `{t('s8.__inject_probe__')}` ⇒ **必红**（`expected [Array(1)] to deeply equal []` + 精确指出 `s8.__inject_probe__ 缺 [zh,en,hk,vn] (L236)`）⇒ **随即精确复原**（`git diff --quiet` = 与 HEAD 逐字相同）✓
+**E. 计数前推（逐条登记订正，非删断言）**：新增 1 键 ⇒ **`flat 1054 → 1055`** · **四语节点 `4216 → 4220`** · `top 119` 不变；订正 **8 个文件**既有断言（`s7` / `s5` / `r9-96` / `r9-93` / `i18n-batch-b4a` / `b4b`×2 / `b5`×2 / `i18n-violation-closeout`×2）—— **全部为「值前推 + 注释登记」** ✓
+**F. 自证**：缺键差集 0 ✓ · 守卫绿 + 注入必红 ✓ · 全量 vitest 前 `7 failed/422 passed` ⇒ 后 **`7 failed/429 passed`** ⇒ **零新增** ✓ · `build` **0**（`index-CsCQN9UB.js` 419.71 kB）✓ · 六类泄漏 **RC=0**（键集 `{1055}` 单值 / 节点 4220）+ **`p6-tr2-i18n-locales.mjs` RC=0**（**四语键集相等 PASS**）✓
+- **未测项**：真浏览器视觉（无头口径）· `ledger.kind.${...}` 全枚举（服务端驱动、无法静态判定）· 六类扫描 §③ 的 1 条**既有**误报（`JobDetailPage.jsx:336` 在 `{/* */}` JSX 注释内，**与 HEAD 逐字相同、非本单引入、不在 PASS 硬门内**）✓
+
+**G. ★ 我裁：apply `0042`（兼容性已核）** —— ① 旧后端 publish **不传 `headcount`** ⇒ `0042` 函数**兜底 = 1**（`:80` 注释逐字）⇒ 托管仍 = `reward × 1`（与旧行为一致）② 旧后端 settle **不传提交号** ⇒ 走**遗留单笔分支** ⇒ 行为不变 ③ 旧后端的 `apply`/`accept` 路由**线上仍在**（S3 未 push）⇒ 线上流程不变。⇒ **窗口内 DB 前推 vs 代码滞后 = 兼容**，无用户可见变化。
+**H. 入库 S8 + apply `0042` + 派全批独立质检（Neng，可真 HTTP 端到端）**。
+**I. 状态**：DB → **`0042`** · 全在本地**未 push** · 端口全空 ✓ · **积分 9889 + 电量 30**。
+
+---
+
 ### 5.323 **S6b（逐笔 reject 腿）✅ 修掉严重错误 · S7（悬赏家评判列表）✅ 接线完成 · ★S7 现取到一类型级缺口（locale 缺键 ⇒ 渲染裸键）· 入库 + 派 S8**（2026-10-04）
 
 **A. S6b ✅（40c/320s）** —— `POST /api/job/:jobId/review` 分支化，**修前严重错误已除**：

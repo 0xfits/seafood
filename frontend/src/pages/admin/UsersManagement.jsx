@@ -9,9 +9,9 @@ import { fetchAdminAccess, fetchApiJson, getAuthHeaders, getStoredUser, hasAdmin
 import { adminOpsKey } from '../../idempotency'
 
 const formatDateTime = (value, t) => {
-  if (!value) return t('unknown')
+  if (!value) return t('common.unknown')
   const date = new Date(typeof value === 'number' ? value * 1000 : value)
-  return Number.isNaN(date.getTime()) ? t('unknown') : date.toLocaleString()
+  return Number.isNaN(date.getTime()) ? t('common.unknown') : date.toLocaleString()
 }
 
 const UsersManagement = () => {
