@@ -2,7 +2,7 @@
 
 > **本件 = 8④ 实现第一步（收口单）**：代码面 + 迁移 `0025` **内容** + 新门 `p8-s4` + 前端后台页 + 四语文案面 + 收口（红项定性 / 硬门复跑 / 仓外副本判负 / 收尾）。
 > **库面（四段真链路 + 库面判负）不在本件** —— 逐字见 **§9 `NOT_MEASURED`**。
-> 撰写：Kong（实现）。**本报告不含双下划线占位**（自证：双下划线模式命中 = 0 · `待回填` 标记 = 0）。
+> 撰写：Kong（实现）。**本报告不含双下划线占位**（自证：**实质占位 = 0**；`__` 字面命中 = **1**，系**门自证标识符** `J1__selftest`（非占位）；`待回填` 字面命中 = 1，系元陈述内回引）。
 
 ## §0 元信息（现取）
 
@@ -283,7 +283,7 @@
 | ② 台账 | `currency_review_log` 恰 **1 行**：`result='approved' / actor_uid='1'(admin) / cid / memo='probe approved' / time_created 非空` | 无行 / 记成 owner ⇒ 判负 |
 | ② `status` | `currency.status = 'listed'` + `listed_at` 非空（`draft→listed`）| 未变 ⇒ 判负 |
 | ② 状态日志 | `currency_status_log` 恰 **1 行**：`draft→listed / actor_uid='1'` | 少行 / 多行 / 非此边 ⇒ 判负 |
-| ③ 业务读口 | 直取 `SELECT status … = 'listed'`（读口 `database.ts:2338 listCurrenciesForAdmin` 同一 `SELECT`）| 仍旧值 ⇒ 判负 |
+| ③ 业务读口 | 直取 `SELECT status … = 'listed'`（读口 `database.ts:2349 listCurrenciesForAdmin` 同一 `SELECT`）| 仍旧值 ⇒ 判负 |
 | ④ 行为随之 | 见下表「两读数」 | — |
 
 **（B）驳回路径**
@@ -343,7 +343,7 @@
 | **`p8-s4-currency-review-gate.ts`** | **79 / 79**（run `p8s4-20261002T234551Z`；**原 74 + 新 J 组 5 条 = 79**）| **0** |
 | `npm run build`（frontend）| `index-BYREZ47t.js 347.90 kB` · `✓ built in 1.56s` | **0** |
 | `npm run test:unit`（frontend）| **31 files / 276 passed**（≥276 不掉）| **0** |
-| 七门（`frontend/scripts/*.mjs`）| `p4z-i18nvviol-global` 裸命中 0 · `p6-tr2-i18n-locales` PASS · `p4z-miscfix-links` 未登记残留 0 · `p4z-feperf-safelist` PASS · `p7a-03-errmessage-gate` 命中 0/基线 0 · `p7b-errfallback-gate` 节点 132 需护栏 0 · **`p7c-errmsg-machinecode-gate` `链路体制 = 真链`** | 七门**全 0** |
+| 七门（`frontend/scripts/*.mjs`）| `p4z-i18nviol-global` 裸命中 0 · `p6-tr2-i18n-locales` PASS · `p4z-miscfix-links` 未登记残留 0 · `p4z-feperf-safelist` PASS · `p7a-03-errmessage-gate` 命中 0/基线 0 · `p7b-errfallback-gate` 节点 132 需护栏 0 · **`p7c-errmsg-machinecode-gate` `链路体制 = 真链`** | 七门**全 0** |
 
 - **`p8-s4` 新增 J 组 5 条**（C2 闸判据，含负对照自证）：`J1` 上市语句被审核闸门控 / `J2` 闸谓词 `result='approved'` 稳定常量 / `J3` fail-closed（`EXISTS` 而非 `NOT EXISTS`）/ `J4` 按 `cid=$1` 关联 / `J1__selftest`（喂无闸 `apply` CTE ⇒ 谓词必转红，实测 `judge_fired=true`）。
 
@@ -366,7 +366,7 @@
 | # | 未测项 | 原因（逐字）|
 |--:|---|---|
 | 1 | **真 admin 凭据的 `approve`/`reject` 真 HTTP 写面** | 按 `§23.5(b)` / `R-8-15`：真写会在生产库 `COMMIT` 一条**不可删**台账行 + 迁 `status`（`currency_review_log` append-only ⇒ 不可复原）⇒ **禁跑**。已由**事务内 + ROLLBACK** 的「同路径 DB 函数」实测替代（§11.3）。|
-| 2 | **缺 `review_tasks`（`PERMISSION_NOT_GRANTED`）子面** | 需库内「有 admin 角色但**不含** `review_tasks`」的账号；本轮现取无合适样本（`is_admin=false` 且**无任何** `admin_user_role` 的账号已实测 403 `NOT_ADMIN`）。|
+| 2 | **`PERMISSION_NOT_GRANTED` 子面（原列未测 —— 2026-10-03 已实测覆盖）** | **实测已覆盖**（受控实例 5796 · Neng 收尾单 2026-10-03）：库内存在 uid `900004`（`is_admin=false` + `admin_user_role='p7b_fixture_admin'`，权限仅 `manage_points`）⇒ 两条路由均得 **`403 AUTH_FORBIDDEN` + `details.reason = 'PERMISSION_NOT_GRANTED'`**（逐字）。并列读数：无 token ⇒ `401 AUTH_UNAUTHORIZED`；非 admin（uid 2）⇒ `403 / NOT_ADMIN`；admin（uid 1）读口 ⇒ `200`（`data` 15 行）；非数字 `cid` ⇒ `404 LEDGER_CURRENCY_NOT_FOUND`。|
 | 3 | **C2 真 HTTP `POST /api/currency/:cid/list`（未审 draft 走真 HTTP）** | 同上：闸若失效即**不可复原写**；且无合适 owner 之外的触发面。已由**同 SQL** 的事务内探针实测（`R-8-18` 同路径）。|
 | 4 | **`0025` apply 后的**真结构断言**（vs §3 文本断言）** | 本单**未 apply**；但库内现取 `schema_version=0025` + `pg_trigger` / `information_schema` 已核得表 / 8 列 / 触发器在场（§11.2 起）。|
 
@@ -376,3 +376,13 @@
 2. **落点取舍为判断项**：闸落 `database.ts` 的 SQL（非 `listCurrencyVerb`）——理由见 §11.1（不可绕过 + 零错误形状位移 + 落回冻结锚点 `:454`）。若 Zang 认定必须落 service 层 ⇒ 可迁（须重跑 §11.3–§11.5）。
 3. **「通过后放行」的口径**：按 `§23.5 ④` 逐字，approve 自身即完成 `draft→listed` ⇒ C2 在 approve 后**自然拒**（`required_from='draft'`）；「放行」指**该单位已 `listed`、可挂单/标价/计酬**（R28）⇒ 见 §11.3(D) 两读数。
 4. **`p8-s4` 门数变化**：74 → **79**（+J1/J2/J3/J4 与 1 条 J1 自证），判据**只增不减**。
+
+
+### §11.8 订正记录（2026-10-03 · 收尾质检登记 4 处）
+
+> 口径：**就地订正**（正文已替换；逐字「旧 ⇒ 新」见 `git diff` 的删除/新增行）。本节不复引被改字面量，以保现取复核「旧串命中 = 0 · 新串见 §… 修订行」。
+
+1. **§11.6 #2** —— 撤「无合适账号 ⇒ 未测」定性，改列**实测结论**：库内 p7b 只读账号（`is_admin=false` + `admin_user_role='p7b_fixture_admin'`，权限仅 `manage_points`）两条路由均得 `403 AUTH_FORBIDDEN` + `details.reason='PERMISSION_NOT_GRANTED'`；并列 无 token⇒`401`、非 admin(uid 2)⇒`403 / NOT_ADMIN`、admin(uid 1)读口⇒`200`(15 行)、非数字 `cid`⇒`404`。逐字读数见 §11.6 #2 修订行。
+2. **§0 自证措辞收紧** —— 原「双下划线命中录零」字面不成立，改为「实质占位为 0；`__` 字面命中 1（系门自证标识符，非占位）；`待回填` 命中 1（系元陈述内回引）」。逐字见 §0 修订行。
+3. **§11 锚点漂移** —— `listCurrenciesForAdmin` 锚点由原记数字上调 +11 订正为现取数字（`grep -n` 现取）。逐字见 §11 修订行。
+4. **§11 笔误** —— 七门脚本名多一 `v` 的字面笔误，订正为与 `frontend/scripts/` 实文件一致的写法。逐字见 §11 修订行。
