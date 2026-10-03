@@ -1,0 +1,104 @@
+{
+ "schema": [
+  {
+   "rows": 39,
+   "max_version": "0040"
+  }
+ ],
+ "schema_0040": [
+  {
+   "version": "0040",
+   "name": "0040_backfill_signup_batt.sql",
+   "ck": "efa38fee102d",
+   "applied_at": "2026-10-03 10:09:13.211708+00"
+  }
+ ],
+ "mig_versions_tail": [
+  {
+   "version": "0040"
+  },
+  {
+   "version": "0039"
+  },
+  {
+   "version": "0038"
+  },
+  {
+   "version": "0037"
+  }
+ ],
+ "batt_account_count": [
+  {
+   "n": 56
+  }
+ ],
+ "batt_entry_count": [
+  {
+   "n": 56
+  }
+ ],
+ "batt_entry_by_reason": [
+  {
+   "reason": "checkin",
+   "n": 2,
+   "sum_delta": 60
+  },
+  {
+   "reason": "invite_signup",
+   "n": 54,
+   "sum_delta": 1620
+  }
+ ],
+ "batt_backfill": [
+  {
+   "n": 54,
+   "uniq_uid": 54,
+   "min_d": 30,
+   "max_d": 30,
+   "distinct_after": 1
+  }
+ ],
+ "dup_keys": [
+  {
+   "dup_keys": 0
+  }
+ ],
+ "kevin": [
+  {
+   "uid": "970213",
+   "batt": 30,
+   "time_updated": "2026-10-03 10:09:13.211708+00"
+  }
+ ],
+ "kevin_entries": [
+  {
+   "txid": "326",
+   "delta": 30,
+   "batt_after": 30,
+   "reason": "invite_signup",
+   "idempotency_key": "biz:backfill:invite-signup:970213",
+   "memo": "存量补发（R-9-81 · D2）：P9⑤ 前注册用户一次性补发 +30 batt"
+  }
+ ],
+ "kevin_uid_batt_raw": [
+  {
+   "uid": "970213",
+   "batt": 30
+  }
+ ],
+ "remaining_target": [
+  {
+   "n": 0
+  }
+ ],
+ "users_total": [
+  {
+   "n": 56
+  }
+ ],
+ "batt_range_check": [
+  {
+   "out_of_range": 0
+  }
+ ]
+}

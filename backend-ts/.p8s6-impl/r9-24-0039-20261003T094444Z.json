@@ -1,0 +1,60 @@
+{
+ "unit": "P8S6-0039-R9-24-REALRUN",
+ "generated_at": "2026-10-03T09:44:44.060Z",
+ "run": "20261003T094444Z",
+ "file": "migrations/0039_admin_audit_console.sql",
+ "bytes": 9803,
+ "lines": 156,
+ "note": "单事务 BEGIN;<0039 全文>;ROLLBACK（禁 COMMIT）；不 apply。",
+ "reads": {
+  "1_no_error": true,
+  "exec_err": null,
+  "2_new_object_absent_after_rollback": true,
+  "3_schema_migration_no_new_row": true,
+  "mig_rows_before": 37,
+  "mig_rows_after": 37,
+  "mig_max_before": "0038",
+  "mig_max_after": "0038",
+  "4_target_object_restored": true,
+  "new_relations_added": 0
+ },
+ "before": {
+  "ap_n": 11,
+  "ap_keys": "dashboard_access,manage_permissions,manage_points,manage_rewards,manage_settings,manage_tasks,manage_users,publish_prizes,publish_tasks,read_users,review_tasks",
+  "ap_keys_md5": "bb965f6c35b1d909abf1562d4c0832d9",
+  "has_manage_audit": 0,
+  "super_admin_n": 11,
+  "super_admin_has_manage_audit": 0,
+  "mig_rows": 37,
+  "mig_max": "0038",
+  "base_tables": 34,
+  "triggers": 54,
+  "ap_checks": 0
+ },
+ "after": {
+  "ap_n": 11,
+  "ap_keys": "dashboard_access,manage_permissions,manage_points,manage_rewards,manage_settings,manage_tasks,manage_users,publish_prizes,publish_tasks,read_users,review_tasks",
+  "ap_keys_md5": "bb965f6c35b1d909abf1562d4c0832d9",
+  "has_manage_audit": 0,
+  "super_admin_n": 11,
+  "super_admin_has_manage_audit": 0,
+  "mig_rows": 37,
+  "mig_max": "0038",
+  "base_tables": 34,
+  "triggers": 54,
+  "ap_checks": 0
+ },
+ "in_tx": {
+  "post_ap_n": 12,
+  "post_ap_keys": "dashboard_access,manage_audit,manage_permissions,manage_points,manage_rewards,manage_settings,manage_tasks,manage_users,publish_prizes,publish_tasks,read_users,review_tasks",
+  "post_has_manage_audit": 1,
+  "post_super_admin_n": 12,
+  "post_super_admin_has_manage_audit": 1,
+  "post_mig_rows": 37,
+  "post_mig_max": "0038",
+  "post_base_tables": 34,
+  "post_triggers": 54,
+  "behavior_missing_old": 0,
+  "behavior_new_present": 1
+ }
+}

@@ -1,0 +1,675 @@
+{
+ "unit": "P8-S11-AUDIT-CONSOLE-GATE",
+ "generated_at": "2026-10-03T09:55:38.034Z",
+ "run": "20261003T095530Z",
+ "offline": false,
+ "db_connections": 6,
+ "http_calls": 0,
+ "note": "A–J 静态面零 DB / 零 HTTP；K 库面 leg **连库 + 受控实例**（只读 + 目录断言 · `pending_apply[]` = 0）。",
+ "total": 71,
+ "passed": 70,
+ "failed": 1,
+ "pending_apply": [],
+ "readings": {
+  "registration_points_total": 88,
+  "registration_points_per_verb": {
+   "get": 37,
+   "post": 48,
+   "put": 0,
+   "patch": 1,
+   "delete": 2
+  },
+  "whitelist_faces": 14,
+  "whitelist": [
+   "admin_ops_audit_log",
+   "admin_refund_audit_log",
+   "ledger_entry",
+   "currency_review_log",
+   "currency_status_log",
+   "listing_review_log",
+   "job_arbitration_log",
+   "batt_entry",
+   "checkin_log",
+   "checkin_makeup_log",
+   "rating",
+   "listing_order_event",
+   "referral",
+   "commission_policy"
+  ],
+  "limit_default": 50,
+  "limit_max": 100,
+  "error_codes_closed_set_size": 33,
+  "reason_codes_count": 7,
+  "reason_codes": [
+   "MANUAL_CORRECTION",
+   "CUSTOMER_COMPENSATION",
+   "PROMOTION_BONUS",
+   "PENALTY_DEDUCTION",
+   "BUG_COMPENSATION",
+   "MIGRATION_ADJUSTMENT",
+   "OTHER"
+  ],
+  "live": {
+   "table_reads": {
+    "admin_ops_audit_log": {
+     "ok": true,
+     "raw": 4,
+     "page": 4,
+     "has_next": false
+    },
+    "admin_refund_audit_log": {
+     "ok": true,
+     "raw": 7,
+     "page": 7,
+     "has_next": false
+    },
+    "ledger_entry": {
+     "ok": true,
+     "raw": 51,
+     "page": 50,
+     "has_next": true
+    },
+    "currency_review_log": {
+     "ok": true,
+     "raw": 0,
+     "page": 0,
+     "has_next": false
+    },
+    "currency_status_log": {
+     "ok": true,
+     "raw": 7,
+     "page": 7,
+     "has_next": false
+    },
+    "listing_review_log": {
+     "ok": true,
+     "raw": 0,
+     "page": 0,
+     "has_next": false
+    },
+    "job_arbitration_log": {
+     "ok": true,
+     "raw": 0,
+     "page": 0,
+     "has_next": false
+    },
+    "batt_entry": {
+     "ok": true,
+     "raw": 2,
+     "page": 2,
+     "has_next": false
+    },
+    "checkin_log": {
+     "ok": true,
+     "raw": 2,
+     "page": 2,
+     "has_next": false
+    },
+    "checkin_makeup_log": {
+     "ok": true,
+     "raw": 2,
+     "page": 2,
+     "has_next": false
+    },
+    "rating": {
+     "ok": true,
+     "raw": 0,
+     "page": 0,
+     "has_next": false
+    },
+    "listing_order_event": {
+     "ok": true,
+     "raw": 0,
+     "page": 0,
+     "has_next": false
+    },
+    "referral": {
+     "ok": true,
+     "raw": 2,
+     "page": 2,
+     "has_next": false
+    },
+    "commission_policy": {
+     "ok": true,
+     "raw": 4,
+     "page": 4,
+     "has_next": false
+    }
+   },
+   "pagination": {
+    "page1": [
+     736,
+     735,
+     734,
+     733,
+     366
+    ],
+    "page2": [
+     364,
+     363,
+     362,
+     361,
+     360
+    ],
+    "overlap": [],
+    "desc": true
+   },
+   "filter_positive": {
+    "points_adjust": 4,
+    "none": 0
+   },
+   "http": {
+    "no_tok": -1,
+    "ok_page": -1,
+    "app_config": -1,
+    "cfg_reason": "",
+    "inapplicable": -1,
+    "supported": null,
+    "over": -1,
+    "nope": -1,
+    "err": "fetch failed"
+   },
+   "db_connections": 6
+  }
+ },
+ "checks": [
+  {
+   "id": "A1",
+   "group": "whitelist",
+   "pass": true,
+   "expect": "白名单面数 = 14（`R-9-77` 排除 `app_config`）",
+   "actual": "14"
+  },
+  {
+   "id": "A2",
+   "group": "whitelist",
+   "pass": true,
+   "expect": "白名单逐字逐序 = [\"admin_ops_audit_log\",\"admin_refund_audit_log\",\"ledger_entry\",\"currency_review_log\",\"currency_status_log\",\"listing_review_log\",\"job_arbitration_log\",\"batt_entry\",\"checkin_log\",\"checkin_makeup_log\",\"rating\",\"listing_order_event\",\"referral\",\"commission_policy\"]",
+   "actual": "[\"admin_ops_audit_log\",\"admin_refund_audit_log\",\"ledger_entry\",\"currency_review_log\",\"currency_status_log\",\"listing_review_log\",\"job_arbitration_log\",\"batt_entry\",\"checkin_log\",\"checkin_makeup_log\",\"rating\",\"listing_order_event\",\"referral\",\"commission_policy\"]"
+  },
+  {
+   "id": "A3",
+   "group": "whitelist",
+   "pass": true,
+   "expect": "★ `app_config` **不在**白名单（裁出检索台 · `R-9-77`）",
+   "actual": "{\"inList\":false,\"inMap\":false}"
+  },
+  {
+   "id": "A4",
+   "group": "whitelist",
+   "pass": true,
+   "expect": "14 面**全部在场**（无缺项）",
+   "actual": "true"
+  },
+  {
+   "id": "A2__selftest",
+   "group": "whitelistSelfTest",
+   "pass": true,
+   "expect": "把「15 面（含 app_config）」喂入「14 面逐字」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":{\"names\":[\"admin_ops_audit_log\",\"admin_refund_audit_log\",\"ledger_entry\",\"currency_review_log\",\"currency_status_log\",\"listing_review_log\",\"job_arbitration_log\",\"batt_entry\",\"checkin_log\",\"checkin_makeup_log\",\"rating\",\"listing_order_event\",\"referral\",\"commission_policy\",\"app_config\"]},\"judge_fired\":true}"
+  },
+  {
+   "id": "B1",
+   "group": "perTableMap",
+   "pass": true,
+   "expect": "映射表键序 = 14 面逐字逐序",
+   "actual": "[\"admin_ops_audit_log\",\"admin_refund_audit_log\",\"ledger_entry\",\"currency_review_log\",\"currency_status_log\",\"listing_review_log\",\"job_arbitration_log\",\"batt_entry\",\"checkin_log\",\"checkin_makeup_log\",\"rating\",\"listing_order_event\",\"referral\",\"commission_policy\"]"
+  },
+  {
+   "id": "B2",
+   "group": "perTableMap",
+   "pass": true,
+   "expect": "14 行逐表映射（`actor`/`target`/`action`/`timeColumn`/`refId`/`pk`）逐字对齐 §32.3",
+   "actual": "{\"diffs\":[]}"
+  },
+  {
+   "id": "B3",
+   "group": "perTableMap",
+   "pass": true,
+   "expect": "面数计数（14 面）：actor 无 = 5 / target 无 = 5 / action 无 = 10 / refId 无 = 3 / 时间列 `time_created` = 13 ∧ `bound_at` = 1",
+   "actual": "{\"actorNull\":5,\"targetNull\":5,\"actionNull\":10,\"refNull\":3,\"timeCreated\":13,\"boundAt\":1}"
+  },
+  {
+   "id": "B4",
+   "group": "perTableMap",
+   "pass": true,
+   "expect": "每面「无列」= **显式 `null`**（不得留空 / 占位）",
+   "actual": "true"
+  },
+  {
+   "id": "B5",
+   "group": "perTableMap",
+   "pass": true,
+   "expect": "每面支持维度**恒含** `from`/`to`（时间窗统一参数名）",
+   "actual": "{\"badSupport\":[]}"
+  },
+  {
+   "id": "B3__selftest",
+   "group": "perTableMapSelfTest",
+   "pass": true,
+   "expect": "把「actor 无 = 4」（漏一面）喂入面数谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":{\"actorNull\":4},\"judge_fired\":true}"
+  },
+  {
+   "id": "C1",
+   "group": "tableWhitelist400",
+   "pass": true,
+   "expect": "非白名单（含 `app_config` / 大小写不符 / 空）⇒ 一律 `400` + `details.reason = AUDIT_TABLE_NOT_FOUND`（`R-9-74` · 原候选 404 作废）",
+   "actual": "[{\"name\":\"made_up_table\",\"ok\":false,\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"reason\":\"AUDIT_TABLE_NOT_FOUND\"},{\"name\":\"app_config\",\"ok\":false,\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"reason\":\"AUDIT_TABLE_NOT_FOUND\"},{\"name\":\"ledger_entries\",\"ok\":false,\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"reason\":\"AUDIT_TABLE_NOT_FOUND\"},{\"name\":\"ADMIN_OPS_AUDIT_LOG\",\"ok\":false,\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"reason\":\"AUDIT_TABLE_NOT_FOUND\"},{\"name\":\"\",\"ok\":false,\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"reason\":\"AUDIT_TABLE_NOT_FOUND\"}]"
+  },
+  {
+   "id": "C2",
+   "group": "tableWhitelist400",
+   "pass": true,
+   "expect": "借码 = 既有 `LEDGER_AMOUNT_INVALID`（R107 单形状 · 零新增码）",
+   "actual": "[\"LEDGER_AMOUNT_INVALID\",\"LEDGER_AMOUNT_INVALID\",\"LEDGER_AMOUNT_INVALID\",\"LEDGER_AMOUNT_INVALID\",\"LEDGER_AMOUNT_INVALID\"]"
+  },
+  {
+   "id": "C3",
+   "group": "tableWhitelist400",
+   "pass": true,
+   "expect": "失败对象形状 = `{ ok:false, status, code, message, details }`（`sendVerbError` 出口 · `R107`）",
+   "actual": "{\"keys\":[\"authDomain\",\"code\",\"details\",\"message\",\"ok\",\"status\"],\"hasDetails\":true}"
+  },
+  {
+   "id": "C4",
+   "group": "tableWhitelist400",
+   "pass": true,
+   "expect": "`details` **零敏感上下文**（无 SQL / 裸表列名 / 约束名 / 连接串）",
+   "actual": "[{\"name\":\"made_up_table\",\"ok\":false,\"status\":400,\"code\":\"LEDGER_AMOUNT_INVALID\",\"reason\":\"AUDIT_TABLE_NOT_FOUND\"},{\"name\":\"app_config\",\"ok\":false,\"status\":400,\""
+  },
+  {
+   "id": "C1__selftest",
+   "group": "tableWhitelist400SelfTest",
+   "pass": true,
+   "expect": "把「reason = PARAM_NOT_APPLICABLE」喂入「AUDIT_TABLE_NOT_FOUND」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":{\"reason\":\"PARAM_NOT_APPLICABLE\"},\"judge_fired\":true}"
+  },
+  {
+   "id": "D1",
+   "group": "paramApplicability",
+   "pass": true,
+   "expect": "`ledger_entry?actor=1`（该表无 actor 列）⇒ `400 PARAM_NOT_APPLICABLE` + `supportedFilters = [from,to,refId]`",
+   "actual": "{\"reason\":\"PARAM_NOT_APPLICABLE\",\"supported\":[\"from\",\"to\",\"refId\"]}"
+  },
+  {
+   "id": "D2",
+   "group": "paramApplicability",
+   "pass": true,
+   "expect": "`checkin_log?refId=1`（该表无关联 id 列）⇒ `400 PARAM_NOT_APPLICABLE` + `supportedFilters = [from,to]`",
+   "actual": "{\"reason\":\"PARAM_NOT_APPLICABLE\",\"supported\":[\"from\",\"to\"]}"
+  },
+  {
+   "id": "D3",
+   "group": "paramApplicability",
+   "pass": true,
+   "expect": "`rating` 全六维支持（actor/target/action/from/to/refId）",
+   "actual": "[\"actor\",\"target\",\"action\",\"from\",\"to\",\"refId\"]"
+  },
+  {
+   "id": "D4",
+   "group": "paramApplicability",
+   "pass": true,
+   "expect": "正对照：**适用**参数放行（`rating?actor` / `ledger_entry?refId` ⇒ `ok=true`）",
+   "actual": "{\"rating_actor\":true,\"ledger_ref\":true}"
+  },
+  {
+   "id": "D5",
+   "group": "paramApplicability",
+   "pass": true,
+   "expect": "★ 不适用参数**绝不静默返回全表**（`ledger_entry?actor=1` 必须 `ok=false` · 否则 = 假绿陷阱 · `R-9-78`）",
+   "actual": "{\"ok\":false}"
+  },
+  {
+   "id": "D1__selftest",
+   "group": "paramApplicabilitySelfTest",
+   "pass": true,
+   "expect": "把「supportedFilters = []」喂入「非空能力面」谓词 ⇒ 必须转红（去能力面闸会被抓）",
+   "actual": "{\"wrong_input\":{\"reason\":\"PARAM_NOT_APPLICABLE\",\"supportedFilters\":[]},\"judge_fired\":true}"
+  },
+  {
+   "id": "E1",
+   "group": "keysetShape",
+   "pass": true,
+   "expect": "默认排序 = `ORDER BY time_created DESC, log_id DESC`（13 面 `time_created`）",
+   "actual": "ORDER BY time_created DESC, log_id DESC LIMIT $1::int"
+  },
+  {
+   "id": "E2",
+   "group": "keysetShape",
+   "pass": true,
+   "expect": "`LIMIT = limit + 1`（判定下一页 · keyset 拉一探）",
+   "actual": "{\"last\":51}"
+  },
+  {
+   "id": "E3",
+   "group": "keysetShape",
+   "pass": true,
+   "expect": "游标子句 = **keyset 双键** `(time_created, log_id) < (:t, :pk)`（不透明 base64url 游标）",
+   "actual": "WHERE (time_created, log_id) < ($1::timestamptz, $2::bigint) ORDER BY time_created DESC, log_id DESC LIMIT $3::int"
+  },
+  {
+   "id": "E4",
+   "group": "keysetShape",
+   "pass": true,
+   "expect": "★ 生成语句**只读**：`SELECT * FROM public.<白名单表>` · 零写动词（§32.10）",
+   "actual": "SELECT * FROM public.admin_ops_audit_log ORDER BY time_creat"
+  },
+  {
+   "id": "E5",
+   "group": "keysetShape",
+   "pass": true,
+   "expect": "非法游标 ⇒ `400 CURSOR_INVALID`（游标不透明化）",
+   "actual": "{\"field\":\"cursor\",\"reason\":\"CURSOR_INVALID\"}"
+  },
+  {
+   "id": "E1__selftest",
+   "group": "keysetShapeSelfTest",
+   "pass": true,
+   "expect": "把 `ASC` 排序喂入「`DESC` keyset」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":\"SELECT * FROM t ORDER BY time_created ASC\",\"judge_fired\":true}"
+  },
+  {
+   "id": "F1",
+   "group": "limit",
+   "pass": true,
+   "expect": "常量 = 默认 50 / 上限 100（`R-9-79`）",
+   "actual": "{\"def\":50,\"max\":100}"
+  },
+  {
+   "id": "F2",
+   "group": "limit",
+   "pass": true,
+   "expect": "缺省 `limit` ⇒ **50**",
+   "actual": "50"
+  },
+  {
+   "id": "F3",
+   "group": "limit",
+   "pass": true,
+   "expect": "`limit=100`（上限）⇒ 放行",
+   "actual": "100"
+  },
+  {
+   "id": "F4",
+   "group": "limit",
+   "pass": true,
+   "expect": "`limit > 100` / `limit < 1` / 非整数 ⇒ `400 LIMIT_OUT_OF_RANGE`",
+   "actual": "[{\"ok\":false,\"status\":400,\"reason\":\"LIMIT_OUT_OF_RANGE\"},{\"ok\":false,\"status\":400,\"reason\":\"LIMIT_OUT_OF_RANGE\"},{\"ok\":false,\"status\":400,\"reason\":\"LIMIT_OUT_OF_RANGE\"}]"
+  },
+  {
+   "id": "F2__selftest",
+   "group": "limitSelfTest",
+   "pass": true,
+   "expect": "把 `limit=51` 喂入「默认 50」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":{\"limit\":51},\"judge_fired\":true}"
+  },
+  {
+   "id": "G1",
+   "group": "sortKey",
+   "pass": true,
+   "expect": "★ 唯一无 `time_created` 面 `referral` ⇒ 排序键 `(bound_at DESC, child_uid DESC)`",
+   "actual": "bound_at,child_uid"
+  },
+  {
+   "id": "G2",
+   "group": "sortKey",
+   "pass": true,
+   "expect": "其余 **13 面** 主排序键 = `time_created`",
+   "actual": "[]"
+  },
+  {
+   "id": "G3",
+   "group": "sortKey",
+   "pass": true,
+   "expect": "逐表副键 `<pk> DESC` 逐表非空（log_id / txid / rating_id / event_id / child_uid / policy_id）",
+   "actual": "{\"admin_ops_audit_log\":\"log_id\",\"admin_refund_audit_log\":\"log_id\",\"ledger_entry\":\"txid\",\"currency_review_log\":\"log_id\",\"currency_status_log\":\"log_id\",\"listing_review_log\":\"log_id\",\"job_arbitration_log\":\"log_id\",\"batt_entry\":\"txid\",\"checkin_log\":\"log_id\",\"checkin_makeup_log\":\"log_id\",\"rating\":\"rating_id\",\"listing_order_event\":\"event_id\",\"referral\":\"child_uid\",\"commission_policy\":\"policy_id\"}"
+  },
+  {
+   "id": "G1__selftest",
+   "group": "sortKeySelfTest",
+   "pass": true,
+   "expect": "把 `referral` 排序键写成 `time_created` 喂入谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":\"time_created,bound_at\",\"judge_fired\":true}"
+  },
+  {
+   "id": "H1",
+   "group": "closedSets",
+   "pass": true,
+   "expect": "错误码闭集仍恰 33 条（**不动**）",
+   "actual": "33"
+  },
+  {
+   "id": "H2",
+   "group": "closedSets",
+   "pass": true,
+   "expect": "★ 一切读口 `400` 借既有 `LEDGER_AMOUNT_INVALID`（∈ 33 闭集 ⇒ **零新增码**）",
+   "actual": "{\"inClosedSet\":true,\"borrowed\":[\"LEDGER_AMOUNT_INVALID\",\"LEDGER_AMOUNT_INVALID\"]}"
+  },
+  {
+   "id": "H3",
+   "group": "reasonCodes",
+   "pass": true,
+   "expect": "原因码常量集 = 恰 **7 值**（`R-9-76` C3③ · 语义域 **非错误码**）",
+   "actual": "7"
+  },
+  {
+   "id": "H4",
+   "group": "reasonCodes",
+   "pass": true,
+   "expect": "原因码 7 值逐字 = [\"MANUAL_CORRECTION\",\"CUSTOMER_COMPENSATION\",\"PROMOTION_BONUS\",\"PENALTY_DEDUCTION\",\"BUG_COMPENSATION\",\"MIGRATION_ADJUSTMENT\",\"OTHER\"]",
+   "actual": "[\"MANUAL_CORRECTION\",\"CUSTOMER_COMPENSATION\",\"PROMOTION_BONUS\",\"PENALTY_DEDUCTION\",\"BUG_COMPENSATION\",\"MIGRATION_ADJUSTMENT\",\"OTHER\"]"
+  },
+  {
+   "id": "H5",
+   "group": "reasonCodes",
+   "pass": true,
+   "expect": "`isPointsAdjustReason` 判据：合法码 true / 集合外 / 空 / null ⇒ false（大小写敏感）",
+   "actual": "{\"ok\":true,\"bogus\":false,\"empty\":false}"
+  },
+  {
+   "id": "H6",
+   "group": "reasonCodes",
+   "pass": true,
+   "expect": "原因码 7 值**均不在**错误码闭集内（防以原因码冒充新错误码）",
+   "actual": "true"
+  },
+  {
+   "id": "H1__selftest",
+   "group": "closedSetsSelfTest",
+   "pass": true,
+   "expect": "把 34 条闭集喂入 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":[\"LEDGER_INSUFFICIENT_BALANCE\",\"LEDGER_INSUFFICIENT_FROZEN\",\"LEDGER_IDEMPOTENCY_REPLAY\",\"LEDGER_IDEMPOTENCY_CONFLICT\",\"LEDGER_IDEMPOTENCY_KEY_REQUIRED\",\"LEDGER_IDEMPOTENCY_KEY_INVALID\",\"LEDGER_CURRENCY_NOT_FOUND\",\"LEDGER_CURRENCY_NOT_LISTED\",\"LEDGER_CURRENCY_FROZEN\",\"LEDGER_CURRENCY_DELISTED\",\"LEDGER_CURRENCY_INVALID_TRANSITION\",\"LEDGER_CURRENCY_SYMBOL_TAKEN\",\"LEDGER_CURRENCY_MISMATCH\",\"LEDGER_SUPPLY_CAP_EXCEEDED\",\"LEDGER_UNAUTHORIZED_MINT\",\"LEDGER_HOLD_NOT_ALLOWED\",\"LEDGER_AMOUNT_INVALID\",\"LEDGER_AMOUNT_NOT_POSITIVE\",\"LEDGER_DECIMALS_OVERFLOW\",\"LEDGER_SELF_TRANSFER\",\"LEDGER_ACCOUNT_NOT_FOUND\",\"LEDGER_RESERVED_UID\",\"LEDGER_REF_NOT_FOUND\",\"LEDGER_UNKNOWN_KIND\",\"LEDGER_TRANSACTION_REQUIRED\",\"LEDGER_LOCK_TIMEOUT\",\"LEDGER_TX_TIMEOUT\",\"LEDGER_DEADLOCK_RETRY_EXHAUSTED\",\"LEDGER_NEGATIVE_BALANCE_GUARD\",\"LEDGER_APPEND_ONLY_VIOLATION\",\"LEDGER_ACCOUNT_GUARD_VIOLATION\",\"LEDGER_FEE_RATE_INVALID\",\"LEDGER_RECONCILE_MISMATCH\",\"LEDGER_MADEUP_CODE\"],\"judge_fired\":true}"
+  },
+  {
+   "id": "H3__selftest",
+   "group": "reasonCodesSelfTest",
+   "pass": true,
+   "expect": "把 8 值原因码集喂入 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":[\"MANUAL_CORRECTION\",\"CUSTOMER_COMPENSATION\",\"PROMOTION_BONUS\",\"PENALTY_DEDUCTION\",\"BUG_COMPENSATION\",\"MIGRATION_ADJUSTMENT\",\"OTHER\",\"EXTRA\"],\"judge_fired\":true}"
+  },
+  {
+   "id": "I1",
+   "group": "registration",
+   "pass": true,
+   "expect": "注册点 = 88（8⑥ 审计台统一读口 +1〔87→88〕）",
+   "actual": "88"
+  },
+  {
+   "id": "I2",
+   "group": "registration",
+   "pass": true,
+   "expect": "逐 verb 逐字 = {\"get\":37,\"post\":48,\"put\":0,\"patch\":1,\"delete\":2}",
+   "actual": "{\"get\":37,\"post\":48,\"put\":0,\"patch\":1,\"delete\":2}"
+  },
+  {
+   "id": "I3",
+   "group": "registration",
+   "pass": true,
+   "expect": "读口 `GET /api/admin/audit/:table` 注册**恰 1 处**（变体 Ⅰ · `R-9-74`）",
+   "actual": "3"
+  },
+  {
+   "id": "I4",
+   "group": "registration",
+   "pass": true,
+   "expect": "★ 负对照：缩进注入一条路由 ⇒ 计数 88→89",
+   "actual": "{\"injected\":89}"
+  },
+  {
+   "id": "I5",
+   "group": "auth",
+   "pass": true,
+   "expect": "闸 = `requireAdmin(req, res, 'manage_audit')`（`R-9-75` 新增键 · 闭集 11→12）",
+   "actual": "\"requireAdmin(req, res, 'manage_audit')\""
+  },
+  {
+   "id": "I6",
+   "group": "auth",
+   "pass": true,
+   "expect": "handler 接线 = `parseAuditRequest` → `buildAuditSql` → `DatabaseService.readAuditPage` → `sendSuccess` / `sendVerbError`",
+   "actual": "{\"parse\":true,\"sql\":true,\"read\":true,\"err\":true}"
+  },
+  {
+   "id": "I7",
+   "group": "readonly",
+   "pass": true,
+   "expect": "★ handler **只读**：零写动词（不动任何 append-only 面 · §32.10）",
+   "actual": "[]"
+  },
+  {
+   "id": "I8",
+   "group": "readonly",
+   "pass": true,
+   "expect": "取数口 = `DatabaseService.readAuditPage(text, params)`（唯一取数口 · 不自拼 SQL）",
+   "actual": "{\"has\":true}"
+  },
+  {
+   "id": "I9",
+   "group": "auth",
+   "pass": true,
+   "expect": "权限键 `manage_audit` 三处编码同集（后端 `ALL_ADMIN_PERMISSIONS` ∧ 前端 `admin-utils.js` 兜底）",
+   "actual": "true"
+  },
+  {
+   "id": "I1__selftest",
+   "group": "registrationSelfTest",
+   "pass": true,
+   "expect": "把非 88 条路由的文本喂入「注册点 = 88」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":\"x\",\"judge_fired\":true}"
+  },
+  {
+   "id": "J1",
+   "group": "mig0039",
+   "pass": true,
+   "expect": "★ `0039` = **纯 DML 种子**（代码面零 `CREATE`/`ALTER`/`DROP`/`TRUNCATE`）",
+   "actual": "[]"
+  },
+  {
+   "id": "J2",
+   "group": "mig0039",
+   "pass": true,
+   "expect": "`0039` 两处种子：`admin_permission +1`（`manage_audit`）∧ `admin_role_permission`（`super_admin` × `manage_audit`）（`ON CONFLICT DO NOTHING` 幂等）",
+   "actual": "{\"ap\":true,\"rp\":true}"
+  },
+  {
+   "id": "J3",
+   "group": "mig0039",
+   "pass": true,
+   "expect": "`0039` 代码面**无事务控制语句** `BEGIN;`/`COMMIT;`（`DO $$ … BEGIN … END $$;` 的 PL/pgSQL 块体非事务 · 迁移器单事务包裹）",
+   "actual": "{\"stmtBegin\":false,\"stmtCommit\":false,\"hasDoBlock\":true}"
+  },
+  {
+   "id": "J4",
+   "group": "readonly",
+   "pass": true,
+   "expect": "★ `audit-console.ts` 零写 SQL（无 `INSERT/UPDATE/DELETE public.*`）",
+   "actual": "[]"
+  },
+  {
+   "id": "J5",
+   "group": "readonly",
+   "pass": true,
+   "expect": "白名单 = **结构化常量表** `AUDIT_TABLES`（禁拼 SQL 字符串）+ 失配统一借既有码",
+   "actual": "{\"struct\":true}"
+  },
+  {
+   "id": "J1__selftest",
+   "group": "mig0039SelfTest",
+   "pass": true,
+   "expect": "把含 `CREATE TABLE` 的迁移文本喂入「零 DDL」谓词 ⇒ 必须转红",
+   "actual": "{\"wrong_input\":\"CREATE TABLE x();\",\"judge_fired\":true}"
+  },
+  {
+   "id": "K1",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ `schema_migration` = **38 行** · `max(version)` = **0039**（`0039` 已 apply）",
+   "actual": "{\"n\":38,\"mx\":\"0039\"}"
+  },
+  {
+   "id": "K2",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ 活体 `admin_permission` = **12 行** · 含 `manage_audit`（闭集 11→12 · `R-9-75`）",
+   "actual": "{\"n\":12,\"has\":true}"
+  },
+  {
+   "id": "K3",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ 活体 `super_admin` 权限 = **12** · 含 `manage_audit`（新增键默认同给）",
+   "actual": "{\"n\":12,\"has\":true}"
+  },
+  {
+   "id": "K4",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ 基表仍 **34**（`0039` 零 DDL · 零新对象）",
+   "actual": "{\"n\":34}"
+  },
+  {
+   "id": "K5",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ 14 面 **append-only** 触发器（`tgtype&27=27` · `tgenabled=O`）逐面在场（§32.10 兜底）",
+   "actual": "{\"n\":14}"
+  },
+  {
+   "id": "K6",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ 14 面逐表只读真取数（默认 `limit=50`）14/14 `ok`（零执行异常）",
+   "actual": "{\"admin_ops_audit_log\":{\"ok\":true,\"raw\":4,\"page\":4,\"has_next\":false},\"admin_refund_audit_log\":{\"ok\":true,\"raw\":7,\"page\":7,\"has_next\":false},\"ledger_entry\":{\"ok\":true,\"raw\":51,\"page\":50,\"has_next\":true},\"currency_review_log\":{\"ok\":true,\"raw\":0,\"page\":0,\"has_next\":false},\"currency_status_log\":{\"ok\":true,\"raw\":7,\"page\":7,\"has_next\":false},\"listing_review_log\":{\"ok\":true,\"raw\":0,\"page\":0,\"has_next\":false},\"job_arbitration_log\":{\"ok\":true,\"raw\":0,\"page\":0,\"has_next\":false},\"batt_entry\":{\"ok\":true,\"raw\":2,\"page\":2,\"has_next\":false},\"checkin_log\":{\"ok\":true,\"raw\":2,\"page\":2,\"has_next\":false},\"checkin_makeup_log\":{\"ok\":true,\"raw\":2,\"page\":2,\"has_next\":false},\"rating\":{\"ok\":true,\"raw\":0,\"page\":0,\"has_next\":false},\"listing_order_event\":{\"ok\":true,\"raw\":0,\"page\":0,\"has_next\":false},\"referral\":{\"ok\":true,\"raw\":2,\"page\":2,\"has_next\":false},\"commission_policy\":{\"ok\":true,\"raw\":4,\"page\":4,\"has_next\":false}}"
+  },
+  {
+   "id": "K7",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ keyset 分页：第 1 页 5 行 / 第 2 页 5 行 · **零重叠** · 降序",
+   "actual": "{\"page1\":[736,735,734,733,366],\"page2\":[364,363,362,361,360],\"overlap\":[],\"desc\":true}"
+  },
+  {
+   "id": "K8",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ 过滤正读：`action=points_adjust` ⇒ **4 行**（历史 4 行 · 非假过滤）；`action=__none__` ⇒ **0 行**",
+   "actual": "{\"points_adjust\":4,\"none\":0}"
+  },
+  {
+   "id": "K9",
+   "group": "dbLive",
+   "pass": true,
+   "expect": "★ 原因码切换点接线（`index.ts` 调 `isPointsAdjustReason` · reason `REASON_CODE_NOT_IN_ENUM`）+ `admin_ops_audit_log` 历史 **4 行**（不回填 · `R-9-76`）",
+   "actual": "{\"rows\":4,\"wired\":true}"
+  },
+  {
+   "id": "K10",
+   "group": "dbLive",
+   "pass": false,
+   "expect": "★ 受控实例真 HTTP：无 token ⇒ **401**；持 `manage_audit` ⇒ `200`；`app_config` ⇒ `400 AUDIT_TABLE_NOT_FOUND`；不适用参数 ⇒ `400`（+ supportedFilters）；`limit=101` ⇒ `400`；非白名单 ⇒ `400`",
+   "actual": "{\"no_tok\":-1,\"ok_page\":-1,\"app_config\":-1,\"cfg_reason\":\"\",\"inapplicable\":-1,\"supported\":null,\"over\":-1,\"nope\":-1,\"err\":\"fetch failed\"}"
+  }
+ ]
+}
+SUMMARY total=71 passed=70 failed=1 pending_apply=0 db=6 http=0 artifact=/Users/kevin/bistro/seafood/backend-ts/.p8s11-artifacts/p8s11-20261003T095530Z/gate.json

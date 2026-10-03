@@ -1,0 +1,17 @@
+PKTRG={"t":"admin_ops_audit_log","pk":"PRIMARY KEY (log_id)","trg":[{"n":"trg_admin_ops_audit_log_append_only","en":"O","ev":""}]}
+PKTRG={"t":"admin_refund_audit_log","pk":"PRIMARY KEY (log_id)","trg":[{"n":"trg_admin_refund_audit_log_append_only","en":"O","ev":""}]}
+PKTRG={"t":"ledger_entry","pk":"PRIMARY KEY (txid)","trg":[{"n":"trg_ledger_entry_append_only","en":"O","ev":""},{"n":"trg_ledger_entry_commission_conservation","en":"O","ev":"AFTER INSERT ON"}]}
+PKTRG={"t":"currency_review_log","pk":"PRIMARY KEY (log_id)","trg":[{"n":"trg_currency_review_log_append_only","en":"O","ev":""}]}
+PKTRG={"t":"currency_status_log","pk":"PRIMARY KEY (log_id)","trg":[{"n":"trg_currency_status_log_append_only","en":"O","ev":""}]}
+PKTRG={"t":"listing_review_log","pk":"PRIMARY KEY (log_id)","trg":[{"n":"trg_listing_review_log_append_only","en":"O","ev":""}]}
+PKTRG={"t":"job_arbitration_log","pk":"PRIMARY KEY (log_id)","trg":[{"n":"trg_job_arbitration_log_append_only","en":"O","ev":""}]}
+PKTRG={"t":"batt_entry","pk":"PRIMARY KEY (txid)","trg":[{"n":"trg_batt_entry_append_only","en":"O","ev":""}]}
+PKTRG={"t":"checkin_log","pk":"PRIMARY KEY (log_id)","trg":[{"n":"trg_checkin_log_append_only","en":"O","ev":""}]}
+PKTRG={"t":"checkin_makeup_log","pk":"PRIMARY KEY (log_id)","trg":[{"n":"trg_checkin_makeup_log_append_only","en":"O","ev":""}]}
+PKTRG={"t":"rating","pk":"PRIMARY KEY (rating_id)","trg":[{"n":"trg_rating_append_only","en":"O","ev":""}]}
+PKTRG={"t":"listing_order_event","pk":"PRIMARY KEY (event_id)","trg":[{"n":"trg_listing_order_event_append_only","en":"O","ev":""}]}
+PKTRG={"t":"referral","pk":"PRIMARY KEY (child_uid)","trg":[{"n":"trg_referral_append_only","en":"O","ev":""},{"n":"trg_referral_cycle_guard","en":"O","ev":"BEFORE INSERT ON"}]}
+PKTRG={"t":"app_config","pk":"PRIMARY KEY (key)","trg":[{"n":"trg_app_config_key_immutable","en":"O","ev":"BEFORE UPDATE ON"},{"n":"trg_app_config_touch_updated","en":"O","ev":"BEFORE UPDATE ON"}]}
+PKTRG={"t":"commission_policy","pk":"PRIMARY KEY (policy_id)","trg":[{"n":"trg_commission_policy_append_only","en":"O","ev":""},{"n":"trg_commission_policy_weights_guard","en":"O","ev":""}]}
+LEDGER_PK=[{"d":"PRIMARY KEY (txid)"}]
+LEDGER_TXID={"rows":359,"dtx":359}

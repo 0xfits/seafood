@@ -1,0 +1,195 @@
+{
+ "users_09b0": [
+  {
+   "uid": "970213",
+   "evm": "0x59f9f640d15ebb053c94a816232cf8ce91b209b0",
+   "suf": "09b0",
+   "is_admin": false,
+   "time_reg": "2026-10-01T00:34:03.736Z",
+   "time_login_last": "2026-10-03T09:31:30.569Z"
+  }
+ ],
+ "user_count": [
+  {
+   "n": 56
+  }
+ ],
+ "recent_users": [
+  {
+   "uid": "971213",
+   "suf": "c58a25",
+   "is_admin": false,
+   "time_reg": "2026-10-02T02:02:30.259Z"
+  },
+  {
+   "uid": "971100",
+   "suf": "297588",
+   "is_admin": false,
+   "time_reg": "2026-10-02T02:01:28.555Z"
+  },
+  {
+   "uid": "970213",
+   "suf": "b209b0",
+   "is_admin": false,
+   "time_reg": "2026-10-01T00:34:03.736Z"
+  },
+  {
+   "uid": "970212",
+   "suf": "3101ab",
+   "is_admin": false,
+   "time_reg": "2026-10-01T00:23:36.574Z"
+  },
+  {
+   "uid": "970211",
+   "suf": "53fcf4",
+   "is_admin": false,
+   "time_reg": "2026-09-30T15:19:24.096Z"
+  },
+  {
+   "uid": "970210",
+   "suf": "f43d7f",
+   "is_admin": false,
+   "time_reg": "2026-09-30T15:16:30.420Z"
+  },
+  {
+   "uid": "970209",
+   "suf": "26b94b",
+   "is_admin": false,
+   "time_reg": "2026-09-30T15:15:24.417Z"
+  },
+  {
+   "uid": "970208",
+   "suf": "ab86e0",
+   "is_admin": false,
+   "time_reg": "2026-09-30T15:14:57.548Z"
+  }
+ ],
+ "target_uids": [
+  "970213"
+ ],
+ "batt": [],
+ "batt_entries": [],
+ "referral": [],
+ "my_apps": [],
+ "my_jobs": [],
+ "jobs": [
+  {
+   "job_id": "24",
+   "employer_uid": "1",
+   "worker_uid": null,
+   "status": "open",
+   "reward": "100",
+   "cid": "1",
+   "time_created": "2026-10-01T01:41:20.473Z"
+  },
+  {
+   "job_id": "23",
+   "employer_uid": "11",
+   "worker_uid": "12",
+   "status": "settled",
+   "reward": "12",
+   "cid": "1",
+   "time_created": "2026-09-30T13:57:07.380Z"
+  },
+  {
+   "job_id": "22",
+   "employer_uid": "3",
+   "worker_uid": null,
+   "status": "open",
+   "reward": "1",
+   "cid": "1",
+   "time_created": "2026-09-30T13:53:58.041Z"
+  },
+  {
+   "job_id": "20",
+   "employer_uid": "11",
+   "worker_uid": "12",
+   "status": "settled",
+   "reward": "12",
+   "cid": "1",
+   "time_created": "2026-09-30T13:41:21.004Z"
+  },
+  {
+   "job_id": "19",
+   "employer_uid": "970001",
+   "worker_uid": "12",
+   "status": "settled",
+   "reward": "100000",
+   "cid": "1",
+   "time_created": "2026-09-29T19:21:28.640Z"
+  },
+  {
+   "job_id": "18",
+   "employer_uid": "970001",
+   "worker_uid": null,
+   "status": "cancelled",
+   "reward": "5",
+   "cid": "1",
+   "time_created": "2026-09-29T19:15:21.425Z"
+  },
+  {
+   "job_id": "17",
+   "employer_uid": "970001",
+   "worker_uid": "12",
+   "status": "rejected",
+   "reward": "5",
+   "cid": "1",
+   "time_created": "2026-09-29T19:15:13.536Z"
+  },
+  {
+   "job_id": "16",
+   "employer_uid": "970001",
+   "worker_uid": "12",
+   "status": "settled",
+   "reward": "5",
+   "cid": "1",
+   "time_created": "2026-09-29T19:14:00.022Z"
+  },
+  {
+   "job_id": "15",
+   "employer_uid": "3",
+   "worker_uid": null,
+   "status": "submitted",
+   "reward": "137",
+   "cid": "1",
+   "time_created": "2026-09-29T18:27:05.490Z"
+  },
+  {
+   "job_id": "14",
+   "employer_uid": "2",
+   "worker_uid": null,
+   "status": "submitted",
+   "reward": "137",
+   "cid": "1",
+   "time_created": "2026-09-29T18:27:04.178Z"
+  },
+  {
+   "job_id": "13",
+   "employer_uid": "3",
+   "worker_uid": null,
+   "status": "open",
+   "reward": "137",
+   "cid": "1",
+   "time_created": "2026-09-29T18:27:03.748Z"
+  },
+  {
+   "job_id": "12",
+   "employer_uid": "2",
+   "worker_uid": null,
+   "status": "open",
+   "reward": "137",
+   "cid": "1",
+   "time_created": "2026-09-29T18:27:03.338Z"
+  }
+ ],
+ "app_config_keys": [
+  {
+   "key": "system_settings"
+  }
+ ],
+ "system_settings": [
+  {
+   "v": "{\"siteName\": \"p4b2c:siteA\", \"maintenance\": false, \"maxDailyTasks\": 10, \"pointsPerTask\": 100, \"rewardCooldown\": 24, \"defaultLanguage\": \"zh\", \"siteDescription\": \"去中心化社区奖励平台\", \"allowRegistration\": true, \"emailNotifications\": true}"
+  }
+ ]
+}

@@ -1,0 +1,72 @@
+{
+ "schema": [
+  {
+   "rows": 38,
+   "max_version": "0039"
+  }
+ ],
+ "schema_0040": [],
+ "mig_versions_tail": [
+  {
+   "version": "0039"
+  },
+  {
+   "version": "0038"
+  },
+  {
+   "version": "0037"
+  },
+  {
+   "version": "0036"
+  }
+ ],
+ "batt_account_count": [
+  {
+   "n": 2
+  }
+ ],
+ "batt_entry_count": [
+  {
+   "n": 2
+  }
+ ],
+ "batt_entry_by_reason": [
+  {
+   "reason": "checkin",
+   "n": 2,
+   "sum_delta": 60
+  }
+ ],
+ "batt_backfill": [
+  {
+   "n": 0,
+   "uniq_uid": 0,
+   "min_d": null,
+   "max_d": null,
+   "distinct_after": 0
+  }
+ ],
+ "dup_keys": [
+  {
+   "dup_keys": 0
+  }
+ ],
+ "kevin": [],
+ "kevin_entries": [],
+ "kevin_uid_batt_raw": [],
+ "remaining_target": [
+  {
+   "n": 54
+  }
+ ],
+ "users_total": [
+  {
+   "n": 56
+  }
+ ],
+ "batt_range_check": [
+  {
+   "out_of_range": 0
+  }
+ ]
+}

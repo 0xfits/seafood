@@ -1,0 +1,883 @@
+{
+ "unit": "P8-S5-COMPLIANCE-GATE",
+ "generated_at": "2026-10-03T11:05:48.565Z",
+ "run": "20261003T110548Z",
+ "offline": true,
+ "db_connections": 0,
+ "http_calls": 0,
+ "note": "本门**零 DB / 零 HTTP**，不依赖写面：源码面 + 行为面（DI mock）判据；库内三处落值 / 真回执 prior_status / 库面判负 = 由 DB 探针 `p8-s5-01-real-chains.ts` 实测（另册）。",
+ "total": 117,
+ "passed": 117,
+ "failed": 0,
+ "readings": {
+  "registration_points_total": 88,
+  "registration_points_per_verb": {
+   "get": 37,
+   "post": 48,
+   "put": 0,
+   "patch": 1,
+   "delete": 2
+  },
+  "actions": [
+   "approve",
+   "reject"
+  ],
+  "action_to_result": {
+   "approve": "approved",
+   "reject": "rejected"
+  },
+  "listing_takedown_targets": [
+   "delisted",
+   "frozen"
+  ],
+  "job_arbitrate_action_to_target": {
+   "approve": "settled",
+   "reject": "cancelled"
+  },
+  "ops_actions": {
+   "listing": "listing_takedown",
+   "job": "job_arbitrate"
+  },
+  "error_codes_closed_set_size": 33,
+  "error_codes_used": [
+   "LEDGER_REF_NOT_FOUND",
+   "LEDGER_CURRENCY_INVALID_TRANSITION",
+   "LEDGER_AMOUNT_INVALID"
+  ],
+  "listing_ns_keys": 30,
+  "arbitration_ns_keys": 34,
+  "nav_keys": 30,
+  "migrations_count": 39,
+  "migrations_fingerprint": [
+   {
+    "file": "0026_listing_review_log.sql",
+    "table": "public.listing_review_log"
+   },
+   {
+    "file": "0027_job_arbitration_log.sql",
+    "table": "public.job_arbitration_log"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "id": "A1",
+   "group": "registration",
+   "pass": true,
+   "expect": "注册点 = 88（逐 verb：{\"get\":37,\"post\":48,\"put\":0,\"patch\":1,\"delete\":2}；8⑤ 读口/动作口 +4）",
+   "actual": "88"
+  },
+  {
+   "id": "A1b",
+   "group": "registration",
+   "pass": true,
+   "expect": "逐 verb 计数之和 = 注册点总数",
+   "actual": "{\"get\":37,\"post\":48,\"put\":0,\"patch\":1,\"delete\":2}"
+  },
+  {
+   "id": "A2",
+   "group": "registration",
+   "pass": true,
+   "expect": "读口 `GET /api/admin/listing` 在场",
+   "actual": "true"
+  },
+  {
+   "id": "A3",
+   "group": "registration",
+   "pass": true,
+   "expect": "动作口 `POST /api/admin/listing/:listingId/takedown` 在场",
+   "actual": "true"
+  },
+  {
+   "id": "A4",
+   "group": "registration",
+   "pass": true,
+   "expect": "读口 `GET /api/admin/arbitration` 在场",
+   "actual": "true"
+  },
+  {
+   "id": "A5",
+   "group": "registration",
+   "pass": true,
+   "expect": "动作口 `POST /api/admin/arbitration/:jobId` 在场",
+   "actual": "true"
+  },
+  {
+   "id": "A6",
+   "group": "registration",
+   "pass": true,
+   "expect": "listing 读口闸 = `requireAdmin(req,res,'review_tasks')`（缺闸 / 降级 ⇒ 判负）",
+   "actual": "review_tasks"
+  },
+  {
+   "id": "A7",
+   "group": "registration",
+   "pass": true,
+   "expect": "listing 动作口闸 = `requireAdmin(req,res,'review_tasks')`（缺闸 / 降级 ⇒ 判负）",
+   "actual": "review_tasks"
+  },
+  {
+   "id": "A8",
+   "group": "registration",
+   "pass": true,
+   "expect": "arbitration 读口闸 = `requireAdmin(req,res,'review_tasks')`（缺闸 / 降级 ⇒ 判负）",
+   "actual": "review_tasks"
+  },
+  {
+   "id": "A9",
+   "group": "registration",
+   "pass": true,
+   "expect": "arbitration 动作口闸 = `requireAdmin(req,res,'review_tasks')`（缺闸 / 降级 ⇒ 判负）",
+   "actual": "review_tasks"
+  },
+  {
+   "id": "A10",
+   "group": "registration",
+   "pass": true,
+   "expect": "listing 读口取数 = `DatabaseService.listListingsForAdmin(`（单一真源）",
+   "actual": "true"
+  },
+  {
+   "id": "A11",
+   "group": "registration",
+   "pass": true,
+   "expect": "arbitration 读口取数 = `DatabaseService.listJobsForArbitration(`（单一真源）",
+   "actual": "true"
+  },
+  {
+   "id": "A12",
+   "group": "registration",
+   "pass": true,
+   "expect": "listing 动作口幂等键 = `resolveAdminOpsKey(req, actor.session.uID, LISTING_TAKEDOWN_OPS_ACTION, …)`",
+   "actual": "true"
+  },
+  {
+   "id": "A13",
+   "group": "registration",
+   "pass": true,
+   "expect": "arbitration 动作口幂等键 = `resolveAdminOpsKey(req, actor.session.uID, JOB_ARBITRATE_OPS_ACTION, …)`",
+   "actual": "true"
+  },
+  {
+   "id": "A14",
+   "group": "registration",
+   "pass": true,
+   "expect": "★ 负对照：缩进注入一条路由 ⇒ 计数 88→89",
+   "actual": "{\"injected\":89}"
+  },
+  {
+   "id": "B1",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "listing 读口 data 键集冻结 = [\"listing_id\",\"seller_uid\",\"cid\",\"price\",\"stock\",\"title\",\"status\",\"time_created\"]",
+   "actual": "[]"
+  },
+  {
+   "id": "B2",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "job 读口 data 键集冻结 = [\"job_id\",\"employer_uid\",\"worker_uid\",\"cid\",\"reward\",\"title\",\"status\",\"time_created\"]",
+   "actual": "[]"
+  },
+  {
+   "id": "B3",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "两读口只读（SELECT 体无 INSERT/UPDATE/DELETE）",
+   "actual": "{\"listing\":false,\"job\":false}"
+  },
+  {
+   "id": "B4",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "缺省 `?status`（listing）⇒ 全量（null）",
+   "actual": "{\"ok\":true,\"status\":null}"
+  },
+  {
+   "id": "B5",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "`?status=listed` ⇒ 过滤",
+   "actual": "{\"ok\":true,\"status\":\"listed\"}"
+  },
+  {
+   "id": "B6",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "非法 `?status`（listing）⇒ 400（不得静默回落）",
+   "actual": "{\"code\":\"LEDGER_AMOUNT_INVALID\",\"status\":400}"
+  },
+  {
+   "id": "B7",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "非法 `?status`（arbitration）⇒ 400",
+   "actual": "LEDGER_AMOUNT_INVALID/400"
+  },
+  {
+   "id": "B8",
+   "group": "readSurface",
+   "pass": true,
+   "expect": "两读口无 `ops:` 键（读口无副作用）",
+   "actual": "{\"listing\":false,\"arb\":false}"
+  },
+  {
+   "id": "B6__selftest",
+   "group": "readSurfaceSelfTest",
+   "pass": true,
+   "expect": "把非法滤镜当合法 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":{\"ok\":true,\"status\":\"listed\"},\"judge_fired\":true}"
+  },
+  {
+   "id": "C1",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "action 闭集恰 2 值 = [\"approve\",\"reject\"]",
+   "actual": "[\"approve\",\"reject\"]"
+  },
+  {
+   "id": "C2",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "动作 → 台账 result：approve→approved / reject→rejected",
+   "actual": "{\"approve\":\"approved\",\"reject\":\"rejected\"}"
+  },
+  {
+   "id": "C3",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "商品 takedown 目标状态闭集 = [\"delisted\",\"frozen\"]",
+   "actual": "[\"delisted\",\"frozen\"]"
+  },
+  {
+   "id": "C4",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "仲裁动作 → 目标状态：approve→settled / reject→cancelled",
+   "actual": "{\"approve\":\"settled\",\"reject\":\"cancelled\"}"
+  },
+  {
+   "id": "C5",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "ops: 键 action 词 = `listing_takedown` / `job_arbitrate`",
+   "actual": "{\"l\":\"listing_takedown\",\"j\":\"job_arbitrate\"}"
+  },
+  {
+   "id": "C6",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "规范键形 = `ops:<admin_uid>:listing_takedown:<listingId>` / `ops:<admin_uid>:job_arbitrate:<jobId>`（既有助手）",
+   "actual": "{\"l\":\"ops:7:listing_takedown:12\",\"j\":\"ops:7:job_arbitrate:12\"}"
+  },
+  {
+   "id": "C7",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "listing.status 四态闭集一字不动（变体 Ⅱ 不扩枚举）",
+   "actual": "[\"draft\",\"listed\",\"delisted\",\"frozen\"]"
+  },
+  {
+   "id": "C8",
+   "group": "actionShape",
+   "pass": true,
+   "expect": "job.status 七态闭集一字不动",
+   "actual": "[\"open\",\"accepted\",\"submitted\",\"settled\",\"disputed\",\"rejected\",\"cancelled\"]"
+  },
+  {
+   "id": "D1",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": ":listingId 非数字 ⇒ 404（不得静默按 0 处理）",
+   "actual": "LEDGER_REF_NOT_FOUND/404"
+  },
+  {
+   "id": "D2",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": ":listingId = 0（<=0）⇒ 404",
+   "actual": "LEDGER_REF_NOT_FOUND/404"
+  },
+  {
+   "id": "D3",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "action 缺失 ⇒ 400（不得静默取默认决定）",
+   "actual": "LEDGER_AMOUNT_INVALID/400"
+  },
+  {
+   "id": "D4",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "action 非枚举 ⇒ 400（details.reason = NOT_IN_CLOSED_SET）",
+   "actual": "{\"code\":\"LEDGER_AMOUNT_INVALID\",\"reason\":\"NOT_IN_CLOSED_SET\"}"
+  },
+  {
+   "id": "D5",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "reason 缺失（尤其驳回）⇒ 400",
+   "actual": "{\"code\":\"LEDGER_AMOUNT_INVALID\",\"field\":\"reason\"}"
+  },
+  {
+   "id": "D6",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "reason 空白串 ⇒ 400",
+   "actual": "LEDGER_AMOUNT_INVALID"
+  },
+  {
+   "id": "D7",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "target_status 非闭集 ⇒ 400",
+   "actual": "{\"code\":\"LEDGER_AMOUNT_INVALID\",\"field\":\"target_status\"}"
+  },
+  {
+   "id": "D8",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": ":jobId 非数字 ⇒ 404",
+   "actual": "LEDGER_REF_NOT_FOUND/404"
+  },
+  {
+   "id": "D9",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "仲裁 reason 缺失 ⇒ 400",
+   "actual": "{\"code\":\"LEDGER_AMOUNT_INVALID\",\"field\":\"reason\"}"
+  },
+  {
+   "id": "D10",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "动作口错误码 ⊆ 既有 §14 闭集（零新增码）",
+   "actual": "[\"LEDGER_REF_NOT_FOUND\",\"LEDGER_AMOUNT_INVALID\"]"
+  },
+  {
+   "id": "D11",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "错误码闭集仍恰 33 条（不动）",
+   "actual": "33"
+  },
+  {
+   "id": "D12",
+   "group": "illegalInput",
+   "pass": true,
+   "expect": "动作口只用 [\"LEDGER_REF_NOT_FOUND\",\"LEDGER_CURRENCY_INVALID_TRANSITION\",\"LEDGER_AMOUNT_INVALID\"]（LD007/LD011/LD016）",
+   "actual": "[\"LEDGER_REF_NOT_FOUND\",\"LEDGER_AMOUNT_INVALID\"]"
+  },
+  {
+   "id": "D10__selftest",
+   "group": "illegalInputSelfTest",
+   "pass": true,
+   "expect": "自造码喂入 ⇒ 闭集谓词必须转红",
+   "actual": "{\"wrong_input\":[\"LEDGER_NEW_MADEUP_CODE\"],\"judge_fired\":true}"
+  },
+  {
+   "id": "E1",
+   "group": "ownershipGate",
+   "pass": true,
+   "expect": "归属闸 = 取 actor ∧ 读雇主 uid ∧ 雇主本人放行 ∧ **admin 通道保留**（`requireAdmin(req,res,'review_tasks')`）",
+   "actual": "{\"requireActor\":true,\"employerLookup\":true,\"ownerAdmit\":true,\"adminChannel\":true}"
+  },
+  {
+   "id": "E2",
+   "group": "ownershipGate",
+   "pass": true,
+   "expect": "helper `requireJobOwnerOrAdmin` 在场",
+   "actual": "true"
+  },
+  {
+   "id": "E3",
+   "group": "ownershipGate",
+   "pass": true,
+   "expect": "`job/:jobId/review` 挂 `requireJobOwnerOrAdmin(req,res,jobIdRaw)`（雇主自审 ∨ admin）",
+   "actual": "true"
+  },
+  {
+   "id": "E4",
+   "group": "ownershipGate",
+   "pass": true,
+   "expect": "`job/:jobId/cancel` 挂 `requireJobOwnerOrAdmin(req,res,jobIdRaw)`",
+   "actual": "true"
+  },
+  {
+   "id": "E5",
+   "group": "ownershipGate",
+   "pass": true,
+   "expect": "★ 负对照：**删除 admin 通道**（`return requireAdmin(...)` ⇒ `return null`）⇒ 判定式转红",
+   "actual": "{\"original\":true,\"admin_removed\":false}"
+  },
+  {
+   "id": "E1__selftest",
+   "group": "ownershipGateSelfTest",
+   "pass": true,
+   "expect": "把「无 admin 通道」的 helper 喂入 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":\"const requireJobOwnerOrAdmin = async (req, res, jobIdRaw) => {\\n  const actor = await requireActor(req, res);\\n  if (!actor) return null;\\n  const employerUid = await DatabaseService.getJobEmployerUid(1);\\n  return null;\\n};\",\"judge_fired\":true}"
+  },
+  {
+   "id": "F1",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "注册点仍 = 88（零退还/罚没/delist 路由）",
+   "actual": "88"
+  },
+  {
+   "id": "F2",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "无 delist 一族路由",
+   "actual": "true"
+  },
+  {
+   "id": "F3",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "合规审核服务（去注释）零 `hold_forfeit`/`hold_release`/`unfreeze(`/`listing_deposit_refund`",
+   "actual": "[]"
+  },
+  {
+   "id": "F4",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "商品审核语句零账本分录（不调 `ledger_post_event`）",
+   "actual": "false"
+  },
+  {
+   "id": "F5",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "全 src 面 `listing_deposit_refund` 零命中",
+   "actual": "false"
+  },
+  {
+   "id": "F6",
+   "group": "noRefundSurface",
+   "pass": true,
+   "expect": "仲裁服务（去注释）零直调资金表 / 账本（资金腿由 DB 侧既有 `job_post_event` 派生）",
+   "actual": "[]"
+  },
+  {
+   "id": "G1",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminListingReview 键数 = 30",
+   "actual": "30"
+  },
+  {
+   "id": "G2",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminArbitrationReview 键数 = 34",
+   "actual": "34"
+  },
+  {
+   "id": "G3.zh",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminListingReview 四语键集齐 + 非空（zh）",
+   "actual": "{\"keys\":30}"
+  },
+  {
+   "id": "G4.zh",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminArbitrationReview 四语键集齐 + 非空（zh）",
+   "actual": "{\"keys\":34}"
+  },
+  {
+   "id": "G3.en",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminListingReview 四语键集齐 + 非空（en）",
+   "actual": "{\"keys\":30}"
+  },
+  {
+   "id": "G4.en",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminArbitrationReview 四语键集齐 + 非空（en）",
+   "actual": "{\"keys\":34}"
+  },
+  {
+   "id": "G3.hk",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminListingReview 四语键集齐 + 非空（hk）",
+   "actual": "{\"keys\":30}"
+  },
+  {
+   "id": "G4.hk",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminArbitrationReview 四语键集齐 + 非空（hk）",
+   "actual": "{\"keys\":34}"
+  },
+  {
+   "id": "G3.vn",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminListingReview 四语键集齐 + 非空（vn）",
+   "actual": "{\"keys\":30}"
+  },
+  {
+   "id": "G4.vn",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminArbitrationReview 四语键集齐 + 非空（vn）",
+   "actual": "{\"keys\":34}"
+  },
+  {
+   "id": "G5.en",
+   "group": "i18n",
+   "pass": true,
+   "expect": "en 两新命名空间无 CJK",
+   "actual": "[]"
+  },
+  {
+   "id": "G5.vn",
+   "group": "i18n",
+   "pass": true,
+   "expect": "vn 两新命名空间无 CJK",
+   "actual": "[]"
+  },
+  {
+   "id": "G6",
+   "group": "i18n",
+   "pass": true,
+   "expect": "hk 为繁體（listing title 与 zh 简体逐字不同含繁體异形 · arbitration intro 与 zh 不同 · title 含 CJK）",
+   "actual": "{\"hk_listing\":\"商品合規審核\",\"zh_listing\":\"商品合规审核\",\"hk_arb_intro\":\"本頁列出待平台仲裁嘅招工；填寫仲裁說明後可以通過或駁回，通過即支持僱主、駁回即退單。\",\"zh_arb_intro\":\"本页列出待平台仲裁的招工；填写仲裁说明后可通过或驳回，通过则支持雇主、驳回则退单。\"}"
+  },
+  {
+   "id": "G7",
+   "group": "i18n",
+   "pass": true,
+   "expect": "六类工程口径泄漏 = 0（四语 × 两新命名空间）",
+   "actual": "[]"
+  },
+  {
+   "id": "G8",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminNav 键数 = 30 + 本批 4 键四语齐",
+   "actual": "[30,30,30,30]"
+  },
+  {
+   "id": "G9",
+   "group": "i18n",
+   "pass": true,
+   "expect": "adminNav 新 4 键 en/vn 无 CJK 且六类泄漏 = 0",
+   "actual": "[]"
+  },
+  {
+   "id": "G7__selftest",
+   "group": "i18nSelfTest",
+   "pass": true,
+   "expect": "把带章节号的文案喂入 ⇒ 泄漏谓词必须转红",
+   "actual": "{\"wrong_input\":{\"title\":\"审核（§25.3）\"},\"judge_fired\":true}"
+  },
+  {
+   "id": "H1",
+   "group": "migration",
+   "pass": true,
+   "expect": "迁移文件 = 0026 + 0027；总数 = 39",
+   "actual": "{\"count\":39,\"has\":[\"0026_listing_review_log.sql\",\"0027_job_arbitration_log.sql\"]}"
+  },
+  {
+   "id": "H2.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql 表名逐字 = `public.listing_review_log`",
+   "actual": "listing_review_log"
+  },
+  {
+   "id": "H3.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql 9 列逐字在场",
+   "actual": "[]"
+  },
+  {
+   "id": "H4.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql 5 具名约束逐字在场",
+   "actual": "[]"
+  },
+  {
+   "id": "H5.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql result 闭集 = {approved, rejected}",
+   "actual": "CHECK (result IN ('approved', 'rejected'))"
+  },
+  {
+   "id": "H6.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql 幂等唯一键 = 复合 (idempotency_key, result)",
+   "actual": "UNIQUE (idempotency_key, result)"
+  },
+  {
+   "id": "H7.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql 4 索引（PK + idem_uniq + listing_review_log_listing_idx + listing_review_log_actor_day_idx）",
+   "actual": "[]"
+  },
+  {
+   "id": "H8.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql append-only：BEFORE UPDATE OR DELETE 触发器 + 守门函数",
+   "actual": "BEFORE UPDATE OR DELETE` **无条件 `RAISE`**（原生 `P0001`，"
+  },
+  {
+   "id": "H9.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql 恰一列 time_created（DEFAULT now()）；**无** time_updated（结构面：注释 / 自检串不计）",
+   "actual": "{\"time_created\":true,\"time_updated\":false}"
+  },
+  {
+   "id": "H10.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql 无 create_key / 无 ledger_event_keys（结构面）",
+   "actual": "{\"create_key\":false,\"lek\":false}"
+  },
+  {
+   "id": "H11.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql 零 ALTER TABLE",
+   "actual": "false"
+  },
+  {
+   "id": "H12.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql 零数据 DML / 零账本调用",
+   "actual": "{\"dml\":false,\"ledger\":false}"
+  },
+  {
+   "id": "H13.0",
+   "group": "migration",
+   "pass": true,
+   "expect": "0026_listing_review_log.sql 自带 apply-time 自检",
+   "actual": "true"
+  },
+  {
+   "id": "H2.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql 表名逐字 = `public.job_arbitration_log`",
+   "actual": "job_arbitration_log"
+  },
+  {
+   "id": "H3.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql 9 列逐字在场",
+   "actual": "[]"
+  },
+  {
+   "id": "H4.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql 5 具名约束逐字在场",
+   "actual": "[]"
+  },
+  {
+   "id": "H5.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql result 闭集 = {approved, rejected}",
+   "actual": "CHECK (result IN ('approved', 'rejected'))"
+  },
+  {
+   "id": "H6.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql 幂等唯一键 = 复合 (idempotency_key, result)",
+   "actual": "UNIQUE (idempotency_key, result)"
+  },
+  {
+   "id": "H7.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql 4 索引（PK + idem_uniq + job_arbitration_log_job_idx + job_arbitration_log_actor_day_idx）",
+   "actual": "[]"
+  },
+  {
+   "id": "H8.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql append-only：BEFORE UPDATE OR DELETE 触发器 + 守门函数",
+   "actual": "BEFORE UPDATE OR DELETE` **无条件 `RAISE`**（原生 `P0001`，"
+  },
+  {
+   "id": "H9.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql 恰一列 time_created（DEFAULT now()）；**无** time_updated（结构面：注释 / 自检串不计）",
+   "actual": "{\"time_created\":true,\"time_updated\":false}"
+  },
+  {
+   "id": "H10.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql 无 create_key / 无 ledger_event_keys（结构面）",
+   "actual": "{\"create_key\":false,\"lek\":false}"
+  },
+  {
+   "id": "H11.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql 零 ALTER TABLE",
+   "actual": "false"
+  },
+  {
+   "id": "H12.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql 零数据 DML / 零账本调用",
+   "actual": "{\"dml\":false,\"ledger\":false}"
+  },
+  {
+   "id": "H13.1",
+   "group": "migration",
+   "pass": true,
+   "expect": "0027_job_arbitration_log.sql 自带 apply-time 自检",
+   "actual": "true"
+  },
+  {
+   "id": "A1__selftest",
+   "group": "registrationSelfTest",
+   "pass": true,
+   "expect": "注册点写成 74（= 偷偷少注册一条）⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":74,\"judge_fired\":true}"
+  },
+  {
+   "id": "C1__selftest",
+   "group": "actionShapeSelfTest",
+   "pass": true,
+   "expect": "闭集被偷偷加第三值 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":[\"approve\",\"reject\",\"hold\"],\"judge_fired\":true}"
+  },
+  {
+   "id": "H9__selftest",
+   "group": "migrationSelfTest",
+   "pass": true,
+   "expect": "把 time_updated 列定义喂入 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":\"CREATE TABLE (\\n  time_created timestamptz NOT NULL DEFAULT now(),\\n  time_updated timestamptz\\n)\",\"judge_fired\":true}"
+  },
+  {
+   "id": "H10__selftest",
+   "group": "migrationSelfTest",
+   "pass": true,
+   "expect": "把 create_key 列定义喂入 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":\"CREATE TABLE (\\n  create_key text,\\n)\",\"judge_fired\":true}"
+  },
+  {
+   "id": "K1",
+   "group": "actionFamily",
+   "pass": true,
+   "expect": "商品动作口回执 `listing_status` = **前置态**（`cur` CTE · 取锁先于 UPDATE）",
+   "actual": "{\"hit\":true}"
+  },
+  {
+   "id": "K2",
+   "group": "actionFamily",
+   "pass": true,
+   "expect": "币种动作口回执 `cur_status` = **前置态**（`cur` CTE）",
+   "actual": "{\"hit\":true}"
+  },
+  {
+   "id": "K3",
+   "group": "actionFamily",
+   "pass": true,
+   "expect": "招工动作口回执 = `prior_status`（前置态）∧ `job_status`（终态）**双字段**",
+   "actual": "{\"prior\":true,\"term\":true}"
+  },
+  {
+   "id": "K4",
+   "group": "actionFamily",
+   "pass": true,
+   "expect": "三条动作口台账 INSERT 均门控「可审前置态 ∧（approved ⇒ 已生效 `EXISTS(apply)`）」——防「未生效却记账」",
+   "actual": "{\"gt_apply\":true,\"listing_listed\":true,\"currency_draft\":true}"
+  },
+  {
+   "id": "J1",
+   "group": "actionFirstCall",
+   "pass": true,
+   "expect": "DB `jobArbitrationPostEvent` 回执四处返回**均**含 `prior_status`（前置态 · `R-9-9①`）",
+   "actual": "4"
+  },
+  {
+   "id": "J2",
+   "group": "actionFirstCall",
+   "pass": true,
+   "expect": "服务层 `arbitrateJobVerb` 前置态判定取 `row.prior_status`；**不得**再用终态 `row.job_status` 作前置态",
+   "actual": "{\"uses_prior\":true,\"legacy_cur\":false}"
+  },
+  {
+   "id": "J2b",
+   "group": "actionFirstCall",
+   "pass": true,
+   "expect": "★ 负对照（源码面）：`prior_status` → `job_status`（终态字段）⇒ 谓词转红",
+   "actual": "{\"original\":true,\"mutated\":false}"
+  },
+  {
+   "id": "J3",
+   "group": "actionFirstCall",
+   "pass": true,
+   "expect": "★ 首调（reject · 前置态 submitted）= 200 且 `view.status` = **终态** cancelled",
+   "actual": "{\"ok\":true,\"replay\":false,\"view\":{\"job_id\":\"1\",\"status\":\"cancelled\",\"result\":\"rejected\",\"txid\":\"573\"}}"
+  },
+  {
+   "id": "J4",
+   "group": "actionFirstCall",
+   "pass": true,
+   "expect": "首调（approve · 前置态 disputed）= 200 且 `view.status` = settled",
+   "actual": "{\"ok\":true,\"replay\":false,\"view\":{\"job_id\":\"1\",\"status\":\"settled\",\"result\":\"rejected\",\"txid\":\"600\"}}"
+  },
+  {
+   "id": "J5",
+   "group": "actionFirstCall",
+   "pass": true,
+   "expect": "★ 库内三处落值（回执契约）：台账行 `reviewed≥1` ∧ 状态迁移 `applied=1` ∧ 资金腿 `txid≠NULL`",
+   "actual": "{\"reviewed\":1,\"applied\":1,\"txid\":\"573\"}"
+  },
+  {
+   "id": "J6",
+   "group": "actionFirstCall",
+   "pass": true,
+   "expect": "非法前置态（settled）⇒ 409 `LD011` + reason `JOB_STATE_INVALID`（applied=0）",
+   "actual": "{\"ok\":false,\"status\":409,\"code\":\"LEDGER_CURRENCY_INVALID_TRANSITION\",\"message\":\"Business state transition rejected\",\"details\":{\"field\":\"job.status\",\"reason\":\"JOB_STATE_INVALID\",\"required_from\":\"submitted|disputed\",\"job_id\":\"1\",\"from\":\"settled\",\"action\":\"reject\"},\"authDomain\":false}"
+  },
+  {
+   "id": "J7",
+   "group": "actionFirstCall",
+   "pass": true,
+   "expect": "★ 负对照（行为面）：同一首调回执——`prior_status` 判据 = 成功；换回终态 `job_status` 判据 ⇒ **必红（409）**",
+   "actual": "{\"prior_path\":true,\"legacy_terminal_path\":false}"
+  },
+  {
+   "id": "J7__selftest",
+   "group": "actionFirstCallSelfTest",
+   "pass": true,
+   "expect": "把「终态当前置态」的回执喂入 ⇒ 判据必须转红",
+   "actual": "{\"wrong_input\":{\"job_found\":1,\"prior_status\":\"cancelled\",\"job_status\":\"cancelled\",\"applied\":0,\"reviewed\":0},\"judge_fired\":true}"
+  },
+  {
+   "id": "J2__selftest",
+   "group": "actionFirstCallSelfTest",
+   "pass": true,
+   "expect": "把「终态字段作前置态」的源码喂入 ⇒ 谓词必须转红",
+   "actual": "{\"wrong_input\":\"\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\nimport { createHash } from 'crypto';\\nimport { DatabaseService } from './database';\\nimport { ledgerErrorBody, sendVerbError, type JobVerbErr as VerbErr, type JobVerbResult as VerbResult } from './job-service';\\nimport { ledgerErrorFromDbError, normalizeLedgerError } from './ledger';\\n\\nexport { ledgerErrorBody, sendVerbError };\\nexport type { VerbErr, VerbResult };\\n\\n\\nexport const REVIEW_ACTIONS = ['approve', 'reject'] as const;\\nexport type ReviewAction = (typeof REVIEW_ACTIONS)[number];\\n\\n\\nexport const REVIEW_ACTION_TO_RESULT: Record<ReviewAction, 'approved' | 'rejected'> = {\\n  approve: 'approved',\\n  reject: 'rejected',\\n};\\n\\n\\nexport const LISTING_STATUS_VALUES = ['draft', 'listed', 'delisted', 'frozen'] as const;\\n\\n\\nexport const JOB_STATUS_VALUES = ['open', 'accepted', 'submitted', 'settled', 'disputed', 'rejected', 'cancelled'] as const;\\n\\n\\nexport const LISTING_TAKEDOWN_TARGETS = ['delisted', 'frozen'] as const;\\nexport type ListingTakedownTarget = (typeof LISTING_TAKEDOWN_TARGETS)[number];\\n\\n\\nexport const JOB_ARBITRATE_ACTION_TO_TARGET: Record<ReviewAction, 'settled' | 'cancelled'> = {\\n  approve: 'settled',\\n  reject: 'cancelled',\\n};\\n\\n\\nexport const LISTING_TAKEDOWN_OPS_ACTION = 'listing_takedown';\\n\\n\\nexport const JOB_ARBITRATE_OPS_ACTION = 'job_arbitrate';\\n\\n\\nconst fail = (\\n  status: number,\\n  code: string,\\n  details: Record<string, unknown>,\\n  message?: string,\\n): VerbErr => ({\\n  ok: false,\\n  status,\\n  code,\\n  message: message || code,\\n  details,\\n  authDomain: code.startsWith('AUTH_'),\\n});\\n\\n\\nexport const listing404 = (listingId: string): VerbErr =>\\n  fail(404, 'LEDGER_REF_NOT_FOUND', { ref_type: 'listing', ref_id: listingId || 'null', reason: 'listing_not_found' }, 'Referenced object not found');\\n\\nexport const job404 = (jobId: string): VerbErr =>\\n  fail(404, 'LEDGER_REF_NOT_FOUND', { ref_type: 'job', ref_id: jobId || 'null', reason: 'job_not_found' }, 'Referenced object not found');\\n\\n\\nexport const listingStateConflict = (extra: Record<string, unknown> = {}): VerbErr =>\\n  fail(409, 'LEDGER_CURRENCY_INVALID_TRANSITION', {\\n    field: 'listing.status', reason: 'LISTING_STATE_INVALID', required_from: 'listed', ...extra,\\n  }, 'Business state transition rejected');\\n\\nexport const jobStateConflict = (extra: Record<string, unknown> = {}): VerbErr =>\\n  fail(409, 'LEDGER_CURRENCY_INVALID_TRANSITION', {\\n    field: 'job.status', reason: 'JOB_STATE_INVALID', required_from: 'submitted|disputed', ...extra,\\n  }, 'Business state transition rejected');\\n\\n\\nconst shapeError = (field: string, reason: string, extra: Record<string, unknown> = {}): VerbErr =>\\n  fail(400, 'LEDGER_AMOUNT_INVALID', { field, reason, ...extra }, 'Request shape is invalid');\\n\\n\\nconst fromLedgerError = (e: unknown, key: string): VerbErr => {\\n  const mapped = ledgerErrorFromDbError(e, key);\\n  if (mapped) return fail(mapped.httpStatus, mapped.code, (mapped.details ?? {}) as Record<string, unknown>, mapped.code);\\n  const norm = normalizeLedgerError(e);\\n  return fail(norm.httpStatus, norm.code, (norm.details ?? {}) as Record<string, unknown>, norm.code);\\n};\\n\\n\\nexport const listingTakedownFingerprint = (listingId: number, action: ReviewAction, target: string, reason: string): string =>\\n  createHash('sha256').update(['listing_takedown', String(listingId), action, target, reason].join('|')).digest('hex');\\n\\nexport const jobArbitrateFingerprint = (jobId: number, action: ReviewAction, reason: string): string =>\\n  createHash('sha256').update(['job_arbitrate', String(jobId), action, reason].join('|')).digest('hex');\\n\\n\\n\\n\\nconst parseIdShape = (raw: unknown): { ok: true; value: number } | { ok: false; text: string } => {\\n  const text = typeof raw === 'string' ? raw.trim() : String(raw ?? '');\\n  if (!/^\\\\d+$/.test(text)) return { ok: false, text };\\n  const value = Number(text);\\n  if (!Number.isSafeInteger(value) || value <= 0) return { ok: false, text };\\n  return { ok: true, value };\\n};\\n\\nconst parseAction = (body: Record<string, unknown>): { ok: true; action: ReviewAction } | { ok: false; err: VerbErr } => {\\n  const raw = body.action;\\n  const text = typeof raw === 'string' ? raw.trim() : '';\\n  if (!text) return { ok: false, err: shapeError('action', 'REQUIRED', { allowed: [...REVIEW_ACTIONS] }) };\\n  if (!(REVIEW_ACTIONS as readonly string[]).includes(text)) {\\n    return { ok: false, err: shapeError('action', 'NOT_IN_CLOSED_SET', { provided: text, allowed: [...REVIEW_ACTIONS] }) };\\n  }\\n  return { ok: true, action: text as ReviewAction };\\n};\\n\\n\\nexport type ParsedTakedown =\\n  | { ok: true; listingId: number; action: ReviewAction; result: 'approved' | 'rejected'; targetStatus: ListingTakedownTarget; reason: string; fingerprint: string }\\n  | { ok: false; err: VerbErr };\\n\\n\\nexport const parseTakedownInput = (params: {\\n  listingIdRaw: unknown;\\n  body: Record<string, unknown> | undefined;\\n}): ParsedTakedown => {\\n  const body = params.body || {};\\n\\n  const id = parseIdShape(params.listingIdRaw);\\n  if (!id.ok) return { ok: false, err: listing404(id.text) };\\n\\n  const act = parseAction(body);\\n  if (!act.ok) return { ok: false, err: act.err };\\n  const action = act.action;\\n\\n  const reasonRaw = body.reason;\\n  const reason = typeof reasonRaw === 'string' ? reasonRaw.trim() : '';\\n  if (!reason) return { ok: false, err: shapeError('reason', 'REQUIRED') };\\n\\n  const targetRaw = body.target_status;\\n  const targetText = targetRaw === undefined || targetRaw === null || String(targetRaw).trim() === ''\\n    ? 'delisted'\\n    : String(targetRaw).trim();\\n  if (!(LISTING_TAKEDOWN_TARGETS as readonly string[]).includes(targetText)) {\\n    return { ok: false, err: shapeError('target_status', 'NOT_IN_CLOSED_SET', { provided: targetText, allowed: [...LISTING_TAKEDOWN_TARGETS] }) };\\n  }\\n  const targetStatus = targetText as ListingTakedownTarget;\\n\\n  return {\\n    ok: true,\\n    listingId: id.value,\\n    action,\\n    result: REVIEW_ACTION_TO_RESULT[action],\\n    targetStatus,\\n    reason,\\n    fingerprint: listingTakedownFingerprint(id.value, action, targetStatus, reason),\\n  };\\n};\\n\\n\\nexport type ParsedArbitration =\\n  | { ok: true; jobId: number; action: ReviewAction; result: 'approved' | 'rejected'; targetStatus: 'settled' | 'cancelled'; reason: string; fingerprint: string }\\n  | { ok: false; err: VerbErr };\\n\\n\\nexport const parseArbitrationInput = (params: {\\n  jobIdRaw: unknown;\\n  body: Record<string, unknown> | undefined;\\n}): ParsedArbitration => {\\n  const body = params.body || {};\\n\\n  const id = parseIdShape(params.jobIdRaw);\\n  if (!id.ok) return { ok: false, err: job404(id.text) };\\n\\n  const act = parseAction(body);\\n  if (!act.ok) return { ok: false, err: act.err };\\n  const action = act.action;\\n\\n  const reasonRaw = body.reason;\\n  const reason = typeof reasonRaw === 'string' ? reasonRaw.trim() : '';\\n  if (!reason) return { ok: false, err: shapeError('reason', 'REQUIRED') };\\n\\n  return {\\n    ok: true,\\n    jobId: id.value,\\n    action,\\n    result: REVIEW_ACTION_TO_RESULT[action],\\n    targetStatus: JOB_ARBITRATE_ACTION_TO_TARGET[action],\\n    reason,\\n    fingerprint: jobArbitrateFingerprint(id.value, action, reason),\\n  };\\n};\\n\\n\\n\\n\\n\\nexport const reviewListingTakedownVerb = async (params: {\\n  listingIdRaw: unknown;\\n  actorUid: number;\\n  body: Record<string, unknown> | undefined;\\n  opsKey: string;\\n  \\n  postEvent?: typeof DatabaseService.listingTakedownPostEvent;\\n}): Promise<VerbResult> => {\\n  const parsed = parseTakedownInput({ listingIdRaw: params.listingIdRaw, body: params.body });\\n  if (!parsed.ok) return parsed.err;\\n\\n  const poster = params.postEvent ?? DatabaseService.listingTakedownPostEvent.bind(DatabaseService);\\n  let row: Record<string, unknown>;\\n  try {\\n    row = await poster({\\n      listingId: parsed.listingId,\\n      actorUid: params.actorUid,\\n      result: parsed.result,\\n      targetStatus: parsed.targetStatus,\\n      requestFingerprint: parsed.fingerprint,\\n      idempotencyKey: params.opsKey,\\n      memo: parsed.reason,\\n    });\\n  } catch (e) {\\n    return fromLedgerError(e, params.opsKey);\\n  }\\n\\n  const found = Number(row.listing_found ?? 0);\\n  const priorCount = Number(row.prior_count ?? 0);\\n  const curStatus = row.listing_status === undefined || row.listing_status === null ? '' : String(row.listing_status);\\n  const applied = Number(row.applied ?? 0);\\n  const reviewed = Number(row.reviewed ?? 0);\\n\\n\\n  if (found !== 1) return listing404(String(parsed.listingId));\\n\\n\\n  if (priorCount >= 1) {\\n    return { ok: true, replay: true, view: { listing_id: String(parsed.listingId), status: curStatus, result: parsed.result } };\\n  }\\n\\n\\n  if (curStatus !== 'listed') {\\n    return listingStateConflict({ listing_id: String(parsed.listingId), from: curStatus, action: parsed.action });\\n  }\\n\\n\\n  if (reviewed < 1) {\\n    return listingStateConflict({ listing_id: String(parsed.listingId), from: curStatus, action: parsed.action, reason_detail: 'LEDGER_ROW_NOT_WRITTEN' });\\n  }\\n\\n\\n  const status = applied > 0 ? parsed.targetStatus : curStatus;\\n  return { ok: true, replay: false, view: { listing_id: String(parsed.listingId), status, result: parsed.result } };\\n};\\n\\n\\nexport const arbitrateJobVerb = async (params: {\\n  jobIdRaw: unknown;\\n  actorUid: number;\\n  body: Record<string, unknown> | undefined;\\n  opsKey: string;\\n  postEvent?: typeof DatabaseService.jobArbitrationPostEvent;\\n}): Promise<VerbResult> => {\\n  const parsed = parseArbitrationInput({ jobIdRaw: params.jobIdRaw, body: params.body });\\n  if (!parsed.ok) return parsed.err;\\n\\n  const poster = params.postEvent ?? DatabaseService.jobArbitrationPostEvent.bind(DatabaseService);\\n  let row: Record<string, unknown>;\\n  try {\\n    row = await poster({\\n      jobId: parsed.jobId,\\n      actorUid: params.actorUid,\\n      result: parsed.result,\\n      targetStatus: parsed.targetStatus,\\n      requestFingerprint: parsed.fingerprint,\\n      idempotencyKey: params.opsKey,\\n      memo: parsed.reason,\\n    });\\n  } catch (e) {\\n    return fromLedgerError(e, params.opsKey);\\n  }\\n\\n  const found = Number(row.job_found ?? 0);\\n  const priorCount = Number(row.prior_count ?? 0);\\n\\n\\n  const priorStatus = row.job_status === undefined || row.job_status === null ? '' : String(row.job_status);\\n\\n  const finalStatus = row.job_status === undefined || row.job_status === null ? '' : String(row.job_status);\\n  const applied = Number(row.applied ?? 0);\\n  const reviewed = Number(row.reviewed ?? 0);\\n  const txid = row.txid === undefined || row.txid === null ? null : String(row.txid);\\n\\n\\n  if (found !== 1) return job404(String(parsed.jobId));\\n\\n\\n  if (priorCount >= 1) {\\n    return { ok: true, replay: true, view: { job_id: String(parsed.jobId), status: finalStatus, result: parsed.result, txid } };\\n  }\\n\\n\\n\\n  if (priorStatus !== 'submitted' && priorStatus !== 'disputed') {\\n    return jobStateConflict({ job_id: String(parsed.jobId), from: priorStatus, action: parsed.action });\\n  }\\n\\n\\n  if (applied > 0) {\\n    return { ok: true, replay: false, view: { job_id: String(parsed.jobId), status: finalStatus, result: parsed.result, txid } };\\n  }\\n\\n\\n\\n\\n  if (reviewed < 1) {\\n    return jobStateConflict({ job_id: String(parsed.jobId), from: priorStatus, action: parsed.action, reason_detail: 'LEDGER_ROW_NOT_WRITTEN' });\\n  }\\n  return jobStateConflict({ job_id: String(parsed.jobId), from: priorStatus, action: parsed.action });\\n};\\n\\n\\n\\n\\nexport type ParsedStatusFilter = { ok: true; status: string | null } | { ok: false; err: VerbErr };\\n\\nconst parseStatusFilterAgainst = (statusRaw: unknown, allowed: readonly string[], field: string): ParsedStatusFilter => {\\n  if (statusRaw === undefined || statusRaw === null || String(statusRaw).trim() === '') return { ok: true, status: null };\\n  const value = String(statusRaw).trim();\\n  if (!allowed.includes(value)) {\\n    return { ok: false, err: shapeError(field, 'NOT_IN_CLOSED_SET', { provided: value, allowed: [...allowed] }) };\\n  }\\n  return { ok: true, status: value };\\n};\\n\\n\\nexport const parseListingStatusFilter = (statusRaw: unknown): ParsedStatusFilter =>\\n  parseStatusFilterAgainst(statusRaw, LISTING_STATUS_VALUES, 'status');\\n\\n\\nexport const parseJobStatusFilter = (statusRaw: unknown): ParsedStatusFilter =>\\n  parseStatusFilterAgainst(statusRaw, JOB_STATUS_VALUES, 'status');\\n\",\"judge_fired\":true}"
+  }
+ ]
+}

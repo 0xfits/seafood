@@ -1,0 +1,60 @@
+{
+ "unit": "NEG-A-0040-GATE-DELETE",
+ "generated_at": "2026-10-03T11:18:50.912Z",
+ "results": [
+  {
+   "label": "control: 原 0040 重跑（幂等）",
+   "sql_bytes": 16868,
+   "acct_n": 56,
+   "entry_n": 56,
+   "dup_batt60": 0,
+   "dup_invite_signup_uids": 0,
+   "batt_hist": [
+    {
+     "batt": 30,
+     "n": 56
+    }
+   ],
+   "threw": null,
+   "read_err": null
+  },
+  {
+   "label": "mutant_a1: 删 §B 幂等闸（self-check 保留）",
+   "sql_bytes": 16663,
+   "acct_n": 56,
+   "entry_n": 56,
+   "dup_batt60": 0,
+   "dup_invite_signup_uids": 0,
+   "batt_hist": [
+    {
+     "batt": 30,
+     "n": 56
+    }
+   ],
+   "threw": null,
+   "read_err": null
+  },
+  {
+   "label": "mutant_a3: 删幂等闸 + DO UPDATE（self-check 保留）",
+   "sql_bytes": 16711,
+   "threw": "P0001:0040 self-check FAILED: batt_account 新增 56 <> 目标数 0",
+   "read_err": "25P02:current transaction is aborted, commands ignored until end of transaction block"
+  },
+  {
+   "label": "mutant_a2: 删幂等闸 + DO UPDATE + self-check 关闭",
+   "sql_bytes": 16669,
+   "acct_n": 56,
+   "entry_n": 58,
+   "dup_batt60": 56,
+   "dup_invite_signup_uids": 0,
+   "batt_hist": [
+    {
+     "batt": 60,
+     "n": 56
+    }
+   ],
+   "threw": null,
+   "read_err": null
+  }
+ ]
+}

@@ -1,0 +1,481 @@
+{
+ "unit": "D2-R981-COUNT-RO",
+ "generated_at": "2026-10-03T10:03:08.287Z",
+ "mig": {
+  "n": 38,
+  "v": "0039"
+ },
+ "mig_rows": [
+  {
+   "version": "0001",
+   "name": "0001_ledger_core.sql"
+  },
+  {
+   "version": "0002",
+   "name": "0002_user_identity.sql"
+  },
+  {
+   "version": "0003",
+   "name": "0003_kind_close_set_20.sql"
+  },
+  {
+   "version": "0004",
+   "name": "0004_ledger_post_event.sql"
+  },
+  {
+   "version": "0005",
+   "name": "0005_ledger_event_root_key.sql"
+  },
+  {
+   "version": "0006",
+   "name": "0006_user_to_users.sql"
+  },
+  {
+   "version": "0007",
+   "name": "0007_referral_and_commission_policy.sql"
+  },
+  {
+   "version": "0008",
+   "name": "0008_platform_revenue_job_fee.sql"
+  },
+  {
+   "version": "0009",
+   "name": "0009_ledger_error_reverse_map_complete.sql"
+  },
+  {
+   "version": "0010",
+   "name": "0010_referral_bind_protocol_guard.sql"
+  },
+  {
+   "version": "0011",
+   "name": "0011_commission_assert_closure_and_referral_depth_guard.sql"
+  },
+  {
+   "version": "0012",
+   "name": "0012_replay_pre_gate_before_balance_gate.sql"
+  },
+  {
+   "version": "0013",
+   "name": "0013_job.sql"
+  },
+  {
+   "version": "0014",
+   "name": "0014_job_flow.sql"
+  },
+  {
+   "version": "0015",
+   "name": "0015_listing.sql"
+  },
+  {
+   "version": "0016",
+   "name": "0016_market.sql"
+  },
+  {
+   "version": "0017",
+   "name": "0017_platform_config.sql"
+  },
+  {
+   "version": "0019",
+   "name": "0019_listing_deposit_platform_credit.sql"
+  },
+  {
+   "version": "0020",
+   "name": "0020_ledger_post_event_hold_family_drop_listing_deposit.sql"
+  },
+  {
+   "version": "0021",
+   "name": "0021_content_translation.sql"
+  },
+  {
+   "version": "0022",
+   "name": "0022_admin_permission_seed.sql"
+  },
+  {
+   "version": "0023",
+   "name": "0023_admin_points_audit_daily_cap.sql"
+  },
+  {
+   "version": "0024",
+   "name": "0024_admin_refund_audit.sql"
+  },
+  {
+   "version": "0025",
+   "name": "0025_currency_review_log.sql"
+  },
+  {
+   "version": "0026",
+   "name": "0026_listing_review_log.sql"
+  },
+  {
+   "version": "0027",
+   "name": "0027_job_arbitration_log.sql"
+  },
+  {
+   "version": "0028",
+   "name": "0028_kind_close_set_21.sql"
+  },
+  {
+   "version": "0029",
+   "name": "0029_batt_checkin.sql"
+  },
+  {
+   "version": "0030",
+   "name": "0030_listing_order_status_extend.sql"
+  },
+  {
+   "version": "0031",
+   "name": "0031_rating_and_order_event.sql"
+  },
+  {
+   "version": "0032",
+   "name": "0032_kind_close_set_23.sql"
+  },
+  {
+   "version": "0033",
+   "name": "0033_currency_platform_coin_flag.sql"
+  },
+  {
+   "version": "0034",
+   "name": "0034_ledger_op_burn_and_supply.sql"
+  },
+  {
+   "version": "0035",
+   "name": "0035_fee_rate_range_extend.sql"
+  },
+  {
+   "version": "0036",
+   "name": "0036_commission_policy_p9_5.sql"
+  },
+  {
+   "version": "0037",
+   "name": "0037_commission_conservation_m0.sql"
+  },
+  {
+   "version": "0038",
+   "name": "0038_kind_close_set_24.sql"
+  },
+  {
+   "version": "0039",
+   "name": "0039_admin_audit_console.sql"
+  }
+ ],
+ "batt_account_columns": [
+  {
+   "column_name": "uid",
+   "data_type": "bigint",
+   "is_nullable": "NO",
+   "column_default": null
+  },
+  {
+   "column_name": "batt",
+   "data_type": "integer",
+   "is_nullable": "NO",
+   "column_default": "0"
+  },
+  {
+   "column_name": "time_created",
+   "data_type": "timestamp with time zone",
+   "is_nullable": "NO",
+   "column_default": "now()"
+  },
+  {
+   "column_name": "time_updated",
+   "data_type": "timestamp with time zone",
+   "is_nullable": "NO",
+   "column_default": "now()"
+  }
+ ],
+ "batt_account_constraints": [
+  {
+   "conname": "batt_account_batt_not_null",
+   "contype": "n",
+   "def": "NOT NULL batt"
+  },
+  {
+   "conname": "batt_account_pk",
+   "contype": "p",
+   "def": "PRIMARY KEY (uid)"
+  },
+  {
+   "conname": "batt_account_range",
+   "contype": "c",
+   "def": "CHECK (((batt >= 0) AND (batt <= 100)))"
+  },
+  {
+   "conname": "batt_account_time_created_not_null",
+   "contype": "n",
+   "def": "NOT NULL time_created"
+  },
+  {
+   "conname": "batt_account_time_updated_not_null",
+   "contype": "n",
+   "def": "NOT NULL time_updated"
+  },
+  {
+   "conname": "batt_account_uid_fk",
+   "contype": "f",
+   "def": "FOREIGN KEY (uid) REFERENCES users(uid)"
+  },
+  {
+   "conname": "batt_account_uid_not_null",
+   "contype": "n",
+   "def": "NOT NULL uid"
+  }
+ ],
+ "batt_account_triggers": [
+  {
+   "tgname": "trg_batt_account_touch_updated",
+   "tgenabled": "O",
+   "def": "CREATE TRIGGER trg_batt_account_touch_updated BEFORE UPDATE ON public.batt_account FOR EACH ROW EXECUTE FUNCTION batt_account_touch_updated()"
+  }
+ ],
+ "batt_entry_columns": [
+  {
+   "column_name": "txid",
+   "data_type": "bigint",
+   "is_nullable": "NO",
+   "column_default": null
+  },
+  {
+   "column_name": "uid",
+   "data_type": "bigint",
+   "is_nullable": "NO",
+   "column_default": null
+  },
+  {
+   "column_name": "delta",
+   "data_type": "integer",
+   "is_nullable": "NO",
+   "column_default": null
+  },
+  {
+   "column_name": "batt_after",
+   "data_type": "integer",
+   "is_nullable": "NO",
+   "column_default": null
+  },
+  {
+   "column_name": "reason",
+   "data_type": "text",
+   "is_nullable": "NO",
+   "column_default": null
+  },
+  {
+   "column_name": "idempotency_key",
+   "data_type": "text",
+   "is_nullable": "NO",
+   "column_default": null
+  },
+  {
+   "column_name": "ref_type",
+   "data_type": "text",
+   "is_nullable": "YES",
+   "column_default": null
+  },
+  {
+   "column_name": "ref_id",
+   "data_type": "bigint",
+   "is_nullable": "YES",
+   "column_default": null
+  },
+  {
+   "column_name": "memo",
+   "data_type": "text",
+   "is_nullable": "NO",
+   "column_default": "''::text"
+  },
+  {
+   "column_name": "time_created",
+   "data_type": "timestamp with time zone",
+   "is_nullable": "NO",
+   "column_default": "now()"
+  }
+ ],
+ "batt_entry_constraints": [
+  {
+   "conname": "batt_entry_after_guard",
+   "contype": "c",
+   "def": "CHECK (((batt_after >= 0) AND (batt_after <= 100)))"
+  },
+  {
+   "conname": "batt_entry_batt_after_not_null",
+   "contype": "n",
+   "def": "NOT NULL batt_after"
+  },
+  {
+   "conname": "batt_entry_delta_not_null",
+   "contype": "n",
+   "def": "NOT NULL delta"
+  },
+  {
+   "conname": "batt_entry_idem_uniq",
+   "contype": "u",
+   "def": "UNIQUE (idempotency_key)"
+  },
+  {
+   "conname": "batt_entry_idempotency_key_not_null",
+   "contype": "n",
+   "def": "NOT NULL idempotency_key"
+  },
+  {
+   "conname": "batt_entry_memo_not_null",
+   "contype": "n",
+   "def": "NOT NULL memo"
+  },
+  {
+   "conname": "batt_entry_move_guard",
+   "contype": "c",
+   "def": "CHECK ((delta <> 0))"
+  },
+  {
+   "conname": "batt_entry_pk",
+   "contype": "p",
+   "def": "PRIMARY KEY (txid)"
+  },
+  {
+   "conname": "batt_entry_reason_not_null",
+   "contype": "n",
+   "def": "NOT NULL reason"
+  },
+  {
+   "conname": "batt_entry_time_created_not_null",
+   "contype": "n",
+   "def": "NOT NULL time_created"
+  },
+  {
+   "conname": "batt_entry_txid_not_null",
+   "contype": "n",
+   "def": "NOT NULL txid"
+  },
+  {
+   "conname": "batt_entry_uid_not_null",
+   "contype": "n",
+   "def": "NOT NULL uid"
+  }
+ ],
+ "batt_entry_triggers": [
+  {
+   "tgname": "trg_batt_entry_append_only",
+   "tgenabled": "O",
+   "def": "CREATE TRIGGER trg_batt_entry_append_only BEFORE DELETE OR UPDATE ON public.batt_entry FOR EACH ROW EXECUTE FUNCTION batt_entry_append_only()"
+  }
+ ],
+ "users_columns": [
+  {
+   "column_name": "uid",
+   "data_type": "bigint"
+  },
+  {
+   "column_name": "evm",
+   "data_type": "text"
+  },
+  {
+   "column_name": "bio",
+   "data_type": "text"
+  },
+  {
+   "column_name": "is_admin",
+   "data_type": "boolean"
+  },
+  {
+   "column_name": "time_reg",
+   "data_type": "timestamp with time zone"
+  },
+  {
+   "column_name": "time_login_last",
+   "data_type": "timestamp with time zone"
+  }
+ ],
+ "n_users_total": 56,
+ "n_no_batt_account": 54,
+ "n_no_invite_signup_entry": 56,
+ "n_target": 54,
+ "n_target_after_minus": 56,
+ "batt_account_rows": 2,
+ "batt_entry_rows": 2,
+ "batt_entry_reason_hist": [
+  {
+   "reason": "checkin",
+   "n": 2
+  }
+ ],
+ "batt_entry_key_prefix_hist": [
+  {
+   "p1": "biz",
+   "p2": "checkin",
+   "n": 2
+  }
+ ],
+ "uid_970213": [
+  {
+   "uid": "970213",
+   "batt": null,
+   "entry_rows": 0
+  }
+ ],
+ "target_sample": [
+  {
+   "uid": "1"
+  },
+  {
+   "uid": "3"
+  },
+  {
+   "uid": "4"
+  },
+  {
+   "uid": "5"
+  },
+  {
+   "uid": "6"
+  },
+  {
+   "uid": "7"
+  },
+  {
+   "uid": "8"
+  },
+  {
+   "uid": "9"
+  },
+  {
+   "uid": "10"
+  },
+  {
+   "uid": "11"
+  },
+  {
+   "uid": "17"
+  },
+  {
+   "uid": "18"
+  },
+  {
+   "uid": "19"
+  },
+  {
+   "uid": "20"
+  },
+  {
+   "uid": "21"
+  },
+  {
+   "uid": "22"
+  },
+  {
+   "uid": "900001"
+  },
+  {
+   "uid": "900002"
+  },
+  {
+   "uid": "900003"
+  },
+  {
+   "uid": "900004"
+  }
+ ],
+ "target_uid_md5": "4df3ac013b7e73c96ddb6aa8179c86d3",
+ "batt_account_md5": "cd015b26d8e34a301418759704965a15",
+ "batt_entry_md5": "0209557e1d181bb08a16345b0ba174a4"
+}

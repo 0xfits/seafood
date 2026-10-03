@@ -1,0 +1,465 @@
+{
+ "unit": "P8S6-AUDIT-READ-SMOKE",
+ "generated_at": "2026-10-03T09:47:19.539Z",
+ "run": "20261003T094719Z",
+ "whitelist": {
+  "count": 14,
+  "exact_equal_expected_14": true,
+  "has_app_config": false,
+  "names": [
+   "admin_ops_audit_log",
+   "admin_refund_audit_log",
+   "ledger_entry",
+   "currency_review_log",
+   "currency_status_log",
+   "listing_review_log",
+   "job_arbitration_log",
+   "batt_entry",
+   "checkin_log",
+   "checkin_makeup_log",
+   "rating",
+   "listing_order_event",
+   "referral",
+   "commission_policy"
+  ]
+ },
+ "per_table": {
+  "admin_ops_audit_log": {
+   "ok": true,
+   "rows": 4,
+   "has_next": false,
+   "capabilities": {
+    "filters": [
+     "actor",
+     "target",
+     "action",
+     "from",
+     "to",
+     "refId"
+    ],
+    "limit": {
+     "default": 50,
+     "max": 100
+    }
+   }
+  },
+  "admin_refund_audit_log": {
+   "ok": true,
+   "rows": 7,
+   "has_next": false,
+   "capabilities": {
+    "filters": [
+     "actor",
+     "target",
+     "from",
+     "to",
+     "refId"
+    ],
+    "limit": {
+     "default": 50,
+     "max": 100
+    }
+   }
+  },
+  "ledger_entry": {
+   "ok": true,
+   "rows": 50,
+   "has_next": true,
+   "capabilities": {
+    "filters": [
+     "from",
+     "to",
+     "refId"
+    ],
+    "limit": {
+     "default": 50,
+     "max": 100
+    }
+   }
+  },
+  "currency_review_log": {
+   "ok": true,
+   "rows": 0,
+   "has_next": false,
+   "capabilities": {
+    "filters": [
+     "actor",
+     "target",
+     "from",
+     "to",
+     "refId"
+    ],
+    "limit": {
+     "default": 50,
+     "max": 100
+    }
+   }
+  },
+  "currency_status_log": {
+   "ok": true,
+   "rows": 7,
+   "has_next": false,
+   "capabilities": {
+    "filters": [
+     "actor",
+     "target",
+     "action",
+     "from",
+     "to",
+     "refId"
+    ],
+    "limit": {
+     "default": 50,
+     "max": 100
+    }
+   }
+  },
+  "listing_review_log": {
+   "ok": true,
+   "rows": 0,
+   "has_next": false,
+   "capabilities": {
+    "filters": [
+     "actor",
+     "target",
+     "from",
+     "to",
+     "refId"
+    ],
+    "limit": {
+     "default": 50,
+     "max": 100
+    }
+   }
+  },
+  "job_arbitration_log": {
+   "ok": true,
+   "rows": 0,
+   "has_next": false,
+   "capabilities": {
+    "filters": [
+     "actor",
+     "target",
+     "from",
+     "to",
+     "refId"
+    ],
+    "limit": {
+     "default": 50,
+     "max": 100
+    }
+   }
+  },
+  "batt_entry": {
+   "ok": true,
+   "rows": 2,
+   "has_next": false,
+   "capabilities": {
+    "filters": [
+     "from",
+     "to",
+     "refId"
+    ],
+    "limit": {
+     "default": 50,
+     "max": 100
+    }
+   }
+  },
+  "checkin_log": {
+   "ok": true,
+   "rows": 2,
+   "has_next": false,
+   "capabilities": {
+    "filters": [
+     "from",
+     "to"
+    ],
+    "limit": {
+     "default": 50,
+     "max": 100
+    }
+   }
+  },
+  "checkin_makeup_log": {
+   "ok": true,
+   "rows": 2,
+   "has_next": false,
+   "capabilities": {
+    "filters": [
+     "from",
+     "to",
+     "refId"
+    ],
+    "limit": {
+     "default": 50,
+     "max": 100
+    }
+   }
+  },
+  "rating": {
+   "ok": true,
+   "rows": 0,
+   "has_next": false,
+   "capabilities": {
+    "filters": [
+     "actor",
+     "target",
+     "action",
+     "from",
+     "to",
+     "refId"
+    ],
+    "limit": {
+     "default": 50,
+     "max": 100
+    }
+   }
+  },
+  "listing_order_event": {
+   "ok": true,
+   "rows": 0,
+   "has_next": false,
+   "capabilities": {
+    "filters": [
+     "actor",
+     "target",
+     "action",
+     "from",
+     "to",
+     "refId"
+    ],
+    "limit": {
+     "default": 50,
+     "max": 100
+    }
+   }
+  },
+  "referral": {
+   "ok": true,
+   "rows": 2,
+   "has_next": false,
+   "capabilities": {
+    "filters": [
+     "target",
+     "from",
+     "to"
+    ],
+    "limit": {
+     "default": 50,
+     "max": 100
+    }
+   }
+  },
+  "commission_policy": {
+   "ok": true,
+   "rows": 4,
+   "has_next": false,
+   "capabilities": {
+    "filters": [
+     "actor",
+     "from",
+     "to"
+    ],
+    "limit": {
+     "default": 50,
+     "max": 100
+    }
+   }
+  }
+ },
+ "negatives": {
+  "app_config_out": {
+   "http": 400,
+   "code": "LEDGER_AMOUNT_INVALID",
+   "details": {
+    "field": "table",
+    "reason": "AUDIT_TABLE_NOT_FOUND"
+   }
+  },
+  "unknown_table": {
+   "http": 400,
+   "code": "LEDGER_AMOUNT_INVALID",
+   "details": {
+    "field": "table",
+    "reason": "AUDIT_TABLE_NOT_FOUND"
+   }
+  },
+  "param_not_applicable": {
+   "http": 400,
+   "code": "LEDGER_AMOUNT_INVALID",
+   "details": {
+    "field": "actor",
+    "reason": "PARAM_NOT_APPLICABLE",
+    "supportedFilters": [
+     "from",
+     "to",
+     "refId"
+    ]
+   }
+  },
+  "limit_101": {
+   "http": 400,
+   "code": "LEDGER_AMOUNT_INVALID",
+   "details": {
+    "field": "limit",
+    "reason": "LIMIT_OUT_OF_RANGE",
+    "max": 100,
+    "min": 1
+   }
+  },
+  "bad_cursor": {
+   "http": 400,
+   "code": "LEDGER_AMOUNT_INVALID",
+   "details": {
+    "field": "cursor",
+    "reason": "CURSOR_INVALID"
+   }
+  },
+  "bad_from": {
+   "http": 400,
+   "code": "LEDGER_AMOUNT_INVALID",
+   "details": {
+    "field": "from",
+    "reason": "INVALID_TIMESTAMP"
+   }
+  },
+  "bad_refid": {
+   "http": 400,
+   "code": "LEDGER_AMOUNT_INVALID",
+   "details": {
+    "field": "refId",
+    "reason": "NOT_DECIMAL_INTEGER"
+   }
+  },
+  "default_limit": "default=50 OK"
+ },
+ "supported_filters": {
+  "admin_ops_audit_log": [
+   "actor",
+   "target",
+   "action",
+   "from",
+   "to",
+   "refId"
+  ],
+  "admin_refund_audit_log": [
+   "actor",
+   "target",
+   "from",
+   "to",
+   "refId"
+  ],
+  "ledger_entry": [
+   "from",
+   "to",
+   "refId"
+  ],
+  "currency_review_log": [
+   "actor",
+   "target",
+   "from",
+   "to",
+   "refId"
+  ],
+  "currency_status_log": [
+   "actor",
+   "target",
+   "action",
+   "from",
+   "to",
+   "refId"
+  ],
+  "listing_review_log": [
+   "actor",
+   "target",
+   "from",
+   "to",
+   "refId"
+  ],
+  "job_arbitration_log": [
+   "actor",
+   "target",
+   "from",
+   "to",
+   "refId"
+  ],
+  "batt_entry": [
+   "from",
+   "to",
+   "refId"
+  ],
+  "checkin_log": [
+   "from",
+   "to"
+  ],
+  "checkin_makeup_log": [
+   "from",
+   "to",
+   "refId"
+  ],
+  "rating": [
+   "actor",
+   "target",
+   "action",
+   "from",
+   "to",
+   "refId"
+  ],
+  "listing_order_event": [
+   "actor",
+   "target",
+   "action",
+   "from",
+   "to",
+   "refId"
+  ],
+  "referral": [
+   "target",
+   "from",
+   "to"
+  ],
+  "commission_policy": [
+   "actor",
+   "from",
+   "to"
+  ]
+ },
+ "keyset": {
+  "page1_rows": 5,
+  "page1_has_next": true,
+  "page1_txids": [
+   "736",
+   "735",
+   "734",
+   "733",
+   "366"
+  ],
+  "page2_rows": 5,
+  "page2_txids": [
+   "364",
+   "363",
+   "362",
+   "361",
+   "360"
+  ],
+  "overlap": [],
+  "descending_page1": true
+ },
+ "reasons": {
+  "count": 7,
+  "values": [
+   "MANUAL_CORRECTION",
+   "CUSTOMER_COMPENSATION",
+   "PROMOTION_BONUS",
+   "PENALTY_DEDUCTION",
+   "BUG_COMPENSATION",
+   "MIGRATION_ADJUSTMENT",
+   "OTHER"
+  ],
+  "accepts_valid": true,
+  "rejects_bogus": false,
+  "rejects_empty": false,
+  "rejects_old_free_text": false
+ }
+}
