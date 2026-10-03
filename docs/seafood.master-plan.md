@@ -1416,6 +1416,38 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.280 **★【生产缺陷】Kevin 用尾号 `09b0` 钱包登录后无法参与任务 ⇒ 我定位为两条真缺陷（D1 文案错配 / D2 存量用户缺口）· Kevin 定档追溯补发 · 我立 `R-9-80`/`R-9-81` · 并派两单**（2026-10-03）
+
+**A. 现场**：Kevin（产品负责人，验收中）报「用尾号 `09b0` 的钱包登录，点参与任务 ⇒ 提示没有权限参与」。**我优先处理，只读定位（不猜）**。
+
+**B. ★ 根因链（逐环现取）**：
+| 环 | 现取读数 |
+|---|---|
+| 用户 | **`uid 970213`** · `evm 0x59f9f640d15ebb053c94a816232cf8ce91b209b0`（尾号 `09b0` ✓）· `is_admin false` · **`time_reg 2026-10-01T00:34:03Z`** · `time_login_last 2026-10-03T09:31:30Z` |
+| **电量** | **`batt_account` 无该 uid 行** · `batt_entry` **无行** ⇒ **batt = 0**（从未发放过） |
+| 闸 | P9② 承接门槛闸：`database.ts:3793`/`:3896` ⇒ `batt < thr.accept` ⇒ outcome **`batt_below_threshold`** |
+| 服务层 | `job-service.ts:121-122` `stateConflict(...)` ⇒ **`fail(409, 'LEDGER_CURRENCY_INVALID_TRANSITION', { field:'batt', reason:'BATT_BELOW_ACCEPT_THRESHOLD', … }, 'Business state transition rejected')`** |
+| 前端 | `auth.js:308` `throw new Error(await apiErrorMessage(payload, status))`；`auth.js:291-300` 取 `error.i18n_key` ⇒ 四语表 `zh.json:247` **`ledger.err.LEDGER_CURRENCY_INVALID_TRANSITION` = 「当前状态不允许此变更。」**（⇒ Kevin 转述为「没有权限参与」） |
+| 其它 | 无 `job_application` / 非雇主 · `app_config` **仅 `system_settings` 一键**（P9 策略键全走代码兜底）· 用户总数 **56** |
+
+**C. ★ 定性 = 两条真缺陷（用户可见）**：
+- **`D1` 文案错配（中）**：`batt_below_threshold` 被映射为**通用**「当前状态不允许此变更。」⇒ **真实原因（电量不足）不可见**；而**正确文案已存在**（`battCard.insufficient` = 「电量低于承接门槛，暂时无法承接任务」）**却未被复用** ⇒ 用户无法自诊断。
+- **`D2` 存量用户缺口（高）**：需求 §6.2①「新用户注册完成**即刻到账 30 batt**」**是 P9⑤（今日）才实现的注册腿** ⇒ **P9⑤ 之前注册的存量用户全部没有这 30 batt** ⇒ 被承接门槛永久挡住 ⇒ **对该类用户「参与任务」功能等同不可用**。
+- ★ **现有绕过路径（我现取）**：P9② 有签到 ⇒ **首签 `+30 batt`** ⇒ 存量用户可自行签到达标（⇒ D2 并非「永久不可用」，但「注册奖励」名目确实缺失）。
+
+**D. ★ 我的裁定**：
+- **`R-9-80`（`D1` 必修）**：`auth.js` 侧按 **`details.reason`** 精确映射到**既有**四语文案键（`BATT_BELOW_ACCEPT_THRESHOLD` ⇒ `battCard.insufficient`）⇒ **零新增 locale 键**、**单文件**改动；覆盖同族 reason（`D4` 扫面：凡 `batt_below_threshold` 两处落点 `job-service.ts:197`/`:231` 均须可映射）。
+- **`R-9-81`（`D2` 定档 = Kevin 拍板「① 追溯补发」）**：**一次性给全部存量用户 `+30 batt`**；口径 = 目标集合「**无 `batt_account` 行 ∧ 无 `invite_signup` 类 `batt_entry` 行**」的**全部**用户；**幂等键** = `biz:backfill:invite-signup:<uid>`；**`batt_entry.reason` = `invite_signup`**（与 §6.2① **同发放名目** ⇒ 总量口径一致）+ `memo` 注明「**存量补发**」；**封顶 `BATT_CAP_HARD_MAX`**；**必须走既有 batt 写入面**（**不得新造第二写入面**）；形态 = **纯 DML 迁移 `0040` + apply-time 自检 + `R-9-24` 真跑自证**；**不得改任何既有行**；**必可判负**（构造「已有 `invite_signup` 行者」⇒ 不重复发放）。
+
+**E. 已并派两单（文件面不相交 ⇒ 并行）**：
+- **`D1` 修复单**（`frontend/src/auth.js` **单文件** + 零 locale 变更；**与在跑的 8⑥ 子代理不撞面**）
+- **`D2` 补发单**（新迁移 `0040` **纯 DML** + 自检 + `R-9-24` 真跑；**不碰 `src/`**；含目标集合逐计数 + 判负）
+**我 apply `0040` 并亲自复验 `uid 970213` 的 batt = 30**，再请 Kevin 重试参与。
+
+**F. 状态**：批 8 五片 + P9① ~ P9⑤ 全部上线（生产 `schema_version` **0039** 待 8⑥ 落地）；8⑥ 续跑中；**本单 = 生产缺陷优先插入**。
+
+---
+
 ### 5.279 **8⑥ 落册入库 `ccf722c` · 实现第一步完成（56c/392s）· ✅ 我 apply `0039`（深核全绿）· 派续跑单**（2026-10-03）
 
 **A. 落册入库**：`route-layer.spec` **`262 0`** · `data-layer.spec` **`92 0`** ⇒ **删除列 0** ✓ · 两快照 `cmp` **SAME** ✓ · 入库 **6 件**（numstat **add 12622 / del 0**）⇒ **`ccf722c`** 已推 ✓
@@ -5842,6 +5874,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.280 | 2026-10-03 | **★【生产缺陷】Kevin 尾号 09b0 钱包无法参与任务 ⇒ 我定位为两条真缺陷（D1 文案错配 / D2 存量用户缺口）· Kevin 定档追溯补发 · 我立 `R-9-80`/`R-9-81` · 并派两单**。**B. 根因链（逐环现取）**：用户 `uid 970213`（`evm …b209b0` ✓ · `time_reg 2026-10-01`）⇒ **`batt_account` 无行、`batt_entry` 无行 ⇒ batt = 0** ⇒ P9② 承接门槛闸（`database.ts:3793/3896`）⇒ `batt_below_threshold` ⇒ `job-service.ts:121` `fail(409, LEDGER_CURRENCY_INVALID_TRANSITION, {field:'batt', reason:'BATT_BELOW_ACCEPT_THRESHOLD'})` ⇒ 前端 `auth.js:308/291-300` 走 `i18n_key` ⇒ `zh.json:247` 「当前状态不允许此变更。」（⇒ Kevin 转述为「没有权限参与」）。**C. 定性**：**D1 文案错配（中）**（真实原因电量不足不可见；正确文案 `battCard.insufficient` 已存在却未复用）· **D2 存量用户缺口（高）**（§6.2①「注册即刻 30 batt」是 P9⑤ 今日才实现的注册腿 ⇒ 之前注册的存量用户全无 ⇒ 被门槛永久挡住；★ 现取绕过：P9② 签到 **首签 +30 batt**）。**D. 我裁**：`R-9-80` D1 必修（`auth.js` 按 `details.reason` 精确映射到既有键 `battCard.insufficient`，**零新增 locale 键、单文件**，覆盖两处落点 `job-service.ts:197/231`）· `R-9-81` D2 定档=**追溯补发**（目标集合 = 无 `batt_account` 行 ∧ 无 `invite_signup` entry 的全部存量用户；幂等键 `biz:backfill:invite-signup:<uid>`；`reason` = `invite_signup` 同名目 + memo 注明存量补发；封顶；走既有 batt 写入面；纯 DML 迁移 `0040` + 自检 + `R-9-24` 真跑；不改既有行；必可判负）。**E.** 已并派两单（D1 `auth.js` 单文件 / D2 迁移 `0040` 纯 DML）；我 apply `0040` 后**亲自复验 uid 970213 batt = 30** 再请 Kevin 重试。 |
 | v0.279 | 2026-10-03 | **8⑥ 落册入库 `ccf722c` · 实现第一步完成（56c/392s）· ✅ 我 apply `0039`（深核全绿）· 派续跑单**。**A.** 落册 numstat `262 0`/`92 0`（删除列 0）+ 两快照 cmp SAME + 入库 6 件（add 12622/del 0）⇒ `ccf722c` 已推。**B.（56c/392s）** ① `0039` 纯 DML 种子（`('manage_audit','审计台查看')` + `super_admin × manage_audit`）+ 9 项自检（含闭集恰 12 多或少判负 + `permission_key` 无 CHECK 负断言）+ **`R-9-24` 真跑四项读数全 true**；★它现取坐实「库侧无 CHECK 闭集 ⇒ 无需同步」② 统一读口（新 `audit-console.ts` + `index.ts:2809`）：14 面白名单 · 非白名单 400 · 五类过滤**逐表结构化映射（列名只取映射字面量、请求值只进 `$n`）⇒ 禁拼 SQL** · 不适用 400 + `supportedFilters` · keyset `(timeColumn DESC, pk DESC)` · limit 50/100 · `referral` 用 `bound_at` · 鉴权 `manage_audit` · **零新增码（借 `LEDGER_AMOUNT_INVALID` #17 + `details.reason` 稳定常量）** · R107 · 只读；**只读冒烟 14/14 表 ok + 负路径 7 例全 400 + keyset 两页无重叠降序 + refId 16 行 all_match**；**注册点 87→88**（我现取 `get 37`）+ 门 p8-s2 前推 44/44 + tsc 0 ③ 原因码常量集（恰 7 值语义域非错误码）+ 枚举闸 + 历史 4 行不回填 + C3 四条件全绿 ④ 报告占位归零（14 行过滤映射 + 逐表排序键 + NOT_MEASURED 9 项）；三处编码同集 + 门相等断言（A10–A12）。**C. ✅ apply `0039`**：ok · **schema_version 0039** · 基础表 34（不变）· 迁移 38 · 深核：`admin_permission` 12 行键集逐字（含 `manage_audit`）· `super_admin` 12 · **`perm_check = 0`（无 CHECK ⇒ 印证其结论）** · `admin_ops_audit_log` 仍 4 行 · checksum 对拍 `d1fa3404295629` ✓。**D.** 已派续跑单（新门 `p8-s11` + 计门前推 `37→38`/注册点 88/闭集 12/四 i18n + 前端 `AuditConsolePage` 四语 + 判负 ≥2 含「去不适用闸 ⇒ 静默返回全表」+ 全量 + 报告回填）。**E.** 8⑥ 待续跑 ⇒ 前端/门/判负 ⇒ 质检 ⇒ 上线；⚠️ 生产代码 0038 时代、DB 已 0039。 |
 | v0.278 | 2026-10-03 | **8⑥ 冻结回执（route v2.21 §32 `231 0` · data v0.28 §35 `91 0`）· ★我终审 `PZ-1`..`PZ-8`（`R-9-72`..`R-9-79`）· ★我认账第 9 次口径失准 · 派落册单**。**A.（41c/350s）** route v2.21 §32（13 子节）+ data v0.28 §35（7 子节）· 两快照 cmp 0 · 两 delta（difflib 仅 equal/insert）· 注册点 87 自证（`index.ts:790` 为注释）· i18n 基线 top118/flat1000/nodes4000/adminNav28 · **★纠正我两处**：权限键闭集 = **11**（非 6；我仅 grep 到 `manage_*` 子集）+ **`app_config` 非 append-only**（`0017:44` 明写可变配置表 + BEFORE UPDATE 触发器）⇒ 真 append-only **14 面**；C3 四条件：①②④ ✅、③「必填原因码」只满足「必填」（现行自由文本）。**B. 终审**：`R-9-72` 认可其 delta 处置（「不得碰」= 不改既有，新建仍落 `docs/audit/`）· `R-9-73` 记我第 9 次口径失准（以现取为准）· **`R-9-74` 载体 = Ⅰ 统一读口**（注册点 87→**88**；否决 Ⅱ 每表 15 口=102 / Ⅲ 统一视图新迁移+第二真源；必带表名白名单闭集 14 + 逐表过滤映射显式化禁拼 SQL）· **`R-9-75` 权限键 = Ⅱ 新增 `manage_audit`**（闭集 11→**12**；只读但高敏、违最小权限则不可复用；必带三处编码 + 迁移 + 门同步）· **`R-9-76` C3③ = (b) 枚举原因码**（原因「码」非文本 + 检索台依赖可枚举 reason；新增原因码常量集、闭集 33 不动、**兼容历史 4 行不回填**）· **`R-9-77` `app_config` 出**（15→**14**；当前态非留痕面；登记「配置变更史需另定载体」为待办）· **`R-9-78` 参数不适用 = B `400` + 列出该表支持维度**（静默忽略 = 静默给错答案，与 D11 同族）· **`R-9-79` 路径/分页/游标批准**（`/api/admin/audit/:table` · limit 默认 50/上限 100 · keyset `(time_created DESC, pk DESC)`；无 time_created 表逐表指定排序键归实现单）；`PZ-3`/`PZ-4` 归实现/质检单（按键名沿用 + 文案值实现单写）。**C.** 已派落册单（PZ 全转已裁 + §32.14 落位表 + §35 同步 + 两快照/delta 刷新，删除列 0）。**D.** 批 8 五片 + P9①~P9⑤ 全上线；8⑥ = 定档 + 冻结 + 8 条终审齐 ⇒ 待落册 ⇒ Kong 实现（落地后注册点 88 · 权限键 12 · 面数 14）。 |
 | v0.277 | 2026-10-03 | **8⑥ 审计台开工：★册里无定义块（只写「排最后」）⇒ 我做只读资产盘点 + Kevin 定档「② 中」· 我立 `R-9-71`（范围）· 派 Jing 契约冻结**。**A.** 需求缺口：8⑥ 在册中只写「排最后」、无定义块；唯一实质线索 = `master-plan:716`（C3）「`/api/admin/points/adjust` 保留但锁死（仅 `$`/`ops:` 幂等键/必填原因码/必经 `ledger_post_event`）⇒ 审计台列 P6」。**B. ★只读资产盘点（自写探针）**：34 表中有 **15 张审计/留痕面**（触发器全 `O`）：`admin_ops_audit_log`(15c/4r，`CHECK action='points_adjust'` 只服务单动作) · `admin_refund_audit_log`(13/7) · **`ledger_entry`(16/359，账本真源)** · `currency_review_log`(8/0) · `currency_status_log`(7/7) · `listing_review_log`(9/0) · `job_arbitration_log`(9/0) · `batt_entry`(10/2) · `checkin_log`(6/2) · `checkin_makeup_log`(13/2) · `rating`(11/0) · `listing_order_event`(13/0) · `referral`(4/2) · `app_config`(4/1) · `commission_policy`(7/4)；**现有审计读口仅 1 个**（`POST /api/admin/points/adjust`，`index.ts:2046`）⇒ 零读口零检索口；**前端无审计页**（13 个 admin 页 grep 空）；权限键 6 个。**C. ★Kevin 定档「② 中」**（逐字）：① + 15 面统一**只读检索台**（分页 / actor・target・action・时间窗・关联 id 过滤 / 多表切换，**不做跨表 join 报表**）⇒ **我立 `R-9-71`**（含范围 + 明确排除项 join 报表/导出）。**D.** 已派 Jing 冻结单（载体三变体 / 权限键三变体 / ★五类过滤面逐表映射 / 分页口径 / C3 锁死条件验收 / route 面与注册点 / 前端四语 / 排除项 / 衔接 / PENDING_ZANG）。**E.** 批 8 五片 + P9①~P9⑤ 全上线；8⑥ = 范围定档 + 盘点齐 ⇒ 契约冻结（本批最后一片）。 |
