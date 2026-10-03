@@ -1416,6 +1416,28 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.310 **`r9-88` 断言收紧单回执（20c/151s）· ★它扫全文件收紧 4 处/5 条（非只改名两条）· ★双读数对照证明漏判面已关掉**（2026-10-03）
+
+**A. 修补（只改一个测试文件）**：`frontend/src/test/unit/r9-88-submit-surface.test.jsx` —— **逐个扫过整个文件的全部 `toContain`**，收紧 **4 处 / 5 条**为逐字 `toBe`（与 `r9-90` 对齐）：
+| # | 位置 | 原（非逐字） | 新（逐字等值） |
+|---|---|---|---|
+| 1 | ① 只读目标（L105/106） | `toContain('#24')` + `toContain(zh.jobs.applicationId)` | **`toBe(`${zh.jobs.applicationId} #24`)`** |
+| 2 | ② 先参与提示（L139） | `toContain(zh.jobs.submitNeedApply)` | **`toBe(`${zh.jobs.submit}${zh.jobs.submitNeedApply}`)`** |
+| 3 | ③ **其它 reason ⇒ 通用文案**（L190） | `toContain('generic failure')` | **`toBe(String(err.message \|\| zh.error))`** |
+| 4 | ③ **无 `details` ⇒ 通用文案**（L197） | `toContain('network down')` | **`toBe(String(err.message \|\| zh.error))`** |
+- 收紧后文件内 `toContain` **仅剩 1 处** = `expect([...]).not.toContain(target.tagName)`（**列表成员否判、非文案断言**，正确保留）✓ · 产品逐字口径锚定 `JobDetailPage.jsx:88` 的 `String(error?.message || t('error'))` ✓
+
+**B. ★ 负对照双读数（最有价值）**：仓外副本把产品通用文案 3 处改为 `'PREFIX ' + …`：
+- **A：变异体 × 收紧后测试 ⇒ 必红**（**2 failed / 6 passed**）：红点 `expected 'PREFIX generic failure' to be 'generic failure'` 与 `expected 'PREFIX network down' to be 'network down'` ✓
+- **B：同变异体 × 旧版（`HEAD`，`toContain`）测试 ⇒ 8/8 全绿** ⇒ ★ **复现了原「漏判面」**（证明修补前该前缀不被捕获）✓
+
+**C. 自证**：该套件 **8/8 绿**（用例数未减）· 全量 `vitest` = `4 failed / 40 passed`、**`7 failed / 375 passed`** ⇒ 与基线 **零新增** ✓ · `build` **0**（未动产品源码）✓ · 主仓 `JobDetailPage.jsx` 内 `PREFIX` 计数 = **0**（变异体未回灌）✓ · 只改一个文件 ✓ · 未测项 = **无** ✓
+
+**D. 入库（不 push）**：本单测试文件（与补齐单 `R-9-96` 合并后再一次 push）。
+**E. 状态**：DB **0040** · 生产代码 `1375205` · 在跑：**`R-9-96` 补齐单**（三处用户可见 `dashJ` 文案）。
+
+---
+
 ### 5.309 **★★ 生产终验抓到我 brief 的漏面：线上 bundle 仍有 3 处用户可见 `dashJ` 文案（`reward.insufficient` / `uiCommon.dashJPoints` / `SEARCH_DEMO`）· 我立 `R-9-96` + 派补齐单**（2026-10-03）
 
 **A. 生产终验读数（本批已上线）**：`schema_version` **0040** ✓ · bundle = **`index-CamqpxtI.js`** ✓ · **bundle 逐字对拍**：线上 sha256 **`438be751b214235c76da5d224f617856c48134f0d425816aade1f0783f08afaf`** == **本地逐字相同** ✓ · 新 reason 文案键在线上（`submitNotSelected` 6 · `submitJobStateInvalid` 6 · `submitNotApplicant` 6）✓ · 四语 `积分`59/`積分`57/`Points`189/`Điểm`15 ✓ · 四语 `/exchange` 全 **200** ✓ · 旧 `/shard` 200 ✓
@@ -6659,6 +6681,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.310 | 2026-10-03 | **r9-88 断言收紧单回执（20c/151s）· ★它扫全文件收紧 4 处/5 条（非只改名两条）· ★双读数对照证明漏判面已关掉**。**A.** 逐个扫过全文件 `toContain` ⇒ 收紧 4 处/5 条为 `toBe`：① 只读目标 ⇒ `toBe(`${zh.jobs.applicationId} #24`)` ② 先参与提示 ⇒ `toBe(`${zh.jobs.submit}${zh.jobs.submitNeedApply}`)` ③ 其它 reason ⇒ `toBe(String(err.message \|\| zh.error))` ④ 无 details ⇒ 同上；收紧后文件内 `toContain` 仅剩 1 处（列表成员否判，正确保留）。**B. ★负对照双读数**：**A** 变异体（加 `'PREFIX '`）× 收紧后 ⇒ **必红 2 failed/6 passed**（红点给文本）；**B** 同变异体 × 旧版 `toContain` 测试 ⇒ **8/8 全绿 ⇒ 复现漏判面**。**C.** 该套件 **8/8** · 全量 `7 failed/375 passed` 零新增 · build 0 · 主仓 `PREFIX` 计数 **0**（变异体未回灌）· 只改一个文件 · 未测项无。**D.** 入库（与 R-9-96 合并后一次 push）。**E.** 在跑 R-9-96 补齐单。 |
 | v0.309 | 2026-10-03 | **★★生产终验抓到我 brief 的漏面：线上 bundle 仍有 3 处用户可见 dashJ 文案（reward.insufficient / uiCommon.dashJPoints / SEARCH_DEMO）· 我立 R-9-96 + 派补齐单**。**A.** 生产终验：health 0040 · bundle `index-CamqpxtI.js` **sha256 `438be751…` == 本地逐字** · 新 reason 键在线上各 6 · 四语 积分59/積分57/Points189/Điểm15 · 四语 /exchange 200 ·（★我判据选择不当：`grep '>\$</span>'`=0 因 minify 形态变，登记不据此判失败）。**B. ★★** `dashJ` 命中 13 处 ⇒ 逐处现取：**3 处用户可见** —— `reward.insufficient`（zh「dashJ不足」/en「Not enough dashJ」/hk/vn）· **`uiCommon.dashJPoints`（「dashJ 社区积分」—— 正是 Kevin 说的「社区积分」那处，R-9-93 只改了 common.communityPoints、漏了此键）** · `theme-preview-demo.js:29 SEARCH_DEMO`（「兑换 dashJ」）；其余 10 处 = 组件注释/barrel/键名（非用户可见）。**C.** ★**我认账（第 15 次）**：brief 只给两个抓手、**未要求全仓 grep 小写 dashJ 并逐处分类** ⇒ 实现/质检都按我给的范围查 ⇒ 全链条漏面，**是生产终验 bundle 扫描抓出来的**；★教训须回写技能：改单位/换符号/改名类单必须写死「全仓双口径扫旧符号 + 逐处分类，用户可见处清零」。**D.** 裁 `R-9-96`：`reward.insufficient` ⇒ 积分不足/積分不足/Not enough points/Không đủ điểm；`uiCommon.dashJPoints` ⇒ 积分/積分/Points/Điểm（**键名不改，仅值改**）；`SEARCH_DEMO` ⇒「兑换 积分」；零新增/零删键 ⇒ 计数不变；自证 = 全仓双口径分类表 + 用户可见处 0 命中。**E.** 派补齐单（与在跑的 r9-88 断言修补单面不相交）。 |
 | v0.308 | 2026-10-03 | **质检回执（纯前端两件）= PASS_WITH_ISSUES（产品全 PASS）· ★它查出详情页 r9-88 通用文案断言用 toContain ⇒ 一处漏判面（产品正确、测试不齐）· push 上线 + 派极小修补单**。**A.** ①件一：6 处使用点逐处吻合 · 产品面 DashJ 零引用 · DashJ 保留（注释含「无产品引用/上市的积分」）· 四语 communityPoints = 积分/積分/Points/Điểm · 它自写独立测试（5/5 + 2/2）含**正向** toContain('$')+数值+span 恰 1 · ②件二：两面通用兜底**确实不同且逐字一致** · 自写 10 例（5 reason × 2 面）全绿且后两条用 **toBe 逐字** · ③**判负 6 类全红**（a 改回 DashJ 6 red · **a2 删 points 块 ⇒ 4 red 且正向断言先红、负向反绿 ⇒ 反证正向断言是真拦** · b1/b2 各 2 red · **c 只留 zh ⇒ 2 red** · d 探漏 ⇒ 我方红而仓内 r9-88 仍绿）· restore_mismatch=[] · ④★**假绿结论**：件一 `$` 是真正向断言 ✓；件二**面与面不齐**（r9-90 toBe ✔ ⇄ **r9-88 toContain ✗**，d 实证加前缀仍绿）⇒ **产品正确、测试不齐** · ⑤四语 locales 每语值改 1 键 + 新增 2 键 · top119/flat1041/节点4164 ✓ · 主仓 7 failed/375 passed · 副本 7→7 零新增 · 副本 build 0 · **主仓 12 文件 sha256 pre==post**。**B.** 产品全 PASS ⇒ 不阻塞上线；测试强度必修（toContain→toBe）⇒ 派极小修补单；★同族记录：判据强度问题本会话第三次 ⇒ brief 要写死「通用文案须逐字等值」。**C.** push。**D.** 生产终验：bundle 逐字对拍 + 线上含 $ 与新 reason 键 + 四语 /exchange 200 + health 0040。 |
 | v0.307 | 2026-10-03 | **前端两件合并单回执（50c/375s）· ★它纠正我的「8 处」口径（实为 6 处产品使用点）· ★同族扫面区分了「同 reason 不同面」· 我核盘通过 → 入库 + 派质检**。**A. 件一**：★产品面使用点 **6 处**（非 8；我列的 8 = 6 使用 + 2 引用〔组件自身 + barrel〕）⇒ 我认账；6 处全改 `$`（Header:267 · TaskCard:101 · RewardCard:92 · HomePage:207/227/259）；产品面 DashJ 引用 **0**；`DashJ.jsx` 保留 + 注释改为「无产品引用、今后仅上市积分」；`common.communityPoints` 四语齐改 积分/積分/Points/Điểm（零新增键 ⇒ 件一计数不变）。**B. 件二**：新增 `jobs.submitNotSelected`/`submitJobStateInvalid`（4 语）+ `SUBMIT_REASON_I18N_KEYS` 分流表；5 reason × **2 面**全断言；未命中 ⇒ 通用逐字不变；计数 `top 119` 不变 · **`flat 1039→1041`** · **节点 4156→4164**。**C. ★同族扫面**：submitWork（:134 键非法/404/幂等/`:143` 已精确/`:164`·`:165` 本单精确）+ acceptApplication（`:222` `:224` 通用 · **`:226`/`:228` 同 reason 但属接受面 ⇒ 本单提交语义文案不适用 ⇒ 保持通用** · `:231` 已精确）⇒ **「同 reason ≠ 同面」的区分正确**。**D.** vitest 前 7 failed/361 passed ⇒ 后 **7 failed/375 passed** 零新增 · build 0（416.55 kB）· 六类泄漏 0；它诚实登记我的诊断探针。**E.** 我核盘：DashJ 零产品引用 ✓ · 6 处 `$` ✓ · 四语值齐 ✓ · flat=1041 ✓ · 我亲跑 3 文件 31/31 绿 ✓。**F.** 入库 + 派质检（用户可见面 ⇒ 先质检再 push）。 |

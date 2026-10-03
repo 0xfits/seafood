@@ -98,12 +98,12 @@ describe('① 提交面：application_id 只能由「我的报名」带出（通
     expect(deliverable.tagName).toBe('INPUT')
     expect(controls[0]).toBe(deliverable)
 
-    // 当前目标 = 只读文本（**非** INPUT/TEXTAREA/SELECT），逐字含 `#24` 与「申请编号」标签
+    // 当前目标 = 只读文本（**非** INPUT/TEXTAREA/SELECT），**逐字等值** = 「申请编号 #24」
+    // ★ 收紧：原 `toContain('#24')` / `toContain(申请编号)` 非逐字 ⇒ 前缀/后缀可蒙混过关；改 `toBe` 全等。
     const target = q('jobs-submit-target')
     expect(target).not.toBeNull()
     expect(['INPUT', 'TEXTAREA', 'SELECT']).not.toContain(target.tagName)
-    expect(target.textContent).toContain('#24')
-    expect(target.textContent).toContain(zh.jobs.applicationId)
+    expect(target.textContent).toBe(`${zh.jobs.applicationId} #24`)
   })
 
   it('作用域正确：accept 面板的 application_id 手输框在**提交表单之外**，不计入提交区计数', async () => {
@@ -136,7 +136,8 @@ describe('② 无本人申请 ⇒ 不渲染提交表单，给「先参与该任�
     expect(q('jobs-input-deliverable')).toBeNull()
 
     const hint = q('jobs-submit-need-apply')
-    expect(hint.textContent).toContain(zh.jobs.submitNeedApply)
+    // ★ 收紧：提示面板 textContent = `<h2>{jobs.submit}</h2>` + `<p>{jobs.submitNeedApply}</p>` ⇒ **逐字全等**
+    expect(hint.textContent).toBe(`${zh.jobs.submit}${zh.jobs.submitNeedApply}`)
   })
 })
 
@@ -187,14 +188,17 @@ describe('③ 提交捕错分支：按 error.details.reason 分流', () => {
     const err = Object.assign(new Error('generic failure'), { details: { reason: 'SOME_OTHER_REASON' } })
     await doSubmit(err)
     const status = q('jobs-submit-status')
-    expect(status.textContent).toContain('generic failure')
+    // ★ 收紧（与 r9-90 对齐）：通用文案 = 产品 `String(error?.message || t('error'))` ⇒ **逐字全等**
+    expect(status.textContent).toBe(String(err.message || zh.error))
     expect(status.textContent).not.toBe(zh.jobs.submitNotApplicant)
   })
 
   it('拿不到 reason（无 details）⇒ 保持原链路：通用文案逐字不变', async () => {
-    await doSubmit(new Error('network down'))
+    const err = new Error('network down')
+    await doSubmit(err)
     const status = q('jobs-submit-status')
-    expect(status.textContent).toContain('network down')
+    // ★ 收紧（与 r9-90 对齐）：通用文案 = 产品 `String(error?.message || t('error'))` ⇒ **逐字全等**
+    expect(status.textContent).toBe(String(err.message || zh.error))
     expect(status.textContent).not.toBe(zh.jobs.submitNotApplicant)
   })
 })
