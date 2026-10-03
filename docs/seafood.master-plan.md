@@ -1416,6 +1416,43 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.315 **★ 任务模型改造：口径全冻结（`R-9-97`~`R-9-103`）· 6 条 Kevin 裁决齐 · 派 S0 规范冻结 ∥ S1 迁移**（2026-10-03）
+
+**A. Kevin 6 条裁决（全部定档，无待定项）**：
+| # | 问题 | 裁决 |
+|---|---|---|
+| 1 | 提交物挂在什么上 | **彻底去掉申请概念**，读口 identifier 改为 **`submission_id`** |
+| 2 | 多人提交谁得奖 | **每个合格都发奖**；★ **发布时须说明总人数** |
+| 3 | `batt` 门槛 | **保留，移到【提交】步** |
+| 4 | 判不合格后可否再提 | **可以**（可多次提交） |
+| 5 | 名额未满的剩余托管 | **悬赏家可随时「结束任务」⇒ 未用完份额退回**（发满自动结束） |
+| 6 | 托管方式 | **发布时押全款 = `reward` × 人数**（余额不足 ⇒ 发布失败） |
+
+**B. ★ 冻结口径（`R-9-97`~`R-9-103`，将同步下发规范/实现/质检三角色）**：
+- **`R-9-97`（任务模型）**：`job` 新增 **`headcount bigint NOT NULL DEFAULT 1`** + CHECK `headcount >= 1`；语义 = **招募人数上限**（悬赏家发布时必填）；★ **存量 job backfill = 1**（语义等价）。
+- **`R-9-98`（托管）**：发布时托管总额 = **`reward × headcount`**（`job_escrow`：雇主 `balance −(reward×headcount)` → `frozen +(reward×headcount)`）；**余额不足 ⇒ 发布失败**（既有 insufficient 分支，机读 `reason` 稳定常量）。
+- **`R-9-99`（提交即参与）**：**取消报名与选定两个环节**。任何已登录 actor（★★ **含雇主本人** ⇒ **移除 `self_application` 限制**）可对 `status='open'` 的任务提交交付物；**同一人可多次提交**（判不合格后可再提）。★ `batt` 闸从「报名」**移到「提交」**（`BATT_BELOW_ACCEPT_THRESHOLD`，机读 `reason` 逐字不变，仅落点变更）。
+- **`R-9-100`（读口 identifier）**：`/api/task-progress` 系列的 identifier 语义由 `application_id` **改为 `submission_id`**；`job_application` **停止写入、保留历史**（不删行）。
+- **`R-9-101`（逐笔发放）**：`POST /api/job/:jobId/review` 改为**按提交逐笔判定**：`approved` ⇒ 向该提交者发放**一份 `reward`**（`job_payout` + `job_fee` + `commission` 按既有费分佣口径）+ 该提交 `review_status='approved'`；**已发放份数达到 `headcount` ⇒ 任务自动结束**。★ **`job.status` 枚举不动**（零迁移）：发满 = `settled`。
+- **`R-9-102`（结束与退款）**：悬赏家可**随时结束任务**（复用 `POST /api/job/:jobId/cancel`）⇒ **未用完份额退回**（`job_escrow_refund` 金额 = `reward × (headcount − 已发放份数)`）⇒ 任务关闭（`cancelled`）。
+- **`R-9-103`（下架）**：`POST /api/job/:jobId/apply` 与 `POST /api/job/:jobId/accept` 下架 ⇒ **`410 Gone`**（`details.reason` 稳定常量 `APPLY_RETIRED` / `ACCEPT_RETIRED`；沿用既有退役形态）。
+
+**C. 切片排期（按文件所有权 / 写者唯一）**：
+| 片 | 角色 | 面 | 依赖 |
+|---|---|---|---|
+| **S0** | Jing | 规范冻结：`route-layer` / `data-layer` / `ledger` / `commission` 四册 | — |
+| **S1** | Kong | 迁移 `0041_job_headcount.sql`（加列 + CHECK + backfill 1） | — |
+| S2 | Kong | 后端**提交面**：去申请前置 · batt 闸迁移 · identifier→`submission_id` · `/apply` `/accept` ⇒ 410（`index.ts` + `job-service.ts` + `database.ts`） | S0 · S1 |
+| S3 | Kong | 后端**资金面**：托管按总额 · 逐笔发放 + 名额计数 + 发满关闭 + 剩余退（`job-funds-service.ts` + `database.ts`） | S0 · S2（**同动 `database.ts` ⇒ 串行**） |
+| S4 | Kong | 前端：发布表单加「人数」· 去报名/选定 UI · 提交表单直出 · 悬赏家评判列表 | S2 |
+| S5 | Neng | 独立质检（判负 + 真链路） | S1–S4 |
+| S6 | Jing | 规范回写 + 快照 | S5 |
+
+**D. 本轮派单一（两片并行，面不相交）**：**S0（Jing · 四册口径冻结）∥ S1（Kong · 迁移 `0041`）**。
+**E. 状态**：DB **0040** · 生产 `ef279d1` · 本件**未动代码**。
+
+---
+
 ### 5.314 **★★ Kevin 定档：task 无「申请报名」逻辑 —— 提交文本 ⇒ 悬赏家判合格即发奖（4 条答复 + 1 条新需求 + 我裁 1 条）· 现取真源与改动面**（2026-10-03）
 
 **A. Kevin 原话（口径真源）**：「**自己发布的 task，自己可以去完成**」＋「**关于 task，没有【申请报名】这个逻辑**：用户在表单中提交一段文本，悬赏家通过这段文本来判断是否合格，如果合格即予以发放奖励，反之则不然。」
@@ -6798,6 +6835,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.315 | 2026-10-03 | **★任务模型改造：口径全冻结（R-9-97~R-9-103）· 6 条 Kevin 裁决齐 · 派 S0 规范冻结 ∥ S1 迁移**。**A. Kevin 6 裁决**：①载体 ⇒ 彻底去申请、identifier 改 submission_id ②**每个合格都发奖** + 发布时说明总人数 ③batt 门槛移到提交 ④判不合格可再提 ⑤名额未满 ⇒ 悬赏家可随时「结束任务」并把未用份额退回 ⑥**发布时押全款 = reward × 人数**（余额不足则发布失败）。**B. 冻结口径**：R-9-97 job 加 `headcount bigint NOT NULL DEFAULT 1` + CHECK ≥1（存量 backfill=1）· R-9-98 托管总额 = reward × headcount、不足则发布失败 · R-9-99 取消报名与选定、**移除 self_application（雇主本人可提交）**、同一人可多次提交、batt 闸移到提交 · R-9-100 identifier 由 application_id 改 **submission_id**、job_application 停写保留历史 · R-9-101 review 改**按提交逐笔判定**、approved 发一份 reward + 分佣、发满 headcount 自动结束（job.status 枚举不动，发满=settled）· R-9-102 悬赏家随时结束 ⇒ 退 reward×(headcount−已发份数)（cancelled）· R-9-103 /apply 与 /accept 下架 ⇒ **410 Gone** + reason APPLY_RETIRED/ACCEPT_RETIRED。**C.** 切片排期 S0 规范冻结∥S1 迁移 → S2 提交面 → S3 资金面（与 S2 同动 database.ts ⇒ 串行）→ S4 前端 → S5 质检 → S6 回写。**D.** 本轮派 S0∥S1。**E.** DB 0040 · 未动代码。 |
 | v0.314 | 2026-10-03 | **★★Kevin 定档：task 无「申请报名」逻辑 —— 提交文本 ⇒ 悬赏家判合格即发奖（4 条答复 + 1 条新需求 + 我裁 1 条）· 现取真源与改动面**。**A.** Kevin 原话：自己发布的 task 自己可完成；没有【申请报名】逻辑，用户在表单提交一段文本，悬赏家据文本判是否合格，合格即发奖、反之不发。**B. 现取真源**：报名 `apply`⇒`applyToJob`（拒 self_application 等 5 分支）· 选定 `accept`⇒`acceptApplication` · 提交 `task-progress/:identifier/submit`⇒`submitWork`（闸 = 申请须 accepted）· ★★**悬赏家评判 `POST /api/job/:jobId/review` 已存在**（approved ? settleJob 发奖 : refundJob 不发；权限 = 雇主本人）· `settleJob` ⇒ `reviewJobSubmission` **单次结算语义** · 托管 `job_escrow` 只 **1 份** · `job` 表 **无名额字段**（ALTER 零命中）· ★`job_submission` **无 application_id**（提交物不依赖报名行）· 引用面 database 82/job-service 48/index 15/funds 9/ActiveTaskModal 6。**C. Kevin 4 答复**：①载体 ⇒ **B 彻底去申请、identifier 改 submission_id** ②**每个合格都发奖** + ★新需求「发布 task 时说明总人数」③batt 门槛移到**提交**步 ④判不合格**可再提**。**D. 我裁**：托管总额 = reward × 总人数；每合格发一份 + 分佣；发满即关闭 ⇒ **settleJob 须改「按提交逐笔发放 + 名额计数」= 账本语义变更**。**E. 我裁**：存量 job headcount backfill=1；存量 job_application 保留停写；读口兼容存量。**F. 待定 1 条**：名额未满时剩余托管如何处置（取消退/手动关闭退/留托管）。**G.** 改动面跨 4 层须切片（规范 4 册 → 迁移 → 后端提交面 → **后端资金面** → 前端 → 质检 → 规范回写）。**H.** 仅定档 + 计划，未动代码。 |
 | v0.313 | 2026-10-03 | **本批生产终验 = 全绿 · ★线上 bundle 内 dashj（小写口径）仅剩 4 处且全为键名 ⇒ 用户可见类 = 0 · 7 条旧串线上全 0**。**A.** health 0040 · 线上 bundle `index-DbgRc-K2.js` · **逐字对拍 sha256 `0ad3c2e9…` == 本地** · ★★`dash[Jj]` 命中 = **4** ⇒ 逐处现取 4/4 全为**键名 dashJPoints**（值已 积分/Points/積分/Điểm）⇒ **用户可见类 = 0**（口径说明：小写口径，大写 DASHJ 体检 ticker 有意排除）· 7 条旧串线上**全 0** · 新值线上 各 3/3/3/3/1 · 四语 /exchange 全 200。**B. ★完整教训链**：Kevin 提需求 ⇒ 我 brief 只给两个抓手 ⇒ 实现+质检**在同一错误范围内两轮报 PASS** ⇒ ★**生产终验扫 bundle 抓到 3 处用户可见残留**（否则带假文案上线）⇒ 补齐单双口径扫面 9→0。教训：改单位/换符号/改名类单必须写死「全仓双口径扫旧符号 + 逐处分类 + 用户可见处清零」；且**「两次 PASS」≠ 用户看不到问题**（brief 漏面时实现与质检会共同在错误范围内 PASS）⇒ **生产终验是唯一能穿透 brief 漏面的关卡**。**C.** 本批 4 commit 已推 `d2d604f`。**D.** DB 0040 · 生产 d2d604f（bundle sha256 0ad3c2e9…）· 积分 9889 + 电量 30 · 待推 0。 |
 | v0.312 | 2026-10-03 | **本批两单质检 = ✅PASS（40c/208s）· ★它纠正我一处判负口径表述 · push 上线 + 生产复扫**。**A.** 单①R-9-96：三处值四语逐键正确（消费点 RewardCard.jsx:157 核对）· SEARCH_DEMO 正确 · 计数自算 119/1041/4164 零新增零删键 · 旧串 8 条全 0 · 保留项 `DASHJ / $ 0.3312` 只登记未改。**B.** 双口径自扫：-i 76 行 / 敏感 40 行 ⇒ **用户可见文案 = 0/0**；非测试命中仅 13 行无一处用户可见；bundle 内 dashj 仅 5 处（键名×4+DASHJ/$×1）。**C.** 单②r9-88：4 处/5 条 toBe 到位；原版 toContain 6（1 列表+5 文案）⇒ 现命中 2 其中仅 1 真断言。**D. 判负 4 红 + 1 反证绿**：a 改回 dashJ不足 2red · b 只改 zh 2red · c SEARCH_DEMO 改回 2red · d1 收紧 toBe+加前缀 2red · **d2 旧 toContain+加前缀 8/8 绿 = 复现漏判面**；★**它纠正我 (d) 口径**（我写「改回 toContain 且加前缀必红」实测为绿 = 漏判面本身；正解 = 收紧后加前缀必红）⇒ 我认账；副本 cmp SAME · 主仓 sha256 聚合前=后。**E.** 假绿排查非假绿；登记源面大小写敏感口径备注。**F.** 全量 7 failed/382 passed 零新增 · 定向全绿 · build 0 · 泄漏门 EXIT=0 PASS；两处登记（closeout 子面③ 1 处 JSX 注释误报·既有·未触碰）。**G.** verdict PASS ⇒ push。**H.** 生产复扫 dashj 用户可见类必须 0。 |
