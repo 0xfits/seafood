@@ -15,7 +15,7 @@
 // ============================================================================
 import type { Response } from 'express';
 import { createHash } from 'crypto';
-import { DatabaseService } from './database';
+import { DatabaseService, type SqlRunner } from './database';
 
 // ---- R107 错误体（§3.3-1：{error:{code,message,i18n_key,details}}）-----------
 export const ledgerErrorBody = (
@@ -121,57 +121,68 @@ const gone404 = (refType: string, refId: string | number): JobVerbErr =>
 const stateConflict = (field: string, reason: string, extra: Record<string, unknown> = {}): JobVerbErr =>
   fail(409, 'LEDGER_CURRENCY_INVALID_TRANSITION', { field, reason, ...extra }, 'Business state transition rejected');
 
-// ---- J4 · 提交交付物（`submitWork`；无分录；§4.2 J4）-------------------------
+// ---- J4 · 提交交付物（`submitWork`；无分录；§4.2 J4；★ S2 任务模型改造 `R-9-99`）-----
+// ★ 提交即参与（口径逐字）：
+//   · **取消「报名 / 选定」前置** —— 不再要求先有 `accepted` 的 `job_application`；
+//   · **任何已登录 actor（含任务发布者本人）**可对 `status='open'` 的任务直接提交（**移除 self 限制**）；
+//   · **同一人可多次提交**（不再因「已有提交」而拒；无 `create_key` 时派生键含交付物摘要 ⇒
+//     不同内容 = 各自新提交；完全相同内容的重投 = 200 幂等重放，**非拒**）；
+//   · ★ **`batt` 闸由「报名」移到「提交」**：不满足 ⇒ 409 + `reason='BATT_BELOW_ACCEPT_THRESHOLD'`
+//     （**逐字不变**，仅落点变更）；阈值真源 = 既有 `batt_policy.acceptThresholdBatt`（非自造）。
+//   · `identifier` 语义（S2 起）= 目标 **`job_id`**（不再解析 / 要求 `job_application`）。
 export const submitWork = async (params: {
   identifier: number;
   workerUid: number;
   deliverable: string;
   createKeyRaw?: unknown;
-  /** 路由层已用 B1-b 的 job_application 读口证过归属时的快路径（application_id） */
-  applicationHint?: number | null;
-}): Promise<JobVerbResult> => {
-  const resolvedKey = resolveJobCreateKey(params.createKeyRaw, ['submit', params.identifier, params.workerUid]);
+}, ex?: SqlRunner): Promise<JobVerbResult> => {
+  // 派生键含交付物摘要 ⇒ 同 (job,worker) 不同内容得不同键（支持「同一人多次提交」）。
+  const resolvedKey = resolveJobCreateKey(
+    params.createKeyRaw,
+    ['submit', params.identifier, params.workerUid, digest(params.deliverable)],
+  );
   if (!resolvedKey.ok) return keyError(resolvedKey.details);
 
-  let applicationId = params.applicationHint || null;
+  const write = await DatabaseService.submitJobWork(
+    params.identifier, params.workerUid, params.deliverable, resolvedKey.key, ex,
+  );
+  if (!write) return gone404('job', params.identifier);
 
-  if (!applicationId) {
-    const resolved = await DatabaseService.resolveJobApplication(params.identifier, params.workerUid);
-    if (!resolved) return gone404('job_application', params.identifier);
-    if (resolved.ownership !== 'self') {
-      // §6.2 附表：已参与但无该动作权限 ⇒ 403 + reason=ACTOR_NOT_ALLOWED（C6：不得借 LEDGER_HOLD_NOT_ALLOWED）
-      return fail(403, 'AUTH_FORBIDDEN', { reason: 'ACTOR_NOT_ALLOWED', ref_type: 'job_application', ref_id: String(params.identifier) }, 'ACTOR_NOT_ALLOWED');
-    }
-    applicationId = resolved.applicationId;
+  switch (write.outcome) {
+    case 'not_open':
+      // 提交面**只**对 `status='open'` 放行（§4.2 J4 改造 / `R-9-99`）；借既有「非法状态转移」族码。
+      return stateConflict('job.status', 'JOB_STATE_INVALID', { from: write.jobStatus, to: 'open', job_id: String(params.identifier) });
+    case 'batt_below_threshold':
+      // ★ S2（`R-9-99`）：`batt` 闸**落点已从报名移到提交**；机读 `reason` **逐字不变**。
+      return stateConflict('batt', 'BATT_BELOW_ACCEPT_THRESHOLD', { job_id: String(params.identifier) });
+    case 'conflict':
+      // 应用层先判唯一键（§3.3-4）⇒ 409 借码 `LEDGER_IDEMPOTENCY_CONFLICT`。
+      return fail(409, 'LEDGER_IDEMPOTENCY_CONFLICT', { reason: 'create_key_taken', ref_id: resolvedKey.key, job_id: String(params.identifier) }, 'Idempotency conflict');
+    case 'replay':
+      if (write.existingDeliverable !== params.deliverable) {
+        // §3.2 409：同键异指纹 ⇒ LEDGER_IDEMPOTENCY_CONFLICT
+        return fail(409, 'LEDGER_IDEMPOTENCY_CONFLICT', { field: 'job_submission.create_key', reason: 'REPLAY_FINGERPRINT_MISMATCH', ref_id: resolvedKey.key }, 'Idempotency conflict');
+      }
+      break;
+    case 'inserted':
+      break;
+    default:
+      break;
   }
 
-  if (!applicationId) return gone404('job_application', params.identifier);
+  const submissionId = write.submissionId;
+  if (!submissionId) return gone404('job_submission', params.identifier);
 
-  const write = await DatabaseService.submitJobWork(applicationId, params.workerUid, params.deliverable, resolvedKey.key);
-  if (!write) return gone404('job_application', applicationId);
-
-  if (write.outcome === 'replay') {
-    if (write.existingDeliverable !== params.deliverable) {
-      // §3.2 409：同键异指纹 ⇒ LEDGER_IDEMPOTENCY_CONFLICT
-      return fail(409, 'LEDGER_IDEMPOTENCY_CONFLICT', { field: 'job_submission.create_key', reason: 'REPLAY_FINGERPRINT_MISMATCH', ref_id: resolvedKey.key }, 'Idempotency conflict');
-    }
-  } else if (write.outcome === 'blocked') {
-    if (write.applicationStatus === 'accepted' && write.jobStatus === 'accepted') {
-      // 应用与 job 都在 accepted、却未落行 ⇒ 唯一可能是 create_key 已被别的对象占用
-      return fail(409, 'LEDGER_IDEMPOTENCY_CONFLICT', { field: 'job_submission.create_key', reason: 'create_key_taken', ref_id: resolvedKey.key }, 'Idempotency conflict');
-    }
-    return write.applicationStatus !== 'accepted'
-      ? stateConflict('job_application.status', 'JOB_APPLICATION_STATE_INVALID', { from: write.applicationStatus, to: 'accepted', application_id: String(applicationId) })
-      : stateConflict('job.status', 'JOB_STATE_INVALID', { from: write.jobStatus, to: 'submitted', application_id: String(applicationId) });
-  }
-
-  const view = await DatabaseService.getTaskProgress(applicationId);
-  if (!view) return gone404('job_application', applicationId);
+  const view = await DatabaseService.getTaskProgress(submissionId, ex);
+  if (!view) return gone404('job_submission', submissionId);
 
   return { ok: true, replay: write.outcome === 'replay', view: view as unknown as Record<string, unknown> };
 };
 
 // ---- J2 · 报名（`applyToJob`；无分录；§4.2 J2）------------------------------
+// @deprecated ★ S2（`R-9-99`）：口径已取消「报名 / 选定」环节 ⇒ 本 verb **不再被新链路调用**
+//   （提交面的 `batt` 前置闸已移到 `submitWork`）。函数**保留**（不删）—— 其路由
+//   `POST /api/job/:jobId/apply` 的 `410` 退役归 **S3**（`R-9-103`），此处零路由改动。
 export const applyToJob = async (params: {
   jobId: number;
   workerUid: number;
@@ -209,6 +220,9 @@ export const applyToJob = async (params: {
 };
 
 // ---- J3 · 雇主选定打工人（`acceptApplication`；无分录；§4.2 J3）------------
+// @deprecated ★ S2（`R-9-99`）：口径已取消「选定」环境 ⇒ 本 verb **不再被新链路调用**
+//   （逐笔发放 `R-9-101` 归 S4）。函数**保留**（不删）—— 其路由
+//   `POST /api/job/:jobId/accept` 的 `410` 退役归 **S3**（`R-9-103`），此处零路由改动。
 export const acceptApplication = async (params: {
   jobId: number;
   applicationId: number;

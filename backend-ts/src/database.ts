@@ -606,7 +606,7 @@ const asItems = <T>(result: unknown): T[] => result as T[];
 // **共用同一份 SQL**（防「自写第二套取数」）。语义与改前 tagged-template 版**逐字等价**（仅占位符化）。
 // ============================================================================
 /** 语句执行器最小接口（`db.ts` 的 `TxClient` 与 neon `Sql` 都满足其可执行形态）。 */
-type SqlRunner = { query: (text: string, params?: unknown[]) => Promise<{ rows: RawRow[] }> };
+export type SqlRunner = { query: (text: string, params?: unknown[]) => Promise<{ rows: RawRow[] }> };
 
 /** 上市（`POST /api/currency/:cid/list`）的 DB 侧唯一显式语句（单语句 CTE = 一个隐式事务）。 */
 const LIST_CURRENCY_WITH_DEPOSIT_SQL = `
@@ -2573,58 +2573,50 @@ export class DatabaseService {
     return Number(rows[0]?.count || 0);
   }
 
-  static async getTaskProgress(jID: number): Promise<TaskProgressRecord | null> {
-    const sql = getSql();
+  /**
+   * ★ S2（`R-9-100`）· 读口 identifier = **`submission_id`**（改前 = `job_application.application_id`）。
+   *   逐笔提交（`job_submission`）是唯一参与载体；`job_application` 停写（历史行保留、不删）。
+   *   返回形状 = **9 键 `TaskProgressRecord` 逐键不变**（`jID` = `submission_id`，`tID` = `job_id`，
+   *   `uID` = `worker_uid`，`info_input` = `deliverable`）⇒ 归属校验位（`uID`）不降级。
+   */
+  static async getTaskProgress(submissionId: number, ex?: SqlRunner): Promise<TaskProgressRecord | null> {
+    const sql = sqlFor(ex);
     const row = firstRow(await sql`
       SELECT
-        a.application_id AS "jID",
-        a.job_id AS "tID",
-        a.worker_uid AS "uID",
+        s.submission_id AS "jID",
+        s.job_id AS "tID",
+        s.worker_uid AS "uID",
         s.deliverable AS info_input,
-        a.time_created,
+        s.time_created,
         s.time_created AS time_submitted,
         s.reviewed_at AS time_checked,
         NULL::timestamptz AS time_claimed,
         0::int AS points_claimed
-      FROM job_application AS a
-      LEFT JOIN LATERAL (
-        SELECT *
-        FROM job_submission AS s0
-        WHERE s0.job_id = a.job_id AND s0.worker_uid = a.worker_uid
-        ORDER BY s0.submission_id DESC
-        LIMIT 1
-      ) AS s ON TRUE
-      WHERE a.application_id = ${jID}
-      ORDER BY s.submission_id DESC NULLS LAST
+      FROM public.job_submission AS s
+      WHERE s.submission_id = ${submissionId}
       LIMIT 1
     `);
 
     return row ? normalizeTaskProgress(row) : null;
   }
 
-  static async listTaskProgressByUser(uID: number, skip = 0, limit = 100): Promise<TaskProgressRecord[]> {
-    const sql = getSql();
+  /** ★ S2（`R-9-100`）：`/api/task-progress` 列表 = **本人逐笔提交**（`job_submission`）；`jID` = `submission_id`。 */
+  static async listTaskProgressByUser(uID: number, skip = 0, limit = 100, ex?: SqlRunner): Promise<TaskProgressRecord[]> {
+    const sql = sqlFor(ex);
     const rows = extractRows(await sql`
       SELECT
-        a.application_id AS "jID",
-        a.job_id AS "tID",
-        a.worker_uid AS "uID",
+        s.submission_id AS "jID",
+        s.job_id AS "tID",
+        s.worker_uid AS "uID",
         s.deliverable AS info_input,
-        a.time_created,
+        s.time_created,
         s.time_created AS time_submitted,
         s.reviewed_at AS time_checked,
         NULL::timestamptz AS time_claimed,
         0::int AS points_claimed
-      FROM job_application AS a
-      LEFT JOIN LATERAL (
-        SELECT *
-        FROM job_submission AS s0
-        WHERE s0.job_id = a.job_id AND s0.worker_uid = a.worker_uid
-        ORDER BY s0.submission_id DESC
-        LIMIT 1
-      ) AS s ON TRUE
-      WHERE a.worker_uid = ${uID}
-      ORDER BY a.application_id DESC
+      FROM public.job_submission AS s
+      WHERE s.worker_uid = ${uID}
+      ORDER BY s.submission_id DESC
       LIMIT ${limit} OFFSET ${skip}
     `);
 
@@ -3264,7 +3256,14 @@ export class DatabaseService {
     return { outcome: outcome as 'not_owner' | 'invalid_transition', row };
   }
 
-  /** §3.1/DL111：解析 :identifier（application_id 或 job_id）→ 该 worker 的申请；他人申请返回 ownership='other' */
+  /**
+   * §3.1/DL111：解析 :identifier（application_id 或 job_id）→ 该 worker 的申请；他人申请返回 ownership='other'。
+   *
+   * @deprecated ★ S2（`R-9-99/100`）：**提交链路已停用本方法**（`submitWork` 不再要求申请归属；读口 identifier
+   *   改 `submission_id`）。`job_application` 停写（历史行保留、不删）⇒ 本方法仅供**历史行**与未改造的旧面
+   *   （其路由 `apply`、`accept` 预计 `410` 退役 · `R-9-103`）使用，**不得**被新链路的 `submitWork` 调用。
+   *   返回形状不变（仍 `{applicationId, workerUid, ownership}`），无新调用方。
+   */
   static async resolveJobApplication(
     identifier: number,
     workerUid: number,
@@ -3664,41 +3663,54 @@ export class DatabaseService {
     };
   }
 
-  /** §4.2 J4：提交交付物 —— `job_submission` 落行（review_status='pending'）+ `job.status→'submitted'`，同语句原子 */
+  /**
+   * ★ S2（`R-9-99`）· §4.2 J4 改造 —— **提交即参与**：
+   *   · **无报名前置**：不再读 / 要求 `job_application`（其人无所属申请亦可提交，含**雇主本人**）。
+   *   · **同一人可多次提交**：逐笔落 `job_submission`（`create_key` 唯一 ⇒ 同键重投 = 幂等重放；新键 = 新提交）。
+   *   · ★ **`batt` 闸由报名移到提交**（`R-9-99`）：`batt ≥ acceptThresholdBatt` 判在 **SQL 单写路径
+   *     CTE `ins` 的 `WHERE`** 内（沿 8④ `C2` 教训 · 不可绕过）；不满足 ⇒ outcome `batt_below_threshold`
+   *     （服务层映射 **409 + reason `BATT_BELOW_ACCEPT_THRESHOLD` 逐字不变**）。阈值真源 = **既有**
+   *     `resolveBattPolicy('batt_policy').acceptThresholdBatt`（缺省常量 9；**不自造**）。
+   *   · 前置态 = 仅 `job.status='open'`；本写**不改** `job.status`（逐笔参与 ⇒ 任务保持开放；
+   *     发满 `headcount` / 结束由后续单 `R-9-101/102` 处置）。
+   */
   static async submitJobWork(
-    applicationId: number,
+    jobId: number,
     workerUid: number,
     deliverable: string,
     createKey: string,
+    ex?: SqlRunner,
   ): Promise<{
-    outcome: 'inserted' | 'replay' | 'blocked';
-    applicationId: number;
-    applicationStatus: string;
+    outcome: 'inserted' | 'replay' | 'not_open' | 'batt_below_threshold' | 'conflict';
+    jobId: number;
     jobStatus: string;
+    submissionId: number | null;
     existingDeliverable: string | null;
   } | null> {
-    const sql = getSql();
+    // ★ 阈值真源 = 既有 `batt_policy.acceptThresholdBatt`（fail-closed 常量 9）；SQL 侧同源兜底。
+    const { policy: battPolicy } = resolveBattPolicy(await this.getAppConfigValueByKey('batt_policy', ex));
+    const acceptThresholdBatt = battPolicy.acceptThresholdBatt;
+    const sql = sqlFor(ex);
     const row = firstRow(await sql`
-      WITH target AS (
-        SELECT a.application_id, a.job_id, a.worker_uid, a.status AS app_status,
-               j.status AS job_status
-          FROM public.job_application AS a
-          JOIN public.job AS j ON j.job_id = a.job_id
-         WHERE a.application_id = ${applicationId}
-           AND a.worker_uid = ${workerUid}
-      ), upd_job AS (
-        UPDATE public.job AS j
-           SET status = 'submitted'
-          FROM target AS t
-         WHERE j.job_id = t.job_id
-           AND t.job_status = 'accepted'
-           AND t.app_status = 'accepted'
-        RETURNING j.job_id
+      WITH j AS (
+        SELECT job.job_id, job.status AS job_status
+          FROM public.job AS job
+         WHERE job.job_id = ${jobId}
+      ), gate AS (
+        SELECT j.job_id, j.job_status,
+               COALESCE((SELECT b.batt FROM public.batt_account AS b WHERE b.uid = ${workerUid}), 0)::int AS worker_batt
+          FROM j
+      ), thr AS (
+        SELECT COALESCE((SELECT CASE WHEN (p.value->>'acceptThresholdBatt') ~ '^[0-9]+$'
+                                      THEN (p.value->>'acceptThresholdBatt')::int ELSE NULL END
+                             FROM public.app_config AS p WHERE p.key = 'batt_policy' LIMIT 1),
+                        ${acceptThresholdBatt}) AS accept
       ), ins AS (
         INSERT INTO public.job_submission (job_id, worker_uid, deliverable, review_status, create_key)
-        SELECT t.job_id, t.worker_uid, ${deliverable}, 'pending', ${createKey}
-          FROM target AS t
-         WHERE t.app_status = 'accepted'
+        SELECT g.job_id, ${workerUid}, ${deliverable}, 'pending', ${createKey}
+          FROM gate AS g, thr
+         WHERE g.job_status = 'open'
+           AND g.worker_batt >= thr.accept
         ON CONFLICT (create_key) DO NOTHING
         RETURNING submission_id, deliverable
       ), cur AS (
@@ -3706,28 +3718,33 @@ export class DatabaseService {
           FROM ins AS i
         UNION ALL
         SELECT 'replay', s.submission_id, s.deliverable
-          FROM public.job_submission AS s, target AS t
+          FROM public.job_submission AS s, gate AS g
          WHERE s.create_key = ${createKey}
-           AND s.job_id = t.job_id
-           AND s.worker_uid = t.worker_uid
+           AND s.job_id = g.job_id
+           AND s.worker_uid = ${workerUid}
            AND NOT EXISTS (SELECT 1 FROM ins)
       )
-      SELECT t.application_id AS application_id,
-             t.app_status AS application_status,
-             t.job_status AS job_status,
-             COALESCE(c.outcome, 'blocked') AS outcome,
+      SELECT g.job_id AS job_id, g.job_status AS job_status,
+             c.submission_id AS submission_id,
+             COALESCE(c.outcome,
+                      CASE WHEN g.job_status <> 'open' THEN 'not_open'
+                           WHEN g.worker_batt < thr.accept THEN 'batt_below_threshold'
+                           ELSE 'conflict' END) AS outcome,
              c.deliverable AS existing_deliverable
-        FROM target AS t
+        FROM gate AS g, thr
         LEFT JOIN cur AS c ON TRUE
     `);
 
     if (!row) return null;
 
     return {
-      outcome: (toStringValue(getValue(row, 'outcome')) || 'blocked') as 'inserted' | 'replay' | 'blocked',
-      applicationId: toNumberValue(getValue(row, 'application_id')),
-      applicationStatus: toStringValue(getValue(row, 'application_status')),
+      outcome: (toStringValue(getValue(row, 'outcome')) || 'conflict') as
+        'inserted' | 'replay' | 'not_open' | 'batt_below_threshold' | 'conflict',
+      jobId: toNumberValue(getValue(row, 'job_id')),
       jobStatus: toStringValue(getValue(row, 'job_status')),
+      submissionId: getValue(row, 'submission_id') === null || getValue(row, 'submission_id') === undefined
+        ? null
+        : toNumberValue(getValue(row, 'submission_id')),
       existingDeliverable: getValue(row, 'existing_deliverable') === null || getValue(row, 'existing_deliverable') === undefined
         ? null
         : toStringValue(getValue(row, 'existing_deliverable')),

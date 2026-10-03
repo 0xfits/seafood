@@ -1416,6 +1416,36 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.317 **S2（服务层）∥ S2b（门前推）回执 + 我核盘入库 + ★S2b 独立发现并正确定位一处「前推面」+ 派 S3∥S3b∥S4**（2026-10-03）
+
+**A. S2 服务层（Kong · 58c/467s）** —— 改 3 个 src：
+- `job-service.ts`：`submitWork` 重写 ⇒ **去申请前置 + 去 `self_application` 限制 + 同人可多次提交**（派生键 = `['submit', identifier, workerUid, **digest(deliverable)**]` ⇒ 不同内容得不同键）；★ **`identifier` 语义（S2 起）= 目标 `job_id`**（`:132` 注释逐字）；`applyToJob`/`acceptApplication` **保留 + `@deprecated`**（不再被新链路调用）。
+- `database.ts`：`getTaskProgress` / `listTaskProgressByUser` **换轴 → `job_submission`**；`submitJobWork` 重写（**`batt` 闸落在 SQL 单写路径 CTE 内**，阈值取既有 `batt_policy.acceptThresholdBatt`，**不改 `job.status`**）；`resolveJobApplication` `@deprecated`。
+- 自证：**`tsc` 0** · **真链路 30/30**（本人可提 `ok` · 无申请直提 `ok` · 同人两次得**不同** `submission_id` 90/91 · 同内容重投 = 200 幂等重放 · 电量不足 ⇒ **409 + `BATT_BELOW_ACCEPT_THRESHOLD` 逐字** + 零新行 · 读他人 ⇒ **null**（归属不降级）· 非 open ⇒ 409 · 缺 job ⇒ 404 · **9 键形状冻结** · **恢复自证：四表与基线逐字相等、净写 0**）· 判负 ≥2 · 六类泄漏 0 · 端口空
+
+**B. ★ 我核盘 S2（亲验，不采信自报）**：
+- `job-service.ts:132` **`identifier` = 目标 `job_id`** ✓ · `:157` batt 闸 **`reason` 逐字不变** ✓ · `:183` `@deprecated` 标注「口径已取消报名/选定环节」✓
+- `database.ts:2586` **`s.submission_id AS "jID"`** + `:2595-2596` **`FROM public.job_submission WHERE s.submission_id = …`** ⇒ ★ **读口真换轴，`jID` = 提交号** ✓
+- `database.ts:3690-3707` **batt 闸真在 SQL 单写路径内**（`WITH j AS …` + 电量子查询 + `p.value->>'acceptThresholdBatt'`）且 ★ **`COALESCE` 在标量子查询外层**（符合本会话 `C-15` 纪律）✓
+- **`tsc` = 0** ✓ · **我亲跑前端 `vitest` = `7 failed / 382 passed`**（与基线**逐字一致**，零新增）✓
+
+**C. S2b 门前推（Kong · 33c/337s）**：全仓现取确认**仅这 7 门**持有冻结面、**无第 8 落点** · 前推 7 处 + 同步 8 处注释（`+23/−19`，我核盘逐文件 numstat 与自报一致）· ★ **7 处目标判据全部由红转绿**（`p8-s3` 45/45 · `s3b` 38/38 · `s4` 79/79 · `s5` 117/117 · `s9` 100/100 · `s10` 49/48 · `s11` 87/84）· HTTP 腿（`s10 K8` / `s11 K10`）**如实标未测**（端口无监听 + 禁占区 5793–5799）✓
+
+**D. ★★ S2b 独立发现并正确定位一处「前推面」（我裁：前推，非缺陷）**：`p8-s11 K8/K9` 报 `admin_ops_audit_log` 的 `points_adjust` 实测 **5 行** vs 冻结 **4 行**；它**只读归因**到新增行 `log_id=9` · `2026-10-03T12:11:22Z` · `idempotency_key='ops:1:points_adjust:970213:1:kevin-grant-10000-a'` ⇒ ★★ **正是我 2026-10-03 给 Kevin 发放 10000 积分那次真实运营动作**（`txid 1439`），**与 `0041` 无关** ⇒ **未改、未放宽判据、交我裁**（做法正确）。
+⇒ **我裁：前推 `4 → 5`**（真实运营动作令历史行数前进，属**合法前推**）⇒ 归 **S3** 的 brief。
+⇒ ★ 这是**同类第二次**（`0041` 上次也是我 apply 导致滞后）⇒ **纪律定型**：**任何「我方动作改变冻结计数」⇒ 前推冻结值 + 逐门复跑给前后读数**，**不得为求绿放宽/删判据**。
+
+**E. ★ S2 报出的跨切片风险（4 条，必须由后续片接掉，否则会坏）**：
+1. **`index.ts:1995`**（`/api/tasklist/:jID/verify` 成功面）仍以 `result.applicationId` 调 `getTaskProgress`，而该读口**已换轴** ⇒ **会坏** ⇒ **归 S3**
+2. `listPendingVerification` / `countPendingVerification` / `resolveReviewTarget` **仍按申请轴** ⇒ **新提交在后台待审面不可见** ⇒ **归 S4**
+3. **前端契约两处变更**：提交口 `identifier` = **`job_id`**；读口 `:jID` = **`submission_id`** ⇒ **归 S3b**
+4. `apply`/`accept` 路由 `410` 未做 ⇒ **归 S3**
+
+**F. ★ 我裁：切片排期（面分离 ⇒ 可并行）**：**S3 路由层**（`index.ts`：`/apply` `/accept` ⇒ 410 + 修 `:1995` + 审计行前推）∥ **S3b 前端契约同步**（`frontend/**`）∥ **S4 资金面**（`job-funds-service.ts` + `database.ts` 的 `jobPostEvent`/`reviewJobSubmission` + **DB 函数 `job_post_event` 结算键改为 `biz:job:settle:<job_id>:<submission_id>`** + 托管总额 `reward × headcount` + 逐笔发放 + 发满关闭 + 剩余退）。
+**G. 状态**：DB **`0041`** · 本地入库 S0/S1/S2/S2b · **积分 9889 + 电量 30**（`admin_ops_audit_log` = 5 行 `points_adjust`，含我那次发放）。
+
+---
+
 ### 5.316 **S0/S1 回执 + 我裁两条 + `0041` 已 apply 真库验收全绿 + 派 S2（服务层）∥ S2b（门前推）**（2026-10-03）
 
 **A. S0 · 规范冻结（Jing · 18c/176s）= 4 册纯追加 + 4 快照 + 冲突清单**：
@@ -6868,6 +6898,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.317 | 2026-10-03 | **S2（服务层）∥ S2b（门前推）回执 + 我核盘入库 + ★S2b 独立发现并正确定位一处「前推面」+ 派 S3∥S3b∥S4**。**A. S2**：submitWork 重写（去申请前置 + 去 self_application + 同人可多次提交，派生键含交付物摘要）· identifier 语义（S2 起）= **目标 job_id** · applyToJob/acceptApplication 保留 + @deprecated · getTaskProgress 换轴 job_submission · submitJobWork 的 batt 闸落 SQL 单写路径 CTE 内（阈值取 batt_policy.acceptThresholdBatt）· 自证 tsc 0 + 真链路 30/30 + 判负 + 泄漏 0 + 端口空。**B. 我亲验**：identifier=job_id ✓ · batt reason 逐字不变 ✓ · `s.submission_id AS "jID"` + FROM job_submission ✓（读口真换轴）· batt 闸真在 SQL 内且 COALESCE 在标量子查询外层 ✓ · tsc 0 ✓ · **我亲跑 vitest 7 failed/382 passed 与基线逐字一致** ✓。**C. S2b**：仅 7 门持有冻结面、无第 8 落点 · 前推 7 处 + 同步 8 注释（+23/−19）· **7 处目标判据全部由红转绿** · HTTP 腿如实标未测。**D. ★★S2b 独立发现前推面**：p8-s11 K8/K9 报 admin_ops_audit_log 的 points_adjust 5 行 vs 冻结 4 行 ⇒ 只读归因到 `ops:1:points_adjust:970213:1:kevin-grant-10000-a` ⇒ **正是我给 Kevin 发 10000 积分那次真实运营动作**，与 0041 无关 ⇒ 未改未放宽交我裁 ⇒ **我裁前推 4→5**（合法前推）归 S3；★同类第二次 ⇒ 纪律定型：我方动作改冻结计数 ⇒ 前推 + 逐门复跑，禁为求绿放宽。**E. S2 报 4 条跨切片风险**：index.ts:1995 仍用 applicationId 调已换轴读口 ⇒ 会坏（归 S3）· listPendingVerification 等仍按申请轴 ⇒ 新提交待审面不可见（归 S4）· 前端契约两处变更（提交口 identifier=job_id / 读口 :jID=submission_id）（归 S3b）· apply/accept 410 未做（归 S3）。**F.** 派 S3 路由层 ∥ S3b 前端 ∥ S4 资金面。**G.** DB 0041 · 积分 9889 + 电量 30。 |
 | v0.316 | 2026-10-03 | **S0/S1 回执 + 我裁两条 + 0041 已 apply 真库验收全绿 + 派 S2（服务层）∥ S2b（门前推）**。**A. S0**：4 册纯追加 route-layer v2.23 §34（59/0）· data-layer v0.29 §36（35/0）· ledger v0.16 §19.19（22/0）· commission v0.6 §20（31/0），4 快照 cmp=0，我核盘 147/0 删除列全 0 + 新节标题现取到位；它逐条列冲突未自行调和（route 8 / data 8 / ledger 5 / commission 4）。**B. S1**：`0041_job_headcount.sql` sha256 `b6e506c3…b177`/5736 B；R-9-24 真跑 21/21；判负 3 处；连续无跳号。**C. 我裁**：①结算幂等键 ⇒ **`biz:job:settle:<job_id>:<submission_id>`**（现取 job-funds-service.ts:209 注释确认键由 DB 函数派生、调用方不得自造 ⇒ 需改 `job_post_event` + TS 指纹，归 S4；refund 键不变）②余额不足 ⇒ **用既有 `LEDGER_INSUFFICIENT_BALANCE`（ledger.ts:36）零新增码** ③job.status 枚举不动。**D. 0041 已 apply + 我独立验收全绿**：schema_migration **40 行/max 0041** · headcount `bigint NOT NULL default 1` · CHECK `job_headcount_min CHECK ((headcount >= 1))` · 既有两条 CHECK 原样未动 · **存量 21 行全 = 1**；★我认账：首跑误判「未执行」（实为 scripts/migrate.ts 默认即 apply，输出被 tail 截断）⇒ 教训「apply 是否生效只认现取读数」。**E. 前推 7 处**（p8-s10 K2 · p8-s11 K1 · p8-s9 K5 · p8-s3/s3b/s4/s5 MIGRATIONS_FROZEN）⇒ 39→40 / '0040'→'0041'。**F.** S2 拆为服务层（S2）∥ 门前推（S2b），本轮并行派；S3 路由层 · S4 资金面+DB 函数 · S5 前端 · S6 质检 · S7 回写。**G.** DB 0041 · 生产 befcd4e。 |
 | v0.315 | 2026-10-03 | **★任务模型改造：口径全冻结（R-9-97~R-9-103）· 6 条 Kevin 裁决齐 · 派 S0 规范冻结 ∥ S1 迁移**。**A. Kevin 6 裁决**：①载体 ⇒ 彻底去申请、identifier 改 submission_id ②**每个合格都发奖** + 发布时说明总人数 ③batt 门槛移到提交 ④判不合格可再提 ⑤名额未满 ⇒ 悬赏家可随时「结束任务」并把未用份额退回 ⑥**发布时押全款 = reward × 人数**（余额不足则发布失败）。**B. 冻结口径**：R-9-97 job 加 `headcount bigint NOT NULL DEFAULT 1` + CHECK ≥1（存量 backfill=1）· R-9-98 托管总额 = reward × headcount、不足则发布失败 · R-9-99 取消报名与选定、**移除 self_application（雇主本人可提交）**、同一人可多次提交、batt 闸移到提交 · R-9-100 identifier 由 application_id 改 **submission_id**、job_application 停写保留历史 · R-9-101 review 改**按提交逐笔判定**、approved 发一份 reward + 分佣、发满 headcount 自动结束（job.status 枚举不动，发满=settled）· R-9-102 悬赏家随时结束 ⇒ 退 reward×(headcount−已发份数)（cancelled）· R-9-103 /apply 与 /accept 下架 ⇒ **410 Gone** + reason APPLY_RETIRED/ACCEPT_RETIRED。**C.** 切片排期 S0 规范冻结∥S1 迁移 → S2 提交面 → S3 资金面（与 S2 同动 database.ts ⇒ 串行）→ S4 前端 → S5 质检 → S6 回写。**D.** 本轮派 S0∥S1。**E.** DB 0040 · 未动代码。 |
 | v0.314 | 2026-10-03 | **★★Kevin 定档：task 无「申请报名」逻辑 —— 提交文本 ⇒ 悬赏家判合格即发奖（4 条答复 + 1 条新需求 + 我裁 1 条）· 现取真源与改动面**。**A.** Kevin 原话：自己发布的 task 自己可完成；没有【申请报名】逻辑，用户在表单提交一段文本，悬赏家据文本判是否合格，合格即发奖、反之不发。**B. 现取真源**：报名 `apply`⇒`applyToJob`（拒 self_application 等 5 分支）· 选定 `accept`⇒`acceptApplication` · 提交 `task-progress/:identifier/submit`⇒`submitWork`（闸 = 申请须 accepted）· ★★**悬赏家评判 `POST /api/job/:jobId/review` 已存在**（approved ? settleJob 发奖 : refundJob 不发；权限 = 雇主本人）· `settleJob` ⇒ `reviewJobSubmission` **单次结算语义** · 托管 `job_escrow` 只 **1 份** · `job` 表 **无名额字段**（ALTER 零命中）· ★`job_submission` **无 application_id**（提交物不依赖报名行）· 引用面 database 82/job-service 48/index 15/funds 9/ActiveTaskModal 6。**C. Kevin 4 答复**：①载体 ⇒ **B 彻底去申请、identifier 改 submission_id** ②**每个合格都发奖** + ★新需求「发布 task 时说明总人数」③batt 门槛移到**提交**步 ④判不合格**可再提**。**D. 我裁**：托管总额 = reward × 总人数；每合格发一份 + 分佣；发满即关闭 ⇒ **settleJob 须改「按提交逐笔发放 + 名额计数」= 账本语义变更**。**E. 我裁**：存量 job headcount backfill=1；存量 job_application 保留停写；读口兼容存量。**F. 待定 1 条**：名额未满时剩余托管如何处置（取消退/手动关闭退/留托管）。**G.** 改动面跨 4 层须切片（规范 4 册 → 迁移 → 后端提交面 → **后端资金面** → 前端 → 质检 → 规范回写）。**H.** 仅定档 + 计划，未动代码。 |

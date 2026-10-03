@@ -64,7 +64,8 @@ const REG_POINTS_FROZEN = 88;
 // ★ P9⑤ 冻结计数前推（沿 R-8-22）：迁移文件数 33 → 37（+0035 / +0036 / +0037 / +0038）。
 // ★ 8⑥ 续跑前推：迁移文件数 37 → 38（+0039 审计台权限键 manage_audit）。
 // ★ 8⑥ 续跑前推：迁移文件数 38 → 39（+0040 存量用户补发 batt）。
-const MIGRATIONS_FROZEN = 39;
+// ★ S2b 门前推：迁移文件数 39 → 40（+0041_job_headcount 任务 headcount）。
+const MIGRATIONS_FROZEN = 40;
 const REVIEW_NS_KEYS_FROZEN = 28;
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;

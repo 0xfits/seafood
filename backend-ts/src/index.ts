@@ -884,11 +884,11 @@ app.get('/api/task-progress', async (req, res) => {
 app.get('/api/task-progress/:jID', async (req, res) => {
   // R-9-86（§5.296 · HIGH 隐私面）：本读口回包含 `info_input` = **交付物正文**
   // （`database.ts getTaskProgress` 的 `s.deliverable AS info_input`）⇒ **必须**鉴权 + 归属校验。
-  // 修前：本口**零** `requireActor`、零归属校验 ⇒ 任何人（含未登录）给一个 application_id
-  // 即可读他人交付物正文。语义（R-9-86 逐字）：
+  // ★ S2（`R-9-100`）：`:jID` 语义由 `application_id` **改为 `submission_id`**（`getTaskProgress` 现按
+  //   `job_submission.submission_id` 取数、`uID` = 提交者 `worker_uid`）；归属校验**不降级**。语义（R-9-86 逐字）：
   //   · 未登录 / 凭据无效 ⇒ **401**（`requireActor` 既有：R107 `AUTH_UNAUTHORIZED`）
-  //   · 已登录但**非本人** ⇒ **404**（与 miss 分支**同形**，不泄漏存在性；★ 不用 403，免与提交面的 403 混淆）
-  //   · 本人 ⇒ **200**（成功分支 `data` 形状逐字不变）
+  //   · 已登录但**非提交者** ⇒ **404**（与 miss 分支**同形**，不泄漏存在性；★ 不用 403）
+  //   · 提交者本人 ⇒ **200**（成功分支 `data` 形状逐字不变）
   const actor = await requireActor(req, res);
   if (!actor) return;
 
@@ -933,16 +933,15 @@ app.post('/api/task-progress/:identifier/submit', async (req, res) => {
   }
 
   try {
-    // P4-B2a（§1 #19【保留·改接】/ §4.2 J4）：submit 落 `job_submission`（review_status='pending'）
-    //   + `job.status→'submitted'`，**无分录**（DL99/R3）；miss⇒404、非法状态⇒409、非打工人⇒403（§3.1/§3.2）
-    //   快路径：复用 B1-b 已改接 job_application 的读口先证归属（未命中则交 service 判定）
-    const ownedProgress = ensureOwnedTaskProgress(await DatabaseService.getTaskProgress(identifier), actor.user.uID);
+    // ★ S2（`R-9-99`）：提交**无报名前置**、**任何已登录 actor（含发布者本人）**可提交、
+    //   **同一人可多次提交**；`batt` 闸已由「报名」移到「提交」（409 + reason `BATT_BELOW_ACCEPT_THRESHOLD` 逐字不变）。
+    //   ⇒ 不再用读口预证归属；`identifier` 语义 = 目标 **`job_id`**（不再解析 `job_application`）。
+    //   提交落 `job_submission`（review_status='pending'），**无分录**（DL99/R3）；miss⇒404、非 open⇒409。
     const result = await submitWork({
       identifier,
       workerUid: actor.user.uID,
       deliverable: infoInput,
       createKeyRaw,
-      applicationHint: ownedProgress ? ownedProgress.jID : null,
     });
 
     if (!result.ok) {
