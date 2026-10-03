@@ -67,6 +67,30 @@ const renderModal = (task) => render(
 
 const q = (m) => document.querySelector(`[data-sf-m="${m}"]`)
 
+// ★ 本单修补（收紧断言强度）：**不得**以 `data-sf-m` 机读钩子作为「提交面存在/不存在」的**证据**。
+// 独立质检已证：旧写法只锚钩子（`q('active-task-submit-form')`）⇒ 注入一个**真实**
+// `<form><textarea/></form>`（不带任何 `data-sf-m`）时该套件仍 11/11 全绿 = **假绿/漏判**。
+// 下列读数直接面向**浏览器原生控件**；钩子仅保留作**辅助定位**容器。
+// 负对照（仓外副本注入无钩子提交框 ⇒ 本套件必红）见本单质检读数；此处为「防假绿」加固。
+const NATIVE_SUBMIT_SELECTORS = [
+  'form',
+  'textarea',
+  'input:not([type="hidden"])',
+  'button[type="submit"]',
+]
+
+/** root 内首个原生提交控件的 [{selector, node}] 读数（辅助失败时定位红点）。 */
+const readNativeSubmitControls = (root) => NATIVE_SUBMIT_SELECTORS.map(
+  (selector) => ({ selector, node: root.querySelector(selector) }),
+)
+
+/** 断言 root 内**不存在**任何原生提交控件（不依赖任何 data-sf-m 钩子）。 */
+const expectNoNativeSubmitControls = (root, label = '') => {
+  for (const { selector, node } of readNativeSubmitControls(root)) {
+    expect(node, `${label}不得出现原生 "${selector}"`).toBeNull()
+  }
+}
+
 beforeEach(() => {
   H.table = zh
   H.lang = 'zh'
@@ -89,12 +113,19 @@ afterEach(() => cleanup())
 describe('① 无 jID ⇒ 不渲染提交表单，给「先参与」提示 + 参与按钮', () => {
   const taskNoJID = { tID: 9, title: 'T', note: 'N' }
 
-  it('无 jID ⇒ 无提交表单，出现 jobs.applyPrompt（逐字）且标题/按钮 = jobs.apply', () => {
-    renderModal(taskNoJID)
+  it('无 jID ⇒ ★原生 form/textarea/input/button[type=submit] 全为 null，出现 jobs.applyPrompt（逐字）且标题/按钮 = jobs.apply', () => {
+    const { container } = renderModal(taskNoJID)
+    const pane = q('active-task-need-apply') // 钩子仅作**辅助定位**，不作「无提交面」的证据
 
+    // ★ 原生结构断言：对「整个弹窗容器」+「参与面容器」各查一遍
+    //   （若产品在该分支偷偷渲染一个不带 data-sf-m 的提交框 ⇒ 此处必红；负对照已证）
+    expectNoNativeSubmitControls(container, '弹窗容器：')
+    expect(pane, '参与面容器应存在（辅助定位）').not.toBeNull()
+    expectNoNativeSubmitControls(pane, '参与面：')
+    // 旧钩子读数保留作辅助/回归对照 —— 但**不得单独**作为存在性证明（本单修补点）
     expect(q('active-task-submit-form')).toBeNull()
-    expect(q('active-task-need-apply')).not.toBeNull()
-    expect(q('active-task-need-apply').textContent).toContain(zh.jobs.applyPrompt)
+
+    expect(pane.textContent).toContain(zh.jobs.applyPrompt)
     expect(q('active-task-apply')).not.toBeNull()
     expect(q('active-task-apply').textContent).toContain(zh.jobs.apply)
   })
@@ -116,12 +147,20 @@ describe('① 无 jID ⇒ 不渲染提交表单，给「先参与」提示 + 参
 // ② 有 jID ⇒ 提交面
 // ============================================================================
 describe('② 有 jID ⇒ 渲染提交表单', () => {
-  it('jID=24 ⇒ 提交表单在、参与面不在', () => {
-    renderModal({ tID: 9, jID: 24, title: 'T', note: 'N' })
+  it('jID=24 ⇒ ★原生 form/textarea/button[type=submit] 存在（反件）、参与面不在', () => {
+    const { container } = renderModal({ tID: 9, jID: 24, title: 'T', note: 'N' })
+    const form = q('active-task-submit-form') // 钩子：辅助定位
 
-    expect(q('active-task-submit-form')).not.toBeNull()
+    // ★ 反件：原生提交控件必须**真实存在**（不靠钩子自证）
+    expect(container.querySelector('form'), '原生 <form> 应存在').not.toBeNull()
+    expect(container.querySelector('form')).toBe(form)
+    expect(container.querySelector('textarea'), '原生 <textarea> 应存在').not.toBeNull()
+    expect(container.querySelector('button[type="submit"]'), '原生 submit 按钮应存在').not.toBeNull()
+    // 口径：产品提交面交付物控件为 <textarea>，源码**无** <input> 节点，
+    //       故「input 存在」不作反件断言；no-jID 侧「input 为 null」仍约束「不得凭空多出可见输入框」。
+
     expect(q('active-task-need-apply')).toBeNull()
-    expect(q('active-task-submit-form').textContent).toContain(zh.submitInfo)
+    expect(form.textContent).toContain(zh.submitInfo)
   })
 })
 
@@ -190,9 +229,10 @@ describe('④ 提交目标只认 jID（杜绝「任务号当选申请编号」�
     expect(src).toContain('submitDeliverable(task.jID')
   })
 
-  it('无 jID ⇒ 无提交表单，submitDeliverable 不可达', () => {
-    renderModal({ tID: 9, title: 'T', note: 'N' })
+  it('无 jID ⇒ 无原生提交控件，submitDeliverable 不可达', () => {
+    const { container } = renderModal({ tID: 9, title: 'T', note: 'N' })
     expect(q('active-task-submit-form')).toBeNull()
+    expectNoNativeSubmitControls(container, '无 jID：')
     expect(submitDeliverable).not.toHaveBeenCalled()
   })
 })
@@ -214,8 +254,8 @@ describe('⑤ 公开列表（无 jID）按钮 ⇒ 打开「参与」面（非提
     )
   }
 
-  it('点按钮 ⇒ 出现参与面、无提交表单、按钮文案 = 立即参与', async () => {
-    render(<MemoryRouter initialEntries={['/']}><ListHarness /></MemoryRouter>)
+  it('点按钮 ⇒ 出现参与面、★无原生提交控件、按钮文案 = 立即参与', async () => {
+    const { container } = render(<MemoryRouter initialEntries={['/']}><ListHarness /></MemoryRouter>)
 
     const action = q('task-action')
     expect(action).not.toBeNull()
@@ -225,6 +265,7 @@ describe('⑤ 公开列表（无 jID）按钮 ⇒ 打开「参与」面（非提
 
     expect(q('active-task-need-apply')).not.toBeNull()
     expect(q('active-task-submit-form')).toBeNull()
+    expectNoNativeSubmitControls(container, '列表→弹窗：')
   })
 })
 

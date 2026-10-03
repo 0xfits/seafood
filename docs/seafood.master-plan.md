@@ -1416,6 +1416,31 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.304 **测试强度修补单回执（18c/136s）= 收紧为原生结构断言 · ★它给出「假绿实证」+「必红 4 红点」· 我核盘通过 → 入库 + push**（2026-10-03）
+
+**A. 修补（只改一个测试文件 · 产品源码零改动）**：`frontend/src/test/unit/r9-90-participate-surface.test.jsx`（`+53/−12`）
+- 新增 `NATIVE_SUBMIT_SELECTORS = ['form','textarea','input:not([type="hidden"])','button[type="submit"]']` + `readNativeSubmitControls(root)` + `expectNoNativeSubmitControls(root,label)`；★ **钩子 `q()` 仅保留作辅助定位**（`:152` 注释逐字「钩子：辅助定位」）
+- **无 `jID` 分支**（`:122`/`:124`/`:235`）对「**弹窗容器**」+「**参与面容器**」**双容器**断言四个原生选择器**均为 `null`**（不再以钩子作存在性证明）
+- **有 `jID` 分支**（`:152` 起）**反件**断言原生 `form`（且 `container.querySelector('form') === q('active-task-submit-form')` **同一节点**）· `textarea` · `button[type="submit"]` **存在**
+- ★ **它诚实标注一处口径例外**：产品提交面的交付物控件是 `<textarea>`，源码**本就无 `<input>` 节点** ⇒ jID 侧**不**断言 input 存在；no-jID 侧「`input:not([type="hidden"])` 为 null」**仍全量生效**（约束「不得凭空多出可见输入框」）✓ 正确且诚实
+
+**B. ★ 自证（本单最有价值的读数）**：
+| 项 | 读数 |
+|---|---|
+| 该套件 | **`11 passed (11)`** 全绿 ✓ |
+| **负对照 A（假绿实证）** | 仓外副本注入**不带任何 `data-sf-m`** 的真实 `<form><input type="text"><textarea><button type="submit">` ⇒ `document.querySelectorAll('form').length > 0`（真表单确已存在），而**旧断言 `q('active-task-submit-form')` 仍为 `null` ⇒ 漏判** ⇒ **复现了质检抓到的假绿形态** ✓ |
+| **负对照 B（必红）** | **4 个红点全部命中**：`不得出现原生 "form"` · `"input:not([type="hidden"])"` · `"textarea"` · `"button[type="submit"]"`，各为 `expected <…> to be null` ✓ |
+| 全量 | `7 failed \| 361 passed (368)` / `4 failed files` ⇒ **与基线一致零新增**（`r9-90` 不在失败清单）✓ |
+| `build` | **0**（未动产品源码，读数仅备）✓ |
+- 变异体**仅在仓外副本**（`…/scratch/r9-90-neg/`），**未带回主仓** ✓ · 未测项 = **无** ✓
+
+**C. ★ 我核盘（`自报 ≠ 盘面`）**：`git status` tracked 改动**仅此一个测试文件** ✓ · `NATIVE_SUBMIT_SELECTORS` 四选择器现取齐全 ✓ · `expectNoNativeSubmitControls` 用在 **3 处**（弹窗容器 / 参与面 / 无 jID）✓ · 钩子在 `:126/:152/:176/:213/:234` 作**辅助定位/互证**、**非**唯一判据 ✓ · **我亲跑该套件 = `11 passed (11)`** ✓
+
+**D. 入库 + push**：测试文件**不入 build** ⇒ 产物 sha 应保持不变（可作对照）。
+**E. 状态**：DB **0040** · 生产代码 `0229890` ⇒ 2026-10-03 本批（8⑥ + D1/D2 + batt UI + 签到闭环 + 合并菜单 + D8 提交面 + 隐私面 + 路由改名 + 积分发放）**全部收官**；在跑：**Jing 路由层规范回写单**（`/shard`→`/exchange` 写回 spec）。
+
+---
+
 ### 5.303 **质检回执（纯前端两件）= `PASS_WITH_ISSUES`（产品面全 PASS）· ★同一「判据锚机读钩子 ⇒ 假绿」形态**第二次**发作 · push 上线 + 派极小修补单 + 技能回写**（2026-10-03）
 
 **A. 质检（Neng · 32c/207s）= `PASS_WITH_ISSUES`**：
@@ -6500,6 +6525,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.304 | 2026-10-03 | **测试强度修补单回执（18c/136s）= 收紧为原生结构断言 · ★它给出「假绿实证」+「必红 4 红点」· 我核盘通过 → 入库 + push**。**A.** `r9-90-participate-surface.test.jsx`（+53/−12）：新增 `NATIVE_SUBMIT_SELECTORS = ['form','textarea','input:not([type=hidden])','button[type=submit]']` + `expectNoNativeSubmitControls`；**钩子仅作辅助定位**；无 jID ⇒ **双容器**（弹窗 + 参与面）断言四原生选择器均 null；有 jID ⇒ 反件断言 form（与钩子同一节点）/textarea/button[type=submit] 存在；★诚实标注口径例外（产品交付物控件是 textarea、源码本就无 input ⇒ jID 侧不断言 input）。**B. 自证**：套件 **11/11** · **负对照 A（假绿实证）**：注入不带钩子的真表单 ⇒ 真 `<form>` 存在而**旧断言仍 null（漏判）** ⇒ 复现假绿 · **负对照 B（必红）**：4 红点全命中（form/input/textarea/button[type=submit] 各一条 `to be null`）· 全量 `7 failed \| 361 passed` 零新增 · build 0 · 变异体仅在仓外。**C.** 我核盘：tracked 改动仅此文件 · 四选择器齐 · `expectNoNativeSubmitControls` 用 3 处 · 钩子非唯一判据 · **我亲跑 11/11 绿**。**D.** 入库 + push（测试不入 build ⇒ 产物 sha 应不变）。**E.** 本批全部收官；在跑 Jing 规范回写单。 |
 | v0.303 | 2026-10-03 | **质检回执（纯前端两件）= PASS_WITH_ISSUES（产品面全 PASS）· ★同一「判据锚机读钩子 ⇒ 假绿」形态第二次发作 · push 上线 + 派极小修补单 + 技能回写**。**A.** ①D8 独立复现（不 mock 接线层，桩 fetchApiJson 以真 URL 证入参）：探针 7/7 —— 无 jID ⇒ **POST /api/job/9/apply（=tID）** · 有 jID=24 ⇒ **POST /api/task-progress/24/submit** · 精确 ⇄ 通用文案逐字；原生选择器结构面：无 jID ⇒ form/textarea/button[type=submit] 全 null + 出现 applyPrompt ✓ ②路由：四语 /exchange 直达 + 旧路径四语重定向（含 /zh 自愈）· /api/shard* 与 locales 未动 ✓ ③判负 A/B/C 全红（A 回退加回 ⇒ 2 failed/16 · B hasApplication 回退 tID ⇒ 6/12 · C 删旧路由 ⇒ 16/39）· **主仓 5 文件 sha256 逐字不变** ✓ ④★**假绿（同一形态第二次）**：注入**无钩子** `<form><textarea/></form>` ⇒ 实现方 r9-90「无提交表单」**11/11 仍绿**，而它原生断言红 1/7 ⇒ 实现方判据非真结构断言（**产品无缺陷**）；源码不变量剔注释后真能撞红 ✓ ⑤四语 2 键逐键（en/vn 零 CJK）· 计数 top119/flat1039/节点4156 · **vitest 7 failed \| 361 passed 零新增**（目标四文件 71/71）· build 0 ✓ 未测：HTTP/BrowserRouter 真浏览器层（禁起服务）；★它诚实指出仓外副本全量读数无效（缺 style-preview.html ⇒ theme-shell 假红 ENOENT）。**B.** 产品全 PASS ⇒ 不阻塞上线；测试强度 issue 必修（R-9-88 与 R-9-90 同形态）⇒ 派极小修补单收紧为原生结构断言 + 负对照；★**升级为派单硬口径并回写技能**（「无 X ⇒ 不得渲染 Y」一律锚原生结构，不得只锚 data-sf-m 钩子）。**C.** push。**D.** 生产终验：/exchange 四语可达 + 旧 /shard 重定向 + health 0040 + bundle 对拍。 |
 | v0.302 | 2026-10-03 | **D8 同族修复 + /shard→/exchange 双单回执 · ★两单均选「防真链/防假绿」的正解 · 我核盘通过 → 入库 + 派质检**。**A. D8（41c/311s）**：路线 = **弹窗内按 task.jID 分流**（HomePage/TaskPage **零改动**）；主改 `ActiveTaskModal.jsx`：删 `jID \|\| tID` 回退 ⇒ `submitDeliverable(task.jID)`（:105）· 无 jID ⇒ 不渲染提交表单 + `jobs.applyPrompt` + `applyToJob(task.tID)`（:143）· `ACTOR_NOT_ALLOWED` ⇒ 精确文案（:118）· ★额外修：**删除泄露 token 的 console.log**；新增 2 键四语 ⇒ `flat 1037→1039`/`节点 4148→4156`；新增 `r9-90-participate-surface` **11/11**（含源码不变量「无 task.jID\|\|tID」）；★**同族扫面 8 类入口逐条分类 ⇒ 未发现第二处回退 ⇒ 上单漏网点闭合**；全量 vitest `7 failed \| 361 passed` 零新增 · build 0。**B. 路由改名（27c/300s）**：`App.jsx:98` `path=exchange` + `:102` 旧路径重定向 ⇒ `LegacyExchangeRedirect`；`shell/nav.js` path/route=exchange（**key/labelKey 保持 shard**）；`Header.jsx:122` path=exchange；★★**它拒绝了我裁的相对 Navigate 写法**（真因 = 相对 `..` 受 `v7_relativeSplatPath` 旗标影响，**生产 BrowserRouter 未开、测试却开了** ⇒ 组件版行为与旗标无关）；旧 `/shard` **四语重定向实测**（含 `/zh/shard` 经自愈、query/hash 保留）· 四语 `/exchange` 可达；测试 60/60；隔离并发单后零新增失败 · build 0 · locales 零变更；★**全仓 shard 页面引用清单 + 分类**，登记三处遗留（`ProfilePage.jsx:501` 链接 · **docs 路由层 spec 仍写 /shard ⇒ 须规范回写** · p4z 诊断脚本）。**C.** 我核盘：`grep` 命中 1 处 `task.jID\|\|task.tID` ⇒ **在注释里**（记录被删旧写法）⇒ 合规；路由三件在位；工作树无禁改污染。**D.** 入库 2 commit。**E.** 派统一质检（纯前端，不占端口）+ 质检后 push。 |
 | v0.301 | 2026-10-03 | **Kevin 三件事：① 提交 403 依旧（★真因终收敛 = ActiveTaskModal 回退任务号；我上轮漏了同族面，认账）· ② 已给他发放 10000 积分（真跑取证）· ③ /shard → /exchange**。**A. ①真链条**：`HomePage.jsx:92`/`TaskPage.jsx:80` 拉 `/api/task/all`（公开列表 ⇒ 只有 `tID` 无 `jID`）→ `TaskCard.jsx:140` 按钮默认文案 =「立即参与」（`common.joinNow`）→ `:137` `onAction` → `handleTaskAction` → **打开 `ActiveTaskModal`（提交弹窗）** → `:51` **`task.jID \|\| task.tID` 回退任务号** → `resolveJobApplication(24, 970213)` 命中他人申请 ⇒ **403 AUTH_FORBIDDEN/ACTOR_NOT_ALLOWED**（与报障逐字一致）⇒ 定性 **D8**；★**我 R-9-88 只修了 JobDetailPage，漏了 ActiveTaskModal（挂首页+任务页）⇒ 同族扫面未做全，认账（第 14 次）**。**B. 裁定**：`R-9-90` ActiveTaskModal 不得回退 tID（无 jID ⇒ 不给表单 + 给参与入口）· `R-9-91` 公开列表按钮语义=参与，提交入口只出现在 task-progress 轴 · `R-9-92` 错误面精确文案 + 同族必须先 grep 全部 submit 入口。**C. ②积分**：日限闸现取 = **1000000**（10000 在限内）· 管理员 uid 1/10/970201 · `cid 1`=「平台积分」`$` · Kevin `account` 无行 ✓ ⇒ **执行 `adjustPoints({actorUid:1,uID:970213,amount:10000,reason:'PROMOTION_BONUS'})`** ⇒ **`ok:true` · `op:mint` · `txid 1439` · `new_balance 10000` · `audit_logged:true`** · `account`=`970213/cid1/10000` · 审计 `log_id 9`（before 0→after 10000）· `ledger_entry txid 1439`（delta 10000 · kind mint）· ★前端读的就是 `account.balance`（`getUserAsset` where cid=SYSTEM_CURRENCY_CID）⇒ 会显示 10000；★我两处列名猜错（真名 `delta`）仅验证语句。**D. ③**：改动面 = `App.jsx:97` + `shell/nav.js:16` + `Header.jsx:122` + 注释；`/api/shard*` 是 API 路径不动；`t('shard')` 文案键保留。**E.** 派两单（#1 前端同族修复 + #3 路由改名，面不相交）。 |
