@@ -1416,6 +1416,40 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.277 **8⑥ 审计台开工：★册里无定义块（只写「排最后」）⇒ 我做只读资产盘点 + Kevin 定档「② 中」· 我立 `R-9-71`（范围）· 派 Jing 契约冻结**（2026-10-03）
+
+**A. 需求缺口（我现取）**：`8⑥ 审计台` 在册中**只被反复写成「排最后」**，**从无定义块**；唯一实质线索 = `master-plan:716`（`C3` 后台 12 条边界）：「③ **`/api/admin/points/adjust`（#54）保留但锁死**（仅 `$`(`cid=1`) · `ops:` 前缀幂等键 · 必填原因码 · **必须**经 `ledger_post_event`（`mint`/`burn`）⇒ **禁止**直接 UPDATE `account`）；**审计台列 P6**」
+
+**B. ★ 只读资产盘点（我自写探针 `.p9s6-ro/inv.ts`，全表清点）**：`public` 共 **34 张基础表**，其中**审计/留痕面 15 张**（**触发器全 `tgenabled = 'O'`**）：
+| 表 | 列 | 行 | 备注 |
+|---|---|---|---|
+| `admin_ops_audit_log` | 15 | 4 | `0023` 建 · **`CHECK (action = 'points_adjust')` ⇒ 只服务单个动作** |
+| `admin_refund_audit_log` | 13 | 7 | 管理员退款审计（§7-32） |
+| **`ledger_entry`** | 16 | **359** | **账本真源 = 最全审计面** |
+| `currency_review_log` | 8 | 0 | 8④ 审核留痕 |
+| `currency_status_log` | 7 | 7 | 单边 `draft→listed` |
+| `listing_review_log` | 9 | 0 | 8⑤ 审核留痕 |
+| `job_arbitration_log` | 9 | 0 | 8⑤ 仲裁留痕 |
+| `batt_entry` | 10 | 2 | P9② batt 流水 |
+| `checkin_log` | 6 | 2 | P9② 签到 |
+| `checkin_makeup_log` | 13 | 2 | P9② 补签 |
+| `rating` | 11 | 0 | P9③ 评分 |
+| `listing_order_event` | 13 | 0 | P9③ 订单事件 |
+| `referral` | 4 | 2 | 邀请绑定 |
+| `app_config` | 4 | 1 | 2 触发器（`key_immutable` + `touch_updated`） |
+| `commission_policy` | 7 | 4 | 2 触发器（append-only + weights_guard）⇒ **政策版本史** |
+- **现有审计读口 = 仅 1 个**：`POST /api/admin/points/adjust`（`index.ts:2046`）⇒ **零读口 / 零检索口** ✓
+- **前端 = 无审计页**（13 个 admin 页：`ArbitrationReviewPage` / `CurrencyReviewPage` / `FeeRatePage` / `ListingReviewPage` / `PermissionsManagement` / `PointsManagement` / `ReferralWeightMatrixPage` / `RewardsManagement` / `ShardsManagement` / `SiteTextPage` / `SystemSettings` / `TasksManagement` / `UsersManagement` ⇒ **`grep -rln audit frontend/src/pages` 空**）✓
+- **权限键（6 个）**：`manage_tasks` / `manage_rewards` / `manage_users` / `manage_points` / `manage_permissions` / `manage_settings` ✓
+
+**C. ★ Kevin 定档（澄清答复逐字）**：**「② 中」= ① + 把全部 15 个 append-only 留痕面统一成一个只读检索台（分页 / 按 actor · target · action · 时间窗 · 关联 id 过滤 / 多表切换，不做跨表 join 报表）** ⇒ **我立 `R-9-71`（8⑥ 范围）**：含 ① `points/adjust` 审计闭环（C3 锁死条件验收）② 15 面统一**只读检索台**（分页 + 五类过滤 + 多表切换）③ **排除**：跨表 join 报表 · 导出（CSV/JSON）（Kevin ② 明确不含）。
+
+**D. 已派 Jing · 8⑥ 审计台契约冻结单**（★ 规范方不写代码）：① **只读检索台载体三变体不择一 + 每案代价**（`统一读口多表参数化` vs `每表一读口` vs `统一视图/表`）② **权限键**（复用既有 6 键 vs 新增 `manage_audit`）三变体 ③ **★ 五类过滤面的逐表映射**（`actor` / `target` / `action` / 时间窗 / 关联 id —— **15 张表列名不统一，这是本片最硬的口径**）④ **分页口径**（keyset vs offset · 排序键 `(time_created DESC, <pk> DESC)` · 每页上限）⑤ `points/adjust` 的 C3 锁死条件逐条验收口径 ⑥ **route 面**（读口形态 + **注册点 `87 → N` 逐 verb** + 零新增码 33 不动 + R107）⑦ 前端 `AuditConsolePage` + 四语 + 六类泄漏 0 + 计数前推 ⑧ **排除项登记**（不做 join 报表 / 导出）⑨ 与既有面衔接（**只读** ⇒ 不动任何 append-only 表；**不得**新造第二写入面）⑩ `PENDING_ZANG` 清单 + 未测项。
+
+**E. 状态**：**批 8 五片 + P9① ~ P9⑤ 全部上线**（生产 `schema_version` **0038** · 34 表 · 迁移 37/37 · kind 24 · 注册点 87）+ favicon 上线；**8⑥ 审计台 = 范围定档（②）+ 资产盘点齐 ⇒ 进入契约冻结**（本批最后一片）。
+
+---
+
 ### 5.276 **P9⑤ 收官：质检 PASS（M6 `RED_OK` · 报告 123 行）· 入库 `74483a9` + push · 生产终验（`schema_version` **0038** · bundle 逐字对拍）· ★我抓到一处 CDN 缓存陷阱**（2026-10-03）
 
 **A. 质检 L6 单（Neng · 23 calls / 491s）= 完成**：
@@ -5757,6 +5791,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.277 | 2026-10-03 | **8⑥ 审计台开工：★册里无定义块（只写「排最后」）⇒ 我做只读资产盘点 + Kevin 定档「② 中」· 我立 `R-9-71`（范围）· 派 Jing 契约冻结**。**A.** 需求缺口：8⑥ 在册中只写「排最后」、无定义块；唯一实质线索 = `master-plan:716`（C3）「`/api/admin/points/adjust` 保留但锁死（仅 `$`/`ops:` 幂等键/必填原因码/必经 `ledger_post_event`）⇒ 审计台列 P6」。**B. ★只读资产盘点（自写探针）**：34 表中有 **15 张审计/留痕面**（触发器全 `O`）：`admin_ops_audit_log`(15c/4r，`CHECK action='points_adjust'` 只服务单动作) · `admin_refund_audit_log`(13/7) · **`ledger_entry`(16/359，账本真源)** · `currency_review_log`(8/0) · `currency_status_log`(7/7) · `listing_review_log`(9/0) · `job_arbitration_log`(9/0) · `batt_entry`(10/2) · `checkin_log`(6/2) · `checkin_makeup_log`(13/2) · `rating`(11/0) · `listing_order_event`(13/0) · `referral`(4/2) · `app_config`(4/1) · `commission_policy`(7/4)；**现有审计读口仅 1 个**（`POST /api/admin/points/adjust`，`index.ts:2046`）⇒ 零读口零检索口；**前端无审计页**（13 个 admin 页 grep 空）；权限键 6 个。**C. ★Kevin 定档「② 中」**（逐字）：① + 15 面统一**只读检索台**（分页 / actor・target・action・时间窗・关联 id 过滤 / 多表切换，**不做跨表 join 报表**）⇒ **我立 `R-9-71`**（含范围 + 明确排除项 join 报表/导出）。**D.** 已派 Jing 冻结单（载体三变体 / 权限键三变体 / ★五类过滤面逐表映射 / 分页口径 / C3 锁死条件验收 / route 面与注册点 / 前端四语 / 排除项 / 衔接 / PENDING_ZANG）。**E.** 批 8 五片 + P9①~P9⑤ 全上线；8⑥ = 范围定档 + 盘点齐 ⇒ 契约冻结（本批最后一片）。 |
 | v0.276 | 2026-10-03 | **P9⑤ 收官：质检 PASS（M6 RED_OK · 报告 123 行）· 入库 `74483a9` + push · 生产终验（`schema_version` 0038 · bundle 逐字对拍）· ★我抓到一处 CDN 缓存陷阱**。**A.（23c/491s）** ① M6 库面变异 `RED_OK`（baseline allowed:true ⇄ mutated allowed:false + LD021/LEDGER_RESERVED_UID/PLATFORM_DEBIT_FORBIDDEN；未波及 credit 仍 true；复原回绿；主仓 cmp 0038 IDENTICAL md5 `1e2fca56…`）② 报告 `docs/qa/p9-s5-invite-reward-qa.md` **123 行/11,815 B · `__`=0 · 待回填=0** 含 L0–L6 + verdict PASS + 未测项 4 条 + L4 采信我的语义重算 ③ 收尾端口空、无遗留、5787/5788 未碰。**B.** 入库 `74483a9` + push（连带 5 提交，origin/main=74483a9）。**C. 生产终验**：`/api/health` **schema_version 0038**（生产追平 DB ⇒ 窗口关闭）· `POST /api/bttc/mint` 401 · 既有面零回归（batt/checkin/rating/timeliness/user-ledger 401 · role-names 200）· favicon 200/7808 · **★我抓到的 CDN 缓存陷阱**：首轮 `GET /` 返回**旧 HTML（引用旧 bundle 名）**，直接探新 bundle 名首轮返回 6095 B SPA 兜底（传播滞后）⇒ 绕缓存 + 轮询后命中 `200 · 436,234 B`，**线上 sha256 `200b5ea5c75d80e6bf7e0661` == 本地逐字相同**；`fee_rate` 9 · `adminFeeRate` 22 · `bttcPanel` 10 ⇒ **我立 `R-9-70`**：线上前端验收必须「绕缓存取首页 + 直探资产名 + 轮询至就绪 + sha256 逐字对拍」四步齐做。**D. ★里程碑**：**批 8 五片 + P9①~P9⑤ 全部上线**（0038 · 34 表 · 37 迁移 · kind 24 · 注册点 87 · policy 4 行含新政策 34）+ favicon 上线 ⇒ **P9 五片（四角色经济）全部收官**；余下 8⑥ 审计台。**E.** 本片要点：12 条终审裁定（三冲突全择 Ⅰ）· `R-9-66` 两层辨明（−1 debit 白名单仅 1 项，活体独立验证）· `R-9-68` 补 `ex` 注入使接线路径可测 · 我**累计认账 8 次**口径失准（均被拦下）· 判负 harness 假阴性被我语义重算纠正（未让假红反向扭曲实现）。 |
 | v0.275 | 2026-10-03 | **P9⑤ 质检续跑（截断 60c/869s）：L3 19/19 · L5 4/4 · ★我用语义字段独立重算坐实 L4 判负 5/5 真红（其 RED_MISS 系匹配 bug）· ★它拦下我第 8 次口径失准 · 派极小 L6 单**。**A.** L3 19/19（①注册 +30/重放零新增/预置90⇒capped+10封顶100/预置100⇒+0零行 ②N=2 ⇒ −1:−20/本人:10/上级:10、重放 3→3、N=1 ⇒ −1:−10 ③经真实结算路径 settleJob(submitted→settled) 结论 approved + settle_txid + 下游发奖 ④M=6 · 序[[U1,U2,U3,D1,D2,D3]] · 权重 2600/1700/700 对称 · Σentries=fee=10000 · fee_credit_uid −2 · D1 层 2 人 1300/1300 · 层内 tie 100:34,200:33,300:33 · 层间 [33,33,34] ⑤Worker 剔除 ⇒ 500 LEDGER_RECONCILE_MISMATCH + reason COMMISSION_CHAIN_ASSERTION_VIOLATED ⑥截断留痕 层内 70⇒64 丢6（{4:6}）· 总 403⇒384 丢19（{2:1,3:1,4:17}）⑦M=0 ⇒ −1 ⑧白名单外 −1 debit ⇒ LD021/LEDGER_RESERVED_UID/PLATFORM_DEBIT_FORBIDDEN、白名单内放行、−2credit 与 −1credit invite 皆拒 ⑨策略键事务内 ⇒ +7 source=config；**零残渣 9 表**）；L5 4/4（三处域同 [100,10000] · adminFeeRate 18 键×4 · 六类泄漏 0 · en/vn 零 CJK）；**L4 首轮 5 处变异全红 + 复原回绿 + 主仓 SAME**（harness verdict 列 RED_MISS = 匹配 bug）。**B. ★我独立重算（语义字段）**：M1 tie 100:34,200:33,300:33 ⇄ 100:100,200:0,300:0 · M2 worker_in_roster false ⇄ true · M3 cap 64/384 dropped6 truncated:true ⇄ 1e9/0/false（总 19→0）· M4 −1 ⇄ −2 · M5 key 稳定键 ⇄ 加时间戳随机后缀 ⇒ **5/5 真红**；restore 决定性字段全 SAME + 残渣逐表一致 ⇒ **我裁 L4 = PASS**。**C. 它拦下我第 8 次**：我写 worker ⇒ LEDGER_RESERVED_UID，冻结 spec/实现均为 500 LEDGER_RECONCILE_MISMATCH + reason COMMISSION_CHAIN_ASSERTION_VIOLATED ⇒ 它对、我错。**D.** 端口全空 · 88092 已终止。**E.** 已派极小 L6 单（M6 库面变异 + L6 报告回填 verdict（L4 采信我独立重算）+ 收尾）。**F.** P9⑤ 已入库 d3ae10d 待推；质检 L0–L5 全绿（L4 我坐实 5/5）⇒ 只差 M6 + L6 报告；⚠️ 生产代码 0034 时代、DB 已 0038。 |
 | v0.274 | 2026-10-03 | **P9⑤ 终审质检（截断 60c/439s）：L0/L1/L2 全绿且与实现方逐值相符 · L3–L6 未完成 ⇒ 无 verdict · 我处置实例（随子代理终止、端口本已空）· 派质检续跑单**。**A.** L0 对锚（`d3ae10d` 30 件 · 为 HEAD 祖先 · 区间字节恒等）；L1 硬门全绿（tsc 0 · 后端+前端 build 0 · 276 · 离线 126/126 · s1..s6 全 rc0 · s7 59/59 · s8 92/92 · s9 100/100 · s10 49/49 带实例 · 离线双读数全 HTTP 类 · 注册点 87）；**L2 库面活体逐值相符**（0038/37/34 · kind 恰 24 · kind_ok `fbf01eb4…`/479 · assert `4b43b44c…`/1718 · **★ 白名单行为：`−1` credit 八值 ALLOW ⇄ `−1` debit 仅新 kind ALLOW 而 `job_fee`/`bttc_mint_fee` REJECT LD021**（独立验证我 `R-9-66` 的严格限定）· policy 4 行（1/2/3 逐字未动 ⇄ 34）· 域 100..10000 · **ledger_post_event md5 `3737e0f8…`/47968 与基线一致** · checksum 四对拍 · 守恒触发器 O/deferrable/initdeferred/constraint 且 `p9s5_m0_exemption`+`v_closed` 俱在）；**L3/L4/L5/L6 未完成**（L3 侦察已完成：`referral_bind(child,parent)` 由根向外 · `settleJob(ex)` 可注入 · settle 需 `status∈{submitted,disputed}`+worker+escrow · 活体雇主 uid 970001 余额 1,636,071；L6 报告仅骨架 41 行/1,247 B）⇒ **无 verdict** ✓；它自报遗留 2 实例 ⇒ 我现取：**随子代理终止、5796–5799 全空**、5787/5788 未碰、主仓被检面零写入。**B.** 已派质检续跑单（只 L3–L6，回喂其侦察结果）。**C.** P9⑤ 已入库（`d3ae10d` 未推 + `1d2391a` 本地）；待 verdict ⇒ 推 ⇒ 生产终验；⚠️ 生产代码 0034 时代、DB 已 0038。 |
