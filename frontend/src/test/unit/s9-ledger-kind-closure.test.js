@@ -11,7 +11,7 @@
  *      ⇒ 两源必须逐值相等；
  *   ② 四语 `ledger.kind` 键集 **== 后端关闭集**（缺一 / 多一皆判负）；
  *   ③ 四语键值非空；en / vn **零 CJK**（hk 繁体、zh 简体）；
- *   ④ 计数前推：顶层 119 / 拍平 1060 / 四语节点 4240（S23 +1 jobs.participantsHeadcount）；
+ *   ④ 计数前推：顶层 119 / 拍平 1050 / 四语节点 4200（S23 +1 jobs.participantsHeadcount；S25 B7 退役 10 键）；
  *   ⑤ **注入自证**：从合成 locale 删掉一个键 ⇒ 检测器必红（给红点），随即可逆。
  */
 import fs from 'node:fs'
@@ -117,13 +117,15 @@ describe('S9② 四语 ledger.kind 键集 == 后端关闭集（可判负）', ()
   })
 })
 
-describe('S9③ 计数前推（S9 +4 键/语 ⇒ 拍平 1055→1059 / 节点 4220→4236）', () => {
-  it('顶层 119 不变 / 拍平 1060 / 四语节点 4240（S23 +1 jobs.participantsHeadcount）', () => {
+describe('S9③ 计数前推（S9 +4 键/语 ⇒ 拍平 1055→1059 / 节点 4220→4236；S25 B7 退役 10 键 ⇒ 1050 / 4200）', () => {
+  it('顶层 119 不变 / 拍平 1050 / 四语节点 4200（S23 +1 jobs.participantsHeadcount；S25 B7 退役 10 键）', () => {
     for (const l of LANGS) {
       expect(Object.keys(readLocale(l)).length, `${l} top`).toBe(119)
-      expect(flatten(readLocale(l)).length, `${l} flat`).toBe(1060)
+      // S25 计数期望订正（台账 B7 死键退役）：jobs 退役 10 键 ×4 语对称删除 ⇒ 拍平 1060⇒1050（等量下移 −10/语）。
+      expect(flatten(readLocale(l)).length, `${l} flat`).toBe(1050)
     }
-    expect(flatten(readLocale('zh')).length * LANGS.length).toBe(4240)
+    // S25：1050 × 4 = 4200（原 1060 × 4 = 4240）。
+    expect(flatten(readLocale('zh')).length * LANGS.length).toBe(4200)
   })
 })
 

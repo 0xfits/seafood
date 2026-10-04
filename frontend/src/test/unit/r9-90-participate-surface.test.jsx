@@ -145,7 +145,10 @@ describe('① 有任务号（无 jID）⇒ 直出提交表单（「先参与」�
     renderModal({ tID: 9, title: 'T', note: 'N' })
     const header = document.querySelector('.modal-header')
     expect(header.textContent).toContain(zh.completeTask)
-    expect(header.textContent).not.toContain(zh.jobs.apply)
+    // S25（B7）★值依赖型断言处置：原 `expect(header.textContent).not.toContain(zh.jobs.apply)` 的语义
+    //   依赖 `jobs.apply` 的**值**（zh「申请报名」）；该键随死键退役四语对称删除 ⇒ 守卫失去可锚对象。
+    //   与 `i18n-violation-closeout.test.jsx` 的 `jobs.acceptNote` 同款：**移除该行并留痕（非削弱）**；
+    //   详见报告 §1「值依赖型断言」单列 —— 如需保留反面护栏，请 Zang 裁示是否改为硬编旧值「申请报名」。
   })
 })
 
@@ -296,16 +299,20 @@ describe('⑤ 产品源码 `src/**`（排除 test）内 apply/accept 接线零�
 })
 
 // ============================================================================
-// ⑥ 存量文案键**保留不动**（本单删 UI 分支，**不得**删键 ⇒ 否则计数变动）
+// ⑥ 死键退役后的键面（B7：10 键退役 / 未退役存量键仍在）
 // ============================================================================
-describe('⑥ 已不再被引用的存量键仍在（四语齐备，值未改）', () => {
+describe('⑥ 死键退役后的键面（B7：10 键退役 / 未退役存量键仍在）', () => {
   const TABLES = { zh, en, hk, vn }
-  const KEPT_KEYS = [
+  // S25（台账 B7）：原「已不再被引用的存量键仍在」清单中，下列 10 键已随报名/选定两写面下架而**四语对称删除**
+  //   ⇒ 自 KEPT 清单**移出**，改由 `RETIRED_KEYS` 断言**不存在**（留痕：守护对象已退役，非削弱）。
+  const RETIRED_KEYS = [
     'applyPrompt', 'applyWaiting', 'apply', 'applyOk', 'accept', 'acceptNote', 'acceptOk',
-    'applicationId', 'submitNeedApply', 'pick', 'myApps', 'myAppsEmpty',
+    'applicationId', 'submitNeedApply', 'pick',
   ]
+  // `myApps` / `myAppsEmpty` 不在退役清单内 ⇒ 仍须四语键齐备且非空（原口径保留）。
+  const KEPT_KEYS = ['myApps', 'myAppsEmpty']
 
-  it.each(KEPT_KEYS)('jobs.%s 四语键齐备且非空', (k) => {
+  it.each(KEPT_KEYS)('jobs.%s 四语键齐备且非空（未退役，原口径保留）', (k) => {
     for (const [lang, table] of Object.entries(TABLES)) {
       const v = table.jobs[k]
       expect(typeof v, `${lang}.jobs.${k}`).toBe('string')
@@ -313,11 +320,19 @@ describe('⑥ 已不再被引用的存量键仍在（四语齐备，值未改）
     }
   })
 
-  it('本单新增键面 = 0（未增/未删任何 locale 键）', () => {
-    // 键集快照对比由报告给出（本处仅断言「仍在」这一最低面）
-    for (const table of Object.values(TABLES)) {
-      expect(Object.keys(table.jobs).length).toBeGreaterThan(0)
+  it.each(RETIRED_KEYS)('jobs.%s 已退役：四语均不存在（B7 对称删除）', (k) => {
+    for (const [lang, table] of Object.entries(TABLES)) {
+      expect(
+        Object.prototype.hasOwnProperty.call(table.jobs, k),
+        `${lang}.jobs.${k} 应已删除（B7 死键退役）`,
+      ).toBe(false)
     }
+  })
+
+  it('四语 jobs 键数对称（相等），且本单为「只删不增」', () => {
+    const sizes = Object.values(TABLES).map((t) => Object.keys(t.jobs).length)
+    expect(new Set(sizes).size, '四语 jobs 键数应相等').toBe(1)
+    expect(sizes[0], 'jobs 命名空间不得被清空').toBeGreaterThan(0)
   })
 })
 

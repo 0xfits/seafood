@@ -182,14 +182,14 @@ describe('④ 文案键 `common.communityPoints` 四语新值 + 键计数', () =
     expect(CJK.test(vn.common.communityPoints)).toBe(false)
   })
 
-  it('键计数 = top 119 / flat 1060（S23 +1 jobs.participantsHeadcount；件一值-only 不变；件二 +2 jobs 键 ⇒ 1039⇒1041；S5① +3 jobs 键 ⇒ 1044；S7 +10 jobs 键 ⇒ 1054；S8 +1 jobs 键 ⇒ 1055；S9 +4 ledger.kind 键 ⇒ 1059）', () => {
+  it('键计数 = top 119 / flat 1050（S23 +1 jobs.participantsHeadcount；件一值-only 不变；件二 +2 jobs 键 ⇒ 1039⇒1041；S5① +3 jobs 键 ⇒ 1044；S7 +10 jobs 键 ⇒ 1054；S8 +1 jobs 键 ⇒ 1055；S9 +4 ledger.kind 键 ⇒ 1059；S25 B7 退役 10 键 ⇒ 1050）', () => {
     const flat = (o, p = '') => Object.entries(o).flatMap(([k, v]) => (
       v && typeof v === 'object' && !Array.isArray(v) ? flat(v, `${p}${k}.`) : [`${p}${k}`]
     ))
     for (const lang of LANGS) {
       expect(Object.keys(TABLES[lang]).length, `${lang} top`).toBe(119)
-      // **期望订正（S9 ledger.kind 缺键补齐）**：S8 ⇒ 1055；S9 +4 ledger.kind 键/语 ⇒ 拍平 1055⇒1059（前订正 S7：1044⇒1054）
-      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1060)
+      // S25 计数期望订正（台账 B7 死键退役）：jobs 退役 10 键 ×4 语对称删除 ⇒ 拍平 1060⇒1050（等量下移 −10/语）。
+      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1050)
     }
   })
 

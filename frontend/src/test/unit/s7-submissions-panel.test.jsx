@@ -15,7 +15,7 @@
  *   ⑤ 读口 **403（非发布者）⇒ 整块不渲染**（仅发布者可见；判定复用既有归属闸，不另写）。
  *   ⑥ 判定失败：`details.reason` 命中既有映射 ⇒ 复用既有 reason→文案（`battCard.insufficient`）——不另建。
  *   ⑦ 新增 10 键四语齐备、非空、en/vn 零 CJK。
- *   ⑧ 键计数：顶层 119 不变 / 拍平 1060 / 四语节点 4240（S8 前推：+1 jobs.deliverable；S9 前推：+4 ledger.kind 键/语；S23 前推：+1 jobs.participantsHeadcount）。
+ *   ⑧ 键计数：顶层 119 不变 / 拍平 1050 / 四语节点 4200（S8 前推：+1 jobs.deliverable；S9 前推：+4 ledger.kind 键/语；S23 前推：+1 jobs.participantsHeadcount；**S25 下移：台账 B7 死键退役 10 键/语**）。
  *
  * 口径：真 `job-api.js` + 真 `fetchApiJson` + stubbed `fetch`（同 `d1-error-machineface` 联测先例）；
  *   i18n 用**真 zh 词典**逐字断言（`react-i18next` 替身取模块级稳定函数，避免无限重渲染）。
@@ -292,12 +292,14 @@ describe('⑦ 新增 10 键四语齐备（逐字）', () => {
   })
 })
 
-describe('⑧ 键计数（S8 前推：S7 新增 10 + S8 新增 1；S9：+4 ledger.kind = 拍平 1059；S23：+1 jobs.participantsHeadcount = 1060）', () => {
-  it('顶层 119 不变 / 拍平 1060 / 四语节点 4240（S9 前推：+4 ledger.kind 键；S23 +1 jobs.participantsHeadcount）', () => {
+describe('⑧ 键计数（S8 前推：S7 新增 10 + S8 新增 1；S9：+4 ledger.kind = 拍平 1059；S23：+1 jobs.participantsHeadcount = 1060；S25：B7 退役 10 键 = 拍平 1050）', () => {
+  it('顶层 119 不变 / 拍平 1050 / 四语节点 4200（S9 前推：+4 ledger.kind 键；S23 +1 jobs.participantsHeadcount；S25 B7 退役 10 键）', () => {
     for (const l of LANGS) {
       expect(Object.keys(readTable(l)).length, `${l} top`).toBe(119)
-      expect(flat(readTable(l)).length, `${l} flat`).toBe(1060)
+      // S25 计数期望订正（台账 B7 死键退役）：jobs 退役 10 键 ×4 语对称删除 ⇒ 拍平 1060⇒1050（等量下移 −10/语）。
+      expect(flat(readTable(l)).length, `${l} flat`).toBe(1050)
     }
-    expect(flat(readTable('zh')).length * LANGS.length).toBe(4240)
+    // S25：1050 × 4 = 4200（原 1060 × 4 = 4240）。
+    expect(flat(readTable('zh')).length * LANGS.length).toBe(4200)
   })
 })

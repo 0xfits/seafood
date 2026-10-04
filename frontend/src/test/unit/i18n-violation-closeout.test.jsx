@@ -42,7 +42,8 @@ const BLACKLIST = [
 
 /** 本单改写集（键名；值已四语同步改写） */
 const REWRITTEN = [
-  'jobs.cidNote', 'jobs.acceptNote', 'jobs.submitNote', 'jobs.publishNote', 'jobs.reviewNote',
+  // S25（台账 B7 死键退役）：`jobs.acceptNote` 已随四语对称删除退役（产品面零引用）⇒ 自本改写集移出；改写集 33⇒32 键。
+  'jobs.cidNote', 'jobs.submitNote', 'jobs.publishNote', 'jobs.reviewNote',
   'listings.listNote', 'listings.publishNote', 'listings.priceServerNote', 'listings.priceRoleNote',
   'listings.stockNote', 'listings.cidNote', 'listings.ordersNote', 'listings.buyNote',
   'listings.refundNote', 'listings.refundStockNote', 'listings.listed',
@@ -79,7 +80,8 @@ describe('I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
     // P9② 计数期望订正（逐字登记）：新增顶层 `battCard`(4) + `checkinPanel`(5) ⇒ 拍平 944⇒953 ⇒ locale 节点 = 953 × 4 = **3812**（原 944 × 4 = 3776）⇒ 本断言前推 3776 ⇒ 3812（**未删断言**）
-    expect(out).toContain('作用域命中节点数 = 4240') // **期望订正（S9 ledger.kind 缺键补齐）**：S8 ⇒ 1055/4220；S9 +4 ledger.kind 键/语 ⇒ 拍平 1055⇒1059 ⇒ 节点 4220⇒4236（前订正 S7：1044⇒1054 ⇒ 4176⇒4216）
+    // S25 计数期望订正（台账 B7 死键退役）：`jobs` 退役 10 键 ×4 语对称删除 ⇒ 拍平 1060⇒1050 ⇒ 节点 4240⇒4200（等量下移 −10/语）。
+    expect(out).toContain('作用域命中节点数 = 4200') // **期望订正（S9 ledger.kind 缺键补齐）**：S8 ⇒ 1055/4220；S9 +4 ledger.kind 键/语 ⇒ 拍平 1055⇒1059 ⇒ 节点 4220⇒4236（前订正 S7：1044⇒1054 ⇒ 4176⇒4216）；**S25 再订正** 1059⇒1050 ⇒ 4200（B7 退役 10 键）
     expect(out).toContain('② 全量页面源文件面')
     expect(out).toMatch(/locale 裸命中 0 \+ 源面裸命中 0/)
   })
@@ -102,7 +104,8 @@ describe('I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文
   })
 
   it('④ 保真底线：改写后仍保留「需权限 / 已下线 / 手续费不退 / 暂停开放」等真信息', () => {
-    expect(flatTables.zh['jobs.acceptNote']).toContain('只有雇主')
+    // S25（B7）：`jobs.acceptNote` 已退役（四语对称删除）⇒ 该「只有雇主」保真锚失去守护对象，移除并留痕，**非削弱**：
+    //   同族真信息锚（权限/已下线/手续费不退）仍在下方逐条断言（listings.refundNote / market.mineNote / claimRetiredNotice）。
     expect(flatTables.zh['listings.refundNote']).toContain('只有卖家')
     expect(flatTables.zh['listings.refundNote']).toContain('订单号')
     expect(flatTables.zh['market.mineNote']).toContain('手续费不退')
@@ -124,7 +127,8 @@ describe('I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文
     expect(counts.size).toBe(1)
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
-    expect([...counts][0]).toBe(1060) // **期望订正（S9 ledger.kind 缺键补齐）**：S8 ⇒ 1055；S9 +4 ledger.kind 键/语 ⇒ 拍平 1055⇒1059（前订正 S7：1044⇒1054）
+    // S25 计数期望订正（台账 B7 死键退役）：四语对称删 10 键 ⇒ 拍平 1060⇒1050（等量下移 = −10/语）。
+    expect([...counts][0]).toBe(1050) // **期望订正（S9 ledger.kind 缺键补齐）**：S8 ⇒ 1055；S9 +4 ledger.kind 键/语 ⇒ 拍平 1055⇒1059（前订正 S7：1044⇒1054）；**S25 再订正** 1059⇒1050（B7 退役 10 键）
     for (const k of REWRITTEN) for (const l of LANGS) expect(flatTables[l][k]).toBeTruthy()
   })
 })

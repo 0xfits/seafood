@@ -2,7 +2,7 @@
  * S19 单测（Kong）：`participants_count` 真源换轴（job_application → job_submission）的**展示面**契约
  * ============================================================================
  * 覆盖两件事：
- *   (a) 四语 `jobs.participants` **值**已改「已参与」族；**键名/键数不动**（顶层 119 / 拍平 1059；S23 后 +1 jobs.participantsHeadcount ⇒ 1060）。
+ *   (a) 四语 `jobs.participants` **值**已改「已参与」族；**键名/键数不动**（顶层 119 / 拍平 1059；S23 后 +1 jobs.participantsHeadcount ⇒ 1060；**S25 后 B7 退役 10 键 ⇒ 1050**）。
  *   (b) `JobDetailPage` 的 `#{tID} · <jobs.participants>` 展示**随 `participants_count` 变**。
  *
  * ★ 内建负对照（本文件必含）：把 `participants_count` 钉为**旧源代表值**（`job_application` 计数）
@@ -98,12 +98,14 @@ describe('(a) 四语 jobs.participants 值（改值不改键）', () => {
     for (const l of ['en', 'vn']) expect(CJK.test(TABLES[l]['jobs.participants']), l).toBe(false)
   })
 
-  it('键名/键数不变：顶层 119 / 拍平 1060 / 四语节点 4240（S23 +1 jobs.participantsHeadcount）', () => {
+  it('键计数：顶层 119 / 拍平 1050 / 四语节点 4200（S23 +1 jobs.participantsHeadcount；S25 B7 退役 10 键）', () => {
     for (const l of LANGS) {
       expect(Object.keys(readTable(l)).length, `${l} top`).toBe(119)
-      expect(flat(readTable(l)).length, `${l} flat`).toBe(1060)
+      // S25 计数期望订正（台账 B7 死键退役）：jobs 退役 10 键 ×4 语对称删除 ⇒ 拍平 1060⇒1050（等量下移 −10/语）。
+      expect(flat(readTable(l)).length, `${l} flat`).toBe(1050)
     }
-    expect(flat(readTable('zh')).length * LANGS.length).toBe(4240)
+    // S25：1050 × 4 = 4200（原 1060 × 4 = 4240）。
+    expect(flat(readTable('zh')).length * LANGS.length).toBe(4200)
   })
 })
 

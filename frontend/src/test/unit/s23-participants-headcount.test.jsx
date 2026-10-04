@@ -3,7 +3,7 @@
  * ============================================================================
  * 覆盖四件事：
  *   (a) 四语 `jobs.participantsHeadcount` 键**四语齐备且键集严格相等**、值逐字、含 `{{done}}`＋`{{limit}}`；
- *   (b) 计数基线前推：顶层 **119** / 拍平 **1060**（S23 +1 jobs.participantsHeadcount）/ 四语节点 **4240**；
+ *   (b) 计数基线前推：顶层 **119** / 拍平 **1050**（S23 +1 jobs.participantsHeadcount；S25 B7 退役 10 键）/ 四语节点 **4200**；
  *   (c) `JobDetailPage` 元信息行**同时**随 `participants_count`（done）与 `headcount`（limit）变；
  *   (d) ★ 内建负对照：把展示的 `limit` 钉成错值 ⇒ 「正确 limit 断言」**判假**（红）；钉回真值 ⇒ 判真（绿）。
  *
@@ -108,15 +108,17 @@ describe('(a) 四语 jobs.participantsHeadcount（新键）', () => {
 })
 
 // ============================================================================
-// (b) 计数基线前推（S23 +1 jobs.participantsHeadcount ⇒ 1059⇒1060 / 4236⇒4240）
+// (b) 计数基线前推（S23 +1 jobs.participantsHeadcount ⇒ 1059⇒1060 / 4236⇒4240；S25 B7 退役 10 键 ⇒ 1060⇒1050 / 4240⇒4200）
 // ============================================================================
 describe('(b) 计数基线前推', () => {
-  it('顶层 119 不变 / 拍平 1060 / 四语节点 4240', () => {
+  it('顶层 119 不变 / 拍平 1050 / 四语节点 4200（S25 B7 退役 10 键）', () => {
     for (const l of LANGS) {
       expect(Object.keys(readTable(l)).length, `${l} top`).toBe(119)
-      expect(flat(readTable(l)).length, `${l} flat`).toBe(1060)
+      // S25 计数期望订正（台账 B7 死键退役）：jobs 退役 10 键 ×4 语对称删除 ⇒ 拍平 1060⇒1050（等量下移 −10/语）。
+      expect(flat(readTable(l)).length, `${l} flat`).toBe(1050)
     }
-    expect(flat(readTable('zh')).length * LANGS.length).toBe(4240)
+    // S25：1050 × 4 = 4200（原 1060 × 4 = 4240）。
+    expect(flat(readTable('zh')).length * LANGS.length).toBe(4200)
   })
 })
 
