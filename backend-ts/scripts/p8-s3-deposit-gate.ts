@@ -64,7 +64,8 @@ const FROZEN_AK1_FIELDS = [
 const AK2_KEY = 'listing_deposit_policy';
 // ★ P9④ 冻结计数前推（沿 R-8-22）：注册点 85 → 87（BTTC 铸造/分解 2 新口 +2）。
 // ★ 8⑥ 续跑前推：注册点 87 → 88（审计台统一读口 +1 · GET /api/admin/audit/:table）。
-const REG_POINTS_FROZEN = 88;
+// ★ S11 注册点前推（沿 R-8-22）：注册点 88 → 89（S6 新增 GET /api/job/:jobId/submissions +1；逐 commit 归因 692f622）。
+const REG_POINTS_FROZEN = 89;
 /**
  * ★ `R-8-20`（本片新裁）注册点计数判据 —— **容忍前置空白**。
  * 改前判据 `^app\.` 写死**列 0** ⇒ **带缩进插入的路由不被计入**（缩进路由**仍是已注册路由**！）

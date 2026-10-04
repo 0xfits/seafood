@@ -11,7 +11,7 @@
  *   真 HTTP 200 读数另册（受控实例探针，报告 §4/§9）。
  *
  * 判据（每条**可判负**）：
- *   A  **注册点 88 逐 verb + 公开读口在场**：`get 37 / post 48 / put 0 / patch 1 / delete 2`（和 = 88）；
+ *   A  **注册点 89 逐 verb + 公开读口在场**：`get 38 / post 48 / put 0 / patch 1 / delete 2`（和 = 89）；
  *      `app.get('/api/role-names', …)` 在场且取数 `DatabaseService.getSiteTextOverlay(`；负对照（缩进注入 ⇒ +1）
  *   B  **公开读口无鉴权（无 token ⇒ 应 200）**：handler 体内**零** `requireAdmin(` / `requireActor(` / `Authorization` /
  *      `token` / 任何 `require*` 闸；零 `resolveAdminOpsKey`（读口无副作用）；负对照（注入闸 ⇒ 谓词转红）
@@ -68,12 +68,13 @@ const selfTest = (id: string, group: string, predicate: (v: unknown) => boolean,
 // ---------------------------------------------------------------- 冻结常量
 // ★ P9④ 冻结计数前推（沿 R-8-22）：注册点 85 → 87（BTTC 铸造/分解 2 新口 +2）。
 // ★ 8⑥ 续跑前推：注册点 87 → 88（审计台统一读口 +1 · GET /api/admin/audit/:table）。
-const REG_POINTS_FROZEN = 88;
+// ★ S11 注册点前推（沿 R-8-22）：注册点 88 → 89（S6 新增 GET /api/job/:jobId/submissions +1；逐 commit 归因 692f622）。
+const REG_POINTS_FROZEN = 89;
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;
 const countVerb = (text: string, verb: string): number =>
   (text.match(new RegExp(`^[ \\t]*app\\.${verb}\\(`, 'gm')) || []).length;
-const PER_VERB_FROZEN: Record<string, number> = { get: 37, post: 48, put: 0, patch: 1, delete: 2 };
+const PER_VERB_FROZEN: Record<string, number> = { get: 38, post: 48, put: 0, patch: 1, delete: 2 };
 /** 白名单 9 键逐字（顺序 = 代码面 `APP_CONFIG_LEGAL_KEYS`）。 */
 const WHITELIST_FROZEN = ['system_settings', 'listing_deposit_policy', 'batt_policy', 'checkin_policy', 'invite_reward_policy', 'mint_burn_policy', 'rating_policy', 'site_text_overrides', 'role_names'];
 const WELL_KNOWN_REASONS = new Set(Object.values(SETTINGS_WRITE_REASONS));
@@ -114,7 +115,7 @@ const isUnauthenticatedRead = (block: string): boolean =>
 {
   const perVerb = { get: countVerb(INDEX_TS, 'get'), post: countVerb(INDEX_TS, 'post'), put: countVerb(INDEX_TS, 'put'), patch: countVerb(INDEX_TS, 'patch'), delete: countVerb(INDEX_TS, 'delete') };
   t('A1', 'registration', countRoutes(INDEX_TS) === REG_POINTS_FROZEN,
-    `注册点 = ${REG_POINTS_FROZEN}（P9① 公开读口 +1〔75→76〕⇒ P9② batt/签到 4 新口 +4〔76→80〕⇒ P9③ 评分/时效/订单 5 新口 +5〔80→85〕⇒ P9④ BTTC 铸造/分解 2 新口 +2〔85→87〕⇒ 8⑥ 审计台统一读口 +1〔87→88〕）`, countRoutes(INDEX_TS));
+    `注册点 = ${REG_POINTS_FROZEN}（P9① 公开读口 +1〔75→76〕⇒ P9② batt/签到 4 新口 +4〔76→80〕⇒ P9③ 评分/时效/订单 5 新口 +5〔80→85〕⇒ P9④ BTTC 铸造/分解 2 新口 +2〔85→87〕⇒ 8⑥ 审计台统一读口 +1〔87→88〕⇒ S6 新增 GET /api/job/:jobId/submissions +1〔88→89〕）`, countRoutes(INDEX_TS));
   t('A2', 'registration', JSON.stringify(perVerb) === JSON.stringify(PER_VERB_FROZEN),
     `逐 verb 逐字 = ${JSON.stringify(PER_VERB_FROZEN)}`, JSON.stringify(perVerb));
   t('A3', 'registration', Object.values(perVerb).reduce((a, b) => a + b, 0) === REG_POINTS_FROZEN,

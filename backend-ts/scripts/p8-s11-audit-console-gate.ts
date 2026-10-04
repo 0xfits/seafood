@@ -25,7 +25,7 @@
  *   F  `limit` **默认 50 / 上限 100**（`>100` / `<1` / 非整数 ⇒ `400`）
  *   G  逐表排序键（13 面 `time_created`；★ `referral` ⇒ `bound_at`）
  *   H  零新增码（借 `LEDGER_AMOUNT_INVALID` ∈ 闭集 **33**）+ 原因码常量集 **7 值**（非错误码）
- *   I  鉴权 `manage_audit` + 路由在场 + 只读（handler 零写）+ 注册点 88
+ *   I  鉴权 `manage_audit` + 路由在场 + 只读（handler 零写）+ 注册点 89
  *   J  迁移 `0039` 纯 DML（零 DDL）+ `audit-console.ts` 零写 SQL
  *   K  库面 / HTTP 活体（连库 + 事务内 ROLLBACK + 受控实例）；`pending_apply[]` = 0
  */
@@ -93,8 +93,9 @@ const AUDIT_ROUTE_DECL = /^[ \t]*app\.get\('\/api\/admin\/audit\/:table',/m;
 const AUDIT_ROUTE_BLOCK = routeBlock(AUDIT_ROUTE_DECL);
 
 // 8⑥ 冻结计数前推（沿 R-8-22）：注册点 87 → 88（审计台统一读口 +1 · get）。
-const REG_POINTS_FROZEN = 88;
-const PER_VERB_FROZEN: Record<string, number> = { get: 37, post: 48, put: 0, patch: 1, delete: 2 };
+// ★ S11 注册点前推（沿 R-8-22）：注册点 88 → 89（S6 新增 GET /api/job/:jobId/submissions +1；逐 commit 归因 692f622）。
+const REG_POINTS_FROZEN = 89;
+const PER_VERB_FROZEN: Record<string, number> = { get: 38, post: 48, put: 0, patch: 1, delete: 2 };
 
 // ---------------------------------------------------------------------------
 // ★ 权威（§32.2 逐字 14 面 · 排除 `app_config`）+ §32.3 五类过滤逐表明细
@@ -315,11 +316,11 @@ const planOf = (table: string, query: Record<string, unknown> = {}) => {
 }
 
 // ============================================================================
-// I · 鉴权 `manage_audit` + 路由在场 + 只读 + 注册点 88
+// I · 鉴权 `manage_audit` + 路由在场 + 只读 + 注册点 89
 // ============================================================================
 {
   const perVerb = { get: countVerb(INDEX_TS, 'get'), post: countVerb(INDEX_TS, 'post'), put: countVerb(INDEX_TS, 'put'), patch: countVerb(INDEX_TS, 'patch'), delete: countVerb(INDEX_TS, 'delete') };
-  t('I1', 'registration', countRoutes(INDEX_TS) === REG_POINTS_FROZEN, `注册点 = ${REG_POINTS_FROZEN}（8⑥ 审计台统一读口 +1〔87→88〕）`, countRoutes(INDEX_TS));
+  t('I1', 'registration', countRoutes(INDEX_TS) === REG_POINTS_FROZEN, `注册点 = ${REG_POINTS_FROZEN}（8⑥ 审计台统一读口 +1〔87→88〕⇒ S6 新增 GET /api/job/:jobId/submissions +1〔88→89〕）`, countRoutes(INDEX_TS));
   t('I2', 'registration', eqJson(perVerb, PER_VERB_FROZEN), `逐 verb 逐字 = ${JSON.stringify(PER_VERB_FROZEN)}`, JSON.stringify(perVerb));
   t('I3', 'registration', countOf(INDEX_TS, /^[ \t]*app\.get\('\/api\/admin\/audit\/:table',/gm) === 1,
     '读口 `GET /api/admin/audit/:table` 注册**恰 1 处**（变体 Ⅰ · `R-9-74`）', countOf(INDEX_TS, /\/api\/admin\/audit\/:table/g));
@@ -338,7 +339,7 @@ const planOf = (table: string, query: Record<string, unknown> = {}) => {
   const authClosed = /const ALL_ADMIN_PERMISSIONS = \[[\s\S]*?'manage_audit'[\s\S]*?\] as const;/.test(DATABASE_TS)
     && /permissions:\s*\[[\s\S]*?'manage_audit'[\s\S]*?\]/.test(ADMIN_UTILS);
   t('I9', 'auth', authClosed, '权限键 `manage_audit` 三处编码同集（后端 `ALL_ADMIN_PERMISSIONS` ∧ 前端 `admin-utils.js` 兜底）', authClosed);
-  selfTest('I1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 88 条路由的文本喂入「注册点 = 88」谓词 ⇒ 必须转红');
+  selfTest('I1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 89 条路由的文本喂入「注册点 = 89」谓词 ⇒ 必须转红');
 }
 
 // ============================================================================

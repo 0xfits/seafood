@@ -69,8 +69,8 @@ const countMatches = (hay: string, re: RegExp): number => (hay.match(re) || []).
 // A · 读口注册（增量登记 68 → 69）+ 闸 + 取数复用 + 只读纪律
 // ============================================================================
 const REG_COUNT = countMatches(INDEX_TS, /^app\.(get|post|put|delete|patch)\(/gm);
-t('A1', 'readRouteRegistered', REG_COUNT === 88,
-  '注册点 = 88（`grep -cE \'^app\\.(get|post|put|delete|patch)\\(\'`；v1.8 的 68 ⇒ 8② 读口 +1〔69〕⇒ 8④ 读口/动作口 +2〔71〕⇒ 8⑤ 读口/动作口 +4〔75〕⇒ P9① 公开读口 +1〔76〕⇒ P9② batt/签到 4 新口 +4〔80〕⇒ P9③ 评分/时效/订单 5 新口 +5〔85〕⇒ P9④ BTTC 铸造/分解 2 新口 +2〔87〕⇒ 8⑥ 审计台统一读口 +1 = 88）', REG_COUNT);
+t('A1', 'readRouteRegistered', REG_COUNT === 89,
+  '注册点 = 89（`grep -cE \'^app\\.(get|post|put|delete|patch)\\(\'`；v1.8 的 68 ⇒ 8② 读口 +1〔69〕⇒ 8④ 读口/动作口 +2〔71〕⇒ 8⑤ 读口/动作口 +4〔75〕⇒ P9① 公开读口 +1〔76〕⇒ P9② batt/签到 4 新口 +4〔80〕⇒ P9③ 评分/时效/订单 5 新口 +5〔85〕⇒ P9④ BTTC 铸造/分解 2 新口 +2〔87〕⇒ 8⑥ 审计台统一读口 +1〔88〕⇒ S6 新增 GET /api/job/:jobId/submissions +1 = 89）', REG_COUNT);
 t('A2', 'readRouteRegistered', countMatches(INDEX_TS, new RegExp(READ_ROUTE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) === 1,
   '`GET /api/admin/commission_policy` 注册**恰 1 处**',
   countMatches(INDEX_TS, new RegExp(READ_ROUTE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')));

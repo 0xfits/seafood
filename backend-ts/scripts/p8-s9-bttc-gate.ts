@@ -13,7 +13,7 @@
  *   ★ 库面写一律**事务内 + 末尾 `ROLLBACK`**（append-only ⇒ 无 DELETE 复原路径）；**严禁** `UPDATE app_config`。
  *
  * 判据（每条可判负 + 自证负对照）：
- *   A  注册点 **88** 逐 verb（`get 37 / post 48 / put 0 / patch 1 / delete 2`）+ 2 新动作口在场；负对照（缩进注入 ⇒ 88）
+ *   A  注册点 **89** 逐 verb（`get 38 / post 48 / put 0 / patch 1 / delete 2`）+ 2 新动作口在场；负对照（缩进注入 ⇒ 89）
  *   B  2 新口形态：全闸 `requireActor`（零 `requireAdmin`）；`bttcKeyGuard` + 取数 `bttcMint(`/`bttcBurn(`；异常标签 `sendInfraMapped`
  *   C  `0038`：kind 关闭集 **23 → 24**（CHECK + `ledger_kind_ok` 两处同集含 `invite_first_task_reward`）；
  *      冻结族第二支一字不动（4 值）；`−1` credit 白名单逐字不变（8 值）；`0032`（21 → 23）转 P9④ 历史快照；正/负自检在场
@@ -73,8 +73,9 @@ const LOCALES: Record<string, Record<string, unknown>> = Object.fromEntries(
 );
 
 // ---------------------------------------------------------------- 冻结常量 + 工具
-const REG_POINTS_FROZEN = 88;
-const PER_VERB_FROZEN: Record<string, number> = { get: 37, post: 48, put: 0, patch: 1, delete: 2 };
+// ★ S11 注册点前推（沿 R-8-22）：注册点 88 → 89（S6 新增 GET /api/job/:jobId/submissions +1；逐 commit 归因 692f622）。
+const REG_POINTS_FROZEN = 89;
+const PER_VERB_FROZEN: Record<string, number> = { get: 38, post: 48, put: 0, patch: 1, delete: 2 };
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;
 const countVerb = (text: string, verb: string): number =>
@@ -124,12 +125,12 @@ const mWhitelist = SQL_0032.match(/WHEN '-1' THEN CASE p_dir WHEN 'credit' THEN 
 const WL_0032_M1_CREDIT = (mWhitelist ? (mWhitelist[1].match(/'([a-z_]+)'/g) || []) : []).map((s) => s.slice(1, -1));
 
 // ============================================================================
-// A · 注册点 88 逐 verb + 2 新动作口在场
+// A · 注册点 89 逐 verb + 2 新动作口在场
 // ============================================================================
 {
   const perVerb = { get: countVerb(INDEX_TS, 'get'), post: countVerb(INDEX_TS, 'post'), put: countVerb(INDEX_TS, 'put'), patch: countVerb(INDEX_TS, 'patch'), delete: countVerb(INDEX_TS, 'delete') };
   t('A1', 'registration', countRoutes(INDEX_TS) === REG_POINTS_FROZEN,
-    `注册点 = ${REG_POINTS_FROZEN}（P9④ BTTC 铸造/分解 2 新动作口 +2〔85→87〕⇒ 8⑥ 审计台统一读口 +1〔87→88〕；读口并入既有 GET /api/batt ⇒ 零新 GET）`, countRoutes(INDEX_TS));
+    `注册点 = ${REG_POINTS_FROZEN}（P9④ BTTC 铸造/分解 2 新动作口 +2〔85→87〕⇒ 8⑥ 审计台统一读口 +1〔87→88〕⇒ S6 新增 GET /api/job/:jobId/submissions +1〔88→89〕；读口并入既有 GET /api/batt ⇒ 零新 GET）`, countRoutes(INDEX_TS));
   t('A2', 'registration', eqJson(perVerb, PER_VERB_FROZEN),
     `逐 verb 逐字 = ${JSON.stringify(PER_VERB_FROZEN)}（get 不变 / post +2）`, JSON.stringify(perVerb));
   t('A3', 'registration', Object.values(perVerb).reduce((a, b) => a + b, 0) === REG_POINTS_FROZEN,
@@ -140,7 +141,7 @@ const WL_0032_M1_CREDIT = (mWhitelist ? (mWhitelist[1].match(/'([a-z_]+)'/g) || 
   const INJ = "  app.get('/api/p8s9-negsurface', (_req, res) => res.status(410).json({ ok: false }));\n";
   t('A5', 'registration', countRoutes(INDEX_TS + INJ) === REG_POINTS_FROZEN + 1,
     `★ 负对照：缩进注入一条路由 ⇒ 计数 ${REG_POINTS_FROZEN}→${REG_POINTS_FROZEN + 1}`, JSON.stringify({ injected: countRoutes(INDEX_TS + INJ) }));
-  selfTest('A1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 88 条路由的文本喂入「注册点 = 88」谓词 ⇒ 必须转红');
+  selfTest('A1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 89 条路由的文本喂入「注册点 = 89」谓词 ⇒ 必须转红');
 }
 
 // ============================================================================

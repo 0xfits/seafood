@@ -18,7 +18,7 @@
  *   `pending_apply[]` = **0**。
  *
  * 判据（每条可判负 + 自证负对照）：
- *   A  注册点 **88** 逐 verb（`get 37 / post 48 / put 0 / patch 1 / delete 2`）+ 两腿路由在场；负对照（缩进注入 ⇒ 88）
+ *   A  注册点 **89** 逐 verb（`get 38 / post 48 / put 0 / patch 1 / delete 2`）+ 两腿路由在场；负对照（缩进注入 ⇒ 89）
  *   B  6 层权重向量 `[U1,U2,U3,D1,D2,D3]`（`layer_span = 6` · 方向 / 层距 / 权值逐位）
  *   C  距离加权（越近越高）· 层内均分（第二级最大余数法 + 层内 tie-break `(r DESC, uid ASC)`）· `Σ x == pool` 构造性守恒
  *   D  Worker **结构性剔除**（名单不含 Worker）+ 名单含 Worker ⇒ 落账前硬拒（500 `LEDGER_RECONCILE_MISMATCH` / `COMMISSION_CHAIN_ASSERTION_VIOLATED`）
@@ -82,14 +82,15 @@ const countVerb = (text: string, verb: string): number => (text.match(new RegExp
 const countOf = (hay: string, re: RegExp): number => (hay.match(re) || []).length;
 const B = (v: number | string): bigint => BigInt(v);
 
-const REG_POINTS_FROZEN = 88;
-const PER_VERB_FROZEN: Record<string, number> = { get: 37, post: 48, put: 0, patch: 1, delete: 2 };
+// ★ S11 注册点前推（沿 R-8-22）：注册点 88 → 89（S6 新增 GET /api/job/:jobId/submissions +1；逐 commit 归因 692f622）。
+const REG_POINTS_FROZEN = 89;
+const PER_VERB_FROZEN: Record<string, number> = { get: 38, post: 48, put: 0, patch: 1, delete: 2 };
 const W6 = [2600, 1700, 700, 2600, 1700, 700];   // 对称 `[U1,U2,U3,D1,D2,D3]`（Σ = 10000）
 const WORKER = '1000';
 const NEW_KIND = 'invite_first_task_reward';
 
 // ============================================================================
-// A · 注册点 88 逐 verb + 两腿路由在场
+// A · 注册点 89 逐 verb + 两腿路由在场
 // ============================================================================
 {
   const perVerb = { get: countVerb(INDEX_TS, 'get'), post: countVerb(INDEX_TS, 'post'), put: countVerb(INDEX_TS, 'put'), patch: countVerb(INDEX_TS, 'patch'), delete: countVerb(INDEX_TS, 'delete') };
@@ -105,7 +106,7 @@ const NEW_KIND = 'invite_first_task_reward';
   const INJ = "  app.get('/api/p8s10-negsurface', (_req, res) => res.status(410).json({ ok: false }));\n";
   t('A5', 'registration', countRoutes(INDEX_TS + INJ) === REG_POINTS_FROZEN + 1,
     `★ 负对照：缩进注入一条路由 ⇒ 计数 ${REG_POINTS_FROZEN}→${REG_POINTS_FROZEN + 1}`, JSON.stringify({ injected: countRoutes(INDEX_TS + INJ) }));
-  selfTest('A1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 88 条路由的文本喂入「注册点 = 88」谓词 ⇒ 必须转红');
+  selfTest('A1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 89 条路由的文本喂入「注册点 = 89」谓词 ⇒ 必须转红');
 }
 
 // ============================================================================
