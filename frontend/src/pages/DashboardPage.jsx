@@ -117,7 +117,8 @@ const DashboardPage = () => {
   const loadDashboardData = async (user, accessInfo) => {
     const token = getAuthToken(user)
     const authHeaders = token ? { Authorization: `Bearer ${token}` } : {}
-    const canReviewTasks = hasAdminPermission(accessInfo, 'review_tasks')
+    // ★ S18：队列读口门改「**已登录即可见**」（与 `/task/review` 同口径）；内容过滤唯一真源 = 后端。
+    const canReviewTasks = isAuthenticated
 
     const results = await Promise.allSettled([
       fetchApiJson('/api/user/stats', { headers: authHeaders }),
@@ -256,8 +257,8 @@ const DashboardPage = () => {
   }
 
   const normalizedQuery = reviewQuery.trim().toLowerCase()
-  const canReviewTasks = hasAdminPermission(access, 'review_tasks')
-  const dashboardRoleLabel = access.is_admin ? t('dashPage.roleAdmin') : canReviewTasks ? t('dashPage.roleReviewer') : t('dashPage.roleStaff')
+  // ★ S18：队列面板门 = 登录态（与 `/task/review` 同口径）；角色徽标仍按既有权限口径（语义不变）。
+  const dashboardRoleLabel = access.is_admin ? t('dashPage.roleAdmin') : hasAdminPermission(access, 'review_tasks') ? t('dashPage.roleReviewer') : t('dashPage.roleStaff')
   const filteredPendingTasks = pendingVerificationTasks.filter((task) => {
     if (!normalizedQuery) return true
     return (
@@ -416,14 +417,8 @@ const DashboardPage = () => {
               </div>
             </CardHeader>
             <CardContent>
-              {!canReviewTasks ? (
-                <div className="text-center py-8">
-                  <Shield className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-900 font-medium mb-1">{t('dashPage.noReviewPermission')}</p>
-                  <p className="text-sm text-gray-600">{t('dashPage.noReviewPermissionBody')}</p>
-                </div>
-              ) : (
-                <>
+              {/* ★ S18：队列门 = 登录态。原「无审核权限」空态分支在现门面下已不可达 ⇒ 删除（本仓禁死代码）。 */}
+              <>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
                 <div className="text-sm text-gray-600">
                   {t('dashPage.queueSummary', { visible: visiblePendingTasks.length, matched: filteredPendingTasks.length, total: dashboardStats.pendingVerifications })}
@@ -513,7 +508,6 @@ const DashboardPage = () => {
                 </div>
               )}
                 </>
-              )}
             </CardContent>
           </Card>
         </SlideUp>

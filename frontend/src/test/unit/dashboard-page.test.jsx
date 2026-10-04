@@ -184,4 +184,33 @@ describe('DashboardPage', () => {
     expect(await screen.findByText(/待审核总数 2。/)).toBeInTheDocument()
     expect(toast.error).toHaveBeenCalledWith('部分数据加载失败：待审核数量')
   })
+
+  it('S18：已登录用户（无 review_tasks）⇒ 队列面板按登录态放开（不再收敛为无权限）', async () => {
+    // ★ 负对照内建：`hasAdminPermission` 恒 false（= 无 review_tasks）。若队列门回退为 admin-only
+    //   ⇒ 不发队列读 ⇒ 本例如红（非假门）。
+    fetchAdminAccess.mockResolvedValue({ is_admin: false, can_access_admin: true, permissions: [] })
+    hasAdminPermission.mockReturnValue(false)
+    fetchApiJson.mockImplementation(async (url) => {
+      if (url === '/api/user/stats') return { user_count: 10, admin_count: 1, total_points: 500 }
+      if (url === '/api/task/all') return []
+      if (url === '/api/prize/all') return []
+      if (url === '/api/tasklist/pending-verification/count') return { count: 1 }
+      if (url === '/api/tasklist/pending-verification?limit=50') {
+        return [{ jID: 301, tID: 31, info_input: 'proof', task: { title: '任务 C', points: 5 }, user: { EVM: '0xabc' } }]
+      }
+      throw new Error(`Unexpected URL: ${url}`)
+    })
+
+    await renderDashboard()
+
+    // 门 = 登录态 ⇒ 登录即取队列（admin-only 门面下此处会 0 次）
+    await waitFor(() => {
+      expect(
+        fetchApiJson.mock.calls.filter(([url]) => url === '/api/tasklist/pending-verification?limit=50')
+      ).toHaveLength(1)
+    })
+    // 原「无审核权限」空态分支已随门面放开删除（本仓禁死代码）⇒ 队列内容直达
+    expect(screen.queryByText('当前账号没有审核权限')).toBeNull()
+    expect(await screen.findByText('任务 C')).toBeInTheDocument()
+  })
 })

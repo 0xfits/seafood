@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
-import { fetchAdminAccess, hasAdminPermission } from '../../admin-utils'
 import { createJobPublishTracker, jobPublishFingerprint, publishJob } from './job-api'
 import './jobs.css'
 
@@ -19,19 +18,12 @@ const PublishJobPage = () => {
   const [form, setForm] = useState({ cid: '1', reward: '', headcount: '1', title: '', description: '' })
   const [state, setState] = useState({ phase: 'idle', message: '' })
   const tracker = useMemo(() => createJobPublishTracker(), [])
-  // 四项确认 ①：审核面 = 管理员面。权限**唯一真源** = 后端 `requireAdmin(review_tasks)`（非 admin ⇒ 403），
-  //   前端不得展示入口 ⇒ 取 `/api/admin/me` 的能力集判定；能力集未回 / 无 `review_tasks` ⇒ 入口不渲染。
-  const [access, setAccess] = useState(null)
-
-  useEffect(() => {
-    let alive = true
-    fetchAdminAccess(user)
-      .then((next) => { if (alive) setAccess(next) })
-      .catch(() => { if (alive) setAccess(null) })
-    return () => { alive = false }
-  }, [user])
-
-  const canReview = hasAdminPermission(access, 'review_tasks')
+  // ★ S18（本单）：审核入口改「**已登录即可见**」，与 `/task/review`（S17a）同口径。
+  //   S16 后端已把待审队列读口准入放宽为「admin（持 `review_tasks`）∨ 已登录」（非 admin 只返回其
+  //   `job.employer_uid` 命中的 pending 提交；过滤唯一真源 = 后端 `resolveReviewQueueScope`）⇒
+  //   前端入口**不得**再按 `review_tasks` 隐藏（改前真源 = 取 `/api/admin/me` 能力集判定）。
+  //   ★ 不另写过滤；未登录 ⇒ 下方 `!isAuthenticated` 早返回（渲染 `pleaseLogin`、不渲染入口）。
+  const canReview = isAuthenticated
 
   const setField = (key) => (event) => setForm((prev) => ({ ...prev, [key]: event.target.value }))
 
@@ -99,7 +91,7 @@ const PublishJobPage = () => {
             <p className="sf-jobs-note">{t('jobs.cidNote')}</p>
             <div className="sf-jobs-actions">
               <Link className="sf-jobs-link" to={root('/task')}>{t('jobs.list')}</Link>
-              {/* 审核入口按权限隐藏（四项确认 ①）：非 admin 不渲染（后端 403 只是兜底，不是首屏反馈） */}
+              {/* ★ S18：审核入口 = 已登录即可见（与 `/task/review` 同口径）；未登录 ⇒ 上方早返回、此处不渲染 */}
               {canReview && <Link className="sf-jobs-link" to={root('/task/review')} data-sf-m="jobs-review-link">{t('jobs.review')}</Link>}
             </div>
           </div>

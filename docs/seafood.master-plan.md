@@ -1416,6 +1416,27 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.334 **S18 ✅ 发布者可发现性 + 换轴遗留文案 · ★它两个精准判断（`participants` 计数源已停写 ⇒ 改标签反成假话 / Dashboard 双闸）· 我裁不放开路由 · 入库 + push**（2026-10-04）
+
+**A. S18（53c/403s）**：
+**① 放开两处入口（已登录即可见，同 `/task/review` 口径、不另写过滤）**：`PublishJobPage.jsx` `canReview` ⇒ **`isAuthenticated`**（删整段 admin 闸机器 + import）· `DashboardPage.jsx` 队列读口门 + 面板门 ⇒ **`isAuthenticated`**（角色徽标保持既有权限口径；**删门放开后不可达的分支 = 禁死代码**，locale 键保留）✓
+**② 换轴遗留文案（改值不改键，4 键 × 4 语）**：`jobs.itemTitle`（点名单）· `jobs.myApps` · `jobs.myAppsEmpty` · `jobs.submitNotApplicant` ⇒ **「提交」/「Submission」/「Bài nộp」** ✓
+- ★★ **同族全扫的精准判断（我裁：接受）**：① **`jobs.participants`** —— 登记**不改值**，理由：其计数源 = 后端 `COUNT(*) FROM job_application`，而 **`R-9-100` 已停写该表** ⇒ **只改标签会制造新的假话**（应从**数据源**侧解决或下架该展示）② **10 个死键**（`apply`/`accept`/`applicationId`/`applyPrompt` 等；J2/J3 已下架 410、前端零引用）⇒ **保留不动**（删键会改计数；无害）✓
+**③ 测试**：`listing-market.test.jsx` 改 2 删 1 · `dashboard-page.test.jsx` 新增 1 · **均内建负对照** ✓
+
+**B. 读数**：四语拍平/顶层 **`1059 / 119` 不变**（值改类）✓ · `vitest` 前 `7 failed / 447 passed` ⇒ 后 **`7 failed / 449 passed`**（**零新增**，失败集逐条不变）✓ · ★ **负对照**（两门钉死 `false`）⇒ **`4 failed / 18 passed`**（发布页 + dashboard 3 例全红 ⇒ **可判负**）✓ · `build` **0**（`index-BmxJHl7t.js` 419.14 kB）✓ · 泄漏 **PASS**（locale 0 / source 0 / 节点 4236）· en/vn 零 CJK ✓
+
+**C. ★ 它如实纠正的边界 + 我的裁定**：
+- **普通发布者的真修复 = `PublishJobPage` 的「审核入口」链接** ✓（这是他们从发布页直达评判队列的路）
+- ★ `DashboardPage` 的门**已**放开，但该页仍受**路由 `adminOnly` + 组件 `if(!isAdmin)` 双闸** ⇒ **普通非 admin 仍到不了 `/dashboard`** ⇒ 此处属**同族对齐**
+- ⇒ ★ **我裁：不放开 `/dashboard` 路由 / 页面闸**（该页会曝光 `totalUsers` / `adminUsers` / `totalPoints` 等**平台统计**，不适合对普通用户开放）；门放开**留作将来若放开路由时的就绪态** ✓
+- ⇒ **我裁 `jobs.participants`**：**登记不改**，并记一条待办「该展示的**数据源**已停写 ⇒ 后续需从源侧解决或下架该展示」（**不得只改文案**）✓
+- ⇒ **我裁 10 个死键**：**保留**（删键会改计数；无害）✓
+**D. 入库 + push + 生产终验**。
+**E. 状态**：DB **`41 行 / max 0042`** · 端口全空 ✓
+
+---
+
 ### 5.333 **S17a（前端开门）+ S17b（补回负向覆盖）✅ · ★S17a 另报两条真缺口（可发现性 / 换轴遗留文案）⇒ 派 S18**（2026-10-04）
 
 **A. S17a ✅（56c/371s）** —— 使 S16 的后端放宽对**普通发布者真正生效**：

@@ -324,7 +324,7 @@ describe('四语 locale（P4-B4c-ii-c ① / ② 新增键）', () => {
   })
 })
 
-describe('审核面准入（S17a：队列页「已登录即可」；发布页入口链接仍按权限隐藏）', () => {
+describe('审核面准入（S17a 队列页「已登录即可」；S18 发布页入口链接同口径）', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     fetchApiJson.mockImplementation(async () => [])
@@ -344,23 +344,32 @@ describe('审核面准入（S17a：队列页「已登录即可」；发布页入
     expect(String(callsTo('/api/tasklist/pending-verification')[0][0])).toBe('/api/tasklist/pending-verification')
   })
 
-  it('admin（review_tasks）：审核页才取队列；发布页才显示审核入口链接', async () => {
-    hasAdminPermission.mockReturnValue(true)
-    fetchAdminAccess.mockResolvedValue({ is_admin: true, can_access_admin: true, permissions: ['review_tasks'] })
-    renderPage(<JobReviewPage />, '/task/review')
-    await waitFor(() => expect(callsTo('/api/tasklist/pending-verification').length).toBe(1))
-
-    const publish = renderPage(<PublishJobPage />, '/task/new')
-    await waitFor(() => expect(screen.getAllByText('jobs.review').length).toBeGreaterThan(0))
-    expect(publish.container.textContent).toContain('jobs.review')
-  })
-
-  it('非 admin：发布页**不**渲染审核入口链接（入口隐藏 = 前端不展示，后端 403 仅兜底）', async () => {
+  it('S18 已登录普通发布者（**无** review_tasks）：发布页**渲染**审核入口链接（不再按权限隐藏）', async () => {
+    // ★ 负对照内建：`hasAdminPermission` 恒 false（= 普通用户无 review_tasks）。若入口条件回退为 admin-only
+    //   ⇒ 链接不渲染 ⇒ 本例如红（非假门）。
     hasAdminPermission.mockReturnValue(false)
     fetchAdminAccess.mockResolvedValue({ is_admin: false, can_access_admin: false, permissions: [] })
     const { container } = renderPage(<PublishJobPage />, '/task/new')
     await waitFor(() => expect(container.textContent).toContain('jobs.publish'))
+    const link = container.querySelector('[data-sf-m="jobs-review-link"]')
+    expect(link).not.toBeNull()
+    expect(link.getAttribute('href')).toContain('/task/review')
+    // ★ S18：门 = 登录态（非 admin 能力集）⇒ 发布页迁移后不再请求 `/api/admin/me`。
+    expect(callsTo('/api/admin/me').length).toBe(0)
+  })
+
+  it('S18 未登录：发布页渲染登录提示、**不**渲染审核入口链接', async () => {
+    useAuth.mockReturnValue({ isAuthenticated: false, user: null })
+    const { container } = renderPage(<PublishJobPage />, '/task/new')
+    await waitFor(() => expect(container.textContent).toContain('pleaseLogin'))
     expect(container.querySelector('[data-sf-m="jobs-review-link"]')).toBeNull()
-    expect(callsTo('/api/tasklist/pending-verification').length).toBe(0)
+    expect(container.textContent).not.toContain('jobs.review')
+  })
+
+  it('S17a 已登录 admin（review_tasks）：审核页取队列（零回归）', async () => {
+    hasAdminPermission.mockReturnValue(true)
+    fetchAdminAccess.mockResolvedValue({ is_admin: true, can_access_admin: true, permissions: ['review_tasks'] })
+    renderPage(<JobReviewPage />, '/task/review')
+    await waitFor(() => expect(callsTo('/api/tasklist/pending-verification').length).toBe(1))
   })
 })
