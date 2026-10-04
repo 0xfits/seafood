@@ -353,6 +353,31 @@ const requireAdmin = async (req: Request, res: Response, requiredPermission?: st
   return actor;
 };
 
+/**
+ * ★ S16（可用性缺口：普通发布者本应能用 `/task/review` 待审队列）· 待审队列读口准入（count / list **共用**）。
+ * 准入 = 「admin（持 `review_tasks`）**∨** 已登录用户」：
+ *   · 未登录 ⇒ 走 `requireActor` **既有 401**（本助手返回 null，**不落 403**）；
+ *   · admin ⇒ `employerFilterUid = null`（全局视图 · 与改前 `requireAdmin(review_tasks)` **逐字同判** ⇒ 零回归）；
+ *   · 普通已登录用户 ⇒ `employerFilterUid = actor.user.uID`（仅其作为发布者 `job.employer_uid` 的 pending 提交）。
+ * `count` 口与 `list` 口**共用**本助手产出的同一 `employerFilterUid` ⇒ 过滤谓词两处同源（不各写一套）。
+ * ★ 未改 `POST /api/tasklist/:jID/verify` 的准入（仍 `requireAdmin(review_tasks)` · admin-only 零回归）；
+ *   发布者的判定动作仍走 `POST /api/job/:jobId/review`（`requireJobOwnerOrAdmin`，已支持雇主）。
+ */
+const resolveReviewQueueScope = async (
+  req: Request,
+  res: Response,
+): Promise<{ actor: ActorContext; employerFilterUid: number | null } | null> => {
+  const actor = await requireActor(req, res);
+  if (!actor) return null;
+
+  // admin 判定与 `requireAdmin(req, res, 'review_tasks')` 的放行条件**逐字同源**
+  //（`can_access_admin ∧ (is_admin ∨ permissions∋review_tasks)`）⇒ admin 路径零回归。
+  const isReviewAdmin = actor.adminAccess.can_access_admin
+    && (actor.adminAccess.is_admin || hasRequiredPermission(actor, 'review_tasks'));
+
+  return { actor, employerFilterUid: isReviewAdmin ? null : actor.user.uID };
+};
+
 const buildUserPayload = async (user: UserRecord) => {
   const asset = await DatabaseService.getUserAsset(user.uID).catch(() => null);
   return {
@@ -1945,11 +1970,13 @@ app.get('/api/user/stats', async (req, res) => {
 });
 
 app.get('/api/tasklist/pending-verification/count', async (req, res) => {
-  const actor = await requireAdmin(req, res, 'review_tasks');
-  if (!actor) return;
+  // ★ S16：准入 = 「admin（持 `review_tasks`）∨ 已登录」；普通发布者只看**自己任务**上的 pending 提交
+  //   （过滤 uid 与列表口**同源** = `resolveReviewQueueScope`）；未登录 ⇒ 既有 401（**不是** 403）。
+  const scope = await resolveReviewQueueScope(req, res);
+  if (!scope) return;
 
   try {
-    const count = await DatabaseService.countPendingVerification();
+    const count = await DatabaseService.countPendingVerification(scope.employerFilterUid);
     sendSuccess(res, { count });
   } catch (error) {
     // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
@@ -1960,12 +1987,14 @@ app.get('/api/tasklist/pending-verification/count', async (req, res) => {
 });
 
 app.get('/api/tasklist/pending-verification', async (req, res) => {
-  const actor = await requireAdmin(req, res, 'review_tasks');
-  if (!actor) return;
+  // ★ S16：admin（持 `review_tasks`）⇒ `employerFilterUid = null`（全局视图 · **既有行为零回归**）；
+  //   普通发布者 ⇒ 仅其作为发布者（`job.employer_uid`）的任务上的 pending 提交（与 count 口同源）。
+  const scope = await resolveReviewQueueScope(req, res);
+  if (!scope) return;
 
   try {
     const { skip, limit } = getPagination(req);
-    const items = await DatabaseService.listPendingVerification(skip, limit);
+    const items = await DatabaseService.listPendingVerification(skip, limit, scope.employerFilterUid);
     sendSuccess(res, items);
   } catch (error) {
     // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器

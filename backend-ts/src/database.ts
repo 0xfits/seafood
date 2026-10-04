@@ -4000,15 +4000,42 @@ export class DatabaseService {
     };
   }
 
+  // ==========================================================================================
+  // ★ S16（可用性缺口：普通发布者本应能用 `/task/review` 待审队列）· **发布者过滤谓词唯一真源**
+  //   · 可选参数 `employerUid`（`list` / `count` **同一个**）：
+  //       `null`   ⇒ 谓词恒真（admin 全局视图 · 既有行为**零回归**）；
+  //       `number` ⇒ 仅 `job.employer_uid = <uid>`（普通发布者只看**自己作为发布者**的任务上的提交）。
+  //   · 谓词占位符**固定为 `$1`**，且两查询均**以它起参数编号**（list 依次 `$2`=limit、`$3`=skip）
+  //     ⇒ **一处定义、两处消费**，杜绝「两处各写一套」的漂移（S16 硬口径「过滤器同源」）。
+  //   · `LEFT JOIN job`（**非** inner join）：`$1 IS NULL`（admin）路径不因 join 丢行 ⇒ 与改前逐行同结果；
+  //     普通发布者路径下孤儿提交（无对应 job ⇒ 无发布者）自然排除。
+  // ==========================================================================================
+  private static readonly PENDING_VERIFICATION_FROM_SQL = `
+      FROM public.job_submission AS s
+      JOIN "users" AS u
+        ON u.uid = s.worker_uid
+      LEFT JOIN public.job AS j
+        ON j.job_id = s.job_id
+      WHERE COALESCE(NULLIF(BTRIM(COALESCE(s.deliverable, '')), ''), '') <> ''
+        AND s.review_status = 'pending'
+        AND COALESCE(u.is_admin, false) = false
+  `;
+
+  private static readonly PENDING_VERIFICATION_SCOPE_SQL =
+    'AND ($1::bigint IS NULL OR j.employer_uid = $1::bigint)';
+
   /**
    * 后台待审队列（雇主视角 `review_status='pending'`）。
    * ★ S4a（`R-9-100`）· **换轴**：改前按 `job_application`（申请轴 = 每 (job,worker) 取最新一条提交）；
    *   现**直接按 `job_submission` 提交轴**（新模型无申请行 ⇒ 旧写法会让新提交在待审面不可见）。
    *   `jID` = `submission_id`（与读口换轴一致）；`info_input` = `deliverable`。
+   * ★ S16 · 新增可选 `employerUid`（默认 `null` = 全局 · admin 零回归）；普通发布者传自身 uid ⇒
+   *   仅返回其 `job.employer_uid` 命中的 pending 提交（谓词与 `countPendingVerification` **同源**）。
    */
-  static async listPendingVerification(skip = 0, limit = 50): Promise<PendingVerificationRecord[]> {
-    const sql = getSql();
-    const rows = extractRows(await sql`
+  static async listPendingVerification(skip = 0, limit = 50, employerUid: number | null = null): Promise<PendingVerificationRecord[]> {
+    // neon 普通调用形（`sql(text, params)`）：本查询**手工**编号 `$1..$3`，谓词同源于共享常量。
+    const sql = getSql() as unknown as (text: string, params: unknown[]) => Promise<RawRow[]>;
+    const rows = extractRows(await sql(`
       SELECT
         s.submission_id AS "jID",
         s.job_id AS "tID",
@@ -4019,16 +4046,12 @@ export class DatabaseService {
         s.reviewed_at AS time_checked,
         NULL::timestamptz AS time_claimed,
         0::int AS points_claimed
-      FROM public.job_submission AS s
-      JOIN "users" AS u
-        ON u.uid = s.worker_uid
-      WHERE COALESCE(NULLIF(BTRIM(COALESCE(s.deliverable, '')), ''), '') <> ''
-        AND s.review_status = 'pending'
-        AND COALESCE(u.is_admin, false) = false
+      ${DatabaseService.PENDING_VERIFICATION_FROM_SQL}
+        ${DatabaseService.PENDING_VERIFICATION_SCOPE_SQL}
       ORDER BY s.time_created DESC NULLS LAST,
                s.submission_id DESC
-      LIMIT ${limit} OFFSET ${skip}
-    `);
+      LIMIT $2 OFFSET $3
+    `, [employerUid, limit, skip]));
 
     const items = await Promise.all(rows.map(async (row) => {
       const taskProgress = normalizeTaskProgress(row);
@@ -4053,18 +4076,17 @@ export class DatabaseService {
     return items;
   }
 
-  /** ★ S4a（`R-9-100`）· 待审计数（换轴：`job_submission` 提交轴，与 `listPendingVerification` 同源）。 */
-  static async countPendingVerification(): Promise<number> {
-    const sql = getSql();
-    const rows = asItems<{ count: number }>(await sql`
+  /**
+   * ★ S4a（`R-9-100`）· 待审计数（换轴：`job_submission` 提交轴，与 `listPendingVerification` 同源）。
+   * ★ S16 · 新增可选 `employerUid`（与列表口**同一可选参数 / 同一谓词常量**）；默认 `null` = 全局（零回归）。
+   */
+  static async countPendingVerification(employerUid: number | null = null): Promise<number> {
+    const sql = getSql() as unknown as (text: string, params: unknown[]) => Promise<RawRow[]>;
+    const rows = asItems<{ count: number }>(await sql(`
       SELECT COUNT(1)::int AS count
-      FROM public.job_submission AS s
-      JOIN "users" AS u
-        ON u.uid = s.worker_uid
-      WHERE COALESCE(NULLIF(BTRIM(COALESCE(s.deliverable, '')), ''), '') <> ''
-        AND s.review_status = 'pending'
-        AND COALESCE(u.is_admin, false) = false
-    `);
+      ${DatabaseService.PENDING_VERIFICATION_FROM_SQL}
+        ${DatabaseService.PENDING_VERIFICATION_SCOPE_SQL}
+    `, [employerUid]));
     return Number(rows[0]?.count || 0);
   }
 
