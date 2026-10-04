@@ -1416,6 +1416,23 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.336 **S19 ✅ 真源换轴（`participants_count` ⇒ `job_submission` distinct worker）+ 四语「已参与」+ `/shard`→`/exchange` · ★我独立复核撞出一个**常红门**（`p7b-03` AC10-2 冻结面 68 vs 现取 89）· ★落册 `docs/OPEN-ITEMS.md`（远期任务台账）**（2026-10-04）
+
+**A. S19（46c/391s）交付**：两处 SQL **同源**换真源（`database.ts` CTE `participant_counts`：`public.job_submission` + `COUNT(DISTINCT s.worker_uid)::int`，各带 3 行 S19 注释 + 「两处必须同源」声明）· 四语 `jobs.participants` **只改值**（「已参与 {{count}} 人」/「已參與…」/「{{count}} participants」/「{{count}} người tham gia」）· `ProfilePage.jsx:514` ⇒ `/exchange` · 新测试 11 例（含内建负对照）· 报告 `docs/audit/s19-participants-truth-source.md`。
+
+**B. ★ 我亲跑核盘（不采信自述）**：`git diff --numstat` = `16/10 database.ts` + `1/1`×4 locale + `1/1 ProfilePage`（**index.ts 未碰** ⇒ 结构性证明「注册点不变」）；两处 CTE 逐字同形（`public.job_submission` + `COUNT(DISTINCT s.worker_uid)`）；旧组合 `COUNT(1)::int AS participants_count` + `job_application` = **0 处**；四语 `top=119 / flat=1059` **不变**、`jobs.participants` 四语值逐字核过、`participantsUnit` 未动；产品面（排除 `test/`）`/shard` 页面链接 = **0**。
+**硬门（我亲跑）**：`tsc --noEmit` **exit 0** · `p8-s1..s6`+`s9` **全绿**（24/44/45/38/79/117/100）· `s7/s8/s10/s11` = `56/59`、`70/74`、`48/49`、`86/87`，**红点逐条读 artifact = 全为「受控实例真 HTTP」腿 `fetch failed`（环境性，非缺陷）** · 前端 `vitest run` = **`7 failed | 460 passed`（失败集与基线逐条相同 ⇒ 零新增；+11 新绿）** · `npm run build` **exit 0**（`index-DHaSQHvf.js` 419.15 kB）· 四脚本 **全 PASS**（i18n-locales / i18nviol-global [locale 0 · source 0 · 节点 4236] / feperf-safelist / miscfix-links）。
+**上线 + 生产终验（我亲取）**：`f8d6fde` 已 push（未推 0）；`/api/health` = **200 + `schema_version 0042`**；线上 `index-DHaSQHvf.js` **sha256 `3e14c04b…` = 本地逐字相同（`cmp` 0）**；**文案级**：线上 bundle 内命中「已参与 {{count}} 人」与「người tham gia」✓。
+
+**C. ★★ 我复核时撞出的真发现（非 S19 缺陷，属**我的派单漏面**）**：`backend-ts/scripts/p7b-03-offline-gates.ts` 的 `AC10-2` **写死「注册点 = 68」**，而**现取 = 89** ⇒ 该门**恒红**（跑出 `36/37`，唯一红 = `AC10-2`）。定性：**与 S10/S11「冻结面前推」同族** —— S11 前推了 11 门，**漏了本门**（它不在 S11 的清单里）；**S19 不可能致红**（本轮 `index.ts` 零改动）。⇒ 登记台账 **B1**。
+
+**D. ★ 落册 `docs/OPEN-ITEMS.md`（远期任务台账 · 新建）**：分四段 —— **A 待 Kevin 定值/口径**（A1 保证金金额 `currency-service.ts:148 = 50000` / A2 调分日累计上限 `index.ts:2096 = 1,000,000` / A3 `/dashboard` 是否放开〔我裁不放开〕/ A4 装饰性切角 4 处）· **B 工程债**（B1 常红门前推 / B2 门扫面根排除探针 / B3 `ledger.spec` v0.13 快照缺 / B4「已参与 X / 共 N 人」需 `headcount` 进读模型 / B5 `sendError` 50 处 + `sendAuthError` 4 处 / B6 两套取数入口 / B7 10 死键 / B8 `styles.css:29` 注释 + `p4z-*.mjs` 诊断脚本的 `/shard` / B9 `TRUNCATE` 无触发器保护 / B10 生产库保真判据〔Kevin 已裁不开〕）· **C 例行验收动作**（4 门 http 腿须起实例）· **D 已闭环备查**。**口径**：台账 = **未闭环项的唯一清单**；闭环后移出并在本册留痕；**spec 内 64 处 `/shard` 属留痕口径、非缺口**（防误改）。
+
+**E. 派单**：**S20（Kong·门卫生）** ⇒ B1 冻结面前推（**须给增量出处**）+ B2 扫面根排除式 + 四门 http 腿红点定性报告。
+**F. 状态**：DB **`41 行 / max 0042`** · 生产 **`f8d6fde`** · 端口全空 · 工作树干净（除 `.s19-artifacts/` 与历史 artifact 目录，均未跟踪）。
+
+---
+
 ### 5.335 **S19 派单 · 「已报名 N 人」是假话（真源 = 已停写的 `job_application`）⇒ 我裁：从数据源侧修（`job_submission` distinct worker）+ 四语值改「已参与」+ `/shard`→`/exchange` 收口**（2026-10-04）
 
 **A. 现取（我亲取，非转抄）**：
