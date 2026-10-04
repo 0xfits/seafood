@@ -1416,6 +1416,23 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.337 **S20 ✅ 门卫生（常红门前推 68→89 + 逐 rev 出处表）· ★我复核撞出第二处**移植遗留死件**（`src/simple-test.ts`）· ★我终审 B2 = **变体 Ⅰ**（扫面根显式排除，不搬迁探针）· 派 S21**（2026-10-04）
+
+**A. S20（31c/248s）**：① `p7b-03-offline-gates.ts` `AC10-2` 前推 `68 ⇒ 89`（**只改数值 + 注释**，判据形态与其它 AC 一字未动；注释内逐 rev 出处表）② 14 门（13 个 `p8-*-gate` + `p7b-03`）**扫面根只读盘点** + 逐门风险判定 + **两变体（未择一）**③ 报告 `docs/audit/s20-gate-hygiene.md`。
+
+**B. ★ 我核盘（亲跑）**：`git diff --numstat` = **`10/1`（仅该文件）**；**我亲跑该门 = `37/37 · exit 0 · red=[]`**（改前 `36/37 · red=[AC10-2]`）；**抽验出处表**（`git show <rev>:backend-ts/src/index.ts | grep -cE '^app\.(get|post|put|delete|patch)\('`）⇒ `b082a81`=**69** · `0d86ce5`=**71** · `627032b`=**85** · `692f622`=**89** · HEAD=**89** ⇒ 净 **+21** 链可信；它另报全历史唯一递减 `2b198d4`（58→49）有因且**早于冻结值 68 约 30 提交**，不在前推射程内（如实处置：不停手但登记）。
+
+**C. ★★ B2 终审（我裁）**：**取变体 Ⅰ（扫面根显式排除探针命名式）**，**不取变体 Ⅱ（不搬迁那 72 件探针）** —— 理由：Ⅱ 的 diff 面大且会**作废历史报告/artifact 里的路径引用**（本仓把「报告逐字引路径 + run-tagged 产物」当证据链），收益却只是同一件事的另一种写法。**Ⅰ 附三条硬约束**：① 排除式**必须是显式白名单命名式**（沿既有惯例 `*recon*` / `*probe*` / `*-00-*` / `*diagnostic*` + 产物目录），**禁宽泛一刀切**；② **fail-loud**：门启动打印「扫面根 N 件 / 排除 M 件 / 参判 K 件」并写入 artifact，**M=0 也照印**（防将来路径变更让排除式静默失效）；③ **排除只作用于 `backend-ts/scripts/` 一个根**，`src/`/`migrations/`/`frontend/src/`/`docs/` 四根**检出面一字不缩**，并配**两处负对照**（正常命名违规件放进 `scripts/` ⇒ 必红；同内容放进 `src/` ⇒ 仍必红）。
+**风险面现取**：唯一**高险门** = `p8-s7-batt-checkin-gate.ts`（`SCAN_ROOTS:312` 含 `backend-ts/scripts`，而 `D6/D7/D8` 判「含 `checkin_makeup_fee` 且 kind ≥ 20 的文件 = **恰六处**」）⇒ `scripts/` 内 ≥21 kind 的探针会**假红**；且**余量极薄**（`p4z-b3afix2-01-gen-0020.ts` / `p3m-00-state.ts` 两件已卡在 20 kind）。其余门扫 `src/**` 或定向读 ⇒ 低/无险。
+
+**D. ★ 连带发现（我裁：删）**：`backend-ts/src/simple-test.ts` —— **29 行 · git 已跟踪 · 落 `src` 扫面根 · 内容是 jinli 移植遗留**（`process.env.jinli_DATABASE_URL || process.env.DATABASE_URL` 直连 + neon 调用）· **全仓引用 = 0**（`grep -rn 'simple-test'` 在 `src/`/`scripts/`/`package.json` 零命中）⇒ 死件 + 遗留凭据名 ⇒ **删除**（S21 同单，含独立零引用取证 + 删后硬门对照）。
+
+**E. 派单 + 台账**：**S21（Kong）** ⇒ 变体 Ⅰ 落地 + `simple-test.ts` 删除 + 报告 `docs/audit/s21-scan-root-hygiene.md`。**台账 `docs/OPEN-ITEMS.md` 同步**：`B1` **移入 D 段（已闭环）**；`B2` 更新为「变体 Ⅰ 落地中」；**新增 `B11`** = 移植遗留死件。
+
+**F. 状态**：DB **`41 行 / max 0042`** · 生产 **`1bff643`** · 端口全空 · 工作树干净。
+
+---
+
 ### 5.336 **S19 ✅ 真源换轴（`participants_count` ⇒ `job_submission` distinct worker）+ 四语「已参与」+ `/shard`→`/exchange` · ★我独立复核撞出一个**常红门**（`p7b-03` AC10-2 冻结面 68 vs 现取 89）· ★落册 `docs/OPEN-ITEMS.md`（远期任务台账）**（2026-10-04）
 
 **A. S19（46c/391s）交付**：两处 SQL **同源**换真源（`database.ts` CTE `participant_counts`：`public.job_submission` + `COUNT(DISTINCT s.worker_uid)::int`，各带 3 行 S19 注释 + 「两处必须同源」声明）· 四语 `jobs.participants` **只改值**（「已参与 {{count}} 人」/「已參與…」/「{{count}} participants」/「{{count}} người tham gia」）· `ProfilePage.jsx:514` ⇒ `/exchange` · 新测试 11 例（含内建负对照）· 报告 `docs/audit/s19-participants-truth-source.md`。

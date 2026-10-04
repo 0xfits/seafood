@@ -20,8 +20,8 @@
 
 | # | 项 | 现取依据 | 代价 / 阻塞 |
 |---|---|---|---|
-| **B1** | 【**常红门**】`backend-ts/scripts/p7b-03-offline-gates.ts` `AC10-2` 写死「注册点 = **68**」，而**现取 = 89** | 本单现取：`grep -cE "^app\.(get\|post\|put\|delete\|patch)\(" src/index.ts` = **89**；该门跑出 `36/37`，唯一红 = `AC10-2` | 与 S10/S11「**冻结面前推**」同族 ⇒ 前推须**给出增量出处**（哪几个提交各加了几条路由）。**本轮已派 S20** |
-| **B2** | **门扫面根**显式排除 `*recon*` / 测试探针 | S15 已把 `p8-s5-00-recon{1,2,3}.ts` 移出 `scripts/`（治标）；**根治项未做** ⇒ 未来探针落进扫面根会造**假红** | 小（各门扫面根加排除式） |
+| **B2** | **门扫面根**显式排除探针命名式 | S20 只读盘点（14 门）：唯一**高险门** = `p8-s7-batt-checkin-gate.ts` —— `SCAN_ROOTS`（`:312`）含 `backend-ts/scripts`，而 `D6/D7/D8` 判「含 `checkin_makeup_fee` 且 kind ≥ 20 的文件 = **恰六处**」⇒ `scripts/` 内任何 ≥21 kind 的探针都会**假红**（现取余量极薄：两件卡在 20 kind）；其余门扫 `src/**` 或定向读 = 低/无险 | **已终审选变体 Ⅰ**（扫面根显式排除 + fail-loud 打印「扫面根 N / 排除 M / 参判 K」+ 两处负对照；**检出面不缩**）· **不取变体 Ⅱ**（不搬迁 72 件探针）· **S21 落地中** |
+| **B11** | 落 `src` 扫面根的移植遗留**死件** | `backend-ts/src/simple-test.ts`（29 行、**git 已跟踪**、`jinli_DATABASE_URL` 遗留凭据名、**全仓引用 = 0**）—— S20 盘点顺带发现 | 极小 · **S21 同单删除**（含独立零引用取证 + 删后硬门对照） |
 | **B3** | `ledger.spec` **v0.13 快照缺失** | 现取 `docs/versions/`：`ledger.spec.v0.12.md` → **（无 v0.13）** → `v0.14.md` | 小，但**必须先现取判定**该版正文是否仍在 git 历史；若**从未入库** ⇒ 与 `data-layer` v0.1 同族（真伪不可独立复核），只能留痕声明 |
 | **B4** | 「**已参与 X / 共 N 人**」增强 | `headcount` **不在读模型**（`normalizeTask` 无该字段；只在发布/评审路径 `database.ts:3411 jobHeadcount`） | 中（后端读口回填 + 前端展示；S19 已登记为「一句话可改」可选增强） |
 | **B5** | 契约卫生：`sendError` 同族 | 现取 `backend-ts/src/index.ts`：`sendError(` = **50 处**、`sendAuthError` = **4 处**、`fromLedgerError` = **0 处**（§15.5 存量偏离 A–F） | 中；**用户不可见** ⇒ 可推迟 |
@@ -43,6 +43,7 @@
 ## D. 本轮已闭环（备查，勿重复开单）
 
 - `participants_count` **真源**：`job_application`（已停写）⇒ `job_submission` 的 `COUNT(DISTINCT worker_uid)`；四语值改「已参与」（S19 ✅ 已上线）。
+- 【**常红门**】`p7b-03-offline-gates.ts` `AC10-2` 注册点冻结面 **68 ⇒ 89**：逐 rev 出处表（净 +21）+ 负对照（期望 88 必红）+ 我亲跑 `37/37 · red=[]`（S20 ✅ 已上线）。
 - `ProfilePage` 旧链接 `/shard` ⇒ `/exchange`（S19 ✅；产品面 `/shard` 页面链接现取 = **0**）。
 - `route-layer.spec` 路由路径回写（S14 更正块 ✅）。
 - `p8-s7` 残留红点（C5 / D6-D8）判定为合法前推并具名登记（S12 ✅）。
