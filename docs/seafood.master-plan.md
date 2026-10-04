@@ -1416,6 +1416,25 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.335 **S19 派单 · 「已报名 N 人」是假话（真源 = 已停写的 `job_application`）⇒ 我裁：从数据源侧修（`job_submission` distinct worker）+ 四语值改「已参与」+ `/shard`→`/exchange` 收口**（2026-10-04）
+
+**A. 现取（我亲取，非转抄）**：
+| # | 落点 | 事实 |
+|---|---|---|
+| ① | `backend-ts/src/database.ts:2530-2537`（`listTasks`）· `:2559-2566`（`getTask`） | 两处 CTE `participant_counts` = `COUNT(1)::int … FROM job_application` ⇒ **真源是停写表**（`R-9-100`）|
+| ② | `JobDetailPage.jsx:215` · `TaskCard.jsx:130` · `HomePage.jsx:54` · `TaskPage.jsx:60,73` | 展示面消费 `participants_count` / `participants` |
+| ③ | 四语 `jobs.participants` | zh「已报名 {{count}} 人」· hk「已報名 {{count}} 人」· en「{{count}} applicants」· vn「{{count}} người ứng tuyển」⇒ **换轴后均为假话**（提交才是参与）|
+| ④ | `ProfilePage.jsx:514` | 仍 `buildLocalizedPath(lang,'/shard')` ⇒ **换轴遗留**（重定向兜底、零破损）；§5.302 D 登记的待办 |
+| ⑤ | `headcount` | 只在发布/评审路径（`database.ts:3411 jobHeadcount`）⇒ **不在读模型** ⇒「已参与 X / 共 N 人」本单不做（登记可选增强）|
+
+**B. 我裁（★ 一句话可改）**：① **数据源 = `public.job_submission` 的 `COUNT(DISTINCT worker_uid)`**，**两处 SQL 必须同源**（照 S16「同源」纪律）；**不区分 `review_status`**（提交过即参与；判不合格者仍是参与者且可再提）② 四语 `jobs.participants` **只改值不动键** ⇒「已参与 {{count}} 人」/「已參與 {{count}} 人」/「{{count}} participants」/「{{count}} người tham gia」；`common.participantsUnit`（「人参与」）**不动**（真源变活后语义成立）③ `ProfilePage:514` ⇒ `/exchange`（产品面同族扫面，测试里的旧路径保留）。
+
+**C. 派单**：Kong · `deleg_9bca4f00`（`sa-0-371f2f60`）⇒ 真源两处 + 四语值 + `ProfilePage` 链接 + 测试（含**判负**：钉回旧源必红）+ 报告 `docs/audit/s19-participants-truth-source.md`；**不动** `headcount` 读模型 / 死键 / `/dashboard` 路由闸（均已裁）。
+
+**D. 状态**：DB **`41 行 / max 0042`** · 生产 **`81d08a8`** · 端口全空 · 本件**未动代码**。
+
+---
+
 ### 5.334 **S18 ✅ 发布者可发现性 + 换轴遗留文案 · ★它两个精准判断（`participants` 计数源已停写 ⇒ 改标签反成假话 / Dashboard 双闸）· 我裁不放开路由 · 入库 + push**（2026-10-04）
 
 **A. S18（53c/403s）**：
