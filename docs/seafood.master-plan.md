@@ -1416,6 +1416,43 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.325 **★ 全批独立质检回执：后端真链路 (a)–(g) **全绿** · 前端三片 PASS · ★★质检推翻实现方一处「未判定」登记（`ledger.kind.*` 真缺 4 键）· 我收尾残留实例 + 派 S9/S10**（2026-10-04）
+
+**A. 后端面质检（Neng · 60c/418s · 截断）—— ★★ 真 HTTP 端到端 (a)–(g) 全绿（`0042` 已 apply）**：
+| 项 | 读数 |
+|---|---|
+| (a) 发布 `headcount=2/reward=1000` | job **216** · `escrow_txid=2253` · 雇主归 970001 `balance 1634971→1632971`（**−2000**）/ `frozen 3861→5861`（**+2000**）✓ |
+| (b) 三人提交 | W1(12)→sub **217** · **雇主本人**→**218** · **雇主二次**→**219**（**三号互异**）⇒ **`self_application` 已除** ✓ |
+| (d) 判不合格（带提交号） | HTTP **200** · sub 217→`rejected` · 任务仍 `open` · **资金 0/0** · **可再提**（sub 220）✓ |
+| (c) 逐笔发放 ⇒ 发满 | 判 220 ⇒ txid **2255** · 键 **`biz:job:settle:216:220`** · 4 分录 `[job_payout×2, job_fee×2]`；再判 218 ⇒ txid **2259** ⇒ **`status=settled`**，且 ★ **`settle_txid=2255`（首值未被覆盖）** ⇒ **`0042` 那个 `COALESCE` 修复得到了端到端验证** ✓ |
+| (e) 用不满结束 | job **218**（`headcount=3`）：托管 3000 → 判 1 份 → `cancel` ⇒ 键 `biz:job:refund:218` · **退 2000 = 1000×(3−1)** ✓ |
+| (f) 退役面 | `apply`→**410 `APPLY_RETIRED`** · `accept`→**410 `ACCEPT_RETIRED`** · `claim`→410 `CLAIM_RETIRED` ⇒ ★ **三者 error 键集与 details 键集逐字相同** ✓ |
+| (g) 读口换轴 | `GET /api/task-progress/220`：提交者 **200**（uID 12）· 非提交者 **404** · 无令牌 **401**；`GET /api/job/216/submissions`：发布者 **200**(4) · 非发布者 **403 `NOT_ADMIN`** · 无令牌 **401** ✓ |
+- **判负**：**NT2（结算键改回不含提交号）复现成立** ✓（首判键 `biz:job:settle:220` `replay=false paid=1`；次判**同键** ⇒ `replay=true paid=0`、`status` 仍 `open`、提交 225 `approved` / 226 **永滞 `pending`**）· 回滚自证 `restored:true`（`job_post_event` md5 复原）✓
+- ★★ **NT1（「托管退化为单份 ⇒ 第二份必报冻结不足」）—— 质检判定「原命题前提不成立」⇒ 我裁：接受为口径澄清、非缺陷**：余额闸是**账户级 `frozen`、非按 job 隔离** ⇒ 该雇主另有冻结余量 ⇒ 第二份**不会**缺冻结。★ **这是我的 brief 假设写错了**（我认账）⇒ 登记为**假设证伪**。
+- **③ 门复跑未执行**（工具上限）⇒ 但**已逐处现取 7 处滞后项**（见 D）
+- **④ 主仓零污染** ✓（判负只在仓外副本）
+- **★ 净写登记（HTTP 无法回滚，如实登记）**：`job` 214–218 · `job_submission` 212–222 · **`ledger_entry` txid 2239–2274（36 行）** ⇒ 真实落库、可对账。★ 我核：**不动**（账本 append-only；涉及的为测试账户 970001 等，非真人 Kevin 余额）
+- **Verdict**：**资金面/路由面全绿 ⇒ 判可放行**；未竟 = 门复跑 + NT3 净读数 + 实例收尾
+- ⚠️ **▶ 我的机械收尾（已做）**：它撞上限**未收实例**（PID 18143 / npx 父 17754）⇒ 现取 `ps` **两者已随子代理终止** ⇒ `lsof -nP -iTCP:5793-5799` = **空** ✓
+
+**B. 前端与 i18n 面质检（Neng · 34c/197s）**：
+- **S5 ✅ PASS**：四语 3 键逐值 ✓ · `:19` 默认 1 ✓ · `:119` `type=number min=1 step=1` ✓ · `:54-58` onSubmit 闸 ✓ · `:40-48` **押金 = reward × headcount**（与后端同口径）✓ · **判负必红**（把押金改成不乘人数 ⇒ `expected 'deposit=10;…' to include 'deposit=30'`）✓
+- **S7 ✅ PASS**：URL/body **与后端逐字一致**（`GET /api/job/:jobId/submissions` ⇔ `index.ts:2522`；`POST /api/job/:jobId/review` body `{approved, submission_id}` ⇔ `:2457` 读 `req.body?.submission_id ?? submissionId`）✓ · 读口 9 键字段名逐字命中 ✓ · **判负必红**（body 缺 `submission_id` ⇒ `expected {approved:true} to deeply equal {approved:true, submission_id:97}`）✓
+- **S8 ✅ PASS（declared static scope）**：★ **它自己写独立扫描器复核** ⇒ 去重取键 **850** ⇒ **缺键差集 = 0** ✓ · 11 个模板前缀族非空 ✓ · 四语键集相等（各 1055 / 顶层 119 / 节点 4220）✓ · **守卫必红自证它也自己重做了一遍**（注入 `t('qa.__inject__')` ⇒ 必红 ⇒ 精确复原、sha256 回原值）✓
+- ★★ **但它抓到一处「可判定漏网」，并推翻实现方的登记（我复核成立）**：`ledger.kind.${entry.kind}`（`ProfilePage:416` / `MarketPage:405`）被实现方登记为「服务端枚举驱动、无法静态判定」⇒ **错**：后缀域**封闭可枚举**（后端 `LEDGER_KINDS`（`ledger.ts:168`）24 值 + DB CHECK 24 值双源），且仓内文档已明列该关闭集是**前端账单文案的稳定契约**。⇒ **我现取复核**：locale `ledger.kind` **仅 20 键** ⇒ **缺 4 键（四语全缺）**：`checkin_makeup_fee` · `bttc_mint_fee` · `bttc_burn_fee` · `invite_first_task_reward`；且该调用**无 `.unknown` 兜底**（对照 `statusLabel.*` 均有兜底）⇒ **正常用户遇这 4 类流水时页面渲染裸键名**（**用户可见残余**）。
+  ⇒ ★ **我裁**：**既有缺口、非本批引入**（本批 locale 仅 +`jobs.deliverable`）⇒ **必修** ⇒ 派 **S9**（两源对账 + 补齐四语 + **「族 vs 后端关闭集」守卫** + 注入自证）
+- **④ 回归全绿**：vitest `7 failed/429 passed`（基线**零新增**）✓ · `build` **0** ✓ · `p4z-i18nviol-global.mjs` **RC=0 总判 PASS** ✓ · `p6-tr2-i18n-locales.mjs` **RC=0**（四语键集相等 PASS）✓
+- **⑤ 主仓零污染** ✓（11 被检件 sha256 逐字不变）
+- ★ **旁注（既有笔误，登记备查）**：`p4z-i18nviol-global.mjs:202` 设 `fail` 用的是 `cjkHits` 而非刚算出的 `hardcodedCjkHits` ⇒ 「硬编码中文」子面命中**不参与总判**（与本批无关）
+- **Verdict**：S5/S7/S8 全 PASS；**但「缺键类级全清」的说法过宽** ⇒ 建议就 `ledger.kind.*` 4 键补单（已派）
+
+**C. ★ 我裁 S9/S10 并行派单**：**S9**（`ledger.kind.*` 4 键 + 守卫 · `frontend/**`）∥ **S10**（门前推 7 处 `40/0041` ⇒ `41/0042` + 门复跑 · `scripts/*.ts`）⇒ 面不相交 ✓
+**D. 前推面（7 处，质检现取，我复核照抄）**：`p8-s3:81` / `p8-s3b:70` / `p8-s4:68` / `p8-s5:77`（`MIGRATIONS_FROZEN = 40`）+ `p8-s9:515` / `p8-s10:328` / `p8-s11:468`（`===40 && '0041'`）⇒ **`41` / `'0042'`**
+**E. 状态**：DB **`41 行 / max 0042`** · 全在本地**未 push** · 端口全空 ✓ · **积分 9889 + 电量 30**（Kevin 账户未受影响）。
+
+---
+
 ### 5.324 **S8 locale 缺键类级扫面 ✅（类级缺口已封）· 我核盘 · 入库 · ★apply `0042`**（2026-10-04）
 
 **A. S8（60c/346s）扫面读数**：`frontend/src/**`（排除 `test/`）**91 个源文件** · 取键调用 **1162 处** ⇒ 字面键 **798** + 点号字面量候选 **814** + 动态/模板 **44**；四语 locale 拍平各 **1054**（顶层 119）。
