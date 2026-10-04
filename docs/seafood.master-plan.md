@@ -1416,6 +1416,31 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.333 **S17a（前端开门）+ S17b（补回负向覆盖）✅ · ★S17a 另报两条真缺口（可发现性 / 换轴遗留文案）⇒ 派 S18**（2026-10-04）
+
+**A. S17a ✅（56c/371s）** —— 使 S16 的后端放宽对**普通发布者真正生效**：
+- `JobReviewPage.jsx`：`canReview` = **`isAuthenticated`**（改前 = `hasAdminPermission(access,'review_tasks')`）；**删除整段 admin 闸机器**（`access`/`accessPhase`/`fetchAdminAccess` effect / `jobs-review-gate` 加载态 / `jobs-review-denied` 空态）+ 去 `admin-utils` import ✓
+- ★ **保留** `!isAuthenticated` 早返回（渲染 `pleaseLogin` + `load()` 早返回 ⇒ **不发读**）✓ · ★ **前端零过滤**：请求路径恒为 `/api/tasklist/pending-verification`（**无 uid/employer 参数**）⇒ **过滤唯一真源 = 后端 `resolveReviewQueueScope`** ✓
+- 测试：新增 `s17a-review-page-access-gate.test.jsx`（3 例：已登录不 denied + 发读 1 次 / **不请求 `/api/admin/me`** / 未登录发读 0 次）+ 改 `listing-market.test.jsx` 中已作废的「非 admin ⇒ denied」1 例 ⇒ ★ **负对照**：把门钉死 `false` ⇒ **`2 failed / 1 passed`**（可判负、非假门）✓
+- 自证：vitest `7 failed / 447 passed`（基线 `444` ⇒ **零新增**，失败集逐条不变）✓ · `build` **0**（`index-vqP1mQZz.js`）✓ · **真 HTTP 17/17 PASS**：普通发布者 uid3 ⇒ **200 `ids=[245]` / `jobs=[22]` / count=1**（只自己任务的提交）· admin uid1 ⇒ **200 `[245,246,247]` == 全局（零回归）** · 未登录 ⇒ **401**（双口）· **判负 3 条**（泄漏 `[245] ⊊ [245,246,247]` · 跨发布者 uid11 ⇒ `[246]@job23` · 未登录 401≠200/403）· **净写 0**（`req_sum`/`ctrl_sum` 全 0）· 清理后可见 pending 复原 `[]` ✓
+- 泄漏 **0**（四语 1059 键全量 + `git diff locales` 空）✓ · **收尾干净**（`kill -TERM` 44523 + 父 44144 ⇒ `lsof :5796` **空**）✓
+- ★ **交裁登记 = 无**：它现取确认**没有**因 S17a 语义变化而变假的 locale 文案（`jobs.review`/`reviewNote` 等四语值**均无「管理员」字样**）✓
+
+**B. S17b ✅（23c/170s）** —— 补回 `DL77` 的负向覆盖：
+- ★ **真库实测建立完整合法边集 = 恰 10 条**（事务内 `BEGIN…ROLLBACK` 净零写、非猜）：`open→{accepted,settled,cancelled}` · `accepted→{submitted,rejected}` · `submitted→{settled,rejected,disputed}` · `disputed→{settled,cancelled}` ⇒ **其余 39 条仍非法** ✓
+- 选定仍非法边 **`open→rejected`**（实测 `= false`）：**编排层** `job_post_event({op:refund,to_status:rejected})` 与 **触发器层** raw `UPDATE … status='rejected'` 各给**四稳定读数**（`LD011` · `LEDGER_CURRENCY_INVALID_TRANSITION` · `reason=JOB_STATE_INVALID` · `detail_parsed(from/to/field)`）+ 业务行仍 `open` ✓
+- ★★ **对照臂（设计出色）**：`open→cancelled`（合法）越状态闸、**改由 escrow 闸拦**；raw `open→accepted` **成功** ⇒ **证「同路径、仅目标边不同」** ✓
+- 新增 **`C5c`（编排层判负）+ `C5d`（触发器层判负）**，**`C5a`/`C5b` 前推断言逐字保留**（2 处删行仅为 `C5b` 注释改写）✓ · 改动 `+54/−2` · 就地注明依据（`DL77/R93/CR79` · `0042…:57-67` · `0013_job.sql:120-134` · 真库现取）✓
+- 复跑：`pass = 12 / fail = 1`（仅 `C4`）；**`C5a/C5b/C5c/C5d` 全 ✅** ✓ · ★ **`C4` 隔离证明**：`HEAD` 原版（无 C5c/C5d）原样复跑 ⇒ `pass = 10 / fail = 1`、`failed=["C4"]` ⇒ **改动前后 C4 皆红、无因果** ✓（C4 根因现取 = `kinds` 无 `commission`、`db_plan.M = 0`、`fee_credit_uid = -1` ⇒ 共享库 `referral` 数据漂移）
+
+**C. ★★ S17a 另报两条真缺口（我裁：必修）**：
+1. **发布者可发现性缺口**：`PublishJobPage` 的「**审核入口**」链接**仍按 `review_tasks` 隐藏** ⇒ 普通发布者发完任务后**找不到去评判的入口**（`DashboardPage` 队列面板同样仍 admin 门）⇒ **必修**
+2. **换轴遗留文案**：`jobs.itemTitle` zh「招工 #… · **申请** #…」的标签「**申请**」实指 `submission_id` ⇒ 语义已随 `R-9-100` 变为「提交」⇒ **值需改（四语）**；★ 注意这是**改值不改键**（计数不变）
+⇒ **派 S18**（前端：可发现性入口 + 该文案四语值 + `DashboardPage` 队列面板同族）**D. 入库 S17a/S17b + push + 生产终验**。
+**E. 状态**：DB **`41 行 / max 0042`** · 端口全空 ✓
+
+---
+
 ### 5.332 **S14/S15/S16 回执 · ★★ 我认账两处（纵数笔误「42 行」实为 41 · 空读数当结论第二次）· S16 后端就绪但前端门未开 ⇒ 派 S17**（2026-10-04）
 
 **A. ★★ 留痕更正（不改历史行，按本仓「只追加 · 不静默重写」纪律）**：

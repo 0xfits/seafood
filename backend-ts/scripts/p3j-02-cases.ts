@@ -15,6 +15,9 @@
  *   ⑤ 状态迁移（**0042 前推**：`open→settled` 由「非法」放宽为「合法」，`R-9-101` 逐笔发满即收口必需；
  *      真库现取 `job_status_transition_ok('open','settled')=true`）⇒ 编排函数层 / DB 触发器层各一次，
  *      断言「该迁移现被放行」；原「非法 ⇒ JOB_STATE_INVALID」期望已失效
+ *      ★ 该前推令 `DL77`「非法迁移两层各一」的**负向覆盖腾空** ⇒ 本单**先现取**真库合法边集（报告 §1），
+ *        同点到另一条**仍非法**的边 `open→rejected`，在两层各补一条**判负**用例（⑤c 编排函数层 / ⑤d DB
+ *        触发器层），恢复「两层各一」负向证据（依据 `DL77` / `R93` / `CR79`）
  *   ⑥ 守卫矩阵：核心字段冻结 / 账本引用列一次写定 / 禁 DELETE
  */
 import { planJobSettlement } from '../src/commission';
@@ -113,14 +116,63 @@ type Check = { id: string; name: string; pass: boolean; readout: Record<string, 
     ), { outcome: ill, basis: '0042 §① / R-9-101；真库 job_status_transition_ok(open,settled)=true；worker 锚点闸 0013_job.sql:285' });
 
     // case ⑤b DB 触发器层 —— 前推依据同 ⑤：`open → settled` 已合法 ⇒ `trg_job_status_guard` 放行 ⇒ 该 UPDATE 成功
-    //   （原断言「非法 ⇒ LD011 + JOB_STATE_INVALID」失效）。此改动使 `DL77`「非法迁移两层各一」的**负向覆盖
-    //   随之腾空**（open→settled 不再是非法边）—— 详见本单报告，未静默删除。
+    //   （原断言「非法 ⇒ LD011 + JOB_STATE_INVALID」失效）。该前推使 `DL77`「非法迁移两层各一」的**负向覆盖
+    //   随之腾空**（open→settled 不再是非法边）—— **已由下方 ⑤c/⑤d 同点到另一条仍非法的边（open→rejected）补回**。
     const illTrig = await raw(pool, `UPDATE public.job SET status='settled' WHERE job_id=$1::bigint`, [job1])
       .then(() => ({ ok: true })).catch((e) => ({ ok: false, e: errInfo(e) }));
     const job1AfterTrig = await jobRow(pool, job1);
     add('C5b', 'DB 触发器层：open→settled 现已合法（0042/R-9-101）⇒ trg_job_status_guard 放行、UPDATE 成功', (
       illTrig.ok === true && job1AfterTrig?.status === 'settled'
     ), { outcome: illTrig, job_row_after: job1AfterTrig, basis: '0042 §① / R-9-101；真库 job_status_transition_ok(open,settled)=true' });
+
+    // ================================================================= case ⑤c/⑤d 状态机判负（DL77「两层各一」负向覆盖恢复）
+    // ★ 补回依据（**先现取，后写期望**；本单报告 §1 给逐条真库读数）：
+    //   S15 把 C5a/C5b 前推后 `open→settled` 由非法转合法 ⇒ 原「非法迁移两层各一」负向覆盖腾空。
+    //   真库现取 `job_status_transition_ok` 完整合法边集（**仅 10 条**）= open→{accepted,settled,cancelled}
+    //   / accepted→{submitted,rejected} / submitted→{settled,disputed,rejected} / disputed→{settled,cancelled}；
+    //   其余仍非法。本单选**同一条仍非法边 `open→rejected`**（真库实测 job_status_transition_ok('open','rejected')=false）
+    //   在两层各补一条判负：⑤c 编排函数层（refund）、⑤d DB 触发器层（raw UPDATE）。
+    //   依据：《数据层规范》`DL77`「每个业务状态机必须有判负用例（DB 层拒绝 + API 层借码）」+ `R93` / `CR79`；
+    //         合法边集唯一真源 = `0042_job_settle_per_submission.sql:57-67`；两层拦截点 = 编排函数 `0042…:322-326`
+    //         / `trg_job_status_guard` `0013_job.sql:120-134`。两层读数均**事务内真库现取**，非猜。
+    //   夹具 jobNeg：C5a/C5b 的 job1 已 settled（终态）不可复用 ⇒ 另 publish 一个 open 的 jobNeg（reward=50）。
+    const rNeg = await jobPostEvent(pool, {
+      op: 'publish', create_key: `cli:${uuidish('publish-neg')}`, employer_uid: E, cid: '1',
+      reward: '50', title: 'p3j job neg', description: 'case ⑤c/⑤d DL77 negative',
+    });
+    const jobNeg = String(rNeg.job_id);
+
+    // ⑤c 编排函数层：refund open→rejected（仍非法）⇒ 拒 + 稳定 reason=JOB_STATE_INVALID
+    const negOrch = await jobPostEvent(pool, { op: 'refund', job_id: jobNeg, to_status: 'rejected' })
+      .then((r) => ({ ok: true, r })).catch((e) => ({ ok: false, e: errInfo(e) }));
+    const negOrchE = negOrch.ok ? null : (negOrch as { e: ReturnType<typeof errInfo> }).e;
+    const jobNegAfterOrch = await jobRow(pool, jobNeg);
+    add('C5c', '编排函数层判负（DL77）：refund open→rejected 仍非法 ⇒ 拒 LD011 + reason=JOB_STATE_INVALID（业务行未改）', (
+      negOrch.ok === false
+      && negOrchE?.sqlstate === 'LD011'
+      && negOrchE?.message === 'LEDGER_CURRENCY_INVALID_TRANSITION'
+      && negOrchE?.reason === 'JOB_STATE_INVALID'
+      && negOrchE?.detail_parsed?.field === 'job.status'
+      && negOrchE?.detail_parsed?.from === 'open'
+      && negOrchE?.detail_parsed?.to === 'rejected'
+      && jobNegAfterOrch?.status === 'open'
+    ), { outcome: negOrch, job_row_after: jobNegAfterOrch, basis: 'DL77/R93/CR79；合法边集 0042…sql:57-67；真库现取 job_status_transition_ok(open,rejected)=false' });
+
+    // ⑤d DB 触发器层：raw UPDATE open→rejected（仍非法）⇒ trg_job_status_guard 拒 + 稳定 reason=JOB_STATE_INVALID
+    const negTrig = await raw(pool, `UPDATE public.job SET status='rejected' WHERE job_id=$1::bigint`, [jobNeg])
+      .then(() => ({ ok: true })).catch((e) => ({ ok: false, e: errInfo(e) }));
+    const negTrigE = negTrig.ok ? null : (negTrig as { e: ReturnType<typeof errInfo> }).e;
+    const jobNegAfterTrig = await jobRow(pool, jobNeg);
+    add('C5d', 'DB 触发器层判负（DL77）：raw UPDATE open→rejected 仍非法 ⇒ trg_job_status_guard 拒 LD011 + reason=JOB_STATE_INVALID（业务行未改）', (
+      negTrig.ok === false
+      && negTrigE?.sqlstate === 'LD011'
+      && negTrigE?.message === 'LEDGER_CURRENCY_INVALID_TRANSITION'
+      && negTrigE?.reason === 'JOB_STATE_INVALID'
+      && negTrigE?.detail_parsed?.field === 'job.status'
+      && negTrigE?.detail_parsed?.from === 'open'
+      && negTrigE?.detail_parsed?.to === 'rejected'
+      && jobNegAfterTrig?.status === 'open'
+    ), { outcome: negTrig, job_row_after: jobNegAfterTrig, basis: 'DL77/R93/CR79；0013_job.sql:120-134 trg_job_status_guard；真库现取 job_status_transition_ok(open,rejected)=false' });
 
     // ================================================================= case ③ refund（余额/冻结正确）publish 700 → cancel
     const r2 = await jobPostEvent(pool, {

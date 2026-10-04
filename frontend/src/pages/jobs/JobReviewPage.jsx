@@ -6,12 +6,14 @@ import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import { contentStatus, pickLocalized } from '../../i18n-content'
 import TranslatingBadge from '../../components/i18n/TranslatingBadge'
 import { fetchPendingVerification, reviewSubmission } from './job-api'
-import { fetchAdminAccess, hasAdminPermission } from '../../admin-utils'
 import './jobs.css'
 
 // 招工线 · 审核入口（§4.2 J5/J6 · 已注册路径）
-//   · 队列读口 = GET /api/tasklist/pending-verification（**已注册** backend-ts/src/index.ts:1962；
-//     权限 = `requireAdmin(review_tasks)` ⇒ 非管理员 `403 AUTH_FORBIDDEN`，走 R107 四语文案）
+//   · 队列读口 = GET /api/tasklist/pending-verification（**已注册** backend-ts/src/index.ts:1989；
+//     ★ S16 准入放宽 = 「admin（持 `review_tasks`）∨ 已登录」：admin ⇒ 全局视图（**零回归**）；
+//       普通发布者 ⇒ 只返回其 `job.employer_uid` 命中的 pending 提交（过滤真源 = 后端
+//       `resolveReviewQueueScope`，list :1992 / count :1975 **两处同源**）；未登录 ⇒ 401。
+//     ★ S17a（本单）：前端门随之放开为「**已登录即可**」；**不另写前端过滤**（后端为唯一真源）。
 //   · 动作面 = POST /api/job/:jobId/review（**已注册** :2457；A5）body = `{ approved, submission_id }`
 //       通过 ⇒ `approved:true`  + 提交号 = `settleJob({submissionIdRaw})` **逐笔发放**
 //              （该提交转 `approved` + `job_payout`/`job_fee`/`commission` 同一语句（R4 原子））
@@ -33,29 +35,16 @@ const JobReviewPage = () => {
   const [items, setItems] = useState([])
   const [state, setState] = useState({ phase: 'loading', message: '' })
   const [action, setAction] = useState({ phase: 'idle', message: '', id: null })
-  // 四项确认 ①：审核面 = 管理员面 ⇒ 入口按权限隐藏。唯一真源 = 后端 `requireAdmin(review_tasks)`
-  //   （非 admin ⇒ `403 AUTH_FORBIDDEN`）。前端先取能力集；无 `review_tasks` ⇒ 整页收敛为「无权限」空态，
-  //   且**不发起队列读**（不把 403 当首屏反馈）。
-  const [access, setAccess] = useState(null)
-  const [accessPhase, setAccessPhase] = useState('loading')
-
-  useEffect(() => {
-    let alive = true
-    setAccessPhase('loading')
-    fetchAdminAccess(user)
-      .then((next) => { if (alive) { setAccess(next); setAccessPhase('ok') } })
-      .catch(() => { if (alive) { setAccess(null); setAccessPhase('error') } })
-    return () => { alive = false }
-  }, [user])
-
-  const canReview = hasAdminPermission(access, 'review_tasks')
+  // ★ S17a（本单）：S16 后端已把待审队列读口准入放宽为「admin ∨ 已登录」（非 admin 只返回其
+  //   `job.employer_uid` 命中的 pending 提交）⇒ **前端门随之放开为「已登录即可」**（改前 = 持 `review_tasks`）。
+  //   ★ 过滤唯一真源 = 后端 `resolveReviewQueueScope`（`backend-ts/src/index.ts`）⇒ **前端不另写
+  //     「只看自己的」过滤**，只负责「已登录就发请求」（两处各写一套 = 漂移，禁止）。
+  //   未登录 ⇒ 走下方 `!isAuthenticated` 早返回（渲染登录提示、**不发起队列读**）。
+  const canReview = isAuthenticated
 
   const load = useCallback(async () => {
-    if (!canReview) {
-      setItems([])
-      setState({ phase: 'denied', message: t('auth.err.AUTH_FORBIDDEN') })
-      return
-    }
+    // 未登录 ⇒ 不发起队列读（后端会 401；此处不从首屏触发）
+    if (!canReview) return
     setState({ phase: 'loading', message: t('loading') })
     try {
       const data = await fetchPendingVerification(user)
@@ -85,27 +74,12 @@ const JobReviewPage = () => {
     }
   }
 
+  // ★ S17a：未登录 ⇒ 登录提示（此分支早返回 ⇒ **不发起队列读**）；已登录 ⇒ 一律进队列面
+  //   （准入/过滤的唯一真源在后端 `resolveReviewQueueScope`；前端不再按 admin 能力收敛为无权限空态）。
   if (!isAuthenticated) {
     return (
       <div className="sf-jobs" data-sf-m="jobs-hero">
         <div className="sf-jobs-empty">{t('pleaseLogin')}</div>
-      </div>
-    )
-  }
-
-  // 能力集未回 ⇒ 中性加载态（不渲染队列）；无 `review_tasks` ⇒ 无权限空态（入口对非 admin **不可见**）
-  if (accessPhase === 'loading') {
-    return (
-      <div className="sf-jobs" data-sf-m="jobs-review-gate">
-        <div className="sf-jobs-empty">{t('loading')}</div>
-      </div>
-    )
-  }
-
-  if (!canReview) {
-    return (
-      <div className="sf-jobs" data-sf-m="jobs-review-denied">
-        <div className="sf-jobs-empty">{t('auth.err.AUTH_FORBIDDEN')}</div>
       </div>
     )
   }

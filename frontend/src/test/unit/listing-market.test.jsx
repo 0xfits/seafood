@@ -324,20 +324,24 @@ describe('四语 locale（P4-B4c-ii-c ① / ② 新增键）', () => {
   })
 })
 
-describe('审核入口按权限隐藏（四项确认 ①）', () => {
+describe('审核面准入（S17a：队列页「已登录即可」；发布页入口链接仍按权限隐藏）', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     fetchApiJson.mockImplementation(async () => [])
     useAuth.mockReturnValue({ isAuthenticated: true, user: { uID: 7, token: 'test' } })
   })
 
-  it('非 admin：审核页收敛为无权限空态，且**不**发起队列读（不拿 403 当首屏）', async () => {
+  it('S17a 已登录普通发布者（无 review_tasks）：审核页**不再**收敛为无权限 ⇒ 发起队列读（过滤真源在后端）', async () => {
+    // ★ 改前口径（已作废 · S17a 弃用）：非 admin ⇒ `jobs-review-denied` 空态且队列读 0 次。
+    //   S16 后端已把读口准入放宽为「admin（持 review_tasks）∨ 已登录」（非 admin 只返回其
+    //   `job.employer_uid` 命中的 pending 提交）⇒ S17a 前端门同步放开：**已登录即发请求**。
     hasAdminPermission.mockReturnValue(false)
     fetchAdminAccess.mockResolvedValue({ is_admin: false, can_access_admin: false, permissions: [] })
     const { container } = renderPage(<JobReviewPage />, '/task/review')
-    await waitFor(() => expect(container.querySelector('[data-sf-m="jobs-review-denied"]')).toBeTruthy())
-    expect(container.textContent).toContain('auth.err.AUTH_FORBIDDEN')
-    expect(callsTo('/api/tasklist/pending-verification').length).toBe(0)
+    await waitFor(() => expect(callsTo('/api/tasklist/pending-verification').length).toBe(1))
+    expect(container.querySelector('[data-sf-m="jobs-review-denied"]')).toBeNull()
+    // ★ 前端不另写「只看自己的」过滤：请求路径**不带**发布者/雇主参数（过滤唯一真源 = 后端）。
+    expect(String(callsTo('/api/tasklist/pending-verification')[0][0])).toBe('/api/tasklist/pending-verification')
   })
 
   it('admin（review_tasks）：审核页才取队列；发布页才显示审核入口链接', async () => {
