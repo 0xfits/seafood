@@ -401,7 +401,7 @@ h1, h2, h3, h4, h5, h6, .swedish-title {
 
 .card-hover:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: none; /* S22-A4：去 legacy 硬位移投影 */
 }
 
 /* 任务列表和奖励列表专用样式 */
@@ -429,21 +429,13 @@ h1, h2, h3, h4, h5, h6, .swedish-title {
     /* 主体光泽渐变 */
     linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(250,250,250,0.88) 45%, rgba(244,244,244,0.92) 100%);
   border: 1px solid rgba(255,255,255,0.70);
-  box-shadow:
-    0 10px 32px rgba(0,0,0,0.14),
-    0 3px 10px rgba(0,0,0,0.08),
-    inset 0 1px 0 rgba(255,255,255,0.75),
-    inset 0 -1px 0 rgba(0,0,0,0.06);
+  box-shadow: none; /* S22-A4：去 legacy 多层硬位移投影（金属分区阴影）；色板/圆角/布局未动 */
   transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
 }
 
 .card:hover {
   transform: translateY(-3px);
-  box-shadow:
-    0 14px 40px rgba(0,0,0,0.18),
-    0 6px 16px rgba(0,0,0,0.10),
-    inset 0 1px 0 rgba(255,255,255,0.75),
-    inset 0 -1px 0 rgba(0,0,0,0.08);
+  box-shadow: none; /* S22-A4：去 legacy 多层硬位移投影 */
 }
 
 /* 卡片色调变体（简洁方案）：仅使用左侧色条，不叠加渐变或高光 */
@@ -666,8 +658,9 @@ h1, h2, h3, h4, h5, h6, .swedish-title {
   width: 54px;
   height: 54px;
   background: linear-gradient(135deg, var(--badge-grad-start), var(--badge-grad-end));
-  -webkit-clip-path: polygon(100% 0, 0 0, 100% 100%);
-  clip-path: polygon(100% 0, 0 0, 100% 100%);
+  /* S22-A4：装饰性切角（三角角标带）去切角 —— 与 A 系同写法成对声明；色板/圆角/布局未动 */
+  -webkit-clip-path: none;
+  clip-path: none;
 }
 .badge-gift span {
   position: absolute;
@@ -824,7 +817,7 @@ h1, h2, h3, h4, h5, h6, .swedish-title {
   right: 1rem;
   padding: 1rem;
   border-radius: 4px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: none; /* S22-A4：去 legacy 硬位移投影 */
   z-index: 1000;
   animation: slideIn 0.3s ease-in-out;
 }
@@ -953,7 +946,7 @@ h1, h2, h3, h4, h5, h6, .swedish-title {
 .card {
   background: rgba(255,255,255,0.92) !important; /* 干净的浅色底 */
   border: 1px solid rgba(0,0,0,0.06) !important;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important;
+  box-shadow: none !important; /* S22-A4：去 legacy 硬位移投影（原 0 8px 24px） */
 }
 
 .card::before,
@@ -963,7 +956,7 @@ h1, h2, h3, h4, h5, h6, .swedish-title {
 
 .card:hover {
   transform: none;
-  box-shadow: 0 10px 26px rgba(0,0,0,0.10);
+  box-shadow: none; /* S22-A4：去 legacy 硬位移投影（原 0 10px 26px） */
   background: rgba(255,255,255,0.98) !important;
 }
 
@@ -975,7 +968,7 @@ h1, h2, h3, h4, h5, h6, .swedish-title {
 .card.card-success,
 .card.card-proceed {
   background: #ffffff !important; /* 保持纯白背景 */
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important; /* 使用中性阴影，避免彩色外发光 */
+  box-shadow: none !important; /* S22-A4：去 legacy 硬位移投影；原注「使用中性阴影，避免彩色外发光」 */
 }
 
 /* 移除按色调的顶端彩色高光条（避免产生彩色光晕感） */
@@ -1047,7 +1040,9 @@ section[id^="section_"] .card li { line-height: 1.6; }
   right: 0;
   width: 72px;
   height: 72px;
-  clip-path: polygon(100% 0, 0 0, 100% 100%);
+  /* S22-A4：顶角积分三角徽章去切角（成对声明）；色板/圆角/布局未动 */
+  -webkit-clip-path: none;
+  clip-path: none;
   background: linear-gradient(135deg, var(--ikea-yellow) 0%, #ffd84a 100%);
   color: #111827;
   display: flex;
@@ -1099,20 +1094,17 @@ section[id^="section_"] .card li { line-height: 1.6; }
   background: rgba(17,19,21,0.96) !important; /* 深炭灰，避免纯黑压抑，同时与背景区分 */
   border: 1px solid rgba(148,163,184,0.18) !important; /* 中性浅灰边，稳定层次 */
   /* 默认使用中性外沿，具体色彩在 tone-* 变体中覆盖为主色调光 */
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04),
-              0 10px 30px rgba(0,0,0,0.55),
-              0 0 0 1px rgba(148,163,184,0.18) !important;
+  box-shadow: 0 0 0 1px rgba(148,163,184,0.18) !important; /* S22-A4：去多层硬位移/内高光，保留零偏移 1px 描边环（描边语言） */
 }
 
 [data-theme="dark"] .card:hover {
   transform: translateY(-2px);
   background: rgba(19,21,23,0.97) !important; /* 略微提升亮度与层次 */
-  box-shadow: 0 14px 36px rgba(0,0,0,0.65),
-              0 0 0 1px rgba(148,163,184,0.22) !important; /* 默认中性外沿；tone-* 变体里用主色调覆盖 */
+  box-shadow: 0 0 0 1px rgba(148,163,184,0.22) !important; /* 默认中性外沿；tone-* 变体里用主色调覆盖（S22-A4：去硬位移层） */
 }
 
 /* 卡片内极轻的顶部内高光，提升质感但不突兀 */
-[data-theme="dark"] .card { box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 30px rgba(0,0,0,0.55), 0 0 0 1px rgba(56,189,248,0.18) !important; }
+[data-theme="dark"] .card { box-shadow: 0 0 0 1px rgba(56,189,248,0.18) !important; } /* S22-A4：去多层硬位移/内高光，保留零偏移 1px 描边环 */
 
 /* 卡片内文字在暗色模式下的可读性优化 */
 [data-theme="dark"] .card h1,
@@ -1489,51 +1481,33 @@ section[id^="section_"] .card li { line-height: 1.6; }
   /* 主色调光：金色 */
   /* 背景调整：深棕色（接近 #24170D），契合金黄色调，在纯黑背景上更温暖更易读 */
   background: rgba(36,23,13,0.96) !important; /* 深棕底色 #24170D */
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), /* 顶部更轻的内高光 */
-              0 10px 30px rgba(0,0,0,0.55),
-              0 0 0 1px rgba(245,197,24,0.34),
-              0 0 28px rgba(245,197,24,0.24) !important;
+  box-shadow: 0 0 0 1px rgba(245,197,24,0.34) !important; /* S22-A4：去多层硬位移/内高光/彩色外发光，保留零偏移 1px 主色描边环 */
 }
 [data-theme="dark"] .card.tone-gold:hover {
   background: rgba(40,26,14,0.97) !important; /* 悬停时略提亮与加深层次 */
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), /* 悬停时高光略增强 */
-              0 14px 36px rgba(0,0,0,0.65),
-              0 0 0 1px rgba(245,197,24,0.42),
-              0 0 32px rgba(245,197,24,0.32) !important;
+  box-shadow: 0 0 0 1px rgba(245,197,24,0.42) !important; /* S22-A4：去硬位移/内高光/外发光，保留零偏移描边环 */
 }
 
 [data-theme="dark"] .card.tone-green {
   /* 主色调光：绿色 */
   /* 背景调整：深绿色底色，衬托绿色主色调光晕 */
   background: rgba(15,31,23,0.96) !important; /* 深绿底色，近 #0F1F17 */
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), /* 顶部更轻的内高光 */
-              0 10px 30px rgba(0,0,0,0.55),
-              0 0 0 1px rgba(16,185,129,0.32),
-              0 0 28px rgba(16,185,129,0.22) !important;
+  box-shadow: 0 0 0 1px rgba(16,185,129,0.32) !important; /* S22-A4：去多层硬位移/内高光/外发光，保留零偏移 1px 主色描边环 */
 }
 [data-theme="dark"] .card.tone-green:hover {
   background: rgba(18,35,26,0.97) !important; /* 悬停略提亮 */
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06),
-              0 14px 36px rgba(0,0,0,0.65),
-              0 0 0 1px rgba(16,185,129,0.40),
-              0 0 32px rgba(16,185,129,0.30) !important;
+  box-shadow: 0 0 0 1px rgba(16,185,129,0.40) !important; /* S22-A4：去硬位移/内高光/外发光，保留零偏移描边环 */
 }
 
 [data-theme="dark"] .card.tone-blue {
   /* 主色调光：蓝色 */
   /* 背景调整：深蓝色底色，衬托蓝色主色调光晕 */
   background: rgba(11,27,47,0.96) !important; /* 深蓝底色，近 #0B1B2F */
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), /* 顶部更轻的内高光 */
-              0 10px 30px rgba(0,0,0,0.55),
-              0 0 0 1px rgba(59,130,246,0.32),
-              0 0 28px rgba(59,130,246,0.22) !important;
+  box-shadow: 0 0 0 1px rgba(59,130,246,0.32) !important; /* S22-A4：去多层硬位移/内高光/外发光，保留零偏移 1px 主色描边环 */
 }
 [data-theme="dark"] .card.tone-blue:hover {
   background: rgba(13,31,53,0.97) !important; /* 悬停略提亮 */
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06),
-              0 14px 36px rgba(0,0,0,0.65),
-              0 0 0 1px rgba(59,130,246,0.40),
-              0 0 32px rgba(59,130,246,0.30) !important;
+  box-shadow: 0 0 0 1px rgba(59,130,246,0.40) !important; /* S22-A4：去硬位移/内高光/外发光，保留零偏移描边环 */
 }
 
 /* 所有深夜模式卡片顶部更轻的内高光（增强质感），不影响已有阴影层叠 */
@@ -1599,7 +1573,9 @@ section[id^="section_"] .card li { line-height: 1.6; }
   width: 12px;
   height: 12px;
   background: var(--bg-primary); /* 贴近卡片背景颜色以产生“缺角”视觉 */
-  clip-path: polygon(0 0, 100% 100%, 0 100%);
+  /* S22-A4：左下角装饰性缺角去切角（成对声明）；色板/圆角/布局未动 */
+  -webkit-clip-path: none;
+  clip-path: none;
 }
 [data-theme="dark"] .badge::after {
   background: var(--bg-secondary);
