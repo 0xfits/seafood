@@ -1416,6 +1416,19 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.342 **派 S25（B7 死键退役 + B12 零消费选择器盘点）∥ S26（B9 `TRUNCATE` 守卫迁移）· ★我裁 B8「不改」（历史留痕）**（2026-10-04）
+
+**A. 现取（我亲取）**：① **B7 的 10 个死键**四语**都在**且**产品面引用 = 0**（`apply`/`applyOk`/`accept`/`acceptNote`/`acceptOk`/`applicationId`/`submitNeedApply`/`applyPrompt`/`applyWaiting`/`pick`）；已知受影响断言：`i18n-violation-closeout.test.jsx:45`（清单含 `jobs.acceptNote`）**与 `:105` 把 `zh['jobs.acceptNote']` 钉为含「只有雇主」**、`r9-90-participate-surface.test.jsx:304`（列这批键）⇒ 逐条处置 + 出处。② **B9 需要新迁移** ⇒ 现取 `migrations/` 共 **41** 件、max `0042`；`MIGRATIONS_FROZEN` 至少被 4 门持有（`p8-s3:83` / `p8-s3b:72` / `p8-s4:70` / `p8-s5:79`）⇒ **前推 41⇒42 必须全仓现取、逐门出处**。③ **B8**：`styles.css:29` 是**历史 vantage 注释**（记当时 5 条 AC 路由）、`frontend/scripts/p4z-*.mjs` 8 件是**已归档诊断脚本**（指向 `/shard`，重定向兜底零破损）。
+
+**B. ★ 我裁 B8：不改。** 二者**非用户可见面**，且改它们会**作废历史报告/脚本里的路径引用**（本仓把「报告逐字引路径 + 产物」当证据链）—— 与既有「源码注释与 audit 件一律不改（改即篡改证据链）」同口径 ⇒ **登记不改**，台账 `B8` 移入 D 段。
+
+**C. 派单（两单并行 · 面不相交）**：**S25**（Kong · 前端：B7 四语对称删 10 键 + 计数基线**等量下移**〔顶层 119 不变 · 拍平 1060⇒1050 · 节点 4240⇒4200，逐条出处〕+ 受影响断言处置〔`acceptNote` 钉字行随退役移除并留痕，**同文件类级护栏须确认仍活着**〕+ 判负；B12 **只读盘点**零消费选择器 + 两变体）∥ **S26**（Kong · 后端：新建**未 apply** 的 `0043_truncate_guard.sql`〔给全部 append-only 表补 `BEFORE TRUNCATE` 守卫，沿用既有守卫函数/错误码形态、幂等、apply-time 自检、**单事务真跑 + `ROLLBACK` 四读数**〕+ 全仓现取并前推 `MIGRATIONS_FROZEN` 41⇒42 逐门出处 + **禁 apply**）。
+**D. 排期**：B9 的 **apply 由我执行**，之后另派「四段真链路 + 库面判负」收口单（库面只有 apply 后才能测）。
+
+**E. 状态**：DB **`41 行 / max 0042`** · 生产 **`49ecc35`** · 端口全空 · 工作树干净。
+
+---
+
 ### 5.341 **S22 补落单 ✅（报告 + run-tagged 产物到位）· 代码零改动核过 · ★口径差登记（「16 处」vs「18 层」两数均真）**（2026-10-04）
 
 **A. 补落（60c/317s）**：`docs/audit/s22-decor-cleanup.md`（**7 节 / 23,855 B / 占位 `__` = 0**）+ `frontend/.s22-artifacts/s22-20261004T124258Z/`（**15 件全 `.txt`/`.mjs`，`.log` = 0**，含 `03-vitest-full` 997 行 / `04-vitest-baseline-outofrepo` 996 行 / `07-negative-control` 98 行 / `09-parent-vs-new-counts` 三态对照含 sha256）。
