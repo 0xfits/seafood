@@ -21,7 +21,7 @@
 | **B4** | 「**已参与 X / 共 N 人**」增强 | `headcount` **不在读模型**（`normalizeTask` 无该字段；只在发布/评审路径 `database.ts:3411 jobHeadcount`） | 中（后端读口回填 + 前端展示；S19 已登记为「一句话可改」可选增强） |
 | **B5** | 契约卫生：`sendError` 同族 | 现取 `backend-ts/src/index.ts`：`sendError(` = **50 处**、`sendAuthError` = **4 处**、`fromLedgerError` = **0 处**（§15.5 存量偏离 A–F） | 中；**用户不可见** ⇒ 可推迟 |
 | **B6** | 两套取数入口并存 | `frontend/src/auth.js:329 apiErrorMessage` = 全站错误文案真源；另有**独立模块**自带取数/错误链（S17 时代登记「待 P6/P7 合并」） | 中（合并需回归面） |
-| **B9** | append-only **真实边界** | `TRUNCATE` **无触发器保护**；`purge-test-data` 走 `DISABLE TRIGGER` 管理员旁路（早期已登记） | 小（一条 `BEFORE TRUNCATE` 触发器），可与「错误码命名整理」同批 |
+| **B13** | `p8-s8` **`V1` 预存红**（夹具碰撞） | S27 现取：`job_submission_pk` 夹具与 identity 序列推进撞号（“序列不随 `ROLLBACK` 回退” 家族）⇒ 前后同红、与 `0043` 无关 | 小：把固定 id 夹具改为**业务语义硬錨**（uid / 幂等键 / 唯一约束组合）；否则下一轮又会把它当新缺陷烧一轮 |
 | **B10** | 生产库 vs 迁移文件**无自动保真判据** | Kevin 2026-09-28 已裁**「不开」**，风险面已全部留痕 | 归档项；若要重启 ⇒ **前置条件 = 先备第二空库** |
 
 ---
@@ -38,6 +38,7 @@
 ## D. 本轮已闭环（备查，勿重复开单）
 
 - `participants_count` **真源**：`job_application`（已停写）⇒ `job_submission` 的 `COUNT(DISTINCT worker_uid)`；四语值改「已参与」（S19 ✅ 已上线）。
+- **B9（`TRUNCATE` 守卫）**：`0043_truncate_guard.sql`（15 张 append-only 表各补 1 枚 `BEFORE TRUNCATE` 守卫）**已由我 apply**（旧版 41 条全 `skipped` / 仅 `0043` applied / `schema_version=0043` / 触发器 54→69 / TRUNCATE 位 15 全启用 / 实测 `TRUNCATE rating` ⇒ `P0001`）；门面与库面收口由 S27 完成（`p8-s9/s10/s11` 库面前推 `42/0043`）（✅ 已上线）。
 - **B7（10 死键退役）**：四语对称删除（`jobs` 键数 45/语；顶层 119 不变 · 拍平 1060⇒**1050** · 节点 4240⇒**4200**）+ 13 个测试文件计数等量下移与断言改造（逐条出处）+ 判负红→绿（S25 ✅）。
 - **B12（零消费选择器）＝已盘点，Zang 裁取**变体 Ⅰ**但**分期执行**：现取 381 分片 / 278 零 JSX 消费（distinct 131）⇒ **先消歧「不确定（动态拼接）」（36 名）与核对 HTML/SVG 面（82 名）**，只删「JSX＋HTML＋SVG＋动态四类全证零消费」的子集；每批须给「受影响元素 = 0」＋ build/单测/四脚本 ＋ 判负 ＋ revert 路径（**排后，非本轮**）。
 - **B8（`/shard` 换轴遗留 ④）＝裁定「不改」**：`styles.css:29` 是**历史 vantage 注释**（记当时 5 条 AC 路由），`frontend/scripts/p4z-*.mjs` 是**已归档的诊断脚本** ⇒ 二者均非用户可见面、且 `/shard` 有重定向兜底（零破损）⇒ 改它们只会**作废历史报告/脚本里的路径引用**（与「源码注释与 audit 件一律不改」同口径）⇒ **登记不改**（✅ 已裁）。

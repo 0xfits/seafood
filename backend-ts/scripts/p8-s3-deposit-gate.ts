@@ -202,8 +202,15 @@ t('C3', 'ak2Spec', parseListingDepositPolicyAmount({ amount: 123456 }) === 12345
   const d4 = resolveListingDepositFloor({});
   t('D4', 'failClosed', d4.floor === CURRENCY_LIST_DEPOSIT_FLOOR && d4.source === 'constant',
     '值非法（缺 amount）⇒ fail-closed 到常量', JSON.stringify(d4));
-  t('D5', 'failClosed', /TODO: Kevin 定值/.test(CURRENCY_TS),
-    '兜底常量标 `TODO: Kevin 定值`（**不得发明数值**）', /TODO: Kevin 定值/.test(CURRENCY_TS));
+  // 出处：`CURRENCY_LIST_DEPOSIT_FLOOR` = 50000 由 **Kevin 2026-10-04 定值**（批 8③ `AK2` 为主导真源、
+  //   本常量降为 fail-closed 兜底）；S23 按 A1 定档把 `currency-service.ts` 内旧标记 `TODO: Kevin 定值`
+  //   改写为「`Kevin 2026-10-04 定值 50000`」⇒ 旧判据（要求旧 TODO 标记在场）**滞后恒红**。
+  //   本判据**加严**为两件同时成立：常量现取真值 == 50000 **且** 已定值标记在场；仍**不得发明数值**。
+  const d5FloorIs50000 = CURRENCY_LIST_DEPOSIT_FLOOR === 50000;
+  const d5MarkerPresent = /Kevin 2026-10-04 定值/.test(CURRENCY_TS);
+  t('D5', 'failClosed', d5FloorIs50000 && d5MarkerPresent,
+    '兜底常量 == 50000（**Kevin 2026-10-04 定值** · 现取真值 · **不得发明数值**）**且**并存『Kevin 2026-10-04 定值』标记',
+    JSON.stringify({ constant: CURRENCY_LIST_DEPOSIT_FLOOR, marker_present: d5MarkerPresent }));
   t('D6', 'failClosed',
     /DatabaseService\.getListingDepositPolicyValue\(/.test(CURRENCY_CODE) && /resolveListingDepositFloorFromDb/.test(CURRENCY_CODE)
     && /catch\s*\{/.test(CURRENCY_CODE),

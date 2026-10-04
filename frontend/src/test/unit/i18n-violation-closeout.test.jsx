@@ -43,6 +43,7 @@ const BLACKLIST = [
 /** 本单改写集（键名；值已四语同步改写） */
 const REWRITTEN = [
   // S25（台账 B7 死键退役）：`jobs.acceptNote` 已随四语对称删除退役（产品面零引用）⇒ 自本改写集移出；改写集 33⇒32 键。
+  // S28-②：退役键「不得回归」的存在性负断言见本文件 ⑥（10 键 × 4 语 = 40 节点）；S25 的「移除并留痕」升为被强制执行的不变式。
   'jobs.cidNote', 'jobs.submitNote', 'jobs.publishNote', 'jobs.reviewNote',
   'listings.listNote', 'listings.publishNote', 'listings.priceServerNote', 'listings.priceRoleNote',
   'listings.stockNote', 'listings.cidNote', 'listings.ordersNote', 'listings.buyNote',
@@ -106,6 +107,7 @@ describe('I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文
   it('④ 保真底线：改写后仍保留「需权限 / 已下线 / 手续费不退 / 暂停开放」等真信息', () => {
     // S25（B7）：`jobs.acceptNote` 已退役（四语对称删除）⇒ 该「只有雇主」保真锚失去守护对象，移除并留痕，**非削弱**：
     //   同族真信息锚（权限/已下线/手续费不退）仍在下方逐条断言（listings.refundNote / market.mineNote / claimRetiredNotice）。
+    // S28-②：`jobs.acceptNote` 的退役**不得回归**由本文件 ⑥ 承接（10 键 × 4 语存在性负断言）—— 加严，非削弱。
     expect(flatTables.zh['listings.refundNote']).toContain('只有卖家')
     expect(flatTables.zh['listings.refundNote']).toContain('订单号')
     expect(flatTables.zh['market.mineNote']).toContain('手续费不退')
@@ -130,5 +132,41 @@ describe('I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文
     // S25 计数期望订正（台账 B7 死键退役）：四语对称删 10 键 ⇒ 拍平 1060⇒1050（等量下移 = −10/语）。
     expect([...counts][0]).toBe(1050) // **期望订正（S9 ledger.kind 缺键补齐）**：S8 ⇒ 1055；S9 +4 ledger.kind 键/语 ⇒ 拍平 1055⇒1059（前订正 S7：1044⇒1054）；**S25 再订正** 1059⇒1050（B7 退役 10 键）
     for (const k of REWRITTEN) for (const l of LANGS) expect(flatTables[l][k]).toBeTruthy()
+  })
+
+  /**
+   * S28-②（Zang 裁）：「退役键不得回归」存在性负断言（**加严**）。
+   *
+   * 背景：S25-B7 四语对称退役 10 个死键（`jobs.apply/applyOk/accept/acceptNote/acceptOk/applicationId/`
+   *   `submitNeedApply/applyPrompt/applyWaiting/pick`）。S25 在本文件两处（改写集清单 / ④ 保真底线）只做
+   *   「**移除并留痕**」——即把状态写成散文「已删除」；一旦有人把退役键加回任一 locale，**无任何断言拦截**。
+   *   本单把「已删除」**升为「不得复发」**：10 键 × 4 语 = 40 节点，逐节点断言键不存在（存在即红）。
+   *
+   * 去重（Zang「不重复建两份」）：等价断言 S25 曾建于 `r9-90-participate-surface.test.jsx §⑥`
+   *   （10 键 × 4 语 `hasOwnProperty`=false）⇒ 已**合并归口**至本处（r9-90 §⑥ 的重复移除，见报告 §2）。
+   *   叠加渲染面硬编旧值反面护栏（`r9-90-participate-surface.test.jsx` S28-①）后，退役 10 键的守卫 = 键面 + 渲染面双向。
+   */
+  it('⑥ 退役键不得回归：S25-B7 退役 10 键 × 4 语一律不存在（存在即红）', () => {
+    // S25-B7 退役清单（S25 删除前的 `jobs.*`；出处 `git show 815c138^:frontend/src/locales/*.json`）
+    const RETIRED_JOBS_KEYS = [
+      'apply', 'applyOk', 'accept', 'acceptNote', 'acceptOk',
+      'applicationId', 'submitNeedApply', 'applyPrompt', 'applyWaiting', 'pick',
+    ]
+    const present = []
+    for (const k of RETIRED_JOBS_KEYS) {
+      for (const l of LANGS) {
+        const full = `jobs.${k}`
+        const has = Object.prototype.hasOwnProperty.call(flatTables[l], full)
+        if (has) present.push(`${l}.${full} = ${JSON.stringify(flatTables[l][full])}`)
+        expect(has, `${l}.${full} 已退役（S25-B7），不得回归`).toBe(false)
+        expect(flatTables[l][full], `${l}.${full} 取值应为 undefined`).toBeUndefined()
+      }
+    }
+    // eslint-disable-next-line no-console
+    console.log(`[I18N-VIOL] 退役键不得回归：${RETIRED_JOBS_KEYS.length} 键 × ${LANGS.length} 语 = ${RETIRED_JOBS_KEYS.length * LANGS.length} 节点；回归命中 = ${present.length}`)
+    // 覆盖面自证：必须恰为 10 键 × 4 语 = 40 节点（防清单被误缩 ⇒ 断言空转）
+    expect(RETIRED_JOBS_KEYS.length).toBe(10)
+    expect(RETIRED_JOBS_KEYS.length * LANGS.length).toBe(40)
+    expect(present).toEqual([])
   })
 })

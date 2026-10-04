@@ -242,8 +242,15 @@ t('B5', 'formBFormat', isAppConfigEnvelope({ key: 'a', value: {} }) === true && 
     '合法键值 ⇒ 用键值（source=config · 不发明数值）', JSON.stringify(f2));
   t('F3', 'failClosed', f3.floor === CURRENCY_LIST_DEPOSIT_FLOOR && f3.source === 'constant',
     '非法值（字符串金额）⇒ **fail-closed 到常量**（**不是** fail-open 到该串）', JSON.stringify(f3));
-  t('F4', 'failClosed', /TODO: Kevin 定值/.test(CURRENCY_TS),
-    '兜底常量标 `TODO: Kevin 定值`（**不得发明保证金数值**）', /TODO: Kevin 定值/.test(CURRENCY_TS));
+  // 出处：`CURRENCY_LIST_DEPOSIT_FLOOR` = 50000 由 **Kevin 2026-10-04 定值**（批 8③ `AK2` 为主导真源、
+  //   本常量降为 fail-closed 兜底）；S23 按 A1 定档把 `currency-service.ts` 内旧标记 `TODO: Kevin 定值`
+  //   改写为「`Kevin 2026-10-04 定值 50000`」⇒ 旧判据（要求旧 TODO 标记在场）**滞后恒红**。
+  //   本判据**加严**为两件同时成立：常量现取真值 == 50000 **且** 已定值标记在场；仍**不得发明保证金数值**。
+  const f4FloorIs50000 = CURRENCY_LIST_DEPOSIT_FLOOR === 50000;
+  const f4MarkerPresent = /Kevin 2026-10-04 定值/.test(CURRENCY_TS);
+  t('F4', 'failClosed', f4FloorIs50000 && f4MarkerPresent,
+    '兜底常量 == 50000（**Kevin 2026-10-04 定值** · 现取真值 · **不得发明保证金数值**）**且**并存『Kevin 2026-10-04 定值』标记',
+    JSON.stringify({ constant: CURRENCY_LIST_DEPOSIT_FLOOR, marker_present: f4MarkerPresent }));
 }
 
 // ============================================================================

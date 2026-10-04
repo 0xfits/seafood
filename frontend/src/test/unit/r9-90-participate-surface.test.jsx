@@ -141,14 +141,31 @@ describe('① 有任务号（无 jID）⇒ 直出提交表单（「先参与」�
     expect(q('active-task-submit-form')).not.toBeNull()
   })
 
-  it('标题 = `completeTask`（不再出现参与面标题 `jobs.apply`）', () => {
+  it('标题 = `completeTask`（不再出现参与面标题 `jobs.apply`；硬编退役旧值反面护栏）', () => {
     renderModal({ tID: 9, title: 'T', note: 'N' })
     const header = document.querySelector('.modal-header')
     expect(header.textContent).toContain(zh.completeTask)
-    // S25（B7）★值依赖型断言处置：原 `expect(header.textContent).not.toContain(zh.jobs.apply)` 的语义
-    //   依赖 `jobs.apply` 的**值**（zh「申请报名」）；该键随死键退役四语对称删除 ⇒ 守卫失去可锚对象。
-    //   与 `i18n-violation-closeout.test.jsx` 的 `jobs.acceptNote` 同款：**移除该行并留痕（非削弱）**；
-    //   详见报告 §1「值依赖型断言」单列 —— 如需保留反面护栏，请 Zang 裁示是否改为硬编旧值「申请报名」。
+
+    // S28-①（Zang 裁，硬编已退役字面量）：原 `expect(header.textContent).not.toContain(zh.jobs.apply)` 取的是
+    //   `jobs.apply` 的**值**；该键随 S25-B7 四语对称退役 ⇒ 取值 `undefined` ⇒ `not.toContain(undefined)` **恒真（空转）**。
+    //   裁：改钉**退役前旧值**；值随 S25 退役，此钉旧值作反面护栏（否则键已不存在 ⇒ 断言空转）。
+    //   旧值出处：`git show 815c138^:frontend/src/locales/{zh,hk,en,vn}.json`（815c138 = S25-B7，取删除前一刻）。
+    //   字面量按本仓纪律**拼接书写**（见 `p4z-feperf.test.js:30-33`：测试文件里的字面量可能被内容探测/扫描器当真实用法）。
+    const RETIRED_APPLY_LITERAL = {
+      zh: '申请' + '报名', // = S25 前 `jobs.apply`（zh）
+      hk: '申請' + '報名', // = S25 前 `jobs.apply`（hk）
+      en: 'Ap' + 'ply', // = S25 前 `jobs.apply`（en）
+      vn: 'Ứng' + ' tuyển', // = S25 前 `jobs.apply`（vn）
+    }
+    // 非空转自证：① 拼接结果逐条非空（防拼错 ⇒ 又变空转）；② header 文本本身非空（否则 `not.toContain` 恒真）。
+    expect(
+      Object.values(RETIRED_APPLY_LITERAL).every((s) => s.trim().length > 0),
+      '拼接字面量不得为空（否则反面断言空转）',
+    ).toBe(true)
+    expect(header.textContent.trim().length, 'header 文本不得为空（否则反面断言空转）').toBeGreaterThan(0)
+    for (const [lang, literal] of Object.entries(RETIRED_APPLY_LITERAL)) {
+      expect(header.textContent, `已退役措辞 ${lang}「${literal}」不得出现在标题渲染`).not.toContain(literal)
+    }
   })
 })
 
@@ -299,16 +316,14 @@ describe('⑤ 产品源码 `src/**`（排除 test）内 apply/accept 接线零�
 })
 
 // ============================================================================
-// ⑥ 死键退役后的键面（B7：10 键退役 / 未退役存量键仍在）
+// ⑥ 死键退役后的键面（B7：未退役存量键仍在）
 // ============================================================================
-describe('⑥ 死键退役后的键面（B7：10 键退役 / 未退役存量键仍在）', () => {
+describe('⑥ 死键退役后的键面（B7：未退役存量键仍在）', () => {
   const TABLES = { zh, en, hk, vn }
-  // S25（台账 B7）：原「已不再被引用的存量键仍在」清单中，下列 10 键已随报名/选定两写面下架而**四语对称删除**
-  //   ⇒ 自 KEPT 清单**移出**，改由 `RETIRED_KEYS` 断言**不存在**（留痕：守护对象已退役，非削弱）。
-  const RETIRED_KEYS = [
-    'applyPrompt', 'applyWaiting', 'apply', 'applyOk', 'accept', 'acceptNote', 'acceptOk',
-    'applicationId', 'submitNeedApply', 'pick',
-  ]
+  // S28-②（Zang 裁，合并去重 ⇒ 加严）：S25（815c138）曾在此建「10 键 × 4 语均不存在（hasOwnProperty=false）」的
+  //   存在性断言；该断言与 `i18n-violation-closeout.test.jsx` 新增的「退役键不得回归」（10 键 × 4 语
+  //   `in`/`toBeUndefined`）**完全等价** ⇒ 按 Zang「不重复建两份」之裁，单一归口至 closeout（守卫**未削弱**：
+  //   存在性负断言仍是 10×4=40 节点，且新增渲染面硬编旧值反面护栏，见报告 §2）。
   // `myApps` / `myAppsEmpty` 不在退役清单内 ⇒ 仍须四语键齐备且非空（原口径保留）。
   const KEPT_KEYS = ['myApps', 'myAppsEmpty']
 
@@ -317,15 +332,6 @@ describe('⑥ 死键退役后的键面（B7：10 键退役 / 未退役存量键�
       const v = table.jobs[k]
       expect(typeof v, `${lang}.jobs.${k}`).toBe('string')
       expect(v.trim().length, `${lang}.jobs.${k}`).toBeGreaterThan(0)
-    }
-  })
-
-  it.each(RETIRED_KEYS)('jobs.%s 已退役：四语均不存在（B7 对称删除）', (k) => {
-    for (const [lang, table] of Object.entries(TABLES)) {
-      expect(
-        Object.prototype.hasOwnProperty.call(table.jobs, k),
-        `${lang}.jobs.${k} 应已删除（B7 死键退役）`,
-      ).toBe(false)
     }
   })
 

@@ -511,10 +511,15 @@ const PENDING_RESOLVED: string[] = [
     const rCnt = (k: string) => rCons.filter((c) => c.ct === k).length;
     live.live_rating = { cols: rCols, pk: rCnt('p'), fk: rCnt('f'), ck: rCnt('c'), uniq: rCnt('u'), idx: rIdx, trg: rTrg.map((x) => x.tgname) };
     t('L5', 'dbStructure',
+      // ★ S27 库面收口（出处 = 本批 apply `0043_truncate_guard.sql`）：`rating` 上除既有 append-only 行级守卫外，
+      //   新添 1 枚 `BEFORE TRUNCATE … FOR EACH STATEMENT` 守卫（`trg_rating_no_truncate`）⇒ 触发器数 1→2。
+      //   判据**加严**：同时断言两枚都在（append-only 1 枚 + `BEFORE TRUNCATE` 守卫 1 枚），顺序无关。
       rCols === 11 && rCnt('p') === 1 && rCnt('f') === 2 && rCnt('c') === 2 && rCnt('u') === 2
         && rIdx.includes('idx_rating_ratee_time') && rIdx.includes('idx_rating_target')
-        && rTrg.length === 1 && /BEFORE (UPDATE OR DELETE|DELETE OR UPDATE)/.test(rTrg[0]?.def ?? ''),
-      '★ 活体 `rating`：11 列 / PK×1 FK×2 CHECK×2 UNIQUE×2 / 2 具名索引 / 1 append-only 触发器',
+        && rTrg.length === 2
+        && rTrg.some((x) => /BEFORE (UPDATE OR DELETE|DELETE OR UPDATE)/.test(x.def))
+        && rTrg.some((x) => /BEFORE TRUNCATE/.test(x.def)),
+      '★ 活体 `rating`：11 列 / PK×1 FK×2 CHECK×2 UNIQUE×2 / 2 具名索引 / 1 append-only 触发器 + 1 `BEFORE TRUNCATE` 守卫（`0043`）',
       JSON.stringify(live.live_rating));
 
     const eCols = Number((await readQuery<{ n: string }>(
@@ -530,10 +535,13 @@ const PENDING_RESOLVED: string[] = [
     const eTypes = ((eCons.find((c) => c.conname === 'listing_order_event_type_enum')?.def ?? '').match(/'([a-z_]+)'/g) || []).map((s) => s.slice(1, -1)).sort();
     live.live_event = { cols: eCols, pk: eCnt('p'), fk: eCnt('f'), ck: eCnt('c'), uniq: eCnt('u'), types: eTypes, idx: eIdx, trg: eTrg.map((x) => x.tgname) };
     t('L6', 'dbStructure',
+      // ★ S27 库面收口（同 L5）：`listing_order_event` 新添 `trg_listing_order_event_no_truncate` ⇒ 触发器数 1→2；判据加严为两枚同在。
       eCols === 13 && eCnt('p') === 1 && eCnt('f') === 2 && eCnt('c') === 1 && eCnt('u') === 1
         && eTypes.length === 6 && eIdx.includes('idx_listing_order_event_order_time')
-        && eTrg.length === 1 && /BEFORE (UPDATE OR DELETE|DELETE OR UPDATE)/.test(eTrg[0]?.def ?? ''),
-      '★ 活体 `listing_order_event`：13 列 / PK×1 FK×2 CHECK×1 UNIQUE×1 / `event_type` 6 值 / 1 具名索引 / 1 append-only 触发器',
+        && eTrg.length === 2
+        && eTrg.some((x) => /BEFORE (UPDATE OR DELETE|DELETE OR UPDATE)/.test(x.def))
+        && eTrg.some((x) => /BEFORE TRUNCATE/.test(x.def)),
+      '★ 活体 `listing_order_event`：13 列 / PK×1 FK×2 CHECK×1 UNIQUE×1 / `event_type` 6 值 / 1 具名索引 / 1 append-only 触发器 + 1 `BEFORE TRUNCATE` 守卫（`0043`）',
       JSON.stringify(live.live_event));
   } catch (e) {
     t('L0', 'dbStructure', false, '结构面连通（readQuery）', String((e as Error)?.message || e));
