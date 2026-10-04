@@ -10,13 +10,20 @@ import { fetchAdminAccess, hasAdminPermission } from '../../admin-utils'
 import './jobs.css'
 
 // 招工线 · 审核入口（§4.2 J5/J6 · 已注册路径）
-//   · 队列读口 = GET /api/tasklist/pending-verification（**已注册** backend-ts/src/index.ts:1093；
+//   · 队列读口 = GET /api/tasklist/pending-verification（**已注册** backend-ts/src/index.ts:1962；
 //     权限 = `requireAdmin(review_tasks)` ⇒ 非管理员 `403 AUTH_FORBIDDEN`，走 R107 四语文案）
-//   · 动作面 = POST /api/job/:jobId/review（**已注册** :1405；A5）
-//       通过 ⇒ `approved:true`  = `job_post_event(op='settle')`（发放 + 手续费 + 返佣）
-//       驳回 ⇒ `approved:false` = `job_post_event(op='refund')`（退托管，`to_status='rejected'`）
-//   · **幂等键 = 服务端派生**（事件根键 `biz:job:settle:<job_id>`，`backend-ts/migrations/0013_job.sql:592`）⇒ 前端不传键。
-//   · 队列项的 `jID` = `application_id`、`tID` = `job_id`（§4.4-16 路由入口语义）
+//   · 动作面 = POST /api/job/:jobId/review（**已注册** :2457；A5）body = `{ approved, submission_id }`
+//       通过 ⇒ `approved:true`  + 提交号 = `settleJob({submissionIdRaw})` **逐笔发放**
+//              （该提交转 `approved` + `job_payout`/`job_fee`/`commission` 同一语句（R4 原子））
+//       驳回 ⇒ `approved:false` + 提交号 = **逐笔判不合格**（零资金、该提交转 `rejected`、任务保持 `open`）
+//   · ★ 逐笔键 = **提交号**（`submission_id`）：缺省 ⇒ 后端落**遗留单笔分支**
+//     （`index.ts:2464` / `job-funds-service.ts:234`）—— 在 0042 新模型下**必失败**
+//     （`409 LEDGER_CURRENCY_INVALID_TRANSITION`）⇒ 本页**必须**逐笔带上提交号。
+//   · **幂等键 = 服务端派生** ⇒ 前端不传键：
+//       `biz:job:settle:<job_id>:<submission_id>`（`job-funds-service.ts:232`）；
+//       缺提交号退化为 `biz:job:settle:<job_id>`（`migrations/0013_job.sql:592`）。
+//   · 队列项字段（现取 `database.ts:4013-4014`）：`tID` = `job_id`（= 动作面 URL 的 `:jobId`）、
+//     `jID` = `submission_id`（= body 的 `submission_id`）。★ 两者皆有 ⇒ 逐笔调用两值都取。
 const JobReviewPage = () => {
   const { t } = useTranslation()
   const location = useLocation()
@@ -64,14 +71,17 @@ const JobReviewPage = () => {
   useEffect(() => { load() }, [load])
 
   const decide = async (item, approved) => {
-    const key = String(item.tID ?? '')
-    setAction({ phase: 'loading', message: t('jobs.submitting'), id: key })
+    // ★ 逐笔：URL 的 `:jobId` 用任务号 `tID`；body 的 `submission_id` **必带**提交号 `jID`
+    //   （缺 ⇒ 后端遗留单笔分支 ⇒ 0042 新模型下必 409，见文件头）。
+    const jobId = String(item.tID ?? '')
+    const submissionId = item.jID
+    setAction({ phase: 'loading', message: t('jobs.submitting'), id: jobId })
     try {
-      await reviewSubmission(key, approved, user)
-      setAction({ phase: 'ok', message: approved ? t('jobs.approveOk') : t('jobs.rejectOk'), id: key })
+      await reviewSubmission(jobId, approved, user, submissionId)
+      setAction({ phase: 'ok', message: approved ? t('jobs.approveOk') : t('jobs.rejectOk'), id: jobId })
       await load()
     } catch (error) {
-      setAction({ phase: 'error', message: String(error?.message || t('error')), id: key })
+      setAction({ phase: 'error', message: String(error?.message || t('error')), id: jobId })
     }
   }
 

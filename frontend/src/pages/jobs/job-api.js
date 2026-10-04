@@ -24,8 +24,8 @@
 //   ② 申请 POST /api/job/:jobId/apply   ⇒ ★**已下架**（恒 `410` + `details.reason='APPLY_RETIRED'`）⇒ 本层**零接线**（无键面）
 //   ③ 接受 POST /api/job/:jobId/accept  ⇒ ★**已下架**（恒 `410` + `details.reason='ACCEPT_RETIRED'`）⇒ 本层**零接线**（无键面）
 //   ④ 提交 POST /api/task-progress/:identifier/submit ⇒ **服务端派生**（`backend-ts/src/job-service.ts:133`）⇒ 不传键
-//   ⑤ 审核 POST /api/job/:jobId/review  ⇒ **服务端派生**事件根键 `biz:job:settle:<job_id>`
-//        （`backend-ts/migrations/0013_job.sql:592`）⇒ 不传键
+//   ⑤ 审核 POST /api/job/:jobId/review  ⇒ **服务端派生**事件根键 `biz:job:settle:<job_id>:<submission_id>`
+//        （`backend-ts/src/job-funds-service.ts:232`；缺提交号退化为 `biz:job:settle:<job_id>`）⇒ 不传键
 //   ⑥ 我的余额 / 流水 = **纯读面** ⇒ 无键
 // 依据 §4.5 v0.6 追加块「契约 1/2」：**异标识 ⇒ 落新行** ⇒ 前端在服务端已派生键的面自造键 = 重试变第二行。
 // ============================================================================
@@ -78,12 +78,13 @@ export const submitDeliverable = (identifier, deliverable, user) =>
   postJson(`/api/task-progress/${identifier}/submit`, { info_input: deliverable }, user)
 
 /**
- * J5/J6 审核（§4.2 A5；`POST /api/job/:jobId/review`，**已注册** `backend-ts/src/index.ts:2451`）。`jobId` = **job_id**。
- * ★S7 逐笔：S6 起该口收可选 **`submission_id`**（现取 `:2458` = `req.body?.submission_id ?? req.body?.submissionId`：
+ * J5/J6 审核（§4.2 A5；`POST /api/job/:jobId/review`，**已注册** `backend-ts/src/index.ts:2457`）。`jobId` = **job_id**。
+ * ★S7 逐笔：S6 起该口收可选 **`submission_id`**（现取 `:2464` = `req.body?.submission_id ?? req.body?.submissionId`：
  *   body 形态 = `{ approved, submission_id }`）⇒ `approved:true` = 发一份赏金；`approved:false` = 零资金、该提交转 `rejected`、任务保持 `open`。
  *   ★（S6b 并行单正修 `approved:false` 分支，现状会错成「整单退款」⇒ 前端**只接线、不改后端**。）
- *   `submissionId` 缺省（如管理员队列既有 3 参调用）⇒ 服务层落遗留单笔分支，**零回归**。
- *   ★ 为保持既有 3 参调用点（`JobReviewPage`）逐字不变，提交号作**第 4 参追加**。
+ *   `submissionId` 缺省（无提交号）⇒ 服务层落遗留单笔分支 ⇒ 在 **0042 新模型**下必失败
+ *   （`409 LEDGER_CURRENCY_INVALID_TRANSITION`）⇒ **新代码一律逐笔带上提交号**（S13 修正）。
+ *   ★ 为保持既有调用点签名兼容，提交号作**第 4 参**（`JobReviewPage` / `JobDetailPage` 现均传）。
  * 幂等键 = 服务端派生（见文件头 ⑤）⇒ 不传键。
  */
 export const reviewSubmission = (jobId, approved, user, submissionId) =>

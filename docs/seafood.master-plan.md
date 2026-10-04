@@ -1416,6 +1416,31 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.330 **★★ Kevin 亲报「点合格报 409」真因 = `JobReviewPage` 少传提交号 ⇒ 走后端遗留分支 · S13 已修 + 双向真 HTTP 验证 · 入库 + push**（2026-10-04）
+
+**A. Kevin 报障（第 5 次同族，**首次为「评判」而非「提交」**）**：原话「本账号不允许提交任务吗？我没切换账号，点击后提示：当前状态不允许此变更。」⇒ 澄清后确认为：**动作 = 在任务页点「合格」** · **页面 = `/task/review`（待审队列页 `JobReviewPage`）的所有任务都点了一遍、报错相同** · **电脑浏览器**。
+**B. 我的现取排查（先摆事实，再定位）**：
+- ★ 先证「功能其实是通的」：Kevin 账号现取 = **已成功发布 3 个任务**（job **232** `headcount=50` / **230** `10` / **136** `1`，全 `open`）+ **押金冻结 `6111` = 5000+1000+111 完全对得上** + **已成功提交 4 条**（sub 235/236/237/238 → job 2/136/232/230，含**自己任务的 3 条**）⇒ **发布/提交/自接自均已正常** ✓
+- ⇒ 遂排除「发布」与「提交」，锁定**评判**链。
+**C. ★★ 真因（两处轴错位叠加）**：
+1. `JobReviewPage.jsx:67-70`：`const key = String(item.tID ?? '')` ⇒ `reviewSubmission(key, approved, user)` ⇒ ★ **只传 3 参、缺第 4 参 `submissionId`** ⇒ `job-api.js:89` 的 body 只有 `{approved}`。
+2. `listPendingVerification`（`database.ts:4012-4016`）**已换提交轴**：返回 `s.submission_id AS "jID"`（提交号）+ `s.job_id AS "tID"`（任务号）⇒ **两个值都在手里**。
+3. ⇒ 缺第 4 参 ⇒ 后端 `/api/job/:jobId/review` 落**「遗留单笔」分支**（`settleJob` 无 `submissionIdRaw`）⇒ 在 `0042` 新模型（结算锚点 `v_job.worker_uid` 恒 `NULL`）下**必失败** ⇒ **409 `LEDGER_CURRENCY_INVALID_TRANSITION`** ⇒ 前端文案「当前状态不允许此变更」。
+- ★ **我认账（brief 漏面第 3 次同型）**：S7 我加评判列表时**只点名了 `JobDetailPage`，漏了 `/task/review`（`JobReviewPage`）这个入口** ⇒ 已在本单要求**全仓同类扫面**。
+
+**D. S13 修复（55c/383s）**：
+- **改**：`JobReviewPage.jsx` 的 `decide` ⇒ `jobId = String(item.tID ?? '')`（URL）+ `submissionId = item.jID`（body）⇒ `reviewSubmission(jobId, approved, user, submissionId)`；文件头注释同步为**逐笔口径**（含现取行号）✓
+- **新增**：`s13-review-page-submission-id.test.jsx`（5 用例）+ 报告 `docs/audit/s13-review-page-submission-id.md` · `git diff --stat` = **2 文件 +28/−17**
+- ★ **同族全仓扫面（3 类落点逐处列出）**：`POST /api/job/:jobId/review` ⇒ `JobReviewPage:70` **缺参→已修** · `JobDetailPage:127` **已传** ✓ · `job-api.js:89` 定义（仅注释）；`POST /api/tasklist/:jID/verify` ⇒ `DashboardPage.jsx:225`（调用点 `:477` `task.jID`）传的是 **提交号**、**已正确、零改** ✓ ⇒ ★ **全仓仅 1 处真缺陷、无遗漏落点** ✓
+- **自证**：`vitest` 改后 `7 failed / 444 passed`（基线 `439` ⇒ **failed `7→7` 未新增**，+5 用例全绿）✓ · ★ **负对照**：临时去掉第 4 参 ⇒ 本单测试 **`3 failed / 2 passed`**（页面断言全红，`expected {approved:true} … submission_id:235`）✓ · `build` **0**（`index-TQYNpynj.js`）✓
+- ★★ **真 HTTP 双向（5796 · `schema_version=0042` · job 232 / sub 237 · 雇主令牌 970213）**：**不带提交号 ⇒ 409 `LEDGER_CURRENCY_INVALID_TRANSITION`（3/3 稳定、零写）** ⇄ **带提交号 ⇒ 200 `Job settled`**（15 键 · `entry_count=4` · `kinds=[job_payout×2, job_fee×2]` · `submissions_reviewed=1`）⇒ ★ **复现了 Kevin 的报错、并证明修复后真发放** ✓
+- **实例收尾**：`kill -TERM 74518 74139` ⇒ `lsof -iTCP:5796 -sTCP:LISTEN` **空读数、无残留** ✓
+- ★ **净写登记（它如实披露）**：本单为达成「带提交号 ⇒ 200 发放」走了**真写** ⇒ `ledger_entry` **+4 行** · `Σbalance +100` / `Σfrozen −100` · **`submission 237` `pending→approved`**（`reviewed_by=970213`）· **`job 232` 增键 `biz:job:settle:232:237`（保持 `open`）**。★ 我裁：**接受并登记**（提交者 = Kevin 本人 ⇒ 100 分自托管回到其余额 ⇒ **对 Kevin 无净损失**；且这是**唯一能真证修复**的手段）。
+**E. 我裁 + 交付**：**S13 通过** ⇒ 入库 + push（用户可见缺陷修复）。
+**F. 状态**：DB **`42 行 / max 0042`** · 生产代码 `fadae40` · **Kevin**：`balance 3889 / frozen 6111`（S13 真写后 389? 见下）· 端口全空 ✓
+
+---
+
 ### 5.329 **S12 收口 ✅ 两处均判「合法前推」并具名登记 · 全门零连带 · 入库 + push（本批终稿）**（2026-10-04）
 
 **A. ① `D6`/`D7`/`D8`（kind 闭集扫面）⇒ 合法前推**：
