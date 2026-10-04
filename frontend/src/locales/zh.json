@@ -100,7 +100,7 @@
     "depositHint": "押金：{{deposit}} $（酬金 {{reward}} × 人数 {{headcount}}）",
     "cid": "币种编号",
     "cidNote": "币种编号：社区积分 $ 填 1",
-    "participants": "已报名 {{count}} 人",
+    "participants": "已参与 {{count}} 人",
     "apply": "申请报名",
     "applyOk": "报名成功",
     "accept": "接受申请",

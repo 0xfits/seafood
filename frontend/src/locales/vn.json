@@ -100,7 +100,7 @@
     "depositHint": "Deposit: {{deposit}} $ (reward {{reward}} x headcount {{headcount}})",
     "cid": "Mã tiền tệ",
     "cidNote": "Mã tiền tệ: nhập 1 cho điểm cộng đồng ($).",
-    "participants": "{{count}} người ứng tuyển",
+    "participants": "{{count}} người tham gia",
     "apply": "Ứng tuyển",
     "applyOk": "Đã gửi đơn",
     "accept": "Nhận đơn",

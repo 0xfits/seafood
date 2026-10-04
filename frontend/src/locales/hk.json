@@ -100,7 +100,7 @@
     "depositHint": "押金：{{deposit}} $（酬金 {{reward}} × 人數 {{headcount}}）",
     "cid": "幣種編號",
     "cidNote": "幣種編號：社區積分 $ 填 1",
-    "participants": "已報名 {{count}} 人",
+    "participants": "已參與 {{count}} 人",
     "apply": "申請報名",
     "applyOk": "報名成功",
     "accept": "接受申請",

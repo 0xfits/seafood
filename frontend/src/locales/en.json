@@ -100,7 +100,7 @@
     "depositHint": "Deposit: {{deposit}} $ (reward {{reward}} x headcount {{headcount}})",
     "cid": "Currency id",
     "cidNote": "Currency id: enter 1 for community points ($).",
-    "participants": "{{count}} applicants",
+    "participants": "{{count}} participants",
     "apply": "Apply",
     "applyOk": "Application sent",
     "accept": "Accept application",

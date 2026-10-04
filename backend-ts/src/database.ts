@@ -2527,13 +2527,16 @@ export class DatabaseService {
         ORDER BY t.job_id
         LIMIT ${limit} OFFSET ${skip}
       ),
+      -- ★ S19（R-9-97~R-9-103）：participants_count 真源 = 逐笔提交（public.job_submission）。
+      --   提交过即算参与（不区分 review_status；判不合格者仍是参与者、可再提）。
+      --   本 CTE 与 getTask 内同族 CTE **必须同源**（S16「过滤谓词两处同源」纪律）。
       participant_counts AS (
         SELECT
-          j.job_id AS tid,
-          COUNT(1)::int AS participants_count
-        FROM job_application AS j
-        JOIN selected_tasks AS t ON t.job_id = j.job_id
-        GROUP BY j.job_id
+          s.job_id AS tid,
+          COUNT(DISTINCT s.worker_uid)::int AS participants_count
+        FROM public.job_submission AS s
+        JOIN selected_tasks AS t ON t.job_id = s.job_id
+        GROUP BY s.job_id
       )
       SELECT
         t.*,
@@ -2556,13 +2559,16 @@ export class DatabaseService {
         WHERE t.job_id = ${tID}
         LIMIT 1
       ),
+      -- ★ S19（R-9-97~R-9-103）：participants_count 真源 = 逐笔提交（public.job_submission）。
+      --   提交过即算参与（不区分 review_status；判不合格者仍是参与者、可再提）。
+      --   本 CTE 与 listTasks 内同族 CTE **必须同源**（S16「过滤谓词两处同源」纪律）。
       participant_counts AS (
         SELECT
-          j.job_id AS tid,
-          COUNT(1)::int AS participants_count
-        FROM job_application AS j
-        JOIN selected_task AS t ON t.job_id = j.job_id
-        GROUP BY j.job_id
+          s.job_id AS tid,
+          COUNT(DISTINCT s.worker_uid)::int AS participants_count
+        FROM public.job_submission AS s
+        JOIN selected_task AS t ON t.job_id = s.job_id
+        GROUP BY s.job_id
       )
       SELECT
         t.*,

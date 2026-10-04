@@ -511,7 +511,7 @@ const ProfilePage = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-2xl">{t('profilePage.shardHoldings')}</CardTitle>
-                <Link to={buildLocalizedPath(lang, '/shard')} className="text-sm text-blue-600 hover:text-blue-800 underline">
+                <Link to={buildLocalizedPath(lang, '/exchange')} className="text-sm text-blue-600 hover:text-blue-800 underline">
                   {t('common.goTrade')}
                 </Link>
               </div>
