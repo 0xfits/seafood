@@ -131,7 +131,16 @@ const base: RefundActorInput = { actorUid: 500, sellerUid: 7, buyerUid: 8, canAc
   // ======================================================================== AC-10（闭集 / 形状 / 注册点）
   ck.t('AC10-1', '错误码闭集 33 不动', LEDGER_ERROR_CODES.length === 33, `codes=${LEDGER_ERROR_CODES.length}`);
   const regs = (INDEX_TS.match(/^app\.(get|post|put|delete|patch)\(/gm) ?? []).length;
-  ck.t('AC10-2', '注册点 = 68 不变（本单零新注册点）', regs === 68, `registration_points=${regs}`);
+  // ★ S20 常红门前推（沿 S10/S11「冻结面前推」同族；只前推数值，判据形态/其它 AC 一字未改）：
+  //   旧值 = 68（写死于 9805876「退款实现」，**当时**确为零新注册点：68 不变）；现取真值 = 89。
+  //   出处 = 逐 commit 现取 `git show <rev>:backend-ts/src/index.ts | grep -cE '^app\.(get|post|put|delete|patch)\('`：
+  //     68 9805876（退款单；写死值）→ 69 b082a81（b8-2 GET /api/admin/commission_policy +1）
+  //     → 71 0d86ce5（b8-4 currency 两读写口 +2）→ 75 3a36ba5（b8-5 listing/arbitration 四口 +4）
+  //     → 76 38648c1（p9-1 GET /api/role-names +1）→ 80 4c40b47（p9-2 batt/checkin 四口 +4）
+  //     → 85 627032b（p9-3 评分/时效/发货收货五口 +5）→ 87 eb29831（p9-4 bttc mint/burn +2）
+  //     → 88 614ae53（p8-6 审计台读口 +1）→ 89 692f622（S6 GET /api/job/:jobId/submissions +1）。
+  //     净 +21 ⇒ 68 + 21 = 89。`da65f13`/`9bd1df0` 无路由增改（S6b/S16）。
+  ck.t('AC10-2', '注册点 = 89（自 S10 冻结面 68 前推 +21；逐 rev 出处见上方注释）', regs === 89, `registration_points=${regs}`);
   ck.t('AC10-3', '退款路由仍**复用同路径**（无 `/api/admin/listing-orders`）', !/\/api\/admin\/listing-orders/.test(INDEX_TS) && /app\.post\('\/api\/listing-orders\/:orderId\/refund'/.test(INDEX_TS), 'ok');
   ck.t('AC10-4', '对外出口 = 既有 `sendSuccess` + `sendVerbError`（R107；无新增顶层响应键）',
     INDEX_TS.indexOf("sendSuccess(res, result.view, result.replay ? 'Listing order refunded") !== -1 &&
