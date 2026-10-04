@@ -1416,6 +1416,35 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.329 **S12 收口 ✅ 两处均判「合法前推」并具名登记 · 全门零连带 · 入库 + push（本批终稿）**（2026-10-04）
+
+**A. ① `D6`/`D7`/`D8`（kind 闭集扫面）⇒ 合法前推**：
+- 现取实形：扫 5 根 × 6 后缀，命 `SCAN_RE` 且 `kinds ≥ 21` 入桶 `full_set_21`；**实得 6 处**（期望 5）
+- ★ **具名归因**：第 6 处 = **S9 新增**的 `frontend/src/test/unit/s9-ledger-kind-closure.test.js`（`2ad2d11` 新加；内含 24 值镜像常量 `KINDS_MIRROR`；**`git cat-file` 证 S9 前不存在**）；逐字读数 `buckets.full_set_21 = 6` · `hits = 162`，其余 5 桶无越界全闭集 ✓
+- 前推：`FULL_SET_EXPECTED` 五→**六**（具名登记该件）· `D7` 硬编码 `5&&5` → `6&&6` · 文案注释同步「恰六处」✓
+
+**B. ② `C5`（`doubleGate`）⇒ 合法前推**：
+- ★ **先现取它扫什么**：`countOf(job-service.ts, /stateConflict\('batt',\s*'BATT_BELOW_ACCEPT_THRESHOLD'/)` = 服务层把 `batt_below_threshold` 映为 409 的**落点处数**
+- 逐字读数：**实得 3**（期望 2）⇒ 三处 = **`submitWork:157`（现役**，`index.ts:946` 调用；**S2/`R-9-99` 新增**）+ `applyToJob:208` / `acceptApplication:245`（**P9② 历史、`@deprecated`**，路由已 410、`index.ts` 未 import）
+- `git log -S` 证 2→3 的引入点 = **S2 `337a5fb`**，逐 commit 皆 3 ✓
+- **定性 = 合法前推**（落点集合因 S2 裁定变更而**合法扩容**；非真回归、非口径错 —— 三处均借同一既有族码、`C6` 仍绿、无重复/错位）★ **未直接改期望**（先现取再定性）✓
+- 前推：`mapCount === 2` → `=== 3` + 文案「两处→三处」+ 具名注释 ✓
+
+**C. ③ 全门复跑（11 门）**：仅 **`p8-s7`** 变 **`59/52/7` → `59/56/3`**（目标 4 判据红→绿 · **`total` 不变 = 断言逻辑未动**）· **其余 10 门逐字不变、零连带** ✓ · `selfTest` 8 项全保留且绿 ✓
+**D. 未测（如实）**：`s7 G8-G10` / `s8 H5-H7` / `s10 K8` / `s11 K10` = **HTTP 腿**（受控实例未起；`5796/5797 ∈ 硬口径禁占区`，**不为凑绿起服务**）⇒ 改前即红、改后逐字不变 ✓
+**E. 改动**：`backend-ts/scripts/p8-s7-batt-checkin-gate.ts`（`14+/8−`，唯一）+ 报告 `docs/audit/s12-p8s7-residual-closeout.md` ✓ 未碰禁改面、未放宽/未删判据 ✓
+**F. ★ 本批最终交付清单（17 commit 已上线）**：
+| 层 | 内容 |
+|---|---|
+| 规范 | `route-layer` **v2.23** §34 · `data-layer` **v0.29** §36 · `ledger` **v0.16** §19.19 · `commission` **v0.6** §20（4 册**纯追加 147/0** + 4 快照 `cmp=0`） |
+| 迁移 | `0041_job_headcount` · **`0042_job_settle_per_submission`**（publish 托管 `reward×headcount` · settle 键含 `submission_id` · 发满收口 · refund 按剩余 · `open→settled` 边放宽）—— **均已 apply 真库** |
+| 后端 | S2 服务层（去报名前置/去 `self_application`/同人多次提交/batt 闸移位/读口换 `submission_id`）· S3 路由层（`/apply` `/accept` ⇒ **410**）· S4a 资金面 · S6 `GET /api/job/:jobId/submissions` + `/review` 逐笔 · **S6b 逐笔 reject（修掉「判不合格整单退款」）** · 修「重放多发 10 分」 |
+| 前端 | S3b 契约同步（open 直出提交表单）· S5 发布表单「总人数」+ 押金提示 · S7 悬赏家评判列表 · S8/S9 文案类级缺口封死（含 2 个守卫测试） |
+| 门 | S2b/S10/S11/S12 四轮冻结面前推（迁移计数 / 注册点 / 闭集扫面 / batt 落点），**全部「先现取后定性」、零放宽** |
+**G. 状态**：DB **`42 行 / max 0042`** · 生产 **`a231d11`**（bundle `index-DJ3sW_0h.js` sha256 `ed218250…`，线上与本地 `cmp` 逐字相同）· **积分 9889 + 电量 30** · 端口全空 ✓
+
+---
+
 ### 5.328 **★★ 本批 15 commit 已 push 上线 + 生产终验全绿 · 新任务模型对用户生效**（2026-10-04）
 
 **A. push**：`origin/main..HEAD` = **15 commit** ⇒ `git push` ⇒ `ahead=0` ✓

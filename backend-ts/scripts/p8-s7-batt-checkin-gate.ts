@@ -260,9 +260,12 @@ const ACCEPT_REGION = ACCEPT_START >= 0 && AFTER_ACCEPT > ACCEPT_START ? DATABAS
     '落点 B 返回值新增 `workerBattAfter`（`worker_batt_after` = 扣后电量，供上层回读）', JSON.stringify({ workerBattAfter: /workerBattAfter/.test(DATABASE_TS), sql_col: /worker_batt_after/.test(ACCEPT_REGION) }));
 
   // ⑤ job-service 两处映射（借既有码 LEDGER_CURRENCY_INVALID_TRANSITION + 稳定 reason）
+  // ★ S12 定格前推（沿 S2 · `R-9-99`）：服务层 `batt` 闸映射处数 2 → 3 —— 原 P9② 两处之外，S2 把闸从「报名」
+  //   移到「提交」时在 `submitWork` **新增第三处**映射（现役唯一在链落点）；旧两处（`applyToJob`/`acceptApplication`）
+  //   按 S2/S3 设计「函数保留不删（路由 410 退役）」⇒ 逐字现取三处：`submitWork:157`（现役）/ `applyToJob:208` / `acceptApplication:245`（后两处历史保留）。
   const mapCount = countOf(JOB_SERVICE_TS, /stateConflict\('batt',\s*'BATT_BELOW_ACCEPT_THRESHOLD'/g);
-  t('C5', 'doubleGate', mapCount === 2,
-    "两处 outcome ⇒ `stateConflict('batt', 'BATT_BELOW_ACCEPT_THRESHOLD', …)`（**借既有「非法状态转移」族码** · 零新增码 · R107）",
+  t('C5', 'doubleGate', mapCount === 3,
+    "三处 outcome ⇒ `stateConflict('batt', 'BATT_BELOW_ACCEPT_THRESHOLD', …)`（`submitWork`〔现役 · S2 新增〕+ `applyToJob`/`acceptApplication`〔P9② 历史保留〕；**借既有「非法状态转移」族码** · 零新增码 · R107）",
     JSON.stringify({ stateConflict_batt: mapCount }));
   t('C6', 'doubleGate', /fail\(409,\s*'LEDGER_CURRENCY_INVALID_TRANSITION'/.test(JOB_SERVICE_TS) && LEDGER_ERROR_CODES.includes('LEDGER_CURRENCY_INVALID_TRANSITION' as never),
     '`stateConflict` 落码 = `LEDGER_CURRENCY_INVALID_TRANSITION`（∈ 闭集 33）', JSON.stringify({ in_closed_set: LEDGER_ERROR_CODES.includes('LEDGER_CURRENCY_INVALID_TRANSITION' as never) }));
@@ -345,12 +348,15 @@ for (const abs of allScanFiles) {
   scanHits.push({ file: rel, kinds: kinds.length, has_new_kind: hasNew, bucket });
 }
 const FULL_SET_CODE = scanHits.filter((h) => h.bucket === 'full_set_21').map((h) => h.file).sort();
+// ★ S12 扫面定格前推（沿 S9 · `2ad2d11`）：S9 新增 `frontend/src/test/unit/s9-ledger-kind-closure.test.js`
+//   （内含 24 值镜像常量 `KINDS_MIRROR` + 现读 `LEDGER_KINDS` ⇒ 命中 `kinds ≥ 21`）⇒ 代码面全闭集编码 5 → 6，**具名登记该处**。
 const FULL_SET_EXPECTED = [
   'backend-ts/migrations/0028_kind_close_set_21.sql',
   'backend-ts/migrations/0029_batt_checkin.sql',
   'backend-ts/migrations/0032_kind_close_set_23.sql',
   'backend-ts/migrations/0038_kind_close_set_24.sql',
   'backend-ts/src/ledger.ts',
+  'frontend/src/test/unit/s9-ledger-kind-closure.test.js',
 ].sort();
 const BUCKETS = ['full_set_21', 'spec_text', 'historical_or_superseded', 'single_kind_usage', 'probe_or_artifact', 'readonly_call_or_subset'];
 const bucketCounts: Record<string, number> = Object.fromEntries(BUCKETS.map((b) => [b, scanHits.filter((h) => h.bucket === b).length]));
@@ -393,19 +399,19 @@ const bucketCounts: Record<string, number> = Object.fromEntries(BUCKETS.map((b) 
       && !KINDS_0038_FROZEN.includes(NEW_KIND) && [...P94_KINDS, ...P95_KINDS].every((k) => !KINDS_0038_FROZEN.includes(k)),
     '`ledger_kind_ok` 的第二支（`p_frozen_settle`）**一字不动** = 4 值且不含任何新增值（新 kind 不属冻结结算族）',
     JSON.stringify({ frozen: [...KINDS_0038_FROZEN].sort(), has_new: KINDS_0038_FROZEN.includes(NEW_KIND), has_newer: [...P94_KINDS, ...P95_KINDS].filter((k) => KINDS_0038_FROZEN.includes(k)) }));
-  // D6 穷举扫面：全闭集编码（≥21 值）在代码面**恰五处**（现役 0038 + TS；历史 0032 / 0028 / 0029）
+  // D6 穷举扫面：全闭集编码（≥21 值）在代码面**恰六处**（现役 0038 + TS；历史 0032 / 0028 / 0029；★ S12 追加 S9 守卫件）
   t('D6', 'kindCloseSet', eqJson(FULL_SET_CODE, FULL_SET_EXPECTED),
-    '★ **穷举扫面结论「无未登记全闭集编码」**：代码面全闭集编码（≥21 值）**恰五处** = `0028` CHECK / `0029` 函数 / `0032` / `0038` / `src/ledger.ts`（前四为历史→现役迁移，末为 TS 现役）',
+    '★ **穷举扫面结论「无未登记全闭集编码」**：代码面全闭集编码（≥21 值）**恰六处** = `0028` CHECK / `0029` 函数 / `0032` / `0038` / `src/ledger.ts`（前四为历史→现役迁移，末为 TS 现役）+ `frontend/src/test/unit/s9-ledger-kind-closure.test.js`（★ S12 登记：S9 守卫镜件，内含 24 值 `KINDS_MIRROR`）',
     JSON.stringify({ found: FULL_SET_CODE, expected: FULL_SET_EXPECTED }));
   // D7 命中分类（正则 + 逐桶计数）
-  const classified = FULL_SET_CODE.length === 5 && bucketCounts.full_set_21 === 5;
+  const classified = FULL_SET_CODE.length === 6 && bucketCounts.full_set_21 === 6;
   t('D7', 'kindCloseSet', classified,
-    `扫面正则 = ${SCAN_RE.source}；命中分类逐桶 = ${JSON.stringify(bucketCounts)}（full_set_21 恰 5 ⇒ 其余 = 派生子集 / 只读调用 / 历史被取代 / 规范文本 / 弃件）`,
+    `扫面正则 = ${SCAN_RE.source}；命中分类逐桶 = ${JSON.stringify(bucketCounts)}（full_set_21 恰 6 ⇒ 其余 = 派生子集 / 只读调用 / 历史被取代 / 规范文本 / 弃件）`,
     JSON.stringify({ regex: SCAN_RE.source, roots: SCAN_ROOTS, buckets: bucketCounts, hits: scanHits.length }));
-  // D8 无未登记全闭集（等价判别）：代码面「含新 kind 且 kind 数 ≥ 20」的文件 == 恰五处
+  // D8 无未登记全闭集（等价判别）：代码面「含新 kind 且 kind 数 ≥ 20」的文件 == 恰六处
   const fourth = scanHits.filter((h) => !h.file.startsWith('docs/') && h.has_new_kind && h.kinds >= 20).map((h) => h.file).sort();
   t('D8', 'kindCloseSet', eqJson(fourth, FULL_SET_EXPECTED),
-    '★ 「无未登记全闭集编码」等价判别：代码面**含 `checkin_makeup_fee` 且 kind 数 ≥ 20** 的文件 = 恰五处',
+    '★ 「无未登记全闭集编码」等价判别：代码面**含 `checkin_makeup_fee` 且 kind 数 ≥ 20** 的文件 = 恰六处（含 S9 守卫件）',
     JSON.stringify({ files_with_new_kind_and_full_list: fourth }));
   selfTest('D6', 'kindCloseSet',
     (hits) => (Array.isArray(hits) ? hits.filter((h: { bucket: string }) => h.bucket === 'full_set_21').map((h: { file: string }) => h.file).sort() : []).length === 0,
