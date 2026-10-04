@@ -80,7 +80,8 @@ const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).l
 // ★ 8⑥ 续跑前推：迁移文件数 38 → 39（+0040 存量用户补发 batt）。
 // ★ S2b 门前推：迁移文件数 39 → 40（+0041_job_headcount 任务 headcount）。
 // ★ S10 门前推：迁移文件数 40 → 41（+0042_job_settle_per_submission 每提交结算）。
-const MIGRATIONS_FROZEN = 41;
+// ★ S26 台账 B9 门前推：迁移文件数 41 → 42（+0043_truncate_guard 给 15 张 append-only 表补 BEFORE TRUNCATE 守卫）。
+const MIGRATIONS_FROZEN = 42;
 const ENVELOPE_FIELDS = ['create_key', 'idempotency_key', 'idempotencyKey'];
 
 const readSrc = (rel: string): string => fs.readFileSync(path.resolve(REPO_ROOT, rel), 'utf8');
