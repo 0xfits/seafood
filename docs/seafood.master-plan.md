@@ -1416,6 +1416,32 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.328 **★★ 本批 15 commit 已 push 上线 + 生产终验全绿 · 新任务模型对用户生效**（2026-10-04）
+
+**A. push**：`origin/main..HEAD` = **15 commit** ⇒ `git push` ⇒ `ahead=0` ✓
+**B. 生产终验（全绿）**：
+- **`/api/health` ⇒ `schema_version = 0042`** ✓（DB 与代码同步）
+- ★★ **bundle 逐字对拍**：线上 = 本地 = **`assets/index-DJ3sW_0h.js`**（420.22 kB）· **sha256 `ed218250ac6f818d029a2cca3629ac273edeb34f70879b9904ea35c85d086a3d` 逐字相同** · **`cmp` = 逐字相同** ✓
+  - ★ 过程更正（我自己的验收失误）：首次对拍我**忘了先本地 build** ⇒ 本地无产物 ⇒ 对拍为空；补 build 后**逐字相同** ✓
+- ★★ **新功能面线上现取**：`POST /api/job/1/apply` ⇒ **410** + `{"error":{"code":"LEDGER_REF_NOT_FOUND","message":"endpoint deprecated: /api/job/:jobId/apply",…,"details":{"ref_type":"endpoint",…}}}` ⇒ **退役生效** ✓ · `GET /api/job/1/submissions` ⇒ **401**（需登录）✓ · `GET /api/task-progress/1` ⇒ **401** ✓
+- **线上 bundle 内本批新件（现取）**：`submissions` **22** · `headcount` **31** · `depositHint` **5** · `submitNotSelected` **6** · `checkin_makeup_fee` **4** · 「**补签费**」**1** ✓
+- 四语 `/exchange` `/en/exchange` `/hk/exchange` `/vn/exchange` ⇒ **全 200** ✓
+**C. ★ 本批交付总览（Kevin 的 6 条口径全部落地并实测）**：
+| 口径 | 落地 | 生产/真链路实证 |
+|---|---|---|
+| ① 彻底去掉「报名」概念（读口 `submission_id`） | S2/S3/S3b/S6 | `/apply` ⇒ **410**（线上）· 读口换轴（真 HTTP：提交者 200 / 非提交者 404 / 无令牌 401） |
+| ② 每个合格都发奖 + 发布时说明总人数 | S4a/S5/S6b | 真 HTTP：发布 `headcount=2` ⇒ 押金 **2000 = 1000×2**；逐笔各发一份；**发满 ⇒ `settled`** |
+| ③ `batt` 门槛保留、移到【提交】 | S2 | 真链路：电量不足提交 ⇒ **409 `BATT_BELOW_ACCEPT_THRESHOLD`**（`reason` 逐字不变） |
+| ④ 判不合格可再提 | S6b | 真 HTTP：判不合格 ⇒ **零资金** + 提交 `rejected` + **任务仍 `open`** ⇒ 可再提（sub 220） |
+| ⑤ 名额未满可随时结束 ⇒ 退未用份额 | S4e | 真链路三态：(i) 退 `reward×(headcount−paid)` **(ii)** 未发放退全额 **(iii)** 发满按规拒 |
+| ⑥ 发布时押全款（余额不足 ⇒ 失败） | S4a | 真 HTTP：`−2000/+2000` ✓ · 余额不足 ⇒ 既有 **`LEDGER_INSUFFICIENT_BALANCE`**（零新增码） |
+- ★ **附带修掉 2 个真缺陷**：**`invite_first_task_reward` 在幂等重放上多发 10 分**（重放分支跳过钩子）· **`/review` 判不合格会整单退款**（改逐笔 reject）
+- ★ **封死 2 个类级缺口**：`jobs.deliverable` 四语缺失 · **`ledger.kind.*` 缺 4 键**（无兜底 ⇒ 用户可见裸键）+ 各配**守卫测试（注入必红）**
+**D. 在跑**：**S12**（门收口：`p8-s7` 两处残留红点判定 + 前推 + 全门复跑）⇒ 回执后入库（收尾件，不影响已上线功能）。
+**E. 状态**：DB **`42 行 / max 0042`** · 生产代码 `3299059` · bundle `index-DJ3sW_0h.js` sha256 `ed218250…` · **积分 9889 + 电量 30** · 端口全空 ✓
+
+---
+
 ### 5.327 **S11 注册点冻结面前推 ✅ · ★它把 7 门补全到 11 门 · 红点 41→15（每门恰减目标判据数）· 入库 + 派 S12 收口**（2026-10-04）
 
 **A. S11（24c/318s）** —— ★★ **全仓现取后实为 11 门**（我派单给 7 门）：
