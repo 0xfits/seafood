@@ -52,6 +52,7 @@ const HomePage = () => {
       status: task.is_open ? 'active' : 'inactive',
       statusText: task.is_open ? t('common.ongoing') : t('common.ended'),
       participants: task.participants_count || 0,
+      headcount: task.headcount || 1,
       type: task.refcode ? 'trade' : 'join',
       actionText: t('common.joinNow'),
     }))

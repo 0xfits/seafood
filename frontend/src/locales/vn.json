@@ -101,6 +101,7 @@
     "cid": "Mã tiền tệ",
     "cidNote": "Mã tiền tệ: nhập 1 cho điểm cộng đồng ($).",
     "participants": "{{count}} người tham gia",
+    "participantsHeadcount": "{{done}} / {{limit}} người tham gia",
     "apply": "Ứng tuyển",
     "applyOk": "Đã gửi đơn",
     "accept": "Nhận đơn",

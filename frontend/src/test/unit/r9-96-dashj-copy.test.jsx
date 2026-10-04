@@ -116,17 +116,17 @@ describe('④ 双口径扫面：用户可见 `dashJ` 文案 = 0', () => {
   })
 })
 
-describe('⑤ 计数（S8 后 + S9：top 119 / flat 1059 / 四语节点 4236）', () => {
+describe('⑤ 计数（S23：top 119 / flat 1060 / 四语节点 4240）', () => {
   it('四语 top / flat / 合计', () => {
     let nodes = 0
     for (const l of LANGS) {
       expect(Object.keys(TABLES[l]).length, `${l} top`).toBe(119)
       const f = flat(TABLES[l]).length
       // **期望订正（S9 ledger.kind 缺键补齐）**：S8 +1 jobs.deliverable ⇒ 1055；S9 +4 ledger.kind 键/语 ⇒ 拍平 1055⇒1059（前订正 S7：1044⇒1054）
-      expect(f, `${l} flat`).toBe(1059)
+      expect(f, `${l} flat`).toBe(1060)
       nodes += f
     }
     // **期望订正（S9）**：1059 × 4 = 4236（S8：1055 × 4 = 4220；原 1054 × 4 = 4216）
-    expect(nodes, '四语节点合计').toBe(4236)
+    expect(nodes, '四语节点合计').toBe(4240)
   })
 })

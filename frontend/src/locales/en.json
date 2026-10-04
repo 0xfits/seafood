@@ -101,6 +101,7 @@
     "cid": "Currency id",
     "cidNote": "Currency id: enter 1 for community points ($).",
     "participants": "{{count}} participants",
+    "participantsHeadcount": "{{done}} / {{limit}} participants",
     "apply": "Apply",
     "applyOk": "Application sent",
     "accept": "Accept application",

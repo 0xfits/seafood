@@ -2091,7 +2091,7 @@ const ADMIN_POINTS_ADJUST_MAX_PER_CALL = 100000;
 //     它**在同一函数/同一语句内**对当日审计行求和（⇒ 防并发两笔同时卡在阈值下），本常量**仅供参考/响应
 //     回填**（`details.max` 的兜底），**不参与**判定 ⇒ 两侧漂移不会造成放行/误拒；
 //   · 阈值 = 服务端常量，客户端永不参与。
-// TODO: Kevin 定值
+// Kevin 2026-10-04 定值 1000000
 const ADMIN_POINTS_ADJUST_MAX_PER_DAY = 1000000;
 
 // P4-A1-LEDGER-IMPL（Zang §5.99 裁定）：本路由由「写缺失 `asset` 表」**改接账本** `ledger_post_event`。

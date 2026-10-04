@@ -139,13 +139,13 @@ const toPosInt = (raw: unknown, field: string): { ok: true; value: number } | { 
  * ★★ **批 8③（配置面）落地**（`data-layer.spec` v0.12 §23.4 · `route-layer.spec` v2.5 §20.7）：
  *   **上市保证金**的下限/服务端值**改读 `AK2` 键**（`app_config.listing_deposit_policy`）——
  *   「**先读 `AK2` · 读不到 / 非法 ⇒ fail-closed 到常量**」（**绝不是** fail-open 到客户端值）；
- *   ⇒ `CURRENCY_LIST_DEPOSIT_FLOOR` **降为兜底**（`TODO: Kevin 定值`；现取读数 = `50000`，
+ *   ⇒ `CURRENCY_LIST_DEPOSIT_FLOOR` **降为兜底**（`Kevin 2026-10-04 定值 50000`；现取读数 = `50000`，
  *   真源 = 本文件改前注文 + Kevin 2026-09-30 定值）。**客户端永不决定金额**（`R-8-5` / §21.4）。
  */
 const CURRENCY_CREATE_FEE_FLOOR = 10000; // Kevin 2026-09-30 定值（起始值：阶梯锥定；$ 无 faucet ⇒ 待首次铸币后重估）
 const CURRENCY_LIST_FEE_FLOOR = 10000; // Kevin 2026-09-30 定值（同上）
-/** ★ 批 8③：`AK2` 的**兜底**常量（读不到 / 非法时回落此值）—— **`TODO: Kevin 定值`**（现取读数 = 50000）。 */
-export const CURRENCY_LIST_DEPOSIT_FLOOR = 50000; // TODO: Kevin 定值（批 8③ 起 AK2 为主导真源；本常量 = fail-closed 兜底）
+/** ★ 批 8③：`AK2` 的**兜底**常量（读不到 / 非法时回落此值）—— **`Kevin 2026-10-04 定值 50000`**（现取读数 = 50000）。 */
+export const CURRENCY_LIST_DEPOSIT_FLOOR = 50000; // Kevin 2026-10-04 定值 50000（批 8③ 起 AK2 为主导真源；本常量 = fail-closed 兜底）
 
 /**
  * ★ 批 8③（`route-layer.spec` v2.5 §20.7）：`AK2`（`listing_deposit_policy`）值的**业务侧解析**。

@@ -178,12 +178,12 @@ describe('S8① 首个缺键 jobs.deliverable 四语齐备', () => {
     expect(TABLES.vn['jobs.deliverable']).toBe('Sản phẩm bàn giao')
   })
 
-  it('键计数前推：顶层 119 / 拍平 1059 / 四语节点 4236（S9 +4 ledger.kind 键/语）', () => {
+  it('键计数前推：顶层 119 / 拍平 1060 / 四语节点 4240（S9 +4 ledger.kind 键/语；S23 +1 jobs.participantsHeadcount）', () => {
     for (const l of LANGS) {
       expect(Object.keys(readLocale(l)).length, `${l} top`).toBe(119)
-      expect(Object.keys(TABLES[l]).length, `${l} flat`).toBe(1059)
+      expect(Object.keys(TABLES[l]).length, `${l} flat`).toBe(1060)
     }
-    expect(Object.keys(TABLES.zh).length * LANGS.length).toBe(4236)
+    expect(Object.keys(TABLES.zh).length * LANGS.length).toBe(4240)
   })
 })
 

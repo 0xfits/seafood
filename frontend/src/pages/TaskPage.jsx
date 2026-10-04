@@ -58,6 +58,7 @@ const TaskPage = () => {
     statusText: task.is_open ? t('common.ongoing') : t('common.ended'),
     type: task.refcode ? 'trade' : 'join',
     participants: task.participants_count || 0,
+    headcount: task.headcount || 1,
     actionText: t('common.joinNow'),
   })
 
@@ -71,6 +72,7 @@ const TaskPage = () => {
     jID: taskProgress.jID,
     tlistID: taskProgress.jID,
     participants: task.participants || 0,
+    headcount: task.headcount || 1,
   })
 
   useEffect(() => {

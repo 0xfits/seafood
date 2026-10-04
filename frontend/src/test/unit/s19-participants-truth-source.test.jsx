@@ -2,7 +2,7 @@
  * S19 单测（Kong）：`participants_count` 真源换轴（job_application → job_submission）的**展示面**契约
  * ============================================================================
  * 覆盖两件事：
- *   (a) 四语 `jobs.participants` **值**已改「已参与」族；**键名/键数不动**（顶层 119 / 拍平 1059）。
+ *   (a) 四语 `jobs.participants` **值**已改「已参与」族；**键名/键数不动**（顶层 119 / 拍平 1059；S23 后 +1 jobs.participantsHeadcount ⇒ 1060）。
  *   (b) `JobDetailPage` 的 `#{tID} · <jobs.participants>` 展示**随 `participants_count` 变**。
  *
  * ★ 内建负对照（本文件必含）：把 `participants_count` 钉为**旧源代表值**（`job_application` 计数）
@@ -98,12 +98,12 @@ describe('(a) 四语 jobs.participants 值（改值不改键）', () => {
     for (const l of ['en', 'vn']) expect(CJK.test(TABLES[l]['jobs.participants']), l).toBe(false)
   })
 
-  it('键名/键数不变：顶层 119 / 拍平 1059 / 四语节点 4236', () => {
+  it('键名/键数不变：顶层 119 / 拍平 1060 / 四语节点 4240（S23 +1 jobs.participantsHeadcount）', () => {
     for (const l of LANGS) {
       expect(Object.keys(readTable(l)).length, `${l} top`).toBe(119)
-      expect(flat(readTable(l)).length, `${l} flat`).toBe(1059)
+      expect(flat(readTable(l)).length, `${l} flat`).toBe(1060)
     }
-    expect(flat(readTable('zh')).length * LANGS.length).toBe(4236)
+    expect(flat(readTable('zh')).length * LANGS.length).toBe(4240)
   })
 })
 
@@ -111,20 +111,21 @@ describe('(a) 四语 jobs.participants 值（改值不改键）', () => {
 // (b) 展示面：渲染值随 participants_count 变 + 负对照
 // ============================================================================
 describe('(b) JobDetailPage 展示随 participants_count 变', () => {
-  it('participants_count=5 ⇒ 元信息行含「已参与 5 人」', async () => {
+  it('participants_count=5 ⇒ 元信息行含「已参与 5 / 共 1 人」', async () => {
     vi.stubGlobal('fetch', routed({ count: 5 }))
     renderPage()
     await waitFor(() => expect(metaEl()).not.toBeNull())
-    expect(metaEl().textContent).toContain('已参与 5 人')
+    // S23：展示改为「已参与 X / 共 N 人」（本测试 stub 无 headcount ⇒ fail-closed 为 1）
+    expect(metaEl().textContent).toContain('已参与 5 / 共 1 人')
     expect(metaEl().textContent).toContain('#9')
   })
 
-  it('participants_count=0 ⇒ 「已参与 0 人」（展示随值变，非常量）', async () => {
+  it('participants_count=0 ⇒ 「已参与 0 / 共 1 人」（展示随值变，非常量）', async () => {
     vi.stubGlobal('fetch', routed({ count: 0 }))
     renderPage()
     await waitFor(() => expect(metaEl()).not.toBeNull())
-    expect(metaEl().textContent).toContain('已参与 0 人')
-    expect(metaEl().textContent).not.toContain('已参与 5 人')
+    expect(metaEl().textContent).toContain('已参与 0 / 共 1 人')
+    expect(metaEl().textContent).not.toContain('已参与 5 / 共 1 人')
   })
 })
 
@@ -136,7 +137,7 @@ describe('★ 负对照（旧源值 ⇒ 新源断言必红）', () => {
   const NEW_SOURCE_VALUE = 5
   const OLD_SOURCE_VALUE = 3
   // 「新源断言」谓词：渲染文本须含新源值对应文案
-  const newSourcePredicate = (text) => String(text).includes(`已参与 ${NEW_SOURCE_VALUE} 人`)
+  const newSourcePredicate = (text) => String(text).includes(`已参与 ${NEW_SOURCE_VALUE} / 共 1 人`)
 
   it('旧源值（participants_count=3）下：新源断言**判假**（红）', async () => {
     vi.stubGlobal('fetch', routed({ count: OLD_SOURCE_VALUE }))
@@ -144,8 +145,8 @@ describe('★ 负对照（旧源值 ⇒ 新源断言必红）', () => {
     await waitFor(() => expect(metaEl()).not.toBeNull())
     const text = metaEl().textContent
     // 展示随值变：确实显示旧源值 3
-    expect(text).toContain('已参与 3 人')
-    // 若在此渲染下断言「已参与 5 人」（toContain）⇒ **必红**；故谓词必须判假
+    expect(text).toContain('已参与 3 / 共 1 人')
+    // 若在此渲染下断言「已参与 5 / 共 1 人」（toContain）⇒ **必红**；故谓词必须判假
     expect(newSourcePredicate(text)).toBe(false)
   })
 
@@ -155,7 +156,7 @@ describe('★ 负对照（旧源值 ⇒ 新源断言必红）', () => {
     await waitFor(() => expect(metaEl()).not.toBeNull())
     const text = metaEl().textContent
     expect(newSourcePredicate(text)).toBe(true)
-    expect(text).not.toContain('已参与 3 人')
+    expect(text).not.toContain('已参与 3 / 共 1 人')
   })
 })
 

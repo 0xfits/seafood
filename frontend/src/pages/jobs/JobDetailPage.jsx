@@ -212,7 +212,7 @@ const JobDetailPage = () => {
               </div>
               <p className="sf-jobs-meta">{jobNote}</p>
               <p className="sf-jobs-meta" data-sf-m="jobs-meta">
-                #{job.tID} · {t('jobs.participants', { count: job.participants_count || 0 })}
+                #{job.tID} · {t('jobs.participantsHeadcount', { done: job.participants_count || 0, limit: job.headcount || 1 })}
               </p>
 
               {/* R-9-83 闭环：提交被拒原因 = 电量不足 ⇒ 可点击提示直达签到区（标签复用既有文案键）。 */}

@@ -11,7 +11,7 @@
  *      ⇒ 两源必须逐值相等；
  *   ② 四语 `ledger.kind` 键集 **== 后端关闭集**（缺一 / 多一皆判负）；
  *   ③ 四语键值非空；en / vn **零 CJK**（hk 繁体、zh 简体）；
- *   ④ 计数前推：顶层 119 / 拍平 1059 / 四语节点 4236；
+ *   ④ 计数前推：顶层 119 / 拍平 1060 / 四语节点 4240（S23 +1 jobs.participantsHeadcount）；
  *   ⑤ **注入自证**：从合成 locale 删掉一个键 ⇒ 检测器必红（给红点），随即可逆。
  */
 import fs from 'node:fs'
@@ -118,12 +118,12 @@ describe('S9② 四语 ledger.kind 键集 == 后端关闭集（可判负）', ()
 })
 
 describe('S9③ 计数前推（S9 +4 键/语 ⇒ 拍平 1055→1059 / 节点 4220→4236）', () => {
-  it('顶层 119 不变 / 拍平 1059 / 四语节点 4236', () => {
+  it('顶层 119 不变 / 拍平 1060 / 四语节点 4240（S23 +1 jobs.participantsHeadcount）', () => {
     for (const l of LANGS) {
       expect(Object.keys(readLocale(l)).length, `${l} top`).toBe(119)
-      expect(flatten(readLocale(l)).length, `${l} flat`).toBe(1059)
+      expect(flatten(readLocale(l)).length, `${l} flat`).toBe(1060)
     }
-    expect(flatten(readLocale('zh')).length * LANGS.length).toBe(4236)
+    expect(flatten(readLocale('zh')).length * LANGS.length).toBe(4240)
   })
 })
 

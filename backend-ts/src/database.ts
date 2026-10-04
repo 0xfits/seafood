@@ -59,7 +59,7 @@ const DEFAULT_SYSTEM_SETTINGS = {
 //   ⇒ 把 `listing_deposit_policy` 当 `AK1` 值对象的**字段**塞进请求体 ⇒ **仍必被 `AG1` 拒**（**键 ≠ 字段**）。
 // · `system_settings` 的 `value` = **jsonb object**（容器硬约束 `0017:77`），对象内字段 = 下 9 个（类型规格见 `SYSTEM_SETTINGS_FIELD_TYPES`）。
 // · `listing_deposit_policy` 的 `value` = **jsonb object**（同容器约束），对象内字段 = `amount`（正整数 · 最小单位；
-//   逐字段规格见 `LISTING_DEPOSIT_POLICY_FIELD_TYPES`；**数值真值 = `TODO: Kevin 定值`**）。
+//   逐字段规格见 `LISTING_DEPOSIT_POLICY_FIELD_TYPES`；**数值真值 = `Kevin 2026-10-04 定值 50000`**）。
 // · `value` 内**字段名**亦为**关闭集**：请求体出现清单外的键即按其为「未知键」判负（`AG1`）。
 // ⚠️ 纪律（§21.3 规则①）：**本清单是键名的唯一真源** —— 实现 / 测试 / 探针**不得自拟键名**。
 /**
@@ -130,12 +130,12 @@ export const SETTINGS_WRITE_REASONS = {
 // `AK2` = `listing_deposit_policy` 的 **值对象逐字段类型规格** + **读侧解析**（fail-closed）。
 // ============================================================================
 // · 容器层：`value` **必须** jsonb object（`0017:77` 硬约束）。
-// · 字段层：对象内**只允许** `amount`（**正整数 · 最小单位**；`AG3`(ii)）—— 数值真值 = `TODO: Kevin 定值`。
+// · 字段层：对象内**只允许** `amount`（**正整数 · 最小单位**；`AG3`(ii)）—— 数值真值 = `Kevin 2026-10-04 定值 50000`。
 // · ★ **键 ≠ 字段**（§23.3 末段两禁令）：本表描述的是**某个顶层键的 `value` 内部**，
 //   **不得**并入 `SYSTEM_SETTINGS_FIELD_TYPES`（那会同时破 `AK1` 的 9 字段关闭集与 `AG1` 的键维语义）。
 /** §23.3 `AK2`：`listing_deposit_policy` 值对象的**逐字段类型规格**（`AG3`(ii) 的判据真源）。 */
 export const LISTING_DEPOSIT_POLICY_FIELD_TYPES = {
-  /** 上市保证金金额（**整数 · 最小单位**；数值真值 `TODO: Kevin 定值`）。 */
+  /** 上市保证金金额（**整数 · 最小单位**；数值真值 `Kevin 2026-10-04 定值 50000`）。 */
   amount: 'number',
 } as const;
 
@@ -949,6 +949,16 @@ const toNumberValue = (...values: unknown[]) => {
   return 0;
 };
 
+/**
+ * ★ S23（台账 B4）：`headcount`（招募总人数）读侧兜底 —— 缺省 / 非整数 / `< 1` ⇒ `1`。
+ *   与迁移 `0041_job_headcount.sql` 的 `NOT NULL DEFAULT 1` **同语义**（fail-closed，
+ *   绝不返回 0 / 负数 / NaN ⇒ 前端「共 N 人」永不显示非法值）。
+ */
+const toHeadcount = (value: unknown): number => {
+  const next = toOptionalNumber(value);
+  return next !== null && Number.isInteger(next) && next >= 1 ? next : 1;
+};
+
 const toBooleanValue = (...values: unknown[]) => {
   for (const value of values) {
     if (value === null || value === undefined || value === '') continue;
@@ -1173,6 +1183,13 @@ export interface TaskRecord {
   time_updated: number;
   is_open: boolean;
   participants_count: number;
+  /**
+   * ★ S23（台账 B4）：**招募总人数**（`job.headcount`，迁移 `0041_job_headcount.sql` 起
+   *   `NOT NULL DEFAULT 1`）。读侧 **fail-closed**：缺省 / 非法 / `< 1` ⇒ `1`（与 `0041` 的
+   *   `DEFAULT 1` 同语义）。两读口（`listTasks` / `getTask`）皆 `SELECT t.*` ⇒ 行内已带，
+   *   仅需在 `normalizeTask` 显式映射（改前被丢弃）。
+   */
+  headcount: number;
   title_en: string;
   title_hk: string;
   title_vn: string;
@@ -1484,6 +1501,10 @@ const normalizeTask = (row: RawRow, participantsCount = 0, i18nIndex?: I18nIndex
     time_updated: toTimestamp(getValue(row, 'time_updated', 'updated_at')),
     is_open: isOpenValue === undefined ? true : toBooleanValue(isOpenValue),
     participants_count: participantsCount,
+    // ★ S23（B4）：`headcount` 进入读模型。两读口（`listTasks`/`getTask`）皆 `SELECT t.*`
+    //   ⇒ 行内已带 `headcount`（迁移 `0041` `NOT NULL DEFAULT 1`）；缺省 / 非法 / `< 1`
+    //   ⇒ fail-closed 为 `1`（与 `0041` 的 `DEFAULT 1` 同语义）。
+    headcount: toHeadcount(getValue(row, 'headcount')),
   };
   // P6-TR-1b：`title_*`/`note_*` 由 applyI18n 生成（有 ready 译文用译文，否则回落源文；含 i18n_status）
   applyI18n('job', String(record.tID), record, i18nIndex);

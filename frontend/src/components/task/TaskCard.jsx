@@ -127,7 +127,7 @@ const TaskCard = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <Users className="w-4 h-4" />
-            <span>{task.participants || 0} {t('common.participantsUnit')}</span>
+            <span>{t('jobs.participantsHeadcount', { done: task.participants || 0, limit: task.headcount || 1 })}</span>
           </div>
 
           <Button
