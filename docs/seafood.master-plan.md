@@ -1416,6 +1416,40 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.332 **S14/S15/S16 回执 · ★★ 我认账两处（纵数笔误「42 行」实为 41 · 空读数当结论第二次）· S16 后端就绪但前端门未开 ⇒ 派 S17**（2026-10-04）
+
+**A. ★★ 留痕更正（不改历史行，按本仓「只追加 · 不静默重写」纪律）**：
+1. **纵数更正**：我在 **§5.328 / §5.331** 两处写「真库 `schema_migration` = **42 行**」—— ★ **错**。真值 = **41 行 / max `0042`**（现取复核：`0001`–`0042` 共 42 个版本号，**去掉无文件的 `0018`** ⇒ 磁盘 41 个 `.sql` ⇒ 表内 41 行；旁证 S10 报告与现行门断言 `41·0042`）。**以 41 为准**。
+2. **空读数当结论（同日第二次）**：S15 brief 里我写「那 3 个探针**未入库、未跟踪**」—— ★ **错**。真值 = **10 件`*-recon*.ts` 全部已由 `17e5985` 入库、工作区干净**。我的错在**用错文件名**（写 `p8-s5-00-recon1.ts`，实为 `p8-s5-00-recon.ts`）跑 `git log` ⇒ 得空读数 ⇒ **据此下了「未跟踪」的结论**。⇒ ★ 教训：**`git log -- <path>` 的空读数只说明「该路径无提交」，不说明「该文件未跟踪」**；判跟踪状态必须用 `git ls-files` / `git status`，且**路径必须先现取确认存在**。（本会话「空读数不得归入结论」的纪律此前已用于 grep/curl，**`git log` 属同一族、我之前漏了**。）
+
+**B. S14 ✅（34c/243s）本批规范回写**：
+- **6 项逐条现取核验**（它未采信我的转述）：① `/review` body canonical `submission_id` + 别名 + 三者全缺 ⇒ 遗留分支 ✓ ② `/submissions` **9 键** ✓ ③ 拒形态 `requireJobOwnerOrAdmin`⇒404 / `requireAdmin`⇒403、`reason` 闭集 `AUTH_REASONS` 三值 ✓ ④ `job-service.ts:183/223` 两 verb `@deprecated` + `resolveJobApplication` `@deprecated` + 路由 `:2402/:2424` ⇒ **410** ✓ ★ **并纠正我**：DB 侧写方法名是 **`acceptJobApplication`**（非我写的 `acceptApplication`），且它**未标 `@deprecated`** ⑤ `/applications` 退役（`src` 0 命中）✓ ⑥ 迁移在盘
+- **交付**：4 册**纯追加 `72/0`（删除列 = 0）** + 4 快照 `cmp` = 0 + 报告（含 **11 条「冻结口径→实现形态」差异清单**）
+  - `route-layer.spec` **v2.24** §34.10（`21/0`）· `data-layer.spec` **v0.30** §36.6（`21/0`）· `ledger.spec` **v0.17** §19.19.F（`15/0`）· `commission.spec` **v0.7** §20.6（`15/0`）
+- **差异清单**：一致 5 项（拒形态闭集 / 410 停写 / 托管退款金额 / 枚举不动 / 多次提交无唯一约束）· 实现有额外约定 4 项（body 字段名 / 9 键形状 / 结算键含提交标识 / `applications` 退役）· 措辞待对齐 1 项
+- ★ **交我裁**：`data-layer §36.4 #1/#2`（`DL54`/`DL55` 契约作废 / 守卫去留）仍待裁 ⇒ 本批只登记不调和
+
+**C. S15 ✅（27c/334s）**：
+- **探针清理**：★ **它纠正我**（见 A2）⇒ 处置 = **移出**（非删除）到 `backend-ts/.p9s15-archive/`，理由 = 已入库删除会**抹历史字节**、移出**等价满足硬口径**且可回滚；副作用核查 `tsconfig.include = ["src/**"]` ⇒ 归档目录不参与 build ✓ · 读数 `scripts/*recon*` **10 → 7** ✓
+- **C5a/C5b 前推**：`0042` 令 `open→settled` **合法** ⇒ 原「非法 ⇒ `JOB_STATE_INVALID`」失效 ⇒ **就地前推 + 注明依据**（未删除）：`C5a` 拦点**下移到 `job_settle_plan` 的 worker 锚点闸** ⇒ 新期望 `reason='not_job_worker'` **且显式断言 ≠ `JOB_STATE_INVALID`**；`C5b` 触发器层放行 ⇒ UPDATE **成功** ✓ · 复跑 `pass=10 / fail=1`
+- **`C4` 唯一红 = 预存数据漂移、非本单因果**（★ **它做了隔离证明**：取 `HEAD` 原版原样复跑，`C4` 依旧红）✓
+- ★ **它提出一条好建议（我裁：采纳）**：前推后 **`DL77`「非法迁移两层各一」的负向覆盖腾空** ⇒ **在两层同点一条仍非法的边（如 `open→rejected`）以保留覆盖** ⇒ 归 S17b
+
+**D. S16 ⚠️（60c/403s · 截断）后端完成并通过三臂真 HTTP，但★前端门未开**：
+- **改动**：`database.ts` 的 `listPendingVerification` / `countPendingVerification` 各加 `employerUid = null` 形参 + **共享谓词常量**（`PENDING_VERIFICATION_SCOPE_SQL` ⇒ **两处同源消费** ✓）；`index.ts` 新增 `resolveReviewQueueScope`（admin(`review_tasks`) ∨ 已登录；admin ⇒ `employerFilterUid = null`）✓
+- **三臂读数**：**(a)** 发布者 uid3 ⇒ **200**、`item_ids=[239]`（**只含自己 job22 的提交**）✓ · **(b)** admin uid1 ⇒ **200**、`item_ids=[239,240,241]` **逐 id == 改前全局口径**、count=3、**item 键集 11 键两臂逐字相同** ✓ · **(c)** 未登录 ⇒ **401** ✓
+- **判负 3 条**（含「发布者集 (1) ⊊ 全局 (3)，被遮蔽 `[240,241]`」⇒ **去掉过滤必红**）✓ · **净写 0**（两法交叉：请求窗口 vs 无请求对照，全 0）✓ · `tsc` **0** ✓
+- ❌ **未收尾**：**5796 实例未 kill**（listener PID 35698）⇒ ★ **我已立即收尾**（见下）· 报告未写
+- ★★ **它明确指出的真正缺口（它禁碰 frontend）**：`JobReviewPage.jsx:51` `canReview = hasAdminPermission(access,'review_tasks')` ⇒ **普通发布者仍渲染 `jobs-review-denied`、根本不发起队列读** ⇒ **后端放宽已就绪但对普通用户无效** ⇒ **必须派 S17a 放开前端门**
+- **同族扫面**：保持 admin-only 的都是**平台级控制台/仲裁/合规面**（合理，不动）✓
+- **fixture 登记**：造了 3 条（239–241）+ 终态清理 ⇒ 可见 pending 复原为基线 `[]`；`job_submission` 为 append-only（`trg_job_submission_no_delete` 禁删）⇒ 残留 6 行 `rejected`（239–244）已登记
+
+**E. ★ 我的机械收尾（已做）**：`kill -TERM 35698`（或已随子代理终止）⇒ `lsof -nP -iTCP:5793-5799` **空读数** ✓
+**F. 派 S17a（前端开 `/task/review` 门）+ S17b（`DL77` 负向覆盖补边）**；S16 报告并入 S17a 补写。
+**G. 状态**：DB **`41 行 / max 0042`**（★ 更正见 A1）· 生产 `6ce91bc` · 端口全空 ✓
+
+---
+
 ### 5.331 **S13 已上线 + 生产终验全绿 · ★ 两次网络瞬时故障（push / bundle 下载）的处置**（2026-10-04）
 
 **A. 上线**：`9f8c909` push（★ **首次 push 遇 `LibreSSL SSL_ERROR_SYSCALL`** ⇒ 我**重试 3 次循环**，第 1 次即成功）⇒ `ahead=0` ✓

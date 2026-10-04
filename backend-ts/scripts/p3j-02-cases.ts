@@ -12,7 +12,9 @@
  *   ③ 余额/冻结正确（`job_escrow` −balance/+frozen；`job_escrow_refund` 反向）
  *   ④ 结算链：`job_payout`+`job_fee`+`commission`（有链 → `-2`；无链 → `-1`，DL86）+ DB 派生 vs
  *      `src/commission.ts` 的 P2 计划器**逐层对拍**
- *   ⑤ 非法状态迁移 ⇒ `JOB_STATE_INVALID`（**大写**）；DB 触发器层与编排函数层各一次
+ *   ⑤ 状态迁移（**0042 前推**：`open→settled` 由「非法」放宽为「合法」，`R-9-101` 逐笔发满即收口必需；
+ *      真库现取 `job_status_transition_ok('open','settled')=true`）⇒ 编排函数层 / DB 触发器层各一次，
+ *      断言「该迁移现被放行」；原「非法 ⇒ JOB_STATE_INVALID」期望已失效
  *   ⑥ 守卫矩阵：核心字段冻结 / 账本引用列一次写定 / 禁 DELETE
  */
 import { planJobSettlement } from '../src/commission';
@@ -91,24 +93,34 @@ type Check = { id: string; name: string; pass: boolean; readout: Record<string, 
     add('C2b', '同 create_key 但业务内容不同 ⇒ 拒绝（不改数据）', conf.ok === false && (conf as { e: { sqlstate: string | null } }).e.sqlstate === 'LD003',
       { outcome: conf });
 
-    // ================================================================= case ⑤ 非法状态迁移（编排函数层）
+    // ================================================================= case ⑤ 状态迁移（编排函数层）
+    // ★ 前推依据（0042 §① / `R-9-101` / 真库现取）：`0042` 把 `open → settled` 放宽为**合法**
+    //   （逐笔发放「发满 headcount ⇒ 收口 settled」必需；`migrations/0042…sql:57-67`）；
+    //   真库现取 `job_status_transition_ok('open','settled') = true`。
+    //   ⇒ 原断言「open→settled 非法 ⇒ reason=JOB_STATE_INVALID」**已失效**：状态机闸放行该迁移。
+    //   本夹具 job1 未选定 worker（`worker_uid` 为 NULL）⇒ 编排函数层放行状态闸后，改由
+    //   `job_settle_plan` 的 worker 锚点闸拦下（`0013_job.sql:285-289`，`reason=not_job_worker`）。
+    //   故本用例现读数为「状态闸放行、下游 worker 闸拦下」，并**显式断言不再是** `JOB_STATE_INVALID`。
     const ill = await jobPostEvent(pool, { op: 'settle', job_id: job1, request_fingerprint: fp1 })
       .then((r) => ({ ok: true, r })).catch((e) => ({ ok: false, e: errInfo(e) }));
-    add('C5a', '编排函数层：open→settled 非法 ⇒ LD011 + reason=JOB_STATE_INVALID（大写）', (
+    add('C5a', '编排函数层：open→settled 现已合法（0042/R-9-101）⇒ 状态闸放行；本夹具无 worker ⇒ 由 job_settle_plan 的 not_job_worker 拦下', (
       ill.ok === false
       && (ill as { e: { sqlstate: string | null } }).e.sqlstate === 'LD011'
       && (ill as { e: { message: string } }).e.message === 'LEDGER_CURRENCY_INVALID_TRANSITION'
-      && (ill as { e: { reason: string | null } }).e.reason === 'JOB_STATE_INVALID'
+      && (ill as { e: { reason: string | null } }).e.reason === 'not_job_worker'
+      && (ill as { e: { reason: string | null } }).e.reason !== 'JOB_STATE_INVALID'
       && JSON.stringify((ill as { e: { detail: string } }).e.detail).indexOf('job_state_transition_invalid') < 0
-    ), { outcome: ill });
+    ), { outcome: ill, basis: '0042 §① / R-9-101；真库 job_status_transition_ok(open,settled)=true；worker 锚点闸 0013_job.sql:285' });
 
-    // case ⑤b DB 触发器层（DL77：判负用例两层各一）
+    // case ⑤b DB 触发器层 —— 前推依据同 ⑤：`open → settled` 已合法 ⇒ `trg_job_status_guard` 放行 ⇒ 该 UPDATE 成功
+    //   （原断言「非法 ⇒ LD011 + JOB_STATE_INVALID」失效）。此改动使 `DL77`「非法迁移两层各一」的**负向覆盖
+    //   随之腾空**（open→settled 不再是非法边）—— 详见本单报告，未静默删除。
     const illTrig = await raw(pool, `UPDATE public.job SET status='settled' WHERE job_id=$1::bigint`, [job1])
       .then(() => ({ ok: true })).catch((e) => ({ ok: false, e: errInfo(e) }));
-    add('C5b', 'DB 触发器层：open→settled 非法 ⇒ LD011 + reason=JOB_STATE_INVALID（大写）', (
-      illTrig.ok === false && (illTrig as { e: { sqlstate: string | null } }).e.sqlstate === 'LD011'
-      && (illTrig as { e: { reason: string | null } }).e.reason === 'JOB_STATE_INVALID'
-    ), { outcome: illTrig });
+    const job1AfterTrig = await jobRow(pool, job1);
+    add('C5b', 'DB 触发器层：open→settled 现已合法（0042/R-9-101）⇒ trg_job_status_guard 放行、UPDATE 成功', (
+      illTrig.ok === true && job1AfterTrig?.status === 'settled'
+    ), { outcome: illTrig, job_row_after: job1AfterTrig, basis: '0042 §① / R-9-101；真库 job_status_transition_ok(open,settled)=true' });
 
     // ================================================================= case ③ refund（余额/冻结正确）publish 700 → cancel
     const r2 = await jobPostEvent(pool, {
