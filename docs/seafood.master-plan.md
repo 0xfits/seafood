@@ -1416,6 +1416,17 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.344 **★ 我 apply `0043`（TRUNCATE 守卫）+ 亲验四项 · 派 S27（门面/库面收口）∥ S28（退役键升为不变式）**（2026-10-04）
+
+**A. apply 前置核（我亲取）**：`migrate.ts --status` 末版本 = **`0042`**（无 `0043` 行）⇒ 库面停在 0042、`0043` 未 apply 属实；文件 `sha256 = 60bcd0c2f064ec012625cd3773d718fbf11c2a32099cebe5f4b1d31b79195850`；结构现取 = `BEFORE TRUNCATE` 23 处 / `CREATE OR REPLACE FUNCTION` 16 / `ON public.<t>` 30（= 15 表 × {DROP TRIGGER IF EXISTS + CREATE TRIGGER}）⇒ 与「15 表各 1 枚」自洽。
+**B. ★ 我 apply**（`npx ts-node --transpile-only scripts/migrate.ts`）：**`APPLY_EXIT=0`**；**旧版本 41 条全 `skipped`**（零漂移）· **仅 `0043` = `applied`** · **`schema_version = 0043`** · 基础表仍 **34**（只加触发器）。
+**C. ★ 我亲验四项（自写只读探针，放 `.zang-artifacts/`）**：① 末版本 = **`0043`**、checksum = `60bcd0c2f064ec012625cd37`（**与文件 sha256 逐字相同**）② `public` 触发器 **54 → 69**（+15）· 含 TRUNCATE 位 = **15**（**全 `tgenabled='O'`**）③ **守卫实测拦截**：`TRUNCATE public.rating` ⇒ **`P0001` `rating is append-only: TRUNCATE forbidden`** ④ 拦截后 `rating` 行数不变 ✓。
+**D. ★★ 我的漏项（第二处，同一族）**：S22/S23/S25 之后我**又没重跑全量门**（上次已在 §5.343 登记过一次），本次跑出 `p8-s3 D5` / `p8-s3b F4` 两处滞后（判据要求旧 `TODO` 标记在场，而 S23 已按 A1 定档清除）⇒ 已派 **S27** 收口。**纪律再收紧：凡「被计数面 / 被标记面 / 库面版本」有改动，入库前必须跑**全量门**（11 门 + `p7b-03`）；只跑与被改文件同名的那一门不够**（本会话已为此登账两次）。
+**E. 派单（两单并行 · 面不相交）**：**S27**（Kong · 后端：① `D5`/`F4` 改锚为「常量 == 50000 **且**并存已定值标记」（**加严**）② 库面前推 `41/0042 ⇒ 42/0043`（全仓 `grep` 穷举逐门出处）③ 修被 `0043` 打断的旧探针 `p4z-b6audit-02-idemkey.ts`（TRUNCATE 前 `DISABLE TRIGGER USER` + 用后 `ENABLE`）④ 全量门前后对照复跑）∥ **S28**（Kong · 前端测试面：① `r9-90:148` 渲染面护栏改为**硬编已退役字面量**（四语，否则空转）② `i18n-violation-closeout` 改为**「退役键不得回归」存在性负断言**（10 键 × 4 语）—— 均由我裁定，把「已删除」升为「不得复发」）。
+**F. 状态**：DB **`42 行 / max 0043`（已 apply）** · 生产 **`6d2ca98`** · 端口全空。
+
+---
+
 ### 5.343 **S25 ✅（B7 死键退役 + B12 盘点）· S26 ✅（`0043` `TRUNCATE` 守卫迁移，未 apply）· ★我跑全量门套件撞出**两处新滞后**（`p8-s3 D5` / `p8-s3b F4` = S23 清 `TODO` 标记所致）· ★我裁 B12 = 变体 Ⅰ 分期**（2026-10-04）
 
 **A. S25（56c/609s）**：10 死键四语**对称删除**（40 处；`jobs` 键数 45/语）· 计数**等量下移**（顶层 119 不变 · 拍平 1060⇒**1050** · 节点 4240⇒**4200**）· 13 个测试文件逐条出处 · 判负（把 `jobs.apply` 加回 zh ⇒ `zh flat: expected 1051 to be 1050` 必红）· 硬门：`vitest` 失败集与基线逐条相同 · `build` 0 · 四脚本全 PASS（i18n 节点 4200）· B12 只读盘点（`styles.css` sha256 仍 `14feca1e…` 未改）。
