@@ -1416,6 +1416,20 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.331 **S13 已上线 + 生产终验全绿 · ★ 两次网络瞬时故障（push / bundle 下载）的处置**（2026-10-04）
+
+**A. 上线**：`9f8c909` push（★ **首次 push 遇 `LibreSSL SSL_ERROR_SYSCALL`** ⇒ 我**重试 3 次循环**，第 1 次即成功）⇒ `ahead=0` ✓
+**B. 生产终验**：
+- `/api/health` ⇒ `schema_version` = **0042** ✓
+- ★★ **bundle 逐字对拍**：线上 = 本地 = **`assets/index-TQYNpynj.js`**（458,956 B）· **sha256 `b60de815e93d9206dc7ec4a01c8afb194e9ad1c55525ce165fef4a103c73a1b7` 逐字相同** · **`cmp` = 逐字相同** ✓
+- ★ **线上 bundle 内修复证据**：`submission_id` **3** 处 ✓ · `depositHint` 5 ✓ · `headcount` 31 ✓（`reviewSubmission` = 函数名，minify 后改名 ⇒ 0 属正常，**非缺件**）
+- 四语 `/exchange` `/en/exchange` ⇒ 200 ✓
+**C. ★ 我自己的验收失误（记一笔）**：首轮生产终验时 **`curl` 下载失败**（同一波网络故障）⇒ 那三个 grep 读数全为 **0**，若我据此下「线上没有该件」的结论就是**把空读数当通过**（本会话既有纪律：**空读数一律单列「未读到」不得归入通过**）⇒ 我**重试下载**后对拍成立 ✓
+**D. ★ S13 真写的实际效果（告知 Kevin）**：job **232** 已发放 **1/50**（100 分）· `submission 237` `pending→approved`（`reviewed_by=970213`）· 提交者 = Kevin 本人 ⇒ **100 分自托管回到其余额**（无净损失）。⇒ 这也是**Kevin 首次看到「合格 ⇒ 真发钱」生效**。
+**E. 状态**：DB **`42 行 / max 0042`** · 生产 **`9f8c909`**（bundle `index-TQYNpynj.js` sha256 `b60de815…`）· Kevin：`balance 3889 / frozen 6111`（S13 真写后余额 +100、冻结 −100）· 端口全空 ✓
+
+---
+
 ### 5.330 **★★ Kevin 亲报「点合格报 409」真因 = `JobReviewPage` 少传提交号 ⇒ 走后端遗留分支 · S13 已修 + 双向真 HTTP 验证 · 入库 + push**（2026-10-04）
 
 **A. Kevin 报障（第 5 次同族，**首次为「评判」而非「提交」**）**：原话「本账号不允许提交任务吗？我没切换账号，点击后提示：当前状态不允许此变更。」⇒ 澄清后确认为：**动作 = 在任务页点「合格」** · **页面 = `/task/review`（待审队列页 `JobReviewPage`）的所有任务都点了一遍、报错相同** · **电脑浏览器**。
