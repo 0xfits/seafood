@@ -7,8 +7,8 @@
  * 出口：全绿 exit 0；任一 FAIL ⇒ exit 1。产物：backend-ts/.p8s11-artifacts/p8s11-<RUN>/gate.json
  *
  * ★ A–J 静态面 **零 DB / 零网络**（只 import 纯函数 + 读源码 / 迁移 / locale 文本）。
- * ★ K 库面 leg 转真 checks（连库 + HTTP · `0041` 已 apply）：
- *   · 结构面活体只读（`schema_migration` 40·0041 / `admin_permission` 12 含 `manage_audit` /
+ * ★ K 库面 leg 转真 checks（连库 + HTTP · `0042` 已 apply）：
+ *   · 结构面活体只读（`schema_migration` 41·0042 / `admin_permission` 12 含 `manage_audit` /
  *     `super_admin` 12 / 基表 34 / 14 面 append-only 触发器在场）；
  *   · 14 面逐表只读真取数（`DatabaseService.readAuditPage` 走生产同一取数口）；
  *   · keyset 分页（`ledger_entry` 两页无重叠）+ 过滤正读（非假过滤）；
@@ -465,8 +465,8 @@ const strOf = (v: unknown): string => (v === null || v === undefined ? '' : Stri
     const sm = (await readQuery<{ n: string; mx: string | null }>(
       `SELECT count(*)::int AS n, max(version) AS mx FROM public.schema_migration`))[0];
     dbConnections += 1;
-    kg('K1', Number(sm.n) === 40 && String(sm.mx) === '0041',
-      '★ `schema_migration` = **40 行** · `max(version)` = **0041**（`0041` 已 apply）', JSON.stringify(sm));
+    kg('K1', Number(sm.n) === 41 && String(sm.mx) === '0042',
+      '★ `schema_migration` = **41 行** · `max(version)` = **0042**（`0042` 已 apply）', JSON.stringify(sm));
     const ap = (await readQuery<{ n: string; has: boolean }>(
       `SELECT count(*)::int AS n, bool_or(permission_key='manage_audit') AS has FROM public.admin_permission`))[0];
     kg('K2', Number(ap.n) === 12 && ap.has === true,

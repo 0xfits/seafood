@@ -74,7 +74,8 @@ const REG_POINTS_FROZEN = 88;
 // ★ 8⑥ 续跑前推：迁移文件数 37 → 38（+0039 审计台权限键 manage_audit）。
 // ★ 8⑥ 续跑前推：迁移文件数 38 → 39（+0040 存量用户补发 batt）。
 // ★ S2b 门前推：迁移文件数 39 → 40（+0041_job_headcount 任务 headcount）。
-const MIGRATIONS_FROZEN = 40;
+// ★ S10 门前推：迁移文件数 40 → 41（+0042_job_settle_per_submission 每提交结算）。
+const MIGRATIONS_FROZEN = 41;
 const LISTING_NS_KEYS_FROZEN = 30;
 const ARBITRATION_NS_KEYS_FROZEN = 34;
 // ★ P9①（`route-layer.spec` v2.12 §27 · `R-9-13`）：`adminNav` **26 → 28**（+2 键 = `siteText` / `siteTextDesc`，

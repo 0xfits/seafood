@@ -67,7 +67,8 @@ const REG_POINTS_FROZEN = 88;
 // ★ 8⑥ 续跑前推：迁移文件数 37 → 38（+0039 审计台权限键 manage_audit）。
 // ★ 8⑥ 续跑前推：迁移文件数 38 → 39（+0040 存量用户补发 batt）。
 // ★ S2b 门前推：迁移文件数 39 → 40（+0041_job_headcount 任务 headcount）。
-const MIGRATIONS_FROZEN = 40;
+// ★ S10 门前推：迁移文件数 40 → 41（+0042_job_settle_per_submission 每提交结算）。
+const MIGRATIONS_FROZEN = 41;
 void SPEC_DATA; void SPEC_ROUTE;
 
 const FROZEN_AK1_FIELDS = [

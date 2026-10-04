@@ -8,8 +8,8 @@
  * 出口：全绿 exit 0；任一 FAIL ⇒ exit 1。产物：backend-ts/.p8s10-artifacts/p8s10-<RUN>/gate.json
  *
  * ★ A–H 静态面 **零 DB / 零网络**（只 import 纯函数 + 读源码 / 迁移 / locale 文本）。
- * ★ K 库面 leg 转真 checks（连库 + HTTP · `0035`–`0041` 已 apply）：
- *   · 结构面活体只读（kind 24 / `schema_migration` 40·0041）；
+ * ★ K 库面 leg 转真 checks（连库 + HTTP · `0035`–`0042` 已 apply）：
+ *   · 结构面活体只读（kind 24 / `schema_migration` 41·0042）；
  *   · 注册腿 `DatabaseService.grantSignupInviteBatt(uid, tx)` 事务内真跑；
  *   · 首任务腿 `DatabaseService.settleInviteFirstTaskReward({jobIdRaw}, tx)` 事务内真跑（`R-9-68` ex 注入）；
  *   · 结算计划 `planJobSettlement(input, ex)` 只读真跑（`M=6` 全 6 层 / `M=0` ⇒ `fee_credit_uid=-1`）；
@@ -325,8 +325,8 @@ const strOf = (v: unknown): string => (v === null || v === undefined ? '' : Stri
       JSON.stringify(live.live_kind_enum));
     const sm = (await readQuery<{ n: string; mx: string | null }>(`SELECT count(*)::int AS n, max(version) AS mx FROM public.schema_migration`))[0];
     dbConnections += 1;
-    kg('K2', Number(sm.n) === 40 && String(sm.mx) === '0041',
-      '★ `schema_migration` = **40 行** · `max(version)` = **0041**（`0035`→…→`0041` 已 apply · 8⑥ 审计台权限键）', JSON.stringify(sm));
+    kg('K2', Number(sm.n) === 41 && String(sm.mx) === '0042',
+      '★ `schema_migration` = **41 行** · `max(version)` = **0042**（`0035`→…→`0042` 已 apply · 8⑥ 审计台权限键）', JSON.stringify(sm));
 
     // ---------------- K3–K7 · 行为真读数（事务内 + 末尾 ROLLBACK） ----------------
     const sp = async <T>(tx: TxClient, name: string, fn: () => Promise<T>): Promise<{ ok: boolean; v?: T; sqlstate?: string; message?: string; reason?: string | null }> => {
