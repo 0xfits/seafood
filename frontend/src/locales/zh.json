@@ -251,7 +251,11 @@
       "listing_fee": "上架费",
       "listing_deposit": "上市保证金",
       "currency_create_fee": "发币费",
-      "reversal": "冲正"
+      "reversal": "冲正",
+      "checkin_makeup_fee": "补签费",
+      "bttc_mint_fee": "铸币费",
+      "bttc_burn_fee": "销币费",
+      "invite_first_task_reward": "邀请首任务奖励"
     },
     "err": {
       "LEDGER_INSUFFICIENT_BALANCE": "可用余额不足，无法完成本次操作。",

@@ -212,7 +212,7 @@ describe('P6-I18N-LIT-B5 · 必做② `HomePage` 收口 + LEGACY 清零 + AC③�
     expect(out).toContain('[TR-2] 键集相等：PASS')
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
-    expect(out).toContain('zh: top=119 flat=1055') // **期望订正（S8 locale 缺键补齐）**：+1 jobs 键（jobs.deliverable）⇒ 拍平 1054⇒1055（前订正 S7：1044⇒1054）
+    expect(out).toContain('zh: top=119 flat=1059') // **期望订正（S9 ledger.kind 缺键补齐）**：S8 ⇒ 1055；S9 +4 ledger.kind 键/语 ⇒ 拍平 1055⇒1059（前订正 S7：1044⇒1054）
     expect(out).toContain('存量登记（只核不改）：仍在旧三目链 + `??` 上的页面数 = 0 页')
     expect(out).toContain('[TR-2] 总判：PASS')
 
@@ -253,7 +253,7 @@ describe('P6-I18N-LIT-B5 · 四语 locale 键集（本批新增 uiCommon 12 / ui
     expect(new Set(LANGS.map((l) => counts[l].flat)).size).toBe(1)
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
-    expect(counts.zh).toEqual({ top: 119, flat: 1055 }) // **期望订正（S8 locale 缺键补齐）**：+1 jobs 键（jobs.deliverable）⇒ 顶层 119 不变 / 拍平 1054⇒1055（前订正 S7：1044⇒1054）
+    expect(counts.zh).toEqual({ top: 119, flat: 1059 }) // **期望订正（S9 ledger.kind 缺键补齐）**：S8 +1 jobs.deliverable ⇒ 1055；S9 +4 ledger.kind 键/语 ⇒ 拍平 1055⇒1059（前订正 S7：1044⇒1054）
 
     const CJK = /[\u4E00-\u9FFF]/
     for (const [ns, size] of Object.entries(NEW_NS)) {

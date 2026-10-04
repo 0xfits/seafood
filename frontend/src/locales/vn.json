@@ -251,7 +251,11 @@
       "listing_fee": "Phí đăng bán",
       "listing_deposit": "Tiền đặt cọc đăng bán",
       "currency_create_fee": "Phí tạo tiền tệ",
-      "reversal": "Bút toán đảo"
+      "reversal": "Bút toán đảo",
+      "checkin_makeup_fee": "Phí điểm danh bù",
+      "bttc_mint_fee": "Phí đúc BTTC",
+      "bttc_burn_fee": "Phí đốt BTTC",
+      "invite_first_task_reward": "Thưởng nhiệm vụ đầu tiên do mời"
     },
     "err": {
       "LEDGER_INSUFFICIENT_BALANCE": "Số dư khả dụng không đủ để hoàn tất thao tác này.",

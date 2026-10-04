@@ -7,7 +7,8 @@
  *      `GET /api/…`×5 + `POST /api/…`×2 + `403/400` + `base_cid` + `listing.stock` 从未被扫过）。
  *   ② 逐例**打印作用域命中节点数**（命中 0 或明显偏少 ⇒ 用例作废，不得当「零违例」）。
  *   ③ 键名与键集不变（四文件拍平键数单值；P6-MISC-FIX ① 授权新增 5 键 678⇒683；
- *      批 7-A 授权新增 21 键 = `ledger.flowMore` + `ledger.kind.*`（LEDGER_KINDS 20 个全覆盖）683⇒704）；只改值。
+ *      批 7-A 授权新增 21 键 = `ledger.flowMore` + `ledger.kind.*`（LEDGER_KINDS 当时 20 个全覆盖）683⇒704）；只改值。
+ *      【S9 订正】`ledger.kind.*` 现行 = **LEDGER_KINDS 24 个全覆盖**（S9 补齐 4 键：checkin_makeup_fee / bttc_mint_fee / bttc_burn_fee / invite_first_task_reward）。
  *   ④ 保真底线：改写不得丢「已下线 / 需要权限 / 手续费不退」等真信息 —— 逐条正例断言。
  */
 import fs from 'node:fs'
@@ -78,7 +79,7 @@ describe('I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
     // P9② 计数期望订正（逐字登记）：新增顶层 `battCard`(4) + `checkinPanel`(5) ⇒ 拍平 944⇒953 ⇒ locale 节点 = 953 × 4 = **3812**（原 944 × 4 = 3776）⇒ 本断言前推 3776 ⇒ 3812（**未删断言**）
-    expect(out).toContain('作用域命中节点数 = 4220') // **期望订正（S8 locale 缺键补齐）**：+1 jobs 键（jobs.deliverable）⇒ 拍平 1054⇒1055 ⇒ 节点 4216⇒4220（前订正 S7：1044⇒1054 ⇒ 4176⇒4216）
+    expect(out).toContain('作用域命中节点数 = 4236') // **期望订正（S9 ledger.kind 缺键补齐）**：S8 ⇒ 1055/4220；S9 +4 ledger.kind 键/语 ⇒ 拍平 1055⇒1059 ⇒ 节点 4220⇒4236（前订正 S7：1044⇒1054 ⇒ 4176⇒4216）
     expect(out).toContain('② 全量页面源文件面')
     expect(out).toMatch(/locale 裸命中 0 \+ 源面裸命中 0/)
   })
@@ -123,7 +124,7 @@ describe('I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文
     expect(counts.size).toBe(1)
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
-    expect([...counts][0]).toBe(1055) // **期望订正（S8 locale 缺键补齐）**：+1 jobs 键（jobs.deliverable）⇒ 拍平 1054⇒1055（前订正 S7：1044⇒1054）
+    expect([...counts][0]).toBe(1059) // **期望订正（S9 ledger.kind 缺键补齐）**：S8 ⇒ 1055；S9 +4 ledger.kind 键/语 ⇒ 拍平 1055⇒1059（前订正 S7：1044⇒1054）
     for (const k of REWRITTEN) for (const l of LANGS) expect(flatTables[l][k]).toBeTruthy()
   })
 })

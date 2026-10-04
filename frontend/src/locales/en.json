@@ -251,7 +251,11 @@
       "listing_fee": "Listing fee",
       "listing_deposit": "Listing deposit",
       "currency_create_fee": "Currency creation fee",
-      "reversal": "Reversal"
+      "reversal": "Reversal",
+      "checkin_makeup_fee": "Makeup check-in fee",
+      "bttc_mint_fee": "BTTC mint fee",
+      "bttc_burn_fee": "BTTC burn fee",
+      "invite_first_task_reward": "Invite first-task reward"
     },
     "err": {
       "LEDGER_INSUFFICIENT_BALANCE": "Your available balance is not enough to complete this action.",
