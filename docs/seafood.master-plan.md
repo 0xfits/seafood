@@ -1416,6 +1416,25 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.340 **S22 ∥ S23 ∥ S24 三单回执 ✅ · ★我逐单核盘（含亲跑硬门与判负）· 生产终验 `cmp` 逐字相同 · ★S22 截断缺报告 ⇒ 派补落单 · ★新发现「零消费死 CSS 族」（登记 B12）**（2026-10-04）
+
+**A. S22（台账 A4 · 60c/587s · **截断**）**：`styles.css` 3 处装饰性切角 ⇒ 成对 `clip-path:none`；16 处**非 inset 且 x/y≠0** 的位移影层 ⇒ 去掉，保留零偏移描边环（**保 `0 0 0 Npx` 计数不变**）；新增 9 例单测（含内存判负）。**缺口 = 报告与 run-tagged 产物未落盘**（迭代耗尽）⇒ **已派补落单**（`deleg_6b0a5260`）。
+**B. ★ 我核盘（S22）**：`git diff --numstat` = `25/49 styles.css`；**`grep -c "clip-path: *polygon"` = 0**、**`url(#clip-path` = 20（不变）** ✓；**死 CSS 我独立核实**：目标类名在 JSX 的消费 = 0（`.badge` 唯一命中是 `sf-i18n-badge`，非 `.badge`；`.card` 命中全是 `sf-*` 前缀）⇒ **本次 A4 可见效果 = 0**（价值在清理与防将来复活时形态不一致）✓。它另交裁两处「字面命中背宝缺口/角标形状」的选择器 —— **我裁：保留在射程内**（台账 A4 与 §5.339 已逐字列其为装饰性且 Kevin 定档「不保留」；且均零消费死 CSS），可回退路径 = `git revert 88341b8`。
+
+**C. S23（B4 + A1/A2 · 60c/483s · 截断但主体齐）**：`TaskRecord` + `normalizeTask` 加 `headcount`（`toHeadcount` **fail-closed** 缺省/非整数/<1 ⇒ 1，与 `0041 NOT NULL DEFAULT 1` 同语义）+ 四语新键 `jobs.participantsHeadcount` + 四处消费点；A1/A2 清 7 处 `TODO`（**`0023` 逐字未动**）；计数基线**等量前推**（顶层 119 不变 · 拍平 1059⇒1060 · 节点 4236⇒4240，11 个测试文件逐条给出处）。
+**D. ★ 我核盘（S23）**：`tsc --noEmit` **0**；**我亲跑只读探针**：`job 232` raw `headcount=50` ⇒ `getTask=50` **且** `listTasks=50`（**两读口同源**）、`participants=1`；`zero_side_effect=true`（`job=45 / job_submission=40 / ledger_entry=502 / account=48 / Σ=1993455` 首尾逐字相等）；四语值逐字核过（`top=119 / flat=1060`）；`grep TODO: Kevin 定值 backend-ts/src` **= 0**、`Kevin 2026-10-04 定值` = 7 处；`migrations/` 零改动 ✓；消费点 diff 逐处核过（`done=participants`、`limit=headcount||1`）✓。
+
+**E. S24（Jing · 34c/381s）**：`data-layer` **v0.30⇒v0.31**（numstat **`64/0`**，+§37）· `route-layer` **v2.24⇒v2.25**（**`41/0`**，+§35）· **补建** `ledger.spec` **v0.13 快照**（判定「可重建」：`git show 5673cae:docs/ledger.spec.md` 头行为 `v0.13` ⇒ 逐字节取该 rev blob；**我亲核 md5 `eee9f165…` 与 rev blob 逐字相同**）· 3 delta + 报告。
+**F. ★ 我核盘（S24）**：两册**删除列 = 0**（纯追加）✓；`cmp docs/versions/data-layer.spec.v0.31.md docs/data-layer.spec.md` = **0**、route 同 = **0**、`v0.30 == HEAD` blob 逐字节 ✓；它另**报回我派单的口径差**（route 侧「43」= 宽口径行数；窄口径 `待**定值**` = 42 行/46 处；差 1 处 = `:2488` 写 `TODO: Kevin` 无「定值」后缀）⇒ **无实质冲突，我据其建表**（同族纪律：数字/口径现取）。
+
+**G. 上线 + 生产终验（我亲取）**：3 提交（`88341b8` S22 / `b0b244a` S23 / `51a5d6c` S24）已 push；`/api/health` = **200 + `0042`**；线上 `index-6gT3vEur.js` **sha256 `1c7f921d…` = 本地逐字相同（`cmp` 0）**；**文案级**：线上 bundle 内含「已参与 {{done}} / 共 {{limit}} 人」✓；我另亲跑前端全量 `vitest` = **`4 failed files / 7 failed tests` + `480 passed`**（失败集与基线逐条相同 ⇒ **零新增**）、`build` **0**、四脚本 **全 PASS**（i18n 节点 4240）。
+
+**H. ★ 连带登记（台账 `B12`）**：S22 顺带现取到**零消费死 CSS 族**（`.badge-gift::before`/`#section_gift .point-badge`/`.badge::after`/`.notification`/`.card-hover`/`.gem-pulse`/`.price-tag`/`.badge-dot` 的 JSX 消费 = 0，jinli 移植遗留）⇒ 登记「先做零消费选择器盘点、再决定删/留」，**不阻塞**。
+
+**I. 状态**：DB **`41 行 / max 0042`** · 生产 **`51a5d6c`** · 端口全空 · 工作树干净（S24 后 `dirty=0`）。
+
+---
+
 ### 5.339 **★ Kevin 四条定档（A1 保证金 50000 保留 / A2 调分日上限 100 万保留 / A3 `/dashboard` 维持不放开 / A4 **不保留**装饰切角与旧硬阴影）· 派 S22 ∥ S23 ∥ S24**（2026-10-04）
 
 **A. Kevin 原话（口径真源）**：「A1：可以 · A2：可以 · A3：同意 · A4：**不保留**，我认为 UI 目前可视的部分非常好」。

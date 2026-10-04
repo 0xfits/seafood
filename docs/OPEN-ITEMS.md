@@ -9,10 +9,7 @@
 
 | # | 项 | 现取依据 | 现状兜底 | 代价 |
 |---|---|---|---|---|
-| **A1** | 上市保证金**金额** ✅**已定值 `50000`（Kevin 2026-10-04）** | `backend-ts/src/currency-service.ts:148` `CURRENCY_LIST_DEPOSIT_FLOOR = 50000`（旁注 `TODO: Kevin 定值`）；主导真源 = `app_config` 键 `listing_deposit_policy`（`AK2`），常量仅 fail-closed 兜底（`database.ts:138`）| 兜底 `50000` 已生效、**不影响运行** | 一个数 + 一次后台写 |
-| **A2** | 后台调分**日累计上限** ✅**已定值 `1,000,000`（Kevin 2026-10-04）** | `backend-ts/src/index.ts:2096` `ADMIN_POINTS_ADJUST_MAX_PER_DAY = 1000000`（旁注 `TODO: Kevin 定值`）；**唯一真值**在 DB 编排函数（`migrations/0023`），常量只管 `details.max` 回填 | `1,000,000 / 日 / 操作人（UTC）` | 一个数 |
-| **A3** | `/dashboard` 是否对普通用户放开 ✅**已定档：维持不放开（Kevin 同意）** | S18 §5.334 C：我裁**不放开**（该页曝光 `totalUsers` / `adminUsers` / `totalPoints` 平台统计）；页面受**路由 `adminOnly` + 组件双闸** | 发布者仍可由 `PublishJobPage` 审核入口直达 `/task/review` | 一句口径（若要放开 ⇒ 需先剥离平台统计面） |
-| **A4** | 装饰性切角 / legacy 硬阴影 ✅**已定档：不保留 ⇒ 收尾**（Kevin：「UI 目前可视的部分非常好」） | `frontend/src/styles.css` 现取 `clip-path: polygon` = **4 处**（+ legacy 硬位移阴影 `.card` 深档 / `.price-tag` / `.gem-pulse`） | 现状保留（审美面，未纳入形状收敛批次） | 审美口径 |
+| — | （当前**无**待定值 / 待裁项：上批四条已定档并落地，见 §D）| — | — | — |
 
 ---
 
@@ -43,6 +40,7 @@
 ## D. 本轮已闭环（备查，勿重复开单）
 
 - `participants_count` **真源**：`job_application`（已停写）⇒ `job_submission` 的 `COUNT(DISTINCT worker_uid)`；四语值改「已参与」（S19 ✅ 已上线）。
+- **A1 保证金 = `50000` / A2 调分日上限 = `1,000,000` / A3 `/dashboard` 维持不放开 / A4 装饰切角与旧硬阴影收尾** —— 四条**已定档并落地**（S22 前端收尾 · S23 清 7 处 `TODO`〔`0023` 未动〕· S24 规范落册 `data-layer v0.31` / `route-layer v2.25`）（✅ 已上线）。
 - **门扫面根卫生（B2·变体 Ⅰ）**：`p8-s7-batt-checkin-gate.ts` 扫描阶段显式白名单排除探针命名式（4 式：`recon`/`probe`/`diagnostic`/`-NN-`），**只作用 `backend-ts/scripts/` 一根**；fail-loud 打印 `SCAN_HYGIENE N/M/K`（现取 847/251/596）并写入 artifact；我亲验两处负对照（违规件放 `scripts/` ⇒ 3 处转红；同内容放 `src/` ⇒ 仍转红）⇒ **检出面未缩**（S21 ✅ 已上线）。
 - **移植遗留死件（B11）**：`backend-ts/src/simple-test.ts`（29 行 · jinli 遗留 · 全仓零引用）已删除（S21 ✅；`tsc` 0）
 - 【**常红门**】`p7b-03-offline-gates.ts` `AC10-2` 注册点冻结面 **68 ⇒ 89**：逐 rev 出处表（净 +21）+ 负对照（期望 88 必红）+ 我亲跑 `37/37 · red=[]`（S20 ✅ 已上线）。
