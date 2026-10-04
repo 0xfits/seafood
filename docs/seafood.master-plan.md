@@ -1416,6 +1416,29 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.343 **S25 ✅（B7 死键退役 + B12 盘点）· S26 ✅（`0043` `TRUNCATE` 守卫迁移，未 apply）· ★我跑全量门套件撞出**两处新滞后**（`p8-s3 D5` / `p8-s3b F4` = S23 清 `TODO` 标记所致）· ★我裁 B12 = 变体 Ⅰ 分期**（2026-10-04）
+
+**A. S25（56c/609s）**：10 死键四语**对称删除**（40 处；`jobs` 键数 45/语）· 计数**等量下移**（顶层 119 不变 · 拍平 1060⇒**1050** · 节点 4240⇒**4200**）· 13 个测试文件逐条出处 · 判负（把 `jobs.apply` 加回 zh ⇒ `zh flat: expected 1051 to be 1050` 必红）· 硬门：`vitest` 失败集与基线逐条相同 · `build` 0 · 四脚本全 PASS（i18n 节点 4200）· B12 只读盘点（`styles.css` sha256 仍 `14feca1e…` 未改）。
+**B. ★ 我核盘（S25）**：`git diff --numstat` = 四语**各 `0/10`**（只删不增）✓；`jobs` 键数 45/语、10 键四语**均不存在**、`auditConsole.apply` **未被误伤** ✓。
+**C. S26（28c/245s）**：新建 **`0043_truncate_guard.sql`**（**未 apply**；15 张 append-only 表各补 1 枚 `BEFORE TRUNCATE … FOR EACH STATEMENT` 守卫 = 15 函数 + 15 触发器；`sha256 60bcd0c2…`；幂等 + apply-time 自检）· 全仓现取 `MIGRATIONS_FROZEN` **恰 4 门**前推 41⇒**42**（逐门出处）· 报告 `docs/audit/s09-truncate-guard-migration.md`。
+**D. ★ 我核盘（S26）**：`ls migrations/*.sql` = **42**、4 门 `MIGRATIONS_FROZEN = 42` ✓；**库面未动**（`migrate.ts --status` 末行仍是既有版本）✓；它现取坐实**库内 `BEFORE TRUNCATE` 守卫 = 0 枚** ⇒ **B9 缺口成立**；单事务真跑四读数全真，并实测 `TRUNCATE public.rating` ⇒ **`P0001`**（守卫真拦）✓。
+
+**E. ★★ 我跑全量门套件（11 门 + `p7b-03`，补上一轮漏项）⇒ 撞出两处**新滞后**（非环境、非真缺陷）**：
+| 门 | 读数 | 红点 | 定性 |
+|---|---|---|---|
+| `p8-s1/s2/s4/s5/s6/s9/p7b-03` | 全绿（24/44/79/117/64/100/37）| — | ✓ |
+| **`p8-s3`** | `44/45` | **`D5`** | 判据 = `/TODO: Kevin 定值/.test(CURRENCY_TS)`（**要求标记在场**）⇒ **S23 按 A1 定档清了该标记** ⇒ **滞后**（前推/改锚须带出处）|
+| **`p8-s3b`** | `37/38` | **`F4`** | 同款（`245:245`）⇒ **滞后** |
+| `p8-s7/s8/s10/s11` | `56/59`、`70/74`、`48/49`、`86/87` | http 腿 | **与上轮逐条相同 ⇒ 环境性**（无受控实例）✓ |
+**★ 我的漏项登记**：S22/S23/S25 之后我**没有重跑全量门** ⇒ 这两处滞后本可在 S23 收单时就撞到（纪律「凡改动被计数/被标记面 ⇒ 入库前跑全量门套件」在此被我漏执行）。⇒ 已派 **S27** 收口。
+
+**F. ★★ 我裁 B12（终审）**：**取变体 Ⅰ（删除零消费选择器）但分期**：现取 381 分片 / 278 零 JSX 消费（distinct 131；真残留 182 分片、不确定 14、HTML 面 32）⇒ **先消歧「不确定（动态拼接）」与核对 HTML/SVG 面**，只删「**四类消费面全证零**」的子集；每批给「受影响元素 = 0」＋ build/单测/四脚本 ＋ 判负 ＋ revert 路径。**排后执行**（非本轮）。
+**G. ★ 连带发现（`0043` apply 的前置）**：旧探针 `p4z-b6audit-02-idemkey.ts:233` **靠「append-only 触发器不拦 TRUNCATE」** 而直接 `TRUNCATE public.admin_ops_audit_log` ⇒ **apply `0043` 后该探针必失败**（需补 `DISABLE TRIGGER` 或改写）⇒ 归 **S28**（库面收口单）处理；`p7b-02-t2-capture.ts` 的 `TRUNCATE p7b_t2_out` 是**临时表**、不受本迁移管辖 ⇒ 不动。
+
+**H. 状态**：DB **`41 行 / max 0042`**（`0043` 未 apply）· 生产 **`d081544`** · 端口全空。
+
+---
+
 ### 5.342 **派 S25（B7 死键退役 + B12 零消费选择器盘点）∥ S26（B9 `TRUNCATE` 守卫迁移）· ★我裁 B8「不改」（历史留痕）**（2026-10-04）
 
 **A. 现取（我亲取）**：① **B7 的 10 个死键**四语**都在**且**产品面引用 = 0**（`apply`/`applyOk`/`accept`/`acceptNote`/`acceptOk`/`applicationId`/`submitNeedApply`/`applyPrompt`/`applyWaiting`/`pick`）；已知受影响断言：`i18n-violation-closeout.test.jsx:45`（清单含 `jobs.acceptNote`）**与 `:105` 把 `zh['jobs.acceptNote']` 钉为含「只有雇主」**、`r9-90-participate-surface.test.jsx:304`（列这批键）⇒ 逐条处置 + 出处。② **B9 需要新迁移** ⇒ 现取 `migrations/` 共 **41** 件、max `0042`；`MIGRATIONS_FROZEN` 至少被 4 门持有（`p8-s3:83` / `p8-s3b:72` / `p8-s4:70` / `p8-s5:79`）⇒ **前推 41⇒42 必须全仓现取、逐门出处**。③ **B8**：`styles.css:29` 是**历史 vantage 注释**（记当时 5 条 AC 路由）、`frontend/scripts/p4z-*.mjs` 8 件是**已归档诊断脚本**（指向 `/shard`，重定向兜底零破损）。

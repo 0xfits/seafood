@@ -21,7 +21,6 @@
 | **B4** | 「**已参与 X / 共 N 人**」增强 | `headcount` **不在读模型**（`normalizeTask` 无该字段；只在发布/评审路径 `database.ts:3411 jobHeadcount`） | 中（后端读口回填 + 前端展示；S19 已登记为「一句话可改」可选增强） |
 | **B5** | 契约卫生：`sendError` 同族 | 现取 `backend-ts/src/index.ts`：`sendError(` = **50 处**、`sendAuthError` = **4 处**、`fromLedgerError` = **0 处**（§15.5 存量偏离 A–F） | 中；**用户不可见** ⇒ 可推迟 |
 | **B6** | 两套取数入口并存 | `frontend/src/auth.js:329 apiErrorMessage` = 全站错误文案真源；另有**独立模块**自带取数/错误链（S17 时代登记「待 P6/P7 合并」） | 中（合并需回归面） |
-| **B7** | **10 个死键**退役 | `jobs.apply` / `applyOk` / `accept` / `acceptNote` / `acceptOk` / `applicationId` / `submitNeedApply` / `applyPrompt` / `applyWaiting` / `pick`；J2/J3 恒 `410`、前端**零引用** | 小但**删键会改四语计数基线**（`1059 / 119`）⇒ 须与计数期望**同批改** |
 | **B9** | append-only **真实边界** | `TRUNCATE` **无触发器保护**；`purge-test-data` 走 `DISABLE TRIGGER` 管理员旁路（早期已登记） | 小（一条 `BEFORE TRUNCATE` 触发器），可与「错误码命名整理」同批 |
 | **B10** | 生产库 vs 迁移文件**无自动保真判据** | Kevin 2026-09-28 已裁**「不开」**，风险面已全部留痕 | 归档项；若要重启 ⇒ **前置条件 = 先备第二空库** |
 
@@ -39,6 +38,8 @@
 ## D. 本轮已闭环（备查，勿重复开单）
 
 - `participants_count` **真源**：`job_application`（已停写）⇒ `job_submission` 的 `COUNT(DISTINCT worker_uid)`；四语值改「已参与」（S19 ✅ 已上线）。
+- **B7（10 死键退役）**：四语对称删除（`jobs` 键数 45/语；顶层 119 不变 · 拍平 1060⇒**1050** · 节点 4240⇒**4200**）+ 13 个测试文件计数等量下移与断言改造（逐条出处）+ 判负红→绿（S25 ✅）。
+- **B12（零消费选择器）＝已盘点，Zang 裁取**变体 Ⅰ**但**分期执行**：现取 381 分片 / 278 零 JSX 消费（distinct 131）⇒ **先消歧「不确定（动态拼接）」（36 名）与核对 HTML/SVG 面（82 名）**，只删「JSX＋HTML＋SVG＋动态四类全证零消费」的子集；每批须给「受影响元素 = 0」＋ build/单测/四脚本 ＋ 判负 ＋ revert 路径（**排后，非本轮**）。
 - **B8（`/shard` 换轴遗留 ④）＝裁定「不改」**：`styles.css:29` 是**历史 vantage 注释**（记当时 5 条 AC 路由），`frontend/scripts/p4z-*.mjs` 是**已归档的诊断脚本** ⇒ 二者均非用户可见面、且 `/shard` 有重定向兜底（零破损）⇒ 改它们只会**作废历史报告/脚本里的路径引用**（与「源码注释与 audit 件一律不改」同口径）⇒ **登记不改**（✅ 已裁）。
 - **A1 保证金 = `50000` / A2 调分日上限 = `1,000,000` / A3 `/dashboard` 维持不放开 / A4 装饰切角与旧硬阴影收尾** —— 四条**已定档并落地**（S22 前端收尾 · S23 清 7 处 `TODO`〔`0023` 未动〕· S24 规范落册 `data-layer v0.31` / `route-layer v2.25`）（✅ 已上线）。
 - **门扫面根卫生（B2·变体 Ⅰ）**：`p8-s7-batt-checkin-gate.ts` 扫描阶段显式白名单排除探针命名式（4 式：`recon`/`probe`/`diagnostic`/`-NN-`），**只作用 `backend-ts/scripts/` 一根**；fail-loud 打印 `SCAN_HYGIENE N/M/K`（现取 847/251/596）并写入 artifact；我亲验两处负对照（违规件放 `scripts/` ⇒ 3 处转红；同内容放 `src/` ⇒ 仍转红）⇒ **检出面未缩**（S21 ✅ 已上线）。
