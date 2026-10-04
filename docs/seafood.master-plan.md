@@ -1416,6 +1416,23 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.338 **S21 ✅ 扫面根卫生（变体 Ⅰ 落地）+ 移植遗留死件清除 · ★我亲验两处负对照（`scripts/` 违规件 ⇒ 3 处转红；同内容放 `src/` ⇒ 仍转红）⇒ 检出面未缩**（2026-10-04）
+
+**A. S21（25c/340s）**：① `p8-s7-batt-checkin-gate.ts` 扫描阶段加**显式白名单**排除式（逐条登记 4 式：`recon` / `probe` / `diagnostic` / 前置编号 `-NN-`；**只对 `backend-ts/scripts/` 这一根生效**，其余四根一字不缩）② **fail-loud**：`SCAN_HYGIENE collected(N)=… excluded_probe(M)=… participating(K)=…` 打印 + 写入 artifact（`scan_root_hygiene` 块，含 `excluded_files` 明细）③ 删除 `backend-ts/src/simple-test.ts`（29 行，独立零引用取证）④ 报告 `docs/audit/s21-scan-root-hygiene.md`。
+
+**B. ★ 我核盘（亲跑 + 亲做负对照，不采信自述）**：
+- **基线**：我复跑 = `59 总 / 56 过 / 3 红`（**与改前逐条相同**；三红仍全为「受控实例真 HTTP」腿 `fetch failed`）。
+- **fail-loud 现取**：`SCAN_HYGIENE collected(N)=847 excluded_probe(M)=251 participating(K)=596 scope=仅 backend-ts/scripts/（其余四根检出面一字不缩）` ✓（措辞与我 brief 的中文提法不同、**实质等价**，我据此判达标）。
+- ★★ **负对照（我自己做的两处）**：把 `migrations/0038_kind_close_set_24.sql`（真含 ≥21 kind 全闭集）**原样复制**到 ① `backend-ts/scripts/zz-zang-negctl.sql`（命名**不**命中排除式）⇒ `failed 3 → **6**`（多出 3 处红 = D6/D7/D8）；② `backend-ts/src/zz-zang-negctl.sql` ⇒ **仍 `failed = 6`** ⇒ **证明排除式没有把 `scripts/` 一刀切、也没放过 `src/` 根**；两次变异件均已删除，复原复跑 = **`56/3` 逐条回到基线**，`git status --porcelain` 无残留 ✓。
+- **删件面**：`git diff --numstat` = `53/3 p8-s7-batt-checkin-gate.ts` + `0/29 simple-test.ts`；删后 `tsc --noEmit` exit 0（交付方跑，我采信其为硬门读数）。
+- **六处期望文件集未动**（`FULL_SET_EXPECTED` 现取 6 件，**均不在 `scripts/`** ⇒ 排除式不可能遮住它们）。
+
+**C. 台账同步**：**B2 与 B11 双双闭环移入 D 段**；**C 段补一条已知边界**（排除式按**文件名**生效 ⇒ 新探针未命中 4 式命名仍会假红（`M` 打印即可观测）；四根从不排除 ⇒ 「命名命中但实为真缺陷」实际不可达）。
+
+**D. 状态**：DB **`41 行 / max 0042`** · 生产 **`25121f0`** · 端口全空 · 工作树干净（仅 s7 + 删件两处待入库）。
+
+---
+
 ### 5.337 **S20 ✅ 门卫生（常红门前推 68→89 + 逐 rev 出处表）· ★我复核撞出第二处**移植遗留死件**（`src/simple-test.ts`）· ★我终审 B2 = **变体 Ⅰ**（扫面根显式排除，不搬迁探针）· 派 S21**（2026-10-04）
 
 **A. S20（31c/248s）**：① `p7b-03-offline-gates.ts` `AC10-2` 前推 `68 ⇒ 89`（**只改数值 + 注释**，判据形态与其它 AC 一字未动；注释内逐 rev 出处表）② 14 门（13 个 `p8-*-gate` + `p7b-03`）**扫面根只读盘点** + 逐门风险判定 + **两变体（未择一）**③ 报告 `docs/audit/s20-gate-hygiene.md`。

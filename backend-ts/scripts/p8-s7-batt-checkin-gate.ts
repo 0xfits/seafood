@@ -311,20 +311,69 @@ const KINDS_0038_FROZEN = (m38 ? (m38[2].match(/'([a-z_]+)'/g) || []) : []).map(
 const SCAN_RE = /ledger_kind_ok|ledger_kind_enum|LEDGER_KINDS|PLATFORM_KIND_WHITELIST|checkin_makeup_fee/;
 const SCAN_ROOTS = ['backend-ts/src', 'backend-ts/migrations', 'backend-ts/scripts', 'frontend/src', 'docs'];
 const SCAN_EXT = ['.ts', '.sql', '.js', '.jsx', '.mjs', '.md'];
-const walk = (dir: string, out: string[]): void => {
+/**
+ * ★ 扫面根卫生（S21 · 台账 `B2` · 变体 Ⅰ —— Zang 终审采纳）：
+ * 背景：`backend-ts/scripts/` 是探针/诊断件主落点（S20 §2.3 现取 296 件），而 `D6/D7/D8` 判据是
+ * 「代码面含 `checkin_makeup_fee` 且 kind 数 ≥ 20 / 全闭集编码（≥21）的件 = **恰六处**」（全闭集
+ * 穷举）⇒ `scripts/` 内任何含 ≥21 kind、或以字符串字面量出现 `checkin_makeup_fee` 的**探针/诊断件**
+ * 都会被算进去 ⇒ **假红**（S15 事故 `p8-s5-00-recon*.ts` 的成因；且桶优先级 `kinds>=21 > isArtifact`
+ * 令「文件名兜底」被架空）。
+ * ★ 排除式 = **显式白名单式 · 逐条登记**（禁用宽泛字符串匹配一刀切：不得排除整个 `scripts/`、
+ *   不得用 `*test*`）；命名式沿本仓既有探针命名惯例（S20 §2.3 现取 `*recon*` 7 · `*probe*` 35 · `*-00-*` 46）。
+ */
+const PROBE_NAME_PATTERNS: Array<{ id: string; re: RegExp; reason: string }> = [
+  { id: 'recon',      re: /recon/i,      reason: '侦查件 `*recon*`（S20 §2.3 登记：7 件）' },
+  { id: 'probe',      re: /probe/i,      reason: '探针件 `*probe*`（S20 §2.3 登记：35 件）' },
+  { id: 'diagnostic', re: /diagnostic/i, reason: '诊断件 `*diagnostic*`（诊断专用件）' },
+  { id: 'seq',        re: /-\d{2}-/,     reason: '前置编号式 `*-00-*`/`*-01-*`…（分步探针/诊断件；S20 现取 `-00-` 46 件）' },
+];
+/** ★ 排除式**只作用于 `backend-ts/scripts/` 这一个根**；其余四根（src / migrations / frontend/src / docs）检出面**一字不缩**。 */
+const SCRIPTS_ROOT_ABS = path.resolve(REPO_ROOT, 'backend-ts/scripts');
+const probePatternOf = (name: string): string | null => {
+  for (const p of PROBE_NAME_PATTERNS) if (p.re.test(name)) return p.id;
+  return null;
+};
+/** 命中探针命名式 ⇒ 返回命名式 id；仅当该路径位于 `backend-ts/scripts/` 根内才生效。 */
+const probeExcludedBy = (abs: string): string | null => {
+  const rel = path.relative(SCRIPTS_ROOT_ABS, abs);
+  if (rel === '' || rel.startsWith('..') || path.isAbsolute(rel)) return null;  // 不在 scripts/ 根内 ⇒ 不排除
+  return probePatternOf(path.basename(abs));
+};
+const walk = (dir: string, out: string[], excluded: Array<{ file: string; pattern: string }>): void => {
   if (!fs.existsSync(dir)) return;
   for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, ent.name);
     if (ent.isDirectory()) {
       if (['node_modules', 'dist', '.git'].includes(ent.name) || ent.name.includes('artifacts')) continue;
-      walk(p, out);
+      // ★ 探针产物目录（沿既有 `.p*-recon`/`.p*-arms` 先例）：目录名命中探针命名式 ⇒ 整目录排除。
+      const dirHit = probeExcludedBy(p);
+      if (dirHit) { excluded.push({ file: `${path.relative(REPO_ROOT, p)}/`, pattern: `dir:${dirHit}` }); continue; }
+      walk(p, out, excluded);
     } else if (SCAN_EXT.includes(path.extname(ent.name))) {
+      const hit = probeExcludedBy(p);
+      if (hit) { excluded.push({ file: path.relative(REPO_ROOT, p), pattern: hit }); continue; }
       out.push(p);
     }
   }
 };
 const allScanFiles: string[] = [];
-for (const r of SCAN_ROOTS) walk(path.resolve(REPO_ROOT, r), allScanFiles);
+const excludedProbeFiles: Array<{ file: string; pattern: string }> = [];
+for (const r of SCAN_ROOTS) walk(path.resolve(REPO_ROOT, r), allScanFiles, excludedProbeFiles);
+// ★ fail-loud（不得静默）：N = 扫面根收集 / M = 排除探针 / K = 参与判据；**M=0 也照印**（防路径改动致排除静默失效）。
+//   P9⑤ 后 K = docs+migrations+src+frontend/src 全量 + scripts 未命中探针命名式者。
+const SCAN_HYGIENE = {
+  scan_roots: SCAN_ROOTS,
+  exclusion_scope: '仅 backend-ts/scripts/（其余四根检出面一字不缩）',
+  collected_total: allScanFiles.length + excludedProbeFiles.length,   // N
+  excluded_probe: excludedProbeFiles.length,                          // M
+  participating: allScanFiles.length,                                 // K
+  patterns: PROBE_NAME_PATTERNS.map((q) => ({
+    id: q.id, regex: q.re.source, reason: q.reason,
+    hits: excludedProbeFiles.filter((e) => e.pattern === q.id || e.pattern === `dir:${q.id}`).length,
+  })),
+  excluded_files: excludedProbeFiles.map((e) => e.file).sort(),
+};
+console.log(`SCAN_HYGIENE collected(N)=${SCAN_HYGIENE.collected_total} excluded_probe(M)=${SCAN_HYGIENE.excluded_probe} participating(K)=${SCAN_HYGIENE.participating} scope=${SCAN_HYGIENE.exclusion_scope}`);
 /** 一个文件里「以字符串字面量出现」的 kind 去重集。 */
 const kindsInText = (text: string): string[] =>
   KINDS_FROM_TS.filter((k) => new RegExp(`'${k}'|"${k}"`).test(text));
@@ -651,6 +700,7 @@ const prevBusinessDay = (): string => {
     passed: checks.length - failed.length,
     failed: failed.length,
     pending_apply: pendingApply,
+    scan_root_hygiene: SCAN_HYGIENE,
     readings: {
       registration_points_total: countRoutes(INDEX_TS),
       registration_points_per_verb: PER_VERB_FROZEN,

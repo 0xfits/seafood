@@ -20,8 +20,6 @@
 
 | # | 项 | 现取依据 | 代价 / 阻塞 |
 |---|---|---|---|
-| **B2** | **门扫面根**显式排除探针命名式 | S20 只读盘点（14 门）：唯一**高险门** = `p8-s7-batt-checkin-gate.ts` —— `SCAN_ROOTS`（`:312`）含 `backend-ts/scripts`，而 `D6/D7/D8` 判「含 `checkin_makeup_fee` 且 kind ≥ 20 的文件 = **恰六处**」⇒ `scripts/` 内任何 ≥21 kind 的探针都会**假红**（现取余量极薄：两件卡在 20 kind）；其余门扫 `src/**` 或定向读 = 低/无险 | **已终审选变体 Ⅰ**（扫面根显式排除 + fail-loud 打印「扫面根 N / 排除 M / 参判 K」+ 两处负对照；**检出面不缩**）· **不取变体 Ⅱ**（不搬迁 72 件探针）· **S21 落地中** |
-| **B11** | 落 `src` 扫面根的移植遗留**死件** | `backend-ts/src/simple-test.ts`（29 行、**git 已跟踪**、`jinli_DATABASE_URL` 遗留凭据名、**全仓引用 = 0**）—— S20 盘点顺带发现 | 极小 · **S21 同单删除**（含独立零引用取证 + 删后硬门对照） |
 | **B3** | `ledger.spec` **v0.13 快照缺失** | 现取 `docs/versions/`：`ledger.spec.v0.12.md` → **（无 v0.13）** → `v0.14.md` | 小，但**必须先现取判定**该版正文是否仍在 git 历史；若**从未入库** ⇒ 与 `data-layer` v0.1 同族（真伪不可独立复核），只能留痕声明 |
 | **B4** | 「**已参与 X / 共 N 人**」增强 | `headcount` **不在读模型**（`normalizeTask` 无该字段；只在发布/评审路径 `database.ts:3411 jobHeadcount`） | 中（后端读口回填 + 前端展示；S19 已登记为「一句话可改」可选增强） |
 | **B5** | 契约卫生：`sendError` 同族 | 现取 `backend-ts/src/index.ts`：`sendError(` = **50 处**、`sendAuthError` = **4 处**、`fromLedgerError` = **0 处**（§15.5 存量偏离 A–F） | 中；**用户不可见** ⇒ 可推迟 |
@@ -35,6 +33,8 @@
 
 ## C. 例行验收动作（**不是任务**，别当缺口）
 
+- **已知边界（B2 附带）**：`scripts/` 扫面根的排除式按**文件名**生效 ⇒ ① 新探针若不落入已登记 4 式命名，**仍会假红**（fail-loud 的 M 打印即为其可观测钩子）；② 理论上「命名命中排除式但实为真缺陷」的件会被漏检 —— 实际不可达：`src/` / `migrations/` / `frontend/src/` / `docs/` 四根**从不排除**，真缺陷件只可能在 `scripts/` 内且必须主动命名成探针式。
+
 - `p8-s7` / `p8-s8` / `p8-s10` / `p8-s11` 的「**受控实例真 HTTP**」腿：本轮现取 4 门红点**全部** = `fetch failed`（无实例）⇒ **环境性**，起 `5792–5799` 区间实例即绿（S19 复核时 4 门 = `56/59`、`70/74`、`48/49`、`86/87`，红点逐条定位为 http 腿）。
 - 任何前端/后端交付的 **HTTP 端到端**：若交付方按硬口径未起服务 ⇒ `NOT_MEASURED`，由验收轮决定是否补跑。
 
@@ -43,6 +43,8 @@
 ## D. 本轮已闭环（备查，勿重复开单）
 
 - `participants_count` **真源**：`job_application`（已停写）⇒ `job_submission` 的 `COUNT(DISTINCT worker_uid)`；四语值改「已参与」（S19 ✅ 已上线）。
+- **门扫面根卫生（B2·变体 Ⅰ）**：`p8-s7-batt-checkin-gate.ts` 扫描阶段显式白名单排除探针命名式（4 式：`recon`/`probe`/`diagnostic`/`-NN-`），**只作用 `backend-ts/scripts/` 一根**；fail-loud 打印 `SCAN_HYGIENE N/M/K`（现取 847/251/596）并写入 artifact；我亲验两处负对照（违规件放 `scripts/` ⇒ 3 处转红；同内容放 `src/` ⇒ 仍转红）⇒ **检出面未缩**（S21 ✅ 已上线）。
+- **移植遗留死件（B11）**：`backend-ts/src/simple-test.ts`（29 行 · jinli 遗留 · 全仓零引用）已删除（S21 ✅；`tsc` 0）
 - 【**常红门**】`p7b-03-offline-gates.ts` `AC10-2` 注册点冻结面 **68 ⇒ 89**：逐 rev 出处表（净 +21）+ 负对照（期望 88 必红）+ 我亲跑 `37/37 · red=[]`（S20 ✅ 已上线）。
 - `ProfilePage` 旧链接 `/shard` ⇒ `/exchange`（S19 ✅；产品面 `/shard` 页面链接现取 = **0**）。
 - `route-layer.spec` 路由路径回写（S14 更正块 ✅）。
