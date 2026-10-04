@@ -9,10 +9,10 @@
 
 | # | 项 | 现取依据 | 现状兜底 | 代价 |
 |---|---|---|---|---|
-| **A1** | 上市保证金**金额** | `backend-ts/src/currency-service.ts:148` `CURRENCY_LIST_DEPOSIT_FLOOR = 50000`（旁注 `TODO: Kevin 定值`）；主导真源 = `app_config` 键 `listing_deposit_policy`（`AK2`），常量仅 fail-closed 兜底（`database.ts:138`）| 兜底 `50000` 已生效、**不影响运行** | 一个数 + 一次后台写 |
-| **A2** | 后台调分**日累计上限** | `backend-ts/src/index.ts:2096` `ADMIN_POINTS_ADJUST_MAX_PER_DAY = 1000000`（旁注 `TODO: Kevin 定值`）；**唯一真值**在 DB 编排函数（`migrations/0023`），常量只管 `details.max` 回填 | `1,000,000 / 日 / 操作人（UTC）` | 一个数 |
-| **A3** | `/dashboard` 是否对普通用户放开 | S18 §5.334 C：我裁**不放开**（该页曝光 `totalUsers` / `adminUsers` / `totalPoints` 平台统计）；页面受**路由 `adminOnly` + 组件双闸** | 发布者仍可由 `PublishJobPage` 审核入口直达 `/task/review` | 一句口径（若要放开 ⇒ 需先剥离平台统计面） |
-| **A4** | 装饰性切角 / legacy 硬阴影收尾 | `frontend/src/styles.css` 现取 `clip-path: polygon` = **4 处**（+ legacy 硬位移阴影 `.card` 深档 / `.price-tag` / `.gem-pulse`） | 现状保留（审美面，未纳入形状收敛批次） | 审美口径 |
+| **A1** | 上市保证金**金额** ✅**已定值 `50000`（Kevin 2026-10-04）** | `backend-ts/src/currency-service.ts:148` `CURRENCY_LIST_DEPOSIT_FLOOR = 50000`（旁注 `TODO: Kevin 定值`）；主导真源 = `app_config` 键 `listing_deposit_policy`（`AK2`），常量仅 fail-closed 兜底（`database.ts:138`）| 兜底 `50000` 已生效、**不影响运行** | 一个数 + 一次后台写 |
+| **A2** | 后台调分**日累计上限** ✅**已定值 `1,000,000`（Kevin 2026-10-04）** | `backend-ts/src/index.ts:2096` `ADMIN_POINTS_ADJUST_MAX_PER_DAY = 1000000`（旁注 `TODO: Kevin 定值`）；**唯一真值**在 DB 编排函数（`migrations/0023`），常量只管 `details.max` 回填 | `1,000,000 / 日 / 操作人（UTC）` | 一个数 |
+| **A3** | `/dashboard` 是否对普通用户放开 ✅**已定档：维持不放开（Kevin 同意）** | S18 §5.334 C：我裁**不放开**（该页曝光 `totalUsers` / `adminUsers` / `totalPoints` 平台统计）；页面受**路由 `adminOnly` + 组件双闸** | 发布者仍可由 `PublishJobPage` 审核入口直达 `/task/review` | 一句口径（若要放开 ⇒ 需先剥离平台统计面） |
+| **A4** | 装饰性切角 / legacy 硬阴影 ✅**已定档：不保留 ⇒ 收尾**（Kevin：「UI 目前可视的部分非常好」） | `frontend/src/styles.css` 现取 `clip-path: polygon` = **4 处**（+ legacy 硬位移阴影 `.card` 深档 / `.price-tag` / `.gem-pulse`） | 现状保留（审美面，未纳入形状收敛批次） | 审美口径 |
 
 ---
 

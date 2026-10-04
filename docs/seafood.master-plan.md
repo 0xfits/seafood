@@ -1416,6 +1416,26 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.339 **★ Kevin 四条定档（A1 保证金 50000 保留 / A2 调分日上限 100 万保留 / A3 `/dashboard` 维持不放开 / A4 **不保留**装饰切角与旧硬阴影）· 派 S22 ∥ S23 ∥ S24**（2026-10-04）
+
+**A. Kevin 原话（口径真源）**：「A1：可以 · A2：可以 · A3：同意 · A4：**不保留**，我认为 UI 目前可视的部分非常好」。
+
+**B. 我据此的四条落地口径**：
+| 项 | 定档 | 落地动作（派单纯） |
+|---|---|---|
+| **A1** | 保证金 = **`50000`**（现兜底即生效值；主导真源 = `app_config` 键 `listing_deposit_policy`）| 只**清活代码**里的 `TODO: Kevin 定值` 标记（`currency-service.ts:142/147/148`、`database.ts:62/133/138`）⇒ **不改数值、不改行为**；**不写 `app_config` 行**（写行与兜底行为等价，收益仅 `floor_source` 可读性 ⇒ 不动生产数据，标「一句话可改」）|
+| **A2** | 日累计上限 = **`1,000,000` / 日 / 操作人（UTC）** | 清 `index.ts:2094-2096` 标记；★ **已 apply 的 `migrations/0023` 里的同款标记不得动**（checksum 漂移红线）⇒ 规范侧留痕交 Jing |
+| **A3** | `/dashboard` **维持不放开**（理由：曝光 `totalUsers`/`adminUsers`/`totalPoints`；发布者走 `PublishJobPage` 审核入口）| 无需代码动作 ⇒ 规范侧落册 + 台账标定档 |
+| **A4** | **不保留** ⇒ 把装饰性切角与 legacy 硬位移阴影**统一到已收敛的形状语言** | 前端单（只 `styles.css`）：**禁碰** `clip-path: url(#…)`（SVG 内部）与 `:focus` 焦点环 |
+
+**C. 派单（三单并行 · 文件面不相交）**：**S22**（Kong · 前端 `styles.css` 形状收尾）∥ **S23**（Kong · 后端读模型 `headcount` + 前端展示「已参与 X / 共 N 人」+ A1/A2 清标记，**不改 `styles.css`/`locales` 冲突见下**）∥ **S24**（Jing · A1/A2/A3 落册 + `ledger.spec` v0.13 快照判定与补齐）。★ **面隔离硬约束**：S22 = 仅 `styles.css` + 测试；S23 = `database.ts` + `locales/**` + 任务消费点页面（**不得碰 `styles.css`**）；S24 = 仅 `docs/*.spec.md` + `docs/versions/**` + delta。
+
+**D. 台账（`docs/OPEN-ITEMS.md`）**：A1/A2/A3/A4 四条**均标定档**（闭环待各单回执核盘后移入 D 段）。
+
+**E. 状态**：DB **`41 行 / max 0042`** · 生产 **`c8ec4ef`** · 端口全空 · 工作树干净。
+
+---
+
 ### 5.338 **S21 ✅ 扫面根卫生（变体 Ⅰ 落地）+ 移植遗留死件清除 · ★我亲验两处负对照（`scripts/` 违规件 ⇒ 3 处转红；同内容放 `src/` ⇒ 仍转红）⇒ 检出面未缩**（2026-10-04）
 
 **A. S21（25c/340s）**：① `p8-s7-batt-checkin-gate.ts` 扫描阶段加**显式白名单**排除式（逐条登记 4 式：`recon` / `probe` / `diagnostic` / 前置编号 `-NN-`；**只对 `backend-ts/scripts/` 这一根生效**，其余四根一字不缩）② **fail-loud**：`SCAN_HYGIENE collected(N)=… excluded_probe(M)=… participating(K)=…` 打印 + 写入 artifact（`scan_root_hygiene` 块，含 `excluded_files` 明细）③ 删除 `backend-ts/src/simple-test.ts`（29 行，独立零引用取证）④ 报告 `docs/audit/s21-scan-root-hygiene.md`。
