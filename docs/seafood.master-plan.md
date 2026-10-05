@@ -1416,6 +1416,24 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.364 **★★ S40b ✅（15 门全绿 · R1 机理实证 · Part II 22/22 逐字）· 我裁它驳回我的简化（接受「完整数据态模型」）· 全批 NOT_MEASURED 面收口 · 收工**（2026-10-05）
+
+**A. S40b（Kong · 59c/830s）✅**：
+1. **门套口径 15 门落定**：`p8-s1/s2/s3/s3b/s4/s5-02/s5/s6/s7/s8/s9/s10/s11`（13）+ **`s36-00`** + `p7b-03` = **15**。
+2. **两相位读数**：**before（无实例）8 红**（`s7 G8/G9/G10` · `s8 H5/H6/H7` · `s10 K8` · `s11 K10`，全 `fetch failed`/`status:-1`）⇒ **after（起 5792）15 门全绿**：`s1 24/24 · s2 44/44 · s3 45/45 · s3b 38/38 · s4 79/79 · s5-02 6/6 · s5 117/117 · s6 64/64 · s7 60/60 · s8 92/92 · s9 100/100 · s10 49/49 · s11 87/87 · s36-00 GREEN · p7b-03 EXIT 0`。
+3. **Part II**: 无凭证 **16 端** + 带 token **6 端** = **22/22** 与 S32c §1 预期 **`status`+`code`+`details.reason` 逐字一致**（**★ 我抽验状态码逐条对**：`/api/task/abc` 404 · `/api/prize/abc` 404 · `/api/prize/999999999` 404 · `/api/user/asset/abc` 404 · `/api/market/*` 404 · `app.use` 兜底两条 404 · `/api/auth/verify` 401 · `/api/translate/backfill` 401 · `/api/admin/points/adjust` 401 · `/api/shard*` 401；带 token：`task-progress` 三端 404 · `shard*` 200 deprecated）。
+4. **★★ R1 机理实证（全批第一次从「结构推断」变「实测」）**：`seq_before 35` ⇒ **`seq_after_rollback 36`**（**回滚不回退**）· `count 4/4/4` · **`residue_rows = 0`** · `RAISE` = **`23514 check_violation`**（`commission_policy_weights_guard: sum(weights_bp)=0`）· `nextval_consumed = 1` · `nextval_rollback_not_possible = true`。★ 它**先用缺陷版自证**（显式喂 `policy_id=NULL` ⇒ `nextval_consumed=0` ⇒ **证伪**），再用省略 identity-PK 版**证成** ⇒ 这是**可判负的对照**。
+5. **门跑净写（现场证据）**：**18 张关键表行数净变化 = 0**；全部 34 张基表 run 窗口内新行 = 0；**唯序列被耗**（不可回滚）：`checkin_makeup_log 103→104` · `checkin_log 255→257` · `batt_entry 653→659` · `ledger_entry 2611→2629`。
+6. **实例收尾**：按精确 PID 停（5792 监听 PID 20803 / 父 20424）⇒ **`lsof` 5792–5799 全空** ✓ · `5787/5788/5555/5191` **未受影响** ✓。`tsc --noEmit` **0** · `tsconfig.scripts.json` **96 = 96**（新增 0）· tracked 改动**仅** `p8-s7-batt-checkin-gate.ts`（`110/8`）。报告 **379 行**。
+**B. ★★ 我裁它驳回我的简化（**接受**，理由写死）**：我给的 `(a)/(b)` 干净两分支**在现取数据下不成立**（`probe-branch-feasibility.ts`: `madeUpCleanCandidates=[]`（无「今日无补签留痕 ∧ 已补签某 target」的干净 actor；uid2/uid12 均已污染）；且选中 actor **真态 = `today_row=true ∧ key_row=true` ⇒ 产品必返 200 `idempotent_replay`**，**硬用「已补签 ⇒ 必 409」就是复现旧门的假红**。它遂落为「**完整数据态模型**」：`(a)`/`(b)` + `replayed`/`daily_limit`/`insufficient` 各分支，**每态断言一个具体 `code` + 形状**。
+⇒ **我批**：① 我的二分是**基于单条读数的简化**，它现取后**证伪并报回请裁**（合纪）；② 扩展方向 = **强化不是放宽** —— 四谓词 `judge200`/`judge409Target`/`judge409Daily`/`judge409Insuff` 各喂「对 / 错状态码 / 错形状」三例，**错例一律转红**（`G9__selftest PASS {"fired":true}`）；**`status:-1` 一律判负**；**分母 `59→60` 只增不减**；③ 判负链完整（before 相位 `-1` ⇒ 判负）。
+**★ 我补一条永久口径**：该门今后**新增数据态分支 ⇒ 必须显式入 `selftest`，且分母只增不减**。
+**C. 全批 `NOT_MEASURED` 面收口（我逐条记，不洗白）**：`#21 points/adjust` 三分派（需 admin token）· `#8` miss 分支（需「有会话但用户不存在」）· `#14/#15` infra 分类 503/500（需诱导库/传输层故障）· 保留 9 处中的未取面 · `s7 G9` 其余三分支（谓词已由 selftest 判负证成，但未逐分支取真响应体）· `s5-02` before 相位计分行（无实例 ⇒ 退 EXIT 2）· `p7b-03` 内部断言计数（其 stdout 无 `SUMMARY total=` 行）· `frontend/**`（本单未触）⇒ **均为结构性不可达/需特殊注入，不是漏做**。
+**D. 判定**：**全批（S19–S40b · 22 单）质量收口交付完毕** —— 台账 A/B 全清（`B10` 已裁不开）、15 门两相位全绿、生产终验通过、`NOT_MEASURED` 逐条有因。
+**E. 状态**：DB **`42 行 / max 0043`** · 生产 **`4f8fd78`**（代码，已终验）+ 文档至本笔 · 端口 5792–5799 **空**；5787/5788/5555/5191 **他人监听（非本批）** · 工作树干净。
+
+---
+
 ### 5.363 **S40（PARTIAL：受控实例取证拿到 7/8 转绿 + 9 端真响应体逐字）· ★我亲验收尾（5792–5799 全空、他人端口无恙）· 我两条裁定（门套口径 = 15 门 / `s7 G9` 改「数据态感知」）· 派 S40b 收尾**（2026-10-05）
 
 **A. S40（Kong · 60c/630s · `PARTIAL`，迭代耗尽）**：已完成 —— ① 受控实例 `PORT=5792`（node PID 2738，`/api/health` ⇒ `schema_version 0043`）；② **14 门前后逐门对照**；③ **Part II 真响应体逐字取证**（无凭证 **9 端全部与 S32c §1 预期逐字一致**，例：`GET /api/task/abc` ⇒ **404 `LEDGER_REF_NOT_FOUND` + `details{ref_type:job,ref_id:abc,reason:tID_not_found}`**；`POST /api/auth/verify` ⇒ **401 `AUTH_UNAUTHORIZED`**；`app.use` 兜底 ⇒ 404 `route_not_found`；带**真会话 token** 补测 `#10/#11/#12` 三端亦逐字一致）。未完成 —— 报告未落盘 / R1 未跑完 / 门套口径未定。
