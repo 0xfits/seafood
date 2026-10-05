@@ -1,0 +1,546 @@
+{
+  "meta": {
+    "gate": "s36-00-identity-pk-form-gate",
+    "purpose": "类级 fail-loud：同表同时存在『省略 identity-PK(omitted)』与『显式给号(explicit)』两种形态 ⇒ 报红（S29 型撞号机制）",
+    "detector_criterion": "命中 = 落在『测试/校验面』(scripts/** 或 migrations 的 DO $$ 块) 的省略-PK 插入，且其表在全量三层面中存在 ≥1 处显式给号插入",
+    "baseline_provenance": "S36/B14 只读盘点（s36-20261005T050358Z/implicit-inserts.json 的 level==R2 全集，43 处）——独立于本门扫描器生成",
+    "live_probe_readings": {
+      "identity_or_serial_cols_public": 23,
+      "is_identity_yes": 22,
+      "serial_nextval_default": 1,
+      "public_base_tables": 34
+    },
+    "generated_at_utc": "2026-10-05T05:10:00Z"
+  },
+  "identity_pk": [
+    {
+      "table": "admin_ops_audit_log",
+      "column": "log_id",
+      "generation": "BY DEFAULT",
+      "is_identity": "YES"
+    },
+    {
+      "table": "admin_refund_audit_log",
+      "column": "log_id",
+      "generation": "BY DEFAULT",
+      "is_identity": "YES"
+    },
+    {
+      "table": "batt_entry",
+      "column": "txid",
+      "generation": "ALWAYS",
+      "is_identity": "YES"
+    },
+    {
+      "table": "checkin_log",
+      "column": "log_id",
+      "generation": "BY DEFAULT",
+      "is_identity": "YES"
+    },
+    {
+      "table": "checkin_makeup_log",
+      "column": "log_id",
+      "generation": "BY DEFAULT",
+      "is_identity": "YES"
+    },
+    {
+      "table": "commission_policy",
+      "column": "policy_id",
+      "generation": "BY DEFAULT",
+      "is_identity": "YES"
+    },
+    {
+      "table": "currency",
+      "column": "cid",
+      "generation": "BY DEFAULT",
+      "is_identity": "YES"
+    },
+    {
+      "table": "currency_review_log",
+      "column": "log_id",
+      "generation": "BY DEFAULT",
+      "is_identity": "YES"
+    },
+    {
+      "table": "currency_status_log",
+      "column": "log_id",
+      "generation": "BY DEFAULT",
+      "is_identity": "YES"
+    },
+    {
+      "table": "job",
+      "column": "job_id",
+      "generation": "BY DEFAULT",
+      "is_identity": "YES"
+    },
+    {
+      "table": "job_application",
+      "column": "application_id",
+      "generation": "BY DEFAULT",
+      "is_identity": "YES"
+    },
+    {
+      "table": "job_arbitration_log",
+      "column": "log_id",
+      "generation": "BY DEFAULT",
+      "is_identity": "YES"
+    },
+    {
+      "table": "job_submission",
+      "column": "submission_id",
+      "generation": "BY DEFAULT",
+      "is_identity": "YES"
+    },
+    {
+      "table": "ledger_entry",
+      "column": "txid",
+      "generation": "ALWAYS",
+      "is_identity": "YES"
+    },
+    {
+      "table": "listing",
+      "column": "listing_id",
+      "generation": "BY DEFAULT",
+      "is_identity": "YES"
+    },
+    {
+      "table": "listing_order",
+      "column": "order_id",
+      "generation": "BY DEFAULT",
+      "is_identity": "YES"
+    },
+    {
+      "table": "listing_order_event",
+      "column": "event_id",
+      "generation": "BY DEFAULT",
+      "is_identity": "YES"
+    },
+    {
+      "table": "listing_review_log",
+      "column": "log_id",
+      "generation": "BY DEFAULT",
+      "is_identity": "YES"
+    },
+    {
+      "table": "market_order",
+      "column": "order_id",
+      "generation": "BY DEFAULT",
+      "is_identity": "YES"
+    },
+    {
+      "table": "market_trade",
+      "column": "trade_id",
+      "generation": "BY DEFAULT",
+      "is_identity": "YES"
+    },
+    {
+      "table": "rating",
+      "column": "rating_id",
+      "generation": "BY DEFAULT",
+      "is_identity": "YES"
+    },
+    {
+      "table": "schema_migration",
+      "column": "id",
+      "generation": "serial/nextval",
+      "is_identity": "NO"
+    },
+    {
+      "table": "users",
+      "column": "uid",
+      "generation": "BY DEFAULT",
+      "is_identity": "YES"
+    }
+  ],
+  "identity_pk_count": 23,
+  "baseline": [
+    {
+      "file": "migrations/0011_commission_assert_closure_and_referral_depth_guard.sql",
+      "line": 413,
+      "table": "currency",
+      "column": "cid",
+      "layer": "migrations",
+      "context": "mig-do",
+      "reason": "迁移内 DO 块自检探针省略 PK，且同表存在显式给号（S29 型）"
+    },
+    {
+      "file": "migrations/0012_replay_pre_gate_before_balance_gate.sql",
+      "line": 1180,
+      "table": "currency",
+      "column": "cid",
+      "layer": "migrations",
+      "context": "mig-do",
+      "reason": "迁移内 DO 块自检探针省略 PK，且同表存在显式给号（S29 型）"
+    },
+    {
+      "file": "scripts/ledger-smoke-db.ts",
+      "line": 54,
+      "table": "currency",
+      "column": "cid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/ledger-smoke.ts",
+      "line": 313,
+      "table": "currency",
+      "column": "cid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p1e-01-latency.ts",
+      "line": 36,
+      "table": "currency",
+      "column": "cid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p1e-04-db-fn-probe.ts",
+      "line": 64,
+      "table": "currency",
+      "column": "cid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p1f-lib.ts",
+      "line": 163,
+      "table": "currency",
+      "column": "cid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p2qa-11-f1-f7.ts",
+      "line": 53,
+      "table": "currency",
+      "column": "cid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p2qa-11-f1-f7.ts",
+      "line": 171,
+      "table": "currency",
+      "column": "cid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p2qa-12-f3-f6-f2.ts",
+      "line": 48,
+      "table": "currency",
+      "column": "cid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p2qa-lib.ts",
+      "line": 160,
+      "table": "currency",
+      "column": "cid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p2w-lib.ts",
+      "line": 102,
+      "table": "currency",
+      "column": "cid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p2x-lib.ts",
+      "line": 109,
+      "table": "currency",
+      "column": "cid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p3f-01-cases.ts",
+      "line": 116,
+      "table": "job_submission",
+      "column": "submission_id",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p3f-01-cases.ts",
+      "line": 122,
+      "table": "job_submission",
+      "column": "submission_id",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p3f-01-cases.ts",
+      "line": 133,
+      "table": "job_submission",
+      "column": "submission_id",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p3f-lib.ts",
+      "line": 85,
+      "table": "users",
+      "column": "uid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p3f-lib.ts",
+      "line": 102,
+      "table": "job",
+      "column": "job_id",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p3j-lib.ts",
+      "line": 93,
+      "table": "users",
+      "column": "uid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p3l-01-cases.ts",
+      "line": 284,
+      "table": "listing_order",
+      "column": "order_id",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p3l-05-cases.ts",
+      "line": 37,
+      "table": "users",
+      "column": "uid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p3l-09-first-purchase.ts",
+      "line": 26,
+      "table": "users",
+      "column": "uid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p3l-lib.ts",
+      "line": 94,
+      "table": "users",
+      "column": "uid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p3m-lib.ts",
+      "line": 99,
+      "table": "users",
+      "column": "uid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p3n-01-rca-legs.ts",
+      "line": 230,
+      "table": "currency",
+      "column": "cid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p3p-lib.ts",
+      "line": 150,
+      "table": "users",
+      "column": "uid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p3s-00-500-rca-probe.ts",
+      "line": 290,
+      "table": "currency",
+      "column": "cid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p4z-a1li-01-e2e.ts",
+      "line": 107,
+      "table": "users",
+      "column": "uid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p4z-audjk-01-probe.ts",
+      "line": 145,
+      "table": "job",
+      "column": "job_id",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p4z-b2a-01-fixture.ts",
+      "line": 140,
+      "table": "job",
+      "column": "job_id",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p4z-b2b-02-listing.ts",
+      "line": 142,
+      "table": "job",
+      "column": "job_id",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p4z-b3d-02-e2e.ts",
+      "line": 148,
+      "table": "listing_order",
+      "column": "order_id",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p4z-tr1b-01-e2e-stub.ts",
+      "line": 103,
+      "table": "job",
+      "column": "job_id",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p4z-tr1b-01-e2e-stub.ts",
+      "line": 133,
+      "table": "job",
+      "column": "job_id",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p7b-06-fixture-setup.ts",
+      "line": 97,
+      "table": "listing_order",
+      "column": "order_id",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p8-s10-invite-reward-gate.ts",
+      "line": 379,
+      "table": "job",
+      "column": "job_id",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/p8-s9-bttc-gate.ts",
+      "line": 584,
+      "table": "currency",
+      "column": "cid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/qa-p1b-01-setup.ts",
+      "line": 23,
+      "table": "currency",
+      "column": "cid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/qa-p1b-05-supplycap.ts",
+      "line": 31,
+      "table": "currency",
+      "column": "cid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/qa-p1e-02b-api-collision.ts",
+      "line": 30,
+      "table": "currency",
+      "column": "cid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/qa-p1e-05-neon-ab.ts",
+      "line": 36,
+      "table": "currency",
+      "column": "cid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/qa-p1e-09-migration-replay.ts",
+      "line": 79,
+      "table": "currency",
+      "column": "cid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    },
+    {
+      "file": "scripts/qa-p1e-lib.ts",
+      "line": 171,
+      "table": "currency",
+      "column": "cid",
+      "layer": "scripts",
+      "context": "scripts",
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+    }
+  ],
+  "baseline_count": 43
+}
