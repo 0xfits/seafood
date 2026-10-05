@@ -49,6 +49,7 @@
 import { createHash } from 'crypto';
 import { DatabaseService } from './database';
 import { ledgerErrorFromDbError, normalizeLedgerError } from './ledger';
+import { errorMessageOf } from './ledger-errors';
 import { ledgerErrorBody, sendVerbError, type JobVerbErr as VerbErr, type JobVerbResult as VerbResult } from './job-service';
 
 export { ledgerErrorBody, sendVerbError };
@@ -110,7 +111,7 @@ const fail = (
   ok: false,
   status,
   code,
-  message: message || code,
+  message: message ?? errorMessageOf(code),
   details,
   authDomain: code.startsWith('AUTH_'),
 });
@@ -131,10 +132,10 @@ const ref404 = (refType: string, refId: string | number, extra: Record<string, u
 const fromLedgerError = (e: unknown): VerbErr => {
   const mapped = ledgerErrorFromDbError(e, 'market');
   if (mapped) {
-    return fail(mapped.httpStatus, mapped.code, (mapped.details ?? {}) as Record<string, unknown>, mapped.code);
+    return fail(mapped.httpStatus, mapped.code, (mapped.details ?? {}) as Record<string, unknown>);
   }
   const norm = normalizeLedgerError(e);
-  return fail(norm.httpStatus, norm.code, (norm.details ?? {}) as Record<string, unknown>, norm.code);
+  return fail(norm.httpStatus, norm.code, (norm.details ?? {}) as Record<string, unknown>);
 };
 
 // ---- 幂等键（§4.5：前缀只允许 biz:/cm:/cli:/ops:；禁 `#` 与控制字符；校验序固定，与 DB 同序同码）----
@@ -344,7 +345,7 @@ const cancelOne = async (actorUid: number, orderIdText: string): Promise<VerbRes
       ref_type: 'market_order',
       ref_id: orderIdText,
       required_uid: String(order.ownerUid),
-    }, 'ACTOR_NOT_ALLOWED');
+    });
   }
 
   const payload = {
@@ -491,7 +492,7 @@ export const matchMarketOrders = async (params: {
         ref_type: 'market_order',
         ref_id: takerIdText,
         required_uid: String(taker.ownerUid),
-      }, 'ACTOR_NOT_ALLOWED');
+      });
     }
   }
 

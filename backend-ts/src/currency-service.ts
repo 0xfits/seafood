@@ -28,6 +28,7 @@
 import { createHash } from 'crypto';
 import { DatabaseService, parseListingDepositPolicyAmount } from './database';
 import { ledgerErrorFromDbError, normalizeIdempotencyKey, normalizeLedgerError } from './ledger';
+import { errorMessageOf } from './ledger-errors';
 import { ledgerErrorBody, sendVerbError, type JobVerbErr as VerbErr, type JobVerbResult as VerbResult } from './job-service';
 
 export { ledgerErrorBody, sendVerbError };
@@ -45,7 +46,7 @@ const fail = (
   ok: false,
   status,
   code,
-  message: message || code,
+  message: message ?? errorMessageOf(code),
   details,
   authDomain: code.startsWith('AUTH_'),
 });
@@ -70,11 +71,10 @@ const fromLedgerError = (e: unknown, key: string): VerbErr => {
       mapped.httpStatus,
       mapped.code,
       (mapped.details ?? {}) as Record<string, unknown>,
-      mapped.code,
     );
   }
   const norm = normalizeLedgerError(e);
-  return fail(norm.httpStatus, norm.code, (norm.details ?? {}) as Record<string, unknown>, norm.code);
+  return fail(norm.httpStatus, norm.code, (norm.details ?? {}) as Record<string, unknown>);
 };
 
 // ---- 幂等键（§4.5：前缀只允许 biz:/cm:/cli:/ops:；禁 `#` 与控制字符；顺序固定）----
@@ -261,7 +261,7 @@ export const createCurrencyVerb = async (params: {
     if (!/^\d+$/.test(ownerText)) return shapeError('currency.owner_uid', 'NOT_AN_INTEGER');
     ownerUid = Number(ownerText);
     if (ownerUid !== actorUid) {
-      return fail(403, 'AUTH_FORBIDDEN', { reason: 'ACTOR_NOT_ALLOWED', field: 'currency.owner_uid' }, 'ACTOR_NOT_ALLOWED');
+      return fail(403, 'AUTH_FORBIDDEN', { reason: 'ACTOR_NOT_ALLOWED', field: 'currency.owner_uid' });
     }
   }
 
@@ -444,7 +444,7 @@ export const listCurrencyVerb = async (params: {
       //   ⇒ 本片取 §3.2/§6.2 的 `AUTH_FORBIDDEN`；登记为报告 §2 的 T4 待裁项）
       return fail(403, 'AUTH_FORBIDDEN', {
         reason: 'ACTOR_NOT_ALLOWED', ref_type: 'currency', ref_id: String(cid), condition: 'not_currency_owner',
-      }, 'ACTOR_NOT_ALLOWED');
+      });
     }
     if (keyFp !== null) {
       return fail(409, 'LEDGER_IDEMPOTENCY_CONFLICT', {

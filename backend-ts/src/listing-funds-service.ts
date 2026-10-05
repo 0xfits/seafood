@@ -32,6 +32,7 @@
 import { createHash } from 'crypto';
 import { DatabaseService } from './database';
 import { ledgerErrorFromDbError, normalizeLedgerError } from './ledger';
+import { errorMessageOf } from './ledger-errors';
 import { ledgerErrorBody, sendVerbError, type JobVerbErr as VerbErr, type JobVerbResult as VerbResult } from './job-service';
 
 export { ledgerErrorBody, sendVerbError };
@@ -140,7 +141,7 @@ const actorDenied = (reason: 'ACTOR_NOT_ALLOWED' | 'PERMISSION_NOT_GRANTED', act
     required_uid: String(sellerUid),
     ...(reason === 'ACTOR_NOT_ALLOWED' ? { seller_uid: String(sellerUid) } : {}),
     actor_uid: String(actorUid),
-  }, reason);
+  });
 
 // ---- 错误构造（§3.2 逐码 + §3.3-1 R107 形状；与 job-funds-service 同族）-------
 const fail = (
@@ -152,7 +153,7 @@ const fail = (
   ok: false,
   status,
   code,
-  message: message || code,
+  message: message ?? errorMessageOf(code),
   details,
   authDomain: code.startsWith('AUTH_'),
 });
@@ -169,10 +170,10 @@ const ref404 = (refType: string, refId: string | number, extra: Record<string, u
 const fromLedgerError = (e: unknown): VerbErr => {
   const mapped = ledgerErrorFromDbError(e, 'listing');
   if (mapped) {
-    return fail(mapped.httpStatus, mapped.code, (mapped.details ?? {}) as Record<string, unknown>, mapped.code);
+    return fail(mapped.httpStatus, mapped.code, (mapped.details ?? {}) as Record<string, unknown>);
   }
   const norm = normalizeLedgerError(e);
-  return fail(norm.httpStatus, norm.code, (norm.details ?? {}) as Record<string, unknown>, norm.code);
+  return fail(norm.httpStatus, norm.code, (norm.details ?? {}) as Record<string, unknown>);
 };
 
 // ---- 幂等键（§4.5：前缀只允许 biz:/cm:/cli:/ops:；禁 `#` 与控制字符；校验序固定，与 DB 同序同码）----
@@ -405,7 +406,7 @@ export const refundListingOrder = async (params: {
       ref_type: 'listing_order',
       ref_id: orderIdText,
       status_code: 409,
-    }, 'LEDGER_CURRENCY_INVALID_TRANSITION');
+    });
   }
 
   // ⑤ 成功面：对外视图取自**嵌套的资金回执**（F10 的 23 键 + `actor_uid`/`seller_uid`；§12.12.5③

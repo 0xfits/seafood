@@ -20,6 +20,7 @@
 // ============================================================================
 import { createHash } from 'crypto';
 import { DatabaseService } from './database';
+import { errorMessageOf } from './ledger-errors';
 import {
   ledgerErrorBody,
   sendGone,
@@ -41,7 +42,7 @@ const fail = (
   ok: false,
   status,
   code,
-  message: message || code,
+  message: message ?? errorMessageOf(code),
   details,
   authDomain: code.startsWith('AUTH_'),
 });
@@ -270,7 +271,7 @@ export const updateListing = async (params: {
   switch (write.outcome) {
     case 'not_owner':
       // §6.2 附表：已参与但无该动作权限 ⇒ 403 + reason=ACTOR_NOT_ALLOWED（C6：不得借 LEDGER_HOLD_NOT_ALLOWED）
-      return fail(403, 'AUTH_FORBIDDEN', { reason: 'ACTOR_NOT_ALLOWED', ref_type: 'listing', ref_id: String(listingId.value) }, 'ACTOR_NOT_ALLOWED');
+      return fail(403, 'AUTH_FORBIDDEN', { reason: 'ACTOR_NOT_ALLOWED', ref_type: 'listing', ref_id: String(listingId.value) });
     case 'stock_requires_listed':
       return stateConflict('listing.stock', 'listing_stock_change_requires_listed', { listing_id: String(listingId.value), status: write.row.status });
     case 'delisted_terminal':
@@ -299,7 +300,7 @@ export const transitionListingStatus = async (params: {
   if (!write.row) return gone404('listing', listingId.value);
   switch (write.outcome) {
     case 'not_owner':
-      return fail(403, 'AUTH_FORBIDDEN', { reason: 'ACTOR_NOT_ALLOWED', ref_type: 'listing', ref_id: String(listingId.value) }, 'ACTOR_NOT_ALLOWED');
+      return fail(403, 'AUTH_FORBIDDEN', { reason: 'ACTOR_NOT_ALLOWED', ref_type: 'listing', ref_id: String(listingId.value) });
     case 'invalid_transition':
       // 白名单唯一真源 = `public.listing_status_transition_ok`（migrations/0015_listing.sql:83-95）
       return stateConflict('listing.status', 'LISTING_STATE_INVALID', { from: write.row.status, to: toStatus, listing_id: String(listingId.value) });

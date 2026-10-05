@@ -28,7 +28,7 @@ import {
 } from './database';
 import { healthCheck } from './db';
 // P4-SEC（缺陷 B）：基础设施异常走**既有** §14 分类器与 R107 错误体（不新增错误码）
-import { ledgerErrorDiagnostics, normalizeLedgerError, toErrorResponse } from './ledger-errors';
+import { errorMessageOf, ledgerErrorDiagnostics, normalizeLedgerError, toErrorResponse } from './ledger-errors';
 // P7-A：账本流水读口的 `kind` 过滤取值 = **冻结关闭集**（`ledger.spec` §5.1/R40，20 个；不复制/不自造）
 import { LEDGER_KINDS } from './ledger';
 // ★ S3（`R-9-103`）：J2/J3（报名 `/apply`、选定 `/accept`）路由已**下架**（`410 Gone`）⇒ 不再导入
@@ -295,7 +295,9 @@ const sendAuthError = (res: Response, statusCode: 401 | 403, reason?: string) =>
   if (reason && (AUTH_REASONS as readonly string[]).includes(reason)) {
     details.reason = reason;
   }
-  return res.status(statusCode).json(ledgerErrorBody(code, code, details, 'auth'));
+  // ★ S31（台账 B5 上半）：`message` = **查表派生的稳定英文句**（`errorMessageOf`），**不再**把域码当文案
+  //   （§3.3 条款 9′；`code` 仍是 `AUTH_UNAUTHORIZED` / `AUTH_FORBIDDEN`，`i18n_key` = `auth.err.<CODE>` 不变）。
+  return res.status(statusCode).json(ledgerErrorBody(code, errorMessageOf(code), details, 'auth'));
 };
 
 const requireActor = async (req: Request, res: Response): Promise<ActorContext | null> => {

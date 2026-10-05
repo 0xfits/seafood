@@ -12,12 +12,15 @@
  *       禁止放 SQL、约束名、堆栈、表名、连接串。
  *
  * i18n key 命名：`ledger.err.<CODE>`（D4：本期只 zh，保留 i18n 框架，key 先建好）
+ * ★ S31（台账 B5 上半 · R107 / §3.3 条款 9′）：`message` = **人类可读的稳定英文句**（**严禁机读码**）。
+ *   「码 ⇒ 英文句」的**唯一派生出口** = 本文件的 `errorMessageOf`：`LEDGER_*`（33 码关闭集）走本表 `message`，
+ *   `AUTH_*`（**不进**关闭集）走 `AUTH_ERROR_MESSAGES`（同一契约、同一出口，**不新造第二套映射**）。
  */
 
 export interface LedgerErrorMeta {
   /** HTTP 状态码；null = 非 HTTP 错误（脚本退出码语义，见 §11 R88） */
   readonly status: number | null;
-  /** zh 文案（D4：本期唯一语种） */
+  /** 人类可读稳定英文句（R107 · §3.3 条款 9′；供日志 / 调试 / 非本地化客户端；**严禁机读码**） */
   readonly message: string;
 }
 
@@ -27,46 +30,46 @@ export interface LedgerErrorMeta {
  */
 export const LEDGER_ERROR_TABLE = {
   // --- §14 #1..#6 余额 / 幂等
-  LEDGER_INSUFFICIENT_BALANCE: { status: 409, message: '可用余额不足' },
-  LEDGER_INSUFFICIENT_FROZEN: { status: 409, message: '冻结余额不足' },
-  LEDGER_IDEMPOTENCY_REPLAY: { status: 200, message: '' },
-  LEDGER_IDEMPOTENCY_CONFLICT: { status: 409, message: '该请求与先前的请求内容不一致' },
-  LEDGER_IDEMPOTENCY_KEY_REQUIRED: { status: 400, message: '请求缺少幂等标识' },
-  LEDGER_IDEMPOTENCY_KEY_INVALID: { status: 400, message: '请求标识格式不合法' },
+  LEDGER_INSUFFICIENT_BALANCE: { status: 409, message: 'Available balance is insufficient' },
+  LEDGER_INSUFFICIENT_FROZEN: { status: 409, message: 'Frozen balance is insufficient' },
+  LEDGER_IDEMPOTENCY_REPLAY: { status: 200, message: 'Request was replayed idempotently' },
+  LEDGER_IDEMPOTENCY_CONFLICT: { status: 409, message: 'Request conflicts with a previous request under the same idempotency key' },
+  LEDGER_IDEMPOTENCY_KEY_REQUIRED: { status: 400, message: 'An idempotency key is required' },
+  LEDGER_IDEMPOTENCY_KEY_INVALID: { status: 400, message: 'The idempotency key format is invalid' },
   // --- §14 #7..#13 币种
-  LEDGER_CURRENCY_NOT_FOUND: { status: 404, message: '该单位不存在' },
-  LEDGER_CURRENCY_NOT_LISTED: { status: 409, message: '该单位尚未上市，暂不可交易' },
-  LEDGER_CURRENCY_FROZEN: { status: 423, message: '该单位已暂停交易' },
-  LEDGER_CURRENCY_DELISTED: { status: 409, message: '该单位已下架' },
-  LEDGER_CURRENCY_INVALID_TRANSITION: { status: 409, message: '状态不允许此变更' },
-  LEDGER_CURRENCY_SYMBOL_TAKEN: { status: 409, message: '该符号已被占用' },
-  LEDGER_CURRENCY_MISMATCH: { status: 400, message: '币种不一致' },
+  LEDGER_CURRENCY_NOT_FOUND: { status: 404, message: 'The requested currency does not exist' },
+  LEDGER_CURRENCY_NOT_LISTED: { status: 409, message: 'The currency is not listed and cannot be traded yet' },
+  LEDGER_CURRENCY_FROZEN: { status: 423, message: 'The currency is suspended from trading' },
+  LEDGER_CURRENCY_DELISTED: { status: 409, message: 'The currency has been delisted' },
+  LEDGER_CURRENCY_INVALID_TRANSITION: { status: 409, message: 'The current state does not allow this transition' },
+  LEDGER_CURRENCY_SYMBOL_TAKEN: { status: 409, message: 'The currency symbol is already taken' },
+  LEDGER_CURRENCY_MISMATCH: { status: 400, message: 'The currencies do not match' },
   // --- §14 #14..#16 铸造 / 冻结授权
-  LEDGER_SUPPLY_CAP_EXCEEDED: { status: 409, message: '已达该单位发行上限' },
-  LEDGER_UNAUTHORIZED_MINT: { status: 403, message: '你没有发行该单位的权限' },
-  LEDGER_HOLD_NOT_ALLOWED: { status: 403, message: '不支持手动冻结' },
+  LEDGER_SUPPLY_CAP_EXCEEDED: { status: 409, message: 'The currency supply cap has been reached' },
+  LEDGER_UNAUTHORIZED_MINT: { status: 403, message: 'You are not allowed to mint this currency' },
+  LEDGER_HOLD_NOT_ALLOWED: { status: 403, message: 'Manual holds are not allowed' },
   // --- §14 #17..#20 金额
-  LEDGER_AMOUNT_INVALID: { status: 400, message: '金额格式不正确' },
-  LEDGER_AMOUNT_NOT_POSITIVE: { status: 400, message: '金额必须大于 0' },
-  LEDGER_DECIMALS_OVERFLOW: { status: 400, message: '该单位支持的小数位数不足' },
-  LEDGER_SELF_TRANSFER: { status: 400, message: '不能转给自己' },
+  LEDGER_AMOUNT_INVALID: { status: 400, message: 'The amount format is invalid' },
+  LEDGER_AMOUNT_NOT_POSITIVE: { status: 400, message: 'The amount must be greater than zero' },
+  LEDGER_DECIMALS_OVERFLOW: { status: 400, message: 'The currency does not support this many decimal places' },
+  LEDGER_SELF_TRANSFER: { status: 400, message: 'You cannot transfer to yourself' },
   // --- §14 #21..#24 目标对象
-  LEDGER_ACCOUNT_NOT_FOUND: { status: 404, message: '账户不存在' },
-  LEDGER_RESERVED_UID: { status: 400, message: '目标账户无效' },
-  LEDGER_REF_NOT_FOUND: { status: 404, message: '关联单据不存在' },
-  LEDGER_UNKNOWN_KIND: { status: 400, message: '不支持的账务类型' },
+  LEDGER_ACCOUNT_NOT_FOUND: { status: 404, message: 'The account does not exist' },
+  LEDGER_RESERVED_UID: { status: 400, message: 'The target account is invalid' },
+  LEDGER_REF_NOT_FOUND: { status: 404, message: 'The referenced object does not exist' },
+  LEDGER_UNKNOWN_KIND: { status: 400, message: 'The ledger entry kind is not supported' },
   // --- §14 #25..#28 事务
-  LEDGER_TRANSACTION_REQUIRED: { status: 500, message: '服务暂不可用，请稍后重试' },
-  LEDGER_LOCK_TIMEOUT: { status: 503, message: '系统繁忙，请稍后重试' },
-  LEDGER_TX_TIMEOUT: { status: 503, message: '系统繁忙，请稍后重试' },
-  LEDGER_DEADLOCK_RETRY_EXHAUSTED: { status: 503, message: '系统繁忙，请稍后重试' },
+  LEDGER_TRANSACTION_REQUIRED: { status: 500, message: 'The service is temporarily unavailable, please try again later' },
+  LEDGER_LOCK_TIMEOUT: { status: 503, message: 'The system is busy, please try again later' },
+  LEDGER_TX_TIMEOUT: { status: 503, message: 'The system is busy, please try again later' },
+  LEDGER_DEADLOCK_RETRY_EXHAUSTED: { status: 503, message: 'The system is busy, please try again later' },
   // --- §14 #29..#32 DB 兜底 = 实现缺陷告警（R108）
-  LEDGER_NEGATIVE_BALANCE_GUARD: { status: 500, message: '服务异常，请联系客服' },
-  LEDGER_APPEND_ONLY_VIOLATION: { status: 500, message: '服务异常，请联系客服' },
-  LEDGER_ACCOUNT_GUARD_VIOLATION: { status: 500, message: '服务异常，请联系客服' },
-  LEDGER_FEE_RATE_INVALID: { status: 500, message: '服务配置异常' },
+  LEDGER_NEGATIVE_BALANCE_GUARD: { status: 500, message: 'The service encountered an error, please contact support' },
+  LEDGER_APPEND_ONLY_VIOLATION: { status: 500, message: 'The service encountered an error, please contact support' },
+  LEDGER_ACCOUNT_GUARD_VIOLATION: { status: 500, message: 'The service encountered an error, please contact support' },
+  LEDGER_FEE_RATE_INVALID: { status: 500, message: 'The service configuration is invalid' },
   // --- §14 #33 对账（脚本退出码语义，不映射 HTTP）
-  LEDGER_RECONCILE_MISMATCH: { status: null, message: '' },
+  LEDGER_RECONCILE_MISMATCH: { status: null, message: 'Ledger reconciliation mismatch detected' },
 } as const satisfies Record<string, LedgerErrorMeta>;
 
 export type LedgerErrorCode = keyof typeof LEDGER_ERROR_TABLE;
@@ -75,6 +78,38 @@ export const LEDGER_ERROR_CODES = Object.keys(LEDGER_ERROR_TABLE) as LedgerError
 
 export const isLedgerErrorCode = (v: unknown): v is LedgerErrorCode =>
   typeof v === 'string' && Object.prototype.hasOwnProperty.call(LEDGER_ERROR_TABLE, v);
+
+/**
+ * ★ S31（台账 B5 上半 · R107 / §3.3 条款 9′）：**AUTH_* 码域**的稳定英文句。
+ * ============================================================================
+ * `AUTH_*` **不进** §14.1 的 33 码关闭集（i18n 域 = `auth.err.*`，见 `index.ts` 的 `sendAuthError`），
+ * 故**不**并入 `LEDGER_ERROR_TABLE`（并入 = 改关闭集 = 改已冻结的码面）。本表与 `LEDGER_ERROR_TABLE`
+ * **同一 `message` 契约**（人类可读稳定英文句 · 严禁机读码），并共用**同一派生出口** `errorMessageOf`
+ * ⇒ **不新造第二套「码 ⇒ 句」映射**（纪律：单一真源）。
+ */
+export const AUTH_ERROR_MESSAGES = {
+  AUTH_UNAUTHORIZED: 'Authentication is required',
+  AUTH_FORBIDDEN: 'You do not have permission to perform this action',
+} as const;
+
+export type AuthErrorCode = keyof typeof AUTH_ERROR_MESSAGES;
+
+/** `AUTH_*` 码判别（`AUTH_*` 走 `auth.err.*` i18n 域，不进 33 码关闭集） */
+export const isAuthErrorCode = (v: unknown): v is AuthErrorCode =>
+  typeof v === 'string' && Object.prototype.hasOwnProperty.call(AUTH_ERROR_MESSAGES, v);
+
+/**
+ * ★ S31 **单一真源**：任何对外错误码 ⇒ **人类可读稳定英文句**（R107 `message` 的唯一派生出口）。
+ *   · `LEDGER_*`（33 码关闭集）⇒ `LEDGER_ERROR_TABLE[code].message`；
+ *   · `AUTH_*`（不进关闭集）⇒ `AUTH_ERROR_MESSAGES[code]`；
+ *   · 未登记码 ⇒ **通用英文兜底**（**绝不**回退成码本身 —— §3.3 条款 9′：`message` 严禁机读码）。
+ * 落点：`fail` / `adminVerbError` 的第 4 参缺省、`sendAuthError` 的 `message`、`fromLedgerError` 的兜底支。
+ */
+export const errorMessageOf = (code: string): string => {
+  if (isLedgerErrorCode(code)) return LEDGER_ERROR_TABLE[code].message;
+  if (isAuthErrorCode(code)) return AUTH_ERROR_MESSAGES[code];
+  return 'Request failed';
+};
 
 /** 500 类错误 = 只可能是代码缺陷（R108 必须告警） */
 export const DEFECT_ERROR_CODES: LedgerErrorCode[] = [

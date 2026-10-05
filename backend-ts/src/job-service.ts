@@ -16,6 +16,7 @@
 import type { Response } from 'express';
 import { createHash } from 'crypto';
 import { DatabaseService, type SqlRunner } from './database';
+import { errorMessageOf } from './ledger-errors';
 
 // ---- R107 错误体（§3.3-1：{error:{code,message,i18n_key,details}}）-----------
 export const ledgerErrorBody = (
@@ -67,7 +68,9 @@ const fail = (
   ok: false,
   status,
   code,
-  message: message || code,
+  // ★ S31（台账 B5 上半）：第 4 参缺省 ⇒ **查表派生的稳定英文句**（`errorMessageOf`），**不再回退 `code`**
+  //   （§3.3 条款 9′：`message` 严禁机读码）。显式传英文句的调用点行为不变。
+  message: message ?? errorMessageOf(code),
   details,
   authDomain: code.startsWith('AUTH_'),
 });
@@ -201,7 +204,7 @@ export const applyToJob = async (params: {
       return stateConflict('job.employer_uid', 'self_application_not_allowed', { job_id: String(params.jobId) });
     case 'already_applied':
       // §3.3-4：业务级唯一键必须在应用层先判 ⇒ 409（不得让裸 23505 落 400）
-      return fail(409, 'LEDGER_IDEMPOTENCY_CONFLICT', { reason: 'application_already_exists', ref_type: 'job_application', ref_id: String(write.applicationId ?? ''), job_id: String(params.jobId) }, 'application_already_exists');
+      return fail(409, 'LEDGER_IDEMPOTENCY_CONFLICT', { reason: 'application_already_exists', ref_type: 'job_application', ref_id: String(write.applicationId ?? ''), job_id: String(params.jobId) });
     case 'batt_below_threshold':
       // ★ P9② 双闸落点 A（`R-9-18`）：电量 < 阈值 ⇒ 409（**借既有「非法状态转移」族码** · 零新增码；
       //   `reason` 稳定常量；`details` 不含表名 / SQL / 约束名 —— R107）。
@@ -233,7 +236,7 @@ export const acceptApplication = async (params: {
 
   switch (write.outcome) {
     case 'not_employer':
-      return fail(403, 'AUTH_FORBIDDEN', { reason: 'ACTOR_NOT_ALLOWED', ref_type: 'job_application', ref_id: String(params.applicationId) }, 'ACTOR_NOT_ALLOWED');
+      return fail(403, 'AUTH_FORBIDDEN', { reason: 'ACTOR_NOT_ALLOWED', ref_type: 'job_application', ref_id: String(params.applicationId) });
     case 'already_accepted':
       return stateConflict('job_application.status', 'application_already_accepted', { from: write.applicationStatus, to: 'accepted', application_id: String(params.applicationId) });
     case 'app_state_invalid':

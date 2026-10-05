@@ -28,6 +28,7 @@
 import { createHash } from 'crypto';
 import { DatabaseService } from './database';
 import { ledgerErrorFromDbError, normalizeLedgerError } from './ledger';
+import { errorMessageOf } from './ledger-errors';
 import type { TxClient } from './db';
 import { ledgerErrorBody, sendVerbError, type JobVerbErr as VerbErr, type JobVerbResult as VerbResult } from './job-service';
 
@@ -44,7 +45,7 @@ const fail = (
   ok: false,
   status,
   code,
-  message: message || code,
+  message: message ?? errorMessageOf(code),
   details,
   authDomain: code.startsWith('AUTH_'),
 });
@@ -65,10 +66,11 @@ const stateConflict = (field: string, reason: string, extra: Record<string, unkn
 const fromLedgerError = (e: unknown): VerbErr => {
   const mapped = ledgerErrorFromDbError(e, 'job');
   if (mapped) {
-    return fail(mapped.httpStatus, mapped.code, (mapped.details ?? {}) as Record<string, unknown>, mapped.code);
+    // ★ S31：`message` 由 `fail` 从码查表派生（**不再**传 `mapped.code` 当文案）
+    return fail(mapped.httpStatus, mapped.code, (mapped.details ?? {}) as Record<string, unknown>);
   }
   const norm = normalizeLedgerError(e);
-  return fail(norm.httpStatus, norm.code, (norm.details ?? {}) as Record<string, unknown>, norm.code);
+  return fail(norm.httpStatus, norm.code, (norm.details ?? {}) as Record<string, unknown>);
 };
 
 // ---- 幂等键（§4.5：前缀只允许 biz:/cm:/cli:/ops:；禁 `#` 与控制字符；校验序固定）----
@@ -165,7 +167,7 @@ export const publishJob = async (params: {
       return shapeError('job.employer_uid', 'NOT_AN_INTEGER');
     }
     if (Number(employerText) !== actor.uid) {
-      return fail(403, 'AUTH_FORBIDDEN', { reason: 'ACTOR_NOT_ALLOWED', field: 'job.employer_uid' }, 'ACTOR_NOT_ALLOWED');
+      return fail(403, 'AUTH_FORBIDDEN', { reason: 'ACTOR_NOT_ALLOWED', field: 'job.employer_uid' });
     }
     employerUid = Number(employerText);
   }

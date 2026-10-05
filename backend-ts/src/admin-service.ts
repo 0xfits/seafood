@@ -18,6 +18,7 @@
 //   · **不写任何 admin 种子**（DL72 表 = 0 行是预期；本模块只在端点被调用时按入参落行）。
 // ============================================================================
 import { DatabaseService } from './database';
+import { errorMessageOf } from './ledger-errors';
 import type { JobVerbErr, JobVerbResult } from './job-service';
 
 // ---- 错误构造（复用 job-service 的 JobVerbErr 形状；由 index.ts 用 sendVerbError 出口）---------
@@ -30,7 +31,7 @@ export const adminVerbError = (
   ok: false,
   status,
   code,
-  message: message || code,
+  message: message ?? errorMessageOf(code),
   details,
   authDomain: code.startsWith('AUTH_'),
 });

@@ -16,6 +16,7 @@ import { createHash } from 'crypto';
 import { DatabaseService } from './database';
 import { ledgerErrorBody, sendVerbError, type JobVerbErr as VerbErr, type JobVerbResult as VerbResult } from './job-service';
 import { ledgerErrorFromDbError, normalizeLedgerError } from './ledger';
+import { errorMessageOf } from './ledger-errors';
 
 export { ledgerErrorBody, sendVerbError };
 export type { VerbErr, VerbResult };
@@ -46,7 +47,7 @@ const fail = (
   ok: false,
   status,
   code,
-  message: message || code,
+  message: message ?? errorMessageOf(code),
   details,
   authDomain: code.startsWith('AUTH_'),
 });
@@ -68,9 +69,9 @@ const shapeError = (field: string, reason: string, extra: Record<string, unknown
 /** §3.3-4：账本抛出的命名错误 ⇒ 原码 / 原 status / 非敏感 details（禁裸 SQLSTATE）。 */
 const fromLedgerError = (e: unknown, key: string): VerbErr => {
   const mapped = ledgerErrorFromDbError(e, key);
-  if (mapped) return fail(mapped.httpStatus, mapped.code, (mapped.details ?? {}) as Record<string, unknown>, mapped.code);
+  if (mapped) return fail(mapped.httpStatus, mapped.code, (mapped.details ?? {}) as Record<string, unknown>);
   const norm = normalizeLedgerError(e);
-  return fail(norm.httpStatus, norm.code, (norm.details ?? {}) as Record<string, unknown>, norm.code);
+  return fail(norm.httpStatus, norm.code, (norm.details ?? {}) as Record<string, unknown>);
 };
 
 /** 请求指纹（DL96：business 字段集合的 sha256；具体拼接式 = 本单现取落此处）。 */
