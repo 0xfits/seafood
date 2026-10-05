@@ -654,7 +654,10 @@ const main = async (): Promise<void> => {
       ts_XX000_503: tsSide['XX000'],
       ts_08P01_500_not_infra: tsSide['08P01'],
       ts_57014_503: tsSide['57014'],
-      ledger_tx_timeout_meta: LEDGER_ERROR_TABLE.LEDGER_TX_TIMEOUT,
+      // ★ S32b（台账 B15）：原为整条 `LEDGER_ERROR_TABLE.LEDGER_TX_TIMEOUT`（含 message）—— 随 S31 的
+      //   message 契约改造（中文句 ⇒ 稳定英文句）漂移。message 文本与「503 基础设施语义」无关 ⇒ 只钉稳定量
+      //   `code` / `status`；message 出处 = `src/ledger-errors.ts#LEDGER_ERROR_TABLE.LEDGER_TX_TIMEOUT.message`（S31 英文句）。
+      ledger_tx_timeout_meta: { code: 'LEDGER_TX_TIMEOUT', status: LEDGER_ERROR_TABLE.LEDGER_TX_TIMEOUT.status },
       sqlstate_to_code: {
         LD025: LEDGER_SQLSTATE_TO_CODE.LD025, LD026: LEDGER_SQLSTATE_TO_CODE.LD026, LD027: LEDGER_SQLSTATE_TO_CODE.LD027,
       },

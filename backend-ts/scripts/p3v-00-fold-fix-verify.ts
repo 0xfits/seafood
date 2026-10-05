@@ -11,6 +11,11 @@
  *   mutated  = fixed 删掉 `if (isEventObjectFamily(e)) return 'driver_connection_error';`（判负）
  * 注意：本会话开始时 HEAD=0367935（baseline 在 HEAD）；中途有并行单元把修复 **提交** 为 ade3376，
  * 故 baseline 改取 `HEAD^`（88783a2），实测 sha 与交接件所载 baseline 逐字节一致。
+ *
+ * ★ S32b（台账 B15 · 下游漂移前推）：L4 的对拍量由「含 message 的整表指纹」改为「与 message 无关的稳定投影」
+ *   （键集 `codes` / 状态映射 `status` / 桶·defect·benign）—— 出处 = S31 的 `message` 契约改造
+ *   （`LEDGER_ERROR_TABLE` 33 条中文句 ⇒ 稳定英文句）；整表含 message 指纹保留为留痕对照。
+ *   `L6.expected_worktree_sha256` 由 9bc127e4… 前推到 7c48d8c3…（= S31 落点 `src/ledger-errors.ts` 现盘 sha256）。
  */
 import * as fs from 'fs';
 import * as path from 'path';
@@ -257,12 +262,29 @@ const r107_detail_leaks = L3.filter((r) => r.details_has_sensitive || r.details_
 const diagnostics_retrievable = L3.filter((r) => r.server_side_message_contains_sensitive === true).map((r) => r.id);
 
 // L4
-const tableFp = (M: Mod) => crypto.createHash('sha256').update(JSON.stringify({ table: M.LEDGER_ERROR_TABLE, buckets: M.LEDGER_ERROR_BUCKETS, codes: M.LEDGER_ERROR_CODES, defect: M.DEFECT_ERROR_CODES, benign: M.LEDGER_BENIGN_CODES })).digest('hex');
+// ★ S32b（台账 B15）：原 `tableFp` 把整张 `LEDGER_ERROR_TABLE`（**含 message 文本**）纳入指纹 ⇒ 随 S31
+//   「message 契约改造」（33 条中文句 ⇒ 稳定英文句）漂移，`tableFpSame` 由 true 变 false。
+//   但 message 文本是 S31 独立契约（§3.3 条款 9′），**不属本单元「非 PG 事件族分类修复」的对拍面**。
+//   ⇒ 本单元的对拍量改用「与 message 无关的稳定投影」：键集 `codes` + 状态映射 `status` + 桶/defect/benign。
+//      这才是「分类修复未动错误码表」的真判据（判决：非放宽 —— 判据面从「含 message 的整表」**收窄到本单元真正
+//      该不变的量**；message 文本的“不变”由 S31 自己的类级探针/判负负责，不归此处）。
+//   整表含 message 的指纹**保留留痕**（`tableFpMessageInclusive`），其差随 S31 变化 = 预期，仅作对照。
+const tableStable = (M: Mod) => ({
+  codes: [...((M.LEDGER_ERROR_CODES as string[]) ?? [])].sort(),
+  status: Object.fromEntries(Object.keys((M.LEDGER_ERROR_TABLE as Record<string, unknown>) ?? {}).sort()
+    .map((k) => [k, ((M.LEDGER_ERROR_TABLE as Record<string, { status: number | null }>)[k]?.status) ?? null])),
+  buckets: M.LEDGER_ERROR_BUCKETS, defect: M.DEFECT_ERROR_CODES, benign: M.LEDGER_BENIGN_CODES,
+});
+const tableFp = (M: Mod) => crypto.createHash('sha256').update(JSON.stringify(tableStable(M))).digest('hex');
+/** 留痕对照：含 message 文本的整表指纹（随 S31 message 契约变化；**不**作为本单元判据） */
+const tableFpMessageInclusive = (M: Mod) => crypto.createHash('sha256').update(JSON.stringify({ table: M.LEDGER_ERROR_TABLE, buckets: M.LEDGER_ERROR_BUCKETS, codes: M.LEDGER_ERROR_CODES, defect: M.DEFECT_ERROR_CODES, benign: M.LEDGER_BENIGN_CODES })).digest('hex');
 const L4 = {
   closed_set_size_baseline: impls.baseline.mod ? Object.keys((impls.baseline.mod as Mod).LEDGER_ERROR_TABLE).length : 'NOT_MEASURED',
   closed_set_size_fixed: impls.fixed.mod ? Object.keys((impls.fixed.mod as Mod).LEDGER_ERROR_TABLE).length : 'NOT_MEASURED',
   table_fingerprint_baseline: impls.baseline.mod ? tableFp(impls.baseline.mod as Mod) : 'NOT_MEASURED',
   table_fingerprint_fixed: impls.fixed.mod ? tableFp(impls.fixed.mod as Mod) : 'NOT_MEASURED',
+  table_fingerprint_message_inclusive_baseline: impls.baseline.mod ? tableFpMessageInclusive(impls.baseline.mod as Mod) : 'NOT_MEASURED',
+  table_fingerprint_message_inclusive_fixed: impls.fixed.mod ? tableFpMessageInclusive(impls.fixed.mod as Mod) : 'NOT_MEASURED',
   status_diffs_baseline_vs_fixed: caseRows.filter((r) => r.per_impl.baseline.status !== r.per_impl.fixed.status || r.per_impl.baseline.code !== r.per_impl.fixed.code)
     .map((r) => ({ id: r.id, group: r.group, desc: r.desc, baseline: `${r.per_impl.baseline.code}/${r.per_impl.baseline.status}/${r.per_impl.baseline.classify}`, fixed: `${r.per_impl.fixed.code}/${r.per_impl.fixed.status}/${r.per_impl.fixed.classify}`, intended_event_family: r.expected_event_family === true })),
 };
@@ -289,7 +311,7 @@ const L5_status_change_500_to_503 = L5.filter((r) => r.became_503_from_500).map(
 const L6 = {
   impl_sha256: Object.fromEntries(LABELS.map((k) => [k, impls[k].sha256])),
   impl_load_error: Object.fromEntries(LABELS.map((k) => [k, impls[k].error])),
-  expected_worktree_sha256: '9bc127e4942cb219fc7eeb3cb17997e724d90433b030619f207341bd35ed983d',
+  expected_worktree_sha256: '7c48d8c3a656eb407ed2005691dcafac1d3cb436ddfabcbd68d3b5770174a62a', // ★S32b 前推：9bc127e4…（P3V 落点）→ 7c48d8c3…（= S31 落点；陈旧锚非本单验收门，仅前推到现盘）
   expected_baseline_sha256: '721156cbf296b19c7c4a480264f88b49878d99104b8f87453bafce564745df8b',
   RED_set_fixed: red('fixed'), RED_set_baseline: red('baseline'), RED_set_mutated: red('mutated'),
   verdicts: { fixed_green: red('fixed').length === 0, baseline_red: red('baseline').length > 0, mutated_red: red('mutated').length > 0 },
@@ -321,7 +343,7 @@ p(`L1 counterexamples: ${JSON.stringify(caseRows.filter((r) => r.group === 'L1_c
 p(`L2 control_mismatches=${JSON.stringify(control_mismatches)} (n=${L2.length})`);
 p(`L3 r107_detail_leaks=${JSON.stringify(r107_detail_leaks)} diagnostics_retrievable=${JSON.stringify(diagnostics_retrievable)}`);
 for (const r of L3) p(`   L3 ${r.id} details=${r.details_json} server_msg_has_secret=${r.server_side_message_contains_sensitive} diag=${JSON.stringify(r.server_side_diagnostics)}`);
-p(`L4 closed_set baseline=${L4.closed_set_size_baseline} fixed=${L4.closed_set_size_fixed} tableFpSame=${L4.table_fingerprint_baseline === L4.table_fingerprint_fixed}`);
+p(`L4 closed_set baseline=${L4.closed_set_size_baseline} fixed=${L4.closed_set_size_fixed} tableFpSame=${L4.table_fingerprint_baseline === L4.table_fingerprint_fixed} (stable 投影；message-inclusive same=${L4.table_fingerprint_message_inclusive_baseline === L4.table_fingerprint_message_inclusive_fixed})`);
 p(`L4 status_diffs=${JSON.stringify(L4.status_diffs_baseline_vs_fixed)}`);
 p(`L5 captured_as_event_family=${JSON.stringify(L5_false_positives)}`);
 p(`L5 not_captured=${JSON.stringify(L5_not_captured)}`);

@@ -133,12 +133,16 @@ const main = async (): Promise<void> => {
   out.ts_cases = ts;
 
   // ---------------------------------------------------------------- 错误码表（status 逐字）
+  // ★ S32b（台账 B15）：原为 4 条**整对象**（含 message）—— 随 S31 的 message 契约改造（中文句 ⇒ 稳定英文句）漂移。
+  //   message 文本与「cid 形状闸」无关 ⇒ 只钉稳定量 `status`（本段原注释即「status 逐字」）。
+  //   message 出处 = `src/ledger-errors.ts#LEDGER_ERROR_TABLE[<CODE>].message`（S31 英文句），不在此对拍面。
   out.error_table = {
-    LEDGER_AMOUNT_INVALID: LEDGER_ERROR_TABLE.LEDGER_AMOUNT_INVALID,
-    LEDGER_AMOUNT_NOT_POSITIVE: LEDGER_ERROR_TABLE.LEDGER_AMOUNT_NOT_POSITIVE,
-    LEDGER_CURRENCY_NOT_FOUND: LEDGER_ERROR_TABLE.LEDGER_CURRENCY_NOT_FOUND,
-    LEDGER_RESERVED_UID: LEDGER_ERROR_TABLE.LEDGER_RESERVED_UID,
+    LEDGER_AMOUNT_INVALID: { status: LEDGER_ERROR_TABLE.LEDGER_AMOUNT_INVALID.status },
+    LEDGER_AMOUNT_NOT_POSITIVE: { status: LEDGER_ERROR_TABLE.LEDGER_AMOUNT_NOT_POSITIVE.status },
+    LEDGER_CURRENCY_NOT_FOUND: { status: LEDGER_ERROR_TABLE.LEDGER_CURRENCY_NOT_FOUND.status },
+    LEDGER_RESERVED_UID: { status: LEDGER_ERROR_TABLE.LEDGER_RESERVED_UID.status },
   };
+  out.error_table_note = 'status 为与 cid 形状闸相关的稳定量；message 文本属 S31 契约（src/ledger-errors.ts#LEDGER_ERROR_TABLE），不在本对拍面';
 
   // ---------------------------------------------------------------- DB 侧（分类器逐字对照）
   const db: Record<string, CaseOut> = {};
