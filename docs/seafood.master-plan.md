@@ -1416,6 +1416,16 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.350 **S31 + S31b ✅（B5 上半落地并上线）· ★我核盘（亲跑探针 + 指纹 + 12 门）· ★★生产 A/B 拿到决定性证据 · 派 S32（偏离 D 码映射）∥ S32b（探针漂移）**（2026-10-05）
+
+**A. S31b（26c/552s）判 PASS**：判负①②红绿四读数齐；**12 门 + `p7b-03` 前后逐门相同**（8 个红点全为 `fetch failed`/`-1` = 环境性 http 腿，**真回归 = 0**）；前端 `vitest` 失败集=基线、`build` 0、四脚本 PASS；`ledger-errors.ts` **逐字节复原为 `7c48d8c3…`（`cmp` IDENTICAL）**；A 类调用点枚举 = 定义面回退位 **9** 处 / **实际省略第 4 参 15 处**（逐处 `文件:行`）/ 显式 118 处。
+**B. ★ 我核盘（亲跑）**：① `ledger-errors.ts` sha256 = **`7c48d8c3…`** ② 类级探针 **`verdict PASS` / `fails=[]`**（`machine_code_message_hits=0` / `table_cjk_hits=0` / `closed_set_size=33` / `i18n_key_covered=33/33` / `status_drifts=0` / `codes_with_english_message=35` / 未登记码兜底 `'Request failed'`）③ `tsc` **0** ④ 含 CJK 的 `message` = **0**、表条目 = **33**、`AUTH_UNAUTHORIZED: 'Authentication is required'` / `AUTH_FORBIDDEN: 'You do not have permission to perform this action'` 亲读在场 ⑤ 报告 **414 行 / §0–§7 + 附 A/B / 占位 0**。
+**C. ★★ 生产 A/B（决定性证据，我亲取）**：push 前线上 401 体 = `{"error":{"code":"AUTH_UNAUTHORIZED","message":"AUTH_UNAUTHORIZED",…}}`（**机读码当 message**）⇒ 部署后 = **`message:"Authentication is required"`**（`/api/user/ledger` 与 `/api/admin/currency` 两处同）✓ —— 契约改造**在线上可观测**（不只是源码级）。
+**D. 派单（两单并行 · 面不相交）**：**S32**（Kong · 后端 `index.ts`）= **偏离 D**：先把 **26 处实调用**的**码映射可行性表**逐处交回（`文件:行`/路由/status/现 message/**可借码 + 先例出处**/结论）；**无码可借 ⇒ 保留 `sendError` + 登记，严禁新增码/改闭集**；预算允许再迁移「可借码」那批（逐处前后 JSON 逐字对照 + 前端消费面核查 + 类级断言 + 判负 + 全量门）。∥ **S32b**（Kong · `scripts/**`）= **B15 探针漂移**：现取复核 `p3v-00`/`p1f-03`/`p1n-00`（受影响）与 `p2qa-10`（不受影响）⇒ 前推/改锚（优先改成与本次无关的更稳量）或登记；穷举全仓同类引用逐支判定；附判负与真跑读数。
+**E. 状态**：DB **`42 行 / max 0043`** · 生产 **`86e3a33`** · 端口全空 · 工作树干净。
+
+---
+
 ### 5.349 **★★ S31 截断且把仓库留在「未复原的判负态」⇒ 我第一件事归位工作区（已复原+已验）· ★我认账三处派单前提错 · 派 S31b 纯收口单**（2026-10-05）
 
 **A. 事件（截断单的典型二阶伤害）**：S31（60c/662s，**撞迭代上限**）交回时自述「**仓库当前处于未复原的判负态**」—— `backend-ts/src/ledger-errors.ts:52` 仍是 `LEDGER_AMOUNT_INVALID.message = 'LEDGER_AMOUNT_INVALID'`（机读码当 message = 它自己造的那条负对照）。**它自报并给了复原路径**（值得肯定），但**未复原即交卷 = 契约破损**。
