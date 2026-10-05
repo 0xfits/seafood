@@ -1416,6 +1416,25 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.351 **S32 交回码映射表（零产品改动）· S32b 收口 ✅ · ★我现取规范原文后下三条终审（7 处前推 404 / 2 处走 `sendInfraMapped` / `details.field` 沿先例）· 派 S32c 执行单 · 新登记 `B16`**（2026-10-05）
+
+**A. S32（33c/246s · 交表不迁）**：**现取勘误 = 25 处实调用**（非册内 26；差异 1 处 = `POST /api/admin/settings` 回显面此前已迁 `sendInfraMapped`，现 `:1793`）⇒ 逐处表：**✅ 可借码 7** · **⚠️ 借通路 2**（shard IO catch）· **⚠️ status 冲突 7** · **❌ 无合适码 9**；产物含新探针 `scripts/s32-00-senderror-inventory.ts`（类级断言 C1–C5 + `--selftest`）+ 12 门真跑 + 判负（副本内变异，真 `index.ts` 零改动，`sha16` 开工==收尾）。它**请三条终审**，未自行二选一（合纪）。
+
+**B. ★★ 我三条终审（**先现取规范原文再裁**）**：
+1. **7 处 status 冲突 ⇒ 前推 404**。依据 = `route-layer.spec §3.1 C1`（`:988` / `:3022`）**已冻结且已落地**：「非整数 / 缺 id ⇒ **`404 LEDGER_REF_NOT_FOUND`** + `details.reason=<x>_not_found`」（`R107`；批 3b 已在 `/api/tasklist/:jID/verify` 落地、`Zang §5.85 裁定②` 批准，**前端 23 文件全量扫无旧 `400 Invalid xxx` 断言**）；先例函数 `sendRefNotFound`（`index.ts:2302`）就在盘上。⇒ **我 brief 里写的「status 不变」作废**（那是我为防无意破坏设的保守口径，**规范里有更精确的冻结口径**）。
+2. **2 处 shard IO catch ⇒ 走 `sendInfraMapped`**（infra 错由分类器定 status，即 500→503；D1' 同族已确立、30+ 处先例）。
+3. **`#21` 的 `details.field` 三分派 ⇒ 照同路由既有先例**（`index.ts:2124/:2145/:2153`）**逐字沿用**，不新造取值。
+
+**C. S32b（57c/540s）✅**：四支现取复核与 S31b 结论**完全一致**（无出入）；三支**前推/改锚**：`p3v-00` 整表指纹（含 `message`）⇒ **稳定投影**（codes/status/buckets/defect/benign，并把 `expected_worktree_sha256` 前推 `9bc127e4…⇒7c48d8c3…`）· `p1f-03:657` 整条 ⇒ `{code,status}` · `p1n-00:137-140` 四整对象 ⇒ `{status}`；**穷举 42 支逐支判定**（受影响 6 / 不受影响 35）；判负红→绿；`p1n-00` 真跑 **`wrote_nothing=true`**（零残留自证）。
+**★ 我核盘（S32b）**：`git diff --numstat` = 三支脚本（`4/1`、`8/4`、`25/3`）✓；**我亲跑 `p3v-00` = `tableFpSame=true` · `closed_set baseline=33 fixed=33`** ✓（`message-inclusive same=false` = 随 S31 属预期，已留痕）。
+**★ 它顺带登记一条既有漂移 ⇒ 新台账项 `B16`**：`p3v-00` 的 `verdicts.fixed_green=false`（`RED={Y3_type_error_no_message, Y6_proto_getter_only_message}`，对照 `20260928T160137Z` 旧件为 `true`）⇒ 系 **Unit I（`978ea4a`）判据收窄**引入、**与 `message` 面无关**；**不得为凑绿直接改期望**（需回头判「有意加严 ⇒ 前推」还是「误伤 ⇒ 改判据」）。
+
+**D. 派单**：**S32c（Kong · 执行单）** ⇒ 按三条终审**迁 16 处**（7 可借码 + 2 借通路 + 7 前推 404）· **保留 9 处**（无码可借）并逐条登记 · 逐处前后 JSON 逐字对照 · 前端消费面逐处核查 · 类级断言（**实调用 25 ⇒ 9**）· 判负 · 全量门前后对照。
+
+**E. 状态**：DB **`42 行 / max 0043`** · 生产 **`2f20f89`** · 端口全空 · 工作树干净。
+
+---
+
 ### 5.350 **S31 + S31b ✅（B5 上半落地并上线）· ★我核盘（亲跑探针 + 指纹 + 12 门）· ★★生产 A/B 拿到决定性证据 · 派 S32（偏离 D 码映射）∥ S32b（探针漂移）**（2026-10-05）
 
 **A. S31b（26c/552s）判 PASS**：判负①②红绿四读数齐；**12 门 + `p7b-03` 前后逐门相同**（8 个红点全为 `fetch failed`/`-1` = 环境性 http 腿，**真回归 = 0**）；前端 `vitest` 失败集=基线、`build` 0、四脚本 PASS；`ledger-errors.ts` **逐字节复原为 `7c48d8c3…`（`cmp` IDENTICAL）**；A 类调用点枚举 = 定义面回退位 **9** 处 / **实际省略第 4 参 15 处**（逐处 `文件:行`）/ 显式 118 处。
