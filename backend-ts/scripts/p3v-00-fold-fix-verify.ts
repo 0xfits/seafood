@@ -16,6 +16,19 @@
  *   （键集 `codes` / 状态映射 `status` / 桶·defect·benign）—— 出处 = S31 的 `message` 契约改造
  *   （`LEDGER_ERROR_TABLE` 33 条中文句 ⇒ 稳定英文句）；整表含 message 指纹保留为留痕对照。
  *   `L6.expected_worktree_sha256` 由 9bc127e4… 前推到 7c48d8c3…（= S31 落点 `src/ledger-errors.ts` 现盘 sha256）。
+ *
+ * ★ S34（台账 B16 · `Y3/Y6` 既有漂移定性）：Unit I（`978ea4a`）把 `isEventObjectFamily` **判据②** 收窄为
+ *   「`type === 'error'` **且** `message` 是字符串」、并**删除**原末句「`desc === undefined && typeof message === 'string'`」。
+ *   ⇒ Y3（`{type:'error'}` 无 message）、Y6（仅原型 getter message、无 type）**不再是**事件对象族（回 500 兜底）。
+ *   定性 = **有意加严 · 更正**（非误伤）：承重命中路径——真 `ws.ErrorEvent`（Y1）——仍由收窄后的判据② 命中（Y1 仍绿）；
+ *   收窄释放的是 9 例误捕（业务信封 + `new Error()` 族），故 **前推期望**（而非改回判据）：
+ *     ① Y3/Y6 由 `L1_event_family` 移入新组 `L1_released_non_event`（收窄后释放组），`expected_event_family: false`；
+ *     ② 新增闸门 `REL_GREEN` —— `L1_released_non_event` 组**必须**落 500 兜底（`unclassified_non_pg_error` /
+ *        `LEDGER_TRANSACTION_REQUIRED` / 500），并计入 `verdicts.fixed_green`（只加闸门，未放宽任何判据）；
+ *     ③ `independent_event_family_verdict` oracle 同步前推为收窄后口径（否则探针自相矛盾）；
+ *     ④ `M3` 的 desc 前推（原「修前修后同」在 Unit H/I 安全读后不再成立：baseline THREW / fixed 500）。
+ *   旧口径读数留痕 = 旧产物 `.p3v-artifacts/p3v-00-fold-fix-verify-20260928T160137Z.json`（9bc127e4 盘，fixed_green=true）。
+ *   证据链（commit diff + 新旧期望逐字 + 判负 + 同族扫面）见 `docs/audit/s34-p3v-y3y6-triage.md`。
  */
 import * as fs from 'fs';
 import * as path from 'path';
@@ -115,10 +128,14 @@ const CASES: Case[] = [
   // ---- L1：事件对象族（真物 + ≥6 形态）
   { id: 'Y1_ws_true_ErrorEvent', group: 'L1_event_family', desc: '真实 ws.ErrorEvent（绝对路径；ctor.name=ErrorEvent；instanceof globalThis.Event=false）', make: () => makeWsErrorEvent(POISON, 'ECONNRESET'), expected_event_family: true },
   { id: 'Y2_dom_like_ErrorEvent', group: 'L1_event_family', desc: 'DOM 形 ErrorEvent（extends globalThis.Event + 原型 get message）', make: () => makeDomErrorEventLike(POISON), expected_event_family: true },
-  { id: 'Y3_type_error_no_message', group: 'L1_event_family', desc: "{type:'error'}（无 message）", make: () => ({ type: 'error' }), expected_event_family: true },
+  // ★ S34（台账 B16）：Unit I（978ea4a）判据② 加 `message` 合取后，`{type:'error'}`（无 message）= 业务信封（非事件对象）
+  //   ⇒ 移出 `L1_event_family`（旧期望 503 已过期），入释放组 `L1_released_non_event`；须落 500 兜底（闸门 `REL_GREEN`）。
+  { id: 'Y3_type_error_no_message', group: 'L1_released_non_event', desc: "{type:'error'}（无 message）—— Unit I 收窄后=业务信封，释放到 500", make: () => ({ type: 'error' }), expected_event_family: false, note: 'S34 前推：Unit I 978ea4a 判据② message 合取' },
   { id: 'Y4_frozen_event_object', group: 'L1_event_family', desc: "Object.freeze({type:'error',message})", make: () => Object.freeze({ type: 'error', message: POISON }), expected_event_family: true },
   { id: 'Y5_own_getter_only_message', group: 'L1_event_family', desc: '自有 getter-only message（无 setter、无 type）', make: () => ownGetterOnlyMessage(POISON), expected_event_family: true },
-  { id: 'Y6_proto_getter_only_message', group: 'L1_event_family', desc: '仅原型 getter 提供 message（无 type）', make: () => protoGetterOnly(POISON), expected_event_family: true },
+  // ★ S34（台账 B16）：Unit I（978ea4a）删除原末句 `desc===undefined && typeof message==='string'`（9 例误捕中 7 例之来源）
+  //   ⇒ 仅原型 getter message、无 type 的形态不再是事件对象族 ⇒ 移出 `L1_event_family`，入释放组 `L1_released_non_event`。
+  { id: 'Y6_proto_getter_only_message', group: 'L1_released_non_event', desc: '仅原型 getter 提供 message（无 type）—— Unit I 删末句后释放到 500', make: () => protoGetterOnly(POISON), expected_event_family: false, note: 'S34 前推：Unit I 978ea4a 删除 desc===undefined 末句' },
   { id: 'Y7_event_with_inner_code', group: 'L1_event_family', desc: "外层无 code、内层 e.error.code='ECONNRESET'", make: () => ({ type: 'error', message: POISON, error: { code: 'ECONNRESET', message: 'inner' } }), expected_event_family: true },
   { id: 'Y8_event_hits_pool_regex', group: 'L1_event_family', desc: '事件对象且 message 命中池超时正则', make: () => ({ type: 'error', message: 'timeout exceeded when trying to connect' }), expected_event_family: true },
 
@@ -167,7 +184,7 @@ const CASES: Case[] = [
   // ---- L5：漏捕 / 边界
   { id: 'M1_own_accessor_get_and_set', group: 'L5_miss', desc: '自有 getter+setter、无 type ⇒ 三条判据都不占（判据边界）', make: () => ownAccessorWithSetter('write EPIPE') },
   { id: 'M2_type_Error_capitalized', group: 'L5_miss', desc: "{type:'Error', message:'x'}（大小写不同 ⇒ ② 不命中）", make: () => ({ type: 'Error', message: 'boom' }) },
-  { id: 'M3_throwing_message_getter', group: 'L5_miss', desc: 'message getter 抛异常 ⇒ 分类器整体抛（修前修后同）', make: () => throwingMessageGetter() },
+  { id: 'M3_throwing_message_getter', group: 'L5_miss', desc: 'message getter 抛异常 ⇒ 修前分类器整体抛；Unit H/I 安全读后 fixed 落 500 兜底（baseline THREW / fixed 500）', make: () => throwingMessageGetter() },
   { id: 'M4_own_message_epipe', group: 'L5_miss', desc: "{message:'write EPIPE'}（own 数据、无 code、不命中正则）", make: () => ({ message: 'write EPIPE' }) },
 
   // ---- L3：R107 敏感文本
@@ -211,14 +228,23 @@ const caseRows = CASES.map((c) => {
       type_value: inObj ? safeRead(() => fx.type ?? null, 'THREW') : null,
     },
     per_impl: per,
+    // ★ S34（台账 B16）：oracle 前推为 Unit I（978ea4a）收窄后的口径 ——
+    //   ① 原件 `instanceof globalThis.Event` **裸判** ⇒ 补 `type === 'error'` 合取（释放 new Event('open'/'message') 这类非错误事件）；
+    //   ② 原件 `type === 'error'` **裸判** ⇒ 补 `typeof message === 'string'` 合取（释放无 message 的业务信封）；
+    //   ③ 原件末句 `desc === undefined && typeof message === 'string'` **删除**（它把 new Error()/TypeError()/无参子类/
+    //      Object.create(Error.prototype) 的继承空串 message 误判成事件族）。所有读防抛（getter 抛 ⇒ 视为不匹配）。
+    //   旧口径 oracle 读数留痕 = 旧产物 `.p3v-artifacts/p3v-00-fold-fix-verify-20260928T160137Z.json`。
     independent_event_family_verdict: ((): boolean | 'THREW' => {
+      const rr = <T>(fn: () => T, fb: T): T => { try { return fn(); } catch { return fb; } };
       try {
         if (!inObj) return false;
-        if (typeof EVENT === 'function' && inputFx instanceof EVENT) return true;
-        if (fx.type === 'error') return true;
-        const d = Object.getOwnPropertyDescriptor(inputFx as object, 'message');
-        if (d !== undefined && d.get !== undefined && d.set === undefined && typeof fx.message === 'string') return true;
-        if (d === undefined && typeof fx.message === 'string') return true;
+        if (typeof EVENT === 'function') {
+          const isEv = rr(() => inputFx instanceof EVENT, false);
+          if (isEv && rr(() => fx.type, undefined) === 'error') return true;
+        }
+        if (rr(() => fx.type, undefined) === 'error' && typeof rr(() => fx.message, undefined) === 'string') return true;
+        const d = rr(() => Object.getOwnPropertyDescriptor(inputFx as object, 'message'), undefined);
+        if (d !== undefined && d.get !== undefined && d.set === undefined && typeof rr(() => fx.message, undefined) === 'string') return true;
         return false;
       } catch (e) { return 'THREW'; }
     })(),
@@ -307,6 +333,14 @@ const L5_false_positives = L5.filter((r) => r.captured_as_event_family).map((r) 
 const L5_not_captured = L5.filter((r) => !r.captured_as_event_family).map((r) => r.id);
 const L5_status_change_500_to_503 = L5.filter((r) => r.became_503_from_500).map((r) => ({ id: r.id, group: r.group, desc: r.desc, from: r.baseline, to: r.fixed }));
 
+// ★ S34（台账 B16）：收窄后“释放组”闸门 —— Unit I（978ea4a）判据收窄后**不再属**事件族的形态（Y3/Y6）
+//   **必须**落 500 兜底（`unclassified_non_pg_error` / `LEDGER_TRANSACTION_REQUIRED` / 500），即**不得**被路由到
+//   503 的 `driver_connection_error`。这是**加闸门**（旧盘 Y3/Y6 在 `L1_event_family` 下要求 503；现口径翻转为要求 500），
+//   非放宽：翻转后的口径更严 —— 它把「Y3/Y6 落 503」判为红（旧口径正是漏掉了这一误捕）。
+const REL_ROWS = caseRows.filter((r) => r.group === 'L1_released_non_event');
+const REL_GREEN = (o: Obs) => o.classify === 'unclassified_non_pg_error' && o.code === 'LEDGER_TRANSACTION_REQUIRED' && o.status === 500;
+const relRed = (label: string) => REL_ROWS.filter((r) => !REL_GREEN(r.per_impl[label])).map((r) => r.id);
+
 // L6
 const L6 = {
   impl_sha256: Object.fromEntries(LABELS.map((k) => [k, impls[k].sha256])),
@@ -314,7 +348,13 @@ const L6 = {
   expected_worktree_sha256: '7c48d8c3a656eb407ed2005691dcafac1d3cb436ddfabcbd68d3b5770174a62a', // ★S32b 前推：9bc127e4…（P3V 落点）→ 7c48d8c3…（= S31 落点；陈旧锚非本单验收门，仅前推到现盘）
   expected_baseline_sha256: '721156cbf296b19c7c4a480264f88b49878d99104b8f87453bafce564745df8b',
   RED_set_fixed: red('fixed'), RED_set_baseline: red('baseline'), RED_set_mutated: red('mutated'),
-  verdicts: { fixed_green: red('fixed').length === 0, baseline_red: red('baseline').length > 0, mutated_red: red('mutated').length > 0 },
+  RED_set_released_fixed: relRed('fixed'), RED_set_released_baseline: relRed('baseline'), RED_set_released_mutated: relRed('mutated'),
+  verdicts: {
+    fixed_green: red('fixed').length === 0 && relRed('fixed').length === 0,
+    baseline_red: red('baseline').length > 0,
+    mutated_red: red('mutated').length > 0,
+    released_group_green: relRed('fixed').length === 0,
+  },
 };
 
 const out = {
@@ -348,5 +388,6 @@ p(`L4 status_diffs=${JSON.stringify(L4.status_diffs_baseline_vs_fixed)}`);
 p(`L5 captured_as_event_family=${JSON.stringify(L5_false_positives)}`);
 p(`L5 not_captured=${JSON.stringify(L5_not_captured)}`);
 p(`L5 500->503=${JSON.stringify(L5_status_change_500_to_503)}`);
+p(`L1 released_non_event 组闸门 RED fixed=${JSON.stringify(L6.RED_set_released_fixed)}（组=${JSON.stringify(REL_ROWS.map((r) => r.id))}）`);
 p(`L6 verdicts=${JSON.stringify(L6.verdicts)}`);
 p(`[p3v-00] 已落盘：${file}`);
