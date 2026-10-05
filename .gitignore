@@ -323,3 +323,27 @@ Thumbs.db
 # 现有轮次目录为 backend-ts/.p4-artifacts/；用 .p*-artifacts/ 通配同时覆盖后续 .p5-/.p6- 等轮次产生的同名新标记。
 backend-ts/.p*-artifacts/.lastrun
 backend-ts/.p*-artifacts/.a1ld-run
+
+# ── S42：run-tagged 证据链产物目录（让 git status 只留真信号）───────────────────
+# 目的：这些「每轮 run 落盘」的证据链产物（读数 JSON、门输出、探针日志、before/after 快照等）
+#       必须留在磁盘上，但不该出现在 `git status` —— 否则 300+ 行 `??` 噪声会淹没
+#       「谁在写这棵树」的异写信号。本段只「新增」，不改动上方任何既有行。
+# 影响面：git 忽略规则不影响已入库（已跟踪）文件 —— 已跟踪件计数零变化；本段仅作用于「未跟踪」新增件。
+# 现取目录名（2026-10-05，对锚 HEAD 7178126 现测）：
+#   backend-ts/ 下：.p3j-/.p3v-/.p4-/.p7b-artifacts、.p8s1-.p8s11-artifacts、.p8s6-ro、
+#     .p9s7-impl/.p9s8-s2/.p9s9-s3/.p9s10-s4a/.p9s11-arms/.p9s11-recon/.p9s12-arms/
+#     .p9s12-recon/.p9s13/.p9s15-archive/.p9s16-arms/.p9s16-recon、
+#     .s19-.s41-artifacts（含 .s32b-/.s32c-）、.zang-artifacts；
+#   frontend/ 下：.s22-/.s25-/.s28-/.s30-/.s33-/.s39-artifacts；
+#   docs/audit/ 下：.s35-artifacts。
+
+# (1) 通用：任意层级下 `.<name>-artifacts/` 证据链产物目录
+#     覆盖上列全部 `-artifacts` 目录，并自动覆盖后续新轮次（.sNN-/.pNN-/…-artifacts）。
+**/.*-artifacts/
+
+# (2) 通用：任意层级下 `.<name>-ro/` 只读 run 目录（现取唯一命中：backend-ts/.p8s6-ro/）
+**/.*-ro/
+
+# (3) backend-ts 下 `.p9sNN-<phase>/` 各阶段 run 目录（后缀不定：-impl/-s2/-s3/-s4a/-arms/-recon/-archive …）
+#     这些目录既不叫 -artifacts 也不叫 -ro，需单列一条通配以覆盖现取的 12 个 .p9s* 目录。
+backend-ts/.p9s*/
