@@ -1416,6 +1416,23 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.352 **S32c ✅（16 处迁 R107 落地上线）· ★我归位收尾残留 + 亲跑类级探针 + ★★生产 A/B（`/api/prize/*` 由旧形状 ⇒ R107 + 404）· B5 全项闭环**（2026-10-05）
+
+**A. S32c（60c/438s · 截断但主体齐）**：`src/index.ts` **`37/19`** —— 16 处迁移到位（7 处 status 冲突 **前推 404** 走 `sendRefNotFound` 先例 / 2 处 shard IO catch 走 `sendInfraMapped` / 7 处可借码）+ 探针 `C5` 抽参（`S32_EXPECT_HITS`，语义未改，`5/2`）；报告 `docs/audit/s32c-senderror-migration-executed.md`（§0–§8）。
+**B. ★ 我归位它未及做的收尾两件**（它给了精确命令）：① 删除指向 `.s32c-artifacts` 的临时符号链接 ② `CURRENT_RUNID` 由 `s32c-…` **还原为 `s32-20261005T001054Z`** ✓。
+**C. ★ 我核盘（亲跑）**：`git diff --numstat` = **`37/19 index.ts` + `5/2` 探针**；**我亲跑类级探针** ⇒ 它打印的 `CALLS` 清单**恰 9 处**（`:454 / :462 / :635 / :965 / :1848 / :1870 / :1892 / :2470 / :2993`）与「无码可借 9 处」逐条对应 ✓；`sendRefNotFound(res` = **16**、`sendInfraMapped(res` = **63**；`npx tsc --noEmit` = **0** ✓。
+**D. ★★ 生产 A/B（决定性证据，我亲取）**：
+| 端点 | 改前（线上） | 改后（线上） |
+|---|---|---|
+| `GET /api/prize/abc` | `{success:false, message:"Invalid bID", error:"Invalid bID"}`（旧形状）| **`{error:{code:"LEDGER_REF_NOT_FOUND", message:"Referenced object not found", i18n_key:"ledger.err.LEDGER_REF_NOT_FOUND", details:{ref_type:"prize", ref_id:"abc", reason:"bID_not_found"}}}`** |
+| `GET /api/prize/999999` | `{success:false, message:"Prize not found", …}` | 同 R107 形状，`reason:"prize_not_found"` ✓ |
+⇒ **形状 + 状态 + `details` 三件在线上同时可观测**（不只是源码级）。
+**E. 口径（登记，不粉饰）**：16 处迁移的**真 HTTP 响应体逐字取证**、`#21` 三分派三支、`#14/#15` 运行期分类结果 = **`NOT_MEASURED`**（无受控实例）；形状由 helper 源码 + **已落地先例**（批 3b 同一 helper 已实测 404）推证 —— **这是推证、不是实测**；下次起实例的验收轮应补上。
+**F. 台账**：**B5 上下半全闭环**（残留 9 处保留面与 `NOT_MEASURED` 面已逐条登记）。
+**G. 状态**：DB **`42 行 / max 0043`** · 生产 **`5e8d06a`** · 端口全空 · 工作树干净。
+
+---
+
 ### 5.351 **S32 交回码映射表（零产品改动）· S32b 收口 ✅ · ★我现取规范原文后下三条终审（7 处前推 404 / 2 处走 `sendInfraMapped` / `details.field` 沿先例）· 派 S32c 执行单 · 新登记 `B16`**（2026-10-05）
 
 **A. S32（33c/246s · 交表不迁）**：**现取勘误 = 25 处实调用**（非册内 26；差异 1 处 = `POST /api/admin/settings` 回显面此前已迁 `sendInfraMapped`，现 `:1793`）⇒ 逐处表：**✅ 可借码 7** · **⚠️ 借通路 2**（shard IO catch）· **⚠️ status 冲突 7** · **❌ 无合适码 9**；产物含新探针 `scripts/s32-00-senderror-inventory.ts`（类级断言 C1–C5 + `--selftest`）+ 12 门真跑 + 判负（副本内变异，真 `index.ts` 零改动，`sha16` 开工==收尾）。它**请三条终审**，未自行二选一（合纪）。
