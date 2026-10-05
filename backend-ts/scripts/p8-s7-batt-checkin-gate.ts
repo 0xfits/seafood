@@ -37,6 +37,7 @@ import * as path from 'path';
 import {
   BATT_POLICY_DEFAULTS,
   CHECKIN_POLICY_DEFAULTS,
+  DatabaseService,
   resolveBattPolicy,
   resolveCheckinPolicy,
 } from '../src/database';
@@ -646,19 +647,37 @@ const prevBusinessDay = (): string => {
 
   // ---------------- G8–G10 · 4 新口真 HTTP（401 ⇄ 200）+ 公开面零回归 ----------------
   const HTTP_BASE = process.env.P8S7_BASE || 'http://127.0.0.1:5797';
-  const api = async (method: string, p: string, token?: string, body?: unknown) => {
+  // ★ S40b：`api()` 返回**完整响应体**（供 G9 断言「状态码 + 响应体形状」）；传输层失败 ⇒ `status: -1`（**绝不容忍**）。
+  const api = async (method: string, p: string, token?: string, body?: unknown): Promise<{ status: number; success: boolean | null; body: Record<string, unknown> | null }> => {
     httpCalls += 1;
     const headers: Record<string, string> = { 'content-type': 'application/json' };
     if (token) headers.authorization = `Bearer ${token}`;
-    const r = await fetch(`${HTTP_BASE}${p}`, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
-    let j: Record<string, unknown> | null = null;
-    try { j = (await r.json()) as Record<string, unknown>; } catch { /* non-json */ }
-    return { status: r.status, success: j?.success ?? null };
+    try {
+      const r = await fetch(`${HTTP_BASE}${p}`, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
+      const text = await r.text();
+      let j: Record<string, unknown> | null = null;
+      try { j = JSON.parse(text) as Record<string, unknown>; } catch { /* non-json */ }
+      return { status: r.status, success: (j?.success ?? null) as boolean | null, body: j };
+    } catch { return { status: -1, success: null, body: null }; } // fetch failed ⇒ -1（G9 据此判负）
   };
   let httpErr: string | null = null;
   const noTok: Record<string, number> = {};
   const withTok: Record<string, number> = {};
   let pub = -1;
+  // ★★ S40b 门侧修为（Zang 裁定 #2）：`POST /api/checkin/makeup` 的响应是**数据依赖型**
+  //    （actor 对 target_day 是否已补签 / 今日是否已有补签留痕），原判据「必 200」会随时间红/绿（假红源）。
+  //    本门改为**先现取该 actor 的补签数据态（读库）**，再断言**由数据态推出的唯一期望分支**（状态码 + 响应体形状双断言）：
+  //      · `today_row=false` + 未补签 ⇒ **200 + 成功形状**（restoredStreakDay/costUsd/txid 三键）〔分支 a〕；
+  //      · `today_row=false` + 已补签/该日已签到 ⇒ **409 + LEDGER_CURRENCY_INVALID_TRANSITION
+  //        + details.reason=CHECKIN_MAKEUP_TARGET_INVALID + details.field=checkin_makeup**〔分支 b〕；
+  //      · `today_row=true`（今日已有留痕行 ⇒ 产品走 `ON CONFLICT(uid,makeup_day) DO NOTHING`）⇒
+  //        同键 ⇒ 200 `idempotent_replay`〔replayed〕；异键 ⇒ 409 reason=`CHECKIN_MAKEUP_DAILY_LIMIT`〔daily_limit〕。
+  //    硬约束：任一分支**均**断言状态码 + 响应体形状；`status:-1`（fetch failed）一律判负；无「接受任意码」路径。
+  const makeupState = {
+    actor_uid: -1, target: '', applied_target: false, checkin_target: false, today_row: false, key_row: false,
+    balance: '0', cost_usd: 0, branch: '', expected_status: -1, expected: '',
+  };
+  let makeupResp: { status: number; success: boolean | null; body: Record<string, unknown> | null } = { status: -1, success: null, body: null };
   try {
     const actor = (await readQuery<{ uid: string }>(
       `SELECT u.uid::text AS uid FROM public.users u
@@ -669,21 +688,103 @@ const prevBusinessDay = (): string => {
     dbConnections += 1;
     const uid = Number(actor?.uid ?? 1);
     const token = createSessionToken({ uID: uid, evm: '' });
+    const target = prevBusinessDay();
+    const idemKey = `biz:checkin:makeup:${uid}:${target}`;
+    // 现取（读库）该 actor 对 target_day 的补签数据态
+    const st = (await readQuery<{ applied_target: boolean; checkin_target: boolean; today_row: boolean; key_row: boolean; bal: string }>(
+      `SELECT
+         EXISTS (SELECT 1 FROM public.checkin_makeup_log m WHERE m.uid=$1::bigint AND m.result='applied' AND m.target_day=$2::date) AS applied_target,
+         EXISTS (SELECT 1 FROM public.checkin_log c WHERE c.uid=$1::bigint AND c.checkin_day=$2::date) AS checkin_target,
+         EXISTS (SELECT 1 FROM public.checkin_makeup_log m WHERE m.uid=$1::bigint AND m.makeup_day=(now() AT TIME ZONE 'UTC')::date) AS today_row,
+         EXISTS (SELECT 1 FROM public.checkin_makeup_log m WHERE m.uid=$1::bigint AND m.idempotency_key=$3::text) AS key_row,
+         COALESCE((SELECT a.balance FROM public.account a WHERE a.uid=$1::bigint AND a.cid=1),0)::text AS bal`,
+      [String(uid), target, idemKey]))[0];
+    dbConnections += 1;
+    const { policy: ckPolicy } = resolveCheckinPolicy(await DatabaseService.getAppConfigValueByKey('checkin_policy'));
+    const cost = Math.max(1, ckPolicy.makeupCostUsd);
+    const bal = Number(st?.bal ?? 0);
+    const targetInvalid = Boolean(st?.applied_target) || Boolean(st?.checkin_target);
+    let branch: string; let expectedStatus: number; let expected: string;
+    if (st?.today_row) {
+      if (st?.key_row) { branch = 'b_replayed'; expectedStatus = 200; expected = 'replayed'; }
+      else { branch = 'c_daily_limit'; expectedStatus = 409; expected = 'rejected_daily_limit'; }
+    } else if (targetInvalid) { branch = 'b_target_invalid'; expectedStatus = 409; expected = 'rejected_target_invalid'; }
+    else if (bal < cost) { branch = 'd_insufficient'; expectedStatus = 409; expected = 'rejected_insufficient_balance'; }
+    else { branch = 'a_applied'; expectedStatus = 200; expected = 'applied'; }
+    Object.assign(makeupState, {
+      actor_uid: uid, target, applied_target: Boolean(st?.applied_target), checkin_target: Boolean(st?.checkin_target),
+      today_row: Boolean(st?.today_row), key_row: Boolean(st?.key_row), balance: String(bal), cost_usd: cost,
+      branch, expected_status: expectedStatus, expected,
+    });
     const routes: Array<[string, string, string, unknown]> = [
       ['GET', '/api/batt', 'batt', undefined],
       ['GET', '/api/checkin', 'checkin.get', undefined],
       ['POST', '/api/checkin', 'checkin.post', {}],
-      ['POST', '/api/checkin/makeup', 'checkin.makeup', { target_day: prevBusinessDay() }],
     ];
     for (const [m, p] of routes) noTok[`${m} ${p}`] = (await api(m, p)).status;
+    noTok['POST /api/checkin/makeup'] = (await api('POST', '/api/checkin/makeup', undefined, { target_day: target })).status;
     for (const [m, p, , b] of routes) withTok[`${m} ${p}`] = (await api(m, p, token, b)).status;
+    makeupResp = await api('POST', '/api/checkin/makeup', token, { target_day: target });
+    withTok['POST /api/checkin/makeup'] = makeupResp.status;
     pub = (await api('GET', '/api/role-names')).status;
   } catch (e) { httpErr = String((e as Error)?.message || e).slice(0, 120); }
   const routeKeys = ['GET /api/batt', 'GET /api/checkin', 'POST /api/checkin', 'POST /api/checkin/makeup'];
   tg('G8', httpErr === null && routeKeys.every((k) => noTok[k] === 401),
     '★ 4 新口无 token ⇒ 逐口 401（真 HTTP）', JSON.stringify({ no_token: noTok, err: httpErr }));
-  tg('G9', httpErr === null && routeKeys.every((k) => withTok[k] === 200),
-    '★ 4 新口有 token ⇒ 逐口 200（真 HTTP）', JSON.stringify({ with_token: withTok, err: httpErr }));
+
+  // ---- G9 · makeup 真 HTTP：数据态感知分支 + 状态码/形状双断言（两分支皆断言） ----
+  type Mk = { success?: boolean; message?: string; data?: Record<string, unknown>; idempotent_replay?: boolean; error?: { code?: string; message?: string; details?: Record<string, unknown> } };
+  const judge200 = (r: { status: number; body: unknown }): boolean => {
+    const b = r.body as Mk | null;
+    const d = b?.data as Record<string, unknown> | undefined;
+    return r.status === 200 && b?.success === true && d !== undefined
+      && Object.keys(d).sort().join(',') === 'costUsd,restoredStreakDay,txid';
+  };
+  const judge409Target = (r: { status: number; body: unknown }): boolean => {
+    const b = r.body as Mk | null;
+    const det = (b?.error?.details ?? {}) as Record<string, unknown>;
+    return r.status === 409 && b?.error?.code === 'LEDGER_CURRENCY_INVALID_TRANSITION'
+      && det.field === 'checkin_makeup' && det.reason === 'CHECKIN_MAKEUP_TARGET_INVALID';
+  };
+  const judge409Daily = (r: { status: number; body: unknown }): boolean => {
+    const b = r.body as Mk | null;
+    const det = (b?.error?.details ?? {}) as Record<string, unknown>;
+    return r.status === 409 && b?.error?.code === 'LEDGER_CURRENCY_INVALID_TRANSITION'
+      && det.field === 'checkin_makeup' && det.reason === 'CHECKIN_MAKEUP_DAILY_LIMIT';
+  };
+  const judge409Insuff = (r: { status: number; body: unknown }): boolean => {
+    const b = r.body as Mk | null;
+    const det = (b?.error?.details ?? {}) as Record<string, unknown>;
+    return r.status === 409 && b?.error?.code === 'LEDGER_INSUFFICIENT_BALANCE' && det.field === 'checkin_makeup';
+  };
+  const mkBody = makeupResp.body as Mk | null;
+  let g9ShapeOk = false;
+  if (makeupState.expected === 'applied') g9ShapeOk = judge200(makeupResp);
+  else if (makeupState.expected === 'replayed') g9ShapeOk = judge200(makeupResp) && mkBody?.idempotent_replay === true;
+  else if (makeupState.expected === 'rejected_target_invalid') g9ShapeOk = judge409Target(makeupResp);
+  else if (makeupState.expected === 'rejected_daily_limit') g9ShapeOk = judge409Daily(makeupResp);
+  else if (makeupState.expected === 'rejected_insufficient_balance') g9ShapeOk = judge409Insuff(makeupResp);
+  // ★ 硬约束：传输层失败（status -1）一律判负；状态码须逐字 = 数据态推出的期望；形状须逐字匹配。
+  const g9Pass = httpErr === null && makeupResp.status !== -1
+    && makeupResp.status === makeupState.expected_status && g9ShapeOk;
+  tg('G9', g9Pass,
+    `★ makeup 真 HTTP · **数据态感知**：branch=${makeupState.branch || '?'}（expected=${makeupState.expected || '?'}）⇒ 期望 ${makeupState.expected_status} + 响应体形状（两分支皆断言状态码 + 形状；绝不容 fetch failed/-1）`,
+    JSON.stringify({ state: makeupState, resp: { status: makeupResp.status, body: mkBody }, err: httpErr, shape_ok: g9ShapeOk }));
+  // ---- G9 判负：四个形状谓词各喂「对/错状态/错形」三例 ⇒ 错例必须转红 ----
+  const g9SelfOk =
+    judge200({ status: 200, body: { success: true, data: { costUsd: 100, txid: '1', restoredStreakDay: 1 } } }) === true
+    && judge200({ status: 409, body: { error: {} } }) === false
+    && judge200({ status: 200, body: { success: true, data: { costUsd: 1 } } }) === false
+    && judge409Target({ status: 409, body: { error: { code: 'LEDGER_CURRENCY_INVALID_TRANSITION', details: { field: 'checkin_makeup', reason: 'CHECKIN_MAKEUP_TARGET_INVALID' } } } }) === true
+    && judge409Target({ status: 200, body: {} }) === false
+    && judge409Target({ status: 409, body: { error: { code: 'X', details: { field: 'checkin_makeup', reason: 'CHECKIN_MAKEUP_TARGET_INVALID' } } } }) === false
+    && judge409Daily({ status: 409, body: { error: { code: 'LEDGER_CURRENCY_INVALID_TRANSITION', details: { field: 'checkin_makeup', reason: 'CHECKIN_MAKEUP_DAILY_LIMIT' } } } }) === true
+    && judge409Daily({ status: 409, body: { error: { code: 'LEDGER_CURRENCY_INVALID_TRANSITION', details: { field: 'checkin_makeup', reason: 'CHECKIN_MAKEUP_TARGET_INVALID' } } } }) === false
+    && judge409Insuff({ status: 409, body: { error: { code: 'LEDGER_INSUFFICIENT_BALANCE', details: { field: 'checkin_makeup' } } } }) === true
+    && judge409Insuff({ status: 409, body: { error: { code: 'LEDGER_CURRENCY_INVALID_TRANSITION', details: { field: 'checkin_makeup' } } } }) === false;
+  tg('G9__selftest', g9SelfOk,
+    '★ G9 判负：四形状谓词各喂「对 / 错状态码 / 错形状」⇒ 错例一律转红',
+    JSON.stringify({ fired: g9SelfOk }));
   tg('G10', pub === 200, '★ 公开面零回归：`GET /api/role-names` 无 token ⇒ 200', JSON.stringify({ status: pub }));
 
   // ---------------- 结论 ----------------
@@ -726,6 +827,7 @@ const prevBusinessDay = (): string => {
       http_calls: httpCalls,
       http_401: noTok,
       http_200: withTok,
+      makeup_state: makeupState,
       public_surface: { '/api/role-names': pub },
       batt_policy_defaults: BATT_POLICY_DEFAULTS,
       checkin_policy_defaults: CHECKIN_POLICY_DEFAULTS,
