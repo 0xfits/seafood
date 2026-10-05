@@ -1416,6 +1416,18 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.356 **S35 ✅（B6 裁定落规范 v2.26 · 删除列=0）· S36 盘点齐但报告未落盘 ⇒ 派 S36b 收尾（补报告 + ★新立独立门）· ★我亲验 188 处分级（R1=11 / R2=43 / R3=134）**（2026-10-05）
+
+**A. S35（Jing · 28c/301s）✅**：`route-layer.spec` **v2.25 ⇒ v2.26**（`md5 ec7df08915d10ae22a647d9affdc238a` · 7854 行 · 1,536,180 B）—— ① 顶部 v2.26 状态块 ② **§7 追加表 7-78 + 补注块 ㊴** ③ **§14.2 就地加注**（四条证据 + 裁定理由 + **将来真合并的前置条件** + `NOT_MEASURED`）④ **新 §36 交付声明**；**旧状态原文四行逐字保留、行体一字未改**；快照 `docs/versions/route-layer.spec.v2.26.md`（`cmp` vs 属主 = 0）+ delta 件。
+**★ 我核盘（S35）**：`git diff --numstat` = **`83/0` spec + `1/0` OPEN-ITEMS`（删除列 = 0）** ✓ · 快照 `cmp=0` ✓ · `md5 = ec7df089…` ✓ · 旧字仍在（10 处命中）✓ · **代码/迁移/主计划面零改动** ✓ · 台账 `B6` 翻为闭环（**原 B6 行一字未删**、新行承载翻转 —— 它自曝了这个取舍，我认这个做法：守「删除列 = 0」全局口径优先）。
+**B. S36（Kong · 60c/422s · **截断**）：盘点全做了、**报告未落盘** ⇒ 未完全闭合**。已交产物 `backend-ts/.s36-artifacts/s36-20261005T050358Z/`：`identity-columns.json` · `implicit-inserts.json`（**188 处**逐处）· `inventory-tables.md` · `r2-not-covered.txt`（43 处）· `raw-readings.txt` · `fn-md5.raw.json`（活体函数 `md5(prosrc)` 取证）。
+**★ 我亲验（S36 产物，直接从 json 读）**：`keys = [alias, context, file, form, identity_pk_col, layer, level, line, r2_covered, reason, table]`；**分级计数 = `R1: 11 / R2: 43 / R3: 134`** ✓（与回执逐字相符）；层 = `scripts 129 / migrations 36 / src 23` ✓；**R1 逐条 = `src/database.ts:3171`(job_arbitration_log) + 10 处活体函数体**（`0016:569/830` market · `0023:219/260` · `0024:180/227` · `0030:314` · `0034:803/828` · `0042:235`）✓。
+**C. 我的初判（待 S36b 报告后正式裁定）**：① **R2 = 43 处探针撞号型**（机制已在 S29 实锤）⇒ **改 43 处不如立一道门**（新面零容忍 + 存量 43 条基线登记）；② **R1 = 11 处**（产品写路径体内 `RAISE` ⇒ 整语句 ROLLBACK、而 `nextval` 已耗 ⇒ **序列空洞**）—— 但**当前无表满足撞号前置条件**（除 `users` 外无一表 `seq_next ≤ max`；`users` 走 `getNextUserId = MAX(uid)+1` 不占序列）⇒ **登记为 watch，不修**（修法 = `OVERRIDING`/值预取/SAVEPOINT 各有代价）；③ ★ 仓内**既有记载可佐证**（`p3y-01-post-apply-verify.ts:204` 明写 `0011:413`/`0012:1180` 的 `currency` 插入在**子事务 + 哨兵回滚块**内 ⇒ 行回滚但序列推进不撤）。
+**D. 派 S36b（Kong · 收尾单）**：① **补写报告** `docs/audit/s36-implicit-identity-pk-inventory.md`（§0–§7，上单 `blockers`/`NOT_MEASURED` **逐条落入、不得洗白为 0**）；② **新立独立门** `backend-ts/scripts/s36-00-identity-pk-form-gate.ts`（**同表同时存在「省略 PK」与「显式给号」两种形态 ⇒ 报红**；基线 43 条逐条登记；类级自证「扫描面/受体/命中/基线」（命中或受体 = 0 ⇒ 断言无效）+ `--selftest` + 判负）；③ **不动既有门套注册面**（不得改 `p7b-03` 计数常数 ⇒ 要纳入由我裁）；④ R1 11 处**最小方案草案（仅登记、不实施）**；⑤ 零产品改动 + tsc 双配置新增错 = 0。
+**E. 状态**：DB **`42 行 / max 0043`** · 生产 **`ccfb23a`**（docs-only）· 端口全空。
+
+---
+
 ### 5.355 **★ 我裁 `B6`（两套取数入口）＝「维持路径②、关闭」· 派 S35（Jing 规范收口）∥ S36（`B14` 只读盘点）**（2026-10-05）
 
 **A. ★ 这不是「该做的待办」，是「该被裁定关闭的待办」** —— 我动手前先现取规范与代码，四条证据：
