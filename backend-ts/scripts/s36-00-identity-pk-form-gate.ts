@@ -10,7 +10,14 @@
  *                     —— 这正是 S29 已处理的撞号机制：夹具省略 PK 取 nextval，与同表某处
  *                        写死的固定号在同一取值域内 ⇒ 序列落后时必撞。
  *   产品写路径（src/** 与迁移里的 `CREATE FUNCTION` 体）不作本门命中：它们归 S36 §5 的 R1/R3 面。
- *   基线 = 43（独立盘点 S36/B14 `implicit-inserts.json` 的 level==R2 全集，登记于同名 .baseline.json）。
+ *   ★ S37/B18 判据细化（「序列可达带」）：`explicit` 侧只计入**落在序列可达带**的显式给号——
+ *     即该站点的 identity 值**不能被证明**为 ≥ `unreachable_floor`（默认 9e8，取自基线同名键）。
+ *     凡取整型字面量且 ≥ floor 者 ⇒ 该站点「已出带」，不再使该表构成撞号对；取参数/表达式/子查询
+ *     （值不可静态证明）⇒ **一律仍计为可达**（保守，不放行未知形态）。
+ *     理由（S37 根因）：撞号对的构成条件是「显式号落在序列可达带」，不是「同表有两种形态」；
+ *     夹具号段上移至 9e8 后，同表双形态仍在，但**取号域已不相交**。
+ *   基线 = S37 收敛后的**残差 30**（S36/B14 的 43 处中，13 处因夹具号段上移而出带；见 .baseline.json
+ *     `baseline_residual_note`）。残差**未修**，逐条登记 `residual_reason`。
  *   新增命中 = 零容忍 ⇒ 红。
  *
  * 自证口径（同 `p4z-i18nviol-global` 家族）：**打印扫描面 / 受体数 / 命中数 / 基线数**；
@@ -31,10 +38,75 @@ const REPO_BACKEND = path.resolve(__dirname, '..');
 // ── 基线（只读；内容 = 独立盘点产物，见 baseline_provenance）────────────────────────────
 type IdPk = { table: string; column: string };
 type BaselineRow = { file: string; line: number; table: string; column: string; layer: string; context: string; reason: string };
-type BaselineFile = { identity_pk: IdPk[]; identity_pk_count: number; baseline: BaselineRow[]; baseline_count: number };
+type BaselineFile = { identity_pk: IdPk[]; identity_pk_count: number; baseline: BaselineRow[]; baseline_count: number; unreachable_floor?: number };
 
 const loadBaseline = (p: string): BaselineFile => JSON.parse(fs.readFileSync(p, 'utf8')) as BaselineFile;
 const BASELINE_PATH = path.resolve(__dirname, 's36-00-identity-pk-form-gate.baseline.json');
+
+/** ★ S37/B18：显式给号的「序列不可达带」下界（缺省 9e8；基线可用 `unreachable_floor` 覆盖）。 */
+const ID_BAND_FLOOR_DEFAULT = 900_000_000;
+
+/** quote/paren 感知：自 `(` 起逐个取**顶层**括号组（返回组内文本）；首字符非 `(` ⇒ null。 */
+function topLevelParens(s: string): string[] | null {
+  const out: string[] = [];
+  let i = 0;
+  for (; i < s.length; ) {
+    while (i < s.length && /\s/.test(s[i])) i++;
+    if (i >= s.length) break;
+    if (s[i] !== '(') { if (out.length === 0) return null; break; }
+    let depth = 0; const start = i; let j = i;
+    for (; j < s.length; j++) {
+      const c = s[j];
+      if (c === "'") { j++; while (j < s.length) { if (s[j] === "'" && s[j + 1] === "'") { j += 2; continue; } if (s[j] === "'") break; j++; } continue; }
+      if (c === '(') depth++;
+      else if (c === ')') { depth--; if (depth === 0) break; }
+    }
+    if (depth !== 0) return null;
+    out.push(s.slice(start + 1, j));
+    i = j + 1;
+    while (i < s.length && /\s/.test(s[i])) i++;
+    if (i < s.length && s[i] === ',') { i++; continue; }
+    break;
+  }
+  return out.length ? out : null;
+}
+
+/** quote/paren 感知：按顶层逗号切分。 */
+function splitTopLevel(s: string): string[] {
+  const out: string[] = []; let depth = 0; let start = 0;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (c === "'") { i++; while (i < s.length) { if (s[i] === "'" && s[i + 1] === "'") { i += 2; continue; } if (s[i] === "'") break; i++; } continue; }
+    if (c === '(' || c === '[') depth++;
+    else if (c === ')' || c === ']') depth--;
+    else if (c === ',' && depth === 0) { out.push(s.slice(start, i)); start = i + 1; }
+  }
+  out.push(s.slice(start));
+  return out;
+}
+
+/**
+ * 判定一处**显式给号**站点的 identity 值是否落在「序列可达带」。
+ * 返回 true = 可达带（= 仍需计为 explicit；含不可静态证明的一切形态）；false = 可证 ≥ floor（出带）。
+ */
+function explicitValueInBand(matched: string, idx: number, text: string, columns: string[], idCol: string, floor: number): boolean {
+  const want = columns.findIndex((c) => c === idCol.toLowerCase());
+  if (want < 0) return true;                                    // 不应发生 ⇒ 保守
+  const kw = /\b(VALUES|SELECT|OVERRIDING\s+SYSTEM\s+VALUE|DEFAULT\s+VALUES)\s*$/i.exec(matched);
+  if (!kw) return true;
+  const kwPos = idx + matched.length - kw[0].length;
+  if (!/^\s*VALUES/i.test(text.slice(kwPos, kwPos + 12))) return true;   // SELECT / DEFAULT VALUES ⇒ 不可证
+  const tuples = topLevelParens(text.slice(kwPos + 6));
+  if (!tuples) return true;
+  for (const t of tuples) {
+    const elems = splitTopLevel(t);
+    if (want >= elems.length) return true;
+    const e = elems[want].trim().replace(/::\s*(bigint|int8|integer|int4|int|numeric)\b[\s\S]*$/i, '').trim();
+    if (!/^-?\d+$/.test(e)) return true;                        // 参数/表达式/子查询 ⇒ 保守判为可达
+    if (Number(e) < floor) return true;
+  }
+  return false;                                                 // 全元组均为 ≥floor 的字面量 ⇒ 出带
+}
 
 // ── 注释感知（保留行数：注释内容等长空白替换）──────────────────────────────────────────
 function stripComments(text: string, isSql: boolean): string {
@@ -105,6 +177,8 @@ export interface Hit {
   layer: Layer; file: string; line: number; table: string;
   column: string; form: 'explicit' | 'omitted' | 'partial-omitted' | 'no-column-list(positional)';
   scope: string; surface: Surface; raw: string;
+  /** ★ S37/B18：仅对 form==='explicit' 有意义 —— 该站点 identity 值是否落在「序列可达带」（见 explicitValueInBand）。 */
+  in_band: boolean;
 }
 export interface Source { rel: string; layer: Layer; ext: string; content: string }
 
@@ -137,7 +211,7 @@ export function collectRepo(root: string, idMap: Map<string, string[]>): Source[
   return out;
 }
 
-export function scanSources(sources: Source[], idMap: Map<string, string[]>): Hit[] {
+export function scanSources(sources: Source[], idMap: Map<string, string[]>, floor = ID_BAND_FLOOR_DEFAULT): Hit[] {
   const hits: Hit[] = [];
   for (const s of sources) {
     const isSql = s.ext === '.sql';
@@ -160,9 +234,10 @@ export function scanSources(sources: Source[], idMap: Map<string, string[]>): Hi
       if (!colsRaw) form = 'no-column-list(positional)';
       else if (omitted.length === idCols.length) form = 'omitted';
       else if (omitted.length > 0) form = 'partial-omitted';
+      const in_band = form === 'explicit' ? explicitValueInBand(m[0], idx, stripped, columns, idCols[0], floor) : true;
       const scope = isSql ? scopeOf(blocks, idx) : s.layer;
       const surface: Surface = s.layer === 'scripts' ? 'test' : s.layer === 'src' ? 'product' : scope === 'do' ? 'test' : 'product';
-      hits.push({ layer: s.layer, file: s.rel, line, table, column: idCols[0], form, scope, surface,
+      hits.push({ layer: s.layer, file: s.rel, line, table, column: idCols[0], form, scope, surface, in_band,
         raw: stripped.slice(idx, Math.min(idx + 140, stripped.length)).replace(/\s+/g, ' ') });
     }
   }
@@ -177,6 +252,8 @@ export interface Verdict {
   hits: Hit[];                     // 命中数 = 测试面上、双形态表里的省略-PK 插入
   baseline_count: number;
   new_hits: Hit[];
+  explicit_out_of_band: Hit[];     // ★ S37：显式给号但已「出带」（可证 ≥ unreachable_floor）的站点
+  unreachable_floor: number;
   invalid: boolean;                // 受体==0 或 命中==0
   invalid_reason: string | null;
   stale_baseline: string[];        // 基线登记里不复现的项（提示，不致命）
@@ -184,11 +261,15 @@ export interface Verdict {
 }
 
 export function evaluate(hits: Hit[], filesByLayer: Record<Layer, number>, baseline: BaselineFile): Verdict {
+  const floor = baseline.unreachable_floor ?? ID_BAND_FLOOR_DEFAULT;
   const recipients = hits.length;
   const formsByTable = new Map<string, Set<Hit['form']>>();
+  const outOfBand: Hit[] = [];
   for (const h of hits) {
     if (!formsByTable.has(h.table)) formsByTable.set(h.table, new Set());
-    formsByTable.get(h.table)!.add(h.form === 'explicit' ? 'explicit' : 'omitted');
+    // ★ S37：explicit 侧只计入「落在序列可达带」者；出带站点不再使该表构成撞号对。
+    if (h.form === 'explicit') { if (h.in_band) formsByTable.get(h.table)!.add('explicit'); else outOfBand.push(h); }
+    else formsByTable.get(h.table)!.add('omitted');
   }
   const both = [...formsByTable.entries()].filter(([, s]) => s.has('explicit') && s.has('omitted')).map(([t]) => t).sort();
   const bothSet = new Set(both);
@@ -208,8 +289,9 @@ export function evaluate(hits: Hit[], filesByLayer: Record<Layer, number>, basel
     layer: l, files: filesByLayer[l] ?? 0, recipients: hits.filter((h) => h.layer === l).length,
   }));
   return { scan_surfaces, recipients, tables_with_identity: baseline.identity_pk_count, both_form_tables: both,
-    hits: violating, baseline_count: baseline.baseline.length, new_hits: newHits, invalid, invalid_reason: invalidReason,
-    stale_baseline: stale, red: invalid || newHits.length > 0 };
+    hits: violating, baseline_count: baseline.baseline.length, new_hits: newHits,
+    explicit_out_of_band: outOfBand, unreachable_floor: floor,
+    invalid, invalid_reason: invalidReason, stale_baseline: stale, red: invalid || newHits.length > 0 };
 }
 
 // ── 内存判负（不落盘）────────────────────────────────────────────────────────────────
@@ -233,6 +315,17 @@ function runSelftest(): number {
   // NEG5（必红）：基线非空但命中为 0 ⇒ 断言无效（不得当零违例）
   const neg5 = ev([S('scripts/only-explicit.ts', 'scripts', '.ts', 'await q("INSERT INTO currency (cid, symbol) VALUES (1,$1)");')],
                   { ...B, baseline: [{ file: 'scripts/z.ts', line: 9, table: 'currency', column: 'cid', layer: 'scripts', context: 'scripts', reason: 'selftest' }], baseline_count: 1 });
+  // ── ★ S37/B18 号段判据三例 ─────────────────────────────────────────────────────────
+  // POS3（必绿）：scripts 省略 + 同表显式**整批取 9e8 级字面量**（出带）⇒ 不构成撞号对
+  const pos3 = ev([S('scripts/d.ts', 'scripts', '.ts', 'await q("INSERT INTO currency (symbol) VALUES ($1)");'),
+                   S('scripts/e.ts', 'scripts', '.ts', 'await q("INSERT INTO currency (cid, symbol) VALUES (900000007,$1), (900000008,$2)");')]);
+  // NEG6（必红）：同表既有出带字面量、又有**未出带**字面量 ⇒ 仍构成撞号对（判据不得被整表豁免）
+  const neg6 = ev([S('scripts/d.ts', 'scripts', '.ts', 'await q("INSERT INTO currency (symbol) VALUES ($1)");'),
+                   S('scripts/e.ts', 'scripts', '.ts', 'await q("INSERT INTO currency (cid, symbol) VALUES (900000007,$1)");'),
+                   S('scripts/f.ts', 'scripts', '.ts', 'await q("INSERT INTO currency (cid, symbol) VALUES (7,$1)");')]);
+  // NEG7（必红）：显式侧取参数/子查询（值不可静态证明）⇒ 保守判为**仍在可达带** ⇒ 仍构成撞号对
+  const neg7 = ev([S('scripts/d.ts', 'scripts', '.ts', 'await q("INSERT INTO currency (symbol) VALUES ($1)");'),
+                   S('scripts/e.ts', 'scripts', '.ts', 'await q("INSERT INTO currency (cid, symbol) SELECT c, c FROM unnest($1::bigint[]) AS c");')]);
 
   const checks: Array<[string, boolean, string]> = [
     ['NEG1 scripts 双形态 ⇒ 红', neg1.new_hits.length === 1 && neg1.red && !neg1.invalid, `hits=${neg1.hits.length} new=${neg1.new_hits.length} red=${neg1.red}`],
@@ -244,6 +337,9 @@ function runSelftest(): number {
     ['NEG4 基线登记命中 ⇒ 不报新（绿）', ev([S('scripts/a.ts', 'scripts', '.ts', 'await q("INSERT INTO currency (symbol) VALUES ($1)");'),
                                             S('scripts/b.ts', 'scripts', '.ts', 'await q("INSERT INTO currency (cid, symbol) VALUES (7,$1)");')],
                                             { ...B, baseline: [{ file: 'scripts/a.ts', line: 1, table: 'currency', column: 'cid', layer: 'scripts', context: 'scripts', reason: 'selftest' }], baseline_count: 1 }).new_hits.length === 0, 'baselined hit suppressed'],
+    ['POS3 同表显式全为 9e8 级字面量（出带）⇒ 绿', !pos3.red && pos3.hits.length === 0 && pos3.recipients === 2 && pos3.explicit_out_of_band.length === 1, `hits=${pos3.hits.length} out_of_band=${pos3.explicit_out_of_band.length} red=${pos3.red}`],
+    ['NEG6 出带字面量 + 未出带字面量 混合 ⇒ 仍红（不整表豁免）', neg6.red && neg6.hits.length === 1 && neg6.explicit_out_of_band.length === 1, `hits=${neg6.hits.length} out_of_band=${neg6.explicit_out_of_band.length} red=${neg6.red}`],
+    ['NEG7 显式侧取参数/子查询（不可证）⇒ 保守仍红', neg7.red && neg7.hits.length === 1 && neg7.explicit_out_of_band.length === 0, `hits=${neg7.hits.length} out_of_band=${neg7.explicit_out_of_band.length} red=${neg7.red}`],
   ];
   for (const [id, pass, r] of checks) console.log(`  ${pass ? 'PASS' : 'FAIL'}  ${id}  [${r}]`);
   const ok = checks.every(([, p]) => p);
@@ -262,25 +358,28 @@ function main(): number {
     const sources = collectRepo(root, idMap);
     const filesByLayer: Record<Layer, number> = { src: 0, migrations: 0, scripts: 0 };
     for (const s of sources) filesByLayer[s.layer] += 1;
-    const hits = scanSources(sources, idMap);
+    const hits = scanSources(sources, idMap, baseline.unreachable_floor ?? ID_BAND_FLOOR_DEFAULT);
     const v = evaluate(hits, filesByLayer, baseline);
 
     const report = {
       gate: 'scripts/s36-00-identity-pk-form-gate.ts',
       root, ts: new Date().toISOString(),
-      criterion: '命中 = 测试面(scripts/** 或 migrations DO $$ 块)上、其表在全量三层面中同时存在显式给号的『省略 identity-PK』插入',
+      criterion: '命中 = 测试面(scripts/** 或 migrations DO $$ 块)上、其表在全量三层面中同时存在『落在序列可达带(< unreachable_floor)的显式给号』的『省略 identity-PK』插入',
       self_proof: {
         scan_surfaces: v.scan_surfaces,
         scan_surface_count: v.scan_surfaces.length,
         recipients: v.recipients,
         tables_with_identity: v.tables_with_identity,
+        unreachable_floor: v.unreachable_floor,
         hits: v.hits.length,
         baseline: v.baseline_count,
         new_hits: v.new_hits.length,
+        explicit_out_of_band: v.explicit_out_of_band.length,
         invalid: v.invalid, invalid_reason: v.invalid_reason,
       },
       both_form_tables: v.both_form_tables,
       hits_by_table: v.both_form_tables.map((t) => ({ table: t, hits: v.hits.filter((h) => h.table === t).length })),
+      explicit_out_of_band_sites: v.explicit_out_of_band.map((h) => `${h.file}:${h.line} ${h.table}.${h.column}`),
       new_hits: v.new_hits,
       stale_baseline_entries: v.stale_baseline,
       verdict: v.red ? 'RED' : 'GREEN',
@@ -295,7 +394,7 @@ function main(): number {
     }
     console.log(JSON.stringify(report, null, 1));
     console.log(
-      `\n[自证] 扫描面=${v.scan_surfaces.length}层(${v.scan_surfaces.map((s) => `${s.layer}:${s.files}文件/${s.recipients}受体`).join(' ')})  受体数=${v.recipients}  命中数=${v.hits.length}  基线数=${v.baseline_count}  新增=${v.new_hits.length}`
+      `\n[自证] 扫描面=${v.scan_surfaces.length}层(${v.scan_surfaces.map((s) => `${s.layer}:${s.files}文件/${s.recipients}受体`).join(' ')})  受体数=${v.recipients}  命中数=${v.hits.length}  基线数=${v.baseline_count}  新增=${v.new_hits.length}  出带显式给号=${v.explicit_out_of_band.length}(floor=${v.unreachable_floor})`
     );
     if (v.invalid) console.log(`[INVALID] ${v.invalid_reason} ⇒ 断言无效，不得当「零违例」。`);
     else if (v.new_hits.length > 0) for (const h of v.new_hits) console.log(`[NEW] ${h.file}:${h.line} ${h.table}.${h.column} (${h.surface}/${h.scope})`);

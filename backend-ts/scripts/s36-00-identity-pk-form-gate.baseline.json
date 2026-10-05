@@ -2,7 +2,7 @@
   "meta": {
     "gate": "s36-00-identity-pk-form-gate",
     "purpose": "类级 fail-loud：同表同时存在『省略 identity-PK(omitted)』与『显式给号(explicit)』两种形态 ⇒ 报红（S29 型撞号机制）",
-    "detector_criterion": "命中 = 落在『测试/校验面』(scripts/** 或 migrations 的 DO $$ 块) 的省略-PK 插入，且其表在全量三层面中存在 ≥1 处显式给号插入",
+    "detector_criterion": "命中 = 落在『测试/校验面』(scripts/** 或 migrations 的 DO $$ 块) 的省略-PK 插入，且其表在全量三层面中存在 ≥1 处**落在序列可达带**（identity 值不能证明 ≥ unreachable_floor）的显式给号插入",
     "baseline_provenance": "S36/B14 只读盘点（s36-20261005T050358Z/implicit-inserts.json 的 level==R2 全集，43 处）——独立于本门扫描器生成",
     "live_probe_readings": {
       "identity_or_serial_cols_public": 23,
@@ -10,7 +10,41 @@
       "serial_nextval_default": 1,
       "public_base_tables": 34
     },
-    "generated_at_utc": "2026-10-05T05:10:00Z"
+    "generated_at_utc": "2026-10-05T05:22:30Z",
+    "s37_change": {
+      "round": "S37/B18",
+      "change": "explicit 侧新增『序列可达带』判据（unreachable_floor=900000000）；可证 ≥floor 的显式给号不再使该表构成撞号对",
+      "baseline_before": 43,
+      "baseline_after": 30,
+      "cleared": [
+        "scripts/p3f-01-cases.ts:116:job_submission",
+        "scripts/p3f-01-cases.ts:122:job_submission",
+        "scripts/p3f-01-cases.ts:133:job_submission",
+        "scripts/p3f-lib.ts:102:job",
+        "scripts/p3l-01-cases.ts:284:listing_order",
+        "scripts/p4z-audjk-01-probe.ts:145:job",
+        "scripts/p4z-b2a-01-fixture.ts:140:job",
+        "scripts/p4z-b2b-02-listing.ts:142:job",
+        "scripts/p4z-b3d-02-e2e.ts:148:listing_order",
+        "scripts/p4z-tr1b-01-e2e-stub.ts:103:job",
+        "scripts/p4z-tr1b-01-e2e-stub.ts:133:job",
+        "scripts/p7b-06-fixture-setup.ts:97:listing_order",
+        "scripts/p8-s10-invite-reward-gate.ts:379:job"
+      ],
+      "residual_not_fixed": {
+        "currency": 22,
+        "users": 8
+      },
+      "band_plan": {
+        "job": "920000001-920000099",
+        "job_submission": "921000001-921000099",
+        "listing_order": "922000001-922000099",
+        "listing_order_event": "923000001-923000099",
+        "rating": "924000001-924000099",
+        "currency": "925000001-925000099",
+        "users": "EXCLUDED(MAX+1 取号)"
+      }
+    }
   },
   "identity_pk": [
     {
@@ -161,7 +195,8 @@
       "column": "cid",
       "layer": "migrations",
       "context": "mig-do",
-      "reason": "迁移内 DO 块自检探针省略 PK，且同表存在显式给号（S29 型）"
+      "reason": "迁移内 DO 块自检探针省略 PK，且同表存在显式给号（S29 型）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "migrations/0012_replay_pre_gate_before_balance_gate.sql",
@@ -170,7 +205,8 @@
       "column": "cid",
       "layer": "migrations",
       "context": "mig-do",
-      "reason": "迁移内 DO 块自检探针省略 PK，且同表存在显式给号（S29 型）"
+      "reason": "迁移内 DO 块自检探针省略 PK，且同表存在显式给号（S29 型）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "scripts/ledger-smoke-db.ts",
@@ -179,7 +215,8 @@
       "column": "cid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "scripts/ledger-smoke.ts",
@@ -188,7 +225,8 @@
       "column": "cid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "scripts/p1e-01-latency.ts",
@@ -197,7 +235,8 @@
       "column": "cid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "scripts/p1e-04-db-fn-probe.ts",
@@ -206,7 +245,8 @@
       "column": "cid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "scripts/p1f-lib.ts",
@@ -215,7 +255,8 @@
       "column": "cid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "scripts/p2qa-11-f1-f7.ts",
@@ -224,7 +265,8 @@
       "column": "cid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "scripts/p2qa-11-f1-f7.ts",
@@ -233,7 +275,8 @@
       "column": "cid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "scripts/p2qa-12-f3-f6-f2.ts",
@@ -242,7 +285,8 @@
       "column": "cid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "scripts/p2qa-lib.ts",
@@ -251,7 +295,8 @@
       "column": "cid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "scripts/p2w-lib.ts",
@@ -260,7 +305,8 @@
       "column": "cid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "scripts/p2x-lib.ts",
@@ -269,34 +315,8 @@
       "column": "cid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
-    },
-    {
-      "file": "scripts/p3f-01-cases.ts",
-      "line": 116,
-      "table": "job_submission",
-      "column": "submission_id",
-      "layer": "scripts",
-      "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
-    },
-    {
-      "file": "scripts/p3f-01-cases.ts",
-      "line": 122,
-      "table": "job_submission",
-      "column": "submission_id",
-      "layer": "scripts",
-      "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
-    },
-    {
-      "file": "scripts/p3f-01-cases.ts",
-      "line": 133,
-      "table": "job_submission",
-      "column": "submission_id",
-      "layer": "scripts",
-      "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "scripts/p3f-lib.ts",
@@ -305,16 +325,8 @@
       "column": "uid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
-    },
-    {
-      "file": "scripts/p3f-lib.ts",
-      "line": 102,
-      "table": "job",
-      "column": "job_id",
-      "layer": "scripts",
-      "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消 · 判为**排除**）：`users.uid` 由产品 `DatabaseService.getNextUserId` = `COALESCE(MAX(uid),0)+1`（`src/database.ts:2077`，非序列）取号 ⇒ **夹具任何高号都会把下一枚真 uid 抬到该号+1**，故本修法**不适用**（上移至 9e8 只会把真 uid 空间污染得更狠）；且显式源另含 `migrations/0010/0011/0012` 冻结探针 uid 952xxx。另：`users_uid_seq` 停滞在 42 而表内真 uid 达 971213 ⇒ 该表撞号风险来自**真行**、与夹具固定号无关。需另法（见 S37 §1 / §8）。"
     },
     {
       "file": "scripts/p3j-lib.ts",
@@ -323,16 +335,8 @@
       "column": "uid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
-    },
-    {
-      "file": "scripts/p3l-01-cases.ts",
-      "line": 284,
-      "table": "listing_order",
-      "column": "order_id",
-      "layer": "scripts",
-      "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消 · 判为**排除**）：`users.uid` 由产品 `DatabaseService.getNextUserId` = `COALESCE(MAX(uid),0)+1`（`src/database.ts:2077`，非序列）取号 ⇒ **夹具任何高号都会把下一枚真 uid 抬到该号+1**，故本修法**不适用**（上移至 9e8 只会把真 uid 空间污染得更狠）；且显式源另含 `migrations/0010/0011/0012` 冻结探针 uid 952xxx。另：`users_uid_seq` 停滞在 42 而表内真 uid 达 971213 ⇒ 该表撞号风险来自**真行**、与夹具固定号无关。需另法（见 S37 §1 / §8）。"
     },
     {
       "file": "scripts/p3l-05-cases.ts",
@@ -341,7 +345,8 @@
       "column": "uid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消 · 判为**排除**）：`users.uid` 由产品 `DatabaseService.getNextUserId` = `COALESCE(MAX(uid),0)+1`（`src/database.ts:2077`，非序列）取号 ⇒ **夹具任何高号都会把下一枚真 uid 抬到该号+1**，故本修法**不适用**（上移至 9e8 只会把真 uid 空间污染得更狠）；且显式源另含 `migrations/0010/0011/0012` 冻结探针 uid 952xxx。另：`users_uid_seq` 停滞在 42 而表内真 uid 达 971213 ⇒ 该表撞号风险来自**真行**、与夹具固定号无关。需另法（见 S37 §1 / §8）。"
     },
     {
       "file": "scripts/p3l-09-first-purchase.ts",
@@ -350,7 +355,8 @@
       "column": "uid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消 · 判为**排除**）：`users.uid` 由产品 `DatabaseService.getNextUserId` = `COALESCE(MAX(uid),0)+1`（`src/database.ts:2077`，非序列）取号 ⇒ **夹具任何高号都会把下一枚真 uid 抬到该号+1**，故本修法**不适用**（上移至 9e8 只会把真 uid 空间污染得更狠）；且显式源另含 `migrations/0010/0011/0012` 冻结探针 uid 952xxx。另：`users_uid_seq` 停滞在 42 而表内真 uid 达 971213 ⇒ 该表撞号风险来自**真行**、与夹具固定号无关。需另法（见 S37 §1 / §8）。"
     },
     {
       "file": "scripts/p3l-lib.ts",
@@ -359,7 +365,8 @@
       "column": "uid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消 · 判为**排除**）：`users.uid` 由产品 `DatabaseService.getNextUserId` = `COALESCE(MAX(uid),0)+1`（`src/database.ts:2077`，非序列）取号 ⇒ **夹具任何高号都会把下一枚真 uid 抬到该号+1**，故本修法**不适用**（上移至 9e8 只会把真 uid 空间污染得更狠）；且显式源另含 `migrations/0010/0011/0012` 冻结探针 uid 952xxx。另：`users_uid_seq` 停滞在 42 而表内真 uid 达 971213 ⇒ 该表撞号风险来自**真行**、与夹具固定号无关。需另法（见 S37 §1 / §8）。"
     },
     {
       "file": "scripts/p3m-lib.ts",
@@ -368,7 +375,8 @@
       "column": "uid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消 · 判为**排除**）：`users.uid` 由产品 `DatabaseService.getNextUserId` = `COALESCE(MAX(uid),0)+1`（`src/database.ts:2077`，非序列）取号 ⇒ **夹具任何高号都会把下一枚真 uid 抬到该号+1**，故本修法**不适用**（上移至 9e8 只会把真 uid 空间污染得更狠）；且显式源另含 `migrations/0010/0011/0012` 冻结探针 uid 952xxx。另：`users_uid_seq` 停滞在 42 而表内真 uid 达 971213 ⇒ 该表撞号风险来自**真行**、与夹具固定号无关。需另法（见 S37 §1 / §8）。"
     },
     {
       "file": "scripts/p3n-01-rca-legs.ts",
@@ -377,7 +385,8 @@
       "column": "cid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "scripts/p3p-lib.ts",
@@ -386,7 +395,8 @@
       "column": "uid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消 · 判为**排除**）：`users.uid` 由产品 `DatabaseService.getNextUserId` = `COALESCE(MAX(uid),0)+1`（`src/database.ts:2077`，非序列）取号 ⇒ **夹具任何高号都会把下一枚真 uid 抬到该号+1**，故本修法**不适用**（上移至 9e8 只会把真 uid 空间污染得更狠）；且显式源另含 `migrations/0010/0011/0012` 冻结探针 uid 952xxx。另：`users_uid_seq` 停滞在 42 而表内真 uid 达 971213 ⇒ 该表撞号风险来自**真行**、与夹具固定号无关。需另法（见 S37 §1 / §8）。"
     },
     {
       "file": "scripts/p3s-00-500-rca-probe.ts",
@@ -395,7 +405,8 @@
       "column": "cid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "scripts/p4z-a1li-01-e2e.ts",
@@ -404,79 +415,8 @@
       "column": "uid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
-    },
-    {
-      "file": "scripts/p4z-audjk-01-probe.ts",
-      "line": 145,
-      "table": "job",
-      "column": "job_id",
-      "layer": "scripts",
-      "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
-    },
-    {
-      "file": "scripts/p4z-b2a-01-fixture.ts",
-      "line": 140,
-      "table": "job",
-      "column": "job_id",
-      "layer": "scripts",
-      "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
-    },
-    {
-      "file": "scripts/p4z-b2b-02-listing.ts",
-      "line": 142,
-      "table": "job",
-      "column": "job_id",
-      "layer": "scripts",
-      "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
-    },
-    {
-      "file": "scripts/p4z-b3d-02-e2e.ts",
-      "line": 148,
-      "table": "listing_order",
-      "column": "order_id",
-      "layer": "scripts",
-      "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
-    },
-    {
-      "file": "scripts/p4z-tr1b-01-e2e-stub.ts",
-      "line": 103,
-      "table": "job",
-      "column": "job_id",
-      "layer": "scripts",
-      "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
-    },
-    {
-      "file": "scripts/p4z-tr1b-01-e2e-stub.ts",
-      "line": 133,
-      "table": "job",
-      "column": "job_id",
-      "layer": "scripts",
-      "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
-    },
-    {
-      "file": "scripts/p7b-06-fixture-setup.ts",
-      "line": 97,
-      "table": "listing_order",
-      "column": "order_id",
-      "layer": "scripts",
-      "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
-    },
-    {
-      "file": "scripts/p8-s10-invite-reward-gate.ts",
-      "line": 379,
-      "table": "job",
-      "column": "job_id",
-      "layer": "scripts",
-      "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消 · 判为**排除**）：`users.uid` 由产品 `DatabaseService.getNextUserId` = `COALESCE(MAX(uid),0)+1`（`src/database.ts:2077`，非序列）取号 ⇒ **夹具任何高号都会把下一枚真 uid 抬到该号+1**，故本修法**不适用**（上移至 9e8 只会把真 uid 空间污染得更狠）；且显式源另含 `migrations/0010/0011/0012` 冻结探针 uid 952xxx。另：`users_uid_seq` 停滞在 42 而表内真 uid 达 971213 ⇒ 该表撞号风险来自**真行**、与夹具固定号无关。需另法（见 S37 §1 / §8）。"
     },
     {
       "file": "scripts/p8-s9-bttc-gate.ts",
@@ -485,7 +425,8 @@
       "column": "cid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "scripts/qa-p1b-01-setup.ts",
@@ -494,7 +435,8 @@
       "column": "cid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "scripts/qa-p1b-05-supplycap.ts",
@@ -503,7 +445,8 @@
       "column": "cid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "scripts/qa-p1e-02b-api-collision.ts",
@@ -512,7 +455,8 @@
       "column": "cid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "scripts/qa-p1e-05-neon-ab.ts",
@@ -521,7 +465,8 @@
       "column": "cid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "scripts/qa-p1e-09-migration-replay.ts",
@@ -530,7 +475,8 @@
       "column": "cid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     },
     {
       "file": "scripts/qa-p1e-lib.ts",
@@ -539,8 +485,10 @@
       "column": "cid",
       "layer": "scripts",
       "context": "scripts",
-      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）"
+      "reason": "探针/夹具省略 PK，且同表存在显式给号（S29 型撞号机制）",
+      "residual_reason": "残差（S37/B18 · 未消）：同表显式给号源 = `migrations/0001_ledger_core.sql:167`（cid=1 顶层种子，**已 apply 不可改**） + `scripts/p8-s3/p8-s3b/p8-s4`（参数化 $1，值不可静态证明）⇒ 号段上移无法使该表出带。当前 `currency_cid_seq`≈339 > `max(cid)`=36 ⇒ **非即时撞号对**；真风险 = 序列涨到脚本固定 cid 级（S37 后为 9.25e8 级）。"
     }
   ],
-  "baseline_count": 43
+  "baseline_count": 30,
+  "unreachable_floor": 900000000
 }

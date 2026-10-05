@@ -230,7 +230,7 @@ const snapshot = async (): Promise<Record<string, unknown>> => {
       // ==================================================================
       // ④-before · 行为随之（改键**前**读数）
       // ==================================================================
-      const cidB = 2_100_001;
+      const cidB = 925_000_001;
       await insertDraft(tx, cidB, 'P8S3EFB1', OWNER);
       const ob0 = await bal(tx, OWNER, 1); const pb0 = await bal(tx, -1, 1);
       const listBefore = await runListSamePath(tx, { cid: cidB, actorUid: OWNER, fee: LIST_FEE_FLOOR, depositAmount: floorBefore.floor });
@@ -324,7 +324,7 @@ const snapshot = async (): Promise<Record<string, unknown>> => {
       // ==================================================================
       // ④-after · 行为随之（改键**后**读数）
       // ==================================================================
-      const cidA = 2_100_002;
+      const cidA = 925_000_002;
       await insertDraft(tx, cidA, 'P8S3EFA1', OWNER);
       const oa0 = await bal(tx, OWNER, 1); const pa0 = await bal(tx, -1, 1);
       const listAfter = await runListSamePath(tx, { cid: cidA, actorUid: OWNER, fee: LIST_FEE_FLOOR, depositAmount: floorAfter.floor });
@@ -382,7 +382,7 @@ const snapshot = async (): Promise<Record<string, unknown>> => {
         { floor: CURRENCY_LIST_DEPOSIT_FLOOR, source: 'constant' },
         '库内 `AK2` 值为**非法**（字符串型金额）时读口**未** fail-closed 到常量 ⇒ 判负');
       // 负向段的行为面：同样必须用**常量**（证明 fail-closed 真的传到行为）
-      const cidN = 2_100_003;
+      const cidN = 925_000_003;
       await insertDraft(tx, cidN, 'P8S3EFN1', OWNER);
       const on0 = await bal(tx, OWNER, 1);
       await runListSamePath(tx, { cid: cidN, actorUid: OWNER, fee: LIST_FEE_FLOOR, depositAmount: floorIllegal.floor });

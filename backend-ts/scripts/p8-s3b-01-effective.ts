@@ -337,13 +337,13 @@ const readAk1 = async (): Promise<Record<string, string> | null> =>
         };
         // ④-改前：事务内把 AK2 恢复为**原态**（原行存在 ⇒ 原值；不存在 ⇒ 删行）
         await setAk2(ak2Original ? ak2Original.value_text : null);
-        const before = await measure(2_200_001, 'P8S3BFB1');
+        const before = await measure(925_000_011, 'P8S3BFB1');
         // ④-改后：事务内把 AK2 置为**新值**
         await setAk2(JSON.stringify({ amount: NEW_AMOUNT }));
-        const after = await measure(2_200_002, 'P8S3BFA1');
+        const after = await measure(925_000_012, 'P8S3BFA1');
         // ④-负向：非法值 ⇒ fail-closed 到常量 ⇒ 行为面用常量
         await setAk2(JSON.stringify(ILLEGAL_RAW));
-        const negBehavior = await measure(2_200_003, 'P8S3BFN1');
+        const negBehavior = await measure(925_000_013, 'P8S3BFN1');
         B['4_before'] = before; B['4_after'] = after; B['4_fail_closed_behavior'] = negBehavior;
         const beforeFloor = (before.floor as { floor: number }).floor;
         const beforeDecrease = Number(before.owner_decrease);
