@@ -1416,6 +1416,19 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.363 **S40（PARTIAL：受控实例取证拿到 7/8 转绿 + 9 端真响应体逐字）· ★我亲验收尾（5792–5799 全空、他人端口无恙）· 我两条裁定（门套口径 = 15 门 / `s7 G9` 改「数据态感知」）· 派 S40b 收尾**（2026-10-05）
+
+**A. S40（Kong · 60c/630s · `PARTIAL`，迭代耗尽）**：已完成 —— ① 受控实例 `PORT=5792`（node PID 2738，`/api/health` ⇒ `schema_version 0043`）；② **14 门前后逐门对照**；③ **Part II 真响应体逐字取证**（无凭证 **9 端全部与 S32c §1 预期逐字一致**，例：`GET /api/task/abc` ⇒ **404 `LEDGER_REF_NOT_FOUND` + `details{ref_type:job,ref_id:abc,reason:tID_not_found}`**；`POST /api/auth/verify` ⇒ **401 `AUTH_UNAUTHORIZED`**；`app.use` 兜底 ⇒ 404 `route_not_found`；带**真会话 token** 补测 `#10/#11/#12` 三端亦逐字一致）。未完成 —— 报告未落盘 / R1 未跑完 / 门套口径未定。
+**B. ★★ 我亲验收尾（我干的第一件事）**：上单把实例留在 `5792` 上没停（这是纪律问题）。我按精确 PID 处置 ⇒ **进程已随子代理终止**（派单通知的 `TERMINATED with it`）；我实测 **`lsof` 5792–5799 全空** ✓ · **他人端口 `5787/5788/5555/5191` 未受影响** ✓（PID 30475/65000/61407/65096 俱在）· **零 tracked 改动** ✓。
+**C. ★★ 我两条裁定**：
+1. **门套口径 = `15 门`**（**以后验收按此跑，写进报告**）：`p8-s1..s11`（11）+ `p7b-03`（1）= 13 基线，再加 **`p8-s5-02-ownership-gate`**（具 HTTP 腿）+ **`s36-00-identity-pk-form-gate`**（S36b 新立独立门）= **15**。（上单只算到 14 且漏了 `s36-00` ⇒ 本单补齐。）
+2. **`s7 G9` 处置 = 门侧修为「数据态感知」，不得放宽判据**。根因（上单已实测）：该门期望 `POST /api/checkin/makeup` ⇒ 必 200，但被选中的 actor（uid=2）**已补签过** `target_day=2026-10-02`（DB 证据 `checkin_makeup_log log_id=60 result=applied`）⇒ 真响应 **409 + `LEDGER_CURRENCY_INVALID_TRANSITION` + `details.reason=CHECKIN_MAKEUP_TARGET_INVALID`**（**业务态拒绝，非 fetch failed、非产品回归**）。⇒ **旧期望是数据依赖型假红源**（随时间随机红/绿）。改法：**门先现取该 actor 对该 `target_day` 的补签数据态，再断言对应分支** —— **(a) 未补签 ⇒ 200 + 成功形状**；**(b) 已补签 ⇒ 409 + 上述形状逐键**；★ 硬约束：**两分支均断言状态码 + 形状**、**任何情况不得允许 `fetch failed`/`status:-1`**、**不得无条件接受任意码**、不得删断言/降分母凑绿。
+**D. 派 S40b（Kong · 收尾）**：① 补 `s36-00` 成 **15 门**两相位读数；② **报告落盘**（含不可达者逐条 `NOT_MEASURED`、**门跑产生的真 DB 写自曝**：uid2 的 2026-10-05 checkin 行 + `checkin_makeup_log` 留痕行 + uid12 同类）；③ **R1 受控复现**（SAVEPOINT 版：给序列前后/行数前后/`RAISE` 的 ERRCODE/**残留 = 0**，并登记「`nextval` 不可回滚」成本）；④ `s7 G9` 门侧落地（前后读数 + 判负）；⑤ 零 tracked 改动（除允许面）。
+**E. `NOT_MEASURED`（上单如实登记，我不洗白）**：`#8` miss 分支（需「有会话但用户不存在」不可达）· `#21 points/adjust`（需 admin 授权，无 token ⇒ 401；**未用假 token 造成功** ✓ 合纪）· `#14/#15` 的 infra 分类 500→503（需真库不可达注入）⇒ 三条仍为 `NOT_MEASURED`。
+**F. 状态**：DB **`42 行 / max 0043`** · 生产 **`4f8fd78`**（代码）+ 文档至 `8c85a70` · 端口：5792–5799 **空**；5787/5788/5555/5191 **他人监听（非本批）**。
+
+---
+
 ### 5.362 **★ 台账收口后的两处自查修正（我认账）· 派 S40（受控实例取证单：把三类 `NOT_MEASURED` 升为实测）**（2026-10-05）
 
 **A. ★ 我自查出的两处（当场修掉）**：
