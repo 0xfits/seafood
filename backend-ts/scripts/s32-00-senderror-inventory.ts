@@ -11,7 +11,8 @@
  *   C2 错误码闭集不动：`LEDGER_*` == 33 且 `AUTH_*` == 2
  *   C3 任一处 `sendError` 的 message 字面量命中「全大写下划线机读码」== 0（§3.3 条款 9′）
  *   C4 注册点 == 89（本单不动路由）
- *   C5 计数完整性：命中行 = 实调用 + 注释行（现取 25 + 25 = 50）
+ *   C5 计数完整性：命中行 == 实调用 + 注释行（基线 25 + 25 = 50；迁移后 = 9 + 25 = 34
+ *      ⇒ 与 C1 同法可用 `S32_EXPECT_HITS` 覆盖）
  *
  * 判负（**在内存里变异，不落盘**）：`--selftest`
  *   NEG1 合成一行 `sendError(res, 400, 'LEDGER_AMOUNT_INVALID')` ⇒ C3 必红
@@ -24,6 +25,8 @@ import { LEDGER_ERROR_CODES, AUTH_ERROR_MESSAGES } from '../src/ledger-errors';
 const REPO_BACKEND = path.resolve(__dirname, '..');
 const TARGET = process.env.S32_TARGET || path.resolve(REPO_BACKEND, 'src/index.ts');
 const EXPECT_CALLS = Number(process.env.S32_EXPECT_CALLS || '25');
+/** `sendError(` 命中行总数基线（= 实调用 + 注释行）；迁移后随之下降 ⇒ 与 C1 同法可 env 覆盖 */
+const EXPECT_HITS = Number(process.env.S32_EXPECT_HITS || '50');
 
 /** 整串即机读码（逐字 = route-layer.spec §16.2 的 `MACHINE_CODE_RE`） */
 const MACHINE_CODE_RE = /^(?=[A-Z0-9_]*_)[A-Z0-9_]{4,}$/;
@@ -91,7 +94,7 @@ export const evaluate = (src: string, expectCalls = EXPECT_CALLS): Check[] => {
     { id: 'C2', what: '码闭集不动：LEDGER_* == 33 且 AUTH_* == 2', pass: ledgerCodes === 33 && authCodes === 2, reading: `ledger=${ledgerCodes} auth=${authCodes}` },
     { id: 'C3', what: 'sendError message 命中机读码 == 0（§3.3 条款 9′）', pass: inv.machineHits.length === 0, reading: `hits=${inv.machineHits.length} ${JSON.stringify(inv.machineHits)}` },
     { id: 'C4', what: '注册点 == 89（本单不动路由）', pass: inv.regCount === 89, reading: `registration_points=${inv.regCount}` },
-    { id: 'C5', what: '计数完整性：命中行 == 实调用 + 注释行', pass: inv.calls.length + inv.commentLines.length === 50, reading: `calls=${inv.calls.length} comments=${inv.commentLines.length} total=${inv.calls.length + inv.commentLines.length}` },
+    { id: 'C5', what: `计数完整性：命中行 == 实调用 + 注释行（基线 ${EXPECT_HITS}）`, pass: inv.calls.length + inv.commentLines.length === EXPECT_HITS, reading: `calls=${inv.calls.length} comments=${inv.commentLines.length} total=${inv.calls.length + inv.commentLines.length}` },
   ];
 };
 

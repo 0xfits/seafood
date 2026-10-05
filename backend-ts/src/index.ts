@@ -481,7 +481,7 @@ app.post('/api/auth/verify', async (req, res) => {
   try {
     challenge = consumeWalletAuthChallenge(req.body || {});
   } catch (error) {
-    sendError(res, 401, error instanceof Error ? error.message : 'Failed to verify auth challenge');
+    sendAuthError(res, 401);
     return;
   }
 
@@ -564,7 +564,7 @@ app.get('/api/task/:tID', async (req, res) => {
   try {
     const tID = parseInteger(req.params.tID);
     if (!tID) {
-      return sendError(res, 400, 'Invalid tID');
+      return sendRefNotFound(res, 'job', String(req.params.tID ?? ''), 'tID_not_found');
     }
 
     // P4-B2a（§3.1 裁定 E1 / §1 #10【保留·改语义】）：detail-miss 统一 404（**撤销** B1-b 的 200 空态）
@@ -593,12 +593,12 @@ app.get('/api/prize/:bID', async (req, res) => {
   try {
     const bID = parseInteger(req.params.bID);
     if (!bID) {
-      return sendError(res, 400, 'Invalid bID');
+      return sendRefNotFound(res, 'prize', String(req.params.bID ?? ''), 'bID_not_found');
     }
 
     const prize = await DatabaseService.getPrizeById(bID);
     if (!prize) {
-      return sendError(res, 404, 'Prize not found');
+      return sendRefNotFound(res, 'prize', String(bID), 'prize_not_found');
     }
 
     setPublicCache(res);
@@ -638,7 +638,7 @@ app.post('/api/user/profile', async (req, res) => {
   try {
     const updatedUser = await DatabaseService.updateUserProfile(actor.user.uID, { bio });
     if (!updatedUser) {
-      return sendError(res, 404, 'User not found');
+      return sendRefNotFound(res, 'user', String(actor.user.uID), 'user_not_found');
     }
 
     // P6-TR-1c-A：bio 译文登记（前台 pending + 后台 waitUntil 翻译；失败不影响本响应）
@@ -658,7 +658,7 @@ app.get('/api/user/asset/:uID', async (req, res) => {
   try {
     const uID = parseInteger(req.params.uID);
     if (!uID) {
-      return sendError(res, 400, 'Invalid user ID');
+      return sendRefNotFound(res, 'user', String(req.params.uID ?? ''), 'uID_not_found');
     }
 
     // P4-B1-a: 纯读端点，禁止隐式写库（原 `|| upsertAsset(uID, 0)` 回退已移除）。
@@ -923,7 +923,7 @@ app.get('/api/task-progress/:jID', async (req, res) => {
   try {
     const jID = parseInteger(req.params.jID);
     if (!jID) {
-      return sendError(res, 400, 'Invalid jID');
+      return sendRefNotFound(res, 'job_submission', String(req.params.jID ?? ''), 'jID_not_found');
     }
 
     // 归属校验复用既有 `ensureOwnedTaskProgress`（与 submit 路由同源）；miss 与「非本人」合流 ⇒ 同形 404。
@@ -932,7 +932,7 @@ app.get('/api/task-progress/:jID', async (req, res) => {
       actor.user.uID,
     );
     if (!taskProgress) {
-      return sendError(res, 404, 'Task progress not found');
+      return sendRefNotFound(res, 'job_submission', String(jID), 'jID_not_found');
     }
 
     sendSuccess(res, taskProgress);
@@ -958,7 +958,7 @@ app.post('/api/task-progress/:identifier/submit', async (req, res) => {
   const createKeyRaw = req.body?.create_key ?? req.get('idempotency-key') ?? undefined;
 
   if (!identifier) {
-    return sendError(res, 400, 'Invalid task or task progress id');
+    return sendRefNotFound(res, 'job', String(req.params.identifier ?? ''), 'job_not_found');
   }
 
   if (!infoInput) {
@@ -1028,8 +1028,7 @@ app.get('/api/shard', async (req, res) => {
     // P4-B1-c: shard 读侧恒空态（无对应表）+ 顶层 deprecated 标记（碎片语义已被积分交易所取代）。
     sendSuccess(res, shards, 'OK', 200, { deprecated: true });
   } catch (error) {
-    console.error('Error loading shard holdings:', error);
-    sendError(res, 500, 'Failed to load shard holdings');
+    return sendInfraMapped(res, 'shard.holdings', error);
   }
 });
 
@@ -1043,8 +1042,7 @@ app.get('/api/shard/transfer', async (req, res) => {
     // P4-B1-c: shard_transfer 读侧恒空态（无对应表）+ 顶层 deprecated 标记。
     sendSuccess(res, transfers, 'OK', 200, { deprecated: true });
   } catch (error) {
-    console.error('Error loading shard transfers:', error);
-    sendError(res, 500, 'Failed to load shard transfers');
+    return sendInfraMapped(res, 'shard.transfers', error);
   }
 });
 
@@ -1165,7 +1163,7 @@ app.delete('/api/order/:oID', async (req, res) => {
 app.get('/api/market/:bID/orderbook', async (req, res) => {
   const bID = parseInteger(req.params.bID);
   if (!bID) {
-    return sendError(res, 400, 'Invalid bID');
+    return sendRefNotFound(res, 'brand', String(req.params.bID ?? ''), 'bID_not_found');
   }
 
   try {
@@ -1182,7 +1180,7 @@ app.get('/api/market/:bID/orderbook', async (req, res) => {
 app.get('/api/market/:bID/trades', async (req, res) => {
   const bID = parseInteger(req.params.bID);
   if (!bID) {
-    return sendError(res, 400, 'Invalid bID');
+    return sendRefNotFound(res, 'brand', String(req.params.bID ?? ''), 'bID_not_found');
   }
 
   try {
@@ -2112,8 +2110,28 @@ app.post('/api/admin/points/adjust', async (req, res) => {
     const amount = parseInteger(req.body?.amount, Number.NaN);
     const reason = String(req.body?.reason || '').trim();
 
-    if (!uID || Number.isNaN(amount) || !reason) {
-      return sendError(res, 400, '参数不完整');
+    if (!uID) {
+      return res.status(400).json(ledgerErrorBody(
+        'LEDGER_AMOUNT_INVALID',
+        'Request shape is invalid',
+        { field: 'uid', reason: 'MISSING' },
+      ));
+    }
+
+    if (Number.isNaN(amount)) {
+      return res.status(400).json(ledgerErrorBody(
+        'LEDGER_AMOUNT_INVALID',
+        'Request shape is invalid',
+        { field: 'amount', reason: 'MISSING' },
+      ));
+    }
+
+    if (!reason) {
+      return res.status(400).json(ledgerErrorBody(
+        'LEDGER_AMOUNT_INVALID',
+        'Request shape is invalid',
+        { field: 'reason', reason: 'MISSING' },
+      ));
     }
 
     // ★ 8⑥ C3③（`route-layer.spec` v2.21 §32.14 · `R-9-76` = `PZ-1` 终审 (b)）：`reason` 由
@@ -2978,7 +2996,7 @@ app.post('/api/translate/backfill', async (req, res) => {
   const bearer = authHeader.toLowerCase().startsWith('bearer ') ? authHeader.slice(7).trim() : '';
   const headerSecret = String(req.headers['x-cron-secret'] || '').trim();
   if (bearer !== secret && headerSecret !== secret) {
-    return sendError(res, 401, 'Unauthorized');
+    return sendAuthError(res, 401);
   }
 
   const body = (req.body as Record<string, unknown> | undefined) || {};
@@ -3027,7 +3045,7 @@ app.post('/api/translate/backfill', async (req, res) => {
 });
 
 app.use((req, res) => {
-  sendError(res, 404, 'Not found');
+  sendRefNotFound(res, 'endpoint', req.path, 'route_not_found');
 });
 
 if (!process.env.VERCEL) {
