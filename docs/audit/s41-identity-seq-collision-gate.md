@@ -9,6 +9,7 @@
 > **未** `pkill -f` / `killall`；**未** commit / push；**未** `npm install`；原始输出**不用 `.log`**（用 `.txt`/`.json`）；
 > **未改任何既有文件**（不动 15 门、不动产品/迁移/规范/台账）。
 > 产物目录：`backend-ts/.s41-artifacts/s41-20261005T120535Z/`
+> **★ S41b 留痕**：按 Zang 裁定将『命中数』更名『读数数』（『命中』在门套里专指违例）。
 
 ---
 
@@ -135,7 +136,7 @@ server : db=neondb  addr=169.254.254.254/32  pgver=18.6  usr=neondb_owner
 $ cd backend-ts && npx ts-node --transpile-only scripts/s41-00-identity-seq-collision-gate.ts
 verdict = GREEN   exit_code = 0
 state_summary = { OK: 23, WARN: 0, FAIL: 0, UNKNOWN: 0 }
-[自证] 受体数=23  命中数=23(读数命中)  违例数=0(FAIL=0/WARN=0/UNKNOWN=0)  基线数=23(基线违例=0)  新增=0  阈值=1000
+[自证] 受体数=23  读数数=23  违例数=0  基线数=23  新增=0  阈值=1000
 ```
 
 **逐条判定规则（现取，与 §1 口径同源）**：
@@ -159,12 +160,12 @@ state_summary = { OK: 23, WARN: 0, FAIL: 0, UNKNOWN: 0 }
 | 读数 | 现取 | 说明 |
 |---|---|---|
 | **受体数** | **23** | 枚举到的 identity/serial 列数 |
-| **命中数** | **23（读数命中）** | **成功读得三读数（nextval / 下一已占位 / gap）**的受体列数；`受体=0 或 命中=0 ⇒ 自标「断言无效」`（EXIT 5），**一律不得当「零违例」** |
+| **读数数** | **23** | **成功读得三读数（nextval / 下一已占位 / gap）**的受体列数；`受体=0 或 读数数=0 ⇒ 自标「断言无效」`（EXIT 5），**一律不得当「零违例」** |
 | **违例数** | **0**（`FAIL=0 / WARN=0 / UNKNOWN=0`） | 态 ≠ OK 的列数（= 门「真的响了」的次数） |
 | **基线数** | **23**（基线违例 `0`） | 基线登记的列数；基线违例 = 基线 `flags` 里登记的 FAIL/UNKNOWN |
 | **新增** | **0** | 违例中**不在**基线违例名单者（零容忍 ⇒ 红） |
 
-**无效断言（INVALID）三触发**：① 受体数 = 0；② 命中数 = 0（无任何一列读得出读数）；
+**无效断言（INVALID）三触发**：① 受体数 = 0；② 读数数 = 0（无任何一列读得出读数）；
 ③ 基线登记了违例列但本次一个都不复现（判据未生效）。⇒ 三者任一成立即 **EXIT 5**，**不得**当绿。
 
 ### 4.2 `--selftest`（内存合成数据，不连库 / 不落盘 / 不改仓）—— **6/6 逐条 PASS**
@@ -176,12 +177,12 @@ $ cd backend-ts && npx ts-node --transpile-only scripts/s41-00-identity-seq-coll
   PASS  ③ gap 很大 ⇒ OK  [state=OK gap=899959 (gap=899959 > 阈值 1000（下一个已占用位 900001 距 nextval 42 尚远）)]
   PASS  ④ 已占用集合为空 ⇒ OK（不得 FAIL）  [state=OK next_occupied=null]
   PASS  ⑤ 受体=0 ⇒ 断言无效（非绿）  [recipients=0 invalid=true]
-  PASS  ⑥ 命中(读数)=0 ⇒ 断言无效（非绿）  [readings_ok=0 invalid=true]
+  PASS  ⑥ 读数数=0 ⇒ 断言无效（非绿）  [readings_ok=0 invalid=true]
 SELFTEST PASS (6/6)                        → SELFTEST_EXIT=0
 ```
 逐例读法：① 合成 `nextval=100, 下一已占位=150, gap=50 ≤ 1000` ⇒ WARN；② 合成 `nextval=42, hit=true`（已占集合内含 42）⇒ FAIL；
 ③ 合成 `gap=899959 > 1000` ⇒ OK（**与 `users` 实测同态**）；④ 合成 `next_occupied=null` ⇒ OK（**防空集误报**，含「已占用集合为空」）；
-⑤ 受体=0 ⇒ INVALID（非绿）；⑥ 全部列读数失败 ⇒ INVALID（非绿）。**⑥ 即「命中=0 ⇒ 无效」的字面实现**。
+⑤ 受体=0 ⇒ INVALID（非绿）；⑥ 全部列读数失败 ⇒ INVALID（非绿）。**⑥ 即「读数数=0 ⇒ 无效」的字面实现**。
 
 ---
 
@@ -214,9 +215,9 @@ $ TS_NODE_PROJECT=<主仓>/backend-ts/tsconfig.json npx ts-node --transpile-only
 
 | 控制 | 构造 | 现取读数 | 判定 |
 |---|---|---|---|
-| **POS（克隆保真）** | 副本 + **真读数**（`readings-live` 复制）+ 默认阈值 | 受体 23 / 命中 23 / 违例 0 / 新增 0 / `invalid=false` | **EXIT 0 绿** ✓（副本是忠实的门克隆） |
-| **NEG-RED（撞态 ⇒ 必红）** | 副本 + 撞态读数：`users.uid` 的**已占用集合内含 `nextval=42`**（`hit_at_nextval=true`） | 受体 23 / 命中 23 / **违例 1(FAIL=1)** / **新增 1** | **EXIT 3 红** ✓ `[NEW-FAIL] users.uid nextval=42 next_occupied=900001 gap=899959 :: nextval=42 已落在已占用集合内（存在 users.uid=42 的行）` |
-| **NEG-WARN（阈值极端 ⇒ 必 WARN）** | 副本 + **真读数** + `S41_GAP_THRESHOLD=99999999999` | 受体 23 / 命中 23 / **违例 1(WARN=1)** / 新增 0 / 阈值 99999999999 | **EXIT 4 黄** ✓ `[WARN] users.uid nextval=42 … gap=899959 :: gap=899959 ≤ 阈值 99999999999` |
+| **POS（克隆保真）** | 副本 + **真读数**（`readings-live` 复制）+ 默认阈值 | 受体 23 / 读数 23 / 违例 0 / 新增 0 / `invalid=false` | **EXIT 0 绿** ✓（副本是忠实的门克隆） |
+| **NEG-RED（撞态 ⇒ 必红）** | 副本 + 撞态读数：`users.uid` 的**已占用集合内含 `nextval=42`**（`hit_at_nextval=true`） | 受体 23 / 读数 23 / **违例 1(FAIL=1)** / **新增 1** | **EXIT 3 红** ✓ `[NEW-FAIL] users.uid nextval=42 next_occupied=900001 gap=899959 :: nextval=42 已落在已占用集合内（存在 users.uid=42 的行）` |
+| **NEG-WARN（阈值极端 ⇒ 必 WARN）** | 副本 + **真读数** + `S41_GAP_THRESHOLD=99999999999` | 受体 23 / 读数 23 / **违例 1(WARN=1)** / 新增 0 / 阈值 99999999999 | **EXIT 4 黄** ✓ `[WARN] users.uid nextval=42 … gap=899959 :: gap=899959 ≤ 阈值 99999999999` |
 
 **主仓零残留**（现取）：
 ```
@@ -245,10 +246,11 @@ $ git status --porcelain | grep -E 's41'              → 仅本单三处新增�
 ## §8 自曝
 
 1. **本单零既有文件改动**：`git status | grep -cE '^ M|^M'` **= 0**；新增仅 4 类（门 `.ts` / 基线 `.json` / 本报告 / `.s41-artifacts/`）。**未动 15 门**。
-2. **★ 命名自曝（请 Zang 裁）**：本门「**命中数**」取 **「读数命中」**（成功读得三读数的受体列数，现取 23）—— 使之满足
-   「**命中=0 ⇒ 断言无效**」的字面 fail-loud 规则（`--selftest`⑥ 已证），同时健康库（23/23 读得出）**判绿而非误标无效**。
-   「**违例数**」（态 ≠ OK，现取 0）**单列**，不与之混同。**若 Zang 意图「违例数=0 ⇒ 无效」**（即门在健康库恒判无效），
-   请明示 —— 我判该口径会把「**零撞号**」这一**正确结论**误标为「无效」，故**未采纳**，留此自曝待裁。
+2. **★ 命名（S41b 已按 Zang 裁定落定）**：本门原称「命中数」（成功读得三读数的受体列数，现取 23），**S41b 更名为「读数数」**
+   —— 因门套里「命中」专指**违例**（如 `s36-00` 的「命中 30」= 30 处 R2 违例），裸写「命中数」会跨门误读。
+   **语义不变**：无效判据仍锚「**读数数=0 ⇒ 断言无效**」的字面 fail-loud 规则（`--selftest`⑥ 已证），
+   健康库（23/23 读得出）**判绿而非误标无效**；**未**采纳「违例数=0 ⇒ 无效」（Zang 已裁：那会把「零撞号」这一正确结论误标为无效）。
+   「**违例数**」（态 ≠ OK，现取 0）**单列**，不与之混同。
 3. **★ 与 S38 §2.2 的一处读数差异**：S38 记 `currency_cid_seq.next=347`、上方有 9e8 带；本单现取 `next=367`、`next_occupied=null`
    （**库态已漂移**）。我**不洗白为「S38 错」**——两者是**不同时刻**的库态；本门基线以**本单现取**为准（§5）。
 4. **`nextval` 的出现处仅 1 处，且非调用**：门源码里 `nextval(` 唯一出现于 `c.column_default LIKE 'nextval(%'`（**LIKE 模式**，词法匹配），
@@ -279,5 +281,5 @@ negctl-RED.json / .txt                  判负 NEG-RED（撞态 ⇒ RED 3）
 negctl-WARN.json / .txt                 判负 NEG-WARN（阈值极端 ⇒ WARN 4）
 ```
 **仓外副本（不在本仓）**：`/Users/kevin/.hermes/profiles/zang/cache/scratch/s41-negctrl/{repo-copy/,neg-red-readings.json,neg-warn-readings.json}`。
-**本单新增（仓内）**：`backend-ts/scripts/s41-00-identity-seq-collision-gate.ts`（md5 `9ed2987cc1456cb96df5a8e0646a49db`）·
+**本单新增（仓内）**：`backend-ts/scripts/s41-00-identity-seq-collision-gate.ts`（md5 `ee85ae4a66a5224534c8f18fb2ad9c05`；S41b 更名后）·
 `…baseline.json`（md5 `756568ddccdd0e233325988bf56b2c01`）· `docs/audit/s41-identity-seq-collision-gate.md`（本报告）。

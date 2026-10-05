@@ -20,7 +20,7 @@
  *     · 0 < gap ≤ 阈值                                                  ⇒ **WARN**
  *     · 否则（gap > 阈值 / 上方无已占用位 / 已占用集合为空）             ⇒ **OK**
  *   类级自证（对齐 `s36-00` / `p4z-i18nviol-global` 家族）：
- *     打印 受体数 / 命中数 / 违例数 / 基线数 / 新增数；**受体 = 0 或 命中 = 0（无任何一列读得出读数）
+ *     打印 受体数 / 读数数 / 违例数 / 基线数 / 新增数；**受体 = 0 或 读数 = 0（无任何一列读得出读数）
  *     ⇒ 自标「断言无效」**（EXIT 5），一律不得当「零违例」。
  *   基线 = 首次巡检的 23 列实测读数（含态）；违例列登记在 `flags`。新增违例 = 零容忍 ⇒ 红。
  *
@@ -32,7 +32,7 @@
  *     [--selftest]               内存合成数据判负（不落盘、不连库、不改仓）
  *   env：S41_GAP_THRESHOLD   gap 预警阈值（默认 1000）
  *   退出码：0 = 绿（全 OK）；3 = 红（存在 FAIL / 新增违例）；4 = 黄（仅 WARN）；
- *           5 = 断言无效（受体=0 / 命中=0 / 基线违例不复现）；2 = 致命错误（连库失败等）。
+ *           5 = 断言无效（受体=0 / 读数=0 / 基线违例不复现）；2 = 致命错误（连库失败等）。
  */
 import * as fs from 'fs';
 import * as path from 'path';
@@ -88,7 +88,7 @@ export function classify(r: Omit<Reading, 'state' | 'reason'>, threshold: bigint
 
 export interface Verdict {
   recipients: number;                 // 受体数 = 枚举到的 identity/serial 列数
-  readings_ok: number;                // 命中数 = 成功读得读数（非 UNKNOWN）的受体列数
+  readings_ok: number;                // 读数数 = 成功读得读数（非 UNKNOWN）的受体列数
   fail: Reading[];                    // 态 = FAIL
   warn: Reading[];                    // 态 = WARN
   unknown: Reading[];
@@ -124,7 +124,7 @@ export function evaluate(readings: Reading[], baseline: BaselineFile, threshold:
   let invalid = false;
   let invalidReason: string | null = null;
   if (recipients === 0) { invalid = true; invalidReason = '受体数=0（identity/serial 列枚举为空 ⇒ 扫描面失效）'; }
-  else if (readingsOk.length === 0) { invalid = true; invalidReason = '命中数=0（无任何一列读得出读数 ⇒ 断言无效，不得当「零违例」）'; }
+  else if (readingsOk.length === 0) { invalid = true; invalidReason = '读数数=0（无任何一列读得出读数 ⇒ 断言无效，不得当「零违例」）'; }
   else if (baselineFailKeys.size > 0 && fail.length + unknown.length === 0) {
     invalid = true; invalidReason = `基线登记的 ${baselineFailKeys.size} 个违例列在本次巡检中一个都不复现（判据未生效 ⇒ 断言无效）`;
   }
@@ -279,7 +279,7 @@ function runSelftest(): number {
   const v4 = evaluate([ex4], empty, DEFAULT_THRESHOLD);
   // ⑤ 受体 = 0 ⇒ 无效（非绿）
   const v5 = evaluate([], empty, DEFAULT_THRESHOLD);
-  // ⑥ 命中 = 0（全部读数失败）⇒ 无效（非绿）
+  // ⑥ 读数数 = 0（全部读数失败）⇒ 无效（非绿）
   const ex6 = synth({ table: 't', column: 'c', error: 'relation does not exist' });
   const v6 = evaluate([ex6], empty, DEFAULT_THRESHOLD);
 
@@ -289,7 +289,7 @@ function runSelftest(): number {
     ['③ gap 很大 ⇒ OK', ex3.state === 'OK' && !v3.red && !v3.yellow && !v3.invalid, `state=${ex3.state} gap=${ex3.gap} (${ex3.reason})`],
     ['④ 已占用集合为空 ⇒ OK（不得 FAIL）', ex4.state === 'OK' && !v4.red && !v4.invalid, `state=${ex4.state} next_occupied=${ex4.next_occupied}`],
     ['⑤ 受体=0 ⇒ 断言无效（非绿）', v5.invalid && v5.recipients === 0 && !v5.red && !v5.yellow, `recipients=${v5.recipients} invalid=${v5.invalid}`],
-    ['⑥ 命中(读数)=0 ⇒ 断言无效（非绿）', v6.invalid && v6.readings_ok === 0 && !v6.red, `readings_ok=${v6.readings_ok} invalid=${v6.invalid}`],
+    ['⑥ 读数数=0 ⇒ 断言无效（非绿）', v6.invalid && v6.readings_ok === 0 && !v6.red, `readings_ok=${v6.readings_ok} invalid=${v6.invalid}`],
   ];
   for (const [id, pass, r] of checks) console.log(`  ${pass ? 'PASS' : 'FAIL'}  ${id}  [${r}]`);
   const ok = checks.every(([, p]) => p);
@@ -361,7 +361,7 @@ async function main(): Promise<number> {
 
   console.log(JSON.stringify({ ...report, readings: undefined }, null, 1));
   console.log(
-    `\n[自证] 受体数=${v.recipients}  命中数=${v.readings_ok}(读数命中)  违例数=${v.fail.length + v.warn.length + v.unknown.length}(FAIL=${v.fail.length}/WARN=${v.warn.length}/UNKNOWN=${v.unknown.length})  基线数=${v.baseline_count}(基线违例=${v.baseline_fail_keys.size})  新增=${v.new_fail.length}  阈值=${v.threshold}`,
+    `\n[自证] 受体数=${v.recipients}  读数数=${v.readings_ok}  违例数=${v.fail.length + v.warn.length + v.unknown.length}  基线数=${v.baseline_count}  新增=${v.new_fail.length}  阈值=${v.threshold}`,
   );
   if (v.invalid) console.log(`[INVALID] ${v.invalid_reason} ⇒ 断言无效，不得当「零违例」。`);
   else if (v.red) for (const r of v.new_fail) console.log(`[NEW-FAIL] ${colKey(r.table, r.column)} nextval=${r.nextval} next_occupied=${r.next_occupied} gap=${r.gap} :: ${r.reason}`);
