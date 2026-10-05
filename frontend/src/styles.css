@@ -523,12 +523,6 @@ h1, h2, h3, h4, h5, h6 {
   100% { transform: translate3d(0, 0, 0) scale(1); }
 }
 
-@keyframes glintSweep {
-  0% { opacity: 0; transform: rotate(35deg) translateX(0); }
-  20% { opacity: .65; }
-  100% { opacity: 0; transform: rotate(35deg) translateX(18px); }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .gradient-bg::after { animation: none; }
 }
@@ -1019,10 +1013,6 @@ section[id^="section_"] .grid { gap: 1.25rem; }
   -webkit-clip-path: none;
   clip-path: none;
 }
-[data-theme="dark"] .badge::after {
-  background: var(--bg-secondary);
-}
-
 /* —— 统一徽章色彩变体（在 earned-badge 上叠加使用） —— */
 
 
