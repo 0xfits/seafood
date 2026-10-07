@@ -1416,6 +1416,24 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.382 **★★ `0044` 已 apply（生产 `/api/health` 报 `schema_version: "0044"`）· 派 S51（apply 后收口）· ★ Phase 2（分库）的 gating 项已勘测出：缺 Neon 建库凭据**（2026-10-07）
+
+**A. Kevin 三条批复**：① `B23` 的 `0044` → **按我建议 = apply** ② `B22` → **按我建议 = (b) 分库为根治 + (a) 作为「分库时的一次性取舍」，只带 C 类（498 行真数据/种子/配置），1085 行夹具留 dev** ③ `B21` → **随分库同批**。
+**B. ★★ 我亲做 apply（生产库写，已获授权）**：先**读 `migrate.ts` 用法头**（**关键**：`npx ts-node scripts/migrate.ts` **默认就是应用**、`--status` 才是只读 —— 正是我技能里那条「默认模式就是要应用」的坑，**先读后跑**）⇒ 应用结果：
+| 相位 | 读数 |
+|---|---|
+| 应用前 | `prosrc md5 = 3737e0f8…` · `listing_deposit` 位置 **25952**（在）|
+| **应用后** | `prosrc md5 = a9615fe18baad67ea62b9fbf1a156bfa`（**= 离线预演预测值，逐字**）· 长度 47950 · **`listing_deposit` 位置 = `0`（删净）** · **`schema_migration` = 43 行 / max `0044`** |
+| **线上** | `/api/health` ⇒ **`"schema_version":"0044"`** ✓ |
+⇒ **B23 的坏链（自建币上市收保证金恒拒）已在生产修复**；**回退路径**（若要）＝重放 `0034` 函数体。
+**C. 派 S51（Kong · apply 后收口）**：① **前推三门库面硬编**（`p8-s9 K5` / `p8-s10 K2` / `p8-s11 K1`：`42 行/0043` ⇒ `43 行/0044`；先全仓现取、含注释口径）② **16 门全量复跑**（应全绿）③ **★ 行为级证据**：`s3-01` 行为段应转绿（`applied=1` · **4 条分录逐字** · `guard_error=null` · `owner −60000`/`uid=-1 +60000` 守恒）④ `s5-01` 仍绿 ⑤ 判负 ⑥ 端口收尾。
+**D. ★ Phase 2（分库）的 gating 项（我勘测）**：`.env.local` 键名 = `DATABASE_URL`/`DATABASE_URL_UNPOOLED`/`POSTGRES_URL`/`POSTGRES_URL_NON_POOLING`/`PG*` + 应用密钥；**`NEON_API_KEY` 不在 shell、不在仓内、无 `~/.config/neon*`** ⇒ **子代理无法自行创建新库**；而 **`vercel` CLI 已安装且已登录**（`alwaysfit811-3806`）⇒ **env 切换面可用 CLI 做**。
+⇒ **一步 gating（需 Kevin 做，二选一）**：**(A) 在 Neon 控制台/Vercel 集成为本项目建一个新库（或 branch），把连接串写到 `backend-ts/.env.newdb.local`（键名照 `.env.local`：`DATABASE_URL` / `DATABASE_URL_UNPOOLED`）—— 我不需要看到值，只让子代理用进程内 dotenv 读**；**(B) 或提供 `NEON_API_KEY`（同样写进文件、我不打印）由我自动建库**。**我推荐 (A)**（不经我手）。
+**E. Phase 2 的执行蓝图（拿到新库后）**：`S52a` 新库跑全部 43 迁移 + 与现库做 schema 指纹逐项对拍（表/列/约束/索引/触发器/函数）⇒ `S52b` **选择性数据复制**（C 类 498 行：真号段 `users 1–41` + 种子/配置 + 系统表）+ 逐表行数/外键完整性核对 + **复制后核业务表零夹具** ⇒ `S52c` **切库**（`vercel env` 改 `SF_*` 指向新库）+ 生产终验 + **回滚预案（env 改回旧值即回退）**。
+**F. 状态**：DB **`43 行 / max 0044`**（**已 apply**）· 生产 **`1aa5f7d`** · `5792–5799` 空（S51 会起实例）· 工作树干净。
+
+---
+
 ### 5.381 **★★ S50b ✅（报告落盘 + 16/16 门全绿）· ★★ 它证伪我的口径（「4 门 apply 前预期红」作废）· ★ 真风险在另一侧：`s9 K5`/`s10 K2`/`s11 K1` 硬编库面 ⇒ apply 须与这三门前推同批 · apply 计划成形**（2026-10-07）
 
 **A. S50b（Kong · 60c/439s · 截断）✅**：报告 `docs/audit/s50-b23-fix-migration.md` **335 行**（§0–§8 齐，§7 逐条落入上单 `not_measured`、未洗白）+ **16 门全量对照** + 两探针复跑 + 未 apply 自证 + 产物齐（`anchor/` `db-anchor*` `funcbody-diff-0020-0034-0044.txt` `run_gates_s50b.sh` `gates/*` `probes/*`）。
