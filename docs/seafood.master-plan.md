@@ -1416,6 +1416,24 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.387 **★★ S52c-pre ✅（决策材料齐 · 只读 0 写）· ★两条硬阻断（`account_guard` 结构禁止 + `total_supply` 源库不自洽）· 新登记 `B25` · 派 S53（`B25` 只读定性）**（2026-10-07）
+
+**A. S52c-pre（Kong · 只读 · 44c/448s）✅ 核心读数**：
+- **口径①**（T1 文本指纹 ∪ T2 号段 ∪ `cli:` create_key）：Σ夹具 **1088** / **Σ真 496**（总 1584）；**口径②**（∪ jsonb 文本化）：Σ夹具 **1089** / Σ真 **495** ⇒ **严口径只多翻出 1 行、且只在 `app_config`**（即站名那行）。
+- **有真行的表仅 20 张**；其中**只有 6 张 242 行属「真用户可观测状态」值得搬**：`ledger_entry 176` · `account **19 净新增**` · `batt_account 18` · `batt_entry 20` · `checkin_log 4` · `checkin_makeup_log 5`。
+- **不搬**：`content_translation 63` + `translation_cache 51`（**夹具下游派生**）· **真行挂夹具父 30 行**（`job_submission 9`（父 `job` 22/23/24 全夹具）· `market_trade 7`（父 `market_order` 全夹具）· `account 6`/`ledger_entry 8` 的 `cid` 指向夹具币）⇒ **FK 悬空、不可单独搬**。
+- **成对铁律**：`account ↔ ledger_entry`（**硬**）· `batt_account ↔ batt_entry`（软，**56/56 实测耦合**）· `makeup ↔ ledger`（软引用，2 行 `txid=NULL` 会静默悬空）· `currency.total_supply ↔ ledger` · `users ↔ 全部下游`；`job_submission ↔ job` 与 `market_trade ↔ market_order` **只能成对不搬**。
+- **估时**：必要集 242 行 / 6 表 ⇒ **≈1–3 分钟**（RTT 实测：新库 183.7ms / 源库 176.7ms）；拓扑序无环（`cycle=null`）。
+**★★ B. 两条硬阻断（都必须 Kevin 拍）**：
+1. **`trg_account_guard` 的 `BEFORE INSERT` 强制 `balance=0 ∧ frozen=0`**（源码逐字 `IF NEW.balance <> 0 OR NEW.frozen <> 0 THEN RAISE 'new account must start at 0/0'`）⇒ **带真实余额的账户行「结构上插不进」新库**。唯一既有语义内路径 = **三步走**（先搬 `ledger_entry` ⇒ `INSERT` 0/0 ⇒ `UPDATE` 到最新分录快照，而 `UPDATE` 分支又要求等于最新 `ledger_entry` 快照）—— **未实测**（需写新库）。
+2. **★ 源库自身不自洽（新发现）**：`cid=1` 的 `currency.total_supply = 2210276` 而 `Σ ledger_entry.delta = 1993455` ⇒ **差 216821**（`cid=21` 差 1）⇒ **`total_supply` 不是账本派生量** ⇒ 新库留 0 是**第三种值**（**订正 S52b 的「自洽值」定性**）。同批不变量 `account↔ledger` **48/48** 与 `batt↔batt_entry` **56/56** 都满足 ⇒ **只有这一条破**。
+**★ C. 新登记 `B25`（中～高）**：`total_supply` 与账本 Σ 不一致 ⇒ 若在 UI 上可见即**假陈述**；需定性「设计语义（含销毁/含未入账铸造）vs 计数器漂移」；处置 (a) 按账本重算 + 加守卫（派生视图或带断言更新）· (b) 定性为设计并登记口径。**已派 S53（只读定性）**。
+**★ D. 站名**：`app_config.value.siteName = "p4b2c:siteA"`（**夹具串**，命中 T1；其余 8 键 `siteDescription/defaultLanguage/maintenance/maxDailyTasks/pointsPerTask/rewardCooldown/allowRegistration/emailNotifications` **均正常**，无凭据类键），且**该夹具串已随 S52b 搬入新库并逐字生效** ⇒ **切库前必须改**（需 Kevin 给正式站名）。
+**★ E. 它自己做的对账（合纪）**：与 S48 对拍 ⇒ 现库 `1583→1584`（**唯一差异表 = `schema_migration` 42→43**）· Σ夹具 `1085→1088` 的 **+3 全来自 `job_submission` 的 `cli:` 分量**（因本单按派单把 `cli:` 并入口径①，**三分量已单列可回算**）。
+**F. 状态**：现库/生产 `43 行/0044` · 新库 `43 行/0044` + 110 行 · 两库零写自证 ✓ · 零仓改动 ✓ · 生产 **`285d336`** · 工作树：本单报告待入库。
+
+---
+
 ### 5.386 **★★ S52b ✅（新库补齐 `43 行/0044` + 只搬 C 类 31 行 + 夹具命中 0 + 外键悬空 0 + 序列对齐）· ★我亲验两个「口径后果」（站名夹具串 / 真用户零资产）⇒ 派 S52c-pre（只读评估备材料）**（2026-10-07）
 
 **A. S52b（Kong · 53c/577s）✅**：
