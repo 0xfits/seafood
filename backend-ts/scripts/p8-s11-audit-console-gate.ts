@@ -8,7 +8,7 @@
  *
  * ★ A–J 静态面 **零 DB / 零网络**（只 import 纯函数 + 读源码 / 迁移 / locale 文本）。
  * ★ K 库面 leg 转真 checks（连库 + HTTP · `0042` 已 apply）：
- *   · 结构面活体只读（`schema_migration` 42·0043 / `admin_permission` 12 含 `manage_audit` /
+ *   · 结构面活体只读（`schema_migration` 43·0044 / `admin_permission` 12 含 `manage_audit` /
  *     `super_admin` 12 / 基表 34 / 14 面 append-only 触发器在场）；
  *   · 14 面逐表只读真取数（`DatabaseService.readAuditPage` 走生产同一取数口）；
  *   · keyset 分页（`ledger_entry` 两页无重叠）+ 过滤正读（非假过滤）；
@@ -466,9 +466,9 @@ const strOf = (v: unknown): string => (v === null || v === undefined ? '' : Stri
     const sm = (await readQuery<{ n: string; mx: string | null }>(
       `SELECT count(*)::int AS n, max(version) AS mx FROM public.schema_migration`))[0];
     dbConnections += 1;
-    // ★ S27 库面前推（出处 = 本批 apply `0043_truncate_guard.sql`）：库面 41 行/`0042` ⇒ **42 行/`0043`**。
-    kg('K1', Number(sm.n) === 42 && String(sm.mx) === '0043',
-      '★ `schema_migration` = **42 行** · `max(version)` = **0043**（`0043` 已 apply · TRUNCATE 守卫）', JSON.stringify(sm));
+    // ★ S27 库面前推（出处 = apply `0043_truncate_guard.sql`）：41 行/`0042` ⇒ 42 行/`0043`。★ S51 apply 后前推（出处 = apply `0044_restore_listing_deposit_leg.sql`；Zang 亲做）：42 行/`0043` ⇒ **43 行/`0044`**。
+    kg('K1', Number(sm.n) === 43 && String(sm.mx) === '0044',
+      '★ `schema_migration` = **43 行** · `max(version)` = **0044**（`0043` 已 apply · TRUNCATE 守卫 · `0044` hold 守卫去 `listing_deposit`）', JSON.stringify(sm));
     const ap = (await readQuery<{ n: string; has: boolean }>(
       `SELECT count(*)::int AS n, bool_or(permission_key='manage_audit') AS has FROM public.admin_permission`))[0];
     kg('K2', Number(ap.n) === 12 && ap.has === true,
