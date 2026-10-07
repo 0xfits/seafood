@@ -560,7 +560,7 @@ const prevBusinessDay = (): string => {
 (async () => {
   let dbConnections = 0;
   let httpCalls = 0;
-  const tg = (id: string, pass: boolean, expect: unknown, actual: unknown): void =>
+  const tg = (id: string, pass: boolean, expect: unknown, actual: unknown): number =>
     checks.push({ id, group: 'dbLive', pass: Boolean(pass), expect: String(expect), actual: String(actual) });
 
   // ---------------- G1 · 活体 `ledger_kind_enum` = 24（`0038` 已 apply） ----------------

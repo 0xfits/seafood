@@ -196,7 +196,7 @@ const snapshot = async (): Promise<Record<string, unknown>> => {
   // ---------------- 0) 开工基线（事务外 · 只读） ----------------
   const baseline = await snapshot();
   out.baseline = baseline;
-  rec('S0-baseline-captured', 'baseline', baseline.app_config.agg ? true : false,
+  rec('S0-baseline-captured', 'baseline', (baseline.app_config as { agg?: unknown }).agg ? true : false,
     { app_config: baseline.app_config, currency: baseline.currency, ledger_entry: baseline.ledger_entry, account: baseline.account },
     '基线快照取不到 ⇒ 后续「回滚自证」不可信 ⇒ 判负');
 

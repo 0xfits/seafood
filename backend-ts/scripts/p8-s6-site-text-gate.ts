@@ -270,7 +270,7 @@ const fourLang = (v: string) => ({ zh: `${v}zh`, en: `${v}en`, hk: `${v}hk`, vn:
     '★ 清单外字段 ⇒ 拒（reason = unknownKey）', g4.ok ? 'ok=true' : JSON.stringify({ reason: g4.details.reason }));
   const g5 = validateNumericPolicyValue('not_a_policy', { x: 1 });
   t('G5', 'numericPolicy', g5.ok === false && g5.details.reason === SETTINGS_WRITE_REASONS.unknownKey,
-    '★ 非策略键 ⇒ 拒（reason = unknownKey · legal_keys = 9 键）', g5.ok ? 'ok=true' : JSON.stringify({ reason: g5.details.reason, legal: g5.details.legal_keys?.length }));
+    '★ 非策略键 ⇒ 拒（reason = unknownKey · legal_keys = 9 键）', g5.ok ? 'ok=true' : JSON.stringify({ reason: g5.details.reason, legal: (g5.details.legal_keys as string[] | undefined)?.length }));
 }
 
 // ============================================================================

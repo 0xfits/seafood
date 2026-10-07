@@ -162,7 +162,7 @@ const xOf = (label: string): string | null => {
   t('C1', 'distanceWeight', xOf('U1') === '2600' && xOf('U2') === '1700' && xOf('U3') === '700',
     '距离加权：单受益人层 `x == weight`（`U1 2600 / U2 1700 / U3 700`）',
     JSON.stringify({ U1: xOf('U1'), U2: xOf('U2'), U3: xOf('U3') }));
-  const monoTone = B(xOf('U1')) > B(xOf('U2')) && B(xOf('U2')) > B(xOf('U3')) && B(xOf('D1')) > B(xOf('D2')) && B(xOf('D2')) > B(xOf('D3'));
+  const monoTone = B(xOf('U1') as string) > B(xOf('U2') as string) && B(xOf('U2') as string) > B(xOf('U3') as string) && B(xOf('D1') as string) > B(xOf('D2') as string) && B(xOf('D2') as string) > B(xOf('D3') as string);
   t('C2', 'distanceWeight', monoTone, '★ 越近越高：`x(U1) > x(U2) > x(U3)` ∧ `x(D1) > x(D2) > x(D3)`（近者优先）',
     JSON.stringify({ up: [xOf('U1'), xOf('U2'), xOf('U3')], down: [xOf('D1'), xOf('D2'), xOf('D3')] }));
   t('C3', 'distanceWeight', xOf('U1') === xOf('D1') && xOf('U2') === xOf('D2') && xOf('U3') === xOf('D3'),
@@ -308,7 +308,7 @@ const strOf = (v: unknown): string => (v === null || v === undefined ? '' : Stri
 (async () => {
   let dbConnections = 0;
   let httpCalls = 0;
-  const kg = (id: string, pass: boolean, expect: unknown, actual: unknown): void =>
+  const kg = (id: string, pass: boolean, expect: unknown, actual: unknown): number =>
     checks.push({ id, group: 'dbLive', pass: Boolean(pass), expect: String(expect), actual: String(actual) });
   const live: Record<string, unknown> = {};
   const SENT = 'P8S10_LIVE_ROLLBACK';

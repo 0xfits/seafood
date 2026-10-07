@@ -110,8 +110,8 @@ const main = async (): Promise<void> => {
       const opsA = `ops:${admin}:currency_review:${cidA}`;
       const opsB = `ops:${admin}:currency_review:${cidB}`;
       const opsC = `ops:${admin}:currency_review:${cidC}`;
-      summary.fixture.cids = { a: cidA, b: cidB, c: cidC };
-      summary.fixture.symbols = { a: symA, b: symB, c: symC };
+      (summary.fixture as Record<string, unknown>).cids = { a: cidA, b: cidB, c: cidC };
+      (summary.fixture as Record<string, unknown>).symbols = { a: symA, b: symB, c: symC };
 
       // =========================================================================================
       // 段 A · 通过路径（① 后台动作 → ② 库内落值三处 → ③ 业务读口 → ④ 行为随之两读数）

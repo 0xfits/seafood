@@ -181,9 +181,9 @@ const makeArbJob = async (tx: TxClient, reward: number, tag: string): Promise<nu
     db_0027: mig.find((m) => m.version === '0027')?.checksum ?? null,
     file_0027: sha27,
   };
-  eq('S1.mig0026.checksum', 'section1', out.migration_assert['db_0026'], sha26,
+  eq('S1.mig0026.checksum', 'section1', (out.migration_assert as Record<string, string | null>)['db_0026'], sha26,
     'schema_migration.0026 checksum ≠ 迁移文件 sha256 ⇒ 判负');
-  eq('S1.mig0027.checksum', 'section1', out.migration_assert['db_0027'], sha27,
+  eq('S1.mig0027.checksum', 'section1', (out.migration_assert as Record<string, string | null>)['db_0027'], sha27,
     'schema_migration.0027 checksum ≠ 迁移文件 sha256 ⇒ 判负');
   const schemaVer = await readQuery<{ version: string }>(`SELECT version FROM public.schema_migration ORDER BY version DESC LIMIT 1`);
   out.schema_version = schemaVer[0]?.version ?? null;

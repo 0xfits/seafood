@@ -457,7 +457,7 @@ const strOf = (v: unknown): string => (v === null || v === undefined ? '' : Stri
 (async () => {
   let dbConnections = 0;
   let httpCalls = 0;
-  const kg = (id: string, pass: boolean, expect: unknown, actual: unknown): void =>
+  const kg = (id: string, pass: boolean, expect: unknown, actual: unknown): number =>
     checks.push({ id, group: 'dbLive', pass: Boolean(pass), expect: String(expect), actual: String(actual) });
   const live: Record<string, unknown> = {};
 

@@ -208,7 +208,7 @@ const reviewed = (p: { ok: boolean; err?: { code: string; status: number; detail
 {
   const cidA = parseReviewInput({ cidRaw: 'abc', actorUid: 7, body: { action: 'approve', reason: 'x' }, opsKey: 'ops:7:currency_review:abc' });
   t('D1', 'illegalInput', !cidA.ok && cidA.err.code === 'LEDGER_CURRENCY_NOT_FOUND' && cidA.err.status === 404,
-    ':cid 非数字 ⇒ 404 `LD007`（不得静默按 0 处理）', reviewed(cidA).ok ? 'ok=true' : `${cidA.err.code}/${cidA.err.status}`);
+    ':cid 非数字 ⇒ 404 `LD007`（不得静默按 0 处理）', reviewed(cidA).ok ? 'ok=true' : `${(cidA as { err: { code: string; status: number } }).err.code}/${(cidA as { err: { code: string; status: number } }).err.status}`);
   const cidB = parseReviewInput({ cidRaw: '0', actorUid: 7, body: { action: 'reject', reason: 'x' }, opsKey: 'ops:7:currency_review:0' });
   t('D2', 'illegalInput', !cidB.ok && cidB.err.code === 'LEDGER_CURRENCY_NOT_FOUND' && cidB.err.status === 404,
     ':cid = 0（cid<=0）⇒ 404 `LD007`', cidB.ok ? 'ok=true' : `${cidB.err.code}/${cidB.err.status}`);
