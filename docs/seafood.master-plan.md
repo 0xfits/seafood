@@ -1416,6 +1416,27 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.372 **★★ S44 ✅（7 红全定性收口 ⇒ `494/494` 全绿，并挖出 3 例真缺陷）· ★★ S45 ✅ 只读前置炸出重量级发现：生产与 dev **同一个库**，夹具残差在**生产端点可见** ⇒ 新登记 `B22`**（2026-10-07）
+
+**A. S44（Kong · 35c/330s）✅ —— 路线图 R1**：**7 红全部三态定性、无「待定」**：
+- **`#1–#7` = (b) 判据过期**（`Card.test.jsx` ×6 + `VirtualList.test.jsx` ×1）：产品无误、**只改尺子**。证据硬 —— ① `Card` 根现渲染 `rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 hover:shadow-lg hover:-translate-y-1`，而旧期望锚在 `card.parentElement` 上且含**自始不成立**的类串（`Card.jsx` 只有建文件 + 一次改动，Header/Title/Content 类串与现状**逐字相同**）② `VirtualList` 旧用例传 `scrollTop` **prop（实现无此 prop）** ⇒ `rerender` 后 ids 不变，改 `fireEvent.scroll` 驱动真实容器后 ids 才推进 ⇒ 老判据测的是不存在的东西。
+- **`Accessibility.test.jsx` = (c) 坏文件**：`Transform failed: Accessibility.test.jsx:202:13 ERROR: Expected ")" but found "id"`（**根 JSX 未包 fragment**）；引用模块全在盘 ⇒ **补 fragment 修复、不删文件**。
+- **★ 连带暴露 5 个次生面（这份「顺手」最值钱）**：**3 例 (a) 真缺陷** —— `ui/Button` 缺 `aria-busy`（未声明 loading 态）· `ui/Modal` 缺 `role="dialog"`/`aria-modal`（合 `LoginModal.jsx:46-47` 既有约定）；1 例 (b)（`<input required>` 断言 `aria-required` ⇒ 改 `toBeRequired()`）；1 例 (c)（jsdom 不合成 `keydown` 默认动作 ⇒ 改 `userEvent`）。
+- **`e2e/basic.spec.js` = (c) 误收集**（Playwright spec + **jinli 遗留**「Jinli Club」文案）⇒ **从 vitest 收集面排除**（`vitest.config.js` 加 `...configDefaults.exclude` + `src/test/e2e/**`），**文件保留**（不作废历史路径引用）。
+- **全量判据**：`vitest` **4 failed | 7 failed | 471 passed (478) ⇒ 53 files / 494 tests 全绿**（`Accessibility` 的 16 例现已真跑）· `s22` **9/9** · `build` **0** · 四脚本 **PASS** · **6 项负对照全必红 + 恢复后 `cmp` identical** · **零删除**（`deleted/` 空）。
+**★★ 我核盘（S44）**：我**逐条读被删的 9 行断言**（这是我最防的「删断言凑绿」）⇒ **无一条是删掉凑绿**：1 条 `aria-required` ⇒ `toBeRequired()`（**等义加强**）、1 条用例行因改 `userEvent` 而重写、7 条 Card 类串 ⇒ **改期望**（目标从 `card.parentElement` 改到 Card 根，附实现证据）；`numstat` **净 +13 行**（46/33）✓；**我亲跑 `vitest` = 53 files / 494 tests 全绿** ✓、`s22` **9/9** ✓。
+**★ 它请裁的两处边界 ⇒ 我批**：`Button` 加 `aria-busy`、`Modal` 加 `role`/`aria-modal` —— 判为 **(a) 真缺陷**（**测试是先写的规格**：用例名「should announce loading state」/「should trap focus」；ARIA 语义标准、且与 `LoginModal` 既有约定一致）⇒ 属「实现没满足规格」，**非越界**。
+**B. ★★ S45（Kong · 只读 · 35c/217s）✅ —— 结论 = `同库（SAME DATABASE）`**：
+1. **反证先被排除**：**部署管线不自动 apply 迁移**（`vercel.json`（根/backend 两处）均**无 `buildCommand`**；两个 `package.json` 无 `migrate`/`postinstall`/`prebuild`；唯一 CI 只做 lint/type-check/test/vite-build；`src/` 零 migrate 调用）⇒ 「prod 也报 `schema_version 0043`」**是有效证据**（而非流水线自动迁移的假象）。
+2. **三条独立证据**：`/api/health` `db_version` **逐字同串** + `schema_version 0043 = 0043`；`/api/task/all` ↔ 本地 `job` **45 行 / tID 序列逐元素相等 / 6 字段 × 45 行失配 0**；`/api/prize/all` ↔ `listing` **24 行 / 4 字段失配 0**；`/api/task/999999` 两侧皆 404。
+3. **★ 我亲验（决定性）**：prod `/api/task/all` 返回 **45 行，其中 20 例标题就是夹具**（`p4b2:fixture:A` · `p4b2c:fixture job` · `p3j job 1` · `p3j-settle-chain` …）⇒ **不仅同库，而且夹具残差在生产端点对外可见**。
+**C. ★★ 我据此新登记 `B22`（优先级高于 `B21`）**：**生产与 dev 同库 + 夹具残差生产可见**。候选：**(a)** 逐表只读评估 + 清夹具（**S43 已证 `users` 38 行全有引用 ⇒ 不可删**）· **(b) 生产与 dev 分库**（**根治**：生产用独立库/branch + 一次性数据复制；需运维面）· **(c)** 读取面过滤（**不推荐**，脏）。**架构级 ⇒ 需 Kevin 定**。
+**★ 对 `B21` 的连带影响**：既然同库，`B21` 的 **(a) 根治方案必须与生产同批**（`setval` 会同时影响生产）。
+**D. 台账**：`OPEN-ITEMS.md` **E 段状态更新**（R1 闭环、R2 前置完成）+ **B 段新增 `B22`**。
+**E. 状态**：DB **`42 行 / max 0043`** · 生产 **`4f8fd78`**（代码；S44 改动**尚未推送**，待终验）· 端口在听（非本批）· `5792–5799` 空。
+
+---
+
 ### 5.371 **按路线图开工：派 S44（R1 前端 7 常红定性收口）∥ S45（R2 前置·生产 vs dev 同库判定，只读）**（2026-10-05）
 
 **A. S44（Kong）= R1**：逐例**三态定性**（真缺陷 ⇒ 修实现 / 判据过期 ⇒ 改期望**并附实现侧证据** / 环境性·残留件 ⇒ 按纪处置）；专项 —— ① `Accessibility.test.jsx` 的 `Transform failed` ⇒ 现状引用模块存否决定「修引用 / 删除」（**删除类必须**：`cp -p` 存档 + `cmp` + 零引用自证 + **逐条 revert 清单**）② `e2e/basic.spec.js` ⇒ 优先「**从 vitest 收集面排除**」（改 `vite.config.js`/vitest 配置），**不得直接删文件**（删会作废历史路径引用；若认为必须删 ⇒ 停下报回）。**严禁为凑绿删断言；判不准即停下报回**。判据：`vitest` 前后 + `s22` 应仍 9/9 + `build` 0 + 四脚本 PASS + 按改动性质选判负形态。
