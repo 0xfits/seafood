@@ -1416,6 +1416,20 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.393 **✅ 认证链路风险**已排除**（我亲验三重印证）· 事态维持：生产在新库、旧库完好、回滚预案待 S55a 落纸**（2026-10-07）
+
+**A. 裁定级前例（规范册已有）**：`docs/data-layer.spec.md` **§12.2-11 / §17.1** —— 「**本产品是否用 Neon Auth 做登录？**」⇒ **✅ v0.3 已裁（Zang · `master-plan` §5.38②）：不启用 Neon Auth。** 登录 = **EVM 钱包签名（`challenge`/`verify`）+ `users.uid`/`evm`（`DL107`）**；`neon_auth`（**9 张表**）**物理存在但不属本仓** ⇒ 新数据层**必须显式限定 `public.`、完全绕开**（`DL151`）。
+**★ B. 我亲验的三重印证（现取）**：
+1. **`NEON_AUTH*` 在源码里 0 处被读** —— `backend-ts/src` 仅 **1 行注释**提到 `neon_auth`（`database.ts:2253`：说明天然绕开 `user` 保留字陷阱、不碰 `neon_auth`）；**`frontend/src` 命中 `0`** ⇒ **无前缀族里的 `NEON_AUTH_BASE_URL`/`VITE_NEON_AUTH_URL` 是**惰性（死）变量**」** ⇒ **env 切库对认证零影响**。
+2. **`SECRET_KEY` 在 production env 名单里只出现一次**（**未变**；无「两族同名」问题）⇒ 会话 token 由同一密钥签发 ⇒ **既有登录态全部继续有效**（切库不会把用户踢下线）。
+3. **登录路径证实**：`src/auth.ts` 用 `crypto` **HMAC(`SECRET_KEY`)** 签发/校验 token（`verifySignedToken:75`）+ `ethers.verifyMessage` 校钱包签名（`:215`）；身份真源 = **本库 `users` 表**（`users.is_admin` OR `EXISTS(admin_user_role)`，`DL72`）；前端 `auth-context` 持 token 调 `/api/auth/*`。
+**C. 结论**：**认证链路风险 = 低（惰性变量）**；新库 `users 26` **全部带 `evm`** ⇒ 钱包登录链路完整。⇒ 支撑 **(A) 接受现状**（前提仅剩：真数据可见性 + 写路径，需 Kevin 配合一次真实登录，或接受 `NOT_MEASURED`）。
+**D. 事态不变**：**生产 = 新库（公开面 0 夹具）** · **旧库完好**（`job 45`/`listing 24`/`users 64`/`ledger_entry 504`）· **回滚预案**（S55a 落纸，命令不含密钥值）· `B26` 已立纪律。
+**E. 新增纪律（立即生效，B26 的具体化）**：**事故未闭前，除本册必需外不再 push**（每次 push = 一次生产部署）；**任何 env 变更后 60 秒内必须跑行为哨兵**（`/api/task/all` 行数 = 判别生产读的是哪个库）。
+**F. 状态**：HEAD `aa5aa5d` = origin/main · 工作树干净 · S55a 在跑。
+
+---
+
 ### 5.392 **🔴🔴 突发事件（已坐实）：生产**已静默切到新库**（激活者 = **我自己的文档提交触发的部署** + Vercel 上**今天新增的无前缀 env 族**）· 新登记 `B26`（流程漏洞）· 派 S55a（只读法证 + 终验 + 回滚预案）**（2026-10-07）
 
 **A. 事态（全部现取）**：
