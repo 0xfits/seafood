@@ -1416,6 +1416,22 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.384 **★★ Kevin 已建新库（`ep-red-moon-b3xvoyjk`，空库）· 我核验通过 + 安全核通过 · 派 S52a（新库跑 43 迁移 + schema 指纹逐面对拍）**（2026-10-07）
+
+**A. 我的核验（只打印 host/db 名，未打印任何凭据）**：
+| 核项 | 读数 |
+|---|---|
+| 文件 | `backend-ts/.env.newdb.local`（311 B）· 键名 = `DATABASE_URL`（pooler）+ `DATABASE_URL_UNPOOLED`（direct）|
+| host | **`ep-red-moon-b3xvoyjk…`** ⇒ 与现库 **`ep-holy-forest-b3fi7u3u…` 不同** ✓ |
+| 新库 | **可达** · db `neondb` / user `neondb_owner` · **`public` 表数 = 0** · **`schema_migration` 不存在** ⇒ **真空库** ✓ |
+（首解析失败是因为**值带引号**，剥引号后正常 —— 记一笔：读 env 值要剥包裹引号。）
+**B. ★ 安全核（我主动做）**：`git check-ignore -v` ⇒ 两个凭据文件均被 **`backend-ts/.gitignore:2` 的 `.env*.local`** 覆盖；`git status` 中 **0 条 env 项**；**`git ls-files` 里已跟踪的 `.env*` = 0** ⇒ **凭据不会进 git** ✓。
+**C. 派 S52a（Kong · Phase 2a）**：① **新库跑全部 43 个迁移** —— ★ **先现取 DSN 机制**（`migrate.ts` 写死 `dotenv.config({path:'../.env.local'})`，而 **dotenv 不覆盖已存在 env** ⇒ 正确机制 = **产物目录里的 runner**：先读 `.env.newdb.local` 设 `process.env`，再动态 `import()` 迁移脚本；**严禁把密钥写进 argv/命令前缀**、**严禁打印密钥**）② **★ 串库护栏（先做）**：apply 前断言「实际连的是新库」+ `schema_migration` 不存在 + `public` 表数 = 0，**任一不成立即停手报回**（**绝不在现库 apply**）③ apply 后核 `43 行/0044` + `prosrc` 不含 `listing_deposit` ④ **schema 指纹逐面对拍**（表/列/约束/索引/触发器/函数/序列/RLS/视图）⇒ **差集表 + 逐条定性**（是迁移本来就有，还是**现库被手改过**——后者是真发现）⑤ 零仓改动（含开工/收尾各取 `.env.local` 的 `sha256` 自证未变、不打印值）。
+**D. 后续蓝图**：**S52b** = 选择性数据复制（只搬 **C 类 498 行**：真号段 `users 1–41` + 种子/配置 + 系统表；外键顺序感知；复制后核业务表**零夹具**）· **S52c** = **切库**（`vercel env` 改 `SF_*` 指向新库；已勘测 `vercel` CLI 已登录 `alwaysfit811-3806`）+ 生产终验 + **回滚预案（env 改回旧值即回退）** + **`B21` 随批**。
+**E. 状态**：DB **`43 行 / max 0044`**（现库/生产）· 新库 **空**（S52a 将建结构）· 生产 **`ddeb500`** · 工作树干净。
+
+---
+
 ### 5.383 **★★ S51 ✅（apply 后收口）· `B23` 全闭环（含**行为级证据**：4 条分录逐字 + 守恒）· 16/16 门全绿 · ★我亲跑 `s3-01 = 35/35/0`**（2026-10-07）
 
 **A. S51（Kong · 60c/746s · 截断但 AC 全达标）✅**：
