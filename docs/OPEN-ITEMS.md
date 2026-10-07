@@ -91,3 +91,18 @@
 - `route-layer.spec` 路由路径回写（S14 更正块 ✅）。
 - `p8-s7` 残留红点（C5 / D6-D8）判定为合法前推并具名登记（S12 ✅）。
 - 批 8 五片 + P9①–⑤ + 8⑥ 审计台（全部上线 ✅）；任务模型换轴 S0–S18（✅）。
+
+---
+
+## E. 后续路线图（**现取定稿 · 详表见 `docs/seafood.master-plan.md` §5.370**）
+
+> 台账 A/B 段是「工程债」；本段是「剩余工作面」。**开工前仍须现取**（本段也会过期）。
+
+| # | 项 | 现取依据 | 状态 |
+|---|---|---|---|
+| **R1** | 前端 **7 个常红测试**定性收口 | `vitest` 4 files / 7 tests failed：`Card.test.jsx` ×6（期望 Tailwind 类串，**疑判据过期**）· `VirtualList.test.jsx` ×1（待定性）· `Accessibility.test.jsx`（**整文件 `Transform failed`**）· `e2e/basic.spec.js`（**Playwright 被 vitest 误收集**，内容为 **jinli 遗留**「Jinli Club」）| **S44 在跑** |
+| **R2** | `B21` 取号源（`MAX+1` 被夹具抬到 971213）| 见 B21 行；**前置 = 确认生产是否同库** | **S45（只读前置）在跑**；**(a)/(b) 待 Kevin 定** |
+| **R3** | `scripts/**` 存量 TS 债 **96 条**（册内登记 **77** ⇒ **基线被推高 19**，违 §13「基线不得推高」）| 错码 `TS2339 24 / TS18046 21 / TS2322 18 / TS2345 12 / TS2352 11 …`；top 文件 `p4z-audjk-01-probe.ts 24` · `p4z-b2ahttp-03-e2e.ts 11` · `p8-s10-invite-reward-gate.ts 9` | 待派（**先归因单，再清 top-3 = 44 条**）|
+| **R4** | S40b 遗留 `NOT_MEASURED` 残面 | `#21 points/adjust`（需 admin 会话）· `#14/#15` infra 分类（需诱导库故障）· 保留 9 处逐端取体 · `s7 G9` 其余三分支 | 待派（价值/代价中等）|
+| **R5** | 卫生三小件 | `admin.html` 退役（我先前裁保留）· 产物目录中**已跟踪 2633 件**去留 · `docs/audit` 体积 | 待裁 |
+| **R6** | **产品新需求** | 我手上只有质量收口清单 | **需 Kevin 给方向** |
