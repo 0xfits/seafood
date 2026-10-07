@@ -1416,6 +1416,25 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.396 **★★ S57（PARTIAL/截断：分析全成、报告未落盘）· 号段判据纠偏定论：旧库 `uid≥900000` 全集 38 个 ⇒ **真行仅 1（Kevin `970213`）· 夹具 37** · 漏搬清单去重 44 行（**可搬 33 / 不可搬 11**）· ★订正我的分解（2,010,000 ≠ 纯夹具）· ★新事实：账本/账户行**插入后不可删**（回滚须快照/PITR）· ★时间敏感（Kevin 一旦登录即建 uid=42 ⇒ 修法坍塌）· 派 S57b 补报告**（2026-10-07）
+
+**A. 判据纠偏定论**：旧库 `users` 64 行、`max_uid=971213`、**`uid≥900000` 全集 = 38 个**（`900001-900008 · 910001-910010 · 910311 · 970001/970002 · 970101/970102 · 970201-970213 · 971100/971213`）⇒ **逐 uid 四路证据判定：真行 1 / 夹具 37**。
+- **真行唯一 = `970213`（Kevin）**：`(a)` evm sha8 `c9f277f5` = **`0022 §④` `DEFAULT_ADMIN_ADDRESS`** · `(b)` `bio=hellohello` 非夹具串 · `(c)` `account cid=1 4292/5800` + `ledger 17 行` + **26 处入向 FK** · `(d)` 登录晚于注册 **4.95 天**（真实回归）。
+- **37 夹具的判据**：**27 行 `bio` 直书夹具串**（`p7b/qa7b/p4b2/p4b2c/qa-p7a/b6audit`）；**10 行（`970203-970212`）`bio` 空但决定性反证**：① **10/10 的 evm 全部命中 `.p7b-artifacts/p7b-06-fixture-setup-collect1.json` 的 `residue_manifest.users[28]`** ② `970203` 的 evm 在 `docs/audit/p5-fix-login.md` §3⑨ 与 `p4-artifacts/b5l-*/steps.log` **逐字记明由 `findOrCreateUserByEvm`「登录测试」建户** ③ `970207` 的 evm = `0x1234…5678`（**占位构造地址**）④ **全部零业务足迹**（仅 `batt_account` 自动行）⑤ `time_login_last ≈ time_reg`（0.01–5.3s = 注册自动登录）⇒ **非真用户**。
+- **(a) 路交叉核对**：全仓 40-hex 地址穷举 ⇒ **真地址集 = {`0x59f9…09b0`=Kevin · `0x99a7…8f74`=uid 1 · `0xaf21…7b1e`=uid 2}**；高号段中**仅 `970213` 命中**（uid 1/2 的 evm 在新库均在、且不在高号段）。
+**B. Kevin 的 26 处入向 FK 逐处（表.列=行数 ⇒ 父行真/夹具）**：`job_submission.reviewed_by=12`（父 job 真 3：**136/230/232**；夹具/测试 9：`3/4/2/214/215/216/217/20/23`）· `job_submission.worker_uid=4`（父 job 真 3、夹具 1）× `job.employer_uid=3`（= 他的 3 个真 job）· `checkin_log.uid=2` · `job_application.worker_uid=2`（父 job **夹具/测试**：`2/24`）· `admin_ops_audit_log.target_uid=1` · `admin_user_role.uid=1` · `batt_account.uid=1` ⇒ **合计 26**。
+**★ C. 漏搬真行清单（Kevin 去重 44 行）**：**可搬 33 行** = `users 1 · account 1 · ledger_entry 17 · batt_account 1 (batt=90) · batt_entry 3 · checkin_log 2 · admin_user_role 1 · admin_ops_audit_log 1 · job 3 (136/230/232) · job_submission 3 (236/237/238)`；**不可搬 11 行** = `job_submission 9`（父 job 为夹具/测试）+ `job_application 2`（父 job `2/24` 夹具/测试）⇒ **「父表是夹具 ⇒ 只能丢」**。
+- **成对铁律复核（它给的）**：`account↔ledger_entry` **硬** —— Kevin 17 行 `sum_delta=4292=account.balance`、`sum_frozen_delta=5800=account.frozen`、最新 `balance_after=4292/frozen_after=5800` **自洽** ✓；`batt_account↔batt_entry` **软** —— `90=30+30+30`、最新 `batt_after=90` ✓。★注：`account.uid`/`ledger_entry.uid`/`batt_entry.uid` **并非 FK→users**（仅值引用）⇒ 那 26 处 FK **不含**这 21 行。
+**★★ D. 不变量重算 + 订正我的分解**：旧库 `cid=1` 全量 `Σmint−Σburn = 2,010,200`（`mint 2,210,276 + burn −200,076`，n=413）= `uid<900000` **200**（n=248）+ `uid≥900000` **2,010,000**（n=165，`mint 2,010,002 + burn −2`）⇒ 补搬 Kevin（net = `mint 10,000 − burn 0 = 10,000`，n=17）后：**`Σmint−Σburn` 由 `200` → `10,200`**，且逐 uid 不变量成立（`uid=100`：`4292=Σdelta=最新 balance_after` ✓、`5800` 同）。
+- **★ 订正**：S54b/§5.391-F 把「差额 **2,010,000**」记为「**未搬的夹具行主 mint/burn 净额**」—— **标注有误** ⇒ 正确分解 = **纯夹具 2,000,000**（**几乎全来自 `970001` 的 `mint 2,000,000`**）+ **Kevin 真行 10,000**（合计 2,010,000 = 全 `uid≥900000`，**非全夹具**）。（**注**：`total_supply` 自身裁定不变 —— 仍是**币种级** `2,010,200`；变的是「新库账本净额与它之差」的**归因**。）
+**★ E. 修法提案（与 S56 §6 对齐 · 只写不进）**：**S0 前置只读核对**（evm 查 0 行 · `uid=100` 空 · Kevin 17 个 txid 在新库冲突 0）⇒ **单事务** `S1` `users(uid 100, evm, bio hellohello, is_admin false)` `ON CONFLICT DO NOTHING` → `S2` `account(100,1,0,0)`（过 `account_guard` `INSERT` 分支，**必 0/0**）→ `S3` `ledger_entry 17 行` `OVERRIDING SYSTEM VALUE` 显式 txid `ON CONFLICT(txid)` → `S4` `UPDATE account SET balance=4292,frozen=5800`（= 最新分录快照，过 `UPDATE` 分支）→ `S5` `batt_account(100,90)` + `batt_entry 3 行` → `S6` `checkin_log 2 行` → `S7` `admin_user_role(100, super_admin)` → `S8` `admin_ops_audit_log(log_id 9, target_uid 100)` → `S9` `job 3 行` → `S10` `job_submission 3 行` → `S11` `setval(users_uid_seq, 101)`。**判负 5 条**（N1 evm 不在库 ⇒ 绑定命中 0 行 · N2 幽灵 uid ⇒ 违反 `admin_user_role_uid_fk` · N3 重复跑 ⇒ `ON CONFLICT` 0 新行 · N4 直插 `account` 带 4292/5800 ⇒ `account_guard` 报「must start at 0/0」· N5 插账本前 `UPDATE` ⇒ 报「update without any ledger_entry」）。
+**★★ F. 新事实（对「往生产写」有直接影响）**：**`account_guard` 对 `DELETE` 直接 `RAISE`（账户行不可删）** + **`ledger_entry_append_only` 对 `UPDATE/DELETE` `RAISE`（账本不可删）** ⇒ **一旦插入，账本/账户行是「不可逐行回滚」的**（逐行删只对 `job_submission/job/checkin/batt/admin_user_role/audit/users` 有效）⇒ **任何此类写的前置兜底 = 事务前快照 / Neon 分支 / PITR**；次选 = 临时 `DISABLE TRIGGER`（须 owner，**高危**）。
+**★★ G. 风险量化 + 时间敏感**：若 Kevin 在现状下用钱包登录 ⇒ `findOrCreateUserByEvm` 未命中即**建户**（`database.ts:2152-2164`）⇒ 新 `uid=MAX+1=42`、零资产、`is_admin=false`、无 `admin_user_role`；**且一旦建了**，修法的 `INSERT … ON CONFLICT(evm) DO NOTHING` 会被**跳过**、资产插入指向 `uid=100` 会**因无此用户而失败** ⇒ **修法前提坍塌、须改做 uid 合并**（贵得多）。⇒ **抢在他登录前修**。
+**H. 派 S57b（Kong · 只读）**：**把产物 JSON 誊写为报告 `docs/audit/s57-fixture-band-correction.md`**（§0–§7 按派单骨架；§1 逐 uid 表、§2 清单、§3 重算、§4 SQL/判负/回滚、§5 风险、§6/§7）—— **纯誊写 + 交叉核对，不得重做分析、不得写库**。
+**I. 状态**：生产 = 新库 · 旧库完好（**Kevin 的资产/流水全部还在旧库**）· 回滚路径就绪 · **一切写待 Kevin 授权** · S57 产物在 `backend-ts/.s57-artifacts/`（报告未落盘）。
+
+---
+
 ### 5.395 **★★ S56 ✅（权限面逐表对拍）· ★★它挖出比权限更重的事：种子超管 `uid 970213` = **Kevin 本人**（有真资产/17 条流水/26 处入向 FK）而被**号段判据误剔** ⇒ 我的判据有洞 · 新登记 `B27` · 派 S57（号段判据纠偏 + 漏搬真行清单 + Kevin 迁入方案）**（2026-10-07）
 
 **A. S56（Kong · 只读 · 40c/286s）✅ 权限面逐表对拍（旧→新）**：`admin_permission` **12→12 逐字相同**（非夹具面**完整无损**）· `admin_role` **5→1**（少 4 个夹具角色）· `admin_role_permission` **16→12**（少 4 夹具行）· `admin_user_role` **7→0** · `is_admin` `{1,10,970201}` → `{1,10}`。⇒ **去掉夹具后唯一真回归 = 1 个管理员绑定**（种子 `super_admin` 持有人）。
@@ -1494,7 +1513,7 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 **★ 三项复核：2 绿 + 1 停下报回**：
 - ① **12 个失配 uid ⇒ `0`**（逐 uid 前后：`−1 3356→168558` · `2 −2600→7400` · `6 990→930` · `7 −200→5100` · `8 200→4900` · `11 944→29374`（`frozen −5200→6370`）· `12 101629→139417`（`−2203→0`）· `19/21 −37→100` · `34/36/40 −1300→100` · `38 −1350→50`；**全部 `balance = Σdelta = 最新 balance_after`、`frozen` 同**）✓
 - ② **`account` 21/21 与现库逐 uid 相等（含 `uid=6` = 930）**，全体 `cid=1` 交集 **23/23** 亦相等；`UPDATE` 21 次被 `trg_account_guard` **拒 0 次** ✓
-- ③ **`Σmint−Σburn`（新库 cid=1）= `200` ≠ `2,010,200`** ⇒ **按我写死的硬口径停下报回**（**未改 `total_supply`**，仍 `2,010,200`）⇒ 差额 **2,010,000** = **现库 `uid≥900000` 的 165 行夹具行主分录自身净额**（`mint 2,010,002 − burn 2`）。
+- ③ **`Σmint−Σburn`（新库 cid=1）= `200` ≠ `2,010,200`** ⇒ **按我写死的硬口径停下报回**（**未改 `total_supply`**，仍 `2,010,200`）⇒ 差额 **2,010,000** = **现库 `uid≥900000` 的 165 行夹具行主分录自身净额**（`mint 2,010,002 − burn 2`）。 〔**▸ 2026-10-07 订正（S57 · §5.396-D）**：该 2,010,000 **并非全为夹具** ⇒ 正确分解 = **纯夹具 2,000,000**（几乎全来自 `970001` 的 `mint 2,000,000`）+ **Kevin 真行 10,000**。原文保留以留痕。〕
 **B. 零夹具双口径**：**行主 uid 口径 = `0`**（16 张非空表全 0）✓ · **文本命中口径 = 72**（**仅 `ledger_entry`**：idem 33 / memo+idem 31 / memo 8，**行主全为真 uid**）⇒ 按我的裁定（真行按行主判）= **真行**，逐条给出处 ✓。
 **C. 终态六项全绿** · 序列重对齐（`ledger_entry_txid_seq = 2652 = max+1`）· 现库**全程 `READ ONLY` 零写** ✓ · 零 tracked 仓改动 ✓。
 **★ D. 它又纠正我一处括注（合纪）**：我派单写「补入行会抬高 max」**不成立** —— 那 72 行 `txid ∈ [10,2452]` 全在 max 2651 之下。
