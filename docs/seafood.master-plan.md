@@ -1416,6 +1416,21 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.392 **🔴🔴 突发事件（已坐实）：生产**已静默切到新库**（激活者 = **我自己的文档提交触发的部署** + Vercel 上**今天新增的无前缀 env 族**）· 新登记 `B26`（流程漏洞）· 派 S55a（只读法证 + 终验 + 回滚预案）**（2026-10-07）
+
+**A. 事态（全部现取）**：
+- **Vercel production 上存在两族 env**：`SF_*` 族（**10 天前**建：`SF_DATABASE_URL`/`SF_DATABASE_URL_UNPOOLED`/`SF_POSTGRES_URL`/`SF_POSTGRES_URL_NON_POOLING`/`SF_PG*`/`SF_NEON_*`）与**无前缀族**（**7 小时前（今天）**建：`DATABASE_URL`/`DATABASE_URL_UNPOOLED`/`POSTGRES_URL`/`POSTGRES_URL_NON_POOLING`/`PG*`/`NEON_AUTH_BASE_URL`/`VITE_NEON_AUTH_URL`）。
+- `src/env.ts:51-62` 的 `VERCEL_PREFIX_FALLBACKS` 规则是「**先到先得**」⇒ **规范名（无前缀）优先**，`SF_*` **只作回退** ⇒ **无前缀族现在生效**。
+- **最新三次生产部署的 git commit = `582f4d6` / `6e0266f`**（**= 本会话自己的文档提交**）⇒ **我的 `git push` 触发了生产部署，部署拉起当期 env ⇒ 生产切到新库**。
+- **现取读数**：`/api/task/all` = **0 行** · `/api/prize/all` = **0 行** · `/api/home` = `tasks:[]/prize:[]` · `/api/health` = `ok:true · schema_version 0044`；**旧库仍有 `job 45`/`listing 24`/`users 64`/`ledger_entry 504`**；**新库 `job 0`/`listing 0`/`users 26`/`ledger_entry 248`**。
+- **判别闭合**：`schema_version 0044` **且** `job` 0 行 ⇒ 只有**「已迁移且无 job 行」**的库满足 ⇒ **= 新库**（只有旧/新两库被迁移过 ⇒ **排除第三库**）。
+**★ B. 新登记 `B26`（高 · 流程/工程）**：**「文档提交即上线」** —— 此仓连 Vercel git 集成，**任何 push（含纯文档）都触发生产部署**，部署会**激活当期 env**；而 Vercel env 又**存在两族同名变量**（前缀回退表使规范名族成为事实真源）。⇒ **「提交」与「上线」之间没有闸门**；本次**切库就是在无人有意执行的情况下发生的**。纪律候选：① **切库/改 env 属「上线动作」，不得与文档提交混同**；② 改 env 前**先冻结/确认生效族**（`vercel env ls` 两族名单 + `src/env.ts` 优先级）；③ **重要 env 变更后必须立刻做生产行为判别**（用「只在新旧库取值不同」的端点做哨兵）；④ 考虑**收拢为一族**（删歧义族，避免「哪族生效」依赖代码顺序）。
+**C. 派 S55a（Kong · 严格只读）**：生效链定位 + 多端点强化判别 + **★认证链路判定（本库 `users` vs Neon Auth 托管 —— 这是最可能的坏点，因为 `NEON_AUTH_BASE_URL`/`VITE_NEON_AUTH_URL` 也在无前缀族里）** + 真数据可见性 + **不含密钥值的逐条可执行回滚预案**（回滚 = 把规范名族改回旧库值（值取自本机 `backend-ts/.env.local`）+ 触发部署 + **哨兵 = `/api/task/all` 应回到 45 行**）。
+**D. 给 Kevin 的两个选项（待定）**：**(A) 接受现状**（= 目标态：生产干净、0 夹具；补终验 + 回滚预案 + `B21` 随批 + `B26` 立纪律）· **(B) 立刻回滚**（规范名族写回旧库值 + 部署 ⇒ 生产回到 45 行夹具态）。**我倾向 (A)** —— 但**前提是 S55a 证明认证链路与真数据读写没坏**；**若认证坏了 ⇒ 立刻走 (B)**。
+**E. 状态**：**生产 = 新库（0 夹具）** · 旧库完好（45/24/64/504）· 新库 `43/0044` + 248/23/18/20/4/5 · HEAD `582f4d6` = origin/main · 工作树干净。
+
+---
+
 ### 5.391 **★★ S54b ✅（新库补齐 248 集 · 失配 0 · 21/21 与现库全等 · 零夹具 0）· ★第三项按我的硬口径停下报回（`Σmint−Σburn`=200 ≠ 2,010,200）· ★我裁定 `total_supply` 保持 2,010,200 并登记差额归属 · 新库已就绪 ⇒ 等 Kevin 放行 S55 切库**（2026-10-07）
 
 **A. S54b（Kong · 29c/341s）✅**：**新库 `cid=1` 账本 176 ⇒ 248**（差集 72 行按 `txid` 求得，`INSERT ... OVERRIDING SYSTEM VALUE` + `ON CONFLICT (txid) DO NOTHING` 单事务幂等：**inserted 72 / conflict 0**；**幂等探针**：全量重插 ⇒ 实际插入 0、回滚后仍 248）。72 行按行主 uid = **13 个真 uid**（`−1:26 · 2:2 · 6:6 · 7:3 · 8:3 · 11:13 · 12:13 · 19:1 · 21:1 · 34/36/38/40:1`）；按 kind = `currency_create_fee 18 · hold 22 · transfer 16 · listing_deposit 8 · purchase 4 · sale 2 · mint 2`。
