@@ -1416,6 +1416,15 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.379 **★ 我认账第三处（本会话第六次）：`output_schema` 里重复写键 ⇒ 整批被拒（S50 重发）**（2026-10-07）
+
+**A. 事实**：S50 首次派单被运行时拒收 —— `output_schema` 的 `negative_control` 我写成了**嵌套重复键**（`{"items":…, "negative_control":{…}, "type":"string"}`）⇒ 校验报 `'object' is not of type 'object','boolean'` ⇒ **整批（本单就一个 task）未发出**。
+**B. 处置**：**整批重发**（不「只重发坏的那条」—— 同批其它 task 也没派出去），schema **从宽从简**（只留 `verdict` / `deliverables` 等必要字段）⇒ S50 已成功派发（`deleg_d56e09e6`）。
+**C. 纪律**：这正是我技能里已有的「**`output_schema` 会按 JSON Schema 校验，任一条非法 ⇒ 整批被拒、一条都没派出去 ⇒ 必须整批重发；schema 从宽从简、宁可不写**」—— 我**知道**这条却仍踩，说明「知道」不等于「写前自查」。⇒ 追加固定动作：**派单前对 `output_schema` 做一次「无重复键、每字段是合法 schema 片段」的自查**（写 schema 时不在同一层重复键名）。
+**D. 状态**：DB **`42 行 / max 0043`** · 生产 **`6262043`**（docs）· 工作树干净。
+
+---
+
 ### 5.378 **★★ S49 部分达成 ⇒ **挖出真产品缺陷**（`0034` 回归）· 我亲验四条证据 · 新登记 `B23`（高·用户可见）· 派 S50（只写未 apply 的修复迁移 + 事务内预演）**（2026-10-07）
 
 **A. S49（Kong · 60c/833s · 截断）**：**`s5-01` 已转绿** ✅（`exit 1 · 67/69` ⇒ **`exit 0 · 84/84`**；**期望前推只增不减**、**15 枚 `0043` `*_no_truncate` 逐条给出处 + `pg_trigger` 现取**（全 `tgenabled='O'`、`tgtype=34`、statement 级）；判负 `82 → 复原 84`）。**`s3-01` 探针侧按其派单补了前置**（`pickAdmin`/`approveDraft` 事务内造一行 approved `currency_review_log`、`SAVEPOINT` 隔离、零残留自证 `8/8`、序列成本显式登记 `currency_review_log_log_id_seq 52→55`），分母 `34→35`；**但行为段 11 红仍在，且它停在「零产品改动」口径外报回**（**未放宽判据、未删断言、未伪造绿** —— 合纪）。
