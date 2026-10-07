@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, it, expect } from 'vitest'
 import { axe, toHaveNoViolations } from 'jest-axe'
 import { Button, Card, Modal, Form } from '@components/ui'
@@ -112,7 +113,8 @@ describe('Accessibility Tests', () => {
       
       const input = screen.getByRole('textbox', { name: /name/i })
       expect(input).toBeInTheDocument()
-      expect(input).toHaveAttribute('aria-required', 'true')
+      // S44-R1：`<input required>` 落 DOM 属性 `required`（React 不会自动补 aria-required）⇒ 断言改为 toBeRequired()。
+      expect(input).toBeRequired()
     })
 
     it('should announce form errors', () => {
@@ -139,20 +141,23 @@ describe('Accessibility Tests', () => {
   })
 
   describe('Keyboard Navigation', () => {
-    it('should support keyboard navigation for buttons', () => {
+    it('should support keyboard navigation for buttons', async () => {
+      // S44-R1：原生 <button> 的 Enter/Space 激活属浏览器默认行为；jsdom 对「手动 dispatch keydown」
+      //   不会合成 click。改用 @testing-library/user-event 模拟键盘 ⇒ 走真实默认动作。
+      const user = userEvent.setup()
       const handleClick = vi.fn()
       render(<Button onClick={handleClick}>Click me</Button>)
-      
+
       const button = screen.getByRole('button')
-      
-      // Test Enter key
       button.focus()
-      button.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+
+      // Test Enter key
+      await user.keyboard('{Enter}')
       expect(handleClick).toHaveBeenCalled()
-      
+
       // Test Space key
       handleClick.mockClear()
-      button.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+      await user.keyboard('[Space]')
       expect(handleClick).toHaveBeenCalled()
     })
 
@@ -197,9 +202,13 @@ describe('Accessibility Tests', () => {
 
   describe('Screen Reader Support', () => {
     it('should provide proper ARIA descriptions', () => {
+      // S44-R1：原文件此处两个相邻根 JSX 元素未包 fragment ⇒ esbuild 转换失败
+      //   （`Accessibility.test.jsx:202:13 ERROR: Expected ")" but found "id"`）⇒ 整文件 0 test。
       render(
-        <Button aria-describedby="help-text">Help</Button>
-        <div id="help-text">Click for help</div>
+        <>
+          <Button aria-describedby="help-text">Help</Button>
+          <div id="help-text">Click for help</div>
+        </>
       )
       
       const button = screen.getByRole('button')

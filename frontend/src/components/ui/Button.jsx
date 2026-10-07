@@ -32,6 +32,7 @@ const Button = React.forwardRef(({
   variant = 'primary',
   size = 'md',
   disabled = false,
+  loading = false,
   children,
   ...props
 }, ref) => {
@@ -47,6 +48,7 @@ const Button = React.forwardRef(({
       ref={ref}
       disabled={Component === 'button' ? disabled : undefined}
       aria-disabled={disabled || undefined}
+      aria-busy={loading || undefined}
       {...props}
     >
       {children}

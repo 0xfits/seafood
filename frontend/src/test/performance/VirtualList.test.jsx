@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { VirtualList } from '@components/ui/Performance'
 
@@ -59,7 +59,7 @@ describe('VirtualList Performance', () => {
   })
 
   it('updates visible items on scroll', () => {
-    const { rerender } = render(
+    const { container } = render(
       <VirtualList
         items={mockItems}
         itemHeight={50}
@@ -69,23 +69,18 @@ describe('VirtualList Performance', () => {
     )
 
     const initialItems = screen.getAllByTestId(/^item-\d+$/)
-    
-    // Simulate scroll
-    rerender(
-      <VirtualList
-        items={mockItems}
-        itemHeight={50}
-        containerHeight={200}
-        scrollTop={500}
-        renderItem={renderItem}
-      />
-    )
+    const firstItemBefore = initialItems[0]
+
+    // S44-R1 · 判据对齐：VirtualList 自管滚动（useState(0) + onScroll→setScrollTop），
+    //   从未提供 `scrollTop` prop（07360a3 建文件起至今一致）。原测以 prop 驱动滚动 ⇒ 无效。
+    //   改为对真实滚动容器派发 scroll 事件。
+    const scroller = container.querySelector('.overflow-auto')
+    fireEvent.scroll(scroller, { target: { scrollTop: 500 } })
 
     const scrolledItems = screen.getAllByTestId(/^item-\d+$/)
     expect(scrolledItems.length).toBe(initialItems.length)
-    
+
     // Items should be different after scroll
-    const firstItemBefore = initialItems[0]
     const firstItemAfter = scrolledItems[0]
     expect(firstItemBefore).not.toBe(firstItemAfter)
   })

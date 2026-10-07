@@ -64,6 +64,8 @@ const Modal = ({
       {/* 模态框内容 */}
       <div
         ref={modalRef}
+        role="dialog"
+        aria-modal="true"
         className={cn(
           'relative bg-white rounded-xl shadow-2xl transform transition-all duration-300',
           'max-h-[90vh] overflow-y-auto',
