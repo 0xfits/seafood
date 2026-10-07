@@ -157,14 +157,24 @@ const makeArbJob = async (tx: TxClient, reward: number, tag: string): Promise<nu
   t('S1.job_arbitration_log.debug', 'section1', byTable('job_arbitration_log').length >= 1,
     'job_arbitration_log 有用户触发器', JSON.stringify(byTable('job_arbitration_log').map((r) => r.tgname)),
     'append-only 触发器缺失 ⇒ 台账可被改 ⇒ 判负');
+  // ★ S49（`R7` 收口）· **期望前推**（冻结面滞后修正；`0043_truncate_guard.sql` 已应用）：
+  //   迁移 `0043_truncate_guard.sql` 为该族 15 张 append-only 表各补 1 枚 **`BEFORE TRUNCATE`**
+  //   （`FOR EACH STATEMENT`）守卫 `trg_<table>_no_truncate`。
+  //   本表出处（逐条）：`0043_truncate_guard.sql:198-201`（CREATE TRIGGER 于 `:199`），
+  //   注入到原 append-only 守卫所在的表 `public.listing_review_log`（建表迁移 `0026:95`）。
+  //   `tgtype` 位：`BEFORE`(2) + `TRUNCATE`(32) = **34**（statement 级 ⇒ **无** ROW 位 1）。
+  //   **期望集只增不减**：既有 `..._append_only:27` **一字不动**，仅**追加** `..._no_truncate:34`。
+  //   旧值留痕（改前逐字）：`['trg_listing_review_log_append_only:27']`。
   eq('S1.listing_review_log.append_only', 'section1',
     byTable('listing_review_log').map((r) => `${r.tgname}:${r.tgtype}`),
-    ['trg_listing_review_log_append_only:27'],
-    'append-only 触发器必须 = BEFORE|ROW|UPDATE|DELETE（tgtype 27）');
+    ['trg_listing_review_log_append_only:27', 'trg_listing_review_log_no_truncate:34'],
+    'append-only 触发器必须 = BEFORE|ROW|UPDATE|DELETE（tgtype 27）+ 0043 补的 BEFORE|TRUNCATE（tgtype 34）');
+  // ★ S49（`R7` 收口）· 期望前推：出处 `0043_truncate_guard.sql:203-206`（CREATE TRIGGER 于 `:204`），
+  //   表 `public.job_arbitration_log`（建表迁移 `0027:99`）。旧值留痕：`['trg_job_arbitration_log_append_only:27']`。
   eq('S1.job_arbitration_log.append_only', 'section1',
     byTable('job_arbitration_log').map((r) => `${r.tgname}:${r.tgtype}`),
-    ['trg_job_arbitration_log_append_only:27'],
-    'append-only 触发器必须 = tgtype 27');
+    ['trg_job_arbitration_log_append_only:27', 'trg_job_arbitration_log_no_truncate:34'],
+    'append-only 触发器必须 = tgtype 27 + 0043 补的 BEFORE|TRUNCATE（tgtype 34）');
   eq('S1.listing.has_status_guard', 'section1', byTable('listing').some((r) => r.tgname === 'trg_listing_status_guard'), true,
     'listing 状态白名单触发器在场');
   eq('S1.job.has_status_guard', 'section1', byTable('job').some((r) => r.tgname === 'trg_job_status_guard'), true,
@@ -188,6 +198,60 @@ const makeArbJob = async (tx: TxClient, reward: number, tag: string): Promise<nu
   const schemaVer = await readQuery<{ version: string }>(`SELECT version FROM public.schema_migration ORDER BY version DESC LIMIT 1`);
   out.schema_version = schemaVer[0]?.version ?? null;
   out.base_tables = (await readQuery<{ n: number }>(`SELECT count(*)::int AS n FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'`))[0]?.n ?? null;
+
+  // ---------------------------------------------------------------- ①-b `0043` 冻结面逐条现取（只读）
+  // ★ S49（`R7` 收口）：`0043_truncate_guard.sql` 为 **15 张** append-only 表各补 **1 枚** `BEFORE TRUNCATE`
+  //   守卫。此处**逐条**把「迁移文件出处（CREATE TRIGGER 行号 · 现读文件动态定位，防漂移）」与
+  //   「库面 `pg_trigger` 现取（tgname/tgenabled/tgtype/函数名）」对齐——表 :: 触发器名 :: 建表迁移:行
+  //   照 `0043` 头注（`0043_truncate_guard.sql:16-32`）。
+  const GUARD_MIG = fs.readFileSync(path.join(REPO_ROOT, 'backend-ts', 'migrations', '0043_truncate_guard.sql'), 'utf8').split('\n');
+  const migLineOf = (needle: string): number => { const i = GUARD_MIG.findIndex((l) => l.includes(needle)); return i < 0 ? -1 : i + 1; };
+  const TRUNCATE_GUARDS: Array<{ t: string; trg: string; origin: string }> = [
+    { t: 'ledger_entry', trg: 'trg_ledger_entry_no_truncate', origin: '0001:125' },
+    { t: 'referral', trg: 'trg_referral_no_truncate', origin: '0007:75' },
+    { t: 'commission_policy', trg: 'trg_commission_policy_no_truncate', origin: '0007:110' },
+    { t: 'market_trade', trg: 'trg_market_trade_no_truncate', origin: '0016:359' },
+    { t: 'currency_status_log', trg: 'trg_currency_status_log_no_truncate', origin: '0017:237' },
+    { t: 'admin_ops_audit_log', trg: 'trg_admin_ops_audit_log_no_truncate', origin: '0023:125' },
+    { t: 'admin_refund_audit_log', trg: 'trg_admin_refund_audit_log_no_truncate', origin: '0024:100' },
+    { t: 'currency_review_log', trg: 'trg_currency_review_log_no_truncate', origin: '0025:90' },
+    { t: 'listing_review_log', trg: 'trg_listing_review_log_no_truncate', origin: '0026:95' },
+    { t: 'job_arbitration_log', trg: 'trg_job_arbitration_log_no_truncate', origin: '0027:99' },
+    { t: 'batt_entry', trg: 'trg_batt_entry_no_truncate', origin: '0029:256' },
+    { t: 'checkin_log', trg: 'trg_checkin_log_no_truncate', origin: '0029:261' },
+    { t: 'checkin_makeup_log', trg: 'trg_checkin_makeup_log_no_truncate', origin: '0029:266' },
+    { t: 'rating', trg: 'trg_rating_no_truncate', origin: '0031:171' },
+    { t: 'listing_order_event', trg: 'trg_listing_order_event_no_truncate', origin: '0031:176' },
+  ];
+  const trigGuards = await readQuery<Record<string, unknown>>(`
+    SELECT c.relname AS table_name, t.tgname, t.tgenabled, t.tgtype::int AS tgtype, p.proname AS fn
+      FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace
+      LEFT JOIN pg_proc p ON p.oid = t.tgfoid
+     WHERE n.nspname='public' AND NOT t.tgisinternal AND t.tgname LIKE 'trg_%_no_truncate'
+     ORDER BY c.relname`);
+  const guardRows = TRUNCATE_GUARDS.map((g) => {
+    const row = trigGuards.find((r) => r.tgname === g.trg) ?? null;
+    return {
+      table: g.t, trigger: g.trg, built_by: g.origin,
+      sql_create_trigger_line: migLineOf(`CREATE TRIGGER ${g.trg}`),
+      present: row !== null,
+      tgenabled: row ? row.tgenabled : null,
+      tgtype: row ? row.tgtype : null,
+      fn: row ? row.fn : null,
+    };
+  });
+  out.section1b_truncate_guards = {
+    note: '0043_truncate_guard.sql 的 15 枚 BEFORE TRUNCATE（statement 级）守卫：逐条 = 表 :: 触发器名 :: 建表迁移:行 :: 迁移文件 CREATE TRIGGER 行 :: 库面 pg_trigger 现取。',
+    source_file: 'backend-ts/migrations/0043_truncate_guard.sql',
+    guards: guardRows,
+  };
+  for (const g of guardRows) {
+    eq(`S1.guard.${String(g.table)}`, 'truncateGuard', g, {
+      table: g.table, trigger: g.trigger, built_by: g.built_by,
+      sql_create_trigger_line: g.sql_create_trigger_line,
+      present: true, tgenabled: 'O', tgtype: 34, fn: `${g.table}_no_truncate`,
+    }, `0043 守卫 ${String(g.trigger)} 须在库内启用（tgenabled=O / tgtype=BEFORE(2)+TRUNCATE(32)=34 / statement 级）且迁移文件有对应 CREATE TRIGGER ⇒ 缺 / 未启用 / 行号对不上 ⇒ 判负`);
+  }
 
   // ---------------------------------------------------------------- 基线快照（只读 · 恢复自证用）
   const snapshot = async () => {
@@ -630,6 +694,7 @@ const makeArbJob = async (tx: TxClient, reward: number, tag: string): Promise<nu
     unit: 'P8-S5-REAL-CHAINS', run: RUN, generated_at: new Date().toISOString(),
     total: checks.length, passed: checks.length - failed.length, failed: failed.length,
     section1_triggers: out.section1_triggers,
+    section1b_truncate_guards: out.section1b_truncate_guards,
     schema_version: out.schema_version, base_tables: out.base_tables,
     migration_assert: out.migration_assert,
     baseline: out.baseline, post_restore: out.post_restore,

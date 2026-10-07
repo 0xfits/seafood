@@ -1416,6 +1416,18 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.378 **★★ S49 部分达成 ⇒ **挖出真产品缺陷**（`0034` 回归）· 我亲验四条证据 · 新登记 `B23`（高·用户可见）· 派 S50（只写未 apply 的修复迁移 + 事务内预演）**（2026-10-07）
+
+**A. S49（Kong · 60c/833s · 截断）**：**`s5-01` 已转绿** ✅（`exit 1 · 67/69` ⇒ **`exit 0 · 84/84`**；**期望前推只增不减**、**15 枚 `0043` `*_no_truncate` 逐条给出处 + `pg_trigger` 现取**（全 `tgenabled='O'`、`tgtype=34`、statement 级）；判负 `82 → 复原 84`）。**`s3-01` 探针侧按其派单补了前置**（`pickAdmin`/`approveDraft` 事务内造一行 approved `currency_review_log`、`SAVEPOINT` 隔离、零残留自证 `8/8`、序列成本显式登记 `currency_review_log_log_id_seq 52→55`），分母 `34→35`；**但行为段 11 红仍在，且它停在「零产品改动」口径外报回**（**未放宽判据、未删断言、未伪造绿** —— 合纪）。
+**B. ★★ 它挖出的真因 = 产品缺陷（本会话最有价值的一条）**：`ledger_post_event` 的 **hold 家族「同账户 2 腿」守卫里被 `0034` 写回了 `'listing_deposit'`**，而 `listing_deposit` 是**跨账户腿**（owner → `uid=-1`）⇒ **恒被 `LD016 / LEDGER_AMOUNT_INVALID · reason=HOLD_PAIR_REQUIRED` 拒** ⇒ **「自建币上市收保证金」链在生产上不可用**。
+**★ 我亲验四条（我自己连库 + 读迁移）**：① `migrations/0020*.sql` 注释**逐字自陈**「原 `…,'job_escrow_refund','listing_deposit')` → `…,'job_escrow_refund')`」+「列表其余 4 项与闭合括号逐字仍在：`('hold','hold_release','job_escrow','job_escrow_refund')`」⇒ **0020 是有意删除**；② 建 `ledger_post_event` 的迁移序列 = `0004 → 0005 → 0012 → **0034**`（0034 最后）⇒ **未继承 0020 的删除**；③ **活库 `prosrc` 现取含 `listing_deposit` = `true`**（`length(prosrc)=47968`）；④ `src/currency-service.ts:354`「保证金 `listing_deposit` ×2 → **贷 `uid = -1`**」⇒ 跨账户腿，与守卫**结构冲突**。⇒ **回执逐字**：`{code:LD016, message:LEDGER_AMOUNT_INVALID, detail:{cid:1, uid:970001, kind:listing_deposit, field:entries, reason:HOLD_PAIR_REQUIRED}} @ ledger_post_event line 551`。
+**C. 新登记 `B23`（★高 · 产品缺陷 · 用户可见）**：修法 **A（推荐）= 新增迁移逐字重建 `ledger_post_event`，仅从守卫列表删 `,'listing_deposit'`**（**重放 0020 的改动**）+ apply-time 自检；B = 标 `NOT_MEASURED`（**放宽判据，不采**）；C = 维持红点转台账。
+**D. 派 S50（Kong）**：**只写未 apply 的修复迁移**（`0044_restore_listing_deposit_leg.sql`：以 0034 版为底逐字重建、**仅删该 token**、幂等可重放、自带 apply-time 自检）+ **`MIGRATIONS_FROZEN` 计数前推（42→43，全仓 4 处断言）** + **★「事务内 apply + 断言 + `ROLLBACK`」离线预演**（证明修法有效**而不碰活库**）+ `p8-s3-01-effective` 在预演后行为段应转绿的读数 + 全量门对照 + 判负。**严禁 apply**（apply 需 Kevin 一句话 —— **库 = 生产库**）。
+**E. 它的一处自曝（合纪）**：判负脚本用**子串替换**误命中了两行「旧值留痕」注释 ⇒ 已 `patch` 修回并与前推版备份 `diff` **逐字节相同**。★ 这正是我技能里写过的「**位置/子串类判据会把注释里的关键字当命中**」—— 它自己报出来了。
+**F. 状态**：DB **`42 行 / max 0043`** · 生产 **`78c25d0`**（docs）· 端口在听（非本批，本单未起实例）· 工作树仅 2 探针 + 报告（待入库）。
+
+---
+
 ### 5.377 **★★ S48 ✅（`B22` 决策材料备齐 · 结论比我预想更重）· `R7` 定性完成（`s5-01` 期望过期 / `s3-01` 前置缺失，**均非产品缺陷**）· 派 S49（R7 收口）**（2026-10-07）
 
 **A. S48（Kong · 严格只读 · 38c/1244s）✅**：报告 338 行 + 8 件产物 + 7 个只读探针；**零写**（`git status` 仅新增报告）✓。
