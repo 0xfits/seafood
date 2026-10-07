@@ -81,7 +81,8 @@ const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).l
 // ★ S2b 门前推：迁移文件数 39 → 40（+0041_job_headcount 任务 headcount）。
 // ★ S10 门前推：迁移文件数 40 → 41（+0042_job_settle_per_submission 每提交结算）。
 // ★ S26 台账 B9 门前推：迁移文件数 41 → 42（+0043_truncate_guard 给 15 张 append-only 表补 BEFORE TRUNCATE 守卫）。
-const MIGRATIONS_FROZEN = 42;
+// ★ S50 台账 B23 修法 A 门前推：迁移文件数 42 → 43（+0044_restore_listing_deposit_leg 重放 0020：hold 家族守卫去 listing_deposit；**未 apply**）。
+const MIGRATIONS_FROZEN = 43;
 const ENVELOPE_FIELDS = ['create_key', 'idempotency_key', 'idempotencyKey'];
 
 const readSrc = (rel: string): string => fs.readFileSync(path.resolve(REPO_ROOT, rel), 'utf8');

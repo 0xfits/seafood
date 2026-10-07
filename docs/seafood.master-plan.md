@@ -1416,6 +1416,18 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.380 **★★ S50 ✅主体（`B23` 修法已写好且**离线预演证明有效**）· ★我亲验四条（含活库 md5 与 0034 文件体逐字同）· 状态 `pending_apply` ⇒ 4 门预期红 · 派 S50b（补报告 + 16 门）**（2026-10-07）
+
+**A. S50（Kong · 60c/575s · 截断）✅主体**：交付 `backend-ts/migrations/0044_restore_listing_deposit_leg.sql`（**未 apply** · `sha256 937af17fdaf886f6…` · 63895 B · 以 0034 版逐字节为底、**仅删** hold 守卫里的 `,'listing_deposit'`）+ `MIGRATIONS_FROZEN 42⇒43` **四处前推**（`p8-s3-deposit-gate:85` · `p8-s3b-address-gate:74` · `p8-s4-currency-review-gate:72` · `p8-s5-compliance-gate:81`，**未删任何断言**）+ **★ 离线预演**（显式事务内 apply 0044 全文 ⇒ 断言 ⇒ **末尾 `ROLLBACK`**）。
+**★★ 预演三态（这是本单的核心价值）**：**改前** ⇒ `LD016 / LEDGER_AMOUNT_INVALID · reason=HOLD_PAIR_REQUIRED`（零副作用）；**改后** ⇒ **`guard_error = null`（不再 LD016）**、`applied=1`、**`owner −60000`（fee 10000 + dep 50000）/ `uid=-1 +60000`（守恒）**、**4 条分录逐字**（`currency_create_fee` 两腿 + `listing_deposit` 两腿）；**`ROLLBACK` 后活库零变化** ⇒ `prosrc` md5 回 `3737e0f8…`、`schema_migration 42 行 / max 0043`、`ledger_entry 504`、`currency 15`、`currency_review_log 0` **逐项同基线**。**序列成本登记**（`nextval` 不回滚）：`ledger_entry_txid_seq 2823→2828`（+5）· `currency_review_log_log_id_seq 65→66`（+1）。
+**★ 我核盘（S50，逐条亲验）**：① `0044` 文件 63895 B、`sha256 937af17f…` **逐字对上** ✓；② **我独立提取函数体 diff** ⇒ `0034 47966 → 0044 47948`（**−18 B**）、**变化恰 1 行**（删 `,'listing_deposit'`）✓；③ `MIGRATIONS_FROZEN` 四处全 **43**、`= 42` 残留 **0**、`ls migrations/*.sql` = **43**（常量 = 文件数）✓；④ **我连库只读现取 `md5(prosrc) = 3737e0f8…`（47968 B）= 它报告的 0034 文件体 md5 逐字相同** ⇒ 「**0034 文件体 == 活库函数体**」成立（**回归确在线上**）；⑤ 未 apply 自证：`schema max 0043 / 42 行` ✓；⑥ `tsc` 双配置新增错 = 0（`scripts` 仍别 77）✓。
+**B. ★ 状态 = `pending_apply`（我在派单里写死的口径）**：活库仍 `0043 / 42 行` ⇒ **`MIGRATIONS_FROZEN` 常量（43）> 库（42）⇒ 那 4 道门在 apply 前会红**（属**预期**、非回归）。⇒ 台账已登记 `pending_apply`，**apply 需 Kevin 一句话**（**库 = 生产库**）。
+**C. 派 S50b（Kong）**：① **补写报告** `docs/audit/s50-b23-fix-migration.md`（材料已全在产物里，属纯转录）② **16 门对照**（含受控实例 `5792–5799`；**需说明那 4 门因 `pending_apply` 预期红，并逐门给红点定位**）③ `s3-01` 未 apply 下仍红（预期）④ 收尾验端口释放。
+**D. 未做与登记**：16 门全量未跑（截断）；`0020` 头注自陈「字节差 17」而实测 **18** ⇒ **0020 该数字不准**（本单未改 0020，如实登记）。
+**E. 状态**：DB **`42 行 / max 0043`**（**未 apply 0044**）· 生产 **`65a6e81`**（docs）· 工作树：`0044` 新迁移 + 4 门脚本 + 报告（待入库）。
+
+---
+
 ### 5.379 **★ 我认账第三处（本会话第六次）：`output_schema` 里重复写键 ⇒ 整批被拒（S50 重发）**（2026-10-07）
 
 **A. 事实**：S50 首次派单被运行时拒收 —— `output_schema` 的 `negative_control` 我写成了**嵌套重复键**（`{"items":…, "negative_control":{…}, "type":"string"}`）⇒ 校验报 `'object' is not of type 'object','boolean'` ⇒ **整批（本单就一个 task）未发出**。
