@@ -1416,6 +1416,40 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.399 **★★ S58b ✅（env 已收拢：`SF_*` 18 键删净 · 规范名族 + `SECRET_KEY` 逐键点名仍在 · 残留③已修）· 推送即「收拢后部署」的触发 ⇒ 哨兵待取**（2026-10-08）
+
+**A. S58b（Kong · 22c/252s）✅**：
+- **待删清单**：`SF_*` **18 键**（创建时间 `2026-09-27 10:36:25`），逐键列名 + 环境（`preview,production`）。
+- **删除结果**：`production` **rc=0 ×18（有效 18/18）**；`preview` **rc=1 `env_not_found` ×18** ——★**不是漏删**：每键是**单条多目标记录**（一条记录覆盖 preview+production）⇒ 删掉 production 目标即**整条移除** ⇒ preview 自然 `env_not_found`。
+- **删后复核**：`env-ls-production-after` 与 `-preview-after` 的 `grep -c SF_` **均为 0** ✓；**规范名族 4 键**（`DATABASE_URL`/`DATABASE_URL_UNPOOLED`/`POSTGRES_URL`/`POSTGRES_URL_NON_POOLING`）**+ `SECRET_KEY` 逐键点名仍在**（`CRON_SECRET`/`DEEPSEEK_API_KEY` 旁证亦在）✓。
+- **仓内消费点核查（删前必做）**：全 grep（`ts/tsx/js/jsx/json`）⇒ **唯一运行期引用 = `src/env.ts:52-55` 的 `VERCEL_PREFIX_FALLBACKS`**（**规范名恒在 ⇒ 该表不生效**，删除无害）；`scripts/p4z-p6vs-env-probe.ts` 为**独立探针**（非运行期/非构建路径）；余为注释与**隐藏产物目录**的历史读数；**前端命中 0** ✓。
+- **两条基线哨兵逐字**（删后、旧部署）：`/api/user/asset/100` ⇒ **`points=4292`**；`/api/task/all` ⇒ **恰 3 行 `tID 136/230/232`** ✓。
+- **★ 残留③已修**：`setval('admin_ops_audit_log_log_id_seq', 9, true)` ⇒ **`1/false → 9/true`**（**下一 `nextval = 10`**，避开已存在的 `log_id=9`）✓。
+- **合规**：全程**仅两条写面**（**18 键 Vercel env 删除** + **新库一条 `setval`**）· **零表行写** · 未部署 · 未 commit/push · 未起实例 ✓。
+**★ B. 部署时序与「收拢后哨兵」（本笔的下一步）**：`SF_*` 删除**本身不触发部署** ⇒ 上面两条哨兵只证「**现行旧部署**」未变；**「新部署已采用 collapsed env」必须由一次部署来证** ⇒ 本轮我**推文档触发部署**，再跑**收拢后哨兵**（`/api/user/asset/100` = `4292` · `/api/task/all` = **3 行 `[136,230,232]`** · `/api/prize/all` = `0` · `/api/health` = `0044`）⇒ **四个读数同向即「零行为变化」**。
+**★ C. 它自曝的口径边界（合纪）**：① 未部署 ⇒ 「新部署采用 collapsed env」**未实测**（正是 B 要做的）② `SF_*` 删除对**已存在 preview 部署**的运行时影响未测 ③ Vercel env 的 `development` 目标**未单列核对** ④ 序列在其他分支/库取值未测。
+**D. 状态**：生产 = 新库 · Kevin 账号资产已就位 · **Vercel 上 `SF_*` 已不存在 ⇒ 回滚须显式写入旧库连接串**（值取自本机 `backend-ts/.env.local`，**不落盘**）· `B26` 可闭环（待哨兵）· `B27` 可闭环。
+
+---
+
+### 5.398 **★★ S58 ✅（Kevin 账号资产已迁入生产库）· 我亲验 11 项全绿 · 生产端到端哨兵 `points=4292` · 它再次订正我的基线（`task/all` 3 行 ≠ 0）· 派 S58b（收拢 env + 补残留③）**（2026-10-08）
+
+**A. S58（Kong · 已授权写新库=生产 · 28c/319s）四阶段全部完成、顺序未颠倒**：
+- **阶段 0 回滚点能力**：`neonctl` **NOT_FOUND** · 两 `.env*` 的 `^NEON` 键名 **0 命中** ⇒ **无 Neon API 凭据 ⇒ 无分支/无 PITR**（风险明写：`account_guard` 禁 `DELETE` + 账本 append-only ⇒ **account/ledger 行不可逆**）。
+- **阶段 1 事务内预演 + `ROLLBACK`**：`S0` 前置**全 0**（evm 0 行 · `uid=100` 空闲 · 17 txid/key 冲突 0 · job/sub/batt/checkin/audit 冲突 0）⇒ `S1–S11` **rowcount 合计 33 行** ⇒ **逐项读回全绿**（`ledger(100) n=17 Σdelta=4292 Σfrozen_delta=5800` · 最新快照 `txid 2372→4292/5800` · `batt 90`=3 行之和 · `job 3` 且**其 `escrow_txid`/`settle_txid`/`ledger_event_keys` 值引用 6/6 在库** · `admin_user_role(100)=super_admin`）⇒ **判负 `N1–N6`**：**`N2`/`N4`/`N5` = 真 hard error**（FK 违反 / `new account must start at 0/0` / `account update without any ledger_entry`）；**`N1`/`N3` = 「0 行/幂等」的软证据**（不抛错）——★**它按此分档直书、未冒充全红**（合纪）⇒ `ROLLBACK` ⇒ **复核全部回到写前计数**（`ledger 265→248` · `account 24→23` · `users 27→26` · `cid=1 net 10,200→200`）。**唯一未回退** = `users_uid_seq 42→101`（**`setval` 非事务性**，PG 文档明载；无害）。
+- **阶段 2 正式提交**：`COMMIT` ⇒ `ledger 248→265`（+17）· `account 23→24` · `users 26→27`。
+- **阶段 3 事后现取**：`cid=1` **`Σmint−Σburn` = `200 → 10,200`**（`mint 210,274 + burn −200,074`）· `total_supply` **`2,010,200` 不变** · **全局 `account↔ledger` 失配 = 0** · `admin_user_role(100)=super_admin`（**12 键**）· 其他 uid 的 248 行**未动** · `dup_evm=0`。
+- **阶段 4 ★生产端到端哨兵**：`GET https://ssseafood.vercel.app/api/user/asset/100` ⇒ **`{"success":true,"data":{"uID":100,"points":4292,…}}`**（HTTP 200）；旁证 `/api/task/all` ⇒ **3 行**。
+- **丢弃清单 11 行逐行登记**（`job_submission 9`（父 job `3/4/20/23/214/215/216/217/2` 夹具或测试）+ `job_application 2`（job `2`=夹具 / `24`=测试）），新库对应表零痕迹。
+**★★ B. 它又一次订正我的基线（本会话第四次）**：我在 §5.397-C 的 S58b 预案里写「哨兵 = `/api/task/all` **应仍 0 行**」—— **错**（那是迁移前状态）。迁入 Kevin 的 3 个真 job 后**正确基线 = `3` 行 = `[136, 230, 232]`**（**我亲跑证实**）。
+**★ C. 我亲验（11 项，全部现取）**：`users(100)` = `bio hellohello` / `evm 0x59f9…09b0` / `time_reg 2026-10-01T00:34:03Z` ✓ · `account(100)` = `4292/5800` v8 ✓ · `ledger(100)` = `n17 / Σdelta 4292 / Σfrozen_delta 5800` ✓ · 全局 `ledger 265 / account 24 / users 27 / job 3 / sub 3 / checkin 6` ✓ · `cid=1 Σmint−Σburn = 10,200` ✓ · `total_supply = 2,010,200` ✓ · `account↔ledger` 失配 **0** ✓ · `admin_user_role(100) = {uid:100, role_key:super_admin}` ✓ · `users_uid_seq = 101` ✓ · 其他 uid `cid=1` **248 行未动** ✓ · `dup_evm = 0` ✓ · **生产 `/api/user/asset/100` = `points 4292`** ✓ · **`/api/task/all` = 3 行 `[136,230,232]`** ✓。
+**★ D. S58 残留三项（逐条登记）**：① **无分支/PITR 凭据** ⇒ 提交后 account/ledger **不可逆回退**（本单已写；今后同类写须先解决凭据）；② **`setval` 非事务性** ⇒ 预演 `ROLLBACK` 后 `users_uid_seq` 仍 `42→101`（**无害**：后续自动建户从 102 起，避开 `uid=100`）；③ **`admin_ops_audit_log_log_id_seq` 未推进** ⇒ 我实测其精确读数 = **`last_value=1, is_called=false`**（S58 写「仍 NULL」**不够精确**，结论仍对）⇒ 下一次自动审计写入得 `1`、**第 9 次会撞已存在的 `log_id=9`** ⇒ **待 S58b 补 `setval(...,9,true)`**。
+**E. 派 S58b（Kong · 已授权）**：① **取全量 `SF_*` 名单 + 逐环境**（不拉值）② **仓内消费点核查**（**若发现真消费 ⇒ 停下报回**）③ **逐键删除 `SF_*`**（保留规范名族）④ **删后复核**（`SF_*` 遗留=0 · 规范名族 4 键 + `SECRET_KEY` **逐键点名仍在** · 两条**基线**哨兵）⑤ **顺手补残留③ `setval`**（★新增写，明确标注）⇒ **不部署、不 push、不写表行**。
+**★ F. 部署时序（我控）**：**env 删除本身不触发部署** ⇒ S58b 落地后**由我推文档触发部署** ⇒ 届时跑**收拢后哨兵**（`/api/user/asset/100` = 4292 + `/api/task/all` = **3 行**）⇒ 才是「collapsed env 零行为变化」的证据。⇒ **本笔册页先写盘、暂不提交**（避免抢在 env 删除前触发部署）。
+**G. 状态**：**生产 = 新库 · Kevin 账号资产已就位**（`uid=100`，`super_admin`）· 旧库完好 · 回滚路径（**收拢前**仍可用：删规范名族 4 键 ⇒ 自动回退 `SF_*`）· `B27` 可闭环（待 S58b 后统一翻档）。
+
+---
+
 ### 5.397 **★ Kevin 批四条（1 A 接受 / 2 可以授权修法 / 3 同意判夹具 / 4 可以收拢 env）⇒ 派 S58（Kevin 账号资产迁入 · 四阶段含事务内预演+ROLLBACK）· S58b 预案（收拢 env）待 S58 验后执行**（2026-10-07）
 
 **A. 四条批复逐条落进执行**：
