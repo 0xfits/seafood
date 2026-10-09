@@ -10,3 +10,8 @@
 docs/
 backend-ts/.p4-artifacts/
 backend-ts/.env.local
+# Zang 2026-10-09：跑起来产生的 *-artifacts 目录（质检/探针产物，纯本地跑件）一律不上传。
+# 语义经 ignore@5.3.2 逐条验证（命中 backend-ts/.p1f-artifacts 等）。
+# ★ 注意：`vercel deploy --archive=tgz` 会绕过本文件（实测把产物一并打包上传 ⇒ 撞其中的断链
+#   符号链接而部署失败）⇒ 本仓 CLI 部署一律不带 --archive=tgz。
+**/.*-artifacts/

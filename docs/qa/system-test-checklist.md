@@ -285,23 +285,26 @@ lsof -nP -iTCP:5555 -sTCP:LISTEN; lsof -nP -iTCP:5191 -sTCP:LISTEN  # 期望四�
 
 | 端点（GET） | 期望读数 | 出处 |
 |---|---|---|
-| `/api/health` | `status: ok` / `schema_version: 0044`（`200`） | `docs/seafood.master-plan.md:1422,1455`；`backend-ts/src/index.ts:421-440` |
-| `/api/task/all` | **恰 3 行**，`tID = [136, 230, 232]` | `docs/seafood.master-plan.md:1452,1467` |
-| `/api/prize/all` | **0 行** | `docs/seafood.master-plan.md:1455` |
-| `/api/user/asset/100` | `{"uID":100,"points":4292,…}`（`200`） | `docs/seafood.master-plan.md:1468` |
+| `/api/health` | `status: ok` / `schema_version: 0044`（`200`） | `docs/seafood.master-plan.md:1452,1485`；`backend-ts/src/index.ts:421-440` |
+| `/api/task/all` | **恰 3 行**，`tID = [136, 230, 232]` | `docs/seafood.master-plan.md:1482,1498` |
+| `/api/prize/all` | **0 行** | `docs/seafood.master-plan.md:1485` |
+| `/api/user/asset/100` | `{"uID":100,"points":4382,…}`（`200`）★**基线就地更正**（`4292`→`4382`，「数据态漂移、非回归」，见 §5.401） | `docs/seafood.master-plan.md:1498` · `§5.401` |
 | `/api/home` | 空态形状（公开只读面；失败降级匿名） | `backend-ts/src/index.ts:837-844` |
-| 夹具串（对 siteName / 公开面） | 命中 **0** | `docs/seafood.master-plan.md:1432`；`docs/OPEN-ITEMS.md` B22 |
+| 夹具串（对 siteName / 公开面） | 命中 **0** | `docs/seafood.master-plan.md:1462`；`docs/OPEN-ITEMS.md` B22 |
 
 **6.1 命令（只读）**
 
 ```bash
-HOST=https://ssseafood.vercel.app     # 生产规范 host（出处 docs/seafood.master-plan.md:1468）
-curl -s "$HOST/api/health"            # 期望：ok / schema_version 0044
-curl -s "$HOST/api/task/all" | jq 'length'    # 期望：3
-curl -s "$HOST/api/task/all" | jq '[.[].tID]' # 期望：[136,230,232]
-curl -s "$HOST/api/prize/all" | jq 'length'   # 期望：0
-curl -s "$HOST/api/user/asset/100"    # 期望：points=4292
-curl -s "$HOST/api/home"              # 记录空态形状
+# 生产规范 host = https://0xseafood.com（2026-10-09 起，变体 B 一刀切；出处 §5.401）
+# ★ 本机把该域 DNS 劫持到 fake-IP 段 ⇒ 必须 --resolve 强指 Vercel anycast，否则读数是假的
+HOST=https://0xseafood.com
+RES="--resolve 0xseafood.com:443:76.76.21.21"
+curl -s $RES "$HOST/api/health"            # 期望：ok / schema_version 0044
+curl -s $RES "$HOST/api/task/all" | jq 'length'    # 期望：3
+curl -s $RES "$HOST/api/task/all" | jq '[.[].tID]' # 期望：[136,230,232]
+curl -s $RES "$HOST/api/prize/all" | jq 'length'   # 期望：0
+curl -s $RES "$HOST/api/user/asset/100"    # 期望：points=4382（★2026-10-09 由 4292 就地更正）
+curl -s $RES "$HOST/api/home"              # 记录空态形状
 ```
 
 - 判据：与上表逐项相等；**只读**，不带凭证，**零写**。
@@ -317,7 +320,7 @@ curl -s "$HOST/assets/index-BR4nlfLC.js" | shasum -a 256
 # 判据：两侧 sha256 逐字相同（同名 + 同哈希 ⇒ 线上=本地）
 ```
 
-- 出处：`docs/seafood.master-plan.md:2353`（线上 `index-*.js` sha256 与本地 `cmp` 0 的先例）。
+- 出处：`docs/seafood.master-plan.md:2383`（线上 `index-*.js` sha256 与本地 `cmp` 0 的先例）。
 
 ---
 
@@ -326,7 +329,7 @@ curl -s "$HOST/assets/index-BR4nlfLC.js" | shasum -a 256
 **7.1 无凭证负例（不触库 / 不触真凭据）**
 
 ```bash
-HOST=https://ssseafood.vercel.app
+HOST=https://0xseafood.com     # 2026-10-09 起（出处 §5.401）；本机须加 --resolve 0xseafood.com:443:76.76.21.21
 # ① 挑战：空 body ⇒ 400「Invalid EVM address」（纯计算，不触库）
 curl -s -o /dev/null -w '%{http_code}\n' -X POST "$HOST/api/auth/challenge" \
   -H 'content-type: application/json' -d '{}'     # 期望：400
