@@ -1444,6 +1444,8 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 **I. 交付（本节点）**：`docs/qa/system-test-checklist.md`（`HOST` ×2 改指 `https://0xseafood.com` ＋ 哨兵基线 `4382` ＋ 出处行号重锚）· `docs/seafood.master-plan.md`（本节点 ＋ `v0.323`）· `.vercelignore`（追加产物忽略 ＋ 上述口径注）。**上线动作**：本推即触发一次生产构建（**纯文档 ＋ `.vercelignore`，零代码位移**）；**上线后须复核 `0xseafood.com` 是否随新生产部署前移**（别名 pinned 风险）。
 
+**J. ★ 上线后复核（本推 `16ef38a` ⇒ 生产部署 `seafood-7fubqds75-…`，`23s` Ready；全部我亲取）**：① ★★ **`0xseafood.com` 随新生产部署自动前移** —— `vercel alias ls` 的 source 已是 `seafood-7fubqds75-…`、`vercel project ls` 的 **Latest Production URL 已变为 `https://0xseafood.com`** ⇒ **它是「项目域」（自动跟最新生产部署），不是 pinned 别名** ⇒ **§I 提的 pinned 风险已排除**；② **哨兵读数（经 `0xseafood.com --resolve`）全部命中**：`/api/health` = `200 · 0044` · `/api/task/all` = **3 行 `[136,230,232]`** · `/api/prize/all` = **0 行** · `/api/user/asset/100` = **`points=4382`**（＝新基线，就地更正后首次以新域取到）· `/api/home` = `200` · 夹具串 **0**；③ **产物 `index-BR4nlfLC.js` + `index-BIC8EUbT.css` 与本机构建 `frontend/dist/assets/` 逐字同名** ⇒ 纯文档推**零构建位移** ✓；④ ★ **`seafood-alwaysfit.vercel.app` 与 `seafood-git-main-alwaysfit.vercel.app` 被这次 push 自动重建**（age 2m）—— 二者是 **Vercel 项目自带域 / 分支自动别名**，**删掉会随每次部署回来** ⇒ 「别名只留两个」对这两条**不是可持续状态**（登记为平台事实，处置待 Kevin 一句话）；⑤ `devseafood.vercel.app` **未被生产推影响**（仍指 Preview `seafood-qvpae4iex-…`）；⑥ 另有一发**失败预览部署** `seafood-lblrmmefs-…`（`● Error`）= §H 那次 `--archive=tgz` 的残留（无害，不清理）。
+
 ---
 
 ### 5.400 **★★★ 生产分库终收口（事故闭环）· 部署已确认 `45eb9cd` 上线 · 台账 `B21`–`B27` 全翻档 · 事故时间线与五条复盘**（2026-10-08）
