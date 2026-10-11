@@ -66,6 +66,10 @@
   background: var(--sf-tabbar-bg);
   border-top: var(--sf-st-stroke-w-thin) solid var(--sf-tabbar-border);
   box-shadow: none;
+  /* T75（P0 · 底部安全区）：结构层声明（不是 token，不进主题差集、不进 STRUCT）。
+     真机生效需 index.html 的 <meta name="viewport"> 含 viewport-fit=cover。
+     ★ 不得新增断点块 —— shell.css 仍只保留下方唯一的 (max-width:767px) 断点块。 */
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .sf-tab {
@@ -123,6 +127,38 @@
     position: sticky;
     bottom: 0;
     z-index: 4;
+  }
+
+  /* ============================================================================
+     T77（P2）· 主要操作路径触控目标 ≥44×44 —— **仅手机竖屏档（≤767）**
+     ─ 手段仅限 min-height / min-width（+padding）；不改任何主题 token 的色值/形状值；
+       不改 --sf-st-h-btna（桌面 A 口径 34px 冻结）。
+     ─ 桌面档（>767）几何零变化：以下规则全部落在本断点块内，桌面不匹配。
+     ─ 复用的唯一断点值 = 767（与上方唯一断点块同一块、同一值；不新增断点类型）。
+     ============================================================================
+     · .sf-tap        文本/整行控件（页脚语言链接、移动面板语言与主题按钮）→ 高度下限 44
+     · .sf-tap-sq     方形图标控件（顶栏汉堡）→ 44×44
+     · .sf-tap-inline 行内文本链接（顶栏 Logo / 页脚语言链接）→ inline-flex 居中 + 高 44
+     · .btn           按钮家族（含 .btn-a / .btn-a-alt / .btn-md / .btn-lg / .btn-inactive /
+                      .btn-proceed…）→ min-height 抬到 44（.btn.btn-a 的 height:34px 被
+                      min-height 覆盖 ⇒ 使用高 44，height 声明一字未改）。 */
+  .sf-tap {
+    min-height: 44px;
+  }
+
+  .sf-tap-sq {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .sf-tap-inline {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .btn {
+    min-height: 44px;
   }
 }
 

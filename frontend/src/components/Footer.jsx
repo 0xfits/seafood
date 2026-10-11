@@ -80,7 +80,7 @@ const Footer = () => {
             <Link
               key={lang.code}
               to={`${buildLangPath(location.pathname, lang.code)}${location.search}${location.hash}`}
-              className={`text-sm ${getCurrentLang() === lang.code ? 'text-primary font-medium' : 'text-text-secondary hover:text-text-primary'}`}
+              className={`sf-tap-inline text-sm ${getCurrentLang() === lang.code ? 'text-primary font-medium' : 'text-text-secondary hover:text-text-primary'}`}
             >
               {lang.label}
             </Link>

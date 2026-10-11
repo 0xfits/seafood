@@ -254,3 +254,12 @@
   font-variant-numeric: tabular-nums;
   font-family: var(--sf-st-num-font);
 }
+
+/* T77（P2）· 触控目标 ≥44 —— **仅手机竖屏档（≤767）**。
+   桌面档（>767）保持 --sf-k-ctl-h: 34px（= STRUCT.h-btna，桌面 A 口径冻结）；
+   本块复用唯一断点值 767（与 shell.css 同值），不新增断点类型。 */
+@media (max-width: 767px) {
+  .sf-mkt {
+    --sf-k-ctl-h: 44px;
+  }
+}

@@ -198,11 +198,20 @@
   border-radius: var(--sf-st-radius-btna);
   box-shadow: none;
   padding: 2px 6px;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .sf-jobs-link {
   color: var(--sf-panel-link-fg);
   font-size: 13px;
   text-decoration: underline;
+}
+
+/* T77（P2）· 触控目标 ≥44 —— **仅手机竖屏档（≤767）**。
+   桌面档（>767）保持 --sf-j-ctl-h: 34px（= STRUCT.h-btna，桌面 A 口径冻结）；
+   本块复用唯一断点值 767（与 shell.css 同值），不新增断点类型。 */
+@media (max-width: 767px) {
+  .sf-jobs {
+    --sf-j-ctl-h: 44px;
+  }
 }

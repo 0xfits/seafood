@@ -11,6 +11,11 @@ import { fetchAdminAccess } from '../admin-utils'
 import { useAuth } from '../auth-context'
 import {buildLocalizedPath, buildLangPath, getLanguageFromUrl} from '../utils'
 
+// T76（P1）· 移动汉堡面板去重：底部 tab 已承担的导航目标（底部 tab = `/`、`/reward`、`/task`、
+// `/exchange`，其中 home 由品牌 Logo 承担）不得在移动面板里重复出现。
+// 仅用于**移动面板渲染时的局部过滤**；下方 `menuItems`（单一真源）与桌面 `<nav>` 一字不动。
+const MOBILE_PANEL_EXCLUDED_PATHS = ['reward', 'task', 'exchange']
+
 const Header = () => {
   const { t } = useTranslation()
   const { user: currentUser, isAuthenticated, logout } = useAuth()
@@ -160,7 +165,7 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <Link to={buildPath('')} className="text-xl font-bold text-yellow-600 dark:text-yellow-400">
+            <Link to={buildPath('')} className="sf-tap-inline text-xl font-bold text-yellow-600 dark:text-yellow-400">
               {t('siteBrand')}
             </Link>
           </div>
@@ -322,7 +327,7 @@ const Header = () => {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               data-sf-m="header-mobile-menu"
-              className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
+              className="sf-tap-sq p-2 rounded-md text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
             >
               {mobileMenuOpen ? (
                 <X className="h-6 w-6" />
@@ -338,7 +343,7 @@ const Header = () => {
       {mobileMenuOpen && (
         <div className="md:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
           <div className="px-2 pt-2 pb-3 space-y-1">
-            {menuItems.map((item) => (
+            {menuItems.filter((item) => !MOBILE_PANEL_EXCLUDED_PATHS.includes(item.path)).map((item) => (
               <Link
                 key={item.path}
                 to={buildPath(item.path)}
@@ -361,7 +366,7 @@ const Header = () => {
                     handleRegister()
                     setMobileMenuOpen(false)
                   }}
-                  className="block w-full text-center px-3 py-2 my-2 rounded-md text-base font-medium bg-blue-600 text-white hover:bg-blue-700"
+                  className="sf-tap block w-full text-center px-3 py-2 my-2 rounded-md text-base font-medium bg-blue-600 text-white hover:bg-blue-700"
                 >
                   {t('register')}
                 </button>
@@ -370,7 +375,7 @@ const Header = () => {
                     handleLogin()
                     setMobileMenuOpen(false)
                   }}
-                  className="block w-full text-center px-3 py-2 my-2 rounded-md text-base font-medium bg-yellow-600 text-white hover:bg-yellow-700"
+                  className="sf-tap block w-full text-center px-3 py-2 my-2 rounded-md text-base font-medium bg-yellow-600 text-white hover:bg-yellow-700"
                 >
                   {t('login')}
                 </button>
@@ -389,7 +394,7 @@ const Header = () => {
                     changeLanguage('zh')
                     setMobileMenuOpen(false)
                   }}
-                  className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'zh' ? 'bg-gray-100 dark:bg-gray-700 font-medium' : 'text-gray-600 dark:text-gray-300'}`}
+                  className={`sf-tap px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'zh' ? 'bg-gray-100 dark:bg-gray-700 font-medium' : 'text-gray-600 dark:text-gray-300'}`}
                 >
                   <img src={cnFlag} alt={t('chinese')} className="inline-block w-5 h-3 mr-2 rounded-sm shadow-sm" />
                   {t('chinese')}
@@ -399,7 +404,7 @@ const Header = () => {
                     changeLanguage('en')
                     setMobileMenuOpen(false)
                   }}
-                  className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'en' ? 'bg-gray-100 dark:bg-gray-700 font-medium' : 'text-gray-600 dark:text-gray-300'}`}
+                  className={`sf-tap px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'en' ? 'bg-gray-100 dark:bg-gray-700 font-medium' : 'text-gray-600 dark:text-gray-300'}`}
                 >
                   <img src={usFlag} alt="English" className="inline-block w-5 h-3 mr-2 rounded-sm shadow-sm" />
                   {t('english')}
@@ -409,7 +414,7 @@ const Header = () => {
                     changeLanguage('hk')
                     setMobileMenuOpen(false)
                   }}
-                  className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'hk' ? 'bg-gray-100 dark:bg-gray-700 font-medium' : 'text-gray-600 dark:text-gray-300'}`}
+                  className={`sf-tap px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'hk' ? 'bg-gray-100 dark:bg-gray-700 font-medium' : 'text-gray-600 dark:text-gray-300'}`}
                 >
                   <img src={hkFlag} alt={t('cantonese')} className="inline-block w-5 h-3 mr-2 rounded-sm shadow-sm" />
                   {t('cantonese')}
@@ -419,7 +424,7 @@ const Header = () => {
                     changeLanguage('vn')
                     setMobileMenuOpen(false)
                   }}
-                  className={`px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'vn' ? 'bg-gray-100 dark:bg-gray-700 font-medium' : 'text-gray-600 dark:text-gray-300'}`}
+                  className={`sf-tap px-3 py-2 rounded-md text-sm flex items-center ${getCurrentLang() === 'vn' ? 'bg-gray-100 dark:bg-gray-700 font-medium' : 'text-gray-600 dark:text-gray-300'}`}
                 >
                   <img src={vnFlag} alt="Tiếng Việt" className="inline-block w-5 h-3 mr-2 rounded-sm shadow-sm" />
                   {t('vietnamese')}
@@ -434,7 +439,7 @@ const Header = () => {
                 toggleTheme()
                 setMobileMenuOpen(false)
               }}
-              className="flex items-center w-full px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="sf-tap flex items-center w-full px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               {isDark ? <Moon size={18} className="mr-2" /> : <Sun size={18} className="mr-2" />}
               {t('darkMode')}
