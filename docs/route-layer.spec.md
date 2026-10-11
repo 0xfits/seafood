@@ -309,6 +309,15 @@
 > ④ **★ 后端注册点零改动**：`grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts` **现取 = 89** ⇒ **注册点仍 89**（`/messages` 是**前端**路由，不触后端注册面；`p7b-03-offline-gates.ts` `AC10-2` 冻结面不变）。
 > ⑤ **前端路由数**：`grep -cE '<Route' frontend/src/App.jsx` **现取 = 35** ⇒ 本单落地后 **35 → 36**（+1 = `/messages`）。
 > ⑥ **只追加、未重写**：**非追加改动 = 0 处**；**§1–§36 既有条文一字未动**；**§37（新）为唯一新增节**；**v0.1–v2.26 快照一字未动**；**纪律自检见 §37.4**。
+> **状态：v2.28（已完成 · **前端页面路由家族重命名：`移除 reward 概念 → 闲置物品 item`** —— 新家族 `/item`（列表 = 合并页）· `/item/new`（发布）· `/item/:id`（详情）+ `/item?id=<id>` 兼容；旧 `/reward`、`/listing`、`/listing/new`、`/listing/:listingId` **直接删除 · 无 301 / 无重定向**；后端对外路径（`/api/prize/*`、`/api/listing*`、`prizes` 表名）**一字不动**（登记「前端概念名 ⇄ 后端路径名」映射表 = §38.3）；只追加 · 零代码 · 零迁移 · 库面只读 · 零 HTTP · 零套件）** · 作者角色 = **Jing（Specifier · 制度员）** · 单号 = **JING-SPEC-ITEM-A**
+> **v2.28 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.28-delta.md`。**凡与 Kevin 裁定冲突处，一律以裁定为准**（本单为 **Kevin 2026-10-11 六条裁定**的**逐字落册**；**未改写任何裁定、未发明任何路径 / 数值 / 表名**）。**★ 姊妹册（同批交付）**：`docs/design/design-system.spec.md` **v1.10 §15**（`T87`–`T90`：导航入口集合变更 + 可达性 AC / 合并页口径 / i18n 删改留表 / 断言影响），**本册只承载 route 侧（页面路径 + 前后端名称映射）**，不重抄。
+> **★★ v2.28 本单要点（先说结论，不含糊）**：
+> ① **★ 新路由家族 = 恰 3 条前端页面路由**：`/item`（**列表 = 合并页**：闲置列表 + 我的订单）· `/item/new`（发布，承接 `PublishListingPage`）· `/item/:id`（详情，承接 `ListingDetailPage`）；**`/item?id=<id>` 与 `/item` 同一 `<Route>`**（按 query 分派，**不新增 `<Route>`**）。
+> ② **★ 旧路由硬删 4 条（无 301 / 无重定向）**：`/reward`（`App.jsx:80`）· `/listing`（`:93`）· `/listing/new`（`:94`）· `/listing/:listingId`（`:95`）—— **与 `/shard → /exchange` 先例不同**（该先例保留 `<Navigate>` 兼容段 `App.jsx:104`，本轮**一律硬删**）⇒ **旧收藏 / 外链 404**（登记 `docs/OPEN-ITEMS.md`）。
+> ③ **★ 后端零改动（现取 = 89）**：`grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts` **现取 = 89 不变**；**登记「前端概念名 ⇄ 后端路径名」映射表 = §38.3**（前端 `item / 闲置物品` ⇄ 后端 `/api/prize/*`、`/api/listing*`、`prizes` 表名 —— 永久并存）。
+> ④ **★ 留痕**：本裁定**推翻上几轮关于 `/listing*` 与底栏「卖闲置 → `/listing/new`」的指向**（旧措词**逐字保留 + 标「已被 v2.28 取代」** = §38.4；**未在任何既有行内重写**）。
+> ⑤ **前端路由数**：`grep -cE '<Route' frontend/src/App.jsx` **现取 = 36**（含 2 处 `<Routes>` 容器标签，口径同 §37.3）⇒ **落地后 = 36 − 4 + 3 = 35**。
+> ⑥ **只追加、未重写**：**非追加改动 = 0 处**；**§1–§37 既有条文一字未动**；**§38（新）为唯一新增节**；**v0.1–v2.27 快照一字未动**；**纪律自检见 §38.6**。
 
 
 > **v2.19 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.19-delta.md`（**同批姊妹册** = `docs/audit/data-layer-v0.26-delta.md` + `docs/audit/commission-v0.4-delta.md`）。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 P9⑤ 契约冻结；**未改写任何裁定、未发明任何路径 / 数值 / 权限键 / 文案值**）。**★ 姊妹册（同批）**：`docs/commission.spec.md` **v0.4 §19** + `docs/data-layer.spec.md` **v0.26 §34**，**本册不重抄其条文、只指路**。
@@ -7890,5 +7899,83 @@ CONSTRAINT admin_refund_audit_log_idem_uniq   UNIQUE (idempotency_key, result)  
 ### 37.4 纪律自检（逐条对照硬口径）
 
 ① **只追加 / 删除列 = 0** ✅（`docs/audit/route-layer-v2.27-delta.md` 给读数）｜② **沿用追加手法（写死）**：本册末行（逐字 `---`）**不带换行符** ⇒ **§37 插在末行 `---` 之前**（承 §36.4）✅｜③ **快照**：`docs/versions/route-layer.spec.v2.26.md`（改前，**`cmp=0`**）+ `docs/versions/route-layer.spec.v2.27.md`（本版镜像）✅｜④ **零代码 / 零迁移 / 库面只读 / 零 HTTP / 零套件** ✅｜⑤ **未发明项** ✅（路径 = Kevin 定档原文；未发明任何数值 / 路由）｜⑥ **未 `git add -A` / 未 commit / 未 push · 未启停 5787/5788** ✅｜⑦ **未测项 = `NOT_MEASURED` + 原因** ✅｜⑧ **引用纪律（§18.6）** ✅（引用现取且逐字）。
+
+## §38 ★★ v2.28 · 前端页面路由家族重命名：`移除 reward 概念 → 闲置物品 item`（新家族 `/item` 列表 = 合并页 · `/item/new` 发布 · `/item/:id` 详情 + `/item?id=<id>` 兼容；旧 `/reward`、`/listing`、`/listing/new`、`/listing/:listingId` **直接删除 · 无 301 / 无重定向**）（**本节只追加 · 插在本册末行 `---` 之前 · 依据 = Kevin 2026-10-11 六条裁定 · 逐字采用**）
+
+> **本节性质（写死）**：① **只追加**（`git diff --numstat docs/route-layer.spec.md` 删除列 = **0**；见 `docs/audit/route-layer-v2.28-delta.md`）；② **前端页面路由登记 + 前后端名称映射**（**后端零改动**：注册点现取 = **89** 不变 —— 新家族全为前端 `<Routes>` 相对段，后端对外路径 / 表名一字不动）；③ **与 `design-system.spec` v1.10 §15（`T87`–`T90`）配套**：本册只承载 **route 侧（页面路径 + 前后端名称映射）**，**入口集合 / 可达性 AC / 合并页形态 / i18n 删改留表 / 断言影响** 见姊妹册 §15，**不重抄**；④ **零代码 · 零迁移 · 库面只读 · 零 HTTP · 零套件**；⑤ **本册现取时点 = 2026-10-11 20:0x（基线 = HEAD `026b81a`）** —— 前端 line 锚取自该时点；**同轮 Kong 正并发落地实现**（`frontend/src/pages/{RewardPage.jsx 删, listings/ → item/}` 等），**实现面读数不属本册**。
+
+### 38.0 Kevin 裁定（逐字采用 · 六条 · 不改写）
+
+| # | 裁定（逐字） | 落点 |
+|--:|---|---|
+| ① | **范围 A = 只改前端**（后端 `/api/prize/*` 与 `prizes` 表名**不动**，册里登记映射） | §38.3 映射表；本册 §1.8 清单**不动**（后端零改） |
+| ② | **路由 D = `/item` 列表 + `/item/:id` 详情 + 保留 `?id=` 兼容** | §38.1 |
+| ③ | **旧路由直接删除，不做 301 / 不做重定向** | §38.2 |
+| ④ | **导航删「社区奖励」**（桌面左 nav → `[社区任务, 市场]`） | 姊妹册 `T87` |
+| ⑤ | **奖励页与列表页合并**为同一个「闲置物品」列表页 | 姊妹册 `T89` |
+| ⑥ | （配套）**旧链接硬删后旧收藏会 404 —— Kevin 已知情并裁定不用 301** | §38.2 + `docs/OPEN-ITEMS.md`（新增 `F11`） |
+
+### 38.1 新路由家族登记（逐条 · route 侧 · `frontend/src/App.jsx` 内层 `<Routes>`）
+
+| # | 页面路径 | 归属 | 态 | 真源锚（本册现取 · 基线 = HEAD `026b81a`） | 依据 |
+|--:|---|---|---|---|---|
+| 1 | `/item` | LangShell 内层相对段 | **★ v1.11 回写 · D4（就地更正 · 留痕）**：原写「**新 · 合并页**（闲置列表 + 我的订单 = 「闲置物品」列表页）」**作废**（逐字留痕于 §38.4 #5）；**实为** —— `/item` 挂 **`ItemDetailPage`**：**无 `id`**（既无 `?id` 也无 `/item/:itemId` 段）⇒ **组件内 `<Navigate to={root('/')} replace />` 跳首页（带语言前缀）**；**页面路由级「唯一列表 = 首页 `/`」**（列表/筛选/我的订单/积分并入 `HomePage`；`/item` 本身不承载列表） | **现取 = 在场**（`frontend/src/App.jsx:100` `<Route path="item" element={<ItemDetailPage />} />`；无 id 分支 = `ItemDetailPage.jsx:61-63` `<Navigate to={root('/')} replace />`） | Kevin 裁定②⑤ + v1.11 回写 D4（Neng 判负） |
+| 2 | `/item/new` | LangShell 内层相对段 | **新 · 发布页**（承接现 `PublishListingPage`） | **现取 = 无**（旧 = `path="listing/new"` `App.jsx:94`）⇒ 由 Kong 落地 | Kevin 裁定② |
+| 3 | `/item/:id` | LangShell 内层相对段（动态段） | **新 · 详情页**（承接现 `ListingDetailPage`） | **现取 = 无**（旧 = `path="listing/:listingId"` `App.jsx:95`）⇒ 由 Kong 落地 | Kevin 裁定② |
+| 4 | `/item?id=<id>` | **与 #1 `/item` 同一 `<Route>`**（同路由按 query 分派：有 `id` ⇒ 详情，无 ⇒ **重定向首页**〔**★ v1.11 回写 · D4**：改前字面 = 「无 ⇒ 列表」；`/item` 不承载列表 ⇒ 无 id 走 `ItemDetailPage` 内 `<Navigate to={root('/')} replace />`〕） | **新 · 兼容面** | 现取 = 在场（`path="item"` 元素内 `URLSearchParams` 分派 + 无 id `<Navigate>`）；**不新增 `<Route>`** | Kevin 裁定②「保留 `?id=` 兼容」+ v1.11 回写 D4 |
+
+> **★ 新登记页面路由 = 恰 3 条**（`/item` · `/item/new` · `/item/:id`）；**`/item?id=<id>` 复用同一 `/item` 路由 ⇒ 不新增 `<Route>`**。**静态段优先于动态段**（react-router v6 排名）⇒ `/item/new` 不被 `:id` 吃掉（口径同既有 `/task/new` vs `/task/:jobId`，`App.jsx:88-96` 注释）。
+
+### 38.2 旧路由硬删登记（**无 301 / 无重定向** · 依据 Kevin 裁定③）
+
+| # | 旧页面路径 | 真源锚（本册现取 · 基线 = HEAD `026b81a`） | 处置 | 依据 |
+|--:|---|---|---|---|
+| 1 | `/reward` | `frontend/src/App.jsx:80` `<Route path="reward" element={<RewardPage />} />` | **直接删除**（**非重定向**：不加 `<Navigate>`、不保留兼容段） | Kevin 裁定③ |
+| 2 | `/listing` | `frontend/src/App.jsx:93` `<Route path="listing" element={<ListingsPage />} />` | **直接删除** | Kevin 裁定③ |
+| 3 | `/listing/new` | `frontend/src/App.jsx:94` `<Route path="listing/new" element={<PublishListingPage />} />` | **直接删除** | Kevin 裁定③ |
+| 4 | `/listing/:listingId` | `frontend/src/App.jsx:95` `<Route path="listing/:listingId" element={<ListingDetailPage />} />` | **直接删除** | Kevin 裁定③ |
+
+- **★★ 无重定向 = 与 `/shard → /exchange` 先例不同**：`/shard` 当时由一条 `<Navigate>`（`LegacyExchangeRedirect`，`App.jsx:104` `path="shard"`）兼容承接（先例口径见 `frontend/src/test/unit/route-exchange-rename.test.jsx` ①④）；**本轮裁定③ 明文不 301 / 不重定向** ⇒ **旧链接（含四语前缀 `/en/reward`、`/hk/listing/…` 等）一律 404**（不匹配任何内层 `<Route>` ⇒ 落 `App.jsx:308` `path="*"` 兜底）。**Kevin 已知情并裁定不用 301**（登记 `docs/OPEN-ITEMS.md` = `F11`）。
+- **★ `LegacyExchangeRedirect`（`App.jsx:104`）不在本轮删除射程**：它是 `/exchange` 的旧名兼容，与本轮 `/listing` 家族无关，**一字不动**。
+
+### 38.3 后端对外路径不变 + 「前端概念名 ⇄ 后端路径名」映射表（依据 Kevin 裁定①）
+
+**后端零改动现取**：`grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts` = **89**（**不变**）；**前端只改「用户可见的概念名」，后端路径 / 数据库表名一字不动**。
+
+| # | 前端概念名（新） | 前端消费者（`frontend/src/pages/listings/listing-api.js` 现取 · 基线 = HEAD） | 后端对外路径（**不变**） | 后端落点（现取） |
+|--:|---|---|---|---|
+| 1 | 闲置物品列表（列表页主体） | `fetchListingFeed()` `:52` | `GET /api/prize/all` | `index.ts:535` |
+| 2 | 闲置物品详情 | `fetchListingDetail()` `:55` | `GET /api/prize/:bID` | `index.ts:592` |
+| 3 | 我的闲置订单 | `fetchMyListingOrders()` `:58` | `GET /api/prize-item` | `index.ts:880` |
+| 4 | 发布（上架） | `publishListing()` `:66` | `POST /api/listing` | `index.ts:2607` |
+| 5 | 状态迁移（草稿 ⇒ 上架 …） | `setListingStatus()` `:78` | `PATCH /api/listing/:listingId` | `index.ts:2662` |
+| 6 | 购买 | `buyListing()` `:85` | `POST /api/listing/:listingId/buy` | `index.ts:2687` |
+| 7 | 退款 | `refundListingOrder()` `:89` | `POST /api/listing-orders/:orderId/refund` | `index.ts:2712` |
+| 8 | 发货 | `shipListingOrder()` `:93` | `POST /api/listing-orders/:orderId/ship` | `index.ts:1517` |
+| 9 | 收货 | `receiveListingOrder()` `:97` | `POST /api/listing-orders/:orderId/receive` | `index.ts:1540` |
+
+- **★ 「前端概念名（`item` / 闲置物品）」与「后端路径名（`prize` / `listing`）」永久并存 ⇒ 本表为唯一权威映射**：改前端概念名（`/item`、`item.*` 键）时，**后端 `/api/prize/*`、`/api/listing*`、`prizes` 表名不动**。
+- **★ `prizes` 表名不动（登记）**：后端读侧 `GET /api/prize/all` 已换源到 `listing` 表（`listing-api.js:5` 注释逐字：「读侧已换源 `listing`：`bID←listing_id`/`points←price`」）；**表名 / 列名实现面本轮零改动**（依据裁定①）。
+- **★ 领取 / 兑换类一律移除（依据后端恒 410 `CLAIM_RETIRED`）**：`backend-ts/src/index.ts:1003` `CLAIM_RETIRED_REASON = 'CLAIM_RETIRED'`（`:1004` `CLAIM_RETIRED_REF_ID = '/api/task-progress/claim/:jID'`；`:1005` sunset）⇒ 合并页不得保留任何领取 / 兑换入口（形态口径 = 姊妹册 `T89`）。
+
+### 38.4 留痕（诚实登记 · 必写 · 旧措词逐字保留 + 标「已被 v2.28 取代」）
+
+- **★★ 本裁定推翻上几轮关于 `/listing*` 与底栏「卖闲置 → `/listing/new`」的指向** —— 旧措词**逐字保留、本行标「已被 v2.28 取代」**（**未在任何既有行内重写**；守「只追加 / 删除列 = 0」）：
+    1. **§37.1 #2**（v2.27）**逐字原文**：「`/listing/new` | LangShell 内层相对段 | **复用既有发布页** | `frontend/src/App.jsx:93` `<Route path="listing/new" element={<PublishListingPage />} />`（**现取在场**） | Kevin 定档（姊妹册 `T80`）」—— **⚠ 已被 v2.28 取代**：`/listing/new` = **硬删**；底栏③「卖闲置」指向 ⇒ **`/item/new`**。〔**本册现取订正（诚实登记 · 不改旧引**）：该 `listing/new` 路由的**真实行锚 = `frontend/src/App.jsx:94`**（`:93` = `path="listing"`）；**v2.27 原文的 `:93` 逐字保留于本引、不据以改写**（§38.2 表用现取行锚）〕
+    2. **§37.2**（v2.27）**逐字原文**：「**★ 本条为「已被取代的旧写法」的唯一承载处**（`design-system.spec` v1.5 §14.0 同载一句）；**未在任何既有行内重写**。」—— **该「唯一承载处」表述已被 v2.28 取代**：`/listing*` 家族的取代承载处 = **本节 §38.4**。
+    3. **`frontend/src/shell/nav.js:10 / :22`**（现取 · 基线 = HEAD）逐字：`:10` `//   sell     → frontend/src/App.jsx  \`path="listing/new"\`（PublishListingPage = 发布页，复用既有）`；`:22` `{ key: 'sell', path: 'listing/new', route: 'listing/new', labelKey: 'sell', icon: PlusCircle }` —— **⚠ 已被 v2.28 取代**：`path` / `route` ⇒ **`item/new`**；**`key` / `labelKey` = `sell` 逐字不动**（文案键不改 ⇒ 标签仍 `t('sell')` = 「卖闲置」）。
+    4. **§37.3**（v2.27）读数逐字：「`grep -cE '<Route' frontend/src/App.jsx` **现取 = 35** ⇒ **落地后 35 → 36**（+1 = `/messages`）」—— **该读数已被 v2.28 §38.5 现取取代**（现取 = **36**；本单落地面见 §38.5）。
+- **★ 与先例（`/shard → /exchange`）的差异（写死）**：该先例**保留**旧路径 `shard` 由 `<Navigate>` 兼容（`App.jsx:104`）；**本轮 `/reward`、`/listing*` 一律硬删、无兼容段**（裁定③）⇒ **旧收藏 / 外链 404**（登记 `docs/OPEN-ITEMS.md` `F11`）。
+- **★★ v1.11 回写 · D4（§38.1 #1 就地更正 · 留痕 · 逐字保留旧措词）**：**§38.1 #1 原写逐字** = 「**新 · 合并页**（闲置列表 + 我的订单 = 「闲置物品」列表页）」—— **⚠ 已被 v1.11 回写取代**：`/item` **不承载列表**（**无 id ⇒ `ItemDetailPage` 内 `<Navigate to={root('/')} replace />` 跳首页（带语言前缀）**；`frontend/src/App.jsx:100` + `ItemDetailPage.jsx:61-63`）⇒ **「合并页」实为 `HomePage`（首页 `/`）**，`/item` 是**详情 + `?id=` 兼容**段。**本行不改旧引（守「只追加 / 删除列 = 0」）。**
+
+### 38.5 后端面与前端路由数（零改动 · 现取 · 基线 = HEAD `026b81a`）
+
+- **后端注册点**：`grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts` **现取 = 89** ⇒ **本单零后端改动 ⇒ 注册点仍 89**（`backend-ts/scripts/p7b-03-offline-gates.ts` `AC10-2` 注册点冻结面 = 89 **不变**）。
+- **前端 `<Route` 数（口径同 §37.3）**：`grep -cE '<Route' frontend/src/App.jsx` **现取 = 36**（含 2 处 `<Routes>` 容器标签）⇒ **落地后 = 36 − 4（删 `/reward` / `/listing` / `/listing/new` / `/listing/:listingId`）+ 3（增 `/item` / `/item/new` / `/item/:id`）= 35**；**`/item?id=<id>` 不新增 `<Route>`**。
+- **精确路由元素数（旁证口径）**：`grep -oE '<Route[ >]' frontend/src/App.jsx | wc -l` **现取 = 33**（该式不计多行 `<Route`（`App.jsx:122`）与 `<Routes>` 容器）⇒ 落地后 = **33 − 4 + 3 = 32**。两口径**净变化均为 −1**，一致。
+
+### 38.6 纪律自检（逐条对照硬口径）
+
+① **只追加 / 删除列 = 0** ✅（读数 = `docs/audit/route-layer-v2.28-delta.md` §D0）｜② **沿用追加手法（写死）**：本册末行（逐字 `---`）**不带换行符** ⇒ **§38 插在末行 `---` 之前**（承 §36.4 / §37.4）✅｜③ **快照**：`docs/versions/route-layer.spec.v2.27.md`（改前，**`cmp=0`**）+ `docs/versions/route-layer.spec.v2.28.md`（本版镜像）✅｜④ **零代码 / 零迁移 / 库面只读 / 零 HTTP / 零套件** ✅｜⑤ **未发明项** ✅（路径 = Kevin 裁定原文；映射表 = 前端消费者现取 × 后端落点现取；**未发明任何数值 / 路由 / 表名**）｜⑥ **未 `git add -A` / 未 commit / 未 push · 未启停 5787/5788** ✅｜⑦ **未测项 = `NOT_MEASURED` + 原因** ✅｜⑧ **引用纪律（§18.6）** ✅（引用现取且逐字）。
 
 ---

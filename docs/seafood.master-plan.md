@@ -1416,6 +1416,38 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.403 **★★ 合并单收口：`移除 reward 概念 → 闲置物品 item` 全链验收 —— 规范 route v2.28 §38 / design v1.10–v1.11 §15（`T87`–`T90` + `N32`–`N35`）· Kong 实现（`8e136b9` + `54f906c`）· Neng 独立判负 PASS-with-defects（硬 AC 全绿 / 0 功能缺陷 / 5 条登记类偏差已由 Jing 回写）**（2026-10-11）
+
+**A. 背景与定档（Kevin 2026-10-11 · 逐字采用）**：① **移除「reward（社区奖励）」概念**，前端统一为 **「闲置物品（item）」**；② **奖励页与列表页合并**为同一个「闲置物品」列表页；③ **路由家族迁移** `listing* / reward → item*`（新家族 `/item`〔列表 = 合并页〕· `/item/new` 发布 · `/item/:id` 详情 + `/item?id=<id>` 兼容）；④ **旧路由硬删 · 无 301 / 无重定向**（`/reward`、`/listing`、`/listing/new`、`/listing/:listingId` ⇒ **旧收藏 / 外链 404**）；⑤ **范围 A = 只改前端**（后端 `/api/prize/*`、`/api/listing*`、`prizes` 表名**一字不动**）；⑥ **导航删「社区奖励」**（桌面左 nav ⇒ `[社区任务, 市场]`）。
+
+**B. 规范面（Jing · 只追加 + 就地留痕）**：
+
+- `docs/route-layer.spec.md` **v2.28 §38**（**7,979 行 / 1,557,638 B / md5 `30f3964cdfe449169a3ffedfa59c2224`**）：§38.1 新家族 4 行 · §38.2 旧路由硬删 4 条 · **§38.3「前端概念名 ⇄ 后端路径名」映射表 9 行** · §38.4 留痕 · §38.5（后端注册点 **89 不变**；前端 `<Route` **36 → 35**）· §38.6 纪律自检。**delta** = `docs/audit/route-layer-v2.28-delta.md`；**改前快照** = `docs/versions/route-layer.spec.v2.27.md`（`cmp=0`）+ 本版镜像 `docs/versions/route-layer.spec.v2.28.md`（`cmp=0`）。
+- `docs/design/design-system.spec.md` **v1.10 → v1.11**（现行 **1,494 行 / 304,335 B / md5 `8c76589cd798d8dc6c0868e0eb97aed3`**）：**新增 §15**（`T87` 导航入口集合 + 可达性 AC · `T88` 首页入口改挂 `/item` · `T89` 合并页口径 · `T90` i18n 删改留表）+ **`N32`–`N35`** + §15.3 断言影响清单（19 条）+ §15.4 留痕。**v1.11 回写单（同轮 · Neng 判负 5 条 + 一条产品观察）**：§15.2 B 注（`D1` 口径「消费点在场 ⇒ 保留」）· **§15.2 B″（11 死键「待清理批次」）** · §15.3 #13（`D2`）· §15.4（`D3` 内部标识净减）· `T88`/`T89`（`D5` 积分仅登录态 + `listing-feed-layout` 锚点修正）· §15.5 **`N36`**（产品观察）。**改前快照** = `docs/versions/design-system.spec.v1.9.md`（v1.10）+ `docs/versions/design-system.spec.v1.10.md`（v1.11 · `cmp=0`；md5 `5bd7e1059da47acbcc4c313f195a7a0c`）。
+- **台账**：`docs/OPEN-ITEMS.md` 新增 **§F‴**（`F10` 内部标识待统一 · `F11` 旧链接 404 · `F12` 计数基线**已回写** · **`F13` 游离死键待清理** · **`F14` 三档筛选阈值待定**）。
+
+**C. 实现面（Kong · 两 commit · 均未 push）**：
+
+| commit | 内容 | 重命名 / 增删清单（`git show --numstat`） |
+|---|---|---|
+| `8e136b9` | **阶段1**：`listing*→item*` 改名单 + `RewardPage`/`ListingsPage` 并入首页 + 导航/跳转目标改锚 | **改名**：`listings/ListingDetailPage.jsx → item/ItemDetailPage.jsx`（`53/44`）· `listings/PublishListingPage.jsx → item/PublishItemPage.jsx`（`31/33`）· `listings/listing-api.js → item/item-api.js`（`0/0`）· `listings/listings.css → item/item.css`（`14/0`）；**删**：`pages/RewardPage.jsx`（`0/425`）· `pages/listings/ListingsPage.jsx`（`0/261`）；**新**：`pages/item/MyOrdersPanel.jsx`（`176/0`）；**改**：`App.jsx`（`18/13`）· `HomePage.jsx`（`93/43`）· `Header.jsx`（`4/4`）· `shell/nav.js`（`2/2`）· `components/reward/RewardCard.jsx`（`10/3`） |
+| `54f906c` | **阶段2**：i18n 四语键族 `listings→item` 迁移 + 测试改锚 + 计数锚 + 审计件 | **32 文件 · `+556/−438`**；含 `docs/audit/item-rename.md`（`182/0`）+ 四语 locale（`zh/hk/en/vn`）+ `fix-nav-langshell`（`100+`）等 27 个测试文件改锚 |
+
+**D. 证据面（Neng 独立判负 · 读数均现取）**：
+
+- **四语路由矩阵** PASS · **`?id=` 真渲染** PASS（`/item?id=<id>` 同路由按 query 分派详情）· **旧路由 9/9 无重定向**（旧 4 条 × 含前缀档，一律落 404 兜底 `App.jsx:308` `path="*"`、**无 `<Navigate>`**）· **可达性 AC 差集 = 0**（**新增不可达页 = ∅**）。
+- **四档筛选真能筛 + 反向对照**：`all` / `limited` / `highValue` / `claimed`（现取 `HomePage.jsx:187-190` `FILTERS`）；**反向对照** = 造 `gift_limit>0` / `points>5000` 行 ⇒ 该档**能筛出**（非纯前端假筛）。
+- **四语键集**（逐文件相同）：顶层 **`127`** · 拍平 **`1053`** · 四语节点 **`4212`**（`= 1053 × 4`）；**审计脚本现报 `4212`**（`frontend/scripts/p4z-i18nviol-global.mjs`）。
+- **门套**：**`51` files / `488` tests / `0` failed**（`EXIT=0`）· `build` **0**。
+
+**E. 未测 / 挂账（诚实清单 · 承接 `docs/OPEN-ITEMS.md` §F‴）**：① **`F10` 内部标识待统一**（`sf-listings*` 命中 **`159 → 141`**、唯一类 `32`；`data-sf-m="listing-*"` 唯一钩子 **`46 → 39`**〔丢 8 / 增 1〕；首页改 `home-*`；**本轮不改名**）· ② **`F11` 旧链接 404**（无 301 · **Kevin 已知情** · **命中率 / 404 落地形态未实测**）· ③ **`F12` 计数基线已回写**（`127/1053/4212`）· ④ **`F13` 死键清理**（**11 键无任何非测试消费点**：`reward`·`rewardsList`·`tasksToClaimReward`·`chooseReward`·`confirmChooseReward`·`successClaimReward`·`common.loadingRewards`·`homePage.noRewards`·`homePage.rewardAlreadyClaimed`·`homePage.rewardOutOfStock`·`claimRewardModal.loadProgressFailed`；**本轮不删** —— 删则须重算 **12 处**计数断言基线）· ⑤ **三档阈值待定**（`F14` · 高价值 `points > 5000` **继承自既有 `mapRewardsForHome` 的 `rarity` 逻辑**〔`HomePage.jsx:85` · **非本单新发**〕· **一句话可改**：降阈 / 改分位口径）· ⑥ **真机未测**（合并页几何 / 各档读数 = `NOT_MEASURED`）。
+
+**F. 本轮教训（可复用 · `N35`）**：**源码 / 测试注释里不得写「路径尾部 + 块注释起始二连」的通配路径字面** —— 形如 `` `/api/prize/*` `` 的字面会**拼出 `/*`**，而仓内**审计脚本的块注释剥离器**（`p4z-i18nviol-global.mjs` `codeOf` 非贪婪正则）会把它当成**块注释开始**、**静默吃掉后续代码直到下一个注释结束符**：**实测吞 `frontend/src/App.jsx:16–76`（`≈2.8 KB` · 2,886 字符 / 3,576 B；导入 + 路由映射注释块）** ⇒ **审计脚本当时是在被截断的文件上跑的**（结论不可信、须重跑）。**正解 = 把通配尾改写为 `…` / `<x>` 形式**（如 `/api/prize/…`）；**剥离逻辑本身正确**（误配由字面量写法触发）⇒ **不得去改剥离脚本**（超范围）。**同族** = 另有一处吞 **≈3.2 KB**（含 `statusLabel` 查表点 ⇒ unknown-status 兜底断言变红；见 `design-system.spec` §15.5 `N35` / `N36`）。
+
+**G. 结论**：**verdict = PASS-with-defects**（**硬 AC 全绿 · 0 功能缺陷 · Neng 独立判负**）—— 5 条**登记类**偏差（`D1`–`D5`）已由 **Jing v1.11 回写 / route v2.28 §38** 就地对齐（逐字留痕）+ **一条产品观察**已登记（`N36` / `F14`）。**规范**（`route v2.28 §38` / `design v1.10→v1.11 §15`）+ **实现**（`8e136b9`·`54f906c`）+ **证据**（四语路由矩阵 / `?id=` 真渲染 / 旧路由 9/9 / 四档筛选 + 反向对照 / 可达性 ∅ / 四语 `127/1053/4212` / 门套 `51/488/0`）**全链闭合**。**push 由 Zang 执行**（**本单只提交 `docs/**` · 不 push**）。
+
+---
+
 ### 5.402 **★★ 桌面右侧悬浮菜单（5 项）+ H5 底栏改五项 + `/messages` 占位页全链收口 —— 规范 v1.5→v1.8 / route v2.27 · Kong 实现 · Neng 独立判负 PASS（0 产品缺陷）**（2026-10-11）
 
 **A. 背景与定档（Kevin 2026-10-11）**：① **桌面右侧悬浮菜单（5 项）**（`卖闲置`/`消息`/`APP`/`反馈`/`客服`）+ ② **H5 底栏改五项**（`海鲜市场`/`市场`/`卖闲置`/`消息`/`我的`）+ ③ 消息模块占位（后续接驳 **X/推特私信**）+ ④ 客服/反馈做**弹窗模板位**；**方案 A · UI 先行（不动后端）**。**当日两条连锁更正（Zang 转达）**：**(A)** 底栏② = **「市场」→ `/exchange`**（key `shard`，图标 `Store`；**不新建 `/nearby` 占位页、不新增 `nearby` 键**）；**(B)** `T76` 汉堡去重排除集 `['reward','task','exchange']` **⇒ `['exchange']`**，**恢复 `reward`/`task`**（否则移动端底栏与汉堡**双双不含**该两入口 ⇒ **功能回归判负**）。
