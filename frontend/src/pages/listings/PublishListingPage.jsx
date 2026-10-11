@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import toast from 'react-hot-toast'
 import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import {
@@ -64,6 +65,17 @@ const PublishListingPage = () => {
         phase: 'ok',
         message: `${t('listings.publishOk')} · #${listingId ?? '-'}${listed ? ` · ${t('listings.listed')}` : ''}`,
       })
+      // ★ 本单（Kevin 2026-10-11）：上架**成功且已 listed** ⇒ 自动跳该商品详情页。
+      //   口径：① 目标 = 仓内唯一构造器 `root('/listing/' + listingId)`（**带当前语言前缀**，四语一致）；
+      //        ② **跳转前**先弹 `react-hot-toast`（`main.jsx` 顶层已挂 `<Toaster/>` ⇒ 跨路由存活，
+      //           用户落到详情页仍看得见「上架成功」；文案复用 `listings.publishOk` + id，**不新增 i18n 键**）；
+      //        ③ **失败与无 id 一律不跳**：`publishListing`/`setListingStatus` 抛错走上/下 catch；
+      //           `listingId` 缺失（接口未回 id）⇒ 保持 ok 态原地停留，**绝不拼 `/listing/null`**。
+      //           即时跳转（不引延时器）⇒ 无「未清理定时器」面，单测确定性也更高。
+      if (listingId && listed) {
+        toast.success(`${t('listings.publishOk')} · #${listingId}`)
+        navigate(root(`/listing/${listingId}`))
+      }
     } catch (error) {
       setState({ phase: 'error', message: String(error?.message || t('error')) })
     }
