@@ -207,7 +207,7 @@ if (cjkHits.length) fail = true
 //   本单（小尾巴批-β）把该观测面从「只扫 ListingsPage 一行」**升为类级全站现取**：
 //     类 = 「数据枚举原样渲染」—— 数据行里的**枚举字段**未经查表/映射就渲染进用户可见输出。
 //   ① 字段集（现取 = 各表 CHECK 白名单列）：`status` / `job_status` / `review_status` / `side`；
-//   ② 形态（去注释后逐文件扫 `pages/**`、`components/**`、`shell/**`，共 `files` 个源文件）：
+//   ② 形态（去注释后逐文件扫 `pages/…`、`components/…`、`shell/…`，共 `files` 个源文件）：
 //        F1 `String(<obj>.<field> ?? …)`  —— 原登记形态，泛化到任意对象
 //        F2 `${<obj>.<field>}`            —— 模板字面量里裸插值
 //        F3 `{<obj>.<field> || …}`        —— JSX 子表达式回退链裸输出
@@ -256,8 +256,7 @@ for (const h of enumHits) {
 }
 // 收口点在场（查表 + 未知兜底）：被静默回退 ⇒ 重新登记
 const CLOSED_SITES = [
-  ['pages/listings/ListingsPage.jsx', /listings\.statusLabel\./, /listings\.statusLabel\.unknown/],
-  ['pages/listings/ListingDetailPage.jsx', /listings\.statusLabel\./, /listings\.statusLabel\.unknown/],
+  ['pages/item/ItemDetailPage.jsx', /item\.statusLabel\./, /item\.statusLabel\.unknown/],
   ['pages/market/MarketPage.jsx', /orders\.statusLabel\./, /orders\.statusLabel\.unknown/],
 ]
 for (const [rel, lookup, fallback] of CLOSED_SITES) {

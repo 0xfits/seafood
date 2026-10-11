@@ -55,7 +55,7 @@ const stripComments = (text) => {
   let out = ''
   let i = 0
   const n = text.length
-  let state = null // null | "'" | '"' | '`' | '//' | '/*'
+  let state = null // null | "'" | '"' | '`' | '//' | 块注释起始（'/'+'*'）
   while (i < n) {
     const ch = text[i]
     const nx = i + 1 < n ? text[i + 1] : ''

@@ -7,7 +7,7 @@ import { requestAuthChallenge, verifyAuthChallenge } from '../../auth'
 import { useAuth } from '../../auth-context'
 import { cn, formatEvmAddress } from '../../utils'
 
-// P6-I18N-LIT-B3：改为**四语键**（渲染处经 `t()` 求值），文案本体在 `locales/*.json` 的 `walletAuth.*`。
+// P6-I18N-LIT-B3：改为**四语键**（渲染处经 `t()` 求值），文案本体在 `locales/<lang>.json` 的 `walletAuth.*`。
 const COPY = {
   login: {
     title: 'walletAuth.loginTitle',

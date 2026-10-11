@@ -274,3 +274,17 @@
     --sf-l-ctl-h: 44px;
   }
 }
+
+/* 2026-10-11 合并单：首页「我的订单」区块容器（原 `ListingsPage` 侧栏三面板整体迁入）
+   窄屏单列 / 宽屏三列（列数 = 栅格层，不按主题变）。 */
+.sf-item-orders {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sf-st-feed-gap-m);
+}
+
+@media (min-width: 1024px) {
+  .sf-item-orders {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

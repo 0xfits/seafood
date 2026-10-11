@@ -1,61 +1,77 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, useLocation, useParams } from 'react-router-dom'
+import { Link, Navigate, useLocation, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import { contentStatus, pickLocalized } from '../../i18n-content'
 import TranslatingBadge from '../../components/i18n/TranslatingBadge'
-import { buyListing, createListingBuyTracker, fetchListingDetail, listingBuyFingerprint } from './listing-api'
-import './listings.css'
+import { buyListing, createListingBuyTracker, fetchListingDetail, listingBuyFingerprint } from './item-api'
+import './item.css'
 
 // P7-E 小尾巴批-β ①：`listing.status` 取值域 = `public.listing.status` 的 CHECK 白名单
 //   （现取：`backend-ts/migrations/0015_listing.sql:137` ⇒ `draft|listed|delisted|frozen`，默认 `draft`）
-//   与列表页（`ListingsPage.jsx`）同一键族 `listings.statusLabel.*`（四语齐备）。
+//   与列表（首页）同一键族 `item.statusLabel.*`（四语齐备）。
 const LISTING_STATUS_KEYS = ['draft', 'listed', 'delisted', 'frozen']
 
 // ============================================================================
-// 商品线 · 详情 + 购买（P4-B4c-ii-b / Kong）
+// 闲置物品线 · 详情 + 购买（原 `pages/listings/ListingDetailPage.jsx`；2026-10-11 合并单改名单为 `item`）
+// 路由（LangShell 内层相对段）：
+//   · `item/:itemId`（**原 `listing/:listingId`**）⇒ 详情；
+//   · **同路由 `?id=` 兼容**：`item`（无 `/item/:itemId` 段）由 App.jsx 挂**本组件**，
+//     无 params 时按 query 的 `id` 渲染详情；两者都无 id ⇒ 重定向首页 `/`（保留语言前缀）。
 // 详情：`GET /api/prize/:bID`（**已注册** :433）= `listing` 行（`bID` = `listing_id`）；miss ⇒ 404（R107）。
 // 购买：`POST /api/listing/:listingId/buy`（**已注册** :1569）。
-//   ★ **金额与对手方一律服务端取数**：payload 只有 `create_key` + `quantity`
-//     （`listing-funds-service.ts:210,214` 逐字只读这两键）；页面**没有**任何 price/seller 输入参与请求
-//     —— 客户端就算传 `price`/`seller_uid`/`buyer_uid` 也被忽略（实测读数见报告 §HTTP-B8）。
+//   ★ **金额与对手方一律服务端取数**：payload 只有 `create_key` + `quantity`（`listing-funds-service.ts:210,214`）
+//     —— 页面**没有**任何 price/seller 输入参与请求；客户端传 `price`/`seller_uid`/`buyer_uid` 也被忽略。
 //   ★ 幂等键 = **前端供键**（fail-loud：缺 `cli:` 键 ⇒ `400 LEDGER_IDEMPOTENCY_KEY_REQUIRED`）。
-//   `self_purchase_not_allowed`：卖家买自己的商品 ⇒ 400（服务端闸，页面不做客户端判价/判人）。
-// 失败态：走 R107 链 ⇒ 页面不会出现 `[object Object]`。
+// 后端面一字不动：`/api/prize/…` 与 `/api/listing…` 路径名保持不变（本单只改前端路由与文件命名）。
 // ============================================================================
-const ListingDetailPage = () => {
+const ItemDetailPage = () => {
   const { t } = useTranslation()
   const location = useLocation()
-  const { listingId } = useParams()
+  const { itemId } = useParams()
   const { isAuthenticated, user } = useAuth()
   const [detail, setDetail] = useState({ phase: 'loading', row: null, message: '' })
   const [quantity, setQuantity] = useState('1')
   const [buy, setBuy] = useState({ phase: 'idle', message: '' })
   const tracker = useMemo(() => createListingBuyTracker(), [])
 
+  // TR-2：当前语言（`utils.SUPPORTED_LANGS` 同一白名单）
+  const lang = getLanguageFromUrl(location.pathname)
+  // F2 修复：站内链接 = 当前语言前缀 + 站内路径（唯一构造器 utils.buildLocalizedPath）
+  const root = (p) => buildLocalizedPath(lang, p)
+
+  // `?id=` 兼容：无 `/item/:itemId` 段（同路由 `item`）时取 query 的 `id`（同一组件两处挂载）
+  const queryId = new URLSearchParams(location.search).get('id')
+  const id = itemId || queryId || ''
+
   const load = useCallback(async () => {
     setDetail({ phase: 'loading', row: null, message: t('loading') })
     try {
-      const row = await fetchListingDetail(listingId, user)
-      setDetail({ phase: row ? 'ok' : 'empty', row: row || null, message: row ? '' : t('listings.empty') })
+      const row = await fetchListingDetail(id, user)
+      setDetail({ phase: row ? 'ok' : 'empty', row: row || null, message: row ? '' : t('item.empty') })
     } catch (error) {
       // 404（miss）与 5xx 都走这里：文案已是 R107 链解出的**字符串**
       setDetail({ phase: 'error', row: null, message: String(error?.message || t('error')) })
     }
-  }, [listingId, user, t])
+  }, [id, user, t])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { if (id) load() }, [id, load])
+
+  // 无 id（`/item` 且无 `?id`）⇒ 自洽处理：重定向首页（保留语言前缀；Kevin 口径「一句话可改」）。
+  if (!id) {
+    return <Navigate to={root('/')} replace />
+  }
 
   const onBuy = async (event) => {
     event.preventDefault()
     if (buy.phase === 'loading') return
-    const createKey = tracker.keyFor(listingBuyFingerprint({ listingId, quantity }))
+    const createKey = tracker.keyFor(listingBuyFingerprint({ listingId: id, quantity }))
     setBuy({ phase: 'loading', message: t('jobs.submitting') })
     try {
-      const view = await buyListing(listingId, { quantity: String(quantity).trim(), createKey, user })
+      const view = await buyListing(id, { quantity: String(quantity).trim(), createKey, user })
       tracker.reset()
-      setBuy({ phase: 'ok', message: `${t('listings.buyOk')} · ${t('listings.orderId')} #${view?.order_id ?? '-'}` })
+      setBuy({ phase: 'ok', message: `${t('item.buyOk')} · ${t('item.orderId')} #${view?.order_id ?? '-'}` })
       await load()
     } catch (error) {
       setBuy({ phase: 'error', message: String(error?.message || t('error')) })
@@ -63,24 +79,17 @@ const ListingDetailPage = () => {
   }
 
   const row = detail.row || {}
-  // TR-2：当前语言（`utils.SUPPORTED_LANGS` 同一白名单）；用户内容字段取当前语言，空串/缺字段 ⇒ 回落原文
-  const lang = getLanguageFromUrl(location.pathname)
-  // F2 修复：站内链接 = 当前语言前缀 + 站内路径（唯一构造器 utils.buildLocalizedPath）
-  const root = (p) => buildLocalizedPath(lang, p)
-  const title = pickLocalized(row, 'title', lang) || pickLocalized(row, 'name', lang) || t('listings.detail')
+  const title = pickLocalized(row, 'title', lang) || pickLocalized(row, 'name', lang) || t('item.detail')
   const description = pickLocalized(row, 'description', lang) || ''
 
-  // P7-E 小尾巴批-β ①：listing 状态**不得原样渲染枚举**（原 `String(row.status ?? '-')` 会把
-  //   `draft`/`listed` 等 DB 枚举直接给用户看）。已知取值 ⇒ 四语标签；**未知取值 ⇒ 本地化兜底**
-  //   （`listings.statusLabel.unknown`）；原值留 `title`/`data-sf-status`（仅排查用）。
-  //   缺省/空串 ⇒ 维持既有口径（现网 `GET /api/prize/:bID` 读侧不返回 `status` ⇒ 实测 distinct = {缺失}）
-  //   ⇒ 本页原口径 = `-`（与列表页「缺失 ⇒ 已上架」**不同**，不擅自改动）。
+  // P7-E 小尾巴批-β ①：listing 状态**不得原样渲染枚举**。已知取值 ⇒ 四语标签；未知 ⇒ 本地化兜底（`item.statusLabel.unknown`）；
+  //   原值留 `title`/`data-sf-status`（仅排查用）。缺省/空串 ⇒ 维持既有口径 = `-`（与列表「缺失 ⇒ 已上架」**不同**）。
   const statusRaw = row.status == null || row.status === '' ? '' : String(row.status)
   const statusText = statusRaw === ''
     ? '-'
     : (LISTING_STATUS_KEYS.includes(statusRaw)
-      ? t(`listings.statusLabel.${statusRaw}`)
-      : t('listings.statusLabel.unknown'))
+      ? t(`item.statusLabel.${statusRaw}`)
+      : t('item.statusLabel.unknown'))
 
   return (
     <div className="sf-layout" data-sf-m="listing-detail-layout">
@@ -96,10 +105,10 @@ const ListingDetailPage = () => {
               className="sf-listings-note"
               data-sf-status={statusRaw || undefined}
               title={statusRaw || undefined}
-            >{`${t('listings.listingId')} #${String(row.listing_id ?? row.bID ?? listingId ?? '-')} · ${statusText}`}</p>
+            >{`${t('item.listingId')} #${String(row.listing_id ?? row.bID ?? id ?? '-')} · ${statusText}`}</p>
             <div className="sf-listings-actions">
-              <Link className="sf-listings-link" to={root('/listing')} data-sf-m="listing-back-link">{t('listings.list')}</Link>
-              <button className="sf-btn sf-listings-btn" type="button" onClick={load} data-sf-m="listing-detail-refresh">{t('listings.refresh')}</button>
+              <Link className="sf-listings-link" to={root('/')} data-sf-m="listing-back-link">{t('item.list')}</Link>
+              <button className="sf-btn sf-listings-btn" type="button" onClick={load} data-sf-m="listing-detail-refresh">{t('item.refresh')}</button>
             </div>
           </div>
 
@@ -113,18 +122,18 @@ const ListingDetailPage = () => {
               <div className="sf-listings-price">
                 <span className="sf-listings-price-cur">$</span>
                 <span className="sf-listings-price-num">{String(row.price ?? row.points ?? '-')}</span>
-                <span className="sf-listings-price-unit">{t('listings.priceUnit')}</span>
+                <span className="sf-listings-price-unit">{t('item.priceUnit')}</span>
               </div>
-              <p className="sf-listings-meta">{t('listings.stock')}{` ${String(row.stock ?? '-')}`}</p>
+              <p className="sf-listings-meta">{t('item.stock')}{` ${String(row.stock ?? '-')}`}</p>
               <p className="sf-listings-meta">{String(description)}</p>
             </div>
           )}
 
           <form className="sf-listings-panel" onSubmit={onBuy} data-sf-m="listing-buy-form">
-            <h2 className="sf-listings-title">{t('listings.buy')}</h2>
+            <h2 className="sf-listings-title">{t('item.buy')}</h2>
             <div className="sf-listings-form">
               <label className="sf-listings-field">
-                <span className="sf-listings-label">{t('listings.quantity')}</span>
+                <span className="sf-listings-label">{t('item.quantity')}</span>
                 <input
                   className="sf-listings-input"
                   data-sf-m="listing-input-qty"
@@ -135,10 +144,10 @@ const ListingDetailPage = () => {
                 />
               </label>
             </div>
-            <p className="sf-listings-meta">{t('listings.buyNote')}</p>
+            <p className="sf-listings-meta">{t('item.buyNote')}</p>
             <div className="sf-listings-row">
               <button className="sf-btn sf-listings-btn" type="submit" data-sf-m="listing-buy-btn" disabled={buy.phase === 'loading' || !isAuthenticated}>
-                {t('listings.buy')}
+                {t('item.buy')}
               </button>
               <span
                 className={`sf-listings-status${buy.phase === 'error' ? ' sf-listings-err' : ''}${buy.phase === 'ok' ? ' sf-listings-ok' : ''}`}
@@ -155,13 +164,13 @@ const ListingDetailPage = () => {
 
       <div className="sf-layout-side">
         <div className="sf-listings-panel" data-sf-m="listing-detail-side">
-          <h2 className="sf-listings-title">{t('listings.line')}</h2>
-          <p className="sf-listings-meta">{t('listings.priceServerNote')}</p>
-          <p className="sf-listings-meta">{t('listings.refundStockNote')}</p>
+          <h2 className="sf-listings-title">{t('item.line')}</h2>
+          <p className="sf-listings-meta">{t('item.priceServerNote')}</p>
+          <p className="sf-listings-meta">{t('item.refundStockNote')}</p>
         </div>
       </div>
     </div>
   )
 }
 
-export default ListingDetailPage
+export default ItemDetailPage

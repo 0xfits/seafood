@@ -118,11 +118,11 @@ const Header = () => {
   }
 
   // 菜单项
-  // R-9-84/R-9-85：「我的」入口不在左侧 nav（R-9-84 移出后并入右上角单一菜单按钮，见下方
-  // buildPath('profile') 下拉项）；路由与 ProtectedRoute 一字不动；
-  // 左侧 nav 仅存 奖励/任务/碎片（+ 管理后台 仅管理员）。
+  // R-9-84/R-9-85：「我的」入口不在左侧 nav（R-9-84 移出后并入右上角单一菜单按钮）；
+  // 左侧 nav 仅存 任务/市场（+ 管理后台 仅管理员）。
+  // ★ 2026-10-11 合并单：**删「社区奖励」项**（`reward` ⇒ 原 `/reward` 页已随 `RewardPage` 删除硬删）
+  //   ⇒ 桌面左 nav = [社区任务, 市场]；移动面板 = 同一 `menuItems` − `exchange` = [社区任务]。
   const menuItems = [
-    { path: 'reward', label: t('reward') },
     { path: 'task', label: t('task') },
     { path: 'exchange', label: t('shard') },
     ...(isAuthenticated && isAdmin ? [{ path: adminPath, label: t('admin_panel'), absolute: true }] : [])

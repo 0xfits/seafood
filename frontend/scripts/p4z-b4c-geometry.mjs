@@ -1,7 +1,7 @@
 // P4-B4c-i ① 真实浏览器几何量测（Playwright + 本机 Chromium）
 // 目标：拿「主题切换前后同一批元素 getBoundingClientRect 逐值相等」的机器证据，
 //       并给这把尺子做灵敏度对照（1px 刻意错位必须被判出）与可重复性对照（同档重复量测逐字节相同）。
-// 无 dev server、无静态服务：用 page.route 把 http://sf.local/** 映射到 frontend/dist 磁盘文件，
+// 无 dev server、无静态服务：用 page.route 把 http://sf.local/… 映射到 frontend/dist 磁盘文件，
 // 外部 CDN（Google Fonts / Tailwind CDN / jsDelivr）一律 abort ⇒ 量测环境完全本地、确定性可复现。
 import { chromium } from 'playwright'
 import fs from 'node:fs'

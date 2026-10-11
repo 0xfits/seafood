@@ -9,14 +9,14 @@ import { Modal, ModalHeader, ModalTitle, ModalContent, ModalFooter } from '../co
 // 右侧悬浮菜单（design-system.spec v1.5 §14 · T81–T85）
 // · 仅桌面档（>767）显示：可见性**只由 shell.css 的唯一 767 断点块**承担（≤767 ⇒ .sf-fm{display:none}）；
 //   本组件**不得**做任何 JS 内联断点判定（可见性完全交给 shell.css）。
-// · 五项由 上→下：卖闲置→/listing/new · 消息→/messages · APP→弹窗 · 反馈→弹窗 · 客服→弹窗。
+// · 五项由 上→下：卖闲置→/item/new · 消息→/messages · APP→弹窗 · 反馈→弹窗 · 客服→弹窗。
 // · 三项弹窗复用 ui/Modal；内容 = 模板位（APP 二维码占位 / 反馈表单占位·不落库 / 客服联系方式占位）。
 // · 弹窗**默认不渲染**（按需挂载）⇒ 日/夜 DOM 形状同值。
 // · 测量钩子一律用 data-sf-m；**不得** data-sf-region（后者被外壳区域顺序断言占用）。
 // · 弹窗内按钮**刻意不挂既有按钮家族基类**（避免纳入 p6-btn-impl2 的按钮家族清单 ⇒ 触碰该单未获 §14.5 授权的断言）；
 //   输入框复用既有 .sf-box（无家族清单断言）。
 const FM_ITEMS = [
-  { key: 'sell', kind: 'link', path: 'listing/new', labelKey: 'sell', icon: PlusCircle },
+  { key: 'sell', kind: 'link', path: 'item/new', labelKey: 'sell', icon: PlusCircle },
   { key: 'messages', kind: 'link', path: 'messages', labelKey: 'messages', icon: MessageCircle },
   { key: 'app', kind: 'modal', labelKey: 'app', icon: Smartphone },
   { key: 'feedback', kind: 'modal', labelKey: 'feedback', icon: Gauge },

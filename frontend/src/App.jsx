@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 
 // 页面组件
 import HomePage from './pages/HomePage'
-import RewardPage from './pages/RewardPage'
 import TaskPage from './pages/TaskPage'
 import ProfilePage from './pages/ProfilePage'
 import DashboardPage from './pages/DashboardPage'
@@ -14,13 +13,16 @@ import ThemePreviewPage from './pages/ThemePreviewPage'
 import MessagesPage from './pages/MessagesPage'
 
 // 招工线（P4-B4c-ii-a）：页面挂在既有 `task` 路由族下（任务中心 = 招工列表，见 §1 #9【保留·改接】）。
-// 路由名全部由**已注册 API 路径**派生（/api/job[/*]、/api/task-progress/*），不自造新域名。
+// 路由名全部由**已注册 API 路径**派生（/api/job[/<id>]、/api/task-progress/<id>），不自造新域名。
 import PublishJobPage from './pages/jobs/PublishJobPage'
 import JobDetailPage from './pages/jobs/JobDetailPage'
 import JobReviewPage from './pages/jobs/JobReviewPage'
-import ListingsPage from './pages/listings/ListingsPage'
-import PublishListingPage from './pages/listings/PublishListingPage'
-import ListingDetailPage from './pages/listings/ListingDetailPage'
+// 闲置物品线（**2026-10-11 合并单**：路由家族 `listing*` → `item*`；`RewardPage` 与列表页合并入首页）：
+//   `item/new`（发布，原 `listing/new`）· `item/:itemId`（详情，原 `listing/:listingId`）
+//   · `item`（**同路由 `?id=` 兼容**：无 `/item/:itemId` 段时按 query 的 `id` 渲染详情；两者都无 id ⇒ 重定向首页 `/`）。
+// 后端面一字不动（`/api/prize/…` 与 `/api/listing…` 路径名保持不变）。
+import PublishItemPage from './pages/item/PublishItemPage'
+import ItemDetailPage from './pages/item/ItemDetailPage'
 
 // 管理页面组件
 import TasksManagement from './pages/admin/TasksManagement'
@@ -49,8 +51,8 @@ import { buildLocalizedPath, canonicalLangPath, getLanguageFromUrl, SUPPORTED_LA
 // 模态框组件
 import LoginModal from './components/LoginModal'
 
-// 语言路由壳（唯一真源）：显式语言路由（/en|/hk|/vn|/zh/*）与无前缀兜底路由（/*，中文口径）共用这一个壳。
-// 不用 `/:lang?/*` 可选段——那会把 /reward、/task 这类普通首段吃成 lang，内层只剩 index ⇒ 中文子页渲染成首页。
+// 语言路由壳（唯一真源）：显式语言路由（/en|/hk|/vn|/zh/<path>）与无前缀兜底路由（/<path>，中文口径）共用这一个壳。
+// 不用 `/:lang?/<path>` 可选段——那会把 /reward、/task 这类普通首段吃成 lang，内层只剩 index ⇒ 中文子页渲染成首页。
 const LangShell = () => {
   const { i18n } = useTranslation()
   const location = useLocation()
@@ -76,9 +78,6 @@ const LangShell = () => {
         {/* 首页 */}
         <Route index element={<HomePage />} />
 
-        {/* 奖励页面 */}
-        <Route path="reward" element={<RewardPage />} />
-
         {/* 任务页面（= 招工列表；消费 /api/task/all、/api/task-progress） */}
         <Route path="task" element={<TaskPage />} />
 
@@ -90,9 +89,15 @@ const LangShell = () => {
             静态段优先于动态段（react-router v6 排名），故 /task/new|/task/review 不会被 :jobId 吃掉 */}
         <Route path="task/new" element={<PublishJobPage />} />
         <Route path="task/review" element={<JobReviewPage />} />
-        <Route path="listing" element={<ListingsPage />} />
-        <Route path="listing/new" element={<PublishListingPage />} />
-        <Route path="listing/:listingId" element={<ListingDetailPage />} />
+        {/* 闲置物品线（**2026-10-11 合并单**·路由家族 `listing*` → `item*`；旧 `/reward`、`/listing*` **硬删、不 301**）：
+            item/new   ⇒ 发布（原 `listing/new`）；item/:itemId ⇒ 详情（原 `listing/:listingId`）；
+            item（无段）⇒ **同路由 `?id=` 兼容**（按 query 的 `id` 渲染详情；两者都无 id ⇒ 组件内 `<Navigate to="/">`）。
+            静态段 `item/new` 优先于动态段 `item/:itemId`（react-router v6 排名），故不会被 `:itemId` 吃掉。
+            ★ Kevin 追加裁定（2026-10-11）：**不再注册「无 id 的 /item 列表路由」** —— 唯一列表 = 首页（HomePage 已取同一份
+              feed `/api/prize/all`），`/item`（无 id）重定向首页（「一句话可改」）。 */}
+        <Route path="item/new" element={<PublishItemPage />} />
+        <Route path="item/:itemId" element={<ItemDetailPage />} />
+        <Route path="item" element={<ItemDetailPage />} />
         <Route path="task/:jobId" element={<JobDetailPage />} />
 
         {/* 积分交易所（原「碎片市场」）：页面路径 2026-10-03 由 /shard 改名单为 /exchange；

@@ -9,12 +9,25 @@ import { RewardCard } from '../components/reward/RewardCard'
 import { FadeIn, SlideUp, StaggerContainer } from '../components/ui/Motion'
 import { ResponsiveGrid, ResponsiveContainer } from '../components/ui/Responsive'
 import ActiveTaskModal from '../components/ActiveTaskModal'
+import MyOrdersPanel from './item/MyOrdersPanel'
 import { fetchApiJson, getAuthHeaders } from '../auth'
 import { useAuth } from '../auth-context'
 import { pickLocalized } from '../i18n-content'
 import { PLACEHOLDER_IMAGE } from '../assets/placeholder'
 import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
 
+// ============================================================================
+// 首页（**2026-10-11 合并单** · Kevin 追加裁定）
+//   ★ 首页 = **唯一的「闲置物品」列表面**（原 `ListingsPage` 的列表渲染已删 —— 两者本就取同一份 feed
+//     `/api/prize/all`，见下方 `loadLegacyHomePayload` / `/api/home` 聚合读口 ⇒ 「不要两份实现」）。
+//   并入自 `RewardPage`（已删）的两项能力：① 「我的积分」展示；② 分类筛选（限量版 / 高价值 / 已兑换）。
+//     分类筛选的数据面依据（`/api/prize/all` 实际字段，现取，见报告 §筛选判据）：
+//       · 限量版   ← `gift_limit` / `time_end`（字段在响应内，本页 `limited` 已派生）
+//       · 高价值   ← `points`（字段在响应内，本页 `rarity==='epic'` 已派生，阈值 >5000 承 `RewardPage`）
+//       · 已兑换   ← `/api/prize-item`（本页已取，`claimed_prize_ids`）⇒ 三档**均可筛**，故保留（非「永远筛不动」控件）。
+//   并并入自 `ListingsPage`（已删）的「我的订单」整块（列表 + 退款/发货/收货 + 空态）：见 `./item/MyOrdersPanel`。
+//   ★ 原 `/reward`、`/listing*` 路由已随本单**硬删**（不 301）；卡片动作由「领取」改为「查看详情」（`item.viewDetail`）。
+// ============================================================================
 const HomePage = () => {
   const HOME_TASK_LIMIT = 6
   const HOME_REWARD_LIMIT = 8
@@ -30,6 +43,8 @@ const HomePage = () => {
   const [userPoints, setUserPoints] = useState(0)
   const [selectedTask, setSelectedTask] = useState(null)
   const [openActiveModal, setOpenActiveModal] = useState(false)
+  // 分类筛选（并入自 `RewardPage`）：all / limited / highValue / claimed
+  const [itemFilter, setItemFilter] = useState('all')
 
   const getCurrentLang = () => {
     const pathParts = location.pathname.split('/')
@@ -41,8 +56,6 @@ const HomePage = () => {
 
   // ★ P6-I18N-LIT-B5 必做②（D7 最后一项）：首页的**旧三目链**（语言后缀 + 空值合并运算符）收口为共用
   //   `pickLocalized`（`src/i18n-content.js`），与其余 8 处已接页一致。
-  //   语义差异是实质修复：后端「未翻译时有值且等于原文、但字段可能缺省 / 误给空串」⇒
-  //   空值合并运算符只在 `null`/`undefined` 时回落，**空串会穿透**；`pickLocalized` 用 `||`，空串回落原文。
   const mapTasksForHome = (taskRows, lang) => (
     (taskRows || []).map((task) => ({
       ...task,
@@ -75,7 +88,8 @@ const HomePage = () => {
         total: (prize.claims_count || 0) + storesCount,
         limited: Boolean(prize.gift_limit || prize.time_end),
         brand: {
-          name: prize.name,
+          // 2026-10-11 合并单：品牌行改用**当前语言**的商品名（原 `prize.name` 会把中文原名带进 en/hk/vn 档）
+          name: pickLocalized(prize, 'name', lang),
           logo: prize.image_url || prize.url_image || '',
         },
       }
@@ -162,31 +176,26 @@ const HomePage = () => {
     setOpenActiveModal(true)
   }
 
-  const handleRewardClaim = (reward) => {
-    if (!isAuthenticated) {
-      toast.error(t('pleaseLogin'))
-      navigate(buildLocalizedPath(lang, '/login'), { state: { from: location } })
-      return
-    }
-
-    if (reward.status === 'claimed') {
-      toast(t('homePage.rewardAlreadyClaimed'))
-      return
-    }
-
-    if (reward.status !== 'available') {
-      toast.error(t('homePage.rewardOutOfStock'))
-      return
-    }
-
-    if (userPoints < reward.points_required) {
-      toast.error(t('homePage.notEnoughPoints'))
-      return
-    }
-
-    toast(t('homePage.redeemComingSoon'))
-    navigate(buildLocalizedPath(lang, '/reward'))
+  // ★ 合并单：卡片动作 = 「查看该闲置物品详情」（原 `/reward` 已硬删）。
+  //   `RewardCard` 的 `actionLabelKey='item.viewDetail'` 同时**解禁**按钮（查看不受积分门槛约束）。
+  const handleRewardAction = (reward) => {
+    const id = reward?.bID ?? reward?.listing_id ?? reward?.id
+    if (id == null || id === '') return
+    navigate(buildLocalizedPath(lang, `/item/${id}`))
   }
+
+  const FILTERS = [
+    { key: 'all', labelKey: 'item.filterAll', count: rewards.length },
+    { key: 'limited', labelKey: 'item.filterLimited', count: rewards.filter((r) => r.limited).length },
+    { key: 'highValue', labelKey: 'item.filterHighValue', count: rewards.filter((r) => r.rarity === 'epic').length },
+    { key: 'claimed', labelKey: 'item.filterClaimed', count: rewards.filter((r) => r.status === 'claimed').length },
+  ]
+  const filteredRewards = rewards.filter((r) => {
+    if (itemFilter === 'limited') return r.limited
+    if (itemFilter === 'highValue') return r.rarity === 'epic'
+    if (itemFilter === 'claimed') return r.status === 'claimed'
+    return true
+  })
 
   if (loading) {
     return (
@@ -200,7 +209,7 @@ const HomePage = () => {
 
   return (
     <ResponsiveContainer>
-      <div className="space-y-8">
+      <div className="space-y-8" data-sf-m="home-item-list">
         <FadeIn>
           <section className="bg-gradient-to-r from-yellow-50 to-blue-50 rounded-2xl p-8 text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('homePage.welcome')}</h1>
@@ -213,12 +222,30 @@ const HomePage = () => {
                   {isAuthenticated ? t('homePage.continueTask') : t('homePage.registerNow')}
                 </Button>
               </Link>
-              <Link to={buildLocalizedPath(lang, '/reward')}>
-                <Button variant="secondary" size="lg">{t('homePage.browseRewards')}</Button>
+              {/* 发布入口（Kevin 裁定④）：原「查看奖励」→ 首页唯一列表的发布入口 `/item/new` */}
+              <Link to={buildLocalizedPath(lang, '/item/new')} data-sf-m="home-publish-link">
+                <Button variant="secondary" size="lg">{t('item.publish')}</Button>
               </Link>
             </div>
           </section>
         </FadeIn>
+
+        {/* 「我的积分」（并入自 `RewardPage`；登录后渲染） */}
+        {isAuthenticated && (
+          <FadeIn>
+            <Card variant="primary" className="max-w-md mx-auto" data-sf-m="home-my-points">
+              <CardContent className="py-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm text-gray-600">{t('item.myPoints')}</div>
+                    <div className="text-2xl font-bold text-yellow-600">{userPoints}</div>
+                  </div>
+                  <div className="text-4xl">🪙</div>
+                </div>
+              </CardContent>
+            </Card>
+          </FadeIn>
+        )}
 
         <SlideUp delay={200}>
           <section>
@@ -253,27 +280,40 @@ const HomePage = () => {
         </SlideUp>
 
         <SlideUp delay={400}>
-          <section>
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">{t('homePage.featuredRewards')}</h2>
-                <p className="text-gray-600">{t('homePage.featuredLead')}<span className="text-sm font-bold text-yellow-600 dark:text-yellow-400">$</span>{t('homePage.featuredTail')}</p>
-              </div>
-              <Link to={buildLocalizedPath(lang, '/reward')}>
-                <Button variant="proceed">{t('common.viewAll')}</Button>
-              </Link>
+          <section data-sf-m="home-items">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">{t('homePage.featuredRewards')}</h2>
+              <p className="text-gray-600">{t('homePage.featuredLead')}<span className="text-sm font-bold text-yellow-600 dark:text-yellow-400">$</span>{t('homePage.featuredTail')}</p>
             </div>
 
-            {rewards.length > 0 ? (
+            {/* 分类筛选（并入自 `RewardPage`）—— 计数随数据面实时派生（三档均可筛，见文件头判据） */}
+            <div className="flex flex-wrap gap-2 mb-6" data-sf-m="home-item-filter" role="tablist">
+              {FILTERS.map((f) => (
+                <button
+                  key={f.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={itemFilter === f.key}
+                  className={`px-3 py-1.5 rounded-md text-sm border ${itemFilter === f.key ? 'bg-yellow-500 text-white border-yellow-500' : 'bg-white text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600'}`}
+                  data-sf-filter={f.key}
+                  onClick={() => setItemFilter(f.key)}
+                >
+                  {t(f.labelKey)} ({f.count})
+                </button>
+              ))}
+            </div>
+
+            {filteredRewards.length > 0 ? (
               <StaggerContainer>
                 <ResponsiveGrid sm={1} md={2} lg={4} gap={6}>
-                  {rewards.map((reward, index) => (
+                  {filteredRewards.map((reward, index) => (
                     <FadeIn key={reward.bID} delay={index * 100}>
                       <RewardCard
                         reward={reward}
-                        onClaim={handleRewardClaim}
+                        onClaim={handleRewardAction}
                         userPoints={userPoints}
                         showStatus={true}
+                        actionLabelKey="item.viewDetail"
                       />
                     </FadeIn>
                   ))}
@@ -282,12 +322,22 @@ const HomePage = () => {
             ) : (
               <Card variant="inactive">
                 <CardContent className="text-center py-8">
-                  <p className="text-gray-500">{t('homePage.noRewards')}</p>
+                  <p className="text-gray-500">{t('item.empty')}</p>
                 </CardContent>
               </Card>
             )}
           </section>
         </SlideUp>
+
+        {/* 「我的订单」整块（并入自 `ListingsPage`；登录后渲染）—— 列表 + 退款/发货/收货 + 空态，零丢失 */}
+        {isAuthenticated && (
+          <SlideUp delay={600}>
+            <section data-sf-m="home-my-orders">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('item.myOrders')}</h2>
+              <MyOrdersPanel />
+            </section>
+          </SlideUp>
+        )}
       </div>
 
       {selectedTask && (

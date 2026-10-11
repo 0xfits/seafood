@@ -61,8 +61,7 @@ const distinct = new Set(LANGS.map((l) => tables[l].i18n.translating)).size
 console.log(`[TR-2] 四语齐备=${badgeOk ? 'PASS' : 'FAIL'}；四语互异取值数=${distinct}/4`)
 
 const WIRED = [
-  'pages/listings/ListingsPage.jsx',
-  'pages/listings/ListingDetailPage.jsx',
+  'pages/item/ItemDetailPage.jsx',
   'pages/jobs/JobDetailPage.jsx',
   'pages/jobs/JobReviewPage.jsx',
   'pages/market/MarketPage.jsx',

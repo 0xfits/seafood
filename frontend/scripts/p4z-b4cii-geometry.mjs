@@ -2,7 +2,7 @@
 // 目标：新增页（/task/new 发布、/task/review 审核入口）在**日/夜两档 rect 逐值相等**，
 //       并沿用三条对照：① 尺子灵敏度（1px 刻意错位必须判出）② 可重复性（同档两次逐字节相同）
 //       ③ 横竖屏（1440 / 390）结构签名不变（差异只允许落在 nav 形态 / 栅格降列 —— 与主题无关）。
-// 无 dev server、无静态服务：page.route 把 http://sf.local/** 映射到 frontend/dist 磁盘文件；
+// 无 dev server、无静态服务：page.route 把 http://sf.local/… 映射到 frontend/dist 磁盘文件；
 // 外部 CDN 一律 abort ⇒ 量测环境完全本地、确定性可复现。主题切换 = 直接改 <html data-theme>
 //（`[data-theme="dark"]` = 夜档，真源 `src/theme/theme-tokens.css:155`；与 ThemeProvider/main.jsx 同一属性），
 // 并用「skin 值确实变了」证明这把尺子不是对着一个没换肤的页面量出来的。
@@ -86,7 +86,7 @@ const main = async () => {
   evidence.notes.push('主题切换 = 直接改 <html data-theme>（light/dark）；真换肤由 skin/pageBg 值变化证明。')
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 })
   // 量测「已登录形态」的表单/面板：localStorage['user'] 带 token ⇒ useAuth().isAuthenticated = true
-  //（`frontend/src/auth.js:35` 读同一键）。**API 调用在本探针内不联网**（同源 /api/** 落 dist 兜底 index.html
+  //（`frontend/src/auth.js:35` 读同一键）。**API 调用在本探针内不联网**（同源 /api/… 落 dist 兜底 index.html
   // ⇒ JSON 解析失败 ⇒ 页面进确定性「失败态」文案，正好把错误态也纳入几何量测）。
   await context.addInitScript(() => {
     try { window.localStorage.setItem('user', JSON.stringify({ uID: 1, EVM: '0xprobe', token: 'probe-token' })) } catch { /* 隐私模式忽略 */ }

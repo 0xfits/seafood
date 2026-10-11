@@ -1,6 +1,6 @@
 // P4-B4c-ii-c ① / ② 文案落地探针（Kong · 本单自用；**不做语义改写，只按锚点行插入**）
 // 口径：① 两条登录 401 文案（真源 backend-ts/src/auth.ts:223 / :227）⇒ locales/{zh,en,hk,vn}.json 的 `auth.err.*` 各 2 键；
-//       ② 退化币对（§5.103）⇒ locales/*.json 的 `market.pairDegenerate` 1 键。
+//       ② 退化币对（§5.103）⇒ locales/<lang>.json 的 `market.pairDegenerate` 1 键。
 // 只按**行锚点**插入新行，保留各文件既有排版（不 JSON.stringify 重排 ⇒ diff 最小），并打印逐文件键集对拍结果。
 // 用法：node scripts/p4z-b4ciic-locales.mjs            # dry-run 只打印将插入的内容
 //       node scripts/p4z-b4ciic-locales.mjs --write    # 落盘

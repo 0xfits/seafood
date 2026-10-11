@@ -2,7 +2,7 @@
 // 目标：本单页面（/listing 商品列表、/listing/new 上架、/listing/1 详情、/shard 交易所线）在**日/夜两档 rect 逐值相等**，
 //       三条对照照旧：① 尺子灵敏度（1px 刻意错位必须判出）② 可重复性（同档两次逐字节相同）
 //       ③ 横竖屏（1440 / 390）结构签名不变（差异只允许落在 nav 形态 / 栅格降列 —— 与主题无关）。
-// 无 dev server、无静态服务：page.route 把 http://sf.local/** 映射到 frontend/dist 磁盘文件；外部 CDN 一律 abort。
+// 无 dev server、无静态服务：page.route 把 http://sf.local/… 映射到 frontend/dist 磁盘文件；外部 CDN 一律 abort。
 // 主题切换 = 直接改 <html data-theme>（`[data-theme="dark"]` = 夜档），并用 skin/pageBg 值变化证明尺子确实换了肤。
 import { chromium } from 'playwright'
 import fs from 'node:fs'
@@ -118,7 +118,7 @@ const main = async () => {
   evidence.notes.push('主题切换 = 直接改 <html data-theme>（light/dark）；真换肤由 skin/pageBg 值变化证明。')
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 })
   // 量测「已登录形态」：localStorage['user'] 带 token ⇒ useAuth().isAuthenticated = true。
-  // API 调用在本探针内**不联网**（同源 /api/** 落 dist 兜底 index.html ⇒ JSON 解析失败 ⇒ 页面进确定性「失败态」文案，
+  // API 调用在本探针内**不联网**（同源 /api/… 落 dist 兜底 index.html ⇒ JSON 解析失败 ⇒ 页面进确定性「失败态」文案，
   // 正好把 R107 失败态也纳入几何量测；文案必须是字符串，不得出现 [object Object]）。
   await context.addInitScript(() => {
     try { window.localStorage.setItem('user', JSON.stringify({ uID: 1, EVM: '0xprobe', token: 'probe-token' })) } catch { /* 隐私模式忽略 */ }

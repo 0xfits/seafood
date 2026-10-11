@@ -7,7 +7,7 @@ import { SUPPORTED_LANGS, stripLangPrefix } from '../utils'
 //   shard    → frontend/src/App.jsx  `path="exchange"`（ShardPage = 积分交易所，消费 /api/order*、/api/shard*）
 //              · 页面路径 2026-10-03 由 `/shard` 改名单为 `/exchange`；`key`/`labelKey` 保持 `'shard'`（文案键不变）
 //              · 旧 `/shard` 由 App.jsx 的 `LegacyExchangeRedirect`（一条 `<Navigate>`）兼容重定向到同语言前缀下
-//   sell     → frontend/src/App.jsx  `path="listing/new"`（PublishListingPage = 发布页，复用既有）
+//   sell     → frontend/src/App.jsx  `path="item/new"`（PublishItemPage = 发布页；2026-10-11 合并单：原 `listing/new` 改名）
 //   messages → frontend/src/App.jsx  `path="messages"`（MessagesPage）· **本轮新登记路由 `/messages`**（占位页 · X/推特接驳位预留）
 //   profile  → frontend/src/App.jsx  `path="profile"`（受保护；与 Header 同一条登录可见规则）
 // labelKey 全部取自四语 locale 既有键（zh/en/hk/vn 各同集）。
@@ -19,7 +19,7 @@ import { SUPPORTED_LANGS, stripLangPrefix } from '../utils'
 export const SHELL_NAV_ITEMS = [
   { key: 'home', path: '', route: 'index', labelKey: 'home', icon: Home },
   { key: 'shard', path: 'exchange', route: 'exchange', labelKey: 'shard', icon: Store },
-  { key: 'sell', path: 'listing/new', route: 'listing/new', labelKey: 'sell', icon: PlusCircle },
+  { key: 'sell', path: 'item/new', route: 'item/new', labelKey: 'sell', icon: PlusCircle },
   { key: 'messages', path: 'messages', route: 'messages', labelKey: 'messages', icon: MessageCircle },
   { key: 'profile', path: 'profile', route: 'profile', labelKey: 'profile', icon: User, requiresAuth: true },
 ]

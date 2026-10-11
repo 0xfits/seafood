@@ -13,7 +13,11 @@ const RewardCard = ({
   onClaim,
   userPoints = 0,
   showStatus = true,
-  compact = false
+  compact = false,
+  // 2026-10-11 合并单：可选动作文案键。首页（= 唯一列表）传 `item.viewDetail` ⇒
+  // 卡片动作语义由「领取」改为「查看闲置物品详情」（原 `/reward` 已硬删）；**不传则行为与旧版逐字不变**
+  // （`r9-93` / `i18n-batch-b2` 等裸渲染用例不受影响）。同时在该模式下**不禁用**按钮（查看不受积分门槛约束）。
+  actionLabelKey = null
 }) => {
   const { t } = useTranslation()
 
@@ -151,9 +155,12 @@ const RewardCard = ({
             variant={canClaim ? 'success' : 'inactive'}
             size={compact ? 'sm' : 'md'}
             onClick={() => onClaim?.(reward)}
-            disabled={!canClaim}
+            disabled={actionLabelKey ? false : !canClaim}
+            data-sf-m={actionLabelKey ? 'reward-card-view' : 'reward-card-claim'}
           >
-            {!canClaim && userPoints < reward.points_required
+            {actionLabelKey
+              ? t(actionLabelKey)
+              : !canClaim && userPoints < reward.points_required
               ? t('rewardCard.insufficient')
               : reward.status === 'claimed'
               ? t('common.claimed')
