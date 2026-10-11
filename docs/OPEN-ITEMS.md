@@ -1,7 +1,7 @@
 # 远期任务台账（OPEN ITEMS）
 
 > **性质**：living register —— 只登记**未闭环**项；每项带**现取依据**（文件:行 / 读数）+ 代价 + 阻塞条件。闭环后从本表移除，并在 `docs/seafood.master-plan.md` 留痕。
-> **维护**：Zang（派单方）。**最后更新**：2026-10-04（S19 收口后汇总；所有「现取」为本表生成时实测）。
+> **维护**：Zang（派单方）。**最后更新**：2026-10-11（+ §F 手机竖屏（H5）加固未闭环登记；上一版 2026-10-04 S19 收口后汇总；所有「现取」为本表生成时实测）。
 
 ---
 
@@ -113,3 +113,26 @@
 | **R5** | 卫生三小件 | `admin.html` 退役（我先前裁保留）· 产物目录中**已跟踪 2633 件**去留 · `docs/audit` 体积 | 待裁 |
 | **R7 ✅✅（S49 + S51：两探针双绿）** | 两个**独立探针**跑 exit 1（改前即红，**非子探针**——现取 `grep` 零调用）| `p8-s5-01`（67/69）= **期望过期**（期望集未含 `0043` 新增的 `*_no_truncate` 触发器 ⇒ **前推**）· `p8-s3-01`（23/34）= **行为段前置缺失**（缺 `account_guard` 可满足的已出资账户 + draft 币）⇒ **均非产品缺陷** | **`s5-01` 已转绿**（`exit 0 · 84/84`，期望前推**只增不减**、15 枚 `*_no_truncate` 逐条给出处、判负 `82→复原 84`）· **`s3-01` 探针侧前置已补齐**（分母 `34→35`，零残留 `8/8`）但 **11 红在「零产品改动」口径下不可消** ⇒ 真因 = **产品侧 `B23`**（0034 回归）⇒ 行为段已随 `B23` 修复**转绿**（S51：`35/35/0`，我亲跑复现）|
 | **R6** | **产品新需求** | 我手上只有质量收口清单 | **需 Kevin 给方向** |
+
+---
+
+## F. 手机竖屏（H5）加固 · 未闭环登记（2026-10-11 新增）
+
+> 派生自 `docs/design/design-system.spec.md` **v1.1 §13**（P0–P4 条文，`T75..T79`）。本段只登记**未闭环 / 待实测**项；口径与判据以 §13 为准。设备档报告 = `~/.hermes/profiles/zang/cache/scratch/seafood-mobile-measure/REPORT.md`（Zang 复核 40/40）。
+
+| # | 项 | 现取依据 | 现状兜底 | 代价 / 阻塞 |
+|---|---|---|---|---|
+| **F1** | **`100vh` 真机溢出行为**（`styles.css:342 .app-container` / `shell.css:15 .sf-shell`） | 设备档 `100vh == visualViewport.height`（`raw/experiments.json` `vh=844`、`vvh=844`）⇒ 陷阱**不可观测** | **本轮不动**（T78 明文）；设备档无异常 | 待**新 LAN 预览服务**提供的**真机读数**后定（地址栏收起才露头） |
+| **F2** | **`.sf-tabbar` 安全区真机重叠像素** | 设备档 `env(safe-area-inset-bottom)` 恒 `0px`（`raw/experiments.json` `env.pb=0px`、`tabbarPB=0px`、tabbar 计算 `padding-bottom=0px`） | P0（T75）已裁「源码声明 `padding-bottom: env(safe-area-inset-bottom)` + `viewport-fit=cover`」，判据止步「已声明 + 未新增断点」 | 真机（带 Home 指示条 + `viewport-fit=cover`）复测；本档 `NOT_MEASURED` |
+| **F3** | **`style-preview.html:128` `.avatar.sm{font-size:10.5px}`** | 现取该文件 L128 = `.avatar.sm{width:19px;height:19px;font-size:10.5px}` | **登记不改**：属比选稿**演示框内值**，**不被任何产品 token 消费**（`STRUCT`/`TOKEN_KEYS` 无 `avatar-sm` 字号键）⇒ 不属 P4（T79）「产品页可见文本」面 | 若将来做「全仓 <12px 扫面」，须按此口径排除本行，否则误红 |
+| **F4** | **顶栏「语言/主题/用户菜单」逐项 rect** | report 只把**汉堡**记为 `40×40`；桌面 `nav-link` 控件与**移动面板**（折叠态）控件**未逐项落表** | §13.4 第 6/7 行标「派单口径 / 折叠态未测」 | Kong 实现（T77）后由 Neng **现取补录**（§13.6/N19） |
+| **F5** | **真机（实体手机）整体读数** | report 全为 CDP 设备档模拟（`Emulation.setDeviceMetricsOverride`），无实体设备 | P0–P4 判据用**设备档**（375/390/320）可复跑 | 真机复测（含 P2「≥44×44」实际命中）；本档 `NOT_MEASURED`（§13.6/N23） |
+| **F6** | **非中文档四语版式 / 登录态页** | report 只测 zh（无前缀）档；`/en` `/hk` `/vn` 与 `/profile` 正文（含 tabbar 第 5 格「我的」）未测 | —— | 待派；本档 `NOT_MEASURED`（§13.6/N22） |
+
+### F′. 本单已改的设计真源（备查，非未闭环）
+
+- `docs/design/design-system.spec.md`：→ **v1.1**（新增 §13 + `T75..T79` + §5.3 断点表原位更正 + §12 变更记录）。**改前快照** `docs/versions/design-system.spec.v1.0.md`（`cmp=0`）。
+- `docs/design/design-system.spec.md`：→ **v1.2**（**Zang 2026-10-11 两条裁定**：① `T77`/P2 触控目标**收窄为「限在 `@media (max-width: 767px)` 内」**、桌面档几何零变化为硬判据；② `T75`/P0 的 `viewport-fit=cover` 由配对项**升为硬判据**）。**改前快照** `docs/versions/design-system.spec.v1.1.md`（`cmp=0`）。（§13.3 第 14 行改「若红则最小改锚」· §13.4 P2 逐项「限 ≤767」· §13.4 尾「桌面连带声明」标 v1.2 作废 · §13.5 P2 行 + §13.6 N24）
+- `docs/design/design-system.spec.md`：→ **v1.3**（**补丁单 2**：① `T79` 桌面侧受影响元素完整清单（三类）+ 逐元素前后读数〔§13.2.1〕· ② 硬判据改「例外清单式」 · ③ `D1` 入册〔根因 + 修法 + §13.6 `N25`〕）。**改前快照** `docs/versions/design-system.spec.v1.2.md`（`cmp=0`）。
+- `docs/design/design-system.spec.md`：→ **v1.4**（**补丁单 3**：① 硬判据由「例外清单式」★改「**归因式判据**（反事实归因实验）」〔§13.1 `T77` 行 · §13.3 第 14 行 · §13.5 `P2 触控` 行〕· ② 登记 `D1` 修复事实〔修法 = 共同祖先 `.sf-layout` / 消费者全扫 = 0〔**动态哨兵法**〕/ 同根因第 4 面 `/task/:id .sf-jobs-status` / 新副作用 `/listing .sf-listings-status` 0→44、页高 +114〕· ③ 归因实验可复跑配方 + 1440 `.sf-tabbar` 子树 23 元素 `0×0` 事实〔§13.5 / §13.2.1 / §13.6 `N26`〕）。**改前快照** `docs/versions/design-system.spec.v1.3.md`（`cmp=0`）。
+- `docs/design/style-preview.html` L170：`font-size:10.5px → 12px`（**P4/T79 就地更正**；`git diff --numstat` = `1 1`；−2 B、行数不变；改前 `9ddebde7…` ⇒ 改后 `cd09248f…`）。
