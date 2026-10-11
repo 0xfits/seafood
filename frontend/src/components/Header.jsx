@@ -11,10 +11,11 @@ import { fetchAdminAccess } from '../admin-utils'
 import { useAuth } from '../auth-context'
 import {buildLocalizedPath, buildLangPath, getLanguageFromUrl} from '../utils'
 
-// T76（P1）· 移动汉堡面板去重：底部 tab 已承担的导航目标（底部 tab = `/`、`/reward`、`/task`、
-// `/exchange`，其中 home 由品牌 Logo 承担）不得在移动面板里重复出现。
+// T86（v1.5 重算 · 取代 v1.1 T76 排除集）：移动汉堡面板 = 顶栏项集 − **底栏目标集**。
+// 本版底栏目标集 = `/`、`/exchange`、`/listing/new`、`/messages`、`/profile`（design-system.spec v1.5 §14.4）
+// ⇒ 汉堡**排除 `exchange`**、**恢复 `reward`/`task`**（二者已不在底栏，去重理由消失；不恢复 ⇒ 移动端丢两入口 = 功能回归）。
 // 仅用于**移动面板渲染时的局部过滤**；下方 `menuItems`（单一真源）与桌面 `<nav>` 一字不动。
-const MOBILE_PANEL_EXCLUDED_PATHS = ['reward', 'task', 'exchange']
+const MOBILE_PANEL_EXCLUDED_PATHS = ['exchange']
 
 const Header = () => {
   const { t } = useTranslation()

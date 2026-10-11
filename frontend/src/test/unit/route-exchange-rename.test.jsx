@@ -82,11 +82,11 @@ describe('① 导航真源：path/route = exchange，key/labelKey 保持 shard',
     expect(shardItem.route).toBe('exchange')
   })
 
-  it('四语标签键取值逐字冻结（t(\'shard\') 未受影响）', () => {
-    expect(zh.shard).toBe('碎片市场')
-    expect(hk.shard).toBe('碎片市場')
-    expect(en.shard).toBe('Shard Market')
-    expect(vn.shard).toBe('Chợ mảnh')
+  it('四语标签键取值逐字冻结（t(\'shard\') 值已按 v1.5 §14.10 全站统一为「市场」族）', () => {
+    expect(zh.shard).toBe('市场')
+    expect(hk.shard).toBe('市場')
+    expect(en.shard).toBe('Market')
+    expect(vn.shard).toBe('Chợ')
   })
 
   it('四语前缀下导航 href = 同前缀的 /exchange', () => {
@@ -100,8 +100,8 @@ describe('① 导航真源：path/route = exchange，key/labelKey 保持 shard',
     expect(isNavItemActive('/exchange', shardItem)).toBe(true)
     expect(isNavItemActive('/hk/exchange/anything', shardItem)).toBe(true)
     expect(isNavItemActive('/reward', shardItem)).toBe(false)
-    expect(visibleNavItems(false).map((i) => i.key)).toEqual(['home', 'reward', 'task', 'shard'])
-    expect(visibleNavItems(true).map((i) => i.key)).toEqual(['home', 'reward', 'task', 'shard', 'profile'])
+    expect(visibleNavItems(false).map((i) => i.key)).toEqual(['home', 'shard', 'sell', 'messages'])
+    expect(visibleNavItems(true).map((i) => i.key)).toEqual(['home', 'shard', 'sell', 'messages', 'profile'])
   })
 
   it('App.jsx 源：交易所页挂在 path="exchange"；旧 /shard 由一条 Navigate 重定向承接', () => {

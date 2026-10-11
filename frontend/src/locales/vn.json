@@ -1,11 +1,17 @@
 {
   "siteTitle": "Seafood",
   "siteBrand": "Seafood",
-  "shard": "Chợ mảnh",
-  "home": "Trang chủ",
+  "shard": "Chợ",
+  "home": "Chợ hải sản",
   "reward": "Phần thưởng",
   "task": "Nhiệm vụ",
   "profile": "Hồ sơ",
+  "me": "Tôi",
+  "sell": "Bán đồ",
+  "messages": "Tin nhắn",
+  "app": "Ứng dụng",
+  "feedback": "Phản hồi",
+  "support": "Hỗ trợ",
   "login": "Đăng nhập",
   "logout": "Đăng xuất",
   "language": "Ngôn ngữ",
@@ -1158,5 +1164,28 @@
     "tblListingOrderEvent": "Sự kiện đơn hàng",
     "tblReferral": "Liên kết giới thiệu",
     "tblCommissionPolicy": "Chính sách hoa hồng"
+  },
+  "messagesPage": {
+    "title": "Tin nhắn",
+    "empty": "Chưa có tin nhắn",
+    "xPlaceholder": "Tin nhắn riêng X (Twitter) · vị trí chờ",
+    "xNote": "Khu vực này sẽ dùng để kết nối tin nhắn X (Twitter), hiện là vị trí chờ"
+  },
+  "appModal": {
+    "title": "Tải ứng dụng",
+    "qrPlaceholder": "Vị trí mã QR",
+    "downloadHint": "Quét mã để tải (vị trí chờ)",
+    "close": "Đóng"
+  },
+  "feedbackModal": {
+    "title": "Phản hồi",
+    "formPlaceholder": "Biểu mẫu phản hồi (chưa gửi)",
+    "submitNote": "Chỉ là vị trí chờ, không lưu",
+    "close": "Đóng"
+  },
+  "supportModal": {
+    "title": "Hỗ trợ",
+    "contactPlaceholder": "Vị trí liên hệ",
+    "close": "Đóng"
   }
 }

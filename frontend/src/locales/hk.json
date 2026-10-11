@@ -1,11 +1,17 @@
 {
   "siteTitle": "Seafood 海鮮市場",
   "siteBrand": "Seafood 海鮮市場",
-  "shard": "碎片市場",
-  "home": "首頁",
+  "shard": "市場",
+  "home": "海鮮市場",
   "reward": "社區獎勵",
   "task": "社區任務",
   "profile": "個人資料",
+  "me": "我的",
+  "sell": "賣閒置",
+  "messages": "訊息",
+  "app": "APP",
+  "feedback": "反饋",
+  "support": "客服",
   "login": "登錄",
   "logout": "登出",
   "language": "語言",
@@ -1158,5 +1164,28 @@
     "tblListingOrderEvent": "訂單事件",
     "tblReferral": "邀請綁定",
     "tblCommissionPolicy": "佣金政策"
+  },
+  "messagesPage": {
+    "title": "訊息",
+    "empty": "暫無訊息",
+    "xPlaceholder": "X（推特）私訊 · 接駁位",
+    "xNote": "該區域將用於接入 X（推特）私訊，本輪為佔位"
+  },
+  "appModal": {
+    "title": "下載 APP",
+    "qrPlaceholder": "二維碼佔位",
+    "downloadHint": "掃碼下載（佔位）",
+    "close": "關閉"
+  },
+  "feedbackModal": {
+    "title": "反饋",
+    "formPlaceholder": "反饋表單佔位（暫不提交）",
+    "submitNote": "本輪僅佔位，不入庫",
+    "close": "關閉"
+  },
+  "supportModal": {
+    "title": "客服",
+    "contactPlaceholder": "聯絡方式佔位",
+    "close": "關閉"
   }
 }

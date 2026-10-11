@@ -1,27 +1,32 @@
-import { Briefcase, Gift, Home, Store, User } from 'lucide-react'
+import { Home, Store, PlusCircle, MessageCircle, User } from 'lucide-react'
 import { SUPPORTED_LANGS, stripLangPrefix } from '../utils'
 
-// 导航项**单一真源**：全部来自既有路由实现（frontend/src/App.jsx 的 LangShell 内层 <Routes>）
-// 与 docs/route-layer.spec.md v0.9 的前端消费面对应关系，非自造页面名。
-//   index   → frontend/src/App.jsx  `<Route index element={<HomePage />} />`（无前缀 / 或 /zh|/en|/hk|/vn）
-//   reward  → frontend/src/App.jsx  `path="reward"`（RewardPage，消费 /api/prize/*）
-//   task    → frontend/src/App.jsx  `path="task"`（TaskPage，消费 /api/task*）
-//   shard   → frontend/src/App.jsx  `path="exchange"`（ShardPage = 积分交易所，消费 /api/order*、/api/shard*）
-//             · 页面路径 2026-10-03 由 `/shard` 改名单为 `/exchange`；`key`/`labelKey` 保持 `'shard'`（文案键不变）
-//             · 旧 `/shard` 由 App.jsx 的 `LegacyExchangeRedirect`（一条 `<Navigate>`）兼容重定向到同语言前缀下
-//   profile → frontend/src/App.jsx  `path="profile"`（受保护；与 Header 同一条登录可见规则）
-// labelKey 全部取自四语 locale 既有键（zh/en/hk/vn 各 69 键同集）。
+// 导航项**单一真源**：底栏（H5）五项；全部来自既有路由实现（frontend/src/App.jsx 的 LangShell 内层 <Routes>）
+// 与 docs/route-layer.spec.md v2.27 §37 的前端消费面对应关系，非自造页面名。
+//   home     → frontend/src/App.jsx  `<Route index element={<HomePage />} />`（无前缀 / 或 /zh|/en|/hk|/vn）
+//   shard    → frontend/src/App.jsx  `path="exchange"`（ShardPage = 积分交易所，消费 /api/order*、/api/shard*）
+//              · 页面路径 2026-10-03 由 `/shard` 改名单为 `/exchange`；`key`/`labelKey` 保持 `'shard'`（文案键不变）
+//              · 旧 `/shard` 由 App.jsx 的 `LegacyExchangeRedirect`（一条 `<Navigate>`）兼容重定向到同语言前缀下
+//   sell     → frontend/src/App.jsx  `path="listing/new"`（PublishListingPage = 发布页，复用既有）
+//   messages → frontend/src/App.jsx  `path="messages"`（MessagesPage）· **本轮新登记路由 `/messages`**（占位页 · X/推特接驳位预留）
+//   profile  → frontend/src/App.jsx  `path="profile"`（受保护；与 Header 同一条登录可见规则）
+// labelKey 全部取自四语 locale 既有键（zh/en/hk/vn 各同集）。
+// ★ 第 5 项（底栏⑤）文案口径（design-system.spec v1.5 §14 · Zang 裁定⑧）：`key` 仍 `profile`（路由/登录规则一字不动），
+//   但 `labelKey` 由 `'profile'` 改为**新键 `'me'`**（zh 我的 / en Me / hk 我的 / vn Tôi）。
+//   理由：`profile` 键值 = 个人资料/Profile/個人資料/Hồ sơ，且被 `Header.jsx:284` 下拉与 `:460` 移动面板消费、
+//   被 `r9-84-profile-entry.test.jsx` 逐字锚定 ⇒ **不动 `profile` 键值**，另立 `me` 只服务底栏⑤。
+//   （「一句话可改」：若 Kevin 要全站统一为「我的」，才改 `profile` 值并同步改锚 r9-84。）
 export const SHELL_NAV_ITEMS = [
   { key: 'home', path: '', route: 'index', labelKey: 'home', icon: Home },
-  { key: 'reward', path: 'reward', route: 'reward', labelKey: 'reward', icon: Gift },
-  { key: 'task', path: 'task', route: 'task', labelKey: 'task', icon: Briefcase },
   { key: 'shard', path: 'exchange', route: 'exchange', labelKey: 'shard', icon: Store },
-  { key: 'profile', path: 'profile', route: 'profile', labelKey: 'profile', icon: User, requiresAuth: true },
+  { key: 'sell', path: 'listing/new', route: 'listing/new', labelKey: 'sell', icon: PlusCircle },
+  { key: 'messages', path: 'messages', route: 'messages', labelKey: 'messages', icon: MessageCircle },
+  { key: 'profile', path: 'profile', route: 'profile', labelKey: 'me', icon: User, requiresAuth: true },
 ]
 
 export const SHELL_NAV_KEYS = SHELL_NAV_ITEMS.map((item) => item.key)
 
-// 顶栏（Header）与底栏（BottomTabBar）共用同一份可见性规则 ⇒ 同一套组件、同一元素顺序。
+// 底栏（BottomTabBar）取本文件可见性规则（底栏五项；home 由底栏显式项承担）。
 export const visibleNavItems = (isAuthenticated) =>
   SHELL_NAV_ITEMS.filter((item) => !item.requiresAuth || isAuthenticated)
 

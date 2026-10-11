@@ -11,6 +11,7 @@ import DashboardPage from './pages/DashboardPage'
 import ShardPage from './pages/ShardPage'
 import AuthPage from './pages/AuthPage'
 import ThemePreviewPage from './pages/ThemePreviewPage'
+import MessagesPage from './pages/MessagesPage'
 
 // 招工线（P4-B4c-ii-a）：页面挂在既有 `task` 路由族下（任务中心 = 招工列表，见 §1 #9【保留·改接】）。
 // 路由名全部由**已注册 API 路径**派生（/api/job[/*]、/api/task-progress/*），不自造新域名。
@@ -101,6 +102,11 @@ const LangShell = () => {
         {/* 旧页面路径 /shard 兼容重定向：保留语言前缀，落到同档语言下的 exchange 页
             （zh 无前缀 ⇒ /exchange；/en|/hk|/vn/shard ⇒ /en|/hk|/vn/exchange）⇒ 旧链接不破损 */}
         <Route path="shard" element={<LegacyExchangeRedirect />} />
+
+        {/* 消息页（**占位** · design-system.spec v1.5 §14 · T80 + route-layer.spec v2.27 §37）
+            本轮新增页面路由 = 恰 1 条 `/messages`（LangShell 内层相对段）；X（推特）私信接驳位预留；
+            **不得**增 `/nearby`（已由 Kevin 当日变更取代）。 */}
+        <Route path="messages" element={<MessagesPage />} />
 
         {/* 主题/骨架可交互预览件（地基单 4c-i；四语前缀下同样可达） */}
         <Route path="theme-preview" element={<ThemePreviewPage />} />

@@ -136,6 +136,10 @@ const DAY = {
   'btnalt-bg': '#FFFFFF',     // 【实测】日档次按钮填充
   'btnalt-fg': '#202020',     // 【实测】日档次按钮文字
   'btnalt-border': '#E0E0E0', // 【实测】次按钮 1px 描边色（日/夜同值）
+  // ── 右侧悬浮菜单（T83 · design-system.spec v1.5 §14）：新 token --sf-fm-*（日档按参考图实测）
+  'fm-bg': '#FFFFFF',
+  'fm-fg': '#333333',
+  'fm-divider': '#E8E8E8',
 }
 
 const NIGHT = {
@@ -248,6 +252,10 @@ const NIGHT = {
                                // 真源 style-preview.html:292/314）；参考图未展示深色次按钮（Zang 裁定②）
   'btnalt-fg': '#FFFFFF',      // 【实测】夜档次按钮文字
   'btnalt-border': '#E0E0E0',  // 【实测】浅描边（真源 960 行）
+  // ── 右侧悬浮菜单（T83 · 夜档标「推断」= 取本仓夜档**既有**面板/卡片值，未发明新色）
+  'fm-bg': '#141619',
+  'fm-fg': '#EDEFF2',
+  'fm-divider': '#262A30',
 }
 
 export const TOKEN_KEYS = Object.keys(DAY)
@@ -362,6 +370,10 @@ export const PROV = {
   'btnalt-bg': { d: [956, 'background:#FFFFFF;color:#202020'], n: [292, 'background:#141619'] },
   'btnalt-fg': { d: [956, 'color:#202020'], n: [960, 'color:#FFFFFF'] },
   'btnalt-border': { d: [956, 'border:1px solid #E0E0E0'], n: [960, 'border:1px solid #E0E0E0'] },
+  // ── 右侧悬浮菜单 token（真源 = style-preview.html 追加区块：日 1005/1007 行 · 夜 1019/1021 行）
+  'fm-bg': { d: [1005, 'background:#FFFFFF'], n: [1019, 'background:#141619'] },
+  'fm-fg': { d: [1005, 'color:#333333'], n: [1019, 'color:#EDEFF2'] },
+  'fm-divider': { d: [1007, 'background:#E8E8E8'], n: [1021, 'background:#262A30'] },
 }
 
 // 结构常量：参与几何，因此**两档同值**，不进主题差集。值同样从 style-preview 提取。

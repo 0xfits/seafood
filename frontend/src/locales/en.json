@@ -1,11 +1,17 @@
 {
   "siteTitle": "Seafood",
   "siteBrand": "Seafood",
-  "shard": "Shard Market",
-  "home": "Home",
+  "shard": "Market",
+  "home": "Seafood Market",
   "reward": "Rewards",
   "task": "Tasks",
   "profile": "Profile",
+  "me": "Me",
+  "sell": "Sell",
+  "messages": "Messages",
+  "app": "App",
+  "feedback": "Feedback",
+  "support": "Support",
   "login": "Login",
   "register": "Register",
   "logout": "Logout",
@@ -1158,5 +1164,28 @@
     "tblListingOrderEvent": "Order events",
     "tblReferral": "Referral bindings",
     "tblCommissionPolicy": "Commission policies"
+  },
+  "messagesPage": {
+    "title": "Messages",
+    "empty": "No messages yet",
+    "xPlaceholder": "X (Twitter) DM · placeholder",
+    "xNote": "Reserved for X (Twitter) DM; placeholder for now"
+  },
+  "appModal": {
+    "title": "Get the App",
+    "qrPlaceholder": "QR code placeholder",
+    "downloadHint": "Scan to download (placeholder)",
+    "close": "Close"
+  },
+  "feedbackModal": {
+    "title": "Feedback",
+    "formPlaceholder": "Feedback form placeholder (not submitted)",
+    "submitNote": "Placeholder only this round",
+    "close": "Close"
+  },
+  "supportModal": {
+    "title": "Support",
+    "contactPlaceholder": "Contact placeholder",
+    "close": "Close"
   }
 }

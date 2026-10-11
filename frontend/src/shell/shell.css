@@ -99,6 +99,81 @@
   height: var(--sf-st-tab-ic-size);
 }
 
+/* ---------- 右侧悬浮菜单（仅桌面档 >767；H5 由下方唯一 767 块 display:none 隐去） ----------
+ * T81–T82（design-system.spec v1.5 §14）：几何 = **结构常量**（两档同值、不进主题差集）；
+ *   容器宽 108px · 单元高 92px · 胶囊圆角 = 容器宽/2 = 54px · 图标 26px · 文字 12px ·
+ *   图标-文字间距 6px · 单元间 1px 浅灰分隔线（宽 48px）· 右边距 16px ·
+ *   垂直定位 top:45% + translateY(-50%) · 阴影 0 6px 18px rgba(0,0,0,.07)。
+ * 色值只引用主题 token var(--sf-fm-bg/fg/divider)（T83）。
+ * 可见性只由 CSS 断点承担：桌面默认 flex；≤767 由下方**既有唯一 767 断点块内**的 .sf-fm{display:none} 翻转。
+ * 不得新增断点块、不得用 JS 内联断点判定。 */
+.sf-fm {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 45%;
+  right: 16px;
+  transform: translateY(-50%);
+  width: 108px;
+  border-radius: 54px;
+  background: var(--sf-fm-bg);
+  color: var(--sf-fm-fg);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+  padding: 8px 0;
+  z-index: 6;
+}
+
+.sf-fm-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 92px;
+  width: 100%;
+  font-size: 12px;
+  line-height: 1;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: inherit;
+}
+
+.sf-fm-ic {
+  width: 26px;
+  height: 26px;
+}
+
+.sf-fm-label {
+  font-size: 12px;
+}
+
+.sf-fm-div {
+  width: 48px;
+  height: 1px;
+  margin: 0 auto;
+  align-self: center;
+  background: var(--sf-fm-divider);
+}
+
+/* 弹窗模板位内部容器（无新风格：复用既有 token 与 .sf-box/.sf-btn） */
+.sf-fm-qrbox {
+  width: 132px;
+  height: 132px;
+  margin: 0 auto 12px;
+  border: var(--sf-st-stroke-w-thin) dashed var(--sf-fm-divider);
+  border-radius: var(--sf-st-radius-btna);
+}
+
+.sf-fm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 /* ---------- 竖屏骨架（≤767px）：栅格 2 列、侧栏下移、底部 tab 出现 ---------- */
 
 @media (max-width: 767px) {
@@ -159,6 +234,12 @@
 
   .btn {
     min-height: 44px;
+  }
+
+  /* T81：右侧悬浮菜单**仅桌面档（>767）**显示 ⇒ ≤767 必须 display:none。
+     落在本**既有唯一 767 断点块内**（不新增断点块）。 */
+  .sf-fm {
+    display: none;
   }
 }
 

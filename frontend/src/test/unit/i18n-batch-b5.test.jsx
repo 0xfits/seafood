@@ -213,7 +213,8 @@ describe('P6-I18N-LIT-B5 · 必做② `HomePage` 收口 + LEGACY 清零 + AC③�
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
     // S25 计数期望订正（台账 B7 死键退役）：四语对称删 10 键 ⇒ 拍平 1060⇒1050（本读数为脚本 p6-tr2 动态打印，非硬编）。
-    expect(out).toContain('zh: top=119 flat=1050') // **期望订正（S9）** 1059；**S25 再订正** 1059⇒1050（B7 退役 10 键）
+    // v1.5 §14 delta①（2026-10-11 收尾单 · Zang 裁定⑧）计数期望前推：底栏⑤ labelKey 由 'profile' 改新键 'me'，四语各 +1 顶层键 ⇒ top 128⇒129 / flat 1070⇒1071 / 四语节点 4280⇒4284（`profile` 键值与 Header 两处消费点、r9-84 锚点均未动）。
+    expect(out).toContain('zh: top=129 flat=1071') // **期望订正（S9）** 1059；**S25 再订正** 1059⇒1050（B7 退役 10 键）
     expect(out).toContain('存量登记（只核不改）：仍在旧三目链 + `??` 上的页面数 = 0 页')
     expect(out).toContain('[TR-2] 总判：PASS')
 
@@ -239,7 +240,7 @@ describe('P6-I18N-LIT-B5 · 四语 locale 键集（本批新增 uiCommon 12 / ui
 
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
-  it('四文件拍平键集逐文件相等（top=119 / flat=1037）；新键四语齐备、非空、en/vn 零 CJK', () => {
+  it('四文件拍平键集逐文件相等（v1.5 Δ+20 ⇒ top=129 / flat=1071）；新键四语齐备、非空、en/vn 零 CJK', () => {
     const tables = {}
     const sets = {}
     const counts = {}
@@ -255,7 +256,7 @@ describe('P6-I18N-LIT-B5 · 四语 locale 键集（本批新增 uiCommon 12 / ui
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
     // S25 计数期望订正（台账 B7 死键退役）：四语对称删 10 键 ⇒ 拍平 1060⇒1050（等量下移 = −10/语）。
-    expect(counts.zh).toEqual({ top: 119, flat: 1050 }) // **期望订正（S9）** 1059；**S25 再订正** 1059⇒1050（B7 退役 10 键）
+    expect(counts.zh).toEqual({ top: 129, flat: 1071 }) // **期望订正（S9）** 1059；**S25 再订正** 1059⇒1050（B7 退役 10 键）
 
     const CJK = /[\u4E00-\u9FFF]/
     for (const [ns, size] of Object.entries(NEW_NS)) {

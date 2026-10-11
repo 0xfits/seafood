@@ -88,27 +88,27 @@ describe('应用外壳 · 骨架同构（横竖屏同一套 DOM）', () => {
     expect(tabs.map((a) => a.getAttribute('data-sf-nav'))).toEqual(visibleNavItems(false).map((i) => i.key))
   })
 
-  it('顶栏与底栏导航项同源同序（底栏含显式 home tab，顶栏以品牌 logo 承担 home）', () => {
+  it('顶栏与底栏「分家」：底栏=nav 五项（含 home）· 桌面左 nav=Header menuItems 三项（各自独立断言）', () => {
+    useAuth.mockReturnValue({ isAuthenticated: true, user: { uID: '1', EVM: '0xabcdef1234' }, logout: vi.fn() })
     const { container } = renderShell()
-    const topHrefs = Array.from(container.querySelectorAll('.nav-link[href]')).map((a) => a.getAttribute('href'))
+    // ① 底栏（shell/nav.js 真源）：五项 href（含显式 home tab）
     const tabHrefs = Array.from(container.querySelectorAll('[data-sf-region="tabbar"] a[data-sf-nav]')).map((a) => a.getAttribute('href'))
-    const expected = visibleNavItems(false).map((i) => navPathInLang(i, 'zh'))
-    // 底栏 = 五个真实路由（含 home）
-    expect(tabHrefs).toEqual(expected)
-    // 顶栏 = 同一份真源去掉 home（home 由品牌 logo 承担），顺序必须是底栏序列的子序列
-    expect(topHrefs).toEqual(expected.filter((p) => p !== '/'))
+    expect(tabHrefs).toEqual(['/', '/exchange', '/listing/new', '/messages', '/profile'])
+    expect(tabHrefs).toEqual(visibleNavItems(true).map((i) => navPathInLang(i, 'zh')))
+    // ② 桌面左 nav（Header.jsx 的 menuItems · 现状值一字不动；home 由品牌 logo 承担）
+    const topHrefs = Array.from(container.querySelectorAll('.nav-link[href]')).map((a) => a.getAttribute('href'))
+    expect(topHrefs).toEqual(['/reward', '/task', '/exchange'])
     const brandHref = container.querySelector('[data-sf-region="topnav"] a[href="/"]')
     expect(brandHref).not.toBeNull()
-    expect(expected).toEqual(['/', '/reward', '/task', '/exchange'])
   })
 
   it('未登录时不含 profile / 登录后含 profile（与 Header 同一条可见性规则）', () => {
-    expect(visibleNavItems(false).map((i) => i.key)).toEqual(['home', 'reward', 'task', 'shard'])
-    expect(visibleNavItems(true).map((i) => i.key)).toEqual(['home', 'reward', 'task', 'shard', 'profile'])
+    expect(visibleNavItems(false).map((i) => i.key)).toEqual(['home', 'shard', 'sell', 'messages'])
+    expect(visibleNavItems(true).map((i) => i.key)).toEqual(['home', 'shard', 'sell', 'messages', 'profile'])
     useAuth.mockReturnValue({ isAuthenticated: true, user: { uID: '1', EVM: '0xabcdef1234' }, logout: vi.fn() })
     const { container } = renderShell()
     const tabs = Array.from(container.querySelectorAll('[data-sf-region="tabbar"] a[data-sf-nav]')).map((a) => a.getAttribute('data-sf-nav'))
-    expect(tabs).toEqual(['home', 'reward', 'task', 'shard', 'profile'])
+    expect(tabs).toEqual(['home', 'shard', 'sell', 'messages', 'profile'])
   })
 
   it('四语切换入口在 shell 顶栏内可点（复用 4b-i locale 机制，不另造一套）', async () => {
@@ -143,11 +143,11 @@ describe('应用外壳 · 骨架同构（横竖屏同一套 DOM）', () => {
     }
   })
 
-  it('语言前缀与激活判定复用 utils（/en/reward、/hk/task 均命中）', () => {
-    expect(navPathInLang(SHELL_NAV_ITEMS[1], 'zh')).toBe('/reward')
-    expect(navPathInLang(SHELL_NAV_ITEMS[1], 'en')).toBe('/en/reward')
-    expect(isNavItemActive('/en/reward', SHELL_NAV_ITEMS[1])).toBe(true)
-    expect(isNavItemActive('/hk/task', SHELL_NAV_ITEMS[2])).toBe(true)
+  it('语言前缀与激活判定复用 utils（/en/exchange、/hk/listing/new 均命中）', () => {
+    expect(navPathInLang(SHELL_NAV_ITEMS[1], 'zh')).toBe('/exchange')
+    expect(navPathInLang(SHELL_NAV_ITEMS[1], 'en')).toBe('/en/exchange')
+    expect(isNavItemActive('/en/exchange', SHELL_NAV_ITEMS[1])).toBe(true)
+    expect(isNavItemActive('/hk/listing/new', SHELL_NAV_ITEMS[2])).toBe(true)
     expect(isNavItemActive('/hk/task', SHELL_NAV_ITEMS[1])).toBe(false)
     expect(isNavItemActive('/', SHELL_NAV_ITEMS[0])).toBe(true)
   })

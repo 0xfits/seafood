@@ -153,6 +153,9 @@
   --sf-btnalt-bg: #FFFFFF;
   --sf-btnalt-fg: #202020;
   --sf-btnalt-border: #E0E0E0;
+  --sf-fm-bg: #FFFFFF;
+  --sf-fm-fg: #333333;
+  --sf-fm-divider: #E8E8E8;
 }
 
 /* 夜档「夜市行情板」= style-preview.html 变体 B（273–351 行） */
@@ -263,4 +266,7 @@
   --sf-btnalt-bg: #141619;
   --sf-btnalt-fg: #FFFFFF;
   --sf-btnalt-border: #E0E0E0;
+  --sf-fm-bg: #141619;
+  --sf-fm-fg: #EDEFF2;
+  --sf-fm-divider: #262A30;
 }

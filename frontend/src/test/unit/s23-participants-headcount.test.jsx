@@ -111,14 +111,15 @@ describe('(a) 四语 jobs.participantsHeadcount（新键）', () => {
 // (b) 计数基线前推（S23 +1 jobs.participantsHeadcount ⇒ 1059⇒1060 / 4236⇒4240；S25 B7 退役 10 键 ⇒ 1060⇒1050 / 4240⇒4200）
 // ============================================================================
 describe('(b) 计数基线前推', () => {
-  it('顶层 119 不变 / 拍平 1050 / 四语节点 4200（S25 B7 退役 10 键）', () => {
+  it('顶层 129 不变 / 拍平 1071 / 四语节点 4284（v1.5 §14.10 +20 叶/语；S25 B7 退役 10 键）', () => {
     for (const l of LANGS) {
-      expect(Object.keys(readTable(l)).length, `${l} top`).toBe(119)
+    // v1.5 §14 delta①（2026-10-11 收尾单 · Zang 裁定⑧）计数期望前推：底栏⑤ labelKey 由 'profile' 改新键 'me'，四语各 +1 顶层键 ⇒ top 128⇒129 / flat 1070⇒1071 / 四语节点 4280⇒4284（`profile` 键值与 Header 两处消费点、r9-84 锚点均未动）。
+      expect(Object.keys(readTable(l)).length, `${l} top`).toBe(129)
       // S25 计数期望订正（台账 B7 死键退役）：jobs 退役 10 键 ×4 语对称删除 ⇒ 拍平 1060⇒1050（等量下移 −10/语）。
-      expect(flat(readTable(l)).length, `${l} flat`).toBe(1050)
+      expect(flat(readTable(l)).length, `${l} flat`).toBe(1071)
     }
     // S25：1050 × 4 = 4200（原 1060 × 4 = 4240）。
-    expect(flat(readTable('zh')).length * LANGS.length).toBe(4200)
+    expect(flat(readTable('zh')).length * LANGS.length).toBe(4284)
   })
 })
 

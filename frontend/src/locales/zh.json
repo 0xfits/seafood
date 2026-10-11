@@ -1,11 +1,17 @@
 {
   "siteTitle": "Seafood 海鲜市场",
   "siteBrand": "Seafood 海鲜市场",
-  "shard": "碎片市场",
-  "home": "首页",
+  "shard": "市场",
+  "home": "海鲜市场",
   "reward": "社区奖励",
   "task": "社区任务",
   "profile": "个人资料",
+  "me": "我的",
+  "sell": "卖闲置",
+  "messages": "消息",
+  "app": "APP",
+  "feedback": "反馈",
+  "support": "客服",
   "login": "登录",
   "register": "注册",
   "logout": "登出",
@@ -1158,5 +1164,28 @@
     "tblListingOrderEvent": "订单事件",
     "tblReferral": "邀请绑定",
     "tblCommissionPolicy": "佣金政策"
+  },
+  "messagesPage": {
+    "title": "消息",
+    "empty": "暂无消息",
+    "xPlaceholder": "X（推特）私信 · 接驳位",
+    "xNote": "该区域将用于接入 X（推特）私信，本轮为占位"
+  },
+  "appModal": {
+    "title": "下载 APP",
+    "qrPlaceholder": "二维码占位",
+    "downloadHint": "扫码下载（占位）",
+    "close": "关闭"
+  },
+  "feedbackModal": {
+    "title": "反馈",
+    "formPlaceholder": "反馈表单占位（暂不提交）",
+    "submitNote": "本轮仅占位，不落库",
+    "close": "关闭"
+  },
+  "supportModal": {
+    "title": "客服",
+    "contactPlaceholder": "联系方式占位",
+    "close": "关闭"
   }
 }

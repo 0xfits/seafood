@@ -2,6 +2,7 @@ import React from 'react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import BottomTabBar from './BottomTabBar'
+import FloatingMenu from './FloatingMenu'
 import './shell.css'
 
 // 应用外壳（shell）：顶部导航 → 路由容器 → 页脚 → 底部 tab。
@@ -20,6 +21,7 @@ const AppShell = ({ children }) => (
       <Footer />
     </div>
     <BottomTabBar />
+    <FloatingMenu />
   </div>
 )
 
