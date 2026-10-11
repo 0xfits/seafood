@@ -1156,5 +1156,10 @@
     "title": "客服",
     "contactPlaceholder": "聯絡方式佔位",
     "close": "關閉"
+  },
+  "notFound": {
+    "title": "頁面不存在",
+    "description": "您訪問的頁面可能已被移動或刪除，連結可能已失效。",
+    "backHome": "返回首頁"
   }
 }

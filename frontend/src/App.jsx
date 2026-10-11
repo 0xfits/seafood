@@ -24,6 +24,9 @@ import JobReviewPage from './pages/jobs/JobReviewPage'
 import PublishItemPage from './pages/item/PublishItemPage'
 import ItemDetailPage from './pages/item/ItemDetailPage'
 
+// catch-all 提示页（★ v1.12 §16.1 · T91 · Kevin 2026-10-11 裁定③）：内层 `<Routes>` 末位。
+import NotFoundPage from './pages/NotFoundPage'
+
 // 管理页面组件
 import TasksManagement from './pages/admin/TasksManagement'
 import RewardsManagement from './pages/admin/RewardsManagement'
@@ -132,6 +135,14 @@ const LangShell = () => {
             </ProtectedRoute>
           }
         />
+
+        {/* ★ catch-all 提示页（v1.12 §16.1 · T91 · Kevin 2026-10-11 裁定③）—— **内层 `<Routes>` 的末位**：
+            旧路径（`/reward`、`/listing`、`/listing/new`、`/listing/:listingId` 及其四语前缀档）不匹配任何
+            内层精确 / 动态段 ⇒ 命中此条 ⇒ 渲染「页面不存在」提示页（含「返回首页」入口），**不再是空白 main**。
+            **非重定向 · 仍不是 301**（Kevin 裁定③ 未变）：本条无 `<Navigate>`，同 URL 呈现提示页。
+            **外层 LangShell 的兜底壳机制（语言前缀壳 / 无前缀兜底壳 = 挂载点）一字不动**。
+            末位 = 让既有 index / 精确段 / 动态段按 react-router v6 排名优先命中。 */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </AppShell>
   )

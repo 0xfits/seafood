@@ -1156,5 +1156,10 @@
     "title": "Support",
     "contactPlaceholder": "Contact placeholder",
     "close": "Close"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "The page you're looking for may have been moved or deleted, so this link may no longer work.",
+    "backHome": "Back to Home"
   }
 }

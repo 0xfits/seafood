@@ -65,9 +65,12 @@ const inventory = walk(SRC)
 const totalUses = inventory.reduce((n, e) => n + e.hits.length, 0)
 
 describe('P6-BTN-IMPL-2 · `.sf-btn` 家族纳入 A 体系', () => {
-  it('家族清单现取：10 个 JSX 文件、≥22 处用法，且每处都挂基类 .sf-btn', () => {
+  // ★ 断言影响（Kong 2026-10-12 · 清理单 stage3）：新增 catch-all 提示页 `pages/NotFoundPage.jsx`
+  //   （返回首页入口挂 `.sf-btn`）⇒ 家族清单 10 ⇒ 11 文件（`≥22 处用法` 不变）。冻结清单随裁定前移。
+  it('家族清单现取：11 个 JSX 文件、≥22 处用法，且每处都挂基类 .sf-btn', () => {
     expect(inventory.map((e) => e.file).sort()).toEqual([
       'components/RatingTimelinessPanel.jsx',
+      'pages/NotFoundPage.jsx',
       'pages/TaskPage.jsx',
       'pages/ThemePreviewPage.jsx',
       'pages/item/ItemDetailPage.jsx',

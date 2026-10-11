@@ -1156,5 +1156,10 @@
     "title": "Hỗ trợ",
     "contactPlaceholder": "Vị trí liên hệ",
     "close": "Đóng"
+  },
+  "notFound": {
+    "title": "Không tìm thấy trang",
+    "description": "Trang bạn truy cập có thể đã bị di chuyển hoặc xóa, liên kết có thể không còn hiệu lực.",
+    "backHome": "Về trang chủ"
   }
 }
