@@ -201,10 +201,12 @@ describe('v1.5 ③ 悬浮菜单可见性只由 CSS 断点承担（§14.6 第 8�
     expect(mobileBlock).toMatch(/\.sf-fm\s*\{[^}]*display:\s*none/)
   })
 
-  it('桌面（默认）块里 .sf-fm = display:flex（几何：宽 72px / 单元高 92px / 圆角声明 54px / right:16px / top:45%）', () => {
+  it('桌面（默认）块里 .sf-fm = display:flex（几何：宽 72px / 单元高 92px / 圆角声明 36px / right:16px / top:45%）', () => {
     expect(widePart).toMatch(/\.sf-fm\s*\{[^}]*display:\s*flex/)
     expect(widePart).toContain('width: 72px')
-    expect(widePart).toContain('border-radius: 54px')
+    // [2026-10-11] 圆角声明 54px → 36px（= 宽 72 的一半；生效值本就是 36px ⇒ 零视觉差）
+    expect(widePart).toContain('border-radius: 36px')
+    expect(widePart).not.toContain('border-radius: 54px')
     // 本单 delta②：单元间分隔线按 2/3 缩为 32px
     expect(widePart).toMatch(/\.sf-fm-div\s*\{[^}]*width:\s*32px/)
     expect(widePart).toContain('right: 16px')

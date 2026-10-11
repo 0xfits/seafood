@@ -8,6 +8,10 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/brand/favicon-32.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- 主题档 ↔ color-scheme（[2026-10-11 · Kevin 口径] 补声明；此前全仓 0 处 ⇒ 真机日档被 UA「强制深色」压暗/去饱和）。
+         本 meta = 首帧告知 UA「本页支持 浅/深 两档」；随档真值同步在 src/styles.css 的
+         `html { color-scheme: light }` / `html[data-theme="dark"] { color-scheme: dark }` 两条规则。 -->
+    <meta name="color-scheme" content="light dark" />
     <!-- 回退标题（中性占位）：仅用于 i18n 启动前 / 无 JS / 爬虫抓取；真源是 src/locales/*.json 的
          siteTitle（仅品牌名）+ siteSlogan，运行时由 App.jsx 的 DocumentTitle 按「覆盖值 > locale」组合为
          「品牌名｜标语」立即覆盖（P9① · R-9-10④ / R-9-13-3） -->

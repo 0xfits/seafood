@@ -444,3 +444,109 @@ Kevin 反映「真机与本地 H5 配色看起来不同」。本单只做两件�
 3. **H3 · 未声明 `color-scheme` 的原生 UI 随 OS 外观**：应用只设 `data-theme`、**从不设 `color-scheme`**。故浏览器**原生控件/滚动条/默认画布**跟随**设备 OS 外观**（手机开深色模式 ⇒ 原生件偏暗），而应用 token 恒按 `data-theme`；`_preview` 外壳页虽写 `:root{color-scheme:dark}`，但那是**外壳页**、**不进 iframe** ⇒ 桌面壳页与真机在「原生 UI 基准色」上可不同。
 
 > **本单未改任何颜色/token**；以上仅为取证与归因。H1 可直接复现/排除（比对两端 `localStorage['theme']`），H2/H3 需真机侧 `getComputedStyle` 与 OS 外观设置对读。
+
+---
+
+## 10 · 三合一小修单（Kevin 2026-10-11 反馈）· 逐项实测读数
+
+基线 = `fa105e1`（本单只改 `frontend/**` + 本文件；未 push）。
+
+### 10.1 改动一 · 手机端主题开关「删文案、只图标」
+
+- 落点：`frontend/src/components/Header.jsx`（移动面板主题项；桌面项 `Header.jsx:236` **未动** —— 本就是图标式）。
+- 改前 ⇒ 改后：
+
+```jsx
+// 改前：两态都渲染 t('darkMode')（「深夜模式」）⇒ 已是夜档时文案语义错（Kevin 实测）
+<button className="sf-tap flex items-center w-full px-3 py-2 …">
+  {isDark ? <Moon size={18} className="mr-2" /> : <Sun size={18} className="mr-2" />}
+  {t('darkMode')}
+</button>
+
+// 改后：无可见文字；可访问名 = aria-label；当前态 = aria-pressed
+<button className="sf-tap flex items-center w-full px-3 py-2 …"
+  aria-label={t('darkMode')} aria-pressed={isDark} title={t('darkMode')}>
+  {isDark ? <Moon size={18} /> : <Sun size={18} />}
+</button>
+```
+
+- **i18n 键 `darkMode` 消费点全集（现取 grep）**：`src/locales/{zh,hk,en,vn}.json:58(56/57)` 各 1 处**定义**（四语齐，未动）· `Header.jsx:239/240`（桌面 `aria-label`/`title`）· `Header.jsx:446`（原移动端文案，本单删除）。
+  ⇒ **键现仍有消费点（桌面 + 移动端 aria/title）⇒ 保留、未删、未新增**；四语键集与计数断言（`top=128` / `flat=1070` / `nodes=4280`）**一字未动**。
+- **390 档实测**（`http://localhost:5787/`，CDP `Emulation.setDeviceMetricsOverride 390×844`）：
+
+| 读取项 | 日档（`isDark=false`） | 夜档（`isDark=true`） |
+|---|---|---|
+| 面板可见文本 `innerText` | `社区奖励/社区任务/注册/登录/语言/简体中文/English/粤语/Tiếng Việt` | **与日档逐字相同** |
+| 是否含「深夜模式」/「日间」/「夜间」 | **否** | **否** |
+| 主题按钮 `textContent` | `""`（空） | `""`（空） |
+| 图标 | `<svg class="lucide lucide-sun">` ×1 | `<svg class="lucide lucide-moon">` ×1 |
+| `aria-label` | `深夜模式`（在） | `深夜模式`（在） |
+| `aria-pressed` | `false` | `true` |
+| `title` | `深夜模式` | `深夜模式` |
+| 按钮 rect（CSS px） | `[16,443,358,44]`（整行 44 高） | `[16,443,358,44]` |
+
+- **真实坐标点击**（`click_at_xy` 按钮中心 `(195,465)`；**非** `el.click()`）：
+  - 日→夜：`data-theme: light → dark` · `localStorage['theme']: light → dark`（面板按实现自动收起）
+  - 夜→日：`data-theme: dark → light` · `localStorage['theme']: dark → light`
+- **R-9-85 不破（390 档现取，面板关/开两态同值）**：顶栏右侧集群 = `[BUTTON: header-mobile-menu]` = **恰 1**；顶栏可见控件 = 左 Logo(`A`) + 右汉堡(`BUTTON`) ⇒ **未新增顶栏控件**。
+
+### 10.2 改动二 · 补 `color-scheme`（治真机日档「明显暗淡」）
+
+- **落点前断言作用域核查（现取，逐条）**：
+
+| 断言 | 作用域 | 是否拦 `styles.css` |
+|---|---|---|
+| `theme-shell-isomorphism.test.jsx`「shell.css 仅唯一 767 断点块」/「shell.css 无 `[data-theme` 选择器」| 只读 `src/shell/shell.css` | **不拦**（不读 styles.css）|
+| `theme-shell-isomorphism` 主题块断言 | 只读 `src/theme/theme-tokens.css` | 不拦 |
+| `p6-btn-impl2.test.js:196`「家族 CSS 无按主题分支选择器」| `css` map = `shell/jobs/market/listings/theme-preview` **5 文件** | **不拦** |
+| `s22-decor-cleanup.test.js`（读 styles.css）| 只数 `clip-path` / `box-shadow` 位移层 / `0 0 0 Npx` | 不拦 |
+| `p6-btn-impl.test.js`（读 styles.css）| 只筛 `.btn-a*` 选择器规则 | 不拦 |
+
+⇒ 落点 = **`src/styles.css` 顶层**（不挂任何上述断言）；且 `styles.css` **本就已含**多条 `[data-theme="dark"]` 规则（L111 / L127–136），同口径。
+
+- 改动：`index.html` `<head>` 加 `<meta name="color-scheme" content="light dark" />`；`src/styles.css` L103–104 加 `html { color-scheme: light; }` + `html[data-theme="dark"] { color-scheme: dark; }`。
+- **实测 `getComputedStyle(document.documentElement).colorScheme`**：
+
+| 档位 | `data-theme` 属性 | 390 档 | 1440 档 |
+|---|---|---|---|
+| 日（默认，属性 = null）| 无 | `light` | `light` |
+| 日（属性 = light）| `light` | `light` | `light` |
+| 夜（属性 = dark）| `dark` | `dark` | `dark` |
+
+- `meta[name="color-scheme"]` 现取 `content` = `light dark`（**dev 与 `dist/index.html` 两处均在位**）。
+- 产物自证：`dist/assets/index-qJMv21_p.css` 现取含 `html{color-scheme:light}` ×1 与 `html[data-theme=dark]{color-scheme:dark}` ×1。
+
+### 10.3 改动三 · `.sf-fm` 圆角源码值 54px → 36px
+
+- 落点：`src/shell/shell.css` L120（`.sf-fm` 块）`border-radius: 54px` → `36px`；同块 [留痕] 注释（L105–107）同步改写。
+- **等价性实证（受控像素法）**：1440 档 · `about:blank` 静态页 · 单盒固定位 `left:40 top:40` · 尺寸 = 实测 `.sf-fm` 盒 **72×480** · 同色 `#00529B` + 同 box-shadow；裁切区覆盖盒体与左缘（`x20 y20 w128 h520`）：
+
+| 对比 | 截图 sha256（前 16 位）| 判定 |
+|---|---|---|
+| 噪声基线：36 vs 36 | `9f9a7c04b953f549…` | **逐字节相同** ⇒ 尺子可重复 |
+| ★ **36 vs 54（本改核心）** | 同 = `9f9a7c04b953f549…` | **逐字节相同 ⇒ 零视觉差** |
+| 54 vs 54（复测自洽）| 与上行相同 | ✔ |
+| 判负自证：36 vs 8 | 与基线不同 | ✔ 尺子有分辨力（否则证明无效）|
+
+> 机理：CSS 规范对超限半径按侧边长度等比钳制 —— 盒宽 72、声明 54 时横向半径和 108 > 72 ⇒ 缩放因子 72/108 ⇒ 生效半径 = **36px**，与直接写 36px 渲染逐像素相同。
+> **陷阱留痕**：Chrome 的 `getComputedStyle().borderTopLeftRadius` 返回**声明值**（内联 54px 时读回 `54px`，**非**钳制后的 used value）⇒ **不能**用计算值代替像素法；本单已实测该陷阱（故采用截图法）。
+
+- 真实 `.sf-fm` 现取：`display:flex` · `width:72px` · `getComputedStyle().borderTopLeftRadius = 36px`（来自 CSS 声明，内联为空）· rect `[1352,165,72,480]`。
+
+- **断言影响（唯一一条 · 由本改锤红）**：`src/test/unit/v15-nav-floatmenu.test.jsx` ③ 组
+  - 改前：用例名「…**圆角声明 54px**…」+ `expect(widePart).toContain('border-radius: 54px')`
+  - 改后：用例名「…**圆角声明 36px**…」+ `toContain('border-radius: 36px')` + 新增反向 `not.toContain('border-radius: 54px')`
+  - 为何：该断言把**源码声明值**写成硬字面量冻结；Kevin 本单裁定「54→36」（原 [留痕] 注释即写「如需改为 36px 请裁」）⇒ 冻结值随裁定前移。
+  - **其余断言一条未动**（`theme-shell-isomorphism` / `theme-tokens` / `p6-btn-impl` / `p6-btn-impl2` / `s22-decor-cleanup` / 四语计数族 全部原样通过）。
+
+### 10.4 门套（本单重跑）+ 提交
+
+| 门 | 命令 | 读数 | 判定 |
+|---|---|---|---|
+| 单测 | `cd frontend && npm run test:unit` | `Test Files 50 passed (50)` · `Tests 479 passed (479)` · 0 failed · **EXIT=0** | **PASS**（≥479）|
+| 构建 | `cd frontend && npm run build` | `✓ built in 1.88s` · **EXIT=0**（管道外捕获）· `dist/assets/index-CJy584Je.js 423.99 kB` · `dist/assets/index-qJMv21_p.css 112.89 kB` | **PASS** |
+| 前端 `tsc` | —— | `frontend/tsconfig*.json` 不存在 | **N/A**（如实标注，未跑）|
+
+`grep -c '@media' frontend/src/shell/shell.css` = **1**（仍唯 `(max-width:767px)` 块；本单未新增断点块）。
+
+提交：本单 = 一次提交（改动面 = `frontend/src/components/Header.jsx` · `frontend/index.html` · `frontend/src/styles.css` · `frontend/src/shell/shell.css` · `frontend/src/test/unit/v15-nav-floatmenu.test.jsx` + 本文件）；**未 push**。commit hash 由父会话报告给出（git 无法自指）。基线 HEAD = `fa105e1`。

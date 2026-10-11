@@ -103,8 +103,9 @@
  * T81–T82（design-system.spec v1.5 §14）：几何 = **结构常量**（两档同值、不进主题差集）；
  *   **[留痕] 2026-10-11 · Kevin 口径（本单）**：容器宽 **108px → 72px**、单元间分隔线 **48px → 32px**（按 2/3 比例）；
  *   **单元高 92px · 图标 26px · 文字 12px（受 T79「可见字号 ≥12px」约束、不得再缩）· 右边距 16px · top:45% 全部不变**。
- *   **[留痕] 胶囊圆角声明值维持 54px**（旧口径「容器宽/2」）：宽 72 时 CSS 按短边钳制为 36px、仍是完整胶囊，
- *   视觉与写 36px 等价 ⇒ 本单**未改该声明**（如需改为 36px 请裁）。
+ *   **[留痕 · 2026-10-11 · Kevin 口径「下次一并改」] 胶囊圆角声明值 54px → 36px**：旧写法 54px 属旧口径「容器宽/2」
+ *   （针对曾用的 108px 宽）；宽 72 时 CSS 本就把短边钳制为 36px ⇒ **生效值本就是 36px**，本改**零视觉差**、
+ *   只令源码语义与现行宽度一致（36 = 宽 72 的一半）。逐字节等价实证见 docs/audit/v15-floatmenu-readings.md §10。
  *   图标-文字间距 6px · 单元间 1px 浅灰分隔线 · 垂直定位 top:45% + translateY(-50%) · 阴影 0 6px 18px rgba(0,0,0,.07)。
  * 色值只引用主题 token var(--sf-fm-bg/fg/divider)（T83）。
  * 可见性只由 CSS 断点承担：桌面默认 flex；≤767 由下方**既有唯一 767 断点块内**的 .sf-fm{display:none} 翻转。
@@ -117,7 +118,7 @@
   right: 16px;
   transform: translateY(-50%);
   width: 72px;
-  border-radius: 54px;
+  border-radius: 36px;
   background: var(--sf-fm-bg);
   color: var(--sf-fm-fg);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);

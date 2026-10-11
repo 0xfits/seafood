@@ -433,7 +433,11 @@ const Header = () => {
             </div>
           </div>
           
-          {/* 移动端深夜模式切换 */}
+          {/* 移动端主题切换 —— **[2026-10-11 · Kevin 口径] 删文案、只图标**（与桌面档 `Header.jsx:236` 同款）。
+              Kevin 实测：原状两态都渲染 `t('darkMode')`（「深夜模式」）⇒ 已是夜档时文案语义错。
+              现状：不再渲染任何可见文字；可访问名 = `aria-label`（既有键 `darkMode`，与桌面档同名同源），
+              当前态由 `aria-pressed={isDark}` 承担（仓内既有写法：见 RatingTimelinessPanel）。同附 `title` 悬停提示。
+              R-9-85 不破：本项位于汉堡面板内，**未新增顶栏控件**（顶栏右上仍恰一个 = 用户菜单按钮）。 */}
           <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
             <button
               onClick={() => {
@@ -441,9 +445,11 @@ const Header = () => {
                 setMobileMenuOpen(false)
               }}
               className="sf-tap flex items-center w-full px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"
+              aria-label={t('darkMode')}
+              aria-pressed={isDark}
+              title={t('darkMode')}
             >
-              {isDark ? <Moon size={18} className="mr-2" /> : <Sun size={18} className="mr-2" />}
-              {t('darkMode')}
+              {isDark ? <Moon size={18} /> : <Sun size={18} />}
             </button>
           </div>
 

@@ -92,6 +92,17 @@
   --border-color: #e5e7eb;
 }
 
+/* ===== 主题档 ↔ color-scheme（[2026-10-11 · Kevin 口径] 标准 opt-out；治真机日档「明显暗淡」）=====
+   无 color-scheme 声明的页面上，UA 会按设备系统外观对页面做「强制深色」（仅压暗/去饱和，
+   非反色）—— 手机真机日档实测即此。两档各自声明 ⇒ 原生控件 / 滚动条 / 默认画布底色随档翻转。
+   · 落点 = 本文件（手写）；**刻意不落** `shell/shell.css`（挂「唯一 767 断点块」「无 [data-theme 选择器」双边硬断言）
+     与 `theme/theme-tokens.css`（生成物，有 CSS↔JS 互校断言）。
+   · index.html 侧配 `<meta name="color-scheme" content="light dark">` 供首帧（CSS 到位前）。
+   · 日档 = 默认（无 data-theme）；夜档 = `html[data-theme="dark"]`（spec 性 (0,1,1) 恒胜 (0,0,1)，与本文件内既有
+     `[data-theme="dark"]` 规则同一档口径）。 */
+html { color-scheme: light; }
+html[data-theme="dark"] { color-scheme: dark; }
+
 html, body {
   font-family: 'LXGW WenKai', 'Noto Sans', 'EB Garamond', 'Crimson Text', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
 }
