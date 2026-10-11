@@ -257,9 +257,16 @@
 
 /* T77（P2）· 触控目标 ≥44 —— **仅手机竖屏档（≤767）**。
    桌面档（>767）保持 --sf-k-ctl-h: 34px（= STRUCT.h-btna，桌面 A 口径冻结）；
-   本块复用唯一断点值 767（与 shell.css 同值），不新增断点类型。 */
+   本块复用唯一断点值 767（与 shell.css 同值），不新增断点类型。
+
+   P2 判负 D1 修正（根因）：自定义属性**不会被继承值覆盖** ⇒ 覆盖必须落在**两处**：
+     · `.sf-mkt`    —— 主列根**自身**声明了 34px（上方基准，不动），只能就地覆盖；
+     · `.sf-layout` —— 主列与侧栏的**共同祖先**；侧栏是 `.sf-layout > .sf-layout-side > .sf-mkt-panel`，
+       **不在 `.sf-mkt` 子树内** ⇒ 只挂主列根时侧栏里的 `min-height: var(--sf-k-ctl-h)` 取空值
+       ⇒ 回退 `auto`（实测 78×37.5，「全体撕单」）。 */
 @media (max-width: 767px) {
-  .sf-mkt {
+  .sf-mkt,
+  .sf-layout {
     --sf-k-ctl-h: 44px;
   }
 }
