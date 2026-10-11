@@ -1416,6 +1416,34 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.404 **★ Kevin 四条新裁定落册（四之：死键清理 `F13` → 执行中 · 内部标识改名 `F10` → 已执行 + 几何零变化判据 · catch-all 提示页（新裁定 + `F11` 口径修正）· 主题图标 `T41` 语义 + 两处分叉教训）—— 规范 design v1.12 §16（`T91`–`T92` + `N37`）/ route v2.29 §39 · 实现与工具面归 Kong 同轮**（2026-10-11）
+
+**A. 裁定来源 / 预期 / 执行方 / 待回写项（Kevin 2026-10-11 · 四条 · 逐字采用 · 本单 = Jing 回写单 · 只写 `docs/**`）**：
+
+| # | 裁定（逐字） | 预期（口径 / 判据） | 落点 | 执行方 | 待回写项 |
+|--:|---|---|---|---|---|
+| ① | **死键清理已批准（`F13` → 执行中）**：11 死键四语同删 ⇒ 键集基线将再次变化；**新基线由 Kong 实测、Jing 现取回写（不得拄推定值）** | 11 死键（`reward` · `rewardsList` · `tasksToClaimReward` · `chooseReward` · `confirmChooseReward` · `successClaimReward` · `common.loadingRewards` · `homePage.noRewards` · `homePage.rewardAlreadyClaimed` · `homePage.rewardOutOfStock` · `claimRewardModal.loadProgressFailed`）**四语对称删** ⇒ 新 top / flat / nodes 三读数 + 按键计数断言改锚 | `design-system.spec` v1.12 §16.2 / §16.3；`OPEN-ITEMS.md` `F13` | **Kong**（删）/ **Jing**（现取回写） | 删后 `127/1053/4212` 的新值（**Kong 实测 → Jing 现取**） |
+| ② | **内部标识一并改名（`F10` → 执行中）**：`sf-listings*` → `sf-item*`、`data-sf-m="listing-*"` → `data-sf-m="item-*"` | **`F10` 由「待统一」改「已执行（待 Kong 交读数）+ 几何零变化判据」**（纯内部标识 ⇒ 改名前后可见几何逐值相等） | `design-system.spec` v1.12 §16.3；`OPEN-ITEMS.md` `F10` | **Kong**（改名 + 交读数） | 改名后 `sf-item*` 命中 / 唯一类 + `data-sf-m="item-*"` 唯一钩子 + **几何零变化实测** |
+| ③ | **补 catch-all 提示页（新裁定）**：内层 `<Routes>` 末位新增 `<Route path="*">`；**不得动外层 `LangShell` 的 `/*` 机制**；新增 3 个 i18n 键 × 四语（非 zh 待复核） | **旧路径命中的是提示页、而不是白页**；**非重定向 · 仍不是 301** | `design-system.spec` v1.12 §16.1 `T91` / §16.2 + `route-layer.spec` v2.29 §39 | **Kong** | 3 键键名 / 值（Jing 现取回写）+ 提示页几何 / 命中率 / 状态码实测 |
+| ④ | **主题图标语义（`T41` 口径）**：**图标 = 将要切到的档位**（日档显月亮 / 夜档显太阳）；Kevin 反馈**真机逻辑正确、本地 H5 应反转** | **Kong 先现取两处（桌面顶栏 / 移动面板）现状**；**本册只登记口径 + 「待 Kong 实测后回写一致性结论」**（**不预先断言哪处错**） | `design-system.spec` v1.12 §16.1 `T92` / §16.4 `N37` | **Kong**（现取两处 + 落地）/ **Jing**（回写一致性结论） | 两处现状 + 真机 vs 本地 H5 分叉定位 |
+
+**B. 规范面（Jing · 只追加 + 留痕 · 本单不 commit / 不 push）**：
+
+- `docs/design/design-system.spec.md` **v1.11 → v1.12**：**新增 §16**（`T91` catch-all 提示页 + `T92` 主题图标语义 + **`N37` 两处分叉教训** + §16.2 i18n 新键 3×四语 + §16.3 `F10`/`F11`/`F13` 新字面回写 + §16.5 未核实）；**改前快照** = `docs/versions/design-system.spec.v1.11.md`（`cmp=0`；md5 `e929fb7f1aa0a4cb082dda51561158fe`）；**本版镜像** = `docs/versions/design-system.spec.v1.12.md`（`cmp=0`）。
+- `docs/route-layer.spec.md` **v2.28 → v2.29**：**新增 §39**（内层 catch-all 路由登记 + **路由总数现取：`<Route` = `35` / 精确元素 = `32`** ⇒ 落地后 `36` / `33`；**后端注册点现取 = `89` 不变**；§39.3 修正 §38.2 的「落 `path="*"` 兜底 ⇒ 404」措词为「命中提示页」）；**本版镜像** = `docs/versions/route-layer.spec.v2.29.md`（`cmp=0`）；**改前快照** = `docs/versions/route-layer.spec.v2.28.md`（**现取 `cmp` = `1`** —— **上轮同批 `D4` 就地回写未同步镜像**，3 增 2 删；**如实登记 · 不覆盖既有快照**）。
+- **未闭环表**：`docs/OPEN-ITEMS.md` §F‴ 三条（`F10` / `F11` / `F13`）**新增「v1.12 现行字面」并逐字保留旧字面 + 标「已被 v1.12 取代」**。
+
+**C. F10 / F11 / F13 新字面（逐字 · 供检索）**：
+- **`F10`** = 「**已执行（待 Kong 交读数）+ 几何零变化判据**」（旧 = 「本轮不改名（待统一项）」）。
+- **`F11`** = 「**已由 catch-all 提示页收口（非重定向，仍不是 301）**」（旧 = 「无兜底 ⇒ 已接受后果（非缺陷）／硬删后白页」）。
+- **`F13`** = 「**死键清理已批准（`F13` → 执行中）**」（旧 = 「本轮不删」）。
+
+**D. 执行方与边界（写死）**：**实现**（`frontend/**`：`App.jsx` 内层 catch-all、`locales/*.json` 3 新键 + 11 死键删、`sf-listings*`→`sf-item*` / `data-sf-m` 改名、主题图标两处）**与 `tools/**`、`ctrl/**` 一律归 Kong**；**本单（Jing）只写 `docs/**`**（**不含** Kong 的两个 audit 件：`docs/audit/item-rename.md`〔追写〕/ `docs/audit/h5-preview-colors-probe.md`〔新建〕）。**未 `git add -A` · 未 commit · 未 push · 未启停任何服务（绝不 `pm2 restart`）**。**现取基线 = HEAD `ecbefd1`**。
+
+**E. 未测 / 待回写（诚实清单）**：见 `design-system.spec` v1.12 §16.5 —— `T91` 提示页几何 / 文案值 / 命中率 / HTTP 状态码；`T92` 两处现状 + 真机 vs 本地 H5 分叉定位；`F10` 几何零变化实测；`F13` 新键集基线 —— **一律由 Kong 交读数 → Jing 现取回写**（**不得拄推定值**）。
+
+---
+
 ### 5.403 **★★ 合并单收口：`移除 reward 概念 → 闲置物品 item` 全链验收 —— 规范 route v2.28 §38 / design v1.10–v1.11 §15（`T87`–`T90` + `N32`–`N35`）· Kong 实现（`8e136b9` + `54f906c`）· Neng 独立判负 PASS-with-defects（硬 AC 全绿 / 0 功能缺陷 / 5 条登记类偏差已由 Jing 回写）**（2026-10-11）
 
 **A. 背景与定档（Kevin 2026-10-11 · 逐字采用）**：① **移除「reward（社区奖励）」概念**，前端统一为 **「闲置物品（item）」**；② **奖励页与列表页合并**为同一个「闲置物品」列表页；③ **路由家族迁移** `listing* / reward → item*`（新家族 `/item`〔列表 = 合并页〕· `/item/new` 发布 · `/item/:id` 详情 + `/item?id=<id>` 兼容）；④ **旧路由硬删 · 无 301 / 无重定向**（`/reward`、`/listing`、`/listing/new`、`/listing/:listingId` ⇒ **旧收藏 / 外链 404**）；⑤ **范围 A = 只改前端**（后端 `/api/prize/*`、`/api/listing*`、`prizes` 表名**一字不动**）；⑥ **导航删「社区奖励」**（桌面左 nav ⇒ `[社区任务, 市场]`）。
