@@ -182,15 +182,16 @@ describe('④ 文案键 `common.communityPoints` 四语新值 + 键计数', () =
     expect(CJK.test(vn.common.communityPoints)).toBe(false)
   })
 
+  // ★ F13 清理（Kong 2026-10-12）：删 11 死键/语（reward 族死键：reward / rewardsList / tasksToClaimReward / chooseReward / confirmChooseReward / successClaimReward / common.loadingRewards / homePage.noRewards / homePage.rewardAlreadyClaimed / homePage.rewardOutOfStock / claimRewardModal.loadProgressFailed）⇒ top 127⇒121 / flat 1053⇒1042 / 四语节点 4212⇒4168。
   it('键计数 = top 128 / flat 1070（v1.5 §14.10 +20 叶/语 ⇒ 1050⇒1070；S23 +1 jobs.participantsHeadcount；件一值-only 不变；件二 +2 jobs 键 ⇒ 1039⇒1041；S5① +3 jobs 键 ⇒ 1044；S7 +10 jobs 键 ⇒ 1054；S8 +1 jobs 键 ⇒ 1055；S9 +4 ledger.kind 键 ⇒ 1059；S25 B7 退役 10 键 ⇒ 1050）', () => {
     const flat = (o, p = '') => Object.entries(o).flatMap(([k, v]) => (
       v && typeof v === 'object' && !Array.isArray(v) ? flat(v, `${p}${k}.`) : [`${p}${k}`]
     ))
     for (const lang of LANGS) {
     // v1.5 §14 delta①（2026-10-11 收尾单 · Zang 裁定⑧）曾另立新键 'me'：top 128⇒129 / flat 1070⇒1071 / 节点 4280⇒4284；[留痕] 本单（2026-10-11 · Kevin 口径）全站统一 profile 值 = 我的/Me/我的/Tôi 并删 'me' ⇒ 计数回落 top 129⇒128 / flat 1071⇒1070 / 节点 4284⇒4280。
-      expect(Object.keys(TABLES[lang]).length, `${lang} top`).toBe(127)
+      expect(Object.keys(TABLES[lang]).length, `${lang} top`).toBe(121)
       // S25 计数期望订正（台账 B7 死键退役）：jobs 退役 10 键 ×4 语对称删除 ⇒ 拍平 1060⇒1050（等量下移 −10/语）。
-      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1053)
+      expect(flat(TABLES[lang]).length, `${lang} flat`).toBe(1042)
     }
   })
 

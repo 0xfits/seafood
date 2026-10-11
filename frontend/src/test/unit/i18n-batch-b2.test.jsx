@@ -195,7 +195,6 @@ describe('P6-I18N-LIT-B2 · 四语 locale 键集（本批存活键齐备 + 逐�
   //   合并页真用的 6 键改入 `item.*`（`item.myPoints` / 四档筛选 / 卡片动作）。
   const NEW_KEYS = [
     'common.loadingTasks',
-    'common.loadingRewards',
     'common.loadingUser',
     'common.save',
     'common.edit',
@@ -268,14 +267,15 @@ describe('P6-I18N-LIT-B2 · 四语 locale 键集（本批存活键齐备 + 逐�
     'rewardCard.timeLimited',
     'rewardCard.insufficient',
     'rewardCard.claimNow',
-    'claimRewardModal.loadProgressFailed',
     'claimRewardModal.lore',
     'activeTaskModal.noCredential',
     'activeTaskModal.badCredential',
     'activeTaskModal.submitFailed',
   ]
 
-  it('存活 79 键四语齐备、非空串；四文件拍平键集逐文件相等', () => {
+  // ★ F13 清理（Kong 2026-10-12）：本批存活键由 79 ⇒ 77 —— 删 2 个死键
+  //   （`common.loadingRewards` / `claimRewardModal.loadProgressFailed`；均无非测试消费点）。
+  it('存活 77 键四语齐备、非空串；四文件拍平键集逐文件相等', () => {
     const tables = {}
     const sets = {}
     const counts = {}
@@ -291,7 +291,7 @@ describe('P6-I18N-LIT-B2 · 四语 locale 键集（本批存活键齐备 + 逐�
     expect(new Set(LANGS.map((l) => counts[l].flat)).size).toBe(1)
     expect(counts.zh.top).toBe(counts.en.top)
 
-    expect(NEW_KEYS.length).toBe(79)
+    expect(NEW_KEYS.length).toBe(77) // F13：79⇒77（删 common.loadingRewards / claimRewardModal.loadProgressFailed）
     for (const key of NEW_KEYS) {
       expect(sets.zh).toContain(key)
       for (const lang of LANGS) {
