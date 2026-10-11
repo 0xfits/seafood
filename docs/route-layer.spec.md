@@ -300,6 +300,16 @@
 > **状态：v2.26（已完成 · **S35 台账 `B6`「两套取数入口」裁定落册：维持路径②、`B6` 关闭（**只追加 · 零代码 · 零迁移 · 库面只读 · 零 HTTP · 零套件**）** —— **Zang 终审（`docs/seafood.master-plan.md` §5.355 `:1419-1426`）**：★★ **四条现取证据复核全数相符**（① `p7a-03-errmessage-gate.mjs` 亲跑 **PASS**：扫描 **91** / 受体 **5** / 命中 **0** / 基线 **0** / 残余 **0** ⇒ 错误文案链已全清、旧「基线 3 条存量」**已不存在**；② 两条取数入口（`fetchApiJson` / `ledger-api.js`）**错误链已统一** —— `ledger-api.js:49` + `bttc-api.js:30` + `batt-checkin.js:31/41/56/72` **同形**走 `apiErrorMessage`；③ `auth.js:347+`（`fetchApiJson`）**已加 D1 补丁**（`error` 的**机读面** `details`/`code`/`i18nKey` **只做加法**附到 `Error`、`message` 逐字不变）⇒ 规范 v1.8 当时的前提「契约**一字未动**」**已被后续只加法扩展超越**；④ `ledger-api.js` 的**唯一**不可替代差异 = 需读**顶层 `next_before_txid`**〔游标不在 `data` 里〕—— 属**服务端响应契约特性**、非前端缺陷）★★ **裁定 = 维持现状（路径②）· `B6` 关闭**：**「合并」= 改 `fetchApiJson` 契约 ⇒ 触全站 91 文件取数面，收益 = 少一个 55 行文件，风险 >> 收益**；且 **`§7-59` 已明载路径①（改全站共用件）被否决、路径②已终审选定**。**若将来要真合并**，须**一次显式范围扩张**（`fetchApiJson` 契约变更 + 全站取数面回归 + `R107` 式证据），**不是一单能顺手做的**。**承载 = §14.2 v2.26 就地加注〔四条证据 + 裁定理由 + 前置条件 + `NOT_MEASURED`〕+ §7 v2.26 追加表〔7-78〕+ 补注块 ㊴ + §36〔新〕** —— **四处状态就地升版为「已裁定：维持路径②（Zang 终审）」、旧字逐字保留**）** · 作者角色 = **Jing（Specifier · 制度员）** · 单号 = **S35**；**★ 范围声明**：本单**只写** `docs/route-layer.spec.md`（就地升 **v2.26**）+ 快照 `docs/versions/route-layer.spec.v2.26.md` + delta 件 `docs/audit/route-layer-v2.26-delta.md` + 台账 `docs/OPEN-ITEMS.md`（**仅 `B6` 行**）；**未碰**：任何代码（`frontend/**` / `backend-ts/**` **只读**）、`migrations/**`、`docs/seafood.master-plan.md`、其它 `docs/*.spec.md`。
 > **v2.26 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.26-delta.md`。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 **Zang §5.355 `B6` 终审的逐字落册**，**未改写任何裁定、未发明任何规格值**；**四条证据均本册现取复核**）。
 > **★★ v2.26 本单要点（先说结论，不含糊）**：① **★ 裁定 = 维持路径②、`B6` 关闭**（**不合并**）；② **四条现取证据逐条复核相符**（见上；命令与读数 = §14.2 v2.26 就地加注 / §36.1）；③ **四处状态就地升版为「已裁定：维持路径②（Zang 终审）」**（**§14.2 / `§7-59` / 补注块 ㉘ / §14.2 补充**）；**旧字逐字保留、删除列 = 0**；④ **若将来要真合并的前置条件**（一次显式范围扩张）= §36.3；⑤ **登记（`NOT_MEASURED` / 未做）= §36.5**（**未跑前端套件 · 未改代码 · 未 commit/push**）。
+> **状态：v2.27（已完成 · **前端页面路由登记：新增 `/messages`（占位页 · X/推特私信接驳位预留）+ 底栏（H5）五项新集合 + 右侧悬浮菜单（仅桌面 `>767`）落册（只追加 · 零代码 · 零迁移 · 库面只读 · 零 HTTP · 零套件）**）** · 作者角色 = **Jing（Specifier · 制度员）** · 单号 = **JING-SPEC-UI-A**
+> **v2.27 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.27-delta.md`。**凡与 Kevin 定档 / Zang 裁定冲突处，一律以裁定为准**（本单为 **Kevin 2026-10-11 定档 + Zang 转达两条连锁更正**的**逐字落册**；**未改写任何裁定、未发明任何路径 / 数值**）。**★ 姊妹册（同批交付）**：`docs/design/design-system.spec.md` **v1.5 §14**（`T80`–`T86`：底栏新集合 / 悬浮菜单 / 三弹窗 / `T76` 重算），**本册只承载 route 侧（页面路由登记）**，不重抄。
+> **★★ v2.27 本单要点（先说结论，不含糊）**：
+> ① **★ 新增页面路由 = 恰 1 条：`/messages`**（LangShell 内层相对段 · **新占位页** · **X/推特私信接驳位预留**；依据 = Kevin 定档 ③）；**真源 = 待 Kong 落 `frontend/src/App.jsx` 的 `<Routes>`**（本册现取 = 无 `messages` 路由）。
+> ② **复用既有页面路由两条**：`/listing/new`（`App.jsx:93` `element={<PublishListingPage />}`，现取在场）· `/exchange`（`App.jsx:99` `element={<ShardPage />}`，现取在场）；`/profile` 复用（`requiresAuth`）。
+> ③ **★★ 留痕（诚实登记）**：原写「`附近`→`/nearby`（**新占位页** · key `nearby`）」**已由 Kevin 当日变更取代** ⇒ **本轮不登记 `/nearby` 路由、不建 `/nearby` 占位页**（底栏第二项改为 **`市场`→`/exchange`**，key `shard`，图标 `Store`）。
+> ④ **★ 后端注册点零改动**：`grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts` **现取 = 89** ⇒ **注册点仍 89**（`/messages` 是**前端**路由，不触后端注册面；`p7b-03-offline-gates.ts` `AC10-2` 冻结面不变）。
+> ⑤ **前端路由数**：`grep -cE '<Route' frontend/src/App.jsx` **现取 = 35** ⇒ 本单落地后 **35 → 36**（+1 = `/messages`）。
+> ⑥ **只追加、未重写**：**非追加改动 = 0 处**；**§1–§36 既有条文一字未动**；**§37（新）为唯一新增节**；**v0.1–v2.26 快照一字未动**；**纪律自检见 §37.4**。
+
 
 > **v2.19 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.19-delta.md`（**同批姊妹册** = `docs/audit/data-layer-v0.26-delta.md` + `docs/audit/commission-v0.4-delta.md`）。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 P9⑤ 契约冻结；**未改写任何裁定、未发明任何路径 / 数值 / 权限键 / 文案值**）。**★ 姊妹册（同批）**：`docs/commission.spec.md` **v0.4 §19** + `docs/data-layer.spec.md` **v0.26 §34**，**本册不重抄其条文、只指路**。
 > **★★ v2.19 本单要点（先说结论，不含糊）**：① **零新用户面口**（邀请奖励 = 结算腿，无独立读 / 动作口）；② **后台配置面复用**（费率 + 6 项权重矩阵）；③ **注册点 `87 → 87`（+0）**；④ **权限键 11 键内（零增删）**；⑤ **错误码零新增 + `R107`**；⑥ **真生效四段（①③④ 段）**；⑦ **连带门改版**（`p8-s2` 8 键 / 守卫常量 / 页字段面随 `R-9-1` ⇒ 归实现单）。
@@ -7851,5 +7861,34 @@ CONSTRAINT admin_refund_audit_log_idem_uniq   UNIQUE (idempotency_key, result)  
 
 ### 36.8 纪律自检（逐条对照硬口径与派单纪律）
 ① **只追加 / 删除列 = 0** ✅｜② **`difflib` 0 replace / 0 delete** ✅｜③ **快照 `cmp` = 0** ✅（`docs/versions/route-layer.spec.v2.26.md`）｜④ **旧快照零改动** ✅（`v0.1`–`v2.25` **四十五**个快照一字未动；本单**新建** = `v2.26.md`）｜⑤ **零代码 / 零迁移 / 零库写 / 零 HTTP / 零套件** ✅｜⑥ **未发明项** ✅（**未发明任何路径 / 数值 / 权限键 / 文案值**；四条证据与裁定 = **照录 Zang §5.355 + 本单现取复核**）｜⑦ **未 `git add/commit/push` · 未 `npm install` · 未碰 `.env*` · 未 `pkill`·`killall` · 未启停 5787-5788** ✅｜⑧ **未测项 = `NOT_MEASURED` + 原因** ✅（§36.5，**无 0 / 无空 / 无占位**）｜⑨ **引用纪律（§18.6）** ✅（本单全部引用**现取且逐字**；代码锚注明本单现取时点）｜⑩ **报数带口径** ✅（md5 / 行数 / 字节 / `numstat` = delta 件 §D0）。
+
+## §37 ★★ v2.27 · 前端页面路由登记：新增 `/messages`（占位页 · X/推特私信接驳位预留）· `卖闲置` 复用 `/listing/new` · `市场` 复用 `/exchange`（**本节只追加 · 插在本册末行 `---` 之前 · 依据 = Kevin 2026-10-11 定档 + Zang 转达两条连锁更正**）
+
+> **本节性质（写死）**：① **只追加**（`git diff --numstat docs/route-layer.spec.md` 删除列 = **0**；见 `docs/audit/route-layer-v2.27-delta.md`）；② **前端页面路由登记**（**后端零改动**：注册点现取 = **89** 不变 —— `/messages` 是前端 `<Routes>` 相对段）；③ **与 `design-system.spec` v1.5 §14（`T80`–`T86`）配套**：本册只承载 **route 侧（页面路径）**，**形态 / token / 判负** 见姊妹册 §14，**不重抄**；④ **零代码 · 零迁移 · 库面只读 · 零 HTTP · 零套件**。
+
+### 37.1 页面路由登记（逐条 · route 侧）
+
+| # | 页面路径 | 归属 | 态 | 真源锚（本册现取） | 依据 |
+|--:|---|---|---|---|---|
+| 1 | `/messages` | LangShell 内层相对段（`frontend/src/App.jsx` 内层 `<Routes>`） | **新占位页**（**X/推特私信接驳位预留**） | **现取 = 无**（`App.jsx` 无 `path="messages"`）⇒ 由 Kong 落地 | Kevin 定档 ③ |
+| 2 | `/listing/new` | LangShell 内层相对段 | **复用既有发布页** | `frontend/src/App.jsx:93` `<Route path="listing/new" element={<PublishListingPage />} />`（**现取在场**） | Kevin 定档（姊妹册 `T80`） |
+| 3 | `/exchange` | LangShell 内层相对段 | **复用既有积分交易所 / 碎片市场页** | `frontend/src/App.jsx:99` `<Route path="exchange" element={<ShardPage />} />`（**现取在场**） | Kevin 连锁更正 **(A)** |
+| 4 | `/profile` | LangShell 内层相对段（`ProtectedRoute`） | 复用（`requiresAuth`） | `frontend/src/App.jsx`（`ProtectedRoute` 包裹） | 姊妹册 `T80` |
+
+> **★ 新登记页面路由 = 恰 1 条（`/messages`）**；其余 3 条为**复用既有路由**（登记用途 = 说明底栏 / 悬浮菜单指向的既有页，**不改其路由**）。
+
+### 37.2 留痕（诚实登记 · 必写）
+
+- **★★ 原写「`附近`→`/nearby`（新占位页 · key `nearby`）」已由 Kevin 当日变更取代** ⇒ **本轮不登记 `/nearby` 路由、不建 `/nearby` 占位页、不新增 `nearby` i18n 键**（底栏第二项改为 **`市场`→`/exchange`**，key `shard`，图标 `Store`）。
+- **★ 本条为「已被取代的旧写法」的唯一承载处**（`design-system.spec` v1.5 §14.0 同载一句）；**未在任何既有行内重写**。
+
+### 37.3 后端面（零改动 · 现取）
+
+- `grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts` **现取 = 89** ⇒ **本单零后端改动 ⇒ 注册点仍 89**（`backend-ts/scripts/p7b-03-offline-gates.ts` `AC10-2` 注册点冻结面 = 89 **不变**）。
+- `grep -cE '<Route' frontend/src/App.jsx` **现取 = 35** ⇒ **落地后 35 → 36**（+1 = `/messages`）。
+
+### 37.4 纪律自检（逐条对照硬口径）
+
+① **只追加 / 删除列 = 0** ✅（`docs/audit/route-layer-v2.27-delta.md` 给读数）｜② **沿用追加手法（写死）**：本册末行（逐字 `---`）**不带换行符** ⇒ **§37 插在末行 `---` 之前**（承 §36.4）✅｜③ **快照**：`docs/versions/route-layer.spec.v2.26.md`（改前，**`cmp=0`**）+ `docs/versions/route-layer.spec.v2.27.md`（本版镜像）✅｜④ **零代码 / 零迁移 / 库面只读 / 零 HTTP / 零套件** ✅｜⑤ **未发明项** ✅（路径 = Kevin 定档原文；未发明任何数值 / 路由）｜⑥ **未 `git add -A` / 未 commit / 未 push · 未启停 5787/5788** ✅｜⑦ **未测项 = `NOT_MEASURED` + 原因** ✅｜⑧ **引用纪律（§18.6）** ✅（引用现取且逐字）。
 
 ---

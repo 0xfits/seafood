@@ -980,3 +980,63 @@ body.view-mobile .frame.pc{display:none}
   </table>
   <p style="margin:8px 0 0;font-size:11px;line-height:1.6">比例换算（h×0.222 / h×0.359，四舍五入到整像素）：高 34px ⇒ 圆角 8px · 内边距 12px；高 40px ⇒ 9px · 14px；高 51px ⇒ 11px · 18px；高 96px（参考图档）⇒ 21px · 34px。〔2026-10-01 复采修正：原 0.17/0.45（16px/43px、落地 6px/15px…）为转录误差，留痕见 docs/audit/p6-btn-src-and-prov.md §6〕</p>
 </section>
+
+<!-- =============================================================
+     追加区块（v1.5 · 2026-10-11 · Kevin/Zang 定档）
+     右侧悬浮菜单（仅桌面档 >767px 显示）· 形态与 token 真源
+     ★ 纯追加：本块全在文件尾部（行号 > 任何既有 SP 引用行，旧最大引用 = SP:868）
+     ★ 形态 = 结构常量/几何（两档同值，不进主题差集）
+     ★ 色值 = 主题 token（--sf-fm-bg / --sf-fm-fg / --sf-fm-divider），日/夜两档
+     ============================================================= -->
+<section id="sf-floating-menu-spec" style="max-width:1440px;margin:24px auto;padding:0 20px">
+  <h2 style="font-size:16px;margin:0 0 8px">追加 · 右侧悬浮菜单（仅桌面档 &gt;767px）· 形态与 token（v1.5）</h2>
+  <p style="margin:0 0 12px;font-size:12px;line-height:1.7">
+    <b>结构常量（两档同值 · 不进主题差集）：</b>容器宽 <code>108px</code> · 单元高 <code>92px</code> ·
+    胶囊圆角 = 容器宽/2 = <code>54px</code> · 图标 <code>26px</code> · 文字 <code>12px</code> ·
+    图标与文字间距 <code>6px</code> · 单元间 <code>1px</code> 浅灰分隔线（宽 <code>48px</code>）·
+    右边距 <code>16px</code> · 垂直定位 <code>top:45%</code> + <code>translateY(-50%)</code> ·
+    阴影 <code>0 6px 18px rgba(0,0,0,.07)</code>。<br>
+    <b>色值走主题 token：</b><code>--sf-fm-bg</code> / <code>--sf-fm-fg</code> / <code>--sf-fm-divider</code>
+    （日/夜两档。夜档参考图未展示 ⇒ 标「推断」，取本仓夜档既有面板/卡片值）。
+  </p>
+  <div style="display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap">
+    <div>
+      <div style="font-size:11px;margin-bottom:6px">日档（参考图等比缩放）</div>
+      <div style="width:108px;border-radius:54px;background:#FFFFFF;color:#333333;box-shadow:0 6px 18px rgba(0,0,0,.07);padding:8px 0">
+        <div style="height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:12px"><span style="font-size:26px;line-height:1">＋</span>卖闲置</div>
+        <div style="height:1px;width:48px;margin:0 auto;background:#E8E8E8"></div>
+        <div style="height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:12px"><span style="font-size:26px;line-height:1">✉</span>消息</div>
+        <div style="height:1px;width:48px;margin:0 auto;background:#E8E8E8"></div>
+        <div style="height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:12px"><span style="font-size:26px;line-height:1">▢</span>APP</div>
+        <div style="height:1px;width:48px;margin:0 auto;background:#E8E8E8"></div>
+        <div style="height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:12px"><span style="font-size:26px;line-height:1">◔</span>反馈</div>
+        <div style="height:1px;width:48px;margin:0 auto;background:#E8E8E8"></div>
+        <div style="height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:12px"><span style="font-size:26px;line-height:1">☎</span>客服</div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;margin-bottom:6px">夜档（推断 · 取本仓夜档面板/卡片值）</div>
+      <div style="width:108px;border-radius:54px;background:#141619;color:#EDEFF2;box-shadow:0 6px 18px rgba(0,0,0,.07);padding:8px 0">
+        <div style="height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:12px"><span style="font-size:26px;line-height:1">＋</span>卖闲置</div>
+        <div style="height:1px;width:48px;margin:0 auto;background:#262A30"></div>
+        <div style="height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:12px"><span style="font-size:26px;line-height:1">✉</span>消息</div>
+        <div style="height:1px;width:48px;margin:0 auto;background:#262A30"></div>
+        <div style="height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:12px"><span style="font-size:26px;line-height:1">▢</span>APP</div>
+        <div style="height:1px;width:48px;margin:0 auto;background:#262A30"></div>
+        <div style="height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:12px"><span style="font-size:26px;line-height:1">◔</span>反馈</div>
+        <div style="height:1px;width:48px;margin:0 auto;background:#262A30"></div>
+        <div style="height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:12px"><span style="font-size:26px;line-height:1">☎</span>客服</div>
+      </div>
+    </div>
+    <table style="border-collapse:collapse;font-size:12px">
+      <thead>
+        <tr><th style="text-align:left;border-bottom:1px solid #E0E0E0;padding:4px 8px">token</th><th style="text-align:left;border-bottom:1px solid #E0E0E0;padding:4px 8px">日（参考图）</th><th style="text-align:left;border-bottom:1px solid #E0E0E0;padding:4px 8px">夜（推断）</th><th style="text-align:left;border-bottom:1px solid #E0E0E0;padding:4px 8px">取值依据</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="padding:4px 8px"><code>--sf-fm-bg</code></td><td style="padding:4px 8px"><code>#FFFFFF</code></td><td style="padding:4px 8px"><code>#141619</code></td><td style="padding:4px 8px">夜档 = <code>--sf-panel-bg</code>/<code>--sf-card-bg</code>（theme-tokens.css 夜档）</td></tr>
+        <tr><td style="padding:4px 8px"><code>--sf-fm-fg</code></td><td style="padding:4px 8px"><code>#333333</code></td><td style="padding:4px 8px"><code>#EDEFF2</code></td><td style="padding:4px 8px">夜档 = <code>--sf-panel-h4-fg</code>/<code>--sf-title-fg</code>（theme-tokens.css 夜档）</td></tr>
+        <tr><td style="padding:4px 8px"><code>--sf-fm-divider</code></td><td style="padding:4px 8px"><code>#E8E8E8</code></td><td style="padding:4px 8px"><code>#262A30</code></td><td style="padding:4px 8px">夜档 = <code>--sf-panel-border</code>/<code>--sf-hr-bg</code>（theme-tokens.css 夜档）</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>

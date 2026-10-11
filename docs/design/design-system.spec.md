@@ -1,6 +1,11 @@
 # 海鲜市场 · 主题体系设计规范与 Design Token 契约
 
 > 版本 **v1.4** · 作者 **Jing（制度员）** · 状态：**口径冻结（T1..T79 逐条）**（v1.1 新增 `T75..T79` = 手机竖屏 H5 加固口径 P0–P4，见 §13；**v1.2 收窄 `T77` 实施范围 + 升 `T75` 配对项为硬判据**；**v1.3（补丁单 2）= ① 补登 `T79` 桌面侧受影响元素（三类）· ② 把「桌面档不动」硬判据**改写为「例外清单式」** · ③ 入册 P2 侧栏缺陷 D1 及其根因/教训**；**v1.4（补丁单 3）= ① 把「桌面档不动」硬判据由「例外清单式（元素白名单）」★改「归因式判据」（反事实归因实验）** · ② **登记 D1 修复后事实**（修法 = 共同祖先 · 消费者全扫 `= 0` · 同根因第 4 面 · 新副作用 `.sf-listings-status` 390 档 0→44）· ③ **把归因实验写成可复跑配方 + 登记 `.sf-tabbar` 子树 `0×0` 事实**，见 §12 / §13.1 / §13.2.1 / §13.3 / §13.4 / §13.5 / §13.6）
+> **★ 现行版 = v1.5（2026-10-11 · Kevin/Zang 定档）**：**底栏（H5）五项新集合**〔`T80`〕+ **右侧悬浮菜单（仅桌面 `>767`）**〔`T81`–`T83`〕+ **三弹窗模板位**〔`T84`〕+ **1440 档不重叠硬判据**〔`T85`〕+ **`T76` 去重口径重算**〔`T86`〕⇒ 新增 **§14** + 规则 **`T80..T86`** + **`N27..N30`**。**上行「版本 v1.4」字面 = 历史留痕**（受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束，未改写；**以本行为现行版**）。**改前快照** = `docs/versions/design-system.spec.v1.4.md`（`cmp=0`）。**真源** = `docs/design/style-preview.html` 追加区块（**行 983–1042**；纯追加、三读数见 §14.9）。**本册 v1.5 未动 `frontend/**`、未动 `ctrl/**`、未启停任何服务。**
+> **★ 现行版 = v1.6（2026-10-11 · Kevin/Zang 裁定⑦）**：**i18n `home` 键值变更** —— **`首页` ⇒ `海鲜市场`**（四语：zh「海鲜市场」/ en「Seafood Market」/ hk「海鮮市場」/ vn「Chợ hải sản」）。依据 **Zang 裁定⑦**：底栏①文案 = Kevin 指定的「海鲜市场」，而实现 `SHELL_NAV_ITEMS[0].labelKey = 'home'` ⇒ 渲染 `t('home')`（**现取：`t('home')` 唯一消费点 = `frontend/src/shell/nav.js:15`**）现值 = 「首页 / Home / 首頁 / Trang chủ」⇒ **不满足指定文案** ⇒ 按裁定更正 `home` 值（与 `siteTitle` 品牌口吻一致）。**值变更 = +0 键 ⇒ §14.10 计数（顶层 `119⇒128` / 拍平 `1050⇒1070` / 四语节点 `4200⇒4280`）逐字不变**（增量全部来自 +20 新增键）。**连同 v1.5 的 `shard` 值变更 ⇒ §14.10 B = 值变更 2 键（`shard` + `home`）**。**nav 文案断言现取 = 无**（见 §14.5 ★）。**改动 = 版本头 + §12 + §14（§14.0 / §14.4 / §14.5 / §14.6 / §14.7 / §14.10）**；**改前快照** = `docs/versions/design-system.spec.v1.5.md`（`cmp=0`；md5 `23957167410322920fed75c8c57124b1`）。**本册 v1.6 未动 `frontend/**`、未动 `ctrl/**`、未启停任何服务**（`home` 值变更由 Kong 落地 `frontend/src/locales/*.json`）。
+> **★ 现行版 = v1.7（2026-10-11 · Kevin/Zang 裁定⑧⑨）**：**① 裁定⑧ · 底栏⑤（第五格）文案键** —— **`profile` 键值一律不动**（四语仍 `个人资料`/`Profile`/`個人資料`/`Hồ sơ`），**新增键 `me`**（zh「我的」/ en「Me」/ hk「我的」/ vn「Tôi」）⇒ **`frontend/src/shell/nav.js:21` 第五项 `labelKey` 由 `'profile'` 改 `'me'`**（**`key: 'profile'` / `path: 'profile'` / `requiresAuth: true` 逐字不动**）。**理由**：底栏⑤文案 = Kevin 指定「我的」，而 `t('profile')` 另有**两个消费点**（`frontend/src/components/Header.jsx:284` 桌面下拉 · `:460` 移动面板），且 **`r9-84-profile-entry.test.jsx` 锚定「个人资料」**（`:135`/`:226` = `toContain(zh.profile)`）⇒ 直接改 `profile` 值会牵连**非底栏面** ⇒ 以**新增键 `me`** 承接、`profile` 值保持。**「一句话可改」**：若 Kevin 要**全站统一为「我的」**，才改 `profile` 键值（四语 ⇒ 我的/Me/我的/Tôi）**并**改锚 `r9-84-profile-entry.test.jsx:135/:226`（见 §14.5 ★①）。**② 裁定⑨ · 1440 悬浮菜单与正文重叠** —— **Kong 实测 1440 档正文全幅（首页卡片右缘至 `x=1388`）** 而 **悬浮菜单占 `x∈[1316,1424]`**（`right:16` + 宽 `108`）⇒ **相交 ≈ 4.6 万 px²**，**违 `T85`「悬浮菜单 rect 与正文卡片 rect 相交 = 0」硬判据**。**裁定**：**桌面档给正文预留右侧 gutter（宽 `140px` = 菜单 `right:16` + 宽 `108` + 余量 `16`）**；**gutter 规则落 `frontend/src/styles.css` 的 `@media (min-width:1024px)`**，**不得在 `frontend/src/shell/shell.css` 新增 `@media` 块**（外壳断言要求其仍**只有 1 个 767 块**；现取 `grep -c '@media' shell.css = 1`）⇒ **≤767 零影响**；**`T85` 判据不降级**（「相交 = 0」逐字不变）。**必须交**：**1440 / 1600 / 1920 三档相交 = 0** 与 **三档 `scrollWidth == clientWidth`**。**归因式判据的「允许变更集」 += 「gutter 引起的容器/内容宽度变化面」**（与上轮 `T79` 字号、`.sf-fm` 子树并列，见 §14.9(b)）。**裁决 = 值/结构变更（+1 新键 `me` + 桌面 gutter）** ⇒ §14.10 计数（**实取**：顶层 `119 ⇒ 129` / 拍平 `1050 ⇒ 1071` / 四语节点 `4200 ⇒ 4284`）。**改动 = 版本头 + §12 + §14（§14.0 两条裁定 + §14.1 补注 + §14.2 gutter + §14.4 补注 + §14.5 补 2 行 + §14.6 补 2 行 + §14.7 补 1 行 + §14.9(b) 归因措词 += gutter + §14.10 A 加 `me` 行 + 计数注）**；**改前快照** = `docs/versions/design-system.spec.v1.6.md`（`cmp=0`；md5 `51475b46117d6dc4f986408cf6b6de43`）。**本册 v1.7 未动 `frontend/**`、未动 `ctrl/**`、未启停任何服务**（`me` 键 + gutter 由 Kong 落地）。
+> **★ 现行版 = v1.8（2026-10-11 · Kevin/Zang 裁定⑩ + 归因第④类）**：**① 裁定⑩ · gutter 生效起点由 `1024` 改 `768`** —— Kong 实测 **D4（真缺陷）**：v1.7 的 gutter 只写在 `@media (min-width:1024px)`，而 `.sf-fm` 的隐藏阈值是 **`≤767`**（`shell.css` 唯一 767 块内）⇒ **`768–1023` 中间档「菜单可见、正文无留白」** ⇒ 悬浮菜单与正文卡片**相交 ≈ `49920 px²`**，**违 `T85`**。**裁定**：**gutter 生效起点 = `768px`**（与菜单显示阈值同界；落 `frontend/src/styles.css` 的 `@media (min-width:768px)`；**`shell.css` 仍不得新增 `@media`**）；**`T85`（相交 = 0）不降级**，**作用域 = 菜单可见的一切宽度档**（`>767` 全档）；**验收面扩为六档 × 三页**（`768`/`1024`/`1280`/`1440`/`1600`/`1920` × `/`、`/listing`、`/exchange`）+ **手机档（`390`/`375`/`320`）零影响**。**② 归因式判据「允许变更集」 += 第④类「§14 已批准的 locale 值变更引起的文案/宽度面」** —— Kong 实测 **D3（判据漏洞）**：归因差异里有 **5 条/页**归不进既有三类允许集（桌面左 nav 第 3 项宽 **`52 ↔ 80`**），根因 = **`shard` 值 `碎片市场 → 市场`（§14 已批准的值变更）** ⇒ 允许变更集由三类扩为四类；**措词含可判负要求**：「**须给算术语义闭合**（字串长度变化 → 宽度变化方向与量级一致）」。**改动 = 版本头 + §12 + §14（§14 节注 + §14.0 两条裁定 + §14.1 `T85` 补注 + §14.2 gutter 表 + §14.5 补 2 行 + §14.6 第 16 行 + §14.7 判负行 + §14.9(b) 归因措词 += 第④类）**；**改前快照** = `docs/versions/design-system.spec.v1.7.md`（`cmp=0`；md5 `8b9606a0e2ca09a676dacb4098af8cfe`）。**本册 v1.8 未动 `frontend/**`、未动 `ctrl/**`、未启停任何服务**（gutter 起点 `768` 与 `shard`/`me` 值由 Kong 落地）。
+> **v1.5 口径来源（逐字）**：Kevin 2026-10-11 定档 ①方案 A·UI 先行（不动后端）②右悬浮菜单仅桌面档显示、H5 隐藏 ③消息模块占位（后续接驳 X/推特私信）④客服/反馈做弹窗模板位；**＋ Kevin 当日两条连锁更正**（`Zang` 转达）：**(A)** 底栏第二项 = **「市场」→ `/exchange`**（key `shard`，图标 `Store`；**不再新建 `/nearby` 占位页、`nearby` 键不新增**）**(B)** `T76` 去重按新底栏集合重算（**`exchange` 继续排除、`reward`/`task` 恢复**）。
 > 交付物路径：`docs/design/design-system.spec.md`
 > 冻结依据：Kevin 口径 D9（2026-09-27 更正）+ Zang 连带裁决 `docs/seafood.master-plan.md` §5.3（八条）
 > **v1.1 冻结依据（追加）**：Kevin 2026-10-11 定档「seafood 前端**桌面档不动**，把**手机竖屏（H5）档**做扎实，P0~P4 全上」；依据 = 设备档实测报告（Neng 采集 / Zang 复核 40/40 零横向溢出；判负实验 `baseline==rerun==restored`；tabbar 真实点击跳转 PASS；1440 档 tabbar `display:none`）
@@ -783,6 +788,11 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 | **v1.2** | 2026-10-11 | **Zang 两条裁定落册（口径收窄 + 硬判据升级）**。① **`T77`（P2）收窄**：触控目标 ≥44×44 的**实施范围一律限在 `@media (max-width: 767px)` 内**（复用同一断点值 767、**不得新增断点类型**、`shell.css` 仍只有一个 767 断点块；**桌面档几何零变化 = 硬判据**）。**理由/代价**：v1.1 原方案会**连带抬高桌面控件**（`.btn` 家族 40/34→44、`--sf-*-ctl-h` 34→44），与 Kevin 2026-10-11「桌面档不动」冲突；收窄后**桌面几何回到零变化**，代价 = 各页须把 44px 追加/改值**包进 767 媒体块**（实现面略增、判据面更严）。同步更正 **§13.3 第 14 行**（由「**必须改锚**」改「**若红则最小改锚**」——取值入 767 块后**可能仍绿**）+ **§13.3 尾「一句话」** + **§13.4 P2 逐项加「限 ≤767」** + **§13.4 尾「桌面连带声明」标 v1.2 作废（原文保留）**。② **`T75`（P0）升级**：`frontend/index.html` 的 `<meta name="viewport">` 追加 `viewport-fit=cover` 由「配对项」**升为 P0 硬判据**（缺则 T75 不成立）。附 **§13.6 N24**。**本册改动**：§13.1 T75/T77 行 + §13.3 + §13.4 + §13.5 + §13.6 + 顶部版本行 + §12。**改前快照**：`docs/versions/design-system.spec.v1.1.md`（`cmp=0`）。**未动 `frontend/**`、未动 `ctrl/**`、未启停服务**。 |
 | **v1.3** | 2026-10-11 | **补丁单 2 · Zang 三条落册（登记完整化 + 硬判据改写 + 缺陷入册）**。① **D2 入册（`T79` 覆盖范围完整化）**：实现方为满足 `T79` 额外把 `frontend/src/pages/jobs/jobs.css` 的 `.sf-jobs-tag`（规则块 L195–202，`font-size` = **L201**）由 `11px→12px`（**上轮 §13.4 未列**）⇒ `/task/:id` 在 **1440 档 34×20.5 → 36×22**；Zang 裁定**保留该全局字号变更但必须入册** ⇒ `.sf-jobs-tag` 补进 **§13.1 `T79` 行** + **§13.4 P4 清单（新增 #27）** + **§13.2 新增 13.2.1「T79 全局字号提升 ⇒ 桌面侧受影响元素完整清单（三类：`/listing .sf-listings-price-unit`、`.sf-listings-tag`、`/task/:id .sf-jobs-tag`）+ 逐元素前后读数」**。② **「桌面档不动」硬判据改写为「例外清单式」**：原措词「1440 档逐控件 `getBoundingClientRect()` 与现状逐值相等」**作废**（现实已有 T79 的 3 个元素例外）⇒ 新口径 = **「1440 档逐元素 `getBoundingClientRect()` 相等，唯一允许的例外 = T79 字号提升所覆盖的元素，且例外集必须是当轮现取扫描的完整集（不得有未登记元素；发现任何额外元素 ⇒ 立缺陷）」**；同步改 **§13.1 `T77` 行 · §13.3 第 14 行 + 尾「一句话」 · §13.5 `P2 触控` 行 + §13.4 尾补注**（`old→new` 字面留痕）。③ **D1 入册**：Neng 复核发现 **6 个侧栏控件 37.5 < 44**，根因 = `@media (max-width:767px)` 只把 `--sf-*-ctl-h` 挂在**主列根** `.sf-jobs`/`.sf-mkt`/`.sf-listings` 上，而侧栏 `.sf-layout-side` 是**兄弟节点** ⇒ `var()` 取空 ⇒ `min-height` 失效；⇒ 写入 **§13.5 判负清单**（新增 `D1` 行 + **P2 验收必须含「所有消费该变量的消费者全扫，含侧栏兄弟节点」**）+ **§13.6 `N25` 可复用教训**。**本册改动**：版本头 + §12 + §13.1（`T77`/`T79` 行）+ §13.2（新增 13.2.1）+ §13.3（第 14 行 + 尾「一句话」）+ §13.4（P4 新增 #27 + 尾补注）+ §13.5（`P2 触控` 行 + 新增 `D1`/验收面两行）+ §13.6（`N25`）。**改前快照**：`docs/versions/design-system.spec.v1.2.md`（`cmp=0`）。**未动 `frontend/**`、未动 `ctrl/**`、未启停服务**。 |
 | **v1.4** | 2026-10-11 | **补丁单 3 · Zang 裁定⑤ 落册（硬判据再改写 + D1 修复事实登记 + 归因配方）**。① **「桌面档不动」硬判据由 v1.3「例外清单式（元素白名单）」★改「归因式判据」**：新判据 = **「1440 档差异集必须 100% 归因于 T79 字号提升。验证法 = 反事实归因实验：只在测量期回退 T79 字号（不动仓库）⇒ 差异集必须为空（`仅基线有 = 0` 且 `仅归因有 = 0`）；且差异集中不得存在与字号无关的几何/布局差异。」**；v1.3 白名单字面**逐字保留 + 标已作废**（作废理由两条：**字号变更会级联**到块级容器与下游元素 ⇒ 白名单法须**逐元素登记两百多条**〔`/listing` 1440 差异集实测 **243**〕**不可维护**；且白名单法会**漏掉 `display:none` 子树**〔`/exchange`/`/task/new`/`/task/:id` 各 23〕）。② **登记 D1 修复后事实**（Kong commit `ebca3ab`）：修法 = ≤767 变量覆盖**从「只挂主列根」扩到「主列与侧栏共同祖先 `.sf-layout`」**（三页 CSS 同改；**34px 基准未动**）· **消费者全扫 = 0**（**动态哨兵法**，非类名清单；`/listing`/`/exchange`/`/task/new`/`/task/1` 均 0）· **同根因第 4 面** `/task/:id .sf-jobs-status`（`JobDetailPage.jsx:322`）一并覆盖（390 档 **172×44**）· **新副作用** `/listing .sf-listings-status` **0→44**（页高 **+114**）归**已知后果类**（**T77 的必然几何后果**）。③ **归因实验写成可复跑配方**（devtools 注入回退 4 处 T79 字号：`listings.css:130,140` + `jobs.css:201` + `--sf-st-tab-font-size`〔`theme-tokens.css:35`〕）+ 登记 **1440 `.sf-tabbar` 子树 23 元素 `0×0`（`display:none`）⇒ 无可见几何影响**。**本册改动**：版本头 + §12 + §13.1（`T77`/`T79` 行）+ §13.2.1（新增 v1.4 复核）+ §13.3（第 14 行 + 尾「一句话」）+ §13.4（尾新增 v1.4 补注）+ §13.5（`P2 触控`/`P2 侧栏` 行 + `P2 消费者全扫`〔原 `P2 验收面` 升级〕+ 新增 `P2 归因实验配方`）+ §13.6（`N25` 追加 + 新增 `N26`）。**改前快照**：`docs/versions/design-system.spec.v1.3.md`（`cmp=0`）。**未动 `frontend/**`、未动 `ctrl/**`、未启停服务**。 |
+| **v1.5** | 2026-10-11 | **两项新需求落册（Kevin 2026-10-11 定档 + Zang 转达两条连锁更正）**：① **底栏（H5）五项新集合**〔`T80`〕= `海鲜市场`→`/`(home) · `市场`→`/exchange`(shard) · `卖闲置`→`/listing/new`(sell) · `消息`→`/messages`(messages) · `我的`→`/profile`(profile)；图标 `Home`/`Store`/`PlusCircle`/`MessageCircle`/`User`；**恒 5 格（`T46` 不破）**。**留痕**：原写「`附近`→`/nearby`」**已由 Kevin 当日变更取代**（**不新建 `/nearby`、`nearby` 键不新增**）。② **右侧悬浮菜单（仅桌面 `>767`）**〔`T81`–`T83`〕= 五项（`卖闲置`/`消息`/`APP`/`反馈`/`客服`）+ 几何结构常量 + 日/夜 token `--sf-fm-bg`/`--sf-fm-fg`/`--sf-fm-divider`。③ **三弹窗模板位**〔`T84`〕。④ **1440 档不重叠硬判据**〔`T85`〕。⑤ **`T76` 去重口径重算**〔`T86`：汉堡排除集 `['reward','task','exchange']` ⇒ `['exchange']`，`reward`/`task` 恢复〕。**真源** = `style-preview.html` 追加区块（行 983–1042）。**改前快照**：`docs/versions/design-system.spec.v1.4.md`（`cmp=0`）。**未动 `frontend/**`、未动 `ctrl/**`、未启停服务**。 |
+
+| **v1.6** | 2026-10-11 | **小补丁单 · Zang 裁定⑦ 落册（i18n `home` 值变更 · 补齐值变更键由 1 键 → 2 键）**。**`home` 键值：`首页` ⇒ `海鲜市场`**（四语 zh「海鲜市场」/ en「Seafood Market」/ hk「海鮮市場」/ vn「Chợ hải sản」）—— 依 **Zang 裁定⑦**：底栏①文案 = Kevin 指定「海鲜市场」；实现 `labelKey:'home'` ⇒ `t('home')`（**现取唯一消费点 = `frontend/src/shell/nav.js:15`**）现值 = 「首页 / Home / 首頁 / Trang chủ」⇒ **不满足指定文案** ⇒ 更正（与 `siteTitle` 品牌口吻一致）。**改动**：版本头 + §12 + §14 节目注 + §14.0（裁定⑦留痕）+ §14.4（★ 补注：`home` 值变更非路由变更）+ §14.5（新增 `home` 值变更行 + ★ nav 文案现取结论）+ §14.6 第 14 行 + §14.7「四语键集逐文件相同」行 + §14.10 B（标题「改 1 值」就地更正 ⇒「改 2 值」+ 新增 `home` 行）+ §14.10 尾计数注。**值变更 = +0 键 ⇒ 计数（顶层 `119⇒128` / 拍平 `1050⇒1070` / 四语节点 `4200⇒4280`）逐字不变**（增量全部来自 +20 新增键）。**nav 文案断言现取 = 无**（`grep -rn "首页" frontend/src/test` 命中 5 行**全为注释**；唯一 locale-文案类断言 `theme-shell-isomorphism.test.jsx:266-267` = `siteTitle`，与本键无关）⇒ **无需改锚**。**改前快照**：`docs/versions/design-system.spec.v1.5.md`（`cmp=0`；md5 `23957167410322920fed75c8c57124b1`）。**未动 `frontend/**`、未动 `ctrl/**`、未启停服务**。 |
+| **v1.7** | 2026-10-11 | **小补丁单 3 · Zang 裁定⑧⑨ 落册（底栏⑤文案键 + 桌面 gutter）**。① **裁定⑧**：底栏⑤文案 = Kevin 指定「我的」；实现 `frontend/src/shell/nav.js:21` 第五项 `labelKey:'profile'` ⇒ `t('profile')` 现值 = 「个人资料 / Profile / 個人資料 / Hồ sơ」；`t('profile')` 另有**两个消费点**（`frontend/src/components/Header.jsx:284` 桌面下拉 / `:460` 移动面板）且 `r9-84-profile-entry.test.jsx` 锚定「个人资料」⇒ **`profile` 值不动**、**新增键 `me`**（zh 我的 / en Me / hk 我的 / vn Tôi）⇒ `nav.js:21` 第五项 **`labelKey` 改 `'me'`**（`key`/`path`/`requiresAuth` 仍 `profile`）。**「一句话可改」**：若全站统一为「我的」才改 `profile` 值 + 改锚 r9-84。② **裁定⑨**：Kong 实测 1440 档悬浮菜单（`x∈[1316,1424]`）与正文（首页卡片至 `x=1388`）**相交 ≈ 4.6 万 px²**，违 `T85`「相交 = 0」⇒ **桌面档正文预留右侧 gutter `140px`**；**gutter 落 `frontend/src/styles.css` 的 `@media (min-width:1024px)`**，**`shell.css` 不得新增 `@media`**（仍只 1 个 767 块）；**≤767 零影响**；**`T85` 判据不降级**；**必须交 1440/1600/1920 三档相交 = 0 + 三档 `scrollWidth==clientWidth`**。**改动**：版本头 + §12 + §14（§14.0 / §14.1 补注 / §14.2 / §14.4 补注 / §14.5 补 2 行 / §14.6 补 2 行 / §14.7 补 1 行 / §14.9(b) / §14.10 A 加 `me` 行 + 计数注）。**计数（实取）**：顶层 `119⇒129`、拍平 `1050⇒1071`、四语节点 `4200⇒4284`。**改前快照**：`docs/versions/design-system.spec.v1.6.md`（`cmp=0`；md5 `51475b46117d6dc4f986408cf6b6de43`）。**未动 `frontend/**`、未动 `ctrl/**`、未启停服务**。 |
+| **v1.8** | 2026-10-11 | **小补丁单 4 · 裁定⑩ 落册（gutter 起点对齐 `.sf-fm` 显示阈值）+ 归因第④类入册**。① **裁定⑩ · gutter 生效起点 `1024` ⇒ `768`**（与 `.sf-fm` 隐藏阈值 `≤767` 同界）。**依据 = Kong 实测 D4（真缺陷）**：v1.7 的 gutter 只写 `@media (min-width:1024px)`，而 `.sf-fm` 在 **`768–1023` 中间档已可见** ⇒ **相交 ≈ `49920 px²`**、**违 `T85`**（判据正确、实现漏档）。**裁定**：**gutter 起点 = `768px`**（落 `frontend/src/styles.css` 的 `@media (min-width:768px)`；**`shell.css` 仍不得新增 `@media`**，仍只 1 个 767 块）；**`T85`（相交 = 0）不降级**，**作用域 = 菜单可见的一切宽度档**（`>767` 全档，不再限 `≥1024`）；**验收面扩为六档 × 三页**（`768`/`1024`/`1280`/`1440`/`1600`/`1920` × `/`、`/listing`、`/exchange`）+ **手机档（`390`/`375`/`320`）零影响**。② **归因式判据「允许变更集」由三类扩为四类，第④类 = 「§14 已批准的 locale 值变更引起的文案/宽度面」**。**依据 = Kong 实测 D3（判据漏洞）**：归因差异每页 **5 条**归不进既有三类（`T79` 字号级联 / `.sf-fm` 子树 / gutter 面）—— 桌面左 nav **第 3 项宽 `52 ↔ 80`**，根因 = **`shard` 值 `碎片市场 → 市场`**（**§14 已批准的值变更**）⇒ 属**合法后果、非缺陷**，须补入允许变更集。**措词含可判负要求**：「**须给算术语义闭合**（字串长度变化 → 宽度变化方向与量级一致）」——即 `newWidth−oldWidth` 符号 = `(len(new)−len(old))` 符号、量级同阶；**闭合不成立（方向相反/量级背离/根因指不到任何 §14 已批准值变更）⇒ 立缺陷**（不得以「属第④类」豁免）。**改动**：版本头 + §12 + §14（节注 + §14.0 两条裁定 + §14.1 `T85` 补注 + §14.2 gutter 表 + §14.5 补 2 行 + §14.6 第 16 行 + §14.7 判负行 + §14.9(b) 归因措词 += 第④类）。**改前快照**：`docs/versions/design-system.spec.v1.7.md`（`cmp=0`；md5 `8b9606a0e2ca09a676dacb4098af8cfe`）。**未动 `frontend/**`、未动 `ctrl/**`、未启停服务**（gutter 起点 `768` 由 Kong 落地）。 |
 
 ### 与上游文件的关系（只读，本册未改一字）
 
@@ -970,3 +980,277 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 - **N24**：**`T77` 收窄为「限 ≤767 档」后，各页 `*.css` 新增/包入的 767 媒体块数量未清点**（v1.2 硬约束只锁 `shell.css` 唯一 767 块；`styles.css`/`jobs.css`/`market.css`/`listings.css` 内新增 767 块属实现面）⇒ Kong 实现后须现取 `grep -c '@media (max-width: *767' frontend/src` 并登记；`p6-btn-impl2.test.js:138-155` 是否因「顶层 ctl-h 仍 34」而仍绿，亦待实现后现取（见 §13.3 第 14 行）。
 - **N25（★ v1.3 · 可复用教训 · 承 `D1` · 「CSS 变量作用域 = DOM 子孙关系」）**：`@media (max-width:767px)` 只把 `--sf-*-ctl-h` 覆盖挂在**主列根** `.sf-jobs`（`jobs.css:18–21` + 767 块 `:213–215`）/ `.sf-mkt`（`market.css:11–12` + `:261–263`）/ `.sf-listings`（`listings.css:17–18` + `:265–267`）上，而侧栏是**兄弟节点**（`shell.css:35–53`：`.sf-layout` > `.sf-layout-main` > `.sf-jobs` ‖ `.sf-layout` > `.sf-layout-side`）。**教训（可复用 · 一条一句）**：**CSS 变量的作用域 = DOM 子孙关系，兄弟节点不吃** ⇒ 在 ≤767 下覆盖变量，**必须挂在「包含全部消费者的共同祖先」上**（不得只挂主列根）。**本册现取佐证（v1.3）**：390 档 `getComputedStyle(.sf-jobs).getPropertyValue('--sf-j-ctl-h')` = `44px`，同档 `getComputedStyle(.sf-layout-side)` = **`""`**；1440 档分别为 `34px` / **`""`**；`.sf-layout-side` 内控件 `min-height: auto` ⇒ **37.5**（`/listing` 侧栏 5 控件）。**副作用提醒**：同族变量在**桌面档**同样从未到达侧栏（`varOnSide=""` @1440）⇒ 侧栏 `min-height` 在**两档**都失效，属**存量**缺陷、非 `T77` 引入。**通用判据**：任何「在一个节点上定义/覆盖 CSS 变量」的改动，验收必须**枚举该变量的全部消费点并核其 DOM 祖先链**，不得只按「主列」抽样。**末段**：本条同时是 §13.2.1 「全站 1440 现取扫描完整集」与侧栏同族全扫的承接项。**★ v1.4（`D1` 已修复 · Kong commit `ebca3ab`）**：修法 = ≤767 变量覆盖**从「只挂主列根」扩到「主列与侧栏共同祖先 `.sf-layout`」** ⇒ **390 档侧栏 6 控件 37.5 → 44**；**消费者全扫 = 0**（**动态哨兵法**：遍历全 DOM 核「祖先链变量到达 + 几何下限」，**非类名清单**）；**同根因第 4 面** `/task/:id .sf-jobs-status`（`JobDetailPage.jsx:322`）一并覆盖（390 档 **172×44**）；**新副作用** `/listing .sf-listings-status` **0→44**（页高 **+114**）为 **T77 的必然几何后果**、归**已知后果类**。**可复用判据**：本条「枚举变量全部消费点并核 DOM 祖先链」在 v1.4 落为 **§13.5「P2 消费者全扫（动态哨兵法）」行**；本条可复现「设备档 390 档 `varOnSide=""`」的读数方法亦为该行配方之一。
 - **N26（★ v1.4 · 承「归因式判据」）**：**反事实归因实验**已在**设备档 1440** 跑通（差异集归零、`仅基线有 = 0` 且 `仅归因有 = 0`），证 `T77` 的桌面几何差异**100% 归因于 `T79` 字号提升**、**无与字号无关的几何/布局差异**；**真机**上此结论仍为 `NOT_MEASURED`（承 `N23`；真机读数待新 LAN 预览服务）。配方见 §13.5「P2 归因实验配方」行；1440 差异集真实结构（`/listing` 243 = 48 直接 + 172 级联 + 23 未渲染；其余页各 23 = `.sf-tabbar` 子树 `0×0`）见 §13.2.1 v1.4 复核。
+
+---
+
+## §14 底栏（H5）五项新集合 · 右侧悬浮菜单（仅桌面）· 三弹窗模板位（v1.5 · Kevin/Zang 2026-10-11 定档）
+
+> **★ v1.6 补登（Zang 裁定⑦）**：**§14 的 i18n「值变更键」由 1 键（`shard`）改为 2 键（`shard` + `home`）** —— `home` 值 **`首页` ⇒ `海鲜市场`**（四语：zh「海鲜市场」/ en「Seafood Market」/ hk「海鮮市場」/ vn「Chợ hải sản」；见 §14.10 B / §14.0 / §14.5）。**值变更 = +0 键** ⇒ §14.10 计数（顶层 `119⇒128` / 拍平 `1050⇒1070` / 四语节点 `4200⇒4280`）**逐字不变**。**本册 v1.6 未动 `frontend/**`、未动 `ctrl/**`、未启停任何服务**。
+> **★ v1.7 补登（Zang 裁定⑧⑨）**：**§14 新增两条裁定** —— **⑧ 底栏⑤文案键**：`profile` 键值不动、**新增键 `me`**、`frontend/src/shell/nav.js:21` 第五项 `labelKey` 改 `'me'`（见 §14.0 / §14.1 T80 补注 / §14.4 / §14.5 ★① / §14.10 A）；**⑨ 桌面正文右侧 gutter `140px`**（落 `frontend/src/styles.css` 的 `@media (min-width:1024px)`；`shell.css` 不新增 `@media`；`T85` 判据不降级；见 §14.0 / §14.1 T85 补注 / §14.2 / §14.5 ★② / §14.6 / §14.7 / §14.9(b)）。**计数（实取）**：顶层 `119⇒129` / 拍平 `1050⇒1071` / 四语节点 `4200⇒4284`。**本册 v1.7 未动 `frontend/**`、未动 `ctrl/**`、未启停任何服务**。
+> **★ v1.8 补登（裁定⑩ + 归因第④类）**：**§14 新增两条裁定** —— **① 裁定⑩ · gutter 生效起点 `1024` ⇒ `768`**（与 `.sf-fm` 显示阈值 `>767` 同界；Kong 实测 **D4**：v1.7 的 `min-width:1024` 使 **`768–1023` 中间档**菜单可见、正文无留白 ⇒ 相交 ≈ **`49920 px²`**，违 `T85`）⇒ 落 `frontend/src/styles.css` 的 `@media (min-width:768px)`；**`shell.css` 仍不得新增 `@media`**；**`T85` 不降级**、**作用域 = 菜单可见的一切档**；**验收面 = 六档 × 三页 + 手机档零影响**（见 §14.0 / §14.1 / §14.2 / §14.5 / §14.6 / §14.7）。**② 归因式判据「允许变更集」 += 第④类「§14 已批准的 locale 值变更引起的文案/宽度面」**（承接 **D3**：桌面左 nav 第 3 项宽 `52↔80`，根因 = `shard` 值 `碎片市场→市场`；每页 5 条差异原无归属），**措词含可判负要求「须给算术语义闭合」**（见 §14.0 / §14.5 / §14.9(b)）。**本册 v1.8 未动 `frontend/**`、未动 `ctrl/**`、未启停任何服务**。
+> **本节目性质（写死）**：① **只追加**（不改写 §0–§13 既有行；本册 v1.5 的改动 = 顶部现行版块 + §12 v1.5 行 + **本节（新）** + `docs/versions/design-system.spec.v1.4.md` 改前快照）；② **本册只冻结口径/判据**，不写实现（数值一律 `文件:行号 + 现取值`）；③ **真源** = `docs/design/style-preview.html` 追加区块（**行 983–1042**）；④ **本册 v1.5 未动 `frontend/**`、未动 `ctrl/**`、未启停任何服务**（由 Kong 落地）；⑤ 未实测项一律 `NOT_MEASURED` + 原因（§14.8）。
+
+### 14.0 定档、连锁更正与真源
+
+- **定档（Kevin 2026-10-11）**：① **方案 A（UI 先行，不动后端）** ② **右侧悬浮菜单仅桌面档（`>767`）显示、H5 隐藏** ③ **消息模块占位留空**（后续接驳 **X（推特）私信**）④ **客服/反馈暂做弹窗模板位**。
+- **★ 当次连锁更正（Zang 转达 · 落册留痕）**：
+  - **(A) 底栏第二项 = 「市场」→ `/exchange`**（key `shard`，图标 `Store`）；**「附近」/`/nearby` 整体移除**，**不新建占位页、`nearby` 键不新增**。
+    > **留痕**：原写「`附近`→`/nearby`（key `nearby`，**新占位页**）」**已由 Kevin 当日变更取代**（本轮**不登记 `/nearby` 路由**；`route-layer.spec` v2.27 **只登记 `/messages` 一条新路由**）。
+  - **(B) `T76` 去重口径按新底栏集合重算**（见 §14.4；**汉堡排除集 `['reward','task','exchange']` ⇒ `['exchange']`，`reward`/`task` 恢复**）。
+- **★ Zang 裁定⑦（2026-10-11 · 本册 v1.6 补登 · 逐字采用）**：**底栏①文案 = Kevin 指定的「海鲜市场」**；实现 `SHELL_NAV_ITEMS[0].labelKey = 'home'` ⇒ 取 `t('home')`，**现值 = 「首页 / Home / 首頁 / Trang chủ」**（**已核：`t('home')` 在仓内唯一消费点 = `frontend/src/shell/nav.js:15`**）⇒ **不满足指定文案** ⇒ **`home` 键值变更为：zh「海鲜市场」/ en「Seafood Market」/ hk「海鮮市場」/ vn「Chợ hải sản」**（与 `siteTitle` 品牌口吻一致）。**值变更 = +0 键**（计数不变，见 §14.10 尾）。**留痕：原写 首页，已由 v1.6 按 Zang 裁定⑦ 与原值消费点唯一性（`nav.js:15`）更正**。（§14.5 ★ = nav 文案断言现取结论）
+- **★ Zang 裁定⑧（2026-10-11 · 本册 v1.7 补登 · 逐字采用）**：**底栏（H5）第五格（`/profile`）文案 = Kevin 指定的「我的」**；实现 `SHELL_NAV_ITEMS[4].labelKey = 'profile'`（`frontend/src/shell/nav.js:21`）⇒ 取 `t('profile')`，**现值 = 「个人资料 / Profile / 個人資料 / Hồ sơ」**（**已核：`t('profile')` 在仓内共 3 个消费点 = `frontend/src/shell/nav.js:21`〔底栏⑤〕· `frontend/src/components/Header.jsx:284`〔桌面下拉〕· `frontend/src/components/Header.jsx:460`〔移动面板〕**）⇒ **不满足指定文案**。**裁定**：**`profile` 键值一律不动**（四语保持 个人资料/Profile/個人資料/Hồ sơ），**新增键 `me`**（zh「我的」/ en「Me」/ hk「我的」/ vn「Tôi」），**`nav.js:21` 第五项 `labelKey` 由 `'profile'` 改 `'me'`**（**`key: 'profile'` / `path: 'profile'` / `requiresAuth: true` 逐字不动**）。**理由**：`t('profile')` 的两个非底栏消费点（`Header.jsx:284`/`:460`）与 **`r9-84-profile-entry.test.jsx`（锚定「个人资料」，`:135`/`:226` = `toContain(zh.profile)`）** 都消费 `profile` 值 ⇒ 若改 `profile` 值将**牵连桌面下拉 / 移动面板 / 该测试**（**面外变更**）⇒ 以**新增键**承接。**「一句话可改」（标 Kevin 可选）**：若 Kevin 要**全站统一为「我的」**，则**改 `profile` 值**（四语 ⇒ 我的/Me/我的/Tôi）**并**改锚 `r9-84-profile-entry.test.jsx:135/:226`（`toContain(zh.profile)`）—— 此为**唯一**需动 `profile` 的场景。**值/结构变更 = +1 新键**（计数见 §14.10 尾）。
+- **★ Zang 裁定⑨（2026-10-11 · 本册 v1.7 补登 · 逐字采用）**：**1440 档右侧悬浮菜单（`.sf-fm`）与正文卡片重叠** —— **Kong 实测**：1440 档**正文全幅**（首页卡片右缘至 `x = 1388`），而**悬浮菜单占 `x ∈ [1316, 1424]`**（`right:16` + 容器宽 `108`）⇒ **相交面积 ≈ 4.6 万 px²**，**违 `T85`「悬浮菜单边界盒与正文卡片 `getBoundingClientRect()` 相交面积 = 0」硬判据**。**裁定**：**桌面档给正文预留右侧 gutter（宽 `140px` = 菜单 `right:16` + 宽 `108` + 余量 `16`）**，使正文右缘与菜单左缘相隔 `≥16px`（1440 档：正文右缘 ≤ `1300px`、菜单左缘 `1316px`）；**gutter 规则落 `frontend/src/styles.css` 的 `@media (min-width:1024px)`**；**不得在 `frontend/src/shell/shell.css` 新增 `@media` 块**（`theme-shell-isomorphism.test.jsx:215–229` 要求 `shell.css` 仍**只有 1 个 767 块**；现取 `grep -c '@media' frontend/src/shell/shell.css` = `1`，唯一块 = L179 `@media (max-width: 767px)`）⇒ **≤767 零影响**（767 及以下不落入 `min-width:1024`）。**`T85` 判据不降级**（「相交 = 0」逐字不变；gutter 只是**实现取向**，不是判据放宽）。**必须交**：**1440 / 1600 / 1920 三档相交 = 0** 与 **三档 `scrollWidth == clientWidth`**（见 §14.7 新增判负行）。**归因式判据「允许变更集」 += 「gutter 引起的容器/内容宽度变化面」**（见 §14.9(b)）。
+- **★ Zang 裁定⑩（2026-10-11 · 本册 v1.8 补登 · 逐字采用）**：**gutter 生效起点由 `1024px` 改 `768px`**。**依据（Kong 实测 · D4 真缺陷）**：v1.7 的 gutter 只写在 `frontend/src/styles.css` 的 `@media (min-width:1024px)` 块内，而 `.sf-fm` 的**隐藏阈值 = `≤767`**（`frontend/src/shell/shell.css` 唯一 767 块内 `.sf-fm{display:none}`）⇒ **`768–1023` 中间档「悬浮菜单可见、正文无留白」** ⇒ 悬浮菜单边界盒与正文卡片 `getBoundingClientRect()` **相交 ≈ `49920 px²`**，**违 `T85`「相交面积 = 0」硬判据**（**判据本身正确，缺陷在实现漏档**）。**裁定**：① **gutter 生效起点 = `768px`**（与 `.sf-fm` 显示阈值 `>767` **同界**）；落 `frontend/src/styles.css` 的 `@media (min-width:768px)`；**`frontend/src/shell/shell.css` 仍不得新增 `@media` 块**（`theme-shell-isomorphism.test.jsx:215–229` 要求其仍**只有 1 个 767 块**；现取 `grep -c '@media' frontend/src/shell/shell.css` = `1`）。② **`T85`（相交 = 0）判据不降级**（「相交面积 = 0」逐字不变；gutter 只是**实现取向**，不是判据放宽），**作用域 = 菜单可见的一切宽度档**（`>767` 全档，不再限于 `≥1024`）。③ **验收面扩为六档 × 三页**：**`768` / `1024` / `1280` / `1440` / `1600` / `1920` 六档 × `/`、`/listing`、`/exchange` 三页**，逐档逐页 `T85` 相交 = `0` 且 `scrollWidth == clientWidth`；**手机档（`390`/`375`/`320`）零影响**（三档均不落入 `min-width:768`；且 `.sf-fm` 在该三档 `display:none`）。**留痕**：v1.7 原文（gutter 起点 = `@media (min-width:1024px)`、适用档 = 「桌面档」、验收面 = 「1440/1600/1920 三档」）**逐字保留于 §14.2 / §14.6 第 16 行 / §14.7**，**本行为现行版**。
+- **★ 归因第④类（2026-10-11 · 本册 v1.8 补登 · 逐字采用）**：**「归因式判据」的「允许变更集」由三类扩为四类** —— **第④类 = 「§14 已批准的结构/文案值变更（locale 值变更）引起的文案/宽度面」**（与前三个允许面并列：① `T79` 字号提升的级联；② 新增 `.sf-fm` 子树；③ gutter 引起的容器/内容宽度变化面）。**依据（Kong 实测 · D3 判据漏洞）**：归因差异里**每页 5 条**归不进既有三类允许集 —— 具体 = **桌面左 nav 第 3 项宽度 `52 ↔ 80`**，**根因 = `shard` 键值变更 `碎片市场 → 市场`**（§14.0 连锁更正 (A) / §14.10 B，**§14 已批准的值变更**）⇒ 文案变短 ⇒ 该 nav 项**宽度变化**。**该类差异属合法实现后果、非缺陷**，但**原判据未列** ⇒ 必须补入允许变更集（否则每轮归因实验都会把「已批准的值变更」误判为「与字号/新组件/gutter 均无关的几何差异」）。**措词（含可判负要求）**：第④类差异**除「根因可追溯到 §14 已批准的 locale 值变更」外，须给「算术语义闭合」** —— **字串长度变化 → 宽度变化方向与量级一致**：即 **`newWidth − oldWidth` 的符号 = `(len(newLabel) − len(oldLabel))` 的符号**（值变更**缩短**文案 ⇒ 宽度**只减不增**；**变长** ⇒ **只增不减**），且宽度变化量级须与该字号下文本宽度估算**同阶**（**不得出现「文案缩短而宽度增大」或「文案长度不变而宽度显著变化」**）。**判负**：若第④类差异**无法给出算术语义闭合**（方向相反 / 量级背离 / 根因指不到任何 §14 已批准值变更）⇒ **立缺陷**（不得以「属第④类」豁免）。**留痕**：v1.5（三类）/ v1.7（三类 + gutter，实为「三允许面」）措词**逐字保留于 §14.9(b) 既有行**；**本行为其就地更新，以本行为现行版**。
+- **真源**：`docs/design/style-preview.html` 追加区块（**行 983–1042**；**纯追加**；三读数见 §14.9）。
+
+### 14.1 规则条文（T80–T86）
+
+| 编号 | 口径 | 落点 | 连带影响 |
+|---|---|---|---|
+| **T80** | 【本册裁定】**底栏（H5）恒 5 格**（`T46` 不破；**主题切换入口不得占底栏格**），**左→右**：`海鲜市场`→`/`（key `home`）· **`市场`→`/exchange`**（key `shard`，**复用既有积分交易所/碎片市场页**）· `卖闲置`→`/listing/new`（key `sell`，**复用既有发布页**）· `消息`→`/messages`（key `messages`，**新占位页**）· `我的`→`/profile`（key `profile`，`requiresAuth`）。**图标（lucide-react，仓内既有）**：`Home` / `Store` / `PlusCircle` / `MessageCircle` / `User`。**单一真源 = `frontend/src/shell/nav.js`（由 Kong 改）**。 | `frontend/src/shell/nav.js`（`SHELL_NAV_ITEMS` L14–20）· `frontend/src/shell/BottomTabBar.jsx` | 改 nav 集合 ⇒ 挂 `theme-shell-isomorphism.test.jsx`（`:88/:106/:107/:91–103/:130–144/:146–153`）+ `route-exchange-rename.test.jsx`（`:86–89/:103`）（见 §14.5） |
+| **T81** | 【本册裁定】**右侧悬浮菜单仅桌面档（`>767`）显示**；**`≤767` 必须 `display:none`**。五项**上→下**：`卖闲置`→`/listing/new` · `消息`→`/messages` · `APP`→**弹窗** · `反馈`→**弹窗** · `客服`→**弹窗**。**图标（lucide）**：`PlusCircle` / `MessageCircle` / `Smartphone` / `Gauge` / `Headphones`。**可见性只由 CSS 断点承担**（复用唯一 767 块；**不得新增 `@media`**；**不得用 JS `matchMedia`/`innerWidth`**）。 | `frontend/src/shell/FloatingMenu.jsx`（建议路径）· `frontend/src/shell/shell.css`（唯一 767 块内加 `.sf-fm{display:none}`；桌面默认显示） | 新增 `@media` 块 ⇒ 挂 `theme-shell-isomorphism.test.jsx:215–229`（断 `shell.css` 只有 1 个断点块）；JS 内联断点 ⇒ 挂同文件 `:205–213` |
+| **T82** | 【本册裁定】**悬浮菜单形态 = 结构常量/几何**（**两档同值、不进主题差集**，与 `T10①`/`T29` 自洽）：**容器宽 `108px`** · **单元高 `92px`** · **胶囊圆角 = 容器宽/2 = `54px`** · **图标 `26px`** · **文字 `12px`** · **图标与文字间距 `6px`** · **单元间 `1px` 浅灰分隔线（宽 `48px`）** · **右边距 `16px`** · **垂直定位 `top:45%` + `translateY(-50%)`** · **阴影 `0 6px 18px rgba(0,0,0,.07)`**。来源 = Kevin 参考图等比缩放到桌面。 | `FloatingMenu.jsx` / `shell.css` | 几何两档同值 ⇒ **不破 `T69`**；**这些值不进 token 层**（不是可切换值） |
+| **T83** | 【本册裁定】**悬浮菜单色值走主题 token**（日/夜两档，**不得用固定白**）：**新 token `--sf-fm-bg` / `--sf-fm-fg` / `--sf-fm-divider`**；**日档（按参考图）** `#FFFFFF` / `#333333` / `#E8E8E8`；**夜档（标「推断」，参考图未展示）** `#141619` / `#EDEFF2` / `#262A30`（**值 = 本仓夜档既有面板/卡片值**：`--sf-panel-bg`/`--sf-card-bg` · `--sf-panel-h4-fg`/`--sf-title-fg` · `--sf-panel-border`/`--sf-hr-bg`）。**新 token 必须能在 `docs/design/style-preview.html` 回读到**（追加区块行 983–1042）。 | `frontend/src/theme/tokens.js`（`TOKEN_KEYS`）· `frontend/src/theme/theme-tokens.css`（`:root` / `[data-theme="dark"]`）· `style-preview.html` 追加区块 | 「主题块只声明 token 变量且键名落在 `TOKEN_KEYS` 内」⇒ 挂 `theme-shell-isomorphism.test.jsx:238–259`（新 token 必须入 `TOKEN_KEYS`，否则 `未登记 token` 判负） |
+| **T84** | 【本册裁定】**三个弹窗复用既有 `Modal` 组件**（`frontend/src/components/ui/Modal.jsx`）；**内容 = 模板位**：**APP** = 二维码/下载引导占位；**反馈** = 表单占位（**不落库**）；**客服** = 联系方式占位。**弹窗默认不渲染**（按需挂载 ⇒ 两主题 DOM 形状同值）。 | `FloatingMenu.jsx` + `Modal.jsx` | 弹窗若默认渲染 ⇒ 破 `theme-shell-isomorphism.test.jsx:167–187`（日/夜形状恒等）+ `:77–81`（区域顺序） |
+| **T85** | 【本册裁定】在 **1440 档**，悬浮菜单**不得与正文卡片重叠遮挡**：悬浮菜单边界盒与页面内所有正文卡片（`[data-sf-m="listing-card"]`、`.sf-card`/`.sf-listings-card` 等）的 `getBoundingClientRect()` **相交面积 = 0**（判负判据见 §14.7）。**实现取向** = 定位于正文右缘留白（`--sea-content-max` `1440px` 之外的右缘，右边距 `16px`）。 | `FloatingMenu.jsx` / `shell.css` | 相交 > 0 ⇒ 判负 |
+| **T86** | 【本册裁定】**`T76`（汉堡去重）口径按新底栏集合重算**（**取代 v1.1 `T76` 的排除集**）：**移动端汉堡面板渲染项 = 顶栏项集 − 底栏目标集**；**本版底栏目标集 = `/`、`/exchange`、`/listing/new`、`/messages`、`/profile`** ⇒ 汉堡**排除 `exchange`**、**恢复 `reward`/`task`**（`/reward`、`/task` 已不在底栏，去重理由消失；**若不恢复 ⇒ 移动端失去「奖励」「任务」两个入口 = 功能回归**）。**桌面左 nav（奖励/任务/市场）一字不动**。 | `frontend/src/components/Header.jsx`（`MOBILE_PANEL_EXCLUDED_PATHS` **L17** + 面板过滤 **L346**）· `menuItems`（**L123**）**不动** | 改共享 `menuItems` ⇒ 连带桌面 nav ⇒ 挂 `theme-shell-isomorphism.test.jsx:91–103`；只改面板过滤 ⇒ 桌面断言全绿 |
+
+> **T76 留痕（v1.1 原文 · 一字未改 · 已被 `T86` 取代）**：
+> 【本册裁定·P1】移动档顶部汉堡面板**不得包含底部 tab 已有的目标**（底部 tab = `/`、`/reward`、`/task`、`/exchange`；其中 `home` 由 Logo 承担）⇒ 面板内去 **`/reward`、`/task`、`/exchange`** 三项 ⇒ 实现排除集 = `['reward','task','exchange']`。
+> **取代理由（`T86`）**：**底栏集合已由本版变更**（`reward`/`task` 移出底栏；`/listing/new`、`/messages`、`/profile` 移入）⇒ 原排除集 `['reward','task','exchange']` 的**依据已不成立** ⇒ 新排除集 = `['exchange']`。**旧行一字未删。**
+
+> **★ v1.7 补注（Zang 裁定⑧⑨ · 修订 `T80` / `T85` 两行 · 原文逐字保留）**：
+> - **修订 `T80`（裁定⑧）**：`T80` 第五项原文「`我的`→`/profile`（key `profile`，`requiresAuth`）」**逐字保留**；**本行就地补充**：底栏⑤文案改取 **新增 `labelKey: 'me'`**（zh「我的」/ en「Me」/ hk「我的」/ vn「Tôi」），**`key` 仍 `profile`、`path` 仍 `profile`、`requiresAuth` 仍 `true`**（`frontend/src/shell/nav.js:21`，现取 `labelKey:'profile'` ⇒ 改 `'me'`）。即 **`T80` 的 route 面 / 可见性面 / 图标面逐字不变，仅第五格 `labelKey` 换键**（`t('profile')` ⇒ `t('me')`）。
+> - **修订 `T85`（裁定⑨）**：`T85` 原文「相交面积 = 0」**判据逐字不动、不降级**；**实现取向**由「定位于正文右缘留白（`--sea-content-max` `1440px` 之外的右缘）」**就地细化**为 **「桌面档正文预留右侧 gutter `140px`（落 `frontend/src/styles.css` 的 `@media (min-width:1024px)`；`shell.css` 不新增 `@media`；`≤767` 零影响）」**（几何口径见 §14.2）。
+> - **★ v1.8 就地更正（裁定⑩ · 修订 `T85` 的 gutter 起点）**：上条修订中「`@media (min-width:1024px)`」**逐字保留、已作废**；**现行版 = gutter 生效起点 `768px`**（与 `.sf-fm` 隐藏阈值 `≤767` 同界 ⇒ `>767` 全档留白）。**`T85`「相交面积 = 0」判据逐字不动、不降级**，**作用域明确为「菜单可见的一切宽度档」**（`>767`，含 `768–1023` 中间档，不再限于 `≥1024`）；**验收面 = 六档 × 三页**（`768`/`1024`/`1280`/`1440`/`1600`/`1920` × `/`、`/listing`、`/exchange`）+ **手机档（`390`/`375`/`320`）零影响**。**依据 = D4**（v1.7 的 `min-width:1024` 使 `768–1023` 中间档菜单可见而正文无留白 ⇒ 相交 ≈ `49920 px²`，违 `T85`）。见 §14.0 裁定⑩ / §14.2 / §14.6 第 16 行 / §14.7 判负行。
+
+### 14.2 悬浮菜单几何与色值（逐值表）
+
+**几何（结构常量 · 两档同值 · 不进主题差集）**
+
+| 项 | 值 | 备注 |
+|---|---|---|
+| 容器宽 | `108px` | 参考图等比缩放 |
+| 单元高 | `92px` | 5 单元 |
+| 胶囊圆角 | `54px`（= 容器宽 ÷ 2） | 定式：圆角 = 容器宽/2 |
+| 图标尺寸 | `26px` | lucide |
+| 文字字号 | `12px` | 与 `T79`（全站 ≥12px）一致 |
+| 图标-文字间距 | `6px` | — |
+| 单元间分隔线 | `1px` 浅灰，宽 `48px` | 居中 |
+| 右边距 | `16px` | 贴右缘 |
+| 垂直定位 | `top:45%` + `translateY(-50%)` | 视口纵向居中略偏上 |
+| 阴影 | `0 6px 18px rgba(0,0,0,.07)` | 固定值（不进主题差集） |
+
+**色值 token（日/夜两档）**
+
+| token | 日（参考图） | 夜（推断） | 取值依据（真源 = `frontend/src/theme/theme-tokens.css` 夜档块 L159+） |
+|---|---|---|---|
+| `--sf-fm-bg` | `#FFFFFF` | `#141619` | 夜档 = `--sf-panel-bg` / `--sf-card-bg`（`theme-tokens.css:225/189`） |
+| `--sf-fm-fg` | `#333333` | `#EDEFF2` | 夜档 = `--sf-panel-h4-fg` / `--sf-title-fg`（`theme-tokens.css:229/198`） |
+| `--sf-fm-divider` | `#E8E8E8` | `#262A30` | 夜档 = `--sf-panel-border` / `--sf-hr-bg`（`theme-tokens.css:226/231`） |
+
+> **诚实边界**：日档三值 = 参考图实测；**夜档三值 = 「推断」**（参考图未展示夜间）—— 取本仓夜档**既有**面板/卡片值，**未发明新色**。**回读**：三 token 已写入 `style-preview.html` 追加区块（行 983–1042）。
+
+**桌面正文右侧 gutter（★ v1.7 · 裁定⑨ · 结构常量 · 落 `frontend/src/styles.css`）**
+
+| 项 | 值 | 说明 |
+|---|---|---|
+| gutter 宽 | `140px` | = 菜单 `right:16` + 容器宽 `108` + 余量 `16` |
+| 适用档 | **`>767`（菜单可见的一切宽度档）** —— `@media (min-width:768px)`〔**★ v1.8 就地更正（裁定⑩）**：改前原文 = 「桌面档（`@media (min-width:1024px)`）」，**逐字留痕、已作废**〕 | **落 `frontend/src/styles.css`**；**不得落 `frontend/src/shell/shell.css`**（后者仍只 1 个 767 块，见 §14.6 第 16 行） |
+| `≤767` | **零影响** | 767 及以下不落入 `min-width:768`；`.sf-fm` 在该档 `display:none` |
+| 与菜单/正文关系（1440 档） | 正文右缘 ≤ `1440−140 = 1300px`；菜单左缘 = `1440−124 = 1316px` | 间距 `≥16px` |
+| 硬判据 | **六档（`768`/`1024`/`1280`/`1440`/`1600`/`1920`）× 三页（`/`、`/listing`、`/exchange`）`.sf-fm` ∩ 正文卡片 = `0`** **且** 逐档逐页 `scrollWidth == clientWidth`；**手机档（`390`/`375`/`320`）零影响** | `T85` **不降级**（见 §14.7）〔**★ v1.8 就地更正（裁定⑩）**：改前原文 = 「**1440 / 1600 / 1920 三档** `.sf-fm` ∩ 正文卡片 = `0` 且三档 `scrollWidth == clientWidth`」**逐字留痕、已作废**〕 |
+
+> **诚实边界**：以上为**几何口径**；`styles.css` 的具体 CSS 形态（`padding-right` / 内容 `max-width` 收窄 / 容器 `padding`）由 Kong 按此口径实现 —— **本册只冻结「桌面档预留 `140px` 右 gutter」与三档判据**。
+> **★ v1.8 补注（裁定⑩）**：上条「**桌面档**预留 `140px` 右 gutter」**就地更正为「`>767`（菜单可见的一切档）预留 `140px` 右 gutter」**（起点 `1024` ⇒ `768`）；「**三档判据**」**就地更正为「六档（`768`/`1024`/`1280`/`1440`/`1600`/`1920`）× 三页（`/`、`/listing`、`/exchange`）判据 + 手机档零影响」**。**理由 = D4**：`.sf-fm` 在 `768–1023` 已可见，v1.7 的 `min-width:1024` 漏掉该中间档 ⇒ 相交 ≈ `49920 px²`。`T85` 判据（相交 = 0）**仍不降级**。
+
+### 14.3 三弹窗模板位（复用既有 `Modal`）
+
+| 弹窗 | 触发 | 内容（模板位） | 硬约束 |
+|---|---|---|---|
+| **APP** | 悬浮菜单第 3 项 | 二维码图位 + 下载引导文案占位 | 图位为**占位**（无真实码） |
+| **反馈** | 悬浮菜单第 4 项 | 表单占位（输入框 + 提交按钮） | **不落库**（本轮不接后端） |
+| **客服** | 悬浮菜单第 5 项 | 联系方式占位（如邮箱/账号文字） | 无真实外链亦可 |
+
+- 三弹窗**复用 `frontend/src/components/ui/Modal.jsx`**（`role`/`aria-modal` 已由该组件承担·见 `OPEN-ITEMS` `R1` 收口）。
+- **遮罩关闭 + ESC 关闭**：沿用 `Modal` 既有行为（判负见 §14.7）。
+
+### 14.4 T76 去重口径重算（逐格）
+
+| 项 | v1.1 旧口径（留痕） | **v1.5 新口径（`T86`）** |
+|---|---|---|
+| 底栏目标集 | `/`、`/reward`、`/task`、`/exchange` | **`/`、`/exchange`、`/listing/new`、`/messages`、`/profile`** |
+| 顶栏项集（`menuItems`） | 奖励/任务/市场（+管理后台） | **不变**（奖励/任务/市场，+管理后台） |
+| 汉堡排除集 = 顶栏 ∩ 底栏 | `['reward','task','exchange']` | **`['exchange']`** |
+| 汉堡保留 | — | **`reward`、`task`**（去重理由消失 ⇒ 恢复）+ 用户区各项 |
+| 桌面左 nav | 奖励/任务/市场 | **一字不动** |
+
+> **功能回归点名（必写）**：**若沿用旧排除集 `['reward','task','exchange']` ⇒ 移动端 hamburger 面板将不含「奖励」「任务」，而底栏也不再含 ⇒ 移动端彻底失去这两入口** ⇒ 判负。
+> **★ v1.6 补注（`home` 值变更 · Zang 裁定⑦）**：本表**底栏目标集第 1 项 = `/`（key `home`）** —— v1.6 的 `home` 变更是**值变更（文案：`首页`⇒`海鲜市场`）、非路由变更** ⇒ **本表底栏目标集（route 面）逐字不变**，`T86` 汉堡排除集 **仍 = `['exchange']`**（上一行「功能回归点名」不变）。`home` 值变更的全部影响面 = 底栏①**文案**（`t('home')`），见 §14.10 B 与 §14.5 ★。
+> **★ v1.7 补注（裁定⑧ · `me` 键）**：底栏⑤（`/profile`）的 **`labelKey` 由 `profile` 改 `me`** 是**文案面（labelKey）变更、非 route / 非 `key` 变更** ⇒ **本表底栏目标集（route 面）逐字不变**，`T86` 汉堡排除集 **仍 = `['exchange']`**（上一行「功能回归点名」不变）；`SHELL_NAV_ITEMS` 第五项的 **`key` 仍 `profile`** ⇒ `visibleNavItems(...).map(i => i.key)` **逐字不变**。`me` 键的全部影响面 = 底栏⑤**文案**（`t('me')`），见 §14.10 A 与 §14.5 ★①。
+
+### 14.5 断言影响（逐条点名 + 改锚方案）
+
+| # | 测试 `文件:行号` | 断言语义 | 影响 | 处置 |
+|---|---|---|---|---|
+| 1 | `theme-shell-isomorphism.test.jsx:88` | 底栏 `a[data-sf-nav]` key 序 == `visibleNavItems(false)` | **一字不动**（用真源计算，自动跟随） | 前提：`visibleNavItems` 仍自 `SHELL_NAV_ITEMS` 派生 |
+| 2 | `theme-shell-isomorphism.test.jsx:106-107` | `visibleNavItems(false/true)` key 集字面 | **必须改锚** | 新值 = `['home','shard','sell','messages']` / `+['profile']` |
+| 3 | `theme-shell-isomorphism.test.jsx:91-103` | `.nav-link[href]` == nav 项去 home；`:102` 字面 `['/','/reward','/task','/exchange']` | **必须改锚** | 见下「★ 顶栏/底栏分家」 |
+| 4 | `theme-shell-isomorphism.test.jsx:130-144` | `SHELL_NAV_ITEMS` 每项 route 在 `App.jsx`、labelKey 在四语 locale | **自动通过**（前提：Kong 加 `/messages` 路由 + `sell`/`messages` 键） | 无需改锚 |
+| 5 | `theme-shell-isomorphism.test.jsx:146-153` | `SHELL_NAV_ITEMS[1]/[2]` 字面 `/reward`、`/task` | **必须改锚** | `[1]`=shard→`/exchange`；`[2]`=sell→`/listing/new` |
+| 6 | `theme-shell-isomorphism.test.jsx:238-259` | 主题块 token 键名 ∈ `TOKEN_KEYS` | **Kong 须同步** | `TOKEN_KEYS` 增 `fm-bg`/`fm-fg`/`fm-divider`，否则 `未登记 token` 判负 |
+| 7 | `theme-shell-isomorphism.test.jsx:261-283` | 四语键集逐文件相同 + siteTitle/siteSlogan | **一字不动**（对称新增 ⇒ 相等仍成立） | 无需改锚 |
+| 8 | `theme-shell-isomorphism.test.jsx:215-229` | `shell.css` 只有 1 个断点块 | **一字不动** | 前提：`.sf-fm{display:none}` 加进既有 767 块内 |
+| 9 | `theme-shell-isomorphism.test.jsx:205-213` | `shell/theme` JS 无 `matchMedia/innerWidth` | **一字不动** | 前提：`FloatingMenu.jsx` 走 CSS 断点，无 JS 判定 |
+| 10 | `theme-shell-isomorphism.test.jsx:167-187/:77-81` | 日/夜 DOM 形状恒等 + 区域顺序 | **一字不动** | 前提：`FloatingMenu` 不挂 `data-sf-region`；三弹窗默认不渲染 |
+| 11 | `r9-84-profile-entry.test.jsx:205-213` | 桌面左 nav 标签 = `[reward,task,shard]` | **一字不动** | 桌面 nav 未动；比对值取自 `zh.*` ⇒ 随 `shard` 新值自动跟随 |
+| 12 | `r9-84-profile-entry.test.jsx:215-232` | 汉堡面板含 个人资料/电量签到/退出登录 | **一字不动** | 恢复 `reward`/`task` 不删这三项 |
+| 13 | `route-exchange-rename.test.jsx:86-89` | `zh/en/hk/vn` 的 `shard` 值 = `碎片市场`/`Shard Market`/`碎片市場`/`Chợ mảnh` | **必须改锚** | 新值 = `市场`/`Market`/`市場`/`Chợ` |
+| 14 | `route-exchange-rename.test.jsx:103` | `visibleNavItems(false)` key = `['home','reward','task','shard']` | **必须改锚** | 新值 = `['home','shard','sell','messages']` |
+| 15 | `r9-93-points-symbol.test.jsx:185-194` | 键计数 top=119 / flat=1050 | **必须改锚** | 新值 = **top=128 / flat=1070** |
+| 16 | `s8-locale-key-coverage.test.js:181-188` | top=119 / flat=1050 / 节点=4200 | **必须改锚** | top=128 / flat=1070 / 节点=4280 |
+| 17 | `s9-ledger-kind-closure.test.js:120-128` | 同上 | **必须改锚** | 同上 |
+| 18 | `r9-96-dashj-copy.test.jsx:119-130` | top=119 / flat=1050 / 节点=4200 | **必须改锚** | 同上 |
+| 19 | `s19-participants-truth-source.test.jsx:103-108` | 同上 | **必须改锚** | 同上 |
+| 20 | `s23-participants-headcount.test.jsx:116-121` | 同上 | **必须改锚** | 同上 |
+| 21 | `s5-publish-headcount.test.jsx:83-88` | 同上 | **必须改锚** | 同上 |
+| 22 | `s7-submissions-panel.test.jsx:298-303` | 同上 | **必须改锚** | 同上 |
+| 23 | `i18n-batch-b4a.test.jsx:146` | `counts.zh == {top:119, flat:1050}` | **必须改锚** | `{top:128, flat:1070}` |
+| 24 | `i18n-batch-b4b.test.jsx:239/257/323` | 同上（含打印串 `zh: top=119 flat=1050`） | **必须改锚** | 同上 |
+| 25 | `i18n-batch-b5.test.jsx:216/242/258` | 同上 | **必须改锚** | 同上 |
+| 26 | `i18n-violation-closeout.test.jsx:133` | `[...counts][0]) == 1050` | **必须改锚** | `1070` |
+| 27 | `app-routes.test.jsx`（整体） | 渲染 `/`、`/login` | **一字不动** | 与 nav 无关 |
+| 28 | `fix-nav-langshell.test.jsx`（整体） | 语言前缀登录路由 / 链接构造器 | **一字不动** | 全程 `vi.mock(Header)`，与 nav 无关 |
+| 29 | `frontend/scripts/p4z-fixnav-langlinks.mjs` | login/register 相对路由串 + 语言链接 | **一字不动** | 只断既有串 |
+| 30 | `backend-ts/scripts/p7b-03-offline-gates.ts` `AC10-2` | 后端注册点冻结面 = **89** | **一字不动** | `/messages` 是**前端**路由 ⇒ **后端注册点仍 89** |
+| 31 | §13.1 `T77` 行 / §13.5 `P2 触控` 行「归因式判据」 | 1440 档差异集 100% 归因 `T79` 字号 | **措词须更新**（**允许变更集 += 新组件**） | 见 §14.9(b) 措词 |
+| 32 | `frontend/src/locales/{zh,en,hk,vn}.json` 的 **`home` 值**（现取扫描：是否存在断言 `home` 值 = 「首页」/`Home`/`首頁`/`Trang chủ` 的用例） | **是否有用例断言 nav 文案（底栏① = `t('home')`）为「首页」** | **现取 = 无（0 命中）** | **`home` 值变更（`首页` ⇒ `海鲜市场`）无断言锚定 ⇒ 无需改锚**；**值变更不改任何键计数**（§14.10 尾）；现取命令与命中行见下 ★ |
+| 33 | `v15-nav-floatmenu.test.jsx:96-99`（**★ 本轮 Kong 新增测试**；`git` 未跟踪 `??`）| 底栏 5 格文案 `== [TABLES[lang].home, .shard, .sell, .messages, TABLES[lang].profile]`（硬编码）| **必须改锚**（**仅第五格**）| 第五格新值 = `TABLES[lang].me`；其余四格逐字不变（`labelKey` 仅第五项由 `profile`→`me`）|
+| 34 | §13.1 `T77` 行 / §13.5 `P2 触控` 行 + §14.9(b)（归因式判据）| 1440 档差异集 ⊆ 允许变更集 | **措词须更新**（**允许变更集 += 「gutter 引起的容器/内容宽度变化面」**）| 见 §14.9(b)（与 `T79` 字号、`.sf-fm` 子树并列）|
+| 35 | §14.2 gutter 表 / §14.6 第 16 行 / §14.7 判负行（**★ v1.8 · 裁定⑩**）| gutter 生效起点 `1024` ⇒ `768`；`T85` 验收面 | **措词须更新**（**验收面扩六档 × 三页 + 手机档零影响**）| 见 §14.0 裁定⑩ / §14.2 / §14.6 第 16 行 / §14.7；`T85`「相交 = 0」**判据不降级**、**作用域 = 菜单可见的一切宽度档**（`>767`）；**不改任何测试文件**（属判据/几何口径面）|
+| 36 | §14.9(b)（归因式判据）/ §14.7「归因式判据」行（**★ v1.8 · 归因第④类**）| 1440 档差异集 ⊆ 允许变更集（**由三类扩四类**）| **措词须更新**（**允许变更集 += 「§14 已批准的 locale 值变更引起的文案/宽度面」**）| 见 §14.0 归因第④类 / §14.9(b)；**锚点** = 桌面左 nav 第 3 项宽 `52 ↔ 80`（根因 = `shard` 值 `碎片市场→市场`，每页 5 条差异原无归属 = **D3**）；**第④类须给「算术语义闭合」**（`newWidth−oldWidth` 符号 = `(len(new)−len(old))` 符号、量级同阶），**闭合不成立 ⇒ 立缺陷** |
+
+> **★ 顶栏 / 底栏「分家」（本版最硬的一处口径）**：`T80` 后 **`SHELL_NAV_ITEMS`（nav.js）= 底栏 5 项**；而**桌面左 nav 仍取 `Header.jsx` 的 `menuItems`（奖励/任务/市场）**（Kevin 明文「桌面左 nav 一字不动」）⇒ **两者不再同集**。因此第 3 行断言（`.nav-link == nav 项去 home`）的**前提失效**，须改锚为两条独立断言：① **底栏**（`[data-sf-region="tabbar"] a[data-sf-nav]` 的 href）= `['/','/exchange','/listing/new','/messages','/profile']`（含前缀档同法）；② **桌面左 nav**（`.nav-link[href]`）= `['/reward','/task','/exchange']`（**现状值，一字不动**）。
+> **★ nav 文案现取结论（`home` 值变更 · 本册 v1.6 · Zang 裁定⑦）**：**「凡断言 nav 文案为「首页」的用例」= 现取为「无」**。命令与读数：`grep -rn "首页" frontend/src/test --include='*.js' --include='*.jsx'` ⇒ 命中 **5 行、全为注释**（`listing-market.test.jsx:234`〔游标说明〕· `lang-path-redirect.test.jsx:218` · `i18n-content-wiring.test.jsx:235` · `ledger-flow-behavior.test.jsx:88,148`），**无一条断言底栏①文案**；另按 `labelKey:'home'` / `t('home')` / `.home` 现取，`home` 键**唯一消费点 = `frontend/src/shell/nav.js:15`**（非测试面）。⇒ `home` 值变更（`首页` ⇒ `海鲜市场`）**不挂任何测试、无需改锚**。旁证：唯一 locale-文案类断言 = `theme-shell-isomorphism.test.jsx:266-267`（`siteTitle` = `Seafood 海鲜市场`）**与本键无关、不受影响**；`theme-shell-isomorphism.test.jsx:106-107` 断言的是 **key 集字面**（`'home'` 为 key、非文案）⇒ **不受值变更影响**（其改锚只源于 `T80` 键集变更，见本节第 2 行）。**锚点落地提示（供 Kong/Neng）**：`frontend/src/locales/*.json` 落地 `home` 新值后，底栏① `t('home')` 应渲染「海鲜市场」；**若未来新增「断言底栏①文案 == 首页」的用例 ⇒ 改锚为新值「海鲜市场」**。**值变更 = +0 键**（§14.10 尾计数逐字不变）。
+> **★ v1.7 补登（裁定⑧⑨ · 断言影响）**：**① 裁定⑧（`me` 键）** —— **`me` 键不挂任何「既有」断言**（「既有」= 本节第 1–32 行点名者）；**`r9-84-profile-entry.test.jsx`：不动**（**理由**：该测试锚的是 **`Header.jsx:284` / `:460` 两个消费点的 `t('profile')` 文案「个人资料」**〔`:135`/`:226` = `toContain(zh.profile)`〕，而裁定⑧ **不改 `profile` 键值** ⇒ `zh.profile` 仍 = 「个人资料」⇒ **`r9-84` 逐字不动、必须保持绿**）。**唯一挂 `me` 的断言 = 本轮 Kong 新增测试 `v15-nav-floatmenu.test.jsx:96-99`**（硬编码第五格 = `TABLES[lang].profile`）⇒ **属「新增测试」而非「既有断言」，须由 Kong 改锚为 `TABLES[lang].me`**（本节第 33 行）。另 `theme-shell-isomorphism.test.jsx:130-144`（**每项 `labelKey` 必须在四语 locale**）**自动覆盖 `me`**（前提：四语补齐 `me` 键，见 §14.10 A）。**② 裁定⑨（gutter）** —— gutter 属**桌面几何新变更面**：它改变**各页正文容器/内容的宽度几何**（非 `T79` 字号、非 `.sf-fm` 子树）⇒ **必须并入「归因式判据」的允许变更集**（§13.1 `T77` 行 / §13.5 `P2 触控` 行 / §14.9(b)），否则 1600 档（内容 `max-width` 因 gutter 收窄）差异集会被误判为「与字号/新组件均无关的几何差异」；**gutter 不放宽 `T85`**（`T85` 仍「相交 = 0」）。**③ 计数** —— 因新增 `me` 键，本节第 15–26 行「按键计数断言」的**目标新值 +1 键** ⇒ **top `129` / flat `1071` / nodes `4284`**（§14.10 尾）。
+
+### 14.6 Kong 实现清单（文件:行号级）
+
+| # | 文件:行号 | 现状值（现取） | 目标值 | 依据 |
+|---|---|---|---|---|
+| 1 | `frontend/src/shell/nav.js:14-20` | `SHELL_NAV_ITEMS` = `[home,reward,task,shard,profile]`（icon `Home/Gift/Briefcase/Store/User`） | 改为 `[home(/,\u200bHome), shard(/exchange,\u200bStore), sell(/listing/new,\u200bPlusCircle), messages(/messages,\u200bMessageCircle), profile(/profile,\u200bUser, requiresAuth)]` | `T80` |
+| 2 | `frontend/src/shell/nav.js:4-13`（注释块） | 「全部来自既有路由实现…」 | 同步改注：新增项 = `messages`（本轮新路由 `/messages`）；**前提仍成立**（添加后均在 `App.jsx` 内有对应路由） | `T80` |
+| 3 | `frontend/src/App.jsx`（LangShell 内层 `<Routes>`，参照 L76–113） | 无 `messages` 路由 | 增 `<Route path="messages" element={<MessagesPage />} />`（**新占位页**；X/推特接驳位预留）；**不得**增 `/nearby` | `T80` + `route-layer.spec v2.27 §37` |
+| 4 | `frontend/src/pages/.../MessagesPage.jsx`（新建） | 不存在 | 占位页（标题 + 空态 + X 私信接驳位占位块） | `T80` |
+| 5 | `frontend/src/components/Header.jsx:17` | `MOBILE_PANEL_EXCLUDED_PATHS = ['reward','task','exchange']` | **`['exchange']`** | `T86` |
+| 6 | `frontend/src/shell/FloatingMenu.jsx`（新建） | 不存在 | 悬浮菜单组件（5 项 · 三项开弹窗）+ `data-sf-m` 钩子（**不得 `data-sf-region`**） | `T81`–`T85` |
+| 7 | `frontend/src/shell/AppShell.jsx:22`（`<BottomTabBar />` 之后） | 无悬浮菜单 | 追加 `<FloatingMenu />` | `T81` |
+| 8 | `frontend/src/shell/shell.css:104`（唯一 767 块，L123 内） | 767 块含 `.sf-tabbar{display:grid}` | 追加 `.sf-fm{display:none}`（**在既有块内**，不新增 `@media`）；顶层默认 `.sf-fm{display:flex}` | `T81` |
+| 9 | `shell.css` 顶部 | 无 `.sf-fm` | 加 `.sf-fm` 几何（`108px`/`92px`/`54px`/`26px`/`12px`/`6px`/`1px 48px`/`right:16px`/`top:45%`/`translateY(-50%)`/阴影） | `T82` |
+| 10 | `frontend/src/theme/tokens.js`（`TOKEN_KEYS`，参照 L31+） | 无 `fm-*` | 增 `fm-bg`/`fm-fg`/`fm-divider`（日档值 `#FFFFFF`/`#333333`/`#E8E8E8`） | `T83` |
+| 11 | `frontend/src/theme/theme-tokens.css:159+`（`[data-theme="dark"]`） | 无 `fm-*` | 增 `--sf-fm-bg:#141619` / `--sf-fm-fg:#EDEFF2` / `--sf-fm-divider:#262A30` | `T83` |
+| 12 | `frontend/src/theme/theme-tokens.css` `:root` | 无 `fm-*` | 增日档三 token（`#FFFFFF`/`#333333`/`#E8E8E8`） | `T83` |
+| 13 | `frontend/src/components/ui/Modal.jsx`（复用） | 既有 | 三弹窗复用之（APP/反馈/客服 模板位） | `T84` |
+| 14 | `frontend/src/locales/{zh,en,hk,vn}.json` | 119 键/语 | 增 20 键/语（§14.10 逐键）+ 改 **`shard`/`home`** 值（**值变更 2 键**；`home` = `首页`⇒`海鲜市场`，见 §14.10 B） | `T80`/`T81`/§14.10〔**★ v1.6 就地更正**：原写「+ 改 `shard` 值」，Zang 裁定⑦ 补 `home`〕〔**★ v1.7 就地更正**：增 **21** 键/语（原 20 + **新增 `me`**，Zang 裁定⑧）⇒ 计数 顶层 `119⇒129` / 拍平 `1050⇒1071` / 四语节点 `4200⇒4284`〕 |
+| 15 | `frontend/src/shell/nav.js:21` | 第五项 `labelKey: 'profile'` | **改 `labelKey: 'me'`**（`key: 'profile'` / `path: 'profile'` / `requiresAuth: true` 不动）| `T80`〔**★ v1.7 补登 · Zang 裁定⑧**：底栏⑤文案 = 「我的」；`profile` 值不动〕 |
+| 16 | `frontend/src/styles.css`（**新增** `@media (min-width:768px)` 块）〔**★ v1.8 就地更正（裁定⑩）**：改前原文 = 新增 `@media (min-width:1024px)` 块，**逐字留痕、已作废**；理由 = `.sf-fm` 在 `768–1023` 已可见，`min-width:1024` 漏该中间档 ⇒ 相交 ≈ `49920 px²`（**D4**）〕| 无桌面 gutter | **`>767`（菜单可见的一切档）**正文预留右侧 gutter `140px`（`padding-right` / 内容 `max-width` 收窄，几何口径见 §14.2）| `T85`〔**★ v1.7 补登 · Zang 裁定⑨**：**不得落 `shell.css`**（其仍只 1 个 767 块）〕〔**★ v1.8 补登 · 裁定⑩**：起点 `1024` ⇒ **`768`**，与 `.sf-fm` 显示阈值同界；**`shell.css` 仍不得新增 `@media`**〕 |
+
+### 14.7 Neng 判负清单
+
+| 项 | 正向判据 | 判负方法（可执行） | 证据边界 |
+|---|---|---|---|
+| **桌面可见性 + 5 项可点** | 1440 档 `.sf-fm` 可见（`getBoundingClientRect` 非 0）且 5 项可点、可跳转 | 1440 档**真实坐标点击**（`elementFromPoint` + `click()`）：`卖闲置`→`/listing/new`、`消息`→`/messages`；`APP`/`反馈`/`客服`→弹窗出现 | 设备档可判 |
+| **≤767 隐藏** | `.sf-fm` 计算 `display === 'none'`（390/375/320） | 三档读 `getComputedStyle('.sf-fm').display`；非 `none` ⇒ 判负 | 设备档可判 |
+| **底栏五项对拍** | 底栏 `a[data-sf-nav]` 的 label/href 逐项 == `T80` 表（含四语前缀） | 四语前缀各取一次（zh 无前缀 / en / hk / vn）：href ∈ `{/,/exchange,/listing/new,/messages,/profile}` 加对应前缀；label 取自四语 locale | 设备档可判 |
+| **三弹窗开关** | 三项各弹窗可开；**遮罩/ESC 可关** | 开 → 点遮罩空白关；再开 → `Escape` 关；关后 DOM 无弹窗节点 | 设备档可判 |
+| **四语键集逐文件相同** | 四语 locale `Object.keys` 排序后逐文件相等 | `Object.keys` 相等 + 20 新键齐 + `shard`/`home` 新值〔**★ v1.6**：原写「+ `shard` 新值」，Zang 裁定⑦ 补 `home` 新值〕 | 设备档可判 |
+| **390/375/320 零横向溢出** | `scrollWidth <= innerWidth` | 三档各读 `{scrollWidth, innerWidth}` | 设备档可判 |
+| **1440 无遮挡** | 悬浮菜单 rect 与正文卡片 rect **相交面积 = 0** | 遍历正文卡片选择器取 rect，与 `.sf-fm` rect 求交（含边界）；`> 0` ⇒ 判负 | 设备档可判 |
+| **六档 × 三页无遮挡 + 零横向溢出（★ v1.8 · 裁定⑩ 就地扩档；v1.7 三档口径留痕见右）** | **`768` / `1024` / `1280` / `1440` / `1600` / `1920` 六档 × `/`、`/listing`、`/exchange` 三页**，逐档逐页 `.sf-fm` rect ∩ 正文卡片 rect **= `0`** **且** `scrollWidth == clientWidth`；**手机档（`390`/`375`/`320`）零影响**（`.sf-fm` 计算 `display === 'none'` 且正文无 gutter） | 六档 × 三页各遍历正文卡片取 rect 与 `.sf-fm` 求交（含边界）；任一（档 × 页）`> 0` **或** `scrollWidth > clientWidth` ⇒ 判负；手机三档须 `.sf-fm` `display:none` 且正文无 gutter。**`T85` 不降级**（「相交 = 0」逐字不变），gutter 为实现取向。**留痕（v1.7 原文 · 逐字保留 · 已被本行取代）**：「**1440 / 1600 / 1920 三档无遮挡 + 零横向溢出（★ v1.7 · 裁定⑨）**：三档 `.sf-fm` rect ∩ 正文卡片 rect = `0` 且三档 `scrollWidth == clientWidth`」—— **取代理由 = 裁定⑩**：`T85` 作用域 = 菜单可见的一切档（`>767`，含 `768–1023` 中间档），v1.7 三档口径**漏掉该中间档**（实测相交 ≈ `49920 px²` = **D4**）| 设备档可判 |
+| **汉堡去重（`T86`）** | 展开汉堡面板：`a[href]` 集 ∩ 底栏 `a[href]` 集 = ∅，**且面板含 `reward`/`task`** | 展开后取面板 `a[href]`；反例：面板缺 `reward`/`task` ⇒ 判负（功能回归） | 设备档可判 |
+| **桌面左 nav 未动** | 1440 档桌面 `nav a` 文案 = `[奖励,任务,市场]` | 取 `document.querySelector('nav') a` 文案 | 设备档可判 |
+| **归因式判据（允许变更集 += 新组件 + gutter + 第④类）** | 见 §14.9(b) | 差异集 ≠ `T79` 归因集时，须 ⊆ 允许变更集（① `T79` 字号 + ② **新增 `.sf-fm` 子树** + ③ **★ v1.7：gutter 引起的容器/内容宽度变化面** + ④ **★ v1.8：§14 已批准的 locale 值变更引起的文案/宽度面**）；**第④类须给「算术语义闭合」**（字串长度变化 → 宽度变化方向与量级一致；闭合不成立 ⇒ **立缺陷**） | 设备档可判 |
+
+### 14.8 未核实 / 登记（诚实清单 · 承接 N 序列）
+
+- **N27**：悬浮菜单**真机**（实体手机）上「≤767 隐藏」与桌面「不遮挡」**未在真机复测** ⇒ `NOT_MEASURED`（承 `N23`/§13.6）。设备档（CDP）可判。
+- **N28**：**夜档 `--sf-fm-*` 三值为「推断」**（参考图未展示夜间）—— 值取自本仓夜档既有面板/卡片值，**未经 Kevin 逐格确认** ⇒ 登记为**一句话可改**（改三格值即可，不动结构）。
+- **N29**：悬浮菜单的**阴影/圆角/间距**在 1440 真机上的**像素级观感**（参考图 → 桌面等比缩放）未逐值复核 ⇒ 由 Neng 设备档现取补录。
+- **N30**：`/messages` 占位页与 **X（推特）私信**的真实接驳**未实现**（本轮占位留空）⇒ 属后续单；本册只冻结「占位 + 接驳位预留」。
+
+### 14.9 style-preview 追加区块自证 + 归因判据措词更新
+
+**(a) 追加区块三读数（本册已执行）**：`docs/design/style-preview.html` **纯追加**（`open(path,'ab')`）——
+- **改前**：sha256-less md5 `8885ee39973f52c0e3a8741811a2f028` · `80,289 B` · `982 行`；
+- **改后**：md5 `13a845dacb6865ea3fa738663a63159c` · `86,638 B` · `1042 行`；
+- **自证三读数**：① `md5(after[:80289]) == md5(before)` ✅（**前缀逐字节不变**）；② **字节增量 = +6349**；③ **新块行号区间 = `983..1042` > 旧最大引用行号 `868`** ✅（`grep -oE 'SP:[0-9]+'` 旧最大 = `868`）。
+
+**(b) §13 桌面「归因式判据」措词更新（★ 允许变更集 += 新组件）**：§13.1 `T77` 行 / §13.5 `P2 触控` 行的**归因式判据**（「1440 档差异集必须 100% 归因于 `T79` 字号提升」）**措词就地更新**为：
+> **「1440 档差异集必须 ⊆ 允许变更集 = {`T79` 字号提升的级联；**新增组件 `.sf-fm` 子树（悬浮菜单及其弹窗宿主）**}。验证法 = 反事实归因实验：回退 `T79` 字号 **且** 隐藏 `.sf-fm`（测量期注入，不动仓库）⇒ 差异集必须为空（`仅基线有 = 0` 且 `仅归因有 = 0`）；且差异集中不得存在与字号、与新组件均无关的几何/布局差异。」**
+> **留痕**：原措词（仅 `T79` 字号）**逐字保留于 §13.1 / §13.5 既有行**（本册不改写）；**本行为其就地更新，以本行为现行版**。**理由** = `T81` 新增 `.sf-fm` 在 1440 档可见（新增 DOM 元素）⇒ 旧判据的「差异集归零」不再成立。
+> **★ v1.7 就地更新（裁定⑨ · 允许变更集 += gutter）**：上条「允许变更集」**再就地扩充**为 —— **「1440 档差异集必须 ⊆ 允许变更集 = {`T79` 字号提升的级联；**新增组件 `.sf-fm` 子树（悬浮菜单及其弹窗宿主）**；**gutter 引起的容器/内容宽度变化面（桌面档正文右侧预留 `140px`）**}。验证法 = 反事实归因实验：回退 `T79` 字号 **且** 隐藏 `.sf-fm` **且** 撤除 gutter（测量期注入，不动仓库）⇒ 差异集必须为空（`仅基线有 = 0` 且 `仅归因有 = 0`）；且差异集中不得存在与字号、与新组件、与 gutter **三者均无关**的几何/布局差异。」**（与 §13.1 `T77` 行 / §13.5 `P2 触控` 行的归因口径**同构** —— 同一「反事实归因 + 差异集 ⊆ 允许变更集」表述。）**留痕**：v1.5 版措词（`T79` + `.sf-fm`）**逐字保留于上一行**；**本行为其就地更新，以本行为现行版**。**理由** = 裁定⑨ 的 gutter 改变了**正文容器/内容宽度几何** ⇒ 未撤除 gutter 前「差异集归零」不成立。
+> **★ v1.8 就地更新（裁定⑩ + 归因第④类 · 允许变更集扩为四类）**：上两行「允许变更集」**再就地扩充**为 —— **「差异集必须 ⊆ 允许变更集 = { ① `T79` 字号提升的级联；② 新增组件 `.sf-fm` 子树（悬浮菜单及其弹窗宿主）；③ gutter 引起的容器/内容宽度变化面（`>767` 全档正文右侧预留 `140px`，**起点 `768`**）；④ **§14 已批准的 locale 值变更引起的文案/宽度面** }。验证法 = 反事实归因实验：回退 `T79` 字号 **且** 隐藏 `.sf-fm` **且** 撤除 gutter（测量期注入，不动仓库）⇒ 差异集必须 ⊆ **第④类允许集**（余下差异须**逐条可追溯到 §14 已批准的 locale 值变更**，且**每条须给「算术语义闭合」**：字串长度变化 → 宽度变化方向与量级一致，即 `newWidth − oldWidth` 的符号 = `(len(newLabel) − len(oldLabel))` 的符号、量级同阶）；且差异集中不得存在与字号、与新组件、与 gutter、与 §14 已批准值变更 **四者均无关** 的几何/布局差异。」**
+> **留痕**：v1.5（`T79` + `.sf-fm`）与 v1.7（+ gutter，实为「三允许面」）措词**逐字保留于上方两行**；**本行为其就地更新，以本行为现行版**。**理由** = ① **裁定⑩** 的 gutter 起点改 `768` 使 **`768–1023` 中间档**进入验收面（`T85` 作用域 = 菜单可见的一切档）；② **归因第④类**承接 **D3** —— `shard` 值 `碎片市场→市场` 使桌面左 nav 第 3 项宽 **`52 ↔ 80`**，**每页 5 条差异原无归属** ⇒ 补入允许变更集，避免「已批准的值变更」被误判为无关几何差异；**第④类可判负要求 = 算术语义闭合**（见 §14.0 归因第④类 / §14.7 归因式判据行）。
+
+### 14.10 i18n 新增键逐键清单（四语同集 · 非 zh 三条译文标「待复核」）
+
+> **口径**：四语**同集**（`Object.keys` 逐文件相同）；**非 zh 译文标「待复核」**（zh = 原口径）。**名称风格** = 承仓内既有（顶层扁平键用于 nav/菜单标签；camelCase 命名空间用于功能面）。
+
+**A. 顶层扁平键（+6）**〔**★ v1.7 就地更正留痕**：原文 = 「（+5）」（`sell`/`messages`/`app`/`feedback`/`support`），Zang 裁定⑧ 补新增键 **`me`** 后为「（+6）」；本行为现行版，原文保留〕
+
+| 键 | zh | en（待复核） | hk（待复核） | vn（待复核） |
+|---|---|---|---|---|
+| `sell` | 卖闲置 | Sell | 賣閒置 | Bán đồ |
+| `messages` | 消息 | Messages | 訊息 | Tin nhắn |
+| `app` | APP | App | APP | Ứng dụng |
+| `feedback` | 反馈 | Feedback | 反饋 | Phản hồi |
+| `support` | 客服 | Support | 客服 | Hỗ trợ |
+| `me` | **我的** | **Me** | **我的** | **Tôi** |
+
+> **★ v1.7 补登（Zang 裁定⑧ · 新增 `me`）**：新增顶层扁平键 **`me`**（zh「我的」/ en「Me」/ hk「我的」/ vn「Tôi」）—— **用途 = 底栏⑤（`/profile`）文案**（`frontend/src/shell/nav.js:21` 第五项 `labelKey` 改 `'me'`）；**`profile` 键值不动**（保持「个人资料」，其两个消费点 `Header.jsx:284`/`:460` 与 `r9-84-profile-entry.test.jsx` 均不受影响，见 §14.0 裁定⑧ / §14.5 ★①）。**A 段计数：+5 ⇒ +6**。**「一句话可改」**：若 Kevin 要全站统一为「我的」，则改 `profile` 值 + 改锚 r9-84（见 §14.0 裁定⑧）。
+
+**B. 既有键「值」变更（+0 键 · 改 2 值）**〔**★ v1.6 就地更正留痕**：原文 = 「（+0 键 · **改 1 值**）」，Zang 裁定⑦ 补 `home` 后为「**改 2 值**」（`shard` + `home`）；本行为现行版〕
+
+| 键 | zh | en（待复核） | hk（待复核） | vn（待复核） | 留痕 |
+|---|---|---|---|---|---|
+| `shard` | **市场** | **Market** | **市場** | **Chợ** | 原值：`碎片市场` / `Shard Market` / `碎片市場` / `Chợ mảnh`（**全站统一称谓 ⇒ 桌面顶栏同键同步显示「市场」**） |
+| `home` | **海鲜市场** | **Seafood Market** | **海鮮市場** | **Chợ hải sản** | 原值：`首页` / `Home` / `首頁` / `Trang chủ`。**留痕：原写 首页，已由 v1.6 按 Zang 裁定⑦ 与原值消费点唯一性（`nav.js:15`）更正**（底栏①文案 = Kevin 指定「海鲜市场」⇒ **与 `siteTitle` 品牌口吻一致**；**全站统一称谓 ⇒ 任一 `t('home')` 消费面（现取唯一 = `nav.js:15` 底栏①）同步显示「海鲜市场」**；**值变更 = +0 键**） |
+
+**C. 新占位页命名空间 `messagesPage`（+4）**
+
+| 键 | zh | en（待复核） | hk（待复核） | vn（待复核） |
+|---|---|---|---|---|
+| `messagesPage.title` | 消息 | Messages | 訊息 | Tin nhắn |
+| `messagesPage.empty` | 暂无消息 | No messages yet | 暫無訊息 | Chưa có tin nhắn |
+| `messagesPage.xPlaceholder` | X（推特）私信 · 接驳位 | X (Twitter) DM · placeholder | X（推特）私訊 · 接駁位 | Tin nhắn riêng X (Twitter) · vị trí chờ |
+| `messagesPage.xNote` | 该区域将用于接入 X（推特）私信，本轮为占位 | Reserved for X (Twitter) DM; placeholder for now | 該區域將用於接入 X（推特）私訊，本輪為佔位 | Khu vực này sẽ dùng để kết nối tin nhắn X (Twitter), hiện là vị trí chờ |
+
+**D. 弹窗命名空间 `appModal`（+4）**
+
+| 键 | zh | en（待复核） | hk（待复核） | vn（待复核） |
+|---|---|---|---|---|
+| `appModal.title` | 下载 APP | Get the App | 下載 APP | Tải ứng dụng |
+| `appModal.qrPlaceholder` | 二维码占位 | QR code placeholder | 二維碼佔位 | Vị trí mã QR |
+| `appModal.downloadHint` | 扫码下载（占位） | Scan to download (placeholder) | 掃碼下載（佔位） | Quét mã để tải (vị trí chờ) |
+| `appModal.close` | 关闭 | Close | 關閉 | Đóng |
+
+**E. 弹窗命名空间 `feedbackModal`（+4）**
+
+| 键 | zh | en（待复核） | hk（待复核） | vn（待复核） |
+|---|---|---|---|---|
+| `feedbackModal.title` | 反馈 | Feedback | 反饋 | Phản hồi |
+| `feedbackModal.formPlaceholder` | 反馈表单占位（暂不提交） | Feedback form placeholder (not submitted) | 反饋表單佔位（暫不提交） | Biểu mẫu phản hồi (chưa gửi) |
+| `feedbackModal.submitNote` | 本轮仅占位，不落库 | Placeholder only this round | 本輪僅佔位，不入庫 | Chỉ là vị trí chờ, không lưu |
+| `feedbackModal.close` | 关闭 | Close | 關閉 | Đóng |
+
+**F. 弹窗命名空间 `supportModal`（+3）**
+
+| 键 | zh | en（待复核） | hk（待复核） | vn（待复核） |
+|---|---|---|---|---|
+| `supportModal.title` | 客服 | Support | 客服 | Hỗ trợ |
+| `supportModal.contactPlaceholder` | 联系方式占位 | Contact placeholder | 聯絡方式佔位 | Vị trí liên hệ |
+| `supportModal.close` | 关闭 | Close | 關閉 | Đóng |
+
+> **计数影响（Kong 落地后）**：顶层 `119 ⇒ 128`（+5 叶 +4 命名空间）；拍平 `1050 ⇒ 1070`（+20 叶）；四语节点 `4200 ⇒ 4280`。**「四语键集逐文件相同」硬断言**（`theme-shell-isomorphism.test.jsx:261-283`）= **对称新增 ⇒ 自动仍成立**；**按键计数断言**（§14.5 第 15–26 行）= **必须改锚**。**★ v1.6（Zang 裁定⑦）**：**值变更 2 键（`shard` + `home`）= +0 键** ⇒ 上列计数（顶层 `119⇒128` / 拍平 `1050⇒1070` / 四语节点 `4200⇒4280`）**逐字不变**（增量全部来自 +20 新增键；**`home` 值变更不改任何键计数**）。 **★ v1.7（Zang 裁定⑧ · 新增 `me` 键）**：**实取计数** = 顶层 `119 ⇒ 129`、拍平 `1050 ⇒ **1071**`、四语节点 `4200 ⇒ 4284`；**§14.5 第 15–26 行「按键计数断言」新值同步为 top `129` / flat `1071` / nodes `4284`**。**留痕（与补丁单预告的差异）**：补丁单预告「拍平 `1050⇒1072`」**与盘上实测不符** —— 实测 **加 `me` 后拍平 = `1070 + 1 = 1071`**（`me` 为 **1 个顶层扁叶键** ⇒ 拍平 +1，非 +2；且 `4284 = 1071 × 4` 自洽）⇒ **以盘上实测 `1071` 为准**；顶层 `129` / 四语节点 `4284` 与预告一致。**现取命令（可复跑）**：对 `frontend/src/locales/{zh,en,hk,vn}.json` 逐文件 `len(json)` = 顶层、递归叶计数 = 拍平、`× 4` = 四语节点（Kong 落地 `me` 后复跑应得 `129`/`1071`/`4284`）。
+> **★ 替代关系（诚实登记）**：原计划新增键 `nearby` **已随「附近/`/nearby`」一并移除**（Kevin 当日变更）⇒ **不新增 `nearby`**。

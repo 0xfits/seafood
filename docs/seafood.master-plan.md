@@ -1416,6 +1416,54 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 ---
 
+### 5.402 **★★ 桌面右侧悬浮菜单（5 项）+ H5 底栏改五项 + `/messages` 占位页全链收口 —— 规范 v1.5→v1.8 / route v2.27 · Kong 实现 · Neng 独立判负 PASS（0 产品缺陷）**（2026-10-11）
+
+**A. 背景与定档（Kevin 2026-10-11）**：① **桌面右侧悬浮菜单（5 项）**（`卖闲置`/`消息`/`APP`/`反馈`/`客服`）+ ② **H5 底栏改五项**（`海鲜市场`/`市场`/`卖闲置`/`消息`/`我的`）+ ③ 消息模块占位（后续接驳 **X/推特私信**）+ ④ 客服/反馈做**弹窗模板位**；**方案 A · UI 先行（不动后端）**。**当日两条连锁更正（Zang 转达）**：**(A)** 底栏② = **「市场」→ `/exchange`**（key `shard`，图标 `Store`；**不新建 `/nearby` 占位页、不新增 `nearby` 键**）；**(B)** `T76` 汉堡去重排除集 `['reward','task','exchange']` **⇒ `['exchange']`**，**恢复 `reward`/`task`**（否则移动端底栏与汉堡**双双不含**该两入口 ⇒ **功能回归判负**）。
+
+**B. 规范面（Jing · 只追加 · `git diff --numstat` 删除列 = 0）**：
+
+- `docs/design/design-system.spec.md` **v1.5 → v1.8**（现行 **1,256 行 / 229,516 B**）：新增 **§14** + 规则 **`T80`–`T86`** + **`N27..N30`** + **归因第④类**（「§14 已批准 locale 值变更引起的文案/宽度面」）+ **gutter 生效起点 `1024 ⇒ 768`**（裁定⑩）。逐版：**v1.5**（底栏新集合 / 悬浮菜单 / 三弹窗 / 1440 不重叠硬判据 / `T76` 重算 · `+232 −0`）→ **v1.6**（`home` 值变更 · `+239 −0`）→ **v1.7**（新增键 `me` + 桌面 gutter `140px`）→ **v1.8**（gutter 起点 `768` + 第④类）。
+- `docs/route-layer.spec.md` **v2.27 §37**（**7,893 行 / 1,542,496 B / md5 `5b6f797c8301de39cf7a0c8da1bd6b8d`**）：**新增页面路由 = 恰 1 条（`/messages`）**；`/listing/new`、`/exchange`、`/profile` 为**复用既有**；**后端注册点照 89 不变**；**不登记 `/nearby`**。
+- **真源** `docs/design/style-preview.html` **纯追加 983–1042**（`numstat 60 0`）**三读数**：① `md5(after[:80289]) == md5(before)` = **`8885ee39973f52c0e3a8741811a2f028`** ✅（前缀逐字节不变）· ② 字节 **`80,289 → 86,638`（+6,349）** · ③ 新块行号 **`983..1042` > 旧最大引用 `SP:868`** ✅。
+- **改前快照** `docs/versions/design-system.spec.v1.{4,5,6,7}.md` + `docs/versions/route-layer.spec.v2.27.md`（`cmp = 0`）+ 三 delta 件 `docs/audit/design-system-v1.{5,6}-delta.md`、`docs/audit/route-layer-v2.27-delta.md`；台账 `docs/OPEN-ITEMS.md` 新增 **`F″` 段**。
+
+**C. 实现面（Kong · 文件:行号级）**：
+
+| 文件:行号 | 落点（现取） |
+|---|---|
+| `frontend/src/shell/nav.js:19-24` | `SHELL_NAV_ITEMS` = `[home(/), shard(/exchange), sell(/listing/new), messages(/messages), profile(/profile, requiresAuth)]`；**第五项 `labelKey: 'me'`**（`key`/`path`/`requiresAuth` 逐字不动） |
+| `frontend/src/App.jsx:14 / :109` | `import MessagesPage` / `<Route path="messages" element={<MessagesPage />} />`（`<Route>` 计数 **35 → 36**） |
+| `frontend/src/pages/MessagesPage.jsx`（**新**） | 26 行 · 占位页 + X 私信接驳位占位块 |
+| `frontend/src/shell/FloatingMenu.jsx`（**新**） | 114 行 · 5 项 · 三项开弹窗（复用 `components/ui/Modal`）· 测量钩子 `data-sf-m`（**不占** `data-sf-region`） |
+| `frontend/src/shell/AppShell.jsx:24` | `<BottomTabBar />` 之后追加 `<FloatingMenu />` |
+| `frontend/src/shell/shell.css:110` | `.sf-fm` 几何（`108px`/`92px`/`54px`/`26px`/`12px`/`right:16`/`top:45%`/`translateY(-50%)`/阴影） |
+| `frontend/src/shell/shell.css:179 / :241` | **唯一** `@media (max-width: 767px)`（`:179`）块内追加 `.sf-fm{display:none}`（`:241`）⇒ `grep -c '@media'` = **1** |
+| `frontend/src/styles.css:1070-1074`（**新**） | `@media (min-width: 768px){ .sf-route-container{ padding-right: 140px } }`（gutter `140` = 菜单 `right:16` + 宽 `108` + 余量 `16`） |
+| `frontend/src/theme/tokens.js:140-142 / :256-258` | 三新 token 日档 `fm-bg:#FFFFFF`/`fm-fg:#333333`/`fm-divider:#E8E8E8`、夜档 `#141619`/`#EDEFF2`/`#262A30` |
+| `frontend/src/theme/theme-tokens.css:156-158 / :269-271` | `:root` 日档三 token + `[data-theme="dark"]` 夜档三 token（`--sf-fm-bg/fg/divider`） |
+| `frontend/src/components/Header.jsx:18` | `MOBILE_PANEL_EXCLUDED_PATHS = ['exchange']`（原 `['reward','task','exchange']`） |
+| `frontend/src/locales/{zh,en,hk,vn}.json` | **+21 键/语**（顶层扁平 `+6` = `sell`/`messages`/`app`/`feedback`/`support`/`me` + `messagesPage` `+4` + `appModal` `+4` + `feedbackModal` `+4` + `supportModal` `+3`）+ **值变更 2 键**（`shard` `碎片市场 → 市场`、`home` `首页 → 海鲜市场`） |
+
+**D. 证据面（Kong 采样 + Neng 独立判负，读数均现取）**：
+
+- **`T85` 六档 × 三页 = 18/18 相交面积 = 0**（`768`/`1024`/`1280`/`1440`/`1600`/`1920` × `/`·`/listing`·`/exchange`；口径 = `.sf-fm` rect 与正文子树**全部可见元素**逐个求交取 `max` ⇒ `hits = 0`）+ 逐档逐页 `scrollWidth == clientWidth`。
+- **反相复现（证「修前必红」）**：`768` 档 **`49920 px²`**、`1600` 档 **`11520 px²`**（`1440` 档同值 `49920`）—— 使「0 命中」不再是单侧断言。
+- **`768` 档未压破**：内容区实宽 **`608`**（= 768 − 20 − 140）· 内层右缘 **`628`** = 容器内容右缘（最右元素 `right = 628`，越界元素 **0**）· **菜单左缘 `644`** ⇒ **`16px` 间隙**（≥16 硬下限）。
+- **`767 ⇄ 768` 边界**：`≤767` = `.sf-fm{display:none}` + 无 gutter（容器 `padding-right 10px`，`390`/`375`/`320` 三档几何**逐值未变**）；`>767` = `display:flex` + gutter `140px`（「菜单可见区间 = 唯一 767 块之补集」）。
+- **归因式判据四类残差 = 0**（现版 vs 父版 `2c4b90a` 六行对）：`仅父版有 = 0`、`仅现版有 = 29`（全 = `.sf-fm` 子树）、桶A（`T79` 字号）= **0**、桶B = **29**、桶C = **396/77**、**桶D = 5/行 ⇒ 归因第④类 → 回退 `shard` 旧值后桶D = 0（6/6）**，无残差。
+- **第④类算术闭合**：`a.nav-link#3` 文案 `碎片市场 → 市场` = **4→2 字 × 14px/字 = 28px** ⇒ 盒宽 **`80 → 52`**（`padL 12 + padR 12 = 24` 定值）；方向（字少⇒窄）与量级（28px）与实测 `w:[80,52]` **逐值一致**。
+- **门套**：`npm run test:unit` = **`50 passed (50)` files / `479 passed (479)` tests / 0 failed / EXIT=0**（基线 478，本单 +1 ≥ 478）· `npm run build` = **0**（`dist/assets/index-DmbE9dkE.js 424.04 kB`）；前端 `tsc` = **N/A**（`tsconfig*.json` 不存在，如实标注）。
+- **四语键集逐文件相同**（zh = en = hk = vn，现取）：顶层 **129** · 拍平 **1071** · 四语节点 **4284**（= 4 × 1071）。
+- **未登录底栏 4 项、第 5 项「我的」经无头注入登录态证实**：`visibleNavItems(false)` = `home/shard/sell/messages`（**4 项**）；`true` ⇒ **`+profile`**（第 5 项，labelKey = 新键 **`me`**）。
+
+**E. 未测 / 挂账（诚实清单）**：① 悬浮菜单**真机**读数（承 §13.6 `N23`/`N26` ⇒ `N27` / 台账 **`F7`**）· ② 夜档 `--sf-fm-*` 三值 = **推断**（参考图未展示夜间，取本仓夜档既有面板/卡片值 ⇒ `N28` / **`F8`**，「一句话可改」）· ③ `/messages` 与 **X（推特）私信**真实接驳**未实现**（`N30` / **`F9`**）· ④ 悬浮菜单在 **`414` 档不可达**（**设计如此**：仅桌面 `>767` 显示）。
+
+**F. 本轮教训（两条，可复用）**：① **判负注入量必须大于设计留白余量** —— `16px` 留白下 `1px`/`2px` 注入**交不上** ⇒ 「0 命中」**区分不了「探针失灵」与「真不重叠」**；最小触发实测 **`17px`**；更硬的做法 = **反相复现**（证「修前必红」，如 `49920 px²`）。② **改共享 i18n 键值前先查消费点全集** —— `profile` **若直接改值**会**连带** `Header.jsx:284`（桌面下拉）/ `:460`（移动面板）+ `r9-84-profile-entry.test.jsx:135/:226`（锚「个人资料」）⇒ 以**新增键 `me`** 承接底栏⑤、`profile` 值原地不动；同族：`shard`/`home` 值变更经**消费点唯一性现取**（`t('home')` 唯一 = `nav.js:15`）后判安全。
+
+**G. 结论**：**verdict = PASS**（**Neng 独立判负 · 0 产品缺陷**）—— 规范（**v1.5→v1.8** / **v2.27 §37**）+ 实现（`90c733a`·`2a3b87c`）+ 证据（六档 18/18 + 反相复现 + 归因四类残差 0 + 门套 50/479/0 + 四语 129/1071/4284）**全链闭合**。**push 由 Zang 执行**（本单只提交 docs · **不 push**）。
+
+---
+
 ### 5.401 **★ 对外生产域名收口：`0xseafood.com` 上线（Kevin 配置）· 我亲核「与生产逐字同版」· 口径一刀切（清单真源 `HOST` 改指新域）· 哨兵基线就地更正 `4292`→`4382` · 别名收拢至 `0xseafood.com` + `devseafood.vercel.app`（预览）**（2026-10-09）
 
 **A. Kevin 定案（四问四答，逐字要点）**：① **不加 `www`** ——「使用 `0xseafood.com` 访问网站」（**apex-only**）；② **口径 = 变体 B（一刀切）**：清单/派单模板的 host **全替换**为 `0xseafood.com`，`ssseafood` **只留在历史台账**；**并启用 `devseafood.vercel.app` 作为预览、不作为生产端**（其挂点我追问后 Kevin 选：**先建一发真 preview 部署、再把 devseafood 挂上去**）；③ **哨兵基线就地更正为 `4382`**，注明「**数据态漂移、非回归**」；④ **别名收拢：只留 `0xseafood.com` + `devseafood.vercel.app`**。
@@ -8437,6 +8485,7 @@ P0 小修 → **P1 账本内核**（铸币/转账/冻结/幂等/对账，并发�
 | v0.8 | 2026-09-27 | **P1a 入库（`66995d3`）+ P1b 并发质检 8/8 安全侧通过**；新增 **§5.5 单笔转账 3.3–4.4s 架构级发现**与 **§5.6 三个处置变体（待 Kevin 拍板）**；查出连接池过载被误报为 500 类错误（真缺陷）；提出 spec 三项错误修正并落地（v0.2） |
 | v0.9 | 2026-09-27 | **D10 冻结**：Kevin 拍板**变体 B —— 记账压进 DB 函数 `ledger_post_event(jsonb)`**，一个业务事件一次往返。连带收益：写路径不再需要交互式事务 ⇒ **D1 的 `ws`/Vercel 残留风险被结构性消除**（Vercel 验证降级为上线前常规确认）。§5.6 标记已拍板；P1c 交回后排 P1e 改造 |
 | v0.10 | 2026-09-27 | **P1c 收口完成**（错误分类 500→503、kind 22→20、真库测试数据清零）；新增 **§5.7 跨轮硬口径**（含新发现的 **`user` 保留字静默错答案**陷阱）；决定跳过 P1d 独立轮（理由见派单记录）；排入 P1e（变体 B）与 P1f（spec v0.3） |
+| v0.324 | 2026-10-11 | **★★ 桌面右侧悬浮菜单（5 项）+ H5 底栏改五项 + `/messages` 占位页全链收口 · 规范 `design-system.spec` v1.5→v1.8（`T80`–`T86` + `N27..N30` + 归因第④类 + gutter `1024⇒768`）/ `route-layer.spec` v2.27 §37（新增 `/messages` 恰 1 条 · 后端注册点仍 89）· Kong 实现（`90c733a`·`2a3b87c`）· Neng 独立判负 **PASS（0 产品缺陷）** · 证据：`T85` 六档×三页 **18/18 相交 = 0** + 反相复现 **49920/11520 px²** + 归因四类残差 = 0（第④类算术闭合 4→2 字 × 14px = 28px ⇒ 盒宽 80→52）+ 门套 **50 files / 479 tests / 0 failed** + 四语 **129/1071/4284** 逐文件相同 · 挂账 `F7`/`F8`/`F9` · **push 由 Zang 执行（本单不 push）** |
 | v0.323 | 2026-10-09 | **★ 对外生产域名收口：`0xseafood.com` 上线（Kevin 配置）+ 我亲核「与生产逐字同版」+ 口径一刀切（清单真源 `HOST` 改指新域）+ 哨兵基线就地更正 `4292`→`4382` + 别名收拢至 `0xseafood.com` + `devseafood.vercel.app`（预览）+ `--archive=tgz` 绕过 `.vercelignore` 的工具坑**。**A.** Kevin 四问四答：**不加 www**（apex-only）/ **变体 B 一刀切** / **基线更正 4382** / **别名只留 2 个**，并启用 `devseafood.vercel.app` 作预览（挂点我追问 ⇒ 选「先建真 preview 再挂」）。**B. 我亲核**：公网 DNS `0xseafood.com` ⇒ `216.198.79.1`（Vercel anycast；NS 仍 `spaceship.net`）；apex `200` 6095 B `<title>Seafood</title>`、`/api/health` `200`/`0044`；产物 `index-BR4nlfLC.js`+`index-BIC8EUbT.css` 与 `ssseafood` **逐字相同**；两域 API 返回**同一 JSON**。**C.** 功能面零耦合（`cors()` 无白名单 / `vercel.json` 无域名 / 前端无 `.env*`）⇒ **零代码改动**。**D.** `www` = NXDOMAIN（按定案「不加」⇒ 结论非缺口）。**E.** 别名终态恰两个：`0xseafood.com`⇒`seafood-9mwvhzgvj`（Production）· `devseafood.vercel.app`⇒`seafood-qvpae4iex`（**Preview**）；删 `seafood-alwaysfit`/`seafood-git-main-alwaysfit`（后者系分支自动生成 ⇒ push 后可能重建、待复核）。**F.** `devseafood` 直连 **302 → `vercel.com/sso-api`**（Vercel Authentication ⇒ 只对成员可见）。**G.** 哨兵 `points` 现取 **4382**（旧记 4292，+90）= **数据态漂移非回归**（`task/all` 3 · `prize/all` 0 · `0044` 全对齐）⇒ 清单就地更正。**H.** ★ `vercel deploy --archive=tgz` **绕过 `.vercelignore`** ⇒ 把 `.p4-artifacts` 打包上传、撞断链符号链接而**部署失败**；去掉该旗标后秒级进 Building、`38s` 就绪 ⇒ **纪律：CLI 部署一律不带 `--archive=tgz`**；`.vercelignore` 追加 `**/.*-artifacts/`（`ignore@5.3.2` 验证）。**I.** 本推 = 纯文档 + `.vercelignore`（零代码位移）；上线后须复核 `0xseafood.com` 是否随新生产部署前移。 |
 | v0.322 | 2026-10-04 | **S6 后端补口完成 · ★它报出关键阻断（逐笔发放在 0041 上无法观测 ⇒ 必须 apply 0042）· ★我裁必须补「逐笔 reject 腿」（否则判不合格会整单退款）· 入库 + 派 S6b**。**A.** ①`GET /api/job/:jobId/submissions` 实现（按 spec 冻结路径，复用 requireJobOwnerOrAdmin + 新增 listJobSubmissions；逐条 9 键；形状未冻结⇒标待 Jing 回写）②`/review` 收 `submission_id`（别名 submissionId）⇒ 转发 submissionIdRaw；不带⇒遗留分支零回归（body 形态未冻结⇒最小变体+标注）；index.ts +37/−1 · database.ts +59/−0。**B.** tsc 0 · 臂(a) 发布者读 job22⇒**200 + 9/9 字段齐**（review_tasks 亦 200）· 臂(b) 非发布者(uid5)⇒**403 NOT_ADMIN**、无 token 401、不存在 404 · ★★臂(c) 转发真证（带提交号⇒404 submission_not_found ⇄ 不带⇒409 遗留分支，两读数不同=承重）· 判负 ≥3 · 净写 0（ledger_entry 364 不变）· ★收尾干净（kill -TERM 87172 ⇒ 5796 空读数）。**C. ★★关键阻断**：「逐笔发放生效」在 0041 上无法观测（真库 job_post_event 无提交轴 has_submission_id=false · open→settled 仍非法 · 新模型任务 worker_uid 恒 NULL⇒not_job_worker）⇒ 所有 settle 皆 409；唯一可 settle 态却未托管⇒LEDGER_INSUFFICIENT_FROZEN ⇒ **必须 apply 0042 后复测** ⇒ 正面印证「apply 与 push 同批」裁定。**D.** 同族扫面：全仓仅 2 处调 settleJob（index.ts:2452 本单修 + job-funds-service.ts:423 已传提交号）。**E. 我裁 3 条**：①★**必须补逐笔 reject 腿**（现状 approved:false 恒走 refundJob 整单退 ⇒ 违背 R-9-99 判不合格=零资金可再提 ⇒ 必修，用已备好的 rejectJobSubmission）⇒ 归 S6b，★**S7 必须排在 S6b 之后** ②读口拒形态**保留 403**（任务本身公开可见，404 掩盖无意义；与 :jID 读口护正文的 404 口径不冲突）③字段名 submission_id（别名 submissionId）登记待 Jing 定名。**F.** 入库 S6 + 派 S6b。**G.** DB 0041（0042 未 apply）· 全在本地未 push · 端口空 · 积分 9889+电量 30。 |
 | v0.321 | 2026-10-03 | **S5 前端（① 交付 · ★② 停线报回，现取发现真缺口）· S4e refund 真链路全绿 · 入库 + 派 S6（后端补口）**。**A. S5① ✅**：job-api publishJob body 增 headcount + 指纹纳入；PublishJobPage 新增「总人数」（默认 1、type=number min=1 required）+ 押金提示（= 赏金×人数，与服务端 :181 同口径）+ onSubmit 代码闸；**3 新键四语齐备**（headcount/headcountInvalid/depositHint；四语 flat 均 = **1044**，en/vn 零 CJK）；计数 top 119 不变 · flat 1041→1044 · 节点 4164→4176（6 测试文件计数订正非删断言）；vitest 7 failed/399⇒**7 failed/408 零新增**；build 0（index-Hez9Kgrg.js）；泄漏 PASS；新测试 9 例。**B. ★★S5② 停线报回（未动一行、未自造接口）**：①**`POST /api/job/:jobId/review` 并非逐笔**（入参仅 jobId + {approved}，无提交号 ⇒ settleJob 未传 submissionIdRaw ⇒ 落遗留单笔分支）②**逐笔路由在 `/api/tasklist/:jID/verify` 且 admin-only**（requireAdmin('review_tasks')）⇒ 发布者本人用不了 ③**读口缺失**：`GET /api/job/:jobId/submissions` 仅冻结在 spec（data-layer.spec.md:281）、index.ts 未注册（grep 0）；★我核盘确认它说得对（spec 该行确载）。**C. S4e ✅**（22c/288s）refund 真链路补验（探针 35/35 全绿）：(i) 部分发放后结束 ⇒ 退 2000 = reward×(3−1)、冻结 2000→0、cancelled、键 biz:job:refund:198（不含提交号）、幂等重放零位移 (ii) 未发放 ⇒ 退全额 2000 (iii) 发满 ⇒ 按规拒 JOB_STATE_INVALID(from settled) + 受控夹具触达「剩余≤0」⇒ 拒 job_nothing_to_refund（现取 0042 注释口径未发明）；判负：退款改回全额 ⇒ 拒 LEDGER_INSUFFICIENT_FROZEN(3000/2000) ⇒ 断言承重；净写 0 五表全等、0042 未 apply。**D. 我裁**：新增 S6（①注册 `GET /api/job/:jobId/submissions` 按 spec 冻结路径实现，准入=发布者∨review_tasks；★同行的 `applications` 路径裁**不实现**=随报名一并退役、登记交 Jing ②`/review` 支持逐笔：body 增提交号转发 submissionIdRaw，准入保持发布者∨admin；先现取 spec 是否冻结该形态，冲突停下报回）；**S7 前端接线依赖 S6 ⇒ 串行**。**E.** 入库（S5+S4e）。**F.** DB 0041 · 全在本地未 push · 端口空 · 积分 9889+电量 30。 |

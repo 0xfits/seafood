@@ -136,3 +136,14 @@
 - `docs/design/design-system.spec.md`：→ **v1.3**（**补丁单 2**：① `T79` 桌面侧受影响元素完整清单（三类）+ 逐元素前后读数〔§13.2.1〕· ② 硬判据改「例外清单式」 · ③ `D1` 入册〔根因 + 修法 + §13.6 `N25`〕）。**改前快照** `docs/versions/design-system.spec.v1.2.md`（`cmp=0`）。
 - `docs/design/design-system.spec.md`：→ **v1.4**（**补丁单 3**：① 硬判据由「例外清单式」★改「**归因式判据**（反事实归因实验）」〔§13.1 `T77` 行 · §13.3 第 14 行 · §13.5 `P2 触控` 行〕· ② 登记 `D1` 修复事实〔修法 = 共同祖先 `.sf-layout` / 消费者全扫 = 0〔**动态哨兵法**〕/ 同根因第 4 面 `/task/:id .sf-jobs-status` / 新副作用 `/listing .sf-listings-status` 0→44、页高 +114〕· ③ 归因实验可复跑配方 + 1440 `.sf-tabbar` 子树 23 元素 `0×0` 事实〔§13.5 / §13.2.1 / §13.6 `N26`〕）。**改前快照** `docs/versions/design-system.spec.v1.3.md`（`cmp=0`）。
 - `docs/design/style-preview.html` L170：`font-size:10.5px → 12px`（**P4/T79 就地更正**；`git diff --numstat` = `1 1`；−2 B、行数不变；改前 `9ddebde7…` ⇒ 改后 `cd09248f…`）。
+
+- `docs/design/design-system.spec.md`：→ **v1.5**（**两项新需求落册**：① 底栏（H5）五项新集合〔`T80`〕· ② 右侧悬浮菜单（仅桌面 `>767`）+ 日/夜 token `--sf-fm-*`〔`T81`–`T83`〕· ③ 三弹窗模板位〔`T84`〕· ④ 1440 档不重叠〔`T85`〕· ⑤ `T76` 去重口径重算〔`T86`〕⇒ 新增 **§14** + `T80..T86` + `N27..N30`）。**真源** = `style-preview.html` 追加区块（行 983–1042 · 纯追加 · 三读数见 §14.9）。**改前快照** `docs/versions/design-system.spec.v1.4.md`（`cmp=0`）。**留痕**：原写「`附近`/`/nearby`」已由 Kevin 当日变更取代。
+- `docs/route-layer.spec.md`：→ **v2.27**（**前端页面路由登记**：新增 `/messages`（占位页 · X/推特私信接驳位预留）1 条；`/listing/new`、`/exchange`、`/profile` 复用既有；**后端注册点仍 89 不变**；**不登记 `/nearby`**）。**§37（新）** + 顶部 v2.27 块。**改前快照** `docs/versions/route-layer.spec.v2.26.md`（`cmp=0`）+ 本版镜像 `docs/versions/route-layer.spec.v2.27.md`。
+
+### F″. v1.5 / v2.27 新增未闭环登记（2026-10-11）
+
+| # | 项 | 现取依据 | 现状兜底 | 代价 / 阻塞 |
+|---|---|---|---|---|
+| **F7** | **右侧悬浮菜单真机读数**（≤767 隐藏 + 1440 不遮挡 + 坐标点击） | 设计真源 = `design-system.spec` v1.5 §14（`T81`/`T85`）；`frontend/**` 由 Kong 落地 | 设备档（CDP）判据在 §14.7 已给 | 真机复测（承 §13.6 `N23`/`N27`）；本档 `NOT_MEASURED` |
+| **F8** | **夜档 `--sf-fm-bg/fg/divider` 三值 = 「推断」** | 参考图未展示夜间；值 = 本仓夜档既有面板/卡片值（`theme-tokens.css` 夜档块） | 已入册为「推断 · 一句话可改」 | 待 Kevin 逐格确认（`N28`）；改三格值即可、不动结构 |
+| **F9** | **`/messages` 与 X（推特）私信真实接驳** | 本轮 = 占位留空（`route-layer.spec v2.27 §37`；`design-system.spec v1.5 §14.10`） | 占位页 + 接驳位预留已登记 | 后续单（产品/接口待定） |
