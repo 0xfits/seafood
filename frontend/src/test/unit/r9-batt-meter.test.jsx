@@ -165,7 +165,7 @@ describe('③ R-9-83 签到入口可发现性', () => {
     expect(document.querySelector('[data-sf-m="batt-meter"]').textContent).not.toMatch(/NaN|undefined/)
   })
 
-  it('Header 头像菜单：「个人资料」之下有直达 `/profile#batt-checkin` 的新项（复用既有文案键）', () => {
+  it('Header 头像菜单：「我的」之下有直达 `/profile#batt-checkin` 的新项（复用既有文案键）', () => {
     vi.useFakeTimers()
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ success: true, data: { points: 0 } }) })))
     render(<MemoryRouter initialEntries={['/']}><Header /></MemoryRouter>)

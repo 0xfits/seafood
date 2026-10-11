@@ -257,3 +257,190 @@ gutter 宽 `140px` = 菜单 `right:16` + 宽 `108` + 余量 `16`；断点取 `mi
 ### 7.3 备注（§14.10 B 另一值变更 `home`）
 
 §14.10 B 的值变更 2 键 = `shard` + `home`（`首页`→`海鲜市场`）。实测桌面左 nav 的 `a.nav-link` **三项 = `社区奖励` / `社区任务` / `市场`**（`home` 文案不经该面）⇒ `home` 值变更在本 nav 面**零几何差**；回退**仅** `shard` 即令桶D→0，反证 `home` 非本面残差来源。
+
+---
+
+## 8 · 口径变更单（Kevin 2026-10-11 四条新口径）—— 撤 gutter · 悬浮栏收窄 · 判据改口径 · `profile` 全站统一
+
+> 本单 = **Kong（实现）改单**。承接上单（§1–§7，HEAD `767ddcf` 已上线）。
+> 采数：现版 `http://localhost:5787`（vite dev，**未启停**）；父版 `http://127.0.0.1:5812`
+> （`git worktree add --detach <scratch>/wt-2c4 2c4b90a` + `frontend/node_modules` 软链 + 独立 `cacheDir` + **未 npm install**）。
+> 父版实例用完按**精确 PID `68019` `kill`**（已确认 `5812 free`）+ `git worktree remove --force`（`git worktree list` 只剩主仓）。
+> 口径真源：Kevin 2026-10-11 四条新口径；`T85`「相交 = 0」由 **Jing 同轮重定义** ⇒ **本单不再适用**。
+
+### 8.1 delta① 撤除 140px 桌面 gutter（恢复原宽 · 遮挡改为已知接受）
+
+**唯一代码改动**：`frontend/src/styles.css` 末块 —— 删除整段 `@media (min-width: 768px){ .sf-route-container{ padding-right:140px } }`；
+上方说明注释改为**留痕式**（写明「曾经为遮 `T85` 而加 → 本单按 Kevin 口径撤除 → **遮挡现为已知并接受**」，
+沿革 `1024`→`768`→撤除，**历史叙述不删干净**）。**未在 `shell.css` 新增 `@media`**（`grep -c '@media' frontend/src/shell/shell.css` = **1**，仍唯 767 块）。
+
+**父版对照读数（正文宽度逐值相同，六档）** —— 现版（撤 gutter）vs 父版 `2c4b90a`（**加 gutter 前**）：
+
+| 档 | 现版 `padR` · `contentBoxW` · `innerRight` | 父版 `padR` · `contentBoxW` · `innerRight` | 逐值相同 |
+|---|---|---|---|
+| 768 | 20px · 728 · 748 | 20px · 728 · 748 | ✓ |
+| 1024 | 20px · 984 · 1004 | 20px · 984 · 1004 | ✓ |
+| 1280 | 20px · 1240 · 1260 | 20px · 1240 · 1260 | ✓ |
+| 1440 | 20px · 1400 · 1420 | 20px · 1400 · 1420 | ✓ |
+| 1600 | 20px · 1400 · 1500 | 20px · 1400 · 1500 | ✓ |
+| 1920 | 20px · 1400 · 1660 | 20px · 1400 · 1660 | ✓ |
+
+⇒ **六档 `contentBoxW` / `innerRight` / `padR` 与父版逐值相同**（脚本判等 `EQUAL = True`）。
+旁证：`git diff 2c4b90a..HEAD -- frontend/src/styles.css frontend/src/shell/shell.css` = 仅
+`+ gutter 块`（本单已删）+ `+ shell.css .sf-fm 块`（`position:fixed`、**不参与文档流、不影响正文宽**）⇒ 撤 gutter 即回到父版逐值。
+（对照：**加 gutter 时** 1440 档 `contentBoxW` 1400→1260、`innerRight` 1420→1300 —— 本单已撤销该变化。）
+
+### 8.2 ≤767 零影响（撤 gutter 不落入手机档）
+
+| 档 | 现版 `padR` · `contentBoxW` · `innerRight` · `.sf-fm display` | 父版同列 | 
+|---|---|---|
+| 390 | 10px · 370 · 380 · `none` | 10px · 370 · 380 · （无 `.sf-fm`）|
+| 375 | 10px · 355 · 365 · `none` | 10px · 355 · 365 |
+| 320 | 10px · 300 · 310 · `none` | 10px · 300 · 310 |
+
+⇒ 手机档几何**逐值未变**、零溢出。
+
+### 8.3 delta② 悬浮栏收窄（容器宽 108→72 · 分隔线 48→32 · 其余不变）
+
+**唯一代码改动**：`frontend/src/shell/shell.css` —— `.sf-fm { width: 108px → 72px }`、`.sf-fm-div { width: 48px → 32px }`。
+**单元高 / 图标 / 文字 / 右边距 / `top` 全部未动**（见 8.4）。
+**`border-radius` 声明值维持 `54px`（未改）**：宽 72 时 CSS 按短边钳制为 36px、仍是**完整胶囊**（视觉与写 36px 等价）；
+不写 36px 是为严守「其余不变」——**如需落 `border-radius:36px` 请裁**（1 行、零视觉差）。
+
+### 8.4 delta③ 判据改口径 · 实现侧读数（`T85 相交 = 0` 不再适用，由 Jing 同轮重定义）
+
+**(1) 可见性（浏览器实测）**
+
+| 档 | `.sf-fm` computed `display` |
+|---|---|
+| **767** | **`none`**（390 / 375 / 320 同）|
+| **768** | **`flex`**（1024 / 1280 / 1440 / 1600 / 1920 同）|
+
+**(2) 菜单几何逐项（768 与 1440 档实测，同值 = 结构常量）**
+
+| 项 | 实测值 | 口径 |
+|---|---|---|
+| 容器宽 | **72px** | 108→72 |
+| 单元高 `.sf-fm-item` | **92px** | 不变 |
+| 图标宽 `.sf-fm-ic` | **26px** | 不变 |
+| 文字 `font-size` | **12px** | 不变（`T79` ≥12px，不得再缩）|
+| 右边距 `right` | **16px** | 不变 |
+| 垂直定位 `top` | **45%**（900 高 ⇒ 405px）| 不变 |
+| 分隔线宽 `.sf-fm-div` | **32px** | 48→32 |
+| `border-radius` | **54px**（声明值）| 未改 |
+
+**(3) 六档 × 三页零横向溢出（`scrollWidth == clientWidth`）**
+
+| 档 | `/` | `/listing` | `/exchange` | `.sf-fm` | scrollW==clientW |
+|---|---|---|---|---|---|
+| 768 | ✓ | ✓ | ✓ | flex | 768==768 |
+| 1024 | ✓ | ✓ | ✓ | flex | 1024==1024 |
+| 1280 | ✓ | ✓ | ✓ | flex | 1280==1280 |
+| 1440 | ✓ | ✓ | ✓ | flex | 1440==1440 |
+| 1600 | ✓ | ✓ | ✓ | flex | 1600==1600 |
+| 1920 | ✓ | ✓ | ✓ | flex | 1920==1920 |
+
+⇒ **18/18 行：`.sf-fm` = flex、零横向溢出**（`overflow = false`）。
+
+**(4) 遮挡面积实测（**仅登记为「已知接受」，不再当 FAIL**）**
+
+实测口径同 §2.1：`.sf-fm` rect 与 `[data-sf-region="content"]` 子树**全部可见元素**逐个求相交取 `max`。
+
+| 档 | `/` interMax · hits | `/listing` interMax · hits | `/exchange` interMax · hits |
+|---|---|---|---|
+| 768 | 32640 · 29 | 29614 · 15 | 32640 · 8 |
+| 1024 | 32640 · 2 | 29614 · 15 | 32640 · 8 |
+| 1280 | 32640 · 2 | 29614 · 15 | 32640 · 8 |
+| 1440 | 32640 · 27 | 29614 · 15 | 32470 · 8 |
+| 1600 | 0 · 0 | 0 · 0 | 0 · 0 |
+| 1920 | 0 · 0 | 0 · 0 | 0 · 0 |
+
+（≥1600 档：正文容器 `max-w 1440` 居中、其右缘左于菜单左缘 ⇒ 相交 = 0。768–1440 档存在相交 ⇒ **已知接受**、**不再计 FAIL**。）
+
+### 8.5 delta④ `profile` 文案全站统一（Kevin 同意）+ 删 `me` 键 + 改锚
+
+**改前 → 改后**：
+
+| 文件 / 键 | 改前 | 改后 |
+|---|---|---|
+| `locales/{zh,en,hk,vn}.json` 的 `profile` | `个人资料` / `Profile` / `個人資料` / `Hồ sơ` | **`我的` / `Me` / `我的` / `Tôi`** |
+| `locales/*.json` 的 `me` 键 | zh `我的` / en `Me` / hk `我的` / vn `Tôi` | **删除**（避免两键同义）|
+| `shell/nav.js:24` 第五项 `labelKey` | `'me'` | **`'profile'`** |
+| `shell/nav.js` 第五项 `key` / `path` / `requiresAuth` | `profile` / `profile` / `true` | **逐字不动** |
+| 键计数 | top **129** / flat **1071** / 四语节点 **4284** | **top 128 / flat 1070 / 四语节点 4280** |
+
+**改锚清单（`grep -rn '个人资料' frontend/src/test` 现取，共 8 处；逐条改前→改后）**：
+
+| # | 文件:行 | 改前 | 改后 |
+|---|---|---|---|
+| 1 | `v15-nav-floatmenu.test.jsx:95`（断言）| `expect(TABLES.zh.profile).toBe('个人资料')`（+ en/hk/vn 三条同名断言）| 改为四语值断言 `{zh:'我的',en:'Me',hk:'我的',vn:'Tôi'}` |
+| 2 | `r9-84-profile-entry.test.jsx:11`（文件头注释）| `③ 下拉含：个人资料（四语前缀…）` | `③ 下拉含：我的（四语前缀…）` |
+| 3 | `r9-84-profile-entry.test.jsx:14`（文件头注释）| `⑤ 左侧 nav 仍**不含**「个人资料」` | 「我的」 |
+| 4 | `r9-84-profile-entry.test.jsx:113`（行内注释）| `// 文案不再是「个人资料」` | `// 文案不再是「我的」` |
+| 5 | `r9-84-profile-entry.test.jsx:121`（用例名）| `③a 下拉「个人资料」项 href…` | `③a 下拉「我的」项 href…` |
+| 6 | `r9-84-profile-entry.test.jsx:205`（用例名）| `⑤ 左侧 nav 仍不含「个人资料」…` | `⑤ 左侧 nav 仍不含「我的」…` |
+| 7 | `r9-84-profile-entry.test.jsx:215`（用例名）| `⑥ 移动端…（个人资料 / 电量与签到 / 退出登录）` | `（我的 / 电量与签到 / 退出登录）` |
+| 8 | `r9-batt-meter.test.jsx:168`（用例名）| `Header 头像菜单：「个人资料」之下有直达…` | `「我的」之下有直达…` |
+
+> `r9-84` 的**断言体**用变量 `zh.profile`（非字面量）⇒ 键值改后断言随动，语义保持；本单只改其**文案锚（注释/用例名）**。**未删任何用例**。
+
+**同轮（非「个人资料」锚）的意图改锚**：
+
+| # | 文件 | 改前 | 改后 |
+|---|---|---|---|
+| 9 | `v15-nav-floatmenu.test.jsx:85–99`（用例名 + 体）| `labelKey = 新键 me` · 断言 `fifth.labelKey === 'me'` · `TABLES.zh.me…` | `labelKey 回 profile` · `fifth.labelKey === 'profile'` · `me` 键断言改 `toBeUndefined()` ×4 |
+| 10 | `v15-nav-floatmenu.test.jsx:113` | `TABLES[lang].me` | `TABLES[lang].profile` |
+| 11 | `v15-nav-floatmenu.test.jsx:204/206` | 用例名 `108px` · `toContain('width: 108px')` | `72px` · `toContain('width: 72px')` + 新增分隔线 `32px` 正则断言 |
+| 12 | 12 个计数文件（`s8` `s9` `b4a` `b4b` `b5` `violation-closeout` `r9-93` `r9-96` `s19` `s23` `s5` `s7`）| `toBe(129)` / `toBe(1071)` / `toBe(4284)` + 计数用例名 + `delta①` 注释 | `toBe(128)` / `toBe(1070)` / `toBe(4280)` + 用例名同步 + 注释改为**留痕式**（保留「曾另立 `me` ⇒ 128⇒129/1070⇒1071/4280⇒4284；本单删 `me` ⇒ 回落」沿革）|
+
+### 8.6 门套（本单重跑）
+
+| 门 | 命令 | 读数 | 判定 |
+|---|---|---|---|
+| 单测 | `cd frontend && npm run test:unit` | `Test Files 50 passed (50)` · `Tests 479 passed (479)` · 0 failed · **EXIT=0** | **PASS**（≥479） |
+| 构建 | `cd frontend && npm run build` | `✓ built in 1.71s` · **EXIT=0**（管道外捕获；`dist/assets/index-Cl60hbFH.js 423.98 kB`）| **PASS** |
+| 前端 `tsc` | —— | `frontend/tsconfig*.json` 不存在 | **N/A**（如实标注，未跑） |
+
+`grep -c '@media' frontend/src/shell/shell.css` = **1**（仍唯 `(max-width:767px)` 块；本单未新增块）。
+
+---
+
+## 9 · 真机配色取证（**只取证、未改任何颜色/token**）
+
+Kevin 反映「真机与本地 H5 配色看起来不同」。本单只做两件取证 + 三假设归因（**不改色**）。
+
+### 9.1 取证① 真机与 `_preview` iframe 走**同一上游构建**（实测）
+
+`tools/h5-preview/server.mjs` = 零依赖 Node 反代，上游默认 `http://[::1]:5787`（vite dev）；`/_preview` 手机壳页的 iframe `src="/"`（**同源相对路径**），真机入口 `http://192.168.31.229:5800/<路径>` 亦走**同一反代**。
+
+| 读取项 | 值 |
+|---|---|
+| `ipconfig getifaddr en0` | `192.168.31.229`（= 任务给定真机 IP，吻合）|
+| `GET /_preview/health` | `upstream: http://[::1]:5787` · `upstreamOk: true` · `port 5800` · `bind 0.0.0.0` |
+| iframe `src`（`_preview` HTML 现取）| `"/"` |
+| `sha256( GET http://localhost:5800/ )` | `86fe2f50108ecc31689865962ff99fe00874ddf329e4450572a3f939d88f73a1` |
+| `sha256( GET http://192.168.31.229:5800/ )` | `86fe2f50108ecc31689865962ff99fe00874ddf329e4450572a3f939d88f73a1` |
+| `sha256( GET http://localhost:5787/ )`（上游直取）| `86fe2f50108ecc31689865962ff99fe00874ddf329e4450572a3f939d88f73a1` |
+| `sha256( GET …/src/main.jsx )` ×（`localhost:5800` / `192.168.31.229:5800` / `localhost:5787`）| 三者同 = `403468db9aed8dc07461466cf371e8f8808b23c98d78ad2b85e7537093a19c6c` |
+| `sha256( GET …/src/styles.css )` ×（同上三端点）| 三者同 = `08dada184264797ffec840776c7dcbc48baca8ed1044ce854a5df9f96aeaf30e` |
+
+⇒ **同一 URL 路径（`/`）、同一 CSS/JS 内容哈希**：真机与 `_preview` iframe 确为**同一上游构建**（无 A/B 两套产物）。
+
+### 9.2 取证② 主题启动逻辑 + `oklch`/`color-mix` 现取
+
+| 项 | 现取 |
+|---|---|
+| `frontend/src/main.jsx` | `localStorage.getItem('theme')`；`==='dark'` ⇒ `data-theme="dark"`；`==='light'` ⇒ `data-theme="light"`；**否则不设属性**（`:root` 承载日档 ⇒ **默认 light**）|
+| `theme/ThemeProvider.jsx` | `readInitialTheme()`：`<html data-theme>` → `localStorage['theme']` → `DEFAULT_THEME`；`DEFAULT_THEME = 'day'`（`theme/tokens.js:25`）|
+| `prefers-color-scheme` | **全仓 0 处**（`grep -rn prefers-color-scheme src index.html` 空）|
+| `color-scheme`（应用）| **0 处**（仅 `tools/h5-preview/server.mjs` 的**外壳页** `:root{color-scheme:dark}`，不影响 iframe）|
+| `oklch(` / `color-mix(`（应用产物）| **非 0**：`dist/assets/index-*.css` 现取 `oklch(` = **54**、`color-mix(` = **28**；dev `/src/styles.css` 现取 `oklch(` = **61**、`color-mix(` = **37**（均来自 `styles.css` 顶部 `@import "tailwindcss"` 的 **Tailwind v4 生成物**）。`src/shell/shell.css` = **0/0**。 |
+| 注 | `src/styles.css:26–35` **已显式**把 5 个在用色从 v4 默认 `oklch` 钉回 sRGB hex（注释留证 `oklch(0.792 0.209 151.711)` 渲染 `(5,223,114)` Δ(69,1,14)）⇒ **其余未钉的 `oklch`/`color-mix` 仍留在产物内**。 |
+
+### 9.3 三假设归因（真机 vs 本地 H5 配色差异）
+
+1. **H1 · 主题态跨源不一致（最可疑）**：`theme` 存 `localStorage`，**按源（origin）隔离**。`_preview` iframe 的源 = 桌面浏览器打开预览用的 host（`localhost:5800`）；真机源 = `192.168.31.229:5800`。**两个源各自独立的 `localStorage['theme']`** ⇒ 一边曾切夜档、另一边留默认日档，即「同码不同色」。**取证可复现**：核对两端 `localStorage['theme']` 与 `<html data-theme>`。
+2. **H2 · 同源色 `oklch()`/`color-mix()` 的**设备/浏览器/宽色域**落点差异**：产物含 54–61 处 `oklch()`、28–37 处 `color-mix()`（Tailwind v4）。**CSS 字节相同**，但 (a) 移动端浏览器对 `oklch`/`color-mix` 的支持度与回退不同；(b) 手机 P3/OLED 屏 vs 桌面 sRGB 的色彩管理/色域映射不同（本仓已实测 `oklch` 与目标 sRGB 存在 Δ，见 9.2 注）⇒ 同值异色。
+3. **H3 · 未声明 `color-scheme` 的原生 UI 随 OS 外观**：应用只设 `data-theme`、**从不设 `color-scheme`**。故浏览器**原生控件/滚动条/默认画布**跟随**设备 OS 外观**（手机开深色模式 ⇒ 原生件偏暗），而应用 token 恒按 `data-theme`；`_preview` 外壳页虽写 `:root{color-scheme:dark}`，但那是**外壳页**、**不进 iframe** ⇒ 桌面壳页与真机在「原生 UI 基准色」上可不同。
+
+> **本单未改任何颜色/token**；以上仅为取证与归因。H1 可直接复现/排除（比对两端 `localStorage['theme']`），H2/H3 需真机侧 `getComputedStyle` 与 OS 外观设置对读。

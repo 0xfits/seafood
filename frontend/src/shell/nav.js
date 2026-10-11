@@ -11,17 +11,17 @@ import { SUPPORTED_LANGS, stripLangPrefix } from '../utils'
 //   messages → frontend/src/App.jsx  `path="messages"`（MessagesPage）· **本轮新登记路由 `/messages`**（占位页 · X/推特接驳位预留）
 //   profile  → frontend/src/App.jsx  `path="profile"`（受保护；与 Header 同一条登录可见规则）
 // labelKey 全部取自四语 locale 既有键（zh/en/hk/vn 各同集）。
-// ★ 第 5 项（底栏⑤）文案口径（design-system.spec v1.5 §14 · Zang 裁定⑧）：`key` 仍 `profile`（路由/登录规则一字不动），
-//   但 `labelKey` 由 `'profile'` 改为**新键 `'me'`**（zh 我的 / en Me / hk 我的 / vn Tôi）。
-//   理由：`profile` 键值 = 个人资料/Profile/個人資料/Hồ sơ，且被 `Header.jsx:284` 下拉与 `:460` 移动面板消费、
-//   被 `r9-84-profile-entry.test.jsx` 逐字锚定 ⇒ **不动 `profile` 键值**，另立 `me` 只服务底栏⑤。
-//   （「一句话可改」：若 Kevin 要全站统一为「我的」，才改 `profile` 值并同步改锚 r9-84。）
+// ★ 第 5 项（底栏⑤）文案口径 —— [留痕] 2026-10-11 · Kevin 同意「全站统一」：
+//   前一版（Zang 裁定⑧）曾另立新键 `me` 只服务底栏⑤、`profile` 值保持「个人资料」；**本单按 Kevin 口径废除该做法**：
+//   `profile` 键值改为 **我的 / Me / 我的 / Tôi**（全站统一），`labelKey` **回 `'profile'`**
+//   （`key` / `path` / `requiresAuth` 仍 `profile`，逐字不动）；**`me` 键已删**（避免两键同义）。
+//   ⇒ `Header.jsx:284` 桌面下拉 / `:460` 移动面板 同键同值，一并显示「我的」；`r9-84-profile-entry.test.jsx` 锚已同步改锚。
 export const SHELL_NAV_ITEMS = [
   { key: 'home', path: '', route: 'index', labelKey: 'home', icon: Home },
   { key: 'shard', path: 'exchange', route: 'exchange', labelKey: 'shard', icon: Store },
   { key: 'sell', path: 'listing/new', route: 'listing/new', labelKey: 'sell', icon: PlusCircle },
   { key: 'messages', path: 'messages', route: 'messages', labelKey: 'messages', icon: MessageCircle },
-  { key: 'profile', path: 'profile', route: 'profile', labelKey: 'me', icon: User, requiresAuth: true },
+  { key: 'profile', path: 'profile', route: 'profile', labelKey: 'profile', icon: User, requiresAuth: true },
 ]
 
 export const SHELL_NAV_KEYS = SHELL_NAV_ITEMS.map((item) => item.key)

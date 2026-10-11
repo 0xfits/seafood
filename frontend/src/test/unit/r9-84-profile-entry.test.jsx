@@ -8,10 +8,10 @@
  * 断言：
  *   ① 右上角恰一个控件（`data-sf-m` 钩子计数 = 1，桌面场景；R-9-84 两个旧入口均为 0）
  *   ② 按钮文案 = 地址缩写形态（`0x` + 4 位 + `...` + 4 位，既有派生）；含 `User` + `ChevronDown`
- *   ③ 下拉含：个人资料（四语前缀 href 各一例）· 电量与签到（`…/profile#batt-checkin`）·
+ *   ③ 下拉含：我的（四语前缀 href 各一例）· 电量与签到（`…/profile#batt-checkin`）·
  *      退出登录 · 积分块；且**不含**「管理后台」（反向断言，R-9-84 结论保持）
  *   ④ 未登录 ⇒ 桌面 + 移动两处均不渲染
- *   ⑤ 左侧 nav 仍**不含**「个人资料」（R-9-84 结论保持）
+ *   ⑤ 左侧 nav 仍**不含**「我的」（R-9-84 结论保持）
  *   ⑥ 移动端：唯一入口 = 汉堡；点开面板 ⇒ 面板内含与桌面同款各项
  */
 import React from 'react'
@@ -110,7 +110,7 @@ describe('R-9-85 右上角合并为唯一菜单按钮（文案 = 钱包地址缩
     // 既有派生切片：slice(0,6) + '...' + slice(-4) ⇒ `0x` + 4 位十六进制 + `...` + 4 位十六进制
     expect(text).toBe('0xABCD...EF12')
     expect(text).toMatch(/^0x[0-9A-Fa-f]{4}\.\.\.[0-9A-Fa-f]{4}$/)
-    // 文案不再是「个人资料」
+    // 文案不再是「我的」
     expect(text).not.toContain(zh.profile)
     // 图标：User + ChevronDown 各一
     expect(btn.querySelector('svg.lucide-user')).not.toBeNull()
@@ -118,7 +118,7 @@ describe('R-9-85 右上角合并为唯一菜单按钮（文案 = 钱包地址缩
     expect(btn.querySelectorAll('svg').length).toBe(2)
   })
 
-  it('③a 下拉「个人资料」项 href 指向四语前缀下的 /profile（zh/en/hk/vn 各一例）', () => {
+  it('③a 下拉「我的」项 href 指向四语前缀下的 /profile（zh/en/hk/vn 各一例）', () => {
     const cases = [
       ['/', '/profile'],
       ['/en', '/en/profile'],
@@ -202,7 +202,7 @@ describe('R-9-85 右上角合并为唯一菜单按钮（文案 = 钱包地址缩
     expect(document.querySelector(MOBILE_LOGOUT)).toBeNull()
   })
 
-  it('⑤ 左侧 nav 仍不含「个人资料」（且非管理员时仅 奖励/任务/碎片）', () => {
+  it('⑤ 左侧 nav 仍不含「我的」（且非管理员时仅 奖励/任务/碎片）', () => {
     renderAt('/')
     const nav = document.querySelector('nav')
     expect(nav).not.toBeNull()
@@ -212,7 +212,7 @@ describe('R-9-85 右上角合并为唯一菜单按钮（文案 = 钱包地址缩
     expect(labels).toEqual([zh.reward, zh.task, zh.shard])
   })
 
-  it('⑥ 移动端：唯一入口 = 汉堡；面板内 = 与桌面同款各项（个人资料 / 电量与签到 / 退出登录）', () => {
+  it('⑥ 移动端：唯一入口 = 汉堡；面板内 = 与桌面同款各项（我的 / 电量与签到 / 退出登录）', () => {
     renderAt('/')
     // md:hidden 块内只有汉堡一个入口（旧独立 Link 已删）
     expect(document.querySelector(MOBILE_MENU)).not.toBeNull()

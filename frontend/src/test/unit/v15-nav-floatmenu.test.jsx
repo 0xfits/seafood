@@ -82,20 +82,20 @@ describe('v1.5 ① 底栏（H5）五项 label / href（含四语前缀）', () =
     expect(SHELL_NAV_ITEMS.map((i) => i.key)).toEqual(['home', 'shard', 'sell', 'messages', 'profile'])
   })
 
-  it('★delta① 底栏⑤：key 仍 profile（路由不动）· labelKey = 新键 me · profile 键值未被改（r9-84 锚点保持）', () => {
+  it('★本单 delta① 底栏⑤：key 仍 profile（路由不动）· labelKey 回 profile · profile 四语值 = 我的/Me/我的/Tôi · me 键已删', () => {
     const fifth = SHELL_NAV_ITEMS[4]
     expect(fifth.key).toBe('profile')
     expect(fifth.path).toBe('profile')
-    expect(fifth.labelKey).toBe('me')
+    expect(fifth.labelKey).toBe('profile')
     expect(fifth.requiresAuth).toBe(true)
-    // 新键 me 四语齐备且取值 = Zang 裁定⑧
-    expect({ zh: TABLES.zh.me, en: TABLES.en.me, hk: TABLES.hk.me, vn: TABLES.vn.me })
+    // 全站统一（Kevin 口径）：profile 键四语取值
+    expect({ zh: TABLES.zh.profile, en: TABLES.en.profile, hk: TABLES.hk.profile, vn: TABLES.vn.profile })
       .toEqual({ zh: '我的', en: 'Me', hk: '我的', vn: 'Tôi' })
-    // profile 键值与其它消费点未被本 delta 触碰
-    expect(TABLES.zh.profile).toBe('个人资料')
-    expect(TABLES.en.profile).toBe('Profile')
-    expect(TABLES.hk.profile).toBe('個人資料')
-    expect(TABLES.vn.profile).toBe('Hồ sơ')
+    // 上一轮（裁定⑧）另立的新键 me 已删（避免两键同义）
+    expect(TABLES.zh.me).toBeUndefined()
+    expect(TABLES.en.me).toBeUndefined()
+    expect(TABLES.hk.me).toBeUndefined()
+    expect(TABLES.vn.me).toBeUndefined()
   })
 
   it.each([
@@ -110,7 +110,7 @@ describe('v1.5 ① 底栏（H5）五项 label / href（含四语前缀）', () =
     expect(tabs.map((a) => a.getAttribute('href'))).toEqual(hrefs)
     expect(tabs.map((a) => a.getAttribute('data-sf-nav'))).toEqual(['home', 'shard', 'sell', 'messages', 'profile'])
     expect(tabs.map((a) => a.textContent.trim())).toEqual([
-      TABLES[lang].home, TABLES[lang].shard, TABLES[lang].sell, TABLES[lang].messages, TABLES[lang].me,
+      TABLES[lang].home, TABLES[lang].shard, TABLES[lang].sell, TABLES[lang].messages, TABLES[lang].profile,
     ])
     // 语言前缀由 navPathInLang 承担（与真源逐项一致）
     expect(tabs.map((a) => a.getAttribute('href'))).toEqual(
@@ -201,10 +201,12 @@ describe('v1.5 ③ 悬浮菜单可见性只由 CSS 断点承担（§14.6 第 8�
     expect(mobileBlock).toMatch(/\.sf-fm\s*\{[^}]*display:\s*none/)
   })
 
-  it('桌面（默认）块里 .sf-fm = display:flex（几何：108px / 92px / 54px / right:16px / top:45%）', () => {
+  it('桌面（默认）块里 .sf-fm = display:flex（几何：宽 72px / 单元高 92px / 圆角声明 54px / right:16px / top:45%）', () => {
     expect(widePart).toMatch(/\.sf-fm\s*\{[^}]*display:\s*flex/)
-    expect(widePart).toContain('width: 108px')
+    expect(widePart).toContain('width: 72px')
     expect(widePart).toContain('border-radius: 54px')
+    // 本单 delta②：单元间分隔线按 2/3 缩为 32px
+    expect(widePart).toMatch(/\.sf-fm-div\s*\{[^}]*width:\s*32px/)
     expect(widePart).toContain('right: 16px')
     expect(widePart).toContain('top: 45%')
     expect(widePart).toContain('height: 92px')
