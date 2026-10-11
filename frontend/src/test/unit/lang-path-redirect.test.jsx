@@ -16,10 +16,6 @@ vi.mock('../../pages/HomePage', () => ({
   default: () => <div>home page content</div>,
 }))
 
-vi.mock('../../pages/RewardPage', () => ({
-  default: () => <div>reward page content</div>,
-}))
-
 vi.mock('../../pages/TaskPage', () => ({
   default: () => <div>task page content</div>,
 }))
@@ -115,8 +111,8 @@ describe('语言前缀规范化重定向（防御层）', () => {
     ['/hk/vn', '/hk', 'home page content'],
     ['/en/en', '/en', 'home page content'],
     ['/zh', '/', 'home page content'],
-    ['/vn/reward/', '/vn/reward', 'reward page content'],
-    ['/vn//reward', '/vn/reward', 'reward page content'],
+    ['/vn/task/', '/vn/task', 'task page content'],
+    ['/vn//task', '/vn/task', 'task page content'],
     ['//hk', '/hk', 'home page content'],
   ])('把 %s 自愈为 %s 并渲染主体内容', async (from, to, content) => {
     renderAt(from)
@@ -126,18 +122,18 @@ describe('语言前缀规范化重定向（防御层）', () => {
     await expectMainNotBlank()
   })
 
-  it('把 /zh/reward 自愈为 /reward 并渲染奖励页', async () => {
-    renderAt('/zh/reward')
+  it('把 /zh/task 自愈为 /task 并渲染奖励页', async () => {
+    renderAt('/zh/task')
 
-    await expectPathname('/reward')
-    expect(screen.getByText('reward page content')).toBeInTheDocument()
+    await expectPathname('/task')
+    expect(screen.getByText('task page content')).toBeInTheDocument()
   })
 
   it.each([
     ['/', '/', 'home page content'],
     ['/vn', '/vn', 'home page content'],
     ['/hk', '/hk', 'home page content'],
-    ['/vn/reward', '/vn/reward', 'reward page content'],
+    ['/vn/task', '/vn/task', 'task page content'],
   ])('规范路径 %s 不触发重定向且渲染内容', async (path, expected, content) => {
     renderAt(path)
 
@@ -145,11 +141,11 @@ describe('语言前缀规范化重定向（防御层）', () => {
     expect(screen.getByText(content)).toBeInTheDocument()
   })
 
-  it('规范路径 /reward 保持原样（不额外加重定向）且渲染奖励页', async () => {
-    renderAt('/reward')
+  it('规范路径 /task 保持原样（不额外加重定向）且渲染奖励页', async () => {
+    renderAt('/task')
 
-    await expectPathname('/reward')
-    expect(screen.getByText('reward page content')).toBeInTheDocument()
+    await expectPathname('/task')
+    expect(screen.getByText('task page content')).toBeInTheDocument()
   })
 
   it('无语言前缀的 /login 不被加前缀', async () => {
@@ -176,16 +172,16 @@ describe('语言前缀规范化重定向（防御层）', () => {
   })
 
   it('重定向时保留 query 与 hash', async () => {
-    renderAt('/hk/vn/reward?tab=open#top')
+    renderAt('/hk/vn/task?tab=open#top')
 
-    await expectPathname('/hk/reward')
+    await expectPathname('/hk/task')
     expect(screen.getByTestId('query').textContent).toBe('?tab=open#top')
-    expect(screen.getByText('reward page content')).toBeInTheDocument()
+    expect(screen.getByText('task page content')).toBeInTheDocument()
   })
 })
 
 // P0 正向判据：中文无前缀子路径必须渲染各自页面（含改名单后的 /exchange）。
-// 判负自证：把外层路由改回 `/:lang?/*`（可选语言段）时，除 '/' 外本组用例全部转红（/reward、/task、/exchange ⇒ home page content）。
+// 判负自证：把外层路由改回 `/:lang?/<path>`（可选语言段）时，除 '/' 外本组用例全部转红（/task、/task、/exchange ⇒ home page content）。
 describe('中文无前缀子路径渲染（P0）', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -198,15 +194,15 @@ describe('中文无前缀子路径渲染（P0）', () => {
 
   it.each([
     ['/', '/', 'home page content'],
-    ['/reward', '/reward', 'reward page content'],
+    ['/task', '/task', 'task page content'],
     ['/task', '/task', 'task page content'],
     ['/exchange', '/exchange', 'shard page content'],
-    ['/en/reward', '/en/reward', 'reward page content'],
+    ['/en/task', '/en/task', 'task page content'],
     ['/en/task', '/en/task', 'task page content'],
     ['/en/exchange', '/en/exchange', 'shard page content'],
     ['/hk/exchange', '/hk/exchange', 'shard page content'],
     ['/vn/exchange', '/vn/exchange', 'shard page content'],
-    ['/vn/reward', '/vn/reward', 'reward page content'],
+    ['/vn/task', '/vn/task', 'task page content'],
   ])('%s 渲染 %s 对应的页面内容', async (path, expected, content) => {
     renderAt(path)
 

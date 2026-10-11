@@ -5,7 +5,7 @@
  *   根因 = 登录/注册路由声明在 `LangShell` **之外**的顶层 `App` 路由里（绝对路径 `/login`），
  *   带语言前缀的地址落到 `/*` 壳的内层却无匹配 ⇒ 空壳。契约：**四档登录地址都渲染登录内容**。
  *
- * F2（卡片链接 `/undefined/listing/listing/<id>`）：
+ * F2（卡片链接 `/undefined/item/item/<id>`）：
  *   根因 = 页面内 `buildLangPath(location.pathname, undefined)` 把**字符串 `undefined`** 当作语言段，
  *   且返回值是「整条路径」而非「语言前缀」⇒ 前缀位 + 重复路径段。
  *   契约：站内链接的**唯一构造器** `buildLocalizedPath(lang, path)`；
@@ -43,8 +43,6 @@ vi.mock('../../auth-context', () => ({
   useAuth: vi.fn(() => ({ isAuthenticated: false, user: null })),
 }))
 // 顶层路由的其它页面替身（本单只钉登录/注册归属）
-vi.mock('../../pages/HomePage', () => ({ default: () => <div>home page content</div> }))
-vi.mock('../../pages/RewardPage', () => ({ default: () => <div>reward page content</div> }))
 vi.mock('../../pages/TaskPage', () => ({ default: () => <div>task page content</div> }))
 vi.mock('../../pages/ProfilePage', () => ({ default: () => <div>profile page content</div> }))
 vi.mock('../../pages/DashboardPage', () => ({ default: () => <div>dashboard page content</div> }))
@@ -54,14 +52,14 @@ vi.mock('../../pages/AuthPage', () => ({
   default: ({ mode }) => <div>{`${mode} auth page`}</div>,
 }))
 
-vi.mock('../../pages/listings/listing-api', () => ({
-  fetchListingFeed: vi.fn(async () => [{ bID: 5, name: '中文名', name_en: 'English', points: 3 }]),
-  fetchMyListingOrders: vi.fn(async () => []),
-  refundListingOrder: vi.fn(),
+vi.mock('../../auth', () => ({
+  fetchApiJson: vi.fn(async () => ({})),
+  getAuthHeaders: vi.fn(() => ({})),
 }))
+vi.mock('react-hot-toast', () => ({ default: { success: vi.fn(), error: vi.fn() } }))
 
 import App from '../../App'
-import ListingsPage from '../../pages/listings/ListingsPage'
+import HomePage from '../../pages/HomePage'
 
 const EMPTY = { v7_startTransition: true, v7_relativeSplatPath: true }
 const inRouter = (node, entry) => render(<MemoryRouter initialEntries={[entry]} future={EMPTY}>{node}</MemoryRouter>)
@@ -73,27 +71,27 @@ afterEach(() => cleanup())
 // ============================================================================
 describe('F2 · buildLocalizedPath 站内链接构造器契约', () => {
   it('zh = 无前缀口径（原样返回站内路径）', () => {
-    expect(buildLocalizedPath('zh', '/listing/5')).toBe('/listing/5')
+    expect(buildLocalizedPath('zh', '/item/5')).toBe('/item/5')
     expect(buildLocalizedPath('zh', '/')).toBe('/')
-    expect(buildLocalizedPath('zh', 'listing/5')).toBe('/listing/5')
+    expect(buildLocalizedPath('zh', 'item/5')).toBe('/item/5')
   })
 
   it('四语白名单逐档给对前缀，且无重复路径段', () => {
-    expect(buildLocalizedPath('en', '/listing/5')).toBe('/en/listing/5')
-    expect(buildLocalizedPath('hk', '/listing/5')).toBe('/hk/listing/5')
-    expect(buildLocalizedPath('vn', '/listing/5')).toBe('/vn/listing/5')
+    expect(buildLocalizedPath('en', '/item/5')).toBe('/en/item/5')
+    expect(buildLocalizedPath('hk', '/item/5')).toBe('/hk/item/5')
+    expect(buildLocalizedPath('vn', '/item/5')).toBe('/vn/item/5')
     for (const lang of SUPPORTED_LANGS) {
-      const href = buildLocalizedPath(lang, '/listing/5')
+      const href = buildLocalizedPath(lang, '/item/5')
       expect(href).not.toContain('//')
-      expect(href.match(/\/listing\//g).length).toBe(1) // 重复段判负
+      expect(href.match(/\/item\//g).length).toBe(1) // 重复段判负
     }
   })
 
-  it('★ 判负：语言缺失 / 非法 ⇒ 输出不得出现 `undefined`（F2 事故原形 /undefined/listing/listing/5）', () => {
+  it('★ 判负：语言缺失 / 非法 ⇒ 输出不得出现 `undefined`（F2 事故原形 /undefined/item/item/5）', () => {
     for (const bad of [undefined, null, '', 'xx', 'ZH', 0]) {
-      const href = buildLocalizedPath(bad, '/listing/5')
+      const href = buildLocalizedPath(bad, '/item/5')
       expect(String(href), `lang=${String(bad)}`).not.toContain('undefined')
-      expect(href).toBe('/listing/5')
+      expect(href).toBe('/item/5')
     }
     // 语言根同理
     expect(buildLocalizedPath(undefined, '/')).toBe('/')
@@ -108,58 +106,56 @@ describe('F2 · buildLocalizedPath 站内链接构造器契约', () => {
   })
 
   it('buildLangPath 兜底：非法目标语言不再拼出 `/undefined/...`（旧实现的原形）', () => {
-    expect(buildLangPath('/listing', undefined)).toBe('/listing')
-    expect(buildLangPath('/listing', 'xx')).toBe('/listing')
-    expect(buildLangPath('/listing', 'en')).toBe('/en/listing') // 合法目标语言行为不变
-    expect(buildLangPath('/vn/listing', 'hk')).toBe('/hk/listing')
+    expect(buildLangPath('/item', undefined)).toBe('/item')
+    expect(buildLangPath('/item', 'xx')).toBe('/item')
+    expect(buildLangPath('/item', 'en')).toBe('/en/item') // 合法目标语言行为不变
+    expect(buildLangPath('/vn/item', 'hk')).toBe('/hk/item')
   })
 })
 
+// ② F2 页面接线：首页发布入口链接形态（真渲染 HomePage；列表已并入首页）
 // ============================================================================
-// ② F2 页面接线：卡片 href 为正确形态（真实渲染 ListingsPage）
-// ============================================================================
-describe('F2 · 商品列表页卡片链接（真渲染）', () => {
-  const cards = () => [...document.querySelectorAll('[data-sf-m="listing-card"]')].map((a) => a.getAttribute('href'))
+describe('F2 · 首页发布入口链接（真渲染 HomePage）', () => {
+  const publishHref = () => document.querySelector('[data-sf-m="home-publish-link"]')?.getAttribute('href')
+  const renderHome = (entry) => render(<MemoryRouter initialEntries={[entry]} future={EMPTY}><HomePage /></MemoryRouter>)
 
   beforeEach(() => { cleanup() })
 
-  it('en 档：卡片 href = `/en/listing/5`（无 undefined、无重复段）', async () => {
-    inRouter(<ListingsPage />, '/en/listing')
-    expect(await screen.findByText('English')).toBeInTheDocument()
-    const hrefs = cards()
-    expect(hrefs.length).toBeGreaterThan(0)
-    expect(hrefs[0]).toBe('/en/listing/5')
-    for (const href of hrefs) {
-      expect(href).not.toContain('undefined')
-      expect(href.match(/\/listing\//g).length).toBe(1)
-    }
+  it('en 档：发布入口 href = `/en/item/new`（无 undefined、无重复段）', async () => {
+    renderHome('/en')
+    await screen.findByText('item.publish')
+    expect(publishHref()).toBe('/en/item/new')
+    expect(publishHref()).not.toContain('undefined')
+    expect(publishHref().match(/\/item\//g).length).toBe(1)
   })
 
-  it('zh 档（无前缀）：卡片 href = `/listing/5`；hk/vn 档各带自身前缀', async () => {
-    inRouter(<ListingsPage />, '/listing')
-    expect(await screen.findByText('中文名')).toBeInTheDocument()
-    expect(cards()[0]).toBe('/listing/5')
+  it('zh 档（无前缀）⇒ `/item/new`；hk/vn 档各带自身前缀', async () => {
+    renderHome('/')
+    await screen.findByText('item.publish')
+    expect(publishHref()).toBe('/item/new')
     cleanup()
 
-    inRouter(<ListingsPage />, '/hk/listing')
-    expect(await screen.findByText('中文名')).toBeInTheDocument()
-    expect(cards()[0]).toBe('/hk/listing/5')
+    renderHome('/hk')
+    await screen.findByText('item.publish')
+    expect(publishHref()).toBe('/hk/item/new')
     cleanup()
 
-    inRouter(<ListingsPage />, '/vn/listing')
-    expect(await screen.findByText('中文名')).toBeInTheDocument()
-    expect(cards()[0]).toBe('/vn/listing/5')
+    renderHome('/vn')
+    await screen.findByText('item.publish')
+    expect(publishHref()).toBe('/vn/item/new')
   })
 
-  it('同族链接一并纠正：`发布` 链接不再 `/undefined/listing/listing/new`', async () => {
-    inRouter(<ListingsPage />, '/en/listing')
-    await screen.findByText('English')
-    const publish = document.querySelector('[data-sf-m="listing-publish-link"]')
-    expect(publish.getAttribute('href')).toBe('/en/listing/new')
-    expect(publish.getAttribute('href')).not.toContain('undefined')
+  it('同族链接一并纠正：发布入口不再 `/undefined/...`，且无重复段', async () => {
+    renderHome('/en')
+    await screen.findByText('item.publish')
+    const href = publishHref()
+    expect(href).not.toContain('undefined')
+    expect(href).not.toContain('//')
+    expect(href.match(/\/item\//g).length).toBe(1)
   })
 })
 
+// ============================================================================
 // ============================================================================
 // ③ F1 路由归属：四档登录/注册地址都渲染登录内容（不再空壳）
 // ============================================================================

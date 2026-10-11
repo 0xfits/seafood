@@ -209,7 +209,7 @@ describe('R-9-85 右上角合并为唯一菜单按钮（文案 = 钱包地址缩
     const labels = [...nav.querySelectorAll('a')].map((a) => a.textContent.trim())
     expect(labels).not.toContain(zh.profile)
     expect(labels).not.toContain(hk.profile)
-    expect(labels).toEqual([zh.reward, zh.task, zh.shard])
+    expect(labels).toEqual([zh.task, zh.shard])
   })
 
   it('⑥ 移动端：唯一入口 = 汉堡；面板内 = 与桌面同款各项（我的 / 电量与签到 / 退出登录）', () => {

@@ -150,7 +150,8 @@ describe('P6-I18N-LIT-B3 · Zang 裁定 D3：`common.redeemable` 独立键', () 
     }
     console.info('[B3] D3 调用点读数', JSON.stringify({ canClaim, redeemable }))
     expect(canClaim).toBe(0)
-    expect(redeemable).toBeGreaterThanOrEqual(4)
+    // ★ 2026-10-11 合并单：`RewardPage` 删除 ⇒ 其 3 处消费随删；幸存消费者 = `pages/HomePage.jsx`（statusText）
+    expect(redeemable).toBeGreaterThanOrEqual(1)
   })
 })
 

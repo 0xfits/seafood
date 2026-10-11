@@ -93,11 +93,11 @@ describe('应用外壳 · 骨架同构（横竖屏同一套 DOM）', () => {
     const { container } = renderShell()
     // ① 底栏（shell/nav.js 真源）：五项 href（含显式 home tab）
     const tabHrefs = Array.from(container.querySelectorAll('[data-sf-region="tabbar"] a[data-sf-nav]')).map((a) => a.getAttribute('href'))
-    expect(tabHrefs).toEqual(['/', '/exchange', '/listing/new', '/messages', '/profile'])
+    expect(tabHrefs).toEqual(['/', '/exchange', '/item/new', '/messages', '/profile'])
     expect(tabHrefs).toEqual(visibleNavItems(true).map((i) => navPathInLang(i, 'zh')))
     // ② 桌面左 nav（Header.jsx 的 menuItems · 现状值一字不动；home 由品牌 logo 承担）
     const topHrefs = Array.from(container.querySelectorAll('.nav-link[href]')).map((a) => a.getAttribute('href'))
-    expect(topHrefs).toEqual(['/reward', '/task', '/exchange'])
+    expect(topHrefs).toEqual(['/task', '/exchange'])
     const brandHref = container.querySelector('[data-sf-region="topnav"] a[href="/"]')
     expect(brandHref).not.toBeNull()
   })
@@ -143,11 +143,11 @@ describe('应用外壳 · 骨架同构（横竖屏同一套 DOM）', () => {
     }
   })
 
-  it('语言前缀与激活判定复用 utils（/en/exchange、/hk/listing/new 均命中）', () => {
+  it('语言前缀与激活判定复用 utils（/en/exchange、/hk/item/new 均命中）', () => {
     expect(navPathInLang(SHELL_NAV_ITEMS[1], 'zh')).toBe('/exchange')
     expect(navPathInLang(SHELL_NAV_ITEMS[1], 'en')).toBe('/en/exchange')
     expect(isNavItemActive('/en/exchange', SHELL_NAV_ITEMS[1])).toBe(true)
-    expect(isNavItemActive('/hk/listing/new', SHELL_NAV_ITEMS[2])).toBe(true)
+    expect(isNavItemActive('/hk/item/new', SHELL_NAV_ITEMS[2])).toBe(true)
     expect(isNavItemActive('/hk/task', SHELL_NAV_ITEMS[1])).toBe(false)
     expect(isNavItemActive('/', SHELL_NAV_ITEMS[0])).toBe(true)
   })

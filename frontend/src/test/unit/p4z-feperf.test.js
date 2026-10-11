@@ -15,7 +15,7 @@ import {
 } from '../../../scripts/p4z-feperf-safelist.mjs'
 
 // Unit P6-FE-PERF · Tailwind 运行期 CDN → 构建期编译 的产物闭环
-// 口径：① safelist（styles.css @source inline）里每个类都要能在 dist/assets/*.css 里按 **CSS 转义形态** 找到；
+// 口径：① safelist（styles.css @source inline）里每个类都要能在 dist/assets/<name>.css 里按 **CSS 转义形态** 找到；
 //       ② 源码运行期拼接出的动态类名（清单见 scripts/p4z-feperf-safelist.mjs）非空、且每个都在 safelist 与产物里；
 //       ③ 判负：把某个类从产物里抹掉 / 造一个越界类名，断言核对器必须报出来（否则核对器是假的）。
 // 依赖 npm run build 的产物；无产物时本文件显式抛错（不静默跳过）。
@@ -26,7 +26,7 @@ if (!css) throw new Error('p4z-feperf: 缺少构建产物 dist/assets/*.css —�
 const MICRO_PATH = `${ROOT}/src/components/ui/MicroInteractions.jsx`
 const microSrc = fs.readFileSync(MICRO_PATH, 'utf8')
 
-// ★ 扫描污染（本单实测发现，见 docs/audit/p6-fe-perf.md「坑」）：Tailwind v4 的自动内容探测会扫 src/**（含
+// ★ 扫描污染（本单实测发现，见 docs/audit/p6-fe-perf.md「坑」）：Tailwind v4 的自动内容探测会扫 src/…（含
 //   src/test），测试文件里的类名字面量会被当成真实用法**注入产物**。故判负用的越界类名与承重探针一律
 //   以字符串拼接书写，避免自己污染自己；'scale-1.05' 保持字面量是有意的——它在被扫描的前提下仍不可构建。
 const PROBE = 'xl:grid-cols-' + '4'

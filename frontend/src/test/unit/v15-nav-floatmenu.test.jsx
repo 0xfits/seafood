@@ -99,10 +99,10 @@ describe('v1.5 ① 底栏（H5）五项 label / href（含四语前缀）', () =
   })
 
   it.each([
-    ['zh', '/', ['/', '/exchange', '/listing/new', '/messages', '/profile']],
-    ['en', '/en', ['/en/', '/en/exchange', '/en/listing/new', '/en/messages', '/en/profile']],
-    ['hk', '/hk', ['/hk/', '/hk/exchange', '/hk/listing/new', '/hk/messages', '/hk/profile']],
-    ['vn', '/vn', ['/vn/', '/vn/exchange', '/vn/listing/new', '/vn/messages', '/vn/profile']],
+    ['zh', '/', ['/', '/exchange', '/item/new', '/messages', '/profile']],
+    ['en', '/en', ['/en/', '/en/exchange', '/en/item/new', '/en/messages', '/en/profile']],
+    ['hk', '/hk', ['/hk/', '/hk/exchange', '/hk/item/new', '/hk/messages', '/hk/profile']],
+    ['vn', '/vn', ['/vn/', '/vn/exchange', '/vn/item/new', '/vn/messages', '/vn/profile']],
   ])('%s 档：底栏五项 href 与 label 取对应语 locale', (lang, entry, hrefs) => {
     H.lang = lang
     const { container } = renderIn(<BottomTabBar />, entry)
@@ -131,7 +131,7 @@ describe('v1.5 ② 右侧悬浮菜单（T81–T84）', () => {
     ])
     // 前两项 = 链接（含语言前缀），后三项 = 按钮（开弹窗）
     expect(items[0].tagName).toBe('A')
-    expect(items[0].getAttribute('href')).toBe('/listing/new')
+    expect(items[0].getAttribute('href')).toBe('/item/new')
     expect(items[1].tagName).toBe('A')
     expect(items[1].getAttribute('href')).toBe('/messages')
     expect(items.slice(2).every((el) => el.tagName === 'BUTTON')).toBe(true)
@@ -143,7 +143,7 @@ describe('v1.5 ② 右侧悬浮菜单（T81–T84）', () => {
     H.lang = 'en'
     const { container } = renderIn(<FloatingMenu />, '/en')
     const items = Array.from(container.querySelectorAll('[data-sf-m="floatmenu-item"]'))
-    expect(items[0].getAttribute('href')).toBe('/en/listing/new')
+    expect(items[0].getAttribute('href')).toBe('/en/item/new')
     expect(items[1].getAttribute('href')).toBe('/en/messages')
   })
 

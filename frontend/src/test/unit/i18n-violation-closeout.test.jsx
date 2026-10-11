@@ -45,9 +45,9 @@ const REWRITTEN = [
   // S25（台账 B7 死键退役）：`jobs.acceptNote` 已随四语对称删除退役（产品面零引用）⇒ 自本改写集移出；改写集 33⇒32 键。
   // S28-②：退役键「不得回归」的存在性负断言见本文件 ⑥（10 键 × 4 语 = 40 节点）；S25 的「移除并留痕」升为被强制执行的不变式。
   'jobs.cidNote', 'jobs.submitNote', 'jobs.publishNote', 'jobs.reviewNote',
-  'listings.listNote', 'listings.publishNote', 'listings.priceServerNote', 'listings.priceRoleNote',
-  'listings.stockNote', 'listings.cidNote', 'listings.ordersNote', 'listings.buyNote',
-  'listings.refundNote', 'listings.refundStockNote', 'listings.listed',
+  'item.listNote', 'item.publishNote', 'item.priceServerNote', 'item.priceRoleNote',
+  'item.stockNote', 'item.cidNote', 'item.ordersNote', 'item.buyNote',
+  'item.refundNote', 'item.refundStockNote', 'item.listed',
   'market.note', 'market.bookEmpty', 'market.pairDegenerate', 'market.bookNote', 'market.tradesNote',
   'market.mineNote', 'market.placeNote', 'market.baseNote', 'market.quoteNote',
   'ledger.balanceNote', 'ledger.flowEmpty', 'uiError.serverErrorStatus',
@@ -83,7 +83,8 @@ describe('I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文
     // P9② 计数期望订正（逐字登记）：新增顶层 `battCard`(4) + `checkinPanel`(5) ⇒ 拍平 944⇒953 ⇒ locale 节点 = 953 × 4 = **3812**（原 944 × 4 = 3776）⇒ 本断言前推 3776 ⇒ 3812（**未删断言**）
     // S25 计数期望订正（台账 B7 死键退役）：`jobs` 退役 10 键 ×4 语对称删除 ⇒ 拍平 1060⇒1050 ⇒ 节点 4240⇒4200（等量下移 −10/语）。
     // v1.5 §14 delta①（2026-10-11 收尾单 · Zang 裁定⑧）曾另立新键 'me'：top 128⇒129 / flat 1070⇒1071 / 节点 4280⇒4284；[留痕] 本单（2026-10-11 · Kevin 口径）全站统一 profile 值 = 我的/Me/我的/Tôi 并删 'me' ⇒ 计数回落 top 129⇒128 / flat 1071⇒1070 / 节点 4284⇒4280。
-    expect(out).toContain('作用域命中节点数 = 4280') // **期望订正（S9 ledger.kind 缺键补齐）**：S8 ⇒ 1055/4220；S9 +4 ledger.kind 键/语 ⇒ 拍平 1055⇒1059 ⇒ 节点 4220⇒4236（前订正 S7：1044⇒1054 ⇒ 4176⇒4216）；**S25 再订正** 1059⇒1050 ⇒ 4200（B7 退役 10 键）
+    // 2026-10-11 合并单（reward/listing → item 改名单 + 两页合并入首页）：顶层 128⇒127 / 拍平 1070⇒1053 / locale 节点 4280⇒4212（详见 docs/audit/item-rename.md ⑤）。
+    expect(out).toContain('作用域命中节点数 = 4212') // **期望订正（S9 ledger.kind 缺键补齐）**：S8 ⇒ 1055/4220；S9 +4 ledger.kind 键/语 ⇒ 拍平 1055⇒1059 ⇒ 节点 4220⇒4236（前订正 S7：1044⇒1054 ⇒ 4176⇒4216）；**S25 再订正** 1059⇒1050 ⇒ 4200（B7 退役 10 键）
     expect(out).toContain('② 全量页面源文件面')
     expect(out).toMatch(/locale 裸命中 0 \+ 源面裸命中 0/)
   })
@@ -109,8 +110,8 @@ describe('I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文
     // S25（B7）：`jobs.acceptNote` 已退役（四语对称删除）⇒ 该「只有雇主」保真锚失去守护对象，移除并留痕，**非削弱**：
     //   同族真信息锚（权限/已下线/手续费不退）仍在下方逐条断言（listings.refundNote / market.mineNote / claimRetiredNotice）。
     // S28-②：`jobs.acceptNote` 的退役**不得回归**由本文件 ⑥ 承接（10 键 × 4 语存在性负断言）—— 加严，非削弱。
-    expect(flatTables.zh['listings.refundNote']).toContain('只有卖家')
-    expect(flatTables.zh['listings.refundNote']).toContain('订单号')
+    expect(flatTables.zh['item.refundNote']).toContain('只有卖家')
+    expect(flatTables.zh['item.refundNote']).toContain('订单号')
     expect(flatTables.zh['market.mineNote']).toContain('手续费不退')
     // 批 7-A：`/api/user/ledger` 已注册 ⇒ 原「暂未开放」变成错误陈述 ⇒ 保真底线的锚随之**等义下移**
     expect(flatTables.zh['ledger.flowEmpty']).toMatch(/暂无账本流水|交易后/)
@@ -120,7 +121,7 @@ describe('I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文
     expect(flatTables.zh.claimRetiredNotice).toContain('已下线')
     expect(flatTables.en.claimRetiredNotice).toMatch(/retired|no longer/i)
     // 原样枚举值不得再进可见文案（en 档 `listings.listed` 由 `listed` ⇒ `Listed`）
-    expect(flatTables.en['listings.listed']).toBe('Listed')
+    expect(flatTables.en['item.listed']).toBe('Listed')
   })
 
   it('⑤ 键名与键集不变：四文件拍平键数单值，且改写集键全部仍在', () => {
@@ -131,7 +132,7 @@ describe('I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文
     // 批 8④ 计数期望订正（逐字登记）：新增顶层 adminCurrencyReview（28 键）+ adminNav 2 键 ⇒ 顶层 105⇒106 / 拍平 788⇒818 / locale 节点 3152⇒3272
     // 批 8⑤ 计数期望订正（逐字登记）：新增顶层 adminListingReview（30 键）+ adminArbitrationReview（34 键）+ adminNav 4 键（listingReview/listingReviewDesc/arbitrationReview/arbitrationReviewDesc）⇒ 顶层 106⇒108 / 拍平 818⇒886 / locale 节点 3272⇒3544（增量来源 = 本批合法新增：注册点 +4 ⇔ 4 新路由；迁移 +2 ⇔ 2 新文件；adminNav +4 ⇔ 4 新菜单键）
     // S25 计数期望订正（台账 B7 死键退役）：四语对称删 10 键 ⇒ 拍平 1060⇒1050（等量下移 = −10/语）。
-    expect([...counts][0]).toBe(1070) // **期望订正（S9 ledger.kind 缺键补齐）**：S8 ⇒ 1055；S9 +4 ledger.kind 键/语 ⇒ 拍平 1055⇒1059（前订正 S7：1044⇒1054）；**S25 再订正** 1059⇒1050（B7 退役 10 键）
+    expect([...counts][0]).toBe(1053) // **期望订正（S9 ledger.kind 缺键补齐）**：S8 ⇒ 1055；S9 +4 ledger.kind 键/语 ⇒ 拍平 1055⇒1059（前订正 S7：1044⇒1054）；**S25 再订正** 1059⇒1050（B7 退役 10 键）
     for (const k of REWRITTEN) for (const l of LANGS) expect(flatTables[l][k]).toBeTruthy()
   })
 
@@ -148,7 +149,7 @@ describe('I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文
    *   叠加渲染面硬编旧值反面护栏（`r9-90-participate-surface.test.jsx` S28-①）后，退役 10 键的守卫 = 键面 + 渲染面双向。
    */
   it('⑥ 退役键不得回归：S25-B7 退役 10 键 × 4 语一律不存在（存在即红）', () => {
-    // S25-B7 退役清单（S25 删除前的 `jobs.*`；出处 `git show 815c138^:frontend/src/locales/*.json`）
+    // S25-B7 退役清单（S25 删除前的 `jobs.*`；出处 `git show 815c138^:frontend/src/locales/<lang>.json`）
     const RETIRED_JOBS_KEYS = [
       'apply', 'applyOk', 'accept', 'acceptNote', 'acceptOk',
       'applicationId', 'submitNeedApply', 'applyPrompt', 'applyWaiting', 'pick',

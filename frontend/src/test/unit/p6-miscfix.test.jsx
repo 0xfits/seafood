@@ -21,7 +21,7 @@ const TABLES = { zh, hk, en, vn }
 
 // t / i18n 必须**模块级稳定**（页面用 useCallback(..., [t])：每次新闭包 ⇒ 无限重渲染 ⇒ OOM）
 const H = vi.hoisted(() => {
-  const state = { lang: 'zh', hasI18n: true, tables: {} }
+  const state = { lang: 'zh', hasI18n: true, tables: {}, feed: [] }
   state.i18n = { resolvedLanguage: 'zh', language: 'zh' }
   state.t = (key) => {
     const v = key.split('.').reduce((o, k) => (o == null ? undefined : o[k]), state.tables[state.lang])
@@ -36,25 +36,35 @@ vi.mock('react-i18next', () => ({
 vi.mock('../../auth-context', () => ({
   useAuth: () => ({ isAuthenticated: false, user: null, isProfileComplete: false, updateSession: vi.fn() }),
 }))
-vi.mock('../../pages/listings/listing-api', () => ({
-  fetchListingFeed: vi.fn(async () => [
-    { bID: 5, name: 'x', points: 3, status: 'draft' },
-    { bID: 6, name: 'x', points: 3, status: 'delisted' },
-    { bID: 7, name: 'x', points: 3, status: 'sunset-value' },   // 未知取值（不得原样渲染）
-    { bID: 8, name: 'x', points: 3 },                           // 缺失 status（既有口径 = 已上架）
-  ]),
+// 2026-10-11 合并单：唯一列表 = 首页（取 `/api/prize/all`）。聚合口 `/api/home` 抛错 ⇒ 首页回落逐口读。
+vi.mock('../../auth', () => ({
+  fetchApiJson: vi.fn(async (url) => {
+    const u = String(url)
+    if (u.startsWith('/api/home')) throw new Error('HOME_UNREGISTERED')
+    if (u.includes('/api/prize/all')) return H.feed
+    if (u.includes('/api/prize-item')) return []
+    if (u.includes('/api/user/asset/')) return { points: 0 }
+    return []
+  }),
+  getAuthHeaders: vi.fn(() => ({})),
+}))
+vi.mock('../../pages/item/item-api', () => ({
+  fetchListingFeed: vi.fn(async () => H.feed),
   fetchMyListingOrders: vi.fn(async () => []),
   refundListingOrder: vi.fn(),
+  fetchListingDetail: vi.fn(async () => null),
+  buyListing: vi.fn(),
+  createListingBuyTracker: () => ({ keyFor: () => 'cli:x', reset: () => {} }),
+  listingBuyFingerprint: () => 'fp',
 }))
 vi.mock('../../components/Header', () => ({ default: () => null }))
 vi.mock('../../components/Footer', () => ({ default: () => null }))
 
-import ListingsPage from '../../pages/listings/ListingsPage'
+import HomePage from '../../pages/HomePage'
 import { DatePicker } from '../../components/ui/Advanced'
 import { buildLocalizedPath } from '../../utils'
 
-const inRouter = (node) => render(<MemoryRouter initialEntries={['/listing']}>{node}</MemoryRouter>)
-const tags = () => [...document.querySelectorAll('[data-sf-m="listing-grid"] .sf-listings-tag')]
+const inRouter = (node, entry = '/') => render(<MemoryRouter initialEntries={[entry]}>{node}</MemoryRouter>)
 
 beforeEach(() => {
   H.tables = { zh, hk, en, vn }
@@ -62,56 +72,56 @@ beforeEach(() => {
 })
 afterEach(() => cleanup())
 
-describe('① ListingsPage 状态标签：四语标签 + 未知取值兜底', () => {
-  it('四语各自渲染本地化标签（判负：四语取值互不相同）', async () => {
+describe('① 首页闲置列表面：状态文案查表（四语 + 缺省兜底 + 原始枚举不得进用户面）', () => {
+  it('四语各自渲染本地化状态文案（判负：四语取值互不相同）', async () => {
     const seen = {}
     for (const lang of ['zh', 'hk', 'en', 'vn']) {
       H.lang = lang; H.i18n.resolvedLanguage = lang; H.i18n.language = lang
-      inRouter(<ListingsPage />)
-      await screen.findByText(TABLES[lang].listings.list)
-      await waitFor(() => expect(tags().length).toBe(4))   // feed 是异步的：等卡片落 DOM
-      const got = tags().map((el) => el.textContent)
-      expect(got).toContain(TABLES[lang].listings.statusLabel.draft)
-      expect(got).toContain(TABLES[lang].listings.statusLabel.delisted)
-      seen[lang] = got.join('|')
+      H.feed = [
+        { bID: 5, name: 'x', points: 3, stores_count: 2 },   // => 可兑换
+        { bID: 6, name: 'x', points: 3, stores_count: 0 },   // => 库存不足
+      ]
+      const { container } = inRouter(<HomePage />)
+      await waitFor(() => expect(container.textContent).toContain(TABLES[lang].common.redeemable))
+      expect(container.textContent).toContain(TABLES[lang].common.outOfStock)
+      seen[lang] = `${TABLES[lang].common.redeemable}|${TABLES[lang].common.outOfStock}`
       cleanup()
     }
     expect(new Set(Object.values(seen)).size).toBe(4)   // 四语两两可区分
   })
 
-  it('未知取值 ⇒ 本地化兜底（不渲染原始枚举、不空白），原值留在 title/data-sf-status', async () => {
+  it('判负：原始状态枚举（available/locked/claimed）不得进用户面', async () => {
     H.lang = 'en'; H.i18n.resolvedLanguage = 'en'; H.i18n.language = 'en'
-    inRouter(<ListingsPage />)
-    await screen.findByText(TABLES.en.listings.list)
-    await waitFor(() => expect(tags().length).toBe(4))
-    const all = tags().map((el) => el.textContent)
-    expect(all).not.toContain('sunset-value')                       // 判负 1：原始枚举不得进用户面
-    expect(all).not.toContain('')                                   // 判负 2：不得空白
-    expect(all).toContain(TABLES.en.listings.statusLabel.unknown)   // 兜底 = 本地化「未知」
-    const unknown = tags().find((el) => el.textContent === TABLES.en.listings.statusLabel.unknown)
-    expect(unknown.getAttribute('data-sf-status')).toBe('sunset-value')
-    expect(unknown.getAttribute('title')).toBe('sunset-value')
+    H.feed = [
+      { bID: 5, name: 'x', points: 3, stores_count: 2 },
+      { bID: 6, name: 'x', points: 3, stores_count: 0 },
+    ]
+    const { container } = inRouter(<HomePage />)
+    await waitFor(() => expect(container.textContent).toContain(TABLES.en.common.redeemable))
+    // 注：'available'/'claimed' 会与合法英文文案（`homePage.noTasks` / `common.claimedUnit`）撞车 ⇒ 不入禁用集
+    for (const raw of ['locked', 'outOfStock', 'redeemable', 'sunset-value']) {
+      expect(container.textContent).not.toContain(raw)
+    }
   })
 
-  it('缺失 status ⇒ 维持既有口径（listings.statusLabel.listed），不留 data-sf-status', async () => {
+  it('缺失 stores_count => 维持既有口径（库存不足兜底：不空白、不原始枚举）', async () => {
     H.lang = 'zh'; H.i18n.resolvedLanguage = 'zh'; H.i18n.language = 'zh'
-    inRouter(<ListingsPage />)
-    await screen.findByText(TABLES.zh.listings.list)
-    await waitFor(() => expect(tags().length).toBe(4))
-    const listed = tags().filter((el) => el.textContent === TABLES.zh.listings.statusLabel.listed)
-    expect(listed.length).toBeGreaterThan(0)
-    expect(listed[0].getAttribute('data-sf-status')).toBeNull()
+    H.feed = [{ bID: 8, name: 'x', points: 3 }]
+    const { container } = inRouter(<HomePage />)
+    await waitFor(() => expect(container.textContent).toContain(TABLES.zh.common.outOfStock))
+    expect(container.textContent).not.toContain('locked')
   })
 
   it('四语 statusLabel 键集相等（en/vn 不得残留中文）', () => {
-    const keys = Object.keys(zh.listings.statusLabel).sort()
+    const keys = Object.keys(zh.item.statusLabel).sort()
     for (const lang of ['hk', 'en', 'vn']) {
-      expect(Object.keys(TABLES[lang].listings.statusLabel).sort()).toEqual(keys)
+      expect(Object.keys(TABLES[lang].item.statusLabel).sort()).toEqual(keys)
     }
-    expect(/\p{Script=Han}/u.test(JSON.stringify(en.listings.statusLabel))).toBe(false)
-    expect(/\p{Script=Han}/u.test(JSON.stringify(vn.listings.statusLabel))).toBe(false)
+    expect(/\p{Script=Han}/u.test(JSON.stringify(en.item.statusLabel))).toBe(false)
+    expect(/\p{Script=Han}/u.test(JSON.stringify(vn.item.statusLabel))).toBe(false)
   })
 })
+
 
 describe('② 链接构造器回归：源码残留必须逐条已登记', () => {
   const REGISTERED = new Set([
@@ -154,7 +164,7 @@ describe('② 链接构造器回归：源码残留必须逐条已登记', () => 
   it('判负：构造器对四语/非法语言输出符合契约', () => {
     expect(buildLocalizedPath('en', '/task')).toBe('/en/task')
     expect(buildLocalizedPath('hk', '/shard')).toBe('/hk/shard')
-    expect(buildLocalizedPath('vn', '/reward')).toBe('/vn/reward')
+    expect(buildLocalizedPath('vn', '/task')).toBe('/vn/task')
     expect(buildLocalizedPath('zh', '/profile')).toBe('/profile')
     for (const bad of [undefined, null, '', 'xx', 'ZH', 0]) {
       expect(String(buildLocalizedPath(bad, '/login'))).not.toContain('undefined')

@@ -18,7 +18,7 @@ const CSS_FILES = {
   shell: path.join(SRC, 'shell/shell.css'),
   jobs: path.join(SRC, 'pages/jobs/jobs.css'),
   market: path.join(SRC, 'pages/market/market.css'),
-  listings: path.join(SRC, 'pages/listings/listings.css'),
+  listings: path.join(SRC, 'pages/item/item.css'),
   preview: path.join(SRC, 'pages/theme-preview.css'),
 }
 const css = Object.fromEntries(Object.entries(CSS_FILES).map(([k, p]) => [k, read(p)]))
@@ -70,12 +70,12 @@ describe('P6-BTN-IMPL-2 · `.sf-btn` 家族纳入 A 体系', () => {
       'components/RatingTimelinessPanel.jsx',
       'pages/TaskPage.jsx',
       'pages/ThemePreviewPage.jsx',
+      'pages/item/ItemDetailPage.jsx',
+      'pages/item/MyOrdersPanel.jsx',
+      'pages/item/PublishItemPage.jsx',
       'pages/jobs/JobDetailPage.jsx',
       'pages/jobs/JobReviewPage.jsx',
       'pages/jobs/PublishJobPage.jsx',
-      'pages/listings/ListingDetailPage.jsx',
-      'pages/listings/ListingsPage.jsx',
-      'pages/listings/PublishListingPage.jsx',
       'pages/market/MarketPage.jsx',
     ])
     expect(totalUses).toBeGreaterThanOrEqual(22)

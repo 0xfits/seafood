@@ -57,10 +57,10 @@ describe('P6-I18N-LIT-B1 · en 档渲染英文文案', () => {
     expect(await screen.findByRole('heading', { name: 'Welcome to Jinli Club' })).toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: 'Hot tasks' })).toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: 'Featured rewards' })).toBeInTheDocument()
-    expect(screen.getAllByText('View all')).toHaveLength(2)
-    expect(screen.getByText('Browse rewards')).toBeInTheDocument()
+    expect(screen.getAllByText('View all')).toHaveLength(1)
+    expect(screen.getByText('Publish item')).toBeInTheDocument()
     expect(screen.getByText('No tasks available')).toBeInTheDocument()
-    expect(screen.getByText('No rewards available')).toBeInTheDocument()
+    expect(screen.getByText('No items yet')).toBeInTheDocument()
   })
 
   it('Footer 支持语言/联系文案在 en 档渲染英文，且邮箱保持字面量', () => {

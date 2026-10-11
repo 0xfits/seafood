@@ -1,12 +1,14 @@
 /**
- * P6-I18N-LIT-B2 · 主线三页（任务 / 奖励 / 我的）文案四语化 + 「翻译中」小标接线 + 内容本地化收口
+ * P6-I18N-LIT-B2 · 主线三页（任务 / 首页·闲置物品列表 / 我的）文案四语化 + 「翻译中」小标接线 + 内容本地化收口
  *
  * 口径（§5.7 ⑤：不得把「代码推断」写成「实测」）：
- *   ① 走**真实** i18n 实例（`import '../../i18n'`）+ `i18n.changeLanguage`，**不 mock** `react-i18next`
- *      （小标语言判据读的是 `i18n.resolvedLanguage`，mock 掉就测不到 zh/非 zh 档差异）；
+ *   ① 走**真实** i18n 实例（`import '../../i18n'`）+ `i18n.changeLanguage`，**不 mock** `react-i18next`；
  *   ② 语言码另有来源：页面用 `getLanguageFromUrl(location.pathname)` ⇒ 路由须给语言前缀
  *      （`/en/task` 等），与 `changeLanguage` 两条都到位才是真「en 档」；
  *   ③ 数据面只 mock `../../auth` / `../../auth-context`（`TaskPage` 用全局 `fetch`，另 mock `global.fetch`）。
+ *
+ * ★ 2026-10-11 合并单：原「奖励页」`RewardPage` 已删（与列表页合并入首页）。原 `RewardPage（/en/reward）`
+ *   一例**改为**`HomePage（/en）`一例（面板：发布入口 / 我的积分 / 分类筛选 / 卡片），例数不减。
  */
 import React from 'react'
 import fs from 'node:fs'
@@ -26,6 +28,8 @@ const state = vi.hoisted(() => ({ prizes: [], profile: null, taskRows: [] }))
 vi.mock('../../auth', () => ({
   fetchApiJson: vi.fn(async (url) => {
     const u = String(url)
+    // 首页先打聚合口 `/api/home`；本替身令其抛错 ⇒ 首页回落逐口读（与旧 ListingsPage 同一份 feed）
+    if (u.includes('/api/home')) throw new Error('HOME_UNREGISTERED')
     if (u.includes('/api/prize/all')) return state.prizes
     if (u.includes('/api/user/asset/')) return { points: 300 }
     return []
@@ -46,13 +50,13 @@ vi.mock('../../auth-context', () => ({
 }))
 
 import TaskPage from '../../pages/TaskPage'
-import RewardPage from '../../pages/RewardPage'
+import HomePage from '../../pages/HomePage'
 import ProfilePage from '../../pages/ProfilePage'
 
 const BADGE_SEL = '[data-sf-m="i18n-translating"]'
 const badgeEl = () => document.querySelector(BADGE_SEL)
 
-describe('P6-I18N-LIT-B2 · en 档渲染英文文案（Task / Reward / Profile）', () => {
+describe('P6-I18N-LIT-B2 · en 档渲染英文文案（Task / Home / Profile）', () => {
   beforeEach(async () => {
     state.taskRows = [{
       tID: 1, title: '任务原文', title_en: 'English task title',
@@ -93,20 +97,22 @@ describe('P6-I18N-LIT-B2 · en 档渲染英文文案（Task / Reward / Profile�
     expect(screen.queryByText('任务原文')).toBeNull()
   })
 
-  it('RewardPage（/en/reward）：标题 / 副标题 / 统计 / Tab / 卡片走英文', async () => {
-    render(<MemoryRouter initialEntries={['/en/reward']}><RewardPage /></MemoryRouter>)
+  it('HomePage（/en，= 唯一「闲置物品」列表）：发布入口 / 我的积分 / 分类筛选 / 卡片走英文', async () => {
+    render(<MemoryRouter initialEntries={['/en']}><HomePage /></MemoryRouter>)
 
-    expect(await screen.findByText('Reward Center')).toBeInTheDocument()
-    expect(screen.getByText('Redeem points for gifts and perks')).toBeInTheDocument()
+    // 发布入口（原「查看奖励」→ `/item/new`；文案 = 闲置物品语义）
+    expect(await screen.findByText('Publish item')).toBeInTheDocument()
+    // 「我的积分」（并入自 RewardPage）
     expect(screen.getByText('My points')).toBeInTheDocument()
-    expect(screen.getByText('Limited edition')).toBeInTheDocument()
-    expect(screen.getByText('High value')).toBeInTheDocument()
-    expect(screen.getByText('Redeemable (1)')).toBeInTheDocument()
+    // 分类筛选（并入自 RewardPage；计数随数据面派生）
+    expect(screen.getByText('All (1)')).toBeInTheDocument()
+    expect(screen.getByText('Limited edition (0)')).toBeInTheDocument()
+    expect(screen.getByText('High value (0)')).toBeInTheDocument()
+    expect(screen.getByText('Redeemed (0)')).toBeInTheDocument()
     // 卡片标题 + 品牌行（`brand.name`）都走 `pickLocalized` ⇒ 两处都渲染英文
     expect(screen.getAllByText('English reward').length).toBeGreaterThanOrEqual(2)
     expect(screen.getByText('English description')).toBeInTheDocument()
     expect(badgeEl()).not.toBeNull()
-    expect(screen.queryByText('奖励中心')).toBeNull()
     expect(screen.queryByText('奖励原文')).toBeNull()
   })
 
@@ -179,12 +185,14 @@ describe('P6-I18N-LIT-B2 · 内容本地化收口（`pickLocalized`，`||` 语�
   })
 })
 
-describe('P6-I18N-LIT-B2 · 四语 locale 键集（本批新增键齐备 + 逐文件相等）', () => {
+describe('P6-I18N-LIT-B2 · 四语 locale 键集（本批存活键齐备 + 逐文件相等）', () => {
   const LANGS = ['zh', 'en', 'hk', 'vn']
   const SRC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
   const keyPaths = (obj, prefix = '') => Object.entries(obj).flatMap(([k, v]) => (
     v && typeof v === 'object' && !Array.isArray(v) ? keyPaths(v, `${prefix}${k}.`) : [`${prefix}${k}`]
   )).sort()
+  // ★ 2026-10-11 合并单订正：原 23 个 `rewardPage.*` 键随 `RewardPage.jsx` 删除；
+  //   合并页真用的 6 键改入 `item.*`（`item.myPoints` / 四档筛选 / 卡片动作）。
   const NEW_KEYS = [
     'common.loadingTasks',
     'common.loadingRewards',
@@ -220,29 +228,12 @@ describe('P6-I18N-LIT-B2 · 四语 locale 键集（本批新增键齐备 + 逐�
     'taskPage.emptyCompletedHint',
     'taskPage.emptyVerification',
     'taskPage.emptyVerificationHint',
-    'rewardPage.title',
-    'rewardPage.subtitle',
-    'rewardPage.myPoints',
-    'rewardPage.limitedEdition',
-    'rewardPage.highValue',
-    'rewardPage.alreadyInGiftRecord',
-    'rewardPage.rewardOutOfStock',
-    'rewardPage.redeemNotOpen',
-    'rewardPage.backToList',
-    'rewardPage.detailTitle',
-    'rewardPage.taskInfo',
-    'rewardPage.taskNumber',
-    'rewardPage.noNote',
-    'rewardPage.progress',
-    'rewardPage.pointsAvailable',
-    'rewardPage.emptyAvailable',
-    'rewardPage.emptyAvailableHint',
-    'rewardPage.emptyLimited',
-    'rewardPage.emptyLimitedHint',
-    'rewardPage.emptyHighValue',
-    'rewardPage.emptyHighValueHint',
-    'rewardPage.emptyClaimed',
-    'rewardPage.emptyClaimedHint',
+    'item.myPoints',
+    'item.filterAll',
+    'item.filterLimited',
+    'item.filterHighValue',
+    'item.filterClaimed',
+    'item.viewDetail',
     'profilePage.title',
     'profilePage.subtitle',
     'profilePage.loadFailed',
@@ -284,7 +275,7 @@ describe('P6-I18N-LIT-B2 · 四语 locale 键集（本批新增键齐备 + 逐�
     'activeTaskModal.submitFailed',
   ]
 
-  it('新增 96 键四语齐备、非空串；四文件拍平键集逐文件相等', () => {
+  it('存活 79 键四语齐备、非空串；四文件拍平键集逐文件相等', () => {
     const tables = {}
     const sets = {}
     const counts = {}
@@ -294,13 +285,13 @@ describe('P6-I18N-LIT-B2 · 四语 locale 键集（本批新增键齐备 + 逐�
       counts[lang] = { top: Object.keys(tables[lang]).length, flat: sets[lang].length }
     }
     console.info('[B2] locale 键数读数', JSON.stringify(counts))
-    console.info('[B2] 本批新增键数', NEW_KEYS.length)
+    console.info('[B2] 本批存活键数', NEW_KEYS.length)
 
     for (const lang of LANGS.slice(1)) expect(sets[lang]).toEqual(sets.zh)
     expect(new Set(LANGS.map((l) => counts[l].flat)).size).toBe(1)
     expect(counts.zh.top).toBe(counts.en.top)
 
-    expect(NEW_KEYS.length).toBe(96)
+    expect(NEW_KEYS.length).toBe(79)
     for (const key of NEW_KEYS) {
       expect(sets.zh).toContain(key)
       for (const lang of LANGS) {

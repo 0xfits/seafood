@@ -34,7 +34,7 @@ vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: H.t, i18n: H.i18n 
 // ★ 稳定 auth 对象：`useAuth()` 每次返回**同一引用**（否则页面 `useCallback(..., [user])` 依赖每次变化 ⇒ 无限重渲染）
 const AUTH = vi.hoisted(() => ({ isAuthenticated: true, user: { uID: 7, token: 't' } }))
 vi.mock('../../auth-context', () => ({ useAuth: () => AUTH }))
-vi.mock('../../pages/listings/listing-api', () => ({
+vi.mock('../../pages/item/item-api', () => ({
   fetchListingDetail: vi.fn(),
   buyListing: vi.fn(),
   createListingBuyTracker: () => ({ keyFor: () => 'cli:x', reset: () => {} }),
@@ -56,15 +56,15 @@ vi.mock('../../ledger-api', () => ({
   LEDGER_PAGE_SIZE: 20,
 }))
 
-import { fetchListingDetail } from '../../pages/listings/listing-api'
+import { fetchListingDetail } from '../../pages/item/item-api'
 import { fetchMyOrders } from '../../pages/market/market-api'
-import ListingDetailPage from '../../pages/listings/ListingDetailPage'
+import ListingDetailPage from '../../pages/item/ItemDetailPage'
 import MarketPage from '../../pages/market/MarketPage'
 
 const setLang = (lang) => { H.lang = lang; H.i18n.resolvedLanguage = lang; H.i18n.language = lang }
 const renderDetail = () => render(
-  <MemoryRouter initialEntries={['/listing/1']}>
-    <Routes><Route path="/listing/:listingId" element={<ListingDetailPage />} /></Routes>
+  <MemoryRouter initialEntries={['/item/1']}>
+    <Routes><Route path="/item/:itemId" element={<ListingDetailPage />} /></Routes>
   </MemoryRouter>,
 )
 const renderMarket = () => render(<MemoryRouter initialEntries={['/shard']}><MarketPage /></MemoryRouter>)
@@ -89,7 +89,7 @@ describe('① ListingDetailPage 状态查表（四语 + 未知兜底 + 缺省）
       setLang(lang)
       fetchListingDetail.mockResolvedValue({ listing_id: 5, title: 'x', status: 'draft' })
       renderDetail()
-      await waitFor(() => expect(noteText()).toContain(TABLES[lang].listings.statusLabel.draft))
+      await waitFor(() => expect(noteText()).toContain(TABLES[lang].item.statusLabel.draft))
       expect(noteText()).not.toContain('draft')   // 判负：原始枚举不得进用户面
       seen[lang] = noteText()
       cleanup()
@@ -101,7 +101,7 @@ describe('① ListingDetailPage 状态查表（四语 + 未知兜底 + 缺省）
     setLang('en')
     fetchListingDetail.mockResolvedValue({ listing_id: 5, title: 'x', status: 'sunset-value' })
     renderDetail()
-    await waitFor(() => expect(noteText()).toContain(TABLES.en.listings.statusLabel.unknown))
+    await waitFor(() => expect(noteText()).toContain(TABLES.en.item.statusLabel.unknown))
     expect(noteText()).not.toContain('sunset-value')                       // 判负：原始枚举不得进用户面
     expect(noteEl().getAttribute('data-sf-status')).toBe('sunset-value')
     expect(noteEl().getAttribute('title')).toBe('sunset-value')

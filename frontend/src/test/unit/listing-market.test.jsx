@@ -61,7 +61,7 @@ import {
   publishListing,
   refundListingOrder,
   setListingStatus,
-} from '../../pages/listings/listing-api'
+} from '../../pages/item/item-api'
 import {
   QUOTE_CID,
   cancelAllOrders,
@@ -71,8 +71,8 @@ import {
   orderPlaceFingerprint,
   placeOrder,
 } from '../../pages/market/market-api'
-import ListingsPage from '../../pages/listings/ListingsPage'
-import ListingDetailPage from '../../pages/listings/ListingDetailPage'
+import HomePage from '../../pages/HomePage'
+import ListingDetailPage from '../../pages/item/ItemDetailPage'
 import MarketPage from '../../pages/market/MarketPage'
 import JobReviewPage from '../../pages/jobs/JobReviewPage'
 import PublishJobPage from '../../pages/jobs/PublishJobPage'
@@ -150,10 +150,15 @@ describe('商品线 · 接线契约', () => {
       .toBe(listingPublishFingerprint({ cid: 1, price: 7, stock: 1, title: 'a', description: '' }))
   })
 
-  it('商品列表页：调用已注册读面并渲染空态，无 [object Object]', async () => {
-    const { container } = renderPage(<ListingsPage />, '/listing')
+  it('首页（= 唯一列表）：调用已注册读面并渲染空态，无 [object Object]', async () => {
+    // 2026-10-11 合并单：原 ListingsPage 的列表渲染并入首页（两者同取 `/api/prize/all`）。
+    fetchApiJson.mockImplementation(async (url) => {
+      if (String(url).startsWith('/api/home')) throw new Error('HOME_UNREGISTERED') // ⇒ 回落逐口读
+      return []
+    })
+    const { container } = renderPage(<HomePage />, '/')
     await waitFor(() => expect(callsTo('/api/prize/all').length).toBeGreaterThan(0))
-    await waitFor(() => expect(screen.getByText('listings.empty')).toBeTruthy())
+    await waitFor(() => expect(screen.getByText('item.empty')).toBeTruthy())
     expect(container.textContent).not.toContain('[object Object]')
   })
 
@@ -161,11 +166,11 @@ describe('商品线 · 接线契约', () => {
     fetchApiJson.mockImplementation(async (url) => (String(url).includes('/buy') ? { order_id: 9 } : []))
     renderPage(
       <Routes>
-        <Route path="/listing/:listingId" element={<ListingDetailPage />} />
+        <Route path="/item/:itemId" element={<ListingDetailPage />} />
       </Routes>,
-      '/listing/1',
+      '/item/1',
     )
-    const button = await screen.findByRole('button', { name: 'listings.buy' })
+    const button = await screen.findByRole('button', { name: 'item.buy' })
     fireEvent.click(button)
     await waitFor(() => expect(callsTo('/api/listing/1/buy').length).toBe(1))
     const call = callsTo('/api/listing/1/buy')[0]

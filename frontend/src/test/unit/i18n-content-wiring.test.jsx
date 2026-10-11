@@ -13,19 +13,22 @@
  * ★ 探针自曝（同 `listing-market.test.jsx` 的既有坑）：`t` 取**模块级稳定函数**——
  *   页面里 `useCallback(..., [t])` + 内部 setState ⇒ 若 mock 每次返回新闭包，effect 依赖每次变化
  *   ⇒ **无限重渲染**。真机 i18next 的 `t` 稳定，故这是**测试替身的约束**，不是产品代码缺陷。
+ *
+ * ★ 2026-10-11 合并单：页面接线面由「商品列表页 `ListingsPage`」改为**闲置物品详情页 `ItemDetailPage`**
+ *   （原 `ListingsPage` 的列表渲染已删/并入首页；详情页与列表页同一套 `pickLocalized` + 小标接线）。
  */
 import React from 'react'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const BADGE = 'TR2-翻译中小标'
 const stableT = (key) => (key === 'i18n.translating' ? BADGE : key)
 // TR-FIX：当前语言可切换（zh 档不渲染小标）——`vi.hoisted` 使 mock 工厂与用例共享同一可变对象
-const state = vi.hoisted(() => ({ feedRows: [], lang: 'en' }))
+const state = vi.hoisted(() => ({ detail: null, lang: 'en' }))
 const stableI18n = {
   changeLanguage: vi.fn(),
   get resolvedLanguage() { return state.lang },
@@ -37,7 +40,7 @@ vi.mock('react-i18next', () => ({
 }))
 
 vi.mock('../../auth', () => ({
-  fetchApiJson: vi.fn(async (url) => (String(url).includes('/api/prize/all') ? state.feedRows : [])),
+  fetchApiJson: vi.fn(async () => ({})),
   getAuthHeaders: vi.fn(() => ({ Authorization: 'Bearer test' })),
 }))
 
@@ -45,7 +48,14 @@ vi.mock('../../auth-context', () => ({
   useAuth: vi.fn(() => ({ isAuthenticated: false, user: null })),
 }))
 
-import ListingsPage from '../../pages/listings/ListingsPage'
+vi.mock('../../pages/item/item-api', () => ({
+  fetchListingDetail: vi.fn(async () => state.detail),
+  buyListing: vi.fn(),
+  createListingBuyTracker: () => ({ keyFor: () => 'cli:x', reset: () => {} }),
+  listingBuyFingerprint: () => 'fp',
+}))
+
+import ItemDetailPage from '../../pages/item/ItemDetailPage'
 import TranslatingBadge from '../../components/i18n/TranslatingBadge'
 import {
   contentStatus,
@@ -55,9 +65,12 @@ import {
   pickLocalized,
 } from '../../i18n-content'
 
-const renderListings = (entry) => render(
+const renderItem = (entry) => render(
   <MemoryRouter initialEntries={[entry]}>
-    <ListingsPage />
+    <Routes>
+      <Route path="/:lang/item/:itemId" element={<ItemDetailPage />} />
+      <Route path="/item/:itemId" element={<ItemDetailPage />} />
+    </Routes>
   </MemoryRouter>,
 )
 
@@ -151,24 +164,24 @@ describe('TR-FIX · 「翻译中」小标仅非 zh 档渲染', () => {
   })
 })
 
-describe('TR-2 · 页面接线（商品列表页，`/en/` 档）', () => {
+describe('TR-2 · 页面接线（闲置物品详情页，`/en/` 档）', () => {
   beforeEach(() => {
-    state.feedRows = []
+    state.detail = null
     state.lang = 'en'
   })
 
-  it('en 档 + `i18n_status:"ready"`：渲染 `name_en`（English），**不**渲染中文原文，小标不可见', async () => {
-    state.feedRows = [{ bID: 11, name: '中文', name_en: 'English', i18n_status: 'ready' }]
-    renderListings('/en/listing')
+  it('en 档 + `i18n_status:"ready"`：渲染 `title_en`（English），**不**渲染中文原文，小标不可见', async () => {
+    state.detail = { listing_id: 11, title: '中文', title_en: 'English', i18n_status: 'ready' }
+    renderItem('/en/item/11')
 
     expect(await screen.findByText('English')).toBeInTheDocument()
     expect(screen.queryByText('中文')).toBeNull()
     expect(screen.queryByText(BADGE)).toBeNull()
   })
 
-  it('en 档 + `pending` 且 `name_en` **等于原文** ⇒ 渲染原文**且**小标可见（不得空白）', async () => {
-    state.feedRows = [{ bID: 12, name: '中文', name_en: '中文', i18n_status: 'pending' }]
-    renderListings('/en/listing')
+  it('en 档 + `pending` 且 `title_en` **等于原文** ⇒ 渲染原文**且**小标可见（不得空白）', async () => {
+    state.detail = { listing_id: 12, title: '中文', title_en: '中文', i18n_status: 'pending' }
+    renderItem('/en/item/12')
 
     expect(await screen.findByText('中文')).toBeInTheDocument()
     expect(screen.getByText(BADGE)).toBeInTheDocument()
@@ -176,8 +189,8 @@ describe('TR-2 · 页面接线（商品列表页，`/en/` 档）', () => {
   })
 
   it('`i18n_status` **缺省**（旧载荷）⇒ 回落原文且**不显示**小标', async () => {
-    state.feedRows = [{ bID: 13, name: '中文', name_en: 'English' }]
-    renderListings('/en/listing')
+    state.detail = { listing_id: 13, title: '中文', title_en: 'English' }
+    renderItem('/en/item/13')
 
     expect(await screen.findByText('English')).toBeInTheDocument()
     expect(screen.queryByText(BADGE)).toBeNull()
@@ -185,8 +198,8 @@ describe('TR-2 · 页面接线（商品列表页，`/en/` 档）', () => {
 
   it('zh 档（无语言前缀）⇒ 只认无后缀字段：译文不进中文档、无小标', async () => {
     state.lang = 'zh'
-    state.feedRows = [{ bID: 14, name: '中文', name_en: 'English', i18n_status: 'partial' }]
-    renderListings('/listing')
+    state.detail = { listing_id: 14, title: '中文', title_en: 'English', i18n_status: 'partial' }
+    renderItem('/item/14')
 
     expect(await screen.findByText('中文')).toBeInTheDocument()
     expect(screen.queryByText('English')).toBeNull()
@@ -231,22 +244,21 @@ describe('TR-2 · 四语 locale 键集 + 新键', () => {
 
 describe('TR-2 · 静态不变量：新接页面不得用 `??` 取多语列（空串会穿透）', () => {
   const SRC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
-  // P6-I18N-LIT-B2：TaskPage / RewardPage 已单点收口（旧三目链 `_en ?? base` ⇒ 共用 `pickLocalized`）
-  // P6-I18N-LIT-B5（D7 最后一项）：pages/HomePage.jsx 也收口 ⇒ 存量**清零**，首页并入 WIRED（断言更强）。
+  // P6-I18N-LIT-B2：TaskPage 已单点收口；P6-I18N-LIT-B5（D7）：pages/HomePage.jsx 也收口 ⇒ 存量清零。
+  // ★ 2026-10-11 合并单：`pages/listings/ListingDetailPage.jsx` → `pages/item/ItemDetailPage.jsx`（改名单）；
+  //   `pages/RewardPage.jsx` / `pages/listings/ListingsPage.jsx` 已删（列表渲染并入首页）。
   const LEGACY = []
   const WIRED = [
-    'pages/listings/ListingsPage.jsx',
-    'pages/listings/ListingDetailPage.jsx',
+    'pages/item/ItemDetailPage.jsx',
     'pages/jobs/JobDetailPage.jsx',
     'pages/jobs/JobReviewPage.jsx',
     'pages/market/MarketPage.jsx',
     'pages/ProfilePage.jsx',
     'pages/TaskPage.jsx',
-    'pages/RewardPage.jsx',
     'pages/HomePage.jsx',
   ]
 
-  it('新接文件（含 B2 收口的 TaskPage / RewardPage）里没有 `_en/_hk/_vn` + `??` 组合（取值一律 `||`，经 i18n-content）', () => {
+  it('新接文件里没有 `_en/_hk/_vn` + `??` 组合（取值一律 `||`，经 i18n-content）', () => {
     for (const rel of WIRED) {
       const text = fs.readFileSync(path.join(SRC, rel), 'utf8')
       expect(text.match(/_(en|hk|vn)\s*\?\?/g)).toBeNull()
