@@ -90,70 +90,70 @@ const MyOrdersPanel = () => {
   }
 
   return (
-    <section className="sf-item-orders" data-sf-m="listing-orders-section" data-sf-lang={lang}>
-      <div className="sf-listings-panel" data-sf-m="listing-orders">
-        <h2 className="sf-listings-title">{t('item.myOrders')}</h2>
+    <section className="sf-item-orders" data-sf-m="item-orders-section" data-sf-lang={lang}>
+      <div className="sf-item-panel" data-sf-m="item-orders">
+        <h2 className="sf-item-title">{t('item.myOrders')}</h2>
         {orders.rows.length === 0
-          ? <div className="sf-listings-empty" data-sf-m="listing-orders-empty" data-sf-phase={orders.phase}>{orders.message || t('item.myOrdersEmpty')}</div>
+          ? <div className="sf-item-empty" data-sf-m="item-orders-empty" data-sf-phase={orders.phase}>{orders.message || t('item.myOrdersEmpty')}</div>
           : orders.rows.map((row) => (
-            <div className="sf-listings-item" key={String(row.gID ?? row.order_id)} data-sf-m="listing-order">
-              <div className="sf-listings-item-title">{`#${String(row.gID ?? row.order_id ?? '-')}`}</div>
-              <div className="sf-listings-meta">{`${t('item.listingId')} #${String(row.bID ?? row.listing_id ?? '-')}`}</div>
+            <div className="sf-item-item" key={String(row.gID ?? row.order_id)} data-sf-m="item-order">
+              <div className="sf-item-item-title">{`#${String(row.gID ?? row.order_id ?? '-')}`}</div>
+              <div className="sf-item-meta">{`${t('item.listingId')} #${String(row.bID ?? row.listing_id ?? '-')}`}</div>
             </div>
           ))}
-        <p className="sf-listings-meta">{t('item.ordersNote')}</p>
+        <p className="sf-item-meta">{t('item.ordersNote')}</p>
       </div>
 
-      <div className="sf-listings-panel" data-sf-m="listing-refund">
-        <h2 className="sf-listings-title">{t('item.refund')}</h2>
-        <form className="sf-listings-row" onSubmit={onRefund}>
+      <div className="sf-item-panel" data-sf-m="item-refund">
+        <h2 className="sf-item-title">{t('item.refund')}</h2>
+        <form className="sf-item-row" onSubmit={onRefund}>
           <input
-            className="sf-listings-input"
-            data-sf-m="listing-input-order"
+            className="sf-item-input"
+            data-sf-m="item-input-order"
             value={orderId}
             onChange={(event) => setOrderId(event.target.value)}
             placeholder={t('item.orderId')}
           />
-          <button className="sf-btn sf-listings-btn" type="submit" data-sf-m="listing-refund-btn" disabled={refund.phase === 'loading'}>
+          <button className="sf-btn sf-item-btn" type="submit" data-sf-m="item-refund-btn" disabled={refund.phase === 'loading'}>
             {t('item.refund')}
           </button>
         </form>
         <span
-          className={`sf-listings-status${refund.phase === 'error' ? ' sf-listings-err' : ''}${refund.phase === 'ok' ? ' sf-listings-ok' : ''}`}
-          data-sf-m="listing-refund-status"
+          className={`sf-item-status${refund.phase === 'error' ? ' sf-item-err' : ''}${refund.phase === 'ok' ? ' sf-item-ok' : ''}`}
+          data-sf-m="item-refund-status"
           data-sf-phase={refund.phase}
           role="status"
         >
           {refund.message}
         </span>
-        <p className="sf-listings-meta">{t('item.refundNote')}</p>
-        <p className="sf-listings-meta">{t('item.refundStockNote')}</p>
+        <p className="sf-item-meta">{t('item.refundNote')}</p>
+        <p className="sf-item-meta">{t('item.refundStockNote')}</p>
       </div>
 
       {/* P9③：订单发货 / 收货（actor = 卖方 / 买方本人）。「按卖家列订单」读口未注册 ⇒ 沿用退款面板「手填订单号」形态。 */}
-      <div className="sf-listings-panel" data-sf-m="listing-order-actions">
-        <h2 className="sf-listings-title">{t('item.myOrders')}</h2>
-        <div className="sf-listings-row">
+      <div className="sf-item-panel" data-sf-m="item-order-actions">
+        <h2 className="sf-item-title">{t('item.myOrders')}</h2>
+        <div className="sf-item-row">
           <input
-            className="sf-listings-input"
-            data-sf-m="listing-input-order-action"
+            className="sf-item-input"
+            data-sf-m="item-input-order-action"
             value={orderActionId}
             onChange={(event) => setOrderActionId(event.target.value)}
             placeholder={t('item.orderId')}
           />
           <button
-            className="sf-btn sf-listings-btn"
+            className="sf-btn sf-item-btn"
             type="button"
-            data-sf-m="listing-ship-btn"
+            data-sf-m="item-ship-btn"
             onClick={() => onOrderAction('ship')}
             disabled={orderAction.phase === 'loading'}
           >
             {t('listingOrders.shipButton')}
           </button>
           <button
-            className="sf-btn sf-listings-btn"
+            className="sf-btn sf-item-btn"
             type="button"
-            data-sf-m="listing-receive-btn"
+            data-sf-m="item-receive-btn"
             onClick={() => onOrderAction('receive')}
             disabled={orderAction.phase === 'loading'}
           >
@@ -161,8 +161,8 @@ const MyOrdersPanel = () => {
           </button>
         </div>
         <span
-          className={`sf-listings-status${orderAction.phase === 'error' ? ' sf-listings-err' : ''}${orderAction.phase === 'ok' ? ' sf-listings-ok' : ''}`}
-          data-sf-m="listing-order-action-status"
+          className={`sf-item-status${orderAction.phase === 'error' ? ' sf-item-err' : ''}${orderAction.phase === 'ok' ? ' sf-item-ok' : ''}`}
+          data-sf-m="item-order-action-status"
           data-sf-phase={orderAction.phase}
           role="status"
         >

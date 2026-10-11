@@ -29,9 +29,9 @@ const MIME = {
 
 // 本单新增/改动的页面（`/shard` = 交易所线，本单整体换页；路由与导航未动）
 const PAGES = [
-  { name: 'listing_feed', url: `${ORIGIN}/listing`, perturb: '[data-sf-m="listing-refund"]' },
-  { name: 'listing_new', url: `${ORIGIN}/listing/new`, perturb: '[data-sf-m="listing-form"]' },
-  { name: 'listing_detail', url: `${ORIGIN}/listing/1`, perturb: '[data-sf-m="listing-buy-form"]' },
+  { name: 'listing_feed', url: `${ORIGIN}/listing`, perturb: '[data-sf-m="item-refund"]' },
+  { name: 'listing_new', url: `${ORIGIN}/listing/new`, perturb: '[data-sf-m="item-form"]' },
+  { name: 'listing_detail', url: `${ORIGIN}/listing/1`, perturb: '[data-sf-m="item-buy-form"]' },
   { name: 'market', url: `${ORIGIN}/shard`, perturb: '[data-sf-m="mkt-form"]' },
 ]
 
@@ -42,28 +42,28 @@ const SELECTORS = [
   '#sf-route-container',
   '[data-sf-region="footer"]',
   // 商品线
-  '[data-sf-m="listing-feed-hero"]',
-  '[data-sf-m="listing-grid"]',
-  '[data-sf-m="listing-card"]',
-  '[data-sf-m="listing-thumb"]',
-  '[data-sf-m="listing-orders"]',
-  '[data-sf-m="listing-refund"]',
-  '[data-sf-m="listing-input-order"]',
-  '[data-sf-m="listing-refund-btn"]',
-  '[data-sf-m="listing-hero"]',
-  '[data-sf-m="listing-form"]',
-  '[data-sf-m="listing-input-title"]',
-  '[data-sf-m="listing-input-price"]',
-  '[data-sf-m="listing-primary"]',
-  '[data-sf-m="listing-status"]',
-  '[data-sf-m="listing-side"]',
-  '[data-sf-m="listing-detail-hero"]',
-  '[data-sf-m="listing-detail-empty"]',
-  '[data-sf-m="listing-buy-form"]',
-  '[data-sf-m="listing-input-qty"]',
-  '[data-sf-m="listing-buy-btn"]',
-  '[data-sf-m="listing-buy-status"]',
-  '[data-sf-m="listing-detail-side"]',
+  '[data-sf-m="item-feed-hero"]',
+  '[data-sf-m="item-grid"]',
+  '[data-sf-m="item-card"]',
+  '[data-sf-m="item-thumb"]',
+  '[data-sf-m="item-orders"]',
+  '[data-sf-m="item-refund"]',
+  '[data-sf-m="item-input-order"]',
+  '[data-sf-m="item-refund-btn"]',
+  '[data-sf-m="item-hero"]',
+  '[data-sf-m="item-form"]',
+  '[data-sf-m="item-input-title"]',
+  '[data-sf-m="item-input-price"]',
+  '[data-sf-m="item-primary"]',
+  '[data-sf-m="item-status"]',
+  '[data-sf-m="item-side"]',
+  '[data-sf-m="item-detail-hero"]',
+  '[data-sf-m="item-detail-empty"]',
+  '[data-sf-m="item-buy-form"]',
+  '[data-sf-m="item-input-qty"]',
+  '[data-sf-m="item-buy-btn"]',
+  '[data-sf-m="item-buy-status"]',
+  '[data-sf-m="item-detail-side"]',
   // 交易所线
   '[data-sf-m="mkt-hero"]',
   '[data-sf-m="mkt-ticker"]',
@@ -92,7 +92,7 @@ const MEASURE_JS = `(() => {
     const r = el.getBoundingClientRect()
     rects[sel] = { x: +r.x.toFixed(3), y: +r.y.toFixed(3), w: +r.width.toFixed(3), h: +r.height.toFixed(3) }
   }
-  const card = document.querySelector('[data-sf-m="listing-card"]') || document.querySelector('[data-sf-m="mkt-form"]')
+  const card = document.querySelector('[data-sf-m="item-card"]') || document.querySelector('[data-sf-m="mkt-form"]')
   const cs = card ? getComputedStyle(card) : null
   const tabbarEl = document.querySelector('[data-sf-region="tabbar"]')
   return JSON.stringify({

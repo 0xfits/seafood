@@ -69,7 +69,7 @@ const renderDetail = () => render(
 )
 const renderMarket = () => render(<MemoryRouter initialEntries={['/shard']}><MarketPage /></MemoryRouter>)
 
-const noteEl = () => document.querySelector('.sf-listings-note')
+const noteEl = () => document.querySelector('.sf-item-note')
 const noteText = () => (noteEl() ? noteEl().textContent : '')
 const orderMeta = () => document.querySelector('[data-sf-m="mkt-order"] .sf-mkt-meta')
 const orderTitle = () => document.querySelector('[data-sf-m="mkt-order"] .sf-mkt-item-title')

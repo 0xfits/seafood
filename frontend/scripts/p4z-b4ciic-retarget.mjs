@@ -17,9 +17,9 @@ const EDITS = [
   ],
   [
     `const PAGES = [
-  { name: 'listing_feed', url: \`\${ORIGIN}/listing\`, perturb: '[data-sf-m="listing-refund"]' },
-  { name: 'listing_new', url: \`\${ORIGIN}/listing/new\`, perturb: '[data-sf-m="listing-form"]' },
-  { name: 'listing_detail', url: \`\${ORIGIN}/listing/1\`, perturb: '[data-sf-m="listing-buy-form"]' },
+  { name: 'listing_feed', url: \`\${ORIGIN}/listing\`, perturb: '[data-sf-m="item-refund"]' },
+  { name: 'listing_new', url: \`\${ORIGIN}/listing/new\`, perturb: '[data-sf-m="item-form"]' },
+  { name: 'listing_detail', url: \`\${ORIGIN}/listing/1\`, perturb: '[data-sf-m="item-buy-form"]' },
   { name: 'market', url: \`\${ORIGIN}/shard\`, perturb: '[data-sf-m="mkt-form"]' },
 ]`,
     `const PAGES = [

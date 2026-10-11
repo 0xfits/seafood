@@ -32,9 +32,9 @@ const server = http.createServer((req, res) => {
 
 // 四个目标家族 + 旧语义按钮（Zang 裁定①：.btn-md.btn-proceed / .btn-inactive 实测仍有切角）
 const FAMILY = {
-  card: ['.sf-card', '.sf-panel', '.sf-listings-card', '.sf-jobs-item', '.sf-mkt-item', '[class~="border-gray-200"]'],
-  input: ['.sf-box', '.sf-listings-input', '.sf-jobs-input', '.sf-mkt-input', 'input[class~="px-3"]'],
-  chip: ['.sf-chip', '.sf-tag', '.sf-listings-tag', '.sf-jobs-tag', '.sf-price'],
+  card: ['.sf-card', '.sf-panel', '.sf-item-card', '.sf-jobs-item', '.sf-mkt-item', '[class~="border-gray-200"]'],
+  input: ['.sf-box', '.sf-item-input', '.sf-jobs-input', '.sf-mkt-input', 'input[class~="px-3"]'],
+  chip: ['.sf-chip', '.sf-tag', '.sf-item-tag', '.sf-jobs-tag', '.sf-price'],
   tab: ['.sf-tab', '.sf-tabbar', 'button[class~="px-3"][class~="py-1.5"]'],
   legacyBtn: ['.btn-proceed', '.btn-inactive', '.btn-primary', '.btn-outline', '.btn-ghost', '.btn-success', '.btn-warning', '.btn-sm', '.btn-md', '.btn-lg'],
 }

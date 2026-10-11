@@ -64,7 +64,7 @@ import PublishListingPage from '../../pages/item/PublishItemPage'
 // 详情页替身：只把**路由实参**摊出来（证明真路由确实落到了 `/…/item/<id>`，且 id 未被吃掉）
 const DetailProbe = () => {
   const { itemId } = useParams()
-  return <div data-sf-m="listing-detail-probe">{`DETAIL:${itemId}`}</div>
+  return <div data-sf-m="item-detail-probe">{`DETAIL:${itemId}`}</div>
 }
 
 const renderPage = (path) => render(
@@ -78,12 +78,12 @@ const renderPage = (path) => render(
   </MemoryRouter>
 )
 
-const statusNode = (container) => container.querySelector('[data-sf-m="listing-status"]')
+const statusNode = (container) => container.querySelector('[data-sf-m="item-status"]')
 
 const submitForm = (container) => {
-  fireEvent.change(container.querySelector('[data-sf-m="listing-input-title"]'), { target: { value: '测试商品' } })
-  fireEvent.change(container.querySelector('[data-sf-m="listing-input-price"]'), { target: { value: '7' } })
-  fireEvent.click(container.querySelector('[data-sf-m="listing-primary"]'))
+  fireEvent.change(container.querySelector('[data-sf-m="item-input-title"]'), { target: { value: '测试商品' } })
+  fireEvent.change(container.querySelector('[data-sf-m="item-input-price"]'), { target: { value: '7' } })
+  fireEvent.click(container.querySelector('[data-sf-m="item-primary"]'))
 }
 
 describe('上架成功 ⇒ 自动跳该商品详情页（小需求单 · Kevin 2026-10-11）', () => {
@@ -112,7 +112,7 @@ describe('上架成功 ⇒ 自动跳该商品详情页（小需求单 · Kevin 2
 
     // 真路由也确实落到了详情页（id 未被吃掉）——「只喊了一声 navigate」不算数
     await screen.findByText('DETAIL:123')
-    expect(container.querySelector('[data-sf-m="listing-primary"]')).toBeNull()
+    expect(container.querySelector('[data-sf-m="item-primary"]')).toBeNull()
 
     // toast：文案 = `item.publishOk` 键值 + id（未新增 i18n 键）；且在 navigate **之前**发出
     expect(toast.success).toHaveBeenCalledTimes(1)
@@ -142,7 +142,7 @@ describe('上架成功 ⇒ 自动跳该商品详情页（小需求单 · Kevin 2
     expect(mockNavigate).not.toHaveBeenCalled()
     expect(toast.success).not.toHaveBeenCalled()
     expect(screen.queryByText(/^DETAIL:/)).toBeNull()
-    expect(container.querySelector('[data-sf-m="listing-primary"]')).not.toBeNull() // 页面仍在原地
+    expect(container.querySelector('[data-sf-m="item-primary"]')).not.toBeNull() // 页面仍在原地
   })
 
   // ---------------- ③ 接口未回 id ⇒ 不跳（严禁 /item/null） ----------------
@@ -160,7 +160,7 @@ describe('上架成功 ⇒ 自动跳该商品详情页（小需求单 · Kevin 2
     expect(mockNavigate).not.toHaveBeenCalled()
     expect(toast.success).not.toHaveBeenCalled()
     expect(screen.queryByText(/^DETAIL:/)).toBeNull()
-    expect(container.querySelector('[data-sf-m="listing-primary"]')).not.toBeNull()
+    expect(container.querySelector('[data-sf-m="item-primary"]')).not.toBeNull()
 
     const navigateArgs = mockNavigate.mock.calls.flat().join(' ')
     expect(navigateArgs).not.toContain('null')
@@ -195,11 +195,11 @@ describe('上架成功 ⇒ 自动跳该商品详情页（小需求单 · Kevin 2
   it('⑥ 成功态跳走后本页不再停留；「去列表」按钮仍在**跳转前各态**可见（非死代码）', async () => {
     const { container } = renderPage('/item/new')
     // idle 态即可见
-    expect(container.querySelector('[data-sf-m="listing-goto-feed"]')).not.toBeNull()
+    expect(container.querySelector('[data-sf-m="item-goto-feed"]')).not.toBeNull()
     submitForm(container)
     await waitFor(() => expect(mockNavigate).toHaveBeenCalledTimes(1))
     // 跳转后本页卸载 ⇒ 该按钮随之消失（其可见态 = idle/loading/error + ok 跳转前一瞬）
     await screen.findByText('DETAIL:123')
-    await waitFor(() => expect(container.querySelector('[data-sf-m="listing-goto-feed"]')).toBeNull())
+    await waitFor(() => expect(container.querySelector('[data-sf-m="item-goto-feed"]')).toBeNull())
   })
 })

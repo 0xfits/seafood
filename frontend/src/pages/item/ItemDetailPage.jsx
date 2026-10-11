@@ -92,51 +92,51 @@ const ItemDetailPage = () => {
       : t('item.statusLabel.unknown'))
 
   return (
-    <div className="sf-layout" data-sf-m="listing-detail-layout">
+    <div className="sf-layout" data-sf-m="item-detail-layout">
       <div className="sf-layout-main">
-        <div className="sf-listings">
-          <div className="sf-listings-head" data-sf-m="listing-detail-hero">
-            <h1 className="sf-listings-title">
+        <div className="sf-item">
+          <div className="sf-item-head" data-sf-m="item-detail-hero">
+            <h1 className="sf-item-title">
               {String(title)}
               {/* 「翻译中」小标（ready/缺省 ⇒ null） */}
               <TranslatingBadge status={contentStatus(row)} />
             </h1>
             <p
-              className="sf-listings-note"
+              className="sf-item-note"
               data-sf-status={statusRaw || undefined}
               title={statusRaw || undefined}
             >{`${t('item.listingId')} #${String(row.listing_id ?? row.bID ?? id ?? '-')} · ${statusText}`}</p>
-            <div className="sf-listings-actions">
-              <Link className="sf-listings-link" to={root('/')} data-sf-m="listing-back-link">{t('item.list')}</Link>
-              <button className="sf-btn sf-listings-btn" type="button" onClick={load} data-sf-m="listing-detail-refresh">{t('item.refresh')}</button>
+            <div className="sf-item-actions">
+              <Link className="sf-item-link" to={root('/')} data-sf-m="item-back-link">{t('item.list')}</Link>
+              <button className="sf-btn sf-item-btn" type="button" onClick={load} data-sf-m="item-detail-refresh">{t('item.refresh')}</button>
             </div>
           </div>
 
           {detail.phase !== 'ok' ? (
-            <div className="sf-listings-empty" data-sf-m="listing-detail-empty" data-sf-phase={detail.phase}>
+            <div className="sf-item-empty" data-sf-m="item-detail-empty" data-sf-phase={detail.phase}>
               {detail.message || t('noData')}
             </div>
           ) : (
-            <div className="sf-listings-panel" data-sf-m="listing-detail">
-              <div className="sf-listings-thumb" data-sf-m="listing-detail-thumb" />
-              <div className="sf-listings-price">
-                <span className="sf-listings-price-cur">$</span>
-                <span className="sf-listings-price-num">{String(row.price ?? row.points ?? '-')}</span>
-                <span className="sf-listings-price-unit">{t('item.priceUnit')}</span>
+            <div className="sf-item-panel" data-sf-m="item-detail">
+              <div className="sf-item-thumb" data-sf-m="item-detail-thumb" />
+              <div className="sf-item-price">
+                <span className="sf-item-price-cur">$</span>
+                <span className="sf-item-price-num">{String(row.price ?? row.points ?? '-')}</span>
+                <span className="sf-item-price-unit">{t('item.priceUnit')}</span>
               </div>
-              <p className="sf-listings-meta">{t('item.stock')}{` ${String(row.stock ?? '-')}`}</p>
-              <p className="sf-listings-meta">{String(description)}</p>
+              <p className="sf-item-meta">{t('item.stock')}{` ${String(row.stock ?? '-')}`}</p>
+              <p className="sf-item-meta">{String(description)}</p>
             </div>
           )}
 
-          <form className="sf-listings-panel" onSubmit={onBuy} data-sf-m="listing-buy-form">
-            <h2 className="sf-listings-title">{t('item.buy')}</h2>
-            <div className="sf-listings-form">
-              <label className="sf-listings-field">
-                <span className="sf-listings-label">{t('item.quantity')}</span>
+          <form className="sf-item-panel" onSubmit={onBuy} data-sf-m="item-buy-form">
+            <h2 className="sf-item-title">{t('item.buy')}</h2>
+            <div className="sf-item-form">
+              <label className="sf-item-field">
+                <span className="sf-item-label">{t('item.quantity')}</span>
                 <input
-                  className="sf-listings-input"
-                  data-sf-m="listing-input-qty"
+                  className="sf-item-input"
+                  data-sf-m="item-input-qty"
                   value={quantity}
                   onChange={(event) => setQuantity(event.target.value)}
                   inputMode="numeric"
@@ -144,14 +144,14 @@ const ItemDetailPage = () => {
                 />
               </label>
             </div>
-            <p className="sf-listings-meta">{t('item.buyNote')}</p>
-            <div className="sf-listings-row">
-              <button className="sf-btn sf-listings-btn" type="submit" data-sf-m="listing-buy-btn" disabled={buy.phase === 'loading' || !isAuthenticated}>
+            <p className="sf-item-meta">{t('item.buyNote')}</p>
+            <div className="sf-item-row">
+              <button className="sf-btn sf-item-btn" type="submit" data-sf-m="item-buy-btn" disabled={buy.phase === 'loading' || !isAuthenticated}>
                 {t('item.buy')}
               </button>
               <span
-                className={`sf-listings-status${buy.phase === 'error' ? ' sf-listings-err' : ''}${buy.phase === 'ok' ? ' sf-listings-ok' : ''}`}
-                data-sf-m="listing-buy-status"
+                className={`sf-item-status${buy.phase === 'error' ? ' sf-item-err' : ''}${buy.phase === 'ok' ? ' sf-item-ok' : ''}`}
+                data-sf-m="item-buy-status"
                 data-sf-phase={buy.phase}
                 role="status"
               >
@@ -163,10 +163,10 @@ const ItemDetailPage = () => {
       </div>
 
       <div className="sf-layout-side">
-        <div className="sf-listings-panel" data-sf-m="listing-detail-side">
-          <h2 className="sf-listings-title">{t('item.line')}</h2>
-          <p className="sf-listings-meta">{t('item.priceServerNote')}</p>
-          <p className="sf-listings-meta">{t('item.refundStockNote')}</p>
+        <div className="sf-item-panel" data-sf-m="item-detail-side">
+          <h2 className="sf-item-title">{t('item.line')}</h2>
+          <p className="sf-item-meta">{t('item.priceServerNote')}</p>
+          <p className="sf-item-meta">{t('item.refundStockNote')}</p>
         </div>
       </div>
     </div>

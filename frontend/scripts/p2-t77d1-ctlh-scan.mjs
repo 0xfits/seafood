@@ -4,8 +4,8 @@
  *
  * 背景（本单要修的缺陷）：
  *   `listings.css` / `market.css` / `jobs.css` 尾部的 ≤767 覆盖只把 `--sf-*-ctl-h: 44px`
- *   挂在**主列根**（`.sf-listings` / `.sf-mkt` / `.sf-jobs`）上；而侧栏
- *   （`.sf-layout > .sf-layout-side > .sf-listings-panel / .sf-mkt-panel`）**不在该子树内**
+ *   挂在**主列根**（`.sf-item` / `.sf-mkt` / `.sf-jobs`）上；而侧栏
+ *   （`.sf-layout > .sf-layout-side > .sf-item-panel / .sf-mkt-panel`）**不在该子树内**
  *   ⇒ 侧栏里的 `min-height: var(--sf-*-ctl-h)` 取空值 ⇒ 回退 `auto`（渲染 37.5px）。
  *
  * 检测口径（**动态**，不依赖类名清单 —— 不只看被点名的控件）：
@@ -41,8 +41,8 @@ const VARS = ['--sf-l-ctl-h', '--sf-k-ctl-h', '--sf-j-ctl-h']
 const SENTINEL = 111 // 哨兵高（≠34/≠44 ⇒ 任何真实变化都可见）
 // Zang 裁定：T79 最小字号是全站规则，以下元素在 1440 档允许「字号提升」例外（其余必须逐值相等）
 const ALLOWED_1440 = [
-  { path: '/listing', cls: 'sf-listings-price-unit' },
-  { path: '/listing', cls: 'sf-listings-tag' },
+  { path: '/listing', cls: 'sf-item-price-unit' },
+  { path: '/listing', cls: 'sf-item-tag' },
   { path: '/task/new', cls: 'sf-jobs-tag' },
   { path: '/task/*', cls: 'sf-jobs-tag' }, // /task/:id（详情页同一 micro 类）
 ]
@@ -283,8 +283,8 @@ const compareMode = async () => {
 const T79_REVERT = [
   ':root{--sf-st-tab-font-size:10.5px}',
   '.sf-tab,.sf-tab-ic{font-size:10.5px}',
-  '.sf-listings-price-unit{font-size:11px}',
-  '.sf-listings-tag{font-size:11px}',
+  '.sf-item-price-unit{font-size:11px}',
+  '.sf-item-tag{font-size:11px}',
   '.sf-jobs-tag{font-size:11px}',
 ].join('')
 const norm = (o) => JSON.stringify([o.k, o.rect, o.fs])

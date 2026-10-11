@@ -42,13 +42,13 @@ const READ = (sels) => {
   out.tabbarDisplay = (() => { const e = document.querySelector('.sf-tabbar'); return e ? getComputedStyle(e).display : null })()
   return out
 }
-const SELS = ['.sf-tabbar', '.sf-tab', '.sf-tab.is-active', '.sf-tab-ic', '.sf-listings-card', '.sf-listings-input']
+const SELS = ['.sf-tabbar', '.sf-tab', '.sf-tab.is-active', '.sf-tab-ic', '.sf-item-card', '.sf-item-input']
 
 const main = async () => {
   // 1) 先把 probe.json 里的完整阴影串打出来（口径：实测计算值）
   const jf = path.join(OUT, 'probe.json')
   const j = JSON.parse(fs.readFileSync(jf, 'utf8'))
-  const want = /(sf-listings-card|sf-listings-panel|sf-mkt-panel|sf-listings-input|sf-mkt-input|sf-mkt-select|sf-listings-tag|sf-listings-price|btn-proceed|btn-inactive|btn-a|sf-btn)/
+  const want = /(sf-item-card|sf-item-panel|sf-mkt-panel|sf-item-input|sf-mkt-input|sf-mkt-select|sf-item-tag|sf-item-price|btn-proceed|btn-inactive|btn-a|sf-btn)/
   console.log('== FULL_COMPUTED (from probe.json, 1280) ==')
   for (const [k, v] of Object.entries(j.readout)) {
     if (v.__error) continue
@@ -98,7 +98,7 @@ const main = async () => {
     console.log(`${k} innerWidth=${v.innerWidth} theme=${v.theme} tabbarDisplay=${v.tabbarDisplay}`)
     for (const s of SELS) if (v[s]) console.log(`  ${s} rect=${JSON.stringify(v[s].rect)} b=${v[s].borderW}/${v[s].borderC} r=${v[s].radius} sh=${v[s].shadow} clip=${v[s].clip} bg=${v[s].bg} font=${v[s].font} display=${v[s].display}`)
   }
-  console.log(`VARIANT_B_narrow tab=${JSON.stringify(vb['.sf-tab'])} card=${JSON.stringify(vb['.sf-listings-card'])}`)
+  console.log(`VARIANT_B_narrow tab=${JSON.stringify(vb['.sf-tab'])} card=${JSON.stringify(vb['.sf-item-card'])}`)
 }
 
 main().catch((e) => { console.error('FATAL', e && e.stack ? e.stack : e); process.exitCode = 2 })

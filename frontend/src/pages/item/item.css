@@ -14,7 +14,7 @@
  *   颜色槽位与一切几何量（padding/gap/列数/顺序）不动。
  */
 
-.sf-listings {
+.sf-item {
   --sf-l-ctl-h: 34px;
   --sf-l-textarea-h: 72px;
   display: flex;
@@ -22,58 +22,58 @@
   gap: var(--sf-st-feed-gap-m);
 }
 
-.sf-listings-head {
+.sf-item-head {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.sf-listings-title {
+.sf-item-title {
   color: var(--sf-title-fg);
 }
 
-.sf-listings-note,
-.sf-listings-meta {
+.sf-item-note,
+.sf-item-meta {
   font-size: 12px;
   color: var(--sf-meta-fg);
 }
 
 /* 行动条：DOM 顺序恒定，窄屏换行、宽屏一行 */
-.sf-listings-actions,
-.sf-listings-row {
+.sf-item-actions,
+.sf-item-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
 }
 
-.sf-listings-link {
+.sf-item-link {
   color: var(--sf-panel-link-fg);
   font-size: 13px;
   text-decoration: underline;
 }
 
 /* 商品栅格：窄屏一列 → 中档两列 → 宽屏四列（列数 = 断点层，日/夜同值） */
-.sf-listings-grid {
+.sf-item-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--sf-st-feed-gap-m);
 }
 
 @media (min-width: 768px) {
-  .sf-listings-grid {
+  .sf-item-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--sf-st-feed-gap);
   }
 }
 
 @media (min-width: 1024px) {
-  .sf-listings-grid {
+  .sf-item-grid {
     grid-template-columns: var(--sf-st-feed-cols);
   }
 }
 
-.sf-listings-card {
+.sf-item-card {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -89,19 +89,19 @@
 }
 
 /* 缩略占位：渐变取主题 token（不影响几何），高度取结构常量（两档同值） */
-.sf-listings-thumb {
+.sf-item-thumb {
   height: var(--sf-st-card-thumb-h);
   border: var(--sf-st-stroke-w-thin) solid var(--sf-thumb-border);
   border-radius: var(--sf-st-radius-btna);
   background: var(--sf-thumb-1);
 }
 
-.sf-listings-card-title {
+.sf-item-card-title {
   color: var(--sf-title-fg);
   font-size: 14px;
 }
 
-.sf-listings-price {
+.sf-item-price {
   display: flex;
   align-items: baseline;
   gap: 4px;
@@ -113,24 +113,24 @@
   align-self: flex-start;
 }
 
-.sf-listings-price-cur {
+.sf-item-price-cur {
   color: var(--sf-price-cur-fg);
   font-size: 12px;
 }
 
-.sf-listings-price-num {
+.sf-item-price-num {
   color: var(--sf-price-num-fg);
   font-size: var(--sf-st-price-num-size);
   font-variant-numeric: tabular-nums;
   font-family: var(--sf-st-num-font);
 }
 
-.sf-listings-price-unit {
+.sf-item-price-unit {
   color: var(--sf-price-unit-fg);
   font-size: 12px;
 }
 
-.sf-listings-tag {
+.sf-item-tag {
   background: var(--sf-tag-bg);
   border: var(--sf-st-stroke-w-thin) solid var(--sf-tag-border);
   color: var(--sf-tag-fg);
@@ -141,36 +141,36 @@
 }
 
 /* 表单：窄屏单列；宽屏双列（栅格层，不按主题变） */
-.sf-listings-form {
+.sf-item-form {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--sf-st-feed-gap-m);
 }
 
 @media (min-width: 1024px) {
-  .sf-listings-form {
+  .sf-item-form {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .sf-listings-field-wide {
+  .sf-item-field-wide {
     grid-column: span 2;
   }
 }
 
-.sf-listings-field {
+.sf-item-field {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.sf-listings-label {
+.sf-item-label {
   font-size: 12px;
   color: var(--sf-meta-fg);
 }
 
-.sf-listings-input,
-.sf-listings-textarea,
-.sf-listings-select {
+.sf-item-input,
+.sf-item-textarea,
+.sf-item-select {
   background: var(--sf-search-bg);
   border: var(--sf-st-stroke-w-thin) solid var(--sf-search-border);
   border-radius: var(--sf-st-radius-btna);
@@ -184,12 +184,12 @@
   width: 100%;
 }
 
-.sf-listings-textarea {
+.sf-item-textarea {
   min-height: var(--sf-l-textarea-h);
   resize: vertical;
 }
 
-.sf-listings-btn {
+.sf-item-btn {
   /* P6-BTN-IMPL-2：视觉由 .sf-btn 基类按 A 系注入；此处只留位置/尺寸约束 */
   padding: 8px var(--sf-st-padx-btna);
   font-size: 13px;
@@ -197,13 +197,13 @@
   cursor: pointer;
 }
 
-.sf-listings-btn[disabled] {
+.sf-item-btn[disabled] {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
 /* 反馈四态：加载 / 成功 / 失败 / 空（失败一律走 R107 链后的字符串文案 ⇒ 无 [object Object]） */
-.sf-listings-status {
+.sf-item-status {
   display: flex;
   align-items: center;
   min-height: var(--sf-l-ctl-h);
@@ -211,15 +211,15 @@
   color: var(--sf-meta-fg);
 }
 
-.sf-listings-ok {
+.sf-item-ok {
   color: var(--sf-up-fg);
 }
 
-.sf-listings-err {
+.sf-item-err {
   color: var(--sf-down-fg);
 }
 
-.sf-listings-empty {
+.sf-item-empty {
   color: var(--sf-empty-fg);
   border: var(--sf-st-stroke-w-thin) dashed var(--sf-card-border);
   border-radius: var(--sf-st-radius-btna);
@@ -229,15 +229,15 @@
   text-align: center;
 }
 
-.sf-listings-item,
-.sf-listings-panel {
+.sf-item-item,
+.sf-item-panel {
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 12px 14px;
 }
 
-.sf-listings-item {
+.sf-item-item {
   background: var(--sf-jobcard-bg);
   border: var(--sf-st-stroke-w-thin) solid var(--sf-jobcard-border);
   border-radius: var(--sf-st-radius-btna);
@@ -246,7 +246,7 @@
   clip-path: none;
 }
 
-.sf-listings-panel {
+.sf-item-panel {
   background: var(--sf-panel-bg);
   border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
   border-radius: var(--sf-st-radius-btna);
@@ -255,7 +255,7 @@
   clip-path: none;
 }
 
-.sf-listings-item-title {
+.sf-item-item-title {
   color: var(--sf-jobtitle-fg);
 }
 
@@ -264,12 +264,12 @@
    本块复用唯一断点值 767（与 shell.css 同值），不新增断点类型。
 
    P2 判负 D1 修正（根因）：自定义属性**不会被继承值覆盖** ⇒ 覆盖必须落在**两处**：
-     · `.sf-listings` —— 主列根**自身**声明了 34px（上方基准，不动），只能就地覆盖；
+     · `.sf-item` —— 主列根**自身**声明了 34px（上方基准，不动），只能就地覆盖；
      · `.sf-layout`   —— 主列与侧栏的**共同祖先**（`ListingsPage.jsx:119`，两档恒在）。
-       侧栏是 `.sf-layout > .sf-layout-side > .sf-listings-panel`，**不在 `.sf-listings` 子树内**
+       侧栏是 `.sf-layout > .sf-layout-side > .sf-item-panel`，**不在 `.sf-item` 子树内**
        ⇒ 只挂主列根时侧栏里的 `min-height: var(--sf-l-ctl-h)` 取空值 ⇒ 回退 `auto`（实测 37.5px）。 */
 @media (max-width: 767px) {
-  .sf-listings,
+  .sf-item,
   .sf-layout {
     --sf-l-ctl-h: 44px;
   }

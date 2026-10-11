@@ -107,7 +107,7 @@ console.log('— ④ micro 类（只留位置/尺寸）—')
 for (const [file, sel, ctlVar] of [
   ['jobs', '.sf-jobs-btn', '--sf-j-ctl-h'],
   ['market', '.sf-mkt-btn', '--sf-k-ctl-h'],
-  ['listings', '.sf-listings-btn', '--sf-l-ctl-h'],
+  ['listings', '.sf-item-btn', '--sf-l-ctl-h'],
 ]) {
   const r = ruleOf(css[file], sel)
   const body = r ? norm(r.body) : ''

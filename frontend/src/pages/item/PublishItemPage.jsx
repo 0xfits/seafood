@@ -85,58 +85,58 @@ const PublishItemPage = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="sf-listings" data-sf-m="listing-hero-empty">
-        <div className="sf-listings-empty">{t('pleaseLogin')}</div>
+      <div className="sf-item" data-sf-m="item-hero-empty">
+        <div className="sf-item-empty">{t('pleaseLogin')}</div>
       </div>
     )
   }
 
   return (
-    <div className="sf-layout" data-sf-m="listing-layout">
+    <div className="sf-layout" data-sf-m="item-layout">
       <div className="sf-layout-main">
-        <div className="sf-listings">
-          <div className="sf-listings-head" data-sf-m="listing-hero">
-            <h1 className="sf-listings-title">{t('item.publish')}</h1>
-            <p className="sf-listings-note">{t('item.priceRoleNote')}</p>
-            <div className="sf-listings-actions">
-              <Link className="sf-listings-link" to={root('/')}>{t('item.list')}</Link>
-              <button className="sf-btn sf-listings-btn" type="button" onClick={() => navigate(root('/'))} data-sf-m="listing-goto-feed">
+        <div className="sf-item">
+          <div className="sf-item-head" data-sf-m="item-hero">
+            <h1 className="sf-item-title">{t('item.publish')}</h1>
+            <p className="sf-item-note">{t('item.priceRoleNote')}</p>
+            <div className="sf-item-actions">
+              <Link className="sf-item-link" to={root('/')}>{t('item.list')}</Link>
+              <button className="sf-btn sf-item-btn" type="button" onClick={() => navigate(root('/'))} data-sf-m="item-goto-feed">
                 {t('item.myOrders')}
               </button>
             </div>
           </div>
 
-          <form className="sf-listings-panel" onSubmit={onSubmit} data-sf-m="listing-form">
-            <div className="sf-listings-form">
-              <label className="sf-listings-field">
-                <span className="sf-listings-label">{t('item.title')}</span>
-                <input className="sf-listings-input" data-sf-m="listing-input-title" value={form.title} onChange={setField('title')} required />
+          <form className="sf-item-panel" onSubmit={onSubmit} data-sf-m="item-form">
+            <div className="sf-item-form">
+              <label className="sf-item-field">
+                <span className="sf-item-label">{t('item.title')}</span>
+                <input className="sf-item-input" data-sf-m="item-input-title" value={form.title} onChange={setField('title')} required />
               </label>
-              <label className="sf-listings-field">
-                <span className="sf-listings-label">{t('item.price')}</span>
-                <input className="sf-listings-input" data-sf-m="listing-input-price" value={form.price} onChange={setField('price')} inputMode="numeric" required />
+              <label className="sf-item-field">
+                <span className="sf-item-label">{t('item.price')}</span>
+                <input className="sf-item-input" data-sf-m="item-input-price" value={form.price} onChange={setField('price')} inputMode="numeric" required />
               </label>
-              <label className="sf-listings-field">
-                <span className="sf-listings-label">{t('item.stock')}</span>
-                <input className="sf-listings-input" data-sf-m="listing-input-stock" value={form.stock} onChange={setField('stock')} inputMode="numeric" required />
+              <label className="sf-item-field">
+                <span className="sf-item-label">{t('item.stock')}</span>
+                <input className="sf-item-input" data-sf-m="item-input-stock" value={form.stock} onChange={setField('stock')} inputMode="numeric" required />
               </label>
-              <label className="sf-listings-field">
-                <span className="sf-listings-label">{t('item.cid')}</span>
-                <input className="sf-listings-input" data-sf-m="listing-input-cid" value={form.cid} onChange={setField('cid')} inputMode="numeric" required />
+              <label className="sf-item-field">
+                <span className="sf-item-label">{t('item.cid')}</span>
+                <input className="sf-item-input" data-sf-m="item-input-cid" value={form.cid} onChange={setField('cid')} inputMode="numeric" required />
               </label>
-              <label className="sf-listings-field sf-listings-field-wide">
-                <span className="sf-listings-label">{t('item.description')}</span>
-                <textarea className="sf-listings-textarea" data-sf-m="listing-input-note" value={form.description} onChange={setField('description')} rows={3} />
+              <label className="sf-item-field sf-item-field-wide">
+                <span className="sf-item-label">{t('item.description')}</span>
+                <textarea className="sf-item-textarea" data-sf-m="item-input-note" value={form.description} onChange={setField('description')} rows={3} />
               </label>
             </div>
-            <p className="sf-listings-meta">{t('item.cidNote')}</p>
-            <div className="sf-listings-row">
-              <button className="sf-btn sf-listings-btn" type="submit" data-sf-m="listing-primary" disabled={state.phase === 'loading'}>
+            <p className="sf-item-meta">{t('item.cidNote')}</p>
+            <div className="sf-item-row">
+              <button className="sf-btn sf-item-btn" type="submit" data-sf-m="item-primary" disabled={state.phase === 'loading'}>
                 {state.phase === 'loading' ? t('jobs.submitting') : t('item.publish')}
               </button>
               <span
-                className={`sf-listings-status${state.phase === 'error' ? ' sf-listings-err' : ''}${state.phase === 'ok' ? ' sf-listings-ok' : ''}`}
-                data-sf-m="listing-status"
+                className={`sf-item-status${state.phase === 'error' ? ' sf-item-err' : ''}${state.phase === 'ok' ? ' sf-item-ok' : ''}`}
+                data-sf-m="item-status"
                 data-sf-phase={state.phase}
                 role="status"
               >
@@ -148,10 +148,10 @@ const PublishItemPage = () => {
       </div>
 
       <div className="sf-layout-side">
-        <div className="sf-listings-panel" data-sf-m="listing-side">
-          <h2 className="sf-listings-title">{t('item.line')}</h2>
-          <p className="sf-listings-meta">{t('item.publishNote')}</p>
-          <p className="sf-listings-meta">{t('item.stockNote')}</p>
+        <div className="sf-item-panel" data-sf-m="item-side">
+          <h2 className="sf-item-title">{t('item.line')}</h2>
+          <p className="sf-item-meta">{t('item.publishNote')}</p>
+          <p className="sf-item-meta">{t('item.stockNote')}</p>
         </div>
       </div>
     </div>

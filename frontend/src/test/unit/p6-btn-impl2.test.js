@@ -102,7 +102,7 @@ describe('P6-BTN-IMPL-2 · `.sf-btn` 家族纳入 A 体系', () => {
     expect(b).toContain('clip-path:none')
     // 家族内不得残留切角（clip-path 只允许 none）
     for (const r of Object.values(css).flatMap((text) => rulesOf(text))) {
-      if (!/sf-btn|sf-jobs-btn|sf-mkt-btn|sf-listings-btn|sf-preview-btn/.test(r.selector)) continue
+      if (!/sf-btn|sf-jobs-btn|sf-mkt-btn|sf-item-btn|sf-preview-btn/.test(r.selector)) continue
       for (const m of r.body.matchAll(/clip-path\s*:\s*([^;}]+)/gi)) {
         expect(norm(m[1])).toBe('none')
       }
@@ -140,7 +140,7 @@ describe('P6-BTN-IMPL-2 · `.sf-btn` 家族纳入 A 体系', () => {
     const cases = [
       ['jobs', '.sf-jobs-btn', '--sf-j-ctl-h'],
       ['market', '.sf-mkt-btn', '--sf-k-ctl-h'],
-      ['listings', '.sf-listings-btn', '--sf-l-ctl-h'],
+      ['listings', '.sf-item-btn', '--sf-l-ctl-h'],
     ]
     for (const [file, sel, ctlVar] of cases) {
       const r = rule(file, sel)
