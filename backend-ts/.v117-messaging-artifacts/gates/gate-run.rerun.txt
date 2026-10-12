@@ -1,0 +1,38 @@
+# 7 项复跑 · 受控实例相位真读数（本单：补全前推族 + s36-00 基线行号同步）
+# 轮次：Kong 第四次收尾（Zang 授权两处「期望该前推」修正）
+# 生成：2026-10-12（本机 CST）
+#
+# 调用口径：cd backend-ts && npx ts-node --transpile-only scripts/<门>.ts
+#
+# 受控实例：PORT=5792（严守 5792–5799 禁占区，未碰 5787/5788/5777/5778/5555/5191）
+#   · LISTEN PID = 35817（node …/.bin/ts-node --transpile-only src/index.ts）
+#   · 父 PID     = 35437（npm exec ts-node …）
+#   · 就绪横幅   = "TypeScript backend running on port 5792"；/api/health ok=true · schema_version=0046
+#
+# env 覆写（门的 base 全经 env，无一处硬编 5788 ⇒ 未改门）：
+#   PORT=5792 · P8S5_HTTP_MODE=after · P8S7_BASE=http://127.0.0.1:5792 · P8S8_BASE=… · P8S10_BASE=… · P8S11_BASE=…
+#
+# 本单两处授权修正：
+#   ① 前推族补全：6 脚本 PER_VERB_FROZEN { get:38, post:48, put:0, patch:1, delete:2 }(Σ=89)
+#      ⇒ { get:42, post:54, put:0, patch:1, delete:2 }(Σ=99)。姊妹常量 REG_POINTS_FROZEN 已 =99。
+#      增量逐条出处：/api/messages 族 6 条（POST conversations · GET conversations ·
+#      GET conversations/:id/messages · POST conversations/:id/messages · POST conversations/:id/read ·
+#      GET unread-count）⇒ get +3 / post +3；/api/telegram 族 4 条（POST bind/start · POST unbind ·
+#      GET bind/status · POST webhook）⇒ get +1 / post +3 ⇒ 合计 get +4 / post +6 = +10。
+#   ② s36-00 基线行号同步：scripts/p8-s9-bttc-gate.ts 净 +2 行 ⇒ 原登记 :584:currency 移至 :586:currency
+#      （同站点，非新撞号对）⇒ 基线同步 584→586（保留精确行号判据，未放宽成豁口）。
+#
+# 逐门读数（逐门一进程，逐门登记）：
+#  门名                                 EXIT  计数            判定    红点
+#  ----                                 ----  ----            ----    ----
+#  p8-s6-site-text-gate                  0    64/64           GREEN   （A2 逐 verb 冻结向量已前推 89→99）
+#  p8-s7-batt-checkin-gate               0    60/60           GREEN   （A2 前推；db=8 http=9）
+#  p8-s8-rating-timeliness-gate          0    92/92           GREEN   （A2 前推；db=13 http=11）
+#  p8-s9-bttc-gate                       0    100/100         GREEN   （A2 前推；db=10 http=0）
+#  p8-s10-invite-reward-gate             0    49/49           GREEN   （A2 前推；db=3 http=3）
+#  p8-s11-audit-console-gate             0    87/87           GREEN   （I2 前推；db=6 http=6）
+#  s36-00-identity-pk-form-gate          0    命中30/基线30/新增0 GREEN   （stale=[]；出带显式给号=5）
+#
+# tsc 复跑：npx tsc -p tsconfig.scripts.json --noEmit ⇒ 恰 77 error（未推高；见 gates/tsc-scripts.rerun.txt）
+#
+# 收尾：kill 35817 35437 ⇒ 5792–5799 全空 ∧ 5787/5788/5555/5191 仍在听

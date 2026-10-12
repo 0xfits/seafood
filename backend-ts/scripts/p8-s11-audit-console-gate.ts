@@ -94,9 +94,9 @@ const AUDIT_ROUTE_BLOCK = routeBlock(AUDIT_ROUTE_DECL);
 
 // 8⑥ 冻结计数前推（沿 R-8-22）：注册点 87 → 88（审计台统一读口 +1 · get）。
 // ★ S11 注册点前推（沿 R-8-22）：注册点 88 → 89（S6 新增 GET /api/job/:jobId/submissions +1；逐 commit 归因 692f622）。
-// ★ A5 收口门前推（沿 R-8-22 冻结面前推族）：注册点 89 → 99（/api/messages 族 6 + /api/telegram 族 4 = +10；F19 读口扩展 +0）。
+// ★ A5 收口门前推（沿 R-8-22 冻结面前推族）：注册点 89 → 99（/api/messages 族 6 + /api/telegram 族 4 = +10；F19 读口扩展 +0）· 姊妹常量 PER_VERB_FROZEN 同步前推 get 38→42（+4）· post 48→54（+6）。A5 收口 站内信 6 新口 + Telegram 绑定 4 新口〔89→99〕。
 const REG_POINTS_FROZEN = 99;
-const PER_VERB_FROZEN: Record<string, number> = { get: 38, post: 48, put: 0, patch: 1, delete: 2 };
+const PER_VERB_FROZEN: Record<string, number> = { get: 42, post: 54, put: 0, patch: 1, delete: 2 };
 
 // ---------------------------------------------------------------------------
 // ★ 权威（§32.2 逐字 14 面 · 排除 `app_config`）+ §32.3 五类过滤逐表明细

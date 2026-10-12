@@ -83,9 +83,9 @@ const countOf = (hay: string, re: RegExp): number => (hay.match(re) || []).lengt
 const B = (v: number | string): bigint => BigInt(v);
 
 // ★ S11 注册点前推（沿 R-8-22）：注册点 88 → 89（S6 新增 GET /api/job/:jobId/submissions +1；逐 commit 归因 692f622）。
-// ★ A5 收口门前推（沿 R-8-22 冻结面前推族）：注册点 89 → 99（/api/messages 族 6 + /api/telegram 族 4 = +10；F19 读口扩展 +0）。
+// ★ A5 收口门前推（沿 R-8-22 冻结面前推族）：注册点 89 → 99（/api/messages 族 6 + /api/telegram 族 4 = +10；F19 读口扩展 +0）· 姊妹常量 PER_VERB_FROZEN 同步前推 get 38→42（+4）· post 48→54（+6）。A5 收口 站内信 6 新口 + Telegram 绑定 4 新口〔89→99〕。
 const REG_POINTS_FROZEN = 99;
-const PER_VERB_FROZEN: Record<string, number> = { get: 38, post: 48, put: 0, patch: 1, delete: 2 };
+const PER_VERB_FROZEN: Record<string, number> = { get: 42, post: 54, put: 0, patch: 1, delete: 2 };
 const W6 = [2600, 1700, 700, 2600, 1700, 700];   // 对称 `[U1,U2,U3,D1,D2,D3]`（Σ = 10000）
 const WORKER = '1000';
 const NEW_KIND = 'invite_first_task_reward';

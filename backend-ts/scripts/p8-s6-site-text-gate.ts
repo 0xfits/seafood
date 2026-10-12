@@ -69,13 +69,13 @@ const selfTest = (id: string, group: string, predicate: (v: unknown) => boolean,
 // ★ P9④ 冻结计数前推（沿 R-8-22）：注册点 85 → 87（BTTC 铸造/分解 2 新口 +2）。
 // ★ 8⑥ 续跑前推：注册点 87 → 88（审计台统一读口 +1 · GET /api/admin/audit/:table）。
 // ★ S11 注册点前推（沿 R-8-22）：注册点 88 → 89（S6 新增 GET /api/job/:jobId/submissions +1；逐 commit 归因 692f622）。
-// ★ A5 收口门前推（沿 R-8-22 冻结面前推族）：注册点 89 → 99（/api/messages 族 6 + /api/telegram 族 4 = +10；F19 读口扩展 +0）。
+// ★ A5 收口门前推（沿 R-8-22 冻结面前推族）：注册点 89 → 99（/api/messages 族 6 + /api/telegram 族 4 = +10；F19 读口扩展 +0）· 姊妹常量 PER_VERB_FROZEN 同步前推 get 38→42（+4）· post 48→54（+6）。A5 收口 站内信 6 新口 + Telegram 绑定 4 新口〔89→99〕。
 const REG_POINTS_FROZEN = 99;
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;
 const countVerb = (text: string, verb: string): number =>
   (text.match(new RegExp(`^[ \\t]*app\\.${verb}\\(`, 'gm')) || []).length;
-const PER_VERB_FROZEN: Record<string, number> = { get: 38, post: 48, put: 0, patch: 1, delete: 2 };
+const PER_VERB_FROZEN: Record<string, number> = { get: 42, post: 54, put: 0, patch: 1, delete: 2 };
 /** 白名单 9 键逐字（顺序 = 代码面 `APP_CONFIG_LEGAL_KEYS`）。 */
 const WHITELIST_FROZEN = ['system_settings', 'listing_deposit_policy', 'batt_policy', 'checkin_policy', 'invite_reward_policy', 'mint_burn_policy', 'rating_policy', 'site_text_overrides', 'role_names'];
 const WELL_KNOWN_REASONS = new Set(Object.values(SETTINGS_WRITE_REASONS));
