@@ -174,7 +174,8 @@
     "filterLimited": "限量版",
     "filterHighValue": "高价值",
     "filterClaimed": "已兑换",
-    "viewDetail": "查看详情"
+    "viewDetail": "查看详情",
+    "chat": "聊一聊"
   },
   "market": {
     "line": "交易所线",
@@ -1137,8 +1138,17 @@
   "messagesPage": {
     "title": "消息",
     "empty": "暂无消息",
-    "xPlaceholder": "X（推特）私信 · 接驳位",
-    "xNote": "该区域将用于接入 X（推特）私信，本轮为占位"
+    "backToList": "返回消息列表",
+    "detailEmpty": "还没有消息，发第一条吧",
+    "inputPlaceholder": "输入消息…",
+    "send": "发送",
+    "sendFailed": "发送失败，请重试",
+    "rateLimited": "今天在这里发消息太频繁了，明天再试",
+    "aboutItem": "关于：{{title}}",
+    "loadMore": "加载更多",
+    "loadFailed": "加载失败，请重试",
+    "notFound": "会话不存在",
+    "unreadA11y": "{{count}} 条未读"
   },
   "appModal": {
     "title": "下载 APP",
@@ -1161,5 +1171,38 @@
     "title": "页面不存在",
     "description": "您访问的页面可能已被移动或删除，链接可能已失效。",
     "backHome": "返回首页"
+  },
+  "telegram": {
+    "title": "Telegram 通知",
+    "desc": "绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容）",
+    "bind": "绑定 Telegram",
+    "unbind": "解除绑定",
+    "bound": "已绑定",
+    "notBound": "未绑定",
+    "codeLabel": "你的绑定码",
+    "codeSteps": "打开 Telegram，向 {{bot}} 发送：/start {{code}}（10 分钟内有效）",
+    "notConfigured": "通知服务暂未配置",
+    "bindSuccess": "绑定成功",
+    "bindFailed": "绑定失败，请重新获取绑定码"
+  },
+  "msg": {
+    "err": {
+      "MSG_LISTING_NOT_FOUND": "商品不存在",
+      "MSG_SELF_CONVERSATION": "不能给自己发起会话",
+      "MSG_LISTING_NOT_OPEN": "该商品当前不可发起会话",
+      "MSG_CONVERSATION_NOT_FOUND": "会话不存在",
+      "MSG_NOT_PARTICIPANT": "你不在该会话中",
+      "MSG_BODY_INVALID": "消息内容为空或过长",
+      "MSG_RATE_LIMITED": "发消息太频繁，请稍后再试"
+    }
+  },
+  "tg": {
+    "err": {
+      "TG_NOT_CONFIGURED": "通知服务暂未配置",
+      "TG_CODE_INVALID": "绑定码无效或已过期",
+      "TG_TARGET_ACCOUNT_TAKEN": "该 Telegram 账号已绑定其它站内账号",
+      "TG_NOT_LINKED": "尚未绑定 Telegram",
+      "TG_WEBHOOK_UNAUTHORIZED": "请求未授权"
+    }
   }
 }

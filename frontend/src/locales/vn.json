@@ -174,7 +174,8 @@
     "filterLimited": "Phiên bản giới hạn",
     "filterHighValue": "Giá trị cao",
     "filterClaimed": "Đã đổi",
-    "viewDetail": "Xem chi tiết"
+    "viewDetail": "Xem chi tiết",
+    "chat": "Nhắn tin"
   },
   "market": {
     "line": "Dòng sàn giao dịch",
@@ -1137,8 +1138,17 @@
   "messagesPage": {
     "title": "Tin nhắn",
     "empty": "Chưa có tin nhắn",
-    "xPlaceholder": "Tin nhắn riêng X (Twitter) · vị trí chờ",
-    "xNote": "Khu vực này sẽ dùng để kết nối tin nhắn X (Twitter), hiện là vị trí chờ"
+    "backToList": "Quay lại danh sách",
+    "detailEmpty": "Chưa có tin nhắn nào",
+    "inputPlaceholder": "Nhập tin nhắn…",
+    "send": "Gửi",
+    "sendFailed": "Gửi thất bại, vui lòng thử lại",
+    "rateLimited": "Bạn đã gửi quá nhiều tin nhắn hôm nay",
+    "aboutItem": "Về: {{title}}",
+    "loadMore": "Tải thêm",
+    "loadFailed": "Tải thất bại, vui lòng thử lại",
+    "notFound": "Không tìm thấy hội thoại",
+    "unreadA11y": "{{count}} chưa đọc"
   },
   "appModal": {
     "title": "Tải ứng dụng",
@@ -1161,5 +1171,38 @@
     "title": "Không tìm thấy trang",
     "description": "Trang bạn truy cập có thể đã bị di chuyển hoặc xóa, liên kết có thể không còn hiệu lực.",
     "backHome": "Về trang chủ"
+  },
+  "telegram": {
+    "title": "Thông báo Telegram",
+    "desc": "Nhận thông báo qua Telegram bot khi có tin nhắn mới (không kèm nội dung)",
+    "bind": "Liên kết Telegram",
+    "unbind": "Hủy liên kết",
+    "bound": "Đã liên kết",
+    "notBound": "Chưa liên kết",
+    "codeLabel": "Mã liên kết của bạn",
+    "codeSteps": "Mở Telegram và gửi tới {{bot}}: /start {{code}} (hiệu lực 10 phút)",
+    "notConfigured": "Dịch vụ thông báo chưa được cấu hình",
+    "bindSuccess": "Liên kết thành công",
+    "bindFailed": "Liên kết thất bại, vui lòng lấy mã mới"
+  },
+  "msg": {
+    "err": {
+      "MSG_LISTING_NOT_FOUND": "Không tìm thấy mặt hàng",
+      "MSG_SELF_CONVERSATION": "Không thể tự tạo hội thoại với chính mình",
+      "MSG_LISTING_NOT_OPEN": "Mặt hàng này hiện không mở hội thoại",
+      "MSG_CONVERSATION_NOT_FOUND": "Không tìm thấy hội thoại",
+      "MSG_NOT_PARTICIPANT": "Bạn không thuộc hội thoại này",
+      "MSG_BODY_INVALID": "Tin nhắn trống hoặc quá dài",
+      "MSG_RATE_LIMITED": "Gửi quá nhanh, vui lòng thử lại sau"
+    }
+  },
+  "tg": {
+    "err": {
+      "TG_NOT_CONFIGURED": "Dịch vụ thông báo chưa được cấu hình",
+      "TG_CODE_INVALID": "Mã liên kết không hợp lệ hoặc đã hết hạn",
+      "TG_TARGET_ACCOUNT_TAKEN": "Tài khoản Telegram này đã liên kết với tài khoản khác",
+      "TG_NOT_LINKED": "Telegram chưa được liên kết",
+      "TG_WEBHOOK_UNAUTHORIZED": "Yêu cầu chưa được xác thực"
+    }
   }
 }

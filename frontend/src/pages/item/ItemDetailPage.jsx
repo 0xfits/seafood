@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, Navigate, useLocation, useParams } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ChevronLeft } from 'lucide-react'
 import { useAuth } from '../../auth-context'
@@ -7,6 +7,8 @@ import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import { contentStatus, pickLocalized } from '../../i18n-content'
 import TranslatingBadge from '../../components/i18n/TranslatingBadge'
 import { buyListing, createListingBuyTracker, fetchListingDetail, listingBuyFingerprint } from './item-api'
+// v1.17 §20.2 T100：「聊一聊」第 3 格 = 站内信 `POST /api/messages/conversations`（自然幂等、前端不供键）。
+import { openConversation } from '../../messages-api'
 import './item.css'
 
 // P7-E 小尾巴批-β ①：`listing.status` 取值域 = `public.listing.status` 的 CHECK 白名单
@@ -45,14 +47,31 @@ const LISTING_STATUS_KEYS = ['draft', 'listed', 'delisted', 'frozen']
 //     三种入口下导航栈无站内上一页 ⇒ 行为不一致）。a11y 名复用既有键 `item.list`（+0 新键）。
 //   ★ 结构常量（T98）：本单零新主题 token；字号 / 高度等几何量一律落 item.css 的页面局部 --sf-l-*。
 // ============================================================================
+// ★ v1.17 §20.2（`T100`）· 底部固定操作栏**第 3 格「聊一聊」激活**（N = 0 → 1）
+//   第 1 格「留言」/ 第 2 格「收藏」**仍不渲染、不预埋 DOM**（N43：不造无人消费的占位槽）。
+//   渲染条件（Zang 裁定② 2026-10-12 **就地取代 §20.3 末行的「未登录不渲染」口径**）：
+//     · 登录 ∧ 非卖家本人 ⇒ 渲染；点击 ⇒ `POST /api/messages/conversations`（自然幂等）后进会话详情
+//       （`/messages?c=<conversation_id>`；**路由路径不变**，见 §20.4）。
+//     · 卖家本人 ⇒ **整格不渲染**（参会判定 = `F19` 的 `row.seller.uid` vs `user.uID`；
+//       服务端 `MSG_SELF_CONVERSATION` 双闸仍在）。
+//     · 未登录 ⇒ **渲染且不 disabled**，点击走**既有登录引导**（本仓既有受保护项口径 = 转
+//       `/login` 并带 `state.from`，同 `pages/ProfilePage.jsx` 的 `goLogin` / `AuthPage` 的
+//       `redirectTarget`；**不新造弹层**）—— 与「立即购买」未登录也有 `pleaseLogin` 提示同向。
+//   ★ 参会判定用 `String(...)` 归一：同 `messages-api` 的 id 口径（后端 id 经 `pg` 可能回字符串）。
+//   ★ 复用既有 `.sf-btn` 家族 + `.sf-item-cta`（`--sf-st-radius-pill` 胶囊 / R-B）：零新颜色、零新 token；
+//     `p6-btn-impl2` 的家族清单本就含本文件、`totalUses` 为**下限断言** ⇒ +1 处不红。
+// ============================================================================
 const ItemDetailPage = () => {
   const { t } = useTranslation()
   const location = useLocation()
+  const navigate = useNavigate()
   const { itemId } = useParams()
   const { isAuthenticated, user } = useAuth()
   const [detail, setDetail] = useState({ phase: 'loading', row: null, message: '' })
   const [quantity, setQuantity] = useState('1')
   const [buy, setBuy] = useState({ phase: 'idle', message: '' })
+  // T100：第 3 格「聊一聊」的本地态（开会话请求的加载 / 失败；成功即离开本页，无需 ok 态）。
+  const [chat, setChat] = useState({ phase: 'idle', message: '' })
   const tracker = useMemo(() => createListingBuyTracker(), [])
 
   // TR-2：当前语言（`utils.SUPPORTED_LANGS` 同一白名单）
@@ -97,7 +116,36 @@ const ItemDetailPage = () => {
     }
   }
 
+  // T100 第 3 格「聊一聊」：未登录 ⇒ 既有登录引导（转 `/login` + `state.from`，不新造弹层）；
+  //   登录 ⇒ `POST /api/messages/conversations`（自然幂等：同 (listing_id, buyer_uid) 重放回既有 id）
+  //   ⇒ 成功后进会话详情（`/messages?c=<conversation_id>`，路由路径不变）。
+  const onChat = async (event) => {
+    event.preventDefault()
+    if (chat.phase === 'loading') return
+    if (!isAuthenticated) {
+      navigate(buildLocalizedPath(lang, '/login'), {
+        state: { from: { pathname: location.pathname, search: location.search } },
+      })
+      return
+    }
+    setChat({ phase: 'loading', message: '' })
+    try {
+      const view = await openConversation(id, user)
+      setChat({ phase: 'idle', message: '' })
+      navigate(`${root('/messages')}?c=${encodeURIComponent(String(view?.conversation_id ?? ''))}`)
+    } catch (error) {
+      setChat({ phase: 'error', message: String(error?.message || t('error')) })
+    }
+  }
+
   const row = detail.row || {}
+  // T100 参会判定：卖家本人 ⇒ 第 3 格整格不渲染（`F19` 读口的 `seller.uid` vs 当前用户 `uID`）。
+  //   `String(...)` 归一（后端 id 经 `pg` 可能回字符串 ⇒ 裸 `===` 会静默失效）；缺 `seller` 读口
+  //   （旧行 / mock 面）⇒ 无法判定为本人 ⇒ 视为「非卖家」（读口扩展是纯增键、向后兼容）。
+  const sellerUid = row?.seller?.uid ?? null
+  const myUid = user?.uID ?? user?.uid ?? null
+  const isSellerSelf = isAuthenticated && myUid != null && sellerUid != null
+    && String(myUid) === String(sellerUid)
   const title = pickLocalized(row, 'title', lang) || pickLocalized(row, 'name', lang) || t('item.detail')
   const description = pickLocalized(row, 'description', lang) || ''
 
@@ -171,11 +219,24 @@ const ItemDetailPage = () => {
                   </label>
                 </div>
 
-                {/* 底部操作栏：仅一个 CTA（多格留待「留言 / 收藏 / 聊一聊」另单，本轮 N = 0 ⇒ 不预埋空槽位） */}
+                {/* 底部操作栏：既有 CTA +（v1.17 T100）第 3 格「聊一聊」。
+                    第 1 格「留言」/第 2 格「收藏」仍不渲染、不预埋 DOM（N43）。 */}
                 <div className="sf-item-actionbar" data-sf-m="item-actionbar">
                   <button className="sf-btn sf-item-btn sf-item-cta" type="submit" data-sf-m="item-buy-btn" disabled={buy.phase === 'loading' || !isAuthenticated}>
                     {t('item.buy')}
                   </button>
+                  {!isSellerSelf ? (
+                    <button
+                      className="sf-btn sf-item-btn sf-item-cta"
+                      type="button"
+                      data-sf-m="item-chat-btn"
+                      data-sf-phase={chat.phase}
+                      onClick={onChat}
+                      disabled={chat.phase === 'loading'}
+                    >
+                      {t('item.chat')}
+                    </button>
+                  ) : null}
                   <span
                     className={`sf-item-status${buy.phase === 'error' ? ' sf-item-err' : ''}${buy.phase === 'ok' ? ' sf-item-ok' : ''}`}
                     data-sf-m="item-buy-status"
@@ -184,6 +245,9 @@ const ItemDetailPage = () => {
                   >
                     {buy.message || (isAuthenticated ? '' : t('pleaseLogin'))}
                   </span>
+                  {chat.message ? (
+                    <span className="sf-item-status sf-item-err" data-sf-m="item-chat-status" role="status">{chat.message}</span>
+                  ) : null}
                 </div>
               </form>
             </>

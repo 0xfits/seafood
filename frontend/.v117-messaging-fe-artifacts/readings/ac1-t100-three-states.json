@@ -1,0 +1,295 @@
+{
+ "ac": "AC-1",
+ "spec": "design-system.spec v1.18 §20.9 AC-1 / §20.3 T100 现行三态",
+ "states": {
+  "zh@390": {
+   "anon": {
+    "url": "/item/19",
+    "actionbarVisible": false,
+    "chatVisible": false,
+    "buyVisible": false,
+    "chatBtnCount": 0
+   },
+   "sellerSelf": {
+    "url": "/item/19",
+    "actionbarVisible": false,
+    "chatVisible": false,
+    "buyVisible": false,
+    "chatBtnCount": 0
+   },
+   "nonSeller": {
+    "url": "/item/19",
+    "actionbarVisible": true,
+    "chatVisible": true,
+    "buyVisible": true,
+    "postConversations": {
+     "status": 200,
+     "url": "/api/messages/conversations"
+    },
+    "landedPath": "/messages?c=18",
+    "reqsDelta": [
+     "GET /api/user/asset/7",
+     "POST /api/messages/conversations",
+     "GET /api/user/asset/7",
+     "GET /api/messages/conversations/18/messages?limit=50",
+     "GET /api/messages/conversations/18/messages?limit=50",
+     "GET /brand/favicon.svg"
+    ]
+   }
+  },
+  "en@390": {
+   "anon": {
+    "url": "/en/item/19",
+    "actionbarVisible": true,
+    "chatVisible": true,
+    "buyVisible": true,
+    "chatBtnCount": 1,
+    "clickPath": "/en/login"
+   },
+   "sellerSelf": {
+    "url": "/en/item/19",
+    "actionbarVisible": true,
+    "chatVisible": false,
+    "buyVisible": true,
+    "chatBtnCount": 0
+   },
+   "nonSeller": {
+    "url": "/en/item/19",
+    "actionbarVisible": true,
+    "chatVisible": true,
+    "buyVisible": true,
+    "postConversations": {
+     "status": 200,
+     "url": "/api/messages/conversations"
+    },
+    "landedPath": "/en/messages?c=18",
+    "reqsDelta": [
+     "POST /api/messages/conversations",
+     "GET /api/user/asset/7",
+     "GET /api/user/asset/7",
+     "GET /api/messages/conversations/18/messages?limit=50",
+     "GET /api/messages/conversations/18/messages?limit=50",
+     "GET /brand/favicon.svg"
+    ]
+   }
+  },
+  "hk@390": {
+   "anon": {
+    "url": "/hk/item/19",
+    "actionbarVisible": true,
+    "chatVisible": true,
+    "buyVisible": true,
+    "chatBtnCount": 1,
+    "clickPath": "/hk/login"
+   },
+   "sellerSelf": {
+    "url": "/hk/item/19",
+    "actionbarVisible": true,
+    "chatVisible": false,
+    "buyVisible": true,
+    "chatBtnCount": 0
+   },
+   "nonSeller": {
+    "url": "/hk/item/19",
+    "actionbarVisible": true,
+    "chatVisible": true,
+    "buyVisible": true,
+    "postConversations": {
+     "status": 200,
+     "url": "/api/messages/conversations"
+    },
+    "landedPath": "/hk/messages?c=18",
+    "reqsDelta": [
+     "POST /api/messages/conversations",
+     "GET /api/user/asset/7",
+     "GET /api/user/asset/7",
+     "GET https://cdn.jsdelivr.net/gh/atelier-anchor/smiley-sans@main/webfont/SmileySans-Oblique.woff2",
+     "GET /api/messages/conversations/18/messages?limit=50",
+     "GET /api/messages/conversations/18/messages?limit=50",
+     "GET /brand/favicon.svg",
+     "GET https://raw.githubusercontent.com/atelier-anchor/smiley-sans/main/webfont/SmileySans-Oblique.woff2"
+    ]
+   }
+  },
+  "vn@390": {
+   "anon": {
+    "url": "/vn/item/19",
+    "actionbarVisible": true,
+    "chatVisible": true,
+    "buyVisible": true,
+    "chatBtnCount": 1,
+    "clickPath": "/vn/login"
+   },
+   "sellerSelf": {
+    "url": "/vn/item/19",
+    "actionbarVisible": true,
+    "chatVisible": false,
+    "buyVisible": true,
+    "chatBtnCount": 0
+   },
+   "nonSeller": {
+    "url": "/vn/item/19",
+    "actionbarVisible": true,
+    "chatVisible": true,
+    "buyVisible": true,
+    "postConversations": {
+     "status": 200,
+     "url": "/api/messages/conversations"
+    },
+    "landedPath": "/vn/messages?c=18",
+    "reqsDelta": [
+     "GET /api/user/asset/7",
+     "POST /api/messages/conversations",
+     "GET /api/messages/conversations/18/messages?limit=50",
+     "GET /api/messages/conversations/18/messages?limit=50",
+     "GET /brand/favicon.svg"
+    ]
+   }
+  },
+  "zh@1440": {
+   "anon": {
+    "url": "/item/19",
+    "actionbarVisible": true,
+    "chatVisible": true,
+    "buyVisible": true,
+    "chatBtnCount": 1,
+    "clickPath": "/login"
+   },
+   "sellerSelf": {
+    "url": "/item/19",
+    "actionbarVisible": false,
+    "chatVisible": false,
+    "buyVisible": false,
+    "chatBtnCount": 0
+   },
+   "nonSeller": {
+    "url": "/item/19",
+    "actionbarVisible": true,
+    "chatVisible": true,
+    "buyVisible": true,
+    "postConversations": {
+     "status": 200,
+     "url": "/api/messages/conversations"
+    },
+    "landedPath": "/messages?c=18",
+    "reqsDelta": [
+     "GET /api/user/asset/7",
+     "POST /api/messages/conversations",
+     "GET /api/user/asset/7",
+     "GET /api/messages/conversations/18/messages?limit=50",
+     "GET /api/messages/conversations/18/messages?limit=50",
+     "GET /brand/favicon.svg"
+    ]
+   }
+  },
+  "en@1440": {
+   "anon": {
+    "url": "/en/item/19",
+    "actionbarVisible": true,
+    "chatVisible": true,
+    "buyVisible": true,
+    "chatBtnCount": 1,
+    "clickPath": "/en/login"
+   },
+   "sellerSelf": {
+    "url": "/en/item/19",
+    "actionbarVisible": true,
+    "chatVisible": false,
+    "buyVisible": true,
+    "chatBtnCount": 0
+   },
+   "nonSeller": {
+    "url": "/en/item/19",
+    "actionbarVisible": true,
+    "chatVisible": true,
+    "buyVisible": true,
+    "postConversations": {
+     "status": 200,
+     "url": "/api/messages/conversations"
+    },
+    "landedPath": "/en/messages?c=18",
+    "reqsDelta": [
+     "POST /api/messages/conversations",
+     "GET /api/user/asset/7",
+     "GET /api/messages/conversations/18/messages?limit=50",
+     "GET /api/messages/conversations/18/messages?limit=50",
+     "GET /brand/favicon.svg"
+    ]
+   }
+  },
+  "hk@1440": {
+   "anon": {
+    "url": "/hk/item/19",
+    "actionbarVisible": true,
+    "chatVisible": true,
+    "buyVisible": true,
+    "chatBtnCount": 1,
+    "clickPath": "/hk/login"
+   },
+   "sellerSelf": {
+    "url": "/hk/item/19",
+    "actionbarVisible": true,
+    "chatVisible": false,
+    "buyVisible": true,
+    "chatBtnCount": 0
+   },
+   "nonSeller": {
+    "url": "/hk/item/19",
+    "actionbarVisible": true,
+    "chatVisible": true,
+    "buyVisible": true,
+    "postConversations": {
+     "status": 200,
+     "url": "/api/messages/conversations"
+    },
+    "landedPath": "/hk/messages?c=18",
+    "reqsDelta": [
+     "POST /api/messages/conversations",
+     "GET https://cdn.jsdelivr.net/gh/atelier-anchor/smiley-sans@main/webfont/SmileySans-Oblique.woff2",
+     "GET https://raw.githubusercontent.com/atelier-anchor/smiley-sans/main/webfont/SmileySans-Oblique.woff2",
+     "GET /api/messages/conversations/18/messages?limit=50",
+     "GET /api/messages/conversations/18/messages?limit=50",
+     "GET /brand/favicon.svg"
+    ]
+   }
+  },
+  "vn@1440": {
+   "anon": {
+    "url": "/vn/item/19",
+    "actionbarVisible": true,
+    "chatVisible": true,
+    "buyVisible": true,
+    "chatBtnCount": 1,
+    "clickPath": "/vn/login"
+   },
+   "sellerSelf": {
+    "url": "/vn/item/19",
+    "actionbarVisible": true,
+    "chatVisible": false,
+    "buyVisible": true,
+    "chatBtnCount": 0
+   },
+   "nonSeller": {
+    "url": "/vn/item/19",
+    "actionbarVisible": true,
+    "chatVisible": true,
+    "buyVisible": true,
+    "postConversations": {
+     "status": 200,
+     "url": "/api/messages/conversations"
+    },
+    "landedPath": "/vn/messages?c=18",
+    "reqsDelta": [
+     "POST /api/messages/conversations",
+     "GET /api/messages/conversations/18/messages?limit=50",
+     "GET /api/messages/conversations/18/messages?limit=50",
+     "GET /brand/favicon.svg"
+    ]
+   }
+  }
+ },
+ "verdicts": [
+  "AC1-① zh@390: 未登录未见第 3 格（现行口径应可见）"
+ ],
+ "verdict": "FAIL"
+}

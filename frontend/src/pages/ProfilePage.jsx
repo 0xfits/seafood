@@ -20,8 +20,188 @@ import './jobs/jobs.css'
 import { fetchApiJson, fetchCurrentUser, getAuthHeaders, updateMyProfile } from '../auth'
 import { useAuth } from '../auth-context'
 import { fetchMyLedger, LEDGER_PAGE_SIZE } from '../ledger-api'
+// v1.17 §20.2（T102）· Telegram 通知绑定面（`/api/telegram` 族 3 条读/写口；env 缺 ⇒ 503 TG_NOT_CONFIGURED 降级）。
+import {
+  fetchTelegramBindStatus,
+  isTelegramNotConfigured,
+  startTelegramBind,
+  unbindTelegram,
+} from '../messages-api'
 
 const toDate = (value) => new Date(typeof value === 'number' ? value * 1000 : value)
+
+// ============================================================================
+// v1.17 §20.2（`T102`）· 「Telegram 通知」卡（三态 + 降级 · 归 AC-4）
+// ----------------------------------------------------------------------------
+// ① **未配置降级卡**：env 缺 ⇒ 绑定接口 `503 TG_NOT_CONFIGURED`（route §41.9；**不是** 500）⇒
+//    静态降级文案 `telegram.notConfigured`、**无任何操作按钮**；不重试、不轮询 env 状态。
+//    ★ 降级只落**卡片内**，绝不冒泡成整页报错（AC-4 判负项）。
+// ② **未绑定态**：`telegram.bind` ⇒ `POST /api/telegram/bind/start` ⇒ 展示 `codeLabel` + `codeSteps`
+//    （`{{bot}}`/`{{code}}` 插值 + 10 分钟有效）+ **等待回执**；成功（状态转 `tg_linked`）= `bindSuccess` → 转态③。
+// ③ **已绑定态**：`telegram.bound` + `tg_linked_at` 日期 + `telegram.unbind` ⇒ **二次确认内联**
+//    （不新造弹窗模板）⇒ 成功回态②。
+// ★ **隐私红线（写死）**：绑定面**绝不显示** `tg_user_id` 数值 / 任何 Telegram handle
+//   （route §41.5 判负②的读面对应）⇒ 本组件只消费 `tg_linked` / `tg_linked_at`，其余响应键**不读不渲染**。
+// ★ **无轮询**（T103 同口径）：等待回执 = 用户点击「确认」触发一次状态读（`tg-bind-action`），
+//   不是定时器；与 §20.6「三时点取数、禁 setInterval」一致。
+// ★ 钩子（§20.5）：`tg-bind-card` / `tg-bind-status` / `tg-bind-code` / `tg-bind-steps` /
+//   `tg-bind-action` / `tg-unbind-action`；根另挂 `data-sf-tg-state`（AC-4 采数用，属排查面）。
+// ★ 零新主题 token / 零新结构常量 / 零新 i18n 键：文案全部取 §20.8 已冻结键 + 全站既有
+//   `confirm` / `cancel` / `loading` / `error`。
+// ★ 依赖面纪律：effect 依赖 **`uid` 原始值**（不用 `sessionUser` 对象身份）—— 本仓测试替身每帧
+//   新建 auth 对象，依赖对象身份会无限重渲染（同 ProfilePage 既有 effect 的 `sessionUser?.uID` 口径）。
+// ============================================================================
+const TelegramBindCard = () => {
+  const { t } = useTranslation()
+  const { isAuthenticated, user: sessionUser } = useAuth()
+  const uid = sessionUser?.uID ?? sessionUser?.uid ?? null
+  const [state, setState] = useState('loading') // loading | notConfigured | unbound | code | bound
+  const [boundAt, setBoundAt] = useState(null)
+  const [issued, setIssued] = useState(null) // { code, bot }
+  const [busy, setBusy] = useState(false)
+  const [confirming, setConfirming] = useState(false)
+  const [notice, setNotice] = useState('')
+
+  // 态②/③ 的取数 = `GET /api/telegram/bind/status`（**响应无 `tg_user_id`**）。
+  useEffect(() => {
+    if (!isAuthenticated || uid == null) return undefined
+    let alive = true
+    const run = async () => {
+      try {
+        const data = await fetchTelegramBindStatus(sessionUser)
+        if (!alive) return
+        setBoundAt(data?.tg_linked_at ?? null)
+        setState(data?.tg_linked ? 'bound' : 'unbound')
+      } catch (error) {
+        if (!alive) return
+        if (isTelegramNotConfigured(error)) { setState('notConfigured'); return }
+        setNotice(String(error?.message || t('error')))
+        setState('unbound')
+      }
+    }
+    run()
+    return () => { alive = false }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uid, isAuthenticated])
+
+  // 态② ⇒ 取绑定码（env 缺 ⇒ 同一 503 降级判据，就地转降级卡）。
+  const onBind = async () => {
+    if (busy) return
+    setBusy(true)
+    setNotice('')
+    try {
+      const data = await startTelegramBind(sessionUser)
+      setIssued({ code: String(data?.code ?? ''), bot: String(data?.bot_username ?? '') })
+      setState('code')
+    } catch (error) {
+      if (isTelegramNotConfigured(error)) { setState('notConfigured'); return }
+      setNotice(t('telegram.bindFailed'))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  // 等待回执：用户点击触发**一次**状态读（无轮询）；已绑定 ⇒ `bindSuccess` + 转态③。
+  const onConfirmBind = async () => {
+    if (busy) return
+    setBusy(true)
+    try {
+      const data = await fetchTelegramBindStatus(sessionUser)
+      if (data?.tg_linked) {
+        setBoundAt(data?.tg_linked_at ?? null)
+        setIssued(null)
+        setConfirming(false)
+        setNotice(t('telegram.bindSuccess'))
+        setState('bound')
+      }
+    } catch (error) {
+      if (isTelegramNotConfigured(error)) { setState('notConfigured'); return }
+      setNotice(t('telegram.bindFailed'))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  // 态③ ⇒ 解绑（二次确认内联；成功回态②）。
+  const onUnbind = async () => {
+    if (busy) return
+    setBusy(true)
+    setNotice('')
+    try {
+      await unbindTelegram(sessionUser)
+      setBoundAt(null)
+      setConfirming(false)
+      setIssued(null)
+      setState('unbound')
+    } catch (error) {
+      if (isTelegramNotConfigured(error)) { setState('notConfigured'); return }
+      setNotice(String(error?.message || t('error')))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const statusText = state === 'loading'
+    ? t('loading')
+    : (state === 'notConfigured' ? t('telegram.notConfigured') : (state === 'bound' ? t('telegram.bound') : t('telegram.notBound')))
+
+  return (
+    <div data-sf-m="tg-bind-card" data-sf-tg-state={state}>
+      <Card variant="inactive">
+        <CardHeader>
+          <CardTitle className="text-2xl">{t('telegram.title')}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-gray-600">{t('telegram.desc')}</p>
+          {/* 状态行：loading / 未配置降级 / 未绑定 / 已绑定（四态共用同一钩子，AC-4 采数点） */}
+          <p className="text-sm text-gray-600" data-sf-m="tg-bind-status">{statusText}</p>
+
+          {state === 'notConfigured' ? null : state === 'bound' ? (
+            <>
+              {boundAt ? (
+                <p className="text-sm text-gray-500">{toDate(boundAt).toLocaleDateString()}</p>
+              ) : null}
+              {confirming ? (
+                <div className="flex gap-2">
+                  <Button variant="warning" size="sm" onClick={onUnbind} disabled={busy} data-sf-m="tg-unbind-action">
+                    {t('telegram.unbind')}
+                  </Button>
+                  <Button variant="inactive" size="sm" onClick={() => setConfirming(false)} disabled={busy}>
+                    {t('cancel')}
+                  </Button>
+                </div>
+              ) : (
+                <Button variant="inactive" size="sm" onClick={() => setConfirming(true)} disabled={busy} data-sf-m="tg-unbind-action">
+                  {t('telegram.unbind')}
+                </Button>
+              )}
+            </>
+          ) : state === 'code' ? (
+            <>
+              <p className="text-sm text-gray-600">{t('telegram.codeLabel')}</p>
+              {/* code 展示 = 既有等宽槽位 `.sf-tag`（不新造风格） */}
+              <p className="sf-tag" data-sf-m="tg-bind-code">{issued?.code}</p>
+              <p className="text-sm text-gray-600" data-sf-m="tg-bind-steps">
+                {t('telegram.codeSteps', { bot: issued?.bot, code: issued?.code })}
+              </p>
+              <Button variant="proceed" size="sm" onClick={onConfirmBind} disabled={busy} data-sf-m="tg-bind-action">
+                {t('confirm')}
+              </Button>
+            </>
+          ) : (
+            <Button variant="proceed" size="sm" onClick={onBind} disabled={busy || state === 'loading'} data-sf-m="tg-bind-action">
+              {t('telegram.bind')}
+            </Button>
+          )}
+
+          {notice ? (
+            <p className="text-sm text-gray-600" role="status" data-sf-m="tg-bind-notice">{notice}</p>
+          ) : null}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
 
 const ProfilePage = () => {
   const { t } = useTranslation()
@@ -531,6 +711,12 @@ const ProfilePage = () => {
               )}
             </CardContent>
           </Card>
+        </SlideUp>
+
+        {/* v1.17 §20.2（T102）· 「Telegram 通知」卡（三态 + 降级）—— 只**新增卡片**、不动既有块；
+            置于页面末位 ⇒ 既有块零位移（归因式 AC-5 的「非目标页差异集 = 0」更易成立）。 */}
+        <SlideUp delay={900}>
+          <TelegramBindCard />
         </SlideUp>
       </div>
     </ResponsiveContainer>

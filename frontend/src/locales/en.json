@@ -174,7 +174,8 @@
     "filterLimited": "Limited edition",
     "filterHighValue": "High value",
     "filterClaimed": "Redeemed",
-    "viewDetail": "View details"
+    "viewDetail": "View details",
+    "chat": "Chat"
   },
   "market": {
     "line": "Exchange",
@@ -1137,8 +1138,17 @@
   "messagesPage": {
     "title": "Messages",
     "empty": "No messages yet",
-    "xPlaceholder": "X (Twitter) DM · placeholder",
-    "xNote": "Reserved for X (Twitter) DM; placeholder for now"
+    "backToList": "Back to conversations",
+    "detailEmpty": "No messages yet. Say hello!",
+    "inputPlaceholder": "Type a message…",
+    "send": "Send",
+    "sendFailed": "Failed to send. Please retry.",
+    "rateLimited": "Too many messages here today. Try again tomorrow.",
+    "aboutItem": "About: {{title}}",
+    "loadMore": "Load more",
+    "loadFailed": "Failed to load. Please retry.",
+    "notFound": "Conversation not found",
+    "unreadA11y": "{{count}} unread"
   },
   "appModal": {
     "title": "Get the App",
@@ -1161,5 +1171,38 @@
     "title": "Page Not Found",
     "description": "The page you're looking for may have been moved or deleted, so this link may no longer work.",
     "backHome": "Back to Home"
+  },
+  "telegram": {
+    "title": "Telegram notifications",
+    "desc": "Get Telegram bot reminders for new messages (content not included)",
+    "bind": "Bind Telegram",
+    "unbind": "Unbind",
+    "bound": "Bound",
+    "notBound": "Not bound",
+    "codeLabel": "Your linking code",
+    "codeSteps": "Open Telegram and send to {{bot}}: /start {{code}} (valid for 10 minutes)",
+    "notConfigured": "Notifications are not configured yet",
+    "bindSuccess": "Linked successfully",
+    "bindFailed": "Linking failed. Please get a new code"
+  },
+  "msg": {
+    "err": {
+      "MSG_LISTING_NOT_FOUND": "Listing not found",
+      "MSG_SELF_CONVERSATION": "You cannot start a conversation about your own item",
+      "MSG_LISTING_NOT_OPEN": "This item is not open for conversations",
+      "MSG_CONVERSATION_NOT_FOUND": "Conversation not found",
+      "MSG_NOT_PARTICIPANT": "You are not a participant of this conversation",
+      "MSG_BODY_INVALID": "Message is empty or too long",
+      "MSG_RATE_LIMITED": "Sending too fast. Please try later"
+    }
+  },
+  "tg": {
+    "err": {
+      "TG_NOT_CONFIGURED": "Notifications are not configured yet",
+      "TG_CODE_INVALID": "Linking code is invalid or expired",
+      "TG_TARGET_ACCOUNT_TAKEN": "This Telegram account is linked to another account",
+      "TG_NOT_LINKED": "Telegram is not linked yet",
+      "TG_WEBHOOK_UNAUTHORIZED": "Request unauthorized"
+    }
   }
 }

@@ -1,0 +1,31 @@
+/* 未读角标（design-system.spec v1.17 §20.6 · T103）
+ * ─ 挂点 = 底栏第 4 格（messages `<a>` 子节点）+ 桌面悬浮菜单「消息」项（同构）。
+ * ─ 硬约束：**零新主题 token**（色/圆角一律复用既有 `--sf-badge-bg` / `--sf-badge-fg` /
+ *   `--sf-st-radius-pill`）；本文件**不改 shell.css**（该文件仍只保留唯一 767 断点块）；
+ *   不引入任何宽度判定（可见性/形状全由 CSS 承担，无 JS 内联断点）。
+ * ─ 位置：挂点自身 `position: relative`，角标绝对定位在右上（不占布局位、不改挂点几何）。
+ * ─ 字号 12px（T79 硬门：可见文本 ≥12px；≤12px 文本须 ≥12px）。
+ */
+.sf-tab,
+.sf-fm-item {
+  position: relative;
+}
+
+.sf-badge-count {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  font-size: 12px;
+  line-height: 1;
+  border-radius: var(--sf-st-radius-pill);
+  background: var(--sf-badge-bg);
+  color: var(--sf-badge-fg);
+  pointer-events: none;
+}

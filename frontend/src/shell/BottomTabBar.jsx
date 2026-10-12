@@ -4,6 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { getLanguageFromUrl, stripLangPrefix } from '../utils'
 import { useAuth } from '../auth-context'
 import { isNavItemActive, navPathInLang, visibleNavItems } from './nav'
+// T103 未读角标（v1.17 §20.6）：共享态 = 外壳层（与桌面悬浮菜单**同源消费、同值**）；
+// 角标样式落 shell/badge.css（**不改 shell.css**，不新增断点块）。
+import { unreadBadgeText, useUnreadCount } from './unread-context'
+import './badge.css'
 
 // T95（design-system.spec v1.15 §19）· 详情页隐藏底栏 —— **DOM 恒在 + 页面级 display:none**。
 // 判定只用**路由串匹配**（剥语言前缀后）：`rest === '/item'`（同路由 ?id= 兼容档）
@@ -26,6 +30,11 @@ const BottomTabBar = () => {
   const { isAuthenticated } = useAuth()
   const lang = getLanguageFromUrl(location.pathname)
   const items = visibleNavItems(isAuthenticated)
+  // T103 未读角标（第 4 格 messages）：共享态同源消费。★ 本文件**不得**引入任何视口宽度判定 ——
+  //   `theme-shell-isomorphism` 硬断言禁止在外壳 JS 里出现断点类读数，且**按明文全文扫描**（注释同样命中）
+  //   ⇒ 本文件只做**路由串**匹配，宽度翻转一律交给 CSS 断点块（`shell.css` 唯一 767 块）。
+  const { total: unreadTotal } = useUnreadCount()
+  const unreadBadge = unreadBadgeText(unreadTotal)
   // T95：仅详情路由追加 is-detail 修饰类；隐藏规则落 styles.css 顶层（具体性压过 767 断点块）
   const isDetail = isItemDetailPath(location.pathname)
 
@@ -44,6 +53,15 @@ const BottomTabBar = () => {
           >
             <Icon className="sf-tab-ic" size={22} aria-hidden="true" />
             <span className="sf-tab-label">{t(item.labelKey)}</span>
+            {/* T103：角标是第 4 格 `<a data-sf-nav="messages">` 的**子节点**（DOM 恒在 / 零改锚；
+                `0` ⇒ 不渲染。） */}
+            {item.key === 'messages' && unreadBadge ? (
+              <span
+                className="sf-badge-count"
+                data-sf-m="tabbar-unread-badge"
+                aria-label={t('messagesPage.unreadA11y', { count: unreadTotal })}
+              >{unreadBadge}</span>
+            ) : null}
           </Link>
         )
       })}

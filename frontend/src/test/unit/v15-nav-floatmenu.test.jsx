@@ -10,7 +10,7 @@
  * 注：`.sf-fm` 的**真实计算 display**（1440 非 none / ≤767 = none）由真浏览器读数覆盖（jsdom 不套用 media query）。
  */
 import React from 'react'
-import { render, cleanup, fireEvent, act } from '@testing-library/react'
+import { render, cleanup, fireEvent, act, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import fs from 'node:fs'
@@ -75,6 +75,8 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup()
+  // 本文件内 `vi.stubGlobal('fetch'…)` 的替身一律还原（防污染同文件/同进程后续用例）。
+  vi.unstubAllGlobals()
 })
 
 describe('v1.5 ① 底栏（H5）五项 label / href（含四语前缀）', () => {
@@ -240,14 +242,39 @@ describe('v1.5 ④ /messages 路由可达 + 悬浮菜单挂载于 AppShell', () 
     ['en', 'Messages', 'No messages yet'],
     ['hk', '訊息', '暫無訊息'],
     ['vn', 'Tin nhắn', 'Chưa có tin nhắn'],
-  ])('%s 档 MessagesPage 渲染 messagesPage.* + X 接驳位占位钩子', (lang, title, empty) => {
+  ])('%s 档 MessagesPage 渲染**真页**（占位钩子 = 0 + 真页钩子在场）', async (lang, title, empty) => {
+    // ★ 改锚（Kong 2026-10-12 · design-system.spec v1.17 §20.2 `T101` 显式删除项 + 教训 `N43`）：
+    //   原断言 = 「渲染 `messagesPage.*` + X 接驳位占位钩子 `messages-x-placeholder` 存在 + 渲染键
+    //   `messagesPage.xPlaceholder`」。`T101` 把 `/messages` 由占位页转真页并**显式删除**该钩子与
+    //   `xPlaceholder`/`xNote` 两键（四语同删）⇒ 原断言**必然红**。本单属**显式删除项引致的合法前推**：
+    //   钩子侧改为「占位钩子命中 = 0 + 真页钩子在场」，键侧改为「四语两键均已删」，**不是放宽**。
+    //   空态文案断言（`messagesPage.empty`）保留，但改锚到**真页的空态钩子** `messages-list-empty`
+    //   （取数替身回空列表 ⇒ 确定性走到列表空态；`noData`/错误态不再混入）。
     H.lang = lang
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ success: true, data: { rows: [], next_cursor: null } }),
+    })))
     const { container } = renderIn(<MessagesPage />, '/messages')
     const page = container.querySelector('[data-sf-m="messages-page"]')
     expect(page).not.toBeNull()
     expect(page.textContent).toContain(title)
-    expect(page.textContent).toContain(empty)
-    expect(container.querySelector('[data-sf-m="messages-x-placeholder"]')).not.toBeNull()
-    expect(page.textContent).toContain(TABLES[lang].messagesPage.xPlaceholder)
+    // 真页钩子在场 + 空态文案（原「empty」断言语义的等价承接）
+    const emptyEl = await waitFor(() => {
+      const el = container.querySelector('[data-sf-m="messages-list-empty"]')
+      expect(el).not.toBeNull()
+      return el
+    })
+    expect(emptyEl.textContent).toBe(empty)
+    // T101 占位区块整块移除：钩子全仓命中 = 0（`N43` 判据）
+    expect(container.querySelectorAll('[data-sf-m="messages-x-placeholder"]').length).toBe(0)
+    // 占位键四语同删（本文件已 import 四语表 ⇒ 逐语断言 = 四语同删证据）
+    expect(TABLES[lang].messagesPage.xPlaceholder).toBeUndefined()
+    expect(TABLES[lang].messagesPage.xNote).toBeUndefined()
+    for (const l of Object.keys(TABLES)) {
+      expect(TABLES[l].messagesPage.xPlaceholder).toBeUndefined()
+      expect(TABLES[l].messagesPage.xNote).toBeUndefined()
+    }
   })
 })

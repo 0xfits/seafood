@@ -4,6 +4,9 @@ import { useTranslation } from 'react-i18next'
 import { PlusCircle, MessageCircle, Smartphone, Gauge, Headphones } from 'lucide-react'
 import { getLanguageFromUrl } from '../utils'
 import { navPathInLang } from './nav'
+// T103 未读角标（v1.17 §20.6）：与底栏**同源消费**（同一共享态、同值）；样式落 badge.css（不改 shell.css）。
+import { unreadBadgeText, useUnreadCount } from './unread-context'
+import './badge.css'
 import { Modal, ModalHeader, ModalTitle, ModalContent, ModalFooter } from '../components/ui/Modal'
 
 // 右侧悬浮菜单（design-system.spec v1.5 §14 · T81–T85）
@@ -29,6 +32,9 @@ const FloatingMenu = () => {
   const lang = getLanguageFromUrl(location.pathname)
   const [openModal, setOpenModal] = useState(null)
   const closeModal = () => setOpenModal(null)
+  // T103：桌面悬浮菜单「消息」项角标（与底栏第 4 格同源同值；`0` ⇒ 不渲染）。
+  const { total: unreadTotal } = useUnreadCount()
+  const unreadBadge = unreadBadgeText(unreadTotal)
 
   return (
     <>
@@ -39,6 +45,14 @@ const FloatingMenu = () => {
             <>
               <Icon className="sf-fm-ic" aria-hidden="true" />
               <span className="sf-fm-label">{t(item.labelKey)}</span>
+              {/* T103：桌面悬浮菜单「消息」项角标子节点（底栏同源同值；`0` ⇒ 不渲染）。 */}
+              {item.key === 'messages' && unreadBadge ? (
+                <span
+                  className="sf-badge-count"
+                  data-sf-m="floatmenu-unread-badge"
+                  aria-label={t('messagesPage.unreadA11y', { count: unreadTotal })}
+                >{unreadBadge}</span>
+              ) : null}
             </>
           )
           return (
