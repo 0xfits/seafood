@@ -8039,7 +8039,7 @@ CONSTRAINT admin_refund_audit_log_idem_uniq   UNIQUE (idempotency_key, result)  
 |---|---|
 | **匹配** | `/item/999999` 命中**内层 `item/:itemId` 动态段**（**非** catch-all） |
 | **呈现** | **详情页内空态** —— 容器现取 `data-sf-m="item-detail-empty"`（`frontend/src/pages/item/ItemDetailPage.jsx:116`）；文案 = 错误链 `message`（「关联单据不存在」）**兜底** `t('noData')` |
-| **附入口** | 「返回列表」= 现取钩子 `data-sf-m="item-back-link"` → `t('item.list')` |
+| **附入口** | 「返回列表」= 现取钩子 `data-sf-m="item-back"`（**v1.16 就地更正**：原钩子 `item-back-link` 已随 commit `2aee62f` 改名，并新增操作栏钩子 `item-actionbar`；空态「返回列表」文字入口已不存在，现为页面内 `.sf-item-back` 返回箭头） → `t('item.list')` |
 | **明确排除** | **不并入 catch-all 提示页**（catch-all 只承接**不匹配任何内层精确 / 动态段**的路径） |
 | **性质** | **已知口径（非缺陷）** —— 登记，不立项 |
 
