@@ -6,7 +6,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 // P4-A1-LEDGER-IMPL（Zang §5.99 / DL96）：路由层计算 `request_fingerprint`（business 字段集合）
-import { createHash } from 'crypto';
+import { createHash, timingSafeEqual } from 'crypto';
 import {
   consumeWalletAuthChallenge,
   createSessionToken,
@@ -86,6 +86,29 @@ import { backfillPending, registerPendingTranslations, scanRegisterPending, sche
 import { buildAuditSql, buildAuditView, parseAuditRequest } from './audit-console';
 // 8⑥ C3③（`R-9-76`）：`points/adjust` 的原因码关闭集（语义域 · 非错误码 ⇒ 账本闭集 33 不动）。
 import { POINTS_ADJUST_REASONS, isPointsAdjustReason } from './points-adjust-reasons';
+// ★ A5 收口（route 册 v2.31 §41 / data 册 v0.32 §38）：站内信 `/api/messages` 族 + Telegram `/api/telegram` 族
+import {
+  getPrizeSellerView,
+  listConversations,
+  listMessages,
+  markConversationRead,
+  messagingI18nNamespaceOf,
+  notifyMessageCounterpart,
+  openConversation,
+  sendMessage,
+  totalUnread,
+} from './messages-service';
+import {
+  consumeBindCode,
+  isTelegramConfigured,
+  issueBindCode,
+  readBindStatus,
+  replyTextForOutcome,
+  REPLY_HINT_TEXT,
+  sendTelegramReply,
+  telegramRuntimeConfig,
+  unbindTelegram,
+} from './telegram-service';
 
 const app = express();
 const PORT = Number(process.env.PORT || 5788);
@@ -601,8 +624,14 @@ app.get('/api/prize/:bID', async (req, res) => {
       return sendRefNotFound(res, 'prize', String(bID), 'prize_not_found');
     }
 
+    // ★ F19 读口扩展（route 册 v2.31 §41.3 · 零新路由 / 零 DDL）：响应顶层增 `seller` 对象
+    //   （`uid` = listing.seller_uid 既有列；`nickname` = EVM 掩码派生；`avatar` = null 占位）。
+    //   纯增键向后兼容；零隐私出口（不含联系方式 / 完整地址 / handle）；渲染面零改动（消费另裁）。
+    const sellerResult = await getPrizeSellerView(bID);
+    const seller = sellerResult.ok ? sellerResult.seller : null;
+
     setPublicCache(res);
-    sendSuccess(res, prize);
+    sendSuccess(res, { ...prize, seller });
   } catch (error) {
     // P6-D1'-SWEEP（同族收口）：基础设施异常一律交**既有** §14 分类器
     //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
@@ -3041,6 +3070,251 @@ app.post('/api/translate/backfill', async (req, res) => {
     //（DB/传输类 ⇒ 503 + 机读 reason；真缺陷仍 500/`LEDGER_TRANSACTION_REQUIRED`）。
     // 修前：本 catch 硬编码 `sendError(res, 500, …)` ⇒ 库不可达被伪装成 500「实现缺陷」。
     return sendInfraMapped(res, 'translate.backfill', error);
+  }
+});
+
+// ============================================================================
+// ★ A5 收口（route 册 v2.31 §41 / data 册 v0.32 §38）· 站内信 + Telegram 绑定
+//   注册点 89 → 99（+10 = `/api/messages` 族 6 + `/api/telegram` 族 4；F19 读口扩展 +0）。
+//   authz 矩阵（§41.4 写死）：除 webhook（secret 面）外全部 requireActor；零管理员旁路
+//   （requireAdmin 不出现在本族任何口）；站内信 6 条永不降级（无 env 依赖）。
+// ============================================================================
+
+/** `MSG_*` / `TG_*` 统一错误出口（R107 单形状；i18n 域 = msg.err. / tg.err.，§41.5）。 */
+const sendMessagingError = (
+  res: Response,
+  err: { status: number; code: string; message: string; details: Record<string, unknown> },
+) => res.status(err.status).json(ledgerErrorBody(err.code, err.message, err.details, messagingI18nNamespaceOf(err.code)));
+
+/** env-gated 降级（§41.9）：503 + TG_NOT_CONFIGURED（非 500 / 非静默成功，Z8）。 */
+const sendTelegramNotConfigured = (res: Response) =>
+  sendMessagingError(res, {
+    status: 503,
+    code: 'TG_NOT_CONFIGURED',
+    message: errorMessageOf('TG_NOT_CONFIGURED'),
+    details: {},
+  });
+
+// ---- `/api/messages` 族（#1–#6 · 站内信面，永不降级）----------------------
+
+// #1 开会话：自然幂等（UNIQUE(listing_id, buyer_uid) 冲突取既有行 ⇒ 重放 created:false）。
+app.post('/api/messages/conversations', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  setPrivateNoStore(res);
+  try {
+    const result = await openConversation(actor.session.uID, (req.body || {}).listing_id);
+    if (!result.ok) return sendMessagingError(res, result);
+    return sendSuccess(res, { conversation_id: result.conversation_id, created: result.created });
+  } catch (error) {
+    return sendInfraMapped(res, 'messages.conversations.create', error);
+  }
+});
+
+// #2 会话列表：keyset 游标 (time_updated, conversation_id)，禁 OFFSET（DL25）。
+app.get('/api/messages/conversations', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  setPrivateNoStore(res);
+  try {
+    const result = await listConversations(actor.session.uID, {
+      beforeTime: req.query.before_time,
+      beforeId: req.query.before_id,
+      limit: req.query.limit,
+      listingId: req.query.listing_id,
+    });
+    if (!result.ok) return sendMessagingError(res, result);
+    return sendSuccess(res, { rows: result.rows, next_cursor: result.next_cursor });
+  } catch (error) {
+    return sendInfraMapped(res, 'messages.conversations.list', error);
+  }
+});
+
+// #3 消息列表：参与者准入（Z2）；keyset 游标 = msg_id，禁 OFFSET。
+app.get('/api/messages/conversations/:conversationId/messages', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  setPrivateNoStore(res);
+  try {
+    const result = await listMessages(actor.session.uID, req.params.conversationId, {
+      beforeMsgId: req.query.before_msg_id,
+      limit: req.query.limit,
+    });
+    if (!result.ok) return sendMessagingError(res, result);
+    return sendSuccess(res, {
+      conversation: result.conversation,
+      rows: result.rows,
+      next_before_msg_id: result.next_before_msg_id,
+    });
+  } catch (error) {
+    return sendInfraMapped(res, 'messages.messages.list', error);
+  }
+});
+
+// #4 发消息：`cli:` 供键幂等（同键同内容 = 重放不计数；同键异内容 = 409）+ 双频次闸；
+//   落库成功 ⇒ 对端通知走后台段（waitUntil 体例）：推送失败绝不回滚消息写、绝不改本响应（§41.7）。
+app.post('/api/messages/conversations/:conversationId/messages', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  setPrivateNoStore(res);
+  try {
+    const body = (req.body || {}) as Record<string, unknown>;
+    const result = await sendMessage(actor.session.uID, req.params.conversationId, body.body, body.create_key ?? body.idempotency_key);
+    if (!result.ok) return sendMessagingError(res, result);
+    if (!result.idempotent_replay) {
+      notifyMessageCounterpart({ conversationId: result.conversation_id, fromUid: actor.session.uID });
+    }
+    return sendSuccess(res, {
+      msg_id: result.msg_id,
+      conversation_id: result.conversation_id,
+      time_created: result.time_created,
+      ...(result.idempotent_replay ? { idempotent_replay: true } : {}),
+    });
+  } catch (error) {
+    return sendInfraMapped(res, 'messages.messages.send', error);
+  }
+});
+
+// #5 读水位推进：天然幂等（单调水位 = max(当前, 最新 msg_id)，A5-DL-G3 触发器兜底）。
+app.post('/api/messages/conversations/:conversationId/read', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  setPrivateNoStore(res);
+  try {
+    const result = await markConversationRead(actor.session.uID, req.params.conversationId);
+    if (!result.ok) return sendMessagingError(res, result);
+    return sendSuccess(res, { last_read_msg_id: result.last_read_msg_id });
+  } catch (error) {
+    return sendInfraMapped(res, 'messages.read', error);
+  }
+});
+
+// #6 未读总数：查询期聚合（会话级汇总 Σ，§38.6 无存储计数器）。
+app.get('/api/messages/unread-count', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  setPrivateNoStore(res);
+  try {
+    const result = await totalUnread(actor.session.uID);
+    if (!result.ok) return sendMessagingError(res, result);
+    return sendSuccess(res, { unread_total: result.unread_total });
+  } catch (error) {
+    return sendInfraMapped(res, 'messages.unread-count', error);
+  }
+});
+
+// ---- `/api/telegram` 族（#7–#10 · env-gated 降级面，§41.9）-----------------
+
+// #7 绑定发起：code = HMAC 签名令牌（uid + iat + exp600 + 签名，不入库不建表，A5-DL-P4）。
+app.post('/api/telegram/bind/start', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  setPrivateNoStore(res);
+  if (!isTelegramConfigured()) {
+    return sendTelegramNotConfigured(res);
+  }
+  try {
+    const issued = issueBindCode(actor.session.uID);
+    return sendSuccess(res, {
+      code: issued.code,
+      expires_in: issued.expires_in,
+      bot_username: telegramRuntimeConfig().botUsername,
+    });
+  } catch (error) {
+    return sendInfraMapped(res, 'telegram.bind.start', error);
+  }
+});
+
+// #8 解绑：解绑即停推（Z4 / A5-DL-P3）；重复解绑第二次起 = 400 TG_NOT_LINKED。
+app.post('/api/telegram/unbind', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  setPrivateNoStore(res);
+  if (!isTelegramConfigured()) {
+    return sendTelegramNotConfigured(res);
+  }
+  try {
+    const unbound = await unbindTelegram(actor.session.uID);
+    if (!unbound) {
+      return sendMessagingError(res, {
+        status: 400,
+        code: 'TG_NOT_LINKED',
+        message: errorMessageOf('TG_NOT_LINKED'),
+        details: {},
+      });
+    }
+    return sendSuccess(res, { tg_linked: false });
+  } catch (error) {
+    return sendInfraMapped(res, 'telegram.unbind', error);
+  }
+});
+
+// #9 绑定状态：读面隐私红线 —— 绝不回 tg_user_id 数值（判负②，§41.2 #9）。
+app.get('/api/telegram/bind/status', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  setPrivateNoStore(res);
+  if (!isTelegramConfigured()) {
+    return sendTelegramNotConfigured(res);
+  }
+  try {
+    const status = await readBindStatus(actor.session.uID);
+    return sendSuccess(res, status);
+  } catch (error) {
+    return sendInfraMapped(res, 'telegram.bind.status', error);
+  }
+});
+
+// #10 webhook：① secret 校验（401，timing-safe 比对不泄差异原因）→ ② env 校验（503 降级）→
+//   ③–⑥ 消费 `/start <code>`。恒 200（Telegram 对非 2xx 会重试）；业务失败只进日志 + bot 回复；
+//   无用户鉴权（bot 机器面，§41.4）。secret env 未配置 ⇒ 无可比对值 ⇒ 直接 503 降级（fail-closed，
+//   绝不在 secret 缺失时处理业务 = 判负⑤）。
+app.post('/api/telegram/webhook', async (req, res) => {
+  try {
+    const cfg = telegramRuntimeConfig();
+    if (cfg.webhookSecret) {
+      const header = String(req.headers['x-telegram-bot-api-secret-token'] || '');
+      const given = Buffer.from(header);
+      const expected = Buffer.from(cfg.webhookSecret);
+      if (given.length !== expected.length || !timingSafeEqual(given, expected)) {
+        return sendMessagingError(res, {
+          status: 401,
+          code: 'TG_WEBHOOK_UNAUTHORIZED',
+          message: errorMessageOf('TG_WEBHOOK_UNAUTHORIZED'),
+          details: {},
+        });
+      }
+    }
+    if (!isTelegramConfigured()) {
+      return sendTelegramNotConfigured(res);
+    }
+
+    const update = (req.body || {}) as Record<string, unknown>;
+    const message = (update.message || null) as Record<string, unknown> | null;
+    const from = (message?.from || null) as Record<string, unknown> | null;
+    const chatId = from ? Number(from.id) : NaN;
+    const text = message && typeof message.text === 'string' ? message.text : '';
+
+    if (!Number.isFinite(chatId) || chatId === 0 || !text) {
+      // 非文本 / 无发送者 update：无业务面 ⇒ 恒 200 空对象（§41.2 #10 出参）。
+      return res.status(200).json({});
+    }
+
+    let reply: string = REPLY_HINT_TEXT;
+    if (text.startsWith('/start')) {
+      const code = text.slice('/start'.length).trim().split(/\s+/)[0] || null;
+      const outcome = await consumeBindCode(chatId, code);
+      reply = replyTextForOutcome(outcome);
+    }
+
+    // bot 回复后台化（响应不因网络抖动变慢）；回复失败只进日志，不改本响应。
+    void sendTelegramReply(chatId, reply);
+    return res.status(200).json({});
+  } catch (error) {
+    // webhook 恒 200：内部异常（含消费路径基础设施错误）只进日志，不向 Telegram 返回非 2xx。
+    console.error('[telegram.webhook] internal error (responded 200 per Telegram retry semantics):',
+      error instanceof Error ? error.message : 'ERROR');
+    return res.status(200).json({});
   }
 });
 

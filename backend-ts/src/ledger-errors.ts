@@ -99,15 +99,65 @@ export const isAuthErrorCode = (v: unknown): v is AuthErrorCode =>
   typeof v === 'string' && Object.prototype.hasOwnProperty.call(AUTH_ERROR_MESSAGES, v);
 
 /**
+ * ★ A5 收口（route 册 v2.31 §41.5 / data 册 v0.32 §38）：**`MSG_*` 站内信码域**（7 码闭集）。
+ * ============================================================================
+ * `MSG_*` **不进** §14.1 的 33 码关闭集（闭集纪律：33 码一字不动，R-9-76 同族）；本域与
+ * `LEDGER_ERROR_TABLE` **同一 `message` 契约**（人类可读稳定英文句 · 严禁机读码），
+ * 共用**同一派生出口** `errorMessageOf` ⇒ **不新造第二套「码 ⇒ 句」映射**（单一真源）。
+ * i18n 键域 = `msg.err.<CODE>`（route 册 §41.5）；HTTP 状态映射随码冻结，R105 同族。
+ */
+export const MESSAGING_ERROR_TABLE = {
+  MSG_LISTING_NOT_FOUND: { status: 404, message: 'The requested listing does not exist' },
+  MSG_SELF_CONVERSATION: { status: 400, message: 'You cannot start a conversation about your own listing' },
+  MSG_LISTING_NOT_OPEN: { status: 400, message: 'The listing is not open for new conversations' },
+  MSG_CONVERSATION_NOT_FOUND: { status: 404, message: 'The requested conversation does not exist' },
+  MSG_NOT_PARTICIPANT: { status: 403, message: 'You are not a participant of this conversation' },
+  MSG_BODY_INVALID: { status: 400, message: 'The message body is empty or too long' },
+  MSG_RATE_LIMITED: { status: 429, message: 'The daily message rate limit has been reached' },
+} as const satisfies Record<string, LedgerErrorMeta>;
+
+export type MessagingErrorCode = keyof typeof MESSAGING_ERROR_TABLE;
+
+export const MESSAGING_ERROR_CODES = Object.keys(MESSAGING_ERROR_TABLE) as MessagingErrorCode[];
+
+export const isMessagingErrorCode = (v: unknown): v is MessagingErrorCode =>
+  typeof v === 'string' && Object.prototype.hasOwnProperty.call(MESSAGING_ERROR_TABLE, v);
+
+/**
+ * ★ A5 收口（route 册 v2.31 §41.5 / data 册 v0.32 §38.4）：**`TG_*` Telegram 绑定码域**（5 码闭集）。
+ * ============================================================================
+ * 与 `MSG_*` 同族：不进 33 码关闭集、同 `message` 契约、共用 `errorMessageOf` 单一真源。
+ * i18n 键域 = `tg.err.<CODE>`（route 册 §41.5）。`TG_NOT_CONFIGURED` 冻结为 **503**
+ * （env 缺 = not-configured 形态，**非 500**，Z8 / route 册 §41.9）。
+ */
+export const TELEGRAM_ERROR_TABLE = {
+  TG_NOT_CONFIGURED: { status: 503, message: 'The Telegram integration is not configured on this deployment' },
+  TG_CODE_INVALID: { status: 400, message: 'The Telegram bind code is invalid, expired or already consumed' },
+  TG_TARGET_ACCOUNT_TAKEN: { status: 409, message: 'This Telegram account is already linked to another site account' },
+  TG_NOT_LINKED: { status: 400, message: 'This site account is not linked to a Telegram account' },
+  TG_WEBHOOK_UNAUTHORIZED: { status: 401, message: 'The webhook secret token is missing or does not match' },
+} as const satisfies Record<string, LedgerErrorMeta>;
+
+export type TelegramErrorCode = keyof typeof TELEGRAM_ERROR_TABLE;
+
+export const TELEGRAM_ERROR_CODES = Object.keys(TELEGRAM_ERROR_TABLE) as TelegramErrorCode[];
+
+export const isTelegramErrorCode = (v: unknown): v is TelegramErrorCode =>
+  typeof v === 'string' && Object.prototype.hasOwnProperty.call(TELEGRAM_ERROR_TABLE, v);
+
+/**
  * ★ S31 **单一真源**：任何对外错误码 ⇒ **人类可读稳定英文句**（R107 `message` 的唯一派生出口）。
  *   · `LEDGER_*`（33 码关闭集）⇒ `LEDGER_ERROR_TABLE[code].message`；
  *   · `AUTH_*`（不进关闭集）⇒ `AUTH_ERROR_MESSAGES[code]`；
+ *   · `MSG_*` / `TG_*`（A5 收口新域，均不进 33 码关闭集）⇒ `MESSAGING_ERROR_TABLE` / `TELEGRAM_ERROR_TABLE`；
  *   · 未登记码 ⇒ **通用英文兜底**（**绝不**回退成码本身 —— §3.3 条款 9′：`message` 严禁机读码）。
  * 落点：`fail` / `adminVerbError` 的第 4 参缺省、`sendAuthError` 的 `message`、`fromLedgerError` 的兜底支。
  */
 export const errorMessageOf = (code: string): string => {
   if (isLedgerErrorCode(code)) return LEDGER_ERROR_TABLE[code].message;
   if (isAuthErrorCode(code)) return AUTH_ERROR_MESSAGES[code];
+  if (isMessagingErrorCode(code)) return MESSAGING_ERROR_TABLE[code].message;
+  if (isTelegramErrorCode(code)) return TELEGRAM_ERROR_TABLE[code].message;
   return 'Request failed';
 };
 

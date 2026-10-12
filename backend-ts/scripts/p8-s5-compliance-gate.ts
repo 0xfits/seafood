@@ -69,7 +69,8 @@ const selfTest = (id: string, group: string, predicate: (v: unknown) => boolean,
 // ★ P9④ 冻结计数前推（沿 R-8-22）：注册点 85 → 87（BTTC 铸造/分解 2 新口 +2）。
 // ★ 8⑥ 续跑前推：注册点 87 → 88（审计台统一读口 +1 · GET /api/admin/audit/:table）。
 // ★ S11 注册点前推（沿 R-8-22）：注册点 88 → 89（S6 新增 GET /api/job/:jobId/submissions +1；逐 commit 归因 692f622）。
-const REG_POINTS_FROZEN = 89;
+// ★ A5 收口门前推（沿 R-8-22 冻结面前推族）：注册点 89 → 99（/api/messages 族 6 + /api/telegram 族 4 = +10；F19 读口扩展 +0）。
+const REG_POINTS_FROZEN = 99;
 // ★ P9④ 冻结计数前推（沿 R-8-22）：迁移文件数 30 → 33（+0032 / +0033 / +0034）。
 // ★ P9⑤ 冻结计数前推（沿 R-8-22）：迁移文件数 33 → 37（+0035 / +0036 / +0037 / +0038）。
 // ★ 8⑥ 续跑前推：迁移文件数 37 → 38（+0039 审计台权限键 manage_audit）。
@@ -78,7 +79,8 @@ const REG_POINTS_FROZEN = 89;
 // ★ S10 门前推：迁移文件数 40 → 41（+0042_job_settle_per_submission 每提交结算）。
 // ★ S26 台账 B9 门前推：迁移文件数 41 → 42（+0043_truncate_guard 给 15 张 append-only 表补 BEFORE TRUNCATE 守卫）。
 // ★ S50 台账 B23 修法 A 门前推：迁移文件数 42 → 43（+0044_restore_listing_deposit_leg 重放 0020：hold 家族守卫去 listing_deposit；**未 apply**）。
-const MIGRATIONS_FROZEN = 43;
+// ★ A5 收口门前推：迁移文件数 43 → 45（+0045_message_conversation / +0046_telegram_binding）。
+const MIGRATIONS_FROZEN = 45;
 const LISTING_NS_KEYS_FROZEN = 30;
 const ARBITRATION_NS_KEYS_FROZEN = 34;
 // ★ P9①（`route-layer.spec` v2.12 §27 · `R-9-13`）：`adminNav` **26 → 28**（+2 键 = `siteText` / `siteTextDesc`，

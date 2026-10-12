@@ -8,7 +8,7 @@
  *
  * ★ A–H 静态面 **零 DB / 零网络**（只 import 纯函数 + 读源码 / 迁移 / locale 文本）。
  * ★ I/K 库面 leg：**只连库**（结构面**活体**只读 + ★★ 四段真链路 + `R-9-23` 反事実直插 = 事务内 + 子步 `SAVEPOINT` + 末尾 `ROLLBACK`）；**零 HTTP**。
- * ★ `0032`/`0033`/`0034`/`0035`…`0044` **已 apply**（`schema_version = 0044` · `schema_migration` 43 行）⇒ 其 DB 级效果**转为活体 `checks`**；
+ * ★ `0032`/`0033`/`0034`/`0035`…`0046` **已 apply**（`schema_version = 0046` · `schema_migration` 45 行 · A5 收口 +`0045_message_conversation`/+`0046_telegram_binding`）⇒ 其 DB 级效果**转为活体 `checks`**；
  *   `pending_apply[]` **归零**（原 10 条库面 leg 全部落实，**不伪装绿**）。
  *   ★ 库面写一律**事务内 + 末尾 `ROLLBACK`**（append-only ⇒ 无 DELETE 复原路径）；**严禁** `UPDATE app_config`。
  *
@@ -74,7 +74,8 @@ const LOCALES: Record<string, Record<string, unknown>> = Object.fromEntries(
 
 // ---------------------------------------------------------------- 冻结常量 + 工具
 // ★ S11 注册点前推（沿 R-8-22）：注册点 88 → 89（S6 新增 GET /api/job/:jobId/submissions +1；逐 commit 归因 692f622）。
-const REG_POINTS_FROZEN = 89;
+// ★ A5 收口门前推（沿 R-8-22 冻结面前推族）：注册点 89 → 99（/api/messages 族 6 + /api/telegram 族 4 = +10；F19 读口扩展 +0）。
+const REG_POINTS_FROZEN = 99;
 const PER_VERB_FROZEN: Record<string, number> = { get: 38, post: 48, put: 0, patch: 1, delete: 2 };
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;
@@ -141,7 +142,7 @@ const WL_0032_M1_CREDIT = (mWhitelist ? (mWhitelist[1].match(/'([a-z_]+)'/g) || 
   const INJ = "  app.get('/api/p8s9-negsurface', (_req, res) => res.status(410).json({ ok: false }));\n";
   t('A5', 'registration', countRoutes(INDEX_TS + INJ) === REG_POINTS_FROZEN + 1,
     `★ 负对照：缩进注入一条路由 ⇒ 计数 ${REG_POINTS_FROZEN}→${REG_POINTS_FROZEN + 1}`, JSON.stringify({ injected: countRoutes(INDEX_TS + INJ) }));
-  selfTest('A1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 89 条路由的文本喂入「注册点 = 89」谓词 ⇒ 必须转红');
+  selfTest('A1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 99 条路由的文本喂入「注册点 = 99」谓词 ⇒ 必须转红');
 }
 
 // ============================================================================
@@ -515,8 +516,9 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
     live.schema_migration = sm[0];
     // ★ S27 库面前推（出处 = 本批 apply `0043_truncate_guard.sql`；S26 建、Zang apply）：库面 `schema_migration` 41 行/`0042` ⇒ 42 行/`0043`（15 张 append-only 表各补 1 枚 `BEFORE TRUNCATE` 守卫）。
     // ★ S51 apply 后库面前推（出处 = 本批 apply `0044_restore_listing_deposit_leg.sql`；Zang 亲做）：库面 42 行/`0043` ⇒ **43 行/`0044`**（`0044` 重放 `0020`：hold 家族守卫去 `listing_deposit`）。
-    t('K5', 'dbStructureLive', Number(sm[0].n) === 43 && String(sm[0].mx) === '0044',
-      '★ 迁移结构指纹：`schema_migration` = **43 行** · `max(version)` = **0044**（`0032`→…→`0044` 已 apply · `0043` TRUNCATE 守卫 · `0044` hold 守卫去 `listing_deposit` · 8⑥ 审计台权限键）', JSON.stringify(sm[0]));
+    // ★ A5 收口 apply 后库面前推（出处 = 本批 apply `0045_message_conversation.sql` + `0046_telegram_binding.sql`）：库面 43 行/`0044` ⇒ **45 行/`0046`**（站内信两表 DDL + Telegram 绑定列）。
+    t('K5', 'dbStructureLive', Number(sm[0].n) === 45 && String(sm[0].mx) === '0046',
+      '★ 迁移结构指纹：`schema_migration` = **45 行** · `max(version)` = **0046**（`0032`→…→`0046` 已 apply · `0043` TRUNCATE 守卫 · `0044` hold 守卫去 `listing_deposit` · 8⑥ 审计台权限键 · A5 站内信/Telegram 绑定）', JSON.stringify(sm[0]));
     selfTest('K5', 'dbStructureLive', (v) => String(v) === '0038', '0034', '把「未 apply（0034）」喂入「0038」谓词 ⇒ 必须转红');
 
     // ---------------------------------------------------------------- 四段真链路（单事务 + 子步 SAVEPOINT + 末尾 ROLLBACK）
@@ -760,7 +762,7 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
     offline: false,
     db_connections: dbConnections,
     http_calls: httpCalls,
-    note: 'A–H/L 静态面零 DB / 零 HTTP；I/K 库面 leg **只连库**（结构面**活体**只读 + `R-9-23` 反事実直插 + 四段真链路 = 事务内 + 末尾 ROLLBACK）。★ `0032`/`0033`/`0034`…`0038` **已 apply**（`schema_version` 0044 · `schema_migration` 43 行）⇒ 其 DB 级效果全部转为 K 段**活体 checks**，`pending_apply[]` **归零**（不伪装绿）。',
+    note: 'A–H/L 静态面零 DB / 零 HTTP；I/K 库面 leg **只连库**（结构面**活体**只读 + `R-9-23` 反事実直插 + 四段真链路 = 事务内 + 末尾 ROLLBACK）。★ `0032`/`0033`/`0034`…`0038` **已 apply**（`schema_version` 0046 · `schema_migration` 45 行）⇒ 其 DB 级效果全部转为 K 段**活体 checks**，`pending_apply[]` **归零**（不伪装绿）。',
     total: checks.length,
     passed: checks.length - failed.length,
     failed: failed.length,

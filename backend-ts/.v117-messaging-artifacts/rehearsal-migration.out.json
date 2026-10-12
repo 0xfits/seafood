@@ -1,0 +1,174 @@
+{
+  "gate": "v117-migration-rehearsal",
+  "results": {
+    "baseline": {
+      "rows": 43,
+      "max": "0044"
+    },
+    "S1_checksum_0001_0044_unchanged": {
+      "pass": true,
+      "detail": {
+        "baseline": {
+          "rows": 43,
+          "max": "0044"
+        },
+        "drift": [],
+        "file_count_0044era": 42
+      }
+    },
+    "S2_apply_in_tx_no_error": {
+      "pass": true,
+      "detail": {
+        "applyErr": null
+      }
+    },
+    "S3_schema_migration_45_0046": {
+      "pass": true,
+      "detail": {
+        "n": 45,
+        "mx": "0046"
+      }
+    },
+    "S4_tables_present": {
+      "pass": true,
+      "detail": {
+        "tables": "conversation,message"
+      }
+    },
+    "S5_triggers_5_present": {
+      "pass": true,
+      "detail": {
+        "count": 5,
+        "detail": {
+          "trg_conversation_no_delete": {
+            "tgenabled": "O",
+            "tgtype": 11,
+            "fn": "conversation_no_delete",
+            "tbl": "conversation"
+          },
+          "trg_conversation_no_truncate": {
+            "tgenabled": "O",
+            "tgtype": 34,
+            "fn": "conversation_no_truncate",
+            "tbl": "conversation"
+          },
+          "trg_conversation_read_mark_only": {
+            "tgenabled": "O",
+            "tgtype": 19,
+            "fn": "conversation_read_mark_only",
+            "tbl": "conversation"
+          },
+          "trg_message_no_truncate": {
+            "tgenabled": "O",
+            "tgtype": 34,
+            "fn": "message_no_truncate",
+            "tbl": "message"
+          },
+          "trg_message_no_update_or_delete": {
+            "tgenabled": "O",
+            "tgtype": 27,
+            "fn": "message_no_update_or_delete",
+            "tbl": "message"
+          }
+        }
+      }
+    },
+    "S6_functions_5_present": {
+      "pass": true,
+      "detail": {
+        "functions": "conversation_no_delete,conversation_no_truncate,conversation_read_mark_only,message_no_truncate,message_no_update_or_delete"
+      }
+    },
+    "S7_indexes_4_present": {
+      "pass": true,
+      "detail": {
+        "indexes": "idx_conversation_buyer,idx_conversation_seller,idx_message_conversation,idx_message_from_day"
+      }
+    },
+    "S8_fks_5_present": {
+      "pass": true,
+      "detail": {
+        "fks": "conversation_buyer_fk,conversation_listing_fk,conversation_seller_fk,message_conversation_fk,message_from_fk"
+      }
+    },
+    "S9_users_tg_columns_2": {
+      "pass": true,
+      "detail": [
+        {
+          "column_name": "tg_linked_at",
+          "data_type": "timestamp with time zone",
+          "is_nullable": "YES"
+        },
+        {
+          "column_name": "tg_user_id",
+          "data_type": "bigint",
+          "is_nullable": "YES"
+        }
+      ]
+    },
+    "S10_partial_unique_index": {
+      "pass": true,
+      "detail": {
+        "def": "CREATE UNIQUE INDEX idx_users_tg_user_id ON public.users USING btree (tg_user_id) WHERE (tg_user_id IS NOT NULL)"
+      }
+    },
+    "S11_privacy_no_public_tg_columns": {
+      "pass": true,
+      "detail": {
+        "bad": []
+      }
+    },
+    "S12_no_code_storage": {
+      "pass": true,
+      "detail": {
+        "codeTables": 0
+      }
+    },
+    "S13_conversation_insert_ok": {
+      "pass": true,
+      "detail": {
+        "listing": "70"
+      }
+    },
+    "S14_conversation_delete_blocked": {
+      "pass": true,
+      "detail": {
+        "sqlstate": "P0001"
+      }
+    },
+    "S15_conversation_restricted_update_blocked": {
+      "pass": true,
+      "detail": {
+        "sqlstate": "25P02"
+      }
+    },
+    "S16_message_truncate_blocked": {
+      "pass": true,
+      "detail": {
+        "sqlstate": "25P02"
+      }
+    },
+    "S17_message_update_blocked": {
+      "pass": true,
+      "detail": {
+        "sqlstate": "25P02"
+      }
+    },
+    "S18_rollback_schema_migration_43_0044": {
+      "pass": true,
+      "detail": {
+        "n": 43,
+        "mx": "0044"
+      }
+    },
+    "S19_rollback_zero_residue": {
+      "pass": true,
+      "detail": {
+        "tables": 0,
+        "tg_cols": 0,
+        "fns": 0
+      }
+    }
+  },
+  "fails": []
+}

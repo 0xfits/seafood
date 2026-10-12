@@ -65,7 +65,8 @@ const AK2_KEY = 'listing_deposit_policy';
 // ★ P9④ 冻结计数前推（沿 R-8-22）：注册点 85 → 87（BTTC 铸造/分解 2 新口 +2）。
 // ★ 8⑥ 续跑前推：注册点 87 → 88（审计台统一读口 +1 · GET /api/admin/audit/:table）。
 // ★ S11 注册点前推（沿 R-8-22）：注册点 88 → 89（S6 新增 GET /api/job/:jobId/submissions +1；逐 commit 归因 692f622）。
-const REG_POINTS_FROZEN = 89;
+// ★ A5 收口门前推（沿 R-8-22 冻结面前推族）：注册点 89 → 99（/api/messages 族 6 + /api/telegram 族 4 = +10；F19 读口扩展 +0）。
+const REG_POINTS_FROZEN = 99;
 /**
  * ★ `R-8-20`（本片新裁）注册点计数判据 —— **容忍前置空白**。
  * 改前判据 `^app\.` 写死**列 0** ⇒ **带缩进插入的路由不被计入**（缩进路由**仍是已注册路由**！）
@@ -82,7 +83,8 @@ const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).l
 // ★ S10 门前推：迁移文件数 40 → 41（+0042_job_settle_per_submission 每提交结算）。
 // ★ S26 台账 B9 门前推：迁移文件数 41 → 42（+0043_truncate_guard 给 15 张 append-only 表补 BEFORE TRUNCATE 守卫）。
 // ★ S50 台账 B23 修法 A 门前推：迁移文件数 42 → 43（+0044_restore_listing_deposit_leg 重放 0020：hold 家族守卫去 listing_deposit；**未 apply**）。
-const MIGRATIONS_FROZEN = 43;
+// ★ A5 收口门前推：迁移文件数 43 → 45（+0045_message_conversation / +0046_telegram_binding）。
+const MIGRATIONS_FROZEN = 45;
 const ENVELOPE_FIELDS = ['create_key', 'idempotency_key', 'idempotencyKey'];
 
 const readSrc = (rel: string): string => fs.readFileSync(path.resolve(REPO_ROOT, rel), 'utf8');

@@ -1,0 +1,43 @@
+{
+ "gate": "scripts/s41-00-identity-seq-collision-gate.ts",
+ "ts": "2026-10-12T11:13:14.964Z",
+ "criterion": "撞号判据 = nextval 落在已占用集合内（存在 col=nextval 的行）或 gap≤0 ⇒ FAIL；0<gap≤阈值 ⇒ WARN；否则 OK（S38 §1.2 纠偏）",
+ "self_proof": {
+  "recipients": 25,
+  "readings_ok": 25,
+  "fail": 0,
+  "warn": 0,
+  "unknown": 0,
+  "baseline": 23,
+  "baseline_flags": 0,
+  "new_fail": 0,
+  "gap_threshold": "1000",
+  "invalid": false,
+  "invalid_reason": null
+ },
+ "db": {
+  "db": "neondb",
+  "addr": "169.254.254.254/32",
+  "pgver": "18.6 (c021049)",
+  "host": "postgresql://neondb_owner:***@ep-holy-forest-b3fi7u3u.c-4.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
+ },
+ "state_summary": {
+  "OK": 25,
+  "WARN": 0,
+  "FAIL": 0,
+  "UNKNOWN": 0
+ },
+ "fail_columns": [],
+ "warn_columns": [],
+ "new_fail_columns": [],
+ "stale_baseline": [],
+ "added_receptors": [
+  "conversation.conversation_id",
+  "message.msg_id"
+ ],
+ "verdict": "GREEN",
+ "exit_code": 0
+}
+
+[自证] 受体数=25  读数数=25  违例数=0  基线数=23  新增=0  阈值=1000
+[ADDED] 库中存在但基线未登记：conversation.conversation_id, message.msg_id

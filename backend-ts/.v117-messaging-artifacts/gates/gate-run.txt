@@ -1,0 +1,49 @@
+# 16 门套 · 受控实例相位真读数（A5 收口：站内信 + Telegram bot 绑定/通知）
+# 轮次：Kong 第三次收尾（纠正调用口径 → ts-node 直执行）
+# 生成：2026-10-12（本机 CST）
+#
+# 调用口径（★ 纠正上轮 EXIT=127 的根因）：
+#   正确 = `cd backend-ts && npx ts-node --transpile-only scripts/<门>.ts`
+#   上轮错法 = `node node_modules/.bin/ts-node …`（.bin/ts-node 是 shell 包装脚本，喂给 node 即 MODULE_NOT_FOUND = 127）
+#   另：本机无 `timeout` 命令（上轮另一 127 来源），本次不用它，改由调用侧超时兜底。
+#
+# 受控实例：PORT=5792（严守 5792–5799 禁占区，未碰 5787/5788/5800/5555/5191）
+#   · LISTEN PID = 26839（node …/.bin/ts-node --transpile-only src/index.ts）
+#   · 父 PID     = 26458（npm exec ts-node …）
+#   · 就绪横幅   = "TypeScript backend running on port 5792"；/api/health ok=true · schema_version=0046
+#   · 收尾：kill 26839 26458 ⇒ 5792–5799 全空 ∧ 5787/5788/5555/5191 4/4 仍在听
+#
+# env 覆写（门的 base 全经 env，无一处硬编 5788 ⇒ 未改门）：
+#   PORT=5792 · P8S5_HTTP_MODE=after · P8S7_BASE=http://127.0.0.1:5792 · P8S8_BASE=… · P8S10_BASE=… · P8S11_BASE=…
+#
+# 逐门读数（逐门一进程，逐门登记）：
+#  门名                                 EXIT  计数            判定    红点
+#  ----                                 ----  ----            ----    ----
+#  p8-s1-app-config-gate                 0    24/24           GREEN
+#  p8-s2-fee-rebate-gate                 0    44/44           GREEN
+#  p8-s3-deposit-gate                    0    45/45           GREEN
+#  p8-s3b-address-gate                   0    38/38           GREEN
+#  p8-s4-currency-review-gate            0    79/79           GREEN
+#  p8-s5-compliance-gate                 0    117/117         GREEN
+#  p8-s5-02-ownership-gate               0    6/6             GREEN   （P8S5_HTTP_MODE=after）
+#  p8-s6-site-text-gate                  1    63/64           RED     A2 逐 verb 冻结向量未前推
+#  p8-s7-batt-checkin-gate               1    59/60           RED     A2 逐 verb 冻结向量未前推
+#  p8-s8-rating-timeliness-gate          1    91/92           RED     A2 逐 verb 冻结向量未前推
+#  p8-s9-bttc-gate                       1    99/100          RED     A2 逐 verb 冻结向量未前推
+#  p8-s10-invite-reward-gate             1    48/49           RED     A2 逐 verb 冻结向量未前推
+#  p8-s11-audit-console-gate             1    86/87           RED     I2 逐 verb 冻结向量未前推
+#  s36-00-identity-pk-form-gate          3    命中30/基线30/新增1  RED   基线行号漂移（:584→:586，同站点）
+#  p7b-03-offline-gates                  0    37/37 red=[]    GREEN
+#  s41-00-identity-seq-collision-gate    0    受体25/读数25/违例0 GREEN  （基线23，+2 为 0045 新列）
+#
+# 三分定性（★ 未改任何断言 / 未改基线，遵「本单只验」+「不得为凑绿改断言」）：
+#  红族①（6 门各 1 红，同一根因）= 门套「注册点前推族」只前推了 REG_POINTS_FROZEN(89→99)，
+#     兄弟常量 PER_VERB_FROZEN 未同步（仍 {get:38,post:48,put:0,patch:1,delete:2}，Σ=89）；
+#     实测逐 verb = {get:42,post:54,put:0,patch:1,delete:2}（Σ=99，与 REG_POINTS 自洽，A3 绿）。
+#     定性 = 「期望该前推」（非真回归：A1 注册点 99 绿、A3 Σ=99 绿）。最小修正 = get 38→42 · post 48→54（6 脚本）。
+#  红族②（s36-00）= 本单对 scripts/p8-s9-bttc-gate.ts 的既有编辑净 +2 行 ⇒ 原基线登记
+#     `p8-s9-bttc-gate.ts:584:currency` 位移至 :586 ⇒ 被读成「新增命中 1 + 基线陈旧 1」，实为同一站点。
+#     定性 = 「期望该前推（基线行号同步）」（非真回归：非新违例站点、非新撞号对）。
+#
+# 离线相位对照（历史口径，仅供比对）：无实例时 http 腿应红 = p8-s7 G8/G9/G10 · p8-s8 H5/H6/H7 ·
+#   p8-s10 K8 · p8-s11 K10 · p8-s5-02 退 EXIT 2；本相位（实例在场）上述点全绿。

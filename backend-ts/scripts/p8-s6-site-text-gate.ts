@@ -69,7 +69,8 @@ const selfTest = (id: string, group: string, predicate: (v: unknown) => boolean,
 // ★ P9④ 冻结计数前推（沿 R-8-22）：注册点 85 → 87（BTTC 铸造/分解 2 新口 +2）。
 // ★ 8⑥ 续跑前推：注册点 87 → 88（审计台统一读口 +1 · GET /api/admin/audit/:table）。
 // ★ S11 注册点前推（沿 R-8-22）：注册点 88 → 89（S6 新增 GET /api/job/:jobId/submissions +1；逐 commit 归因 692f622）。
-const REG_POINTS_FROZEN = 89;
+// ★ A5 收口门前推（沿 R-8-22 冻结面前推族）：注册点 89 → 99（/api/messages 族 6 + /api/telegram 族 4 = +10；F19 读口扩展 +0）。
+const REG_POINTS_FROZEN = 99;
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;
 const countVerb = (text: string, verb: string): number =>
@@ -115,7 +116,7 @@ const isUnauthenticatedRead = (block: string): boolean =>
 {
   const perVerb = { get: countVerb(INDEX_TS, 'get'), post: countVerb(INDEX_TS, 'post'), put: countVerb(INDEX_TS, 'put'), patch: countVerb(INDEX_TS, 'patch'), delete: countVerb(INDEX_TS, 'delete') };
   t('A1', 'registration', countRoutes(INDEX_TS) === REG_POINTS_FROZEN,
-    `注册点 = ${REG_POINTS_FROZEN}（P9① 公开读口 +1〔75→76〕⇒ P9② batt/签到 4 新口 +4〔76→80〕⇒ P9③ 评分/时效/订单 5 新口 +5〔80→85〕⇒ P9④ BTTC 铸造/分解 2 新口 +2〔85→87〕⇒ 8⑥ 审计台统一读口 +1〔87→88〕⇒ S6 新增 GET /api/job/:jobId/submissions +1〔88→89〕）`, countRoutes(INDEX_TS));
+    `注册点 = ${REG_POINTS_FROZEN}（P9① 公开读口 +1〔75→76〕⇒ P9② batt/签到 4 新口 +4〔76→80〕⇒ P9③ 评分/时效/订单 5 新口 +5〔80→85〕⇒ P9④ BTTC 铸造/分解 2 新口 +2〔85→87〕⇒ 8⑥ 审计台统一读口 +1〔87→88〕⇒ S6 新增 GET /api/job/:jobId/submissions +1〔88→89〕⇒ A5 收口 站内信 6 新口 + Telegram 绑定 4 新口〔89→99〕）`, countRoutes(INDEX_TS));
   t('A2', 'registration', JSON.stringify(perVerb) === JSON.stringify(PER_VERB_FROZEN),
     `逐 verb 逐字 = ${JSON.stringify(PER_VERB_FROZEN)}`, JSON.stringify(perVerb));
   t('A3', 'registration', Object.values(perVerb).reduce((a, b) => a + b, 0) === REG_POINTS_FROZEN,

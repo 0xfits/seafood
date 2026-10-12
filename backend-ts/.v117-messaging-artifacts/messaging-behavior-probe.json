@@ -1,0 +1,761 @@
+{
+  "run": "20261012T110529Z",
+  "started_at": "2026-10-12T11:05:29.477Z",
+  "ports": {
+    "configured": 5794,
+    "unconfigured": 5795
+  },
+  "negative_controls": [
+    {
+      "id": "NC1",
+      "what": "去掉频次闸（纯 INSERT 无 `count<limit`）",
+      "expect": "第 21 条落库（证明闸是承重的）",
+      "rows": 1
+    },
+    {
+      "id": "NC2",
+      "what": "关 message 闸后 UPDATE",
+      "expect": "UPDATE 生效 ⇒ 闸是禁止 UPDATE 的真实机制",
+      "rows": 22
+    },
+    {
+      "id": "NC3",
+      "what": "不带参与者过滤的会话读取（模拟 admin 旁路）",
+      "expect": "行可见 ⇒ 403 由准入码承担，非数据缺失",
+      "rows": 1
+    },
+    {
+      "id": "NC4",
+      "what": "webhook 缺 secret 实测形态",
+      "expect": "401（若断言「缺 secret ⇒ 200」则必红）",
+      "status": 401,
+      "would_be_red_if_expect_200": true
+    }
+  ],
+  "db": {
+    "before": {
+      "fingerprint": {
+        "conversations": 0,
+        "messages": 0,
+        "users": 64,
+        "listings": 24
+      },
+      "triggers": [
+        {
+          "tgname": "trg_conversation_no_delete",
+          "tgenabled": "O"
+        },
+        {
+          "tgname": "trg_conversation_no_truncate",
+          "tgenabled": "O"
+        },
+        {
+          "tgname": "trg_conversation_read_mark_only",
+          "tgenabled": "O"
+        },
+        {
+          "tgname": "trg_message_no_truncate",
+          "tgenabled": "O"
+        },
+        {
+          "tgname": "trg_message_no_update_or_delete",
+          "tgenabled": "O"
+        }
+      ]
+    },
+    "after": {
+      "fingerprint": {
+        "conversations": 0,
+        "messages": 0,
+        "users": 64,
+        "listings": 24
+      },
+      "triggers": [
+        {
+          "tgname": "trg_conversation_no_delete",
+          "tgenabled": "O"
+        },
+        {
+          "tgname": "trg_conversation_no_truncate",
+          "tgenabled": "O"
+        },
+        {
+          "tgname": "trg_conversation_read_mark_only",
+          "tgenabled": "O"
+        },
+        {
+          "tgname": "trg_message_no_truncate",
+          "tgenabled": "O"
+        },
+        {
+          "tgname": "trg_message_no_update_or_delete",
+          "tgenabled": "O"
+        }
+      ],
+      "purge": {
+        "deleted_messages": 20,
+        "deleted_conversations": 1
+      }
+    }
+  },
+  "http": {
+    "unauth_configured": {
+      "A1": {
+        "status": 401,
+        "code": "AUTH_UNAUTHORIZED"
+      },
+      "A2": {
+        "status": 401,
+        "code": "AUTH_UNAUTHORIZED"
+      },
+      "A3": {
+        "status": 401,
+        "code": "AUTH_UNAUTHORIZED"
+      },
+      "A4": {
+        "status": 401,
+        "code": "AUTH_UNAUTHORIZED"
+      },
+      "A5": {
+        "status": 401,
+        "code": "AUTH_UNAUTHORIZED"
+      },
+      "A6": {
+        "status": 401,
+        "code": "AUTH_UNAUTHORIZED"
+      },
+      "A7": {
+        "status": 401,
+        "code": "AUTH_UNAUTHORIZED"
+      },
+      "A8": {
+        "status": 401,
+        "code": "AUTH_UNAUTHORIZED"
+      },
+      "A9": {
+        "status": 401,
+        "code": "AUTH_UNAUTHORIZED"
+      }
+    },
+    "bind_start_configured": {
+      "status": 200,
+      "expires_in": 600,
+      "bot_username": "v117_probe_bot",
+      "code_prefix": "v1."
+    },
+    "bind_status": {
+      "status": 200,
+      "data": {
+        "tg_linked": false,
+        "tg_linked_at": null
+      },
+      "tg_user_id_present": false
+    },
+    "webhook_configured": {
+      "no_secret": 401,
+      "bad_secret": 401,
+      "ok_empty": 200,
+      "ok_hint": 200,
+      "ok_bad_code": 200
+    },
+    "bind_consume": {
+      "webhook": 200,
+      "db_tg_user_id": "770000123",
+      "bind_status": 200,
+      "tg_linked": true,
+      "unbind": 200,
+      "after": {
+        "tg_user_id": null,
+        "tg_linked_at": null
+      }
+    },
+    "degrade_unconfigured": {
+      "bind_start": 503,
+      "unbind": 503,
+      "bind_status": 503,
+      "webhook": 503,
+      "unread_count": 200
+    },
+    "f19": {
+      "status": 200,
+      "seller": {
+        "uid": 7,
+        "nickname": "0xe4b8…f66b",
+        "avatar": null
+      },
+      "full_evm_leak": false
+    },
+    "roundtrip": {
+      "conv": 17,
+      "unread_base": 0,
+      "ok200": 19,
+      "first_blocked": {
+        "i": 21,
+        "status": 429,
+        "code": "MSG_RATE_LIMITED",
+        "reason": "PER_CONVERSATION_DAILY"
+      }
+    }
+  },
+  "tx": {
+    "fixtures": {
+      "conv1": 13,
+      "conv2": 14,
+      "conv3": 15,
+      "conv6": 16
+    },
+    "rate_conv": {
+      "at19_rows": 1,
+      "at20_rows": 0,
+      "conv_n": 20,
+      "glob_n": 20,
+      "reason": "PER_CONVERSATION_DAILY"
+    },
+    "rate_global": {
+      "at199_rows": 1,
+      "conv6_at200_rows": 0,
+      "conv_n": 0,
+      "glob_n": 200,
+      "reason": "GLOBAL_DAILY"
+    },
+    "unread": {
+      "buyer_unread_before_read": 20,
+      "buyer_unread_after_read": 0,
+      "seller_unread": 1,
+      "newest": 705
+    },
+    "triggers": {
+      "msg_update": {
+        "ok": false,
+        "sqlstate": "P0001",
+        "message": "message is append-only"
+      },
+      "msg_delete": {
+        "ok": false,
+        "sqlstate": "P0001",
+        "message": "message is append-only"
+      },
+      "conv_delete": {
+        "ok": false,
+        "sqlstate": "P0001",
+        "message": "conversation is not deletable"
+      },
+      "conv_update_immut": {
+        "ok": false,
+        "sqlstate": "P0001",
+        "message": "conversation update is restricted to read watermarks and time_updated"
+      },
+      "conv_watermark_down": {
+        "ok": false,
+        "sqlstate": "P0001",
+        "message": "conversation read watermark is monotonic and cannot decrease"
+      },
+      "conv_time_updated": {
+        "ok": true,
+        "v": {
+          "command": "UPDATE",
+          "rowCount": 1,
+          "oid": null,
+          "rows": [],
+          "fields": [],
+          "_types": {
+            "_types": {
+              "arrayParser": {},
+              "builtins": {
+                "BOOL": 16,
+                "BYTEA": 17,
+                "CHAR": 18,
+                "INT8": 20,
+                "INT2": 21,
+                "INT4": 23,
+                "REGPROC": 24,
+                "TEXT": 25,
+                "OID": 26,
+                "TID": 27,
+                "XID": 28,
+                "CID": 29,
+                "JSON": 114,
+                "XML": 142,
+                "PG_NODE_TREE": 194,
+                "SMGR": 210,
+                "PATH": 602,
+                "POLYGON": 604,
+                "CIDR": 650,
+                "FLOAT4": 700,
+                "FLOAT8": 701,
+                "ABSTIME": 702,
+                "RELTIME": 703,
+                "TINTERVAL": 704,
+                "CIRCLE": 718,
+                "MACADDR8": 774,
+                "MONEY": 790,
+                "MACADDR": 829,
+                "INET": 869,
+                "ACLITEM": 1033,
+                "BPCHAR": 1042,
+                "VARCHAR": 1043,
+                "DATE": 1082,
+                "TIME": 1083,
+                "TIMESTAMP": 1114,
+                "TIMESTAMPTZ": 1184,
+                "INTERVAL": 1186,
+                "TIMETZ": 1266,
+                "BIT": 1560,
+                "VARBIT": 1562,
+                "NUMERIC": 1700,
+                "REFCURSOR": 1790,
+                "REGPROCEDURE": 2202,
+                "REGOPER": 2203,
+                "REGOPERATOR": 2204,
+                "REGCLASS": 2205,
+                "REGTYPE": 2206,
+                "UUID": 2950,
+                "TXID_SNAPSHOT": 2970,
+                "PG_LSN": 3220,
+                "PG_NDISTINCT": 3361,
+                "PG_DEPENDENCIES": 3402,
+                "TSVECTOR": 3614,
+                "TSQUERY": 3615,
+                "GTSVECTOR": 3642,
+                "REGCONFIG": 3734,
+                "REGDICTIONARY": 3769,
+                "JSONB": 3802,
+                "REGNAMESPACE": 4089,
+                "REGROLE": 4096
+              }
+            },
+            "text": {},
+            "binary": {}
+          },
+          "RowCtor": null,
+          "rowAsArray": false
+        }
+      }
+    },
+    "participant": {
+      "other": {
+        "ok": false,
+        "status": 403,
+        "code": "MSG_NOT_PARTICIPANT"
+      },
+      "buyer": {
+        "ok": true
+      },
+      "missing": {
+        "ok": false,
+        "status": 404,
+        "code": "MSG_CONVERSATION_NOT_FOUND"
+      }
+    }
+  },
+  "readings": {
+    "bind_code": {
+      "expires_in": 600,
+      "good_ok": true,
+      "tampered_ok": false,
+      "malformed_ok": false,
+      "expired_shape_ok": false
+    }
+  },
+  "checks": [
+    {
+      "id": "P1",
+      "group": "tg",
+      "pass": true,
+      "expect": "code.expires_in=600 · 合法验签 ok · 篡改/畸形 ⇒ 不 ok",
+      "actual": "{\"expires_in\":600,\"good_ok\":true,\"tampered_ok\":false,\"malformed_ok\":false,\"expired_shape_ok\":false}"
+    },
+    {
+      "id": "A0",
+      "group": "instance",
+      "pass": true,
+      "expect": "两受控实例 ready",
+      "actual": "{\"cfg\":true,\"nocfg\":true}"
+    },
+    {
+      "id": "A1",
+      "group": "authz",
+      "pass": true,
+      "expect": "401",
+      "actual": "401/AUTH_UNAUTHORIZED"
+    },
+    {
+      "id": "A2",
+      "group": "authz",
+      "pass": true,
+      "expect": "401",
+      "actual": "401/AUTH_UNAUTHORIZED"
+    },
+    {
+      "id": "A3",
+      "group": "authz",
+      "pass": true,
+      "expect": "401",
+      "actual": "401/AUTH_UNAUTHORIZED"
+    },
+    {
+      "id": "A4",
+      "group": "authz",
+      "pass": true,
+      "expect": "401",
+      "actual": "401/AUTH_UNAUTHORIZED"
+    },
+    {
+      "id": "A5",
+      "group": "authz",
+      "pass": true,
+      "expect": "401",
+      "actual": "401/AUTH_UNAUTHORIZED"
+    },
+    {
+      "id": "A6",
+      "group": "authz",
+      "pass": true,
+      "expect": "401",
+      "actual": "401/AUTH_UNAUTHORIZED"
+    },
+    {
+      "id": "A7",
+      "group": "authz",
+      "pass": true,
+      "expect": "401",
+      "actual": "401/AUTH_UNAUTHORIZED"
+    },
+    {
+      "id": "A8",
+      "group": "authz",
+      "pass": true,
+      "expect": "401",
+      "actual": "401/AUTH_UNAUTHORIZED"
+    },
+    {
+      "id": "A9",
+      "group": "authz",
+      "pass": true,
+      "expect": "401",
+      "actual": "401/AUTH_UNAUTHORIZED"
+    },
+    {
+      "id": "A10",
+      "group": "authz",
+      "pass": true,
+      "expect": "401（鉴权先于 env 降级）",
+      "actual": "401/AUTH_UNAUTHORIZED"
+    },
+    {
+      "id": "A11",
+      "group": "authz",
+      "pass": true,
+      "expect": "401",
+      "actual": "401/AUTH_UNAUTHORIZED"
+    },
+    {
+      "id": "B1",
+      "group": "tg",
+      "pass": true,
+      "expect": "200 · expires_in=600 · code 可验签",
+      "actual": "200 expires_in=600 code_ok=true"
+    },
+    {
+      "id": "B2",
+      "group": "tg",
+      "pass": true,
+      "expect": "200 · {tg_linked:false,tg_linked_at:null} · **无 tg_user_id**",
+      "actual": "200 keys=tg_linked,tg_linked_at tg_user_id_present=false"
+    },
+    {
+      "id": "B3",
+      "group": "tg",
+      "pass": true,
+      "expect": "400 TG_NOT_LINKED（未绑定却解绑）",
+      "actual": "400/TG_NOT_LINKED"
+    },
+    {
+      "id": "C1",
+      "group": "webhook",
+      "pass": true,
+      "expect": "401 TG_WEBHOOK_UNAUTHORIZED（缺 secret）",
+      "actual": "401/TG_WEBHOOK_UNAUTHORIZED"
+    },
+    {
+      "id": "C2",
+      "group": "webhook",
+      "pass": true,
+      "expect": "401（错 secret）",
+      "actual": "401/TG_WEBHOOK_UNAUTHORIZED"
+    },
+    {
+      "id": "C3",
+      "group": "webhook",
+      "pass": true,
+      "expect": "200（合法 secret + 无 message）",
+      "actual": "200"
+    },
+    {
+      "id": "C4",
+      "group": "webhook",
+      "pass": true,
+      "expect": "200（合法 secret + 非 /start 文本 ⇒ 仍 200）",
+      "actual": "200"
+    },
+    {
+      "id": "C5",
+      "group": "webhook",
+      "pass": true,
+      "expect": "200（业务失败〔code 无效〕也恒 200 —— Telegram 重试语义）",
+      "actual": "200"
+    },
+    {
+      "id": "C6",
+      "group": "tg",
+      "pass": true,
+      "expect": "webhook 合法 code ⇒ 200 · users.tg_user_id 真落 770000123 · bind/status tg_linked:true（修复后绑得通）",
+      "actual": "{\"webhook\":200,\"db_tg_user_id\":\"770000123\",\"bind_status\":200,\"tg_linked\":true}"
+    },
+    {
+      "id": "C7",
+      "group": "tg",
+      "pass": true,
+      "expect": "解绑 ⇒ 200 · 该 users 行还原（tg_user_id/tg_linked_at 归 null）⇒ 净写 0",
+      "actual": "unbind=200 after={\"tg_user_id\":null,\"tg_linked_at\":null}"
+    },
+    {
+      "id": "D1",
+      "group": "degrade",
+      "pass": true,
+      "expect": "503 TG_NOT_CONFIGURED",
+      "actual": "503/TG_NOT_CONFIGURED"
+    },
+    {
+      "id": "D2",
+      "group": "degrade",
+      "pass": true,
+      "expect": "503 TG_NOT_CONFIGURED",
+      "actual": "503/TG_NOT_CONFIGURED"
+    },
+    {
+      "id": "D3",
+      "group": "degrade",
+      "pass": true,
+      "expect": "503 TG_NOT_CONFIGURED",
+      "actual": "503/TG_NOT_CONFIGURED"
+    },
+    {
+      "id": "D4",
+      "group": "degrade",
+      "pass": true,
+      "expect": "503 TG_NOT_CONFIGURED（§41.9 明列 #10 webhook 面）",
+      "actual": "503/TG_NOT_CONFIGURED"
+    },
+    {
+      "id": "D5",
+      "group": "degrade",
+      "pass": true,
+      "expect": "200（站内信永不降级）",
+      "actual": "200"
+    },
+    {
+      "id": "E1",
+      "group": "f19",
+      "pass": true,
+      "expect": "200 · data.seller={uid:7, nickname:掩码, avatar:null}",
+      "actual": "200 seller={\"uid\":7,\"nickname\":\"0xe4b8…f66b\",\"avatar\":null}"
+    },
+    {
+      "id": "E2",
+      "group": "f19",
+      "pass": true,
+      "expect": "nickname = EVM 掩码（0x前4…后4）· 响应**不含完整 EVM**",
+      "actual": "nickname=0xe4b8…f66b full_evm_leak=false"
+    },
+    {
+      "id": "T1",
+      "group": "rate",
+      "pass": true,
+      "expect": "19 条 ⇒ 放行(1 行) · 20 条 ⇒ 第 21 条必拒(0 行) · reason=PER_CONVERSATION_DAILY",
+      "actual": "{\"at19_rows\":1,\"at20_rows\":0,\"conv_n\":20,\"glob_n\":20,\"reason\":\"PER_CONVERSATION_DAILY\"}"
+    },
+    {
+      "id": "T2",
+      "group": "rate",
+      "pass": true,
+      "expect": "全局 199 ⇒ 放行(1 行) · 全局 200 ⇒ 第 201 条必拒(0 行) · reason=GLOBAL_DAILY",
+      "actual": "{\"at199_rows\":1,\"conv6_at200_rows\":0,\"conv_n\":0,\"glob_n\":200,\"reason\":\"GLOBAL_DAILY\"}"
+    },
+    {
+      "id": "T3",
+      "group": "unread",
+      "pass": true,
+      "expect": "发送后买方未读 = 20 · 买方回 1 条 ⇒ 卖方未读 = 1（+1）· 标读后买方未读 = 0（查询期聚合）",
+      "actual": "{\"buyer_unread_before_read\":20,\"buyer_unread_after_read\":0,\"seller_unread\":1,\"newest\":705}"
+    },
+    {
+      "id": "T4",
+      "group": "append-only",
+      "pass": true,
+      "expect": "message UPDATE/DELETE 拒(P0001) · conversation DELETE 拒 · 非允许列 UPDATE 拒 · 水位回退拒 · time_updated 允许",
+      "actual": "{\"msg_update\":\"P0001:message is append-only\",\"msg_delete\":\"P0001\",\"conv_delete\":\"P0001:conversation is not deletable\",\"immut\":\"P0001\",\"wm_down\":\"P0001:conversation read watermark is monotonic and cannot decrease\",\"time_updated_ok\":true}"
+    },
+    {
+      "id": "T5",
+      "group": "authz",
+      "pass": true,
+      "expect": "非参与者 ⇒ 403 MSG_NOT_PARTICIPANT · 参与者 ⇒ ok · 不存在会话 ⇒ 404 MSG_CONVERSATION_NOT_FOUND",
+      "actual": "{\"other\":{\"ok\":false,\"status\":403,\"code\":\"MSG_NOT_PARTICIPANT\"},\"buyer\":{\"ok\":true},\"missing\":{\"ok\":false,\"status\":404,\"code\":\"MSG_CONVERSATION_NOT_FOUND\"}}"
+    },
+    {
+      "id": "NC1",
+      "group": "negative",
+      "pass": true,
+      "expect": "去闸后第 21 条落库（原断言若在此口径下断 429 ⇒ 必红）",
+      "actual": "rows=1"
+    },
+    {
+      "id": "NC2",
+      "group": "negative",
+      "pass": true,
+      "expect": "关闸后 UPDATE 生效（⇒ 未关时必拒 = 闸承重）",
+      "actual": "rows=22"
+    },
+    {
+      "id": "NC3",
+      "group": "negative",
+      "pass": true,
+      "expect": "不过滤 ⇒ 会话可见（⇒ 准入闸承重；旁路实现会把 403 变 200）",
+      "actual": "rows=1"
+    },
+    {
+      "id": "H1",
+      "group": "send",
+      "pass": true,
+      "expect": "200 · created:true",
+      "actual": "200 id=17 created=true"
+    },
+    {
+      "id": "H2",
+      "group": "send",
+      "pass": true,
+      "expect": "自然幂等：重放 ⇒ created:false 同 id",
+      "actual": "200 created=false"
+    },
+    {
+      "id": "H3",
+      "group": "send",
+      "pass": true,
+      "expect": "400 MSG_SELF_CONVERSATION（卖家本人）",
+      "actual": "400/MSG_SELF_CONVERSATION"
+    },
+    {
+      "id": "H4",
+      "group": "send",
+      "pass": true,
+      "expect": "200 · msg_id>0",
+      "actual": "200 msg_id=707"
+    },
+    {
+      "id": "H5",
+      "group": "unread",
+      "pass": true,
+      "expect": "unread_total = 0+1",
+      "actual": "1"
+    },
+    {
+      "id": "H6",
+      "group": "list",
+      "pass": true,
+      "expect": "200 · 1 行 · role=buyer · counterpart=seller",
+      "actual": "200 rows=1 role=buyer"
+    },
+    {
+      "id": "H7",
+      "group": "unread",
+      "pass": true,
+      "expect": "标读 last_read=707 ⇒ unread_total 回 0",
+      "actual": "read=200/707 unread=0"
+    },
+    {
+      "id": "H8",
+      "group": "idempotency",
+      "pass": true,
+      "expect": "200 idempotent_replay:true · 同 msg_id · 行数不变（不计数）",
+      "actual": "200 replay=true rows 1→1"
+    },
+    {
+      "id": "H9",
+      "group": "idempotency",
+      "pass": true,
+      "expect": "409 LEDGER_IDEMPOTENCY_CONFLICT（同键异内容）",
+      "actual": "409/LEDGER_IDEMPOTENCY_CONFLICT"
+    },
+    {
+      "id": "H10",
+      "group": "send",
+      "pass": true,
+      "expect": "缺键 400 REQUIRED · 坏前缀 400 INVALID · 空 body 400 MSG_BODY_INVALID/EMPTY · 超长 TOO_LONG",
+      "actual": "{\"nk\":\"400/LEDGER_IDEMPOTENCY_KEY_REQUIRED\",\"bk\":\"400/LEDGER_IDEMPOTENCY_KEY_INVALID\",\"be\":\"400/MSG_BODY_INVALID/EMPTY\",\"bl\":\"400/MSG_BODY_INVALID/TOO_LONG\"}"
+    },
+    {
+      "id": "H11",
+      "group": "authz",
+      "pass": true,
+      "expect": "非参与者 ⇒ 读/写/标读 全 403 MSG_NOT_PARTICIPANT",
+      "actual": "{\"read\":\"403/MSG_NOT_PARTICIPANT\",\"write\":\"403/MSG_NOT_PARTICIPANT\",\"mark\":\"403/MSG_NOT_PARTICIPANT\"}"
+    },
+    {
+      "id": "H12",
+      "group": "authz",
+      "pass": true,
+      "expect": "零管理员旁路：admin(uid=10) 非参与者 ⇒ 403（非 200）",
+      "actual": "403/403"
+    },
+    {
+      "id": "H13",
+      "group": "authz",
+      "pass": true,
+      "expect": "404 MSG_CONVERSATION_NOT_FOUND",
+      "actual": "404/MSG_CONVERSATION_NOT_FOUND"
+    },
+    {
+      "id": "H14",
+      "group": "rate",
+      "pass": true,
+      "expect": "S 累计 20 条放行 · 第 21 条 ⇒ 429 MSG_RATE_LIMITED · reason=PER_CONVERSATION_DAILY",
+      "actual": "{\"ok200\":19,\"first_blocked\":{\"i\":21,\"status\":429,\"code\":\"MSG_RATE_LIMITED\",\"reason\":\"PER_CONVERSATION_DAILY\"}}"
+    },
+    {
+      "id": "H15",
+      "group": "list",
+      "pass": true,
+      "expect": "会话列表含该会话 · 买方未读 19（标读水位 = m1 ⇒ 其后 19 条未读）",
+      "actual": "200 unread=19"
+    },
+    {
+      "id": "Z1",
+      "group": "net-zero",
+      "pass": true,
+      "expect": "行数指纹回基线 + 夹具 0 残留",
+      "actual": "before={\"conversations\":0,\"messages\":0,\"users\":64,\"listings\":24} after={\"conversations\":0,\"messages\":0,\"users\":64,\"listings\":24} rest=0"
+    },
+    {
+      "id": "Z2",
+      "group": "net-zero",
+      "pass": true,
+      "expect": "两表全部闸复位（tgenabled=O）",
+      "actual": "[{\"tgname\":\"trg_conversation_no_delete\",\"tgenabled\":\"O\"},{\"tgname\":\"trg_conversation_no_truncate\",\"tgenabled\":\"O\"},{\"tgname\":\"trg_conversation_read_mark_only\",\"tgenabled\":\"O\"},{\"tgname\":\"trg_message_no_truncate\",\"tgenabled\":\"O\"},{\"tgname\":\"trg_message_no_update_or_delete\",\"tgenabled\":\"O\"}]"
+    },
+    {
+      "id": "NC4",
+      "group": "negative",
+      "pass": true,
+      "expect": "缺 secret ≠ 200（⇒「改为 200」的断言必红）",
+      "actual": "status=401"
+    }
+  ],
+  "summary": {
+    "total": 56,
+    "passed": 56,
+    "failed": 0,
+    "red": []
+  },
+  "finished_at": "2026-10-12T11:08:03.657Z"
+}

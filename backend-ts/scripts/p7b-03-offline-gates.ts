@@ -138,9 +138,10 @@ const base: RefundActorInput = { actorUid: 500, sellerUid: 7, buyerUid: 8, canAc
   //     → 71 0d86ce5（b8-4 currency 两读写口 +2）→ 75 3a36ba5（b8-5 listing/arbitration 四口 +4）
   //     → 76 38648c1（p9-1 GET /api/role-names +1）→ 80 4c40b47（p9-2 batt/checkin 四口 +4）
   //     → 85 627032b（p9-3 评分/时效/发货收货五口 +5）→ 87 eb29831（p9-4 bttc mint/burn +2）
-  //     → 88 614ae53（p8-6 审计台读口 +1）→ 89 692f622（S6 GET /api/job/:jobId/submissions +1）。
-  //     净 +21 ⇒ 68 + 21 = 89。`da65f13`/`9bd1df0` 无路由增改（S6b/S16）。
-  ck.t('AC10-2', '注册点 = 89（自 S10 冻结面 68 前推 +21；逐 rev 出处见上方注释）', regs === 89, `registration_points=${regs}`);
+  //     → 88 614ae53（p8-6 审计台读口 +1）→ 89 692f622（S6 GET /api/job/:jobId/submissions +1）
+  //     → 99 本单（A5 收口：站内信 /api/messages 族 6 + Telegram /api/telegram 族 4 = +10）。
+  //     净 +21 ⇒ 68 + 21 = 89；本单再 +10 ⇒ 89 + 10 = 99。`da65f13`/`9bd1df0` 无路由增改（S6b/S16）。
+  ck.t('AC10-2', '注册点 = 99（自 S10 冻结面 68 前推 +21 · 本单 A5 收口再 +10；逐 rev 出处见上方注释）', regs === 99, `registration_points=${regs}`);
   ck.t('AC10-3', '退款路由仍**复用同路径**（无 `/api/admin/listing-orders`）', !/\/api\/admin\/listing-orders/.test(INDEX_TS) && /app\.post\('\/api\/listing-orders\/:orderId\/refund'/.test(INDEX_TS), 'ok');
   ck.t('AC10-4', '对外出口 = 既有 `sendSuccess` + `sendVerbError`（R107；无新增顶层响应键）',
     INDEX_TS.indexOf("sendSuccess(res, result.view, result.replay ? 'Listing order refunded") !== -1 &&

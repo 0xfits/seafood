@@ -83,7 +83,8 @@ const countOf = (hay: string, re: RegExp): number => (hay.match(re) || []).lengt
 const B = (v: number | string): bigint => BigInt(v);
 
 // ★ S11 注册点前推（沿 R-8-22）：注册点 88 → 89（S6 新增 GET /api/job/:jobId/submissions +1；逐 commit 归因 692f622）。
-const REG_POINTS_FROZEN = 89;
+// ★ A5 收口门前推（沿 R-8-22 冻结面前推族）：注册点 89 → 99（/api/messages 族 6 + /api/telegram 族 4 = +10；F19 读口扩展 +0）。
+const REG_POINTS_FROZEN = 99;
 const PER_VERB_FROZEN: Record<string, number> = { get: 38, post: 48, put: 0, patch: 1, delete: 2 };
 const W6 = [2600, 1700, 700, 2600, 1700, 700];   // 对称 `[U1,U2,U3,D1,D2,D3]`（Σ = 10000）
 const WORKER = '1000';
@@ -106,7 +107,7 @@ const NEW_KIND = 'invite_first_task_reward';
   const INJ = "  app.get('/api/p8s10-negsurface', (_req, res) => res.status(410).json({ ok: false }));\n";
   t('A5', 'registration', countRoutes(INDEX_TS + INJ) === REG_POINTS_FROZEN + 1,
     `★ 负对照：缩进注入一条路由 ⇒ 计数 ${REG_POINTS_FROZEN}→${REG_POINTS_FROZEN + 1}`, JSON.stringify({ injected: countRoutes(INDEX_TS + INJ) }));
-  selfTest('A1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 89 条路由的文本喂入「注册点 = 89」谓词 ⇒ 必须转红');
+  selfTest('A1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 99 条路由的文本喂入「注册点 = 99」谓词 ⇒ 必须转红');
 }
 
 // ============================================================================
@@ -327,8 +328,8 @@ const strOf = (v: unknown): string => (v === null || v === undefined ? '' : Stri
     const sm = (await readQuery<{ n: string; mx: string | null }>(`SELECT count(*)::int AS n, max(version) AS mx FROM public.schema_migration`))[0];
     dbConnections += 1;
     // ★ S27 库面前推（出处 = apply `0043_truncate_guard.sql`）：41 行/`0042` ⇒ 42 行/`0043`。★ S51 apply 后前推（出处 = apply `0044_restore_listing_deposit_leg.sql`；Zang 亲做）：42 行/`0043` ⇒ **43 行/`0044`**。
-    kg('K2', Number(sm.n) === 43 && String(sm.mx) === '0044',
-      '★ `schema_migration` = **43 行** · `max(version)` = **0044**（`0035`→…→`0044` 已 apply · `0043` TRUNCATE 守卫 · `0044` hold 守卫去 `listing_deposit` · 8⑥ 审计台权限键）', JSON.stringify(sm));
+    kg('K2', Number(sm.n) === 45 && String(sm.mx) === '0046',
+      '★ `schema_migration` = **45 行** · `max(version)` = **0046**（`0035`→…→`0046` 已 apply · `0043` TRUNCATE 守卫 · `0044` hold 守卫去 `listing_deposit` · 8⑥ 审计台权限键 · A5 站内信/Telegram 绑定）', JSON.stringify(sm));
 
     // ---------------- K3–K7 · 行为真读数（事务内 + 末尾 ROLLBACK） ----------------
     const sp = async <T>(tx: TxClient, name: string, fn: () => Promise<T>): Promise<{ ok: boolean; v?: T; sqlstate?: string; message?: string; reason?: string | null }> => {

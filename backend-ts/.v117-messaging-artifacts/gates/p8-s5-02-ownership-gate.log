@@ -1,0 +1,86 @@
+{
+ "mode": "after",
+ "total": 6,
+ "passed": 6,
+ "failed": 0,
+ "failed_ids": [],
+ "readings": [
+  {
+   "actor": "admin",
+   "uid": 1,
+   "cancel": {
+    "status": 409,
+    "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+    "reason": null
+   },
+   "review_reject": {
+    "status": 409,
+    "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+    "reason": null
+   },
+   "review_approve": {
+    "status": 200,
+    "code": null,
+    "reason": null
+   }
+  },
+  {
+   "actor": "employer",
+   "uid": 11,
+   "cancel": {
+    "status": 409,
+    "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+    "reason": null
+   },
+   "review_reject": {
+    "status": 409,
+    "code": "LEDGER_CURRENCY_INVALID_TRANSITION",
+    "reason": null
+   },
+   "review_approve": {
+    "status": 200,
+    "code": null,
+    "reason": null
+   }
+  },
+  {
+   "actor": "non_admin",
+   "uid": 3,
+   "cancel": {
+    "status": 403,
+    "code": "AUTH_FORBIDDEN",
+    "reason": "NOT_ADMIN"
+   },
+   "review_reject": {
+    "status": 403,
+    "code": "AUTH_FORBIDDEN",
+    "reason": "NOT_ADMIN"
+   },
+   "review_approve": {
+    "status": 403,
+    "code": "AUTH_FORBIDDEN",
+    "reason": "NOT_ADMIN"
+   }
+  },
+  {
+   "actor": "perm_limited",
+   "uid": 910004,
+   "cancel": {
+    "status": 403,
+    "code": "AUTH_FORBIDDEN",
+    "reason": "PERMISSION_NOT_GRANTED"
+   },
+   "review_reject": {
+    "status": 403,
+    "code": "AUTH_FORBIDDEN",
+    "reason": "PERMISSION_NOT_GRANTED"
+   },
+   "review_approve": {
+    "status": 403,
+    "code": "AUTH_FORBIDDEN",
+    "reason": "PERMISSION_NOT_GRANTED"
+   }
+  }
+ ]
+}
+ARTIFACT /Users/kevin/bistro/seafood/backend-ts/.p8s5-artifacts/p8s5-http-20261012T111053Z/http.json

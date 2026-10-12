@@ -8,8 +8,8 @@
  *
  * ★ A–J 静态面 **零 DB / 零网络**（只 import 纯函数 + 读源码 / 迁移 / locale 文本）。
  * ★ K 库面 leg 转真 checks（连库 + HTTP · `0042` 已 apply）：
- *   · 结构面活体只读（`schema_migration` 43·0044 / `admin_permission` 12 含 `manage_audit` /
- *     `super_admin` 12 / 基表 34 / 14 面 append-only 触发器在场）；
+ *   · 结构面活体只读（`schema_migration` 45·0046 / `admin_permission` 12 含 `manage_audit` /
+ *     `super_admin` 12 / 基表 36（A5 收口 +`conversation`/`message`）/ 14 面 append-only 触发器在场）；
  *   · 14 面逐表只读真取数（`DatabaseService.readAuditPage` 走生产同一取数口）；
  *   · keyset 分页（`ledger_entry` 两页无重叠）+ 过滤正读（非假过滤）；
  *   · 受控实例真 HTTP（`P8S11_BASE` 默认 `127.0.0.1:5797`）：`401` / `200` / `400`（非白名单 /
@@ -94,7 +94,8 @@ const AUDIT_ROUTE_BLOCK = routeBlock(AUDIT_ROUTE_DECL);
 
 // 8⑥ 冻结计数前推（沿 R-8-22）：注册点 87 → 88（审计台统一读口 +1 · get）。
 // ★ S11 注册点前推（沿 R-8-22）：注册点 88 → 89（S6 新增 GET /api/job/:jobId/submissions +1；逐 commit 归因 692f622）。
-const REG_POINTS_FROZEN = 89;
+// ★ A5 收口门前推（沿 R-8-22 冻结面前推族）：注册点 89 → 99（/api/messages 族 6 + /api/telegram 族 4 = +10；F19 读口扩展 +0）。
+const REG_POINTS_FROZEN = 99;
 const PER_VERB_FROZEN: Record<string, number> = { get: 38, post: 48, put: 0, patch: 1, delete: 2 };
 
 // ---------------------------------------------------------------------------
@@ -339,7 +340,7 @@ const planOf = (table: string, query: Record<string, unknown> = {}) => {
   const authClosed = /const ALL_ADMIN_PERMISSIONS = \[[\s\S]*?'manage_audit'[\s\S]*?\] as const;/.test(DATABASE_TS)
     && /permissions:\s*\[[\s\S]*?'manage_audit'[\s\S]*?\]/.test(ADMIN_UTILS);
   t('I9', 'auth', authClosed, '权限键 `manage_audit` 三处编码同集（后端 `ALL_ADMIN_PERMISSIONS` ∧ 前端 `admin-utils.js` 兜底）', authClosed);
-  selfTest('I1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 89 条路由的文本喂入「注册点 = 89」谓词 ⇒ 必须转红');
+  selfTest('I1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 99 条路由的文本喂入「注册点 = 99」谓词 ⇒ 必须转红');
 }
 
 // ============================================================================
@@ -467,8 +468,8 @@ const strOf = (v: unknown): string => (v === null || v === undefined ? '' : Stri
       `SELECT count(*)::int AS n, max(version) AS mx FROM public.schema_migration`))[0];
     dbConnections += 1;
     // ★ S27 库面前推（出处 = apply `0043_truncate_guard.sql`）：41 行/`0042` ⇒ 42 行/`0043`。★ S51 apply 后前推（出处 = apply `0044_restore_listing_deposit_leg.sql`；Zang 亲做）：42 行/`0043` ⇒ **43 行/`0044`**。
-    kg('K1', Number(sm.n) === 43 && String(sm.mx) === '0044',
-      '★ `schema_migration` = **43 行** · `max(version)` = **0044**（`0043` 已 apply · TRUNCATE 守卫 · `0044` hold 守卫去 `listing_deposit`）', JSON.stringify(sm));
+    kg('K1', Number(sm.n) === 45 && String(sm.mx) === '0046',
+      '★ `schema_migration` = **45 行** · `max(version)` = **0046**（`0043` TRUNCATE 守卫 · `0044` hold 守卫去 `listing_deposit` · A5 `0045`/`0046` 站内信 + Telegram 绑定已 apply）', JSON.stringify(sm));
     const ap = (await readQuery<{ n: string; has: boolean }>(
       `SELECT count(*)::int AS n, bool_or(permission_key='manage_audit') AS has FROM public.admin_permission`))[0];
     kg('K2', Number(ap.n) === 12 && ap.has === true,
@@ -479,7 +480,7 @@ const strOf = (v: unknown): string => (v === null || v === undefined ? '' : Stri
       '★ 活体 `super_admin` 权限 = **12** · 含 `manage_audit`（新增键默认同给）', JSON.stringify(sa));
     const bt = (await readQuery<{ n: string }>(
       `SELECT count(*)::int AS n FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'`))[0];
-    kg('K4', Number(bt.n) === 34, '★ 基表仍 **34**（`0039` 零 DDL · 零新对象）', JSON.stringify(bt));
+    kg('K4', Number(bt.n) === 36, '★ 基表 = **36**（34 + A5 收口 `0045` 新增 `conversation`/`message` 两表）', JSON.stringify(bt));
 
     // K5 · 14 面 append-only 触发器在场（只读目录）
     const ao = await readQuery<{ n: string }>(

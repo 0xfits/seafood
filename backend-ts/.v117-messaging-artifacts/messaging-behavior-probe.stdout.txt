@@ -1,0 +1,64 @@
+[2026-10-12T11:05:29.477Z] === A5 messaging behavior probe run=20261012T110529Z ===
+[2026-10-12T11:05:31.079Z] DB_BEFORE {"conversations":0,"messages":0,"users":64,"listings":24}
+[2026-10-12T11:05:31.081Z]   PASS P1 [tg] expect=code.expires_in=600 · 合法验签 ok · 篡改/畸形 ⇒ 不 ok actual={"expires_in":600,"good_ok":true,"tampered_ok":false,"malformed_ok":false,"expired_shape_ok":false}
+[2026-10-12T11:05:33.075Z] instance :5794 pid=21282 ready=true
+[2026-10-12T11:05:34.991Z] instance :5795 pid=21284 ready=true
+[2026-10-12T11:05:34.991Z]   PASS A0 [instance] expect=两受控实例 ready actual={"cfg":true,"nocfg":true}
+[2026-10-12T11:05:35.014Z]   PASS A1 [authz] expect=401 actual=401/AUTH_UNAUTHORIZED
+[2026-10-12T11:05:35.019Z]   PASS A2 [authz] expect=401 actual=401/AUTH_UNAUTHORIZED
+[2026-10-12T11:05:35.022Z]   PASS A3 [authz] expect=401 actual=401/AUTH_UNAUTHORIZED
+[2026-10-12T11:05:35.024Z]   PASS A4 [authz] expect=401 actual=401/AUTH_UNAUTHORIZED
+[2026-10-12T11:05:35.026Z]   PASS A5 [authz] expect=401 actual=401/AUTH_UNAUTHORIZED
+[2026-10-12T11:05:35.028Z]   PASS A6 [authz] expect=401 actual=401/AUTH_UNAUTHORIZED
+[2026-10-12T11:05:35.031Z]   PASS A7 [authz] expect=401 actual=401/AUTH_UNAUTHORIZED
+[2026-10-12T11:05:35.033Z]   PASS A8 [authz] expect=401 actual=401/AUTH_UNAUTHORIZED
+[2026-10-12T11:05:35.035Z]   PASS A9 [authz] expect=401 actual=401/AUTH_UNAUTHORIZED
+[2026-10-12T11:05:35.043Z]   PASS A10 [authz] expect=401（鉴权先于 env 降级） actual=401/AUTH_UNAUTHORIZED
+[2026-10-12T11:05:35.047Z]   PASS A11 [authz] expect=401 actual=401/AUTH_UNAUTHORIZED
+[2026-10-12T11:05:36.589Z]   PASS B1 [tg] expect=200 · expires_in=600 · code 可验签 actual=200 expires_in=600 code_ok=true
+[2026-10-12T11:05:37.514Z]   PASS B2 [tg] expect=200 · {tg_linked:false,tg_linked_at:null} · **无 tg_user_id** actual=200 keys=tg_linked,tg_linked_at tg_user_id_present=false
+[2026-10-12T11:05:39.469Z]   PASS B3 [tg] expect=400 TG_NOT_LINKED（未绑定却解绑） actual=400/TG_NOT_LINKED
+[2026-10-12T11:05:39.473Z]   PASS C1 [webhook] expect=401 TG_WEBHOOK_UNAUTHORIZED（缺 secret） actual=401/TG_WEBHOOK_UNAUTHORIZED
+[2026-10-12T11:05:39.476Z]   PASS C2 [webhook] expect=401（错 secret） actual=401/TG_WEBHOOK_UNAUTHORIZED
+[2026-10-12T11:05:39.479Z]   PASS C3 [webhook] expect=200（合法 secret + 无 message） actual=200
+[2026-10-12T11:05:39.482Z]   PASS C4 [webhook] expect=200（合法 secret + 非 /start 文本 ⇒ 仍 200） actual=200
+[2026-10-12T11:05:39.485Z]   PASS C5 [webhook] expect=200（业务失败〔code 无效〕也恒 200 —— Telegram 重试语义） actual=200
+[2026-10-12T11:05:41.656Z]   PASS C6 [tg] expect=webhook 合法 code ⇒ 200 · users.tg_user_id 真落 770000123 · bind/status tg_linked:true（修复后绑得通） actual={"webhook":200,"db_tg_user_id":"770000123","bind_status":200,"tg_linked":true}
+[2026-10-12T11:05:44.530Z]   PASS C7 [tg] expect=解绑 ⇒ 200 · 该 users 行还原（tg_user_id/tg_linked_at 归 null）⇒ 净写 0 actual=unbind=200 after={"tg_user_id":null,"tg_linked_at":null}
+[2026-10-12T11:05:46.244Z]   PASS D1 [degrade] expect=503 TG_NOT_CONFIGURED actual=503/TG_NOT_CONFIGURED
+[2026-10-12T11:05:47.658Z]   PASS D2 [degrade] expect=503 TG_NOT_CONFIGURED actual=503/TG_NOT_CONFIGURED
+[2026-10-12T11:05:48.550Z]   PASS D3 [degrade] expect=503 TG_NOT_CONFIGURED actual=503/TG_NOT_CONFIGURED
+[2026-10-12T11:05:48.555Z]   PASS D4 [degrade] expect=503 TG_NOT_CONFIGURED（§41.9 明列 #10 webhook 面） actual=503/TG_NOT_CONFIGURED
+[2026-10-12T11:05:50.134Z]   PASS D5 [degrade] expect=200（站内信永不降级） actual=200
+[2026-10-12T11:05:51.684Z]   PASS E1 [f19] expect=200 · data.seller={uid:7, nickname:掩码, avatar:null} actual=200 seller={"uid":7,"nickname":"0xe4b8…f66b","avatar":null}
+[2026-10-12T11:05:51.684Z]   PASS E2 [f19] expect=nickname = EVM 掩码（0x前4…后4）· 响应**不含完整 EVM** actual=nickname=0xe4b8…f66b full_evm_leak=false
+[2026-10-12T11:05:56.557Z] TX fixtures conv1=13 conv2=14 conv3=15 conv6=16
+[2026-10-12T11:06:00.974Z]   PASS T1 [rate] expect=19 条 ⇒ 放行(1 行) · 20 条 ⇒ 第 21 条必拒(0 行) · reason=PER_CONVERSATION_DAILY actual={"at19_rows":1,"at20_rows":0,"conv_n":20,"glob_n":20,"reason":"PER_CONVERSATION_DAILY"}
+[2026-10-12T11:06:41.067Z]   PASS T2 [rate] expect=全局 199 ⇒ 放行(1 行) · 全局 200 ⇒ 第 201 条必拒(0 行) · reason=GLOBAL_DAILY actual={"at199_rows":1,"conv6_at200_rows":0,"conv_n":0,"glob_n":200,"reason":"GLOBAL_DAILY"}
+[2026-10-12T11:06:42.100Z]   PASS T3 [unread] expect=发送后买方未读 = 20 · 买方回 1 条 ⇒ 卖方未读 = 1（+1）· 标读后买方未读 = 0（查询期聚合） actual={"buyer_unread_before_read":20,"buyer_unread_after_read":0,"seller_unread":1,"newest":705}
+[2026-10-12T11:06:45.944Z]   PASS T4 [append-only] expect=message UPDATE/DELETE 拒(P0001) · conversation DELETE 拒 · 非允许列 UPDATE 拒 · 水位回退拒 · time_updated 允许 actual={"msg_update":"P0001:message is append-only","msg_delete":"P0001","conv_delete":"P0001:conversation is not deletable","immut":"P0001","wm_down":"P0001:conversation read watermark is monotonic and cannot decrease","time_updated_ok":true}
+[2026-10-12T11:06:46.818Z]   PASS T5 [authz] expect=非参与者 ⇒ 403 MSG_NOT_PARTICIPANT · 参与者 ⇒ ok · 不存在会话 ⇒ 404 MSG_CONVERSATION_NOT_FOUND actual={"other":{"ok":false,"status":403,"code":"MSG_NOT_PARTICIPANT"},"buyer":{"ok":true},"missing":{"ok":false,"status":404,"code":"MSG_CONVERSATION_NOT_FOUND"}}
+[2026-10-12T11:06:46.988Z]   PASS NC1 [negative] expect=去闸后第 21 条落库（原断言若在此口径下断 429 ⇒ 必红） actual=rows=1
+[2026-10-12T11:06:48.197Z]   PASS NC2 [negative] expect=关闸后 UPDATE 生效（⇒ 未关时必拒 = 闸承重） actual=rows=22
+[2026-10-12T11:06:48.722Z]   PASS NC3 [negative] expect=不过滤 ⇒ 会话可见（⇒ 准入闸承重；旁路实现会把 403 变 200） actual=rows=1
+[2026-10-12T11:06:48.892Z] TX ROLLBACK done（净写 0）
+[2026-10-12T11:06:52.881Z]   PASS H1 [send] expect=200 · created:true actual=200 id=17 created=true
+[2026-10-12T11:06:54.683Z]   PASS H2 [send] expect=自然幂等：重放 ⇒ created:false 同 id actual=200 created=false
+[2026-10-12T11:06:56.327Z]   PASS H3 [send] expect=400 MSG_SELF_CONVERSATION（卖家本人） actual=400/MSG_SELF_CONVERSATION
+[2026-10-12T11:06:59.952Z]   PASS H4 [send] expect=200 · msg_id>0 actual=200 msg_id=707
+[2026-10-12T11:07:01.186Z]   PASS H5 [unread] expect=unread_total = 0+1 actual=1
+[2026-10-12T11:07:02.585Z]   PASS H6 [list] expect=200 · 1 行 · role=buyer · counterpart=seller actual=200 rows=1 role=buyer
+[2026-10-12T11:07:04.699Z]   PASS H7 [unread] expect=标读 last_read=707 ⇒ unread_total 回 0 actual=read=200/707 unread=0
+[2026-10-12T11:07:06.494Z]   PASS H8 [idempotency] expect=200 idempotent_replay:true · 同 msg_id · 行数不变（不计数） actual=200 replay=true rows 1→1
+[2026-10-12T11:07:07.224Z]   PASS H9 [idempotency] expect=409 LEDGER_IDEMPOTENCY_CONFLICT（同键异内容） actual=409/LEDGER_IDEMPOTENCY_CONFLICT
+[2026-10-12T11:07:09.051Z]   PASS H10 [send] expect=缺键 400 REQUIRED · 坏前缀 400 INVALID · 空 body 400 MSG_BODY_INVALID/EMPTY · 超长 TOO_LONG actual={"nk":"400/LEDGER_IDEMPOTENCY_KEY_REQUIRED","bk":"400/LEDGER_IDEMPOTENCY_KEY_INVALID","be":"400/MSG_BODY_INVALID/EMPTY","bl":"400/MSG_BODY_INVALID/TOO_LONG"}
+[2026-10-12T11:07:13.141Z]   PASS H11 [authz] expect=非参与者 ⇒ 读/写/标读 全 403 MSG_NOT_PARTICIPANT actual={"read":"403/MSG_NOT_PARTICIPANT","write":"403/MSG_NOT_PARTICIPANT","mark":"403/MSG_NOT_PARTICIPANT"}
+[2026-10-12T11:07:15.585Z]   PASS H12 [authz] expect=零管理员旁路：admin(uid=10) 非参与者 ⇒ 403（非 200） actual=403/403
+[2026-10-12T11:07:17.641Z]   PASS H13 [authz] expect=404 MSG_CONVERSATION_NOT_FOUND actual=404/MSG_CONVERSATION_NOT_FOUND
+[2026-10-12T11:07:58.249Z]   PASS H14 [rate] expect=S 累计 20 条放行 · 第 21 条 ⇒ 429 MSG_RATE_LIMITED · reason=PER_CONVERSATION_DAILY actual={"ok200":19,"first_blocked":{"i":21,"status":429,"code":"MSG_RATE_LIMITED","reason":"PER_CONVERSATION_DAILY"}}
+[2026-10-12T11:07:58.783Z]   PASS H15 [list] expect=会话列表含该会话 · 买方未读 19（标读水位 = m1 ⇒ 其后 19 条未读） actual=200 unread=19
+[2026-10-12T11:08:02.850Z]   PASS Z1 [net-zero] expect=行数指纹回基线 + 夹具 0 残留 actual=before={"conversations":0,"messages":0,"users":64,"listings":24} after={"conversations":0,"messages":0,"users":64,"listings":24} rest=0
+[2026-10-12T11:08:02.851Z]   PASS Z2 [net-zero] expect=两表全部闸复位（tgenabled=O） actual=[{"tgname":"trg_conversation_no_delete","tgenabled":"O"},{"tgname":"trg_conversation_no_truncate","tgenabled":"O"},{"tgname":"trg_conversation_read_mark_only","tgenabled":"O"},{"tgname":"trg_message_no_truncate","tgenabled":"O"},{"tgname":"trg_message_no_update_or_delete","tgenabled":"O"}]
+[2026-10-12T11:08:02.854Z]   PASS NC4 [negative] expect=缺 secret ≠ 200（⇒「改为 200」的断言必红） actual=status=401
+SUMMARY {"total":56,"passed":56,"failed":0,"red":[]}
+WROTE messaging-behavior-probe.json

@@ -19,11 +19,12 @@ import { DatabaseService, type SqlRunner } from './database';
 import { errorMessageOf } from './ledger-errors';
 
 // ---- R107 错误体（§3.3-1：{error:{code,message,i18n_key,details}}）-----------
+// ★ A5 收口：i18n 域扩展 'msg' / 'tg'（MSG_* / TG_* 新码域，route 册 §41.5；既有 'ledger' / 'auth' 不变）。
 export const ledgerErrorBody = (
   code: string,
   message: string,
   details: Record<string, unknown>,
-  i18nDomain: 'ledger' | 'auth' = 'ledger',
+  i18nDomain: 'ledger' | 'auth' | 'msg' | 'tg' = 'ledger',
 ) => ({
   error: {
     code,

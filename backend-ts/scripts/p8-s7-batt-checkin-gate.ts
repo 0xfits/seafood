@@ -77,7 +77,8 @@ const FE_PANEL_JSX = readSrc('frontend/src/components/BattCheckinPanel.jsx');
 
 // ---------------------------------------------------------------- 冻结常量
 // ★ S11 注册点前推（沿 R-8-22）：注册点 88 → 89（S6 新增 GET /api/job/:jobId/submissions +1；逐 commit 归因 692f622）。
-const REG_POINTS_FROZEN = 89;
+// ★ A5 收口门前推（沿 R-8-22 冻结面前推族）：注册点 89 → 99（/api/messages 族 6 + /api/telegram 族 4 = +10；F19 读口扩展 +0）。
+const REG_POINTS_FROZEN = 99;
 const PER_VERB_FROZEN: Record<string, number> = { get: 38, post: 48, put: 0, patch: 1, delete: 2 };
 const ROUTE_REG_RE = /^[ \t]*app\.(get|post|put|patch|delete)\(/gm;
 const countRoutes = (text: string): number => (text.match(ROUTE_REG_RE) || []).length;
@@ -147,7 +148,7 @@ const topLevelSuccessKeys = (block: string): string[] => {
 {
   const perVerb = { get: countVerb(INDEX_TS, 'get'), post: countVerb(INDEX_TS, 'post'), put: countVerb(INDEX_TS, 'put'), patch: countVerb(INDEX_TS, 'patch'), delete: countVerb(INDEX_TS, 'delete') };
   t('A1', 'registration', countRoutes(INDEX_TS) === REG_POINTS_FROZEN,
-    `注册点 = ${REG_POINTS_FROZEN}（P9② batt/签到 4 新口 +4〔76→80〕⇒ P9③ 评分/时效/订单 5 新口 +5〔80→85〕⇒ P9④ BTTC 铸造/分解 2 新口 +2〔85→87〕⇒ 8⑥ 审计台统一读口 +1〔87→88〕⇒ S6 新增 GET /api/job/:jobId/submissions +1〔88→89〕）`, countRoutes(INDEX_TS));
+    `注册点 = ${REG_POINTS_FROZEN}（P9② batt/签到 4 新口 +4〔76→80〕⇒ P9③ 评分/时效/订单 5 新口 +5〔80→85〕⇒ P9④ BTTC 铸造/分解 2 新口 +2〔85→87〕⇒ 8⑥ 审计台统一读口 +1〔87→88〕⇒ S6 新增 GET /api/job/:jobId/submissions +1〔88→89〕⇒ A5 收口 站内信 6 新口 + Telegram 绑定 4 新口〔89→99〕）`, countRoutes(INDEX_TS));
   t('A2', 'registration', eqJson(perVerb, PER_VERB_FROZEN),
     `逐 verb 逐字 = ${JSON.stringify(PER_VERB_FROZEN)}`, JSON.stringify(perVerb));
   t('A3', 'registration', Object.values(perVerb).reduce((a, b) => a + b, 0) === REG_POINTS_FROZEN,
@@ -160,7 +161,7 @@ const topLevelSuccessKeys = (block: string): string[] => {
   const injCount = countRoutes(INDEX_TS + INJ);
   t('A5', 'registration', injCount === REG_POINTS_FROZEN + 1,
     `★ 负对照：缩进注入一条路由 ⇒ 计数 ${REG_POINTS_FROZEN}→${REG_POINTS_FROZEN + 1}`, JSON.stringify({ injected: injCount }));
-  selfTest('A1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 89 条路由的文本喂入「注册点 = 89」谓词 ⇒ 必须转红');
+  selfTest('A1', 'registration', (v) => countRoutes(String(v)) === REG_POINTS_FROZEN, 'x', '把非 99 条路由的文本喂入「注册点 = 99」谓词 ⇒ 必须转红');
 }
 
 // ============================================================================
