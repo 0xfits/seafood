@@ -336,6 +336,17 @@
 > ④ **只追加 + 条内就地更正**：**§1–§38 一字未动**；**§39.2 只在其行后追加「★ v2.30 就地更正」**（**原地正文一字未动**）；**§40（新）= 唯一新增节**；**v0.1–v2.29 快照未动**；自检见 §40.4。
 
 
+> **状态：v2.31（已完成 · **A5 收口 · 站内信 + Telegram bot 绑定/通知一步到位 —— 新路由族 `/api/messages/*`（6 条）+ `/api/telegram/*`（4 条）共 **10 条新契约** + `F19` 读口扩展（`GET /api/prize/:bID` 增 `seller` 对象）+ **新错误码域 `MSG_*`（7 码）/ `TG_*`（5 码）**（`LEDGER` 33 码闭集不动）+ **注册点 89 → 99（+10）** + authz 矩阵 + 通知 webhook 语义 + env-gated 降级（**只写契约 · 零代码 · 零迁移 · 库面只读 · 零 HTTP · 零套件**）**）** · 作者角色 = **Jing（Specifier · 制度员）** · 单号 = **JING-SPEC-A5-RT**
+> **v2.31 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.31-delta.md`。**凡与 Kevin/Zang 裁定冲突处，一律以裁定为准**（依据 = **Kevin 2026-10-12 逐字「直接 A+C」** + **Zang 结构裁定 1–9**，出处 = `docs/OPEN-ITEMS.md` `A5` 行 commit `3ae743e`；库侧面正文 = 姊妹册 `data-layer.spec` **v0.32 §38**，形态/键集正文 = `design-system.spec` **v1.17 §20**；**未发明任何裁定、未自选任何待裁项**）。
+> **★★ v2.31 本单要点（先说结论，不含糊）**：
+> ① **★ 路由族定稿 = `/api/messages/*` + `/api/telegram/*`**（Zang 建议 + 仓内命名惯例定稿：全小写名词、连字符复数先例 `/api/listing-orders`；前端页面 `/messages` ↔ 后端族同名映射，沿 v2.27 §37 页面↔路由对应体例）。
+> ② **★ 注册点 89 → 99（+10）**（口径 = `grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts`，同 §40.2）；**`p7b-03-offline-gates.ts` `AC10-2` 冻结面前推 = `regs === 89` ⇒ `regs === 99`**（`backend-ts/scripts/p7b-03-offline-gates.ts:143`，实现单执行，逐条 +10 见 §41.6）。
+> ③ **★ 错误码**：**`LEDGER_*` 33 码闭集一字不动**（`R-9-76` 纪律）；**新开两个独立闭集域** = `MSG_*` **7 码**（`MSG_LISTING_NOT_FOUND` / `MSG_SELF_CONVERSATION` / `MSG_LISTING_NOT_OPEN` / `MSG_CONVERSATION_NOT_FOUND` / `MSG_NOT_PARTICIPANT` / `MSG_BODY_INVALID` / `MSG_RATE_LIMITED`）+ `TG_*` **5 码**（`TG_NOT_CONFIGURED` / `TG_CODE_INVALID` / `TG_TARGET_ACCOUNT_TAKEN` / `TG_NOT_LINKED` / `TG_WEBHOOK_UNAUTHORIZED`）—— 全走 R107 单形状 + `i18n_key = msg.err.<CODE>` / `tg.err.<CODE>`；幂等冲突/缺键**借**既有 `LEDGER_IDEMPOTENCY_CONFLICT` / `LEDGER_IDEMPOTENCY_KEY_REQUIRED`（AG1/AG3 借码体例）。四语文案 = design 册 §20.8 键清单（`非 zh 初译待复核`）。
+> ④ **★ `F19` 并入**：`GET /api/prize/:bID` 响应**顶层增 `seller` 对象**（`{uid, nickname, avatar}`；`nickname` = EVM 掩码派生 `0x1234…abcd`、`avatar = null` 占位）—— **纯增键、向后兼容、零新路由**（注册点不因此变化）；**渲染面零改动**（design v1.15 `T94` 「不渲染卖家行」逐字维持，读口先行，消费另裁）。
+> ⑤ **★ 通知 = webhook + `waitUntil` 后台段**（`vercel.json` crons 1 条天级不动；bot 无轮询）：消息落库成功后异步推送，**失败不回滚消息写**；双语一行、不带内容；只推已绑定用户。
+> ⑥ **只追加**：**§1–§40 一字未动**；**§41（新）= 唯一新增节**；**v0.1–v2.30 快照未动**；自检见 §41.11。
+
+
 > **v2.19 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.19-delta.md`（**同批姊妹册** = `docs/audit/data-layer-v0.26-delta.md` + `docs/audit/commission-v0.4-delta.md`）。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 P9⑤ 契约冻结；**未改写任何裁定、未发明任何路径 / 数值 / 权限键 / 文案值**）。**★ 姊妹册（同批）**：`docs/commission.spec.md` **v0.4 §19** + `docs/data-layer.spec.md` **v0.26 §34**，**本册不重抄其条文、只指路**。
 > **★★ v2.19 本单要点（先说结论，不含糊）**：① **零新用户面口**（邀请奖励 = 结算腿，无独立读 / 动作口）；② **后台配置面复用**（费率 + 6 项权重矩阵）；③ **注册点 `87 → 87`（+0）**；④ **权限键 11 键内（零增删）**；⑤ **错误码零新增 + `R107`**；⑥ **真生效四段（①③④ 段）**；⑦ **连带门改版**（`p8-s2` 8 键 / 守卫常量 / 页字段面随 `R-9-1` ⇒ 归实现单）。
 
@@ -8059,5 +8070,123 @@ CONSTRAINT admin_refund_audit_log_idem_uniq   UNIQUE (idempotency_key, result)  
 ### 40.4 纪律自检 + 快照
 
 **本节只新增 §40 + §39.2 一处条内就地更正** —— **§1–§38 一字未动**（`git diff --numstat docs/route-layer.spec.md` 删除列 = **0**；§39.2 原地正文一字未动）。**快照面**：本版镜像 `docs/versions/route-layer.spec.v2.30.md`（`cmp=0`）；**改前快照** `docs/versions/route-layer.spec.v2.29.md`（`cmp=0`；md5 `ebf011bde628e503d3f2415d08189409`）。**零代码 / 零迁移 / 库面只读 / 零 HTTP / 零套件** 成立。**未发明项**（`/item/999999` 口径 = Kevin 裁定原文；未发明任何数值 / 路由 / i18n 键名）。**未 `git add -A` · 未 commit · 未 push · 未启停 5787/5788**。未测项一律 `NOT_MEASURED` + 原因。
+
+## §41 ★★ v2.31 · A5 收口：站内信 `/api/messages` 族 + Telegram `/api/telegram` 族（10 条新路由契约）+ `F19` 读口扩展 + 新错误码域 `MSG_*`/`TG_*` + 注册点 89 → 99（**本节只追加 · §1–§40 一字未动** · 依据 = Kevin 2026-10-12 逐字「直接 A+C」+ Zang 结构裁定 1–9（`docs/OPEN-ITEMS.md` `A5` 行 commit `3ae743e`）；库侧面 = `data-layer.spec` v0.32 §38；形态/键集 = `design-system.spec` v1.17 §20）
+
+### 41.0 裁定来源与范围
+
+- **Kevin 逐字（2026-10-12）**：「直接 A+C」= **站内信最小闭环 + Telegram bot 绑定/通知一步到位**，不走分期；询价意向单/计数（`D2`/`D4`）**不在本单**（继续挂账 = `F17`）。
+- **Zang 结构裁定 1–10 逐字**：per-listing 会话 / `message` append-only / 登录才能发 + 卖家本人不渲染「聊一聊」/ 双语一行不带内容 + 只推已绑定 / `users` 只存 `tg_user_id` 数字 ID + 解绑即停推 / Settings 发起 code（10 分钟）→ `/start <code>` → webhook 落库 / 20 条·天·会话 + 全局日上限 / keyset 禁 OFFSET / env-gated 降级（503 not configured 形态，非 500）/ 不做清单（撤回·编辑·图片·已读回执·拉黑·管理员可见）/ `F19` 只扩读口。
+- **术语替代（写死）**：route 册 **v2.27 §37 的「X/推特私信接驳位预留」语义已被本单取代 = Telegram，非 X**（占位页转真页，逐条形态见 design 册 §20）；v2.27 §37 原文一字不动（历史留痕）。
+- **范围（写死）**：只写契约；**零代码 / 零迁移文件 / 库面只读 / 零 HTTP / 零套件**；实现归 Kong、质检归 Neng。
+
+### 41.1 现取事实底座（HEAD `3ae743e` · 2026-10-12 · 只读现取）
+
+| 项 | 现取读数 | 取法 |
+|---|---|---|
+| 注册点 | **89**（`grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts`，§40.2 同口径） | `grep` |
+| `AC10-2` 冻结面 | `backend-ts/scripts/p7b-03-offline-gates.ts:143` = `regs === 89`（自 S10 冻结面 68 前推 +21） | 源码现取 |
+| 错误码闭集 | `LEDGER_ERROR_TABLE` = **33 码**（`backend-ts/src/ledger-errors.ts:31-74`）；`AUTH_*` 走独立表不进闭集（`:86-99`）；33 码已四语本地化 `ledger.err.*`（v2.1 §16） | 源码现取 |
+| 幂等键现状 | `cli:` 前端供键体例（buy/publish）；§4.5 选项 B「有自然键 ⇒ 服务端派生」 | 册内既有条文 |
+| 鉴权形态 | `Authorization: Bearer <token>`（`index.ts:247-251`）；`requireAdmin`（`:337`）；401 只用于凭据面且必在 DB 调用前（v1.4 D1'） | 源码现取 |
+| `/messages` 前端 | `App.jsx:117` + 占位页（钩子 `messages-x-placeholder`、键 `messagesPage.title/empty/xPlaceholder/xNote`） | 文件现取 |
+| `vercel.json` crons | 1 条天级 `/api/translate/backfill` | 文件现取 |
+| Telegram 痕迹 | 全仓 0 | `grep` |
+
+### 41.2 路由契约（10 条 · 逐条 · 方法/路径/入参/出参/错误码/幂等/准入）
+
+> 通用：除 webhook 外全部要求 `Authorization: Bearer`（401 = `AUTH_REQUIRED`，AUTH 域既有码）；错误体 = R107 单形状；**所有列表读口 keyset 禁 OFFSET**（DL25）。`cli:` 幂等键适用面见 §41.8。
+
+| # | 路由 | 入参 | 出参（200） | 错误码 | 幂等 | 准入 |
+|---|---|---|---|---|---|---|
+| 1 | `POST /api/messages/conversations` | `{listing_id}`（**无 create_key** —— 自然键体例，§41.8） | `{conversation_id, created: boolean}` | `404 MSG_LISTING_NOT_FOUND` · `400 MSG_SELF_CONVERSATION` · `400 MSG_LISTING_NOT_OPEN` · `503 TG_NOT_CONFIGURED` **不适用**（站内信永不降级） | **自然幂等**：`UNIQUE(listing_id, buyer_uid)` + 冲突取既有行 ⇒ 重放 `created:false` | 登录（发起者 = 买方）；卖家本人开自己商品的会话 ⇒ `MSG_SELF_CONVERSATION`；开新会话要求 `listing.status='listed'`（追加旧会话不受限，一句话可改） |
+| 2 | `GET /api/messages/conversations` | query：`before_time` + `before_id`（keyset 游标 `(time_updated, conversation_id)`）、`limit ≤ 50`（默认 20）、可选 `listing_id` 过滤（聊一聊入口定位用） | `{rows:[{conversation_id, listing_id, listing_title, role: 'buyer'\|'seller', counterpart_uid, last_body_preview(≤50 字符), unread_count, time_updated}], next_cursor}` | `401` | 读，无 | 登录（按 `buyer_uid`/`seller_uid` 双索引取本人会话） |
+| 3 | `GET /api/messages/conversations/:conversationId/messages` | query：`before_msg_id`（keyset）、`limit ≤ 100`（默认 50） | `{conversation:{conversation_id, listing_id, listing_title, role, counterpart_uid}, rows:[{msg_id, from_uid, body, time_created}], next_before_msg_id}` | `404 MSG_CONVERSATION_NOT_FOUND` · `403 MSG_NOT_PARTICIPANT` | 读，无 | 登录 + **参与者**（buyer ∨ seller，Z2） |
+| 4 | `POST /api/messages/conversations/:conversationId/messages` | `{body, create_key: 'cli:<UUID>'}` | `{msg_id, time_created, conversation_id}` | `404 MSG_CONVERSATION_NOT_FOUND` · `403 MSG_NOT_PARTICIPANT` · `400 MSG_BODY_INVALID` · `429 MSG_RATE_LIMITED`（`details.reason ∈ {PER_CONVERSATION_DAILY, GLOBAL_DAILY}`）· `400 LEDGER_IDEMPOTENCY_KEY_REQUIRED` · `409 LEDGER_IDEMPOTENCY_CONFLICT` | **`cli:` 前端供键**（沿 buy/publish 体例）：同键同内容 = 200 重放（返回既有行、**不计数**）；同键异内容 = 409 | 登录 + 参与者 + 双频次闸（data 册 §38.7）；**闸过后**落库，落库成功 ⇒ 触发对端通知（§41.7） |
+| 5 | `POST /api/messages/conversations/:conversationId/read` | 空 body | `{last_read_msg_id}` | `404 MSG_CONVERSATION_NOT_FOUND` · `403 MSG_NOT_PARTICIPANT` | **天然幂等**：水位 = `max(当前, 最新 msg_id)` 单调（data 册 §38.5 触发器兜底），无 create_key | 登录 + 参与者 |
+| 6 | `GET /api/messages/unread-count` | 无 | `{unread_total}` | `401` | 读，无 | 登录（未登录 = 401；前端只在登录态调） |
+| 7 | `POST /api/telegram/bind/start` | 空 body | `{code, expires_in: 600, bot_username}` | `401` · `503 TG_NOT_CONFIGURED`（env 缺，§41.9） | 无（重发 = 新 code 使旧 code 失效，`details.reason = CONSUMED`） | 登录；**code = HMAC 签名令牌**（携带 `uid + exp + 签名`，无状态、**不入库不建表**，data 册 `A5-DL-P4`；有效期 10 分钟，一次性消费 = webhook 侧验签 + `tg_linked_at` 比对） |
+| 8 | `POST /api/telegram/unbind` | 空 body | `{tg_linked: false}` | `401` · `400 TG_NOT_LINKED` · `503 TG_NOT_CONFIGURED` | 天然幂等（重复解绑第二次起 = `TG_NOT_LINKED`） | 登录；解绑即停推（Z4） |
+| 9 | `GET /api/telegram/bind/status` | 无 | `{tg_linked: boolean, tg_linked_at: string\|null}`（**绝不回 `tg_user_id` 数值** —— 隐私红线 Z4 的读面延伸） | `401` · `503 TG_NOT_CONFIGURED` | 读，无 | 登录 |
+| 10 | `POST /api/telegram/webhook` | Telegram Update JSON（`message.text` 形如 `/start <code>`） | `200 {}`（**恒 200** —— Telegram 对非 2xx 会重试；业务失败只进日志 + bot 回复文案） | `401 TG_WEBHOOK_UNAUTHORIZED`（secret 不匹配）· `503 TG_NOT_CONFIGURED` | Telegram 重试 ⇒ `/start` 重放：code 已消费/已过期 ⇒ bot 回复失败文案（`details.reason ∈ {NOT_FOUND, EXPIRED, CONSUMED}`），不产生副作用 | **secret 校验**：header `X-Telegram-Bot-Api-Secret-Token` 严格等于 env `TELEGRAM_WEBHOOK_SECRET`（401 不泄差异原因）；**无用户鉴权**（bot 机器面） |
+
+**处理序（#10 webhook `/start <code>`，写死）**：① secret 校验（401）→ ② env 校验（503）→ ③ 验签 code（无效/过期 ⇒ bot 回复 `TG_CODE_INVALID` 文案）→ ④ 目标用户已绑同号 ⇒ 幂等成功回复；`tg_user_id` 已被**其它**账号占用 ⇒ `TG_TARGET_ACCOUNT_TAKEN` 文案（DB 兜底 = 部分唯一索引 `23514`，data 册 `A5-DL-P2`）→ ⑤ 落 `users.tg_user_id + tg_linked_at`（rebind 覆盖自身旧值允许，一句话可改）→ ⑥ bot 回复成功一行（双语）。**全路径不改任何既有对象、零资金腿。**
+
+### 41.3 `F19` 读口扩展（`GET /api/prize/:bID` · 零新路由）
+
+- 响应**顶层增** `seller: {uid: number, nickname: string, avatar: null}`：`uid` = `listing.seller_uid`（`0015:117` 现取已有）；`nickname` = **EVM 掩码派生** `0x1234…abcd`（前 6 + `…` + 后 4；`users` 无昵称列，**不为此建列**，一句话可改）；`avatar` = `null` 占位（前端渐变占位图既有口径）。
+- **向后兼容**（纯增键）· **零隐私出口**（不含联系方式 / 完整地址 / handle）；**渲染面零改动**（design `T94`「不渲染卖家行」维持，读口先行；消费 = 另裁）。
+
+### 41.4 authz 矩阵（写死）
+
+| 路由 | 未登录 | 登录·非参与者 | 登录·买方 | 登录·卖方（对方） | 卖家本人看自己商品 |
+|---|---|---|---|---|---|
+| #1 开会话 | `401` | — | ✅（他人商品） | — | `400 MSG_SELF_CONVERSATION`（**按钮不渲染 + 服务端双闸**，Z2） |
+| #2 会话列表 | `401` | — | ✅（本人为 buyer 的） | ✅（本人为 seller 的） | ✅（经 `/messages` 看全部） |
+| #3/#5 消息读/读水位 | `401` | `403 MSG_NOT_PARTICIPANT` | ✅ | ✅ | — |
+| #4 发消息 | `401` | `403 MSG_NOT_PARTICIPANT` | ✅（受双闸） | ✅（受双闸） | — |
+| #6 未读总数 | `401` | — | ✅ | ✅ | ✅ |
+| #7/#8/#9 绑定面 | `401` | — | ✅（本人账号） | ✅（本人账号） | ✅ |
+| #10 webhook | —（secret 面校验，401 = secret 不符） | — | — | — | — |
+| `F19` seller 读 | 公开（沿详情读口既有准入，无新闸） | | | | |
+
+**管理员**：全部新路由**零管理员旁路**（Z9「管理员可见」不做；`requireAdmin` 不出现在本族任何口）。
+
+### 41.5 错误码登记（闭集 33 不动 · 新域 12 码）
+
+| 域 | 码 | HTTP | `i18n_key` | 语义（`details.reason` 语义域） |
+|---|---|---|---|---|
+| `MSG_*` | `MSG_LISTING_NOT_FOUND` | 404 | `msg.err.MSG_LISTING_NOT_FOUND` | 商品不存在（含非本人可见不可判别场景统一 404） |
+| | `MSG_SELF_CONVERSATION` | 400 | `msg.err.MSG_SELF_CONVERSATION` | 卖家本人开自己商品的会话 |
+| | `MSG_LISTING_NOT_OPEN` | 400 | `msg.err.MSG_LISTING_NOT_OPEN` | 商品非 `listed` 不开新会话（一句话可改） |
+| | `MSG_CONVERSATION_NOT_FOUND` | 404 | `msg.err.MSG_CONVERSATION_NOT_FOUND` | 会话不存在（非数字 `:conversationId` 同形，沿 `R107` 统一 404 口径） |
+| | `MSG_NOT_PARTICIPANT` | 403 | `msg.err.MSG_NOT_PARTICIPANT` | 非会话双方（`details` 只放 `conversation_id`，禁泄露对方标识） |
+| | `MSG_BODY_INVALID` | 400 | `msg.err.MSG_BODY_INVALID` | body 空/超 2000 字符（`details.reason ∈ {EMPTY, TOO_LONG}`） |
+| | `MSG_RATE_LIMITED` | 429 | `msg.err.MSG_RATE_LIMITED` | 双闸（`details.reason ∈ {PER_CONVERSATION_DAILY, GLOBAL_DAILY}`） |
+| `TG_*` | `TG_NOT_CONFIGURED` | **503** | `tg.err.TG_NOT_CONFIGURED` | env 缺（not-configured 形态，**非 500**，Z8） |
+| | `TG_CODE_INVALID` | 400 | `tg.err.TG_CODE_INVALID` | code 无效/过期/已消费（`details.reason ∈ {NOT_FOUND, EXPIRED, CONSUMED}`） |
+| | `TG_TARGET_ACCOUNT_TAKEN` | 409 | `tg.err.TG_TARGET_ACCOUNT_TAKEN` | 该 Telegram 账号已绑其它站内账号 |
+| | `TG_NOT_LINKED` | 400 | `tg.err.TG_NOT_LINKED` | 未绑定却解绑 |
+| | `TG_WEBHOOK_UNAUTHORIZED` | 401 | `tg.err.TG_WEBHOOK_UNAUTHORIZED` | webhook secret 不匹配 |
+
+- **闭集口径（写死）**：`LEDGER_*` 33 码**一字不动**；`MSG_*` = **7 码闭集**、`TG_*` = **5 码闭集**，各自不增不减（新需求 ⇒ 另开变体交裁，不得静默扩集）；`AUTH_*` 域沿用既有（不进任何闭集，`ledger-errors.ts:86` 既有口径）。
+- **借码（AG1/AG3 体例）**：幂等缺键/冲突 = 借 `LEDGER_IDEMPOTENCY_KEY_REQUIRED`(400) / `LEDGER_IDEMPOTENCY_CONFLICT`(409)（语义 = 参数形状/重放冲突的既定借用码）。
+- **R107 形状**：`{error:{code, message, i18n_key, details}}`；`message` = 人类可读稳定英文句（**严禁塞机读码**，§15.5/§15.6 正向约束适用）；`details` 只放非敏感上下文（`conversation_id` / `reason` / `limit`）。
+- **四语文案**：12 码 × 4 语 = 12 flat 键（`msg.err.*` / `tg.err.*`），四语键集相等硬门适用；**键清单与计数前推 = design 册 §20.8**，本册不重抄。
+
+### 41.6 注册点前推（89 → 99 · `AC10-2` 冻结面前推值）
+
+- **+10 逐条**（`app.post/get` 注册行，实现单按本节路径字面注册）：#1–#6（`/api/messages` 族 6 条：post 3 + get 3）+ #7–#10（`/api/telegram` 族 4 条：post 3 + get 1）。`F19` 为既有读口响应扩展，**+0**。
+- **前推值（写死）**：`p7b-03-offline-gates.ts:143` `AC10-2` 断言 `regs === 89` ⇒ **`regs === 99`**（注释链同步前推：89 出处 = 692f622 S6；99 = 本单 +10）。
+- **判负**：注册行少于/multipath 于本节 10 条字面 ⇒ 门红；**不得**以路由别名 / `app.use` 挂载等形态绕过 `^app\.(get|post|put|delete|patch)\(` 计数口径（§40.2 口径连续性）。
+
+### 41.7 通知发送语义（webhook 推送 · 无轮询 · Z3/Z8）
+
+- **触发点**：#4 落库成功（同事务提交后）⇒ `waitUntil` 后台段推送；**推送失败/超时 ⇒ 只进日志，绝不回滚消息写、绝不改 HTTP 响应**（沿翻译线「HTTP 响应不因后台任务变慢/变红」体例）。
+- **收件人判定**：对端用户 `tg_user_id IS NOT NULL` 才推（未绑定 = 零打扰，Z3）；解绑后自然停推（data 册 `A5-DL-P3`）。
+- **内容（写死）**：**双语一行、不带消息内容**（隐私）：模板 = 「<站点名>：你有新消息（来自会话：<商品标题掩码>），打开 <站点域名>/messages 查看 / You have a new message, open <site>/messages」；`TELEGRAM_BOT_USERNAME` 可选 env 供前端步骤文案（§20.8 `telegram.codeSteps`），**非**运行依赖。
+- **env 闭集**：`TELEGRAM_BOT_TOKEN`（发送必需）/ `TELEGRAM_WEBHOOK_SECRET`（#10 必需）/ `TELEGRAM_BOT_USERNAME`（可选）；缺前者 ⇒ 仅通知降级、**站内信面零影响**；缺任一必需 env ⇒ #7/#8/#9/#10 返回 `503 TG_NOT_CONFIGURED`（Z8，**非 500**）。
+- **webhook 注册动作**（一次性运维，不入本仓代码）：`setWebhook` 指向 `POST /api/telegram/webhook` + `secret_token` = `TELEGRAM_WEBHOOK_SECRET`；属 §38.10 待裁 bot 创建包。
+
+### 41.8 幂等键契约（本族适用面 · 写死）
+
+- **`POST …/messages`（#4）= `cli:` 前端供键**（无自然键的实体 ⇒ fail-loud 不派生，§4.5 既有纪律）：`create_key: 'cli:<UUID>'`，唯一约束于 `message` 写路径（服务端按既有幂等机制承载）；同键同内容 = 200 重放返回既有 `msg_id`（**不重复计数、不重复通知**）；同键异内容 = `409 LEDGER_IDEMPOTENCY_CONFLICT`。
+- **`POST /api/messages/conversations`（#1）= 自然幂等、无 create_key**（自然键 `(listing_id, buyer_uid)` 存在 ⇒ 服务端派生 `open:<listing_id>:<buyer_uid>` 落 `conversation.create_key`，data 册 `A5-DL-G4`；**前端不得自造键**，§4.5 硬规则「服务端已确定性派生键的面 ⇒ 前端不得自造键」直接适用）。
+- #5 read = 天然幂等（单调水位）；#7/#8 无幂等键（重发 code = 显式新 code 语义）。
+
+### 41.9 降级口径（env-gated · Z8 · 与「缺凭据失败形态」同族）
+
+- 形态 = **`503` + `TG_NOT_CONFIGURED`**（R107 形状，非 500 / 非静默空成功）；适用 = #7/#8/#9（绑定面）与 #10（webhook 面）；**站内信 6 条（#1–#6）永不降级**（无 env 依赖）。
+- 前端降级面（形态/文案）= design 册 §20.5 `T102`；判负：env 缺时绑定面返回 500 或空成功 ⇒ 判负。
+
+### 41.10 判负清单 + 未测项（诚实边界）
+
+- **判负（可证伪）**：① 任何新口出现非 R107 错误形状（同端点 400 类两套形状）⇒ 判负；② `GET /api/telegram/bind/status` 响应含 `tg_user_id` 数值 ⇒ 判负（隐私红线读面）；③ #4 落库成功但通知失败导致 5xx/回滚 ⇒ 判负；④ 列表读口出现 `OFFSET` ⇒ 判负（DL25）；⑤ webhook 在 secret 缺失时仍处理业务 ⇒ 判负；⑥ `MSG_*`/`TG_*` 集外新增码未经本册登记 ⇒ 判负。
+- **未测项（`NOT_MEASURED` · 禁填 0/空）**：10 条路由未实现未发包；webhook 与 Telegram 真网交互未测；`waitUntil` 在 Vercel Node runtime 的实际执行窗未实测；`cli:` 键唯一约束落点（DB vs 服务端表）实现形态未定（本册只冻语义不冻机制）；四语错误文案未落 locale（design 册 §20.8 承接）。
+
+### 41.11 纪律自检 + 快照
+
+- **本节只新增 §41**（+ 顶部 v2.31 状态块插入）——**§1–§40 一字未动**（`git diff --numstat docs/route-layer.spec.md` 删除列 = **0**）；**零代码 / 零迁移文件 / 库面只读 / 零 HTTP / 零套件** 成立；**未发明项**（10 条路径字面、12 码、99 = 89+10、env 键名 = 本册冻结项，全部可回溯至 Kevin/Zang 裁定或 §41.1 现取）。
+- 快照面：本版镜像 `docs/versions/route-layer.spec.v2.31.md`（`cmp=0`）；改前快照 `docs/versions/route-layer.spec.v2.30.md`（上轮镜像，未动）。delta 件 = `docs/audit/route-layer-v2.31-delta.md`。**未 `git add -A` · 未 commit · 未 push · 未启停 5787/5788。**
 
 ---

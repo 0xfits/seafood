@@ -1,5 +1,6 @@
 # 海鲜市场 · P3 数据层口径（Data Layer Spec）
 
+> **文档状态（最新）**：**v0.32**（2026-10-12；**本次 = 「A5 收口 · 站内信最小闭环 + Telegram bot 绑定/通知一步到位 —— `conversation` / `message` 两表 DDL 契约 + `users` +2 列 + 未读计数读口 + 频次上限数据面 + 迁移 `0045`/`0046` 内容契约」** —— **只增不改 · 追加式**、**`DL*` 条文与 §21–§37 一字未动、章节编号未重排**、旧写法**不静默重写**。**依据** = **Kevin 2026-10-12 逐字「直接 A+C」**（站内信最小闭环 + Telegram bot 绑定/通知一步到位，不走分期；询价意向单/计数 `D2`/`D4` **不在本单**、继续挂账 = `F17`）+ **Zang 结构裁定 1–9 逐字**（per-listing 会话 / append-only message / 双语一行通知 / 隐私红线只存 `tg_user_id` / code 绑定流 / 防刷 20 条·天·会话 / keyset 禁 OFFSET / env-gated 降级 / 不做清单），出处 = `docs/OPEN-ITEMS.md` `A5` 行（commit `3ae743e`）。**★ `F19` 并入**：详情读口 `seller` 对象 = **读口扩展**，库面**零改动**（`listing.seller_uid` 已存在，`0015_listing.sql:117`）。**迁移内容契约** = **本册只冻内容 · 迁移文件由实现单创建 · apply 需 Kevin 授权**（生产 = 新库；本地 dev 5788 连的是旧库存档 ≠ 生产）。**`DL` 编号域零改动**（仍 `DL1..DL157`，**不新增 `DL` 条** —— 本节以 `A5-DL-*` 承载）；**章节编号未重排**（新内容向后追加为 **§38**）。**范围** = **只写本册 + 改后快照 `docs/versions/data-layer.spec.v0.32.md` + delta 件 `docs/audit/data-layer-v0.32-delta.md`**；姊妹册正文 = `route-layer.spec` **v2.31 §41** + `design-system.spec` **v1.17 §20**（Jing · 单号 **JING-SPEC-A5-DL**）。**★ 头注留痕（诚实登记）**：紧邻其下的 **v0.31** 行仍带「文档状态（最新）」字样 —— 受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束，**未改写该行** ⇒ 以文件最上方的本行（v0.32）为现行版。**★ 范围** = **零代码 / 零迁移文件 / 零库写 / 零 HTTP / 不动生产数据 / 未跑任何门**。
 > **文档状态（最新）**：**v0.31**（2026-10-04；**本次 = 「S24 A1 定值落册：上市保证金金额 = `50000`」** —— **只增不改 · 追加式**、**`DL*` 条文与 §21–§36 一字未动、章节编号未重排**、旧写法**不静默重写**：① **A1 定值**（Kevin 2026-10-04 定档 · 依据 = `docs/seafood.master-plan.md` **§5.339** `:1419-1430` A1 行逐字「保证金 = **`50000`**」）：**上市保证金金额 = `50000`** —— **语义不变**（**主导真源**仍 = `app_config` 键 `listing_deposit_policy`（本册 §23.1 `AK2`）；常量 `CURRENCY_LIST_DEPOSIT_FLOOR = 50000` 仍为 **fail-closed 兜底**）；本册各处「**待 Kevin 定值**」标记 ⇒ **读作已定值（旧行一字未改 · 逐处见 §37）**；② **A2 连带登记**（本册 §20 `AN10` `:1079` 现取「`0023:161-162` 常量旁 `-- TODO: Kevin 定值` ⇒ 日累计上限 `1000000`」）⇒ **读作已定值**（唯一真值在 DB 编排函数；依据 = §5.339 A2 行）；③ 本节追加于本册末行之后；④ **改后快照** = `docs/versions/data-layer.spec.v0.31.md`（`cmp` 逐字节 = 0）；**delta** = `docs/audit/data-layer-v0.31-delta.md`。**★ 头注留痕（诚实登记）**：紧邻其下的 **v0.30** 行仍带「文档状态（最新）」字样 —— 受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束，**未改写该行** ⇒ 以文件最上方的本行（v0.31）为现行版。**★ 范围** = **只写本册**（零代码 / 零迁移 / 零库写 / 零 HTTP / **不写 `app_config` 行** / 不动生产数据）。
 > **文档状态（最新）**：**v0.30**（2026-10-04；**本次 = 「S14 本批实现形态回写：`R-9-97`..`R-9-103` 的库侧面落地面」** —— **只增不改 · 追加式**、**`DL*` 条文与 §21–§36 一字未动、章节编号未重排**、旧写法**不静默重写**：① `job.headcount` 列实际形态（`bigint NOT NULL DEFAULT 1` + `CHECK (headcount >= 1)` · 约束名 `job_headcount_min`）；② `job_application` 停写（**实际 applied 迁移** = `0041` / `0042`；真库 `schema_migration` = **41 行 / max `0042`**）；③ `job_submission` 无 `(job_id, worker_uid)` 唯一约束（同一人可多次提交）。**`DL` 编号域零改动**（仍 `DL1..DL157`，不新增 `DL` 条 —— 本节以 `S0-TM-*` 承载）；**章节编号未重排**（新内容向后追加为 **§36.6**）。**范围** = **只写本册 + 改后快照 `docs/versions/data-layer.spec.v0.30.md`**（Jing · 单号 **S14-IMPL-WRITEBACK**）。**★ 头注留痕（诚实登记）**：紧邻其下的 v0.28 行仍带「文档状态（最新）」字样 —— 受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束，**未改写该行** ⇒ **以文件最上方的本行（v0.30）为现行版**。
 > **文档状态（最新）**：**v0.28**（2026-10-03；**本次 = 「批 8 第 6 片（8⑥）契约冻结：审计台 —— 15 个 append-only 留痕面统一只读检索台的库侧事实」** —— **只增不改 · 追加式**、**`DL*` 条文与 §21–§34 一字未动、章节编号未重排**、旧写法**不静默重写**：① **★ 15 面逐表三性**（§35.2：append-only 触发 / PK / 排序键 —— 逐表给触发器名 + `tgtype` + `tgenabled` 读数）；② **★ 口径更正**（§35.3：**`app_config` 非 append-only**（`tgtype = 19` = `BEFORE UPDATE`，就地 UPSERT 当前态）⇒ 「15 留痕面」中 **14 面 = 真 append-only**，`app_config` 属性待裁 `PENDING_ZANG`）；③ **五类过滤面库侧列映射**（§35.4：指向 `route-layer.spec` v2.21 §32.3 权威表 + 库侧列类型注）；④ **只读 / 零迁移**声明（§35.5：**不建表 / 不建视图 / 不改任何 append-only 面 / 不新造第二写入面**）；⑤ **未测项**（§35.6 · **禁填 0 / 空**）。**`DL` 编号域零改动**（仍 `DL1..DL157`，**不新增 `DL` 条** —— 本节以 `AUD-*` 承载）；**章节编号未重排**（新内容向后追加为 **§35**）。**范围** = **只写本册 + 改后快照 `docs/versions/data-layer.spec.v0.28.md` + delta 件 `docs/audit/data-layer-v0.28-delta.md`**；由上位册 `route-layer.spec` **v2.21 §32** 同批登记（Jing · Unit **JING-SPEC-8-6**）。**★ 头注留痕（诚实登记）**：紧邻其下的 v0.27 行仍带「文档状态（最新）」字样 —— 本册受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束，**未改写该行** ⇒ **以文件最上方的本行（v0.28）为现行版**。 **★ 8⑥ 裁定落册（`R-9-72`..`R-9-79` · 就地修订 · 本册稿未入库 ⇒ 无新版本号）**：面数 **14**（`app_config` 出 · `R-9-77`）/ 权限键闭集 **12**（`manage_audit` · `R-9-75`）/ 载体 **Ⅰ**（`R-9-74`）/ C3③ **枚举原因码**（`R-9-76`）。
@@ -4680,4 +4681,205 @@ CREATE TABLE IF NOT EXISTS public.job_arbitration_log (
 - 本节一切读数来自**只读现取**（`read_file` / `grep -n` / `git show`）；**本册未连库、未启停服务、未跑迁移、未改 `backend-ts/**` 与 `frontend/**`**。
 - 「常量现取 `50000`（`currency-service.ts:144/148`）」= **转引**本册 §23.6 `:1563` / §20.7 既有现取行（`NOT_MEASURED` 于本单，**出处 = 该现取行**）；「`0023:161-162` = `1000000`」= **转引**本册 §20 `AN10` `:1079`（**出处 = 该行**）。
 - **未写 `app_config` 行 / 未动生产数据**（§5.339 A1 行口径：写行与兜底行为等价 ⇒ 不动）。
+
+---
+
+## §38 ★★ v0.32 · A5 收口：站内信最小闭环（`conversation` / `message` 两表 DDL 契约）+ Telegram bot 绑定（`users` +2 列）+ 未读计数读口 + 频次上限数据面 + 迁移 `0045`/`0046` 内容契约（**本节只追加 · 旧行一字未改** · 依据 = Kevin 2026-10-12 逐字「直接 A+C」+ Zang 结构裁定 1–9，出处 = `docs/OPEN-ITEMS.md` `A5` 行 commit `3ae743e`；姊妹册正文 = `route-layer.spec` v2.31 §41 + `design-system.spec` v1.17 §20）
+
+### 38.0 裁定来源与范围（逐字引用 + 硬边界）
+
+| # | 裁定（逐字） | 本节落点 |
+|---|---|---|
+| Z1 | **会话模型 = per-listing**：`listing_id` + `buyer_uid` 唯一 ⇒ 一条会话；同一买家对同一商品重复发 = 同会话追加。**`message` append-only**（无 UPDATE/DELETE，带 TRUNCATE 守卫） | §38.2 / §38.3 |
+| Z2 | **参与者**：登录用户才能发；**卖家本人看自己商品 ⇒ 「聊一聊」按钮不渲染**；卖家经 `/messages` 看全部会话 | §38.2（参与者面 = 双方）· route 册 §41.4 authz 矩阵 |
+| Z3 | **通知口径**：bot 通知 = **双语一行、不带消息内容**；**只推给已绑定用户**；未绑定用户零打扰 | §38.4（读侧只判 `tg_user_id IS NOT NULL`）· route 册 §41.7 |
+| Z4 | **隐私红线**：`users` **只存 `tg_user_id` 数字 ID（+ `tg_linked_at`），绝不存公开 handle**；解绑即停推 | §38.4 `A5-DL-P1` |
+| Z5 | **绑定流**：`Settings` 发起 → 服务端发一次性 code（**10 分钟有效**）→ 用户在 Telegram 里向 bot 发 `/start <code>` → webhook 验证并落 `tg_user_id` | §38.4（落列面）· code 载体与生命周期 = route 册 §41.2 #7（**code 不入库、不建表** —— 服务端内存 / 签名令牌承载，见 §38.4 注） |
+| Z6 | **防刷**：会话内频次上限 **20 条/天/会话**（一句话可改）+ 用户全局每日上限 | §38.7 |
+| Z7 | **分页 = keyset 禁 OFFSET**；未读计数读口 = 会话级汇总 | §38.6 |
+| Z8 | **降级（env-gated）**：bot 未配置 ⇒ Telegram 绑定/推送面降级，**站内信完全不受影响**（503 not configured 形态，非 500） | §38.9 冲击清单 #6 · route 册 §41.9 |
+| Z9 | **不做（登记）**：撤回 / 编辑 / 图片 / 已读回执 / 拉黑 / 管理员可见 | §38.2 / §38.3（无对应列）+ §38.0 尾注 |
+| Z10 | **`F19` 并入**：详情读口增 `seller` 对象，只扩读口不动表 | 本节零 DDL（`listing.seller_uid` 已存在）· route 册 §41.3 |
+
+**硬边界（写死）**：本节**只冻 DDL 内容契约**；迁移文件由实现单创建（编号/文件名按 §38.8）、apply 由 Zang 执行且**生产 apply 需 Kevin 授权**；本单**零代码 / 零迁移文件 / 零库写 / 零 HTTP**。Zang 裁定 9 的「不做」六项在本节的结构后果 = **不建对应列 / 不建对应表 / 不留扩展占位列**（承「不造无人消费的空路径」；将来接入走新迁移，不改本契约）。
+
+### 38.1 现取事实底座（本单开工 · HEAD `3ae743e` · 2026-10-12 · 只读现取）
+
+| 项 | 现取读数 | 取法 |
+|---|---|---|
+| `users` 列集 | **6 列** = `uid / evm / bio / is_admin / time_reg / time_login_last`（`0002_user_identity.sql:11-19` 建表名 `"user"` ⇒ `0006_user_to_users.sql` 改名 `users` + 约束改名）⇒ **无任何站外联系字段** | `sed -n` 逐列 |
+| `listing.seller_uid` | **已存在**（`0015_listing.sql:117`，FK → `users` + `idx_listing_seller`）⇒ `F19` 只扩读口 | `sed -n '110,130p'` |
+| `schema_migration` 顶 | **43 行 / max `0044`**（门断言 `p8-s10-invite-reward-gate.ts:329-330` `K2` = 「43 行 / `0044`」） | 门源码现取 |
+| 迁移文件数 | **43 个**（`0018` 无文件，勿补 —— 仓内既有口径）；编号顶 = `0044_restore_listing_deposit_leg.sql` | `ls \| wc -l` + `ls \| tail` |
+| `MIGRATIONS_FROZEN` 常量 | **`43`** 两处：`backend-ts/scripts/p8-s4-currency-review-gate.ts:72`、`backend-ts/scripts/p8-s5-compliance-gate.ts:81`（判 `migFiles.length === 43`） | `grep -rn` |
+| append-only 守卫面 | **15 张**（`0043_truncate_guard.sql:26-41` 逐表清单；`app_config` 非 append-only，§35.3 口径） | 迁移源码现取 |
+| `vercel.json` crons | **恰 1 条天级**：`{"path":"/api/translate/backfill","schedule":"0 18 * * *"}` ⇒ **分钟级 bot 轮询不可行**（后端 = serverless ⇒ bot 走 webhook 路由） | `vercel.json` 现取 |
+| Telegram 集成痕迹 | **0 命中**（全仓 `grep -rin telegram` 于 `backend-ts/src/**` + `frontend/src/**`，剔除 `node_modules` / 构建产物） | `grep` |
+| `/messages` 前端 | 路由已登记（`App.jsx:117` `<Route path="messages">`）+ **占位页** `frontend/src/pages/MessagesPage.jsx`（占位钩子 `data-sf-m="messages-x-placeholder"`，语义 = 「X（推特）私信接驳位预留」，**已被本单方向变更取代：Telegram，非 X** —— route 册 v2.27 §37 预留语义的替代，逐条见姊妹册） | 文件现取 |
+| 会话/消息表 | **0 张**（`backend-ts/migrations/0001..0044` 逐文件无 conversation / message 建表） | `grep` |
+| 四语键集基线 | 顶层 **122** / 拍平 **1045** / 四语节点 **4180**（`messagesPage.*` 现 4 键：`title` / `empty` / `xPlaceholder` / `xNote`） | `zh.json` 现取（前推面归 design 册 §20.8） |
+
+### 38.2 表一 `public.conversation`（会话 · **受限可变面** · 完整 DDL 契约）
+
+```sql
+CREATE TABLE IF NOT EXISTS public.conversation (
+  conversation_id         bigint      GENERATED BY DEFAULT AS IDENTITY,
+  listing_id              bigint      NOT NULL,
+  buyer_uid               bigint      NOT NULL,
+  seller_uid              bigint      NOT NULL,              -- 冗余列（见 A5-DL-G1）
+  buyer_last_read_msg_id  bigint      NOT NULL DEFAULT 0,    -- 买方已读水位（单调不减）
+  seller_last_read_msg_id bigint      NOT NULL DEFAULT 0,    -- 卖方已读水位（单调不减）
+  create_key              text        NOT NULL,              -- 沿 R51/R52 指纹口径（见 A5-DL-G4）
+  time_created            timestamptz NOT NULL DEFAULT now(),
+  time_updated            timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT conversation_pk                   PRIMARY KEY (conversation_id),
+  CONSTRAINT conversation_listing_fk           FOREIGN KEY (listing_id) REFERENCES public.listing(listing_id),
+  CONSTRAINT conversation_buyer_fk             FOREIGN KEY (buyer_uid)  REFERENCES public.users(uid),
+  CONSTRAINT conversation_seller_fk            FOREIGN KEY (seller_uid) REFERENCES public.users(uid),
+  CONSTRAINT conversation_parties_distinct     CHECK (buyer_uid <> seller_uid),
+  CONSTRAINT conversation_create_key_uniq      UNIQUE (create_key),
+  CONSTRAINT conversation_buyer_listing_uniq   UNIQUE (listing_id, buyer_uid)   -- Z1：per-listing 唯一
+);
+
+-- 读路径索引（keyset 游标 = (time_updated DESC, conversation_id DESC)，DL25 体例；禁 OFFSET）
+CREATE INDEX idx_conversation_buyer  ON public.conversation (buyer_uid,  time_updated DESC, conversation_id DESC);
+CREATE INDEX idx_conversation_seller ON public.conversation (seller_uid, time_updated DESC, conversation_id DESC);
+```
+
+**判据（写死 · 逐条可证伪）**：
+
+- **`A5-DL-G1`（`seller_uid` 冗余列的单真源保证）**：`seller_uid` 是 `listing.seller_uid` 的**派生冗余**，唯一写法 = **单语句 `INSERT … SELECT` 从 `listing` 取 `seller_uid`**（仓内 C2「单语句事件」体例）⇒ 结构上不可能与 `listing` 分叉。**DB 侧无跨表 CHECK**（PostgreSQL 不支持）⇒ 该保证落**写路径**而非约束；**判负对照** = 直插异值 `seller_uid` 的行 ⇒ 不经写路径即可能成立，属可接受边界（与 8④ 电量闸同体例，登记于 §38.11）。`listing.seller_uid` 本身**无任何更新路径**（route 册现取 `PATCH /api/listing/:listingId` 白名单不含 `seller_uid`）⇒ 无漂移源；若将来引入「卖家转让」类能力 ⇒ 本表必须加同步闸，**届时另裁**（登记）。
+- **`A5-DL-G2`（参与者面 = 恰双方）**：参与者集 = `{buyer_uid, seller_uid}` 闭集，无第三人、无群聊、无管理员旁路（Z9「管理员可见」不做）。
+- **`A5-DL-G3`（受限更新 · 不可删）**：见 §38.5。
+- **`A5-DL-G4`（`create_key` 语义）**：会话创建走**自然幂等**（`UNIQUE(listing_id, buyer_uid)` + `ON CONFLICT` 取既有行）⇒ `create_key` 承 **R51/R52 指纹口径**（同键重投 = 幂等重放、改内容 = 响亮拒绝），**不是** 会话幂等的承重墙；写入值 = `open:<listing_id>:<buyer_uid>` 确定性派生（**服务端派生**，沿 §4.5 选项 B「有自然键 ⇒ 服务端派生、前端不得自造」体例，route 册 §41.8 定稿）。
+- **`A5-DL-N1`（初值）**：`buyer_last_read_msg_id` / `seller_last_read_msg_id` 初值 `0`（早于任何 `msg_id` ⇒ 全量未读，语义自洽）。
+
+### 38.3 表二 `public.message`（消息 · **append-only** · 完整 DDL 契约）
+
+```sql
+CREATE TABLE IF NOT EXISTS public.message (
+  msg_id           bigint      GENERATED BY DEFAULT AS IDENTITY,
+  conversation_id  bigint      NOT NULL,
+  from_uid         bigint      NOT NULL,
+  body             text        NOT NULL,
+  time_created     timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT message_pk              PRIMARY KEY (msg_id),
+  CONSTRAINT message_conversation_fk FOREIGN KEY (conversation_id) REFERENCES public.conversation(conversation_id),
+  CONSTRAINT message_from_fk         FOREIGN KEY (from_uid)        REFERENCES public.users(uid),
+  CONSTRAINT message_body_len        CHECK (char_length(body) BETWEEN 1 AND 2000)   -- A5-DL-N2（一句话可改）
+);
+
+-- keyset 游标 = msg_id（DL25 体例）；(conversation_id) 前导列同时服务 FK。
+CREATE INDEX idx_message_conversation ON public.message (conversation_id, msg_id DESC);
+-- 全局日频次计数（§38.7 R2）取数索引。
+CREATE INDEX idx_message_from_day     ON public.message (from_uid, time_created);
+
+-- ★ append-only 三闸（0043 体例 · B9 家族；函数命名沿 `<table>_no_*` 家族，禁复用既有 `_append_only` 函数名）：
+CREATE FUNCTION public.message_no_update_or_delete() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN RAISE EXCEPTION 'message is append-only'; END $$;   -- SQLSTATE P0001，不借账本错误码（0043 同形）
+CREATE TRIGGER trg_message_no_update_or_delete
+  BEFORE UPDATE OR DELETE ON public.message FOR EACH ROW EXECUTE FUNCTION public.message_no_update_or_delete();
+CREATE FUNCTION public.message_no_truncate() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN RAISE EXCEPTION 'message truncate is forbidden'; END $$;
+CREATE TRIGGER trg_message_no_truncate
+  BEFORE TRUNCATE ON public.message FOR EACH STATEMENT EXECUTE FUNCTION public.message_no_truncate();
+```
+
+**判据（写死）**：
+
+- **`A5-DL-G5`（append-only 全集）**：对 `message` 的 `UPDATE` / `DELETE` / `TRUNCATE` 三事件全部有闸（`tgtype` 判据 = §35.2 同法：`UPDATE|DELETE` 行级 `tgtype & 27 == 27` + `TRUNCATE` 语句级 `tgtype & 2 == 2` 且 `FOR EACH STATEMENT`）；**append-only 守卫面 15 → 16**（`message` 入册，见 §38.9 #2）。
+- **`A5-DL-N2`（body 域）**：长度 `[1, 2000]` 字符（`char_length` 按 PG 语义计字符非字节）；DB 层是 **fail-closed 兜底**，主闸在写路径（`MSG_BODY_INVALID`，route 册 §41.5）。初值 2000 = Jing 裁定，**一句话可改**。无 `edited_at` / `deleted_at` / `media` 列（Z9）。
+- **`A5-DL-N3`（msg_id 全局单调）**：`IDENTITY` ⇒ 全局递增；会话内 keyset 游标直接用 `msg_id`，无需会话内序号列。
+- **`A5-DL-N4`（无已读回执 / 无撤回）**：读水位只存在 `conversation` 侧（双方各一），`message` 无任何已读标记列（Z9）。
+
+### 38.4 `users` +2 列（Telegram 绑定 · 完整 DDL 契约）
+
+```sql
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS tg_user_id  bigint;     -- 隐私红线：仅数字 ID（Z4）
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS tg_linked_at timestamptz; -- 绑定时刻（rebind 刷新）
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_tg_user_id
+  ON public.users (tg_user_id) WHERE tg_user_id IS NOT NULL;              -- 1 个 Telegram 账号 ↔ 1 个站内账号
+```
+
+**判据（写死）**：
+
+- **`A5-DL-P1`（隐私红线 · 可判负）**：`users` 上**禁止**出现任何 Telegram 公开标识列（`tg_username` / `tg_handle` / `first_name` / `last_name` / `language_code` / `chat_id` 等）——webhook 载体里的这些字段**只在内存中用于 bot 回复文案，绝不落库**（判据 = `0046` 文件内容只含上列 2 列 + 1 索引，多任何列 ⇒ 判负）。
+- **`A5-DL-P2`（1:1 绑定）**：部分唯一索引 ⇒ 同一 `tg_user_id` 至多绑一个站内账号；第二账号抢绑 = 路由面 `409 TG_TARGET_ACCOUNT_TAKEN`（route 册 §41.5），DB 兜底 = `23514`（唯一索引冲突）。
+- **`A5-DL-P3`（解绑语义）**：解绑 = `UPDATE users SET tg_user_id = NULL, tg_linked_at = NULL`（`users` 本就是可变面，无新闸）；解绑后 `tg_user_id IS NULL` ⇒ 推送读侧自然排除（Z3「解绑即停推」的库侧实现 = 无行可查，零新增状态列）。
+- **`A5-DL-P4`（code 不入库）**：一次性 code（10 分钟）**不落任何表**（无 `tg_bind_code` 表、无 `app_config` 键）——服务端以**签名令牌 / 内存缓存**承载（serverless 多实例下推荐 = HMAC 签名令牌：`code` 本身携带 `uid + 过期 + 签名`，验证 = 验签，无状态、免存储；机制正文 = route 册 §41.2 #7）。**判负**：`0045`/`0046` 里出现 code 存储表 ⇒ 判负。
+
+### 38.5 删除策略与不可变面（conversation 不可删 = 裁定落死 · 受限更新）
+
+| 面 | DELETE | UPDATE | TRUNCATE | 载体 |
+|---|---|---|---|---|
+| `conversation` | **禁止**（Jing 倾向「不可删」**裁死**：会话是双方法律往来留痕，删行会造 `message.conversation_id` 孤儿；真要下线走将来新迁移，不在本单） | **仅 3 列**：`buyer_last_read_msg_id` / `seller_last_read_msg_id` / `time_updated`，且两读水位**单调不减**；其余任何列变化 ⇒ 拒 | **禁止** | `trg_conversation_no_delete` + `trg_conversation_read_mark_only` + `trg_conversation_no_truncate`（三函数同名 `<table>_no_*` 家族，0043 体例） |
+| `message` | 禁止 | 禁止 | 禁止 | §38.3 三闸 |
+| `users` 两新列 | — | 可变（绑定/解绑写） | — | 既有面，无新闸 |
+
+- **`trg_conversation_read_mark_only` 契约**：`BEFORE UPDATE FOR EACH ROW`；逐列比较 `OLD`/`NEW`，凡 **不在** `{buyer_last_read_msg_id, seller_last_read_msg_id, time_updated}` 集内的列发生变化 ⇒ `RAISE`；且 `NEW.buyer_last_read_msg_id >= OLD.buyer_last_read_msg_id`、`NEW.seller_last_read_msg_id >= OLD.seller_last_read_msg_id`（单调水位，防「重置已读」刷未读）。**`time_updated` 只由消息追加写路径推进**（读标记单独推进时保持原值或同步推进，由实现单在 route 契约内定，判据 = route 册 §41.2 #5/#6）。
+- **判负对照（每闸一条）**：`UPDATE conversation SET title='x'` ⇒ 必红（`read_mark_only`）；`DELETE FROM conversation` ⇒ 必红；`TRUNCATE message` ⇒ 必红（`FOR EACH STATEMENT`，0043 教训：行级闸不拦 TRUNCATE）。
+
+### 38.6 未读计数读口（库侧口径 · 会话级汇总 · Z7）
+
+- **单会话未读（对用户 `u` 于会话 `c`）** =
+  `SELECT count(*) FROM public.message m WHERE m.conversation_id = :c AND m.from_uid <> :u AND m.msg_id > (CASE WHEN :u = :buyer THEN c.buyer_last_read_msg_id ELSE c.seller_last_read_msg_id END)`
+  （单语句、只读、无副作用 —— DL17 读路径体例；走 `idx_message_conversation` 尾段扫描）。
+- **总未读（角标取数）** = 上述对 `u` 全部参与会话的 `Σ`；读口 = `GET /api/messages/unread-count`（route 册 §41.2 #6），响应 `{ unread_total }`。
+- **无存储计数器**：不建计数列 / 不建汇总表 / **不写触发器维护计数**（append-only 纯度：未读是**查询期聚合**，承 §32「原始行 + 查询期聚合 · 禁预聚合分桶」同族口径）。**代价登记**：会话极长时单会话未读计数为尾段扫描（索引支撑下 O(未读数)），当前数据量级可接受；量级变化时再裁（登记，非本单判负面）。
+- **水位推进**：唯一写入口 = `POST /api/messages/conversations/:conversationId/read`（route 册 §41.2 #5；语义 = 水位推到当前会话最新 `msg_id`，单调）；`A5-DL-G3` 触发器保证任何路径都压不低水位。
+
+### 38.7 频次上限的数据面口径（Z6 · 派生计数 · 无计数器表）
+
+| 闸 | 闭值 | 粒度 | 边界 | 违反形态 |
+|---|---|---|---|---|
+| `A5-DL-R1` 会话闸 | **20 条 / UTC 自然日 / （会话 × 发送者）**（Zang 暂裁，**一句话可改**） | 会话 | `time_created >= date_trunc('day', now() AT TIME ZONE 'UTC')`（日界 = UTC，沿 `R-9-15` 先例） | `429 MSG_RATE_LIMITED` + `details.reason = PER_CONVERSATION_DAILY` |
+| `A5-DL-R2` 全局闸 | **200 条 / UTC 自然日 / 发送者**（Jing 提议初值，**一句话可改**） | 用户 | 同上 | `429 MSG_RATE_LIMITED` + `details.reason = GLOBAL_DAILY` |
+
+- **实现口径（写死）**：计数 = **查询期派生**（`SELECT count(*)` 于 `message`，走 `idx_message_conversation` / `idx_message_from_day`），**不建计数器表、不写触发器维护计数**（append-only 纯度，§38.6 同理）。闸的执行 = **单语句写路径 CTE**（`INSERT … SELECT … WHERE (count 检查)`，仓内 C2「单写路径闸」体例）⇒ 旁路直插不受闸，与 8④ 电量闸同体例、同可接受边界（§38.11 登记）。
+- **幂等重放不计数**：同 `create_key` 重放走短路径（返回既有行），**不进入** 计数-插入语句 ⇒ 重放永不挤占配额（判据：连发两次同键同内容 = 1 条计数）。
+- ** Seller 侧同受闸**：闸按「发送者」计，买卖双方同规（无卖家豁免——Zang 结构未给豁免，Jing 不自造）。
+
+### 38.8 迁移内容契约（`0045` / `0046` · 本册只冻内容 · apply 需 Kevin 授权）
+
+| 迁移 | 文件名（冻结） | 内容闭集 | 硬禁 |
+|---|---|---|---|
+| **`0045`** | `backend-ts/migrations/0045_message_conversation.sql` | §38.2 `conversation` 全量 + §38.3 `message` 全量 + 3 会话闸 + 2 消息闸（5 函数 5 触发器）+ 4 索引 + 5 FK | 改任何既有对象 / `CREATE OR REPLACE` 既有函数体 / 写业务数据 / 借账本错误码 |
+| **`0046`** | `backend-ts/migrations/0046_telegram_binding.sql` | §38.4 `users` 2 列 + 1 部分唯一索引 | 同上；**多任何 Telegram 标识列 ⇒ 判负（A5-DL-P1）** |
+
+- **apply 顺序 = `0045` → `0046`**（会话面先于绑定面；两者无相互依赖，顺序为可读性约定，写死不改）。
+- **幂等 apply**：两文件全量 `IF NOT EXISTS` 守卫（`0006` 幂等守卫体例）；checksum 冻结（`0001–0044` 一字节不动 ⇒ `migrate.ts` 整链 ABORT 红线沿用）。
+- **计数前推（实现单执行，本册登记）**：① `schema_migration` **43 行 / `0044` → 45 行 / `0046`**；② 迁移文件 **43 → 45**；③ `MIGRATIONS_FROZEN` 常量 **`43` → `45`** 两处（`p8-s4-currency-review-gate.ts:72` / `p8-s5-compliance-gate.ts:81`）；④ `p8-s10-invite-reward-gate.ts:329-330` `K2` 断言 **43 行/`0044` → 45 行/`0046`**；⑤ `p8-s11-audit-console-gate.ts:11` 元信息注释同步。**生产 = 新库**，apply 需 Kevin 授权；本地 dev 5788 连旧库存档 ≠ 生产，其读数不作生产哨兵。
+- **回滚**：纯 DDL 加法式；回滚 = 手工 `DROP TRIGGER/FUNCTION/INDEX/TABLE` + `ALTER TABLE users DROP COLUMN`（仓内无 down 迁移惯例，不写 down 段）；**生产回滚动作同样需 Kevin 授权**。
+
+### 38.9 对既有不变式的冲击清单（逐条 · 全量）
+
+| # | 既有不变式 | 冲击 | 结论 |
+|---|---|---|---|
+| 1 | `DL1..DL157` 编号域 | 零新增 `DL` 条（本节以 `A5-DL-*` 承载） | **零冲击** |
+| 2 | append-only 守卫面 = 15 张（`0043` 逐表清单） | `message` 新入（`UPDATE`/`DELETE`/`TRUNCATE` 三闸齐）⇒ **15 → 16**；`conversation` **不入** append-only 家族（受限可变面，§38.5 单列登记） | 前推，归实现单门复跑 |
+| 3 | `users` 列集 6 列 | +2 可空列（既有 6 列一字不动；既有读口显式列名 ⇒ 无 `SELECT *` 连带） | **加法安全** |
+| 4 | FK 面 | +5（conversation→listing / conversation→users ×2 / message→conversation / message→users） | 加法 |
+| 5 | DL25 keyset 纪律（禁 OFFSET） | 延伸到新读口 2 条：会话列表游标 = `(time_updated, conversation_id)` 复合、消息列表游标 = `msg_id`（route 册 §41.2） | **纪律不破** |
+| 6 | 错误码闭集 = 33（`LEDGER_*`） | **不动**（Zang/`R-9-76` 闭集纪律）；新域码 `MSG_*`/`TG_*` 独立闭集，登记于 route 册 §41.5 | 零冲击（route 侧前推） |
+| 7 | 资金面（`ledger_entry` / kind 闭集 20+3 / `Σtotal_supply` / `app_config`） | **零触碰**（本单无任何账本腿 / 无新 kind / 无新配置键） | **零冲击** |
+| 8 | R107 单错误形状 | 新码全走 `{"error":{code,message,i18n_key,details}}`（route 册 §41.5） | 不破 |
+| 9 | R98 真实 uid 恒正 | `message.from_uid` / 会话双方 FK → `users` ⇒ 平台 uid `−1` 结构性不可入消息面 | 不破 |
+| 10 | 迁移链 checksum 冻结 | `0001–0044` 一字不动，新迁移纯追加 | 不破 |
+| 11 | `vercel.json` crons = 1 条天级 | **不改**（bot 通知走 webhook 路由 + `waitUntil` 后台段，不依赖 cron；route 册 §41.7） | 不破 |
+| 12 | 四语键集 / i18n 计数 | 本册不承载；新增/删除键与计数前推 = design 册 §20.7–§20.8 | 转承姊妹册 |
+
+### 38.10 待裁项（**不得自选 · 交 Kevin**；本轮全部维持 Zang 暂裁 / Jing 提议初值）
+
+1. **bot 创建**：BotFather 建号、bot username 定名、`TELEGRAM_BOT_TOKEN` / `TELEGRAM_WEBHOOK_SECRET` 经**安全通道**交运维（**不入对话、不入仓、不入 i18n**）；env 键名冻结 = `TELEGRAM_BOT_TOKEN` / `TELEGRAM_WEBHOOK_SECRET`（可选 `TELEGRAM_BOT_USERNAME` 供前端文案展示）。
+2. **通知双语一行**（Zang 暂裁）与 **20 条/天/会话**（Z6）：维持暂裁，**一句话可改**。
+3. Jing 提议初值（均**一句话可改**）：全局 **200 条/日**（§38.7 R2）· body 上限 **2000 字符**（§38.3 N2）· 开新会话要求商品 `status='listed'`（追加旧会话不受限；route 册 §41.2 #1）· `seller.nickname` = EVM 掩码派生（route 册 §41.3）。
+
+### 38.11 判据分级 + 未测项（诚实边界 · 禁填 0 / 空）
+
+- **判据分级**：`[DB 闸]` = 触发器/约束（判负 = 直连库绕过 API 仍红）；`[写路径闸]` = 单语句 CTE（判负 = 绕过服务层直插不红，属已登记边界）；`[route 闸]` = 归 route 册 §41。
+- **未测项（全部 `NOT_MEASURED`）**：DDL 未在任何库试跑；`idx_message_from_day` 对全局日计数的选择性未测；`conversation_read_mark_only` 的逐列比较在极端并发（同会话双方同时读推进）下的行为未测；webhook `/start` 在 Telegram 重试语义下的重放路径（`CONSUMED`）未实测；总未读查询在万级会话下的延迟未测。本册未连库、未 apply、未改 `backend-ts/**` 与 `frontend/**`、未跑任何门。
+
+### 38.12 快照 + 自证（本节）
+
+- 改前：4683 行 / 881,757 B / md5 `b037d6aa895f7b4220ae3a21fff20d0d`；改后读数见本版 delta 件 `docs/audit/data-layer-v0.32-delta.md`（行数/字节/md5 前后 + `git diff --numstat` 删除列 = 0 + 快照 `cmp=0` + 未改代码自证）。
 

@@ -14,6 +14,7 @@
 > **★ 现行版 = v1.14（2026-10-12 · Kevin「主题初始默认跟随系统」裁定落册 + catch-all 提示页上线回写 + `/item/999999` 依据补记 · 只追加 + 就地留痕 · 本单只写 `docs/**`）**：**① 新规则 `T93`（§18.1 · 三级优先序逐字落册）** —— **① 用户显式选择**（`localStorage['theme']`，仅由顶栏/面板的主题开关写入）＞ **② 首次访问跟随系统** `prefers-color-scheme`（由 `frontend/index.html` 内联脚本在 React 渲染前设 `data-theme`，**不落盘** ⇒ 系统后续变化仍可跟随）＞ **③ 默认日档**（拿不到系统偏好 ⇒ `day`）；**`matchMedia` 只允许出现在 `frontend/index.html` 内联脚本**，**不得进入 `src/theme/**` / `src/shell/**` 的 JS**（既有硬断言 `theme-shell-isomorphism.test.jsx:205-213` 一字不动维持）；**`ThemeProvider.readInitialTheme()` 的取值顺序不变**（`data-theme` 属性 > `localStorage` > 默认）⇒ 跟随系统自然生效。**② 配套两条（§18.1）** —— **初始应用不落盘**（初次挂载只设 `data-theme`；仅用户显式切换才写 `localStorage`）＋ **无 `matchMedia` 可用（旧 WebView / 异常）⇒ 回退日档、不得抛错**。**③ catch-all 提示页 = 已实现 · 已上线（§18.3 + §16.2 / §16.5 就地注）** —— Kevin 裁定字面「**已上线（`NotFoundPage`，四语 12 例实测，旧路由不再白壳）**」；现取 = 组件 `frontend/src/pages/NotFoundPage.jsx` + `App.jsx:145` `<Route path="*">`（commit `d2ad4ef`；`origin/main == HEAD` ⇒ 已 push）。**④ `/item/999999` 依据补记（§17.4 行后就地注）** —— route 册（v2.30 §40.1）与本册 §17.4 上轮均已记 ⇒ 本版只补**依据行**（「详情页内空态带上下文更精确，且非空白」；口径一字未改）。**⑤ 主题章就地注三则（§6 表后）+ §18 现取边界（§18.2）** —— 真机诊断定案补记（**Kevin 已确认切日档正常；夜档 = 该 origin 存储的显式选择，非浏览器强制深色**）；`T42` 键名册面 `sea.theme` 与实现 `theme` 出入、`T43` 的 `theme.js` `matchMedia`/`change` 机制**均以 `T93` 为现行口径**（原行一字未改）。**⑥ `docs/OPEN-ITEMS.md` 新增 `F16`**（T93 实现与验收挂账）。**改动 = 版本头（本行）+ §12 + §6 表后一处就地注（含 `T42`/`T43` 两则）+ §16.2 / §16.5 两处就地注 + §17.4 依据补记 + §18（新）**；**改前快照** = `docs/versions/design-system.spec.v1.13.md`（上轮 v1.13 本版镜像原件；本单开工复核 `cmp` = **0**；md5 `b6e3685e84441ef582b73f1cbf012d9c`；1615 行 / 336,436 B）；**本版镜像** = `docs/versions/design-system.spec.v1.14.md`（落笔后建，`cmp=0`）。**本册 v1.14 只写 `docs/**`；未动 `frontend/**` / `tools/**` / `ctrl/**`；未启停任何服务（绝不 `pm2 restart`）；未 `git add -A` · 未 commit · 未 push**。**现取基线 = HEAD `07a3927`（origin/main 同步；工作区另有 Kong 同轮改动 `frontend/index.html`，非本单写面，本册按「现取 = HEAD + 已知工作区」如实分列）。** **★ 复跑（本单收笔前）：现行 HEAD = `bb55925`（Kong 内联脚本单已提交）—— 上列「工作区改动」表述为现取时点状态，随之关闭。**
 > **★ 现行版 = v1.15（2026-10-12 · Kevin「`/item/:id` 详情页 UI 改造（变体 A = 闲鱼结构 × 本站主题）」拍板 · 五条逐字采用 · 只追加 + 就地留痕 · 本单只写 `docs/**`）**：**① 新规则 `T94`（范围 + 渲染面白名单）** —— 只改 `/item/:id`；**只渲染** 价格行 / 大标题 / 详情面板（渐变占位图 + 描述 + 库存 + 数量输入）/ 底部固定操作栏（**仅「立即购买」一个 CTA**）/ 页内顶栏返回箭头 / **既存** `.sf-item-note`；**一律不渲染** 卖家信息行 / 属性两列 / 集市横幅 / 划线原价 / 比市场价 / 包邮 / 想要·浏览计数 / 留言 / 收藏 / 聊一聊（判据 = **无数据承载不渲染**；`GET /api/prize/:bID` 现取**无** owner/seller、无 media_urls、无品牌/成色）。**② 新规则 `T95`（隐藏底栏机制 · 二选一裁死）** —— **采纳「DOM 恒在 + 页面级 `display:none`」**：`BottomTabBar` **恒渲染** `<nav class="sf-tabbar">` 与**全部 5 个** `<a data-sf-nav>`；**仅** `pathname` 命中详情路由时追加 **`is-detail`** 修饰类（状态挂点 = `frontend/src/shell/BottomTabBar.jsx`，其**已有 `useLocation()`** ⇒ 只加**路由串匹配**，**不得**引入宽度判定）；隐藏规则落 **`frontend/src/styles.css` 顶层**（`.sf-tabbar.is-detail{display:none}`；**不入 `@layer` / 不入 `@media`**；**`shell.css` 一字不动**）⇒ **五 region 断言零改动**（`theme-shell-isomorphism.test.jsx:80-81`/`:89`/`:106-107`/`:120-122` · `v15-nav-floatmenu.test.jsx:228`/`:109`）；**否决 DOM 移除**（会红 6 处同构断言 + 拆掉「同构 ⇒ DOM 恒在」硬核）。**③ 新规则 `T96`（可达性硬 AC）** —— **页面内顶栏 = 返回箭头（`‹`）**，**不加搜索框**；**返回目标裁死 = 固定回首页 `root('/')`**（**否决 `history.back()`** —— 深链 / 刷新时 history 无站内上一页）；**a11y 名复用既有键 `t('item.list')`**；**触控复用既有 `.sf-tap-sq`**（≤767 档 ≥44×44）。**④ 新规则 `T97`（桌面档）** —— 桌面底栏本就 `display:none` ⇒ 详情页导航不受影响；**操作栏 ≤767 = `fixed` 独占底部 / >767 = 留在内容流**（页面文件 `item.css` 内，`shell.css` 不得新增 `@media`）。**⑤ 新规则 `T98`（结构常量落点）** —— **零新主题 token**（`TOKEN_KEYS` 一字不动）；确需新增的**结构常量一律落 `item.css` 的页面局部 `--sf-l-*`**（**不得进 `tokens.js` 的 `STRUCT`** —— `STRUCT_PROV` 带**溯源硬门**：值须回读 `docs/design/style-preview.html` 行号，本单无新真源块）：`--sf-l-detail-price-size`(28px) · `--sf-l-detail-title-size`(18px) · `--sf-l-actionbar-h`(60px) · `--sf-l-actionbar-safe`(`env(safe-area-inset-bottom)`，与 `shell.css:72` 同形复刻)；**CTA 胶囊半径复用既有 `--sf-st-radius-pill`(999px)**。**⑥ 新规则 `T99`（视觉口径 + 映射表）** —— 参考图元素 → 既有槽位**逐项映射**（§19.4）；**未被映射的元素一律不渲染**；**CTA「黄底深字」逐字命中既有 `.sf-btn`（`--sf-btna-bg #FFE60F` / `--sf-btna-fg #202020`）⇒ 零新颜色**；**可见文本 ≥12px**（`T79` 不破）。**⑦ i18n 零新增 / 零删除** ⇒ 键集 **顶层 122 / 拍平 1045 / 四语节点 4180 逐字不变**（回退 a11y 名与 CTA 文案**全复用既有键**；去刷新按钮后 `item.refresh` 键**保留**、登记为键卫生项，**非死键清理对象**）。**⑧ 两条新教训 `N39`/`N40`** —— `N39` = 页面源码 / CSS 新增注释**禁写「`/*` 收尾的路径字面」**（吞码引信 · 承接 `N35`）；`N40` = **页面级隐藏共享外壳元素的口径**（DOM 恒在 + 路由条件修饰类 + 全局 CSS 顶层 · 具体性压过断点块）。**⑨ 留痕（§19.10）** —— **就地收窄 `T46`/`T80` 的「底栏恒 5 格」，仅限 `/item/:id`**；**其余页面逐字照旧**；`T86`（汉堡排除集 `['exchange']`）/ `T75`（`viewport-fit=cover` 安全区）**逐字不变**。**⑩ 三条待裁 `Q1`–`Q3`（§19.11 · 不得自选）** —— 聊一聊 = 站内信 vs 站外 Telegram · CTA 胶囊圆角（`radius-pill` vs `radius-btna`）· 大号价格字号（28px vs 32px）。**改动 = 版本头（本行）+ §12 + §19（新）**；**改前快照** = `docs/versions/design-system.spec.v1.14.md`（本单开工复核 `cmp` = **0**；md5 `7e67f2cdd95417502148bdff74ee95a2`；1673 行 / 354,073 B）；**本版镜像** = `docs/versions/design-system.spec.v1.15.md`（落笔后建，`cmp=0`）。**本册 v1.15 只写 `docs/**`；未动 `frontend/**` / `tools/**` / `ctrl/**`；未启停任何服务（绝不 `pm2 restart`）；未 `git add -A` · 未 commit · 未 push**（实现 / 验收归 Kong / Neng）。**现取基线 = HEAD `a111b45`（2026-10-12）。**
 > **★ 现行版 = v1.16（2026-10-12 · 回写单 · `/item/:id` 详情页 UI 改造（变体 A）实现真相回写 = Zang 六条终审裁定 `R-A`–`R-F` 入册 + `Q2`/`Q3` 已裁 + 白名单/AC-2 判据补齐 + `N41`/`N42` 两条教训 + `§17.4` 钩子就地更正 · 只追加 + 就地留痕 · 本单只写 `docs/**`）**：**依据 = 质检报告 `docs/qa/v115-item-detail-qa.md`（verdict = **PASS** · `spec_drift` 清单）+ 实现 commit `2aee62f`（本地 · 未 push）**。**① 新增 §19.13 = 六条裁定逐条入册**（`R-A` 三键折进 `.sf-item-meta-group` · `R-B` CTA 胶囊 999px 落 `.sf-btn.sf-item-cta` · `R-C` 大号价格 32px + 320 档硬门 · `R-D` ≤767 详情页等量底部内边距 · `R-E` 详情页限 `:has()` 页脚补齐 · `R-F` `item.buyNote` 保留渲染）。**② §19.11 `Q2`/`Q3` 就地回写为「已裁」**（旧「待裁」字面逐字保留 + 标「已被 §19.13 `R-B`/`R-C` 取代」）。**③ §19.4 末表值更正** `--sf-l-detail-price-size` **28px ⇒ 32px**（28px 降为「320 溢出则回落」备值 · 旧字面逐字保留）。**④ §19.5 白名单 + §19.8 AC-1 判据补齐**（白名单由六项扩为「六项 + `R-A` 三键 + `R-F` buyNote」⇒ 否则按旧字面判会误判为负 · 质检已实测）。**⑤ §19.8 AC-2 href 字面集改锚**（实现产出无尾斜杠 = `/`、`/en`、`/hk`、`/vn` ⇒ 改字面或明文注明「忽略尾斜杠」，登记该字面差异非缺陷）。**⑥ §19.14 = `R-D` 与 `R-E` 判据分离**（`R-D` = 机械量「≤767 文档高 +60px」；`R-E` = 内容级遮挡 `lastLeafOverlapPx` 29→0 且 `lastLeafCovered` true→false · 只在固定档〔`position:fixed`〕判定；**`footCoveredPx` 是无效判据**）。**⑦ 新增教训 `N41`**（跨文件同具体性覆盖 · 页面级形状修饰须在选择器上取胜 · 判据 = `border-radius` 计算值）。**⑧ 新增教训 `N42`**（证据入库 vs `.gitignore` · `git add -f` 属已登记口径 + `check-ignore`/`ls-files` 两读数）。**⑨ §17.4 就地更正 + 快照口径声明**（`data-sf-m="item-back-link"` 过期 ⇒ 实现改名 `item-back` + 新增 `item-actionbar`；`docs/versions/` 旧快照一字不改，属历史）。**⑩ §19.12 诚实清单更新**（真机 `env(safe-area-inset-bottom)` · `:has()` 非 Chrome 渲染 · mock 数据面 ⇒ 三项 `NOT_MEASURED`，引质检 `not_measured`）。**改动 = 版本头（本行）+ §12 + §17.4 就地更正 + §19 就地追加（§19.4 更正注 · §19.5 白名单注 · §19.8 AC-1/AC-2 注 · §19.9 `N41`/`N42` · §19.11 已裁注 · §19.12 更新 · 新增 §19.13/§19.14）**；**改前快照** = `docs/versions/design-system.spec.v1.15.md`（本单开工复核 `cmp` = **0**；md5 `910494eb9c290bbb8bf745f33bc67891`）；**本版镜像** = `docs/versions/design-system.spec.v1.16.md`（落笔后建，`cmp=0`）。**本册 v1.16 只写 `docs/**`；未动 `frontend/**` / `tools/**` / `ctrl/**`；未启停任何服务（绝不 `pm2 restart`）；未 `git add -A` · 未 commit · 未 push**。**现取基线 = HEAD `2aee62f`（本地 commit · 未 push；本册设计面真源 = v1.15 md5 `910494eb9c290bbb8bf745f33bc67891`）。** **★ 复取（本单收笔前 · 现取）**：现行 HEAD = **`203cf9a`**（同批：`4f69080` = 质检件 `docs/qa/v115-item-detail-qa*` 入库〔Neng · 钉 `2aee62f`〕+ `203cf9a` = `docs/OPEN-ITEMS.md` 就地更正 F15/F10）；**均未 push**（`origin/main...HEAD = 0 / 5`）；**这批 commits 未触及设计面** ⇒ 本册引用真源仍为 v1.15（`HEAD:docs/design/design-system.spec.md` md5 复取 = `910494eb9c290bbb8bf745f33bc67891`）。
+> **★ 现行版 = v1.17（2026-10-12 · Kevin「直接 A+C」= 站内信最小闭环 + Telegram bot 绑定/通知一步到位 · §19.11 `Q1` 已裁 + 底部操作栏第 3 格「聊一聊」激活 + `/messages` 占位页转真页 + Settings 绑定/解绑面 + 未读角标 · 只追加 + 就地留痕 · 本单只写 `docs/**`）**：**① `Q1` 已裁 = 站内信（A）+ Telegram bot 通知/绑定（C）并行**（§19.11 就地注；route v2.27 §37「X/推特私信接驳位预留」语义作废 ⇒ **Telegram，非 X**）。**② 新规则 `T100`（聊一聊激活）** —— `/item/:id` 底部固定操作栏**第 3 格**（§19.5 挂点激活）渲染「聊一聊」CTA；**渲染条件 = 登录 ∧ 非卖家本人**（卖家本人不渲染，Zang 结构 2；未登录 = 既有登录引导）；点击 = `POST /api/messages/conversations`（自然幂等）后进入该商品会话（route 契约 = v2.31 §41.2 #1/#2）。**③ 新规则 `T101`（`/messages` 真页形态）** —— 占位页转真页：会话列表态 / 会话详情态 / 输入区三态 + keyset「加载更多」+ 空态；**占位区块删除**（钩子 `messages-x-placeholder` + 键 `xPlaceholder`/`xNote` 四语同删，`F13` 体例）。**④ 新规则 `T102`（Settings 绑定/解绑面）** —— `ProfilePage`（我的）新增「Telegram 通知」卡：三态（未配置降级 / 未绑定 / 已绑定）+ 绑定码展示与步骤 + 解绑；env 缺 = 降级卡（`503 TG_NOT_CONFIGURED` 形态，route v2.31 §41.9）。**⑤ 新规则 `T103`（未读角标）** —— 底栏第 4 格（`messages`）+ 桌面悬浮菜单消息项双挂点；**取数口径 = 挂载时 + 发送成功后 + 进入 `/messages` 后**，**无轮询**（一句话可改）；`unread_total` 真源 = `GET /api/messages/unread-count`；`>99` 封顶显示 `99+`。**⑥ i18n = +35 新键 / −2 删键（四语同补同删）** ⇒ 键集 **顶层 `122 → 123` / 拍平 `1045 → 1078` / 四语节点 `4180 → 4312`**（算式见 §20.8；12 文件计数断言前推，§20.7）。**⑦ 零新主题 token / 零 `STRUCT` 增项**（`TOKEN_KEYS` 一字不动；新结构常量走页面局部 `--sf-l-*`，承 `T98` 体例）。**⑧ 新教训 `N43`**（预留槽位激活时必须同步回收占位键/占位钩子，防「占位常驻」）。**⑨ 姊妹册** = `route-layer.spec` **v2.31 §41**（10 条路由 + 12 新错误码 + 注册点 89→99）+ `data-layer.spec` **v0.32 §38**（两表 DDL + `users` +2 列）。**改动 = 版本头（本行）+ §12 表 v1.17 行 + §19.5 / §19.11 两处就地注（原地正文一字未动）+ §20（新）**；**改前快照** = `docs/versions/design-system.spec.v1.16.md`（本单开工复核 `cmp` = **0**；md5 `0400a3d9bbcc38b22cae0190b658c8ee`；1923 行 / 422,501 B）；**本版镜像** = `docs/versions/design-system.spec.v1.17.md`（落笔后建，`cmp=0`）。**本册 v1.17 只写 `docs/**`；未动 `frontend/**` / `backend-ts/**` / `tools/**` / `ctrl/**`；未启停任何服务（绝不 `pm2 restart`）；未 `git add -A` · 未 commit · 未 push**（实现 / 验收归 Kong / Neng）。**现取基线 = HEAD `3ae743e`（2026-10-12）。**
 > **★ v1.10 姊妹册（同批交付）** = `docs/route-layer.spec.md` **v2.28 §38**（`/item` 家族 + 旧路由硬删 + 「前端概念名 ⇄ 后端路径名」映射表）；本册只承载 **形态 / 入口集合 / 可达性 AC / 合并页口径 / i18n 删改留表 / 断言影响**，**不重抄**。
 > **v1.5 口径来源（逐字）**：Kevin 2026-10-11 定档 ①方案 A·UI 先行（不动后端）②右悬浮菜单仅桌面档显示、H5 隐藏 ③消息模块占位（后续接驳 X/推特私信）④客服/反馈做弹窗模板位；**＋ Kevin 当日两条连锁更正**（`Zang` 转达）：**(A)** 底栏第二项 = **「市场」→ `/exchange`**（key `shard`，图标 `Store`；**不再新建 `/nearby` 占位页、`nearby` 键不新增**）**(B)** `T76` 去重按新底栏集合重算（**`exchange` 继续排除、`reward`/`task` 恢复**）。
 > 交付物路径：`docs/design/design-system.spec.md`
@@ -816,6 +817,7 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 | **v1.14** | 2026-10-12 | **Kevin「主题初始默认跟随系统」裁定落册 + catch-all 上线回写（只追加 + 就地留痕）**：**① `T93` 三级优先序**（用户显式 `localStorage['theme']` ＞ 首访跟随系统 `prefers-color-scheme`〔`index.html` 内联脚本设 `data-theme` · 不落盘〕＞ 默认日档 `day`；`matchMedia` 只许在 `index.html` 内联脚本、不得进 `src/theme/**` / `src/shell/**` JS〔硬断言维持〕；`readInitialTheme()` 顺序不变 = 属性 > localStorage > 默认）· **② 配套两条**（初始应用不落盘 / 无 `matchMedia` ⇒ 回退日档不抛错）· **③ catch-all 提示页已实现 · 已上线**（`NotFoundPage` · 四语 12 例实测 · 旧路由不再白壳；`T91`/§16.2/§16.5 就地注）· **④ `/item/999999` 依据补记**（§17.4 就地注；route 册 v2.30 §40.1 + 本册 §17.4 已记，只补依据行）· **⑤ 主题章就地注**（真机诊断定案补记：Kevin 确认切日档正常；夜档 = origin 显式选择非强制深色；`T42` 键名 / `T43` 机制以 `T93` 为现行口径）· **⑥ 台账新增 `F16`**。**⇒ 新增 §18**（`T93` + 配套 + 现取边界 + 断言影响）。**改前快照** = `docs/versions/design-system.spec.v1.13.md`（`cmp=0`；md5 `b6e3685e84441ef582b73f1cbf012d9c`）；**本版镜像** = `docs/versions/design-system.spec.v1.14.md`（`cmp=0`）。**只写 `docs/**`；未动 `frontend/**` / `tools/**` / `ctrl/**`；未启停服务；未 `git add -A` · 未 commit · 未 push**。 |
 | **v1.15** | 2026-10-12 | **`/item/:id` 详情页 UI 改造（变体 A = 闲鱼结构 × 本站主题）落册（Kevin 2026-10-12 拍板 · 五条逐字采用 · 只追加 + 就地留痕 · 本单只写 `docs/**`）**：**① `T94` 范围 + 渲染面白名单**（只改详情页；只渲染 价格行 / 大标题 / 详情面板 / 底部操作栏（**仅「立即购买」**）/ 页内返回箭头 / 既存 `.sf-item-note`；不渲染 卖家行 / 属性两列 / 集市横幅 / 划线原价 / 比市场价 / 包邮 / 想要·浏览计数 / 留言 / 收藏 / 聊一聊 —— 判据 = **无数据承载不渲染**，数据面 `GET /api/prize/:bID` 现取无 owner/seller · 无 media_urls · 无品牌/成色） · **② `T95` 隐藏底栏机制（二选一裁死）**（**采纳「DOM 恒在 + 页面级 `display:none`」**：`BottomTabBar` 恒渲染 + 详情路由追加 `is-detail` 类 + `.sf-tabbar.is-detail{display:none}` 落 `src/styles.css` **顶层**；`shell.css` **一字不动**；**否决 DOM 移除**） · **③ `T96` 可达性硬 AC**（页内顶栏 = **返回箭头** · **不加搜索框** · 返回目标 = **固定回首页** · a11y 名复用 `item.list` · 触控复用 `.sf-tap-sq`） · **④ `T97` 桌面档**（桌面底栏本就 `display:none` ⇒ 导航不受影响；操作栏 **≤767 `fixed` / >767 内容流**） · **⑤ `T98` 结构常量落点**（**零新主题 token**；新增结构常量一律页面局部 `--sf-l-*` 落 `item.css`，**不得进 `STRUCT`**〔溯源硬门〕；CTA 胶囊半径复用 `--sf-st-radius-pill`） · **⑥ `T99` 视觉口径 + 参考图逐项映射表**（§19.4；未映射元素一律不渲染；CTA 黄底深字**逐字命中既有 `.sf-btn`** ⇒ 零新颜色；可见文本 ≥12px） · **⑦ i18n 零新增 / 零删除** ⇒ 键集 **122 / 1045 / 4180 逐字不变**（`item.refresh` 键保留为键卫生登记） · **⑧ 两条新教训 `N39`**（源码 / CSS 新注释禁写「`/*` 收尾的路径字面」· 吞码引信）**/ `N40`**（页面级隐藏共享外壳元素的口径：DOM 恒在 + 路由条件修饰类 + 全局 CSS 顶层） · **⑨ 留痕**（就地收窄 `T46`/`T80`「底栏恒 5 格」**仅限 `/item/:id`**；`T86`/`T75` 逐字不变） · **⑩ 待裁 `Q1`–`Q3`**（聊一聊 站内 vs 站外 Telegram · CTA 圆角 · 价格字号）。**⇒ 新增 §19**（`T94`–`T99` + `N39`/`N40` + §19.3 机制对照 + §19.4 映射表 + §19.5 渲染面/挂点 + §19.6 受影响硬断言清单 + §19.7 i18n + §19.8 归因式 AC + §19.10 留痕 + §19.11 待裁 + §19.12 未核实）。**改前快照** = `docs/versions/design-system.spec.v1.14.md`（`cmp=0`；md5 `7e67f2cdd95417502148bdff74ee95a2`；1673 行 / 354,073 B）；**本版镜像** = `docs/versions/design-system.spec.v1.15.md`（`cmp=0`）。**只写 `docs/**`；未动 `frontend/**` / `tools/**` / `ctrl/**`；未启停服务；未 `git add -A` · 未 commit · 未 push**。**现取基线 = HEAD `a111b45`。** |
 | **v1.16** | 2026-10-12 | **回写单 · `/item/:id` 详情页 UI 改造（变体 A）实现真相回写（`R-A`–`R-F` 六条终审裁定 + `Q2`/`Q3` 已裁 + 白名单/AC-2 判据补齐 + `N41`/`N42` + §17.4 钩子就地更正 · 只追加 + 就地留痕 · 本单只写 `docs/**`）**：**① 新 §19.13 = `R-A`–`R-F` 六条入册**（`R-A` = `item.line`/`priceServerNote`/`refundStockNote` 三键保留、折进 `.sf-item-meta-group`〔依据 = 既有可见内容 / 零数据依赖 / 删则成死键〕· `R-B` = CTA 胶囊 `--sf-st-radius-pill` 999px 落 `.sf-btn.sf-item-cta`〔复合选择器取胜〕· `R-C` = 大号价格 32px + **320 档零横向溢出硬门**〔溢出则回落 28px〕· `R-D` = ≤767 详情页等量底部内边距（机械量 +60px）· `R-E` = 详情页限 `:has()` 页脚补齐〔`.sf-shell:has(.sf-item-detail) .sf-region-foot`〕· `R-F` = `item.buyNote` 保留渲染〔携带幂等告知，与 `priceServerNote` 不冗余〕） · **② §19.11 `Q2`/`Q3` 就地回写为「已裁」**（胶囊 999px / 价格 32px + 320 档硬门；旧「待裁」字面逐字保留 + 标「已被 §19.13 `R-B`/`R-C` 取代」） · **③ §19.4 末表值更正** `--sf-l-detail-price-size` **28px ⇒ 32px**（28px 降为回落备值） · **④ §19.5 白名单 + §19.8 AC-1 判据补齐**（白名单由六项扩为「六项 + `R-A` 三键 + `R-F` buyNote」⇒ 否则按旧字面判会误判为负） · **⑤ §19.8 AC-2 href 字面集改锚**（实现无尾斜杠 ⇒ 改字面或明文「忽略尾斜杠」，登记为字面差异非缺陷） · **⑥ `R-D`/`R-E` 判据分离（§19.14）**（`R-D` = 机械量 +60px；`R-E` = 内容级遮挡 29→0 且 true→false，只在固定档判定；**`footCoveredPx` 是无效判据**） · **⑦ 新教训 `N41`**（跨文件同具体性覆盖：页面 CSS 先于 `shell.css` 落地 ⇒ 页面级形状修饰须在选择器上取胜；判据 = `border-radius` 计算值） · **⑧ 新教训 `N42`**（证据入库 vs `.gitignore`：`/.*-artifacts/` 吞目录 ⇒ `git add -f` 属已登记口径 + `check-ignore`/`ls-files` 两读数自证） · **⑨ §17.4 就地更正**（`item-back-link` ⇒ 现取 `item-back` + 新增 `item-actionbar`；旧快照字面不回改） · **⑩ §19.12 诚实清单更新**（真机 `env()` / `:has()` 非 Chrome / mock 数据面 ⇒ 三项 `NOT_MEASURED`）。**⇒ 新增 §19.13 / §19.14**。**改前快照** = `docs/versions/design-system.spec.v1.15.md`（`cmp=0`；md5 `910494eb9c290bbb8bf745f33bc67891`）；**本版镜像** = `docs/versions/design-system.spec.v1.16.md`（`cmp=0`）。**只写 `docs/**`；未动 `frontend/**` / `tools/**` / `ctrl/**`；未启停服务；未 `git add -A` · 未 commit · 未 push**。**现取基线 = HEAD `2aee62f`（本地 · 未 push）。** |
+| **v1.17** | 2026-10-12 | **Kevin「直接 A+C」（站内信最小闭环 + Telegram bot 绑定/通知一步到位）落册（只追加 + 就地留痕 · 本单只写 `docs/**`）**：**① `Q1` 已裁 = 站内信 + Telegram bot 并行**（§19.11 就地注；route v2.27 §37「X/推特接驳位预留」语义作废 ⇒ Telegram 非 X） · **② `T100` 聊一聊激活**（详情页操作栏**第 3 格**；渲染条件 = 登录 ∧ 非卖家本人；未登录 = 既有登录引导；点击 = `POST /api/messages/conversations` 后进入会话） · **③ `T101` `/messages` 真页**（列表/详情/输入三态 + keyset 加载更多 + 空态；占位区块与 `xPlaceholder`/`xNote` 键删除） · **④ `T102` Settings 绑定面**（`ProfilePage` Telegram 卡三态 + code 步骤 + 解绑；env 缺 = 降级卡） · **⑤ `T103` 未读角标**（底栏第 4 格 + 桌面悬浮菜单消息项；取数 = 挂载 + 发送后 + 进入 `/messages` 后，无轮询；`99+` 封顶） · **⑥ i18n +35 / −2** ⇒ **顶层 `123` / 拍平 `1078` / 四语节点 `4312`**（§20.8 算式；12 文件计数断言前推 §20.7） · **⑦ 零新 token / 零 STRUCT 增项** · **⑧ 教训 `N43`**（预留槽位激活须同步回收占位键/钩子）。**⇒ 新增 §20**（`T100`–`T103` + `N43` + §20.7 断言清单 + §20.8 键清单 + §20.9 归因式 AC + §20.11 待裁）。**改前快照** = `docs/versions/design-system.spec.v1.16.md`（`cmp=0`；md5 `0400a3d9bbcc38b22cae0190b658c8ee`）；**本版镜像** = `docs/versions/design-system.spec.v1.17.md`（`cmp=0`）。**只写 `docs/**`；未动 `frontend/**` / `backend-ts/**` / `tools/**` / `ctrl/**`；未启停服务；未 `git add -A` · 未 commit · 未 push**。**现取基线 = HEAD `3ae743e`。** |
 
 
 ### 与上游文件的关系（只读，本册未改一字）
@@ -1785,6 +1787,8 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 
 > **槽位预留口径**：底部操作栏按「**N 格 CTA 区 + 主 CTA**」的**单行 flex**结构落；本轮 **N = 0**（**无数据承载的元素一律不渲染**）⇒ **不预埋空槽位 DOM**（承「不造无人消费的空路径」）。将来接格时**只加子节点、不改布局契约**。
 
+> **★ v1.17 就地注（`T100` · 第 3 格激活 · 上行原地一字未动）**：**「聊一聊」行已被 v1.17 激活** —— `Q1` 已裁 = **站内信（A）+ Telegram bot 通知/绑定（C）并行**（Kevin 2026-10-12 逐字「直接 A+C」；「站内信 vs 站外信待裁」字面**已被取代**、原行留痕）⇒ 第 3 格 = **站内「聊一聊」CTA**（消费 `POST /api/messages/conversations` + `GET /api/messages/conversations?listing_id=`，route 册 v2.31 §41.2）。**本轮 N = 0 → 1**（只接第 3 格，第 1 格「留言」/第 2 格「收藏」**仍不渲染、不预埋 DOM**）；**渲染条件 = 登录 ∧ 非卖家本人**（卖家本人不渲染 = Zang 结构 2；未登录点击 = 既有登录引导）；数据依赖 = route 册 §41.3 `F19`（`seller` 对象已进读口，但**卖家行仍不渲染**——`T94` 白名单逐字不变，本格只消费「当前用户 vs seller.uid」判定）。逐条形态 / AC = §20.3 / §20.9。
+
 ### 19.6 受影响硬断言清单 + 前移方案（**现取重锚** · 逐条）
 
 > **总判**：本单**零 i18n 键、零主题 token、`shell.css` 零改动、路由零改动、DOM 零移除** ⇒ **下列既有硬断言**中**绝大多数零改锚**；须由 Kong **保持**的「契约型」条目单列「改法 = 保持」。
@@ -1868,6 +1872,8 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 
 > **★ v1.16 就地回写（`Q2`/`Q3` 已裁 · 旧字面逐字保留）**：**`Q2` 已裁 =（a）全圆胶囊 = `--sf-st-radius-pill`（`999px`）**（⇒ §19.13 `R-B`；上表 `Q2` 的「（a）/（b）」两变体字面**已被 v1.16 的 `R-B` 取代**）。**`Q3` 已裁 =（b）32px + 320 档硬门**（⇒ §19.13 `R-C`；上表 `Q3` 的「（a）28px（本册默认）/（b）32px」两变体字面**已被 v1.16 的 `R-C` 取代**）。**`Q1`（聊一聊 = 站内信 vs 站外 Telegram）维持待裁**（`docs/OPEN-ITEMS.md` `A5` 登记）。裁定来源 = Zang 2026-10-12 终审（`docs/OPEN-ITEMS.md:98` 已记「Q2/Q3 已裁 = 胶囊 999px / 价格 32px + 320 档硬门」）⇒ 本版把 §19.11 由「待裁」就地回写为「已裁」。
 
+> **★ v1.17 就地注（`Q1` 已裁 · 上行原地一字未动）**：**`Q1` 已裁 = (c) 站内 + Telegram bot 绑定/通知**（Kevin 2026-10-12 逐字「直接 A+C」：**站内信最小闭环 + Telegram bot 绑定/通知一步到位，不走分期**）—— 即「聊一聊」= **站内信会话**（变体 (a) 的实现面），**Telegram bot = 通知/绑定面**（`Settings` 发起，变体 (c) 的 Settings 引导段）；「本轮一律不渲染」字面**已被 v1.17 `T100` 取代**（第 3 格激活）；route v2.27 §37 的「X/推特私信接驳位预留」语义**作废 ⇒ Telegram，非 X**。路由/错误码/降级契约 = `route-layer.spec` v2.31 §41；库面 = `data-layer.spec` v0.32 §38；形态/AC = 本册 §20。
+
 ### 19.12 未核实 / 登记（诚实清单）
 
 - **本单只写 `docs/**`**：未动 `frontend/**` / `tools/**` / `ctrl/**`；**未启停任何服务**（绝不 `pm2 restart`）；**未 `git add -A` · 未 commit · 未 push**。
@@ -1921,3 +1927,152 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 
 
 
+
+---
+
+## §20 ★★ v1.17 · A5 收口：「聊一聊」第 3 格激活（`T100`）+ `/messages` 占位页转真页（`T101`）+ Settings 绑定/解绑面（`T102`）+ 未读角标（`T103`）+ 教训 `N43`（**本节只追加 · 旧行一字未改** · 依据 = Kevin 2026-10-12 逐字「直接 A+C」+ Zang 结构裁定 1–9（`docs/OPEN-ITEMS.md` `A5` 行 commit `3ae743e`）；姊妹册 = `route-layer.spec` v2.31 §41（路由/错误码/authz）+ `data-layer.spec` v0.32 §38（DDL））
+
+### 20.0 裁定来源（Kevin 2026-10-12 · 逐字采用）
+
+| # | 字面/裁定 | 本节落点 |
+|---|---|---|
+| K1 | 「直接 A+C」= **站内信最小闭环 + Telegram bot 绑定/通知一步到位**，不走分期 | `T100`–`T103` 全节 |
+| K2 | 询价意向单/计数（`D2`/`D4`）**不在本单**（挂账 = `F17`） | 本节不含任何意向单面 |
+| Z2 | 登录才能发；**卖家本人看自己商品 ⇒ 「聊一聊」不渲染** | `T100` |
+| Z3/Z4 | 通知双语一行不带内容；`users` 只存 `tg_user_id`；解绑即停推 | `T102`（隐私 = 绑定面不显示数字 ID） |
+| Z5 | Settings 发起 → code（10 分钟）→ `/start <code>` → webhook 落库 | `T102` |
+| Z6/Z7/Z8 | 防刷（20 条/天/会话 + 全局日上限）/ keyset 禁 OFFSET / env-gated 降级 | §20.4（429 文案）· §20.5（降级卡） |
+
+### 20.1 现取基线（本单开工 · HEAD `3ae743e` · 2026-10-12）
+
+| 项 | 现取读数 |
+|---|---|
+| 本册改前行数 / 字节 / md5 | **1923 行 / 422,501 B / `0400a3d9bbcc38b22cae0190b658c8ee`** |
+| 四语键集 | **顶层 122 / 拍平 1045 / 四语节点 4180**（逐文件相同） |
+| `/messages` | `App.jsx:117` `<Route path="messages">` + 占位页（`MessagesPage.jsx`：钩子 `messages-page` / `messages-x-placeholder`；键 `messagesPage.title`/`empty`/`xPlaceholder`/`xNote`） |
+| 详情页操作栏 | §19.5 槽位口径 = 「N 格 CTA 区 + 主 CTA」单行 flex，**本轮 N = 0**；钩子 `data-sf-m="item-actionbar"`（v1.16 现取） |
+| 底栏 / 桌面 nav | `nav.js` 五项（第 4 格 `messages` → `/messages`）；桌面悬浮菜单（`T81`）五项含「消息」 |
+| ProfilePage | `pages/ProfilePage.jsx`（`data-sf-m="jobs-profile"` 等既有钩子；本节只**新增卡片**，不动既有块） |
+| 后端事实 | 无会话/消息表；注册点 89；`LEDGER` 33 码闭集；Telegram 痕迹 0（姊妹册 §41.1 / §38.1 同源现取） |
+
+### 20.2 规则条文（`T100`–`T103`）
+
+| 规则 | 条文（写死） |
+|---|---|
+| **`T100`** | `/item/:id` 底部固定操作栏**第 3 格**渲染「聊一聊」CTA（复用既有 `.sf-btn` 黄底深字家族 + `--sf-st-radius-pill` 胶囊，`R-B` 口径；零新颜色）。**渲染条件 = 登录 ∧ 非卖家本人**（判定数据 = `seller.uid`（`F19` 读口）vs 当前用户；卖家本人 ⇒ 整格不渲染）；未登录 ⇒ 点击走**既有登录引导**（同 `/profile` 受保护项行为，不新造弹层）。**点击 = `POST /api/messages/conversations`（自然幂等，route §41.2 #1）成功后进入 `/messages` 会话详情**。第 1 格「留言」/ 第 2 格「收藏」**仍不渲染、不预埋 DOM**（N = 0 → 1）。 |
+| **`T101`** | `/messages` 由占位页转**真页**，三态：**列表态**（keyset 会话列表：对端掩码标识 + 商品标题 + `last_body_preview` ≤50 字符 + 每行 `unread_count` 角标 + 「加载更多」）、**详情态**（消息流 keyset 按 `msg_id` 倒序 + 顶部返回列表 + 商品上下文行 `aboutItem`）、**输入区**（textarea + 发送按钮；`≤767` 触控 ≥44；空 body 禁发）。**空态**：列表空 = `messagesPage.empty` 既有键复用；详情空 = 新键 `detailEmpty`。**占位区块删除**：钩子 `messages-x-placeholder` 整块移除 + 键 `xPlaceholder`/`xNote` 四语同删（`F13` 体例）；「X/推特」预留语义作废（route v2.27 §37 历史留痕不回改）。路由面零改动（`/messages` 已登记）。 |
+| **`T102`** | `ProfilePage`（我的）新增**「Telegram 通知」卡**（新卡片、不动既有块）：三态 —— **① 未配置降级卡**（env 缺 ⇒ 静态降级文案 `telegram.notConfigured`，无操作按钮；判据 = 绑定接口 `503 TG_NOT_CONFIGURED` 形态，route §41.9，**非 500**）；**② 未绑定态**（`telegram.bind` 按钮 → `POST /api/telegram/bind/start` ⇒ 展示 `codeLabel` + `codeSteps`（含 `{{bot}}`/`{{code}}` 插值 + 10 分钟有效）+ 等待回执；成功 = `bindSuccess` → 转态③）；**③ 已绑定态**（`telegram.bound` + `tg_linked_at` 日期 + `telegram.unbind` 按钮 → 二次确认内联（不新造弹窗模板）→ 成功回②）。**隐私（写死）**：绑定面**绝不显示** `tg_user_id` 数值 / 任何 Telegram handle（route §41.5 判负②的读面对应）。 |
+| **`T103`** | **未读角标**双挂点 = **底栏第 4 格（`messages`）** + **桌面悬浮菜单「消息」项**（同一取数、同一组件语义）：数字 = `GET /api/messages/unread-count` 的 `unread_total`；**取数时点 = ① 应用/外壳挂载时（登录态）② 发送成功后（#4 回执）③ 进入 `/messages` 后（读水位回执 #5）**，**无轮询、无 WebSocket、无定时器**（一句话可改）；`0` ⇒ 不渲染角标；`>99` ⇒ 显示 `99+`；a11y = `messagesPage.unreadA11y`（`{{count}} 条未读`）。角标**纯展示**，不阻塞导航。 |
+
+### 20.3 `T100` 展开 · 聊一聊三态判据表
+
+| 态 | 判定 | 行为 | 数据依赖 |
+|---|---|---|---|
+| 登录 · 他人商品 | `user && user.uid !== seller.uid` | 渲染第 3 格；点击 ⇒ `POST conversations` ⇒ `Navigate` 到会话详情（`/messages?c=<conversation_id>` 形态由实现定，**路由路径不变**） | `F19 seller.uid` + route #1 |
+| 登录 · 卖家本人 | `user.uid === seller.uid` | **不渲染**（服务端 #1 仍有 `MSG_SELF_CONVERSATION` 双闸） | `F19 seller.uid` |
+| 未登录 | `!user` | **不渲染第 3 格**（与既有登录可见性规则同构）；不存在「点了才登录」的中间态（保持操作栏 N 格语义纯净） | 既有 auth 状态 |
+
+### 20.4 `T101` 展开 · 钩子与结构（实现面锚点 · 归 AC-2 用）
+
+- 页面容器保留 `data-sf-m="messages-page"`；新增：`messages-list` / `messages-conversation-item` / `messages-conversation-unread`（行内角标）/ `messages-thread` / `messages-msg-item` / `messages-msg-mine` / `messages-msg-theirs` / `messages-input` / `messages-send-btn` / `messages-back` / `messages-load-more`。
+- 输入区 `≤767` 高度含 `env(safe-area-inset-bottom)` 复刻口径（`T75` 体例）；页面样式落 `messages.css` 页面局部 `--sf-l-*`（**零新主题 token**、零 `STRUCT` 增项、`shell.css` 一字不动）。
+- 429 语义直出：`MSG_RATE_LIMITED` ⇒ 文案键 `messagesPage.rateLimited`（`details.reason` 不进用户面）；发送失败通用态 = `sendFailed`；加载失败 = `loadFailed`。
+- **术语**：本页属「站内信」；页面标题键 `messagesPage.title`（「消息」）不动（底栏同键，`T80` 第 4 格文案不变）。
+
+### 20.5 `T102` 展开 · 绑定卡钩子与降级
+
+- 钩子：`tg-bind-card` / `tg-bind-status` / `tg-bind-code` / `tg-bind-steps` / `tg-bind-action` / `tg-unbind-action`（归 AC-4 用）。
+- code 展示 = 等宽字族既有槽位（`.sf-tag` 一类，不新造风格）；`codeSteps` 用 `{{bot}}` / `{{code}}` 插值（i18next 既有插值机制，全站已用）。
+- 降级判定 = 调 #7 收到 `503 TG_NOT_CONFIGURED` ⇒ 转降级卡（不重试、不轮询 env 状态）；降级卡**不影响** ProfilePage 其余块（归因式 AC-5 覆盖）。
+
+### 20.6 `T103` 展开 · 取数时点与状态归属
+
+- 状态挂点 = 外壳层共享态（`BottomTabBar` 与桌面悬浮菜单同源消费；实现形态由 Kong 定，**判据 = 两挂点同值**）；`unread_total` 唯一真源 = route #6。
+- **禁**：`setInterval` / `setTimeout` 轮询 / `visibilitychange` 拉取之外的自动拉取（一句话可改 = Kevin 若要「收 notify 后拉取」另行加挂点）。
+- 角标几何：底栏格内右上小圆点/数字徽章（≤12px 文本须 ≥12px ⇒ 数字字号 **12px**，`T79` 硬门）；桌面悬浮菜单项同构。
+
+### 20.7 受影响硬断言清单 + 前移（**现取重锚**）
+
+| # | 断言面 | 影响 | 改法 / 前移 |
+|---|---|---|---|
+| 1 | **i18n 计数断言 12 文件**（`s5-publish-headcount` / `s7-submissions-panel` / `i18n-batch-b4a` / `i18n-batch-b4b` / `i18n-batch-b5` / `r9-93-points-symbol` / `r9-96-dashj-copy` / `s19-participants-truth-source` / `s23-participants-headcount` / `s8-locale-key-coverage` / `s9-ledger-kind-closure` / `i18n-violation-closeout`） | **计数前推**：顶层 `122 → 123` / 拍平 `1045 → 1078` / 四语节点 `4180 → 4312` | 实现单（Kong）随 locale 落键同步改锚；**判负**：只改实现不改锚 ⇒ 整批红 |
+| 2 | 四语键集逐文件相同 | 新增/删除键**四语同补同删** | 硬门维持；缺语 ⇒ 渲染裸键名 |
+| 3 | `theme-shell-isomorphism` 五 region / DOM 恒在 / `shell.css` 唯一 767 块 | 底栏 DOM 恒在（角标是第 4 格 `<a>` 的**子节点**） | **零改锚**；角标 DOM 不得移除 `<a data-sf-nav>` |
+| 4 | `v15-nav-floatmenu` 桌面悬浮菜单断言 | 消息项增角标子节点 | 就地核对其元素键口径；**若该测试用「结构键含子元素序号」** ⇒ 实现单现取后登记（`NOT_MEASURED` 于本单） |
+| 5 | `p7e-tails-beta` / `listing-market` / `p6-btn-impl2`（详情页家族） | 第 3 格新增 CTA（`.sf-btn` 命中 +1） | `p6-btn-impl2 #10` 的 `totalUses ≥ 22` 为**下限断言** ⇒ +1 不红；`.sf-item-cta` 复合类规则（`R-B`）不破 |
+| 6 | `i18n-content-wiring` | `MessagesPage` 若进 `WIRED` 家族须带 `i18n-content` import | 实现单现取该文件是否在 `WIRED` 清单；不在 ⇒ 零改锚 |
+| 7 | `p4z-i18nviol-global.mjs`（`N39` 吞码红线） | 新页面/新 CSS 注释 | **禁写「`/*` 收尾的路径字面」**（如 `/api/messages/` 尾）；改写为 `/api/messages/…` 形式 |
+| 8 | `app-routes.test.jsx` 等路由面 | 路由零改动 | 零改锚 |
+
+### 20.8 i18n 键清单（**+35 / −2 · 四语同补同删**）+ 计数算式
+
+**删除（2）**：`messagesPage.xPlaceholder` · `messagesPage.xNote`（占位语义作废；`F13` 四语同删体例）。
+
+**新增（35；zh 为定稿值，en/hk/vn = 初译「待复核」，四语键集相等硬门适用）**：
+
+| 键 | zh | en / hk / vn（初译） |
+|---|---|---|
+| `item.chat` | 聊一聊 | Chat / 聊一聊 / Nhắn tin |
+| `messagesPage.backToList` | 返回消息列表 | Back to conversations / 返回消息列表 / Quay lại danh sách |
+| `messagesPage.detailEmpty` | 还没有消息，发第一条吧 | No messages yet. Say hello! / 還沒有消息，發第一條吧 / Chưa có tin nhắn nào |
+| `messagesPage.inputPlaceholder` | 输入消息… | Type a message… / 輸入消息… / Nhập tin nhắn… |
+| `messagesPage.send` | 发送 | Send / 發送 / Gửi |
+| `messagesPage.sendFailed` | 发送失败，请重试 | Failed to send. Please retry. / 發送失敗，請重試 / Gửi thất bại, vui lòng thử lại |
+| `messagesPage.rateLimited` | 今天在这里发消息太频繁了，明天再试 | Too many messages here today. Try again tomorrow. / 今天在這裡發消息太頻繁了，明天再試 / Bạn đã gửi quá nhiều tin nhắn hôm nay |
+| `messagesPage.aboutItem` | 关于：{{title}} | About: {{title}} / 關於：{{title}} / Về: {{title}} |
+| `messagesPage.loadMore` | 加载更多 | Load more / 加載更多 / Tải thêm |
+| `messagesPage.loadFailed` | 加载失败，请重试 | Failed to load. Please retry. / 加載失敗，請重試 / Tải thất bại, vui lòng thử lại |
+| `messagesPage.notFound` | 会话不存在 | Conversation not found / 會話不存在 / Không tìm thấy hội thoại |
+| `messagesPage.unreadA11y` | {{count}} 条未读 | {{count}} unread / {{count}} 條未讀 / {{count}} chưa đọc |
+| `telegram.title` | Telegram 通知 | Telegram notifications / Telegram 通知 / Thông báo Telegram |
+| `telegram.desc` | 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） | Get Telegram bot reminders for new messages (content not included) / 綁定後，收到新消息會通過 Telegram bot 提醒你（不包含消息內容）/ Nhận thông báo qua Telegram bot khi có tin nhắn mới (không kèm nội dung) |
+| `telegram.bind` | 绑定 Telegram | Bind Telegram / 綁定 Telegram / Liên kết Telegram |
+| `telegram.unbind` | 解除绑定 | Unbind / 解除綁定 / Hủy liên kết |
+| `telegram.bound` | 已绑定 | Bound / 已綁定 / Đã liên kết |
+| `telegram.notBound` | 未绑定 | Not bound / 未綁定 / Chưa liên kết |
+| `telegram.codeLabel` | 你的绑定码 | Your linking code / 你的綁定碼 / Mã liên kết của bạn |
+| `telegram.codeSteps` | 打开 Telegram，向 {{bot}} 发送：/start {{code}}（10 分钟内有效） | Open Telegram and send to {{bot}}: /start {{code}} (valid for 10 minutes) / 打開 Telegram，向 {{bot}} 發送：/start {{code}}（10 分鐘內有效）/ Mở Telegram và gửi tới {{bot}}: /start {{code}} (hiệu lực 10 phút) |
+| `telegram.notConfigured` | 通知服务暂未配置 | Notifications are not configured yet / 通知服務暫未配置 / Dịch vụ thông báo chưa được cấu hình |
+| `telegram.bindSuccess` | 绑定成功 | Linked successfully / 綁定成功 / Liên kết thành công |
+| `telegram.bindFailed` | 绑定失败，请重新获取绑定码 | Linking failed. Please get a new code / 綁定失敗，請重新獲取綁定碼 / Liên kết thất bại, vui lòng lấy mã mới |
+| `msg.err.MSG_LISTING_NOT_FOUND` | 商品不存在 | Listing not found / 商品不存在 / Không tìm thấy mặt hàng |
+| `msg.err.MSG_SELF_CONVERSATION` | 不能给自己发起会话 | You cannot start a conversation about your own item / 不能給自己發起會話 / Không thể tự tạo hội thoại với chính mình |
+| `msg.err.MSG_LISTING_NOT_OPEN` | 该商品当前不可发起会话 | This item is not open for conversations / 該商品當前不可發起會話 / Mặt hàng này hiện không mở hội thoại |
+| `msg.err.MSG_CONVERSATION_NOT_FOUND` | 会话不存在 | Conversation not found / 會話不存在 / Không tìm thấy hội thoại |
+| `msg.err.MSG_NOT_PARTICIPANT` | 你不在该会话中 | You are not a participant of this conversation / 你不在該會話中 / Bạn không thuộc hội thoại này |
+| `msg.err.MSG_BODY_INVALID` | 消息内容为空或过长 | Message is empty or too long / 消息內容為空或過長 / Tin nhắn trống hoặc quá dài |
+| `msg.err.MSG_RATE_LIMITED` | 发消息太频繁，请稍后再试 | Sending too fast. Please try later / 發消息太頻繁，請稍後再試 / Gửi quá nhanh, vui lòng thử lại sau |
+| `tg.err.TG_NOT_CONFIGURED` | 通知服务暂未配置 | Notifications are not configured yet / 通知服務暫未配置 / Dịch vụ thông báo chưa được cấu hình |
+| `tg.err.TG_CODE_INVALID` | 绑定码无效或已过期 | Linking code is invalid or expired / 綁定碼無效或已過期 / Mã liên kết không hợp lệ hoặc đã hết hạn |
+| `tg.err.TG_TARGET_ACCOUNT_TAKEN` | 该 Telegram 账号已绑定其它站内账号 | This Telegram account is linked to another account / 該 Telegram 帳號已綁定其它站內帳號 / Tài khoản Telegram này đã liên kết với tài khoản khác |
+| `tg.err.TG_NOT_LINKED` | 尚未绑定 Telegram | Telegram is not linked yet / 尚未綁定 Telegram / Telegram chưa được liên kết |
+| `tg.err.TG_WEBHOOK_UNAUTHORIZED` | 请求未授权 | Request unauthorized / 請求未授權 / Yêu cầu chưa được xác thực |
+
+**计数算式（写死 · 可复核）**：顶层 `122 + 1`（新顶层命名空间 `telegram`）= **123**；拍平 `1045 − 2`（删 `xPlaceholder`/`xNote`）`+ 23`（UI 键：`item.chat` 1 + `messagesPage` 11 + `telegram` 11）`+ 12`（`msg.err.*` 7 + `tg.err.*` 5）= **1078**；四语节点 `1078 × 4` = **4312**。**归零自检**：新键 35 = 23 + 12；删键 2；净 +33 flat；顶层 +1 自洽（`telegram` 为新顶层）。
+
+### 20.9 归因式 AC（**不用元素白名单** · 承 §19.8 体例）
+
+- **AC-1（聊一聊三态）**：`/item/:id` 上，第 3 格「聊一聊」**可见性**与三态判据表（§20.3）逐一相符；反事实 = 把 `user.uid` 换成 `seller.uid`（仅测量期）⇒ 该格**必须消失**。**判负**：卖家本人可见该格 / 未登录可见该格 / 点击后无 `POST conversations` 网络痕迹。
+- **AC-2（`/messages` 真页可达性 + 入口不丢失）**：底栏第 4 格 + 桌面悬浮菜单「消息」仍可达 `/messages`（路由零改动）；页内**返回列表**入口（`messages-back`）可见可点（`≤767` ≥44×44）；`/messages` 上可达路由集合相对改前**不减**。**判负**：占位钩子 `messages-x-placeholder` 仍存在 ⇒ 判负（`T101` 显式删除项）。
+- **AC-3（角标显示与清零）**：登录 + 存在未读 ⇒ 两挂点（底栏第 4 格 + 桌面悬浮菜单消息项）**同值**显示 `unread_total`（>99 ⇒ `99+`）；进入会话详情并触发 #5 后（测量期回执）⇒ 该会话行角标清零且 `unread-count` 重取值下降；**反事实**：未登录 ⇒ 两挂点零角标、零请求。**判负**：出现轮询请求（`>3` 次同 URL 定时重复）⇒ 判负（`T103` 无轮询）。
+- **AC-4（绑定面三态）**：① env 缺（`503 TG_NOT_CONFIGURED`）⇒ 降级卡文案 `telegram.notConfigured`、无可用绑定按钮；② 未绑定 ⇒ 点「绑定」出 code + `codeSteps`（含 `{{code}}` 实值与 `{{bot}}`）；③ 已绑定 ⇒ 显示 `tg_linked_at` + 解绑按钮；**全卡不出现** `tg_user_id` 数值或任何 handle 字串。**判负**：503 时整页报错（非卡片内降级）⇒ 判负。
+- **AC-5（非目标页归因式零影响）**：非本单页面（`/`、`/item/new`、`/exchange`、`/profile`、`/item/:id` 除第 3 格外区域、四语前缀档）的 DOM 签名与几何**差异集 = 0**；**允许变更集** = (i) 详情页操作栏新增第 3 格及其引致的行内位移（ii) `/messages` 整页由占位变真页（iii) `ProfilePage` 新增 Telegram 卡及其引致的下方位移（iv) 底栏/桌面消息项角标子节点（v) §20.8 键集变更引致的文案面。**反事实归因**：仅在测量期回退 (i)（移除第 3 格 DOM，不动仓库）⇒ (i) 类条目消失、其余不变。**判负**：差异集出现五类之外的条目 ⇒ 判负。
+- **AC-6（主题同构 + 触控 + 字号）**：新面日/夜两档几何逐值相等（新常量走页面局部 `--sf-l-*` 两档同值）；无 `[data-theme` 新选择器；`≤767` 触控 ≥44、可见文本 ≥12px（角标数字 12px）；`>767` 桌面档既有控件几何不连带（`p6-btn-impl2` 冻结值不动）。
+
+### 20.10 新增可复用教训（`N43` · 承 `N39`/`N40`/`N41`/`N42`）
+
+- **`N43`（预留槽位激活必须同步回收占位遗物）**：凡「占位页/占位块/预留键」被真实现取代时，**同轮**删除占位钩子与占位键（四语同删）—— 只加新面不删旧占位 ⇒ 占位常驻成死面（本轮 `messages-x-placeholder` + `xPlaceholder`/`xNote` 即按此执行）；同理适用于 `T84` 三弹窗模板位等将来激活场景。**判据**：占位钩子全仓命中 = 0。
+
+### 20.11 待裁项（**不得自选 · 交 Kevin**）
+
+1. **bot 创建**：BotFather 建号 / bot username / `TELEGRAM_BOT_TOKEN` + `TELEGRAM_WEBHOOK_SECRET` **走安全通道**（不入对话/不入仓；env 键名已冻结于 route §41.7）。
+2. **通知双语一行**（Zang 暂裁）与 **20 条/天/会话**（Z6）：维持暂裁，**一句话可改**（Jing 建议维持）。
+3. Jing 提议初值（均一句话可改，已同步 data/route 册）：全局 200 条/日 · body 2000 字符 · `item.chat` 文案「聊一聊」· `nickname` = EVM 掩码派生 · 角标无轮询取数三时点。
+
+### 20.12 未核实 / 登记（诚实清单 · 禁填 0/空）
+
+- 键值四语初译**未经 Kevin 复核**（`待复核` 标注）；`v15-nav-floatmenu` 对角标子节点的元素键口径未现取（§20.7 #4）；`MessagesPage` 是否在 `i18n-content-wiring` 的 `WIRED` 清单未现取（§20.7 #6）；角标两挂点共享态的实现形态未定（只冻判据）；本册未动 `frontend/**` / `backend-ts/**`、未跑任何门、未连库。
+
+### 20.13 快照 + 自证（本节）
+
+- 改前：1923 行 / 422,501 B / md5 `0400a3d9bbcc38b22cae0190b658c8ee`；改后读数见本版 delta 件 `docs/audit/design-system-v1.17-delta.md`（行数/字节/md5 前后 + `git diff --numstat` 删除列 = 0 + 快照 `cmp=0` + 未改代码自证）。
