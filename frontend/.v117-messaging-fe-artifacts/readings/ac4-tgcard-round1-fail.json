@@ -1,0 +1,886 @@
+{
+ "ac": "AC-4",
+ "spec": "design-system.spec v1.18 §20.2 T102 / §20.5 钩子 / §20.9 AC-4",
+ "states": {
+  "notConfigured": {
+   "zh@390": {
+    "label": "notConfigured zh@390",
+    "cardState": "notConfigured",
+    "cardText": "Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 通知服务暂未配置",
+    "cardRect": {
+     "y": 2748,
+     "h": 160
+    },
+    "bodyText": "Seafood 海鲜市场 个人中心 管理你的账户信息和查看成就 电量 30% 电量 电量上限为满值，超出部分不累计 ₿ BTTC 0 余额 代币服务暂不可用 连续签到天数: 0 签到 补签 补签将消耗积分 评分 统计周期 30天 90天 360天 1000天 悬赏家 3.0星 工人 3.0星 店家 3.0星 顾客 3.0星 时效 悬赏家平均通过天数 暂无数据 工人平均通过天数 暂无数据 店家平均发货天数 暂无数据 顾客平均收货天数 暂无数据 工人平均通过率 100% 顾客平均成交率 100% 任务平均通过率 暂无数据 商品平均成交率 暂无数据 基本信息 编辑 E4 0xe4b8...f66b 注册时间: 9/30/2026 钱包地址: 0xe4b8...f66b 个人简介 这个人很懒，什么都没有留下... 我的资产 5100 积分 0 待领取 0 已兑换奖励 9/30/2026 最近更新 余额 5100 $ 余额以平台账户资产为准。 流水 购买退款 -200 · 9/30/2026 销售收入 +100 · 9/30/2026 销售收入 +200 · 9/30/2026 转让 +5000 · 9/30/2026 任务成就 0 总任务 0 已完成 0 进行中 0 总积分 成就徽章 碎片持仓 去交易 暂无持仓 Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 通知服务暂未配置 简体中文 English 粤语 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。 本网站支持简体中文、英文、粤语和越南语。 联系我们：contact@jinli.club 海鲜市场 市场 卖闲置 消息 我的",
+    "rawKeyLeak": false,
+    "toastCount": 0,
+    "alertMentionsTg": false,
+    "noTgUserIdInCard": true,
+    "noTgUserIdInPage": true,
+    "hooks": {
+     "tg-bind-card": {
+      "count": 1,
+      "visible": true,
+      "text": "Telegram 通知绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容）通知服务暂未配置"
+     },
+     "tg-bind-status": {
+      "count": 1,
+      "visible": true,
+      "text": "通知服务暂未配置"
+     },
+     "tg-bind-code": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-steps": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-action": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-unbind-action": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     }
+    },
+    "renderAttempts": 1,
+    "pageErrors": [],
+    "consoleErrors": [
+     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+    ],
+    "networkFailures": [
+     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+    ]
+   },
+   "zh@1440": {
+    "label": "notConfigured zh@1440",
+    "cardState": "notConfigured",
+    "cardText": "Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 通知服务暂未配置",
+    "cardRect": {
+     "y": 2484,
+     "h": 140
+    },
+    "bodyText": "Seafood 海鲜市场 社区任务 市场 语言 0xe4b8...f66b 个人中心 管理你的账户信息和查看成就 电量 30% 电量 电量上限为满值，超出部分不累计 ₿ BTTC 0 余额 代币服务暂不可用 连续签到天数: 0 签到 补签 补签将消耗积分 评分 统计周期 30天 90天 360天 1000天 悬赏家 3.0星 工人 3.0星 店家 3.0星 顾客 3.0星 时效 悬赏家平均通过天数 暂无数据 工人平均通过天数 暂无数据 店家平均发货天数 暂无数据 顾客平均收货天数 暂无数据 工人平均通过率 100% 顾客平均成交率 100% 任务平均通过率 暂无数据 商品平均成交率 暂无数据 基本信息 编辑 E4 0xe4b8...f66b 注册时间: 9/30/2026 钱包地址: 0xe4b8...f66b 个人简介 这个人很懒，什么都没有留下... 我的资产 5100 积分 0 待领取 0 已兑换奖励 9/30/2026 最近更新 余额 5100 $ 余额以平台账户资产为准。 流水 购买退款 -200 · 9/30/2026 销售收入 +100 · 9/30/2026 销售收入 +200 · 9/30/2026 转让 +5000 · 9/30/2026 任务成就 0 总任务 0 已完成 0 进行中 0 总积分 成就徽章 碎片持仓 去交易 暂无持仓 Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 通知服务暂未配置 简体中文 English 粤语 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。 本网站支持简体中文、英文、粤语和越南语。 联系我们：contact@jinli.club 卖闲置 消息 APP 反馈 客服",
+    "rawKeyLeak": false,
+    "toastCount": 0,
+    "alertMentionsTg": false,
+    "noTgUserIdInCard": true,
+    "noTgUserIdInPage": true,
+    "hooks": {
+     "tg-bind-card": {
+      "count": 1,
+      "visible": true,
+      "text": "Telegram 通知绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容）通知服务暂未配置"
+     },
+     "tg-bind-status": {
+      "count": 1,
+      "visible": true,
+      "text": "通知服务暂未配置"
+     },
+     "tg-bind-code": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-steps": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-action": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-unbind-action": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     }
+    },
+    "renderAttempts": 1,
+    "pageErrors": [],
+    "consoleErrors": [
+     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+    ],
+    "networkFailures": [
+     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+    ]
+   }
+  },
+  "unbound": {
+   "zh@390": {
+    "label": "unbound zh@390",
+    "cardState": "unbound",
+    "cardText": "Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 未绑定 绑定 Telegram",
+    "cardRect": {
+     "y": 2748,
+     "h": 220
+    },
+    "bodyText": "Seafood 海鲜市场 个人中心 管理你的账户信息和查看成就 电量 30% 电量 电量上限为满值，超出部分不累计 ₿ BTTC 0 余额 代币服务暂不可用 连续签到天数: 0 签到 补签 补签将消耗积分 评分 统计周期 30天 90天 360天 1000天 悬赏家 3.0星 工人 3.0星 店家 3.0星 顾客 3.0星 时效 悬赏家平均通过天数 暂无数据 工人平均通过天数 暂无数据 店家平均发货天数 暂无数据 顾客平均收货天数 暂无数据 工人平均通过率 100% 顾客平均成交率 100% 任务平均通过率 暂无数据 商品平均成交率 暂无数据 基本信息 编辑 E4 0xe4b8...f66b 注册时间: 9/30/2026 钱包地址: 0xe4b8...f66b 个人简介 这个人很懒，什么都没有留下... 我的资产 5100 积分 0 待领取 0 已兑换奖励 9/30/2026 最近更新 余额 5100 $ 余额以平台账户资产为准。 流水 购买退款 -200 · 9/30/2026 销售收入 +100 · 9/30/2026 销售收入 +200 · 9/30/2026 转让 +5000 · 9/30/2026 任务成就 0 总任务 0 已完成 0 进行中 0 总积分 成就徽章 碎片持仓 去交易 暂无持仓 Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 未绑定 绑定 Telegram 简体中文 English 粤语 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。 本网站支持简体中文、英文、粤语和越南语。 联系我们：contact@jinli.club 海鲜市场 市场 卖闲置 消息 我的",
+    "rawKeyLeak": false,
+    "toastCount": 0,
+    "alertMentionsTg": false,
+    "noTgUserIdInCard": true,
+    "noTgUserIdInPage": true,
+    "hooks": {
+     "tg-bind-card": {
+      "count": 1,
+      "visible": true,
+      "text": "Telegram 通知绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容）未绑定绑定 Telegram"
+     },
+     "tg-bind-status": {
+      "count": 1,
+      "visible": true,
+      "text": "未绑定"
+     },
+     "tg-bind-code": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-steps": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-action": {
+      "count": 1,
+      "visible": true,
+      "text": "绑定 Telegram"
+     },
+     "tg-unbind-action": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     }
+    },
+    "renderAttempts": 1,
+    "statusApi": {
+     "status": 200,
+     "json": {
+      "success": true,
+      "message": "OK",
+      "data": {
+       "tg_linked": false,
+       "tg_linked_at": null
+      }
+     },
+     "keys": [
+      "success",
+      "message",
+      "data"
+     ]
+    },
+    "pageErrors": [],
+    "consoleErrors": [
+     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+    ],
+    "networkFailures": []
+   },
+   "zh@1440": {
+    "label": "unbound zh@1440",
+    "cardState": "unbound",
+    "cardText": "Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 未绑定 绑定 Telegram",
+    "cardRect": {
+     "y": 2484,
+     "h": 188
+    },
+    "bodyText": "Seafood 海鲜市场 社区任务 市场 语言 0xe4b8...f66b 个人中心 管理你的账户信息和查看成就 电量 30% 电量 电量上限为满值，超出部分不累计 ₿ BTTC 0 余额 代币服务暂不可用 连续签到天数: 0 签到 补签 补签将消耗积分 评分 统计周期 30天 90天 360天 1000天 悬赏家 3.0星 工人 3.0星 店家 3.0星 顾客 3.0星 时效 悬赏家平均通过天数 暂无数据 工人平均通过天数 暂无数据 店家平均发货天数 暂无数据 顾客平均收货天数 暂无数据 工人平均通过率 100% 顾客平均成交率 100% 任务平均通过率 暂无数据 商品平均成交率 暂无数据 基本信息 编辑 E4 0xe4b8...f66b 注册时间: 9/30/2026 钱包地址: 0xe4b8...f66b 个人简介 这个人很懒，什么都没有留下... 我的资产 5100 积分 0 待领取 0 已兑换奖励 9/30/2026 最近更新 余额 5100 $ 余额以平台账户资产为准。 流水 购买退款 -200 · 9/30/2026 销售收入 +100 · 9/30/2026 销售收入 +200 · 9/30/2026 转让 +5000 · 9/30/2026 任务成就 0 总任务 0 已完成 0 进行中 0 总积分 成就徽章 碎片持仓 去交易 暂无持仓 Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 未绑定 绑定 Telegram 简体中文 English 粤语 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。 本网站支持简体中文、英文、粤语和越南语。 联系我们：contact@jinli.club 卖闲置 消息 APP 反馈 客服",
+    "rawKeyLeak": false,
+    "toastCount": 0,
+    "alertMentionsTg": false,
+    "noTgUserIdInCard": true,
+    "noTgUserIdInPage": true,
+    "hooks": {
+     "tg-bind-card": {
+      "count": 1,
+      "visible": true,
+      "text": "Telegram 通知绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容）未绑定绑定 Telegram"
+     },
+     "tg-bind-status": {
+      "count": 1,
+      "visible": true,
+      "text": "未绑定"
+     },
+     "tg-bind-code": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-steps": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-action": {
+      "count": 1,
+      "visible": true,
+      "text": "绑定 Telegram"
+     },
+     "tg-unbind-action": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     }
+    },
+    "renderAttempts": 1,
+    "statusApi": {
+     "status": 200,
+     "json": {
+      "success": true,
+      "message": "OK",
+      "data": {
+       "tg_linked": false,
+       "tg_linked_at": null
+      }
+     },
+     "keys": [
+      "success",
+      "message",
+      "data"
+     ]
+    },
+    "pageErrors": [],
+    "consoleErrors": [],
+    "networkFailures": []
+   }
+  },
+  "code": {
+   "zh@390": {
+    "label": "code zh@390",
+    "cardState": "unbound",
+    "cardText": "Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 未绑定 绑定 Telegram 绑定失败，请重新获取绑定码",
+    "cardRect": {
+     "y": 249,
+     "h": 256
+    },
+    "bodyText": "Seafood 海鲜市场 个人中心 管理你的账户信息和查看成就 电量 30% 电量 电量上限为满值，超出部分不累计 ₿ BTTC 0 余额 代币服务暂不可用 连续签到天数: 0 签到 补签 补签将消耗积分 评分 统计周期 30天 90天 360天 1000天 悬赏家 3.0星 工人 3.0星 店家 3.0星 顾客 3.0星 时效 悬赏家平均通过天数 暂无数据 工人平均通过天数 暂无数据 店家平均发货天数 暂无数据 顾客平均收货天数 暂无数据 工人平均通过率 100% 顾客平均成交率 100% 任务平均通过率 暂无数据 商品平均成交率 暂无数据 基本信息 编辑 E4 0xe4b8...f66b 注册时间: 9/30/2026 钱包地址: 0xe4b8...f66b 个人简介 这个人很懒，什么都没有留下... 我的资产 5100 积分 0 待领取 0 已兑换奖励 9/30/2026 最近更新 余额 5100 $ 余额以平台账户资产为准。 流水 购买退款 -200 · 9/30/2026 销售收入 +100 · 9/30/2026 销售收入 +200 · 9/30/2026 转让 +5000 · 9/30/2026 任务成就 0 总任务 0 已完成 0 进行中 0 总积分 成就徽章 碎片持仓 去交易 暂无持仓 Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 未绑定 绑定 Telegram 绑定失败，请重新获取绑定码 简体中文 English 粤语 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。 本网站支持简体中文、英文、粤语和越南语。 联系我们：contact@jinli.club 海鲜市场 市场 卖闲置 消息 我的",
+    "rawKeyLeak": false,
+    "toastCount": 1,
+    "alertMentionsTg": false,
+    "noTgUserIdInCard": true,
+    "noTgUserIdInPage": true,
+    "hooks": {
+     "tg-bind-card": {
+      "count": 1,
+      "visible": true,
+      "text": "Telegram 通知绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容）未绑定绑定 Telegram绑定失败，请重新获取绑定码"
+     },
+     "tg-bind-status": {
+      "count": 1,
+      "visible": true,
+      "text": "未绑定"
+     },
+     "tg-bind-code": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-steps": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-action": {
+      "count": 1,
+      "visible": true,
+      "text": "绑定 Telegram"
+     },
+     "tg-unbind-action": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     }
+    },
+    "issuedCode": null,
+    "pageErrors": [],
+    "consoleErrors": [
+     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+    ],
+    "networkFailures": [
+     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+    ]
+   },
+   "zh@1440": {
+    "label": "code zh@1440",
+    "cardState": "code",
+    "cardText": "Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 未绑定 你的绑定码 v1.eyJ1aWQiOjcsImlhdCI6MTc5MTgxMjIyMSwiZXhwIjoxNzkxODEyODIxfQ.CBPccmKYWP9WUc-k8gI7mG7bEVQrlCcwUlXKP_qjW4A 打开 Telegram，向 sf_eval_bot 发送：/start v1.eyJ1aWQiOjcsImlhdCI6MTc5MTgxMjIyMSwiZXhwIjoxNzkxODEyODIxfQ.CBPccmKYWP9WUc-k8gI7mG7bEVQrlCcwUlXKP_qjW4A（10 分钟内有效） 确认",
+    "cardRect": {
+     "y": 319,
+     "h": 302
+    },
+    "bodyText": "Seafood 海鲜市场 社区任务 市场 语言 0xe4b8...f66b 个人中心 管理你的账户信息和查看成就 电量 30% 电量 电量上限为满值，超出部分不累计 ₿ BTTC 0 余额 代币服务暂不可用 连续签到天数: 0 签到 补签 补签将消耗积分 评分 统计周期 30天 90天 360天 1000天 悬赏家 3.0星 工人 3.0星 店家 3.0星 顾客 3.0星 时效 悬赏家平均通过天数 暂无数据 工人平均通过天数 暂无数据 店家平均发货天数 暂无数据 顾客平均收货天数 暂无数据 工人平均通过率 100% 顾客平均成交率 100% 任务平均通过率 暂无数据 商品平均成交率 暂无数据 基本信息 编辑 E4 0xe4b8...f66b 注册时间: 9/30/2026 钱包地址: 0xe4b8...f66b 个人简介 这个人很懒，什么都没有留下... 我的资产 5100 积分 0 待领取 0 已兑换奖励 9/30/2026 最近更新 余额 5100 $ 余额以平台账户资产为准。 流水 购买退款 -200 · 9/30/2026 销售收入 +100 · 9/30/2026 销售收入 +200 · 9/30/2026 转让 +5000 · 9/30/2026 任务成就 0 总任务 0 已完成 0 进行中 0 总积分 成就徽章 碎片持仓 去交易 暂无持仓 Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 未绑定 你的绑定码 v1.eyJ1aWQiOjcsImlhdCI6MTc5MTgxMjIyMSwiZXhwIjoxNzkxODEyODIxfQ.CBPccmKYWP9WUc-k8gI7mG7bEVQrlCcwUlXKP_qjW4A 打开 Telegram，向 sf_eval_bot 发送：/start v1.eyJ1aWQiOjcsImlhdCI6MTc5MTgxMjIyMSwiZXhwIjoxNzkxODEyODIxfQ.CBPccmKYWP9WUc-k8gI7mG7bEVQrlCcwUlXKP_qjW4A（10 分钟内有效） 确认 简体中文 English 粤语 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。 本网站支持简体中文、英文、粤语和越南语。 联系我们：contact@jinli.club 卖闲置 消息 APP 反馈 客服",
+    "rawKeyLeak": false,
+    "toastCount": 0,
+    "alertMentionsTg": false,
+    "noTgUserIdInCard": true,
+    "noTgUserIdInPage": true,
+    "hooks": {
+     "tg-bind-card": {
+      "count": 1,
+      "visible": true,
+      "text": "Telegram 通知绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容）未绑定你的绑定码v1.eyJ1aWQiOjcsImlhdCI6MTc5MTgxMjIyMSwiZXhwIjoxNzkxODEyODIxfQ.CBPccmKYWP9WUc-k8gI7mG7bEVQrlCcwUlXKP_qjW4A打开 Telegram，向 sf_eval_bot 发送：/start v1.eyJ1aWQiOjcsImlhdCI6MTc5MTgxMjIyMSwiZXh"
+     },
+     "tg-bind-status": {
+      "count": 1,
+      "visible": true,
+      "text": "未绑定"
+     },
+     "tg-bind-code": {
+      "count": 1,
+      "visible": true,
+      "text": "v1.eyJ1aWQiOjcsImlhdCI6MTc5MTgxMjIyMSwiZXhwIjoxNzkxODEyODIxfQ.CBPccmKYWP9WUc-k8gI7mG7bEVQrlCcwUlXKP_qjW4A"
+     },
+     "tg-bind-steps": {
+      "count": 1,
+      "visible": true,
+      "text": "打开 Telegram，向 sf_eval_bot 发送：/start v1.eyJ1aWQiOjcsImlhdCI6MTc5MTgxMjIyMSwiZXhwIjoxNzkxODEyODIxfQ.CBPccmKYWP9WUc-k8gI7mG7bEVQrlCcwUlXKP_qjW4A（10 分钟内有效）"
+     },
+     "tg-bind-action": {
+      "count": 1,
+      "visible": true,
+      "text": "确认"
+     },
+     "tg-unbind-action": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     }
+    },
+    "issuedCode": "v1.eyJ1aWQiOjcsImlhdCI6MTc5MTgxMjIyMSwiZXhwIjoxNzkxODEyODIxfQ.CBPccmKYWP9WUc-k8gI7mG7bEVQrlCcwUlXKP_qjW4A",
+    "pageErrors": [],
+    "consoleErrors": [],
+    "networkFailures": []
+   },
+   "en@390": {
+    "label": "code en@390",
+    "cardState": "code",
+    "cardText": "Telegram notifications Get Telegram bot reminders for new messages (content not included) Not bound Your linking code v1.eyJ1aWQiOjcsImlhdCI6MTc5MTgxMjU0MSwiZXhwIjoxNzkxODEzMTQxfQ.gSInPCw7N4_JVCiJ1CkFLU8_L4SznM97zxRsObuMqFk Open Telegram and send to sf_eval_bot: /start v1.eyJ1aWQiOjcsImlhdCI6MTc5MTgxMjU0MSwiZXhwIjoxNzkxODEzMTQxfQ.gSInPCw7N4_JVCiJ1CkFLU8_L4SznM97zxRsObuMqFk (valid for 10 minutes) Confirm",
+    "cardRect": {
+     "y": 249,
+     "h": 394
+    },
+    "bodyText": "Seafood Profile Manage your account and view achievements Energy 30% Energy Energy is capped at full; any excess is not accumulated ₿ BTTC 0 Balance The token service is temporarily unavailable Consecutive check-in days: 0 Check in Make up Making up will cost points Rating Period 30 days 90 days 360 days 1000 days Poster 3.0stars Worker 3.0stars Vendor 3.0stars Customer 3.0stars Timeliness Poster avg approval days No data yet Worker avg approval days No data yet Vendor avg shipping days No data yet Customer avg delivery days No data yet Worker avg pass rate 100% Customer avg deal rate 100% Task avg pass rate No data yet Listing avg deal rate No data yet Basic info Edit E4 0xe4b8...f66b Registered: 9/30/2026 Wallet address: 0xe4b8...f66b Bio This person left nothing here... My assets 5100 Points 0 To claim 0 Redeemed rewards 9/30/2026 Last updated Balance 5100 $ The balance shown reflects the assets in your platform account. Statement Purchase refund -200 · 9/30/2026 Sale +100 · 9/30/2026 Sale +200 · 9/30/2026 Transfer +5000 · 9/30/2026 Task achievements 0 Total tasks 0 Completed 0 Ongoing 0 Total points Achievement badges Shard holdings Trade No holdings Telegram notifications Get Telegram bot reminders for new messages (content not included) Not bound Your linking code v1.eyJ1aWQiOjcsImlhdCI6MTc5MTgxMjU0MSwiZXhwIjoxNzkxODEzMTQxfQ.gSInPCw7N4_JVCiJ1CkFLU8_L4SznM97zxRsObuMqFk Open Telegram and send to sf_eval_bot: /start v1.eyJ1aWQiOjcsImlhdCI6MTc5MTgxMjU0MSwiZXhwIjoxNzkxODEzMTQxfQ.gSInPCw7N4_JVCiJ1CkFLU8_L4SznM97zxRsObuMqFk (valid for 10 minutes) Confirm 简体中文 English 粤语 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. All rights reserved. This website supports Simplified Chinese, English, Cantonese and Vietnamese. Contact us: contact@jinli.club Seafood Market Market Sell Messages Me",
+    "rawKeyLeak": false,
+    "toastCount": 0,
+    "alertMentionsTg": false,
+    "noTgUserIdInCard": true,
+    "noTgUserIdInPage": true,
+    "hooks": {
+     "tg-bind-card": {
+      "count": 1,
+      "visible": true,
+      "text": "Telegram notificationsGet Telegram bot reminders for new messages (content not included)Not boundYour linking codev1.eyJ1aWQiOjcsImlhdCI6MTc5MTgxMjU0MSwiZXhwIjoxNzkxODEzMTQxfQ.gSInPCw7N4_JVCiJ1CkFLU8_L4SznM97zxRsObuMqFkOpen Telegram and sen"
+     },
+     "tg-bind-status": {
+      "count": 1,
+      "visible": true,
+      "text": "Not bound"
+     },
+     "tg-bind-code": {
+      "count": 1,
+      "visible": true,
+      "text": "v1.eyJ1aWQiOjcsImlhdCI6MTc5MTgxMjU0MSwiZXhwIjoxNzkxODEzMTQxfQ.gSInPCw7N4_JVCiJ1CkFLU8_L4SznM97zxRsObuMqFk"
+     },
+     "tg-bind-steps": {
+      "count": 1,
+      "visible": true,
+      "text": "Open Telegram and send to sf_eval_bot: /start v1.eyJ1aWQiOjcsImlhdCI6MTc5MTgxMjU0MSwiZXhwIjoxNzkxODEzMTQxfQ.gSInPCw7N4_JVCiJ1CkFLU8_L4SznM97zxRsObuMqFk (valid for 10 minutes)"
+     },
+     "tg-bind-action": {
+      "count": 1,
+      "visible": true,
+      "text": "Confirm"
+     },
+     "tg-unbind-action": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     }
+    },
+    "issuedCode": "v1.eyJ1aWQiOjcsImlhdCI6MTc5MTgxMjU0MSwiZXhwIjoxNzkxODEzMTQxfQ.gSInPCw7N4_JVCiJ1CkFLU8_L4SznM97zxRsObuMqFk",
+    "pageErrors": [],
+    "networkFailures": []
+   }
+  },
+  "bound": {
+   "zh@390": {
+    "label": "bound zh@390",
+    "cardState": "unbound",
+    "cardText": "Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 未绑定 绑定 Telegram",
+    "cardRect": {
+     "y": 2658,
+     "h": 220
+    },
+    "bodyText": "Seafood 海鲜市场 个人中心 管理你的账户信息和查看成就 电量 30% 电量 电量上限为满值，超出部分不累计 ₿ BTTC 0 余额 代币服务暂不可用 连续签到天数: 0 签到 补签 补签将消耗积分 评分 统计周期 30天 90天 360天 1000天 悬赏家 3.0星 工人 3.0星 店家 3.0星 顾客 3.0星 时效 悬赏家平均通过天数 暂无数据 工人平均通过天数 暂无数据 店家平均发货天数 暂无数据 顾客平均收货天数 暂无数据 工人平均通过率 100% 顾客平均成交率 100% 任务平均通过率 暂无数据 商品平均成交率 暂无数据 基本信息 编辑 E4 0xe4b8...f66b 注册时间: 9/30/2026 钱包地址: 0xe4b8...f66b 个人简介 这个人很懒，什么都没有留下... 我的资产 5100 积分 0 待领取 0 已兑换奖励 9/30/2026 最近更新 余额 5100 $ 余额以平台账户资产为准。 流水 购买退款 -200 · 9/30/2026 销售收入 +100 · 9/30/2026 销售收入 +200 · 9/30/2026 转让 +5000 · 9/30/2026 任务成就 0 总任务 0 已完成 0 进行中 0 总积分 成就徽章 碎片持仓 去交易 暂无持仓 Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 未绑定 绑定 Telegram 简体中文 English 粤语 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。 本网站支持简体中文、英文、粤语和越南语。 联系我们：contact@jinli.club 海鲜市场 市场 卖闲置 消息 我的",
+    "rawKeyLeak": false,
+    "toastCount": 0,
+    "alertMentionsTg": false,
+    "noTgUserIdInCard": true,
+    "noTgUserIdInPage": true,
+    "hooks": {
+     "tg-bind-card": {
+      "count": 1,
+      "visible": true,
+      "text": "Telegram 通知绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容）未绑定绑定 Telegram"
+     },
+     "tg-bind-status": {
+      "count": 1,
+      "visible": true,
+      "text": "未绑定"
+     },
+     "tg-bind-code": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-steps": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-action": {
+      "count": 1,
+      "visible": true,
+      "text": "绑定 Telegram"
+     },
+     "tg-unbind-action": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     }
+    },
+    "renderAttempts": 1,
+    "boundBy": "reload-fallback",
+    "webhook": {
+     "status": 0,
+     "body": "NO_CODE"
+    },
+    "statusApiAfterWebhook": {
+     "status": 200,
+     "json": {
+      "success": true,
+      "message": "OK",
+      "data": {
+       "tg_linked": false,
+       "tg_linked_at": null
+      }
+     },
+     "keys": [
+      "success",
+      "message",
+      "data"
+     ]
+    },
+    "pageErrors": [],
+    "consoleErrors": [
+     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+    ],
+    "networkFailures": [
+     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+    ]
+   },
+   "zh@1440": {
+    "label": "bound zh@1440",
+    "cardState": "bound",
+    "cardText": "Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 已绑定 10/12/2026 解除绑定 绑定成功",
+    "cardRect": {
+     "y": 319,
+     "h": 260
+    },
+    "bodyText": "Seafood 海鲜市场 社区任务 市场 语言 0xe4b8...f66b 个人中心 管理你的账户信息和查看成就 电量 30% 电量 电量上限为满值，超出部分不累计 ₿ BTTC 0 余额 代币服务暂不可用 连续签到天数: 0 签到 补签 补签将消耗积分 评分 统计周期 30天 90天 360天 1000天 悬赏家 3.0星 工人 3.0星 店家 3.0星 顾客 3.0星 时效 悬赏家平均通过天数 暂无数据 工人平均通过天数 暂无数据 店家平均发货天数 暂无数据 顾客平均收货天数 暂无数据 工人平均通过率 100% 顾客平均成交率 100% 任务平均通过率 暂无数据 商品平均成交率 暂无数据 基本信息 编辑 E4 0xe4b8...f66b 注册时间: 9/30/2026 钱包地址: 0xe4b8...f66b 个人简介 这个人很懒，什么都没有留下... 我的资产 5100 积分 0 待领取 0 已兑换奖励 9/30/2026 最近更新 余额 5100 $ 余额以平台账户资产为准。 流水 购买退款 -200 · 9/30/2026 销售收入 +100 · 9/30/2026 销售收入 +200 · 9/30/2026 转让 +5000 · 9/30/2026 任务成就 0 总任务 0 已完成 0 进行中 0 总积分 成就徽章 碎片持仓 去交易 暂无持仓 Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 已绑定 10/12/2026 解除绑定 绑定成功 简体中文 English 粤语 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。 本网站支持简体中文、英文、粤语和越南语。 联系我们：contact@jinli.club 卖闲置 消息 APP 反馈 客服",
+    "rawKeyLeak": false,
+    "toastCount": 1,
+    "alertMentionsTg": false,
+    "noTgUserIdInCard": true,
+    "noTgUserIdInPage": true,
+    "hooks": {
+     "tg-bind-card": {
+      "count": 1,
+      "visible": true,
+      "text": "Telegram 通知绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容）已绑定10/12/2026解除绑定绑定成功"
+     },
+     "tg-bind-status": {
+      "count": 1,
+      "visible": true,
+      "text": "已绑定"
+     },
+     "tg-bind-code": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-steps": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-action": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-unbind-action": {
+      "count": 1,
+      "visible": true,
+      "text": "解除绑定"
+     }
+    },
+    "renderAttempts": 1,
+    "boundBy": "confirm-click",
+    "webhook": {
+     "status": 200,
+     "body": "{}"
+    },
+    "statusApiAfterWebhook": {
+     "status": 200,
+     "json": {
+      "success": true,
+      "message": "OK",
+      "data": {
+       "tg_linked": true,
+       "tg_linked_at": "2026-10-12T13:37:35.303Z"
+      }
+     },
+     "keys": [
+      "success",
+      "message",
+      "data"
+     ]
+    },
+    "pageErrors": [],
+    "consoleErrors": [],
+    "networkFailures": []
+   }
+  },
+  "unbindConfirming": {
+   "zh@390": {
+    "label": "unbindConfirming zh@390",
+    "cardState": "unbound",
+    "cardText": "Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 未绑定 绑定 Telegram",
+    "cardRect": {
+     "y": 2658,
+     "h": 220
+    },
+    "bodyText": "Seafood 海鲜市场 个人中心 管理你的账户信息和查看成就 电量 30% 电量 电量上限为满值，超出部分不累计 ₿ BTTC 0 余额 代币服务暂不可用 连续签到天数: 0 签到 补签 补签将消耗积分 评分 统计周期 30天 90天 360天 1000天 悬赏家 3.0星 工人 3.0星 店家 3.0星 顾客 3.0星 时效 悬赏家平均通过天数 暂无数据 工人平均通过天数 暂无数据 店家平均发货天数 暂无数据 顾客平均收货天数 暂无数据 工人平均通过率 100% 顾客平均成交率 100% 任务平均通过率 暂无数据 商品平均成交率 暂无数据 基本信息 编辑 E4 0xe4b8...f66b 注册时间: 9/30/2026 钱包地址: 0xe4b8...f66b 个人简介 这个人很懒，什么都没有留下... 我的资产 5100 积分 0 待领取 0 已兑换奖励 9/30/2026 最近更新 余额 5100 $ 余额以平台账户资产为准。 流水 购买退款 -200 · 9/30/2026 销售收入 +100 · 9/30/2026 销售收入 +200 · 9/30/2026 转让 +5000 · 9/30/2026 任务成就 0 总任务 0 已完成 0 进行中 0 总积分 成就徽章 碎片持仓 去交易 暂无持仓 Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 未绑定 绑定 Telegram 简体中文 English 粤语 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。 本网站支持简体中文、英文、粤语和越南语。 联系我们：contact@jinli.club 海鲜市场 市场 卖闲置 消息 我的",
+    "rawKeyLeak": false,
+    "toastCount": 0,
+    "alertMentionsTg": false,
+    "noTgUserIdInCard": true,
+    "noTgUserIdInPage": true,
+    "hooks": {
+     "tg-bind-card": {
+      "count": 1,
+      "visible": true,
+      "text": "Telegram 通知绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容）未绑定绑定 Telegram"
+     },
+     "tg-bind-status": {
+      "count": 1,
+      "visible": true,
+      "text": "未绑定"
+     },
+     "tg-bind-code": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-steps": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-action": {
+      "count": 1,
+      "visible": true,
+      "text": "绑定 Telegram"
+     },
+     "tg-unbind-action": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     }
+    },
+    "pageErrors": [],
+    "consoleErrors": [
+     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+    ],
+    "networkFailures": [
+     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+    ]
+   },
+   "zh@1440": {
+    "label": "unbindConfirming zh@1440",
+    "cardState": "bound",
+    "cardText": "Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 已绑定 10/12/2026 解除绑定 取消 绑定成功",
+    "cardRect": {
+     "y": 319,
+     "h": 260
+    },
+    "bodyText": "Seafood 海鲜市场 社区任务 市场 语言 0xe4b8...f66b 个人中心 管理你的账户信息和查看成就 电量 30% 电量 电量上限为满值，超出部分不累计 ₿ BTTC 0 余额 代币服务暂不可用 连续签到天数: 0 签到 补签 补签将消耗积分 评分 统计周期 30天 90天 360天 1000天 悬赏家 3.0星 工人 3.0星 店家 3.0星 顾客 3.0星 时效 悬赏家平均通过天数 暂无数据 工人平均通过天数 暂无数据 店家平均发货天数 暂无数据 顾客平均收货天数 暂无数据 工人平均通过率 100% 顾客平均成交率 100% 任务平均通过率 暂无数据 商品平均成交率 暂无数据 基本信息 编辑 E4 0xe4b8...f66b 注册时间: 9/30/2026 钱包地址: 0xe4b8...f66b 个人简介 这个人很懒，什么都没有留下... 我的资产 5100 积分 0 待领取 0 已兑换奖励 9/30/2026 最近更新 余额 5100 $ 余额以平台账户资产为准。 流水 购买退款 -200 · 9/30/2026 销售收入 +100 · 9/30/2026 销售收入 +200 · 9/30/2026 转让 +5000 · 9/30/2026 任务成就 0 总任务 0 已完成 0 进行中 0 总积分 成就徽章 碎片持仓 去交易 暂无持仓 Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 已绑定 10/12/2026 解除绑定 取消 绑定成功 简体中文 English 粤语 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。 本网站支持简体中文、英文、粤语和越南语。 联系我们：contact@jinli.club 卖闲置 消息 APP 反馈 客服",
+    "rawKeyLeak": false,
+    "toastCount": 1,
+    "alertMentionsTg": false,
+    "noTgUserIdInCard": true,
+    "noTgUserIdInPage": true,
+    "hooks": {
+     "tg-bind-card": {
+      "count": 1,
+      "visible": true,
+      "text": "Telegram 通知绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容）已绑定10/12/2026解除绑定取消绑定成功"
+     },
+     "tg-bind-status": {
+      "count": 1,
+      "visible": true,
+      "text": "已绑定"
+     },
+     "tg-bind-code": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-steps": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-action": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-unbind-action": {
+      "count": 1,
+      "visible": true,
+      "text": "解除绑定"
+     }
+    },
+    "pageErrors": [],
+    "consoleErrors": [],
+    "networkFailures": []
+   }
+  },
+  "unboundAfterUnbind": {
+   "zh@390": {
+    "label": "unboundAfterUnbind zh@390",
+    "cardState": "unbound",
+    "cardText": "Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 未绑定 绑定 Telegram",
+    "cardRect": {
+     "y": 2658,
+     "h": 220
+    },
+    "bodyText": "Seafood 海鲜市场 个人中心 管理你的账户信息和查看成就 电量 30% 电量 电量上限为满值，超出部分不累计 ₿ BTTC 0 余额 代币服务暂不可用 连续签到天数: 0 签到 补签 补签将消耗积分 评分 统计周期 30天 90天 360天 1000天 悬赏家 3.0星 工人 3.0星 店家 3.0星 顾客 3.0星 时效 悬赏家平均通过天数 暂无数据 工人平均通过天数 暂无数据 店家平均发货天数 暂无数据 顾客平均收货天数 暂无数据 工人平均通过率 100% 顾客平均成交率 100% 任务平均通过率 暂无数据 商品平均成交率 暂无数据 基本信息 编辑 E4 0xe4b8...f66b 注册时间: 9/30/2026 钱包地址: 0xe4b8...f66b 个人简介 这个人很懒，什么都没有留下... 我的资产 5100 积分 0 待领取 0 已兑换奖励 9/30/2026 最近更新 余额 5100 $ 余额以平台账户资产为准。 流水 购买退款 -200 · 9/30/2026 销售收入 +100 · 9/30/2026 销售收入 +200 · 9/30/2026 转让 +5000 · 9/30/2026 任务成就 0 总任务 0 已完成 0 进行中 0 总积分 成就徽章 碎片持仓 去交易 暂无持仓 Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 未绑定 绑定 Telegram 简体中文 English 粤语 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。 本网站支持简体中文、英文、粤语和越南语。 联系我们：contact@jinli.club 海鲜市场 市场 卖闲置 消息 我的",
+    "rawKeyLeak": false,
+    "toastCount": 0,
+    "alertMentionsTg": false,
+    "noTgUserIdInCard": true,
+    "noTgUserIdInPage": true,
+    "hooks": {
+     "tg-bind-card": {
+      "count": 1,
+      "visible": true,
+      "text": "Telegram 通知绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容）未绑定绑定 Telegram"
+     },
+     "tg-bind-status": {
+      "count": 1,
+      "visible": true,
+      "text": "未绑定"
+     },
+     "tg-bind-code": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-steps": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-action": {
+      "count": 1,
+      "visible": true,
+      "text": "绑定 Telegram"
+     },
+     "tg-unbind-action": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     }
+    },
+    "statusApiAfterUnbind": {
+     "status": 200,
+     "json": {
+      "success": true,
+      "message": "OK",
+      "data": {
+       "tg_linked": false,
+       "tg_linked_at": null
+      }
+     },
+     "keys": [
+      "success",
+      "message",
+      "data"
+     ]
+    },
+    "pageErrors": [],
+    "consoleErrors": [
+     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+    ],
+    "networkFailures": [
+     "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+    ]
+   },
+   "zh@1440": {
+    "label": "unboundAfterUnbind zh@1440",
+    "cardState": "unbound",
+    "cardText": "Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 未绑定 绑定 Telegram",
+    "cardRect": {
+     "y": 319,
+     "h": 188
+    },
+    "bodyText": "Seafood 海鲜市场 社区任务 市场 语言 0xe4b8...f66b 个人中心 管理你的账户信息和查看成就 电量 30% 电量 电量上限为满值，超出部分不累计 ₿ BTTC 0 余额 代币服务暂不可用 连续签到天数: 0 签到 补签 补签将消耗积分 评分 统计周期 30天 90天 360天 1000天 悬赏家 3.0星 工人 3.0星 店家 3.0星 顾客 3.0星 时效 悬赏家平均通过天数 暂无数据 工人平均通过天数 暂无数据 店家平均发货天数 暂无数据 顾客平均收货天数 暂无数据 工人平均通过率 100% 顾客平均成交率 100% 任务平均通过率 暂无数据 商品平均成交率 暂无数据 基本信息 编辑 E4 0xe4b8...f66b 注册时间: 9/30/2026 钱包地址: 0xe4b8...f66b 个人简介 这个人很懒，什么都没有留下... 我的资产 5100 积分 0 待领取 0 已兑换奖励 9/30/2026 最近更新 余额 5100 $ 余额以平台账户资产为准。 流水 购买退款 -200 · 9/30/2026 销售收入 +100 · 9/30/2026 销售收入 +200 · 9/30/2026 转让 +5000 · 9/30/2026 任务成就 0 总任务 0 已完成 0 进行中 0 总积分 成就徽章 碎片持仓 去交易 暂无持仓 Telegram 通知 绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容） 未绑定 绑定 Telegram 简体中文 English 粤语 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。 本网站支持简体中文、英文、粤语和越南语。 联系我们：contact@jinli.club 卖闲置 消息 APP 反馈 客服",
+    "rawKeyLeak": false,
+    "toastCount": 0,
+    "alertMentionsTg": false,
+    "noTgUserIdInCard": true,
+    "noTgUserIdInPage": true,
+    "hooks": {
+     "tg-bind-card": {
+      "count": 1,
+      "visible": true,
+      "text": "Telegram 通知绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容）未绑定绑定 Telegram"
+     },
+     "tg-bind-status": {
+      "count": 1,
+      "visible": true,
+      "text": "未绑定"
+     },
+     "tg-bind-code": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-steps": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     },
+     "tg-bind-action": {
+      "count": 1,
+      "visible": true,
+      "text": "绑定 Telegram"
+     },
+     "tg-unbind-action": {
+      "count": 0,
+      "visible": false,
+      "text": null
+     }
+    },
+    "statusApiAfterUnbind": {
+     "status": 200,
+     "json": {
+      "success": true,
+      "message": "OK",
+      "data": {
+       "tg_linked": false,
+       "tg_linked_at": null
+      }
+     },
+     "keys": [
+      "success",
+      "message",
+      "data"
+     ]
+    },
+    "pageErrors": [],
+    "consoleErrors": [],
+    "networkFailures": []
+   }
+  }
+ },
+ "revision": "kong-run3-2026-10-12",
+ "method": "稳健等待（waitForSelector tg-bind-card + data-sf-tg-state != loading，落 loading/absent ⇒ 有界重载 ≤3）+ DOM quiet 窗；两相：PHASE=a 后端无 TG env（降级），PHASE=b 后端有 dev 假 TG env（未绑定/code/已绑定/解绑）",
+ "widths": [
+  390,
+  1440
+ ],
+ "lang": "zh（另附 en@390 code 插值抽查）",
+ "phases": {
+  "a": {
+   "ranAt": "2026-10-12T13:14:35.552Z",
+   "backend": "http://127.0.0.1:5793",
+   "tgEnvConfigured": false,
+   "fails": []
+  },
+  "b": {
+   "ranAt": "2026-10-12T13:25:24.763Z",
+   "backend": "http://127.0.0.1:5793",
+   "tgEnvConfigured": true,
+   "fails": [
+    "AC4 code zh@390: data-sf-tg-state=unbound（应 code）",
+    "AC4 code zh@390: tg-bind-code 在场/可见=false（应 true）",
+    "AC4 code zh@390: tg-bind-steps 在场/可见=false（应 true）",
+    "AC4 code zh@390: 未取到 code（POST bind/start 失败？）",
+    "AC4 code zh@390: codeSteps 未插值 {{bot}}（应含 sf_eval_bot）",
+    "AC4 code zh@390: 卡内未见 codeLabel 文案「你的绑定码」",
+    "AC4 code zh@390: codeSteps 空",
+    "AC4 bound zh@390: data-sf-tg-state=unbound（应 bound）",
+    "AC4 bound zh@390: 状态行文案=\"未绑定\"（应 \"已绑定\"）",
+    "AC4 bound zh@390: tg-bind-action 在场/可见=true（应 false）",
+    "AC4 bound zh@390: tg-unbind-action 在场/可见=false（应 true）",
+    "AC4 unbindConfirming zh@390: 二次确认按钮不可见",
+    "AC4 unboundAfterUnbind zh@390【净零】: status API 未回到 tg_linked=false（{\"status\":200,\"json\":{\"success\":true,\"message\":\"OK\",\"data\":{\"tg_linked\":false,\"tg_linked_at\":null}},\"keys\":[\"success\",\"message\",\"data\"]}）",
+    "AC4 unboundAfterUnbind zh@1440【净零】: status API 未回到 tg_linked=false（{\"status\":200,\"json\":{\"success\":true,\"message\":\"OK\",\"data\":{\"tg_linked\":false,\"tg_linked_at\":null}},\"keys\":[\"success\",\"message\",\"data\"]}）"
+   ]
+  }
+ },
+ "phaseFails": {
+  "a": [],
+  "b": [
+   "AC4 code zh@390: data-sf-tg-state=unbound（应 code）",
+   "AC4 code zh@390: tg-bind-code 在场/可见=false（应 true）",
+   "AC4 code zh@390: tg-bind-steps 在场/可见=false（应 true）",
+   "AC4 code zh@390: 未取到 code（POST bind/start 失败？）",
+   "AC4 code zh@390: codeSteps 未插值 {{bot}}（应含 sf_eval_bot）",
+   "AC4 code zh@390: 卡内未见 codeLabel 文案「你的绑定码」",
+   "AC4 code zh@390: codeSteps 空",
+   "AC4 bound zh@390: data-sf-tg-state=unbound（应 bound）",
+   "AC4 bound zh@390: 状态行文案=\"未绑定\"（应 \"已绑定\"）",
+   "AC4 bound zh@390: tg-bind-action 在场/可见=true（应 false）",
+   "AC4 bound zh@390: tg-unbind-action 在场/可见=false（应 true）",
+   "AC4 unbindConfirming zh@390: 二次确认按钮不可见",
+   "AC4 unboundAfterUnbind zh@390【净零】: status API 未回到 tg_linked=false（{\"status\":200,\"json\":{\"success\":true,\"message\":\"OK\",\"data\":{\"tg_linked\":false,\"tg_linked_at\":null}},\"keys\":[\"success\",\"message\",\"data\"]}）",
+   "AC4 unboundAfterUnbind zh@1440【净零】: status API 未回到 tg_linked=false（{\"status\":200,\"json\":{\"success\":true,\"message\":\"OK\",\"data\":{\"tg_linked\":false,\"tg_linked_at\":null}},\"keys\":[\"success\",\"message\",\"data\"]}）"
+  ]
+ },
+ "fails": [
+  "AC4 code zh@390: data-sf-tg-state=unbound（应 code）",
+  "AC4 code zh@390: tg-bind-code 在场/可见=false（应 true）",
+  "AC4 code zh@390: tg-bind-steps 在场/可见=false（应 true）",
+  "AC4 code zh@390: 未取到 code（POST bind/start 失败？）",
+  "AC4 code zh@390: codeSteps 未插值 {{bot}}（应含 sf_eval_bot）",
+  "AC4 code zh@390: 卡内未见 codeLabel 文案「你的绑定码」",
+  "AC4 code zh@390: codeSteps 空",
+  "AC4 bound zh@390: data-sf-tg-state=unbound（应 bound）",
+  "AC4 bound zh@390: 状态行文案=\"未绑定\"（应 \"已绑定\"）",
+  "AC4 bound zh@390: tg-bind-action 在场/可见=true（应 false）",
+  "AC4 bound zh@390: tg-unbind-action 在场/可见=false（应 true）",
+  "AC4 unbindConfirming zh@390: 二次确认按钮不可见",
+  "AC4 unboundAfterUnbind zh@390【净零】: status API 未回到 tg_linked=false（{\"status\":200,\"json\":{\"success\":true,\"message\":\"OK\",\"data\":{\"tg_linked\":false,\"tg_linked_at\":null}},\"keys\":[\"success\",\"message\",\"data\"]}）",
+  "AC4 unboundAfterUnbind zh@1440【净零】: status API 未回到 tg_linked=false（{\"status\":200,\"json\":{\"success\":true,\"message\":\"OK\",\"data\":{\"tg_linked\":false,\"tg_linked_at\":null}},\"keys\":[\"success\",\"message\",\"data\"]}）"
+ ],
+ "verdict": "FAIL",
+ "tgUserIdUsed": "770000123",
+ "botUsername": "sf_eval_bot"
+}
