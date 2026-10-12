@@ -1,20 +1,27 @@
 {
  "ac": "AC-1",
+ "revision": "v2-robust-wait",
  "spec": "design-system.spec v1.18 §20.9 AC-1 / §20.3 T100 现行三态",
+ "method": "稳健等待：waitForSelector([data-sf-m=item-actionbar]) + DOM quiet 窗；落到非 loading 终态 ⇒ 有界重载 ≤3；不用固定 ms",
  "states": {
   "zh@390": {
    "anon": {
     "url": "/item/19",
-    "actionbarVisible": false,
-    "chatVisible": false,
-    "buyVisible": false,
-    "chatBtnCount": 0
+    "actionbarVisible": true,
+    "chatVisible": true,
+    "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
+    "chatBtnCount": 1,
+    "clickPath": "/login"
    },
    "sellerSelf": {
     "url": "/item/19",
-    "actionbarVisible": false,
+    "actionbarVisible": true,
     "chatVisible": false,
-    "buyVisible": false,
+    "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "chatBtnCount": 0
    },
    "nonSeller": {
@@ -22,13 +29,14 @@
     "actionbarVisible": true,
     "chatVisible": true,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "postConversations": {
      "status": 200,
      "url": "/api/messages/conversations"
     },
     "landedPath": "/messages?c=18",
     "reqsDelta": [
-     "GET /api/user/asset/7",
      "POST /api/messages/conversations",
      "GET /api/user/asset/7",
      "GET /api/messages/conversations/18/messages?limit=50",
@@ -43,6 +51,8 @@
     "actionbarVisible": true,
     "chatVisible": true,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "chatBtnCount": 1,
     "clickPath": "/en/login"
    },
@@ -51,6 +61,8 @@
     "actionbarVisible": true,
     "chatVisible": false,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "chatBtnCount": 0
    },
    "nonSeller": {
@@ -58,6 +70,8 @@
     "actionbarVisible": true,
     "chatVisible": true,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "postConversations": {
      "status": 200,
      "url": "/api/messages/conversations"
@@ -66,7 +80,7 @@
     "reqsDelta": [
      "POST /api/messages/conversations",
      "GET /api/user/asset/7",
-     "GET /api/user/asset/7",
+     "GET /brand/favicon.svg",
      "GET /api/messages/conversations/18/messages?limit=50",
      "GET /api/messages/conversations/18/messages?limit=50",
      "GET /brand/favicon.svg"
@@ -79,6 +93,8 @@
     "actionbarVisible": true,
     "chatVisible": true,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "chatBtnCount": 1,
     "clickPath": "/hk/login"
    },
@@ -87,6 +103,8 @@
     "actionbarVisible": true,
     "chatVisible": false,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "chatBtnCount": 0
    },
    "nonSeller": {
@@ -94,6 +112,8 @@
     "actionbarVisible": true,
     "chatVisible": true,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "postConversations": {
      "status": 200,
      "url": "/api/messages/conversations"
@@ -102,12 +122,10 @@
     "reqsDelta": [
      "POST /api/messages/conversations",
      "GET /api/user/asset/7",
-     "GET /api/user/asset/7",
      "GET https://cdn.jsdelivr.net/gh/atelier-anchor/smiley-sans@main/webfont/SmileySans-Oblique.woff2",
      "GET /api/messages/conversations/18/messages?limit=50",
      "GET /api/messages/conversations/18/messages?limit=50",
-     "GET /brand/favicon.svg",
-     "GET https://raw.githubusercontent.com/atelier-anchor/smiley-sans/main/webfont/SmileySans-Oblique.woff2"
+     "GET /brand/favicon.svg"
     ]
    }
   },
@@ -117,6 +135,8 @@
     "actionbarVisible": true,
     "chatVisible": true,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "chatBtnCount": 1,
     "clickPath": "/vn/login"
    },
@@ -125,6 +145,8 @@
     "actionbarVisible": true,
     "chatVisible": false,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "chatBtnCount": 0
    },
    "nonSeller": {
@@ -132,14 +154,17 @@
     "actionbarVisible": true,
     "chatVisible": true,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "postConversations": {
      "status": 200,
      "url": "/api/messages/conversations"
     },
     "landedPath": "/vn/messages?c=18",
     "reqsDelta": [
-     "GET /api/user/asset/7",
      "POST /api/messages/conversations",
+     "GET /api/user/asset/7",
+     "GET /api/user/asset/7",
      "GET /api/messages/conversations/18/messages?limit=50",
      "GET /api/messages/conversations/18/messages?limit=50",
      "GET /brand/favicon.svg"
@@ -152,14 +177,18 @@
     "actionbarVisible": true,
     "chatVisible": true,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "chatBtnCount": 1,
     "clickPath": "/login"
    },
    "sellerSelf": {
     "url": "/item/19",
-    "actionbarVisible": false,
+    "actionbarVisible": true,
     "chatVisible": false,
-    "buyVisible": false,
+    "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "chatBtnCount": 0
    },
    "nonSeller": {
@@ -167,13 +196,14 @@
     "actionbarVisible": true,
     "chatVisible": true,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "postConversations": {
      "status": 200,
      "url": "/api/messages/conversations"
     },
     "landedPath": "/messages?c=18",
     "reqsDelta": [
-     "GET /api/user/asset/7",
      "POST /api/messages/conversations",
      "GET /api/user/asset/7",
      "GET /api/messages/conversations/18/messages?limit=50",
@@ -188,6 +218,8 @@
     "actionbarVisible": true,
     "chatVisible": true,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "chatBtnCount": 1,
     "clickPath": "/en/login"
    },
@@ -196,6 +228,8 @@
     "actionbarVisible": true,
     "chatVisible": false,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "chatBtnCount": 0
    },
    "nonSeller": {
@@ -203,6 +237,8 @@
     "actionbarVisible": true,
     "chatVisible": true,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "postConversations": {
      "status": 200,
      "url": "/api/messages/conversations"
@@ -210,6 +246,7 @@
     "landedPath": "/en/messages?c=18",
     "reqsDelta": [
      "POST /api/messages/conversations",
+     "GET /api/user/asset/7",
      "GET /api/user/asset/7",
      "GET /api/messages/conversations/18/messages?limit=50",
      "GET /api/messages/conversations/18/messages?limit=50",
@@ -223,6 +260,8 @@
     "actionbarVisible": true,
     "chatVisible": true,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "chatBtnCount": 1,
     "clickPath": "/hk/login"
    },
@@ -231,6 +270,8 @@
     "actionbarVisible": true,
     "chatVisible": false,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "chatBtnCount": 0
    },
    "nonSeller": {
@@ -238,6 +279,8 @@
     "actionbarVisible": true,
     "chatVisible": true,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "postConversations": {
      "status": 200,
      "url": "/api/messages/conversations"
@@ -245,6 +288,7 @@
     "landedPath": "/hk/messages?c=18",
     "reqsDelta": [
      "POST /api/messages/conversations",
+     "GET /api/user/asset/7",
      "GET https://cdn.jsdelivr.net/gh/atelier-anchor/smiley-sans@main/webfont/SmileySans-Oblique.woff2",
      "GET https://raw.githubusercontent.com/atelier-anchor/smiley-sans/main/webfont/SmileySans-Oblique.woff2",
      "GET /api/messages/conversations/18/messages?limit=50",
@@ -259,6 +303,8 @@
     "actionbarVisible": true,
     "chatVisible": true,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "chatBtnCount": 1,
     "clickPath": "/vn/login"
    },
@@ -267,6 +313,8 @@
     "actionbarVisible": true,
     "chatVisible": false,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "chatBtnCount": 0
    },
    "nonSeller": {
@@ -274,6 +322,8 @@
     "actionbarVisible": true,
     "chatVisible": true,
     "buyVisible": true,
+    "detailPhase": "ok",
+    "renderAttempts": 1,
     "postConversations": {
      "status": 200,
      "url": "/api/messages/conversations"
@@ -281,6 +331,7 @@
     "landedPath": "/vn/messages?c=18",
     "reqsDelta": [
      "POST /api/messages/conversations",
+     "GET /api/user/asset/7",
      "GET /api/messages/conversations/18/messages?limit=50",
      "GET /api/messages/conversations/18/messages?limit=50",
      "GET /brand/favicon.svg"
@@ -288,8 +339,31 @@
    }
   }
  },
- "verdicts": [
-  "AC1-① zh@390: 未登录未见第 3 格（现行口径应可见）"
+ "verdicts": [],
+ "keyVerdicts": {
+  "zh@390": "PASS",
+  "en@390": "PASS",
+  "hk@390": "PASS",
+  "vn@390": "PASS",
+  "zh@1440": "PASS",
+  "en@1440": "PASS",
+  "hk@1440": "PASS",
+  "vn@1440": "PASS"
+ },
+ "keys": [
+  "zh@390",
+  "en@390",
+  "hk@390",
+  "vn@390",
+  "zh@1440",
+  "en@1440",
+  "hk@1440",
+  "vn@1440"
  ],
- "verdict": "FAIL"
+ "keyCount": {
+  "total": 8,
+  "pass": 8,
+  "fail": 0
+ },
+ "verdict": "PASS"
 }

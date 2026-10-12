@@ -1,0 +1,36 @@
+{
+ "ac": "AC-1 · zh@390 单点复跑",
+ "revision": "v2-persisted",
+ "base": "http://127.0.0.1:5792",
+ "states": {
+  "anon": {
+   "actionbarVisible": true,
+   "chatVisible": true,
+   "buyVisible": true,
+   "chatBtnCount": 1,
+   "chatText": "聊一聊",
+   "detailPhase": "ok",
+   "renderAttempts": 1
+  },
+  "sellerSelf": {
+   "actionbarVisible": true,
+   "chatVisible": false,
+   "buyVisible": true,
+   "chatBtnCount": 0,
+   "chatText": null,
+   "detailPhase": "ok",
+   "renderAttempts": 1
+  },
+  "nonSeller": {
+   "actionbarVisible": true,
+   "chatVisible": true,
+   "buyVisible": true,
+   "chatBtnCount": 1,
+   "chatText": "聊一聊",
+   "detailPhase": "ok",
+   "renderAttempts": 1
+  }
+ },
+ "verdicts": [],
+ "verdict": "PASS"
+}
