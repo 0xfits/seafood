@@ -22,6 +22,15 @@ export const readInitialTheme = () => {
 export const applyTheme = (theme) => {
   const attr = THEME_ATTR_VALUES[theme] || THEME_ATTR_VALUES[DEFAULT_THEME]
   document.documentElement.setAttribute(THEME_ATTR, attr)
+  return attr
+}
+
+// 落盘 = 仅用户显式选择（setTheme / toggleTheme / Header 主题钮）。
+// 初次应用（首帧跟随系统 / 存储恢复）只设 data-theme 属性、**不写 localStorage** ——
+// 否则「跟随系统」会在首帧被落盘变粘（2026-10-12 单可判负判据：无存储 + 系统暗 ⇒ 初始夜档
+// 且 localStorage['theme'] === null）。
+export const persistTheme = (theme) => {
+  const attr = THEME_ATTR_VALUES[theme] || THEME_ATTR_VALUES[DEFAULT_THEME]
   try {
     window.localStorage?.setItem(THEME_STORAGE_KEY, attr)
   } catch (error) {
@@ -48,11 +57,14 @@ export const ThemeProvider = ({ children, initialTheme }) => {
   const setTheme = useCallback((next) => {
     if (!THEME_ORDER.includes(next)) return
     setThemeState(next)
+    persistTheme(next)
   }, [])
 
   const toggleTheme = useCallback(() => {
-    setThemeState((prev) => (prev === 'day' ? 'night' : 'day'))
-  }, [])
+    const next = theme === 'day' ? 'night' : 'day'
+    setThemeState(next)
+    persistTheme(next)
+  }, [theme])
 
   const value = useMemo(
     () => ({ theme, isNight: theme === 'night', setTheme, toggleTheme }),

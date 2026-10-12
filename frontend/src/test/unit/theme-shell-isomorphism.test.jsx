@@ -24,6 +24,7 @@ import AppShell from '../../shell/AppShell'
 import { BREAKPOINTS } from '../../shell/breakpoints'
 import { SHELL_NAV_ITEMS, isNavItemActive, navPathInLang, visibleNavItems } from '../../shell/nav'
 import { TOKEN_KEYS } from '../../theme/tokens'
+import { readInitialTheme, ThemeProvider, useTheme } from '../../theme/ThemeProvider'
 import { useAuth } from '../../auth-context'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
@@ -280,5 +281,110 @@ describe('应用外壳 · 断点只能落在 CSS 里（结构级证据）', () =
     expect(app).toContain("t('siteSlogan')")
     expect(app).toContain('document.title =')
     expect(() => read(path.join(REPO_ROOT, 'docs/design/style-preview.html'))).not.toThrow()
+  })
+})
+
+describe('主题 · 首次访问跟随系统（index.html 内联判定 + 初次应用不落盘 · 2026-10-12 单）', () => {
+  const ATTR = 'data-theme'
+  let savedAttr = null
+
+  // 环境复位：attr=null ⇒ 移除属性（模拟「无 index.html 预置」）；stored=null ⇒ 无显式存储（首访态）。
+  // 注：setup.js 已把 global.localStorage 换成 vi.fn() 替身（getItem 恒 undefined）——
+  // 这里给替身装 Map 后端实现来模拟真实语义（无键 ⇒ null），afterEach 再 mockReset 还原默认替身。
+  const store = new Map()
+  const installLsMock = () => {
+    window.localStorage.getItem.mockImplementation((k) => (store.has(k) ? store.get(k) : null))
+    window.localStorage.setItem.mockImplementation((k, v) => { store.set(k, String(v)) })
+    window.localStorage.removeItem.mockImplementation((k) => { store.delete(k) })
+    window.localStorage.clear.mockImplementation(() => { store.clear() })
+  }
+  const resetEnv = ({ attr = null, stored = null } = {}) => {
+    installLsMock()
+    store.clear()
+    if (attr === null) document.documentElement.removeAttribute(ATTR)
+    else document.documentElement.setAttribute(ATTR, attr)
+    if (stored !== null) window.localStorage.setItem('theme', stored)
+  }
+
+  const Probe = () => {
+    const { theme, toggleTheme, setTheme } = useTheme()
+    return (
+      <>
+        <button type="button" data-testid="probe-theme">{theme}</button>
+        <button type="button" data-testid="probe-toggle" onClick={toggleTheme}>toggle</button>
+        <button type="button" data-testid="probe-set-day" onClick={() => setTheme('day')}>day</button>
+        <button type="button" data-testid="probe-set-bogus" onClick={() => setTheme('sepia')}>bogus</button>
+      </>
+    )
+  }
+
+  const mountProvider = () =>
+    render(
+      <ThemeProvider>
+        <Probe />
+      </ThemeProvider>,
+    )
+
+  beforeEach(() => {
+    savedAttr = document.documentElement.getAttribute(ATTR)
+  })
+
+  afterEach(() => {
+    cleanup()
+    if (savedAttr === null) document.documentElement.removeAttribute(ATTR)
+    else document.documentElement.setAttribute(ATTR, savedAttr)
+    for (const m of ['getItem', 'setItem', 'removeItem', 'clear']) window.localStorage[m].mockReset()
+    store.clear()
+  })
+
+  it('① 无存储 + html 已被置 data-theme="dark"（模拟 index.html 跟随系统）⇒ readInitialTheme() = night', () => {
+    resetEnv({ attr: 'dark', stored: null })
+    expect(window.localStorage.getItem('theme')).toBeNull()
+    expect(readInitialTheme()).toBe('night')
+  })
+
+  it('② 无存储 + 无属性 ⇒ readInitialTheme() = day（拿不到系统偏好仍是日档，DEFAULT_THEME 不变）', () => {
+    resetEnv({ attr: null, stored: null })
+    expect(readInitialTheme()).toBe('day')
+  })
+
+  it('③ 有存储 ⇒ 存储决定档位（dark ⇒ night / light ⇒ day，各一）', () => {
+    resetEnv({ attr: null, stored: 'dark' })
+    expect(readInitialTheme()).toBe('night')
+    resetEnv({ attr: null, stored: 'light' })
+    expect(readInitialTheme()).toBe('day')
+  })
+
+  it('④ 初次渲染只设 data-theme、不写 localStorage["theme"]（跟随系统不得首帧变粘）', () => {
+    resetEnv({ attr: 'dark', stored: null })
+    const view = mountProvider()
+    // 状态从属性吃进来（readInitialTheme 的 fromAttr 优先）
+    expect(view.container.querySelector('[data-testid="probe-theme"]').textContent).toBe('night')
+    // 初次应用（effect 跑过）后：属性保持，存储仍为 null
+    expect(document.documentElement.getAttribute(ATTR)).toBe('dark')
+    expect(window.localStorage.getItem('theme')).toBeNull()
+  })
+
+  it('⑤ toggleTheme() ⇒ 落盘且值正确（day → night ⇒ theme=dark，attr 同步）', () => {
+    resetEnv({ attr: 'light', stored: null })
+    const view = mountProvider()
+    expect(view.container.querySelector('[data-testid="probe-theme"]').textContent).toBe('day')
+    fireEvent.click(view.container.querySelector('[data-testid="probe-toggle"]'))
+    expect(view.container.querySelector('[data-testid="probe-theme"]').textContent).toBe('night')
+    expect(window.localStorage.getItem('theme')).toBe('dark')
+    expect(document.documentElement.getAttribute(ATTR)).toBe('dark')
+  })
+
+  it('⑥ setTheme("day") 显式落盘（attr 值 light）；非法值（sepia）不落盘不改档', () => {
+    resetEnv({ attr: 'dark', stored: null })
+    const view = mountProvider()
+    expect(view.container.querySelector('[data-testid="probe-theme"]').textContent).toBe('night')
+    fireEvent.click(view.container.querySelector('[data-testid="probe-set-day"]'))
+    expect(view.container.querySelector('[data-testid="probe-theme"]').textContent).toBe('day')
+    expect(window.localStorage.getItem('theme')).toBe('light')
+    expect(document.documentElement.getAttribute(ATTR)).toBe('light')
+    fireEvent.click(view.container.querySelector('[data-testid="probe-set-bogus"]'))
+    expect(window.localStorage.getItem('theme')).toBe('light')
+    expect(document.documentElement.getAttribute(ATTR)).toBe('light')
   })
 })

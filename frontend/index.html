@@ -12,6 +12,30 @@
          本 meta = 首帧告知 UA「本页支持 浅/深 两档」；随档真值同步在 src/styles.css 的
          `html { color-scheme: light }` / `html[data-theme="dark"] { color-scheme: dark }` 两条规则。 -->
     <meta name="color-scheme" content="light dark" />
+    <!-- 主题首帧初始化（React 渲染之前 · 2026-10-12 单「首次访问跟随系统」）：
+         ① 用户显式选过（localStorage['theme'] ∈ {dark,light}）⇒ 沿用存储（既有口径不变）；
+         ② 否则跟随系统 prefers-color-scheme（dark ⇒ 夜档，其余 ⇒ 日档），结果**不落盘** ——
+            localStorage['theme'] 保持为空，只有用户显式切换（ThemeProvider/Header 主题钮）才写入；
+         ③ matchMedia 不可用或抛错 ⇒ 回退日档（light，= DEFAULT_THEME 语义）。
+         本脚本是全仓**唯一**允许做系统档判定的地方（src/theme/**、src/shell/** 由
+         theme-shell-isomorphism.test.jsx 的同构断言拦截 matchMedia/innerWidth）。 -->
+    <script>
+      (function () {
+        var saved = null
+        try { saved = window.localStorage ? window.localStorage.getItem('theme') : null } catch (e) { saved = null }
+        var mode
+        if (saved === 'dark' || saved === 'light') {
+          mode = saved
+        } else {
+          try {
+            mode = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'
+          } catch (e) {
+            mode = 'light'
+          }
+        }
+        document.documentElement.setAttribute('data-theme', mode)
+      })()
+    </script>
     <!-- 回退标题（中性占位）：仅用于 i18n 启动前 / 无 JS / 爬虫抓取；真源是 src/locales/*.json 的
          siteTitle（仅品牌名）+ siteSlogan，运行时由 App.jsx 的 DocumentTitle 按「覆盖值 > locale」组合为
          「品牌名｜标语」立即覆盖（P9① · R-9-10④ / R-9-13-3） -->
