@@ -239,7 +239,7 @@ const Header = () => {
               aria-label={t('darkMode')}
               title={t('darkMode')}
             >
-              {isDark ? <Moon size={18} /> : <Sun size={18} />}
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
 
             {/* R-9-85：右上角合并为唯一菜单按钮 —— 原 R-9-84 那个独立直入 /profile 的 Link 已删除
@@ -449,7 +449,7 @@ const Header = () => {
               aria-pressed={isDark}
               title={t('darkMode')}
             >
-              {isDark ? <Moon size={18} /> : <Sun size={18} />}
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
           </div>
 

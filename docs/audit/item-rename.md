@@ -180,3 +180,138 @@
 - **`/api/home` 聚合读口字段**：首页主路径走 `/api/home`（回落才逐口读）；本单只实测了回落路径的逐口读面（`/api/prize/all`、`/api/prize-item`），聚合读口字段 = `NOT_MEASURED`。
 - **真机几何/渲染验收**（三档筛选的视觉结果、底栏/悬浮菜单桌面真机形态）：未跑 Playwright 几何探针 = `NOT_MEASURED`（服务只读、未启停）。
 - **`utils.js:63` JSDoc 举例 `'/reward'`**：为文档举例字面（非路由引用），本单未改，登记为已知陈旧示例。
+
+---
+
+# 收尾单（第二轮）追写 · 三张清单 + 新基线 + 路由数 + 已裁口径（Kong · 2026-10-12）
+
+> 范围：`frontend/**` + 本文件（只动本文件；未动其它 `docs/**`）。HEAD 基线 = `d2ad4ef`（上轮 `b675226`/`3633e07`/`d2ad4ef` 均已入库未 push）。
+> 本轮四件：① 主题图标两处同源按 `T41` 统一 ② 补跑 `npm run build` ③ 追写本三张清单 + 新基线 + 路由数 ④ 登记 `/item/999999` 已裁口径。**未启停/未重启任何既有服务**（5787/5788/5800 全程只读）；几何对照用的一次性实例（父版 `69857c4`）按**精确 PID** kill + `git worktree remove`，用后 `git status` 回基线。
+
+---
+
+## ⑪ 11 个死键 · 逐个「非测试消费点 = 0」复核证据
+
+口径：消费点 = `src/**` 内（**排除 `src/test/` 与 `src/locales/`**）对该键的**引用**（`t(...)` / i18n 取值）；同时核对四语 locale 中该键**已删（ABSENT）**。
+
+| # | 死键 | 非测试消费点 | 四语 locale（zh/en/hk/vn） | 复核证据 |
+|---|---|---|---|---|
+| 1 | `reward`（顶层） | **0** | 四语均 ABSENT | 裸词 `reward` 在 `src/**`（非测试）现取 119 处命中，**逐条为**：变量名（`reward.status`/`reward.name`，`RewardsManagement.jsx`/`RewardCard.jsx`）、**别的键**（`jobs.reward`、`adminRewards.*`、`common.claimedUnit`）、注释与 JSDoc；**`t('reward')` = 0**（`grep -nE "\bt\(\s*['"\`]reward['"\`]"` = 空，exit 1） |
+| 2 | `rewardsList` | **0** | 四语 ABSENT | `\brewardsList\b` 现取 = 0 |
+| 3 | `tasksToClaimReward` | **0** | 四语 ABSENT | `\btasksToClaimReward\b` = 0 |
+| 4 | `chooseReward` | **0** | 四语 ABSENT | `\bchooseReward\b` = 0 |
+| 5 | `confirmChooseReward` | **0** | 四语 ABSENT | `\bconfirmChooseReward\b` = 0 |
+| 6 | `successClaimReward` | **0** | 四语 ABSENT | `\bsuccessClaimReward\b` = 0 |
+| 7 | `common.loadingRewards` | **0** | 四语 ABSENT | `\bloadingRewards\b` = 0 |
+| 8 | `homePage.noRewards` | **0** | 四语 ABSENT | `\bnoRewards\b` = 0 |
+| 9 | `homePage.rewardAlreadyClaimed` | **0** | 四语 ABSENT | `\brewardAlreadyClaimed\b` = 0 |
+| 10 | `homePage.rewardOutOfStock` | **0** | 四语 ABSENT | `\brewardOutOfStock\b` = 0 |
+| 11 | `claimRewardModal.loadProgressFailed` | **0** | 四语 ABSENT | `\bloadProgressFailed\b` = 0 |
+
+**结论**：11 键**非测试消费点逐条 = 0** 且**四语 locale 逐条 ABSENT** ⇒ 删除**不改任何活体渲染**（无裸键名风险）。**保留**的 claim 键（`common.claimReward` / `claimRewardModal.*` / `rewardCard.claimNow`）另有活体消费点（`TaskPage.jsx` / `ClaimRewardModal.jsx` / `RewardCard.jsx`），**不属本清单**。
+
+---
+
+## ⑫ 标识改名映射（`F10`）+ 几何零变化对照读数
+
+**改名映射（`sf-listings*` → `sf-item*`）**：
+
+| 项 | 改前 | 改后（现取，HEAD `d2ad4ef`） |
+|---|---|---|
+| `sf-listings` / `sf-item` 出现 | — | `sf-item` 现取 **162** 处 = `src` **144**（含 `src/test` 13）+ `scripts` **18** |
+| 唯一类（`sf-item*`） | 32 | **33**（含既有 `sf-item-orders`；33 类：`sf-item` `sf-item-actions` `sf-item-btn` `sf-item-card` `sf-item-card-title` `sf-item-empty` `sf-item-err` `sf-item-field` `sf-item-field-wide` `sf-item-form` `sf-item-grid` `sf-item-head` `sf-item-input` `sf-item-item` `sf-item-item-title` `sf-item-label` `sf-item-link` `sf-item-meta` `sf-item-note` `sf-item-ok` `sf-item-orders` `sf-item-panel` `sf-item-price` `sf-item-price-cur` `sf-item-price-num` `sf-item-price-unit` `sf-item-row` `sf-item-select` `sf-item-status` `sf-item-tag` `sf-item-textarea` `sf-item-thumb` `sf-item-title`） |
+| 残留 `sf-listings` | — | **0**（`grep -rn "sf-listings" src/ scripts/` = 0） |
+
+**改名映射（`data-sf-m="listing-*"` → `data-sf-m="item-*"`）**：
+
+| 项 | 读数 |
+|---|---|
+| `data-sf-m="item-*"` 现取出现 | **100** 处 |
+| 唯一钩子数 | **43** |
+| 残留 `data-sf-m="listing-` | **0** |
+
+**改名性质**：阶段2 提交 `3633e07` `--numstat` = **218 增 / 218 删**（逐 token 同名换前缀，**零新增语义**；`item.css` 选择器与 JSX class/钩子逐条 1:1）。
+
+**几何零变化对照读数（`/item/1` · 8 关键词元素 × 390/1440 = 16 值）**：父版 = `git worktree add --detach 69857c4`（`node_modules` 软链 + 独立 `cacheDir` + 独立端口 5790）；改后 = 现 dev `5787`。同后端（5788）现取。读数（`[x, y, w, h]`，`getBoundingClientRect`，四舍五入 2 位）：
+
+| # | 元素（改后选择器） | 改前选择器（`69857c4`） | 390 改前 = 改后 | 1440 改前 = 改后 |
+|---|---|---|---|---|
+| 1 | `[data-sf-m="item-detail-layout"]` | `listing-detail-layout` | `[10, 73, 370, 745.5]` | `[20, 65, 1400, 606]` |
+| 2 | `[data-sf-m="item-detail-hero"]` | `listing-detail-hero` | `[10, 81, 306, 98]` | `[20, 73, 1062, 91.5]` |
+| 3 | `[data-sf-m="item-detail-hero"] h1` | 同（hero h1） | `[10, 81, 306, 24]` | `[20, 73, 1062, 24]` |
+| 4 | `.sf-item-actions` | `.sf-listings-actions` | `[10, 135, 306, 44]` | `[20, 127, 1062, 37.5]` |
+| 5 | `[data-sf-m="item-detail"]` | `listing-detail` | `[10, 188, 306, 273.5]` | `[20, 173.5, 1062, 273.5]` |
+| 6 | `[data-sf-m="item-detail-thumb"]` | `listing-detail-thumb` | `[25, 201, 276, 150]` | `[35, 186.5, 1032, 150]` |
+| 7 | `[data-sf-m="item-buy-form"]` | `listing-buy-form` | `[10, 470.5, 306, 202]` | `[20, 456, 1062, 189]` |
+| 8 | `.sf-item-row` | `.sf-listings-row` | `[25, 615.5, 276, 44]` | `[35, 594.5, 1032, 37.5]` |
+
+**结论**：16 值**逐值改前 = 改后**（同一数据态 `/item/1` 渲染 `phase='ok'`）⇒ **几何零变化**成立。
+
+---
+
+## ⑬ catch-all 与主题图标 改前/改后
+
+**（a）catch-all 提示页（`T91`）**
+
+| 项 | 改前 | 改后 |
+|---|---|---|
+| 内层 `<Routes>` 末位 | 无 `<Route path="*">`（旧路径落外层 `/*` 兜底 ⇒ **空白 main**） | `<Route path="*" element={<NotFoundPage />} />`（`App.jsx:145`，内层末位；外层 `LangShell` 的 `/*` 机制**一字未动**） |
+| 页面 | — | 新增 `src/pages/NotFoundPage.jsx`（`data-sf-m="not-found-page"` / `not-found-title` / `not-found-desc` / `not-found-home`；骨架沿用既有 `.sf-layout`/`.sf-panel-title`/`.sf-btn`） |
+| i18n | — | 新增 `notFound.title` / `notFound.description` / `notFound.backHome`（**四语同集**；非 zh 登记「待复核」） |
+| 实测命中（dev 5787） | — | `/reward`、`/listing`、`/listing/new` 均渲染「页面不存在…返回首页」；`/en/listing/9` 渲染英文「Page Not Found…Back to Home」（**语言前缀生效**）；**非重定向 / 仍不是 301** |
+
+**（b）主题图标语义（`T41` / `T92`）**
+
+| 项 | 改前 | 改后 |
+|---|---|---|
+| 字面（**两处同源逐字相同**） | `{isDark ? <Moon size={18} /> : <Sun size={18} />}`（语义 = **显示当前档位**：亮档→sun、夜档→moon） | `{isDark ? <Sun size={18} /> : <Moon size={18} />}`（语义 = **将要切到的档位**：亮档→moon、夜档→sun） |
+| 落点 | 桌面 `Header.jsx:242` / 移动面板 `Header.jsx:452`（**同源 ⇒ 必须两处同改，不得只改一处**） | 同上两处**同改**；尺寸 `size={18}` / 包装 / `aria-label` / `aria-pressed` **均未动** |
+
+**四组图标读数**（lucide-react 渲染 `svg` 的 class：`lucide-sun` / `lucide-moon`）：
+
+| 面 / 档 | 亮档（light） | 夜档（dark） |
+|---|---|---|
+| 桌面钮（1440 · `button[aria-label="darkMode"]`） | **`lucide-moon`** | **`lucide-sun`** |
+| 移动面板钮（390 · 汉堡面板内 `button[aria-label="darkMode"][aria-pressed]`） | **`lucide-moon`** | **`lucide-sun`** |
+
+**真坐标点击翻档（两处各一次）**：桌面钮真坐标 `(1111, 32)` 点击 ⇒ `data-theme` `light → dark`，图标即 `lucide-moon → lucide-sun`；移动面板钮真坐标 `(195, 421)` 点击 ⇒ `data-theme` `light → dark`，图标即 `lucide-moon → lucide-sun`。**两处均与设计真源 `T41`（日档显月亮 / 夜档显太阳）一致**。
+
+---
+
+## ⑭ 新四语基线 + 路由数（现取）
+
+**四语键集新基线（四语一致，逐语同值）**：**顶层 `122` / 拍平 `1045` / 四语节点 `4180`**（`scripts/p4z-i18nviol-global.mjs` 现取：`作用域命中节点数 = 4180（键 1045 × 语 4）`，总判 `PASS`；逐语 `JSON.parse` 现取顶层/拍平亦 = 122/1045）。
+- 与上单（`⑤` 节）对比：`127/1053/4212` → 删 11 死键（`−11/语`）→ `121/1042/4168` → 补 3 新键 `notFound.*`（`+3/语`，顶层 `+1`）→ **终值 `122/1045/4180`**（真实读数，非推定）。
+
+**路由数（现取 · `frontend/src/App.jsx` · 基线 `d2ad4ef`）**：
+
+| 口径 | 现取 |
+|---|---|
+| `grep -cE '<Route'` | **38**（含 2 行注释散文里的字面 `<Routes>`：`App.jsx:27`/`:139`）⇒ **剔注释行 = 36** |
+| 精确 `<Route` JSX 元素（`grep -oE '<Route[ >]'`） | **33**（改前 32） |
+| 后端注册点（`grep -cE '^app\.(get\|post\|put\|delete\|patch)\('`） | **89 不变**（catch-all 是前端相对段，不触后端） |
+
+（与 `docs/route-layer.spec.md` §39.2 的 v2.30 就地更正读数一致。）
+
+---
+
+## ⑮ 已知口径登记：`/item/999999`（Zang 已裁 · 保留现状）
+
+- **裁定**：`/item/999999`（**不存在的 id**）**保留现状** —— 走**详情页内**的「关联单据不存在 + 返回列表」空态，**不并入 catch-all 提示页**。
+- **理由**（Zang）：**更精确的上下文提示优于通用提示**（用户停在 `/item/:id` 上下文，应被告知「该单据不存在」而非「页面不存在」）；且该空态**非空白**（有独立文案 + 导航入口）。
+- **实测口径**（dev 5787 · 1440）：`/item/999999` 现取渲染 `[data-sf-m="item-detail-empty"]`（`data-sf-phase="error"`，文案「关联单据不存在。」），**非** `[data-sf-m="not-found-page"]` ⇒ 与裁定逐字相符。
+- 机制：`ItemDetailPage` 取 `id`（`item/:itemId` 段或 `?id=`）后 `fetchListingDetail` miss ⇒ `detail.phase='error'` ⇒ 渲染 `sf-item-empty` 空态分支；**该分支早于内层 catch-all**（路径已精确/动态命中 `item/:itemId`，不落 `*`）。
+- 该口径为**已知既定行为**（非缺陷、非回归）；登记存档。
+
+---
+
+## ⑯ 门套读数（本轮 · 管道外捕获退出码）
+
+| 项目 | 读数 |
+|---|---|
+| `npm run test:unit` | **`Test Files 51 passed (51)` / `Tests 488 passed (488)` / `0 failed`**，`TEST_EXIT=0`（= 基线，未降低） |
+| `npm run build` | **`BUILD_EXIT=0`**（`vite v5.4.20`，`✓ 1799 modules transformed`，`✓ built in 2.12s`） |
+| 产物名 | `dist/assets/index-CtGmtxm0.js`（主，410.05 kB / gzip 120.53 kB）· `dist/assets/index-BlJoO8F3.css`（112.97 kB / gzip 20.90 kB）· 分包 `vendor-*.js`（react/router/i18n/ui） |
+| `tsc` | **N/A**（前端无 `tsconfig`） |
+
+**本轮改动面**：仅 `frontend/src/components/Header.jsx`（两处图标分支互换）+ 本审计件。**断言影响 = 无**（`theme-shell-isomorphism.test.jsx` 的 DOM 形状签名本就显式排除 `button[aria-label="darkMode"]` 子树，两处分支互换仍恰 1 个 `svg` 元素 ⇒ 签名/子树计数不变；`51/488/0` 实测证实）。
