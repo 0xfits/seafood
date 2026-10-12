@@ -1,0 +1,238 @@
+{
+ "ac6": {
+  "320": {
+   "dayN": 71,
+   "nightN": 71,
+   "same": true,
+   "sha": "562c37edd0147f27bef679b38d03eed7b2e69b3a31488158e310617891a72014"
+  },
+  "390": {
+   "dayN": 71,
+   "nightN": 71,
+   "same": true,
+   "sha": "9f6451276a92855657823ebf84c36835247af6e282493c77f68d1a4d7be7b20e"
+  },
+  "1440": {
+   "dayN": 113,
+   "nightN": 113,
+   "same": true,
+   "sha": "6b94d4581a8f4acf831c92033b4125bf051295e18c79352dce9a594c45bee34b"
+  }
+ },
+ "ac1": {
+  "320": {
+   "texts": [
+    "$",
+    "42",
+    "单价",
+    "闲鱼风格测试物品标题",
+    "物品编号 #1 · 已上架",
+    "描述文字描述文字",
+    "库存 6",
+    "闲置物品",
+    "购买金额由平台统一结算，无需填写价格或收款方。",
+    "购买金额以平台结算为准；重复点击不会重复扣款。",
+    "退款只退还款项，商品库存不会恢复。",
+    "数量",
+    "立即购买"
+   ],
+   "classes": {
+    "note": true,
+    "thumb": true,
+    "actionbar": true,
+    "cta": true,
+    "back": true,
+    "price": true,
+    "titleL": true,
+    "metaGroup": true,
+    "forbidden_seller": false,
+    "forbidden_attr": false,
+    "forbidden_promo": false,
+    "forbidden_stats": false,
+    "forbidden_priceOrig": false
+   },
+   "removedLabelsPresent": []
+  },
+  "390": {
+   "texts": [
+    "$",
+    "42",
+    "单价",
+    "闲鱼风格测试物品标题",
+    "物品编号 #1 · 已上架",
+    "描述文字描述文字",
+    "库存 6",
+    "闲置物品",
+    "购买金额由平台统一结算，无需填写价格或收款方。",
+    "购买金额以平台结算为准；重复点击不会重复扣款。",
+    "退款只退还款项，商品库存不会恢复。",
+    "数量",
+    "立即购买"
+   ],
+   "classes": {
+    "note": true,
+    "thumb": true,
+    "actionbar": true,
+    "cta": true,
+    "back": true,
+    "price": true,
+    "titleL": true,
+    "metaGroup": true,
+    "forbidden_seller": false,
+    "forbidden_attr": false,
+    "forbidden_promo": false,
+    "forbidden_stats": false,
+    "forbidden_priceOrig": false
+   },
+   "removedLabelsPresent": []
+  },
+  "1440": {
+   "texts": [
+    "$",
+    "42",
+    "单价",
+    "闲鱼风格测试物品标题",
+    "物品编号 #1 · 已上架",
+    "描述文字描述文字",
+    "库存 6",
+    "闲置物品",
+    "购买金额由平台统一结算，无需填写价格或收款方。",
+    "购买金额以平台结算为准；重复点击不会重复扣款。",
+    "退款只退还款项，商品库存不会恢复。",
+    "数量",
+    "立即购买"
+   ],
+   "classes": {
+    "note": true,
+    "thumb": true,
+    "actionbar": true,
+    "cta": true,
+    "back": true,
+    "price": true,
+    "titleL": true,
+    "metaGroup": true,
+    "forbidden_seller": false,
+    "forbidden_attr": false,
+    "forbidden_promo": false,
+    "forbidden_stats": false,
+    "forbidden_priceOrig": false
+   },
+   "removedLabelsPresent": []
+  }
+ },
+ "rb": {
+  "320": {
+   "radius": "999px",
+   "bg": "rgb(255, 230, 15)",
+   "color": "rgb(32, 32, 32)",
+   "border": "1px rgb(3, 4, 2)",
+   "classes": "sf-btn sf-item-btn sf-item-cta"
+  },
+  "390": {
+   "radius": "999px",
+   "bg": "rgb(255, 230, 15)",
+   "color": "rgb(32, 32, 32)",
+   "border": "1px rgb(3, 4, 2)",
+   "classes": "sf-btn sf-item-btn sf-item-cta"
+  },
+  "1440": {
+   "radius": "999px",
+   "bg": "rgb(255, 230, 15)",
+   "color": "rgb(32, 32, 32)",
+   "border": "1px rgb(3, 4, 2)",
+   "classes": "sf-btn sf-item-btn sf-item-cta"
+  }
+ },
+ "nc": {
+  "NC2_cta_8px@320": {
+   "before": "999px",
+   "afterInjected": "8px",
+   "changed": true
+  },
+  "NC2_cta_8px@390": {
+   "before": "999px",
+   "afterInjected": "8px",
+   "changed": true
+  },
+  "NC2_cta_8px@1440": {
+   "before": "999px",
+   "afterInjected": "8px",
+   "changed": true
+  },
+  "NC3_remove_rd_padding@320": {
+   "withPadding": {
+    "overflowX": false,
+    "scrollWidth": 320,
+    "innerWidth": 320,
+    "occluded": false,
+    "lastBottom": 213,
+    "barTop": 739,
+    "docHeight": 2051,
+    "barHeight": 61
+   },
+   "withoutPadding": {
+    "overflowX": false,
+    "scrollWidth": 320,
+    "innerWidth": 320,
+    "occluded": false,
+    "lastBottom": 273,
+    "barTop": 739,
+    "docHeight": 1991,
+    "barHeight": 61
+   },
+   "occlusionAppeared": false
+  },
+  "NC3_remove_rd_padding@390": {
+   "withPadding": {
+    "overflowX": false,
+    "scrollWidth": 390,
+    "innerWidth": 390,
+    "occluded": false,
+    "lastBottom": 289,
+    "barTop": 739,
+    "docHeight": 1777,
+    "barHeight": 61
+   },
+   "withoutPadding": {
+    "overflowX": false,
+    "scrollWidth": 390,
+    "innerWidth": 390,
+    "occluded": false,
+    "lastBottom": 349,
+    "barTop": 739,
+    "docHeight": 1717,
+    "barHeight": 61
+   },
+   "occlusionAppeared": false
+  },
+  "NC1_remove_is_detail": {
+   "beforeDisplay": "none",
+   "afterDisplay": "grid",
+   "tabbarVisible": true,
+   "classNow": "sf-tabbar",
+   "verdict": true
+  }
+ },
+ "rc_stress": {
+  "320_longdesc": {
+   "overflowX": false,
+   "scrollWidth": 320,
+   "innerWidth": 320,
+   "occluded": false,
+   "lastBottom": 213,
+   "barTop": 739,
+   "docHeight": 2051,
+   "barHeight": 61
+  },
+  "390_longdesc": {
+   "overflowX": false,
+   "scrollWidth": 390,
+   "innerWidth": 390,
+   "occluded": false,
+   "lastBottom": 289,
+   "barTop": 739,
+   "docHeight": 1777,
+   "barHeight": 61
+  }
+ }
+}

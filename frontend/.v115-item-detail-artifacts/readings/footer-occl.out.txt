@@ -1,0 +1,24 @@
+{
+ "320": {
+  "barTop": 739,
+  "barBottom": 800,
+  "footTop": 315,
+  "footBottom": 800,
+  "footCoveredPx": 61,
+  "detailBottom": 273,
+  "detailCovered": false,
+  "lastLeafBottom": 708,
+  "lastLeafCovered": false
+ },
+ "390": {
+  "barTop": 739,
+  "barBottom": 800,
+  "footTop": 391,
+  "footBottom": 800,
+  "footCoveredPx": 61,
+  "detailBottom": 349,
+  "detailCovered": false,
+  "lastLeafBottom": 708,
+  "lastLeafCovered": false
+ }
+}

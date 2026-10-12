@@ -1,0 +1,3 @@
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) /Users/kevin/bistro/seafood/frontend/src/i18n.js is dynamically imported by /Users/kevin/bistro/seafood/frontend/src/auth.js but also statically imported by /Users/kevin/bistro/seafood/frontend/src/main.jsx, dynamic import will not move module into another chunk.
+

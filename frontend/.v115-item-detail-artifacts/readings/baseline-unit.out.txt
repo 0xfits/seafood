@@ -1,0 +1,114 @@
+
+> jinli-frontend@0.0.0 test:unit
+> vitest run src/test/unit
+
+
+ RUN  v0.34.6 /Users/kevin/bistro/seafood/frontend
+
+ ✓ src/test/unit/ui-barrel-exports.test.js  (5 tests) 430ms
+ ✓ src/test/unit/r9-batt-meter.test.jsx  (15 tests) 220ms
+ ✓ src/test/unit/theme-shell-isomorphism.test.jsx  (20 tests) 361ms
+ ✓ src/test/unit/listing-market.test.jsx  (19 tests) 272ms
+stdout | src/test/unit/i18n-batch-b2.test.jsx > P6-I18N-LIT-B2 · 四语 locale 键集（本批存活键齐备 + 逐文件相等） > 存活 77 键四语齐备、非空串；四文件拍平键集逐文件相等
+[B2] locale 键数读数 {"zh":{"top":122,"flat":1045},"en":{"top":122,"flat":1045},"hk":{"top":122,"flat":1045},"vn":{"top":122,"flat":1045}}
+[B2] 本批存活键数 [33m77[39m
+
+ ✓ src/test/unit/i18n-batch-b2.test.jsx  (7 tests) 238ms
+stdout | src/test/unit/i18n-batch-b4b.test.jsx > P6-I18N-LIT-B4b · 四语 locale 键集 + 类级断言脚本读数 > 新增 137 键四语齐备、非空串；四文件拍平键集逐文件相等（B5 末批 + 批 7-A + 批 7-D + P7-E + P9③ + P9④ + 8⑥ + R-9-88 后 v1.5 Δ+20 ⇒ top=128 / flat=1070）
+[B4b] locale 键数读数 {"zh":{"top":122,"flat":1045},"en":{"top":122,"flat":1045},"hk":{"top":122,"flat":1045},"vn":{"top":122,"flat":1045}} 本批新增键数 = [33m137[39m
+
+ ✓ src/test/unit/i18n-batch-b4b.test.jsx  (11 tests) 374ms
+ ✓ src/test/unit/i18n-batch-b5.test.jsx  (14 tests) 525ms
+stdout | src/test/unit/i18n-batch-b5.test.jsx > P6-I18N-LIT-B5 · 四语 locale 键集（本批新增 uiCommon 12 / uiError 23） > 四文件拍平键集逐文件相等（v1.5 Δ+20 ⇒ top=128 / flat=1070）；新键四语齐备、非空、en/vn 零 CJK
+[B5] locale 键数读数 {"zh":{"top":122,"flat":1045},"en":{"top":122,"flat":1045},"hk":{"top":122,"flat":1045},"vn":{"top":122,"flat":1045}}
+
+ ✓ src/test/unit/fix-nav-langshell.test.jsx  (12 tests) 224ms
+ ✓ src/test/unit/lang-path-redirect.test.jsx  (32 tests) 474ms
+ ✓ src/test/unit/p7e-tails-beta.test.jsx  (8 tests) 215ms
+ ✓ src/test/unit/listing-publish-redirect.test.jsx  (9 tests) 195ms
+ ✓ src/test/unit/s7-submissions-panel.test.jsx  (14 tests) 194ms
+ ✓ src/test/unit/home-page.test.jsx  (2 tests) 167ms
+ ✓ src/test/unit/dashboard-page.test.jsx  (3 tests) 231ms
+ ✓ src/test/unit/ledger-flow-behavior.test.jsx  (6 tests) 181ms
+ ✓ src/test/unit/r9-88-submit-surface.test.jsx  (9 tests) 161ms
+stdout | src/test/unit/i18n-violation-closeout.test.jsx > I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文案） > ① 全量 locale 面：四文件**全部值**逐条扫 → 工程口径命中 = 0（打印作用域节点数）
+[I18N-VIOL] 全量 locale 作用域命中节点数 = 4180（键 1045 × 语 4）；命中 = 0
+
+stdout | src/test/unit/i18n-violation-closeout.test.jsx > I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文案） > ② 全量源文件面 + 硬编码文案面：类级断言脚本退出码 = 0（含注释行/代码位单列登记）
+  作用域命中节点数 = 4180（键 1045 × 语 4）
+  裸命中 = 0
+  裸命中 = 0
+  子面③ 硬编码中文文案字面量（非注释行内的引号字面量）= 38 个；其中命中工程口径 = 1 个 ["pages/jobs/JobDetailPage.jsx:336 [SQL/事务] \"）SELECT 列集**不含** \""] —— 理由：硬编码文案面，命中即违例
+[I18N-VIOL] 总判：PASS（locale 裸命中 0 + 源面裸命中 0 必须 = 0；作用域节点数 locale=4180 / source=44）
+
+stdout | src/test/unit/i18n-violation-closeout.test.jsx > I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文案） > ③ 改写集四语齐备且不再含工程口径（逐键逐语；en/hk/vn 不得残留中文）
+[I18N-VIOL] 改写集 = 33 键 × 4 语 = 132 个节点；问题 = 0
+
+stdout | src/test/unit/i18n-violation-closeout.test.jsx > I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文案） > ⑤ 键名与键集不变：四文件拍平键数单值，且改写集键全部仍在
+[I18N-VIOL] 四语拍平键数 = {1045}；顶层键 = 122
+
+stdout | src/test/unit/i18n-violation-closeout.test.jsx > I18N-VIOL-CLOSEOUT · 全量面类级断言（工程口径进用户文案） > ⑥ 退役键不得回归：S25-B7 退役 10 键 × 4 语一律不存在（存在即红）
+[I18N-VIOL] 退役键不得回归：10 键 × 4 语 = 40 节点；回归命中 = 0
+
+ ✓ src/test/unit/r9-84-profile-entry.test.jsx  (9 tests) 235ms
+ ✓ src/test/unit/i18n-violation-closeout.test.jsx  (6 tests) 152ms
+ ✓ src/test/unit/route-exchange-rename.test.jsx  (14 tests) 201ms
+ ✓ src/test/unit/v15-nav-floatmenu.test.jsx  (20 tests) 141ms
+ ✓ src/test/unit/r9-93-points-symbol.test.jsx  (9 tests) 133ms
+ ✓ src/test/unit/s23-participants-headcount.test.jsx  (11 tests) 114ms
+stdout | src/test/unit/i18n-batch-b4a.test.jsx > P6-I18N-LIT-B4a · 四语 locale 键集（6 命名空间 144 键 + 逐文件相等） > 新增键四语齐备、非空串；四文件拍平键集逐文件相等
+[B4a] locale 键数读数 {"zh":{"top":122,"flat":1045},"en":{"top":122,"flat":1045},"hk":{"top":122,"flat":1045},"vn":{"top":122,"flat":1045}}
+[B4a] 本批新增键数 [33m177[39m
+
+ ✓ src/test/unit/i18n-batch-b4a.test.jsx  (5 tests) 154ms
+ ✓ src/test/unit/r9-90-participate-surface.test.jsx  (20 tests) 144ms
+stdout | src/test/unit/i18n-batch-b3.test.jsx > P6-I18N-LIT-B3 · Zang 裁定 D3：`common.redeemable` 独立键 > 四语齐备 / 取值互异；en-hk-vn 不得再与 `CanClaim`（立即领取语义）同值
+[B3] common.redeemable 四语读数 ["可兑换","Redeemable","可兌換","Có thể đổi"]
+
+stdout | src/test/unit/i18n-batch-b3.test.jsx > P6-I18N-LIT-B3 · Zang 裁定 D3：`common.redeemable` 独立键 > 源码内 `t('CanClaim')` 调用点 = 0，`common.redeemable` 调用点 ≥ 4（4 处改指）
+[B3] D3 调用点读数 {"canClaim":0,"redeemable":1}
+
+stdout | src/test/unit/i18n-batch-b3.test.jsx > P6-I18N-LIT-B3 · 四语 locale 键集（本批新增键齐备 + 逐文件相等） > 新增 55 键四语齐备、非空串；四文件拍平键集逐文件相等
+[B3] locale 键数读数 {"zh":{"top":122,"flat":1045},"en":{"top":122,"flat":1045},"hk":{"top":122,"flat":1045},"vn":{"top":122,"flat":1045}}
+[B3] 本批新增键数 [33m55[39m
+
+ ✓ src/test/unit/i18n-batch-b3.test.jsx  (6 tests) 108ms
+ ✓ src/test/unit/i18n-batch-b1.test.jsx  (3 tests) 129ms
+ ✓ src/test/unit/p6-miscfix.test.jsx  (8 tests) 193ms
+stdout | src/test/unit/i18n-content-wiring.test.jsx > TR-2 · 四语 locale 键集 + 新键 > 四语文件键数相等（读数落盘见 stdout），`i18n.translating` 四语齐备且非空、非英文照抄
+[TR-2] locale 键数读数 {"zh":{"top":122,"flat":1045},"en":{"top":122,"flat":1045},"hk":{"top":122,"flat":1045},"vn":{"top":122,"flat":1045}}
+
+ ✓ src/test/unit/i18n-content-wiring.test.jsx  (14 tests) 121ms
+ ✓ src/test/unit/s19-participants-truth-source.test.jsx  (11 tests) 98ms
+ ✓ src/test/unit/s8-locale-key-coverage.test.js  (7 tests) 121ms
+ ✓ src/test/unit/s5-publish-headcount.test.jsx  (9 tests) 88ms
+ ✓ src/test/unit/d1-error-machineface.test.jsx  (4 tests) 85ms
+ ✓ src/test/unit/s13-review-page-submission-id.test.jsx  (5 tests) 78ms
+ ✓ src/test/unit/p6-tail.test.jsx  (7 tests) 72ms
+ ✓ src/test/unit/s17a-review-page-access-gate.test.jsx  (3 tests) 60ms
+ ✓ src/test/unit/p7c-errmsg-machinecode.test.js  (8 tests) 22ms
+ ✓ src/test/unit/p4z-feperf.test.js  (12 tests) 23ms
+ ✓ src/test/unit/app-routes.test.jsx  (2 tests) 71ms
+ ✓ src/test/unit/d1-batt-reason-i18n.test.js  (6 tests) 22ms
+stdout | src/test/unit/d1-batt-reason-i18n.test.js > D1 · 电量不足文案（`BATT_BELOW_ACCEPT_THRESHOLD` ⇒ `battCard.insufficient`） > ③ 修复前/后读数（同输入）：前 = 通用键真文案；后 = 电量真文案；二者不同且前不含真实原因
+[D1 读数] [{"lang":"zh","before":"当前状态不允许此变更。","after":"电量低于承接门槛，暂时无法承接任务"},{"lang":"hk","before":"目前狀態唔允許呢個變更。","after":"電量低於承接門檻，暫時無法承接任務"},{"lang":"en","before":"The current state does not allow this change.","after":"Energy is below the threshold to accept tasks"},{"lang":"vn","before":"Trạng thái hiện tại không cho phép thay đổi này.","after":"Năng lượng dưới ngưỡng nhận việc, tạm thời không thể nhận việc"}]
+
+ ✓ src/test/unit/p6-btn-impl2.test.js  (9 tests) 20ms
+ ✓ src/test/unit/s9-ledger-kind-closure.test.js  (10 tests) 13ms
+ ✓ src/test/unit/p7b-errfallback.test.js  (9 tests) 26ms
+ ✓ src/test/unit/r9-96-dashj-copy.test.jsx  (7 tests) 25ms
+ ✓ src/test/unit/auth.test.js  (11 tests) 10ms
+ ✓ src/test/unit/p7a-ledger-error-i18n.test.js  (6 tests) 13ms
+ ✓ src/test/unit/theme-tokens.test.js  (13 tests) 9ms
+ ✓ src/test/unit/lang-path.test.js  (16 tests) 7ms
+ ✓ src/test/unit/p6-btn-impl.test.js  (13 tests) 8ms
+ ✓ src/test/unit/s22-decor-cleanup.test.js  (9 tests) 5ms
+ ✓ src/test/unit/admin-utils.test.js  (3 tests) 3ms
+ ✓ src/test/unit/prize-market.test.js  (3 tests) 2ms
+
+ Test Files  51 passed (51)
+      Tests  494 passed (494)
+   Start at  13:28:07
+   Duration  7.02s (transform 2.62s, setup 8.76s, collect 13.66s, tests 7.17s, environment 19.24s, prepare 3.63s)
+
+EXIT=0

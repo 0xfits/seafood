@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, Navigate, useLocation, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { ChevronLeft } from 'lucide-react'
 import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import { contentStatus, pickLocalized } from '../../i18n-content'
@@ -25,6 +26,24 @@ const LISTING_STATUS_KEYS = ['draft', 'listed', 'delisted', 'frozen']
 //     —— 页面**没有**任何 price/seller 输入参与请求；客户端传 `price`/`seller_uid`/`buyer_uid` 也被忽略。
 //   ★ 幂等键 = **前端供键**（fail-loud：缺 `cli:` 键 ⇒ `400 LEDGER_IDEMPOTENCY_KEY_REQUIRED`）。
 // 后端面一字不动：`/api/prize/…` 与 `/api/listing…` 路径名保持不变（本单只改前端路由与文件命名）。
+//
+// ============================================================================
+// ★ v1.15 §19（T94–T99）· 变体 A「闲鱼结构 × 本站主题」· 渲染面收窄为白名单
+//   渲染面（只这些）：① 价格行（大号价格 + 单位小字）② 大标题 ③ 详情面板（渐变占位图 +
+//     描述 + 库存 + 数量输入）④ 底部固定操作栏（仅「立即购买」一个 CTA）⑤ 页内顶栏返回箭头
+//     ⑥ 既有 `.sf-item-note`（物品编号 + 状态 —— 有数据承载，须保留）。
+//   一律不渲染：卖家行 / 属性两列 / 集市横幅 / 划线原价 / 比市场价 / 包邮 / 想要·浏览计数 /
+//     留言 / 收藏 / 聊一聊（前三者 = Kevin 裁定④ 另单；其余无数据源）。
+//   ★ 不预埋空槽位 DOM（承 §15「不造无人消费的空路径」）。
+//   ★ R-A（Zang 终审）：`item.line` / `item.priceServerNote` / `item.refundStockNote` 三个既有键
+//     **保留**，由独立侧栏列折进详情面板作 meta 组（小标题 + 两行说明）⇒ 详情页上 `.sf-layout-side`
+//     消失、`.sf-layout` 退化为单列；零数据依赖的既有可见内容不删。
+//   ★ R-F（Zang 终审）：`item.buyNote`（「购买金额以平台结算为准；重复点击不会重复扣款」）同口径
+//     **保留渲染**，并入同一 meta 组（与 `item.priceServerNote` **非冗余** —— 它多携带「重复点击
+//     不会重复扣款」的幂等告知，对支付 CTA 是对用户的有效告知）。**只改渲染、locale 四语键一字不动**。
+//   ★ 返回目标语义（T96 裁死）：固定回首页 root('/')，**否决 history.back()**（深链 / 刷新 / 新标签
+//     三种入口下导航栈无站内上一页 ⇒ 行为不一致）。a11y 名复用既有键 `item.list`（+0 新键）。
+//   ★ 结构常量（T98）：本单零新主题 token；字号 / 高度等几何量一律落 item.css 的页面局部 --sf-l-*。
 // ============================================================================
 const ItemDetailPage = () => {
   const { t } = useTranslation()
@@ -94,22 +113,12 @@ const ItemDetailPage = () => {
   return (
     <div className="sf-layout" data-sf-m="item-detail-layout">
       <div className="sf-layout-main">
-        <div className="sf-item">
-          <div className="sf-item-head" data-sf-m="item-detail-hero">
-            <h1 className="sf-item-title">
-              {String(title)}
-              {/* 「翻译中」小标（ready/缺省 ⇒ null） */}
-              <TranslatingBadge status={contentStatus(row)} />
-            </h1>
-            <p
-              className="sf-item-note"
-              data-sf-status={statusRaw || undefined}
-              title={statusRaw || undefined}
-            >{`${t('item.listingId')} #${String(row.listing_id ?? row.bID ?? id ?? '-')} · ${statusText}`}</p>
-            <div className="sf-item-actions">
-              <Link className="sf-item-link" to={root('/')} data-sf-m="item-back-link">{t('item.list')}</Link>
-              <button className="sf-btn sf-item-btn" type="button" onClick={load} data-sf-m="item-detail-refresh">{t('item.refresh')}</button>
-            </div>
+        <div className="sf-item sf-item-detail">
+          {/* 页内顶栏 · 返回箭头（T96：固定回首页；a11y 名复用 item.list；触控复用 .sf-tap-sq） */}
+          <div className="sf-item-topbar">
+            <Link className="sf-item-back sf-tap-sq" to={root('/')} data-sf-m="item-back" aria-label={t('item.list')}>
+              <ChevronLeft size={22} aria-hidden="true" />
+            </Link>
           </div>
 
           {detail.phase !== 'ok' ? (
@@ -117,56 +126,68 @@ const ItemDetailPage = () => {
               {detail.message || t('noData')}
             </div>
           ) : (
-            <div className="sf-item-panel" data-sf-m="item-detail">
-              <div className="sf-item-thumb" data-sf-m="item-detail-thumb" />
-              <div className="sf-item-price">
-                <span className="sf-item-price-cur">$</span>
-                <span className="sf-item-price-num">{String(row.price ?? row.points ?? '-')}</span>
-                <span className="sf-item-price-unit">{t('item.priceUnit')}</span>
+            <>
+              {/* 价格行 → 大标题 → `.sf-item-note`（副行）：层级照参考图，颜色/字号走本站 token 与页面局部常量 */}
+              <div className="sf-item-head" data-sf-m="item-detail-hero">
+                <div className="sf-item-price sf-item-price-l">
+                  <span className="sf-item-price-cur">$</span>
+                  <span className="sf-item-price-num">{String(row.price ?? row.points ?? '-')}</span>
+                  <span className="sf-item-price-unit">{t('item.priceUnit')}</span>
+                </div>
+                <h1 className="sf-item-title sf-item-title-l">
+                  {String(title)}
+                  {/* 「翻译中」小标（ready/缺省 ⇒ null） */}
+                  <TranslatingBadge status={contentStatus(row)} />
+                </h1>
+                <p
+                  className="sf-item-note"
+                  data-sf-status={statusRaw || undefined}
+                  title={statusRaw || undefined}
+                >{`${t('item.listingId')} #${String(row.listing_id ?? row.bID ?? id ?? '-')} · ${statusText}`}</p>
               </div>
-              <p className="sf-item-meta">{t('item.stock')}{` ${String(row.stock ?? '-')}`}</p>
-              <p className="sf-item-meta">{String(description)}</p>
-            </div>
+
+              <form onSubmit={onBuy} data-sf-m="item-buy-form">
+                {/* 详情面板：渐变占位图 + 描述 + 库存 + meta 组（R-A）+ 数量输入 */}
+                <div className="sf-item-panel" data-sf-m="item-detail">
+                  <div className="sf-item-thumb" data-sf-m="item-detail-thumb" />
+                  <p className="sf-item-meta">{String(description)}</p>
+                  <p className="sf-item-meta">{t('item.stock')}{` ${String(row.stock ?? '-')}`}</p>
+                  <div className="sf-item-meta-group">
+                    <h2 className="sf-item-title">{t('item.line')}</h2>
+                    <p className="sf-item-meta">{t('item.priceServerNote')}</p>
+                    <p className="sf-item-meta">{t('item.buyNote')}</p>
+                    <p className="sf-item-meta">{t('item.refundStockNote')}</p>
+                  </div>
+                  <label className="sf-item-field">
+                    <span className="sf-item-label">{t('item.quantity')}</span>
+                    <input
+                      className="sf-item-input"
+                      data-sf-m="item-input-qty"
+                      value={quantity}
+                      onChange={(event) => setQuantity(event.target.value)}
+                      inputMode="numeric"
+                      required
+                    />
+                  </label>
+                </div>
+
+                {/* 底部操作栏：仅一个 CTA（多格留待「留言 / 收藏 / 聊一聊」另单，本轮 N = 0 ⇒ 不预埋空槽位） */}
+                <div className="sf-item-actionbar" data-sf-m="item-actionbar">
+                  <button className="sf-btn sf-item-btn sf-item-cta" type="submit" data-sf-m="item-buy-btn" disabled={buy.phase === 'loading' || !isAuthenticated}>
+                    {t('item.buy')}
+                  </button>
+                  <span
+                    className={`sf-item-status${buy.phase === 'error' ? ' sf-item-err' : ''}${buy.phase === 'ok' ? ' sf-item-ok' : ''}`}
+                    data-sf-m="item-buy-status"
+                    data-sf-phase={buy.phase}
+                    role="status"
+                  >
+                    {buy.message || (isAuthenticated ? '' : t('pleaseLogin'))}
+                  </span>
+                </div>
+              </form>
+            </>
           )}
-
-          <form className="sf-item-panel" onSubmit={onBuy} data-sf-m="item-buy-form">
-            <h2 className="sf-item-title">{t('item.buy')}</h2>
-            <div className="sf-item-form">
-              <label className="sf-item-field">
-                <span className="sf-item-label">{t('item.quantity')}</span>
-                <input
-                  className="sf-item-input"
-                  data-sf-m="item-input-qty"
-                  value={quantity}
-                  onChange={(event) => setQuantity(event.target.value)}
-                  inputMode="numeric"
-                  required
-                />
-              </label>
-            </div>
-            <p className="sf-item-meta">{t('item.buyNote')}</p>
-            <div className="sf-item-row">
-              <button className="sf-btn sf-item-btn" type="submit" data-sf-m="item-buy-btn" disabled={buy.phase === 'loading' || !isAuthenticated}>
-                {t('item.buy')}
-              </button>
-              <span
-                className={`sf-item-status${buy.phase === 'error' ? ' sf-item-err' : ''}${buy.phase === 'ok' ? ' sf-item-ok' : ''}`}
-                data-sf-m="item-buy-status"
-                data-sf-phase={buy.phase}
-                role="status"
-              >
-                {buy.message || (isAuthenticated ? '' : t('pleaseLogin'))}
-              </span>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <div className="sf-layout-side">
-        <div className="sf-item-panel" data-sf-m="item-detail-side">
-          <h2 className="sf-item-title">{t('item.line')}</h2>
-          <p className="sf-item-meta">{t('item.priceServerNote')}</p>
-          <p className="sf-item-meta">{t('item.refundStockNote')}</p>
         </div>
       </div>
     </div>

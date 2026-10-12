@@ -1,0 +1,114 @@
+{
+ "320": {
+  "withRE": {
+   "computedFootPadBottom": "60px",
+   "barTop": 739,
+   "barBottom": 800,
+   "footTop": 315,
+   "footBottom": 800,
+   "footCoveredPx": 61,
+   "detailBottom": 273,
+   "detailCovered": false,
+   "lastLeafBottom": 708,
+   "lastLeafCovered": false,
+   "lastLeafOverlapPx": 0
+  },
+  "noRE_ctf": {
+   "computedFootPadBottom": "0px",
+   "barTop": 739,
+   "barBottom": 800,
+   "footTop": 375,
+   "footBottom": 800,
+   "footCoveredPx": 61,
+   "detailBottom": 333,
+   "detailCovered": false,
+   "lastLeafBottom": 768,
+   "lastLeafCovered": true,
+   "lastLeafOverlapPx": 29
+  }
+ },
+ "390": {
+  "withRE": {
+   "computedFootPadBottom": "60px",
+   "barTop": 739,
+   "barBottom": 800,
+   "footTop": 391,
+   "footBottom": 800,
+   "footCoveredPx": 61,
+   "detailBottom": 349,
+   "detailCovered": false,
+   "lastLeafBottom": 708,
+   "lastLeafCovered": false,
+   "lastLeafOverlapPx": 0
+  },
+  "noRE_ctf": {
+   "computedFootPadBottom": "0px",
+   "barTop": 739,
+   "barBottom": 800,
+   "footTop": 451,
+   "footBottom": 800,
+   "footCoveredPx": 61,
+   "detailBottom": 409,
+   "detailCovered": false,
+   "lastLeafBottom": 768,
+   "lastLeafCovered": true,
+   "lastLeafOverlapPx": 29
+  }
+ },
+ "767": {
+  "withRE": {
+   "computedFootPadBottom": "60px",
+   "barTop": 739,
+   "barBottom": 800,
+   "footTop": 411,
+   "footBottom": 800,
+   "footCoveredPx": 61,
+   "detailBottom": 369,
+   "detailCovered": false,
+   "lastLeafBottom": 708,
+   "lastLeafCovered": false,
+   "lastLeafOverlapPx": 0
+  },
+  "noRE_ctf": {
+   "computedFootPadBottom": "0px",
+   "barTop": 739,
+   "barBottom": 800,
+   "footTop": 471,
+   "footBottom": 800,
+   "footCoveredPx": 61,
+   "detailBottom": 429,
+   "detailCovered": false,
+   "lastLeafBottom": 768,
+   "lastLeafCovered": true,
+   "lastLeafOverlapPx": 29
+  }
+ },
+ "1440": {
+  "withRE": {
+   "computedFootPadBottom": "0px",
+   "barTop": 408.5,
+   "barBottom": 468.5,
+   "footTop": 494.5,
+   "footBottom": 799.5,
+   "footCoveredPx": 0,
+   "detailBottom": 468.5,
+   "detailCovered": true,
+   "lastLeafBottom": 767.5,
+   "lastLeafCovered": true,
+   "lastLeafOverlapPx": 359
+  },
+  "noRE_ctf": {
+   "computedFootPadBottom": "0px",
+   "barTop": 408.5,
+   "barBottom": 468.5,
+   "footTop": 494.5,
+   "footBottom": 799.5,
+   "footCoveredPx": 0,
+   "detailBottom": 468.5,
+   "detailCovered": true,
+   "lastLeafBottom": 767.5,
+   "lastLeafCovered": true,
+   "lastLeafOverlapPx": 359
+  }
+ }
+}

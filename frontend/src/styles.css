@@ -13,6 +13,14 @@
 @import './theme/theme-tokens.css';
 @import './shell/shell.css';
 
+/* ===== T95（design-system.spec v1.15 §19）· 详情页隐藏底栏 =====
+   机制 = DOM 恒在 + 页面级 display:none（否决 DOM 移除，保住「同构 ⇒ DOM 恒在」硬核）。
+   状态挂点 = shell/BottomTabBar.jsx（已有 useLocation；只做路由串匹配，无宽度判定）⇒ 命中详情路由时挂 is-detail。
+   落点 = 本文件**顶层**（@import 段之后、@theme 之外；不入 @layer、不入 @media）；shell.css 一字不动
+   （该文件挂「唯一 767 断点块 + 宽屏无 [data-theme]」双边断言）。
+   具体性 (0,2,0) ＞ shell.css 767 块内 .sf-tabbar 的 (0,1,0) ⇒ 竖屏档亦被隐藏，无需第二处规则。 */
+.sf-tabbar.is-detail{display:none}
+
 /* 原 index.html 运行期 `tailwind.config` 的 theme.extend.colors 六项 → v4 CSS-first `@theme`。
    运行期 config 没有 fonts / screens / borderRadius / darkMode 等其它键，故迁移项 = 6 项（无遗漏）。 */
 @theme {

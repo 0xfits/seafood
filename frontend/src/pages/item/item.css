@@ -17,6 +17,14 @@
 .sf-item {
   --sf-l-ctl-h: 34px;
   --sf-l-textarea-h: 72px;
+  /* v1.15 §19（T98）· 详情页页面局部结构常量（几何量不进主题层，与 --sf-l-ctl-h 同体例）：
+     · --sf-l-detail-price-size / --sf-l-detail-title-size = 字号（>767 与 ≤767 两档同值）
+     · --sf-l-actionbar-h / --sf-l-actionbar-safe = 操作栏高度与底部安全区（安全区同 shell.css:72 底栏复刻）
+     R-C（Zang 终审）：大号价格 = 32px，硬门 = 320 档零横向溢出（溢出则回落 28px）。 */
+  --sf-l-detail-price-size: 32px;
+  --sf-l-detail-title-size: 18px;
+  --sf-l-actionbar-h: 60px;
+  --sf-l-actionbar-safe: env(safe-area-inset-bottom);
   display: flex;
   flex-direction: column;
   gap: var(--sf-st-feed-gap-m);
@@ -286,5 +294,96 @@
 @media (min-width: 1024px) {
   .sf-item-orders {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ============================================================================
+   v1.15 §19（T96–T99）· `/item/:id` 详情页（变体 A）· 页内顶栏 / 大号价格 / 大标题 /
+   meta 组 / 底部操作栏 —— 每个新增类都只承载「位置 + 尺寸（结构常量）」或「颜色 token」，
+   不写 @media 于 shell.css、不写 [data-theme] 选择器（两档几何逐值相等 = AC-6）。
+
+   · .sf-item-topbar / .sf-item-back —— 页内返回入口（T96）；触控复用 shell.css 767 块内的
+     .sf-tap-sq（min 44×44），桌面档不受其约束。
+   · .sf-item-title-l / .sf-item-price-l —— 字号取页面局部常量（T98/R-C），不写死 px。
+   · .sf-item-actionbar —— >767 留在内容流（position: static）；≤767 = position: fixed 独占底部
+     （底栏已在详情页隐藏，无竞争）。断点值复用既有唯一值 767。
+   · .sf-item-cta —— 新修饰类承载胶囊形状（R-B = --sf-st-radius-pill 999px）；
+     **不改 .sf-item-btn 规则本体**（p6-btn-impl2 校验它）。
+   ============================================================================ */
+.sf-item-topbar {
+  display: flex;
+  align-items: center;
+}
+
+.sf-item-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sf-title-fg);
+  text-decoration: none;
+}
+
+.sf-item-title-l {
+  font-size: var(--sf-l-detail-title-size);
+}
+
+.sf-item-price-l .sf-item-price-num {
+  font-size: var(--sf-l-detail-price-size);
+}
+
+.sf-item-meta-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sf-item-actionbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sf-st-feed-gap-m);
+  min-height: var(--sf-l-actionbar-h);
+  padding: 8px 0;
+  background: var(--sf-page-bg);
+  border-top: var(--sf-st-stroke-w-thin) solid var(--sf-tabbar-border);
+  /* >767 档：留在内容流（不出 fixed = AC-5 判据） */
+  position: static;
+}
+
+/* R-B：CTA 圆角 = 既有结构常量 --sf-st-radius-pill（999px 全圆胶囊，照参考图）。
+   选择器必须**压过** shell.css 的 .sf-btn（border-radius: var(--sf-st-radius-btna) 8px）——
+   实测打包序：本文件（页面 CSS）先于 shell.css 落地 ⇒ 同具体性 (0,1,0) 会输 ⇒ 用复合选择器
+   .sf-btn.sf-item-cta = (0,2,0) 取胜。**未改 .sf-item-btn 规则本体**（p6-btn-impl2 校验它）。 */
+.sf-btn.sf-item-cta {
+  border-radius: var(--sf-st-radius-pill);
+  flex: 1 1 auto;
+}
+
+/* ≤767 档：操作栏 fixed 独占底部（底栏已隐藏）；
+   R-D：容器必须有等量底部内边距 ⇒ 内容不被操作栏遮挡（参考图该处本身有遮挡缺陷，不照抄）。 */
+@media (max-width: 767px) {
+  .sf-item-actionbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 4;
+    padding-bottom: calc(8px + var(--sf-l-actionbar-safe));
+  }
+
+  .sf-item-detail {
+    padding-bottom: calc(var(--sf-l-actionbar-h) + var(--sf-l-actionbar-safe));
+  }
+
+  /* R-D 补齐（本单实测）：shell 页脚（.sf-region-foot）在路由容器**之外** ⇒ 上一条内边距只
+     把详情内容顶起来、页脚末 ~61px 仍被固定操作栏盖住（实测 lastLeaf bottom 768 > barTop 739）。
+     用 :has() 把**详情页专属**的等量底部内边距补给页脚 —— 选择器只在详情页命中，非详情页零影响
+     （AC-3 差异集仍为 0）。页脚不在 .sf-item 子树内 ⇒ 自带同值副本（60px = --sf-l-actionbar-h）。
+     若口径不接受此补齐，删掉本条即可回退（详情内容不遮挡不受影响）。 */
+  .sf-shell:has(.sf-item-detail) {
+    --sf-l-detailbar-h: 60px;
+  }
+
+  .sf-shell:has(.sf-item-detail) .sf-region-foot {
+    padding-bottom: calc(var(--sf-l-detailbar-h) + env(safe-area-inset-bottom));
   }
 }

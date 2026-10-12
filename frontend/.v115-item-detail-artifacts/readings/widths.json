@@ -1,0 +1,1200 @@
+{
+ "detail": {
+  "320/day": {
+   "innerWidth": 320,
+   "docScrollWidth": 320,
+   "bodyScrollWidth": 320,
+   "overflowX": false,
+   "url": "/item/1",
+   "tabbar": {
+    "cls": "sf-tabbar is-detail",
+    "display": "none"
+   },
+   "back": {
+    "n": 1,
+    "href": "/",
+    "rect": {
+     "x": 10,
+     "y": -296,
+     "w": 44,
+     "h": 44,
+     "top": -296,
+     "bottom": -252,
+     "right": 54
+    }
+   },
+   "priceRow": {
+    "rect": {
+     "x": 10,
+     "y": -243,
+     "w": 91.6,
+     "h": 54,
+     "top": -243,
+     "bottom": -189,
+     "right": 101.6
+    },
+    "numFont": "32px",
+    "borderRight": 101.6
+   },
+   "titleFont": "18px",
+   "noteText": "物品编号 #1 · 已上架",
+   "qtyRect": {
+    "x": 25,
+    "y": 216,
+    "w": 270,
+    "h": 44,
+    "top": 216,
+    "bottom": 260,
+    "right": 295
+   },
+   "panelRect": {
+    "x": 10,
+    "y": -123,
+    "w": 300,
+    "h": 396,
+    "top": -123,
+    "bottom": 273,
+    "right": 310
+   },
+   "bar": {
+    "pos": "fixed",
+    "rect": {
+     "x": 0,
+     "y": 739,
+     "w": 320,
+     "h": 61,
+     "top": 739,
+     "bottom": 800,
+     "right": 320
+    },
+    "zIndex": "4"
+   },
+   "cta": {
+    "rect": {
+     "x": 0,
+     "y": 748,
+     "w": 311,
+     "h": 44,
+     "top": 748,
+     "bottom": 792,
+     "right": 311
+    },
+    "radius": "8px",
+    "minH": "44px",
+    "h": 44,
+    "bg": "rgb(255, 230, 15)",
+    "text": "立即购买"
+   },
+   "occluded": false,
+   "minTextSize": 12,
+   "texts": [
+    {
+     "t": "Seafood 海鲜市场",
+     "size": 20
+    },
+    {
+     "t": "$",
+     "size": 12
+    },
+    {
+     "t": "42",
+     "size": 32
+    },
+    {
+     "t": "单价",
+     "size": 12
+    },
+    {
+     "t": "闲鱼风格测试物品标题",
+     "size": 18
+    },
+    {
+     "t": "物品编号 #1 · 已上架",
+     "size": 12
+    },
+    {
+     "t": "描述文字描述文字",
+     "size": 12
+    },
+    {
+     "t": "库存 6",
+     "size": 12
+    },
+    {
+     "t": "闲置物品",
+     "size": 16
+    },
+    {
+     "t": "购买金额由平台统一结算，无需填写价格或收款方。",
+     "size": 12
+    },
+    {
+     "t": "退款只退还款项，商品库存不会恢复。",
+     "size": 12
+    },
+    {
+     "t": "数量",
+     "size": 12
+    },
+    {
+     "t": "立即购买",
+     "size": 13
+    },
+    {
+     "t": "简体中文",
+     "size": 14
+    },
+    {
+     "t": "English",
+     "size": 14
+    },
+    {
+     "t": "粤语",
+     "size": 14
+    },
+    {
+     "t": "Tiếng Việt",
+     "size": 14
+    },
+    {
+     "t": "© 2024-2026 Abbey Quant & Jinli Club. 保留",
+     "size": 14
+    },
+    {
+     "t": "本网站支持简体中文、英文、粤语和越南语。",
+     "size": 12
+    },
+    {
+     "t": "联系我们：contact@jinli.club",
+     "size": 14
+    }
+   ],
+   "backHref": "/",
+   "afterClick": {
+    "path": "/",
+    "tabbarDisplay": "grid",
+    "tabs": [
+     "/",
+     "/exchange",
+     "/item/new",
+     "/messages",
+     "/profile"
+    ],
+    "tabbarVisible": true
+   }
+  },
+  "320/night": {
+   "innerWidth": 320,
+   "docScrollWidth": 320,
+   "bodyScrollWidth": 320,
+   "overflowX": false,
+   "url": "/item/1",
+   "tabbar": {
+    "cls": "sf-tabbar is-detail",
+    "display": "none"
+   },
+   "back": {
+    "n": 1,
+    "href": "/",
+    "rect": {
+     "x": 10,
+     "y": -296,
+     "w": 44,
+     "h": 44,
+     "top": -296,
+     "bottom": -252,
+     "right": 54
+    }
+   },
+   "priceRow": {
+    "rect": {
+     "x": 10,
+     "y": -243,
+     "w": 91.6,
+     "h": 54,
+     "top": -243,
+     "bottom": -189,
+     "right": 101.6
+    },
+    "numFont": "32px",
+    "borderRight": 101.6
+   },
+   "titleFont": "18px",
+   "noteText": "物品编号 #1 · 已上架",
+   "qtyRect": {
+    "x": 25,
+    "y": 216,
+    "w": 270,
+    "h": 44,
+    "top": 216,
+    "bottom": 260,
+    "right": 295
+   },
+   "panelRect": {
+    "x": 10,
+    "y": -123,
+    "w": 300,
+    "h": 396,
+    "top": -123,
+    "bottom": 273,
+    "right": 310
+   },
+   "bar": {
+    "pos": "fixed",
+    "rect": {
+     "x": 0,
+     "y": 739,
+     "w": 320,
+     "h": 61,
+     "top": 739,
+     "bottom": 800,
+     "right": 320
+    },
+    "zIndex": "4"
+   },
+   "cta": {
+    "rect": {
+     "x": 0,
+     "y": 748,
+     "w": 311,
+     "h": 44,
+     "top": 748,
+     "bottom": 792,
+     "right": 311
+    },
+    "radius": "8px",
+    "minH": "44px",
+    "h": 44,
+    "bg": "rgb(255, 230, 15)",
+    "text": "立即购买"
+   },
+   "occluded": false,
+   "minTextSize": 12,
+   "texts": [
+    {
+     "t": "Seafood 海鲜市场",
+     "size": 20
+    },
+    {
+     "t": "$",
+     "size": 12
+    },
+    {
+     "t": "42",
+     "size": 32
+    },
+    {
+     "t": "单价",
+     "size": 12
+    },
+    {
+     "t": "闲鱼风格测试物品标题",
+     "size": 18
+    },
+    {
+     "t": "物品编号 #1 · 已上架",
+     "size": 12
+    },
+    {
+     "t": "描述文字描述文字",
+     "size": 12
+    },
+    {
+     "t": "库存 6",
+     "size": 12
+    },
+    {
+     "t": "闲置物品",
+     "size": 16
+    },
+    {
+     "t": "购买金额由平台统一结算，无需填写价格或收款方。",
+     "size": 12
+    },
+    {
+     "t": "退款只退还款项，商品库存不会恢复。",
+     "size": 12
+    },
+    {
+     "t": "数量",
+     "size": 12
+    },
+    {
+     "t": "立即购买",
+     "size": 13
+    },
+    {
+     "t": "简体中文",
+     "size": 14
+    },
+    {
+     "t": "English",
+     "size": 14
+    },
+    {
+     "t": "粤语",
+     "size": 14
+    },
+    {
+     "t": "Tiếng Việt",
+     "size": 14
+    },
+    {
+     "t": "© 2024-2026 Abbey Quant & Jinli Club. 保留",
+     "size": 14
+    },
+    {
+     "t": "本网站支持简体中文、英文、粤语和越南语。",
+     "size": 12
+    },
+    {
+     "t": "联系我们：contact@jinli.club",
+     "size": 14
+    }
+   ],
+   "backHref": "/",
+   "afterClick": {
+    "path": "/",
+    "tabbarDisplay": "grid",
+    "tabs": [
+     "/",
+     "/exchange",
+     "/item/new",
+     "/messages",
+     "/profile"
+    ],
+    "tabbarVisible": true
+   }
+  },
+  "390/day": {
+   "innerWidth": 390,
+   "docScrollWidth": 390,
+   "bodyScrollWidth": 390,
+   "overflowX": false,
+   "url": "/item/1",
+   "tabbar": {
+    "cls": "sf-tabbar is-detail",
+    "display": "none"
+   },
+   "back": {
+    "n": 1,
+    "href": "/",
+    "rect": {
+     "x": 10,
+     "y": -202,
+     "w": 44,
+     "h": 44,
+     "top": -202,
+     "bottom": -158,
+     "right": 54
+    }
+   },
+   "priceRow": {
+    "rect": {
+     "x": 10,
+     "y": -149,
+     "w": 91.6,
+     "h": 54,
+     "top": -149,
+     "bottom": -95,
+     "right": 101.6
+    },
+    "numFont": "32px",
+    "borderRight": 101.6
+   },
+   "titleFont": "18px",
+   "noteText": "物品编号 #1 · 已上架",
+   "qtyRect": {
+    "x": 25,
+    "y": 292,
+    "w": 276,
+    "h": 44,
+    "top": 292,
+    "bottom": 336,
+    "right": 301
+   },
+   "panelRect": {
+    "x": 10,
+    "y": -29,
+    "w": 306,
+    "h": 378,
+    "top": -29,
+    "bottom": 349,
+    "right": 316
+   },
+   "bar": {
+    "pos": "fixed",
+    "rect": {
+     "x": 0,
+     "y": 739,
+     "w": 390,
+     "h": 61,
+     "top": 739,
+     "bottom": 800,
+     "right": 390
+    },
+    "zIndex": "4"
+   },
+   "cta": {
+    "rect": {
+     "x": 0,
+     "y": 748,
+     "w": 381,
+     "h": 44,
+     "top": 748,
+     "bottom": 792,
+     "right": 381
+    },
+    "radius": "8px",
+    "minH": "44px",
+    "h": 44,
+    "bg": "rgb(255, 230, 15)",
+    "text": "立即购买"
+   },
+   "occluded": false,
+   "minTextSize": 12,
+   "texts": [
+    {
+     "t": "Seafood 海鲜市场",
+     "size": 20
+    },
+    {
+     "t": "$",
+     "size": 12
+    },
+    {
+     "t": "42",
+     "size": 32
+    },
+    {
+     "t": "单价",
+     "size": 12
+    },
+    {
+     "t": "闲鱼风格测试物品标题",
+     "size": 18
+    },
+    {
+     "t": "物品编号 #1 · 已上架",
+     "size": 12
+    },
+    {
+     "t": "描述文字描述文字",
+     "size": 12
+    },
+    {
+     "t": "库存 6",
+     "size": 12
+    },
+    {
+     "t": "闲置物品",
+     "size": 16
+    },
+    {
+     "t": "购买金额由平台统一结算，无需填写价格或收款方。",
+     "size": 12
+    },
+    {
+     "t": "退款只退还款项，商品库存不会恢复。",
+     "size": 12
+    },
+    {
+     "t": "数量",
+     "size": 12
+    },
+    {
+     "t": "立即购买",
+     "size": 13
+    },
+    {
+     "t": "简体中文",
+     "size": 14
+    },
+    {
+     "t": "English",
+     "size": 14
+    },
+    {
+     "t": "粤语",
+     "size": 14
+    },
+    {
+     "t": "Tiếng Việt",
+     "size": 14
+    },
+    {
+     "t": "© 2024-2026 Abbey Quant & Jinli Club. 保留",
+     "size": 14
+    },
+    {
+     "t": "本网站支持简体中文、英文、粤语和越南语。",
+     "size": 12
+    },
+    {
+     "t": "联系我们：contact@jinli.club",
+     "size": 14
+    }
+   ],
+   "backHref": "/",
+   "afterClick": {
+    "path": "/",
+    "tabbarDisplay": "grid",
+    "tabs": [
+     "/",
+     "/exchange",
+     "/item/new",
+     "/messages",
+     "/profile"
+    ],
+    "tabbarVisible": true
+   }
+  },
+  "390/night": {
+   "innerWidth": 390,
+   "docScrollWidth": 390,
+   "bodyScrollWidth": 390,
+   "overflowX": false,
+   "url": "/item/1",
+   "tabbar": {
+    "cls": "sf-tabbar is-detail",
+    "display": "none"
+   },
+   "back": {
+    "n": 1,
+    "href": "/",
+    "rect": {
+     "x": 10,
+     "y": -202,
+     "w": 44,
+     "h": 44,
+     "top": -202,
+     "bottom": -158,
+     "right": 54
+    }
+   },
+   "priceRow": {
+    "rect": {
+     "x": 10,
+     "y": -149,
+     "w": 91.6,
+     "h": 54,
+     "top": -149,
+     "bottom": -95,
+     "right": 101.6
+    },
+    "numFont": "32px",
+    "borderRight": 101.6
+   },
+   "titleFont": "18px",
+   "noteText": "物品编号 #1 · 已上架",
+   "qtyRect": {
+    "x": 25,
+    "y": 292,
+    "w": 276,
+    "h": 44,
+    "top": 292,
+    "bottom": 336,
+    "right": 301
+   },
+   "panelRect": {
+    "x": 10,
+    "y": -29,
+    "w": 306,
+    "h": 378,
+    "top": -29,
+    "bottom": 349,
+    "right": 316
+   },
+   "bar": {
+    "pos": "fixed",
+    "rect": {
+     "x": 0,
+     "y": 739,
+     "w": 390,
+     "h": 61,
+     "top": 739,
+     "bottom": 800,
+     "right": 390
+    },
+    "zIndex": "4"
+   },
+   "cta": {
+    "rect": {
+     "x": 0,
+     "y": 748,
+     "w": 381,
+     "h": 44,
+     "top": 748,
+     "bottom": 792,
+     "right": 381
+    },
+    "radius": "8px",
+    "minH": "44px",
+    "h": 44,
+    "bg": "rgb(255, 230, 15)",
+    "text": "立即购买"
+   },
+   "occluded": false,
+   "minTextSize": 12,
+   "texts": [
+    {
+     "t": "Seafood 海鲜市场",
+     "size": 20
+    },
+    {
+     "t": "$",
+     "size": 12
+    },
+    {
+     "t": "42",
+     "size": 32
+    },
+    {
+     "t": "单价",
+     "size": 12
+    },
+    {
+     "t": "闲鱼风格测试物品标题",
+     "size": 18
+    },
+    {
+     "t": "物品编号 #1 · 已上架",
+     "size": 12
+    },
+    {
+     "t": "描述文字描述文字",
+     "size": 12
+    },
+    {
+     "t": "库存 6",
+     "size": 12
+    },
+    {
+     "t": "闲置物品",
+     "size": 16
+    },
+    {
+     "t": "购买金额由平台统一结算，无需填写价格或收款方。",
+     "size": 12
+    },
+    {
+     "t": "退款只退还款项，商品库存不会恢复。",
+     "size": 12
+    },
+    {
+     "t": "数量",
+     "size": 12
+    },
+    {
+     "t": "立即购买",
+     "size": 13
+    },
+    {
+     "t": "简体中文",
+     "size": 14
+    },
+    {
+     "t": "English",
+     "size": 14
+    },
+    {
+     "t": "粤语",
+     "size": 14
+    },
+    {
+     "t": "Tiếng Việt",
+     "size": 14
+    },
+    {
+     "t": "© 2024-2026 Abbey Quant & Jinli Club. 保留",
+     "size": 14
+    },
+    {
+     "t": "本网站支持简体中文、英文、粤语和越南语。",
+     "size": 12
+    },
+    {
+     "t": "联系我们：contact@jinli.club",
+     "size": 14
+    }
+   ],
+   "backHref": "/",
+   "afterClick": {
+    "path": "/",
+    "tabbarDisplay": "grid",
+    "tabs": [
+     "/",
+     "/exchange",
+     "/item/new",
+     "/messages",
+     "/profile"
+    ],
+    "tabbarVisible": true
+   }
+  },
+  "1440/day": {
+   "innerWidth": 1440,
+   "docScrollWidth": 1440,
+   "bodyScrollWidth": 1440,
+   "overflowX": false,
+   "url": "/item/1",
+   "tabbar": {
+    "cls": "sf-tabbar is-detail",
+    "display": "none"
+   },
+   "back": {
+    "n": 1,
+    "href": "/",
+    "rect": {
+     "x": 20,
+     "y": -114,
+     "w": 22,
+     "h": 22,
+     "top": -114,
+     "bottom": -92,
+     "right": 42
+    }
+   },
+   "priceRow": {
+    "rect": {
+     "x": 20,
+     "y": -83,
+     "w": 91.6,
+     "h": 54,
+     "top": -83,
+     "bottom": -29,
+     "right": 111.6
+    },
+    "numFont": "32px",
+    "borderRight": 111.6
+   },
+   "titleFont": "18px",
+   "noteText": "物品编号 #1 · 已上架",
+   "qtyRect": {
+    "x": 35,
+    "y": 358,
+    "w": 1370,
+    "h": 37.5,
+    "top": 358,
+    "bottom": 395.5,
+    "right": 1405
+   },
+   "panelRect": {
+    "x": 20,
+    "y": 37,
+    "w": 1400,
+    "h": 371.5,
+    "top": 37,
+    "bottom": 408.5,
+    "right": 1420
+   },
+   "bar": {
+    "pos": "static",
+    "rect": {
+     "x": 20,
+     "y": 408.5,
+     "w": 1400,
+     "h": 60,
+     "top": 408.5,
+     "bottom": 468.5,
+     "right": 1420
+    },
+    "zIndex": "auto"
+   },
+   "cta": {
+    "rect": {
+     "x": 20,
+     "y": 420.3,
+     "w": 1391,
+     "h": 37.5,
+     "top": 420.3,
+     "bottom": 457.8,
+     "right": 1411
+    },
+    "radius": "8px",
+    "minH": "34px",
+    "h": 37.5,
+    "bg": "rgb(255, 230, 15)",
+    "text": "立即购买"
+   },
+   "occluded": false,
+   "minTextSize": 12,
+   "texts": [
+    {
+     "t": "Seafood 海鲜市场",
+     "size": 20
+    },
+    {
+     "t": "社区任务",
+     "size": 14
+    },
+    {
+     "t": "市场",
+     "size": 14
+    },
+    {
+     "t": "语言",
+     "size": 14
+    },
+    {
+     "t": "0xabcd...1234",
+     "size": 14
+    },
+    {
+     "t": "$",
+     "size": 12
+    },
+    {
+     "t": "42",
+     "size": 32
+    },
+    {
+     "t": "单价",
+     "size": 12
+    },
+    {
+     "t": "闲鱼风格测试物品标题",
+     "size": 18
+    },
+    {
+     "t": "物品编号 #1 · 已上架",
+     "size": 12
+    },
+    {
+     "t": "描述文字描述文字",
+     "size": 12
+    },
+    {
+     "t": "库存 6",
+     "size": 12
+    },
+    {
+     "t": "闲置物品",
+     "size": 16
+    },
+    {
+     "t": "购买金额由平台统一结算，无需填写价格或收款方。",
+     "size": 12
+    },
+    {
+     "t": "退款只退还款项，商品库存不会恢复。",
+     "size": 12
+    },
+    {
+     "t": "数量",
+     "size": 12
+    },
+    {
+     "t": "立即购买",
+     "size": 13
+    },
+    {
+     "t": "简体中文",
+     "size": 14
+    },
+    {
+     "t": "English",
+     "size": 14
+    },
+    {
+     "t": "粤语",
+     "size": 14
+    },
+    {
+     "t": "Tiếng Việt",
+     "size": 14
+    },
+    {
+     "t": "© 2024-2026 Abbey Quant & Jinli Club. 保留",
+     "size": 14
+    },
+    {
+     "t": "本网站支持简体中文、英文、粤语和越南语。",
+     "size": 12
+    },
+    {
+     "t": "联系我们：contact@jinli.club",
+     "size": 14
+    },
+    {
+     "t": "卖闲置",
+     "size": 12
+    },
+    {
+     "t": "消息",
+     "size": 12
+    },
+    {
+     "t": "APP",
+     "size": 12
+    },
+    {
+     "t": "反馈",
+     "size": 12
+    },
+    {
+     "t": "客服",
+     "size": 12
+    }
+   ],
+   "backHref": "/",
+   "afterClick": {
+    "path": "/",
+    "tabbarDisplay": "none",
+    "tabs": [
+     "/",
+     "/exchange",
+     "/item/new",
+     "/messages",
+     "/profile"
+    ],
+    "tabbarVisible": false
+   }
+  },
+  "1440/night": {
+   "innerWidth": 1440,
+   "docScrollWidth": 1440,
+   "bodyScrollWidth": 1440,
+   "overflowX": false,
+   "url": "/item/1",
+   "tabbar": {
+    "cls": "sf-tabbar is-detail",
+    "display": "none"
+   },
+   "back": {
+    "n": 1,
+    "href": "/",
+    "rect": {
+     "x": 20,
+     "y": -114,
+     "w": 22,
+     "h": 22,
+     "top": -114,
+     "bottom": -92,
+     "right": 42
+    }
+   },
+   "priceRow": {
+    "rect": {
+     "x": 20,
+     "y": -83,
+     "w": 91.6,
+     "h": 54,
+     "top": -83,
+     "bottom": -29,
+     "right": 111.6
+    },
+    "numFont": "32px",
+    "borderRight": 111.6
+   },
+   "titleFont": "18px",
+   "noteText": "物品编号 #1 · 已上架",
+   "qtyRect": {
+    "x": 35,
+    "y": 358,
+    "w": 1370,
+    "h": 37.5,
+    "top": 358,
+    "bottom": 395.5,
+    "right": 1405
+   },
+   "panelRect": {
+    "x": 20,
+    "y": 37,
+    "w": 1400,
+    "h": 371.5,
+    "top": 37,
+    "bottom": 408.5,
+    "right": 1420
+   },
+   "bar": {
+    "pos": "static",
+    "rect": {
+     "x": 20,
+     "y": 408.5,
+     "w": 1400,
+     "h": 60,
+     "top": 408.5,
+     "bottom": 468.5,
+     "right": 1420
+    },
+    "zIndex": "auto"
+   },
+   "cta": {
+    "rect": {
+     "x": 20,
+     "y": 420.3,
+     "w": 1391,
+     "h": 37.5,
+     "top": 420.3,
+     "bottom": 457.8,
+     "right": 1411
+    },
+    "radius": "8px",
+    "minH": "34px",
+    "h": 37.5,
+    "bg": "rgb(255, 230, 15)",
+    "text": "立即购买"
+   },
+   "occluded": false,
+   "minTextSize": 12,
+   "texts": [
+    {
+     "t": "Seafood 海鲜市场",
+     "size": 20
+    },
+    {
+     "t": "社区任务",
+     "size": 14
+    },
+    {
+     "t": "市场",
+     "size": 14
+    },
+    {
+     "t": "语言",
+     "size": 14
+    },
+    {
+     "t": "0xabcd...1234",
+     "size": 14
+    },
+    {
+     "t": "$",
+     "size": 12
+    },
+    {
+     "t": "42",
+     "size": 32
+    },
+    {
+     "t": "单价",
+     "size": 12
+    },
+    {
+     "t": "闲鱼风格测试物品标题",
+     "size": 18
+    },
+    {
+     "t": "物品编号 #1 · 已上架",
+     "size": 12
+    },
+    {
+     "t": "描述文字描述文字",
+     "size": 12
+    },
+    {
+     "t": "库存 6",
+     "size": 12
+    },
+    {
+     "t": "闲置物品",
+     "size": 16
+    },
+    {
+     "t": "购买金额由平台统一结算，无需填写价格或收款方。",
+     "size": 12
+    },
+    {
+     "t": "退款只退还款项，商品库存不会恢复。",
+     "size": 12
+    },
+    {
+     "t": "数量",
+     "size": 12
+    },
+    {
+     "t": "立即购买",
+     "size": 13
+    },
+    {
+     "t": "简体中文",
+     "size": 14
+    },
+    {
+     "t": "English",
+     "size": 14
+    },
+    {
+     "t": "粤语",
+     "size": 14
+    },
+    {
+     "t": "Tiếng Việt",
+     "size": 14
+    },
+    {
+     "t": "© 2024-2026 Abbey Quant & Jinli Club. 保留",
+     "size": 14
+    },
+    {
+     "t": "本网站支持简体中文、英文、粤语和越南语。",
+     "size": 12
+    },
+    {
+     "t": "联系我们：contact@jinli.club",
+     "size": 14
+    },
+    {
+     "t": "卖闲置",
+     "size": 12
+    },
+    {
+     "t": "消息",
+     "size": 12
+    },
+    {
+     "t": "APP",
+     "size": 12
+    },
+    {
+     "t": "反馈",
+     "size": 12
+    },
+    {
+     "t": "客服",
+     "size": 12
+    }
+   ],
+   "backHref": "/",
+   "afterClick": {
+    "path": "/",
+    "tabbarDisplay": "none",
+    "tabs": [
+     "/",
+     "/exchange",
+     "/item/new",
+     "/messages",
+     "/profile"
+    ],
+    "tabbarVisible": false
+   }
+  }
+ },
+ "negatives": {
+  "NC1_remove_is_detail": {
+   "beforeDisplay": "none",
+   "had": true,
+   "now": "grid",
+   "visible": true
+  },
+  "NC2_cta_radius_8": {
+   "before": "8px",
+   "after": "8px",
+   "changed": false
+  },
+  "NC3_remove_rd_padding": {
+   "before": {
+    "occluded": false,
+    "qtyBottom": 336,
+    "barTop": 739
+   },
+   "after": {
+    "occluded": false,
+    "qtyBottom": 396,
+    "barTop": 739
+   },
+   "occlusionAppeared": false
+  }
+ }
+}
