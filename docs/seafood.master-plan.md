@@ -1414,6 +1414,12 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 **D. 我裁的口径（一句话可改）**：① **批 7 =「用户可见读口」线**，首单只做 `/api/user/ledger`；② **`/api/user/points` 暂不注册** —— 前端现无消费方（现走 `/api/user/asset/:uID`），不造**无人消费的空路径**（本册 §1.2 补强的同一理由）；③ **装饰性切角与 legacy 硬阴影不并入本批**（审美面，需 Kevin 口径）；④ **本批不 `commit`/`push`**，由我验收后入库 —— **注意本仓推送即上线**。
 
+### 5.406 **★ 主题·首次访问跟随系统上线（`T93` / `F16`）—— `index.html` 内联 `prefers-color-scheme` 判定 + `ThemeProvider` 初次应用不落盘（显式切换才持久化）· design v1.14 §18 · Neng 定点复检 PASS · 实现 `bb55925` · 落册 commit `8909731`**（2026-10-12）
+
+**A. 需求**：Kevin 同意「首次访问跟随系统主题」。**B. 实现口径（Zang 定）**：三级优先序 **① 用户显式选择（localStorage，仅主题开关写入）＞ ② 首访跟随系统 `prefers-color-scheme`（`index.html` 内联脚本渲染前设 `data-theme`，不落盘）＞ ③ 默认日档**；`matchMedia` 只许在 `index.html` 内联（`theme-shell-isomorphism` 硬断言的扫描面 `src/theme|src/shell` 一字未动）；**初始应用不落盘**（否则「跟随系统」首帧即被粘住）。
+**C. 读数（Neng 独立复检 = PASS 零缺陷）**：干净 origin `[::1]:5787` × 模拟系统 dark/light/无偏好 三态 ⇒ `data-theme` 各就位且 **`localStorage['theme']` 恒 `null`**（判负判据满足）；写入显式值后重载 ⇒ 显式压过系统（正反两向）；真点主题钮（桌面 1440 / 移动 390）⇒ 落盘 + 重载保持 + **图标语义 = T41/T92 成立（日显🌙/夜显☀）**；护栏 grep `matchMedia|innerWidth`（src/theme+src/shell）= **0**；回归面 5 项（/item 家族·catch-all·底栏·汉堡·夜档底色）零回归；门套 **51 files / 494 tests / 0 failed** + `build` 0。键集现取 **122/1045/4180**（与 v1.13/v1.14 冻结基线一致）。
+**D. 边界/NOT_MEASURED**：真机实机 UA 未测（CDP 模拟）；系统偏好**会话中途**变化不跟随（无监听器 = 设计口径）；`theme-color` meta 未做。**E. 手机验收**：清站点数据（或无痕）后首访应随系统档。
+
 ### 5.405 **★ v1.13 回写单（规范 design v1.12→v1.13 §17 / route v2.29→v2.30 §39.2+§40）· 键集新基线 `122/1045/4180` · `F10` 收口 · `F13` 收口 · 真机诊断定案（`F7`/`N26`/`N31` 一族）· 新观察 `N38` · `/item/999999` 口径 · 只写 `docs/**`**（2026-10-12）
 
 **A. 本单性质（写死）**：**Jing 回写窄单**（承 §5.404 的「待回写项」）—— **只写 `docs/**`**；**未动 `frontend/**` / `tools/**` / `ctrl/**`**（Kong 同轮在改 `frontend/**` 并追写 `docs/audit/item-rename.md`）；**未启停任何服务（绝不 `pm2 restart`）**；**未 `git add -A` · 未 commit · 未 push**。**现取基线 = HEAD `d2ad4ef`**（**★ 复跑：现行 HEAD = `f050414`（Kong 主题图标收尾单）⇒ 本单全部读数逐项一致**）。
