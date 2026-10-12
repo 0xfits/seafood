@@ -1,0 +1,1449 @@
+{
+ "provenance": {
+  "revision": "2aee62f (HEAD, unpushed)",
+  "parent": "a111b45 (worktree)",
+  "after": "http://localhost:5796",
+  "before": "http://localhost:5794",
+  "exe": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "node": "v18.19.0"
+ },
+ "ac1": {
+  "320": {
+   "unknownElements": [
+    "svg.lucide.lucide-chevron-left",
+    "path.",
+    "FORM."
+   ],
+   "classesSeen": [
+    "lucide",
+    "lucide-chevron-left",
+    "sf-btn",
+    "sf-item",
+    "sf-item-actionbar",
+    "sf-item-back",
+    "sf-item-btn",
+    "sf-item-cta",
+    "sf-item-detail",
+    "sf-item-field",
+    "sf-item-head",
+    "sf-item-input",
+    "sf-item-label",
+    "sf-item-meta",
+    "sf-item-meta-group",
+    "sf-item-note",
+    "sf-item-panel",
+    "sf-item-price",
+    "sf-item-price-cur",
+    "sf-item-price-l",
+    "sf-item-price-num",
+    "sf-item-price-unit",
+    "sf-item-status",
+    "sf-item-thumb",
+    "sf-item-title",
+    "sf-item-title-l",
+    "sf-item-topbar",
+    "sf-layout",
+    "sf-layout-main",
+    "sf-tap-sq"
+   ],
+   "leafTexts": [
+    "$",
+    "42",
+    "单价",
+    "闲鱼风格测试物品标题",
+    "物品编号 #1 · 已上架",
+    "描述文字描述文字",
+    "库存 6",
+    "闲置物品",
+    "购买金额由平台统一结算，无需填写价格或收款方。",
+    "购买金额以平台结算为准；重复点击不会重复扣款。",
+    "退款只退还款项，商品库存不会恢复。",
+    "数量",
+    "立即购买"
+   ],
+   "forbiddenTextHits": [],
+   "forbiddenClassHits": [],
+   "hasNote": true,
+   "hasBack": 1,
+   "hasActionbar": true,
+   "hasMetaGroup": true
+  },
+  "390": {
+   "unknownElements": [
+    "svg.lucide.lucide-chevron-left",
+    "path.",
+    "FORM."
+   ],
+   "classesSeen": [
+    "lucide",
+    "lucide-chevron-left",
+    "sf-btn",
+    "sf-item",
+    "sf-item-actionbar",
+    "sf-item-back",
+    "sf-item-btn",
+    "sf-item-cta",
+    "sf-item-detail",
+    "sf-item-field",
+    "sf-item-head",
+    "sf-item-input",
+    "sf-item-label",
+    "sf-item-meta",
+    "sf-item-meta-group",
+    "sf-item-note",
+    "sf-item-panel",
+    "sf-item-price",
+    "sf-item-price-cur",
+    "sf-item-price-l",
+    "sf-item-price-num",
+    "sf-item-price-unit",
+    "sf-item-status",
+    "sf-item-thumb",
+    "sf-item-title",
+    "sf-item-title-l",
+    "sf-item-topbar",
+    "sf-layout",
+    "sf-layout-main",
+    "sf-tap-sq"
+   ],
+   "leafTexts": [
+    "$",
+    "42",
+    "单价",
+    "闲鱼风格测试物品标题",
+    "物品编号 #1 · 已上架",
+    "描述文字描述文字",
+    "库存 6",
+    "闲置物品",
+    "购买金额由平台统一结算，无需填写价格或收款方。",
+    "购买金额以平台结算为准；重复点击不会重复扣款。",
+    "退款只退还款项，商品库存不会恢复。",
+    "数量",
+    "立即购买"
+   ],
+   "forbiddenTextHits": [],
+   "forbiddenClassHits": [],
+   "hasNote": true,
+   "hasBack": 1,
+   "hasActionbar": true,
+   "hasMetaGroup": true
+  },
+  "1440": {
+   "unknownElements": [
+    "svg.lucide.lucide-chevron-left",
+    "path.",
+    "FORM."
+   ],
+   "classesSeen": [
+    "lucide",
+    "lucide-chevron-left",
+    "sf-btn",
+    "sf-item",
+    "sf-item-actionbar",
+    "sf-item-back",
+    "sf-item-btn",
+    "sf-item-cta",
+    "sf-item-detail",
+    "sf-item-field",
+    "sf-item-head",
+    "sf-item-input",
+    "sf-item-label",
+    "sf-item-meta",
+    "sf-item-meta-group",
+    "sf-item-note",
+    "sf-item-panel",
+    "sf-item-price",
+    "sf-item-price-cur",
+    "sf-item-price-l",
+    "sf-item-price-num",
+    "sf-item-price-unit",
+    "sf-item-status",
+    "sf-item-thumb",
+    "sf-item-title",
+    "sf-item-title-l",
+    "sf-item-topbar",
+    "sf-layout",
+    "sf-layout-main",
+    "sf-tap-sq"
+   ],
+   "leafTexts": [
+    "$",
+    "42",
+    "单价",
+    "闲鱼风格测试物品标题",
+    "物品编号 #1 · 已上架",
+    "描述文字描述文字",
+    "库存 6",
+    "闲置物品",
+    "购买金额由平台统一结算，无需填写价格或收款方。",
+    "购买金额以平台结算为准；重复点击不会重复扣款。",
+    "退款只退还款项，商品库存不会恢复。",
+    "数量",
+    "立即购买"
+   ],
+   "forbiddenTextHits": [],
+   "forbiddenClassHits": [],
+   "hasNote": true,
+   "hasBack": 1,
+   "hasActionbar": true,
+   "hasMetaGroup": true
+  }
+ },
+ "ac2": {
+  "320": {
+   "backClick": {
+    "pathname": "/",
+    "search": ""
+   },
+   "tabbarAfterClick": {
+    "display": "grid",
+    "isDetail": false
+   },
+   "homeTabs": {
+    "count": 5,
+    "hrefs": [
+     "/",
+     "/exchange",
+     "/item/new",
+     "/messages",
+     "/profile"
+    ]
+   }
+  },
+  "390": {
+   "backClick": {
+    "pathname": "/",
+    "search": ""
+   },
+   "tabbarAfterClick": {
+    "display": "grid",
+    "isDetail": false
+   },
+   "homeTabs": {
+    "count": 5,
+    "hrefs": [
+     "/",
+     "/exchange",
+     "/item/new",
+     "/messages",
+     "/profile"
+    ]
+   }
+  }
+ },
+ "ac4": {
+  "320": {
+   "backCount": 1,
+   "backHref": "/",
+   "backRect": {
+    "w": 44,
+    "h": 44
+   },
+   "backVisible": true,
+   "ctaMinHeight": "44px",
+   "ctaHeight": 44,
+   "ctlH": "44px",
+   "minFontSize": 12,
+   "minFontEl": "SPAN.sf-item-price-cur",
+   "actionbarPosition": "fixed",
+   "ctxText": "立即购买"
+  },
+  "390": {
+   "backCount": 1,
+   "backHref": "/",
+   "backRect": {
+    "w": 44,
+    "h": 44
+   },
+   "backVisible": true,
+   "ctaMinHeight": "44px",
+   "ctaHeight": 44,
+   "ctlH": "44px",
+   "minFontSize": 12,
+   "minFontEl": "SPAN.sf-item-price-cur",
+   "actionbarPosition": "fixed",
+   "ctxText": "立即购买"
+  }
+ },
+ "ac5": {
+  "1024": {
+   "actionbarPosition": "static",
+   "actionbarRect": {
+    "x": 20,
+    "y": 617.5,
+    "w": 984,
+    "h": 60
+   },
+   "tabbarDisplay": "none",
+   "tabbarIsDetail": true,
+   "ctlH": "34px",
+   "ctaMinHeight": "34px",
+   "ctaRadius": "999px"
+  },
+  "1440": {
+   "actionbarPosition": "static",
+   "actionbarRect": {
+    "x": 20,
+    "y": 617.5,
+    "w": 1400,
+    "h": 60
+   },
+   "tabbarDisplay": "none",
+   "tabbarIsDetail": true,
+   "ctlH": "34px",
+   "ctaMinHeight": "34px",
+   "ctaRadius": "999px"
+  }
+ },
+ "ac6": {
+  "320": {
+   "dayN": 71,
+   "nightN": 71,
+   "same": true,
+   "sha": "562c37edd0147f27bef679b38d03eed7b2e69b3a31488158e310617891a72014"
+  },
+  "390": {
+   "dayN": 71,
+   "nightN": 71,
+   "same": true,
+   "sha": "9f6451276a92855657823ebf84c36835247af6e282493c77f68d1a4d7be7b20e"
+  },
+  "1440": {
+   "dayN": 113,
+   "nightN": 113,
+   "same": true,
+   "sha": "6b94d4581a8f4acf831c92033b4125bf051295e18c79352dce9a594c45bee34b"
+  }
+ },
+ "rb_lines": {
+  "320": {
+   "computedRadius": "999px",
+   "computedBg": "rgb(255, 230, 15)",
+   "computedColor": "rgb(32, 32, 32)",
+   "classes": "sf-btn sf-item-btn sf-item-cta",
+   "matchingRules": []
+  },
+  "390": {
+   "computedRadius": "999px",
+   "computedBg": "rgb(255, 230, 15)",
+   "computedColor": "rgb(32, 32, 32)",
+   "classes": "sf-btn sf-item-btn sf-item-cta",
+   "matchingRules": []
+  },
+  "1440": {
+   "computedRadius": "999px",
+   "computedBg": "rgb(255, 230, 15)",
+   "computedColor": "rgb(32, 32, 32)",
+   "classes": "sf-btn sf-item-btn sf-item-cta",
+   "matchingRules": []
+  }
+ },
+ "rb_winning_rules": {
+  "390": {
+   "computedRadius": "999px",
+   "matchingRules": [
+    {
+     "order": 73,
+     "sel": ".sf-btn.sf-item-cta",
+     "radius": "var(--sf-st-radius-pill)"
+    },
+    {
+     "order": 216,
+     "sel": ".sf-btn",
+     "radius": "var(--sf-st-radius-btna)"
+    },
+    {
+     "order": 245,
+     "sel": "button, input, select, optgroup, textarea, ::file-selector-button",
+     "radius": "0px"
+    },
+    {
+     "order": 1292,
+     "sel": ".sf-btn",
+     "radius": "var(--sf-st-radius-btna)"
+    }
+   ],
+   "supportsHas": true
+  },
+  "1440": {
+   "computedRadius": "999px",
+   "matchingRules": [
+    {
+     "order": 73,
+     "sel": ".sf-btn.sf-item-cta",
+     "radius": "var(--sf-st-radius-pill)"
+    },
+    {
+     "order": 216,
+     "sel": ".sf-btn",
+     "radius": "var(--sf-st-radius-btna)"
+    },
+    {
+     "order": 245,
+     "sel": "button, input, select, optgroup, textarea, ::file-selector-button",
+     "radius": "0px"
+    },
+    {
+     "order": 1292,
+     "sel": ".sf-btn",
+     "radius": "var(--sf-st-radius-btna)"
+    }
+   ],
+   "supportsHas": true
+  }
+ },
+ "rc": {
+  "normal@320": {
+   "innerWidth": 320,
+   "scrollWidth": 320,
+   "clientWidth": 320,
+   "overflowX": false,
+   "priceFontSize": "32px",
+   "ctlH": "32px"
+  },
+  "normal@390": {
+   "innerWidth": 390,
+   "scrollWidth": 390,
+   "clientWidth": 390,
+   "overflowX": false,
+   "priceFontSize": "32px",
+   "ctlH": "32px"
+  },
+  "extreme@320": {
+   "innerWidth": 320,
+   "scrollWidth": 320,
+   "clientWidth": 320,
+   "overflowX": false,
+   "priceFontSize": "32px",
+   "ctlH": "32px"
+  },
+  "extreme@390": {
+   "innerWidth": 390,
+   "scrollWidth": 390,
+   "clientWidth": 390,
+   "overflowX": false,
+   "priceFontSize": "32px",
+   "ctlH": "32px"
+  },
+  "extreme_title@320": {
+   "innerWidth": 320,
+   "scrollWidth": 320,
+   "clientWidth": 320,
+   "overflowX": false,
+   "priceFontSize": "32px",
+   "ctlH": "32px"
+  },
+  "extreme_title@390": {
+   "innerWidth": 390,
+   "scrollWidth": 390,
+   "clientWidth": 390,
+   "overflowX": false,
+   "priceFontSize": "32px",
+   "ctlH": "32px"
+  }
+ },
+ "re": {
+  "320": {
+   "withAll": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 708,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barBottom": 800,
+    "barHeight": 61,
+    "footTop": 315,
+    "footBottom": 800,
+    "footHeight": 485,
+    "lastLeafCovered": false,
+    "lastLeafOverlapPx": 0,
+    "computedFootPadBottom": "60px",
+    "computedDetailPadBottom": "60px",
+    "docHeight": 1277,
+    "actionbarPosition": "fixed"
+   },
+   "neutralize_footer": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 768,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barBottom": 800,
+    "barHeight": 61,
+    "footTop": 375,
+    "footBottom": 800,
+    "footHeight": 425,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 29,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "60px",
+    "docHeight": 1217,
+    "actionbarPosition": "fixed"
+   },
+   "neutralize_detail": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 768,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barBottom": 800,
+    "barHeight": 61,
+    "footTop": 375,
+    "footBottom": 800,
+    "footHeight": 425,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 29,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1157,
+    "actionbarPosition": "fixed"
+   },
+   "neutralize_both": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 768,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barBottom": 800,
+    "barHeight": 61,
+    "footTop": 375,
+    "footBottom": 800,
+    "footHeight": 425,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 29,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1157,
+    "actionbarPosition": "fixed"
+   }
+  },
+  "390": {
+   "withAll": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 708,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barBottom": 800,
+    "barHeight": 61,
+    "footTop": 391,
+    "footBottom": 800,
+    "footHeight": 409,
+    "lastLeafCovered": false,
+    "lastLeafOverlapPx": 0,
+    "computedFootPadBottom": "60px",
+    "computedDetailPadBottom": "60px",
+    "docHeight": 1165,
+    "actionbarPosition": "fixed"
+   },
+   "neutralize_footer": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 768,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barBottom": 800,
+    "barHeight": 61,
+    "footTop": 451,
+    "footBottom": 800,
+    "footHeight": 349,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 29,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "60px",
+    "docHeight": 1105,
+    "actionbarPosition": "fixed"
+   },
+   "neutralize_detail": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 768,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barBottom": 800,
+    "barHeight": 61,
+    "footTop": 451,
+    "footBottom": 800,
+    "footHeight": 349,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 29,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1045,
+    "actionbarPosition": "fixed"
+   },
+   "neutralize_both": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 768,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barBottom": 800,
+    "barHeight": 61,
+    "footTop": 451,
+    "footBottom": 800,
+    "footHeight": 349,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 29,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1045,
+    "actionbarPosition": "fixed"
+   }
+  },
+  "767": {
+   "withAll": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 708,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barBottom": 800,
+    "barHeight": 61,
+    "footTop": 411,
+    "footBottom": 800,
+    "footHeight": 389,
+    "lastLeafCovered": false,
+    "lastLeafOverlapPx": 0,
+    "computedFootPadBottom": "60px",
+    "computedDetailPadBottom": "60px",
+    "docHeight": 1145,
+    "actionbarPosition": "fixed"
+   },
+   "neutralize_footer": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 768,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barBottom": 800,
+    "barHeight": 61,
+    "footTop": 471,
+    "footBottom": 800,
+    "footHeight": 329,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 29,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "60px",
+    "docHeight": 1085,
+    "actionbarPosition": "fixed"
+   },
+   "neutralize_detail": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 768,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barBottom": 800,
+    "barHeight": 61,
+    "footTop": 471,
+    "footBottom": 800,
+    "footHeight": 329,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 29,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1025,
+    "actionbarPosition": "fixed"
+   },
+   "neutralize_both": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 768,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barBottom": 800,
+    "barHeight": 61,
+    "footTop": 471,
+    "footBottom": 800,
+    "footHeight": 329,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 29,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1025,
+    "actionbarPosition": "fixed"
+   }
+  },
+  "768": {
+   "withAll": {
+    "footCoveredPx": 0,
+    "lastLeafBottom": 767.5,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 408.5,
+    "barBottom": 468.5,
+    "barHeight": 60,
+    "footTop": 494.5,
+    "footBottom": 799.5,
+    "footHeight": 305,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 359,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1009,
+    "actionbarPosition": "static"
+   },
+   "neutralize_footer": {
+    "footCoveredPx": 0,
+    "lastLeafBottom": 767.5,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 408.5,
+    "barBottom": 468.5,
+    "barHeight": 60,
+    "footTop": 494.5,
+    "footBottom": 799.5,
+    "footHeight": 305,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 359,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1009,
+    "actionbarPosition": "static"
+   },
+   "neutralize_detail": {
+    "footCoveredPx": 0,
+    "lastLeafBottom": 767.5,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 408.5,
+    "barBottom": 468.5,
+    "barHeight": 60,
+    "footTop": 494.5,
+    "footBottom": 799.5,
+    "footHeight": 305,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 359,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1009,
+    "actionbarPosition": "static"
+   },
+   "neutralize_both": {
+    "footCoveredPx": 0,
+    "lastLeafBottom": 767.5,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 408.5,
+    "barBottom": 468.5,
+    "barHeight": 60,
+    "footTop": 494.5,
+    "footBottom": 799.5,
+    "footHeight": 305,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 359,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1009,
+    "actionbarPosition": "static"
+   }
+  },
+  "1024": {
+   "withAll": {
+    "footCoveredPx": 0,
+    "lastLeafBottom": 767.5,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 408.5,
+    "barBottom": 468.5,
+    "barHeight": 60,
+    "footTop": 494.5,
+    "footBottom": 799.5,
+    "footHeight": 305,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 359,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1009,
+    "actionbarPosition": "static"
+   },
+   "neutralize_footer": {
+    "footCoveredPx": 0,
+    "lastLeafBottom": 767.5,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 408.5,
+    "barBottom": 468.5,
+    "barHeight": 60,
+    "footTop": 494.5,
+    "footBottom": 799.5,
+    "footHeight": 305,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 359,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1009,
+    "actionbarPosition": "static"
+   },
+   "neutralize_detail": {
+    "footCoveredPx": 0,
+    "lastLeafBottom": 767.5,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 408.5,
+    "barBottom": 468.5,
+    "barHeight": 60,
+    "footTop": 494.5,
+    "footBottom": 799.5,
+    "footHeight": 305,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 359,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1009,
+    "actionbarPosition": "static"
+   },
+   "neutralize_both": {
+    "footCoveredPx": 0,
+    "lastLeafBottom": 767.5,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 408.5,
+    "barBottom": 468.5,
+    "barHeight": 60,
+    "footTop": 494.5,
+    "footBottom": 799.5,
+    "footHeight": 305,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 359,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1009,
+    "actionbarPosition": "static"
+   }
+  },
+  "1440": {
+   "withAll": {
+    "footCoveredPx": 0,
+    "lastLeafBottom": 767.5,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 408.5,
+    "barBottom": 468.5,
+    "barHeight": 60,
+    "footTop": 494.5,
+    "footBottom": 799.5,
+    "footHeight": 305,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 359,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1009,
+    "actionbarPosition": "static"
+   },
+   "neutralize_footer": {
+    "footCoveredPx": 0,
+    "lastLeafBottom": 767.5,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 408.5,
+    "barBottom": 468.5,
+    "barHeight": 60,
+    "footTop": 494.5,
+    "footBottom": 799.5,
+    "footHeight": 305,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 359,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1009,
+    "actionbarPosition": "static"
+   },
+   "neutralize_detail": {
+    "footCoveredPx": 0,
+    "lastLeafBottom": 767.5,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 408.5,
+    "barBottom": 468.5,
+    "barHeight": 60,
+    "footTop": 494.5,
+    "footBottom": 799.5,
+    "footHeight": 305,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 359,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1009,
+    "actionbarPosition": "static"
+   },
+   "neutralize_both": {
+    "footCoveredPx": 0,
+    "lastLeafBottom": 767.5,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 408.5,
+    "barBottom": 468.5,
+    "barHeight": 60,
+    "footTop": 494.5,
+    "footBottom": 799.5,
+    "footHeight": 305,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 359,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1009,
+    "actionbarPosition": "static"
+   }
+  }
+ },
+ "rdre_clean": {
+  "320": {
+   "baseline": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 708,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barHeight": 61,
+    "lastLeafCovered": false,
+    "lastLeafOverlapPx": 0,
+    "computedFootPadBottom": "60px",
+    "computedDetailPadBottom": "60px",
+    "docHeight": 1277,
+    "actionbarPosition": "fixed",
+    "detailLeavesCoveredByBar": 0,
+    "detailCoveredEl": ""
+   },
+   "no_RE": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 768,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barHeight": 61,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 29,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "60px",
+    "docHeight": 1217,
+    "actionbarPosition": "fixed",
+    "detailLeavesCoveredByBar": 0,
+    "detailCoveredEl": ""
+   },
+   "no_RD": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 708,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barHeight": 61,
+    "lastLeafCovered": false,
+    "lastLeafOverlapPx": 0,
+    "computedFootPadBottom": "60px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1217,
+    "actionbarPosition": "fixed",
+    "detailLeavesCoveredByBar": 0,
+    "detailCoveredEl": ""
+   },
+   "no_both": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 768,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barHeight": 61,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 29,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1157,
+    "actionbarPosition": "fixed",
+    "detailLeavesCoveredByBar": 0,
+    "detailCoveredEl": ""
+   }
+  },
+  "390": {
+   "baseline": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 708,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barHeight": 61,
+    "lastLeafCovered": false,
+    "lastLeafOverlapPx": 0,
+    "computedFootPadBottom": "60px",
+    "computedDetailPadBottom": "60px",
+    "docHeight": 1165,
+    "actionbarPosition": "fixed",
+    "detailLeavesCoveredByBar": 0,
+    "detailCoveredEl": ""
+   },
+   "no_RE": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 768,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barHeight": 61,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 29,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "60px",
+    "docHeight": 1105,
+    "actionbarPosition": "fixed",
+    "detailLeavesCoveredByBar": 0,
+    "detailCoveredEl": ""
+   },
+   "no_RD": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 708,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barHeight": 61,
+    "lastLeafCovered": false,
+    "lastLeafOverlapPx": 0,
+    "computedFootPadBottom": "60px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1105,
+    "actionbarPosition": "fixed",
+    "detailLeavesCoveredByBar": 0,
+    "detailCoveredEl": ""
+   },
+   "no_both": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 768,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barHeight": 61,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 29,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1045,
+    "actionbarPosition": "fixed",
+    "detailLeavesCoveredByBar": 0,
+    "detailCoveredEl": ""
+   }
+  },
+  "767": {
+   "baseline": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 708,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barHeight": 61,
+    "lastLeafCovered": false,
+    "lastLeafOverlapPx": 0,
+    "computedFootPadBottom": "60px",
+    "computedDetailPadBottom": "60px",
+    "docHeight": 1145,
+    "actionbarPosition": "fixed",
+    "detailLeavesCoveredByBar": 0,
+    "detailCoveredEl": ""
+   },
+   "no_RE": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 768,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barHeight": 61,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 29,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "60px",
+    "docHeight": 1085,
+    "actionbarPosition": "fixed",
+    "detailLeavesCoveredByBar": 0,
+    "detailCoveredEl": ""
+   },
+   "no_RD": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 708,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barHeight": 61,
+    "lastLeafCovered": false,
+    "lastLeafOverlapPx": 0,
+    "computedFootPadBottom": "60px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1085,
+    "actionbarPosition": "fixed",
+    "detailLeavesCoveredByBar": 0,
+    "detailCoveredEl": ""
+   },
+   "no_both": {
+    "footCoveredPx": 61,
+    "lastLeafBottom": 768,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 739,
+    "barHeight": 61,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 29,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1025,
+    "actionbarPosition": "fixed",
+    "detailLeavesCoveredByBar": 0,
+    "detailCoveredEl": ""
+   }
+  },
+  "768": {
+   "baseline": {
+    "footCoveredPx": 0,
+    "lastLeafBottom": 767.5,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 408.5,
+    "barHeight": 60,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 359,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1009,
+    "actionbarPosition": "static",
+    "detailLeavesCoveredByBar": 0,
+    "detailCoveredEl": ""
+   },
+   "no_RE": {
+    "footCoveredPx": 0,
+    "lastLeafBottom": 767.5,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 408.5,
+    "barHeight": 60,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 359,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1009,
+    "actionbarPosition": "static",
+    "detailLeavesCoveredByBar": 0,
+    "detailCoveredEl": ""
+   },
+   "no_RD": {
+    "footCoveredPx": 0,
+    "lastLeafBottom": 767.5,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 408.5,
+    "barHeight": 60,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 359,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1009,
+    "actionbarPosition": "static",
+    "detailLeavesCoveredByBar": 0,
+    "detailCoveredEl": ""
+   },
+   "no_both": {
+    "footCoveredPx": 0,
+    "lastLeafBottom": 767.5,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 408.5,
+    "barHeight": 60,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 359,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1009,
+    "actionbarPosition": "static",
+    "detailLeavesCoveredByBar": 0,
+    "detailCoveredEl": ""
+   }
+  },
+  "1440": {
+   "baseline": {
+    "footCoveredPx": 0,
+    "lastLeafBottom": 767.5,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 408.5,
+    "barHeight": 60,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 359,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1009,
+    "actionbarPosition": "static",
+    "detailLeavesCoveredByBar": 0,
+    "detailCoveredEl": ""
+   },
+   "no_RE": {
+    "footCoveredPx": 0,
+    "lastLeafBottom": 767.5,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 408.5,
+    "barHeight": 60,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 359,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1009,
+    "actionbarPosition": "static",
+    "detailLeavesCoveredByBar": 0,
+    "detailCoveredEl": ""
+   },
+   "no_RD": {
+    "footCoveredPx": 0,
+    "lastLeafBottom": 767.5,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 408.5,
+    "barHeight": 60,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 359,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1009,
+    "actionbarPosition": "static",
+    "detailLeavesCoveredByBar": 0,
+    "detailCoveredEl": ""
+   },
+   "no_both": {
+    "footCoveredPx": 0,
+    "lastLeafBottom": 767.5,
+    "lastLeafText": "联系我们：contact@jinli.club",
+    "barTop": 408.5,
+    "barHeight": 60,
+    "lastLeafCovered": true,
+    "lastLeafOverlapPx": 359,
+    "computedFootPadBottom": "0px",
+    "computedDetailPadBottom": "0px",
+    "docHeight": 1009,
+    "actionbarPosition": "static",
+    "detailLeavesCoveredByBar": 0,
+    "detailCoveredEl": ""
+   }
+  }
+ },
+ "rf": {
+  "buyNote@320": {
+   "found": true,
+   "text": "购买金额以平台结算为准；重复点击不会重复扣款。",
+   "groupRows": 3,
+   "groupTexts": [
+    "闲置物品",
+    "购买金额由平台统一结算，无需填写价格或收款方。",
+    "购买金额以平台结算为准；重复点击不会重复扣款。",
+    "退款只退还款项，商品库存不会恢复。"
+   ]
+  },
+  "buyNote@390": {
+   "found": true,
+   "text": "购买金额以平台结算为准；重复点击不会重复扣款。",
+   "groupRows": 3,
+   "groupTexts": [
+    "闲置物品",
+    "购买金额由平台统一结算，无需填写价格或收款方。",
+    "购买金额以平台结算为准；重复点击不会重复扣款。",
+    "退款只退还款项，商品库存不会恢复。"
+   ]
+  },
+  "buyNote@1440": {
+   "found": true,
+   "text": "购买金额以平台结算为准；重复点击不会重复扣款。",
+   "groupRows": 3,
+   "groupTexts": [
+    "闲置物品",
+    "购买金额由平台统一结算，无需填写价格或收款方。",
+    "购买金额以平台结算为准；重复点击不会重复扣款。",
+    "退款只退还款项，商品库存不会恢复。"
+   ]
+  }
+ },
+ "nc": {
+  "NC2_RB_cta8px@320": {
+   "before": "999px",
+   "after": "8px",
+   "changed": true
+  },
+  "NC2_RB_cta8px@390": {
+   "before": "999px",
+   "after": "8px",
+   "changed": true
+  },
+  "NC2_RB_cta8px@1440": {
+   "before": "999px",
+   "after": "8px",
+   "changed": true
+  },
+  "NC1_remove_is_detail": {
+   "before": "none",
+   "after": "grid",
+   "visibleAfter": true,
+   "cls": "sf-tabbar",
+   "verdict": true
+  },
+  "NC1b_delete_rule": {
+   "removed": 1,
+   "before": "none",
+   "after": "grid",
+   "verdict": true
+  },
+  "NC3_RD_padding": {
+   "withPad": {
+    "lastBottom": 289,
+    "barTop": 739,
+    "occluded": false
+   },
+   "noPad": {
+    "lastBottom": 349,
+    "barTop": 739,
+    "occluded": false
+   },
+   "occlusionAppeared": false
+  },
+  "NC4_RE_footer": {
+   "withE": {
+    "lastLeafBottom": 708,
+    "barTop": 739,
+    "covered": false,
+    "overlapPx": 0
+   },
+   "noE": {
+    "lastLeafBottom": 768,
+    "barTop": 739,
+    "covered": true,
+    "overlapPx": 29
+   },
+   "coverageReturned": true
+  },
+  "NC5_geometry_sensitivity": {
+   "same": false,
+   "n": 71
+  },
+  "NC6_AC1_sensitivity": {
+   "forbiddenClassHit": true,
+   "forbiddenTextHit": true
+  }
+ },
+ "noise": {
+  "item390": {
+   "n": 71,
+   "same": true,
+   "sha": "138b9e7e721ebb3955aa154d8ffc23fc98be0e28422c1e3c1d3b62790190958f"
+  },
+  "home390": {
+   "n": 137,
+   "same": true,
+   "sha": "d82c90834a0d2c3a65afc88d34a91524771b7414731c7b9062424012243ef6d8"
+  }
+ },
+ "nondetail_summary": {
+  "/@320": {
+   "beforeN": 137,
+   "afterN": 137,
+   "diffN": 0
+  },
+  "/@390": {
+   "beforeN": 137,
+   "afterN": 137,
+   "diffN": 0
+  },
+  "/@1440": {
+   "beforeN": 154,
+   "afterN": 154,
+   "diffN": 0
+  },
+  "/item/new@320": {
+   "beforeN": 103,
+   "afterN": 103,
+   "diffN": 0
+  },
+  "/item/new@390": {
+   "beforeN": 103,
+   "afterN": 103,
+   "diffN": 0
+  },
+  "/item/new@1440": {
+   "beforeN": 120,
+   "afterN": 120,
+   "diffN": 0
+  },
+  "/exchange@320": {
+   "beforeN": 122,
+   "afterN": 122,
+   "diffN": 0
+  },
+  "/exchange@390": {
+   "beforeN": 122,
+   "afterN": 122,
+   "diffN": 0
+  },
+  "/exchange@1440": {
+   "beforeN": 139,
+   "afterN": 139,
+   "diffN": 0
+  },
+  "/messages@320": {
+   "beforeN": 75,
+   "afterN": 75,
+   "diffN": 0
+  },
+  "/messages@390": {
+   "beforeN": 75,
+   "afterN": 75,
+   "diffN": 0
+  },
+  "/messages@1440": {
+   "beforeN": 92,
+   "afterN": 92,
+   "diffN": 0
+  },
+  "/profile@320": {
+   "beforeN": 267,
+   "afterN": 267,
+   "diffN": 0
+  },
+  "/profile@390": {
+   "beforeN": 267,
+   "afterN": 267,
+   "diffN": 0
+  },
+  "/profile@1440": {
+   "beforeN": 284,
+   "afterN": 284,
+   "diffN": 0
+  },
+  "/en/@320": {
+   "beforeN": 137,
+   "afterN": 137,
+   "diffN": 0
+  },
+  "/en/@390": {
+   "beforeN": 137,
+   "afterN": 137,
+   "diffN": 0
+  },
+  "/en/@1440": {
+   "beforeN": 154,
+   "afterN": 154,
+   "diffN": 0
+  },
+  "/en/item/new@320": {
+   "beforeN": 103,
+   "afterN": 103,
+   "diffN": 0
+  },
+  "/en/item/new@390": {
+   "beforeN": 103,
+   "afterN": 103,
+   "diffN": 0
+  },
+  "/en/item/new@1440": {
+   "beforeN": 120,
+   "afterN": 120,
+   "diffN": 0
+  },
+  "/hk/exchange@320": {
+   "beforeN": 122,
+   "afterN": 122,
+   "diffN": 0
+  },
+  "/hk/exchange@390": {
+   "beforeN": 122,
+   "afterN": 122,
+   "diffN": 0
+  },
+  "/hk/exchange@1440": {
+   "beforeN": 139,
+   "afterN": 139,
+   "diffN": 0
+  },
+  "/vn/profile@320": {
+   "beforeN": 267,
+   "afterN": 267,
+   "diffN": 0
+  },
+  "/vn/profile@390": {
+   "beforeN": 267,
+   "afterN": 267,
+   "diffN": 0
+  },
+  "/vn/profile@1440": {
+   "beforeN": 284,
+   "afterN": 284,
+   "diffN": 0
+  }
+ },
+ "detail_summary": {
+  "320": {
+   "beforeN": 100,
+   "afterN": 71,
+   "diffN": 145,
+   "cfDiffN": 118
+  },
+  "390": {
+   "beforeN": 100,
+   "afterN": 71,
+   "diffN": 145,
+   "cfDiffN": 118
+  },
+  "1440": {
+   "beforeN": 117,
+   "afterN": 115,
+   "diffN": 118,
+   "cfDiffN": null
+  }
+ }
+}
