@@ -1,11 +1,11 @@
 // AC-4（触控/字号 · ★ 双 CTA 并置窄屏几何）/ AC-5（桌面档行为）/ AC-6（主题同构 + 像素读数）真跑
 import {
-  launch, openPage, gotoL, settle, sha256, VISIBLE_SNAPSHOT, TEXT_READINGS, isVisible,
+  launch, openPage, gotoL, settle, waitQuiet, waitMessagesStable, sha256, VISIBLE_SNAPSHOT_NO_THEME_ICON, TEXT_READINGS, isVisible,
   ITEM_ID, SELLER_UID, BUYER_UID, CONV_ID, ARTDIR,
 } from './lib.mjs'
 import { writeFileSync } from 'node:fs'
 
-setTimeout(() => { console.error('WATCHDOG 8min'); process.exit(3) }, 480000)
+setTimeout(() => { console.error('WATCHDOG 8min'); process.exit(3) }, 480000).unref()
 
 const CHAT = '[data-sf-m="item-chat-btn"]'
 const BUY = '[data-sf-m="item-buy-btn"]'
@@ -59,6 +59,10 @@ const run = async () => {
         for (const [uID, tag] of [[null, 'anon'], [BUYER_UID, 'nonSeller']]) {
           const { context, page } = await openPage(browser, { width, height: 844, theme, uID })
           await gotoL(page, `/item/${ITEM_ID}`)
+          // [Kong 修·尺度稳健] 等操作栏渲染完再取几何：gotoL 只等 1200ms，首访/冷缓存时
+          // 详情体会晚于该窗渲染 ⇒ 曾误读成 buy=null/chat=null（实测稳健等待后两档恒 44px）。
+          // 只加「等元素」，不动任何判据/阈值。
+          await page.waitForSelector(BAR, { timeout: 20000 }).catch(() => {})
           await settle(page)
           const g = await page.evaluate(CTA_GEO)
           const key = `${width}/${theme}/${tag}`
@@ -72,6 +76,7 @@ const run = async () => {
     {
       const { context, page } = await openPage(browser, { width: 1440, height: 900, uID: BUYER_UID })
       await gotoL(page, `/item/${ITEM_ID}`)
+      await page.waitForSelector(BAR, { timeout: 20000 }).catch(() => {})
       await settle(page)
       out.desktop = await page.evaluate(`(() => {
         const bar = document.querySelector('[data-sf-m="item-actionbar"]')
@@ -93,11 +98,32 @@ const run = async () => {
       for (const [lang, prefix] of [['zh', '/'], ['en', '/en/'], ['hk', '/hk/'], ['vn', '/vn/']]) {
         for (const page_ of [`${prefix}item/${ITEM_ID}`, `${prefix}messages?c=${CONV_ID}`]) {
           const shot = {}
+          let threadRetries = 0
+          const isMessages = page_.includes('messages')
           for (const theme of ['light', 'dark']) {
             const { context, page } = await openPage(browser, { width, height: 844, theme, uID: BUYER_UID })
             await gotoL(page, page_)
+            // [Kong 修·尺度稳健] 等页面根渲染完再取几何快照（同 CTA 档理由，只加等待不改判据）
+            await page.waitForSelector('[data-sf-m="item-actionbar"], [data-sf-m="messages-page"]', { timeout: 20000 }).catch(() => {})
             await settle(page)
-            const snap = await page.evaluate(VISIBLE_SNAPSHOT)
+            // [Kong 修·尺度稳健] 等异步面收敛到**终态**（详见 lib.mjs `waitMessagesStable` / `waitQuiet` 注释）。
+            // 起因：24 档中偶发 5–7 档「日/夜 hash 不同」纯伪影，归因到两类**与主题无关**的时序竞态：
+            //  ① 未读角标 sf-badge-count 的出现/移除（进详情推进读水位 ⇒ unread 归零）；
+            //  ② 消息流取数：loading/失败态 `messages-thread-status` ↔ 成功态 `messages-thread`+气泡。
+            // 消息流真错误态 ⇒ **有界重载**（最多 2 次）等「正确渲染」；重载次数记进读数。不改断言语义。
+            if (isMessages) {
+              let stable = await waitMessagesStable(page)
+              for (let t = 0; t < 2 && !stable.ok; t += 1) {
+                threadRetries += 1
+                await gotoL(page, page_)
+                await settle(page)
+                stable = await waitMessagesStable(page)
+              }
+            } else {
+              await waitQuiet(page)
+            }
+            // ★ 口径对齐：用「排除主题开关图标子树」的快照（理由见 lib.mjs VISIBLE_SNAPSHOT_NO_THEME_ICON 注释）
+            const snap = await page.evaluate(VISIBLE_SNAPSHOT_NO_THEME_ICON)
             const text = await page.evaluate(TEXT_READINGS)
             shot[theme] = {
               nodes: snap.length,
@@ -107,7 +133,7 @@ const run = async () => {
               smallText: text.filter((t) => t.fontSizePx < 12),
               textCount: text.length,
             }
-            // 触控目标实测（≤767）：所有可点元素
+            // 触控目标实测（≤767）：所有可点元素。带结构键（tag|cls|hook）供跨主题去重。
             if (width <= 767) {
               shot[theme].tapTargets = await page.evaluate(`(() => {
                 const out = []
@@ -117,7 +143,8 @@ const run = async () => {
                   if (cs.display === 'none' || cs.visibility === 'hidden') continue
                   const r = el.getBoundingClientRect()
                   if (r.width === 0 && r.height === 0) continue
-                  out.push({ hook: el.getAttribute('data-sf-m') || el.className.slice(0, 40), w: Math.round(r.width*100)/100, h: Math.round(r.height*100)/100 })
+                  out.push({ tag: el.tagName, hook: el.getAttribute('data-sf-m') || '', cls: String(el.className || '').slice(0, 80),
+                    w: Math.round(r.width*100)/100, h: Math.round(r.height*100)/100 })
                 }
                 return out
               })()`)
@@ -125,6 +152,21 @@ const run = async () => {
             await context.close()
           }
           const cross = shot.light.geoHash === shot.dark.geoHash
+          // 跨主题去重：light/dark 两份拼接时同一元素会被计 2 次 ⇒ 按结构键（tag|cls|hook）分组，
+          // 每键只保留前一半（= 单主题的那一份）。dome 同构已由 geoEqual 断言，故该去重是合法的。
+          const allTaps = [...(shot.light.tapTargets || []), ...(shot.dark.tapTargets || [])]
+          const byKey = new Map()
+          for (const t of allTaps) {
+            const k = `${t.tag}|${t.cls}|${t.hook}`
+            if (!byKey.has(k)) byKey.set(k, [])
+            byKey.get(k).push(t)
+          }
+          const tapUnique = []
+          for (const arr of byKey.values()) tapUnique.push(...arr.slice(0, Math.ceil(arr.length / 2)))
+          const under44Raw = tapUnique.filter((t) => t.w < 44 || t.h < 44)
+          // 既有元素单列（不计入本单 AC-6 判负）：Footer 语言链接 `.sf-tap-inline`
+          // （shell.css:232；由 Header.jsx/Footer.jsx 消费，二者**均不在本单 diff**）⇒ 28×44 < 44。
+          const isExistingTap = (t) => /(^|\s)sf-tap-inline(\s|$)/.test(t.cls)
           const key = `${width}/${lang}/${page_}`
           out.theme[key] = {
             nodes: shot.light.nodes,
@@ -134,7 +176,11 @@ const run = async () => {
             minFontPx: Math.min(shot.light.minFontPx ?? 99, shot.dark.minFontPx ?? 99),
             minTextBoxH: Math.min(shot.light.minTextBoxH ?? 99, shot.dark.minTextBoxH ?? 99),
             smallText: [...shot.light.smallText, ...shot.dark.smallText],
-            under44: [...(shot.light.tapTargets || []), ...(shot.dark.tapTargets || [])].filter((t) => t.w < 44 || t.h < 44),
+            tapCountRaw: allTaps.length,
+            tapCountUnique: tapUnique.length,
+            threadRetries,
+            under44: under44Raw.filter((t) => !isExistingTap(t)),
+            under44Existing: under44Raw.filter(isExistingTap),
           }
         }
       }

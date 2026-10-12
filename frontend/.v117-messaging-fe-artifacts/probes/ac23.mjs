@@ -1,10 +1,10 @@
 // AC-2（可达性 / 入口不丢失 · §19.8 详情页返回 + §20.9 /messages 真页）+ AC-3（未读角标 · T103）真跑
 import {
-  launch, openPage, gotoL, settle, isVisible, countOf, ITEM_ID, SELLER_UID, BUYER_UID, CONV_ID, ARTDIR,
+  launch, openPage, gotoL, settle, waitQuiet, waitMessagesStable, isVisible, countOf, ITEM_ID, SELLER_UID, BUYER_UID, CONV_ID, ARTDIR,
 } from './lib.mjs'
 import { writeFileSync } from 'node:fs'
 
-setTimeout(() => { console.error('WATCHDOG 8min'); process.exit(3) }, 480000)
+setTimeout(() => { console.error('WATCHDOG 8min'); process.exit(3) }, 480000).unref()
 
 const BACK = '[data-sf-m="item-back"]'
 const MSG_BACK = '[data-sf-m="messages-back"]'
@@ -166,20 +166,32 @@ const run = async () => {
     // ④ 进入会话详情 ⇒ 读水位推进 ⇒ unread-count 重取值下降（真实链路）
     {
       const { context, page, reqs } = await openPage(browser, { width: 390, uID: BUYER_UID })
+      const readUnread = () => page.evaluate(async () => {
+        const r = await fetch('/api/messages/unread-count', { headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user')).token } })
+        return (await r.json())?.data?.unread_total
+      })
       await gotoL(page, '/messages')
       await settle(page, 800)
-      const unreadBefore = await page.evaluate(async () => {
-        const r = await fetch('/api/messages/unread-count', { headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user')).token } })
-        return (await r.json())?.data?.unread_total
-      })
-      await page.goto(`http://127.0.0.1:5792/messages?c=${CONV_ID}`, { waitUntil: 'domcontentloaded' })
-      await page.waitForTimeout(4000)
-      const unreadAfter = await page.evaluate(async () => {
-        const r = await fetch('/api/messages/unread-count', { headers: { Authorization: 'Bearer ' + JSON.parse(localStorage.getItem('user')).token } })
-        return (await r.json())?.data?.unread_total
-      })
+      await waitQuiet(page)
+      const unreadBefore = await readUnread()
+      await gotoL(page, `/messages?c=${CONV_ID}`)
+      await settle(page)
+      // [Kong 修·尺度稳健] 消息流取数 loading/失败态（`messages-thread-status`）会让 loadThread 返回 false ⇒
+      // 页面按设计**跳过** markConversationRead（`if (ok) await markConversationRead(...)`）⇒
+      // 读水位不推进、unread 不下降、也看不到 POST /read —— 上轮此条判负即由此竞态造成
+      // （实测 POST read 本身是通的：1⇒0）。⇒ 等终态 + 真错误态有界重载（最多 2 次）；不改断言语义。
+      let threadRetries = 0
+      let stable = await waitMessagesStable(page)
+      for (let t = 0; t < 2 && !stable.ok; t += 1) {
+        threadRetries += 1
+        await gotoL(page, `/messages?c=${CONV_ID}`)
+        await settle(page)
+        stable = await waitMessagesStable(page)
+      }
+      await page.waitForTimeout(800) // 读水位 POST + refreshUnread 收尾余量
+      const unreadAfter = await readUnread()
       out.ac3.readWatermark = {
-        unreadBefore, unreadAfter,
+        unreadBefore, unreadAfter, threadRetries, threadPhase: stable.phase, badgeAbsent: stable.badgeAbsent,
         readPostSeen: reqs.some((r) => r.url.includes('/read') && r.method === 'POST'),
         unreadReqs: reqs.filter((r) => r.url.includes('unread-count')).length,
       }
@@ -199,6 +211,11 @@ const run = async () => {
     if (r.tabbarDisplayOnDetail !== 'none') fails.ac2.push(`AC2 ${tag}: 详情页底栏 display=${r.tabbarDisplayOnDetail}（应 none）`)
   }
   for (const [tag, m] of Object.entries(out.ac2.messages)) {
+    // [Kong 修·循环误报] out.ac2.messages 里除四语 messages 页形态外，还挂着 backInDetail / detailHooks
+    // 两个「非页形态」对象（无 placeholderHooks 字段）⇒ 原循环把它们也当页形态判，报出
+    // 「占位钩子 ... 仍存在 undefined」这类伪判负。此处跳过无 placeholderHooks 字段的条目；
+    // 这两个对象另有专门判据（见下方 backInDetail 段），不丢覆盖。
+    if (!('placeholderHooks' in m)) continue
     if (m.pageHooks < 1) fails.ac2.push(`AC2【判负】${tag}: messages-page 钩子缺失`)
     if (m.placeholderHooks !== 0) fails.ac2.push(`AC2【判负】${tag}: 占位钩子 messages-x-placeholder 仍存在 ${m.placeholderHooks}（T101 显式删除项）`)
     if (m.rawKeyLeak) fails.ac2.push(`AC2【判负】${tag}: 渲染裸键名 messagesPage.*`)

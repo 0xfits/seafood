@@ -1,0 +1,46 @@
+{
+ "ac": "NEGCTL",
+ "controls": [
+  {
+   "id": "NEG-1",
+   "what": "聊一聊对卖家也渲染（测量期注入 ItemDetailPage.jsx）",
+   "expected": "AC-1 ② 判据必红",
+   "sellerChatVisible": false,
+   "sellerChatCount": 0,
+   "JUDGE": "GREEN(探针失灵)",
+   "restoredCmpIdentical": true,
+   "restoredSha256": "93a80653bcb829262f795279716e939bf251722230c1e3b61dca0cfa1a7963b9"
+  },
+  {
+   "id": "NEG-2",
+   "what": "角标改 setInterval 轮询（测量期注入 unread-context.jsx）",
+   "expected": "AC-3 无轮询判据必红",
+   "unreadReqsIn10s": 9,
+   "JUDGE": "RED(判负·探针有灵敏度)",
+   "restoredCmpIdentical": true,
+   "restoredSha256": "fd7064c1039c548e5e7ea7fec92c2a46e3bfd3b69b984ed881ce5236d3966c2c"
+  },
+  {
+   "id": "NEG-3",
+   "what": "注入 9px 可见文本（测量期 addStyleTag，不动仓库）",
+   "expected": "AC-6「可见文本 ≥12px」像素读数必红",
+   "measuredMinFontPx": 12,
+   "under12Count": 0,
+   "JUDGE": "GREEN(尺子失灵)"
+  }
+ ],
+ "selfProof": {
+  "itemPatchedDiff": -9,
+  "unreadPatchedDiff": 153,
+  "afterRestoreSellerChat": {
+   "visible": false,
+   "count": 0,
+   "JUDGE": "GREEN(回基线)"
+  },
+  "afterRestoreUnreadReqs": {
+   "unreadReqsIn10s": 2,
+   "JUDGE": "GREEN(回基线)"
+  }
+ },
+ "verdict": "FAIL"
+}

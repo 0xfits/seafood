@@ -6,7 +6,7 @@ import { launch, openPage, gotoL, settle, isVisible, ITEM_ID, SELLER_UID, BUYER_
 import { readFileSync, writeFileSync, copyFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 
-setTimeout(() => { console.error('WATCHDOG 8min'); process.exit(3) }, 480000)
+setTimeout(() => { console.error('WATCHDOG 8min'); process.exit(3) }, 480000).unref()
 
 const FE = '/Users/kevin/bistro/seafood/frontend'
 const SCR = '/Users/kevin/.hermes/profiles/zang/cache/scratch/ac'
@@ -38,6 +38,9 @@ const run = async () => {
     {
       const { context, page } = await openPage(browser, { width: 390, uID: SELLER_UID })
       await gotoL(page, `/item/${ITEM_ID}`)
+      // [Kong 修] 稳健等待：注入后 HMR 使模块失效，首帧 1200ms 不足以渲染详情体 ⇒ 加等操作栏（不改断言语义）
+      await page.waitForSelector('[data-sf-m="item-actionbar"]', { timeout: 20000 }).catch(() => {})
+      await settle(page)
       const visible = await isVisible(page, CHAT)
       const count = await page.locator(CHAT).count()
       // 与 AC-1 ② 判据同一条谓词
@@ -84,6 +87,8 @@ const run = async () => {
     {
       const { context, page } = await openPage(browser, { width: 390, uID: SELLER_UID })
       await gotoL(page, `/item/${ITEM_ID}`)
+      await page.waitForSelector('[data-sf-m="item-actionbar"]', { timeout: 20000 }).catch(() => {})
+      await settle(page)
       const visible = await isVisible(page, CHAT)
       const count = await page.locator(CHAT).count()
       out.selfProof.afterRestoreSellerChat = { visible, count, JUDGE: (visible || count > 0) ? 'RED' : 'GREEN(回基线)' }
@@ -104,6 +109,7 @@ const run = async () => {
       const small = []
       const { context, page } = await openPage(browser, { width: 390, uID: BUYER_UID })
       await gotoL(page, `/item/${ITEM_ID}`)
+      await page.waitForSelector('.sf-item-meta', { timeout: 20000 }).catch(() => {})
       await settle(page)
       await page.addStyleTag({ content: '.sf-item-meta{font-size:9px !important}' })
       await page.waitForTimeout(300)
