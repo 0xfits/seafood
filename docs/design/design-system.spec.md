@@ -12,6 +12,7 @@
 > **★ 现行版 = v1.12（2026-10-11 · Kevin 四条新裁定 · 逐字采用）**：**① `F13` 死键清理已批准（→ 执行中）** —— 11 死键（`reward` · `rewardsList` · `tasksToClaimReward` · `chooseReward` · `confirmChooseReward` · `successClaimReward` · `common.loadingRewards` · `homePage.noRewards` · `homePage.rewardAlreadyClaimed` · `homePage.rewardOutOfStock` · `claimRewardModal.loadProgressFailed`）**四语同删** ⇒ **键集基线将再次变化**；**新基线由 Kong 实测、Jing 现取回写（不得拄推定值）**。**② `F10` 内部标识一并改名（→ 执行中）** —— `sf-listings*` → `sf-item*`、`data-sf-m="listing-*"` → `data-sf-m="item-*"` ⇒ **`F10` 由「待统一」改「已执行（待 Kong 交读数）+ 几何零变化判据」**（判据形同 §13「桌面档不动 / 归因式判据」）。**③ 补 catch-all 提示页（新裁定）** —— **内层 `<Routes>` 末位新增 `<Route path="*">`**（**不得动外层 `LangShell` 的 `/*` 机制**）；**新增 3 个 i18n 键 × 四语（非 zh 待复核）**；**口径 = 旧路径命中的是提示页、而不是白页** ⇒ **修正 §15.4 `N32` / `F11` 的「硬删后白页」**（**`F11` 改「已由 catch-all 提示页收口（非重定向，仍不是 301）」**）。**④ 主题图标语义（`T41` 口径）** —— **图标 = 将要切到的档位**（日档显月亮 / 夜档显太阳）；Kevin 反馈**真机逻辑正确、本地 H5 应反转** ⇒ **Kong 现取两处（桌面顶栏 / 移动面板）现状；本册只登记口径 + 「待 Kong 实测后回写一致性结论」（不预先断言哪处错）**。⇒ **新增 §16 + 规则 `T91..T92` + `N37`**；姊妹册 = `docs/route-layer.spec.md` **v2.29 §39**（catch-all 路由登记 + 路由总数现取）。**改动 = 版本头（本行）+ §12 + §16（新）**；**改前快照** = `docs/versions/design-system.spec.v1.11.md`（`cmp=0`；md5 `e929fb7f1aa0a4cb082dda51561158fe`；1494 行 / 304,333 B）。**本册 v1.12 未动 `frontend/**`、未动 `ctrl/**`、未启停任何服务**（实现由 Kong 同轮落地）。**现取基线 = HEAD `ecbefd1`。**
 > **★ 现行版 = v1.13（2026-10-12 · 回写单 · 与实现真相对齐 + 真机诊断定案 · 只追加 + 就地留痕 · 本单只写 `docs/**`）**：**① 键集新基线回写（§16.2 / §17.1）** —— **顶层 `122` / 拍平 `1045` / 四语节点 `4180`**（`= 1045 × 4` 自洽；**Jing 现取**，逐文件 `len(json)` = 顶层 / 递归叶 = 拍平 / `×4` = 四语节点；改前 `127/1053/4212`）。**算式闭合** = 拍平 `1053 − 11`（删 `F13` 死键）+ `3`（增 `notFound.*`）= `1045`；顶层 `127 − 6`（删顶层死键族）+ `1`（增 `notFound`）= `122`。**② `F10` 内部标识改名收口（§16.3 / §17.2）** —— `sf-item*` 命中 **`144`** / 唯一类 **`33`**；`data-sf-m="item-*"` 唯一钩子 **`39`**；**残留 `sf-listings` = `0`**；**几何零变化判据已交** = `/item/1` **8 元素 × 390/1440 = 16 个 rect 逐值相同**。**③ `F13` 死键清理收口（§16.3）** —— 11 死键四语同删（**已执行**）。**④ 真机诊断定案（§17.3）** —— 手机（Xiaomi MiuiBrowser / Android 14 / Chrome 135）实站内 `html[data-theme]=dark` · `.sf-shell` 背景 `rgb(11,12,14)` · `--sf-page-bg: #0B0C0E` · 父页 `prefers-color-scheme` = **false** · **色卡 9/9 回读精确（含 `#FDE815 → rgb(253,232,21)`）** ⇒ **`F7` / `N26` / `N31` 一族由「待查」收口为「已定案」**：手机上是**本站夜档**（`localStorage theme=dark`，**按 origin 隔离**）+ **屏幕渲染忠实** ⇒ **「浏览器强制深色」与「色域/屏幕」两假设均被排除**。**⑤ 新观察 `N38`（§17.5）** —— 同源 iframe 与父页的 `matchMedia('(prefers-color-scheme: dark)')` 可**出现相反读数** ⇒ **不得拿父页该值推断 iframe 内站点主题**；判站点主题只看站内 `html[data-theme]` / `.sf-shell` 背景色。**⑥ `/item/999999` 口径（§17.4 · 姊妹册 `route-layer.spec` v2.30 §40）** —— 不存在的 id 走**详情页内空态**（「关联单据不存在」+ 返回列表），**不并入 catch-all 提示页**；登记为**已知口径（非缺陷）**。**改动 = 版本头（本行）+ §12 + §13.6 `N26` 就地注 + §14.8 两处就地注 + §16.2 / §16.3 / §16.5 回写 + §17（新）**；**改前快照** = `docs/versions/design-system.spec.v1.12.md`（`cmp=0`；md5 `448f038e79a071347fbb7e5573040e1d`）；**本版镜像** = `docs/versions/design-system.spec.v1.13.md`（`cmp=0`）。**本册 v1.13 只写 `docs/**`；未动 `frontend/**` / `tools/**` / `ctrl/**`；未启停任何服务（绝不 `pm2 restart`）；未 `git add -A` · 未 commit · 未 push**。**现取基线 = HEAD `d2ad4ef`。**
 > **★ 现行版 = v1.14（2026-10-12 · Kevin「主题初始默认跟随系统」裁定落册 + catch-all 提示页上线回写 + `/item/999999` 依据补记 · 只追加 + 就地留痕 · 本单只写 `docs/**`）**：**① 新规则 `T93`（§18.1 · 三级优先序逐字落册）** —— **① 用户显式选择**（`localStorage['theme']`，仅由顶栏/面板的主题开关写入）＞ **② 首次访问跟随系统** `prefers-color-scheme`（由 `frontend/index.html` 内联脚本在 React 渲染前设 `data-theme`，**不落盘** ⇒ 系统后续变化仍可跟随）＞ **③ 默认日档**（拿不到系统偏好 ⇒ `day`）；**`matchMedia` 只允许出现在 `frontend/index.html` 内联脚本**，**不得进入 `src/theme/**` / `src/shell/**` 的 JS**（既有硬断言 `theme-shell-isomorphism.test.jsx:205-213` 一字不动维持）；**`ThemeProvider.readInitialTheme()` 的取值顺序不变**（`data-theme` 属性 > `localStorage` > 默认）⇒ 跟随系统自然生效。**② 配套两条（§18.1）** —— **初始应用不落盘**（初次挂载只设 `data-theme`；仅用户显式切换才写 `localStorage`）＋ **无 `matchMedia` 可用（旧 WebView / 异常）⇒ 回退日档、不得抛错**。**③ catch-all 提示页 = 已实现 · 已上线（§18.3 + §16.2 / §16.5 就地注）** —— Kevin 裁定字面「**已上线（`NotFoundPage`，四语 12 例实测，旧路由不再白壳）**」；现取 = 组件 `frontend/src/pages/NotFoundPage.jsx` + `App.jsx:145` `<Route path="*">`（commit `d2ad4ef`；`origin/main == HEAD` ⇒ 已 push）。**④ `/item/999999` 依据补记（§17.4 行后就地注）** —— route 册（v2.30 §40.1）与本册 §17.4 上轮均已记 ⇒ 本版只补**依据行**（「详情页内空态带上下文更精确，且非空白」；口径一字未改）。**⑤ 主题章就地注三则（§6 表后）+ §18 现取边界（§18.2）** —— 真机诊断定案补记（**Kevin 已确认切日档正常；夜档 = 该 origin 存储的显式选择，非浏览器强制深色**）；`T42` 键名册面 `sea.theme` 与实现 `theme` 出入、`T43` 的 `theme.js` `matchMedia`/`change` 机制**均以 `T93` 为现行口径**（原行一字未改）。**⑥ `docs/OPEN-ITEMS.md` 新增 `F16`**（T93 实现与验收挂账）。**改动 = 版本头（本行）+ §12 + §6 表后一处就地注（含 `T42`/`T43` 两则）+ §16.2 / §16.5 两处就地注 + §17.4 依据补记 + §18（新）**；**改前快照** = `docs/versions/design-system.spec.v1.13.md`（上轮 v1.13 本版镜像原件；本单开工复核 `cmp` = **0**；md5 `b6e3685e84441ef582b73f1cbf012d9c`；1615 行 / 336,436 B）；**本版镜像** = `docs/versions/design-system.spec.v1.14.md`（落笔后建，`cmp=0`）。**本册 v1.14 只写 `docs/**`；未动 `frontend/**` / `tools/**` / `ctrl/**`；未启停任何服务（绝不 `pm2 restart`）；未 `git add -A` · 未 commit · 未 push**。**现取基线 = HEAD `07a3927`（origin/main 同步；工作区另有 Kong 同轮改动 `frontend/index.html`，非本单写面，本册按「现取 = HEAD + 已知工作区」如实分列）。** **★ 复跑（本单收笔前）：现行 HEAD = `bb55925`（Kong 内联脚本单已提交）—— 上列「工作区改动」表述为现取时点状态，随之关闭。**
+> **★ 现行版 = v1.15（2026-10-12 · Kevin「`/item/:id` 详情页 UI 改造（变体 A = 闲鱼结构 × 本站主题）」拍板 · 五条逐字采用 · 只追加 + 就地留痕 · 本单只写 `docs/**`）**：**① 新规则 `T94`（范围 + 渲染面白名单）** —— 只改 `/item/:id`；**只渲染** 价格行 / 大标题 / 详情面板（渐变占位图 + 描述 + 库存 + 数量输入）/ 底部固定操作栏（**仅「立即购买」一个 CTA**）/ 页内顶栏返回箭头 / **既存** `.sf-item-note`；**一律不渲染** 卖家信息行 / 属性两列 / 集市横幅 / 划线原价 / 比市场价 / 包邮 / 想要·浏览计数 / 留言 / 收藏 / 聊一聊（判据 = **无数据承载不渲染**；`GET /api/prize/:bID` 现取**无** owner/seller、无 media_urls、无品牌/成色）。**② 新规则 `T95`（隐藏底栏机制 · 二选一裁死）** —— **采纳「DOM 恒在 + 页面级 `display:none`」**：`BottomTabBar` **恒渲染** `<nav class="sf-tabbar">` 与**全部 5 个** `<a data-sf-nav>`；**仅** `pathname` 命中详情路由时追加 **`is-detail`** 修饰类（状态挂点 = `frontend/src/shell/BottomTabBar.jsx`，其**已有 `useLocation()`** ⇒ 只加**路由串匹配**，**不得**引入宽度判定）；隐藏规则落 **`frontend/src/styles.css` 顶层**（`.sf-tabbar.is-detail{display:none}`；**不入 `@layer` / 不入 `@media`**；**`shell.css` 一字不动**）⇒ **五 region 断言零改动**（`theme-shell-isomorphism.test.jsx:80-81`/`:89`/`:106-107`/`:120-122` · `v15-nav-floatmenu.test.jsx:228`/`:109`）；**否决 DOM 移除**（会红 6 处同构断言 + 拆掉「同构 ⇒ DOM 恒在」硬核）。**③ 新规则 `T96`（可达性硬 AC）** —— **页面内顶栏 = 返回箭头（`‹`）**，**不加搜索框**；**返回目标裁死 = 固定回首页 `root('/')`**（**否决 `history.back()`** —— 深链 / 刷新时 history 无站内上一页）；**a11y 名复用既有键 `t('item.list')`**；**触控复用既有 `.sf-tap-sq`**（≤767 档 ≥44×44）。**④ 新规则 `T97`（桌面档）** —— 桌面底栏本就 `display:none` ⇒ 详情页导航不受影响；**操作栏 ≤767 = `fixed` 独占底部 / >767 = 留在内容流**（页面文件 `item.css` 内，`shell.css` 不得新增 `@media`）。**⑤ 新规则 `T98`（结构常量落点）** —— **零新主题 token**（`TOKEN_KEYS` 一字不动）；确需新增的**结构常量一律落 `item.css` 的页面局部 `--sf-l-*`**（**不得进 `tokens.js` 的 `STRUCT`** —— `STRUCT_PROV` 带**溯源硬门**：值须回读 `docs/design/style-preview.html` 行号，本单无新真源块）：`--sf-l-detail-price-size`(28px) · `--sf-l-detail-title-size`(18px) · `--sf-l-actionbar-h`(60px) · `--sf-l-actionbar-safe`(`env(safe-area-inset-bottom)`，与 `shell.css:72` 同形复刻)；**CTA 胶囊半径复用既有 `--sf-st-radius-pill`(999px)**。**⑥ 新规则 `T99`（视觉口径 + 映射表）** —— 参考图元素 → 既有槽位**逐项映射**（§19.4）；**未被映射的元素一律不渲染**；**CTA「黄底深字」逐字命中既有 `.sf-btn`（`--sf-btna-bg #FFE60F` / `--sf-btna-fg #202020`）⇒ 零新颜色**；**可见文本 ≥12px**（`T79` 不破）。**⑦ i18n 零新增 / 零删除** ⇒ 键集 **顶层 122 / 拍平 1045 / 四语节点 4180 逐字不变**（回退 a11y 名与 CTA 文案**全复用既有键**；去刷新按钮后 `item.refresh` 键**保留**、登记为键卫生项，**非死键清理对象**）。**⑧ 两条新教训 `N39`/`N40`** —— `N39` = 页面源码 / CSS 新增注释**禁写「`/*` 收尾的路径字面」**（吞码引信 · 承接 `N35`）；`N40` = **页面级隐藏共享外壳元素的口径**（DOM 恒在 + 路由条件修饰类 + 全局 CSS 顶层 · 具体性压过断点块）。**⑨ 留痕（§19.10）** —— **就地收窄 `T46`/`T80` 的「底栏恒 5 格」，仅限 `/item/:id`**；**其余页面逐字照旧**；`T86`（汉堡排除集 `['exchange']`）/ `T75`（`viewport-fit=cover` 安全区）**逐字不变**。**⑩ 三条待裁 `Q1`–`Q3`（§19.11 · 不得自选）** —— 聊一聊 = 站内信 vs 站外 Telegram · CTA 胶囊圆角（`radius-pill` vs `radius-btna`）· 大号价格字号（28px vs 32px）。**改动 = 版本头（本行）+ §12 + §19（新）**；**改前快照** = `docs/versions/design-system.spec.v1.14.md`（本单开工复核 `cmp` = **0**；md5 `7e67f2cdd95417502148bdff74ee95a2`；1673 行 / 354,073 B）；**本版镜像** = `docs/versions/design-system.spec.v1.15.md`（落笔后建，`cmp=0`）。**本册 v1.15 只写 `docs/**`；未动 `frontend/**` / `tools/**` / `ctrl/**`；未启停任何服务（绝不 `pm2 restart`）；未 `git add -A` · 未 commit · 未 push**（实现 / 验收归 Kong / Neng）。**现取基线 = HEAD `a111b45`（2026-10-12）。**
 > **★ v1.10 姊妹册（同批交付）** = `docs/route-layer.spec.md` **v2.28 §38**（`/item` 家族 + 旧路由硬删 + 「前端概念名 ⇄ 后端路径名」映射表）；本册只承载 **形态 / 入口集合 / 可达性 AC / 合并页口径 / i18n 删改留表 / 断言影响**，**不重抄**。
 > **v1.5 口径来源（逐字）**：Kevin 2026-10-11 定档 ①方案 A·UI 先行（不动后端）②右悬浮菜单仅桌面档显示、H5 隐藏 ③消息模块占位（后续接驳 X/推特私信）④客服/反馈做弹窗模板位；**＋ Kevin 当日两条连锁更正**（`Zang` 转达）：**(A)** 底栏第二项 = **「市场」→ `/exchange`**（key `shard`，图标 `Store`；**不再新建 `/nearby` 占位页、`nearby` 键不新增**）**(B)** `T76` 去重按新底栏集合重算（**`exchange` 继续排除、`reward`/`task` 恢复**）。
 > 交付物路径：`docs/design/design-system.spec.md`
@@ -812,6 +813,7 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 | **v1.12** | 2026-10-11 | **Kevin 四条新裁定落册（逐字采用）**：**① `F13` 死键清理 → 执行中**（11 死键**四语同删**；**新基线由 Kong 实测、Jing 现取回写** · **不得拄推定值**）· **② `F10` 内部标识改名 → 已执行**（`sf-listings*` → `sf-item*` / `data-sf-m="listing-*"` → `data-sf-m="item-*"`；**+ 几何零变化判据**）· **③ catch-all 提示页（新裁定）**（内层 `<Routes>` 末位 `<Route path="*">`；**不得动外层 `LangShell` 的 `/*` 机制**；**3 新 i18n 键 × 四语 · 非 zh 待复核**；**旧路径命中提示页而非白页**）· **④ 主题图标 `T41` 语义**（图标 = **将要切到的档位**；**真机逻辑正确、本地 H5 应反转** ⇒ 两处现状待 Kong 现取）。**⇒ 新增 §16**（`T91` catch-all 提示页 + `T92` 主题图标语义 + `N37` + §16.2 i18n 新键 + §16.3 `F10`/`F11`/`F13` 新字面回写 + §16.5 未核实）。**修正** §15.4 `N32` / `F11` 的「硬删后白页」「无兜底」口径（**非重定向 · 仍不是 301 逐字不变**）。**改前快照** = `docs/versions/design-system.spec.v1.11.md`（`cmp=0`；md5 `e929fb7f1aa0a4cb082dda51561158fe`）。**未动 `frontend/**`、未动 `ctrl/**`、未启停服务**（由 Kong 落地）。 |
 | **v1.13** | 2026-10-12 | **回写单（与实现真相对齐 + 真机诊断定案 · 只追加 + 就地留痕）**：**① 键集新基线回写** = **顶层 `122` / 拍平 `1045` / 四语节点 `4180`**（`= 1045 × 4` 自洽；**Jing 现取**；改前 `127/1053/4212`；算式闭合 = 拍平 `1053 − 11 + 3`、顶层 `127 − 6 + 1`） · **② `F10` 内部标识改名收口**（`sf-item*` 命中 `144` / 唯一类 `33`；`data-sf-m="item-*"` 唯一 `39`；**残留 `sf-listings` = `0`**；**几何零变化判据 = `/item/1` 8 元素 × 390/1440 共 16 个 rect 逐值相同**） · **③ `F13` 死键清理收口**（11 死键四语同删已执行） · **④ 真机诊断定案**（手机实站内 `html[data-theme]=dark` / `.sf-shell` `rgb(11,12,14)` / `--sf-page-bg:#0B0C0E` / 父页 `prefers-color-scheme=false` / 色卡 9/9 回读精确 ⇒ `F7`+`N26`+`N31` 一族收口为「已定案 = 本站夜档 + 屏幕忠实」；「浏览器强制深色」「色域/屏幕」两假设排除；**诊断工具 `/_preview/colors` 的持久价值已登记**） · **⑤ 新观察 `N38`**（同源 iframe 与父页 `prefers-color-scheme` 可相反 ⇒ 不得以父页值推断 iframe 主题） · **⑥ `/item/999999` 口径**（详情页内空态 · 已知口径非缺陷）。**⇒ 新增 §17**；**§16.2 / §16.3 / §16.5 收口回写**；**§13.6 `N26` / §14.8 两处就地加注**（原地正文一字未动）。**改前快照** = `docs/versions/design-system.spec.v1.12.md`（`cmp=0`；md5 `448f038e79a071347fbb7e5573040e1d`）；**本版镜像** = `docs/versions/design-system.spec.v1.13.md`（`cmp=0`）。**只写 `docs/**`；未动 `frontend/**` / `tools/**` / `ctrl/**`；未启停服务；未 `git add -A` · 未 commit · 未 push**。 |
 | **v1.14** | 2026-10-12 | **Kevin「主题初始默认跟随系统」裁定落册 + catch-all 上线回写（只追加 + 就地留痕）**：**① `T93` 三级优先序**（用户显式 `localStorage['theme']` ＞ 首访跟随系统 `prefers-color-scheme`〔`index.html` 内联脚本设 `data-theme` · 不落盘〕＞ 默认日档 `day`；`matchMedia` 只许在 `index.html` 内联脚本、不得进 `src/theme/**` / `src/shell/**` JS〔硬断言维持〕；`readInitialTheme()` 顺序不变 = 属性 > localStorage > 默认）· **② 配套两条**（初始应用不落盘 / 无 `matchMedia` ⇒ 回退日档不抛错）· **③ catch-all 提示页已实现 · 已上线**（`NotFoundPage` · 四语 12 例实测 · 旧路由不再白壳；`T91`/§16.2/§16.5 就地注）· **④ `/item/999999` 依据补记**（§17.4 就地注；route 册 v2.30 §40.1 + 本册 §17.4 已记，只补依据行）· **⑤ 主题章就地注**（真机诊断定案补记：Kevin 确认切日档正常；夜档 = origin 显式选择非强制深色；`T42` 键名 / `T43` 机制以 `T93` 为现行口径）· **⑥ 台账新增 `F16`**。**⇒ 新增 §18**（`T93` + 配套 + 现取边界 + 断言影响）。**改前快照** = `docs/versions/design-system.spec.v1.13.md`（`cmp=0`；md5 `b6e3685e84441ef582b73f1cbf012d9c`）；**本版镜像** = `docs/versions/design-system.spec.v1.14.md`（`cmp=0`）。**只写 `docs/**`；未动 `frontend/**` / `tools/**` / `ctrl/**`；未启停服务；未 `git add -A` · 未 commit · 未 push**。 |
+| **v1.15** | 2026-10-12 | **`/item/:id` 详情页 UI 改造（变体 A = 闲鱼结构 × 本站主题）落册（Kevin 2026-10-12 拍板 · 五条逐字采用 · 只追加 + 就地留痕 · 本单只写 `docs/**`）**：**① `T94` 范围 + 渲染面白名单**（只改详情页；只渲染 价格行 / 大标题 / 详情面板 / 底部操作栏（**仅「立即购买」**）/ 页内返回箭头 / 既存 `.sf-item-note`；不渲染 卖家行 / 属性两列 / 集市横幅 / 划线原价 / 比市场价 / 包邮 / 想要·浏览计数 / 留言 / 收藏 / 聊一聊 —— 判据 = **无数据承载不渲染**，数据面 `GET /api/prize/:bID` 现取无 owner/seller · 无 media_urls · 无品牌/成色） · **② `T95` 隐藏底栏机制（二选一裁死）**（**采纳「DOM 恒在 + 页面级 `display:none`」**：`BottomTabBar` 恒渲染 + 详情路由追加 `is-detail` 类 + `.sf-tabbar.is-detail{display:none}` 落 `src/styles.css` **顶层**；`shell.css` **一字不动**；**否决 DOM 移除**） · **③ `T96` 可达性硬 AC**（页内顶栏 = **返回箭头** · **不加搜索框** · 返回目标 = **固定回首页** · a11y 名复用 `item.list` · 触控复用 `.sf-tap-sq`） · **④ `T97` 桌面档**（桌面底栏本就 `display:none` ⇒ 导航不受影响；操作栏 **≤767 `fixed` / >767 内容流**） · **⑤ `T98` 结构常量落点**（**零新主题 token**；新增结构常量一律页面局部 `--sf-l-*` 落 `item.css`，**不得进 `STRUCT`**〔溯源硬门〕；CTA 胶囊半径复用 `--sf-st-radius-pill`） · **⑥ `T99` 视觉口径 + 参考图逐项映射表**（§19.4；未映射元素一律不渲染；CTA 黄底深字**逐字命中既有 `.sf-btn`** ⇒ 零新颜色；可见文本 ≥12px） · **⑦ i18n 零新增 / 零删除** ⇒ 键集 **122 / 1045 / 4180 逐字不变**（`item.refresh` 键保留为键卫生登记） · **⑧ 两条新教训 `N39`**（源码 / CSS 新注释禁写「`/*` 收尾的路径字面」· 吞码引信）**/ `N40`**（页面级隐藏共享外壳元素的口径：DOM 恒在 + 路由条件修饰类 + 全局 CSS 顶层） · **⑨ 留痕**（就地收窄 `T46`/`T80`「底栏恒 5 格」**仅限 `/item/:id`**；`T86`/`T75` 逐字不变） · **⑩ 待裁 `Q1`–`Q3`**（聊一聊 站内 vs 站外 Telegram · CTA 圆角 · 价格字号）。**⇒ 新增 §19**（`T94`–`T99` + `N39`/`N40` + §19.3 机制对照 + §19.4 映射表 + §19.5 渲染面/挂点 + §19.6 受影响硬断言清单 + §19.7 i18n + §19.8 归因式 AC + §19.10 留痕 + §19.11 待裁 + §19.12 未核实）。**改前快照** = `docs/versions/design-system.spec.v1.14.md`（`cmp=0`；md5 `7e67f2cdd95417502148bdff74ee95a2`；1673 行 / 354,073 B）；**本版镜像** = `docs/versions/design-system.spec.v1.15.md`（`cmp=0`）。**只写 `docs/**`；未动 `frontend/**` / `tools/**` / `ctrl/**`；未启停服务；未 `git add -A` · 未 commit · 未 push**。**现取基线 = HEAD `a111b45`。** |
 
 
 ### 与上游文件的关系（只读，本册未改一字）
@@ -1668,6 +1670,194 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 
 - 新增 **`F16`**（§F‴ 表尾 · 只追加）：**主题初始默认三级优先序（`T93`）实现与验收挂账** —— 现取依据 / 现状兜底 / 验收判据见该行；实现归 Kong 同轮（`frontend/index.html` 内联脚本 + `ThemeProvider` 不落盘语义），验收判据 = `T93` 判负列 + 配套①②。
 - `F15`（`/item/999999`）维持「零动作：登记为已知口径（非缺陷）」不变；catch-all 上线状态已在 `F11` 行（v1.12 起）承载，本版不另改 `F11` 行。
+
+
+---
+
+## §19 ★★ v1.15 · `/item/:id` 详情页 UI 改造（**变体 A = 闲鱼结构 × 本站主题**）· 详情页隐藏底栏 · 可达性硬 AC（**本节只追加 · 依据 = Kevin 2026-10-12 拍板逐字 · 本单只写 `docs/**`**）
+
+### 19.0 裁定来源（Kevin 2026-10-12 · 逐字采用 · 五条）
+
+| # | 字面 | 本册落点 |
+|---|---|---|
+| ① | 按参考图（闲鱼风商品详情页）改 `/item/:id` 的 UI；**只改详情页**（列表 / 首页 / 其它页不动） | `T94`（范围 + 渲染面）· §19.5 |
+| ② | 方向 = **变体 A「闲鱼结构 × 本站主题」**：布局层级照参考图；**颜色 / 形状全走既有 token 与既有结构常量体系**（**目标零新主题 token**）；**无数据承载的元素一律不渲染**（承 §15「不造无人消费的空路径 / 无死按钮」） | `T94` · `T98` · `T99` · §19.4 映射表 |
+| ③ | **详情页隐藏底部 5 格 tabbar，操作栏独占底部**（**明确推翻「底栏恒 5 格」冻结口径，仅限 `/item/:id`**；其余页面 tabbar 照旧） | `T95`（机制）· §19.3 · §19.10（取代留痕） |
+| ④ | 收藏 + 浏览 / 想要计数 = **功能另单**；「聊一聊」= **改接 Telegram**（站内信 vs 站外信待裁；原「接推特 X」计划作废）；「留言」= 商品评论 = 另单 —— **三者本轮一律不渲染** | `T94`（不渲染面）· §19.5 · §19.11 待裁 |
+| ⑤ | 站点术语：统一「闲置物品」（en = `item`）；路由 `/item/:id` **不动** | §19.7（i18n 零新增）· `T94` |
+
+**参考图**（随单附上两张，**以图为准**）：图一 = 价格行 + 标题 + 底部栏局部；图二 = 完整闲鱼详情页（逐区见 §19.4 首列）。
+
+### 19.1 现取基线（本单开工 · HEAD `a111b45` · 2026-10-12）
+
+| 项 | 现取读数 | 取法 |
+|---|---|---|
+| 本册改前行数 / 字节 / md5 | **1673 行 / 354,073 B / `7e67f2cdd95417502148bdff74ee95a2`** | `wc -l` · `wc -c` · `md5` |
+| 改前快照 | `docs/versions/design-system.spec.v1.14.md` | `cmp=0`（本单开工复核） |
+| 四语键集 | **顶层 122 / 拍平 1045 / 四语节点 4180**（zh/en/hk/vn 逐文件相同） | 逐文件 `len(json)` / 递归叶计数 / `×4` |
+| 路由 | `item/new` = `App.jsx:101` · `item/:itemId` = `:102` · `item` = `:103`（同路由 `?id=` 兼容） | `grep -n` |
+| 引用 `ItemDetailPage` 的测试 | 5 文件：`listing-market.test.jsx` / `p6-btn-impl2.test.js` / `listing-publish-redirect.test.jsx` / `i18n-content-wiring.test.jsx` / `p7e-tails-beta.test.jsx` | `grep -rln` |
+| 底栏 DOM 恒在与五 region | `theme-shell-isomorphism.test.jsx:80-81`（`regions == ['shell','topnav','content','footer','tabbar']`）· `:89`（`visibleNavItems(false).map`）· `:106-107` · `:120-122`；`v15-nav-floatmenu.test.jsx:228` / `:109` 同锚 | `sed -n` |
+| `shell.css` 双边断言 | `:216-226`：唯一 `@media` 块 = 767 · `mobileBlock` 含 `.sf-tabbar` + `display: grid` · `widePart` 匹配 `.sf-tabbar{…display: none` | `sed -n` |
+| 外壳 JS 无宽度判定 | `:205-213`：`src/shell/**` / `src/theme/**` 的 JS 不得含 `matchMedia` / `innerWidth` / `clientWidth` … | `sed -n` |
+| `item.css` 末段 ≤767 覆盖块 | `item.css:271-276`（`.sf-item, .sf-layout` 覆盖 `--sf-l-ctl-h: 44px`） | 已存在 |
+| 数据面 | `GET /api/prize/:bID` 返回 prize 遗留字段集（`name` / `points` / `description` / `i18n_status` / shard·claim·market 族…）——**无 owner / seller、无 media_urls 回读、无品牌 / 成色** | `frontend/src/pages/item/item-api.js` + route 册 |
+
+### 19.2 规则条文（`T94`–`T99`）
+
+| 编号 | 【本册裁定】口径 | 落点（文件 / 选择器 / 类） | 挂断言 / 影响面 |
+|---|---|---|---|
+| **`T94`** | 【本册裁定】**变体 A 落地范围 = 只改 `/item/:id` 详情页**（列表 / 首页 / 发布 / 交易所 / 个人页 / 其它一律不动）；**渲染面 = 白名单（收窄）**：**只渲染** ① 价格行（大号价格 + 单位小字）② 大标题 ③ 详情面板（渐变占位图 + 描述 + 库存 + 数量输入）④ 底部固定操作栏（**仅「立即购买」一个 CTA**）⑤ 页面内顶栏返回箭头 ⑥ **既有** `.sf-item-note`（`物品编号 #{id} · {status}` —— **数据承载面，非渲染面新增，见下**）。**一律不渲染**（本轮）：卖家信息行 / 属性两列 / 集市横幅 / 划线原价 / 比市场价 / 包邮 / 想要·浏览计数 / 留言 / 收藏 / 聊一聊。**判据** = **无数据承载的元素不渲染**（本仓既有裁定：不造无人消费的空路径 / 无死按钮）；`GET /api/prize/:bID` **无** owner/seller、无 media_urls、无品牌/成色 ⇒ 上述槽位**一律无数据源** ⇒ 不渲染。 | `frontend/src/pages/item/ItemDetailPage.jsx`（唯一实现落点） | `p7e-tails-beta.test.jsx`（`.sf-item-note` **必须保留**）· `listing-market.test.jsx:161`（`item.empty` 空态）· `p6-btn-impl2`（家族清单）——逐条见 §19.6 |
+| **`T95`** | 【本册裁定】**详情页隐藏底栏的机制 = 「DOM 恒在 + 页面级 `display:none`」**（**二选一裁死**；**否决 DOM 移除**）：① **`BottomTabBar` 恒渲染** `<nav class="sf-tabbar" data-sf-region="tabbar">` 与**全部 5 个** `<a data-sf-nav>`；② **仅**在 `pathname` 命中**详情路由**时，给 `<nav>` 追加 **`is-detail`** 修饰类（`className="sf-tabbar is-detail"`）；③ 隐藏 **只由 CSS 承担**：`.sf-tabbar.is-detail { display: none; }`。**状态挂点** = `frontend/src/shell/BottomTabBar.jsx`（**该文件已有 `useLocation()`** ⇒ 新增**路由串匹配**，**不是宽度判定** ⇒ 不撞 `:205-213`）。**CSS 落点** = **`frontend/src/styles.css` 顶层**（`@import` 段之后、`@theme` 之外；**不入 `@layer`、不入任何 `@media`**）——**不得落 `shell.css`**（该文件挂「唯一 767 断点块」「无 `[data-theme]` 选择器」双边断言；且 `shell.css` 现无第二个「底栏可见性翻转点」，本裁定**不把页面条件写进外壳 CSS**）。**详情路由判定**（剥语言前缀后）：`rest === '/item'`（`?id=` 兼容档）**或** `/^\/item\/[^/]+\/?$/` 命中 **且** `rest !== '/item/new'`（**静态段 `/item/new` = 发布页 ⇒ 不隐藏**）；语言前缀剥离复用既有单一真源 `utils.stripLangPrefix`（`shell/nav.js` 同用）。**具体性**：`.sf-tabbar.is-detail` = (0,2,0) **＞** shell.css `767` 块内 `.sf-tabbar` = (0,1,0) ⇒ **竖屏档亦被隐藏**，无需第二处规则。 | 状态：`frontend/src/shell/BottomTabBar.jsx`；CSS：`frontend/src/styles.css` 顶层 | **五 region 断言零改动**（`theme-shell-isomorphism.test.jsx:80-81` / `:89` / `:106-107` / `:120-122` · `v15-nav-floatmenu.test.jsx:228` / `:109`）；**`shell.css` 一字不动** ⇒ `:216-226` 零改动 |
+| **`T96`** | 【本册裁定】**可达性硬 AC（底栏隐藏后的承载）**：**页面内顶栏 = 返回箭头（`‹`）**（闲鱼同款）；**不加搜索框**（参考图② 的搜索框与本轮无功能 ⇒ 不渲染）；**右三图标不渲染**。**返回目标语义裁死 = 固定回首页 `root('/')`**（`<Link to={root('/')}>`；**否决 `history.back()`** —— 直接深链 / 刷新进入详情页时 history 无站内上一页，`navigate(-1)` 会离站或空转；固定回首页在**深链 / 刷新 / 新标签 / 站内跳转**四种入口下行为一致且可判负）。**a11y 名** = **复用既有键 `t('item.list')`**（zh「闲置物品列表」…；**+0 新键**）。**触控目标** = 复用既有 `.sf-tap-sq`（`shell.css` 的 `767` 块内 `min-width/height: 44px`）⇒ ≤767 档 ≥44×44，**>767 档不受其约束**（桌面不需要 44）。 | `frontend/src/pages/item/ItemDetailPage.jsx`（`.sf-item-back` + 既有 `.sf-tap-sq`） | 「入口不丢失」写成**归因式 AC**（§19.8）——**不用元素白名单** |
+| **`T97`** | 【本册裁定】**桌面档行为**：桌面档（`>767`）底栏**本就 `display:none`**（`shell.css` 宽屏块）⇒ **桌面详情页导航不受本裁定影响**（`is-detail` 在桌面无额外视觉后果）。**操作栏**：**≤767 档 = `position: fixed` 独占底部**（底栏已隐藏 ⇒ 无竞争）；**>767 档 = 留在内容流（不出 `fixed`）**（`position: static`），与既有 `.sf-layout` 内容同列。断点手段复用**既有唯一断点值 767**（`breakpoints.js`），**仅写在页面文件 `item.css` 内**（`shell.css` 仍不得新增 `@media`）。 | `frontend/src/pages/item/item.css`（`.sf-item-actionbar`） | 桌面归因式判据「允许变更集」见 §19.8 |
+| **`T98`** | 【本册裁定】**结构常量落点**：本单**零新主题 token**（`--sf-*` 一个不增）⇒ **`theme/tokens.js` 的 `TOKEN_KEYS` 一字不动**（`theme-shell-isomorphism.test.jsx` 的「未登记 token」判负与 `theme-tokens.test.js` 的 PROV 回读均不受触）。确需新增的**结构常量一律落 `item.css` 的页面局部 `--sf-l-*`**（与 `item.css:18-19` 既有 `--sf-l-ctl-h` / `--sf-l-textarea-h` 同体例）——**不得进 `tokens.js` 的 `STRUCT`**（`STRUCT` / `STRUCT_PROV` 带**溯源硬门**：每个值必须能回读 `docs/design/style-preview.html` 的**行号 + 原文片段**；本单**无新真源块** ⇒ 新增 `STRUCT` 项必判负）。逐项点名（值 / 两档备值 / 声明落点 / 为何不算新主题 token）见 §19.4 末表。 | `frontend/src/pages/item/item.css` | `theme-shell-isomorphism.test.jsx`（token 登记）· `theme-tokens.test.js`（PROV / 差异键 > 90）——**零改动** |
+| **`T99`** | 【本册裁定】**变体 A 视觉口径**：**布局层级照参考图**，**颜色 / 形状一律走既有 token 与既有结构常量** ⇒ **逐项映射表见 §19.4**（参考图元素 → 既有 `--sf-*` 槽位 / 既有 `--sf-st-*` 常量 / 既有 `.sf-item-*` 类）；**未被映射的参考图元素一律不渲染**（`T94`）。**层级（自上而下）**：页面内顶栏（返回箭头）→ 价格行 → 大标题 → `.sf-item-note`（副行）→ 详情面板 →（≤767）底部固定操作栏。**字号**：**可见文本 ≥12px**（`T79` 不破）；大标题 / 大号价格取页面局部常量（§19.4 末表）。**触控目标**：**≤767 档 ≥44**（引用点见 `T96` / 操作栏 CTA）。**间距 / 高度**：复用既有 `--sf-st-feed-gap-m`（9px）与 `.sf-item-panel` 既有 `padding: 12px 14px`；操作栏高度取页面局部常量。 | `frontend/src/pages/item/item.css` + `ItemDetailPage.jsx` | `p6-btn-impl2`（`.sf-item-btn` 规则与家族清单）· 归因式 AC（§19.8） |
+
+### 19.3 `T95` 展开 · 二选一裁死（机制对照 + 被否决方案的代价）
+
+| 方案 | 做法 | 断言后果（**现取重锚**） | 裁定 |
+|---|---|---|---|
+| **A · DOM 恒在 + 页面级 `display:none`**（**采纳**） | `<nav class="sf-tabbar is-detail">` 恒在 DOM；`.sf-tabbar.is-detail{display:none}` | **五 region 断言零改动**：`theme-shell-isomorphism.test.jsx:80-81`（`['shell','topnav','content','footer','tabbar']`）· `:89`（`visibleNavItems(false).map`）· `:106-107`（五项 href）· `:120-122`（未登/登录 tabs）· `v15-nav-floatmenu.test.jsx:228` / `:109` 全部**逐字维持** | ✅ **采纳** |
+| **B · DOM 移除**（条件不渲染 `<nav>`） | `BottomTabBar` 在详情路由 return `null` | **会红的断言（若选 B）**：`theme-shell-isomorphism.test.jsx:80-81`（`regions` 少 `tabbar` ⇒ 数组不等）· `:89`（`tabbar` 为 `null` ⇒ `TypeError`）· `:106-107`（同上）· `:120-122`（同上）· `v15-nav-floatmenu.test.jsx:228`（`regions` 不等）· `:109`（同上）。**前移方案**（若 Kevin 坚持 B）：把上述 6 处改成「`regions` 允许缺 `tabbar`」+「`tabbar` 可能为 `null`」——**等于拆掉「横竖屏 / 主题同构 ⇒ DOM 恒在」这块硬核**（同构判据的第一性证据），代价远高于收益 | ❌ **否决** |
+
+**B 的额外代价（登记）**：DOM 移除会让「底栏始终在 DOM（宽屏只是被断点 CSS 隐藏，不是条件渲染）」这条**已入册口径**（`theme-shell-isomorphism.test.jsx` 第 2 例标题逐字）在详情页**局部失效**，须逐页区分「在 DOM / 不在 DOM」，此后每个同构读数都要先问「这一页底栏在不在」。**A 的代价** = 详情页上底栏节点仍占 DOM（恒 `0×0`，因 `display:none`）⇒ 归因式差异集里会出现**恒 `0×0` 子树**（与 §13.4 已登记的 `.sf-tabbar` 子树同族），**测量口径**：只采可见元素（`el.getClientRects().length > 0`）即可自动排除。
+
+### 19.4 `T99` 展开 · 参考图元素 → 既有槽位映射表（**逐项**）
+
+**A. 图二（完整详情页）逐区**
+
+| 参考图元素（图二逐区） | 本轮落法 | 既有槽位 / 常量（**零新主题 token**） |
+|---|---|---|
+| ① 顶部导航：返回箭头 + 搜索框 + 右三图标 | 只留 **返回箭头**（`.sf-item-back`）；**搜索框不渲染**（`T96`）；**右三图标不渲染**（无功能） | 箭头 = `lucide-react` 既有 `ChevronLeft` · 触控 = 既有 `.sf-tap-sq` · 颜色 = `--sf-title-fg`（既有） |
+| ② 卖家信息行（头像 / 昵称 / 信用标 / 来过时间·城市） | **不渲染**（数据面无 owner/seller） | — （挂点建议见 §19.5） |
+| ③ 价格区：大号价 + 红字「比市场价低」+ 划线原价 + 黄底荧光标签 + 浅粉底「包邮」+ 灰字「N人想要 \| M人浏览」 | **只渲染大号价格**（`$` + 数字 + 单位）：复用 **既有** `.sf-item-price` / `-cur` / `-num` / `-unit` 三槽与 **既有** 颜色 token `--sf-price-cur-fg` / `--sf-price-num-fg` / `--sf-price-unit-fg` / `--sf-price-bg` / `--sf-price-border`；**颜色观感差异（登记·非缺陷）**：参考图价 = **橙红**，本站 `--sf-price-num-fg` 日档 = `#030402`（墨黑）/ 夜档 = `#FDE815`（亮黄）⇒ **「结构照图 · 颜色走本站 token」的必然结果**。**其余一律不渲染**：划线原价 / 比市场价（无 market 原价字段）· 黄底荧光标签 + 包邮（无品牌 / 成色 / 运费字段）· 想要·浏览计数（`T94` ④ 另单） | 价格槽 = 既有（`shell.css:.sf-price-*` / `item.css:.sf-item-price-*`）；字号 = **页面局部常量**（末表） |
+| ④ 浅黄「闲鱼集市」横幅 | **不渲染**（无数据承载 / 无功能）；**另注底色冲突**：本站页面底色本身 = `--sf-page-bg` 日档 `#FDE815`（亮黄）⇒ 黄底横幅与底色同类、形状几乎消失（承 `frontend-parity-acceptance`「参考图底色假设」一节） | — |
+| ⑤ 多行描述 + 两列属性（品牌 / 成色） | **描述渲染**（`.sf-item-meta`，`--sf-meta-fg`）；**两列属性不渲染**（无 brand / condition 字段） | 描述 = **既有** `.sf-item-meta` |
+| ⑥ 详情长图 | **渐变占位图**（**既有** `.sf-item-thumb`，背景取 **既有**渐变 token `--sf-thumb-1`；**无 media_urls 回读** ⇒ 延续站内「纯 CSS 图占位」口径） | **既有** `.sf-item-thumb` + `--sf-thumb-1` |
+| ⑦ 底部固定操作栏四区【留言 / 收藏 / 聊一聊 / 立即购买】+ **无底部 tabbar** | **只渲染「立即购买」一个 CTA**（`sf-btn` 基类 + 既有 `.sf-item-btn` + 新修饰 `.sf-item-cta`）；**其余三项不渲染**（另单 / 无功能）；**无 tabbar** = `T95` | CTA 颜色 = **既有** `--sf-btna-bg #FFE60F` + `--sf-btna-fg #202020` ⇒ **逐字命中参考图「黄底黑字 CTA」⇒ 零新颜色**；形状 = 见末表（圆角） |
+
+**B. 图一（价格行 + 标题 + 底栏局部）**
+
+| 参考图元素 | 本轮落法 | 既有槽位 |
+|---|---|---|
+| 大号价（橙红，`¥` 与数字同大） | 大号价格行 | 既有 `.sf-item-price-*` 槽 + 页面局部字号常量（**颜色按本站 token，观感差异已登记**） |
+| 「包邮」(黑字小) / 「5人想要 \| 83浏览」(右对齐灰字最小) | **不渲染**（无数据 / 另单） | — |
+| 多行标题（深灰黑，中等字号，左对齐换行） | **大标题**（`.sf-item-title`，**既有** `--sf-title-fg`）+ 页面局部字号常量 | **既有** `.sf-item-title` |
+| 底栏胶囊组合（左黄「聊一聊」+ 右深灰「立即购买」；独立灰胶囊「收藏」） | **只保留 CTA**：「黄底深字」= **既有** `.sf-btn`（`--sf-btna-bg` / `--sf-btna-fg`）**逐字命中**；**胶囊半径** = **既有** `--sf-st-radius-pill`（`999px`）；其余两格不渲染 | **既有** `.sf-btn` + **既有** `--sf-st-radius-pill` |
+
+**C. 确需新增的「结构常量」逐个点名（`T98` · 一律页面局部 `--sf-l-*` · 声明落点 = `item.css`）**
+
+| 常量 | 值 | 两档备值 | 声明落点 | 为何**不算新主题 token** |
+|---|---|---|---|---|
+| `--sf-l-detail-price-size` | **28px** | 32px（若 Kevin 要更接近参考图比例） | `item.css`（`.sf-item`） | **字号 = 几何量** ⇒ 按本册铁律**不进主题层**（`tokens.js` 注释 12–14 行逐字：`font-size…一律不进主题层`）；进 `STRUCT` 需 `STRUCT_PROV` 回读 `style-preview.html` 行号，本单无新真源块 ⇒ 落页面局部 |
+| `--sf-l-detail-title-size` | **18px** | 20px | `item.css`（`.sf-item`） | 同上（`font-size`） |
+| `--sf-l-actionbar-h` | **60px** | 56px / 64px | `item.css`（`.sf-item-actionbar`） | **高度 = 几何量** ⇒ 同铁律 |
+| `--sf-l-actionbar-safe` | **`env(safe-area-inset-bottom)`** | —（真机生效需 `index.html` `<meta name="viewport">` 含 `viewport-fit=cover`，`T75` 已冻结） | `item.css`（`.sf-item-actionbar`） | **环境量值、非色/形**；与 `shell.css:72` 底栏安全区**同形复刻**（`--sf-tabbar` 的 `padding-bottom: env(safe-area-inset-bottom)`），**不新增 token 也不新增 `STRUCT`** |
+
+> **CTA 胶囊形状（复用既有常量，零新增）**：`border-radius: var(--sf-st-radius-pill)`（`999px`，`STRUCT['radius-pill']` 既有）。**登记**：此**页面局部**偏离 §P6-UI-CONSIST-B「成套形状收敛到 `--sf-st-radius-btna`（8px）」的家族口径 —— 依据 = Kevin 变体 A 拍板（参考图 CTA 为全圆胶囊）；**备选口径**（若 Kevin 要家族一致）= 改用 `--sf-st-radius-btna`（一句话可改）。**注意**：圆角**不得写进 `.sf-item-btn` 规则本体**（`p6-btn-impl2.test.js:135-153` 校验该规则；虽只禁 `background` / `border`，但改本体属动既有契约）⇒ 一律落在**新修饰类 `.sf-item-cta`**。
+
+### 19.5 `T94` 展开 · 本轮渲染面 / 不渲染面 + 将来接入的挂点建议（**不改本轮代码**）
+
+**渲染面（收窄 · 白名单）**：① 价格行（大号价格 + 单位小字）② 大标题 ③ 详情面板（渐变占位图 + 描述 + 库存 + 数量输入）④ 底部固定操作栏（**仅「立即购买」一个 CTA**）⑤ 页面内顶栏返回箭头 ⑥ **既存** `.sf-item-note`（`物品编号 #{id} · {状态}` —— **有数据承载（id + status），且 `p7e-tails-beta` 硬断言锚定，必须保留**）。
+
+**不渲染面（本轮）** + **将来接入的挂点建议**：
+
+| 不渲染槽位 | 不渲染理由 | 将来接入建议挂点（**本轮不实现**） | 依赖 |
+|---|---|---|---|
+| 卖家信息行（头像 / 昵称 / 信用标 / 来过·城市） | 数据面无 owner/seller | `.sf-item-seller`（`data-sf-m="item-seller"`）；昵称 / 头像 / 信用 / 城市各一子槽；信用标 = 既有 `.sf-tag` | `GET /api/prize/:bID` 增 owner / seller 字段（后端另单） |
+| 属性两列（品牌 / 成色） | 无 brand / condition 字段 | `.sf-item-attr`（`<dl>` 两列）；键值用既有 `.sf-item-label` / `.sf-item-meta` | 后端字段 |
+| 集市横幅 | 无数据承载 / 无功能；**且底色冲突**（本站页底色 = 亮黄） | `.sf-item-promo` | 运营位（运营另单） |
+| 划线原价 / 「比市场价低」 | 无 market 原价字段 | `.sf-item-price-orig` | 后端原价字段 |
+| 包邮标 / 黄底荧光标签 | 无运费 / 成色字段 | 既有 `.sf-tag` 修饰 | 后端字段 |
+| 想要 / 浏览计数 | `T94` ④ = 功能另单 | `.sf-item-stats` | 计数服务（另单） |
+| 留言（商品评论） | 另单 | **底部操作栏第 1 格**（本轮 CTA 的左侧槽位预留） | 评论服务（另单） |
+| 收藏 | 另单 | **底部操作栏第 2 格**（CTA 左侧槽位） | 收藏服务（另单） |
+| 聊一聊 | **改接 Telegram**（站内信 vs 站外信**待裁**，§19.11）；原「接推特 X」作废 | **底部操作栏第 3 格**（CTA 左侧槽位） | Telegram 接驳（另单） |
+
+> **槽位预留口径**：底部操作栏按「**N 格 CTA 区 + 主 CTA**」的**单行 flex**结构落；本轮 **N = 0**（**无数据承载的元素一律不渲染**）⇒ **不预埋空槽位 DOM**（承「不造无人消费的空路径」）。将来接格时**只加子节点、不改布局契约**。
+
+### 19.6 受影响硬断言清单 + 前移方案（**现取重锚** · 逐条）
+
+> **总判**：本单**零 i18n 键、零主题 token、`shell.css` 零改动、路由零改动、DOM 零移除** ⇒ **下列既有硬断言**中**绝大多数零改锚**；须由 Kong **保持**的「契约型」条目单列「改法 = 保持」。
+
+| # | 文件 : 行（**现取**） | 断言内容 | 改法 / 前移 |
+|---|---|---|---|
+| 1 | `theme-shell-isomorphism.test.jsx:80-81` | `regions == ['shell','topnav','content','footer','tabbar']` | **保持**（`T95` 选「DOM 恒在」）⇒ **零改锚**；**约束**：禁止 DOM 移除底栏 |
+| 2 | `theme-shell-isomorphism.test.jsx:89` | 底栏 `a[data-sf-nav]` == `visibleNavItems(false).map(i=>i.key)` | **保持** ⇒ 零改锚 |
+| 3 | `theme-shell-isomorphism.test.jsx:106-107` | 五项 href（含 `/item/new`） | **保持** ⇒ 零改锚 |
+| 4 | `theme-shell-isomorphism.test.jsx:120-122` | 未登录 / 登录后 tabs key 集 | **保持** ⇒ 零改锚 |
+| 5 | `theme-shell-isomorphism.test.jsx:205-213` | `src/shell/**` / `src/theme/**` 的 JS 无 `matchMedia` / `innerWidth` / `clientWidth` / `offsetWidth` … | **保持** ⇒ `BottomTabBar.jsx` 新增的**只准**是路由串匹配（`stripLangPrefix` + 正则），**不得**借机引入任何宽度判定 |
+| 6 | `theme-shell-isomorphism.test.jsx:216-226` | `shell.css` 唯一 `@media`（767）· `mobileBlock` 含 `.sf-tabbar` + `display: grid` · `widePart` 匹配 `.sf-tabbar{…display: none` | **保持**（`T95` 的 CSS 落 `styles.css`，**`shell.css` 一字不动**）⇒ 零改锚 |
+| 7 | `v15-nav-floatmenu.test.jsx:228` / `:109` | `regions` 同 #1 / 底栏 `a[data-sf-nav]` | **保持** ⇒ 零改锚 |
+| 8 | `p7e-tails-beta.test.jsx:72, 85-115` | `.sf-item-note` 元素存在 · `data-sf-status` · `title` · 文本含 `#{id}` 且**缺省时 `endsWith('-')`** · 未知枚举走四语兜底且**原值不进用户面** | **保持（契约）**：新布局**必须**保留 `.sf-item-note`（含类名 / `data-sf-status` / `title` / `#{id} · {状态}` 文案格式），**置于大标题之下作副行**；**判负**：整块删或改类名 ⇒ 本文件 ① 三例全红 |
+| 9 | `listing-market.test.jsx:161, 169` | 详情空态 `t('item.empty')` 渲染（`screen.getByText('item.empty')` + 路由挂载） | **保持**：空态路径（`detail.phase !== 'ok'`）**必须**仍渲染 `item.empty` 文案 |
+| 10 | `p6-btn-impl2.test.js:71-84` | 家族清单 **11 个 JSX**（含 `pages/item/ItemDetailPage.jsx`）+ `totalUses ≥ 22` + 每处命中含 `\bsf-btn\b` | **保持**：详情页 CTA **必须**保留 `sf-btn` 基类（去刷新按钮后 ItemDetailPage 的 `sf-btn` 命中由 2 降 1，**仍 ≥1** ⇒ 文件仍在清单内） |
+| 11 | `p6-btn-impl2.test.js:135-153` | `.sf-item-btn` 规则：`min-height: var(--sf-l-ctl-h)` · `padding: 8px var(--sf-st-padx-btna)` · `cursor: pointer` · **不得含** `background` / `border`；`--sf-l-ctl-h` 声明值 == `STRUCT['h-btna']`（**34px**） | **保持（一字不动）**：新形状走**新修饰类 `.sf-item-cta`**；`--sf-l-ctl-h` 的 `34px` 基准 + `767` 块内 `44px` 覆盖**均不动** |
+| 12 | `p6-btn-impl2.test.js:196-214` | 旧 token `--sf-(btn\|btnsm)-*` 的 `var()` 引用全仓 = 0 | **保持**：新 CSS **只用** `--sf-btna-*` / `--sf-st-*` / `--sf-l-*`；**严禁** `--sf-btn-*` |
+| 13 | `p6-btn-impl2.test.js:~226` | 家族 CSS 选择器无 `[data-theme` / `theme-(day\|night)` | **保持**：新 CSS 用常量变量表达两档，**不写主题选择器** |
+| 14 | `i18n-content-wiring.test.jsx:248-262` | `WIRED` 含 `pages/item/ItemDetailPage.jsx` 且文件含 `i18n-content` 且无 `_(en\|hk\|vn)\s*\?\?` | **保持**：`import { contentStatus, pickLocalized } from '../../i18n-content'` **逐字保留**；多语取值一律 `\|\|` 链 |
+| 15 | i18n 计数断言 **12 文件**（§19.7 列名） | `top 122` / `flat 1045` / `节点 4180` | **零改锚**（**本轮零新增键** ⇒ 计数逐字不变） |
+| 16 | `theme-tokens.test.js`（`TOKEN_KEYS ≥ 100` / 日/夜差异键 > 90 / PROV 回读） | token 层不变 | **零改锚**（零新 token） |
+| 17 | `i18n-violation-closeout.test.jsx:②`（脚本 `p4z-i18nviol-global.mjs`） | 全量源面 · locale 节点 4180 · 裸命中 0 | **零改锚**；**约束**：`ItemDetailPage.jsx` / `item.css` 新增注释**不得**出现「`/*` 收尾的路径字面」（吞码，见 `N39` / §19.9） |
+| 18 | `s8-locale-key-coverage.test.js` / `s9-ledger-kind-closure.test.js` | 键计数 + 检测器自证 | **零改锚** |
+| 19 | `app-routes.test.jsx` / `route-exchange-rename.test.jsx` / `listing-publish-redirect.test.jsx:67` | 路由面 / 其自设 probe（`item-detail-probe`，**非本组件**） | **零改锚**（本单不改路由） |
+
+> **须由 Kong 在实现轮**顺带核的两条「契约型」：`p6-btn-impl2` 家族清单（#10）与 `.sf-item-btn` 规则（#11）——**若实现把 CTA 单独改用新类并删掉 `.sf-item-btn` 规则本体 ⇒ 立刻红**。
+
+### 19.7 i18n（**本轮零新增 / 零删除**）
+
+| 项 | 口径 |
+|---|---|
+| 新增键 | **0**（返回箭头 a11y 名**复用既有键** `item.list`；CTA 文案**复用既有键** `item.buy` = zh「立即购买」/ en「Buy Now」/ hk「立即購買」/ vn「Mua ngay」；状态 / 库存 / 数量 / 描述键**全部既有**） |
+| 删除键 | **0**（`item.refresh` 键**保留**；见下「登记」） |
+| 键集 | **顶层 122 / 拍平 1045 / 四语节点 4180 —— 逐字不变**（与 §19.1 现取基线同） |
+| 四语同补 | **不适用**（零新增 ⇒ 无「漏补某语」风险） |
+| **登记（键卫生）** | 去刷新按钮后 **`item.refresh` 暂无常驻消费点**（原唯一消费 = `ItemDetailPage.jsx:111`）。**判定 = 保留键、非死键清理对象**（理由：① 无任何断言强制「零死键」；② 刷新属**可恢复的产品动作**，将来接入详情面板头部即可复用；③ 强删会牵动 `i18n-violation-closeout` 改写集与计数面，收益为零）。**挂账**：若 Kevin 明确「详情页永久不要刷新」⇒ 下一轮按 `F13` 体例（四语同删 + 计数前推）处理。 |
+
+> **★ 硬门复述**：**四语键集逐文件相同**是硬门；本单零改动 ⇒ 该门**自动维持**。**若实现轮违反「零新增」多补了任一键 ⇒ §19.6 #15 的 12 个计数断言会集体红**（且须四语同补，否则渲染裸键名）。
+
+### 19.8 归因式 AC（`T96` / `T97` 展开 · **不用元素白名单**）
+
+**AC-1（详情页渲染面）**：`/item/:id`（四语前缀各一次）上，**可见**元素集合**逐项等于** §19.5「渲染面」六项之并集；**差集 = 0**。**判负**：出现 §19.5「不渲染面」任一项可见元素 ⇒ 判负。
+
+**AC-2（入口不丢失 · 归因式）**：详情页（`/item/:id` + 四语前缀 + `/item?id=` 兼容档）上：① **存在且仅存在一个**页内返回入口 `.sf-item-back`，其 `href ∈ {'/', '/zh/', '/en/', '/hk/', '/vn/'}`（= `root('/')`）；② 该入口**可见且可点**（`display ≠ none`、`rect` 非 `0×0`）；③ **可达路由差集 = 0**：底栏隐藏后，`/item/:id` 上「可达的对外路由集合」经 `返回箭头 → 首页 → 底栏 5 目标` **不减少**（即被隐藏的 5 个目标仍全部可达）。**判负**：任一 target 不可达 ⇒ 功能回归。
+
+**AC-3（「只改详情页」的归因式判据）**：**非详情页**（`/`、`/item/new`、`/exchange`、`/messages`、`/profile`、四语前缀档）的 DOM 签名与几何**差异集 = 0**（改前 vs 改后，同脚本对拍）。**允许变更集（详情页）** = 具名枚举：**(i)** 详情页渲染面变更（§19.5 六项 + 删除的占位）· **(ii)** `/item/:id` 上底栏 `display:none` 引起的**该页**文档高度 / 后续元素 y 位移 · **(iii)** 新增页面局部结构常量（§19.4 末表）引起的字号 / 高度位移。**反事实归因实验**：只在测量期恢复 `.sf-tabbar{display:grid}`（不动仓库）⇒ 差异集里 **(ii)** 类条目**必须消失**，其余不变（即 (ii) 类**确实**只归因于底栏隐藏）。**判据**：差异集 ⊆ {(i),(ii),(iii)}，且反事实回退后「仅归因有 / 仅基线有」**均为空**。**不得**用元素白名单替代。
+
+**AC-4（触控与字号）**：≤767 档：返回箭头 ≥44×44（`.sf-tap-sq`）· CTA `min-height ≥ 44`（`--sf-l-ctl-h` 覆盖）· **所有可见文本 ≥12px**。>767 档：`--sf-l-ctl-h` 仍 34px（桌面 `p6-btn-impl2` 冻结值，**不得**连带抬高）。
+
+**AC-5（桌面档行为 · `T97`）**：`>767` 档：`.sf-item-actionbar` **不出 `fixed`**（`position: static`，在内容流内）· 底栏仍 `display:none`（既有）· 详情页导航不受本裁定影响。**判负**：桌面详情页操作栏 `position: fixed` ⇒ 判负。
+
+**AC-6（主题同构不破）**：详情页在日 / 夜两档下，**几何（rect）逐值相等**（一切新增几何量取结构常量 / 页面局部常量，两档同值）；新增 CSS **无** `[data-theme` 选择器、**无** per-theme 颜色字面量。
+
+### 19.9 新增可复用教训（`N39` / `N40` · 承 `N32`–`N38`）
+
+- **`N39`（承接 `N35`）**：**在页面源文件 / CSS 的新增注释里，「`/*` 收尾的路径字面」是禁写项 —— 它就是本仓审计脚本吞码的引信。** 机制：`frontend/scripts/p4z-i18nviol-global.mjs` 的 `codeOf()` 用**非贪婪**正则剥块注释 ⇒ 注释里出现 `/api/xxx/*` 这类**以 `/*` 结尾的路径字面**，剥注释器会把那个 `/*` 当**块注释起点**、**静默吃掉后面约 3 KB 代码** ⇒ 该脚本报的「违例 0」是**假绿**（实测最严重一处从 `App.jsx:16` 起吞掉 16–76 行，含全部路由定义）。**定式**：注释里改写成 `/api/xxx/…` 或 `/api/<name>`；**不得去改剥离逻辑**。**本单适用面**：`ItemDetailPage.jsx`（本轮要在此加注释）与 `item.css`。**自证**：改完全仓复扫并核「脚本报的四语节点数 = 拍平键数 × 4 = `1045 × 4 = 4180`」——**数与冻结断言对不上时，先怀疑吞码，不要先改断言值**。
+- **`N40`（新 · 页面级隐藏共享外壳元素的口径）**：**当某页面需要隐藏一个「由外壳渲染、且被同构硬断言锚定 DOM 恒在」的共享元素时，正解 = 该元素恒在 DOM + 由页面路由条件挂一个修饰类 + 隐藏规则落「全局 CSS 顶层」** —— 三件缺一不可：① **DOM 不移除**（保住「同构 ⇒ DOM 恒在」这块硬核与五 region 断言）；② **状态挂点选在那个已持有路由信息的组件**（本单 = `BottomTabBar.jsx` 已有 `useLocation()`；**只准路由串匹配，不得借机引入宽度判定** —— 撞外壳 `matchMedia`/`innerWidth` 硬断言）；③ **CSS 落点避开带断言的外壳文件**（`shell.css` 挂「唯一 767 断点块 + 无 `[data-theme]`」双边断言）⇒ 落 `src/styles.css` **顶层**（不入 `@layer`、不入 `@media`），并**靠具体性**（`.sf-tabbar.is-detail` = (0,2,0) ＞ `.sf-tabbar` = (0,1,0)）压过断点块内的可见性翻转。**反例代价**：DOM 移除 ⇒ 6 处同构断言集体红、且拆掉同构判据的第一性证据。
+
+### 19.10 留痕（**取代 · 仅限详情页** · 旧措词逐字保留）
+
+- **被本裁定收窄的旧口径**：`T46` / `T80`（v1.5 §14）**「底栏（H5）恒 5 格」**。**本单 `T95` 就地收窄** = **`/item/:id` 详情页隐藏底栏**；**其余页面 tabbar 照旧（恒 5 格）**。**旧行原文一字未改**（`T46` / `T80` 行内字面保留）。**取代范围 = `T80` 的「恒 5 格」在 `/item/:id` 上失效；`T80` 的五项集合 / 图标 / 目标 / 可见性规则在其余页面**逐字不变**。
+- **`T86`（汉堡去重）不受影响**：`T86` 口径基于**底栏目标集**（route 面 = `/`、`/exchange`、`/item/new`、`/messages`、`/profile`）—— 本单**不改集合**（只是详情页不显示底栏）⇒ **`MOBILE_PANEL_EXCLUDED_PATHS = ['exchange']` 逐字不变**。
+- **`T75`（底部安全区）复刻**：操作栏 `padding-bottom: env(safe-area-inset-bottom)` 与 `.sf-tabbar` **同形复刻**（`T75` 冻结的 `viewport-fit=cover` 前提不变）。**详情页上底栏隐藏 ⇒ 两处安全区不叠加**（同一时刻只有一个承担底部安全区）。
+
+### 19.11 待裁项（**不得自选** · 交 Kevin 拍板）
+
+| # | 待裁 | 变体 | 代价 |
+|---|---|---|---|
+| **Q1** | **「聊一聊」= 站内信 vs 站外信** | **(a) 站内信**（复用 `MessagesPage` / 站内私信链路）· **(b) 站外信 = Telegram**（新开外链 / 新接驳层，原「接推特 X」计划作废）· **(c) 站内 + Settings 引导绑 Telegram**（两段式） | (a) 成本 S，但需后端私信链路；(b) 成本 M（外链即离开本站，**可达性 / 隐私 / 归因**三处要重定）；(c) 成本 M+，体验最完整。**本轮一律不渲染**（三选一都不影响本轮） |
+| **Q2** | **CTA 胶囊圆角** | **(a) 全圆胶囊** = `--sf-st-radius-pill`（`999px`，**本册默认，照参考图**）· **(b) 家族一致** = `--sf-st-radius-btna`（`8px`，遵 §P6-UI-CONSIST-B） | (a) 与参考图一致，但**页面局部偏离按钮家族形状语言**；(b) 家族一致，但与参考图观感有差。**两者皆零新 token**，一句话可改 |
+| **Q3** | **详情页大号价格字号** | **(a) 28px**（本册默认）· **(b) 32px**（更贴参考图比例） | 字号越大越贴参考图，但窄屏（320）长价串有换行风险 ⇒ (b) 须补 `320` 档零横向溢出读数 |
+
+### 19.12 未核实 / 登记（诚实清单）
+
+- **本单只写 `docs/**`**：未动 `frontend/**` / `tools/**` / `ctrl/**`；**未启停任何服务**（绝不 `pm2 restart`）；**未 `git add -A` · 未 commit · 未 push**。
+- **实现 / 验收面归 Kong**：`BottomTabBar.jsx` 的 `is-detail` 类 · `styles.css` 的一行隐藏规则 · `ItemDetailPage.jsx` 的渲染面收窄 · `item.css` 的页面局部常量与操作栏 —— **全部 NOT_IMPLEMENTED**（本册只冻口径）。
+- **几何 / 触控 / 归因读数 = NOT_MEASURED**（本单未起实例、未开浏览器）⇒ §19.8 六条 AC 的**实测**归 Kong / Neng。
+- **真机面**：操作栏 `env(safe-area-inset-bottom)` 与底栏隐藏后的底部视觉在**真机 vs 设备档**的差异属已知保真度缺口（`frontend-parity-acceptance`「设备档 ≠ 真机」）⇒ 真机由 Kevin / Kong 验；`env()` 在设备档恒 0。
+- **姊妹册同步（**待办 · 交回 Zang**）**：本单**不改路由**，故 `docs/route-layer.spec.md` **本轮无需改**；**若 Kevin 后续裁定「聊一聊 = 站外 Telegram 外链」**，则会**新增一个对外链接面** ⇒ 届时须在 route 册登记（**本册不代改，列成待办交回**）。
+- **`docs/seafood.master-plan.md`（台账）与 `docs/OPEN-ITEMS.md`（挂账）** —— 依角色边界**本册不改**（台账归 Zang）；建议 Zang 追加一节并登记本单（`T94`–`T99` / `N39`–`N40` / `Q1`–`Q3` 待裁）。
 
 
 
