@@ -501,6 +501,7 @@
    "smallText": [],
    "tapCountRaw": 24,
    "tapCountUnique": 12,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": [
     {
@@ -513,15 +514,16 @@
    ]
   },
   "320/zh//messages?c=18": {
-   "nodes": 78,
-   "geoHashLight": "54c01dc8426656cf09daed4d5da00d78674d2227a54a60270c5a91cd851bc7ae",
-   "geoHashDark": "54c01dc8426656cf09daed4d5da00d78674d2227a54a60270c5a91cd851bc7ae",
+   "nodes": 82,
+   "geoHashLight": "facb1e333d7979f0345896e7aa0ac16a04094ed6874588ba97bc04ba815f175e",
+   "geoHashDark": "facb1e333d7979f0345896e7aa0ac16a04094ed6874588ba97bc04ba815f175e",
    "geoEqual": true,
    "minFontPx": 12,
    "minTextBoxH": 14,
    "smallText": [],
    "tapCountRaw": 32,
    "tapCountUnique": 16,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": [
     {
@@ -543,6 +545,7 @@
    "smallText": [],
    "tapCountRaw": 24,
    "tapCountUnique": 12,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": [
     {
@@ -555,15 +558,16 @@
    ]
   },
   "320/en//en/messages?c=18": {
-   "nodes": 78,
-   "geoHashLight": "7dca834b8337c42e23f2b0188d7782e7ed848b93e705a55b8b66e7e94c331ffa",
-   "geoHashDark": "3aef8cfc53fdc29792f41a41308aad54b2bea144dd057bcdd2f0f8566b7432a7",
-   "geoEqual": false,
+   "nodes": 82,
+   "geoHashLight": "29689c863c31b4c1941245e241b7669eaa61cf5541e744376fa36944f6821782",
+   "geoHashDark": "29689c863c31b4c1941245e241b7669eaa61cf5541e744376fa36944f6821782",
+   "geoEqual": true,
    "minFontPx": 12,
    "minTextBoxH": 14,
    "smallText": [],
    "tapCountRaw": 32,
    "tapCountUnique": 16,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": [
     {
@@ -585,6 +589,7 @@
    "smallText": [],
    "tapCountRaw": 24,
    "tapCountUnique": 12,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": [
     {
@@ -597,15 +602,16 @@
    ]
   },
   "320/hk//hk/messages?c=18": {
-   "nodes": 78,
-   "geoHashLight": "41a73a046eaaa0dd0cbf601a9238d6a50fc98c497b41dc4a4d6c97fbfa7a89a1",
-   "geoHashDark": "41a73a046eaaa0dd0cbf601a9238d6a50fc98c497b41dc4a4d6c97fbfa7a89a1",
+   "nodes": 82,
+   "geoHashLight": "30093ee3e4fc3bf2b872d97439623252d4b36e08b5dfdcdb63b56883cd5290fe",
+   "geoHashDark": "30093ee3e4fc3bf2b872d97439623252d4b36e08b5dfdcdb63b56883cd5290fe",
    "geoEqual": true,
    "minFontPx": 12,
    "minTextBoxH": 14,
    "smallText": [],
    "tapCountRaw": 32,
    "tapCountUnique": 16,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": [
     {
@@ -627,6 +633,7 @@
    "smallText": [],
    "tapCountRaw": 24,
    "tapCountUnique": 12,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": [
     {
@@ -639,15 +646,16 @@
    ]
   },
   "320/vn//vn/messages?c=18": {
-   "nodes": 78,
-   "geoHashLight": "649e0e584f69f791721082e949f574f24c03d350c7576cc6b610a25b7d8f8d8e",
-   "geoHashDark": "649e0e584f69f791721082e949f574f24c03d350c7576cc6b610a25b7d8f8d8e",
+   "nodes": 82,
+   "geoHashLight": "482da1d642b8b1e1c1d6365f2d6dcb1362d01eeb0400a96d4d2e1ae8b5ac8dd4",
+   "geoHashDark": "482da1d642b8b1e1c1d6365f2d6dcb1362d01eeb0400a96d4d2e1ae8b5ac8dd4",
    "geoEqual": true,
    "minFontPx": 12,
    "minTextBoxH": 14,
    "smallText": [],
    "tapCountRaw": 32,
    "tapCountUnique": 16,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": [
     {
@@ -669,6 +677,7 @@
    "smallText": [],
    "tapCountRaw": 24,
    "tapCountUnique": 12,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": [
     {
@@ -681,15 +690,16 @@
    ]
   },
   "390/zh//messages?c=18": {
-   "nodes": 78,
-   "geoHashLight": "c909e2eb40acd2dd818bcf8b76fea450027db5ab15b7c5fb269495d9445af1be",
-   "geoHashDark": "3514ab8be185036f13b123332904ca8569d163afb66dc6683e0fa8d3408f5db7",
-   "geoEqual": false,
+   "nodes": 82,
+   "geoHashLight": "c0014b6b23481fb9b229a68c9ae0de48e56896e30df56d63fc678089d03a24a2",
+   "geoHashDark": "c0014b6b23481fb9b229a68c9ae0de48e56896e30df56d63fc678089d03a24a2",
+   "geoEqual": true,
    "minFontPx": 12,
    "minTextBoxH": 14,
    "smallText": [],
    "tapCountRaw": 32,
    "tapCountUnique": 16,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": [
     {
@@ -702,15 +712,16 @@
    ]
   },
   "390/en//en/item/19": {
-   "nodes": 47,
-   "geoHashLight": "c206f063a4fc1f8eba95507ec296a6783f5f5e58560963899d52ec25c168ad2d",
+   "nodes": 70,
+   "geoHashLight": "794ce5b1b7e2f35a6387e135db6da186d81c046573f871415763a81e09345dd3",
    "geoHashDark": "794ce5b1b7e2f35a6387e135db6da186d81c046573f871415763a81e09345dd3",
-   "geoEqual": false,
+   "geoEqual": true,
    "minFontPx": 12,
    "minTextBoxH": 14,
    "smallText": [],
-   "tapCountRaw": 21,
+   "tapCountRaw": 24,
    "tapCountUnique": 12,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": [
     {
@@ -723,15 +734,16 @@
    ]
   },
   "390/en//en/messages?c=18": {
-   "nodes": 78,
-   "geoHashLight": "ccbdfcbc3c604e753af725f3926fa06925a91a3a6003ce0272a48213e4ee77f3",
-   "geoHashDark": "ccbdfcbc3c604e753af725f3926fa06925a91a3a6003ce0272a48213e4ee77f3",
+   "nodes": 82,
+   "geoHashLight": "1fc014bb29544ae67ec77702a0f3ac6e35a56c6c72ebbda3f8f94339f23a34d8",
+   "geoHashDark": "1fc014bb29544ae67ec77702a0f3ac6e35a56c6c72ebbda3f8f94339f23a34d8",
    "geoEqual": true,
    "minFontPx": 12,
    "minTextBoxH": 14,
    "smallText": [],
    "tapCountRaw": 32,
    "tapCountUnique": 16,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": [
     {
@@ -753,6 +765,7 @@
    "smallText": [],
    "tapCountRaw": 24,
    "tapCountUnique": 12,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": [
     {
@@ -765,15 +778,16 @@
    ]
   },
   "390/hk//hk/messages?c=18": {
-   "nodes": 78,
-   "geoHashLight": "3eed18aa7d5abaa64d165bb29d9d2ba55decc9bbfd0d9f61cb1a5c64548faa9a",
-   "geoHashDark": "0e637ef535585b80143188889c18fdf12062ac36c1fdd0f49ae585a91b01697c",
-   "geoEqual": false,
+   "nodes": 82,
+   "geoHashLight": "3b02eb86b5430dfed1414541f52f8326dc2bedb7657b5c0e1ed49ff930ddafd7",
+   "geoHashDark": "3b02eb86b5430dfed1414541f52f8326dc2bedb7657b5c0e1ed49ff930ddafd7",
+   "geoEqual": true,
    "minFontPx": 12,
    "minTextBoxH": 14,
    "smallText": [],
    "tapCountRaw": 32,
    "tapCountUnique": 16,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": [
     {
@@ -787,14 +801,15 @@
   },
   "390/vn//vn/item/19": {
    "nodes": 70,
-   "geoHashLight": "427425db865dd0f3999305fbb0ce31b2c23c67547920925487db1f2b0966898d",
-   "geoHashDark": "427425db865dd0f3999305fbb0ce31b2c23c67547920925487db1f2b0966898d",
+   "geoHashLight": "f65e18d6e4f48a65344a06e3977d3788479e333c1b0ebf993e76e751fc7525aa",
+   "geoHashDark": "f65e18d6e4f48a65344a06e3977d3788479e333c1b0ebf993e76e751fc7525aa",
    "geoEqual": true,
    "minFontPx": 12,
    "minTextBoxH": 14,
    "smallText": [],
    "tapCountRaw": 24,
    "tapCountUnique": 12,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": [
     {
@@ -807,15 +822,16 @@
    ]
   },
   "390/vn//vn/messages?c=18": {
-   "nodes": 78,
-   "geoHashLight": "5a0b6abd3875ba62178b8a9f5932ebfc4ddfa06c78653531414c057ad3a20ae9",
-   "geoHashDark": "5a0b6abd3875ba62178b8a9f5932ebfc4ddfa06c78653531414c057ad3a20ae9",
+   "nodes": 82,
+   "geoHashLight": "bd91dd0ddee140a67a91efe1ddf7c0b58a589ba52b339761cbe6b8b9b3ae9929",
+   "geoHashDark": "bd91dd0ddee140a67a91efe1ddf7c0b58a589ba52b339761cbe6b8b9b3ae9929",
    "geoEqual": true,
    "minFontPx": 12,
    "minTextBoxH": 14,
    "smallText": [],
    "tapCountRaw": 32,
    "tapCountUnique": 16,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": [
     {
@@ -828,106 +844,114 @@
    ]
   },
   "1440/zh//item/19": {
-   "nodes": 111,
-   "geoHashLight": "6f02b3da5d5775a53ebcfd90c5e9745b0c8b5da499e487a9382555d9624c0c33",
-   "geoHashDark": "6f02b3da5d5775a53ebcfd90c5e9745b0c8b5da499e487a9382555d9624c0c33",
+   "nodes": 110,
+   "geoHashLight": "46d73acad128d899958fb694a017652f16703fed2b8eb6331a557c9eaa425c0e",
+   "geoHashDark": "46d73acad128d899958fb694a017652f16703fed2b8eb6331a557c9eaa425c0e",
    "geoEqual": true,
    "minFontPx": 12,
    "minTextBoxH": 14,
    "smallText": [],
    "tapCountRaw": 0,
    "tapCountUnique": 0,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": []
   },
   "1440/zh//messages?c=18": {
-   "nodes": 91,
-   "geoHashLight": "2493698ae72616a2bc7619646e3b9351fe80348e3e0b8aa8545d53db1288432c",
-   "geoHashDark": "2493698ae72616a2bc7619646e3b9351fe80348e3e0b8aa8545d53db1288432c",
+   "nodes": 95,
+   "geoHashLight": "224df5ef3f0191e4f034de6e3aebbe9401ef2171c91b814aec704cbf608d92cb",
+   "geoHashDark": "224df5ef3f0191e4f034de6e3aebbe9401ef2171c91b814aec704cbf608d92cb",
    "geoEqual": true,
    "minFontPx": 12,
    "minTextBoxH": 14,
    "smallText": [],
    "tapCountRaw": 0,
    "tapCountUnique": 0,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": []
   },
   "1440/en//en/item/19": {
-   "nodes": 111,
-   "geoHashLight": "645fe0a5abff6b659bed845b0a4a834750170a40837a19ca8f0ad720f1bda8f5",
-   "geoHashDark": "645fe0a5abff6b659bed845b0a4a834750170a40837a19ca8f0ad720f1bda8f5",
+   "nodes": 110,
+   "geoHashLight": "f308fbdc595323fc764a945f6746053ff48535ce78a70b644f7f54d45cdfb3a0",
+   "geoHashDark": "f308fbdc595323fc764a945f6746053ff48535ce78a70b644f7f54d45cdfb3a0",
    "geoEqual": true,
    "minFontPx": 12,
    "minTextBoxH": 14,
    "smallText": [],
    "tapCountRaw": 0,
    "tapCountUnique": 0,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": []
   },
   "1440/en//en/messages?c=18": {
-   "nodes": 91,
-   "geoHashLight": "5f37a4ec8399aa910b1222bff2e765a138dbdc57f224bf7876d2c862ba0f6793",
-   "geoHashDark": "5f37a4ec8399aa910b1222bff2e765a138dbdc57f224bf7876d2c862ba0f6793",
+   "nodes": 95,
+   "geoHashLight": "f33ea9a14d21cb7b229d9b759287ec671360c86509c8f601be4e2084d0ddb19b",
+   "geoHashDark": "f33ea9a14d21cb7b229d9b759287ec671360c86509c8f601be4e2084d0ddb19b",
    "geoEqual": true,
    "minFontPx": 12,
    "minTextBoxH": 14,
    "smallText": [],
    "tapCountRaw": 0,
    "tapCountUnique": 0,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": []
   },
   "1440/hk//hk/item/19": {
-   "nodes": 111,
-   "geoHashLight": "4051bda9f5bcaf1cc5c4273eae1c9f20c725b364dc8683667a0bbd844a8fbcff",
-   "geoHashDark": "4051bda9f5bcaf1cc5c4273eae1c9f20c725b364dc8683667a0bbd844a8fbcff",
+   "nodes": 110,
+   "geoHashLight": "f4de2ea55016471c5d4ecdeca83a3bd12287ab15702afaa2845ad1481cb05a3d",
+   "geoHashDark": "f4de2ea55016471c5d4ecdeca83a3bd12287ab15702afaa2845ad1481cb05a3d",
    "geoEqual": true,
    "minFontPx": 12,
    "minTextBoxH": 14,
    "smallText": [],
    "tapCountRaw": 0,
    "tapCountUnique": 0,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": []
   },
   "1440/hk//hk/messages?c=18": {
-   "nodes": 91,
-   "geoHashLight": "381ad9cfe2c63ee92e18c159ff7e96c26e8be9c5142baa072cd6126fd92c4389",
-   "geoHashDark": "1c0e5d0e5274e446c8891f74f6abe4ab31cc04d5e79436f4ee1d9eaba663510f",
-   "geoEqual": false,
+   "nodes": 95,
+   "geoHashLight": "d474546a35fe33ce8ee456a8272ae2f56702e5d11424f3c3be7c690410b38d9d",
+   "geoHashDark": "d474546a35fe33ce8ee456a8272ae2f56702e5d11424f3c3be7c690410b38d9d",
+   "geoEqual": true,
    "minFontPx": 12,
    "minTextBoxH": 14,
    "smallText": [],
    "tapCountRaw": 0,
    "tapCountUnique": 0,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": []
   },
   "1440/vn//vn/item/19": {
-   "nodes": 111,
-   "geoHashLight": "2e732d6440a9b61e8270e3a6ef8dcd58f8c49f5f747f925118e99caa142d0eca",
-   "geoHashDark": "2e732d6440a9b61e8270e3a6ef8dcd58f8c49f5f747f925118e99caa142d0eca",
+   "nodes": 110,
+   "geoHashLight": "ea7a0d0ac06074f33a971109bf5ec4ae58f8c866e52a6091b5ba7ac186013c3b",
+   "geoHashDark": "ea7a0d0ac06074f33a971109bf5ec4ae58f8c866e52a6091b5ba7ac186013c3b",
    "geoEqual": true,
    "minFontPx": 12,
    "minTextBoxH": 14,
    "smallText": [],
    "tapCountRaw": 0,
    "tapCountUnique": 0,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": []
   },
   "1440/vn//vn/messages?c=18": {
-   "nodes": 93,
-   "geoHashLight": "b091cee7ec91f156b77ee6f7c255f234174994af416dcc6d93834ce8e34e16c0",
-   "geoHashDark": "b091cee7ec91f156b77ee6f7c255f234174994af416dcc6d93834ce8e34e16c0",
+   "nodes": 95,
+   "geoHashLight": "86ac18208a1b7df317a777525e8739ed0a09602583cdded9aedb3784341c64f7",
+   "geoHashDark": "86ac18208a1b7df317a777525e8739ed0a09602583cdded9aedb3784341c64f7",
    "geoEqual": true,
    "minFontPx": 12,
    "minTextBoxH": 14,
    "smallText": [],
    "tapCountRaw": 0,
    "tapCountUnique": 0,
+   "threadRetries": 0,
    "under44": [],
    "under44Existing": []
   }
@@ -935,13 +959,7 @@
  "verdicts": {
   "ac4": [],
   "ac5": [],
-  "ac6": [
-   "AC6【判负】320/en//en/messages?c=18: 日/夜几何 hash 不同（7dca834b8337c42e23f2b0188d7782e7ed848b93e705a55b8b66e7e94c331ffa vs 3aef8cfc53fdc29792f41a41308aad54b2bea144dd057bcdd2f0f8566b7432a7）",
-   "AC6【判负】390/zh//messages?c=18: 日/夜几何 hash 不同（c909e2eb40acd2dd818bcf8b76fea450027db5ab15b7c5fb269495d9445af1be vs 3514ab8be185036f13b123332904ca8569d163afb66dc6683e0fa8d3408f5db7）",
-   "AC6【判负】390/en//en/item/19: 日/夜几何 hash 不同（c206f063a4fc1f8eba95507ec296a6783f5f5e58560963899d52ec25c168ad2d vs 794ce5b1b7e2f35a6387e135db6da186d81c046573f871415763a81e09345dd3）",
-   "AC6【判负】390/hk//hk/messages?c=18: 日/夜几何 hash 不同（3eed18aa7d5abaa64d165bb29d9d2ba55decc9bbfd0d9f61cb1a5c64548faa9a vs 0e637ef535585b80143188889c18fdf12062ac36c1fdd0f49ae585a91b01697c）",
-   "AC6【判负】1440/hk//hk/messages?c=18: 日/夜几何 hash 不同（381ad9cfe2c63ee92e18c159ff7e96c26e8be9c5142baa072cd6126fd92c4389 vs 1c0e5d0e5274e446c8891f74f6abe4ab31cc04d5e79436f4ee1d9eaba663510f）"
-  ]
+  "ac6": []
  },
- "verdict": "FAIL"
+ "verdict": "PASS"
 }

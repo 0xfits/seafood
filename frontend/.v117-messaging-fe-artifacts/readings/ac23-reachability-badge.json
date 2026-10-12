@@ -127,11 +127,11 @@
    "zh": {
     "pageHooks": 1,
     "placeholderHooks": 0,
-    "listHook": 1,
+    "listHook": 0,
     "listEmptyHook": 0,
-    "convRows": 1,
+    "convRows": 0,
     "rawKeyLeak": false,
-    "text": "Seafood 海鲜市场 消息 #1 1 海鲜礼盒测试丙：虾蟹双拼 AC3 unread seed (a5-eval) 简体中文 English 粤语 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。 本网站支持简体中文、英文、粤语和越南语。 联系我们：contact@jinli.club 海鲜市场 市场 卖闲置 消息 1 我的"
+    "text": "Seafood 海鲜市场 消息 暂无数据 简体中文 English 粤语 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。 本网站支持简体中文、英文、粤语和越南语。 联系我们：contact@jinli.club 海鲜市场 市场 卖闲置 消息 1 我的"
    },
    "en": {
     "pageHooks": 1,
@@ -149,7 +149,7 @@
     "listEmptyHook": 0,
     "convRows": 1,
     "rawKeyLeak": false,
-    "text": "Seafood 海鮮市場 訊息 #1 1 海鲜礼盒测试丙：虾蟹双拼 AC3 unread seed (a5-eval) 簡體中文 English 粵語 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. 保留所有權利。 本網站支持簡體中文、英文、粵語和越南語。 聯繫我們：contact@jinli.club 海鮮市場 市場 賣閒置 訊息 1 我的"
+    "text": "Seafood 海鮮市場 訊息 #1 1 海鲜礼盒测试丙：虾蟹双拼 [ac-reseed Kong] unread=1 seed 簡體中文 English 粵語 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. 保留所有權利。 本網站支持簡體中文、英文、粵語和越南語。 聯繫我們：contact@jinli.club 海鮮市場 市場 賣閒置 訊息 1 "
    },
    "vn": {
     "pageHooks": 1,
@@ -158,7 +158,7 @@
     "listEmptyHook": 0,
     "convRows": 1,
     "rawKeyLeak": false,
-    "text": "Seafood Tin nhắn #1 1 海鲜礼盒测试丙：虾蟹双拼 AC3 unread seed (a5-eval) 简体中文 English 粵語 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. Tất cả quyền bảo lưu. Trang web này hỗ trợ tiếng Trung giản thế, tiếng Anh"
+    "text": "Seafood Tin nhắn #1 1 海鲜礼盒测试丙：虾蟹双拼 [ac-reseed Kong] unread=1 seed 简体中文 English 粵語 Tiếng Việt © 2024-2026 Abbey Quant & Jinli Club. Tất cả quyền bảo lưu. Trang web này hỗ trợ tiếng Trung giản thế, tiến"
    },
    "backInDetail": {
     "count": 1,
@@ -195,8 +195,8 @@
    "unreadReqCountWindowA": 2,
    "unreadReqCountWindowB": 2,
    "unreadReqTimestamps": [
-    1791806517074,
-    1791806517080
+    1791808873011,
+    1791808873018
    ],
    "allApiReqs": 11
   },
@@ -209,8 +209,8 @@
    "unreadReqCountWindowA": 2,
    "unreadReqCountWindowB": 2,
    "unreadReqTimestamps": [
-    1791806528553,
-    1791806528559
+    1791808890966,
+    1791808890972
    ],
    "allApiReqs": 11
   },
@@ -223,20 +223,17 @@
   },
   "readWatermark": {
    "unreadBefore": 1,
-   "unreadAfter": 1,
-   "readPostSeen": false,
-   "unreadReqs": 6
+   "unreadAfter": 0,
+   "threadRetries": 0,
+   "threadPhase": "ok",
+   "badgeAbsent": true,
+   "readPostSeen": true,
+   "unreadReqs": 7
   }
  },
  "verdicts": {
-  "ac2": [
-   "AC2【判负】backInDetail: 占位钩子 messages-x-placeholder 仍存在 undefined（T101 显式删除项）",
-   "AC2【判负】detailHooks: 占位钩子 messages-x-placeholder 仍存在 undefined（T101 显式删除项）"
-  ],
-  "ac3": [
-   "AC3【判负】读水位后未读未下降（1⇒1）",
-   "AC3【判负】未见 POST /read 回执"
-  ]
+  "ac2": [],
+  "ac3": []
  },
- "verdict": "FAIL"
+ "verdict": "PASS"
 }

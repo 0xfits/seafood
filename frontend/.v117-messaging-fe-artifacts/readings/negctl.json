@@ -5,9 +5,9 @@
    "id": "NEG-1",
    "what": "聊一聊对卖家也渲染（测量期注入 ItemDetailPage.jsx）",
    "expected": "AC-1 ② 判据必红",
-   "sellerChatVisible": false,
-   "sellerChatCount": 0,
-   "JUDGE": "GREEN(探针失灵)",
+   "sellerChatVisible": true,
+   "sellerChatCount": 1,
+   "JUDGE": "RED(判负·探针有灵敏度)",
    "restoredCmpIdentical": true,
    "restoredSha256": "93a80653bcb829262f795279716e939bf251722230c1e3b61dca0cfa1a7963b9"
   },
@@ -24,9 +24,9 @@
    "id": "NEG-3",
    "what": "注入 9px 可见文本（测量期 addStyleTag，不动仓库）",
    "expected": "AC-6「可见文本 ≥12px」像素读数必红",
-   "measuredMinFontPx": 12,
-   "under12Count": 0,
-   "JUDGE": "GREEN(尺子失灵)"
+   "measuredMinFontPx": 9,
+   "under12Count": 6,
+   "JUDGE": "RED(判负·尺子有分辨率)"
   }
  ],
  "selfProof": {
@@ -42,5 +42,5 @@
    "JUDGE": "GREEN(回基线)"
   }
  },
- "verdict": "FAIL"
+ "verdict": "PASS"
 }
