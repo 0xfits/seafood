@@ -6,8 +6,8 @@
  * 退出码：0 = 全过；非 0 = 有断言失败（assert 栈直接暴露失败点）。
  *
  * 覆盖（confirm 校验链的路由侧纯逻辑 + 短码形状/文案/限速；不触库、不改产品契约）：
- *   ① 短码形状闸 isValidShortBindCode（含易混字符 0/O/1/I 拒绝、长度、类型）
- *   ② 签发字符集 generateShortBindCode（32 字符集、无易混字、位长 6、批量形状）
+ *   ① 短码形状闸 isValidShortBindCode（8 位纯数字；含字母拒绝、长度 7/9 拒绝；★ 0 与 1 合法）
+ *   ② 签发字符集 generateShortBindCode（10 位数字集 0-9、位长 8、批量形状、十字符全覆盖）
  *   ③ bot 回复文案 shortBindIssueReplyText（双语一行含码 / 防刷固定提示）
  *   ④ confirm 结果 → 既有错误形态映射 confirmErrorForOutcome（零新错误码）
  *   ⑤ confirm 内存限速 checkConfirmRateLimit（10 次/分、滑窗、账号隔离）
@@ -31,39 +31,51 @@ const ok = (label: string): void => {
 };
 
 // ---------------------------------------------------------------- ① 形状闸
-for (const good of ['ABCD23', 'ZZZZ99', 'ABCDEF', '234567', 'A2B3C4']) {
+// ★ 承重正例：含 0 与含 1 的纯数字码必须**接受**（旧 32 字符集实现把 0/1 当非法字符剔除 ⇒ 这是真变化，
+//   不是换样本；纯数字下 0/1 无法剔除也不能剔除）。
+for (const good of ['10234567', '00000000', '11111111', '01234567', '98765430', '55550111']) {
   assert.strictEqual(isValidShortBindCode(good), true, `shape gate should accept ${good}`);
 }
-ok('shape gate accepts 5 well-formed codes');
+ok('shape gate accepts 6 well-formed 8-digit codes (incl. 0/1-bearing)');
 
+// ★ 承重负例：含字母（旧字符集里合法的 A-Z 大写）现在必拒；长度 7 / 9 必拒。
 for (const bad of [
-  '', 'abcd23', 'ABC23', 'ABCDE2345', 'ABCD20', 'ABCD2O', 'ABCD21', 'ABCD2I',
-  ' ABCD2', 'ABCD234', null, undefined, 12345678, ['ABCD2345'], {}, 'ABCD2345 ',
+  '', '1234567', '123456789', 'AB123456', '1234567a', 'a1234567', '1234 5678', '0123456', '1234567890',
+  ' 12345678', '12345678 ', '0123456789', null, undefined, 12345678, ['12345678'], {}, 'ABCD23',
 ]) {
   assert.strictEqual(isValidShortBindCode(bad), false, `shape gate should reject ${JSON.stringify(bad)}`);
 }
-ok('shape gate rejects 16 malformed/non-string inputs (incl. 0/O/1/I)');
+ok('shape gate rejects 18 malformed/non-string inputs (incl. letters and 7/9-digit lengths)');
 
 // ---------------------------------------------------------------- ② 字符集 / 生成器
-assert.strictEqual(SHORT_BIND_CODE_LENGTH, 6);
-assert.strictEqual(SHORT_BIND_CODE_ALPHABET.length, 32);
-for (const confusing of ['0', 'O', '1', 'I']) {
-  assert.strictEqual(SHORT_BIND_CODE_ALPHABET.includes(confusing), false, `alphabet must exclude ${confusing}`);
-}
+assert.strictEqual(SHORT_BIND_CODE_LENGTH, 8);
+assert.strictEqual(SHORT_BIND_CODE_ALPHABET.length, 10);
+assert.strictEqual(SHORT_BIND_CODE_ALPHABET, '0123456789');
+// 纯数字集里 0 与 1 是合法码元（旧实现剔除它们 —— 这两条断言就是那处变化的承重点）。
+assert.strictEqual(SHORT_BIND_CODE_ALPHABET.includes('0'), true, '0 is a legal digit now');
+assert.strictEqual(SHORT_BIND_CODE_ALPHABET.includes('1'), true, '1 is a legal digit now');
 assert.strictEqual(SHORT_BIND_CODE_ALPHABET.length === new Set(SHORT_BIND_CODE_ALPHABET).size, true);
-assert.strictEqual(256 % SHORT_BIND_CODE_ALPHABET.length, 0, 'randomBytes modulo bias must be zero');
-ok('alphabet = 32 unique chars, excludes 0/O/1/I, modulo bias-free');
+// ★ 偏置算式（现取，别删）：10 字符集下 256 % 10 = 6 ≠ 0 ⇒ `randomBytes[i] % 10` 会让索引 0-5
+//   相对多出约 4% 概率 ⇒ 生成器必须走 `crypto.randomInt(0, 10)`（或只接受 byte < 250 = 25 × 10 的拒绝采样）。
+assert.strictEqual(256 % SHORT_BIND_CODE_ALPHABET.length, 6, '256 % 10 = 6 ⇒ modulo path is biased by construction');
+const MODULO_BIASED_ALT = 26 / 256; // 若误改回 `% 10`：索引 0-5 的概率
+assert.strictEqual(MODULO_BIASED_ALT > 1 / SHORT_BIND_CODE_ALPHABET.length, true, 'modulo path would over-weight 0-5');
+ok('alphabet = 10 unique digits 0-9 (0/1 legal); 256 % 10 = 6 ⇒ randomInt path, modulo would be biased');
 
+const seenDigits = new Set<string>();
 for (let i = 0; i < 400; i += 1) {
   const code = generateShortBindCode();
-  assert.strictEqual(code.length, 6);
-  assert.strictEqual(/^[A-HJ-NP-Z2-9]{6}$/.test(code), true, `generated code malformed: ${code}`);
+  assert.strictEqual(code.length, 8);
+  assert.strictEqual(/^[0-9]{8}$/.test(code), true, `generated code malformed: ${code}`);
+  for (const ch of code) seenDigits.add(ch);
 }
-ok('400 generated codes all 6-char, charset-clean');
+// 400 码 = 3200 位数字；十位数字全覆盖（★ 旧实现永远产不出 0/1，此断言对它必红）。
+assert.strictEqual(seenDigits.size, 10, `all ten digits must be reachable, saw ${[...seenDigits].sort().join('')}`);
+ok('400 generated codes all 8-digit numeric; all ten digits 0-9 observed (incl. 0 and 1)');
 
 // ---------------------------------------------------------------- ③ bot 回复文案
-const issuedReply = shortBindIssueReplyText({ kind: 'ok', code: 'AB3DX9' });
-assert.strictEqual(issuedReply.split('AB3DX9').length - 1, 2, 'code must appear in both language halves');
+const issuedReply = shortBindIssueReplyText({ kind: 'ok', code: '10234567' });
+assert.strictEqual(issuedReply.split('10234567').length - 1, 2, 'code must appear in both language halves');
 assert.strictEqual(issuedReply.includes('XXXXXXXX'), false, 'placeholder must be fully substituted');
 assert.ok(issuedReply.includes('绑定码'), 'must contain Chinese half');
 assert.ok(issuedReply.includes('（10 分钟内有效）'));

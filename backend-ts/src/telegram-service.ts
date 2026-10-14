@@ -260,15 +260,21 @@ export const sendTelegramReply = async (chatId: number | string, text: string): 
 // consumeBindCode）路径原样保留。库表 = 0048 telegram_bind_request（短码入库承载，与长码的无状态
 // 签名令牌不同体）；过期行由 webhook 签发事务顺手 DELETE，本节不另建清理任务。
 
-/** 短码位长与字符集：大写字母 + 数字，剔除易混 0/O/1/I（32 字符 ⇒ 256 % 32 = 0，randomBytes 取模无偏置）。
- *  位长 6（Kevin 裁定 8→6）算式依据：32^6 ≈ 1.07e9 码空间，配 confirm 每分钟 10 次限速与 600 秒 TTL 足够。 */
-export const SHORT_BIND_CODE_LENGTH = 6;
-export const SHORT_BIND_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+/** 短码位长与字符集：**纯数字 0-9**（Kevin 二次裁定：8 位纯数字，取代旧「32 字符集 6 位」）。
+ *  ⇒ 10 字符集下**无法剔除易混字符**：旧实现剔除 0/O/1/I，纯数字集里 0 与 1 就是合法码元；
+ *     0 与 1 从此合法，别再按旧闸拒绝它们。
+ *  位长 8 算式依据：10^8 = 1e8 码空间，配 confirm 每分钟 10 次限速与 600 秒 TTL 足够。
+ *  ★ 取模偏置（必须消除）：10 字符集下 `256 % 10 = 6 ≠ 0` ⇒ 若沿用旧写法 `byte % 10`，会让
+ *     索引 0-5 各多出 6/256 ≈ 2.3% 的字节来源（相对概率多约 4%）⇒ 改用 `crypto.randomInt(0, 10)`
+ *     逐位取（CSPRNG、均匀、无取模）。备用正解 = 拒绝采样：只接受 `byte < 250`（250 = 25 × 10
+ *     恰被 10 整除），否则重取。 */
+export const SHORT_BIND_CODE_LENGTH = 8;
+export const SHORT_BIND_CODE_ALPHABET = '0123456789';
 export const SHORT_BIND_TTL_SECONDS = 600; // 10 分钟（与 HMAC 长码同有效期；0048 exp = iat + 600 秒）
 
 /** 短码形状闸（confirm 校验链第 1 闸：缺码/形状不对 ⇒ 400，不触库）。 */
 export const isValidShortBindCode = (code: unknown): code is string =>
-  typeof code === 'string' && /^[A-HJ-NP-Z2-9]{6}$/.test(code);
+  typeof code === 'string' && /^[0-9]{8}$/.test(code);
 
 // 防刷占位常量（TODO: 数值为派单给定占位、一句话即可改；webhook 侧按 0048 表 (tg_user_id, iat) 计数
 // 天然多实例生效，confirm 侧为单进程内存滑窗，多实例部署需换持久存储）。
@@ -278,12 +284,12 @@ export const CONFIRM_ATTEMPTS_PER_MINUTE = 10;        // 同一站内账号 conf
 const SHORT_CODE_INSERT_ATTEMPTS = 5;                 // 撞 code UNIQUE 重试上限
 const CONFIRM_ATTEMPT_WINDOW_MS = 60_000;
 
-/** 签发 6 位短码（crypto.randomBytes；32 字符集无取模偏置）。导出仅供离线单测断言形状。 */
+/** 签发 8 位纯数字短码（`crypto.randomInt(0, 10)` 逐位取 —— 见上方「取模偏置」注：
+ *  randomBytes + `% 10` 在 10 字符集下有偏置，故不用）。导出仅供离线单测断言形状。 */
 export const generateShortBindCode = (): string => {
-  const bytes = crypto.randomBytes(SHORT_BIND_CODE_LENGTH);
   let code = '';
   for (let i = 0; i < SHORT_BIND_CODE_LENGTH; i += 1) {
-    code += SHORT_BIND_CODE_ALPHABET[bytes[i] % SHORT_BIND_CODE_ALPHABET.length];
+    code += SHORT_BIND_CODE_ALPHABET[crypto.randomInt(0, SHORT_BIND_CODE_ALPHABET.length)];
   }
   return code;
 };
