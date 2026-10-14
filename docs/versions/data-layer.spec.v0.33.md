@@ -4891,7 +4891,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_users_tg_user_id
 | 列 | 类型 | 约束 / 语义（现取） |
 |---|---|---|
 | `req_id` | `bigserial` | **PK** `telegram_bind_request_pk`（`:41`） |
-| `code` | `varchar(12) NOT NULL` | **UNIQUE** `telegram_bind_request_code_uniq`（`:42`；撞码重试承重墙，服务层重试上限 5）；列宽 12 留余量，服务层签发恒 **8 位**（大写字母+数字、剔除易混 `0/O/1/I`，迁移头注 `:7-8`） |
+| `code` | `varchar(12) NOT NULL` | **UNIQUE** `telegram_bind_request_code_uniq`（`:42`；撞码重试承重墙，服务层重试上限 5）；列宽 12 留余量，服务层签发恒 **8 位纯数字**（字符集 `0`-`9`，**含 0/1**；纯数字下不可剔易混）（★二次勘误 6→8 位纯数字 · Kevin 2026-10-14 **二次裁定**；旧字集描述「大写字母+数字、剔除易混 `0/O/1/I`」（迁移头注 `:7-8` 冻结原文）据此**作废**，服务层现行口径以本列为准） |
 | `tg_user_id` | `bigint NOT NULL` | 发码者 Telegram 数字 ID；**无 FK `users`**（Telegram 侧 ID ≠ 站内 uid，发码者未必有站内账号，`:16`） |
 | `iat` | `timestamptz NOT NULL DEFAULT now()` | 签发时刻 |
 | `exp` | `timestamptz NOT NULL` | **= `iat` + 600 秒**（10 分钟，与 HMAC 长码同有效期；服务层 `now() + interval '600 seconds'` 同语句同钟落值，`telegram-service.ts:320`） |
@@ -4899,6 +4899,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_users_tg_user_id
 
 - **索引**：`idx_telegram_bind_request_tg_iat ON (tg_user_id, iat)`（`:49-50`）—— webhook 防刷限速读路径（同号冷却 60 秒 / 每小时 5 次，**占位数值待 Kevin 定值**）；计数 = 查询期派生，无计数器表。
 - **COMMENT ON TABLE**（`:45-46`）：「tg-bind-v2 反向短码绑定请求：bot 无载荷 /start 签发 8 位短码，站内 confirm 消费；exp = iat + 600 秒；一次性消费 = consumed_at；无资金动作。」
+  - **★勘误注（本节不升版）**：上引 COMMENT 为迁移 `0048` 冻结原文、写于 8 位时期（该文件头注同为 8 位原文，checksum 冻结不可改），引文保留原样一字未改；现行服务层签发 = **8 位纯数字（`0`-`9`，含 0/1）**，见 route 册 `route-layer.spec` §43.5 常量表（二次裁定与留痕见本节末勘误行）。
 
 ### 39.2 生命周期与写入面（写死 · 现取迁移头注 `:5-26` 与服务层）
 
@@ -4919,4 +4920,5 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_users_tg_user_id
 
 - **未测项（全部 `NOT_MEASURED` · 禁填 0/空）**：`0048` 未在任何库 apply（dev/生产两库状态未现取）；apply 后 `schema_migration` 行数未现取（本单零库连、不发明计数）；防刷闸在多实例（Vercel）下的实际效果未测（进程内冷却/滑窗占位实现，限速索引仅承查询期派生计数）；门套未跑。
 - **快照 + 自证**：改前 **4885 行 / 907,746 B**（HEAD `b7733de` 现取）；改后 **4922 行 / 914,301 B**；`git diff --numstat docs/data-layer.spec.md` = **37+/0−**（**删除列 = 0** ✅）；快照 `docs/versions/data-layer.spec.v0.33.md`（`cmp=0` 自证，提交前实测）+ 未改代码自证（本单只写本册 + 快照，零代码 / 零迁移文件改动）。
+- **★勘误留痕（不升版 · 2026-10-14 · **同日二次勘误**）**：短码长度**二次裁定 6 → 8 位纯数字（`0`-`9`，含 0/1）**（Kevin 2026-10-14 二次裁定；**承首次裁定 8→6 位，现 6 位口径作废**）。本节处置：§39.1 `code` 列描述改述为「服务层签发恒 **8 位纯数字**（0-9）」、旧字集描述（剔 `0/O/1/I`）据二次裁定**就地作废**；§39.2 COMMENT 引文保留迁移 `0048` 冻结原文、紧随更新勘误注（**引文一字未改**）。**本行不升版、不动版本表**（**选择依据**：承本册同日勘误级先例 —— 8→6 位当时即不升版、以节末留痕承载；本次同为同日勘误级、零新增契约面 ⇒ 不立新版号）；改后快照 `docs/versions/data-layer.spec.v0.33.md` 同步重制（`cmp=0` 保持）。
 
