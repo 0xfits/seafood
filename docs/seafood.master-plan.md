@@ -1418,7 +1418,7 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 **A. Kevin 需求与拍板**：① 「通知为何不带站内信内容 + 强行实现难度」——答：A5 期写死的隐私裁定（route §41.7「双语一行、不带内容」；通知模板现盘逐字 = 标题掩码 + 链接），技术难度小、口径要动（截断 + HTML 转义 + 四语文案，零迁移）——**待 Kevin 拍板后另立单**；② 绑定更简便方式——我列三方案对比（深链 / 纯二维码 / 反向短码），并现取 Telegram 深链硬约束（start 载荷 ≤64 字符仅 A-Za-z0-9_-，现长码 ≈104 字符含点号**塞不进**）——Kevin 拍板 = **「二维码（只带 bot 名）+ C 反向短码」组合**。
 
-**B. 契约与交付物**：迁移 0048（表 telegram_bind_request：code UNIQUE / tg_user_id / exp=iat+600s / consumed_at + (tg_user_id,iat) 限速索引）；webhook 无载荷 `/start` 分支（8 位短码剔除易混字符、撞 UNIQUE 重试 ≤5、同事务清过期行；冷却 60s / 时 5 次**占位**）；POST /api/telegram/bind/confirm（校验链九步：401 → 503 → 限速 → 形状 400 → 查无 404 → EXPIRED/CONSUMED → 同号幂等 / 抢绑 409；**响应永不回 tg_user_id**；零新错误码零资金动作）；前端扫码主面板（QR = `t.me/<bot>` 无载荷 + 打开链接 + 短码输入 trim+大写归一）+ 旧长码路径折叠次入口 + 新依赖 react-qr-code（零依赖纯 SVG，报告单列）+ 四语 +8 键（拍平 1095→1103 / 节点 4380→4412，12 文件 22 处前推）。
+**B. 契约与交付物**：迁移 0048（表 telegram_bind_request：code UNIQUE / tg_user_id / exp=iat+600s / consumed_at + (tg_user_id,iat) 限速索引）；webhook 无载荷 `/start` 分支（**6 位**短码剔除易混字符——★勘误：原实现稿 8 位，Kevin 2026-10-14 裁定 6 位，commit `7c59361`；32^6 ≈ 1.07e9 熵 × 600s TTL × confirm 限速足够、撞 UNIQUE 重试 ≤5、同事务清过期行；冷却 60s / 时 5 次**占位**）；POST /api/telegram/bind/confirm（校验链九步：401 → 503 → 限速 → 形状 400 → 查无 404 → EXPIRED/CONSUMED → 同号幂等 / 抢绑 409；**响应永不回 tg_user_id**；零新错误码零资金动作）；前端扫码主面板（QR = `t.me/<bot>` 无载荷 + 打开链接 + 短码输入 trim+大写归一）+ 旧长码路径折叠次入口 + 新依赖 react-qr-code（零依赖纯 SVG，报告单列）+ 四语 +8 键（拍平 1095→1103 / 节点 4380→4412，12 文件 22 处前推）。
 
 **C. 我的四项待裁裁定（全部追认为占位级）**：① confirm 防刷超限 = 400 TG_CODE_INVALID + `details.reason=RATE_LIMITED`（新 reason 字面非新码）✓；② confirm 限速 = 单进程内存滑窗占位（TODO 标注；webhook 侧走 0048 表天然多实例生效）✓；③ 404 的 ref_type/reason 新字面沿既有形状 ✓；④ 签发防刷读闸与 INSERT 分两段（并发缝隙，占位级）✓。**数值全部「一句话可改」待 Kevin 定值**（spec §43.5 已标 4 条常量）。
 
