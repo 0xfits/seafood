@@ -1,0 +1,184 @@
+{
+ "ac": "AC-4",
+ "steps": {
+  "baseline_get_favorites": {
+   "status": 200,
+   "topKeys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "rows": [
+    {
+     "fav_id": 1,
+     "listing_id": 71,
+     "title": "sf14qa 测试商品（质检夹具·勿购）",
+     "price": 4,
+     "cid": 1,
+     "status": "listed",
+     "media_urls": [],
+     "time_created": 1791947236
+    }
+   ]
+  },
+  "detail_page": {
+   "url": "http://localhost:5787/item/71",
+   "actionbar": true,
+   "favToggle": true,
+   "initialState": {
+    "fav": "0",
+    "text": "收藏",
+    "disabled": false
+   }
+  },
+  "click_favorite": {
+   "click": {
+    "x": 1072.0,
+    "y": 539.0,
+    "w": 678,
+    "h": 37.5
+   },
+   "stateAfter": {
+    "fav": "1",
+    "text": "已收藏"
+   }
+  },
+  "get_favorites_after_fav": {
+   "status": 200,
+   "topKeys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "dataIsArray": true,
+   "rowCount": 1,
+   "rows": [
+    {
+     "fav_id": 1,
+     "listing_id": 71,
+     "title": "sf14qa 测试商品（质检夹具·勿购）",
+     "price": 4,
+     "cid": 1,
+     "status": "listed",
+     "media_urls": [],
+     "time_created": 1791947236
+    }
+   ]
+  },
+  "profile_favorites_view": {
+   "list": true,
+   "row": true,
+   "rowContent": {
+    "text": "sf14qa 测试商品（质检夹具·勿购）$4 · 10/14/2026收藏",
+    "link": "/item/71",
+    "hasRemove": true
+   }
+  },
+  "remove_from_list": {
+   "click": {
+    "x": 1347.0,
+    "y": 166.0,
+    "w": 52,
+    "h": 32
+   },
+   "emptyMarker": true,
+   "rowGone": true
+  },
+  "get_favorites_after_remove": {
+   "status": 200,
+   "topKeys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "rows": [],
+   "zeroResidue": true
+  },
+  "idempotent_double_post": {
+   "post1": {
+    "status": 200,
+    "topKeys": [
+     "success",
+     "message",
+     "data"
+    ]
+   },
+   "post2": {
+    "status": 200,
+    "topKeys": [
+     "success",
+     "message",
+     "data",
+     "idempotent_replay"
+    ]
+   },
+   "rowCountAfter": 1,
+   "rows": [
+    {
+     "fav_id": 3,
+     "listing_id": 71,
+     "title": "sf14qa 测试商品（质检夹具·勿购）",
+     "price": 4,
+     "cid": 1,
+     "status": "listed",
+     "media_urls": [],
+     "time_created": 1791947256
+    }
+   ],
+   "noSecondRow": true
+  },
+  "cleanup_delete": {
+   "deleteStatus": 200,
+   "deleteTopKeys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "rowsAfter": []
+  },
+  "negatives": {
+   "unauth_post": {
+    "status": 401,
+    "topKeys": [
+     "error"
+    ]
+   },
+   "nonexistent_listing_999999999": {
+    "status": 404,
+    "topKeys": [
+     "error"
+    ],
+    "err": "LEDGER_REF_NOT_FOUND"
+   },
+   "invalid_body_listing_id_abc": {
+    "status": 400,
+    "err": {
+     "field": "listing_id",
+     "reason": "NOT_A_POSITIVE_INTEGER"
+    }
+   },
+   "invalid_body_empty": {
+    "status": 400,
+    "err": {
+     "field": "listing_id",
+     "reason": "NOT_A_POSITIVE_INTEGER"
+    }
+   }
+  },
+  "final_get_favorites": {
+   "rows": []
+  }
+ },
+ "verdict": "PASS",
+ "fixture": {
+  "account": "0x374876Ef8123D9718Bd15592133619073f4f6Eb9",
+  "uid": 971214,
+  "listing": 71,
+  "listing_title": "sf14qa 测试商品（质检夹具·勿购）"
+ },
+ "notes": [
+  "响应载荷顶层键均已先打印（data 下嵌套行数组，取数路径 = payload.data）",
+  "库零残留判据走产品读口 GET /api/favorites（未直连数据库）",
+  "重复收藏幂等 = 两次 POST 后仍 1 行（表级 UNIQUE(fav_uid, listing_id) 语义）"
+ ]
+}

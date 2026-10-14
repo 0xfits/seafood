@@ -1,0 +1,112 @@
+{
+ "ac": "AC-10",
+ "steps": {
+  "mobile_390x844": {
+   "vw": 530,
+   "nav": {
+    "flexDirection": "row",
+    "overflowX": "auto",
+    "w": 504,
+    "h": 60,
+    "display": "flex"
+   },
+   "navLinks": [
+    {
+     "text": "我发布的",
+     "w": 80,
+     "h": 44,
+     "font": "14px"
+    },
+    {
+     "text": "我卖出的",
+     "w": 80,
+     "h": 44,
+     "font": "14px"
+    },
+    {
+     "text": "我买到的",
+     "w": 80,
+     "h": 44,
+     "font": "14px"
+    },
+    {
+     "text": "我的收藏",
+     "w": 80,
+     "h": 58,
+     "font": "14px"
+    },
+    {
+     "text": "账户设置",
+     "w": 80,
+     "h": 58,
+     "font": "14px"
+    }
+   ],
+   "tabbar": {
+    "present": true,
+    "gridCols": "78px 78px 78px 78px 78px",
+    "display": "grid",
+    "w": 390,
+    "h": 64,
+    "count": 5
+   },
+   "tabs": [
+    {
+     "key": "home",
+     "w": 78,
+     "h": 63,
+     "font": "12px",
+     "vis": "visible",
+     "disp": "flex"
+    },
+    {
+     "key": "shard",
+     "w": 78,
+     "h": 63,
+     "font": "12px",
+     "vis": "visible",
+     "disp": "flex"
+    },
+    {
+     "key": "sell",
+     "w": 78,
+     "h": 63,
+     "font": "12px",
+     "vis": "visible",
+     "disp": "flex"
+    },
+    {
+     "key": "messages",
+     "w": 78,
+     "h": 63,
+     "font": "12px",
+     "vis": "visible",
+     "disp": "flex"
+    },
+    {
+     "key": "profile",
+     "w": 78,
+     "h": 63,
+     "font": "12px",
+     "vis": "visible",
+     "disp": "flex"
+    }
+   ]
+  },
+  "checks": {
+   "navHorizontalTabs": true,
+   "tabbar_present_5cells": true,
+   "navLink_min_h": 44,
+   "tab_min_h": 63,
+   "touch_target_ge44": true,
+   "navLink_font": [
+    "14px"
+   ]
+  }
+ },
+ "verdict": "PASS",
+ "notes": [
+  "视口 390x844 / mobile=true；侧栏 flexDirection=row 且宽>高 ⇒ 横向页签形态",
+  "触控目标 = 两族取小（.sf-prof-nav a 与底栏 .sf-tab），任一 ≥44px 即达标，两值均已落盘"
+ ]
+}

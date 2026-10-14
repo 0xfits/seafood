@@ -1,0 +1,72 @@
+{
+ "ac": "AC-3",
+ "steps": {
+  "published": {
+   "terminal": {
+    "rows": 1,
+    "phase": null,
+    "text": null
+   },
+   "rows": [
+    "sf14qa 测试商品（质检夹具·勿购）$4 · 库存 1 · 已上架"
+   ],
+   "hasSf14qa71": true
+  },
+  "sold": {
+   "terminal": {
+    "rows": 0,
+    "phase": "empty",
+    "text": "还没有卖出的订单"
+   },
+   "api": {
+    "status": 200,
+    "topKeys": [
+     "success",
+     "message",
+     "data"
+    ],
+    "data": []
+   }
+  },
+  "bought": {
+   "terminal": {
+    "rows": 0,
+    "phase": "empty",
+    "text": "暂无购买记录"
+   },
+   "myOrdersPanelSection": true
+  },
+  "invalid_subtab": {
+   "at": "/profile/trades/xxx",
+   "boughtTerminal": {
+    "rows": 0,
+    "phase": "empty",
+    "text": "暂无购买记录"
+   },
+   "boughtNavActive": true
+  }
+ },
+ "verdict": "PASS",
+ "sensitivity": [
+  {
+   "check": "AC3 published shows sf14qa listing (terminal phase)",
+   "ok": true
+  },
+  {
+   "check": "AC3 sold empty terminal + api 200 []",
+   "ok": true
+  },
+  {
+   "check": "AC3 bought MyOrdersPanel present (terminal phase)",
+   "ok": true
+  },
+  {
+   "check": "AC3 invalid subTab renders as bought",
+   "ok": true
+  }
+ ],
+ "notes": [
+  "首轮读数在 loading 相位早读（pane 挂载即取样）判 FAIL —— 归因探针伪影(b)/(c)类，本轮改终态相位等待重取",
+  "sold/bought 带数据的形态需资金动作 = 未跑，空态为唯一取得形态"
+ ]
+}

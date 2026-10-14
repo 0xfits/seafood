@@ -15,3 +15,6 @@ backend-ts/.env.local
 # ★ 注意：`vercel deploy --archive=tgz` 会绕过本文件（实测把产物一并打包上传 ⇒ 撞其中的断链
 #   符号链接而部署失败）⇒ 本仓 CLI 部署一律不带 --archive=tgz。
 **/.*-artifacts/
+# Zang 2026-10-14：质检/验证证据目录（ops/）不入部署上传面 —— 与 docs/ 同口径（纯本地留证件，
+# 内容为读数 JSON / 截图 / 日志，非站点运行所需）。
+ops/

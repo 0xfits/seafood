@@ -1,0 +1,39 @@
+{
+ "ac": "AC-5",
+ "steps": {
+  "activities_page": {
+   "page": true,
+   "anchor": true,
+   "panel": {
+    "anchorEl": true,
+    "bttcAsset": true,
+    "pageText": "签到与活动电量0%电量电量上限为满值，超出部分不累计₿ BTTC—余额连续签到天数: 0"
+   }
+  },
+  "hash_scroll": {
+   "scrollY": 0,
+   "rectTop": 111,
+   "nearTop": true
+  },
+  "header_entries": {
+   "desktop": null,
+   "mobile": "/activities#batt-checkin"
+  },
+  "jobs_batt_hint": {
+   "firstJob": null,
+   "hintHrefInDom": null,
+   "sourceHref": "/activities#batt-checkin (frontend/src/pages/jobs/JobDetailPage.jsx:222)",
+   "note": "hint 仅在电量不足被拒时渲染；当前测试账户未触发该态，DOM 读数缺省 ⇒ 以源码 href + Header 两处实测为据"
+  },
+  "profile_no_checkin_panel": {
+   "battAnchorInProfile": false,
+   "bttcAssetInProfile": false,
+   "profileTextHasCheckin": false
+  }
+ },
+ "verdict": "PASS",
+ "notes": [
+  "jobs-batt-hint 的 DOM 读数因电量不足态未触发而缺省（未跑资金链），该子面以源码 href + Header 双入口实测作证，DOM 读数记 NOT_MEASURED"
+ ],
+ "sensitivity": []
+}

@@ -1,0 +1,53 @@
+{
+ "ac": "AC-1",
+ "steps": {
+  "desktop_unauth_visible": {
+   "visible": {
+    "present": true,
+    "x": 974,
+    "y": 13.5,
+    "w": 68,
+    "h": 37,
+    "display": "block",
+    "visibility": "visible",
+    "inViewport": true,
+    "hitTag": "SPAN",
+    "hitInside": true
+   },
+   "hasIconImg": true,
+   "label": "订单"
+  },
+  "unauth_click_login_guide": {
+   "click": {
+    "x": 1008.0,
+    "y": 32.0,
+    "w": 68,
+    "h": 37
+   },
+   "landedAt": "/login",
+   "h1": "连接钱包继续探索"
+  },
+  "auth_click_landing": {
+   "landedAt": "/profile/trades/bought",
+   "profileNav": true,
+   "boughtPane": true
+  },
+  "mobile_hamburger_item": {
+   "opened": true,
+   "visible": {
+    "present": true,
+    "x": 8,
+    "y": 117,
+    "w": 374,
+    "h": 40,
+    "display": "flex",
+    "visibility": "visible",
+    "inViewport": true,
+    "hitTag": "A",
+    "hitInside": true
+   }
+  }
+ },
+ "verdict": "PASS",
+ "sensitivity": []
+}

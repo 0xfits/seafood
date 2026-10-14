@@ -1,0 +1,70 @@
+{
+ "ac": "AC-2",
+ "steps": {
+  "sidebar_items": {
+   "landedAt": "/profile/trades/bought",
+   "items": [
+    {
+     "m": "profile-nav-trades",
+     "href": null,
+     "text": "我的交易我发布的我卖出的我买到的",
+     "active": false
+    },
+    {
+     "m": "profile-nav-published",
+     "href": "/profile/trades/published",
+     "text": "我发布的",
+     "active": false
+    },
+    {
+     "m": "profile-nav-sold",
+     "href": "/profile/trades/sold",
+     "text": "我卖出的",
+     "active": false
+    },
+    {
+     "m": "profile-nav-bought",
+     "href": "/profile/trades/bought",
+     "text": "我买到的",
+     "active": true
+    },
+    {
+     "m": "profile-nav-favorites",
+     "href": "/profile/favorites",
+     "text": "我的收藏",
+     "active": false
+    },
+    {
+     "m": "profile-nav-settings",
+     "href": "/profile/settings",
+     "text": "账户设置",
+     "active": false
+    }
+   ]
+  },
+  "click_favorites_switch": {
+   "favListPane": true,
+   "at": "/profile/favorites"
+  },
+  "deep_settings": {
+   "deepLink": "/profile/settings",
+   "marker": "settings-view",
+   "rendered": true,
+   "at": "/profile/settings"
+  },
+  "deep_sold": {
+   "deepLink": "/profile/trades/sold",
+   "marker": "trades-sold-list",
+   "rendered": true,
+   "at": "/profile/trades/sold"
+  },
+  "deep_favorites": {
+   "deepLink": "/profile/favorites",
+   "marker": "fav-list",
+   "rendered": true,
+   "at": "/profile/favorites"
+  }
+ },
+ "verdict": "PASS",
+ "sensitivity": []
+}

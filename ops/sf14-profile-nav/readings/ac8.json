@@ -1,0 +1,167 @@
+{
+ "ac": "AC-8",
+ "steps": {
+  "home": {
+   "at": "http://localhost:5787/",
+   "homeItemList": true,
+   "homeItems": true,
+   "homeFilter": true,
+   "publishLink": true,
+   "itemCards": 0,
+   "itemsH": 966,
+   "bodyLen": 1298,
+   "bodyText": "Seafood 海鲜市场 | 社区任务 | 市场 | 订单 | 语言 | 0x3748...6eb9 | 欢迎来到 Jinli Club | 参与任务，赚取$，兑换精彩奖励 | 继续任务 | 发布闲置 | 我的积分 | 0 | 🪙 | 热门任务 | 参与任务赚取$ | 查看全部 | 进行中 | p4b2:fixture:A | 137 | $ | p4b2 P4-B2a fixture（无托管：escrow_txid 保持 NULL）"
+  },
+  "home_orders_text_scan": {
+   "textHits": 0,
+   "textSamples": [],
+   "orderMarkersAll": [
+    "header-orders"
+   ],
+   "orderMarkersInContentArea": [],
+   "orderMarkersInShellChrome": [
+    "header-orders"
+   ],
+   "myOrdersHeadingHits": 0,
+   "allMarkersInContentArea": [
+    "home-item-list",
+    "home-publish-link",
+    "home-my-points",
+    "task-action",
+    "task-action",
+    "task-action",
+    "task-action",
+    "task-action",
+    "task-action",
+    "home-items",
+    "home-item-filter",
+    "reward-card-view",
+    "reward-card-view",
+    "reward-card-view",
+    "reward-card-view",
+    "reward-card-view",
+    "reward-card-view",
+    "reward-card-view",
+    "reward-card-view"
+   ]
+  },
+  "home_elementFromPoint_probes": [
+   {
+    "x": 720,
+    "y": 495,
+    "tag": "DIV",
+    "cls": "flex items-center justify-between mb-6",
+    "orderAncestor": null
+   },
+   {
+    "x": 720,
+    "y": 630,
+    "tag": "DIV",
+    "cls": "grid grid-cols-1 md:grid-cols-2 lg:grid-",
+    "orderAncestor": null
+   },
+   {
+    "x": 720,
+    "y": 765,
+    "tag": "DIV",
+    "cls": "grid grid-cols-1 md:grid-cols-2 lg:grid-",
+    "orderAncestor": null
+   },
+   {
+    "x": 360,
+    "y": 675,
+    "tag": "DIV",
+    "cls": "rounded-lg border p-6 transition-all dur",
+    "orderAncestor": null
+   },
+   {
+    "x": 1080,
+    "y": 675,
+    "tag": "DIV",
+    "cls": "rounded-lg border p-6 transition-all dur",
+    "orderAncestor": null
+   }
+  ],
+  "orders_block_now_in_bought_pane": {
+   "boughtPane": true,
+   "myOrdersSectionMoved": true,
+   "myOrdersHeadingPresent": true,
+   "orderMarkers": [
+    "header-orders",
+    "item-orders-section",
+    "item-input-order",
+    "item-order-actions",
+    "item-input-order-action",
+    "item-order-action-status"
+   ]
+  },
+  "item_detail_71": {
+   "actionbar": true,
+   "buyBtn": {
+    "text": "立即购买",
+    "disabled": false,
+    "w": 704,
+    "h": 38
+   },
+   "chatBtn": null,
+   "favToggle": {
+    "text": "收藏",
+    "disabled": false,
+    "w": 678,
+    "h": 38
+   },
+   "actionbarChildren": 2,
+   "chatBtn_gate": {
+    "runtime": "NOT_MEASURED",
+    "why": "自售 listing 不渲染「聊一聊」格",
+    "source": "frontend/src/pages/item/ItemDetailPage.jsx:283-296 `!isSellerSelf ? <button data-sf-m=\"item-chat-btn\"> : null`",
+    "channel": "非自售详情页未取得（库内闲置 listing 仅夹具 71，且属本账户；未造第二账户/第二条 listing）"
+   },
+   "selfListingFullActionbar": {
+    "note": "自售详情页：actionbar 在场且含 2 枚按钮（购买 CTA + 收藏 toggle）；「聊一聊」格按 !isSellerSelf 门不渲染（源证明）",
+    "actionbarChildren": 2
+   }
+  },
+  "pages_render": {
+   "/messages": {
+    "landedAt": "http://localhost:5787/messages",
+    "mainTextLen": 8,
+    "rendered": true,
+    "head": "消息 | 暂无数据"
+   },
+   "/exchange": {
+    "landedAt": "http://localhost:5787/exchange",
+    "mainTextLen": 322,
+    "rendered": true,
+    "head": "积分交易所 | 行情、盘口与成交流水对所有人公开；挂单与撤单需要登录。所有价格以平台积分 $ 计价。 | 闲置物品 | 发布闲置 | 刷新 "
+   }
+  }
+ },
+ "verdict": "PASS",
+ "notes": [
+  "「我的订单」消失 = 一对验：首页三路读数（四语文案扫描 / 内容区 data-sf-m *order* 标记 / elementFromPoint 5 点探针）全零命中；同时 /profile/trades/bought 内 item-orders-section + 「我的订单」标题在场（迁址正读数）",
+  "首页 *order* 标记唯一命中 = 外壳顶栏既有「订单」入口（data-sf-m=header-orders，AC-1 目标物），已按 data-sf-region=\"topnav\" 归入 chrome 区",
+  "「聊一聊」运行时读数 = NOT_MEASURED（自售 listing 门；见 item_detail_71.chatBtn_gate）；购买 CTA 与收藏 toggle 均在场"
+ ],
+ "first_run": {
+  "verdict": "FAIL",
+  "attribution": "v1 预测式缺陷①：order 标记判据未排除 header 既有「订单」入口（data-sf-m=header-orders，属 AC-1 目标物）；② item-chat-btn 在自售 listing 上按设计不渲染（ItemDetailPage.jsx:283 `!isSellerSelf` 门）⇒ 非自售档读数缺省"
+ },
+ "verdict_attempts": [
+  {
+   "run": "v1",
+   "verdict": "FAIL",
+   "attribution": "order 标记判据未排除 header 既有「订单」入口（data-sf-m=header-orders，AC-1 目标物）；item-chat-btn 在自售 listing 上按设计不渲染 ⇒ 非自售档读数缺省"
+  },
+  {
+   "run": "v2",
+   "verdict": "FAIL",
+   "attribution": "v2 把 header 区块的过滤选择器写成 [data-sf-region=\"header\"]，实际外壳该区块为 data-sf-region=\"topnav\"（探针选择器错，非产品缺陷）"
+  },
+  {
+   "run": "v3",
+   "verdict": "PASS",
+   "attribution": "外壳 chrome 过滤改用实际 data-sf-region=\"topnav\"；首页内容区 *order* 标记零命中"
+  }
+ ]
+}

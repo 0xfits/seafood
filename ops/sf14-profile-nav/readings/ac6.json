@@ -1,0 +1,78 @@
+{
+ "ac": "AC-6",
+ "steps": {
+  "landing": {
+   "at": "http://localhost:5787/profile/settings",
+   "terminalComposite": true
+  },
+  "view_presence": {
+   "basicInfoCard": true,
+   "myAssetsCard": true,
+   "ratingTimeliness": true,
+   "ratingStars": true,
+   "timelinessDurations": true,
+   "ledgerBalanceMarker": true,
+   "ledgerFlowMarker": true,
+   "taskStatsAchievements": true,
+   "shardHoldings": true,
+   "telegramCard": true,
+   "telegramState": "loading",
+   "ledgerBalanceAmount": "0",
+   "pageHasAllZhSectionTitles": true
+  },
+  "edit_click": {
+   "x": 1327.0,
+   "y": 450.0,
+   "w": 72,
+   "h": 32,
+   "tag": "BUTTON"
+  },
+  "bio_typed": {
+   "before": "| sf14qa bio round-trip 1791950946",
+   "suffix": " | sf14qa v2 1791951074",
+   "typedEndsWithSuffix": true,
+   "textareaAfter": "| sf14qa bio round-trip 1791950946 | sf14qa v2 1791951074",
+   "expectedSaved": "| sf14qa bio round-trip 1791950946 | sf14qa v2 1791951074"
+  },
+  "bio_save_click": {
+   "x": 1247.0,
+   "y": 450.0,
+   "w": 72,
+   "h": 32,
+   "tag": "BUTTON"
+  },
+  "bio_saved_state": {
+   "editClosed": true,
+   "shownBioMatchesExpected": true
+  },
+  "after_reload": {
+   "at": "http://localhost:5787/profile/settings",
+   "bioPersistedInDom": true
+  },
+  "api_read_user": {
+   "status": 200,
+   "topKeys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "bioEqualsExpected": true,
+   "bioLen": 57
+  }
+ },
+ "verdict": "PASS",
+ "fixture": {
+  "account": "0x374876Ef8123D9718Bd15592133619073f4f6Eb9",
+  "uid": 971214,
+  "write": "POST /api/user/profile (bio)"
+ },
+ "notes": [
+  "去参判据 = 复合终态：settings-view + rating-period + tg-bind-card + (jobs-flow-list|jobs-flow-empty) + 基本信息文案在场",
+  "bio 往返回合 = 真实输入（点击 textarea + moveToEndOfLine + Input.insertText）⇒ 保存 ⇒ 刷新复读 ⇒ GET /api/user 复核（预期 = 产品 trim() 后的写入值）",
+  "v1 读数与归因保留于 first_run；本版为终态重取"
+ ],
+ "first_run": {
+  "verdict": "FAIL",
+  "attribution": "v1 预测式缺陷：bio 判据用未 strip 的后缀比对，而产品保存路径 trim() 前导空格；v1 读数已证产品侧落盘成功（GET /api/user bioLen=34 = 去空格后后缀长度），非产品缺陷"
+ }
+}

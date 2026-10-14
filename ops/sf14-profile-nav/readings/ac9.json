@@ -1,0 +1,132 @@
+{
+ "ac": "AC-9",
+ "steps": {
+  "unauth": {
+   "per_locale": {
+    "en": {
+     "landedAt": "http://localhost:5787/en/login",
+     "profileNavRendered": false,
+     "h1": "Connect your wallet to continue explorin"
+    },
+    "hk": {
+     "landedAt": "http://localhost:5787/hk/login",
+     "profileNavRendered": false,
+     "h1": "連接錢包繼續探索"
+    },
+    "vn": {
+     "landedAt": "http://localhost:5787/vn/login",
+     "profileNavRendered": false,
+     "h1": "Kết nối ví để tiếp tục khám phá"
+    }
+   },
+   "note": "未登录档 /{lang}/profile 受 ProtectedRoute ⇒ 各语均重定向至 /{lang}/login（语言前缀保留）；按单目要求改以登录态会话各访一次"
+  },
+  "unauth_landing": {
+   "at": "http://localhost:5787/vn/login",
+   "h1": "Kết nối ví để tiếp tục khám phá"
+  },
+  "per_locale": {
+   "en": {
+    "at": "http://localhost:5787/en/profile/trades/bought",
+    "navRendered": true,
+    "navTextLines": [
+     "My Trades",
+     "My Listings",
+     "Sold",
+     "Purchases",
+     "Favorites",
+     "Account Settings"
+    ],
+    "labels": {
+     "profile-nav-published": "My Listings",
+     "profile-nav-sold": "Sold",
+     "profile-nav-bought": "Purchases",
+     "profile-nav-favorites": "Favorites",
+     "profile-nav-settings": "Account Settings"
+    },
+    "equalsLocaleFile": {
+     "published": true,
+     "sold": true,
+     "bought": true,
+     "favorites": true,
+     "settings": true
+    },
+    "navTitleIsLocaleValue": true,
+    "bareKeyLeakInNav": false,
+    "bareKeyLeakInBody": false
+   },
+   "hk": {
+    "at": "http://localhost:5787/hk/profile/trades/bought",
+    "navRendered": true,
+    "navTextLines": [
+     "我的交易",
+     "我發佈的",
+     "我賣出的",
+     "我買到的",
+     "我的收藏",
+     "賬戶設置"
+    ],
+    "labels": {
+     "profile-nav-published": "我發佈的",
+     "profile-nav-sold": "我賣出的",
+     "profile-nav-bought": "我買到的",
+     "profile-nav-favorites": "我的收藏",
+     "profile-nav-settings": "賬戶設置"
+    },
+    "equalsLocaleFile": {
+     "published": true,
+     "sold": true,
+     "bought": true,
+     "favorites": true,
+     "settings": true
+    },
+    "navTitleIsLocaleValue": true,
+    "bareKeyLeakInNav": false,
+    "bareKeyLeakInBody": false
+   },
+   "vn": {
+    "at": "http://localhost:5787/vn/profile/trades/bought",
+    "navRendered": true,
+    "navTextLines": [
+     "Giao dịch của tôi",
+     "Tin đăng của tôi",
+     "Đã bán",
+     "Đã mua",
+     "Yêu thích",
+     "Cài đặt tài khoản"
+    ],
+    "labels": {
+     "profile-nav-published": "Tin đăng của tôi",
+     "profile-nav-sold": "Đã bán",
+     "profile-nav-bought": "Đã mua",
+     "profile-nav-favorites": "Yêu thích",
+     "profile-nav-settings": "Cài đặt tài khoản"
+    },
+    "equalsLocaleFile": {
+     "published": true,
+     "sold": true,
+     "bought": true,
+     "favorites": true,
+     "settings": true
+    },
+    "navTitleIsLocaleValue": true,
+    "bareKeyLeakInNav": false,
+    "bareKeyLeakInBody": false
+   }
+  }
+ },
+ "verdict": "PASS",
+ "fixture": {
+  "account": "0x374876Ef8123D9718Bd15592133619073f4f6Eb9",
+  "uid": 971214
+ },
+ "notes": [
+  "判据 = profileNav 键族抽样逐语与 locales/<lang>.json 逐字相等（译文真源比对）+ 侧栏与正文无裸键名 profileNav.*",
+  "hk 的 favorites 标签与 zh 同形（locale 真源即「我的收藏」），非缺译",
+  "v1 读数与归因保留于 first_run；本版为终态重取"
+ ],
+ "first_run": {
+  "verdict": "FAIL",
+  "attribution": "v1 预测式缺陷：notZhLabels 判据要求各语标签必须 ≠ zh 字形，但 hk 的 profileNav.favorites 在 locale 内本就写作「我的收藏」（与 zh 同形，属合法译文）；v1 已证 expectedPresent 全真 / bareKeyLeak 假"
+ }
+}

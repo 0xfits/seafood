@@ -1,0 +1,31 @@
+{
+  "ac": "AC-7",
+  "verdict": "PASS",
+  "criteria": "cd frontend && npm run build exit 0; npx vitest run src/test/unit --reporter=basic 例数不少于 53/514; cd backend-ts && npm run build exit 0",
+  "readings": {
+    "frontend_build": {
+      "command": "cd /Users/kevin/bistro/seafood/frontend && npm run build",
+      "exit_code": 0,
+      "tail": "✓ built in 1.74s / FE_BUILD_EXIT=0",
+      "log": "ops/sf14-profile-nav/logs/ac7_fe_build.log"
+    },
+    "vitest_unit": {
+      "command": "cd /Users/kevin/bistro/seafood/frontend && npx vitest run src/test/unit --reporter=basic",
+      "exit_code": 0,
+      "summary": "Test Files  53 passed (53) / Tests  514 passed (514)",
+      "threshold": "不少于 53 files / 514 tests",
+      "log": "ops/sf14-profile-nav/logs/ac7_vitest.log"
+    },
+    "backend_build": {
+      "command": "cd /Users/kevin/bistro/seafood/backend-ts && npm run build",
+      "exit_code": 0,
+      "tail": "tsc / BE_BUILD_EXIT=0",
+      "log": "ops/sf14-profile-nav/logs/ac7_be_build.log"
+    }
+  },
+  "notes": [
+    "首轮 run_ac7.sh 因相对日志路径重定向失败整段未执行（派单方指正），改为绝对路径后重跑一次；本读数为重跑真实输出。",
+    "vitest 输出含既有 'Home aggregate endpoint failed ... HOME_UNREGISTERED' 回退日志，属测试内既有回退路径，53/514 全绿不受影响。"
+  ],
+  "run_at": "2026-10-14T11:00+08:00"
+}

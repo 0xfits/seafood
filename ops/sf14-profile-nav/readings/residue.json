@@ -1,0 +1,23 @@
+{
+ "favorites_final": {
+  "status": 200,
+  "topKeys": [
+   "success",
+   "message",
+   "data"
+  ],
+  "rows": [],
+  "zeroResidue": true
+ },
+ "teardown": {
+  "headless_chrome_pid": 73830,
+  "kill": "kill <PID>（精确 PID，未用 pkill -f）",
+  "port_9341_listeners_after": 0,
+  "port_9341_http_after": "000 / conn_refused",
+  "app_servers_still_up": {
+   "5787": 200,
+   "5788": 200
+  },
+  "note": "浏览器探针进程已收；5787/5788 为派单方服务，未动"
+ }
+}
