@@ -13,7 +13,7 @@
  *   ② 负对照：响应**无 `details`** ⇒ `err.details === undefined`（不制造空面）；旧面（无 `error` 对象）
  *      ⇒ 三面皆 `undefined`，`message` 仍取服务端原文。
  *   ③ 联测（关键）：**真** `fetchApiJson`（经**真** `job-api`）+ 真 `JobDetailPage` render ⇒ `409/BATT`
- *      体下**确实渲染出可点击提示** `<a href="/profile#batt-checkin">`，文案 = 真 zh 词典。
+ *      体下**确实渲染出可点击提示** `<a href="/activities#batt-checkin">`，文案 = 真 zh 词典。
  *   ④ 联测负对照：被拒但 `reason ≠ 电量门槛` ⇒ **不渲染**该提示（证明其非恒真）。
  *
  * 硬口径：本单只改 `auth.js` + 新增本测试文件；`message` 取值与既有链路逐字不变。
@@ -141,7 +141,7 @@ describe('D1 补丁 · 联测：真 `fetchApiJson` 抛错形态 ⇒ JobDetailPag
     </MemoryRouter>,
   )
 
-  it('③ 被拒 reason = 电量门槛 ⇒ 渲染 `<a href="/profile#batt-checkin">`（文案 = 真 zh 词典）', async () => {
+  it('③ 被拒 reason = 电量门槛 ⇒ 渲染 `<a href="/activities#batt-checkin">`（文案 = 真 zh 词典）', async () => {
     vi.stubGlobal('fetch', routedFetch(R107_BATT))
     renderPage()
 
@@ -153,7 +153,7 @@ describe('D1 补丁 · 联测：真 `fetchApiJson` 抛错形态 ⇒ JobDetailPag
     await waitFor(() => expect(document.querySelector('[data-sf-m="jobs-batt-hint"]')).not.toBeNull())
     const hint = document.querySelector('[data-sf-m="jobs-batt-hint"]')
     expect(hint.tagName).toBe('A')
-    expect(hint.getAttribute('href')).toBe('/profile#batt-checkin')
+    expect(hint.getAttribute('href')).toBe('/activities#batt-checkin')
     expect(hint.textContent).toContain(zh.battCard.insufficient)
     expect(hint.textContent).toContain(zh.checkinPanel.checkinButton)
 

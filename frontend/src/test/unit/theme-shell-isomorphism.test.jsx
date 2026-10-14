@@ -96,9 +96,10 @@ describe('应用外壳 · 骨架同构（横竖屏同一套 DOM）', () => {
     const tabHrefs = Array.from(container.querySelectorAll('[data-sf-region="tabbar"] a[data-sf-nav]')).map((a) => a.getAttribute('href'))
     expect(tabHrefs).toEqual(['/', '/exchange', '/item/new', '/messages', '/profile'])
     expect(tabHrefs).toEqual(visibleNavItems(true).map((i) => navPathInLang(i, 'zh')))
-    // ② 桌面左 nav（Header.jsx 的 menuItems · 现状值一字不动；home 由品牌 logo 承担）
+    // ② 桌面左 nav + 右侧控件簇（Header.jsx · menuItems 现状值一字不动；home 由品牌 logo 承担）。
+    //    sf14 前推（2026-10-14 单）：右上角新增「订单」按钮复用 nav-link 控件类 ⇒ href 集合 +'/profile'。
     const topHrefs = Array.from(container.querySelectorAll('.nav-link[href]')).map((a) => a.getAttribute('href'))
-    expect(topHrefs).toEqual(['/task', '/exchange'])
+    expect(topHrefs).toEqual(['/task', '/exchange', '/profile'])
     const brandHref = container.querySelector('[data-sf-region="topnav"] a[href="/"]')
     expect(brandHref).not.toBeNull()
   })

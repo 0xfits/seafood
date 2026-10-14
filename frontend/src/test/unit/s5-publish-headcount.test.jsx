@@ -83,12 +83,12 @@ describe('S5① · 新增文案键四语齐备 + 键计数', () => {
   it('键计数：顶层 128 不变 / 拍平 1070 / 四语节点 4280（v1.5 §14.10 +20 叶/语；S8 前推：+jobs.deliverable；S9：+4 ledger.kind；S23 +1 jobs.participantsHeadcount；S25：B7 退役 10 键）', () => {
     for (const l of LANGS) {
     // v1.5 §14 delta①（2026-10-11 收尾单 · Zang 裁定⑧）曾另立新键 'me'：top 128⇒129 / flat 1070⇒1071 / 节点 4280⇒4284；[留痕] 本单（2026-10-11 · Kevin 口径）全站统一 profile 值 = 我的/Me/我的/Tôi 并删 'me' ⇒ 计数回落 top 129⇒128 / flat 1071⇒1070 / 节点 4284⇒4280。
-      expect(Object.keys(readTable(l)).length, `${l} top`).toBe(125)
+      expect(Object.keys(readTable(l)).length, `${l} top`).toBe(128)
       // S25 计数期望订正（台账 B7 死键退役）：jobs 退役 10 键 ×4 语对称删除 ⇒ 拍平 1060⇒1050（等量下移 −10/语）。
-      expect(FLAT[l].length, `${l} flat`).toBe(1078)
+      expect(FLAT[l].length, `${l} flat`).toBe(1095)
     }
     // S25：1050 × 4 = 4200（原 1060 × 4 = 4240）。
-    expect(FLAT.zh.length * LANGS.length).toBe(4312)
+    expect(FLAT.zh.length * LANGS.length).toBe(4380)
   })
 
   it('depositHint 四语均含押金/人数算式占位（逐字锚）', () => {

@@ -12,11 +12,12 @@ import { useTranslation } from 'react-i18next'
 import { buildLocalizedPath, formatEvmAddress, getLanguageFromUrl } from '../utils'
 import { contentStatus, pickLocalized } from '../i18n-content'
 import TranslatingBadge from '../components/i18n/TranslatingBadge'
-// P9②：电量卡 + 签到区（用户面 · §28.7「既有渲染点接新取数 · 不新增独立页面」）
-import BattCheckinPanel from '../components/BattCheckinPanel'
+// P9②：电量卡 + 签到区（Kevin 2026-10-14 需求③：已迁出至独立页 /activities —— 本文件不再渲染）。
 import RatingTimelinessPanel from '../components/RatingTimelinessPanel'
 // 招工线 / 我的 共用的 token + 栅格层（P4-B4c-ii-a）：与 TaskPage 招工线族同一份样式表
 import './jobs/jobs.css'
+// Kevin 2026-10-14 需求②：桌面侧栏布局样式（页面局部 --sf-l-*，零新主题 token）
+import './profile.css'
 import { fetchApiJson, fetchCurrentUser, getAuthHeaders, updateMyProfile } from '../auth'
 import { useAuth } from '../auth-context'
 import { fetchMyLedger, LEDGER_PAGE_SIZE } from '../ledger-api'
@@ -29,6 +30,83 @@ import {
 } from '../messages-api'
 
 const toDate = (value) => new Date(typeof value === 'number' ? value * 1000 : value)
+
+// ============================================================================
+// Kevin 2026-10-14 需求②：/profile 桌面档重构 = 「左侧菜单 + 右侧内容」
+// ----------------------------------------------------------------------------
+// 视图派生（单一真源 = `profileViewOf`，按 pathname 尾段解析）：
+//   · /profile(/:lang 前缀)                 ⇒ 我的交易-我买到的（落地口径；生产路由先重定向到 trades/bought）
+//   · /profile/trades/published|sold|bought ⇒ 我的交易三子页（非法值按 bought 处理）
+//   · /profile/favorites                    ⇒ 我的收藏
+//   · /profile/settings                     ⇒ 账户设置
+// 左栏菜单（桌面 ≥768 固定宽，手机 ≤767 横向页签，见 profile.css）：我的交易（三子项）/ 我的收藏 / 账户设置。
+// 既有内容归位（派单方裁定）：账户设置 = 基本信息卡（bio 编辑往返）+ 用户资产卡 + 账本读数
+//   + 任务统计与成就徽章 + 碎片持仓 + Telegram 通知卡 + 评分/时效面板；电量卡 + 签到 = /activities 独立页。
+// 钩子（§质检探针）：profile-nav（侧栏根）/ profile-nav-trades / profile-nav-{published,sold,bought,favorites,settings}
+//   / trades-{published,sold,bought}-list（各配 -empty）/ fav-list（配 -empty）/ settings-view。
+// ============================================================================
+
+// `profile/trades/:subTab` 合法取值（非法值按 bought 处理）
+const PROFILE_TRADE_TABS = ['published', 'sold', 'bought']
+const PROFILE_DEFAULT_TRADE_TAB = 'bought'
+
+const profileViewOf = (pathname) => {
+  const parts = String(pathname).replace(/\/+$/, '').split('/')
+  const last = parts[parts.length - 1] || ''
+  const prev = parts[parts.length - 2] || ''
+  if (last === 'favorites') return { kind: 'favorites', subTab: '' }
+  if (last === 'settings') return { kind: 'settings', subTab: '' }
+  if (prev === 'trades') {
+    return { kind: 'trades', subTab: PROFILE_TRADE_TABS.includes(last) ? last : PROFILE_DEFAULT_TRADE_TAB }
+  }
+  // /profile（含裸渲染兜底口径）：默认视图 = 我的交易-我买到的（与 index 重定向落地一致）
+  return { kind: 'trades', subTab: PROFILE_DEFAULT_TRADE_TAB }
+}
+
+// ============================================================================
+// 我的交易 · 三个子页（published=我发布的 / sold=我卖出的 / bought=我买到的）
+// ----------------------------------------------------------------------------
+// Kevin 2026-10-14 需求④ 数据接线（后端契约冻结）：
+//   published ⇒ GET /api/listing/mine；sold ⇒ GET /api/listing-orders/sold；bought ⇒ GET /api/prize-item（既有）。
+//   取数经新增 api 模块（`trades-api`），行内状态走既有四语标签族（item.statusLabel.* / listingOrders.statusLabel.*）。
+// ============================================================================
+const TRADES_EMPTY_KEYS = {
+  published: 'profileNav.emptyPublished',
+  sold: 'profileNav.emptySold',
+  bought: 'profileNav.emptyBought',
+}
+
+const TradesPane = ({ subTab }) => {
+  const { t } = useTranslation()
+  const tab = PROFILE_TRADE_TABS.includes(subTab) ? subTab : PROFILE_DEFAULT_TRADE_TAB
+
+  return (
+    <div className="sf-prof-pane" data-sf-m={`trades-${tab}-list`}>
+      <h1 className="sf-prof-pane-title">
+        {t('profileNav.title')} · {t(`profileNav.${tab}`)}
+      </h1>
+      <div className="sf-prof-empty" data-sf-m={`trades-${tab}-empty`}>
+        {t(TRADES_EMPTY_KEYS[tab])}
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// 我的收藏（Kevin 2026-10-14 需求④）：GET /api/favorites（收藏时间行）；空态 ⇒ profileNav.emptyFavorites
+// ============================================================================
+const FavoritesPane = () => {
+  const { t } = useTranslation()
+
+  return (
+    <div className="sf-prof-pane" data-sf-m="fav-list">
+      <h1 className="sf-prof-pane-title">{t('profileNav.favorites')}</h1>
+      <div className="sf-prof-empty" data-sf-m="fav-list-empty">
+        {t('profileNav.emptyFavorites')}
+      </div>
+    </div>
+  )
+}
 
 // ============================================================================
 // v1.17 §20.2（`T102`）· 「Telegram 通知」卡（三态 + 降级 · 归 AC-4）
@@ -212,6 +290,8 @@ const ProfilePage = () => {
   //   ★ 编辑态口径：`bio`/`tempBio` 一律持**原文**（`user.bio`），只有**展示**走 `displayBio`
   //     —— 否则保存时会把译文当原文写回（`updateMyProfile({bio: tempBio})`）。
   const lang = getLanguageFromUrl(location.pathname)
+  // Kevin 2026-10-14 需求②：视图由 pathname 派生（路由挂载与单测裸渲染同一口径）
+  const view = profileViewOf(location.pathname)
   const [user, setUser] = useState(null)
   const [userAssets, setUserAssets] = useState(null)
   const [taskStats, setTaskStats] = useState({
@@ -223,7 +303,7 @@ const ProfilePage = () => {
     claimedRewards: 0,
   })
   const [shardHoldings, setShardHoldings] = useState([])
-  // 批 7-A：「流水」= 已注册读口 `GET /api/user/ledger`（DL25/R95 keyset 分页）的真数据。
+  // 批 7-A：「流水」= 已注册读口 `GET /api/user/ledger`（DL25 keyset 分页）的真数据。
   //   `next` = `next_before_txid` 游标（`null` = 到底，不渲染「加载更多」）；真·零流水 ⇒ 空态。
   const [ledger, setLedger] = useState({ rows: [], next: null, message: '' })
   const [loading, setLoading] = useState(true)
@@ -425,299 +505,355 @@ const ProfilePage = () => {
     )
   }
 
+  const navLink = (to, hook, label, active) => (
+    <Link
+      to={to}
+      data-sf-m={hook}
+      className={`sf-prof-link${active ? ' is-active' : ''}`}
+      aria-current={active ? 'page' : undefined}
+    >
+      {label}
+    </Link>
+  )
+
   return (
     <ResponsiveContainer>
-      <div className="space-y-8">
-        {/* 页面标题 */}
-        <FadeIn>
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              {t('profilePage.title')}
-            </h1>
-            <p className="text-xl text-gray-600">
-              {t('profilePage.subtitle')}
-            </p>
+      <div className="sf-prof" data-sf-m="profile-view">
+        {/* 左栏菜单（桌面档；≤767 变横向页签，见 profile.css） */}
+        <nav className="sf-prof-nav" data-sf-m="profile-nav" aria-label={t('profileNav.title')}>
+          <div className="sf-prof-nav-group" data-sf-m="profile-nav-trades">
+            <span className="sf-prof-nav-title">{t('profileNav.title')}</span>
+            {navLink(
+              buildLocalizedPath(lang, '/profile/trades/published'),
+              'profile-nav-published',
+              t('profileNav.published'),
+              view.kind === 'trades' && view.subTab === 'published',
+            )}
+            {navLink(
+              buildLocalizedPath(lang, '/profile/trades/sold'),
+              'profile-nav-sold',
+              t('profileNav.sold'),
+              view.kind === 'trades' && view.subTab === 'sold',
+            )}
+            {navLink(
+              buildLocalizedPath(lang, '/profile/trades/bought'),
+              'profile-nav-bought',
+              t('profileNav.bought'),
+              view.kind === 'trades' && view.subTab === 'bought',
+            )}
           </div>
-        </FadeIn>
+          {navLink(
+            buildLocalizedPath(lang, '/profile/favorites'),
+            'profile-nav-favorites',
+            t('profileNav.favorites'),
+            view.kind === 'favorites',
+          )}
+          {navLink(
+            buildLocalizedPath(lang, '/profile/settings'),
+            'profile-nav-settings',
+            t('profileNav.settings'),
+            view.kind === 'settings',
+          )}
+        </nav>
 
-        {/* P9②：电量卡 + 签到区（用户面） */}
-        <BattCheckinPanel />
-        <RatingTimelinessPanel />
+        {/* 右侧内容：三视图（我的交易 / 我的收藏 / 账户设置） */}
+        <div className="sf-prof-content" data-sf-m="profile-content">
+          {view.kind === 'trades' && <TradesPane subTab={view.subTab} />}
+          {view.kind === 'favorites' && <FavoritesPane />}
 
-        {/* 用户基本信息 */}
-        <SlideUp delay={200}>
-          <Card variant="primary">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-2xl">{t('profilePage.basicInfo')}</CardTitle>
-                {!isEditing ? (
-                  <Button
-                    variant="proceed"
-                    size="sm"
-                    onClick={() => setIsEditing(true)}
-                  >
-                    <Edit3 className="w-4 h-4 mr-1" />
-                    {t('common.edit')}
-                  </Button>
-                ) : (
-                  <div className="flex gap-2">
-                    <Button
-                      variant="success"
-                      size="sm"
-                      onClick={saveBio}
-                    >
-                      <Save className="w-4 h-4 mr-1" />
-                      {t('common.save')}
-                    </Button>
-                    <Button
-                      variant="inactive"
-                      size="sm"
-                      onClick={cancelEdit}
-                    >
-                      <X className="w-4 h-4 mr-1" />
-                      {t('cancel')}
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* 用户头像和基本信息 */}
-              <div className="flex items-center gap-6">
-                <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                  {user.EVM ? user.EVM.slice(2, 4).toUpperCase() : 'U'}
+          {view.kind === 'settings' && (
+            <div data-sf-m="settings-view">
+              {/* 页面标题 */}
+              <FadeIn>
+                <div className="text-center">
+                  <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                    {t('profilePage.title')}
+                  </h1>
+                  <p className="text-xl text-gray-600">
+                    {t('profilePage.subtitle')}
+                  </p>
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h2 className="text-xl font-semibold text-gray-900">
-                      {user.EVM ? formatEvmAddress(user.EVM) : t('profilePage.unknownUser')}
-                    </h2>
-                    {user.is_admin && (
-                      <Badge variant="warning" size="sm">{t('common.admin')}</Badge>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      {t('profilePage.registeredAt')}: {user.time_reg ? toDate(user.time_reg).toLocaleDateString() : t('common.unknown')}
+              </FadeIn>
+
+              <RatingTimelinessPanel />
+
+              {/* 用户基本信息 */}
+              <SlideUp delay={200}>
+                <Card variant="primary">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-2xl">{t('profilePage.basicInfo')}</CardTitle>
+                      {!isEditing ? (
+                        <Button
+                          variant="proceed"
+                          size="sm"
+                          onClick={() => setIsEditing(true)}
+                        >
+                          <Edit3 className="w-4 h-4 mr-1" />
+                          {t('common.edit')}
+                        </Button>
+                      ) : (
+                        <div className="flex gap-2">
+                          <Button
+                            variant="success"
+                            size="sm"
+                            onClick={saveBio}
+                          >
+                            <Save className="w-4 h-4 mr-1" />
+                            {t('common.save')}
+                          </Button>
+                          <Button
+                            variant="inactive"
+                            size="sm"
+                            onClick={cancelEdit}
+                          >
+                            <X className="w-4 h-4 mr-1" />
+                            {t('cancel')}
+                          </Button>
+                        </div>
+                      )}
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Mail className="w-4 h-4" />
-                      {t('profilePage.walletAddress')}: {user.EVM ? formatEvmAddress(user.EVM) : t('common.notSet')}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 用户简介 */}
-              <div>
-                <h3 className="font-semibold text-lg mb-2">
-                  {t('profilePage.bio')}
-                  {/* 「翻译中」小标（`i18n_status ∈ {pending, partial}`；ready/缺省 ⇒ null） */}
-                  <TranslatingBadge status={contentStatus(user)} />
-                </h3>
-                {isEditing ? (
-                  <textarea
-                    value={tempBio}
-                    onChange={(e) => setTempBio(e.target.value)}
-                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-yellow-500 focus:outline-none resize-none"
-                    rows={4}
-                    placeholder={t('profilePage.bioPlaceholder')}
-                  />
-                ) : (
-                  <div className="p-3 bg-gray-50 rounded-lg min-h-[100px]">
-                    {/* TR-2：展示走当前语言（`bio_<lang>`；空串/缺字段 ⇒ 回落原文 `bio`） */}
-                    {pickLocalized(user, 'bio', lang) || bio || t('profilePage.bioEmpty')}
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </SlideUp>
-
-        {/* 用户资产 */}
-        <SlideUp delay={400}>
-          <Card variant="secondary">
-            <CardHeader>
-              <CardTitle className="text-2xl">{t('profilePage.myAssets')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveGrid sm={2} md={4} gap={4}>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-yellow-600 mb-1">
-                    {userAssets?.points || 0}
-                  </div>
-                  <div className="text-sm text-gray-600">{t('common.points')}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-1">
-                    {taskStats.pendingRewards}
-                  </div>
-                  <div className="text-sm text-gray-600">{t('common.pending')}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600 mb-1">
-                    {taskStats.claimedRewards}
-                  </div>
-                  <div className="text-sm text-gray-600">{t('profilePage.redeemedRewards')}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-purple-600 mb-1">
-                    {userAssets?.time_update ? toDate(userAssets.time_update).toLocaleDateString() : '—'}
-                  </div>
-                  <div className="text-sm text-gray-600">{t('profilePage.lastUpdate')}</div>
-                </div>
-              </ResponsiveGrid>
-            </CardContent>
-          </Card>
-        </SlideUp>
-
-        {/* 账本读数（P4-B4c-ii-a · 「我的」）：余额 = 已注册读口 /api/user/asset/:uID；
-            流水 = **已注册读口** `GET /api/user/ledger`（批 7-A 登记；DL25 keyset 分页 / 响应回传 next_before_txid）
-            ⇒ 渲染真数据；**仅当真·零流水**时才显示空态。*/}
-        <SlideUp delay={500}>
-          <div className="sf-jobs" data-sf-m="jobs-profile">
-            <div className="sf-jobs-panel" data-sf-m="jobs-balance">
-              <h2 className="sf-jobs-title">{t('ledger.balance')}</h2>
-              <div className="sf-jobs-row">
-                <span className="sf-jobs-pay" data-sf-m="jobs-balance-amount">{userAssets?.points ?? 0}</span>
-                <span className="sf-jobs-pay-unit">$</span>
-              </div>
-              <p className="sf-jobs-meta">{t('ledger.balanceNote')}</p>
-            </div>
-            <div className="sf-jobs-panel" data-sf-m="jobs-flow">
-              <h2 className="sf-jobs-title">{t('ledger.flow')}</h2>
-              {ledger.rows.length === 0
-                ? <div className="sf-jobs-empty" data-sf-m="jobs-flow-empty">{ledger.message || t('ledger.flowEmpty')}</div>
-                : (
-                  <div data-sf-m="jobs-flow-list">
-                    {ledger.rows.map((entry) => (
-                      <div className="sf-jobs-item" key={String(entry.txid)} data-sf-m="jobs-flow-item">
-                        <div className="sf-jobs-item-title">{t(`ledger.kind.${entry.kind}`)}</div>
-                        <div className="sf-jobs-meta">
-                          {`${Number(entry.delta) > 0 ? '+' : ''}${entry.delta}`}
-                          {' · '}
-                          {entry.time_created ? toDate(entry.time_created).toLocaleDateString() : '—'}
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* 用户头像和基本信息 */}
+                    <div className="flex items-center gap-6">
+                      <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                        {user.EVM ? user.EVM.slice(2, 4).toUpperCase() : 'U'}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h2 className="text-xl font-semibold text-gray-900">
+                            {user.EVM ? formatEvmAddress(user.EVM) : t('profilePage.unknownUser')}
+                          </h2>
+                          {user.is_admin && (
+                            <Badge variant="warning" size="sm">{t('common.admin')}</Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            {t('profilePage.registeredAt')}: {user.time_reg ? toDate(user.time_reg).toLocaleDateString() : t('common.unknown')}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Mail className="w-4 h-4" />
+                            {t('profilePage.walletAddress')}: {user.EVM ? formatEvmAddress(user.EVM) : t('common.notSet')}
+                          </div>
                         </div>
                       </div>
-                    ))}
-                    {ledger.next != null && (
-                      <button
-                        type="button"
-                        className="sf-jobs-btn"
-                        data-sf-m="jobs-flow-more"
-                        onClick={() => loadLedger(ledger.next)}
-                      >
-                        {t('ledger.flowMore')}
-                      </button>
-                    )}
-                  </div>
-                )}
-            </div>
-          </div>
-        </SlideUp>
-
-        {/* 任务统计 */}
-        <SlideUp delay={600}>
-          <Card variant="success">
-            <CardHeader>
-              <CardTitle className="text-2xl">{t('profilePage.taskAchievements')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveGrid sm={2} md={4} gap={4}>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600 mb-1">
-                    {taskStats.totalTasks}
-                  </div>
-                  <div className="text-sm text-gray-600">{t('profilePage.totalTasks')}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-1">
-                    {taskStats.completedTasks}
-                  </div>
-                  <div className="text-sm text-gray-600">{t('common.completed')}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-orange-600 mb-1">
-                    {taskStats.pendingTasks}
-                  </div>
-                  <div className="text-sm text-gray-600">{t('common.ongoing')}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-yellow-600 mb-1">
-                    {taskStats.totalPoints}
-                  </div>
-                  <div className="text-sm text-gray-600">{t('profilePage.totalPoints')}</div>
-                </div>
-              </ResponsiveGrid>
-
-              {/* 成就徽章 */}
-              <div className="mt-6">
-                <h3 className="font-semibold text-lg mb-3">{t('profilePage.achievements')}</h3>
-                <div className="flex flex-wrap gap-2">
-                  {taskStats.completedTasks >= 1 && (
-                    <Badge variant="success" className="flex items-center gap-1">
-                      <Trophy className="w-3 h-3" />
-                      {t('profilePage.badgeNovice')}
-                    </Badge>
-                  )}
-                  {taskStats.completedTasks >= 5 && (
-                    <Badge variant="primary" className="flex items-center gap-1">
-                      <Star className="w-3 h-3" />
-                      {t('profilePage.badgeExpert')}
-                    </Badge>
-                  )}
-                  {taskStats.completedTasks >= 10 && (
-                    <Badge variant="warning" className="flex items-center gap-1">
-                      <Trophy className="w-3 h-3" />
-                      {t('profilePage.badgeMaster')}
-                    </Badge>
-                  )}
-                  {taskStats.totalPoints >= 1000 && (
-                    <Badge variant="secondary" className="flex items-center gap-1">
-                      <Star className="w-3 h-3" />
-                      {t('profilePage.badgePointsPro')}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </SlideUp>
-
-        {/* 碎片持仓 */}
-        <SlideUp delay={800}>
-          <Card variant="inactive">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-2xl">{t('profilePage.shardHoldings')}</CardTitle>
-                <Link to={buildLocalizedPath(lang, '/exchange')} className="text-sm text-blue-600 hover:text-blue-800 underline">
-                  {t('common.goTrade')}
-                </Link>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {shardHoldings.length === 0 ? (
-                <p className="text-center text-gray-500 py-4">{t('profilePage.noHoldings')}</p>
-              ) : (
-                <div className="divide-y divide-gray-100">
-                  {shardHoldings.map((h) => (
-                    <div key={h.bID} className="flex items-center justify-between py-2">
-                      <span className="font-medium text-gray-800">{h.symbol || h.bID}</span>
-                      <span className="text-gray-600">{h.volume} {t('common.shardUnit')}</span>
                     </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </SlideUp>
 
-        {/* v1.17 §20.2（T102）· 「Telegram 通知」卡（三态 + 降级）—— 只**新增卡片**、不动既有块；
-            置于页面末位 ⇒ 既有块零位移（归因式 AC-5 的「非目标页差异集 = 0」更易成立）。 */}
-        <SlideUp delay={900}>
-          <TelegramBindCard />
-        </SlideUp>
+                    {/* 用户简介 */}
+                    <div>
+                      <h3 className="font-semibold text-lg mb-2">
+                        {t('profilePage.bio')}
+                        {/* 「翻译中」小标（`i18n_status ∈ {pending, partial}`；ready/缺省 ⇒ null） */}
+                        <TranslatingBadge status={contentStatus(user)} />
+                      </h3>
+                      {isEditing ? (
+                        <textarea
+                          value={tempBio}
+                          onChange={(e) => setTempBio(e.target.value)}
+                          className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-yellow-500 focus:outline-none resize-none"
+                          rows={4}
+                          placeholder={t('profilePage.bioPlaceholder')}
+                        />
+                      ) : (
+                        <div className="p-3 bg-gray-50 rounded-lg min-h-[100px]">
+                          {/* TR-2：展示走当前语言（`bio_<lang>`；空串/缺字段 ⇒ 回落原文 `bio`） */}
+                          {pickLocalized(user, 'bio', lang) || bio || t('profilePage.bioEmpty')}
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </SlideUp>
+
+              {/* 用户资产 */}
+              <SlideUp delay={400}>
+                <Card variant="secondary">
+                  <CardHeader>
+                    <CardTitle className="text-2xl">{t('profilePage.myAssets')}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveGrid sm={2} md={4} gap={4}>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-yellow-600 mb-1">
+                          {userAssets?.points || 0}
+                        </div>
+                        <div className="text-sm text-gray-600">{t('common.points')}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-green-600 mb-1">
+                          {taskStats.pendingRewards}
+                        </div>
+                        <div className="text-sm text-gray-600">{t('common.pending')}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-blue-600 mb-1">
+                          {taskStats.claimedRewards}
+                        </div>
+                        <div className="text-sm text-gray-600">{t('profilePage.redeemedRewards')}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-purple-600 mb-1">
+                          {userAssets?.time_update ? toDate(userAssets.time_update).toLocaleDateString() : '—'}
+                        </div>
+                        <div className="text-sm text-gray-600">{t('profilePage.lastUpdate')}</div>
+                      </div>
+                    </ResponsiveGrid>
+                  </CardContent>
+                </Card>
+              </SlideUp>
+
+              {/* 账本读数（P4-B4c-ii-a · 「我的」）：余额 = 已注册读口 /api/user/asset/:uID；
+                  流水 = **已注册读口** `GET /api/user/ledger`（批 7-A 登记；DL25 keyset 分页 / 响应回传 next_before_txid）
+                  ⇒ 渲染真数据；**仅当真·零流水**时才显示空态。*/}
+              <SlideUp delay={500}>
+                <div className="sf-jobs" data-sf-m="jobs-profile">
+                  <div className="sf-jobs-panel" data-sf-m="jobs-balance">
+                    <h2 className="sf-jobs-title">{t('ledger.balance')}</h2>
+                    <div className="sf-jobs-row">
+                      <span className="sf-jobs-pay" data-sf-m="jobs-balance-amount">{userAssets?.points ?? 0}</span>
+                      <span className="sf-jobs-pay-unit">$</span>
+                    </div>
+                    <p className="sf-jobs-meta">{t('ledger.balanceNote')}</p>
+                  </div>
+                  <div className="sf-jobs-panel" data-sf-m="jobs-flow">
+                    <h2 className="sf-jobs-title">{t('ledger.flow')}</h2>
+                    {ledger.rows.length === 0
+                      ? <div className="sf-jobs-empty" data-sf-m="jobs-flow-empty">{ledger.message || t('ledger.flowEmpty')}</div>
+                      : (
+                        <div data-sf-m="jobs-flow-list">
+                          {ledger.rows.map((entry) => (
+                            <div className="sf-jobs-item" key={String(entry.txid)} data-sf-m="jobs-flow-item">
+                              <div className="sf-jobs-item-title">{t(`ledger.kind.${entry.kind}`)}</div>
+                              <div className="sf-jobs-meta">
+                                {`${Number(entry.delta) > 0 ? '+' : ''}${entry.delta}`}
+                                {' · '}
+                                {entry.time_created ? toDate(entry.time_created).toLocaleDateString() : '—'}
+                              </div>
+                            </div>
+                          ))}
+                          {ledger.next != null && (
+                            <button
+                              type="button"
+                              className="sf-jobs-btn"
+                              data-sf-m="jobs-flow-more"
+                              onClick={() => loadLedger(ledger.next)}
+                            >
+                              {t('ledger.flowMore')}
+                            </button>
+                          )}
+                        </div>
+                      )}
+                  </div>
+                </div>
+              </SlideUp>
+
+              {/* 任务统计 */}
+              <SlideUp delay={600}>
+                <Card variant="success">
+                  <CardHeader>
+                    <CardTitle className="text-2xl">{t('profilePage.taskAchievements')}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveGrid sm={2} md={4} gap={4}>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-blue-600 mb-1">
+                          {taskStats.totalTasks}
+                        </div>
+                        <div className="text-sm text-gray-600">{t('profilePage.totalTasks')}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-green-600 mb-1">
+                          {taskStats.completedTasks}
+                        </div>
+                        <div className="text-sm text-gray-600">{t('common.completed')}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-orange-600 mb-1">
+                          {taskStats.pendingTasks}
+                        </div>
+                        <div className="text-sm text-gray-600">{t('common.ongoing')}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-yellow-600 mb-1">
+                          {taskStats.totalPoints}
+                        </div>
+                        <div className="text-sm text-gray-600">{t('profilePage.totalPoints')}</div>
+                      </div>
+                    </ResponsiveGrid>
+
+                    {/* 成就徽章 */}
+                    <div className="mt-6">
+                      <h3 className="font-semibold text-lg mb-3">{t('profilePage.achievements')}</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {taskStats.completedTasks >= 1 && (
+                          <Badge variant="success" className="flex items-center gap-1">
+                            <Trophy className="w-3 h-3" />
+                            {t('profilePage.badgeNovice')}
+                          </Badge>
+                        )}
+                        {taskStats.completedTasks >= 5 && (
+                          <Badge variant="primary" className="flex items-center gap-1">
+                            <Star className="w-3 h-3" />
+                            {t('profilePage.badgeExpert')}
+                          </Badge>
+                        )}
+                        {taskStats.completedTasks >= 10 && (
+                          <Badge variant="warning" className="flex items-center gap-1">
+                            <Trophy className="w-3 h-3" />
+                            {t('profilePage.badgeMaster')}
+                          </Badge>
+                        )}
+                        {taskStats.totalPoints >= 1000 && (
+                          <Badge variant="secondary" className="flex items-center gap-1">
+                            <Star className="w-3 h-3" />
+                            {t('profilePage.badgePointsPro')}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </SlideUp>
+
+              {/* 碎片持仓 */}
+              <SlideUp delay={800}>
+                <Card variant="inactive">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-2xl">{t('profilePage.shardHoldings')}</CardTitle>
+                      <Link to={buildLocalizedPath(lang, '/exchange')} className="text-sm text-blue-600 hover:text-blue-800 underline">
+                        {t('common.goTrade')}
+                      </Link>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {shardHoldings.length === 0 ? (
+                      <p className="text-center text-gray-500 py-4">{t('profilePage.noHoldings')}</p>
+                    ) : (
+                      <div className="divide-y divide-gray-100">
+                        {shardHoldings.map((h) => (
+                          <div key={h.bID} className="flex items-center justify-between py-2">
+                            <span className="font-medium text-gray-800">{h.symbol || h.bID}</span>
+                            <span className="text-gray-600">{h.volume} {t('common.shardUnit')}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </SlideUp>
+
+              {/* v1.17 §20.2（T102）· 「Telegram 通知」卡（三态 + 降级）—— 只**新增卡片**、不动既有块；
+                  置于页面末位 ⇒ 既有块零位移（归因式 AC-5 的「非目标页差异集 = 0」更易成立）。 */}
+              <SlideUp delay={900}>
+                <TelegramBindCard />
+              </SlideUp>
+            </div>
+          )}
+        </div>
       </div>
     </ResponsiveContainer>
   )

@@ -126,6 +126,12 @@
     "reviewUnqualifiedOk": "已判定不合格"
   },
   "item": {
+    "favorite": "收藏",
+    "favorited": "已收藏",
+    "favoriteOk": "收藏成功",
+    "favoriteFail": "收藏失败，请稍后重试",
+    "favoriteLogin": "登录后即可收藏",
+
     "line": "闲置物品",
     "list": "闲置物品列表",
     "listNote": "以下为在售的闲置物品，点开可查看详情与库存。",
@@ -365,6 +371,24 @@
     "emptyCompletedHint": "开始参与任务赚取积分吧",
     "emptyVerification": "暂无待验证任务",
     "emptyVerificationHint": "提交的任务审核过程中会显示在这里"
+  },
+  "header": {
+    "orders": "订单"
+  },
+  "profileNav": {
+    "title": "我的交易",
+    "published": "我发布的",
+    "sold": "我卖出的",
+    "bought": "我买到的",
+    "favorites": "我的收藏",
+    "settings": "账户设置",
+    "emptyPublished": "还没有发布过闲置物品",
+    "emptySold": "还没有卖出的订单",
+    "emptyBought": "还没有买到的订单",
+    "emptyFavorites": "还没有收藏的物品"
+  },
+  "activitiesPage": {
+    "title": "签到与活动"
   },
   "profilePage": {
     "title": "个人中心",

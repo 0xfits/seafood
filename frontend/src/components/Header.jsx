@@ -6,6 +6,8 @@ import cnFlag from '../images/cn.svg'
 import usFlag from '../images/us.svg'
 import hkFlag from '../images/hk.svg'
 import vnFlag from '../images/vn.svg'
+// 订单入口图标（Kevin 2026-10-14 需求①；资产由派单方落盘，fill=currentColor，path 数据一字不改）
+import orderIcon from '../images/order.svg'
 import HoverMenu from './ui/HoverMenu'
 import { fetchAdminAccess } from '../admin-utils'
 import { useAuth } from '../auth-context'
@@ -188,6 +190,19 @@ const Header = () => {
               ))}
             </nav>
             
+            {/* Kevin 2026-10-14 需求①：右上角「订单」按钮（图标 + 文案），指向 /profile（落地即我的交易）。
+                未登录同样可点 ⇒ 由既有 ProtectedRoute 出登录引导；复用既有头部控件类 nav-link（不动桌面按钮几何）。 */}
+            <Link
+              to={buildPath('profile')}
+              className="nav-link"
+              data-sf-m="header-orders"
+              aria-label={t('header.orders')}
+              title={t('header.orders')}
+            >
+              <img src={orderIcon} alt="" className="inline-block w-4 h-4" aria-hidden="true" />
+              <span>{t('header.orders')}</span>
+            </Link>
+
             {/* 语言切换（使用本地 SVG 国旗图标） */}
             <HoverMenu
               trigger={
@@ -284,9 +299,10 @@ const Header = () => {
                   {t('profile')}
                 </Link>
                 {/* R-9-83：直达电量 + 签到区（锚点 `#batt-checkin`），提升签到入口可发现性。
+                    Kevin 2026-10-14 需求③/⑥：签到及营销活动内容独立成页 ⇒ 直达项改指 /activities（锚点机制不变）。
                     标签复用既有文案键（签到 + 电量），不新增顶层导航项、不新增 i18n 键。 */}
                 <Link
-                  to={`${buildPath('profile')}#batt-checkin`}
+                  to={`${buildPath('activities')}#batt-checkin`}
                   className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
                   data-sf-m="header-batt-checkin"
                 >
@@ -360,6 +376,16 @@ const Header = () => {
                 {item.label}
               </Link>
             ))}
+            {/* Kevin 2026-10-14 需求①：移动面板「订单」入口（登录态内外都可见；未登录进 profile 由 ProtectedRoute 出登录引导） */}
+            <Link
+              to={buildPath('profile')}
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
+              data-sf-m="header-orders-mobile"
+            >
+              <img src={orderIcon} alt="" className="inline-block w-4 h-4" aria-hidden="true" />
+              {t('header.orders')}
+            </Link>
             {!isAuthenticated && (
               <>
                 <button
@@ -466,7 +492,7 @@ const Header = () => {
                 {t('profile')}
               </Link>
               <Link
-                to={`${buildPath('profile')}#batt-checkin`}
+                to={`${buildPath('activities')}#batt-checkin`}
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center w-full px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"
                 data-sf-m="header-batt-checkin-mobile"

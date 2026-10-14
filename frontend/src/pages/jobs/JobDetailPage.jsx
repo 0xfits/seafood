@@ -32,8 +32,9 @@ const JobDetailPage = () => {
   const [submit, setSubmit] = useState(ActionState)
   const [deliverable, setDeliverable] = useState('')
   // R-9-83 闭环：提交被「电量不足」拒绝（后端 4xx `error.details.reason` 为下述机读值时）⇒ 给出
-  //   直达 `/profile#batt-checkin` 的可点击提示。★ 判据源 = 后端 reason；**拿不到就不显示**（不臆测）。
+  //   直达签到区的可点击提示。★ 判据源 = 后端 reason；**拿不到就不显示**（不臆测）。
   //   ★ S3b：`batt` 闸已由「报名」移到「提交」（S2）⇒ 该闭环挂到提交面（原挂报名面已随 J2 下架删除）。
+  //   ★ Kevin 2026-10-14 需求③：签到独立成页 ⇒ 直达目标 `/profile#batt-checkin` → `/activities#batt-checkin`（锚点机制不变）。
   const [battBlocked, setBattBlocked] = useState(false)
 
   const BATT_BELOW_ACCEPT_REASON = 'BATT_BELOW_ACCEPT_THRESHOLD'
@@ -220,7 +221,7 @@ const JobDetailPage = () => {
                 <Link
                   className="sf-jobs-link"
                   data-sf-m="jobs-batt-hint"
-                  to={`${buildLocalizedPath(lang, '/profile')}#batt-checkin`}
+                  to={`${buildLocalizedPath(lang, '/activities')}#batt-checkin`}
                 >
                   {t('battCard.insufficient')} · {t('checkinPanel.checkinButton')}
                 </Link>

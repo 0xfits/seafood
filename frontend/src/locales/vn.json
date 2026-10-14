@@ -126,6 +126,12 @@
     "reviewUnqualifiedOk": "Đã đánh giá không đạt"
   },
   "item": {
+    "favorite": "Yêu thích",
+    "favorited": "Đã yêu thích",
+    "favoriteOk": "Đã thêm vào yêu thích",
+    "favoriteFail": "Không thể thêm yêu thích, vui lòng thử lại",
+    "favoriteLogin": "Đăng nhập để thêm yêu thích",
+
     "line": "Đồ đạc nhàn rỗi",
     "list": "Danh sách đồ đạc nhàn rỗi",
     "listNote": "Dưới đây là các món đồ đang bán; mở một mục để xem chi tiết và tồn kho.",
@@ -365,6 +371,24 @@
     "emptyCompletedHint": "Tham gia nhiệm vụ để bắt đầu kiếm điểm",
     "emptyVerification": "Chưa có nhiệm vụ chờ duyệt",
     "emptyVerificationHint": "Nhiệm vụ đã gửi sẽ hiển thị ở đây trong khi chờ duyệt"
+  },
+  "header": {
+    "orders": "Đơn hàng"
+  },
+  "profileNav": {
+    "title": "Giao dịch của tôi",
+    "published": "Tin đăng của tôi",
+    "sold": "Đã bán",
+    "bought": "Đã mua",
+    "favorites": "Yêu thích",
+    "settings": "Cài đặt tài khoản",
+    "emptyPublished": "Chưa có tin đăng nào",
+    "emptySold": "Chưa có đơn đã bán nào",
+    "emptyBought": "Chưa có đơn đã mua nào",
+    "emptyFavorites": "Chưa có mục yêu thích nào"
+  },
+  "activitiesPage": {
+    "title": "Điểm danh & Hoạt động"
   },
   "profilePage": {
     "title": "Hồ sơ cá nhân",

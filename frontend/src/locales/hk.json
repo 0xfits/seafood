@@ -126,6 +126,12 @@
     "reviewUnqualifiedOk": "已判定不合格"
   },
   "item": {
+    "favorite": "收藏",
+    "favorited": "已收藏",
+    "favoriteOk": "收藏成功",
+    "favoriteFail": "收藏失敗，請稍後重試",
+    "favoriteLogin": "登入後即可收藏",
+
     "line": "閒置物品",
     "list": "閒置物品列表",
     "listNote": "以下為在售嘅閒置物品，撳入去可以睇詳情同庫存。",
@@ -365,6 +371,24 @@
     "emptyCompletedHint": "開始參與任務賺取積分啦",
     "emptyVerification": "暫無待驗證任務",
     "emptyVerificationHint": "提交嘅任務喺審核過程中會顯示喺度"
+  },
+  "header": {
+    "orders": "訂單"
+  },
+  "profileNav": {
+    "title": "我的交易",
+    "published": "我發佈的",
+    "sold": "我賣出的",
+    "bought": "我買到的",
+    "favorites": "我的收藏",
+    "settings": "賬戶設置",
+    "emptyPublished": "還沒有發佈過閒置物品",
+    "emptySold": "還沒有賣出的訂單",
+    "emptyBought": "還沒有買到的訂單",
+    "emptyFavorites": "還沒有收藏的物品"
+  },
+  "activitiesPage": {
+    "title": "簽到與活動"
   },
   "profilePage": {
     "title": "個人中心",

@@ -11,6 +11,8 @@ import ShardPage from './pages/ShardPage'
 import AuthPage from './pages/AuthPage'
 import ThemePreviewPage from './pages/ThemePreviewPage'
 import MessagesPage from './pages/MessagesPage'
+// 签到与活动独立页（Kevin 2026-10-14 · 需求③）：电量卡 + 签到区从 /profile 迁出成页。
+import ActivitiesPage from './pages/ActivitiesPage'
 
 // 招工线（P4-B4c-ii-a）：页面挂在既有 `task` 路由族下（任务中心 = 招工列表，见 §1 #9【保留·改接】）。
 // 路由名全部由**已注册 API 路径**派生（/api/job[/<id>]、/api/task-progress/<id>），不自造新域名。
@@ -126,12 +128,40 @@ const LangShell = () => {
         <Route path="login" element={<AuthPage mode="login" />} />
         <Route path="register" element={<AuthPage mode="register" />} />
 
-        {/* 个人资料页面（需要登录） */}
+        {/* 个人资料族（需要登录 · Kevin 2026-10-14 桌面侧栏重构）：
+            /profile 落地 = 重定向到 我的交易-我买到的（index ⇒ profile/trades/bought）；
+            三个子路径共用同一个 ProfilePage（左菜单 + 右内容，视图由 pathname 派生，见 ProfilePage 头注）；
+            activities 顶层新增（与 messages 平级，同为 ProtectedRoute —— 签到需登录）。 */}
+        <Route path="profile" element={<ProfileIndexRedirect />} />
         <Route
-          path="profile"
+          path="profile/trades/:subTab"
           element={
             <ProtectedRoute>
               <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="profile/favorites"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="profile/settings"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="activities"
+          element={
+            <ProtectedRoute>
+              <ActivitiesPage />
             </ProtectedRoute>
           }
         />
@@ -146,6 +176,16 @@ const LangShell = () => {
       </Routes>
     </AppShell>
   )
+}
+
+// /profile 落地重定向（Kevin 2026-10-14：index ⇒ profile/trades/bought，即「我的交易-我买到的」）。
+// 与 LegacyExchangeRedirect 同一体例：不走相对路由（避开 v7_relativeSplatPath 旗标的生产/测试分歧），
+// 直接按当前 pathname 判定语言前缀重建绝对目标；query/hash 原样保留。
+const ProfileIndexRedirect = () => {
+  const location = useLocation()
+  const target = buildLocalizedPath(getLanguageFromUrl(location.pathname), '/profile/trades/bought')
+
+  return <Navigate to={`${target}${location.search}${location.hash}`} replace />
 }
 
 // 旧页面路径 /shard → /exchange 的兼容重定向（本单新增）。

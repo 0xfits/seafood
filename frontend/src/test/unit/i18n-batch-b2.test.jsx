@@ -116,8 +116,8 @@ describe('P6-I18N-LIT-B2 · en 档渲染英文文案（Task / Home / Profile）'
     expect(screen.queryByText('奖励原文')).toBeNull()
   })
 
-  it('ProfilePage（/en/profile）：标题 / 分区 / 成就走英文，bio 走 `bio_en`', async () => {
-    render(<MemoryRouter initialEntries={['/en/profile']}><ProfilePage /></MemoryRouter>)
+  it('ProfilePage（/en/profile/settings · 2026-10-14 起账户内容归位 settings 视图）：标题 / 分区 / 成就走英文，bio 走 `bio_en`', async () => {
+    render(<MemoryRouter initialEntries={['/en/profile/settings']}><ProfilePage /></MemoryRouter>)
 
     expect(await screen.findByText('Profile')).toBeInTheDocument()
     expect(screen.getByText('Manage your account and view achievements')).toBeInTheDocument()

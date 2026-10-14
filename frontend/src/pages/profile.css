@@ -1,0 +1,167 @@
+/* /profile 桌面侧栏布局（Kevin 2026-10-14 需求②）
+ * ─ 页面样式只落本文件：页面局部 --sf-l-*（几何量，日/夜两档同值 = 同构硬判据）；
+ *   颜色一律走既有主题 token（--sf-panel-* / --sf-meta-fg / --sf-title-fg / --sf-cat-on-*）；
+ *   零新主题 token、零 STRUCT 增项、shell.css 一字不动。
+ * ─ 桌面档（≥768）：左栏导航（sticky）+ 右侧内容；手机档（≤767）：侧栏变横向页签。
+ * ─ 触控：≤767 页签最小高度 44px；可见文本不小于 12px。唯一断点值 767，复刻既有体例。
+ */
+.sf-prof {
+  /* 页面局部结构常量（两档同值 ⇒ 切主题几何逐值相等） */
+  --sf-l-prof-side-w: 232px;
+  --sf-l-prof-gap: 18px;
+  --sf-l-prof-link-h: 38px;
+  --sf-l-prof-link-h-m: 44px;
+}
+
+.sf-prof {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sf-l-prof-gap);
+}
+
+/* 左栏导航（桌面） ----------------------------------------------------------- */
+.sf-prof-nav {
+  flex: 0 0 var(--sf-l-prof-side-w);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: sticky;
+  top: 80px;
+}
+
+.sf-prof-nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px;
+  background: var(--sf-panel-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-card);
+  box-shadow: none;
+}
+
+.sf-prof-nav-title {
+  padding: 6px 10px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sf-meta-fg);
+}
+
+.sf-prof-link {
+  display: flex;
+  align-items: center;
+  min-height: var(--sf-l-prof-link-h);
+  padding: 0 10px;
+  border-radius: var(--sf-st-radius-ctl);
+  color: var(--sf-title-fg);
+  font-size: 14px;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.sf-prof-link:hover {
+  background: var(--sf-search-bg);
+}
+
+.sf-prof-link.is-active {
+  background: var(--sf-cat-on-bg);
+  color: var(--sf-cat-on-fg);
+}
+
+/* 右侧内容 ------------------------------------------------------------------ */
+.sf-prof-content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sf-prof-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sf-prof-pane-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--sf-title-fg);
+}
+
+.sf-prof-empty {
+  padding: 24px 12px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--sf-empty-fg);
+  background: var(--sf-panel-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-card);
+  box-shadow: none;
+}
+
+.sf-prof-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--sf-panel-bg);
+  border: var(--sf-st-stroke-w-thin) solid var(--sf-panel-border);
+  border-radius: var(--sf-st-radius-card);
+  box-shadow: none;
+  color: var(--sf-page-fg);
+  text-decoration: none;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.sf-prof-row-title {
+  font-weight: 600;
+  color: var(--sf-title-fg);
+  overflow-wrap: anywhere;
+}
+
+.sf-prof-row-meta {
+  font-size: 12px;
+  color: var(--sf-meta-fg);
+}
+
+/* 手机档（≤767）：侧栏变横向页签 --------------------------------------------- */
+@media (max-width: 767px) {
+  .sf-prof {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .sf-prof-nav {
+    position: static;
+    flex: none;
+    flex-direction: row;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+
+  .sf-prof-nav-group {
+    flex: none;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    padding: 6px;
+  }
+
+  .sf-prof-nav-title {
+    padding: 0 4px 0 8px;
+    white-space: nowrap;
+  }
+
+  .sf-prof-link {
+    min-height: var(--sf-l-prof-link-h-m);
+    padding: 0 12px;
+    white-space: nowrap;
+  }
+
+  .sf-prof-row {
+    flex-wrap: wrap;
+  }
+}

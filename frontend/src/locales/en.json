@@ -126,6 +126,12 @@
     "reviewUnqualifiedOk": "Marked not qualified"
   },
   "item": {
+    "favorite": "Save",
+    "favorited": "Saved",
+    "favoriteOk": "Saved to favorites",
+    "favoriteFail": "Could not save favorite, please try again",
+    "favoriteLogin": "Log in to save favorites",
+
     "line": "Items",
     "list": "Items",
     "listNote": "The idle items currently on sale are listed below; open one to see its details and stock.",
@@ -365,6 +371,24 @@
     "emptyCompletedHint": "Join tasks to start earning points",
     "emptyVerification": "No tasks awaiting review",
     "emptyVerificationHint": "Submitted tasks appear here while under review"
+  },
+  "header": {
+    "orders": "Orders"
+  },
+  "profileNav": {
+    "title": "My Trades",
+    "published": "My Listings",
+    "sold": "Sold",
+    "bought": "Purchases",
+    "favorites": "Favorites",
+    "settings": "Account Settings",
+    "emptyPublished": "No listings published yet",
+    "emptySold": "No sold orders yet",
+    "emptyBought": "No purchases yet",
+    "emptyFavorites": "No favorites yet"
+  },
+  "activitiesPage": {
+    "title": "Check-in & Activities"
   },
   "profilePage": {
     "title": "Profile",

@@ -1,0 +1,20 @@
+/* /activities 签到与活动页（Kevin 2026-10-14 需求③）
+ * ─ 页面样式只落本文件：页面局部 --sf-l-*（几何量，日/夜两档同值）；
+ *   零新主题 token、零 STRUCT 增项、shell.css 一字不动。
+ * ─ 内容本体 = BattCheckinPanel（原样搬入，样式随组件自带），本文件只管页壳（标题间距/宽度）。
+ */
+.sf-act-page {
+  /* 页面局部结构常量（两档同值 ⇒ 切主题几何逐值相等） */
+  --sf-l-act-gap: 14px;
+}
+
+.sf-act-page .sf-panel-title {
+  margin: 0 0 var(--sf-l-act-gap);
+}
+
+/* 手机档（≤767）：唯一断点值 767，复刻既有体例；触控目标由 BattCheckinPanel 既有组件保证 */
+@media (max-width: 767px) {
+  .sf-act-page {
+    --sf-l-act-gap: 10px;
+  }
+}

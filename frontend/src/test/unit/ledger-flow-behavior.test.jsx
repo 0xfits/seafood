@@ -123,7 +123,7 @@ describe('批 7-A · 账本流水前端行为（真 zh locale + 可注入取数�
       null: okPayload([rowOf(270, 'transfer', 5), rowOf(269, 'job_payout', 12), rowOf(268, 'hold', -3)], 247),
     }))
 
-    const { container } = renderPage(<ProfilePage />, '/profile')
+    const { container } = renderPage(<ProfilePage />, '/profile/settings')
     await waitFor(() => expect(profileItems(container).length).toBe(3))
 
     const labels = profileItems(container).map((n) => n.querySelector('.sf-jobs-item-title')?.textContent)
@@ -142,7 +142,7 @@ describe('批 7-A · 账本流水前端行为（真 zh locale + 可注入取数�
     })
     vi.stubGlobal('fetch', fetchMock)
 
-    const { container } = renderPage(<ProfilePage />, '/profile')
+    const { container } = renderPage(<ProfilePage />, '/profile/settings')
     await waitFor(() => expect(profileItems(container).length).toBe(3))
 
     // 首页：不带游标
@@ -171,7 +171,7 @@ describe('批 7-A · 账本流水前端行为（真 zh locale + 可注入取数�
   it('④ 真·零流水（`data: []` + `next: null`）⇒ 空态 = `ledger.flowEmpty` 真文案（非键名）', async () => {
     vi.stubGlobal('fetch', ledgerFetch({ null: okPayload([], null) }))
 
-    const { container } = renderPage(<ProfilePage />, '/profile')
+    const { container } = renderPage(<ProfilePage />, '/profile/settings')
     await waitFor(() => {
       const empty = container.querySelector('[data-sf-m="jobs-flow-empty"]')
       expect(empty).toBeTruthy()
@@ -224,7 +224,7 @@ describe('批 7-A · 账本流水前端行为（真 zh locale + 可注入取数�
     const fetchSpy = vi.fn(async () => { throw new Error('SHOULD_NOT_FETCH') })
     vi.stubGlobal('fetch', fetchSpy)
 
-    const { container } = renderPage(<ProfilePage />, '/profile')
+    const { container } = renderPage(<ProfilePage />, '/profile/settings')
 
     await waitFor(() => expect(container.textContent).toContain(ZH.pleaseLogin))
     expect(fetchSpy).not.toHaveBeenCalled() // 一个请求都没发（含账本读口）

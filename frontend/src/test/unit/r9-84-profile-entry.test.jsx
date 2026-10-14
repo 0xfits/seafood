@@ -8,7 +8,7 @@
  * 断言：
  *   ① 右上角恰一个控件（`data-sf-m` 钩子计数 = 1，桌面场景；R-9-84 两个旧入口均为 0）
  *   ② 按钮文案 = 地址缩写形态（`0x` + 4 位 + `...` + 4 位，既有派生）；含 `User` + `ChevronDown`
- *   ③ 下拉含：我的（四语前缀 href 各一例）· 电量与签到（`…/profile#batt-checkin`）·
+ *   ③ 下拉含：我的（四语前缀 href 各一例）· 电量与签到（`…/activities#batt-checkin`）·
  *      退出登录 · 积分块；且**不含**「管理后台」（反向断言，R-9-84 结论保持）
  *   ④ 未登录 ⇒ 桌面 + 移动两处均不渲染
  *   ⑤ 左侧 nav 仍**不含**「我的」（R-9-84 结论保持）
@@ -137,12 +137,12 @@ describe('R-9-85 右上角合并为唯一菜单按钮（文案 = 钱包地址缩
     vi.useRealTimers()
   })
 
-  it('③b 下拉「电量与签到」项 href = …/profile#batt-checkin（四语）+ 保留 R-9-83 钩子', () => {
+  it('③b 下拉「电量与签到」项 href = …/activities#batt-checkin（四语）+ 保留 R-9-83 钩子', () => {
     const cases = [
-      ['/', '/profile#batt-checkin'],
-      ['/en', '/en/profile#batt-checkin'],
-      ['/hk', '/hk/profile#batt-checkin'],
-      ['/vn', '/vn/profile#batt-checkin'],
+      ['/', '/activities#batt-checkin'],
+      ['/en', '/en/activities#batt-checkin'],
+      ['/hk', '/hk/activities#batt-checkin'],
+      ['/vn', '/vn/activities#batt-checkin'],
     ]
     vi.useFakeTimers()
     for (const [entry, expected] of cases) {
@@ -225,7 +225,7 @@ describe('R-9-85 右上角合并为唯一菜单按钮（文案 = 钱包地址缩
     expect(profile.getAttribute('href')).toBe('/profile')
     expect(profile.textContent).toContain(zh.profile)
     expect(batt).not.toBeNull()
-    expect(batt.getAttribute('href')).toBe('/profile#batt-checkin')
+    expect(batt.getAttribute('href')).toBe('/activities#batt-checkin')
     expect(batt.textContent).toContain(zh.checkinPanel.checkinButton)
     expect(logout).not.toBeNull()
     expect(logout.textContent).toContain(zh.logout)
