@@ -1,0 +1,138 @@
+{
+  "ac": "AC-4-a",
+  "at": "2026-10-14T22:29:05.639Z",
+  "head_under_test": "e18716d4560bd3babd3d01b8fe7396649ced103a",
+  "locales": {
+    "zh": {
+      "file": "frontend/src/locales/zh.json",
+      "desc": "绑定后，收到新消息会通过 Telegram bot 提醒你（含消息开头摘要）",
+      "new_token": "含消息开头摘要",
+      "desc_has_new_token": true,
+      "old_token": "不包含消息内容",
+      "old_token_count_in_file": 0,
+      "whole_file_has_old_fragment": false
+    },
+    "hk": {
+      "file": "frontend/src/locales/hk.json",
+      "desc": "綁定後，收到新消息會通過 Telegram bot 提醒你（含訊息開頭摘要）",
+      "new_token": "含訊息開頭摘要",
+      "desc_has_new_token": true,
+      "old_token": "不包含消息內容",
+      "old_token_count_in_file": 0,
+      "whole_file_has_old_fragment": false
+    },
+    "en": {
+      "file": "frontend/src/locales/en.json",
+      "desc": "Get Telegram bot reminders for new messages (includes a preview of the message opening)",
+      "new_token": "includes a preview of the message opening",
+      "desc_has_new_token": true,
+      "old_token": "content not included",
+      "old_token_count_in_file": 0,
+      "whole_file_has_old_fragment": false
+    },
+    "vn": {
+      "file": "frontend/src/locales/vn.json",
+      "desc": "Nhận thông báo qua Telegram bot khi có tin nhắn mới (kèm trích đoạn đầu tin nhắn)",
+      "new_token": "kèm trích đoạn đầu tin nhắn",
+      "desc_has_new_token": true,
+      "old_token": "không kèm nội dung",
+      "old_token_count_in_file": 0,
+      "whole_file_has_old_fragment": false
+    }
+  },
+  "grep_old": "frontend/src/locales/zh.json=0\nfrontend/src/locales/hk.json=0\nfrontend/src/locales/en.json=0\nfrontend/src/locales/vn.json=0",
+  "checks": [
+    {
+      "id": "zh：telegram.desc 存在且 JSON 可解析",
+      "pass": true,
+      "detail": {
+        "desc": "绑定后，收到新消息会通过 Telegram bot 提醒你（含消息开头摘要）"
+      }
+    },
+    {
+      "id": "zh：telegram.desc 含新串「含消息开头摘要」",
+      "pass": true,
+      "detail": "绑定后，收到新消息会通过 Telegram bot 提醒你（含消息开头摘要）"
+    },
+    {
+      "id": "zh：旧串「不包含消息内容」全文件计数 = 0",
+      "pass": true,
+      "detail": 0
+    },
+    {
+      "id": "hk：telegram.desc 存在且 JSON 可解析",
+      "pass": true,
+      "detail": {
+        "desc": "綁定後，收到新消息會通過 Telegram bot 提醒你（含訊息開頭摘要）"
+      }
+    },
+    {
+      "id": "hk：telegram.desc 含新串「含訊息開頭摘要」",
+      "pass": true,
+      "detail": "綁定後，收到新消息會通過 Telegram bot 提醒你（含訊息開頭摘要）"
+    },
+    {
+      "id": "hk：旧串「不包含消息內容」全文件计数 = 0",
+      "pass": true,
+      "detail": 0
+    },
+    {
+      "id": "en：telegram.desc 存在且 JSON 可解析",
+      "pass": true,
+      "detail": {
+        "desc": "Get Telegram bot reminders for new messages (includes a preview of the message opening)"
+      }
+    },
+    {
+      "id": "en：telegram.desc 含新串「includes a preview of the message opening」",
+      "pass": true,
+      "detail": "Get Telegram bot reminders for new messages (includes a preview of the message opening)"
+    },
+    {
+      "id": "en：旧串「content not included」全文件计数 = 0",
+      "pass": true,
+      "detail": 0
+    },
+    {
+      "id": "vn：telegram.desc 存在且 JSON 可解析",
+      "pass": true,
+      "detail": {
+        "desc": "Nhận thông báo qua Telegram bot khi có tin nhắn mới (kèm trích đoạn đầu tin nhắn)"
+      }
+    },
+    {
+      "id": "vn：telegram.desc 含新串「kèm trích đoạn đầu tin nhắn」",
+      "pass": true,
+      "detail": "Nhận thông báo qua Telegram bot khi có tin nhắn mới (kèm trích đoạn đầu tin nhắn)"
+    },
+    {
+      "id": "vn：旧串「không kèm nội dung」全文件计数 = 0",
+      "pass": true,
+      "detail": 0
+    },
+    {
+      "id": "全仓 grep 四语旧串总计数 = 0",
+      "pass": true,
+      "detail": [
+        "frontend/src/locales/zh.json=0",
+        "frontend/src/locales/hk.json=0",
+        "frontend/src/locales/en.json=0",
+        "frontend/src/locales/vn.json=0"
+      ]
+    }
+  ],
+  "verdict": "PASS",
+  "browser": {
+    "ac": "AC-4-b",
+    "at": "2026-10-14T22:29:49Z",
+    "url": "http://localhost:5787/profile/settings",
+    "location_after": "/profile/settings",
+    "waited_until_telegram_present": true,
+    "telegram_occurrences_in_dom": 3,
+    "telegram_block_text": "\n悬赏家\n暂无数据\n工人\n暂无数据\n店家\n暂无数据\n顾客\n暂无数据\n时效\n悬赏家平均通过天数\n暂无数据\n工人平均通过天数\n暂无数据\n店家平均发货天数\n暂无数据\n顾客平均收货天数\n暂无数据\n工人平均通过率\n暂无数据\n顾客平均成交率\n暂无数据\n任务平均通过率\n暂无数据\n商品平均成交率\n暂无数据\n基本信息\n编辑\n37\n0x3748...6eb9\n注册时间: 10/14/2026\n钱包地址: 0x3748...6eb9\n个人简介\n| sf14qa bio round-trip 1791950946 | sf14qa v2 1791951074\n我的资产\n0\n积分\n0\n待领取\n0\n已兑换奖励\n—\n最近更新\n余额\n0\n$\n\n余额以平台账户资产为准。\n\n流水\n暂无账本流水。交易完成后，记录会显示在这里。\n任务成就\n0\n总任务\n0\n已完成\n0\n进行中\n0\n总积分\n成就徽章\n碎片持仓\n去交易\n\n暂无持仓\n\nTelegram 通知\n\n绑定后，收到新消息会通过 Telegram bot 提醒你（含消息开头摘要）\n\n加载中...\n\n绑定 Telegram\n简体中文\nEnglish\n粤语\nTiếng Việt\n\n© 2024-2026 Abbey Quant & Jinli Club. 保留所有权利。\n\n本网站支持简体中文、英文、粤语和越南语。\n\n联系我们：contact@jinli.club\n\n卖闲置\n消息\nAPP\n反馈\n客服",
+    "has_new_token_zh": true,
+    "has_old_token_zh": false,
+    "body_len": 729,
+    "screenshot": "/Users/kevin/bistro/seafood/ops/tg-notify-preview/shots/ac4-profile-settings.png"
+  }
+}

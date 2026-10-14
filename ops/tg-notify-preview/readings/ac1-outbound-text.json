@@ -1,0 +1,664 @@
+{
+  "ac": "AC-1",
+  "at": "2026-10-14T22:27:02.534Z",
+  "head_under_test": "e18716d4560bd3babd3d01b8fe7396649ced103a",
+  "module_under_test": "backend-ts/src/messages-service.ts (真 require，真链级)",
+  "probes": {
+    "ac1": "/Users/kevin/bistro/seafood/ops/tg-notify-preview/probes/probe-ac1-realchain.ts",
+    "mutants": "/Users/kevin/bistro/seafood/ops/tg-notify-preview/probes/mutants-msg-preview.ts"
+  },
+  "spec": {
+    "path": "docs/route-layer.spec.md",
+    "line": 8187,
+    "template": "<站点名>：你有新消息（来自会话：<商品标题掩码>）「<消息开头预览>」，打开 <站点域名>/messages 查看 / You have a new message, open <site>/messages",
+    "template_sha256": "71e8f5e9e542886bf3b95bbb296567ffcddd474e005e996ef29a5a5de9c7007e"
+  },
+  "original_literal_source": "git show a280afe^:backend-ts/src/messages-service.ts (旧句现取)",
+  "original_template_sha256": "39925e80dbfc3698f695934683cbf8e952b1b89e1abb58caa7c64c946e02e410",
+  "synthetic_fixture": {
+    "chatId": "9900000000001",
+    "title": "Probe-List",
+    "titleLong": "Synthetic Probe Listing For Mask Check",
+    "conversationId": 900001,
+    "fromUid": 971214
+  },
+  "sql_seen": [
+    {
+      "sql": "SELECT u.tg_user_id, l.title FROM public.conversation c JOIN pub",
+      "params": [
+        971214,
+        900001
+      ]
+    },
+    {
+      "sql": "SELECT value FROM public.app_config WHERE key = 'system_settings",
+      "params": null
+    },
+    {
+      "sql": "SELECT u.tg_user_id, l.title FROM public.conversation c JOIN pub",
+      "params": [
+        971214,
+        900001
+      ]
+    },
+    {
+      "sql": "SELECT value FROM public.app_config WHERE key = 'system_settings",
+      "params": null
+    },
+    {
+      "sql": "SELECT u.tg_user_id, l.title FROM public.conversation c JOIN pub",
+      "params": [
+        971214,
+        900001
+      ]
+    },
+    {
+      "sql": "SELECT value FROM public.app_config WHERE key = 'system_settings",
+      "params": null
+    }
+  ],
+  "vectors": [
+    {
+      "label": "b1 纯汉字 3 字（=6 单位）⇒ 不省略",
+      "input": "你好吗",
+      "got": "你好吗",
+      "want": "你好吗",
+      "pass": true
+    },
+    {
+      "label": "b2 纯汉字 4 字 ⇒ 截 3 字 + …",
+      "input": "你好吗的",
+      "got": "你好吗…",
+      "want": "你好吗…",
+      "pass": true
+    },
+    {
+      "label": "b3 拉丁 6 ⇒ 不省略",
+      "input": "abcdef",
+      "got": "abcdef",
+      "want": "abcdef",
+      "pass": true
+    },
+    {
+      "label": "b4 拉丁 7 ⇒ 截 6 + …",
+      "input": "abcdefg",
+      "got": "abcdef…",
+      "want": "abcdef…",
+      "pass": true
+    },
+    {
+      "label": "b5 中英混合满额（你好ab=6）⇒ 不省略",
+      "input": "你好ab",
+      "got": "你好ab",
+      "want": "你好ab",
+      "pass": true
+    },
+    {
+      "label": "b6 中英混合超一（你好abc=7）⇒ 你好ab + …",
+      "input": "你好abc",
+      "got": "你好ab…",
+      "want": "你好ab…",
+      "pass": true
+    },
+    {
+      "label": "b7 国旗 3 簇（区域指示符成对，6 单位）⇒ 不省略、不拆对",
+      "input": "🇻🇳🇺🇸🇯🇵",
+      "got": "🇻🇳🇺🇸🇯🇵",
+      "want": "🇻🇳🇺🇸🇯🇵",
+      "pass": true
+    },
+    {
+      "label": "b8 国旗 3 簇 + 拉丁 ⇒ 三面旗全留 + …",
+      "input": "🇻🇳🇺🇸🇯🇵x",
+      "got": "🇻🇳🇺🇸🇯🇵…",
+      "want": "🇻🇳🇺🇸🇯🇵…",
+      "pass": true
+    },
+    {
+      "label": "b9 ZWJ 家庭簇（单簇）⇒ 整簇不拆",
+      "input": "👨‍👩‍👧",
+      "got": "👨‍👩‍👧",
+      "want": "👨‍👩‍👧",
+      "pass": true
+    },
+    {
+      "label": "b10 ZWJ 簇 + 2 汉字（=6）⇒ 不省略",
+      "input": "👨‍👩‍👧你好",
+      "got": "👨‍👩‍👧你好",
+      "want": "👨‍👩‍👧你好",
+      "pass": true
+    },
+    {
+      "label": "b11 ZWJ 簇 + 3 汉字 ⇒ 截在簇边界（你好 + …）",
+      "input": "👨‍👩‍👧你好吗",
+      "got": "👨‍👩‍👧你好…",
+      "want": "👨‍👩‍👧你好…",
+      "pass": true
+    },
+    {
+      "label": "b12 全角标点 4 个 ⇒ 截 3 + …",
+      "input": "！！！！",
+      "got": "！！！…",
+      "want": "！！！…",
+      "pass": true
+    },
+    {
+      "label": "b13 首尾空白先去",
+      "input": "  你好吗  ",
+      "got": "你好吗",
+      "want": "你好吗",
+      "pass": true
+    },
+    {
+      "label": "b14 空正文 ⇒ 空预览",
+      "input": "",
+      "got": "",
+      "want": "",
+      "pass": true
+    },
+    {
+      "label": "b15 全空白 ⇒ 空预览",
+      "input": "   \n\t ",
+      "got": "",
+      "want": "",
+      "pass": true
+    },
+    {
+      "label": "b16 非串（数字）⇒ 空预览",
+      "input": 12345,
+      "got": "",
+      "want": "",
+      "pass": true
+    },
+    {
+      "label": "b17 null ⇒ 空预览",
+      "input": null,
+      "got": "",
+      "want": "",
+      "pass": true
+    }
+  ],
+  "mutation": {
+    "m1_red": [
+      {
+        "label": "b4 拉丁 7 ⇒ 截 6 + …",
+        "got": "abcdefg",
+        "want": "abcdef…"
+      },
+      {
+        "label": "b6 中英混合超一（你好abc=7）⇒ 你好ab + …",
+        "got": "你好abc",
+        "want": "你好ab…"
+      },
+      {
+        "label": "b8 国旗 3 簇 + 拉丁 ⇒ 三面旗全留 + …",
+        "got": "🇻🇳🇺🇸🇯🇵x",
+        "want": "🇻🇳🇺🇸🇯🇵…"
+      }
+    ],
+    "m1_green": 14,
+    "m2_mutant_text": "Seafood Club：你有新消息（来自会话：合成标题掩码ABC）「」，打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages"
+  },
+  "real_chain": {
+    "url_masked": "https://api.telegram.org/bot***TOKEN***/sendMessage",
+    "payload": {
+      "chat_id": "9900000000001",
+      "text": "海鲜市场：你有新消息（来自会话：Probe-List）「你好吗…」，打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages"
+    },
+    "want": "海鲜市场：你有新消息（来自会话：Probe-List）「你好吗…」，打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages",
+    "empty_body_payload": {
+      "chat_id": "9900000000001",
+      "text": "海鲜市场：你有新消息（来自会话：Probe-List），打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages"
+    },
+    "long_title_payload": {
+      "chat_id": "9900000000001",
+      "text": "海鲜市场：你有新消息（来自会话：Synthetic Pr…）「你好吗」，打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages"
+    },
+    "long_title_want_masked": "Synthetic Pr…",
+    "expect_site_name": "海鲜市场",
+    "expect_site": "https://0xseafood.com"
+  },
+  "env_real_send_dumb_token": {
+    "http": 404,
+    "body": "{\"ok\":false,\"error_code\":404,\"description\":\"Not Found\"}"
+  },
+  "checks": [
+    {
+      "id": "a1 抽取到的 §41.7 模板字面非空且含全部 5 个占位符",
+      "pass": true,
+      "detail": "<站点名>：你有新消息（来自会话：<商品标题掩码>）「<消息开头预览>」，打开 <站点域名>/messages 查看 / You have a new message, open <site>/messages"
+    },
+    {
+      "id": "a2 有预览 ⇒ 与 §41.7 模板行逐字一致（占位符代入）",
+      "pass": true,
+      "detail": {
+        "got": "Seafood Club：你有新消息（来自会话：合成标题掩码ABC）「你好吗」，打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages",
+        "want": "Seafood Club：你有新消息（来自会话：合成标题掩码ABC）「你好吗」，打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages"
+      }
+    },
+    {
+      "id": "a3 无预览 ⇒ 与 §41.7 模板行「预览段置空」逐字一致（预览紧随右括号、无「：」引出）",
+      "pass": true,
+      "detail": {
+        "got": "Seafood Club：你有新消息（来自会话：合成标题掩码ABC），打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages",
+        "want": "Seafood Club：你有新消息（来自会话：合成标题掩码ABC），打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages"
+      }
+    },
+    {
+      "id": "a4 无预览 ⇒ 与 a280afe^ 旧字面逐字一致（原形零位移）",
+      "pass": true,
+      "detail": {
+        "got": "Seafood Club：你有新消息（来自会话：合成标题掩码ABC），打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages",
+        "want": "Seafood Club：你有新消息（来自会话：合成标题掩码ABC），打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages"
+      }
+    },
+    {
+      "id": "预览向量 b1 纯汉字 3 字（=6 单位）⇒ 不省略",
+      "pass": true,
+      "detail": {
+        "in": "你好吗",
+        "got": "你好吗",
+        "want": "你好吗"
+      }
+    },
+    {
+      "id": "预览向量 b2 纯汉字 4 字 ⇒ 截 3 字 + …",
+      "pass": true,
+      "detail": {
+        "in": "你好吗的",
+        "got": "你好吗…",
+        "want": "你好吗…"
+      }
+    },
+    {
+      "id": "预览向量 b3 拉丁 6 ⇒ 不省略",
+      "pass": true,
+      "detail": {
+        "in": "abcdef",
+        "got": "abcdef",
+        "want": "abcdef"
+      }
+    },
+    {
+      "id": "预览向量 b4 拉丁 7 ⇒ 截 6 + …",
+      "pass": true,
+      "detail": {
+        "in": "abcdefg",
+        "got": "abcdef…",
+        "want": "abcdef…"
+      }
+    },
+    {
+      "id": "预览向量 b5 中英混合满额（你好ab=6）⇒ 不省略",
+      "pass": true,
+      "detail": {
+        "in": "你好ab",
+        "got": "你好ab",
+        "want": "你好ab"
+      }
+    },
+    {
+      "id": "预览向量 b6 中英混合超一（你好abc=7）⇒ 你好ab + …",
+      "pass": true,
+      "detail": {
+        "in": "你好abc",
+        "got": "你好ab…",
+        "want": "你好ab…"
+      }
+    },
+    {
+      "id": "预览向量 b7 国旗 3 簇（区域指示符成对，6 单位）⇒ 不省略、不拆对",
+      "pass": true,
+      "detail": {
+        "in": "🇻🇳🇺🇸🇯🇵",
+        "got": "🇻🇳🇺🇸🇯🇵",
+        "want": "🇻🇳🇺🇸🇯🇵"
+      }
+    },
+    {
+      "id": "预览向量 b8 国旗 3 簇 + 拉丁 ⇒ 三面旗全留 + …",
+      "pass": true,
+      "detail": {
+        "in": "🇻🇳🇺🇸🇯🇵x",
+        "got": "🇻🇳🇺🇸🇯🇵…",
+        "want": "🇻🇳🇺🇸🇯🇵…"
+      }
+    },
+    {
+      "id": "预览向量 b9 ZWJ 家庭簇（单簇）⇒ 整簇不拆",
+      "pass": true,
+      "detail": {
+        "in": "👨‍👩‍👧",
+        "got": "👨‍👩‍👧",
+        "want": "👨‍👩‍👧"
+      }
+    },
+    {
+      "id": "预览向量 b10 ZWJ 簇 + 2 汉字（=6）⇒ 不省略",
+      "pass": true,
+      "detail": {
+        "in": "👨‍👩‍👧你好",
+        "got": "👨‍👩‍👧你好",
+        "want": "👨‍👩‍👧你好"
+      }
+    },
+    {
+      "id": "预览向量 b11 ZWJ 簇 + 3 汉字 ⇒ 截在簇边界（你好 + …）",
+      "pass": true,
+      "detail": {
+        "in": "👨‍👩‍👧你好吗",
+        "got": "👨‍👩‍👧你好…",
+        "want": "👨‍👩‍👧你好…"
+      }
+    },
+    {
+      "id": "预览向量 b12 全角标点 4 个 ⇒ 截 3 + …",
+      "pass": true,
+      "detail": {
+        "in": "！！！！",
+        "got": "！！！…",
+        "want": "！！！…"
+      }
+    },
+    {
+      "id": "预览向量 b13 首尾空白先去",
+      "pass": true,
+      "detail": {
+        "in": "  你好吗  ",
+        "got": "你好吗",
+        "want": "你好吗"
+      }
+    },
+    {
+      "id": "预览向量 b14 空正文 ⇒ 空预览",
+      "pass": true,
+      "detail": {
+        "in": "",
+        "got": "",
+        "want": ""
+      }
+    },
+    {
+      "id": "预览向量 b15 全空白 ⇒ 空预览",
+      "pass": true,
+      "detail": {
+        "in": "   \n\t ",
+        "got": "",
+        "want": ""
+      }
+    },
+    {
+      "id": "预览向量 b16 非串（数字）⇒ 空预览",
+      "pass": true,
+      "detail": {
+        "in": "12345",
+        "got": "",
+        "want": ""
+      }
+    },
+    {
+      "id": "预览向量 b17 null ⇒ 空预览",
+      "pass": true,
+      "detail": {
+        "in": "null",
+        "got": "",
+        "want": ""
+      }
+    },
+    {
+      "id": "b18 emoji 输出无孤立代理半体且不以 ZWJ 结尾",
+      "pass": true,
+      "detail": [
+        {
+          "label": "b7 国旗 3 簇（区域指示符成对，6 单位）⇒ 不省略、不拆对",
+          "got": "🇻🇳🇺🇸🇯🇵",
+          "lone": false
+        },
+        {
+          "label": "b8 国旗 3 簇 + 拉丁 ⇒ 三面旗全留 + …",
+          "got": "🇻🇳🇺🇸🇯🇵…",
+          "lone": false
+        },
+        {
+          "label": "b9 ZWJ 家庭簇（单簇）⇒ 整簇不拆",
+          "got": "👨‍👩‍👧",
+          "lone": false
+        },
+        {
+          "label": "b10 ZWJ 簇 + 2 汉字（=6）⇒ 不省略",
+          "got": "👨‍👩‍👧你好",
+          "lone": false
+        },
+        {
+          "label": "b11 ZWJ 簇 + 3 汉字 ⇒ 截在簇边界（你好 + …）",
+          "got": "👨‍👩‍👧你好…",
+          "lone": false
+        }
+      ]
+    },
+    {
+      "id": "b19 不变量（自建独立尺子）：各向量输出（去省略号）显示宽 ≤ 6 且 ≤ 输入",
+      "pass": true,
+      "detail": [
+        {
+          "label": "b1 纯汉字 3 字（=6 单位）⇒ 不省略",
+          "stripped": "你好吗",
+          "units": 6
+        },
+        {
+          "label": "b2 纯汉字 4 字 ⇒ 截 3 字 + …",
+          "stripped": "你好吗",
+          "units": 6
+        },
+        {
+          "label": "b3 拉丁 6 ⇒ 不省略",
+          "stripped": "abcdef",
+          "units": 6
+        },
+        {
+          "label": "b4 拉丁 7 ⇒ 截 6 + …",
+          "stripped": "abcdef",
+          "units": 6
+        },
+        {
+          "label": "b5 中英混合满额（你好ab=6）⇒ 不省略",
+          "stripped": "你好ab",
+          "units": 6
+        },
+        {
+          "label": "b6 中英混合超一（你好abc=7）⇒ 你好ab + …",
+          "stripped": "你好ab",
+          "units": 6
+        },
+        {
+          "label": "b7 国旗 3 簇（区域指示符成对，6 单位）⇒ 不省略、不拆对",
+          "stripped": "🇻🇳🇺🇸🇯🇵",
+          "units": 6
+        },
+        {
+          "label": "b8 国旗 3 簇 + 拉丁 ⇒ 三面旗全留 + …",
+          "stripped": "🇻🇳🇺🇸🇯🇵",
+          "units": 6
+        },
+        {
+          "label": "b9 ZWJ 家庭簇（单簇）⇒ 整簇不拆",
+          "stripped": "👨‍👩‍👧",
+          "units": 2
+        },
+        {
+          "label": "b10 ZWJ 簇 + 2 汉字（=6）⇒ 不省略",
+          "stripped": "👨‍👩‍👧你好",
+          "units": 6
+        },
+        {
+          "label": "b11 ZWJ 簇 + 3 汉字 ⇒ 截在簇边界（你好 + …）",
+          "stripped": "👨‍👩‍👧你好",
+          "units": 6
+        },
+        {
+          "label": "b12 全角标点 4 个 ⇒ 截 3 + …",
+          "stripped": "！！！",
+          "units": 6
+        },
+        {
+          "label": "b13 首尾空白先去",
+          "stripped": "你好吗",
+          "units": 6
+        }
+      ]
+    },
+    {
+      "id": "c1 英文半段逐字未变（与规范模板行的英文半段同源）",
+      "pass": true,
+      "detail": {
+        "tail": " / You have a new message, open https://0xseafood.com/messages"
+      }
+    },
+    {
+      "id": "c2 预览在整个文本中恰出现 1 次（不重复）",
+      "pass": true,
+      "detail": "Seafood Club：你有新消息（来自会话：合成标题掩码ABC）「你好吗」，打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages"
+    },
+    {
+      "id": "c3 英文半段恰出现 1 次",
+      "pass": true,
+      "detail": "Seafood Club：你有新消息（来自会话：合成标题掩码ABC）「你好吗」，打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages"
+    },
+    {
+      "id": "e1 真链触发 fetch（notifyMessageCounterpart 后台段）",
+      "pass": true,
+      "detail": {
+        "captured": 1,
+        "sql_seen": [
+          {
+            "sql": "SELECT u.tg_user_id, l.title FROM public.conversation c JOIN pub",
+            "params": [
+              971214,
+              900001
+            ]
+          },
+          {
+            "sql": "SELECT value FROM public.app_config WHERE key = 'system_settings",
+            "params": null
+          },
+          {
+            "sql": "SELECT u.tg_user_id, l.title FROM public.conversation c JOIN pub",
+            "params": [
+              971214,
+              900001
+            ]
+          },
+          {
+            "sql": "SELECT value FROM public.app_config WHERE key = 'system_settings",
+            "params": null
+          },
+          {
+            "sql": "SELECT u.tg_user_id, l.title FROM public.conversation c JOIN pub",
+            "params": [
+              971214,
+              900001
+            ]
+          },
+          {
+            "sql": "SELECT value FROM public.app_config WHERE key = 'system_settings",
+            "params": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "e2 捕获 URL = Telegram sendMessage（token 掩码）",
+      "pass": true,
+      "detail": "https://api.telegram.org/bot***TOKEN***/sendMessage"
+    },
+    {
+      "id": "e3 payload.chat_id = 合成对端 tg_user_id（字符串原样）",
+      "pass": true,
+      "detail": "9900000000001"
+    },
+    {
+      "id": "e4 真链出站 text 与 §41.7 模板行逐字一致（含预览 你好吗…）",
+      "pass": true,
+      "detail": {
+        "got": "海鲜市场：你有新消息（来自会话：Probe-List）「你好吗…」，打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages",
+        "want": "海鲜市场：你有新消息（来自会话：Probe-List）「你好吗…」，打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages"
+      }
+    },
+    {
+      "id": "e5 真链出站 text 预览恰 1 次、英文半段恰 1 次",
+      "pass": true,
+      "detail": "海鲜市场：你有新消息（来自会话：Probe-List）「你好吗…」，打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages"
+    },
+    {
+      "id": "e6 真链出站 text 不含「：」引出预览的作废形态",
+      "pass": true,
+      "detail": "海鲜市场：你有新消息（来自会话：Probe-List）「你好吗…」，打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages"
+    },
+    {
+      "id": "e7 空/全空白正文真链 ⇒ 整句逐字回原形（无「」预览段）",
+      "pass": true,
+      "detail": {
+        "got": "海鲜市场：你有新消息（来自会话：Probe-List），打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages",
+        "want": "海鲜市场：你有新消息（来自会话：Probe-List），打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages"
+      }
+    },
+    {
+      "id": "e8 长标题 ⇒ 出站含「掩码标题（首 12 字 + …）」且预览紧随其后（逐字）",
+      "pass": true,
+      "detail": {
+        "got": "海鲜市场：你有新消息（来自会话：Synthetic Pr…）「你好吗」，打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages",
+        "want_masked": "Synthetic Pr…"
+      }
+    },
+    {
+      "id": "d1 变异体 M1（7 单位尺子）被自写向量判红（≥3 条红，含 b4/b6/b8）",
+      "pass": true,
+      "detail": {
+        "red": [
+          {
+            "label": "b4 拉丁 7 ⇒ 截 6 + …",
+            "got": "abcdefg",
+            "want": "abcdef…"
+          },
+          {
+            "label": "b6 中英混合超一（你好abc=7）⇒ 你好ab + …",
+            "got": "你好abc",
+            "want": "你好ab…"
+          },
+          {
+            "label": "b8 国旗 3 簇 + 拉丁 ⇒ 三面旗全留 + …",
+            "got": "🇻🇳🇺🇸🇯🇵x",
+            "want": "🇻🇳🇺🇸🇯🇵…"
+          }
+        ],
+        "green": 14
+      }
+    },
+    {
+      "id": "d1b 边界差分（abcdefgh = 8 单位）：真实现 6 单位尺子 / M1 7 单位尺子，两者必不同",
+      "pass": true,
+      "detail": {
+        "real": "abcdef…",
+        "mutant_m1": "abcdefg…"
+      }
+    },
+    {
+      "id": "d2 变异体 M1 的真实函数族对照：真实现 0 条红 / M1 ≥3 条红（尺子灵敏）",
+      "pass": true,
+      "detail": {
+        "real_red": 0,
+        "mut_red": 3
+      }
+    },
+    {
+      "id": "d3 变异体 M2（空预览照插「」）被判红：真实现回原形 / M2 出现「」空预览段",
+      "pass": true,
+      "detail": {
+        "real": "Seafood Club：你有新消息（来自会话：合成标题掩码ABC），打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages",
+        "mutant": "Seafood Club：你有新消息（来自会话：合成标题掩码ABC）「」，打开 https://0xseafood.com/messages 查看 / You have a new message, open https://0xseafood.com/messages"
+      }
+    }
+  ],
+  "failed_checks": [],
+  "verdict": "PASS"
+}

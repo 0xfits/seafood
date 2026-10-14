@@ -1,0 +1,213 @@
+{
+  "ac": "AC-2",
+  "at": "2026-10-14T22:28:06.648Z",
+  "head_under_test": "e18716d4560bd3babd3d01b8fe7396649ced103a",
+  "api": "http://localhost:5788",
+  "auth": {
+    "login_verify_status": 200,
+    "uid": 971214,
+    "token_len": 193
+  },
+  "health_schema": null,
+  "checks": [
+    {
+      "id": "形状闸 7 位（\"1234567\"）⇒ 400 + TG_CODE_INVALID + reason=SHAPE_INVALID",
+      "pass": true,
+      "detail": {
+        "input": "1234567",
+        "desc": "7 位",
+        "status": 400,
+        "err": {
+          "code": "TG_CODE_INVALID",
+          "reason": "SHAPE_INVALID",
+          "message": "The Telegram bind code is invalid, expired or already consumed"
+        },
+        "raw_data": null
+      }
+    },
+    {
+      "id": "形状闸 9 位（\"123456789\"）⇒ 400 + TG_CODE_INVALID + reason=SHAPE_INVALID",
+      "pass": true,
+      "detail": {
+        "input": "123456789",
+        "desc": "9 位",
+        "status": 400,
+        "err": {
+          "code": "TG_CODE_INVALID",
+          "reason": "SHAPE_INVALID",
+          "message": "The Telegram bind code is invalid, expired or already consumed"
+        },
+        "raw_data": null
+      }
+    },
+    {
+      "id": "形状闸 含字母（\"AB123456\"）⇒ 400 + TG_CODE_INVALID + reason=SHAPE_INVALID",
+      "pass": true,
+      "detail": {
+        "input": "AB123456",
+        "desc": "含字母",
+        "status": 400,
+        "err": {
+          "code": "TG_CODE_INVALID",
+          "reason": "SHAPE_INVALID",
+          "message": "The Telegram bind code is invalid, expired or already consumed"
+        },
+        "raw_data": null
+      }
+    },
+    {
+      "id": "形状闸 含空格（\"1234 5678\"）⇒ 400 + TG_CODE_INVALID + reason=SHAPE_INVALID",
+      "pass": true,
+      "detail": {
+        "input": "1234 5678",
+        "desc": "含空格",
+        "status": 400,
+        "err": {
+          "code": "TG_CODE_INVALID",
+          "reason": "SHAPE_INVALID",
+          "message": "The Telegram bind code is invalid, expired or already consumed"
+        },
+        "raw_data": null
+      }
+    },
+    {
+      "id": "合法 8 位数字码 ⇒ 不落形状分支（非 400/非 SHAPE_INVALID；落 200 成功或业务分支）",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "err": null,
+        "data": {
+          "tg_linked": true,
+          "tg_linked_at": "2026-10-14T22:28:12.274Z"
+        }
+      }
+    },
+    {
+      "id": "合法码 confirm 成功 ⇒ 200 + tg_linked=true（形状闸未误杀）",
+      "pass": true,
+      "detail": {
+        "tg_linked": true,
+        "tg_linked_at": "2026-10-14T22:28:12.274Z"
+      }
+    },
+    {
+      "id": "查无 8 位码 ⇒ 404 且 reason ≠ SHAPE_INVALID（防同名回归）",
+      "pass": true,
+      "detail": {
+        "input": "91919191",
+        "rows_in_db": 0,
+        "status": 404,
+        "err": {
+          "code": "LEDGER_REF_NOT_FOUND",
+          "reason": "code_not_found",
+          "message": "Referenced object not found"
+        },
+        "body_keys": [
+          "error"
+        ],
+        "raw": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"Referenced object not found\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"telegram_bind_code\",\"ref_id\":\"91919191\",\"reason\":\"code_not_found\"}}}"
+      }
+    },
+    {
+      "id": "免鉴权 confirm ⇒ 401",
+      "pass": true,
+      "detail": {
+        "status": 401,
+        "err": {
+          "code": "AUTH_UNAUTHORIZED",
+          "reason": null,
+          "message": "Authentication is required"
+        }
+      }
+    }
+  ],
+  "reads": {
+    "no_auth": {
+      "status": 401,
+      "err": {
+        "code": "AUTH_UNAUTHORIZED",
+        "reason": null,
+        "message": "Authentication is required"
+      }
+    },
+    "shape_cases": [
+      {
+        "input": "1234567",
+        "desc": "7 位",
+        "status": 400,
+        "err": {
+          "code": "TG_CODE_INVALID",
+          "reason": "SHAPE_INVALID",
+          "message": "The Telegram bind code is invalid, expired or already consumed"
+        },
+        "raw_data": null
+      },
+      {
+        "input": "123456789",
+        "desc": "9 位",
+        "status": 400,
+        "err": {
+          "code": "TG_CODE_INVALID",
+          "reason": "SHAPE_INVALID",
+          "message": "The Telegram bind code is invalid, expired or already consumed"
+        },
+        "raw_data": null
+      },
+      {
+        "input": "AB123456",
+        "desc": "含字母",
+        "status": 400,
+        "err": {
+          "code": "TG_CODE_INVALID",
+          "reason": "SHAPE_INVALID",
+          "message": "The Telegram bind code is invalid, expired or already consumed"
+        },
+        "raw_data": null
+      },
+      {
+        "input": "1234 5678",
+        "desc": "含空格",
+        "status": 400,
+        "err": {
+          "code": "TG_CODE_INVALID",
+          "reason": "SHAPE_INVALID",
+          "message": "The Telegram bind code is invalid, expired or already consumed"
+        },
+        "raw_data": null
+      }
+    ],
+    "valid_code": {
+      "tg_id": 990001401,
+      "webhook_status": 200,
+      "issued_row": {
+        "req_id": "18",
+        "code_masked": "75****91",
+        "digit_count": 8,
+        "consumed_at": null
+      },
+      "confirm": {
+        "status": 200,
+        "err": null,
+        "data": {
+          "tg_linked": true,
+          "tg_linked_at": "2026-10-14T22:28:12.274Z"
+        }
+      }
+    },
+    "unknown_code": {
+      "input": "91919191",
+      "rows_in_db": 0,
+      "status": 404,
+      "err": {
+        "code": "LEDGER_REF_NOT_FOUND",
+        "reason": "code_not_found",
+        "message": "Referenced object not found"
+      },
+      "body_keys": [
+        "error"
+      ],
+      "raw": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"Referenced object not found\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"telegram_bind_code\",\"ref_id\":\"91919191\",\"reason\":\"code_not_found\"}}}"
+    }
+  },
+  "verdict": "PASS"
+}

@@ -1,0 +1,186 @@
+{
+  "ac": "AC-3",
+  "at": "2026-10-14T22:28:14.073Z",
+  "head_under_test": "e18716d4560bd3babd3d01b8fe7396649ced103a",
+  "checks": [
+    {
+      "id": "往返：confirm ⇒ 200 tg_linked=true",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "err": null,
+        "data": {
+          "tg_linked": true,
+          "tg_linked_at": "2026-10-14T22:28:18.756Z"
+        }
+      }
+    },
+    {
+      "id": "往返：confirm 后 users.tg_user_id 非空（值不回显，仅记类型/长度）",
+      "pass": true,
+      "detail": {
+        "type": "string",
+        "len": 9,
+        "matches_webhook_tg_id": false
+      }
+    },
+    {
+      "id": "往返：bind_request.consumed_at 已落（非空）",
+      "pass": true,
+      "detail": {
+        "req_id": "19",
+        "consumed_at": "2026-10-14T22:28:17.811Z"
+      }
+    },
+    {
+      "id": "status 绑定后 linked=true 且响应不含 tg_user_id 数值（隐私读面）",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "data": {
+          "tg_linked": true,
+          "tg_linked_at": "2026-10-14T22:28:17.811Z"
+        },
+        "has_tg_user_id": false
+      }
+    },
+    {
+      "id": "unbind ⇒ 200",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "data": {
+          "tg_linked": false
+        }
+      }
+    },
+    {
+      "id": "unbind 后 status linked=false",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "data": {
+          "tg_linked": false,
+          "tg_linked_at": null
+        }
+      }
+    },
+    {
+      "id": "★ 只读库终态：users.tg_user_id 回 null 且 tg_linked_at 回 null",
+      "pass": true,
+      "detail": {
+        "uid": "971214",
+        "tg_user_id": null,
+        "tg_linked_at": null
+      }
+    },
+    {
+      "id": "冷却闸 60s：同 id 二次 /start 恒 200 且不落第二行（行数不变）",
+      "pass": true,
+      "detail": {
+        "tg_id": 990001402,
+        "first": {
+          "status": 200
+        },
+        "second": {
+          "status": 200
+        },
+        "rows_after_first": 1,
+        "rows_after_second": 1
+      }
+    }
+  ],
+  "reads": {
+    "user_before": {
+      "uid": "971214",
+      "tg_user_id": "990001401",
+      "tg_linked_at": "2026-10-14T22:28:11.217Z"
+    },
+    "status_before": {
+      "status": 200,
+      "data": {
+        "tg_linked": true,
+        "tg_linked_at": "2026-10-14T22:28:11.217Z"
+      },
+      "has_tg_user_id": false
+    },
+    "clean_unbind": {
+      "status": 200,
+      "data": {
+        "tg_linked": false
+      }
+    },
+    "user_after_clean": {
+      "uid": "971214",
+      "tg_user_id": null,
+      "tg_linked_at": null
+    },
+    "fresh_code": {
+      "req_id": "19",
+      "code_masked": "99****45",
+      "digit_count": 8,
+      "consumed_at_at_issue": null
+    },
+    "webhook_issue_status": 200,
+    "confirm": {
+      "status": 200,
+      "err": null,
+      "data": {
+        "tg_linked": true,
+        "tg_linked_at": "2026-10-14T22:28:18.756Z"
+      }
+    },
+    "status_after_bind": {
+      "status": 200,
+      "data": {
+        "tg_linked": true,
+        "tg_linked_at": "2026-10-14T22:28:17.811Z"
+      },
+      "has_tg_user_id": false
+    },
+    "db_after_bind_row": {
+      "uid": "971214",
+      "tg_user_id": "990001403"
+    },
+    "bind_request_consumed_at": "2026-10-14T22:28:17.811Z",
+    "consumed_code_replay": {
+      "status": 400,
+      "err": {
+        "code": "TG_CODE_INVALID",
+        "reason": "CONSUMED",
+        "message": "The Telegram bind code is invalid, expired or already consumed"
+      }
+    },
+    "unbind": {
+      "status": 200,
+      "data": {
+        "tg_linked": false
+      }
+    },
+    "status_after_unbind": {
+      "status": 200,
+      "data": {
+        "tg_linked": false,
+        "tg_linked_at": null
+      }
+    },
+    "user_after_unbind": {
+      "uid": "971214",
+      "tg_user_id": null,
+      "tg_linked_at": null
+    },
+    "cooldown": {
+      "tg_id": 990001402,
+      "first": {
+        "status": 200
+      },
+      "second": {
+        "status": 200
+      },
+      "rows_after_first": 1,
+      "rows_after_second": 1
+    }
+  },
+  "verdict": "PASS",
+  "gates": "见 gates/（另跑）"
+}

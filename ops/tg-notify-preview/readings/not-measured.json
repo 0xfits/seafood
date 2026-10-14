@@ -1,0 +1,52 @@
+{
+  "ac": "NOT_MEASURED / 未读到 清单（诚实边界 · 禁填 0/空）",
+  "at": "2026-10-15",
+  "head_under_test": "e18716d",
+  "items": [
+    {
+      "id": "NM-1",
+      "item": "真发 Telegram 成功路径（真 token 下 sendMessage 返回 ok=true）",
+      "status": "NOT_MEASURED（环境性 FAIL 保留）",
+      "reason": "backend-ts/.env.local 为哑 token ⇒ 真网 getMe 返回 404 {\"ok\":false,\"error_code\":404,\"description\":\"Not Found\"}（environment，不判负）。AC-1 真链取证的 fetch 被 stub ⇒ 捕获的是出站 payload，非 Telegram 应答。",
+      "attribution": "环境（哑配置），非本单实现面"
+    },
+    {
+      "id": "NM-2",
+      "item": "推送失败「只进日志、绝不回滚 / 绝不改 HTTP 响应」分支的真实失败注入",
+      "status": "NOT_MEASURED",
+      "reason": "未构造 fetch 抛错/超时的真实失败注入；哑 token 真网失败属环境性（见 NM-1），不能代表该分支。"
+    },
+    {
+      "id": "NM-3",
+      "item": "Vercel Node runtime 下 waitUntil 的实际执行窗（§41.10 未测项）",
+      "status": "NOT_MEASURED",
+      "reason": "本地 dev 进程无 Vercel runtime；探针以轮询等待后台段完成（条件等待，非固定 ms）。"
+    },
+    {
+      "id": "NM-4",
+      "item": "webhook 与 Telegram 真网交互（含 /start 回执真发）",
+      "status": "NOT_MEASURED",
+      "reason": "哑 token ⇒ 回执真发必失败；本单只取 HTTP 侧 200 与库侧签发行。"
+    },
+    {
+      "id": "NM-5",
+      "item": "前端 telegram.codeSteps（TELEGRAM_BOT_USERNAME 可选 env 文案）渲染",
+      "status": "NOT_MEASURED",
+      "reason": "本单 AC-4 读面 = telegram.desc 四语 + Telegram 卡渲染；codeSteps 不在被检裁定范围内。"
+    },
+    {
+      "id": "NM-6",
+      "item": "多会话 / 双角色并发下的通知预览与 20 条·天闸交互",
+      "status": "NOT_MEASURED",
+      "reason": "窄质检只取单会话合成行真链；并发面未测。"
+    },
+    {
+      "id": "NM-7",
+      "item": "四语错误文案（tg.err.TG_CODE_INVALID）落 locale 的逐语渲染",
+      "status": "NOT_MEASURED",
+      "reason": "本单只取 zh 渲染面；四语错误文案沿 §41.10 未测项。"
+    }
+  ],
+  "empty_readings": [],
+  "note": "本轮无「未读到」空读数：AC-1/2/3/4 四件读数 JSON 均有内容（见 readings/）。"
+}

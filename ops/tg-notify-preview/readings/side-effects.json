@@ -1,0 +1,64 @@
+{
+  "at": "2026-10-14T22:29:32.186Z",
+  "token_file": "/Users/kevin/.hermes/profiles/zang/cache/scratch/qa-token.txt (mode 0600, token 未打印, len=193)",
+  "auth": {
+    "verify_status": 200,
+    "uid": 971214,
+    "token_len": 193
+  },
+  "synthetic_bind_rows": [
+    {
+      "req_id": "18",
+      "tg_user_id": "990001401",
+      "code_masked": "75****91",
+      "digit_count": 8,
+      "iat": "2026-10-14T22:28:09.381Z",
+      "exp": "2026-10-14T22:38:09.381Z",
+      "exp_minus_iat_s": 600,
+      "consumed_at": "2026-10-14T22:28:11.217Z"
+    },
+    {
+      "req_id": "19",
+      "tg_user_id": "990001403",
+      "code_masked": "99****45",
+      "digit_count": 8,
+      "iat": "2026-10-14T22:28:16.442Z",
+      "exp": "2026-10-14T22:38:16.442Z",
+      "exp_minus_iat_s": 600,
+      "consumed_at": "2026-10-14T22:28:17.811Z"
+    },
+    {
+      "req_id": "20",
+      "tg_user_id": "990001402",
+      "code_masked": "62****90",
+      "digit_count": 8,
+      "iat": "2026-10-14T22:28:23.336Z",
+      "exp": "2026-10-14T22:38:23.336Z",
+      "exp_minus_iat_s": 600,
+      "consumed_at": null
+    }
+  ],
+  "synthetic_chat_ids_disclosed": [
+    990001401,
+    990001402,
+    990001403
+  ],
+  "table_totals": {
+    "rows_total": 20,
+    "max_req_id": 20
+  },
+  "user_971214_final": {
+    "uid": "971214",
+    "tg_user_id": null,
+    "tg_linked_at": null
+  },
+  "git": [
+    "?? ops/tg-notify-preview/",
+    "--- docs ---",
+    "       0",
+    "--- head ---",
+    "e18716d4560bd3babd3d01b8fe7396649ced103a",
+    "--- behind ---",
+    "5"
+  ]
+}
