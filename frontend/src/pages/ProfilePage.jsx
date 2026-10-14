@@ -310,7 +310,7 @@ const FavoritesPane = ({ user, isAuthenticated, lang }) => {
 //   `tg-bind-action` / `tg-unbind-action`；根另挂 `data-sf-tg-state`（AC-4 采数用，属排查面）。
 // ★ tg-bind-v2（2026-10-14 单）· 扫码绑定升主路径：code 态新增面板 `tg-bind-qr`（QR 内容 =
 //   `https://t.me/<bot_username>`，**不带 start 载荷**——深链载荷限 64 字符且仅 A-Za-z0-9_-，刻意不用）
-//   + `tg-bind-open` 新开链接 + `tg-bind-code-input` 短码输入（提交前 trim+toUpperCase）
+//   + `tg-bind-open` 新开链接 + `tg-bind-code-input` 短码输入（8 位纯数字 ⇒ inputMode=numeric 唤起数字键盘；提交前 trim 归一，toUpperCase 对数字为恒等）
 //   + `tg-bind-confirm` ⇒ `POST /api/telegram/bind/confirm`；bot_username 缺/空 ⇒ 面板隐藏、回退旧长码路径。
 //   旧长码路径**保留为次入口**（同一次 bind/start 响应，`<details>` 折叠；钩子与文案一字不改）。
 //   新增 i18n 键 8 条（telegram.qrHint/qrOpen/codeInputPlaceholder/confirmBind/codeNotFound/
@@ -402,7 +402,7 @@ const TelegramBindCard = () => {
     return null
   }
 
-  // tg-bind-v2 · 扫码主路径确认：短码（trim+toUpperCase 归一后提交）⇒ `POST /api/telegram/bind/confirm`
+  // tg-bind-v2 · 扫码主路径确认：短码（8 位纯数字；trim 归一后提交，toUpperCase 对数字为恒等）⇒ `POST /api/telegram/bind/confirm`
   // （requireActor；成功 = `tg_linked:true` + `tg_linked_at` ⇒ 转已绑定态 + 可见反馈；响应**无 tg_user_id**，本组件不读不渲染）。
   const onConfirmShortCode = async () => {
     if (busy) return
@@ -518,6 +518,7 @@ const TelegramBindCard = () => {
                     value={shortCode}
                     onChange={(event) => setShortCode(event.target.value)}
                     placeholder={t('telegram.codeInputPlaceholder')}
+                    inputMode="numeric"
                     autoCapitalize="characters"
                     autoCorrect="off"
                     spellCheck={false}

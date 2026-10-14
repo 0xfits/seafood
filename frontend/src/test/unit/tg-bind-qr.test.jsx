@@ -5,7 +5,7 @@
  *   ① 扫码面板渲染（bind/start 返回 bot_username 时）：QR SVG + 新开链接（t.me/<bot>，无 start 载荷）
  *      + 短码输入 + 确认按钮；旧长码路径折叠为次入口（details，钩子 tg-bind-code/steps/action 在场）
  *   ② bot_username 缺/空 ⇒ 扫码面板隐藏，回退旧长码路径（原渲染：code 槽 + steps + 回执确认）
- *   ③ confirm 成功：短码提交前 trim+toUpperCase ⇒ POST /api/telegram/bind/confirm ⇒ 转已绑定态 + 可见反馈
+ *   ③ confirm 成功：短码提交前 trim 归一（8 位纯数字，toUpperCase 恒等）⇒ POST /api/telegram/bind/confirm ⇒ 转已绑定态 + 可见反馈
  *   ④ confirm 失败按 reason 映射文案（EXPIRED / TG_TARGET_ACCOUNT_TAKEN 两形抽测）
  *   ⑤ bind/start 503 ⇒ 整卡维持既有未配置降级态（env 降级零改动）
  *
@@ -147,6 +147,8 @@ describe('tg-bind-v2 · 扫码主路径（QR + 打开链接 + 短码 confirm）'
     const input = card.querySelector('input[data-sf-m="tg-bind-code-input"]')
     expect(input).not.toBeNull()
     expect(input.getAttribute('placeholder')).toBe(zh.telegram.codeInputPlaceholder)
+    // 纯数字短码 ⇒ 手机数码键盘（inputMode 同步随本单落地）
+    expect(input.getAttribute('inputmode')).toBe('numeric')
 
     const confirmBtn = card.querySelector('button[data-sf-m="tg-bind-confirm"]')
     expect(confirmBtn).not.toBeNull()
@@ -177,17 +179,17 @@ describe('tg-bind-v2 · 扫码主路径（QR + 打开链接 + 短码 confirm）'
     expect(card.querySelector('button[data-sf-m="tg-bind-action"]')).not.toBeNull()
   })
 
-  it('③ confirm 成功：短码提交前 trim+toUpperCase ⇒ confirm 收到归一码 ⇒ 转已绑定态 + bindSuccess 可见反馈', async () => {
+  it('③ confirm 成功：短码提交前 trim 归一（8 位纯数字）⇒ confirm 收到归一码 ⇒ 转已绑定态 + bindSuccess 可见反馈', async () => {
     TG.start.mockResolvedValue({ code: 'v1.okk.ddd', bot_username: 'seafood_bind_bot' })
     TG.confirm.mockResolvedValue({ tg_linked: true, tg_linked_at: 1728880000 })
     const card = await enterCodeState()
 
     const input = card.querySelector('input[data-sf-m="tg-bind-code-input"]')
-    fireEvent.change(input, { target: { value: '  ab12cd  ' } })
+    fireEvent.change(input, { target: { value: '  12345678  ' } })
     fireEvent.click(card.querySelector('button[data-sf-m="tg-bind-confirm"]'))
 
     await waitFor(() => expect(TG.confirm).toHaveBeenCalledTimes(1))
-    expect(TG.confirm.mock.calls[0][0]).toBe('AB12CD') // trim + 大写归一后提交
+    expect(TG.confirm.mock.calls[0][0]).toBe('12345678') // trim 归一后提交（8 位纯数字；toUpperCase 恒等）
     // 成功 = 转已绑定态 + 可见反馈
     await waitFor(() => expect(card.getAttribute('data-sf-tg-state')).toBe('bound'))
     expect(card.querySelector('[data-sf-m="tg-bind-notice"]').textContent).toBe(zh.telegram.bindSuccess)
@@ -198,7 +200,7 @@ describe('tg-bind-v2 · 扫码主路径（QR + 打开链接 + 短码 confirm）'
     const card = await enterCodeState()
 
     TG.confirm.mockRejectedValue(Object.assign(new Error('expired'), { code: 'TG_CODE_EXPIRED' }))
-    fireEvent.change(card.querySelector('input[data-sf-m="tg-bind-code-input"]'), { target: { value: 'zz99xx' } })
+    fireEvent.change(card.querySelector('input[data-sf-m="tg-bind-code-input"]'), { target: { value: '87654321' } })
     fireEvent.click(card.querySelector('button[data-sf-m="tg-bind-confirm"]'))
     await waitFor(() => expect(card.querySelector('[data-sf-m="tg-bind-notice"]').textContent).toBe(zh.telegram.codeExpired))
     expect(card.getAttribute('data-sf-tg-state')).toBe('code')
