@@ -1167,6 +1167,52 @@ export interface PrizeItemRecord {
   time_actived: number;
 }
 
+// ---- 本批五口（卖家轴两条交易读口 + 收藏三口）行形 ------------------------------
+// 「我发布的」：listing.seller_uid = me 全状态行（字段沿 listing 表现列）。
+export interface ListingMineRow {
+  listing_id: number;
+  title: string;
+  price: number;
+  cid: number;
+  status: string;
+  stock: number;
+  media_urls: string[];
+  time_created: number;
+}
+
+// 「我卖出的」：行形与买家轴 listPrizeItemsByUser（GET /api/prize-item）同族（gID/bID/uID
+// 键族 + 两个恒 NULL 的时间占位列）且**必须含 status**；gID = order_id、bID = listing_id、
+// uID = buyer_uid。
+export interface ListingOrderSoldRow {
+  gID: number;
+  bID: number;
+  uID: number;
+  status: string;
+  time_created: number;
+  time_claimed: number;
+  time_actived: number;
+}
+
+// 「我的收藏」单行：listing_favorite 行 join listing 概要；time_created = **收藏行自己的**
+// 收藏时刻（非 listing.time_created）。
+export interface ListingFavoriteRow {
+  fav_id: number;
+  listing_id: number;
+  title: string;
+  price: number;
+  cid: number;
+  status: string;
+  media_urls: string[];
+  time_created: number;
+}
+
+// 收藏写口（POST /api/favorites）回体现态：不 join listing 概要，只回收藏行自身三列。
+export interface ListingFavoriteMutationRow {
+  fav_id: number;
+  listing_id: number;
+  time_created: number;
+}
+
 export interface TaskRecord {
   tID: number;
   title: string;
@@ -1479,6 +1525,47 @@ const normalizePrizeItem = (row: RawRow): PrizeItemRecord => ({
   time_created: toTimestamp(getValue(row, 'time_created')),
   time_claimed: toTimestamp(getValue(row, 'time_claimed')),
   time_actived: toTimestamp(getValue(row, 'time_actived')),
+});
+
+// ---- 本批五口归一器（bigint 经 pg 回来是字符串 ⇒ id/price/cid 一律 Number 归一，既有纪律）----
+const toStringArrayValue = (value: unknown): string[] => (Array.isArray(value) ? value.map((item) => String(item)) : []);
+
+const normalizeListingMineRow = (row: RawRow): ListingMineRow => ({
+  listing_id: toNumberValue(getValue(row, 'listing_id')),
+  title: toStringValue(getValue(row, 'title')),
+  price: toNumberValue(getValue(row, 'price')),
+  cid: toNumberValue(getValue(row, 'cid')),
+  status: toStringValue(getValue(row, 'status')),
+  stock: toNumberValue(getValue(row, 'stock')),
+  media_urls: toStringArrayValue(getValue(row, 'media_urls')),
+  time_created: toTimestamp(getValue(row, 'time_created')),
+});
+
+const normalizeListingOrderSoldRow = (row: RawRow): ListingOrderSoldRow => ({
+  gID: toNumberValue(getValue(row, 'gID')),
+  bID: toNumberValue(getValue(row, 'bID')),
+  uID: toNumberValue(getValue(row, 'uID')),
+  status: toStringValue(getValue(row, 'status')),
+  time_created: toTimestamp(getValue(row, 'time_created')),
+  time_claimed: toTimestamp(getValue(row, 'time_claimed')),
+  time_actived: toTimestamp(getValue(row, 'time_actived')),
+});
+
+const normalizeListingFavoriteRow = (row: RawRow): ListingFavoriteRow => ({
+  fav_id: toNumberValue(getValue(row, 'fav_id')),
+  listing_id: toNumberValue(getValue(row, 'listing_id')),
+  title: toStringValue(getValue(row, 'title')),
+  price: toNumberValue(getValue(row, 'price')),
+  cid: toNumberValue(getValue(row, 'cid')),
+  status: toStringValue(getValue(row, 'status')),
+  media_urls: toStringArrayValue(getValue(row, 'media_urls')),
+  time_created: toTimestamp(getValue(row, 'time_created')),
+});
+
+const normalizeListingFavoriteMutationRow = (row: RawRow): ListingFavoriteMutationRow => ({
+  fav_id: toNumberValue(getValue(row, 'fav_id')),
+  listing_id: toNumberValue(getValue(row, 'listing_id')),
+  time_created: toTimestamp(getValue(row, 'time_created')),
 });
 
 const normalizeTask = (row: RawRow, participantsCount = 0, i18nIndex?: I18nIndex | null): TaskRecord => {
@@ -2537,6 +2624,135 @@ export class DatabaseService {
     return rows
       .map((row) => Number(row.bID || 0))
       .filter((bID) => bID > 0);
+  }
+
+  // ============================================================================
+  // 本批五口 · 卖家轴两条交易读口 + 收藏三口（DatabaseService 层）
+  //   · 路由面挂 requireActor，uid 恒取 token 侧 actor；本层不重复归属闸。
+  //   · bigint id / price / cid 一律经归一器 Number 归一（既有纪律）。
+  //   · 收藏三口无资金动作：不写 ledger、无幂等键；幂等承重墙 =
+  //     listing_favorite 表级 UNIQUE(fav_uid, listing_id)（0047）。
+  // ============================================================================
+
+  /** 「我发布的」（GET /api/listing/mine）：listing.seller_uid = me **全状态行**（draft/listed/delisted/frozen 都回），listing_id 降序。 */
+  static async listListingsBySeller(sellerUid: number, skip = 0, limit = 100): Promise<ListingMineRow[]> {
+    const sql = getSql();
+    const rows = extractRows(await sql`
+      SELECT
+        l.listing_id,
+        l.title,
+        l.price,
+        l.cid,
+        l.status,
+        l.stock,
+        l.media_urls,
+        l.time_created
+      FROM public.listing AS l
+      WHERE l.seller_uid = ${sellerUid}::bigint
+      ORDER BY l.listing_id DESC
+      LIMIT ${limit} OFFSET ${skip}
+    `);
+
+    return rows.map(normalizeListingMineRow);
+  }
+
+  /** 「我卖出的」（GET /api/listing-orders/sold）：listing_order.seller_uid = me，order_id 降序；行形与买家轴 listPrizeItemsByUser（GET /api/prize-item）同族 + status（time_claimed/time_actived 无对应列 ⇒ 恒 NULL → 0，同买家轴「不编值」口径）。 */
+  static async listListingOrdersBySeller(sellerUid: number, skip = 0, limit = 100): Promise<ListingOrderSoldRow[]> {
+    const sql = getSql();
+    const rows = extractRows(await sql`
+      SELECT
+        o.order_id AS "gID",
+        o.listing_id AS "bID",
+        o.buyer_uid AS "uID",
+        o.status,
+        o.time_created,
+        NULL::timestamptz AS time_claimed,
+        NULL::timestamptz AS time_actived
+      FROM listing_order AS o
+      WHERE o.seller_uid = ${sellerUid}::bigint
+      ORDER BY o.order_id DESC
+      LIMIT ${limit} OFFSET ${skip}
+    `);
+
+    return rows.map(normalizeListingOrderSoldRow);
+  }
+
+  /** 「我的收藏」（GET /api/favorites）：favorite 行 join listing 概要；按收藏时间降序（同刻并列以 fav_id DESC 稳定排序）。 */
+  static async listFavoritesByUser(favUid: number, skip = 0, limit = 100): Promise<ListingFavoriteRow[]> {
+    const sql = getSql();
+    const rows = extractRows(await sql`
+      SELECT
+        f.fav_id,
+        f.listing_id,
+        l.title,
+        l.price,
+        l.cid,
+        l.status,
+        l.media_urls,
+        f.time_created
+      FROM public.listing_favorite AS f
+      JOIN public.listing AS l ON l.listing_id = f.listing_id
+      WHERE f.fav_uid = ${favUid}::bigint
+      ORDER BY f.time_created DESC, f.fav_id DESC
+      LIMIT ${limit} OFFSET ${skip}
+    `);
+
+    return rows.map(normalizeListingFavoriteRow);
+  }
+
+  /**
+   * 收藏（POST /api/favorites）：幂等唯一权威 = `listing_favorite` 表级 UNIQUE(fav_uid, listing_id)
+   * （0047 承重墙）。单语句三态：
+   *   · 'inserted'  —— 新落一行；
+   *   · 'existing'  —— 撞唯一约束 ⇒ 取既有行（重复收藏不落第二行，同 createListingRow 手法）；
+   *   · 'listing_missing' —— listing 行不存在 ⇒ 0 行返回（路由层落 404）。
+   * 注：同一语句内各部分共用同一快照 ⇒ 主查询不会看到本语句 CTE 刚插入的行，
+   *     'inserted' 分支不会与 'existing' 分支重复出 row。
+   */
+  static async createFavoriteRow(input: {
+    favUid: number;
+    listingId: number;
+  }): Promise<{ outcome: 'inserted' | 'existing' | 'listing_missing'; row: ListingFavoriteMutationRow | null }> {
+    const sql = getSql();
+    const rows = extractRows(await sql`
+      WITH ins AS (
+        INSERT INTO public.listing_favorite (fav_uid, listing_id)
+        SELECT ${input.favUid}::bigint, ${input.listingId}::bigint
+        WHERE EXISTS (
+          SELECT 1 FROM public.listing AS l WHERE l.listing_id = ${input.listingId}::bigint
+        )
+        ON CONFLICT (fav_uid, listing_id) DO NOTHING
+        RETURNING fav_id, fav_uid, listing_id, time_created, 'inserted'::text AS outcome
+      )
+      SELECT i.fav_id, i.fav_uid, i.listing_id, i.time_created, i.outcome
+      FROM ins AS i
+      UNION ALL
+      SELECT e.fav_id, e.fav_uid, e.listing_id, e.time_created, 'existing'::text AS outcome
+      FROM public.listing_favorite AS e
+      WHERE e.fav_uid = ${input.favUid}::bigint
+        AND e.listing_id = ${input.listingId}::bigint
+    `);
+    const row = rows[0] || null;
+    if (!row) return { outcome: 'listing_missing', row: null };
+    const outcome = String(getValue(row, 'outcome'));
+    if (outcome === 'inserted') return { outcome: 'inserted', row: normalizeListingFavoriteMutationRow(row) };
+    return { outcome: 'existing', row: normalizeListingFavoriteMutationRow(row) };
+  }
+
+  /** 取消收藏（DELETE /api/favorites/:listingId）：幂等 —— 删 0 行（从未收藏 / 已删）也回成功；返回实际删除行数。 */
+  static async deleteFavoriteRow(input: {
+    favUid: number;
+    listingId: number;
+  }): Promise<number> {
+    const sql = getSql();
+    const rows = extractRows(await sql`
+      DELETE FROM public.listing_favorite
+      WHERE fav_uid = ${input.favUid}::bigint
+        AND listing_id = ${input.listingId}::bigint
+      RETURNING fav_id
+    `);
+
+    return rows.length;
   }
 
   static async listTasks(skip = 0, limit = 100): Promise<TaskRecord[]> {

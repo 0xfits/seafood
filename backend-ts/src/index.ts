@@ -2756,6 +2756,111 @@ app.post('/api/listing-orders/:orderId/refund', async (req, res) => {
   }
 });
 
+// ============================================================================
+// 本批 · 商品收藏（listing_favorite）+ 卖家轴两条交易读口 —— 5 新口
+//   · 全部 `requireActor`（uid 恒取 token 侧 actor，客户端不得声明）；
+//   · 成功走 `sendSuccess`；引用缺失走 `sendRefNotFound`（既有 §3.1 形态）；
+//     基础设施异常交 `sendInfraMapped`（既有 §14 分类器）；
+//   · 收藏三口无资金动作：不写 ledger、不落幂等键 —— 幂等承重墙 =
+//     `listing_favorite` 表级 UNIQUE(fav_uid, listing_id)（迁移 0047）。
+// ============================================================================
+
+// ---- G1 · GET /api/listing/mine —— 「我发布的」（listing.seller_uid = me 全状态行，listing_id 降序）
+app.get('/api/listing/mine', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  try {
+    const { skip, limit } = getPagination(req);
+    const rows = await DatabaseService.listListingsBySeller(actor.user.uID, skip, limit);
+    sendSuccess(res, rows);
+  } catch (error) {
+    return sendInfraMapped(res, 'listing.mine', error);
+  }
+});
+
+// ---- G2 · GET /api/listing-orders/sold —— 「我卖出的」（listing_order.seller_uid = me，order_id 降序；
+//          行形与买家轴 GET /api/prize-item 同族 + status）
+app.get('/api/listing-orders/sold', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  try {
+    const { skip, limit } = getPagination(req);
+    const rows = await DatabaseService.listListingOrdersBySeller(actor.user.uID, skip, limit);
+    sendSuccess(res, rows);
+  } catch (error) {
+    return sendInfraMapped(res, 'listing-orders.sold', error);
+  }
+});
+
+// ---- G3 · GET /api/favorites —— 「我的收藏」（listing_favorite.fav_uid = me join listing 概要，
+//          按收藏时间降序）
+app.get('/api/favorites', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  try {
+    const { skip, limit } = getPagination(req);
+    const rows = await DatabaseService.listFavoritesByUser(actor.user.uID, skip, limit);
+    sendSuccess(res, rows);
+  } catch (error) {
+    return sendInfraMapped(res, 'favorites.list', error);
+  }
+});
+
+// ---- G4 · POST /api/favorites —— 收藏（幂等：重复收藏不落第二行，回成功与现态；
+//          body.listing_id 先做数字校验 ⇒ 既有 400 形态；listing 行不存在 ⇒ 404 sendRefNotFound）
+app.post('/api/favorites', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  const body = (req.body || {}) as Record<string, unknown>;
+  const listingId = parseInteger(body.listing_id ?? body.listingId, Number.NaN);
+  if (!Number.isInteger(listingId) || listingId <= 0) {
+    return res.status(400).json(ledgerErrorBody(
+      'LEDGER_AMOUNT_INVALID',
+      'Request shape is invalid',
+      { field: 'listing_id', reason: 'NOT_A_POSITIVE_INTEGER' },
+    ));
+  }
+
+  try {
+    const r = await DatabaseService.createFavoriteRow({ favUid: actor.user.uID, listingId });
+    if (!r.row) {
+      return sendRefNotFound(res, 'listing', String(listingId), 'listing_not_found');
+    }
+    return sendSuccess(res, {
+      fav_id: r.row.fav_id,
+      listing_id: r.row.listing_id,
+      time_created: r.row.time_created,
+    }, r.outcome === 'existing' ? 'Favorite already exists (idempotent replay)' : 'Favorite added', 200,
+      r.outcome === 'existing' ? { idempotent_replay: true } : undefined);
+  } catch (error) {
+    return sendInfraMapped(res, 'favorites.add', error);
+  }
+});
+
+// ---- G5 · DELETE /api/favorites/:listingId —— 取消收藏（幂等：删 0 行也回成功；
+//          :listingId 非数字 / 缺失 / 0 ⇒ 404 既有 §3.1 形态）
+app.delete('/api/favorites/:listingId', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+
+  const listingIdText = String(req.params.listingId ?? '').trim();
+  if (!/^\d+$/.test(listingIdText) || listingIdText === '0') {
+    return sendRefNotFound(res, 'listing', listingIdText, 'listing_not_found');
+  }
+
+  try {
+    const listingId = Number(listingIdText);
+    const deleted = await DatabaseService.deleteFavoriteRow({ favUid: actor.user.uID, listingId });
+    return sendSuccess(res, { listing_id: listingId, deleted });
+  } catch (error) {
+    return sendInfraMapped(res, 'favorites.delete', error);
+  }
+});
+
 // ---- A11 · R3 佣金政策插行（§1.8 附注；`src/commission.ts:240` `insertCommissionPolicy`）----
 // · **无分录**（INSERT-only 政策表）；`created_by` 由 token 侧 admin 注入（不得由调用方自报）；
 // · `effective_from` 严格递增（CR25）；越界/回填 ⇒ 服务层 `400 LD016` + `FEE_RATE_OUT_OF_RANGE` /
