@@ -1198,7 +1198,7 @@
   },
   "telegram": {
     "title": "Thông báo Telegram",
-    "desc": "Nhận thông báo qua Telegram bot khi có tin nhắn mới (không kèm nội dung)",
+    "desc": "Nhận thông báo qua Telegram bot khi có tin nhắn mới (kèm trích đoạn đầu tin nhắn)",
     "bind": "Liên kết Telegram",
     "unbind": "Hủy liên kết",
     "bound": "Đã liên kết",

@@ -1198,7 +1198,7 @@
   },
   "telegram": {
     "title": "Telegram 通知",
-    "desc": "绑定后，收到新消息会通过 Telegram bot 提醒你（不包含消息内容）",
+    "desc": "绑定后，收到新消息会通过 Telegram bot 提醒你（含消息开头摘要）",
     "bind": "绑定 Telegram",
     "unbind": "解除绑定",
     "bound": "已绑定",

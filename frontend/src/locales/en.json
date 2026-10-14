@@ -1198,7 +1198,7 @@
   },
   "telegram": {
     "title": "Telegram notifications",
-    "desc": "Get Telegram bot reminders for new messages (content not included)",
+    "desc": "Get Telegram bot reminders for new messages (includes a preview of the message opening)",
     "bind": "Bind Telegram",
     "unbind": "Unbind",
     "bound": "Bound",
