@@ -701,9 +701,11 @@ export const buildMessagePreview = (body: unknown): string => {
 };
 
 /**
- * 通知正文（双语一行 · **逐字冻结**）：中文半段 = `{站点名}：你有新消息（来自会话：{掩码标题}[：{预览}]），
- * 打开 {站点}/messages 查看`，英文半段 = ` / You have a new message, open {站点}/messages` **一字不改**
- * （预览**不重复**出现在英文半段）。`preview` 为空 ⇒ 回落原句（不填占位）。导出供离线单测逐字锚定。
+ * 通知正文（双语一行 · **逐字冻结**）：模板字面逐字取自规范册 docs/route-layer.spec.md §41.7 ——
+ * 「<站点名>：你有新消息（来自会话：<商品标题掩码>）「<消息开头预览>」，打开 <站点域名>/messages 查看
+ *  / You have a new message, open <site>/messages」（预览紧随右括号、包中文引号「」、无「：」分隔）；
+ * 英文半段 = ` / You have a new message, open {站点}/messages` **一字不改**（预览**不重复**出现在英文半段）。
+ * `preview` 为空 ⇒ 回落原句（不追加预览段、不填占位）。导出供离线单测逐字锚定。
  */
 export const buildMessageNotificationText = (input: {
   siteName: string;
@@ -711,11 +713,11 @@ export const buildMessageNotificationText = (input: {
   maskedTitle: string;
   preview?: string;
 }): string => {
-  const zhHead = `${input.siteName}：你有新消息（来自会话：${input.maskedTitle}`;
-  const zhTail = `），打开 ${input.site}/messages 查看`;
+  const zhHead = `${input.siteName}：你有新消息（来自会话：${input.maskedTitle}）`;
+  const zhTail = `，打开 ${input.site}/messages 查看`;
   const enHalf = ` / You have a new message, open ${input.site}/messages`;
   const preview = input.preview ?? '';
-  return preview === '' ? `${zhHead}${zhTail}${enHalf}` : `${zhHead}：${preview}${zhTail}${enHalf}`;
+  return preview === '' ? `${zhHead}${zhTail}${enHalf}` : `${zhHead}「${preview}」${zhTail}${enHalf}`;
 };
 
 const titleMask = (title: string): string => {
@@ -779,8 +781,9 @@ export const notifyMessageCounterpart = (input: {
     const siteName = await readSiteName();
     const site = (process.env.PUBLIC_SITE_URL || '').trim() || SITE_URL_FALLBACK;
     const masked = titleMask(String(rows[0].title ?? ''));
-    // ① 通知预览（Kevin 裁定）：中文半段在「来自会话：{掩码标题}」后追加「：{预览}」，末尾
-    //    「，打开 {site}/messages 查看」一字不删；**英文半段一字不改**（预览不重复）。
+    // ① 通知预览（Kevin 裁定 · 模板字面以规范册 §41.7 为准）：预览段落点 = 掩码标题右括号之后，
+    //    包在中文引号「」内 ⇒ 「（来自会话：{掩码标题}）「{预览}」，打开 {site}/messages 查看」；
+    //    末尾「，打开 {site}/messages 查看」一字不删；**英文半段一字不改**（预览不重复）。
     const text = buildMessageNotificationText({
       siteName,
       site,

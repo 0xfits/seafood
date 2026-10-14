@@ -13,8 +13,11 @@
  *   ⑤ 混合中英（满额 / 截断两向）  ⑥ emoji 不拆（代理对 + ZWJ 整簇，且无孤立代理半体）
  *   ⑦ 全角标点计 2 + 越南语计 1    ⑧ 边界：空 / 全空白 / 非串 / 首尾去空白 / 正文内换行
  *   ⑨ 不变量：语料逐条「输出(去省略号)单位数 ≤ 6」且「输出 ≤ 输入」
- *   ⑩ 通知正文逐字冻结（无预览 = 原句零位移；有预览 = 中文半段插入、英文半段一字不改、预览不重复）
+ *   ⑩ 通知正文逐字冻结（模板字面以规范册 §41.7 为准：无预览 = 原句零位移；有预览 = 预览紧随右括号
+ *      并包中文引号「」、英文半段一字不改、预览不重复；另逐字回读规范册 §41.7 模板行自证同源）
  */
+import fs from 'fs';
+import path from 'path';
 import assert from 'assert';
 import { buildMessageNotificationText, buildMessagePreview, MSG_PREVIEW_MAX_WIDTH_UNITS } from '../src/messages-service';
 
@@ -153,16 +156,38 @@ assert.strictEqual(
   OLD_SENTENCE,
 );
 
-// 有预览 ⇒ 中文半段「来自会话：{掩码标题}」后追加「：{预览}」，中文半段末尾与英文半段一字不改。
+// ⑩-a 规范册同源自证：直读 docs/route-layer.spec.md §41.7 的「模板 = …」行，逐字比对模板字面
+// （锚点取自现册原文、不转述；册面该行一字改动 ⇒ 本锚当场红）。
+const specPath = path.resolve(__dirname, '../../docs/route-layer.spec.md');
+const specLine = fs.readFileSync(specPath, 'utf8').split('\n').find((line) => line.includes('你有新消息')) ?? '';
+assert.notStrictEqual(specLine, '', `§41.7 模板行必须在册：${specPath}`);
+assert.strictEqual(
+  specLine.includes('模板 = 「<站点名>：你有新消息（来自会话：<商品标题掩码>）「<消息开头预览>」，打开 <站点域名>/messages 查看 / You have a new message, open <site>/messages」'),
+  true,
+  '§41.7 模板字面（逐字）：预览紧随右括号、包中文引号「」',
+);
+
+// 有预览 ⇒ 规范册 §41.7 模板字面（逐字）：预览在「来自会话：{掩码标题}」右括号之后、包中文引号「」内，
+// 其后接「，打开 {site}/messages 查看」；英文半段一字不改。
 const withPreview = buildMessageNotificationText({ siteName: 'Seafood Club', site: SITE, maskedTitle: MASKED, preview: '你好吗' });
 assert.strictEqual(
   withPreview,
-  `Seafood Club：你有新消息（来自会话：${MASKED}：你好吗），打开 ${SITE}/messages 查看 / You have a new message, open ${SITE}/messages`,
+  `Seafood Club：你有新消息（来自会话：${MASKED}）「你好吗」，打开 ${SITE}/messages 查看 / You have a new message, open ${SITE}/messages`,
+);
+assert.strictEqual(
+  withPreview.includes(`（来自会话：${MASKED}）「你好吗」，打开 `),
+  true,
+  '§41.7：预览紧随右括号、包中文引号「」、其后即「，打开 …」',
+);
+assert.strictEqual(
+  withPreview.includes(`来自会话：${MASKED}：`),
+  false,
+  '§41.7：右括号后不再以「：」引出预览（作废形态，不得回潮）',
 );
 assert.strictEqual(withPreview.endsWith(`，打开 ${SITE}/messages 查看 / You have a new message, open ${SITE}/messages`), true);
 assert.strictEqual(withPreview.split('你好吗').length - 1, 1, 'preview must appear exactly once (English half carries no preview)');
 assert.strictEqual(withPreview.includes('new message, open'), true);
-ok('⑩ 通知正文逐字：无预览 = 原句零位移；有预览 = 中文半段插入且英文半段一字不改（预览不重复）');
+ok('⑩ 通知正文逐字：无预览 = 原句零位移；有预览 = §41.7 模板字面（）「」，英文半段一字不改（预览不重复）');
 
 console.log(`msg preview offline tests: ALL PASS (${passed} groups)`);
 process.exit(0);
