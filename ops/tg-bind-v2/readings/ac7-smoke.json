@@ -1,0 +1,58 @@
+{
+ "ac": "AC-7",
+ "at": "2026-10-14T15:13:02+0800",
+ "steps": {
+  "home": {
+   "header_orders": {
+    "present": true,
+    "x": 847.875,
+    "y": 13.5,
+    "w": 68,
+    "h": 37,
+    "display": "block",
+    "visibility": "visible",
+    "inViewport": true,
+    "hitTag": "SPAN",
+    "hitInside": true
+   },
+   "first_item_href": null
+  },
+  "profile": {
+   "sidebar_present": {
+    "present": true,
+    "x": 52,
+    "y": 97,
+    "w": 232,
+    "h": 258,
+    "display": "flex",
+    "visibility": "visible",
+    "inViewport": true,
+    "hitTag": "A",
+    "hitInside": true
+   },
+   "nav_trades": true,
+   "nav_settings": true
+  },
+  "favorite": {
+   "toggle_present": true,
+   "before": "0",
+   "after": "1",
+   "toggled": true,
+   "restored": true
+  },
+  "favorite_probe": {
+   "card_action_button": {
+    "count": 8,
+    "first_text": "查看详情"
+   },
+   "landed_path": "/item/1"
+  }
+ },
+ "checks": {
+  "home_order_button_present": true,
+  "profile_sidebar_present": true,
+  "favorite_toggle_present": true,
+  "favorite_toggle_worked": true,
+  "favorite_restored": true
+ }
+}

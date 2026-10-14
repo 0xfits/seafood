@@ -1,0 +1,54 @@
+{
+ "ac": "AC-4",
+ "at": "2026-10-14T15:13:02+0800",
+ "steps": {
+  "initial": {
+   "card_present": true,
+   "state": "unbound",
+   "path": "/profile/settings"
+  },
+  "panel": {
+   "qr_panel": true,
+   "qr_svg": {
+    "tag": "svg",
+    "ns": "http://www.w3.org/2000/svg",
+    "rects": 0,
+    "paths": 2,
+    "w": "148",
+    "h": "148"
+   },
+   "open_href": "https://t.me/seafood_dev_bot",
+   "open_text": "在 Telegram 中打开",
+   "placeholder": "输入 bot 给你的短码，如 AB12CD",
+   "confirm_text": "确认绑定",
+   "details": {
+    "present": true,
+    "summary": "你的绑定码",
+    "has_code": true,
+    "has_steps": true,
+    "has_action": true
+   },
+   "shot": "ac4-panel.png"
+  },
+  "typed_masked": "A7****L2",
+  "confirm": {
+   "state_bound": true,
+   "notice": "绑定成功",
+   "shot": "ac4-bound.png"
+  },
+  "unbind": {
+   "state_unbound": true,
+   "shot": "ac4-unbound.png"
+  }
+ },
+ "checks": {
+  "panel_present": true,
+  "qr_is_svg": true,
+  "open_href_verbatim_tme_bot": true,
+  "input_present": true,
+  "confirm_btn_present": true,
+  "old_path_details_collapsed": true,
+  "typed_then_bound": true,
+  "ui_unbind_restored": true
+ }
+}

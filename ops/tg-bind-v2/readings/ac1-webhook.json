@@ -1,0 +1,86 @@
+{
+ "ac": "AC-1",
+ "at": "2026-10-14T07:02:56.512Z",
+ "tgid": 990001234,
+ "steps": {
+  "no_secret": {
+   "status": 401,
+   "payload": {
+    "error": {
+     "code": "TG_WEBHOOK_UNAUTHORIZED",
+     "message": "The webhook secret token is missing or does not match",
+     "i18n_key": "tg.err.TG_WEBHOOK_UNAUTHORIZED",
+     "details": {}
+    }
+   }
+  },
+  "wrong_secret": {
+   "status": 401,
+   "payload": {
+    "error": {
+     "code": "TG_WEBHOOK_UNAUTHORIZED",
+     "message": "The webhook secret token is missing or does not match",
+     "i18n_key": "tg.err.TG_WEBHOOK_UNAUTHORIZED",
+     "details": {}
+    }
+   }
+  },
+  "baseline_rows": 1,
+  "issue_ok": {
+   "status": 200,
+   "payload": {}
+  },
+  "rows_after_issue": [
+   {
+    "req_id": "2",
+    "tg_user_id": "990001234",
+    "code": "B4S8WSJJ",
+    "iat": "2026-10-14T07:03:00.087Z",
+    "exp": "2026-10-14T07:13:00.087Z",
+    "consumed_at": null
+   },
+   {
+    "req_id": "1",
+    "tg_user_id": "990001234",
+    "code": "YS2PTLB7",
+    "iat": "2026-10-14T06:59:16.844Z",
+    "exp": "2026-10-14T07:09:16.844Z",
+    "consumed_at": null
+   }
+  ],
+  "cooldown_repost": {
+   "status": 200,
+   "payload": {}
+  },
+  "rows_after_cooldown": [
+   {
+    "req_id": "2",
+    "tg_user_id": "990001234",
+    "code": "B4S8WSJJ",
+    "iat": "2026-10-14T07:03:00.087Z",
+    "exp": "2026-10-14T07:13:00.087Z",
+    "consumed_at": null
+   },
+   {
+    "req_id": "1",
+    "tg_user_id": "990001234",
+    "code": "YS2PTLB7",
+    "iat": "2026-10-14T06:59:16.844Z",
+    "exp": "2026-10-14T07:09:16.844Z",
+    "consumed_at": null
+   }
+  ]
+ },
+ "checks": {
+  "no_secret_401": true,
+  "wrong_secret_401": true,
+  "issue_200": true,
+  "row_appeared": true,
+  "code_8char": true,
+  "exp_plus_600s": true,
+  "consumed_at_null": true,
+  "cooldown_no_second_row": true,
+  "response_no_tg_user_id": true
+ },
+ "all_pass": true
+}

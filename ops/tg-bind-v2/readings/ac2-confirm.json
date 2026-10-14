@@ -1,0 +1,191 @@
+{
+ "note": "chain2 part1 merged with chain4 finish",
+ "ac": "AC-2",
+ "at": "2026-10-14T07:03:04.551Z",
+ "account": {
+  "uid": 971214,
+  "address": "0x374876Ef8123D9718Bd15592133619073f4f6Eb9"
+ },
+ "code_masked": "B4****JJ(len=8)",
+ "steps": {
+  "login": {
+   "challenge": 200,
+   "verify": 200,
+   "uid": 971214,
+   "token_len": 193
+  },
+  "confirm_ok": {
+   "status": 200,
+   "payload": {
+    "success": true,
+    "message": "OK",
+    "data": {
+     "tg_linked": true,
+     "tg_linked_at": "2026-10-14T07:03:07.019Z"
+    }
+   }
+  },
+  "status_after_bind": {
+   "status": 200,
+   "payload": {
+    "success": true,
+    "message": "OK",
+    "data": {
+     "tg_linked": true,
+     "tg_linked_at": "2026-10-14T07:03:05.730Z"
+    }
+   }
+  },
+  "replay_same_code": {
+   "status": 400,
+   "code": "TG_CODE_INVALID",
+   "reason": "CONSUMED",
+   "i18n_key": "tg.err.TG_CODE_INVALID"
+  },
+  "wrong_random_code": {
+   "status": 404,
+   "code": "LEDGER_REF_NOT_FOUND",
+   "reason": "code_not_found",
+   "i18n_key": "ledger.err.LEDGER_REF_NOT_FOUND"
+  }
+ },
+ "db_users_tg_columns": [
+  "uid",
+  "tg_user_id",
+  "tg_linked_at"
+ ],
+ "db_user_row": [
+  {
+   "uid": "971214",
+   "tg_user_id": "990001234"
+  }
+ ],
+ "db_bind_rows_now": [
+  {
+   "req_id": "2",
+   "code": "B4S8WSJJ",
+   "tg_user_id": "990001234",
+   "iat": "2026-10-14T07:03:00.087Z",
+   "exp": "2026-10-14T07:13:00.087Z",
+   "consumed_at": "2026-10-14T07:03:05.730Z"
+  },
+  {
+   "req_id": "1",
+   "code": "YS2PTLB7",
+   "tg_user_id": "990001234",
+   "iat": "2026-10-14T06:59:16.844Z",
+   "exp": "2026-10-14T07:09:16.844Z",
+   "consumed_at": null
+  }
+ ],
+ "checks_part1": {
+  "login_uid_971214": true,
+  "confirm_200_tg_linked_true": true,
+  "confirm_has_linked_at": true,
+  "confirm_no_tg_user_id": true,
+  "status_200_tg_linked_true": true,
+  "status_no_tg_user_id_anywhere": true,
+  "replay_consumed": true,
+  "wrong_code_404": true,
+  "db_users_tg_set": true
+ },
+ "finish": {
+  "ac": "AC-2-finish",
+  "at": "2026-10-14T07:09:11.588Z",
+  "steps": {
+   "unbind1": {
+    "status": 200,
+    "payload": {
+     "success": true,
+     "message": "OK",
+     "data": {
+      "tg_linked": false
+     }
+    }
+   },
+   "status_after_unbind": {
+    "status": 200,
+    "payload": {
+     "success": true,
+     "message": "OK",
+     "data": {
+      "tg_linked": false,
+      "tg_linked_at": null
+     }
+    }
+   },
+   "rebind_with_code2": {
+    "status": 200,
+    "payload": {
+     "success": true,
+     "message": "OK",
+     "data": {
+      "tg_linked": true,
+      "tg_linked_at": "2026-10-14T07:09:25.152Z"
+     }
+    }
+   },
+   "unbind2": {
+    "status": 200,
+    "payload": {
+     "success": true,
+     "message": "OK",
+     "data": {
+      "tg_linked": false
+     }
+    }
+   }
+  },
+  "db_user_971214": [
+   {
+    "uid": "971214",
+    "tg_user_id": null
+   }
+  ],
+  "final_bind_rows": [
+   {
+    "req_id": "1",
+    "code": "YS2PTLB7",
+    "iat": "2026-10-14T06:59:16.844Z",
+    "exp": "2026-10-14T07:09:16.844Z",
+    "consumed_at": null
+   },
+   {
+    "req_id": "2",
+    "code": "B4S8WSJJ",
+    "iat": "2026-10-14T07:03:00.087Z",
+    "exp": "2026-10-14T07:13:00.087Z",
+    "consumed_at": "2026-10-14T07:03:05.730Z"
+   },
+   {
+    "req_id": "3",
+    "code": "6N4X2WR3",
+    "iat": "2026-10-14T07:04:04.858Z",
+    "exp": "2026-10-14T07:14:04.858Z",
+    "consumed_at": "2026-10-14T07:09:22.054Z"
+   }
+  ],
+  "db_user_971214_final": [
+   {
+    "uid": "971214",
+    "tg_user_id": null
+   }
+  ],
+  "db_user_971215_final": [
+   {
+    "uid": "971215",
+    "tg_user_id": null
+   }
+  ],
+  "checks": {
+   "unbind1_200_false": true,
+   "status_false_after_unbind": true,
+   "status_no_tg_user_id": true,
+   "users_971214_null": true,
+   "users_971215_null": true,
+   "rebind_code2_ok": true,
+   "unbind2_ok": true,
+   "all_rows_expired_or_consumed": true
+  }
+ }
+}

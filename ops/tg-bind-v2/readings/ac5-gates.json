@@ -1,0 +1,40 @@
+{
+  "ac": "AC-5",
+  "at": "2026-10-14T15:20:00+08:00",
+  "note": "p7b 门不归本单，未跑（并行微单在改）",
+  "gates": [
+    {
+      "name": "frontend npm run build",
+      "cmd": "cd frontend && npm run build",
+      "exit_code": 0,
+      "log": "ops/tg-bind-v2/gates/fe-build.log",
+      "tail": "dist/assets/index-DU-Gg_Fi.js 444.28 kB | gzip: 130.58 kB; built in 1.68s"
+    },
+    {
+      "name": "frontend unit vitest",
+      "cmd": "cd frontend && npx vitest run src/test/unit --reporter=basic",
+      "exit_code": 0,
+      "log": "ops/tg-bind-v2/gates/vitest.log",
+      "test_files": 54,
+      "tests": 519,
+      "threshold": {"test_files_min": 54, "tests_min": 519},
+      "meets_threshold": true,
+      "duration": "6.90s"
+    },
+    {
+      "name": "backend-ts npm run build",
+      "cmd": "cd backend-ts && npm run build",
+      "exit_code": 0,
+      "log": "ops/tg-bind-v2/gates/be-build.log",
+      "tail": "> tsc"
+    }
+  ],
+  "checks": {
+    "fe_build_exit_0": true,
+    "vitest_exit_0": true,
+    "vitest_files_ge_54": true,
+    "vitest_tests_ge_519": true,
+    "be_build_exit_0": true
+  },
+  "all_pass": true
+}

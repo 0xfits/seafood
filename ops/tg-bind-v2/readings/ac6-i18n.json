@@ -1,0 +1,105 @@
+{
+ "ac": "AC-6",
+ "at": "2026-10-14T15:15:44+0800",
+ "keys_under_test": [
+  "qrHint",
+  "qrOpen",
+  "codeInputPlaceholder",
+  "confirmBind",
+  "codeNotFound",
+  "codeExpired",
+  "codeConsumed",
+  "accountTaken"
+ ],
+ "per_locale": {
+  "zh": {
+   "state": "unbound",
+   "qr_panel_present": true,
+   "qrOpen": "在 Telegram 中打开",
+   "qrHint": "扫码或点击链接打开 Telegram bot，把 bot 回复给你的 6-8 位短码填在下面",
+   "codeInputPlaceholder": "输入 bot 给你的短码，如 AB12CD",
+   "confirmBind": "确认绑定",
+   "open_href": "https://t.me/seafood_dev_bot",
+   "notice_wrong_code": "短码不存在，请确认后重试",
+   "checks": {
+    "qrOpen_is_translation": true,
+    "qrHint_is_translation": true,
+    "placeholder_is_translation": true,
+    "confirmBind_is_translation": true,
+    "notice_is_codeNotFound_translation": true,
+    "href_verbatim": true,
+    "no_bare_keys_visible": true
+   },
+   "all_pass": true
+  },
+  "en": {
+   "state": "unbound",
+   "qr_panel_present": true,
+   "qrOpen": "Open in Telegram",
+   "qrHint": "Scan the code or open the link to reach the Telegram bot, then enter the 6-8 character code the bot replies with below",
+   "codeInputPlaceholder": "Enter the code from the bot, e.g. AB12CD",
+   "confirmBind": "Confirm linking",
+   "open_href": "https://t.me/seafood_dev_bot",
+   "notice_wrong_code": "Code not found. Please check and try again",
+   "checks": {
+    "qrOpen_is_translation": true,
+    "qrHint_is_translation": true,
+    "placeholder_is_translation": true,
+    "confirmBind_is_translation": true,
+    "notice_is_codeNotFound_translation": true,
+    "href_verbatim": true,
+    "no_bare_keys_visible": true
+   },
+   "all_pass": true
+  },
+  "hk": {
+   "state": "unbound",
+   "qr_panel_present": true,
+   "qrOpen": "在 Telegram 中打開",
+   "qrHint": "掃碼或點擊連結打開 Telegram bot，把 bot 回覆給你的 6-8 位短碼填在下面",
+   "codeInputPlaceholder": "輸入 bot 給你的短碼，如 AB12CD",
+   "confirmBind": "確認綁定",
+   "open_href": "https://t.me/seafood_dev_bot",
+   "notice_wrong_code": "短碼不存在，請確認後重試",
+   "checks": {
+    "qrOpen_is_translation": true,
+    "qrHint_is_translation": true,
+    "placeholder_is_translation": true,
+    "confirmBind_is_translation": true,
+    "notice_is_codeNotFound_translation": true,
+    "href_verbatim": true,
+    "no_bare_keys_visible": true
+   },
+   "all_pass": true
+  },
+  "vn": {
+   "state": "unbound",
+   "qr_panel_present": true,
+   "qrOpen": "Mở trong Telegram",
+   "qrHint": "Quét mã hoặc mở liên kết để vào Telegram bot, rồi nhập mã 6-8 ký tự bot trả lời vào ô bên dưới",
+   "codeInputPlaceholder": "Nhập mã từ bot, ví dụ AB12CD",
+   "confirmBind": "Xác nhận liên kết",
+   "open_href": "https://t.me/seafood_dev_bot",
+   "notice_wrong_code": "Không tìm thấy mã, vui lòng kiểm tra và thử lại",
+   "checks": {
+    "qrOpen_is_translation": true,
+    "qrHint_is_translation": true,
+    "placeholder_is_translation": true,
+    "confirmBind_is_translation": true,
+    "notice_is_codeNotFound_translation": true,
+    "href_verbatim": true,
+    "no_bare_keys_visible": true
+   },
+   "all_pass": true
+  }
+ },
+ "checks": {
+  "all_locales_pass": true,
+  "locales_covered": [
+   "en",
+   "hk",
+   "vn",
+   "zh"
+  ]
+ }
+}

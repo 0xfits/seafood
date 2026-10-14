@@ -1,0 +1,71 @@
+{
+ "ac": "AC-2b-EXPIRED",
+ "at": "2026-10-14T07:16:25.234Z",
+ "steps": {
+  "expired_confirm": {
+   "status": 400,
+   "code": "TG_CODE_INVALID",
+   "reason": "EXPIRED"
+  },
+  "row_after": [
+   {
+    "req_id": "1",
+    "consumed_at": null
+   }
+  ]
+ },
+ "final_rows": [
+  {
+   "req_id": "1",
+   "iat": "2026-10-14T06:59:16.844Z",
+   "exp": "2026-10-14T07:09:16.844Z",
+   "consumed": false,
+   "expired_unconsumed": true
+  },
+  {
+   "req_id": "2",
+   "iat": "2026-10-14T07:03:00.087Z",
+   "exp": "2026-10-14T07:13:00.087Z",
+   "consumed": true,
+   "expired_unconsumed": false
+  },
+  {
+   "req_id": "3",
+   "iat": "2026-10-14T07:04:04.858Z",
+   "exp": "2026-10-14T07:14:04.858Z",
+   "consumed": true,
+   "expired_unconsumed": false
+  },
+  {
+   "req_id": "4",
+   "iat": "2026-10-14T07:09:34.722Z",
+   "exp": "2026-10-14T07:19:34.722Z",
+   "consumed": true,
+   "expired_unconsumed": false
+  },
+  {
+   "req_id": "5",
+   "iat": "2026-10-14T07:13:01.660Z",
+   "exp": "2026-10-14T07:23:01.660Z",
+   "consumed": true,
+   "expired_unconsumed": false
+  }
+ ],
+ "users_state": [
+  {
+   "uid": "971214",
+   "tg_user_id": null
+  },
+  {
+   "uid": "971215",
+   "tg_user_id": null
+  }
+ ],
+ "checks": {
+  "expired_probe_attempted": true,
+  "expired_400_reason_EXPIRED": true,
+  "expired_row_still_unconsumed": true,
+  "no_live_unconsumed_rows": true,
+  "users_both_unbound": true
+ }
+}

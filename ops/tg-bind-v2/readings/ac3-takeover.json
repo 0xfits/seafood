@@ -1,0 +1,61 @@
+{
+ "ac": "AC-3",
+ "at": "2026-10-14T07:03:13.948Z",
+ "tgid": 990001234,
+ "steps": {
+  "webhook_issue": {
+   "status": 200
+  },
+  "issued_row": {
+   "req_id": "3",
+   "code_masked": "6N****",
+   "iat": "2026-10-14T07:04:04.858Z",
+   "consumed_null": true,
+   "total_rows": 3
+  },
+  "account2": {
+   "register_verify": 200,
+   "uid2": 971215,
+   "address": "0x7Bd71aBC576D86443A9d1f9b9F33E3397EfCC07B",
+   "token_len": 193
+  },
+  "confirm_takeover": {
+   "status": 409,
+   "code": "TG_TARGET_ACCOUNT_TAKEN",
+   "reason": null,
+   "i18n_key": "tg.err.TG_TARGET_ACCOUNT_TAKEN"
+  },
+  "status_account2": {
+   "status": 200,
+   "payload": {
+    "success": true,
+    "message": "OK",
+    "data": {
+     "tg_linked": false,
+     "tg_linked_at": null
+    }
+   }
+  }
+ },
+ "cooldown_wait_ms": 47377,
+ "db_user2": [
+  {
+   "uid": "971215",
+   "tg_user_id": null
+  }
+ ],
+ "db_code2_state": [
+  {
+   "req_id": "3",
+   "consumed_at": null
+  }
+ ],
+ "checks": {
+  "second_code_issued": true,
+  "confirm_409": true,
+  "code_TG_TARGET_ACCOUNT_TAKEN": true,
+  "account2_status_false": true,
+  "account2_db_unbound": true
+ },
+ "code2": "6N4X2WR3"
+}
