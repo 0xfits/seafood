@@ -19,6 +19,7 @@
  */
 import crypto from 'crypto';
 import { readQuery, txQuery, withTransaction } from './db';
+import { errorMessageOf } from './ledger-errors';
 
 // ---------------------------------------------------------------- env 面（§41.7 env 闭集）
 export interface TelegramRuntimeConfig {
@@ -252,4 +253,203 @@ export const sendTelegramReply = async (chatId: number | string, text: string): 
   } catch (error) {
     console.warn('[telegram.webhook] sendMessage error:', error instanceof Error ? error.message : 'ERROR');
   }
+};
+
+// ---------------------------------------------------------------- 反向短码（tg-bind-v2 · 0048 telegram_bind_request）
+// 「bot /start（无载荷）⇒ 签发短码 ⇒ 站内 confirm」反向路径；既有 HMAC 长码（issueBindCode /
+// consumeBindCode）路径原样保留。库表 = 0048 telegram_bind_request（短码入库承载，与长码的无状态
+// 签名令牌不同体）；过期行由 webhook 签发事务顺手 DELETE，本节不另建清理任务。
+
+/** 短码位长与字符集：大写字母 + 数字，剔除易混 0/O/1/I（32 字符 ⇒ 256 % 32 = 0，randomBytes 取模无偏置）。 */
+export const SHORT_BIND_CODE_LENGTH = 8;
+export const SHORT_BIND_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+export const SHORT_BIND_TTL_SECONDS = 600; // 10 分钟（与 HMAC 长码同有效期；0048 exp = iat + 600 秒）
+
+/** 短码形状闸（confirm 校验链第 1 闸：缺码/形状不对 ⇒ 400，不触库）。 */
+export const isValidShortBindCode = (code: unknown): code is string =>
+  typeof code === 'string' && /^[A-HJ-NP-Z2-9]{8}$/.test(code);
+
+// 防刷占位常量（TODO: 数值为派单给定占位、一句话即可改；webhook 侧按 0048 表 (tg_user_id, iat) 计数
+// 天然多实例生效，confirm 侧为单进程内存滑窗，多实例部署需换持久存储）。
+export const WEBHOOK_SHORTCODE_COOLDOWN_SECONDS = 60; // 同一 tg_user_id 两次 /start 签发最小间隔
+export const WEBHOOK_SHORTCODE_HOURLY_LIMIT = 5;      // 同一 tg_user_id 每小时签发上限
+export const CONFIRM_ATTEMPTS_PER_MINUTE = 10;        // 同一站内账号 confirm 每分钟上限
+const SHORT_CODE_INSERT_ATTEMPTS = 5;                 // 撞 code UNIQUE 重试上限
+const CONFIRM_ATTEMPT_WINDOW_MS = 60_000;
+
+/** 签发 8 位短码（crypto.randomBytes；32 字符集无取模偏置）。导出仅供离线单测断言形状。 */
+export const generateShortBindCode = (): string => {
+  const bytes = crypto.randomBytes(SHORT_BIND_CODE_LENGTH);
+  let code = '';
+  for (let i = 0; i < SHORT_BIND_CODE_LENGTH; i += 1) {
+    code += SHORT_BIND_CODE_ALPHABET[bytes[i] % SHORT_BIND_CODE_ALPHABET.length];
+  }
+  return code;
+};
+
+export type ShortBindIssueOutcome =
+  | { kind: 'ok'; code: string }
+  | { kind: 'rate_limited' };
+
+/**
+ * webhook 无载荷 `/start` 短码签发（处理序冻结）：
+ *   ① 防刷闸：同 tg_user_id 冷却 60 秒 / 每小时上限 5 次 ⇒ 超限不落行（bot 回固定提示）；
+ *   ② 同一事务：顺手 DELETE 已过期行（exp 早于 now() 减 1 天）+ INSERT 新短码行
+ *      （exp = now() + 600 秒；撞 code UNIQUE 重试，上限 5 次）。
+ * 基础设施错误只向上抛给 webhook 顶层 catch（恒 200 + 日志），本函数不吞错。
+ */
+export const issueShortBindCode = async (tgUserId: number): Promise<ShortBindIssueOutcome> => {
+  const gates = await readQuery<{ hour_count: string | number; last_iat: Date | null }>(
+    `SELECT count(*) FILTER (WHERE iat > now() - interval '1 hour') AS hour_count, max(iat) AS last_iat
+       FROM public.telegram_bind_request WHERE tg_user_id = $1`,
+    [tgUserId],
+  );
+  const hourCount = Number(gates[0]?.hour_count ?? 0);
+  const lastIatMs = gates[0]?.last_iat ? new Date(gates[0].last_iat).getTime() : 0;
+  if (hourCount >= WEBHOOK_SHORTCODE_HOURLY_LIMIT
+    || lastIatMs > Date.now() - WEBHOOK_SHORTCODE_COOLDOWN_SECONDS * 1000) {
+    return { kind: 'rate_limited' };
+  }
+
+  return withTransaction(async (tx) => {
+    await txQuery(tx, `DELETE FROM public.telegram_bind_request WHERE exp < now() - interval '1 day'`);
+    for (let attempt = 0; attempt < SHORT_CODE_INSERT_ATTEMPTS; attempt += 1) {
+      const inserted = await txQuery<{ code: string }>(
+        tx,
+        `INSERT INTO public.telegram_bind_request (code, tg_user_id, exp)
+         VALUES ($1, $2, now() + interval '600 seconds')
+         ON CONFLICT (code) DO NOTHING RETURNING code`,
+        [generateShortBindCode(), tgUserId],
+      );
+      if (inserted[0]) {
+        return { kind: 'ok', code: inserted[0].code } as ShortBindIssueOutcome;
+      }
+    }
+    throw new Error('telegram short bind code: unique-collision retry budget exhausted');
+  });
+};
+
+const SHORT_BIND_REPLY_TEXTS = {
+  issued: '绑定码 XXXXXXXX（10 分钟内有效）——回到网站账户设置输入该码完成绑定 / Your binding code: XXXXXXXX (valid 10 min) — enter it on the website to finish binding',
+  rate_limited: '⏳ 请求太频繁，请稍后再试 / Too many requests, please try again later.',
+} as const;
+
+/** webhook ⑥ bot 回复文案（签发成功 ⇒ 双语一行含短码；防刷超限 ⇒ 固定提示）。 */
+export const shortBindIssueReplyText = (outcome: ShortBindIssueOutcome): string => {
+  if (outcome.kind !== 'ok') return SHORT_BIND_REPLY_TEXTS.rate_limited;
+  return SHORT_BIND_REPLY_TEXTS.issued.split('XXXXXXXX').join(outcome.code);
+};
+
+export type ShortBindConfirmOutcome =
+  | { kind: 'ok'; tg_linked_at: string | null }
+  | { kind: 'replay_ok'; tg_linked_at: string | null }
+  | { kind: 'not_found' }
+  | { kind: 'failed'; code: 'TG_CODE_INVALID'; reason: 'EXPIRED' | 'CONSUMED' }
+  | { kind: 'failed'; code: 'TG_TARGET_ACCOUNT_TAKEN' };
+
+/** confirm 防刷：同账号每分钟 ≤ CONFIRM_ATTEMPTS_PER_MINUTE 次（单进程内存滑窗，占位实现，见上方 TODO）。 */
+const confirmAttemptsByUid = new Map<number, number[]>();
+export const checkConfirmRateLimit = (uid: number, nowMs: number = Date.now()): boolean => {
+  const windowStart = nowMs - CONFIRM_ATTEMPT_WINDOW_MS;
+  const attempts = (confirmAttemptsByUid.get(uid) || []).filter((t) => t > windowStart);
+  confirmAttemptsByUid.set(uid, attempts);
+  if (attempts.length >= CONFIRM_ATTEMPTS_PER_MINUTE) return false;
+  attempts.push(nowMs);
+  return true;
+};
+
+/**
+ * 站内 confirm 消费短码（校验链冻结序）：查无此码 → 已过期 → 已消费 → 抢绑闸 → 原子占坑 + 落绑。
+ *   · bigint 回读为字符串，比较一律先 Number 归一（pg 驱动体例）。
+ *   · 抢绑闸：本账号已绑同号 ⇒ 幂等回现态（无副作用，不消费码）；已绑其它 tg / 该 tg 已绑其它
+ *     站内账号 ⇒ 既有 TG_TARGET_ACCOUNT_TAKEN（同码族语义，零新码）。
+ *   · 原子占坑 = `UPDATE ... SET consumed_at = now() WHERE consumed_at IS NULL RETURNING`
+ *     （并发同码 confirm 仅一方胜出，败方得 CONSUMED）。
+ *   · 读面隐私红线（判负②延伸）：任何 outcome 都不携带 tg_user_id 数值。
+ */
+export const confirmShortBindCode = async (uid: number, code: string): Promise<ShortBindConfirmOutcome> => {
+  return withTransaction(async (tx) => {
+    const requests = await txQuery<{ tg_user_id: string | number; exp: Date; consumed_at: Date | null }>(
+      tx,
+      `SELECT tg_user_id, exp, consumed_at FROM public.telegram_bind_request WHERE code = $1 LIMIT 1`,
+      [code],
+    );
+    const request = requests[0];
+    if (!request) return { kind: 'not_found' } as ShortBindConfirmOutcome;
+    if (new Date(request.exp).getTime() <= Date.now()) {
+      return { kind: 'failed', code: 'TG_CODE_INVALID', reason: 'EXPIRED' } as ShortBindConfirmOutcome;
+    }
+    if (request.consumed_at !== null) {
+      return { kind: 'failed', code: 'TG_CODE_INVALID', reason: 'CONSUMED' } as ShortBindConfirmOutcome;
+    }
+
+    const codeTgUserId = Number(request.tg_user_id);
+    const users = await txQuery<{ tg_user_id: string | number | null; tg_linked_at: Date | null }>(
+      tx,
+      `SELECT tg_user_id, tg_linked_at FROM public.users WHERE uid = $1 LIMIT 1`,
+      [uid],
+    );
+    const me = users[0];
+    if (!me) return { kind: 'not_found' } as ShortBindConfirmOutcome;
+
+    if (me.tg_user_id !== null && Number(me.tg_user_id) === codeTgUserId) {
+      return {
+        kind: 'replay_ok',
+        tg_linked_at: me.tg_linked_at ? new Date(me.tg_linked_at).toISOString() : null,
+      } as ShortBindConfirmOutcome;
+    }
+    if (me.tg_user_id !== null) {
+      return { kind: 'failed', code: 'TG_TARGET_ACCOUNT_TAKEN' } as ShortBindConfirmOutcome;
+    }
+    const taken = await txQuery<{ uid: number }>(
+      tx,
+      `SELECT uid FROM public.users WHERE tg_user_id = $1 AND uid <> $2 LIMIT 1`,
+      [codeTgUserId, uid],
+    );
+    if (taken[0]) {
+      return { kind: 'failed', code: 'TG_TARGET_ACCOUNT_TAKEN' } as ShortBindConfirmOutcome;
+    }
+
+    const claimed = await txQuery<{ code: string }>(
+      tx,
+      `UPDATE public.telegram_bind_request SET consumed_at = now()
+        WHERE code = $1 AND consumed_at IS NULL RETURNING code`,
+      [code],
+    );
+    if (!claimed[0]) {
+      return { kind: 'failed', code: 'TG_CODE_INVALID', reason: 'CONSUMED' } as ShortBindConfirmOutcome;
+    }
+    await txQuery(
+      tx,
+      `UPDATE public.users SET tg_user_id = $2, tg_linked_at = now() WHERE uid = $1`,
+      [uid, codeTgUserId],
+    );
+    return { kind: 'ok', tg_linked_at: new Date().toISOString() } as ShortBindConfirmOutcome;
+  });
+};
+
+export interface ConfirmErrorShape {
+  status: number;
+  code: string;
+  message: string;
+  details: Record<string, unknown>;
+}
+
+/** confirm 失败结果 → 既有错误形态（零新错误码；`not_found` 由路由层走 sendRefNotFound 404，不在此映射）。 */
+export const confirmErrorForOutcome = (outcome: ShortBindConfirmOutcome): ConfirmErrorShape | null => {
+  if (outcome.kind !== 'failed') return null;
+  if (outcome.code === 'TG_TARGET_ACCOUNT_TAKEN') {
+    return {
+      status: 409,
+      code: 'TG_TARGET_ACCOUNT_TAKEN',
+      message: errorMessageOf('TG_TARGET_ACCOUNT_TAKEN'),
+      details: {},
+    };
+  }
+  return {
+    status: 400,
+    code: 'TG_CODE_INVALID',
+    message: errorMessageOf('TG_CODE_INVALID'),
+    details: { reason: outcome.reason },
+  };
 };

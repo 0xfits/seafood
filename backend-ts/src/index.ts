@@ -99,13 +99,19 @@ import {
   totalUnread,
 } from './messages-service';
 import {
+  checkConfirmRateLimit,
+  confirmErrorForOutcome,
+  confirmShortBindCode,
   consumeBindCode,
   isTelegramConfigured,
   issueBindCode,
+  issueShortBindCode,
+  isValidShortBindCode,
   readBindStatus,
   replyTextForOutcome,
   REPLY_HINT_TEXT,
   sendTelegramReply,
+  shortBindIssueReplyText,
   telegramRuntimeConfig,
   unbindTelegram,
 } from './telegram-service';
@@ -3370,6 +3376,51 @@ app.get('/api/telegram/bind/status', async (req, res) => {
   }
 });
 
+// #11 反向短码 confirm（tg-bind-v2 · 0048 telegram_bind_request）：站内输入 bot /start 签发的短码完成绑定。
+//   校验链（冻结序）：缺码/形状 400 → 查无此码 404（sendRefNotFound，不泄差异原因）→ EXPIRED / CONSUMED
+//   400（TG_CODE_INVALID + details.reason，零新错误码）→ 抢绑闸（同号幂等 200 / 抢绑 409）。
+//   成功：事务内置 consumed_at + users 落绑 ⇒ 200 { tg_linked, tg_linked_at }；响应绝不回 tg_user_id 数值。
+//   防刷：同账号每分钟 10 次（占位，见服务层 TODO）；全仓无既有 429 形态 ⇒ 400 + reason=RATE_LIMITED（待裁）。
+app.post('/api/telegram/bind/confirm', async (req, res) => {
+  const actor = await requireActor(req, res);
+  if (!actor) return;
+  setPrivateNoStore(res);
+  if (!isTelegramConfigured()) {
+    return sendTelegramNotConfigured(res);
+  }
+  const rawCode = (req.body || {}).code;
+  if (!checkConfirmRateLimit(actor.session.uID)) {
+    return sendMessagingError(res, {
+      status: 400,
+      code: 'TG_CODE_INVALID',
+      message: errorMessageOf('TG_CODE_INVALID'),
+      details: { reason: 'RATE_LIMITED' },
+    });
+  }
+  if (!isValidShortBindCode(rawCode)) {
+    return sendMessagingError(res, {
+      status: 400,
+      code: 'TG_CODE_INVALID',
+      message: errorMessageOf('TG_CODE_INVALID'),
+      details: { reason: 'NOT_FOUND' },
+    });
+  }
+  try {
+    const outcome = await confirmShortBindCode(actor.session.uID, rawCode);
+    if (outcome.kind === 'not_found') {
+      return sendRefNotFound(res, 'telegram_bind_code', rawCode, 'code_not_found');
+    }
+    if (outcome.kind === 'failed') {
+      const errShape = confirmErrorForOutcome(outcome);
+      if (errShape) return sendMessagingError(res, errShape);
+      return sendInfraMapped(res, 'telegram.bind.confirm', new Error('unmapped telegram confirm failure'));
+    }
+    return sendSuccess(res, { tg_linked: true, tg_linked_at: outcome.tg_linked_at });
+  } catch (error) {
+    return sendInfraMapped(res, 'telegram.bind.confirm', error);
+  }
+});
+
 // #10 webhook：① secret 校验（401，timing-safe 比对不泄差异原因）→ ② env 校验（503 降级）→
 //   ③–⑥ 消费 `/start <code>`。恒 200（Telegram 对非 2xx 会重试）；业务失败只进日志 + bot 回复；
 //   无用户鉴权（bot 机器面，§41.4）。secret env 未配置 ⇒ 无可比对值 ⇒ 直接 503 降级（fail-closed，
@@ -3406,7 +3457,11 @@ app.post('/api/telegram/webhook', async (req, res) => {
     }
 
     let reply: string = REPLY_HINT_TEXT;
-    if (text.startsWith('/start')) {
+    if (text === '/start') {
+      // tg-bind-v2：无载荷 /start ⇒ 反向短码签发（0048 表；防刷与撞码重试序见 issueShortBindCode）。
+      const issued = await issueShortBindCode(chatId);
+      reply = shortBindIssueReplyText(issued);
+    } else if (text.startsWith('/start')) {
       const code = text.slice('/start'.length).trim().split(/\s+/)[0] || null;
       const outcome = await consumeBindCode(chatId, code);
       reply = replyTextForOutcome(outcome);
