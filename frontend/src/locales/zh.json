@@ -1207,7 +1207,15 @@
     "codeSteps": "打开 Telegram，向 {{bot}} 发送：/start {{code}}（10 分钟内有效）",
     "notConfigured": "通知服务暂未配置",
     "bindSuccess": "绑定成功",
-    "bindFailed": "绑定失败，请重新获取绑定码"
+    "bindFailed": "绑定失败，请重新获取绑定码",
+    "qrHint": "扫码或点击链接打开 Telegram bot，把 bot 回复给你的 6-8 位短码填在下面",
+    "qrOpen": "在 Telegram 中打开",
+    "codeInputPlaceholder": "输入 bot 给你的短码，如 AB12CD",
+    "confirmBind": "确认绑定",
+    "codeNotFound": "短码不存在，请确认后重试",
+    "codeExpired": "短码已过期，请重新获取",
+    "codeConsumed": "短码已被使用，请重新获取",
+    "accountTaken": "该 Telegram 账号已绑定其它站内账号"
   },
   "msg": {
     "err": {

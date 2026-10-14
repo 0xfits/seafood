@@ -75,6 +75,7 @@ vi.mock('../../messages-api', () => ({
   isTelegramNotConfigured: vi.fn(() => false),
   startTelegramBind: vi.fn(),
   unbindTelegram: vi.fn(),
+  confirmTelegramBind: vi.fn(),
 }))
 
 vi.mock('../../batt-checkin', () => ({

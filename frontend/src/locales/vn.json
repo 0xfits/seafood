@@ -1207,7 +1207,15 @@
     "codeSteps": "Mở Telegram và gửi tới {{bot}}: /start {{code}} (hiệu lực 10 phút)",
     "notConfigured": "Dịch vụ thông báo chưa được cấu hình",
     "bindSuccess": "Liên kết thành công",
-    "bindFailed": "Liên kết thất bại, vui lòng lấy mã mới"
+    "bindFailed": "Liên kết thất bại, vui lòng lấy mã mới",
+    "qrHint": "Quét mã hoặc mở liên kết để vào Telegram bot, rồi nhập mã 6-8 ký tự bot trả lời vào ô bên dưới",
+    "qrOpen": "Mở trong Telegram",
+    "codeInputPlaceholder": "Nhập mã từ bot, ví dụ AB12CD",
+    "confirmBind": "Xác nhận liên kết",
+    "codeNotFound": "Không tìm thấy mã, vui lòng kiểm tra và thử lại",
+    "codeExpired": "Mã đã hết hạn, vui lòng lấy mã mới",
+    "codeConsumed": "Mã đã được sử dụng, vui lòng lấy mã mới",
+    "accountTaken": "Tài khoản Telegram này đã liên kết với tài khoản khác trên trang"
   },
   "msg": {
     "err": {

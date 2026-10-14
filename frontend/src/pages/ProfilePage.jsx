@@ -27,11 +27,14 @@ import { useAuth } from '../auth-context'
 import { fetchMyLedger, LEDGER_PAGE_SIZE } from '../ledger-api'
 // v1.17 §20.2（T102）· Telegram 通知绑定面（`/api/telegram` 族 3 条读/写口；env 缺 ⇒ 503 TG_NOT_CONFIGURED 降级）。
 import {
+  confirmTelegramBind,
   fetchTelegramBindStatus,
   isTelegramNotConfigured,
   startTelegramBind,
   unbindTelegram,
 } from '../messages-api'
+// tg-bind-v2 扫码主路径：QR = react-qr-code（零依赖纯 SVG；禁外部 QR 图片服务——隐私/可用性）。
+import QRCode from 'react-qr-code'
 
 const toDate = (value) => new Date(typeof value === 'number' ? value * 1000 : value)
 
@@ -305,8 +308,14 @@ const FavoritesPane = ({ user, isAuthenticated, lang }) => {
 //   不是定时器；与 §20.6「三时点取数、禁 setInterval」一致。
 // ★ 钩子（§20.5）：`tg-bind-card` / `tg-bind-status` / `tg-bind-code` / `tg-bind-steps` /
 //   `tg-bind-action` / `tg-unbind-action`；根另挂 `data-sf-tg-state`（AC-4 采数用，属排查面）。
-// ★ 零新主题 token / 零新结构常量 / 零新 i18n 键：文案全部取 §20.8 已冻结键 + 全站既有
-//   `confirm` / `cancel` / `loading` / `error`。
+// ★ tg-bind-v2（2026-10-14 单）· 扫码绑定升主路径：code 态新增面板 `tg-bind-qr`（QR 内容 =
+//   `https://t.me/<bot_username>`，**不带 start 载荷**——深链载荷限 64 字符且仅 A-Za-z0-9_-，刻意不用）
+//   + `tg-bind-open` 新开链接 + `tg-bind-code-input` 短码输入（提交前 trim+toUpperCase）
+//   + `tg-bind-confirm` ⇒ `POST /api/telegram/bind/confirm`；bot_username 缺/空 ⇒ 面板隐藏、回退旧长码路径。
+//   旧长码路径**保留为次入口**（同一次 bind/start 响应，`<details>` 折叠；钩子与文案一字不改）。
+//   新增 i18n 键 8 条（telegram.qrHint/qrOpen/codeInputPlaceholder/confirmBind/codeNotFound/
+//   codeExpired/codeConsumed/accountTaken，四语同补）；confirm 失败按 TG 族 reason 映射文案。
+// ★ 零新主题 token / 零新结构常量（v2 起不再是「零新 i18n 键」——见上条 8 键；样式全走既有 Tailwind 既有类）。
 // ★ 依赖面纪律：effect 依赖 **`uid` 原始值**（不用 `sessionUser` 对象身份）—— 本仓测试替身每帧
 //   新建 auth 对象，依赖对象身份会无限重渲染（同 ProfilePage 既有 effect 的 `sessionUser?.uID` 口径）。
 // ============================================================================
@@ -317,6 +326,7 @@ const TelegramBindCard = () => {
   const [state, setState] = useState('loading') // loading | notConfigured | unbound | code | bound
   const [boundAt, setBoundAt] = useState(null)
   const [issued, setIssued] = useState(null) // { code, bot }
+  const [shortCode, setShortCode] = useState('') // tg-bind-v2：扫码主路径的短码输入（提交前归一）
   const [busy, setBusy] = useState(false)
   const [confirming, setConfirming] = useState(false)
   const [notice, setNotice] = useState('')
@@ -381,6 +391,42 @@ const TelegramBindCard = () => {
     }
   }
 
+  // tg-bind-v2 · confirm 失败按 TG 族 reason 映射文案（机读面 = `failure.code` / `failure.i18nKey`，
+  // D1 补丁口径）；未命中四类 ⇒ 回既有 `bindFailed` 兜底。匹配用 includes ⇒ 兼容 `TG_CODE_*` / 裸 reason 两形。
+  const tgConfirmFailKey = (error) => {
+    const raw = String(error?.code || error?.i18nKey || '').toUpperCase()
+    if (raw.includes('EXPIRED')) return 'telegram.codeExpired'
+    if (raw.includes('CONSUMED')) return 'telegram.codeConsumed'
+    if (raw.includes('NOT_FOUND')) return 'telegram.codeNotFound'
+    if (raw.includes('TARGET_ACCOUNT_TAKEN')) return 'telegram.accountTaken'
+    return null
+  }
+
+  // tg-bind-v2 · 扫码主路径确认：短码（trim+toUpperCase 归一后提交）⇒ `POST /api/telegram/bind/confirm`
+  // （requireActor；成功 = `tg_linked:true` + `tg_linked_at` ⇒ 转已绑定态 + 可见反馈；响应**无 tg_user_id**，本组件不读不渲染）。
+  const onConfirmShortCode = async () => {
+    if (busy) return
+    const code = shortCode.trim().toUpperCase()
+    if (!code) return
+    setBusy(true)
+    setNotice('')
+    try {
+      const data = await confirmTelegramBind(code, sessionUser)
+      if (data?.tg_linked) {
+        setBoundAt(data?.tg_linked_at ?? null)
+        setIssued(null)
+        setShortCode('')
+        setNotice(t('telegram.bindSuccess'))
+        setState('bound')
+      }
+    } catch (error) {
+      if (isTelegramNotConfigured(error)) { setState('notConfigured'); return }
+      setNotice(t(tgConfirmFailKey(error) || 'telegram.bindFailed'))
+    } finally {
+      setBusy(false)
+    }
+  }
+
   // 态③ ⇒ 解绑（二次确认内联；成功回态②）。
   const onUnbind = async () => {
     if (busy) return
@@ -399,6 +445,20 @@ const TelegramBindCard = () => {
       setBusy(false)
     }
   }
+
+  // tg-bind-v2 · 旧长码路径体（code 槽 + 步骤 + 回执确认）：bot_username 缺/空时整段原样直出（回退），
+  // bot_username 在场时折叠进 `<details>` 作次入口 —— 钩子与文案键一字不改。
+  const oldCodeBody = (
+    <>
+      <p className="sf-tag" data-sf-m="tg-bind-code">{issued?.code}</p>
+      <p className="text-sm text-gray-600" data-sf-m="tg-bind-steps">
+        {t('telegram.codeSteps', { bot: issued?.bot, code: issued?.code })}
+      </p>
+      <Button variant="proceed" size="sm" onClick={onConfirmBind} disabled={busy} data-sf-m="tg-bind-action">
+        {t('confirm')}
+      </Button>
+    </>
+  )
 
   const statusText = state === 'loading'
     ? t('loading')
@@ -436,17 +496,51 @@ const TelegramBindCard = () => {
               )}
             </>
           ) : state === 'code' ? (
-            <>
-              <p className="text-sm text-gray-600">{t('telegram.codeLabel')}</p>
-              {/* code 展示 = 既有等宽槽位 `.sf-tag`（不新造风格） */}
-              <p className="sf-tag" data-sf-m="tg-bind-code">{issued?.code}</p>
-              <p className="text-sm text-gray-600" data-sf-m="tg-bind-steps">
-                {t('telegram.codeSteps', { bot: issued?.bot, code: issued?.code })}
-              </p>
-              <Button variant="proceed" size="sm" onClick={onConfirmBind} disabled={busy} data-sf-m="tg-bind-action">
-                {t('confirm')}
-              </Button>
-            </>
+            issued?.bot ? (
+              <>
+                {/* tg-bind-v2 主路径：扫码面板（QR 内容 = t.me/<bot_username>，无 start 载荷）+ 新开链接 + 短码 confirm */}
+                <div className="flex flex-col items-start gap-3" data-sf-m="tg-bind-qr">
+                  <div className="rounded-md bg-white p-2">
+                    <QRCode value={`https://t.me/${issued.bot}`} size={148} bgColor="#ffffff" fgColor="#111827" />
+                  </div>
+                  <a
+                    className="text-sm font-medium text-blue-600 underline"
+                    href={`https://t.me/${issued.bot}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-sf-m="tg-bind-open"
+                  >
+                    {t('telegram.qrOpen')}
+                  </a>
+                  <p className="text-sm text-gray-600">{t('telegram.qrHint')}</p>
+                  <input
+                    className="w-full min-h-[44px] rounded-md border border-gray-300 bg-white px-3 py-2.5 text-base text-gray-900"
+                    value={shortCode}
+                    onChange={(event) => setShortCode(event.target.value)}
+                    placeholder={t('telegram.codeInputPlaceholder')}
+                    autoCapitalize="characters"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    data-sf-m="tg-bind-code-input"
+                  />
+                  <Button variant="proceed" size="sm" onClick={onConfirmShortCode} disabled={busy} data-sf-m="tg-bind-confirm">
+                    {t('telegram.confirmBind')}
+                  </Button>
+                </div>
+                {/* 旧长码路径 = 次入口（折叠展示；同一次 bind/start 响应，钩子/文案一字不改） */}
+                <details className="text-sm text-gray-600">
+                  <summary className="cursor-pointer">{t('telegram.codeLabel')}</summary>
+                  {oldCodeBody}
+                </details>
+              </>
+            ) : (
+              <>
+                {/* bot_username 缺/空 ⇒ 扫码面板隐藏，回退旧长码路径（原渲染原样） */}
+                <p className="text-sm text-gray-600">{t('telegram.codeLabel')}</p>
+                {/* code 展示 = 既有等宽槽位 `.sf-tag`（不新造风格） */}
+                {oldCodeBody}
+              </>
+            )
           ) : (
             <Button variant="proceed" size="sm" onClick={onBind} disabled={busy || state === 'loading'} data-sf-m="tg-bind-action">
               {t('telegram.bind')}

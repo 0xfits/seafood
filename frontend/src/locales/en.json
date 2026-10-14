@@ -1207,7 +1207,15 @@
     "codeSteps": "Open Telegram and send to {{bot}}: /start {{code}} (valid for 10 minutes)",
     "notConfigured": "Notifications are not configured yet",
     "bindSuccess": "Linked successfully",
-    "bindFailed": "Linking failed. Please get a new code"
+    "bindFailed": "Linking failed. Please get a new code",
+    "qrHint": "Scan the code or open the link to reach the Telegram bot, then enter the 6-8 character code the bot replies with below",
+    "qrOpen": "Open in Telegram",
+    "codeInputPlaceholder": "Enter the code from the bot, e.g. AB12CD",
+    "confirmBind": "Confirm linking",
+    "codeNotFound": "Code not found. Please check and try again",
+    "codeExpired": "Code expired. Please get a new one",
+    "codeConsumed": "Code already used. Please get a new one",
+    "accountTaken": "This Telegram account is already linked to another site account"
   },
   "msg": {
     "err": {

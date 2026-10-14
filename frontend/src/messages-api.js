@@ -100,6 +100,13 @@ export const unbindTelegram = (user) => postJson('/api/telegram/unbind', {}, use
 /** #9 绑定状态。@returns `{ tg_linked: boolean, tg_linked_at: string|null }`（**响应无 tg_user_id**）。 */
 export const fetchTelegramBindStatus = (user) => getJson('/api/telegram/bind/status', user)
 
+/**
+ * #10 短码绑定确认（tg-bind-v2 扫码主路径 · 契约冻结）。body 提供短码（**提交前已 trim+toUpperCase**）。
+ * @returns `{ tg_linked: true, tg_linked_at }`；env 缺 ⇒ 503 `TG_NOT_CONFIGURED`；
+ * 失败 ⇒ TG 族 reason（NOT_FOUND=404 / EXPIRED / CONSUMED / TG_TARGET_ACCOUNT_TAKEN，**响应永不回 tg_user_id**）。
+ */
+export const confirmTelegramBind = (code, user) => postJson('/api/telegram/bind/confirm', { code }, user)
+
 /** 绑定面降级判据（§41.9）：503 + `TG_NOT_CONFIGURED` = env 缺，**非** 500。 */
 export const isTelegramNotConfigured = (error) =>
   Number(error?.status) === 503 || error?.code === 'TG_NOT_CONFIGURED' || error?.i18nKey === 'tg.err.TG_NOT_CONFIGURED'
