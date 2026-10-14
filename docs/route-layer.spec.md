@@ -355,6 +355,15 @@
 > ④ **★ 页面路由 4 段 + 1 重定向**（`frontend/src/App.jsx` LangShell 内层相对段）：`profile` index ⇒ `<ProfileIndexRedirect/>` `<Navigate replace>` ⇒ `/profile/trades/bought`（不走相对路由避开 `v7_relativeSplatPath` 分歧、query/hash 保留，`App.jsx:184-189`）；`profile/trades/:subTab`（取值 `published/sold/bought`、**非法按 bought**，`ProfilePage.jsx:53-55/:74`）；`profile/favorites` / `profile/settings` 与 trades **三段共用 `ProfilePage`**（视图由 pathname 派生，`:71-77`）；`activities` 顶层新增（与 `messages` 平级，签到/电量自 `/profile` 迁出）。**F2–F5 四段 `ProtectedRoute`**（未登录 = 登录引导；adminOnly=false 无权限闸）；**F1 重定向段不包闸**（闸在目标段后置生效，不产生双重引导）。
 > ⑤ **★ 前端计数口径盲点（登记）**：本批 4 段**多行开写**（`<Route` 后换行）不被 `<Route[ >]` 精确口径计入（现取字面 42 / 精确 34 / 内层逐段清点 20）⇒ 该精确口径自本批起对多行开写法**系统性少计**（§40.3 计数污染同族纪律）；归因 = 字面 38→42、精确 33→34、内层段 16→20。
 > ⑥ **只追加**：**§1–§41 一字未动**；**§42（新）= 唯一新增节**；**v0.1–v2.31 快照未动**；自检见 §42.7。
+>
+> **状态：v2.33（已完成 · **本地入库批次登记 tg-bind-v2：Telegram 反向短码绑定（后端 · commit `6714401`）—— `POST /api/telegram/bind/confirm` 新端点契约 + webhook「无载荷 `/start`」短码签发分支 + 防刷占位常量标注** —— ★ **注册点 104 → 105（+1）**（逐 verb：post 55→56；`AC10-2` 冻结面前推值 = `regs === 105`，门现值仍 104 ⇒ **门改由并行微单执行**）+ ★ confirm 校验链九步写死（防刷限速 400 → 形状 400 → 查无 404 `sendRefNotFound` → EXPIRED/CONSUMED 400 → 同号幂等 200 / 抢绑 409；**响应绝不回 `tg_user_id`**）+ ★ webhook 分支序写死（`text === '/start'` 精确匹配 ⇒ 签发短码（冷却 60s / 时 5 次 · 占位）+ bot 回双语一行；`startsWith('/start')` 长码 v1 消费分支**原样一字未动**）+ **零新错误码、零资金动作**（限速借 `TG_CODE_INVALID` + `reason=RATE_LIMITED`，占位 = 每分钟 10 次/账号）+ **0048 表登记归姊妹册 `data-layer.spec` v0.33 §39**）（**只追加 · 零代码 · 零迁移 · 库面只读 · 零 HTTP · 零套件**））** · 作者角色 = **Jing（Specifier · 制度员）** · 单号 = **JING-SPEC-TGBINDV2-RT**
+> **v2.33 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §43**（登记性回写；**本单不建独立 delta 件**，承 v2.29/v2.30/v2.32 先例）。**凡与实现冲突处，以实现现盘为准**（两笔本地 commit `6714401` / `b7733de`，**未 push**；未发明任何路径 / 错误码 / 数值）。
+> **★★ v2.33 本单要点（先说结论，不含糊）**：
+> ① **★ 注册点 104 → 105（+1）**：`POST /api/telegram/bind/confirm` 注册行 `:3384`（逐 verb：**post 55 → 56**，get 45 / patch 1 / delete 3 / put 0 不变）；`p7b-03-offline-gates.ts:144` 现取 `regs === 104` **尚未前推** ⇒ 前推值 = **`regs === 105`**（**门改归并行微单执行**，本册零代码）。
+> ② **★ confirm 校验链（写死 · 现取 `index.ts:3384-3422`）**：`requireActor`（401，DB 前）→ `setPrivateNoStore` → env 缺 = 503 `TG_NOT_CONFIGURED` → **防刷限速**（不过 = 400 `TG_CODE_INVALID` + `details.reason='RATE_LIMITED'`；占位 = 每分钟 10 次/站内账号，`telegram-service.ts:276` `CONFIRM_ATTEMPTS_PER_MINUTE`，单进程内存滑窗占位实现 `:350`，**待裁/待 Kevin 定值**——全仓无既有 429 形态 ⇒ 借码 400）→ 形状非法 = 400 `TG_CODE_INVALID` + `reason='NOT_FOUND'` → 查无 = **404 `sendRefNotFound('telegram_bind_code',…,'code_not_found')`**（§3.1 统一形态，不泄差异原因）→ EXPIRED/CONSUMED = 400 `TG_CODE_INVALID` + `details.reason` → **同号幂等 = 200 `{tg_linked:true, tg_linked_at}` / 抢绑 = 409 `TG_TARGET_ACCOUNT_TAKEN`**；未映射失败/异常 = `sendInfraMapped` 503 分类器；**响应永不回 `tg_user_id` 数值**（§41.5 隐私红线的 confirm 出参延伸）。
+> ③ **★ webhook「无载荷 `/start`」分支（写死 · 现取 `index.ts:3460-3468`）**：分支序 = **先 `text === '/start'`（精确匹配 ⇒ `issueShortBindCode(chatId)` 签发 8 位短码 + `shortBindIssueReplyText` bot 回双语一行）→ 后 `text.startsWith('/start')`（既有长码 v1 消费分支，§41.2 #10 处理序原样，一字未动）**；签发防刷 = 同 `tg_user_id` **冷却 60 秒 / 每小时 5 次**（占位常量 `telegram-service.ts:274-275`，超限不落行、bot 回固定提示、HTTP 仍恒 200）+ 撞 `code` UNIQUE 重试上限 5 + 签发事务顺手清过期行；非文本/无发送者 update 恒 200 空对象（既有）。
+> ④ **★ 0048 表（库面）**：`telegram_bind_request`（6 列 + 1 PK + 1 UNIQUE(code) + 1 限速索引 `(tg_user_id, iat)`；107 行迁移，commit 自述未 apply）—— **内容契约登记归姊妹册 `data-layer.spec` v0.33 §39**，本册只指路不重抄。
+> ⑤ **只追加**：**§1–§42 一字未动**（§41.2 #7–#10 / §41.5 `TG_*` 5 码闭集条文原样——本批零新码，限速仅扩 `TG_CODE_INVALID` 的 `details.reason` 取值域 +1 = `RATE_LIMITED`，逐字登记于 §43.5）；**§43（新）= 唯一新增节**；**v0.1–v2.32 快照未动**；自检见 §43.6。
 
 
 > **v2.19 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.19-delta.md`（**同批姊妹册** = `docs/audit/data-layer-v0.26-delta.md` + `docs/audit/commission-v0.4-delta.md`）。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 P9⑤ 契约冻结；**未改写任何裁定、未发明任何路径 / 数值 / 权限键 / 文案值**）。**★ 姊妹册（同批）**：`docs/commission.spec.md` **v0.4 §19** + `docs/data-layer.spec.md` **v0.26 §34**，**本册不重抄其条文、只指路**。
@@ -8282,3 +8291,60 @@ CONSTRAINT admin_refund_audit_log_idem_uniq   UNIQUE (idempotency_key, result)  
 - **两处版本记录同步自证**（锚定计数 · 提交前实测）：① 头部 = v2.32 状态块 `grep -n '^> \*\*状态：v2.32'` **恰 1 命中（`:349`）**；② 正文 = 本节 §42 `grep -n '^## §42'` **恰 1 命中（`:8204`）**；**两处同批同 commit 入库，漏一处 = 不完整**。
 - **快照面**：本版镜像 `docs/versions/route-layer.spec.v2.32.md`（`cmp=0` 自证）；改前快照 `docs/versions/route-layer.spec.v2.31.md`（上轮镜像，未动）。**本单不建独立 delta 件**（承 v2.29/v2.30 先例：登记性小批不建；逐条落点 = 本节）。
 - **git 面**：只 `git add` 本单两文件（`docs/route-layer.spec.md` + `docs/versions/route-layer.spec.v2.32.md`）；**本地 commit · 未 push**（两笔实现 commit 与本登记 commit 一并待推送）；工作树他人未提交改动（`frontend/**` 5 文件 + `frontend/src/trades-api.js`）**不在本单范围、零触碰**。
+
+## §43 ★★ v2.33 · 本地入库批次登记：Telegram 反向短码绑定（后端 · commit `6714401`）—— confirm 端点 + webhook 短码签发分支 + 防刷占位常量（**本节只追加 · §1–§42 一字未动** · 依据 = 本仓两笔本地未推送提交现取 · 登记性回写 · 零裁定新增 · 零代码 · 零迁移 · 库面只读 · 零 HTTP · 零套件 · 库面登记归姊妹册 `data-layer.spec` v0.33 §39）
+
+### 43.0 登记来源与范围
+
+- **后端 = commit `6714401`**（「feat(backend-ts): tg-bind-v2 反向短码绑定 … · 本地入库，待质检后推送」）：迁移 `0048_telegram_bind_request.sql`（**107 行** · 1 表 + 1 PK + 1 UNIQUE + 1 限速索引 + apply-time 自检，**commit 自述未 apply**）+ `telegram-service.ts` 短码族（`issueShortBindCode` / `confirmShortBindCode` / `shortBindIssueReplyText` / `isValidShortBindCode` / `checkConfirmRateLimit`）+ `src/index.ts` 新注册 **1 口**（confirm `:3384`）+ webhook 增「无载荷 `/start`」分支（`:3460-3468`）。本节登记其 **route 侧契约**；表 DDL = 姊妹册 v0.33 §39。
+- **前端 = commit `b7733de`**：绑定卡（`frontend/src/pages/ProfilePage.jsx`，钩子 `tg-bind-qr` / `tg-bind-open` / `tg-bind-code-input` / `tg-bind-confirm`，本单现取 grep 命中 + 单测 `frontend/src/test/unit/tg-bind-qr.test.jsx`）扫码主面板（QR 内容 = `t.me/<bot_username>` 无载荷链接）+ 短码输入（trim + 大写归一）⇒ 调 `POST /api/telegram/bind/confirm`；旧长码路径折叠为次入口；`bot_username` 缺失 ⇒ 扫码面隐藏回退；四语 +8 键（拍平 1095→1103 / 节点 4380→4412）。**页面路由零新增** ⇒ 页面路由面零登记；QR 形态 / 四语键逐字表与计数 = design 册，本册不重抄。
+- **范围（写死）**：**只登记**；路径 / 错误码 / 行号全部现取自两笔提交现盘，未发明任何值；**既有「`/start` 加载荷」长码 v1 分支与 §41 三条 bind 路由（#7/#8/#9）条文原样，本批一字未改写**；实现归 Kong、质检归 Neng 分工不变；**本单零代码、禁 push**（两笔实现 commit 仍在本地）。
+
+### 43.1 现取事实底座（HEAD `b7733de` · 2026-10-14 · 只读现取）
+
+| 项 | 现取读数 | 取法 |
+|---|---|---|
+| 本地未推送 commit | `b7733de`（前端，压顶）/ `6714401`（后端）—— commit message 自述「本地入库，待质检后推送」 | `git log --oneline -3` |
+| **注册点** | **105**（canonical 口径 = `grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts`，§40.2/§41.1/§42.1 同口径）；逐 verb = **get 45 / post 56 / patch 1 / delete 3 / put 0**（`app.use` 不计入） | `grep` |
+| `AC10-2` 冻结面 | `backend-ts/scripts/p7b-03-offline-gates.ts:144` 现取 = `regs === 104`（**尚未前推**）⇒ 前推值 = `regs === 105`，**门改归并行微单执行**（非本单） | 源码现取 |
+| `src/index.ts` 体量 | **3492 行**（§42.1 记 3437 行 ⇒ 上一锚已过时，以现盘为准） | 现取 |
+| 错误码闭集 | `LEDGER_*` 33 码 + `MSG_*` 7 / `TG_*` 5 域不动（§41.5）；本批**零新码**；`TG_CODE_INVALID` 的 `details.reason` 取值域 **+1 = `RATE_LIMITED`**（借码限速，§43.5） | 源码现取 |
+| 防刷占位常量 | `telegram-service.ts:266` `SHORT_BIND_TTL_SECONDS=600` / `:274` `WEBHOOK_SHORTCODE_COOLDOWN_SECONDS=60` / `:275` `WEBHOOK_SHORTCODE_HOURLY_LIMIT=5` / `:276` `CONFIRM_ATTEMPTS_PER_MINUTE=10` —— **全部占位、待 Kevin 定值**（服务层 `:350` 自述「单进程内存滑窗，占位实现」） | 源码现取 |
+| 迁移 `0048` | commit message 自述**未 apply**（dev/生产两库 apply 状态 = `NOT_MEASURED`）⇒ **push 前必须先 apply**（「先 apply 后 push」铁律不变） | commit 现取 |
+
+### 43.2 confirm 契约（`POST /api/telegram/bind/confirm` · 现取 `index.ts:3384-3422` · 注册行 `:3384`）
+
+> **校验链（写死 · 冻结序，逐条现取）**：① `requireActor`（未登录 = 401 既有 `AUTH_UNAUTHORIZED`，R107 形态、**DB 调用前**）→ ② `setPrivateNoStore` → ③ env 缺 = `sendTelegramNotConfigured`（**503 `TG_NOT_CONFIGURED`**，§41.9 形态）→ ④ **防刷限速**：`checkConfirmRateLimit(uID)` 不过 = **400 `TG_CODE_INVALID` + `details.reason='RATE_LIMITED'`**（全仓无既有 429 形态 ⇒ 借 `TG_CODE_INVALID`；占位 = **每分钟 10 次/站内账号**，`CONFIRM_ATTEMPTS_PER_MINUTE` `telegram-service.ts:276`，**待裁/待 Kevin 定值**）→ ⑤ 形状非法（缺码/非 8 位字符集）= **400 `TG_CODE_INVALID` + `reason='NOT_FOUND'`** → ⑥ 查无此码 = **404 `sendRefNotFound('telegram_bind_code', <code>, 'code_not_found')`**（§3.1 统一 404 形态，不泄差异原因）→ ⑦ EXPIRED / CONSUMED = **400 `TG_CODE_INVALID` + `details.reason ∈ {EXPIRED, CONSUMED}`**（零新码）→ ⑧ **同号幂等 = 200 `{tg_linked: true, tg_linked_at}`** / **抢绑（`tg_user_id` 已被其它站内账号占用）= 409 `TG_TARGET_ACCOUNT_TAKEN`**（§41.5 既有码复用）；⑨ 服务层未映射失败 / 异常 = `sendInfraMapped`（**503** 分类器，§11.3/§14）。
+
+- **成功出参（写死）**：`{tg_linked: true, tg_linked_at}` —— **响应永不回 `tg_user_id` 数值**（§41.5 隐私红线 Z4 的 **confirm 出参延伸**；判负延续）。
+- **消费语义**：成功 = 事务内置 `telegram_bind_request.consumed_at` + `users` 落绑（`confirmShortBindCode`）；一次性消费闸 = `consumed_at` 非空 ⇒ ⑦ CONSUMED。
+- **幂等键**：**零幂等键**（无资金动作 ⇒ 不落键、不写 `ledger`；防重放承重墙 = `code` UNIQUE + `consumed_at` 一次性消费 + `users.tg_user_id` 部分唯一索引（抢绑 409 DB 兜底，`0046` 既有）—— §4.5 表约束变体）；「前端不得自造键」在本面无适用面。
+- **authz**：`requireActor` 单闸（绑定恒写 token 侧本人账号，body 不可声明目标 uid）；零 admin 旁路（§41.4 原样）。
+
+### 43.3 webhook「无载荷 `/start`」分支行为（现取 `index.ts:3460-3468` · `telegram-service.ts:296-350`）
+
+- **分支序（写死）**：webhook 取 `text` 后 —— **先** `text === '/start'`（**精确匹配** = 无载荷）⇒ `issueShortBindCode(chatId)` 签发 8 位短码（`exp = now() + interval '600 seconds'`，`telegram-service.ts:320`；与 HMAC 长码同有效期 `SHORT_BIND_TTL_SECONDS=600`）⇒ `reply = shortBindIssueReplyText(issued)`（**bot 回双语一行**）；**后** `text.startsWith('/start')` = 既有**长码 v1 消费分支原样**（`consumeBindCode` → `replyTextForOutcome`，§41.2 #10 处理序一字未动）。顺序写死（精确匹配在前，防 `startsWith` 吞掉无载荷形态）。
+- **签发防刷（占位常量 · 写死标注）**：同 `tg_user_id` **冷却 60 秒**（`WEBHOOK_SHORTCODE_COOLDOWN_SECONDS=60`，`telegram-service.ts:274`）/ **每小时上限 5 次**（`WEBHOOK_SHORTCODE_HOURLY_LIMIT=5`，`:275`）—— 超限**不落行**、bot 回固定提示文案、**HTTP 仍恒 200**；闸序 = 防刷 → 清过期（`exp` 早于 `now()` 减 1 天，同事务 DELETE 回收）→ INSERT；撞 `code` UNIQUE **重试上限 5**。**两组数值全部占位、待 Kevin 定值**（服务层 TODO 自述）。
+- **兜底（既有原样）**：非文本 / 无发送者 update = 恒 200 空对象（`:3454-3457`）；其它文本 = `REPLY_HINT_TEXT` 既有提示；回复后台化 `void sendTelegramReply`（响应不因网络抖动变慢，§41.7 体例）；**webhook 恒 200**（Telegram 重试语义，§41.2 #10）。
+- **判负（可证伪）**：① confirm 响应体含 `tg_user_id` 数值 ⇒ 判负（隐私红线延伸）；② confirm 校验链序与本节 ①–⑨ 不符（如限速晚于形状/查无）⇒ 判负；③ webhook 无载荷 `/start` 落入长码消费分支或反之 ⇒ 判负；④ 签发防刷超限仍落行 ⇒ 判负；⑤ 本族出现闭集外新错误码 ⇒ 判负；⑥ confirm 限速以 429 形态返回（未按 400+`RATE_LIMITED` 登记形态）⇒ 判负。
+- **未测项（`NOT_MEASURED` · 禁填 0/空）**：confirm / 短码签发的 HTTP 端到端本单未跑（零 HTTP · 只读取证）；confirm 内存滑窗在多实例（Vercel）下的实际限速效果未测（占位实现已知边界）；`0048` 两库 apply 状态未现取；门 `AC10-2` 前推后的全量门套未执行；四语 +8 键与 QR 面浏览器走查未跑。
+
+### 43.4 注册点前推（104 → 105 · `AC10-2` 冻结面前推值）
+
+- **+1 逐条**（`index.ts` 现取注册行）：C1 `POST /api/telegram/bind/confirm` `:3384`（**post 55 → 56**；get 45 / patch 1 / delete 3 / put 0 **不变**）。
+- **前推值（写死）**：`p7b-03-offline-gates.ts:144` `AC10-2` 断言 `regs === 104` ⇒ **`regs === 105`**（104 = §42.5 的兑现值；105 = 104 + 本批 1；注释链同步前推）。**门改由并行微单执行**（本册零代码；门现值仍 104 ⇒ 前推前该门对本批为红，属「待并行微单执行」项、**非回归**，逐条登记免两推）。
+- **判负**：注册行少于/多于本节 1 条字面 ⇒ 门红；不得以路由别名 / `app.use` 挂载绕过 canonical 计数口径（§40.2 口径连续性）。
+
+### 43.5 错误码与占位常量登记（零新码 · 闭集不动）
+
+- **`LEDGER_*` 33 码闭集一字不动**；`MSG_*` 7 / `TG_*` 5 域（§41.5）**码集不动**（本批零新码）；`AUTH_*` 既有域沿用。
+- **`details.reason` 取值域扩展 1 处（登记）**：`TG_CODE_INVALID`（400）的 `details.reason` 闭集由 §41.5 的 `{NOT_FOUND, EXPIRED, CONSUMED}` **+1 = `RATE_LIMITED`**（confirm 防刷限速专用；全仓无既有 429 形态 ⇒ 借码 400 而非 429，**待裁项 = 是否引入 429 形态**，随占位常量一并待 Kevin/Zang 定值）。码集不扩 ⇒ 不触发 §41.5「另开变体交裁」条款；**后续新需求仍不得静默扩 `TG_*` 码集**。
+- **占位常量（4 条 · 全部标 `待 Kevin 定值`）**：`SHORT_BIND_TTL_SECONDS=600`（短码有效期，与 HMAC 长码同）/ `WEBHOOK_SHORTCODE_COOLDOWN_SECONDS=60` / `WEBHOOK_SHORTCODE_HOURLY_LIMIT=5` / `CONFIRM_ATTEMPTS_PER_MINUTE=10`（真源 = `telegram-service.ts:266/:274/:275/:276` 本单现取；confirm 限速 = **单进程内存滑窗占位实现**（`:350` 自述），多实例边界已登记 §43.3 未测项）。
+- **幂等键**：本族**零幂等键**（§43.2；无资金动作 ⇒ 不落键、不写 `ledger`）。
+
+### 43.6 变更记录 / 纪律自检 + 快照
+
+- **变更记录**：**本节只新增 §43**（+ 顶部 v2.33 状态块插入，紧随 v2.32 块之后）—— **§1–§42 一字未动**（自证：`git diff --numstat docs/route-layer.spec.md` = **67+/1−**，本单提交前实测；该 1− = 文末 EOF **换行归一化** —— 改前末行无行尾换行，追加后获得换行符，**字符内容不变、正文零删除**，承 §42.7 同族；全量 diff 逐 hunk 核验删除行仅此一行）；**零代码 / 零迁移文件 / 库面只读 / 零 HTTP / 零套件**；**未发明项**：confirm 路径字面与行号（`:3384`）、webhook 分支行号（`:3460-3468`）、校验链九步序、占位常量 4 条（`telegram-service.ts:266/:274/:275/:276`）、`105 = 104 + 1`、逐 verb 计数 —— 全部可回溯至两笔本地 commit 或本册现取命令。
+- **两处版本记录同步自证**（锚定计数 · 提交前实测）：① 头部 = v2.33 状态块 `grep -n '^> \*\*状态：v2.33'` **恰 1 命中（`:359`）**；② 正文 = 本节 §43 `grep -n '^## §43'` **恰 1 命中（`:8295`）**；**两处同批同 commit 入库，漏一处 = 不完整**。
+- **快照面**：本版镜像 `docs/versions/route-layer.spec.v2.33.md`（`cmp=0` 自证）；改前快照 `docs/versions/route-layer.spec.v2.32.md`（上轮镜像，未动）。**本单不建独立 delta 件**（承 v2.29/v2.30/v2.32 先例：登记性小批不建；逐条落点 = 本节）。
+- **git 面**：只 `git add` 本单四文件（`docs/route-layer.spec.md` + `docs/versions/route-layer.spec.v2.33.md` + `docs/data-layer.spec.md` + `docs/versions/data-layer.spec.v0.33.md`）；**本地 commit · 未 push**（两笔实现 commit 与本登记 commit 一并待推送）；**绝不 push**。

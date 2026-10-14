@@ -1,5 +1,6 @@
 # 海鲜市场 · P3 数据层口径（Data Layer Spec）
 
+> **文档状态（最新）**：**v0.33**（2026-10-14；**本次 = 「本地入库批次登记 tg-bind-v2：迁移 `0048_telegram_bind_request.sql` 表登记（后端 commit `6714401`）」** —— **只增不改 · 追加式**、**`DL*` 条文与 §21–§38 一字未动、章节编号未重排**、旧写法**不静默重写**。**依据** = 本仓本地未推送提交 `6714401` 现取（登记性回写 · 零裁定新增）：**迁移文件已由实现单创建并入库**（`backend-ts/migrations/0048_telegram_bind_request.sql`，**107 行**；commit 自述**未 apply** ⇒ **push 前必须先 apply**，「先 apply 后 push」铁律不变）⇒ 本节登记其**现取事实**（非冻结新契约 —— 逐列逐约束以落盘迁移文件为准，正文 = **§39**）。**表 = `public.telegram_bind_request`**（6 列：`req_id` bigserial PK / `code` varchar(12) NOT NULL **UNIQUE** / `tg_user_id` bigint NOT NULL / `iat` DEFAULT now() / `exp` NOT NULL = iat+600 秒 / `consumed_at` 可空；+ 限速索引 `(tg_user_id, iat)`；无 FK `users`）。**`DL` 编号域零改动**（仍 `DL1..DL157`，不新增 `DL` 条）；**章节编号未重排**（新内容向后追加为 **§39**）。**范围** = **只写本册 + 改后快照 `docs/versions/data-layer.spec.v0.33.md`**；姊妹册正文 = `route-layer.spec` **v2.33 §43**（Jing · 单号 **JING-SPEC-TGBINDV2-DL**）。**★ 头注留痕（诚实登记）**：紧邻其下的 **v0.32** 行仍带「文档状态（最新）」字样 —— 受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束，**未改写该行** ⇒ 以文件最上方的本行（v0.33）为现行版。**★ 范围** = **零代码 / 零迁移文件改动 / 零库写 / 零 HTTP / 不动生产数据 / 未跑任何门**。
 > **文档状态（最新）**：**v0.32**（2026-10-12；**本次 = 「A5 收口 · 站内信最小闭环 + Telegram bot 绑定/通知一步到位 —— `conversation` / `message` 两表 DDL 契约 + `users` +2 列 + 未读计数读口 + 频次上限数据面 + 迁移 `0045`/`0046` 内容契约」** —— **只增不改 · 追加式**、**`DL*` 条文与 §21–§37 一字未动、章节编号未重排**、旧写法**不静默重写**。**依据** = **Kevin 2026-10-12 逐字「直接 A+C」**（站内信最小闭环 + Telegram bot 绑定/通知一步到位，不走分期；询价意向单/计数 `D2`/`D4` **不在本单**、继续挂账 = `F17`）+ **Zang 结构裁定 1–9 逐字**（per-listing 会话 / append-only message / 双语一行通知 / 隐私红线只存 `tg_user_id` / code 绑定流 / 防刷 20 条·天·会话 / keyset 禁 OFFSET / env-gated 降级 / 不做清单），出处 = `docs/OPEN-ITEMS.md` `A5` 行（commit `3ae743e`）。**★ `F19` 并入**：详情读口 `seller` 对象 = **读口扩展**，库面**零改动**（`listing.seller_uid` 已存在，`0015_listing.sql:117`）。**迁移内容契约** = **本册只冻内容 · 迁移文件由实现单创建 · apply 需 Kevin 授权**（生产 = 新库；本地 dev 5788 连的是旧库存档 ≠ 生产）。**`DL` 编号域零改动**（仍 `DL1..DL157`，**不新增 `DL` 条** —— 本节以 `A5-DL-*` 承载）；**章节编号未重排**（新内容向后追加为 **§38**）。**范围** = **只写本册 + 改后快照 `docs/versions/data-layer.spec.v0.32.md` + delta 件 `docs/audit/data-layer-v0.32-delta.md`**；姊妹册正文 = `route-layer.spec` **v2.31 §41** + `design-system.spec` **v1.17 §20**（Jing · 单号 **JING-SPEC-A5-DL**）。**★ 头注留痕（诚实登记）**：紧邻其下的 **v0.31** 行仍带「文档状态（最新）」字样 —— 受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束，**未改写该行** ⇒ 以文件最上方的本行（v0.32）为现行版。**★ 范围** = **零代码 / 零迁移文件 / 零库写 / 零 HTTP / 不动生产数据 / 未跑任何门**。
 > **文档状态（最新）**：**v0.31**（2026-10-04；**本次 = 「S24 A1 定值落册：上市保证金金额 = `50000`」** —— **只增不改 · 追加式**、**`DL*` 条文与 §21–§36 一字未动、章节编号未重排**、旧写法**不静默重写**：① **A1 定值**（Kevin 2026-10-04 定档 · 依据 = `docs/seafood.master-plan.md` **§5.339** `:1419-1430` A1 行逐字「保证金 = **`50000`**」）：**上市保证金金额 = `50000`** —— **语义不变**（**主导真源**仍 = `app_config` 键 `listing_deposit_policy`（本册 §23.1 `AK2`）；常量 `CURRENCY_LIST_DEPOSIT_FLOOR = 50000` 仍为 **fail-closed 兜底**）；本册各处「**待 Kevin 定值**」标记 ⇒ **读作已定值（旧行一字未改 · 逐处见 §37）**；② **A2 连带登记**（本册 §20 `AN10` `:1079` 现取「`0023:161-162` 常量旁 `-- TODO: Kevin 定值` ⇒ 日累计上限 `1000000`」）⇒ **读作已定值**（唯一真值在 DB 编排函数；依据 = §5.339 A2 行）；③ 本节追加于本册末行之后；④ **改后快照** = `docs/versions/data-layer.spec.v0.31.md`（`cmp` 逐字节 = 0）；**delta** = `docs/audit/data-layer-v0.31-delta.md`。**★ 头注留痕（诚实登记）**：紧邻其下的 **v0.30** 行仍带「文档状态（最新）」字样 —— 受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束，**未改写该行** ⇒ 以文件最上方的本行（v0.31）为现行版。**★ 范围** = **只写本册**（零代码 / 零迁移 / 零库写 / 零 HTTP / **不写 `app_config` 行** / 不动生产数据）。
 > **文档状态（最新）**：**v0.30**（2026-10-04；**本次 = 「S14 本批实现形态回写：`R-9-97`..`R-9-103` 的库侧面落地面」** —— **只增不改 · 追加式**、**`DL*` 条文与 §21–§36 一字未动、章节编号未重排**、旧写法**不静默重写**：① `job.headcount` 列实际形态（`bigint NOT NULL DEFAULT 1` + `CHECK (headcount >= 1)` · 约束名 `job_headcount_min`）；② `job_application` 停写（**实际 applied 迁移** = `0041` / `0042`；真库 `schema_migration` = **41 行 / max `0042`**）；③ `job_submission` 无 `(job_id, worker_uid)` 唯一约束（同一人可多次提交）。**`DL` 编号域零改动**（仍 `DL1..DL157`，不新增 `DL` 条 —— 本节以 `S0-TM-*` 承载）；**章节编号未重排**（新内容向后追加为 **§36.6**）。**范围** = **只写本册 + 改后快照 `docs/versions/data-layer.spec.v0.30.md`**（Jing · 单号 **S14-IMPL-WRITEBACK**）。**★ 头注留痕（诚实登记）**：紧邻其下的 v0.28 行仍带「文档状态（最新）」字样 —— 受「只追加 / `git diff --numstat` 删除列 = 0」硬口径约束，**未改写该行** ⇒ **以文件最上方的本行（v0.30）为现行版**。
@@ -4882,4 +4883,40 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_users_tg_user_id
 ### 38.12 快照 + 自证（本节）
 
 - 改前：4683 行 / 881,757 B / md5 `b037d6aa895f7b4220ae3a21fff20d0d`；改后读数见本版 delta 件 `docs/audit/data-layer-v0.32-delta.md`（行数/字节/md5 前后 + `git diff --numstat` 删除列 = 0 + 快照 `cmp=0` + 未改代码自证）。
+
+## §39 ★★ v0.33 · 本地入库批次登记 tg-bind-v2：迁移 `0048_telegram_bind_request.sql` 表登记（后端 commit `6714401`）（**本节只追加 · §21–§38 一字未动** · 依据 = 本仓本地未推送提交现取 · 登记性回写 · 迁移文件已由实现单创建，本节登记其现取事实 · 零裁定新增 · 零代码 · 零迁移文件改动 · 零库写 · 零 HTTP · 未跑任何门 · route 侧正文 = `route-layer.spec` v2.33 §43）
+
+### 39.1 表 `public.telegram_bind_request` 全量现取（`0048_telegram_bind_request.sql:34-50` · 107 行迁移 · apply 状态 = `NOT_MEASURED`）
+
+| 列 | 类型 | 约束 / 语义（现取） |
+|---|---|---|
+| `req_id` | `bigserial` | **PK** `telegram_bind_request_pk`（`:41`） |
+| `code` | `varchar(12) NOT NULL` | **UNIQUE** `telegram_bind_request_code_uniq`（`:42`；撞码重试承重墙，服务层重试上限 5）；列宽 12 留余量，服务层签发恒 **8 位**（大写字母+数字、剔除易混 `0/O/1/I`，迁移头注 `:7-8`） |
+| `tg_user_id` | `bigint NOT NULL` | 发码者 Telegram 数字 ID；**无 FK `users`**（Telegram 侧 ID ≠ 站内 uid，发码者未必有站内账号，`:16`） |
+| `iat` | `timestamptz NOT NULL DEFAULT now()` | 签发时刻 |
+| `exp` | `timestamptz NOT NULL` | **= `iat` + 600 秒**（10 分钟，与 HMAC 长码同有效期；服务层 `now() + interval '600 seconds'` 同语句同钟落值，`telegram-service.ts:320`） |
+| `consumed_at` | `timestamptz` 可空 | 站内 confirm 成功时刻（NULL = 未消费；**一次性消费闸**） |
+
+- **索引**：`idx_telegram_bind_request_tg_iat ON (tg_user_id, iat)`（`:49-50`）—— webhook 防刷限速读路径（同号冷却 60 秒 / 每小时 5 次，**占位数值待 Kevin 定值**）；计数 = 查询期派生，无计数器表。
+- **COMMENT ON TABLE**（`:45-46`）：「tg-bind-v2 反向短码绑定请求：bot 无载荷 /start 签发 8 位短码，站内 confirm 消费；exp = iat + 600 秒；一次性消费 = consumed_at；无资金动作。」
+
+### 39.2 生命周期与写入面（写死 · 现取迁移头注 `:5-26` 与服务层）
+
+- **写入三动作**：① INSERT = webhook 无载荷 `/start` 签发（防刷闸过 + 清过期后；`issueShortBindCode`）；② UPDATE = confirm 成功置 `consumed_at = now()`（一次性消费）；③ DELETE = 签发事务顺手回收过期行（`exp` 早于 `now()` 减 1 天；同事务，`:18-19`）。⇒ **不入 append-only 家族**（受限可变面，与 `conversation` §38.5 同族登记）；append-only 守卫面 **16 张（§38.9 #2 后）本批 +0**。
+- **隐私红线（`A5-DL-P1` 同族延伸）**：本表只存 `tg_user_id` 数字 ID、**不存 username / first_name 等任何公开标识**（迁移头注 `:9-10`）；回读仅服务层内部使用，**读口（confirm 成功出参）绝不外泄数值**（route 册 §43.2）。
+- **硬禁承袭（迁移文件自述 `:23-26`）**：不改任何既有对象 / 不 `CREATE OR REPLACE` 既有函数体 / 不写业务数据 / `0001–0047` checksum 一字不动（`migrate.ts` 整链 ABORT 红线沿用）；幂等 apply = `IF NOT EXISTS` 全量守卫 + 末尾 apply-time `DO` 自检（纯目录只读；6 列 + 2 约束 + 1 索引逐名断言，`:58-107`）。
+- **零资金动作**：不写 `ledger`、不借账本错误码、不新增 kind、无新 `app_config` 键。
+
+### 39.3 对既有不变式的冲击 + 未测项 + 快照（诚实边界）
+
+| # | 既有不变式 | 冲击 | 结论 |
+|---|---|---|---|
+| 1 | `DL1..DL157` 编号域 | 零新增 `DL` 条（本节以 §39 承载） | **零冲击** |
+| 2 | append-only 守卫面（§38.9 #2 后 = 16 张） | 本表**不入**（受限可变面，§39.2） | **零冲击** |
+| 3 | 迁移链 checksum 冻结 | `0001–0047` 一字不动，`0048` 纯追加 | 不破 |
+| 4 | 资金面（`ledger_entry` / kind 闭集 / `app_config`） | **零触碰**（§39.2） | **零冲击** |
+| 5 | 隐私红线（`A5-DL-P1`/`P2`） | 表面只存数字 ID；抢绑 DB 兜底仍 = `users.tg_user_id` 部分唯一索引（`0046` 既有，不动） | 不破 |
+
+- **未测项（全部 `NOT_MEASURED` · 禁填 0/空）**：`0048` 未在任何库 apply（dev/生产两库状态未现取）；apply 后 `schema_migration` 行数未现取（本单零库连、不发明计数）；防刷闸在多实例（Vercel）下的实际效果未测（进程内冷却/滑窗占位实现，限速索引仅承查询期派生计数）；门套未跑。
+- **快照 + 自证**：改前 **4885 行 / 907,746 B**（HEAD `b7733de` 现取）；改后 **4922 行 / 914,301 B**；`git diff --numstat docs/data-layer.spec.md` = **37+/0−**（**删除列 = 0** ✅）；快照 `docs/versions/data-layer.spec.v0.33.md`（`cmp=0` 自证，提交前实测）+ 未改代码自证（本单只写本册 + 快照，零代码 / 零迁移文件改动）。
 
