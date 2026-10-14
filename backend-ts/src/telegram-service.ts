@@ -442,6 +442,22 @@ export interface ConfirmErrorShape {
   details: Record<string, unknown>;
 }
 
+/**
+ * confirm **形状闸**（九步校验链第 1 闸 · `isValidShortBindCode`）失败形态：形状非法 ⇒ 400
+ * `TG_CODE_INVALID` + `details.reason = 'SHAPE_INVALID'`（**零新错误码**）。
+ *   ★ Kevin 裁定（2026-10-15）：reason 由旧名 `NOT_FOUND` **改名** `SHAPE_INVALID` —— 旧名与「查无此码」
+ *     分支同名 ⇒ 客户端无法区分「码格式错（400）」与「码不存在（404）」。改名后两者**必须不同名**
+ *     （离线单测 `test-tg-bind-v2-offline.ts` 有承重断言锚定，防回归同名）。
+ *   本函数是形状分支的**单一出口**（路由层只调它，不内联字面量）⇒ 离线可测。
+ */
+export const CONFIRM_SHAPE_INVALID_REASON = 'SHAPE_INVALID';
+export const confirmShapeError = (): ConfirmErrorShape => ({
+  status: 400,
+  code: 'TG_CODE_INVALID',
+  message: errorMessageOf('TG_CODE_INVALID'),
+  details: { reason: CONFIRM_SHAPE_INVALID_REASON },
+});
+
 /** confirm 失败结果 → 既有错误形态（零新错误码；`not_found` 由路由层走 sendRefNotFound 404，不在此映射）。 */
 export const confirmErrorForOutcome = (outcome: ShortBindConfirmOutcome): ConfirmErrorShape | null => {
   if (outcome.kind !== 'failed') return null;

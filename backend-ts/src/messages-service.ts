@@ -402,6 +402,8 @@ export interface SendMessageOutcome {
   conversation_id: number;
   time_created: string;
   idempotent_replay: boolean;
+  /** 本次入库（或幂等重放命中）的正文，**与落库同一函数已持有的值**（零额外查询）⇒ 通知预览的取数源。 */
+  body: string;
 }
 
 export const sendMessage = async (
@@ -440,6 +442,7 @@ export const sendMessage = async (
         conversation_id: cached.conversationId,
         time_created: cached.timeCreated,
         idempotent_replay: true,
+        body,
       };
     }
     return msgFail(409, 'LEDGER_IDEMPOTENCY_CONFLICT', { field: 'create_key' });
@@ -524,7 +527,7 @@ export const sendMessage = async (
       expiresAt: Date.now() + CREATE_KEY_CACHE_TTL_MS,
     });
 
-    return { ok: true as const, msg_id: msgId, conversation_id: conversationId, time_created: timeCreated, idempotent_replay: false };
+    return { ok: true as const, msg_id: msgId, conversation_id: conversationId, time_created: timeCreated, idempotent_replay: false, body };
   });
 };
 
@@ -650,6 +653,71 @@ const SITE_NAME_FALLBACK = 'Seafood Club';
 const SITE_URL_FALLBACK = 'https://0xseafood.com';
 const TITLE_MASK_MAX_CHARS = 12;
 
+/** 通知预览预算 = **6 个显示宽单位**（Kevin 裁定；汉字 / CJK 统一表意（含扩展 A）/ 全角标点 / emoji 计 2，
+ *  拉丁 / 数字 / 越南语等计 1）。正好用满不加省略号；超预算末尾加 `…`。 */
+export const MSG_PREVIEW_MAX_WIDTH_UNITS = 6;
+
+/** 宽字符（计 2 单位）：emoji（`Extended_Pictographic` 覆盖 BMP 内的表情符号（`\u2600-` 等）、
+ *  `\u{1F000}-\u{1FAFF}` 覆盖星形平面表情与区域指示符 `\u{1F1E6}-\u{1F1FF}`（★ 区域指示符**不在**
+ *  `Extended_Pictographic` 内 —— 现取实测 `\p{Extended_Pictographic}.test('\u{1F1FB}') === false`，
+ *  故必须显式列出，否则国旗簇会被算成 1 单位））。另含 CJK 统一表意（含扩展 A/B…）、全角标点
+ *  （`\u3000-\u303F` / `\uFE10-\uFE4F` / `\uFF01-\uFF60` / `\uFFE0-\uFFE6`）、假名与谚文（东亚宽）。
+ *  ★ 判定按**整簇扫描**（`RegExp.test` 扫簇内全部码点）⇒ 键帽序列（`1\uFE0F\u20E3`）一类也计 2。
+ *  ★ 越南语（拉丁扩展附加 `\u1E00-\u1EFF`）与组合符（`\u0300-\u036F`）**不在**本集内 ⇒ 计 1。 */
+const PREVIEW_WIDE_UNIT_RE =
+  /[\p{Extended_Pictographic}\u{1F000}-\u{1FAFF}\u1100-\u115F\u2E80-\u303E\u3041-\u33FF\u3400-\u4DBF\u4E00-\u9FFF\uA000-\uA4CF\uAC00-\uD7A3\uF900-\uFAFF\uFE10-\uFE19\uFE30-\uFE4F\uFF01-\uFF60\uFFE0-\uFFE6]/u;
+
+/** 按**字素簇**切（emoji ZWJ 整簇不被拆散、代理对永不劈开）；运行时无 `Intl.Segmenter` ⇒ 退回按码点切。 */
+const graphemeClustersOf = (text: string): string[] => {
+  const Segmenter = (Intl as unknown as {
+    Segmenter?: new (locale: string, options: { granularity: string }) => { segment(input: string): Iterable<{ segment: string }> };
+  }).Segmenter;
+  if (typeof Segmenter === 'function') {
+    const out: string[] = [];
+    for (const part of new Segmenter('en', { granularity: 'grapheme' }).segment(text)) out.push(part.segment);
+    return out;
+  }
+  // 兜底：`Array.from` 按码点切 ⇒ 绝不拆代理对（仅 ZWJ 簇会退化成多簇）。
+  return Array.from(text);
+};
+
+/**
+ * 通知预览（单一真源，导出供离线单测）：正文**先去首尾空白**，取**首 6 个显示宽单位**。
+ *   · 超预算 ⇒ 末尾 `…`；正好用满 ⇒ 不加省略号；空正文 / 非串 / 全空白 ⇒ `''`（调用处据此**不追加**预览段）。
+ *   · 纯文本口径：不解析 HTML / Markdown（与 sendMessage 落库体一致，通知继续默认纯文本）。
+ */
+export const buildMessagePreview = (body: unknown): string => {
+  const text = typeof body === 'string' ? body.trim() : '';
+  if (text === '') return '';
+  let units = 0;
+  let preview = '';
+  for (const cluster of graphemeClustersOf(text)) {
+    const width = PREVIEW_WIDE_UNIT_RE.test(cluster) ? 2 : 1;
+    if (units + width > MSG_PREVIEW_MAX_WIDTH_UNITS) return `${preview}…`;
+    preview += cluster;
+    units += width;
+  }
+  return preview;
+};
+
+/**
+ * 通知正文（双语一行 · **逐字冻结**）：中文半段 = `{站点名}：你有新消息（来自会话：{掩码标题}[：{预览}]），
+ * 打开 {站点}/messages 查看`，英文半段 = ` / You have a new message, open {站点}/messages` **一字不改**
+ * （预览**不重复**出现在英文半段）。`preview` 为空 ⇒ 回落原句（不填占位）。导出供离线单测逐字锚定。
+ */
+export const buildMessageNotificationText = (input: {
+  siteName: string;
+  site: string;
+  maskedTitle: string;
+  preview?: string;
+}): string => {
+  const zhHead = `${input.siteName}：你有新消息（来自会话：${input.maskedTitle}`;
+  const zhTail = `），打开 ${input.site}/messages 查看`;
+  const enHalf = ` / You have a new message, open ${input.site}/messages`;
+  const preview = input.preview ?? '';
+  return preview === '' ? `${zhHead}${zhTail}${enHalf}` : `${zhHead}：${preview}${zhTail}${enHalf}`;
+};
+
 const titleMask = (title: string): string => {
   const chars = [...title.trim()];
   if (chars.length === 0) return '';
@@ -673,13 +741,20 @@ const readSiteName = async (): Promise<string> => {
 };
 
 /**
- * 对端通知（§41.7 写死）：收件人判定 = 对端 `tg_user_id IS NOT NULL`（未绑定 = 零打扰，Z3；
- * 解绑后自然停推 = 无行可查）。内容 = 双语一行、**不带消息内容**（隐私）。
+ * 对端通知（§41.7 写死；预览为 Kevin 2026-10-15 裁定）：收件人判定 = 对端 `tg_user_id IS NOT NULL`
+ * （未绑定 = 零打扰，Z3；解绑后自然停推 = 无行可查）。内容 = 双语一行 ＋ **正文预览（首 6 显示宽单位）**
+ * —— 隐私边界随之由「不带内容」改为「只带截断预览」（预览源与截断口径见 `buildMessagePreview`）。
  * 推送失败/超时 ⇒ 只进日志，绝不回滚消息写、绝不改 HTTP 响应。
  */
 export const notifyMessageCounterpart = (input: {
   conversationId: number;
   fromUid: number;
+  /**
+   * 预览源 = **本次入库消息 body**（调用处从 `sendMessage` 返回值原样带入）。
+   * 取数红线：正文一律由调用处传入 ⇒ 本函数**不新增任何额外查询**（仍只有「对端 tg_user_id」那一次读）。
+   * 缺省 / 空正文 ⇒ 不追加预览段（保持原句，不填占位）。
+   */
+  previewText?: string;
 }): void => {
   runInBackground(async () => {
     const token = (process.env.TELEGRAM_BOT_TOKEN || '').trim();
@@ -704,7 +779,14 @@ export const notifyMessageCounterpart = (input: {
     const siteName = await readSiteName();
     const site = (process.env.PUBLIC_SITE_URL || '').trim() || SITE_URL_FALLBACK;
     const masked = titleMask(String(rows[0].title ?? ''));
-    const text = `${siteName}：你有新消息（来自会话：${masked}），打开 ${site}/messages 查看 / You have a new message, open ${site}/messages`;
+    // ① 通知预览（Kevin 裁定）：中文半段在「来自会话：{掩码标题}」后追加「：{预览}」，末尾
+    //    「，打开 {site}/messages 查看」一字不删；**英文半段一字不改**（预览不重复）。
+    const text = buildMessageNotificationText({
+      siteName,
+      site,
+      maskedTitle: masked,
+      preview: buildMessagePreview(input.previewText),
+    });
 
     const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',

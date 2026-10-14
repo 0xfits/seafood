@@ -101,6 +101,7 @@ import {
 import {
   checkConfirmRateLimit,
   confirmErrorForOutcome,
+  confirmShapeError,
   confirmShortBindCode,
   consumeBindCode,
   isTelegramConfigured,
@@ -3273,7 +3274,7 @@ app.post('/api/messages/conversations/:conversationId/messages', async (req, res
     const result = await sendMessage(actor.session.uID, req.params.conversationId, body.body, body.create_key ?? body.idempotency_key);
     if (!result.ok) return sendMessagingError(res, result);
     if (!result.idempotent_replay) {
-      notifyMessageCounterpart({ conversationId: result.conversation_id, fromUid: actor.session.uID });
+      notifyMessageCounterpart({ conversationId: result.conversation_id, fromUid: actor.session.uID, previewText: result.body });
     }
     return sendSuccess(res, {
       msg_id: result.msg_id,
@@ -3398,12 +3399,8 @@ app.post('/api/telegram/bind/confirm', async (req, res) => {
     });
   }
   if (!isValidShortBindCode(rawCode)) {
-    return sendMessagingError(res, {
-      status: 400,
-      code: 'TG_CODE_INVALID',
-      message: errorMessageOf('TG_CODE_INVALID'),
-      details: { reason: 'NOT_FOUND' },
-    });
+    // 形状闸失败形态走服务层单一出口（reason = SHAPE_INVALID；错误码仍 TG_CODE_INVALID，零新码）。
+    return sendMessagingError(res, confirmShapeError());
   }
   try {
     const outcome = await confirmShortBindCode(actor.session.uID, rawCode);

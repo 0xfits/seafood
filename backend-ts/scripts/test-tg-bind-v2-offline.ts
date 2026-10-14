@@ -11,11 +11,17 @@
  *   ③ bot 回复文案 shortBindIssueReplyText（双语一行含码 / 防刷固定提示）
  *   ④ confirm 结果 → 既有错误形态映射 confirmErrorForOutcome（零新错误码）
  *   ⑤ confirm 内存限速 checkConfirmRateLimit（10 次/分、滑窗、账号隔离）
+ *   ⑥ confirm 形状闸 reason（Kevin 裁定：NOT_FOUND → SHAPE_INVALID）+ ★ 承重断言：形状分支 reason
+ *      **必须 ≠ 查无分支 reason**（防回归同名），并静态核路由层形状分支确已走单一出口
  */
 import assert from 'assert';
+import * as fs from 'fs';
+import * as path from 'path';
 import {
   checkConfirmRateLimit,
+  CONFIRM_SHAPE_INVALID_REASON,
   confirmErrorForOutcome,
+  confirmShapeError,
   generateShortBindCode,
   isValidShortBindCode,
   SHORT_BIND_CODE_ALPHABET,
@@ -127,6 +133,46 @@ assert.strictEqual(checkConfirmRateLimit(uidB, 2_000_000 + 59_000), false, 'stil
 assert.strictEqual(checkConfirmRateLimit(uidB, 2_000_000 + 61_000), true, 'window slides, allowed again');
 assert.strictEqual(checkConfirmRateLimit(904203, 2_000_000), true, 'other account unaffected');
 ok('confirm window slides at 60s; per-account isolation holds');
+
+// ---------------------------------------------------------------- ⑥ confirm 形状闸 reason（Kevin 裁定 · 改名）
+// ★ 形状闸（九步链第 1 闸）失败形态：错误码**仍** TG_CODE_INVALID（零新码），reason 改名 SHAPE_INVALID。
+const shapeErr = confirmShapeError();
+assert.strictEqual(shapeErr.status, 400);
+assert.strictEqual(shapeErr.code, 'TG_CODE_INVALID');
+assert.strictEqual(shapeErr.message, errorMessageOf('TG_CODE_INVALID'));
+assert.strictEqual((shapeErr.details as { reason?: string }).reason, 'SHAPE_INVALID');
+assert.strictEqual(CONFIRM_SHAPE_INVALID_REASON, 'SHAPE_INVALID');
+ok('⑥ 形状闸 ⇒ 400 TG_CODE_INVALID + reason=SHAPE_INVALID（零新错误码）');
+
+// ★ 承重断言（防回归同名）：形状分支 reason **必须 ≠** 查无分支 reason。
+//   旧实现两者同为 'NOT_FOUND' ⇒ 客户端无法区分「码格式错（400）」与「码不存在（404）」；
+//   同链其它 reason（EXPIRED / CONSUMED / RATE_LIMITED）也一律不得与形状分支撞名。
+const SHAPE_REASON = (shapeErr.details as { reason: string }).reason;
+const RESERVED_REASONS: Array<[string, string]> = [
+  ['NOT_FOUND', '查无此码（旧形状闸 reason / 长码验签与 webhook 查无同 token）'],
+  ['code_not_found', '查无此码（sendRefNotFound 404 的 ref 侧口径）'],
+  ['EXPIRED', '码过期'],
+  ['CONSUMED', '码已消费'],
+  ['RATE_LIMITED', 'confirm 防刷'],
+];
+for (const [reserved, what] of RESERVED_REASONS) {
+  assert.notStrictEqual(SHAPE_REASON, reserved, `shape reason must not collide with ${what}: ${reserved}`);
+}
+ok(`⑥ 承重：形状 reason ≠ ${RESERVED_REASONS.length} 个同链/查无 reason（防回归同名）`);
+
+// 静态接线核对（离线读源码）：路由层形状分支必须走**单一出口** confirmShapeError()，
+// 不得再内联 `details: { reason: 'NOT_FOUND' }`，且形状闸出现在服务器调用之前（第 1 闸不触库）。
+const indexSrc = fs.readFileSync(path.resolve(__dirname, '../src/index.ts'), 'utf8');
+const routeStart = indexSrc.indexOf("app.post('/api/telegram/bind/confirm'");
+assert.ok(routeStart > 0, 'confirm route must exist in index.ts');
+const routeBody = indexSrc.slice(routeStart, indexSrc.indexOf('app.post(', routeStart + 10));
+assert.ok(routeBody.includes('confirmShapeError()'), 'shape branch must call confirmShapeError()');
+assert.strictEqual(/reason:\s*'NOT_FOUND'/.test(routeBody), false, 'shape branch must not inline reason NOT_FOUND');
+assert.ok(
+  routeBody.indexOf('confirmShapeError()') < routeBody.indexOf('confirmShortBindCode('),
+  'shape gate must run before the DB-facing confirm call',
+);
+ok('⑥ 接线：confirm 形状分支走单一出口，已无内联 NOT_FOUND，且闸在触库调用之前');
 
 console.log(`tg-bind-v2 offline tests: ALL PASS (${passed} groups)`);
 process.exit(0);
