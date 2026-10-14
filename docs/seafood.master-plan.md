@@ -1428,6 +1428,8 @@ Hermes 侧回执：`deleg_bbe7d6a0`（Jing · `ledger.spec` v0.12）批次 —�
 
 **F. 已知代价与诚实项**：dev `telegram_bind_request` 新增 3 行（req_id 18–20，审计面）；哑 token 真网 `getMe` ⇒ 404（环境性，不判负）；7 条 `NOT_MEASURED` 见读数文件；冻结快照保留旧字面（与 route 册「快照重制 `cmp=0`」做法不同，已在册内写明）。
 
+**G. 上线（2026-10-15 · 零新迁移，`0048` 生产早已 apply）**：`push`（`89d424a..0c181e3`，6 commits）⇒ **生产终验全绿**：**同版证明** = 线上 `index-Cl6qtH3z.js`（sha256 `84c596d5…`）+ `index-Bl6P2cg0.css`（`f559148c…` 未变）与本地构建**逐字同名同哈希**；产物串 `含消息开头摘要` = 1 / `includes a preview of the message` = 1 / 旧串 `不包含消息内容` = **0**；★**生产侧形状 reason 实测**（指定测试账户 uid `105` 登录后打）：`1234567`（7 位）与 `AB123456`（含字母）⇒ **400 `TG_CODE_INVALID` + `reason=SHAPE_INVALID`**；`12345678`（形状合法但不存在）⇒ **404 `LEDGER_REF_NOT_FOUND` + `reason=code_not_found`**（**两分支在真环境互不同名**）；`/api/health` = **`0048`**；哨兵 `task/all`=**3** / `prize/all`=**4** / `asset/100`=**4362** 零位移。**仍开**：Kevin 真机扫码自测（通知现在带 3 个汉字预览）；防刷 4 常量定值。
+
 ### 5.410 **★ tg-bind-v2「二维码 + 反向短码绑定」全链收口 —— Kevin 拍板（B+C 组合）· Kong 实现（后端 `6714401` / 前端 `b7733de`）· 门改 `93617c8`（105）· 规范 route v2.33 §43 + data-layer v0.33 §39（`936fc81`）· Neng 独立质检 7 AC 全 PASS · 0048 dev 已 apply（**生产待 apply，排在 push 之前**）**（2026-10-14）
 
 **A. Kevin 需求与拍板**：① 「通知为何不带站内信内容 + 强行实现难度」——答：A5 期写死的隐私裁定（route §41.7「双语一行、不带内容」；通知模板现盘逐字 = 标题掩码 + 链接），技术难度小、口径要动（截断 + HTML 转义 + 四语文案，零迁移）——**待 Kevin 拍板后另立单**；② 绑定更简便方式——我列三方案对比（深链 / 纯二维码 / 反向短码），并现取 Telegram 深链硬约束（start 载荷 ≤64 字符仅 A-Za-z0-9_-，现长码 ≈104 字符含点号**塞不进**）——Kevin 拍板 = **「二维码（只带 bot 名）+ C 反向短码」组合**。
