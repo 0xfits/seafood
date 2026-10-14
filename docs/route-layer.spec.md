@@ -345,6 +345,16 @@
 > ④ **★ `F19` 并入**：`GET /api/prize/:bID` 响应**顶层增 `seller` 对象**（`{uid, nickname, avatar}`；`nickname` = EVM 掩码派生 `0x1234…abcd`、`avatar = null` 占位）—— **纯增键、向后兼容、零新路由**（注册点不因此变化）；**渲染面零改动**（design v1.15 `T94` 「不渲染卖家行」逐字维持，读口先行，消费另裁）。
 > ⑤ **★ 通知 = webhook + `waitUntil` 后台段**（`vercel.json` crons 1 条天级不动；bot 无轮询）：消息落库成功后异步推送，**失败不回滚消息写**；双语一行、不带内容；只推已绑定用户。
 > ⑥ **只追加**：**§1–§40 一字未动**；**§41（新）= 唯一新增节**；**v0.1–v2.30 快照未动**；自检见 §41.11。
+>
+> **状态：v2.32（已完成 · **本地入库批次登记：收藏三口 + 卖家轴两读口（后端 5 条 · commit `a3b28c9`）+ profile 三段 / `activities` 页面路由（前端 · commit `3bd0580`）** —— ★ **注册点 99 → 104（+5）**（逐 verb：get 42→45 / post 54→55 / delete 2→3；`AC10-2` 冻结面前推值 = `regs === 104`，门现值仍 99 ⇒ 门改归实现单）+ ★ 5 条契约逐条（`requireActor` 单闸 · 引用缺失 `sendRefNotFound` 统一 404 · 异常走 `sendInfraMapped` 503 分类器 · **零新错误码**（400 借 `LEDGER_AMOUNT_INVALID`）· **零资金动作**（不写 ledger、不落幂等键）· 幂等 = `listing_favorite` 表级 `UNIQUE(fav_uid, listing_id)` / DELETE 删 0 行也成功）+ ★ 页面路由 4 段 + 1 重定向（profile index ⇒ **重定向 `profile/trades/bought`**（query/hash 保留）· `profile/trades/:subTab`（`published/sold/bought`，**非法按 bought**）· `profile/favorites` · `profile/settings` 三段共用 `ProfilePage` · `activities` 顶层；ProtectedRoute 语义 + 前端计数口径盲点登记）（**只追加 · 零代码 · 零迁移 · 库面只读 · 零 HTTP · 零套件**））** · 作者角色 = **Jing（Specifier · 制度员）** · 单号 = **JING-SPEC-FAV-RT**
+> **v2.32 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §42**（登记性回写；**本单不建独立 delta 件**，承 v2.29/v2.30 先例）。**凡与实现冲突处，以实现现盘为准**（两笔本地 commit `a3b28c9` / `3bd0580`，**未 push**；未发明任何路径 / 错误码 / 数值）。
+> **★★ v2.32 本单要点（先说结论，不含糊）**：
+> ① **★ 注册点 99 → 104（+5）**：G1 `GET /api/listing/mine` `:2769` / G2 `GET /api/listing-orders/sold` `:2784` / G3 `GET /api/favorites` `:2799` / G4 `POST /api/favorites` `:2814` / G5 `DELETE /api/favorites/:listingId` `:2846`（逐 verb：get 42→45 / post 54→55 / patch 1 / delete 2→3）；`p7b-03-offline-gates.ts:144` 现取 `regs === 99` **尚未前推** ⇒ 前推值 = **`regs === 104`**（实现单执行，注释链同步）。
+> ② **★ 5 条通用闸（写死）**：`requireActor`（uid 恒取 token 侧 actor、客户端不得声明；未登录 = 401 既有 `AUTH_UNAUTHORIZED`，R107 形态、DB 调用前）；成功 = `sendSuccess`；引用缺失 = `sendRefNotFound`（§3.1 统一 404）；基础设施异常 = `sendInfraMapped` 既有分类器（503 族，§11.3/§14）；**零新错误码、零资金动作**。
+> ③ **★ 幂等（写死）**：G4 = `listing_favorite` 表级 `UNIQUE(fav_uid, listing_id)`（迁移 `0047`，commit 自述未 apply）⇒ 重复收藏不落第二行、`200` + `idempotent_replay:true` 返回现态；G5 = **删 0 行也 200**；G1–G3 纯读无键；§4.5 幂等键契约在本族无适用面（无键、无资金）。
+> ④ **★ 页面路由 4 段 + 1 重定向**（`frontend/src/App.jsx` LangShell 内层相对段）：`profile` index ⇒ `<ProfileIndexRedirect/>` `<Navigate replace>` ⇒ `/profile/trades/bought`（不走相对路由避开 `v7_relativeSplatPath` 分歧、query/hash 保留，`App.jsx:184-189`）；`profile/trades/:subTab`（取值 `published/sold/bought`、**非法按 bought**，`ProfilePage.jsx:53-55/:74`）；`profile/favorites` / `profile/settings` 与 trades **三段共用 `ProfilePage`**（视图由 pathname 派生，`:71-77`）；`activities` 顶层新增（与 `messages` 平级，签到/电量自 `/profile` 迁出）。**F2–F5 四段 `ProtectedRoute`**（未登录 = 登录引导；adminOnly=false 无权限闸）；**F1 重定向段不包闸**（闸在目标段后置生效，不产生双重引导）。
+> ⑤ **★ 前端计数口径盲点（登记）**：本批 4 段**多行开写**（`<Route` 后换行）不被 `<Route[ >]` 精确口径计入（现取字面 42 / 精确 34 / 内层逐段清点 20）⇒ 该精确口径自本批起对多行开写法**系统性少计**（§40.3 计数污染同族纪律）；归因 = 字面 38→42、精确 33→34、内层段 16→20。
+> ⑥ **只追加**：**§1–§41 一字未动**；**§42（新）= 唯一新增节**；**v0.1–v2.31 快照未动**；自检见 §42.7。
 
 
 > **v2.19 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.19-delta.md`（**同批姊妹册** = `docs/audit/data-layer-v0.26-delta.md` + `docs/audit/commission-v0.4-delta.md`）。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 P9⑤ 契约冻结；**未改写任何裁定、未发明任何路径 / 数值 / 权限键 / 文案值**）。**★ 姊妹册（同批）**：`docs/commission.spec.md` **v0.4 §19** + `docs/data-layer.spec.md` **v0.26 §34**，**本册不重抄其条文、只指路**。
@@ -8190,3 +8200,85 @@ CONSTRAINT admin_refund_audit_log_idem_uniq   UNIQUE (idempotency_key, result)  
 - 快照面：本版镜像 `docs/versions/route-layer.spec.v2.31.md`（`cmp=0`）；改前快照 `docs/versions/route-layer.spec.v2.30.md`（上轮镜像，未动）。delta 件 = `docs/audit/route-layer-v2.31-delta.md`。**未 `git add -A` · 未 commit · 未 push · 未启停 5787/5788。**
 
 ---
+
+## §42 ★★ v2.32 · 本地入库批次登记：收藏三口 + 卖家轴两读口（后端 5 条 · commit `a3b28c9`）+ profile 三段 / `activities` 页面路由（前端 · commit `3bd0580`）（**本节只追加 · §1–§41 一字未动** · 依据 = 本仓两笔本地未推送提交现取 · 登记性回写 · 零裁定新增 · 零代码 · 零迁移 · 库面只读 · 零 HTTP · 零套件）
+
+### 42.0 登记来源与范围
+
+- **后端 = commit `a3b28c9`**（「收藏全栈 + 卖家轴两条交易读口 · 本地入库，待质检后推送」）：迁移 `0047_listing_favorite.sql`（1 表 + 2 FK + **表级 `UNIQUE(fav_uid, listing_id)`** + 1 读索引 + apply-time 自检，**commit 自述未 apply**）+ `DatabaseService` 新增 5 方法（`listListingsBySeller` / `listListingOrdersBySeller` / `listFavoritesByUser` / `createFavoriteRow` / `deleteFavoriteRow`）+ `src/index.ts` 新注册 **5 口**（`:2759-2862` 注释块 + 5 注册行逐字现取）。本节登记其 **route 侧契约**。
+- **前端 = commit `3bd0580`**（sf14 阶段一）：`frontend/src/App.jsx` LangShell 内层相对段新增 **profile 三段 + `activities` 顶层**。本节只登记**页面路由面**（ProtectedRoute 语义 + 重定向口径）；桌面侧栏布局 / 首页「订单」按钮 / 四语新键 = 前端与 design 面，不在本册。
+- **范围（写死）**：**只登记**；路径 / 错误码 / 幂等 / 行号全部现取自两笔提交现盘，未发明任何值；实现归 Kong、质检归 Neng 分工不变；**本单零代码、禁 push**（两笔实现 commit 仍在本地）。
+
+### 42.1 现取事实底座（HEAD `3bd0580` · 2026-10-14 · 只读现取）
+
+| 项 | 现取读数 | 取法 |
+|---|---|---|
+| 本地未推送 commit | `3bd0580`（前端，压顶）/ `a3b28c9`（后端）—— commit message 自述「本地入库，待质检后推送」 | `git log --oneline -6` |
+| **注册点** | **104**（canonical 口径 = `grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts`，§40.2/§41.1 同口径）；逐 verb = **get 45 / post 55 / patch 1 / delete 3**（`app.use` 4 行不计入注册点） | `grep` |
+| `AC10-2` 冻结面 | `backend-ts/scripts/p7b-03-offline-gates.ts:144` 现取 = `regs === 99`（**尚未前推**；断言行自 `:143` 漂移 +1） | 源码现取 |
+| `src/index.ts` 体量 | **3437 行**（v1.1 记 1651 行 ⇒ 历史锚已过时，以现盘为准） | 现取 |
+| 错误码闭集 | `LEDGER_*` **33 码不动** + `MSG_*` 7 / `TG_*` 5 域不动（§41.5）；本批**零新码**（G4 的 400 = **借** `LEDGER_AMOUNT_INVALID`，§18.7 借码体例） | 源码现取 |
+| 前端路由计数 | 字面 `grep -cE '<Route'` = **42**；精确 `grep -oE '<Route[ >]'` = **34**；内层路由段逐段清点 = **20**（本批 16 → 20：+5 新段 −1 旧 `profile` 单段） | `grep` + 逐段清点 |
+| 迁移 `0047` | commit message 自述**未 apply**（dev/生产两库 apply 状态 = `NOT_MEASURED`）⇒ **push 前必须先 apply**（「先 apply 后 push」铁律不变） | commit 现取 |
+
+### 42.2 后端路由契约（5 条 · 逐条 · 现取 `index.ts:2759-2862`）
+
+> **通用（5 条共用 · 写死）**：① 鉴权 = **`requireActor`**（uid 恒取 token 侧 actor、客户端不得声明；未登录 = **401** 既有 `AUTH_UNAUTHORIZED`，R107 形态、DB 调用前）；② 成功 = `sendSuccess`；③ 引用缺失 = `sendRefNotFound`（**§3.1 统一 404 形态**）；④ 基础设施异常 = `sendInfraMapped` 既有分类器（**503** 族 + `reason='driver_connection_error'`，§11.3 / §14）；⑤ **零新错误码、零资金动作**（不写 `ledger`、不落幂等键；幂等承重墙 = `listing_favorite` 表级 `UNIQUE(fav_uid, listing_id)`）；⑥ 列表分页 = `getPagination`（`skip`/`limit`）。
+
+| # | 路由（现取行号） | 入参 | 出参（200） | 错误码 | 幂等 | 语义 / 数据面 |
+|---|---|---|---|---|---|---|
+| **G1** | `GET /api/listing/mine`（`:2769`） | query `skip`/`limit` | 本人商品行数组：`listing.seller_uid = me` **全状态**行、**`listing_id` 降序** | 401 · 503（分类器） | 读，无键 | 「我发布的」；`DatabaseService.listListingsBySeller(actor)` |
+| **G2** | `GET /api/listing-orders/sold`（`:2784`） | query `skip`/`limit` | 卖家轴订单行数组：`listing_order.seller_uid = me`、**`order_id` 降序**；**行形状与买家轴 `GET /api/prize-item` 同族 + `status`** | 401 · 503（分类器） | 读，无键 | 「我卖出的」；`listListingOrdersBySeller(actor)` |
+| **G3** | `GET /api/favorites`（`:2799`） | query `skip`/`limit` | 收藏行数组：`listing_favorite.fav_uid = me` **join `listing` 概要**、**按收藏时间降序** | 401 · 503（分类器） | 读，无键 | 「我的收藏」；`listFavoritesByUser(actor)` |
+| **G4** | `POST /api/favorites`（`:2814`） | body 数字 `listing_id`（`listing_id` ∥ `listingId` 别名，`parseInteger`） | `{fav_id, listing_id, time_created}`；重复收藏 = 同形 `200` + `idempotent_replay: true`（返回现态，message = `Favorite already exists (idempotent replay)`） | **400 `LEDGER_AMOUNT_INVALID`** + `details={field:'listing_id', reason:'NOT_A_POSITIVE_INTEGER'}`（非正整数/缺失；既有 `ledgerErrorBody` 形态 · **借码**）· **404 `sendRefNotFound('listing',…,'listing_not_found')`**（listing 行不存在）· 401 · 503（分类器） | **表级幂等**：`UNIQUE(fav_uid, listing_id)`（迁移 `0047`）⇒ **重复收藏不落第二行**（`outcome='existing'` ⇒ replay、零新增行） | 收藏；`createFavoriteRow({favUid: actor, listingId})` |
+| **G5** | `DELETE /api/favorites/:listingId`（`:2846`） | path `:listingId` | `{listing_id, deleted}`（`deleted` = 实删行数，**删 0 行也 200 成功**） | **404 `sendRefNotFound`**（`:listingId` 非数字 / 缺失 / `0`，既有 §3.1 形态）· 401 · 503（分类器） | **天然幂等**（重复取消恒成功） | 取消收藏；`deleteFavoriteRow({favUid: actor, listingId})` |
+
+**判负（可证伪）**：① 任一口未登录返回非 401 `AUTH_*` R107 形态 ⇒ 判负；② G4 重复收藏落第二行 ⇒ 判负；③ G5 删 0 行返回非 2xx ⇒ 判负；④ G4 非正整数 `listing_id` 返回非 400 `ledgerErrorBody` 形态 ⇒ 判负；⑤ G4 不存在 listing 返回非 `sendRefNotFound` 404 形态 ⇒ 判负；⑥ G1–G3 行序与降序口径不符 ⇒ 判负；⑦ 本族出现闭集外新错误码 ⇒ 判负。
+
+**未测项（`NOT_MEASURED` · 禁填 0/空）**：5 条 API 的 HTTP 端到端本单未跑（零 HTTP · 只读取证；实现单自述 `npm run build` exit 0）；G2 行形状与 `GET /api/prize-item` 的**逐键 diff** 未逐键比对（「同族」= commit 注释自述 + 同 mapper 族调用，逐键表归实现/质检单）；`0047` 两库 apply 状态未现取；门 `AC10-2` 前推后的全量门套未执行。
+
+### 42.3 authz 矩阵（写死 · 现 `requireActor` 单闸 · 零 admin 旁路）
+
+| 路由 | 未登录 | 登录（本人） | 备注 |
+|---|---|---|---|
+| G1 `mine` | 401 | ✅ 仅 `seller_uid = actor` 轴 | 无跨用户读、无 `requireAdmin` |
+| G2 `sold` | 401 | ✅ 仅 `seller_uid = actor` 轴 | 同上 |
+| G3 `favorites` | 401 | ✅ 仅 `fav_uid = actor` 轴 | 同上 |
+| G4 收藏 | 401 | ✅（`fav_uid` 恒 = actor，body 不可声明归属） | listing 不存在 = 404；重复 = replay |
+| G5 取消收藏 | 401 | ✅（删 0 行也成功 ⇒ 不泄露他人收藏态） | |
+
+### 42.4 前端页面路由登记（4 段 + 1 重定向 · `frontend/src/App.jsx` LangShell 内层相对段 · commit `3bd0580`）
+
+| # | 路由段（现取行号） | 元素 | 语义 |
+|---|---|---|---|
+| **F1** | `profile`（index · `:135`） | `<ProfileIndexRedirect />`（定义 `:184-189`） | **落地重定向**：`<Navigate replace>` ⇒ **`/profile/trades/bought`**（「我的交易 · 我买到的」）；与 `LegacyExchangeRedirect` 同体例 —— **不走相对路由**（避开 `v7_relativeSplatPath` 旗标的生产/测试分歧）、按当前 pathname 判定语言前缀重建绝对目标、**query/hash 原样保留** |
+| **F2** | `profile/trades/:subTab`（`:136-143`） | `<ProfilePage />` | `subTab` 合法取值 = **`published` / `sold` / `bought`**、**非法值按 `bought`**（现取 `ProfilePage.jsx:53-55`：`PROFILE_TRADE_TABS = ['published', 'sold', 'bought']` / `PROFILE_DEFAULT_TRADE_TAB = 'bought'`；`:74` `includes(last) ? last : DEFAULT`） |
+| **F3** | `profile/favorites`（`:144-151`） | `<ProfilePage />` | 我的收藏段 |
+| **F4** | `profile/settings`（`:152-159`） | `<ProfilePage />` | 设置段 |
+| **F5** | `activities`（顶层新增 · `:160-167`） | `<ActivitiesPage />` | 与 `messages` 平级；电量卡 + 签到区自 `/profile` 迁出成独立页（`App.jsx:14` 头注 · Kevin 2026-10-14 需求③） |
+
+- **共用页（写死）**：F2–F4 三段共用同一个 `ProfilePage`（左菜单 + 右内容，**视图由 pathname 派生**：`favorites`/`settings` 直判、其余按 trades 视图回落，`ProfilePage.jsx:71-77`）。
+- **ProtectedRoute 语义（写死）**：**F2–F5 四段全部包 `<ProtectedRoute>`**（`adminOnly=false`、无权限闸）⇒ 未登录 = 登录引导、不渲染页体；**F1 重定向段不包闸** —— 鉴权在重定向目标（F2）后置生效，不产生双重引导。
+- **命名纪律**：本批页面路由**避开已硬删的 `reward` 家族**（§38）；前端 `profile/favorites` 段与后端 `/api/favorites` 族同名对位（沿 §37/§41 页面↔路由对应体例）。
+- **计数口径盲点（登记 · §40.3 同族）**：本批 4 段采用**多行开写**（`<Route` 后换行）⇒ 精确口径 `grep -oE '<Route[ >]'` **系统性少计多行路由**（现取字面 42 / 精确 34 / 逐段清点 20）；归因 = 字面 38→42（+5 新行 −1 旧单段行）、精确 33→34（−1 旧多行段 +1 新单行 index 段）、内层段 16→20。
+- **判负**：`profile/trades/<非法值>` 渲染非 `bought` 视图 ⇒ 判负；F1 重定向丢失 query/hash ⇒ 判负；F2–F5 未登录直接渲染页体 ⇒ 判负。
+- **未测项（`NOT_MEASURED`）**：4 段的浏览器走查本单未跑（零 HTTP · 只读取证）。
+
+### 42.5 注册点前推（99 → 104 · `AC10-2` 冻结面前推值）
+
+- **+5 逐条**（`index.ts` 现取注册行）：G1 `:2769` + G2 `:2784` + G3 `:2799`（**get 42 → 45**）+ G4 `:2814`（**post 54 → 55**）+ G5 `:2846`（**delete 2 → 3**）；**patch/put +0**。
+- **前推值（写死）**：`p7b-03-offline-gates.ts:144` `AC10-2` 断言 `regs === 99` ⇒ **`regs === 104`**（99 = §41.6 A5 +10 的兑现值；104 = 99 + 本批 5；注释链同步前推）。**门改归实现单执行**（本册零代码；门现值仍 99 ⇒ 前推前该门对本批为红，属「待实现单执行」项、**非回归**，逐条登记免两推）。
+- **判负**：注册行少于/多于本节 5 条字面 ⇒ 门红；不得以路由别名 / `app.use` 挂载绕过 canonical 计数口径（§40.2 口径连续性；`app.use` 4 行不进注册点）。
+
+### 42.6 错误码与幂等键登记（零新增 · 闭集不动）
+
+- **`LEDGER_*` 33 码闭集一字不动**；`MSG_*` 7 / `TG_*` 5 域（§41.5）不动；`AUTH_*` 既有域（401）沿用。
+- **借码 1 处**：G4 入参校验 400 = **借 `LEDGER_AMOUNT_INVALID`**（`details.reason='NOT_A_POSITIVE_INTEGER'`；§18.7 借码体例 —— 语义 = 参数形状非法的既定借用码；`message='Request shape is invalid'` **不塞机读码**，§15.5/§15.6 正向约束适用）。
+- **幂等键（写死）**：本批 5 口**零幂等键**（无资金动作 ⇒ 不落键、不写 `ledger`）；G4/G5 幂等 = 表级 `UNIQUE(fav_uid, listing_id)` / DELETE 天然幂等 —— §4.5 选项 B「有自然键 ⇒ 服务端承载」的**表约束变体**；「前端不得自造键」硬规则在本族无适用面。
+
+### 42.7 变更记录 / 纪律自检 + 快照
+
+- **变更记录**：**本节只新增 §42**（+ 顶部 v2.32 状态块插入，紧随 v2.31 块之后）—— **§1–§41 一字未动**（自证：`git diff --numstat docs/route-layer.spec.md` = **93+/1−**，本单提交前实测；该 1− = 文末 `---` 行的 **EOF 换行归一化** —— 改前该行无行尾换行（`\ No newline at end of file`），追加后获得换行符，**字符内容不变、正文零删除**，全量 diff 逐 hunk 核验删除行仅此一行）；**零代码 / 零迁移文件 / 库面只读 / 零 HTTP / 零套件**；**未发明项**：5 条路径字面与行号、4 段路由与行号、`104 = 99 + 5`、逐 verb 计数、subTab 取值（`ProfilePage.jsx:53-55` 现取）—— 全部可回溯至两笔本地 commit 或本册现取命令。
+- **两处版本记录同步自证**（锚定计数 · 提交前实测）：① 头部 = v2.32 状态块 `grep -n '^> \*\*状态：v2.32'` **恰 1 命中（`:349`）**；② 正文 = 本节 §42 `grep -n '^## §42'` **恰 1 命中（`:8204`）**；**两处同批同 commit 入库，漏一处 = 不完整**。
+- **快照面**：本版镜像 `docs/versions/route-layer.spec.v2.32.md`（`cmp=0` 自证）；改前快照 `docs/versions/route-layer.spec.v2.31.md`（上轮镜像，未动）。**本单不建独立 delta 件**（承 v2.29/v2.30 先例：登记性小批不建；逐条落点 = 本节）。
+- **git 面**：只 `git add` 本单两文件（`docs/route-layer.spec.md` + `docs/versions/route-layer.spec.v2.32.md`）；**本地 commit · 未 push**（两笔实现 commit 与本登记 commit 一并待推送）；工作树他人未提交改动（`frontend/**` 5 文件 + `frontend/src/trades-api.js`）**不在本单范围、零触碰**。
