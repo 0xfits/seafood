@@ -24,7 +24,9 @@ import './item.css'
 // P9③：`listing_order.status` 取值域 = `listing_order_status_enum` 白名单（6 值 · 承 §32.4(b)）∪ 兜底 `unknown`
 const ORDER_STATUS_KEYS = ['created', 'paid', 'shipped', 'received', 'refunded', 'cancelled']
 
-const MyOrdersPanel = () => {
+// 可选钩子名（sf14 · D7 变更 2026-10-14）：渲染点自首页迁至 /profile 我的交易-我买到的，
+// 冻结契约钩子 = trades-bought-list / trades-bought-empty ⇒ 经 props 换名（默认值 = 旧名，渲染一字不变）。
+const MyOrdersPanel = ({ listHook = 'item-orders', emptyHook = 'item-orders-empty' }) => {
   const { t } = useTranslation()
   const location = useLocation()
   const { isAuthenticated, user } = useAuth()
@@ -91,10 +93,10 @@ const MyOrdersPanel = () => {
 
   return (
     <section className="sf-item-orders" data-sf-m="item-orders-section" data-sf-lang={lang}>
-      <div className="sf-item-panel" data-sf-m="item-orders">
+      <div className="sf-item-panel" data-sf-m={listHook}>
         <h2 className="sf-item-title">{t('item.myOrders')}</h2>
         {orders.rows.length === 0
-          ? <div className="sf-item-empty" data-sf-m="item-orders-empty" data-sf-phase={orders.phase}>{orders.message || t('item.myOrdersEmpty')}</div>
+          ? <div className="sf-item-empty" data-sf-m={emptyHook} data-sf-phase={orders.phase}>{orders.message || t('item.myOrdersEmpty')}</div>
           : orders.rows.map((row) => (
             <div className="sf-item-item" key={String(row.gID ?? row.order_id)} data-sf-m="item-order">
               <div className="sf-item-item-title">{`#${String(row.gID ?? row.order_id ?? '-')}`}</div>
@@ -170,6 +172,85 @@ const MyOrdersPanel = () => {
         </span>
       </div>
     </section>
+  )
+}
+
+// ============================================================================
+// 卖家侧订单动作面（sf14 · D7 变更 2026-10-14）：「我卖出的」子页承载 发货 + 退款 两个写动作。
+// 与上方退款/发货/收货面板同一「手填订单号 + 按钮」形态；actor = 卖家本人（服务端判权）；
+// 文案全部复用既有 listingOrders.* / item.* 键，零新增重复。
+// ============================================================================
+export const SellerOrderActions = ({ onDone }) => {
+  const { t } = useTranslation()
+  const { isAuthenticated, user } = useAuth()
+  const [orderId, setOrderId] = useState('')
+  const [action, setAction] = useState({ phase: 'idle', message: '' })
+
+  const run = async (kind) => {
+    if (!isAuthenticated) {
+      setAction({ phase: 'error', message: t('pleaseLogin') })
+      return
+    }
+    const id = String(orderId).trim()
+    if (!id) {
+      setAction({ phase: 'error', message: t('item.refundNeedId') })
+      return
+    }
+    setAction({ phase: 'loading', message: t('jobs.submitting') })
+    try {
+      const data = kind === 'ship' ? await shipListingOrder(id, user) : await refundListingOrder(id, user)
+      const base = kind === 'ship' ? t('listingOrders.shipOk') : t('item.refundOk')
+      // 发货回执 `status` ⇒ 经 listingOrders.statusLabel.* 本地化展示（不渲染原始枚举；缺省 ⇒ 只报动作成功）
+      const statusRaw = String(data?.status ?? '')
+      const message = kind === 'ship' && ORDER_STATUS_KEYS.includes(statusRaw)
+        ? `${base} · ${t(`listingOrders.statusLabel.${statusRaw}`)}`
+        : base
+      setAction({ phase: 'ok', message })
+      if (onDone) await onDone()
+    } catch (error) {
+      setAction({ phase: 'error', message: String(error?.message || (kind === 'ship' ? t('listingOrders.actionFail') : t('error'))) })
+    }
+  }
+
+  return (
+    <div className="sf-item-panel" data-sf-m="trades-sold-actions">
+      <h2 className="sf-item-title">{t('item.myOrders')}</h2>
+      <div className="sf-item-row">
+        <input
+          className="sf-item-input"
+          data-sf-m="trades-sold-input-order"
+          value={orderId}
+          onChange={(event) => setOrderId(event.target.value)}
+          placeholder={t('item.orderId')}
+        />
+        <button
+          className="sf-btn sf-item-btn"
+          type="button"
+          data-sf-m="trades-sold-ship-btn"
+          onClick={() => run('ship')}
+          disabled={action.phase === 'loading'}
+        >
+          {t('listingOrders.shipButton')}
+        </button>
+        <button
+          className="sf-btn sf-item-btn"
+          type="button"
+          data-sf-m="trades-sold-refund-btn"
+          onClick={() => run('refund')}
+          disabled={action.phase === 'loading'}
+        >
+          {t('item.refund')}
+        </button>
+      </div>
+      <span
+        className={`sf-item-status${action.phase === 'error' ? ' sf-item-err' : ''}${action.phase === 'ok' ? ' sf-item-ok' : ''}`}
+        data-sf-m="trades-sold-action-status"
+        data-sf-phase={action.phase}
+        role="status"
+      >
+        {action.message}
+      </span>
+    </div>
   )
 }
 

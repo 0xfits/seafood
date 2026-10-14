@@ -9,6 +9,9 @@ import TranslatingBadge from '../../components/i18n/TranslatingBadge'
 import { buyListing, createListingBuyTracker, fetchListingDetail, listingBuyFingerprint } from './item-api'
 // v1.17 §20.2 T100：「聊一聊」第 3 格 = 站内信 `POST /api/messages/conversations`（自然幂等、前端不供键）。
 import { openConversation } from '../../messages-api'
+// sf14 需求⑦（Kevin 2026-10-14 解冻第 2 格「收藏」）：收藏/已收藏 toggle（trades-api 幂等写口）。
+import { addFavorite, fetchFavorites, removeFavorite } from '../../trades-api'
+import toast from 'react-hot-toast'
 import './item.css'
 
 // P7-E 小尾巴批-β ①：`listing.status` 取值域 = `public.listing.status` 的 CHECK 白名单
@@ -72,6 +75,8 @@ const ItemDetailPage = () => {
   const [buy, setBuy] = useState({ phase: 'idle', message: '' })
   // T100：第 3 格「聊一聊」的本地态（开会话请求的加载 / 失败；成功即离开本页，无需 ok 态）。
   const [chat, setChat] = useState({ phase: 'idle', message: '' })
+  // sf14 需求⑦：第 2 格「收藏」本地态（favored 初值 = 收藏列表成员判定；取数失败 ⇒ 静默按未收藏）。
+  const [fav, setFav] = useState({ phase: 'idle', favored: false })
   const tracker = useMemo(() => createListingBuyTracker(), [])
 
   // TR-2：当前语言（`utils.SUPPORTED_LANGS` 同一白名单）
@@ -95,6 +100,23 @@ const ItemDetailPage = () => {
   }, [id, user, t])
 
   useEffect(() => { if (id) load() }, [id, load])
+
+  // sf14 需求⑦：收藏态初始化 —— 登录 ∧ 详情在 ⇒ 读一次收藏列表判成员（失败静默，不阻塞详情面）。
+  useEffect(() => {
+    if (!isAuthenticated || !id || detail.phase !== 'ok') return undefined
+    let alive = true
+    fetchFavorites(user)
+      .then((rows) => {
+        if (!alive) return
+        const list = Array.isArray(rows) ? rows : []
+        setFav((prev) => ({
+          ...prev,
+          favored: list.some((row) => String(row?.listing_id ?? row?.bID) === String(id)),
+        }))
+      })
+      .catch(() => {})
+    return () => { alive = false }
+  }, [isAuthenticated, id, detail.phase, user])
 
   // 无 id（`/item` 且无 `?id`）⇒ 自洽处理：重定向首页（保留语言前缀；Kevin 口径「一句话可改」）。
   if (!id) {
@@ -135,6 +157,32 @@ const ItemDetailPage = () => {
       navigate(`${root('/messages')}?c=${encodeURIComponent(String(view?.conversation_id ?? ''))}`)
     } catch (error) {
       setChat({ phase: 'error', message: String(error?.message || t('error')) })
+    }
+  }
+
+  // sf14 需求⑦ 第 2 格「收藏」：登录 = 收藏/已收藏 toggle（幂等：重复收藏/取消同效）；
+  //   未登录 = 既有登录引导（同 onChat 体例，不新造弹层）；收藏成功 = toast + 状态翻转（可见反馈）。
+  const onToggleFav = async () => {
+    if (fav.phase === 'loading') return
+    if (!isAuthenticated) {
+      navigate(buildLocalizedPath(lang, '/login'), {
+        state: { from: { pathname: location.pathname, search: location.search } },
+      })
+      return
+    }
+    setFav((prev) => ({ ...prev, phase: 'loading' }))
+    try {
+      if (fav.favored) {
+        await removeFavorite(id, user)
+        setFav({ phase: 'idle', favored: false })
+      } else {
+        await addFavorite(id, user)
+        setFav({ phase: 'idle', favored: true })
+        toast.success(t('item.favoriteOk'))
+      }
+    } catch (error) {
+      setFav((prev) => ({ ...prev, phase: 'idle' }))
+      toast.error(t('item.favoriteFail'))
     }
   }
 
@@ -219,11 +267,22 @@ const ItemDetailPage = () => {
                   </label>
                 </div>
 
-                {/* 底部操作栏：既有 CTA +（v1.17 T100）第 3 格「聊一聊」。
-                    第 1 格「留言」/第 2 格「收藏」仍不渲染、不预埋 DOM（N43）。 */}
+                {/* 底部操作栏：既有 CTA +（v1.17 T100）第 3 格「聊一聊」+（sf14 需求⑦）第 2 格「收藏」解冻。
+                    第 1 格「留言」仍不渲染、不预埋 DOM（N43 余项；收藏格经 Kevin 2026-10-14 解冻）。 */}
                 <div className="sf-item-actionbar" data-sf-m="item-actionbar">
                   <button className="sf-btn sf-item-btn sf-item-cta" type="submit" data-sf-m="item-buy-btn" disabled={buy.phase === 'loading' || !isAuthenticated}>
                     {t('item.buy')}
+                  </button>
+                  {/* 收藏/已收藏 toggle：登录态调 trades-api 幂等写口；未登录点击走既有登录引导 */}
+                  <button
+                    className="sf-btn sf-item-btn sf-item-cta"
+                    type="button"
+                    data-sf-m="fav-toggle"
+                    data-sf-fav={fav.favored ? '1' : '0'}
+                    onClick={onToggleFav}
+                    disabled={fav.phase === 'loading'}
+                  >
+                    {fav.favored ? t('item.favorited') : t('item.favorite')}
                   </button>
                   {!isSellerSelf ? (
                     <button

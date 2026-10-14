@@ -11,11 +11,20 @@
  *   r9-84 ③b/⑥、r9-batt-meter ③/JobDetail 例、d1-error-machineface ③：`/profile#batt-checkin` ⇒ `/activities#batt-checkin`
  *   ledger-flow ①②④⑦：裸渲染路径 '/profile' ⇒ '/profile/settings'（账本面归位 settings 视图）
  *   i18n-batch-b2：'/en/profile' ⇒ '/en/profile/settings'
+ *   D7 收尾（阶段二接手单）：
+ *     · HomePage 断言 `not.toContain('MyOrdersPanel')` ⇒ 前推为「禁 import + 禁 JSX 渲染点」两断言
+ *       （组件名允许存留于 D7 迁移注释 = 文档语义，非死引用）。
+ *     · 补 `fs`/`path` 模块导入（HomePage 源码断言用例用到但原文件未导入 ⇒ ReferenceError）。
+ *     · favorites 用例替身改有状态（DELETE 后重载 GET 返回 [] ⇒ 「行消失」才可测）。
  */
+import fs from 'node:fs'
+import path from 'node:path'
 import React from 'react'
 import { render, cleanup, act, fireEvent, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+// D7 收尾：需求④ 两个用例直接驱动 `fetchApiJson` 替身（vi.mock 工厂里的同一个 vi.fn）⇒ 必须具名导入。
+import { fetchApiJson } from '../../auth'
 
 import zh from '../../locales/zh.json'
 import en from '../../locales/en.json'
@@ -146,10 +155,71 @@ describe('sf14 ② · ProfilePage 侧栏与视图派生', () => {
     }
   })
 
-  it('/profile 裸渲染（落地口径）⇒ 我的交易-我买到的（trades-bought-list + -empty 钩子）', async () => {
+  it('/profile 裸渲染（落地口径）⇒ 我的交易-我买到的：MyOrdersPanel 原样挂载（D7 渲染点迁移）+ 冻结钩子', async () => {
     const { container } = renderAt(<ProfilePage />, '/profile')
     await waitFor(() => expect(container.querySelector('[data-sf-m="trades-bought-list"]')).not.toBeNull())
-    expect(container.querySelector('[data-sf-m="trades-bought-empty"]')).not.toBeNull()
+    // D7：item-orders-section 钩子随渲染点迁到 profile 侧（组件原样复用）
+    expect(container.querySelector('[data-sf-m="item-orders-section"]')).not.toBeNull()
+    // 空态（替身回 [] ⇒ MyOrdersPanel 内部空态，钩子经 props 换名）
+    await waitFor(() => expect(container.querySelector('[data-sf-m="trades-bought-empty"]')).not.toBeNull())
+  })
+
+  it('D7：HomePage 源面不再 import / 渲染 MyOrdersPanel（渲染点已迁出，首页零死钩子）', () => {
+    const home = fs.readFileSync(path.resolve(process.cwd(), 'src/pages/HomePage.jsx'), 'utf8')
+    // 断言前推：组件名允许存留于 D7 迁移注释（文档语义）；真正禁止的是 import 与 JSX 渲染点。
+    expect(home).not.toContain("from './item/MyOrdersPanel'")
+    expect(home).not.toContain('<MyOrdersPanel')
+    expect(home).not.toContain('home-my-orders')
+  })
+
+  it('D7：「我卖出的」子页含 发货+退款 动作面（同款输入+按钮形态，trades-sold-actions）', async () => {
+    const { container } = renderAt(<ProfilePage />, '/profile/trades/sold')
+    await waitFor(() => expect(container.querySelector('[data-sf-m="trades-sold-list"]')).not.toBeNull())
+    expect(container.querySelector('[data-sf-m="trades-sold-actions"]')).not.toBeNull()
+    expect(container.querySelector('[data-sf-m="trades-sold-input-order"]')).not.toBeNull()
+    expect(container.querySelector('[data-sf-m="trades-sold-ship-btn"]')).not.toBeNull()
+    expect(container.querySelector('[data-sf-m="trades-sold-refund-btn"]')).not.toBeNull()
+  })
+
+  it('需求④：published 子页渲染 listing/mine 行（标题/价格/状态查表，不渲染原始枚举）', async () => {
+    fetchApiJson.mockImplementation(async (url) => {
+      if (String(url).includes('/api/listing/mine')) {
+        return [{ listing_id: 5, title: '旧相机', price: '88', status: 'listed', stock: 2, cid: 1, media_urls: [], time_created: 1750000000 }]
+      }
+      return []
+    })
+    const { container } = renderAt(<ProfilePage />, '/profile/trades/published')
+    await waitFor(() => expect(container.querySelector('[data-sf-m="trades-published-item"]')).not.toBeNull())
+    const row = container.querySelector('[data-sf-m="trades-published-item"]')
+    expect(row.textContent).toContain('旧相机')
+    expect(row.textContent).toContain('$88')
+    expect(row.textContent).toContain(zh.item.statusLabel.listed)
+    expect(row.textContent).not.toContain('listed')
+  })
+
+  it('需求④：favorites 子页渲染收藏行 + 取消收藏行消失（幂等 DELETE 后重载）', async () => {
+    // 有状态替身：DELETE 落账后，重载 GET /api/favorites 返回 [] —— 否则「行消失」永远不成立。
+    let deleted = false
+    fetchApiJson.mockImplementation(async (url, options) => {
+      const u = String(url)
+      if (u === '/api/favorites' && (!options || !options.method)) {
+        return deleted ? [] : [{ listing_id: 9, title: '收藏的物品', price: '12', status: 'listed', time_created: 1750000000 }]
+      }
+      if (u === '/api/favorites/9' && options?.method === 'DELETE') {
+        deleted = true
+        return { ok: true }
+      }
+      return []
+    })
+    const { container } = renderAt(<ProfilePage />, '/profile/favorites')
+    await waitFor(() => expect(container.querySelector('[data-sf-m="fav-item"]')).not.toBeNull())
+    expect(container.querySelector('[data-sf-m="fav-remove"]')).not.toBeNull()
+    fireEvent.click(container.querySelector('[data-sf-m="fav-remove"]'))
+    await waitFor(() => expect(container.querySelector('[data-sf-m="fav-list-empty"]')).not.toBeNull())
+    // 删除确实走了幂等 DELETE 口
+    const del = fetchApiJson.mock.calls.find((c) => String(c[0]) === '/api/favorites/9')
+    expect(del).toBeTruthy()
+    expect(del[1].method).toBe('DELETE')
   })
 
   it('trades/:subTab 非法值 ⇒ 按 bought 处理（不渲染非法钩子）', async () => {

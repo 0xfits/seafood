@@ -9,7 +9,6 @@ import { RewardCard } from '../components/reward/RewardCard'
 import { FadeIn, SlideUp, StaggerContainer } from '../components/ui/Motion'
 import { ResponsiveGrid, ResponsiveContainer } from '../components/ui/Responsive'
 import ActiveTaskModal from '../components/ActiveTaskModal'
-import MyOrdersPanel from './item/MyOrdersPanel'
 import { fetchApiJson, getAuthHeaders } from '../auth'
 import { useAuth } from '../auth-context'
 import { pickLocalized } from '../i18n-content'
@@ -25,7 +24,8 @@ import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
 //       · 限量版   ← `gift_limit` / `time_end`（字段在响应内，本页 `limited` 已派生）
 //       · 高价值   ← `points`（字段在响应内，本页 `rarity==='epic'` 已派生，阈值 >5000 承 `RewardPage`）
 //       · 已兑换   ← `/api/prize-item`（本页已取，`claimed_prize_ids`）⇒ 三档**均可筛**，故保留（非「永远筛不动」控件）。
-//   并并入自 `ListingsPage`（已删）的「我的订单」整块（列表 + 退款/发货/收货 + 空态）：见 `./item/MyOrdersPanel`。
+//   「我的订单」整块（列表 + 退款/发货/收货 + 空态）**已于 2026-10-14（D7 变更）移出首页**：
+//     渲染点迁至 /profile 我的交易-我买到的（组件 `./item/MyOrdersPanel` 保留复用，三写动作仍可达）。
 //   ★ 原 `/reward`、`/listing*` 路由已随本单**硬删**（不 301）；卡片动作由「领取」改为「查看详情」（`item.viewDetail`）。
 // ============================================================================
 const HomePage = () => {
@@ -329,15 +329,8 @@ const HomePage = () => {
           </section>
         </SlideUp>
 
-        {/* 「我的订单」整块（并入自 `ListingsPage`；登录后渲染）—— 列表 + 退款/发货/收货 + 空态，零丢失 */}
-        {isAuthenticated && (
-          <SlideUp delay={600}>
-            <section data-sf-m="home-my-orders">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('item.myOrders')}</h2>
-              <MyOrdersPanel />
-            </section>
-          </SlideUp>
-        )}
+        {/* D7 变更（2026-10-14）：「我的订单」整块移出首页 —— 渲染点迁至 /profile 我的交易-我买到的
+            （`./item/MyOrdersPanel` 保留复用；退款/发货/收货三写动作在 profile 侧仍可达，首页零死钩子）。 */}
       </div>
 
       {selectedTask && (

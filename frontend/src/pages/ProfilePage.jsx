@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 import { useNavigate, Link, useLocation } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { User, Mail, Calendar, Trophy, Star, Edit3, Save, X } from 'lucide-react'
@@ -18,6 +18,10 @@ import RatingTimelinessPanel from '../components/RatingTimelinessPanel'
 import './jobs/jobs.css'
 // Kevin 2026-10-14 需求②：桌面侧栏布局样式（页面局部 --sf-l-*，零新主题 token）
 import './profile.css'
+// D7 变更（2026-10-14）：MyOrdersPanel 渲染点自首页迁入「我买到的」子页（组件复用；发货/收货/退款可达）
+import MyOrdersPanel, { SellerOrderActions } from './item/MyOrdersPanel'
+// sf14 需求④：交易/收藏取数层（契约冻结；后端并行单实现中）
+import { addFavorite, fetchFavorites, fetchMyListings, fetchSoldOrders, removeFavorite } from '../trades-api'
 import { fetchApiJson, fetchCurrentUser, getAuthHeaders, updateMyProfile } from '../auth'
 import { useAuth } from '../auth-context'
 import { fetchMyLedger, LEDGER_PAGE_SIZE } from '../ledger-api'
@@ -50,6 +54,22 @@ const toDate = (value) => new Date(typeof value === 'number' ? value * 1000 : va
 const PROFILE_TRADE_TABS = ['published', 'sold', 'bought']
 const PROFILE_DEFAULT_TRADE_TAB = 'bought'
 
+// 行内状态**不得原样渲染枚举**（承 ItemDetailPage/MyOrdersPanel 同一口径）：
+//   listing.status = draft|listed|delisted|frozen（item.statusLabel.*）；listing_order.status = 6 值白名单（listingOrders.statusLabel.*）。
+//   未知取值 ⇒ 各族 `unknown` 兜底键；缺省/空串 ⇒ `unknown` 同兜底（与「列表缺失」口径不同，从紧）。
+const LISTING_STATUS_KEYS = ['draft', 'listed', 'delisted', 'frozen']
+const ORDER_STATUS_KEYS = ['created', 'paid', 'shipped', 'received', 'refunded', 'cancelled']
+// S8① 静态键守卫口径：家族名不得以**裸点号字面量**出场（'item.statusLabel' 会被判「非叶键缺四语」）⇒
+// 与 MyOrdersPanel / ItemDetailPage 同形：模板族键进 t()（前缀族弱断言）+ `unknown` 兜底走叶键字面量。
+const listingStatusLabel = (t, raw) => {
+  const value = String(raw ?? '')
+  return LISTING_STATUS_KEYS.includes(value) ? t(`item.statusLabel.${value}`) : t('item.statusLabel.unknown')
+}
+const orderStatusLabel = (t, raw) => {
+  const value = String(raw ?? '')
+  return ORDER_STATUS_KEYS.includes(value) ? t(`listingOrders.statusLabel.${value}`) : t('listingOrders.statusLabel.unknown')
+}
+
 const profileViewOf = (pathname) => {
   const parts = String(pathname).replace(/\/+$/, '').split('/')
   const last = parts[parts.length - 1] || ''
@@ -66,44 +86,205 @@ const profileViewOf = (pathname) => {
 // ============================================================================
 // 我的交易 · 三个子页（published=我发布的 / sold=我卖出的 / bought=我买到的）
 // ----------------------------------------------------------------------------
-// Kevin 2026-10-14 需求④ 数据接线（后端契约冻结）：
-//   published ⇒ GET /api/listing/mine；sold ⇒ GET /api/listing-orders/sold；bought ⇒ GET /api/prize-item（既有）。
-//   取数经新增 api 模块（`trades-api`），行内状态走既有四语标签族（item.statusLabel.* / listingOrders.statusLabel.*）。
+// Kevin 2026-10-14 需求④ 数据接线（后端契约冻结）+ D7 变更（2026-10-14）：
+//   published ⇒ GET /api/listing/mine（trades-api）；sold ⇒ GET /api/listing-orders/sold（trades-api）
+//     + 发货/退款动作面（SellerOrderActions，复用 item-api 既有写口，同款输入+按钮形态）；
+//   bought ⇒ **MyOrdersPanel 原样挂载**（渲染点自首页迁入；`/api/prize-item` 买家轴 + 退款/发货/收货仍可达；
+//     钩子经可选 props 换名为冻结契约 trades-bought-list / trades-bought-empty）。
+//   行内状态走既有四语标签族（item.statusLabel.* / listingOrders.statusLabel.*），不渲染原始枚举。
 // ============================================================================
-const TRADES_EMPTY_KEYS = {
-  published: 'profileNav.emptyPublished',
-  sold: 'profileNav.emptySold',
-  bought: 'profileNav.emptyBought',
+const TradesPane = ({ subTab, user, isAuthenticated, lang }) => {
+  const tab = PROFILE_TRADE_TABS.includes(subTab) ? subTab : PROFILE_DEFAULT_TRADE_TAB
+  if (tab === 'published') return <PublishedList user={user} isAuthenticated={isAuthenticated} lang={lang} />
+  if (tab === 'sold') return <SoldList user={user} isAuthenticated={isAuthenticated} />
+  return <BoughtPane isAuthenticated={isAuthenticated} />
 }
 
-const TradesPane = ({ subTab }) => {
+// 我发布的：GET /api/listing/mine ⇒ 行(listing_id/title/price/cid/status/stock/media_urls/time_created)
+const PublishedList = ({ user, isAuthenticated, lang }) => {
   const { t } = useTranslation()
-  const tab = PROFILE_TRADE_TABS.includes(subTab) ? subTab : PROFILE_DEFAULT_TRADE_TAB
+  const [state, setState] = useState({ phase: 'idle', rows: [], message: '' })
+
+  const load = useCallback(async () => {
+    if (!isAuthenticated) {
+      setState({ phase: 'empty', rows: [], message: t('pleaseLogin') })
+      return
+    }
+    setState((prev) => ({ ...prev, phase: 'loading', message: '' }))
+    try {
+      const rows = await fetchMyListings(user)
+      const list = Array.isArray(rows) ? rows : []
+      setState({ phase: list.length ? 'ok' : 'empty', rows: list, message: list.length ? '' : t('profileNav.emptyPublished') })
+    } catch (error) {
+      setState({ phase: 'error', rows: [], message: String(error?.message || t('error')) })
+    }
+  }, [isAuthenticated, user, t])
+
+  useEffect(() => { load() }, [load])
 
   return (
-    <div className="sf-prof-pane" data-sf-m={`trades-${tab}-list`}>
+    <div className="sf-prof-pane" data-sf-m="trades-published-list">
       <h1 className="sf-prof-pane-title">
-        {t('profileNav.title')} · {t(`profileNav.${tab}`)}
+        {t('profileNav.title')} · {t('profileNav.published')}
       </h1>
-      <div className="sf-prof-empty" data-sf-m={`trades-${tab}-empty`}>
-        {t(TRADES_EMPTY_KEYS[tab])}
-      </div>
+      {state.rows.length === 0 ? (
+        <div className="sf-prof-empty" data-sf-m="trades-published-empty" data-sf-phase={state.phase}>
+          {state.message || t('profileNav.emptyPublished')}
+        </div>
+      ) : (
+        state.rows.map((row) => (
+          <Link
+            key={String(row.listing_id ?? row.bID)}
+            className="sf-prof-row"
+            data-sf-m="trades-published-item"
+            to={buildLocalizedPath(lang, `/item/${String(row.listing_id ?? row.bID)}`)}
+          >
+            <span className="sf-prof-row-title">{String(row.title ?? '-')}</span>
+            <span className="sf-prof-row-meta">
+              {`$${String(row.price ?? '-')}`}
+              {' · '}
+              {`${t('item.stock')} ${String(row.stock ?? '-')}`}
+              {' · '}
+              {listingStatusLabel(t, row.status)}
+            </span>
+          </Link>
+        ))
+      )}
+    </div>
+  )
+}
+
+// 我卖出的：GET /api/listing-orders/sold ⇒ 行 = prize-item 同族（gID/bID）+ status；含 发货+退款 动作面
+const SoldList = ({ user, isAuthenticated }) => {
+  const { t } = useTranslation()
+  const [state, setState] = useState({ phase: 'idle', rows: [], message: '' })
+
+  const load = useCallback(async () => {
+    if (!isAuthenticated) {
+      setState({ phase: 'empty', rows: [], message: t('pleaseLogin') })
+      return
+    }
+    setState((prev) => ({ ...prev, phase: 'loading', message: '' }))
+    try {
+      const rows = await fetchSoldOrders(user)
+      const list = Array.isArray(rows) ? rows : []
+      setState({ phase: list.length ? 'ok' : 'empty', rows: list, message: list.length ? '' : t('profileNav.emptySold') })
+    } catch (error) {
+      setState({ phase: 'error', rows: [], message: String(error?.message || t('error')) })
+    }
+  }, [isAuthenticated, user, t])
+
+  useEffect(() => { load() }, [load])
+
+  return (
+    <div className="sf-prof-pane" data-sf-m="trades-sold-list">
+      <h1 className="sf-prof-pane-title">
+        {t('profileNav.title')} · {t('profileNav.sold')}
+      </h1>
+      {state.rows.length === 0 ? (
+        <div className="sf-prof-empty" data-sf-m="trades-sold-empty" data-sf-phase={state.phase}>
+          {state.message || t('profileNav.emptySold')}
+        </div>
+      ) : (
+        state.rows.map((row) => (
+          <div key={String(row.gID ?? row.order_id)} className="sf-prof-row" data-sf-m="trades-sold-item">
+            <span className="sf-prof-row-title">{`#${String(row.gID ?? row.order_id ?? '-')}`}</span>
+            <span className="sf-prof-row-meta">
+              {`${t('item.listingId')} #${String(row.bID ?? row.listing_id ?? '-')}`}
+              {' · '}
+              {orderStatusLabel(t, row.status)}
+            </span>
+          </div>
+        ))
+      )}
+      {/* D7 变更：卖家侧 发货 + 退款 动作（同款输入+按钮形态；组件复用自 MyOrdersPanel.jsx，零新文案键） */}
+      <SellerOrderActions onDone={load} />
+    </div>
+  )
+}
+
+// 我买到的：MyOrdersPanel 原样挂载（D7 渲染点迁移；未登录兜底态与组件内 pleaseLogin 口径一致）
+const BoughtPane = ({ isAuthenticated }) => {
+  const { t } = useTranslation()
+
+  return (
+    <div className="sf-prof-pane">
+      <h1 className="sf-prof-pane-title">
+        {t('profileNav.title')} · {t('profileNav.bought')}
+      </h1>
+      {!isAuthenticated ? (
+        <div className="sf-prof-empty" data-sf-m="trades-bought-list">
+          <span data-sf-m="trades-bought-empty">{t('pleaseLogin')}</span>
+        </div>
+      ) : (
+        <MyOrdersPanel listHook="trades-bought-list" emptyHook="trades-bought-empty" />
+      )}
     </div>
   )
 }
 
 // ============================================================================
-// 我的收藏（Kevin 2026-10-14 需求④）：GET /api/favorites（收藏时间行）；空态 ⇒ profileNav.emptyFavorites
+// 我的收藏（Kevin 2026-10-14 需求④）：GET /api/favorites（收藏时间行）；行内「取消收藏」走幂等 DELETE；
+//   空态 ⇒ profileNav.emptyFavorites。
 // ============================================================================
-const FavoritesPane = () => {
+const FavoritesPane = ({ user, isAuthenticated, lang }) => {
   const { t } = useTranslation()
+  const [state, setState] = useState({ phase: 'idle', rows: [], message: '' })
+
+  const load = useCallback(async () => {
+    if (!isAuthenticated) {
+      setState({ phase: 'empty', rows: [], message: t('pleaseLogin') })
+      return
+    }
+    setState((prev) => ({ ...prev, phase: 'loading', message: '' }))
+    try {
+      const rows = await fetchFavorites(user)
+      const list = Array.isArray(rows) ? rows : []
+      setState({ phase: list.length ? 'ok' : 'empty', rows: list, message: list.length ? '' : t('profileNav.emptyFavorites') })
+    } catch (error) {
+      setState({ phase: 'error', rows: [], message: String(error?.message || t('error')) })
+    }
+  }, [isAuthenticated, user, t])
+
+  useEffect(() => { load() }, [load])
+
+  const onRemove = async (listingId) => {
+    try {
+      await removeFavorite(listingId, user)
+      await load() // 状态翻转 = 可见反馈（移除后行即刻消失）
+    } catch (error) {
+      toast.error(t('item.favoriteFail'))
+    }
+  }
 
   return (
     <div className="sf-prof-pane" data-sf-m="fav-list">
       <h1 className="sf-prof-pane-title">{t('profileNav.favorites')}</h1>
-      <div className="sf-prof-empty" data-sf-m="fav-list-empty">
-        {t('profileNav.emptyFavorites')}
-      </div>
+      {state.rows.length === 0 ? (
+        <div className="sf-prof-empty" data-sf-m="fav-list-empty" data-sf-phase={state.phase}>
+          {state.message || t('profileNav.emptyFavorites')}
+        </div>
+      ) : (
+        state.rows.map((row) => (
+          <div key={String(row.listing_id ?? row.bID)} className="sf-prof-row" data-sf-m="fav-item">
+            <Link
+              className="sf-prof-row-title"
+              data-sf-m="fav-item-link"
+              to={buildLocalizedPath(lang, `/item/${String(row.listing_id ?? row.bID)}`)}
+            >
+              {String(row.title ?? '-')}
+            </Link>
+            <span className="sf-prof-row-meta">
+              {`$${String(row.price ?? '-')}`}
+              {' · '}
+              {row.time_created ? toDate(row.time_created).toLocaleDateString() : '—'}
+            </span>
+            <Button variant="inactive" size="sm" onClick={() => onRemove(String(row.listing_id ?? row.bID))} data-sf-m="fav-remove">
+              {t('item.favorite')}
+            </Button>
+          </div>
+        ))
+      )}
     </div>
   )
 }
@@ -558,8 +739,12 @@ const ProfilePage = () => {
 
         {/* 右侧内容：三视图（我的交易 / 我的收藏 / 账户设置） */}
         <div className="sf-prof-content" data-sf-m="profile-content">
-          {view.kind === 'trades' && <TradesPane subTab={view.subTab} />}
-          {view.kind === 'favorites' && <FavoritesPane />}
+          {view.kind === 'trades' && (
+            <TradesPane subTab={view.subTab} user={sessionUser} isAuthenticated={isAuthenticated} lang={lang} />
+          )}
+          {view.kind === 'favorites' && (
+            <FavoritesPane user={sessionUser} isAuthenticated={isAuthenticated} lang={lang} />
+          )}
 
           {view.kind === 'settings' && (
             <div data-sf-m="settings-view">
