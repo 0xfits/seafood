@@ -1,0 +1,32 @@
+{
+ "ac": "AC-5",
+ "at": "2026-10-14T12:31:43.906Z",
+ "head_under_test": "625571e",
+ "tg_id": 990001300,
+ "rows_before_repost": 0,
+ "first_post": {
+  "tg_id": 990001300,
+  "status": 200,
+  "payload_keys": [],
+  "payload": {}
+ },
+ "rows_after_first_post": 1,
+ "repost_same_id_within_60s": {
+  "status": 200,
+  "payload": {}
+ },
+ "rows_after_repost": 1,
+ "rows_after_repost_detail": [
+  {
+   "req_id": "6",
+   "code": "84****83(len=8)",
+   "iat": "2026-10-14T12:31:17.989Z"
+  }
+ ],
+ "checks": {
+  "repost_status_200": true,
+  "no_second_row": true,
+  "same_row_ids": true
+ },
+ "all_pass": true
+}

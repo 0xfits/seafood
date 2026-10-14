@@ -1,0 +1,73 @@
+{
+ "ac": "AC-3",
+ "at": "2026-10-14T12:32:29.579Z",
+ "head_under_test": "625571e",
+ "steps": {
+  "confirm": {
+   "tg_id": 990001304,
+   "code": "56****51(len=8)",
+   "contains_0_or_1": true,
+   "status": 200,
+   "err": null,
+   "data": {
+    "tg_linked": true,
+    "tg_linked_at": "2026-10-14T12:32:33.461Z"
+   }
+  },
+  "status_after_bind": {
+   "status": 200,
+   "data": {
+    "tg_linked": true,
+    "tg_linked_at": "2026-10-14T12:32:32.016Z"
+   },
+   "raw_keys": [
+    "success",
+    "message",
+    "data"
+   ],
+   "has_tg_user_id": false
+  },
+  "db_after_bind": [
+   {
+    "uid": "971214",
+    "tg_user_id": "990001304",
+    "tg_linked_at": "2026-10-14T12:32:32.016Z"
+   }
+  ],
+  "unbind": {
+   "status": 200,
+   "data": {
+    "tg_linked": false
+   }
+  },
+  "status_after_unbind": {
+   "status": 200,
+   "data": {
+    "tg_linked": false,
+    "tg_linked_at": null
+   },
+   "has_tg_user_id": false
+  },
+  "db_after_unbind": [
+   {
+    "uid": "971214",
+    "tg_user_id": null,
+    "tg_linked_at": null
+   }
+  ]
+ },
+ "checks": {
+  "confirm_200": true,
+  "confirm_tg_linked_true": true,
+  "confirm_has_linked_at": true,
+  "confirm_no_tg_user_id": true,
+  "status_true": true,
+  "status_no_tg_user_id": true,
+  "db_users_tg_set": true,
+  "unbind_200_false": true,
+  "status_false_after_unbind": true,
+  "db_users_tg_null_after_unbind": true,
+  "bind_row_consumed": true
+ },
+ "all_pass": true
+}

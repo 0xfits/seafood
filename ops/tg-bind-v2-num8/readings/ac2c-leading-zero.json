@@ -1,0 +1,56 @@
+{
+ "ac": "AC-2c",
+ "at": "2026-10-14T12:41:40.994Z",
+ "head_under_test": "625571e",
+ "input_code_masked": "00****97",
+ "input_code_starts_with_zero": true,
+ "input_code_digit_count": 8,
+ "input_code_has_0_or_1": true,
+ "confirm": {
+  "status": 200,
+  "err": null,
+  "data": {
+   "tg_linked": true,
+   "tg_linked_at": "2026-10-14T12:41:33.403Z"
+  }
+ },
+ "status_after_bind": {
+  "status": 200,
+  "data": {
+   "tg_linked": true,
+   "tg_linked_at": "2026-10-14T12:41:32.370Z"
+  },
+  "has_tg_user_id": false
+ },
+ "unbind": {
+  "status": 200,
+  "data": {
+   "tg_linked": false
+  }
+ },
+ "status_after_unbind": {
+  "tg_linked": true,
+  "tg_linked_at": "2026-10-14T12:41:32.370Z"
+ },
+ "db_user_after": [
+  {
+   "uid": "971214",
+   "tg_user_id": null
+  }
+ ],
+ "bind_row": [
+  {
+   "req_id": "15",
+   "consumed_at": "2026-10-14T12:41:32.370Z"
+  }
+ ],
+ "checks": {
+  "leading_zero_code_shape_accepted": true,
+  "confirm_200_tg_linked_true": true,
+  "status_true_no_tg_user_id": true,
+  "unbind_ok": true,
+  "users_tg_null_restored": true,
+  "row_consumed": true
+ },
+ "all_pass": true
+}

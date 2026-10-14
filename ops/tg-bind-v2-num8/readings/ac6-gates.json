@@ -1,0 +1,71 @@
+{
+ "ac": "AC-6",
+ "at": "2026-10-14T20:41:07+0800",
+ "head_under_test": "625571e",
+ "gates": [
+  {
+   "name": "frontend npm run build",
+   "cmd": "cd frontend && npm run build",
+   "exit_code": 0,
+   "log": "ops/tg-bind-v2-num8/gates/fe-build.log",
+   "tail": [
+    "dist/assets/vendor-react-DHpd0QMj.js   142.17 kB │ gzip:  45.58 kB",
+    "dist/assets/index-BT1oA0ZX.js          444.31 kB │ gzip: 130.63 kB",
+    "✓ built in 1.80s"
+   ]
+  },
+  {
+   "name": "frontend unit vitest",
+   "cmd": "cd frontend && npx vitest run src/test/unit --reporter=basic",
+   "exit_code": 0,
+   "log": "ops/tg-bind-v2-num8/gates/vitest.log",
+   "test_files": 54,
+   "tests": 519,
+   "failed": 0,
+   "threshold": {
+    "test_files_min": 54,
+    "tests_min": 519
+   }
+  },
+  {
+   "name": "backend-ts npm run build",
+   "cmd": "cd backend-ts && npm run build",
+   "exit_code": 0,
+   "log": "ops/tg-bind-v2-num8/gates/be-build.log",
+   "tail": [
+    "> jinli-backend@1.0.0 build",
+    "> tsc"
+   ]
+  },
+  {
+   "name": "offline tg-bind-v2 assertions",
+   "cmd": "cd backend-ts && npx ts-node --transpile-only scripts/test-tg-bind-v2-offline.ts",
+   "exit_code": 0,
+   "log": "ops/tg-bind-v2-num8/gates/offline-tg-bind-v2.log",
+   "pass_lines": 11,
+   "summary_line": [
+    "tg-bind-v2 offline tests: ALL PASS (10 groups)"
+   ]
+  }
+ ],
+ "dist_artifact_self_check": {
+  "bundle": "index-BT1oA0ZX.js",
+  "contains_en_8digit_wording": true,
+  "contains_example_12345678": true,
+  "contains_old_example_AB12CD": false,
+  "contains_inputmode_numeric": true
+ },
+ "checks": {
+  "fe_build_exit_0": true,
+  "vitest_exit_0": true,
+  "vitest_files_ge_54": true,
+  "vitest_tests_ge_519": true,
+  "vitest_zero_failed": true,
+  "be_build_exit_0": true,
+  "offline_exit_0": true,
+  "offline_all_pass_line": true,
+  "dist_contains_new_wording": true,
+  "dist_no_old_example": true
+ },
+ "all_pass": true
+}

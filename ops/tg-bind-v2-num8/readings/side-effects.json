@@ -1,0 +1,170 @@
+{
+ "ac": "side-effects",
+ "at": "2026-10-14T12:41:48.830Z",
+ "head_under_test": "625571e",
+ "db_read_only": "SELECT only（@neondatabase/serverless 标签模板）",
+ "synthetic_tg_ids": [
+  990001300,
+  990001301,
+  990001302,
+  990001303,
+  990001304,
+  990001305,
+  990001306,
+  990001307,
+  990001308,
+  990001309,
+  990001310,
+  990001311
+ ],
+ "table_total_rows": 17,
+ "rows_created_this_batch": [
+  {
+   "req_id": "6",
+   "tg_user_id": "990001300",
+   "code": "84****83",
+   "iat": "2026-10-14T12:31:17.989Z",
+   "exp": "2026-10-14T12:41:17.989Z",
+   "consumed_at": null
+  },
+  {
+   "req_id": "7",
+   "tg_user_id": "990001301",
+   "code": "88****74",
+   "iat": "2026-10-14T12:31:20.189Z",
+   "exp": "2026-10-14T12:41:20.189Z",
+   "consumed_at": null
+  },
+  {
+   "req_id": "8",
+   "tg_user_id": "990001302",
+   "code": "92****63",
+   "iat": "2026-10-14T12:31:22.726Z",
+   "exp": "2026-10-14T12:41:22.726Z",
+   "consumed_at": null
+  },
+  {
+   "req_id": "9",
+   "tg_user_id": "990001303",
+   "code": "29****57",
+   "iat": "2026-10-14T12:31:24.758Z",
+   "exp": "2026-10-14T12:41:24.758Z",
+   "consumed_at": "2026-10-14T12:32:24.106Z"
+  },
+  {
+   "req_id": "10",
+   "tg_user_id": "990001304",
+   "code": "56****51",
+   "iat": "2026-10-14T12:31:27.261Z",
+   "exp": "2026-10-14T12:41:27.261Z",
+   "consumed_at": "2026-10-14T12:32:32.016Z"
+  },
+  {
+   "req_id": "11",
+   "tg_user_id": "990001305",
+   "code": "96****35",
+   "iat": "2026-10-14T12:31:28.566Z",
+   "exp": "2026-10-14T12:41:28.566Z",
+   "consumed_at": null
+  },
+  {
+   "req_id": "12",
+   "tg_user_id": "990001306",
+   "code": "26****84",
+   "iat": "2026-10-14T12:31:29.824Z",
+   "exp": "2026-10-14T12:41:29.824Z",
+   "consumed_at": null
+  },
+  {
+   "req_id": "13",
+   "tg_user_id": "990001307",
+   "code": "60****93",
+   "iat": "2026-10-14T12:31:31.810Z",
+   "exp": "2026-10-14T12:41:31.810Z",
+   "consumed_at": null
+  },
+  {
+   "req_id": "14",
+   "tg_user_id": "990001308",
+   "code": "71****48",
+   "iat": "2026-10-14T12:31:33.802Z",
+   "exp": "2026-10-14T12:41:33.802Z",
+   "consumed_at": null
+  },
+  {
+   "req_id": "15",
+   "tg_user_id": "990001309",
+   "code": "00****97",
+   "iat": "2026-10-14T12:31:36.321Z",
+   "exp": "2026-10-14T12:41:36.321Z",
+   "consumed_at": "2026-10-14T12:41:32.370Z"
+  },
+  {
+   "req_id": "16",
+   "tg_user_id": "990001310",
+   "code": "81****50",
+   "iat": "2026-10-14T12:31:37.580Z",
+   "exp": "2026-10-14T12:41:37.580Z",
+   "consumed_at": null
+  },
+  {
+   "req_id": "17",
+   "tg_user_id": "990001311",
+   "code": "49****45",
+   "iat": "2026-10-14T12:31:39.897Z",
+   "exp": "2026-10-14T12:41:39.897Z",
+   "consumed_at": null
+  }
+ ],
+ "pre_existing_rows": [
+  {
+   "req_id": "1",
+   "tg_user_id": "990001234",
+   "code": "YS****B7",
+   "consumed_at": null
+  },
+  {
+   "req_id": "2",
+   "tg_user_id": "990001234",
+   "code": "B4****JJ",
+   "consumed_at": "2026-10-14T07:03:05.730Z"
+  },
+  {
+   "req_id": "3",
+   "tg_user_id": "990001234",
+   "code": "6N****R3",
+   "consumed_at": "2026-10-14T07:09:22.054Z"
+  },
+  {
+   "req_id": "4",
+   "tg_user_id": "990001234",
+   "code": "B9****6P",
+   "consumed_at": "2026-10-14T07:10:53.405Z"
+  },
+  {
+   "req_id": "5",
+   "tg_user_id": "990001234",
+   "code": "A7****L2",
+   "consumed_at": "2026-10-14T07:13:11.891Z"
+  }
+ ],
+ "counts": {
+  "created_this_batch": 12,
+  "consumed": 3,
+  "unconsumed": 9,
+  "created_by": "全部经 webhook §签发（产品 HTTP 路径）；未用 SQL 造行"
+ },
+ "users_971214": [
+  {
+   "uid": "971214",
+   "tg_user_id": null,
+   "tg_linked_at": null
+  }
+ ],
+ "users_bound_non_null_any": [],
+ "residue": {
+  "uid_971214_tg_user_id_null": true,
+  "bind_request_rows_left": 12,
+  "note": "telegram_bind_request 为 webhook 签发审计面：本轮行全部保留 = 已知代价（未消费行将在 exp = iat+600s 后自然过期，由后续签发事务顺手回收；未改库、未删行）。"
+ }
+}

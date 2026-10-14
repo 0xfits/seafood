@@ -1,0 +1,261 @@
+{
+ "ac": "AC-4",
+ "at": "2026-10-14T20:40:46+0800",
+ "head_under_test": "625571e",
+ "probe": "/usr/bin/python3 + CDP（真实鼠标事件；selector 轮询等待，无固定 ms）",
+ "origin": "http://localhost:5787",
+ "viewport": "1440x1000",
+ "auth_injected": {
+  "has_user": true,
+  "token_len": 193
+ },
+ "locales_source": "frontend/src/locales/<lang>.json (telegram.qrHint / codeInputPlaceholder)",
+ "per_locale": {
+  "zh": {
+   "url": "http://localhost:5787/profile/settings",
+   "expected": {
+    "qrHint": "扫码或点击链接打开 Telegram bot，把 bot 回复给你的 8 位纯数字短码填在下面",
+    "codeInputPlaceholder": "输入 bot 给你的短码，如 12345678"
+   },
+   "card_wait_s": 3.15,
+   "path": "/profile/settings",
+   "state_before": "unbound",
+   "click_attempts": [
+    {
+     "x": 385.7,
+     "y": 621.5,
+     "w": 117.5,
+     "h": 32
+    }
+   ],
+   "panel_wait_s": 0.53,
+   "state_after": "code",
+   "notice_text": "未绑定",
+   "read": {
+    "panel_present": true,
+    "qr_svg": {
+     "tag": "svg",
+     "ns": "http://www.w3.org/2000/svg",
+     "vb": "0 0 25 25",
+     "w": "148",
+     "h": "148"
+    },
+    "open_href": "https://t.me/seafood_dev_bot",
+    "open_text": "在 Telegram 中打开",
+    "qrHint_text": "扫码或点击链接打开 Telegram bot，把 bot 回复给你的 8 位纯数字短码填在下面",
+    "input_present": true,
+    "input_inputmode_attr": "numeric",
+    "input_inputMode_idl": "numeric",
+    "input_placeholder": "输入 bot 给你的短码，如 12345678",
+    "input_type": null,
+    "input_autocapitalize": "characters",
+    "confirm_text": "确认绑定",
+    "details_present": true
+   },
+   "checks": {
+    "panel_present": true,
+    "qr_is_svg": true,
+    "input_inputmode_is_numeric": true,
+    "inputMode_idl_is_numeric": true,
+    "placeholder_verbatim_locale": true,
+    "qrHint_verbatim_locale": true,
+    "placeholder_example_is_12345678": true,
+    "placeholder_no_old_example": true,
+    "no_old_6_8_wording": true,
+    "open_href_verbatim_tme_bot": true,
+    "old_path_details_present": true
+   },
+   "all_pass": true,
+   "shot": "/Users/kevin/bistro/seafood/ops/tg-bind-v2-num8/shots/ac4-zh-panel.png"
+  },
+  "en": {
+   "url": "http://localhost:5787/en/profile/settings",
+   "expected": {
+    "qrHint": "Scan the code or open the link to reach the Telegram bot, then enter the 8-digit numeric code the bot replies with below",
+    "codeInputPlaceholder": "Enter the code from the bot, e.g. 12345678"
+   },
+   "card_wait_s": 2.14,
+   "path": "/en/profile/settings",
+   "state_before": "unbound",
+   "click_attempts": [
+    {
+     "x": 386.3,
+     "y": 624.0,
+     "w": 118.5,
+     "h": 32
+    }
+   ],
+   "panel_wait_s": 0.65,
+   "state_after": "code",
+   "notice_text": "Not bound",
+   "read": {
+    "panel_present": true,
+    "qr_svg": {
+     "tag": "svg",
+     "ns": "http://www.w3.org/2000/svg",
+     "vb": "0 0 25 25",
+     "w": "148",
+     "h": "148"
+    },
+    "open_href": "https://t.me/seafood_dev_bot",
+    "open_text": "Open in Telegram",
+    "qrHint_text": "Scan the code or open the link to reach the Telegram bot, then enter the 8-digit numeric code the bot replies with below",
+    "input_present": true,
+    "input_inputmode_attr": "numeric",
+    "input_inputMode_idl": "numeric",
+    "input_placeholder": "Enter the code from the bot, e.g. 12345678",
+    "input_type": null,
+    "input_autocapitalize": "characters",
+    "confirm_text": "Confirm linking",
+    "details_present": true
+   },
+   "checks": {
+    "panel_present": true,
+    "qr_is_svg": true,
+    "input_inputmode_is_numeric": true,
+    "inputMode_idl_is_numeric": true,
+    "placeholder_verbatim_locale": true,
+    "qrHint_verbatim_locale": true,
+    "placeholder_example_is_12345678": true,
+    "placeholder_no_old_example": true,
+    "no_old_6_8_wording": true,
+    "open_href_verbatim_tme_bot": true,
+    "old_path_details_present": true
+   },
+   "all_pass": true,
+   "shot": "/Users/kevin/bistro/seafood/ops/tg-bind-v2-num8/shots/ac4-en-panel.png"
+  },
+  "hk": {
+   "url": "http://localhost:5787/hk/profile/settings",
+   "expected": {
+    "qrHint": "掃碼或點擊連結打開 Telegram bot，把 bot 回覆給你的 8 位純數字短碼填在下面",
+    "codeInputPlaceholder": "輸入 bot 給你的短碼，如 12345678"
+   },
+   "card_wait_s": 1.62,
+   "path": "/hk/profile/settings",
+   "state_before": "unbound",
+   "click_attempts": [
+    {
+     "x": 385.7,
+     "y": 621.5,
+     "w": 117.5,
+     "h": 32
+    }
+   ],
+   "panel_wait_s": 0.43,
+   "state_after": "code",
+   "notice_text": "未綁定",
+   "read": {
+    "panel_present": true,
+    "qr_svg": {
+     "tag": "svg",
+     "ns": "http://www.w3.org/2000/svg",
+     "vb": "0 0 25 25",
+     "w": "148",
+     "h": "148"
+    },
+    "open_href": "https://t.me/seafood_dev_bot",
+    "open_text": "在 Telegram 中打開",
+    "qrHint_text": "掃碼或點擊連結打開 Telegram bot，把 bot 回覆給你的 8 位純數字短碼填在下面",
+    "input_present": true,
+    "input_inputmode_attr": "numeric",
+    "input_inputMode_idl": "numeric",
+    "input_placeholder": "輸入 bot 給你的短碼，如 12345678",
+    "input_type": null,
+    "input_autocapitalize": "characters",
+    "confirm_text": "確認綁定",
+    "details_present": true
+   },
+   "checks": {
+    "panel_present": true,
+    "qr_is_svg": true,
+    "input_inputmode_is_numeric": true,
+    "inputMode_idl_is_numeric": true,
+    "placeholder_verbatim_locale": true,
+    "qrHint_verbatim_locale": true,
+    "placeholder_example_is_12345678": true,
+    "placeholder_no_old_example": true,
+    "no_old_6_8_wording": true,
+    "open_href_verbatim_tme_bot": true,
+    "old_path_details_present": true
+   },
+   "all_pass": true,
+   "shot": "/Users/kevin/bistro/seafood/ops/tg-bind-v2-num8/shots/ac4-hk-panel.png"
+  },
+  "vn": {
+   "url": "http://localhost:5787/vn/profile/settings",
+   "expected": {
+    "qrHint": "Quét mã hoặc mở liên kết để vào Telegram bot, rồi nhập mã 8 chữ số bot trả lời vào ô bên dưới",
+    "codeInputPlaceholder": "Nhập mã từ bot, ví dụ 12345678"
+   },
+   "card_wait_s": 1.52,
+   "path": "/vn/profile/settings",
+   "state_before": "unbound",
+   "click_attempts": [
+    {
+     "x": 397.7,
+     "y": 621.5,
+     "w": 141.3,
+     "h": 32
+    }
+   ],
+   "panel_wait_s": 0.44,
+   "state_after": "code",
+   "notice_text": "Chưa liên kết",
+   "read": {
+    "panel_present": true,
+    "qr_svg": {
+     "tag": "svg",
+     "ns": "http://www.w3.org/2000/svg",
+     "vb": "0 0 25 25",
+     "w": "148",
+     "h": "148"
+    },
+    "open_href": "https://t.me/seafood_dev_bot",
+    "open_text": "Mở trong Telegram",
+    "qrHint_text": "Quét mã hoặc mở liên kết để vào Telegram bot, rồi nhập mã 8 chữ số bot trả lời vào ô bên dưới",
+    "input_present": true,
+    "input_inputmode_attr": "numeric",
+    "input_inputMode_idl": "numeric",
+    "input_placeholder": "Nhập mã từ bot, ví dụ 12345678",
+    "input_type": null,
+    "input_autocapitalize": "characters",
+    "confirm_text": "Xác nhận liên kết",
+    "details_present": true
+   },
+   "checks": {
+    "panel_present": true,
+    "qr_is_svg": true,
+    "input_inputmode_is_numeric": true,
+    "inputMode_idl_is_numeric": true,
+    "placeholder_verbatim_locale": true,
+    "qrHint_verbatim_locale": true,
+    "placeholder_example_is_12345678": true,
+    "placeholder_no_old_example": true,
+    "no_old_6_8_wording": true,
+    "open_href_verbatim_tme_bot": true,
+    "old_path_details_present": true
+   },
+   "all_pass": true,
+   "shot": "/Users/kevin/bistro/seafood/ops/tg-bind-v2-num8/shots/ac4-vn-panel.png"
+  }
+ },
+ "checks_summary": {
+  "zh": true,
+  "en": true,
+  "hk": true,
+  "vn": true
+ },
+ "console_tail": [
+  "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+  "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.",
+  "[vite] connecting...",
+  "[vite] connected.",
+  "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtoolsfont-weight:bold",
+  "Font Awesome CDN加载失败，尝试使用本地版本",
+  "⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.",
+  "⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath."
+ ],
+ "errors": [],
+ "all_pass": true
+}

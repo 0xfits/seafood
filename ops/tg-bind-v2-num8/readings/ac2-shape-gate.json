@@ -1,0 +1,230 @@
+{
+ "ac": "AC-2",
+ "at": "2026-10-14T12:32:08.223Z",
+ "head_under_test": "625571e",
+ "endpoint": "POST /api/telegram/bind/confirm (Authorization: Bearer <uid 971214 token>)",
+ "login": {
+  "challenge_status": 200,
+  "verify_status": 200,
+  "token_len": 193
+ },
+ "user_971214_before": [
+  {
+   "uid": "971214",
+   "tg_user_id": null,
+   "tg_linked_at": null
+  }
+ ],
+ "invalid_inputs": {
+  "7 位": {
+   "input": "1234567",
+   "status": 400,
+   "err": {
+    "code": "TG_CODE_INVALID",
+    "reason": "NOT_FOUND",
+    "i18n_key": "tg.err.TG_CODE_INVALID"
+   },
+   "payload": {
+    "error": {
+     "code": "TG_CODE_INVALID",
+     "message": "The Telegram bind code is invalid, expired or already consumed",
+     "i18n_key": "tg.err.TG_CODE_INVALID",
+     "details": {
+      "reason": "NOT_FOUND"
+     }
+    }
+   }
+  },
+  "9 位": {
+   "input": "123456789",
+   "status": 400,
+   "err": {
+    "code": "TG_CODE_INVALID",
+    "reason": "NOT_FOUND",
+    "i18n_key": "tg.err.TG_CODE_INVALID"
+   },
+   "payload": {
+    "error": {
+     "code": "TG_CODE_INVALID",
+     "message": "The Telegram bind code is invalid, expired or already consumed",
+     "i18n_key": "tg.err.TG_CODE_INVALID",
+     "details": {
+      "reason": "NOT_FOUND"
+     }
+    }
+   }
+  },
+  "含字母": {
+   "input": "AB123456",
+   "status": 400,
+   "err": {
+    "code": "TG_CODE_INVALID",
+    "reason": "NOT_FOUND",
+    "i18n_key": "tg.err.TG_CODE_INVALID"
+   },
+   "payload": {
+    "error": {
+     "code": "TG_CODE_INVALID",
+     "message": "The Telegram bind code is invalid, expired or already consumed",
+     "i18n_key": "tg.err.TG_CODE_INVALID",
+     "details": {
+      "reason": "NOT_FOUND"
+     }
+    }
+   }
+  },
+  "含空格": {
+   "input": "1234 5678",
+   "status": 400,
+   "err": {
+    "code": "TG_CODE_INVALID",
+    "reason": "NOT_FOUND",
+    "i18n_key": "tg.err.TG_CODE_INVALID"
+   },
+   "payload": {
+    "error": {
+     "code": "TG_CODE_INVALID",
+     "message": "The Telegram bind code is invalid, expired or already consumed",
+     "i18n_key": "tg.err.TG_CODE_INVALID",
+     "details": {
+      "reason": "NOT_FOUND"
+     }
+    }
+   }
+  }
+ },
+ "shape_branch_signature": "HTTP 400 + error.code=TG_CODE_INVALID + details.reason=NOT_FOUND（限速分支则 reason=RATE_LIMITED）",
+ "acceptance_code": "29310957",
+ "acceptance_input_masked": "29****57(len=8)",
+ "restore": {
+  "unbind_status": 200,
+  "unbind_data": {
+   "tg_linked": false
+  },
+  "user_after_restore": [
+   {
+    "uid": "971214",
+    "tg_user_id": null,
+    "tg_linked_at": null
+   }
+  ]
+ },
+ "checks": {
+  "seven_digit_400": true,
+  "nine_digit_400": true,
+  "letters_400": true,
+  "space_400": true,
+  "all_four_shape_branch": true,
+  "all_four_i18n_key_is_tg_err": true,
+  "all_four_distinct_from_lookup_gate": true,
+  "none_rate_limited": true,
+  "ac1_code_with_0_1_not_400": true,
+  "acceptance_branch_is_success_or_known": true,
+  "restore_ok": true
+ },
+ "all_pass": true,
+ "invalid_inputs_attempt1": {
+  "7 位": {
+   "input": "1234567",
+   "status": 503,
+   "err": {
+    "code": "LEDGER_TX_TIMEOUT",
+    "reason": "driver_connection_error",
+    "i18n_key": "ledger.err.LEDGER_TX_TIMEOUT"
+   },
+   "payload": {
+    "error": {
+     "code": "LEDGER_TX_TIMEOUT",
+     "message": "The system is busy, please try again later",
+     "i18n_key": "ledger.err.LEDGER_TX_TIMEOUT",
+     "details": {
+      "reason": "driver_connection_error",
+      "error_code": "ECONNRESET"
+     }
+    }
+   }
+  },
+  "9 位": {
+   "input": "123456789",
+   "status": 400,
+   "err": {
+    "code": "TG_CODE_INVALID",
+    "reason": "NOT_FOUND",
+    "i18n_key": "tg.err.TG_CODE_INVALID"
+   },
+   "payload": {
+    "error": {
+     "code": "TG_CODE_INVALID",
+     "message": "The Telegram bind code is invalid, expired or already consumed",
+     "i18n_key": "tg.err.TG_CODE_INVALID",
+     "details": {
+      "reason": "NOT_FOUND"
+     }
+    }
+   }
+  },
+  "含字母": {
+   "input": "AB123456",
+   "status": 400,
+   "err": {
+    "code": "TG_CODE_INVALID",
+    "reason": "NOT_FOUND",
+    "i18n_key": "tg.err.TG_CODE_INVALID"
+   },
+   "payload": {
+    "error": {
+     "code": "TG_CODE_INVALID",
+     "message": "The Telegram bind code is invalid, expired or already consumed",
+     "i18n_key": "tg.err.TG_CODE_INVALID",
+     "details": {
+      "reason": "NOT_FOUND"
+     }
+    }
+   }
+  },
+  "含空格": {
+   "input": "1234 5678",
+   "status": 400,
+   "err": {
+    "code": "TG_CODE_INVALID",
+    "reason": "NOT_FOUND",
+    "i18n_key": "tg.err.TG_CODE_INVALID"
+   },
+   "payload": {
+    "error": {
+     "code": "TG_CODE_INVALID",
+     "message": "The Telegram bind code is invalid, expired or already consumed",
+     "i18n_key": "tg.err.TG_CODE_INVALID",
+     "details": {
+      "reason": "NOT_FOUND"
+     }
+    }
+   }
+  },
+  "accept_0_1_code": {
+   "tg_id": 990001303,
+   "code": "29****57(len=8)",
+   "contains_0_or_1": true,
+   "status": 200,
+   "err": null,
+   "data": {
+    "tg_linked": true,
+    "tg_linked_at": "2026-10-14T12:32:25.189Z"
+   }
+  }
+ },
+ "invalid_inputs_attempt2_at": "2026-10-14T12:33:30.526Z",
+ "attempt1_note": "第 1 发（7 位）返回 503 LEDGER_TX_TIMEOUT / details.reason=driver_connection_error ⇒ requireActor 阶段 Neon 冷连接失败，**未触到形状闸**；属环境性、已在第 2 轮重取（原读数保留于 invalid_inputs_attempt1）。",
+ "attempt1_infra_failures": [
+  {
+   "input_label": "7 位",
+   "status": 503,
+   "err": {
+    "code": "LEDGER_TX_TIMEOUT",
+    "reason": "driver_connection_error",
+    "i18n_key": "ledger.err.LEDGER_TX_TIMEOUT"
+   }
+  }
+ ],
+ "checks_basis": "invalid_inputs（第 2 轮重取，attempt2）；acceptance / restore 取第 1 轮原始读数"
+}

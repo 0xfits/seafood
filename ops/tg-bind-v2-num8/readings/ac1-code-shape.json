@@ -1,0 +1,438 @@
+{
+ "ac": "AC-1",
+ "at": "2026-10-14T12:31:10.183Z",
+ "head_under_test": "625571e",
+ "endpoint": "POST /api/telegram/webhook (x-telegram-bot-api-secret-token: <dev secret>)",
+ "synthetic_ids": [
+  990001300,
+  990001301,
+  990001302,
+  990001303,
+  990001304,
+  990001305,
+  990001306,
+  990001307,
+  990001308,
+  990001309,
+  990001310,
+  990001311
+ ],
+ "count_baseline_table": 5,
+ "posts": [
+  {
+   "tg_id": 990001300,
+   "status": 200,
+   "payload_keys": [],
+   "payload": {}
+  },
+  {
+   "tg_id": 990001301,
+   "status": 200,
+   "payload_keys": [],
+   "payload": {}
+  },
+  {
+   "tg_id": 990001302,
+   "status": 200,
+   "payload_keys": [],
+   "payload": {}
+  },
+  {
+   "tg_id": 990001303,
+   "status": 200,
+   "payload_keys": [],
+   "payload": {}
+  },
+  {
+   "tg_id": 990001304,
+   "status": 200,
+   "payload_keys": [],
+   "payload": {}
+  },
+  {
+   "tg_id": 990001305,
+   "status": 200,
+   "payload_keys": [],
+   "payload": {}
+  },
+  {
+   "tg_id": 990001306,
+   "status": 200,
+   "payload_keys": [],
+   "payload": {}
+  },
+  {
+   "tg_id": 990001307,
+   "status": 200,
+   "payload_keys": [],
+   "payload": {}
+  },
+  {
+   "tg_id": 990001308,
+   "status": 200,
+   "payload_keys": [],
+   "payload": {}
+  },
+  {
+   "tg_id": 990001309,
+   "status": 200,
+   "payload_keys": [],
+   "payload": {}
+  },
+  {
+   "tg_id": 990001310,
+   "status": 200,
+   "payload_keys": [],
+   "payload": {}
+  },
+  {
+   "tg_id": 990001311,
+   "status": 200,
+   "payload_keys": [],
+   "payload": {}
+  }
+ ],
+ "rows_per_id": {
+  "990001300": [
+   {
+    "req_id": "6",
+    "code": "84****83(len=8)",
+    "iat": "2026-10-14T12:31:17.989Z",
+    "exp": "2026-10-14T12:41:17.989Z",
+    "consumed_at": null
+   }
+  ],
+  "990001301": [
+   {
+    "req_id": "7",
+    "code": "88****74(len=8)",
+    "iat": "2026-10-14T12:31:20.189Z",
+    "exp": "2026-10-14T12:41:20.189Z",
+    "consumed_at": null
+   }
+  ],
+  "990001302": [
+   {
+    "req_id": "8",
+    "code": "92****63(len=8)",
+    "iat": "2026-10-14T12:31:22.726Z",
+    "exp": "2026-10-14T12:41:22.726Z",
+    "consumed_at": null
+   }
+  ],
+  "990001303": [
+   {
+    "req_id": "9",
+    "code": "29****57(len=8)",
+    "iat": "2026-10-14T12:31:24.758Z",
+    "exp": "2026-10-14T12:41:24.758Z",
+    "consumed_at": null
+   }
+  ],
+  "990001304": [
+   {
+    "req_id": "10",
+    "code": "56****51(len=8)",
+    "iat": "2026-10-14T12:31:27.261Z",
+    "exp": "2026-10-14T12:41:27.261Z",
+    "consumed_at": null
+   }
+  ],
+  "990001305": [
+   {
+    "req_id": "11",
+    "code": "96****35(len=8)",
+    "iat": "2026-10-14T12:31:28.566Z",
+    "exp": "2026-10-14T12:41:28.566Z",
+    "consumed_at": null
+   }
+  ],
+  "990001306": [
+   {
+    "req_id": "12",
+    "code": "26****84(len=8)",
+    "iat": "2026-10-14T12:31:29.824Z",
+    "exp": "2026-10-14T12:41:29.824Z",
+    "consumed_at": null
+   }
+  ],
+  "990001307": [
+   {
+    "req_id": "13",
+    "code": "60****93(len=8)",
+    "iat": "2026-10-14T12:31:31.810Z",
+    "exp": "2026-10-14T12:41:31.810Z",
+    "consumed_at": null
+   }
+  ],
+  "990001308": [
+   {
+    "req_id": "14",
+    "code": "71****48(len=8)",
+    "iat": "2026-10-14T12:31:33.802Z",
+    "exp": "2026-10-14T12:41:33.802Z",
+    "consumed_at": null
+   }
+  ],
+  "990001309": [
+   {
+    "req_id": "15",
+    "code": "00****97(len=8)",
+    "iat": "2026-10-14T12:31:36.321Z",
+    "exp": "2026-10-14T12:41:36.321Z",
+    "consumed_at": null
+   }
+  ],
+  "990001310": [
+   {
+    "req_id": "16",
+    "code": "81****50(len=8)",
+    "iat": "2026-10-14T12:31:37.580Z",
+    "exp": "2026-10-14T12:41:37.580Z",
+    "consumed_at": null
+   }
+  ],
+  "990001311": [
+   {
+    "req_id": "17",
+    "code": "49****45(len=8)",
+    "iat": "2026-10-14T12:31:39.897Z",
+    "exp": "2026-10-14T12:41:39.897Z",
+    "consumed_at": null
+   }
+  ]
+ },
+ "per_code_checks": [
+  {
+   "tg_id": 990001300,
+   "req_id": "6",
+   "code": "84****83(len=8)",
+   "regex_ok": true,
+   "has_letter": false,
+   "len": 8,
+   "ttl_seconds": 600,
+   "consumed_at": null,
+   "rows_for_id": 1
+  },
+  {
+   "tg_id": 990001301,
+   "req_id": "7",
+   "code": "88****74(len=8)",
+   "regex_ok": true,
+   "has_letter": false,
+   "len": 8,
+   "ttl_seconds": 600,
+   "consumed_at": null,
+   "rows_for_id": 1
+  },
+  {
+   "tg_id": 990001302,
+   "req_id": "8",
+   "code": "92****63(len=8)",
+   "regex_ok": true,
+   "has_letter": false,
+   "len": 8,
+   "ttl_seconds": 600,
+   "consumed_at": null,
+   "rows_for_id": 1
+  },
+  {
+   "tg_id": 990001303,
+   "req_id": "9",
+   "code": "29****57(len=8)",
+   "regex_ok": true,
+   "has_letter": false,
+   "len": 8,
+   "ttl_seconds": 600,
+   "consumed_at": null,
+   "rows_for_id": 1
+  },
+  {
+   "tg_id": 990001304,
+   "req_id": "10",
+   "code": "56****51(len=8)",
+   "regex_ok": true,
+   "has_letter": false,
+   "len": 8,
+   "ttl_seconds": 600,
+   "consumed_at": null,
+   "rows_for_id": 1
+  },
+  {
+   "tg_id": 990001305,
+   "req_id": "11",
+   "code": "96****35(len=8)",
+   "regex_ok": true,
+   "has_letter": false,
+   "len": 8,
+   "ttl_seconds": 600,
+   "consumed_at": null,
+   "rows_for_id": 1
+  },
+  {
+   "tg_id": 990001306,
+   "req_id": "12",
+   "code": "26****84(len=8)",
+   "regex_ok": true,
+   "has_letter": false,
+   "len": 8,
+   "ttl_seconds": 600,
+   "consumed_at": null,
+   "rows_for_id": 1
+  },
+  {
+   "tg_id": 990001307,
+   "req_id": "13",
+   "code": "60****93(len=8)",
+   "regex_ok": true,
+   "has_letter": false,
+   "len": 8,
+   "ttl_seconds": 600,
+   "consumed_at": null,
+   "rows_for_id": 1
+  },
+  {
+   "tg_id": 990001308,
+   "req_id": "14",
+   "code": "71****48(len=8)",
+   "regex_ok": true,
+   "has_letter": false,
+   "len": 8,
+   "ttl_seconds": 600,
+   "consumed_at": null,
+   "rows_for_id": 1
+  },
+  {
+   "tg_id": 990001309,
+   "req_id": "15",
+   "code": "00****97(len=8)",
+   "regex_ok": true,
+   "has_letter": false,
+   "len": 8,
+   "ttl_seconds": 600,
+   "consumed_at": null,
+   "rows_for_id": 1
+  },
+  {
+   "tg_id": 990001310,
+   "req_id": "16",
+   "code": "81****50(len=8)",
+   "regex_ok": true,
+   "has_letter": false,
+   "len": 8,
+   "ttl_seconds": 600,
+   "consumed_at": null,
+   "rows_for_id": 1
+  },
+  {
+   "tg_id": 990001311,
+   "req_id": "17",
+   "code": "49****45(len=8)",
+   "regex_ok": true,
+   "has_letter": false,
+   "len": 8,
+   "ttl_seconds": 600,
+   "consumed_at": null,
+   "rows_for_id": 1
+  }
+ ],
+ "codes_with_0_or_1": [
+  {
+   "tg_id": 990001303,
+   "req_id": "9",
+   "code": "29****57(len=8)"
+  },
+  {
+   "tg_id": 990001304,
+   "req_id": "10",
+   "code": "56****51(len=8)"
+  },
+  {
+   "tg_id": 990001305,
+   "req_id": "11",
+   "code": "96****35(len=8)"
+  },
+  {
+   "tg_id": 990001307,
+   "req_id": "13",
+   "code": "60****93(len=8)"
+  },
+  {
+   "tg_id": 990001308,
+   "req_id": "14",
+   "code": "71****48(len=8)"
+  },
+  {
+   "tg_id": 990001309,
+   "req_id": "15",
+   "code": "00****97(len=8)"
+  },
+  {
+   "tg_id": 990001310,
+   "req_id": "16",
+   "code": "81****50(len=8)"
+  }
+ ],
+ "checks": {
+  "all_posts_200": true,
+  "every_id_has_exactly_1_new_row": true,
+  "all_codes_regex_8_digits": true,
+  "no_code_contains_letter": true,
+  "all_len_8": true,
+  "all_ttl_600s": true,
+  "all_consumed_at_null": true,
+  "got_code_with_0_or_1": true,
+  "codes_with_0_or_1_count": 7
+ },
+ "raw_codes_for_downstream": [
+  {
+   "tg_id": 990001300,
+   "code": "84462483"
+  },
+  {
+   "tg_id": 990001301,
+   "code": "88252274"
+  },
+  {
+   "tg_id": 990001302,
+   "code": "92347363"
+  },
+  {
+   "tg_id": 990001303,
+   "code": "29310957"
+  },
+  {
+   "tg_id": 990001304,
+   "code": "56050951"
+  },
+  {
+   "tg_id": 990001305,
+   "code": "96003335"
+  },
+  {
+   "tg_id": 990001306,
+   "code": "26362484"
+  },
+  {
+   "tg_id": 990001307,
+   "code": "60926293"
+  },
+  {
+   "tg_id": 990001308,
+   "code": "71726648"
+  },
+  {
+   "tg_id": 990001309,
+   "code": "00015297"
+  },
+  {
+   "tg_id": 990001310,
+   "code": "81093050"
+  },
+  {
+   "tg_id": 990001311,
+   "code": "49436745"
+  }
+ ],
+ "all_pass": true
+}
