@@ -7,7 +7,7 @@
  *
  * 覆盖（confirm 校验链的路由侧纯逻辑 + 短码形状/文案/限速；不触库、不改产品契约）：
  *   ① 短码形状闸 isValidShortBindCode（含易混字符 0/O/1/I 拒绝、长度、类型）
- *   ② 签发字符集 generateShortBindCode（32 字符集、无易混字、位长 8、批量形状）
+ *   ② 签发字符集 generateShortBindCode（32 字符集、无易混字、位长 6、批量形状）
  *   ③ bot 回复文案 shortBindIssueReplyText（双语一行含码 / 防刷固定提示）
  *   ④ confirm 结果 → 既有错误形态映射 confirmErrorForOutcome（零新错误码）
  *   ⑤ confirm 内存限速 checkConfirmRateLimit（10 次/分、滑窗、账号隔离）
@@ -31,21 +31,21 @@ const ok = (label: string): void => {
 };
 
 // ---------------------------------------------------------------- ① 形状闸
-for (const good of ['ABCD2345', 'ZZZZ9999', 'ABCDEFGH', '23456789', 'A2B3C4D5']) {
+for (const good of ['ABCD23', 'ZZZZ99', 'ABCDEF', '234567', 'A2B3C4']) {
   assert.strictEqual(isValidShortBindCode(good), true, `shape gate should accept ${good}`);
 }
 ok('shape gate accepts 5 well-formed codes');
 
 for (const bad of [
-  '', 'abcd2345', 'ABC2345', 'ABCDE2345', 'ABCD2340', 'ABCD234O', 'ABCD2341', 'ABCD234I',
-  ' ABCD234', 'ABCD234', null, undefined, 12345678, ['ABCD2345'], {}, 'ABCD2345 ',
+  '', 'abcd23', 'ABC23', 'ABCDE2345', 'ABCD20', 'ABCD2O', 'ABCD21', 'ABCD2I',
+  ' ABCD2', 'ABCD234', null, undefined, 12345678, ['ABCD2345'], {}, 'ABCD2345 ',
 ]) {
   assert.strictEqual(isValidShortBindCode(bad), false, `shape gate should reject ${JSON.stringify(bad)}`);
 }
 ok('shape gate rejects 16 malformed/non-string inputs (incl. 0/O/1/I)');
 
 // ---------------------------------------------------------------- ② 字符集 / 生成器
-assert.strictEqual(SHORT_BIND_CODE_LENGTH, 8);
+assert.strictEqual(SHORT_BIND_CODE_LENGTH, 6);
 assert.strictEqual(SHORT_BIND_CODE_ALPHABET.length, 32);
 for (const confusing of ['0', 'O', '1', 'I']) {
   assert.strictEqual(SHORT_BIND_CODE_ALPHABET.includes(confusing), false, `alphabet must exclude ${confusing}`);
@@ -56,14 +56,14 @@ ok('alphabet = 32 unique chars, excludes 0/O/1/I, modulo bias-free');
 
 for (let i = 0; i < 400; i += 1) {
   const code = generateShortBindCode();
-  assert.strictEqual(code.length, 8);
-  assert.strictEqual(/^[A-HJ-NP-Z2-9]{8}$/.test(code), true, `generated code malformed: ${code}`);
+  assert.strictEqual(code.length, 6);
+  assert.strictEqual(/^[A-HJ-NP-Z2-9]{6}$/.test(code), true, `generated code malformed: ${code}`);
 }
-ok('400 generated codes all 8-char, charset-clean');
+ok('400 generated codes all 6-char, charset-clean');
 
 // ---------------------------------------------------------------- ③ bot 回复文案
-const issuedReply = shortBindIssueReplyText({ kind: 'ok', code: 'AB3DX9KQ' });
-assert.strictEqual(issuedReply.split('AB3DX9KQ').length - 1, 2, 'code must appear in both language halves');
+const issuedReply = shortBindIssueReplyText({ kind: 'ok', code: 'AB3DX9' });
+assert.strictEqual(issuedReply.split('AB3DX9').length - 1, 2, 'code must appear in both language halves');
 assert.strictEqual(issuedReply.includes('XXXXXXXX'), false, 'placeholder must be fully substituted');
 assert.ok(issuedReply.includes('绑定码'), 'must contain Chinese half');
 assert.ok(issuedReply.includes('（10 分钟内有效）'));

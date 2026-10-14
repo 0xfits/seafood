@@ -260,14 +260,15 @@ export const sendTelegramReply = async (chatId: number | string, text: string): 
 // consumeBindCode）路径原样保留。库表 = 0048 telegram_bind_request（短码入库承载，与长码的无状态
 // 签名令牌不同体）；过期行由 webhook 签发事务顺手 DELETE，本节不另建清理任务。
 
-/** 短码位长与字符集：大写字母 + 数字，剔除易混 0/O/1/I（32 字符 ⇒ 256 % 32 = 0，randomBytes 取模无偏置）。 */
-export const SHORT_BIND_CODE_LENGTH = 8;
+/** 短码位长与字符集：大写字母 + 数字，剔除易混 0/O/1/I（32 字符 ⇒ 256 % 32 = 0，randomBytes 取模无偏置）。
+ *  位长 6（Kevin 裁定 8→6）算式依据：32^6 ≈ 1.07e9 码空间，配 confirm 每分钟 10 次限速与 600 秒 TTL 足够。 */
+export const SHORT_BIND_CODE_LENGTH = 6;
 export const SHORT_BIND_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 export const SHORT_BIND_TTL_SECONDS = 600; // 10 分钟（与 HMAC 长码同有效期；0048 exp = iat + 600 秒）
 
 /** 短码形状闸（confirm 校验链第 1 闸：缺码/形状不对 ⇒ 400，不触库）。 */
 export const isValidShortBindCode = (code: unknown): code is string =>
-  typeof code === 'string' && /^[A-HJ-NP-Z2-9]{8}$/.test(code);
+  typeof code === 'string' && /^[A-HJ-NP-Z2-9]{6}$/.test(code);
 
 // 防刷占位常量（TODO: 数值为派单给定占位、一句话即可改；webhook 侧按 0048 表 (tg_user_id, iat) 计数
 // 天然多实例生效，confirm 侧为单进程内存滑窗，多实例部署需换持久存储）。
@@ -277,7 +278,7 @@ export const CONFIRM_ATTEMPTS_PER_MINUTE = 10;        // 同一站内账号 conf
 const SHORT_CODE_INSERT_ATTEMPTS = 5;                 // 撞 code UNIQUE 重试上限
 const CONFIRM_ATTEMPT_WINDOW_MS = 60_000;
 
-/** 签发 8 位短码（crypto.randomBytes；32 字符集无取模偏置）。导出仅供离线单测断言形状。 */
+/** 签发 6 位短码（crypto.randomBytes；32 字符集无取模偏置）。导出仅供离线单测断言形状。 */
 export const generateShortBindCode = (): string => {
   const bytes = crypto.randomBytes(SHORT_BIND_CODE_LENGTH);
   let code = '';
