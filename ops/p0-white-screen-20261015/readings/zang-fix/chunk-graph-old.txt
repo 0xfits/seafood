@@ -1,0 +1,16 @@
+== chunk import edges ==
+index-Cl6qtH3z -> vendor-CaaXybtR, vendor-i18n-DzdTGb-_, vendor-react-DHpd0QMj, vendor-router-Be2-uViZ, vendor-ui-DUyEwqKC
+vendor-CaaXybtR -> vendor-react-DHpd0QMj
+vendor-i18n-DzdTGb-_ -> vendor-react-DHpd0QMj
+vendor-react-DHpd0QMj -> vendor-CaaXybtR
+vendor-router-Be2-uViZ -> vendor-CaaXybtR, vendor-react-DHpd0QMj
+vendor-ui-DUyEwqKC -> vendor-react-DHpd0QMj
+== module markers ==
+  index-Cl6qtH3z {"bytes":444343,"reactQrCode_marker_viewBoxSize":false,"propTypes_marker":false,"interop_helper_marker":false,"forwardRef":true}
+  vendor-CaaXybtR {"bytes":33410,"reactQrCode_marker_viewBoxSize":true,"propTypes_marker":true,"interop_helper_marker":true,"forwardRef":true}
+  vendor-i18n-DzdTGb-_ {"bytes":53539,"reactQrCode_marker_viewBoxSize":false,"propTypes_marker":false,"interop_helper_marker":false,"forwardRef":false}
+  vendor-react-DHpd0QMj {"bytes":142165,"reactQrCode_marker_viewBoxSize":false,"propTypes_marker":false,"interop_helper_marker":false,"forwardRef":true}
+  vendor-router-Be2-uViZ {"bytes":12635,"reactQrCode_marker_viewBoxSize":false,"propTypes_marker":false,"interop_helper_marker":false,"forwardRef":true}
+  vendor-ui-DUyEwqKC {"bytes":39479,"reactQrCode_marker_viewBoxSize":false,"propTypes_marker":false,"interop_helper_marker":false,"forwardRef":true}
+== CYCLES FOUND ==
+  CYCLE: vendor-CaaXybtR -> vendor-react-DHpd0QMj -> vendor-CaaXybtR

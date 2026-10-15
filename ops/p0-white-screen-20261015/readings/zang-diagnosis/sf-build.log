@@ -1,0 +1,20 @@
+vite v5.4.20 building for production...
+transforming...
+✓ 1816 modules transformed.
+rendering chunks...
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) /Users/kevin/bistro/seafood/frontend/src/i18n.js is dynamically imported by /Users/kevin/bistro/seafood/frontend/src/auth.js but also statically imported by /Users/kevin/bistro/seafood/frontend/src/main.jsx, dynamic import will not move module into another chunk.
+
+computing gzip size...
+../../../../../tmp/sf-probe-build/assets/hk-DJjlsSdH.svg              4.61 kB │ gzip:   2.01 kB
+../../../../../tmp/sf-probe-build/index.html                          6.69 kB │ gzip:   3.60 kB
+../../../../../tmp/sf-probe-build/assets/us-BUggRluv.svg              7.87 kB │ gzip:   1.24 kB
+../../../../../tmp/sf-probe-build/assets/index-Bl6P2cg0.css         119.92 kB │ gzip:  21.96 kB
+../../../../../tmp/sf-probe-build/assets/vendor-router-Be2-uViZ.js   12.64 kB │ gzip:   4.63 kB
+../../../../../tmp/sf-probe-build/assets/vendor-CaaXybtR.js          33.41 kB │ gzip:  12.88 kB
+../../../../../tmp/sf-probe-build/assets/vendor-ui-DUyEwqKC.js       39.48 kB │ gzip:  10.69 kB
+../../../../../tmp/sf-probe-build/assets/vendor-i18n-DzdTGb-_.js     53.54 kB │ gzip:  16.61 kB
+../../../../../tmp/sf-probe-build/assets/vendor-react-DHpd0QMj.js   142.17 kB │ gzip:  45.58 kB
+../../../../../tmp/sf-probe-build/assets/index-Cl6qtH3z.js          444.34 kB │ gzip: 130.66 kB
+✓ built in 1.85s
+BUILD_EXIT=0

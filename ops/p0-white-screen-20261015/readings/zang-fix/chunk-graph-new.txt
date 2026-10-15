@@ -1,0 +1,15 @@
+== chunk import edges ==
+index-DJNSZl46 -> vendor-AmHF8z37, vendor-i18n-Dv2xmCnL, vendor-react-CZtNYldG, vendor-router-Cm_Gdouh, vendor-ui-C62xpTZb
+vendor-AmHF8z37 (no chunk deps)
+vendor-i18n-Dv2xmCnL -> vendor-react-CZtNYldG
+vendor-react-CZtNYldG -> vendor-AmHF8z37
+vendor-router-Cm_Gdouh -> vendor-AmHF8z37, vendor-react-CZtNYldG
+vendor-ui-C62xpTZb -> vendor-react-CZtNYldG
+== module markers ==
+  index-DJNSZl46 {"bytes":444338,"reactQrCode_marker_viewBoxSize":false,"propTypes_marker":false,"interop_helper_marker":false,"forwardRef":true}
+  vendor-AmHF8z37 {"bytes":9105,"reactQrCode_marker_viewBoxSize":false,"propTypes_marker":false,"interop_helper_marker":true,"forwardRef":false}
+  vendor-i18n-Dv2xmCnL {"bytes":53539,"reactQrCode_marker_viewBoxSize":false,"propTypes_marker":false,"interop_helper_marker":false,"forwardRef":false}
+  vendor-react-CZtNYldG {"bytes":166550,"reactQrCode_marker_viewBoxSize":true,"propTypes_marker":true,"interop_helper_marker":false,"forwardRef":true}
+  vendor-router-Cm_Gdouh {"bytes":12635,"reactQrCode_marker_viewBoxSize":false,"propTypes_marker":false,"interop_helper_marker":false,"forwardRef":true}
+  vendor-ui-C62xpTZb {"bytes":39479,"reactQrCode_marker_viewBoxSize":false,"propTypes_marker":false,"interop_helper_marker":false,"forwardRef":true}
+== ACYCLIC: chunk dependency graph has no cycles ==

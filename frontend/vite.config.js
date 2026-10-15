@@ -17,7 +17,12 @@ const pkgOf = (id) => {
  * 顺序即优先级；未命中任何一组的 node_modules 模块落入 `vendor`。
  */
 const VENDOR_GROUPS = [
-  ['vendor-react', /^(react|react-dom|scheduler)$/],
+  // react-qr-code 及其 CJS 依赖（qrcode-generator、prop-types）必须与 React 同组：
+  // 若落入通用 vendor，CJS 互操作 helper 会被提升进 vendor ⇒ vendor 与 vendor-react
+  // 循环依赖；index 先载 vendor-react ⇒ 引擎先执行 vendor ⇒ react-qr-code 在模块
+  // 求值期读 React.forwardRef 时 React 尚未初始化 ⇒ 全局白屏（2026-10-15 生产 P0，
+  // 证据见 ops/p0-white-screen-20261015/）。
+  ['vendor-react', /^(react|react-dom|scheduler|react-qr-code|qrcode-generator|prop-types)$/],
   ['vendor-router', /^(react-router|react-router-dom|@remix-run)$/],
   ['vendor-i18n', /^(i18next|react-i18next|i18next-browser-languagedetector)$/],
   ['vendor-calendar', /^@fullcalendar$/],
