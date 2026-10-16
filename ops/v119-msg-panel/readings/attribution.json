@@ -1,0 +1,975 @@
+{
+  "startedAt": "2026-10-16T13:22:03.167Z",
+  "distNew": "/Users/kevin/bistro/seafood/frontend/dist",
+  "distOld": "/Users/kevin/.hermes/profiles/zang/cache/scratch/v119-old/frontend/dist",
+  "zeroDbWrite": true,
+  "fixtures": {
+    "apiSource": "page.route in-probe JSON (no backend)",
+    "authSource": "localStorage only",
+    "unreadTotal": 250
+  },
+  "pages": {
+    "1440/": {
+      "url": "/",
+      "viewport": "1440",
+      "opened": false,
+      "rulerRepeatable": {
+        "old": false,
+        "new": false,
+        "oldSha256": [
+          "3be6b5735a61ac67b0d6370494d991683ad3de112d9788312d263b443598f985",
+          "54417a8a97208a18f1520d5b6df148d0fdc741d2f59befa713a306eb8d4172a5"
+        ],
+        "newSha256": [
+          "4d0c7c8d701078352c184d27039ac65d425818b6058e4fe97566788713fa2137",
+          "3be6b5735a61ac67b0d6370494d991683ad3de112d9788312d263b443598f985"
+        ],
+        "oldRectDigest": [
+          "aa757859d5b88507b7a54be9ee697aa93c4ab64e01282147c352940d725cae5b",
+          "19f86d80547a2d1f0cd11a90fc3e127d000468cdb0d992494687921a04a71519"
+        ],
+        "newRectDigest": [
+          "aa903cdcd7275ef39563ebce7bc5b47928d3866c7b98b803dc842f9d690d956f",
+          "aa757859d5b88507b7a54be9ee697aa93c4ab64e01282147c352940d725cae5b"
+        ],
+        "geometricallyRepeatable": false
+      },
+      "panelPresent": {
+        "old": false,
+        "new": false
+      },
+      "regions": {
+        "old": [
+          "shell",
+          "topnav",
+          "content",
+          "footer",
+          "tabbar"
+        ],
+        "new": [
+          "shell",
+          "topnav",
+          "content",
+          "footer",
+          "tabbar"
+        ]
+      },
+      "elementCount": {
+        "old": 204,
+        "new": 204
+      },
+      "visibleKeyCount": {
+        "old": 173,
+        "new": 173
+      },
+      "diff_old_vs_new": {
+        "onlyOld": 1,
+        "onlyNew": 1,
+        "total": 2,
+        "sample": [
+          "OLD_ONLY IMG|#root/1/0/2/0/0/0/1/0/0/0|alt=猫猫大使团｜你的声音，值得被品牌听见。,class=h-[50px] w-auto object-contain",
+          "NEW_ONLY IMG|#root/1/0/2/0/0/0/1/0/0/0|alt=猫猫大使团｜不止一份报酬，更加一份经验。,class=h-[50px] w-auto object-contain"
+        ]
+      },
+      "diff_repeat_control": {
+        "oldA_vs_oldB": 2,
+        "newA_vs_newB": 2,
+        "oldRepeatShaEqual": false,
+        "newRepeatShaEqual": false
+      },
+      "rectDiff_old_vs_new": {
+        "movedCount": 0,
+        "sample": []
+      }
+    },
+    "1440/exchange": {
+      "url": "/exchange",
+      "viewport": "1440",
+      "opened": false,
+      "rulerRepeatable": {
+        "old": false,
+        "new": true,
+        "oldSha256": [
+          "21d020ad1827624d589acd89366a0b9630f88bc92b155c41be96a2727fffd037",
+          "5920d332386ea1ab0c2481d40906af8830e8c522609cbac02d9ff30dcdd7d7f2"
+        ],
+        "newSha256": [
+          "21d020ad1827624d589acd89366a0b9630f88bc92b155c41be96a2727fffd037",
+          "21d020ad1827624d589acd89366a0b9630f88bc92b155c41be96a2727fffd037"
+        ],
+        "oldRectDigest": [
+          "a34bc01b370ee15c14cf32919a2ba427d06a1f982d994f517c0ee1f6f67d1fd5",
+          "8b5c30d2e8ec5d2a5ac60f5ce5bb38d14d52db3eca7221c0428c4f1fbb15bbe2"
+        ],
+        "newRectDigest": [
+          "a34bc01b370ee15c14cf32919a2ba427d06a1f982d994f517c0ee1f6f67d1fd5",
+          "a34bc01b370ee15c14cf32919a2ba427d06a1f982d994f517c0ee1f6f67d1fd5"
+        ],
+        "geometricallyRepeatable": false
+      },
+      "panelPresent": {
+        "old": false,
+        "new": false
+      },
+      "regions": {
+        "old": [
+          "shell",
+          "topnav",
+          "content",
+          "footer",
+          "tabbar"
+        ],
+        "new": [
+          "shell",
+          "topnav",
+          "content",
+          "footer",
+          "tabbar"
+        ]
+      },
+      "elementCount": {
+        "old": 207,
+        "new": 207
+      },
+      "visibleKeyCount": {
+        "old": 176,
+        "new": 176
+      },
+      "diff_old_vs_new": {
+        "onlyOld": 0,
+        "onlyNew": 0,
+        "total": 0,
+        "sample": []
+      },
+      "diff_repeat_control": {
+        "oldA_vs_oldB": 2,
+        "newA_vs_newB": 0,
+        "oldRepeatShaEqual": false,
+        "newRepeatShaEqual": true
+      },
+      "rectDiff_old_vs_new": {
+        "movedCount": 0,
+        "sample": []
+      }
+    },
+    "1440/item/123": {
+      "url": "/item/123",
+      "viewport": "1440",
+      "opened": false,
+      "rulerRepeatable": {
+        "old": false,
+        "new": false,
+        "oldSha256": [
+          "b986f93774cbaed038884040f496d8e1c13f42b5b77eb7a6ebc109a249484bb1",
+          "2c20b07153212f58ee595ae2651ddeca12e9d193ac89bd43197d15c61ae734f1"
+        ],
+        "newSha256": [
+          "b986f93774cbaed038884040f496d8e1c13f42b5b77eb7a6ebc109a249484bb1",
+          "3ce063208cd4eb7ab67224b164dade990baf9ca02330176a7c5831faed467a8a"
+        ],
+        "oldRectDigest": [
+          "fffed439213a05a71da78fda8b924849f198d4203b0e48b9f57b68e4e81afd30",
+          "1b3afd8bebbd27997bbe9367e3c581488407d3212229c0ccecd43493c608606f"
+        ],
+        "newRectDigest": [
+          "fffed439213a05a71da78fda8b924849f198d4203b0e48b9f57b68e4e81afd30",
+          "f099e769ef96c198c3ba45d1d9b9145eb5ff045ac88a6b77bc8e5de7ef7f1e56"
+        ],
+        "geometricallyRepeatable": false
+      },
+      "panelPresent": {
+        "old": false,
+        "new": false
+      },
+      "regions": {
+        "old": [
+          "shell",
+          "topnav",
+          "content",
+          "footer",
+          "tabbar"
+        ],
+        "new": [
+          "shell",
+          "topnav",
+          "content",
+          "footer",
+          "tabbar"
+        ]
+      },
+      "elementCount": {
+        "old": 159,
+        "new": 159
+      },
+      "visibleKeyCount": {
+        "old": 128,
+        "new": 128
+      },
+      "diff_old_vs_new": {
+        "onlyOld": 0,
+        "onlyNew": 0,
+        "total": 0,
+        "sample": []
+      },
+      "diff_repeat_control": {
+        "oldA_vs_oldB": 2,
+        "newA_vs_newB": 2,
+        "oldRepeatShaEqual": false,
+        "newRepeatShaEqual": false
+      },
+      "rectDiff_old_vs_new": {
+        "movedCount": 0,
+        "sample": []
+      }
+    },
+    "1440/messages": {
+      "url": "/messages",
+      "viewport": "1440",
+      "opened": true,
+      "rulerRepeatable": {
+        "old": true,
+        "new": false,
+        "oldSha256": [
+          "a2e651ca9254c8f40f48500ddecfea9a7a6589df2aa1bb72858701bcef27af98",
+          "a2e651ca9254c8f40f48500ddecfea9a7a6589df2aa1bb72858701bcef27af98"
+        ],
+        "newSha256": [
+          "fb2fb1a9b3e43ad4a6fa695b15242b4d451ec9b60c6cb42263efd9a228e51f44",
+          "4eb9bc757012f470a5f7ac92f66e96c6638a11f48be4a57a4460413433455578"
+        ],
+        "oldRectDigest": [
+          "f034e919497e9669bcc153a956c489a2dfd5858f4bc5078c44e8aafe02bb73f2",
+          "f034e919497e9669bcc153a956c489a2dfd5858f4bc5078c44e8aafe02bb73f2"
+        ],
+        "newRectDigest": [
+          "7ee7aa85659ed85e43d06d7e38872671b90b0db84cd5be69e58828841ec31ef3",
+          "753c4451cc98a2fe96026cf8571187a584512288ec9a2c4124832e95a3e712f8"
+        ],
+        "geometricallyRepeatable": false
+      },
+      "panelPresent": {
+        "old": false,
+        "new": true
+      },
+      "regions": {
+        "old": [
+          "shell",
+          "topnav",
+          "content",
+          "footer",
+          "tabbar"
+        ],
+        "new": [
+          "shell",
+          "topnav",
+          "content",
+          "footer",
+          "tabbar"
+        ]
+      },
+      "elementCount": {
+        "old": 173,
+        "new": 236
+      },
+      "visibleKeyCount": {
+        "old": 142,
+        "new": 205
+      },
+      "diff_old_vs_new": {
+        "onlyOld": 24,
+        "onlyNew": 87,
+        "total": 111,
+        "sample": [
+          "OLD_ONLY A|#root/1/0/1/0/0/0/1/0|class=sf-msg-conv,data-sf-m=messages-conversation-item,href=/messages?c=7",
+          "OLD_ONLY A|#root/1/0/1/0/0/0/1/1|class=sf-msg-conv,data-sf-m=messages-conversation-item,href=/messages?c=8",
+          "OLD_ONLY A|#root/1/0/1/0/0/0/1/2|class=sf-msg-conv,data-sf-m=messages-conversation-item,href=/messages?c=9",
+          "OLD_ONLY DIV|#root/1/0/1/0/0/0/1|class=sf-msg-list,data-sf-m=messages-list",
+          "OLD_ONLY DIV|#root/1/0/1/0/0/0|class=sf-msg",
+          "OLD_ONLY DIV|#root/1/0/1/0/0|class=sf-layout-main",
+          "OLD_ONLY DIV|#root/1/0/1/0|class=sf-layout sf-msg-page,data-sf-m=messages-page",
+          "OLD_ONLY DIV|#root/1/0|class=sf-shell,data-sf-region=shell,data-sf-shell=app",
+          "NEW_ONLY A|#root/1/0/1/0/0/0/0/2/0|href=/task",
+          "NEW_ONLY A|#root/1/0/1/0/0/0/0/2/1|data-sf-m=home-publish-link,href=/item/new",
+          "NEW_ONLY A|#root/1/0/1/0/0/2/0/0/1|href=/task",
+          "NEW_ONLY A|#root/1/0/5/1/0/0/0|class=sf-msg-conv,data-sf-m=messages-conversation-item,href=/messages?msg=1&c=7",
+          "NEW_ONLY A|#root/1/0/5/1/0/0/1|class=sf-msg-conv,data-sf-m=messages-conversation-item,href=/messages?msg=1&c=8",
+          "NEW_ONLY A|#root/1/0/5/1/0/0/2|class=sf-msg-conv,data-sf-m=messages-conversation-item,href=/messages?msg=1&c=9",
+          "NEW_ONLY A|#root/1/0/5/1/1/0|INVISIBLE",
+          "NEW_ONLY BUTTON|#root/1/0/1/0/0/0/0/2/0/0|class=btn btn-a btn-lg px-8 py-3 text-lg"
+        ]
+      },
+      "diff_repeat_control": {
+        "oldA_vs_oldB": 0,
+        "newA_vs_newB": 2,
+        "oldRepeatShaEqual": true,
+        "newRepeatShaEqual": false
+      },
+      "rectDiff_old_vs_new": {
+        "movedCount": 51,
+        "sample": [
+          "DIV|#root/1|class=app-container gradient-bg @ 0,0,1440,900 -> 0,0,1440,1284",
+          "DIV|#root/1/0/0|class=sf-region sf-region-top,data-sf-region=topnav @ 0,0,1440,65 -> 0,0,736,65",
+          "HEADER|#root/1/0/0/0|class=bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-md backdrop-blur-sm bg-opacity-95,id=header @ 0,0,1440,65 -> 0,0,736,65",
+          "DIV|#root/1/0/0/0/0|class=container mx-auto px-4 @ 80,0,1280,64 -> 0,0,736,64",
+          "DIV|#root/1/0/0/0/0/0|class=flex justify-between items-center h-16 @ 96,0,1248,64 -> 16,0,704,64"
+        ]
+      }
+    },
+    "390/": {
+      "url": "/",
+      "viewport": "390",
+      "opened": false,
+      "rulerRepeatable": {
+        "old": false,
+        "new": false,
+        "oldSha256": [
+          "c08e3829a5242d1c55000bfc727afc43e260fb429bd6b4f190933ff503728f30",
+          "c8f91351930e714bbf0ae0221e8de0d4b9573b296e45b3974dc384471f7e0401"
+        ],
+        "newSha256": [
+          "c08e3829a5242d1c55000bfc727afc43e260fb429bd6b4f190933ff503728f30",
+          "c8f91351930e714bbf0ae0221e8de0d4b9573b296e45b3974dc384471f7e0401"
+        ],
+        "oldRectDigest": [
+          "29dc55ad6e859e36fa38e69e958344fc86eefa6eda43e2739af5b29c988d3ba6",
+          "330f132719d5fa89e08652dc20520433876067893043e1bfe0fca2f6d20754bb"
+        ],
+        "newRectDigest": [
+          "29dc55ad6e859e36fa38e69e958344fc86eefa6eda43e2739af5b29c988d3ba6",
+          "330f132719d5fa89e08652dc20520433876067893043e1bfe0fca2f6d20754bb"
+        ],
+        "geometricallyRepeatable": false
+      },
+      "panelPresent": {
+        "old": false,
+        "new": false
+      },
+      "regions": {
+        "old": [
+          "shell",
+          "topnav",
+          "content",
+          "footer",
+          "tabbar"
+        ],
+        "new": [
+          "shell",
+          "topnav",
+          "content",
+          "footer",
+          "tabbar"
+        ]
+      },
+      "elementCount": {
+        "old": 204,
+        "new": 204
+      },
+      "visibleKeyCount": {
+        "old": 173,
+        "new": 173
+      },
+      "diff_old_vs_new": {
+        "onlyOld": 0,
+        "onlyNew": 0,
+        "total": 0,
+        "sample": []
+      },
+      "diff_repeat_control": {
+        "oldA_vs_oldB": 2,
+        "newA_vs_newB": 2,
+        "oldRepeatShaEqual": false,
+        "newRepeatShaEqual": false
+      },
+      "rectDiff_old_vs_new": {
+        "movedCount": 0,
+        "sample": []
+      }
+    },
+    "390/exchange": {
+      "url": "/exchange",
+      "viewport": "390",
+      "opened": false,
+      "rulerRepeatable": {
+        "old": false,
+        "new": false,
+        "oldSha256": [
+          "b9896b924691c37e66f3f5f3a7cde31f017989144f0d0d72de2572e44ca70d4a",
+          "66711ec7f17cd502354995c8a1f6b2ccec68a214db2ee2f95bf1c9c512687263"
+        ],
+        "newSha256": [
+          "5ede6fc67bf2f99cc60754cb8882e1403a7c2315f303b30114a7da28ed0bb92a",
+          "66711ec7f17cd502354995c8a1f6b2ccec68a214db2ee2f95bf1c9c512687263"
+        ],
+        "oldRectDigest": [
+          "2a7371b38924112978f5de2f08c39bae02c4ce92c9a09ad8f0ece2722ea9de53",
+          "4df14cf9d1133c1c525a5265154fb1f3412f123261ba0a5c216221f29b724f82"
+        ],
+        "newRectDigest": [
+          "40457b1bf4ddfafebd779c200e6d4da4b9d6012f14aa7a393402c50cad8c4206",
+          "4df14cf9d1133c1c525a5265154fb1f3412f123261ba0a5c216221f29b724f82"
+        ],
+        "geometricallyRepeatable": false
+      },
+      "panelPresent": {
+        "old": false,
+        "new": false
+      },
+      "regions": {
+        "old": [
+          "shell",
+          "topnav",
+          "content",
+          "footer",
+          "tabbar"
+        ],
+        "new": [
+          "shell",
+          "topnav",
+          "content",
+          "footer",
+          "tabbar"
+        ]
+      },
+      "elementCount": {
+        "old": 207,
+        "new": 207
+      },
+      "visibleKeyCount": {
+        "old": 176,
+        "new": 176
+      },
+      "diff_old_vs_new": {
+        "onlyOld": 1,
+        "onlyNew": 1,
+        "total": 2,
+        "sample": [
+          "OLD_ONLY IMG|#root/1/0/2/0/0/0/1/0/0/0|alt=猫猫大使团｜你的声音，值得被品牌听见。,class=h-[50px] w-auto object-contain",
+          "NEW_ONLY IMG|#root/1/0/2/0/0/0/1/0/0/0|alt=猫猫大使团｜不止一份报酬，更加一份经验。,class=h-[50px] w-auto object-contain"
+        ]
+      },
+      "diff_repeat_control": {
+        "oldA_vs_oldB": 2,
+        "newA_vs_newB": 2,
+        "oldRepeatShaEqual": false,
+        "newRepeatShaEqual": false
+      },
+      "rectDiff_old_vs_new": {
+        "movedCount": 0,
+        "sample": []
+      }
+    },
+    "390/item/123": {
+      "url": "/item/123",
+      "viewport": "390",
+      "opened": false,
+      "rulerRepeatable": {
+        "old": false,
+        "new": false,
+        "oldSha256": [
+          "5742d7e7ff906725ab74ee74ac67119c01f5baa3dfc9a70b68e655721cbfa7c1",
+          "46ef5d3eb97d566c59a77fe899e16fc63e7610c891cb6350daa4af9ff109ed8d"
+        ],
+        "newSha256": [
+          "5742d7e7ff906725ab74ee74ac67119c01f5baa3dfc9a70b68e655721cbfa7c1",
+          "51fb57a42bd46b9fcaf8ceafee1bcbd43c0e99f216cfcf060cf34d755cbeac03"
+        ],
+        "oldRectDigest": [
+          "ed1f6807a258f3ec4d19a24fb748baed286c67e020d7efe77b0564aa5ef158f0",
+          "5dccd08bfaf02c82eb070a2f66f628403e88a54734b2cd59a1be8a0200b391cb"
+        ],
+        "newRectDigest": [
+          "ed1f6807a258f3ec4d19a24fb748baed286c67e020d7efe77b0564aa5ef158f0",
+          "b62e14040c05f492ca46504bb39b382b9ff13ab5f4608ce54407a615bb73d540"
+        ],
+        "geometricallyRepeatable": false
+      },
+      "panelPresent": {
+        "old": false,
+        "new": false
+      },
+      "regions": {
+        "old": [
+          "shell",
+          "topnav",
+          "content",
+          "footer",
+          "tabbar"
+        ],
+        "new": [
+          "shell",
+          "topnav",
+          "content",
+          "footer",
+          "tabbar"
+        ]
+      },
+      "elementCount": {
+        "old": 159,
+        "new": 159
+      },
+      "visibleKeyCount": {
+        "old": 128,
+        "new": 128
+      },
+      "diff_old_vs_new": {
+        "onlyOld": 0,
+        "onlyNew": 0,
+        "total": 0,
+        "sample": []
+      },
+      "diff_repeat_control": {
+        "oldA_vs_oldB": 2,
+        "newA_vs_newB": 2,
+        "oldRepeatShaEqual": false,
+        "newRepeatShaEqual": false
+      },
+      "rectDiff_old_vs_new": {
+        "movedCount": 0,
+        "sample": []
+      }
+    },
+    "390/messages": {
+      "url": "/messages",
+      "viewport": "390",
+      "opened": true,
+      "rulerRepeatable": {
+        "old": false,
+        "new": false,
+        "oldSha256": [
+          "69ff0b5ea12c9580b44493a993ee805b074553d9715541da7d521f08338a5d07",
+          "a756031724681cd18d0ded4efce0f03d0b2a013bd26fb19874d5a7f6f4a32aa9"
+        ],
+        "newSha256": [
+          "13ec463c0f4d79b5914fd59e0e5702ba660fac285c0394f4afd1262a4c1277af",
+          "22faa3c40c43b7569748944c6e1c1b9e33150ca05aee272c974d9239f343ffc8"
+        ],
+        "oldRectDigest": [
+          "519b3eef62624c13f458ade9ef04d46bcd8089a1491a7cceb977b3ee30ae836a",
+          "b54eeec4a9518dda0e3aa8d61065d2b88a65d505366b8438aa495a5612ee9db0"
+        ],
+        "newRectDigest": [
+          "e67165ca4e63fbd151d14a7409abc9d93f83ca8c48920b52a4f565c7c16e2993",
+          "1aeb771862231ceef57af4694955c499e0ae58ae426c36e231e6a5d99b7bb99c"
+        ],
+        "geometricallyRepeatable": false
+      },
+      "panelPresent": {
+        "old": false,
+        "new": true
+      },
+      "regions": {
+        "old": [
+          "shell",
+          "topnav",
+          "content",
+          "footer",
+          "tabbar"
+        ],
+        "new": [
+          "shell",
+          "topnav",
+          "content",
+          "footer",
+          "tabbar"
+        ]
+      },
+      "elementCount": {
+        "old": 173,
+        "new": 236
+      },
+      "visibleKeyCount": {
+        "old": 142,
+        "new": 205
+      },
+      "diff_old_vs_new": {
+        "onlyOld": 23,
+        "onlyNew": 86,
+        "total": 109,
+        "sample": [
+          "OLD_ONLY A|#root/1/0/1/0/0/0/1/0|class=sf-msg-conv,data-sf-m=messages-conversation-item,href=/messages?c=7",
+          "OLD_ONLY A|#root/1/0/1/0/0/0/1/1|class=sf-msg-conv,data-sf-m=messages-conversation-item,href=/messages?c=8",
+          "OLD_ONLY A|#root/1/0/1/0/0/0/1/2|class=sf-msg-conv,data-sf-m=messages-conversation-item,href=/messages?c=9",
+          "OLD_ONLY DIV|#root/1/0/1/0/0/0/1|class=sf-msg-list,data-sf-m=messages-list",
+          "OLD_ONLY DIV|#root/1/0/1/0/0/0|class=sf-msg",
+          "OLD_ONLY DIV|#root/1/0/1/0/0|class=sf-layout-main",
+          "OLD_ONLY DIV|#root/1/0/1/0|class=sf-layout sf-msg-page,data-sf-m=messages-page",
+          "OLD_ONLY DIV|#root/1/0|class=sf-shell,data-sf-region=shell,data-sf-shell=app",
+          "NEW_ONLY A|#root/1/0/1/0/0/0/0/2/0|href=/task",
+          "NEW_ONLY A|#root/1/0/1/0/0/0/0/2/1|data-sf-m=home-publish-link,href=/item/new",
+          "NEW_ONLY A|#root/1/0/1/0/0/2/0/0/1|href=/task",
+          "NEW_ONLY A|#root/1/0/5/1/0/0/0|class=sf-msg-conv,data-sf-m=messages-conversation-item,href=/messages?msg=1&c=7",
+          "NEW_ONLY A|#root/1/0/5/1/0/0/1|class=sf-msg-conv,data-sf-m=messages-conversation-item,href=/messages?msg=1&c=8",
+          "NEW_ONLY A|#root/1/0/5/1/0/0/2|class=sf-msg-conv,data-sf-m=messages-conversation-item,href=/messages?msg=1&c=9",
+          "NEW_ONLY A|#root/1/0/5/1/1/0|INVISIBLE",
+          "NEW_ONLY BUTTON|#root/1/0/1/0/0/0/0/2/0/0|class=btn btn-a btn-lg px-8 py-3 text-lg"
+        ]
+      },
+      "diff_repeat_control": {
+        "oldA_vs_oldB": 2,
+        "newA_vs_newB": 2,
+        "oldRepeatShaEqual": false,
+        "newRepeatShaEqual": false
+      },
+      "rectDiff_old_vs_new": {
+        "movedCount": 23,
+        "sample": [
+          "DIV|#root/1|class=app-container gradient-bg @ 0,0,390,875 -> 0,0,390,1524",
+          "MAIN|#root/1/0/1|class=sf-route-container,data-sf-region=content,id=sf-route-container @ 0,65,390,397 -> 0,65,390,1046",
+          "DIV|#root/1/0/2|class=sf-region sf-region-foot,data-sf-region=footer @ 0,462,390,349 -> 0,1111,390,349",
+          "FOOTER|#root/1/0/2/0|class=bg-bg-secondary border-t border-border-color @ 0,462,390,349 -> 0,1111,390,349",
+          "DIV|#root/1/0/2/0/0|class=container mx-auto px-4 py-8 @ 0,463,390,348 -> 0,1112,390,348"
+        ]
+      }
+    }
+  },
+  "notes": [],
+  "counterfactual": {
+    "oldUrl": "/",
+    "newUrl": "/?msg=1",
+    "oldPanelPresent": false,
+    "newPanelPresent": true,
+    "diff": {
+      "onlyOld": 6,
+      "onlyNew": 38,
+      "total": 44,
+      "sample": [
+        "OLD_ONLY A|#root/1/0/2/0/0/1/0|class=sf-tap-inline text-sm text-primary font-medium,href=/",
+        "OLD_ONLY A|#root/1/0/2/0/0/1/1|class=sf-tap-inline text-sm text-text-secondary hover:text-text-primary,href=/en",
+        "OLD_ONLY A|#root/1/0/2/0/0/1/2|class=sf-tap-inline text-sm text-text-secondary hover:text-text-primary,href=/hk",
+        "OLD_ONLY A|#root/1/0/2/0/0/1/3|class=sf-tap-inline text-sm text-text-secondary hover:text-text-primary,href=/vn",
+        "OLD_ONLY DIV|#root/1/0|class=sf-shell,data-sf-region=shell,data-sf-shell=app",
+        "OLD_ONLY IMG|#root/1/0/2/0/0/0/1/0/0/0|alt=猫猫大使团｜不止一份报酬，更加一份经验。,class=h-[50px] w-auto object-contain",
+        "NEW_ONLY A|#root/1/0/2/0/0/1/0|class=sf-tap-inline text-sm text-primary font-medium,href=/?msg=1",
+        "NEW_ONLY A|#root/1/0/2/0/0/1/1|class=sf-tap-inline text-sm text-text-secondary hover:text-text-primary,href=/en?msg=1",
+        "NEW_ONLY A|#root/1/0/2/0/0/1/2|class=sf-tap-inline text-sm text-text-secondary hover:text-text-primary,href=/hk?msg=1",
+        "NEW_ONLY A|#root/1/0/2/0/0/1/3|class=sf-tap-inline text-sm text-text-secondary hover:text-text-primary,href=/vn?msg=1",
+        "NEW_ONLY A|#root/1/0/5/1/0/0/0|class=sf-msg-conv,data-sf-m=messages-conversation-item,href=/?msg=1&c=7",
+        "NEW_ONLY A|#root/1/0/5/1/0/0/1|class=sf-msg-conv,data-sf-m=messages-conversation-item,href=/?msg=1&c=8",
+        "NEW_ONLY A|#root/1/0/5/1/0/0/2|class=sf-msg-conv,data-sf-m=messages-conversation-item,href=/?msg=1&c=9",
+        "NEW_ONLY A|#root/1/0/5/1/1/0|INVISIBLE"
+      ]
+    },
+    "verdict_nonEmpty": true
+  },
+  "sensitivity": {
+    "method": "same dist, same url (/?msg=1), same viewport; only perturbation = injected `.sf-mp{display:none !important}`",
+    "normalPanelPresent": true,
+    "hiddenPanelPresent": true,
+    "normalKeys": 205,
+    "hiddenKeys": 205,
+    "diff": {
+      "onlyOld": 30,
+      "onlyNew": 30,
+      "total": 60,
+      "sample": [
+        "OLD_ONLY A|#root/1/0/5/1/0/0/0|class=sf-msg-conv,data-sf-m=messages-conversation-item,href=/?msg=1&c=7",
+        "OLD_ONLY A|#root/1/0/5/1/0/0/1|class=sf-msg-conv,data-sf-m=messages-conversation-item,href=/?msg=1&c=8",
+        "OLD_ONLY A|#root/1/0/5/1/0/0/2|class=sf-msg-conv,data-sf-m=messages-conversation-item,href=/?msg=1&c=9",
+        "OLD_ONLY BUTTON|#root/1/0/5/0/0|aria-label=关闭消息,class=sf-mp-close,data-sf-m=messages-panel-close,type=button",
+        "OLD_ONLY DIV|#root/1/0/5/0|class=sf-mp-head",
+        "OLD_ONLY DIV|#root/1/0/5/1/0/0|class=sf-msg-list,data-sf-m=messages-list",
+        "OLD_ONLY DIV|#root/1/0/5/1/0|class=sf-mp-list,data-sf-m=messages-panel-list",
+        "OLD_ONLY DIV|#root/1/0/5/1/1|class=sf-mp-thread,data-sf-m=messages-panel-thread",
+        "NEW_ONLY A|#root/1/0/5/1/0/0/0|INVISIBLE",
+        "NEW_ONLY A|#root/1/0/5/1/0/0/1|INVISIBLE",
+        "NEW_ONLY A|#root/1/0/5/1/0/0/2|INVISIBLE",
+        "NEW_ONLY BUTTON|#root/1/0/5/0/0|INVISIBLE",
+        "NEW_ONLY DIV|#root/1/0/5/0|INVISIBLE",
+        "NEW_ONLY DIV|#root/1/0/5/1/0/0|INVISIBLE",
+        "NEW_ONLY DIV|#root/1/0/5/1/0|INVISIBLE",
+        "NEW_ONLY DIV|#root/1/0/5/1/1|INVISIBLE"
+      ]
+    },
+    "verdict_nonEmpty": true
+  },
+  "pageErrors": {
+    "new": [],
+    "old": []
+  },
+  "consoleErrors": {
+    "new": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 1)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 1)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316"
+    ],
+    "old": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-B97aKkhG.js:1:5728)\n    at async Promise.all (index 0)\n    at async _ (http://sf.local/assets/index-B97aKkhG.js:1:29638)\n    at async http://sf.local/assets/index-B97aKkhG.js:1:30316",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-B97aKkhG.js:1:5728)\n    at async Promise.all (index 0)\n    at async _ (http://sf.local/assets/index-B97aKkhG.js:1:29638)\n    at async http://sf.local/assets/index-B97aKkhG.js:1:30316",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-B97aKkhG.js:1:5728)\n    at async Promise.all (index 0)\n    at async _ (http://sf.local/assets/index-B97aKkhG.js:1:29638)\n    at async http://sf.local/assets/index-B97aKkhG.js:1:30316",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-B97aKkhG.js:1:5728)\n    at async Promise.all (index 0)\n    at async _ (http://sf.local/assets/index-B97aKkhG.js:1:29638)\n    at async http://sf.local/assets/index-B97aKkhG.js:1:30316",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-B97aKkhG.js:1:5728)\n    at async Promise.all (index 0)\n    at async _ (http://sf.local/assets/index-B97aKkhG.js:1:29638)\n    at async http://sf.local/assets/index-B97aKkhG.js:1:30316",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ]
+  },
+  "normalization": {
+    "formula": "sha256(JSON({keyCount, keys(sorted), regions, panelPresent, elementCount}))",
+    "perPageSha256": {
+      "old": {
+        "1440/": "3be6b5735a61ac67b0d6370494d991683ad3de112d9788312d263b443598f985",
+        "1440/exchange": "21d020ad1827624d589acd89366a0b9630f88bc92b155c41be96a2727fffd037",
+        "1440/item/123": "b986f93774cbaed038884040f496d8e1c13f42b5b77eb7a6ebc109a249484bb1",
+        "1440/messages": "a2e651ca9254c8f40f48500ddecfea9a7a6589df2aa1bb72858701bcef27af98",
+        "390/": "c08e3829a5242d1c55000bfc727afc43e260fb429bd6b4f190933ff503728f30",
+        "390/exchange": "b9896b924691c37e66f3f5f3a7cde31f017989144f0d0d72de2572e44ca70d4a",
+        "390/item/123": "5742d7e7ff906725ab74ee74ac67119c01f5baa3dfc9a70b68e655721cbfa7c1",
+        "390/messages": "69ff0b5ea12c9580b44493a993ee805b074553d9715541da7d521f08338a5d07"
+      },
+      "new": {
+        "1440/": "4d0c7c8d701078352c184d27039ac65d425818b6058e4fe97566788713fa2137",
+        "1440/exchange": "21d020ad1827624d589acd89366a0b9630f88bc92b155c41be96a2727fffd037",
+        "1440/item/123": "b986f93774cbaed038884040f496d8e1c13f42b5b77eb7a6ebc109a249484bb1",
+        "1440/messages": "fb2fb1a9b3e43ad4a6fa695b15242b4d451ec9b60c6cb42263efd9a228e51f44",
+        "390/": "c08e3829a5242d1c55000bfc727afc43e260fb429bd6b4f190933ff503728f30",
+        "390/exchange": "5ede6fc67bf2f99cc60754cb8882e1403a7c2315f303b30114a7da28ed0bb92a",
+        "390/item/123": "5742d7e7ff906725ab74ee74ac67119c01f5baa3dfc9a70b68e655721cbfa7c1",
+        "390/messages": "13ec463c0f4d79b5914fd59e0e5702ba660fac285c0394f4afd1262a4c1277af"
+      }
+    }
+  },
+  "normalizedFile": "/Users/kevin/bistro/seafood/ops/v119-msg-panel/readings/attribution.normalized.json",
+  "normalizedSha256": "a71b7564159bbaa0e0aa92adc473b4317a1bbd6bb09e87ceb9d4625a20fa9f3a",
+  "finishedAt": "2026-10-16T13:22:10.200Z"
+}

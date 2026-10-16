@@ -1,0 +1,48 @@
+# AC-6 源码面读数 · 结构不变式（零新 data-sf-region / 零新 token / shell.css 一字不动 / 日夜间构）
+# 仓 = /Users/kevin/bistro/seafood · HEAD = fd34ca0 · 采集时间 = 2026-10-16T13:16:20Z
+
+$ grep -n 'data-sf-region=' frontend/src/shell/MessagesPanel.jsx
+(0 命中)
+
+$ grep -c 'data-sf-region=' frontend/src/shell/MessagesPanel.jsx
+0
+0
+
+$ grep -n 'data-sf-region' frontend/src/shell/messages-panel.css   # 注释里的词亦列出（判据只看属性形态 data-sf-region=）
+4: *   ① 面板**只用 `data-sf-m`**，不得新增任何 `data-sf-region`（五 region 严格相等断言）；
+
+$ grep -c 'data-sf-region=' frontend/src/shell/messages-panel.css
+0
+0
+
+$ grep -n 'data-sf-m' frontend/src/shell/MessagesPanel.jsx | wc -l
+23
+
+$ git diff --numstat -- frontend/src/theme frontend/src/theme-tokens.css frontend/src/shell/tokens.js
+
+$ git diff --numstat -- frontend/src/shell/shell.css
+
+$ shasum -a 256 frontend/src/shell/shell.css ; git show HEAD:frontend/src/shell/shell.css | shasum -a 256
+886ba2f5217572a5c270e54412cd7a6b9099f324835c21f751123a1a3616ebf3  frontend/src/shell/shell.css
+886ba2f5217572a5c270e54412cd7a6b9099f324835c21f751123a1a3616ebf3  -
+
+$ grep -c '@media' frontend/src/shell/shell.css
+1
+
+$ grep -n '767px' frontend/src/shell/shell.css
+71:     ★ 不得新增断点块 —— shell.css 仍只保留下方唯一的 (max-width:767px) 断点块。 */
+180:/* ---------- 竖屏骨架（≤767px）：栅格 2 列、侧栏下移、底部 tab 出现 ---------- */
+182:@media (max-width: 767px) {
+
+$ grep -c '\[data-theme' frontend/src/shell/shell.css
+0
+0
+
+$ git status --porcelain frontend/src/shell/messages-panel.css
+?? frontend/src/shell/messages-panel.css
+
+$ git status --porcelain frontend/src/theme frontend/src/shell/shell.css frontend/src/styles.css frontend/src/shell/tokens.js
+
+$ grep -c 'data-sf-region' frontend/src/shell/BottomTabBar.jsx frontend/src/shell/FloatingMenu.jsx
+frontend/src/shell/BottomTabBar.jsx:1
+frontend/src/shell/FloatingMenu.jsx:1

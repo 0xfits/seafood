@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { ChevronLeft } from 'lucide-react'
 import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
+import { withPanelParams } from '../../shell/messages-panel-routing'
 import { contentStatus, pickLocalized } from '../../i18n-content'
 import TranslatingBadge from '../../components/i18n/TranslatingBadge'
 import { buyListing, createListingBuyTracker, fetchListingDetail, listingBuyFingerprint } from './item-api'
@@ -53,8 +54,9 @@ const LISTING_STATUS_KEYS = ['draft', 'listed', 'delisted', 'frozen']
 // ★ v1.17 §20.2（`T100`）· 底部固定操作栏**第 3 格「聊一聊」激活**（N = 0 → 1）
 //   第 1 格「留言」/ 第 2 格「收藏」**仍不渲染、不预埋 DOM**（N43：不造无人消费的占位槽）。
 //   渲染条件（Zang 裁定② 2026-10-12 **就地取代 §20.3 末行的「未登录不渲染」口径**）：
-//     · 登录 ∧ 非卖家本人 ⇒ 渲染；点击 ⇒ `POST /api/messages/conversations`（自然幂等）后进会话详情
-//       （`/messages?c=<conversation_id>`；**路由路径不变**，见 §20.4）。
+//     · 登录 ∧ 非卖家本人 ⇒ 渲染；点击 ⇒ `POST /api/messages/conversations`（自然幂等）后**就地叠加**打开会话
+//       （**当前商品页** + `?msg=1&c=<conversation_id>` —— `pathname` 逐字不变、不换页；
+//        v1.19 §21 / route v2.34 §44.3 `Q4` 待裁项已由 Zang 2026-10-16 裁定为「方案 1 · 就地叠加」）。
 //     · 卖家本人 ⇒ **整格不渲染**（参会判定 = `F19` 的 `row.seller.uid` vs `user.uID`；
 //       服务端 `MSG_SELF_CONVERSATION` 双闸仍在）。
 //     · 未登录 ⇒ **渲染且不 disabled**，点击走**既有登录引导**（本仓既有受保护项口径 = 转
@@ -140,7 +142,11 @@ const ItemDetailPage = () => {
 
   // T100 第 3 格「聊一聊」：未登录 ⇒ 既有登录引导（转 `/login` + `state.from`，不新造弹层）；
   //   登录 ⇒ `POST /api/messages/conversations`（自然幂等：同 (listing_id, buyer_uid) 重放回既有 id）
-  //   ⇒ 成功后进会话详情（`/messages?c=<conversation_id>`，路由路径不变）。
+  //   ⇒ 成功后 **就地叠加**打开该会话：**当前商品页**加 `?msg=1&c=<conversation_id>`
+  //     （`pathname` 逐字不变 ⇒ 不换页、详情页原地左压，面板由外壳按 `T105` 判据挂载）。
+  //   ★ v1.19 §21 / route v2.34 §44.3（`Q4` 待裁项 · Zang 2026-10-16 裁定 = 「方案 1 · 就地叠加」）：
+  //     原 `navigate('/messages?c=<id>')`（换页到直链落点、`M4` 形态）**已被就地形态取代**；
+  //     POST 幂等 / 失败处置一字不动（`openConversation` 未改）。
   const onChat = async (event) => {
     event.preventDefault()
     if (chat.phase === 'loading') return
@@ -154,7 +160,7 @@ const ItemDetailPage = () => {
     try {
       const view = await openConversation(id, user)
       setChat({ phase: 'idle', message: '' })
-      navigate(`${root('/messages')}?c=${encodeURIComponent(String(view?.conversation_id ?? ''))}`)
+      navigate(withPanelParams(location, String(view?.conversation_id ?? '')))
     } catch (error) {
       setChat({ phase: 'error', message: String(error?.message || t('error')) })
     }

@@ -1,9 +1,10 @@
 import React from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { getLanguageFromUrl, stripLangPrefix } from '../utils'
 import { useAuth } from '../auth-context'
 import { isNavItemActive, navPathInLang, visibleNavItems } from './nav'
+import { withPanelParams } from './messages-panel-routing'
 // T103 未读角标（v1.17 §20.6）：共享态 = 外壳层（与桌面悬浮菜单**同源消费、同值**）；
 // 角标样式落 shell/badge.css（**不改 shell.css**，不新增断点块）。
 import { unreadBadgeText, useUnreadCount } from './unread-context'
@@ -24,9 +25,17 @@ const isItemDetailPath = (pathname) => {
 // 手机竖屏底部 tab 骨架（web 横屏由断点 CSS 隐藏，但**始终在 DOM 中**）。
 // 结构与比选页手机壳底栏同形：grid repeat(5,1fr) 的竖直 icon+label 单元
 // （docs/design/style-preview.html:169-174）。与顶栏复用同一份 SHELL_NAV_ITEMS 与同一可见性规则。
+//
+// ★ v1.19 §21（消息面板化 · 方案 1「就地叠加」· 入口①底栏第 4 格）：
+//   左键单击（`button === 0` 且无 ctrl/meta/shift/alt）⇒ `preventDefault()` + 在**当前路径**上加
+//   `?msg=1`（保留当前 search 里除 `c` / `msg` 外的参数）⇒ `navigate`（**不换页**、宿主页原地左压）；
+//   修饰键 / 中键 ⇒ **不拦截**，交给浏览器自然跳转（退化为 `/messages` 直链落点）。
+//   `href` **一字不改**（仍是 `/messages` / `/en/messages` …）；判据 / 参数构造 = `messages-panel-routing` 单一真源。
+//   ★ 本文件仍**零视口宽度判定**（只做路由串 + 查询串匹配）。
 const BottomTabBar = () => {
   const { t } = useTranslation()
   const location = useLocation()
+  const navigate = useNavigate()
   const { isAuthenticated } = useAuth()
   const lang = getLanguageFromUrl(location.pathname)
   const items = visibleNavItems(isAuthenticated)
@@ -37,6 +46,16 @@ const BottomTabBar = () => {
   const unreadBadge = unreadBadgeText(unreadTotal)
   // T95：仅详情路由追加 is-detail 修饰类；隐藏规则落 styles.css 顶层（具体性压过 767 断点块）
   const isDetail = isItemDetailPath(location.pathname)
+
+  // 入口①（底栏第 4 格）= **就地叠加**：当前路径 + `?msg=1`（不换页、不改 `href`）。
+  const onTabClick = (event, item) => {
+    if (item.key !== 'messages') return
+    if (event.button !== 0) return
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+    if (event.defaultPrevented) return
+    event.preventDefault()
+    navigate(withPanelParams(location))
+  }
 
   return (
     <nav className={`sf-tabbar${isDetail ? ' is-detail' : ''}`} data-sf-region="tabbar" aria-label={t('siteBrand')}>
@@ -50,6 +69,7 @@ const BottomTabBar = () => {
             className={`sf-tab${active ? ' is-active' : ''}`}
             data-sf-nav={item.key}
             aria-current={active ? 'page' : undefined}
+            onClick={(event) => onTabClick(event, item)}
           >
             <Icon className="sf-tab-ic" size={22} aria-hidden="true" />
             <span className="sf-tab-label">{t(item.labelKey)}</span>

@@ -1,0 +1,55 @@
+# AC-1 源码面读数 · 四入口保全 + href 一字不改 + T105 判据单一真源
+# 仓 = /Users/kevin/bistro/seafood · HEAD = fd34ca0 · 采集时间 = 2026-10-16T13:16:20Z
+
+$ grep -n "messages" frontend/src/shell/nav.js
+11://   messages → frontend/src/App.jsx  `path="messages"`（MessagesPage）· **本轮新登记路由 `/messages`**（占位页 · X/推特接驳位预留）
+23:  { key: 'messages', path: 'messages', route: 'messages', labelKey: 'messages', icon: MessageCircle },
+
+$ grep -n "messages" frontend/src/shell/FloatingMenu.jsx
+7:import { withPanelParams } from './messages-panel-routing'
+16:// · 五项由 上→下：卖闲置→/item/new · 消息→/messages · APP→弹窗 · 反馈→弹窗 · 客服→弹窗。
+24:  { key: 'messages', kind: 'link', path: 'messages', labelKey: 'messages', icon: MessageCircle },
+45:    if (item.key !== 'messages') return
+63:              {item.key === 'messages' && unreadBadge ? (
+67:                  aria-label={t('messagesPage.unreadA11y', { count: unreadTotal })}
+
+$ grep -n "withPanelParams\|openConversation" frontend/src/pages/item/ItemDetailPage.jsx
+7:import { withPanelParams } from '../../shell/messages-panel-routing'
+12:import { openConversation } from '../../messages-api'
+149:  //     POST 幂等 / 失败处置一字不动（`openConversation` 未改）。
+161:      const view = await openConversation(id, user)
+163:      navigate(withPanelParams(location, String(view?.conversation_id ?? '')))
+
+$ grep -n "site}/messages" backend-ts/src/messages-service.ts
+717:  const zhTail = `，打开 ${input.site}/messages 查看`;
+718:  const enHalf = ` / You have a new message, open ${input.site}/messages`;
+785:    //    包在中文引号「」内 ⇒ 「（来自会话：{掩码标题}）「{预览}」，打开 {site}/messages 查看」；
+786:    //    末尾「，打开 {site}/messages 查看」一字不删；**英文半段一字不改**（预览不重复）。
+
+$ grep -rn "isMessagesPanelOpen" frontend/src --include=*.js --include=*.jsx
+frontend/src/shell/MessagesPanel.jsx:9:  isMessagesPanelOpen,
+frontend/src/shell/MessagesPanel.jsx:39:// 判据：**单一真源** = `shell/messages-panel-routing.js` 的 `isMessagesPanelOpen`（`T105`，路由串匹配）；
+frontend/src/shell/MessagesPanel.jsx:71:  const open = isMessagesPanelOpen(location)
+frontend/src/shell/messages-panel-routing.js:24:export const isMessagesPanelOpen = (location) => {
+frontend/src/shell/AppShell.jsx:8:import { isMessagesPanelOpen } from './messages-panel-routing'
+frontend/src/shell/AppShell.jsx:19://   （判据 = `T105` 单一真源 `isMessagesPanelOpen`，路由串匹配；与面板组件共用同一份 ⇒ 零判据分叉）；
+frontend/src/shell/AppShell.jsx:24:  const panelOpen = isMessagesPanelOpen(location)
+
+$ grep -rn "matchMedia\|innerWidth\|innerHeight\|clientWidth\|offsetWidth\|screen.width" frontend/src/shell/*.js frontend/src/shell/*.jsx
+
+$ grep -cE '<Route' frontend/src/App.jsx
+42
+
+$ grep -oE '<Route[ >]' frontend/src/App.jsx | wc -l
+      34
+
+$ grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts
+105
+
+$ grep -n 'path="messages"\|import MessagesPage' frontend/src/App.jsx
+13:import MessagesPage from './pages/MessagesPage'
+119:        <Route path="messages" element={<MessagesPage />} />
+
+$ grep -rn 'data-sf-nav="messages"' frontend/src/shell/BottomTabBar.jsx frontend/src/shell/FloatingMenu.jsx
+5:frontend/src/shell/BottomTabBar.jsx:52:    if (item.key !== 'messages') return
+7:frontend/src/shell/BottomTabBar.jsx:78:            {item.key === 'messages' && unreadBadge ? (

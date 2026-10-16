@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PlusCircle, MessageCircle, Smartphone, Gauge, Headphones } from 'lucide-react'
 import { getLanguageFromUrl } from '../utils'
 import { navPathInLang } from './nav'
+import { withPanelParams } from './messages-panel-routing'
 // T103 未读角标（v1.17 §20.6）：与底栏**同源消费**（同一共享态、同值）；样式落 badge.css（不改 shell.css）。
 import { unreadBadgeText, useUnreadCount } from './unread-context'
 import './badge.css'
@@ -29,12 +30,25 @@ const FM_ITEMS = [
 const FloatingMenu = () => {
   const { t } = useTranslation()
   const location = useLocation()
+  const navigate = useNavigate()
   const lang = getLanguageFromUrl(location.pathname)
   const [openModal, setOpenModal] = useState(null)
   const closeModal = () => setOpenModal(null)
   // T103：桌面悬浮菜单「消息」项角标（与底栏第 4 格同源同值；`0` ⇒ 不渲染）。
   const { total: unreadTotal } = useUnreadCount()
   const unreadBadge = unreadBadgeText(unreadTotal)
+
+  // ★ v1.19 §21（入口②悬浮菜单「消息」）= **就地叠加**：左键单击（`button === 0` 且无 ctrl/meta/shift/alt）
+  //   ⇒ `preventDefault()` + 当前路径加 `?msg=1`（不换页）；修饰键 / 中键 ⇒ 不拦截（退化为直链落点）。
+  //   `href` **一字不改**；★ 零视口宽度判定（路由串 + 查询串匹配）。
+  const onMenuItemClick = (event, item) => {
+    if (item.key !== 'messages') return
+    if (event.button !== 0) return
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+    if (event.defaultPrevented) return
+    event.preventDefault()
+    navigate(withPanelParams(location))
+  }
 
   return (
     <>
@@ -64,6 +78,7 @@ const FloatingMenu = () => {
                   data-sf-m="floatmenu-item"
                   data-sf-fm={item.key}
                   to={navPathInLang({ path: item.path }, lang)}
+                  onClick={(event) => onMenuItemClick(event, item)}
                 >
                   {body}
                 </Link>

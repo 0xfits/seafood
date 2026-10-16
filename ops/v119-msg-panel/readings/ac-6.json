@@ -1,0 +1,146 @@
+{
+  "spec": "docs/design/design-system.spec.md v1.19 §21.8 AC-6（结构不变式）",
+  "head": "fd34ca0babe5bb6f004e8ed7c4efd3a66143a54e",
+  "headShort": "fd34ca0",
+  "collectedAt": "2026-10-16T13:16:20.593Z",
+  "zeroNewRegion": {
+    "MessagesPanel.jsx `data-sf-region=` 属性命中": 0,
+    "messages-panel.css `data-sf-region=` 属性命中": 0,
+    "MessagesPanel.jsx 注释中提到该词的行": [
+      "38://   `messages-panel-close`（面板左上「×」）。★ **只用 `data-sf-m`** —— 不得新增任何 `data-sf-region`。"
+    ],
+    "messages-panel.css 注释中提到该词的行": [
+      "4: *   ① 面板**只用 `data-sf-m`**，不得新增任何 `data-sf-region`（五 region 严格相等断言）；"
+    ],
+    "MessagesPanel.jsx `data-sf-m` 命中数": 23,
+    "pass": true,
+    "note": "判据 = **属性形态** `data-sf-region=`（注释里出现该词不算，且实现侧注释本身就是在自我约束「不得新增」）"
+  },
+  "fiveRegionsStrictEqual": {
+    "expected": [
+      "shell",
+      "topnav",
+      "content",
+      "footer",
+      "tabbar"
+    ],
+    "perState": {
+      "1440_home_closed": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "1440_exchange_msg_open_list": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "1440_item_msg_open_thread": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "1440_messages_direct": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "1440_messages_direct_thread": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "1199_exchange_msg_open_list": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "1024_exchange_msg_open_list": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "768_exchange_msg_open_list": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "767_messages_msg_list": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "390_messages_msg_list": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "390_messages_msg_thread": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "375_messages_msg_list": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "320_messages_msg_thread": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ]
+    },
+    "allEqual": true,
+    "pass": true
+  },
+  "zeroNewToken": {
+    "themeDirDiffNumstat": "",
+    "pass": true
+  },
+  "shellCssUntouched": {
+    "diffNumstat": "",
+    "worktreeSha256": "886ba2f5217572a5c270e54412cd7a6b9099f324835c21f751123a1a3616ebf3",
+    "headSha256": "886ba2f5217572a5c270e54412cd7a6b9099f324835c21f751123a1a3616ebf3",
+    "identical": true,
+    "pass": true
+  },
+  "shellCssMedia": {
+    "count": 1,
+    "has767": true
+  },
+  "shellCssNoThemeAttr": {
+    "count": 0
+  },
+  "panelCssIsNewFile": "?? frontend/src/shell/messages-panel.css",
+  "dayNightIsomorphism": {
+    "source": "ops/v119-msg-panel/readings/geometry.json → themeShape",
+    "see": "geometry.json"
+  }
+}

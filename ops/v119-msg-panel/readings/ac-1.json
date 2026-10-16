@@ -1,0 +1,69 @@
+{
+  "spec": "docs/design/design-system.spec.md v1.19 §21.8 AC-1（四入口不减 / href 一字不改）",
+  "head": "fd34ca0babe5bb6f004e8ed7c4efd3a66143a54e",
+  "headShort": "fd34ca0",
+  "collectedAt": "2026-10-16T13:16:20.526Z",
+  "entry1_tabbar_href": {
+    "anchor": "theme-shell-isomorphism.test.jsx:97 · tabHrefs 含 /messages",
+    "navJsLines": [
+      "11://   messages → frontend/src/App.jsx  `path=\"messages\"`（MessagesPage）· **本轮新登记路由 `/messages`**（占位页 · X/推特接驳位预留）",
+      "23:  { key: 'messages', path: 'messages', route: 'messages', labelKey: 'messages', icon: MessageCircle },"
+    ],
+    "grep": "grep -nE \"messages\" frontend/src/shell/nav.js",
+    "pass": true,
+    "note": "单一真源 nav.js ⇒ navPathInLang 产出 `/messages`（zh）/ `/en/messages`；BottomTabBar 的 onClick 只 preventDefault（不改 href）",
+    "runtimeHref": "geometry.json → entryWiring.tabBefore.href（现取）"
+  },
+  "entry2_floatmenu_href": {
+    "anchor": "v15-nav-floatmenu.test.jsx:138 / :149",
+    "lines": [
+      "24:  { key: 'messages', kind: 'link', path: 'messages', labelKey: 'messages', icon: MessageCircle },"
+    ],
+    "pass": true,
+    "runtimeHref": "geometry.json → entryWiring.floatMenuBefore.href = /messages（现取）"
+  },
+  "entry3_itemdetail_chat": {
+    "anchor": "ItemDetailPage.jsx:157 现取 = navigate(`/messages?c=`；**本单口径外延 ①** ⇒ 已改就地叠加 withPanelParams(location, id)",
+    "lines": [
+      "7:import { withPanelParams } from '../../shell/messages-panel-routing'",
+      "12:import { openConversation } from '../../messages-api'",
+      "149:  //     POST 幂等 / 失败处置一字不动（`openConversation` 未改）。",
+      "161:      const view = await openConversation(id, user)",
+      "163:      navigate(withPanelParams(location, String(view?.conversation_id ?? '')))"
+    ],
+    "pass": true,
+    "drift": "规范 AC-1③ 字面「navigate 字面含 /messages?c=」已被 Zang 2026-10-16 裁定「方案 1 · 就地叠加」取代（§21.11 Q4 已裁）⇒ 待 Jing 勘误级补登；其 toContain('/messages?c=') 型锚不得采用"
+  },
+  "entry4_telegram_notification": {
+    "anchor": "messages-service.ts:717 / :718",
+    "lines": [
+      "717:  const zhTail = `，打开 ${input.site}/messages 查看`;",
+      "718:  const enHalf = ` / You have a new message, open ${input.site}/messages`;",
+      "785:    //    包在中文引号「」内 ⇒ 「（来自会话：{掩码标题}）「{预览}」，打开 {site}/messages 查看」；",
+      "786:    //    末尾「，打开 {site}/messages 查看」一字不删；**英文半段一字不改**（预览不重复）。"
+    ],
+    "pass": true
+  },
+  "t105_single_source": {
+    "predicateDef": "frontend/src/shell/messages-panel-routing.js:24 isMessagesPanelOpen",
+    "consumers": [
+      "8",
+      "19",
+      "24",
+      "9",
+      "39",
+      "71"
+    ],
+    "pass": true,
+    "shellJsZeroWidthWords": true,
+    "widthWordsOutput": ""
+  },
+  "routeCounts": {
+    "frontendRouteLiteral": 42,
+    "frontendRouteExact": 34,
+    "backendRegistrations": 105,
+    "appJsMessagesRoute": [
+      "119:        <Route path=\"messages\" element={<MessagesPage />} />"
+    ]
+  }
+}

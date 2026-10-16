@@ -1172,7 +1172,8 @@
     "loadMore": "Tải thêm",
     "loadFailed": "Tải thất bại, vui lòng thử lại",
     "notFound": "Không tìm thấy hội thoại",
-    "unreadA11y": "{{count}} chưa đọc"
+    "unreadA11y": "{{count}} chưa đọc",
+    "close": "Đóng tin nhắn"
   },
   "appModal": {
     "title": "Tải ứng dụng",

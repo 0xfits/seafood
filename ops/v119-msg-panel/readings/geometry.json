@@ -1,0 +1,2920 @@
+{
+  "startedAt": "2026-10-16T13:22:03.167Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "chrome": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "zeroDbWrite": true,
+  "fixtures": {
+    "authSource": "localStorage only",
+    "apiSource": "page.route in-probe JSON (no backend)",
+    "unreadTotal": 250,
+    "convRows": 3,
+    "myUid": 970213
+  },
+  "states": {
+    "1440_home_closed": {
+      "url": "/",
+      "pathname": "/",
+      "search": "",
+      "historyLength": 2,
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "docEl": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 1284,
+        "clientHeight": 900
+      },
+      "overflowPx": 0,
+      "scrollY": 0,
+      "rootChildren": 2,
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "shellClass": "sf-shell",
+      "panelPresent": false,
+      "panelVisible": false,
+      "panel": null,
+      "panelBodyClass": null,
+      "panelTitleText": null,
+      "panelAriaLabel": null,
+      "fm": {
+        "x": 1352,
+        "y": 165,
+        "w": 72,
+        "h": 480,
+        "left": 1352,
+        "right": 1424,
+        "top": 165,
+        "bottom": 645
+      },
+      "fmVisible": true,
+      "fmDisplay": "flex",
+      "fmUnreadBadgeText": "99+",
+      "tabUnreadBadgeText": "99+",
+      "intersectArea": 0,
+      "gapToFloatMenu": null,
+      "content": {
+        "x": 0,
+        "y": 65,
+        "w": 1440,
+        "h": 914,
+        "left": 0,
+        "right": 1440,
+        "top": 65,
+        "bottom": 979
+      },
+      "contentRightVsPanelLeft": null,
+      "listCol": null,
+      "listColDisplay": null,
+      "threadCol": null,
+      "threadColDisplay": null,
+      "closeBtn": null,
+      "closeBtnAria": null,
+      "backLink": null,
+      "backDisplay": null,
+      "backText": null,
+      "sendBtn": null,
+      "sendBtnText": null,
+      "sendBtnDisabled": null,
+      "inputPlaceholder": null,
+      "hookSet": [],
+      "placeholderHooks": 0,
+      "legacyPageHook": 0,
+      "elementCount": 203,
+      "theme": "light",
+      "convRowCount": 0,
+      "convRows": [],
+      "badgeCount": 0,
+      "badges": [],
+      "mineCount": 0,
+      "mineTexts": [],
+      "theirsCount": 0,
+      "theirsTexts": [],
+      "aboutText": null,
+      "listEmptyText": null,
+      "detailEmptyText": null,
+      "loadMoreCount": 0,
+      "expectPanel": false,
+      "assert_no_panel": true
+    },
+    "1440_exchange_msg_open_list": {
+      "url": "/exchange?msg=1",
+      "pathname": "/exchange",
+      "search": "?msg=1",
+      "historyLength": 3,
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "docEl": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 1060,
+        "clientHeight": 900
+      },
+      "overflowPx": 0,
+      "scrollY": 0,
+      "rootChildren": 2,
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "shellClass": "sf-shell sf-shell--msg-open",
+      "panelPresent": true,
+      "panelVisible": true,
+      "panel": {
+        "x": 736,
+        "y": 0,
+        "w": 600,
+        "h": 900,
+        "left": 736,
+        "right": 1336,
+        "top": 0,
+        "bottom": 900
+      },
+      "panelBodyClass": "sf-mp-body",
+      "panelTitleText": "消息",
+      "panelAriaLabel": "消息",
+      "fm": {
+        "x": 1352,
+        "y": 165,
+        "w": 72,
+        "h": 480,
+        "left": 1352,
+        "right": 1424,
+        "top": 165,
+        "bottom": 645
+      },
+      "fmVisible": true,
+      "fmDisplay": "flex",
+      "fmUnreadBadgeText": "99+",
+      "tabUnreadBadgeText": "99+",
+      "intersectArea": 0,
+      "gapToFloatMenu": 16,
+      "content": {
+        "x": 0,
+        "y": 65,
+        "w": 736,
+        "h": 690,
+        "left": 0,
+        "right": 736,
+        "top": 65,
+        "bottom": 755
+      },
+      "contentRightVsPanelLeft": 0,
+      "listCol": {
+        "x": 736,
+        "y": 51,
+        "w": 240,
+        "h": 849,
+        "left": 736,
+        "right": 976,
+        "top": 51,
+        "bottom": 900
+      },
+      "listColDisplay": "flex",
+      "threadCol": {
+        "x": 976,
+        "y": 51,
+        "w": 360,
+        "h": 849,
+        "left": 976,
+        "right": 1336,
+        "top": 51,
+        "bottom": 900
+      },
+      "threadColDisplay": "flex",
+      "closeBtn": {
+        "x": 748,
+        "y": 8,
+        "w": 34,
+        "h": 34,
+        "left": 748,
+        "right": 782,
+        "top": 8,
+        "bottom": 42
+      },
+      "closeBtnAria": "关闭消息",
+      "backLink": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "backDisplay": "none",
+      "backText": "返回消息列表",
+      "sendBtn": null,
+      "sendBtnText": null,
+      "sendBtnDisabled": null,
+      "inputPlaceholder": null,
+      "hookSet": [
+        "messages-back",
+        "messages-conversation-item",
+        "messages-conversation-item",
+        "messages-conversation-item",
+        "messages-conversation-unread",
+        "messages-conversation-unread",
+        "messages-detail-empty",
+        "messages-list",
+        "messages-load-more",
+        "messages-panel",
+        "messages-panel-close",
+        "messages-panel-list",
+        "messages-panel-thread"
+      ],
+      "placeholderHooks": 0,
+      "legacyPageHook": 0,
+      "elementCount": 239,
+      "theme": "light",
+      "convRowCount": 3,
+      "convRows": [
+        {
+          "peer": "#970301",
+          "title": "FIXTURE 商品 A",
+          "preview": "FIXTURE 预览一",
+          "href": "/exchange?msg=1&c=7",
+          "rect": {
+            "w": 215,
+            "h": 97
+          }
+        },
+        {
+          "peer": "#970302",
+          "title": "FIXTURE 商品 B",
+          "preview": "FIXTURE 预览二",
+          "href": "/exchange?msg=1&c=8",
+          "rect": {
+            "w": 215,
+            "h": 97
+          }
+        },
+        {
+          "peer": "#970303",
+          "title": "FIXTURE 商品 C",
+          "preview": "FIXTURE 预览三",
+          "href": "/exchange?msg=1&c=9",
+          "rect": {
+            "w": 215,
+            "h": 97
+          }
+        }
+      ],
+      "badgeCount": 2,
+      "badges": [
+        {
+          "text": "99+",
+          "aria": "250 条未读",
+          "rect": {
+            "w": 29.61,
+            "h": 16
+          }
+        },
+        {
+          "text": "3",
+          "aria": "3 条未读",
+          "rect": {
+            "w": 16,
+            "h": 16
+          }
+        }
+      ],
+      "mineCount": 0,
+      "mineTexts": [],
+      "theirsCount": 0,
+      "theirsTexts": [],
+      "aboutText": null,
+      "listEmptyText": null,
+      "detailEmptyText": "还没有消息，发第一条吧",
+      "loadMoreCount": 1,
+      "expectPanel": true,
+      "assertions": {
+        "panelWidth": 600,
+        "panelRightOffset": 104,
+        "leftColW": 240,
+        "rightColW": 360,
+        "leftPlusRight": 600,
+        "leftPlusRightEqPanelW": true,
+        "gapToFloatMenu": 16,
+        "intersectZero": true,
+        "zeroHorizontalOverflow": true,
+        "contentRightLePanelLeft": true
+      }
+    },
+    "1440_item_msg_open_thread": {
+      "url": "/item/123?msg=1&c=7",
+      "pathname": "/item/123",
+      "search": "?msg=1&c=7",
+      "historyLength": 4,
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "docEl": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 900,
+        "clientHeight": 900
+      },
+      "overflowPx": 0,
+      "scrollY": 0,
+      "rootChildren": 2,
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "shellClass": "sf-shell sf-shell--msg-open",
+      "panelPresent": true,
+      "panelVisible": true,
+      "panel": {
+        "x": 736,
+        "y": 0,
+        "w": 600,
+        "h": 900,
+        "left": 736,
+        "right": 1336,
+        "top": 0,
+        "bottom": 900
+      },
+      "panelBodyClass": "sf-mp-body sf-mp-body--thread",
+      "panelTitleText": "消息",
+      "panelAriaLabel": "消息",
+      "fm": {
+        "x": 1352,
+        "y": 165,
+        "w": 72,
+        "h": 480,
+        "left": 1352,
+        "right": 1424,
+        "top": 165,
+        "bottom": 645
+      },
+      "fmVisible": true,
+      "fmDisplay": "flex",
+      "fmUnreadBadgeText": "99+",
+      "tabUnreadBadgeText": "99+",
+      "intersectArea": 0,
+      "gapToFloatMenu": 16,
+      "content": {
+        "x": 0,
+        "y": 65,
+        "w": 736,
+        "h": 530,
+        "left": 0,
+        "right": 736,
+        "top": 65,
+        "bottom": 595
+      },
+      "contentRightVsPanelLeft": 0,
+      "listCol": {
+        "x": 736,
+        "y": 51,
+        "w": 240,
+        "h": 849,
+        "left": 736,
+        "right": 976,
+        "top": 51,
+        "bottom": 900
+      },
+      "listColDisplay": "flex",
+      "threadCol": {
+        "x": 976,
+        "y": 51,
+        "w": 360,
+        "h": 849,
+        "left": 976,
+        "right": 1336,
+        "top": 51,
+        "bottom": 900
+      },
+      "threadColDisplay": "flex",
+      "closeBtn": {
+        "x": 748,
+        "y": 8,
+        "w": 34,
+        "h": 34,
+        "left": 748,
+        "right": 782,
+        "top": 8,
+        "bottom": 42
+      },
+      "closeBtnAria": "关闭消息",
+      "backLink": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "backDisplay": "none",
+      "backText": "返回消息列表",
+      "sendBtn": {
+        "x": 1272,
+        "y": 212,
+        "w": 52,
+        "h": 37.5,
+        "left": 1272,
+        "right": 1324,
+        "top": 212,
+        "bottom": 249.5
+      },
+      "sendBtnText": "发送",
+      "sendBtnDisabled": true,
+      "inputPlaceholder": "输入消息…",
+      "hookSet": [
+        "messages-about",
+        "messages-back",
+        "messages-input",
+        "messages-input-row",
+        "messages-list-status",
+        "messages-msg-mine",
+        "messages-msg-theirs",
+        "messages-panel",
+        "messages-panel-close",
+        "messages-panel-list",
+        "messages-panel-thread",
+        "messages-send-btn",
+        "messages-thread"
+      ],
+      "placeholderHooks": 0,
+      "legacyPageHook": 0,
+      "elementCount": 179,
+      "theme": "light",
+      "convRowCount": 0,
+      "convRows": [],
+      "badgeCount": 0,
+      "badges": [],
+      "mineCount": 1,
+      "mineTexts": [
+        "FIXTURE 我的消息一"
+      ],
+      "theirsCount": 1,
+      "theirsTexts": [
+        "FIXTURE 对方消息一"
+      ],
+      "aboutText": "关于：FIXTURE 商品 A",
+      "listEmptyText": null,
+      "detailEmptyText": null,
+      "loadMoreCount": 0,
+      "expectPanel": true,
+      "assertions": {
+        "panelWidth": 600,
+        "panelRightOffset": 104,
+        "leftColW": 240,
+        "rightColW": 360,
+        "leftPlusRight": 600,
+        "leftPlusRightEqPanelW": true,
+        "gapToFloatMenu": 16,
+        "intersectZero": true,
+        "zeroHorizontalOverflow": true,
+        "contentRightLePanelLeft": true
+      }
+    },
+    "1440_messages_direct": {
+      "url": "/messages",
+      "pathname": "/messages",
+      "search": "",
+      "historyLength": 5,
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "docEl": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 1284,
+        "clientHeight": 900
+      },
+      "overflowPx": 0,
+      "scrollY": 0,
+      "rootChildren": 2,
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "shellClass": "sf-shell sf-shell--msg-open",
+      "panelPresent": true,
+      "panelVisible": true,
+      "panel": {
+        "x": 736,
+        "y": 0,
+        "w": 600,
+        "h": 900,
+        "left": 736,
+        "right": 1336,
+        "top": 0,
+        "bottom": 900
+      },
+      "panelBodyClass": "sf-mp-body",
+      "panelTitleText": "消息",
+      "panelAriaLabel": "消息",
+      "fm": {
+        "x": 1352,
+        "y": 165,
+        "w": 72,
+        "h": 480,
+        "left": 1352,
+        "right": 1424,
+        "top": 165,
+        "bottom": 645
+      },
+      "fmVisible": true,
+      "fmDisplay": "flex",
+      "fmUnreadBadgeText": "99+",
+      "tabUnreadBadgeText": "99+",
+      "intersectArea": 0,
+      "gapToFloatMenu": 16,
+      "content": {
+        "x": 0,
+        "y": 65,
+        "w": 736,
+        "h": 914,
+        "left": 0,
+        "right": 736,
+        "top": 65,
+        "bottom": 979
+      },
+      "contentRightVsPanelLeft": 0,
+      "listCol": {
+        "x": 736,
+        "y": 51,
+        "w": 240,
+        "h": 849,
+        "left": 736,
+        "right": 976,
+        "top": 51,
+        "bottom": 900
+      },
+      "listColDisplay": "flex",
+      "threadCol": {
+        "x": 976,
+        "y": 51,
+        "w": 360,
+        "h": 849,
+        "left": 976,
+        "right": 1336,
+        "top": 51,
+        "bottom": 900
+      },
+      "threadColDisplay": "flex",
+      "closeBtn": {
+        "x": 748,
+        "y": 8,
+        "w": 34,
+        "h": 34,
+        "left": 748,
+        "right": 782,
+        "top": 8,
+        "bottom": 42
+      },
+      "closeBtnAria": "关闭消息",
+      "backLink": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "backDisplay": "none",
+      "backText": "返回消息列表",
+      "sendBtn": null,
+      "sendBtnText": null,
+      "sendBtnDisabled": null,
+      "inputPlaceholder": null,
+      "hookSet": [
+        "messages-back",
+        "messages-conversation-item",
+        "messages-conversation-item",
+        "messages-conversation-item",
+        "messages-conversation-unread",
+        "messages-conversation-unread",
+        "messages-detail-empty",
+        "messages-list",
+        "messages-load-more",
+        "messages-panel",
+        "messages-panel-close",
+        "messages-panel-list",
+        "messages-panel-thread"
+      ],
+      "placeholderHooks": 0,
+      "legacyPageHook": 0,
+      "elementCount": 236,
+      "theme": "light",
+      "convRowCount": 3,
+      "convRows": [
+        {
+          "peer": "#970301",
+          "title": "FIXTURE 商品 A",
+          "preview": "FIXTURE 预览一",
+          "href": "/messages?msg=1&c=7",
+          "rect": {
+            "w": 215,
+            "h": 97
+          }
+        },
+        {
+          "peer": "#970302",
+          "title": "FIXTURE 商品 B",
+          "preview": "FIXTURE 预览二",
+          "href": "/messages?msg=1&c=8",
+          "rect": {
+            "w": 215,
+            "h": 97
+          }
+        },
+        {
+          "peer": "#970303",
+          "title": "FIXTURE 商品 C",
+          "preview": "FIXTURE 预览三",
+          "href": "/messages?msg=1&c=9",
+          "rect": {
+            "w": 215,
+            "h": 97
+          }
+        }
+      ],
+      "badgeCount": 2,
+      "badges": [
+        {
+          "text": "99+",
+          "aria": "250 条未读",
+          "rect": {
+            "w": 29.61,
+            "h": 16
+          }
+        },
+        {
+          "text": "3",
+          "aria": "3 条未读",
+          "rect": {
+            "w": 16,
+            "h": 16
+          }
+        }
+      ],
+      "mineCount": 0,
+      "mineTexts": [],
+      "theirsCount": 0,
+      "theirsTexts": [],
+      "aboutText": null,
+      "listEmptyText": null,
+      "detailEmptyText": "还没有消息，发第一条吧",
+      "loadMoreCount": 1,
+      "expectPanel": true,
+      "assertions": {
+        "panelWidth": 600,
+        "panelRightOffset": 104,
+        "leftColW": 240,
+        "rightColW": 360,
+        "leftPlusRight": 600,
+        "leftPlusRightEqPanelW": true,
+        "gapToFloatMenu": 16,
+        "intersectZero": true,
+        "zeroHorizontalOverflow": true,
+        "contentRightLePanelLeft": true
+      }
+    },
+    "1440_messages_direct_thread": {
+      "url": "/messages?c=7",
+      "pathname": "/messages",
+      "search": "?c=7",
+      "historyLength": 6,
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "docEl": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 1284,
+        "clientHeight": 900
+      },
+      "overflowPx": 0,
+      "scrollY": 0,
+      "rootChildren": 2,
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "shellClass": "sf-shell sf-shell--msg-open",
+      "panelPresent": true,
+      "panelVisible": true,
+      "panel": {
+        "x": 736,
+        "y": 0,
+        "w": 600,
+        "h": 900,
+        "left": 736,
+        "right": 1336,
+        "top": 0,
+        "bottom": 900
+      },
+      "panelBodyClass": "sf-mp-body sf-mp-body--thread",
+      "panelTitleText": "消息",
+      "panelAriaLabel": "消息",
+      "fm": {
+        "x": 1352,
+        "y": 165,
+        "w": 72,
+        "h": 480,
+        "left": 1352,
+        "right": 1424,
+        "top": 165,
+        "bottom": 645
+      },
+      "fmVisible": true,
+      "fmDisplay": "flex",
+      "fmUnreadBadgeText": "99+",
+      "tabUnreadBadgeText": "99+",
+      "intersectArea": 0,
+      "gapToFloatMenu": 16,
+      "content": {
+        "x": 0,
+        "y": 65,
+        "w": 736,
+        "h": 914,
+        "left": 0,
+        "right": 736,
+        "top": 65,
+        "bottom": 979
+      },
+      "contentRightVsPanelLeft": 0,
+      "listCol": {
+        "x": 736,
+        "y": 51,
+        "w": 240,
+        "h": 849,
+        "left": 736,
+        "right": 976,
+        "top": 51,
+        "bottom": 900
+      },
+      "listColDisplay": "flex",
+      "threadCol": {
+        "x": 976,
+        "y": 51,
+        "w": 360,
+        "h": 849,
+        "left": 976,
+        "right": 1336,
+        "top": 51,
+        "bottom": 900
+      },
+      "threadColDisplay": "flex",
+      "closeBtn": {
+        "x": 748,
+        "y": 8,
+        "w": 34,
+        "h": 34,
+        "left": 748,
+        "right": 782,
+        "top": 8,
+        "bottom": 42
+      },
+      "closeBtnAria": "关闭消息",
+      "backLink": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "backDisplay": "none",
+      "backText": "返回消息列表",
+      "sendBtn": {
+        "x": 1272,
+        "y": 212,
+        "w": 52,
+        "h": 37.5,
+        "left": 1272,
+        "right": 1324,
+        "top": 212,
+        "bottom": 249.5
+      },
+      "sendBtnText": "发送",
+      "sendBtnDisabled": true,
+      "inputPlaceholder": "输入消息…",
+      "hookSet": [
+        "messages-about",
+        "messages-back",
+        "messages-input",
+        "messages-input-row",
+        "messages-list-status",
+        "messages-msg-mine",
+        "messages-msg-theirs",
+        "messages-panel",
+        "messages-panel-close",
+        "messages-panel-list",
+        "messages-panel-thread",
+        "messages-send-btn",
+        "messages-thread"
+      ],
+      "placeholderHooks": 0,
+      "legacyPageHook": 0,
+      "elementCount": 224,
+      "theme": "light",
+      "convRowCount": 0,
+      "convRows": [],
+      "badgeCount": 0,
+      "badges": [],
+      "mineCount": 1,
+      "mineTexts": [
+        "FIXTURE 我的消息一"
+      ],
+      "theirsCount": 1,
+      "theirsTexts": [
+        "FIXTURE 对方消息一"
+      ],
+      "aboutText": "关于：FIXTURE 商品 A",
+      "listEmptyText": null,
+      "detailEmptyText": null,
+      "loadMoreCount": 0,
+      "expectPanel": true,
+      "assertions": {
+        "panelWidth": 600,
+        "panelRightOffset": 104,
+        "leftColW": 240,
+        "rightColW": 360,
+        "leftPlusRight": 600,
+        "leftPlusRightEqPanelW": true,
+        "gapToFloatMenu": 16,
+        "intersectZero": true,
+        "zeroHorizontalOverflow": true,
+        "contentRightLePanelLeft": true
+      }
+    },
+    "1199_exchange_msg_open_list": {
+      "url": "/exchange?msg=1",
+      "pathname": "/exchange",
+      "search": "?msg=1",
+      "historyLength": 7,
+      "viewport": {
+        "w": 1199,
+        "h": 900
+      },
+      "docEl": {
+        "scrollWidth": 1199,
+        "clientWidth": 1199,
+        "scrollHeight": 1982,
+        "clientHeight": 900
+      },
+      "overflowPx": 0,
+      "scrollY": 0,
+      "rootChildren": 2,
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "shellClass": "sf-shell sf-shell--msg-open",
+      "panelPresent": true,
+      "panelVisible": true,
+      "panel": {
+        "x": 495,
+        "y": 0,
+        "w": 600,
+        "h": 900,
+        "left": 495,
+        "right": 1095,
+        "top": 0,
+        "bottom": 900
+      },
+      "panelBodyClass": "sf-mp-body",
+      "panelTitleText": "消息",
+      "panelAriaLabel": "消息",
+      "fm": {
+        "x": 1111,
+        "y": 165,
+        "w": 72,
+        "h": 480,
+        "left": 1111,
+        "right": 1183,
+        "top": 165,
+        "bottom": 645
+      },
+      "fmVisible": true,
+      "fmDisplay": "flex",
+      "fmUnreadBadgeText": "99+",
+      "tabUnreadBadgeText": "99+",
+      "intersectArea": 0,
+      "gapToFloatMenu": 16,
+      "content": {
+        "x": 0,
+        "y": 65,
+        "w": 495,
+        "h": 1611.5,
+        "left": 0,
+        "right": 495,
+        "top": 65,
+        "bottom": 1676.5
+      },
+      "contentRightVsPanelLeft": 0,
+      "listCol": {
+        "x": 495,
+        "y": 51,
+        "w": 240,
+        "h": 849,
+        "left": 495,
+        "right": 735,
+        "top": 51,
+        "bottom": 900
+      },
+      "listColDisplay": "flex",
+      "threadCol": {
+        "x": 735,
+        "y": 51,
+        "w": 360,
+        "h": 849,
+        "left": 735,
+        "right": 1095,
+        "top": 51,
+        "bottom": 900
+      },
+      "threadColDisplay": "flex",
+      "closeBtn": {
+        "x": 507,
+        "y": 8,
+        "w": 34,
+        "h": 34,
+        "left": 507,
+        "right": 541,
+        "top": 8,
+        "bottom": 42
+      },
+      "closeBtnAria": "关闭消息",
+      "backLink": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "backDisplay": "none",
+      "backText": "返回消息列表",
+      "sendBtn": null,
+      "sendBtnText": null,
+      "sendBtnDisabled": null,
+      "inputPlaceholder": null,
+      "hookSet": [
+        "messages-back",
+        "messages-conversation-item",
+        "messages-conversation-item",
+        "messages-conversation-item",
+        "messages-conversation-unread",
+        "messages-conversation-unread",
+        "messages-detail-empty",
+        "messages-list",
+        "messages-load-more",
+        "messages-panel",
+        "messages-panel-close",
+        "messages-panel-list",
+        "messages-panel-thread"
+      ],
+      "placeholderHooks": 0,
+      "legacyPageHook": 0,
+      "elementCount": 239,
+      "theme": "light",
+      "convRowCount": 3,
+      "convRows": [
+        {
+          "peer": "#970301",
+          "title": "FIXTURE 商品 A",
+          "preview": "FIXTURE 预览一",
+          "href": "/exchange?msg=1&c=7",
+          "rect": {
+            "w": 215,
+            "h": 97
+          }
+        },
+        {
+          "peer": "#970302",
+          "title": "FIXTURE 商品 B",
+          "preview": "FIXTURE 预览二",
+          "href": "/exchange?msg=1&c=8",
+          "rect": {
+            "w": 215,
+            "h": 97
+          }
+        },
+        {
+          "peer": "#970303",
+          "title": "FIXTURE 商品 C",
+          "preview": "FIXTURE 预览三",
+          "href": "/exchange?msg=1&c=9",
+          "rect": {
+            "w": 215,
+            "h": 97
+          }
+        }
+      ],
+      "badgeCount": 2,
+      "badges": [
+        {
+          "text": "99+",
+          "aria": "250 条未读",
+          "rect": {
+            "w": 29.61,
+            "h": 16
+          }
+        },
+        {
+          "text": "3",
+          "aria": "3 条未读",
+          "rect": {
+            "w": 16,
+            "h": 16
+          }
+        }
+      ],
+      "mineCount": 0,
+      "mineTexts": [],
+      "theirsCount": 0,
+      "theirsTexts": [],
+      "aboutText": null,
+      "listEmptyText": null,
+      "detailEmptyText": "还没有消息，发第一条吧",
+      "loadMoreCount": 1,
+      "expectPanel": true,
+      "assertions": {
+        "panelWidth": 600,
+        "panelRightOffset": 104,
+        "leftColW": 240,
+        "rightColW": 360,
+        "leftPlusRight": 600,
+        "leftPlusRightEqPanelW": true,
+        "gapToFloatMenu": 16,
+        "intersectZero": true,
+        "zeroHorizontalOverflow": true,
+        "contentRightLePanelLeft": true
+      }
+    },
+    "1024_exchange_msg_open_list": {
+      "url": "/exchange?msg=1",
+      "pathname": "/exchange",
+      "search": "?msg=1",
+      "historyLength": 7,
+      "viewport": {
+        "w": 1024,
+        "h": 900
+      },
+      "docEl": {
+        "scrollWidth": 1024,
+        "clientWidth": 1024,
+        "scrollHeight": 3533,
+        "clientHeight": 900
+      },
+      "overflowPx": 0,
+      "scrollY": 0,
+      "rootChildren": 2,
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "shellClass": "sf-shell sf-shell--msg-open",
+      "panelPresent": true,
+      "panelVisible": true,
+      "panel": {
+        "x": 320,
+        "y": 0,
+        "w": 600,
+        "h": 900,
+        "left": 320,
+        "right": 920,
+        "top": 0,
+        "bottom": 900
+      },
+      "panelBodyClass": "sf-mp-body",
+      "panelTitleText": "消息",
+      "panelAriaLabel": "消息",
+      "fm": {
+        "x": 936,
+        "y": 165,
+        "w": 72,
+        "h": 480,
+        "left": 936,
+        "right": 1008,
+        "top": 165,
+        "bottom": 645
+      },
+      "fmVisible": true,
+      "fmDisplay": "flex",
+      "fmUnreadBadgeText": "99+",
+      "tabUnreadBadgeText": "99+",
+      "intersectArea": 0,
+      "gapToFloatMenu": 16,
+      "content": {
+        "x": 0,
+        "y": 65,
+        "w": 320,
+        "h": 3067,
+        "left": 0,
+        "right": 320,
+        "top": 65,
+        "bottom": 3132
+      },
+      "contentRightVsPanelLeft": 0,
+      "listCol": {
+        "x": 320,
+        "y": 51,
+        "w": 240,
+        "h": 849,
+        "left": 320,
+        "right": 560,
+        "top": 51,
+        "bottom": 900
+      },
+      "listColDisplay": "flex",
+      "threadCol": {
+        "x": 560,
+        "y": 51,
+        "w": 360,
+        "h": 849,
+        "left": 560,
+        "right": 920,
+        "top": 51,
+        "bottom": 900
+      },
+      "threadColDisplay": "flex",
+      "closeBtn": {
+        "x": 332,
+        "y": 8,
+        "w": 34,
+        "h": 34,
+        "left": 332,
+        "right": 366,
+        "top": 8,
+        "bottom": 42
+      },
+      "closeBtnAria": "关闭消息",
+      "backLink": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "backDisplay": "none",
+      "backText": "返回消息列表",
+      "sendBtn": null,
+      "sendBtnText": null,
+      "sendBtnDisabled": null,
+      "inputPlaceholder": null,
+      "hookSet": [
+        "messages-back",
+        "messages-conversation-item",
+        "messages-conversation-item",
+        "messages-conversation-item",
+        "messages-conversation-unread",
+        "messages-conversation-unread",
+        "messages-detail-empty",
+        "messages-list",
+        "messages-load-more",
+        "messages-panel",
+        "messages-panel-close",
+        "messages-panel-list",
+        "messages-panel-thread"
+      ],
+      "placeholderHooks": 0,
+      "legacyPageHook": 0,
+      "elementCount": 239,
+      "theme": "light",
+      "convRowCount": 3,
+      "convRows": [
+        {
+          "peer": "#970301",
+          "title": "FIXTURE 商品 A",
+          "preview": "FIXTURE 预览一",
+          "href": "/exchange?msg=1&c=7",
+          "rect": {
+            "w": 215,
+            "h": 97
+          }
+        },
+        {
+          "peer": "#970302",
+          "title": "FIXTURE 商品 B",
+          "preview": "FIXTURE 预览二",
+          "href": "/exchange?msg=1&c=8",
+          "rect": {
+            "w": 215,
+            "h": 97
+          }
+        },
+        {
+          "peer": "#970303",
+          "title": "FIXTURE 商品 C",
+          "preview": "FIXTURE 预览三",
+          "href": "/exchange?msg=1&c=9",
+          "rect": {
+            "w": 215,
+            "h": 97
+          }
+        }
+      ],
+      "badgeCount": 2,
+      "badges": [
+        {
+          "text": "99+",
+          "aria": "250 条未读",
+          "rect": {
+            "w": 29.61,
+            "h": 16
+          }
+        },
+        {
+          "text": "3",
+          "aria": "3 条未读",
+          "rect": {
+            "w": 16,
+            "h": 16
+          }
+        }
+      ],
+      "mineCount": 0,
+      "mineTexts": [],
+      "theirsCount": 0,
+      "theirsTexts": [],
+      "aboutText": null,
+      "listEmptyText": null,
+      "detailEmptyText": "还没有消息，发第一条吧",
+      "loadMoreCount": 1,
+      "expectPanel": true,
+      "assertions": {
+        "panelWidth": 600,
+        "panelRightOffset": 104,
+        "leftColW": 240,
+        "rightColW": 360,
+        "leftPlusRight": 600,
+        "leftPlusRightEqPanelW": true,
+        "gapToFloatMenu": 16,
+        "intersectZero": true,
+        "zeroHorizontalOverflow": true,
+        "contentRightLePanelLeft": true
+      }
+    },
+    "768_exchange_msg_open_list": {
+      "url": "/exchange?msg=1",
+      "pathname": "/exchange",
+      "search": "?msg=1",
+      "historyLength": 7,
+      "viewport": {
+        "w": 768,
+        "h": 900
+      },
+      "docEl": {
+        "scrollWidth": 768,
+        "clientWidth": 768,
+        "scrollHeight": 4175,
+        "clientHeight": 900
+      },
+      "overflowPx": 0,
+      "scrollY": 0,
+      "rootChildren": 2,
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "shellClass": "sf-shell sf-shell--msg-open",
+      "panelPresent": true,
+      "panelVisible": true,
+      "panel": {
+        "x": 320,
+        "y": 0,
+        "w": 344,
+        "h": 900,
+        "left": 320,
+        "right": 664,
+        "top": 0,
+        "bottom": 900
+      },
+      "panelBodyClass": "sf-mp-body",
+      "panelTitleText": "消息",
+      "panelAriaLabel": "消息",
+      "fm": {
+        "x": 680,
+        "y": 165,
+        "w": 72,
+        "h": 480,
+        "left": 680,
+        "right": 752,
+        "top": 165,
+        "bottom": 645
+      },
+      "fmVisible": true,
+      "fmDisplay": "flex",
+      "fmUnreadBadgeText": "99+",
+      "tabUnreadBadgeText": "99+",
+      "intersectArea": 0,
+      "gapToFloatMenu": 16,
+      "content": {
+        "x": 0,
+        "y": 65,
+        "w": 320,
+        "h": 3708.5,
+        "left": 0,
+        "right": 320,
+        "top": 65,
+        "bottom": 3773.5
+      },
+      "contentRightVsPanelLeft": 0,
+      "listCol": {
+        "x": 320,
+        "y": 51,
+        "w": 154.8,
+        "h": 849,
+        "left": 320,
+        "right": 474.8,
+        "top": 51,
+        "bottom": 900
+      },
+      "listColDisplay": "flex",
+      "threadCol": {
+        "x": 474.8,
+        "y": 51,
+        "w": 189.2,
+        "h": 849,
+        "left": 474.8,
+        "right": 664,
+        "top": 51,
+        "bottom": 900
+      },
+      "threadColDisplay": "flex",
+      "closeBtn": {
+        "x": 332,
+        "y": 8,
+        "w": 34,
+        "h": 34,
+        "left": 332,
+        "right": 366,
+        "top": 8,
+        "bottom": 42
+      },
+      "closeBtnAria": "关闭消息",
+      "backLink": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "backDisplay": "none",
+      "backText": "返回消息列表",
+      "sendBtn": null,
+      "sendBtnText": null,
+      "sendBtnDisabled": null,
+      "inputPlaceholder": null,
+      "hookSet": [
+        "messages-back",
+        "messages-conversation-item",
+        "messages-conversation-item",
+        "messages-conversation-item",
+        "messages-conversation-unread",
+        "messages-conversation-unread",
+        "messages-detail-empty",
+        "messages-list",
+        "messages-load-more",
+        "messages-panel",
+        "messages-panel-close",
+        "messages-panel-list",
+        "messages-panel-thread"
+      ],
+      "placeholderHooks": 0,
+      "legacyPageHook": 0,
+      "elementCount": 239,
+      "theme": "light",
+      "convRowCount": 3,
+      "convRows": [
+        {
+          "peer": "#970301",
+          "title": "FIXTURE 商品 A",
+          "preview": "FIXTURE 预览一",
+          "href": "/exchange?msg=1&c=7",
+          "rect": {
+            "w": 129.8,
+            "h": 121
+          }
+        },
+        {
+          "peer": "#970302",
+          "title": "FIXTURE 商品 B",
+          "preview": "FIXTURE 预览二",
+          "href": "/exchange?msg=1&c=8",
+          "rect": {
+            "w": 129.8,
+            "h": 97
+          }
+        },
+        {
+          "peer": "#970303",
+          "title": "FIXTURE 商品 C",
+          "preview": "FIXTURE 预览三",
+          "href": "/exchange?msg=1&c=9",
+          "rect": {
+            "w": 129.8,
+            "h": 97
+          }
+        }
+      ],
+      "badgeCount": 2,
+      "badges": [
+        {
+          "text": "99+",
+          "aria": "250 条未读",
+          "rect": {
+            "w": 28.39,
+            "h": 16
+          }
+        },
+        {
+          "text": "3",
+          "aria": "3 条未读",
+          "rect": {
+            "w": 16,
+            "h": 16
+          }
+        }
+      ],
+      "mineCount": 0,
+      "mineTexts": [],
+      "theirsCount": 0,
+      "theirsTexts": [],
+      "aboutText": null,
+      "listEmptyText": null,
+      "detailEmptyText": "还没有消息，发第一条吧",
+      "loadMoreCount": 1,
+      "expectPanel": true,
+      "assertions": {
+        "panelWidth": 344,
+        "panelRightOffset": 104,
+        "leftColW": 154.8,
+        "rightColW": 189.2,
+        "leftPlusRight": 344,
+        "leftPlusRightEqPanelW": true,
+        "gapToFloatMenu": 16,
+        "intersectZero": true,
+        "zeroHorizontalOverflow": true,
+        "contentRightLePanelLeft": true
+      }
+    },
+    "767_messages_msg_list": {
+      "url": "/messages?msg=1",
+      "pathname": "/messages",
+      "search": "?msg=1",
+      "historyLength": 8,
+      "viewport": {
+        "w": 767,
+        "h": 900
+      },
+      "docEl": {
+        "scrollWidth": 767,
+        "clientWidth": 767,
+        "scrollHeight": 1390,
+        "clientHeight": 900
+      },
+      "overflowPx": 0,
+      "scrollY": 0,
+      "rootChildren": 2,
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "shellClass": "sf-shell sf-shell--msg-open",
+      "panelPresent": true,
+      "panelVisible": true,
+      "panel": {
+        "x": 0,
+        "y": 0,
+        "w": 767,
+        "h": 900,
+        "left": 0,
+        "right": 767,
+        "top": 0,
+        "bottom": 900
+      },
+      "panelBodyClass": "sf-mp-body",
+      "panelTitleText": "消息",
+      "panelAriaLabel": "消息",
+      "fm": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "fmVisible": false,
+      "fmDisplay": "none",
+      "fmUnreadBadgeText": "99+",
+      "tabUnreadBadgeText": "99+",
+      "intersectArea": 0,
+      "gapToFloatMenu": null,
+      "content": {
+        "x": 0,
+        "y": 65,
+        "w": 767,
+        "h": 932,
+        "left": 0,
+        "right": 767,
+        "top": 65,
+        "bottom": 997
+      },
+      "contentRightVsPanelLeft": 767,
+      "listCol": {
+        "x": 0,
+        "y": 61,
+        "w": 767,
+        "h": 839,
+        "left": 0,
+        "right": 767,
+        "top": 61,
+        "bottom": 900
+      },
+      "listColDisplay": "flex",
+      "threadCol": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "threadColDisplay": "none",
+      "closeBtn": {
+        "x": 12,
+        "y": 8,
+        "w": 44,
+        "h": 44,
+        "left": 12,
+        "right": 56,
+        "top": 8,
+        "bottom": 52
+      },
+      "closeBtnAria": "关闭消息",
+      "backLink": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "backDisplay": "inline-flex",
+      "backText": "返回消息列表",
+      "sendBtn": null,
+      "sendBtnText": null,
+      "sendBtnDisabled": null,
+      "inputPlaceholder": null,
+      "hookSet": [
+        "messages-back",
+        "messages-conversation-item",
+        "messages-conversation-item",
+        "messages-conversation-item",
+        "messages-conversation-unread",
+        "messages-conversation-unread",
+        "messages-detail-empty",
+        "messages-list",
+        "messages-load-more",
+        "messages-panel",
+        "messages-panel-close",
+        "messages-panel-list",
+        "messages-panel-thread"
+      ],
+      "placeholderHooks": 0,
+      "legacyPageHook": 0,
+      "elementCount": 236,
+      "theme": "light",
+      "convRowCount": 3,
+      "convRows": [
+        {
+          "peer": "#970301",
+          "title": "FIXTURE 商品 A",
+          "preview": "FIXTURE 预览一",
+          "href": "/messages?msg=1&c=7",
+          "rect": {
+            "w": 743,
+            "h": 97
+          }
+        },
+        {
+          "peer": "#970302",
+          "title": "FIXTURE 商品 B",
+          "preview": "FIXTURE 预览二",
+          "href": "/messages?msg=1&c=8",
+          "rect": {
+            "w": 743,
+            "h": 97
+          }
+        },
+        {
+          "peer": "#970303",
+          "title": "FIXTURE 商品 C",
+          "preview": "FIXTURE 预览三",
+          "href": "/messages?msg=1&c=9",
+          "rect": {
+            "w": 743,
+            "h": 97
+          }
+        }
+      ],
+      "badgeCount": 2,
+      "badges": [
+        {
+          "text": "99+",
+          "aria": "250 条未读",
+          "rect": {
+            "w": 29.61,
+            "h": 16
+          }
+        },
+        {
+          "text": "3",
+          "aria": "3 条未读",
+          "rect": {
+            "w": 16,
+            "h": 16
+          }
+        }
+      ],
+      "mineCount": 0,
+      "mineTexts": [],
+      "theirsCount": 0,
+      "theirsTexts": [],
+      "aboutText": null,
+      "listEmptyText": null,
+      "detailEmptyText": "还没有消息，发第一条吧",
+      "loadMoreCount": 1,
+      "expectPanel": true,
+      "assertions": {
+        "panelWidth": 767,
+        "panelHeight": 900,
+        "fullScreen": true,
+        "zeroHorizontalOverflow": true,
+        "singleColumn": true,
+        "fullScreenOverlayExpected": true
+      },
+      "note": "≤767 档 `contentRightVsPanelLeft` 不适用（面板全屏覆盖、让位量 0）⇒ 判据改用 `fullScreen` + `singleColumn`"
+    },
+    "390_messages_msg_list": {
+      "url": "/messages?msg=1",
+      "pathname": "/messages",
+      "search": "?msg=1",
+      "historyLength": 8,
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "docEl": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 1524,
+        "clientHeight": 844
+      },
+      "overflowPx": 0,
+      "scrollY": 0,
+      "rootChildren": 2,
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "shellClass": "sf-shell sf-shell--msg-open",
+      "panelPresent": true,
+      "panelVisible": true,
+      "panel": {
+        "x": 0,
+        "y": 0,
+        "w": 390,
+        "h": 844,
+        "left": 0,
+        "right": 390,
+        "top": 0,
+        "bottom": 844
+      },
+      "panelBodyClass": "sf-mp-body",
+      "panelTitleText": "消息",
+      "panelAriaLabel": "消息",
+      "fm": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "fmVisible": false,
+      "fmDisplay": "none",
+      "fmUnreadBadgeText": "99+",
+      "tabUnreadBadgeText": "99+",
+      "intersectArea": 0,
+      "gapToFloatMenu": null,
+      "content": {
+        "x": 0,
+        "y": 65,
+        "w": 390,
+        "h": 1046,
+        "left": 0,
+        "right": 390,
+        "top": 65,
+        "bottom": 1111
+      },
+      "contentRightVsPanelLeft": 390,
+      "listCol": {
+        "x": 0,
+        "y": 61,
+        "w": 390,
+        "h": 783,
+        "left": 0,
+        "right": 390,
+        "top": 61,
+        "bottom": 844
+      },
+      "listColDisplay": "flex",
+      "threadCol": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "threadColDisplay": "none",
+      "closeBtn": {
+        "x": 12,
+        "y": 8,
+        "w": 44,
+        "h": 44,
+        "left": 12,
+        "right": 56,
+        "top": 8,
+        "bottom": 52
+      },
+      "closeBtnAria": "关闭消息",
+      "backLink": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "backDisplay": "inline-flex",
+      "backText": "返回消息列表",
+      "sendBtn": null,
+      "sendBtnText": null,
+      "sendBtnDisabled": null,
+      "inputPlaceholder": null,
+      "hookSet": [
+        "messages-back",
+        "messages-conversation-item",
+        "messages-conversation-item",
+        "messages-conversation-item",
+        "messages-conversation-unread",
+        "messages-conversation-unread",
+        "messages-detail-empty",
+        "messages-list",
+        "messages-load-more",
+        "messages-panel",
+        "messages-panel-close",
+        "messages-panel-list",
+        "messages-panel-thread"
+      ],
+      "placeholderHooks": 0,
+      "legacyPageHook": 0,
+      "elementCount": 236,
+      "theme": "light",
+      "convRowCount": 3,
+      "convRows": [
+        {
+          "peer": "#970301",
+          "title": "FIXTURE 商品 A",
+          "preview": "FIXTURE 预览一",
+          "href": "/messages?msg=1&c=7",
+          "rect": {
+            "w": 366,
+            "h": 97
+          }
+        },
+        {
+          "peer": "#970302",
+          "title": "FIXTURE 商品 B",
+          "preview": "FIXTURE 预览二",
+          "href": "/messages?msg=1&c=8",
+          "rect": {
+            "w": 366,
+            "h": 97
+          }
+        },
+        {
+          "peer": "#970303",
+          "title": "FIXTURE 商品 C",
+          "preview": "FIXTURE 预览三",
+          "href": "/messages?msg=1&c=9",
+          "rect": {
+            "w": 366,
+            "h": 97
+          }
+        }
+      ],
+      "badgeCount": 2,
+      "badges": [
+        {
+          "text": "99+",
+          "aria": "250 条未读",
+          "rect": {
+            "w": 29.61,
+            "h": 16
+          }
+        },
+        {
+          "text": "3",
+          "aria": "3 条未读",
+          "rect": {
+            "w": 16,
+            "h": 16
+          }
+        }
+      ],
+      "mineCount": 0,
+      "mineTexts": [],
+      "theirsCount": 0,
+      "theirsTexts": [],
+      "aboutText": null,
+      "listEmptyText": null,
+      "detailEmptyText": "还没有消息，发第一条吧",
+      "loadMoreCount": 1,
+      "expectPanel": true,
+      "assertions": {
+        "panelWidth": 390,
+        "panelHeight": 844,
+        "fullScreen": true,
+        "zeroHorizontalOverflow": true,
+        "singleColumn": true,
+        "fullScreenOverlayExpected": true
+      },
+      "note": "≤767 档 `contentRightVsPanelLeft` 不适用（面板全屏覆盖、让位量 0）⇒ 判据改用 `fullScreen` + `singleColumn`"
+    },
+    "390_messages_msg_thread": {
+      "url": "/messages?msg=1&c=7",
+      "pathname": "/messages",
+      "search": "?msg=1&c=7",
+      "historyLength": 9,
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "docEl": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 1524,
+        "clientHeight": 844
+      },
+      "overflowPx": 0,
+      "scrollY": 0,
+      "rootChildren": 2,
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "shellClass": "sf-shell sf-shell--msg-open",
+      "panelPresent": true,
+      "panelVisible": true,
+      "panel": {
+        "x": 0,
+        "y": 0,
+        "w": 390,
+        "h": 844,
+        "left": 0,
+        "right": 390,
+        "top": 0,
+        "bottom": 844
+      },
+      "panelBodyClass": "sf-mp-body sf-mp-body--thread",
+      "panelTitleText": "消息",
+      "panelAriaLabel": "消息",
+      "fm": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "fmVisible": false,
+      "fmDisplay": "none",
+      "fmUnreadBadgeText": "99+",
+      "tabUnreadBadgeText": "99+",
+      "intersectArea": 0,
+      "gapToFloatMenu": null,
+      "content": {
+        "x": 0,
+        "y": 65,
+        "w": 390,
+        "h": 1046,
+        "left": 0,
+        "right": 390,
+        "top": 65,
+        "bottom": 1111
+      },
+      "contentRightVsPanelLeft": 390,
+      "listCol": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "listColDisplay": "none",
+      "threadCol": {
+        "x": 0,
+        "y": 61,
+        "w": 390,
+        "h": 783,
+        "left": 0,
+        "right": 390,
+        "top": 61,
+        "bottom": 844
+      },
+      "threadColDisplay": "flex",
+      "closeBtn": {
+        "x": 12,
+        "y": 8,
+        "w": 44,
+        "h": 44,
+        "left": 12,
+        "right": 56,
+        "top": 8,
+        "bottom": 52
+      },
+      "closeBtnAria": "关闭消息",
+      "backLink": {
+        "x": 12,
+        "y": 73,
+        "w": 366,
+        "h": 44,
+        "left": 12,
+        "right": 378,
+        "top": 73,
+        "bottom": 117
+      },
+      "backDisplay": "flex",
+      "backText": "返回消息列表",
+      "sendBtn": {
+        "x": 326,
+        "y": 267.5,
+        "w": 52,
+        "h": 44,
+        "left": 326,
+        "right": 378,
+        "top": 267.5,
+        "bottom": 311.5
+      },
+      "sendBtnText": "发送",
+      "sendBtnDisabled": true,
+      "inputPlaceholder": "输入消息…",
+      "hookSet": [
+        "messages-about",
+        "messages-back",
+        "messages-input",
+        "messages-input-row",
+        "messages-list-status",
+        "messages-msg-mine",
+        "messages-msg-theirs",
+        "messages-panel",
+        "messages-panel-close",
+        "messages-panel-list",
+        "messages-panel-thread",
+        "messages-send-btn",
+        "messages-thread"
+      ],
+      "placeholderHooks": 0,
+      "legacyPageHook": 0,
+      "elementCount": 224,
+      "theme": "light",
+      "convRowCount": 0,
+      "convRows": [],
+      "badgeCount": 0,
+      "badges": [],
+      "mineCount": 1,
+      "mineTexts": [
+        "FIXTURE 我的消息一"
+      ],
+      "theirsCount": 1,
+      "theirsTexts": [
+        "FIXTURE 对方消息一"
+      ],
+      "aboutText": "关于：FIXTURE 商品 A",
+      "listEmptyText": null,
+      "detailEmptyText": null,
+      "loadMoreCount": 0,
+      "expectPanel": true,
+      "assertions": {
+        "panelWidth": 390,
+        "panelHeight": 844,
+        "fullScreen": true,
+        "zeroHorizontalOverflow": true,
+        "singleColumn": true,
+        "fullScreenOverlayExpected": true
+      },
+      "note": "≤767 档 `contentRightVsPanelLeft` 不适用（面板全屏覆盖、让位量 0）⇒ 判据改用 `fullScreen` + `singleColumn`"
+    },
+    "375_messages_msg_list": {
+      "url": "/messages?msg=1",
+      "pathname": "/messages",
+      "search": "?msg=1",
+      "historyLength": 10,
+      "viewport": {
+        "w": 375,
+        "h": 812
+      },
+      "docEl": {
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "scrollHeight": 1600,
+        "clientHeight": 812
+      },
+      "overflowPx": 0,
+      "scrollY": 0,
+      "rootChildren": 2,
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "shellClass": "sf-shell sf-shell--msg-open",
+      "panelPresent": true,
+      "panelVisible": true,
+      "panel": {
+        "x": 0,
+        "y": 0,
+        "w": 375,
+        "h": 812,
+        "left": 0,
+        "right": 375,
+        "top": 0,
+        "bottom": 812
+      },
+      "panelBodyClass": "sf-mp-body",
+      "panelTitleText": "消息",
+      "panelAriaLabel": "消息",
+      "fm": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "fmVisible": false,
+      "fmDisplay": "none",
+      "fmUnreadBadgeText": "99+",
+      "tabUnreadBadgeText": "99+",
+      "intersectArea": 0,
+      "gapToFloatMenu": null,
+      "content": {
+        "x": 0,
+        "y": 65,
+        "w": 375,
+        "h": 1046,
+        "left": 0,
+        "right": 375,
+        "top": 65,
+        "bottom": 1111
+      },
+      "contentRightVsPanelLeft": 375,
+      "listCol": {
+        "x": 0,
+        "y": 61,
+        "w": 375,
+        "h": 751,
+        "left": 0,
+        "right": 375,
+        "top": 61,
+        "bottom": 812
+      },
+      "listColDisplay": "flex",
+      "threadCol": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "threadColDisplay": "none",
+      "closeBtn": {
+        "x": 12,
+        "y": 8,
+        "w": 44,
+        "h": 44,
+        "left": 12,
+        "right": 56,
+        "top": 8,
+        "bottom": 52
+      },
+      "closeBtnAria": "关闭消息",
+      "backLink": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "backDisplay": "inline-flex",
+      "backText": "返回消息列表",
+      "sendBtn": null,
+      "sendBtnText": null,
+      "sendBtnDisabled": null,
+      "inputPlaceholder": null,
+      "hookSet": [
+        "messages-back",
+        "messages-conversation-item",
+        "messages-conversation-item",
+        "messages-conversation-item",
+        "messages-conversation-unread",
+        "messages-conversation-unread",
+        "messages-detail-empty",
+        "messages-list",
+        "messages-load-more",
+        "messages-panel",
+        "messages-panel-close",
+        "messages-panel-list",
+        "messages-panel-thread"
+      ],
+      "placeholderHooks": 0,
+      "legacyPageHook": 0,
+      "elementCount": 236,
+      "theme": "light",
+      "convRowCount": 3,
+      "convRows": [
+        {
+          "peer": "#970301",
+          "title": "FIXTURE 商品 A",
+          "preview": "FIXTURE 预览一",
+          "href": "/messages?msg=1&c=7",
+          "rect": {
+            "w": 351,
+            "h": 97
+          }
+        },
+        {
+          "peer": "#970302",
+          "title": "FIXTURE 商品 B",
+          "preview": "FIXTURE 预览二",
+          "href": "/messages?msg=1&c=8",
+          "rect": {
+            "w": 351,
+            "h": 97
+          }
+        },
+        {
+          "peer": "#970303",
+          "title": "FIXTURE 商品 C",
+          "preview": "FIXTURE 预览三",
+          "href": "/messages?msg=1&c=9",
+          "rect": {
+            "w": 351,
+            "h": 97
+          }
+        }
+      ],
+      "badgeCount": 2,
+      "badges": [
+        {
+          "text": "99+",
+          "aria": "250 条未读",
+          "rect": {
+            "w": 29.61,
+            "h": 16
+          }
+        },
+        {
+          "text": "3",
+          "aria": "3 条未读",
+          "rect": {
+            "w": 16,
+            "h": 16
+          }
+        }
+      ],
+      "mineCount": 0,
+      "mineTexts": [],
+      "theirsCount": 0,
+      "theirsTexts": [],
+      "aboutText": null,
+      "listEmptyText": null,
+      "detailEmptyText": "还没有消息，发第一条吧",
+      "loadMoreCount": 1,
+      "expectPanel": true,
+      "assertions": {
+        "panelWidth": 375,
+        "panelHeight": 812,
+        "fullScreen": true,
+        "zeroHorizontalOverflow": true,
+        "singleColumn": true,
+        "fullScreenOverlayExpected": true
+      },
+      "note": "≤767 档 `contentRightVsPanelLeft` 不适用（面板全屏覆盖、让位量 0）⇒ 判据改用 `fullScreen` + `singleColumn`"
+    },
+    "320_messages_msg_thread": {
+      "url": "/messages?msg=1&c=7",
+      "pathname": "/messages",
+      "search": "?msg=1&c=7",
+      "historyLength": 11,
+      "viewport": {
+        "w": 320,
+        "h": 640
+      },
+      "docEl": {
+        "scrollWidth": 320,
+        "clientWidth": 320,
+        "scrollHeight": 1640,
+        "clientHeight": 640
+      },
+      "overflowPx": 0,
+      "scrollY": 0,
+      "rootChildren": 2,
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "shellClass": "sf-shell sf-shell--msg-open",
+      "panelPresent": true,
+      "panelVisible": true,
+      "panel": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 640,
+        "left": 0,
+        "right": 320,
+        "top": 0,
+        "bottom": 640
+      },
+      "panelBodyClass": "sf-mp-body sf-mp-body--thread",
+      "panelTitleText": "消息",
+      "panelAriaLabel": "消息",
+      "fm": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "fmVisible": false,
+      "fmDisplay": "none",
+      "fmUnreadBadgeText": "99+",
+      "tabUnreadBadgeText": "99+",
+      "intersectArea": 0,
+      "gapToFloatMenu": null,
+      "content": {
+        "x": 0,
+        "y": 65,
+        "w": 320,
+        "h": 1086,
+        "left": 0,
+        "right": 320,
+        "top": 65,
+        "bottom": 1151
+      },
+      "contentRightVsPanelLeft": 320,
+      "listCol": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0,
+        "bottom": 0
+      },
+      "listColDisplay": "none",
+      "threadCol": {
+        "x": 0,
+        "y": 61,
+        "w": 320,
+        "h": 579,
+        "left": 0,
+        "right": 320,
+        "top": 61,
+        "bottom": 640
+      },
+      "threadColDisplay": "flex",
+      "closeBtn": {
+        "x": 12,
+        "y": 8,
+        "w": 44,
+        "h": 44,
+        "left": 12,
+        "right": 56,
+        "top": 8,
+        "bottom": 52
+      },
+      "closeBtnAria": "关闭消息",
+      "backLink": {
+        "x": 12,
+        "y": 73,
+        "w": 296,
+        "h": 44,
+        "left": 12,
+        "right": 308,
+        "top": 73,
+        "bottom": 117
+      },
+      "backDisplay": "flex",
+      "backText": "返回消息列表",
+      "sendBtn": {
+        "x": 256,
+        "y": 267.5,
+        "w": 52,
+        "h": 44,
+        "left": 256,
+        "right": 308,
+        "top": 267.5,
+        "bottom": 311.5
+      },
+      "sendBtnText": "发送",
+      "sendBtnDisabled": true,
+      "inputPlaceholder": "输入消息…",
+      "hookSet": [
+        "messages-about",
+        "messages-back",
+        "messages-input",
+        "messages-input-row",
+        "messages-list-status",
+        "messages-msg-mine",
+        "messages-msg-theirs",
+        "messages-panel",
+        "messages-panel-close",
+        "messages-panel-list",
+        "messages-panel-thread",
+        "messages-send-btn",
+        "messages-thread"
+      ],
+      "placeholderHooks": 0,
+      "legacyPageHook": 0,
+      "elementCount": 224,
+      "theme": "light",
+      "convRowCount": 0,
+      "convRows": [],
+      "badgeCount": 0,
+      "badges": [],
+      "mineCount": 1,
+      "mineTexts": [
+        "FIXTURE 我的消息一"
+      ],
+      "theirsCount": 1,
+      "theirsTexts": [
+        "FIXTURE 对方消息一"
+      ],
+      "aboutText": "关于：FIXTURE 商品 A",
+      "listEmptyText": null,
+      "detailEmptyText": null,
+      "loadMoreCount": 0,
+      "expectPanel": true,
+      "assertions": {
+        "panelWidth": 320,
+        "panelHeight": 640,
+        "fullScreen": true,
+        "zeroHorizontalOverflow": true,
+        "singleColumn": true,
+        "fullScreenOverlayExpected": true
+      },
+      "note": "≤767 档 `contentRightVsPanelLeft` 不适用（面板全屏覆盖、让位量 0）⇒ 判据改用 `fullScreen` + `singleColumn`"
+    }
+  },
+  "notes": [],
+  "touchTargets": [
+    {
+      "state": "390_messages_msg_thread",
+      "key": "close",
+      "w": 44,
+      "h": 44,
+      "visible": true,
+      "pass": true
+    },
+    {
+      "state": "390_messages_msg_thread",
+      "key": "back",
+      "w": 366,
+      "h": 44,
+      "visible": true,
+      "pass": true
+    },
+    {
+      "state": "390_messages_msg_thread",
+      "key": "send",
+      "w": 52,
+      "h": 44,
+      "visible": true,
+      "pass": true
+    },
+    {
+      "state": "375_messages_msg_list",
+      "key": "close",
+      "w": 44,
+      "h": 44,
+      "visible": true,
+      "pass": true
+    },
+    {
+      "state": "320_messages_msg_thread",
+      "key": "close",
+      "w": 44,
+      "h": 44,
+      "visible": true,
+      "pass": true
+    },
+    {
+      "state": "320_messages_msg_thread",
+      "key": "back",
+      "w": 296,
+      "h": 44,
+      "visible": true,
+      "pass": true
+    },
+    {
+      "state": "320_messages_msg_thread",
+      "key": "send",
+      "w": 52,
+      "h": 44,
+      "visible": true,
+      "pass": true
+    },
+    {
+      "state": "767_messages_msg_list",
+      "key": "close",
+      "w": 44,
+      "h": 44,
+      "visible": true,
+      "pass": true
+    }
+  ],
+  "themeShape": {
+    "dayAttr": "light",
+    "nightAttr": "dark",
+    "dayCount": 20,
+    "nightCount": 20,
+    "shapeEqual": true,
+    "shapeLen": 533
+  },
+  "ac2": {
+    "before": {
+      "pathname": "/",
+      "search": "",
+      "scrollY": 384,
+      "historyLength": 13,
+      "hostTag": "DIV",
+      "hostCount": 46
+    },
+    "beforeScrollAfterFrame": {
+      "scrollY": 384
+    },
+    "after": {
+      "pathname": "/",
+      "search": "?msg=1",
+      "scrollY": 384,
+      "historyLength": 14,
+      "hostSameNode": true,
+      "hostCount": 46,
+      "panelPresent": true,
+      "shellClass": "sf-shell sf-shell--msg-open",
+      "panelRect": {
+        "x": 736,
+        "w": 600
+      }
+    },
+    "afterBack": {
+      "pathname": "/",
+      "search": "",
+      "scrollY": 384,
+      "panelPresent": false
+    },
+    "afterClose": {
+      "pathname": "/",
+      "search": "",
+      "scrollY": 384,
+      "historyLength": 14,
+      "panelPresent": false,
+      "shellClass": "sf-shell",
+      "hostSameNode": true
+    },
+    "verdict": {
+      "pathnameUnchanged": true,
+      "hostNotRemounted": true,
+      "scrollYUnchanged": true
+    }
+  },
+  "entryWiring": {
+    "directClose": {
+      "pathname": "/",
+      "search": "",
+      "panelPresent": false
+    },
+    "tabBefore": {
+      "pathname": "/exchange",
+      "search": "",
+      "href": "/messages"
+    },
+    "tabAfter": {
+      "pathname": "/exchange",
+      "search": "?msg=1",
+      "panelPresent": true
+    },
+    "modifierBefore": "/exchange",
+    "modifierAfter": {
+      "url": "/exchange",
+      "panelPresent": false
+    },
+    "floatMenuBefore": {
+      "pathname": "/exchange",
+      "search": "",
+      "href": "/messages",
+      "badge": "99+"
+    },
+    "floatMenuAfter": {
+      "pathname": "/exchange",
+      "search": "?msg=1",
+      "panelPresent": true
+    }
+  },
+  "blockedExternalOrigins": [
+    "https://cdnjs.cloudflare.com",
+    "https://fonts.googleapis.com",
+    "https://cdn.jsdelivr.net",
+    "https://raw.githubusercontent.com"
+  ],
+  "pageErrors": [],
+  "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 1)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Load data error: Error: 请求失败 (200)\n    at H (http://sf.local/assets/index-C3dRJ_m4.js:1:5728)\n    at async Promise.all (index 0)\n    at async E (http://sf.local/assets/index-C3dRJ_m4.js:1:29638)\n    at async http://sf.local/assets/index-C3dRJ_m4.js:1:30316",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "verdict": {
+    "AC-2 不换页 + 原地": {
+      "pathnameUnchanged": true,
+      "hostNotRemounted": true,
+      "scrollYUnchanged": true
+    },
+    "AC-3 桌面几何(1440/1199/1024/768)": {
+      "768": {
+        "panelWidth": 344,
+        "panelRightOffset": 104,
+        "leftColW": 154.8,
+        "rightColW": 189.2,
+        "leftPlusRight": 344,
+        "leftPlusRightEqPanelW": true,
+        "gapToFloatMenu": 16,
+        "intersectZero": true,
+        "zeroHorizontalOverflow": true,
+        "contentRightLePanelLeft": true
+      },
+      "1024": {
+        "panelWidth": 600,
+        "panelRightOffset": 104,
+        "leftColW": 240,
+        "rightColW": 360,
+        "leftPlusRight": 600,
+        "leftPlusRightEqPanelW": true,
+        "gapToFloatMenu": 16,
+        "intersectZero": true,
+        "zeroHorizontalOverflow": true,
+        "contentRightLePanelLeft": true
+      },
+      "1199": {
+        "panelWidth": 600,
+        "panelRightOffset": 104,
+        "leftColW": 240,
+        "rightColW": 360,
+        "leftPlusRight": 600,
+        "leftPlusRightEqPanelW": true,
+        "gapToFloatMenu": 16,
+        "intersectZero": true,
+        "zeroHorizontalOverflow": true,
+        "contentRightLePanelLeft": true
+      },
+      "1440": {
+        "panelWidth": 600,
+        "panelRightOffset": 104,
+        "leftColW": 240,
+        "rightColW": 360,
+        "leftPlusRight": 600,
+        "leftPlusRightEqPanelW": true,
+        "gapToFloatMenu": 16,
+        "intersectZero": true,
+        "zeroHorizontalOverflow": true,
+        "contentRightLePanelLeft": true
+      },
+      "panelWidth600at1440": true,
+      "rightOffset104at1440": true,
+      "left240_right360_at1440": true,
+      "left240_right360_at1199": true,
+      "left240_right360_at1024": true
+    },
+    "AC-4 手机档(≤767)": {
+      "767": {
+        "panelWidth": 767,
+        "panelHeight": 900,
+        "fullScreen": true,
+        "zeroHorizontalOverflow": true,
+        "singleColumn": true,
+        "fullScreenOverlayExpected": true
+      },
+      "390_list": {
+        "panelWidth": 390,
+        "panelHeight": 844,
+        "fullScreen": true,
+        "zeroHorizontalOverflow": true,
+        "singleColumn": true,
+        "fullScreenOverlayExpected": true
+      },
+      "390_thread": {
+        "panelWidth": 390,
+        "panelHeight": 844,
+        "fullScreen": true,
+        "zeroHorizontalOverflow": true,
+        "singleColumn": true,
+        "fullScreenOverlayExpected": true
+      },
+      "375_list": {
+        "panelWidth": 375,
+        "panelHeight": 812,
+        "fullScreen": true,
+        "zeroHorizontalOverflow": true,
+        "singleColumn": true,
+        "fullScreenOverlayExpected": true
+      },
+      "320_thread": {
+        "panelWidth": 320,
+        "panelHeight": 640,
+        "fullScreen": true,
+        "zeroHorizontalOverflow": true,
+        "singleColumn": true,
+        "fullScreenOverlayExpected": true
+      },
+      "touchTargetsAllPass": true
+    },
+    "AC-6 日夜间构（DOM 形状逐项相等）": {
+      "dayAttr": "light",
+      "nightAttr": "dark",
+      "dayCount": 20,
+      "nightCount": 20,
+      "shapeEqual": true,
+      "shapeLen": 533
+    },
+    "未打开态零面板钩子": true
+  },
+  "finishedAt": "2026-10-16T13:22:09.407Z"
+}

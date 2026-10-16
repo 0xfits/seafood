@@ -242,25 +242,35 @@ describe('v1.5 ④ /messages 路由可达 + 悬浮菜单挂载于 AppShell', () 
     ['en', 'Messages', 'No messages yet'],
     ['hk', '訊息', '暫無訊息'],
     ['vn', 'Tin nhắn', 'Chưa có tin nhắn'],
-  ])('%s 档 MessagesPage 渲染**真页**（占位钩子 = 0 + 真页钩子在场）', async (lang, title, empty) => {
-    // ★ 改锚（Kong 2026-10-12 · design-system.spec v1.17 §20.2 `T101` 显式删除项 + 教训 `N43`）：
-    //   原断言 = 「渲染 `messagesPage.*` + X 接驳位占位钩子 `messages-x-placeholder` 存在 + 渲染键
-    //   `messagesPage.xPlaceholder`」。`T101` 把 `/messages` 由占位页转真页并**显式删除**该钩子与
-    //   `xPlaceholder`/`xNote` 两键（四语同删）⇒ 原断言**必然红**。本单属**显式删除项引致的合法前推**：
-    //   钩子侧改为「占位钩子命中 = 0 + 真页钩子在场」，键侧改为「四语两键均已删」，**不是放宽**。
-    //   空态文案断言（`messagesPage.empty`）保留，但改锚到**真页的空态钩子** `messages-list-empty`
-    //   （取数替身回空列表 ⇒ 确定性走到列表空态；`noData`/错误态不再混入）。
+  ])('%s 档 消息面板（`/messages` 直链落点 = 首页 + 面板）：面板钩子在场 + 占位钩子 = 0', async (lang, title, empty) => {
+    // ★ 改锚（v1.19 §21.6(A1) 第 1/2 处 · 消息面板化「方案 1 · 就地叠加」/ `T104`–`T108`）：
+    //   原断言 = 「`MessagesPage` 渲染**真页**（宿主钩子 `messages-page` 在场）」。面板化后
+    //   `/messages` = **直链落点 = 首页 + 面板**（同一面板，底 = 首页）⇒ 宿主钩子**改名**
+    //   `messages-page` ⇒ `messages-panel`，面板由 `shell/AppShell.jsx` 按 `T105` 判据**条件挂载、单源渲染**
+    //   （`MessagesPage` 体内容 = `<HomePage />`，**不再自渲染面板** ⇒ 两个打开态零判据分叉）。
+    //   故本锚同步前移（**非放宽**）：宿主改为 `<AppShell><MessagesPage /></AppShell>` + 新钩子
+    //   `messages-panel`；其余冻结面（四语标题 / 空态文案 / 占位钩子 = 0 / 两键已删）逐字保留。
+    //   ★ 取数替身：**同一替身**同时服务「首页」与「面板」（`/messages` 落点 = 首页 + 面板）——
+    //     首页在空 `rows` 替身下的取数失败分支已自带兜底（`homePayload?.tasks || []`），**不新造全局假数据**。
     H.lang = lang
     vi.stubGlobal('fetch', vi.fn(async () => ({
       ok: true,
       status: 200,
       json: async () => ({ success: true, data: { rows: [], next_cursor: null } }),
     })))
-    const { container } = renderIn(<MessagesPage />, '/messages')
-    const page = container.querySelector('[data-sf-m="messages-page"]')
+    const { container } = renderIn(<AppShell><MessagesPage /></AppShell>, '/messages')
+    const page = container.querySelector('[data-sf-m="messages-panel"]')
     expect(page).not.toBeNull()
+    // 旧宿主钩子（`messages-page`）已按 §21.5 改名 ⇒ 全仓不再产出
+    expect(container.querySelector('[data-sf-m="messages-page"]')).toBeNull()
+    // 面板两栏包裹层在场（左 = 联系人 / 右 = 对话）
+    expect(container.querySelector('[data-sf-m="messages-panel-list"]')).not.toBeNull()
+    expect(container.querySelector('[data-sf-m="messages-panel-thread"]')).not.toBeNull()
+    // 关闭键（§21.5 新增 `messages-panel-close` · 复用唯一新键 `messagesPage.close`）
+    expect(container.querySelector('[data-sf-m="messages-panel-close"]').getAttribute('aria-label'))
+      .toBe(TABLES[lang].messagesPage.close)
     expect(page.textContent).toContain(title)
-    // 真页钩子在场 + 空态文案（原「empty」断言语义的等价承接）
+    // 面板钩子在场 + 空态文案（原「empty」断言语义的等价承接）
     const emptyEl = await waitFor(() => {
       const el = container.querySelector('[data-sf-m="messages-list-empty"]')
       expect(el).not.toBeNull()
@@ -276,5 +286,18 @@ describe('v1.5 ④ /messages 路由可达 + 悬浮菜单挂载于 AppShell', () 
       expect(TABLES[l].messagesPage.xPlaceholder).toBeUndefined()
       expect(TABLES[l].messagesPage.xNote).toBeUndefined()
     }
+  })
+
+  it('未打开态（`/`）⇒ 面板**不在 DOM**（条件挂载 · 与改前形态逐字相同 · 零回归面）', () => {
+    // ★ 本单新增反断言（v1.19 §21.4 面板挂载 = **条件挂载**；判据 = `T105`）：
+    //   未命中判据 ⇒ 面板整棵子树不渲染（`shell/AppShell.jsx`），且零 `messages-*` 钩子产出。
+    H.lang = 'zh'
+    const { container } = renderIn(<AppShell><div data-testid="page">page</div></AppShell>, '/')
+    expect(container.querySelector('[data-sf-m="messages-panel"]')).toBeNull()
+    expect(container.querySelectorAll('[data-sf-m^="messages-"]').length).toBe(0)
+    // 反事实：同一判据下 `/messages` 必须真出场（证明本尺子对「打开态」敏感）
+    const opened = renderIn(<AppShell><div data-testid="page">page</div></AppShell>, '/messages')
+    expect(opened.container.querySelector('[data-sf-m="messages-panel"]')).not.toBeNull()
+    expect(opened.container.querySelector('[data-sf-region="shell"]').className).toContain('sf-shell--msg-open')
   })
 })
