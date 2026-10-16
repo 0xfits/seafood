@@ -1,0 +1,46 @@
+# 生产 HTTP 面读据 · 2026-10-16 21:48–21:50 CST
+# 全部 curl 均带 --resolve 0xseafood.com:443:76.76.21.21（本机 DNS 被劫持 ⇒ 域名本地解析不可信）
+# 命令形态（逐条可复跑）：curl -sS -H 'Cache-Control: no-cache' --resolve 0xseafood.com:443:76.76.21.21 -o <落盘> -w 'http_code=%{http_code} size_download=%{size_download}' https://0xseafood.com<path>
+
+## A. 首次取 /（无 cache-busting）—— 吃到【边缘缓存旧 HTML】（§5.411-G 同型假读数，本单实测复现）
+#   http_code=200  size_download=7908
+#   引用：src="/assets/index-DJNSZl46.js"  href="/assets/index-Bl6P2cg0.css"
+#   旧产物判定：asset_index-DJNSZl46.js (484014 B, sha256 0193f82d…) 里面板字面 messages-panel-close 计数 = 0
+#              ⇒ 该 HTML 属于 da705e2（消息面板化）【之前】的部署 ⇒ 「产物名不同 ≠ 没上线」的实证
+#   附带观察：跟随取 https://0xseafood.com/assets/index-Bl6P2cg0.css -> http_code=200 但 size_download=7908
+#             且 sha256 336c2990… == index.html 本体 ⇒ 旧 HTML 引用的 CSS 已被 GC，被 SPA rewrite 顶成 HTML
+#             （瞬态边缘缓存伪影；新 HTML 的 CSS index-D4sieLPp.css 取到的是真身 121755 B）
+
+## B. 绕缓存复取（cache-busting query，x-vercel-cache: HIT / age 15–16s）
+#   run1  https://0xseafood.com/?cb=<rand>1  -> http=200 size=7908  src="/assets/index-C3dRJ_m4.js"  href="/assets/index-D4sieLPp.css"
+#   run2  https://0xseafood.com/?cb=<rand>2  -> http=200 size=7908  src="/assets/index-C3dRJ_m4.js"  href="/assets/index-D4sieLPp.css"
+#   run3  https://0xseafood.com/?cb=<rand>3  -> http=200 size=7908  src="/assets/index-C3dRJ_m4.js"  href="/assets/index-D4sieLPp.css"
+#   ⇒ 3/3 与本地 HEAD 重建产物名逐字相同
+
+## C. 复取响应头（run1 全量）
+#   age: 15
+#   cache-control: public, max-age=0, must-revalidate
+#   date: Fri, 16 Oct 2026 13:49:00 GMT
+#   etag: "1df477550743fc71ab2712f13219cdc6"
+#   last-modified: Fri, 16 Oct 2026 13:48:45 GMT
+#   server: Vercel
+#   x-vercel-cache: HIT
+#   x-vercel-id: hkg1::9m7k5-1792158540500-c0c9f16f0653
+
+## D. 复取后 plain /（无 query）亦已翻新 —— 3/3 返回新版
+#   plain1 -> http=200 size=7908  src="/assets/index-C3dRJ_m4.js"  href="/assets/index-D4sieLPp.css"
+#   plain2 -> http=200 size=7908  src="/assets/index-C3dRJ_m4.js"  href="/assets/index-D4sieLPp.css"
+#   plain3 -> http=200 size=7908  src="/assets/index-C3dRJ_m4.js"  href="/assets/index-D4sieLPp.css"
+
+## E. 七个产物逐个取（绕缓存），http_code / size_download
+#   /assets/index-C3dRJ_m4.js        -> 200  485465
+#   /assets/index-D4sieLPp.css       -> 200  121755
+#   /assets/vendor-AmHF8z37.js       -> 200    9105
+#   /assets/vendor-react-CZtNYldG.js -> 200  166588
+#   /assets/vendor-router-Cm_Gdouh.js-> 200   12635
+#   /assets/vendor-ui-C62xpTZb.js    -> 200   39479
+#   /assets/vendor-i18n-Dv2xmCnL.js  -> 200   53547
+#   （全部 200 且字节数与本地 dist/assets 同名文件相等；比对见 readings/sha256-compare.txt）
+
+## F. 四态 HTML 落盘（均为 SPA 外壳，size=7908）
+#   html_home.html / html_exchange.html / html_item_1.html / html_messages.html   -> 全部 http_code=200 size_download=7908

@@ -1,0 +1,60 @@
+# 生产终验 · 同版证明（本地 HEAD 重建 vs 线上绕缓存取）
+# 取数时间: 2026-10-16 21:50:11 CST
+
+## 0. 本地 HEAD
+HEAD = da705e2ffe59f81f69e41260e6320ba65708ab40
+origin/main = da705e2ffe59f81f69e41260e6320ba65708ab40
+
+## 1. 本地重建（cd frontend && npm run build; echo exit=$?）
+dist/assets/hk-DJjlsSdH.svg              4.61 kB │ gzip:   2.01 kB
+dist/index.html                          6.69 kB │ gzip:   3.60 kB
+dist/assets/us-BUggRluv.svg              7.87 kB │ gzip:   1.24 kB
+dist/assets/index-D4sieLPp.css         121.76 kB │ gzip:  22.29 kB
+dist/assets/vendor-AmHF8z37.js           9.11 kB │ gzip:   4.01 kB
+dist/assets/vendor-router-Cm_Gdouh.js   12.64 kB │ gzip:   4.64 kB
+dist/assets/vendor-ui-C62xpTZb.js       39.48 kB │ gzip:  10.69 kB
+dist/assets/vendor-i18n-Dv2xmCnL.js     53.54 kB │ gzip:  16.60 kB
+dist/assets/vendor-react-CZtNYldG.js   166.55 kB │ gzip:  54.38 kB
+dist/assets/index-C3dRJ_m4.js          445.77 kB │ gzip: 131.35 kB
+✓ built in 1.88s
+exit=0
+
+## 2. 线上绕缓存拉到的新版 HTML（cache-busting query）
+-- run1 --
+src="/assets/index-C3dRJ_m4.js"
+href="/assets/vendor-AmHF8z37.js"
+href="/assets/vendor-react-CZtNYldG.js"
+href="/assets/vendor-router-Cm_Gdouh.js"
+href="/assets/vendor-ui-C62xpTZb.js"
+href="/assets/vendor-i18n-Dv2xmCnL.js"
+href="/assets/index-D4sieLPp.css"
+-- run2 --
+src="/assets/index-C3dRJ_m4.js"
+href="/assets/vendor-AmHF8z37.js"
+href="/assets/vendor-react-CZtNYldG.js"
+href="/assets/vendor-router-Cm_Gdouh.js"
+href="/assets/vendor-ui-C62xpTZb.js"
+href="/assets/vendor-i18n-Dv2xmCnL.js"
+href="/assets/index-D4sieLPp.css"
+-- run3 --
+src="/assets/index-C3dRJ_m4.js"
+href="/assets/vendor-AmHF8z37.js"
+href="/assets/vendor-react-CZtNYldG.js"
+href="/assets/vendor-router-Cm_Gdouh.js"
+href="/assets/vendor-ui-C62xpTZb.js"
+href="/assets/vendor-i18n-Dv2xmCnL.js"
+href="/assets/index-D4sieLPp.css"
+
+## 3. 线上 plain / 复取（首次吃到边缘缓存旧 HTML ⇒ 60s 后翻新）
+-- 首次（旧 HTML，§5.411-G 同型假读数）--
+src="/assets/index-DJNSZl46.js"
+href="/assets/vendor-AmHF8z37.js"
+href="/assets/vendor-react-CZtNYldG.js"
+href="/assets/vendor-router-Cm_Gdouh.js"
+href="/assets/vendor-ui-C62xpTZb.js"
+href="/assets/vendor-i18n-Dv2xmCnL.js"
+href="/assets/index-Bl6P2cg0.css"
+-- 复取 ×3（新版）--
+src="/assets/index-C3dRJ_m4.js" href="/assets/vendor-AmHF8z37.js" href="/assets/vendor-react-CZtNYldG.js" href="/assets/vendor-router-Cm_Gdouh.js" href="/assets/vendor-ui-C62xpTZb.js" href="/assets/vendor-i18n-Dv2xmCnL.js" href="/assets/index-D4sieLPp.css" 
+src="/assets/index-C3dRJ_m4.js" href="/assets/vendor-AmHF8z37.js" href="/assets/vendor-react-CZtNYldG.js" href="/assets/vendor-router-Cm_Gdouh.js" href="/assets/vendor-ui-C62xpTZb.js" href="/assets/vendor-i18n-Dv2xmCnL.js" href="/assets/index-D4sieLPp.css" 
+src="/assets/index-C3dRJ_m4.js" href="/assets/vendor-AmHF8z37.js" href="/assets/vendor-react-CZtNYldG.js" href="/assets/vendor-router-Cm_Gdouh.js" href="/assets/vendor-ui-C62xpTZb.js" href="/assets/vendor-i18n-Dv2xmCnL.js" href="/assets/index-D4sieLPp.css" 

@@ -1,0 +1,10 @@
+# 哨兵读数（行数 = data 数组元素个数）
+schema_version         = "0048"
+health.ok              = true
+health.db_version      = "PostgreSQL 18.6 (653b019) on aarch64-unk"
+task/all .success      = true
+task/all data isArray  = true
+task/all ROWS (baseline 3) = 3
+prize/all .success     = true
+prize/all data isArray = true
+prize/all ROWS (baseline 4) = 4

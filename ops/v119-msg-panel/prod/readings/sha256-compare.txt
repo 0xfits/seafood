@@ -1,0 +1,43 @@
+# 同版证明 · sha256 逐字比对  ·  2026-10-16 21:50:19 CST
+
+## 线上产物 sha256（curl --resolve 绕缓存逐个拉取的真身，逐个核 http_code）
+f53c130d621343a56aef7f4f0fdf06e23b04fee7e992f0169f621ce098d30f9f  index-C3dRJ_m4.js
+8a6b5d3596704c60008429cdd348ff852d52d9d4df34cf900b5b5299af72e257  index-D4sieLPp.css
+495d48a8401d9d3cdecd460ac0003d7d0c9e173105fbad6081016995b14fa665  vendor-AmHF8z37.js
+f4e3fe67d40ba5370a45f75c9f94e4138a0278ccfafde0fc7ba1f101fcec5082  vendor-i18n-Dv2xmCnL.js
+e16f933f6076fad6c8afc2a190691a2be82acedf5ba8bef79e1f3a62e386bd8c  vendor-react-CZtNYldG.js
+fe78188d1c7661e9dec11fd22b924789174547a0ce3f21886497b03c750e5320  vendor-router-Cm_Gdouh.js
+fc97b458ecc48caf587762778be438cbc0efa8d4952097ae2665c4e2a4e86857  vendor-ui-C62xpTZb.js
+
+## 本地 frontend/dist/assets sha256（HEAD 现跑 npm run build，exit=0）
+f53c130d621343a56aef7f4f0fdf06e23b04fee7e992f0169f621ce098d30f9f  index-C3dRJ_m4.js
+8a6b5d3596704c60008429cdd348ff852d52d9d4df34cf900b5b5299af72e257  index-D4sieLPp.css
+495d48a8401d9d3cdecd460ac0003d7d0c9e173105fbad6081016995b14fa665  vendor-AmHF8z37.js
+f4e3fe67d40ba5370a45f75c9f94e4138a0278ccfafde0fc7ba1f101fcec5082  vendor-i18n-Dv2xmCnL.js
+e16f933f6076fad6c8afc2a190691a2be82acedf5ba8bef79e1f3a62e386bd8c  vendor-react-CZtNYldG.js
+fe78188d1c7661e9dec11fd22b924789174547a0ce3f21886497b03c750e5320  vendor-router-Cm_Gdouh.js
+fc97b458ecc48caf587762778be438cbc0efa8d4952097ae2665c4e2a4e86857  vendor-ui-C62xpTZb.js
+
+## 逐字节 cmp（线上 vs 本地）
+IDENTICAL  index-C3dRJ_m4.js
+IDENTICAL  index-D4sieLPp.css
+IDENTICAL  vendor-AmHF8z37.js
+IDENTICAL  vendor-react-CZtNYldG.js
+IDENTICAL  vendor-router-Cm_Gdouh.js
+IDENTICAL  vendor-ui-C62xpTZb.js
+IDENTICAL  vendor-i18n-Dv2xmCnL.js
+
+## 新版产物命中判据（面板字面真的在生产 JS 里）
+messages-panel-close     local=1  prod=1
+sf-mp                    local=1  prod=1
+messages-panel-list      local=1  prod=1
+
+## ★ 首次 plain / 取到的旧 HTML（边缘缓存假读数 · 已归档为同型实例）
+src="/assets/index-DJNSZl46.js"
+href="/assets/vendor-AmHF8z37.js"
+href="/assets/vendor-react-CZtNYldG.js"
+href="/assets/vendor-router-Cm_Gdouh.js"
+href="/assets/vendor-ui-C62xpTZb.js"
+href="/assets/vendor-i18n-Dv2xmCnL.js"
+href="/assets/index-Bl6P2cg0.css"
+旧产物 index-DJNSZl46.js 里面板字面计数 = 0（0 ⇒ 旧版确无面板，反证新版确已上线）

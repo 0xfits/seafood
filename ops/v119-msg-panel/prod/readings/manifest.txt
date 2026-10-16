@@ -1,0 +1,18 @@
+# v119 消息面板化 · 生产终验 · 读数清单（ops/v119-msg-panel/prod/）
+
+file | bytes | sha256
+---|---|---
+prod-probe.json | 32736 | c0c3a1d3beeb5dd65d18fef82b4337d7c4ebedfb3b81e1a99f9282621406f1eb
+prod-probe.log | 162 | b8fb1ef093604afc6f81274177bee422c486cd3ef5f3b1a959d4a1bcee6c1faa
+probe-prod.mjs | 20042 | 77c43731cfc7fd592e05be423ec8ac3df9cbbbd2b255d53dee5e3ff51abb8013
+logs/local-build.log | 1205 | 3b86a0034fe7fa52fc6be8595ce34e41748c8e4244c4c26cb8760df27b0fb66f
+readings/sameversion.txt | 3093 | 8d02f06d5781811e53386496a14e3a900fcf17d9552f09f13206b88e81e06c0d
+readings/sha256-compare.txt | 2399 | 9faddab8ebcaf982f340c361da43e2c9522998b3a90c7aa917acf5c120d83466
+readings/http-headers.txt | 3252 | c4a33fde4ad9f2633f0f9b4bcfae019bdba21775e558392cb91f72f4d8c1184f
+readings/sentinel-curl.log | 247 | 3e7504ec01cb355b7771ca9995560cdf048a5b45ecbedee609eade2bbb7d4ec0
+readings/sentinel-counts.txt | 366 | b4d5485debe1afe5ac610c32ab8305aafaf9eb36940ef400239c9f94be16b5b4
+readings/health.json | 204 | 3c47e910cf42db6c1f6db7511bbe8b8221dfb37e288435ae893e339e5f4f6a5d
+readings/task_all.json | 1284 | 42a17945b57389eb23d5f897a5ea4fbb6c0267c04fe6a73721f28b182e3b85fd
+readings/prize_all.json | 4835 | 8a8efe35c2526184c713e4b32c93d444b541d3f76094db8962f87f9fd52011e1
+readings/prod-html-stale-first.html | 7908 | 02903d545552811fc4ee9d555e156a4f6532cab560c90cf8492148abf859d553
+readings/prod-html-fresh.html | 7908 | 336c299066084720de4a14042aaed53989bfe64ef1aa31ac7c9d53ddf7ec4c1c
