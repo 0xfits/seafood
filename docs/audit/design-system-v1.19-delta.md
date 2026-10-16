@@ -55,3 +55,21 @@
 - **补登范围（漂移 ①–⑥ 逐条）**：① 入口③「聊一聊」**就地叠加** ⇒ 取代 `§21.8 AC-1③` / `§21.11 Q4` 的「换页」字面（**`toContain('/messages?c=')` 型锚不得采用**）；② `/messages` 直链态「×」⇒ **回首页**（`T105` 判据必然推论）；③ `≥768` 未选会话右栏空态 **全档**复用既有键 `messages-detail-empty`；④ 分隔线 = `.sf-mp-list` **`border-right`**（非 `inset` 阴影）；`600 = 240 + 360` 依赖 **Tailwind preflight `box-sizing: border-box`**（隐式依赖已登记）；⑤ 「零横向溢出」**降级为环境性旁证**（承重 = 面板宽 / 右偏移 / 间隙 / 相交 / 正文右缘五条）；⑥ **`AC-5` 声明式归一化口径**（结构键 + 剔 `alt`/`title` 属性值）+ **噪声源具名 `Footer.jsx:12`** + **raw 判据原样保留 `ENV_LIMITED`（未改写为 PASS）**。
 - **未动**：`§1`–`§20` 一字未动；`T104`–`T108` 条文与 §21.3 几何冻结值**一字不改**；`docs/versions/design-system.spec.v1.18.md` **未触碰**（勘误前历史）。
 - **未动代码自证**：`git status --porcelain frontend backend-ts` = **空**。**未 push**。
+
+## §E 生产终验补登（Neng `1cc70d3` · 2026-10-16 · **勘误级不升版**）
+
+> 依据 = `docs/qa/v119-msg-panel-prod.md`（判决 **PASS**；**无新增 `spec_drift`**）；生产被检面 = **上线版 `da705e2`**（同版 sha256 `f53c130d…`）；读数 = `ops/v119-msg-panel/prod/**` 15 件。**只补 `docs/**` · 纯追加 · 旧字面逐字保留。**
+
+| 项 | 改前（`da705e2` 末） | 改后（本补登 · 现盘） |
+|---|---|---|
+| 行数 | **2351** | **2355**（+4） |
+| 字节 | **515,046** | **517,050**（+2,004） |
+| md5 | `b0a993515e9d2c9519bae68b47d6ab88` | `1ac3dc50c40cb15d409d008090d02e47` |
+| `git diff --numstat docs/design/design-system.spec.md` | — | **`4 0`**（**删除列 = 0 ✓ 纯追加**；§21.12 尾部追加 4 行，旧四点逐字未动） |
+| 镜像 `docs/versions/design-system.spec.v1.19.md` | `cmp` = 0（对旧 live） | **重制（`cp` 覆盖）⇒ 对现盘 live `cmp` = 0**（复核 ✓） |
+| 三处锚点（计数锚点 · 改后实测） | — | ① `grep -c '^> \*\*★ 现行版 = v1.19'` = **1**；② `grep -c '^## §21 '` = **1**；③ `grep -c '^| \*\*v1.19\*\* |'` = **1** ✓ |
+
+- **补登范围（§21.12 追加两条中「覆盖面差异 · 非缺陷」）**：**①** 未登录态打开面板 ⇒ 左栏渲染**既有键 `pleaseLogin`** 文案，但该文案**无 `data-sf-m` 钩子** ⇒ 生产探针读成「左栏空」（`conversation-item` 计数 `0` · `messages-list-empty` 文案 = `null` · 登录引导钩子命中 `[]`）；代码面现取 = `frontend/src/shell/MessagesPanel.jsx:197-198`；**标【可测性小改 · 一句话可改】⇒ 后续单可补钩子（本单不改）**。**②** 生产 `NOT_MEASURED` 清单（`768`/`1024`/`1199` 中间档几何 · `/hk` `/vn` 两语档几何 · 修饰键 / 中键新标签行为 · 入口① 底栏第 4 格生产真点击 · 入口③「聊一聊」生产真点击）。
+- **另登台账（非本册）**：`docs/OPEN-ITEMS.md` 新增 **`F27`** / **`F28`**；`docs/seafood.master-plan.md` 的 `§5.413` 续段 + `v0.331` 行**上线回写**（push `fd34ca0..da705e2` 上线 · `1cc70d3` 本地未推 · 同版 sha256 `f53c130d…` · 哨兵零位移 · 生产探针 PASS · 回滚预案 + 首取边缘缓存旧 HTML 实例补登）。
+- **未动**：`T104`–`T108` 条文 / §21.3 几何冻结值 / `§1`–`§20` 一字未改；`docs/versions/design-system.spec.v1.18.md` **未触碰**（勘误前历史）；`docs/route-layer.spec.md` 与 `docs/versions/route-layer.spec.v2.34.md` **本笔未动**（`cmp` 仍 = 0）。
+- **未动代码自证**：`git status --porcelain frontend backend-ts` = **空**。**未 push**（本地 commit · 由 Zang 收口）。

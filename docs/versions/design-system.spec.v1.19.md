@@ -2301,6 +2301,10 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 - **键值四语**（`messagesPage.close`）：en / hk / vn = **初译 · 待 Kevin 复核**（`T9x` 体例）。
 - **本册本单未动**：`frontend/**` / `backend-ts/**` / `tools/**` / `ctrl/**`；**未跑任何门**（`build` / `test:unit` 未执行）；**未连库、未启停服务、未 `pm2 restart`**；**未 `git add -A` · 未 commit · 未 push**。
 - **`docs/versions/design-system.spec.v1.18.md` 对现盘 `cmp` ≠ 0**（现取：`char 38020, line 19`）—— 该快照保留 **2026-10-15 勘误前**字面（其自述「本单未重制 / 未触碰 `docs/versions/**`」）⇒ **本单不重制、不触碰它**（历史留痕）；**本单改前读数以「现盘 live 正文」为准**（见 §21.13）。
+- **★ v1.19 生产终验补登（Neng `1cc70d3` · 2026-10-16 · **勘误级不升版 · 纯追加**）**：生产终验 **PASS**（被检面 = 上线版 `da705e2` · 同版 sha256 `f53c130d…`；报告 `docs/qa/v119-msg-panel-prod.md` · **无新增 `spec_drift`**）另采到**两条质检覆盖面差异（非缺陷 · 本册只登记 · 不改产品面）**：
+  - **① 未登录态打开面板 = 左栏渲染既有键 `pleaseLogin` 文案，但该文案无 `data-sf-m` 钩子** ⇒ 生产探针读成「左栏空」（`conversation-item` 计数 `0` · `messages-list-empty` 文案 = `null` · 登录引导钩子 `[data-sf-m*="login"/"auth"/"sign"]` 命中 `[]`）。**代码面现取 = `frontend/src/shell/MessagesPanel.jsx:197-198`**（`{!isAuthenticated ? (` ⇒ `<p className="sf-msg-status">{t('pleaseLogin')}</p>`）。**标【可测性小改 · 一句话可改】：后续单可给该文案补 `data-sf-m` 钩子（本单不改）**。与本地质检（探针夹具恒登录态 · `unread_total=250` / 3 会话行）**不矛盾，属覆盖面差异**（**两读数并存、不互相取代**）。
+  - **② `NOT_MEASURED` 清单（生产面未采 · 禁填 `0`/空）**：生产 `768` / `1024` / `1199` 中间档几何（派单只要求 `1440` + `≤390` 两档；中间档已由本地质检四档覆盖）· `/hk` `/vn` 两语档几何（本地质检亦未采）· 修饰键 / 中键（新标签）行为（`popup` 读数 `ENV_LIMITED`）· 入口① 底栏第 4 格生产真点击（`1440` 档属既有 `display:none`、≥768 口径 ⇒ 未复点）· 入口③ 详情页「聊一聊」生产真点击（登录态会 `POST /api/messages/conversations` ⇒ 遵**零写纪律未点**；其**入口在场 + `href` 未改 + 落点命中 `T105`** 已由本地质检逐字取证）。
+  - **⇒ 两条均登记不改**：`docs/OPEN-ITEMS.md` 新增 **`F27`**（可测性）/ **`F28`**（`NOT_MEASURED` 清单）；**§21.3 几何冻结值 / `T104`–`T108` / `§1`–`§20` 一字未动**。
 
 ### 21.13 快照 + 自证 + git 面（本节）
 
