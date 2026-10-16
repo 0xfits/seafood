@@ -1,0 +1,189 @@
+{
+  "probe": "probe-interactions-qa2.mjs (Neng 独立质检 · 自写)",
+  "startedAt": "2026-10-16T13:32:54.555Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtureItem": {
+    "bID": 123,
+    "listing_id": 123,
+    "title": "FIXTURE 商品 X",
+    "name": "FIXTURE 商品 X",
+    "price": 100,
+    "status": "listed",
+    "stock": 5,
+    "description": "FIXTURE 描述",
+    "seller": {
+      "uid": 999999
+    },
+    "seller_uid": 999999
+  },
+  "pageErrors": [],
+  "entry3_itemChat": {
+    "beforePathname": "/item/123",
+    "chatBtnPresent": true,
+    "chatBtnTag": "BUTTON",
+    "chatBtnHref": null,
+    "pathnameAfter": "/item/123",
+    "pathnameIdentical": true,
+    "searchAfter": "?msg=1&c=7",
+    "panelPresent": true,
+    "aboutText": "关于：FIXTURE 商品 A",
+    "mine": 1,
+    "theirs": 1,
+    "convRows": 0,
+    "urlMatchesT105": true
+  },
+  "click_ctrl": {
+    "modifiers": [
+      "Control"
+    ],
+    "button": "left",
+    "clickError": null,
+    "newPages": [],
+    "newPageCount": 0,
+    "mainPathname": "/exchange",
+    "mainSearch": "",
+    "mainPanelPresent": false,
+    "mainHistoryLength": 4
+  },
+  "click_meta": {
+    "modifiers": [
+      "Meta"
+    ],
+    "button": "left",
+    "clickError": null,
+    "newPages": [
+      ""
+    ],
+    "newPageCount": 1,
+    "mainPathname": "/exchange",
+    "mainSearch": "",
+    "mainPanelPresent": false,
+    "mainHistoryLength": 4
+  },
+  "click_shift": {
+    "modifiers": [
+      "Shift"
+    ],
+    "button": "left",
+    "clickError": null,
+    "newPages": [
+      "chrome-error://chromewebdata/"
+    ],
+    "newPageCount": 1,
+    "mainPathname": "/exchange",
+    "mainSearch": "",
+    "mainPanelPresent": false,
+    "mainHistoryLength": 4
+  },
+  "click_alt": {
+    "modifiers": [
+      "Alt"
+    ],
+    "button": "left",
+    "clickError": null,
+    "newPages": [],
+    "newPageCount": 0,
+    "mainPathname": "/exchange",
+    "mainSearch": "",
+    "mainPanelPresent": false,
+    "mainHistoryLength": 4
+  },
+  "click_middle": {
+    "modifiers": null,
+    "button": "middle",
+    "clickError": null,
+    "newPages": [],
+    "newPageCount": 0,
+    "mainPathname": "/exchange",
+    "mainSearch": "",
+    "mainPanelPresent": false,
+    "mainHistoryLength": 4
+  },
+  "click_plain": {
+    "modifiers": null,
+    "button": "left",
+    "clickError": null,
+    "newPages": [
+      "http://sf.local/exchange?msg=1"
+    ],
+    "newPageCount": 1,
+    "mainPathname": "/exchange",
+    "mainSearch": "?msg=1",
+    "mainPanelPresent": true,
+    "mainHistoryLength": 5
+  },
+  "overflowRulerFunctional": {
+    "arm": "page 内注入 .sf-route-container{width:3000px}（只改探针页内样式）",
+    "overflowPx_before": 0,
+    "overflowPx_after": 0,
+    "rulerCanGoRed": false,
+    "note": "本判据（scrollWidth-clientWidth）在面板化改动下恒 0 —— 面板为 position:fixed 浮层、不参与滚动宽 ⇒ 对本改动不敏感；此处证明尺子本身有分辨力"
+  },
+  "theme": {
+    "light1": {
+      "total": 161,
+      "excluded": 3,
+      "len": 158
+    },
+    "light2": {
+      "total": 161,
+      "excluded": 3,
+      "len": 158
+    },
+    "dark1": {
+      "total": 161,
+      "excluded": 3,
+      "len": 158
+    },
+    "dark2": {
+      "total": 161,
+      "excluded": 3,
+      "len": 158
+    },
+    "raw_light1_vs_light2_diff": {
+      "aOnly": [
+        "A|group block rounded-lg overflow-hidden relative|href=https://catcat.meme&rel=noopener noreferrer&target=_blank&title=你的代言，从猫猫大使团开始。|1/0/1/0/2/0/0/0/1/0",
+        "IMG|h-[50px] w-auto object-contain|alt=你的代言，从猫猫大使团开始。&height=50&src=/images/partners/CAT_banner.png&width=160|1/0/1/0/2/0/0/0/1/0/0/0"
+      ],
+      "bOnly": [
+        "A|group block rounded-lg overflow-hidden relative|href=https://catcat.meme&rel=noopener noreferrer&target=_blank&title=猫猫大使团｜不止一份报酬，更加一份经验。|1/0/1/0/2/0/0/0/1/0",
+        "IMG|h-[50px] w-auto object-contain|alt=猫猫大使团｜不止一份报酬，更加一份经验。&height=50&src=/images/partners/CAT_banner.png&width=160|1/0/1/0/2/0/0/0/1/0/0/0"
+      ],
+      "size": 4
+    },
+    "raw_light1_vs_dark1_diff": {
+      "aOnly": [
+        "A|group block rounded-lg overflow-hidden relative|href=https://catcat.meme&rel=noopener noreferrer&target=_blank&title=你的代言，从猫猫大使团开始。|1/0/1/0/2/0/0/0/1/0",
+        "IMG|h-[50px] w-auto object-contain|alt=你的代言，从猫猫大使团开始。&height=50&src=/images/partners/CAT_banner.png&width=160|1/0/1/0/2/0/0/0/1/0/0/0"
+      ],
+      "bOnly": [
+        "A|group block rounded-lg overflow-hidden relative|href=https://catcat.meme&rel=noopener noreferrer&target=_blank&title=猫猫大使团｜你的声音，值得被品牌听见。|1/0/1/0/2/0/0/0/1/0",
+        "IMG|h-[50px] w-auto object-contain|alt=猫猫大使团｜你的声音，值得被品牌听见。&height=50&src=/images/partners/CAT_banner.png&width=160|1/0/1/0/2/0/0/0/1/0/0/0"
+      ],
+      "size": 4
+    },
+    "normalized_light1_vs_light2_diffSize": 0,
+    "normalized_light1_vs_dark1_diffSize": 0,
+    "normalized_light1_vs_dark1_aOnly": [],
+    "normalized_light1_vs_dark1_bOnly": [],
+    "shapeEqual_normalized": true,
+    "shapeEqual_raw": false,
+    "totalDeltaEqualsIconSubtreeDelta_lightVsDark": true
+  },
+  "localeEn": {
+    "fmMessagesHref": "/en/messages",
+    "tabMessagesHref": "/en/messages",
+    "pathnameBefore": "/en/exchange",
+    "pathnameAfter": "/en/exchange",
+    "pathnameIdentical": true,
+    "searchAfter": "?msg=1",
+    "panelPresent": true,
+    "closeAria": "Close messages",
+    "directMessages": {
+      "pathname": "/en/messages",
+      "panelPresent": true,
+      "closeAria": "Close messages"
+    }
+  },
+  "finishedAt": "2026-10-16T13:33:08.205Z"
+}

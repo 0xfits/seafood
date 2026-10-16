@@ -1,0 +1,100 @@
+{
+  "probe": "probe-diagnostics-qa3.mjs (Neng 独立质检 · 自写)",
+  "startedAt": "2026-10-16T13:34:08.935Z",
+  "overflowDiagnosis": [
+    {
+      "tag": "baseline",
+      "docScrollWidth": 1440,
+      "docClientWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "htmlOverflowX": "visible",
+      "bodyOverflowX": "visible"
+    },
+    {
+      "tag": "sf-route-container width=3000px !important",
+      "docScrollWidth": 1440,
+      "docClientWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "htmlOverflowX": "visible",
+      "bodyOverflowX": "visible",
+      "elWidth": 1440
+    },
+    {
+      "tag": "main#sf-route-container width=3000px !important",
+      "docScrollWidth": 1440,
+      "docClientWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "htmlOverflowX": "visible",
+      "bodyOverflowX": "visible",
+      "mainWidth": 1440
+    },
+    {
+      "tag": "appended static div width=3000px",
+      "docScrollWidth": 3000,
+      "docClientWidth": 1440,
+      "bodyScrollWidth": 3000,
+      "htmlOverflowX": "visible",
+      "bodyOverflowX": "visible",
+      "divWidth": 3000
+    }
+  ],
+  "popup_plain": {
+    "modifiers": null,
+    "button": "left",
+    "clickError": null,
+    "newPageObjects": 0,
+    "newPageUrls": [],
+    "mainPathname": "/exchange",
+    "mainSearch": "?msg=1",
+    "mainPanelPresent": true,
+    "mainHistoryLength": 3
+  },
+  "popup_ctrl": {
+    "modifiers": [
+      "Control"
+    ],
+    "button": "left",
+    "clickError": null,
+    "newPageObjects": 0,
+    "newPageUrls": [],
+    "mainPathname": "/exchange",
+    "mainSearch": "",
+    "mainPanelPresent": false,
+    "mainHistoryLength": 4
+  },
+  "popup_meta": {
+    "modifiers": [
+      "Meta"
+    ],
+    "button": "left",
+    "clickError": null,
+    "newPageObjects": 1,
+    "newPageUrls": [
+      {
+        "url": "",
+        "closed": false
+      }
+    ],
+    "mainPathname": "/exchange",
+    "mainSearch": "",
+    "mainPanelPresent": false,
+    "mainHistoryLength": 4
+  },
+  "popup_middle": {
+    "modifiers": null,
+    "button": "middle",
+    "clickError": null,
+    "newPageObjects": 1,
+    "newPageUrls": [
+      {
+        "url": "chrome-error://chromewebdata/",
+        "closed": false
+      }
+    ],
+    "mainPathname": "/exchange",
+    "mainSearch": "",
+    "mainPanelPresent": false,
+    "mainHistoryLength": 4
+  },
+  "finishedAt": "2026-10-16T13:34:18.069Z"
+}

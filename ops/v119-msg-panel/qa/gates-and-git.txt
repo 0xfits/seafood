@@ -1,0 +1,41 @@
+### v119 消息面板化 · Neng 独立质检 · 门套 + git 面（一条命令落盘）
+2026-10-16T21:35:49+0800
+
+== build（frontend）: npm run build ==
+✓ built in 1.75s
+exit=0
+  资产: index-C3dRJ_m4.js
+  sha256(index js): f53c130d621343a56aef7f4f0fdf06e23b04fee7e992f0169f621ce098d30f9f
+
+== test:unit（frontend）: npm run test:unit ==
+ Test Files  54 passed (54)
+      Tests  520 passed (520)
+exit=0
+
+== lint（存量 · 仓内无配置） ==
+
+exit=2
+  git ls-files '*eslint*' -> 0 件
+
+== type-check（前端无 tsconfig） ==
+
+exit=1
+
+== 旧版（fd34ca0）自建产物 ==
+✓ built in 1.70s
+exit=0
+  messages-panel 字面命中: 0 件
+
+== git log --oneline -3 ==
+b776aee feat(seafood): 消息面板化（方案 1 · 就地叠加）实现 + 断言改锚 + 证据
+bc57a3a docs(seafood): v1.19 §21 + v2.34 §44 规范冻结（消息面板化 · 方案 1 · 就地叠加）
+fd34ca0 docs(seafood): §5.412 + v0.330 收口——P0 白屏事故与修复（vendor⇄vendor-react 循环依赖 · b7733de 引入 · e0906dd 一行正则修复 · 三方闭环 · push f56118f 上线 · 终验同版 sha256 0193f82d/探针零异常/哨兵零位移）· OPEN-ITEMS 新增 B28（@remix-run/router 正则失配）+ B29 提案（chunk 图无环判据入门套，待 Kevin）
+
+== git status --porcelain ==
+?? ops/v119-msg-panel/qa/
+
+== HEAD / 基线 ==
+b776aee0c90ad49028a98cf9475a6c0111195038
+fd34ca0babe5bb6f004e8ed7c4efd3a66143a54e
+b776aee feat(seafood): 消息面板化（方案 1 · 就地叠加）实现 + 断言改锚 + 证据
+bc57a3a docs(seafood): v1.19 §21 + v2.34 §44 规范冻结（消息面板化 · 方案 1 · 就地叠加）
