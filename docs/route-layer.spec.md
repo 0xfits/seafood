@@ -367,6 +367,17 @@
 > ⑥ **★勘误留痕（2026-10-15 · 两项 Kevin 裁定就地落册 · 勘误级，不升版）**：① **§41.7 通知内容** —— 「双语一行、**不带消息内容**」**作废** ⇒ 「双语一行 + **消息开头预览（首 6 显示宽单位）**」（汉字 / CJK 与全角标点计 2 ⇒ 恰 3 个汉字；拉丁 / 数字计 1；超出加 `…`；恰好满额不加；空正文不追加；emoji 不拆；§41.7 勘误留痕逐字；顶部 v2.31 要点 ⑤ / §41.0 裁定列表第 4 项同批同步）；② **§43.2 ⑤ 形状 `reason`** —— `NOT_FOUND` ⇒ **`SHAPE_INVALID`**（码仍 `400 TG_CODE_INVALID`，防与 ⑥「查无」同名混淆；§43.5 `details.reason` 域登记 **+1 → +2**）。**版本号不升（选择依据）** = 勘误级、非新批次、**零新增契约面**（无新路由 / 码 / 表 / 键），承 v2.33 勘误先例；**跨日差异如实登记**（v2.33 入库 2026-10-14 / 本次 2026-10-15，§43.6 末条逐字）。快照 `docs/versions/route-layer.spec.v2.33.md` 同步重制（`cmp=0`）。
 
 
+
+> **状态：v2.34（已完成 · **Kevin 2026-10-16「消息面板化（方案 1 · 就地叠加）」裁定落册**：`/messages` 语义由「**独立真页**（v2.31 §41 登记的前端页面落点 + v2.27 §37 占位页语义）」⇒ 「**直链落点 = 首页 + 面板**」+ **新增 `?msg=1` / `&c=<conversation_id>` 查询参数口径** + **四入口保全（`href` 一字不改）** + **两计数不变**（前端 `<Route` 字面 `42` / 精确 `34` · 后端注册点 `105`）—— **零新路由 · 零新错误码 · 零库面**）（**只追加 · §1–§43 一字未动** · 零代码 · 零迁移 · 库面只读 · 零 HTTP · 零套件））** · 作者角色 = **Jing（Specifier · 制度员）** · 单号 = **JING-SPEC-MSGPANEL-RT**
+> **v2.34 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.34-delta.md`。**凡与 Kevin 裁定冲突处，一律以裁定为准**（本单逐条标「依据 = Kevin 2026-10-16 ① – ⑥」；**无一处与之冲突**；**唯一口径外延 = `?c=` 单独出现也构成开面板判据** —— 为保 v2.27 §37 起的入口③「聊一聊」`/messages?c=<id>` 与 §44.3 `Q4` 两形态自洽，**已标 `一句话可改` 并登记 §44.3**）。
+> **★★ v2.34 本单要点（先说结论，不含糊）**：
+> ① **★ `/messages` 语义变更（真页 ⇒ 直链落点 + 面板）**：**路径字面 `messages` 逐字保留**（`App.jsx:119` 现取），**变更的是它的落点语义** —— 由「渲染独立消息页」⇒ 「**首页 + 消息面板**」（同一面板，**底 = 首页**）；**前端 `<Route` 计数不变**（**不新增 / 不删除任何 `<Route`**）。
+> ② **★ 新增查询参数口径 `?msg=1` / `&c=<conversation_id>`**：**打开 = 给当前路由加参**（**不换页**）；**关闭 = 移除 `msg`/`c`**（`replace` 保当前页）。逐值语义、参数组合矩阵与非法值口径 = **§44.3**（**写死**）。
+> ③ **★ 四入口保全表（逐条 `href` 现取）** = **§44.4**：底栏第 4 格 · 悬浮菜单「消息」· 详情页「聊一聊」· Telegram 通知正文直链 —— **四条 `href` / 字面一字不改**。
+> ④ **★ 两计数不变** = **§44.5**：前端 `grep -cE '<Route' App.jsx` = **`42`**（含 2 行注释散文）· `grep -oE '<Route[ >]' | wc -l` = **`34`**（多行开写法不计入 = §40.3/§42.5 已登记口径盲点；内层逐段清点 = **`20`** = 16 单行 + 4 多行）· 后端 `grep -cE '^app\.(get|post|put|delete|patch)\(' index.ts` = **`105`**（get 45 / post 56 / put 0 / delete 3 / patch 1）。
+> ⑤ **零新后端面**：`/api/messages` 族（§41.2 #1–#6）与 `TG_*` / `MSG_*` 码集**一字不动**；`details.reason` 域不扩；**幂等键不新增**（面板内发送仍走既有 `cli:` 前端供键体例，§41.8）。
+> ⑥ **只追加**：**§1–§43 一字未动**；**§44（新）= 唯一新增节**；**v0.1–v2.33 快照未动**（v2.33 快照 `cmp=0` 保持，见 §44.8）。姊妹册 = `design-system.spec` **v1.19 §21**（形态 / 几何冻结表 / 钩子契约 / 断言改锚 / 键集算式）。
+
 > **v2.19 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.19-delta.md`（**同批姊妹册** = `docs/audit/data-layer-v0.26-delta.md` + `docs/audit/commission-v0.4-delta.md`）。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 P9⑤ 契约冻结；**未改写任何裁定、未发明任何路径 / 数值 / 权限键 / 文案值**）。**★ 姊妹册（同批）**：`docs/commission.spec.md` **v0.4 §19** + `docs/data-layer.spec.md` **v0.26 §34**，**本册不重抄其条文、只指路**。
 > **★★ v2.19 本单要点（先说结论，不含糊）**：① **零新用户面口**（邀请奖励 = 结算腿，无独立读 / 动作口）；② **后台配置面复用**（费率 + 6 项权重矩阵）；③ **注册点 `87 → 87`（+0）**；④ **权限键 11 键内（零增删）**；⑤ **错误码零新增 + `R107`**；⑥ **真生效四段（①③④ 段）**；⑦ **连带门改版**（`p8-s2` 8 键 / 守卫常量 / 页字段面随 `R-9-1` ⇒ 归实现单）。
 
@@ -8356,3 +8367,133 @@ CONSTRAINT admin_refund_audit_log_idem_uniq   UNIQUE (idempotency_key, result)  
 - **git 面**：只 `git add` 本单四文件（`docs/route-layer.spec.md` + `docs/versions/route-layer.spec.v2.33.md` + `docs/data-layer.spec.md` + `docs/versions/data-layer.spec.v0.33.md`）；**本地 commit · 未 push**（两笔实现 commit 与本登记 commit 一并待推送）；**绝不 push**。
 - **★勘误留痕（2026-10-14 · 同日二次勘误级修正，不升版）**：§43.2 ⑤ / §43.3 分支序 / §43.5 短码长度行及顶部 v2.33 摘要「6 位」就地改 **8 位纯数字**（Kevin 2026-10-14 **二次裁定**；熵依据 = 10^8 = 1e8，对照旧 32 字符集 6 位 32^6 ≈ 1.07e9 **小约 10 倍**，见 §43.3 二次勘误注与 §43.5 短码长度行）。**承前同日勘误（8→6 位）留痕**：本单先按 Kevin 首次裁定（短码 = 6 位、32 字符集）就地改，后经 **Kevin 二次裁定**改为 **8 位纯数字** ⇒ **6 位口径已作废**（同一日内两裁，以二次裁定为准）。**v2.33 版本号不升**（**选择依据**：本册既有惯例 = 同日勘误级就地修正不升版、以节末留痕承载，承 8→6 位先例；非新批次、零新增契约面 ⇒ 不立新版号）；快照 `docs/versions/route-layer.spec.v2.33.md` 随本二次勘误同步重制（cmp=0 保持）。**git 面**：本次只 `git add` 本册 + `docs/versions/route-layer.spec.v2.33.md` + 姊妹册 `docs/data-layer.spec.md` + `docs/versions/data-layer.spec.v0.33.md`（**只 docs/ 下**，未碰 `backend-ts/`）；**本地 commit · 绝不 push**。
 - **★勘误留痕（2026-10-15 · 两项 Kevin 裁定就地落册 · 勘误级，不升版）**：① **§41.7 通知内容口径** —— 「双语一行、**不带消息内容**」**作废** ⇒ 现行 = 「双语一行 + **消息开头预览 = 首 6 个显示宽单位**」（汉字 / CJK 与全角标点计 2 ⇒ 恰 3 个汉字；拉丁 / 数字计 1；超出追加 `…`；恰好满额不加；空正文不追加；emoji 不拆）—— 逐字、作废原因与依据见 §41.7 勘误留痕；**同步面 = 四处**（顶部 v2.31 要点 ⑤ `:346` / §41.0 裁定列表第 4 项 `:8099` / 顶部 v2.33 要点块新增 ⑥ 勘误条 / §41.7 本行）。② **§43.2 ⑤ 形状 `reason`** —— `NOT_FOUND` ⇒ **`SHAPE_INVALID`**（错误码仍 `TG_CODE_INVALID`；防与 ⑥「查无」（404 `sendRefNotFound`）同名混淆）；`details.reason` 域登记由 §43.5 的 **+1 改 +2**；见 §43.2 勘误留痕。**依据** = Kevin 2026-10-15 两项裁定（本册未自选口径、未发明任何路径 / 码 / 数值 / 文案）。**版本号不升（选择依据）**：本册现行惯例 = **勘误级就地修正不升版、以节末留痕承载**（承 v2.33 同日二次勘误先例）；本次**虽跨日**（v2.33 入库 2026-10-14 / 本次 2026-10-15），判据落在 **「非新批次 + 零新增契约面」**（① 只改既冻结的文案口径、② 只改同一码的 `reason` 取值）⇒ **不立新版号**；**跨日差异如实登记于此**（不假装同日）。**两处版本记录同步自证**：① 头部 = 顶部 v2.33 要点块新增 ⑥ 勘误条（`grep -n '^> ⑥ \*\*★勘误留痕（2026-10-15'` **恰 1 命中**）；② 正文 = 本行（§43.6）。**快照面**：`docs/versions/route-layer.spec.v2.33.md` 随本勘误**同步重制**（`cmp=0` 保持）；`docs/versions/route-layer.spec.v2.32.md`（上轮镜像）未动；**本单不建独立 delta 件**（承先例：勘误级不建）。**git 面**：只 `git add` 本册 + 快照两文件（**只 docs/ 下**）；**本地 commit · 绝不 push**；**未碰 `backend-ts/**`**（并行实现单在改）。
+
+## §44 ★★ v2.34 · 消息面板化（**方案 1「就地叠加」**）· `/messages` 语义变更（**真页 ⇒ 直链落点 = 首页 + 面板**）+ 新增查询参数口径 `?msg=1` / `&c=<conversation_id>` + 四入口保全 + 两计数不变（**本节只追加 · §1–§43 一字未动** · 依据 = **Kevin 2026-10-16 逐字裁定 ① – ⑥**；形态 / 几何 / 钩子 / 键集 = 姊妹册 `design-system.spec` v1.19 §21）
+
+> **本节性质（写死）**：① **只追加**（`git diff --numstat docs/route-layer.spec.md` 删除列 = **0**；承 §42.7 / §43.6 同族；**唯一例外 = 文末 EOF 换行归一化** —— 见 §44.8「1− 归因」）；② **route 侧只承载「路径语义 / 查询参数 / 入口 `href` / 两条计数」**（键集 / 几何 / 断言改锚见姊妹册 §21，**不重抄**）；③ **零代码 · 零迁移 · 库面只读 · 零 HTTP · 零套件**；④ **未 `git add -A` · 未 commit · 未 push · 未启停 5787/5788（绝不 `pm2 restart`）**；⑤ **现取基线 = HEAD `fd34ca0`（2026-10-16 · 工作区干净）**。
+
+### 44.0 裁定来源与范围（Kevin 2026-10-16 · 逐字）
+
+- **① 不换页**：打开方式 = 给**当前路由**加查询参数 **`?msg=1`**（可带 **`&c=<conversation_id>`**），当前页**原地**（左压）、**挂载态与滚动位置保留**。
+- **② 直链落点**：**`/messages` 路由保留** ⇒ 语义 = **首页 + 面板**（同一面板，**底 = 首页**）；用途 = **Telegram 通知链接 / 旧链**。
+- **③ 关闭** = **移除 `msg` / `c`**（`replace` 保当前页）+ 面板内**左上「×」**；**浏览器后退键天然关面板**。
+- **④ 四入口全集（全部要保、全部不改 `href`）** = 底栏第 4 格 · 悬浮菜单「消息」· 详情页「聊一聊」· Telegram 通知里的 `/messages` 直链。
+- **⑤ 范围（写死）**：**只写契约**；**零新路由 / 零新错误码 / 零库面**；实现归 Kong、质检归 Neng；**本册不重抄**姊妹册的几何与钩子条文。
+
+### 44.1 现取事实底座（HEAD `fd34ca0` · 2026-10-16 · 只读现取）
+
+| 项 | 现取读数 | 取法 |
+|---|---|---|
+| `/messages` 路由行 | `<Route path="messages" element={<MessagesPage />} />`（**内层 `<Routes>` 相对段**；**注释散文 2 行含字面 `<Route`**） | `frontend/src/App.jsx:119` · `:117` · `:134` |
+| 内层 catch-all | `<Route path="*" element={<NotFoundPage />} />`（**内层末位**；`/messages` 为**精确段** ⇒ **永不落 catch-all**，带查询参数亦然 —— `react-router` 只对 `pathname` 做匹配） | `App.jsx:175` |
+| 页面组件 | `frontend/src/pages/MessagesPage.jsx`（**294 行**；`?c=` 定位详情态 = `:56`；挂点容器 = `:157` / `:167`） | 文件现读 |
+| 前端路由计数 | 字面 `grep -cE '<Route'` = **`42`** · 精确 `grep -oE '<Route[ >]' \| wc -l` = **`34`** · 内层逐段清点 = **`20`**（16 单行 + 4 多行开写） | `App.jsx`（口径同 §40.2 / §42.5） |
+| 后端注册点 | `grep -cE '^app\.(get\|post\|put\|delete\|patch)\(' backend-ts/src/index.ts` = **`105`**（get 45 / post 56 / put 0 / delete 3 / patch 1） | `index.ts`（口径同 §43.4；`p7b-03-offline-gates.ts:145` 现取 `regs === 105` **已前推到位**） |
+| 入口①底栏 | `SHELL_NAV_ITEMS` 第 4 项 = `{ key:'messages', path:'messages' }` ⇒ 渲染 `<a data-sf-nav="messages" href="/messages">`（四语前缀由 `navPathInLang` 承担） | `frontend/src/shell/nav.js` · 断言 `theme-shell-isomorphism.test.jsx:97` |
+| 入口②悬浮菜单 | 菜单项表第 2 项 = `{ key:'messages', kind:'link', path:'messages', labelKey:'messages' }` | `frontend/src/shell/FloatingMenu.jsx:23` · 断言 `v15-nav-floatmenu.test.jsx:138` / `:149` |
+| 入口③详情页「聊一聊」 | `navigate(\`${root('/messages')}?c=${encodeURIComponent(String(view?.conversation_id ?? ''))}\`)` | `frontend/src/pages/item/ItemDetailPage.jsx:157` |
+| 入口④Telegram 通知直链 | **纯文本路径**（非 tappable 深链）：`，打开 ${site}/messages 查看` / ` / You have a new message, open ${site}/messages` | `backend-ts/src/messages-service.ts:717` / `:718` |
+| 未读角标（不受影响） | 底栏第 4 格子节点 `tabbar-unread-badge` + 悬浮菜单项子节点 `floatmenu-unread-badge` | `BottomTabBar.jsx:61` · `FloatingMenu.jsx:53`（`§41` / `T103` 口径不动） |
+
+### 44.2 `/messages` 语义变更（**真页 ⇒ 直链落点 = 首页 + 面板**）
+
+| 项 | 旧（v2.27 §37 → v2.31 §41 · 历史留痕，本节不改其原文） | 新（v2.34 · 现行） |
+|---|---|---|
+| 路径字面 | `messages`（内层相对段） | **`messages`（逐字不变）** |
+| 落点语义 | **独立真页**（`MessagesPage` 独占路由容器；`T101`） | **直链落点 = 首页 + 面板**（同一面板；**底 = 首页**） |
+| 用途 | 底栏第 4 格 / 悬浮菜单「消息」的常规入口 | **Telegram 通知链接 / 旧链的兼容落点**（常规打开改为**就地加参**，见 §44.3） |
+| 路由计数 | — | **不变**（`42` 字面 / `34` 精确 / 内层 `20`；**不新增 / 不删除任何 `<Route`**） |
+| 后端面 | — | **零改动**（注册点 `105` 不变；`/api/messages` 族读口一字不动） |
+
+- **与 v2.27 §37 的关系（写死）**：§37 的「新占位页 / X 推特接驳位预留」两处**语义**已先后由 **v2.31 §41**（⇒ Telegram）与 **本 §44**（⇒ 面板）取代；**§37 / §41 原文一字不动**（历史留痕）。
+- **与 catch-all 的关系（写死）**：`/messages` = **精确段**，**优先于**内层 catch-all（`path="*"`）⇒ **无论是否带查询参数，永不落提示页**（匹配只看 `pathname`）。
+- **`App.jsx` 冻结面（写死）**：`<Route path="messages" element={<MessagesPage />} />` 与 `import MessagesPage from './pages/MessagesPage'` **必须逐字保留**（现取断言 = `v15-nav-floatmenu.test.jsx:235` / `:236`）；**`MessagesPage.jsx` 由「独立真页」改任「直链落点宿主」（首页 + 面板）**，**文件名与 import 路径不变**。
+
+### 44.3 查询参数口径（**新增 · 写死**）
+
+**（1）判据（唯一开面板谓词 · 建议实现为单一纯函数）**：
+
+```
+开面板 ⟺ rest === '/messages'  ∨  msg === '1'  ∨  c 非空
+  其中 rest = stripLangPrefix(pathname)（真源 = frontend/src/utils.js:65）
+       msg  = new URLSearchParams(search).get('msg')
+       c    = new URLSearchParams(search).get('c')
+```
+
+- **★ 严禁任何宽度 / `matchMedia` / `innerWidth` 类判定**（`shell/**` JS 硬断言**按明文全文扫描、注释同禁** —— 见姊妹册 §21.6 #13）。
+- **`c` 子句的登记理由（诚实说明）**：`c` 单独出现（如入口③ 的 `/messages?c=<id>`）**必须**开面板，否则「进入该会话」会在首页上无面板可显 ⇒ **入口③ 失效**；该子句同时令 §44.3(4) `Q4` 的「原地形态」`/item/:id?msg=1&c=X` 与「直链形态」`/messages?c=X` **自洽**。**本子句为口径外延项、标「一句话可改」**（若 Kevin 要求**严格逐字**「仅在 `msg=1` 时开面板」，则须同步改锚 `v15-nav-floatmenu.test.jsx:259`（改 `renderIn(<MessagesPage />, '/messages')` 的 URL 加 `?msg=1`）+ 入口③ 形态）。
+
+**（2）逐值语义（写死）**：
+
+| 参数 | 取值 | 语义 | 判负 |
+|---|---|---|---|
+| `msg` | `1` | **开面板**（+ **当前页原地左压**） | 取值非 `1`（如 `msg=0` / `msg=true`）却**开**面板 ⇒ 判负 |
+| `msg` | 其它值 / 缺省 | **不开面板**（`msg=0` 视为显式关闭意图） | — |
+| `c` | `<conversation_id>`（非空） | **开面板 + 面板内直接打开该会话**（详情态；沿用既有 `?c=` 读取口径 `MessagesPage.jsx:56`） | 面板开了却仍停在列表态 ⇒ 判负 |
+| `c` | 非法 / 不存在的 id | **开面板 + 面板内既有错误链**（`msg.err.MSG_CONVERSATION_NOT_FOUND` ⇒ 文案键 `messagesPage.notFound`）；**路由不重定向、URL 不变** | 重定向 / 跳 404 页 ⇒ 判负 |
+| `c` | 缺省 | 面板**列表态** | — |
+| 其它参数 | 任意 | **忽略**（不改变面板状态；不得因未知参数报错 / 白屏） | 未知参数致白屏 ⇒ 判负 |
+
+**（3）参数组合矩阵（写死 · 四态全覆盖）**：
+
+| # | 形态 | 举例 | 面板 | 宿主页 |
+|--:|---|---|---|---|
+| M1 | 无参数 | `/item/123` · `/exchange` | **不挂** | 原页（现盘形态逐字相同） |
+| M2 | `?msg=1` | `/item/123?msg=1` · `/exchange?msg=1` | **挂**（列表态） | 原页**原地左压**（`pathname` 不变、组件不重挂、`scrollY` 不变） |
+| M3 | `?msg=1&c=X` | `/item/123?msg=1&c=42` | **挂**（详情态 = 会话 `42`） | 同上 |
+| M4 | `?c=X`（无 `msg`） | `/messages?c=42`（**入口③ 现取形态**） | **挂**（详情态） | `/messages` ⇒ 宿主 = 首页；`/item/:id?c=X` ⇒ 宿主 = 详情页（`Q4` 原地形态） |
+
+**（4）与既有条文的边界 / 待裁**：
+
+- **姐妹册对应**：几何（面板宽 / 让位 / 两栏）、钩子（`messages-*` 保留 + `messages-panel*` 新增）、断言改锚、键集算式 = **`design-system.spec` v1.19 §21**（本册不重抄）。
+- **`Q4`（待裁 · 不得自选）**：入口③「聊一聊」**落点形态** —— 现取 = `navigate('/messages?c=<id>')`（**换页**到直链落点）vs 方案 1 ① 的**原地**形态（`/item/:id?msg=1&c=<id>`，**不换页**）。**本册冻结 = 入口③ `href` 逐字不动**（承 ④「全部不改 `href`」）⇒ 现行 = 换页到直链落点（M4）；**原地形态登记为待裁**（若采纳，须同步 `ItemDetailPage.jsx:157` + 姊妹册 §21.6 清单 A）。**兜底可用 ⇒ 不阻塞**。
+- **`Q7`（待裁 · 不得自选）**：查询参数**是否进 history**（决定「浏览器后退关面板」是否成立）。**本册按 ③ 逐字冻结 = 进 history**（`pushState`；关闭用 `replace` 移除参数）⇒ 后退键逐次退一层参数；若 Kevin 要求「关闭不进 history」，则后退键行为须复裁（**四入口与 `href` 保全不受影响**）。
+
+### 44.4 四入口保全表（**逐条现取 · `href` 一字不改**）
+
+| # | 入口 | 现取宿主 | `href` / 落点字面 | 面板化后行为 | 断言锚点（零改锚） |
+|--:|---|---|---|---|---|
+| 1 | **底栏第 4 格** | `frontend/src/shell/nav.js`（`SHELL_NAV_ITEMS` 第 4 项 `key:'messages'`） | `/messages`（四语前缀由 `navPathInLang` 承担；`/en/messages` 等） | 命中 §44.3 判据 ⇒ **开面板 + 底 = 首页** | `theme-shell-isomorphism.test.jsx:97` |
+| 2 | **悬浮菜单「消息」** | `frontend/src/shell/FloatingMenu.jsx:23` | `/messages`（`/en/messages` 等） | 同上 | `v15-nav-floatmenu.test.jsx:138` / `:149` |
+| 3 | **详情页「聊一聊」** | `frontend/src/pages/item/ItemDetailPage.jsx:157` | `` `${root('/messages')}?c=<conversation_id>` `` | 命中判据（`rest==='/messages'` 或 `c`）⇒ **开面板 + 面板内打开该会话**（`Q4` 待裁，见 §44.3(4)） | 现取为源码字面（**无既有测试锚** ⇒ 建议同批补一条 `toContain('/messages?c=')` 型断言，**属新增锚、非改锚**） |
+| 4 | **Telegram 通知直链** | `backend-ts/src/messages-service.ts:717` / `:718` | `<site>/messages`（**纯文本路径**，非深链） | 用户点开/粘贴 ⇒ `/messages` ⇒ **开面板 + 底 = 首页** | 现取为后端文案字面（`§41.7` 通知口径**一字不动**） |
+
+- **判负（写死）**：四条入口中任一条 **`href` / 路径字面 / 文案字面被改动**，或 **§44.3 判据下不开面板** ⇒ **判负**（「入口丢失」= 本仓最高级别缺陷类，承 §37 起的可达性纪律）。
+- **零新增路由的证明**：四条入口**全部指向既有路径**（`/messages`）；**本节不含任何新路径字面**（**未发明任何路径 / 参数名之外的产物**）。
+
+### 44.5 两条计数不变（**前端 / 后端 · 现取**）
+
+| 口径 | 现取命令 | 现值 | 本单影响 |
+|---|---|---|---|
+| 前端路由（字面） | `grep -cE '<Route' frontend/src/App.jsx` | **`42`** | **±0**（含 **2 行注释散文**含字面 `<Route`；承 §40.2 注释污染口径） |
+| 前端路由（精确） | `grep -oE '<Route[ >]' frontend/src/App.jsx \| wc -l` | **`34`** | **±0**（**多行开写法系统性不计入** = §40.3 / §42.5 已登记盲点） |
+| 前端内层逐段 | 内层 `<Routes>` 内逐段清点 | **`20`**（16 单行 + 4 多行） | **±0** |
+| 后端注册点 | `grep -cE '^app\.(get\|post\|put\|delete\|patch)\(' backend-ts/src/index.ts` | **`105`**（get 45 / post 56 / put 0 / delete 3 / patch 1） | **±0**（`AC10-2` 冻结面 `backend-ts/scripts/p7b-03-offline-gates.ts:145` 现取 = `regs === 105`，**已到位**） |
+
+- **判负**：任一计数发生变化（新增/删除 `<Route` 或注册行）⇒ 判负；**不得**以路由别名 / `app.use` 挂载 / 查询参数伪装成「零新增」绕过计数口径（§40.2 口径连续性）。
+- **★ 与 v2.27 §37.3 的对照（诚实登记）**：§37.3 当时记「落地后 `35 → 36`」「注册点仍 `89`」—— 该两读数为**当时点**；**现行口径以本节现取为准**（`42/34/20` 与 `105`）。
+
+### 44.6 未测项 / 诚实清单（`NOT_MEASURED` · 禁填 0/空）
+
+- **`NOT_MEASURED`**：四入口在**面板形态下**的真浏览器走查（点击 → 面板开 → 会话定位 → 关闭 → 后退）**本单未跑**；`?msg=1` / `&c=` 的**浏览器后退序列**实读数未取（`Q7` 待裁）；`/messages?c=<不存在 id>` 的面板内错误态实读数未取。**原因 = 本单只写 `docs/**`、零代码、零 HTTP、零浏览器动作。**
+- **键集 / 几何 / 钩子 / 断言改锚**：见姊妹册 `design-system.spec` v1.19 §21.7 / §21.3 / §21.5 / §21.6（**本册不重抄、不并计**）。
+- **本单未动**：`frontend/**` / `backend-ts/**` / `tools/**` / `ctrl/**`；**未跑门套**（`build` / `test:unit` / 后端离线门均未执行）；**未连库、未启停服务**。
+
+### 44.7 判负清单（可证伪 · 汇总）
+
+1. **入口丢失 / `href` 改动**（§44.4 四条任一）⇒ 判负。
+2. **换页**：打开消息后 `pathname` 变化、宿主组件重挂、`scrollY` 变化 ⇒ 判负（承方案 1 ①「原地」）。
+3. **宽度判定**：`shell/**` 出现 `matchMedia|innerWidth|innerHeight|clientWidth|offsetWidth|screen.width`（**含注释**）⇒ 判负（硬断言）。
+4. **新增路由 / 注册点**：前端 `<Route` 计数或后端注册点变化 ⇒ 判负（§44.5）。
+5. **未知参数致白屏 / 报错**；`c` 非法却重定向或跳 404 页 ⇒ 判负（§44.3(2)）。
+6. **catch-all 误吞**：`/messages`（含带参形态）落提示页 ⇒ 判负（§44.2）。
+7. **后端面被动**：`/api/messages` 族读口 / `MSG_*`、`TG_*` 码集 / `details.reason` 域发生变化 ⇒ 判负（本单零后端面）。
+
+### 44.8 纪律自检 + 快照 + git 面
+
+- **两处版本记录同步自证（锚定计数 · 提交前实测）**：① 头部 = `grep -n '^> \*\*状态：v2.34'` **恰 1 命中**；② 正文 = `grep -n '^## §44 '` **恰 1 命中**；**两处同批入库，漏一处 = 不完整**。
+- **只追加 / 删除列自证**：`git diff --numstat docs/route-layer.spec.md` = **`<N>+ / 1−`**；**该 `1−` = 文末 EOF 换行归一化**（改前末行无行尾换行符 ⇒ 追加后获得换行；**字符内容不变、正文零删除**，承 §42.7 / §43.6 同族；**全量 diff 逐 hunk 核验删除行仅此一行**，见 `docs/audit/route-layer-v2.34-delta.md`）。
+- **快照面**：**改前快照** = `docs/versions/route-layer.spec.v2.33.md`（本单开工复核 **`cmp=0`**；md5 `ccac4b9ef31ea02ed40de7fee8054e89`）；**本版镜像** = `docs/versions/route-layer.spec.v2.34.md`（落笔后建，`cmp=0`）。
+- **delta 件**：`docs/audit/route-layer-v2.34-delta.md`（**本单建** —— 依先例：**语义变更类**建独立 delta〔§36.4 / §37.4 / §38 / §39 / §41 同族〕；**纯登记类不建**〔§42 / §43〕）；**本单 = 语义变更类**（`/messages` 落点语义 + 新增查询参数口径）⇒ **建**。
+- **git 面**：只 `git add` 本单文件（`docs/route-layer.spec.md` + `docs/design/design-system.spec.md` + `docs/versions/route-layer.spec.v2.34.md` + `docs/versions/design-system.spec.v1.19.md` + `docs/audit/route-layer-v2.34-delta.md` + `docs/audit/design-system-v1.19-delta.md` + `docs/OPEN-ITEMS.md`）；**本地不 commit · 绝不 push**（收口由 Zang 统一种地）。
+- **未发明项**：路径字面（`/messages`）、参数名（`msg` / `c`）、四入口 `href`、两条计数 —— **全部可回溯至本册现取命令或姊妹册 §21**（**未发明任何路径 / 码 / 数值 / 文案**）。

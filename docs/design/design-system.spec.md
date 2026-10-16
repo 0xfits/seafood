@@ -17,6 +17,7 @@
 > **★ 现行版 = v1.17（2026-10-12 · Kevin「直接 A+C」= 站内信最小闭环 + Telegram bot 绑定/通知一步到位 · §19.11 `Q1` 已裁 + 底部操作栏第 3 格「聊一聊」激活 + `/messages` 占位页转真页 + Settings 绑定/解绑面 + 未读角标 · 只追加 + 就地留痕 · 本单只写 `docs/**`）**：**① `Q1` 已裁 = 站内信（A）+ Telegram bot 通知/绑定（C）并行**（§19.11 就地注；route v2.27 §37「X/推特私信接驳位预留」语义作废 ⇒ **Telegram，非 X**）。**② 新规则 `T100`（聊一聊激活）** —— `/item/:id` 底部固定操作栏**第 3 格**（§19.5 挂点激活）渲染「聊一聊」CTA；**渲染条件 = 登录 ∧ 非卖家本人**（卖家本人不渲染，Zang 结构 2；未登录 = 既有登录引导）；点击 = `POST /api/messages/conversations`（自然幂等）后进入该商品会话（route 契约 = v2.31 §41.2 #1/#2）。**③ 新规则 `T101`（`/messages` 真页形态）** —— 占位页转真页：会话列表态 / 会话详情态 / 输入区三态 + keyset「加载更多」+ 空态；**占位区块删除**（钩子 `messages-x-placeholder` + 键 `xPlaceholder`/`xNote` 四语同删，`F13` 体例）。**④ 新规则 `T102`（Settings 绑定/解绑面）** —— `ProfilePage`（我的）新增「Telegram 通知」卡：三态（未配置降级 / 未绑定 / 已绑定）+ 绑定码展示与步骤 + 解绑；env 缺 = 降级卡（`503 TG_NOT_CONFIGURED` 形态，route v2.31 §41.9）。**⑤ 新规则 `T103`（未读角标）** —— 底栏第 4 格（`messages`）+ 桌面悬浮菜单消息项双挂点；**取数口径 = 挂载时 + 发送成功后 + 进入 `/messages` 后**，**无轮询**（一句话可改）；`unread_total` 真源 = `GET /api/messages/unread-count`；`>99` 封顶显示 `99+`。**⑥ i18n = +35 新键 / −2 删键（四语同补同删）** ⇒ 键集 **顶层 `122 → 123` / 拍平 `1045 → 1078` / 四语节点 `4180 → 4312`**（算式见 §20.8；12 文件计数断言前推，§20.7）。**⑦ 零新主题 token / 零 `STRUCT` 增项**（`TOKEN_KEYS` 一字不动；新结构常量走页面局部 `--sf-l-*`，承 `T98` 体例）。**⑧ 新教训 `N43`**（预留槽位激活时必须同步回收占位键/占位钩子，防「占位常驻」）。**⑨ 姊妹册** = `route-layer.spec` **v2.31 §41**（10 条路由 + 12 新错误码 + 注册点 89→99）+ `data-layer.spec` **v0.32 §38**（两表 DDL + `users` +2 列）。**改动 = 版本头（本行）+ §12 表 v1.17 行 + §19.5 / §19.11 两处就地注（原地正文一字未动）+ §20（新）**；**改前快照** = `docs/versions/design-system.spec.v1.16.md`（本单开工复核 `cmp` = **0**；md5 `0400a3d9bbcc38b22cae0190b658c8ee`；1923 行 / 422,501 B）；**本版镜像** = `docs/versions/design-system.spec.v1.17.md`（落笔后建，`cmp=0`）。**本册 v1.17 只写 `docs/**`；未动 `frontend/**` / `backend-ts/**` / `tools/**` / `ctrl/**`；未启停任何服务（绝不 `pm2 restart`）；未 `git add -A` · 未 commit · 未 push**（实现 / 验收归 Kong / Neng）。**现取基线 = HEAD `3ae743e`（2026-10-12）。**
 > **★ 现行版 = v1.18（2026-10-12 · Jing 微回写单 · v1.17 §20 两处自相矛盾裁定更正 + `T101` 删钩子引致的断言改锚登记 · 只追加 + 就地更正留痕（旧字面逐字保留 + 标「已被 v1.18 取代」）· 本单只写 `docs/**` + 快照 / delta · 不改代码、不改台账 / 挂账）**：**依据 = Kong 停手上报的 §20 两处自相矛盾 + Kevin/Zang 亲核实测裁定（以实测为准，见 `frontend/src/locales/*.json` 现取）**。**① §20.8 顶层键数算式更正（现取 顶层 `125` / 拍平 `1078` / 四语节点 `4312` · 四语逐文件相等）** —— 原算式「顶层 `122 + 1`（新顶层命名空间 `telegram`）`= 123`」**漏计另两个新顶层错误域 `msg`（`msg.err.MSG_*` **7 键**）与 `tg`（`tg.err.TG_*` **5 键**）** ⇒ **现行算式 = `122 + 3`（`telegram` + `msg` + `tg`）= `125`**（拍平 `1078` / 四语节点 `4312` 原写**正确、不变**）。**★ 键名不得改** —— 必须保持 `msg.err.*` / `tg.err.*`（与后端**已 commit** 的 `i18n_key` 字面对齐，改键名会破坏对齐）。**② §20.3 判据表 + §20.9 `AC-1` 未登录口径更正（以 §20.2 `T100` 为准）** —— 两处原写「未登录 ⇒ **不渲染**第 3 格 / 未登录可见该格 ⇒ 判负」，与 `§20.2`「未登录 ⇒ 点击走登录引导」（隐含渲染）**互斥** ⇒ **裁死**：**卖家本人 ⇒ 不渲染**；**未登录 ⇒ 渲染且点击走既有登录引导（不 `disabled`）**；**登录且非卖家 ⇒ 正常进会话**；`AC-1` 判负项改为与三态自洽（**未登录就应看到第 3 格**；**只有卖家本人看到第 3 格才判负**）。**③ 登记 `T101` 显式删除项引致的断言改锚** —— `T101` 删 `messages-x-placeholder` 钩子 + `messagesPage.xPlaceholder` / `xNote` 两键（四语）⇒ 引致 `frontend/src/test/unit/v15-nav-floatmenu.test.jsx:243-251` 断言**必红**（现取实测仍断言旧钩子共存）⇒ **改锚 = 占位钩子计数归 0 + 真页钩子在场；属显式删除项引致的合法前推、非语义放宽**（由 Kong 并行单执行）。**改动 = 版本头（本行）+ §12 表 v1.18 行 + §20.3 / §20.7 / §20.8 / §20.9 / §20.12 / §20.13 就地更正 / 登记注（原地正文一字未动）**；**改前快照** = `docs/versions/design-system.spec.v1.17.md`（本单开工复核 `cmp` = **0**；md5 `f0d8e248b791330bf1e45ba5cdfba084`；2078 行 / 450,138 B）；**本版镜像** = `docs/versions/design-system.spec.v1.18.md`（落笔后建，`cmp=0`）。**本册 v1.18 只写 `docs/**`；未动 `frontend/**` / `backend-ts/**` / `tools/**` / `ctrl/**`；未启停任何服务（绝不 `pm2 restart`）；未 `git add -A` · 未 commit · 未 push**（实现 / 验收归 Kong / Neng）。**现取基线 = HEAD `680fc2a`（2026-10-12）。**
 > **★ 勘误（2026-10-15 · 文案表同步 · 勘误级不升版）**：**依据 = Kevin 2026-10-15 裁定**（Telegram 通知由「不带消息内容」⇒ **带消息开头预览 = 首 6 个显示宽单位**；同裁定权威落点 = 姊妹册 `docs/route-layer.spec.md` v2.33 §41.7 勘误留痕）+ **实现现盘只读现取** `frontend/src/locales/{zh,en,hk,vn}.json`（commit `c804ef1`）。**① §20.8 键清单 `telegram.desc` 行四语文案就地同步** —— 旧口径「不包含消息内容」（四语同族）**作废** ⇒ **现行四语逐字** = zh「绑定后，收到新消息会通过 Telegram bot 提醒你（含消息开头摘要）」/ en「Get Telegram bot reminders for new messages (includes a preview of the message opening)」/ hk「綁定後，收到新消息會通過 Telegram bot 提醒你（含訊息開頭摘要）」/ vn「Nhận thông báo qua Telegram bot khi có tin nhắn mới (kèm trích đoạn đầu tin nhắn)」（**改前字面逐字保留** = §20.8 表后勘误留痕）。**② 同口径就地加注** = §20 裁定映射表 `Z3/Z4` 行「通知双语一行不带内容」（`:1944`）+ §20.11 待裁项 2「通知双语一行」（`:2080`）—— 旧字面逐字保留、标「已被本勘误取代」。**③ 不升版依据** = **勘误级 · 非新批次 · 零新增契约面**（无新路由 / 错误码 / 表 / 文案键；**值变更 1 键**、键计数 `125 / 1078 / 4312` 逐字不变）；承姊妹册 route 册 v2.33（同日 · 同裁定）「勘误级就地改，不升版」先例 + 本册 v1.11「回写单」先例。**④ 快照边界（诚实）** = **本单未重制 / 未触碰 `docs/versions/**` 任何快照**（上级单明令禁止）：`docs/versions/design-system.spec.v1.18.md` 保留勘误前字面 = **历史**；**现行口径以本册 live 正文为准**（与 route 册 v2.33「快照同步重制 `cmp=0`」做法**不同**，差异如实登记）。**⑤ 本册本单只写 `docs/**`**；未动 `frontend/**` / `backend-ts/**` / `tools/**` / `ctrl/**`；未启停任何服务（绝不 `pm2 restart`）；未 `git add -A` · 未 commit 时写入并行单在改面 · **未 push**。**现取基线 = HEAD `a280afe`**（本单开工时点；`frontend/src/locales/*.json` 只读现取）。
+> **★ 现行版 = v1.19（2026-10-16 · Kevin「消息面板化（方案 1 · 就地叠加）」逐字裁定 · 只追加 + 就地留痕 · 本单只写 `docs/**`）**：**① 消息不做独立页面** —— `/messages` 由 v1.17 `T101` 的**独立真页** ⇒ **内嵌在其它页面内部的面板**：打开消息时**原有页面向左压缩**、页面整体右侧留出 **`600px`** 呈现消息界面；**② 面板内部 = 左「各联系人选择（侧边栏）」/ 右「对话窗口」**；**③ 面板外部的右侧 = 当前悬浮按钮面板**（**不遮挡、零几何改动** = 既有 `.sf-fm`，`T81`–`T83` + §14.2 一字不动）；**④ 打开方式 = 不换页** —— 给**当前路由**加查询参数 **`?msg=1`**（可带 **`&c=<conversation_id>`**），当前页**原地左压**、**挂载态与滚动位置保留**；**⑤ `/messages` 路由保留**为**直链落点**（Telegram 通知链接 / 旧链）= **首页 + 面板**（同一面板，底 = 首页）；**⑥ 关闭** = **移除 `msg`/`c` 查询参数**（`replace` 保当前页）+ 面板内**左上「×」**；**浏览器后退键天然关面板**。**★ 四入口全集（全部要保、全部不改 `href`）** = 底栏第 4 格 · 悬浮菜单「消息」· 详情页「聊一聊」· Telegram 通知里的 `/messages` 直链。**⇒ 新增 §21 + 规则 `T104`–`T108` + 教训 `N44`/`N45`**（**几何冻结表** = 面板 `600px` / 右偏移 `104px` / 让位 `704px` / 左栏 `240px` / 右栏 `360px` / 全高 `fixed`；`≤767` = 全屏 + 单栏两态，**零断点值新增**）。**本册 v1.19 未动 `frontend/**` / `backend-ts/**` / `tools/**` / `ctrl/**`；未启停任何服务（绝不 `pm2 restart`）；未 `git add -A` · 未 commit · 未 push**（实现 / 验收归 Kong / Neng）。**改动 = 版本头（本行）+ §12 表 v1.19 行 + §20.2 表后一处就地注 + §20.4 末一处就地注（原地正文一字未动）+ §21（新）**；**改前快照** = **现盘 live 正文**（`md5 49b2ebb1cae59d6409b2d3f70e8d9cbf` / 2100 行 / 467,793 B；**`docs/versions/design-system.spec.v1.18.md` 对现盘 `cmp` ≠ 0**（`char 38020, line 19`）—— 该快照为 **2026-10-15 勘误前**历史、其自述「未重制 / 未触碰 `docs/versions/**`」⇒ **本单不重制、不触碰它**）；**本版镜像** = `docs/versions/design-system.spec.v1.19.md`（落笔后建，`cmp=0`）。**现取基线 = HEAD `fd34ca0`（2026-10-16 · 工作区干净）。** **姊妹册** = `docs/route-layer.spec.md` **v2.34 §44**（`/messages` 语义变更 + `?msg=1` / `&c=` 查询参数口径 + 四入口保全 + **两计数不变**：前端 `<Route` 字面 `42` / 精确 `34`、后端注册点 `105`）。
 > **★ v1.10 姊妹册（同批交付）** = `docs/route-layer.spec.md` **v2.28 §38**（`/item` 家族 + 旧路由硬删 + 「前端概念名 ⇄ 后端路径名」映射表）；本册只承载 **形态 / 入口集合 / 可达性 AC / 合并页口径 / i18n 删改留表**，**不重抄**。
 > **v1.5 口径来源（逐字）**：Kevin 2026-10-11 定档 ①方案 A·UI 先行（不动后端）②右悬浮菜单仅桌面档显示、H5 隐藏 ③消息模块占位（后续接驳 X/推特私信）④客服/反馈做弹窗模板位；**＋ Kevin 当日两条连锁更正**（`Zang` 转达）：**(A)** 底栏第二项 = **「市场」→ `/exchange`**（key `shard`，图标 `Store`；**不再新建 `/nearby` 占位页、`nearby` 键不新增**）**(B)** `T76` 去重按新底栏集合重算（**`exchange` 继续排除、`reward`/`task` 恢复**）。
 > 交付物路径：`docs/design/design-system.spec.md`
@@ -821,6 +822,7 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 | **v1.16** | 2026-10-12 | **回写单 · `/item/:id` 详情页 UI 改造（变体 A）实现真相回写（`R-A`–`R-F` 六条终审裁定 + `Q2`/`Q3` 已裁 + 白名单/AC-2 判据补齐 + `N41`/`N42` + §17.4 钩子就地更正 · 只追加 + 就地留痕 · 本单只写 `docs/**`）**：**① 新 §19.13 = `R-A`–`R-F` 六条入册**（`R-A` = `item.line`/`priceServerNote`/`refundStockNote` 三键保留、折进 `.sf-item-meta-group`〔依据 = 既有可见内容 / 零数据依赖 / 删则成死键〕· `R-B` = CTA 胶囊 `--sf-st-radius-pill` 999px 落 `.sf-btn.sf-item-cta`〔复合选择器取胜〕· `R-C` = 大号价格 32px + **320 档零横向溢出硬门**〔溢出则回落 28px〕· `R-D` = ≤767 详情页等量底部内边距（机械量 +60px）· `R-E` = 详情页限 `:has()` 页脚补齐〔`.sf-shell:has(.sf-item-detail) .sf-region-foot`〕· `R-F` = `item.buyNote` 保留渲染〔携带幂等告知，与 `priceServerNote` 不冗余〕） · **② §19.11 `Q2`/`Q3` 就地回写为「已裁」**（胶囊 999px / 价格 32px + 320 档硬门；旧「待裁」字面逐字保留 + 标「已被 §19.13 `R-B`/`R-C` 取代」） · **③ §19.4 末表值更正** `--sf-l-detail-price-size` **28px ⇒ 32px**（28px 降为回落备值） · **④ §19.5 白名单 + §19.8 AC-1 判据补齐**（白名单由六项扩为「六项 + `R-A` 三键 + `R-F` buyNote」⇒ 否则按旧字面判会误判为负） · **⑤ §19.8 AC-2 href 字面集改锚**（实现无尾斜杠 ⇒ 改字面或明文「忽略尾斜杠」，登记为字面差异非缺陷） · **⑥ `R-D`/`R-E` 判据分离（§19.14）**（`R-D` = 机械量 +60px；`R-E` = 内容级遮挡 29→0 且 true→false，只在固定档判定；**`footCoveredPx` 是无效判据**） · **⑦ 新教训 `N41`**（跨文件同具体性覆盖：页面 CSS 先于 `shell.css` 落地 ⇒ 页面级形状修饰须在选择器上取胜；判据 = `border-radius` 计算值） · **⑧ 新教训 `N42`**（证据入库 vs `.gitignore`：`/.*-artifacts/` 吞目录 ⇒ `git add -f` 属已登记口径 + `check-ignore`/`ls-files` 两读数自证） · **⑨ §17.4 就地更正**（`item-back-link` ⇒ 现取 `item-back` + 新增 `item-actionbar`；旧快照字面不回改） · **⑩ §19.12 诚实清单更新**（真机 `env()` / `:has()` 非 Chrome / mock 数据面 ⇒ 三项 `NOT_MEASURED`）。**⇒ 新增 §19.13 / §19.14**。**改前快照** = `docs/versions/design-system.spec.v1.15.md`（`cmp=0`；md5 `910494eb9c290bbb8bf745f33bc67891`）；**本版镜像** = `docs/versions/design-system.spec.v1.16.md`（`cmp=0`）。**只写 `docs/**`；未动 `frontend/**` / `tools/**` / `ctrl/**`；未启停服务；未 `git add -A` · 未 commit · 未 push**。**现取基线 = HEAD `2aee62f`（本地 · 未 push）。** |
 | **v1.17** | 2026-10-12 | **Kevin「直接 A+C」（站内信最小闭环 + Telegram bot 绑定/通知一步到位）落册（只追加 + 就地留痕 · 本单只写 `docs/**`）**：**① `Q1` 已裁 = 站内信 + Telegram bot 并行**（§19.11 就地注；route v2.27 §37「X/推特接驳位预留」语义作废 ⇒ Telegram 非 X） · **② `T100` 聊一聊激活**（详情页操作栏**第 3 格**；渲染条件 = 登录 ∧ 非卖家本人；未登录 = 既有登录引导；点击 = `POST /api/messages/conversations` 后进入会话） · **③ `T101` `/messages` 真页**（列表/详情/输入三态 + keyset 加载更多 + 空态；占位区块与 `xPlaceholder`/`xNote` 键删除） · **④ `T102` Settings 绑定面**（`ProfilePage` Telegram 卡三态 + code 步骤 + 解绑；env 缺 = 降级卡） · **⑤ `T103` 未读角标**（底栏第 4 格 + 桌面悬浮菜单消息项；取数 = 挂载 + 发送后 + 进入 `/messages` 后，无轮询；`99+` 封顶） · **⑥ i18n +35 / −2** ⇒ **顶层 `123` / 拍平 `1078` / 四语节点 `4312`**（§20.8 算式；12 文件计数断言前推 §20.7） · **⑦ 零新 token / 零 STRUCT 增项** · **⑧ 教训 `N43`**（预留槽位激活须同步回收占位键/钩子）。**⇒ 新增 §20**（`T100`–`T103` + `N43` + §20.7 断言清单 + §20.8 键清单 + §20.9 归因式 AC + §20.11 待裁）。**改前快照** = `docs/versions/design-system.spec.v1.16.md`（`cmp=0`；md5 `0400a3d9bbcc38b22cae0190b658c8ee`）；**本版镜像** = `docs/versions/design-system.spec.v1.17.md`（`cmp=0`）。**只写 `docs/**`；未动 `frontend/**` / `backend-ts/**` / `tools/**` / `ctrl/**`；未启停服务；未 `git add -A` · 未 commit · 未 push**。**现取基线 = HEAD `3ae743e`。** |
 | **v1.18** | 2026-10-12 | **Jing 微回写单 · v1.17 §20 两处自相矛盾裁定更正 + `T101` 删钩子引致的断言改锚登记（只追加 + 就地更正留痕 · 本单只写 `docs/**` + 快照 / delta · 不改代码、不改台账 / 挂账）**：**① §20.8 顶层键数算式更正** —— 原「顶层 `122 + 1`（`telegram`）`= 123`」**漏计 `msg`（`msg.err.MSG_*` 7 键）+ `tg`（`tg.err.TG_*` 5 键）** ⇒ **现行算式 = `122 + 3`（`telegram` + `msg` + `tg`）= `125`**（现取四语逐文件相等：顶层 `125` / 拍平 `1078` / 四语节点 `4312`；拍平 / 节点算式原写**正确、不变**）；**★ 键名不得改**（保持 `msg.err.*` / `tg.err.*`，与后端**已 commit** 的 `i18n_key` 字面对齐） · **② §20.3 + §20.9 `AC-1` 未登录口径更正（以 §20.2 为准）** —— 裁死：**卖家本人 ⇒ 不渲染**；**未登录 ⇒ 渲染且点击走既有登录引导（不 `disabled`）**；**登录且非卖家 ⇒ 正常进会话**；`AC-1` 判负项改为自洽形式（**未登录应看到第 3 格**；**只有卖家本人看到第 3 格才判负**） · **③ `T101` 显式删除项引致的断言改锚登记** —— `v15-nav-floatmenu.test.jsx:243-251` 现取仍断言旧占位钩子共存 ⇒ 改锚 = **占位钩子计数归 0 + 真页钩子在场**；属显式删除项引致的**合法前推、非语义放宽**（Kong 并行单执行）。**改动 = 版本头 + §12（本行）+ §20.3 / §20.7 / §20.8 / §20.9 / §20.12 / §20.13 就地注（旧字面逐字保留 + 标取代）**。**改前快照** = `docs/versions/design-system.spec.v1.17.md`（`cmp=0`；md5 `f0d8e248b791330bf1e45ba5cdfba084`）；**本版镜像** = `docs/versions/design-system.spec.v1.18.md`（`cmp=0`）。**只写 `docs/**`；未动 `frontend/**` / `backend-ts/**` / `tools/**` / `ctrl/**`；未启停服务；未 `git add -A` · 未 commit · 未 push**。**现取基线 = HEAD `680fc2a`。** |
+| **v1.19** | 2026-10-16 | **Kevin「消息面板化（方案 1 · 就地叠加）」逐字裁定落册（只追加 + 就地留痕 · 本单只写 `docs/**`）**：**① `T101` 收窄** = `/messages` 由**独立真页** ⇒ **内嵌面板**（原页原地左压 `600px`；面板外右侧仍是既有 `.sf-fm`）· **② `T104`** 面板化形态（**不换页** `?msg=1`；当前页原地左压、**挂载态与滚动位置保留**）· **③ `T105`** 打开/关闭判据 = **路由串匹配**（`stripLangPrefix(pathname) === '/messages'` ∨ `search` 含 `msg=1`；**严禁任何宽度判定**）+ 关闭 = 移除 `msg`/`c`（`replace`）+ 面板左上「×」+ 浏览器后退 · **④ `T106`** 几何冻结表（面板 `600px` / 右偏移 `104px` / 让位 `704px` / 左栏 `240px` / 右栏 `360px` / 全高 `fixed`；`≤767` = 全屏 + 单栏两态；**零断点值新增**）· **⑤ `T107`** 四入口保全（**`href` 一字不改**）+ `/messages` 语义变更（真页 ⇒ 直链落点 = 首页 + 面板）· **⑥ `T108`** 落点 = **新文件 `shell/messages-panel.css`**（`shell.css` 一字不动）+ 面板只用 `data-sf-m`（**不得新增 `data-sf-region`**）+ 壳层修饰类 `.sf-shell.sf-shell--msg-open`。**i18n = +1 键**（`messagesPage.close` 四语）⇒ **顶层 `128` 不变 / 拍平 `1103 → 1104` / 四语节点 `4412 → 4416`**（**现取**基线；13 文件硬编计数前推 = §21.7 清单 B）。**断言改锚** = 真改锚 **2 处**（`v15-nav-floatmenu.test.jsx:245` 用例名 + `:260` 钩子 `messages-page` ⇒ `messages-panel`）+ **冻结面零改锚 16 条**（§21.6 清单 A）。**改动 = 版本头 + §12 本行 + §20.2 表后一处就地注 + §20.4 末一处就地注 + §21（新）**；**改前快照** = 现盘 live 正文（`design-system.spec.v1.18.md` 为勘误前历史、**本单不触碰**）；**本版镜像** = `docs/versions/design-system.spec.v1.19.md`（`cmp=0`）。**未动 `frontend/**` / `backend-ts/**`；未启停任何服务；未 commit · 未 push。** |
 
 
 ### 与上游文件的关系（只读，本册未改一字）
@@ -1969,6 +1971,8 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 | **`T102`** | `ProfilePage`（我的）新增**「Telegram 通知」卡**（新卡片、不动既有块）：三态 —— **① 未配置降级卡**（env 缺 ⇒ 静态降级文案 `telegram.notConfigured`，无操作按钮；判据 = 绑定接口 `503 TG_NOT_CONFIGURED` 形态，route §41.9，**非 500**）；**② 未绑定态**（`telegram.bind` 按钮 → `POST /api/telegram/bind/start` ⇒ 展示 `codeLabel` + `codeSteps`（含 `{{bot}}`/`{{code}}` 插值 + 10 分钟有效）+ 等待回执；成功 = `bindSuccess` → 转态③）；**③ 已绑定态**（`telegram.bound` + `tg_linked_at` 日期 + `telegram.unbind` 按钮 → 二次确认内联（不新造弹窗模板）→ 成功回②）。**隐私（写死）**：绑定面**绝不显示** `tg_user_id` 数值 / 任何 Telegram handle（route §41.5 判负②的读面对应）。 |
 | **`T103`** | **未读角标**双挂点 = **底栏第 4 格（`messages`）** + **桌面悬浮菜单「消息」项**（同一取数、同一组件语义）：数字 = `GET /api/messages/unread-count` 的 `unread_total`；**取数时点 = ① 应用/外壳挂载时（登录态）② 发送成功后（#4 回执）③ 进入 `/messages` 后（读水位回执 #5）**，**无轮询、无 WebSocket、无定时器**（一句话可改）；`0` ⇒ 不渲染角标；`>99` ⇒ 显示 `99+`；a11y = `messagesPage.unreadA11y`（`{{count}} 条未读`）。角标**纯展示**，不阻塞导航。 |
 
+> **★ v1.19 就地注（`T101` 收窄 · 旧字面逐字保留、部分已被 §21 取代）**：上表 **`T101`** 原写「`/messages` 由占位页转**真页**，三态…路由面零改动（`/messages` 已登记）」—— **「独立真页」部分已被 v1.19 §21 取代**：`/messages` **不再是独立页面**，改为**内嵌面板**（§21.2 `T104`）；**三态（列表态 / 详情态 / 输入区）、keyset「加载更多」、两空态、`≤767` 触控 ≥44、`T79` 字号逐字保留**（**只换宿主：页面 ⇒ 面板**）。**「路由面零改动」升级为「路由面 + 查询参数面」**（新增 `?msg=1` / `&c=` 口径 = 姊妹册 `route-layer.spec` v2.34 §44）。**`T102`（Telegram 绑定卡）/ `T103`（未读角标）两行逐字不受影响** —— 角标挂点、取数三时点、`>99` 封顶一字未改；**面板打开 / 关闭不构成第 4 个取数时点**（面板内发送成功仍走既有 ②/③）。**已删占位项（钩子 `messages-x-placeholder` + 键 `xPlaceholder`/`xNote`）维持已删状态**（`N43` 体例不破）。
+
 ### 20.3 `T100` 展开 · 聊一聊三态判据表
 
 | 态 | 判定 | 行为 | 数据依赖 |
@@ -1985,6 +1989,8 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 - 输入区 `≤767` 高度含 `env(safe-area-inset-bottom)` 复刻口径（`T75` 体例）；页面样式落 `messages.css` 页面局部 `--sf-l-*`（**零新主题 token**、零 `STRUCT` 增项、`shell.css` 一字不动）。
 - 429 语义直出：`MSG_RATE_LIMITED` ⇒ 文案键 `messagesPage.rateLimited`（`details.reason` 不进用户面）；发送失败通用态 = `sendFailed`；加载失败 = `loadFailed`。
 - **术语**：本页属「站内信」；页面标题键 `messagesPage.title`（「消息」）不动（底栏同键，`T80` 第 4 格文案不变）。
+
+> **★ v1.19 就地注（`§20.4` 钩子面收窄 · 旧字面逐字保留）**：上列钩子清单**全部保留原名**（`messages-list` / `messages-conversation-item` / `messages-conversation-unread` / `messages-thread` / `messages-msg-mine` / `messages-msg-theirs` / `messages-input` / `messages-send-btn` / `messages-back` / `messages-load-more`，逐字不改）—— **唯一例外 = 页面容器钩子 `messages-page`**（上列首句）⇒ 面板化后**改挂 `messages-panel`**（面板**不用** `*-page` 命名）；**新增** `messages-panel-list` / `messages-panel-thread` / `messages-panel-close` 三条（§21.5 表）。**样式落点由「页面 `messages.css`」扩为「页面 `messages.css` + 新文件 `shell/messages-panel.css`」**（**`shell.css` 仍一字不动**；页面局部 `--sf-l-*` 体例与「零新主题 token」逐字维持）。`env(safe-area-inset-bottom)` 复刻口径在**面板全屏档（`≤767`）**继续适用（`T75` 体例不破；`messages.css` 内既有声明不动）。**未登录 ⇒ 面板内既有登录引导逐字保留**（零新造弹层）。
 
 ### 20.5 `T102` 展开 · 绑定卡钩子与降级
 
@@ -2098,3 +2104,207 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 - 改前：1923 行 / 422,501 B / md5 `0400a3d9bbcc38b22cae0190b658c8ee`；改后读数见本版 delta 件 `docs/audit/design-system-v1.17-delta.md`（行数/字节/md5 前后 + `git diff --numstat` 删除列 = 0 + 快照 `cmp=0` + 未改代码自证）。
 
 > **★ v1.18 微回写（本节自证）**：改前 = 2078 行 / 450,138 B / md5 `f0d8e248b791330bf1e45ba5cdfba084`；改后读数见本版 delta 件 `docs/audit/design-system-v1.18-delta.md`（行数 / 字节 / md5 前后 + `git diff --numstat` 删除列 = 0 + 快照 `cmp=0` + 未改 `frontend/` 的 grep 自证）。**本单改动 = 仅 `docs/design/design-system.spec.md` + 新建快照 `docs/versions/design-system.spec.v1.18.md` + 新建 delta `docs/audit/design-system-v1.18-delta.md`**（未动代码 / 未动台账 / 未动挂账）。
+
+---
+
+## §21 ★★ v1.19 · 消息面板化（**方案 1「就地叠加」**）落册：`/messages` 由**独立真页** ⇒ **内嵌面板**（左联系人 / 右对话）+ 几何冻结表（面板 `600` / 右偏移 `104` / 让位 `704` / 左栏 `240` / 右栏 `360`）+ 钩子契约 + i18n 键集算式前推（`1103 ⇒ 1104` · 节点 `4412 ⇒ 4416`）+ 断言改锚登记（**本节只追加 · §1–§20 一字未动** · 依据 = **Kevin 2026-10-16 逐字裁定「消息面板化（方案 1 · 就地叠加）」**；姊妹册 = `route-layer.spec` v2.34 §44（`/messages` 语义变更 + `?msg=1` 查询参数口径 + 四入口保全 + 两计数不变））
+
+### 21.0 裁定来源（Kevin 2026-10-16 · 逐字采用 · 六条 + 一句四入口全集）
+
+- **① 消息不做独立页面**：改为**内嵌在其它页面内部的面板** —— 一旦打开消息 ⇒ **原有页面向左压缩**，**页面整体右侧留出 `600px`** 呈现消息界面。
+- **② 面板内部两栏**：**左 = 各联系人选择（侧边栏）**，**右 = 对话窗口**。
+- **③ 面板外部的右侧** = **当前悬浮按钮面板**（**不遮挡、零几何改动**）〔= 既有 `.sf-fm`，本册 §14.2 / `T81`–`T83` 口径一字不动〕。
+- **④ 打开方式 = 不换页**：给**当前路由**加查询参数 **`?msg=1`**（可带 **`&c=<conversation_id>`**），当前页**原地左压**、**挂载态与滚动位置保留**。
+- **⑤ `/messages` 路由保留**为**直链落点**（Telegram 通知链接 / 旧链）= **首页 + 面板**（同一面板，底 = 首页）。
+- **⑥ 关闭** = **移除 `msg` / `c` 查询参数**（`replace` 保当前页）+ 面板内**左上「×」**；**浏览器后退键天然关面板**。
+- **★ 四入口全集（全部要保、全部不改 `href`）**：① 底栏第 4 格 · ② 悬浮菜单「消息」· ③ 详情页「聊一聊」（现取 `ItemDetailPage.jsx:157` navigate `/messages?c=<id>`）· ④ Telegram 通知里的 `/messages` 直链。
+- **本册只承载「形态 / 几何 / 钩子 / 断言改锚 / 键集算式」**；**route 侧（路径语义 / 查询参数 / 入口 `href` 保全 / 计数）见姊妹册 `route-layer.spec` v2.34 §44**，本册不重抄。
+
+### 21.1 现取基线（本单开工 · HEAD `fd34ca0` · 2026-10-16 · 只读现取 · 工作区干净）
+
+| 项 | 现取读数 | 取法（可复核） |
+|---|---|---|
+| 当前形态 | `/messages` = **独立真页**：内层路由 `<Route path="messages" element={<MessagesPage />} />` | `frontend/src/App.jsx:119` |
+| 页面文件 | `frontend/src/pages/MessagesPage.jsx` **294 行** · 单栏 · 列表态⇄详情态两态（详情由 query `?c=<conversation_id>` 定位，`MessagesPage.jsx:56`） | `wc -l` / 文件现读 |
+| 页面样式 | `frontend/src/pages/messages.css` **186 行**（`sf-msg-*` 家族 20 类） | `wc -l` / `grep -n '^\.'` |
+| 壳层 | `AppShell.jsx` = `UnreadProvider` → `.sf-shell[data-sf-shell=app][data-sf-region=shell]` → `.sf-region-top` / `main.sf-route-container[data-sf-region=content]` / `.sf-region-foot` / `<BottomTabBar />` / `<FloatingMenu />` | `AppShell.jsx:15-31` |
+| 悬浮菜单几何 | `.sf-fm` = `position:fixed; right:16px; width:72px; top:45%; border-radius:36px`；**≥768 显示 / ≤767 隐藏（由唯一 767 断点块承担）** | `frontend/src/shell/shell.css:113-124` + `:182`（唯一 `@media`，现取 `grep -c '@media' shell.css = 1`） |
+| 主内容容器 | `.sf-route-container` = `max-width:var(--sf-st-shell-max-w)`（= `1440px`）· `margin:0 auto` · `padding:0 var(--sf-st-topbar-pad-x)` | `shell.css:26-32` |
+| 先例（本单沿，不发明新机制） | **`T95`「DOM 恒在 + 页面级 `display:none`」**：`.sf-tabbar.is-detail{display:none}` 落 `src/styles.css` **顶层**（`:22`），`shell.css` 一字不动；判定 = **路由串匹配**（`BottomTabBar.jsx:18-22` `stripLangPrefix`），**严禁宽度判定** | `styles.css:22` / `BottomTabBar.jsx:12-22` |
+| 路由串剥离真源 | `stripLangPrefix` **单一真源** | `frontend/src/utils.js:65` |
+| 未读角标 | `UnreadProvider` / `useUnreadCount` / `unreadBadgeText`（`>99` ⇒ `99+`）；两挂点 = `tabbar-unread-badge`（`BottomTabBar.jsx:61`）/ `floatmenu-unread-badge`（`FloatingMenu.jsx:53`） | `shell/unread-context.jsx:22-61` |
+| 键集（**现取**，四语逐文件） | 顶层 **`128`** / 拍平 **`1103`** / 四语节点 **`4412`**（`= 1103 × 4`；四语 `top/flat` **逐文件完全相等**） | `frontend/src/locales/{zh,en,hk,vn}.json` JSON 解析（`len(dict)` / 递归叶） |
+| 前端路由计数 | `grep -cE '<Route' frontend/src/App.jsx` = **`42`**（字面）· `grep -oE '<Route[ >]' \| wc -l` = **`34`**（精确） | `App.jsx`（口径同 route 册 §40.2 / §42.5） |
+| 后端注册点 | `grep -cE '^app\.(get\|post\|put\|delete\|patch)\(' backend-ts/src/index.ts` = **`105`**（get 45 / post 56 / put 0 / delete 3 / patch 1） | `index.ts`（口径同 route 册 §43.4） |
+
+> **★ 与册内旧基线的差额（诚实登记 · 不沿用旧字面）**：本册最近一次记的键集基线 = v1.18 §20.8 的 **顶层 `125` / 拍平 `1078` / 节点 `4312`**；**现取 = `128` / `1103` / `4412`** ⇒ 差额 **顶层 `+3` / 拍平 `+25` / 节点 `+100`**，来源 = 本册 §21 之外的**既有批次**（`sf14` 前推：`header` / `profileNav` / `activitiesPage` 三顶层 + `profileNav` 空态 4 + `item.favorite` 族；tg QR 面 `+8`）⇒ **本册一律以「现取」为准，承 `F12` 口径「不得拄推定值」**。
+
+### 21.2 规则条文（`T104`–`T108`）
+
+| 规则 | 条文（写死） |
+|---|---|
+| **`T104`** | **消息面板化（方案 1 · 就地叠加）**：消息**不做独立页面** ⇒ 改为**内嵌面板** —— 打开消息时**当前页原地左压**、页面整体右侧**让位 `var(--sf-mp-let)`**（≥1024 档 = `704px`）呈现**面板**（宽 `var(--sf-mp-w)`，≥1024 档 = `600px`）；**不换页**（`pathname` 逐字不变，只有 `search` 变化）⇒ **宿主页面组件不得重新挂载、滚动位置保留**。面板外部的右侧**仍是既有 `.sf-fm`**（`T81`–`T83` + §14.2 几何**一字不动**、`shell.css` 一字不动）。 |
+| **`T105`** | **打开 / 关闭判据 = 路由串匹配（写死）**：**打开** ⟺ `stripLangPrefix(pathname) === '/messages'` **∨** `new URLSearchParams(search).get('msg') === '1'` **∨** `c` 非空（**会话直链子句** · 保入口③「聊一聊」`/messages?c=<id>` 与「原地形态」自洽 ⇒ 姊妹册 route v2.34 §44.3(1) 逐字同款；**口径外延项 · 一句话可改**，改则须同步 route §44.3(1) 与 `v15-nav-floatmenu.test.jsx:259` 的 URL）；**关闭** = 移除 `msg` / `c` 查询参数（**`replace` 保当前页**）＋ 面板内**左上「×」**（`messages-panel-close`）；**浏览器后退键天然关面板**（参数进 history）。**★ 严禁任何宽度 / `matchMedia` / `innerWidth` 类判定**（外壳 JS 硬断言 **按明文全文扫描**，**注释里写这些词同样判负** ⇒ 面板 JS 与注释一律不得出现 `shell/` 内禁用词表）。**判据单一真源**：一个纯函数（`stripLangPrefix` 之上），`shell/AppShell.jsx` 与面板组件**共用同一份**（承 `utils.js:65` 单真源体例）。 |
+| **`T106`** | **几何冻结表**（本册裁定 · 逐值 · 见 §21.3；每项标「一句话可改 / 不可改」）＋ **零断点值新增**：面板可见性与形态**只用既有 `767px`**（`shell.css:182` 现取唯一值）；**≥768 的紧凑由 `min()` 承担、不新增媒体查询**；**≤767 = 面板全屏 + 单栏两态**（联系人 ⇄ 对话，复用既有交互：`?c=` 定位 / `messages-back` 返回列表），**不得新增断点值**。 |
+| **`T107`** | **四入口保全 + `/messages` 语义变更**：四入口（底栏第 4 格 / 悬浮菜单「消息」/ 详情页「聊一聊」/ Telegram 通知直链）**全部保留、`href` 一字不改**；`/messages` 由 v1.17 `T101` 的**独立真页** ⇒ **直链落点 = 首页 + 面板**（同一面板，底 = 首页）。**前端 `<Route` 计数与后端注册点两数不变**（现取 `42`/`34` 与 `105`；见姊妹册 route v2.34 §44.5）。 |
+| **`T108`** | **落点与钩子契约（写死）**：面板样式落**新文件 `frontend/src/shell/messages-panel.css`**（**`shell.css` 一字不动** ⇒ 「唯一 767 断点块」「无 `[data-theme`」两条硬断言零改动）；**面板一律只用 `data-sf-m`**，**不得新增任何 `data-sf-region`**（五 region 严格相等断言冻结）；壳层状态用**修饰类**（`.sf-shell.sf-shell--msg-open`，挂点 = `AppShell.jsx:17`）；**零新主题 token**（`TOKEN_KEYS` 一字不动）、**零 `STRUCT` 增项**（面板结构常量走**面板局部** `--sf-mp-*`，承 `T98`「`STRUCT_PROV` 带溯源硬门」体例）。 |
+
+### 21.3 `T106` 展开 · 几何冻结表（**逐值 · 现取依据 + 一句话可改**）
+
+| 项 | 冻结值 | 类别 | 一句话可改 | 现取依据 / 派生 |
+|---|---|---|---|---|
+| **面板宽** `--sf-mp-w` | `min(600px, calc(100vw - 424px))`（**≥1024 档 ⇒ `600px`**） | 【本册裁定】 | ✓ | Kevin 2026-10-16 ①「右侧留出 `600px`」 |
+| **面板右偏移** `--sf-mp-right` | `104px` = 浮菜单 `right:16` + 宽 `72` + 间隙 `16` | 【本册裁定·派生】 | ✓（**改则须同步**） | `shell.css:118`（`right:16px`）+ `:120`（`width:72px`）现取 |
+| **面板 ↔ 浮菜单间隙** | **恒 `16px`**（**相交 = 0 = 硬判据**，承 ③「不遮挡、零几何改动」） | 【本册裁定】 | ✗ | 上两行派生 |
+| **整壳让位** `--sf-mp-let` | `calc(var(--sf-mp-w) + 104px)`（**≥1024 档 ⇒ `704px`**）；落 `.sf-shell.sf-shell--msg-open` 的 **`padding-right`** ⇒ **顶栏 / 正文 / 页脚一起左压** | 【本册裁定】 | ✓ | Kevin ①「页面整体右侧留出」 |
+| **面板内左栏**（联系人） | `min(240px, 45%)`（**≥1024 档 ⇒ `240px`**） | 【本册裁定】 | ✓ | Kevin ②「左 = 各联系人选择（侧边栏）」 |
+| **面板内右栏**（对话） | 余量 = 面板宽 − 左栏（**≥1024 档 ⇒ `360px`**；`240 + 360 = 600` 自洽） | 【本册裁定·派生】 | ✓ | Kevin ②「右 = 对话窗口」 |
+| **面板高度** | **视口全高**（`position:fixed` · `top:0` · `bottom:0`） | 【本册裁定】 | ✗ | Kevin「呈现消息界面」（面板为**浮层**，不改 `.sf-route-container` 的布局语义） |
+| **`768–1199` 档** | **允许紧凑、不许溢出**：由 `min()` 自动收窄（无媒体查询）⇒ 硬判据 = `document.documentElement.scrollWidth ≤ clientWidth`（**零横向溢出**）＋ 面板与 `.sf-fm` **相交 = 0**（间隙 `16px`）＋ 正文右缘 ≤ 面板左缘 | 【本册裁定】 | ✗（判据不可改） | Kevin ④ 收敛 + `T85` 体例 |
+| **`≤767` 档** | **面板全屏**（`100vw × 100vh`）+ **单栏两态**（联系人 ⇄ 对话）；让位量 = `0`（**原地不压**）；`env(safe-area-inset-bottom)` 复刻（`T75` 体例） | 【本册裁定】 | ✗ | Kevin ⑥ 收敛 + `T78` 断点收口 |
+| **断点值** | **零新增**：只用既有 `767px`；`≥768` 的紧凑由 `min()` 承担 | 【硬口径】 | ✗ | `shell.css:182` 现取唯一值 + `T78` |
+
+### 21.4 `T105` 展开 · 宿主挂点与开关机制（**不发明新机制**）
+
+- **壳层状态挂点** = `frontend/src/shell/AppShell.jsx:17`（现取 `.sf-shell` 的元素）⇒ 追加**修饰类** `sf-shell--msg-open`（**命名本册定**，一句话可改）；**判据同 `T105`**（路由串匹配，单一真源）。
+- **让位规则落点** = **新文件 `shell/messages-panel.css`** 的 `.sf-shell.sf-shell--msg-open{ padding-right: var(--sf-mp-let) }` —— 具体性 `(0,2,0)` **压过** `shell.css:26` 的 `.sf-route-container{padding: …}` 与 **767 块内**的同名规则（`(0,1,0)`）；**`shell.css` 一字不动**（承 `T95` / `N40` 体例）。
+- **≤767 归零**：同文件内 `@media (max-width: 767px){ .sf-shell.sf-shell--msg-open{ padding-right: 0 } }`（**复用既有 `767` 值**，不新增断点值）。
+- **面板挂载 = 条件挂载（判据同 `T105`）** —— 本册裁定，理由 = 面板**不在任何冻结的 region / 元素数断言内**，条件挂载可令「未打开」态 DOM 与现盘**逐字相同**（零回归面）；**替代形态（`DOM 恒在` + 修饰类 `display:none`，承 `T95` 体例）登记为「一句话可改」**，实现方若选后者须自证「日/夜 DOM 形状同构 + 元素数下限」两条不破。
+- **面板 = 浮层**：`position:fixed` ⇒ **不进 `.sf-route-container` 布局流**；页面左压**只由 `padding-right` 承担**（**不得**改 `max-width` / `margin` / 栅格列数 —— 那会改正文几何语义）。
+- **替代手法登记（一句话可改）**：让位规则亦可写为 `.sf-shell:has(.sf-mp){ … }` 形态（仓内既有先例 = `pages/item/item.css:385` `.sf-shell:has(.sf-item-detail)`）；**本册冻结修饰类形态**（不依赖 `:has()` 支持度），二者**不得并用**。
+
+### 21.5 钩子契约（**保留原名优先** · 凡改名 / 移位必进 §21.6 清单 A）
+
+| 钩子 | 处置 | 现取宿主（`file:line`） | 面板化后宿主 |
+|---|---|---|---|
+| `messages-page` | **改名** ⇒ `messages-panel` | `MessagesPage.jsx:157` · `:167` | 面板根容器（新文件 `shell/MessagesPanel.jsx`） |
+| `messages-list` | **保留** | `MessagesPage.jsx:249` | 面板左栏列表 |
+| `messages-conversation-item` | **保留** | `MessagesPage.jsx:256` | 面板左栏行 |
+| `messages-conversation-unread` | **保留** | `MessagesPage.jsx:264` | 面板左栏行内角标 |
+| `messages-thread` | **保留** | `MessagesPage.jsx:190` | 面板右栏消息流 |
+| `messages-msg-mine` / `messages-msg-theirs` | **保留** | `MessagesPage.jsx:197` | 面板右栏气泡 |
+| `messages-input-row` / `messages-input` / `messages-send-btn` | **保留** | `MessagesPage.jsx:217` / `:220` / `:228` | 面板右栏输入区 |
+| `messages-back` | **保留** | `MessagesPage.jsx:173` | 面板右栏（≤767 单栏返回列表；≥768 左栏常显 ⇒ 该键**仍渲染**、由面板 CSS 隐藏） |
+| `messages-load-more` | **保留** | `MessagesPage.jsx:207` · `:278` | 两栏各自的「加载更多」 |
+| `messages-about` | **保留** | `MessagesPage.jsx:179` | 面板右栏商品上下文行 |
+| `messages-list-empty` / `messages-detail-empty` | **保留** | `MessagesPage.jsx:243` / `:188` | 面板两栏空态 |
+| `messages-list-status` / `messages-thread-status` / `messages-send-status` | **保留** | `MessagesPage.jsx:245` / `:184` / `:236` | 各态（`data-sf-phase` 逐字保留） |
+| `tabbar-unread-badge` / `floatmenu-unread-badge` | **保留（零改动）** | `BottomTabBar.jsx:61` / `FloatingMenu.jsx:53` | 底栏 / 悬浮菜单（`T103` 口径一字不动） |
+| **`messages-panel-list`** | **新增** | — | 面板左栏包裹层（≥768 双栏用） |
+| **`messages-panel-thread`** | **新增** | — | 面板右栏包裹层 |
+| **`messages-panel-close`** | **新增** | — | 面板**左上「×」**（关闭键，Kevin ⑥） |
+
+> **钩子面硬约束（写死）**：**面板不得新增任何 `data-sf-region`**（五 region **严格相等**断言：`theme-shell-isomorphism.test.jsx:81` / `v15-nav-floatmenu.test.jsx:230`）；**底栏第 4 格与悬浮菜单「消息」项必须仍是 `<a href="/messages">`**（`theme-shell-isomorphism.test.jsx:97` · `v15-nav-floatmenu.test.jsx:138` / `:149`）；**`App.jsx` 必须仍字面含 `<Route path="messages" element={<MessagesPage />} />` 与 `import MessagesPage from './pages/MessagesPage'`**（`v15-nav-floatmenu.test.jsx:235` / `:236`）。
+
+### 21.6 受影响硬断言清单（**现取重锚** · 逐条点名到 `文件:行`）
+
+**（A1）真改锚 = 2 处**（钩子改名引致，其余全部为「不变式 / 冻结面」）
+
+| # | 文件:行 | 旧断言（现取逐字） | 新断言 |
+|---|---|---|---|
+| 1 | `frontend/src/test/unit/v15-nav-floatmenu.test.jsx:245` | 用例名 = `'%s 档 MessagesPage 渲染**真页**（占位钩子 = 0 + 真页钩子在场）'` | 用例名改 = `'%s 档 消息面板（`/messages` 直链落点 = 首页 + 面板）：面板钩子在场 + 占位钩子 = 0'` |
+| 2 | `frontend/src/test/unit/v15-nav-floatmenu.test.jsx:260` | `const page = container.querySelector('[data-sf-m="messages-page"]')` ⇒ `expect(page).not.toBeNull()` | `container.querySelector('[data-sf-m="messages-panel"]')` ⇒ `not.toBeNull()`（**新宿主钩子**；如需左栏断言再加 `[data-sf-m="messages-panel-list"]`） |
+
+**（A2）零改锚 = 冻结面 / 不变式**（**改实现时不得顺手改这些锚**）
+
+| # | 文件:行 | 断言（现取） | 为何零改锚 |
+|---|---|---|---|
+| 3 | `v15-nav-floatmenu.test.jsx:259` | `renderIn(<MessagesPage />, '/messages')` | `MessagesPage` **仍是 `/messages` 的挂载组件**（= 首页 + 面板宿主）⇒ 调用形态不变 |
+| 4 | `v15-nav-floatmenu.test.jsx:263` | `expect(page.textContent).toContain(title)`（`messagesPage.title` 四语） | 面板标题**复用既有键**（§21.7 复用清单） |
+| 5 | `v15-nav-floatmenu.test.jsx:265-268` | `[data-sf-m="messages-list-empty"]` 非空 + 文案 = `messagesPage.empty` | 空态钩子 + 键**逐字保留** |
+| 6 | `v15-nav-floatmenu.test.jsx:271` | `querySelectorAll('[data-sf-m="messages-x-placeholder"]').length === 0` | `T101` 已删项（`N43`）⇒ 维持 |
+| 7 | `v15-nav-floatmenu.test.jsx:272-278` | `TABLES[*].messagesPage.xPlaceholder / xNote === undefined`（四语） | 同上 |
+| 8 | `v15-nav-floatmenu.test.jsx:235` / `:236` | `App.jsx` 含 `<Route path="messages" element={<MessagesPage />} />` / `import MessagesPage from './pages/MessagesPage'` | **`App.jsx` 一字不改**（`T107`） |
+| 9 | `theme-shell-isomorphism.test.jsx:81` | `expect(regions).toEqual(['shell','topnav','content','footer','tabbar'])` | 面板**只用 `data-sf-m`**，**不得新增 `data-sf-region`** |
+| 10 | `v15-nav-floatmenu.test.jsx:230` | 同上五 region（AppShell 挂 `FloatingMenu` 用例） | 同上 |
+| 11 | `theme-shell-isomorphism.test.jsx:217-222` | `shell.css` 的 `@media` **恰 1 个**且含 `` `${BREAKPOINTS.phonePortraitMax}px` ``（= `767px`） | 面板 CSS 落**新文件**，`shell.css` 一字不动 |
+| 12 | `theme-shell-isomorphism.test.jsx:233-238` | `shell.css` 不含 `[data-theme` / `theme-day` / `theme-night` | 同上 |
+| 13 | `theme-shell-isomorphism.test.jsx:204-213` | `shell/**` + `theme/**` 的 JS 全文（**含注释**）不得出现 `matchMedia\|innerWidth\|innerHeight\|clientWidth\|offsetWidth\|screen.width` | **约束面板 JS 与注释**（判据 = 路由串匹配） |
+| 14 | `theme-shell-isomorphism.test.jsx:169-181` | 日/夜档 `shape(container)` **逐项相等** + 元素数差 == 主题图标子树差 | **面板不得按主题条件渲染**（也不得引入主题分支的新子树） |
+| 15 | `theme-shell-isomorphism.test.jsx:97` | `tabHrefs === ['/','/exchange','/item/new','/messages','/profile']` | 底栏 `href` 不改（`T107`） |
+| 16 | `v15-nav-floatmenu.test.jsx:138` / `:149` | 悬浮菜单「消息」项 `href` = `'/messages'` / `'/en/messages'` | 同上 |
+| 17 | `theme-tokens.test.js` / `theme/tokens.js` `TOKEN_KEYS` | 逐键回读 `style-preview.html` + CSS↔JS 互校；`STRUCT_PROV` 带溯源硬门 | **零新主题 token / 零 `STRUCT` 增项** ⇒ 面板结构常量走**面板局部** `--sf-mp-*`（非 `tokens.js`） |
+| 18 | i18n 计数硬断言 **13 文件** | 见 **§21.7（B）** | **+1 键引致前推**（唯一「必然红」面） |
+
+> **★ 改锚执行注意事项（登记 · 交实现方现取）**：`v15-nav-floatmenu.test.jsx:245` 用例的 `fetch` 替身（`:256-262`）**现在同时服务「首页」与「面板」**（`/messages` 落点 = 首页 + 面板）⇒ 改锚时必须确认**首页在空 `rows` 替身下不抛错**（现取该替身返回 `{success:true,data:{rows:[],next_cursor:null}}`）；若首页另有取数需求，须在**同一替身**内按 URL 分支（**不得**新造全局假数据）。
+
+### 21.7 i18n（**+1 键 · 四语同补**）+ 计数算式前推
+
+**（1）现取基线（本单开工 · 只读）**：顶层 **`128`** / 拍平 **`1103`** / 四语节点 **`4412`**（`= 1103 × 4`）；**四语逐文件 `top/flat` 完全相等**（`zh`/`en`/`hk`/`vn` 各 `128 / 1103`）。**取法** = `json.load` 后 `len(dict)`（顶层）/ 递归叶计数（拍平）。
+
+**（2）新增键（恰 1 条 · 四语同补）**：
+
+| 键 | zh（定稿） | en / hk / vn（初译 · 待复核） |
+|---|---|---|
+| `messagesPage.close` | 关闭消息 | Close messages / 關閉訊息 / Đóng tin nhắn |
+
+**（3）复用清单（零新增 · 现取 13 键全在场）**：`messagesPage.title` · `empty` · `backToList` · `detailEmpty` · `inputPlaceholder` · `send` · `sendFailed` · `rateLimited` · `aboutItem` · `loadMore` · `loadFailed` · `notFound` · `unreadA11y`。**面板不新增**列表 / 详情 / 发送 / 空态 / 加载更多 / 角标 a11y 任何文案键（关闭键是**唯一**新增项）。
+
+**（4）新算式（写死 · 可复核）**：顶层 `128 + 0 = `**`128`**（`messagesPage` 已是既有顶层域 ⇒ **零新顶层**）；拍平 `1103 + 1 = `**`1104`**；四语节点 `1104 × 4 = `**`4416`**。**归零自检**：新增 `1` = 关闭键 `1`；删除 `0`；净 `+1` flat；顶层 `+0` 与「无新顶层域」自洽。
+
+**（5）改锚清单（B）· 13 文件逐行**（**判负**：只改实现不改锚 ⇒ 整批红）：
+
+| # | 文件 | 行 | 旧断言 | 新断言 |
+|--:|---|---|---|---|
+| B1 | `s5-publish-headcount.test.jsx` | `:86` / `:88` / `:91` | top `128` / flat `1103` / 节点 `4412` | top `128` / flat **`1104`** / 节点 **`4416`** |
+| B2 | `s7-submissions-panel.test.jsx` | `:301` / `:303` / `:306` | 同上 | 同上 |
+| B3 | `i18n-batch-b4a.test.jsx` | `:148` | `{ top: 128, flat: 1103 }` | `{ top: 128, flat: 1104 }` |
+| B4 | `i18n-batch-b4b.test.jsx` | `:260` / `:326` | `{ top: 128, flat: 1103 }` / `'zh: top=128 flat=1103'` | flat **`1104`**（两处） |
+| B5 | `i18n-batch-b5.test.jsx` | `:217` / `:261` | 同 B4 两形态 | 同 B4 |
+| B6 | `i18n-violation-closeout.test.jsx` | `:88` / `:136` | `'作用域命中节点数 = 4412'` / `toBe(1103)` | **`4416`** / **`1104`** |
+| B7 | `r9-93-points-symbol.test.jsx` | `:193` / `:195` | top `128` / flat `1103` | top `128` / flat **`1104`** |
+| B8 | `r9-96-dashj-copy.test.jsx` | `:126` / `:129` / `:133` | top `128` / flat `1103` / 节点 `4412` | top `128` / flat **`1104`** / 节点 **`4416`** |
+| B9 | `s8-locale-key-coverage.test.js` | `:188` / `:191` | flat `1103` / 节点 `4412` | **`1104`** / **`4416`** |
+| B10 | `s9-ledger-kind-closure.test.js` | `:128` / `:131` | flat `1103` / 节点 `4412` | **`1104`** / **`4416`** |
+| B11 | `s19-participants-truth-source.test.jsx` | `:106` / `:108` / `:111` | top `128` / flat `1103` / 节点 `4412` | top `128` / flat **`1104`** / 节点 **`4416`** |
+| B12 | `s23-participants-headcount.test.jsx` | `:121` / `:124` | flat `1103` / 节点 `4412` | **`1104`** / **`4416`** |
+| B13 | `tg-bind-qr.test.jsx` | `:14`（**注释**） | 「拍平 `1095⇒1103` / 四语节点 `4380⇒4412`」 | 「拍平 ⇒**`1104`** / 四语节点 ⇒**`4416`**」（注释同步；承本文件既有体例） |
+
+> **★ 口径（写死）**：13 文件内的**历史前推注释行**（如 `i18n-batch-b4a.test.jsx:146-147`）**一律不改、不删**（历史留痕），**只改断言数值**并在该行尾追加一句「`sf19-msgpanel`：`+1` 键 ⇒ flat `1103⇒1104` / 节点 `4412⇒4416`」。**判负**：任一处遗漏或写成 `1103`/`4412` ⇒ 该文件红。
+
+### 21.8 归因式 AC（**不用元素白名单** · 承 §19.8 / §20.9 体例）
+
+| AC | 判据（可判负） | 现取锚点 |
+|---|---|---|
+| **AC-1 四入口不减** | 四条入口**全部现取在场且 `href` 字面未改**：① 底栏 href 集合含 `/messages`（`theme-shell-isomorphism.test.jsx:97`）② 悬浮菜单项 href = `/messages` / `/en/messages`（`v15-nav-floatmenu.test.jsx:138` / `:149`）③ 详情页「聊一聊」navigate 字面含 `/messages?c=`（`ItemDetailPage.jsx:157`）④ Telegram 通知正文含 `<site>/messages`（`messages-service.ts:717` / `:718`）。**任一缺 / 任一 `href` 变了 ⇒ 判负。** | 四处现取 |
+| **AC-2 不换页 + 原地** | 打开消息前后：`pathname` **逐字相同**；宿主页面组件**未重新挂载**（挂载计数 = `1`）；`window.scrollY` **前后相同**（±0）。**任一不成立 ⇒ 判负。** | 探针两读数 |
+| **AC-3 桌面几何** | `1440` 档：面板宽 = `600`；面板右缘 = 视口右 − `104`；**面板 rect 与 `.sf-fm` rect 相交 = `0`**（间隙 `16px`）；正文容器右缘 ≤ 面板左缘；`documentElement.scrollWidth ≤ clientWidth`。 | 探针 rect 读数 |
+| **AC-4 手机档** | `≤767`（`390`/`375`/`320`）：面板 = `100vw × 100vh`；**单栏两态**可切（`?c=` 有无）；触控目标 ≥ `44`（`T77`）；`scrollWidth ≤ clientWidth`。 | 探针三档 |
+| **AC-5 未打开 ⇒ 零影响（归因式）** | 面板**未打开**时，宿主页在 `1440` / `390` 两档与**改前逐元素差异集 = 0**（禁动画 + 只采可见元素 + 结构键，承 §13 归因配方）；**反事实自证**：打开面板后差异集**必须非空**（否则尺子无效）。 | 归因两读数 |
+| **AC-6 结构不变式** | 面板**打开与未打开**两态：`[data-sf-region]` 集合恒 `= ['shell','topnav','content','footer','tabbar']`；`shell.css` `@media` 数恒 `1` 且含 `767px`；`shell.css` 无 `[data-theme`；`shell/**` JS 全文无禁用词表。 | 断言 + `grep` 四读数 |
+
+> **AC-5 的「无效尺子」自证（写死 · 承 `N40` 教训族）**：判据必须**在改前形态下能红**（先跑一次「打开面板」态，差异集必须非空），否则该尺子对本次改动**不敏感 = 无效**，须换锚点再判（口径变更须留痕）。
+
+### 21.9 新增可复用教训（`N44` / `N45` · 承 `N39`–`N43`）
+
+- **`N44`（面板化 vs 页面化：就地叠加的三条落点纪律）**：把一个**已成形的真页**改为**就地叠加面板**时，**页面 CSS 可以复用、外壳约束一条都不能碰** —— ① 面板**不得新增 `data-sf-region`**（五 region 严格相等断言）；② 面板 CSS **不得落 `shell.css`**（该文件「唯一 767 断点块」+「无 `[data-theme`」双边断言）⇒ **新开文件**；③ 壳层状态用**修饰类 + 路由串匹配**（**严禁宽度判定**，外壳 JS 的禁用词表**按明文全文扫描、注释同禁**）；④ 面板**不得按主题条件渲染**（日/夜 DOM 形状逐项相等断言）。**判据** = 四条断言跑完零改动。
+- **`N45`（「换宿主」类改动的改锚成本 = 钩子命名策略决定）**：**保留原钩子名**可把改锚面压到「宿主断言」一处；**改名 / 移位必须逐条进改锚清单**（`文件:行` → 旧断言 → 新断言），否则实现方与质检方对「哪些红是应当的」无共识。本单实例：16 条既有 `messages-*` 钩子**逐字保留** ⇒ 真改锚仅 **2 处**（用例名 + 根容器钩子 `messages-page` ⇒ `messages-panel`）；**唯一「必然红」的大面 = i18n 计数硬断言 13 文件**（`+1` 键 ⇒ `flat 1103⇒1104` / 节点 `4412⇒4416`）—— **新增文案键前必须先 `grep` 出全部硬编计数点**（本仓散落 ≥13 文件、三数并存：顶层/拍平/四语节点）。
+
+### 21.10 留痕（就地注 · **原地正文一字未动**）
+
+- **§20.2 表后**就地注：`T101` 的「**独立真页**」部分**已被 v1.19 §21 取代**（改为**内嵌面板**）；**三态 / keyset / 空态 / 触控 / 字号逐字保留**（只换宿主）。
+- **§20.4 末**就地注：钩子清单**全部保留原名**，**唯一例外 = `messages-page` ⇒ `messages-panel`**；样式落点由「页面 `messages.css`」**扩为**「+ 新文件 `shell/messages-panel.css`」。
+- **`T102`（Telegram 绑定卡）/ `T103`（未读角标）两行一字未动**；**角标不新增取数时点**（面板打开 / 关闭不当成第 4 个时点 —— 面板内发送成功仍走既有 ②/③ 时点）。
+- **本册 §14.2 / `T81`–`T83`（悬浮菜单几何与可见性）一字未动**（Kevin ③「不遮挡、零几何改动」）。
+
+### 21.11 待裁项（**不得自选 · 交 Kevin**）
+
+| # | 项 | 现取分歧 | 本册兜底（已冻结，可用） |
+|--:|---|---|---|
+| **Q4** | 「聊一聊」**落点形态** | 现取 = `navigate('/messages?c=<id>')`（**换页**到直链落点 = 首页 + 面板）vs 方案 1 ④ 的**原地**形态 = 在 `/item/:id` 上加 `?msg=1&c=<id>`（**不换页**、详情页左压） | **本册冻结 = 入口 3 的 `href` 逐字不动**（`T107`「全部不改 `href`」）⇒ 现行 = 换页到直链落点；**原地形态登记为待裁**（改则须同步 `ItemDetailPage.jsx:157` + 清单 A） |
+| **Q5** | `768–1199` 的紧凑档**左栏下限** | 本册冻结 `min(240px, 45%)`（`768` 档 ⇒ 左栏 `155px` / 右栏 `189px`） | **一句话可改**（改则须重跑 AC-3/AC-4 读数） |
+| **Q6** | 面板**动效**（进场 / 左压过渡） | 本册**未冻结**（零动效 = 现取直出） | 如需：**必须尊重 `prefers-reduced-motion`**（仓内既有 `styles.css:397` / `:545` 体例）+ **归因式判据须禁动画**（§13 配方） |
+
+### 21.12 未核实 / 登记（**诚实清单 · 禁填 0/空**）
+
+- **`NOT_MEASURED`（本单未跑）**：`768`/`1024`/`1199` 三档几何实读数（本册只冻**判据 + 值**，未做浏览器走查）；`≤767` 全屏 + 单栏两态的触控 `≥44` 实读数；AC-2 的「挂载计数 = 1 / `scrollY` 不变」两读数；AC-5 归因两读数（**含尺子灵敏度自证**）；面板**打开时**的真实 `scrollWidth`（零溢出）。**原因 = 本单只写 `docs/**`、零代码、零浏览器动作。**
+- **键值四语**（`messagesPage.close`）：en / hk / vn = **初译 · 待 Kevin 复核**（`T9x` 体例）。
+- **本册本单未动**：`frontend/**` / `backend-ts/**` / `tools/**` / `ctrl/**`；**未跑任何门**（`build` / `test:unit` 未执行）；**未连库、未启停服务、未 `pm2 restart`**；**未 `git add -A` · 未 commit · 未 push**。
+- **`docs/versions/design-system.spec.v1.18.md` 对现盘 `cmp` ≠ 0**（现取：`char 38020, line 19`）—— 该快照保留 **2026-10-15 勘误前**字面（其自述「本单未重制 / 未触碰 `docs/versions/**`」）⇒ **本单不重制、不触碰它**（历史留痕）；**本单改前读数以「现盘 live 正文」为准**（见 §21.13）。
+
+### 21.13 快照 + 自证 + git 面（本节）
+
+- **改前（现盘 live · 本单开工现取）**：`docs/design/design-system.spec.md` = **2100 行 / 467,793 B / md5 `49b2ebb1cae59d6409b2d3f70e8d9cbf`**；**改后**读数与 `git diff --numstat` 见 delta 件 `docs/audit/design-system-v1.19-delta.md`（**删除列 = 0** 自证 + 快照 `cmp=0` + 「未改 `frontend/`」`grep` 自证）。
+- **快照面**：**改前快照** = 现盘 live 正文（**不新建文件**；`design-system.spec.v1.18.md` 为勘误前历史、**不触碰**）；**本版镜像** = **`docs/versions/design-system.spec.v1.19.md`**（落笔后建，`cmp=0`）。
+- **两处版本记录同步（写死 · 计数锚点）**：① 头部 = `grep -n '^> \*\*★ 现行版 = v1.19'` **恰 1 命中**；② 正文 = `grep -n '^## §21 '` **恰 1 命中**；**两处同批入库，漏一处 = 不完整**。另 §12 表 = `grep -n '^| \*\*v1.19\*\* |'` **恰 1 命中**。
+- **git 面**：只 `git add` 本单文件（`docs/design/design-system.spec.md` + `docs/route-layer.spec.md` + `docs/versions/design-system.spec.v1.19.md` + `docs/versions/route-layer.spec.v2.34.md` + `docs/audit/design-system-v1.19-delta.md` + `docs/audit/route-layer-v2.34-delta.md` + `docs/OPEN-ITEMS.md`）；**本地不 commit · 绝不 push**（收口由 Zang 统一种地）。
