@@ -2308,3 +2308,44 @@ grep -rnE '#[0-9a-fA-F]{3,8}\b|rgba?\(|border-radius\s*:|box-shadow\s*:' \
 - **快照面**：**改前快照** = 现盘 live 正文（**不新建文件**；`design-system.spec.v1.18.md` 为勘误前历史、**不触碰**）；**本版镜像** = **`docs/versions/design-system.spec.v1.19.md`**（落笔后建，`cmp=0`）。
 - **两处版本记录同步（写死 · 计数锚点）**：① 头部 = `grep -n '^> \*\*★ 现行版 = v1.19'` **恰 1 命中**；② 正文 = `grep -n '^## §21 '` **恰 1 命中**；**两处同批入库，漏一处 = 不完整**。另 §12 表 = `grep -n '^| \*\*v1.19\*\* |'` **恰 1 命中**。
 - **git 面**：只 `git add` 本单文件（`docs/design/design-system.spec.md` + `docs/route-layer.spec.md` + `docs/versions/design-system.spec.v1.19.md` + `docs/versions/route-layer.spec.v2.34.md` + `docs/audit/design-system-v1.19-delta.md` + `docs/audit/route-layer-v2.34-delta.md` + `docs/OPEN-ITEMS.md`）；**本地不 commit · 绝不 push**（收口由 Zang 统一种地）。
+
+> **★ v1.19 勘误补登（勘误级 · 不升版 · 本节纯追加 · 旧字面逐字保留并标「已被本单实测取代」）**：依据 = **Neng 独立质检 `7150278`**（被检面 = 实现 `b776aee`；判决 = **PASS-with-drift**；报告 = `docs/qa/v119-msg-panel-qa.md`，漂移清单 = 报告 **§10 六条**；读数 = `ops/v119-msg-panel/qa/**` 9 件）。**规则条文 `T104`–`T108` 与几何冻结值一字不改**，本节只登记**实测口径取代**。**现取基线 = HEAD `7150278`（2026-10-16 · 工作区干净）**。
+
+**① 入口③「聊一聊」= 就地叠加 ⇒ 取代 `§21.8 AC-1③` 与 `§21.11 Q4` 的「换页」字面**
+
+- **旧字面（逐字保留、标已被取代）**：`§21.8 AC-1③` 写「③ 详情页「聊一聊」navigate 字面含 `/messages?c=`（`ItemDetailPage.jsx:157`）」；`§21.11 Q4` 冻结「本册冻结 = 入口 3 的 `href` 逐字不动 ⇒ 现行 = 换页到直链落点」。
+- **实测（报告 §4.2 入口③）**：`ItemDetailPage.jsx` 由 `navigate('/messages?c=<id>')` 改为 `navigate(withPanelParams(location, id))` —— 真点击 ⇒ `pathname` **`/item/123` 逐字不变**、`search = ?msg=1&c=7`、面板开、`aboutText = 关于：FIXTURE 商品 A`、双向气泡各 1、**落点命中 `T105`** ⇒ **入口③ 与 ①/② 同款「就地叠加」**。
+- **⇒ 任何 `toContain('/messages?c=')` 型断言锚不得采用**（该型锚由姊妹册 `route-layer.spec` §44.4 入口③「断言锚点」列**建议**、本补登**在该册标记作废**）。入口③ 的**现行验据** = **入口在场**（`data-sf-m="item-chat-btn"`；③ 本就是 `BUTTON`、**无 `href`** ⇒ `T107`「`href` 一字不改」只约束 ①/②/④ 的 `<a href>`）**+ 落点命中 `T105`**。
+- **`Q4` 就此关闭**：裁定 = **「方案 1 · 就地叠加」为准**（Kevin 2026-10-16 裁定①）。`§21.11` 旧兜底行字面**保留为历史**、**不得再作现行口径引用**。
+
+**② `/messages` 直链态「×」⇒ 回首页 ⇒ 取代「仅关闭面板、留在 `/messages`」的隐含读法**
+
+- **实测（报告 §4.1 末两行）**：`/messages` 直链态面板内「×」⇒ 关后 `pathname = '/'`、`search = ''`、`panelClosed = true`。
+- **依据（本条属性 = `T105` 的必然推论、非条文外延）**：`stripLangPrefix('/messages') === '/messages'` ⇒ **仅移 `msg`/`c` 会让判据仍成立、面板重开（死锁）** ⇒ 实现走 `panelCloseTarget`：**直链态 → `homePath`（首页）；就地态（加参当前页）→ 当前页**。
+
+**③ `≥768` 未选会话右栏空态 = 全档复用既有键 `messages-detail-empty`（非「仅 `≤767` 单栏」）**
+
+- **实测（报告 §5 `M2` / §8）**：`1440_exchange_open_list` 与 `1440_messages_direct` 均产出钩子 **`messages-detail-empty`**（文案 = 既有键 `messagesPage.detailEmpty`「还没有消息，发第一条吧」）⇒ `≥768` 双栏档未选会话时**右栏**亦用该键。
+- **⇒ 空态判据 = 全档**（`≥768` 右栏 ＋ `≤767` 对话态）；**零新键** ⇒ `§21.7` 复用清单与键集算式（`1104` / `4416`）**不变**。旧读法「该空态仅属 `≤767` 单栏档」**已被取代**。
+
+**④ 两栏分隔线实现口径（描述性偏差 · 数值不变量不受影响 · 代码无需改）**
+
+- **实测（报告 §10 第 4 条）**：`frontend/src/shell/messages-panel.css` 中 —— **面板左缘** = `.sf-mp{box-shadow: inset 1px 0 0 …}`（**不占盒宽**）；**左栏 ⇄ 右栏分隔线 = `.sf-mp-list{border-right: 1px solid …}`**（**不是** `inset` 阴影）。
+- **`600 = 240 + 360` 实测仍成立**（报告 §2.1 四档逐值）：因 **Tailwind preflight 全局 `box-sizing: border-box`** ⇒ 左栏 border-box 恒 `240`（含 1px 边框）。**本仓无全局 `*{box-sizing}` 手写规则** ⇒ 该归零来自**构建产物里的 Tailwind preflight** = **隐式依赖**（**本册登记：若他日 preflight 退场，`600=240+360` 须重测**）。
+
+**⑤ 「零横向溢出」判据 ⇒ 降级为「环境性旁证」（登记 · 非缺陷 · 不承重）**
+
+- **旧字面（逐字保留、标已被取代）**：`§21.3` 的 `768–1199` 行写「硬判据 = `document.documentElement.scrollWidth ≤ clientWidth`（**零横向溢出**）…」；`§21.8 AC-3` 与 `AC-4` 末句亦列该判据。
+- **实测（报告 §3 末）**：面板 = **`position:fixed` 浮层** ⇒ **不参与 `scrollWidth`** ⇒ 该读数**全 13 态恒 `0`**（含未打开态）⇒ **对本次改动不敏感**（尺子功能性另证：同页追加 `static` + `width:3000px` 元素 ⇒ `documentElement.scrollWidth 1440 → 3000`）。
+- **⇒ 承重的桌面判据 = 五条**：面板宽 `600` / 右偏移 `104` / 面板↔`.sf-fm` 间隙 `16` / 相交 `0` / 正文右缘 ≤ 面板左缘（**均已逐条自证敏感**，报告 §3 扰动臂）；`scrollWidth ≤ clientWidth` **降级为旁证**（读数保留、**不作承重判据**）。
+
+**⑥ `AC-5` 判据口径 ⇒ 采纳「结构键 + 剔 `alt`/`title` 属性值」的声明式归一化 + 噪声源具名**
+
+- **旧字面（逐字保留、标已被取代）**：`§21.8 AC-5` 写「宿主页在 `1440` / `390` 两档与**改前逐元素差异集 = 0**（禁动画 + 只采可见元素 + **结构键**…）」—— 该「raw 差异集 = 0」判据**在本仓结构上不可达**。
+- **噪声源具名（独立证实）**：`frontend/src/components/Footer.jsx:12` `const randomCatSloganKey = CAT_SLOGAN_KEYS[Math.floor(Math.random() * CAT_SLOGAN_KEYS.length)]` —— **模块加载期** `Math.random()` 选 `footer.catSlogan1..3`，该值**同时**喂给合作品牌 CAT 的 `<a title=…>` 与内层 `<img alt=…>` ⇒ **每载随机**。**该文件不在本单 diff、sha256 与 `fd34ca0` 逐字相同**（⇒ 属改前既有随机项，**非本单产品面变更**；其余 `alt`/`title` 逐轮恒定 ⇒ 随机项**恰 1 处**）。
+- **归一化范围（写死 · 只此一处）**：对**全部可见元素**统一**剔除 `alt` 与 `title` 两个属性的「值」**（**属性在场**仍计）；**其余一切照旧** —— `tag` / **全部 class** / 其它全部语义属性（`href` / `aria-label` / `data-*` / `type` / `role` / `src` / `width` / `height` …）/ **结构路径** / **可见性** 全在键内；**坐标从未进键**。
+- **为何不算「放宽判据」（四条 · 逐条可核）**：① 被剔除的是**内容文本**、不是结构 / 几何（该 AC 判「面板未打开时宿主页零影响」，承载面 = DOM 结构 + 几何；`alt`/`title` 的**文案值**既非结构亦非几何，其**属性在场与否**仍被键覆盖）；② 该两项在本仓**结构性不可确定**（噪声源是**模块加载期** `Math.random()` ⇒ 任何把其值纳入键的判据**结构上不可能跨页面加载复现**；**不是把红改绿，而是把恒不可达的判据换成可达且抗噪的判据**）；③ 归一化后的尺子经**证伪检验**（**对偶**：同一页注入 1 个额外可见元素 ⇒ 差异集 **1**；**打开态注入** `.sf-mp{display:none}` ⇒ **24**；**反事实** `/?msg=1` ⇄ `/` ⇒ **34** ⇒ 尺子未瞎）；④ **未把「该有差异的页」抹平**（同一尺子在 `/messages` 上仍报 **89**，逐条列出旧真页子树 / 首页 + 面板子树）。
+- **⇒ `AC-5` 现行判据** = **归一化差异集 = 0**（**8/8 页档**：`1440/{home,exchange,item,task,profile}` ＋ `390/{home,exchange,item}`）+ **噪声源具名** + **尺子灵敏度三臂非空**；**原「raw 差异集 = 0」原样保留为 `ENV_LIMITED`（不得改写成 PASS）**。
+- **遗留（登记 · 不作缺陷）**：`/hk` `/vn` 两语档几何 `NOT_MEASURED`；`popup`（新标签）读数 `ENV_LIMITED`（headless 只到 `about:blank`）—— 均入 `docs/OPEN-ITEMS.md`。
+
+> **★ 本节自证（勘误补登 · 改后现取）**：见 `docs/audit/design-system-v1.19-delta.md` **§D 勘误补登**（改前 / 改后 行数 · 字节 · md5 + `git diff --numstat` **删除列 = 0** 纯追加自证 + 镜像 `docs/versions/design-system.spec.v1.19.md` 重制至 `cmp=0` + 两处版本锚点命中数）。

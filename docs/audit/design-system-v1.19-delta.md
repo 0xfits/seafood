@@ -38,3 +38,20 @@
 - **未动**：`frontend/**` / `backend-ts/**` / `tools/**` / `ctrl/**` / `docs/design/style-preview.html` / `docs/seafood.master-plan.md` / `docs/qa/**` / 既有任何 `docs/versions/**` 快照；**未启停任何服务（绝不 `pm2 restart`）**；**未跑任何门**（`build` / `test:unit` / 后端离线门均未执行）；**未连库**；**未 `git add -A` · 未 commit · 未 push**。
 - **`frontend/` 未改自证（可复核）**：`git status --porcelain frontend/ backend-ts/` = **空**（本单结束时应为空串）。
 - **未发明项**：几何值（`600`/`104`/`704`/`240`/`360`）全部来自 Kevin 裁定逐字或**现取几何的派生**（`shell.css:118` `right:16px` + `:120` `width:72px`）；键名（`messagesPage.close`）与钩子名（`messages-panel*`）为**本册命名**（**新产物、已逐条落表**）；**未发明任何路径 / 错误码 / 数值 / 后端契约**。
+
+## §D 勘误补登（Neng 质检 `7150278` 的 6 条 `spec_drift` · 勘误级不升版 · 2026-10-16）
+
+> 依据 = `docs/qa/v119-msg-panel-qa.md` **§10 六条**（判决 **PASS-with-drift**；被检面 = `b776aee`）；**旧字面逐字保留 + 标「已被本单实测取代」**。姊妹册 = `docs/audit/route-layer-v2.34-delta.md` §D。
+
+| 项 | 改前（`bc57a3a` 落笔版） | 改后（本补登 · 现盘） |
+|---|---|---|
+| 行数 | **2310** | **2351**（+41） |
+| 字节 | **506,871** | **515,046**（+8,175） |
+| md5 | `7b5c2a0be1ed7a527167568ab3409c23` | `b0a993515e9d2c9519bae68b47d6ab88` |
+| `git diff --numstat docs/design/design-system.spec.md` | — | **`41 0`**（**删除列 = 0 ✓ 纯追加**；旧字面逐字保留、「★ 勘误补登」块全部为**新增行**） |
+| 镜像 `docs/versions/design-system.spec.v1.19.md` | `cmp` 相对旧 live = 0 | **重制（`cp` 覆盖）⇒ 对现盘 live `cmp` = 0**（复核 ✓） |
+| 三处锚点（计数锚点，改后实测） | — | ① `grep -c '^> \*\*★ 现行版 = v1.19'` = **1**；② `grep -c '^## §21 '` = **1**；③ `grep -c '^| \*\*v1.19\*\* |'` = **1** ✓ |
+
+- **补登范围（漂移 ①–⑥ 逐条）**：① 入口③「聊一聊」**就地叠加** ⇒ 取代 `§21.8 AC-1③` / `§21.11 Q4` 的「换页」字面（**`toContain('/messages?c=')` 型锚不得采用**）；② `/messages` 直链态「×」⇒ **回首页**（`T105` 判据必然推论）；③ `≥768` 未选会话右栏空态 **全档**复用既有键 `messages-detail-empty`；④ 分隔线 = `.sf-mp-list` **`border-right`**（非 `inset` 阴影）；`600 = 240 + 360` 依赖 **Tailwind preflight `box-sizing: border-box`**（隐式依赖已登记）；⑤ 「零横向溢出」**降级为环境性旁证**（承重 = 面板宽 / 右偏移 / 间隙 / 相交 / 正文右缘五条）；⑥ **`AC-5` 声明式归一化口径**（结构键 + 剔 `alt`/`title` 属性值）+ **噪声源具名 `Footer.jsx:12`** + **raw 判据原样保留 `ENV_LIMITED`（未改写为 PASS）**。
+- **未动**：`§1`–`§20` 一字未动；`T104`–`T108` 条文与 §21.3 几何冻结值**一字不改**；`docs/versions/design-system.spec.v1.18.md` **未触碰**（勘误前历史）。
+- **未动代码自证**：`git status --porcelain frontend backend-ts` = **空**。**未 push**。

@@ -8497,3 +8497,32 @@ CONSTRAINT admin_refund_audit_log_idem_uniq   UNIQUE (idempotency_key, result)  
 - **delta 件**：`docs/audit/route-layer-v2.34-delta.md`（**本单建** —— 依先例：**语义变更类**建独立 delta〔§36.4 / §37.4 / §38 / §39 / §41 同族〕；**纯登记类不建**〔§42 / §43〕）；**本单 = 语义变更类**（`/messages` 落点语义 + 新增查询参数口径）⇒ **建**。
 - **git 面**：只 `git add` 本单文件（`docs/route-layer.spec.md` + `docs/design/design-system.spec.md` + `docs/versions/route-layer.spec.v2.34.md` + `docs/versions/design-system.spec.v1.19.md` + `docs/audit/route-layer-v2.34-delta.md` + `docs/audit/design-system-v1.19-delta.md` + `docs/OPEN-ITEMS.md`）；**本地不 commit · 绝不 push**（收口由 Zang 统一种地）。
 - **未发明项**：路径字面（`/messages`）、参数名（`msg` / `c`）、四入口 `href`、两条计数 —— **全部可回溯至本册现取命令或姊妹册 §21**（**未发明任何路径 / 码 / 数值 / 文案**）。
+
+> **★ v2.34 勘误补登（勘误级 · 不升版 · 本节纯追加 · 旧字面逐字保留并标「已被本单实测取代」）**：依据 = **Neng 独立质检 `7150278`**（被检面 = 实现 `b776aee`；判决 = **PASS-with-drift**；报告 = `docs/qa/v119-msg-panel-qa.md`，漂移清单 = 报告 **§10 六条**；读数 = `ops/v119-msg-panel/qa/**` 9 件）。**route 侧只承载四面**（入口③ 落点 / 直链关闭落点 / 四态矩阵对齐 / 作废锚）；**形态 · 几何 · 钩子 · 键集 = 姊妹册 `design-system.spec` v1.19 §21 补登**（本册不重抄）。**`/messages` 路径字面 · 参数名 · 两条计数 · 四入口 `href` 一字不改**。**现取基线 = HEAD `7150278`（2026-10-16 · 工作区干净）**。
+
+**① 入口③「聊一聊」落点 = 就地叠加（与入口①② 同款）⇒ `Q4` 关闭 · `toContain('/messages?c=')` 型锚作废**
+
+- **旧字面（逐字保留、标已被取代）**：`§44.4` 入口③ 行写「`` `${root('/messages')}?c=<conversation_id>` `` … 命中判据（`rest==='/messages'` 或 `c`）⇒ **开面板 + 面板内打开该会话**（`Q4` 待裁，见 §44.3(4)）」；其「断言锚点」列并**建议**「现取为源码字面（**无既有测试锚** ⇒ 建议同批补一条 `toContain('/messages?c=')` 型断言，**属新增锚、非改锚**）」。`§44.3(4) Q4` 冻结「**现行 = 换页到直链落点（M4）**」。
+- **实测（报告 §4.2 入口③ · 读数 `qa/interactions-qa.json → entry3_itemChat`）**：`ItemDetailPage.jsx` 由 `navigate('/messages?c=<id>')` 改为 `navigate(withPanelParams(location, id))` —— 真点击 ⇒ `pathname` **`/item/123` 逐字不变**、`search = ?msg=1&c=7`、面板开、`aboutText = 关于：FIXTURE 商品 A`、落点命中 `T105`。**⇒ 入口③ 的落点 = 就地叠加（与①/② 同款），不再是「换页到直链落点」。**
+- **⇒ `§44.4` 入口③ 行「建议补一条 `toContain('/messages?c=')` 型断言」= 已作废**（**旧字面逐字保留、不删**；**该型锚不得采用**）。**入口③ 现行验据** = **入口在场**（`data-sf-m="item-chat-btn"`；③ 本就是 `BUTTON`、**无 `href`** ⇒ ④「全部不改 `href`」只约束 ①/②/④ 的 `<a href>`）**+ 落点命中 `T105`**（`rest==='/messages'` ∨ `msg==='1'` ∨ `c` 非空）。
+- **`§44.3(3) M4` 行「`/messages?c=42`（**入口③ 现取形态**）」的「入口③ 现取形态」六字亦已被取代**（现取形态 = `/item/:id?msg=1&c=X`）；`/messages?c=X` **仍为合法直链形态**（Telegram 通知 / 旧链），宿主 = 首页，面板开（详情态）。
+- **`Q4` 就此关闭**：裁定 = **「方案 1 · 就地叠加」为准**（Kevin 2026-10-16 裁定①）。`§44.3(4)` 旧「兜底可用 ⇒ 不阻塞」行字面**保留为历史**、**不得再作现行口径引用**。
+
+**② `/messages` 直链态「×」⇒ 回首页 ⇒ 取代「仅关闭面板、留在 `/messages`」的隐含读法**
+
+- **实测（报告 §4.1 末两行）**：`/messages` 直链态面板内「×」⇒ 关后 `pathname = '/'`、`search = ''`、`panelClosed = true`（`history` 不长，`replace` 语义）。
+- **依据（本条属性 = `§44.3(1)` 判据的必然推论、非条文外延）**：`rest === '/messages'` 支句下**仅移 `msg`/`c` 会让判据仍成立、面板重开（死锁）** ⇒ 关闭目标函数 `panelCloseTarget`：**直链态 → `homePath`（首页）；就地态（加参当前页）→ 当前页**。**`§44.7` 判负清单不变**（本行为是判据的必然推论；「入口丢失 / `href` 改动」判负照旧）。
+
+**③ 四态矩阵 `M1–M4` 与实际行为对齐（补 `M4b` + 三条边界 · 逐条实测）**
+
+- **实测（报告 §5 · 读数 `qa/geometry-qa.json → matrix`）**：`M1` `/item/123` ⇒ **不挂** ✓；`M2` `/item/123?msg=1` ⇒ **挂**（列表态；右栏空态 = `messages-detail-empty`）✓；`M3` `/item/123?msg=1&c=7` ⇒ **挂**（详情态）✓；`M4` `/messages?c=7` ⇒ **挂**（详情态；宿主 = 首页）✓。
+- **新增边界（现取 · 与 `§44.3(2)` 逐值语义逐条一致）**：
+  - **`M4b`** `/item/123?c=7`（**仅 `c`**）⇒ **挂**（承 `§44.3(1)` **`c` 子句**外延项）；宿主 = 详情页（**`Q4` 原地形态实测成立**）。
+  - `/item/123?msg=0` ⇒ **不挂**（显式关；`§44.3(2)` ✓）。
+  - `/item/123?zzz=1`（未知参数）⇒ **不挂**、**零报错 / 零白屏**（✓）。
+  - `/messages?c=999999`（非法 id）⇒ **挂**、`search` **不变**、面板内既有错误链（`会话不存在` / `data-sf-phase=error`）、**不重定向、不跳 404**（✓）。
+- **⇒ `§44.3(3)` 矩阵四态（字面逐字保留）+ 上述 `M4b` 与三条边界 = 现行实测口径**。
+
+**④ 未测项收窄（登记 · `NOT_MEASURED` 禁填 0/空）**：`§44.6` 的「四入口在面板形态下真浏览器走查」已由质检补齐（报告 §4.2：①底栏 ④Telegram 直链 ②悬浮菜单 ③详情页逐个真点击）；**仍 `NOT_MEASURED`** = `/hk` `/vn` 两语档**几何**（本单仅采 `/en`）+ **`popup`（新标签）读数 `ENV_LIMITED`**（headless 只到 `about:blank`；判定改用 `defaultPrevented` 直读）—— 均已入 `docs/OPEN-ITEMS.md`（`F24` / `F25`）。
+
+> **★ 本节自证（勘误补登 · 改后现取）**：见 `docs/audit/route-layer-v2.34-delta.md` **§D 勘误补登**（改前 / 改后 行数 · 字节 · md5 + `git diff --numstat` 纯追加自证 + 镜像 `docs/versions/route-layer.spec.v2.34.md` 重制至 `cmp=0` + 两处版本锚点命中数）。
