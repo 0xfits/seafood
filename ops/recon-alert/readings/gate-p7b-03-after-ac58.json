@@ -1,0 +1,139 @@
+{
+ "artifact": ".p7b-artifacts/p7b-03-offline-gates-20261017T051357Z3lvj.json",
+ "at": "2026-10-17T05:13:57.769Z",
+ "node_note": "run after AC5-8 fix (ops-alert.ts UUID redact + catch class-name only)",
+ "summary": {
+  "total": 37,
+  "passed": 37,
+  "failed": 0,
+  "red": []
+ },
+ "checks_total": 37,
+ "ac10": [
+  {
+   "id": "AC10-1",
+   "what": "错误码闭集 33 不动",
+   "pass": true,
+   "reading": "codes=33"
+  },
+  {
+   "id": "AC10-2",
+   "what": "注册点 = 107（自 S10 冻结面 68 前推 +21 · A5 收口 +10 · sf14 +5 · 6714401 telegram/bind/confirm +1 · FIX-CRON translate/backfill GET +1 · ops-recon GET +1 = 107；逐 rev 出处见上方注释）",
+   "pass": true,
+   "reading": "registration_points=107"
+  },
+  {
+   "id": "AC10-3",
+   "what": "退款路由仍**复用同路径**（无 `/api/admin/listing-orders`）",
+   "pass": true,
+   "reading": "ok"
+  },
+  {
+   "id": "AC10-4",
+   "what": "对外出口 = 既有 `sendSuccess` + `sendVerbError`（R107；无新增顶层响应键）",
+   "pass": true,
+   "reading": "ok"
+  },
+  {
+   "id": "AC10-5",
+   "what": "不许选：`REFUND_ACTOR_IS_SELLER_ONLY` 已**从代码面消失**（只在注释里留痕；单点常量不作并行真源）",
+   "pass": true,
+   "reading": "code_refs service=-1 index=-1 (comment_refs service=1)"
+  },
+  {
+   "id": "AC10-6",
+   "what": "准入真源唯一（`resolveRefundActorRoute` 是唯一 403 判定点）",
+   "pass": true,
+   "reading": "ok"
+  },
+  {
+   "id": "AC10-7",
+   "what": "初始化常量：REFUND_ACTOR_SCOPE / REFUND_ROLLS_BACK_STOCK 取值冻结",
+   "pass": true,
+   "reading": "seller_or_admin/false"
+  }
+ ],
+ "ac13_cases": [
+  {
+   "id": "AC13-1",
+   "got": "seller",
+   "status": 200,
+   "code": null,
+   "authDomain": null,
+   "expect": "seller",
+   "pass": true
+  },
+  {
+   "id": "AC13-2",
+   "got": "admin",
+   "status": 200,
+   "code": null,
+   "authDomain": null,
+   "expect": "admin",
+   "pass": true
+  },
+  {
+   "id": "AC13-2b",
+   "got": "admin",
+   "status": 200,
+   "code": null,
+   "authDomain": null,
+   "expect": "admin",
+   "pass": true
+  },
+  {
+   "id": "AC13-3",
+   "got": "ACTOR_NOT_ALLOWED",
+   "status": 403,
+   "code": "AUTH_FORBIDDEN",
+   "authDomain": true,
+   "expect": "ACTOR_NOT_ALLOWED",
+   "pass": true
+  },
+  {
+   "id": "AC13-4",
+   "got": "ACTOR_NOT_ALLOWED",
+   "status": 403,
+   "code": "AUTH_FORBIDDEN",
+   "authDomain": true,
+   "expect": "ACTOR_NOT_ALLOWED",
+   "pass": true
+  },
+  {
+   "id": "AC13-5",
+   "got": "PERMISSION_NOT_GRANTED",
+   "status": 403,
+   "code": "AUTH_FORBIDDEN",
+   "authDomain": true,
+   "expect": "PERMISSION_NOT_GRANTED",
+   "pass": true
+  },
+  {
+   "id": "AC13-6",
+   "got": "ACTOR_NOT_ALLOWED",
+   "status": 403,
+   "code": "AUTH_FORBIDDEN",
+   "authDomain": true,
+   "expect": "ACTOR_NOT_ALLOWED",
+   "pass": true
+  }
+ ],
+ "ac14_classifier": [
+  {
+   "injected": "53300",
+   "code": "LEDGER_TX_TIMEOUT",
+   "http": 503
+  },
+  {
+   "injected": "XX000",
+   "code": "LEDGER_TX_TIMEOUT",
+   "http": 503
+  },
+  {
+   "injected": "58030",
+   "code": "LEDGER_TX_TIMEOUT",
+   "http": 503
+  }
+ ],
+ "failed": []
+}

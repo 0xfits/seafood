@@ -1,0 +1,129 @@
+{
+ "probe": "uuid-redact-probe",
+ "defect": "AC5-8 / DRIFT-1 · heartbeat URL UUID entered console.warn via briefError(error)",
+ "node": "v18.19.0",
+ "fixtures": {
+  "uuid": "11111111-2222-3333-4444-555555555555",
+  "bad_url": "hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555",
+  "ok_url": "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555"
+ },
+ "arms": {
+  "unit": {
+   "r1": "***",
+   "r2": "***",
+   "r3": "hc-ping.invalid/ping/***",
+   "undici_name": "TypeError",
+   "undici_message": "Failed to parse URL from hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555",
+   "redacted_message": "Failed to parse URL from hc-ping.invalid/ping/***"
+  },
+  "behavior": {
+   "warn_lines": [
+    "[ops-alert] heartbeat ping failed: TypeError",
+    "[ops-alert] heartbeat ping failed: TypeError"
+   ],
+   "threw": null,
+   "elapsed_ms": 1
+  },
+  "no_regression": {
+   "ok_calls": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555"
+   ],
+   "fail_calls": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail"
+   ],
+   "trailing_fail": [
+    "https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail"
+   ],
+   "empty_calls": [],
+   "non2xx_warn": [
+    "[ops-alert] heartbeat ping non-2xx: 500"
+   ]
+  }
+ },
+ "assertions": [
+  {
+   "id": "R1_redact_uuid_exact",
+   "ok": true,
+   "detail": "redactSensitive(uuid)=***"
+  },
+  {
+   "id": "R2_redact_uuid_uppercase",
+   "ok": true,
+   "detail": "redactSensitive(UUID)=***"
+  },
+  {
+   "id": "R3_redact_url_no_uuid",
+   "ok": true,
+   "detail": "hc-ping.invalid/ping/***"
+  },
+  {
+   "id": "R4_undici_message_carries_uuid",
+   "ok": true,
+   "detail": "name=TypeError msg=Failed to parse URL from hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555"
+  },
+  {
+   "id": "R5_redacted_undici_message_clean",
+   "ok": true,
+   "detail": "Failed to parse URL from hc-ping.invalid/ping/***"
+  },
+  {
+   "id": "R6_bad_url_never_throws",
+   "ok": true,
+   "detail": "threw=null"
+  },
+  {
+   "id": "R7_bad_url_logged",
+   "ok": true,
+   "detail": "lines=[\"[ops-alert] heartbeat ping failed: TypeError\",\"[ops-alert] heartbeat ping failed: TypeError\"]"
+  },
+  {
+   "id": "R8_no_uuid_in_warn",
+   "ok": true,
+   "detail": "[\"[ops-alert] heartbeat ping failed: TypeError\",\"[ops-alert] heartbeat ping failed: TypeError\"]"
+  },
+  {
+   "id": "R9_no_host_in_warn",
+   "ok": true,
+   "detail": "[\"[ops-alert] heartbeat ping failed: TypeError\",\"[ops-alert] heartbeat ping failed: TypeError\"]"
+  },
+  {
+   "id": "R10_warn_keeps_error_class",
+   "ok": true,
+   "detail": "[\"[ops-alert] heartbeat ping failed: TypeError\",\"[ops-alert] heartbeat ping failed: TypeError\"]"
+  },
+  {
+   "id": "R11_bad_url_bounded",
+   "ok": true,
+   "detail": "elapsed=1ms"
+  },
+  {
+   "id": "R12_success_arm_ping_once",
+   "ok": true,
+   "detail": "[\"https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555\"]"
+  },
+  {
+   "id": "R13_fail_arm_appends_fail",
+   "ok": true,
+   "detail": "[\"https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail\"]"
+  },
+  {
+   "id": "R14_fail_arm_no_double_slash",
+   "ok": true,
+   "detail": "[\"https://hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555/fail\"]"
+  },
+  {
+   "id": "R15_empty_url_no_ping",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "id": "R16_non2xx_status_only",
+   "ok": true,
+   "detail": "[\"[ops-alert] heartbeat ping non-2xx: 500\"]"
+  }
+ ],
+ "failed": [],
+ "all_assertions_pass": true,
+ "total": 16,
+ "passed": 16
+}

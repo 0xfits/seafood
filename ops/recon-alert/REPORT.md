@@ -21,6 +21,7 @@
 | `p7b-03` 离线门 | **37/37 全绿**（`EXIT=0`，`failed:0`，`red:[]`） |
 | 行为探针 | **38/38 断言为真**，`EXIT=0`（零真库 / 零真网络 / 零真消息） |
 | 反向对照 | ①「心跳恒 ping 成功位」⇒ 探针**变红**（36/38，`A2_ping_fail_once` / `A7_unbound_no_tg` 红，`EXIT=1`）；②「`notifyOps` 直接 throw」⇒ **响应仍 200 / 503 不变**（30/38，红的 8 条全是「消息发没发出去」类，响应类断言全绿） |
+| **AC5-8 修复** | 心跳 URL 的 UUID 脱敏 + `catch` 不再打印含 URL 的 message（**Neng 质检坐实 → Kong 修**，见 §13）；修后 `tsc` exit 0 / `p7b-03` 37·37·`registration_points=107` / 原 38 断言全绿 / 新回归 16 断言全绿 |
 | 未做项 | healthchecks.io 账号与 check 创建（用户侧）/ Vercel env 配置（Zang 侧）/ 首次真告警演练 |
 
 ---
@@ -318,3 +319,69 @@ cd /Users/kevin/bistro/seafood/backend-ts \
   （`.invalid` 顶级域不可解析，永远打不出去）。
 - `logs/**` 由 `.gitignore` 的 `logs` / `*.log` 规则忽略 ⇒ 入库需 `git add -f`（本单如此）。
 - 心跳 URL 一旦在 Vercel 配好即为凭据（UUID 可被用来伪造 ping）⇒ 只在 Vercel 存，不进任何仓内文件。
+
+---
+
+## 13. AC5-8 修复（UUID 脱敏 + catch 不打 message）
+
+**来源**：Neng 独立质检坐实（`AC5-8` / `DRIFT-1`）→ Kong 修。缺陷属**凭据入日志**，非响应面缺陷。
+
+### 13.1 缺陷（实测形态，Neng 原文）
+
+```
+[ops-alert] heartbeat ping failed: Failed to parse URL from hc-ping.invalid/ping/11111111-2222-3333-4444-555555555555
+```
+
+- 触发条件：`RECON_HEARTBEAT_URL` **格式不对**（如缺 scheme）⇒ Node 18 undici 抛
+  `TypeError: Failed to parse URL from <完整 URL>`，**message 内嵌完整 URL**。
+- 传播路径：`pingHeartbeat` 的 `catch` 把该 error 交给 `briefError(error)` ⇒ `console.warn`
+  ⇒ UUID（= 心跳凭据，可被用来伪造 ping）落进运行日志。
+- 根因：旧脱敏表的「长 hex ≥32」「base64url ≥40」两条都**匹配不上** 36 字符带连字符的 UUID
+  （注释曾声称「心跳 UUID 已被覆盖」—— 该声明与实现不符，本次一并改正）。
+
+### 13.2 修法（两层，防御纵深）
+
+| # | 位置 | 改动 |
+|---|---|---|
+| 1 | `SENSITIVE_PATTERNS` | **新增** UUID 形状 `[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}`（`gi`）⇒ `***`；**排在长 hex 规则之前**（`{32,}` 是重复量化，会先吃掉连续 hex 段、按段吐 `***` 留残片） |
+| 2 | `pingHeartbeat` 的 `catch` | 不再打印 message，**只打错误类名**（新增 `errorKind()`，可附 errno `code`）：`[ops-alert] heartbeat ping failed: TypeError` |
+
+`errorKind()` 走 `.name` 而非 `instanceof Error` —— `AbortController` 触发的 `DOMException`
+不是 `Error` 子类；代价是失败日志从「原文」降为「类名」，换取 URL/凭据永不进日志。
+非 2xx 分支本来只打状态码，未动。
+
+### 13.3 回归三例（新探针 `probe/uuid-redact-probe.ts`，16 断言）
+
+| 臂 | 断言 | 结果 |
+|---|---|---|
+| ① 纯正控 | `redactSensitive('11111111-2222-3333-4444-555555555555') === '***'`（含大写版）；真 undici 报错原文过脱敏后无 UUID | **PASS**（R1/R2/R5） |
+| ② 行为臂 | `RECON_HEARTBEAT_URL='hc-ping.invalid/ping/<uuid>'`（无 scheme）⇒ 调**真码** `pingHeartbeat`、**真** `fetch`（URL 解析即失败，不出网）：**所有 `console.warn` 行不含该 UUID、不含 `hc-ping`**，且不抛、耗时 ≤8s | **PASS**（R6–R11） |
+| ③ 不回归臂 | 正常 `https` URL：成功位 ping **1 次**、失败位 **`/fail`**（尾斜杠不产生 `//fail`）、空 URL **0 次**、非 2xx 只记状态码 | **PASS**（R12–R16） |
+
+结论行：`{"total":16,"passed":16,"failed":[],"all_assertions_pass":true}`（`EXIT=0`）。
+日志 `logs/probe-uuid-redact.log`；机读 `readings/probe-uuid-redact.json`。
+
+### 13.4 反向对照（证明判据有分辨力，两臂皆临时改真码后原样还原）
+
+| 臂 | 改法 | 结果 |
+|---|---|---|
+| A | **只**把 UUID 规则从脱敏表移除 | `EXIT=1`，红 4 条：`R1` / `R2` / `R3` / `R5`（`redactSensitive(uuid)` 回吐原 UUID）⇒ 判据①**必红**，有分辨力 |
+| B | 移除 UUID 规则 **+** `catch` 还原成修复前形态（`briefError`） | `EXIT=1`，红 7 条，其中 `R8` / `R9` / `R10` 打出 Neng 原文那一行（warn 内含 UUID 与 `hc-ping`）⇒ **缺陷可原位复现**，行为臂亦非空转 |
+
+还原后 `ops-alert.ts` sha256 = `9841a54d…3cb620`（与改后基准逐字节相同，见 `readings/ops-alert-ac58.sha256`；
+`readings/ops-alert.sha256` 记的是 §1 那个**修复前**（本单创建时）的 `5c5329ef…a6268d`，两份并存不覆盖），
+复跑 16/16 绿。日志：`logs/probe-uuid-negctl-a-uuid-rule-removed.log` / `logs/probe-uuid-negctl-b-prefix-leak-repro.log`。
+
+### 13.5 改动后复跑（全部亲跑）
+
+| 项 | 结果 | 证据 |
+|---|---|---|
+| `npx tsc --noEmit` | **exit 0** | `logs/tsc-after-ac58.log` |
+| `p7b-03` 离线门 | **37/37**，`failed:0`，`red:[]`，`AC10-1 codes=33`，**`AC10-2 registration_points=107`** | `logs/p7b-03-gate-after-ac58.log` + `readings/gate-p7b-03-after-ac58.json` |
+| 原三态探针（38 断言） | **38/38 全绿**，`EXIT=0`（响应/文案/计数全不变） | `logs/probe-recon-alert-after-ac58.log` |
+| 新回归探针 | **16/16 全绿**，`EXIT=0` | `logs/probe-uuid-redact.log` |
+
+唯一可见的**日志面**差异（正是本次目标）：`warn_lines` 里的
+`heartbeat ping failed: fetch failed: connect ECONNREFUSED` / `… This operation was aborted`
+被替换为 `heartbeat ping failed: Error` —— 断言只看「有没有 URL」，故原 38 条全绿不受影响。
+**零新路由**（`registration_points` 107 未动）、零迁移、零响应面改动、未 `push`。

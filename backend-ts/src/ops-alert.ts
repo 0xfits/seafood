@@ -51,8 +51,10 @@ const ERROR_BRIEF_MAX_CHARS = 140;
 
 /**
  * 脱敏表（顺序即优先级；一律替换成 `***`，绝不「保留前缀」式打码 —— 前缀足以泄标识）。
- * 覆盖本仓真实会踩到的四类：连接串口令、Telegram bot token（`<digits>:<secret>`）、
- * JWT、长 hex/base64 串（SECRET_KEY / HMAC 令牌 / 心跳 UUID 的常见形状）。
+ * 覆盖本仓真实会踩到的五类：连接串口令、Telegram bot token（`<digits>:<secret>`）、
+ * JWT、平台密钥、**UUID**（心跳 ping URL 的凭据形状）、长 hex/base64 串。
+ *
+ * ★ UUID 单列一条，且必须排在「长 hex」`{32,}` 之前 —— 见下注。
  */
 const SENSITIVE_PATTERNS: ReadonlyArray<readonly [RegExp, string]> = [
   // `scheme://user:pass@host` ⇒ 口令与用户名一起抹掉（保留 scheme/host 便于定位是哪条库）
@@ -63,7 +65,10 @@ const SENSITIVE_PATTERNS: ReadonlyArray<readonly [RegExp, string]> = [
   [/\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g, '***'],
   // `sk_live_… / pk_test_…` 形态的支付/平台密钥
   [/\b(?:sk|pk|rk)_(?:live|test)_[A-Za-z0-9]{6,}\b/g, '***'],
-  // 长 hex（≥32）与长 base64url（≥40）串：SECRET_KEY / 心跳 UUID / HMAC 签名
+  // UUID 形状（大小写不敏感）= 心跳 ping URL 里那串凭据。**必须排在长 hex 之前**：
+  //   `{32,}` 是重复量化，会先把 UUID 段里的连续 hex 吃掉、按段吐 `***` 并留残片（`-` 与短段）。
+  [/\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi, '***'],
+  // 长 hex（≥32）与长 base64url（≥40）串：SECRET_KEY / HMAC 签名 / 40 位以上的令牌
   [/\b[A-Fa-f0-9]{32,}\b/g, '***'],
   [/\b[A-Za-z0-9_-]{40,}\b/g, '***'],
 ];
@@ -195,6 +200,23 @@ export const notifyOps = async (text: string): Promise<NotifyResult> => {
 // ---------------------------------------------------------------- A · 外部心跳
 
 /**
+ * 异常 → **仅**类名（可附 errno `code`），如 `TypeError` / `AbortError` / `Error(ECONNREFUSED)`。
+ *
+ * 为什么不用 `briefError`：`fetch` 的失败 message 里常带**完整请求 URL**（`Failed to parse URL from
+ * hc-ping.invalid/ping/<uuid>`）——那就是心跳凭据。日志只留「哪一类错」，诊断精度换凭据安全。
+ * 走 `.name` 而非 `instanceof Error`：`AbortController` 触发的 `DOMException` 不是 `Error` 子类。
+ */
+const errorKind = (error: unknown): string => {
+  if (error !== null && typeof error === 'object') {
+    const err = error as { name?: unknown; code?: unknown };
+    const name = typeof err.name === 'string' && err.name.trim() ? err.name.trim() : 'UnknownError';
+    const code = typeof err.code === 'string' && err.code.trim() ? `(${err.code.trim()})` : '';
+    return `${name}${code}`;
+  }
+  return error === null ? 'null' : typeof error;
+};
+
+/**
  * ping 外部死人开关（healthchecks.io 免费档）。
  *
  * · `url` 缺 / 空 ⇒ **直接 return**（未配置心跳 = 静默降级，不算失败、不打日志 ——
@@ -202,7 +224,8 @@ export const notifyOps = async (text: string): Promise<NotifyResult> => {
  * · `fail=true` ⇒ ping `${url}/fail`（healthchecks 的「显式失败」形态，仍算一次 ping）。
  * · 3 秒硬上限（`AbortController`）；任何异常 / 超时 / 非 2xx **一律吞掉**，只 `console.warn`。
  *   ★ 绝不能因心跳失败把对账判红：心跳是**外部**观察面，不是对账判据。
- * ★ 日志里**不打 URL**（ping URL 里的 UUID 就是凭据）。
+ * ★ 日志里**不打 URL**，也不打异常的 message（message 可能内嵌完整 URL）——
+ *   失败只记错误类名（`errorKind`），非 2xx 只记状态码。ping URL 里的 UUID 就是凭据。
  */
 export const pingHeartbeat = async (url: string | undefined, fail = false): Promise<void> => {
   const base = String(url ?? '').trim();
@@ -218,7 +241,10 @@ export const pingHeartbeat = async (url: string | undefined, fail = false): Prom
       console.warn(`[ops-alert] heartbeat ping non-2xx: ${response.status}`);
     }
   } catch (error) {
-    console.warn('[ops-alert] heartbeat ping failed:', briefError(error));
+    // ★ **只打错误类名**（可带 errno `code`），**绝不**打 message ——
+    //   `fetch` 解析失败的 message 是 `Failed to parse URL from <完整 URL>`，URL 里就有 UUID 凭据；
+    //   即便 message 已过 `redactSensitive`，也没有把它写进日志的必要（缺陷 AC5-8 / DRIFT-1）。
+    console.warn(`[ops-alert] heartbeat ping failed: ${errorKind(error)}`);
   } finally {
     clearTimeout(timer);
   }

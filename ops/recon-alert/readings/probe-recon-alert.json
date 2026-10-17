@@ -7,8 +7,8 @@
  "warn_lines": [
   "[ops-alert] notifyOps degraded: connect ECONNREFUSED 127.0.0.1:5432",
   "[ops-alert] heartbeat ping non-2xx: 500",
-  "[ops-alert] heartbeat ping failed: fetch failed: connect ECONNREFUSED",
-  "[ops-alert] heartbeat ping failed: This operation was aborted",
+  "[ops-alert] heartbeat ping failed: Error",
+  "[ops-alert] heartbeat ping failed: Error",
   "[telegram.webhook] reply skipped: TELEGRAM_BOT_TOKEN not configured"
  ],
  "assertions": [
@@ -45,12 +45,12 @@
   {
    "id": "A2_text_has_id_rows_diff",
    "ok": true,
-   "detail": "对账漂移 2026-10-17T05:03:00.072Z 用时0ms 失败1/3项: supply_vs_ledger rows=1 diff=2000001"
+   "detail": "对账漂移 2026-10-17T05:13:50.997Z 用时0ms 失败1/3项: supply_vs_ledger rows=1 diff=2000001"
   },
   {
    "id": "A2_text_has_checked_at_duration",
    "ok": true,
-   "detail": "对账漂移 2026-10-17T05:03:00.072Z 用时0ms 失败1/3项: supply_vs_ledger rows=1 diff=2000001"
+   "detail": "对账漂移 2026-10-17T05:13:50.997Z 用时0ms 失败1/3项: supply_vs_ledger rows=1 diff=2000001"
   },
   {
    "id": "A2_text_within_300",
@@ -80,7 +80,7 @@
   {
    "id": "A4_three_ids_in_text",
    "ok": true,
-   "detail": "对账漂移 2026-10-17T05:03:00.094Z 用时0ms 失败3/3项: supply_vs_ledger rows=1 diff=2000001; account_vs_ledger rows=1 diff=-; batt_account_vs_batt_entry rows=1 diff=-"
+   "detail": "对账漂移 2026-10-17T05:13:51.021Z 用时1ms 失败3/3项: supply_vs_ledger rows=1 diff=2000001; account_vs_ledger rows=1 diff=-; batt_account_vs_batt_entry rows=1 diff=-"
   },
   {
    "id": "A4_text_within_300",
@@ -140,7 +140,7 @@
   {
    "id": "A14_timeout_bounded",
    "ok": true,
-   "detail": "elapsed=3002ms status=200"
+   "detail": "elapsed=3006ms status=200"
   },
   {
    "id": "A15_auth_503_no_alerts",
@@ -222,7 +222,7 @@
    "tg_calls": 0,
    "tg_text": null,
    "tg_chars": 0,
-   "elapsed_ms": 11,
+   "elapsed_ms": 15,
    "sql_calls": 3,
    "secret_leak": false,
    "note": "ok=true ⇒ ping 1 次（不含 /fail）、Telegram 0 次、200 + ok:true"
@@ -241,9 +241,9 @@
    ],
    "hb_fail_calls": 1,
    "tg_calls": 1,
-   "tg_text": "对账漂移 2026-10-17T05:03:00.072Z 用时0ms 失败1/3项: supply_vs_ledger rows=1 diff=2000001",
+   "tg_text": "对账漂移 2026-10-17T05:13:50.997Z 用时0ms 失败1/3项: supply_vs_ledger rows=1 diff=2000001",
    "tg_chars": 80,
-   "elapsed_ms": 3,
+   "elapsed_ms": 4,
    "sql_calls": 4,
    "secret_leak": false,
    "note": "ok=false ⇒ ping /fail 1 次 + Telegram 1 次、仍 200 + ok:false"
@@ -261,7 +261,7 @@
    "tg_calls": 1,
    "tg_text": "对账执行异常: connect ECONNREFUSED 127.0.0.1:5432",
    "tg_chars": 43,
-   "elapsed_ms": 19,
+   "elapsed_ms": 21,
    "sql_calls": 2,
    "secret_leak": false,
    "note": "抛错 ⇒ ping 0 次 + Telegram 1 次、响应 503（分类器不变）"
@@ -280,7 +280,7 @@
    ],
    "hb_fail_calls": 1,
    "tg_calls": 1,
-   "tg_text": "对账漂移 2026-10-17T05:03:00.094Z 用时0ms 失败3/3项: supply_vs_ledger rows=1 diff=2000001; account_vs_ledger rows=1 diff=-; batt_account_vs_batt_entry rows=1 diff=-",
+   "tg_text": "对账漂移 2026-10-17T05:13:51.021Z 用时1ms 失败3/3项: supply_vs_ledger rows=1 diff=2000001; account_vs_ledger rows=1 diff=-; batt_account_vs_batt_entry rows=1 diff=-",
    "tg_chars": 155,
    "elapsed_ms": 1,
    "sql_calls": 4,
@@ -301,7 +301,7 @@
    "tg_calls": 0,
    "tg_text": null,
    "tg_chars": 0,
-   "elapsed_ms": 2,
+   "elapsed_ms": 1,
    "sql_calls": 3,
    "secret_leak": false,
    "note": "心跳 URL 缺 ⇒ ping 0、200 + ok:true（静默降级）"
@@ -318,7 +318,7 @@
    "hb_calls": [],
    "hb_fail_calls": 0,
    "tg_calls": 1,
-   "tg_text": "对账漂移 2026-10-17T05:03:00.096Z 用时0ms 失败1/3项: supply_vs_ledger rows=1 diff=2000001",
+   "tg_text": "对账漂移 2026-10-17T05:13:51.023Z 用时0ms 失败1/3项: supply_vs_ledger rows=1 diff=2000001",
    "tg_chars": 80,
    "elapsed_ms": 1,
    "sql_calls": 4,
@@ -383,7 +383,7 @@
    "tg_calls": 0,
    "tg_text": null,
    "tg_chars": 0,
-   "elapsed_ms": 1,
+   "elapsed_ms": 2,
    "sql_calls": 3,
    "secret_leak": false,
    "note": "OPS_ALERT_UID 未配 ⇒ Telegram 0 次"
@@ -488,7 +488,7 @@
    "tg_calls": 0,
    "tg_text": null,
    "tg_chars": 0,
-   "elapsed_ms": 3002,
+   "elapsed_ms": 3006,
    "sql_calls": 3,
    "secret_leak": false,
    "note": "心跳挂起 ⇒ 3s AbortController 上限后仍 200（且耗时 ≥2.9s）"
@@ -506,7 +506,7 @@
    "tg_calls": 0,
    "tg_text": null,
    "tg_chars": 0,
-   "elapsed_ms": 1,
+   "elapsed_ms": 2,
    "sql_calls": 0,
    "secret_leak": false,
    "note": "CRON_SECRET 缺 ⇒ 503 且 ping 0 / Telegram 0"
@@ -524,7 +524,7 @@
    "tg_calls": 0,
    "tg_text": null,
    "tg_chars": 0,
-   "elapsed_ms": 1,
+   "elapsed_ms": 3,
    "sql_calls": 0,
    "secret_leak": false,
    "note": "错 secret ⇒ 401 且 ping 0 / Telegram 0"
