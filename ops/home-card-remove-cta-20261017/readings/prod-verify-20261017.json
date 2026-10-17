@@ -1,0 +1,37 @@
+{
+ "at": "2026-10-17T19:05Z",
+ "commit": "521fbb0",
+ "online_js": "index-Dn2YXFRS.js",
+ "js_sha256": "4dcac4eaa7b497f03e19d4af1172a7f7601003e8b453cdc77a9b1c747ccd99f0",
+ "js_match_local": true,
+ "artifact": {
+  "reward_card_view_hits": 0,
+  "reward_card_claim_hits": 1
+ },
+ "prod_browser_probe": {
+  "d1440": {
+   "http": 200,
+   "product_cards": 4,
+   "first_tag": "A",
+   "first_href": "/item/1",
+   "interactive_inside_card": 0,
+   "cta_pill_text_count": 0,
+   "reward_card_view": 0,
+   "click_navigates_to": "/item/1",
+   "pageErrors": 0
+  },
+  "m390": {
+   "http": 200,
+   "product_cards": 4,
+   "first_tag": "A",
+   "first_href": "/item/1",
+   "interactive_inside_card": 0,
+   "cta_pill_text_count": 0,
+   "reward_card_view": 0,
+   "click_navigates_to": "/item/1",
+   "pageErrors": 0
+  }
+ },
+ "verdict": "PASS — 胶囊已下线、整卡入口完好",
+ "noise_note": "rootLen 两档差 10 字符 = Footer.jsx:12 加载期 Math.random() 选文案（已知噪声源）"
+}
