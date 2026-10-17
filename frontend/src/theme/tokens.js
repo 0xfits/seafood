@@ -27,7 +27,9 @@ export const TOKEN_PREFIX = '--sf-'
 
 // 语义槽名 → 值。键的顺序即 CSS 输出顺序。
 const DAY = {
-  'page-bg': '#FDE815',
+  'page-bg': '#F5F7F9',
+  // T109（v1.20 · Kevin 2026-10-17 Q1）：大容器底（固定宽度内）—— 新增层级，紧跟 page-bg（键序两档必须相同）
+  'surface-bg': '#FFFFFF',
   'page-fg': '#0A0A0A',
   'topbar-bg': '#FDE815',
   'topbar-border': '#030402',
@@ -144,6 +146,8 @@ const DAY = {
 
 const NIGHT = {
   'page-bg': '#0B0C0E',
+  // T109：夜档大容器底（第三个夜档面层级，Zang Q7 裁定 = 保留 #101114）；位置/键序与 DAY 逐字对齐
+  'surface-bg': '#101114',
   'page-fg': '#E8EAED',
   'topbar-bg': '#0B0C0E',
   'topbar-border': '#FDE815',
@@ -263,7 +267,10 @@ export const THEME_TOKENS = { day: DAY, night: NIGHT }
 
 // key → { d:[行号, 该行原文片段, (可选)该行必须不含的属性名], n:[同上] }
 export const PROV = {
-  'page-bg': { d: [200, 'background:#FDE815'], n: [273, 'background:#0B0C0E'] },
+  // T109（N46）：「改值 = 加真源行 + 改 PROV 指针」两件同做 —— 日档页底新值行 = style-preview.html 追加块 1069 行
+  'page-bg': { d: [1069, 'background:#F5F7F9'], n: [273, 'background:#0B0C0E'] },
+  // 新增键 surface-bg：日档 = 真源 1071 行 · 夜档 = 真源 1073 行（追加块 1044–1103）
+  'surface-bg': { d: [1071, 'background:#FFFFFF'], n: [1073, 'background:#101114'] },
   'page-fg': { d: [200, 'color:#0A0A0A'], n: [273, 'background:#0B0C0E;color:#E8EAED'] },
   'topbar-bg': { d: [201, 'background:#FDE815'], n: [274, 'background:#0B0C0E'] },
   'topbar-border': { d: [201, 'border-bottom:2px solid #030402'], n: [274, 'border-bottom:1px solid #FDE815'] },

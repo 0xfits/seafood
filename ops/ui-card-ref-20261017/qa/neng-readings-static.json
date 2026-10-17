@@ -1,0 +1,270 @@
+{
+  "probe": "neng-static-checks.mjs（Neng 质检员 · 现取）",
+  "at": "2026-10-17T00:34:41.240Z",
+  "ac6": {
+    "shellCssMediaCount_eq1": true,
+    "shellCssNoDataTheme": true,
+    "shellThemeJsNoWidthWords": true,
+    "fiveRegionsIdentical": true,
+    "tokenKeysContainsSurfaceBg": true,
+    "themeTokensCssKeySetsEqualAndMatchTokensJs": true,
+    "structCountUnchanged": true,
+    "excludedFromThemeCountUnchanged": true,
+    "horizontalOverflow": "见 neng-readings-ac123.json 各档 docOverflow（须恒 0）",
+    "ok": true
+  },
+  "ac8": {
+    "changedFiles": [
+      "docs/design/design-system.spec.md",
+      "docs/design/style-preview.html",
+      "frontend/src/components/reward/RewardCard.jsx",
+      "frontend/src/pages/HomePage.jsx",
+      "frontend/src/pages/item/item.css",
+      "frontend/src/shell/shell.css",
+      "frontend/src/theme/theme-tokens.css",
+      "frontend/src/theme/tokens.js"
+    ],
+    "containsThemePreviewPage": false,
+    "itemCssInDiff": true,
+    "itemCssChangedLines": [
+      "-  background: var(--sf-page-bg);",
+      "+  background: var(--sf-surface-bg);"
+    ],
+    "itemCssChangedLineCount": 2,
+    "itemCssTouchesPriceFamily": [],
+    "itemCssOnlyActionbarBackground": true,
+    "numstat": [
+      "283\t0\tdocs/design/design-system.spec.md",
+      "61\t0\tdocs/design/style-preview.html",
+      "152\t120\tfrontend/src/components/reward/RewardCard.jsx",
+      "8\t0\tfrontend/src/pages/HomePage.jsx",
+      "1\t1\tfrontend/src/pages/item/item.css",
+      "3\t0\tfrontend/src/shell/shell.css",
+      "3\t1\tfrontend/src/theme/theme-tokens.css",
+      "9\t2\tfrontend/src/theme/tokens.js"
+    ],
+    "ok": true
+  },
+  "freezeListB": {
+    "B1": {
+      "check": "src/shell/** + src/theme/** JS 无 matchMedia/innerWidth/innerHeight/clientWidth/offsetWidth/screen.width（注释同禁）",
+      "hits": 0,
+      "ok": true
+    },
+    "B2": {
+      "check": "shell.css 只有一个 767 断点块 + 无 [data-theme",
+      "mediaCount": 1,
+      "dataThemeHits": 0,
+      "ok": true
+    },
+    "B3": {
+      "check": "五 data-sf-region 恒等 + tabbar href 集",
+      "source5": [
+        "data-sf-region=\"content\"",
+        "data-sf-region=\"footer\"",
+        "data-sf-region=\"shell\"",
+        "data-sf-region=\"tabbar\"",
+        "data-sf-region=\"topnav\""
+      ],
+      "ok": true
+    },
+    "B4": {
+      "check": "日/夜键集合与键序完全相同 且 ≥100 键",
+      "keyOrderIdentical": true,
+      "keys": 110,
+      "ok": true
+    },
+    "B5": {
+      "check": "键名黑名单 + 值形态白名单（surface/bg 不触黑名单；#FFFFFF/#101114 命中 hex 分支）",
+      "surfaceBgDay": "#FFFFFF",
+      "surfaceBgNight": "#101114",
+      "ok": true
+    },
+    "B6": {
+      "check": "两档差异键 > 90；day.page-bg ≠ night.page-bg",
+      "diffKeyCount": 104,
+      "pageBgDay": "#F5F7F9",
+      "pageBgNight": "#0B0C0E",
+      "ok": true
+    },
+    "B7": {
+      "check": "STRUCT ≥25 键、值不含 #/rgba(、STRUCT_PROV 齐备、与 token 不重名",
+      "structCount": 37,
+      "provMissing": [],
+      "hashOrRgba": [],
+      "ok": true
+    },
+    "B8": {
+      "check": "STRUCT_PROV 逐条可回读；EXCLUDED_FROM_THEME ≥8 条",
+      "excluded": 10,
+      "ok": true
+    },
+    "note": "B9/B10/B11 为测试腿 ⇒ 见 neng-tests-*.txt 的逐文件退出码"
+  },
+  "grep": {
+    "pageBgConsumers": {
+      "lines": [
+        "frontend/src/shell/shell.css:16:  background: var(--sf-page-bg);"
+      ],
+      "count": 1,
+      "expect": 1
+    },
+    "shellCssMediaCount": {
+      "value": 1,
+      "expect": 1
+    },
+    "shellCssDataTheme": {
+      "lines": [],
+      "expect": 0
+    },
+    "shellThemeWidthWords": {
+      "lines": [],
+      "expect": 0
+    },
+    "dataSfRegions": {
+      "value": [
+        "data-sf-region=\"content\"",
+        "data-sf-region=\"footer\"",
+        "data-sf-region=\"shell\"",
+        "data-sf-region=\"tabbar\"",
+        "data-sf-region=\"topnav\""
+      ],
+      "expectFive": [
+        "data-sf-region=\"footer\"",
+        "data-sf-region=\"shell\"",
+        "data-sf-region=\"tabbar\"",
+        "data-sf-region=\"topnav\"",
+        "data-sf-region=\"content\""
+      ]
+    },
+    "fde815": {
+      "total": 85,
+      "outsideTokensJs": 29,
+      "allInThemeTokensCss": false,
+      "sampleOutside": [
+        "frontend/src/components/reward/reward-card.css:7: *    token 值（夜档 --sf-price-num-fg = #FDE815 亮黄，在白卡上不可读）⇒ 在**卡片子树内局部重绑**",
+        "frontend/src/theme/theme-tokens.css:53:  --sf-topbar-bg: #FDE815;",
+        "frontend/src/theme/theme-tokens.css:65:  --sf-avatar-fg: #FDE815;"
+      ]
+    },
+    "customVariant": {
+      "lines": [],
+      "count": 0
+    },
+    "prefersColorSchemeInSrc": {
+      "lines": [],
+      "count": 0
+    }
+  },
+  "tokenModel": {
+    "current": {
+      "TOKEN_KEYS_len": 110,
+      "day_len": 110,
+      "night_len": 110,
+      "keyOrderIdentical": true,
+      "TOKEN_KEYS_contains_surface_bg": true,
+      "TOKEN_KEYS_equals_day_keys": true,
+      "dayNightDiffKeyCount": 104,
+      "dayNightDiffKeyCount_gt90": true,
+      "pageBg_day": "#F5F7F9",
+      "pageBg_night": "#0B0C0E",
+      "pageBg_day_ne_night": true,
+      "surfaceBg_day": "#FFFFFF",
+      "surfaceBg_night": "#101114",
+      "topbarBg_day": "#FDE815",
+      "topbarBg_night": "#0B0C0E",
+      "STRUCT_count": 37,
+      "STRUCT_PROV_count": 37,
+      "EXCLUDED_FROM_THEME_count": 10,
+      "STRUCT_hasHashOrRgba": [],
+      "STRUCT_PROV_missing": [],
+      "PROV_pageBg": {
+        "d": [
+          1069,
+          "background:#F5F7F9"
+        ],
+        "n": [
+          273,
+          "background:#0B0C0E"
+        ]
+      },
+      "PROV_surfaceBg": {
+        "d": [
+          1071,
+          "background:#FFFFFF"
+        ],
+        "n": [
+          1073,
+          "background:#101114"
+        ]
+      },
+      "STRUCT_PROV_shellMaxW": {
+        "d": [
+          85,
+          "max-width:1440px"
+        ],
+        "n": [
+          85,
+          "max-width:1440px"
+        ]
+      },
+      "shellMaxW": "1440px"
+    },
+    "parent": {
+      "TOKEN_KEYS_len": 109,
+      "STRUCT_count": 37,
+      "STRUCT_PROV_count": 37,
+      "EXCLUDED_FROM_THEME_count": 10,
+      "hasSurfaceBg": false,
+      "pageBg_day": "#FDE815"
+    },
+    "unchanged": {
+      "STRUCT_count_same": true,
+      "EXCLUDED_FROM_THEME_count_same": true,
+      "TOKEN_KEYS_delta": 1,
+      "surface_bg_is_new": true
+    },
+    "provReadback": {
+      "page-bg.d": {
+        "1069": ".vstage-a .page{background:#F5F7F9;color:#0A0A0A}",
+        "expect": "background:#F5F7F9",
+        "ok": true
+      },
+      "surface-bg.d": {
+        "1071": ".vstage-a .surface{background:#FFFFFF}",
+        "expect": "background:#FFFFFF",
+        "ok": true
+      },
+      "surface-bg.n": {
+        "1073": ".vstage-b .surface{background:#101114}",
+        "expect": "background:#101114",
+        "ok": true
+      },
+      "page-bg.n": {
+        "273": ".vstage-b .page{background:#0B0C0E;color:#E8EAED}",
+        "ok": true
+      },
+      "shell-max-w": {
+        "85": ".tb-inner{display:flex;align-items:center;gap:14px;padding:10px 20px;max-width:1440px;margin:0 auto}",
+        "ok": true
+      }
+    },
+    "themeTokensCss": {
+      "dayBlockStart": 48,
+      "nightBlockStart": 163,
+      "dayKeyCount": 110,
+      "nightKeyCount": 110,
+      "keySetIdentical": true,
+      "keyOrderIdentical": true,
+      "dayKeyCountEqualsTokenKeys": true,
+      "dayMismatch": [],
+      "nightMismatch": [],
+      "emptyValues": [],
+      "surfaceBg_day": "#FFFFFF",
+      "surfaceBg_night": "#101114",
+      "pageBg_day": "#F5F7F9",
+      "pageBg_night": "#0B0C0E",
+      "allEqual_tokensJs": true
+    }
+  }
+}

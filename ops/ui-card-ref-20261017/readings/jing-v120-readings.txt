@@ -1,0 +1,82 @@
+===== JING v1.20 · 读数与自证（首页商品卡片 UI：底色分层 / 价格块版式 / 整卡可点击）=====
+单号 = JING-SPEC-CARDUI-DS（Jing · 制度员）｜取数时刻 = 2026-10-17 08:06:39 CST
+现取基线 = HEAD d8cb98e docs(seafood): §5.413 上线回写 + §21 质检覆盖面登记（消息面板化 · 生产终验 PASS）
+
+----- ① 改前快照（docs/versions/design-system.spec.v1.19.md）对现盘复核 -----
+HEAD:docs/design/design-system.spec.md 行数/字节/md5 =     2355 /   517050 / 1ac3dc50c40cb15d409d008090d02e47
+docs/versions/design-system.spec.v1.19.md 行数/字节/md5 =     2355 /   517050 / 1ac3dc50c40cb15d409d008090d02e47
+CMP HEAD 正文 vs v1.19 快照 = 0（改前快照逐字节 = 现盘改前态 ✓）
+
+----- ② style-preview.html 改前/改后 + 纯追加自证 -----
+改前 = 1042 行 / 86638 B / md5 13a845dacb6865ea3fa738663a63159c（下单开工现取，见下「改前读数」段）
+改后 =     1103 行 /    93949 B / md5 7b8780af15802102f9ddf578510490a5 / sha256 6565559d633e79886587550a22a9d1d50180079952e62f42a93c84d0a9cdcf94
+增量 = +61 行 / +7311 B
+git diff --numstat docs/design/style-preview.html = 61	0	docs/design/style-preview.html
+前缀 cmp（改后前 1042 行 vs 改前整件）= 0（纯追加 ✓）
+
+----- ③ 新真源块行号锚（PROV 指针）-----
+1069:.vstage-a .page{background:#F5F7F9;color:#0A0A0A}
+1071:.vstage-a .surface{background:#FFFFFF}
+1062:<section id="card-ui-ref-v120" data-ref="variant-A-card
+
+----- ④ design-system.spec.md 改前/改后 -----
+改前 = 2355 行 / 517050 B / md5 1ac3dc50c40cb15d409d008090d02e47
+改后 =     2569 行 /   563834 B / md5 b8dd4e791057d04b6ff1a230451fde53 / sha256 a50bbbf52c0949221bc819a08d52b09232b32759b92523d935ec9d070209ba7c
+增量 = +214 行 / +46784 B
+git diff --numstat docs/design/ = 
+214	0	docs/design/design-system.spec.md
+61	0	docs/design/style-preview.html
+
+----- ⑤ 三处版本记录同步（计数锚点）-----
+grep -c '^> \*\*★ 现行版 = v1.20' = 1
+grep -c '^## §22 ' = 1
+grep -c '^| \*\*v1.20\*\* |' = 1
+旧行仍在场 v1.19 头部 / §12 行 = 1 / 1
+
+----- ⑥ 快照镜像 -----
+docs/versions/design-system.spec.v1.20.md vs 现盘 = cmp 0（本版镜像 ✓）
+v1.20 镜像 行数/字节/md5 =     2569 /   563834 / b8dd4e791057d04b6ff1a230451fde53
+v1.19 快照 vs 现盘 cmp = 非 0（预期：v1.19 = 改前态；差异首处 = char 43021, line 21）
+
+----- ⑦ 未动 frontend/** 自证 -----
+git status --porcelain：
+ M docs/design/design-system.spec.md
+ M docs/design/style-preview.html
+?? docs/versions/design-system.spec.v1.20.md
+?? ops/ui-card-ref-20261017/
+git diff --name-only：
+docs/design/design-system.spec.md
+docs/design/style-preview.html
+ops/ui-card-ref-20261017/shots 未触碰（sha256 复核）：
+be25f54209e928df68fd625dfa5ef0769383ca2ca61c72b5911b2e2a19401491  ops/ui-card-ref-20261017/shots/current-seafood.png
+c7a0aa9f11e9d8fdb83eadab16b95a0f6227ac389ebad19a3588d0e2054c9fa0  ops/ui-card-ref-20261017/shots/ref-xianyu.png
+
+----- ⑧ 现取基线（本单只读现取 · 供 §22.1 对账）-----
+键集（四语 top/flat）： zh=128/1104 en=128/1104 hk=128/1104 vn=128/1104 
+前端 <Route 字面 / 精确 = 42 / 34
+后端注册点 = 105
+var(--sf-page-bg) 消费者全集：frontend/src/shell/shell.css:16:  background: var(--sf-page-bg);
+frontend/src/pages/item/item.css:349:  background: var(--sf-page-bg);
+reward-card-view 在测试内的锚点计数 = 0
+★ 门套：本单为规范单，未跑 build / test:unit（改前基线 = 54 files / 520 tests，Zang 2026-10-17 08:00 采，见同目录 baseline.log）
+
+----- ③bis 修正（同批第三次 grep 的转义写错，重取 = 诚实补登）-----
+1073:.vstage-b .surface{background:#101114}
+（注：上节 ③ 的第三条 grep 因单引号内多写了一个反斜杠而未命中，本行为重取后的真实读数；已按「不改旧读数、只追加」处置）
+
+----- ⑨ 落笔后「最后一处事实更正」重取（改后终值 · 本行之后本单未再改 spec）-----
+说明：§22.4 原写「#FDE815 字面仅出现在 tokens.js 的 token 值表内」；现取复核发现另有 29 行落在生成物 theme-tokens.css ⇒ 已就地更正为「只出现在 token 值表的两处载体（tokens.js + theme-tokens.css 29 行）」；属**本单新增行**的就地更正（非改旧行）。
+校验读数：非 tokens.js 的 FDE815 命中数 = 29
+且全部落在 theme-tokens.css： frontend/src/theme/theme-tokens.css 
+
+★ 改后终值（重取）：design-system.spec.md =     2569 行 /   564194 B / md5 16f124fc6533770c912e79d6487ebac0 / sha256 f99b00594c6adf2daeb70364730d830a34d2c4a851690611fc7df1b57d98aefd
+★ 改后终值（重取）：v1.20 镜像 cmp 现盘 = 0
+★ git diff --numstat docs/design/ = 
+214	0	docs/design/design-system.spec.md
+61	0	docs/design/style-preview.html
+★ git status --porcelain = 
+ M docs/design/design-system.spec.md
+ M docs/design/style-preview.html
+?? docs/audit/design-system-v1.20-delta.md
+?? docs/versions/design-system.spec.v1.20.md
+?? ops/ui-card-ref-20261017/

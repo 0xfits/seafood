@@ -184,6 +184,13 @@ const HomePage = () => {
     navigate(buildLocalizedPath(lang, `/item/${id}`))
   }
 
+  // ★ v1.20 §22 `T112`（整卡可点击）：卡片链接目标 —— 与 `handleRewardAction` 同一 id 口径，
+  //   仍走**唯一构造器** `buildLocalizedPath`（`utils.js:115`）；id 缺失 ⇒ 不传 `to`（卡片回落非链接容器）。
+  const rewardPath = (reward) => {
+    const id = reward?.bID ?? reward?.listing_id ?? reward?.id
+    return id == null || id === '' ? undefined : buildLocalizedPath(lang, '/item/' + id)
+  }
+
   const FILTERS = [
     { key: 'all', labelKey: 'item.filterAll', count: rewards.length },
     { key: 'limited', labelKey: 'item.filterLimited', count: rewards.filter((r) => r.limited).length },
@@ -310,6 +317,7 @@ const HomePage = () => {
                     <FadeIn key={reward.bID} delay={index * 100}>
                       <RewardCard
                         reward={reward}
+                        to={rewardPath(reward)}
                         onClaim={handleRewardAction}
                         userPoints={userPoints}
                         showStatus={true}

@@ -1,0 +1,167 @@
+{
+  "probe": "ops/ui-card-ref-20261017/qa/kong-probe-hover.mjs（Kong 补充读数）",
+  "startedAt": "2026-10-17T00:21:28.075Z",
+  "states": {
+    "390_day": {
+      "theme": "light",
+      "before": {
+        "rootTag": "A",
+        "innerTag": "DIV",
+        "innerClasses": "rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 relative overflow-hidden hover:shadow-lg",
+        "innerBg": "rgb(255, 255, 255)",
+        "borderWidth": "1px/1px/1px/1px",
+        "borderColor": "rgb(229, 231, 235)",
+        "borderRadius": "8px",
+        "boxShadow": "none",
+        "transform": "none",
+        "rect": {
+          "x": 26,
+          "y": 255,
+          "w": 338,
+          "h": 334
+        },
+        "ringWidth": "0 0 #0000",
+        "outlineWidth": "3px"
+      },
+      "hovered": {
+        "rootTag": "A",
+        "innerTag": "DIV",
+        "innerClasses": "rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 relative overflow-hidden hover:shadow-lg",
+        "innerBg": "rgb(255, 255, 255)",
+        "borderWidth": "1px/1px/1px/1px",
+        "borderColor": "rgb(229, 231, 235)",
+        "borderRadius": "8px",
+        "boxShadow": "rgba(0, 0, 0, 0.1) 0px 10px 15px 0px, rgba(0, 0, 0, 0.05) 0px 4px 6px 0px",
+        "transform": "none",
+        "rect": {
+          "x": 26,
+          "y": 255,
+          "w": 338,
+          "h": 334
+        },
+        "ringWidth": "0 0 #0000",
+        "outlineWidth": "3px"
+      },
+      "hoverDelta": {
+        "boxShadowChanged": true,
+        "rectUnchanged": true,
+        "transformUnchanged": true
+      }
+    },
+    "390_night": {
+      "theme": "dark",
+      "before": {
+        "rootTag": "A",
+        "innerTag": "DIV",
+        "innerClasses": "rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 relative overflow-hidden hover:shadow-lg",
+        "innerBg": "rgb(255, 255, 255)",
+        "borderWidth": "1px/1px/1px/1px",
+        "borderColor": "rgb(229, 231, 235)",
+        "borderRadius": "8px",
+        "boxShadow": "none",
+        "transform": "none",
+        "rect": {
+          "x": 26,
+          "y": 255,
+          "w": 338,
+          "h": 334
+        },
+        "ringWidth": "0 0 #0000",
+        "outlineWidth": "3px"
+      },
+      "hovered": {
+        "rootTag": "A",
+        "innerTag": "DIV",
+        "innerClasses": "rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 relative overflow-hidden hover:shadow-lg",
+        "innerBg": "rgb(255, 255, 255)",
+        "borderWidth": "1px/1px/1px/1px",
+        "borderColor": "rgb(229, 231, 235)",
+        "borderRadius": "8px",
+        "boxShadow": "rgba(0, 0, 0, 0.1) 0px 10px 15px 0px, rgba(0, 0, 0, 0.05) 0px 4px 6px 0px",
+        "transform": "none",
+        "rect": {
+          "x": 26,
+          "y": 255,
+          "w": 338,
+          "h": 334
+        },
+        "ringWidth": "0 0 #0000",
+        "outlineWidth": "3px"
+      },
+      "hoverDelta": {
+        "boxShadowChanged": true,
+        "rectUnchanged": true,
+        "transformUnchanged": true
+      }
+    },
+    "1440_day": {
+      "theme": "light",
+      "before": {
+        "rootTag": "A",
+        "innerTag": "DIV",
+        "innerClasses": "rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 relative overflow-hidden hover:shadow-lg",
+        "innerBg": "rgb(255, 255, 255)",
+        "borderWidth": "1px/1px/1px/1px",
+        "borderColor": "rgb(229, 231, 235)",
+        "borderRadius": "8px",
+        "boxShadow": "none",
+        "transform": "none",
+        "rect": {
+          "x": 52,
+          "y": 283,
+          "w": 316,
+          "h": 334
+        },
+        "ringWidth": "0 0 #0000",
+        "outlineWidth": "3px"
+      },
+      "hovered": {
+        "rootTag": "A",
+        "innerTag": "DIV",
+        "innerClasses": "rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 relative overflow-hidden hover:shadow-lg",
+        "innerBg": "rgb(255, 255, 255)",
+        "borderWidth": "1px/1px/1px/1px",
+        "borderColor": "rgb(229, 231, 235)",
+        "borderRadius": "8px",
+        "boxShadow": "rgba(0, 0, 0, 0.1) 0px 10px 15px 0px, rgba(0, 0, 0, 0.05) 0px 4px 6px 0px",
+        "transform": "none",
+        "rect": {
+          "x": 52,
+          "y": 283,
+          "w": 316,
+          "h": 334
+        },
+        "ringWidth": "0 0 #0000",
+        "outlineWidth": "3px"
+      },
+      "hoverDelta": {
+        "boxShadowChanged": true,
+        "rectUnchanged": true,
+        "transformUnchanged": true
+      }
+    }
+  },
+  "abortedHosts": [
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
+    "https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=EB+Garamond:i",
+    "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap",
+    "https://cdn.jsdelivr.net/npm/font-smiley-sans@1.0.0/style.min.css",
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css?ts=1792196488423",
+    "https://cdn.jsdelivr.net/gh/atelier-anchor/smiley-sans@main/webfont/SmileySans-Oblique.woff2",
+    "https://raw.githubusercontent.com/atelier-anchor/smiley-sans/main/webfont/SmileySans-Oblique.woff2",
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
+    "https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=EB+Garamond:i",
+    "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap",
+    "https://cdn.jsdelivr.net/npm/font-smiley-sans@1.0.0/style.min.css",
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css?ts=1792196489263",
+    "https://cdn.jsdelivr.net/gh/atelier-anchor/smiley-sans@main/webfont/SmileySans-Oblique.woff2",
+    "https://raw.githubusercontent.com/atelier-anchor/smiley-sans/main/webfont/SmileySans-Oblique.woff2",
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
+    "https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=EB+Garamond:i",
+    "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap",
+    "https://cdn.jsdelivr.net/npm/font-smiley-sans@1.0.0/style.min.css",
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css?ts=1792196490050",
+    "https://cdn.jsdelivr.net/gh/atelier-anchor/smiley-sans@main/webfont/SmileySans-Oblique.woff2",
+    "https://raw.githubusercontent.com/atelier-anchor/smiley-sans/main/webfont/SmileySans-Oblique.woff2"
+  ]
+}

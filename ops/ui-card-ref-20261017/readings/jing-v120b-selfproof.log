@@ -1,0 +1,93 @@
+### 0 · 时间 / 上下文
+2026-10-17 08:21:53 +0800
+HEAD = d8cb98e
+branch = main
+
+### 1 · 改后终值（live / 镜像 / 快照 / 真源）
+docs/design/design-system.spec.md                          lines=2620   bytes=582734   md5=185f9da2ccab9d8779dfec339ee2c23d
+docs/versions/design-system.spec.v1.20.md                  lines=2620   bytes=582734   md5=185f9da2ccab9d8779dfec339ee2c23d
+docs/versions/design-system.spec.v1.19.md                  lines=2355   bytes=517050   md5=1ac3dc50c40cb15d409d008090d02e47
+docs/design/style-preview.html                             lines=1103   bytes=93949    md5=7b8780af15802102f9ddf578510490a5
+sha256(spec live) = d4018f489777a0261ad950169cc36ea68056a50aaaac4dad985757e06185e4c7
+sha256(spec mirror)= d4018f489777a0261ad950169cc36ea68056a50aaaac4dad985757e06185e4c7
+
+### 2 · 镜像 cmp=0 自证（本版镜像对 live）
+cmp live vs mirror => exit 0 (CMP=0)
+
+### 3 · 纯追加自证（删除列必须 = 0）
+265	0	docs/design/design-system.spec.md
+61	0	docs/design/style-preview.html
+
+### 4 · 三处版本记录锚（各须恰 1 命中）
+H1 ^> **★ 现行版 = v1.20      = 1
+H2 ^## §22                    = 1
+H3 ^| **v1.20** |             = 1
+
+### 5 · 本单新落点在场（各须 >= 1）
+AC-9 夜档价格可读性行         = 1
+N48 / N49 教训                = 4 / 4
+Q5-Q9 已裁登记表              = 1
+夜档另议边界块                = 1
+§22.14 标题                   = 1
+
+### 6 · 主题事实链（dark: 变体为何无效）
+A) grep -rn custom-variant frontend/src frontend/index.html       = 0
+B) grep -rn prefers-color-scheme frontend/src --include=*.css     = 0
+C) 构建产物 index CSS 内 @media(prefers-color-scheme:dark) 计数   = 1
+D) 站点主题属性写入点                                          = 16:  document.documentElement.setAttribute('data-theme', 'dark') 18:  document.documentElement.setAttribute('data-theme', 'light') 
+E) 全仓是否产生 dark 类（classList add(dark)）                 = 0
+
+### 7 · Q9 改前绝对值 + 断言面（Q5/Q6/Q9 零改锚）
+RewardCard.jsx @HEAD 价格字号行：
+    93:              <div className="text-2xl font-bold text-yellow-600">
+    96:                <span className="text-sm font-bold text-yellow-600 dark:text-yellow-400">$</span>
+    119:          <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+    133:            <span className="text-sm text-gray-500">{reward.brand.name}</span>
+    139:          <div className="flex items-center gap-1 text-sm text-orange-600 mb-3">
+    146:          <div className="flex items-center gap-2 text-sm text-gray-500">
+RewardCard @HEAD variant/hover 行：
+    47:      variant={reward.variant || 'primary'}
+    48:      hover="glow"
+    52:        reward.rarity === 'legendary' && 'border-yellow-400 bg-gradient-to-br from-yellow-50 to-yellow-100',
+    53:        reward.rarity === 'epic' && 'border-purple-400 bg-gradient-to-br from-purple-50 to-purple-100'
+冻结 Card 变体表的既有断言（保护面）：
+    19:    expect(card).toHaveClass('bg-yellow-50', 'border-yellow-200')
+RewardCard 相关测试命中（不冻结 variant/hover/渐变底）：
+    hits=11
+
+### 8 · AC-9 三臂 WCAG 对比度（由 canvas 回读 sRGB 复算）
+     2.841:1  改前 · 夜档: text-yellow-600 #D08700 on bg-yellow-50 #FEFCE8
+     1.255:1  反例 · 不重绑: 夜档 token #FDE815 on 白卡 #FFFFFF
+    20.546:1  改后 · 夜档: #030402 on 白卡 #FFFFFF
+     1.521:1  旁证 · dark:text-yellow-400 #FDC700 on #FEFCE8（若命中）
+    15.589:1  旁证 · 夜档 token #FDE815 on 夜档页底 #0B0C0E
+    阈值 = 4.5:1 (WCAG 2.x AA 正文)
+
+### 9 · 未动面自证
+--- git status --porcelain ---
+ M docs/design/design-system.spec.md
+ M docs/design/style-preview.html
+ M frontend/src/components/reward/RewardCard.jsx
+ M frontend/src/pages/HomePage.jsx
+ M frontend/src/pages/item/item.css
+ M frontend/src/shell/shell.css
+ M frontend/src/theme/theme-tokens.css
+ M frontend/src/theme/tokens.js
+?? docs/audit/design-system-v1.20-delta.md
+?? docs/audit/design-system-v1.20-delta2.md
+?? docs/versions/design-system.spec.v1.20.md
+?? frontend/src/components/reward/reward-card.css
+?? ops/ui-card-ref-20261017/
+--- 本单未写 frontend/**（本单写面 = docs/** + ops/.../readings/jing-v120b-*）---
+shots 参考图 sha256（应与上单逐字相同）:
+    e3e31ee31cd0baaeff9a93207021b57ed9a1100adf9e56545133311d0987cd06  ops/ui-card-ref-20261017/shots/after-1440-夜档.png
+    ad770430ea006d8e13a3d963ae13c8d80df89fbbfe9e4dbd1d70f44e26260dce  ops/ui-card-ref-20261017/shots/after-1440-日档.png
+    1847227e65c3cb98b00cea3867234aeb47bfa2e86163c7f214cfa94cfda36f51  ops/ui-card-ref-20261017/shots/after-390-夜档.png
+    869c8f339ef9470fd96286ed09e4cd474a122ccdf00d00354107afc53c63ed9f  ops/ui-card-ref-20261017/shots/after-390-日档.png
+    be25f54209e928df68fd625dfa5ef0769383ca2ca61c72b5911b2e2a19401491  ops/ui-card-ref-20261017/shots/current-seafood.png
+    c7a0aa9f11e9d8fdb83eadab16b95a0f6227ac389ebad19a3588d0e2054c9fa0  ops/ui-card-ref-20261017/shots/ref-xianyu.png
+
+### 10 · 服务面（本单未启停任何服务）
+5787 首页 HTTP = 200
+
+=== END ===

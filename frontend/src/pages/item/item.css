@@ -346,7 +346,7 @@
   gap: var(--sf-st-feed-gap-m);
   min-height: var(--sf-l-actionbar-h);
   padding: 8px 0;
-  background: var(--sf-page-bg);
+  background: var(--sf-surface-bg);
   border-top: var(--sf-st-stroke-w-thin) solid var(--sf-tabbar-border);
   /* >767 档：留在内容流（不出 fixed = AC-5 判据） */
   position: static;

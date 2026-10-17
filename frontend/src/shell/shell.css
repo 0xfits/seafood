@@ -29,6 +29,9 @@
   max-width: var(--sf-st-shell-max-w);
   margin: 0 auto;
   padding: 0 var(--sf-st-topbar-pad-x);
+  /* T109（v1.20 · Kevin Q1 底色分层）：大容器底 = 新 token --sf-surface-bg
+     （固定宽度之内；固定宽度之外仍是 .sf-shell 的 --sf-page-bg） */
+  background: var(--sf-surface-bg);
 }
 
 /* 宽屏多栏骨架：#main 自适应 + #side 固定 320px（style-preview.html:112-114） */

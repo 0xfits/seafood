@@ -1,0 +1,21 @@
+# jing-v120 · 自证命令与输出（逐条可复跑）
+
+## 纯追加自证（style-preview.html）
+$ head -n 1042 docs/design/style-preview.html | cmp - "$TMPDIR/sp.before.html"
+=> cmp exit 0（前 1042 行逐字节未动）
+
+## 快照
+$ cmp docs/versions/design-system.spec.v1.19.md docs/versions/design-system.spec.v1.20.md
+docs/versions/design-system.spec.v1.19.md docs/versions/design-system.spec.v1.20.md differ: char 43021, line 21
+=> cmp exit 1（预期 1：v1.19 = 改前态）
+$ cmp docs/versions/design-system.spec.v1.20.md docs/design/design-system.spec.md
+=> cmp exit 0（本版镜像 ✓）
+
+## 删除列 = 0
+214	0	docs/design/design-system.spec.md
+61	0	docs/design/style-preview.html
+
+## 三处锚点
+21:> **★ 现行版 = v1.20（2026-10-17 · Kevin「
+2361:## §22 首页商品卡片 UI（底色分层 / 价格块版式 / 整卡可点击）
+827:| **v1.20** | 2026-10-17 |

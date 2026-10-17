@@ -1,0 +1,48 @@
+/* 首页商品卡片（design-system.spec v1.20 §22 · T109–T113 + Zang 终审 Q5–Q9）
+ *
+ * 1) 卡内价格块版式（T110 / Q9）：一行 flex + 同基线；顺序 `$` → 数字；符号小（数字的 0.75 倍）；
+ *    数字 24px 加粗；**无外框 / 无底色 / 无内边距**；零新增常量（数字 = 既有 Tailwind text-2xl，
+ *    符号 = 相对比例 0.75em）。
+ * 2) 卡内价格色（Zang 追加裁定）：卡片 = 与主题无关的**浅色白卡、两档同貌** ⇒ 卡内不得吃夜档
+ *    token 值（夜档 --sf-price-num-fg = #FDE815 亮黄，在白卡上不可读）⇒ 在**卡片子树内局部重绑**
+ *    价格三色为日档值；价格仍以 var(--sf-price-*-fg) 取值（「颜色走本站 token」逐字成立）。
+ *    未新增主题 token / 未改 tokens.js 的 TOKEN_KEYS / 未改 theme-tokens.css 键集。
+ *
+ * ★ 选择器写成 `.sf-reward-card.sf-reward-card`（(0,2,0)）：压过 `:root` 与 `[data-theme="dark"]`
+ *   的同具体性 token 声明，且**不依赖打包顺序**（未分层的自定义样式与主题层的先后不可控）。
+ * ★ 本文件不含 `.sf-btn` 族任何类名（p6-btn-impl2 的家族清单是精确相等断言）。
+ */
+
+.sf-reward-card.sf-reward-card {
+  --sf-price-cur-fg: #030402;
+  --sf-price-num-fg: #030402;
+  --sf-price-unit-fg: #3A3A2A;
+}
+
+/* 价格块容器：同行 + 同基线；去框 / 去底 / 去内边距（对齐参考图「背后无框无底」） */
+.sf-reward-price {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  border-width: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 1.5rem;   /* 数字号（= Tailwind text-2xl / 24px，既有视觉权重不变） */
+  /* ★ 行高必须用**无单位因子**（= 2rem ÷ 1.5rem = 1.3333，即既有 text-2xl 行高 / 数字号）：
+     绝对行高会被两槽共同继承 ⇒ 两槽「盒高」相同 ⇒ 实测符号/数字盒高比 = 1（读数失真）。
+     无单位因子按各自字号等比缩放 ⇒ 盒高比 = 字号比 = 0.75，与视觉一致，且行盒总高仍 32px（与改前同）。 */
+  line-height: 1.3333;
+}
+
+/* 符号槽：必须仍在 <span> 内（r9-93 的 `>$</span>` 计数 = 1） */
+.sf-reward-price-cur {
+  font-size: 0.75em;   /* = 数字的 0.75 倍（≈18px）· 零新增常量 */
+  font-weight: 700;
+  color: var(--sf-price-cur-fg);
+}
+
+/* 数字槽：大号 + 加粗（font-weight ≥ 700） */
+.sf-reward-price-num {
+  font-weight: 700;
+  color: var(--sf-price-num-fg);
+}

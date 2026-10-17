@@ -1,0 +1,1609 @@
+{
+  "probe": "neng-probe-ac123.mjs（Neng 质检员 · 自写自跑）",
+  "startedAt": "2026-10-17T00:27:28.715Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "states": {
+    "390_day": {
+      "url": "http://sf.local/",
+      "pathname": "/",
+      "theme": "light",
+      "colorScheme": "light",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "bg": {
+        "shell": "rgb(245, 247, 249)",
+        "routeContainer": "rgb(255, 255, 255)",
+        "regionTop": "rgb(253, 232, 21)"
+      },
+      "tokens": {
+        "atRootPageBg": "#f5f7f9",
+        "atRootSurfaceBg": "#fff",
+        "atRootNumFg": "#030402",
+        "atRootCurFg": "#030402",
+        "atCardNumFg": "#030402",
+        "atCardCurFg": "#030402"
+      },
+      "cardCount": 6,
+      "card": {
+        "tagName": "A",
+        "href": "/item/1",
+        "dataSfM": "reward-card",
+        "nestedInteractiveCount": 0,
+        "nestedInteractiveTags": [],
+        "childTag": "DIV"
+      },
+      "cta": {
+        "present": true,
+        "tagName": "SPAN",
+        "hook": "reward-card-view",
+        "text": "查看详情"
+      },
+      "price": {
+        "sameParent": true,
+        "parentDisplay": "flex",
+        "parentFlexDirection": "row",
+        "parentAlignItems": "baseline",
+        "parentBorderWidth": "0px/0px/0px/0px",
+        "parentBackground": "rgba(0, 0, 0, 0)",
+        "parentPadding": "0px/0px/0px/0px",
+        "order": [
+          "cur",
+          "num"
+        ],
+        "cur": {
+          "rect": {
+            "x": 299.38,
+            "y": 1177,
+            "w": 10.81,
+            "h": 23.98
+          },
+          "fontSize": "18px",
+          "fontWeight": "700",
+          "color": "rgb(3, 4, 2)",
+          "text": "$",
+          "tag": "SPAN"
+        },
+        "num": {
+          "rect": {
+            "x": 310.19,
+            "y": 1170,
+            "w": 28.81,
+            "h": 32
+          },
+          "fontSize": "24px",
+          "fontWeight": "700",
+          "color": "rgb(3, 4, 2)",
+          "text": "29"
+        },
+        "heightRatio": 0.75,
+        "curBaseline": 1194,
+        "numBaseline": 1194,
+        "baselineDelta": 0,
+        "curIsSpan": true
+      },
+      "actionbarBackground": null,
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "regionCountAll": 5,
+      "docOverflow": 0,
+      "greyBands": {
+        "leftBand": 0,
+        "rightBand": 0,
+        "containerWidth": 390,
+        "innerWidth": 390
+      }
+    },
+    "390_night": {
+      "url": "http://sf.local/",
+      "pathname": "/",
+      "theme": "dark",
+      "colorScheme": "dark",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "bg": {
+        "shell": "rgb(11, 12, 14)",
+        "routeContainer": "rgb(16, 17, 20)",
+        "regionTop": "rgb(11, 12, 14)"
+      },
+      "tokens": {
+        "atRootPageBg": "#0b0c0e",
+        "atRootSurfaceBg": "#101114",
+        "atRootNumFg": "#fde815",
+        "atRootCurFg": "#fde815",
+        "atCardNumFg": "#030402",
+        "atCardCurFg": "#030402"
+      },
+      "cardCount": 6,
+      "card": {
+        "tagName": "A",
+        "href": "/item/1",
+        "dataSfM": "reward-card",
+        "nestedInteractiveCount": 0,
+        "nestedInteractiveTags": [],
+        "childTag": "DIV"
+      },
+      "cta": {
+        "present": true,
+        "tagName": "SPAN",
+        "hook": "reward-card-view",
+        "text": "查看详情"
+      },
+      "price": {
+        "sameParent": true,
+        "parentDisplay": "flex",
+        "parentFlexDirection": "row",
+        "parentAlignItems": "baseline",
+        "parentBorderWidth": "0px/0px/0px/0px",
+        "parentBackground": "rgba(0, 0, 0, 0)",
+        "parentPadding": "0px/0px/0px/0px",
+        "order": [
+          "cur",
+          "num"
+        ],
+        "cur": {
+          "rect": {
+            "x": 299.38,
+            "y": 1177,
+            "w": 10.81,
+            "h": 23.98
+          },
+          "fontSize": "18px",
+          "fontWeight": "700",
+          "color": "rgb(3, 4, 2)",
+          "text": "$",
+          "tag": "SPAN"
+        },
+        "num": {
+          "rect": {
+            "x": 310.19,
+            "y": 1170,
+            "w": 28.81,
+            "h": 32
+          },
+          "fontSize": "24px",
+          "fontWeight": "700",
+          "color": "rgb(3, 4, 2)",
+          "text": "29"
+        },
+        "heightRatio": 0.75,
+        "curBaseline": 1194,
+        "numBaseline": 1194,
+        "baselineDelta": 0,
+        "curIsSpan": true
+      },
+      "actionbarBackground": null,
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "regionCountAll": 5,
+      "docOverflow": 0,
+      "greyBands": {
+        "leftBand": 0,
+        "rightBand": 0,
+        "containerWidth": 390,
+        "innerWidth": 390
+      }
+    },
+    "1440_day": {
+      "url": "http://sf.local/",
+      "pathname": "/",
+      "theme": "light",
+      "colorScheme": "light",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "bg": {
+        "shell": "rgb(245, 247, 249)",
+        "routeContainer": "rgb(255, 255, 255)",
+        "regionTop": "rgb(253, 232, 21)"
+      },
+      "tokens": {
+        "atRootPageBg": "#f5f7f9",
+        "atRootSurfaceBg": "#fff",
+        "atRootNumFg": "#030402",
+        "atRootCurFg": "#030402",
+        "atCardNumFg": "#030402",
+        "atCardCurFg": "#030402"
+      },
+      "cardCount": 6,
+      "card": {
+        "tagName": "A",
+        "href": "/item/1",
+        "dataSfM": "reward-card",
+        "nestedInteractiveCount": 0,
+        "nestedInteractiveTags": [],
+        "childTag": "DIV"
+      },
+      "cta": {
+        "present": true,
+        "tagName": "SPAN",
+        "hook": "reward-card-view",
+        "text": "查看详情"
+      },
+      "price": {
+        "sameParent": true,
+        "parentDisplay": "flex",
+        "parentFlexDirection": "row",
+        "parentAlignItems": "baseline",
+        "parentBorderWidth": "0px/0px/0px/0px",
+        "parentBackground": "rgba(0, 0, 0, 0)",
+        "parentPadding": "0px/0px/0px/0px",
+        "order": [
+          "cur",
+          "num"
+        ],
+        "cur": {
+          "rect": {
+            "x": 303.38,
+            "y": 809,
+            "w": 10.81,
+            "h": 23.98
+          },
+          "fontSize": "18px",
+          "fontWeight": "700",
+          "color": "rgb(3, 4, 2)",
+          "text": "$",
+          "tag": "SPAN"
+        },
+        "num": {
+          "rect": {
+            "x": 314.19,
+            "y": 802,
+            "w": 28.81,
+            "h": 32
+          },
+          "fontSize": "24px",
+          "fontWeight": "700",
+          "color": "rgb(3, 4, 2)",
+          "text": "29"
+        },
+        "heightRatio": 0.75,
+        "curBaseline": 826,
+        "numBaseline": 826,
+        "baselineDelta": 0,
+        "curIsSpan": true
+      },
+      "actionbarBackground": null,
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "regionCountAll": 5,
+      "docOverflow": 0,
+      "greyBands": {
+        "leftBand": 0,
+        "rightBand": 0,
+        "containerWidth": 1440,
+        "innerWidth": 1440
+      }
+    },
+    "1440_night": {
+      "url": "http://sf.local/",
+      "pathname": "/",
+      "theme": "dark",
+      "colorScheme": "dark",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "bg": {
+        "shell": "rgb(11, 12, 14)",
+        "routeContainer": "rgb(16, 17, 20)",
+        "regionTop": "rgb(11, 12, 14)"
+      },
+      "tokens": {
+        "atRootPageBg": "#0b0c0e",
+        "atRootSurfaceBg": "#101114",
+        "atRootNumFg": "#fde815",
+        "atRootCurFg": "#fde815",
+        "atCardNumFg": "#030402",
+        "atCardCurFg": "#030402"
+      },
+      "cardCount": 6,
+      "card": {
+        "tagName": "A",
+        "href": "/item/1",
+        "dataSfM": "reward-card",
+        "nestedInteractiveCount": 0,
+        "nestedInteractiveTags": [],
+        "childTag": "DIV"
+      },
+      "cta": {
+        "present": true,
+        "tagName": "SPAN",
+        "hook": "reward-card-view",
+        "text": "查看详情"
+      },
+      "price": {
+        "sameParent": true,
+        "parentDisplay": "flex",
+        "parentFlexDirection": "row",
+        "parentAlignItems": "baseline",
+        "parentBorderWidth": "0px/0px/0px/0px",
+        "parentBackground": "rgba(0, 0, 0, 0)",
+        "parentPadding": "0px/0px/0px/0px",
+        "order": [
+          "cur",
+          "num"
+        ],
+        "cur": {
+          "rect": {
+            "x": 303.38,
+            "y": 809,
+            "w": 10.81,
+            "h": 23.98
+          },
+          "fontSize": "18px",
+          "fontWeight": "700",
+          "color": "rgb(3, 4, 2)",
+          "text": "$",
+          "tag": "SPAN"
+        },
+        "num": {
+          "rect": {
+            "x": 314.19,
+            "y": 802,
+            "w": 28.81,
+            "h": 32
+          },
+          "fontSize": "24px",
+          "fontWeight": "700",
+          "color": "rgb(3, 4, 2)",
+          "text": "29"
+        },
+        "heightRatio": 0.75,
+        "curBaseline": 826,
+        "numBaseline": 826,
+        "baselineDelta": 0,
+        "curIsSpan": true
+      },
+      "actionbarBackground": null,
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "regionCountAll": 5,
+      "docOverflow": 0,
+      "greyBands": {
+        "leftBand": 0,
+        "rightBand": 0,
+        "containerWidth": 1440,
+        "innerWidth": 1440
+      }
+    },
+    "1600_day": {
+      "url": "http://sf.local/",
+      "pathname": "/",
+      "theme": "light",
+      "colorScheme": "light",
+      "viewport": {
+        "w": 1600,
+        "h": 900
+      },
+      "bg": {
+        "shell": "rgb(245, 247, 249)",
+        "routeContainer": "rgb(255, 255, 255)",
+        "regionTop": "rgb(253, 232, 21)"
+      },
+      "tokens": {
+        "atRootPageBg": "#f5f7f9",
+        "atRootSurfaceBg": "#fff",
+        "atRootNumFg": "#030402",
+        "atRootCurFg": "#030402",
+        "atCardNumFg": "#030402",
+        "atCardCurFg": "#030402"
+      },
+      "cardCount": 6,
+      "card": {
+        "tagName": "A",
+        "href": "/item/1",
+        "dataSfM": "reward-card",
+        "nestedInteractiveCount": 0,
+        "nestedInteractiveTags": [],
+        "childTag": "DIV"
+      },
+      "cta": {
+        "present": true,
+        "tagName": "SPAN",
+        "hook": "reward-card-view",
+        "text": "查看详情"
+      },
+      "price": {
+        "sameParent": true,
+        "parentDisplay": "flex",
+        "parentFlexDirection": "row",
+        "parentAlignItems": "baseline",
+        "parentBorderWidth": "0px/0px/0px/0px",
+        "parentBackground": "rgba(0, 0, 0, 0)",
+        "parentPadding": "0px/0px/0px/0px",
+        "order": [
+          "cur",
+          "num"
+        ],
+        "cur": {
+          "rect": {
+            "x": 383.38,
+            "y": 809,
+            "w": 10.81,
+            "h": 23.98
+          },
+          "fontSize": "18px",
+          "fontWeight": "700",
+          "color": "rgb(3, 4, 2)",
+          "text": "$",
+          "tag": "SPAN"
+        },
+        "num": {
+          "rect": {
+            "x": 394.19,
+            "y": 802,
+            "w": 28.81,
+            "h": 32
+          },
+          "fontSize": "24px",
+          "fontWeight": "700",
+          "color": "rgb(3, 4, 2)",
+          "text": "29"
+        },
+        "heightRatio": 0.75,
+        "curBaseline": 826,
+        "numBaseline": 826,
+        "baselineDelta": 0,
+        "curIsSpan": true
+      },
+      "actionbarBackground": null,
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "regionCountAll": 5,
+      "docOverflow": 0,
+      "greyBands": {
+        "leftBand": 80,
+        "rightBand": 80,
+        "containerWidth": 1440,
+        "innerWidth": 1600
+      }
+    },
+    "1600_night": {
+      "url": "http://sf.local/",
+      "pathname": "/",
+      "theme": "dark",
+      "colorScheme": "dark",
+      "viewport": {
+        "w": 1600,
+        "h": 900
+      },
+      "bg": {
+        "shell": "rgb(11, 12, 14)",
+        "routeContainer": "rgb(16, 17, 20)",
+        "regionTop": "rgb(11, 12, 14)"
+      },
+      "tokens": {
+        "atRootPageBg": "#0b0c0e",
+        "atRootSurfaceBg": "#101114",
+        "atRootNumFg": "#fde815",
+        "atRootCurFg": "#fde815",
+        "atCardNumFg": "#030402",
+        "atCardCurFg": "#030402"
+      },
+      "cardCount": 6,
+      "card": {
+        "tagName": "A",
+        "href": "/item/1",
+        "dataSfM": "reward-card",
+        "nestedInteractiveCount": 0,
+        "nestedInteractiveTags": [],
+        "childTag": "DIV"
+      },
+      "cta": {
+        "present": true,
+        "tagName": "SPAN",
+        "hook": "reward-card-view",
+        "text": "查看详情"
+      },
+      "price": {
+        "sameParent": true,
+        "parentDisplay": "flex",
+        "parentFlexDirection": "row",
+        "parentAlignItems": "baseline",
+        "parentBorderWidth": "0px/0px/0px/0px",
+        "parentBackground": "rgba(0, 0, 0, 0)",
+        "parentPadding": "0px/0px/0px/0px",
+        "order": [
+          "cur",
+          "num"
+        ],
+        "cur": {
+          "rect": {
+            "x": 383.38,
+            "y": 809,
+            "w": 10.81,
+            "h": 23.98
+          },
+          "fontSize": "18px",
+          "fontWeight": "700",
+          "color": "rgb(3, 4, 2)",
+          "text": "$",
+          "tag": "SPAN"
+        },
+        "num": {
+          "rect": {
+            "x": 394.19,
+            "y": 802,
+            "w": 28.81,
+            "h": 32
+          },
+          "fontSize": "24px",
+          "fontWeight": "700",
+          "color": "rgb(3, 4, 2)",
+          "text": "29"
+        },
+        "heightRatio": 0.75,
+        "curBaseline": 826,
+        "numBaseline": 826,
+        "baselineDelta": 0,
+        "curIsSpan": true
+      },
+      "actionbarBackground": null,
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "regionCountAll": 5,
+      "docOverflow": 0,
+      "greyBands": {
+        "leftBand": 80,
+        "rightBand": 80,
+        "containerWidth": 1440,
+        "innerWidth": 1600
+      }
+    }
+  },
+  "clicks": {
+    "zh": {
+      "url": "/",
+      "before": {
+        "pathname": "/",
+        "hrefs": [
+          "/item/1",
+          "/item/2",
+          "/item/3",
+          "/item/4",
+          "/item/5",
+          "/item/6"
+        ],
+        "roots": [
+          "A",
+          "A",
+          "A",
+          "A",
+          "A",
+          "A"
+        ],
+        "nested": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ctaTag": "SPAN",
+        "ctaText": "查看详情"
+      },
+      "blankPoint": {
+        "ok": true,
+        "pick": {
+          "x": 55,
+          "y": 227,
+          "hit": "card-inner-box"
+        },
+        "strictCount": 1864
+      },
+      "after": {
+        "pathname": "/item/1",
+        "url": "http://sf.local/item/1"
+      }
+    },
+    "en": {
+      "url": "/en",
+      "before": {
+        "pathname": "/en",
+        "hrefs": [
+          "/en/item/1",
+          "/en/item/2",
+          "/en/item/3",
+          "/en/item/4",
+          "/en/item/5",
+          "/en/item/6"
+        ],
+        "roots": [
+          "A",
+          "A",
+          "A",
+          "A",
+          "A",
+          "A"
+        ],
+        "nested": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ctaTag": "SPAN",
+        "ctaText": "View details"
+      },
+      "blankPoint": {
+        "ok": true,
+        "pick": {
+          "x": 55,
+          "y": 227,
+          "hit": "card-inner-box"
+        },
+        "strictCount": 1864
+      },
+      "after": {
+        "pathname": "/en/item/1",
+        "url": "http://sf.local/en/item/1"
+      }
+    },
+    "hk": {
+      "url": "/hk",
+      "before": {
+        "pathname": "/hk",
+        "hrefs": [
+          "/hk/item/1",
+          "/hk/item/2",
+          "/hk/item/3",
+          "/hk/item/4",
+          "/hk/item/5",
+          "/hk/item/6"
+        ],
+        "roots": [
+          "A",
+          "A",
+          "A",
+          "A",
+          "A",
+          "A"
+        ],
+        "nested": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ctaTag": "SPAN",
+        "ctaText": "查看詳情"
+      },
+      "blankPoint": {
+        "ok": true,
+        "pick": {
+          "x": 55,
+          "y": 227,
+          "hit": "card-inner-box"
+        },
+        "strictCount": 1864
+      },
+      "after": {
+        "pathname": "/hk/item/1",
+        "url": "http://sf.local/hk/item/1"
+      }
+    },
+    "vn": {
+      "url": "/vn",
+      "before": {
+        "pathname": "/vn",
+        "hrefs": [
+          "/vn/item/1",
+          "/vn/item/2",
+          "/vn/item/3",
+          "/vn/item/4",
+          "/vn/item/5",
+          "/vn/item/6"
+        ],
+        "roots": [
+          "A",
+          "A",
+          "A",
+          "A",
+          "A",
+          "A"
+        ],
+        "nested": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ctaTag": "SPAN",
+        "ctaText": "Xem chi tiết"
+      },
+      "blankPoint": {
+        "ok": true,
+        "pick": {
+          "x": 55,
+          "y": 227,
+          "hit": "card-inner-box"
+        },
+        "strictCount": 1864
+      },
+      "after": {
+        "pathname": "/vn/item/1",
+        "url": "http://sf.local/vn/item/1"
+      }
+    }
+  },
+  "rulerSensitivity": {
+    "arms": [
+      {
+        "label": "AC-1.routeContainer",
+        "css": ".sf-route-container{background:#123456 !important}",
+        "before": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "after": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(18, 52, 86)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "restoredIdenticalToBase": true
+      },
+      {
+        "label": "AC-1.shell",
+        "css": ".sf-shell{background:#654321 !important}",
+        "before": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "after": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(101, 67, 33)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "restoredIdenticalToBase": true
+      },
+      {
+        "label": "AC-1.regionTop",
+        "css": ".sf-region-top{background:#00ff00 !important}",
+        "before": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "after": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(0, 255, 0)"
+        },
+        "restoredIdenticalToBase": true
+      },
+      {
+        "label": "AC-2.baselineDelta",
+        "css": ".sf-reward-price{align-items:flex-start !important}",
+        "before": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "after": {
+          "baselineDelta": 7,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "restoredIdenticalToBase": true
+      },
+      {
+        "label": "AC-2.heightRatio",
+        "css": ".sf-reward-price-cur{font-size:0.4em !important}",
+        "before": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "after": {
+          "baselineDelta": 0,
+          "heightRatio": 0.4,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "restoredIdenticalToBase": true
+      },
+      {
+        "label": "AC-2.numFontWeight",
+        "css": ".sf-reward-price-num{font-weight:400 !important}",
+        "before": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "after": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "400",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "restoredIdenticalToBase": true
+      },
+      {
+        "label": "AC-2.borderWidth",
+        "css": ".sf-reward-price{border-width:1px !important}",
+        "before": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "after": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "1px/1px/1px/1px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "restoredIdenticalToBase": true
+      },
+      {
+        "label": "AC-2.background",
+        "css": ".sf-reward-price{background:rgb(255,0,0) !important}",
+        "before": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "after": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgb(255, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "restoredIdenticalToBase": true
+      },
+      {
+        "label": "AC-2.padding",
+        "css": ".sf-reward-price{padding:4px !important}",
+        "before": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "after": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "4px/4px/4px/4px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "restoredIdenticalToBase": true
+      },
+      {
+        "label": "AC-2.sameLine",
+        "css": ".sf-reward-price{flex-direction:column !important}",
+        "before": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "after": {
+          "baselineDelta": 30.98,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "column",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "restoredIdenticalToBase": true
+      },
+      {
+        "label": "AC-2.numColor",
+        "css": ".sf-reward-price-num{color:rgb(1,2,3) !important}",
+        "before": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "after": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(1, 2, 3)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "restoredIdenticalToBase": true
+      },
+      {
+        "label": "AC-2.curColor",
+        "css": ".sf-reward-price-cur{color:rgb(9,9,9) !important}",
+        "before": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "after": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "flexDirection": "row",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(9, 9, 9)",
+          "shellBg": "rgb(245, 247, 249)",
+          "routeBg": "rgb(255, 255, 255)",
+          "topBg": "rgb(253, 232, 21)"
+        },
+        "restoredIdenticalToBase": true
+      }
+    ],
+    "ac3Injection": {
+      "injected": "卡内追加 <button> + 把 [data-sf-m=\"reward-card-view\"] 换成 <button> + href 改写 /item/999（仅探针页内，仓内源码零改动）",
+      "reading": {
+        "nested": 2,
+        "href": "/item/999",
+        "ctaTag": "BUTTON"
+      },
+      "nestedRulerSensitive": true,
+      "hrefRulerSensitive": true,
+      "ctaTagRulerSensitive": true
+    }
+  },
+  "ac": {
+    "AC-1": {
+      "rows": {
+        "390_day": {
+          "got": {
+            "shell": "rgb(245, 247, 249)",
+            "routeContainer": "rgb(255, 255, 255)",
+            "regionTop": "rgb(253, 232, 21)"
+          },
+          "want": {
+            "shell": "rgb(245, 247, 249)",
+            "routeContainer": "rgb(255, 255, 255)",
+            "regionTop": "rgb(253, 232, 21)"
+          },
+          "ok": true
+        },
+        "390_night": {
+          "got": {
+            "shell": "rgb(11, 12, 14)",
+            "routeContainer": "rgb(16, 17, 20)",
+            "regionTop": "rgb(11, 12, 14)"
+          },
+          "want": {
+            "shell": "rgb(11, 12, 14)",
+            "routeContainer": "rgb(16, 17, 20)",
+            "regionTop": "rgb(11, 12, 14)"
+          },
+          "ok": true
+        },
+        "1440_day": {
+          "got": {
+            "shell": "rgb(245, 247, 249)",
+            "routeContainer": "rgb(255, 255, 255)",
+            "regionTop": "rgb(253, 232, 21)"
+          },
+          "want": {
+            "shell": "rgb(245, 247, 249)",
+            "routeContainer": "rgb(255, 255, 255)",
+            "regionTop": "rgb(253, 232, 21)"
+          },
+          "ok": true
+        },
+        "1440_night": {
+          "got": {
+            "shell": "rgb(11, 12, 14)",
+            "routeContainer": "rgb(16, 17, 20)",
+            "regionTop": "rgb(11, 12, 14)"
+          },
+          "want": {
+            "shell": "rgb(11, 12, 14)",
+            "routeContainer": "rgb(16, 17, 20)",
+            "regionTop": "rgb(11, 12, 14)"
+          },
+          "ok": true
+        },
+        "1600_day": {
+          "got": {
+            "shell": "rgb(245, 247, 249)",
+            "routeContainer": "rgb(255, 255, 255)",
+            "regionTop": "rgb(253, 232, 21)"
+          },
+          "want": {
+            "shell": "rgb(245, 247, 249)",
+            "routeContainer": "rgb(255, 255, 255)",
+            "regionTop": "rgb(253, 232, 21)"
+          },
+          "ok": true
+        },
+        "1600_night": {
+          "got": {
+            "shell": "rgb(11, 12, 14)",
+            "routeContainer": "rgb(16, 17, 20)",
+            "regionTop": "rgb(11, 12, 14)"
+          },
+          "want": {
+            "shell": "rgb(11, 12, 14)",
+            "routeContainer": "rgb(16, 17, 20)",
+            "regionTop": "rgb(11, 12, 14)"
+          },
+          "ok": true
+        }
+      },
+      "ok": true,
+      "note": "消费者计数 grep 见 neng-static.txt"
+    },
+    "AC-2": {
+      "390_day": {
+        "ok": true,
+        "fails": [],
+        "measured": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "numFontSize": "24px",
+          "curFontSize": "18px",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "parentDisplay": "flex",
+          "parentAlignItems": "baseline",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "order": [
+            "cur",
+            "num"
+          ],
+          "curTag": "SPAN",
+          "baselineProbe": {
+            "curBaseline": 1194,
+            "numBaseline": 1194
+          }
+        }
+      },
+      "390_night": {
+        "ok": true,
+        "fails": [],
+        "measured": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "numFontSize": "24px",
+          "curFontSize": "18px",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "parentDisplay": "flex",
+          "parentAlignItems": "baseline",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "order": [
+            "cur",
+            "num"
+          ],
+          "curTag": "SPAN",
+          "baselineProbe": {
+            "curBaseline": 1194,
+            "numBaseline": 1194
+          }
+        }
+      },
+      "1440_day": {
+        "ok": true,
+        "fails": [],
+        "measured": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "numFontSize": "24px",
+          "curFontSize": "18px",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "parentDisplay": "flex",
+          "parentAlignItems": "baseline",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "order": [
+            "cur",
+            "num"
+          ],
+          "curTag": "SPAN",
+          "baselineProbe": {
+            "curBaseline": 826,
+            "numBaseline": 826
+          }
+        }
+      },
+      "1440_night": {
+        "ok": true,
+        "fails": [],
+        "measured": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "numFontSize": "24px",
+          "curFontSize": "18px",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "parentDisplay": "flex",
+          "parentAlignItems": "baseline",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "order": [
+            "cur",
+            "num"
+          ],
+          "curTag": "SPAN",
+          "baselineProbe": {
+            "curBaseline": 826,
+            "numBaseline": 826
+          }
+        }
+      },
+      "1600_day": {
+        "ok": true,
+        "fails": [],
+        "measured": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "numFontSize": "24px",
+          "curFontSize": "18px",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "parentDisplay": "flex",
+          "parentAlignItems": "baseline",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "order": [
+            "cur",
+            "num"
+          ],
+          "curTag": "SPAN",
+          "baselineProbe": {
+            "curBaseline": 826,
+            "numBaseline": 826
+          }
+        }
+      },
+      "1600_night": {
+        "ok": true,
+        "fails": [],
+        "measured": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "numFontSize": "24px",
+          "curFontSize": "18px",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "parentDisplay": "flex",
+          "parentAlignItems": "baseline",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px",
+          "order": [
+            "cur",
+            "num"
+          ],
+          "curTag": "SPAN",
+          "baselineProbe": {
+            "curBaseline": 826,
+            "numBaseline": 826
+          }
+        }
+      },
+      "tokenedRebind": {
+        "day390": {
+          "atRootPageBg": "#f5f7f9",
+          "atRootSurfaceBg": "#fff",
+          "atRootNumFg": "#030402",
+          "atRootCurFg": "#030402",
+          "atCardNumFg": "#030402",
+          "atCardCurFg": "#030402"
+        },
+        "night390": {
+          "atRootPageBg": "#0b0c0e",
+          "atRootSurfaceBg": "#101114",
+          "atRootNumFg": "#fde815",
+          "atRootCurFg": "#fde815",
+          "atCardNumFg": "#030402",
+          "atCardCurFg": "#030402"
+        }
+      },
+      "ok": true
+    },
+    "AC-3": {
+      "langs": {
+        "zh": {
+          "ok": true,
+          "fails": [],
+          "hrefs": [
+            "/item/1",
+            "/item/2",
+            "/item/3",
+            "/item/4",
+            "/item/5",
+            "/item/6"
+          ],
+          "roots": [
+            "A",
+            "A",
+            "A",
+            "A",
+            "A",
+            "A"
+          ],
+          "nested": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "ctaTag": "SPAN",
+          "ctaText": "查看详情",
+          "blankPoint": {
+            "x": 55,
+            "y": 227,
+            "hit": "card-inner-box"
+          },
+          "afterPathname": "/item/1",
+          "navAssert": "href 逐字 = buildLocalizedPath(lang, \"/item/\"+id)"
+        },
+        "en": {
+          "ok": true,
+          "fails": [],
+          "hrefs": [
+            "/en/item/1",
+            "/en/item/2",
+            "/en/item/3",
+            "/en/item/4",
+            "/en/item/5",
+            "/en/item/6"
+          ],
+          "roots": [
+            "A",
+            "A",
+            "A",
+            "A",
+            "A",
+            "A"
+          ],
+          "nested": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "ctaTag": "SPAN",
+          "ctaText": "View details",
+          "blankPoint": {
+            "x": 55,
+            "y": 227,
+            "hit": "card-inner-box"
+          },
+          "afterPathname": "/en/item/1",
+          "navAssert": "href 逐字 = buildLocalizedPath(lang, \"/item/\"+id)"
+        },
+        "hk": {
+          "ok": true,
+          "fails": [],
+          "hrefs": [
+            "/hk/item/1",
+            "/hk/item/2",
+            "/hk/item/3",
+            "/hk/item/4",
+            "/hk/item/5",
+            "/hk/item/6"
+          ],
+          "roots": [
+            "A",
+            "A",
+            "A",
+            "A",
+            "A",
+            "A"
+          ],
+          "nested": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "ctaTag": "SPAN",
+          "ctaText": "查看詳情",
+          "blankPoint": {
+            "x": 55,
+            "y": 227,
+            "hit": "card-inner-box"
+          },
+          "afterPathname": "/hk/item/1",
+          "navAssert": "href 逐字 = buildLocalizedPath(lang, \"/item/\"+id)"
+        },
+        "vn": {
+          "ok": true,
+          "fails": [],
+          "hrefs": [
+            "/vn/item/1",
+            "/vn/item/2",
+            "/vn/item/3",
+            "/vn/item/4",
+            "/vn/item/5",
+            "/vn/item/6"
+          ],
+          "roots": [
+            "A",
+            "A",
+            "A",
+            "A",
+            "A",
+            "A"
+          ],
+          "nested": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "ctaTag": "SPAN",
+          "ctaText": "Xem chi tiết",
+          "blankPoint": {
+            "x": 55,
+            "y": 227,
+            "hit": "card-inner-box"
+          },
+          "afterPathname": "/vn/item/1",
+          "navAssert": "href 逐字 = buildLocalizedPath(lang, \"/item/\"+id)"
+        }
+      },
+      "ok": true
+    }
+  },
+  "pageErrors": [],
+  "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "notes": {}
+}

@@ -1,0 +1,132 @@
+================================================================================
+JING-SPEC-CARDUI-DS-B · design-system.spec v1.20「就地注」现取读数
+本单 = 微回写单（只写 docs/** + 本单读数）· 作者 = Jing（Specifier）
+日期 = 2026-10-17 · 开工 HEAD = d8cb98e（main）· 工作区另有 Kong 同轮 frontend/** 改动
+落点 = ops/ui-card-ref-20261017/readings/jing-v120b-readings.txt
+姊妹件 = jing-v120b-selfproof.log（可复跑命令与输出 · 93 行 / 5,163 B）
+================================================================================
+
+【0】本单性质
+  v1.20 的「就地注」—— 不新开版本、不新开节；全部改动为**插入**（无一行被改写）。
+  硬口径自证：git diff --numstat docs/design/design-system.spec.md  ⇒  **265  0**（删除列 = 0 ✓）
+
+【1】spec 改前 / 改后（本单终值）
+  改前 live（开工现取）= 2569 行 / 564,194 B / md5 16f124fc6533770c912e79d6487ebac0
+  改后 live（本单终值）= 2620 行 / 582,734 B / md5 185f9da2ccab9d8779dfec339ee2c23d
+                          sha256 d4018f489777a0261ad950169cc36ea68056a50aaaac4dad985757e06185e4c7
+  增量 = +51 行 / +18,540 B（= 七个插入块 UTF-8 字节和 18,531 B ＋ 9 B 分隔换行；算术闭合）
+  改前 live 的 md5 与「上单 v1.20 终值」逐字相同（= `docs/versions/design-system.spec.v1.20.md` 在重制前的值）。
+
+【1bis】快照 / 镜像面
+  docs/versions/design-system.spec.v1.20.md
+    改前 = 2569 行 / 564,194 B / md5 16f124fc6533770c912e79d6487ebac0（与改前 live cmp=0）
+    改后 = 2620 行 / 582,734 B / md5 185f9da2ccab9d8779dfec339ee2c23d（与改后 live cmp=0）
+    自证：cmp docs/design/design-system.spec.md docs/versions/design-system.spec.v1.20.md  ⇒  exit 0（CMP=0 ✓）
+  docs/versions/design-system.spec.v1.19.md = 2355 行 / 517,050 B / md5 1ac3dc50c40cb15d409d008090d02e47（**未写**）
+  docs/versions/design-system.spec.v1.18.md = 未触碰
+
+【2】三处版本记录锚（各须恰 1 命中 · 一字未动）
+  H1  ^> \*\*★ 现行版 = v1.20            = 1
+  H2  ^## §22                            = 1
+  H3  ^| \*\*v1.20\*\* |                   = 1
+
+【3】本单新落点在场（各 >= 1 命中）
+  AC-9 夜档价格可读性行（§22.9 表末插入）  = 1
+  `N48` / `N49`（§22.10 末插入）            = 4 / 4 命中（含 §22.14 与 §22.12 的引用）
+  「`Q5`–`Q9` 已裁登记表」（§22.11 表后）    = 1
+  「夜档另议边界块」（§22.11 表后）          = 1
+  §22.14 节标题                            = 1
+  §22.12 新增第 11–16 项                   = 6 项（旧 10 项字面未改）
+  断言面就地注（§22.7 小结后 / §22.12 末）  = 2 处
+
+【4】真源面 = docs/design/style-preview.html **本单零改动**（预期即零）
+  1103 行 / 93,949 B / md5 7b8780af15802102f9ddf578510490a5（与上单终值逐字相同）
+  理由：五条裁定均不产生新真源值 —— Q5/Q6/Q9 = 既有 Tailwind 档 + 既有 token 的**落点 / 相对比例**；
+        Q7 = **保留**既有值（PROV 仍 :1073）；Q8 = 不动几何 ⇒ 无需新增真源行、无需改 PROV 指针。
+  推论（写进册）：本单**不触发** `N46` 的「加真源行 + 改 PROV 指针」双件；日后若 `Q7` 复核改值或
+        夜档另立单定案，**必走**该双件。
+
+【5】主题事实链 —— `dark:text-yellow-400` 为何「实测无效」（AC-9 归因用）
+  A) grep -rn 'custom-variant' frontend/src frontend/index.html        = **0** 命中
+     ⇒ 仓内**无** `@custom-variant dark`（没有任何把 `dark:` 重映射到 `[data-theme="dark"]` 的声明）
+  B) grep -rn 'prefers-color-scheme' frontend/src --include='*.css'    = **0** 命中
+     ⇒ 站点**不声明** `prefers-color-scheme`
+  C) 构建产物 frontend/dist/assets/index-B0eM_JXL.css 内
+     `@media (prefers-color-scheme:dark)` 计数                             = **1**（Tailwind v4 默认形态）
+  D) 站点主题写入点 = frontend/src/main.jsx:16/:18 `documentElement.setAttribute('data-theme','dark'|'light')`
+  E) grep -rn "classList.add('dark')" frontend/src                     = **0** 命中（全仓不产生 `dark` 类）
+  ⇒ 结论①：**站点切夜档不触发任何 `dark:` 工具类**（`dark:` 只在 OS 偏好深色时命中）
+           ⇒ 夜档价格仍吃 `text-yellow-600`，即 AC-9 改前臂的 2.841:1。
+  ⇒ 结论②（结构后果 · **本单未实测** · 登记 NOT_MEASURED）：当 **OS 深色 × 站点日档** 时该媒体查询
+           会命中 ⇒ 价格 `yellow-600 ⇒ yellow-400`，对比度 2.841 ⇒ **1.521:1（更差）**
+           ⇒ 该 `dark:` 类在**任何**主题组合下都不是可读性保障。
+           复取法 = CDP `Emulation.setEmulatedMedia({features:[{name:'prefers-color-scheme',value:'dark'}]})`。
+
+【6】Q9 的「改前绝对值」（教训 N48 的取证）
+  git show HEAD:frontend/src/components/reward/RewardCard.jsx
+    :93   <div className="text-2xl font-bold text-yellow-600">            ← 数字 = text-2xl = **24px**
+    :96   <span className="text-sm font-bold text-yellow-600 dark:text-yellow-400">$</span>  ← `$` = text-sm = **14px**
+  ⇒ 改前符号/数字字号比 = 14 ÷ 24 = **0.583**（低于参考图 75–80%）
+  ⇒ 候选 (a) 默认「用既有 --sf-st-price-num-size(21px)」会把数字由 24px **压到 21px（−12.5%）**
+     —— 该「视觉权重缩小」在候选文字中**未声明** ⇒ 终审取「保持 text-2xl(24px) 不变」，
+     符号 = 数字的 `0.75em`（≈18px，比值 0.75 ∈ AC-2 区间 [0.70,0.85]）。
+
+【7】Q5/Q6/Q9 定案的「断言面」重取（零改锚的自证）
+  RewardCard 在测试面的命中 = 11 处（i18n-batch-b2 / r9-93-points-symbol / r9-96-dashj-copy 等），
+  **无一条**冻结 RewardCard 的 `variant` / `hover` / 稀有度渐变底。
+  反而**被保护**的是 `ui/Card.jsx` 的两张变体表：
+    frontend/src/test/components/Card.test.jsx:17-19  expect(card).toHaveClass('bg-yellow-50','border-yellow-200')
+    frontend/src/test/components/Card.test.jsx:62     注释冻结 hover 枚举 'none'|'lift'|'glow'
+  ⇒ 这正是「**Q5/Q6 不得改 ui/Card.jsx 变体表**」的机器可验理由（改表即红）。
+  r9-93-points-symbol.test.jsx:36（USAGE_FILES=1）/ :105-111（`>$</span>` 恰 1）在 Q9 下仍成立
+  （Q9 未把 `$` 移出 `<span>`）⇒ **零改锚**；唯一「新增」= §22.9 的 AC-9（新增判据）。
+
+【8】AC-9 三臂 WCAG 对比度（★ 色值非估读：Tailwind oklch 经 Chrome 引擎 canvas 回读取真）
+  canvas 回读（HeadlessChrome/145 · ctx.fillStyle = 目标色 ⇒ fillRect ⇒ getImageData）：
+    --color-yellow-600  oklch(68.1% .162 75.834)  ⇒ rgb(208,135,0)  = #D08700
+    --color-yellow-50   oklch(98.7% .026 102.212) ⇒ rgb(254,252,232)= #FEFCE8
+    --color-yellow-100  oklch(97.3% .071 103.193) ⇒ rgb(254,249,194)= #FEF9C2
+    --color-yellow-400  oklch(85.2% .199 91.936)  ⇒ rgb(253,199,0)  = #FDC700
+    站点 token          #030402 ⇒ rgb(3,4,2) · #FFFFFF ⇒ (255,255,255) · #FDE815 ⇒ (253,232,21)
+  WCAG 2.x（L = 0.2126R+0.7152G+0.0722B，sRGB 反 gamma；比值 = (Lhi+0.05)/(Llo+0.05)）：
+    ■ 改前 · 夜档：`text-yellow-600` #D08700 on 奶黄卡 bg-yellow-50 #FEFCE8  ⇒ **2.841:1  ✗（< 4.5）**
+    ■ 反事实臂（只改底色、不重绑）：夜档 token #FDE815 on 白卡 #FFFFFF        ⇒ **1.255:1  ✓判负已证**
+    ■ 改后 · 夜档：卡内重绑日档值 #030402 on 白卡 #FFFFFF                     ⇒ **20.546:1 ✓（≥ 4.5）**
+    旁证：`dark:text-yellow-400` 若命中：yellow-400 #FDC700 on #FEFCE8        ⇒ **1.521:1（更差）**
+    旁证：夜档 token #FDE815 on 夜档页底 #0B0C0E                              ⇒ 15.589:1（同值在**夜底**上可读
+          ⇒ 反证「失读的根因是**白卡**、不是该 token 值本身」，即 N49 的结构性矛盾）
+    ★ 取数性质：**值对由已声明值精确给定**；**页内真渲染取色 NOT_MEASURED**（本单为规范单、无改后产物）
+      ⇒ 由 Kong 在实现后以真页 `getComputedStyle` 复取（读数须落盘 · 承 N42）。
+
+【9】实现面（frontend/**）只读现取一次（**非本单写面 · 非终值 · 本册不据此背书**）
+  RewardCard.jsx（工作区未提交）: :67 variant={reward.variant || 'default'} · :70 hover="none"
+                                  · :75-76 稀有度仅余 border-*（渐变底已去）
+  新增未跟踪件 components/reward/reward-card.css：.sf-reward-card 上重绑 --sf-price-*
+        + .sf-reward-price{font-size:1.5rem}（= 24px）+ .sf-reward-price-cur{font-size:0.75em}
+        + .sf-reward-price-num{font-weight:700}
+  ⇒ 与 Q5 / Q6 / Q9 裁定一致；**该面归 Kong 实现单、会继续变动** ⇒ 终值以 Kong 读数 + Neng 质检为准。
+  另：frontend/src/test/unit/zz-kong-ac4-tmp.test.jsx（未跟踪 · 自标 tmp）内含 `reward-card-view` 1 处
+      ⇒ 上单「测试锚 = 0」对**已入库测试面**仍成立；该临时件**不应随单入库**（登记为待清理项）。
+
+【10】未动面自证
+  git status --porcelain 现取：docs/design/design-system.spec.md(M) · docs/design/style-preview.html(M，上单) ·
+    frontend/** 五件(M) + reward-card.css(??) —— **均属上单 / Kong 单**，本单未新增任何 frontend 改动
+    · docs/audit/design-system-v1.20-delta.md(??) · docs/versions/design-system.spec.v1.20.md(??)
+    · ops/ui-card-ref-20261017/(??)
+  本单写面 = docs/design/design-system.spec.md（就地注）· docs/versions/design-system.spec.v1.20.md（重制）
+    · docs/audit/design-system-v1.20-delta.md（纯追加指向注）· docs/audit/design-system-v1.20-delta2.md（新建）
+    · ops/ui-card-ref-20261017/readings/jing-v120b-readings.txt / jing-v120b-selfproof.log（新建）
+  shots 参考图 sha256 现取（应与上单逐字相同）：
+    be25f54209e928df68fd625dfa5ef0769383ca2ca61c72b5911b2e2a19401491  current-seafood.png
+    c7a0aa9f11e9d8fdb83eadab16b95a0f6227ac389ebad19a3588d0e2054c9fa0  ref-xianyu.png
+  服务面：5787 首页 HTTP = 200（**本单未启停任何服务**）
+
+【11】挂账（另立单 · 逐字）
+  「夜档整卡配色（是否深色卡 / 价格是否亮黄）本轮未定，另立单」
+  + `--sf-surface-bg` 夜档 #101114 = **暂定值**，随该单复核（与夜档页底 #0B0C0E 仅差 ΔRGB(5,5,6)）。
+  两条均已在册：§22.11 夜档另议边界块 + §22.12 第 11 / 12 项 + §22.14 末条。
+
+【12】.log 后缀告警（承 N42）
+  jing-v120b-selfproof.log 会被仓根 .gitignore 命中（`.gitignore:244 *.log`）
+  ⇒ 若要随提交入库**必须 `git add -f`**；jing-v120b-readings.txt（.txt）不受影响。
+================================================================================

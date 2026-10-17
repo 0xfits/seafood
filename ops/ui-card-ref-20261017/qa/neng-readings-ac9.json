@@ -1,0 +1,571 @@
+{
+  "probe": "neng-probe-ac9.mjs（Neng 质检员 · 自写自跑 · CDP Emulation.setEmulatedMedia）",
+  "startedAt": "2026-10-17T00:30:28.567Z",
+  "arms": {
+    "A_siteNight_deviceLight": {
+      "current": {
+        "dist": "frontend/seafood/frontend/dist",
+        "siteTheme": "dark",
+        "deviceScheme": "light",
+        "dataTheme": "dark",
+        "htmlColorScheme": "dark",
+        "mqDark": false,
+        "cardInnerBg": "rgb(255, 255, 255)",
+        "num": {
+          "tag": "SPAN",
+          "cls": "sf-reward-price-num text-2xl",
+          "text": "29",
+          "color": "rgb(3, 4, 2)",
+          "fontSize": "24px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(255, 255, 255)",
+            "from": "DIV.rounded-lg border p-6 transition-all duration-300 bg-white b"
+          }
+        },
+        "cur": {
+          "tag": "SPAN",
+          "cls": "sf-reward-price-cur",
+          "text": "$",
+          "color": "rgb(3, 4, 2)",
+          "fontSize": "18px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(255, 255, 255)",
+            "from": "DIV.rounded-lg border p-6 transition-all duration-300 bg-white b"
+          }
+        },
+        "heroCur": {
+          "tag": "SPAN",
+          "cls": "text-sm font-bold text-yellow-600 dark:text-yellow-400",
+          "text": "$",
+          "color": "rgb(250, 204, 21)",
+          "fontSize": "14px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(16, 17, 20)",
+            "from": "MAIN.sf-route-container"
+          }
+        },
+        "contrast": {
+          "num": 20.546,
+          "cur": 20.546,
+          "heroCur": 12.328
+        },
+        "luminance": {
+          "num": 0.0011057488010684149,
+          "bg": 1
+        }
+      },
+      "parent": {
+        "dist": "frontend/parent/frontend/dist",
+        "siteTheme": "dark",
+        "deviceScheme": "light",
+        "dataTheme": "dark",
+        "htmlColorScheme": "dark",
+        "mqDark": false,
+        "cardInnerBg": "rgb(254, 252, 232)",
+        "num": {
+          "tag": "DIV",
+          "cls": "text-2xl font-bold text-yellow-600",
+          "text": "29",
+          "color": "rgb(202, 138, 4)",
+          "fontSize": "24px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(254, 252, 232)",
+            "from": "DIV.rounded-lg border p-6 transition-all duration-300 bg-yellow-"
+          }
+        },
+        "cur": {
+          "tag": "SPAN",
+          "cls": "text-sm font-bold text-yellow-600 dark:text-yellow-400",
+          "text": "$",
+          "color": "rgb(250, 204, 21)",
+          "fontSize": "14px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(254, 252, 232)",
+            "from": "DIV.rounded-lg border p-6 transition-all duration-300 bg-yellow-"
+          }
+        },
+        "heroCur": {
+          "tag": "SPAN",
+          "cls": "text-sm font-bold text-yellow-600 dark:text-yellow-400",
+          "text": "$",
+          "color": "rgb(250, 204, 21)",
+          "fontSize": "14px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(11, 12, 14)",
+            "from": "DIV.sf-shell"
+          }
+        },
+        "contrast": {
+          "num": 2.84,
+          "cur": 1.481,
+          "heroCur": 12.778
+        },
+        "luminance": {
+          "num": 0.3074228020377073,
+          "bg": 0.9651783305430648
+        }
+      }
+    },
+    "B_siteLight_deviceDark": {
+      "current": {
+        "dist": "frontend/seafood/frontend/dist",
+        "siteTheme": "light",
+        "deviceScheme": "dark",
+        "dataTheme": "light",
+        "htmlColorScheme": "light",
+        "mqDark": true,
+        "cardInnerBg": "rgb(255, 255, 255)",
+        "num": {
+          "tag": "SPAN",
+          "cls": "sf-reward-price-num text-2xl",
+          "text": "29",
+          "color": "rgb(3, 4, 2)",
+          "fontSize": "24px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(255, 255, 255)",
+            "from": "DIV.rounded-lg border p-6 transition-all duration-300 bg-white b"
+          }
+        },
+        "cur": {
+          "tag": "SPAN",
+          "cls": "sf-reward-price-cur",
+          "text": "$",
+          "color": "rgb(3, 4, 2)",
+          "fontSize": "18px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(255, 255, 255)",
+            "from": "DIV.rounded-lg border p-6 transition-all duration-300 bg-white b"
+          }
+        },
+        "heroCur": {
+          "tag": "SPAN",
+          "cls": "text-sm font-bold text-yellow-600 dark:text-yellow-400",
+          "text": "$",
+          "color": "rgb(202, 138, 4)",
+          "fontSize": "14px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(255, 255, 255)",
+            "from": "MAIN.sf-route-container"
+          }
+        },
+        "contrast": {
+          "num": 20.546,
+          "cur": 20.546,
+          "heroCur": 2.938
+        },
+        "luminance": {
+          "num": 0.0011057488010684149,
+          "bg": 1
+        }
+      },
+      "parent": {
+        "dist": "frontend/parent/frontend/dist",
+        "siteTheme": "light",
+        "deviceScheme": "dark",
+        "dataTheme": "light",
+        "htmlColorScheme": "light",
+        "mqDark": true,
+        "cardInnerBg": "rgb(254, 252, 232)",
+        "num": {
+          "tag": "DIV",
+          "cls": "text-2xl font-bold text-yellow-600",
+          "text": "29",
+          "color": "rgb(202, 138, 4)",
+          "fontSize": "24px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(254, 252, 232)",
+            "from": "DIV.rounded-lg border p-6 transition-all duration-300 bg-yellow-"
+          }
+        },
+        "cur": {
+          "tag": "SPAN",
+          "cls": "text-sm font-bold text-yellow-600 dark:text-yellow-400",
+          "text": "$",
+          "color": "rgb(202, 138, 4)",
+          "fontSize": "14px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(254, 252, 232)",
+            "from": "DIV.rounded-lg border p-6 transition-all duration-300 bg-yellow-"
+          }
+        },
+        "heroCur": {
+          "tag": "SPAN",
+          "cls": "text-sm font-bold text-yellow-600 dark:text-yellow-400",
+          "text": "$",
+          "color": "rgb(202, 138, 4)",
+          "fontSize": "14px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(253, 232, 21)",
+            "from": "DIV.sf-shell"
+          }
+        },
+        "contrast": {
+          "num": 2.84,
+          "cur": 2.84,
+          "heroCur": 2.34
+        },
+        "luminance": {
+          "num": 0.3074228020377073,
+          "bg": 0.9651783305430648
+        }
+      }
+    },
+    "C_siteNight_deviceDark": {
+      "current": {
+        "dist": "frontend/seafood/frontend/dist",
+        "siteTheme": "dark",
+        "deviceScheme": "dark",
+        "dataTheme": "dark",
+        "htmlColorScheme": "dark",
+        "mqDark": true,
+        "cardInnerBg": "rgb(255, 255, 255)",
+        "num": {
+          "tag": "SPAN",
+          "cls": "sf-reward-price-num text-2xl",
+          "text": "29",
+          "color": "rgb(3, 4, 2)",
+          "fontSize": "24px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(255, 255, 255)",
+            "from": "DIV.rounded-lg border p-6 transition-all duration-300 bg-white b"
+          }
+        },
+        "cur": {
+          "tag": "SPAN",
+          "cls": "sf-reward-price-cur",
+          "text": "$",
+          "color": "rgb(3, 4, 2)",
+          "fontSize": "18px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(255, 255, 255)",
+            "from": "DIV.rounded-lg border p-6 transition-all duration-300 bg-white b"
+          }
+        },
+        "heroCur": {
+          "tag": "SPAN",
+          "cls": "text-sm font-bold text-yellow-600 dark:text-yellow-400",
+          "text": "$",
+          "color": "rgb(250, 204, 21)",
+          "fontSize": "14px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(16, 17, 20)",
+            "from": "MAIN.sf-route-container"
+          }
+        },
+        "contrast": {
+          "num": 20.546,
+          "cur": 20.546,
+          "heroCur": 12.328
+        },
+        "luminance": {
+          "num": 0.0011057488010684149,
+          "bg": 1
+        }
+      },
+      "parent": {
+        "dist": "frontend/parent/frontend/dist",
+        "siteTheme": "dark",
+        "deviceScheme": "dark",
+        "dataTheme": "dark",
+        "htmlColorScheme": "dark",
+        "mqDark": true,
+        "cardInnerBg": "rgb(254, 252, 232)",
+        "num": {
+          "tag": "DIV",
+          "cls": "text-2xl font-bold text-yellow-600",
+          "text": "29",
+          "color": "rgb(202, 138, 4)",
+          "fontSize": "24px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(254, 252, 232)",
+            "from": "DIV.rounded-lg border p-6 transition-all duration-300 bg-yellow-"
+          }
+        },
+        "cur": {
+          "tag": "SPAN",
+          "cls": "text-sm font-bold text-yellow-600 dark:text-yellow-400",
+          "text": "$",
+          "color": "rgb(250, 204, 21)",
+          "fontSize": "14px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(254, 252, 232)",
+            "from": "DIV.rounded-lg border p-6 transition-all duration-300 bg-yellow-"
+          }
+        },
+        "heroCur": {
+          "tag": "SPAN",
+          "cls": "text-sm font-bold text-yellow-600 dark:text-yellow-400",
+          "text": "$",
+          "color": "rgb(250, 204, 21)",
+          "fontSize": "14px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(11, 12, 14)",
+            "from": "DIV.sf-shell"
+          }
+        },
+        "contrast": {
+          "num": 2.84,
+          "cur": 1.481,
+          "heroCur": 12.778
+        },
+        "luminance": {
+          "num": 0.3074228020377073,
+          "bg": 0.9651783305430648
+        }
+      }
+    },
+    "D_siteLight_deviceLight": {
+      "current": {
+        "dist": "frontend/seafood/frontend/dist",
+        "siteTheme": "light",
+        "deviceScheme": "light",
+        "dataTheme": "light",
+        "htmlColorScheme": "light",
+        "mqDark": false,
+        "cardInnerBg": "rgb(255, 255, 255)",
+        "num": {
+          "tag": "SPAN",
+          "cls": "sf-reward-price-num text-2xl",
+          "text": "29",
+          "color": "rgb(3, 4, 2)",
+          "fontSize": "24px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(255, 255, 255)",
+            "from": "DIV.rounded-lg border p-6 transition-all duration-300 bg-white b"
+          }
+        },
+        "cur": {
+          "tag": "SPAN",
+          "cls": "sf-reward-price-cur",
+          "text": "$",
+          "color": "rgb(3, 4, 2)",
+          "fontSize": "18px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(255, 255, 255)",
+            "from": "DIV.rounded-lg border p-6 transition-all duration-300 bg-white b"
+          }
+        },
+        "heroCur": {
+          "tag": "SPAN",
+          "cls": "text-sm font-bold text-yellow-600 dark:text-yellow-400",
+          "text": "$",
+          "color": "rgb(202, 138, 4)",
+          "fontSize": "14px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(255, 255, 255)",
+            "from": "MAIN.sf-route-container"
+          }
+        },
+        "contrast": {
+          "num": 20.546,
+          "cur": 20.546,
+          "heroCur": 2.938
+        },
+        "luminance": {
+          "num": 0.0011057488010684149,
+          "bg": 1
+        }
+      },
+      "parent": {
+        "dist": "frontend/parent/frontend/dist",
+        "siteTheme": "light",
+        "deviceScheme": "light",
+        "dataTheme": "light",
+        "htmlColorScheme": "light",
+        "mqDark": false,
+        "cardInnerBg": "rgb(254, 252, 232)",
+        "num": {
+          "tag": "DIV",
+          "cls": "text-2xl font-bold text-yellow-600",
+          "text": "29",
+          "color": "rgb(202, 138, 4)",
+          "fontSize": "24px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(254, 252, 232)",
+            "from": "DIV.rounded-lg border p-6 transition-all duration-300 bg-yellow-"
+          }
+        },
+        "cur": {
+          "tag": "SPAN",
+          "cls": "text-sm font-bold text-yellow-600 dark:text-yellow-400",
+          "text": "$",
+          "color": "rgb(202, 138, 4)",
+          "fontSize": "14px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(254, 252, 232)",
+            "from": "DIV.rounded-lg border p-6 transition-all duration-300 bg-yellow-"
+          }
+        },
+        "heroCur": {
+          "tag": "SPAN",
+          "cls": "text-sm font-bold text-yellow-600 dark:text-yellow-400",
+          "text": "$",
+          "color": "rgb(202, 138, 4)",
+          "fontSize": "14px",
+          "fontWeight": "700",
+          "effBg": {
+            "bg": "rgb(253, 232, 21)",
+            "from": "DIV.sf-shell"
+          }
+        },
+        "contrast": {
+          "num": 2.84,
+          "cur": 2.84,
+          "heroCur": 2.34
+        },
+        "luminance": {
+          "num": 0.3074228020377073,
+          "bg": 0.9651783305430648
+        }
+      }
+    }
+  },
+  "counterfactual": {
+    "shipped": {
+      "num": {
+        "tag": "SPAN",
+        "cls": "sf-reward-price-num text-2xl",
+        "text": "29",
+        "color": "rgb(3, 4, 2)",
+        "fontSize": "24px",
+        "fontWeight": "700",
+        "effBg": {
+          "bg": "rgb(255, 255, 255)",
+          "from": "DIV.rounded-lg border p-6 transition-all duration-300 bg-white b"
+        }
+      },
+      "cur": {
+        "tag": "SPAN",
+        "cls": "sf-reward-price-cur",
+        "text": "$",
+        "color": "rgb(3, 4, 2)",
+        "fontSize": "18px",
+        "fontWeight": "700",
+        "effBg": {
+          "bg": "rgb(255, 255, 255)",
+          "from": "DIV.rounded-lg border p-6 transition-all duration-300 bg-white b"
+        }
+      },
+      "cardInnerBg": "rgb(255, 255, 255)",
+      "contrastNum": 20.546,
+      "contrastCur": 20.546
+    },
+    "armNoRebind": {
+      "injected": "卡内三色重绑被覆盖为夜档 token 值 #FDE815（仅探针页内）",
+      "num": {
+        "tag": "SPAN",
+        "cls": "sf-reward-price-num text-2xl",
+        "text": "29",
+        "color": "rgb(253, 232, 21)",
+        "fontSize": "24px",
+        "fontWeight": "700",
+        "effBg": {
+          "bg": "rgb(255, 255, 255)",
+          "from": "DIV.rounded-lg border p-6 transition-all duration-300 bg-white b"
+        }
+      },
+      "contrastNum": 1.255,
+      "contrastCur": 1.255
+    },
+    "armYellowCard": {
+      "injected": "卡底改回 #FEFCE8（bg-yellow-50）+ 保留重绑（仅探针页内）",
+      "cardInnerBg": "rgb(254, 252, 232)",
+      "contrastNum": 19.864
+    },
+    "restoredIdenticalToShipped": true
+  },
+  "ac": {
+    "AC-9": {
+      "threshold": 4.5,
+      "arms": {
+        "A_siteNight_deviceLight": {
+          "current": {
+            "num": 20.546,
+            "cur": 20.546,
+            "heroCur": 12.328
+          },
+          "parent": {
+            "num": 2.84,
+            "cur": 1.481,
+            "heroCur": 12.778
+          },
+          "currentOk": true,
+          "parentOk": false
+        },
+        "B_siteLight_deviceDark": {
+          "current": {
+            "num": 20.546,
+            "cur": 20.546,
+            "heroCur": 2.938
+          },
+          "parent": {
+            "num": 2.84,
+            "cur": 2.84,
+            "heroCur": 2.34
+          },
+          "currentOk": true,
+          "parentOk": false
+        },
+        "C_siteNight_deviceDark": {
+          "current": {
+            "num": 20.546,
+            "cur": 20.546,
+            "heroCur": 12.328
+          },
+          "parent": {
+            "num": 2.84,
+            "cur": 1.481,
+            "heroCur": 12.778
+          },
+          "currentOk": true,
+          "parentOk": false
+        },
+        "D_siteLight_deviceLight": {
+          "current": {
+            "num": 20.546,
+            "cur": 20.546,
+            "heroCur": 2.938
+          },
+          "parent": {
+            "num": 2.84,
+            "cur": 2.84,
+            "heroCur": 2.34
+          },
+          "currentOk": true,
+          "parentOk": false
+        }
+      },
+      "nightArm": "A_siteNight_deviceLight",
+      "afterNightContrast": 20.546,
+      "beforeNightContrast": 2.84,
+      "counterfactualNoRebind": 1.255,
+      "counterfactualRulerSensitive": true,
+      "restoredIdenticalToShipped": true,
+      "ok": true
+    }
+  },
+  "pageErrors": []
+}

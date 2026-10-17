@@ -1,0 +1,59 @@
+===== Kong 静态读数（AC-6 结构不变式 + 断言锚）· 2026-10-17 08:19:53 CST =====
+--- ① shell.css 断点块计数（须 = 1）---
+1
+-- @media 行原文 --
+185:@media (max-width: 767px) {
+--- ② shell.css 主题分支选择器（须全 0）---
+data-theme:0 theme-day:0 theme-night:0
+--- ③ var(--sf-page-bg) 全仓消费者（AC-1 须恰 1 行）---
+frontend/src/shell/shell.css:16:  background: var(--sf-page-bg);
+-- 计数 --
+       1
+--- ④ var(--sf-surface-bg) 消费者（新增）---
+frontend/src/shell/shell.css:34:  background: var(--sf-surface-bg);
+frontend/src/pages/item/item.css:349:  background: var(--sf-surface-bg);
+--- ⑤ fg 字面 FDE815 只在 token 两处载体（styles/shell/页面/jsx 零字面）---
+       1
+--- ⑥ RewardCard.jsx：sf-btn 家族 / $</span> 计数 / DashJ ---
+sf-btn: 0
+dollar-span:        1
+DashJ: 0
+--- ⑦ data-sf-region 五 region 恒等（全仓字面）---
+   1 "content">
+   1 "footer">
+   1 "shell"
+   1 "shell"]').className).toContain('sf-shell--msg-open')
+   1 "tabbar" aria-label={t('siteBrand')}>
+   1 "tabbar"] a[data-sf-nav]'))
+   1 "tabbar"] a[data-sf-nav]')).map((a) => a.getAttribute('data-sf-nav'))
+   1 "tabbar"] a[data-sf-nav]')).map((a) => a.getAttribute('href'))
+   1 "tabbar"]')
+   1 "topnav">
+   1 "topnav"] a[href="/"]')
+   1 "topnav"]')
+--- ⑧ tokens.js：TOKEN_KEYS / STRUCT / EXCLUDED_FROM_THEME 计数与 surface-bg ---
+TOKEN_KEYS=110 STRUCT=37 STRUCT_PROV=37 EXCLUDED_FROM_THEME=10
+TOKEN_KEYS 含 surface-bg = true | 序号 = 1 | day/night 同键序 = true
+day page-bg/surface-bg = #F5F7F9 #FFFFFF | night = #0B0C0E #101114
+day topbar-bg = #FDE815 | night topbar-bg = #0B0C0E
+PROV page-bg = {"d":[1069,"background:#F5F7F9"],"n":[273,"background:#0B0C0E"]} | PROV surface-bg = {"d":[1071,"background:#FFFFFF"],"n":[1073,"background:#101114"]}
+STRUCT 含 shell-max-w = 1440px | price-num-size = 21px
+--- ⑨ theme-tokens.css 日/夜逐键 = tokens.js（逐键一致核）---
+dayVars=110 nightVars=110 structVars=37 TOKEN_KEYS=110 逐键不一致=[]
+day --sf-page-bg=#F5F7F9 --sf-surface-bg=#FFFFFF | night --sf-page-bg=#0B0C0E --sf-surface-bg=#101114
+两档键集相同 = true
+css 行数=275 字节=8155
+--- ⑩ 生成器零漂移复核（重跑生成器 ⇒ cmp）---
+cmp = 0（现盘 CSS = 生成器输出，零漂移）
+--- ⑤（修正）FDE815 在 frontend/src 的非 theme/theme-tokens.css 命中：仅 (a) tokens.js 值表+PROV（预期载体）(b) reward-card.css:7 注释里引述夜档 token 值（非声明，无 css 声明命中）
+    ⇒ CSS 声明面 FDE815 命中 = 0（除 token 生成物）
+--- ⑦（修正）产品面 data-sf-region 字面 = 5 条 ---
+frontend/src/shell/BottomTabBar.jsx:61:    <nav className={`sf-tabbar${isDetail ? ' is-detail' : ''}`} data-sf-region="tabbar" aria-label={t('siteBrand')}>
+frontend/src/shell/AppShell.jsx:31:        data-sf-region="shell"
+frontend/src/shell/AppShell.jsx:33:        <div className="sf-region sf-region-top" data-sf-region="topnav">
+frontend/src/shell/AppShell.jsx:36:        <main id="sf-route-container" className="sf-route-container" data-sf-region="content">
+frontend/src/shell/AppShell.jsx:39:        <div className="sf-region sf-region-foot" data-sf-region="footer">
+--- ⑪ page-bg 日档旧值残留核（tokens.js 逐行）---
+30:  'page-bg': '#F5F7F9',
+148:  'page-bg': '#0B0C0E',
+271:  'page-bg': { d: [1069, 'background:#F5F7F9'], n: [273, 'background:#0B0C0E'] },

@@ -47,7 +47,8 @@
 /* 日档「码头大牌」= style-preview.html 变体 A（200–267 行） */
 :root,
 [data-theme="light"] {
-  --sf-page-bg: #FDE815;
+  --sf-page-bg: #F5F7F9;
+  --sf-surface-bg: #FFFFFF;
   --sf-page-fg: #0A0A0A;
   --sf-topbar-bg: #FDE815;
   --sf-topbar-border: #030402;
@@ -161,6 +162,7 @@
 /* 夜档「夜市行情板」= style-preview.html 变体 B（273–351 行） */
 [data-theme="dark"] {
   --sf-page-bg: #0B0C0E;
+  --sf-surface-bg: #101114;
   --sf-page-fg: #E8EAED;
   --sf-topbar-bg: #0B0C0E;
   --sf-topbar-border: #FDE815;

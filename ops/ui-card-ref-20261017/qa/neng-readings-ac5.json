@@ -1,0 +1,916 @@
+{
+  "probe": "neng-probe-ac5.mjs（Neng 质检员 · 自写自跑 · 归因式不动面）",
+  "startedAt": "2026-10-17T00:34:10.181Z",
+  "parentDist": "/Users/kevin/.hermes/profiles/zang/cache/scratch/neng-ac5/parent/frontend/dist",
+  "currentDist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "noiseSource": "frontend/src/components/Footer.jsx:12 —— 模块加载期 Math.random() 选 CAT_SLOGAN ⇒ <a title>/<img alt> 每次加载都变",
+  "normalization": "声明式：剔除 alt / title 两个属性的「值」（属性在场仍计）；tag / 全部 class / 其余语义属性 / 结构路径 / 可见性 / 几何 全在键与值内；坐标从未进键",
+  "cases": [
+    {
+      "id": "item1440",
+      "route": "/item/1",
+      "vw": 1440,
+      "theme": "light",
+      "containsHome": false,
+      "visibleParent": 124,
+      "visibleCurrent": 124,
+      "noiseBaselineParent": true,
+      "noiseBaselineCurrent": true,
+      "rawDiffCount": 5,
+      "rawDiffSample": [
+        {
+          "key": "DIV#sf-shell~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        },
+        {
+          "key": "MAIN#sf-route-container~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        },
+        {
+          "key": "DIV#sf-item-actionbar~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        },
+        {
+          "key": "A#group block rounded-lg overflow-hidden relative~0",
+          "fields": [
+            "attrs"
+          ]
+        },
+        {
+          "key": "IMG#h-[50px] w-auto object-contain~0",
+          "fields": [
+            "attrs"
+          ]
+        }
+      ],
+      "normalizedDiffCount": 3,
+      "attributableChanges": [
+        {
+          "key": "DIV#sf-shell~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(10, 10, 10)|rgb(253, 232, 21)",
+          "to": "rgb(10, 10, 10)|rgb(245, 247, 249)"
+        },
+        {
+          "key": "MAIN#sf-route-container~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(10, 10, 10)|rgba(0, 0, 0, 0)",
+          "to": "rgb(10, 10, 10)|rgb(255, 255, 255)"
+        },
+        {
+          "key": "DIV#sf-item-actionbar~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(10, 10, 10)|rgb(253, 232, 21)",
+          "to": "rgb(10, 10, 10)|rgb(255, 255, 255)"
+        }
+      ],
+      "nonAttributable": [],
+      "structuralOnlyInParent": [],
+      "structuralOnlyInCurrent": [],
+      "structuralApprovedMarkerHits": 0,
+      "structuralUnapproved": [],
+      "geometryDiffs": [],
+      "structureDiffs": [],
+      "textDiffs": [],
+      "counterfactual": {
+        "css": ":root,[data-theme=\"light\"]{--sf-page-bg:#FDE815 !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
+        "diffCount": 0,
+        "details": []
+      },
+      "sensitivity": {
+        "colorPerturb": {
+          "css": ".sf-region-top{background:#00ff00 !important}",
+          "diffCount": 1,
+          "sensitive": true
+        },
+        "geomPerturb": {
+          "css": ".sf-region-top{padding-top:5px !important}",
+          "diffCount": 94,
+          "geometryFieldDiffs": 94,
+          "sensitive": true
+        }
+      }
+    },
+    {
+      "id": "item390",
+      "route": "/item/1",
+      "vw": 390,
+      "theme": "light",
+      "containsHome": false,
+      "visibleParent": 71,
+      "visibleCurrent": 71,
+      "noiseBaselineParent": true,
+      "noiseBaselineCurrent": true,
+      "rawDiffCount": 5,
+      "rawDiffSample": [
+        {
+          "key": "DIV#sf-shell~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        },
+        {
+          "key": "MAIN#sf-route-container~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        },
+        {
+          "key": "DIV#sf-item-actionbar~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        },
+        {
+          "key": "A#group block rounded-lg overflow-hidden relative~0",
+          "fields": [
+            "attrs"
+          ]
+        },
+        {
+          "key": "IMG#h-[50px] w-auto object-contain~0",
+          "fields": [
+            "attrs"
+          ]
+        }
+      ],
+      "normalizedDiffCount": 3,
+      "attributableChanges": [
+        {
+          "key": "DIV#sf-shell~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(10, 10, 10)|rgb(253, 232, 21)",
+          "to": "rgb(10, 10, 10)|rgb(245, 247, 249)"
+        },
+        {
+          "key": "MAIN#sf-route-container~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(10, 10, 10)|rgba(0, 0, 0, 0)",
+          "to": "rgb(10, 10, 10)|rgb(255, 255, 255)"
+        },
+        {
+          "key": "DIV#sf-item-actionbar~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(10, 10, 10)|rgb(253, 232, 21)",
+          "to": "rgb(10, 10, 10)|rgb(255, 255, 255)"
+        }
+      ],
+      "nonAttributable": [],
+      "structuralOnlyInParent": [],
+      "structuralOnlyInCurrent": [],
+      "structuralApprovedMarkerHits": 0,
+      "structuralUnapproved": [],
+      "geometryDiffs": [],
+      "structureDiffs": [],
+      "textDiffs": [],
+      "counterfactual": {
+        "css": ":root,[data-theme=\"light\"]{--sf-page-bg:#FDE815 !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
+        "diffCount": 0,
+        "details": []
+      },
+      "sensitivity": {
+        "colorPerturb": {
+          "css": ".sf-region-top{background:#00ff00 !important}",
+          "diffCount": 1,
+          "sensitive": true
+        },
+        "geomPerturb": {
+          "css": ".sf-region-top{padding-top:5px !important}",
+          "diffCount": 65,
+          "geometryFieldDiffs": 65,
+          "sensitive": true
+        }
+      }
+    },
+    {
+      "id": "item1440_night",
+      "route": "/item/1",
+      "vw": 1440,
+      "theme": "dark",
+      "containsHome": false,
+      "visibleParent": 132,
+      "visibleCurrent": 132,
+      "noiseBaselineParent": true,
+      "noiseBaselineCurrent": true,
+      "rawDiffCount": 2,
+      "rawDiffSample": [
+        {
+          "key": "MAIN#sf-route-container~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        },
+        {
+          "key": "DIV#sf-item-actionbar~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        }
+      ],
+      "normalizedDiffCount": 2,
+      "attributableChanges": [
+        {
+          "key": "MAIN#sf-route-container~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(232, 234, 237)|rgba(0, 0, 0, 0)",
+          "to": "rgb(232, 234, 237)|rgb(16, 17, 20)"
+        },
+        {
+          "key": "DIV#sf-item-actionbar~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(232, 234, 237)|rgb(11, 12, 14)",
+          "to": "rgb(232, 234, 237)|rgb(16, 17, 20)"
+        }
+      ],
+      "nonAttributable": [],
+      "structuralOnlyInParent": [],
+      "structuralOnlyInCurrent": [],
+      "structuralApprovedMarkerHits": 0,
+      "structuralUnapproved": [],
+      "geometryDiffs": [],
+      "structureDiffs": [],
+      "textDiffs": [],
+      "counterfactual": {
+        "css": ":root,[data-theme=\"light\"]{--sf-page-bg:#FDE815 !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
+        "diffCount": 2,
+        "details": [
+          {
+            "key": "DIV#sf-shell~0",
+            "fields": [
+              "style.backgroundColor"
+            ]
+          },
+          {
+            "key": "DIV#sf-item-actionbar~0",
+            "fields": [
+              "style.backgroundColor"
+            ]
+          }
+        ]
+      },
+      "sensitivity": {
+        "colorPerturb": {
+          "css": ".sf-region-top{background:#00ff00 !important}",
+          "diffCount": 1,
+          "sensitive": true
+        },
+        "geomPerturb": {
+          "css": ".sf-region-top{padding-top:5px !important}",
+          "diffCount": 102,
+          "geometryFieldDiffs": 102,
+          "sensitive": true
+        }
+      }
+    },
+    {
+      "id": "exchange1440",
+      "route": "/exchange",
+      "vw": 1440,
+      "theme": "light",
+      "containsHome": false,
+      "visibleParent": 146,
+      "visibleCurrent": 146,
+      "noiseBaselineParent": true,
+      "noiseBaselineCurrent": true,
+      "rawDiffCount": 4,
+      "rawDiffSample": [
+        {
+          "key": "DIV#sf-shell~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        },
+        {
+          "key": "MAIN#sf-route-container~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        },
+        {
+          "key": "A#group block rounded-lg overflow-hidden relative~0",
+          "fields": [
+            "attrs"
+          ]
+        },
+        {
+          "key": "IMG#h-[50px] w-auto object-contain~0",
+          "fields": [
+            "attrs"
+          ]
+        }
+      ],
+      "normalizedDiffCount": 2,
+      "attributableChanges": [
+        {
+          "key": "DIV#sf-shell~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(10, 10, 10)|rgb(253, 232, 21)",
+          "to": "rgb(10, 10, 10)|rgb(245, 247, 249)"
+        },
+        {
+          "key": "MAIN#sf-route-container~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(10, 10, 10)|rgba(0, 0, 0, 0)",
+          "to": "rgb(10, 10, 10)|rgb(255, 255, 255)"
+        }
+      ],
+      "nonAttributable": [],
+      "structuralOnlyInParent": [],
+      "structuralOnlyInCurrent": [],
+      "structuralApprovedMarkerHits": 0,
+      "structuralUnapproved": [],
+      "geometryDiffs": [],
+      "structureDiffs": [],
+      "textDiffs": [],
+      "counterfactual": {
+        "css": ":root,[data-theme=\"light\"]{--sf-page-bg:#FDE815 !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
+        "diffCount": 0,
+        "details": []
+      },
+      "sensitivity": {
+        "colorPerturb": {
+          "css": ".sf-region-top{background:#00ff00 !important}",
+          "diffCount": 1,
+          "sensitive": true
+        },
+        "geomPerturb": {
+          "css": ".sf-region-top{padding-top:5px !important}",
+          "diffCount": 116,
+          "geometryFieldDiffs": 116,
+          "sensitive": true
+        }
+      }
+    },
+    {
+      "id": "task1440",
+      "route": "/task",
+      "vw": 1440,
+      "theme": "light",
+      "containsHome": false,
+      "visibleParent": 187,
+      "visibleCurrent": 187,
+      "noiseBaselineParent": true,
+      "noiseBaselineCurrent": true,
+      "rawDiffCount": 2,
+      "rawDiffSample": [
+        {
+          "key": "DIV#sf-shell~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        },
+        {
+          "key": "MAIN#sf-route-container~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        }
+      ],
+      "normalizedDiffCount": 2,
+      "attributableChanges": [
+        {
+          "key": "DIV#sf-shell~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(10, 10, 10)|rgb(253, 232, 21)",
+          "to": "rgb(10, 10, 10)|rgb(245, 247, 249)"
+        },
+        {
+          "key": "MAIN#sf-route-container~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(10, 10, 10)|rgba(0, 0, 0, 0)",
+          "to": "rgb(10, 10, 10)|rgb(255, 255, 255)"
+        }
+      ],
+      "nonAttributable": [],
+      "structuralOnlyInParent": [],
+      "structuralOnlyInCurrent": [],
+      "structuralApprovedMarkerHits": 0,
+      "structuralUnapproved": [],
+      "geometryDiffs": [],
+      "structureDiffs": [],
+      "textDiffs": [],
+      "counterfactual": {
+        "css": ":root,[data-theme=\"light\"]{--sf-page-bg:#FDE815 !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
+        "diffCount": 0,
+        "details": []
+      },
+      "sensitivity": {
+        "colorPerturb": {
+          "css": ".sf-region-top{background:#00ff00 !important}",
+          "diffCount": 1,
+          "sensitive": true
+        },
+        "geomPerturb": {
+          "css": ".sf-region-top{padding-top:5px !important}",
+          "diffCount": 157,
+          "geometryFieldDiffs": 157,
+          "sensitive": true
+        }
+      }
+    },
+    {
+      "id": "profile1440",
+      "route": "/profile",
+      "vw": 1440,
+      "theme": "light",
+      "containsHome": false,
+      "visibleParent": 144,
+      "visibleCurrent": 144,
+      "noiseBaselineParent": true,
+      "noiseBaselineCurrent": true,
+      "rawDiffCount": 4,
+      "rawDiffSample": [
+        {
+          "key": "DIV#sf-shell~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        },
+        {
+          "key": "MAIN#sf-route-container~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        },
+        {
+          "key": "A#group block rounded-lg overflow-hidden relative~0",
+          "fields": [
+            "attrs"
+          ]
+        },
+        {
+          "key": "IMG#h-[50px] w-auto object-contain~0",
+          "fields": [
+            "attrs"
+          ]
+        }
+      ],
+      "normalizedDiffCount": 2,
+      "attributableChanges": [
+        {
+          "key": "DIV#sf-shell~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(10, 10, 10)|rgb(253, 232, 21)",
+          "to": "rgb(10, 10, 10)|rgb(245, 247, 249)"
+        },
+        {
+          "key": "MAIN#sf-route-container~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(10, 10, 10)|rgba(0, 0, 0, 0)",
+          "to": "rgb(10, 10, 10)|rgb(255, 255, 255)"
+        }
+      ],
+      "nonAttributable": [],
+      "structuralOnlyInParent": [],
+      "structuralOnlyInCurrent": [],
+      "structuralApprovedMarkerHits": 0,
+      "structuralUnapproved": [],
+      "geometryDiffs": [],
+      "structureDiffs": [],
+      "textDiffs": [],
+      "counterfactual": {
+        "css": ":root,[data-theme=\"light\"]{--sf-page-bg:#FDE815 !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
+        "diffCount": 0,
+        "details": []
+      },
+      "sensitivity": {
+        "colorPerturb": {
+          "css": ".sf-region-top{background:#00ff00 !important}",
+          "diffCount": 1,
+          "sensitive": true
+        },
+        "geomPerturb": {
+          "css": ".sf-region-top{padding-top:5px !important}",
+          "diffCount": 114,
+          "geometryFieldDiffs": 114,
+          "sensitive": true
+        }
+      }
+    },
+    {
+      "id": "exchange390",
+      "route": "/exchange",
+      "vw": 390,
+      "theme": "light",
+      "containsHome": false,
+      "visibleParent": 115,
+      "visibleCurrent": 115,
+      "noiseBaselineParent": true,
+      "noiseBaselineCurrent": true,
+      "rawDiffCount": 4,
+      "rawDiffSample": [
+        {
+          "key": "DIV#sf-shell~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        },
+        {
+          "key": "MAIN#sf-route-container~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        },
+        {
+          "key": "A#group block rounded-lg overflow-hidden relative~0",
+          "fields": [
+            "attrs"
+          ]
+        },
+        {
+          "key": "IMG#h-[50px] w-auto object-contain~0",
+          "fields": [
+            "attrs"
+          ]
+        }
+      ],
+      "normalizedDiffCount": 2,
+      "attributableChanges": [
+        {
+          "key": "DIV#sf-shell~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(10, 10, 10)|rgb(253, 232, 21)",
+          "to": "rgb(10, 10, 10)|rgb(245, 247, 249)"
+        },
+        {
+          "key": "MAIN#sf-route-container~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(10, 10, 10)|rgba(0, 0, 0, 0)",
+          "to": "rgb(10, 10, 10)|rgb(255, 255, 255)"
+        }
+      ],
+      "nonAttributable": [],
+      "structuralOnlyInParent": [],
+      "structuralOnlyInCurrent": [],
+      "structuralApprovedMarkerHits": 0,
+      "structuralUnapproved": [],
+      "geometryDiffs": [],
+      "structureDiffs": [],
+      "textDiffs": [],
+      "counterfactual": {
+        "css": ":root,[data-theme=\"light\"]{--sf-page-bg:#FDE815 !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
+        "diffCount": 0,
+        "details": []
+      },
+      "sensitivity": {
+        "colorPerturb": {
+          "css": ".sf-region-top{background:#00ff00 !important}",
+          "diffCount": 1,
+          "sensitive": true
+        },
+        "geomPerturb": {
+          "css": ".sf-region-top{padding-top:5px !important}",
+          "diffCount": 92,
+          "geometryFieldDiffs": 92,
+          "sensitive": true
+        }
+      }
+    },
+    {
+      "id": "task390",
+      "route": "/task",
+      "vw": 390,
+      "theme": "light",
+      "containsHome": false,
+      "visibleParent": 156,
+      "visibleCurrent": 156,
+      "noiseBaselineParent": true,
+      "noiseBaselineCurrent": true,
+      "rawDiffCount": 4,
+      "rawDiffSample": [
+        {
+          "key": "DIV#sf-shell~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        },
+        {
+          "key": "MAIN#sf-route-container~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        },
+        {
+          "key": "A#group block rounded-lg overflow-hidden relative~0",
+          "fields": [
+            "attrs"
+          ]
+        },
+        {
+          "key": "IMG#h-[50px] w-auto object-contain~0",
+          "fields": [
+            "attrs"
+          ]
+        }
+      ],
+      "normalizedDiffCount": 2,
+      "attributableChanges": [
+        {
+          "key": "DIV#sf-shell~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(10, 10, 10)|rgb(253, 232, 21)",
+          "to": "rgb(10, 10, 10)|rgb(245, 247, 249)"
+        },
+        {
+          "key": "MAIN#sf-route-container~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(10, 10, 10)|rgba(0, 0, 0, 0)",
+          "to": "rgb(10, 10, 10)|rgb(255, 255, 255)"
+        }
+      ],
+      "nonAttributable": [],
+      "structuralOnlyInParent": [],
+      "structuralOnlyInCurrent": [],
+      "structuralApprovedMarkerHits": 0,
+      "structuralUnapproved": [],
+      "geometryDiffs": [],
+      "structureDiffs": [],
+      "textDiffs": [],
+      "counterfactual": {
+        "css": ":root,[data-theme=\"light\"]{--sf-page-bg:#FDE815 !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
+        "diffCount": 0,
+        "details": []
+      },
+      "sensitivity": {
+        "colorPerturb": {
+          "css": ".sf-region-top{background:#00ff00 !important}",
+          "diffCount": 1,
+          "sensitive": true
+        },
+        "geomPerturb": {
+          "css": ".sf-region-top{padding-top:5px !important}",
+          "diffCount": 133,
+          "geometryFieldDiffs": 133,
+          "sensitive": true
+        }
+      }
+    },
+    {
+      "id": "messages1440",
+      "route": "/messages",
+      "vw": 1440,
+      "theme": "light",
+      "containsHome": true,
+      "visibleParent": 387,
+      "visibleCurrent": 393,
+      "noiseBaselineParent": true,
+      "noiseBaselineCurrent": true,
+      "rawDiffCount": 70,
+      "rawDiffSample": [
+        {
+          "key": "DIV#sf-shell sf-shell--msg-open~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        },
+        {
+          "key": "MAIN#sf-route-container~0",
+          "fields": [
+            "style.backgroundColor"
+          ]
+        },
+        {
+          "key": "A#group block rounded-lg overflow-hidden relative~0",
+          "fields": [
+            "attrs"
+          ]
+        },
+        {
+          "key": "IMG#h-[50px] w-auto object-contain~0",
+          "fields": [
+            "attrs"
+          ]
+        }
+      ],
+      "normalizedDiffCount": 68,
+      "attributableChanges": [
+        {
+          "key": "DIV#sf-shell sf-shell--msg-open~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(10, 10, 10)|rgb(253, 232, 21)",
+          "to": "rgb(10, 10, 10)|rgb(245, 247, 249)"
+        },
+        {
+          "key": "MAIN#sf-route-container~0",
+          "fields": [
+            "style.backgroundColor"
+          ],
+          "from": "rgb(10, 10, 10)|rgba(0, 0, 0, 0)",
+          "to": "rgb(10, 10, 10)|rgb(255, 255, 255)"
+        }
+      ],
+      "nonAttributable": [],
+      "structuralOnlyInParent": [
+        "DIV#rounded-lg border p-6 transition-all duration-300 bg-yellow-50 border-yellow-200 hover:shadow-xl hover:ring-2 hover:ring-yellow-200 relative overflow-hidden~0",
+        "DIV#text-right ml-4~2",
+        "DIV#text-2xl font-bold text-yellow-600~2",
+        "SPAN#text-sm font-bold text-yellow-600 dark:text-yellow-400~5",
+        "BUTTON#btn btn-inactive btn-md px-4 py-2 text-base~0",
+        "DIV#rounded-lg border p-6 transition-all duration-300 bg-yellow-50 border-yellow-200 hover:shadow-xl hover:ring-2 hover:ring-yellow-200 relative overflow-hidden border-purple-400 bg-gradient-to-br from-purple-50 to-purple-100~0",
+        "DIV#text-right ml-4~3",
+        "DIV#text-2xl font-bold text-yellow-600~3",
+        "SPAN#text-sm font-bold text-yellow-600 dark:text-yellow-400~6",
+        "BUTTON#btn btn-inactive btn-md px-4 py-2 text-base~1",
+        "DIV#rounded-lg border p-6 transition-all duration-300 bg-yellow-50 border-yellow-200 hover:shadow-xl hover:ring-2 hover:ring-yellow-200 relative overflow-hidden~1",
+        "DIV#text-right ml-4~4",
+        "DIV#text-2xl font-bold text-yellow-600~4",
+        "SPAN#text-sm font-bold text-yellow-600 dark:text-yellow-400~7",
+        "BUTTON#btn btn-inactive btn-md px-4 py-2 text-base~2",
+        "DIV#rounded-lg border p-6 transition-all duration-300 bg-yellow-50 border-yellow-200 hover:shadow-xl hover:ring-2 hover:ring-yellow-200 relative overflow-hidden~2",
+        "DIV#text-right ml-4~5",
+        "DIV#text-2xl font-bold text-yellow-600~5",
+        "SPAN#text-sm font-bold text-yellow-600 dark:text-yellow-400~8",
+        "BUTTON#btn btn-inactive btn-md px-4 py-2 text-base~3",
+        "DIV#rounded-lg border p-6 transition-all duration-300 bg-yellow-50 border-yellow-200 hover:shadow-xl hover:ring-2 hover:ring-yellow-200 relative overflow-hidden~3",
+        "DIV#text-right ml-4~6",
+        "DIV#text-2xl font-bold text-yellow-600~6",
+        "SPAN#text-sm font-bold text-yellow-600 dark:text-yellow-400~9",
+        "BUTTON#btn btn-inactive btn-md px-4 py-2 text-base~4",
+        "DIV#rounded-lg border p-6 transition-all duration-300 bg-yellow-50 border-yellow-200 hover:shadow-xl hover:ring-2 hover:ring-yellow-200 relative overflow-hidden~4",
+        "DIV#text-right ml-4~7",
+        "DIV#text-2xl font-bold text-yellow-600~7",
+        "SPAN#text-sm font-bold text-yellow-600 dark:text-yellow-400~10",
+        "BUTTON#btn btn-inactive btn-md px-4 py-2 text-base~5"
+      ],
+      "structuralOnlyInCurrent": [
+        "A#sf-reward-card block~0",
+        "DIV#rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 relative overflow-hidden hover:shadow-lg~0",
+        "DIV#ml-4 sf-reward-price~0",
+        "SPAN#sf-reward-price-cur~0",
+        "SPAN#sf-reward-price-num text-2xl~0",
+        "SPAN#inline-flex items-center justify-center rounded-full font-semibold px-4 py-2 text-base bg-gray-200 text-gray-600~0",
+        "A#sf-reward-card block~1",
+        "DIV#rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 relative overflow-hidden hover:shadow-lg border-purple-400~0",
+        "DIV#ml-4 sf-reward-price~1",
+        "SPAN#sf-reward-price-cur~1",
+        "SPAN#sf-reward-price-num text-2xl~1",
+        "SPAN#inline-flex items-center justify-center rounded-full font-semibold px-4 py-2 text-base bg-gray-200 text-gray-600~1",
+        "A#sf-reward-card block~2",
+        "DIV#rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 relative overflow-hidden hover:shadow-lg~1",
+        "DIV#ml-4 sf-reward-price~2",
+        "SPAN#sf-reward-price-cur~2",
+        "SPAN#sf-reward-price-num text-2xl~2",
+        "SPAN#inline-flex items-center justify-center rounded-full font-semibold px-4 py-2 text-base bg-gray-200 text-gray-600~2",
+        "A#sf-reward-card block~3",
+        "DIV#rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 relative overflow-hidden hover:shadow-lg~2",
+        "DIV#ml-4 sf-reward-price~3",
+        "SPAN#sf-reward-price-cur~3",
+        "SPAN#sf-reward-price-num text-2xl~3",
+        "SPAN#inline-flex items-center justify-center rounded-full font-semibold px-4 py-2 text-base bg-gray-200 text-gray-600~3",
+        "A#sf-reward-card block~4",
+        "DIV#rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 relative overflow-hidden hover:shadow-lg~3",
+        "DIV#ml-4 sf-reward-price~4",
+        "SPAN#sf-reward-price-cur~4",
+        "SPAN#sf-reward-price-num text-2xl~4",
+        "SPAN#inline-flex items-center justify-center rounded-full font-semibold px-4 py-2 text-base bg-gray-200 text-gray-600~4",
+        "A#sf-reward-card block~5",
+        "DIV#rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 relative overflow-hidden hover:shadow-lg~4",
+        "DIV#ml-4 sf-reward-price~5",
+        "SPAN#sf-reward-price-cur~5",
+        "SPAN#sf-reward-price-num text-2xl~5",
+        "SPAN#inline-flex items-center justify-center rounded-full font-semibold px-4 py-2 text-base bg-gray-200 text-gray-600~5"
+      ],
+      "structuralApprovedMarkerHits": 66,
+      "structuralUnapproved": [],
+      "geometryDiffs": [],
+      "structureDiffs": [],
+      "textDiffs": [],
+      "counterfactual": {
+        "css": ":root,[data-theme=\"light\"]{--sf-page-bg:#FDE815 !important}\n.sf-route-container{background:transparent !important}\n.sf-item-actionbar{background:var(--sf-page-bg) !important}",
+        "diffCount": 66,
+        "details": []
+      },
+      "sensitivity": {
+        "colorPerturb": {
+          "css": ".sf-region-top{background:#00ff00 !important}",
+          "diffCount": 1,
+          "sensitive": true
+        },
+        "geomPerturb": {
+          "css": ".sf-region-top{padding-top:5px !important}",
+          "diffCount": 352,
+          "geometryFieldDiffs": 352,
+          "sensitive": true
+        }
+      }
+    }
+  ],
+  "ac": {
+    "AC-5": {
+      "scope": "真·非首页路由（/item/:id · /exchange · /task · /profile × 1440/390 × 日/夜）＝「不动面」承重面；/messages 单列（其渲染树含首页）",
+      "nonHomeRoutes": {
+        "cases": [
+          "item1440",
+          "item390",
+          "item1440_night",
+          "exchange1440",
+          "task1440",
+          "profile1440",
+          "exchange390",
+          "task390"
+        ],
+        "noiseBaselineAllIdentical": true,
+        "normalizedDiffFullyAttributable": true,
+        "counterfactualEmptyAllCases": false,
+        "rulerSensitivityAllNonEmpty": true,
+        "ok": false
+      },
+      "homeBearingRoutes": [
+        {
+          "id": "messages1440",
+          "route": "/messages",
+          "note": "/messages 的渲染树 = 首页 + 面板（pages/MessagesPage.jsx:15 `const MessagesPage = () => <HomePage />`）⇒ 卡面改造在此生效属变更集之内；AC-5 的 T109-only 反事实**不覆盖**卡面（故不适用）",
+          "normalizedDiffCount": 68,
+          "approvedMarkerHits": 66,
+          "unapprovedRemainder": [],
+          "geometryDiffs": 0,
+          "attributionComplete": true
+        }
+      ],
+      "rawDiffCounts": [
+        {
+          "id": "item1440",
+          "raw": 5
+        },
+        {
+          "id": "item390",
+          "raw": 5
+        },
+        {
+          "id": "item1440_night",
+          "raw": 2
+        },
+        {
+          "id": "exchange1440",
+          "raw": 4
+        },
+        {
+          "id": "task1440",
+          "raw": 2
+        },
+        {
+          "id": "profile1440",
+          "raw": 4
+        },
+        {
+          "id": "exchange390",
+          "raw": 4
+        },
+        {
+          "id": "task390",
+          "raw": 4
+        },
+        {
+          "id": "messages1440",
+          "raw": 70
+        }
+      ],
+      "rawJudgement": "raw 差异集 ≠ 0 为预期（Footer.jsx:12 模块加载期 Math.random() ⇒ <a title>/<img alt> 每载随机）⇒ 该判据**原样保留为 ENV_LIMITED**，不改写成 PASS",
+      "ok": false
+    }
+  }
+}

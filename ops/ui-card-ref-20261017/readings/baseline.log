@@ -1,0 +1,73 @@
+===== HEAD / STATUS （取数时刻：2026-10-17 08:00:19 CST）=====
+d8cb98e docs(seafood): §5.413 上线回写 + §21 质检覆盖面登记（消息面板化 · 生产终验 PASS）
+1cc70d3 test(seafood): v119 消息面板化（方案 1 · 就地叠加）生产终验（Neng）· verdict PASS
+da705e2 docs(seafood): v1.19/v2.34 勘误补登 + §5.413/v0.331 收口（消息面板化 · 方案 1）
+?? ops/ui-card-ref-20261017/
+
+===== ① test:unit（改前例数基线）=====
+
+ ✓ src/test/unit/s17a-review-page-access-gate.test.jsx  (3 tests) 48ms
+ ✓ src/test/unit/p6-btn-impl2.test.js  (9 tests) 21ms
+ ✓ src/test/unit/d1-batt-reason-i18n.test.js  (6 tests) 16ms
+stdout | src/test/unit/d1-batt-reason-i18n.test.js > D1 · 电量不足文案（`BATT_BELOW_ACCEPT_THRESHOLD` ⇒ `battCard.insufficient`） > ③ 修复前/后读数（同输入）：前 = 通用键真文案；后 = 电量真文案；二者不同且前不含真实原因
+[D1 读数] [{"lang":"zh","before":"当前状态不允许此变更。","after":"电量低于承接门槛，暂时无法承接任务"},{"lang":"hk","before":"目前狀態唔允許呢個變更。","after":"電量低於承接門檻，暫時無法承接任務"},{"lang":"en","before":"The current state does not allow this change.","after":"Energy is below the threshold to accept tasks"},{"lang":"vn","before":"Trạng thái hiện tại không cho phép thay đổi này.","after":"Năng lượng dưới ngưỡng nhận việc, tạm thời không thể nhận việc"}]
+
+ ✓ src/test/unit/p7c-errmsg-machinecode.test.js  (8 tests) 18ms
+ ✓ src/test/unit/app-routes.test.jsx  (2 tests) 64ms
+stderr | src/test/unit/app-routes.test.jsx > App routes > renders the home route without crashing
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+ ✓ src/test/unit/p4z-feperf.test.js  (12 tests) 20ms
+ ✓ src/test/unit/p6-btn-impl.test.js  (13 tests) 15ms
+ ✓ src/test/unit/r9-96-dashj-copy.test.jsx  (7 tests) 13ms
+ ✓ src/test/unit/p7b-errfallback.test.js  (9 tests) 21ms
+ ✓ src/test/unit/s9-ledger-kind-closure.test.js  (10 tests) 11ms
+ ✓ src/test/unit/theme-tokens.test.js  (13 tests) 11ms
+ ✓ src/test/unit/auth.test.js  (11 tests) 10ms
+ ✓ src/test/unit/p7a-ledger-error-i18n.test.js  (6 tests) 11ms
+ ✓ src/test/unit/lang-path.test.js  (16 tests) 7ms
+ ✓ src/test/unit/s22-decor-cleanup.test.js  (9 tests) 4ms
+ ✓ src/test/unit/admin-utils.test.js  (3 tests) 3ms
+ ✓ src/test/unit/prize-market.test.js  (3 tests) 2ms
+
+ Test Files  54 passed (54)
+      Tests  520 passed (520)
+   Start at  08:00:20
+   Duration  7.76s (transform 2.08s, setup 11.11s, collect 16.77s, tests 8.30s, environment 20.43s, prepare 3.78s)
+
+
+===== ② build（改前产物名基线）=====
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) /Users/kevin/bistro/seafood/frontend/src/i18n.js is dynamically imported by /Users/kevin/bistro/seafood/frontend/src/auth.js but also statically imported by /Users/kevin/bistro/seafood/frontend/src/main.jsx, dynamic import will not move module into another chunk.
+
+computing gzip size...
+dist/assets/hk-DJjlsSdH.svg              4.61 kB │ gzip:   2.01 kB
+dist/index.html                          6.69 kB │ gzip:   3.60 kB
+dist/assets/us-BUggRluv.svg              7.87 kB │ gzip:   1.24 kB
+dist/assets/index-D4sieLPp.css         121.76 kB │ gzip:  22.29 kB
+dist/assets/vendor-AmHF8z37.js           9.11 kB │ gzip:   4.01 kB
+dist/assets/vendor-router-Cm_Gdouh.js   12.64 kB │ gzip:   4.64 kB
+dist/assets/vendor-ui-C62xpTZb.js       39.48 kB │ gzip:  10.69 kB
+dist/assets/vendor-i18n-Dv2xmCnL.js     53.54 kB │ gzip:  16.60 kB
+dist/assets/vendor-react-CZtNYldG.js   166.55 kB │ gzip:  54.38 kB
+dist/assets/index-C3dRJ_m4.js          445.77 kB │ gzip: 131.35 kB
+✓ built in 1.78s
+--- dist assets ---
+index-C3dRJ_m4.js
+index-D4sieLPp.css
+
+===== ③ 生产哨兵（绕本机 DNS 劫持）=====
+--- /api/health ---
+{"ok":true,"db_version":"PostgreSQL 18.6 (653b019) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit","schema_version":"0048","time":"2026-10-17T00:00:32.823Z"}
+--- /api/task/all（前 120 字节）---
+{"success":true,"message":"OK","data":[{"tID":136,"title":"32312312","note":"","refcode":"","link0":"","linkA":"","linkB
+--- 线上 HTML 引用的产物名（绕缓存取，先落盘再 grep）---
+http_code/size：200 7908
+assets/index-C3dRJ_m4.js
+assets/index-D4sieLPp.css
+
+===== ④ 本地 dev 实例活性 =====
+5787/ ：200
+5788/api/health：200
+
+===== 基线包完成：2026-10-17 08:00:35 CST =====

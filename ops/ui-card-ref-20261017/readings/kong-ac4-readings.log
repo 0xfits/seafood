@@ -1,0 +1,26 @@
+
+ RUN  v0.34.6 /Users/kevin/bistro/seafood/frontend
+
+ ✓ src/test/unit/zz-kong-ac4-tmp.test.jsx  (3 tests) 34ms
+stdout | src/test/unit/zz-kong-ac4-tmp.test.jsx > kong · AC-4 探针（临时） > ① 无 Router 裸渲染 ⇒ 不抛错
+[kong-AC4] no-router throw = null
+
+stderr | src/test/unit/zz-kong-ac4-tmp.test.jsx > kong · AC-4 探针（临时） > ① 无 Router 裸渲染 ⇒ 不抛错
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+stdout | src/test/unit/zz-kong-ac4-tmp.test.jsx > kong · AC-4 探针（临时） > ② 无 Router 裸渲染 ⇒ <a> 计数 = 0 且根元素非 A（同 class / 无 href）
+[kong-AC4] no-router aCount = [33m0[39m | interactives = [33m0[39m | rootTag = DIV | rootClass = sf-reward-card block | href = null
+
+stdout | src/test/unit/zz-kong-ac4-tmp.test.jsx > kong · AC-4 探针（临时） > ③ 对照臂（须非空）：有 Router + bID ⇒ 根 = <a> 且 href = /item/1；卡内交互元素 = 0
+[kong-AC4] with-router rootTag = A | href = /item/1 | nestedInteractive = [33m0[39m | cta = null
+
+stderr | src/test/unit/zz-kong-ac4-tmp.test.jsx > kong · AC-4 探针（临时） > ③ 对照臂（须非空）：有 Router + bID ⇒ 根 = <a> 且 href = /item/1；卡内交互元素 = 0
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  08:18:00
+   Duration  958ms (transform 141ms, setup 155ms, collect 204ms, tests 34ms, environment 348ms, prepare 60ms)
+

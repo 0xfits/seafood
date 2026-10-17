@@ -1,0 +1,98 @@
+== §1 终值（本单终值 · 真读数） ==
+lines=2638 bytes=594700
+md5    = bc279e8a7632b87144603755d0106712
+sha256 = 05dbe3635cecf71b0a5a155353b7e87a088f513579fbc8b3342e100fc4d8a44c
+
+== §2 numstat（vs HEAD · 删除列必须 = 0） ==
+283	0	docs/design/design-system.spec.md
+61	0	docs/design/style-preview.html
+
+== §3 镜像 cmp ==
+cmp exit=0 (MIRROR cmp=0 OK)
+mirror md5 = bc279e8a7632b87144603755d0106712
+
+== §4 三处版本记录同步（各须 = 1） ==
+^> \*\*★ 现行版 = v1.20       = 1
+^## §22                           = 1
+^\| \*\*v1.20\*\* \|               = 1
+
+== §5 新落点在场 + 表连续性 ==
+AC-9 · v1.20c 勘误注                 = 2
+`N50` · 站点在                       = 1
+14-勘误（v1.20c）                    = 3
+v1.20c 就地注（勘误 · 第 14 项  = 3
+已清理 · 现取不存在             = 2
+MEASURED`（原 `NOT_MEASURED`）        = 1
+^### 22. 节标题数(须=15,未新增)  = 15
+^### 5. 节标题数(与HEAD同)         = 3
+  --- §22.9 表连续性（AC-7..AC-9勘误..空行） ---
+  2529:| **AC-7** 门套 | `cd frontend && npm run
+  2530:| **AC-8** 范围边界（`T111`） | `git diff --n
+  2531:| **AC-9** 夜档价格可读性（**新增 · v1.20 就地注 · 归
+  2532:| **AC-9 · v1.20c 勘误注**（**承上行 · 就地注 · 取
+  --- §22.12 表连续性（14 / 14-勘误 / 15 / 16） ---
+  | **14-勘误（v1.20c）** | **★ 第 14 项旧行结论「站点切
+  | 15 | **实现面（`frontend/**`）当前状态** | **本单
+  | 16 | **第 6 项「`reward-card-view` 测试锚 = 
+  
+  --- 第 15 项行完好性 ---
+  2599:| 15 | **实现面（`frontend/**`）当前状态** | **本单只读现取一次 · 非本单写面 · 非终值** | 现取（2026-10-17 · 工作区未提交）：`RewardCard.jsx`
+
+== §6 主题事实链现取 ==
+custom-variant 命中 = 0 （须 0）
+  frontend/src/styles.css:103:/* ===== 主题档 ↔ color-scheme（[2026-10-11 · Kevin 口径] 标准 opt-out；治真机日档「明显暗淡」）=====
+  frontend/src/styles.css:104:   无 color-scheme 声明的页面上，UA 会按设备系统外观对页面做「强制深色」（仅压暗/去饱和，
+  frontend/src/styles.css:108:   · index.html 侧配 `<meta name="color-scheme" content="light dark">` 供首帧（CSS 到位前）。
+  frontend/src/styles.css:111:html { color-scheme: light; }
+  frontend/src/styles.css:112:html[data-theme="dark"] { color-scheme: dark; }
+  frontend/index.html:11:    <!-- 主题档 ↔ color-scheme（[2026-10-11 · Kevin 口径] 补声明；此前全仓 0 处 ⇒ 真机日档被 UA「强制深色」压暗/去饱和）。
+  frontend/index.html:13:         `html { color-scheme: light }` / `html[data-theme="dark"] { color-scheme: dark }` 两条规则。 -->
+  frontend/index.html:14:    <meta name="color-scheme" content="light dark" />
+  frontend/index.html:17:         ② 否则跟随系统 prefers-color-scheme（dark ⇒ 夜档，其余 ⇒ 日档），结果**不落盘** ——
+  frontend/index.html:31:            mode = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'
+dist CSS prefers-color-scheme 命中 = 1 （须 = 1）
+dist CSS @media (prefers-color-scheme: dark) = 1
+
+== §7 WCAG 八臂（由 sRGB 独立复算 · Node） ==
+  A 改前·数字 text-yellow-600 #CA8A04 on bg-yellow-50 #FEFCE8          = 2.840
+  B 改前·符号 dark:text-yellow-400 #FACC15 on 同底 #FEFCE8               = 1.481
+  C 改后 #030402 on #FFFFFF                                          = 20.546
+  D 反事实臂 夜档 token #FDE815 on 白卡 #FFFFFF                            = 1.255
+  E 旁证 Node-oklch 数字臂 #D08700 on #FEFCE8                           = 2.841
+  F 旁证 Node-oklch 符号臂 #FDC700 on #FEFCE8                           = 1.521
+  G 旧行反向风险臂 #FDC700 on #FEFCE8                                     = 1.521
+  H 对照 夜档 token #FDE815 on 夜底 #0B0C0E                              = 15.589
+
+== §8 挂账现取（zz-kong-ac4-tmp） ==
+  ls: frontend/src/test/unit/zz-kong-ac4-tmp.test.jsx: No such file or directory
+  grep -rn zz-kong-ac4-tmp frontend/src/test = 0 命中
+
+== §9 未动面 / 服务 ==
+  shots 件数 = 6
+  localhost:5787 = 200
+  localhost:5788/api/health = 200
+
+== §10 .gitignore 命中断言（.log 需 git add -f） ==
+.gitignore:244:*.log	ops/ui-card-ref-20261017/readings/jing-v120c-selfproof.log
+  .txt (not ignored) OK
+== done ==
+
+== §11 frontend 未写自证（本单只写 docs/** + 本单读数） ==
+  frontend/src 在 08:23 之后被改件数 = 0 （须 = 0）
+  frontend/dist 在 08:23 之后被改件数 = 16 （= 并发会话 Kong 的 build 产物 · gitignored · 非本单动作）
+  git status --porcelain（frontend 源面均归 Kong 实现单）:
+     M docs/design/design-system.spec.md
+     M docs/design/style-preview.html
+     M frontend/src/components/reward/RewardCard.jsx
+     M frontend/src/pages/HomePage.jsx
+     M frontend/src/pages/item/item.css
+     M frontend/src/shell/shell.css
+     M frontend/src/theme/theme-tokens.css
+     M frontend/src/theme/tokens.js
+    ?? docs/audit/design-system-v1.20-delta.md
+    ?? docs/audit/design-system-v1.20-delta2.md
+    ?? docs/audit/design-system-v1.20-delta3.md
+    ?? docs/versions/design-system.spec.v1.20.md
+    ?? frontend/src/components/reward/reward-card.css
+    ?? ops/ui-card-ref-20261017/
+  HEAD = d8cb98e docs(seafood): §5.413 上线回写 + §21 质检覆盖面登记（消息面板化 · 生产终验 PASS）

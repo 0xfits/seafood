@@ -1040,3 +1040,64 @@ body.view-mobile .frame.pc{display:none}
     </table>
   </div>
 </section>
+
+<!-- ============================================================================
+     [CARD-UI-REF] v1.20 · 首页商品卡片 UI（底色分层 + 价格块版式 + 整卡可点击）· 追加区块（仅追加）
+     ─ 追加式扩展：本区块位于文件末尾，上方既有 1–1042 行**未改动任何字节**。
+     ─ 单号：JING-SPEC-CARDUI-DS（Jing · 真源/规范）｜追加日期：2026-10-17（CST）
+     ─ 依据：Kevin 2026-10-17 逐字三条（① 背景色不要用黄色，黄色可以用在顶部菜单栏
+             ② 严格按参考图调整「货币符号 + 金额」处 UI ③ 整张卡片可点击）
+             + Zang 已裁定口径 Q1–Q3（见 docs/design/design-system.spec.md §22.0）
+     ─ 参考图【实测】落盘真身：ops/ui-card-ref-20261017/shots/ref-xianyu.png
+             （516×838 · sha256 c7a0aa9f11e9d8fdb83eadab16b95a0f6227ac389ebad19a3588d0e2054c9fa0）
+             本站改前卡片：ops/ui-card-ref-20261017/shots/current-seafood.png
+             （672×848 · sha256 be25f54209e928df68fd625dfa5ef0769383ca2ca61c72b5911b2e2a19401491）
+     ─ 本区块承载 v1.20 新增 / 变更 token 的**真源原文片段**，供
+       frontend/src/test/unit/theme-tokens.test.js 逐键回读（PROV[key] = { d:[行号, 片段], n:[...] }）。
+     ─ 承载值清单：① `--sf-page-bg` 日档 `#FDE815` ⇒ `#F5F7F9`（黄底退场，黄只留顶部菜单栏）
+                   ② `--sf-surface-bg`（**新键**）日档 `#FFFFFF` / 夜档 `#101114`
+                   ③ `--sf-topbar-bg` 日档仍 `#FDE815`（**不变**：真源 201 行一字未改 ⇒ 黄色唯一落点）
+                   ④ 价格块**版式**（同行 / 符号小 / 数字大 / 无框无底）＝ 版式口径、**不新增 token**
+     ============================================================================ -->
+<section id="card-ui-ref-v120" data-ref="variant-A-card" data-src="xianyu-listing-card" data-src-path="ops/ui-card-ref-20261017/shots/ref-xianyu.png" data-src-sha256="c7a0aa9f11e9d8fdb83eadab16b95a0f6227ac389ebad19a3588d0e2054c9fa0" data-src-bytes="410994" data-src-size="516x838" data-added-at="2026-10-17" style="box-sizing:border-box;max-width:100%;margin:0;padding:14px 16px 18px;font:12px/1.7 -apple-system,'PingFang SC','Microsoft YaHei',sans-serif;color:#202020;background:#FFFFFF;border-top:2px solid #202020">
+  <h3 style="margin:0 0 8px;font-size:14px">变体 A′ · 首页商品卡片 UI（v1.20 · 底色分层 + 价格块版式）· 追加区块（仅追加，不改既有区块与色值）</h3>
+  <p style="margin:0 0 4px">口径来源【实测】：参考图 <code>ops/ui-card-ref-20261017/shots/ref-xianyu.png</code>（516×838 · sha256 <code>c7a0aa9f11e9d8fdb83eadab16b95a0f6227ac389ebad19a3588d0e2054c9fa0</code>）｜本站改前卡片读数 <code>ops/ui-card-ref-20261017/shots/current-seafood.png</code>（672×848 · sha256 <code>be25f54209e928df68fd625dfa5ef0769383ca2ca61c72b5911b2e2a19401491</code>）｜日期：<b>2026-10-17</b>（CST）</p>
+  <p style="margin:0 0 10px">参考图价格块【实测】＝ <code>¥29.90</code> 与右侧灰字「24人想要」<b>同行同基线</b>；<code>¥</code> 高度 ≈ 数字的 <b>75–80%</b>；数字全加粗；<b>背后无框、无底色、无内边距</b>。参考图「小数位更小」规则**不适用**于本站（积分恒为整数 <code>points_required</code>）。</p>
+  <style>
+/* [CARD-UI-REF] T109 · 底色分层（Kevin 2026-10-17 Q1）—— 页底 / 大容器底 / 卡片底 三层，完全参考 goofish.com */
+/* 日档页底：黄底退场（黄只留顶部菜单栏 `--sf-topbar-bg`；本行即 `--sf-page-bg` 日档**新值**的真源行） */
+.vstage-a .page{background:#F5F7F9;color:#0A0A0A}
+/* 日档大容器底（固定宽度内）＝ 新 token `--sf-surface-bg` 日档值 */
+.vstage-a .surface{background:#FFFFFF}
+/* 夜档大容器底 ＝ 新 token `--sf-surface-bg` 夜档值（夜档页底 `#0B0C0E` 一字不变） */
+.vstage-b .surface{background:#101114}
+/* 不变式留痕（非新值）：日档顶部菜单栏仍为 `background:#FDE815` —— 见本文件 201 行（未改动） */
+  </style>
+  <div style="display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;margin:10px 0 0">
+    <div>
+      <div style="font-size:11px;margin-bottom:6px">日档 · 价格块版式示意（同行 / 符号小 / 数字大 / 同基线 / 无框无底）</div>
+      <div style="display:flex;align-items:baseline;gap:2px;background:#FFFFFF;padding:6px 8px;border:1px solid #E0E0E0">
+        <span style="font-size:0.78em;font-weight:700;color:#030402">$</span>
+        <span style="font-size:22px;font-weight:700;color:#030402">320</span>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;margin-bottom:6px">夜档 · 价格块版式示意（色 = 站点夜档 token，非参考图橙红）</div>
+      <div style="display:flex;align-items:baseline;gap:2px;background:#141619;padding:6px 8px;border:1px solid #262A30">
+        <span style="font-size:0.78em;font-weight:700;color:#FDE815">$</span>
+        <span style="font-size:22px;font-weight:700;color:#FDE815">320</span>
+      </div>
+    </div>
+    <table style="border-collapse:collapse;font-size:12px">
+      <thead>
+        <tr><th style="text-align:left;border-bottom:1px solid #E0E0E0;padding:4px 8px">token</th><th style="text-align:left;border-bottom:1px solid #E0E0E0;padding:4px 8px">日档</th><th style="text-align:left;border-bottom:1px solid #E0E0E0;padding:4px 8px">夜档</th><th style="text-align:left;border-bottom:1px solid #E0E0E0;padding:4px 8px">取值依据 / 变更</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="padding:4px 8px"><code>--sf-page-bg</code></td><td style="padding:4px 8px"><code>#F5F7F9</code></td><td style="padding:4px 8px"><code>#0B0C0E</code></td><td style="padding:4px 8px"><b>日档值变更</b>（原 <code>#FDE815</code>，真源 200 行）；夜档不变（273 行）。依据 = Kevin Q1「页面底是 #F5F7F9」</td></tr>
+        <tr><td style="padding:4px 8px"><code>--sf-surface-bg</code></td><td style="padding:4px 8px"><code>#FFFFFF</code></td><td style="padding:4px 8px"><code>#101114</code></td><td style="padding:4px 8px"><b>新键</b>。依据 = Kevin Q1「大容器底是 #FFFFFF」；夜档 <code>#101114</code> = Zang 裁定的夜档面（**本单新定值**，与既有夜档面 <code>#141619</code> / <code>#111317</code> 不同值 ⇒ 一句话可改）</td></tr>
+        <tr><td style="padding:4px 8px"><code>--sf-topbar-bg</code></td><td style="padding:4px 8px"><code>#FDE815</code></td><td style="padding:4px 8px"><code>#0B0C0E</code></td><td style="padding:4px 8px"><b>不变</b>（真源 201 / 274 行一字未改）＝ 黄色唯一落点</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin:10px 0 0">落点（口径见 <code>docs/design/design-system.spec.md</code> §22）：<code>.sf-shell</code> 继续挂 <code>var(--sf-page-bg)</code>；<code>.sf-route-container</code> 挂 <code>var(--sf-surface-bg)</code>；<code>frontend/src/pages/item/item.css</code> 的 <code>.sf-item-actionbar</code> 由 <code>var(--sf-page-bg)</code> 改挂 <code>var(--sf-surface-bg)</code>（否则页底转灰后它会在白容器内变成一条灰带）。</p>
+</section>

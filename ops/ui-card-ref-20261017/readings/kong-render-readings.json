@@ -1,0 +1,805 @@
+{
+  "probe": "ops/ui-card-ref-20261017/qa/kong-probe-card-ui.mjs（Kong 实现方自证）",
+  "startedAt": "2026-10-17T00:17:07.870Z",
+  "dist": "/Users/kevin/bistro/seafood/frontend/dist",
+  "fixtures": {
+    "api": "context.route 内存自截（零后端 / 零库写）",
+    "prizes": [
+      {
+        "bID": 1,
+        "points": 29
+      },
+      {
+        "bID": 2,
+        "points": 6600
+      },
+      {
+        "bID": 3,
+        "points": 1200
+      }
+    ]
+  },
+  "shotsDir": "/Users/kevin/bistro/seafood/ops/ui-card-ref-20261017/shots",
+  "states": {
+    "390_day": {
+      "url": "http://sf.local/",
+      "pathname": "/",
+      "search": "",
+      "theme": "light",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "bg": {
+        "shell": "rgb(245, 247, 249)",
+        "routeContainer": "rgb(255, 255, 255)",
+        "regionTop": "rgb(253, 232, 21)",
+        "cardInner": "rgb(255, 255, 255)",
+        "__numExpect": "rgb(3, 4, 2)"
+      },
+      "tokenResolved": {
+        "atRootPageBg": "#f5f7f9",
+        "atRootSurfaceBg": "#fff",
+        "atRootNumFg": "#030402",
+        "atCardCurFg": "#030402",
+        "atCardNumFg": "#030402",
+        "atCardUnitFg": "#3A3A2A"
+      },
+      "cardCount": 3,
+      "card": {
+        "tagName": "A",
+        "href": "/item/1",
+        "dataSfM": "reward-card",
+        "innerTag": "DIV",
+        "innerClasses": "rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 relative overflow-hidden hover:shadow-lg",
+        "childrenCount": 1,
+        "nestedInteractiveCount": 0,
+        "nestedInteractiveTags": []
+      },
+      "cta": {
+        "present": true,
+        "tagName": "SPAN",
+        "hook": "reward-card-view",
+        "text": "查看详情",
+        "href": null
+      },
+      "price": {
+        "sameParent": true,
+        "parentTag": "DIV",
+        "parentDisplay": "flex",
+        "parentAlignItems": "baseline",
+        "parentBorderWidth": "0px/0px/0px/0px",
+        "parentBackground": "rgba(0, 0, 0, 0)",
+        "parentPadding": "0px/0px/0px/0px",
+        "order": [
+          "cur",
+          "num"
+        ],
+        "cur": {
+          "rect": {
+            "x": 299.38,
+            "y": 855,
+            "w": 10.81,
+            "h": 23.98,
+            "top": 855,
+            "bottom": 878.98,
+            "left": 299.38,
+            "right": 310.19
+          },
+          "fontSize": "18px",
+          "fontWeight": "700",
+          "color": "rgb(3, 4, 2)",
+          "text": "$"
+        },
+        "num": {
+          "rect": {
+            "x": 310.19,
+            "y": 848,
+            "w": 28.81,
+            "h": 32,
+            "top": 848,
+            "bottom": 880,
+            "left": 310.19,
+            "right": 339
+          },
+          "fontSize": "24px",
+          "fontWeight": "700",
+          "color": "rgb(3, 4, 2)",
+          "text": "29"
+        },
+        "heightRatio": 0.75,
+        "curBaseline": 872,
+        "numBaseline": 872,
+        "baselineDelta": 0,
+        "curIsSpan": true
+      },
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "regionCount": 5,
+      "docOverflow": 0,
+      "cardsTotal": 3
+    },
+    "390_night": {
+      "url": "http://sf.local/",
+      "pathname": "/",
+      "search": "",
+      "theme": "dark",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "bg": {
+        "shell": "rgb(11, 12, 14)",
+        "routeContainer": "rgb(16, 17, 20)",
+        "regionTop": "rgb(11, 12, 14)",
+        "cardInner": "rgb(255, 255, 255)",
+        "__numExpect": "rgb(3, 4, 2)"
+      },
+      "tokenResolved": {
+        "atRootPageBg": "#0b0c0e",
+        "atRootSurfaceBg": "#101114",
+        "atRootNumFg": "#fde815",
+        "atCardCurFg": "#030402",
+        "atCardNumFg": "#030402",
+        "atCardUnitFg": "#3A3A2A"
+      },
+      "cardCount": 3,
+      "card": {
+        "tagName": "A",
+        "href": "/item/1",
+        "dataSfM": "reward-card",
+        "innerTag": "DIV",
+        "innerClasses": "rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 relative overflow-hidden hover:shadow-lg",
+        "childrenCount": 1,
+        "nestedInteractiveCount": 0,
+        "nestedInteractiveTags": []
+      },
+      "cta": {
+        "present": true,
+        "tagName": "SPAN",
+        "hook": "reward-card-view",
+        "text": "查看详情",
+        "href": null
+      },
+      "price": {
+        "sameParent": true,
+        "parentTag": "DIV",
+        "parentDisplay": "flex",
+        "parentAlignItems": "baseline",
+        "parentBorderWidth": "0px/0px/0px/0px",
+        "parentBackground": "rgba(0, 0, 0, 0)",
+        "parentPadding": "0px/0px/0px/0px",
+        "order": [
+          "cur",
+          "num"
+        ],
+        "cur": {
+          "rect": {
+            "x": 299.38,
+            "y": 855,
+            "w": 10.81,
+            "h": 23.98,
+            "top": 855,
+            "bottom": 878.98,
+            "left": 299.38,
+            "right": 310.19
+          },
+          "fontSize": "18px",
+          "fontWeight": "700",
+          "color": "rgb(3, 4, 2)",
+          "text": "$"
+        },
+        "num": {
+          "rect": {
+            "x": 310.19,
+            "y": 848,
+            "w": 28.81,
+            "h": 32,
+            "top": 848,
+            "bottom": 880,
+            "left": 310.19,
+            "right": 339
+          },
+          "fontSize": "24px",
+          "fontWeight": "700",
+          "color": "rgb(3, 4, 2)",
+          "text": "29"
+        },
+        "heightRatio": 0.75,
+        "curBaseline": 872,
+        "numBaseline": 872,
+        "baselineDelta": 0,
+        "curIsSpan": true
+      },
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "regionCount": 5,
+      "docOverflow": 0,
+      "cardsTotal": 3
+    },
+    "1440_day": {
+      "url": "http://sf.local/",
+      "pathname": "/",
+      "search": "",
+      "theme": "light",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "bg": {
+        "shell": "rgb(245, 247, 249)",
+        "routeContainer": "rgb(255, 255, 255)",
+        "regionTop": "rgb(253, 232, 21)",
+        "cardInner": "rgb(255, 255, 255)",
+        "__numExpect": "rgb(3, 4, 2)"
+      },
+      "tokenResolved": {
+        "atRootPageBg": "#f5f7f9",
+        "atRootSurfaceBg": "#fff",
+        "atRootNumFg": "#030402",
+        "atCardCurFg": "#030402",
+        "atCardNumFg": "#030402",
+        "atCardUnitFg": "#3A3A2A"
+      },
+      "cardCount": 3,
+      "card": {
+        "tagName": "A",
+        "href": "/item/1",
+        "dataSfM": "reward-card",
+        "innerTag": "DIV",
+        "innerClasses": "rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 relative overflow-hidden hover:shadow-lg",
+        "childrenCount": 1,
+        "nestedInteractiveCount": 0,
+        "nestedInteractiveTags": []
+      },
+      "cta": {
+        "present": true,
+        "tagName": "SPAN",
+        "hook": "reward-card-view",
+        "text": "查看详情",
+        "href": null
+      },
+      "price": {
+        "sameParent": true,
+        "parentTag": "DIV",
+        "parentDisplay": "flex",
+        "parentAlignItems": "baseline",
+        "parentBorderWidth": "0px/0px/0px/0px",
+        "parentBackground": "rgba(0, 0, 0, 0)",
+        "parentPadding": "0px/0px/0px/0px",
+        "order": [
+          "cur",
+          "num"
+        ],
+        "cur": {
+          "rect": {
+            "x": 303.38,
+            "y": 723,
+            "w": 10.81,
+            "h": 23.98,
+            "top": 723,
+            "bottom": 746.98,
+            "left": 303.38,
+            "right": 314.19
+          },
+          "fontSize": "18px",
+          "fontWeight": "700",
+          "color": "rgb(3, 4, 2)",
+          "text": "$"
+        },
+        "num": {
+          "rect": {
+            "x": 314.19,
+            "y": 716,
+            "w": 28.81,
+            "h": 32,
+            "top": 716,
+            "bottom": 748,
+            "left": 314.19,
+            "right": 343
+          },
+          "fontSize": "24px",
+          "fontWeight": "700",
+          "color": "rgb(3, 4, 2)",
+          "text": "29"
+        },
+        "heightRatio": 0.75,
+        "curBaseline": 740,
+        "numBaseline": 740,
+        "baselineDelta": 0,
+        "curIsSpan": true
+      },
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "regionCount": 5,
+      "docOverflow": 0,
+      "cardsTotal": 3
+    },
+    "1440_night": {
+      "url": "http://sf.local/",
+      "pathname": "/",
+      "search": "",
+      "theme": "dark",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "bg": {
+        "shell": "rgb(11, 12, 14)",
+        "routeContainer": "rgb(16, 17, 20)",
+        "regionTop": "rgb(11, 12, 14)",
+        "cardInner": "rgb(255, 255, 255)",
+        "__numExpect": "rgb(3, 4, 2)"
+      },
+      "tokenResolved": {
+        "atRootPageBg": "#0b0c0e",
+        "atRootSurfaceBg": "#101114",
+        "atRootNumFg": "#fde815",
+        "atCardCurFg": "#030402",
+        "atCardNumFg": "#030402",
+        "atCardUnitFg": "#3A3A2A"
+      },
+      "cardCount": 3,
+      "card": {
+        "tagName": "A",
+        "href": "/item/1",
+        "dataSfM": "reward-card",
+        "innerTag": "DIV",
+        "innerClasses": "rounded-lg border p-6 transition-all duration-300 bg-white border-gray-200 relative overflow-hidden hover:shadow-lg",
+        "childrenCount": 1,
+        "nestedInteractiveCount": 0,
+        "nestedInteractiveTags": []
+      },
+      "cta": {
+        "present": true,
+        "tagName": "SPAN",
+        "hook": "reward-card-view",
+        "text": "查看详情",
+        "href": null
+      },
+      "price": {
+        "sameParent": true,
+        "parentTag": "DIV",
+        "parentDisplay": "flex",
+        "parentAlignItems": "baseline",
+        "parentBorderWidth": "0px/0px/0px/0px",
+        "parentBackground": "rgba(0, 0, 0, 0)",
+        "parentPadding": "0px/0px/0px/0px",
+        "order": [
+          "cur",
+          "num"
+        ],
+        "cur": {
+          "rect": {
+            "x": 303.38,
+            "y": 723,
+            "w": 10.81,
+            "h": 23.98,
+            "top": 723,
+            "bottom": 746.98,
+            "left": 303.38,
+            "right": 314.19
+          },
+          "fontSize": "18px",
+          "fontWeight": "700",
+          "color": "rgb(3, 4, 2)",
+          "text": "$"
+        },
+        "num": {
+          "rect": {
+            "x": 314.19,
+            "y": 716,
+            "w": 28.81,
+            "h": 32,
+            "top": 716,
+            "bottom": 748,
+            "left": 314.19,
+            "right": 343
+          },
+          "fontSize": "24px",
+          "fontWeight": "700",
+          "color": "rgb(3, 4, 2)",
+          "text": "29"
+        },
+        "heightRatio": 0.75,
+        "curBaseline": 740,
+        "numBaseline": 740,
+        "baselineDelta": 0,
+        "curIsSpan": true
+      },
+      "regions": [
+        "shell",
+        "topnav",
+        "content",
+        "footer",
+        "tabbar"
+      ],
+      "regionCount": 5,
+      "docOverflow": 0,
+      "cardsTotal": 3
+    }
+  },
+  "clicks": {
+    "zh_390": {
+      "url": "/",
+      "expectPrefix": "/item/",
+      "before": {
+        "pathname": "/",
+        "hrefs": [
+          "/item/1",
+          "/item/2",
+          "/item/3"
+        ]
+      },
+      "blankPoint": {
+        "ok": true,
+        "cardRect": {
+          "x": 26,
+          "y": 237,
+          "w": 338,
+          "h": 370
+        },
+        "pick": {
+          "x": 29,
+          "y": 240,
+          "hit": "card-inner-box",
+          "strict": true
+        },
+        "strictCount": 1650,
+        "anyCount": 5026
+      },
+      "after": {
+        "pathname": "/item/1",
+        "url": "http://sf.local/item/1"
+      }
+    },
+    "en_390": {
+      "url": "/en",
+      "expectPrefix": "/en/item/",
+      "before": {
+        "pathname": "/en",
+        "hrefs": [
+          "/en/item/1",
+          "/en/item/2",
+          "/en/item/3"
+        ]
+      },
+      "blankPoint": {
+        "ok": true,
+        "cardRect": {
+          "x": 26,
+          "y": 237,
+          "w": 338,
+          "h": 370
+        },
+        "pick": {
+          "x": 29,
+          "y": 240,
+          "hit": "card-inner-box",
+          "strict": true
+        },
+        "strictCount": 1650,
+        "anyCount": 4960
+      },
+      "after": {
+        "pathname": "/en/item/1",
+        "url": "http://sf.local/en/item/1"
+      }
+    }
+  },
+  "rulerSensitivity": {
+    "injected": ".sf-reward-price{align-items:flex-start !important} .sf-reward-price-cur{font-size:0.4em !important}（探针页内 <style>，仓内源码零改动）",
+    "baselineDelta": {
+      "shipped": 0,
+      "perturbed": 15
+    },
+    "baselineRulerSensitive": true,
+    "heightRatio": {
+      "shipped": 0.75,
+      "perturbed": 0.4
+    },
+    "ratioRulerSensitive": true
+  },
+  "screenshots": [
+    {
+      "label": "390_day",
+      "theme": "light",
+      "path": "/Users/kevin/bistro/seafood/ops/ui-card-ref-20261017/shots/after-390-日档.png",
+      "sha256": "869c8f339ef9470fd96286ed09e4cd474a122ccdf00d00354107afc53c63ed9f",
+      "bytes": 61831
+    },
+    {
+      "label": "390_night",
+      "theme": "dark",
+      "path": "/Users/kevin/bistro/seafood/ops/ui-card-ref-20261017/shots/after-390-夜档.png",
+      "sha256": "1847227e65c3cb98b00cea3867234aeb47bfa2e86163c7f214cfa94cfda36f51",
+      "bytes": 60153
+    },
+    {
+      "label": "1440_day",
+      "theme": "light",
+      "path": "/Users/kevin/bistro/seafood/ops/ui-card-ref-20261017/shots/after-1440-日档.png",
+      "sha256": "ad770430ea006d8e13a3d963ae13c8d80df89fbbfe9e4dbd1d70f44e26260dce",
+      "bytes": 136258
+    },
+    {
+      "label": "1440_night",
+      "theme": "dark",
+      "path": "/Users/kevin/bistro/seafood/ops/ui-card-ref-20261017/shots/after-1440-夜档.png",
+      "sha256": "e3e31ee31cd0baaeff9a93207021b57ed9a1100adf9e56545133311d0987cd06",
+      "bytes": 133941
+    }
+  ],
+  "ac": {
+    "AC-1": {
+      "day_390": {
+        "shell": "rgb(245, 247, 249)",
+        "routeContainer": "rgb(255, 255, 255)",
+        "regionTop": "rgb(253, 232, 21)"
+      },
+      "night_390": {
+        "shell": "rgb(11, 12, 14)",
+        "routeContainer": "rgb(16, 17, 20)",
+        "regionTop": "rgb(11, 12, 14)"
+      },
+      "day_1440": {
+        "shell": "rgb(245, 247, 249)",
+        "routeContainer": "rgb(255, 255, 255)",
+        "regionTop": "rgb(253, 232, 21)"
+      },
+      "night_1440": {
+        "shell": "rgb(11, 12, 14)",
+        "routeContainer": "rgb(16, 17, 20)",
+        "regionTop": "rgb(11, 12, 14)"
+      },
+      "ok": true
+    },
+    "AC-2": {
+      "zh_390_day": {
+        "ok": true,
+        "fails": [],
+        "measured": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "numFontSize": "24px",
+          "curFontSize": "18px",
+          "order": [
+            "cur",
+            "num"
+          ],
+          "parentDisplay": "flex",
+          "parentAlignItems": "baseline",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px"
+        }
+      },
+      "zh_390_night": {
+        "ok": true,
+        "fails": [],
+        "measured": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "numFontSize": "24px",
+          "curFontSize": "18px",
+          "order": [
+            "cur",
+            "num"
+          ],
+          "parentDisplay": "flex",
+          "parentAlignItems": "baseline",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px"
+        }
+      },
+      "zh_1440_day": {
+        "ok": true,
+        "fails": [],
+        "measured": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "numFontSize": "24px",
+          "curFontSize": "18px",
+          "order": [
+            "cur",
+            "num"
+          ],
+          "parentDisplay": "flex",
+          "parentAlignItems": "baseline",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px"
+        }
+      },
+      "zh_1440_night": {
+        "ok": true,
+        "fails": [],
+        "measured": {
+          "baselineDelta": 0,
+          "heightRatio": 0.75,
+          "numFontWeight": "700",
+          "numColor": "rgb(3, 4, 2)",
+          "curColor": "rgb(3, 4, 2)",
+          "numFontSize": "24px",
+          "curFontSize": "18px",
+          "order": [
+            "cur",
+            "num"
+          ],
+          "parentDisplay": "flex",
+          "parentAlignItems": "baseline",
+          "parentBorderWidth": "0px/0px/0px/0px",
+          "parentBackground": "rgba(0, 0, 0, 0)",
+          "parentPadding": "0px/0px/0px/0px"
+        }
+      },
+      "cardLocalRebind": {
+        "day390": {
+          "atRootPageBg": "#f5f7f9",
+          "atRootSurfaceBg": "#fff",
+          "atRootNumFg": "#030402",
+          "atCardCurFg": "#030402",
+          "atCardNumFg": "#030402",
+          "atCardUnitFg": "#3A3A2A"
+        },
+        "night390": {
+          "atRootPageBg": "#0b0c0e",
+          "atRootSurfaceBg": "#101114",
+          "atRootNumFg": "#fde815",
+          "atCardCurFg": "#030402",
+          "atCardNumFg": "#030402",
+          "atCardUnitFg": "#3A3A2A"
+        }
+      },
+      "ok": true
+    },
+    "AC-3": {
+      "zh_390": {
+        "ok": true,
+        "fails": [],
+        "measured": {
+          "tagName": "A",
+          "href": "/item/1",
+          "nestedInteractiveCount": 0,
+          "cta": {
+            "present": true,
+            "tagName": "SPAN",
+            "hook": "reward-card-view",
+            "text": "查看详情",
+            "href": null
+          },
+          "cardCount": 3
+        }
+      },
+      "zh_390_night": {
+        "ok": true,
+        "fails": [],
+        "measured": {
+          "tagName": "A",
+          "href": "/item/1",
+          "nestedInteractiveCount": 0,
+          "cta": {
+            "present": true,
+            "tagName": "SPAN",
+            "hook": "reward-card-view",
+            "text": "查看详情",
+            "href": null
+          },
+          "cardCount": 3
+        }
+      },
+      "zh_1440": {
+        "ok": true,
+        "fails": [],
+        "measured": {
+          "tagName": "A",
+          "href": "/item/1",
+          "nestedInteractiveCount": 0,
+          "cta": {
+            "present": true,
+            "tagName": "SPAN",
+            "hook": "reward-card-view",
+            "text": "查看详情",
+            "href": null
+          },
+          "cardCount": 3
+        }
+      },
+      "en_390_hrefs": [
+        "/en/item/1",
+        "/en/item/2",
+        "/en/item/3"
+      ],
+      "en_390_hrefOk": true,
+      "click_zh": {
+        "blankPoint": {
+          "x": 29,
+          "y": 240,
+          "hit": "card-inner-box",
+          "strict": true
+        },
+        "afterPathname": "/item/1",
+        "ok": true
+      },
+      "click_en": {
+        "blankPoint": {
+          "x": 29,
+          "y": 240,
+          "hit": "card-inner-box",
+          "strict": true
+        },
+        "afterPathname": "/en/item/1",
+        "ok": true
+      },
+      "ok": true
+    },
+    "AC-4": {
+      "note": "由 kong-ac4-tmp 单测（vitest）另出读数；本探针附「无 Router」态下 dist 页面零相关异常",
+      "pageErrors": []
+    },
+    "AC-6": {
+      "themeTokensPerKeyEqual": null,
+      "regions": {
+        "day390": [
+          "shell",
+          "topnav",
+          "content",
+          "footer",
+          "tabbar"
+        ],
+        "night390": [
+          "shell",
+          "topnav",
+          "content",
+          "footer",
+          "tabbar"
+        ],
+        "day1440": [
+          "shell",
+          "topnav",
+          "content",
+          "footer",
+          "tabbar"
+        ]
+      },
+      "regionsIdentical": true,
+      "docOverflow": {
+        "day390": 0,
+        "day1440": 0,
+        "night390": 0,
+        "night1440": 0
+      },
+      "ok": true
+    }
+  },
+  "pageErrors": [],
+  "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "notes": {}
+}
