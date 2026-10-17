@@ -8,7 +8,7 @@
  *
  * ★ A–H 静态面 **零 DB / 零网络**（只 import 纯函数 + 读源码 / 迁移 / locale 文本）。
  * ★ I/K 库面 leg：**只连库**（结构面**活体**只读 + ★★ 四段真链路 + `R-9-23` 反事実直插 = 事务内 + 子步 `SAVEPOINT` + 末尾 `ROLLBACK`）；**零 HTTP**。
- * ★ `0032`/`0033`/`0034`/`0035`…`0046` **已 apply**（`schema_version = 0046` · `schema_migration` 45 行 · A5 收口 +`0045_message_conversation`/+`0046_telegram_binding`）⇒ 其 DB 级效果**转为活体 `checks`**；
+ * ★ `0032`/`0033`/`0034`/`0035`…`0049` **已 apply**（`schema_version = 0049` · `schema_migration` 48 行 · A5 收口 +`0045_message_conversation`/+`0046_telegram_binding` · `0049_seed_bttc_currency` = BTTC 载体行 seed）⇒ 其 DB 级效果**转为活体 `checks`**；
  *   `pending_apply[]` **归零**（原 10 条库面 leg 全部落实，**不伪装绿**）。
  *   ★ 库面写一律**事务内 + 末尾 `ROLLBACK`**（append-only ⇒ 无 DELETE 复原路径）；**严禁** `UPDATE app_config`。
  *
@@ -26,7 +26,7 @@
  *   H  **`C-15`「无行 ⇒ 兜底值」独立负对照**（空表 / 无行 / `null` / `[]` ⇒ `source=constant` 且五键 = 常量默认）+ SQL `COALESCE` 包在标量子查询**外层**
  *   I  **`R-9-23` 钳制 + 反事実直插必红 `23514`**：纯函数钳 `mintBattCost ≤ capBatt` / `burnBattGain ≤ 100`；SQL `LEAST(…, capBatt)`；活体直插 `batt = 101` ⇒ `23514`（边界 `100` ⇒ 通过）
  *   J  零新增错误码（仍恰 **33**）+ 借既有码 + 稳定 `reason` 常量 + `pending_apply[]` **归零**（三迁移已 apply）
- *   K  库面**活体**：`0032`/`0033`/`0034`/`0038` 结构指纹（kind 24 / kind_ok / −1 credit 8 / 列 / op 白名单含 burn + 双写 / `schema_migration` 43·0044）
+ *   K  库面**活体**：`0032`/`0033`/`0034`/`0038` 结构指纹（kind 24 / kind_ok / −1 credit 8 / 列 / op 白名单含 burn + 双写 / `schema_migration` 48·0049）
  *      + ★★ 四段真链路（创建含豁免闸两读数 / 铸造含幂等重放与闸负读数 / 分解含封顶丢弃 / 配对不变式）+ 零残渣（`ROLLBACK`）
  *   L  四语 `bttcPanel` 键集逐语相等 + 六类工程口径泄漏 = 0 + `en`/`vn` 零 CJK
  */
@@ -354,7 +354,7 @@ const WL_0032_M1_CREDIT = (mWhitelist ? (mWhitelist[1].match(/'([a-z_]+)'/g) || 
 // J · 零新增错误码（仍恰 33）+ 借既有码 + 稳定 reason
 // ============================================================================
 const pendingApply: Array<{ leg: string; reason: string }> = [];
-// ★ 库面收口（S27；出处 = 本批 apply `0043`）：`0032`/`0033`/`0034`…`0038` **已 apply**（`schema_version = 0044` · `schema_migration` 43 行）⇒ 原 10 条
+// ★ 库面收口（S27；出处 = 本批 apply `0043`）：`0032`/`0033`/`0034`…`0038` **已 apply**（`schema_version = 0049` · `schema_migration` 48 行）⇒ 原 10 条
 //   「等 apply 再测」的库面 leg **全部转为 K 段活体 `checks`** ⇒ `pending_apply[]` **归零**（**不得伪装绿**）。
 {
   t('J1', 'closedSets', LEDGER_ERROR_CODES.length === 33, '错误码闭集仍恰 33 条（**不动**）', LEDGER_ERROR_CODES.length);
@@ -403,7 +403,7 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
 // ============================================================================
 // K · 库面 leg（只连库 · 零 HTTP）：结构面**活体**断言 + ★★ 四段真链路（事务内 + 子步 SAVEPOINT + 末尾 ROLLBACK）
 // ----------------------------------------------------------------------------
-// ★ `0032`/`0033`/`0034`/`0038` **已 apply**（`schema_version = 0044` · `schema_migration` 43 行）⇒ 原 `pending_apply[]` 10 条
+// ★ `0032`/`0033`/`0034`/`0038` **已 apply**（`schema_version = 0049` · `schema_migration` 48 行）⇒ 原 `pending_apply[]` 10 条
 //   **全部转本段活体 checks**（`ledger_kind_enum`/`ledger_kind_ok`/`−1` credit 白名单/`is_platform_coin` 列与默认/
 //   `op` 白名单与双写/三迁移结构指纹 + 四段真链路 + 配对不变式 + 零残渣）。
 // ★ 库面写一律**事务内 + 末尾 ROLLBACK**（`ledger_entry`/`batt_entry`/`batt_account` append-only ⇒ 无 DELETE 复原路径）；
@@ -517,8 +517,9 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
     // ★ S27 库面前推（出处 = 本批 apply `0043_truncate_guard.sql`；S26 建、Zang apply）：库面 `schema_migration` 41 行/`0042` ⇒ 42 行/`0043`（15 张 append-only 表各补 1 枚 `BEFORE TRUNCATE` 守卫）。
     // ★ S51 apply 后库面前推（出处 = 本批 apply `0044_restore_listing_deposit_leg.sql`；Zang 亲做）：库面 42 行/`0043` ⇒ **43 行/`0044`**（`0044` 重放 `0020`：hold 家族守卫去 `listing_deposit`）。
     // ★ A5 收口 apply 后库面前推（出处 = 本批 apply `0045_message_conversation.sql` + `0046_telegram_binding.sql`）：库面 43 行/`0044` ⇒ **45 行/`0046`**（站内信两表 DDL + Telegram 绑定列）。
-    t('K5', 'dbStructureLive', Number(sm[0].n) === 45 && String(sm[0].mx) === '0046',
-      '★ 迁移结构指纹：`schema_migration` = **45 行** · `max(version)` = **0046**（`0032`→…→`0046` 已 apply · `0043` TRUNCATE 守卫 · `0044` hold 守卫去 `listing_deposit` · 8⑥ 审计台权限键 · A5 站内信/Telegram 绑定）', JSON.stringify(sm[0]));
+    // ★ P9④ 载体行 seed apply 后库面前推（出处 = 本批 apply `0049_seed_bttc_currency.sql`；`0047`/`0048` 已分别 apply）：库面 47 行/`0048` ⇒ **48 行/`0049`**（seed `currency` 的 `symbol='BTTC'` 载体行 —— 修 `ensureBttcCurrency` 生产代码零调用点导致的死链：无行 ⇒ `getBttcState.status = null` ⇒ 前端 `bttcAvailable = false` ⇒ 铸造/分解按钮整块不渲染）。
+    t('K5', 'dbStructureLive', Number(sm[0].n) === 48 && String(sm[0].mx) === '0049',
+      '★ 迁移结构指纹：`schema_migration` = **48 行** · `max(version)` = **0049**（`0032`→…→`0049` 已 apply · `0043` TRUNCATE 守卫 · `0044` hold 守卫去 `listing_deposit` · 8⑥ 审计台权限键 · A5 站内信/Telegram 绑定 · tg-bind-v2 短码表 · `0049` BTTC 载体行 seed）', JSON.stringify(sm[0]));
     selfTest('K5', 'dbStructureLive', (v) => String(v) === '0038', '0034', '把「未 apply（0034）」喂入「0038」谓词 ⇒ 必须转红');
 
     // ---------------------------------------------------------------- 四段真链路（单事务 + 子步 SAVEPOINT + 末尾 ROLLBACK）
@@ -762,7 +763,7 @@ const pendingApply: Array<{ leg: string; reason: string }> = [];
     offline: false,
     db_connections: dbConnections,
     http_calls: httpCalls,
-    note: 'A–H/L 静态面零 DB / 零 HTTP；I/K 库面 leg **只连库**（结构面**活体**只读 + `R-9-23` 反事実直插 + 四段真链路 = 事务内 + 末尾 ROLLBACK）。★ `0032`/`0033`/`0034`…`0038` **已 apply**（`schema_version` 0046 · `schema_migration` 45 行）⇒ 其 DB 级效果全部转为 K 段**活体 checks**，`pending_apply[]` **归零**（不伪装绿）。',
+    note: 'A–H/L 静态面零 DB / 零 HTTP；I/K 库面 leg **只连库**（结构面**活体**只读 + `R-9-23` 反事実直插 + 四段真链路 = 事务内 + 末尾 ROLLBACK）。★ `0032`/`0033`/`0034`…`0038` **已 apply**（`schema_version` 0049 · `schema_migration` 48 行）⇒ 其 DB 级效果全部转为 K 段**活体 checks**，`pending_apply[]` **归零**（不伪装绿）。',
     total: checks.length,
     passed: checks.length - failed.length,
     failed: failed.length,

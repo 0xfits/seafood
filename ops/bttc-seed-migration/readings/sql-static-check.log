@@ -1,0 +1,27 @@
+PASS no-begin-commit :: []
+PASS no-block-comment-marker :: 0 次
+PASS paren-balance :: 0
+PASS dollar-quote-pairs :: 2
+PASS stmt-count-outside-do :: n=1 head=INSERT INTO public.currency
+  (s
+PASS if-endif-balance :: 12 / 12
+PASS idempotent-not-exists :: 命中
+PASS idempotent-on-conflict :: 命中
+PASS no-destructive-stmt :: []
+PASS columns-identical :: 迁移列清单 = ["symbol","name","owner_uid","decimals","status","listed_at","deposit_amount","deposit_cid","supply_cap","is_platform_coin"]
+PASS values-identical :: 迁移值 = 'BTTC'::text, 'battcoin'::text, 0::bigint, 0::smallint, 'listed', now(), 0::bigint, 1::bigint, NULL::bigint, true
+PASS columns-vs-values-count :: 10 == 10
+PASS selfcheck-exactly-1-row :: 命中
+PASS selfcheck-status-listed :: 命中
+PASS selfcheck-platform-coin :: 命中
+PASS selfcheck-decimals-0 :: 命中
+PASS selfcheck-listed-at :: 命中
+PASS selfcheck-name :: 命中
+PASS selfcheck-owner :: 命中
+PASS selfcheck-deposit :: 命中
+PASS selfcheck-deposit-cid :: 命中
+PASS selfcheck-supply-cap-null :: 命中
+PASS selfcheck-supply-nonneg :: 命中
+PASS selfcheck-raises :: 命中
+
+PASS 24/24

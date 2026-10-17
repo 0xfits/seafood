@@ -1,0 +1,66 @@
+# 缺陷链取证（2026-10-17 现取 · 只读 grep/sed · 零库连接）
+
+## ① 读口：getBttcState 只按 symbol='BTTC' 查 currency，查无行 ⇒ status=null
+  static async getBttcState(uid: number, ex?: SqlRunner): Promise<{
+    symbol: string; name: string; decimals: number; status: string | null; totalSupply: string;
+    balance: string; usdBalance: string; batt: number;
+    canMint: boolean; canBurn: boolean;
+    policy: MintBurnPolicy; source: PolicySource;
+  }> {
+    const rawBatt = await this.getAppConfigValueByKey('batt_policy', ex);
+    const { policy: battPolicy } = resolveBattPolicy(rawBatt);
+    const sql = sqlFor(ex);
+    const rows = asItems<Record<string, unknown>>(await sql`
+      WITH bttc AS (
+        SELECT c.cid, c.symbol, c.name, c.decimals, c.status, c.total_supply
+        FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1
+      )
+      SELECT
+        (SELECT bttc.symbol FROM bttc) AS symbol,
+        (SELECT bttc.name FROM bttc) AS name,
+        (SELECT bttc.decimals::int FROM bttc) AS decimals,
+        (SELECT bttc.status FROM bttc) AS status,
+        (SELECT bttc.total_supply::text FROM bttc) AS total_supply,
+        COALESCE((SELECT a.balance::text FROM public.account AS a
+
+## ② 前端判定：bttcAvailable = bttc && bttc.status !== null
+  if (!isAuthenticated) return null
+
+  const bttc = batt?.bttc || null
+  const bttcBalance = bttc ? bttc.balance : '—'
+  const bttcAvailable = bttc && bttc.status !== null
+  // 铸造缺额（纯展示 · 只做减法 · 承 `R-8-5`：客户端永不决定金额/电量）
+  //   口径与后端 `getBttcState` 同源：`batt ≥ policy.mintBattCost` ∧ `$ ≥ policy.mintFeeUsd`。
+  //   `mintBattCost` / `mintFeeUsd` 缺键 ⇒ 回落后端同款常量（`MINT_BURN_POLICY_DEFAULTS` 100 / 1），
+              <span className="text-sm text-gray-500">{t('bttcPanel.balanceLabel')}</span>
+            </div>
+            {bttc && !bttcAvailable && (
+              <p className="text-sm text-gray-500">{t('bttcPanel.unavailable')}</p>
+            )}
+            {bttcAvailable && (
+              <div className="flex flex-wrap items-center gap-3">
+                <Button
+                  onClick={() => runAction(() => postBttcMint({ user }))}
+
+## ③ 生产代码零调用点：ensureBttcCurrency 的全部引用（仅定义 + 门/探针/产物）
+backend-ts/src/database.ts:5168:  static async ensureBttcCurrency(ex?: SqlRunner): Promise<{
+backend-ts/scripts/p8-s9-bttc-gate.ts:520:    // ★ P9④ 载体行 seed apply 后库面前推（出处 = 本批 apply `0049_seed_bttc_currency.sql`；`0047`/`0048` 已分别 apply）：库面 47 行/`0048` ⇒ **48 行/`0049`**（seed `currency` 的 `symbol='BTTC'` 载体行 —— 修 `ensureBttcCurrency` 生产代码零调用点导致的死链：无行 ⇒ `getBttcState.status = null` ⇒ 前端 `bttcAvailable = false` ⇒ 铸造/分解按钮整块不渲染）。
+backend-ts/scripts/p8-s9-bttc-gate.ts:561:      // ===================== ① BTTC 创建（`ensureBttcCurrency`）=====================
+backend-ts/scripts/p8-s9-bttc-gate.ts:562:      const c1 = await DatabaseService.ensureBttcCurrency(tx);
+backend-ts/scripts/p8-s9-bttc-gate.ts:563:      const c2 = await DatabaseService.ensureBttcCurrency(tx);
+backend-ts/scripts/p8-s9-bttc-gate.ts:575:        '★ `ensureBttcCurrency` 取数（幂等确保态 · 第二次调用）返回 `symbol=BTTC`/`decimals=0`/`status=listed`/`is_platform_coin=true`', JSON.stringify(chains.create));
+backend-ts/scripts/p8-s9-bttc-gate.ts:577:        '★ `R-9-45` 回归判据：`ensureBttcCurrency` **首次调用**（本次插入那一次）返回**确定值**（`ins RETURNING` 同名取回 + 逐列 `COALESCE` 兜底）⇒ 首调**非空**且 = 载体行（原缺陷 `F-α` 已被本判据覆盖，去修 ⇒ 必红）', JSON.stringify({ first_call: brief(c1) }));
+backend-ts/scripts/p8-s9-bttc-gate.ts:580:        title: '`ensureBttcCurrency` **首次调用**（本次插入那一次）曾返回 `null`（PG 数据修改型 CTE 同快照不可见）',
+backend-ts/scripts/p8-s9-bttc-gate.ts:581:        evidence: '原实现：主 SELECT 的标量子查询读 `public.currency` 早于本语句 INSERT 的可见性 ⇒ 首调 `cid=NULL` ⇒ 返回 `null`（行确已插入，第二次调用返回该行）。**按 `R-9-45` 已最小修**（`ins RETURNING` 同名取回 + 逐列 `COALESCE` 兜底，`src/database.ts` `ensureBttcCurrency`）⇒ 本次首调实测 `c1=' + (c1 === null ? 'null（未修，仍为缺陷）' : '非空（已修）') + '`；`KC1b` 为该修的结构回归判据。',
+backend-ts/scripts/p8-s9-bttc-gate.ts:616:        evidence: '平台行越过审核闸后：保证金 `0` ⇒ 保证金腿仍产零额分录 ⇒ `LD016`（`BOTH_ZERO`）整语句回滚；保证金 `>0` ⇒ 守卫 `NOT (平台 AND 保证金<>0)` 拦下（`applied=0`）。**已裁 `R-9-44`：属预期行为、非缺陷** —— 平台币/BTTC 由系统引导创建（`ensureBttcCurrency` 直达 `status=listed`），**不开放** `listCurrencyWithDeposit` 上市申请入口 ⇒ 豁免谓词语义 = **平台币免审核**，而非「平台币可申请上市」。登记待办：**若未来开放平台币上市申请** ⇒ 须修 `LD016` 零额保证金分录入径（**非本片范围**）。',
+
+## 口径源：ensureBttcCurrency 的 INSERT 列清单与值（database.ts:5173-5180）
+    const rows = asItems<Record<string, unknown>>(await sql`
+      WITH ins AS (
+        INSERT INTO public.currency
+          (symbol, name, owner_uid, decimals, status, listed_at, deposit_amount, deposit_cid, supply_cap, is_platform_coin)
+        SELECT 'BTTC'::text, 'battcoin'::text, 0::bigint, 0::smallint, 'listed', now(),
+               0::bigint, 1::bigint, NULL::bigint, true
+        WHERE NOT EXISTS (SELECT 1 FROM public.currency AS c WHERE c.symbol = 'BTTC')
+        ON CONFLICT (symbol) DO NOTHING
+        RETURNING cid, symbol, name, decimals, status, total_supply, is_platform_coin

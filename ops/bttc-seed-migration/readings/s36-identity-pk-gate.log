@@ -1,0 +1,62 @@
+{
+ "gate": "scripts/s36-00-identity-pk-form-gate.ts",
+ "root": "/Users/kevin/bistro/seafood/backend-ts",
+ "ts": "2026-10-17T04:22:01.344Z",
+ "criterion": "命中 = 测试面(scripts/** 或 migrations DO $$ 块)上、其表在全量三层面中同时存在『落在序列可达带(< unreachable_floor)的显式给号』的『省略 identity-PK』插入",
+ "self_proof": {
+  "scan_surfaces": [
+   {
+    "layer": "src",
+    "files": 23,
+    "recipients": 23
+   },
+   {
+    "layer": "migrations",
+    "files": 48,
+    "recipients": 39
+   },
+   {
+    "layer": "scripts",
+    "files": 301,
+    "recipients": 130
+   }
+  ],
+  "scan_surface_count": 3,
+  "recipients": 192,
+  "tables_with_identity": 23,
+  "unreachable_floor": 900000000,
+  "hits": 30,
+  "baseline": 30,
+  "new_hits": 0,
+  "explicit_out_of_band": 5,
+  "invalid": false,
+  "invalid_reason": null
+ },
+ "both_form_tables": [
+  "currency",
+  "users"
+ ],
+ "hits_by_table": [
+  {
+   "table": "currency",
+   "hits": 22
+  },
+  {
+   "table": "users",
+   "hits": 8
+  }
+ ],
+ "explicit_out_of_band_sites": [
+  "scripts/p8-s8-rating-timeliness-gate.ts:580 job.job_id",
+  "scripts/p8-s8-rating-timeliness-gate.ts:594 job_submission.submission_id",
+  "scripts/p8-s8-rating-timeliness-gate.ts:596 listing_order.order_id",
+  "scripts/p8-s8-rating-timeliness-gate.ts:602 listing_order_event.event_id",
+  "scripts/p8-s8-rating-timeliness-gate.ts:608 rating.rating_id"
+ ],
+ "new_hits": [],
+ "stale_baseline_entries": [],
+ "verdict": "GREEN",
+ "exit_code": 0
+}
+
+[自证] 扫描面=3层(src:23文件/23受体 migrations:48文件/39受体 scripts:301文件/130受体)  受体数=192  命中数=30  基线数=30  新增=0  出带显式给号=5(floor=900000000)

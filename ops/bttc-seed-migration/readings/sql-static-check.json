@@ -1,0 +1,154 @@
+{
+  "generated_at": "2026-10-17T04:22:00.713Z",
+  "file": "/Users/kevin/bistro/seafood/backend-ts/migrations/0049_seed_bttc_currency.sql",
+  "checks": [
+    {
+      "id": "no-begin-commit",
+      "pass": true,
+      "expect": "DO 块外 0 条以 BEGIN/COMMIT/ROLLBACK 开头的语句",
+      "actual": "[]"
+    },
+    {
+      "id": "no-block-comment-marker",
+      "pass": true,
+      "expect": "出现 0 次 '/*'",
+      "actual": "0 次"
+    },
+    {
+      "id": "paren-balance",
+      "pass": true,
+      "expect": "圆括号净差 = 0",
+      "actual": 0
+    },
+    {
+      "id": "dollar-quote-pairs",
+      "pass": true,
+      "expect": "$$ 恰好 2 次（1 个 DO 块）",
+      "actual": 2
+    },
+    {
+      "id": "stmt-count-outside-do",
+      "pass": true,
+      "expect": "DO 块外恰好 1 条且为 INSERT INTO public.currency",
+      "actual": "n=1 head=INSERT INTO public.currency\n  (s"
+    },
+    {
+      "id": "if-endif-balance",
+      "pass": true,
+      "expect": "独立 IF 数 == END IF 数（>0）",
+      "actual": "12 / 12"
+    },
+    {
+      "id": "idempotent-not-exists",
+      "pass": true,
+      "expect": "INSERT … SELECT … WHERE NOT EXISTS (symbol=BTTC)",
+      "actual": "命中"
+    },
+    {
+      "id": "idempotent-on-conflict",
+      "pass": true,
+      "expect": "ON CONFLICT (symbol) DO NOTHING",
+      "actual": "命中"
+    },
+    {
+      "id": "no-destructive-stmt",
+      "pass": true,
+      "expect": "DO 块外零 UPDATE/DELETE/TRUNCATE/DROP/ALTER/CREATE",
+      "actual": "[]"
+    },
+    {
+      "id": "columns-identical",
+      "pass": true,
+      "expect": "ensure 列清单 = [\"symbol\",\"name\",\"owner_uid\",\"decimals\",\"status\",\"listed_at\",\"deposit_amount\",\"deposit_cid\",\"supply_cap\",\"is_platform_coin\"]",
+      "actual": "迁移列清单 = [\"symbol\",\"name\",\"owner_uid\",\"decimals\",\"status\",\"listed_at\",\"deposit_amount\",\"deposit_cid\",\"supply_cap\",\"is_platform_coin\"]"
+    },
+    {
+      "id": "values-identical",
+      "pass": true,
+      "expect": "ensure 值 = 'BTTC'::text, 'battcoin'::text, 0::bigint, 0::smallint, 'listed', now(), 0::bigint, 1::bigint, NULL::bigint, true",
+      "actual": "迁移值 = 'BTTC'::text, 'battcoin'::text, 0::bigint, 0::smallint, 'listed', now(), 0::bigint, 1::bigint, NULL::bigint, true"
+    },
+    {
+      "id": "columns-vs-values-count",
+      "pass": true,
+      "expect": "列数 == 值数（10）",
+      "actual": "10 == 10"
+    },
+    {
+      "id": "selfcheck-exactly-1-row",
+      "pass": true,
+      "expect": "BTTC 行数 = 1",
+      "actual": "命中"
+    },
+    {
+      "id": "selfcheck-status-listed",
+      "pass": true,
+      "expect": "status = 'listed'",
+      "actual": "命中"
+    },
+    {
+      "id": "selfcheck-platform-coin",
+      "pass": true,
+      "expect": "is_platform_coin = true",
+      "actual": "命中"
+    },
+    {
+      "id": "selfcheck-decimals-0",
+      "pass": true,
+      "expect": "decimals = 0",
+      "actual": "命中"
+    },
+    {
+      "id": "selfcheck-listed-at",
+      "pass": true,
+      "expect": "listed_at IS NOT NULL",
+      "actual": "命中"
+    },
+    {
+      "id": "selfcheck-name",
+      "pass": true,
+      "expect": "name = 'battcoin'",
+      "actual": "命中"
+    },
+    {
+      "id": "selfcheck-owner",
+      "pass": true,
+      "expect": "owner_uid = 0",
+      "actual": "命中"
+    },
+    {
+      "id": "selfcheck-deposit",
+      "pass": true,
+      "expect": "deposit_amount = 0",
+      "actual": "命中"
+    },
+    {
+      "id": "selfcheck-deposit-cid",
+      "pass": true,
+      "expect": "deposit_cid = 1",
+      "actual": "命中"
+    },
+    {
+      "id": "selfcheck-supply-cap-null",
+      "pass": true,
+      "expect": "supply_cap IS NULL",
+      "actual": "命中"
+    },
+    {
+      "id": "selfcheck-supply-nonneg",
+      "pass": true,
+      "expect": "total_supply >= 0（不硬判 =0，重跑免疫）",
+      "actual": "命中"
+    },
+    {
+      "id": "selfcheck-raises",
+      "pass": true,
+      "expect": "不满足即 RAISE EXCEPTION",
+      "actual": "命中"
+    }
+  ],
+  "total": 24,
+  "passed": 24,
+  "failed": 0,
+  "verdict": "PASS"
+}

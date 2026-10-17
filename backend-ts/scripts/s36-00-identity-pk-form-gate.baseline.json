@@ -420,7 +420,7 @@
     },
     {
       "file": "scripts/p8-s9-bttc-gate.ts",
-      "line": 586,
+      "line": 587,
       "table": "currency",
       "column": "cid",
       "layer": "scripts",
