@@ -1,0 +1,29 @@
+{
+  "script": "ops/auth-renewal-20261017/probe/baseline-pre-change.mjs",
+  "at": "2026-10-17T07:56:04.799Z",
+  "purpose": "改前基线：现盘 token 无 iat/sst，鉴权成功不回头（无 X-Session-Token）",
+  "db": {
+    "neon_project_id": "quiet-math-65207667",
+    "uid": 1,
+    "evm_suffix": "8f74"
+  },
+  "token_payload": {
+    "keys": [
+      "sub",
+      "evm",
+      "exp"
+    ],
+    "iat": null,
+    "sst": null,
+    "exp_offset_s": 1800
+  },
+  "http": {
+    "url": "GET http://localhost:5788/api/user",
+    "status": 200,
+    "body_ok": null,
+    "body_uid": 1,
+    "x_session_token_present": false,
+    "x_session_token": null
+  },
+  "verdict": "BASELINE_CONFIRMED_NO_RENEWAL"
+}

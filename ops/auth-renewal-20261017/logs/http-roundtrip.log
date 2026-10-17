@@ -1,0 +1,15 @@
+PASS  H1  expect=iat=sst=1792216897 actual=iat=1792216897 sst=1792216897
+PASS  H2  expect=200 + 响应头 X-Session-Token（三段 JWT） actual=status=200 renewed=present
+PASS  H3  expect=sst 不变=1792216897 · iat≈now · exp=min(iat+259200, sst+604800) actual=sst=1792216897 iat=1792224097 exp=1792483297 expected=1792483297
+PASS  H4  expect=200 + 无 X-Session-Token actual=status=200 renewed=absent
+PASS  H5  expect=续期 token 立即可用，且 1h 内不重复下发 actual=status=200 renewed=absent
+PASS  H6  expect=200 + is_authenticated=true + 回 X-Session-Token actual=status=200 auth=true renewed=present
+PASS  H7  expect=200 + is_authenticated=false + 无头 actual=status=200 auth=false renewed=absent
+PASS  H8  expect=401 + error.code=AUTH_UNAUTHORIZED + 无头 actual=status=401 code=AUTH_UNAUTHORIZED renewed=absent
+PASS  H9  expect=401 + AUTH_UNAUTHORIZED + 无头 actual=status=401 code=AUTH_UNAUTHORIZED renewed=absent
+PASS  H10  expect=实际响应 Access-Control-Expose-Headers 含 X-Session-Token；预检 204（预检本身不带 expose，属 CORS 规范） actual=expose="X-Session-Token" preflight_status=204 preflight_expose="X-Session-Token"
+PASS  H11  expect=sst=1791619401 exp=sst+7d=1792224201（余量 ≤100s，远小于 3 天） actual=status=200 sst=1791619401 exp=1792224201 remaining=100s
+PASS  H12  expect=Cache-Control 含 private + no-store actual=cache-control="private, no-store"
+PASS  H13  expect=匿名公共口：200 + 无 X-Session-Token + Cache-Control 仍 public actual=status=200 renewed=absent cache-control="public, s-maxage=30, stale-while-revalidate=300"
+
+13/13 green · verdict=PASS · /Users/kevin/bistro/seafood/ops/auth-renewal-20261017/readings/http-roundtrip.json

@@ -1,0 +1,38 @@
+[auth] sliding renewal unreachable: idle=300s absolute=600s <= renewal granularity=3600s (tokens die before they can be renewed)
+PASS  G1-1    [policy] expect=idle=259200 abs=604800 gran=3600 legacy=1800 actual=idle=259200 abs=604800 gran=3600 legacy=1800
+PASS  G1-2    [shape] expect=keys=evm,exp,iat,sst,sub actual=keys=evm,exp,iat,sst,sub
+PASS  G1-3    [shape] expect=iat=1700000000 sst=1700000000 actual=iat=1700000000 sst=1700000000
+PASS  G1-4    [shape] expect=exp=1700259200（= min(iat+3d, sst+7d)） actual=exp=1700259200
+PASS  G2-1    [idle] expect=T0+3d-1s 仍可验签，iat/sst=1700000000 actual=uID=4242 iat=1700000000 sst=1700000000
+PASS  G2-2    [idle] expect=T0+3d ⇒ throws 'Token expired' actual=message=Token expired
+PASS  G3-1    [renew] expect=iat+1h ⇒ true actual=got=true
+PASS  G3-2    [renew] expect=sst 不变=1700000000 iat=now=1700003600 actual=sst=1700000000 iat=1700003600
+PASS  G3-3    [renew] expect=exp=1700262800（= iat+3d） actual=exp=1700262800
+PASS  G3-4    [renew] expect=100 次续期后 sst=1700000000 且 exp<=sst+7d（到点后 exp 夹在 1700604800） actual=sst=1700000000 exp=1700604800 ok=true
+PASS  G4-1    [absolute] expect=exp=sst+7d=1700604800（而不是 iat+3d=1700859436） actual=exp=1700604800
+PASS  G4-2    [absolute] expect=剩余 864s < 3d（夹紧生效） actual=remaining=864s
+PASS  G4-3    [absolute] expect=shouldRenew=true 且新 exp=1700604800（不越过绝对上限） actual=should=true exp=1700604800 sst=1700000000
+PASS  G5-1    [absolute] expect=sst+7d 整点 ⇒ false actual=got=false
+PASS  G5-2    [absolute] expect=sst+7d+1s ⇒ false actual=got=false
+PASS  G6-1    [legacy] expect=验签通过 + iat=exp-30min=1700000000 + sst 回落 iat actual=uID=4242 iat=1700000000 sst=1700000000
+PASS  G6-2    [legacy] expect=TTL=120min 的旧 token：iat=1700000000、1h 后 shouldRenew=true、新 sst=1700000000 actual=iat=1700000000 should=true newSst=1700000000
+PASS  G7-1    [tamper] expect=改签名 ⇒ 'Invalid token signature' actual=message=Invalid token signature
+PASS  G7-2    [tamper] expect=改载荷(sub 9) 复用旧签名 ⇒ 'Invalid token signature' actual=message=Invalid token signature
+PASS  G8-1    [granularity] expect=iat 30min / 59.5min / 59m59s 前 ⇒ false actual=[{"back":1800,"got":false},{"back":3570,"got":false},{"back":3599,"got":false}]
+PASS  G8-2    [granularity] expect=iat 整 1h / 1h1s 前 ⇒ true actual=[{"back":3600,"got":true},{"back":3601,"got":true}]
+PASS  G9-1    [env] expect=IDLE=5min ⇒ 300s；ABSOLUTE=10min ⇒ 600s actual=idle=300 abs=600
+PASS  G9-2    [env] expect=exp=iat+300=1700000300 actual=exp=1700000300
+PASS  G9-3    [env] expect=sst=T0-540 ⇒ exp=sst+600=1700000060（< iat+300） actual=exp=1700000060
+PASS  G10-1   [reverse-arm] expect=同一断言两臂：默认 exp=iat+259200 / IDLE=5min exp=iat+300 actual=default=1700259200 short=1700000300
+PASS  G10-2   [reverse-arm] expect=同年龄(1800s)两臂：默认 有效且不续；IDLE=5min Token expired actual=default=ok:renew=false short=throw:Token expired
+PASS  G10-3   [reverse-arm] expect=IDLE(300s) < 粒度(3600s) ⇒ 299s 仍有效、301s 已死 ⇒ 续期分支结构上不可达（脚枪） actual=idle=300 gran=3600 @299=ok @301=throw:Token expired
+PASS  G11-1   [no-new-route] expect=注册点 = 107 且 p7b-03 常量仍是 107（零新路由 ⇒ 常量不得动） actual=regs=107 (get=47 post=56 put=0 delete=3 patch=1) p7b03_constant=107
+PASS  G11-2   [no-new-route] expect=续期头下发点恰 1 处（单一签发源）+ cors exposedHeaders 恰 1 处 actual=setHeader=1 exposed=1
+PASS  G11-3   [zero-db-write] expect=auth.ts 零库面引用（无 SQL / 无 DatabaseService；HMAC `.update(` 不算） actual=matches=0
+PASS  G11-4   [zero-new-code] expect=401 语义不变：requireActor 仍 sendAuthError(res,401) + AUTH_UNAUTHORIZED（无新错误码） actual=sendAuthError401_hits=4
+PASS  G11-5   [wiring] expect=续期接在 2 处：requireActor 成功出口（52 个调用点共用）+ /api/home 直连 resolveActor 面 actual=call_sites=2
+PASS  G11-6   [wiring] expect=续期头与 `Cache-Control: private, no-store` 同在一处（带凭证响应不入共享缓存） actual=co_located=true
+PASS  G12-1   [defensive] expect=未来 sst ⇒ 上钳到 now=1700000000（不得把绝对上限后推） actual=sst=1700000000
+PASS  G12-2   [defensive] expect=坏输入 ⇒ 全 false（fail-closed） actual=[false,false,false]
+
+35/35 green · verdict=PASS · readings=/Users/kevin/bistro/seafood/ops/auth-renewal-20261017/readings/p9-gate.json

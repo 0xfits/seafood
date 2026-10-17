@@ -1,0 +1,132 @@
+{
+  "script": "ops/auth-renewal-20261017/probe/http-roundtrip.ts",
+  "at": "2026-10-17T08:01:42.594Z",
+  "base": "http://localhost:5788",
+  "db": {
+    "neon_project_id": "quiet-math-65207667",
+    "expected_dev_project": "quiet-math-65207667",
+    "uid": 1,
+    "evm_suffix": "8f74"
+  },
+  "server_date_header": "Sat, 17 Oct 2026 08:01:38 GMT",
+  "policy": {
+    "idle_seconds": 259200,
+    "absolute_seconds": 604800,
+    "renew_granularity_seconds": 3600
+  },
+  "readings": {
+    "aged_token_payload": {
+      "sub": "1",
+      "evm": "0x99a7ae985ec41c5ba94dd640b74307d9d9cd8f74",
+      "iat": 1792216897,
+      "sst": 1792216897,
+      "exp": 1792476097
+    },
+    "renewed_token_payload": {
+      "sub": "1",
+      "evm": "0x99a7ae985ec41c5ba94dd640b74307d9d9cd8f74",
+      "iat": 1792224097,
+      "sst": 1792216897,
+      "exp": 1792483297
+    },
+    "near_abs_renewed_payload": {
+      "sub": "1",
+      "evm": "0x99a7ae985ec41c5ba94dd640b74307d9d9cd8f74",
+      "iat": 1792224102,
+      "sst": 1791619401,
+      "exp": 1792224201
+    },
+    "cors_expose_header": "X-Session-Token",
+    "preflight": {
+      "status": 204,
+      "expose": "X-Session-Token",
+      "allow_origin": "*"
+    }
+  },
+  "checks": [
+    {
+      "id": "H1",
+      "pass": true,
+      "expect": "iat=sst=1792216897",
+      "actual": "iat=1792216897 sst=1792216897"
+    },
+    {
+      "id": "H2",
+      "pass": true,
+      "expect": "200 + 响应头 X-Session-Token（三段 JWT）",
+      "actual": "status=200 renewed=present"
+    },
+    {
+      "id": "H3",
+      "pass": true,
+      "expect": "sst 不变=1792216897 · iat≈now · exp=min(iat+259200, sst+604800)",
+      "actual": "sst=1792216897 iat=1792224097 exp=1792483297 expected=1792483297"
+    },
+    {
+      "id": "H4",
+      "pass": true,
+      "expect": "200 + 无 X-Session-Token",
+      "actual": "status=200 renewed=absent"
+    },
+    {
+      "id": "H5",
+      "pass": true,
+      "expect": "续期 token 立即可用，且 1h 内不重复下发",
+      "actual": "status=200 renewed=absent"
+    },
+    {
+      "id": "H6",
+      "pass": true,
+      "expect": "200 + is_authenticated=true + 回 X-Session-Token",
+      "actual": "status=200 auth=true renewed=present"
+    },
+    {
+      "id": "H7",
+      "pass": true,
+      "expect": "200 + is_authenticated=false + 无头",
+      "actual": "status=200 auth=false renewed=absent"
+    },
+    {
+      "id": "H8",
+      "pass": true,
+      "expect": "401 + error.code=AUTH_UNAUTHORIZED + 无头",
+      "actual": "status=401 code=AUTH_UNAUTHORIZED renewed=absent"
+    },
+    {
+      "id": "H9",
+      "pass": true,
+      "expect": "401 + AUTH_UNAUTHORIZED + 无头",
+      "actual": "status=401 code=AUTH_UNAUTHORIZED renewed=absent"
+    },
+    {
+      "id": "H10",
+      "pass": true,
+      "expect": "实际响应 Access-Control-Expose-Headers 含 X-Session-Token；预检 204（预检本身不带 expose，属 CORS 规范）",
+      "actual": "expose=\"X-Session-Token\" preflight_status=204 preflight_expose=\"X-Session-Token\""
+    },
+    {
+      "id": "H11",
+      "pass": true,
+      "expect": "sst=1791619401 exp=sst+7d=1792224201（余量 ≤100s，远小于 3 天）",
+      "actual": "status=200 sst=1791619401 exp=1792224201 remaining=100s"
+    },
+    {
+      "id": "H12",
+      "pass": true,
+      "expect": "Cache-Control 含 private + no-store",
+      "actual": "cache-control=\"private, no-store\""
+    },
+    {
+      "id": "H13",
+      "pass": true,
+      "expect": "匿名公共口：200 + 无 X-Session-Token + Cache-Control 仍 public",
+      "actual": "status=200 renewed=absent cache-control=\"public, s-maxage=30, stale-while-revalidate=300\""
+    }
+  ],
+  "summary": {
+    "total": 13,
+    "passed": 13,
+    "failed": 0
+  },
+  "verdict": "PASS"
+}

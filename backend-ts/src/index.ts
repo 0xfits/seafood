@@ -10,6 +10,7 @@ import { createHash, timingSafeEqual } from 'crypto';
 import {
   consumeWalletAuthChallenge,
   createSessionToken,
+  shouldRenewSession,
   startWalletAuthChallenge,
   verifySessionToken,
 } from './auth';
@@ -124,7 +125,9 @@ const app = express();
 const PORT = Number(process.env.PORT || 5788);
 
 app.use(helmet());
-app.use(cors());
+// P9-AUTH-RENEWAL：续期走**响应头** `X-Session-Token`（零新路由）。同源生产 / 本地 vite 代理都不需要
+// expose，但跨源场景（真机走 LAN 反代之外的直连、外部调用方）只有显式 expose 才能读到它 ⇒ 零成本加上。
+app.use(cors({ exposedHeaders: ['X-Session-Token'] }));
 app.use(express.json());
 
 /**
@@ -229,6 +232,10 @@ type ActorContext = {
   session: {
     uID: number;
     evm: string;
+    /** P9-AUTH-RENEWAL：旧 token 无 `iat` ⇒ 由 `exp - ACCESS_TOKEN_EXPIRE_MINUTES*60` 反推（见 `auth.ts`） */
+    iat: number;
+    /** P9-AUTH-RENEWAL：会话起点（绝对上限 7 天的起算点）；旧 token 回落 `iat` */
+    sessionStartedAt: number;
   };
   user: UserRecord;
   adminAccess: AdminAccessRecord;
@@ -287,7 +294,7 @@ const resolveActor = async (req: Request): Promise<ActorContext | ActorFailure> 
   }
 
   // ① 凭据校验（格式 / HMAC 签名 / exp）：**纯计算、无 IO** ⇒ 失败只能是 401，绝不可能落 503。
-  let session: { uID: number; evm: string };
+  let session: ActorContext['session'];
   try {
     session = verifySessionToken(token);
   } catch (error) {
@@ -333,10 +340,37 @@ const sendAuthError = (res: Response, statusCode: 401 | 403, reason?: string) =>
   return res.status(statusCode).json(ledgerErrorBody(code, errorMessageOf(code), details, 'auth'));
 };
 
+/**
+ * P9-AUTH-RENEWAL（Kevin 2026-10-17 裁定 · 变体 1「无状态滑动续期」）：
+ * 鉴权成功（**验签通过且用户存在**）即「活性」⇒ 按 1 小时粒度把续期后的 token 挂到响应头
+ * `X-Session-Token`（**零新路由、零新错误码、零库写**）。判据与签发都在 `auth.ts`：
+ *   · 粒度：`now >= iat + 3600s` 才重签（不是每请求重签）；
+ *   · 绝对上限：`sst + 7d` 到点后**不再续**（`shouldRenewSession` 返回 false）；
+ *   · 会话起点 `sst` 原样回传 ⇒ 续期不会把 7 天上限重新起算；
+ *   · 闲置上限由 `exp` 承载（`exp = min(iat + 3d, sst + 7d)`）⇒ 过期 token 在 `verifySessionToken` 就抛错，走不到这里。
+ * 失败语义逐字不变：本函数只在**已有**的 200 响应上加一个头，不参与任何状态码 / 载荷判定。
+ */
+const maybeIssueRenewedSession = (res: Response, session: ActorContext['session']): void => {
+  const now = Math.floor(Date.now() / 1000);
+  if (!shouldRenewSession({ issuedAt: session.iat, sessionStartedAt: session.sessionStartedAt, now })) {
+    return;
+  }
+  res.setHeader('X-Session-Token', createSessionToken({
+    uID: session.uID,
+    evm: session.evm,
+    sessionStartedAt: session.sessionStartedAt,
+  }));
+  // 带凭证的响应**绝不可被共享缓存留存**（否则一个用户的新 token 可能被发给另一个用户）。
+  // 匿名面（`/api/prize/all` 一类 `setPublicCache`）不走本函数 ⇒ 公共缓存语义零变化。
+  res.setHeader('Cache-Control', 'private, no-store');
+};
+
 const requireActor = async (req: Request, res: Response): Promise<ActorContext | null> => {
   const resolved = await resolveActor(req);
 
   if (!isActorFailure(resolved)) {
+    // P9-AUTH-RENEWAL：**统一鉴权入口**的成功出口 = 全站 52 个 `requireActor` 调用点共用的一次续期判断。
+    maybeIssueRenewedSession(res, resolved.session);
     return resolved;
   }
 
@@ -884,6 +918,12 @@ app.get('/api/home', async (req, res) => {
     // 取不到主体 ⇒ 匿名渲染，**不**把公开面打成 503；但类型上必须显式收敛。
     const resolvedActor = await resolveActor(req);
     const actor = isActorFailure(resolvedActor) ? null : resolvedActor;
+    // P9-AUTH-RENEWAL：`/api/home` 是**唯一绕开 `requireActor`** 的带 token 读口（公开面，取不到主体降级匿名）。
+    // 带 token 且验签通过 + 用户存在 = 「活性」的同一条定义 ⇒ 同口径续期，否则「只在首页刷新的用户」会被
+    // 3 天闲置上限踢掉（前台首页确实打这个口）。
+    // 安全面：本分支恒 `setPrivateNoStore` + `Vary: Authorization`（见下），匿名分支才 `setPublicCache`
+    // ⇒ 续期头只挂在私有响应上，不污染公共缓存；匿名/坏 token 分支**不**续期（无主体、无会话起点）。
+    if (actor) maybeIssueRenewedSession(res, actor.session);
     const [tasks, prizes, claimedPrizeIds, asset] = await Promise.all([
       DatabaseService.listTasks(0, taskLimit),
       DatabaseService.listPrizes(0, prizeLimit),

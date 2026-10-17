@@ -30,7 +30,34 @@ const resolveSecretKey = (): string => {
 };
 
 const SECRET_KEY = resolveSecretKey();
+// `ACCESS_TOKEN_EXPIRE_MINUTES`（缺省 30）**保留**：现役旧 token（`{sub, evm, exp}`，无 `iat`/`sst`）
+// 的 TTL 只能从它反推（见 `verifySessionToken` 的 iat 回落），删掉它会让旧 token 的会话起点算错。
 const ACCESS_TOKEN_EXPIRE_MINUTES = Number(process.env.ACCESS_TOKEN_EXPIRE_MINUTES || 30);
+// P9-AUTH-RENEWAL（Kevin 2026-10-17 裁定「变体 1 · 无状态滑动续期」）：
+//   · 闲置上限 = 3 天（从**最后一次鉴权活动**算）；绝对上限 = 7 天（从**首次登录**算）；两者取先到者。
+//   · 续期粒度 = 1 小时（`now >= iat + 1h` 才重签）⇒ 不在每个请求上重签。
+//   · 续期后必须**保留会话起点**：新 token 的 `sst` 不变、`iat = now`、`exp = min(iat + IDLE, sst + ABSOLUTE)`。
+// 两个上限都可 env 覆盖（写入方式与既有常量同风格，缺省即裁定值）。
+const SESSION_IDLE_MINUTES = Number(process.env.AUTH_SESSION_IDLE_MINUTES || 4320); // 3d
+const SESSION_ABSOLUTE_MINUTES = Number(process.env.AUTH_SESSION_ABSOLUTE_MINUTES || 10080); // 7d
+const SESSION_RENEW_GRANULARITY_SECONDS = 3600; // 1h
+export const SESSION_IDLE_SECONDS = SESSION_IDLE_MINUTES * 60;
+export const SESSION_ABSOLUTE_SECONDS = SESSION_ABSOLUTE_MINUTES * 60;
+// 配置脚枪告警（**不拦启动**，只喊一声）：token 死在 `iat + IDLE`，若 IDLE/ABSOLUTE ≤ 续期粒度，
+// 续期分支在结构上永远不可达（用户会觉得自己「被硬踢」）。实测读数见 p9 门 G10-3。
+if (SESSION_IDLE_SECONDS <= SESSION_RENEW_GRANULARITY_SECONDS || SESSION_ABSOLUTE_SECONDS <= SESSION_RENEW_GRANULARITY_SECONDS) {
+  console.warn(
+    `[auth] sliding renewal unreachable: idle=${SESSION_IDLE_SECONDS}s absolute=${SESSION_ABSOLUTE_SECONDS}s`
+    + ` <= renewal granularity=${SESSION_RENEW_GRANULARITY_SECONDS}s (tokens die before they can be renewed)`,
+  );
+}
+/** 供门脚本 / 报告复算的安全常量自证（只读派生值，不参与任何判定分支） */
+export const SESSION_POLICY = {
+  idleSeconds: SESSION_IDLE_SECONDS,
+  absoluteSeconds: SESSION_ABSOLUTE_SECONDS,
+  renewGranularitySeconds: SESSION_RENEW_GRANULARITY_SECONDS,
+  legacyAccessTokenSeconds: ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+} as const;
 const AUTH_CHALLENGE_EXPIRE_SECONDS = Number(process.env.AUTH_CHALLENGE_EXPIRE_SECONDS || 300);
 // P6-B6-PERM（批 6 · `isAdminAddress` 收敛）：本模块**不再持有任何管理员地址真源**。
 // 旧第三真源（`DEFAULT_ADMIN_ADDRESS = '0x59f9f640d15ebb053c94a816232cf8ce91b209b0'`
@@ -48,9 +75,23 @@ interface AuthChallengeRecord {
   message: string;
 }
 
+export interface SessionTokenInput {
+  uID: number;
+  evm: string;
+  /**
+   * 会话起点（epoch 秒）。**首次登录不传**（= 现在）；续期时**必须回传旧 token 的 `sessionStartedAt`**
+   * —— 否则每次续期都会把「绝对上限 7 天」重新起算。
+   */
+  sessionStartedAt?: number;
+}
+
 export interface SessionTokenPayload {
   uID: number;
   evm: string;
+  /** 本 token 的签发时间（epoch 秒；JWT `iat`）。旧 token 无此键 ⇒ 由 `exp - ACCESS_TOKEN_EXPIRE_MINUTES*60` 反推。 */
+  iat: number;
+  /** 会话起点（epoch 秒；JWT `sst`，绝对上限的起算点）。旧 token 无此键 ⇒ 回落 `iat`。 */
+  sessionStartedAt: number;
 }
 
 const activeAuthChallenges = new Map<string, AuthChallengeRecord>();
@@ -228,15 +269,41 @@ export const consumeWalletAuthChallenge = (payload: {
   };
 };
 
-export const createSessionToken = (payload: SessionTokenPayload) => {
+export const createSessionToken = (payload: SessionTokenInput) => {
   const now = Math.floor(Date.now() / 1000);
-  const expiresAt = now + (ACCESS_TOKEN_EXPIRE_MINUTES * 60);
+  // 会话起点（sst）：首次登录 = 现在；续期 = 旧 token 的 sst。
+  // **上钳到 now**：万一传入未来时刻（含旧 token 反推出的异常 iat），不得用它把绝对上限往后推。
+  const declaredStartedAt = Number(payload.sessionStartedAt);
+  const sessionStartedAt = Number.isFinite(declaredStartedAt) && declaredStartedAt > 0
+    ? Math.min(Math.floor(declaredStartedAt), now)
+    : now;
+  const expiresAt = Math.min(now + SESSION_IDLE_SECONDS, sessionStartedAt + SESSION_ABSOLUTE_SECONDS);
 
   return signToken({
     sub: String(payload.uID),
     evm: payload.evm,
+    iat: now,
+    sst: sessionStartedAt,
     exp: expiresAt,
   });
+};
+
+/**
+ * 续期判据（**纯函数**，零副作用）：到 1 小时粒度才重签，且**绝对上限到点后不再续**。
+ * `issuedAt` = 旧 token 的 `iat`；`sessionStartedAt` = 旧 token 的 `sst`；`now` = 当前 epoch 秒。
+ * 注意：过期（`exp <= now`）的 token 根本走不到这里 —— `verifySessionToken` 先抛 `Token expired`。
+ */
+export const shouldRenewSession = (input: {
+  issuedAt: number;
+  sessionStartedAt: number;
+  now: number;
+}): boolean => {
+  const { issuedAt, sessionStartedAt, now } = input;
+  if (!Number.isFinite(issuedAt) || !Number.isFinite(sessionStartedAt) || !Number.isFinite(now)) {
+    return false; // 坏输入 ⇒ 不续（fail-closed，绝不因脏数据签发新 token）
+  }
+  if (now < issuedAt + SESSION_RENEW_GRANULARITY_SECONDS) return false; // 粒度未到
+  return now < sessionStartedAt + SESSION_ABSOLUTE_SECONDS; // 绝对上限未到
 };
 
 export const verifySessionToken = (token: string): SessionTokenPayload => {
@@ -248,8 +315,24 @@ export const verifySessionToken = (token: string): SessionTokenPayload => {
     throw new Error('Could not validate credentials');
   }
 
+  // 旧 token 兼容（`{sub, evm, exp}`，无 `iat`/`sst`）：语义**逐字不变**，只是把缺的键补出来
+  //   · 无 `iat` ⇒ 按旧 TTL 反推 `iat = exp - ACCESS_TOKEN_EXPIRE_MINUTES*60`
+  //   · 无 `sst` ⇒ `sst = iat`（会话视为从该 token 签发时开始）
+  const now = Math.floor(Date.now() / 1000);
+  const declaredExp = Number(payload.exp);
+  const declaredIat = Number(payload.iat);
+  const issuedAt = Number.isFinite(declaredIat) && declaredIat > 0
+    ? Math.floor(declaredIat)
+    : (Number.isFinite(declaredExp) && declaredExp > 0 ? Math.floor(declaredExp) - (ACCESS_TOKEN_EXPIRE_MINUTES * 60) : now);
+  const declaredSst = Number(payload.sst);
+  const sessionStartedAt = Number.isFinite(declaredSst) && declaredSst > 0
+    ? Math.floor(declaredSst)
+    : issuedAt;
+
   return {
     uID: rawUID,
     evm,
+    iat: issuedAt,
+    sessionStartedAt,
   };
 };

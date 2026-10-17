@@ -1,0 +1,270 @@
+{
+  "script": "backend-ts/scripts/p9-auth-renewal-gate.ts",
+  "at": "2026-10-17T08:04:17.837Z",
+  "clock": "fake（Date.now 打桩，基准 T0=1700000000）",
+  "policy": {
+    "idle_seconds": 259200,
+    "absolute_seconds": 604800,
+    "renew_granularity_seconds": 3600,
+    "legacy_access_token_seconds": 1800,
+    "note": "默认臂 = 无 AUTH_SESSION_* env"
+  },
+  "registration_points": {
+    "total": 107,
+    "verbs": "get=47 post=56 put=0 delete=3 patch=1",
+    "p7b03_constant": "107"
+  },
+  "checks": [
+    {
+      "id": "G1-1",
+      "group": "policy",
+      "pass": true,
+      "expect": "idle=259200 abs=604800 gran=3600 legacy=1800",
+      "actual": "idle=259200 abs=604800 gran=3600 legacy=1800"
+    },
+    {
+      "id": "G1-2",
+      "group": "shape",
+      "pass": true,
+      "expect": "keys=evm,exp,iat,sst,sub",
+      "actual": "keys=evm,exp,iat,sst,sub"
+    },
+    {
+      "id": "G1-3",
+      "group": "shape",
+      "pass": true,
+      "expect": "iat=1700000000 sst=1700000000",
+      "actual": "iat=1700000000 sst=1700000000"
+    },
+    {
+      "id": "G1-4",
+      "group": "shape",
+      "pass": true,
+      "expect": "exp=1700259200（= min(iat+3d, sst+7d)）",
+      "actual": "exp=1700259200"
+    },
+    {
+      "id": "G2-1",
+      "group": "idle",
+      "pass": true,
+      "expect": "T0+3d-1s 仍可验签，iat/sst=1700000000",
+      "actual": "uID=4242 iat=1700000000 sst=1700000000"
+    },
+    {
+      "id": "G2-2",
+      "group": "idle",
+      "pass": true,
+      "expect": "T0+3d ⇒ throws 'Token expired'",
+      "actual": "message=Token expired"
+    },
+    {
+      "id": "G3-1",
+      "group": "renew",
+      "pass": true,
+      "expect": "iat+1h ⇒ true",
+      "actual": "got=true"
+    },
+    {
+      "id": "G3-2",
+      "group": "renew",
+      "pass": true,
+      "expect": "sst 不变=1700000000 iat=now=1700003600",
+      "actual": "sst=1700000000 iat=1700003600"
+    },
+    {
+      "id": "G3-3",
+      "group": "renew",
+      "pass": true,
+      "expect": "exp=1700262800（= iat+3d）",
+      "actual": "exp=1700262800"
+    },
+    {
+      "id": "G3-4",
+      "group": "renew",
+      "pass": true,
+      "expect": "100 次续期后 sst=1700000000 且 exp<=sst+7d（到点后 exp 夹在 1700604800）",
+      "actual": "sst=1700000000 exp=1700604800 ok=true"
+    },
+    {
+      "id": "G4-1",
+      "group": "absolute",
+      "pass": true,
+      "expect": "exp=sst+7d=1700604800（而不是 iat+3d=1700859436）",
+      "actual": "exp=1700604800"
+    },
+    {
+      "id": "G4-2",
+      "group": "absolute",
+      "pass": true,
+      "expect": "剩余 864s < 3d（夹紧生效）",
+      "actual": "remaining=864s"
+    },
+    {
+      "id": "G4-3",
+      "group": "absolute",
+      "pass": true,
+      "expect": "shouldRenew=true 且新 exp=1700604800（不越过绝对上限）",
+      "actual": "should=true exp=1700604800 sst=1700000000"
+    },
+    {
+      "id": "G5-1",
+      "group": "absolute",
+      "pass": true,
+      "expect": "sst+7d 整点 ⇒ false",
+      "actual": "got=false"
+    },
+    {
+      "id": "G5-2",
+      "group": "absolute",
+      "pass": true,
+      "expect": "sst+7d+1s ⇒ false",
+      "actual": "got=false"
+    },
+    {
+      "id": "G6-1",
+      "group": "legacy",
+      "pass": true,
+      "expect": "验签通过 + iat=exp-30min=1700000000 + sst 回落 iat",
+      "actual": "uID=4242 iat=1700000000 sst=1700000000"
+    },
+    {
+      "id": "G6-2",
+      "group": "legacy",
+      "pass": true,
+      "expect": "TTL=120min 的旧 token：iat=1700000000、1h 后 shouldRenew=true、新 sst=1700000000",
+      "actual": "iat=1700000000 should=true newSst=1700000000"
+    },
+    {
+      "id": "G7-1",
+      "group": "tamper",
+      "pass": true,
+      "expect": "改签名 ⇒ 'Invalid token signature'",
+      "actual": "message=Invalid token signature"
+    },
+    {
+      "id": "G7-2",
+      "group": "tamper",
+      "pass": true,
+      "expect": "改载荷(sub 9) 复用旧签名 ⇒ 'Invalid token signature'",
+      "actual": "message=Invalid token signature"
+    },
+    {
+      "id": "G8-1",
+      "group": "granularity",
+      "pass": true,
+      "expect": "iat 30min / 59.5min / 59m59s 前 ⇒ false",
+      "actual": "[{\"back\":1800,\"got\":false},{\"back\":3570,\"got\":false},{\"back\":3599,\"got\":false}]"
+    },
+    {
+      "id": "G8-2",
+      "group": "granularity",
+      "pass": true,
+      "expect": "iat 整 1h / 1h1s 前 ⇒ true",
+      "actual": "[{\"back\":3600,\"got\":true},{\"back\":3601,\"got\":true}]"
+    },
+    {
+      "id": "G9-1",
+      "group": "env",
+      "pass": true,
+      "expect": "IDLE=5min ⇒ 300s；ABSOLUTE=10min ⇒ 600s",
+      "actual": "idle=300 abs=600"
+    },
+    {
+      "id": "G9-2",
+      "group": "env",
+      "pass": true,
+      "expect": "exp=iat+300=1700000300",
+      "actual": "exp=1700000300"
+    },
+    {
+      "id": "G9-3",
+      "group": "env",
+      "pass": true,
+      "expect": "sst=T0-540 ⇒ exp=sst+600=1700000060（< iat+300）",
+      "actual": "exp=1700000060"
+    },
+    {
+      "id": "G10-1",
+      "group": "reverse-arm",
+      "pass": true,
+      "expect": "同一断言两臂：默认 exp=iat+259200 / IDLE=5min exp=iat+300",
+      "actual": "default=1700259200 short=1700000300"
+    },
+    {
+      "id": "G10-2",
+      "group": "reverse-arm",
+      "pass": true,
+      "expect": "同年龄(1800s)两臂：默认 有效且不续；IDLE=5min Token expired",
+      "actual": "default=ok:renew=false short=throw:Token expired"
+    },
+    {
+      "id": "G10-3",
+      "group": "reverse-arm",
+      "pass": true,
+      "expect": "IDLE(300s) < 粒度(3600s) ⇒ 299s 仍有效、301s 已死 ⇒ 续期分支结构上不可达（脚枪）",
+      "actual": "idle=300 gran=3600 @299=ok @301=throw:Token expired"
+    },
+    {
+      "id": "G11-1",
+      "group": "no-new-route",
+      "pass": true,
+      "expect": "注册点 = 107 且 p7b-03 常量仍是 107（零新路由 ⇒ 常量不得动）",
+      "actual": "regs=107 (get=47 post=56 put=0 delete=3 patch=1) p7b03_constant=107"
+    },
+    {
+      "id": "G11-2",
+      "group": "no-new-route",
+      "pass": true,
+      "expect": "续期头下发点恰 1 处（单一签发源）+ cors exposedHeaders 恰 1 处",
+      "actual": "setHeader=1 exposed=1"
+    },
+    {
+      "id": "G11-3",
+      "group": "zero-db-write",
+      "pass": true,
+      "expect": "auth.ts 零库面引用（无 SQL / 无 DatabaseService；HMAC `.update(` 不算）",
+      "actual": "matches=0"
+    },
+    {
+      "id": "G11-4",
+      "group": "zero-new-code",
+      "pass": true,
+      "expect": "401 语义不变：requireActor 仍 sendAuthError(res,401) + AUTH_UNAUTHORIZED（无新错误码）",
+      "actual": "sendAuthError401_hits=4"
+    },
+    {
+      "id": "G11-5",
+      "group": "wiring",
+      "pass": true,
+      "expect": "续期接在 2 处：requireActor 成功出口（52 个调用点共用）+ /api/home 直连 resolveActor 面",
+      "actual": "call_sites=2"
+    },
+    {
+      "id": "G11-6",
+      "group": "wiring",
+      "pass": true,
+      "expect": "续期头与 `Cache-Control: private, no-store` 同在一处（带凭证响应不入共享缓存）",
+      "actual": "co_located=true"
+    },
+    {
+      "id": "G12-1",
+      "group": "defensive",
+      "pass": true,
+      "expect": "未来 sst ⇒ 上钳到 now=1700000000（不得把绝对上限后推）",
+      "actual": "sst=1700000000"
+    },
+    {
+      "id": "G12-2",
+      "group": "defensive",
+      "pass": true,
+      "expect": "坏输入 ⇒ 全 false（fail-closed）",
+      "actual": "[false,false,false]"
+    }
+  ],
+  "summary": {
+    "total": 35,
+    "passed": 35,
+    "failed": 0
+  },
+  "verdict": "PASS"
+}
