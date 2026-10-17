@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, MessageCircle, Star } from 'lucide-react'
 import { useAuth } from '../../auth-context'
 import { buildLocalizedPath, getLanguageFromUrl } from '../../utils'
 import { withPanelParams } from '../../shell/messages-panel-routing'
@@ -273,35 +273,57 @@ const ItemDetailPage = () => {
                   </label>
                 </div>
 
-                {/* 底部操作栏：既有 CTA +（v1.17 T100）第 3 格「聊一聊」+（sf14 需求⑦）第 2 格「收藏」解冻。
-                    第 1 格「留言」仍不渲染、不预埋 DOM（N43 余项；收藏格经 Kevin 2026-10-14 解冻）。 */}
+                {/* 底部操作栏（v1.23 · design v1.22 §24 `T120` goofish 形态）：
+                    三段结构 = ① 组合条（`聊一聊` 58% | `立即购买` 42%，容器圆角实现「两端半圆 + 中缝直角」）
+                    ② 留白（`space-between` 自然让出，不写死 px）③ `收藏` 独立胶囊。
+                    · 顺序 = 聊一聊 → 立即购买 → 收藏（DOM 顺序即视觉顺序，恒 2 段 + 1 段）。
+                    · 卖家本人（`!isSellerSelf` 为假）⇒ 组合条只剩「立即购买」，由
+                      `.sf-item-cta-group > :only-child` 撑满组合条并整条全圆（不留半圆开口）。
+                    · 形状/配色一律落 item.css 的新修饰类（`.sf-item-btn` / `.sf-btn` 规则本体一字未改）。
+                    · 状态文字（buy / chat）从按钮行内**移到按钮行下方独立一行**；无文案时 `:empty` 不占高。
+                    · 既有 `data-sf-m` 钩子全保留：item-actionbar / item-buy-btn / fav-toggle /
+                      item-chat-btn / item-buy-status / item-chat-status；`data-sf-fav` 与新增
+                      `aria-pressed` 同源（收藏态可读）。 */}
                 <div className="sf-item-actionbar" data-sf-m="item-actionbar">
-                  <button className="sf-btn sf-item-btn sf-item-cta" type="submit" data-sf-m="item-buy-btn" disabled={buy.phase === 'loading' || !isAuthenticated}>
-                    {t('item.buy')}
-                  </button>
-                  {/* 收藏/已收藏 toggle：登录态调 trades-api 幂等写口；未登录点击走既有登录引导 */}
-                  <button
-                    className="sf-btn sf-item-btn sf-item-cta"
-                    type="button"
-                    data-sf-m="fav-toggle"
-                    data-sf-fav={fav.favored ? '1' : '0'}
-                    onClick={onToggleFav}
-                    disabled={fav.phase === 'loading'}
-                  >
-                    {fav.favored ? t('item.favorited') : t('item.favorite')}
-                  </button>
-                  {!isSellerSelf ? (
+                  <div className="sf-item-actionbar-row">
+                    <div className="sf-item-cta-group">
+                      {!isSellerSelf ? (
+                        <button
+                          className="sf-btn sf-item-btn sf-item-cta-group-seg sf-item-cta-chat"
+                          type="button"
+                          data-sf-m="item-chat-btn"
+                          data-sf-phase={chat.phase}
+                          onClick={onChat}
+                          disabled={chat.phase === 'loading'}
+                        >
+                          <MessageCircle size={18} aria-hidden="true" />
+                          <span className="sf-item-cta-label">{t('item.chat')}</span>
+                        </button>
+                      ) : null}
+                      <button
+                        className="sf-btn sf-item-btn sf-item-cta-group-seg sf-item-cta-buy"
+                        type="submit"
+                        data-sf-m="item-buy-btn"
+                        disabled={buy.phase === 'loading' || !isAuthenticated}
+                      >
+                        <span className="sf-item-cta-label">{t('item.buy')}</span>
+                      </button>
+                    </div>
+                    {/* 收藏/已收藏 toggle：登录态调 trades-api 幂等写口；未登录点击走既有登录引导。
+                        星形：未收藏 = 空心（不传 fill）/ 已收藏 = fill="currentColor"（跟随 fg token）。 */}
                     <button
-                      className="sf-btn sf-item-btn sf-item-cta"
+                      className="sf-btn sf-item-btn sf-item-cta-fav"
                       type="button"
-                      data-sf-m="item-chat-btn"
-                      data-sf-phase={chat.phase}
-                      onClick={onChat}
-                      disabled={chat.phase === 'loading'}
+                      data-sf-m="fav-toggle"
+                      data-sf-fav={fav.favored ? '1' : '0'}
+                      aria-pressed={fav.favored}
+                      onClick={onToggleFav}
+                      disabled={fav.phase === 'loading'}
                     >
-                      {t('item.chat')}
+                      <Star size={18} aria-hidden="true" {...(fav.favored ? { fill: 'currentColor' } : {})} />
+                      <span className="sf-item-cta-label">{fav.favored ? t('item.favorited') : t('item.favorite')}</span>
                     </button>
-                  ) : null}
+                  </div>
                   <span
                     className={`sf-item-status${buy.phase === 'error' ? ' sf-item-err' : ''}${buy.phase === 'ok' ? ' sf-item-ok' : ''}`}
                     data-sf-m="item-buy-status"

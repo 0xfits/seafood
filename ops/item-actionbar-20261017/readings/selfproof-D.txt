@@ -1,0 +1,68 @@
+# self-proof D · 2026-10-17T16:27:09+0800
+
+## 1) grep -n cta-solid (three files)
+frontend/src/theme/tokens.js:143:  'cta-solid-bg': '#202020',
+frontend/src/theme/tokens.js:144:  'cta-solid-fg': '#FFFFFF',
+frontend/src/theme/tokens.js:265:  'cta-solid-bg': '#EDEFF2',
+frontend/src/theme/tokens.js:266:  'cta-solid-fg': '#0A0A0A',
+frontend/src/theme/tokens.js:390:  'cta-solid-bg': { d: [1130, 'background:#202020'], n: [1133, 'background:#EDEFF2'] },
+frontend/src/theme/tokens.js:391:  'cta-solid-fg': { d: [1130, 'color:#FFFFFF'], n: [1133, 'color:#0A0A0A'] },
+frontend/src/theme/theme-tokens.css:157:  --sf-cta-solid-bg: #202020;
+frontend/src/theme/theme-tokens.css:158:  --sf-cta-solid-fg: #FFFFFF;
+frontend/src/theme/theme-tokens.css:273:  --sf-cta-solid-bg: #EDEFF2;
+frontend/src/theme/theme-tokens.css:274:  --sf-cta-solid-fg: #0A0A0A;
+docs/design/style-preview.html:1116:                   ① `--sf-cta-solid-bg`（新键）日档 `#202020` / 夜档 `#EDEFF2`（夜档反相：亮底）
+docs/design/style-preview.html:1117:                   ② `--sf-cta-solid-fg`（新键）日档 `#FFFFFF` / 夜档 `#0A0A0A`（夜档反相：深字）
+docs/design/style-preview.html:1129:/* 日档 · `--sf-cta-solid-bg` = #202020（深灰底；与站点既有 ink 家族 `--sf-btna-fg` 同值，不引入第二套墨色） */
+docs/design/style-preview.html:1130:.vstage-a .cta-solid{background:#202020;color:#FFFFFF}
+docs/design/style-preview.html:1131:/* 日档 · `--sf-cta-solid-fg` = #FFFFFF（墨底上的反相白字） —— 与上一行同属「立即购买」段 */
+docs/design/style-preview.html:1133:.vstage-b .cta-solid{background:#EDEFF2;color:#0A0A0A}
+docs/design/style-preview.html:1134:/* 夜档 · `--sf-cta-solid-fg` = #0A0A0A（亮底上的深字） —— 与上一行同属「立即购买」段 */
+
+## 2) git diff --numstat docs/design/style-preview.html
+69	0	docs/design/style-preview.html
+
+## 3) git diff --numstat (all)
+86	1	docs/design/design-system.spec.md
+69	0	docs/design/style-preview.html
+4	0	frontend/src/theme/theme-tokens.css
+12	0	frontend/src/theme/tokens.js
+
+## 4) git status --porcelain
+ M docs/design/design-system.spec.md
+ M docs/design/style-preview.html
+ M frontend/src/theme/theme-tokens.css
+ M frontend/src/theme/tokens.js
+?? ops/item-actionbar-20261017/
+
+## 5) style-preview before/after
+before:     1103 lines /    93949 bytes / md5 7b8780af15802102f9ddf578510490a5
+after :     1172 lines /   102653 bytes / md5 a17919a495f4bd03bdf2434df8013753
+
+## 6) PROV target lines (1130 / 1133) verbatim
+.vstage-a .cta-solid{background:#202020;color:#FFFFFF}
+.vstage-b .cta-solid{background:#EDEFF2;color:#0A0A0A}
+
+## 7) spec table neighbor lines (v1.19-v1.22 contiguous)
+828|| **v1.19** | 2026-10-16 | **Kevin「消息面板化（方
+829|| **v1.20** | 2026-10-17 | **Kevin「首页商品卡片 UI
+830|| **v1.21** | 2026-10-17 | **Kevin「顶栏实黄」逐字
+831|| **v1.22** | 2026-10-17 | **Kevin「`/item/:id` 操作栏
+832|
+833|### 与上游文件的关系（只读，本册未改一字
+
+## 8) header status block lines
+22:> **★ 现行版 = v1.21（2026-10-17 · Kevin「顶栏实黄」逐字三项 + Zang 冻结裁定 1–6 · 只追
+23:> **★ 现行版 = v1.22（2026-10-17 · Kevin「`/item/:id` 操作栏 goofish 形态」裁定 
+
+## 9) §24 heading
+2822:## §24 `/item/:id` 底部操作栏「goofish 形态」（`T120`）· 组合条 2 段 + 留白 + 独立收藏
+
+## 10) forbidden paths in diff
+NONE_OF_FORBIDDEN_TOUCHED
+
+## 11) section tag balance in style-preview.html
+open=8 close=8
+
+## 12) v1.21 mirror vs pre-change HEAD (cmp)
+MIRROR_V121_CMP=0

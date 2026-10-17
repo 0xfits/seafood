@@ -25,6 +25,14 @@
   --sf-l-detail-title-size: 18px;
   --sf-l-actionbar-h: 60px;
   --sf-l-actionbar-safe: env(safe-area-inset-bottom);
+  /* v1.23（design v1.22 §24 `T120`）· goofish 操作栏的页面局部几何常量（两档同值，不进主题层）：
+     · --sf-l-cta-h = 操作栏高 − 上下内边距 8×2 = 44px（触控目标 ≥44 达标，T77 既有口径）
+     · --sf-l-cta-icon-size / --sf-l-cta-icon-gap = 图标尺寸与图标↔文字间距（照参考图 18px / 8px）
+     占比（72.8% / 50:50 / 22.6%，均取参考图逐像素实测）与留白直接落在下方的 flex-basis 上（留白由 space-between 自然让出，
+     不写死 px —— 册面 §24.6 第 4 项）。 */
+  --sf-l-cta-h: calc(var(--sf-l-actionbar-h) - 16px);
+  --sf-l-cta-icon-size: 18px;
+  --sf-l-cta-icon-gap: 8px;
   display: flex;
   flex-direction: column;
   gap: var(--sf-st-feed-gap-m);
@@ -342,7 +350,10 @@
 
 .sf-item-actionbar {
   display: flex;
-  align-items: center;
+  /* v1.23（T120）：状态文字从按钮行内移到按钮行**下方独立一行** ⇒ 容器改列向，
+     行内只有「组合条 + 收藏」两个 flex item（避免状态文案把按钮挤成宽窄不一）。 */
+  flex-direction: column;
+  align-items: stretch;
   gap: var(--sf-st-feed-gap-m);
   min-height: var(--sf-l-actionbar-h);
   padding: 8px 0;
@@ -352,13 +363,115 @@
   position: static;
 }
 
-/* R-B：CTA 圆角 = 既有结构常量 --sf-st-radius-pill（999px 全圆胶囊，照参考图）。
-   选择器必须**压过** shell.css 的 .sf-btn（border-radius: var(--sf-st-radius-btna) 8px）——
-   实测打包序：本文件（页面 CSS）先于 shell.css 落地 ⇒ 同具体性 (0,1,0) 会输 ⇒ 用复合选择器
-   .sf-btn.sf-item-cta = (0,2,0) 取胜。**未改 .sf-item-btn 规则本体**（p6-btn-impl2 校验它）。 */
-.sf-btn.sf-item-cta {
+/* ============================================================================
+   v1.23（design v1.22 §24 `T120`）· goofish 操作栏形态
+   三段结构：① 组合条（`聊一聊` 50% | `立即购买` 50%）② 留白 ③ 独立 `收藏` 胶囊。
+
+   · 形状/配色一律由**新修饰类**承载（`.sf-item-btn` 与 `.sf-btn` 的规则本体一字未改 ——
+     p6-btn-impl2 冻结 `min-height` / `padding` / `cursor` 且本体不得出现 background/border）；
+   · ★ 跨文件同具体性覆盖：shell.css 的 `.sf-btn`（8px 圆角 / bta 底字 / 1px 描边）在打包序上
+     后于本文件 ⇒ 页面侧单类 (0,1,0) 会被压回 ⇒ 一律用 (0,2,0) 复合选择器 `.sf-btn.sf-item-…`；
+   · 颜色全走 token（btna / cta-solid / btnalt），本文件**无 hex/rgba 字面量**、**无按主题分支的属性选择器**；
+   · 几何全落页面局部 `--sf-l-*`（两档同值 ⇒ 日/夜 rect 逐值相等，`T120`-f）；
+   · 组合条两端半圆 / 中缝直角由**容器** pill + `overflow:hidden` 实现（子元素不自带圆角）。
+
+   旧规则 `.sf-btn.sf-item-cta`（三格等分胶囊，v1.15 §19 R-B）已由本组规则取代并删除 ——
+   该类在 src 内零消费者（`grep -rn 'sf-item-cta'` 仅命中本文件与 ItemDetailPage 的注释）。
+   ============================================================================ */
+.sf-item-actionbar-row {
+  display: flex;
+  align-items: center;
+  /* 留白 = 组合条与收藏之间由 space-between **自然让出**（不写固定 px） */
+  justify-content: space-between;
+  gap: var(--sf-st-feed-gap-m);
+  width: 100%;
+}
+
+.sf-item-cta-group {
+  display: flex;
+  align-items: stretch;
+  /* 72.8% ⇒ 收藏 22.6% + 中间留白 ≈4.6%（space-between 让出，两档同值）
+     72.8% 非目测：参考图 ref/goofish-ref.png 列主类逐像素实测 x=32..806 / 可用宽 1064px */
+  flex: 0 0 72.8%;
+  overflow: hidden;
   border-radius: var(--sf-st-radius-pill);
+}
+
+/* 两段共用：中缝直角（4 角 = 0）+ 高度 44px（= --sf-l-actionbar-h − 8×2） */
+.sf-btn.sf-item-cta-group-seg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sf-l-cta-icon-gap);
+  height: var(--sf-l-cta-h);
+  min-height: var(--sf-l-cta-h);
+  border-radius: 0;
+  /* 基类 1px 描边保留**宽度**（几何不变），颜色随各自底色 ⇒ 中缝与两端无描边痕迹 */
+  border-color: var(--sf-btna-bg);
+}
+
+/* 聊一聊段：50%（实测 388px / 775px = 50.1%，与立即买 50:50），黄底深字（--sf-btna-*，日夜同值） */
+.sf-btn.sf-item-cta-chat {
+  flex: 0 0 50%;
+  background: var(--sf-btna-bg);
+  color: var(--sf-btna-fg);
+}
+
+/* 立即购买段：50%（flex 1 1 auto 吃满余量 ⇒ 50:50），墨底反相字（--sf-cta-solid-*，夜档成对反相） */
+.sf-btn.sf-item-cta-buy {
   flex: 1 1 auto;
+  background: var(--sf-cta-solid-bg);
+  color: var(--sf-cta-solid-fg);
+  border-color: var(--sf-cta-solid-bg);
+}
+
+/* 卖家本人看自己商品 ⇒ 组合条内只剩「立即购买」：单段撑满组合条并**整条全圆**
+   （不留半圆开口）。置于两段规则之后：同具体性 (0,2,0) ⇒ 后置取胜。 */
+.sf-item-cta-group > :only-child {
+  flex: 1 1 100%;
+  border-radius: var(--sf-st-radius-pill);
+}
+
+/* 收藏：独立胶囊，22.6%（实测 240px / 1064px），浅底（--sf-btnalt-*，夜档自带反相） */
+.sf-btn.sf-item-cta-fav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sf-l-cta-icon-gap);
+  flex: 0 0 22.6%;
+  height: var(--sf-l-cta-h);
+  min-height: var(--sf-l-cta-h);
+  /* 水平内边距收窄到 8px：「★ 已收藏」（图标 18 + 间距 8 + 三字 39）在 390 档最窄情况下不换行 */
+  padding-left: 8px;
+  padding-right: 8px;
+  border-radius: var(--sf-st-radius-pill);
+  background: var(--sf-btnalt-bg);
+  color: var(--sf-btnalt-fg);
+  border-color: var(--sf-btnalt-border);
+}
+
+/* 图标 = 图形件（`currentColor` 跟随所属段文字色 token），尺寸取页面局部常量（两档同值） */
+.sf-item-cta-group-seg > svg,
+.sf-item-cta-fav > svg {
+  flex: 0 0 auto;
+  width: var(--sf-l-cta-icon-size);
+  height: var(--sf-l-cta-icon-size);
+}
+
+.sf-item-cta-label {
+  white-space: nowrap;
+}
+
+/* 状态行（buy / chat）：按钮行**下方独立一行**；无文案时 `:empty` ⇒ 不占高
+   （`.sf-item-status` 本体的 min-height = ctl-h，此处按操作栏上下文归零） */
+.sf-item-actionbar > .sf-item-status {
+  align-self: stretch;
+  min-height: 0;
+  font-size: 12px;
+}
+
+.sf-item-actionbar > .sf-item-status:empty {
+  display: none;
 }
 
 /* ≤767 档：操作栏 fixed 独占底部（底栏已隐藏）；
@@ -370,6 +483,9 @@
     right: 0;
     bottom: 0;
     z-index: 4;
+    /* v1.23（T120）：手机上操作栏贴屏幕两侧，胶囊需要边距（参考图 24/1128 ≈ 2%）⇒ 取 12px */
+    padding-left: 12px;
+    padding-right: 12px;
     padding-bottom: calc(8px + var(--sf-l-actionbar-safe));
   }
 

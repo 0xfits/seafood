@@ -1,0 +1,49 @@
+
+ RUN  v0.34.6 /Users/kevin/bistro/seafood/frontend
+
+ ✓ src/test/unit/theme-tokens.test.js  (13 tests) 7ms
+stderr | src/test/unit/theme-shell-isomorphism.test.jsx > 应用外壳 · 骨架同构（横竖屏同一套 DOM） > 区域顺序恒定：shell → 顶栏 → 路由容器 → 页脚 → 底部 tab
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+stderr | src/test/unit/theme-shell-isomorphism.test.jsx > 应用外壳 · 骨架同构（横竖屏同一套 DOM） > 顶栏与底栏「分家」：底栏=nav 五项（含 home）· 桌面左 nav=Header menuItems 三项（各自独立断言）
+Failed to load user points: TypeError: Failed to parse URL from /api/user/asset/1
+[90m    at Object.fetch (node:internal/deps/undici/undici:11730:11)[39m
+    at loadUserPoints [90m(/Users/kevin/bistro/seafood/frontend/[39msrc/components/Header.jsx:78:26[90m)[39m
+    at loadSession [90m(/Users/kevin/bistro/seafood/frontend/[39msrc/components/Header.jsx:64:7[90m)[39m {
+  [cause]: TypeError: Invalid URL: /api/user/asset/1
+      at new URLImpl [90m(/Users/kevin/bistro/seafood/frontend/[39mnode_modules/[4mjsdom[24m/node_modules/[4mwhatwg-url[24m/lib/URL-impl.js:20:13[90m)[39m
+      at Object.exports.setup [90m(/Users/kevin/bistro/seafood/frontend/[39mnode_modules/[4mjsdom[24m/node_modules/[4mwhatwg-url[24m/lib/URL.js:54:12[90m)[39m
+      at new URL [90m(/Users/kevin/bistro/seafood/frontend/[39mnode_modules/[4mjsdom[24m/node_modules/[4mwhatwg-url[24m/lib/URL.js:115:22[90m)[39m
+  [90m    at new Request (node:internal/deps/undici/undici:5270:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:9508:25)[39m
+  [90m    at Object.fetch (node:internal/deps/undici/undici:11728:18)[39m
+  [90m    at fetch (node:internal/process/pre_execution:281:25)[39m
+      at loadUserPoints [90m(/Users/kevin/bistro/seafood/frontend/[39msrc/components/Header.jsx:78:32[90m)[39m
+      at loadSession [90m(/Users/kevin/bistro/seafood/frontend/[39msrc/components/Header.jsx:64:13[90m)[39m
+}
+
+stderr | src/test/unit/theme-shell-isomorphism.test.jsx > 应用外壳 · 骨架同构（横竖屏同一套 DOM） > 未登录时不含 profile / 登录后含 profile（与 Header 同一条可见性规则）
+Failed to load user points: TypeError: Failed to parse URL from /api/user/asset/1
+[90m    at Object.fetch (node:internal/deps/undici/undici:11730:11)[39m
+    at loadUserPoints [90m(/Users/kevin/bistro/seafood/frontend/[39msrc/components/Header.jsx:78:26[90m)[39m
+    at loadSession [90m(/Users/kevin/bistro/seafood/frontend/[39msrc/components/Header.jsx:64:7[90m)[39m {
+  [cause]: TypeError: Invalid URL: /api/user/asset/1
+      at new URLImpl [90m(/Users/kevin/bistro/seafood/frontend/[39mnode_modules/[4mjsdom[24m/node_modules/[4mwhatwg-url[24m/lib/URL-impl.js:20:13[90m)[39m
+      at Object.exports.setup [90m(/Users/kevin/bistro/seafood/frontend/[39mnode_modules/[4mjsdom[24m/node_modules/[4mwhatwg-url[24m/lib/URL.js:54:12[90m)[39m
+      at new URL [90m(/Users/kevin/bistro/seafood/frontend/[39mnode_modules/[4mjsdom[24m/node_modules/[4mwhatwg-url[24m/lib/URL.js:115:22[90m)[39m
+  [90m    at new Request (node:internal/deps/undici/undici:5270:25)[39m
+  [90m    at fetch (node:internal/deps/undici/undici:9508:25)[39m
+  [90m    at Object.fetch (node:internal/deps/undici/undici:11728:18)[39m
+  [90m    at fetch (node:internal/process/pre_execution:281:25)[39m
+      at loadUserPoints [90m(/Users/kevin/bistro/seafood/frontend/[39msrc/components/Header.jsx:78:32[90m)[39m
+      at loadSession [90m(/Users/kevin/bistro/seafood/frontend/[39msrc/components/Header.jsx:64:13[90m)[39m
+}
+
+ ✓ src/test/unit/theme-shell-isomorphism.test.jsx  (20 tests) 280ms
+
+ Test Files  2 passed (2)
+      Tests  33 passed (33)
+   Start at  16:26:39
+   Duration  1.09s (transform 253ms, setup 228ms, collect 379ms, tests 287ms, environment 491ms, prepare 93ms)
+
+EXIT=0

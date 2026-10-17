@@ -1,0 +1,166 @@
+{
+  "task": "JING-SPEC-ITEM-ACTIONBAR-DS",
+  "version": "v1.22",
+  "date": "2026-10-17",
+  "role": "Jing(规范)",
+  "baseline_head": "2324584",
+  "ref_image": {
+    "path": "ops/item-actionbar-20261017/ref/goofish-ref.png",
+    "size": "1128x170",
+    "sha256": "308e2b62c45a2b3c3868d4783a93b19e2308523bb2cc5cece5b8bec4265485cd"
+  },
+  "tokens_added": [
+    {
+      "key": "cta-solid-bg",
+      "day": "#202020",
+      "night": "#EDEFF2",
+      "day_index": 107,
+      "night_index": 107,
+      "prov": {
+        "d": [
+          1130,
+          "background:#202020"
+        ],
+        "n": [
+          1133,
+          "background:#EDEFF2"
+        ]
+      }
+    },
+    {
+      "key": "cta-solid-fg",
+      "day": "#FFFFFF",
+      "night": "#0A0A0A",
+      "day_index": 108,
+      "night_index": 108,
+      "prov": {
+        "d": [
+          1130,
+          "color:#FFFFFF"
+        ],
+        "n": [
+          1133,
+          "color:#0A0A0A"
+        ]
+      }
+    }
+  ],
+  "tokens_reused": {
+    "talk": "btna-bg/btna-fg (#FFE60F/#202020)",
+    "favorite": "btnalt-bg/btnalt-fg/btnalt-border"
+  },
+  "token_key_count": {
+    "before": 110,
+    "after": 112,
+    "day_night_order_equal": true
+  },
+  "style_preview": {
+    "before": {
+      "lines": 1103,
+      "bytes": 93949,
+      "md5": "7b8780af15802102f9ddf578510490a5"
+    },
+    "after": {
+      "lines": 1172,
+      "bytes": 102653,
+      "md5": "a17919a495f4bd03bdf2434df8013753"
+    },
+    "numstat": "69\t0",
+    "deleted_lines": 0,
+    "section_id": "item-actionbar-ref-v122"
+  },
+  "theme_tokens_css": {
+    "before_bytes": 8155,
+    "after_bytes": 8275,
+    "decls_per_block": {
+      "before": 110,
+      "after": 112
+    },
+    "numstat": "4\t0",
+    "generator": "backend-ts/.p4-artifacts/b4c-20260930T210239/gen-theme-css.mjs",
+    "generator_zero_drift_cmp_before": "0"
+  },
+  "spec": {
+    "before": {
+      "lines": 2819,
+      "bytes": 651259,
+      "md5": "7c3995951ab45ca61ba51a599a3a99f6"
+    },
+    "after": {
+      "lines": 2904,
+      "bytes": 669944,
+      "md5": "d8bc778e9aede1e6f3b8bcc3cf41ff8d"
+    },
+    "numstat": "86\t1",
+    "deleted_line_note": "唯一删除 = §12 表中 v1.21 行之后的 1 个空白行（空行会终止表格 ⇒ 新行会落到表外）；零正文删除",
+    "new_T": "T120 (max prior T119 + 1)",
+    "new_section": "§24",
+    "header_status_block_line": 23,
+    "section12_row_line": 831
+  },
+  "gates": {
+    "A": {
+      "cmd": "npx vitest run src/test/unit/theme-tokens.test.js src/test/unit/theme-shell-isomorphism.test.jsx",
+      "result": "2 files / 33 tests passed",
+      "pass": true
+    },
+    "B": {
+      "cmd": "npm run test:unit",
+      "baseline": "56 files / 544 tests",
+      "after": "56 files / 544 tests / 0 failed",
+      "pass": true
+    },
+    "C": {
+      "cmd": "npm run build",
+      "result": "✓ built in 1.76s",
+      "exit": 0,
+      "pass": true
+    },
+    "D": {
+      "grep_cta_solid_files": 3,
+      "style_preview_numstat": "69\t0",
+      "pass": true
+    },
+    "prov_sensitivity": {
+      "mutated_pointers": [
+        1131,
+        1134
+      ],
+      "observed": "1 failed | 12 passed; cta-solid-bg.d L1131 不含 background:#202020; cta-solid-bg.n L1134 不含 background:#EDEFF2",
+      "restored_green": true
+    }
+  },
+  "assertion_impact": {
+    "test_files_changed": 0,
+    "reason": "token count assertions are lower-bound/containment (>=100, >=106, toContain); equality only on day/night key set+order",
+    "evidence": [
+      "theme-tokens.test.js:65",
+      "p6-btn-impl.test.js:85",
+      "p6-btn-impl2.test.js:127",
+      "theme-tokens.test.js:58-64,181-186",
+      "theme-shell-isomorphism.test.jsx:240-250"
+    ]
+  },
+  "untouched": [
+    "frontend/src/pages/item/**",
+    "ItemDetailPage",
+    "frontend/src/shell/shell.css",
+    "data-sf-region set",
+    "--sf-l-actionbar-h(60px)",
+    "any existing token value",
+    "style-preview.html lines 1-1103",
+    "design-system.spec.md §1-§23"
+  ],
+  "forbidden_paths_in_diff": "NONE",
+  "open_items": [
+    "「收藏」无后端接口/表 ⇒ 接后端 vs 无动作视觉按钮，待 Kevin/Zang 裁定（§24.6-1）",
+    "操作栏高度 60px 不动；44px 触控若不够另裁（§24.6-3）",
+    "组合条与收藏的精确 px 留白留实现单（判据仅 >0，§24.6-4）",
+    "本单未建 design-system.spec.v1.22.md 镜像"
+  ],
+  "git": {
+    "committed": false,
+    "pushed": false,
+    "staged": false
+  }
+}

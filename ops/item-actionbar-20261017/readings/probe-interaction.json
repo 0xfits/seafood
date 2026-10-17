@@ -1,0 +1,119 @@
+{
+  "probe": "probe-interaction.mjs (Kong)",
+  "states": {
+    "anon_buy": {
+      "before": {
+        "pathname": "/item/888",
+        "search": ""
+      },
+      "buyDisabled": true,
+      "afterBuyClick": {
+        "pathname": "/item/888",
+        "search": ""
+      },
+      "buyApiCalls": []
+    },
+    "anon_chat": {
+      "after": {
+        "pathname": "/login",
+        "search": ""
+      },
+      "calls": []
+    },
+    "anon_fav": {
+      "after": {
+        "pathname": "/login",
+        "search": ""
+      },
+      "calls": [
+        "GET /api/role-names",
+        "GET /api/prize/888",
+        "GET /api/prize/888"
+      ]
+    },
+    "auth_fav": {
+      "before": {
+        "dataSfFav": "0",
+        "ariaPressed": "false",
+        "label": "收藏",
+        "fill": "none",
+        "computedFill": "none"
+      },
+      "afterAdd": {
+        "dataSfFav": "1",
+        "ariaPressed": "true",
+        "label": "已收藏",
+        "fill": "currentColor",
+        "computedFill": "rgb(32, 32, 32)"
+      },
+      "afterRemove": {
+        "dataSfFav": "0",
+        "ariaPressed": "false",
+        "label": "收藏",
+        "fill": "none",
+        "computedFill": "none"
+      },
+      "calls": [
+        "GET /api/role-names",
+        "GET /api/admin/me",
+        "GET /api/prize/888",
+        "GET /api/messages/unread-count",
+        "GET /api/prize/888",
+        "GET /api/user/asset/970213",
+        "GET /api/favorites",
+        "POST /api/favorites",
+        "DELETE /api/favorites/888"
+      ]
+    },
+    "auth_chat": {
+      "before": {
+        "pathname": "/item/888",
+        "search": ""
+      },
+      "after": {
+        "pathname": "/item/888",
+        "search": "?msg=1&c=7"
+      },
+      "pathnameIdentical": true,
+      "calls": [
+        "GET /api/role-names",
+        "GET /api/admin/me",
+        "GET /api/prize/888",
+        "GET /api/messages/unread-count",
+        "GET /api/prize/888",
+        "GET /api/user/asset/970213",
+        "GET /api/favorites",
+        "POST /api/messages/conversations",
+        "GET /api/messages/conversations/7/messages",
+        "POST /api/messages/conversations/7/read",
+        "GET /api/messages/unread-count"
+      ],
+      "panelMounted": true
+    },
+    "auth_chat_error": {
+      "present": true,
+      "text": "不能给自己发起会话",
+      "rect": {
+        "x": 20,
+        "y": 680,
+        "w": 1400,
+        "h": 18
+      },
+      "buttonsBottom": 671,
+      "belowButtons": true,
+      "barHeight": 88,
+      "calls": [
+        "GET /api/role-names",
+        "GET /api/admin/me",
+        "GET /api/prize/888",
+        "GET /api/messages/unread-count",
+        "GET /api/prize/888",
+        "GET /api/user/asset/970213",
+        "GET /api/favorites",
+        "POST /api/messages/conversations"
+      ]
+    }
+  },
+  "pageErrors": [],
+  "finishedAt": "2026-10-17T08:36:46.839Z"
+}

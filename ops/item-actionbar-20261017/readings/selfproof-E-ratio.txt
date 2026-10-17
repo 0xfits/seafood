@@ -1,0 +1,74 @@
+# self-proof E · 比例勘误单（Kong · 2026-10-17）· 只改三个百分比 + 重跑探针/门套
+# 生成命令见各行；本文件为纯证据落盘，未触碰源码以外任何东西。
+
+## 1) 改了什么（唯一源码改动 = item.css 三个 flex-basis，另同步 3 处注释文字）
+$ git diff -U0 -- frontend/src/pages/item/item.css | grep -E '^[+-].*(flex: 0 0|占比)'
+-  flex: 0 0 64%;          → +  flex: 0 0 72.8%;      # .sf-item-cta-group（组合条，相对按钮行可用宽）
+-  flex: 0 0 58%;          → +  flex: 0 0 50%;        # .sf-btn.sf-item-cta-chat（立即买 flex:1 1 auto ⇒ 自动 50%）
+-  flex: 0 0 23.5%;        → +  flex: 0 0 22.6%;      # .sf-btn.sf-item-cta-fav
+-     占比（58% / 42% / 23.5%）…  → +     占比（72.8% / 50:50 / 22.6%，均取参考图逐像素实测）…
+（注释 3 处：`--sf-l-cta-h` 块、`.sf-item-cta-group`、`.sf-item-cta-chat`、`.sf-item-cta-buy`、`.sf-item-cta-fav`；
+ 颜色 / 高度 / 圆角 / 图标 / 字重 / 状态行 / 钩子 / 留白机制（space-between）**一字未动**，未出现任何固定 px 留白。）
+
+## 2) 探针读数（readings/probe-post.json · ratioGate）
+$ node ops/item-actionbar-20261017/probe/probe-actionbar.mjs ops/item-actionbar-20261017/readings/probe-post.json post
+state        groupShareOfRow  chatShareOfGroup  buyShareOfGroup  favShareOfRow  gapShareOfRow  seamDelta  pass
+1440_light   72.8              50.00             50.00            22.6           4.60           0.00       true
+1440_dark    72.8              50.00             50.00            22.6           4.60           0.00       true
+390_light    72.8              50.00             50.00            22.6           4.61           0.00       true
+390_dark     72.8              50.00             50.00            22.6           4.61           0.00       true
+判据区间（派单 A）：72.3–73.3 / 49.5–50.5 / 22.1–23.1 / 4.1–5.1 / seamDelta === 0  ⇒ 四主态全在区间内
+ratioGate.allPass = true · ratioGate.themeGeoEqual = {1440: true, 390: true}（日/夜 rect 逐值相等）
+
+绝对几何（1440×900 · 行内宽 1400）：group x20 w1019.19 h44 · chat x20 w509.59 · buy x529.59 w509.59
+  · fav x1103.61 w316.39 · 留白 64.42px
+绝对几何（390×844 · 行内宽 366）：group x12 w266.44 · chat x12 w133.22 · buy x145.22 w133.22
+  · fav x295.3 w82.7 · 留白 16.86px · 横向溢出 0px
+
+## 3) ★ 尺子灵敏度自证（只做页内注入；源码零改动；红/绿两条读数均落盘于 probe-post.json.rulerSensitivity）
+注入方式：探针页内 `<style id="qa-perturb">…!important</style>`，量完即 remove，再量一次「复原」。
+
+case: group_72_8_to_60   css = .sf-item-cta-group{flex:0 0 60% !important}
+  shipped   groupShareOfRow 72.8  gapShareOfRow 4.60   ⇒ a_groupShare_72_8 = TRUE  / a_gapShare_4_6 = TRUE
+  perturbed groupShareOfRow 60.0  gapShareOfRow 17.40  ⇒ a_groupShare_72_8 = FALSE / a_gapShare_4_6 = FALSE   ← 必红（派单 B）
+  restored  groupShareOfRow 72.8  gapShareOfRow 4.60   ⇒ 全 6 条判据 TRUE                                        ← 回绿
+  mustRedAllFlipped = true · restoredAllGreen = true
+
+case: chat_50_to_58      css = .sf-btn.sf-item-cta-chat{flex:0 0 58% !important}
+  shipped   50.0 / 50.0  ⇒ pert 58.0 / 42.0  ⇒ a_chatShare_50_0 / a_buyShare_50_0 = FALSE（组内比例尺子亦有分辨力）
+  restored  50.0 / 50.0  ⇒ 全 TRUE
+
+case: fav_22_6_to_30     css = .sf-btn.sf-item-cta-fav{flex:0 0 30% !important}
+  shipped   22.6 ⇒ pert 30.0 ⇒ a_favShare_22_6 = FALSE（a_gapShare_4_6 同红：4.60 → 0.64）
+  restored  22.6 ⇒ 全 TRUE
+
+rulerSensitivity.mustRedSensitive = true · restoredAllGreen = true · shippedAllGreen = true · sensitive = true
+（说明：组合条基数的扰动**不会**翻转 chatShareOfGroup —— 组内两段等比缩放，占比恒 50:50；
+  故另做 chat/fav 两条独立注入，分别证明组内比例与收藏比例这两把尺子各自有分辨力。）
+
+## 4) 门套
+$ cd frontend && npm run test:unit     → Test Files 56 passed (56) · Tests 544 passed (544) · EXIT=0   [readings/gate-B-testunit-post.log]
+$ cd frontend && npm run build         → ✓ built in 1.75s · dist/assets/index-DnoMyxQu.css 123.50 kB · EXIT=0  [readings/gate-C-build-post.log]
+$ node probe → shots/post-{1440,390}_{light,dark}.png + post-390_seller_onlybuy.png 全部重拍（16:41 时间戳）
+
+## 5) 冻结面复核（本单零改动）
+$ git status --porcelain
+ M docs/design/design-system.spec.md      （numstat 152/1 → **154/1**：由**同期另一单 Jing 的 §24 口径勘误**在 16:40 落盘所致，本单对该文件零改动）
+ M docs/design/style-preview.html         （同上，69/0 一致）
+ M frontend/src/pages/item/ItemDetailPage.jsx  （上一单，47/25 一致）
+ M frontend/src/pages/item/item.css       ← 本单唯一改动（122/6 → 本单后仍 122/6：三个数字 + 注释文字，行数不变）
+ M frontend/src/theme/theme-tokens.css     （4/0 一致，未触碰）
+ M frontend/src/theme/tokens.js            （12/4 一致，未触碰）
+?? ops/item-actionbar-20261017/            （本单证据目录，未 add）
+NUMSTAT 与上一单自证 selfproof-D.txt 第 3 节逐值相同 ⇒ spec / tokens.js / theme-tokens.css / ItemDetailPage.jsx 本轮零改动。
+
+$ grep -n '[data-theme\|\bdata-sf-region\b\|#[0-9a-fA-F]\{3,6\}\|rgba\?(' frontend/src/pages/item/item.css
+  仅命中第 7 / 311 行**既有注释**（说明"本文件不写 [data-theme 选择器"），新增行命中 = 0；新增 hex/rgba = 0；新增 data-sf-region = 0；
+  新增 `[data-theme` 选择器 = 0。
+$ grep -n 'sf-item-btn' … : 第 208 行 `.sf-item-btn {` 本体与 `[disabled]` 均未在本单 diff 内（git diff 无该 hunk）。
+$ grep -n -- '--sf-l-actionbar-h' : 仍 `60px`（第 26 行），本单未改。
+
+## 6) 附带窄测（不改仓内文件 · scratch 一次性脚本）
+390×844 · 已收藏态（fixture 902）· `.sf-item-cta-fav` 可用宽 82.7px：
+  text「已收藏」· textLines = 1（未换行）· scrollWidth 81 = clientWidth 81（无溢出）· 内宽 65 = 图标 18 + 间距 8 + 三字 39
+  ⇒ 22.6% 下 390 档「★ 已收藏」仍单行不溢出，**余量 0px**（若日后字号放大到 14px 会立刻换行，需同批复核）。

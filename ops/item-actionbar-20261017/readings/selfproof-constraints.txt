@@ -1,0 +1,43 @@
+== 0. 读数文件指纹 ==
+ops/item-actionbar-20261017/readings/probe-pre.json  9125820eb780ecb1  60702 B  mtime=Oct 17 16:32:40 2026
+ops/item-actionbar-20261017/readings/probe-post.json  752aa8e3df73d7c8  100288 B  mtime=Oct 17 16:32:50 2026
+ops/item-actionbar-20261017/readings/probe-interaction.json  cd4da366f8be273b  2289 B  mtime=Oct 17 16:35:30 2026
+
+== 1. 冻结规则本体 .sf-item-btn 逐字节对比（HEAD vs 工作区） ==
+cmp: IDENTICAL（0 字节差，225 B）
+
+== 2. item.css 内 [data-theme 命中行（应 = 改前 2 行，均为既有注释） ==
+7: *   · 本文件**不写**任何按主题分支的规则（无 [data-theme] 选择器、无 matchMedia 主题依赖、
+311:   不写 @media 于 shell.css、不写 [data-theme] 选择器（两档几何逐值相等 = AC-6）。
+
+== 3. item.css 新增行 hex/rgba 色值字面量 ==
+命中 = 0
+
+== 4. shell.css 未动 / 未新增 data-sf-region ==
+shell.css 变更行数: 0
+ItemDetailPage 新增 data-sf-region: 0
+
+== 5. --sf-l-actionbar-h 仍 60px ==
+26:  --sf-l-actionbar-h: 60px;
+
+== 6. 改动面 numstat（本单仅 2 文件） ==
+47	25	frontend/src/pages/item/ItemDetailPage.jsx
+121	6	frontend/src/pages/item/item.css
+
+== 7. 既有 6 个 data-sf-m 钩子在源码中仍在 ==
+  item-actionbar     1 处
+  item-buy-btn       1 处
+  fav-toggle         1 处
+  item-chat-btn      1 处
+  item-buy-status    1 处
+  item-chat-status   1 处
+
+== 8. git 状态（未 commit / 未 push / 未 git add -A） ==
+2324584 feat(seafood): 会话失效即登出（前端）· exp 本地预判 + 全局 401 治理 + 菜单同步回落 + replaceAuthToken 单点写入口；atob 换纯 JS base64 解码（本环境 atob 单次 39s 且误报错）
+ M docs/design/design-system.spec.md
+ M docs/design/style-preview.html
+ M frontend/src/pages/item/ItemDetailPage.jsx
+ M frontend/src/pages/item/item.css
+ M frontend/src/theme/theme-tokens.css
+ M frontend/src/theme/tokens.js
+?? ops/item-actionbar-20261017/
