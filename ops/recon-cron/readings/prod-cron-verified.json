@@ -1,0 +1,32 @@
+{
+  "probe": "prod-cron-verified",
+  "verified_at": "2026-10-17T12:05+08:00",
+  "via": "vercel CLI 50.42.0 · VERCEL_TOKEN 从 ~/.config/vercel/alwaysfit.env 读入（未打印）",
+  "project": "alwaysfit/seafood",
+  "identity": "alwaysfit811-3806",
+  "crons_list": {
+    "raw": "2 cron jobs found for alwaysfit/seafood [339ms]",
+    "entries": [
+      { "path": "/api/ops/recon/ledger", "schedule": "30 18 * * *" },
+      { "path": "/api/translate/backfill", "schedule": "0 18 * * *" }
+    ],
+    "conclusion": "ENV_LIMITED-1 关闭：legacy builds + routes 形态下两条 cron 均已真实注册（此前只能上线后现证）"
+  },
+  "manual_trigger": {
+    "command": "vercel crons run /api/ops/recon/ledger",
+    "raw": "> Cron job /api/ops/recon/ledger triggered [1s]  ·  Invocation time: 2026-10-17T04:05:27.271Z",
+    "invocation_utc": "2026-10-17T04:05:27.271Z"
+  },
+  "runtime_log": {
+    "requestMethod": "GET",
+    "requestPath": "/api/ops/recon/ledger",
+    "responseStatusCode": 200,
+    "environment": "production",
+    "branch": "main",
+    "deploymentId": "dpl_3g7jwsUawiisAKx8355Q9nNHTASG",
+    "logs": [],
+    "interpretation": "200 + logs 为空 ⇒ handler 走完且未打 `[recon] ledger drift detected`（该日志仅在 ok=false 时输出）⇒ 首个生产回执为 ok=true（与生产基线对拍一致：cid=1 diff 2000000 命中基线、cid=21 不存在）"
+  },
+  "caveat": "logs:[] 是间接证明（非回执 body）；要拿逐字段回执需 CRON_SECRET 直接打端点，本机不持该值 ⇒ 不做。次日 18:30 窗口的自然触发可作第二次旁证。",
+  "closed_items": ["ENV_LIMITED-1（cron 注册不可证）", "K-②（首次生产回执未取 —— 现取到 200 + 零漂移日志）"]
+}
