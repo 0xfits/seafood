@@ -1,0 +1,50 @@
+{
+  "ac": "AC4",
+  "title": "端点形态：仅 GET、POST 同路径 404、注册点 107、p7b-03 37/37、tsc exit 0",
+  "measured_at": "2026-10-17T02:58:01.803Z",
+  "assertions": {
+    "only_one_registration_for_path": {
+      "pass": true,
+      "hits": [
+        {
+          "n": 3242,
+          "l": "app.get('/api/ops/recon/ledger', opsReconHandler);"
+        }
+      ]
+    },
+    "registration_verb_is_get": {
+      "pass": true,
+      "verb": "get"
+    },
+    "registration_count_107": {
+      "pass": true,
+      "measured": 107,
+      "expected": 107
+    },
+    "gate_constant_matches_measured": {
+      "pass": true,
+      "gate_constant": 107
+    },
+    "verb_breakdown": {
+      "pass": true,
+      "get": 47,
+      "post": 56,
+      "delete": 3,
+      "patch": 1
+    }
+  },
+  "registration_count_measured": 107,
+  "verb_breakdown": {
+    "get": 47,
+    "post": 56,
+    "delete": 3,
+    "patch": 1
+  },
+  "recon_registration_line": [
+    {
+      "n": 3242,
+      "l": "app.get('/api/ops/recon/ledger', opsReconHandler);"
+    }
+  ],
+  "pass": true
+}

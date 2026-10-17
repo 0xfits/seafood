@@ -1,0 +1,126 @@
+{
+  "ac": "AC8",
+  "title": "真库只读腿：dev 库上三条对账 SQL 可执行（不判 PASS/FAIL 具体值）",
+  "measured_at": "2026-10-17T03:00:54.172Z",
+  "connection": "readQuery（只读池）· DATABASE_URL 来自 backend-ts/.env.local · 连接串与凭据一律不打印",
+  "guard": {
+    "prod_project_forbidden": "sweet-pond-28934105",
+    "dev_project_expected": "quiet-math-65207667"
+  },
+  "statements": [
+    "identity: SELECT current_setting(neon.project_id|branch_id), current_database()",
+    "SELECT public.schema_migration top (ORDER BY version DESC LIMIT 1)",
+    "SELECT information_schema.tables WHERE table_name IN (currency, ledger_entry, account, batt_account, batt_entry)",
+    "runLedgerRecon(): 三条 SELECT 顺序执行（与 GET /api/ops/recon/ledger 同一路径）"
+  ],
+  "assertions": {
+    "identity_not_prod": true,
+    "identity_is_dev_expected": true,
+    "five_tables_present": true,
+    "all_three_sql_executed": true,
+    "all_sql_are_select": true,
+    "report_shape_ok": true,
+    "only_select_sent": true
+  },
+  "identity": {
+    "project_id": "quiet-math-65207667",
+    "branch_id": "br-soft-lake-b3iv9tli",
+    "db": "neondb",
+    "is_prod": false,
+    "matches_dev_expected": true
+  },
+  "schema_migration_top": {
+    "version": "0048",
+    "name": "0048_telegram_bind_request.sql"
+  },
+  "tables_present": [
+    "account",
+    "batt_account",
+    "batt_entry",
+    "currency",
+    "ledger_entry"
+  ],
+  "per_sql": [
+    {
+      "id": "supply_vs_ledger",
+      "ok": true,
+      "starts_with_select": true,
+      "row_count": 15,
+      "elapsed_ms": 210,
+      "sample_rows": [
+        {
+          "cid": "1",
+          "symbol": "$",
+          "total_supply": "2010200",
+          "sum_mint": "2210276",
+          "sum_burn": "-200076",
+          "ledger_derived": "2010200",
+          "diff": "0"
+        },
+        {
+          "cid": "4",
+          "symbol": "P4B3A013122",
+          "total_supply": "10000",
+          "sum_mint": "10000",
+          "sum_burn": "0",
+          "ledger_derived": "10000",
+          "diff": "0"
+        },
+        {
+          "cid": "9",
+          "symbol": "P4B3A013122X",
+          "total_supply": "0",
+          "sum_mint": "0",
+          "sum_burn": "0",
+          "ledger_derived": "0",
+          "diff": "0"
+        }
+      ]
+    },
+    {
+      "id": "account_vs_ledger",
+      "ok": true,
+      "starts_with_select": true,
+      "row_count": 0,
+      "elapsed_ms": 155,
+      "sample_rows": []
+    },
+    {
+      "id": "batt_account_vs_batt_entry",
+      "ok": true,
+      "starts_with_select": true,
+      "row_count": 0,
+      "elapsed_ms": 168,
+      "sample_rows": []
+    }
+  ],
+  "report": {
+    "ok": false,
+    "duration_ms": 888,
+    "checks": [
+      {
+        "id": "supply_vs_ledger",
+        "status": "FAIL",
+        "rows": 15,
+        "diff": "0",
+        "sample_len": 15
+      },
+      {
+        "id": "account_vs_ledger",
+        "status": "PASS",
+        "rows": 0,
+        "diff": null,
+        "sample_len": 0
+      },
+      {
+        "id": "batt_account_vs_batt_entry",
+        "status": "PASS",
+        "rows": 0,
+        "diff": null,
+        "sample_len": 0
+      }
+    ]
+  },
+  "value_disclaimer": "本文件只证「三条 SQL 在真 schema 上可执行」；dev 库的 ok=false 是**构造性**结果（基线取自生产），不构成缺陷（见 AC9 ②）。",
+  "pass": true
+}

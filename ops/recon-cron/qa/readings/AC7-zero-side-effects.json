@@ -1,0 +1,162 @@
+{
+  "ac": "AC7",
+  "title": "零副作用：无迁移/无新表/无前端/无 i18n；vercel.json 纯追加 + JSON 合法 + crons 恰 2 条",
+  "measured_at": "2026-10-17T02:58:01.861Z",
+  "range": "0537ea8..HEAD",
+  "changed_files": [
+    {
+      "status": "M",
+      "path": "backend-ts/scripts/p7b-03-offline-gates.ts"
+    },
+    {
+      "status": "M",
+      "path": "backend-ts/src/index.ts"
+    },
+    {
+      "status": "A",
+      "path": "backend-ts/src/ops-recon.ts"
+    },
+    {
+      "status": "A",
+      "path": "ops/cron-get-fix/readings/prod-get-nokey.json"
+    },
+    {
+      "status": "A",
+      "path": "ops/recon-cron/REPORT.md"
+    },
+    {
+      "status": "A",
+      "path": "ops/recon-cron/logs/counts.log"
+    },
+    {
+      "status": "A",
+      "path": "ops/recon-cron/logs/p7b-03-gate.log"
+    },
+    {
+      "status": "A",
+      "path": "ops/recon-cron/logs/probe-auth-old-impl-negative-control.log"
+    },
+    {
+      "status": "A",
+      "path": "ops/recon-cron/logs/probe-auth.log"
+    },
+    {
+      "status": "A",
+      "path": "ops/recon-cron/logs/recon-real-read.log"
+    },
+    {
+      "status": "A",
+      "path": "ops/recon-cron/logs/tsc.log"
+    },
+    {
+      "status": "A",
+      "path": "ops/recon-cron/probe/recon-probe.ts"
+    },
+    {
+      "status": "A",
+      "path": "ops/recon-cron/probe/recon-real-read.ts"
+    },
+    {
+      "status": "A",
+      "path": "ops/recon-cron/readings/config-and-gate.diff"
+    },
+    {
+      "status": "A",
+      "path": "ops/recon-cron/readings/gate-p7b-03.json"
+    },
+    {
+      "status": "A",
+      "path": "ops/recon-cron/readings/probe-recon-auth.json"
+    },
+    {
+      "status": "A",
+      "path": "ops/recon-cron/readings/recon-real-dev.json"
+    },
+    {
+      "status": "M",
+      "path": "vercel.json"
+    }
+  ],
+  "assertions": {
+    "no_migration_files": {
+      "pass": true,
+      "hits": []
+    },
+    "no_frontend_changes": {
+      "pass": true,
+      "hits": []
+    },
+    "no_i18n_key_changes": {
+      "pass": true,
+      "hits": []
+    },
+    "new_tables_none": {
+      "pass": true,
+      "note": "本批无 .sql ⇒ 结构上不可能建表；真库侧另由 AC8 只读探针核 schema_migration 顶未变"
+    },
+    "vercel_json_pure_append": {
+      "pass": true,
+      "added": 4,
+      "deleted": 0,
+      "numstat": "4\t0\tvercel.json"
+    },
+    "vercel_json_valid": {
+      "pass": true,
+      "parsed_crons": 2
+    },
+    "crons_exactly_two": {
+      "pass": true,
+      "crons": [
+        {
+          "path": "/api/translate/backfill",
+          "schedule": "0 18 * * *"
+        },
+        {
+          "path": "/api/ops/recon/ledger",
+          "schedule": "30 18 * * *"
+        }
+      ]
+    },
+    "existing_cron_untouched": {
+      "pass": true,
+      "base_first": {
+        "path": "/api/translate/backfill",
+        "schedule": "0 18 * * *"
+      },
+      "head_first": {
+        "path": "/api/translate/backfill",
+        "schedule": "0 18 * * *"
+      }
+    },
+    "head_adds_only_recon_cron": {
+      "pass": true,
+      "appended": [
+        {
+          "path": "/api/ops/recon/ledger",
+          "schedule": "30 18 * * *"
+        }
+      ]
+    }
+  },
+  "diff_numstat_total": [
+    "4\t2\tbackend-ts/scripts/p7b-03-offline-gates.ts",
+    "45\t0\tbackend-ts/src/index.ts",
+    "247\t0\tbackend-ts/src/ops-recon.ts",
+    "1\t0\tops/cron-get-fix/readings/prod-get-nokey.json",
+    "390\t0\tops/recon-cron/REPORT.md",
+    "10\t0\tops/recon-cron/logs/counts.log",
+    "91\t0\tops/recon-cron/logs/p7b-03-gate.log",
+    "20\t0\tops/recon-cron/logs/probe-auth-old-impl-negative-control.log",
+    "20\t0\tops/recon-cron/logs/probe-auth.log",
+    "1\t0\tops/recon-cron/logs/recon-real-read.log",
+    "1\t0\tops/recon-cron/logs/tsc.log",
+    "310\t0\tops/recon-cron/probe/recon-probe.ts",
+    "46\t0\tops/recon-cron/probe/recon-real-read.ts",
+    "33\t0\tops/recon-cron/readings/config-and-gate.diff",
+    "319\t0\tops/recon-cron/readings/gate-p7b-03.json",
+    "564\t0\tops/recon-cron/readings/probe-recon-auth.json",
+    "202\t0\tops/recon-cron/readings/recon-real-dev.json",
+    "4\t0\tvercel.json"
+  ],
+  "pass": true
+}

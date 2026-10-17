@@ -1,0 +1,64 @@
+{
+  "ac": "AC2",
+  "title": "行为侧：严格相等（非不等式/容差）、BigInt 比较 pg 字符串、小数残差 ⇒ FAIL、未登记 cid 默认 0",
+  "measured_at": "2026-10-17T02:59:12.623Z",
+  "observed": {
+    "baseline_hit_ok": [
+      {
+        "id": "supply_vs_ledger",
+        "status": "PASS",
+        "rows": 2,
+        "diff": "0"
+      },
+      {
+        "id": "account_vs_ledger",
+        "status": "PASS",
+        "rows": 0,
+        "diff": null
+      },
+      {
+        "id": "batt_account_vs_batt_entry",
+        "status": "PASS",
+        "rows": 0,
+        "diff": null
+      }
+    ],
+    "off_by_one_ok": [
+      {
+        "id": "supply_vs_ledger",
+        "status": "FAIL",
+        "rows": 1,
+        "diff": "2000001"
+      },
+      {
+        "id": "account_vs_ledger",
+        "status": "PASS",
+        "rows": 0,
+        "diff": null
+      },
+      {
+        "id": "batt_account_vs_batt_entry",
+        "status": "PASS",
+        "rows": 0,
+        "diff": null
+      }
+    ],
+    "decimal_residual_ok": false,
+    "decimal_zero_ok": true,
+    "unregistered_cid_drift_ok": "FAIL",
+    "unregistered_cid_sample": [
+      "9021",
+      "1",
+      "9001"
+    ]
+  },
+  "assertions": {
+    "off_by_one_fails": true,
+    "baseline_mismatch_fails": true,
+    "baseline_hit_passes": true,
+    "decimal_residual_fails": true,
+    "decimal_int_value_passes": true,
+    "pg_string_numeric_handled": true
+  },
+  "pass": true
+}

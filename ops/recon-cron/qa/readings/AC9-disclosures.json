@@ -1,0 +1,116 @@
+{
+  "ac": "AC9",
+  "title": "披露核对（不判负）：漂移仍 200 / dev ok=false 属构造性 / legacy builds 下 cron 注册只能上线后证",
+  "measured_at": "2026-10-17T03:01:21.364Z",
+  "disclosures": [
+    {
+      "id": "D1-http-200-on-drift",
+      "claim": "漂移时 HTTP 仍 200（Vercel cron 面板不会红）—— 属已披露设计",
+      "measured": {
+        "clean_arm_status": 200,
+        "clean_arm_ok": true,
+        "clean_arm_drift_logs": 0,
+        "drift_arms": [
+          {
+            "arm": "supply_drift",
+            "http_status": 200,
+            "http_200_on_drift": true,
+            "report_ok": false,
+            "envelope_message": "Ledger recon detected drift",
+            "recon_error_log_count": 1,
+            "body_contains_secret": false,
+            "log_excerpt": "[recon] ledger drift detected {\"checked_at\":\"2026-10-17T03:01:21.360Z\",\"duration_ms\":0,\"failed\":[{\"id\":\"supply_vs_ledger\",\"rows\":1,\"diff\":\"2000001\"}]}"
+          },
+          {
+            "arm": "account_drift",
+            "http_status": 200,
+            "http_200_on_drift": true,
+            "report_ok": false,
+            "envelope_message": "Ledger recon detected drift",
+            "recon_error_log_count": 1,
+            "body_contains_secret": false,
+            "log_excerpt": "[recon] ledger drift detected {\"checked_at\":\"2026-10-17T03:01:21.362Z\",\"duration_ms\":0,\"failed\":[{\"id\":\"account_vs_ledger\",\"rows\":1,\"diff\":null}]}"
+          },
+          {
+            "arm": "batt_drift",
+            "http_status": 200,
+            "http_200_on_drift": true,
+            "report_ok": false,
+            "envelope_message": "Ledger recon detected drift",
+            "recon_error_log_count": 1,
+            "body_contains_secret": false,
+            "log_excerpt": "[recon] ledger drift detected {\"checked_at\":\"2026-10-17T03:01:21.363Z\",\"duration_ms\":0,\"failed\":[{\"id\":\"batt_account_vs_batt_entry\",\"rows\":1,\"diff\":null}]}"
+          }
+        ]
+      },
+      "observations": {
+        "all_drift_arms_http_200": true,
+        "all_drift_arms_ok_false": true,
+        "drift_emits_exactly_one_recon_error_log": true,
+        "clean_arm_emits_none": true,
+        "no_secret_in_bodies": true,
+        "alarm_channel_source": "console.error('[recon] ledger drift detected'"
+      },
+      "verdict": "AS_DESIGNED · 不改判负（告警面 v1 = 结构化回执 + console.error 一条；外部告警未接，属已知边界）",
+      "residual_risk": "若上线后无人看 Vercel 日志，漂移可长期无人处理（HTTP 200 ⇒ 平台不报警）。建议后续接外部告警（另立单）。"
+    },
+    {
+      "id": "D2-dev-ok-false-constructive",
+      "claim": "dev 库 ok=false 是构造性结果（基线取自生产），不得当缺陷",
+      "measured": {
+        "dev_identity": {
+          "project_id": "quiet-math-65207667",
+          "branch_id": "br-soft-lake-b3iv9tli",
+          "db": "neondb",
+          "is_prod": false,
+          "matches_dev_expected": true
+        },
+        "dev_report_ok": false,
+        "dev_supply_check": {
+          "id": "supply_vs_ledger",
+          "status": "FAIL",
+          "rows": 15,
+          "diff": "0",
+          "sample_len": 15
+        },
+        "dev_supply_first_row": {
+          "cid": "1",
+          "symbol": "$",
+          "total_supply": "2010200",
+          "sum_mint": "2210276",
+          "sum_burn": "-200076",
+          "ledger_derived": "2010200",
+          "diff": "0"
+        },
+        "baseline_source": "KNOWN_SUPPLY_OFFSET: cid 1 → '2000000'（OPEN-ITEMS B25 生产已登记差额）"
+      },
+      "attribution": "dev 库 cid=1 的 diff=0（dev 无该笔历史夹具），而基线常量按**生产**登记为 2000000 ⇒ 严格相等必然 FAIL。属「基线只对生产成立」的构造性产物；同一批数据下 account/batt 两条 0 行判据在 dev 上 PASS。",
+      "verdict": "CONSTRUCTIVE_NON_DEFECT · 不判负、不改写为 PASS"
+    },
+    {
+      "id": "D3-vercel-legacy-builds-cron-unverifiable",
+      "claim": "vercel.json 为 legacy builds 形态 ⇒ cron 是否真注册只能上线后现证",
+      "measured": {
+        "has_builds_key": true,
+        "has_routes_key": true,
+        "crons": [
+          {
+            "path": "/api/translate/backfill",
+            "schedule": "0 18 * * *"
+          },
+          {
+            "path": "/api/ops/recon/ledger",
+            "schedule": "30 18 * * *"
+          }
+        ],
+        "crons_count": 2,
+        "plan_limit_note": "Hobby 档 cron 上限 2 条 + 每条每天至多 1 次（非准点）⇒ 本批用满名额，无余量。"
+      },
+      "verdict": "ENV_LIMITED · 离线无法证明「Vercel 真的按 30 18 * * * 触发 /api/ops/recon/ledger」；上线后需现证（cron 面板 + 一次真实触发日志）。"
+    }
+  ],
+  "env_limited": [
+    "D3: legacy builds 形态下 crons 注册/触发时刻只能上线后现证（离线仅能证 JSON 合法 + 路径注册了 GET）",
+    "Hobby 档 cron 名额已用满 2/2 ⇒ 后续加第三条必须先合并调度器（机制约束，非本批缺陷）"
+  ]
+}

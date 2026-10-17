@@ -1,0 +1,145 @@
+{
+  "batch": {
+    "head": "3423a4b",
+    "commits": [
+      "a201cb3 对账 cron 主体（ops-recon.ts 221 行 + GET 注册 + vercel.json 第二条 cron + 门常量 106→107）",
+      "3423a4b judgeSupply 样本两阶段采集 + 回归两例",
+      "34d736b 生产面证据（GET /api/translate/backfill 401）"
+    ],
+    "baseline_commit": "0537ea8"
+  },
+  "checker": "Neng（独立质检方）· 只读被检对象、自跑探针、自落读数；未修改任何仓内实现/测试文件、未写库、未 push",
+  "measured_at": "2026-10-17T03:03:32.675Z",
+  "verdict": "PASS-with-drift",
+  "acs": [
+    {
+      "id": "AC1",
+      "status": "PASS",
+      "evidence": "readings/AC1-readonly.json · 剥注释后代码面 DML/事务关键字命中 0 处；三条 SQL 均以 SELECT 开头且无分号分隔的第二语句；readQuery 调用 3 次、无 getPool/withTransaction/pool.query；无 ledger_post_event。（披露：原文注释里命中 INSERT/UPDATE/DELETE/ledger_post_event 各 1 处，属自述性注释，故判据必须剥注释取；见 disclosures）"
+    },
+    {
+      "id": "AC2",
+      "status": "PASS",
+      "evidence": "readings/AC2-symbol-baseline.json + AC2-judgement.json · SQL 表达式为 COALESCE(sum_mint,0)+COALESCE(sum_burn,0)（减号命中 0）；基线 Object.freeze 常量表恰 2 条 {'1':'2000000','21':'1'}、未登记 cid 默认 '0'；判据 parsed.big === baseline（无 >=、无容差、无 try-catch、无 SKIP）；BigInt 比较 2 处、Number() 强转 0 处；行为臂：差 1 ⇒ FAIL、cid21 基线错配 ⇒ FAIL、命中基线 ⇒ PASS、小数残差 2000000.5 ⇒ FAIL、2000000.0 ⇒ PASS；真数据自证 Σmint+Σburn=2010200 == total_supply=2010200（减法得 2410352）。"
+    },
+    {
+      "id": "AC3",
+      "status": "PASS",
+      "evidence": "readings/AC3-auth-states.json · 8 例自跑：无 secret env ⇒ 503、有 secret 无头 ⇒ 401、错 Bearer ⇒ 401、错 x-cron-secret ⇒ 401、对 Bearer ⇒ 200、对 x-cron-secret ⇒ 200、错路径 ⇒ 404、同路径 POST ⇒ 404；8/8 响应体均不含密钥值（密钥进程内随机生成，未读任何仓内/环境凭据）。"
+    },
+    {
+      "id": "AC4",
+      "status": "PASS",
+      "evidence": "readings/AC4-endpoint-static.json + AC4-gates.json · 该路径仅 1 处注册且为 app.get；同路径 POST 实测 404；grep -cE '^app\\.(get|post|put|delete|patch)\\(' = 107（get 47 / post 56 / put 0 / delete 3 / patch 1）；p7b-03 离线门 37/37、red=[]、AC10-2 reading=registration_points=107；tsc --noEmit exit 0。"
+    },
+    {
+      "id": "AC5",
+      "status": "PASS",
+      "evidence": "readings/AC5-sample-two-phase.json · 25 行夹具（第 22 行 cid=9021 偏离基线）⇒ status=FAIL、diff=1、sample_len=20、sample[0].cid=9021（失败行在前、未被 slice 切掉）；全 PASS 夹具 ⇒ status=PASS、diff='0'、rows=25；全 FAIL 25 行 ⇒ cap 20 且全为失败行；反向对照（旧策略在探针内逐字复刻）⇒ 同夹具 sample 丢失 9021（旧 cids 末位 9019、has_9021=false）且旧/新 status·diff·rows 逐项相同 ⇒ 用例有分辨力、判据语义未变。"
+    },
+    {
+      "id": "AC6",
+      "status": "PASS",
+      "evidence": "readings/AC6-sensitivity-arms.json · 5 臂 + 3 辅助臂：supply diff 偏移 ⇒ ok=false、cid21 基线错配 ⇒ ok=false、account 漂移 1 行 ⇒ ok=false、batt 漂移 1 行 ⇒ ok=false；反向臂（全净）⇒ ok=true；基线命中臂 cid21 diff=1 ⇒ ok=true、小数残差 ⇒ ok=false、2000000.0 ⇒ ok=true。"
+    },
+    {
+      "id": "AC7",
+      "status": "PASS",
+      "evidence": "readings/AC7-zero-side-effects.json · git diff --name-status 0537ea8..HEAD：迁移 0 个、frontend/** 0 个、i18n 面 0 个；vercel.json numstat = 4\t0\tvercel.json（删行 0）；JSON 合法、crons 恰 2 条、首条既存 0 18 * * * 未动、新条仅追加 30 18 * * *。"
+    },
+    {
+      "id": "AC8",
+      "status": "PASS",
+      "evidence": "readings/AC8-real-dev-readonly.json · 连 dev（project_id=quiet-math-65207667，非生产 sweet-pond-28934105）；三条 SQL 原文逐条执行成功（supply 15 行 / account 0 行 / batt 0 行），runLedgerRecon 真路径跑通（duration 888ms）；5 张表齐备；schema 顶 0048；全程仅 SELECT。"
+    },
+    {
+      "id": "AC9",
+      "status": "REGISTERED",
+      "evidence": "readings/AC9-disclosures.json + AC9-kind-coverage.json · ①漂移三臂实测 HTTP 200/200/200 且各打 1 条 [recon] 日志（干净臂 0 条）⇒ 平台面板不会红，已披露；②dev ok=false 归因为构造性（基线取生产：cid1 基线 2000000 vs dev diff 0）；③legacy builds 下 cron 注册/触发只能上线后现证 ⇒ ENV_LIMITED。旁证：检查①只算 mint/burn，dev 上逐 cid「非 mint/burn 净额 + frozen == 0」（cid1 −16745 + 16745）且 orphan 分录 0 ⇒ 口径自洽、未发现覆盖缺口。"
+    }
+  ],
+  "drift": [
+    "D1 漂移时 HTTP 仍 200（Vercel cron 面板不会红）—— 属已披露设计：告警面 v1 = 结构化回执 + console.error 一条（实测三臂各 1 条、干净臂 0 条）。残余风险：若无人看日志，漂移可长期无人处置；建议另立单接外部告警。",
+    "D2 dev 库 ok=false 是构造性结果（基线常量取生产：cid=1 登记 2000000，dev 实测 diff=0），非缺陷；同一批 dev 数据下 account/batt 两条 0 行判据均 PASS。",
+    "D3 口径覆盖披露：检查①只聚合 mint/burn（ledger_kind_enum 实有 20 个 kind）。dev 实测逐 cid「非 mint/burn 净额 + frozen 合计 == 0」（cid1 −16745+16745、cid21 −1+1）、orphan 分录 0 ⇒ 内部转移/持有只改余额与冻结的分配、不改 total_supply，口径自洽；生产侧建议按同式复核一次以防 dev/生产数据形态不同。",
+    "D4 【Zang 生产侧对拍 · 2026-10-17 关闭】生产库只读现取（project_id=sweet-pond-28934105，schema_top=0048）：`currency` 仅 1 行 —— cid=1 `$` supply 2010200 / Σmint 210274 / Σburn −200074 / diff=**2000000**（与基线逐位相同）；`cid=21` **生产不存在（0 行）** ⇒ 基线 '21'→'1' 为惰性登记值，不影响判定。⇒ 上线后首次运行检查①应为 PASS。"
+  ],
+  "env_limited": [
+    "ENV_LIMITED-1 vercel.json 为 legacy builds + routes 形态 ⇒ 「cron 是否真按 30 18 * * * 注册并触发 /api/ops/recon/ledger」离线不可证，只能上线后现证（Vercel cron 面板 + 一次真实触发日志）。",
+    "ENV_LIMITED-2 【Zang 勘误 2026-10-17】Hobby 档 cron 名额**不是** 2 条：官方现页 vercel.com/docs/cron-jobs/usage-and-pricing 明写 Hobby = **100 cron jobs/项目**（Pro 同为 100），真正约束只有「每天最多 1 次 + 触发落在指定小时窗口内（±59 min）」。质检稿原引「2/2 已满」出自 2023 beta 博客与第三方转述，已作废；同一勘误已入 docs/OPEN-ITEMS.md（Jing 登记，commit 3424fd4 留痕）。⇒ 本项不构成任何机制瓶颈，加第三条 cron 无需合并调度器。",
+    "ENV_LIMITED-3 dev 库读数与生产不可比（技能已登记）⇒ AC8 只证「SQL 在真 schema 上可执行」，不证生产值；生产 ok 值须上线后看回执。"
+  ],
+  "readings": [
+    "readings/AC1-readonly.json",
+    "readings/AC2-symbol-baseline.json",
+    "readings/AC2-judgement.json",
+    "readings/AC3-auth-states.json",
+    "readings/AC4-endpoint-static.json",
+    "readings/AC4-gates.json",
+    "readings/AC5-sample-two-phase.json",
+    "readings/AC6-sensitivity-arms.json",
+    "readings/AC7-zero-side-effects.json",
+    "readings/AC8-real-dev-readonly.json",
+    "readings/AC9-disclosures.json",
+    "readings/AC9-kind-coverage.json",
+    "readings/qa-static-summary.json",
+    "readings/qa-behavior-summary.json"
+  ],
+  "probes": [
+    "probe/qa-static.mjs",
+    "probe/qa-behavior.ts",
+    "probe/qa-ac4-gates.mjs",
+    "probe/qa-real-read.ts",
+    "probe/qa-ac9-disclosures.ts",
+    "probe/qa-kind-coverage.ts",
+    "probe/qa-verdict.mjs"
+  ],
+  "logs": [
+    "logs/qa-p7b-03-gate.log",
+    "logs/qa-tsc.log",
+    "logs/qa-tsc-exit.log"
+  ],
+  "notes": [
+    "所有 AC 的 PASS/FAIL 均由 readings/*.json 的 pass 字段机械汇总（见 probe/qa-verdict.mjs），未手写结论。",
+    "AC1 判据在剥注释后的代码面取；原文命中作为 disclosures 一并落盘（避免「原文 grep=0」被当假证）。",
+    "探针 ts-node 运行需 TS_NODE_PROJECT=tsconfig.json（cwd=backend-ts）；否则 ts-node 会按仓根配置编译并报 TS5109。"
+  ],
+  "self_check": {
+    "ac_pass_flags_from_files": {
+      "AC1": true,
+      "AC2": true,
+      "AC3": true,
+      "AC4": true,
+      "AC5": true,
+      "AC6": true,
+      "AC7": true,
+      "AC8": true
+    },
+    "ac9_registered_not_judged": true
+  },
+  "zang_acceptance": {
+    "verdict_uphheld": true,
+    "accepted_at": "2026-10-17",
+    "prod_readonly_crosscheck": {
+      "project_id": "sweet-pond-28934105",
+      "schema_top": "0048",
+      "currency_rows": 1,
+      "cid1": {
+        "symbol": "$",
+        "total_supply": "2010200",
+        "sum_mint": "210274",
+        "sum_burn": "-200074",
+        "diff": "2000000",
+        "baseline": "2000000",
+        "match": true
+      },
+      "cid21_rows": 0,
+      "note": "基线命中 ⇒ 首次生产运行检查①应为 PASS；cid=21 基线为惰性值"
+    },
+    "errata": [
+      "ENV_LIMITED-2 已勘误：Hobby = 100 cron jobs/项目，非 2 条",
+      "D4 已关闭：生产侧对拍完成"
+    ],
+    "open_decision": "D1（漂移时仍 HTTP 200 ⇒ Vercel 面板不红）待 Kevin 裁定：保持 200 + 后续接外部告警，或改返回 500 让平台标红"
+  }
+}

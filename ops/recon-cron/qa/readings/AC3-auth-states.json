@@ -1,0 +1,92 @@
+{
+  "ac": "AC3",
+  "title": "鉴权五态（无 secret 503 / 无头 401 / 错 Bearer 401 / 错 x-cron-secret 401 / 对 200）+ 错路径 404 + 同路径 POST 404 + 密钥不回显",
+  "measured_at": "2026-10-17T02:59:12.613Z",
+  "secret_length": 27,
+  "secret_source": "in-process crypto.randomBytes（未读任何仓内/环境凭据）",
+  "cases": [
+    {
+      "id": "no_secret_env",
+      "desc": "CRON_SECRET 未配 + 无任何头",
+      "expected_status": 503,
+      "actual_status": 503,
+      "status_ok": true,
+      "body_contains_secret_value": false,
+      "no_secret_leak": true,
+      "body_excerpt": "{\"success\":false,\"message\":\"CRON_SECRET not configured\",\"error\":\"CRON_SECRET not configured\"}"
+    },
+    {
+      "id": "secret_set_no_header",
+      "desc": "CRON_SECRET 已配、请求无 Authorization / x-cron-secret",
+      "expected_status": 401,
+      "actual_status": 401,
+      "status_ok": true,
+      "body_contains_secret_value": false,
+      "no_secret_leak": true,
+      "body_excerpt": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"Authentication is required\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}"
+    },
+    {
+      "id": "wrong_bearer",
+      "desc": "Authorization: Bearer <错误值>",
+      "expected_status": 401,
+      "actual_status": 401,
+      "status_ok": true,
+      "body_contains_secret_value": false,
+      "no_secret_leak": true,
+      "body_excerpt": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"Authentication is required\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}"
+    },
+    {
+      "id": "wrong_x_cron_secret",
+      "desc": "x-cron-secret: <错误值>",
+      "expected_status": 401,
+      "actual_status": 401,
+      "status_ok": true,
+      "body_contains_secret_value": false,
+      "no_secret_leak": true,
+      "body_excerpt": "{\"error\":{\"code\":\"AUTH_UNAUTHORIZED\",\"message\":\"Authentication is required\",\"i18n_key\":\"auth.err.AUTH_UNAUTHORIZED\",\"details\":{}}}"
+    },
+    {
+      "id": "correct_bearer",
+      "desc": "Authorization: Bearer <正确值>（夹具为干净账）",
+      "expected_status": 200,
+      "actual_status": 200,
+      "status_ok": true,
+      "body_contains_secret_value": false,
+      "no_secret_leak": true,
+      "body_excerpt": "{\"success\":true,\"message\":\"Ledger recon completed\",\"data\":{\"ok\":true,\"checks\":[{\"id\":\"supply_vs_ledger\",\"status\":\"PASS\",\"rows\":1,\"diff\":\"0\",\"sample\":[{\"cid\":\"1\",\"symbol\":\"$\",\"total_supply\":\"1000\",\"sum_mint\":\"1000\",\"sum_burn\":\"0\",\"ledger_der",
+      "report_ok": true
+    },
+    {
+      "id": "correct_x_cron_secret",
+      "desc": "x-cron-secret: <正确值>",
+      "expected_status": 200,
+      "actual_status": 200,
+      "status_ok": true,
+      "body_contains_secret_value": false,
+      "no_secret_leak": true,
+      "body_excerpt": "{\"success\":true,\"message\":\"Ledger recon completed\",\"data\":{\"ok\":true,\"checks\":[{\"id\":\"supply_vs_ledger\",\"status\":\"PASS\",\"rows\":1,\"diff\":\"0\",\"sample\":[{\"cid\":\"1\",\"symbol\":\"$\",\"total_supply\":\"1000\",\"sum_mint\":\"1000\",\"sum_burn\":\"0\",\"ledger_der",
+      "report_ok": true
+    },
+    {
+      "id": "wrong_path",
+      "desc": "GET /api/ops/recon/ledger-x（错路径）",
+      "expected_status": 404,
+      "actual_status": 404,
+      "status_ok": true,
+      "body_contains_secret_value": false,
+      "no_secret_leak": true,
+      "body_excerpt": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"Referenced object not found\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/ops/recon/ledger-x\",\"reason\":\"route_not_found\"}}}"
+    },
+    {
+      "id": "post_same_path",
+      "desc": "POST /api/ops/recon/ledger（同路径、正确密钥）",
+      "expected_status": 404,
+      "actual_status": 404,
+      "status_ok": true,
+      "body_contains_secret_value": false,
+      "no_secret_leak": true,
+      "body_excerpt": "{\"error\":{\"code\":\"LEDGER_REF_NOT_FOUND\",\"message\":\"Referenced object not found\",\"i18n_key\":\"ledger.err.LEDGER_REF_NOT_FOUND\",\"details\":{\"ref_type\":\"endpoint\",\"ref_id\":\"/api/ops/recon/ledger\",\"reason\":\"route_not_found\"}}}"
+    }
+  ],
+  "pass": true
+}

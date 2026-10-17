@@ -1,0 +1,111 @@
+{
+  "ac": "AC1",
+  "title": "只读性：无 DML / 无事务 / 三条 SQL 均单语句 SELECT / 走 readQuery 只读池",
+  "measured_at": "2026-10-17T02:58:01.801Z",
+  "subject": "backend-ts/src/ops-recon.ts",
+  "subject_lines": 248,
+  "assertions": {
+    "no_forbidden_keywords_in_code": {
+      "pass": true,
+      "hits": []
+    },
+    "three_sql_parsed": {
+      "pass": true,
+      "found": [
+        "supply_vs_ledger",
+        "account_vs_ledger",
+        "batt_account_vs_batt_entry"
+      ]
+    },
+    "all_sql_start_with_select": {
+      "pass": true
+    },
+    "all_sql_single_statement": {
+      "pass": true
+    },
+    "all_sql_no_dml": {
+      "pass": true
+    },
+    "readQuery_imported": {
+      "pass": true
+    },
+    "readQuery_used_for_all_three": {
+      "pass": true,
+      "calls": 3
+    },
+    "no_direct_pool_or_tx": {
+      "pass": true,
+      "hits": []
+    },
+    "no_ledger_post_event_call": {
+      "pass": true
+    }
+  },
+  "sql_audit": [
+    {
+      "id": "supply_vs_ledger",
+      "parsed": true,
+      "starts_with_select": true,
+      "select_count": 2,
+      "semicolons": 0,
+      "single_statement": true,
+      "dml_hits": [],
+      "stmt_keyword": "SELECT",
+      "has_semicolon_separated_second_stmt": false,
+      "first_line": "SELECT c.cid, c.symbol, c.total_supply,"
+    },
+    {
+      "id": "account_vs_ledger",
+      "parsed": true,
+      "starts_with_select": true,
+      "select_count": 2,
+      "semicolons": 0,
+      "single_statement": true,
+      "dml_hits": [],
+      "stmt_keyword": "SELECT",
+      "has_semicolon_separated_second_stmt": false,
+      "first_line": "SELECT a.uid, a.cid, a.balance, COALESCE(s.d,0) AS sum_delta,"
+    },
+    {
+      "id": "batt_account_vs_batt_entry",
+      "parsed": true,
+      "starts_with_select": true,
+      "select_count": 2,
+      "semicolons": 0,
+      "single_statement": true,
+      "dml_hits": [],
+      "stmt_keyword": "SELECT",
+      "has_semicolon_separated_second_stmt": false,
+      "first_line": "SELECT b.uid, b.batt, COALESCE(e.d,0) AS sum_delta, b.batt - COALESCE(e.d,0) AS "
+    }
+  ],
+  "raw_sql": {
+    "supply_vs_ledger": "SELECT c.cid, c.symbol, c.total_supply,\n       COALESCE(l.sum_mint,0)                       AS sum_mint,\n       COALESCE(l.sum_burn,0)                       AS sum_burn,\n       COALESCE(l.sum_mint,0)+COALESCE(l.sum_burn,0) AS ledger_derived,\n       c.total_supply - (COALESCE(l.sum_mint,0)+COALESCE(l.sum_burn,0)) AS diff\n  FROM public.currency c\n  LEFT JOIN (SELECT cid,\n                    SUM(delta) FILTER (WHERE kind='mint') AS sum_mint,\n                    SUM(delta) FILTER (WHERE kind='burn') AS sum_burn\n               FROM public.ledger_entry GROUP BY cid) l ON l.cid = c.cid\n ORDER BY c.cid",
+    "account_vs_ledger": "SELECT a.uid, a.cid, a.balance, COALESCE(s.d,0) AS sum_delta,\n       a.balance - COALESCE(s.d,0) AS diff_balance,\n       a.frozen, COALESCE(s.f,0) AS sum_frozen_delta,\n       a.frozen  - COALESCE(s.f,0) AS diff_frozen\n  FROM public.account a\n  LEFT JOIN (SELECT uid, cid, SUM(delta) AS d, SUM(frozen_delta) AS f\n               FROM public.ledger_entry GROUP BY uid, cid) s\n         ON s.uid = a.uid AND s.cid = a.cid\n WHERE a.balance <> COALESCE(s.d,0) OR a.frozen <> COALESCE(s.f,0)\n ORDER BY a.uid, a.cid",
+    "batt_account_vs_batt_entry": "SELECT b.uid, b.batt, COALESCE(e.d,0) AS sum_delta, b.batt - COALESCE(e.d,0) AS diff\n  FROM public.batt_account b\n  LEFT JOIN (SELECT uid, SUM(delta) AS d FROM public.batt_entry GROUP BY uid) e ON e.uid = b.uid\n WHERE b.batt <> COALESCE(e.d,0)\n ORDER BY b.uid"
+  },
+  "disclosures": {
+    "keyword_hits_on_raw_source_disclosure": {
+      "note": "原文命中 = 文件头注释里的自述（\"无 INSERT/UPDATE/DELETE / 无 ledger_post_event\"）⇒ 属注释、非代码；判据必须剥注释后取，否则该 AC 结构上不可达 PASS。此处登记以免「原文 grep = 0」被当成假证。",
+      "hits": [
+        {
+          "line": 4,
+          "token": "INSERT"
+        },
+        {
+          "line": 4,
+          "token": "UPDATE"
+        },
+        {
+          "line": 4,
+          "token": "DELETE"
+        },
+        {
+          "line": 5,
+          "token": "ledger_post_event"
+        }
+      ]
+    }
+  },
+  "pass": true
+}

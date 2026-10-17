@@ -1,0 +1,117 @@
+{
+  "ac": "AC5",
+  "title": "judgeSupply 两阶段采集：失败行优先、不被 slice 切掉；不足 20 补 PASS；反向对照证用例有分辨力",
+  "measured_at": "2026-10-17T02:59:12.616Z",
+  "fixture": {
+    "shape": "25 行 = cid1(diff=基线 2000000, PASS) + cid 9001..9024(diff=0, PASS)，第 22 行 = cid 9021",
+    "f1_row22_diff": "1（≠ 未登记 cid 基线 0）",
+    "f2_row22_diff": "0（全 PASS）"
+  },
+  "f1_drift_at_row22": {
+    "status": "FAIL",
+    "rows": 25,
+    "diff": "1",
+    "sample_len": 20,
+    "sample_cids": [
+      "9021",
+      "1",
+      "9001",
+      "9002",
+      "9003",
+      "9004",
+      "9005",
+      "9006",
+      "9007",
+      "9008",
+      "9009",
+      "9010",
+      "9011",
+      "9012",
+      "9013",
+      "9014",
+      "9015",
+      "9016",
+      "9017",
+      "9018"
+    ],
+    "sample_has_9021": true,
+    "sample_first_is_9021": true,
+    "first_entry_ok_false": true,
+    "failure_rows_before_pass_rows": true,
+    "failed_entries": [
+      "9021"
+    ],
+    "assertions": {
+      "status_is_fail": true,
+      "locator_row_present": true,
+      "locator_is_first": true,
+      "sample_capped_20": true,
+      "fail_first_ordering": true,
+      "diff_reports_offender": true,
+      "rows_all_counted": true
+    }
+  },
+  "f2_all_pass": {
+    "status": "PASS",
+    "diff": "0",
+    "rows": 25,
+    "sample_len": 20,
+    "assertions": {
+      "status_is_pass": true,
+      "diff_is_zero_string": true,
+      "rows_25": true,
+      "sample_filled_to_cap_with_pass": true
+    }
+  },
+  "f3_all_fail_cap": {
+    "status": "FAIL",
+    "sample_len": 20,
+    "all_failed": true,
+    "assertions": {
+      "capped_at_20": true,
+      "no_pass_row_pushed_out_failure": true
+    }
+  },
+  "negative_control_old_impl": {
+    "note": "把 judgeSupply 回退成 a201cb3 版（单桶 push + slice(0,20)），同一夹具下必须丢失定位行 ⇒ 证 F1 用例有分辨力（不是恒绿的尺子）",
+    "impl": "ops/recon-cron/qa/probe/qa-behavior.ts :: judgeSupplyOld（逐字复制旧逻辑，未改仓内文件）",
+    "old_f1_status": "FAIL",
+    "old_f1_sample_len": 20,
+    "old_f1_sample_cids": [
+      "1",
+      "9001",
+      "9002",
+      "9003",
+      "9004",
+      "9005",
+      "9006",
+      "9007",
+      "9008",
+      "9009",
+      "9010",
+      "9011",
+      "9012",
+      "9013",
+      "9014",
+      "9015",
+      "9016",
+      "9017",
+      "9018",
+      "9019"
+    ],
+    "old_f1_has_9021": false,
+    "old_f1_loses_locator": true,
+    "new_f1_has_9021": true,
+    "discriminating": true,
+    "judgement_unchanged": {
+      "f1_status_equal": true,
+      "f1_diff_equal": true,
+      "f1_rows_equal": true,
+      "f2_status_equal": true,
+      "f2_diff_equal": true,
+      "f2_rows_equal": true,
+      "note": "旧/新实现 status/diff/rows 逐项相同 ⇒ 本次修复只改样本可定位性，未动判据语义"
+    }
+  },
+  "pass": true
+}

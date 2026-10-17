@@ -1,0 +1,22 @@
+{
+  "probe": "qa-behavior.ts",
+  "measured_at": "2026-10-17T02:59:12.623Z",
+  "head": "3423a4b",
+  "sql_seen_kinds": [
+    "SELECT c.cid, c.symbol, c.total_supply, COALESCE(l.sum_mint,",
+    "SELECT a.uid, a.cid, a.balance, COALESCE(s.d,0) AS sum_delta",
+    "SELECT b.uid, b.batt, COALESCE(e.d,0) AS sum_delta, b.batt -"
+  ],
+  "results": {
+    "AC2": true,
+    "AC3": true,
+    "AC5": true,
+    "AC6": true
+  },
+  "files": {
+    "AC3": "/Users/kevin/bistro/seafood/ops/recon-cron/qa/readings/AC3-auth-states.json",
+    "AC5": "/Users/kevin/bistro/seafood/ops/recon-cron/qa/readings/AC5-sample-two-phase.json",
+    "AC6": "/Users/kevin/bistro/seafood/ops/recon-cron/qa/readings/AC6-sensitivity-arms.json",
+    "AC2": "/Users/kevin/bistro/seafood/ops/recon-cron/qa/readings/AC2-judgement.json"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "probe": "qa-static.mjs",
+  "measured_at": "2026-10-17T02:58:01.862Z",
+  "head": "3423a4b",
+  "results": {
+    "AC1": true,
+    "AC2": true,
+    "AC4": true,
+    "AC7": true
+  },
+  "failed_assertions": {},
+  "files": {
+    "AC1": "/Users/kevin/bistro/seafood/ops/recon-cron/qa/readings/AC1-readonly.json",
+    "AC2": "/Users/kevin/bistro/seafood/ops/recon-cron/qa/readings/AC2-symbol-baseline.json",
+    "AC4": "/Users/kevin/bistro/seafood/ops/recon-cron/qa/readings/AC4-endpoint-static.json",
+    "AC7": "/Users/kevin/bistro/seafood/ops/recon-cron/qa/readings/AC7-zero-side-effects.json"
+  }
+}

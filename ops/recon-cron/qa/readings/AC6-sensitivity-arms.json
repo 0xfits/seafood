@@ -1,0 +1,201 @@
+{
+  "ac": "AC6",
+  "title": "5 臂灵敏度：stub diff 偏移 / 基线错配 / account 漂移 1 行 / batt 漂移 1 行 ⇒ ok=false；反向臂全净 ⇒ ok=true",
+  "measured_at": "2026-10-17T02:59:12.623Z",
+  "arms": [
+    {
+      "arm": "supply_diff_off_baseline",
+      "ok": false,
+      "checks": [
+        {
+          "id": "supply_vs_ledger",
+          "status": "FAIL",
+          "rows": 1,
+          "diff": "2000001"
+        },
+        {
+          "id": "account_vs_ledger",
+          "status": "PASS",
+          "rows": 0,
+          "diff": null
+        },
+        {
+          "id": "batt_account_vs_batt_entry",
+          "status": "PASS",
+          "rows": 0,
+          "diff": null
+        }
+      ],
+      "expect_ok": false,
+      "behaves_as_expected": true
+    },
+    {
+      "arm": "baseline_mismatch_cid21",
+      "ok": false,
+      "checks": [
+        {
+          "id": "supply_vs_ledger",
+          "status": "FAIL",
+          "rows": 2,
+          "diff": "2"
+        },
+        {
+          "id": "account_vs_ledger",
+          "status": "PASS",
+          "rows": 0,
+          "diff": null
+        },
+        {
+          "id": "batt_account_vs_batt_entry",
+          "status": "PASS",
+          "rows": 0,
+          "diff": null
+        }
+      ],
+      "expect_ok": false,
+      "behaves_as_expected": true
+    },
+    {
+      "arm": "account_drift_one_row",
+      "ok": false,
+      "checks": [
+        {
+          "id": "supply_vs_ledger",
+          "status": "PASS",
+          "rows": 1,
+          "diff": "0"
+        },
+        {
+          "id": "account_vs_ledger",
+          "status": "FAIL",
+          "rows": 1,
+          "diff": null
+        },
+        {
+          "id": "batt_account_vs_batt_entry",
+          "status": "PASS",
+          "rows": 0,
+          "diff": null
+        }
+      ],
+      "expect_ok": false,
+      "behaves_as_expected": true
+    },
+    {
+      "arm": "batt_drift_one_row",
+      "ok": false,
+      "checks": [
+        {
+          "id": "supply_vs_ledger",
+          "status": "PASS",
+          "rows": 1,
+          "diff": "0"
+        },
+        {
+          "id": "account_vs_ledger",
+          "status": "PASS",
+          "rows": 0,
+          "diff": null
+        },
+        {
+          "id": "batt_account_vs_batt_entry",
+          "status": "FAIL",
+          "rows": 1,
+          "diff": null
+        }
+      ],
+      "expect_ok": false,
+      "behaves_as_expected": true
+    },
+    {
+      "arm": "clean_no_drift_reverse_arm",
+      "ok": true,
+      "checks": [
+        {
+          "id": "supply_vs_ledger",
+          "status": "PASS",
+          "rows": 1,
+          "diff": "0"
+        },
+        {
+          "id": "account_vs_ledger",
+          "status": "PASS",
+          "rows": 0,
+          "diff": null
+        },
+        {
+          "id": "batt_account_vs_batt_entry",
+          "status": "PASS",
+          "rows": 0,
+          "diff": null
+        }
+      ],
+      "expect_ok": true,
+      "behaves_as_expected": true
+    },
+    {
+      "arm": "baseline_registered_cid21_hit",
+      "ok": true,
+      "checks": [
+        {
+          "id": "supply_vs_ledger",
+          "status": "PASS",
+          "rows": 2,
+          "diff": "0"
+        },
+        {
+          "id": "account_vs_ledger",
+          "status": "PASS",
+          "rows": 0,
+          "diff": null
+        },
+        {
+          "id": "batt_account_vs_batt_entry",
+          "status": "PASS",
+          "rows": 0,
+          "diff": null
+        }
+      ],
+      "expect_ok": true,
+      "behaves_as_expected": true
+    },
+    {
+      "arm": "decimal_residual_off_baseline",
+      "ok": false,
+      "supply_check": {
+        "id": "supply_vs_ledger",
+        "status": "FAIL",
+        "rows": 1,
+        "diff": "2000000.5",
+        "sample": [
+          {
+            "cid": "1",
+            "symbol": "$",
+            "total_supply": "1000",
+            "sum_mint": "1000",
+            "sum_burn": "0",
+            "ledger_derived": "1000",
+            "diff": "2000000.5",
+            "baseline": "2000000",
+            "ok": false
+          }
+        ]
+      },
+      "expect_ok": false,
+      "behaves_as_expected": true
+    },
+    {
+      "arm": "decimal_zero_fraction_matches_baseline",
+      "ok": true,
+      "expect_ok": true,
+      "behaves_as_expected": true
+    }
+  ],
+  "runtime_assertions": {
+    "all_drift_arms_fail": true,
+    "reverse_arm_passes": true,
+    "baseline_table_effective": true,
+    "decimal_int_value_allowed": true
+  },
+  "pass": true
+}

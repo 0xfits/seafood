@@ -1,0 +1,301 @@
+{
+  "ac": "AC9-旁证",
+  "title": "检查①口径覆盖度：只算 mint/burn；其余 18 个 kind 在同一 cid 上是否净额为 0",
+  "measured_at": "2026-10-17T03:03:06.928Z",
+  "target": "dev（readQuery 只读池；project_id 已核非生产）",
+  "db_project_id": "quiet-math-65207667",
+  "kind_histogram": [
+    {
+      "kind": "burn",
+      "n": "6",
+      "sum_delta": "-200076"
+    },
+    {
+      "kind": "checkin_makeup_fee",
+      "n": "8",
+      "sum_delta": "0"
+    },
+    {
+      "kind": "commission",
+      "n": "4",
+      "sum_delta": "0"
+    },
+    {
+      "kind": "currency_create_fee",
+      "n": "38",
+      "sum_delta": "0"
+    },
+    {
+      "kind": "hold",
+      "n": "54",
+      "sum_delta": "-14952"
+    },
+    {
+      "kind": "hold_release",
+      "n": "12",
+      "sum_delta": "2060"
+    },
+    {
+      "kind": "invite_first_task_reward",
+      "n": "2",
+      "sum_delta": "0"
+    },
+    {
+      "kind": "job_escrow",
+      "n": "74",
+      "sum_delta": "-130101"
+    },
+    {
+      "kind": "job_escrow_refund",
+      "n": "22",
+      "sum_delta": "11310"
+    },
+    {
+      "kind": "job_fee",
+      "n": "44",
+      "sum_delta": "2012"
+    },
+    {
+      "kind": "job_payout",
+      "n": "50",
+      "sum_delta": "110516"
+    },
+    {
+      "kind": "listing_deposit",
+      "n": "22",
+      "sum_delta": "-4001"
+    },
+    {
+      "kind": "mint",
+      "n": "16",
+      "sum_delta": "2240406"
+    },
+    {
+      "kind": "purchase",
+      "n": "4",
+      "sum_delta": "-309"
+    },
+    {
+      "kind": "purchase_refund",
+      "n": "18",
+      "sum_delta": "0"
+    },
+    {
+      "kind": "sale",
+      "n": "4",
+      "sum_delta": "309"
+    },
+    {
+      "kind": "trade",
+      "n": "32",
+      "sum_delta": "6410"
+    },
+    {
+      "kind": "trade_fee",
+      "n": "16",
+      "sum_delta": "0"
+    },
+    {
+      "kind": "transfer",
+      "n": "80",
+      "sum_delta": "0"
+    }
+  ],
+  "cids_with_nonzero_other_kinds": [
+    {
+      "cid": "1",
+      "sum_other": "-16745",
+      "sum_all": "1993455",
+      "sum_mint": "2210276",
+      "sum_burn": "-200076"
+    },
+    {
+      "cid": "21",
+      "sum_other": "-1",
+      "sum_all": "99",
+      "sum_mint": "100",
+      "sum_burn": "null"
+    }
+  ],
+  "per_cid_total_supply_vs_all_kinds": [
+    {
+      "cid": "1",
+      "total_supply": "2010200",
+      "sum_all_kinds": "1993455",
+      "diff_all_kinds": "16745",
+      "sum_other": "-16745"
+    },
+    {
+      "cid": "4",
+      "total_supply": "10000",
+      "sum_all_kinds": "10000",
+      "diff_all_kinds": "0",
+      "sum_other": "0"
+    },
+    {
+      "cid": "16",
+      "total_supply": "10000",
+      "sum_all_kinds": "10000",
+      "diff_all_kinds": "0",
+      "sum_other": "0"
+    },
+    {
+      "cid": "21",
+      "total_supply": "100",
+      "sum_all_kinds": "99",
+      "diff_all_kinds": "1",
+      "sum_other": "-1"
+    },
+    {
+      "cid": "35",
+      "total_supply": "10000",
+      "sum_all_kinds": "10000",
+      "diff_all_kinds": "0",
+      "sum_other": "0"
+    },
+    {
+      "cid": "36",
+      "total_supply": "30",
+      "sum_all_kinds": "30",
+      "diff_all_kinds": "0",
+      "sum_other": "0"
+    }
+  ],
+  "per_cid_three_way": [
+    {
+      "cid": "1",
+      "total_supply": "2010200",
+      "sum_all_kinds": "1993455",
+      "sum_account_balance_plus_frozen": "2010200",
+      "supply_minus_accounts": "0",
+      "sum_non_mint_burn": "-16745"
+    },
+    {
+      "cid": "4",
+      "total_supply": "10000",
+      "sum_all_kinds": "10000",
+      "sum_account_balance_plus_frozen": "10000",
+      "supply_minus_accounts": "0"
+    },
+    {
+      "cid": "16",
+      "total_supply": "10000",
+      "sum_all_kinds": "10000",
+      "sum_account_balance_plus_frozen": "10000",
+      "supply_minus_accounts": "0"
+    },
+    {
+      "cid": "21",
+      "total_supply": "100",
+      "sum_all_kinds": "99",
+      "sum_account_balance_plus_frozen": "100",
+      "supply_minus_accounts": "0",
+      "sum_non_mint_burn": "-1"
+    },
+    {
+      "cid": "35",
+      "total_supply": "10000",
+      "sum_all_kinds": "10000",
+      "sum_account_balance_plus_frozen": "10000",
+      "supply_minus_accounts": "0"
+    },
+    {
+      "cid": "36",
+      "total_supply": "30",
+      "sum_all_kinds": "30",
+      "sum_account_balance_plus_frozen": "30",
+      "supply_minus_accounts": "0"
+    }
+  ],
+  "accounts_by_cid_raw": [
+    {
+      "cid": "1",
+      "sum_balance": "1993455",
+      "sum_frozen": "16745"
+    },
+    {
+      "cid": "4",
+      "sum_balance": "10000",
+      "sum_frozen": "0"
+    },
+    {
+      "cid": "16",
+      "sum_balance": "10000",
+      "sum_frozen": "0"
+    },
+    {
+      "cid": "21",
+      "sum_balance": "99",
+      "sum_frozen": "1"
+    },
+    {
+      "cid": "35",
+      "sum_balance": "10000",
+      "sum_frozen": "0"
+    },
+    {
+      "cid": "36",
+      "sum_balance": "30",
+      "sum_frozen": "0"
+    }
+  ],
+  "orphan_ledger_rows": {
+    "note": "检查②的 SQL 以 public.account 为左表 LEFT JOIN ledger_entry ⇒ (uid,cid) 无 account 行的分录在两侧都不出现（既不算漂移、也不进分母）。这些行在 dev 上实测非零 ⇒ 登记为口径覆盖披露。",
+    "total": {
+      "n": "0",
+      "sum_delta": "0",
+      "kinds": null
+    },
+    "by_cid": []
+  },
+  "consistency_check": {
+    "note": "检查①只算 mint/burn；余额侧还含 frozen 与内部转移（hold/escrow/purchase 等）。判定口径是否自洽的办法：逐 cid 核「非 mint/burn 净额 + frozen 合计 == 0」—— 若成立，说明那些 kind 只是把余额搬进/搬出冻结，不改供应量。",
+    "per_cid": [
+      {
+        "cid": "1",
+        "sum_non_mint_burn": "-16745",
+        "sum_frozen": "16745",
+        "other_plus_frozen": "0",
+        "self_consistent": true
+      },
+      {
+        "cid": "4",
+        "sum_non_mint_burn": "0",
+        "sum_frozen": "0",
+        "other_plus_frozen": "0",
+        "self_consistent": true
+      },
+      {
+        "cid": "16",
+        "sum_non_mint_burn": "0",
+        "sum_frozen": "0",
+        "other_plus_frozen": "0",
+        "self_consistent": true
+      },
+      {
+        "cid": "21",
+        "sum_non_mint_burn": "-1",
+        "sum_frozen": "1",
+        "other_plus_frozen": "0",
+        "self_consistent": true
+      },
+      {
+        "cid": "35",
+        "sum_non_mint_burn": "0",
+        "sum_frozen": "0",
+        "other_plus_frozen": "0",
+        "self_consistent": true
+      },
+      {
+        "cid": "36",
+        "sum_non_mint_burn": "0",
+        "sum_frozen": "0",
+        "other_plus_frozen": "0",
+        "self_consistent": true
+      }
+    ],
+    "all_self_consistent": true
+  },
+  "reading": "非 mint/burn 净额与 frozen 合计逐 cid 互为相反数（dev 读数）⇒ 内部转移/持有只改「余额 vs 冻结」分配、不改 total_supply，检查①口径（Σmint+Σburn）自洽，未发现覆盖缺口；orphan 分录 = 0。",
+  "note": "本文件只登记覆盖度，不改 AC 判据（口径由派单给定：Σmint+Σburn）。"
+}

@@ -1,0 +1,74 @@
+{
+  "ac": "AC2",
+  "title": "符号 Σmint+Σburn（非减）/ 基线显式常量表 + 严格相等 / BigInt 严格比较 / 小数残差 ⇒ FAIL",
+  "measured_at": "2026-10-17T02:58:01.801Z",
+  "assertions": {
+    "supply_sum_is_plus": {
+      "pass": true,
+      "evidence_expr": "COALESCE(l.sum_mint,0)+COALESCE(l.sum_burn,0)",
+      "minus_pattern_hits": 0
+    },
+    "burn_not_abs": {
+      "pass": true,
+      "note": "burn 分录存负 delta ⇒ 直接 SUM(delta)，不得取绝对值或改号为 +"
+    },
+    "baseline_is_explicit_frozen_table": {
+      "pass": true,
+      "table": {
+        "frozen": true,
+        "raw": "export const KNOWN_SUPPLY_OFFSET: Readonly<Record<string, string>> = Object.freeze({ '1': '2000000', '21': '1', })",
+        "entries": {
+          "1": "2000000",
+          "21": "1"
+        },
+        "count": 2
+      },
+      "expected": {
+        "1": "2000000",
+        "21": "1"
+      }
+    },
+    "unregistered_cid_defaults_zero": {
+      "pass": true,
+      "evidence": "baselineOffsetOf = (cid: string): bigint => BigInt(KNOWN_SUPPLY_OFFSET[cid] ?? '0');\n\n// ---------------------------------------------------------------- 三条 SQL"
+    },
+    "strict_equality_judgement": {
+      "pass": true,
+      "evidence": "const pass = parsed.exact && parsed.big === baseline;"
+    },
+    "no_inequality_or_tolerance": {
+      "pass": true,
+      "hits": []
+    },
+    "no_swallow_trycatch_in_judge": {
+      "pass": true,
+      "hits": []
+    },
+    "no_fail_to_skip": {
+      "pass": true,
+      "evidence": "status: failed ? 'FAIL' : 'PASS'"
+    },
+    "bigint_strict_compare": {
+      "pass": true,
+      "bigint_uses": 2,
+      "number_casts": 0
+    },
+    "decimal_residual_rejected_statically": {
+      "pass": true,
+      "evidence": "const exact = !m[3] || /^0+$/.test(m[3]);",
+      "note": "小数残差（非全 0 小数位）⇒ exact=false ⇒ pass 必 false；行为臂见 readings/AC2-judgement.json"
+    }
+  },
+  "pass": true,
+  "real_data_sign_proof": {
+    "source": "ops/recon-cron/qa/readings/AC8-real-dev-readonly.json · per_sql[0].sample_rows[0]（dev 真库，cid=1）",
+    "total_supply": "2010200",
+    "sum_mint": "2210276",
+    "sum_burn": "-200076",
+    "plus": "2010200",
+    "minus": "2410352",
+    "plus_equals_total_supply": true,
+    "minus_equals_total_supply": false,
+    "interpretation": "cid=1 实测 Σmint+Σburn=2010200 == total_supply=2010200；若误写成减法得 2410352（≠ total_supply）⇒ 真数据独立证成「加号」口径（burn 存负 delta）。"
+  }
+}
