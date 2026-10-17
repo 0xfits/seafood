@@ -29,3 +29,18 @@
   color: #fbbf24;
   background-color: #374151;
 }
+
+/* ===== §23（design-system.spec v1.21）· T117② 日档顶栏内 `.nav-link` 的 hover / active 前景 =====
+   本文件上方的 `.nav-link:hover{color:#d97706}` / `.nav-link.active{color:#d97706}` 是**全局**值
+   （`#d97706` 在实黄顶栏底 `rgb(253,232,21)` 上仅 ≈2.54:1 ⇒ 日档顶栏内不达标）——
+   本单**不改上方全局规则**，只追加下面这条**日档 + `#header` 双限定**的覆盖：
+     · 日档限定（`:root:not([data-theme="dark"])`）= 承重件（缺则连带改夜档；教训 N53）；
+     · `#header` 限定 = 作用面只到「全站顶栏面」：`.nav-link` 控件类在顶栏内有多处消费者
+       （桌面导航项 / 「订单」/ 登录态用户菜单钮），而顶栏之外的面（页头外、页脚等）**零命中**。
+   取色 = 既有 token `var(--sf-brand-fg)`（日档 `#0A0A0A` · 实黄底 15.77:1），零新 token、零新值。
+   夜档 `.nav-link` 前景/悬停由 styles.css 的 `[data-theme="dark"] #header *` `!important` 全局规则给值
+   （`rgba(255,255,255,0.92)`），本块对夜档零命中。 */
+:root:not([data-theme="dark"]) #header .nav-link:hover,
+:root:not([data-theme="dark"]) #header .nav-link.active {
+  color: var(--sf-brand-fg);
+}

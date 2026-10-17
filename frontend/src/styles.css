@@ -1083,3 +1083,51 @@ section[id^="section_"] .grid { gap: 1.25rem; }
    [边界 / 硬约束] 删于本文件而非 shell.css —— 外壳同构断言 `theme-shell-isomorphism.test.jsx`
    要求 shell.css 仍只有唯一一个 `(max-width:767px)` 断点块；撤除后 ≤767 与桌面档几何均恢复原状。
    ============================================================================ */
+
+/* ============================================================================
+   §23（design-system.spec v1.21）· 顶栏实黄（T114–T117）
+   裁定 = Kevin 2026-10-17 逐字「B 顶栏实黄」+ Zang 冻结裁定 1–6（条文见
+   docs/design/design-system.spec.md §23.2；Jing 实测见 ops/ui-card-ref-20261017/readings/jing-v121-*）。
+
+   · T114 日档顶栏 = 实黄且**不透明**：`background-color: var(--sf-topbar-bg)`（`#FDE815`）⇒ alpha = 1。
+     `backdrop-blur-sm` 由 `backdrop-filter:none` 接住；`bg-opacity-95` 只设 `--tw-bg-opacity`，
+     而 `.bg-white` 读该变量（styles/tailwind-compat.css）⇒ 换成不透明 hex 后该 95% 语义即失效。
+     ★ 两个类名**保留**在 Header.jsx 根元素上，本单只让它们在**日档失效**，因为：夜档 `backdropFilter`
+     必须仍为 `blur(4px)`（AC-2 冻结）、且移动面板自带底 `bg-white` 继承该 95% 语义
+     （§23.7 第 9 项 · 本单不批改）⇒ 删类会破一处冻结、改一处非本单面。
+   · T115 夜档顶栏**冻结现状** `rgb(31,41,55)`（`dark:bg-gray-800`）⇒ 规则**必须**写
+     `:root:not([data-theme="dark"])`。★ 承重件：不加日档限定时，`#header{background-color:…}` 会压掉
+     `dark:bg-gray-800` —— 本文件顶层规则未分层，而 Tailwind 工具类在 `@layer utilities` 内，
+     级联**层序优先于具体性** ⇒ 夜档顶栏被压成 `rgb(11,12,14)`（夜档 `--sf-topbar-bg`），
+     且 build / test:unit 全绿、零报错（教训 N53；反向自证见本单读数）。
+   · T116 日档下边框**色** = `var(--sf-topbar-border)`（`#030402`）；**宽度保持现状 1px 不改**
+     （设计真源白天口径 2px 属几何变更：顶栏 65 ⇒ 66px、全站下移 1px ⇒ 另裁）。
+   · T117 日档顶栏内由顶栏底色承载的前景 ≥ 4.5:1（大字 3:1）：见下方“.sf-topbar-brand”与
+     “.sf-topbar-hover-brand-fg”两组规则（logo / 注册·登录 hover ⇒ `var(--sf-brand-fg)`）；
+     `.nav-link` 的 hover / active 同口径落在 components/ui/HoverMenu.css（连同其页脚保护说明）。
+     夜档对应前景**维持现状**：由本文件 `[data-theme="dark"] #header, … #header *` 的 `!important`
+     全局规则给值（`rgba(255,255,255,0.92)`）—— 该两条本单一字未动。
+   · T118 零新 token / 零 STRUCT / 零几何 / 零新 i18n；落点 = 本文件**顶层**（@import 段之后、
+     @layer 之外、@media 之外）；shell.css（唯一 767 断点块 + 宽屏无 [data-theme] 双边断言）
+     与 theme/theme-tokens.css（生成物）**一字不动**。
+   ============================================================================ */
+:root:not([data-theme="dark"]) #header {
+  background-color: var(--sf-topbar-bg);
+  background-image: none;
+  border-bottom-color: var(--sf-topbar-border);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  opacity: 1;
+}
+
+/* T117① logo（Header.jsx 品牌链）。类名 `sf-tap-inline` 同时被页脚语言链消费（Footer.jsx）
+   ⇒ 必须用 `#header` 限定，页脚两档读数逐值不变。 */
+:root:not([data-theme="dark"]) #header .sf-topbar-brand {
+  color: var(--sf-brand-fg);
+}
+
+/* T117③ 注册 / 登录 触发钮（Header.jsx 桌面档；原 `hover:text-yellow-600` = `#ca8a04`
+   ⇒ 实黄底上 2.90:1 ✗）。夜档由上述 `!important` 全局规则给值（不变）。 */
+:root:not([data-theme="dark"]) #header .sf-topbar-hover-brand-fg:hover {
+  color: var(--sf-brand-fg);
+}

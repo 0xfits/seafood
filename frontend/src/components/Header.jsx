@@ -168,7 +168,7 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <Link to={buildPath('')} className="sf-tap-inline text-xl font-bold text-yellow-600 dark:text-yellow-400">
+            <Link to={buildPath('')} className="sf-tap-inline sf-topbar-brand text-xl font-bold">
               {t('siteBrand')}
             </Link>
           </div>
@@ -321,14 +321,14 @@ const Header = () => {
               <div className="flex items-center gap-3">
                 <button 
                   onClick={handleRegister} 
-                  className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors text-sm font-medium"
+                  className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium"
                 >
                   <UserPlus size={18} />
                   <span>{t('register')}</span>
                 </button>
                 <button 
                   onClick={handleLogin} 
-                  className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors text-sm font-medium"
+                  className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300 sf-topbar-hover-brand-fg transition-colors text-sm font-medium"
                 >
                   <LogIn size={18} />
                   <span>{t('login')}</span>
