@@ -23,9 +23,14 @@ const TABLES = { zh, hk, en, vn }
 const H = vi.hoisted(() => {
   const state = { lang: 'zh', tables: {} }
   state.i18n = { resolvedLanguage: 'zh', language: 'zh' }
-  state.t = (key) => {
+  state.t = (key, opts) => {
     const v = key.split('.').reduce((o, k) => (o == null ? undefined : o[k]), state.tables[state.lang])
-    return v === undefined ? key : v
+    if (v === undefined) return key
+    let out = v
+    if (opts && typeof out === 'string') {
+      for (const k of Object.keys(opts)) out = out.split(`{{${k}}}`).join(String(opts[k]))
+    }
+    return out
   }
   return state
 })
@@ -210,5 +215,62 @@ describe('③ R-9-83 签到入口可发现性', () => {
     act(() => { fireEvent.submit(document.querySelector('[data-sf-m="jobs-submit-form"]')) })
     await waitFor(() => expect(document.querySelector('[data-sf-m="jobs-submit-status"]').textContent).toContain('generic failure'))
     expect(document.querySelector('[data-sf-m="jobs-batt-hint"]')).toBeNull()
+  })
+})
+
+// ============================================================================
+// ④ 铸造缺额提示（`data-sf-m="bttc-mint-shortfall"`）：canMint=false 时量化「还差 X 电量 / 差 Y $」
+//   纯展示：只用 policy + batt + usdBalance 做减法；不改铸造载荷、不改按钮 `disabled` 语义。
+// ============================================================================
+const BTTC_BASE = {
+  symbol: 'BTTC',
+  name: 'battcoin',
+  decimals: 0,
+  status: 'listed',
+  totalSupply: '10',
+  balance: '2',
+  canBurn: false,
+  policy: { mintBattCost: 100, mintFeeUsd: 1, burnBttcCost: 1, burnFeeUsd: 1, burnBattGain: 100 },
+  source: 'config',
+}
+const shortfallBox = () => document.querySelector('[data-sf-m="bttc-mint-shortfall"]')
+const mintButton = () => [...document.querySelectorAll('button')]
+  .find((b) => b.textContent.trim() === zh.bttcPanel.mintButton)
+
+describe('④ 铸造缺额提示（量化「还差 X 电量 / 差 Y $」· 纯展示）', () => {
+  it('仅缺电量：batt 40 / mintBattCost 100 / $ 充足 ⇒ 「还差 60 电量」且无 $ 缺额；按钮仍不可点', async () => {
+    fetchBatt.mockResolvedValue({
+      batt: 40, canAccept: false,
+      bttc: { ...BTTC_BASE, usdBalance: '5', canMint: false },
+    })
+    render(<MemoryRouter><BattCheckinPanel /></MemoryRouter>)
+    await waitFor(() => expect(shortfallBox()).not.toBeNull())
+    expect(document.querySelector('[data-sf-m="bttc-mint-shortfall-batt"]').textContent).toBe('还差 60 电量')
+    expect(document.querySelector('[data-sf-m="bttc-mint-shortfall-usd"]')).toBeNull()
+    expect(shortfallBox().textContent).not.toContain('$')
+    expect(mintButton().disabled).toBe(true)
+  })
+
+  it('仅缺 $：batt 100 / usdBalance 0 / mintFeeUsd 1 ⇒ 「还差 $1」且无电量缺额；按钮仍不可点', async () => {
+    fetchBatt.mockResolvedValue({
+      batt: 100, canAccept: true,
+      bttc: { ...BTTC_BASE, usdBalance: '0', canMint: false },
+    })
+    render(<MemoryRouter><BattCheckinPanel /></MemoryRouter>)
+    await waitFor(() => expect(shortfallBox()).not.toBeNull())
+    expect(document.querySelector('[data-sf-m="bttc-mint-shortfall-usd"]').textContent).toBe('还差 $1')
+    expect(document.querySelector('[data-sf-m="bttc-mint-shortfall-batt"]')).toBeNull()
+    expect(mintButton().disabled).toBe(true)
+  })
+
+  it('两项都不缺（canMint=true）⇒ 不渲染 bttc-mint-shortfall，按钮可点', async () => {
+    fetchBatt.mockResolvedValue({
+      batt: 150, canAccept: true,
+      bttc: { ...BTTC_BASE, usdBalance: '3', canMint: true },
+    })
+    render(<MemoryRouter><BattCheckinPanel /></MemoryRouter>)
+    await waitFor(() => expect(mintButton()).toBeTruthy())
+    expect(shortfallBox()).toBeNull()
+    expect(mintButton().disabled).toBe(false)
   })
 })

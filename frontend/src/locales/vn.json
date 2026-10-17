@@ -1117,6 +1117,8 @@
     "mintButton": "Đúc",
     "burnButton": "Phân rã",
     "mintHint": "Tiêu hao pin và phí để đúc BTTC",
+    "mintNeedBatt": "Còn thiếu {{n}} pin",
+    "mintNeedUsd": "Còn thiếu ${{n}}",
     "burnHint": "Hủy BTTC để nhận lại pin (có phí)",
     "mintOk": "Đúc thành công",
     "burnOk": "Phân rã thành công",

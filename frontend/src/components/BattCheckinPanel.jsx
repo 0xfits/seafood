@@ -77,6 +77,33 @@ const BattCheckinPanel = () => {
   const bttc = batt?.bttc || null
   const bttcBalance = bttc ? bttc.balance : '—'
   const bttcAvailable = bttc && bttc.status !== null
+  // 铸造缺额（纯展示 · 只做减法 · 承 `R-8-5`：客户端永不决定金额/电量）
+  //   口径与后端 `getBttcState` 同源：`batt ≥ policy.mintBattCost` ∧ `$ ≥ policy.mintFeeUsd`。
+  //   `mintBattCost` / `mintFeeUsd` 缺键 ⇒ 回落后端同款常量（`MINT_BURN_POLICY_DEFAULTS` 100 / 1），
+  //   保证「显示缺额」优先于静默；**不参与**任何提交载荷，按钮 `disabled` 语义保持原样。
+  const mintShortfall = (() => {
+    if (!bttcAvailable || bttc.canMint) return { batt: 0, usd: '0' }
+    const policy = bttc.policy || {}
+    const positiveInt = (v, fallback) => {
+      const n = Number(v)
+      return Number.isSafeInteger(n) && n > 0 ? n : fallback
+    }
+    const battCost = positiveInt(policy.mintBattCost, 100)
+    const feeUsd = positiveInt(policy.mintFeeUsd, 1)
+    const battNow = Number(batt?.batt ?? 0) || 0
+    const toBig = (v) => {
+      try {
+        return BigInt(String(v ?? '0').trim() || '0')
+      } catch {
+        return null
+      }
+    }
+    const usdNow = toBig(bttc.usdBalance ?? 0)
+    const fee = BigInt(feeUsd)
+    const needUsd = usdNow === null ? '0' : fee > usdNow ? String(fee - usdNow) : '0'
+    return { batt: Math.max(0, battCost - battNow), usd: needUsd }
+  })()
+  const showMintShortfall = bttcAvailable && !bttc.canMint && (mintShortfall.batt > 0 || mintShortfall.usd !== '0')
 
   return (
     <FadeIn>
@@ -119,6 +146,20 @@ const BattCheckinPanel = () => {
                   {t('bttcPanel.burnButton')}
                 </Button>
                 <span className="text-sm text-gray-500">{t('bttcPanel.mintHint')}</span>
+                {showMintShortfall && (
+                  <div className="flex flex-wrap items-center gap-2" data-sf-m="bttc-mint-shortfall">
+                    {mintShortfall.batt > 0 && (
+                      <span className="text-sm text-red-600" data-sf-m="bttc-mint-shortfall-batt">
+                        {t('bttcPanel.mintNeedBatt', { n: mintShortfall.batt })}
+                      </span>
+                    )}
+                    {mintShortfall.usd !== '0' && (
+                      <span className="text-sm text-red-600" data-sf-m="bttc-mint-shortfall-usd">
+                        {t('bttcPanel.mintNeedUsd', { n: mintShortfall.usd })}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>

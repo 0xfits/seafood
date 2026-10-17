@@ -1303,6 +1303,8 @@ app.get('/api/batt', async (req, res) => {
         canBurn: b.canBurn,
         policy: b.policy,
         source: b.source,
+        // ★ 铸造缺额提示（纯读·零新查询）：`$` 余额随 `bttc` 子对象下发，前端只做减法（不参与任何写决定）。
+        usdBalance: b.usdBalance,
       },
     });
   } catch (error) {

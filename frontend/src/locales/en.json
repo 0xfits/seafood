@@ -1117,6 +1117,8 @@
     "mintButton": "Mint",
     "burnButton": "Burn",
     "mintHint": "Spend battery and a fee to mint BTTC",
+    "mintNeedBatt": "{{n}} more battery needed",
+    "mintNeedUsd": "${{n}} more needed",
     "burnHint": "Destroy BTTC and gain battery back (a fee applies)",
     "mintOk": "Minted successfully",
     "burnOk": "Burned successfully",

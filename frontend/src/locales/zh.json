@@ -1117,6 +1117,8 @@
     "mintButton": "铸造",
     "burnButton": "分解",
     "mintHint": "消耗电量与手续费后铸造 BTTC",
+    "mintNeedBatt": "还差 {{n}} 电量",
+    "mintNeedUsd": "还差 ${{n}}",
     "burnHint": "销毁 BTTC 并返还电量（扣除手续费）",
     "mintOk": "铸造成功",
     "burnOk": "分解成功",
