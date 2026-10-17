@@ -1,0 +1,10 @@
+
+ RUN  v0.34.6 /Users/kevin/bistro/seafood/frontend
+
+ ✓ src/test/unit/s1-session-expiry.test.js  (17 tests) 87ms
+
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+   Start at  16:20:27
+   Duration  778ms (transform 97ms, setup 153ms, collect 38ms, tests 87ms, environment 320ms, prepare 53ms)
+

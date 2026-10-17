@@ -41,7 +41,18 @@ const H = vi.hoisted(() => {
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: H.t, i18n: H.i18n }) }))
 vi.mock('react-hot-toast', () => ({ default: { error: vi.fn(), success: vi.fn() } }))
-vi.mock('../../auth', () => ({ clearAuthSession: vi.fn() }))
+// ★ S1（2026-10-17）：`ActiveTaskModal` 的 401 判定已收敛到 `auth.js` 的 `isUnauthorizedError`
+//   ⇒ 白名单 mock 必须一并透出（否则 catch 分支取不到该导出，提交失败文案恒空、5 例全红）。
+//   口径不变：`clearAuthSession` 仍是 spy；`isUnauthorizedError` 取 `false` ⇒ 走「通用文案」分支
+//   （本文件的 ③ 组断言正是「非 401 一律通用文案」，语义与改前一致）。
+vi.mock('../../auth', async () => {
+  const actual = await vi.importActual('../../auth')
+  return {
+    ...actual,
+    clearAuthSession: vi.fn(),
+    isUnauthorizedError: vi.fn(() => false),
+  }
+})
 vi.mock('../../pages/jobs/job-api', () => ({
   submitDeliverable: vi.fn(),
 }))

@@ -52,10 +52,18 @@ vi.mock('../../pages/AuthPage', () => ({
   default: ({ mode }) => <div>{`${mode} auth page`}</div>,
 }))
 
-vi.mock('../../auth', () => ({
-  fetchApiJson: vi.fn(async () => ({})),
-  getAuthHeaders: vi.fn(() => ({})),
-}))
+// ★ S1（2026-10-17）：`auth.js` 新增具名导出（`SESSION_EXPIRED_EVENT` / `markProtectedRouteActive` /
+//   `isProtectedRouteActive` / `isUnauthorizedError` …），而本文件是**白名单式** mock ⇒ 漏一个即在渲染期
+//   抛「No X export is defined on the ../../auth mock」。改为「展开 actual + 只覆盖本单要 stub 的两个出口」
+//   ⇒ 后续 auth 再加导出不会再把本文件判红（断言语义不变：`fetchApiJson` / `getAuthHeaders` 仍是替身）。
+vi.mock('../../auth', async () => {
+  const actual = await vi.importActual('../../auth')
+  return {
+    ...actual,
+    fetchApiJson: vi.fn(async () => ({})),
+    getAuthHeaders: vi.fn(() => ({})),
+  }
+})
 vi.mock('react-hot-toast', () => ({ default: { success: vi.fn(), error: vi.fn() } }))
 
 import App from '../../App'

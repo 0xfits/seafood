@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { clearAuthSession } from '../auth'
+import { clearAuthSession, isUnauthorizedError } from '../auth'
 import { buildLocalizedPath, getLanguageFromUrl } from '../utils'
 import { submitDeliverable } from '../pages/jobs/job-api'
 
@@ -29,8 +29,6 @@ const SUBMIT_REASON_I18N_KEYS = Object.freeze({
   JOB_APPLICATION_STATE_INVALID: 'jobs.submitNotSelected',
   JOB_STATE_INVALID: 'jobs.submitJobStateInvalid',
 })
-const UNAUTHORIZED_CODE = 'AUTH_UNAUTHORIZED'
-const UNAUTHORIZED_I18N_KEY = 'auth.err.AUTH_UNAUTHORIZED'
 
 const readStoredUser = () => {
   try {
@@ -48,10 +46,8 @@ const tokenStatus = (user) => {
   return String(token).split('.').length === 3 ? 'ok' : 'malformed'
 }
 
-const isUnauthorized = (error) => (
-  error?.code === UNAUTHORIZED_CODE || error?.i18nKey === UNAUTHORIZED_I18N_KEY
-)
-
+// ★ S1（AC5）：401 判定收敛到 `auth.js` 的 `isUnauthorizedError`（单一真源）。
+//   旧局部实现（本文件内的 `isUnauthorized`）判据逐字等价 ⇒ 行为不变；额外收益 = 403/503 被显式排除。
 const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
   const { t } = useTranslation()
   const [infoInput, setInfoInput] = useState('')
@@ -113,7 +109,7 @@ const ActiveTaskModal = ({ open, isOpen, onClose, task }) => {
       // 重定向到任务页面并滚动到待验证部分
       navigate(`${buildLocalizedPath(getLanguageFromUrl(window.location.pathname), '/task')}#pending-verification`)
     } catch (error) {
-      if (isUnauthorized(error)) {
+      if (isUnauthorizedError(error)) {
         // Token 过期或无效，需要重新登录
         toast.error(t('sessionExpired'))
         clearAuthSession()

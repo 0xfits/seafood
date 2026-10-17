@@ -11,6 +11,31 @@ const dispatchAuthChange = () => {
   }
 }
 
+/**
+ * ★ 会话过期治理（S1 · 2026-10-17）· 会话确实失效时派发的**一次性**通知事件。
+ * 消费点 = `components/SessionExpiredNotice.jsx`（转成 `sessionExpired` toast）；
+ * 与 `AUTH_CHANGE_EVENT` 分工：后者管「存储变了 ⇒ 重读」，本事件管「请提示用户」。
+ */
+export const SESSION_EXPIRED_EVENT = 'jinli:session-expired'
+
+/** `R107` 契约里 401 的**唯一**机读码 / i18n 键（后端 `auth.ts` + `index.ts` 恒为这一对）。 */
+export const UNAUTHORIZED_STATUS = 401
+export const UNAUTHORIZED_CODE = 'AUTH_UNAUTHORIZED'
+export const UNAUTHORIZED_I18N_KEY = 'auth.err.AUTH_UNAUTHORIZED'
+
+/**
+ * 静默清存储（**不派发**任何事件）。
+ * 为什么单列：`getStoredUser()` / `isAuthenticatedUser()` 会在 **React 渲染期**被调用，
+ * 渲染期同步派发 `AUTH_CHANGE_EVENT` 会让 `AuthProvider` 的 `setUser` 在渲染中执行
+ * （React 报「Cannot update a component while rendering」）⇒ 过期清理一律走静默版，
+ * 只有显式动作（登出 / 401 治理）才走会派发事件的 `clearAuthSession()`。
+ */
+const purgeAuthStorage = () => {
+  if (!canUseStorage()) return
+  localStorage.removeItem(AUTH_STORAGE_KEY)
+  localStorage.removeItem(LEGACY_TOKEN_KEY)
+}
+
 export const normalizeAuthUser = (user) => {
   if (!user || typeof user !== 'object') return null
 
@@ -32,9 +57,95 @@ export const normalizeAuthUser = (user) => {
   return normalized
 }
 
-export const getStoredUser = () => {
-  if (!canUseStorage()) return null
+/**
+ * ★ 会话过期治理（S1）· 纯 JS base64 → 单字节 ASCII 文本（零环境依赖）。
+ * 为什么不复用内置解码器（实测定式）：vitest + jsdom 环境下内置 `atob` **既错又慢** ——
+ * 对合法 base64（如 `eyJleHAiOjF9`，解出 `{"exp":1}`）会抛 InvalidCharacterError，
+ * 且单次调用实测 **39.35s**，足以把整批单测拖死；`Buffer` / `TextDecoder` 则非浏览器内建。
+ * 故自带 6-bit 累加解码：遇到字母表外字符直接回 `''`（不抛）。
+ */
+const B64_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 
+const decodeBase64Ascii = (s) => {
+  let out = ''
+  let buf = 0
+  let bits = 0
+  for (let i = 0; i < s.length; i += 1) {
+    const idx = B64_ALPHABET.indexOf(s[i])
+    if (idx < 0) return ''
+    buf = (buf << 6) | idx
+    bits += 6
+    if (bits >= 8) {
+      bits -= 8
+      out += String.fromCharCode((buf >> bits) & 0xff)
+    }
+  }
+  return out
+}
+
+/**
+ * ★ 会话过期治理（S1）· JWT payload 段 → 文本。
+ * 步骤（缺一即解不出）：① 百分号编码还原（若含 `%`）；② base64url 字母表还原
+ * （`-`/`_` → `+`/`/`）；③ 剔除尾部 `=`（JWT 省略 / 可变尾部填充）；④ 纯 JS 解码。
+ * 任何失败都回 `''`（不抛）—— 「解析不出」≠「token 无效」。
+ */
+const decodeJwtPayloadSegment = (token) => {
+  if (typeof token !== 'string' || !token) return ''
+  const parts = token.split('.')
+  if (parts.length !== 3) return ''
+  const segment = parts[1]
+  if (!segment) return ''
+
+  let normalized = segment
+  if (normalized.includes('%')) {
+    try {
+      normalized = decodeURIComponent(normalized)
+    } catch {
+      return ''
+    }
+  }
+  normalized = normalized.replace(/-/g, '+').replace(/_/g, '/')
+  // 尾部补位一律剔除：解码器按 6-bit 累加，本就不需要 `=` 对齐。
+  const stripped = normalized.replace(/=+$/, '')
+  if (!stripped) return ''
+  // 长度闸：`长度 % 4 === 1` 结构上不可能是合法 base64（补位也救不回来）。
+  if (stripped.length % 4 === 1) return ''
+
+  return decodeBase64Ascii(stripped)
+}
+
+/**
+ * 从 JWT 取 `exp`（秒）。★ **不 `JSON.parse`、不做 UTF-8 还原**（payload 里有非 ASCII 时
+ * `JSON.parse` 会因 mojibake 抛错，把合法 token 误判成「解析失败」）；直接在解出的文本上
+ * 匹配 `"exp": <数字>`。取不到 / 非有限数 ⇒ `null`。
+ */
+export const jwtExpirySeconds = (token) => {
+  const text = decodeJwtPayloadSegment(token)
+  if (!text) return null
+  const match = /"exp"\s*:\s*(\d+)/.exec(text)
+  if (!match) return null
+  const exp = Number(match[1])
+  return Number.isFinite(exp) ? exp : null
+}
+
+/**
+ * token 是否**已过期**。判据（AC3 硬口径）：
+ *   · 解析失败 / 非 JWT / 无 `exp` / `exp` 非数字 ⇒ **false（视为有效）** —— 保持旧行为，绝不误踢；
+ *   · `exp` 合法 ⇒ `exp * 1000 <= now` 即过期。
+ */
+export const isTokenExpired = (token, now = Date.now()) => {
+  const exp = jwtExpirySeconds(token)
+  if (exp === null) return false
+  return exp * 1000 <= now
+}
+
+/**
+ * 原始快照读取（**不做**过期判定）：`replaceAuthToken` 等「写入面」要用它。
+ * 为什么单列：滑动续期场景下**旧 token 往往已过期**，若走 `getStoredUser()`（过期即清）就会
+ * 先把自己清掉、拿不到 user 快照 ⇒ 续期永远写不进去。读原始快照、由调用方决定语义。
+ */
+const readRawStoredUser = () => {
+  if (!canUseStorage()) return null
   try {
     const raw = localStorage.getItem(AUTH_STORAGE_KEY)
     if (!raw) return null
@@ -43,6 +154,17 @@ export const getStoredUser = () => {
     console.error('Failed to parse stored auth session:', error)
     return null
   }
+}
+
+export const getStoredUser = () => {
+  const normalized = readRawStoredUser()
+  if (!normalized) return null
+  // ★ S1：存储里是**已过期** token ⇒ 静默清存储并当游客（否则「菜单仍显示登录」）。
+  if (isTokenExpired(getAuthToken(normalized))) {
+    purgeAuthStorage()
+    return null
+  }
+  return normalized
 }
 
 export const getAuthToken = (user = undefined) => {
@@ -58,7 +180,18 @@ export const getAuthHeaders = (user = undefined) => {
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
-export const isAuthenticatedUser = (user = undefined) => Boolean(getAuthToken(user))
+/**
+ * ★ S1：判据 =「有 token ∧ **本地未过期**」。
+ * 读到已过期 token ⇒ 静默清存储并回 `false`（AC3）。解析失败 / 无 `exp` / 非 JWT ⇒ 仍为 `true`（保持旧行为）。
+ * 注：这里用静默清理（不派发事件）——本函数会在 `AuthProvider` 渲染体里被调用（见 auth.js 顶部 `purgeAuthStorage` 注释）。
+ */
+export const isAuthenticatedUser = (user = undefined) => {
+  const token = getAuthToken(user)
+  if (!token) return false
+  if (!isTokenExpired(token)) return true
+  purgeAuthStorage()
+  return false
+}
 
 export const hasCompletedProfile = (user = undefined) => {
   const currentUser = user ?? getStoredUser()
@@ -89,13 +222,110 @@ export const mergeAuthSession = (patch) => {
   return saveAuthSession({ ...current, ...(patch || {}) })
 }
 
+/**
+ * ★ 单一具名导出 ·「把新 token 写回存储」的**唯一入口**（本轮只暴露、**不接线**）。
+ *
+ * 签名：`replaceAuthToken(newToken: string) => user | null`
+ *   · `newToken` 空 / 非字符串 ⇒ **不动存储**，返回 `null`；
+ *   · 存储里没有 user 快照（未登录 / 已被清）⇒ **不动存储**，返回 `null`（绝不凭空造一个会话）；
+ *   · 否则 ⇒ 读现有快照 → 同写 `token` / `access_token` 两键 → 同步 `LEGACY_TOKEN_KEY`
+ *     → 派发 `AUTH_CHANGE_EVENT`（Header / 菜单立刻吃到新 token）→ 返回最新 user 快照。
+ *
+ * ★ 为什么用**原始快照**读（`readRawStoredUser` 而非 `getStoredUser`）：滑动续期时旧 token 往往
+ *   已过期，而 `getStoredUser()` 会把过期会话清掉 ⇒ 续期永远拿不到快照、写不进去。
+ *   本函数只负责「写」，**过期判据不在这里**（判据仍在 `isTokenExpired` / `getStoredUser`）。
+ *
+ * ★ 下一单（滑动续期）将复用此入口：续期逻辑从响应里取到新 token 后**只调这一个函数**，
+ *   不得再自拼 `localStorage.setItem` / `saveAuthSession`（否则又出现第二套写入路径）。
+ *   本单**不**在 fetch 响应里读任何 header、**不**改后端（派单硬约束）。
+ */
+export const replaceAuthToken = (newToken) => {
+  const token = typeof newToken === 'string' ? newToken.trim() : ''
+  if (!token) return null
+
+  const current = readRawStoredUser()
+  if (!current) return null
+
+  const next = normalizeAuthUser({ ...current, token, access_token: token })
+  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(next))
+  localStorage.setItem(LEGACY_TOKEN_KEY, token)
+  dispatchAuthChange()
+  return next
+}
+
 export const clearAuthSession = () => {
   if (!canUseStorage()) return
 
-  localStorage.removeItem(AUTH_STORAGE_KEY)
-  localStorage.removeItem(LEGACY_TOKEN_KEY)
+  purgeAuthStorage()
   dispatchAuthChange()
 }
+
+// ---------------------------------------------------------------------------
+// ★ 会话过期治理（S1 · 2026-10-17）：**全局 401 判定 + 一次性清会话 + 一次性提示**
+//
+// 立此单的缺陷（Zang 诊断已核实）：无续期机制（`refreshUser` 零消费点）、前端登录态判据不看
+// `exp`、`fetchApiJson` 只抛文案 Error ⇒ 除个别页面外**没有任何**全局 401 治理 ⇒ token 过期后
+// 读口吃 401 只弹一句文案，菜单仍显示登录（用户反馈的核心矛盾）。
+//
+// 硬口径（AC4）：**只有 401 + `AUTH_UNAUTHORIZED` 才清会话**。403（权限不足）/ 503（后端暂时
+// 不可用）**绝不清**——把用户误踢下线比不踢更糟。
+// ---------------------------------------------------------------------------
+
+/** 该响应是否是「会话失效」形态：`status === 401` ∧ `R107` 的 `error.code === AUTH_UNAUTHORIZED`。 */
+export const isUnauthorizedResponse = (payload, status) => (
+  status === UNAUTHORIZED_STATUS
+  && Boolean(payload?.error)
+  && typeof payload.error === 'object'
+  && payload.error.code === UNAUTHORIZED_CODE
+)
+
+/**
+ * 可复用 401 判定（**唯一真源**，取代各组件自造的一份）。
+ * 入参 = `fetchApiJson` 抛出的 Error（机读面 `code` / `i18nKey` / `status` 都已附上）。
+ * 与旧局部实现（`ActiveTaskModal.jsx` 的 `isUnauthorized`）**行为等价的超集**：
+ *   · `code` 或 `i18nKey` 命中 ⇒ `true`（旧实现的全部判据，逐字保留）；
+ *   · 额外把 403 / 503 显式排除（AC4：即便错误体里带了 401 的字样也不得据此清会话）。
+ */
+export const isUnauthorizedError = (error) => {
+  if (!error || typeof error !== 'object') return false
+  const status = error.status
+  if (status === 403 || status === 503) return false
+  return error.code === UNAUTHORIZED_CODE || error.i18nKey === UNAUTHORIZED_I18N_KEY
+}
+
+/**
+ * 清会话 + 一次性通知（AC1 / AC2 的写口）。
+ * ★「并发多请求同时 401 只提示一次」的机制：`hadSession` 在清理**之前**取 ⇒ 第一个 401 把
+ *   `user` / `token` 两个键都清掉，后续并发响应再进来 `getAuthToken()` 已为空 ⇒ `hadSession=false`
+ *   ⇒ 不重复通知。零定时器、零全局 flag ⇒ 不存在「节流窗口过后又弹一次」的尾巴。
+ * 返回值 = 是否真的清掉了一个会话（供调用方 / 单测断言）。
+ */
+export const expireAuthSession = () => {
+  const hadSession = Boolean(getAuthToken())
+  clearAuthSession()
+  if (hadSession && typeof window !== 'undefined') {
+    window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT))
+  }
+  return hadSession
+}
+
+/**
+ * 受保护路由登记位（AC2）：`ProtectedRoute` 挂载时 +1、卸载时 -1。
+ * 用途 = 让「过期提示」知道**当前是否处于受保护路由**：
+ *   · 是 ⇒ 不弹 toast（既有 `ProtectedRoute` 自己会出登录引导，别双提示）；
+ *   · 否 ⇒ 弹一次性 toast（`sessionExpired` 键）。
+ * ★ 不另造「受保护路径清单」——那会与 `App.jsx` 的路由真源分叉（第二套判据）。
+ */
+let protectedRouteDepth = 0
+
+export const markProtectedRouteActive = () => {
+  protectedRouteDepth += 1
+  return () => {
+    protectedRouteDepth = Math.max(0, protectedRouteDepth - 1)
+  }
+}
+
+export const isProtectedRouteActive = () => protectedRouteDepth > 0
 
 /**
  * P4-B4b-i · §2.4 **S2**（`R107` 的 401/403 形状）+ §3.3-1 / §3.4：
@@ -361,6 +591,15 @@ export const fetchApiJson = async (url, options = {}) => {
       if (machine.details && typeof machine.details === 'object') failure.details = machine.details
       if (typeof machine.code === 'string' && machine.code) failure.code = machine.code
       if (typeof machine.i18n_key === 'string' && machine.i18n_key) failure.i18nKey = machine.i18n_key
+    }
+    // ★ S1（AC1 / AC4）· **全局 401 治理的唯一落点**：所有经本函数的请求都在这里过一道。
+    //   `status` 只做加法（旧字段集不变）；清会话**只认** `401 + AUTH_UNAUTHORIZED`
+    //   （403 权限不足 / 503 后端暂时不可用 ⇒ 不动会话，见 `isUnauthorizedResponse`）。
+    failure.status = response.status
+    if (isUnauthorizedResponse(payload, response.status)) {
+      // 清会话 ⇒ 派发 AUTH_CHANGE_EVENT ⇒ `AuthProvider` 重读存储 ⇒ Header / 菜单回落游客态；
+      // 会话确实存在过时再派发一次 `SESSION_EXPIRED_EVENT`（并发 401 只一次，见 `expireAuthSession`）。
+      expireAuthSession()
     }
     throw failure
   }

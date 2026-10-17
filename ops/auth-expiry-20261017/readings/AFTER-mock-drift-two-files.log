@@ -1,0 +1,19 @@
+
+ RUN  v0.34.6 /Users/kevin/bistro/seafood/frontend
+
+stderr | src/test/unit/r9-90-participate-surface.test.jsx > ① 有任务号（无 jID）⇒ 直出提交表单（「先参与」面已删） > task = {tID:9}（无 jID）⇒ ★原生 form/textarea/button[type=submit] 存在；参与面钩子全不在
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ✓ src/test/unit/r9-90-participate-surface.test.jsx  (20 tests) 112ms
+stderr | src/test/unit/fix-nav-langshell.test.jsx > F2 · 首页发布入口链接（真渲染 HomePage） > en 档：发布入口 href = `/en/item/new`（无 undefined、无重复段）
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+ ✓ src/test/unit/fix-nav-langshell.test.jsx  (12 tests) 137ms
+
+ Test Files  2 passed (2)
+      Tests  32 passed (32)
+   Start at  16:21:49
+   Duration  1.30s (transform 654ms, setup 227ms, collect 927ms, tests 249ms, environment 491ms, prepare 99ms)
+

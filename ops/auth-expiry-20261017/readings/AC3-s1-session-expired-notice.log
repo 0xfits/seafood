@@ -1,0 +1,13 @@
+
+ RUN  v0.34.6 /Users/kevin/bistro/seafood/frontend
+
+stderr | src/test/unit/s1-session-expired-notice.test.jsx > S1 · SessionExpiredNotice（AC2：清会话后的提示与跳转） > 非受保护路由 ⇒ 弹一次性 toast，文案键 = 既有顶层 `sessionExpired`（零新增 locale 键）
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+ ✓ src/test/unit/s1-session-expired-notice.test.jsx  (4 tests) 12ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  16:20:51
+   Duration  716ms (transform 52ms, setup 157ms, collect 48ms, tests 12ms, environment 316ms, prepare 56ms)
+

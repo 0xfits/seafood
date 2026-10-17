@@ -1,0 +1,165 @@
+{
+  "script": "ops/auth-expiry-20261017/probe/b64-crosscheck.mjs",
+  "at": "2026-10-17T08:20:47.439Z",
+  "source_of_truth": "frontend/src/auth.js（现盘抽取 decodeBase64Ascii + decodeJwtPayloadSegment）",
+  "reference": "Buffer.from(x,'base64').toString('latin1')",
+  "samples": 19,
+  "pass": 19,
+  "fail": 0,
+  "verdict": "PASS",
+  "rows": [
+    {
+      "layer": "A:decodeBase64Ascii",
+      "name": "A-1 父单实测的合法串（12 字符 / 无 padding）",
+      "input": "eyJleHAiOjF9",
+      "expected": "{\"exp\":1}",
+      "got": "{\"exp\":1}",
+      "ok": true
+    },
+    {
+      "layer": "A:decodeBase64Ascii",
+      "name": "A-2 真实 payload shape（{\"exp\":1700000000,\"sub\":1}）",
+      "input": "eyJleHAiOjE3MDAwMDAwMDAsInN1YiI6MX0",
+      "expected": "{\"exp\":1700000000,\"sub\":1}",
+      "got": "{\"exp\":1700000000,\"sub\":1}",
+      "ok": true
+    },
+    {
+      "layer": "A:decodeBase64Ascii",
+      "name": "A-3 多字节 UTF-8（按字节级对照，不做 UTF-8 还原）",
+      "input": "eyJuYW1lIjoi5rW36bKcIn0",
+      "expected": "{\"name\":\"æµ·é²\"}",
+      "got": "{\"name\":\"æµ·é²\"}",
+      "ok": true
+    },
+    {
+      "layer": "A:decodeBase64Ascii",
+      "name": "A-4 含 `0x00` / `0xFF` 高位字节",
+      "input": "AP8QgA",
+      "expected": "\u0000ÿ\u0010",
+      "got": "\u0000ÿ\u0010",
+      "ok": true
+    },
+    {
+      "layer": "A:decodeBase64Ascii",
+      "name": "A-5 exp 极端值长串",
+      "input": "eyJleHAiOjk5OTk5OTk5OTl9",
+      "expected": "{\"exp\":9999999999}",
+      "got": "{\"exp\":9999999999}",
+      "ok": true
+    },
+    {
+      "layer": "A:decodeBase64Ascii",
+      "name": "A-6 单字节（最短合法组）",
+      "input": "QQ",
+      "expected": "A",
+      "got": "A",
+      "ok": true
+    },
+    {
+      "layer": "A:decodeBase64Ascii",
+      "name": "A-7 空串 ⇒ 进程内真身回空串",
+      "input": "",
+      "expected": "",
+      "got": "",
+      "ok": true
+    },
+    {
+      "layer": "A:decodeBase64Ascii",
+      "name": "A-8 非法字符 `!` ⇒ 回空串（Buffer 宽容跳过，属刻意的严格）",
+      "input": "ab!d",
+      "expected": "",
+      "got": "",
+      "ok": true,
+      "buffer_lenient": "i·"
+    },
+    {
+      "layer": "B:decodeJwtPayloadSegment",
+      "name": "B-1 base64url 含 `-`/`_`（0xFB 0xEF 0xBE 0x00 0xFF 0xC3 0xA9）",
+      "input": "----AP_DqQ",
+      "expected": "ûï¾\u0000ÿÃ©",
+      "got": "ûï¾\u0000ÿÃ©",
+      "ok": true
+    },
+    {
+      "layer": "B:decodeJwtPayloadSegment",
+      "name": "B-2 base64url 无 padding",
+      "input": "eyJleHAiOjE3MDAwMDAwMDAsInN1YiI6MX0",
+      "expected": "{\"exp\":1700000000,\"sub\":1}",
+      "got": "{\"exp\":1700000000,\"sub\":1}",
+      "ok": true
+    },
+    {
+      "layer": "B:decodeJwtPayloadSegment",
+      "name": "B-3 标准 base64 带 1 个 `=`",
+      "input": "eyJleHAiOjc3fQ==",
+      "expected": "{\"exp\":77}",
+      "got": "{\"exp\":77}",
+      "ok": true
+    },
+    {
+      "layer": "B:decodeJwtPayloadSegment",
+      "name": "B-4 标准 base64 带 `==`",
+      "input": "eyJhIjoxfQ==",
+      "expected": "{\"a\":1}",
+      "got": "{\"a\":1}",
+      "ok": true
+    },
+    {
+      "layer": "B:decodeJwtPayloadSegment",
+      "name": "B-5 百分号编码的补位（`%3D`）",
+      "input": "eyJleHAiOjd9%3D",
+      "expected": "{\"exp\":7}",
+      "got": "{\"exp\":7}",
+      "ok": true
+    },
+    {
+      "layer": "B:decodeJwtPayloadSegment",
+      "name": "B-6 无 padding 的真实 JWT payload 段",
+      "input": "eyJleHAiOjF9",
+      "expected": "{\"exp\":1}",
+      "got": "{\"exp\":1}",
+      "ok": true
+    },
+    {
+      "layer": "B:negative",
+      "name": "B-7 段内夹 `!`",
+      "input": "h.ab!d.s",
+      "expected": "",
+      "got": "",
+      "ok": true
+    },
+    {
+      "layer": "B:negative",
+      "name": "B-8 长度 %4==1",
+      "input": "h.abcde.s",
+      "expected": "",
+      "got": "",
+      "ok": true
+    },
+    {
+      "layer": "B:negative",
+      "name": "B-9 空段",
+      "input": "h..s",
+      "expected": "",
+      "got": "",
+      "ok": true
+    },
+    {
+      "layer": "B:negative",
+      "name": "B-10 非 JWT 形态（无点）",
+      "input": "notajwt",
+      "expected": "",
+      "got": "",
+      "ok": true
+    },
+    {
+      "layer": "B:negative",
+      "name": "B-11 四段（非 JWT）",
+      "input": "a.b.c.d",
+      "expected": "",
+      "got": "",
+      "ok": true
+    }
+  ]
+}

@@ -51,10 +51,14 @@ import AdminLayout from './components/layout/AdminLayout'
 import { fetchAdminAccess, hasAdminPermission } from './admin-utils'
 import { applySiteTextOverlay, composeDocumentTitle, fetchSiteTextOverlay } from './site-text-overlay'
 import { useAuth } from './auth-context'
+// S1：受保护路由登记位（过期提示据此判「该不该弹 toast」；不另造路径清单）
+import { markProtectedRouteActive } from './auth'
 import { buildLocalizedPath, canonicalLangPath, getLanguageFromUrl, SUPPORTED_LANGS } from './utils'
 
 // 模态框组件
 import LoginModal from './components/LoginModal'
+// S1 会话过期提示（渲染 null；挂在 Router 内，读 `sessionExpired` 文案并弹一次性 toast）
+import SessionExpiredNotice from './components/SessionExpiredNotice'
 
 // 语言路由壳（唯一真源）：显式语言路由（/en|/hk|/vn|/zh/<path>）与无前缀兜底路由（/<path>，中文口径）共用这一个壳。
 // 不用 `/:lang?/<path>` 可选段——那会把 /reward、/task 这类普通首段吃成 lang，内层只剩 index ⇒ 中文子页渲染成首页。
@@ -240,6 +244,10 @@ const ProtectedRoute = ({ children, adminOnly = false, requiredPermission = null
   const location = useLocation()
   const { t } = useTranslation()
 
+  // ★ S1（AC2）：登记「当前处于受保护路由」—— 过期提示据此**不**叠 toast（登录引导由本组件给）。
+  //   独立 effect：只做登记/注销，不参与下面的权限检查（清理函数互不干扰）。
+  useEffect(() => markProtectedRouteActive(), [])
+
   useEffect(() => {
     let cancelled = false
 
@@ -321,6 +329,8 @@ function App() {
   return (
     <div className="app-container gradient-bg">
       <DocumentTitle />
+      {/* S1：会话过期提示的**唯一挂载点**（渲染 null、零 DOM；`login` 路由之外全站可用） */}
+      <SessionExpiredNotice />
       <Routes>
         {/* 登录/注册路由已下沉到 LangShell 内层（F1）；此处不再重复声明绝对路径路由 */}
         

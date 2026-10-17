@@ -1,0 +1,886 @@
+
+ RUN  v0.34.6 /Users/kevin/.hermes/profiles/zang/cache/scratch/atob-sandbox/frontend
+
+stderr | src/test/unit/r9-90-participate-surface.test.jsx > ① 有任务号（无 jID）⇒ 直出提交表单（「先参与」面已删） > task = {tID:9}（无 jID）⇒ ★原生 form/textarea/button[type=submit] 存在；参与面钩子全不在
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+stderr | src/test/unit/fix-nav-langshell.test.jsx > F2 · 首页发布入口链接（真渲染 HomePage） > en 档：发布入口 href = `/en/item/new`（无 undefined、无重复段）
+Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+stderr | src/test/unit/fix-nav-langshell.test.jsx > F1 · 语言前缀登录路由（LangShell 管辖） > 四档登录地址 /login /en/login /hk/login /vn/login 均渲染登录内容
+Error: Uncaught [Error: [vitest] No "SESSION_EXPIRED_EVENT" export is defined on the "../../auth" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "vi.importActual" inside:
+
+vi.mock("../../auth", async () => {
+  const actual = await vi.importActual("../../auth")
+  return {
+    ...actual,
+    // your mocked methods
+  },
+})
+]
+    at reportException (/Users/kevin/bistro/seafood/frontend/node_modules/jsdom/lib/jsdom/living/helpers/runtime-script-errors.js:66:24)
+    at innerInvokeEventListeners (/Users/kevin/bistro/seafood/frontend/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:353:9)
+    at invokeEventListeners (/Users/kevin/bistro/seafood/frontend/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/Users/kevin/bistro/seafood/frontend/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/Users/kevin/bistro/seafood/frontend/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+    at HTMLUnknownElement.dispatchEvent (/Users/kevin/bistro/seafood/frontend/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+    at Object.invokeGuardedCallbackDev (/Users/kevin/bistro/seafood/frontend/node_modules/react-dom/cjs/react-dom.development.js:4213:16)
+    at invokeGuardedCallback (/Users/kevin/bistro/seafood/frontend/node_modules/react-dom/cjs/react-dom.development.js:4277:31)
+    at reportUncaughtErrorInDEV (/Users/kevin/bistro/seafood/frontend/node_modules/react-dom/cjs/react-dom.development.js:22877:5)
+    at captureCommitPhaseError (/Users/kevin/bistro/seafood/frontend/node_modules/react-dom/cjs/react-dom.development.js:27165:5) Error: [vitest] No "SESSION_EXPIRED_EVENT" export is defined on the "../../auth" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "vi.importActual" inside:
+
+vi.mock("../../auth", async () => {
+  const actual = await vi.importActual("../../auth")
+  return {
+    ...actual,
+    // your mocked methods
+  },
+})
+
+    at VitestMocker.createError (file:///Users/kevin/bistro/seafood/frontend/node_modules/[4mvitest[24m/dist/vendor-execute.07d1a420.js:80:12)
+    at Object.get (file:///Users/kevin/bistro/seafood/frontend/node_modules/[4mvitest[24m/dist/vendor-execute.07d1a420.js:153:22)
+    at [90m/Users/kevin/.hermes/profiles/zang/cache/scratch/atob-sandbox/frontend/[39msrc/components/SessionExpiredNotice.jsx:34:29
+    at commitHookEffectListMount (/Users/kevin/bistro/seafood/frontend/node_modules/[4mreact-dom[24m/cjs/react-dom.development.js:23189:26)
+    at commitPassiveMountOnFiber (/Users/kevin/bistro/seafood/frontend/node_modules/[4mreact-dom[24m/cjs/react-dom.development.js:24970:11)
+    at commitPassiveMountEffects_complete (/Users/kevin/bistro/seafood/frontend/node_modules/[4mreact-dom[24m/cjs/react-dom.development.js:24930:9)
+    at commitPassiveMountEffects_begin (/Users/kevin/bistro/seafood/frontend/node_modules/[4mreact-dom[24m/cjs/react-dom.development.js:24917:7)
+    at commitPassiveMountEffects (/Users/kevin/bistro/seafood/frontend/node_modules/[4mreact-dom[24m/cjs/react-dom.development.js:24905:3)
+    at flushPassiveEffectsImpl (/Users/kevin/bistro/seafood/frontend/node_modules/[4mreact-dom[24m/cjs/react-dom.development.js:27078:3)
+    at flushPassiveEffects (/Users/kevin/bistro/seafood/frontend/node_modules/[4mreact-dom[24m/cjs/react-dom.development.js:27023:14)
+The above error occurred in the <SessionExpiredNotice> component:
+
+    at SessionExpiredNotice (/Users/kevin/.hermes/profiles/zang/cache/scratch/atob-sandbox/frontend/src/components/SessionExpiredNotice.jsx:12:25)
+    at div
+    at App (/Users/kevin/.hermes/profiles/zang/cache/scratch/atob-sandbox/frontend/src/App.jsx:460:69)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+stderr | src/test/unit/fix-nav-langshell.test.jsx > F1 · 语言前缀登录路由（LangShell 管辖） > 四档注册地址 /register /en/register /hk/register /vn/register 均渲染注册内容
+Error: Uncaught [Error: [vitest] No "SESSION_EXPIRED_EVENT" export is defined on the "../../auth" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "vi.importActual" inside:
+
+vi.mock("../../auth", async () => {
+  const actual = await vi.importActual("../../auth")
+  return {
+    ...actual,
+    // your mocked methods
+  },
+})
+]
+    at reportException (/Users/kevin/bistro/seafood/frontend/node_modules/jsdom/lib/jsdom/living/helpers/runtime-script-errors.js:66:24)
+    at innerInvokeEventListeners (/Users/kevin/bistro/seafood/frontend/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:353:9)
+    at invokeEventListeners (/Users/kevin/bistro/seafood/frontend/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/Users/kevin/bistro/seafood/frontend/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/Users/kevin/bistro/seafood/frontend/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+    at HTMLUnknownElement.dispatchEvent (/Users/kevin/bistro/seafood/frontend/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+    at Object.invokeGuardedCallbackDev (/Users/kevin/bistro/seafood/frontend/node_modules/react-dom/cjs/react-dom.development.js:4213:16)
+    at invokeGuardedCallback (/Users/kevin/bistro/seafood/frontend/node_modules/react-dom/cjs/react-dom.development.js:4277:31)
+    at reportUncaughtErrorInDEV (/Users/kevin/bistro/seafood/frontend/node_modules/react-dom/cjs/react-dom.development.js:22877:5)
+    at captureCommitPhaseError (/Users/kevin/bistro/seafood/frontend/node_modules/react-dom/cjs/react-dom.development.js:27165:5) Error: [vitest] No "SESSION_EXPIRED_EVENT" export is defined on the "../../auth" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "vi.importActual" inside:
+
+vi.mock("../../auth", async () => {
+  const actual = await vi.importActual("../../auth")
+  return {
+    ...actual,
+    // your mocked methods
+  },
+})
+
+    at VitestMocker.createError (file:///Users/kevin/bistro/seafood/frontend/node_modules/[4mvitest[24m/dist/vendor-execute.07d1a420.js:80:12)
+    at Object.get (file:///Users/kevin/bistro/seafood/frontend/node_modules/[4mvitest[24m/dist/vendor-execute.07d1a420.js:153:22)
+    at [90m/Users/kevin/.hermes/profiles/zang/cache/scratch/atob-sandbox/frontend/[39msrc/components/SessionExpiredNotice.jsx:34:29
+    at commitHookEffectListMount (/Users/kevin/bistro/seafood/frontend/node_modules/[4mreact-dom[24m/cjs/react-dom.development.js:23189:26)
+    at commitPassiveMountOnFiber (/Users/kevin/bistro/seafood/frontend/node_modules/[4mreact-dom[24m/cjs/react-dom.development.js:24970:11)
+    at commitPassiveMountEffects_complete (/Users/kevin/bistro/seafood/frontend/node_modules/[4mreact-dom[24m/cjs/react-dom.development.js:24930:9)
+    at commitPassiveMountEffects_begin (/Users/kevin/bistro/seafood/frontend/node_modules/[4mreact-dom[24m/cjs/react-dom.development.js:24917:7)
+    at commitPassiveMountEffects (/Users/kevin/bistro/seafood/frontend/node_modules/[4mreact-dom[24m/cjs/react-dom.development.js:24905:3)
+    at flushPassiveEffectsImpl (/Users/kevin/bistro/seafood/frontend/node_modules/[4mreact-dom[24m/cjs/react-dom.development.js:27078:3)
+    at flushPassiveEffects (/Users/kevin/bistro/seafood/frontend/node_modules/[4mreact-dom[24m/cjs/react-dom.development.js:27023:14)
+The above error occurred in the <SessionExpiredNotice> component:
+
+    at SessionExpiredNotice (/Users/kevin/.hermes/profiles/zang/cache/scratch/atob-sandbox/frontend/src/components/SessionExpiredNotice.jsx:12:25)
+    at div
+    at App (/Users/kevin/.hermes/profiles/zang/cache/scratch/atob-sandbox/frontend/src/App.jsx:460:69)
+    at Router (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/Users/kevin/bistro/seafood/frontend/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+ ❯ src/test/unit/fix-nav-langshell.test.jsx  (12 tests | 2 failed) 106ms
+   ❯ src/test/unit/fix-nav-langshell.test.jsx > F1 · 语言前缀登录路由（LangShell 管辖） > 四档登录地址 /login /en/login /hk/login /vn/login 均渲染登录内容
+     → [vitest] No "SESSION_EXPIRED_EVENT" export is defined on the "../../auth" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "vi.importActual" inside:
+
+vi.mock("../../auth", async () => {
+  const actual = await vi.importActual("../../auth")
+  return {
+    ...actual,
+    // your mocked methods
+  },
+})
+
+   ❯ src/test/unit/fix-nav-langshell.test.jsx > F1 · 语言前缀登录路由（LangShell 管辖） > 四档注册地址 /register /en/register /hk/register /vn/register 均渲染注册内容
+     → [vitest] No "SESSION_EXPIRED_EVENT" export is defined on the "../../auth" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "vi.importActual" inside:
+
+vi.mock("../../auth", async () => {
+  const actual = await vi.importActual("../../auth")
+  return {
+    ...actual,
+    // your mocked methods
+  },
+})
+
+ ❯ src/test/unit/r9-90-participate-surface.test.jsx  (20 tests | 5 failed) 5184ms
+   ❯ src/test/unit/r9-90-participate-surface.test.jsx > ③ 提交错误面：ACTOR_NOT_ALLOWED ⇒ 精确；其它/无 details ⇒ 通用逐字不变 > reason === ACTOR_NOT_ALLOWED ⇒ 精确文案 jobs.submitNotApplicant（非通用「无权执行该操作」）
+     → expected '' not to be '' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"modal-container bg-white dark:bg-bg-dark rounded-lg shadow-xl w-full max-w-md"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"modal-header p-6 border-b border-border flex justify-between items-center"[39m
+          [36m>[39m
+            [36m<h3[39m
+              [33mclass[39m=[32m"text-xl font-bold"[39m
+            [36m>[39m
+              [0m完成任务[0m
+            [36m</h3>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"modal-close text-text-muted hover:text-text-primary transition-colors"[39m
+            [36m>[39m
+              [0m✕[0m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"modal-body p-6"[39m
+          [36m>[39m
+            [36m<h4[39m
+              [33mclass[39m=[32m"text-lg font-medium mb-4"[39m
+            [36m>[39m
+              [0mT[0m
+            [36m</h4>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-text-secondary mb-6"[39m
+            [36m>[39m
+              [0mN[0m
+            [36m</p>[39m
+            [36m<form[39m
+              [33mdata-sf-m[39m=[32m"active-task-submit-form"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"mb-6"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium mb-2"[39m
+                  [33mfor[39m=[32m"infoInput"[39m
+                [36m>[39m
+                  [0m提交信息[0m
+                [36m</label>[39m
+                [36m<textarea[39m
+                  [33mclass[39m=[32m"w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"[39m
+                  [33mid[39m=[32m"infoInput"[39m
+                  [33mplaceholder[39m=[32m"请输入任务完成信息"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mrows[39m=[32m"6"[39m
+                [36m>[39m
+                  [0mdeliverable[0m
+                [36m</textarea>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex justify-end space-x-4"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn btn-inactive"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m取消[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn btn-proceed"[39m
+                  [33mtype[39m=[32m"submit"[39m
+                [36m>[39m
+                  [0m提交信息[0m
+                [36m</button>[39m
+              [36m</div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"mt-3 text-sm"[39m
+                [33mdata-sf-m[39m=[32m"active-task-submit-status"[39m
+                [33mrole[39m=[32m"status"[39m
+              [36m/>[39m
+            [36m</form>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+   ❯ src/test/unit/r9-90-participate-surface.test.jsx > ③ 提交错误面：ACTOR_NOT_ALLOWED ⇒ 精确；其它/无 details ⇒ 通用逐字不变 > reason === JOB_APPLICATION_STATE_INVALID ⇒ 精确文案 jobs.submitNotSelected
+     → expected '' not to be '' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"modal-container bg-white dark:bg-bg-dark rounded-lg shadow-xl w-full max-w-md"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"modal-header p-6 border-b border-border flex justify-between items-center"[39m
+          [36m>[39m
+            [36m<h3[39m
+              [33mclass[39m=[32m"text-xl font-bold"[39m
+            [36m>[39m
+              [0m完成任务[0m
+            [36m</h3>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"modal-close text-text-muted hover:text-text-primary transition-colors"[39m
+            [36m>[39m
+              [0m✕[0m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"modal-body p-6"[39m
+          [36m>[39m
+            [36m<h4[39m
+              [33mclass[39m=[32m"text-lg font-medium mb-4"[39m
+            [36m>[39m
+              [0mT[0m
+            [36m</h4>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-text-secondary mb-6"[39m
+            [36m>[39m
+              [0mN[0m
+            [36m</p>[39m
+            [36m<form[39m
+              [33mdata-sf-m[39m=[32m"active-task-submit-form"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"mb-6"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium mb-2"[39m
+                  [33mfor[39m=[32m"infoInput"[39m
+                [36m>[39m
+                  [0m提交信息[0m
+                [36m</label>[39m
+                [36m<textarea[39m
+                  [33mclass[39m=[32m"w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"[39m
+                  [33mid[39m=[32m"infoInput"[39m
+                  [33mplaceholder[39m=[32m"请输入任务完成信息"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mrows[39m=[32m"6"[39m
+                [36m>[39m
+                  [0mdeliverable[0m
+                [36m</textarea>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex justify-end space-x-4"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn btn-inactive"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m取消[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn btn-proceed"[39m
+                  [33mtype[39m=[32m"submit"[39m
+                [36m>[39m
+                  [0m提交信息[0m
+                [36m</button>[39m
+              [36m</div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"mt-3 text-sm"[39m
+                [33mdata-sf-m[39m=[32m"active-task-submit-status"[39m
+                [33mrole[39m=[32m"status"[39m
+              [36m/>[39m
+            [36m</form>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+   ❯ src/test/unit/r9-90-participate-surface.test.jsx > ③ 提交错误面：ACTOR_NOT_ALLOWED ⇒ 精确；其它/无 details ⇒ 通用逐字不变 > reason === JOB_STATE_INVALID ⇒ 精确文案 jobs.submitJobStateInvalid
+     → expected '' not to be '' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"modal-container bg-white dark:bg-bg-dark rounded-lg shadow-xl w-full max-w-md"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"modal-header p-6 border-b border-border flex justify-between items-center"[39m
+          [36m>[39m
+            [36m<h3[39m
+              [33mclass[39m=[32m"text-xl font-bold"[39m
+            [36m>[39m
+              [0m完成任务[0m
+            [36m</h3>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"modal-close text-text-muted hover:text-text-primary transition-colors"[39m
+            [36m>[39m
+              [0m✕[0m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"modal-body p-6"[39m
+          [36m>[39m
+            [36m<h4[39m
+              [33mclass[39m=[32m"text-lg font-medium mb-4"[39m
+            [36m>[39m
+              [0mT[0m
+            [36m</h4>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-text-secondary mb-6"[39m
+            [36m>[39m
+              [0mN[0m
+            [36m</p>[39m
+            [36m<form[39m
+              [33mdata-sf-m[39m=[32m"active-task-submit-form"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"mb-6"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium mb-2"[39m
+                  [33mfor[39m=[32m"infoInput"[39m
+                [36m>[39m
+                  [0m提交信息[0m
+                [36m</label>[39m
+                [36m<textarea[39m
+                  [33mclass[39m=[32m"w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"[39m
+                  [33mid[39m=[32m"infoInput"[39m
+                  [33mplaceholder[39m=[32m"请输入任务完成信息"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mrows[39m=[32m"6"[39m
+                [36m>[39m
+                  [0mdeliverable[0m
+                [36m</textarea>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex justify-end space-x-4"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn btn-inactive"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m取消[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn btn-proceed"[39m
+                  [33mtype[39m=[32m"submit"[39m
+                [36m>[39m
+                  [0m提交信息[0m
+                [36m</button>[39m
+              [36m</div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"mt-3 text-sm"[39m
+                [33mdata-sf-m[39m=[32m"active-task-submit-status"[39m
+                [33mrole[39m=[32m"status"[39m
+              [36m/>[39m
+            [36m</form>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+   ❯ src/test/unit/r9-90-participate-surface.test.jsx > ③ 提交错误面：ACTOR_NOT_ALLOWED ⇒ 精确；其它/无 details ⇒ 通用逐字不变 > 其它 reason ⇒ 原链路通用文案逐字不变（t(error) + ": " + message）
+     → expected '' not to be '' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"modal-container bg-white dark:bg-bg-dark rounded-lg shadow-xl w-full max-w-md"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"modal-header p-6 border-b border-border flex justify-between items-center"[39m
+          [36m>[39m
+            [36m<h3[39m
+              [33mclass[39m=[32m"text-xl font-bold"[39m
+            [36m>[39m
+              [0m完成任务[0m
+            [36m</h3>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"modal-close text-text-muted hover:text-text-primary transition-colors"[39m
+            [36m>[39m
+              [0m✕[0m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"modal-body p-6"[39m
+          [36m>[39m
+            [36m<h4[39m
+              [33mclass[39m=[32m"text-lg font-medium mb-4"[39m
+            [36m>[39m
+              [0mT[0m
+            [36m</h4>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-text-secondary mb-6"[39m
+            [36m>[39m
+              [0mN[0m
+            [36m</p>[39m
+            [36m<form[39m
+              [33mdata-sf-m[39m=[32m"active-task-submit-form"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"mb-6"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium mb-2"[39m
+                  [33mfor[39m=[32m"infoInput"[39m
+                [36m>[39m
+                  [0m提交信息[0m
+                [36m</label>[39m
+                [36m<textarea[39m
+                  [33mclass[39m=[32m"w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"[39m
+                  [33mid[39m=[32m"infoInput"[39m
+                  [33mplaceholder[39m=[32m"请输入任务完成信息"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mrows[39m=[32m"6"[39m
+                [36m>[39m
+                  [0mdeliverable[0m
+                [36m</textarea>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex justify-end space-x-4"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn btn-inactive"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m取消[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn btn-proceed"[39m
+                  [33mtype[39m=[32m"submit"[39m
+                [36m>[39m
+                  [0m提交信息[0m
+                [36m</button>[39m
+              [36m</div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"mt-3 text-sm"[39m
+                [33mdata-sf-m[39m=[32m"active-task-submit-status"[39m
+                [33mrole[39m=[32m"status"[39m
+              [36m/>[39m
+            [36m</form>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+   ❯ src/test/unit/r9-90-participate-surface.test.jsx > ③ 提交错误面：ACTOR_NOT_ALLOWED ⇒ 精确；其它/无 details ⇒ 通用逐字不变 > 拿不到 reason（无 details）⇒ 原链路通用文案逐字不变
+     → expected '' not to be '' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"modal-container bg-white dark:bg-bg-dark rounded-lg shadow-xl w-full max-w-md"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"modal-header p-6 border-b border-border flex justify-between items-center"[39m
+          [36m>[39m
+            [36m<h3[39m
+              [33mclass[39m=[32m"text-xl font-bold"[39m
+            [36m>[39m
+              [0m完成任务[0m
+            [36m</h3>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"modal-close text-text-muted hover:text-text-primary transition-colors"[39m
+            [36m>[39m
+              [0m✕[0m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"modal-body p-6"[39m
+          [36m>[39m
+            [36m<h4[39m
+              [33mclass[39m=[32m"text-lg font-medium mb-4"[39m
+            [36m>[39m
+              [0mT[0m
+            [36m</h4>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-text-secondary mb-6"[39m
+            [36m>[39m
+              [0mN[0m
+            [36m</p>[39m
+            [36m<form[39m
+              [33mdata-sf-m[39m=[32m"active-task-submit-form"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"mb-6"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium mb-2"[39m
+                  [33mfor[39m=[32m"infoInput"[39m
+                [36m>[39m
+                  [0m提交信息[0m
+                [36m</label>[39m
+                [36m<textarea[39m
+                  [33mclass[39m=[32m"w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"[39m
+                  [33mid[39m=[32m"infoInput"[39m
+                  [33mplaceholder[39m=[32m"请输入任务完成信息"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mrows[39m=[32m"6"[39m
+                [36m>[39m
+                  [0mdeliverable[0m
+                [36m</textarea>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex justify-end space-x-4"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn btn-inactive"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m取消[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn btn-proceed"[39m
+                  [33mtype[39m=[32m"submit"[39m
+                [36m>[39m
+                  [0m提交信息[0m
+                [36m</button>[39m
+              [36m</div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"mt-3 text-sm"[39m
+                [33mdata-sf-m[39m=[32m"active-task-submit-status"[39m
+                [33mrole[39m=[32m"status"[39m
+              [36m/>[39m
+            [36m</form>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/test/unit/fix-nav-langshell.test.jsx > F1 · 语言前缀登录路由（LangShell 管辖） > 四档登录地址 /login /en/login /hk/login /vn/login 均渲染登录内容
+ FAIL  src/test/unit/fix-nav-langshell.test.jsx > F1 · 语言前缀登录路由（LangShell 管辖） > 四档注册地址 /register /en/register /hk/register /vn/register 均渲染注册内容
+Error: [vitest] No "SESSION_EXPIRED_EVENT" export is defined on the "../../auth" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "vi.importActual" inside:
+
+vi.mock("../../auth", async () => {
+  const actual = await vi.importActual("../../auth")
+  return {
+    ...actual,
+    // your mocked methods
+  },
+})
+
+ ❯ src/components/SessionExpiredNotice.jsx:34:29
+     32|     }
+     33| 
+     34|     window.addEventListener(SESSION_EXPIRED_EVENT, handleExpired)
+       |                             ^
+     35|     return () => window.removeEventListener(SESSION_EXPIRED_EVENT, han…
+     36|   }, [t])
+ ❯ commitHookEffectListMount ../../../../../../../bistro/seafood/frontend/node_modules/react-dom/cjs/react-dom.development.js:23189:26
+ ❯ commitPassiveMountOnFiber ../../../../../../../bistro/seafood/frontend/node_modules/react-dom/cjs/react-dom.development.js:24970:11
+ ❯ commitPassiveMountEffects_complete ../../../../../../../bistro/seafood/frontend/node_modules/react-dom/cjs/react-dom.development.js:24930:9
+ ❯ commitPassiveMountEffects_begin ../../../../../../../bistro/seafood/frontend/node_modules/react-dom/cjs/react-dom.development.js:24917:7
+ ❯ commitPassiveMountEffects ../../../../../../../bistro/seafood/frontend/node_modules/react-dom/cjs/react-dom.development.js:24905:3
+ ❯ flushPassiveEffectsImpl ../../../../../../../bistro/seafood/frontend/node_modules/react-dom/cjs/react-dom.development.js:27078:3
+ ❯ flushPassiveEffects ../../../../../../../bistro/seafood/frontend/node_modules/react-dom/cjs/react-dom.development.js:27023:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  src/test/unit/r9-90-participate-surface.test.jsx > ③ 提交错误面：ACTOR_NOT_ALLOWED ⇒ 精确；其它/无 details ⇒ 通用逐字不变 > reason === ACTOR_NOT_ALLOWED ⇒ 精确文案 jobs.submitNotApplicant（非通用「无权执行该操作」）
+ FAIL  src/test/unit/r9-90-participate-surface.test.jsx > ③ 提交错误面：ACTOR_NOT_ALLOWED ⇒ 精确；其它/无 details ⇒ 通用逐字不变 > reason === JOB_APPLICATION_STATE_INVALID ⇒ 精确文案 jobs.submitNotSelected
+ FAIL  src/test/unit/r9-90-participate-surface.test.jsx > ③ 提交错误面：ACTOR_NOT_ALLOWED ⇒ 精确；其它/无 details ⇒ 通用逐字不变 > reason === JOB_STATE_INVALID ⇒ 精确文案 jobs.submitJobStateInvalid
+ FAIL  src/test/unit/r9-90-participate-surface.test.jsx > ③ 提交错误面：ACTOR_NOT_ALLOWED ⇒ 精确；其它/无 details ⇒ 通用逐字不变 > 其它 reason ⇒ 原链路通用文案逐字不变（t(error) + ": " + message）
+ FAIL  src/test/unit/r9-90-participate-surface.test.jsx > ③ 提交错误面：ACTOR_NOT_ALLOWED ⇒ 精确；其它/无 details ⇒ 通用逐字不变 > 拿不到 reason（无 details）⇒ 原链路通用文案逐字不变
+AssertionError: expected '' not to be '' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"modal-container bg-white dark:bg-bg-dark rounded-lg shadow-xl w-full max-w-md"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"modal-header p-6 border-b border-border flex justify-between items-center"[39m
+          [36m>[39m
+            [36m<h3[39m
+              [33mclass[39m=[32m"text-xl font-bold"[39m
+            [36m>[39m
+              [0m完成任务[0m
+            [36m</h3>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"modal-close text-text-muted hover:text-text-primary transition-colors"[39m
+            [36m>[39m
+              [0m✕[0m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"modal-body p-6"[39m
+          [36m>[39m
+            [36m<h4[39m
+              [33mclass[39m=[32m"text-lg font-medium mb-4"[39m
+            [36m>[39m
+              [0mT[0m
+            [36m</h4>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-text-secondary mb-6"[39m
+            [36m>[39m
+              [0mN[0m
+            [36m</p>[39m
+            [36m<form[39m
+              [33mdata-sf-m[39m=[32m"active-task-submit-form"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"mb-6"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"block text-sm font-medium mb-2"[39m
+                  [33mfor[39m=[32m"infoInput"[39m
+                [36m>[39m
+                  [0m提交信息[0m
+                [36m</label>[39m
+                [36m<textarea[39m
+                  [33mclass[39m=[32m"w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"[39m
+                  [33mid[39m=[32m"infoInput"[39m
+                  [33mplaceholder[39m=[32m"请输入任务完成信息"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mrows[39m=[32m"6"[39m
+                [36m>[39m
+                  [0mdeliverable[0m
+                [36m</textarea>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex justify-end space-x-4"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn btn-inactive"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m取消[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"btn btn-proceed"[39m
+                  [33mtype[39m=[32m"submit"[39m
+                [36m>[39m
+                  [0m提交信息[0m
+                [36m</button>[39m
+              [36m</div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"mt-3 text-sm"[39m
+                [33mdata-sf-m[39m=[32m"active-task-submit-status"[39m
+                [33mrole[39m=[32m"status"[39m
+              [36m/>[39m
+            [36m</form>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ src/test/unit/r9-90-participate-surface.test.jsx:216:80
+    214|     fireEvent.change(form.querySelector('textarea'), { target: { value…
+    215|     await act(async () => { fireEvent.submit(form) })
+    216|     await waitFor(() => expect(q('active-task-submit-status').textCont…
+       |                                                                                ^
+    217|   }
+    218| 
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../../../../../../bistro/seafood/frontend/node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../../../../../../bistro/seafood/frontend/node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/wait-for.js:127:77
+ ❯ Timeout.checkRealTimersCallback ../../../../../../../bistro/seafood/frontend/node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/wait-for.js:121:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 5 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+Error: [vitest] No "isUnauthorizedError" export is defined on the "../../auth" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "vi.importActual" inside:
+
+vi.mock("../../auth", async () => {
+  const actual = await vi.importActual("../../auth")
+  return {
+    ...actual,
+    // your mocked methods
+  },
+})
+
+ ❯ VitestMocker.createError ../../../../../../../bistro/seafood/frontend/node_modules/vitest/dist/vendor-execute.07d1a420.js:80:12
+ ❯ Object.get ../../../../../../../bistro/seafood/frontend/node_modules/vitest/dist/vendor-execute.07d1a420.js:153:22
+ ❯ handleSubmit src/components/ActiveTaskModal.jsx:112:11
+    110|       navigate(`${buildLocalizedPath(getLanguageFromUrl(window.locatio…
+    111|     } catch (error) {
+    112|       if (isUnauthorizedError(error)) {
+       |           ^
+    113|         // Token 过期或无效，需要重新登录
+    114|         toast.error(t('sessionExpired'))
+
+This error originated in "src/test/unit/r9-90-participate-surface.test.jsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "reason === ACTOR_NOT_ALLOWED ⇒ 精确文案 jobs.submitNotApplicant（非通用「无权执行该操作」）". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- This was the last recorded test before the error was thrown, if error originated after test finished its execution.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+Error: [vitest] No "isUnauthorizedError" export is defined on the "../../auth" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "vi.importActual" inside:
+
+vi.mock("../../auth", async () => {
+  const actual = await vi.importActual("../../auth")
+  return {
+    ...actual,
+    // your mocked methods
+  },
+})
+
+ ❯ VitestMocker.createError ../../../../../../../bistro/seafood/frontend/node_modules/vitest/dist/vendor-execute.07d1a420.js:80:12
+ ❯ Object.get ../../../../../../../bistro/seafood/frontend/node_modules/vitest/dist/vendor-execute.07d1a420.js:153:22
+ ❯ handleSubmit src/components/ActiveTaskModal.jsx:112:11
+    110|       navigate(`${buildLocalizedPath(getLanguageFromUrl(window.locatio…
+    111|     } catch (error) {
+    112|       if (isUnauthorizedError(error)) {
+       |           ^
+    113|         // Token 过期或无效，需要重新登录
+    114|         toast.error(t('sessionExpired'))
+
+This error originated in "src/test/unit/r9-90-participate-surface.test.jsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "reason === JOB_APPLICATION_STATE_INVALID ⇒ 精确文案 jobs.submitNotSelected". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- This was the last recorded test before the error was thrown, if error originated after test finished its execution.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+Error: [vitest] No "isUnauthorizedError" export is defined on the "../../auth" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "vi.importActual" inside:
+
+vi.mock("../../auth", async () => {
+  const actual = await vi.importActual("../../auth")
+  return {
+    ...actual,
+    // your mocked methods
+  },
+})
+
+ ❯ VitestMocker.createError ../../../../../../../bistro/seafood/frontend/node_modules/vitest/dist/vendor-execute.07d1a420.js:80:12
+ ❯ Object.get ../../../../../../../bistro/seafood/frontend/node_modules/vitest/dist/vendor-execute.07d1a420.js:153:22
+ ❯ handleSubmit src/components/ActiveTaskModal.jsx:112:11
+    110|       navigate(`${buildLocalizedPath(getLanguageFromUrl(window.locatio…
+    111|     } catch (error) {
+    112|       if (isUnauthorizedError(error)) {
+       |           ^
+    113|         // Token 过期或无效，需要重新登录
+    114|         toast.error(t('sessionExpired'))
+
+This error originated in "src/test/unit/r9-90-participate-surface.test.jsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "reason === JOB_STATE_INVALID ⇒ 精确文案 jobs.submitJobStateInvalid". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- This was the last recorded test before the error was thrown, if error originated after test finished its execution.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+Error: [vitest] No "isUnauthorizedError" export is defined on the "../../auth" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "vi.importActual" inside:
+
+vi.mock("../../auth", async () => {
+  const actual = await vi.importActual("../../auth")
+  return {
+    ...actual,
+    // your mocked methods
+  },
+})
+
+ ❯ VitestMocker.createError ../../../../../../../bistro/seafood/frontend/node_modules/vitest/dist/vendor-execute.07d1a420.js:80:12
+ ❯ Object.get ../../../../../../../bistro/seafood/frontend/node_modules/vitest/dist/vendor-execute.07d1a420.js:153:22
+ ❯ handleSubmit src/components/ActiveTaskModal.jsx:112:11
+    110|       navigate(`${buildLocalizedPath(getLanguageFromUrl(window.locatio…
+    111|     } catch (error) {
+    112|       if (isUnauthorizedError(error)) {
+       |           ^
+    113|         // Token 过期或无效，需要重新登录
+    114|         toast.error(t('sessionExpired'))
+
+This error originated in "src/test/unit/r9-90-participate-surface.test.jsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "其它 reason ⇒ 原链路通用文案逐字不变（t(error) + ": " + message）". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- This was the last recorded test before the error was thrown, if error originated after test finished its execution.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+Error: [vitest] No "isUnauthorizedError" export is defined on the "../../auth" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "vi.importActual" inside:
+
+vi.mock("../../auth", async () => {
+  const actual = await vi.importActual("../../auth")
+  return {
+    ...actual,
+    // your mocked methods
+  },
+})
+
+ ❯ VitestMocker.createError ../../../../../../../bistro/seafood/frontend/node_modules/vitest/dist/vendor-execute.07d1a420.js:80:12
+ ❯ Object.get ../../../../../../../bistro/seafood/frontend/node_modules/vitest/dist/vendor-execute.07d1a420.js:153:22
+ ❯ handleSubmit src/components/ActiveTaskModal.jsx:112:11
+    110|       navigate(`${buildLocalizedPath(getLanguageFromUrl(window.locatio…
+    111|     } catch (error) {
+    112|       if (isUnauthorizedError(error)) {
+       |           ^
+    113|         // Token 过期或无效，需要重新登录
+    114|         toast.error(t('sessionExpired'))
+
+This error originated in "src/test/unit/r9-90-participate-surface.test.jsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "拿不到 reason（无 details）⇒ 原链路通用文案逐字不变". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- This was the last recorded test before the error was thrown, if error originated after test finished its execution.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+ Test Files  2 failed (2)
+      Tests  7 failed | 25 passed (32)
+     Errors  5 errors
+   Start at  16:21:32
+   Duration  6.00s (transform 628ms, setup 227ms, collect 904ms, tests 5.29s, environment 488ms, prepare 93ms)
+
