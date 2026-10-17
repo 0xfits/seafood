@@ -1,0 +1,62 @@
+# B32 落地回写 · 纯追加自证读数（2026-10-17T06:18:51Z UTC）
+
+## 1) numstat（删除列必须为 0）
+$ git diff --numstat
+3	0	docs/OPEN-ITEMS.md
+2	0	docs/route-layer.spec.md
+
+$ git diff --numstat | awk '{s+=$2} END {print "deletions_total="s+0}'
+deletions_total=0
+
+## 2) 旧字面仍在（逐字保留）
+$ grep -c "本单只登记 · 不实现" docs/OPEN-ITEMS.md
+3
+$ grep -c "前置未定 ⇒ 不动工" docs/OPEN-ITEMS.md
+3
+$ grep -c "^| \*\*B32\*\* |" docs/OPEN-ITEMS.md
+1
+$ grep -n "^| \*\*B32" docs/OPEN-ITEMS.md | cut -c1-40
+74:| **B32** | **对账告警：Telegram 推送 + hear
+75:| **B32 ✅（D+A · 2026-10-17 已落地）** | *
+
+## 3) 未新开节 / 未改节号
+$ grep -c "^## §46 " docs/route-layer.spec.md
+1
+$ grep -c "^### 46\." docs/route-layer.spec.md
+8
+$ grep -n "^### 46\." docs/route-layer.spec.md
+8652:### 46.0 性质、范围与被登记面（现取）
+8664:### 46.1 契约：鉴权 · 方法 · 回执（**逐项写死**）
+8698:### 46.2 判定口径（**写死 · 下轮不得误改**）
+8723:### 46.3 `vercel.json` cron 条目（**2 条**）与 Hobby 精度约束
+8747:### 46.4 漂移时 **HTTP 仍 `200`** · 告警面 v1 · 残余风险（**`D1` 待裁**）
+8759:### 46.5 注册点与离线门（**106 → 107**）
+8767:### 46.6 判负（**任一条命中即判红**）
+8784:### 46.7 自证（改后现取）
+
+## 4) 契约面读数（承前，非本单改动）
+$ grep -cE "^app\.(get|post|put|delete|patch)\(" backend-ts/src/index.ts
+107
+$ grep -n "regs === 107" backend-ts/scripts/p7b-03-offline-gates.ts | cut -c1-60
+150:  ck.t('AC10-2', '注册点 = 107（自 S10 冻结面 68 前推 +21 · A5 收口 
+
+## 5) 参数建议值不在代码里（故文档写「check 侧配置」）
+$ grep -cE "24h|grace|threshold" backend-ts/src/ops-alert.ts
+0
+$ grep -nE "RECON_HEARTBEAT_URL" backend-ts/src/index.ts | cut -c1-80
+3215://   A（外部）= **只有成功跑完才** ping `RECON_HEARTBEAT_URL`；漂移/异常 ping `/fail`；
+3260:      await runAlertSafely('heartbeat', () => pingHeartbeat(process.env.REC
+3263:      await runAlertSafely('heartbeat', () => pingHeartbeat(process.env.REC
+
+## 6) 群组 chat_id 判据（现取源码行）
+$ sed -n "163,166p" backend-ts/src/ops-alert.ts
+    const chatId = Number(row.tg_user_id);
+    if (!Number.isSafeInteger(chatId) || chatId <= 0) {
+      return { sent: false, reason: 'tg_user_id not a valid numeric chat id' };
+    }
+
+## 7) 本单 commit 面（代码零改动）
+$ git status --porcelain
+ M docs/OPEN-ITEMS.md
+ M docs/route-layer.spec.md
+?? ops/b32-closeout/
