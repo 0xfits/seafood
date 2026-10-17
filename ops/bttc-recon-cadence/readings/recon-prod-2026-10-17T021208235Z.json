@@ -1,0 +1,307 @@
+{
+  "identity": {
+    "project_id": "sweet-pond-28934105",
+    "branch_id": "br-delicate-fire-b3m3upi5",
+    "db": "neondb"
+  },
+  "counts": {
+    "currency": 1,
+    "ledger_entry": 271,
+    "account": 25,
+    "batt_account": 19,
+    "batt_entry": 24,
+    "app_config": 1
+  },
+  "schema_top": [
+    {
+      "version": "0048",
+      "name": "0048_telegram_bind_request.sql"
+    },
+    {
+      "version": "0047",
+      "name": "0047_listing_favorite.sql"
+    }
+  ],
+  "supply_recon": [
+    {
+      "cid": "1",
+      "symbol": "$",
+      "total_supply": "2010200",
+      "sum_mint": "210274",
+      "sum_burn": "-200074",
+      "ledger_derived": "10200",
+      "diff": "2000000"
+    }
+  ],
+  "account_drift": [],
+  "batt_drift": [],
+  "event_pairing": [
+    {
+      "ref_type": "currency",
+      "ref_id": "10",
+      "net": "1500",
+      "legs": 2
+    },
+    {
+      "ref_type": "currency",
+      "ref_id": "15",
+      "net": "100",
+      "legs": 1
+    },
+    {
+      "ref_type": "currency",
+      "ref_id": "16",
+      "net": "5000",
+      "legs": 3
+    },
+    {
+      "ref_type": "currency",
+      "ref_id": "21",
+      "net": "3000",
+      "legs": 3
+    },
+    {
+      "ref_type": "currency",
+      "ref_id": "22",
+      "net": "1000",
+      "legs": 1
+    },
+    {
+      "ref_type": "currency",
+      "ref_id": "27",
+      "net": "1000",
+      "legs": 1
+    },
+    {
+      "ref_type": "currency",
+      "ref_id": "28",
+      "net": "9999",
+      "legs": 1
+    },
+    {
+      "ref_type": "currency",
+      "ref_id": "29",
+      "net": "3000",
+      "legs": 3
+    },
+    {
+      "ref_type": "currency",
+      "ref_id": "31",
+      "net": "70000",
+      "legs": 3
+    },
+    {
+      "ref_type": "currency",
+      "ref_id": "32",
+      "net": "70000",
+      "legs": 3
+    },
+    {
+      "ref_type": "currency",
+      "ref_id": "4",
+      "net": "1500",
+      "legs": 2
+    },
+    {
+      "ref_type": "currency",
+      "ref_id": "9",
+      "net": "100",
+      "legs": 1
+    },
+    {
+      "ref_type": "job",
+      "ref_id": "16",
+      "net": "5",
+      "legs": 1
+    },
+    {
+      "ref_type": "job",
+      "ref_id": "19",
+      "net": "100000",
+      "legs": 4
+    },
+    {
+      "ref_type": "job",
+      "ref_id": "2",
+      "net": "137",
+      "legs": 2
+    },
+    {
+      "ref_type": "job",
+      "ref_id": "214",
+      "net": "1100",
+      "legs": 3
+    },
+    {
+      "ref_type": "job",
+      "ref_id": "216",
+      "net": "1100",
+      "legs": 3
+    },
+    {
+      "ref_type": "job",
+      "ref_id": "218",
+      "net": "1000",
+      "legs": 2
+    },
+    {
+      "ref_type": "job",
+      "ref_id": "3",
+      "net": "3",
+      "legs": 1
+    },
+    {
+      "ref_type": "market_trade",
+      "ref_id": "1",
+      "net": "-3000",
+      "legs": 3
+    },
+    {
+      "ref_type": "market_trade",
+      "ref_id": "2",
+      "net": "-990",
+      "legs": 2
+    },
+    {
+      "ref_type": "market_trade",
+      "ref_id": "3",
+      "net": "-100",
+      "legs": 3
+    },
+    {
+      "ref_type": "market_trade",
+      "ref_id": "4",
+      "net": "-1000",
+      "legs": 3
+    },
+    {
+      "ref_type": "market_trade",
+      "ref_id": "5",
+      "net": "-100",
+      "legs": 3
+    },
+    {
+      "ref_type": "market_trade",
+      "ref_id": "6",
+      "net": "-100",
+      "legs": 3
+    },
+    {
+      "ref_type": "market_trade",
+      "ref_id": "7",
+      "net": "-1000",
+      "legs": 3
+    },
+    {
+      "ref_type": "market_trade",
+      "ref_id": "8",
+      "net": "-100",
+      "legs": 3
+    },
+    {
+      "ref_type": null,
+      "ref_id": null,
+      "net": "105543",
+      "legs": 25
+    }
+  ],
+  "kinds": [
+    {
+      "kind": "job_escrow",
+      "n": 56,
+      "sum_delta": "-17086"
+    },
+    {
+      "kind": "job_payout",
+      "n": 40,
+      "sum_delta": "108558"
+    },
+    {
+      "kind": "job_fee",
+      "n": 38,
+      "sum_delta": "2022"
+    },
+    {
+      "kind": "hold",
+      "n": 22,
+      "sum_delta": "-13773"
+    },
+    {
+      "kind": "currency_create_fee",
+      "n": 19,
+      "sum_delta": "62199"
+    },
+    {
+      "kind": "transfer",
+      "n": 16,
+      "sum_delta": "105540"
+    },
+    {
+      "kind": "trade_fee",
+      "n": 15,
+      "sum_delta": "10"
+    },
+    {
+      "kind": "job_escrow_refund",
+      "n": 12,
+      "sum_delta": "3300"
+    },
+    {
+      "kind": "listing_deposit",
+      "n": 8,
+      "sum_delta": "104003"
+    },
+    {
+      "kind": "trade",
+      "n": 8,
+      "sum_delta": "0"
+    },
+    {
+      "kind": "checkin_makeup_fee",
+      "n": 6,
+      "sum_delta": "0"
+    },
+    {
+      "kind": "purchase",
+      "n": 5,
+      "sum_delta": "-329"
+    },
+    {
+      "kind": "mint",
+      "n": 5,
+      "sum_delta": "210274"
+    },
+    {
+      "kind": "commission",
+      "n": 4,
+      "sum_delta": "0"
+    },
+    {
+      "kind": "purchase_refund",
+      "n": 4,
+      "sum_delta": "9"
+    },
+    {
+      "kind": "burn",
+      "n": 4,
+      "sum_delta": "-200074"
+    },
+    {
+      "kind": "hold_release",
+      "n": 4,
+      "sum_delta": "1003"
+    },
+    {
+      "kind": "sale",
+      "n": 3,
+      "sum_delta": "320"
+    },
+    {
+      "kind": "invite_first_task_reward",
+      "n": 2,
+      "sum_delta": "0"
+    }
+  ],
+  "bttc_row": [],
+  "policy": []
+}

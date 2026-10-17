@@ -1,0 +1,78 @@
+{
+  "global": [
+    {
+      "acct_total": "378897",
+      "ledger_total": "378897",
+      "sum_mint": "210274",
+      "sum_burn": "-200074",
+      "non_mb_net": "368697"
+    }
+  ],
+  "one_sided": [
+    {
+      "kind": "listing_deposit",
+      "n": 3,
+      "net": "3"
+    },
+    {
+      "kind": "transfer",
+      "n": 16,
+      "net": "105540"
+    },
+    {
+      "kind": "checkin_makeup_fee",
+      "n": 6,
+      "net": "0"
+    }
+  ],
+  "acct_by_uid": [
+    {
+      "uid": "37",
+      "cid": "1",
+      "balance": "990",
+      "frozen": "0"
+    },
+    {
+      "uid": "41",
+      "cid": "1",
+      "balance": "990",
+      "frozen": "0"
+    },
+    {
+      "uid": "39",
+      "cid": "1",
+      "balance": "990",
+      "frozen": "0"
+    },
+    {
+      "uid": "35",
+      "cid": "1",
+      "balance": "990",
+      "frozen": "0"
+    },
+    {
+      "uid": "6",
+      "cid": "1",
+      "balance": "930",
+      "frozen": "0"
+    },
+    {
+      "uid": "2",
+      "cid": "1",
+      "balance": "7400",
+      "frozen": "0"
+    },
+    {
+      "uid": "5",
+      "cid": "1",
+      "balance": "6",
+      "frozen": "0"
+    },
+    {
+      "uid": "7",
+      "cid": "1",
+      "balance": "5100",
+      "frozen": "0"
+    }
+  ]
+}

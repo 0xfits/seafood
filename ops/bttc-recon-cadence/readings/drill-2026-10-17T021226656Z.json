@@ -1,0 +1,408 @@
+{
+  "sample_market_trade": [
+    {
+      "txid": "146",
+      "uid": "12",
+      "kind": "trade",
+      "delta": "0",
+      "frozen_delta": "-1000",
+      "ref_type": "market_trade",
+      "ref_id": "4"
+    },
+    {
+      "txid": "150",
+      "uid": "12",
+      "kind": "trade_fee",
+      "delta": "-10",
+      "frozen_delta": "0",
+      "ref_type": "market_trade",
+      "ref_id": "4"
+    },
+    {
+      "txid": "151",
+      "uid": "-1",
+      "kind": "trade_fee",
+      "delta": "10",
+      "frozen_delta": "0",
+      "ref_type": "market_trade",
+      "ref_id": "4"
+    }
+  ],
+  "sample_transfer_nullref": [
+    {
+      "txid": "2390",
+      "uid": "34",
+      "kind": "transfer",
+      "delta": "1400",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "ops:p3j:20261004T014036:fund:34:970001#2"
+    },
+    {
+      "txid": "2410",
+      "uid": "36",
+      "kind": "transfer",
+      "delta": "1400",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "ops:p3j:20261004T014118:fund:36:970001#2"
+    },
+    {
+      "txid": "2430",
+      "uid": "38",
+      "kind": "transfer",
+      "delta": "1400",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "ops:p3j:S17B20261004T094556:fund:38:970001#2"
+    },
+    {
+      "txid": "2452",
+      "uid": "40",
+      "kind": "transfer",
+      "delta": "1400",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "ops:p3j:S17BHEAD20261004T094635:fund:40:970001#2"
+    },
+    {
+      "txid": "2650",
+      "uid": "2",
+      "kind": "checkin_makeup_fee",
+      "delta": "-100",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "biz:checkin:makeup:2:2026-10-06"
+    },
+    {
+      "txid": "2651",
+      "uid": "-1",
+      "kind": "checkin_makeup_fee",
+      "delta": "100",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "biz:checkin:makeup:2:2026-10-06#2"
+    },
+    {
+      "txid": "29",
+      "uid": "-1",
+      "kind": "listing_deposit",
+      "delta": "1",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "cli:p4b3afix2:b3afix2-20260930T014937:pos:listing_deposit_cross_account#2"
+    },
+    {
+      "txid": "31",
+      "uid": "-1",
+      "kind": "listing_deposit",
+      "delta": "1",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "cli:p4b3afix2:b3afix2-20260930T014937:pos:idem_repost#2"
+    },
+    {
+      "txid": "335",
+      "uid": "6",
+      "kind": "transfer",
+      "delta": "-10",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "ops:p7b:fund:collect1:900001"
+    },
+    {
+      "txid": "337",
+      "uid": "6",
+      "kind": "transfer",
+      "delta": "-10",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "ops:p7b:fund:collect1:900003"
+    },
+    {
+      "txid": "339",
+      "uid": "6",
+      "kind": "transfer",
+      "delta": "-10",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "ops:p7b:fund:collect1:900008"
+    },
+    {
+      "txid": "347",
+      "uid": "6",
+      "kind": "transfer",
+      "delta": "-10",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "ops:qa7b:fund:fix1:910001"
+    },
+    {
+      "txid": "349",
+      "uid": "6",
+      "kind": "transfer",
+      "delta": "-10",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "ops:qa7b:fund:fix1:910003"
+    },
+    {
+      "txid": "351",
+      "uid": "6",
+      "kind": "transfer",
+      "delta": "-10",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "ops:qa7b:fund:fix1:910008"
+    },
+    {
+      "txid": "37",
+      "uid": "-1",
+      "kind": "listing_deposit",
+      "delta": "1",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "cli:p4b3afix2:b3afix2-20260930T014937:pos:listing_deposit_sigma_probe#2"
+    },
+    {
+      "txid": "51",
+      "uid": "2",
+      "kind": "transfer",
+      "delta": "8000",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "ops:p3j:20260929182032:fund:2:970001#2"
+    },
+    {
+      "txid": "73",
+      "uid": "2",
+      "kind": "transfer",
+      "delta": "2000",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "ops:p3j:20260929182156:fund:2:970001#2"
+    },
+    {
+      "txid": "733",
+      "uid": "12",
+      "kind": "checkin_makeup_fee",
+      "delta": "-100",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "biz:checkin:makeup:12:2026-10-02"
+    },
+    {
+      "txid": "734",
+      "uid": "-1",
+      "kind": "checkin_makeup_fee",
+      "delta": "100",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "biz:checkin:makeup:12:2026-10-02#2"
+    },
+    {
+      "txid": "735",
+      "uid": "2",
+      "kind": "checkin_makeup_fee",
+      "delta": "-100",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "biz:checkin:makeup:2:2026-10-02"
+    },
+    {
+      "txid": "736",
+      "uid": "-1",
+      "kind": "checkin_makeup_fee",
+      "delta": "100",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "biz:checkin:makeup:2:2026-10-02#2"
+    },
+    {
+      "txid": "85",
+      "uid": "7",
+      "kind": "transfer",
+      "delta": "5000",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "ops:p3j:20260929183446:fund:7:970001#2"
+    },
+    {
+      "txid": "87",
+      "uid": "8",
+      "kind": "transfer",
+      "delta": "5000",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "ops:p3j:20260929183446:fund:8:970001#2"
+    },
+    {
+      "txid": "95",
+      "uid": "11",
+      "kind": "transfer",
+      "delta": "40000",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "ops:p3j:b3e-20260930T024237:fund:11:970001#2"
+    },
+    {
+      "txid": "97",
+      "uid": "12",
+      "kind": "transfer",
+      "delta": "40000",
+      "frozen_delta": "0",
+      "ref_type": null,
+      "ref_id": null,
+      "idempotency_key": "ops:p3j:b3e-20260930T024237:fund:12:970001#2"
+    }
+  ],
+  "transfer_rows": [
+    {
+      "ref_type": null,
+      "ref_id": null,
+      "n": 16,
+      "net": "105540"
+    }
+  ],
+  "kind_has_ref": [
+    {
+      "kind": "burn",
+      "n": 4,
+      "null_ref": 0
+    },
+    {
+      "kind": "checkin_makeup_fee",
+      "n": 6,
+      "null_ref": 6
+    },
+    {
+      "kind": "commission",
+      "n": 4,
+      "null_ref": 0
+    },
+    {
+      "kind": "currency_create_fee",
+      "n": 19,
+      "null_ref": 0
+    },
+    {
+      "kind": "hold",
+      "n": 22,
+      "null_ref": 0
+    },
+    {
+      "kind": "hold_release",
+      "n": 4,
+      "null_ref": 0
+    },
+    {
+      "kind": "invite_first_task_reward",
+      "n": 2,
+      "null_ref": 0
+    },
+    {
+      "kind": "job_escrow",
+      "n": 56,
+      "null_ref": 0
+    },
+    {
+      "kind": "job_escrow_refund",
+      "n": 12,
+      "null_ref": 0
+    },
+    {
+      "kind": "job_fee",
+      "n": 38,
+      "null_ref": 0
+    },
+    {
+      "kind": "job_payout",
+      "n": 40,
+      "null_ref": 0
+    },
+    {
+      "kind": "listing_deposit",
+      "n": 8,
+      "null_ref": 3
+    },
+    {
+      "kind": "mint",
+      "n": 5,
+      "null_ref": 0
+    },
+    {
+      "kind": "purchase",
+      "n": 5,
+      "null_ref": 0
+    },
+    {
+      "kind": "purchase_refund",
+      "n": 4,
+      "null_ref": 0
+    },
+    {
+      "kind": "sale",
+      "n": 3,
+      "null_ref": 0
+    },
+    {
+      "kind": "trade",
+      "n": 8,
+      "null_ref": 0
+    },
+    {
+      "kind": "trade_fee",
+      "n": 15,
+      "null_ref": 0
+    },
+    {
+      "kind": "transfer",
+      "n": 16,
+      "null_ref": 16
+    }
+  ],
+  "platform_uid": [
+    {
+      "uid": "-1",
+      "cid": "1",
+      "balance": "168568",
+      "frozen": "0"
+    },
+    {
+      "uid": "-2",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    },
+    {
+      "uid": "-3",
+      "cid": "1",
+      "balance": "0",
+      "frozen": "0"
+    }
+  ]
+}
