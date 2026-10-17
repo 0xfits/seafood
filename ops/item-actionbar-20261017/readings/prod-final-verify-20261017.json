@@ -1,0 +1,58 @@
+{
+ "at": "2026-10-17T08:56Z",
+ "commit": "892fe02",
+ "same_version": {
+  "js": "index-DSKdz5I6.js",
+  "js_sha256": "199db93d41c0326404951292226071c496eee863a8c7352f08621334cb3e872c",
+  "css": "index-DnoMyxQu.css",
+  "css_sha256": "5eb062edac683032e6470d2faeec9cd3ea6071feb8765b66b16f5e8645d040cb",
+  "match": "online==local byte-identical"
+ },
+ "health": {
+  "schema_version": "0049"
+ },
+ "auth_renewal_prod": {
+  "token_keys": [
+   "evm",
+   "exp",
+   "iat",
+   "sst",
+   "sub"
+  ],
+  "idle_seconds": 259200,
+  "absolute_headroom": 259200,
+  "new_token_request_header_present": false,
+  "note": "iat=now ⇒ 未满 1h 粒度，预期不续期"
+ },
+ "unauthorized_shape": {
+  "no_token": 401,
+  "bad_token": 401
+ },
+ "browser_probe": {
+  "home_root_len": 34827,
+  "item_root_len": 16999,
+  "pageErrors": 0,
+  "windowErrors": 0,
+  "item_1440": {
+   "group": 1019,
+   "chat": 510,
+   "buy": 510,
+   "fav": 316,
+   "seam": 0,
+   "group_share": 72.79,
+   "chat_share": 50.05,
+   "fav_share": 22.57
+  },
+  "item_390": {
+   "group": 266,
+   "chat": 133,
+   "buy": 133,
+   "fav": 83,
+   "seam": 0
+  }
+ },
+ "known_gap": {
+  "frontend_reads_x_session_token": false,
+  "status": "已派单补接线（Kong），需再次 push 方可闭环"
+ }
+}

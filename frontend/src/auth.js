@@ -223,11 +223,14 @@ export const mergeAuthSession = (patch) => {
 }
 
 /**
- * ★ 单一具名导出 ·「把新 token 写回存储」的**唯一入口**（本轮只暴露、**不接线**）。
+ * ★ 单一具名导出 ·「把新 token 写回存储」的**唯一入口**（滑动续期也只走这里）。
  *
  * 签名：`replaceAuthToken(newToken: string) => user | null`
- *   · `newToken` 空 / 非字符串 ⇒ **不动存储**，返回 `null`；
+ *   · `newToken` 空 / 非字符串 / 全空白 ⇒ **不动存储**，返回 `null`；
  *   · 存储里没有 user 快照（未登录 / 已被清）⇒ **不动存储**，返回 `null`（绝不凭空造一个会话）；
+ *   · **竞态保护**（多标签 / 并发续期）：`新 exp <= 现有 exp` ⇒ **不覆盖**、返回 `null`
+ *     —— 否则晚到的「更早过期」响应会把晚到但更晚过期的 token 压回旧值；
+ *     任一侧 `exp` 解不出（非 JWT / 无 `exp`）⇒ **新 token 优先写入**（后端只在验签通过后下发）；
  *   · 否则 ⇒ 读现有快照 → 同写 `token` / `access_token` 两键 → 同步 `LEGACY_TOKEN_KEY`
  *     → 派发 `AUTH_CHANGE_EVENT`（Header / 菜单立刻吃到新 token）→ 返回最新 user 快照。
  *
@@ -235,9 +238,8 @@ export const mergeAuthSession = (patch) => {
  *   已过期，而 `getStoredUser()` 会把过期会话清掉 ⇒ 续期永远拿不到快照、写不进去。
  *   本函数只负责「写」，**过期判据不在这里**（判据仍在 `isTokenExpired` / `getStoredUser`）。
  *
- * ★ 下一单（滑动续期）将复用此入口：续期逻辑从响应里取到新 token 后**只调这一个函数**，
+ * ★ 调用方 = `fetchApiJson` 的成功分支（响应头 `X-Session-Token`）。续期**只调这一个函数**，
  *   不得再自拼 `localStorage.setItem` / `saveAuthSession`（否则又出现第二套写入路径）。
- *   本单**不**在 fetch 响应里读任何 header、**不**改后端（派单硬约束）。
  */
 export const replaceAuthToken = (newToken) => {
   const token = typeof newToken === 'string' ? newToken.trim() : ''
@@ -245,6 +247,12 @@ export const replaceAuthToken = (newToken) => {
 
   const current = readRawStoredUser()
   if (!current) return null
+
+  // ★ 竞态保护：只用「更晚过期」的 token 覆盖现有值。任一侧解不出 `exp` ⇒ 以新 token 优先
+  //   （后端只在验签通过后才下发续期票；而旧值可能是非 JWT 形态的存量会话）。
+  const currentExp = jwtExpirySeconds(current.token || current.access_token || '')
+  const nextExp = jwtExpirySeconds(token)
+  if (currentExp !== null && nextExp !== null && nextExp <= currentExp) return null
 
   const next = normalizeAuthUser({ ...current, token, access_token: token })
   localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(next))
@@ -602,6 +610,22 @@ export const fetchApiJson = async (url, options = {}) => {
       expireAuthSession()
     }
     throw failure
+  }
+
+  // ★ 滑动续期接线（S1 续 · 2026-10-17）：后端在「鉴权成功 ∧ 距 `iat` ≥ 1h ∧ 未到绝对上限」时，
+  //   会在**任何**鉴权成功的响应上带 `X-Session-Token`（CORS 侧已 `exposedHeaders`）。
+  //   读取点**只放这里**（成功分支：`response.ok ∧ payload.success`）——
+  //   401 / 403 / 503 分支**不读**该头（那三条路径的语义是清会话或不动会话，与续期无关）。
+  //   行为护栏：① 头缺失 / 非字符串 / 全空白 ⇒ 不写、不抛（`headers` 缺失也安全）；
+  //             ② 「更早过期不覆盖」的竞态保护在 `replaceAuthToken` 内部（多标签并发共用一处判据）；
+  //             ③ 续期属**加法**：任何异常都不得改变本次成功响应的返回值 / 抛错形态。
+  try {
+    const renewed = response.headers?.get?.('x-session-token')
+    if (typeof renewed === 'string' && renewed.trim()) {
+      replaceAuthToken(renewed)
+    }
+  } catch (error) {
+    console.warn('Failed to apply renewed session token:', error)
   }
 
   return payload.data

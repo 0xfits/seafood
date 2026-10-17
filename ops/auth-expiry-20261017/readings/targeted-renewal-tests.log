@@ -1,0 +1,11 @@
+
+ RUN  v0.34.6 /Users/kevin/bistro/seafood/frontend
+
+ ✓ src/test/unit/s1-session-renewal.test.js  (10 tests) 76ms
+ ✓ src/test/unit/s1-session-expiry.test.js  (17 tests) 84ms
+
+ Test Files  2 passed (2)
+      Tests  27 passed (27)
+   Start at  16:57:42
+   Duration  833ms (transform 118ms, setup 329ms, collect 81ms, tests 160ms, environment 695ms, prepare 118ms)
+

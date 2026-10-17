@@ -1,0 +1,9 @@
+# C · 产物自证（构建后产物里真的带上了「读 X-Session-Token」的那段码）
+asset            = frontend/dist/assets/index-Dn7dGQcz.js
+sha256           = 8923a20dd894973d3e7dbe1c4380ab105dc8645af086b1895354994d77959389
+grep -c -i 'x-session-token' = 1   (判据 ≥1)
+grep -c -i in css            = 0       (该逻辑只在 JS 里，CSS 0 属预期)
+control (vendor-react-*.js)  = 0       (负控：别的 chunk 不带该串 ⇒ 匹配不是全仓假命中)
+
+--- 命中上下文（压缩后形态：读头 + trim 闸 + 写入调用 + catch 护栏）---
+ll?void 0:i.get)==null?void 0:o.call(i,"x-session-token");typeof l=="string"&&l.trim()&&Qn(l)}catch(l){console.warn("Failed to apply renewed session token:

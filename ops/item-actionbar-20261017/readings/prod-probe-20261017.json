@@ -1,0 +1,157 @@
+{
+ "home": {
+  "http": 200,
+  "rootLen": 34827,
+  "rootChildren": 2,
+  "hooks": {
+   "bar": false,
+   "chat": false,
+   "buy": false,
+   "fav": false,
+   "group": false
+  },
+  "box": {
+   "bar": null,
+   "group": null,
+   "chat": null,
+   "buy": null,
+   "fav": null
+  },
+  "style": {
+   "chat": null,
+   "buy": null,
+   "fav": null
+  },
+  "seam": null,
+  "errs": [],
+  "pageErrors": []
+ },
+ "item": {
+  "http": 200,
+  "rootLen": 16999,
+  "rootChildren": 2,
+  "hooks": {
+   "bar": true,
+   "chat": true,
+   "buy": true,
+   "fav": true,
+   "group": true
+  },
+  "box": {
+   "bar": {
+    "x": 20,
+    "y": 618,
+    "w": 1400,
+    "h": 88
+   },
+   "group": {
+    "x": 20,
+    "y": 627,
+    "w": 1019,
+    "h": 44
+   },
+   "chat": {
+    "x": 20,
+    "y": 627,
+    "w": 510,
+    "h": 44
+   },
+   "buy": {
+    "x": 530,
+    "y": 627,
+    "w": 510,
+    "h": 44
+   },
+   "fav": {
+    "x": 1104,
+    "y": 627,
+    "w": 316,
+    "h": 44
+   }
+  },
+  "style": {
+   "chat": {
+    "bg": "rgb(255, 230, 15)",
+    "color": "rgb(32, 32, 32)",
+    "radius": "0px"
+   },
+   "buy": {
+    "bg": "rgb(32, 32, 32)",
+    "color": "rgb(255, 255, 255)",
+    "radius": "0px"
+   },
+   "fav": {
+    "bg": "rgb(255, 255, 255)",
+    "color": "rgb(32, 32, 32)",
+    "radius": "999px"
+   }
+  },
+  "seam": 0,
+  "errs": [],
+  "pageErrors": []
+ },
+ "item390": {
+  "http": 200,
+  "rootLen": 16999,
+  "rootChildren": 2,
+  "hooks": {
+   "bar": true,
+   "chat": true,
+   "buy": true,
+   "fav": true,
+   "group": true
+  },
+  "box": {
+   "bar": {
+    "x": 0,
+    "y": 756,
+    "w": 390,
+    "h": 88
+   },
+   "group": {
+    "x": 12,
+    "y": 765,
+    "w": 266,
+    "h": 44
+   },
+   "chat": {
+    "x": 12,
+    "y": 765,
+    "w": 133,
+    "h": 44
+   },
+   "buy": {
+    "x": 145,
+    "y": 765,
+    "w": 133,
+    "h": 44
+   },
+   "fav": {
+    "x": 295,
+    "y": 765,
+    "w": 83,
+    "h": 44
+   }
+  },
+  "style": {
+   "chat": {
+    "bg": "rgb(255, 230, 15)",
+    "color": "rgb(32, 32, 32)",
+    "radius": "0px"
+   },
+   "buy": {
+    "bg": "rgb(32, 32, 32)",
+    "color": "rgb(255, 255, 255)",
+    "radius": "0px"
+   },
+   "fav": {
+    "bg": "rgb(255, 255, 255)",
+    "color": "rgb(32, 32, 32)",
+    "radius": "999px"
+   }
+  },
+  "seam": 0,
+  "errs": [],
+  "pageErrors": []
+ }
+}
