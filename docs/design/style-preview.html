@@ -1101,3 +1101,72 @@ body.view-mobile .frame.pc{display:none}
   </div>
   <p style="margin:10px 0 0">落点（口径见 <code>docs/design/design-system.spec.md</code> §22）：<code>.sf-shell</code> 继续挂 <code>var(--sf-page-bg)</code>；<code>.sf-route-container</code> 挂 <code>var(--sf-surface-bg)</code>；<code>frontend/src/pages/item/item.css</code> 的 <code>.sf-item-actionbar</code> 由 <code>var(--sf-page-bg)</code> 改挂 <code>var(--sf-surface-bg)</code>（否则页底转灰后它会在白容器内变成一条灰带）。</p>
 </section>
+
+<!-- ============================================================================
+     [ITEM-ACTIONBAR] v1.22 · `/item/:id` 底部操作栏「goofish 形态」· 追加区块（仅追加）
+     ─ 追加式扩展：本区块位于文件末尾，上方既有 1–1103 行**未改动任何字节**。
+     ─ 单号：JING-SPEC-ITEM-ACTIONBAR-DS（Jing · 真源 / 规范）｜追加日期：2026-10-17（CST）
+     ─ 依据：Kevin 2026-10-17 裁定「详情页底部操作栏改成闲鱼形态」；本单**只冻设计真源**
+             （token 值 + 形态口径），UI 实现归下一单。
+     ─ 参考图【实测】落盘真身：ops/item-actionbar-20261017/ref/goofish-ref.png
+             （1128×170 · sha256 308e2b62c45a2b3c3868d4783a93b19e2308523bb2cc5cece5b8bec4265485cd）
+     ─ 本区块承载 v1.22 新增 token 的**真源原文片段**，供
+       frontend/src/test/unit/theme-tokens.test.js 逐键回读（PROV[key] = { d:[行号, 片段], n:[...] }）。
+     ─ 承载值清单（**本轮唯一新增 2 键**）：
+                   ① `--sf-cta-solid-bg`（新键）日档 `#202020` / 夜档 `#EDEFF2`（夜档反相：亮底）
+                   ② `--sf-cta-solid-fg`（新键）日档 `#FFFFFF` / 夜档 `#0A0A0A`（夜档反相：深字）
+       其余元素**一律复用既有 token、零新增**：聊一聊 = `--sf-btna-bg` / `--sf-btna-fg`；
+       收藏 = `--sf-btnalt-bg` / `--sf-btnalt-fg` / `--sf-btnalt-border`（夜档自带反相）。
+     ─ 形态与几何口径（三段结构 / 58:42 占比 / 留白 / 圆角）＝ 版式口径、**不进主题层**，
+       逐条登记于 `docs/design/design-system.spec.md` 的 `T120`（§24）。
+    ============================================================================ -->
+<section id="item-actionbar-ref-v122" data-ref="variant-A-actionbar" data-src="goofish-item-actionbar" data-src-path="ops/item-actionbar-20261017/ref/goofish-ref.png" data-src-sha256="308e2b62c45a2b3c3868d4783a93b19e2308523bb2cc5cece5b8bec4265485cd" data-src-size="1128x170" data-added-at="2026-10-17" style="box-sizing:border-box;max-width:100%;margin:0;padding:14px 16px 18px;font:12px/1.7 -apple-system,'PingFang SC','Microsoft YaHei',sans-serif;color:#202020;background:#FFFFFF;border-top:2px solid #202020">
+  <h3 style="margin:0 0 8px;font-size:14px">变体 A″ · `/item/:id` 底部操作栏 goofish 形态（v1.22 · 组合条 2 段 + 独立收藏）· 追加区块（仅追加，不改既有区块与色值）</h3>
+  <p style="margin:0 0 4px">口径来源【实测】：参考图 <code>ops/item-actionbar-20261017/ref/goofish-ref.png</code>（1128×170 · sha256 <code>308e2b62c45a2b3c3868d4783a93b19e2308523bb2cc5cece5b8bec4265485cd</code>）｜日期：<b>2026-10-17</b>（CST）</p>
+  <p style="margin:0 0 10px">参考图形态【实测】：<b>三段结构</b> = 左「聊一聊」（黄底 + 聊天气泡图标）与「立即购买」（墨底反相字）拼成<b>一个胶囊条</b>；中缝为直角；胶囊条右端与「收藏」胶囊之间<b>留白</b>；「收藏」为<b>独立胶囊</b>（浅底 + 星形图标）。<b>两档几何逐值相等</b>（颜色以外不进主题层）。</p>
+  <style>
+/* [ITEM-ACTIONBAR] v1.22 · T120 —— 本轮唯一新增的 2 个颜色 token（真源行，PROV 回读对象） */
+/* 日档 · `--sf-cta-solid-bg` = #202020（深灰底；与站点既有 ink 家族 `--sf-btna-fg` 同值，不引入第二套墨色） */
+.vstage-a .cta-solid{background:#202020;color:#FFFFFF}
+/* 日档 · `--sf-cta-solid-fg` = #FFFFFF（墨底上的反相白字） —— 与上一行同属「立即购买」段 */
+/* 夜档 · 反相：夜档深页上深底会消失 ⇒ 换成亮底深字（值为 `--sf-title-fg` 夜档同源 #EDEFF2） */
+.vstage-b .cta-solid{background:#EDEFF2;color:#0A0A0A}
+/* 夜档 · `--sf-cta-solid-fg` = #0A0A0A（亮底上的深字） —— 与上一行同属「立即购买」段 */
+/* 零新增留痕：聊一聊 = 既有 `--sf-btna-bg`(#FFE60F) / `--sf-btna-fg`(#202020)，两档同值（真源 954 / 958 行，未改动）；
+   收藏 = 既有 `--sf-btnalt-bg` / `--sf-btnalt-fg` / `--sf-btnalt-border`（真源 956 / 960 行，未改动，夜档自带反相） */
+  </style>
+  <div style="display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;margin:10px 0 0">
+    <div>
+      <div style="font-size:11px;margin-bottom:6px">日档 · 操作栏三段结构示意（组合条 2 段 + 留白 + 独立收藏 · 仅形态、非实现）</div>
+      <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;padding:8px;border:1px solid #E0E0E0">
+        <div style="display:flex;width:300px;height:34px;border-radius:999px;overflow:hidden">
+          <div style="flex:0 0 58%;display:flex;align-items:center;justify-content:center;background:#FFE60F;color:#202020;font-weight:700">聊一聊</div>
+          <div style="flex:0 0 42%;display:flex;align-items:center;justify-content:center;background:#202020;color:#FFFFFF;font-weight:700">立即购买</div>
+        </div>
+        <div style="width:76px;height:34px;border-radius:999px;border:1px solid #E0E0E0;background:#FFFFFF;color:#202020;display:flex;align-items:center;justify-content:center">收藏</div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;margin-bottom:6px">夜档 · 同几何、仅颜色反相（组合条深底 + 立即购买亮底深字 + 收藏浅底）</div>
+      <div style="display:flex;align-items:center;gap:12px;background:#141619;padding:8px;border:1px solid #262A30">
+        <div style="display:flex;width:300px;height:34px;border-radius:999px;overflow:hidden">
+          <div style="flex:0 0 58%;display:flex;align-items:center;justify-content:center;background:#FFE60F;color:#202020;font-weight:700">聊一聊</div>
+          <div style="flex:0 0 42%;display:flex;align-items:center;justify-content:center;background:#EDEFF2;color:#0A0A0A;font-weight:700">立即购买</div>
+        </div>
+        <div style="width:76px;height:34px;border-radius:999px;border:1px solid #E0E0E0;background:#141619;color:#FFFFFF;display:flex;align-items:center;justify-content:center">收藏</div>
+      </div>
+    </div>
+    <table style="border-collapse:collapse;font-size:12px">
+      <thead>
+        <tr><th style="text-align:left;border-bottom:1px solid #E0E0E0;padding:4px 8px">token</th><th style="text-align:left;border-bottom:1px solid #E0E0E0;padding:4px 8px">日档</th><th style="text-align:left;border-bottom:1px solid #E0E0E0;padding:4px 8px">夜档</th><th style="text-align:left;border-bottom:1px solid #E0E0E0;padding:4px 8px">取值依据 / 变更</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="padding:4px 8px"><code>--sf-cta-solid-bg</code></td><td style="padding:4px 8px"><code>#202020</code></td><td style="padding:4px 8px"><code>#EDEFF2</code></td><td style="padding:4px 8px"><b>新键</b>。日档 = 参考图深灰底，取站点既有 ink 家族 <code>--sf-btna-fg</code> 同值（不引入第二套墨色）；夜档 = <b>反相</b>（夜档深页上深底会消失 ⇒ 亮底），与 <code>--sf-title-fg</code> 夜档同源</td></tr>
+        <tr><td style="padding:4px 8px"><code>--sf-cta-solid-fg</code></td><td style="padding:4px 8px"><code>#FFFFFF</code></td><td style="padding:4px 8px"><code>#0A0A0A</code></td><td style="padding:4px 8px"><b>新键</b>。日档 = 墨底上的反相白字；夜档 = 亮底上的深字（反相，与日档成对互换）</td></tr>
+        <tr><td style="padding:4px 8px"><code>--sf-btna-bg</code> / <code>--sf-btna-fg</code></td><td style="padding:4px 8px"><code>#FFE60F</code> / <code>#202020</code></td><td style="padding:4px 8px"><code>#FFE60F</code> / <code>#202020</code></td><td style="padding:4px 8px"><b>复用、零变更</b>（真源 954 / 958 行）：聊一聊段</td></tr>
+        <tr><td style="padding:4px 8px"><code>--sf-btnalt-bg</code> / <code>--sf-btnalt-fg</code> / <code>--sf-btnalt-border</code></td><td style="padding:4px 8px"><code>#FFFFFF</code> / <code>#202020</code> / <code>#E0E0E0</code></td><td style="padding:4px 8px"><code>#141619</code> / <code>#FFFFFF</code> / <code>#E0E0E0</code></td><td style="padding:4px 8px"><b>复用、零变更</b>（真源 956 / 960 行）：收藏胶囊（夜档自带反相）</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin:10px 0 0">形态口径（逐条见 <code>docs/design/design-system.spec.md</code> <code>T120</code> / §24）：三段结构 = 组合条 2 段（聊一聊 <b>58%</b> / 立即购买 <b>42%</b>）+ 留白 + 独立收藏；两端半圆、<b>中缝直角</b>；<b>两档几何逐值相等</b>（颜色以外不进主题层）。</p>
+</section>

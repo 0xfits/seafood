@@ -138,6 +138,10 @@ const DAY = {
   'btnalt-bg': '#FFFFFF',     // 【实测】日档次按钮填充
   'btnalt-fg': '#202020',     // 【实测】日档次按钮文字
   'btnalt-border': '#E0E0E0', // 【实测】次按钮 1px 描边色（日/夜同值）
+  // ── T120（v1.22）/item/:id 底部操作栏「立即购买」段（本轮唯一新增 2 键；两档成对反相）
+  // 日档 = 深灰底 + 反相白字：底色取站点既有 ink 家族 `btna-fg`(#202020)，**不引入第二套墨色**
+  'cta-solid-bg': '#202020',
+  'cta-solid-fg': '#FFFFFF',
   // ── 右侧悬浮菜单（T83 · design-system.spec v1.5 §14）：新 token --sf-fm-*（日档按参考图实测）
   'fm-bg': '#FFFFFF',
   'fm-fg': '#333333',
@@ -256,6 +260,10 @@ const NIGHT = {
                                // 真源 style-preview.html:292/314）；参考图未展示深色次按钮（Zang 裁定②）
   'btnalt-fg': '#FFFFFF',      // 【实测】夜档次按钮文字
   'btnalt-border': '#E0E0E0',  // 【实测】浅描边（真源 960 行）
+  // ── T120（v1.22）「立即购买」段（**反相**·键序与 DAY 同索引位置）：夜档深页上深底会消失
+  // ⇒ 换亮底 + 深字；亮底色值与 `title-fg` 夜档同源（#EDEFF2），零发明新色
+  'cta-solid-bg': '#EDEFF2',
+  'cta-solid-fg': '#0A0A0A',
   // ── 右侧悬浮菜单（T83 · 夜档标「推断」= 取本仓夜档**既有**面板/卡片值，未发明新色）
   'fm-bg': '#141619',
   'fm-fg': '#EDEFF2',
@@ -377,6 +385,10 @@ export const PROV = {
   'btnalt-bg': { d: [956, 'background:#FFFFFF;color:#202020'], n: [292, 'background:#141619'] },
   'btnalt-fg': { d: [956, 'color:#202020'], n: [960, 'color:#FFFFFF'] },
   'btnalt-border': { d: [956, 'border:1px solid #E0E0E0'], n: [960, 'border:1px solid #E0E0E0'] },
+  // ── T120（v1.22）「立即购买」段（新键 2 枚）：真源 = style-preview.html 追加区块 1130 / 1133 行
+  // （[ITEM-ACTIONBAR] `#item-actionbar-ref-v122`；日档 #202020/#FFFFFF · 夜档 #EDEFF2/#0A0A0A 反相）
+  'cta-solid-bg': { d: [1130, 'background:#202020'], n: [1133, 'background:#EDEFF2'] },
+  'cta-solid-fg': { d: [1130, 'color:#FFFFFF'], n: [1133, 'color:#0A0A0A'] },
   // ── 右侧悬浮菜单 token（真源 = style-preview.html 追加区块：日 1005/1007 行 · 夜 1019/1021 行）
   'fm-bg': { d: [1005, 'background:#FFFFFF'], n: [1019, 'background:#141619'] },
   'fm-fg': { d: [1005, 'color:#333333'], n: [1019, 'color:#EDEFF2'] },
