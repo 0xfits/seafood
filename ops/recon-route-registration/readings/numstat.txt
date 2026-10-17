@@ -1,0 +1,47 @@
+# 读数 · 对账口 route 侧补登记（2026-10-17 · 开工基线 HEAD 9611a58 · 收笔时 HEAD = 1ba0b5b〔并行入库的生产终验单，非本单〕· 本单只写 docs/** + ops/recon-route-registration/**）
+
+## 1) git diff --numstat（本单工作树改动 · 纯追加自证）
+1	0	docs/OPEN-ITEMS.md
+153	0	docs/route-layer.spec.md
+
+## 2) 删除行总数（必须 = 0）
+deleted_lines_total=0
+added_lines_total=154
+
+## 3) 版本 / 节号锚点（各恰 1 命中）
+v2.36_status_hits=1
+section46_hits=1
+v2.37_openitems_hits=1
+sections_total_now=50
+sections_total_head=49
+
+## 4) 注册点现取（backend-ts/src/index.ts）
+total=107
+get=47
+post=56
+put=0
+delete=3
+patch=1
+
+## 5) 离线门 AC10-2 常量
+150:  ck.t('AC10-2', '注册点 = 107（自 S10 冻结面 68 前推 +21 · A5 收口 +10 · sf14 +5 · 6714401 telegram/bind/confirm +1 · FIX-CRON translate/backfill GET +1 · ops-recon GET +1 = 107；逐 rev 出处见上方注释）', regs === 107, `registration_points=${regs}`);
+
+## 6) cron 条目（vercel.json）
+36:      "path": "/api/translate/backfill",
+37:      "schedule": "0 18 * * *"
+40:      "path": "/api/ops/recon/ledger",
+41:      "schedule": "30 18 * * *"
+
+## 7) 注册行 / 文件规模
+3242:app.get('/api/ops/recon/ledger', opsReconHandler);
+index_ts_lines=    3545
+ops_recon_ts_lines=     247
+
+## 8) 工作树状态（全仓 · 仅本单三处属本单；HEAD 已由并行单前推至 1ba0b5b）
+ M docs/OPEN-ITEMS.md
+ M docs/route-layer.spec.md
+?? ops/recon-route-registration/
+
+## 9) HEAD（收笔时现取）
+1ba0b5b test(seafood): 对账 cron 生产终验 PASS（GET /api/ops/recon/ledger 无密钥 401 = 路由在且 fail-closed · 哨兵三接口 200 → 白屏探针双路由零异常）
+9611a58 test(seafood): 对账 cron 独立质检（PASS-with-drift · 9 AC 全读数 · Neng）+ Zang 验收勘误（Hobby=100 条非 2 条 · 生产侧基线对拍 cid1 diff=2000000 命中 / cid21 不存在）

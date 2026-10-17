@@ -386,6 +386,15 @@
 > ③ **只追加**：**§1–§44 一字未动**；**§45（新）= 唯一新增节**；`git diff --numstat` **删除列 = 0**；**不建 `docs/versions/` 快照**（只落册契约增量，快照重制归版本收口单 —— 显式登记为未做项，不冒充已做）。
 > ④ **与数据面口径的关联**：`usdBalance` 暴露的是 `account(cid=1).balance` **明文值**（与 BTTC 余额同表同读写路径）⇒ 明文存储口径**不在本节立规**，另册登记 = `docs/OPEN-ITEMS.md` **`B30`**（四落点 / 不可只加密归因 / 解禁条件 / 评估单已派）。
 
+> **状态：v2.36（已完成 · **运维口补登记：`GET /api/ops/recon/ledger`（对账 cron）已上线事实折入**：★★ **新对外路由入册**（路径 / **仅 GET** / 无 `actor` / `CRON_SECRET` fail-closed `503` + `401` 三臂 / 回执键集逐键）+ **★★ 判定口径写死**（守恒式 `total_supply == Σmint + Σburn`〔burn 存**负** delta · `KI2`〕+ 供应量判据 = **`diff === 基线常量`**〔`{'1':'2000000','21':'1'}` · 未登记 cid ⇒ `0`〕· **禁止改成 `>=` / 容差**）+ **cron `2` 条 + Hobby 精度约束**（**100 条/项目** · 每天 1 次 · **±59 min 非准点**）+ **注册点 `106 → 107`**（get 47 / post 56 / put 0 / delete 3 / patch 1）+ **`D1` 待裁**（漂移仍 `200` ⇒ 面板不红）（**只追加 · 零代码 · 零迁移 · 库面只读 · 零新错误码**））** · 作者角色 = **Jing（Specifier · 制度员）** · 单号 = **对账口 route 侧补登记单（只写 `docs/**`）**
+> **v2.36 修订入口**：逐条 delta → 依据锚点 → 改动点 = **本册 §46**（**登记性回写 · 零裁定新增**；**本单不建独立 delta 件**，承 v2.29 / v2.30 / v2.32 / v2.35 先例）。**凡与实现现盘冲突处，一律以现盘为准**（被登记面 = **已 push** 的实现 commits `a201cb3` / `3423a4b` + 独立质检 `9611a58`）。
+> **★★ v2.36 本单要点（先说结论，不含糊）**：
+> ① **新口 = `GET /api/ops/recon/ledger`（运维口 · 非常规用户面）**：鉴权 = **无 `actor`** + `CRON_SECRET`（`Authorization: Bearer <secret>` **或** `x-cron-secret`，**等值比较**、**不回显 / 不进日志**）；**未配 ⇒ `503` fail-loud**（绝不默认放行）；不符 / 缺 ⇒ **`401`**（R107 `AUTH_UNAUTHORIZED`）；**仅 GET**（**同路径 `POST` ⇒ `404`，已实测**）；**零新错误码**；只读三条单语句 `SELECT`（**零写库 / 零迁移 / 零新表**）。
+> ② **★ 判定口径（本节最重要的「防误改」条文）**：守恒式 = `total_supply == Σmint + Σburn`（burn 分录存**负** delta ⇒ **不是** `Σmint − Σburn`；勘误 = `docs/audit/p9-s4-bttc.md` 的 `KI2`）；供应量判据 = **`diff === 基线常量`**（常量表 `{'1':'2000000','21':'1'}`、**未登记 cid ⇒ `0`**）—— **不是容差、不是不等式、禁止改成 `>=`**；后两条 = **严格 0 行**。基线出处 = `B25`（生产只读现取 `diff=2000000` 与基线**逐位相同**）；`cid=21` **生产不存在（0 行）** ⇒ **惰性登记值**。
+> ③ **cron = `2` 条 + Hobby 精度约束**：`vercel.json` `crons` = `0 18 * * *`（`/api/translate/backfill`，既有未动）+ **`30 18 * * *`（本口 · 新增）**；Hobby 官方口径 = **100 条/项目** · **每条每天最多 1 次** · **触发落在指定小时窗口内（`±59 min` · 非准点）** ⇒ **文案不得声称「准时 / 18:30 整触发」**。
+> ④ **注册点 `106 → 107`**（逐 verb 现取 = **get 47 / post 56 / put 0 / delete 3 / patch 1**）；离线门 `p7b-03` 的 **`AC10-2`** 同批前推（`backend-ts/scripts/p7b-03-offline-gates.ts:150`）。
+> ⑤ **`D1` 待裁（登 `docs/OPEN-ITEMS.md`）+ 只追加**：漂移时 **HTTP 仍 `200`**（body `data.ok=false` + **一条** `console.error('[recon] …')`）⇒ **Vercel 面板不红**、**无人看日志则可能长期无人处置** —— 本册**不得写成「已告警」**；`git diff --numstat docs/route-layer.spec.md` **删除列 = 0**。
+
 > **v2.19 修订入口**：逐条 delta → 依据锚点 → 改动点 = `docs/audit/route-layer-v2.19-delta.md`（**同批姊妹册** = `docs/audit/data-layer-v0.26-delta.md` + `docs/audit/commission-v0.4-delta.md`）。**凡与 Zang 裁定冲突处，一律以 Zang 裁定为准**（本单为 P9⑤ 契约冻结；**未改写任何裁定、未发明任何路径 / 数值 / 权限键 / 文案值**）。**★ 姊妹册（同批）**：`docs/commission.spec.md` **v0.4 §19** + `docs/data-layer.spec.md` **v0.26 §34**，**本册不重抄其条文、只指路**。
 > **★★ v2.19 本单要点（先说结论，不含糊）**：① **零新用户面口**（邀请奖励 = 结算腿，无独立读 / 动作口）；② **后台配置面复用**（费率 + 6 项权重矩阵）；③ **注册点 `87 → 87`（+0）**；④ **权限键 11 键内（零增删）**；⑤ **错误码零新增 + `R107`**；⑥ **真生效四段（①③④ 段）**；⑦ **连带门改版**（`p8-s2` 8 键 / 守卫常量 / 页字段面随 `R-9-1` ⇒ 归实现单）。
 
@@ -8632,3 +8641,147 @@ CONSTRAINT admin_refund_audit_log_idem_uniq   UNIQUE (idempotency_key, result)  
 - **未做项（显式登记，不冒充已做）**：`docs/versions/route-layer.spec.v2.35.md` **未建**（只落册契约增量；快照重制归版本收口单）
 - **零代码自证**：本单 commit 的 `git show --stat` 只含 `docs/**` + `ops/bttc-plaintext-registration/**` ⇒ **`frontend/**` / `backend-ts/**` 零改动**（`frontend/**` / `backend-ts/**` 的改动 = 并行实现单 `eebe883`，**先于本单入库 · 未纳入本单 commit**）
 - **未发明项**：键名（`usdBalance` / `mintNeedBatt` / `mintNeedUsd`）、四语四值、键集基线（`128` / `1106` / `4424`）、行号 —— **全部可回溯至本节引用的现取命令或文件行**
+---
+
+## §46 ★★ v2.36 · **运维口补登记**：`GET /api/ops/recon/ledger`（对账 cron · 鉴权 fail-closed · 三条只读 · 基线常量判定）+ `vercel.json` cron **2 条**与 Hobby 精度约束 + 注册点 **106 → 107** + **`D1` 待裁**（**本节只追加 · §1–§45 一字未动** · 依据 = **已上线实现** `a201cb3` / `3423a4b` + **独立质检** `9611a58`（verdict = `PASS-with-drift`：`AC1`–`AC8` = `PASS` · `AC9` = `REGISTERED`）· **登记性回写 · 零裁定新增 · 零代码 · 零迁移 · 库面只读 · 零套件**）
+
+> **本节性质（写死）**：① **只追加** —— `git diff --numstat docs/route-layer.spec.md` **删除列 = 0**（承 §42.7 / §43.6 / §44 / §45 同族）；② **不改任何既有条文**（§1.8 清单 / §10.7 / §28.2 / §30 / §45 全部一字未动）；③ **不新开裁定** —— 只把「**已上线 + 已质检**」的事实写进本册；④ **不发明**（路径 / 方法 / 状态码 / 回执键 / 基线常量 / 注册点分解 / 行号 **全部现取**，逐处标来源）。
+> **为什么必须登记（仓规）**：**新增对外路由 = 必须入本册**。该口**已上线**（生产可达 · 无密钥现取 **`401`**），若不入册 ⇒ 下轮「**已实现·未注册清单**」（§1.8 纪律 · Zang §5.85）与**注册点基线**（§10.7 / 门 `AC10-2`）**双向漂移**（一个说没有、一个说 107）。
+> **归类（写死）**：**运维口**（ops-only）—— **不是常规用户面**：**无 `actor`**、不吃用户 token 语义、不属 §2 页面接线面、前端 **0 调用**（唯一调用方 = `vercel.json` cron + 值班人手工 `curl`）。**任何「把它当用户读口」的改法（加 `requireActor` / 加分页 / 加 i18n 文案）都是范围扩张 ⇒ 须另开单。**
+
+### 46.0 性质、范围与被登记面（现取）
+
+| 项 | 值 |
+|---|---|
+| **路径 / 方法** | **`GET /api/ops/recon/ledger`**（**仅 GET**） |
+| **注册行（现取）** | `backend-ts/src/index.ts:3242`（`app.get('/api/ops/recon/ledger', opsReconHandler)`；handler 体 = `:3210-3240`；`src/index.ts` 现 **3545 行**） |
+| **服务层（现取）** | `backend-ts/src/ops-recon.ts`（**247 行**）：`runLedgerRecon` `:228` · 三条 SQL 常量 `SUPPLY_VS_LEDGER_SQL` `:78` / `ACCOUNT_VS_LEDGER_SQL` `:91` / `BATT_VS_ENTRY_SQL` `:103` · 基线常量表 `KNOWN_SUPPLY_OFFSET` `:67-70` · `baselineOffsetOf` `:73` · `judgeSupply` `:143` · `judgeZeroRows` `:201` |
+| **被登记面（已上线 · 只读现取）** | `a201cb3` = 新建 `ops-recon.ts` + 注册 GET + `vercel.json` 第二条日级 cron + 门常量 106→107；`3423a4b` = `judgeSupply` 样本改**两阶段采集**（失败行优先，不足 20 补 PASS 行）+ 回归两例；`9611a58` = 独立质检 `PASS-with-drift` + Zang 验收勘误（Hobby = 100 条非 2 条 · 生产侧基线对拍）—— **本单未改其中任一文件**（`backend-ts/**` / `frontend/**` / `vercel.json` **零改动**） |
+| **证据（只读引用）** | `ops/recon-cron/REPORT.md`（**327 行**）+ `ops/recon-cron/qa/verdict.json`（9 AC + `drift` 4 条 + `env_limited` 3 条 + `zang_acceptance` 生产对拍）+ `ops/recon-cron/readings/probe-recon-auth.json`（**14 臂 / 23 断言全 `true`**）+ `ops/recon-cron/readings/gate-p7b-03.json` |
+| **本节不立规的面** | **漂移告警面**（`D1` 待裁）⇒ 见 §46.4 + `docs/OPEN-ITEMS.md` 顶部 v2.37 块；**基线数值的经济含义 / 根因修复** ⇒ 归 `B25`（本册只指向、不复述、不改写）；**Hobby 商业用途与配额风险** ⇒ 已在 `docs/OPEN-ITEMS.md` v2.36 块登记 |
+| **错误码面** | **零新增**（`503` / `401` 均**既有形态**；DB / 传输类异常走既有 `sendInfraMapped`，§11.3 口径）。33 码关闭集**不变** |
+
+### 46.1 契约：鉴权 · 方法 · 回执（**逐项写死**）
+
+**(a) 契约逐项（逐行现取 · 任一格变更即须另开单 + 本册就地订正）**
+
+| 项 | 冻结值（现取） |
+|---|---|
+| **鉴权体例（唯一真源）** | **逐行照搬** `translateBackfillHandler`（`src/index.ts:3141`）⇒ 本口 `:3210`：`CRON_SECRET` 取自 `process.env` 并 `trim()`（`:3211`） |
+| **actor** | **无**（不走 `requireActor` · 不读用户 token · 不吃 `uid` 入参）—— 与 `/api/translate/backfill` 同族 |
+| **`CRON_SECRET` 未配** | ⇒ **`503` fail-loud**（`:3212-3214` · `sendError(res, 503, 'CRON_SECRET not configured')` `:184-188`；body = `{success:false, message:'CRON_SECRET not configured', error:'CRON_SECRET not configured'}`）⇒ **绝不默认放行**（安全红线 · 承 §10.7 同条） |
+| **密钥不符 / 缺头** | ⇒ **`401`**（`:3215-3220`：`Bearer` 与 `x-cron-secret` **二者取一**、**等值比较**；失败走 `sendAuthError(res,401)` `:324-333`）⇒ R107 形态 `{error:{code:'AUTH_UNAUTHORIZED', message, i18n_key:'auth.err.AUTH_UNAUTHORIZED', details:{}}}`（**未传 `reason` ⇒ `details` 为空**） |
+| **密钥纪律** | **只做等值比较**；**不回显、不入响应、不入日志**（探针 14 臂 `secret_echoed` **全 `false`**；`[recon]` 日志只含 `checked_at` / `duration_ms` / 失败项 `{id, rows, diff}`） |
+| **方法集** | **仅 `GET`**。理由 = **Vercel cron 发的是 GET**。**同路径 `POST` ⇒ `404`**（实测：reading `E2_post_not_registered` status = **404**、断言 `E2_post_not_200` = `true`；未注册路径 `E1` = **404**）。**不得**为「手工方便」加 `POST` 别名（加 = 注册点再 +1 + 门前推 + 本册订正） |
+| **入参** | **无**：不读 `req.query`、不读请求体 ⇒ **无参数契约**（`limit` / `since` 一类若要加 ⇒ 另开单） |
+| **回执（`data` 层 · 机读）** | `{ ok: boolean, checks: [{id, status, rows, diff?, sample?}], checked_at, duration_ms }`（真源 = `ops-recon.ts:34-51`）；`checks[i].id` 闭集三条 = `supply_vs_ledger` / `account_vs_ledger` / `batt_account_vs_batt_entry`；`status` 闭集 = `PASS` / `FAIL`；`rows` = 受检行数（检查①= `currency` 行数；②③= 漂移行数）；`diff` **仅检查①产出**（通过时 = `'0'`；②③ 不产出该键）；`sample` ≤ **20** 行、**失败行恒在前**（`3423a4b` 两阶段分桶，`ops-recon.ts:149-189`） |
+| **回执（外层包装）** | 既有 `sendSuccess`（`:166-182`）⇒ `{success:true, message, data:{…}}`；`message` **二态** = `Ledger recon completed` / `Ledger recon detected drift`（`:3235`）；**零新顶层键**（承 `AC10-4` 口径） |
+| **只读性** | 三条**单语句 `SELECT`**，全走 `readQuery`（只读池）⇒ **零 `TRANSACTION` / 零 INSERT·UPDATE·DELETE / 零 `ledger_post_event` / 零迁移 / 零新表 / 零新列**（质检 `AC1` 剥注释后 DML 命中 **0** 处 + `AC7` 零副作用） |
+| **幂等** | 纯只读 ⇒ **天然幂等**（重入 / 连跑 / 手工触发 **零副作用**）；**不涉幂等键**（读口不带键，承 §28.2 `R-9-19` 口径） |
+| **异常面（防假绿）** | `runLedgerRecon` **不吞异常**（抛给调用方 ⇒ `sendInfraMapped(res,'ops.recon.ledger',error)` `:3238`）；三条**顺序执行**（非 `Promise.all`，便于定位第几条；`:220-247`）⇒ **库不可达绝不被伪装成 PASS / `200 ok:true`** |
+
+**(b) 鉴权状态矩阵（现取 · `readings/probe-recon-auth.json` 逐臂）**
+
+| 臂 | 条件 | 状态 | 响应形状 | 现取 reading |
+|---|---|---:|---|---|
+| `A1` | `CRON_SECRET` **未配** | **503** | `{success:false, message, error}`（无 `error.code`） | `A1_no_secret_configured` |
+| `B1` | 已配 · **无鉴权头** | **401** | R107 `AUTH_UNAUTHORIZED`（`body_keys = ['error']`） | `B1_no_header` |
+| `B2` | `Bearer` **错** | **401** | 同上 | `B2_wrong_bearer` |
+| `B3` | `x-cron-secret` **错** | **401** | 同上 | `B3_wrong_header_secret` |
+| `C1` | `Bearer` **对** | **200** | `data.ok` = 真值 + **3** checks | `C1_correct_bearer_clean` |
+| `C2` | `x-cron-secret` **对** | **200** | 同上 | `C2_correct_header_secret_clean` |
+| `E1` | 未注册路径 | **404** | 既有 404 | `E1_unregistered_path` |
+| `E2` | **同路径 POST** | **404** | 既有 404 | `E2_post_not_registered` |
+
+- **生产终验（现取 · 转引）**：`GET /api/ops/recon/ledger` **无密钥 = `401`**（body 与 `B1` 逐字同形 `{"error":{"code":"AUTH_UNAUTHORIZED",…}}`）⇒ **路由在、鉴权 fail-closed 生效**；同批哨兵 `/api/health` **200** · `/api/task/all` **200** · `/api/prize/all` **200** 无回归。
+
+### 46.2 判定口径（**写死 · 下轮不得误改**）
+
+**(a) 守恒式 = `total_supply == Σmint + Σburn`**（**不是** `Σmint − Σburn`）
+- **burn 分录存的是负 delta**（`ledger_norm_entry(…, -v_amount, …, 'burn')` ⇒ 单边负额）⇒ 加法式才闭合（例：`supply 0` / `Σmint +1` / `Σburn −1` ⇒ `0 == 1 + (−1)`）。
+- **勘误出处 = `docs/audit/p9-s4-bttc.md:324`（`KI2`）**：原式把符号弄反（`0 == 1 − (−1) = 2`）⇒ **判据语义（严格相等）未放松，仅订正符号约定**；现役门 `backend-ts/scripts/p8-s9-bttc-gate.ts` **同式**。
+
+**(b) 供应量判据 = `diff === 基线常量`（严格相等）**
+- `diff` 由 SQL 现算 = `total_supply − (COALESCE(Σmint,0) + COALESCE(Σburn,0))`（`ops-recon.ts:82`）；TS 侧用 `BigInt` **严格比较**（`numeric` / `bigint` 回来是字符串；`integerOf :118-125`），含小数残差 / 非数值 ⇒ **判 FAIL、不静默取整**。
+- **基线表（现取 · `ops-recon.ts:67-70`）= `{'1':'2000000', '21':'1'}`**；**未登记 cid ⇒ 基线 `0`**（`baselineOffsetOf :73`）⇒ **新币种默认严格 0，绝不因「新币种」放宽**。
+- ⇒ **不是容差、不是不等式、禁止改成 `>=` / 加 `±` / 调大阈值 / `try-catch` 吞掉 / `FAIL→SKIP`**。**唯一合法改法**（误报处置）= 先复核读数 → 判定良性 ⇒ 改常量表 **+ `docs/OPEN-ITEMS.md` 留痕（旧值 / 新值 / 原因 / 日期）**（`ops-recon.ts:64-65` + `REPORT §5.4` 逐字）。
+- **只对「在场」cid 判**：**不得**写成 `WHERE symbol='BTTC'`（BTTC 币种行由首次 mint 惰性创建 ⇒ 今天 0 行、明天 1 行 = 「有行才检查」的**假绿**，`:140-142`）。
+
+**(c) 基线出处与生产对拍（`B25`）**
+- `'1' → 2000000` = `docs/OPEN-ITEMS.md:59`（`B25`）**逐字登记的已知差额**（= 未搬的纯夹具 mint/burn 净额，几乎全为 `970001` 的 `mint 2,000,000`）；`B25` 原文「守卫须换算的已知差额 = `2,000,000`」= 本表的来源。
+- **生产只读现取**（`project_id=sweet-pond-28934105` · `schema_top=0048`）：`currency` 仅 **1 行** —— `cid=1` `$` supply **2010200** / `Σmint` **210274** / `Σburn` **−200074** / **`diff = 2000000`（与基线逐位相同）** ⇒ **上线后首次运行检查①应为 PASS**（`verdict.json` `zang_acceptance.prod_readonly_crosscheck`）。
+- `'21' → 1` = **惰性登记值**：**生产 `currency` 无该 cid（0 行）**，基线只对**在场** cid 生效 ⇒ 不影响生产判定；**dev 侧**该行 `diff=0 ≠ 基线 1` ⇒ 判 **FAIL**，属**环境口径差、非代码缺陷**（见 (e)）。
+
+**(d) 另两条 = 严格 0 行**
+- ② `account.balance / frozen` vs `Σ ledger_entry.delta / frozen_delta`（逐户）⇒ `rows > 0` 即 **FAIL**；③ `batt_account.batt` vs `Σ batt_entry.delta`（逐户）⇒ 同上。
+- **两条判据必须与供应量判据分开写**：`B25` 只破了供应量一条，逐户两条当时 **48/48**、**56/56** 全满足 ⇒ 把三条混成一条「都不许有差异」会掩盖「哪一条破了」。
+
+**(e) 已知口径披露（质检 `D3` · 不构成缺陷 · 已登记）**
+- 检查①**只聚合 `mint` / `burn` 两个 kind**（`ledger_kind_enum` 实有 **20** 个 kind）。dev 实测逐 cid「**非 mint/burn 净额 + `frozen` 合计 == 0**」（`cid1` −16745 + 16745、`cid21` −1 + 1）、**orphan 分录 0** ⇒ 内部转移 / 持有只改「余额与冻结的分配」、**不改 `total_supply`** ⇒ 口径自洽。
+- **生产侧建议按同式复核一次**（dev 与生产数据形态可能不同）—— **登记为建议，本单未做**（不冒充已做）。
+
+### 46.3 `vercel.json` cron 条目（**2 条**）与 Hobby 精度约束
+
+**(a) `crons` 现 2 条（现取 · `vercel.json:34-43`）**
+
+| # | `path` | `schedule` | 行号 | 状态 |
+|--:|---|---|---|---|
+| 1 | `/api/translate/backfill` | `0 18 * * *` | `:36-37` | **既有 · 本单未动**（§10.7 同条） |
+| 2 | **`/api/ops/recon/ledger`** | **`30 18 * * *`** | `:40-41` | **本单登记（新增）** |
+
+- 两条均落 **UTC 18 时段**（= 北京 02 时段），错开 **30 min**；两条都是**日级**。
+
+**(b) Hobby 三条硬约束（官方现页 = `vercel.com/docs/cron-jobs/usage-and-pricing`；本册**转引** `docs/OPEN-ITEMS.md` v2.36 块）**
+
+| 约束 | 值 | 对本册文案的效力 |
+|---|---|---|
+| **条数上限** | **100 cron jobs / 项目**（Pro 同为 100） | **2/100 ⇒ 非瓶颈**；**「2 条/项目」旧记作废**（出自 2023 beta 博客与第三方转述）—— 后续派单**不得再据「2 条」判可行性** |
+| **频率** | **每条每天最多 1 次** | 两条均日级 ⇒ 合规；更密（`0 * * * *` / `*/30 * * * *`）**部署即失败**（`Hobby accounts are limited to daily cron jobs`） |
+| **触发时刻** | 落在指定**小时窗口**内、**非准点**（官方 `±59 min`） | **文案不得声称「准时」/「18:30 整触发」**；只能写「**UTC 18 时段内的一次触发**」 |
+
+**(c) 由此产生的登记性口径**
+- `30 18 * * *` **只表示「UTC 18 时段窗口内的一次触发」**，生产实际时刻 = 窗口内任一刻（`ENV_LIMITED`：`vercel.json` 为 legacy `builds` + `routes` 形态 ⇒「cron 是否真按 `30 18 * * *` 注册并触发」**离线不可证**，只能上线后以 Vercel 面板 + 一次真实触发日志现证）。
+- **首次生产回执待次日 UTC 18:30 窗口后现取** —— **本单未取**（显式登记为未做项，不冒充已做）。
+- **函数时长**：Hobby 默认 = 上限 = **300s**；本口三条 `SELECT` 合计 **< 1s**（`ops-recon.ts:223` 注释）⇒ 不触顶。
+
+### 46.4 漂移时 **HTTP 仍 `200`** · 告警面 v1 · 残余风险（**`D1` 待裁**）
+
+- **写死**：任一 check = `FAIL`（漂移）时，**HTTP 状态码仍为 `200`**；body 内 `data.ok = false`；并**多打一条** `console.error('[recon] ledger drift detected', …)`（`:3226-3234`；载荷只含 `checked_at` / `duration_ms` / 失败项 `{id, rows, diff}`，**不含 SQL 参数、不含密钥**，便于按 `[recon]` 检索）。
+- **实测（`probe-recon-auth.json`）**：三个漂移臂（`S1` supply / `S3` account / `S4` batt）各 **1 条** `[recon]` 日志、**干净臂 0 条**；漂移臂 **HTTP 全 `200`**。
+- **本册不得把它写成「已告警」**：告警面 **v1 = 结构化回执 + 一条日志**，**不接外部通知**（不接 Slack / 邮件 / 工单 / PagerDuty）。
+- **已知残余风险 = 若无人看日志，漂移可能长期无人处置**（Vercel cron 面板视为「任务执行成功」⇒ **不红**）。
+- **⇒ 已登为待裁项 `D1`**（`docs/OPEN-ITEMS.md` 顶部 v2.37 块）：选项 = **① 保持 `200` + 后续接外部告警** / **② 改 `500` 让平台标红**。**本册不预判裁定、不写「已处置」**；若裁 ② ⇒ 属**行为变更**（状态码面），**须另开单 + 就地订正本节**（并同步 `§46.1` 的状态矩阵与 `§46.6` 判负）。
+
+### 46.5 注册点与离线门（**106 → 107**）
+
+- **注册点 = 107**（现取 `grep -cE '^app\.(get|post|put|delete|patch)\(' backend-ts/src/index.ts` = **107**）；**逐 verb 分解（现取）= `get 47` / `post 56` / `put 0` / `delete 3` / `patch 1`**（合计 107）⇒ **本口 +1 落在 `get`（46 → 47）**。
+- **改一处必同步三处**（写死）：`backend-ts/src/index.ts` 的注册行 / `backend-ts/scripts/p7b-03-offline-gates.ts` 的 `AC10-2` 常量（`:150` = `regs === 107`，逐 rev 出处注释 `:135-150`）/ **本册 §46.5 与 §10.7 的读法**。
+- **与 §10.7 读数的关系**：§10.7 记「注册点 = 67（v1.2 / v1.3 时点）」= **历史读数**（该节属 v1.2/v1.3 历史块）；**本册权威现行值 = 107**（本节 + 门常量 + `src/index.ts` 三处同批一致）。
+- **§1.8「已实现·未注册清单」= 不新增条目**（本口**已注册**；清单仍**清空 / 无遗留**）。
+- **判负**：把门常量改回 106、或只改文档不改门 ⇒ `p7b-03` 必红（该门现取 **37/37** 全绿，转引 `a201cb3` 报告与 `readings/gate-p7b-03.json`）。
+
+### 46.6 判负（**任一条命中即判红**）
+
+| # | 判负 |
+|--:|---|
+| 1 | 把供应量判据改成 `diff >= 基线` / 加容差 / 加 `±` / 调大常量以「消灭红灯」 |
+| 2 | 把守恒式写成 `Σmint − Σburn`（burn 存负 delta ⇒ 必错） |
+| 3 | 把 ②③ 两条改成「容差内可接受」/ `SKIP` / 缺省不计 |
+| 4 | 用 `try-catch` 吞掉查询异常（库不可达被伪装成 `200` + `ok:true`） |
+| 5 | 为「手工方便」给同路径加 `POST`（或加第二注册点）而不同批前推注册点与门 |
+| 6 | `CRON_SECRET` 未配时默认放行 / 退回 `200` |
+| 7 | 回显密钥、把 `Authorization` / 密钥写进 `console.*` 或响应体 |
+| 8 | 把告警面写成「已告警 / 已通知 / 已接外部告警」（v1 = 回执 + 日志） |
+| 9 | 新增写库 / 迁移 / 新表 / 新列以便「留档对账结果」（= 范围扩张，须另开单） |
+| 10 | 把注册点写成 106，或写「cron 准时 / 准点 / 18:30 整触发」 |
+| 11 | 声称 Hobby「**2 条/项目**上限已满」为理由不加第三条 cron（旧记已作废） |
+| 12 | 把本口当**用户面**改造（加 `requireActor` / 加分页 / 加 i18n 文案 / 前端接线） |
+
+### 46.7 自证（改后现取）
+
+- **纯追加**：`git diff --numstat docs/route-layer.spec.md` = **`153 0`**（**删除行 = 0**）、`docs/OPEN-ITEMS.md` = **`1 0`**（**删除行 = 0**；读数落 `ops/recon-route-registration/readings/numstat.txt`，含改后逐条现取命令）。
+- **版本锚点**：`grep -n '^> \*\*状态：v2.36'` = **恰 1 命中**；**节号锚点**：`grep -n '^## §46 '` = **恰 1 命中**。
+- **位置自证**：v2.36 状态块**紧随 v2.35 块的 ④ 行之后**（承 §45 先例：两处版本记录同批入库，漏一处 = 不完整）；`§46` **紧接 §45 文末**（前值最大节号 = §45 · 本节 = §46，**无跳号**）。
+- **零代码自证**：本单 commit 的 `git show --stat` 只含 `docs/**` + `ops/recon-route-registration/**` ⇒ `backend-ts/**` / `frontend/**` / `vercel.json` **零改动**；**库面零连接**（读数全部转引 `ops/recon-cron/**` 已落盘产物）。
+- **未做项（显式登记，不冒充已做）**：① `docs/versions/route-layer.spec.v2.36.md` **未建**（快照重制归版本收口单）；② **首次生产回执未取**（待次日 UTC 18:30 窗口后）；③ `D3` 的**生产侧**口径复核未做（仅 dev 实测）；④ `D1` **未裁**（待 Kevin）。
+- **未发明项**：路径 / 方法集 / 状态码 / 回执键集 / 基线常量 `{'1':'2000000','21':'1'}` / 注册点 107 的逐 verb 分解 / 行号 / 生产对拍值 —— **全部可回溯至本节引用的现取命令、文件行或 `ops/recon-cron/**` 读数**。
