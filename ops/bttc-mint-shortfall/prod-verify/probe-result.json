@@ -1,0 +1,41 @@
+{
+  "probe": "prod-white-screen",
+  "ip": "76.76.21.21",
+  "verdict": "PASS",
+  "results": [
+    {
+      "target": "/",
+      "status": 200,
+      "url": "/",
+      "title": "Seafood 海鲜市场｜加密人自己的「闲鱼」",
+      "rootHtmlLen": 34827,
+      "rootChildren": 2,
+      "shellPresent": true,
+      "shellBg": "rgb(245, 247, 249)",
+      "dataTheme": "light",
+      "probe": {
+        "errors": [],
+        "rejections": []
+      },
+      "bodyText": "Seafood 海鲜市场\n社区任务\n市场\n订单\n语言\n注册\n登录\n欢迎来到 Jinli Club\n\n参与任务，赚取$，兑换精彩奖励\n\n立即注册\n发布闲置\n热门任务\n\n参与任务赚取$\n\n查看全部\n进行中\n32312312\n111\n$\n已参与 1 / 共 1 人\n立即参与\n进行中\n来 10 个人\n100\n$\n\n每人 100",
+      "consoleErrors": []
+    },
+    {
+      "target": "/activities",
+      "status": 200,
+      "url": "/login",
+      "title": "Seafood 海鲜市场｜加密人自己的「闲鱼」",
+      "rootHtmlLen": 18254,
+      "rootChildren": 2,
+      "shellPresent": true,
+      "shellBg": "rgb(245, 247, 249)",
+      "dataTheme": "light",
+      "probe": {
+        "errors": [],
+        "rejections": []
+      },
+      "bodyText": "Seafood 海鲜市场\n社区任务\n市场\n订单\n语言\n注册\n登录\n\nJINLI CLUB\n\n连接钱包继续探索\n\n使用现有钱包签名即可登录，完成后会返回你刚才访问的页面。\n\n钱包签名登录\n\n连接你的 EVM 钱包，并完成一次签名验证即可登录。\n\n尚未连接钱包\n请连接一个 EVM 钱包地址\n\n登录只会请求一次签名，不会发起",
+      "consoleErrors": []
+    }
+  ]
+}
