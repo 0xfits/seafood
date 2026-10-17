@@ -1,0 +1,158 @@
+{
+  "probe": "qa-probe-mint-shortfall",
+  "cases": [
+    {
+      "test": "../ops/bttc-mint-shortfall/qa/qa-probe-mint-shortfall.test.jsx > AC2 三态数值（独立渲染断言） > ① batt 40 / cost 100 / $ 充足 ⇒ 「还差 60 电量」且无 $ 缺额节点",
+      "lang": "zh",
+      "box_present": true,
+      "batt_text": "还差 60 电量",
+      "usd_text": null,
+      "mint_btn_present": true,
+      "mint_btn_disabled": true
+    },
+    {
+      "test": "../ops/bttc-mint-shortfall/qa/qa-probe-mint-shortfall.test.jsx > AC2 三态数值（独立渲染断言） > ② batt 100 / usdBalance \"0\" / fee 1 ⇒ 「还差 $1」且无电量缺额节点",
+      "lang": "zh",
+      "box_present": true,
+      "batt_text": null,
+      "usd_text": "还差 $1",
+      "mint_btn_present": true,
+      "mint_btn_disabled": true
+    },
+    {
+      "test": "../ops/bttc-mint-shortfall/qa/qa-probe-mint-shortfall.test.jsx > AC2 三态数值（独立渲染断言） > ③ canMint=true ⇒ 零 bttc-mint-shortfall 节点、铸造按钮 enabled",
+      "lang": "zh",
+      "box_present": false,
+      "batt_text": null,
+      "usd_text": null,
+      "mint_btn_present": true,
+      "mint_btn_disabled": false
+    },
+    {
+      "test": "../ops/bttc-mint-shortfall/qa/qa-probe-mint-shortfall.test.jsx > AC3 边界 > status=null（代币不可用）⇒ 按钮与缺额均不渲染",
+      "lang": "zh",
+      "box_present": false,
+      "batt_text": null,
+      "usd_text": null,
+      "mint_btn_present": false,
+      "mint_btn_disabled": null
+    },
+    {
+      "test": "../ops/bttc-mint-shortfall/qa/qa-probe-mint-shortfall.test.jsx > AC3 边界 > batt 缺失/null ⇒ 按 0 计显示差 100（不崩溃）",
+      "lang": "zh",
+      "box_present": true,
+      "batt_text": "还差 100 电量",
+      "usd_text": null,
+      "mint_btn_present": true,
+      "mint_btn_disabled": true
+    },
+    {
+      "test": "../ops/bttc-mint-shortfall/qa/qa-probe-mint-shortfall.test.jsx > AC3 边界 > batt 键整体缺失（无 batt 字段）⇒ 同样按 0 计差 100",
+      "lang": "zh",
+      "box_present": true,
+      "batt_text": "还差 100 电量",
+      "usd_text": null,
+      "mint_btn_present": true,
+      "mint_btn_disabled": true
+    },
+    {
+      "test": "../ops/bttc-mint-shortfall/qa/qa-probe-mint-shortfall.test.jsx > AC4 四语真插值（不得出现字面 {{n}} / {n}） > zh 渲染 = 「还差 $1」（真数字）",
+      "lang": "zh",
+      "box_present": true,
+      "batt_text": null,
+      "usd_text": "还差 $1",
+      "mint_btn_present": true,
+      "mint_btn_disabled": true
+    },
+    {
+      "test": "../ops/bttc-mint-shortfall/qa/qa-probe-mint-shortfall.test.jsx > AC4 四语真插值（不得出现字面 {{n}} / {n}） > hk 渲染 = 「還差 $1」（真数字）",
+      "lang": "hk",
+      "box_present": true,
+      "batt_text": null,
+      "usd_text": "還差 $1",
+      "mint_btn_present": false,
+      "mint_btn_disabled": null
+    },
+    {
+      "test": "../ops/bttc-mint-shortfall/qa/qa-probe-mint-shortfall.test.jsx > AC4 四语真插值（不得出现字面 {{n}} / {n}） > en 渲染 = 「$1 more needed」（真数字）",
+      "lang": "en",
+      "box_present": true,
+      "batt_text": null,
+      "usd_text": "$1 more needed",
+      "mint_btn_present": false,
+      "mint_btn_disabled": null
+    },
+    {
+      "test": "../ops/bttc-mint-shortfall/qa/qa-probe-mint-shortfall.test.jsx > AC4 四语真插值（不得出现字面 {{n}} / {n}） > vn 渲染 = 「Còn thiếu $1」（真数字）",
+      "lang": "vn",
+      "box_present": true,
+      "batt_text": null,
+      "usd_text": "Còn thiếu $1",
+      "mint_btn_present": false,
+      "mint_btn_disabled": null
+    },
+    {
+      "test": "../ops/bttc-mint-shortfall/qa/qa-probe-mint-shortfall.test.jsx > AC4 四语真插值（不得出现字面 {{n}} / {n}） > 四语电量缺额同样是真数字",
+      "lang": "zh",
+      "box_present": true,
+      "batt_text": "还差 60 电量",
+      "usd_text": null,
+      "mint_btn_present": true,
+      "mint_btn_disabled": true
+    },
+    {
+      "test": "../ops/bttc-mint-shortfall/qa/qa-probe-mint-shortfall.test.jsx > AC4 四语真插值（不得出现字面 {{n}} / {n}） > 四语电量缺额同样是真数字",
+      "lang": "hk",
+      "box_present": true,
+      "batt_text": "還差 60 電量",
+      "usd_text": null,
+      "mint_btn_present": false,
+      "mint_btn_disabled": null
+    },
+    {
+      "test": "../ops/bttc-mint-shortfall/qa/qa-probe-mint-shortfall.test.jsx > AC4 四语真插值（不得出现字面 {{n}} / {n}） > 四语电量缺额同样是真数字",
+      "lang": "en",
+      "box_present": true,
+      "batt_text": "60 more battery needed",
+      "usd_text": null,
+      "mint_btn_present": false,
+      "mint_btn_disabled": null
+    },
+    {
+      "test": "../ops/bttc-mint-shortfall/qa/qa-probe-mint-shortfall.test.jsx > AC4 四语真插值（不得出现字面 {{n}} / {n}） > 四语电量缺额同样是真数字",
+      "lang": "vn",
+      "box_present": true,
+      "batt_text": "Còn thiếu 60 pin",
+      "usd_text": null,
+      "mint_btn_present": false,
+      "mint_btn_disabled": null
+    },
+    {
+      "test": "../ops/bttc-mint-shortfall/qa/qa-probe-mint-shortfall.test.jsx > AC8 反向灵敏度（必做） > 夹具把 canMint 强制为 true（其余数值仍不足）⇒ 缺额节点必消失",
+      "lang": "zh",
+      "box_present": false,
+      "batt_text": null,
+      "usd_text": null,
+      "mint_btn_present": true,
+      "mint_btn_disabled": false
+    },
+    {
+      "test": "../ops/bttc-mint-shortfall/qa/qa-probe-mint-shortfall.test.jsx > AC8 反向灵敏度（必做） > 把 usdBalance 从夹具移除 ⇒ 按 $0 兜底、显示「还差 $1」，不白屏不崩溃",
+      "lang": "zh",
+      "box_present": true,
+      "batt_text": null,
+      "usd_text": "还差 $1",
+      "mint_btn_present": true,
+      "mint_btn_disabled": true
+    },
+    {
+      "test": "../ops/bttc-mint-shortfall/qa/qa-probe-mint-shortfall.test.jsx > AC8 反向灵敏度（必做） > usdBalance 为坏值（非数字）⇒ 不崩溃（BigInt 兜底 null ⇒ 不显 $ 缺额）",
+      "lang": "zh",
+      "box_present": false,
+      "batt_text": null,
+      "usd_text": null,
+      "mint_btn_present": true,
+      "mint_btn_disabled": true
+    }
+  ]
+}

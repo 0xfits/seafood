@@ -1,0 +1,63 @@
+{
+  "subject": "commit eebe883 · 铸造 BTTC 缺额提示（bttc.usdBalance + 按钮旁量化缺额 · 四语 2 键）",
+  "base": "2da49e0",
+  "verdict": "PASS-with-drift",
+  "generated_by": "Neng（独立质检，deleg_a4e7a8a5）+ Zang 补齐（2026-10-17：原回执声明两项欠账 —— ① AC2/AC3/AC4/AC8 的 observed 读数未落盘 ② verdict.json 未写盘；已按回执重跑探针并落盘，采集逻辑改到 mount() 末尾——setup.js 的全局 afterEach(cleanup) 先于本文件钩子执行，在 afterEach 里采集实测 14/14 全 None）",
+  "acs": [
+    {
+      "id": "AC1",
+      "status": "PASS",
+      "evidence": "backend-ts/src/index.ts +2 行（1 注释 + usdBalance: b.usdBalance）、删 0 行；零新 SQL（/api/batt 内仍 getBatt + getBttcState）；bttc 键集 10⇒11；外层 6 键逐字未动；getBttcState 声明 usdBalance: string 且 String(row.usd_balance ?? '0') ⇒ 恒字符串。活体现取：旧 5788 进程启动早于本 commit（返回旧 10 键，已落盘 AC1-live-response.json）；另起当前源码实例 PORT=5799（只读 SELECT）⇒ usdBalance='0'、typeof string、11 键 ⇒ AC1-live-response-fresh5799.json"
+    },
+    {
+      "id": "AC2",
+      "status": "PASS",
+      "evidence": "AC2-AC4-AC8-observed.json（17 readings，本轮重跑实采）：① batt 40/$5 ⇒ '还差 60 电量'、无 $ 缺额、按钮 disabled=true；② batt 100/$'0' ⇒ '还差 $1'、无电量缺额、disabled=true；③ canMint=true ⇒ box_present=false、disabled=false"
+    },
+    {
+      "id": "AC3",
+      "status": "PASS",
+      "evidence": "同一读数文件：status=null ⇒ box_present=false 且 mint_btn_present=false；batt=null 与 batt 键缺失两态均 ⇒ '还差 100 电量'、不崩溃"
+    },
+    {
+      "id": "AC4",
+      "status": "PASS",
+      "evidence": "四语真插值（真 i18next + 真 locale JSON）：zh '还差 $1' / hk '還差 $1' / en '$1 more needed' / vn 'Còn thiếu $1'；电量分支 zh '还差 60 电量' / hk '還差 60 電量' / en '60 more battery needed' / vn 'Còn thiếu 60 pin'；每例断言 textContent 不匹配 /[{}]/ ⇒ 无字面 {{n}} 残留。（注：探针的 mintBtn() 按 zh 文案匹配，非 zh 用例 mint_btn_present=false 属探针口径、非缺陷）"
+    },
+    {
+      "id": "AC5",
+      "status": "PASS",
+      "evidence": "四语现取 top=128 / flat=1106 / 四语节点 4424 / 键集差集 missing=0 extra=0；13 个被前推文件改前（2da49e0）含 1104 与 4416、改后为 1106 与 4424，全部精确等值前推，放宽记号计数 0"
+    },
+    {
+      "id": "AC6",
+      "status": "PASS",
+      "evidence": "独立复跑（不采信实现方 logs）：build ✓ built / BUILD_EXIT=0（AC6-build-raw.log）；test:unit 54 files / 523 tests passed / UNIT_EXIT=0（AC6-unit-raw.log）；backend-ts npx tsc --noEmit TSC_EXIT=0 无输出（AC6-tsc-raw.log）"
+    },
+    {
+      "id": "AC7",
+      "status": "PASS",
+      "evidence": "diff 2da49e0..eebe883 共 24 文件：shell.css 0 命中 / 新增 --sf- 主题 token 0 行 / 路由·导航·壳层文件 0 命中 / bttc-api.js diff 为空（载荷仍只 create_key）/ disabled 表达式新增与删除均 0 行"
+    },
+    {
+      "id": "AC8",
+      "status": "PASS",
+      "evidence": "反向灵敏度：canMint 强置 true 且数值仍不足 ⇒ box_present=false、disabled=false；移除 usdBalance ⇒ 卡片照常渲染 + '还差 $1'（按 $0 兜底，有意行为）；usdBalance='abc'（BigInt 抛错 ⇒ null）⇒ 不崩溃、$ 缺额静默、按钮仍 disabled=true"
+    },
+    {
+      "id": "AC9",
+      "status": "PASS-with-drift",
+      "evidence": "真渲染回读（playwright 起 dist + 真 /activities + 真实登录态）：html[data-theme]=dark、缺额节点 color=rgb(220,38,38) 14px，逐层合成后的有效底色 = rgb(239,246,255)（父级 Card variant=secondary 的 bg-blue-50，非 .sf-shell 夜档底）⇒ 对比度 4.44:1 < 4.5；按 AC 字面口径压 .sf-shell 夜档底则 4.05:1。读数见 AC9-dark-contrast.json"
+    }
+  ],
+  "drift": [
+    "AC9：缺额红字 text-red-600 落在 Card variant=secondary 的 bg-blue-50 上，合成对比度 4.44:1（< 4.5:1 AA 阈值）；日档复量同值 ⇒ 与主题无关。有效底色来自 src/components/ui/Card.jsx 既有 secondary 定义（2026-10-02 后未改，本单零触及）⇒ 判 非本单回归，不阻断。可选处置（一句话可改）：改 text-red-700 一类更深档，或改用主题危险色 token。",
+    "对照口径偏差（记录不判决）：Header 登出钮源码面同为 text-red-600，但真渲染被菜单样式覆盖为 rgba(255,255,255,0.92)（夜档 12.63:1）⇒『既有同款先例』只在类名层面成立，不能作为可读性豁免证据。",
+    "环境台账（非缺陷）：5788 活体 dev 后端 pid 99476 启动早于 eebe883 ⇒ 其 /api/batt 仍返回旧 10 键；要反映新契约需重启该实例（本单未重启、未写库）。"
+  ],
+  "env_limited": [],
+  "notes": {
+    "rerun_evidence": "zang-rerun-probe.log（14/14 passed, EXIT=0）· AC2-AC4-AC8-observed.json（17 readings）",
+    "not_done": "未 push；未重启 5788 dev 实例；未做生产面验证（待 push 后的生产终验）"
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "probe": "AC9-dark-contrast",
+  "base": "http://127.0.0.1:4790",
+  "ok": true,
+  "readings": {
+    "theme": "dark",
+    "themeFromCss": "dark",
+    "node": {
+      "text": "还差 $1",
+      "tag": "SPAN",
+      "className": "text-sm text-red-600",
+      "fontSize": "14px",
+      "fontWeight": "400",
+      "colorRaw": "rgb(220, 38, 38)",
+      "opacityChain": 1
+    },
+    "battNodeText": null,
+    "shell": {
+      "backgroundColorRaw": "rgb(11, 12, 14)",
+      "colorRaw": "rgb(232, 234, 237)",
+      "cls": "sf-shell"
+    },
+    "bgLayers": [
+      {
+        "tag": "DIV",
+        "cls": "rounded-lg border p-6 transition-all duration-300 bg-blue-50 border-blue-200 hover:shadow-",
+        "color": "rgb(239, 246, 255)"
+      },
+      {
+        "tag": "MAIN",
+        "cls": "sf-route-container",
+        "color": "rgb(16, 17, 20)"
+      },
+      {
+        "tag": "DIV",
+        "cls": "sf-shell",
+        "color": "rgb(11, 12, 14)"
+      }
+    ],
+    "bodyBg": "rgba(0, 0, 0, 0)",
+    "htmlBg": "rgba(0, 0, 0, 0)",
+    "control": null
+  },
+  "composited": {
+    "foreground": {
+      "r": 220,
+      "g": 38,
+      "b": 38,
+      "a": 1
+    },
+    "effectiveBg": {
+      "r": 239,
+      "g": 246,
+      "b": 255,
+      "a": 1
+    },
+    "ratio": 4.44
+  },
+  "ratioVsShellBackground": 4.05,
+  "control": {
+    "text": "登出",
+    "colorRaw": "rgba(255, 255, 255, 0.92)",
+    "bgLayers": [
+      {
+        "tag": "DIV",
+        "color": "rgb(31, 41, 55)"
+      },
+      {
+        "tag": "HEADER",
+        "color": "rgb(31, 41, 55)"
+      },
+      {
+        "tag": "DIV",
+        "color": "rgb(11, 12, 14)"
+      },
+      {
+        "tag": "DIV",
+        "color": "rgb(11, 12, 14)"
+      }
+    ],
+    "effectiveBg": {
+      "r": 31,
+      "g": 41,
+      "b": 55,
+      "a": 1
+    },
+    "ratio": 12.63
+  },
+  "lightTheme": {
+    "theme": "light",
+    "colorRaw": "rgb(220, 38, 38)",
+    "bgLayers": [
+      "rgb(239, 246, 255)",
+      "rgb(255, 255, 255)",
+      "rgb(245, 247, 249)"
+    ],
+    "effectiveBg": {
+      "r": 239,
+      "g": 246,
+      "b": 255,
+      "a": 1
+    },
+    "ratio": 4.44
+  },
+  "verdict": "DRIFT(non-regression, same class as Header logout)"
+}

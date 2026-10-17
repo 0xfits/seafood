@@ -1,0 +1,84 @@
+{
+  "status": "PASS",
+  "base": "http://127.0.0.1:5799",
+  "uid": 1,
+  "checks": {
+    "usdBalance_present": true,
+    "usdBalance_typeof": "string",
+    "usdBalance_value": "0",
+    "usdBalance_is_string": true,
+    "outer_keys": [
+      "batt",
+      "capBatt",
+      "floorBatt",
+      "acceptThresholdBatt",
+      "canAccept",
+      "updated_at",
+      "bttc"
+    ],
+    "outer_six_intact": true,
+    "outer_non_bttc_count": 6,
+    "bttc_keys": [
+      "symbol",
+      "name",
+      "decimals",
+      "status",
+      "totalSupply",
+      "balance",
+      "canMint",
+      "canBurn",
+      "policy",
+      "source",
+      "usdBalance"
+    ],
+    "bttc_key_count": 11,
+    "bttc_key_count_ok_10_to_11": true,
+    "canMint": false,
+    "policy": {
+      "mintBattCost": 100,
+      "mintFeeUsd": 1,
+      "burnBttcCost": 1,
+      "burnFeeUsd": 1,
+      "burnBattGain": 100
+    },
+    "batt": 30
+  },
+  "raw_batt_response": {
+    "success": true,
+    "message": "OK",
+    "data": {
+      "batt": 30,
+      "capBatt": 100,
+      "floorBatt": 0,
+      "acceptThresholdBatt": 9,
+      "canAccept": true,
+      "updated_at": "2026-10-03T10:09:13.211Z",
+      "bttc": {
+        "symbol": "BTTC",
+        "name": "battcoin",
+        "decimals": 0,
+        "status": null,
+        "totalSupply": "0",
+        "balance": "0",
+        "canMint": false,
+        "canBurn": false,
+        "policy": {
+          "mintBattCost": 100,
+          "mintFeeUsd": 1,
+          "burnBttcCost": 1,
+          "burnFeeUsd": 1,
+          "burnBattGain": 100
+        },
+        "source": "constant",
+        "usdBalance": "0"
+      }
+    }
+  },
+  "attempts": [
+    {
+      "uid": 1,
+      "http": 200,
+      "code": null
+    }
+  ]
+}
