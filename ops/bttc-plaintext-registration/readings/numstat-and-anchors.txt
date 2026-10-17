@@ -1,0 +1,39 @@
+=== numstat (docs, worktree vs HEAD 49abbd4) ===
+3	0	docs/OPEN-ITEMS.md
+106	0	docs/route-layer.spec.md
+
+=== deletions sum (must be 0) ===
+sum_deletions=0 (expect 0)
+
+=== anchor greps (expect 1 each) ===
+status_v2.35_hits=1
+sec45_hits=1
+b30_row_hits=1
+
+=== line numbers ===
+v2.35_status_line=381
+sec45_line=8540
+b30_line=66
+
+=== neighbor lines: route v2.34 ⑥ -> v2.35 block ===
+378|> ⑤ **零新后端面**：`/api/messages` 族（§41.2
+379|> ⑥ **只追加**：**§1–§43 一字未动**；**§
+380|
+381|> **状态：v2.35（已完成 · **`GET /api/batt` 的 
+382|> **v2.35 修订入口**：逐条 delta → 依据锚点
+383|> **★★ v2.35 本单要点（先说结论，不含糊
+
+=== neighbor lines: OPEN-ITEMS B29 -> B30 ===
+65|| **B29 提案（待 Kevin）** | **把 chunk 依赖图�
+66|| **B30** | **BTTC 值临时明文存储在数据库**�
+67|
+
+=== section-number tail (expect ... 43 44 45) ===
+42 43 44 45 
+
+=== placeholder residue (must be 'none') ===
+none
+
+=== markdown row sanity ===
+section45_table_rows= 39 cell_count_distribution= {2: 30, 5: 4, 4: 5}
+b30_row_cells= 4 (expect 4)

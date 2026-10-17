@@ -1,0 +1,116 @@
+=== E0. 仓库/HEAD/工作区 ===
+/Users/kevin/bistro/seafood
+49abbd4 docs(seafood): BTTC/账本对账定时化 · 最小改动面评估（只读·零代码改动）
+eebe883 feat(seafood): 铸造 BTTC 缺额提示（bttc.usdBalance 下发 + 按钮旁量化「还差 X 电量 / 差 Y $」· 四语 2 键 · 门套全绿）
+2da49e0 docs(seafood): 收口回写 · 台账 §5.414 + 版本 v0.332（首页卡片 UI §22/v1.20 + 顶栏实黄 §23/v1.21 · 生产终验 PASS）+ OPEN-ITEMS F29–F36
+--- status ---
+ M docs/OPEN-ITEMS.md
+ M docs/route-layer.spec.md
+?? ops/bttc-plaintext-registration/
+
+=== E1. 全链零字段级加密（expect 0）===
+       0
+cmd: grep -rnE 'encrypt|AES|pgcrypto|kms' backend-ts/src
+
+=== E2. 四落点现取 ===
+① account.balance（uid + cid=BTTC 行）:
+        COALESCE((SELECT a.balance::text FROM public.account AS a
+                   WHERE a.uid = ${uid} AND a.cid = (SELECT bttc.cid FROM bttc)), '0') AS bttc_balance,
+        COALESCE((SELECT a.balance::text FROM public.account AS a
+                   WHERE a.uid = ${uid} AND a.cid = 1), '0') AS usd_balance,
+        COALESCE((SELECT b.batt::int FROM public.batt_account AS b WHERE b.uid = ${uid}), 0) AS batt,
+② currency.total_supply（symbol='BTTC'）:
+      WITH bttc AS (
+        SELECT c.cid, c.symbol, c.name, c.decimals, c.status, c.total_supply
+        FROM public.currency AS c WHERE c.symbol = 'BTTC' LIMIT 1
+③ app_config.value（key='mint_burn_policy'）:
+        (SELECT p.value FROM public.app_config AS p WHERE p.key = 'mint_burn_policy' LIMIT 1) AS mb_policy
+   mint_burn_policy 五键（常量表）：
+export const MINT_BURN_POLICY_DEFAULTS = {
+  mintBattCost: 100, mintFeeUsd: 1, burnBttcCost: 1, burnFeeUsd: 1, burnBattGain: 100,
+} as const;
+④ ledger_entry.delta（append-only 触发器）：
+CREATE OR REPLACE FUNCTION ledger_entry_append_only() RETURNS trigger AS $$
+BEGIN
+  RAISE EXCEPTION 'ledger_entry is append-only: % forbidden (txid=%)',
+        TG_OP, COALESCE(OLD.txid, 0);
+END; $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_ledger_entry_append_only
+BEFORE UPDATE OR DELETE ON ledger_entry
+FOR EACH ROW EXECUTE FUNCTION ledger_entry_append_only();
+
+=== E3. 读口唯一 getBttcState ===
+5215:  static async getBttcState(uid: number, ex?: SqlRunner): Promise<{
+5245:    const usdBalance = String(row.usd_balance ?? '0');
+5256:      usdBalance,
+
+=== E4. /api/batt 投影键序（外层 6 键 + bttc 11 键）===
+1282:app.get('/api/batt', async (req, res) => {
+  +1283 line 6:      batt: d.batt,
+  +1283 line 7:      capBatt: d.capBatt,
+  +1283 line 8:      floorBatt: d.floorBatt,
+  +1283 line 9:      acceptThresholdBatt: d.acceptThresholdBatt,
+  +1283 line 10:      canAccept: d.canAccept,
+  +1283 line 11:      updated_at: d.updated_at,
+  +1283 line 12:      bttc: {
+  +1283 line 13:        symbol: b.symbol,
+  +1283 line 14:        name: b.name,
+  +1283 line 15:        decimals: b.decimals,
+  +1283 line 16:        status: b.status,
+  +1283 line 17:        totalSupply: b.totalSupply,
+  +1283 line 18:        balance: b.balance,
+  +1283 line 19:        canMint: b.canMint,
+  +1283 line 20:        canBurn: b.canBurn,
+  +1283 line 21:        policy: b.policy,
+  +1283 line 22:        source: b.source,
+  +1283 line 24:        usdBalance: b.usdBalance,
+  usdBalance 绝对行号:
+1307:        usdBalance: b.usdBalance,
+
+=== E5. vercel.json crons（expect 1）===
+crons_count= 1 [{'path': '/api/translate/backfill', 'schedule': '0 18 * * *'}]
+
+=== E6. 四语两键值 + 键集基线 ===
+zh: top=128 flat=1106 nodes=4424 bttcPanel_keys=14
+   mintNeedBatt='还差 {{n}} 电量'
+   mintNeedUsd ='还差 ${{n}}'
+en: top=128 flat=1106 nodes=4424 bttcPanel_keys=14
+   mintNeedBatt='{{n}} more battery needed'
+   mintNeedUsd ='${{n}} more needed'
+hk: top=128 flat=1106 nodes=4424 bttcPanel_keys=14
+   mintNeedBatt='還差 {{n}} 電量'
+   mintNeedUsd ='還差 ${{n}}'
+vn: top=128 flat=1106 nodes=4424 bttcPanel_keys=14
+   mintNeedBatt='Còn thiếu {{n}} pin'
+   mintNeedUsd ='Còn thiếu ${{n}}'
+
+=== E7. 前端消费点 / 钩子（现取行号）===
+101:    const usdNow = toBig(bttc.usdBalance ?? 0)
+150:                  <div className="flex flex-wrap items-center gap-2" data-sf-m="bttc-mint-shortfall">
+152:                      <span className="text-sm text-red-600" data-sf-m="bttc-mint-shortfall-batt">
+157:                      <span className="text-sm text-red-600" data-sf-m="bttc-mint-shortfall-usd">
+
+=== E8. 被登记实现的 sha256 前缀（本单未改）===
+743b576fc86adce4
+ad17ea6cfecff32e
+
+=== E9. 实现单 eebe883（并行，非本单）===
+ frontend/src/test/unit/tg-bind-qr.test.jsx         |    2 +-
+ ops/bttc-mint-shortfall/REPORT.md                  |   91 ++
+ ops/bttc-mint-shortfall/logs/backend-tsc.log       |    0
+ ops/bttc-mint-shortfall/logs/build.log             |   23 +
+ ops/bttc-mint-shortfall/logs/unit.log              | 1017 ++++++++++++++++++++
+ 24 files changed, 1269 insertions(+), 25 deletions(-)
+test_files_touched=14
+
+=== E10. 评估单 49abbd4（并行，非本单）===
+49abbd4 docs(seafood): BTTC/账本对账定时化 · 最小改动面评估（只读·零代码改动）
+ ops/bttc-recon-cadence/REPORT.md                   | 333 +++++++++++++++++
+ .../readings/drill-2026-10-17T021226656Z.json      | 408 +++++++++++++++++++++
+ .../readings/drill-event-pairing.cjs               |  32 ++
+ .../drill-global-2026-10-17T021235342Z.json        |  78 ++++
+ .../readings/recon-prod-2026-10-17T021208235Z.json | 307 ++++++++++++++++
+ ops/bttc-recon-cadence/readings/recon-readonly.cjs | 107 ++++++
+ 6 files changed, 1265 insertions(+)
+code_files_touched(backend-ts|frontend)=0
